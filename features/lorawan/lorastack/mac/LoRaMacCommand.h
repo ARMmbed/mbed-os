@@ -126,7 +126,7 @@ public:
      *
      * @return status  Function status. LORAWAN_STATUS_OK if command successful.
      */
-    lorawan_status_t process_mac_commands(uint8_t *payload, uint8_t mac_index,
+    lorawan_status_t process_mac_commands(const uint8_t *payload, uint8_t mac_index,
                                           uint8_t commands_size, uint8_t snr,
                                           loramac_mlme_confirm_t& mlme_conf,
                                           lora_mac_system_params_t& mac_params,
@@ -146,6 +146,12 @@ public:
      *                                  LORAWAN_STATUS_LENGTH_ERROR: Buffer full
      */
     lorawan_status_t add_link_check_req();
+
+    /**
+     * @brief Set battery level query callback method
+     *        If callback is not set, BAT_LEVEL_NO_MEASURE is returned.
+     */
+    void set_batterylevel_callback(mbed::Callback<uint8_t(void)> battery_level);
 
 private:
     /**
@@ -261,6 +267,8 @@ private:
      * Buffer containing the MAC layer commands which must be repeated
      */
     uint8_t mac_cmd_buffer_to_repeat[LORA_MAC_COMMAND_MAX_LENGTH];
+
+    mbed::Callback<uint8_t(void)> _battery_level_cb;
 };
 
 #endif //__LORAMACCOMMAND_H__

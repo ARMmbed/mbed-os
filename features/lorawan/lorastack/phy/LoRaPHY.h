@@ -194,11 +194,9 @@ public:
      *
      * @param [in] config    A pointer to the RX configuration.
      *
-     * @param [out] datarate The datarate index set.
-     *
      * @return True, if the configuration was applied successfully.
      */
-    virtual bool rx_config(rx_config_params_t* config, int8_t* datarate);
+    virtual bool rx_config(rx_config_params_t* config);
 
     /** Computing Receive Windows
      *
@@ -578,7 +576,7 @@ protected:
     /**
      * Parses the parameter of an LinkAdrRequest.
      */
-    uint8_t parse_link_ADR_req(uint8_t* payload, link_adr_params_t* adr_params);
+    uint8_t parse_link_ADR_req(const uint8_t* payload, link_adr_params_t* adr_params);
 
     /**
      * Verifies and updates the datarate, the TX power and the number of repetitions

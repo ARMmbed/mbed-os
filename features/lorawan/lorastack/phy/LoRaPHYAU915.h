@@ -56,7 +56,7 @@ public:
     LoRaPHYAU915(LoRaWANTimeHandler &lora_time);
     virtual ~LoRaPHYAU915();
 
-    virtual bool rx_config(rx_config_params_t* config, int8_t* datarate);
+    virtual bool rx_config(rx_config_params_t* config);
 
     virtual bool tx_config(tx_config_params_t* config, int8_t* txPower,
                            lorawan_time_t* txTimeOnAir);

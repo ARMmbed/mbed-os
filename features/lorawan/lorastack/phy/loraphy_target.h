@@ -58,7 +58,7 @@
   #define LoRaPHY_region LoRaPHYAS923
  #elif LORA_REGION    == LORA_REGION_AU915
   #include "lorawan/lorastack/phy/LoRaPHYAU915.h"
- #define LoRaPHY_region LoRaPHYAU915;
+ #define LoRaPHY_region LoRaPHYAU915
  #elif LORA_REGION    == LORA_REGION_CN470
   #include "lorawan/lorastack/phy/LoRaPHYCN470.h"
   #define LoRaPHY_region LoRaPHYCN470

@@ -2780,23 +2780,40 @@
         "device_has": ["ANALOGIN", "I2C", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "STDIO_MESSAGES"],
         "release_versions": ["2", "5"]
     },
-    "MAX32625MBED": {
+    "MAX32625_BASE": {
         "inherits": ["Target"],
         "core": "Cortex-M4F",
-        "macros": ["__SYSTEM_HFX=96000000","TARGET=MAX32625","TARGET_REV=0x4132", "OPEN_DRAIN_LEDS"],
+        "macros": ["TARGET=MAX32625","TARGET_REV=0x4132", "OPEN_DRAIN_LEDS"],
         "extra_labels": ["Maxim", "MAX32625"],
         "supported_toolchains": ["GCC_ARM", "IAR", "ARM"],
         "device_has": ["ANALOGIN", "I2C", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "STDIO_MESSAGES"],
-        "release_versions": ["2", "5"]
+        "release_versions": ["2", "5"],
+        "public": false
+    },
+    "MAX32625_BOOT": {
+        "inherits": ["MAX32625_BASE"],
+        "extra_labels_add": ["MAX32625_BOOT"],
+        "public": false
+    },
+    "MAX32625_NO_BOOT": {
+        "inherits": ["MAX32625_BASE"],
+        "extra_labels_add": ["MAX32625_NO_BOOT"],
+        "public": false
+    },
+    "MAX32625MBED": {
+        "inherits": ["MAX32625_NO_BOOT"]
+    },
+    "MAX32625PICO": {
+        "inherits": ["MAX32625_BOOT"],
+        "extra_labels_add": ["MAX32625PICO_BASE"]
+    },
+    "MAX32625PICO_NO_BOOT": {
+        "inherits": ["MAX32625_NO_BOOT"],
+        "extra_labels_add": ["MAX32625PICO_BASE"]
     },
     "MAX32625NEXPAQ": {
-        "inherits": ["Target"],
-        "core": "Cortex-M4F",
-        "macros": ["__SYSTEM_HFX=96000000","TARGET=MAX32625","TARGET_REV=0x4132"],
-        "extra_labels": ["Maxim", "MAX32625"],
-        "supported_toolchains": ["GCC_ARM", "IAR", "ARM"],
-        "device_has": ["ANALOGIN", "I2C", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "STDIO_MESSAGES"],
-        "release_versions": ["2", "5"]
+        "inherits": ["MAX32625_BASE"],
+        "extra_labels_add": ["MAX32625NEXPAQ"]
     },
     "MAX32630FTHR": {
         "inherits": ["Target"],
@@ -3436,7 +3453,14 @@
             "MBED_TICKLESS"
         ],
         "MERGE_BOOTLOADER": false,
-        "extra_labels": ["NORDIC", "MCU_NRF51", "MCU_NRF51822_UNIFIED", "NRF5", "SDK11"],
+        "extra_labels": [
+            "NORDIC",
+            "MCU_NRF51",
+            "MCU_NRF51822_UNIFIED",
+            "NRF5x",
+            "NRF51",
+            "SDK_11"
+        ],
         "OUTPUT_EXT": "hex",
         "is_disk_virtual": true,
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
@@ -3498,7 +3522,7 @@
         "inherits": ["Target"],
         "core": "Cortex-M4F",
         "macros": [
-            "BOARD_PCA10040", 
+            "BOARD_PCA10040",
             "NRF52",
             "TARGET_NRF52832",
             "CMSIS_VECTAB_VIRTUAL",
@@ -3506,27 +3530,27 @@
             "MBED_TICKLESS"
         ],
         "device_has": [
-            "ANALOGIN", 
+            "ANALOGIN",
             "FLASH",
-            "I2C", 
-            "I2C_ASYNCH", 
-            "INTERRUPTIN", 
+            "I2C",
+            "I2C_ASYNCH",
+            "INTERRUPTIN",
             "ITM",
-            "LOWPOWERTIMER", 
-            "PORTIN", 
-            "PORTINOUT", 
-            "PORTOUT", 
-            "PWMOUT", 
-            "RTC", 
-            "SERIAL", 
-            "SERIAL_ASYNCH", 
-            "SERIAL_FC", 
-            "SLEEP", 
-            "SPI", 
-            "SPI_ASYNCH", 
+            "LOWPOWERTIMER",
+            "PORTIN",
+            "PORTINOUT",
+            "PORTOUT",
+            "PWMOUT",
+            "RTC",
+            "SERIAL",
+            "SERIAL_ASYNCH",
+            "SERIAL_FC",
+            "SLEEP",
+            "SPI",
+            "SPI_ASYNCH",
             "STCLK_OFF_DURING_SLEEP",
             "TRNG"
-        ],        
+        ],
         "extra_labels": [
             "NORDIC",
             "NRF5x",
@@ -3595,7 +3619,7 @@
         "inherits": ["Target"],
         "core": "Cortex-M4F",
         "macros": [
-            "BOARD_PCA10056", 
+            "BOARD_PCA10056",
             "NRF52840_XXAA",
             "TARGET_NRF52840",
             "CMSIS_VECTAB_VIRTUAL",
@@ -3603,24 +3627,24 @@
             "MBED_TICKLESS"
         ],
         "device_has": [
-            "ANALOGIN", 
+            "ANALOGIN",
             "FLASH",
-            "I2C", 
-            "I2C_ASYNCH", 
-            "INTERRUPTIN", 
+            "I2C",
+            "I2C_ASYNCH",
+            "INTERRUPTIN",
             "ITM",
-            "LOWPOWERTIMER", 
-            "PORTIN", 
-            "PORTINOUT", 
-            "PORTOUT", 
-            "PWMOUT", 
-            "RTC", 
-            "SERIAL", 
-            "SERIAL_ASYNCH", 
-            "SERIAL_FC", 
-            "SLEEP", 
-            "SPI", 
-            "SPI_ASYNCH", 
+            "LOWPOWERTIMER",
+            "PORTIN",
+            "PORTINOUT",
+            "PORTOUT",
+            "PWMOUT",
+            "RTC",
+            "SERIAL",
+            "SERIAL_ASYNCH",
+            "SERIAL_FC",
+            "SLEEP",
+            "SPI",
+            "SPI_ASYNCH",
             "STCLK_OFF_DURING_SLEEP",
             "TRNG"
         ],
@@ -3736,7 +3760,7 @@
         "post_binary_hook": {"function": "NCS36510TargetCode.ncs36510_addfib"},
         "macros": ["CM3", "CPU_NCS36510", "TARGET_NCS36510", "LOAD_ADDRESS=0x3000"],
         "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
-        "device_has": ["ANALOGIN", "SERIAL", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "LOWPOWERTIMER", "TRNG", "SPISLAVE"],
+        "device_has": ["ANALOGIN", "SERIAL", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "LOWPOWERTIMER", "TRNG", "SPISLAVE", "RTC"],
         "release_versions": ["2", "5"]
     },
     "NUMAKER_PFM_M453": {

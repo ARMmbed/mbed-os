@@ -44,6 +44,7 @@
 #include "events/EventQueue.h"
 #include "platform/Callback.h"
 #include "platform/NonCopyable.h"
+#include "platform/ScopedLock.h"
 
 #include "lorastack/mac/LoRaMac.h"
 #include "system/LoRaWANTimer.h"
@@ -51,23 +52,6 @@
 #include "LoRaRadio.h"
 
 class LoRaWANStack: private mbed::NonCopyable<LoRaWANStack> {
-private:
-    /** End-device states.
-     *
-     */
-    typedef enum device_states {
-        DEVICE_STATE_NOT_INITIALIZED,
-        DEVICE_STATE_INIT,
-        DEVICE_STATE_JOINING,
-        DEVICE_STATE_ABP_CONNECTING,
-        DEVICE_STATE_JOINED,
-        DEVICE_STATE_SEND,
-        DEVICE_STATE_IDLE,
-#if defined(LORAWAN_COMPLIANCE_TEST)
-        DEVICE_STATE_COMPLIANCE_TEST,
-#endif
-        DEVICE_STATE_SHUTDOWN
-    } device_states_t;
 
 public:
     LoRaWANStack();
@@ -84,6 +68,19 @@ public:
      *
      */
     void bind_radio_driver(LoRaRadio& radio);
+
+    /** End device initialization.
+     * @param queue            A pointer to an EventQueue passed from the application.
+     * @return                 LORAWAN_STATUS_OK on success, a negative error code on failure.
+     */
+    lorawan_status_t initialize_mac_layer(events::EventQueue *queue);
+
+    /** Sets all callbacks for the application.
+     *
+     * @param callbacks        A pointer to the structure carrying callbacks.
+     * @return                 LORAWAN_STATUS_OK on success, a negative error code on failure.
+     */
+    lorawan_status_t set_lora_callbacks(const lorawan_app_callbacks_t *callbacks);
 
     /** Connect OTAA or ABP using Mbed-OS config system
      *
@@ -161,19 +158,6 @@ public:
      *                a negative error code on failure.
      */
     lorawan_status_t connect(const lorawan_connect_t &connect);
-
-    /** End device initialization.
-     * @param queue            A pointer to an EventQueue passed from the application.
-     * @return                 LORAWAN_STATUS_OK on success, a negative error code on failure.
-     */
-    lorawan_status_t initialize_mac_layer(events::EventQueue *queue);
-
-    /** Sets all callbacks for the application.
-     *
-     * @param callbacks        A pointer to the structure carrying callbacks.
-     * @return                 LORAWAN_STATUS_OK on success, a negative error code on failure.
-     */
-    lorawan_status_t set_lora_callbacks(lorawan_app_callbacks_t *callbacks);
 
     /** Adds channels to use.
      *
@@ -395,7 +379,11 @@ public:
      */
     lorawan_status_t set_device_class(const device_class_t& device_class);
 
+    void lock(void) { _loramac.lock(); }
+    void unlock(void) { _loramac.unlock(); }
+
 private:
+    typedef mbed::ScopedLock<LoRaWANStack> Lock;
     /**
      * Checks if the user provided port is valid or not
      */
@@ -404,37 +392,40 @@ private:
     /**
      * State machine for stack controller layer.
      */
-    lorawan_status_t lora_state_machine(device_states_t new_state);
+    lorawan_status_t state_controller(device_states_t new_state);
 
     /**
-     * Callback function for MLME indication. Mac layer calls this function once
-     * an MLME indication is received. This method translates Mac layer data
-     * structure into stack layer data structure.
+     * Helpers for state controller
      */
-    void mlme_indication_handler(loramac_mlme_indication_t *mlmeIndication);
+    void process_uninitialized_state(lorawan_status_t& op_status);
+    void process_idle_state(lorawan_status_t& op_status);
+    void process_connected_state();
+    void process_connecting_state(lorawan_status_t& op_status);
+    void process_joining_state(lorawan_status_t& op_status);
+    void process_scheduling_state(lorawan_status_t& op_status);
+    void process_status_check_state();
+    void process_shutdown_state(lorawan_status_t& op_status);
+    void state_machine_run_to_completion(void);
 
     /**
-     * Handles an MLME confirmation coming from the Mac layer and uses it to
-     * update the state for example, a Join Accept triggers an MLME confirmation,
-     * that eventually comes here and we take necessary steps accordingly.
+     * Handles MLME indications
      */
-    void mlme_confirm_handler(loramac_mlme_confirm_t *mlme_confirm);
+    void mlme_indication_handler(void);
 
     /**
-     * Handles an MCPS confirmation coming from the Mac layer in response to an
-     * MCPS request. We take appropriate actions in response to the confirmation,
-     * e.g., letting the application know that ack was not received in case of
-     * a CONFIRMED message or scheduling error etc.
+     * Handles an MLME confirmation
      */
-    void mcps_confirm_handler(loramac_mcps_confirm_t *mcps_confirm);
+    void mlme_confirm_handler(void);
 
     /**
-     * Handles an MCPS indication coming from the Mac layer, e.g., once we
-     * receive a packet from the Network Server, it is indicated to this handler
-     * and consequently this handler posts an event to the application that
-     * there is something available to read.
+     * Handles an MCPS confirmation
      */
-    void mcps_indication_handler(loramac_mcps_indication_t *mcps_indication);
+    void mcps_confirm_handler(void);
+
+    /**
+     * Handles an MCPS indication
+     */
+    void mcps_indication_handler(void);
 
     /**
      * Sets up user application port
@@ -459,21 +450,44 @@ private:
      *
      * @param  port            The event to be sent.
      */
-    void send_automatic_uplink_message(const uint8_t port);
+    void send_automatic_uplink_message(uint8_t port);
+
+    /**
+     * TX interrupt handlers and corresponding processors
+     */
+    void tx_interrupt_handler(void);
+    void tx_timeout_interrupt_handler(void);
+    void process_transmission(void);
+    void process_transmission_timeout(void);
+
+    /**
+     * RX interrupt handlers and corresponding processors
+     */
+    void rx_interrupt_handler(const uint8_t *payload, uint16_t size, int16_t rssi,
+                              int8_t snr);
+    void rx_timeout_interrupt_handler(void);
+    void rx_error_interrupt_handler(void);
+    void process_reception(const uint8_t *payload, uint16_t size, int16_t rssi,
+                           int8_t snr);
+    void process_reception_timeout(bool is_timeout);
+
+    int convert_to_msg_flag(const mcps_type_t type);
 
 private:
     LoRaMac _loramac;
-    loramac_primitives_t LoRaMacPrimitives;
-
+    radio_events_t radio_events;
     device_states_t _device_current_state;
     lorawan_app_callbacks_t _callbacks;
     lorawan_session_t _lw_session;
     loramac_tx_message_t _tx_msg;
     loramac_rx_message_t _rx_msg;
     uint8_t _num_retry;
+    uint32_t _ctrl_flags;
     uint8_t _app_port;
     bool _link_check_requested;
-
+    bool _automatic_uplink_ongoing;
+    volatile bool _ready_for_rx;
+    uint8_t _rx_payload[LORAMAC_PHY_MAXPAYLOAD];
     events::EventQueue *_queue;
 
 #if defined(LORAWAN_COMPLIANCE_TEST)

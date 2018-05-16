@@ -17,6 +17,7 @@ limitations under the License.
 Author: Przemyslaw Wirkus <Przemyslaw.wirkus@arm.com>
 """
 from __future__ import print_function
+import six
 
 import os
 import re
@@ -2126,12 +2127,12 @@ def find_tests(base_dir, target_name, toolchain_name, app_config=None):
 
     # Apply common directories
     for pred, path in commons:
-        for test_identity, test_paths in tests.iteritems():
+        for test_identity, test_paths in six.iteritems(tests):
             if pred(test_identity):
                 test_paths.append(path)
 
     # Drop identity besides name
-    return {name: paths for (name, _, _, _), paths in tests.iteritems()}
+    return {name: paths for (name, _, _, _), paths in six.iteritems(tests)}
 
 def print_tests(tests, format="list", sort=True):
     """Given a dictionary of tests (as returned from "find_tests"), print them
@@ -2210,7 +2211,7 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
                 clean=False, notify=None, jobs=1, macros=None,
                 silent=False, report=None, properties=None,
                 continue_on_build_fail=False, app_config=None,
-                build_profile=None, stats_depth=None):
+                build_profile=None, stats_depth=None, ignore=None):
     """Given the data structure from 'find_tests' and the typical build parameters,
     build all the tests
 

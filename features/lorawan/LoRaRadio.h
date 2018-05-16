@@ -154,7 +154,7 @@ typedef struct radio_events {
      *                     FSK : N/A (set to 0)
      *                     LoRa: SNR value in dB
      */
-    mbed::Callback<void(uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr)> rx_done;
+    mbed::Callback<void(const uint8_t *payload, uint16_t size, int16_t rssi, int8_t snr)> rx_done;
 
     /**
      * Callback when Reception is timed out

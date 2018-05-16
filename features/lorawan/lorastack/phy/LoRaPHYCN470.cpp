@@ -303,7 +303,7 @@ LoRaPHYCN470::~LoRaPHYCN470()
 {
 }
 
-bool LoRaPHYCN470::rx_config(rx_config_params_t* config, int8_t* datarate)
+bool LoRaPHYCN470::rx_config(rx_config_params_t* config)
 {
     int8_t dr = config->datarate;
     uint8_t max_payload = 0;
@@ -349,7 +349,6 @@ bool LoRaPHYCN470::rx_config(rx_config_params_t* config, int8_t* datarate)
     _radio->set_max_payload_length(MODEM_LORA, max_payload + LORA_MAC_FRMPAYLOAD_OVERHEAD);
     _radio->unlock();
 
-    *datarate = (uint8_t) dr;
     return true;
 }
 

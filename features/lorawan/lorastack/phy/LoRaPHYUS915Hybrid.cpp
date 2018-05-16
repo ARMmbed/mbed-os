@@ -369,7 +369,7 @@ bool LoRaPHYUS915Hybrid::get_next_ADR(bool restore_channel_mask, int8_t& dr_out,
     return adrAckReq;
 }
 
-bool LoRaPHYUS915Hybrid::rx_config(rx_config_params_t* config, int8_t* datarate)
+bool LoRaPHYUS915Hybrid::rx_config(rx_config_params_t* config)
 {
     int8_t dr = config->datarate;
     uint8_t max_payload = 0;
@@ -416,7 +416,6 @@ bool LoRaPHYUS915Hybrid::rx_config(rx_config_params_t* config, int8_t* datarate)
     _radio->set_max_payload_length(MODEM_LORA, max_payload + LORA_MAC_FRMPAYLOAD_OVERHEAD);
     _radio->unlock();
 
-    *datarate = (uint8_t) dr;
     return true;
 }
 

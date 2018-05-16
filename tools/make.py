@@ -140,6 +140,8 @@ if __name__ == '__main__':
                       default=None, help="The build (output) directory")
     parser.add_argument("-N", "--artifact-name", dest="artifact_name",
                       default=None, help="The built project's name")
+    parser.add_argument("--ignore", dest="ignore", type=argparse_many(str),
+                        default=None, help="Comma separated list of patterns to add to mbedignore (eg. ./main.cpp)")
     parser.add_argument("-d", "--disk", dest="disk",
                       default=None, help="The mbed disk")
     parser.add_argument("-s", "--serial", dest="serial",
@@ -284,7 +286,8 @@ if __name__ == '__main__':
                                      build_profile=extract_profile(parser,
                                                                    options,
                                                                    toolchain),
-                                     stats_depth=options.stats_depth)
+                                     stats_depth=options.stats_depth,
+                                     ignore=options.ignore)
             print('Image: %s'% bin_file)
 
             if options.disk:

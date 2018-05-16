@@ -102,7 +102,7 @@ sn_coap_options_list_s *sn_coap_parser_alloc_options(struct coap_s *handle, sn_c
     /* XXX not technically legal to memset pointers to 0 */
     memset(coap_msg_ptr->options_list_ptr, 0x00, sizeof(sn_coap_options_list_s));
 
-    coap_msg_ptr->options_list_ptr->max_age = COAP_OPTION_MAX_AGE_DEFAULT;
+    coap_msg_ptr->options_list_ptr->max_age = 0;
     coap_msg_ptr->options_list_ptr->uri_port = COAP_OPTION_URI_PORT_NONE;
     coap_msg_ptr->options_list_ptr->observe = COAP_OBSERVE_NONE;
     coap_msg_ptr->options_list_ptr->accept = COAP_CT_NONE;

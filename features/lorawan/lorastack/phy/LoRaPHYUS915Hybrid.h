@@ -59,7 +59,7 @@ public:
     virtual bool get_next_ADR(bool restore_channel_mask, int8_t& dr_out,
                               int8_t& tx_power_out, uint32_t& adr_ack_cnt);
 
-    virtual bool rx_config(rx_config_params_t* rxConfig, int8_t* datarate);
+    virtual bool rx_config(rx_config_params_t* rxConfig);
 
     virtual bool tx_config(tx_config_params_t* tx_config, int8_t* tx_power,
                                 lorawan_time_t* tx_toa);
