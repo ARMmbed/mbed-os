@@ -881,9 +881,18 @@ ble_error_t GenericGap::initRadioNotification(void)
 
 ble_error_t GenericGap::enablePrivacy(bool enable) 
 {
-    _privacy_enabled = enable;
+    if(enable == _privacy_enabled) { 
+        // No change    
+        return BLE_ERROR_NONE;
+    }
 
-    _pal_gap.set_privacy(enable);
+    if(enable && !_pal_gap.is_privacy_supported())
+    {
+        // Privacy is not supported by the implementation
+        return BLE_ERROR_NOT_IMPLEMENTED;
+    }
+
+    _privacy_enabled = enable;
 
     update_address_resolution_setting();
 

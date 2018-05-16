@@ -308,13 +308,9 @@ public:
         return BLE_ERROR_NONE;
     }
 
-    virtual ble_error_t set_privacy(
-        bool enable
-    ) {
-        // 
-
-
-        return BLE_ERROR_NONE;
+    virtual bool is_privacy_supported() {
+        // We only support controller-based privacy, so return whether the controller supports it
+        return HciLlPrivacySupported();
     }
     
     virtual ble_error_t set_address_resolution(
@@ -481,7 +477,6 @@ private:
     };
 
 private:
-    address_t device_random_static_identity_address;
     address_t device_random_address;
     bool use_active_scanning;
 };
