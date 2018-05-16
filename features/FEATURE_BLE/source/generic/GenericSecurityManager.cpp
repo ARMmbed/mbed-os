@@ -116,9 +116,7 @@ ble_error_t GenericSecurityManager::init(
 }
 
 ble_error_t GenericSecurityManager::reset(void) {
-    MBED_ASSERT(_db);
     _pal.reset();
-    _db->reset();
     SecurityManager::reset();
 
     return BLE_ERROR_NONE;

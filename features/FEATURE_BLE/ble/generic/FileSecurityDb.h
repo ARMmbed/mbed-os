@@ -126,8 +126,6 @@ public:
 
     virtual void set_restore(bool reload);
 
-    virtual void reset();
-
 private:
     virtual uint8_t get_entry_count();
 

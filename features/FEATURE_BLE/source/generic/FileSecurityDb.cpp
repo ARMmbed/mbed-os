@@ -304,11 +304,6 @@ void FileSecurityDb::set_restore(bool reload) {
     db_write(&reload, DB_OFFSET_RESTORE);
 }
 
-void FileSecurityDb::reset() {
-    SecurityDb::reset();
-    erase_db_file(_db_file);
-}
-
 /* helper functions */
 
 uint8_t FileSecurityDb::get_entry_count() {
