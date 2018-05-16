@@ -22,8 +22,6 @@
 #include "rtos/Mutex.h"
 #include "netif.h"
 #include "EMACMemoryManager.h"
-#include "LWIPMemoryManager.h"
-
 
 
 class RTW_EMAC : public EMAC {
@@ -161,7 +159,7 @@ private:
     void *emac_link_state_data;
     emac_link_input_cb_t emac_link_input_cb; 
     emac_link_state_change_cb_t emac_link_state_cb; 
-    LWIPMemoryManager *memory_manager; 
+    EMACMemoryManager *memory_manager; 
 };
 #endif /* RTW_EMAC_H_ */
 

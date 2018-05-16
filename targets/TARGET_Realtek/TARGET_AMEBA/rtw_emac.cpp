@@ -22,7 +22,6 @@
 
 #include "Rtw_emac.h"
 #include "EMACMemoryManager.h"
-#include "LWIPMemoryManager.h"
 
 #include "rtos.h"
 #include "lwip/pbuf.h"
@@ -122,6 +121,7 @@ bool RTW_EMAC::power_up()
 {
     wifi_on(RTW_MODE_STA);
     wait_ms(1000);
+    wlan_emac_link_change(true);
     return true;
 }
 
@@ -154,7 +154,7 @@ void RTW_EMAC::set_all_multicast(bool all)
 
 void RTW_EMAC::set_memory_manager(EMACMemoryManager &mem_mngr)
 {
-    memory_manager = (LWIPMemoryManager*) &mem_mngr;
+    memory_manager = &mem_mngr;
 }
 
 void RTW_EMAC::wlan_emac_recv(void *param, struct netif *netif, uint32_t len)

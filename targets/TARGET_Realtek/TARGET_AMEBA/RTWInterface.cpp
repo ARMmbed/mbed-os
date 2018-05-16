@@ -198,24 +198,11 @@ nsapi_error_t RTWInterface::connect()
         }
     }
 
-#define LWIP 0x11991199
-#if MBED_CONF_NSAPI_DEFAULT_STACK == LWIP
-    rtw_emac.wlan_emac_link_change(true);
-#endif
-#undef LWIP
-
     int rtw_if_bringup = rtw_interface->bringup(_dhcp,
                            _ip_address[0] ? _ip_address : 0,
                            _netmask[0] ? _netmask : 0,
                            _gateway[0] ? _gateway : 0,
                            DEFAULT_STACK);
-#define TEST 0x33254234
-#if MBED_CONF_NSAPI_DEFAULT_STACK == TEST
-    if (rtw_if_bringup == NSAPI_ERROR_OK) {
-        rtw_emac.wlan_emac_link_change(true);
-    }
-#endif   
-#undef TEST  
     return rtw_if_bringup;
 }
 
