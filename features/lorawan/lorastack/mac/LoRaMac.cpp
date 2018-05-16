@@ -641,8 +641,10 @@ void LoRaMac::handle_data_frame(const uint8_t* const payload,
         _mcps_indication.buffer_size = size - ptr_pos;
     }
 
-    check_to_disable_ack_timeout(_params.is_node_ack_requested, _device_class, _mcps_confirmation.ack_received,
-                                 _params.ack_timeout_retry_counter, _params.max_ack_timeout_retries );
+    // only stop act timer, if the ack is actuall recieved
+    if (_mcps_confirmation.ack_received) {
+        _lora_time.stop(_params.timers.ack_timeout_timer);
+    }
 }
 
 void LoRaMac::set_batterylevel_callback(mbed::Callback<uint8_t(void)> battery_level)
@@ -775,7 +777,7 @@ bool LoRaMac::continue_joining_process()
 
 bool LoRaMac::continue_sending_process()
 {
-    if (_params.ack_timeout_retry_counter >= _params.max_ack_timeout_retries) {
+    if (_params.ack_timeout_retry_counter > _params.max_ack_timeout_retries) {
         _mac_commands.clear_command_buffer();
         _params.adr_ack_counter++;
         return false;
@@ -892,38 +894,20 @@ void LoRaMac::open_rx2_window()
     }
 }
 
-void LoRaMac::check_to_disable_ack_timeout(bool node_ack_requested,
-                                           device_class_t dev_class,
-                                           bool ack_received,
-                                           uint8_t ack_timeout_retries_counter,
-                                           uint8_t ack_timeout_retries)
-{
-    // There are three cases where we need to stop the AckTimeoutTimer:
-    if( node_ack_requested == false ) {
-        if( dev_class == CLASS_C ) {
-            // FIRST CASE
-            // We have performed an unconfirmed uplink in class c mode
-            // and have received a downlink in RX1 or RX2.
-            _lora_time.stop(_params.timers.ack_timeout_timer);
-        }
-    } else {
-        if( ack_received == 1 ) {
-            // SECOND CASE
-            // We received an ACK for previously sent confirmable message
-            _lora_time.stop(_params.timers.ack_timeout_timer);
-        } else {
-            // THIRD CASE
-            // Max number of retries exceeded for confirmable message
-            if( ack_timeout_retries_counter > ack_timeout_retries ) {
-                _lora_time.stop(_params.timers.ack_timeout_timer);
-            }
-        }
-    }
-}
-
 void LoRaMac::on_ack_timeout_timer_event(void)
 {
     Lock lock(*this);
+
+    if (_params.ack_timeout_retry_counter > _params.max_ack_timeout_retries) {
+        if (get_device_class() == CLASS_C) {
+            // no need to use EventQueue as LoRaWANStack and LoRaMac are always
+            // in same context
+            _mcps_confirmation.status = LORAMAC_EVENT_INFO_STATUS_ERROR;
+            _ack_expiry_handler_for_class_c.call();
+        }
+        return;
+    }
+
     tr_debug("ACK_TIMEOUT Elapses, Retrying ...");
     _lora_time.stop(_params.timers.ack_timeout_timer);
 
@@ -1318,11 +1302,14 @@ device_class_t LoRaMac::get_device_class() const
     return _device_class;
 }
 
-void LoRaMac::set_device_class(const device_class_t& device_class)
+void LoRaMac::set_device_class(const device_class_t& device_class,
+                               mbed::Callback<void(void)>ack_expiry_handler)
 {
     _device_class = device_class;
+    _ack_expiry_handler_for_class_c = ack_expiry_handler;
 
     if (CLASS_A == _device_class) {
+        tr_debug("Changing device class to -> CLASS_A");
         _lora_phy.put_radio_to_sleep();
     } else if (CLASS_C == _device_class) {
         _params.is_node_ack_requested = false;
@@ -1334,8 +1321,11 @@ void LoRaMac::set_device_class(const device_class_t& device_class)
                     &_params.rx_window2_config);
     }
     if (CLASS_C == _device_class) {
+        tr_debug("Changing device class to -> CLASS_C");
         open_rx2_window();
     }
+
+
 }
 
 void LoRaMac::setup_link_check_request()

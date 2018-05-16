@@ -351,8 +351,10 @@ public:
     /**
      * @brief set_device_class Sets active device class.
      * @param device_class Device class to use.
+     * @param ack_expiry_handler callback function to inform about ack expiry
      */
-    void set_device_class(const device_class_t& device_class);
+    void set_device_class(const device_class_t& device_class,
+                          mbed::Callback<void(void)>ack_expiry_handler);
 
     /**
      * @brief opens a continuous RX2 window for Class C devices
@@ -641,6 +643,13 @@ private:
      * EventQueue object storage
      */
     events::EventQueue *_ev_queue;
+
+    /**
+     * Class C doesn't timeout in RX2 window as it is a continuous window.
+     * We use this callback to inform the LoRaWANStack controller that the
+     * system cannot do more retries.
+     */
+    mbed::Callback<void(void)> _ack_expiry_handler_for_class_c;
 
     /**
      * Structure to hold MCPS indication data.

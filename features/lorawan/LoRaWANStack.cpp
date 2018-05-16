@@ -435,7 +435,7 @@ lorawan_status_t LoRaWANStack::set_device_class(const device_class_t& device_cla
     if (device_class == CLASS_B) {
         return LORAWAN_STATUS_UNSUPPORTED;
     }
-    _loramac.set_device_class(device_class);
+    _loramac.set_device_class(device_class, mbed::callback(this, &LoRaWANStack::handle_ack_expiry_for_class_c));
     return LORAWAN_STATUS_OK;
 }
 
@@ -564,13 +564,21 @@ void LoRaWANStack::process_transmission(void)
         _ctrl_flags |= TX_DONE_FLAG;
 
         // In Class C, reception timeout never happens, so we handle the state
-        // progression here
+        // progression for TX_DONE in UNCONFIRMED case here
         if (_loramac.get_device_class() == CLASS_C) {
             _loramac.post_process_mcps_req();
             state_controller(DEVICE_STATE_STATUS_CHECK);
             state_machine_run_to_completion();
         }
     }
+}
+
+void LoRaWANStack::handle_ack_expiry_for_class_c(void)
+{
+    _ctrl_flags &= ~TX_DONE_FLAG;
+    _ctrl_flags |= TX_ONGOING_FLAG;
+    tr_error("Retries exhausted for Class C device");
+    state_controller(DEVICE_STATE_STATUS_CHECK);
 }
 
 void LoRaWANStack::process_reception(const uint8_t* const payload, uint16_t size,

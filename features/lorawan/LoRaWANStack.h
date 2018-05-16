@@ -522,6 +522,8 @@ private:
     void make_tx_metadata_available(void);
     void make_rx_metadata_available(void);
 
+    void handle_ack_expiry_for_class_c(void);
+
 private:
     LoRaMac _loramac;
     radio_events_t radio_events;
