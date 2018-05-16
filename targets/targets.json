@@ -3608,7 +3608,6 @@
             "SERIAL",
             "SERIAL_ASYNCH",
             "SERIAL_FC",
-            "SLEEP",
             "SPI",
             "SPI_ASYNCH",
             "STCLK_OFF_DURING_SLEEP",
