@@ -28,7 +28,6 @@
 #include "nRF5xPalSecurityManager.h"
 
 using ble::pal::vendor::nordic::nRF5xSecurityManager;
-typedef nRF5xSecurityManager::resolving_list_entry_t resolving_list_entry_t;
 using ble::ArrayView;
 using ble::pal::advertising_peer_address_type_t;
 
@@ -316,6 +315,20 @@ ble_error_t nRF5xGap::startAdvertising(const GapAdvertisingParams &params)
         }
     }
     adv_para.p_whitelist = &whitelist;
+#else
+    if (_privacy_enabled) {
+        bool enable_resolution =
+            _peripheral_privacy_configuration.resolution_strategy != PeripheralPrivacyConfiguration_t::DO_NOT_RESOLVE;
+        update_identities_list(enable_resolution);
+
+        if (_peripheral_privacy_configuration.use_non_resolvable_random_address &&
+            is_advertising_non_connectable(params)
+        ) {
+            set_private_non_resolvable_address();
+        } else {
+            set_private_resolvable_address();
+        }
+    }
 #endif
     /* For NRF_SD_BLE_API_VERSION >= 3 nRF5xGap::setWhitelist setups the whitelist. */
     
@@ -384,7 +397,13 @@ ble_error_t nRF5xGap::startRadioScan(const GapScanningParams &scanningParams)
     scanParams.interval    = scanningParams.getInterval();  /**< Scan interval between 0x0004 and 0x4000 in 0.625ms units (2.5ms to 10.24s). */
     scanParams.window      = scanningParams.getWindow();    /**< Scan window between 0x0004 and 0x4000 in 0.625ms units (2.5ms to 10.24s). */
     scanParams.timeout     = scanningParams.getTimeout();   /**< Scan timeout between 0x0001 and 0xFFFF in seconds, 0x0000 disables timeout. */
+
     if (_privacy_enabled) {
+        bool enable_resolution =
+            _central_privacy_configuration.resolution_strategy != CentralPrivacyConfiguration_t::DO_NOT_RESOLVE;
+
+        update_identities_list(enable_resolution);
+
         if (_central_privacy_configuration.use_non_resolvable_random_address) {
             set_private_non_resolvable_address();
         } else {
@@ -524,7 +543,15 @@ ble_error_t nRF5xGap::connect(const Address_t             peerAddr,
     } else {
         addr.addr_id_peer = 0;
     }
-        
+
+    if (_privacy_enabled) {
+        bool enable_resolution =
+            _central_privacy_configuration.resolution_strategy != CentralPrivacyConfiguration_t::DO_NOT_RESOLVE;
+
+        update_identities_list(enable_resolution);
+        set_private_resolvable_address();
+    }
+
 #endif
 
     if (scanParamsIn != NULL) {
@@ -1201,6 +1228,37 @@ void nRF5xGap::processDisconnectionEvent(
     );
 }
 
+ble_error_t nRF5xGap::update_identities_list(bool resolution_enabled)
+{
+    uint32_t err;
+
+    if (resolution_enabled) {
+        ArrayView<ble_gap_id_key_t> entries = get_sm().get_resolving_list();
+        size_t limit = std::min(
+            entries.size(), (size_t) YOTTA_CFG_IRK_TABLE_MAX_SIZE
+        );
+        ble_gap_id_key_t* id_keys_pp[YOTTA_CFG_IRK_TABLE_MAX_SIZE];
+
+        for (size_t i = 0; i < limit; ++i) {
+            id_keys_pp[i] = &entries[i];
+        }
+
+        err = sd_ble_gap_device_identities_set(
+            limit ? id_keys_pp : NULL,
+            /* use the local IRK for all devices */ NULL,
+            limit
+        );
+    } else {
+        err = sd_ble_gap_device_identities_set(
+            NULL,
+            /* use the local IRK for all devices */ NULL,
+            0
+        );
+    }
+
+    return err ? BLE_ERROR_INVALID_STATE : BLE_ERROR_NONE;
+}
+
 void nRF5xGap::on_connection(Gap::Handle_t handle, const ble_gap_evt_connected_t& evt) {
     using BLEProtocol::AddressType;
 
@@ -1246,14 +1304,8 @@ void nRF5xGap::on_connection(Gap::Handle_t handle, const ble_gap_evt_connected_t
 
 
     if (private_peer_known) {
-        // FIXME: Is this correct for SD > 2 ?
-        const resolving_list_entry_t* entry = get_sm().resolve_address(
-            evt.peer_addr.addr
-        );
-        MBED_ASSERT(entry == NULL);
-
-        peer_addr_type = convert_identity_address(entry->peer_identity_address_type);
-        peer_address = entry->peer_identity_address.data();
+        peer_addr_type = convert_nordic_address(evt.peer_addr.addr_type);;
+        peer_address = evt.peer_addr.addr;
         peer_resolvable_address = evt.peer_addr.addr;
     } else {
         if (_privacy_enabled &&
@@ -1294,7 +1346,7 @@ void nRF5xGap::on_connection(Gap::Handle_t handle, const ble_gap_evt_connected_t
     ) {
         switch (_peripheral_privacy_configuration.resolution_strategy) {
             case PeripheralPrivacyConfiguration_t::PERFORM_PAIRING_PROCEDURE:
-                nRF5xn::Instance(BLE::DEFAULT_INSTANCE).getSecurityManager().requestPairing(handle);
+                nRF5xn::Instance(BLE::DEFAULT_INSTANCE).getSecurityManager().requestAuthentication(handle);
                 break;
 
             case PeripheralPrivacyConfiguration_t::PERFORM_AUTHENTICATION_PROCEDURE:
@@ -1322,31 +1374,15 @@ void nRF5xGap::on_connection(Gap::Handle_t handle, const ble_gap_evt_connected_t
 void nRF5xGap::on_advertising_packet(const ble_gap_evt_adv_report_t &evt) {
     using BLEProtocol::AddressType;
 
-    AddressType_t peer_addr_type;
-    const uint8_t* peer_address = evt.peer_addr.addr;
-
     if (_privacy_enabled &&
-        evt.peer_addr.addr_type == BLE_GAP_ADDR_TYPE_RANDOM_PRIVATE_RESOLVABLE &&
-        _central_privacy_configuration.resolution_strategy != CentralPrivacyConfiguration_t::DO_NOT_RESOLVE
+        evt.peer_addr.addr_id_peer == 0 &&
+        _central_privacy_configuration.resolution_strategy == CentralPrivacyConfiguration_t::RESOLVE_AND_FILTER
     ) {
-        using ble::pal::vendor::nordic::nRF5xSecurityManager;
-
-        const resolving_list_entry_t* entry =  get_sm().resolve_address(
-            peer_address
-        );
-
-        if (entry) {
-            peer_address = entry->peer_identity_address.data();
-            peer_addr_type = convert_identity_address(entry->peer_identity_address_type);
-        } else if (_central_privacy_configuration.resolution_strategy != CentralPrivacyConfiguration_t::RESOLVE_AND_FORWARD) {
-            peer_addr_type = convert_nordic_address(evt.peer_addr.addr_type);
-        } else {
-            // filter out the packet.
-            return;
-        }
-    } else {
-        peer_addr_type = convert_nordic_address(evt.peer_addr.addr_type);
+        return;
     }
+
+    AddressType_t peer_addr_type = convert_nordic_address(evt.peer_addr.addr_type);
+    const uint8_t* peer_address = evt.peer_addr.addr;
 
     processAdvertisementReport(
         peer_address,
