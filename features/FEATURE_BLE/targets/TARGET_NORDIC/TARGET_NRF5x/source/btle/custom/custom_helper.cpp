@@ -31,6 +31,32 @@ typedef struct {
 static unsigned uuidTableEntries = 0; /* current usage of the table */
 converted_uuid_table_entry_t convertedUUIDTable[UUID_TABLE_MAX_ENTRIES];
 
+namespace {
+
+static void set_perm(ble_gap_conn_sec_mode_t& dest, GattAttribute::Security_t src) {
+    switch (src.value()) {
+        case GattAttribute::Security_t::NONE:
+            BLE_GAP_CONN_SEC_MODE_SET_OPEN(&dest);
+            break;
+
+        case GattAttribute::Security_t::UNAUTHENTICATED:
+            BLE_GAP_CONN_SEC_MODE_SET_ENC_NO_MITM(&dest);
+            break;
+
+        case GattAttribute::Security_t::AUTHENTICATED:
+            BLE_GAP_CONN_SEC_MODE_SET_ENC_WITH_MITM(&dest);
+            break;
+
+        case GattAttribute::Security_t::SC_AUTHENTICATED:
+            BLE_GAP_CONN_SEC_MODE_SET_LESC_ENC_WITH_MITM(&dest);
+            break;
+
+        default:
+            break;
+    }
+}
+
+}
 void custom_reset_128bits_uuid_table() {
     uuidTableEntries = 0;
 }
@@ -204,7 +230,9 @@ error_t custom_decode_uuid_base(uint8_t const *const p_uuid_base,
 error_t custom_add_in_characteristic(uint16_t                  service_handle,
                                      ble_uuid_t               *p_uuid,
                                      uint8_t                   properties,
-                                     SecurityManager::SecurityMode_t       requiredSecurity,
+                                     GattAttribute::Security_t read_security,
+                                     GattAttribute::Security_t write_security,
+                                     GattAttribute::Security_t update_security,
                                      uint8_t                  *p_data,
                                      uint16_t                  length,
                                      uint16_t                  max_length,
@@ -227,8 +255,8 @@ error_t custom_add_in_characteristic(uint16_t                  service_handle,
         /* Notification requires cccd */
         memclr_( &cccd_md, sizeof(ble_gatts_attr_md_t));
         cccd_md.vloc = BLE_GATTS_VLOC_STACK;
-        BLE_GAP_CONN_SEC_MODE_SET_OPEN(&cccd_md.read_perm);
-        BLE_GAP_CONN_SEC_MODE_SET_OPEN(&cccd_md.write_perm);
+        set_perm(cccd_md.read_perm, GattAttribute::Security_t::NONE);
+        set_perm(cccd_md.write_perm, update_security);
     }
 
     ble_gatts_char_md_t char_md = {0};
@@ -257,49 +285,8 @@ error_t custom_add_in_characteristic(uint16_t                  service_handle,
     /* Always set variable size */
     attr_md.vlen = has_variable_len;
 
-    if (char_props.read || char_props.notify || char_props.indicate) {
-        switch (requiredSecurity) {
-            case SecurityManager::SECURITY_MODE_ENCRYPTION_OPEN_LINK :
-                BLE_GAP_CONN_SEC_MODE_SET_OPEN(&attr_md.read_perm);
-                break;
-            case SecurityManager::SECURITY_MODE_ENCRYPTION_NO_MITM :
-                BLE_GAP_CONN_SEC_MODE_SET_ENC_NO_MITM(&attr_md.read_perm);
-                break;
-            case SecurityManager::SECURITY_MODE_ENCRYPTION_WITH_MITM :
-                BLE_GAP_CONN_SEC_MODE_SET_ENC_WITH_MITM(&attr_md.read_perm);
-                break;
-            case SecurityManager::SECURITY_MODE_SIGNED_NO_MITM :
-                BLE_GAP_CONN_SEC_MODE_SET_SIGNED_NO_MITM(&attr_md.read_perm);
-                break;
-            case SecurityManager::SECURITY_MODE_SIGNED_WITH_MITM :
-                BLE_GAP_CONN_SEC_MODE_SET_SIGNED_WITH_MITM(&attr_md.read_perm);
-                break;
-            default:
-                break;
-        };
-    }
-
-    if (char_props.write || char_props.write_wo_resp) {
-        switch (requiredSecurity) {
-            case SecurityManager::SECURITY_MODE_ENCRYPTION_OPEN_LINK :
-                BLE_GAP_CONN_SEC_MODE_SET_OPEN(&attr_md.write_perm);
-                break;
-            case SecurityManager::SECURITY_MODE_ENCRYPTION_NO_MITM :
-                BLE_GAP_CONN_SEC_MODE_SET_ENC_NO_MITM(&attr_md.write_perm);
-                break;
-            case SecurityManager::SECURITY_MODE_ENCRYPTION_WITH_MITM :
-                BLE_GAP_CONN_SEC_MODE_SET_ENC_WITH_MITM(&attr_md.write_perm);
-                break;
-            case SecurityManager::SECURITY_MODE_SIGNED_NO_MITM :
-                BLE_GAP_CONN_SEC_MODE_SET_SIGNED_NO_MITM(&attr_md.write_perm);
-                break;
-            case SecurityManager::SECURITY_MODE_SIGNED_WITH_MITM :
-                BLE_GAP_CONN_SEC_MODE_SET_SIGNED_WITH_MITM(&attr_md.write_perm);
-                break;
-            default:
-                break;
-        };
-    }
+    set_perm(attr_md.read_perm, read_security);
+    set_perm(attr_md.write_perm, write_security);
 
     ble_gatts_attr_t attr_char_value = {0};
 
@@ -343,7 +330,9 @@ error_t custom_add_in_descriptor(uint16_t    char_handle,
                                  uint16_t    length,
                                  uint16_t    max_length,
                                  bool        has_variable_len,
-                                 uint16_t   *p_desc_handle)
+                                 uint16_t   *p_desc_handle,
+                                 GattAttribute::Security_t read_security,
+                                 GattAttribute::Security_t write_security)
 {
     /* Descriptor metadata */
     ble_gatts_attr_md_t   desc_md = {0};
@@ -353,8 +342,8 @@ error_t custom_add_in_descriptor(uint16_t    char_handle,
     desc_md.vlen = has_variable_len;
 
     /* Make it readable and writable */
-    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&desc_md.read_perm);
-    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&desc_md.write_perm);
+    set_perm(desc_md.read_perm, read_security);
+    set_perm(desc_md.write_perm, write_security);
 
     ble_gatts_attr_t attr_desc = {0};
 

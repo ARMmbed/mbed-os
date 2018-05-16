@@ -289,7 +289,6 @@ public:
      */
     virtual ble_error_t remove_peer_csrk(connection_handle_t connection);
 
-
     ////////////////////////////////////////////////////////////////////////////
     // Authentication
     //
@@ -394,7 +393,7 @@ private:
     ble::public_key_coord_t secret;
 #endif
 
-    static const size_t MAX_RESOLVING_LIST_ENTRIES = BLE_GAP_WHITELIST_IRK_MAX_COUNT;
+    static const size_t MAX_RESOLVING_LIST_ENTRIES = BLE_GAP_DEVICE_IDENTITIES_MAX_COUNT;
 
     size_t resolving_list_entry_count;
     resolving_list_entry_t resolving_list[MAX_RESOLVING_LIST_ENTRIES];

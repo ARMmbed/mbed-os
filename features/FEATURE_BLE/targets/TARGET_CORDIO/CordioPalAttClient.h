@@ -17,6 +17,7 @@
 #ifndef CORDIO_PAL_ATT_CLIENT_
 #define CORDIO_PAL_ATT_CLIENT_
 
+#include "CordioGattServer.h"
 #include "ble/pal/AttClient.h"
 #include "ble/pal/SimpleAttServerMessage.h"
 #include "att_api.h"
@@ -30,7 +31,8 @@ namespace cordio {
 class CordioAttClient : public ::ble::pal::AttClient {
 
 public:
-    CordioAttClient() : ::ble::pal::AttClient() { }
+    CordioAttClient() : ::ble::pal::AttClient(), _local_sign_counter(0) { }
+
     virtual ~CordioAttClient() { }
 
     /**
@@ -348,6 +350,9 @@ public:
                 return;
             }
         }
+
+        // pass events not handled to the server side
+        ble::vendor::cordio::GattServer::getInstance().att_cb(event);
     }
 
 private:

@@ -17,8 +17,9 @@
 #include <stdint.h>
 #include "nRF5xPalSecurityManager.h"
 #include "nrf_ble.h"
-#include "nrf_ble_gap.h"
+#include "ble_gap.h"
 #include "nrf_soc.h"
+#include "nrf_error.h"
 
 namespace ble {
 namespace pal {
@@ -390,16 +391,25 @@ ble_error_t nRF5xSecurityManager::set_io_capability(io_capability_t io_capabilit
 ble_error_t nRF5xSecurityManager::set_authentication_timeout(
     connection_handle_t connection, uint16_t timeout_in_10ms
 ) {
-    // FIXME: Use sd_ble_opt_set(BLE_GAP_OPT_AUTH_PAYLOAD_TIMEOUT, ...) when
-    // available
-    return BLE_ERROR_NOT_IMPLEMENTED;
+    ble_opt_t opt;
+    opt.gap_opt.auth_payload_timeout.conn_handle = connection;
+    opt.gap_opt.auth_payload_timeout.auth_payload_timeout = timeout_in_10ms;
+    uint32_t err = sd_ble_opt_set(BLE_GAP_OPT_AUTH_PAYLOAD_TIMEOUT, &opt);
+    return convert_sd_error(err);
 }
 
 ble_error_t nRF5xSecurityManager::get_authentication_timeout(
     connection_handle_t connection, uint16_t &timeout_in_10ms
 ) {
-    // Return default value for now (30s)
-    timeout_in_10ms = 30 * 100;
+    ble_opt_t opt;
+    opt.gap_opt.auth_payload_timeout.conn_handle = connection;
+
+    uint32_t err = sd_ble_opt_get(BLE_GAP_OPT_AUTH_PAYLOAD_TIMEOUT, &opt);
+    if (err) {
+        return convert_sd_error(err);
+    }
+
+    timeout_in_10ms = opt.gap_opt.auth_payload_timeout.auth_payload_timeout;
     return BLE_ERROR_NONE;
 }
 
@@ -498,8 +508,17 @@ ble_error_t nRF5xSecurityManager::encrypt_data(
     const byte_array_t<16> &key,
     encryption_block_t &data
 ) {
-    // FIXME: Implement in LescCrypto ?
-    return BLE_ERROR_NOT_IMPLEMENTED;
+    nrf_ecb_hal_data_t ecb;
+    memcpy(&ecb.key, key.data(), key.size());
+    memcpy(&ecb.cleartext, data.data(), data.size());
+
+    uint32_t err = sd_ecb_block_encrypt(&ecb);
+    if (err) {
+        return convert_sd_error(err);
+    }
+
+    memcpy(data.data(), &ecb.ciphertext, data.size());
+    return BLE_ERROR_NONE;
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -509,19 +528,16 @@ ble_error_t nRF5xSecurityManager::encrypt_data(
 ble_error_t nRF5xSecurityManager::set_private_address_timeout(
     uint16_t timeout_in_seconds
 ) {
-    // get the previous config
-    ble_gap_irk_t irk;
-    ble_opt_t privacy_config;
-    privacy_config.gap_opt.privacy.p_irk = &irk;
+    ble_gap_privacy_params_t privacy_config;
 
-    uint32_t err = sd_ble_opt_get(BLE_GAP_OPT_PRIVACY, &privacy_config);
+    uint32_t err = sd_ble_gap_privacy_get(&privacy_config);
     if (err) {
         return convert_sd_error(err);
     }
 
-    // set the timeout and return the result
-    privacy_config.gap_opt.privacy.interval_s = timeout_in_seconds;
-    err = sd_ble_opt_set(BLE_GAP_OPT_PRIVACY, &privacy_config);
+    privacy_config.private_addr_cycle_s = timeout_in_seconds;
+    err = sd_ble_gap_privacy_set(&privacy_config);
+
     return convert_sd_error(err);
 }
 
@@ -567,20 +583,18 @@ ble_error_t nRF5xSecurityManager::set_ltk_not_found(
 
 ble_error_t nRF5xSecurityManager::set_irk(const irk_t& irk)
 {
-    // get the previous config
-    ble_gap_irk_t sd_irk;
-    ble_opt_t privacy_config;
-    privacy_config.gap_opt.privacy.p_irk = &sd_irk;
 
-    uint32_t err = sd_ble_opt_get(BLE_GAP_OPT_PRIVACY, &privacy_config);
+    ble_gap_privacy_params_t privacy_config;
+
+    // get the previous config
+    uint32_t err = sd_ble_gap_privacy_get(&privacy_config);
     if (err) {
         return convert_sd_error(err);
     }
 
     // set the new irk
-    memcpy(sd_irk.irk, irk.data(), irk.size());
-    err = sd_ble_opt_set(BLE_GAP_OPT_PRIVACY, &privacy_config);
-
+    memcpy(privacy_config.p_device_irk, irk.data(), irk.size());
+    err = sd_ble_gap_privacy_set(&privacy_config);
     return convert_sd_error(err);
 }
 
@@ -606,7 +620,6 @@ ble_error_t nRF5xSecurityManager::remove_peer_csrk(connection_handle_t connectio
 {
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
-
 ////////////////////////////////////////////////////////////////////////////
 // Authentication
 //
@@ -788,6 +801,14 @@ bool nRF5xSecurityManager::sm_handler(const ble_evt_t *evt)
             );
 
             if (pairing_cb && pairing_cb->role == PAIRING_INITIATOR) {
+                // override signing parameter
+                initiator_dist.set_signing(false);
+                responder_dist.set_signing(false);
+
+                // override link parameter
+                initiator_dist.set_link(false);
+                responder_dist.set_link(false);
+
                 // when this event is received by an initiator, it should not be
                 // forwarded via the handler; this is not a behaviour expected
                 // by the bluetooth standard ...
@@ -998,8 +1019,15 @@ bool nRF5xSecurityManager::sm_handler(const ble_evt_t *evt)
                 }
 
                 case BLE_GAP_SEC_STATUS_TIMEOUT:
-                    self.release_pairing_cb(pairing_cb);
-                    handler->on_pairing_timed_out(connection);
+                    if (!pairing_cb) {
+                        // Note: if pairing_cb does not exist then the timeout;
+                        // is caused by a security request as the paiting_cb is
+                        // created when the module receive the pairing request.
+                        handler->on_link_encryption_request_timed_out(connection);
+                    } else {
+                        self.release_pairing_cb(pairing_cb);
+                        handler->on_pairing_timed_out(connection);
+                    }
                     break;
 
                 case BLE_GAP_SEC_STATUS_PASSKEY_ENTRY_FAILED:
@@ -1049,18 +1077,10 @@ bool nRF5xSecurityManager::sm_handler(const ble_evt_t *evt)
 
         case BLE_GAP_EVT_TIMEOUT: {
             switch (gap_evt.params.timeout.src) {
-                case BLE_GAP_TIMEOUT_SRC_SECURITY_REQUEST:
-                    // Note: pairing_cb does not exist at this point; it is
-                    // created when the module receive the pairing request.
-                    handler->on_link_encryption_request_timed_out(connection);
-                    return true;
-
-                    // FIXME: enable with latest SDK
-#if 0
                 case BLE_GAP_TIMEOUT_SRC_AUTH_PAYLOAD:
                     handler->on_valid_mic_timeout(connection);
                     return true;
-#endif
+
                 default:
                     return false;
             }
@@ -1120,28 +1140,17 @@ ble_gap_sec_keyset_t nRF5xSecurityManager::make_keyset(
     pairing_cb.initiator_dist = initiator_dist;
     pairing_cb.responder_dist = responder_dist;
 
-    KeyDistribution* own_dist = NULL;
-    KeyDistribution* peer_dist = NULL;
-
-    if (pairing_cb.role == PAIRING_INITIATOR) {
-        own_dist = &initiator_dist;
-        peer_dist = &responder_dist;
-    } else {
-        own_dist = &responder_dist;
-        peer_dist = &initiator_dist;
-    }
-
     ble_gap_sec_keyset_t keyset = {
         /* keys_own */ {
-            own_dist->get_encryption() ? &pairing_cb.own_enc_key : NULL,
-            own_dist->get_identity() ? &pairing_cb.own_id_key : NULL,
-            own_dist->get_signing() ? &pairing_cb.own_sign_key : NULL,
+            &pairing_cb.own_enc_key,
+            &pairing_cb.own_id_key,
+            &pairing_cb.own_sign_key,
             &pairing_cb.own_pk
         },
         /* keys_peer */ {
-            peer_dist->get_encryption() ? &pairing_cb.peer_enc_key : NULL,
-            peer_dist->get_identity() ? &pairing_cb.peer_id_key : NULL,
-            peer_dist->get_signing() ? &pairing_cb.peer_sign_key : NULL,
+            &pairing_cb.peer_enc_key,
+            &pairing_cb.peer_id_key,
+            &pairing_cb.peer_sign_key,
             &pairing_cb.peer_pk
         }
     };

@@ -129,7 +129,8 @@ struct link_encryption_t : SafeEnum<link_encryption_t, uint8_t> {
         NOT_ENCRYPTED,          /**< The link is not secured. */
         ENCRYPTION_IN_PROGRESS, /**< Link security is being established. */
         ENCRYPTED,              /**< The link is secure. */
-        ENCRYPTED_WITH_MITM     /**< The link is secure and authenticated. */
+        ENCRYPTED_WITH_MITM,    /**< The link is secure and authenticated. */
+        ENCRYPTED_WITH_SC_AND_MITM  /**< The link is secure and authenticated with a secure connection key. */
     };
 
     /**
@@ -458,6 +459,74 @@ struct random_address_type_t : SafeEnum<random_address_type_t, uint8_t> {
      */
     random_address_type_t(type value) :
         SafeEnum<random_address_type_t, uint8_t>(value) { }
+};
+
+/**
+ * Security requirement that can be attached to an attribute operation.
+ */
+struct att_security_requirement_t : SafeEnum<att_security_requirement_t, uint8_t> {
+    /**
+     * Number of bits required to store the value.
+     *
+     * This value can be used to define a bitfield that host a value of this
+     * enum.
+     */
+    static const uint8_t size = 2;
+
+    /** struct scoped enum wrapped by the class */
+    enum type {
+        /**
+         * The operation does not have security requirements.
+         *
+         * It is equivalent to: SecurityMode 1 level 1: No authentication, no
+         * encryption and no signing required.
+         *
+         * @note This security mode is not applicable for signed operation.
+         *
+         * @note Equivalent to SecurityManager::SECURITY_MODE_ENCRYPTION_OPEN_LINK.
+         */
+        NONE,
+
+        /**
+         * The operation requires security and there's no requirement towards
+         * peer authentication.
+         *
+         * @note Security can be achieved either by signing messages or
+         * encrypting the link.
+         *
+         * @note Signing is only applicable for signed write operations.
+         *
+         * @note Equivalent to SecurityManager::SECURITY_MODE_ENCRYPTION_NO_MITM
+         * or SecurityManager::SECURITY_MODE_SIGNED_NO_MITM.
+         */
+        UNAUTHENTICATED,
+
+        /**
+         * The operation requires security and the peer must be authenticated.
+         *
+         * @note Security can be achieved either by signing messages or
+         * encrypting the link.
+         *
+         * @note Equivalent to SecurityManager::SECURITY_MODE_ENCRYPTION_WITH_MITM
+         * or SecurityManager::SECURITY_MODE_SIGNED_WITH_MITM.
+         */
+        AUTHENTICATED,
+
+        /**
+         * The operation require encryption with an authenticated peer that
+         * paired using secure connection pairing.
+         *
+         * @note This security mode is not applicable for signed operation;
+         * security is achieved with link encryption.
+         */
+        SC_AUTHENTICATED
+    };
+
+    /**
+     * Construct a new instance of att_security_requirement_t.
+     */
+    att_security_requirement_t(type value) :
+        SafeEnum<att_security_requirement_t, uint8_t>(value) { }
 };
 
 } // namespace ble

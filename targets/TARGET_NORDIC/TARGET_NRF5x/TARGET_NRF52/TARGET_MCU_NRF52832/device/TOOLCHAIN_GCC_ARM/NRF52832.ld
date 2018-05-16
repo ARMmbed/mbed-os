@@ -30,8 +30,8 @@
   #define MBED_RAM_START  0x20000000
   #define MBED_RAM_SIZE   0x10000
 #else
-  #define MBED_RAM_START  0x20003800
-  #define MBED_RAM_SIZE   0xC800
+  #define MBED_RAM_START  0x200031D0
+  #define MBED_RAM_SIZE   0xCE30
 #endif
 
 #define MBED_RAM0_START MBED_RAM_START
