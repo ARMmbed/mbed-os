@@ -27,19 +27,19 @@ void tcpsocket_connect_to_discard_srv(TCPSocket& sock);
 /*
  * Test cases
  */
-void test_tcpsocket_connect_invalid();
-void test_tcpsocket_echotest();
-void test_tcpsocket_echotest_nonblock();
-void test_tcpsocket_echotest_burst();
-void test_tcpsocket_echotest_burst_nonblock();
-void test_tcpsocket_endpoint_close();
-void test_tcpsocket_open_close_repeat();
-void test_tcpsocket_open_limit();
-void test_tcpsocket_recv_100k();
-void test_tcpsocket_recv_100k_nonblock();
-void test_tcpsocket_recv_timeout();
-void test_tcpsocket_send_repeat();
-void test_tcpsocket_send_timeout();
-void test_tcpsocket_thread_per_socket_safety();
+void TCPSOCKET_CONNECT_INVALID();
+void TCPSOCKET_ECHOTEST();
+void TCPSOCKET_ECHOTEST_NONBLOCK();
+void TCPSOCKET_ECHOTEST_BURST();
+void TCPSOCKET_ECHOTEST_BURST_NONBLOCK();
+void TCPSOCKET_ENDPOINT_CLOSE();
+void TCPSOCKET_OPEN_CLOSE_REPEAT();
+void TCPSOCKET_OPEN_LIMIT();
+void TCPSOCKET_RECV_100K();
+void TCPSOCKET_RECV_100K_NONBLOCK();
+void TCPSOCKET_RECV_TIMEOUT();
+void TCPSOCKET_SEND_REPEAT();
+void TCPSOCKET_SEND_TIMEOUT();
+void TCPSOCKET_THREAD_PER_SOCKET_SAFETY();
 
 #endif //TCP_TESTS_H

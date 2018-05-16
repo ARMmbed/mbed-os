@@ -23,7 +23,7 @@
 #include "unity/unity.h"
 #include "utest.h"
 
-void test_udpsocket_open_close_repeat()
+void UDPSOCKET_OPEN_CLOSE_REPEAT()
 {
     UDPSocket *sock = new UDPSocket;
     if (!sock) {

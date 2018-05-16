@@ -46,7 +46,7 @@ static void _tcpsocket_connect_to_daytime_srv(TCPSocket& sock) {
 }
 
 
-void test_tcpsocket_endpoint_close()
+void TCPSOCKET_ENDPOINT_CLOSE()
 {
     static const int MORE_THAN_AVAILABLE = 30;
     char buff[MORE_THAN_AVAILABLE];

@@ -92,7 +92,7 @@ void rcv_n_chk_against_rfc864_pattern(TCPSocket& sock) {
     }
 }
 
-void test_tcpsocket_recv_100k()
+void TCPSOCKET_RECV_100K()
 {
     TCPSocket sock;
     _tcpsocket_connect_to_chargen_srv(sock);
@@ -130,7 +130,7 @@ static void _sigio_handler(osThreadId id) {
     osSignalSet(id, SIGNAL_SIGIO);
 }
 
-void test_tcpsocket_recv_100k_nonblock()
+void TCPSOCKET_RECV_100K_NONBLOCK()
 {
     TCPSocket sock;
     _tcpsocket_connect_to_chargen_srv(sock);

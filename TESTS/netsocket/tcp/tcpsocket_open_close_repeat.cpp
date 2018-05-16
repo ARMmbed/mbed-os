@@ -23,7 +23,7 @@
 #include "unity/unity.h"
 #include "utest.h"
 
-void test_tcpsocket_open_close_repeat()
+void TCPSOCKET_OPEN_CLOSE_REPEAT()
 {
     TCPSocket *sock = new TCPSocket;
     if (!sock) {

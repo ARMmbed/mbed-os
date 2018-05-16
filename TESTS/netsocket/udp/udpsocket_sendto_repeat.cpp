@@ -25,7 +25,7 @@
 
 using namespace utest::v1;
 
-void test_udpsocket_sendto_repeat()
+void UDPSOCKET_SENDTO_REPEAT()
 {
     UDPSocket sock;
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.open(get_interface()));

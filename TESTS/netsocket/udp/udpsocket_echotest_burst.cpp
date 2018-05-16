@@ -61,7 +61,7 @@ static void _sigio_handler(osThreadId id) {
     osSignalSet(id, SIGNAL_SIGIO);
 }
 
-void test_udpsocket_echotest_burst()
+void UDPSOCKET_ECHOTEST_BURST()
 {
     SocketAddress udp_addr;
     get_interface()->gethostbyname(MBED_CONF_APP_ECHO_SERVER_ADDR, &udp_addr);
@@ -137,7 +137,7 @@ void test_udpsocket_echotest_burst()
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
 }
 
-void test_udpsocket_echotest_burst_nonblock()
+void UDPSOCKET_ECHOTEST_BURST_NONBLOCK()
 {
     SocketAddress udp_addr;
     get_interface()->gethostbyname(MBED_CONF_APP_ECHO_SERVER_ADDR, &udp_addr);

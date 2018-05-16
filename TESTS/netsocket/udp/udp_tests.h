@@ -25,15 +25,15 @@ void fill_tx_buffer_ascii(char *buff, size_t len);
 /*
  * Test cases
  */
-void test_udpsocket_echotest();
-void test_udpsocket_echotest_nonblock();
-void test_udpsocket_echotest_burst();
-void test_udpsocket_echotest_burst_nonblock();
-void test_udpsocket_open_close_repeat();
-void test_udpsocket_open_limit();
-void test_udpsocket_recv_timeout();
-void test_udpsocket_sendto_invalid();
-void test_udpsocket_sendto_repeat();
-void test_udpsocket_sendto_timeout();
+void UDPSOCKET_ECHOTEST();
+void UDPSOCKET_ECHOTEST_NONBLOCK();
+void UDPSOCKET_ECHOTEST_BURST();
+void UDPSOCKET_ECHOTEST_BURST_NONBLOCK();
+void UDPSOCKET_OPEN_CLOSE_REPEAT();
+void UDPSOCKET_OPEN_LIMIT();
+void UDPSOCKET_RECV_TIMEOUT();
+void UDPSOCKET_SENDTO_INVALID();
+void UDPSOCKET_SENDTO_REPEAT();
+void UDPSOCKET_SENDTO_TIMEOUT();
 
 #endif //UDP_TESTS_H

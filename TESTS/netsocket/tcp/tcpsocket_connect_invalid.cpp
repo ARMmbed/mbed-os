@@ -25,7 +25,7 @@
 
 using namespace utest::v1;
 
-void test_tcpsocket_connect_invalid()
+void TCPSOCKET_CONNECT_INVALID()
 {
     TCPSocket sock;
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.open(get_interface()));

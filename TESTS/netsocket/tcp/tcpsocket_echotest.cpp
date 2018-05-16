@@ -46,7 +46,7 @@ static void _sigio_handler(osThreadId id) {
     osSignalSet(id, SIGNAL_SIGIO);
 }
 
-void test_tcpsocket_echotest()
+void TCPSOCKET_ECHOTEST()
 {
     tcpsocket_connect_to_echo_srv(sock);
 
@@ -103,7 +103,7 @@ void tcpsocket_echotest_nonblock_receiver(void *receive_bytes)
 
 }
 
-void test_tcpsocket_echotest_nonblock()
+void TCPSOCKET_ECHOTEST_NONBLOCK()
 {
     tcpsocket_connect_to_echo_srv(sock);
     sock.set_blocking(false);

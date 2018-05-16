@@ -33,7 +33,7 @@ namespace
     } SocketItem;
 }
 
-void test_tcpsocket_open_limit()
+void TCPSOCKET_OPEN_LIMIT()
 {
     int open_sockets[2] = {0};
 

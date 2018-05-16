@@ -19,10 +19,6 @@
 #error [NOT_SUPPORTED] No network configuration found for this target.
 #endif
 
-#ifndef MBED_EXTENDED_TESTS
-#error [NOT_SUPPORTED] Pressure tests are not supported by default
-#endif
-
 #include "mbed.h"
 #include MBED_CONF_APP_HEADER_FILE
 #include "greentea-client/test_env.h"
@@ -111,20 +107,22 @@ void greentea_teardown(const size_t passed, const size_t failed, const failure_t
 
 
 Case cases[] = {
-    Case("Invalid endpoint rejected", test_tcpsocket_connect_invalid),
-    Case("Echo", test_tcpsocket_echotest),
-    Case("Echo non-block", test_tcpsocket_echotest_nonblock),
-    Case("Echo burst", test_tcpsocket_echotest_burst),
-    Case("Echo burst non-block", test_tcpsocket_echotest_burst_nonblock),
-    Case("Reuse a socket", test_tcpsocket_open_close_repeat),
-    Case("Open at least 4 sockets", test_tcpsocket_open_limit),
-    Case("Receive 100k from CHARGEN service", test_tcpsocket_recv_100k),
-    Case("Receive 100k from CHARGEN service non-block", test_tcpsocket_recv_100k_nonblock),
-    Case("Receive in given time", test_tcpsocket_recv_timeout),
-    Case("Send repeatedly", test_tcpsocket_send_repeat),
-    Case("Sending shall not take too long", test_tcpsocket_send_timeout),
-    Case("Parallel socket thread safety", test_tcpsocket_thread_per_socket_safety),
-    Case("Endpoint initiated close", test_tcpsocket_endpoint_close),
+    Case("TCPSOCKET_ECHOTEST", TCPSOCKET_ECHOTEST),
+    Case("TCPSOCKET_ECHOTEST_NONBLOCK", TCPSOCKET_ECHOTEST_NONBLOCK),
+    Case("TCPSOCKET_OPEN_CLOSE_REPEAT", TCPSOCKET_OPEN_CLOSE_REPEAT),
+    Case("TCPSOCKET_OPEN_LIMIT", TCPSOCKET_OPEN_LIMIT),
+    Case("TCPSOCKET_THREAD_PER_SOCKET_SAFETY", TCPSOCKET_THREAD_PER_SOCKET_SAFETY),
+#ifdef MBED_EXTENDED_TESTS
+    Case("TCPSOCKET_CONNECT_INVALID", TCPSOCKET_CONNECT_INVALID),
+    Case("TCPSOCKET_ECHOTEST_BURST", TCPSOCKET_ECHOTEST_BURST),
+    Case("TCPSOCKET_ECHOTEST_BURST_NONBLOCK", TCPSOCKET_ECHOTEST_BURST_NONBLOCK),
+    Case("TCPSOCKET_RECV_100K", TCPSOCKET_RECV_100K),
+    Case("TCPSOCKET_RECV_100K_NONBLOCK", TCPSOCKET_RECV_100K_NONBLOCK),
+    Case("TCPSOCKET_RECV_TIMEOUT", TCPSOCKET_RECV_TIMEOUT),
+    Case("TCPSOCKET_SEND_REPEAT", TCPSOCKET_SEND_REPEAT),
+    Case("TCPSOCKET_SEND_TIMEOUT", TCPSOCKET_SEND_TIMEOUT),
+    Case("TCPSOCKET_ENDPOINT_CLOSE", TCPSOCKET_ENDPOINT_CLOSE),
+#endif
 };
 
 Specification specification(greentea_setup, cases, greentea_teardown);

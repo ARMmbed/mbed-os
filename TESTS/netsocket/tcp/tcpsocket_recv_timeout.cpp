@@ -30,7 +30,7 @@ static void _sigio_handler(osThreadId id) {
     osSignalSet(id, SIGNAL_SIGIO);
 }
 
-void test_tcpsocket_recv_timeout()
+void TCPSOCKET_RECV_TIMEOUT()
 {
     static const int DATA_LEN = 100;
     char buff[DATA_LEN] = {0};

@@ -33,7 +33,7 @@ namespace
     } SocketItem;
 }
 
-void test_udpsocket_open_limit()
+void UDPSOCKET_OPEN_LIMIT()
 {
     int open_sockets[2] = {0};
 

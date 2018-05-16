@@ -25,7 +25,7 @@
 
 using namespace utest::v1;
 
-void test_tcpsocket_send_repeat()
+void TCPSOCKET_SEND_REPEAT()
 {
     TCPSocket sock;
     tcpsocket_connect_to_discard_srv(sock);

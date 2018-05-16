@@ -23,7 +23,7 @@
 #include "utest.h"
 #include "udp_tests.h"
 
-void test_udpsocket_sendto_timeout()
+void UDPSOCKET_SENDTO_TIMEOUT()
 {
     char tx_buffer[100];
     fill_tx_buffer_ascii(tx_buffer, sizeof(tx_buffer));

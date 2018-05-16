@@ -49,7 +49,7 @@ static void _sigio_handler(osThreadId id) {
     osSignalSet(id, SIGNAL_SIGIO);
 }
 
-void test_udpsocket_echotest()
+void UDPSOCKET_ECHOTEST()
 {
     SocketAddress udp_addr;
     get_interface()->gethostbyname(MBED_CONF_APP_ECHO_SERVER_ADDR, &udp_addr);
@@ -103,7 +103,7 @@ void udpsocket_echotest_nonblock_receiver(void *receive_bytes)
     tx_sem.release();
 }
 
-void test_udpsocket_echotest_nonblock()
+void UDPSOCKET_ECHOTEST_NONBLOCK()
 {
     SocketAddress udp_addr;
     get_interface()->gethostbyname(MBED_CONF_APP_ECHO_SERVER_ADDR, &udp_addr);

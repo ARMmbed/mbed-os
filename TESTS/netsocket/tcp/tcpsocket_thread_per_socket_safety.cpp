@@ -145,7 +145,7 @@ static void check_var_len_rand_sequence()
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
 }
 
-void test_tcpsocket_thread_per_socket_safety()
+void TCPSOCKET_THREAD_PER_SOCKET_SAFETY()
 {
     thread.start(callback(check_const_len_rand_sequence));
 

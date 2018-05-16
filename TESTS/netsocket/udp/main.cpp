@@ -19,10 +19,6 @@
 #error [NOT_SUPPORTED] No network configuration found for this target.
 #endif
 
-#ifndef MBED_EXTENDED_TESTS
-#error [NOT_SUPPORTED] Pressure tests are not supported by default
-#endif
-
 #include "mbed.h"
 #include MBED_CONF_APP_HEADER_FILE
 #include "greentea-client/test_env.h"
@@ -77,7 +73,7 @@ void fill_tx_buffer_ascii(char *buff, size_t len)
 // Test setup
 utest::v1::status_t greentea_setup(const size_t number_of_cases)
 {
-    GREENTEA_SETUP(120, "default_auto");
+    GREENTEA_SETUP(240, "default_auto");
     _ifup();
     return greentea_test_setup_handler(number_of_cases);
 }
@@ -89,16 +85,16 @@ void greentea_teardown(const size_t passed, const size_t failed, const failure_t
 }
 
 Case cases[] = {
-        Case("Echo", test_udpsocket_echotest),
-        Case("Echo non-block", test_udpsocket_echotest_nonblock),
-        Case("Echo burst", test_udpsocket_echotest_burst),
-        Case("Echo burst non-block", test_udpsocket_echotest_burst_nonblock),
-        Case("Reuse a socket", test_udpsocket_open_close_repeat),
-        Case("Open at least 3 sockets", test_udpsocket_open_limit),
-        Case("Receive in given time", test_udpsocket_recv_timeout),
-        Case("Detect sendto invalid params", test_udpsocket_sendto_invalid),
-        Case("Send repeatedly", test_udpsocket_sendto_repeat),
-        Case("Send in given time", test_udpsocket_sendto_timeout),
+        Case("UDPSOCKET_ECHOTEST_NONBLOCK", UDPSOCKET_ECHOTEST_NONBLOCK),
+        Case("UDPSOCKET_OPEN_CLOSE_REPEAT", UDPSOCKET_OPEN_CLOSE_REPEAT),
+        Case("UDPSOCKET_OPEN_LIMIT", UDPSOCKET_OPEN_LIMIT),
+        Case("UDPSOCKET_SENDTO_TIMEOUT", UDPSOCKET_SENDTO_TIMEOUT),
+#ifdef MBED_EXTENDED_TESTS
+        Case("UDPSOCKET_ECHOTEST", UDPSOCKET_ECHOTEST),
+        Case("UDPSOCKET_ECHOTEST_BURST", UDPSOCKET_ECHOTEST_BURST),
+        Case("UDPSOCKET_ECHOTEST_BURST_NONBLOCK", UDPSOCKET_ECHOTEST_BURST_NONBLOCK),
+        Case("UDPSOCKET_SENDTO_REPEAT", UDPSOCKET_SENDTO_REPEAT),
+#endif
 };
 
 Specification specification(greentea_setup, cases, greentea_teardown);

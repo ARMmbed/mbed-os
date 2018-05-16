@@ -38,7 +38,7 @@ static void _sigio_handler(osThreadId id) {
     osSignalSet(id, SIGNAL_SIGIO);
 }
 
-void test_tcpsocket_echotest_burst()
+void TCPSOCKET_ECHOTEST_BURST()
 {
     TCPSocket sock;
     tcpsocket_connect_to_echo_srv(sock);
@@ -86,7 +86,7 @@ void test_tcpsocket_echotest_burst()
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
 }
 
-void test_tcpsocket_echotest_burst_nonblock()
+void TCPSOCKET_ECHOTEST_BURST_NONBLOCK()
 {
     TCPSocket sock;
     tcpsocket_connect_to_echo_srv(sock);
