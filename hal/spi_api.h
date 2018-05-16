@@ -27,14 +27,14 @@
  * \defgroup hal_spi SPI: Serial peripheral interface HAL API.
  * Low level interface to the serial peripheral interface of a target.
  *
- * ## Programming model
+ * # Programming model
  * This is an OOP like API. spi_t is used a "this".<br/>
  * Methods not having this type as their first parameter are **class** methods.<br/>
  * Methods with an spi_t object as their first parameter are **instance** methods.<br/>
  * `spi_init()` acts as the "constructor"(/initialiser) of this *class*.<br/>
  * `spi_free()` acts as the "destructor"(/deinitialiser) of this *class*.<br/>
  *
- * ## General requirements
+ * # Defined behaviours
  * - Multiple instances can share pins such as MISO/MOSI/MCLK but not their SS pin. This pin is used
  *   to distinguish communication channels (master or slaves).
  * - As the instance allocation is at the user's responsibility, the hal implementation cannot keep
@@ -51,7 +51,6 @@
  * - The accuracy of the clock generated in master mode by the hal implementation must be within +/-
  *   0.1% of the user requested frequency.
  *
- * # Defined behaviours
  * - spi_get_capabilities(..)
  *   - returns NULL if passed a NULL pointer.
  *   - returns NULL if the peripheral cannot be identified.
@@ -89,17 +88,17 @@
  *   - in master mode, returns false.
  *   - in slave mode, returns true if data is available for read.
  *
- * ## Undefined behaviours
+ * # Undefined behaviours
  * - calling any instance method before `spi_init()`.
  * - calling any other instance method than `spi_init()` after `spi_free()`.
  * - calling free on a spi_t instance being used in a `spi_transfer()` call.
  *
  * # Lexicon
- * ### Transfer/Transaction
+ * ## Transfer/Transaction
  * In this documentation a *transfer* is an operation of emission, reception or both that occur
  * during a single call to spi_transfer().
  *
- * ### Continuous mode
+ * ## Continuous mode
  * In this mode SS is kept asserted between words. For example with 4 bits words msb first,
  * continuous mode would transmit 5 symbols: 0x9 0x4 0x8 0xF 0x0
  * ```
@@ -122,11 +121,11 @@
  * DATA   _X   \_______/   X_--_X   \_______/   X_--_X_______/       X_--_X   \___________X__
  * _
  * ```
- * ### Symbol/Word
+ * ## Symbol/Word
  * Even though documentations usually uses the lexeme `word` to mean the unit of data that is
  * sent/received it is ambiguous as it may not correspond to an actual `word` on the platform.
  * To avoid any confusion we will use in this API the lexeme `symbol` instead.
- * ### SPI channel
+ * ## SPI channel
  * This is the virtual communication channel created between a master and its slave.
  * @{
  */
