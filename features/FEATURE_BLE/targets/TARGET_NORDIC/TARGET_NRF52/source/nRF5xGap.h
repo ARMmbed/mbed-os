@@ -267,6 +267,7 @@ private:
     friend void btle_handler(const ble_evt_t *p_ble_evt);
     friend void btle_handler(const ble_evt_t *p_ble_evt, void *p_context);
 
+    ble_error_t update_identities_list(bool resolution_enabled);
     void on_connection(Handle_t handle, const ble_gap_evt_connected_t& evt);
     void on_advertising_packet(const ble_gap_evt_adv_report_t &evt);
     uint16_t m_connectionHandle;

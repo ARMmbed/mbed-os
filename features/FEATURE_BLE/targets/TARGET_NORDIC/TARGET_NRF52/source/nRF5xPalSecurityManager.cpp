@@ -158,10 +158,18 @@ ble_error_t nRF5xSecurityManager::add_device_to_resolving_list(
         return BLE_ERROR_INVALID_STATE;
     }
 
-    resolving_list_entry_t& entry = resolving_list[resolving_list_entry_count];
-    entry.peer_identity_address_type = peer_identity_address_type;
-    entry.peer_identity_address = peer_identity_address;
-    entry.peer_irk = peer_irk;
+    ble_gap_id_key_t& entry = resolving_list[resolving_list_entry_count];
+    entry.id_addr_info.addr_type = peer_identity_address_type.value();
+    memcpy(
+        entry.id_addr_info.addr,
+        peer_identity_address.data(),
+        peer_identity_address.size()
+    );
+    memcpy(
+        entry.id_info.irk,
+        peer_irk.data(),
+        peer_irk.size()
+    );
 
     ++resolving_list_entry_count;
 
@@ -176,9 +184,9 @@ ble_error_t nRF5xSecurityManager::remove_device_from_resolving_list(
 
     // first the index needs to be found
     for (entry_index = 0; entry_index < resolving_list_entry_count; ++entry_index) {
-        resolving_list_entry_t& entry = resolving_list[entry_index];
-        if (entry.peer_identity_address_type == peer_identity_address_type &&
-            entry.peer_identity_address == peer_identity_address
+        ble_gap_id_key_t& entry = resolving_list[entry_index];
+        if (entry.id_addr_info.addr_type == peer_identity_address_type.value() &&
+            entry.id_addr_info.addr == peer_identity_address
         ) {
             break;
         }
@@ -204,45 +212,12 @@ ble_error_t nRF5xSecurityManager::clear_resolving_list()
     return BLE_ERROR_NONE;
 }
 
-ArrayView<nRF5xSecurityManager::resolving_list_entry_t>
-nRF5xSecurityManager::get_resolving_list() {
-    return ArrayView<nRF5xSecurityManager::resolving_list_entry_t>(
+ArrayView<ble_gap_id_key_t> nRF5xSecurityManager::get_resolving_list() {
+    return ArrayView<ble_gap_id_key_t>(
         resolving_list,
         resolving_list_entry_count
     );
 }
-
-const nRF5xSecurityManager::resolving_list_entry_t*
-nRF5xSecurityManager::resolve_address(const address_t& resolvable_address) {
-#if defined(MBEDTLS_ECDH_C)
-    typedef byte_array_t<CryptoToolbox::hash_size_> hash_t;
-
-    for (size_t i = 0; i < resolving_list_entry_count; ++i) {
-        resolving_list_entry_t& entry = resolving_list[i];
-        hash_t hash_generated;
-
-        // Compute the hash part from the random address part when the irk of
-        // the entry is used
-        _crypto.ah(
-            make_const_ArrayView<CryptoToolbox::irk_size_>(entry.peer_irk),
-            make_const_ArrayView<CryptoToolbox::prand_size_>(
-                resolvable_address.data() + CryptoToolbox::hash_size_
-            ),
-            make_ArrayView(hash_generated)
-        );
-
-        // Compare hash generated with the hash present in the address passed as
-        // parameter. If they are equal then the IRK of the entry has been used
-        // to generate the resolvable address.
-        if (memcmp(hash_generated.data(), resolvable_address.data(), CryptoToolbox::hash_size_) == 0) {
-            return &entry;
-        }
-    }
-#endif
-    return NULL;
-}
-
-
 
 ////////////////////////////////////////////////////////////////////////////
 // Pairing
