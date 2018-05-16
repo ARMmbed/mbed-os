@@ -120,7 +120,7 @@
 
 static USBPhyHw *instance;
 
-static volatile int epComplete;
+static uint32_t opStarted;
 
 static void SIECommand(uint32_t command)
 {
@@ -250,16 +250,24 @@ static uint8_t selectEndpointClearInterrupt(uint8_t endpoint)
 
 static void enableEndpointEvent(uint8_t endpoint)
 {
-    // Enable an endpoint interrupt
+    // Route endpoint events to USBEpIntSt so they trigger an interrupt
     LPC_USB->USBEpIntEn |= EP(endpoint);
 }
 
+// Do not use disableEndpointEvent. If an endpoint's event is disabled
+// and a transfer occurs on that endpoint then that endpoint will enter
+// a bad state. Future transfers on that endpoint will not trigger an
+// interrupt even if the endpoint event is enabled again or the
+// endpoint is reinitialized
+/*
 static void disableEndpointEvent(uint8_t endpoint) __attribute__((unused));
 static void disableEndpointEvent(uint8_t endpoint)
 {
-    // Disable an endpoint interrupt
+    // Don't set endpoint interrupt to pending in USBEpIntSt when an event occurs.
+    // Instead route them to USBDMARSt so they can be ignored.
     LPC_USB->USBEpIntEn &= ~EP(endpoint);
 }
+*/
 
 
 static uint32_t endpointReadcore(uint8_t endpoint, uint8_t *buffer, uint32_t size)
@@ -392,9 +400,17 @@ void USBPhyHw::init(USBPhyEvents *events)
     // Connect must be low for at least 2.5uS
     wait(0.3);
 
+    // Disable control endpoints
+    SIEsetEndpointStatus(EP0IN, SIE_SES_DA);
+    SIEsetEndpointStatus(EP0OUT, SIE_SES_DA);
+
     // Set the maximum packet size for the control endpoints
     endpoint_add(EP0IN, MAX_PACKET_SIZE_EP0, USB_EP_TYPE_CTRL);
     endpoint_add(EP0OUT, MAX_PACKET_SIZE_EP0, USB_EP_TYPE_CTRL);
+
+    // Map interrupts to USBEpIntSt
+    enableEndpointEvent(EP0IN);
+    enableEndpointEvent(EP0OUT);
 
     // Attach IRQ
     instance = this;
@@ -413,6 +429,7 @@ void USBPhyHw::deinit()
     // Disable USB interrupts
     NVIC_DisableIRQ(USB_IRQn);
     events = NULL;
+    opStarted = 0;
 }
 
 bool USBPhyHw::powered()
@@ -422,8 +439,9 @@ bool USBPhyHw::powered()
 
 void USBPhyHw::connect(void)
 {
-    enableEndpointEvent(EP0IN);
-    enableEndpointEvent(EP0OUT);
+    // Enable control endpoints
+    SIEsetEndpointStatus(EP0IN, 0);
+    SIEsetEndpointStatus(EP0OUT, 0);
 
     // Connect USB device
     SIEconnect();
@@ -431,8 +449,9 @@ void USBPhyHw::connect(void)
 
 void USBPhyHw::disconnect(void)
 {
-    disableEndpointEvent(EP0IN);
-    disableEndpointEvent(EP0OUT);
+    // Disable control endpoints
+    SIEsetEndpointStatus(EP0IN, SIE_SES_DA);
+    SIEsetEndpointStatus(EP0OUT, SIE_SES_DA);
 
     if (LPC_USB->USBEpIntSt & EP(EP0IN)) {
         selectEndpointClearInterrupt(EP0IN);
@@ -512,9 +531,9 @@ void USBPhyHw::ep0_stall(void)
 
 bool USBPhyHw::endpoint_read(usb_ep_t endpoint, uint8_t *data, uint32_t size)
 {
+    opStarted |= EP(endpoint);
     read_buffers[endpoint] = data;
     read_sizes[endpoint] = size;
-    enableEndpointEvent(endpoint);
     uint8_t status = SIEselectEndpoint(endpoint);
     if (status & ((1 << 5) | (1 << 6))) {
         // If any buffer has data then set the interrupt flag
@@ -525,13 +544,7 @@ bool USBPhyHw::endpoint_read(usb_ep_t endpoint, uint8_t *data, uint32_t size)
 
 uint32_t USBPhyHw::endpoint_read_result(usb_ep_t endpoint)
 {
-
-    //for isochronous endpoint, we don't wait an interrupt
-    if ((DESC_TO_PHY(endpoint) >> 1) % 3 || (DESC_TO_PHY(endpoint) >> 1) == 0) {
-        if (!(epComplete & EP(endpoint))) {
-            return 0;
-        }
-    }
+    opStarted &= ~EP(endpoint);
 
     uint32_t bytesRead = endpointReadcore(endpoint, read_buffers[endpoint], read_sizes[endpoint]);
     read_buffers[endpoint] = NULL;
@@ -543,13 +556,12 @@ uint32_t USBPhyHw::endpoint_read_result(usb_ep_t endpoint)
         SIEclearBuffer();
     }
 
-    epComplete &= ~EP(endpoint);
     return bytesRead;
 }
 
 bool USBPhyHw::endpoint_write(usb_ep_t endpoint, uint8_t *data, uint32_t size)
 {
-    epComplete &= ~EP(endpoint);
+    opStarted |= EP(endpoint);
 
     endpointWritecore(endpoint, data, size);
     return true;
@@ -557,7 +569,13 @@ bool USBPhyHw::endpoint_write(usb_ep_t endpoint, uint8_t *data, uint32_t size)
 
 void USBPhyHw::endpoint_abort(usb_ep_t endpoint)
 {
-    //TODO - needs to be implemented
+    opStarted &= ~EP(endpoint);
+
+    // Clear out transfer buffers since the transfer has been aborted
+    if (OUT_EP(endpoint)) {
+        read_buffers[endpoint] = NULL;
+        read_sizes[endpoint] = 0;
+    }
 }
 
 bool USBPhyHw::endpoint_add(usb_ep_t endpoint, uint32_t maxPacket, usb_ep_type_t type)
@@ -571,9 +589,12 @@ bool USBPhyHw::endpoint_add(usb_ep_t endpoint, uint32_t maxPacket, usb_ep_type_t
     while (!(LPC_USB->USBDevIntSt & EP_RLZED));
     LPC_USB->USBDevIntClr = EP_RLZED;
 
-    if (IN_EP(endpoint)) {
-        enableEndpointEvent(endpoint);
-    }
+    // Map interrupts to USBEpIntSt
+    enableEndpointEvent(endpoint);
+
+    // Enable this endpoint
+    SIEsetEndpointStatus(endpoint, 0);
+
     return true;
 }
 
@@ -581,10 +602,15 @@ void USBPhyHw::endpoint_remove(usb_ep_t endpoint)
 {
     // Unrealise an endpoint
 
-    disableEndpointEvent(endpoint);
+    opStarted &= ~EP(endpoint);
 
-    // reset this endpoint, including data toggle
-    SIEsetEndpointStatus(endpoint, 0);
+    // Disable this endpoint
+    SIEsetEndpointStatus(endpoint, SIE_SES_DA);
+
+    // Clear the given interrupt bit in USBEpIntSt if it is set
+    if (LPC_USB->USBEpIntSt & EP(endpoint)) {
+        selectEndpointClearInterrupt(endpoint);
+    }
 
     LPC_USB->USBDevIntClr = EP_RLZED;
     LPC_USB->USBReEp &= ~EP(endpoint);
@@ -731,12 +757,12 @@ void USBPhyHw::process(void)
             uint8_t endpoint = PHY_TO_DESC(num);
             if (LPC_USB->USBEpIntSt & EP(endpoint)) {
                 selectEndpointClearInterrupt(endpoint);
-                epComplete |= EP(endpoint);
-                if (IN_EP(endpoint)) {
-                    events->in(endpoint);
-                } else {
-                    disableEndpointEvent(endpoint);
-                    events->out(endpoint);
+                if (opStarted & EP(endpoint)) {
+                    if (IN_EP(endpoint)) {
+                        events->in(endpoint);
+                    } else {
+                        events->out(endpoint);
+                    }
                 }
             }
         }
