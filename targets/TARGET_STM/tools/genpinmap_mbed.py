@@ -9,7 +9,7 @@ import textwrap
 from xml.dom.minidom import parse, Node
 from argparse import RawTextHelpFormatter
 
-GENPINMAP_VERSION = "1.0"
+GENPINMAP_VERSION = "1.1"
 
 ADD_DEVICE_IFDEF = 0
 ADD_QSPI_FEATURE = 0
@@ -189,8 +189,17 @@ def get_gpio_af_numF1(pintofind, iptofind):
     if mygpioaf == 'NOTFOUND':
         print ('GPIO AF not found in ' + gpiofile + ' for ' + pintofind + ' and the IP ' + iptofind + ' set as AFIO_NONE')
         mygpioaf = 'AFIO_NONE'
-    return mygpioaf.replace('NOTFOUND ', '')
-
+    return mygpioaf.replace('NOTFOUND ', '')\
+        .replace("AFIO_NONE", "0")\
+        .replace("AFIO_SPI1_ENABLE", "1")\
+        .replace("AFIO_I2C1_ENABLE", "2")\
+        .replace("AFIO_USART1_ENABLE", "3")\
+        .replace("AFIO_USART3_PARTIAL", "5")\
+        .replace("AFIO_TIM1_PARTIAL", "6")\
+        .replace("AFIO_TIM3_PARTIAL", "7")\
+        .replace("AFIO_TIM2_ENABLE", "8")\
+        .replace("AFIO_TIM3_ENABLE", "9")\
+        .replace("AFIO_CAN1_2", "10")
 
 #function to store I/O pin
 def store_pin (pin, name):
@@ -312,7 +321,7 @@ def print_header():
 //==============================================================================
 // Notes
 //
-// - The pins mentionned Px_y_ALTz are alternative possibilities which use other
+// - The pins mentioned Px_y_ALTz are alternative possibilities which use other
 //   HW peripheral instances. You can use them the same way as any other "normal"
 //   pin (i.e. PwmOut pwm(PA_7_ALT0);). These pins are not displayed on the board
 //   pinout image on mbed.org.
@@ -465,9 +474,9 @@ def print_list_header(comment, name, l, switch):
 
         s += "MBED_WEAK const PinMap PinMap_%s[] = {\n" % name
 
-    else:
-        if comment:
-            s += "\n//*** No %s ***\n" % comment
+    # else:
+    #     if comment:
+    #         s += "\n//*** No %s ***\n" % comment
 
     out_c_file.write(s)
     return len(l)
@@ -482,7 +491,7 @@ def print_adc():
             if p[1] in PinLabel.keys():
                 if "STDIO_UART" in PinLabel[p[1]]:
                     CommentedLine = "//"
-                if "RCC_OSC" in PinLabel[p[1]] or "SWCLK" in PinLabel[p[1]]:
+                if "RCC_OSC" in PinLabel[p[1]]:
                     CommentedLine = "//"
             if CommentedLine != "//":
                 if p[0] == prev_p:
@@ -525,7 +534,7 @@ def print_dac():
         if p[1] in PinLabel.keys():
             if "STDIO_UART" in PinLabel[p[1]]:
                 CommentedLine = "//"
-            if "RCC_OSC" in PinLabel[p[1]] or "SWCLK" in PinLabel[p[1]]:
+            if "RCC_OSC" in PinLabel[p[1]]:
                 CommentedLine = "//"
         s1 = "%-17s" % (CommentedLine + "  {" + p[0] + ',')
         #p[2] : DAC_OUT1 / DAC1_OUT1
@@ -556,7 +565,7 @@ def print_i2c(l):
             if p[1] in PinLabel.keys():
                 if "STDIO_UART" in PinLabel[p[1]]:
                     CommentedLine = "//"
-                if "RCC_OSC" in PinLabel[p[1]] or "SWCLK" in PinLabel[p[1]]:
+                if "RCC_OSC" in PinLabel[p[1]]:
                     CommentedLine = "//"
             if CommentedLine != "//":
                 if p[0] == prev_p:
@@ -601,7 +610,7 @@ def print_pwm():
             if p[1] in PinLabel.keys():
                 if "STDIO_UART" in PinLabel[p[1]]:
                     CommentedLine = "//"
-                if "RCC_OSC" in PinLabel[p[1]] or "SWCLK" in PinLabel[p[1]]:
+                if "RCC_OSC" in PinLabel[p[1]]:
                     CommentedLine = "//"
             if "%s_" % TIM_MST in p[2]:
                 CommentedLine = "//"
@@ -648,7 +657,7 @@ def print_uart(l):
         if result != 'NOTFOUND':
             CommentedLine = "  "
             if p[1] in PinLabel.keys():
-                if "RCC_OSC" in PinLabel[p[1]] or "SWCLK" in PinLabel[p[1]]:
+                if "RCC_OSC" in PinLabel[p[1]]:
                     CommentedLine = "//"
             if CommentedLine != "//":
                 if p[0] == prev_p:
@@ -691,7 +700,7 @@ def print_spi(l):
             if p[1] in PinLabel.keys():
                 if "STDIO_UART" in PinLabel[p[1]]:
                     CommentedLine = "//"
-                if "RCC_OSC" in PinLabel[p[1]] or "SWCLK" in PinLabel[p[1]]:
+                if "RCC_OSC" in PinLabel[p[1]]:
                     CommentedLine = "//"
             if CommentedLine != "//":
                 if p[0] == prev_p:
@@ -727,7 +736,7 @@ def print_can(l):
             if p[1] in PinLabel.keys():
                 if "STDIO_UART" in PinLabel[p[1]]:
                     CommentedLine = "//"
-                if "RCC_OSC" in PinLabel[p[1]] or "SWCLK" in PinLabel[p[1]]:
+                if "RCC_OSC" in PinLabel[p[1]]:
                     CommentedLine = "//"
             s1 = "%-17s" % (CommentedLine + "  {" + p[0] + ',')
             # p[2] : CAN_RX / CAN1_RX
@@ -762,7 +771,7 @@ def print_qspi(l):
             if p[1] in PinLabel.keys():
                 if "STDIO_UART" in PinLabel[p[1]]:
                     CommentedLine = "//"
-                if "RCC_OSC" in PinLabel[p[1]] or "SWCLK" in PinLabel[p[1]]:
+                if "RCC_OSC" in PinLabel[p[1]]:
                     CommentedLine = "//"
             s1 = "%-17s" % (CommentedLine + "    {" + p[0] + ',')
             # p[2] : QUADSPI_BK1_IO3 / QUADSPI_CLK / QUADSPI_NCS
@@ -806,9 +815,9 @@ def print_h_file(l, comment):
                 alt_index = 0
             s1 = "    %s = %s,\n" % (p[2].replace("-", "_"), p[0])
             out_h_file.write(s1)
-    else:
-        s = ("\n/**** No %s pins ***/\n" % comment)
-        out_h_file.write(s)
+    # else:
+    #     s = ("\n/**** No %s pins ***/\n" % comment)
+    #     out_h_file.write(s)
 
 
 tokenize = re.compile(r'(\d+)|(\D+)').findall
@@ -954,10 +963,11 @@ def parse_BoardFile(fileName):
         try:
             PinLabel[EachPin] = PinData[EachPin]["GPIO_Label"]
 
-            if "STLK_RX" in PinLabel[EachPin]:
-                PinLabel[EachPin] = "STDIO_UART_RX"
-            elif "STLK_TX" in PinLabel[EachPin]:
-                PinLabel[EachPin] = "STDIO_UART_TX"
+            if "STLK_RX" in PinLabel[EachPin] or "STLK_TX" in PinLabel[EachPin]:
+                if "RX" in PinData[EachPin]["Signal"]:
+                    PinLabel[EachPin] = "STDIO_UART_RX"
+                else:
+                    PinLabel[EachPin] = "STDIO_UART_TX"
             elif "USART_RX" in PinLabel[EachPin]:
                 PinLabel[EachPin] = "STDIO_UART_RX"
             elif "USART_TX" in PinLabel[EachPin]:
@@ -974,10 +984,11 @@ def parse_BoardFile(fileName):
                 PinLabel[EachPin] = "STDIO_UART_RX"
             elif "USART2_TX" in PinLabel[EachPin]:
                 PinLabel[EachPin] = "STDIO_UART_TX"
-            elif "STLINK_RX" in PinLabel[EachPin]:
-                PinLabel[EachPin] = "STDIO_UART_RX"
-            elif "STLINK_TX" in PinLabel[EachPin]:
-                PinLabel[EachPin] = "STDIO_UART_TX"
+            elif "STLINK_RX" in PinLabel[EachPin] or "STLINK_TX" in PinLabel[EachPin]:
+                if "RX" in PinData[EachPin]["Signal"]:
+                    PinLabel[EachPin] = "STDIO_UART_RX"
+                else:
+                    PinLabel[EachPin] = "STDIO_UART_TX"
         except:
             pass
 
@@ -1126,7 +1137,7 @@ if args.target:
 for mcu_file in mcu_list:
     if args.mcu:
         TargetName = os.path.splitext(mcu_file)[0]
-    out_path = os.path.join(cur_dir, 'TARGET_%s' % TargetName)
+    out_path = os.path.join(cur_dir, '%s' % TargetName)
     print(" * Output directory: %s" % (out_path))
     print(" * Generating %s and %s with '%s'" % (PeripheralPins_c_filename, PinNames_h_filename, mcu_file))
     input_file_name = os.path.join(cubemxdirMCU, mcu_file)
@@ -1142,7 +1153,36 @@ for mcu_file in mcu_list:
     out_h_file = open(output_hfilename, 'w')
 
     #open input file
-    xml_mcu = parse(input_file_name)
+    try:
+        xml_mcu = parse(input_file_name)
+    except:
+        # Patch waiting for CubeMX correction
+        if "STM32F042K6Tx" in input_file_name:
+            input_file_name = os.path.join(cubemxdirMCU, "STM32F042K(4-6)Tx.xml")
+            xml_mcu = parse(input_file_name)
+        elif "STM32F429Z" in input_file_name:
+            input_file_name = os.path.join(cubemxdirMCU, "STM32F429ZITx.xml")
+            xml_mcu = parse(input_file_name)
+        elif "STM32F746Z" in input_file_name:
+            input_file_name = os.path.join(cubemxdirMCU, "STM32F746ZGTx.xml")
+            xml_mcu = parse(input_file_name)
+        elif "STM32F767Z" in input_file_name:
+            input_file_name = os.path.join(cubemxdirMCU, "STM32F767ZGTx.xml")
+            xml_mcu = parse(input_file_name)
+
+        elif "STM32L011K4Tx" in input_file_name:
+            input_file_name = os.path.join(cubemxdirMCU, "STM32L011K(3-4)Tx.xml")
+            xml_mcu = parse(input_file_name)
+        elif "STM32L432KCUx" in input_file_name:
+            input_file_name = os.path.join(cubemxdirMCU, "STM32L432K(B-C)Ux.xml")
+            xml_mcu = parse(input_file_name)
+        elif "STM32F746N" in input_file_name:
+            input_file_name = os.path.join(cubemxdirMCU, "STM32F746NGHx.xml")
+            xml_mcu = parse(input_file_name)
+        else:
+            print ("\n ! ! ! Error in CubeMX file. File " + input_file_name + " doesn't exist")
+            print (" ! ! ! Check in " + cubemxdirMCU)
+            quit()
     gpiofile = find_gpio_file()
     if gpiofile == 'ERROR':
         print("Could not find GPIO file")
