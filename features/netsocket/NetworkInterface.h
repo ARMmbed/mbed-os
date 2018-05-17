@@ -84,7 +84,7 @@ public:
      *  Provided MAC address is intended for info or debug purposes and
      *  may not be provided if the underlying network interface does not
      *  provide a MAC address
-     *  
+     *
      *  @return         Null-terminated representation of the local MAC address
      *                  or null if no MAC address is available
      */
@@ -99,7 +99,7 @@ public:
 
     /** Get the local network mask
      *
-     *  @return         Null-terminated representation of the local network mask 
+     *  @return         Null-terminated representation of the local network mask
      *                  or null if no network mask has been received
      */
     virtual const char *get_netmask();
@@ -270,7 +270,7 @@ public:
     }
 
 protected:
-    friend class Socket;
+    friend class InternetSocket;
     friend class UDPSocket;
     friend class TCPSocket;
     friend class TCPServer;

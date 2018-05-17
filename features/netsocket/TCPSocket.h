@@ -20,7 +20,7 @@
 #ifndef TCPSOCKET_H
 #define TCPSOCKET_H
 
-#include "netsocket/Socket.h"
+#include "netsocket/InternetSocket.h"
 #include "netsocket/NetworkStack.h"
 #include "netsocket/NetworkInterface.h"
 #include "rtos/EventFlags.h"
@@ -28,7 +28,7 @@
 
 /** TCP socket connection
  */
-class TCPSocket : public Socket {
+class TCPSocket : public InternetSocket {
 public:
     /** Create an uninitialized socket
      *
@@ -60,7 +60,7 @@ public:
    /** Override multicast functions to return error for TCP
     *
     */
-    int join_multicast_group(const SocketAddress &address) { return NSAPI_ERROR_UNSUPPORTED; }
+    virtual int join_multicast_group(const SocketAddress &address) { return NSAPI_ERROR_UNSUPPORTED; }
 
     /** Connects TCP socket to a remote host
      *
@@ -81,8 +81,8 @@ public:
      *  @param address  The SocketAddress of the remote host
      *  @return         0 on success, negative error code on failure
      */
-    nsapi_error_t connect(const SocketAddress &address);
-    
+    virtual nsapi_error_t connect(const SocketAddress &address);
+
     /** Send data over a TCP socket
      *
      *  The socket must be connected to a remote host. Returns the number of
@@ -97,8 +97,8 @@ public:
      *  @return         Number of sent bytes on success, negative error
      *                  code on failure
      */
-    nsapi_size_or_error_t send(const void *data, nsapi_size_t size);
-    
+    virtual nsapi_size_or_error_t send(const void *data, nsapi_size_t size);
+
     /** Receive data over a TCP socket
      *
      *  The socket must be connected to a remote host. Returns the number of
@@ -115,7 +115,26 @@ public:
      *                  and the peer has performed an orderly shutdown,
      *                  recv() returns 0.
      */
-    nsapi_size_or_error_t recv(void *data, nsapi_size_t size);
+    virtual nsapi_size_or_error_t recv(void *data, nsapi_size_t size);
+
+    /** Send data on a socket.
+     *
+     * TCP socket is connection oriented protocol, so address is ignored.
+     *
+     * By default, sendto blocks until data is sent. If socket is set to
+     * non-blocking or times out, NSAPI_ERROR_WOULD_BLOCK is returned
+     * immediately.
+     *
+     *  @param address  Remote address
+     *  @param data     Buffer of data to send to the host
+     *  @param size     Size of the buffer in bytes
+     *  @return         Number of sent bytes on success, negative error
+     *                  code on failure
+     */
+    virtual nsapi_size_or_error_t sendto(const SocketAddress &address,
+            const void *data, nsapi_size_t size);
+    virtual nsapi_size_or_error_t recvfrom(SocketAddress *address,
+            void *data, nsapi_size_t size);
 
 protected:
     friend class TCPServer;

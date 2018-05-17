@@ -1,4 +1,4 @@
-/* Socket
+/* InternetSocket
  * Copyright (c) 2015 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,17 +14,19 @@
  * limitations under the License.
  */
 
-#include "Socket.h"
-#include "mbed.h"
+#include "InternetSocket.h"
+#include "platform/Callback.h"
 
-Socket::Socket()
+using namespace mbed;
+
+InternetSocket::InternetSocket()
     : _stack(0)
     , _socket(0)
     , _timeout(osWaitForever)
 {
 }
 
-nsapi_error_t Socket::open(NetworkStack *stack)
+nsapi_error_t InternetSocket::open(NetworkStack *stack)
 {
     _lock.lock();
 
@@ -42,14 +44,14 @@ nsapi_error_t Socket::open(NetworkStack *stack)
     }
 
     _socket = socket;
-    _event = callback(this, &Socket::event);
+    _event = callback(this, &InternetSocket::event);
     _stack->socket_attach(_socket, Callback<void()>::thunk, &_event);
 
     _lock.unlock();
     return NSAPI_ERROR_OK;
 }
 
-nsapi_error_t Socket::close()
+nsapi_error_t InternetSocket::close()
 {
     _lock.lock();
 
@@ -70,7 +72,7 @@ nsapi_error_t Socket::close()
     return ret;
 }
 
-int Socket::modify_multicast_group(const SocketAddress &address, nsapi_socket_option_t socketopt)
+int InternetSocket::modify_multicast_group(const SocketAddress &address, nsapi_socket_option_t socketopt)
 {
     nsapi_ip_mreq_t mreq;
 
@@ -81,32 +83,32 @@ int Socket::modify_multicast_group(const SocketAddress &address, nsapi_socket_op
     return this->setsockopt(NSAPI_SOCKET, socketopt, &mreq, sizeof(mreq));
 }
 
-int Socket::join_multicast_group(const SocketAddress &address)
+int InternetSocket::join_multicast_group(const SocketAddress &address)
 {
     return modify_multicast_group(address, NSAPI_ADD_MEMBERSHIP);
 }
 
-int Socket::leave_multicast_group(const SocketAddress &address)
+int InternetSocket::leave_multicast_group(const SocketAddress &address)
 {
     return modify_multicast_group(address, NSAPI_DROP_MEMBERSHIP);
 }
 
 
-nsapi_error_t Socket::bind(uint16_t port)
+nsapi_error_t InternetSocket::bind(uint16_t port)
 {
     // Underlying bind is thread safe
     SocketAddress addr(0, port);
     return bind(addr);
 }
 
-nsapi_error_t Socket::bind(const char *address, uint16_t port)
+nsapi_error_t InternetSocket::bind(const char *address, uint16_t port)
 {
     // Underlying bind is thread safe
     SocketAddress addr(address, port);
     return bind(addr);
 }
 
-nsapi_error_t Socket::bind(const SocketAddress &address)
+nsapi_error_t InternetSocket::bind(const SocketAddress &address)
 {
     _lock.lock();
     nsapi_error_t ret;
@@ -121,13 +123,13 @@ nsapi_error_t Socket::bind(const SocketAddress &address)
     return ret;
 }
 
-void Socket::set_blocking(bool blocking)
+void InternetSocket::set_blocking(bool blocking)
 {
-    // Socket::set_timeout is thread safe
+    // InternetSocket::set_timeout is thread safe
     set_timeout(blocking ? -1 : 0);
 }
 
-void Socket::set_timeout(int timeout)
+void InternetSocket::set_timeout(int timeout)
 {
     _lock.lock();
 
@@ -140,7 +142,7 @@ void Socket::set_timeout(int timeout)
     _lock.unlock();
 }
 
-nsapi_error_t Socket::setsockopt(int level, int optname, const void *optval, unsigned optlen)
+nsapi_error_t InternetSocket::setsockopt(int level, int optname, const void *optval, unsigned optlen)
 {
     _lock.lock();
     nsapi_error_t ret;
@@ -155,7 +157,7 @@ nsapi_error_t Socket::setsockopt(int level, int optname, const void *optval, uns
     return ret;
 }
 
-nsapi_error_t Socket::getsockopt(int level, int optname, void *optval, unsigned *optlen)
+nsapi_error_t InternetSocket::getsockopt(int level, int optname, void *optval, unsigned *optlen)
 {
     _lock.lock();
     nsapi_error_t ret;
@@ -171,14 +173,14 @@ nsapi_error_t Socket::getsockopt(int level, int optname, void *optval, unsigned 
 
 }
 
-void Socket::sigio(Callback<void()> callback)
+void InternetSocket::sigio(Callback<void()> callback)
 {
     _lock.lock();
     _callback = callback;
     _lock.unlock();
 }
 
-void Socket::attach(Callback<void()> callback)
+void InternetSocket::attach(Callback<void()> callback)
 {
     sigio(callback);
 }

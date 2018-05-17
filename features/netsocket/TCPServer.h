@@ -18,7 +18,7 @@
 #ifndef TCPSERVER_H
 #define TCPSERVER_H
 
-#include "netsocket/Socket.h"
+#include "netsocket/InternetSocket.h"
 #include "netsocket/TCPSocket.h"
 #include "netsocket/NetworkStack.h"
 #include "netsocket/NetworkInterface.h"
@@ -28,7 +28,7 @@
 /** TCP socket server
  *  @addtogroup netsocket
  */
-class TCPServer : public Socket {
+class TCPServer : public InternetSocket {
 public:
     /** Create an uninitialized socket
      *
@@ -66,7 +66,7 @@ public:
      *  @return         0 on success, negative error code on failure
      */
     nsapi_error_t listen(int backlog = 1);
-    
+
     /** Accepts a connection on a TCP socket
      *
      *  The server socket must be bound and set to listen for connections.
@@ -82,6 +82,42 @@ public:
      *  @return           0 on success, negative error code on failure
      */
     nsapi_error_t accept(TCPSocket *connection, SocketAddress *address = NULL);
+
+    /** Not supported on TCPServer.
+     * @param address unused
+     * @return NSAPI_ERROR_UNSUPPORTED
+     */
+    virtual nsapi_error_t connect(const SocketAddress &address);
+
+    /** Not supported on TCPServer.
+     * @param data unused
+     * @param size unused
+     * @return NSAPI_ERROR_UNSUPPORTED
+     */
+    virtual nsapi_size_or_error_t send(const void *data, nsapi_size_t size);
+
+    /** Not supported on TCPServer.
+     * @param data unused
+     * @param size unused
+     * @return NSAPI_ERROR_UNSUPPORTED
+     */
+    virtual nsapi_size_or_error_t recv(void *data, nsapi_size_t size);
+
+    /** Not supported on TCPServer.
+     * @param address unused
+     * @param data unused
+     * @param size unused
+     * @return NSAPI_ERROR_UNSUPPORTED
+     */
+    virtual nsapi_size_or_error_t sendto(const SocketAddress& address, const void *data, nsapi_size_t size);
+
+    /** Not supported on TCPServer.
+     * @param address unused
+     * @param data unused
+     * @param size unused
+     * @return NSAPI_ERROR_UNSUPPORTED
+     */
+    virtual nsapi_size_or_error_t recvfrom(SocketAddress* address, void *data, nsapi_size_t size);
 
 protected:
     virtual nsapi_protocol_t get_proto();

@@ -18,8 +18,9 @@
 #include "NetworkInterface.h"
 #include "NetworkStack.h"
 #include <string.h>
+#include <stdio.h>
 #include "ip6string.h"
-#include "mbed.h"
+
 
 
 static bool ipv4_is_valid(const char *addr)

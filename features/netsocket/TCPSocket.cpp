@@ -84,6 +84,10 @@ nsapi_error_t TCPSocket::connect(const SocketAddress &address)
         ret = NSAPI_ERROR_OK;
     }
 
+    if (ret == NSAPI_ERROR_OK || ret == NSAPI_ERROR_IN_PROGRESS) {
+        _remote_peer = address;
+    }
+
     _lock.unlock();
     return ret;
 }
@@ -163,6 +167,12 @@ nsapi_size_or_error_t TCPSocket::send(const void *data, nsapi_size_t size)
     }
 }
 
+nsapi_size_or_error_t TCPSocket::sendto(const SocketAddress &address, const void *data, nsapi_size_t size)
+{
+    (void)address;
+    return send(data, size);
+}
+
 nsapi_size_or_error_t TCPSocket::recv(void *data, nsapi_size_t size)
 {
     _lock.lock();
@@ -204,6 +214,14 @@ nsapi_size_or_error_t TCPSocket::recv(void *data, nsapi_size_t size)
     _read_in_progress = false;
     _lock.unlock();
     return ret;
+}
+
+nsapi_size_or_error_t TCPSocket::recvfrom(SocketAddress *address, void *data, nsapi_size_t size)
+{
+    if (address) {
+        *address = _remote_peer;
+    }
+    return recv(data, size);
 }
 
 void TCPSocket::event()

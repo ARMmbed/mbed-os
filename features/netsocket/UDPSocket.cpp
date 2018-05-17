@@ -37,6 +37,13 @@ nsapi_protocol_t UDPSocket::get_proto()
     return NSAPI_UDP;
 }
 
+nsapi_error_t UDPSocket::connect(const SocketAddress &address)
+{
+    if (!address)
+        return NSAPI_ERROR_PARAMETER;
+    _remote_peer = address;
+    return NSAPI_ERROR_OK;
+}
 
 nsapi_size_or_error_t UDPSocket::sendto(const char *host, uint16_t port, const void *data, nsapi_size_t size)
 {
@@ -89,6 +96,13 @@ nsapi_size_or_error_t UDPSocket::sendto(const SocketAddress &address, const void
     return ret;
 }
 
+nsapi_size_or_error_t UDPSocket::send(const void *data, nsapi_size_t size)
+{
+    if (!_remote_peer)
+        return NSAPI_ERROR_NO_ADDRESS;
+    return sendto(_remote_peer, data, size);
+}
+
 nsapi_size_or_error_t UDPSocket::recvfrom(SocketAddress *address, void *buffer, nsapi_size_t size)
 {
     _lock.lock();
@@ -124,6 +138,12 @@ nsapi_size_or_error_t UDPSocket::recvfrom(SocketAddress *address, void *buffer, 
 
     _lock.unlock();
     return ret;
+}
+
+nsapi_size_or_error_t UDPSocket::recv(void *buffer, nsapi_size_t size)
+{
+    SocketAddress ignored; // Dangerous, I'm spending ~50 bytes from stack for address space that I'll ignore.
+    return recvfrom(&ignored, buffer, size);
 }
 
 void UDPSocket::event()

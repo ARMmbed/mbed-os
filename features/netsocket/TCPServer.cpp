@@ -56,7 +56,7 @@ nsapi_error_t TCPServer::accept(TCPSocket *connection, SocketAddress *address)
         if (!_socket) {
             ret = NSAPI_ERROR_NO_SOCKET;
             break;
-        } 
+        }
 
         _pending = 0;
         void *socket;
@@ -110,4 +110,29 @@ void TCPServer::event()
     if (_callback && _pending == 1) {
         _callback();
     }
+}
+
+nsapi_error_t TCPServer::connect(const SocketAddress)
+{
+    return NSAPI_ERROR_UNSUPPORTED;
+}
+
+nsapi_size_or_error_t TCPServer::send(const void *, nsapi_size_t)
+{
+    return NSAPI_ERROR_UNSUPPORTED;
+}
+
+nsapi_size_or_error_t TCPServer::recv(void *, nsapi_size_t)
+{
+    return NSAPI_ERROR_UNSUPPORTED;
+}
+
+nsapi_size_or_error_t TCPServer::sendto(const SocketAddress&, const void *, nsapi_size_t)
+{
+    return NSAPI_ERROR_UNSUPPORTED;
+}
+
+nsapi_size_or_error_t TCPServer::recvfrom(SocketAddress*, void *, nsapi_size_t)
+{
+    return NSAPI_ERROR_UNSUPPORTED;
 }
