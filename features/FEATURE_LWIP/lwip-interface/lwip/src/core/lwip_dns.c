@@ -283,16 +283,18 @@ static void dns_init_local(void);
 static err_t dns_lookup_local(const char *hostname, ip_addr_t *addr LWIP_DNS_ADDRTYPE_ARG(u8_t dns_addrtype));
 #endif /* DNS_LOCAL_HOSTLIST */
 
-
+#if LWIP_FULL_DNS
 /* forward declarations */
 static void dns_recv(void *s, struct udp_pcb *pcb, struct pbuf *p, const ip_addr_t *addr, u16_t port);
 static void dns_check_entries(void);
 static void dns_call_found(u8_t idx, ip_addr_t* addr);
+#endif
 
 /*-----------------------------------------------------------------------------
  * Globals
  *----------------------------------------------------------------------------*/
 
+#if LWIP_FULL_DNS
 /* DNS variables */
 static struct udp_pcb        *dns_pcbs[DNS_MAX_SOURCE_PORTS];
 #if ((LWIP_DNS_SECURE & LWIP_DNS_SECURE_RAND_SRC_PORT) != 0)
@@ -301,6 +303,7 @@ static u8_t                   dns_last_pcb_idx;
 static u8_t                   dns_seqno;
 static struct dns_table_entry dns_table[DNS_TABLE_SIZE];
 static struct dns_req_entry   dns_requests[DNS_MAX_REQUESTS];
+#endif
 static ip_addr_t              dns_servers[DNS_MAX_SERVERS];
 
 #if LWIP_IPV4
@@ -324,6 +327,7 @@ dns_init(void)
   dns_setserver(0, &dnsserver);
 #endif /* DNS_SERVER_ADDRESS */
 
+#if LWIP_FULL_DNS
   LWIP_ASSERT("sanity check SIZEOF_DNS_QUERY",
     sizeof(struct dns_query) == SIZEOF_DNS_QUERY);
   LWIP_ASSERT("sanity check SIZEOF_DNS_ANSWER",
@@ -351,6 +355,7 @@ dns_init(void)
 #if DNS_LOCAL_HOSTLIST
   dns_init_local();
 #endif
+#endif /* LWIP_FULL_DNS */
 }
 
 /**
@@ -397,9 +402,13 @@ dns_getserver(u8_t numdns)
 void
 dns_tmr(void)
 {
+#if LWIP_FULL_DNS
   LWIP_DEBUGF(DNS_DEBUG, ("dns_tmr: dns_check_entries\n"));
   dns_check_entries();
+#endif
 }
+
+#if LWIP_FULL_DNS
 
 #if DNS_LOCAL_HOSTLIST
 static void
@@ -1569,5 +1578,7 @@ dns_gethostbyname_addrtype(const char *hostname, ip_addr_t *addr, dns_found_call
   return dns_enqueue(hostname, hostnamelen, found, callback_arg LWIP_DNS_ADDRTYPE_ARG(dns_addrtype)
      LWIP_DNS_ISMDNS_ARG(is_mdns));
 }
+
+#endif /* LWIP_FULL_DNS */
 
 #endif /* LWIP_DNS */

@@ -23,6 +23,7 @@
 #include "NanostackMemoryManager.h"
 #include "MeshInterface.h"
 #include "mesh_interface_types.h"
+#include "eventOS_event.h"
 
 struct ns_address;
 
@@ -44,6 +45,8 @@ public:
     nsapi_error_t add_ethernet_interface(EMAC &emac, bool default_if, Nanostack::EthernetInterface **interface_out, const uint8_t *mac_addr = NULL);
 
 protected:
+
+    Nanostack();
 
     /** Get the local IP address
      *
@@ -242,9 +245,47 @@ protected:
     virtual nsapi_error_t getsockopt(void *handle, int level, int optname, void *optval, unsigned *optlen);
 
 private:
+
+    /** Call in callback
+      *
+      *  Callback is used to call the call in method of the network stack.
+      */
+    typedef mbed::Callback<nsapi_error_t (int delay_ms, mbed::Callback<void()> user_cb)> call_in_callback_cb_t;
+
+    /** Get a call in callback
+     *
+     *  Get a call in callback from the network stack context.
+     *
+     *  Callback should not take more than 10ms to execute, otherwise it might
+     *  prevent underlying thread processing. A portable user of the callback
+     *  should not make calls to network operations due to stack size limitations.
+     *  The callback should not perform expensive operations such as socket recv/send
+     *  calls or blocking operations.
+     *
+     *  @return         Call in callback
+     */
+    virtual call_in_callback_cb_t get_call_in_callback();
+
+    /** Call a callback after a delay
+     *
+     *  Call a callback from the network stack context after a delay. If function
+     *  returns error callback will not be called.
+     *
+     *  @param delay    Delay in milliseconds
+     *  @param func     Callback to be called
+     *  @return         0 on success, negative error code on failure
+     */
+    nsapi_error_t call_in(int delay, mbed::Callback<void()> func);
+
+    struct nanostack_callback {
+        mbed::Callback<void()> callback;
+    };
+
     nsapi_size_or_error_t do_sendto(void *handle, const struct ns_address *address, const void *data, nsapi_size_t size);
+    static void call_event_tasklet_main(arm_event_s *event);
     char text_ip_address[40];
     NanostackMemoryManager memory_manager;
+    int8_t call_event_tasklet;
 };
 
 nsapi_error_t map_mesh_error(mesh_error_t err);

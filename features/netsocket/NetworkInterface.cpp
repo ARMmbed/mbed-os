@@ -60,6 +60,16 @@ nsapi_error_t NetworkInterface::gethostbyname(const char *name, SocketAddress *a
     return get_stack()->gethostbyname(name, address, version);
 }
 
+nsapi_value_or_error_t NetworkInterface::gethostbyname_async(const char *host, hostbyname_cb_t callback, nsapi_version_t version)
+{
+    return get_stack()->gethostbyname_async(host, callback, version);
+}
+
+nsapi_error_t NetworkInterface::gethostbyname_async_cancel(int id)
+{
+    return get_stack()->gethostbyname_async_cancel(id);
+}
+
 nsapi_error_t NetworkInterface::add_dns_server(const SocketAddress &address)
 {
     return get_stack()->add_dns_server(address);

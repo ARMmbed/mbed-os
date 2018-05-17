@@ -1,29 +1,23 @@
 /*
- * Copyright (c) 2013 Nuvoton Technology Corp.
+ * Copyright (c) 2018 Nuvoton Technology Corp. 
+ * Copyright (c) 2018 ARM Limited
  *
- * See file CREDITS for list of people who contributed to this
- * project.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
- * MA 02111-1307 USA
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * Description:   NUC472 EMAC driver header file
  */
-#include "lwip/def.h"
-#include "lwip/pbuf.h"
 #include "NUC472_442.h"
+#include "numaker_emac_config.h"
 #ifndef  _NUC472_ETH_
 #define  _NUC472_ETH_
 
@@ -87,10 +81,10 @@
 #define ADVERTISE_LPACK         0x4000  /* Ack link partners response  */
 #define ADVERTISE_NPAGE         0x8000  /* Next page bit               */
 
-#define RX_DESCRIPTOR_NUM 4 //2    // 4: Max Number of Rx Frame Descriptors
-#define TX_DESCRIPTOR_NUM 4 //2    // 4: Max number of Tx Frame Descriptors
+#define RX_DESCRIPTOR_NUM       NU_RX_RING_LEN//4 //2    // 4: Max Number of Rx Frame Descriptors
+#define TX_DESCRIPTOR_NUM       NU_TX_RING_LEN//4 //2    // 4: Max number of Tx Frame Descriptors
 
-#define PACKET_BUFFER_SIZE  1520
+#define PACKET_BUFFER_SIZE      NU_ETH_MAX_FLEN//1520
 
 #define CONFIG_PHY_ADDR     1
 
@@ -119,15 +113,15 @@
 // Tx/Rx buffer descriptor structure
 struct eth_descriptor;
 struct eth_descriptor {
-    u32_t  status1;
-    u8_t *buf;
-    u32_t  status2;
+    uint32_t  status1;
+    uint8_t *buf;
+    uint32_t  status2;
     struct eth_descriptor *next;
 #ifdef TIME_STAMPING
-    u32_t backup1;
-    u32_t backup2;
-    u32_t reserved1;
-    u32_t reserved2;
+    uint32_t backup1;
+    uint32_t backup2;
+    uint32_t reserved1;
+    uint32_t reserved2;
 #endif
 };
 
@@ -142,9 +136,5 @@ s32_t ETH_adjtimex(int ppm);
 void ETH_setinc(void);
 
 #endif
-
-extern void ETH_init(u8_t *mac_addr);
-extern u8_t *ETH_get_tx_buf(void);
-extern void ETH_trigger_tx(u16_t length, struct pbuf *p);
 
 #endif  /* _NUC472_ETH_ */
