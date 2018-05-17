@@ -148,10 +148,6 @@ typedef enum {
     SPI_CS      = PA_11,
     PWM_OUT     = PA_8,
 
-/**** No USB pins ***/
-
-/**** No ETHERNET pins ***/
-
 /**** OSCILLATOR pins ****/
     RCC_OSC_IN = PF_0,
     RCC_OSC_OUT = PF_1,
