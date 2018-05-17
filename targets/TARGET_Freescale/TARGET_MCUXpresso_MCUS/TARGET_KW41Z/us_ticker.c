@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+ * Copyright (c) 2006-2018 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,32 +17,58 @@
 #include "us_ticker_api.h"
 #include "PeripheralNames.h"
 #include "fsl_pit.h"
-#include "fsl_lptmr.h"
+#include "fsl_tpm.h"
 #include "fsl_clock_config.h"
 
-static int us_ticker_inited = 0;
-
-static void lptmr_isr(void)
+const ticker_info_t* us_ticker_get_info()
 {
-    LPTMR_ClearStatusFlags(LPTMR0, kLPTMR_TimerCompareFlag);
-    LPTMR_StopTimer(LPTMR0);
+    static const ticker_info_t info = {
+        1000000,
+        32
+    };
+    return &info;
+}
 
-    us_ticker_irq_handler();
+static bool us_ticker_inited = false;
+
+static uint32_t us_ticker_int_counter = 0;
+static uint16_t us_ticker_int_remainder = 0;
+
+static void tpm_isr(void)
+{
+    // Clear the TPM timer overflow flag
+    TPM_ClearStatusFlags(TPM2, kTPM_TimeOverflowFlag);
+    TPM_StopTimer(TPM2);
+
+    if (us_ticker_int_counter > 0) {
+        TPM2->MOD = 0xFFFF;
+        TPM_StartTimer(TPM2, kTPM_SystemClock);
+        us_ticker_int_counter--;
+    } else {
+        if (us_ticker_int_remainder > 0) {
+            TPM2->MOD = us_ticker_int_remainder;
+            TPM_StartTimer(TPM2, kTPM_SystemClock);
+            us_ticker_int_remainder = 0;
+        } else {
+            // This function is going to disable the interrupts if there are
+            // no other events in the queue
+            us_ticker_irq_handler();
+        }
+    }
 }
 
 void us_ticker_init(void)
 {
+    /* Common for ticker/timer. */
+    uint32_t busClock;
+    /* Structure to initialize PIT. */
+    pit_config_t pitConfig;
+
     if (us_ticker_inited) {
+        /* calling init again should cancel current interrupt */
+        TPM_DisableInterrupts(TPM2, kTPM_TimeOverflowInterruptEnable);
         return;
     }
-    us_ticker_inited = 1;
-
-    //Timer uses PIT
-    //Common for ticker/timer
-    uint32_t busClock;
-
-    // Structure to initialize PIT
-    pit_config_t pitConfig;
 
     PIT_GetDefaultConfig(&pitConfig);
     PIT_Init(PIT, &pitConfig);
@@ -55,53 +81,74 @@ void us_ticker_init(void)
     PIT_StartTimer(PIT, kPIT_Chnl_0);
     PIT_StartTimer(PIT, kPIT_Chnl_1);
 
-    //Ticker uses LPTMR
-    lptmr_config_t lptmrConfig;
-    LPTMR_GetDefaultConfig(&lptmrConfig);
-    lptmrConfig.prescalerClockSource = kLPTMR_PrescalerClock_0;
-    LPTMR_Init(LPTMR0, &lptmrConfig);
+    /* Configure interrupt generation counters and disable ticker interrupts. */
+    tpm_config_t tpmConfig;
 
-    busClock = CLOCK_GetFreq(kCLOCK_McgInternalRefClk);
-    LPTMR_SetTimerPeriod(LPTMR0, busClock / 1000000 - 1);
-    /* Set interrupt handler */
-    NVIC_SetVector(LPTMR0_IRQn, (uint32_t)lptmr_isr);
-    NVIC_EnableIRQ(LPTMR0_IRQn);
+    TPM_GetDefaultConfig(&tpmConfig);
+    /* Set to Div 32 to get 1MHz clock source for TPM */
+    tpmConfig.prescale = kTPM_Prescale_Divide_32;
+    TPM_Init(TPM2, &tpmConfig);
+    NVIC_SetVector(TPM2_IRQn, (uint32_t)tpm_isr);
+    NVIC_EnableIRQ(TPM2_IRQn);
+
+    us_ticker_inited = true;
 }
 
 
 uint32_t us_ticker_read()
 {
-    if (!us_ticker_inited) {
-        us_ticker_init();
-    }
-
     return ~(PIT_GetCurrentTimerCount(PIT, kPIT_Chnl_1));
 }
 
 void us_ticker_disable_interrupt(void)
 {
-    LPTMR_DisableInterrupts(LPTMR0, kLPTMR_TimerInterruptEnable);
+    TPM_DisableInterrupts(TPM2, kTPM_TimeOverflowInterruptEnable);
 }
 
 void us_ticker_clear_interrupt(void)
 {
-    LPTMR_ClearStatusFlags(LPTMR0, kLPTMR_TimerCompareFlag);
+    TPM_ClearStatusFlags(TPM2, kTPM_TimeOverflowFlag);
 }
 
 void us_ticker_set_interrupt(timestamp_t timestamp)
 {
-    uint32_t now_us, delta_us;
+    /* We get here absolute interrupt time which takes into account counter overflow.
+     * Since we use additional count-down timer to generate interrupt we need to calculate
+     * load value based on time-stamp.
+     */
+    const uint32_t now_ticks = us_ticker_read();
+    uint32_t delta_ticks =
+            timestamp >= now_ticks ? timestamp - now_ticks : (uint32_t)((uint64_t) timestamp + 0xFFFFFFFF - now_ticks);
 
-    now_us = us_ticker_read();
-    delta_us = timestamp >= now_us ? timestamp - now_us : (uint32_t)((uint64_t)timestamp + 0xFFFFFFFF - now_us);
+    if (delta_ticks == 0) {
+        /* The requested delay is less than the minimum resolution of this counter. */
+        delta_ticks = 1;
+    }
 
-    LPTMR_StopTimer(LPTMR0);
-    LPTMR_SetTimerPeriod(LPTMR0, (uint32_t)delta_us);
-    LPTMR_EnableInterrupts(LPTMR0, kLPTMR_TimerInterruptEnable);
-    LPTMR_StartTimer(LPTMR0);
+    us_ticker_int_counter   = (uint32_t)(delta_ticks >> 16);
+    us_ticker_int_remainder = (uint16_t)(0xFFFF & delta_ticks);
+
+    TPM_StopTimer(TPM2);
+    TPM2->CNT = 0;
+
+    if (us_ticker_int_counter > 0) {
+        TPM2->MOD = 0xFFFF;
+        us_ticker_int_counter--;
+    } else {
+        TPM2->MOD = us_ticker_int_remainder;
+        us_ticker_int_remainder = 0;
+    }
+
+    /* Clear the count and set match value */
+    TPM_ClearStatusFlags(TPM2, kTPM_TimeOverflowFlag);
+    TPM_EnableInterrupts(TPM2, kTPM_TimeOverflowInterruptEnable);
+    TPM_StartTimer(TPM2, kTPM_SystemClock);
 }
 
 void us_ticker_fire_interrupt(void)
 {
-    NVIC_SetPendingIRQ(LPTMR0_IRQn);
+    us_ticker_int_counter = 0;
+    us_ticker_int_remainder = 0;
+
+    NVIC_SetPendingIRQ(TPM2_IRQn);
 }

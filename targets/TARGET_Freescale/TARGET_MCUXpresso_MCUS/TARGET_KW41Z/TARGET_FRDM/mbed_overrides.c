@@ -21,6 +21,8 @@
 void mbed_sdk_init()
 {
     BOARD_BootClockRUN();
+    /* Set the TPM clock source to be OSCERCLK, do not change as TPM2 is used for the usticker */
+    CLOCK_SetTpmClock(2U);
 }
 
 // Enable the RTC oscillator if available on the board
