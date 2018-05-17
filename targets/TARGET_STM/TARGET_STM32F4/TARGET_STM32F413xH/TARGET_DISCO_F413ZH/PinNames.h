@@ -277,8 +277,6 @@ typedef enum {
     USB_OTG_FS_SOF = PA_8,
     USB_OTG_FS_VBUS = PA_9,
 
-/**** No ETHERNET pins ***/
-
 /**** OSCILLATOR pins ****/
     RCC_OSC32_IN = PC_14,
     RCC_OSC32_OUT = PC_15,
