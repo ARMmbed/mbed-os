@@ -25,7 +25,6 @@
 #include "wifi_constants.h"
 #include "wifi_conf.h"
 
-#include "LWIPStack.h"
 #include "OnboardNetworkStack.h"
 #include "EMACMemoryManager.h"
 #include "osdep_service.h"
@@ -190,6 +189,7 @@ nsapi_error_t RTWInterface::connect()
         return NSAPI_ERROR_NO_CONNECTION;
     }
 
+    rtw_emac.wlan_emac_link_change(true);
     if (!rtw_interface) {
         nsapi_error_t err = rtw_obn_stack.add_ethernet_interface(rtw_emac, true, &rtw_interface);
         if (err != NSAPI_ERROR_OK) {

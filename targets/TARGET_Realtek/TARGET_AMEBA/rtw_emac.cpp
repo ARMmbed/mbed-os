@@ -45,6 +45,7 @@ uint32_t RTW_EMAC::get_mtu_size() const
 
 uint32_t RTW_EMAC::get_align_preference() const
 {
+    return true;
 }
 
 void RTW_EMAC::get_ifname(char *name, uint8_t size) const

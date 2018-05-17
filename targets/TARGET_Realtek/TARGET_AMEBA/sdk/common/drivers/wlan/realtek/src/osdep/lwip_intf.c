@@ -42,7 +42,7 @@
 /**
  *      rltk_wlan_set_netif_info - set netif hw address and register dev pointer to netif device
  *      @idx_wlan: netif index
- *          0 for STA only or SoftAP only or STA in STA+SoftAP concurrent mode, 
+ *              0 for STA only or SoftAP only or STA in STA+SoftAP concurrent mode, 
  *              1 for SoftAP in STA+SoftAP concurrent mode
  *      @dev: register netdev pointer to LWIP. Reserved.
  *      @dev_addr: set netif hw address
@@ -230,11 +230,8 @@ unsigned char *netif_get_hwaddr(int idx_wlan)
 }
 #endif
 
-
-// zzw w
 emac_callback emac_callback_func = NULL;
 void *emac_callback_data = NULL;
-
 void set_callback_func(emac_callback p, void *data) {
     emac_callback_func = p;
     emac_callback_data = data;
