@@ -2849,8 +2849,8 @@
         "macros": ["__SYSTEM_HFX=96000000","TARGET=MAX32620","TARGET_REV=0x4332","OPEN_DRAIN_LEDS"],
         "extra_labels": ["Maxim", "MAX32620C"],
         "supported_toolchains": ["GCC_ARM", "IAR", "ARM"],
-        "device_has": ["ANALOGIN", "I2C", "INTERRUPTIN", "LPTICKER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "STDIO_MESSAGES"],
-        "release_versions": ["2"]
+        "device_has": ["ANALOGIN", "I2C", "INTERRUPTIN", "LPTICKER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "STDIO_MESSAGES", "USTICKER"],
+        "release_versions": ["2", "5"]
     },
     "MAX32625_BASE": {
         "inherits": ["Target"],
@@ -2858,8 +2858,8 @@
         "macros": ["TARGET=MAX32625","TARGET_REV=0x4132", "OPEN_DRAIN_LEDS"],
         "extra_labels": ["Maxim", "MAX32625"],
         "supported_toolchains": ["GCC_ARM", "IAR", "ARM"],
-        "device_has": ["ANALOGIN", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "STDIO_MESSAGES"],
-        "release_versions": ["2"],
+        "device_has": ["ANALOGIN", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "STDIO_MESSAGES", "USTICKER"],
+        "release_versions": ["2", "5"],
         "public": false
     },
     "MAX32625_BOOT": {
@@ -2893,7 +2893,7 @@
         "macros": ["__SYSTEM_HFX=96000000", "TARGET=MAX32630", "TARGET_REV=0x4132", "BLE_HCI_UART", "OPEN_DRAIN_LEDS"],
         "extra_labels": ["Maxim", "MAX32630"],
         "supported_toolchains": ["GCC_ARM", "IAR", "ARM"],
-        "device_has": ["ANALOGIN", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "STDIO_MESSAGES"],
+        "device_has": ["ANALOGIN", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "STDIO_MESSAGES", "USTICKER"],
         "features": ["BLE"],
         "release_versions": []
     },
