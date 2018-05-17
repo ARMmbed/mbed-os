@@ -23,6 +23,8 @@
 #include "unity/unity.h"
 #include "utest.h"
 
+using namespace utest::v1;
+
 void TCPSOCKET_OPEN_CLOSE_REPEAT()
 {
     TCPSocket *sock = new TCPSocket;

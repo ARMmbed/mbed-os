@@ -25,12 +25,15 @@
 
 using namespace utest::v1;
 
-#define SIGNAL_SIGIO1 0x1
-#define SIGNAL_SIGIO2 0x2
-#define SIGIO_TIMEOUT 5000 //[ms]
+namespace
+{
+    static const int SIGNAL_SIGIO1 = 0x1;
+    static const int SIGNAL_SIGIO2 = 0x2;
+    static const int SIGIO_TIMEOUT = 5000; //[ms]
 
-Thread thread;
-static volatile bool running = true;
+    Thread thread;
+    volatile bool running = true;
+}
 
 static void _sigio_handler1(osThreadId id) {
     osSignalSet(id, SIGNAL_SIGIO1);
@@ -84,7 +87,7 @@ static void check_const_len_rand_sequence()
         }
 
         if (bytes2process != 0) {
-            drop_bad_packets(sock);
+            drop_bad_packets(sock, 0);
             TEST_FAIL();
         }
         TEST_ASSERT_EQUAL(0, memcmp(tx_buff, rx_buff, BUFF_SIZE));
@@ -136,7 +139,7 @@ static void check_var_len_rand_sequence()
         }
 
         if (bytes2process != 0) {
-            drop_bad_packets(sock);
+            drop_bad_packets(sock, 0);
             TEST_FAIL();
         }
         TEST_ASSERT_EQUAL(0, memcmp(tx_buff, rx_buff, i));

@@ -19,7 +19,7 @@
 #define TCP_TESTS_H
 
 NetworkInterface* get_interface();
-void drop_bad_packets(TCPSocket& sock);
+void drop_bad_packets(TCPSocket& sock, int orig_timeout);
 void fill_tx_buffer_ascii(char *buff, size_t len);
 void tcpsocket_connect_to_echo_srv(TCPSocket& sock);
 void tcpsocket_connect_to_discard_srv(TCPSocket& sock);

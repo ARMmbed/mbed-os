@@ -25,8 +25,11 @@
 
 using namespace utest::v1;
 
-#define SIGNAL_SIGIO 0x1
-#define SIGIO_TIMEOUT 20000 //[ms]
+namespace
+{
+    static const int SIGNAL_SIGIO = 0x1;
+    static const int SIGIO_TIMEOUT = 20000; //[ms]
+}
 
 static void _tcpsocket_connect_to_chargen_srv(TCPSocket& sock) {
     SocketAddress tcp_addr;

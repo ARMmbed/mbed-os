@@ -29,18 +29,17 @@
 
 using namespace utest::v1;
 
-#ifndef MBED_CFG_TCP_CLIENT_ECHO_TIMEOUT
-#define MBED_CFG_TCP_CLIENT_ECHO_TIMEOUT 500 //[ms]
-#endif
-
-static NetworkInterface* net;
+namespace
+{
+    NetworkInterface* net;
+}
 
 NetworkInterface* get_interface()
 {
     return net;
 }
 
-void drop_bad_packets(TCPSocket& sock) {
+void drop_bad_packets(TCPSocket& sock, int orig_timeout) {
     nsapi_error_t err;
     sock.set_timeout(0);
     while (true) {
@@ -49,7 +48,7 @@ void drop_bad_packets(TCPSocket& sock) {
             break;
         }
     }
-    sock.set_timeout(MBED_CFG_TCP_CLIENT_ECHO_TIMEOUT);
+    sock.set_timeout(orig_timeout);
 }
 
 static void _ifup() {

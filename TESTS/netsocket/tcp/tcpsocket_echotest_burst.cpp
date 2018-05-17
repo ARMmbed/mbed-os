@@ -23,11 +23,13 @@
 #include "utest.h"
 #include "tcp_tests.h"
 
-#define SIGNAL_SIGIO 0x1
-#define SIGIO_TIMEOUT 5000 //[ms]
+using namespace utest::v1;
 
 namespace
 {
+    static const int SIGNAL_SIGIO = 0x1;
+    static const int SIGIO_TIMEOUT = 5000; //[ms]
+
     static const int BURST_CNT = 100;
     static const int BURST_SIZE = 1220;
     char rx_buffer[BURST_SIZE] = {0};
@@ -77,7 +79,7 @@ void TCPSOCKET_ECHOTEST_BURST()
         }
 
         if (bt_left != 0) {
-            drop_bad_packets(sock);
+            drop_bad_packets(sock, 0);
             TEST_FAIL();
         }
 
@@ -134,7 +136,7 @@ void TCPSOCKET_ECHOTEST_BURST_NONBLOCK()
 
         if (bt_left != 0) {
             printf("network error %d, missing %d bytes from a burst\n", recvd, bt_left);
-            drop_bad_packets(sock);
+            drop_bad_packets(sock, -1);
             TEST_FAIL();
         }
 

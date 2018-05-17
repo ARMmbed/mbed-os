@@ -65,10 +65,7 @@ void TCPSOCKET_ECHOTEST()
         int bytes2recv = sent;
         while (bytes2recv) {
             recvd = sock.recv(&(rx_buffer[sent-bytes2recv]), bytes2recv);
-            if (recvd == NSAPI_ERROR_WOULD_BLOCK) {
-                TEST_ASSERT_NOT_EQUAL(osEventTimeout, osSignalWait(SIGNAL_SIGIO, SIGIO_TIMEOUT).status);
-                continue;
-            } else if (recvd <= 0) {
+                if (recvd < 0) {
                 printf("[Round#%02d] network error %d\n", x, recvd);
                 TEST_FAIL();
             }

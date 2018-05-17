@@ -23,8 +23,13 @@
 #include "utest.h"
 #include "tcp_tests.h"
 
-#define SIGNAL_SIGIO 0x1
-#define SIGIO_TIMEOUT 5000 //[ms]
+using namespace utest::v1;
+
+namespace
+{
+    static const int SIGNAL_SIGIO = 0x1;
+    static const int SIGIO_TIMEOUT = 5000; //[ms]
+}
 
 static void _sigio_handler(osThreadId id) {
     osSignalSet(id, SIGNAL_SIGIO);
@@ -58,7 +63,7 @@ void TCPSOCKET_RECV_TIMEOUT()
                     TEST_FAIL();
                 }
                 printf("MBED: recv() took: %dms\n", timer.read_ms());
-                TEST_ASSERT_INT_WITHIN(50, (100+200)/2, timer.read_ms());
+                TEST_ASSERT_INT_WITHIN(50, 150, timer.read_ms());
                 continue;
             } else if (recvd < 0) {
                 printf("[pkt#%02d] network error %d\n", i, recvd);
