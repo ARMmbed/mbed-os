@@ -48,12 +48,20 @@ static void powerdown_nvic()
     int i;
     int j;
 
+#if defined(__CORTEX_M23)
+    isr_groups_32 = 16;
+#else
     isr_groups_32 = ((SCnSCB->ICTR & SCnSCB_ICTR_INTLINESNUM_Msk) >> SCnSCB_ICTR_INTLINESNUM_Pos) + 1;
+#endif
     for (i = 0; i < isr_groups_32; i++) {
         NVIC->ICER[i] = 0xFFFFFFFF;
         NVIC->ICPR[i] = 0xFFFFFFFF;
         for (j = 0; j < 8; j++) {
+#if defined(__CORTEX_M23)
+            NVIC->IPR[i * 8 + j] = 0x00000000;
+#else
             NVIC->IP[i * 8 + j] = 0x00000000;
+#endif
         }
     }
 }
@@ -69,17 +77,20 @@ static void powerdown_scb(uint32_t vtor)
     SCB->SCR = 0x00000000;
     // SCB->CCR     - Implementation defined value
     for (i = 0; i < 12; i++) {
-#if defined(__CORTEX_M7)
+#if defined(__CORTEX_M7) || defined(__CORTEX_M23)
         SCB->SHPR[i] = 0x00;
 #else
         SCB->SHP[i] = 0x00;
 #endif
     }
     SCB->SHCSR = 0x00000000;
+#if defined(__CORTEX_M23)
+#else
     SCB->CFSR = 0xFFFFFFFF;
     SCB->HFSR = SCB_HFSR_DEBUGEVT_Msk | SCB_HFSR_FORCED_Msk | SCB_HFSR_VECTTBL_Msk;
     SCB->DFSR = SCB_DFSR_EXTERNAL_Msk | SCB_DFSR_VCATCH_Msk |
                 SCB_DFSR_DWTTRAP_Msk | SCB_DFSR_BKPT_Msk | SCB_DFSR_HALTED_Msk;
+#endif
     // SCB->MMFAR   - Implementation defined value
     // SCB->BFAR    - Implementation defined value
     // SCB->AFSR    - Implementation defined value
@@ -106,6 +117,18 @@ __asm static void start_new_application(void *sp, void *pc)
 
 void start_new_application(void *sp, void *pc)
 {
+#if defined(__CORTEX_M23)
+    __asm volatile (
+        "ldr    r2, =0      \n"
+        "msr    control, r2 \n" // Switch to main stack
+        "mov    sp, %0      \n"
+        "msr    primask, r2 \n" // Enable interrupts
+        "bx     %1          \n"
+        :
+        : "l" (sp), "l" (pc)
+        : "r2", "cc", "memory"
+    );
+#else
     __asm volatile (
         "mov    r2, #0      \n"
         "msr    control, r2 \n" // Switch to main stack
@@ -116,6 +139,7 @@ void start_new_application(void *sp, void *pc)
         : "l" (sp), "l" (pc)
         : "r2", "cc", "memory"
     );
+#endif
 }
 
 #else
