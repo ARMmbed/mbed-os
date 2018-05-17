@@ -858,14 +858,6 @@ typedef enum device_states {
 } device_states_t;
 
 /**
- * Enumeration for LoRaWAN connection type.
- */
-typedef enum lorawan_connect_type {
-    LORAWAN_CONNECTION_OTAA = 0,    /**< Over The Air Activation */
-    LORAWAN_CONNECTION_ABP          /**< Activation By Personalization */
-} lorawan_connect_type_t;
-
-/**
  * Stack level TX message structure
  */
 typedef struct {
