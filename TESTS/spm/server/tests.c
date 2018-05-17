@@ -189,44 +189,6 @@ PSA_TEST_SERVER(identity_during_close)
     return test_status;
 }
 
-PSA_TEST_SERVER(get_msg_twice)  //NO OUTPUT
-{
-    psa_error_t test_status = PSA_SUCCESS;
-    psa_error_t disconnect_status = PSA_SUCCESS;
-    psa_msg_t msg1 = {0};
-    psa_msg_t msg2 = {0};
-    uint32_t signals = 0;
-
-    test_status = proccess_connect_request();
-    if (test_status != PSA_SUCCESS) {
-        return test_status;
-    }
-
-    signals = psa_wait_any(PSA_WAIT_BLOCK);
-    if ((signals & TEST_MSK) == 0) {
-        test_status = PSA_GENERIC_ERROR;
-    }
-
-    psa_get(TEST_MSK, &msg1);
-    if (msg1.type != PSA_IPC_MSG_TYPE_CALL) {
-        test_status = ((test_status != PSA_SUCCESS) ? test_status : PSA_GENERIC_ERROR);
-    }
-
-    psa_get(TEST_MSK, &msg2);
-    if (msg2.type != PSA_IPC_MSG_TYPE_CALL) {
-        test_status = ((test_status != PSA_SUCCESS) ? test_status : PSA_GENERIC_ERROR);
-    }
-
-    *status_ptr = (memcmp(&msg1, &msg2, sizeof(msg1)) == 0) ? PSA_SUCCESS : PSA_GENERIC_ERROR;
-
-    psa_end(msg1.handle, PSA_SUCCESS);
-
-    disconnect_status = proccess_disconnect_request();
-    test_status  = (test_status != PSA_SUCCESS) ? test_status : disconnect_status;
-
-    return test_status;
-}
-
 PSA_TEST_SERVER(msg_size_assertion)
 {
     psa_error_t test_status = PSA_SUCCESS;
@@ -745,7 +707,6 @@ psa_test_server_side_func test_list[] = {
     PSA_TEST_SERVER_NAME(identity_during_connect),
     PSA_TEST_SERVER_NAME(identity_during_call),
     PSA_TEST_SERVER_NAME(identity_during_close),
-    PSA_TEST_SERVER_NAME(get_msg_twice),
     PSA_TEST_SERVER_NAME(msg_size_assertion),
     PSA_TEST_SERVER_NAME(reject_connection),
     PSA_TEST_SERVER_NAME(read_at_outofboud_offset),

@@ -61,6 +61,11 @@ void server_main2(void *ptr)
             psa_get(PART2_GET_MSG_NULL_MSK, &msg);      //send wrong flag
             TEST_FAIL_MESSAGE("server_get_signum_not_active negative test failed");
         }
+        else if (signals & PART2_GET_SIGNUM_TWICE_MSK) {
+            psa_get(PART2_GET_SIGNUM_TWICE_MSK, &msg);
+            psa_get(PART2_GET_SIGNUM_TWICE_MSK, &msg);
+            TEST_FAIL_MESSAGE("server_get_signum_twice negative test failed");
+        }
         else if (signals & PART2_READ_INVALID_HANDLE_MSK) {
             psa_get(PART2_READ_INVALID_HANDLE_MSK, &msg);
             switch (msg.type) {

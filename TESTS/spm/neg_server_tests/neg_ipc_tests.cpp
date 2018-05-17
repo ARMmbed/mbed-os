@@ -115,6 +115,14 @@ void server_get_signum_not_active()
     TEST_FAIL_MESSAGE("server_get_signum_not_active negative test failed at client side");
 }
 
+//Testing server get signum flag twice
+void server_get_signum_twice()
+{
+    psa_connect( PART2_GET_SIGNUM_TWICE, MINOR_VER);
+
+    TEST_FAIL_MESSAGE("server_get_signum_twice negative test failed at client side");
+}
+
 //Testing server read handle does not exist on the platform
 void server_read_invalid_handle()
 {
@@ -323,6 +331,7 @@ PSA_NEG_TEST(server_get_msg_null)
 PSA_NEG_TEST(server_get_multiple_bit_signum)
 PSA_NEG_TEST(server_get_signum_not_subset)
 PSA_NEG_TEST(server_get_signum_not_active)
+PSA_NEG_TEST(server_get_signum_twice)
 PSA_NEG_TEST(server_read_invalid_handle)
 PSA_NEG_TEST(server_read_null_handle)
 PSA_NEG_TEST(server_write_null_buffer)
@@ -341,8 +350,6 @@ PSA_NEG_TEST(server_read_on_wraparound_msg_ptr)
 PSA_NEG_TEST(server_read_from_excese_invec)
 PSA_NEG_TEST(server_write_on_wraparound_msg_ptr)
 PSA_NEG_TEST(server_write_from_excese_outvec)
-
-
 
 utest::v1::status_t spm_case_setup(const Case *const source, const size_t index_of_case)
 {
@@ -366,6 +373,7 @@ Case cases[] = {
     SPM_UTEST_CASE("Testing server get signum have more than one bit ON", server_get_multiple_bit_signum),
     SPM_UTEST_CASE("Testing server get signum flag is not a subset of current partition flags", server_get_signum_not_subset),
     SPM_UTEST_CASE("Testing server get signum flag is not active", server_get_signum_not_active),
+    SPM_UTEST_CASE("Testing server get signum twice", server_get_signum_twice),
     SPM_UTEST_CASE("Testing server read handle does not exist on the platform", server_read_invalid_handle),
     SPM_UTEST_CASE("Testing server read handle is PSA_NULL_HANDLE", server_read_null_handle),
     SPM_UTEST_CASE("Testing server write buffer is NULL", server_write_null_buffer),
