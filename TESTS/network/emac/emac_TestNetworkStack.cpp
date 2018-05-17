@@ -163,7 +163,7 @@ char *EmacTestNetworkStack::Interface::get_gateway(char *buf, nsapi_size_t bufle
 
 nsapi_error_t EmacTestNetworkStack::Interface::bringup(bool dhcp, const char *ip, const char *netmask, const char *gw, const nsapi_ip_stack_t stack, bool blocking)
 {
-    if (!emac_if_init()) {
+    if (!emac_if_init(m_emac)) {
         TEST_ASSERT_MESSAGE(0, "emac initialization failed!");
     }
 
