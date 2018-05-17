@@ -346,6 +346,271 @@ typedef struct lora_channelplan {
     loramac_channel_t *channels;
 } lorawan_channelplan_t;
 
+/*!
+ * Region       | SF
+ * ------------ | :-----:
+ * AS923        | SF12 - BW125
+ * AU915        | SF10 - BW125
+ * CN470        | SF12 - BW125
+ * CN779        | SF12 - BW125
+ * EU433        | SF12 - BW125
+ * EU868        | SF12 - BW125
+ * IN865        | SF12 - BW125
+ * KR920        | SF12 - BW125
+ * US915        | SF10 - BW125
+ * US915_HYBRID | SF10 - BW125
+ */
+#define DR_0                                        0
+
+/*!
+ * Region       | SF
+ * ------------ | :-----:
+ * AS923        | SF11 - BW125
+ * AU915        | SF9  - BW125
+ * CN470        | SF11 - BW125
+ * CN779        | SF11 - BW125
+ * EU433        | SF11 - BW125
+ * EU868        | SF11 - BW125
+ * IN865        | SF11 - BW125
+ * KR920        | SF11 - BW125
+ * US915        | SF9  - BW125
+ * US915_HYBRID | SF9  - BW125
+ */
+#define DR_1                                        1
+
+/*!
+ * Region       | SF
+ * ------------ | :-----:
+ * AS923        | SF10 - BW125
+ * AU915        | SF8  - BW125
+ * CN470        | SF10 - BW125
+ * CN779        | SF10 - BW125
+ * EU433        | SF10 - BW125
+ * EU868        | SF10 - BW125
+ * IN865        | SF10 - BW125
+ * KR920        | SF10 - BW125
+ * US915        | SF8  - BW125
+ * US915_HYBRID | SF8  - BW125
+ */
+#define DR_2                                        2
+
+/*!
+ * Region       | SF
+ * ------------ | :-----:
+ * AS923        | SF9  - BW125
+ * AU915        | SF7  - BW125
+ * CN470        | SF9  - BW125
+ * CN779        | SF9  - BW125
+ * EU433        | SF9  - BW125
+ * EU868        | SF9  - BW125
+ * IN865        | SF9  - BW125
+ * KR920        | SF9  - BW125
+ * US915        | SF7  - BW125
+ * US915_HYBRID | SF7  - BW125
+ */
+#define DR_3                                        3
+
+/*!
+ * Region       | SF
+ * ------------ | :-----:
+ * AS923        | SF8  - BW125
+ * AU915        | SF8  - BW500
+ * CN470        | SF8  - BW125
+ * CN779        | SF8  - BW125
+ * EU433        | SF8  - BW125
+ * EU868        | SF8  - BW125
+ * IN865        | SF8  - BW125
+ * KR920        | SF8  - BW125
+ * US915        | SF8  - BW500
+ * US915_HYBRID | SF8  - BW500
+ */
+#define DR_4                                        4
+
+/*!
+ * Region       | SF
+ * ------------ | :-----:
+ * AS923        | SF7  - BW125
+ * AU915        | RFU
+ * CN470        | SF7  - BW125
+ * CN779        | SF7  - BW125
+ * EU433        | SF7  - BW125
+ * EU868        | SF7  - BW125
+ * IN865        | SF7  - BW125
+ * KR920        | SF7  - BW125
+ * US915        | RFU
+ * US915_HYBRID | RFU
+ */
+#define DR_5                                        5
+
+/*!
+ * Region       | SF
+ * ------------ | :-----:
+ * AS923        | SF7  - BW250
+ * AU915        | RFU
+ * CN470        | SF12 - BW125
+ * CN779        | SF7  - BW250
+ * EU433        | SF7  - BW250
+ * EU868        | SF7  - BW250
+ * IN865        | SF7  - BW250
+ * KR920        | RFU
+ * US915        | RFU
+ * US915_HYBRID | RFU
+ */
+#define DR_6                                        6
+
+/*!
+ * Region       | SF
+ * ------------ | :-----:
+ * AS923        | FSK
+ * AU915        | RFU
+ * CN470        | SF12 - BW125
+ * CN779        | FSK
+ * EU433        | FSK
+ * EU868        | FSK
+ * IN865        | FSK
+ * KR920        | RFU
+ * US915        | RFU
+ * US915_HYBRID | RFU
+ */
+#define DR_7                                        7
+
+/*!
+ * Region       | SF
+ * ------------ | :-----:
+ * AS923        | RFU
+ * AU915        | SF12 - BW500
+ * CN470        | RFU
+ * CN779        | RFU
+ * EU433        | RFU
+ * EU868        | RFU
+ * IN865        | RFU
+ * KR920        | RFU
+ * US915        | SF12 - BW500
+ * US915_HYBRID | SF12 - BW500
+ */
+#define DR_8                                        8
+
+/*!
+ * Region       | SF
+ * ------------ | :-----:
+ * AS923        | RFU
+ * AU915        | SF11 - BW500
+ * CN470        | RFU
+ * CN779        | RFU
+ * EU433        | RFU
+ * EU868        | RFU
+ * IN865        | RFU
+ * KR920        | RFU
+ * US915        | SF11 - BW500
+ * US915_HYBRID | SF11 - BW500
+ */
+#define DR_9                                        9
+
+/*!
+ * Region       | SF
+ * ------------ | :-----:
+ * AS923        | RFU
+ * AU915        | SF10 - BW500
+ * CN470        | RFU
+ * CN779        | RFU
+ * EU433        | RFU
+ * EU868        | RFU
+ * IN865        | RFU
+ * KR920        | RFU
+ * US915        | SF10 - BW500
+ * US915_HYBRID | SF10 - BW500
+ */
+#define DR_10                                       10
+
+/*!
+ * Region       | SF
+ * ------------ | :-----:
+ * AS923        | RFU
+ * AU915        | SF9  - BW500
+ * CN470        | RFU
+ * CN779        | RFU
+ * EU433        | RFU
+ * EU868        | RFU
+ * IN865        | RFU
+ * KR920        | RFU
+ * US915        | SF9  - BW500
+ * US915_HYBRID | SF9  - BW500
+ */
+#define DR_11                                       11
+
+/*!
+ * Region       | SF
+ * ------------ | :-----:
+ * AS923        | RFU
+ * AU915        | SF8  - BW500
+ * CN470        | RFU
+ * CN779        | RFU
+ * EU433        | RFU
+ * EU868        | RFU
+ * IN865        | RFU
+ * KR920        | RFU
+ * US915        | SF8  - BW500
+ * US915_HYBRID | SF8  - BW500
+ */
+#define DR_12                                       12
+
+/*!
+ * Region       | SF
+ * ------------ | :-----:
+ * AS923        | RFU
+ * AU915        | SF7  - BW500
+ * CN470        | RFU
+ * CN779        | RFU
+ * EU433        | RFU
+ * EU868        | RFU
+ * IN865        | RFU
+ * KR920        | RFU
+ * US915        | SF7  - BW500
+ * US915_HYBRID | SF7  - BW500
+ */
+#define DR_13                                       13
+
+/*!
+ * Region       | SF
+ * ------------ | :-----:
+ * AS923        | RFU
+ * AU915        | RFU
+ * CN470        | RFU
+ * CN779        | RFU
+ * EU433        | RFU
+ * EU868        | RFU
+ * IN865        | RFU
+ * KR920        | RFU
+ * US915        | RFU
+ * US915_HYBRID | RFU
+ */
+#define DR_14                                       14
+
+/*!
+ * Region       | SF
+ * ------------ | :-----:
+ * AS923        | RFU
+ * AU915        | RFU
+ * CN470        | RFU
+ * CN779        | RFU
+ * EU433        | RFU
+ * EU868        | RFU
+ * IN865        | RFU
+ * KR920        | RFU
+ * US915        | RFU
+ * US915_HYBRID | RFU
+ */
+#define DR_15                                       15
+
+/**
+ * Enumeration for LoRaWAN connection type.
+ */
+typedef enum lorawan_connect_type {
+    LORAWAN_CONNECTION_OTAA = 0,    /**< Over The Air Activation */
+    LORAWAN_CONNECTION_ABP          /**< Activation By Personalization */
+} lorawan_connect_type_t;
+
+
 /**
  * Meta-data collection for a transmission
  */
