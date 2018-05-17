@@ -114,7 +114,7 @@ void EasyCellularConnection::set_credentials(const char *apn, const char *uname,
         if (_credentials_err) {
             return;
         }
-        CellularNetwork * network = _cellularConnectionFSM->get_network();
+        CellularNetwork *network = _cellularConnectionFSM->get_network();
         if (network) {
             _credentials_err = network->set_credentials(apn, uname, pwd);
 #if USE_APN_LOOKUP
@@ -192,12 +192,12 @@ nsapi_error_t EasyCellularConnection::connect()
         _target_state = CellularConnectionFSM::STATE_SIM_PIN;
         err = _cellularConnectionFSM->continue_to_state(_target_state);
         if (err == NSAPI_ERROR_OK) {
-            int sim_wait = _cellularSemaphore.wait(60*1000); // reserve 60 seconds to access to SIM
+            int sim_wait = _cellularSemaphore.wait(60 * 1000); // reserve 60 seconds to access to SIM
             if (sim_wait != 1) {
                 tr_error("NO SIM ACCESS");
                 err = NSAPI_ERROR_NO_CONNECTION;
             } else {
-                char imsi[MAX_IMSI_LENGTH+1];
+                char imsi[MAX_IMSI_LENGTH + 1];
                 wait(1); // need to wait to access SIM in some modems
                 err = _cellularConnectionFSM->get_sim()->get_imsi(imsi);
                 if (err == NSAPI_ERROR_OK) {
@@ -313,9 +313,16 @@ void EasyCellularConnection::modem_debug_on(bool on)
     }
 }
 
-void EasyCellularConnection::set_plmn(const char* plmn)
+void EasyCellularConnection::set_plmn(const char *plmn)
 {
-    if (_cellularConnectionFSM) {
+    if (plmn && strlen(plmn) > 0) {
+        if (!_cellularConnectionFSM) {
+            _credentials_err = init();
+
+            if (_credentials_err) {
+                return;
+            }
+        }
         _cellularConnectionFSM->set_plmn(plmn);
     }
 }

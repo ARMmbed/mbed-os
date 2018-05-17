@@ -144,13 +144,13 @@ bool CellularConnectionFSM::power_on()
     return true;
 }
 
-void CellularConnectionFSM::set_sim_pin(const char * sim_pin)
+void CellularConnectionFSM::set_sim_pin(const char *sim_pin)
 {
     strncpy(_sim_pin, sim_pin, sizeof(_sim_pin));
     _sim_pin[sizeof(_sim_pin)-1] = '\0';
 }
 
-void CellularConnectionFSM::set_plmn(const char* plmn)
+void CellularConnectionFSM::set_plmn(const char *plmn)
 {
     _plmn = plmn;
 }
@@ -250,7 +250,7 @@ bool CellularConnectionFSM::get_network_registration(CellularNetwork::Registrati
     return true;
 }
 
-void CellularConnectionFSM::report_failure(const char* msg)
+void CellularConnectionFSM::report_failure(const char *msg)
 {
     tr_error("Cellular network failed: %s", msg);
     if (_status_callback) {
@@ -258,7 +258,7 @@ void CellularConnectionFSM::report_failure(const char* msg)
     }
 }
 
-const char* CellularConnectionFSM::get_state_string(CellularState state)
+const char *CellularConnectionFSM::get_state_string(CellularState state)
 {
 #if MBED_CONF_MBED_TRACE_ENABLE
     static const char *strings[] = { "Init", "Power", "Device ready", "SIM pin", "Registering network", "Manual registering", "Attaching network", "Activating PDP Context", "Connecting network", "Connected"};
@@ -287,7 +287,7 @@ bool CellularConnectionFSM::is_registered_to_plmn()
         CellularNetwork::operator_names_list names_list;
         nsapi_error_t err = _network->get_operator_names(names_list);
         if (err == NSAPI_ERROR_OK) {
-            CellularNetwork::operator_names_t* op_names = names_list.get_head();
+            CellularNetwork::operator_names_t *op_names = names_list.get_head();
             bool found_match = false;
             while (op_names) {
                 if (format == 0) {
@@ -667,17 +667,17 @@ events::EventQueue *CellularConnectionFSM::get_queue()
     return &_queue;
 }
 
-CellularNetwork* CellularConnectionFSM::get_network()
+CellularNetwork *CellularConnectionFSM::get_network()
 {
     return _network;
 }
 
-CellularDevice* CellularConnectionFSM::get_device()
+CellularDevice *CellularConnectionFSM::get_device()
 {
     return _cellularDevice;
 }
 
-CellularSIM* CellularConnectionFSM::get_sim()
+CellularSIM *CellularConnectionFSM::get_sim()
 {
     return _sim;
 }
