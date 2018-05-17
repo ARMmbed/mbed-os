@@ -31,7 +31,9 @@
  * and/or exchanging keys used for the current connection. Bonding means saving this information so that
  * it can later be used after reconnecting without having to pair again. This saves time and power.
  *
- * There are many ways to provide these at different levels of security depending on your requirements
+ * @par Paring
+ *
+ * There are several ways to provide different levels of security during pairing depending on your requirements
  * and the facilities provided by the application. The process starts with initialising the SecurityManager
  * with default options for new connections. Some settings can later be changed per link or globally.
  *
@@ -42,6 +44,8 @@
  * what algorithm is used. For details @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 3, Part H - 2.3.5.1.
  * You can change the IO capabilities after initialisation with setIoCapability(). This will take effect
  * for all subsequent pairings.
+ *
+ * @par Out of Band data used in pairing
  *
  * Sharing this information through IO capabilities means user interaction which limits the degree of
  * protection due to the limit of the amount of data that we can expect the user to transfer. Another
@@ -57,7 +61,27 @@
  * it. If either side doesn't support it Legacy Pairing will be used. This is an older standard of pairing.
  * If higher security is required legacy pairing can be disabled by calling allowLegacyPairing(false);
  *
- * \par How to use
+ * @par Signing
+ *
+ * Applications may require a level of security providing confidence that data transfers are coming
+ * from a trusted source. This can be achieved by encrypting the link which also provides added confidentiality.
+ * Encryption is a good choice when a device stays connected but introduces latency due to the need of encrypting the
+ * link if the device only connects periodically to transfer data. If confidentiality is not required data GATT
+ * server may allow writes to happen over an unencrypted link but authenticated by a signature present in each packet.
+ * This signature relies on having sent a signing key to the peer during pairing prior to sending any signed packets.
+ *
+ * @par Persistence of Security information
+ *
+ * Security Manager stores all the data required for its operation on active links. Depending on resources
+ * available on the device it will also attempt to store data for disconnected devices which have bonded to be
+ * reused when reconnected.
+ *
+ * If the application has initialised a filesystem and the Security Manager has been provided with a
+ * filepath during the init() call it may also provide data persistence across resets. This must be enabled by
+ * calling preserveBondingStateOnReset(). Persistence is not guaranteed and may fail if abnormally terminated.
+ * The Security Manager may also fall back to a non-persistent implementation if the resources are too limited.
+ *
+ * @par How to use
  *
  * First thing you need to do is to initialise the manager by calling init() with your chosen settings.
  *
@@ -87,7 +111,7 @@
  * accetPairing() or cancelPairing(). The result will be communicated on both peers through an event calling
  * pairingResult() in the EventHandler.
  *
- * \par Sequence diagrams
+ * @par Sequence diagrams
  *
  * Sequence diagram "Just Works" pairing
  *
@@ -103,7 +127,7 @@
  *  |        |                          |<---[pairing complete]----->|                        |            |
  *  |<- pairingResult() <---------------|                            |----------------> pairingResult() -->|
  *  |        |                          |                            |                        |            |
- * \endverbatim
+ * @endverbatim
  * 
  *  @note the requestPairing() call isn't required to trigger pairing. Pairing will also be triggered
  *  if you request encryption and authentication and no bonding information is available. The sequence will
@@ -121,7 +145,7 @@
  *  |       |                           |<-[encryption established]->|                        |            |
  *  |<- linkEncryptionResult() <--------|                            |---------> linkEncryptionResult() -->|
  *  |       |                           |                            |                        |            |
- * \endverbatim
+ * @endverbatim
  * 
  * @note if bonding information is not available, pairing will be triggered
  *
@@ -149,7 +173,7 @@
  *  |        |                          |<---[pairing complete]----->|                        |            |
  *  |<- pairingResult() <---------------|                            |----------------> pairingResult() -->|
  *  |        |                          |                            |                        |            |
- * \endverbatim
+ * @endverbatim
  * 
  */
 
