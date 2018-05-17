@@ -135,6 +135,10 @@ void psa_get(psa_signal_t signum, psa_msg_t *msg)
         SPM_PANIC("flag is not active!\n");
     }
 
+    int32_t flags = (int32_t)osThreadFlagsClear(signum);
+    SPM_ASSERT(flags >= 0);
+    PSA_UNUSED(flags);
+
     active_msg_t *active_msg = &(curr_partition->active_msg);
     SPM_ASSERT((active_msg->type > PSA_IPC_MSG_TYPE_INVALID) &&
                (active_msg->type <= PSA_IPC_MSG_TYPE_MAX));
@@ -276,10 +280,6 @@ void psa_end(psa_handle_t msg_handle, psa_error_t retval)
     SPM_ASSERT(NULL != curr_partition);        // active thread in SPM must be in partition DB
     spm_msg_handle_destroy(curr_partition->msg_handle);
     curr_partition->msg_handle = PSA_NULL_HANDLE;
-
-    int32_t flags = (int32_t)osThreadFlagsClear(dst_sec_func->mask);
-    SPM_ASSERT(flags >= 0);
-    PSA_UNUSED(flags);
 
     osStatus_t os_status = osSemaphoreRelease(dst_sec_func->partition->semaphore);
     SPM_ASSERT(osOK == os_status);

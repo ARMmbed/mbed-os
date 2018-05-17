@@ -83,19 +83,6 @@ PSA_TEST_CLIENT(identity_during_close)
     TEST_ASSERT_EQUAL(PSA_SUCCESS, status);
 }
 
-PSA_TEST_CLIENT(get_msg_twice)
-{
-    psa_error_t status = PSA_SUCCESS;
-    psa_handle_t test_handle = psa_connect(TEST, TEST_SF_MINOR);
-    TEST_ASSERT(test_handle > 0);
-
-    status = psa_call(test_handle, NULL, 0, NULL, 0);
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, status);
-
-    status = psa_close(test_handle);
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, status);
-}
-
 PSA_TEST_CLIENT(msg_size_assertion)
 {
     psa_error_t status = PSA_SUCCESS;
@@ -299,7 +286,6 @@ Case cases[] = {
     SPM_UTEST_CASE("Get identity during connect", identity_during_connect),
     SPM_UTEST_CASE("Get identity during call", identity_during_call),
     SPM_UTEST_CASE("Get identity during disconnect", identity_during_close),
-    SPM_UTEST_CASE("Read message twice and compare", get_msg_twice),
     SPM_UTEST_CASE("Assert msg size", msg_size_assertion),
     SPM_UTEST_CASE("Reject on connect", reject_connection),
     SPM_UTEST_CASE("Read at an out of bound offset", read_at_outofboud_offset),
