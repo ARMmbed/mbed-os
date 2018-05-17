@@ -41,36 +41,33 @@
 #define US_TIMER_MODE     TMR32_MODE_COMPARE
 #define US_TIMER_WIDTH    32
 
-static volatile int us_ticker_inited = 0;
-
 //******************************************************************************
 void us_ticker_init(void)
 {
-    tmr32_cfg_t cfg;
+    // Disable and deconfigure
+    US_TIMER->ctrl = 0;
+    US_TIMER->term_cnt32 = 0;
+    US_TIMER->inten = 0;
+    US_TIMER->intfl = MXC_F_TMR_INTFL_TIMER0;
 
-    if (us_ticker_inited) {
-        return;
-    }
-    us_ticker_inited = 1;
+    // Configure and enable
+    US_TIMER->ctrl = MXC_F_TMR_CTRL_ENABLE0 |
+                     (US_TIMER_MODE << MXC_F_TMR_CTRL_MODE_POS) |
+                     (US_TIMER_PRESCALE << MXC_F_TMR_CTRL_PRESCALE_POS);
 
-    cfg.mode = US_TIMER_MODE;
-    cfg.polarity = TMR_POLARITY_UNUSED;
-    cfg.compareCount = UINT32_MAX;
-
-    TMR_Init(US_TIMER, US_TIMER_PRESCALE, NULL);
-    TMR32_Config(US_TIMER, &cfg);
     NVIC_SetVector(US_TIMER_IRQn, (uint32_t)us_ticker_irq_handler);
     NVIC_EnableIRQ(US_TIMER_IRQn);
-    TMR32_Start(US_TIMER);
+}
+
+//******************************************************************************
+void us_ticker_free(void)
+{
+    US_TIMER->ctrl = 0;
 }
 
 //******************************************************************************
 uint32_t us_ticker_read(void)
 {
-    if (!us_ticker_inited) {
-        us_ticker_init();
-    }
-
     return US_TIMER->count32;
 }
 
@@ -78,7 +75,7 @@ uint32_t us_ticker_read(void)
 void us_ticker_set_interrupt(timestamp_t timestamp)
 {
     US_TIMER->ctrl = 0;
-    US_TIMER->term_cnt32 = timestamp;
+    US_TIMER->term_cnt32 = (timestamp) ? timestamp : 1;
     US_TIMER->inten = MXC_F_TMR_INTEN_TIMER0;
     US_TIMER->ctrl = MXC_F_TMR_CTRL_ENABLE0 |
                      (US_TIMER_MODE << MXC_F_TMR_CTRL_MODE_POS) |
