@@ -79,10 +79,10 @@ protected:
     volatile uint32_t _cnt_cb_iso_out;
     volatile uint32_t _cnt_cb_iso_in;
 
-    volatile uint32_t _cnt_cb_bulk_out_abort;
-    volatile uint32_t _cnt_cb_bulk_in_abort;
-    volatile uint32_t _cnt_cb_int_out_abort;
-    volatile uint32_t _cnt_cb_int_in_abort;
+    volatile uint32_t _num_packets_bulk_out_abort;
+    volatile uint32_t _num_packets_bulk_in_abort;
+    volatile uint32_t _num_packets_int_out_abort;
+    volatile uint32_t _num_packets_int_in_abort;
 
     virtual const uint8_t *configuration_desc(uint8_t index);
     virtual void callback_state_change(DeviceState new_state);
@@ -103,6 +103,7 @@ protected:
 
 private:
     const char *get_desc_string(const uint8_t *desc);
+    bool _request_read_start(const setup_packet_t *setup);
 };
 
 #endif

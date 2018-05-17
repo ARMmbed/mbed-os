@@ -55,6 +55,7 @@ VENDOR_TEST_CTRL_IN_STATUS_DELAY = 7
 VENDOR_TEST_CTRL_OUT_STATUS_DELAY = 8
 VENDOR_TEST_CTRL_IN_SIZES = 9
 VENDOR_TEST_CTRL_OUT_SIZES = 10
+VENDOR_TEST_READ_START = 11
 VENDOR_TEST_UNSUPPORTED_REQUEST = 32
 
 REQUEST_GET_STATUS = 0
@@ -982,38 +983,63 @@ def halt_ep_test(dev, ep_out, ep_in, ep_to_halt, log):
     """
     MIN_HALT_DELAY = 0.01
     MAX_HALT_DELAY = 0.1
-    delay = random.uniform(MIN_HALT_DELAY, MAX_HALT_DELAY)
-    ctrl_kwargs = {
-        'bmRequestType': build_request_type(CTRL_OUT, CTRL_TYPE_STANDARD, CTRL_RECIPIENT_ENDPOINT),
-        'bRequest': REQUEST_SET_FEATURE,
-        'wValue': FEATURE_ENDPOINT_HALT,
-        'wIndex': ep_to_halt.bEndpointAddress}
+    POST_HALT_DELAY = 0.1
     ctrl_error = Event()
+
+    for ep in (ep_out, ep_in):
+        try:
+            if (usb.control.get_status(dev, ep) == 1):
+                raise_unconditionally(lineno(), 'Endpoints must NOT be halted at the start of this test')
+        except usb.core.USBError as err:
+            raise_unconditionally(lineno(), 'Unable to get endpoint status ({!r}).'.format(err))
 
     def timer_handler():
         """Halt an endpoint using a USB control request."""
         try:
-            dev.ctrl_transfer(**ctrl_kwargs)
+            usb.control.set_feature(dev, FEATURE_ENDPOINT_HALT, ep_to_halt)
+            if (usb.control.get_status(dev, ep_to_halt) != 1):
+                raise RuntimeError('Invalid endpoint status after halt operation')
         except Exception as err:
-            log('Endpoint {:#04x} halt failed ({}).'.format(ctrl_kwargs['wIndex'], err))
             ctrl_error.set()
+            log('Endpoint {:#04x} halt failed ({}).'.format(ep_to_halt.bEndpointAddress, err))
+        # Whether the halt operation was successful or not,
+        # wait a bit so the main thread has a chance to run into a USBError
+        # or report the failure of halt operation.
+        time.sleep(POST_HALT_DELAY)
 
+    delay = random.uniform(MIN_HALT_DELAY, MAX_HALT_DELAY)
     delayed_halt = Timer(delay, timer_handler)
     delayed_halt.start()
-    end_ts = time.time() + 1.5 * delay
-    try:
-        while time.time() < end_ts and not ctrl_error.is_set():
-            loopback_ep_test(ep_out, ep_in, ep_out.wMaxPacketSize)
-    except usb.core.USBError as err:
-        if err.errno not in (32, 110):
-            raise_unconditionally(lineno(), 'Unexpected error ({!r}).'.format(err))
+    # Keep transferring data to and from the device until one of the endpoints
+    # is halted.
+    while delayed_halt.is_alive():
         if ctrl_error.is_set():
             raise_unconditionally(lineno(), 'Halting endpoint {0.bEndpointAddress:#04x} failed'
                                   .format(ep_to_halt))
-    else:
-        raise_unconditionally(lineno(), 'Halting endpoint {0.bEndpointAddress:#04x}'
-                              ' during transmission did not raise USBError.'
-                              .format(ep_to_halt))
+        try:
+            loopback_ep_test(ep_out, ep_in, ep_out.wMaxPacketSize)
+        except usb.core.USBError as err:
+            try:
+                ep_status = usb.control.get_status(dev, ep_to_halt)
+            except usb.core.USBError as err:
+                raise_unconditionally(lineno(), 'Unable to get endpoint status ({!r}).'.format(err))
+            if ep_status == 1:
+                # OK, got USBError because of endpoint halt
+                return
+            else:
+                raise_unconditionally(lineno(), 'Unexpected error ({!r}).'.format(err))
+    raise_unconditionally(lineno(), 'Halting endpoint {0.bEndpointAddress:#04x}'
+                          ' during transmission did not raise USBError.'
+                          .format(ep_to_halt))
+
+
+def request_endpoint_read_start(dev, ep):
+    ctrl_kwargs = {
+        'bmRequestType': build_request_type(CTRL_OUT, CTRL_TYPE_VENDOR, CTRL_RECIPIENT_ENDPOINT),
+        'bRequest': VENDOR_TEST_READ_START,
+        'wValue': 0,
+        'wIndex': ep.bEndpointAddress}
+    dev.ctrl_transfer(**ctrl_kwargs)
 
 
 USB_ERROR_FMT = str('Got {0!r} while testing endpoints '
@@ -1054,7 +1080,7 @@ def ep_test_data_correctness(dev, log, verbose=False):
 
         if verbose:
             log('Testing OUT/IN data correctness for bulk endpoint pair.')
-        for payload_size in range(1, bulk_out.wMaxPacketSize + 1):
+        for payload_size in range(bulk_out.wMaxPacketSize + 1):
             try:
                 loopback_ep_test(bulk_out, bulk_in, payload_size)
             except usb.USBError as err:
@@ -1113,10 +1139,9 @@ def ep_test_halt(dev, log, verbose=False):
         while time.time() < end_ts:
             halt_ep_test(dev, bulk_out, bulk_in, bulk_out, log)
             bulk_out.clear_halt()
-            intf.set_altsetting()  # Force the device to start reading data from all OUT endpoints again.
+            request_endpoint_read_start(dev, bulk_out)
             halt_ep_test(dev, bulk_out, bulk_in, bulk_in, log)
             bulk_in.clear_halt()
-            intf.set_altsetting()  # Force the device to start reading data from all OUT endpoints again.
 
         if verbose:
             log('Testing endpoint halt at a random point of interrupt transmission.')
@@ -1124,10 +1149,9 @@ def ep_test_halt(dev, log, verbose=False):
         while time.time() < end_ts:
             halt_ep_test(dev, interrupt_out, interrupt_in, interrupt_out, log)
             interrupt_out.clear_halt()
-            intf.set_altsetting()  # Force the device to start reading data from all OUT endpoints again.
+            request_endpoint_read_start(dev, interrupt_out)
             halt_ep_test(dev, interrupt_out, interrupt_in, interrupt_in, log)
-            interrupt_out.clear_halt()
-            intf.set_altsetting()  # Force the device to start reading data from all OUT endpoints again.
+            interrupt_in.clear_halt()
 
 
 def ep_test_parallel_transfers(dev, log, verbose=False):
@@ -1285,7 +1309,13 @@ def ep_test_abort(dev, log, verbose=False):
             log('Testing aborting an in progress transfer for IN endpoints.')
         for ep_in in (bulk_in, interrupt_in):
             payload_size = (NUM_PACKETS_UNTIL_ABORT + NUM_PACKETS_AFTER_ABORT) * ep_in.wMaxPacketSize
-            payload_in = ep_in.read(payload_size)
+            payload_in = array.array('B')
+            while len(payload_in) < payload_size:
+                try:
+                    packet = ep_in.read(ep_in.wMaxPacketSize)
+                    payload_in.extend(packet)
+                except usb.core.USBError as err:
+                    break
             if verbose:
                 log('The size of data successfully received from endpoint {0.bEndpointAddress:#04x}: {1} B.'
                     .format(ep_in, len(payload_in)))
@@ -1303,8 +1333,13 @@ def ep_test_abort(dev, log, verbose=False):
             log('Testing aborting an in progress transfer for OUT endpoints.')
         for ep_out in (bulk_out, interrupt_out):
             payload_size = (NUM_PACKETS_UNTIL_ABORT + NUM_PACKETS_AFTER_ABORT) * ep_out.wMaxPacketSize
-            payload_out = array.array('B', (0x01 for _ in range(payload_size)))
-            num_bytes_written = ep_out.write(payload_out)
+            payload_out = array.array('B', (0x01 for _ in range(ep_out.wMaxPacketSize)))
+            num_bytes_written = 0
+            while num_bytes_written < payload_size:
+                try:
+                    num_bytes_written += ep_out.write(payload_out)
+                except usb.core.USBError:
+                    break
             if verbose:
                 log('The size of data successfully sent to endpoint {0.bEndpointAddress:#04x}: {1} B.'
                     .format(ep_out, num_bytes_written))
