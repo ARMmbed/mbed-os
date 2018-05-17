@@ -34,7 +34,7 @@
 //==============================================================================
 // Notes
 //
-// - The pins mentionned Px_y_ALTz are alternative possibilities which use other
+// - The pins mentioned Px_y_ALTz are alternative possibilities which use other
 //   HW peripheral instances. You can use them the same way as any other "normal"
 //   pin (i.e. PwmOut pwm(PA_7_ALT0);). These pins are not displayed on the board
 //   pinout image on mbed.org.
@@ -131,7 +131,7 @@ MBED_WEAK const PinMap PinMap_I2C_SDA[] = {
     {PD_13,      I2C_4, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF4_I2C4)},
     {PF_0,       I2C_2, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF4_I2C2)},
     {PF_15,      I2C_4, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF4_I2C4)},
-//  {PG_8,       I2C_3, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF4_I2C3)}, // Connected to STDIO_UART_TX
+//  {PG_8,       I2C_3, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF4_I2C3)}, // Connected to STDIO_UART_RX
     {PG_13,      I2C_1, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF4_I2C1)}, // Connected to SMPS_SW [SW_ST1PS02D1QTR]
     {NC, NC, 0}
 };
@@ -149,7 +149,7 @@ MBED_WEAK const PinMap PinMap_I2C_SCL[] = {
     {PD_12,      I2C_4, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF4_I2C4)},
     {PF_1,       I2C_2, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF4_I2C2)},
     {PF_14,      I2C_4, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF4_I2C4)},
-//  {PG_7,       I2C_3, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF4_I2C3)}, // Connected to STDIO_UART_RX
+//  {PG_7,       I2C_3, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF4_I2C3)}, // Connected to STDIO_UART_TX
     {PG_14,      I2C_1, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_NOPULL, GPIO_AF4_I2C1)},
     {NC, NC, 0}
 };

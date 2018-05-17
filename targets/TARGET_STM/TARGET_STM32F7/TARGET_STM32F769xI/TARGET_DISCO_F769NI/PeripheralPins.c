@@ -34,7 +34,7 @@
 //==============================================================================
 // Notes
 //
-// - The pins mentionned Px_y_ALTz are alternative possibilities which use other
+// - The pins mentioned Px_y_ALTz are alternative possibilities which use other
 //   HW peripheral instances. You can use them the same way as any other "normal"
 //   pin (i.e. PwmOut pwm(PA_7_ALT0);). These pins are not displayed on the board
 //   pinout image on mbed.org.

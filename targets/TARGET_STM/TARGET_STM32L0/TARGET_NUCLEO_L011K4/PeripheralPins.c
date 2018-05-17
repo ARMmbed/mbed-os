@@ -34,7 +34,7 @@
 //==============================================================================
 // Notes
 //
-// - The pins mentionned Px_y_ALTz are alternative possibilities which use other
+// - The pins mentioned Px_y_ALTz are alternative possibilities which use other
 //   HW peripheral instances. You can use them the same way as any other "normal"
 //   pin (i.e. PwmOut pwm(PA_7_ALT0);). These pins are not displayed on the board
 //   pinout image on mbed.org.
@@ -72,8 +72,6 @@ MBED_WEAK const PinMap PinMap_ADC_Internal[] = {
 
     {NC, NC, 0}
 };
-
-//*** No DAC ***
 
 //*** I2C ***
 
@@ -123,7 +121,7 @@ MBED_WEAK const PinMap PinMap_PWM[] = {
 MBED_WEAK const PinMap PinMap_UART_TX[] = {
     {PA_1,       LPUART_1,STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF6_LPUART1)},
     {PA_2,       UART_2,  STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF4_USART2)}, // Connected to STDIO_UART_TX
-    {PA_2_ALT0,  LPUART_1,STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF6_LPUART1)}, // Connected to STDIO_UART_TX
+//  {PA_2,       LPUART_1,STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF6_LPUART1)}, // Connected to STDIO_UART_TX
     {PA_4,       LPUART_1,STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF6_LPUART1)},
 //  {PA_9,       UART_2,  STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF4_USART2)}, // STDIO UART
 //  {PA_14,      UART_2,  STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF4_USART2)}, // Connected to TCK
@@ -193,5 +191,3 @@ MBED_WEAK const PinMap PinMap_SPI_SSEL[] = {
 //  {PA_15,      SPI_1, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF0_SPI1)}, // Connected to STDIO_UART_RX
     {NC, NC, 0}
 };
-
-//*** No CAN ***

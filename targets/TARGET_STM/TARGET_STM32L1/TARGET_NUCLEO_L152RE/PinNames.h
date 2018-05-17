@@ -185,8 +185,6 @@ typedef enum {
     USB_DM = PA_11,
     USB_DP = PA_12,
 
-/**** No ETHERNET pins ***/
-
 /**** OSCILLATOR pins ****/
     RCC_OSC32_IN = PC_14,
     RCC_OSC32_OUT = PC_15,
