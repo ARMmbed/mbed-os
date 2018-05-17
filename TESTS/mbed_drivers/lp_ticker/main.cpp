@@ -80,9 +80,14 @@ void test_multi_ticker(void)
     }
 
     Thread::wait(MULTI_TICKER_TIME_MS + extra_wait);
+    TEST_ASSERT_EQUAL(TICKER_COUNT, multi_counter);
+
     for (int i = 0; i < TICKER_COUNT; i++) {
             ticker[i].detach();
     }
+    // Because detach calls schedule_interrupt in some circumstances
+    // (e.g. when head event is removed), it's good to check if
+    // no more callbacks were triggered during detaching.
     TEST_ASSERT_EQUAL(TICKER_COUNT, multi_counter);
 
     multi_counter = 0;
@@ -91,9 +96,14 @@ void test_multi_ticker(void)
     }
 
     Thread::wait(MULTI_TICKER_TIME_MS + TICKER_COUNT + extra_wait);
+    TEST_ASSERT_EQUAL(TICKER_COUNT, multi_counter);
+
     for (int i = 0; i < TICKER_COUNT; i++) {
         ticker[i].detach();
     }
+    // Because detach calls schedule_interrupt in some circumstances
+    // (e.g. when head event is removed), it's good to check if
+    // no more callbacks were triggered during detaching.
     TEST_ASSERT_EQUAL(TICKER_COUNT, multi_counter);
 }
 
