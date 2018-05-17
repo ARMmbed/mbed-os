@@ -31,6 +31,7 @@
  *******************************************************************************
  */
 
+#include <string.h>
 #include "rtc_api.h"
 #include "lp_ticker_api.h"
 #include "rtc.h"
@@ -83,64 +84,43 @@ static void init_rtc(void)
 static void overflow_handler(void)
 {
     MXC_RTCTMR->comp[1] += ((UINT32_MAX >> LOG2(LP_TIMER_RATE_HZ)) + 1);
-    RTC_ClearFlags(MXC_F_RTC_FLAGS_ASYNC_CLR_FLAGS);
+    RTC_ClearFlags(MXC_F_RTC_FLAGS_OVERFLOW);
 }
 
 //******************************************************************************
 void rtc_init(void)
 {
-    if (rtc_inited) {
-        return;
-    }
-
     NVIC_SetVector(RTC3_IRQn, (uint32_t)overflow_handler);
     NVIC_EnableIRQ(RTC3_IRQn);
-    // Enable wakeup on RTC overflow
-    LP_ConfigRTCWakeUp(lp_ticker_inited, 0, 0, 1);
+
+    // Enable as LP wakeup source
+    MXC_PWRSEQ->msk_flags |= MXC_F_PWRSEQ_FLAGS_RTC_ROLLOVER;
+
     init_rtc();
-    rtc_inited = 1;
 }
 
 //******************************************************************************
 void rtc_free(void)
 {
-    if (rtc_inited) {
-        rtc_inited = 0;
-        if (lp_ticker_inited) {
-            RTC_DisableINT(MXC_F_RTC_FLAGS_OVERFLOW);
-        } else {
-            MXC_RTCTMR->ctrl |= MXC_F_RTC_CTRL_CLEAR;
-            RTC_Stop();
-        }
-    }
+    while (MXC_RTCTMR->ctrl & MXC_F_RTC_CTRL_PENDING);
 }
 
 //******************************************************************************
 int rtc_isenabled(void)
 {
-    return rtc_inited;
+    return !!RTC_IsActive();
 }
 
 //******************************************************************************
 void rtc_write(time_t t)
 {
-    if (!rtc_inited) {
-        rtc_init();
-    }
-
     MXC_RTCTMR->comp[1] = t - (MXC_RTCTMR->timer >> LOG2(LP_TIMER_RATE_HZ));
-
-    // Wait for pending transactions
     while (MXC_RTCTMR->ctrl & MXC_F_RTC_CTRL_PENDING);
 }
 
 //******************************************************************************
 time_t rtc_read(void)
 {
-    if (!rtc_inited) {
-        rtc_init();
-    }
-
     return (MXC_RTCTMR->timer >> LOG2(LP_TIMER_RATE_HZ)) + MXC_RTCTMR->comp[1];
 }
 
