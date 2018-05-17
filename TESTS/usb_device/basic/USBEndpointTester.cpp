@@ -29,6 +29,7 @@
 #define VENDOR_TEST_CTRL_OUT        2
 #define VENDOR_TEST_CTRL_IN_SIZES   9
 #define VENDOR_TEST_CTRL_OUT_SIZES  10
+#define VENDOR_TEST_READ_START      11
 
 #define EVENT_READY (1 << 0)
 
@@ -130,6 +131,10 @@ USBEndpointTester::USBEndpointTester(USBPhy *phy, uint16_t vendor_id, uint16_t p
     _cnt_cb_int_in = 0;
     _cnt_cb_iso_out = 0;
     _cnt_cb_iso_in = 0;
+    _num_packets_bulk_out_abort = 0;
+    _num_packets_bulk_in_abort = 0;
+    _num_packets_int_out_abort = 0;
+    _num_packets_int_in_abort = 0;
 
     EndpointResolver resolver(endpoint_table());
     resolver.endpoint_ctrl(64);
@@ -147,7 +152,6 @@ USBEndpointTester::USBEndpointTester(USBPhy *phy, uint16_t vendor_id, uint16_t p
     init();
     USBDevice::connect();
     flags.wait_any(EVENT_READY, osWaitForever, false);
-
 }
 
 USBEndpointTester::~USBEndpointTester()
@@ -217,12 +221,35 @@ void USBEndpointTester::callback_request(const setup_packet_t *setup)
                 data = ctrl_buf;
                 size = setup->wValue;
                 break;
+            case VENDOR_TEST_READ_START:
+                result = (_request_read_start(setup)) ? Success : Failure;
+                break;
             default:
                 result = PassThrough;
                 break;
         }
     }
     complete_request(result, data, size);
+}
+
+bool USBEndpointTester::_request_read_start(const setup_packet_t *setup)
+{
+    assert_locked();
+    if (setup->bmRequestType.Recipient != ENDPOINT_RECIPIENT) {
+        return false;
+    }
+    size_t ep_index = NUM_ENDPOINTS + 1;
+    for (size_t i = 0; i < NUM_ENDPOINTS; i++) {
+        if (_endpoints[i] == setup->wIndex) {
+            ep_index = i;
+            break;
+        }
+    }
+    if (ep_index > NUM_ENDPOINTS) {
+        return false;
+    }
+    endpoint_abort(_endpoints[ep_index]);
+    return read_start(_endpoints[ep_index], _endpoint_buffs[ep_index], (*_endpoint_configs)[ep_index].max_packet);
 }
 
 void USBEndpointTester::callback_request_xfer_done(const setup_packet_t *setup, bool aborted)
@@ -297,10 +324,10 @@ bool USBEndpointTester::_setup_interface(uint16_t interface, uint8_t alternate)
     _setup_non_zero_endpoints();
 
     if (_abort_transfer_test && alternate >= 1) {
-        _cnt_cb_bulk_out_abort = _cnt_cb_bulk_out;
-        _cnt_cb_bulk_in_abort = _cnt_cb_bulk_in;
-        _cnt_cb_int_out_abort = _cnt_cb_int_out;
-        _cnt_cb_int_in_abort = _cnt_cb_int_in;
+        _num_packets_bulk_out_abort = 0;
+        _num_packets_bulk_in_abort = 0;
+        _num_packets_int_out_abort = 0;
+        _num_packets_int_in_abort = 0;
         start_ep_in_abort_test();
     }
     return true;
@@ -669,9 +696,9 @@ void USBEndpointTester::_cb_bulk_out(usb_ep_t endpoint)
         write_start(_endpoints[EP_BULK_IN], _endpoint_buffs[EP_BULK_IN], rx_size);
     } else {
         // Abort the transfer if enough data was received.
-        uint32_t num_packets_received = _cnt_cb_bulk_out - _cnt_cb_bulk_out_abort;
+        _num_packets_bulk_out_abort++;
         read_start(_endpoints[EP_BULK_OUT], _endpoint_buffs[EP_BULK_OUT], (*_endpoint_configs)[EP_BULK_OUT].max_packet);
-        if (num_packets_received >= NUM_PACKETS_UNTIL_ABORT) {
+        if (_num_packets_bulk_out_abort == NUM_PACKETS_UNTIL_ABORT) {
             endpoint_abort(endpoint);
         }
     }
@@ -686,14 +713,14 @@ void USBEndpointTester::_cb_bulk_in(usb_ep_t endpoint)
         // Receive more data from the host using the OUT endpoint.
         read_start(_endpoints[EP_BULK_OUT], _endpoint_buffs[EP_BULK_OUT], (*_endpoint_configs)[EP_BULK_OUT].max_packet);
     } else {
-        uint32_t num_packets_sent = _cnt_cb_bulk_in - _cnt_cb_bulk_in_abort;
-        if (num_packets_sent >= NUM_PACKETS_UNTIL_ABORT + NUM_PACKETS_AFTER_ABORT) {
+        _num_packets_bulk_in_abort++;
+        if (_num_packets_bulk_in_abort >= NUM_PACKETS_UNTIL_ABORT + NUM_PACKETS_AFTER_ABORT) {
             return;
         }
         // Abort the transfer if enough data was sent.
-        memset(_endpoint_buffs[EP_BULK_IN], num_packets_sent, (*_endpoint_configs)[EP_BULK_IN].max_packet);
+        memset(_endpoint_buffs[EP_BULK_IN], _num_packets_bulk_in_abort, (*_endpoint_configs)[EP_BULK_IN].max_packet);
         write_start(_endpoints[EP_BULK_IN], _endpoint_buffs[EP_BULK_IN], (*_endpoint_configs)[EP_BULK_IN].max_packet);
-        if (num_packets_sent >= NUM_PACKETS_UNTIL_ABORT) {
+        if (_num_packets_bulk_in_abort == NUM_PACKETS_UNTIL_ABORT) {
             endpoint_abort(endpoint);
         }
     }
@@ -710,9 +737,9 @@ void USBEndpointTester::_cb_int_out(usb_ep_t endpoint)
         write_start(_endpoints[EP_INT_IN], _endpoint_buffs[EP_INT_IN], rx_size);
     } else {
         // Abort the transfer if enough data was received.
-        uint32_t num_packets_received = _cnt_cb_int_out - _cnt_cb_int_out_abort;
+        _num_packets_int_out_abort++;
         read_start(_endpoints[EP_INT_OUT], _endpoint_buffs[EP_INT_OUT], (*_endpoint_configs)[EP_INT_OUT].max_packet);
-        if (num_packets_received >= NUM_PACKETS_UNTIL_ABORT) {
+        if (_num_packets_int_out_abort == NUM_PACKETS_UNTIL_ABORT) {
             endpoint_abort(endpoint);
         }
     }
@@ -726,14 +753,14 @@ void USBEndpointTester::_cb_int_in(usb_ep_t endpoint)
         // Receive more data from the host using the OUT endpoint.
         read_start(_endpoints[EP_INT_OUT], _endpoint_buffs[EP_INT_OUT], (*_endpoint_configs)[EP_INT_OUT].max_packet);
     } else {
-        uint32_t num_packets_sent = _cnt_cb_int_in - _cnt_cb_int_in_abort;
-        if (num_packets_sent >= NUM_PACKETS_UNTIL_ABORT + NUM_PACKETS_AFTER_ABORT) {
+        _num_packets_int_in_abort++;
+        if (_num_packets_int_in_abort >= NUM_PACKETS_UNTIL_ABORT + NUM_PACKETS_AFTER_ABORT) {
             return;
         }
         // Abort the transfer if enough data was sent.
-        memset(_endpoint_buffs[EP_INT_IN], num_packets_sent, (*_endpoint_configs)[EP_INT_IN].max_packet);
+        memset(_endpoint_buffs[EP_INT_IN], _num_packets_int_in_abort, (*_endpoint_configs)[EP_INT_IN].max_packet);
         write_start(_endpoints[EP_INT_IN], _endpoint_buffs[EP_INT_IN], (*_endpoint_configs)[EP_INT_IN].max_packet);
-        if (num_packets_sent >= NUM_PACKETS_UNTIL_ABORT) {
+        if (_num_packets_int_in_abort == NUM_PACKETS_UNTIL_ABORT) {
             endpoint_abort(endpoint);
         }
     }
