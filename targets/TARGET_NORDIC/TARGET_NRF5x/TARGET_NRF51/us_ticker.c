@@ -36,12 +36,13 @@
  *
  */
 
+#include "us_ticker.h"
+
 #include "us_ticker_api.h"
 #include "nrf_timer.h"
 #include "app_util_platform.h"
 #include "nrf_drv_common.h"
 #include "mbed_critical.h"
-#include "us_ticker.h"
 
 static bool us_ticker_initialized = false;
 
