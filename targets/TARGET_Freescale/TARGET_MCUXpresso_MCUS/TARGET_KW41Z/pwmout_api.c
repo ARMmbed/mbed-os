@@ -36,9 +36,8 @@ void pwmout_init(pwmout_t* obj, PinName pin)
 
     uint32_t pwm_base_clock;
 
-    /* Set the TPM clock source to be MCG FLL clock */
-    CLOCK_SetTpmClock(1U);
-    pwm_base_clock = CLOCK_GetFreq(kCLOCK_McgFllClk);
+    /* TPM clock source is set to OSCERCLK during init */
+    pwm_base_clock = CLOCK_GetFreq(kCLOCK_Osc0ErClk);
     float clkval = (float)pwm_base_clock / 1000000.0f;
     uint32_t clkdiv = 0;
     while (clkval > 1) {
