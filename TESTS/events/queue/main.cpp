@@ -26,6 +26,9 @@
 
 using namespace utest::v1;
 
+// Assume that tolerance is 5% of measured time.
+#define DELTA(ms) (ms / 20)
+
 // TEST_EQUEUE_SIZE was reduced below 1024B to fit this test to devices with small RAM (RAM <= 16kB)
 // additionally TEST_EQUEUE_SIZE was expressed in EVENTS_EVENT_SIZE to increase readability
 // (for more details about EVENTS_EVENT_SIZE see EventQueue constructor)
@@ -93,7 +96,7 @@ SIMPLE_POSTS_TEST(0)
 
 
 void time_func(Timer *t, int ms) {
-    TEST_ASSERT_INT_WITHIN(5, ms, t->read_ms());
+    TEST_ASSERT_INT_WITHIN(DELTA(ms), ms, t->read_ms());
     t->reset();
 }
 
