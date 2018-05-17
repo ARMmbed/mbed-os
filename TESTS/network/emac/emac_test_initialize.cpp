@@ -115,8 +115,6 @@ EmacTestMemoryManager *emac_m_mngr_get(void)
 bool emac_if_init(void)
 {
     static EMAC *emac = &EMAC::get_default_instance();
-    static EmacTestMemoryManager *memory_manager = &EmacTestMemoryManager::get_instance();
-    emac->set_memory_manager(*memory_manager);
 
     emac->set_link_input_cb(emac_if_link_input_cb);
     emac->set_link_state_cb(emac_if_link_state_change_cb);

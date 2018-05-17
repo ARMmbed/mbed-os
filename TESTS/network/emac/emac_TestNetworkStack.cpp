@@ -114,6 +114,9 @@ nsapi_error_t EmacTestNetworkStack::add_ethernet_interface(EMAC &emac, bool defa
 
     m_interface->m_emac = &emac;
 
+    EmacTestMemoryManager *memory_manager = &EmacTestMemoryManager::get_instance();
+    emac.set_memory_manager(*memory_manager);
+
     *interface_out = m_interface;
 
     return NSAPI_ERROR_OK;

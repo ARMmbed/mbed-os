@@ -124,7 +124,8 @@ public:
     /** Register a network interface with the IP stack
      *
      * Connects EMAC layer with the IP stack and initializes all the required infrastructure.
-     * This function should be called only once for each available interface.
+     * This function should be called only once for each available interface. EMAC memory
+     * manager is available to EMAC after this function call.
      *
      * @param      emac             EMAC HAL implementation for this network interface
      * @param      default_if       true if the interface should be treated as the default one
