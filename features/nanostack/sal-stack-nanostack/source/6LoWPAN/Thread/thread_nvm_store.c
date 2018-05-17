@@ -52,6 +52,9 @@ const char *FAST_DATA_FILE = "f_d";
 const char *LINK_INFO_FILE = "l_i";
 #define LINK_INFO_DATA_VERSION 1
 
+const char *LEADER_INFO_FILE = "ld_i";
+#define LEADER_INFO_DATA_VERSION 1
+
 typedef struct {
     uint8_t mac[8];
     uint16_t short_addr;
@@ -88,6 +91,7 @@ static void thread_nvm_store_link_info_delayed_write(uint32_t seconds);
 #define DEVICE_CONF_STRING_LEN (strlen(DEVICE_CONF_FILE)+strlen(thread_nvm_store_get_root_path())+1)
 #define PENDING_CONF_STRING_LEN (strlen(THREAD_NVM_PENDING_CONF_FILE)+strlen(thread_nvm_store_get_root_path())+1)
 #define LINK_INFO_STRING_LEN (strlen(LINK_INFO_FILE)+strlen(thread_nvm_store_get_root_path())+1)
+#define LEADER_INFO_STRING_LEN (strlen(LEADER_INFO_FILE)+strlen(thread_nvm_store_get_root_path())+1)
 
 
 thread_nvm_fast_data_t cached_fast_data;
@@ -117,6 +121,65 @@ static int root_path_valid(void)
     }
     return 1;
 }
+
+int thread_nvm_store_mleid_rloc_map_write(thread_nvm_mleid_rloc_map *mleid_rloc_map)
+{
+    char lc_data_path[LEADER_INFO_STRING_LEN];
+    if (!root_path_valid()) {
+        return THREAD_NVM_FILE_ROOT_PATH_INVALID;
+    }
+    thread_nvm_store_create_path(lc_data_path, LEADER_INFO_FILE);
+    tr_debug("writing to store rloc mapping info");
+    return thread_nvm_store_write(lc_data_path, mleid_rloc_map, sizeof(thread_nvm_mleid_rloc_map), LEADER_INFO_DATA_VERSION);
+}
+
+int thread_nvm_store_mleid_rloc_map_read(thread_nvm_mleid_rloc_map *mleid_rloc_map)
+{
+    char lc_data_path[LEADER_INFO_STRING_LEN];
+    uint32_t version;
+    if (NULL==mleid_rloc_map) {
+        return THREAD_NVM_FILE_PARAMETER_INVALID;
+    }
+    if (!root_path_valid()) {
+        return THREAD_NVM_FILE_ROOT_PATH_INVALID;
+    }
+    thread_nvm_store_create_path(lc_data_path, LEADER_INFO_FILE);
+
+    int ret = thread_nvm_store_read(lc_data_path, mleid_rloc_map, sizeof(thread_nvm_mleid_rloc_map), &version);
+
+    if (THREAD_NVM_FILE_SUCCESS!=ret) {
+        tr_info("Leader data map read failed");
+        thread_nvm_store_mleid_rloc_map_remove();
+        return ret;
+    }
+
+    if (LEADER_INFO_DATA_VERSION!=version) {
+        tr_info("Leader data map version mismatch %"PRIu32, version);
+        thread_nvm_store_mleid_rloc_map_remove();
+        return THREAD_NVM_FILE_VERSION_WRONG;
+    }
+
+    return ret;
+}
+
+int thread_nvm_store_mleid_rloc_map_remove(void)
+{
+    int status;
+    tr_info("thread_nvm_store_leader_info_remove");
+
+    if (!ns_file_system_get_root_path()) {
+        return THREAD_NVM_FILE_ROOT_PATH_INVALID;
+    }
+
+    char lc_data_path[LEADER_INFO_STRING_LEN];
+    thread_nvm_store_create_path(lc_data_path, LEADER_INFO_FILE);
+    status = remove(lc_data_path);
+    if (status != 0) {
+      return THREAD_NVM_FILE_REMOVE_ERROR;
+    }
+    return THREAD_NVM_FILE_SUCCESS;
+}
+
 int thread_nvm_store_device_configuration_write(uint8_t *mac_ptr, uint8_t *mleid_ptr)
 {
    thread_nvm_device_conf_t d_c;

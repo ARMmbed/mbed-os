@@ -73,7 +73,6 @@ static void ipv6_destination_cache_forget_neighbour(const ipv6_neighbour_t *neig
 static void ipv6_destination_release(ipv6_destination_t *dest);
 static void ipv6_route_table_remove_router(int8_t interface_id, const uint8_t *addr, ipv6_route_src_t source);
 static uint16_t total_metric(const ipv6_route_t *route);
-static void trace_debug_print(const char *fmt, ...);
 static uint8_t ipv6_route_table_count_source(int8_t interface_id, ipv6_route_src_t source);
 static void ipv6_route_table_remove_last_one_from_source(int8_t interface_id, ipv6_route_src_t source);
 static uint8_t ipv6_route_table_get_max_entries(int8_t interface_id, ipv6_route_src_t source);
@@ -758,7 +757,7 @@ void ipv6_neighbour_cache_fast_timer(ipv6_neighbour_cache_t *cache, uint16_t tic
                         ipv6_neighbour_set_state(cache, cur, IP_NEIGHBOUR_UNREACHABLE);
                     }
                 }
-            /* no break */
+            /* fall through */
             case IP_NEIGHBOUR_UNREACHABLE:
                 if (cur->retrans_count < 0xFF) {
                     cur->retrans_count++;

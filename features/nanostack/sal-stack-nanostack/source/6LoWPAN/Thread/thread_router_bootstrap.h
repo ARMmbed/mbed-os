@@ -45,6 +45,7 @@ struct mle_security_header;
 struct buffer;
 
 void thread_router_bootstrap_reed_advertisements_start(protocol_interface_info_entry_t *cur);
+void thread_router_bootstrap_reed_merge_advertisement(protocol_interface_info_entry_t *cur);
 int thread_router_bootstrap_mle_advertise(struct protocol_interface_info_entry *cur);
 
 void thread_router_bootstrap_child_information_clear(protocol_interface_info_entry_t *cur);
@@ -101,6 +102,7 @@ void thread_router_bootstrap_address_change_notify_send(protocol_interface_info_
 #define thread_router_bootstrap_network_data_distribute(cur)
 #define thread_router_bootstrap_routing_allowed(cur) false
 #define thread_router_bootstrap_address_change_notify_send(cur)
+#define thread_router_bootstrap_reed_merge_advertisement(cur)
 
 #endif/*HAVE_THREAD_ROUTER*/
 

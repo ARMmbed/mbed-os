@@ -340,12 +340,20 @@ struct socket *buffer_socket_set(buffer_t *buf, struct socket *socket);
 /** Removes z amount of bytes from the begining of buffer
  * uint8_t *buffer_data_strip_header(buffer_t *x, uint16_t z)
  * */
-#define buffer_data_strip_header(x,z)  ((x)->buf_ptr += (z), buffer_data_pointer_after_adjustment(x))
+static inline uint8_t *buffer_data_strip_header(buffer_t *x, uint16_t z)
+{
+    x->buf_ptr += z;
+    return buffer_data_pointer_after_adjustment(x);
+}
 
 /** Adds z amount of bytes to the begining of buffer check if this is allowed using buffer_headroom method.
  * uint8_t *buffer_data_reserve_header(buffer_t *x, uint16_t z)
  * */
-#define buffer_data_reserve_header(x,z)  ((x)->buf_ptr -= (z), buffer_data_pointer_after_adjustment(x))
+static inline uint8_t *buffer_data_reserve_header(buffer_t *x, uint16_t z)
+{
+    x->buf_ptr -= z;
+    return buffer_data_pointer_after_adjustment(x);
+}
 
 /** append 1 byte to data*/
 #define buffer_push_uint8(x, z)   do {\

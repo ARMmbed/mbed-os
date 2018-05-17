@@ -58,8 +58,10 @@ uint8_t mac_header_security_aux_header_length(uint8_t security_level, uint8_t ke
     switch (keyIdmode) {
         case MAC_KEY_ID_MODE_SRC8_IDX:
             header_length += 4; //64-bit key source first part
+            /* fall through */
         case MAC_KEY_ID_MODE_SRC4_IDX:
             header_length += 4; //32-bit key source inline
+            /* fall through */
         case MAC_KEY_ID_MODE_IDX:
             header_length += 1;
             break;
@@ -128,8 +130,10 @@ void mac_header_security_parameter_set(mac_aux_security_header_t *header, const 
 
             case MAC_KEY_ID_MODE_SRC8_IDX:
                 keysource_len += 4; //64-bit key source first part
+                /* fall through */
             case MAC_KEY_ID_MODE_SRC4_IDX:
                 keysource_len += 4; //32-bit key source inline
+                /* fall through */
             case MAC_KEY_ID_MODE_IDX:
                 //Security header + 32-bit security counter + Key index
                 header->KeyIndex = frame_setup->KeyIndex;
@@ -198,10 +202,12 @@ void mac_header_security_components_read(mac_pre_parsed_frame_t *buffer, mlme_se
             break;
         case MAC_KEY_ID_MODE_SRC8_IDX:
             key_source_len += 4;
+            /* fall through */
         case MAC_KEY_ID_MODE_SRC4_IDX:
             key_source_len += 4;
             memcpy(security_params->Keysource, ptr, key_source_len);
             ptr += key_source_len;
+            /* fall through */
         case MAC_KEY_ID_MODE_IDX:
             security_params->KeyIndex = *ptr;
             break;

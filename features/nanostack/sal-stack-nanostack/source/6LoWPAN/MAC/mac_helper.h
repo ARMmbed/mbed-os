@@ -110,7 +110,7 @@ int8_t mac_helper_link_frame_counter_set(int8_t interface_id, uint32_t seq_ptr);
 
 void mac_helper_devicetable_remove(struct mac_api_s *mac_api, uint8_t attribute_index);
 
-void mac_helper_devicetable_set(struct mle_neigh_table_entry_t *entry_temp, struct protocol_interface_info_entry *cur, uint32_t frame_counter, uint8_t keyID);
+void mac_helper_devicetable_set(struct mle_neigh_table_entry_t *entry_temp, struct protocol_interface_info_entry *cur, uint32_t frame_counter, uint8_t keyID, bool force_set);
 
 int8_t mac_helper_mac_mlme_max_retry_set(int8_t interface_id, uint8_t mac_retry_set);
 

@@ -209,7 +209,7 @@ static mle_neigh_table_entry_t *thread_nd_child_mleid_get(int8_t interface_id, u
     return NULL;
 }
 
-static int thread_nd_address_query_lookup(int8_t interface_id, const uint8_t target_addr[static 16], uint16_t *addr_out, bool *proxy, uint32_t *last_transaction_time, uint8_t *mleid_ptr)
+static int thread_nd_address_query_lookup(int8_t interface_id, const uint8_t target_addr[static 16], uint16_t *rloc, uint16_t *addr_out, bool *proxy, uint32_t *last_transaction_time, uint8_t *mleid_ptr)
 {
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (!cur) {
@@ -260,8 +260,8 @@ static int thread_nd_address_query_lookup(int8_t interface_id, const uint8_t tar
         can_route_of_mesh = true;
     }
 
-    if (thread_extension_bbr_nd_query_process(cur,target_addr)) {
-        can_route_of_mesh = true;
+    if (thread_extension_bbr_nd_query_process(cur,target_addr, *rloc)){
+        return -1;
     }
 
     if (can_route_of_mesh) {

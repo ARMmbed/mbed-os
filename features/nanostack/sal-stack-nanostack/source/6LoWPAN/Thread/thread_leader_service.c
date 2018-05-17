@@ -733,6 +733,32 @@ static void thread_leader_allocate_router_id_by_allocated_id(thread_leader_info_
     info->thread_router_id_list[router_id].reUsePossible = false;
 }
 
+void thread_leader_mleid_rloc_map_populate(thread_nvm_mleid_rloc_map *mleid_rloc_map, thread_leader_info_t *leader_private_info)
+{
+    for (uint8_t i = 0; i < 64; i++) {
+        if (bit_test(leader_private_info->master_router_id_mask, i)) {
+            memcpy(mleid_rloc_map->mleid_rloc_map[i].mle_id, leader_private_info->thread_router_id_list[i].eui64, 8);
+        }
+    }
+}
+
+int thread_leader_mleid_rloc_map_to_nvm_write(protocol_interface_info_entry_t *cur)
+{
+    if (!cur->thread_info->leader_private_data) {
+        return -1;
+    }
+
+    thread_nvm_mleid_rloc_map *mleid_rloc_map = ns_dyn_mem_temporary_alloc(sizeof(thread_nvm_mleid_rloc_map));
+    if (!mleid_rloc_map) {
+        return -2;
+    }
+    memset(mleid_rloc_map, 0, sizeof(thread_nvm_mleid_rloc_map));
+    thread_leader_mleid_rloc_map_populate(mleid_rloc_map, cur->thread_info->leader_private_data);
+    thread_nvm_store_mleid_rloc_map_write(mleid_rloc_map);
+    ns_dyn_mem_free(mleid_rloc_map);
+    return 0;
+}
+
 static int thread_leader_service_router_id_allocate(const uint8_t *eui64, protocol_interface_info_entry_t *cur, thread_leader_service_router_id_resp_t *reponse)
 {
     int ret_val = -1;
@@ -793,6 +819,8 @@ static int thread_leader_service_router_id_allocate(const uint8_t *eui64, protoc
         if (!bit_test(leader_private_ptr->master_router_id_mask, id)) {
             if (leader_private_ptr->thread_router_id_list[id].reUsePossible) {
                 allocated_id = id;
+                // new id allocated save to nvm after delay
+                leader_private_ptr->leader_nvm_sync_timer = LEADER_NVM_SYNC_DELAY;
                 break;
             }
         }
@@ -847,6 +875,7 @@ static int thread_leader_service_router_id_deallocate(const uint8_t *eui64, prot
                 //Active ID
                 if (memcmp(eui64, leader_private_ptr->thread_router_id_list[i].eui64, 8) == 0) {
                     tr_debug("Release Router Id %d", i);
+                    leader_private_ptr->leader_nvm_sync_timer = LEADER_NVM_SYNC_DELAY;
                     thread_leader_service_route_mask_bit_clear(leader_private_ptr, i);
                     leader_private_ptr->thread_router_id_list[i].reUsePossible = true;
                     leader_private_ptr->thread_router_id_list[i].validLifeTime = 0;
@@ -1270,7 +1299,7 @@ static int thread_leader_service_leader_init(protocol_interface_info_entry_t *cu
     thread_nd_service_delete(cur->id);
     mpl_clear_realm_scope_seeds(cur);
     ipv6_neighbour_cache_flush(&cur->ipv6_neighbour_cache);
-    thread_clean_all_routers_from_neighbor_list(cur->id);
+    thread_neighbor_list_clean(cur);
     cur->mesh_callbacks = NULL;
     cur->lowpan_info &= ~INTERFACE_NWK_CONF_MAC_RX_OFF_IDLE;
 
@@ -1318,6 +1347,8 @@ static void thread_leader_service_interface_setup_activate(protocol_interface_in
     //SET Router ID
     thread_leader_allocate_router_id_by_allocated_id(private, routerId, cur->mac);
     thread_old_partition_data_purge(cur);
+    // remove any existing rloc mapping in nvm
+    thread_nvm_store_mleid_rloc_map_remove();
     cur->lowpan_address_mode = NET_6LOWPAN_GP16_ADDRESS;
     thread_bootstrap_update_ml16_address(cur, cur->thread_info->routerShortAddress);
     thread_generate_ml64_address(cur);
@@ -1483,6 +1514,7 @@ void thread_leader_service_timer(protocol_interface_info_entry_t *cur, uint32_t 
             thread_bootstrap_network_data_update(cur);
         }
     }
+
     if (cur->thread_info->leader_private_data->leader_id_seq_timer) {
         if (cur->thread_info->leader_private_data->leader_id_seq_timer > ticks) {
             cur->thread_info->leader_private_data->leader_id_seq_timer -= ticks;
@@ -1497,6 +1529,16 @@ void thread_leader_service_timer(protocol_interface_info_entry_t *cur, uint32_t 
         thread_network_data_context_re_use_timer_update(&cur->thread_info->networkDataStorage, 10, &cur->lowpan_contexts);
         // Send update to network data if needed
         thread_leader_service_network_data_changed(cur, false, false);
+    }
+
+    if (cur->thread_info->leader_private_data->leader_nvm_sync_timer) {
+        if ((cur->thread_info->leader_private_data->leader_nvm_sync_timer) > ticks) {
+            cur->thread_info->leader_private_data->leader_nvm_sync_timer -= ticks;
+        }
+        else {
+            cur->thread_info->leader_private_data->leader_nvm_sync_timer = 0;
+            thread_leader_mleid_rloc_map_to_nvm_write(cur);
+        }
     }
 
     thread_leader_service_router_id_valid_lifetime_update(cur, ticks);
@@ -1618,25 +1660,39 @@ int thread_leader_service_thread_partitition_restart(int8_t interface_id, mle_tl
     }
     //Learn network data, we remove own data from here it should be re given by application
     //thread_management_network_data_register(cur->id, networkData.dataPtr, networkData.tlvLen, address16 );
-
+    thread_nvm_mleid_rloc_map *mleid_rloc_map = ns_dyn_mem_temporary_alloc(sizeof(thread_nvm_mleid_rloc_map));
+    if (!mleid_rloc_map) {
+        return -1;
+    }
+    if (thread_nvm_store_mleid_rloc_map_read(mleid_rloc_map) != THREAD_NVM_FILE_SUCCESS) {
+        memset(mleid_rloc_map, 0, sizeof(thread_nvm_mleid_rloc_map));
+    }
     // initialize private data
     thread_info(cur)->leader_private_data->maskSeq = *routing->dataPtr;
-    memcpy(thread_info(cur)->leader_private_data->master_router_id_mask,routing->dataPtr + 1,8);
+    memcpy(thread_info(cur)->leader_private_data->master_router_id_mask,routing->dataPtr + 1, 8);
     for (int i = 0; i < 64; i++) {
-        memset(thread_info(cur)->leader_private_data->thread_router_id_list[i].eui64,0,8);
         if (bit_test(thread_info(cur)->leader_private_data->master_router_id_mask, i)) {
             //Active ID
             thread_info(cur)->leader_private_data->thread_router_id_list[i].reUsePossible = false;
-
+            memcpy(thread_info(cur)->leader_private_data->thread_router_id_list[i].eui64, mleid_rloc_map->mleid_rloc_map[i].mle_id, 8);
         } else {
             // Free id
             thread_info(cur)->leader_private_data->thread_router_id_list[i].reUsePossible = true;
+            // clear the mleid in both local router id list and nvm
+            memset(thread_info(cur)->leader_private_data->thread_router_id_list[i].eui64, 0, 8);
+            memset(mleid_rloc_map->mleid_rloc_map[i].mle_id, 0, 8);
         }
         thread_info(cur)->leader_private_data->thread_router_id_list[i].validLifeTime = 0xffffffff;
     }
+    // write back updated map to store
+    thread_nvm_store_mleid_rloc_map_write(mleid_rloc_map);
+    ns_dyn_mem_free(mleid_rloc_map);
     // Clear network data (if exists) and propagate new empty network data
     thread_network_data_free_and_clean(&cur->thread_info->networkDataStorage);
     thread_network_data_base_init(&cur->thread_info->networkDataStorage);
+    // Update router sequence id to prevent network fragmentation in case of Leader was temporarily down
+    // and routers were not able to get new sequence id for NETWORK_ID_TIMEOUT duration.
+    thread_leader_service_update_id_set(cur);
     return 0;
 }
 

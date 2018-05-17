@@ -884,9 +884,20 @@ int thread_border_router_publish(int8_t interface_id)
     tr_debug("Border router old: %x, new: %x", cur->thread_info->localServerDataBase.registered_rloc16, rloc16);
 
     if (cur->thread_info->localServerDataBase.publish_active) {
-        cur->thread_info->localServerDataBase.publish_pending = true;
-        tr_debug("Activate pending status for publish");
-        return 0;
+        if (rloc16 != cur->thread_info->localServerDataBase.registered_rloc16) {
+            /*
+             * Device short address has changed, cancel previous a/sd and a/as requests
+             * and start resubmit timer
+             * */
+            tr_debug("address changed, kill pending reuqests");
+            thread_management_client_pending_coap_request_kill(cur->id);
+            thread_border_router_resubmit_timer_set(interface_id, 5);
+            return 0;
+        } else {
+            cur->thread_info->localServerDataBase.publish_pending = true;
+            tr_debug("Activate pending status for publish");
+            return 0;
+        }
     }
 
     //Allocate Memory for Data

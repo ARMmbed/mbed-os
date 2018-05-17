@@ -454,6 +454,17 @@ TEST(trace, filters_control)
     mbed_trace_exclude_filters_set(0);
     STRCMP_EQUAL("", mbed_trace_exclude_filters_get());
 }
+TEST(trace, cmd_printer)
+{
+  buf[0] = 0;
+  mbed_trace_config_set(TRACE_ACTIVE_LEVEL_ALL);
+  mbed_tracef(TRACE_LEVEL_CMD, "mygr", "default printer");
+  STRCMP_EQUAL("default printer", buf);
+
+  mbed_trace_cmdprint_function_set( myprint );
+  mbed_tracef(TRACE_LEVEL_CMD, "mygr", "custom printer");
+  STRCMP_EQUAL("\n", buf); // because there is two print calls, second one add line feeds
+}
 TEST(trace, no_printer)
 {
     mbed_tracef(TRACE_LEVEL_DEBUG, "mygr", "hello");

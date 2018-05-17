@@ -434,11 +434,11 @@ bool nd_proxy_enabled_for_upstream(int8_t interface_id)
     return false;
 }
 
-bool nd_proxy_target_address_validation(int8_t upstream_id, uint8_t *address, int8_t *downstream_id_ptr)
+bool nd_proxy_target_address_validation(int8_t upstream_id, uint8_t *address)
 {
     nd_proxy_downstream_list_s *downstream;
     nd_proxy_connected_list_s *upstream = proxy_upstream_conection_get(upstream_id);
-    *downstream_id_ptr = -1;
+
     if (!upstream) {
         return false;
     }
@@ -447,7 +447,6 @@ bool nd_proxy_target_address_validation(int8_t upstream_id, uint8_t *address, in
         downstream = proxy_cache_downstream_interface_get(downstream_entry->id, &downstream_interface_list);
         if (downstream) {
             if (downstream->nd_proxy_validation(downstream_entry->id, address) == 0) {
-                *downstream_id_ptr = downstream_entry->id;
                 return true;
             }
         }

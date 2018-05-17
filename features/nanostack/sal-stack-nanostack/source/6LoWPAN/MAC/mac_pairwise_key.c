@@ -252,6 +252,8 @@ int mac_pairwise_key_interface_unregister(int8_t interface_id)
 int mac_pairwise_key_add(int8_t interface_id, uint32_t valid_life_time, const uint8_t eui64[static 8], const uint8_t key[static 16])
 {
     protocol_interface_info_entry_t *interface = protocol_stack_interface_info_get_by_id(interface_id);
+    bool new_entry_created;
+
     if (!interface || !interface->mac_api) {
         return -1;
     }
@@ -264,7 +266,7 @@ int mac_pairwise_key_add(int8_t interface_id, uint32_t valid_life_time, const ui
     }
 
     //Allocate mle entry
-    mle_neigh_table_entry_t *mle_entry = mle_class_get_entry_by_mac64(interface_id, 0, eui64, true);
+    mle_neigh_table_entry_t *mle_entry = mle_class_get_entry_by_mac64(interface_id, 0, eui64, true, &new_entry_created);
     if (!mle_entry) {
         return -1;
     }
@@ -282,7 +284,7 @@ int mac_pairwise_key_add(int8_t interface_id, uint32_t valid_life_time, const ui
     }
 
     //Set device descriptor
-    mac_helper_devicetable_set(mle_entry, interface, 0, interface->mac_parameters->mac_default_key_index);
+    mac_helper_devicetable_set(mle_entry, interface, 0, interface->mac_parameters->mac_default_key_index, new_entry_created);
 
     //set key descriptor
     if (mac_helper_security_pairwisekey_set(interface, key, eui64, key_desc->key_decriptor_attribute) != 0) {
@@ -308,7 +310,7 @@ int mac_pairwise_key_del(int8_t interface_id, const uint8_t eui64[static 8])
         return -1;
     }
     //Get from mle
-    mle_neigh_table_entry_t *mle_entry = mle_class_get_entry_by_mac64(interface_id, 0, eui64, true);
+    mle_neigh_table_entry_t *mle_entry = mle_class_get_entry_by_mac64(interface_id, 0, eui64, true, NULL);
     if (!mle_entry) {
         return -1;
     }

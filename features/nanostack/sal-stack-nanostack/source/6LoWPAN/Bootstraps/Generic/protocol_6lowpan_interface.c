@@ -87,7 +87,10 @@ static int8_t set_6lowpan_nwk_down(protocol_interface_info_entry_t *cur)
 #endif
             }
         }
-        uint16_t pan_id = cur->mac_parameters->pan_id;
+        if (cur->lowpan_info & INTERFACE_NWK_BOOTSRAP_PANA_AUTHENTICATION) {
+            pana_reset_values(cur->mac_parameters->pan_id);
+        }
+
         if (cur->interface_mode == INTERFACE_UP) {
             if (cur->mac_api) {
                 mlme_reset_t reset;
@@ -105,9 +108,6 @@ static int8_t set_6lowpan_nwk_down(protocol_interface_info_entry_t *cur)
         reassembly_interface_reset(cur->id);
 
         icmp_nd_routers_init();
-        if (cur->lowpan_info & INTERFACE_NWK_BOOTSRAP_PANA_AUTHENTICATION) {
-            pana_reset_values(pan_id);
-        }
 
         if (cur->pana_sec_info_temp) {
             ns_dyn_mem_free(cur->pana_sec_info_temp);
