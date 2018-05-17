@@ -31,22 +31,26 @@ static trace_t m_trace = {
     .mutex_release_f = 0,
 };
 
-void mutex_wait_function_set(void (*mutex_wait_f)(void)) {
+void mutex_wait_function_set(void (*mutex_wait_f)(void))
+{
     m_trace.mutex_wait_f = mutex_wait_f;
 }
 
-void mutex_release_function_set(void (*mutex_release_f)(void)) {
+void mutex_release_function_set(void (*mutex_release_f)(void))
+{
     m_trace.mutex_release_f = mutex_release_f;
 }
 
 
-void mutex_wait() {
+void mutex_wait()
+{
     if (m_trace.mutex_wait_f) {
         m_trace.mutex_wait_f();
     }
 }
 
-void mutex_release() {
+void mutex_release()
+{
     if (m_trace.mutex_release_f) {
         m_trace.mutex_release_f();
     }
