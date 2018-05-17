@@ -24,21 +24,10 @@
 #define FEA_TRACE_SUPPORT
 #endif
 
-#if defined(FEATURE_COMMON_PAL)
-
 #include "mbed-trace/mbed_trace.h"
 #ifndef TRACE_GROUP
 #define TRACE_GROUP  "CELL"
 #endif // TRACE_GROUP
-
-#else
-
-#define tr_debug(...) (void(0))
-#define tr_info(...)  (void(0))
-#define tr_error(...) (void(0))
-#define tr_warn(...) (void(0))
-
-#endif // FEATURE_COMMON_PAL
 
 /**
  * Set mutex wait/release functions for 'tr_' macros,
