@@ -34,7 +34,7 @@ public:
      * construct a single instance of LoRaWANInterface.
      *
      */
-    LoRaWANInterface(LoRaRadio& radio);
+    LoRaWANInterface(LoRaRadio &radio);
 
     virtual ~LoRaWANInterface();
 
@@ -315,7 +315,7 @@ public:
      *                          LORAWAN_STATUS_WOULD_BLOCK if another TX is
      *                          ongoing, or a negative error code on failure.
      */
-    virtual int16_t send(uint8_t port, const uint8_t* data, uint16_t length,
+    virtual int16_t send(uint8_t port, const uint8_t *data, uint16_t length,
                          int flags);
 
     /** Receives a message from the Network Server on a specific port.
@@ -357,7 +357,7 @@ public:
      *                                  nothing available to read at the moment.
      *                             iv)  A negative error code on failure.
      */
-    virtual int16_t receive(uint8_t port, uint8_t* data, uint16_t length, int flags);
+    virtual int16_t receive(uint8_t port, uint8_t *data, uint16_t length, int flags);
 
     /** Receives a message from the Network Server on any port.
      *
@@ -381,7 +381,7 @@ public:
      *                                  nothing available to read at the moment.
      *                             iv)  A negative error code on failure.
      */
-    virtual int16_t receive(uint8_t* data, uint16_t length, uint8_t& port, int& flags);
+    virtual int16_t receive(uint8_t *data, uint16_t length, uint8_t &port, int &flags);
 
     /** Add application callbacks to the stack.
      *
@@ -502,8 +502,14 @@ public:
      */
     virtual lorawan_status_t cancel_sending(void);
 
-    void lock(void) { _lw_stack.lock(); }
-    void unlock(void) { _lw_stack.unlock(); }
+    void lock(void)
+    {
+        _lw_stack.lock();
+    }
+    void unlock(void)
+    {
+        _lw_stack.unlock();
+    }
 
 
 private:
