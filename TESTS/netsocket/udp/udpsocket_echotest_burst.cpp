@@ -23,20 +23,23 @@
 #include "utest.h"
 #include "udp_tests.h"
 
-#define SIGNAL_SIGIO 0x1
-#define SIGIO_TIMEOUT 5000 //[ms]
-#define RECV_TIMEOUT 1 //[s]
+using namespace utest::v1;
 
 namespace
 {
-    typedef struct pkg {
-        int len;
-        char *payload;
-    } pkg_t;
+    static const int SIGNAL_SIGIO = 0x1;
+    static const int SIGIO_TIMEOUT = 5000; //[ms]
+    static const int RECV_TIMEOUT = 1; //[s]
+
     static const int BURST_CNT = 100;
     static const int BURST_PKTS = 5;
     static const int PKG_SIZES[BURST_PKTS] = {100, 200, 300, 120, 500};
     static const int RECV_TOTAL = 1220;
+
+    typedef struct pkg {
+        int len;
+        char *payload;
+    } pkg_t;
     pkg_t tx_buffers[BURST_PKTS];
     char rx_buffer[500] = {0};
 }

@@ -63,7 +63,7 @@ void UDPSOCKET_RECV_TIMEOUT()
         if (recvd == NSAPI_ERROR_WOULD_BLOCK) {
             osSignalWait(SIGNAL_SIGIO, SIGIO_TIMEOUT);
             printf("MBED: recvfrom() took: %dms\n", timer.read_ms());
-            TEST_ASSERT_INT_WITHIN(50, (100+200)/2, timer.read_ms());
+            TEST_ASSERT_INT_WITHIN(50, 150, timer.read_ms());
             continue;
         } else if (recvd < 0) {
             printf("[bt#%02d] network error %d\n", i, recvd);

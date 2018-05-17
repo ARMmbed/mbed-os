@@ -67,6 +67,7 @@ void UDPSOCKET_ECHOTEST()
         fill_tx_buffer_ascii(tx_buffer, BUFF_SIZE);
 
         for (int retry_cnt = 0; retry_cnt <= 2; retry_cnt++) {
+            memset(rx_buffer, 0, BUFF_SIZE);
             sent = sock.sendto(udp_addr, tx_buffer, pkt_s);
             if (sent != pkt_s) {
                 printf("[Round#%02d - Sender] error, returned %d\n", s_idx, sent);

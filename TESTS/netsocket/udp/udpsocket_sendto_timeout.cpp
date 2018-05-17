@@ -23,6 +23,8 @@
 #include "utest.h"
 #include "udp_tests.h"
 
+using namespace utest::v1;
+
 void UDPSOCKET_SENDTO_TIMEOUT()
 {
     char tx_buffer[100];
