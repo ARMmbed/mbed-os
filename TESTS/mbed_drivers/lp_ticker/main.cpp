@@ -33,9 +33,9 @@ static const int test_timeout = 10;
 /* Due to poor accuracy of LowPowerTicker on many platforms
    there is no sense to tune tolerance value as it was in Ticker tests.
 
-   Tolerance value is set to 500us for measurement inaccuracy + 5% tolerance
+   Tolerance value is set to 600us for measurement inaccuracy + 5% tolerance
    for LowPowerTicker. */
-#define TOLERANCE_US(DELAY) (500 + DELAY / 20)
+#define TOLERANCE_US(DELAY) (600 + DELAY / 20)
 
 
 volatile uint32_t ticker_callback_flag;
