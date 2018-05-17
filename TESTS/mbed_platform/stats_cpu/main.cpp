@@ -63,6 +63,8 @@ void get_cpu_usage()
 void test_cpu_info(void)
 {
     mbed_stats_cpu_t stats;
+    // Additional read to make sure timer is initialized
+    mbed_stats_cpu_get(&stats);
     Thread::wait(1);
     mbed_stats_cpu_get(&stats);
     TEST_ASSERT_NOT_EQUAL(0, stats.uptime);
