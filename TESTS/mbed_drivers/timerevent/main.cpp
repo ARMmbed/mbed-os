@@ -39,6 +39,8 @@ private:
 public:
     TestTimerEvent() :
             TimerEvent(), sem(0, 1) {
+
+        sleep_manager_lock_deep_sleep();
     }
 
     TestTimerEvent(const ticker_data_t *data) :
@@ -46,6 +48,7 @@ public:
     }
 
     virtual ~TestTimerEvent() {
+        sleep_manager_unlock_deep_sleep();
     }
 
     // Make these methods publicly accessible
