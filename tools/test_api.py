@@ -528,7 +528,7 @@ class SingleTestRunner(object):
                             project_name_str))
                         test_result = self.TEST_RESULT_BUILD_FAILED
                     elif isinstance(e, NotSupportedException):
-                        print(elf.logger.log_line(
+                        print(self.logger.log_line(
                             self.logger.LogType.INFO,
                             'Project %s is not supported' % project_name_str))
                         test_result = self.TEST_RESULT_NOT_SUPPORTED
