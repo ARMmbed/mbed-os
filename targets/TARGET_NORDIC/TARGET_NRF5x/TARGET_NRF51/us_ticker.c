@@ -44,7 +44,7 @@
 #include "nrf_drv_common.h"
 #include "mbed_critical.h"
 
-static bool us_ticker_initialized = false;
+bool us_ticker_initialized = false;
 
 /* us ticker is driven by 1MHz clock and counter length is 16 bits. */
 const ticker_info_t* us_ticker_get_info()
