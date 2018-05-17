@@ -204,7 +204,7 @@ typedef struct lorawan_connect {
  *
  */
 typedef enum lora_events {
-    CONNECTED=0,
+    CONNECTED = 0,
     DISCONNECTED,
     TX_DONE,
     TX_TIMEOUT,
@@ -244,26 +244,26 @@ typedef enum lora_events {
  * the stack about the battery level by calling a function provided
  * by the upper layers.
  */
-typedef struct  {
-     /**
-      * Mandatory. Event Callback must be provided
-      */
-     mbed::Callback<void(lorawan_event_t)> events;
+typedef struct {
+    /**
+     * Mandatory. Event Callback must be provided
+     */
+    mbed::Callback<void(lorawan_event_t)> events;
 
-     /**
-      * Optional
-      */
-     mbed::Callback<void(uint8_t, uint8_t)> link_check_resp;
+    /**
+     * Optional
+     */
+    mbed::Callback<void(uint8_t, uint8_t)> link_check_resp;
 
-     /**
-      * Battery level return value must follow the specification
-      * for DevStatusAns MAC command:
-      *
-      *     0       The end-device is connected to an external power source
-      *     1 - 254 The battery level, 1 being at minimum and 254 being at maximum
-      *     255     The end-device was not able to measure the battery level.
-      */
-     mbed::Callback<uint8_t(void)> battery_level;
+    /**
+     * Battery level return value must follow the specification
+     * for DevStatusAns MAC command:
+     *
+     *     0       The end-device is connected to an external power source
+     *     1 - 254 The battery level, 1 being at minimum and 254 being at maximum
+     *     255     The end-device was not able to measure the battery level.
+     */
+    mbed::Callback<uint8_t(void)> battery_level;
 } lorawan_app_callbacks_t;
 
 /**
@@ -288,7 +288,7 @@ typedef union {
          * The allowed ranges are region-specific.
          * Please refer to \ref DR_0 to \ref DR_15 for details.
          */
-        int8_t min :4;
+        int8_t min : 4;
         /**
          * The maximum data rate.
          *
@@ -297,7 +297,7 @@ typedef union {
          * The allowed ranges are region-specific.
          * Please refer to \ref DR_0 to \ref DR_15 for details.
          */
-        int8_t max :4;
+        int8_t max : 4;
     } fields;
 } dr_range_t;
 
