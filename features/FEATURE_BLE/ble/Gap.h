@@ -508,6 +508,11 @@ public:
     typedef ble::random_address_type_t RandomAddressType_t;
 
     /**
+     * Enumeration of peer address types
+     */
+    typedef ble::peer_address_type_t PeerAddressType_t;
+
+    /**
      * Parameters of a BLE connection.
      */
     typedef struct {
@@ -591,6 +596,11 @@ public:
      */
     struct AdvertisementCallbackParams_t {
         /**
+         * Default constructor.
+         */
+        AdvertisementCallbackParams_t();
+
+        /**
          * BLE address of the device that has advertised the packet.
          */
         BLEProtocol::AddressBytes_t peerAddr;
@@ -623,10 +633,26 @@ public:
         /**
          * Type of the address received.
          *
+         * @deprecated AddressType_t do not carry enough information to be used
+         * when privacy is enabled. Use peerAddressType instead.
+         *
          * @note This value should be used in the connect function to establish
          * a connection with the peer that has sent this advertisement packet.
          */
+        MBED_DEPRECATED_SINCE(
+            "mbed-os-5.9.0",
+            "addressType won't work in connect when privacy is enabled; please"
+            "use peerAddrType"
+        )
         AddressType_t addressType;
+
+        /**
+         * Type of the address received.
+         *
+         * @note This value should be used in the connect function to establish
+         * a connection with the peer that has sent this advertisement packet.
+         */
+        PeerAddressType_t peerAddrType;
     };
 
     /**
@@ -658,7 +684,15 @@ public:
 
         /**
          * Type of the address the peer uses.
+         *
+         * @deprecated The type BLEProtocol::AddressType_t is not suitable when
+         * privacy is enabled. Use peerAddressType instead.
          */
+        MBED_DEPRECATED_SINCE(
+            "mbed-os-5.9",
+            "The type BLEProtocol::AddressType_t is not suitable when privacy is "
+            "enabled. Use peerAddressType instead."
+        )
         BLEProtocol::AddressType_t peerAddrType;
 
         /**
@@ -673,7 +707,18 @@ public:
 
         /**
          * Address of the local device.
+         *
+         * @deprecated The local address used for the connection may not be known,
+         * Therefore this field is not reliable.
+         *
+         * @note All bytes of the address are set to 0 if not applicable
          */
+        MBED_DEPRECATED_SINCE(
+            "mbed-os-5.9",
+            "A Bluetooth controller is not supposed to return the address it used"
+            "to connect. With privacy enabled the controller address may be unknown"
+            "to the host. There is no replacement for this deprecation."
+        )
         BLEProtocol::AddressBytes_t ownAddr;
 
         /**
@@ -696,6 +741,39 @@ public:
         BLEProtocol::AddressBytes_t localResolvableAddr;
 
         /**
+         * Type of the address the peer uses.
+         */
+        PeerAddressType_t peerAddressType;
+
+        /**
+         * Construct an instance of ConnectionCallbackParams_t.
+         *
+         * @param[in] handleIn Value to assign to handle.
+         * @param[in] roleIn Value to assign to role.
+         * @param[in] peerAddrTypeIn Value to assign to peerAddrType.
+         * @param[in] peerAddrIn Value to assign to peerAddr.
+         * @param[in] ownAddrTypeIn Value to assign to ownAddrType.
+         * @param[in] ownAddrIn Value to assign to ownAddr. This may be NULL.
+         * @param[in] connectionParamsIn Value to assign to connectionParams.
+         * @param[in] peerResolvableAddrIn Value to assign to peerResolvableAddr.
+         * @param[in] localResolvableAddrIn Value to assign to localResolvableAddr.
+         *
+         * @note Constructor is not meant to be called by user code.
+         * The BLE API vendor code generates ConnectionCallbackParams_t.
+         */
+        ConnectionCallbackParams_t(
+            Handle_t handleIn,
+            Role_t roleIn,
+            PeerAddressType_t peerAddrTypeIn,
+            const uint8_t *peerAddrIn,
+            BLEProtocol::AddressType_t ownAddrTypeIn,
+            const uint8_t *ownAddrIn,
+            const ConnectionParams_t *connectionParamsIn,
+            const uint8_t *peerResolvableAddrIn = NULL,
+            const uint8_t *localResolvableAddrIn = NULL
+        );
+
+        /**
          * Construct an instance of ConnectionCallbackParams_t.
          *
          * @param[in] handleIn Value to assign to handle.
@@ -710,7 +788,16 @@ public:
          *
          * @note Constructor is not meant to be called by user code.
          * The BLE API vendor code generates ConnectionCallbackParams_t.
+         *
+         * @deprecated The type BLEProtocol::AddressType_t is not suitable when
+         * privacy is enabled. Use the constructor that accepts a
+         * PeerAddressType_t instead.
          */
+        MBED_DEPRECATED_SINCE(
+            "mbed-os-5.9.0",
+            "The type BLEProtocol::AddressType_t is not suitable when privacy is "
+            "enabled. Use the constructor that accepts a PeerAddressType_t instead."
+        )
         ConnectionCallbackParams_t(
             Handle_t handleIn,
             Role_t roleIn,
@@ -721,26 +808,15 @@ public:
             const ConnectionParams_t *connectionParamsIn,
             const uint8_t *peerResolvableAddrIn = NULL,
             const uint8_t *localResolvableAddrIn = NULL
-        ) : handle(handleIn),
-            role(roleIn),
-            peerAddrType(peerAddrTypeIn),
-            peerAddr(),
-            ownAddrType(ownAddrTypeIn),
-            ownAddr(),
-            connectionParams(connectionParamsIn),
-            peerResolvableAddr(),
-            localResolvableAddr()
-        {
-            memcpy(peerAddr, peerAddrIn, ADDR_LEN);
-            memcpy(ownAddr, ownAddrIn, ADDR_LEN);
-            if (peerResolvableAddrIn) {
-                memcpy(peerResolvableAddr, peerResolvableAddrIn, ADDR_LEN);
-            }
+        );
 
-            if (localResolvableAddrIn) {
-                memcpy(localResolvableAddr, localResolvableAddrIn, ADDR_LEN);
-            }
-        }
+    private:
+        void constructor_helper(
+            const uint8_t *peerAddrIn,
+            const uint8_t *ownAddrIn,
+            const uint8_t *peerResolvableAddrIn,
+            const uint8_t *localResolvableAddrIn
+        );
     };
 
     /**
@@ -1145,7 +1221,8 @@ public:
      * emitted to handlers that have been registered with onConnection().
      *
      * @param[in] peerAddr MAC address of the peer. It must be in LSB format.
-     * @param[in] peerAddrType Address type of the peer.
+     * @param[in] peerAddrType Address type of the peer. It is usually obtained
+     * from advertising frames.
      * @param[in] connectionParams Connection parameters to use.
      * @param[in] scanParams Scan parameters used to find the peer.
      *
@@ -1153,6 +1230,47 @@ public:
      * successfully. The connectionCallChain (if set) is invoked upon
      * a connection event.
      */
+    virtual ble_error_t connect(
+        const BLEProtocol::AddressBytes_t peerAddr,
+        PeerAddressType_t peerAddrType,
+        const ConnectionParams_t *connectionParams,
+        const GapScanningParams *scanParams
+    ) {
+        /* Avoid compiler warnings about unused variables. */
+        (void)peerAddr;
+        (void)peerAddrType;
+        (void)connectionParams;
+        (void)scanParams;
+
+        /* Requesting action from porter(s): override this API if this capability
+           is supported. */
+        return BLE_ERROR_NOT_IMPLEMENTED;
+    }
+
+    /**
+     * Initiate a connection to a peer.
+     *
+     * Once the connection is established, a ConnectionCallbackParams_t event is
+     * emitted to handlers that have been registered with onConnection().
+     *
+     * @param[in] peerAddr MAC address of the peer. It must be in LSB format.
+     * @param[in] peerAddrType Address type of the peer.
+     * @param[in] connectionParams Connection parameters to use.
+     * @param[in] scanParams Scan parameters used to find the peer.
+     *
+     * @deprecated BLEProtocol::AddressType_t is not able to to carry accurate
+     * meaning when privacy is in use. Please Uses the connect overload that
+     * accept a PeerAddressType_t as the peer address type.
+     *
+     * @return BLE_ERROR_NONE if connection establishment procedure is started
+     * successfully. The connectionCallChain (if set) is invoked upon
+     * a connection event.
+     */
+    MBED_DEPRECATED_SINCE(
+        "mbed-os-5.9.0",
+        "This function won't work if privacy is enabled; You must use the overload "
+        "accepting PeerAddressType_t."
+    )
     virtual ble_error_t connect(
         const BLEProtocol::AddressBytes_t peerAddr,
         BLEProtocol::AddressType_t peerAddrType,
@@ -1190,15 +1308,7 @@ public:
         DeprecatedAddressType_t peerAddrType,
         const ConnectionParams_t *connectionParams,
         const GapScanningParams *scanParams
-    ) {
-        return connect(
-            peerAddr,
-            (BLEProtocol::AddressType_t)
-            peerAddrType,
-            connectionParams,
-            scanParams
-        );
-    }
+    );
 
     /**
      * Initiate a disconnection procedure.
@@ -2563,11 +2673,50 @@ public:
      * @param[in] peerAddr Address of the connected peer.
      * @param[in] ownAddrType Address type this device uses for this
      * connection.
-     * @param[in] ownAddr Address this device uses for this connection.
+     * @param[in] ownAddr Address this device uses for this connection. This
+     * parameter may be NULL if the local address is not available.
      * @param[in] connectionParams Parameters of the connection.
      * @param[in] peerResolvableAddr Resolvable address used by the peer.
      * @param[in] localResolvableAddr resolvable address used by the local device.
      */
+    void processConnectionEvent(
+        Handle_t handle,
+        Role_t role,
+        PeerAddressType_t peerAddrType,
+        const BLEProtocol::AddressBytes_t peerAddr,
+        BLEProtocol::AddressType_t ownAddrType,
+        const BLEProtocol::AddressBytes_t ownAddr,
+        const ConnectionParams_t *connectionParams,
+        const uint8_t *peerResolvableAddr = NULL,
+        const uint8_t *localResolvableAddr = NULL
+    );
+
+    /**
+     * Notify all registered connection event handlers of a connection event.
+     *
+     * @attention This function is meant to be called from the BLE stack specific
+     * implementation when a connection event occurs.
+     *
+     * @param[in] handle Handle of the new connection.
+     * @param[in] role Role of this BLE device in the connection.
+     * @param[in] peerAddrType Address type of the connected peer.
+     * @param[in] peerAddr Address of the connected peer.
+     * @param[in] ownAddrType Address type this device uses for this
+     * connection.
+     * @param[in] ownAddr Address this device uses for this connection.
+     * @param[in] connectionParams Parameters of the connection.
+     * @param[in] peerResolvableAddr Resolvable address used by the peer.
+     * @param[in] localResolvableAddr resolvable address used by the local device.
+     *
+     * @deprecated The type BLEProtocol::AddressType_t is not suitable when
+     * privacy is enabled. Use the overload that accepts a PeerAddressType_t
+     * instead.
+     */
+    MBED_DEPRECATED_SINCE(
+       "mbed-os-5.9.0",
+       "The type BLEProtocol::AddressType_t is not suitable when privacy is "
+       "enabled. Use the overload that accepts a PeerAddressType_t instead."
+    )
     void processConnectionEvent(
         Handle_t handle,
         Role_t role,
@@ -2578,26 +2727,7 @@ public:
         const ConnectionParams_t *connectionParams,
         const uint8_t *peerResolvableAddr = NULL,
         const uint8_t *localResolvableAddr = NULL
-    ) {
-        /* Update Gap state */
-        state.advertising = 0;
-        state.connected   = 1;
-        ++connectionCount;
-
-        ConnectionCallbackParams_t callbackParams(
-            handle,
-            role,
-            peerAddrType,
-            peerAddr,
-            ownAddrType,
-            ownAddr,
-            connectionParams,
-            peerResolvableAddr,
-            localResolvableAddr
-        );
-
-        connectionCallChain.call(&callbackParams);
-    }
+    );
 
     /**
      * Notify all registered disconnection event handlers of a disconnection event.
@@ -2634,7 +2764,8 @@ public:
      * @param[in] type Advertising type of the packet.
      * @param[in] advertisingDataLen Length of the advertisement data received.
      * @param[in] advertisingData Pointer to the advertisement packet's data.
-     * @param[in] addressType Type of the address of the peer that has emitted the packet.
+     * @param[in] addressType Type of the address of the peer that has emitted
+     * the packet.
      */
     void processAdvertisementReport(
         const BLEProtocol::AddressBytes_t peerAddr,
@@ -2643,22 +2774,43 @@ public:
         GapAdvertisingParams::AdvertisingType_t type,
         uint8_t advertisingDataLen,
         const uint8_t *advertisingData,
-        BLEProtocol::AddressType_t addressType = BLEProtocol::AddressType::RANDOM
-    ) {
-       // FIXME: remove default parameter for addressType when ST shield is merged;
-       // this has been added to mitigate the lack of dependency management in
-       // testing jobs ....
+        PeerAddressType_t addressType
+    );
 
-        AdvertisementCallbackParams_t params;
-        memcpy(params.peerAddr, peerAddr, ADDR_LEN);
-        params.rssi = rssi;
-        params.isScanResponse = isScanResponse;
-        params.type = type;
-        params.advertisingDataLen = advertisingDataLen;
-        params.advertisingData = advertisingData;
-        params.addressType = addressType;
-        onAdvertisementReport.call(&params);
-    }
+    /**
+     * Forward a received advertising packet to all registered event handlers
+     * listening for scanned packet events.
+     *
+     * @attention This function is meant to be called from the BLE stack specific
+     * implementation when a disconnection event occurs.
+     *
+     * @param[in] peerAddr Address of the peer that has emitted the packet.
+     * @param[in] rssi Value of the RSSI measured for the received packet.
+     * @param[in] isScanResponse If true, then the packet is a response to a scan
+     * request.
+     * @param[in] type Advertising type of the packet.
+     * @param[in] advertisingDataLen Length of the advertisement data received.
+     * @param[in] advertisingData Pointer to the advertisement packet's data.
+     * @param[in] addressType Type of the address of the peer that has emitted the packet.
+     *
+     * @deprecated The type BLEProtocol::AddressType_t is not suitable when
+     * privacy is enabled. Use the overload that accepts a PeerAddressType_t
+     * instead.
+     */
+    MBED_DEPRECATED_SINCE(
+       "mbed-os-5.9.0",
+       "The type BLEProtocol::AddressType_t is not suitable when privacy is "
+       "enabled. Use the overload that accepts a PeerAddressType_t instead."
+    )
+    void processAdvertisementReport(
+        const BLEProtocol::AddressBytes_t peerAddr,
+        int8_t rssi,
+        bool isScanResponse,
+        GapAdvertisingParams::AdvertisingType_t type,
+        uint8_t advertisingDataLen,
+        const uint8_t *advertisingData,
+        BLEProtocol::AddressType_t addressType = BLEProtocol::AddressType::RANDOM_STATIC
+    );
 
     /**
      * Notify the occurrence of a timeout event to all registered timeout events
