@@ -788,6 +788,8 @@ ble_error_t GenericSecurityManager::init_database(
 }
 
 ble_error_t GenericSecurityManager::init_resolving_list() {
+    if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
+
     /* match the resolving list to the currently stored set of IRKs */
     uint8_t resolving_list_capacity = _pal.read_resolving_list_capacity();
     SecurityEntryIdentity_t* identity_list_p =
@@ -803,7 +805,11 @@ ble_error_t GenericSecurityManager::init_resolving_list() {
             mbed::callback(this, &GenericSecurityManager::on_identity_list_retrieved),
             identity_list
         );
+    } else {
+        return BLE_ERROR_NO_MEM;
     }
+
+    return BLE_ERROR_NONE;
 }
 
 ble_error_t GenericSecurityManager::init_signing() {
