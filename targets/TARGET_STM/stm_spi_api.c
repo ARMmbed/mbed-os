@@ -163,6 +163,7 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
     spiobj->pin_ssel = ssel;
     if (ssel != NC) {
         pinmap_pinout(ssel, PinMap_SPI_SSEL);
+        handle->Init.NSS = SPI_NSS_HARD_OUTPUT;
     } else {
         handle->Init.NSS = SPI_NSS_SOFT;
     }
