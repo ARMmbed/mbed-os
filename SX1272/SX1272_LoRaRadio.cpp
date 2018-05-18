@@ -1626,7 +1626,7 @@ void SX1272_LoRaRadio::set_low_power_mode(bool status)
                 _txctl = 0;
             }
 
-            if (_rf_ctrls.txctl != NC) {
+            if (_rf_ctrls.rxctl != NC) {
                 _rxctl = 0;
             }
 
