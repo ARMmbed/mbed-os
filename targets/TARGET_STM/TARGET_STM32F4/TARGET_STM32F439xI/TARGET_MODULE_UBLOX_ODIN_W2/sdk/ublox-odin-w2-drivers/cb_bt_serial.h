@@ -63,11 +63,12 @@ typedef struct
 {
     cbBSE_DataAvailEvt        pfDataEvt;
     cbBSE_WriteCnf            pfWriteCnf;
-}cbBSE_Callback;
+} cbBSE_Callback;
 
 /*===========================================================================
-* FUNCTIONS
-*=========================================================================*/
+ * FUNCTIONS
+ *=========================================================================*/
+
 /**
  * Initialization of Bluetooth serial manager. Called during stack
  * initialization. Shall not be called by application.

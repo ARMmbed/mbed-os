@@ -49,10 +49,10 @@ extern "C" {
 #define cbTARGET_GSETTING_4_ADDRESS_MODE_STATION_DYNAMIC cb_BIT_0
 #define cbTARGET_GSETTING_4_ADDRESS_MODE_STATION_ALWAYS cb_BIT_1
 /**
-* General settings and tuning parameters .
-*
-* @ingroup types
-*/
+ * General settings and tuning parameters .
+ *
+ * @ingroup types
+ */
 typedef enum wm_gsetting_e {
     cbTARGET_GSETTING_START = 0,
     cbTARGET_GSETTING_PREAMBLE = cbTARGET_GSETTING_START, /**< 0 = Long preamble, 1 = Short preamble */
@@ -123,15 +123,15 @@ typedef enum targetConfigParams {
     cbTARGET_CFG_SET_TSETTING = 2000,                            //!< Pipe to @ref cbWM_tSet.
     cbTARGET_CFG_GET_GSETTING = 3000,                            //!< Pipe to @ref cbWM_gGet.
     cbTARGET_CFG_GET_TSETTING = 4000,                            //!< Pipe to @ref cbWM_tGet.
-}cbTARGET_ConfigParams;
+} cbTARGET_ConfigParams;
 
 #define cbTARGET_GSETTING_REG(X)	((cb_uint32)((X) - cbTARGET_GSETTING_START))
 
 /**
-* Target specific settings and tuning parameters .
-*
-* @ingroup types
-*/
+ * Target specific settings and tuning parameters .
+ *
+ * @ingroup types
+ */
 typedef enum wm_tsetting_e {
     cbTARGET_TSETTING_START = 1000,
     cbTARGET_TSETTING_PS_LISTEN_INTERVAL = cbTARGET_TSETTING_START, /**< Powersave: Listen interval in beacons. */
@@ -145,13 +145,13 @@ typedef enum wm_tsetting_e {
 #define cbTARGET_TSETTING_REG(X)	((cb_uint32)((X) - cbTARGET_TSETTING_START))
 
 /**
-* Defines the type of scanning procedure.
-* Passive scan will only listen for beacons.
-* Active scan will send out a probe request
-* and listen for both probe responses and beacons.
-*
-* @ingroup types
-*/
+ * Defines the type of scanning procedure.
+ * Passive scan will only listen for beacons.
+ * Active scan will send out a probe request
+ * and listen for both probe responses and beacons.
+ *
+ * @ingroup types
+ */
 typedef enum cbWM_ScanType_e {
     cbWM_SCAN_INVALID,
     cbWM_SCAN_ACTIVE,
@@ -159,11 +159,11 @@ typedef enum cbWM_ScanType_e {
 } cbWM_ScanType;
 
 /**
-* Power save levels.
-* @note Levels between 2 and cbWM_POWERSAVE_MAX are target specific.
-*
-* @ingroup types
-*/
+ * Power save levels.
+ * @note Levels between 2 and cbWM_POWERSAVE_MAX are target specific.
+ *
+ * @ingroup types
+ */
 typedef enum cbWM_PowerSaveType_e {
     cbWM_POWERSAVE_OFF = 0,
     cbWM_POWERSAVE_FAST_PSP = 1,
@@ -172,10 +172,10 @@ typedef enum cbWM_PowerSaveType_e {
 } cbWM_PowerSaveType;
 
 /**
-* Power save modes set using  @ref cbWLAN_ioctl
-*
-* @ingroup wlan
-*/
+ * Power save modes set using  @ref cbWLAN_ioctl
+ *
+ * @ingroup wlan
+ */
 typedef enum {
     cbTARGET_POWER_SAVE_MODE_OFF,
     cbTARGET_POWER_SAVE_MODE_SLEEP,
@@ -185,56 +185,55 @@ typedef enum {
 typedef enum {
     cbWLAN_ONE_ANTENNA = 1,
     cbWLAN_TWO_ANTENNAS
-}cbWLAN_NUMBER_OF_ANTENNAS;
+} cbWLAN_NUMBER_OF_ANTENNAS;
 
 typedef enum {
     cbWLAN_PRIMARY_ANTENNA_ONE = 1,
     cbWLAN_PRIMARY_ANTENNA_TWO
-}cbWLAN_PRIMARY_ANTENNA;
+} cbWLAN_PRIMARY_ANTENNA;
 /*===========================================================================
  * FUNCTIONS
  *=========================================================================*/
 
 /**
-* Get general tuning parameter.
-*
-* @param hTarget Handle to the current driver instance.
-* @param setting setting to read.
-* @return parameter value
-*/
+ * Get general tuning parameter.
+ *
+ * @param hTarget Handle to the current driver instance.
+ * @param setting setting to read.
+ * @return parameter value
+ */
 cb_uint32 cbTARGET_gGet(cbTARGET_Handle* hTarget, cbWM_GSETTING setting);
 
 /**
-* Set general tuning parameter.
-*
-* @param hTarget Handle to the current driver instance.
-* @param setting setting to modify.
-* @param value value to set.
-*/
+ * Set general tuning parameter.
+ *
+ * @param hTarget Handle to the current driver instance.
+ * @param setting setting to modify.
+ * @param value value to set.
+ */
 void cbTARGET_gSet(cbTARGET_Handle* hTarget, cbWM_GSETTING setting, cb_uint32 value);
 
 /**
-* Get target specific tuning parameter.
-*
-* @param hTarget Handle to the current driver instance.
-* @param setting setting to read.
-* @return parameter value
-*/
+ * Get target specific tuning parameter.
+ *
+ * @param hTarget Handle to the current driver instance.
+ * @param setting setting to read.
+ * @return parameter value
+ */
 cb_uint32 cbTARGET_tGet(cbTARGET_Handle* hTarget, cbWM_TSETTING setting);
 
 /**
-* Set target specific tuning parameter.
-*
-* @param hTarget Handle to the current driver instance.
-* @param setting setting to modify.
-* @param value value to set.
-*/
+ * Set target specific tuning parameter.
+ *
+ * @param hTarget Handle to the current driver instance.
+ * @param setting setting to modify.
+ * @param value value to set.
+ */
 void cbTARGET_tSet(cbTARGET_Handle* hTarget, cbWM_TSETTING setting, cb_uint32 value);
 
 struct cb_wlan_configuration*  cbTARGET_configuration_create();
 
 cbRTSL_Status cbTARGET_configure(cbTARGET_Handle* hTarget, cbTARGET_ConfigParams parameter, void* value);
-
 
 /*--------------------------------------------------------------------------
  * Constants

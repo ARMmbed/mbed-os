@@ -9,11 +9,11 @@
 #include "cb_wlan_target_data.h"
 #include "cb_wlan.h"
 
-class WIFI_EMAC : public EMAC {
+class OdinWiFiEMAC : public EMAC {
 public:
-    WIFI_EMAC();
+    OdinWiFiEMAC();
 
-    static WIFI_EMAC &get_instance();
+    static OdinWiFiEMAC &get_instance();
 
     /**
      * Return maximum transmission unit

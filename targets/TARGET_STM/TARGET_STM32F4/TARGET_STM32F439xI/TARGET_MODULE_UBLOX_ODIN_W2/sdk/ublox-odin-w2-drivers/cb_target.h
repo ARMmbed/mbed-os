@@ -90,8 +90,8 @@ cbTARGET_Handle *cbTARGET_targetResolve(cb_int32 targetId);
 void cbTARGET_reset(cbTARGET_Handle *hTarget);
 
 /**
-* Register a interrupt handler with the TARGET.
-*/
+ * Register a interrupt handler with the TARGET.
+ */
 void cbTARGET_registerISRHandler(cbTARGET_Handle *hTarget, cbTARGET_ISRHandler handler, void* hContext);
 
 
