@@ -156,7 +156,7 @@ typedef enum
 
 /** 
  * Bluetooth Manager initialization parameters.
-*/
+ */
 typedef struct
 {
     TBdAddr         address;                    /** Bluetooth address that shall be assigned to controller. Pass invalidBdAddress to use controller default address*/
@@ -193,36 +193,36 @@ extern void cbBM_init(
     cbBM_InitComplete initCompleteCallback);
 
 /**
-* This function executes cbBM_setQosParams command according to parameters.
-* @param   connectConfig decides whether to turn off connectability and discoverability 
-*          when max links are reached.
-* @param   qosConfig QoS enable=1, disable=0
-* @param   connectConfig QoS "off during connection"=0, "on during connection"=1
-* @return true if in parameters are valid.
-*/
+ * This function executes cbBM_setQosParams command according to parameters.
+ * @param   connectConfig decides whether to turn off connectability and discoverability
+ *          when max links are reached.
+ * @param   qosConfig QoS enable=1, disable=0
+ * @param   connectConfig QoS "off during connection"=0, "on during connection"=1
+ * @return true if in parameters are valid.
+ */
 extern cb_int32 cbBM_setQosParams(
     cb_uint8 qosConfig,
     cb_uint8 connectConfig);
 
 /**
-* This function sets the link supervision timeout in LLC.
-* @param   linkSupervisionTimeout in milliseconds
-* @return true if in parameter is valid.
-*/
+ * This function sets the link supervision timeout in LLC.
+ * @param   linkSupervisionTimeout in milliseconds
+ * @return true if in parameter is valid.
+ */
 extern cb_int32 cbBM_setLinkSupervisionTimeout(
     cb_uint16 linkSupervisionTimeout);
 
 /**
-* This function gets the link supervision timeout from LLC.
-* @return link supervision timeout in milliseconds
-*/
+ * This function gets the link supervision timeout from LLC.
+ * @return link supervision timeout in milliseconds
+ */
 extern cb_uint16 cbBM_getLinkSupervisionTimeout(void);
 
 /**
-* This function enables or disables the fast connect feature (interlaced page scan).
-* @param   fastConnect enable=TRUE, disable=FALSE
-* @return cbBM_OK if in parameter is valid.
-*/
+ * This function enables or disables the fast connect feature (interlaced page scan).
+ * @param   fastConnect enable=TRUE, disable=FALSE
+ * @return cbBM_OK if in parameter is valid.
+ */
 extern cb_int32 cbBM_setFastConnect(
     cb_boolean fastConnect);
 /**
@@ -232,45 +232,45 @@ extern cb_int32 cbBM_setFastConnect(
 extern cb_boolean cbBM_getFastConnect(void);
 
 /**
-* This function enables or disables the fast discovery feature (interlaced inquiry scan).
-* @param   fastDiscovery enable=TRUE, disable=FALSE
-* @return cbBM_OK if in parameter is valid.
-*/
+ * This function enables or disables the fast discovery feature (interlaced inquiry scan).
+ * @param   fastDiscovery enable=TRUE, disable=FALSE
+ * @return cbBM_OK if in parameter is valid.
+ */
 extern cb_int32 cbBM_setFastDiscovery(
     cb_boolean fastDiscovery);
 
 /**
-* This function gets whether the fast discovery feature is enabled or disabled.
-* @return fast connect enabled=TRUE, disabled=FALSE
-*/
+ * This function gets whether the fast discovery feature is enabled or disabled.
+ * @return fast connect enabled=TRUE, disabled=FALSE
+ */
 extern cb_boolean cbBM_getFastDiscovery(void);
 
 /**
-* This function sets the page timeout in LLC.
-* @param   pageTimeout in milliseconds
-* @return cbBM_OK if successful
-*/
+ * This function sets the page timeout in LLC.
+ * @param   pageTimeout in milliseconds
+ * @return cbBM_OK if successful
+ */
 extern cb_int32 cbBM_setPageTimeout(
     cb_uint16 pageTimeout);
 
 /**
-* This function gets the page timeout from LLC.
-* @return page timeout in milliseconds.
-*/
+ * This function gets the page timeout from LLC.
+ * @return page timeout in milliseconds.
+ */
 extern cb_uint16 cbBM_getPageTimeout(void);
 
 /**
  * This function sets all default parameters for LE. 
  * This function needs to be called before the cbBM_init.
-*/
+ */
 extern void cbBM_setDefaultValuesLeParams(void);
 
 /**
-* This function executes HCI_cmdWrScanEnable command according to parameters.
-* @param discoverableMode discoverable mode
-* @param connectableMode connectable mode
-* @return cbBM_OK if HCI command could be executed.
-*/
+ * This function executes HCI_cmdWrScanEnable command according to parameters.
+ * @param discoverableMode discoverable mode
+ * @param connectableMode connectable mode
+ * @return cbBM_OK if HCI command could be executed.
+ */
 extern cb_int32 cbBM_updateScan(
     cbBM_DiscoverableMode discoverableMode,
     cbBM_ConnectableMode connectableMode);
@@ -368,17 +368,17 @@ extern cb_int32 cbBM_setMasterSlavePolicy(TMasterSlavePolicy policy);
 extern cb_int32 cbBM_getMasterSlavePolicy(TMasterSlavePolicy *pPolicy);
 
 /**
-* Enable/disable sniff mode
-* @param   enable  TRUE=enable sniff mode, FALSE=disable sniff mode
-* @return  If the operation is successful cbBM_OK is returned.
-*/
+ * Enable/disable sniff mode
+ * @param   enable  TRUE=enable sniff mode, FALSE=disable sniff mode
+ * @return  If the operation is successful cbBM_OK is returned.
+ */
 extern cb_int32 cbBM_setSniffMode(cb_boolean enable);
 
 /**
-* Get sniff mode
-* @param   pEnable  Pointer to return variable
-* @return  If the operation is successful cbBM_OK is returned.
-*/
+ * Get sniff mode
+ * @param   pEnable  Pointer to return variable
+ * @return  If the operation is successful cbBM_OK is returned.
+ */
 extern cb_int32 cbBM_getSniffMode(cb_boolean *pEnable);
 
 /**
@@ -613,408 +613,408 @@ extern cb_int32 cbBM_add128BitsServiceClassLe(cb_uint8* uuid128);
 extern cb_int8 cbBM_getMaxTxPower(void);
 
 /*
-* Read the connection parameters for Bond.
-* @param bondParams Pointer to structure where the connection parameters are stored.
-* @return void
-*/
+ * Read the connection parameters for Bond.
+ * @param bondParams Pointer to structure where the connection parameters are stored.
+ * @return void
+ */
 void cbBM_getBondParameters(TAclParamsLe* bondParams);
 
 /*
-* Read the connection parameters for connection.
-* @param aclParams Pointer to structure where the connection parameters are stored.
-* @return void
-*/
+ * Read the connection parameters for connection.
+ * @param aclParams Pointer to structure where the connection parameters are stored.
+ * @return void
+ */
 void cbBM_getConnectParameters(TAclParamsLe* aclParams);
 
 /*
-* Read the connection parameters for remote name request.
-* @param aclParams Pointer to structure where the connection parameters are stored.
-* @return void
-*/
+ * Read the connection parameters for remote name request.
+ * @param aclParams Pointer to structure where the connection parameters are stored.
+ * @return void
+ */
 void cbBM_getRemoteNameReqParameters(TAclParamsLe* aclParams);
 
 /*
-* Read the vendor specific status of the WL18 chipset.
-* @param callback    Callback used to notify the completion of the
-*                              status request.
-*@return Returns cbBM_OK if successfully started.
-*/
+ * Read the vendor specific status of the WL18 chipset.
+ * @param callback    Callback used to notify the completion of the
+ *                              status request.
+ * @return Returns cbBM_OK if successfully started.
+ */
 cb_int32 cbBM_getTISystemStatus(cbBM_TIStatusCallback callback);
 
 /*
-* Set BT classic as not supported in the peripheral advertisment.
-* @param enforceDisable TRUE to set BT classic not supported
-* @return cbBM_OK if successful
-*/
+ * Set BT classic as not supported in the peripheral advertisment.
+ * @param enforceDisable TRUE to set BT classic not supported
+ * @return cbBM_OK if successful
+ */
 cb_int32 cbBM_setForceClassicNotSupportedInAdv(cb_boolean enforceDisable);
 
 /*
-* Set BT classic as not supported in the peripheral advertisment.
-*
-* @return TRUE if BT classic is set to not supported in the peripheral advertisment.
-*/
+ * Set BT classic as not supported in the peripheral advertisment.
+ *
+ * @return TRUE if BT classic is set to not supported in the peripheral advertisment.
+ */
 cb_boolean cbBM_getForceClassicNotSupportedInAdv(void);
 
 /**
-* Set min advertisment interval
-* 
-* @param   newValue    Minimial interval value as slots (1 slot is 0.625ms)
-* @return  cbBM_OK is returned on success.
-*/
+ * Set min advertisment interval
+ * 
+ * @param   newValue    Minimial interval value as slots (1 slot is 0.625ms)
+ * @return  cbBM_OK is returned on success.
+ */
 extern cb_int32 cbBM_setAdvertisingIntervalMin(cb_uint16 val);
 
 /**
-* Set max advertisment interval
-*
-* @param   newValue Time in slots (1 slot is 0.625ms)
-* @return  cbBM_OK is returned on success.
-*/
+ * Set max advertisment interval
+ *
+ * @param   newValue Time in slots (1 slot is 0.625ms)
+ * @return  cbBM_OK is returned on success.
+ */
 extern cb_int32 cbBM_setAdvertisingIntervalMax(cb_uint16 newValue);
 
 /**
-* Set advertisment channel map
-*
-* @param    Bit mask of channels to use; Channel 37, 38, 39
-*           (cbBM_ADV_CHANNEL_MAP_CH_37_BIT, cbBM_ADV_CHANNEL_MAP_CH_38_BIT, cbBM_ADV_CHANNEL_MAP_CH_39_BIT)
-* @return  cbBM_OK is returned on success.
-*/
+ * Set advertisment channel map
+ *
+ * @param    Bit mask of channels to use; Channel 37, 38, 39
+ *           (cbBM_ADV_CHANNEL_MAP_CH_37_BIT, cbBM_ADV_CHANNEL_MAP_CH_38_BIT, cbBM_ADV_CHANNEL_MAP_CH_39_BIT)
+ * @return  cbBM_OK is returned on success.
+ */
 extern cb_int32 cbBM_setAdvChannelmap(cb_uint16 newValue);
 
 /**
-* Set min connection interval
-*
-* @param   newValue Time in slots (1 slot is 1.25ms)
-* @return  cbBM_OK is returned on success.
-*/
+ * Set min connection interval
+ *
+ * @param   newValue Time in slots (1 slot is 1.25ms)
+ * @return  cbBM_OK is returned on success.
+ */
 extern cb_int32 cbBM_setConnectConnIntervalMin(cb_uint16 newValue);
 
 /**
-* Set max connection interval
-*
-* @param   newValue Time in slots (1 slot is 1.25ms)
-* @return  cbBM_OK is returned on success.
-*/
+ * Set max connection interval
+ *
+ * @param   newValue Time in slots (1 slot is 1.25ms)
+ * @return  cbBM_OK is returned on success.
+ */
 extern cb_int32 cbBM_setConnectConnIntervalMax(cb_uint16 newValue);
 
 /**
-* Set connection latency
-*
-* @param   newValue Time in slots (1 slot is 1.25ms)
-* @return  cbBM_OK is returned on success.
-*/
+ * Set connection latency
+ *
+ * @param   newValue Time in slots (1 slot is 1.25ms)
+ * @return  cbBM_OK is returned on success.
+ */
 extern cb_int32 cbBM_setConnectConnLatency(cb_uint16 newValue);
 
 /**
-* Set link loss (or supervision) timeout
-*
-* @param   newValue Time in ms (make sure it is larger than the connection latency)
-* @return  cbBM_OK is returned on success.
-*/
+ * Set link loss (or supervision) timeout
+ *
+ * @param   newValue Time in ms (make sure it is larger than the connection latency)
+ * @return  cbBM_OK is returned on success.
+ */
 extern cb_int32 cbBM_setConnectLinklossTmo(cb_uint16 newValue);
 
 /**
-* Set create connection (or page) timeout
-*
-* @param   newValue Time in ms
-* @return  cbBM_OK is returned on success.
-*/
+ * Set create connection (or page) timeout
+ *
+ * @param   newValue Time in ms
+ * @return  cbBM_OK is returned on success.
+ */
 extern cb_int32 cbBM_setConnectCreateConnTmo(cb_uint16 newValue);
 
 /**
-* Set connect scan interval
-*
-* @param   newValue Time in slots (1 slot is 0.625ms)
-* @return  cbBM_OK is returned on success.
-*/
+ * Set connect scan interval
+ *
+ * @param   newValue Time in slots (1 slot is 0.625ms)
+ * @return  cbBM_OK is returned on success.
+ */
 extern cb_int32 cbBM_setConnectScanInterval(cb_uint16 newValue);
 
 /**
-* Set connect scan window
-*
-* @param   newValue Time in slots (1 slot is 0.625ms)
-* @return  cbBM_OK is returned on success.
-*/
+ * Set connect scan window
+ *
+ * @param   newValue Time in slots (1 slot is 0.625ms)
+ * @return  cbBM_OK is returned on success.
+ */
 extern cb_int32 cbBM_setConnectScanWindow(cb_uint16 newValue);
 
 /**
-* Set min bond connection interval
-*
-* @param   newValue Time in slots (1 slot is 1.25ms)
-* @return  cbBM_OK is returned on success.
-*/
+ * Set min bond connection interval
+ *
+ * @param   newValue Time in slots (1 slot is 1.25ms)
+ * @return  cbBM_OK is returned on success.
+ */
 extern cb_int32 cbBM_setBondConnIntervalMin(cb_uint16 newValue);
 
 /**
-* Set max bond connection interval
-*
-* @param   newValue Time in slots (1 slot is 1.25ms)
-* @return  cbBM_OK is returned on success.
-*/
+ * Set max bond connection interval
+ *
+ * @param   newValue Time in slots (1 slot is 1.25ms)
+ * @return  cbBM_OK is returned on success.
+ */
 extern cb_int32 cbBM_setBondConnIntervalMax(cb_uint16 newValue);
 
 /**
-* Set bond connection latency
-*
-* @param   newValue Time in slots (1 slot is 1.25ms)
-* @return  cbBM_OK is returned on success.
-*/
+ * Set bond connection latency
+ *
+ * @param   newValue Time in slots (1 slot is 1.25ms)
+ * @return  cbBM_OK is returned on success.
+ */
 extern cb_int32 cbBM_setBondConnLatency(cb_uint16 newValue);
 
 /**
-* Set bond link loss (or supervision) timeout
-*
-* @param   newValue Time in ms (make sure it is larger than the connection latency)
-* @return  cbBM_OK is returned on success.
-*/
+ * Set bond link loss (or supervision) timeout
+ *
+ * @param   newValue Time in ms (make sure it is larger than the connection latency)
+ * @return  cbBM_OK is returned on success.
+ */
 extern cb_int32 cbBM_setBondLinklossTmo(cb_uint16 newValue);
 
 /**
-* Set bond create connection (or page) timeout
-*
-* @param   newValue Time in ms
-* @return  cbBM_OK is returned on success.
-*/
+ * Set bond create connection (or page) timeout
+ *
+ * @param   newValue Time in ms
+ * @return  cbBM_OK is returned on success.
+ */
 extern cb_int32 cbBM_setBondCreateConnTmo(cb_uint16 newValue);
 
 /**
-* Set bond scan interval
-*
-* @param   newValue Time in slots (1 slot is 0.625ms)
-* @return  cbBM_OK is returned on success.
-*/
+ * Set bond scan interval
+ *
+ * @param   newValue Time in slots (1 slot is 0.625ms)
+ * @return  cbBM_OK is returned on success.
+ */
 extern cb_int32 cbBM_setBondScanInterval(cb_uint16 newValue);
 
 /**
-* Set bond scan window
-*
-* @param   newValue Time in slots (1 slot is 0.625ms)
-* @return  cbBM_OK is returned on success.
-*/
+ * Set bond scan window
+ *
+ * @param   newValue Time in slots (1 slot is 0.625ms)
+ * @return  cbBM_OK is returned on success.
+ */
 extern cb_int32 cbBM_setBondScanWindow(cb_uint16 newValue);
 
 /**
-* Set min remote name connection interval
-*
-* @param   newValue Time in slots (1 slot is 1.25ms)
-* @return  cbBM_OK is returned on success.
-*/
+ * Set min remote name connection interval
+ *
+ * @param   newValue Time in slots (1 slot is 1.25ms)
+ * @return  cbBM_OK is returned on success.
+ */
 extern cb_int32 cbBM_setRemoteNameConnIntervalMin(cb_uint16 newValue);
 
 /**
-* Set max remote name connection interval
-*
-* @param   newValue Time in slots (1 slot is 1.25ms)
-* @return  cbBM_OK is returned on success.
-*/
+ * Set max remote name connection interval
+ *
+ * @param   newValue Time in slots (1 slot is 1.25ms)
+ * @return  cbBM_OK is returned on success.
+ */
 extern cb_int32 cbBM_setRemoteNameConnIntervalMax(cb_uint16 newValue);
 
 /**
-* Set remote name connection latency
-*
-* @param   newValue Time in slots (1 slot is 1.25ms)
-* @return  cbBM_OK is returned on success.
-*/
+ * Set remote name connection latency
+ *
+ * @param   newValue Time in slots (1 slot is 1.25ms)
+ * @return  cbBM_OK is returned on success.
+ */
 extern cb_int32 cbBM_setRemoteNameConnLatency(cb_uint16 newValue);
 
 /**
-* Set remote name link loss (or supervision) timeout
-*
-* @param   newValue Time in ms (make sure it is larger than the connection latency)
-* @return  cbBM_OK is returned on success.
-*/
+ * Set remote name link loss (or supervision) timeout
+ *
+ * @param   newValue Time in ms (make sure it is larger than the connection latency)
+ * @return  cbBM_OK is returned on success.
+ */
 extern cb_int32 cbBM_setRemoteNameLinklossTmo(cb_uint16 newValue);
 
 /**
-* Set remote name create connection (or page) timeout
-*
-* @param   newValue Time in ms
-* @return  cbBM_OK is returned on success.
-*/
+ * Set remote name create connection (or page) timeout
+ *
+ * @param   newValue Time in ms
+ * @return  cbBM_OK is returned on success.
+ */
 extern cb_int32 cbBM_setRemoteNameCreateConnTmo(cb_uint16 newValue);
 
 /**
-* Set remote name scan interval
-*
-* @param   newValue Time in slots (1 slot is 0.625ms)
-* @return  cbBM_OK is returned on success.
-*/
+ * Set remote name scan interval
+ *
+ * @param   newValue Time in slots (1 slot is 0.625ms)
+ * @return  cbBM_OK is returned on success.
+ */
 extern cb_int32 cbBM_setRemoteNameScanInterval(cb_uint16 newValue);
 
 /**
-* Set remote name scan window
-*
-* @param   newValue Time in slots (1 slot is 0.625ms)
-* @return  cbBM_OK is returned on success.
-*/
+ * Set remote name scan window
+ *
+ * @param   newValue Time in slots (1 slot is 0.625ms)
+ * @return  cbBM_OK is returned on success.
+ */
 extern cb_int32 cbBM_setRemoteNameScanWindow(cb_uint16 newValue);
 
 /**
-* Get min advertisment interval
-*
-* @return  Time in slots (1 slot is 0.625ms)
-*/
+ * Get min advertisment interval
+ *
+ * @return  Time in slots (1 slot is 0.625ms)
+ */
 extern cb_uint16 cbBM_getAdvertisingIntervalMin(void);
 
 /**
-* Get max advertisment interval
-*
-* @return  Time in slots (1 slot is 0.625ms)
-*/
+ * Get max advertisment interval
+ *
+ * @return  Time in slots (1 slot is 0.625ms)
+ */
 extern cb_uint16 cbBM_getAdvertisingIntervalMax(void);
 
 /**
-* Get advertisment channel map
-*
-* @return  Bit mask of channels to use; Channel 37, 38, 39
-*           (cbBM_ADV_CHANNEL_MAP_CH_37_BIT, cbBM_ADV_CHANNEL_MAP_CH_38_BIT, cbBM_ADV_CHANNEL_MAP_CH_39_BIT)
-*/
+ * Get advertisment channel map
+ *
+ * @return  Bit mask of channels to use; Channel 37, 38, 39
+ *           (cbBM_ADV_CHANNEL_MAP_CH_37_BIT, cbBM_ADV_CHANNEL_MAP_CH_38_BIT, cbBM_ADV_CHANNEL_MAP_CH_39_BIT)
+ */
 extern cb_uint16 cbBM_getAdvChannelmap(void);
 
 /**
-* Get min connection interval
-*
-* @return  Time in slots (1 slot is 1.25ms)
-*/
+ * Get min connection interval
+ *
+ * @return  Time in slots (1 slot is 1.25ms)
+ */
 extern cb_uint16 cbBM_getConnectConnIntervalMin(void);
 
 /**
-* Get max connection interval
-*
-* @return  Time in slots (1 slot is 1.25ms)
-*/
+ * Get max connection interval
+ *
+ * @return  Time in slots (1 slot is 1.25ms)
+ */
 extern cb_uint16 cbBM_getConnectConnIntervalMax(void);
 
 /**
-* Get connection latency
-*
-* @return Time in slots (1 slot is 1.25ms)
-*/
+ * Get connection latency
+ *
+ * @return Time in slots (1 slot is 1.25ms)
+ */
 extern cb_uint16 cbBM_getConnectConnLatency(void);
 
 /**
-* Get link loss (or supervision) timeout
-*
-* @return Time in ms
-*/
+ * Get link loss (or supervision) timeout
+ *
+ * @return Time in ms
+ */
 extern cb_uint16 cbBM_getConnectLinklossTmo(void);
 
 /**
-* Get create connection (or page) timeout
-*
-* @return Time in ms
-*/
+ * Get create connection (or page) timeout
+ *
+ * @return Time in ms
+ */
 extern cb_uint16 cbBM_getConnectCreateConnTmo(void);
 
 /**
-* Get connection scan interval
-*
-* @return Time in slots (1 slot is 0.625ms)
-*/
+ * Get connection scan interval
+ *
+ * @return Time in slots (1 slot is 0.625ms)
+ */
 extern cb_uint16 cbBM_getConnectScanInterval(void);
 
 /**
-* Get connection scan window
-*
-* @return Time in slots (1 slot is 0.625ms)
-*/
+ * Get connection scan window
+ *
+ * @return Time in slots (1 slot is 0.625ms)
+ */
 extern cb_uint16 cbBM_getConnectScanWindow(void);
 
 /**
-* Get min bond connection interval
-*
-* @return Time in slots (1 slot is 1.25ms)
-*/
+ * Get min bond connection interval
+ *
+ * @return Time in slots (1 slot is 1.25ms)
+ */
 extern cb_uint16 cbBM_getBondConnIntervalMin(void);
 
 /**
-* Get bond connection interval
-*
-* @return Time in slots (1 slot is 1.25ms)
-*/
+ * Get bond connection interval
+ *
+ * @return Time in slots (1 slot is 1.25ms)
+ */
 extern cb_uint16 cbBM_getBondConnIntervalMax(void);
 
 /**
-* Get bond connection latency
-*
-* @return Time in slots (1 slot is 1.25ms)
-*/
+ * Get bond connection latency
+ *
+ * @return Time in slots (1 slot is 1.25ms)
+ */
 extern cb_uint16 cbBM_getBondConnLatency(void);
 
 /**
-* Get bond link loss (or supervision) timeout
-*
-* @return Time in ms
-*/
+ * Get bond link loss (or supervision) timeout
+ *
+ * @return Time in ms
+ */
 extern cb_uint16 cbBM_getBondLinklossTmo(void);
 
 /**
-* Get bond connection (or page) timeout
-*
-* @return Time in ms
-*/
+ * Get bond connection (or page) timeout
+ *
+ * @return Time in ms
+ */
 extern cb_uint16 cbBM_getBondCreateConnTmo(void);
 
 /**
-* Get bond scan interval
-*
-* @return Time in slots (1 slot is 0.625ms)
-*/
+ * Get bond scan interval
+ *
+ * @return Time in slots (1 slot is 0.625ms)
+ */
 extern cb_uint16 cbBM_getBondScanInterval(void);
 
 /**
-* Get bond scan window
-*
-* @return Time in slots (1 slot is 0.625ms)
-*/
+ * Get bond scan window
+ *
+ * @return Time in slots (1 slot is 0.625ms)
+ */
 extern cb_uint16 cbBM_getBondScanWindow(void);
 
 /**
-* Get min remote name connection interval
-*
-* @return Time in slots (1 slot is 1.25ms)
-*/
+ * Get min remote name connection interval
+ *
+ * @return Time in slots (1 slot is 1.25ms)
+ */
 extern cb_uint16 cbBM_getRemoteNameConnIntervalMin(void);
 
 /**
-* Get max remote name connection interval
-*
-* @return Time in slots (1 slot is 1.25ms)
-*/
+ * Get max remote name connection interval
+ *
+ * @return Time in slots (1 slot is 1.25ms)
+ */
 extern cb_uint16 cbBM_getRemoteNameConnIntervalMax(void);
 
 /**
-* Get remote name connection latency
-*
-* @return Time in slots (1 slot is 1.25ms)
-*/
+ * Get remote name connection latency
+ *
+ * @return Time in slots (1 slot is 1.25ms)
+ */
 extern cb_uint16 cbBM_getRemoteNameConnLatency(void);
 
 /**
-* Get remote name link loss (or supervision) timeout
-*
-* @return Time in ms
-*/
+ * Get remote name link loss (or supervision) timeout
+ *
+ * @return Time in ms
+ */
 extern cb_uint16 cbBM_getRemoteNameLinklossTmo(void);
 
 /**
-* Get remote name connection (or page) timeout
-*
-* @return Time in ms
-*/
+ * Get remote name connection (or page) timeout
+ *
+ * @return Time in ms
+ */
 extern cb_uint16 cbBM_getRemoteNameCreateConnTmo(void);
 
 /**
-* Get remote name scan interval
-*
-* @return Time in slots (1 slot is 0.625ms)
-*/
+ * Get remote name scan interval
+ *
+ * @return Time in slots (1 slot is 0.625ms)
+ */
 extern cb_uint16 cbBM_getRemoteNameScanInterval(void);
 
 /**
-* Get remote name scan window
-*
-* @return Time in slots (1 slot is 0.625ms)
-*/
+ * Get remote name scan window
+ *
+ * @return Time in slots (1 slot is 0.625ms)
+ */
 extern cb_uint16 cbBM_getRemoteNameScanWindow(void);
 
 #ifdef __cplusplus

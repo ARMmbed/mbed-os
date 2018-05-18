@@ -345,10 +345,10 @@ typedef cb_uint8 cbWLAN_MACAddress[6];
 typedef cb_uint32 cbWLAN_RateMask;
 
 /**
-* Transmission power
-*
-* @ingroup wlantypes
-*/
+ * Transmission power
+ *
+ * @ingroup wlantypes
+ */
 typedef cb_uint8 cbWLAN_TxPower;
 
 /**
@@ -423,11 +423,12 @@ cb_PACKED_STRUCT_BEGIN(cbWLAN_TimeOutInformation){
     cb_uint8                timeOutType;
     cb_uint32               value;
 } cb_PACKED_STRUCT_END(cbWLAN_TimeOutInformation);
+
 /**
-* Description of the Mobility Domain Information Element
-*
-* @ingroup wlantypes
-*/
+ * Description of the Mobility Domain Information Element
+ *
+ * @ingroup wlantypes
+ */
 
 cb_PACKED_STRUCT_BEGIN(cbWLAN_FtInformation){
     cb_uint8                eId;
@@ -528,11 +529,11 @@ typedef struct cbWLAN_WepKey_s {
 } cbWLAN_WEPKey;
 
 /**
-* Describes host revisions.
-* @see cbWM_Version
-*
-* @ingroup types
-*/
+ * Describes host revisions.
+ * @see cbWM_Version
+ *
+ * @ingroup types
+ */
 typedef struct {
     struct {
         cb_uint32 major;
@@ -545,11 +546,11 @@ typedef struct {
 } cbWM_DriverRevision;
 
 /**
-* Describes firmware revisions.
-* @see cbWM_Version
-*
-* @ingroup types
-*/
+ * Describes firmware revisions.
+ * @see cbWM_Version
+ *
+ * @ingroup types
+ */
 typedef struct {
     struct {
         cb_uint32 major;
@@ -563,22 +564,22 @@ typedef struct {
 } cbWM_FWRevision;
 
 /**
-* Describes firmware revisions. Is divided into three parts; one for the
-* host driver side, one for target firmware, and one information string
-* descibing the HW manufacturer.
-*
-* @ingroup types
-*/
+ * Describes firmware revisions. Is divided into three parts; one for the
+ * host driver side, one for target firmware, and one information string
+ * descibing the HW manufacturer.
+ *
+ * @ingroup types
+ */
 typedef struct version_st{
     cbWM_DriverRevision host;
     cbWM_FWRevision target;
 } cbWM_Version;
 
 /**
-* Describes power levels for dynamic power level control.
-*
-* @ingroup types
-*/
+ * Describes power levels for dynamic power level control.
+ *
+ * @ingroup types
+ */
 typedef struct cbWM_TxPowerSettings_s {
     cbWLAN_TxPower lowTxPowerLevel;
     cbWLAN_TxPower medTxPowerLevel;
@@ -586,10 +587,10 @@ typedef struct cbWM_TxPowerSettings_s {
 } cbWM_TxPowerSettings;
 
 /**
-* Describes the startup settings needed to boot properly.
-*
-* @ingroup types
-*/
+ * Describes the startup settings needed to boot properly.
+ *
+ * @ingroup types
+ */
 typedef struct cbWM_BootParameters_s {
     cbWM_TxPowerSettings txPowerSettings;
     cb_uint8  primaryAntenna;
@@ -597,10 +598,10 @@ typedef struct cbWM_BootParameters_s {
 } cbWM_BootParameters;
 
 /**
-* Describes an access point.
-*
-* @ingroup types
-*/
+ * Describes an access point.
+ *
+ * @ingroup types
+ */
 typedef struct cbWLAN_ApInformation {
     cbWLAN_Ssid                 ssid;                   /**< SSID */
     cbWLAN_MACAddress           bssid;                  /**< BSSID */
@@ -608,10 +609,10 @@ typedef struct cbWLAN_ApInformation {
 } cbWLAN_ApInformation;
 
 /**
-* Describes a station connected to an access point.
-*
-* @ingroup types
-*/
+ * Describes a station connected to an access point.
+ *
+ * @ingroup types
+ */
 typedef struct cbWLAN_ApStaInformation {
     cbWLAN_MACAddress MAC;
 } cbWLAN_ApStaInformation;
@@ -619,7 +620,7 @@ typedef struct cbWLAN_ApStaInformation {
 typedef struct cbWLAN_HTCapabilities_st {
     cbWLAN_RateMask rates;
     cb_uint16 info;
-}cbWLAN_HTCapabilities;
+} cbWLAN_HTCapabilities;
 /*---------------------------------------------------------------------------
  * VARIABLE DECLARATIONS
  *-------------------------------------------------------------------------*/
@@ -654,11 +655,11 @@ extern const cb_uint8 PATTERN_WME_PE[3];
 cbWLAN_Band cbWLAN_getBandFromChannel(cbWLAN_Channel channel);
 
 /**
-* Returns the valid rates @ref cbWLAN_RateMask based for the channel.
-*
-* @param channel The channel to be queried for rates.
-* @return The valid rates @ref cbWLAN_RateMask for the requested channel.
-*/
+ * Returns the valid rates @ref cbWLAN_RateMask based for the channel.
+ *
+ * @param channel The channel to be queried for rates.
+ * @return The valid rates @ref cbWLAN_RateMask for the requested channel.
+ */
 cbWLAN_RateMask cbWLAN_getRatesForChannel(cbWLAN_Channel channel, cb_uint8 numberOfAntennas);
 
 /**
