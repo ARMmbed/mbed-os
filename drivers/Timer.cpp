@@ -27,7 +27,7 @@ Timer::Timer() : _running(), _start(), _time(), _ticker_data(get_us_ticker_data(
 
 Timer::Timer(const ticker_data_t *data) : _running(), _start(), _time(), _ticker_data(data), _lock_deepsleep(true) {
     reset();
-#if DEVICE_LOWPOWERTIMER
+#if DEVICE_LPTICKER
     _lock_deepsleep = (data != get_lp_ticker_data());
 #endif
 }

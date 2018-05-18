@@ -79,7 +79,7 @@ def check_inherits(dict):
 
 DEVICE_HAS_ALLOWED = ["ANALOGIN", "ANALOGOUT", "CAN", "ETHERNET", "EMAC",
                       "FLASH", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN",
-                      "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT",
+                      "LPTICKER", "PORTIN", "PORTINOUT", "PORTOUT",
                       "PWMOUT", "RTC", "TRNG","SERIAL", "SERIAL_ASYNCH",
                       "SERIAL_FC", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE",
                       "STORAGE", "STCLK_OFF_DURING_SLEEP"]
