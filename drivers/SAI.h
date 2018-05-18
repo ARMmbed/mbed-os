@@ -28,7 +28,68 @@ namespace mbed {
 /** \addtogroup drivers */
 
 /** A SAI Master, used for communicating with SAI slave devices
+ * @code
+ * // Send and read back a data packet between a SAI transmitter/receiver
  *
+ * #include "mbed.h"
+ *
+ * // SAI A/B channel pins defined in targets PinNames.h file
+ * SAI sai_transmitter(SAI_A_MCLK, SAI_A_BCLK, SAI_A_WCLK, SAI_A_SD, false);
+ * SAI sai_receiver(SAI_B_MCLK, SAI_B_BLCK, SAI_B_WCLK, SAI_B_SD, true);
+ *
+ * int main() {
+ *     uint32_t sample = 0x12345678;
+ *
+ *     // Check SAI object's ctor status
+ *     if (sai_transmitter.status() != SAI_RESULT_OK || sai_receiver.status() != SAI_RESULT_OK) {
+ *         error("Transmitter status: %x, Receiver status: %x\r\n", sai_transmitter.status(), sai_receiver.status());
+ *     }
+ *
+ *     if (sai_transmitter.xfer(&sample)) {
+ *         printf("Transmitter error\r\n");
+ *     }
+ *
+ *     sample = 0;   // Clobber sample to ensure received data is valid
+ *
+ *     if (sai_receiver.xfer(&sample)) {
+ *         printf("Receiver error\r\n");
+ *     }
+ *
+ *     printf("Received sample: %d\r\n", sample);
+ * }
+ * @endcode
+ *
+ * SAI Transmitter/Receiver Class Example:
+ * @code
+ * // Send and read back a data packet between a SAI transmitter/receiver subclass
+ *
+ * #include "mbed.h"
+ *
+ * // SAI A/B channel pins defined in targets PinNames.h file
+ * SAITransmitter sai_transmitter(SAI_A_MCLK, SAI_A_BCLK, SAI_A_WCLK, SAI_A_SD);
+ * SAIReceiver    sai_receiver(SAI_B_MCLK, SAI_B_BLCK, SAI_B_WCLK, SAI_B_SD);
+ *
+ * int main() {
+ *     uint32_t sample = 0x12345678;
+ *
+ *     // Check SAI object's ctor status
+ *     if (sai_transmitter.status() != SAI_RESULT_OK || sai_receiver.status() != SAI_RESULT_OK) {
+ *         error("Transmitter status: %x, Receiver status: %x\r\n", sai_transmitter.status(), sai_receiver.status());
+ *     }
+ *
+ *     if (sai_transmitter.send(sample)) {
+ *         printf("Transmitter error\r\n");
+ *     }
+ *
+ *     sample = 0;   // Clobber sample to ensure received data is valid
+ *
+ *     if (sai_receiver.receive(&sample)) {
+ *         printf("Receiver error\r\n");
+ *     }
+ *
+ *     printf("Received sample: %d\r\n", sample);
+ * }
+ * @endcode
  * @ingroup drivers
  */
 class SAI : private NonCopyable<SAI> {
@@ -45,9 +106,14 @@ public:
      * funnel init errors/warnings back up to the application.
      */
     virtual sai_result_t status(void);
-    
-    /** Push a sample to the Fifo & try to read a new sample.
-     * it may return 0 if no sample was available.
+
+    /** Push a sample to the FIFO or try to read back a new
+     *  sample depending on the direction of communication
+     *  configured in the constructor.
+     *
+     *   @param  value  Integer pointer to a sample to transmit or
+     *                  place received data into.
+     *   @return        Returns 0 if no sample was available.
      */
     virtual bool xfer(uint32_t *value);
 
@@ -62,30 +128,50 @@ protected:
      */
     virtual void unlock(void);
 
-    ////////////////////////////////////////////
     sai_t           _sai;
     PlatformMutex   _mutex;
     bool            _is_input;
     sai_result_t    _status;
 };
 
+/** A SAI Tramsmitter, used for communicating with SAI slave devices
+ *
+ *  Inherits from the SAI class
+ */
 class SAITransmitter : public SAI {
     public:
+        /** Create a SAITransmitter
+        */
         SAITransmitter(PinName mclk, PinName bclk, PinName wclk, PinName sd,
                        const sai_format_t *fmt = &sai_mode_i2s32)
            : SAI(mclk, bclk, wclk, sd, fmt, false) { }
 
+        /** Push a sample to the FIFO.
+         *   @param  sample Integer sample to transmit
+         *   @return        Returns 0 if no sample was available.
+         */
         bool send(uint32_t sample) {
             return this->xfer(&sample);
         }
 };
 
+/** A SAI Receiver, used for reading samples from a SAI transmitter
+ *
+ *  Inherits from the SAI class
+ */
 class SAIReceiver : public SAI {
     public:
+        /** Create a SAIReceiver
+        */
         SAIReceiver(PinName mclk, PinName bclk, PinName wclk, PinName sd,
                     const sai_format_t *fmt = &sai_mode_i2s32)
             : SAI(mclk, bclk, wclk, sd, fmt, true) { }
 
+        /** Read a sample from the FIFO.
+         *   @param  sample Integer pointer to buffer to fill with the
+         *                  received sample.
+         *   @return        Returns 0 if no sample was available.
+         */
         bool receive(uint32_t *sample) {
             return this->xfer(sample);
         }
