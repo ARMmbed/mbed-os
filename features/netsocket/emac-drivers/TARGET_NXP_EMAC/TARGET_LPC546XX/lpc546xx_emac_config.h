@@ -22,16 +22,12 @@
 #define ENET_TX_RING_LEN              (8)
 
 #define ENET_ETH_MAX_FLEN             (ENET_FRAME_MAX_FRAMELEN)
+#define LPC546XX_HWADDR_SIZE          (6)
 
-#if defined(__cplusplus)
-extern "C" {
-#endif
+#define LPC546XX_ETH_MTU_SIZE         1500
+#define LPC546XX_ETH_IF_NAME          "en"
 
-int phy_link_status(void);
-
-#if defined(__cplusplus)
-}
-#endif
+#define THREAD_STACKSIZE              512
 
 #endif // #define LPC546XX_EMAC_CONFIG_H__
 
