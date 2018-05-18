@@ -657,9 +657,6 @@ HAL_StatusTypeDef HAL_ETH_TransmitFrame(ETH_HandleTypeDef *heth, uint32_t FrameL
 {
   uint32_t bufcount = 0U, size = 0U, i = 0U;
   
-  /* Process Locked */
-  __HAL_LOCK(heth);
-  
   /* Set the ETH peripheral state to BUSY */
   heth->State = HAL_ETH_STATE_BUSY;
   
@@ -667,9 +664,6 @@ HAL_StatusTypeDef HAL_ETH_TransmitFrame(ETH_HandleTypeDef *heth, uint32_t FrameL
   {
     /* Set ETH HAL state to READY */
     heth->State = HAL_ETH_STATE_READY;
-    
-    /* Process Unlocked */
-    __HAL_UNLOCK(heth);
     
     return  HAL_ERROR;                                    
   }  
@@ -679,9 +673,6 @@ HAL_StatusTypeDef HAL_ETH_TransmitFrame(ETH_HandleTypeDef *heth, uint32_t FrameL
   {  
     /* OWN bit set */
     heth->State = HAL_ETH_STATE_BUSY_TX;
-    
-    /* Process Unlocked */
-    __HAL_UNLOCK(heth);
     
     return HAL_ERROR;
   }
@@ -753,9 +744,6 @@ HAL_StatusTypeDef HAL_ETH_TransmitFrame(ETH_HandleTypeDef *heth, uint32_t FrameL
   /* Set ETH HAL State to Ready */
   heth->State = HAL_ETH_STATE_READY;
   
-  /* Process Unlocked */
-  __HAL_UNLOCK(heth);
-  
   /* Return function status */
   return HAL_OK;
 }
@@ -769,9 +757,6 @@ HAL_StatusTypeDef HAL_ETH_TransmitFrame(ETH_HandleTypeDef *heth, uint32_t FrameL
 HAL_StatusTypeDef HAL_ETH_GetReceivedFrame(ETH_HandleTypeDef *heth)
 {
   uint32_t framelength = 0U;
-  
-  /* Process Locked */
-  __HAL_LOCK(heth);
   
   /* Check the ETH state to BUSY */
   heth->State = HAL_ETH_STATE_BUSY;
@@ -806,9 +791,6 @@ HAL_StatusTypeDef HAL_ETH_GetReceivedFrame(ETH_HandleTypeDef *heth)
       /* Set HAL State to Ready */
       heth->State = HAL_ETH_STATE_READY;
       
-      /* Process Unlocked */
-      __HAL_UNLOCK(heth);
-      
       /* Return function status */
       return HAL_OK;
     }
@@ -833,9 +815,6 @@ HAL_StatusTypeDef HAL_ETH_GetReceivedFrame(ETH_HandleTypeDef *heth)
   /* Set ETH HAL State to Ready */
   heth->State = HAL_ETH_STATE_READY;
   
-  /* Process Unlocked */
-  __HAL_UNLOCK(heth);
-  
   /* Return function status */
   return HAL_ERROR;
 }
@@ -849,9 +828,6 @@ HAL_StatusTypeDef HAL_ETH_GetReceivedFrame(ETH_HandleTypeDef *heth)
 HAL_StatusTypeDef HAL_ETH_GetReceivedFrame_IT(ETH_HandleTypeDef *heth)
 {
   uint32_t descriptorscancounter = 0U;
-  
-  /* Process Locked */
-  __HAL_LOCK(heth);
   
   /* Set ETH HAL State to BUSY */
   heth->State = HAL_ETH_STATE_BUSY;
@@ -907,9 +883,6 @@ HAL_StatusTypeDef HAL_ETH_GetReceivedFrame_IT(ETH_HandleTypeDef *heth)
       /* Set HAL State to Ready */
       heth->State = HAL_ETH_STATE_READY;
       
-      /* Process Unlocked */
-      __HAL_UNLOCK(heth);
-  
       /* Return function status */
       return HAL_OK;
     }
@@ -917,9 +890,6 @@ HAL_StatusTypeDef HAL_ETH_GetReceivedFrame_IT(ETH_HandleTypeDef *heth)
 
   /* Set HAL State to Ready */
   heth->State = HAL_ETH_STATE_READY;
-  
-  /* Process Unlocked */
-  __HAL_UNLOCK(heth);
   
   /* Return function status */
   return HAL_ERROR;
