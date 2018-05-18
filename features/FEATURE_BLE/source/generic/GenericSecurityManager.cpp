@@ -105,11 +105,6 @@ ble_error_t GenericSecurityManager::setDatabaseFilepath(
         return result;
     }
 
-    result = init_database(db_path);
-    if (result != BLE_ERROR_NONE) {
-        return result;
-    }
-
     init_resolving_list();
 
     return BLE_ERROR_NONE;
