@@ -20,7 +20,7 @@
 #include "RTWInterface.h"
 #include "mbed_interface.h"
 
-#include "Rtw_emac.h"
+#include "rtw_emac.h"
 #include "EMAC.h"
 #include "wifi_constants.h"
 #include "wifi_conf.h"

@@ -22,7 +22,7 @@
 #include "nsapi.h"
 #include "rtos.h"
 #include "netif.h"
-#include "Rtw_emac.h"
+#include "rtw_emac.h"
 #include "OnboardNetworkStack.h"
 #include "LWIPStack.h"
 

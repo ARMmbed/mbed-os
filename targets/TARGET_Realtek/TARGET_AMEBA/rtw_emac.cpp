@@ -20,7 +20,7 @@
 #include "mbed_assert.h"
 #include "mbed_events.h"
 
-#include "Rtw_emac.h"
+#include "rtw_emac.h"
 #include "EMACMemoryManager.h"
 
 #include "rtos.h"
@@ -160,7 +160,6 @@ void RTW_EMAC::set_memory_manager(EMACMemoryManager &mem_mngr)
 
 void RTW_EMAC::wlan_emac_recv(void *param, struct netif *netif, uint32_t len)
 {
-
     struct eth_drv_sg sg_list[MAX_ETH_DRV_SG] = {0};
     emac_mem_buf_t *buf;
     RTW_EMAC *enet = static_cast<RTW_EMAC *>(param);
