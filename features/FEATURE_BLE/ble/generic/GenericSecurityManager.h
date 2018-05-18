@@ -53,6 +53,8 @@ public:
         const char* db_path = NULL
     );
 
+    virtual ble_error_t setDatabaseFile(const char *db_path = NULL);
+
     virtual ble_error_t reset();
 
     virtual ble_error_t preserveBondingStateOnReset(

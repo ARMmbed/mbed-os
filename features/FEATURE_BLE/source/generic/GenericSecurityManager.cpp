@@ -43,28 +43,15 @@ ble_error_t GenericSecurityManager::init(
     const char* db_path
 ) {
 
-    ble_error_t err = _pal.initialize();
-    if (err) {
-    	return err;
+    ble_error_t result = _pal.initialize();
+    if (result != BLE_ERROR_NONE) {
+    	return result;
     }
 
-    if (_db) {
-        delete _db;
+    result = setDatabaseFile(db_path);
+    if (result != BLE_ERROR_NONE) {
+        return result;
     }
-
-    FILE* db_file = FileSecurityDb::open_db_file(db_path);
-
-    if (db_file) {
-        _db = new (std::nothrow) FileSecurityDb(db_file);
-    } else {
-        _db = new (std::nothrow) MemorySecurityDb();
-    }
-
-    if (!_db) {
-        return BLE_ERROR_NO_MEM;
-    }
-
-    _db->restore();
 
     _pal.set_io_capability((io_capability_t::type) iocaps);
 
@@ -111,6 +98,30 @@ ble_error_t GenericSecurityManager::init(
             identity_list
         );
     }
+
+    return BLE_ERROR_NONE;
+}
+
+ble_error_t GenericSecurityManager::setDatabaseFile(
+    const char *db_path
+) {
+    if (_db) {
+        delete _db;
+    }
+
+    FILE* db_file = FileSecurityDb::open_db_file(db_path);
+
+    if (db_file) {
+        _db = new (std::nothrow) FileSecurityDb(db_file);
+    } else {
+        _db = new (std::nothrow) MemorySecurityDb();
+    }
+
+    if (!_db) {
+        return BLE_ERROR_NO_MEM;
+    }
+
+    _db->restore();
 
     return BLE_ERROR_NONE;
 }

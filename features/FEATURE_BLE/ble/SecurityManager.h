@@ -441,7 +441,7 @@ public:
      *                           support out-of-band exchanges of security data.
      * @param[in]  passkey       To specify a static passkey.
      * @param[in]  signing       Generate and distribute signing key during pairing
-     * @param[in]  dbPath        Path to the folder used to store keys in the filesystem,
+     * @param[in]  dbPath        Path to the file used to store keys in the filesystem,
      *                           if NULL keys will be only stored in memory
      *
      *
@@ -452,14 +452,28 @@ public:
                              SecurityIOCapabilities_t iocaps        = IO_CAPS_NONE,
                              const Passkey_t          passkey       = NULL,
                              bool                     signing       = true,
-                             const char              *dbPath        = NULL) {
+                             const char              *dbFilepath    = NULL) {
         /* Avoid compiler warnings about unused variables. */
         (void)enableBonding;
         (void)requireMITM;
         (void)iocaps;
         (void)passkey;
-        (void)dbPath;
+        (void)dbFilepath;
 
+        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
+    }
+
+    /**
+     * Change the file used for the security datagse. If path is invalid or a NULL is passed
+     * keys will only be stored in memory.
+     *
+     * @param[in]  dbPath        Path to the file used to store keys in the filesystem,
+     *                           if NULL keys will be only stored in memory
+     *
+     * @return BLE_ERROR_NONE on success.
+     */
+    virtual ble_error_t setDatabaseFile(const char *dbFilepath = NULL) {
+        (void)dbFilepath;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
 
