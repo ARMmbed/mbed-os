@@ -443,6 +443,8 @@ utest::v1::status_t us_ticker_setup(const Case *const source, const size_t index
 {
     intf = get_us_ticker_data()->interface;
 
+    OS_Tick_Disable();
+
     intf->init();
 
     prev_irq_handler = set_us_ticker_irq_handler(ticker_event_handler_stub);
@@ -459,6 +461,8 @@ utest::v1::status_t us_ticker_teardown(const Case * const source, const size_t p
 
     prev_irq_handler = NULL;
 
+    OS_Tick_Enable();
+
     return greentea_case_teardown_handler(source, passed, failed, reason);
 }
 
@@ -466,6 +470,8 @@ utest::v1::status_t us_ticker_teardown(const Case * const source, const size_t p
 utest::v1::status_t lp_ticker_setup(const Case *const source, const size_t index_of_case)
 {
     intf = get_lp_ticker_data()->interface;
+
+    OS_Tick_Disable();
 
     intf->init();
 
@@ -482,6 +488,8 @@ utest::v1::status_t lp_ticker_teardown(const Case * const source, const size_t p
     set_lp_ticker_irq_handler(prev_irq_handler);
 
     prev_irq_handler = NULL;
+
+    OS_Tick_Enable();
 
     return greentea_case_teardown_handler(source, passed, failed, reason);
 }
