@@ -20,9 +20,10 @@
 #include "mbed_assert.h"
 #include "mbed_events.h"
 
-#include "emac_api.h"
-#include "rtos.h"
+#include "rtw_emac.h"
+#include "EMACMemoryManager.h"
 
+#include "rtos.h"
 #include "lwip/pbuf.h"
 #include "netif/etharp.h"
 
@@ -32,39 +33,43 @@
 
 #define RTW_EMAC_MTU_SIZE  (1500U)
 
-static emac_interface_t *_emac;
-static emac_link_input_fn link_input_cb;
-static emac_link_state_change_fn link_state_cb;
-static void *link_input_data;
-static void *link_state_data;
+RTW_EMAC::RTW_EMAC() 
+{
+    set_callback_func((emac_callback)(&RTW_EMAC::wlan_emac_recv), this);
+}
 
-static uint32_t wlan_get_mtu_size(emac_interface_t *emac)
+uint32_t RTW_EMAC::get_mtu_size() const
 {
     return RTW_EMAC_MTU_SIZE;
 }
 
-static void wlan_get_ifname(emac_interface_t *emac, char *name, uint8_t size)
+uint32_t RTW_EMAC::get_align_preference() const
+{
+    return true;
+}
+
+void RTW_EMAC::get_ifname(char *name, uint8_t size) const
 {
     MBED_ASSERT(name != NULL);
     strncpy(name, "r0", size);
 }
 
-static uint8_t wlan_get_hwaddr_size(emac_interface_t *emac)
+uint8_t RTW_EMAC::get_hwaddr_size() const
 {
     return ETHARP_HWADDR_LEN;
 }
 
-static void wlan_get_hwaddr(emac_interface_t *emac, uint8_t *addr)
+bool RTW_EMAC::get_hwaddr(uint8_t *addr) const
 {
     char mac[20];
     int val[6];
     int i;
 
     if (RTW_SUCCESS == wifi_get_mac_address(mac)) {
-        if (sscanf(mac, "%x:%x:%x:%x:%x:%x",
-                   &val[0], &val[1], &val[2], &val[3], &val[4], &val[5]) != 6)
+        if (sscanf(mac, "%x:%x:%x:%x:%x:%x", 
+            &val[0], &val[1], &val[2], &val[3], &val[4], &val[5]) != 6) {
             printf("Get HW address failed\r\n");
-
+        }
         for (i = 0; i < 6; i++) {
             addr[i] = (unsigned char) val[i];
         }
@@ -73,80 +78,93 @@ static void wlan_get_hwaddr(emac_interface_t *emac, uint8_t *addr)
     }
 }
 
-static void wlan_set_hwaddr(emac_interface_t *emac, uint8_t *addr)
+void RTW_EMAC::set_hwaddr(const uint8_t *addr)
 {
-    
 }
 
-
-static bool wlan_link_out(emac_interface_t *emac, emac_stack_mem_t *buf)
+bool RTW_EMAC::link_out(emac_mem_buf_t *buf)
 {
-    struct eth_drv_sg * sg_list=0;
+    struct eth_drv_sg *sg_list;
     int sg_len = 0;
     int tot_len;
-    struct pbuf *p;
+    emac_mem_buf_t *p;
     bool ret = true;
-
     if (!rltk_wlan_running(0)) {
+        memory_manager->free(buf);
         return false;
     }
 
     sg_list = (struct eth_drv_sg *)malloc(sizeof(struct eth_drv_sg)*MAX_ETH_DRV_SG);
-    if(sg_list == 0){//malloc fail
+    if (sg_list == 0) {
+        memory_manager->free(buf);
         return false;
     }
-    emac_stack_mem_ref(emac, buf);
 
-    p = (struct pbuf *)buf;
-    tot_len = p->tot_len;
-    for (; p != NULL && sg_len < MAX_ETH_DRV_SG; p = p->next) {
-        sg_list[sg_len].buf = (uint32_t) p->payload;
-        sg_list[sg_len].len = p->len;
-    sg_len++;
+    p = buf;
+    tot_len = memory_manager->get_total_len(p);
+    for (; p != NULL && sg_len < MAX_ETH_DRV_SG; p = memory_manager->get_next(p)) {
+        sg_list[sg_len].buf = (unsigned int)(static_cast<uint8_t *>(memory_manager->get_ptr(p)));
+        sg_list[sg_len].len = memory_manager->get_len(p);
+        sg_len++;
     }
-
     if (sg_len) {
         if (rltk_wlan_send(0, sg_list, sg_len, tot_len) != 0) {
             ret = false;
         }
     }
 
-    emac_stack_mem_free(emac, buf);
+    memory_manager->free(buf);
     free(sg_list);
     return ret;
 }
 
-static bool wlan_power_up(emac_interface_t *emac)
+bool RTW_EMAC::power_up()
 {
     wifi_on(RTW_MODE_STA);
     wait_ms(1000);
+    wlan_emac_link_change(true);
     return true;
 }
 
-static void wlan_power_down(emac_interface_t *emac)
+void RTW_EMAC::power_down()
 {
     wifi_off();
 }
 
-static void wlan_set_link_input_cb(emac_interface_t *emac, emac_link_input_fn cb, void *data)
+void RTW_EMAC::set_link_input_cb(emac_link_input_cb_t input_cb)
 {
-    link_input_cb = cb;
-    link_input_data = data;
+    emac_link_input_cb = input_cb;
 }
 
-static void wlan_set_link_state_cb(emac_interface_t *emac, emac_link_state_change_fn cb, void *data)
+void RTW_EMAC::set_link_state_cb(emac_link_state_change_cb_t state_cb)
 {
-    link_state_cb = cb;
-    link_state_data = data;
+    emac_link_state_cb = state_cb;
 }
 
-void wlan_emac_recv(struct netif *netif, int len)
+void RTW_EMAC::add_multicast_group(const uint8_t *addr)
 {
-    struct eth_drv_sg sg_list[MAX_ETH_DRV_SG];
-    emac_stack_mem_t *buf;
-    struct pbuf *p;
+}
+
+void RTW_EMAC::remove_multicast_group(const uint8_t *addr)
+{
+}
+
+void RTW_EMAC::set_all_multicast(bool all)
+{
+}
+
+void RTW_EMAC::set_memory_manager(EMACMemoryManager &mem_mngr)
+{
+    memory_manager = &mem_mngr;
+}
+
+void RTW_EMAC::wlan_emac_recv(void *param, struct netif *netif, uint32_t len)
+{
+    struct eth_drv_sg sg_list[MAX_ETH_DRV_SG] = {0};
+    emac_mem_buf_t *buf;
+    RTW_EMAC *enet = static_cast<RTW_EMAC *>(param);
+    emac_mem_buf_t *p;
     int sg_len = 0;
-
     if (!rltk_wlan_running(0)) {
         return;
     }
@@ -155,48 +173,33 @@ void wlan_emac_recv(struct netif *netif, int len)
         len = MAX_ETH_MSG;
     }
 
-    buf = emac_stack_mem_alloc(NULL, len, 0);
+    buf = enet->memory_manager->alloc_heap(len, 0);
     if (buf == NULL) {
         return;
-    }   
+    } 
 
-    p = (struct pbuf *)buf;
-    for (; p != NULL && sg_len < MAX_ETH_DRV_SG; p = p->next) {
-        sg_list[sg_len].buf = (uint32_t) p->payload;
-        sg_list[sg_len].len = p->len;
+    enet->memory_manager->set_len(buf, len);
+    p = buf;
+    for (; p != NULL && sg_len < MAX_ETH_DRV_SG; p = enet->memory_manager->get_next(p)) {
+        sg_list[sg_len].buf = (unsigned int)(static_cast<uint8_t *>(enet->memory_manager->get_ptr(p)));
+        sg_list[sg_len].len = enet->memory_manager->get_len(p);
         sg_len++;
     }
+
     rltk_wlan_recv(0, sg_list, sg_len);
-
-    if (link_input_cb) {
-        link_input_cb(link_input_data, buf);
+    if (enet->emac_link_input_cb) {
+        enet->emac_link_input_cb(buf);
     }
-    return;
 }
-
-const emac_interface_ops_t wlan_emac_interface = {
-    .get_mtu_size = wlan_get_mtu_size,
-    .get_ifname = wlan_get_ifname,
-    .get_hwaddr_size = wlan_get_hwaddr_size,
-    .get_hwaddr = wlan_get_hwaddr,
-    .set_hwaddr = wlan_set_hwaddr,
-    .link_out = wlan_link_out,
-    .power_up = wlan_power_up,
-    .power_down = wlan_power_down,
-    .set_link_input_cb = wlan_set_link_input_cb,
-    .set_link_state_cb = wlan_set_link_state_cb
-};
 
 void mbed_default_mac_address(char *mac) {
     unsigned char RTK_mac_addr[3] = {0x00, 0xE0, 0x4C}; // default Realtek mac address
-
     mac[0] = RTK_mac_addr[0];
     mac[1] = RTK_mac_addr[1];
     mac[2] = RTK_mac_addr[2];
     mac[3] = 0x87;
     mac[4] = 0x00;
     mac[5] = 0x01;
-
     return;
 }
 
@@ -205,12 +208,11 @@ void mbed_mac_address(char *mac)
     char hwaddr[20];    
     int val[6];
     int i;
-
     if (RTW_SUCCESS == wifi_get_mac_address(hwaddr)) {
         if (sscanf(hwaddr, "%x:%x:%x:%x:%x:%x",
-                   &val[0], &val[1], &val[2], &val[3], &val[4], &val[5]) != 6)
+            &val[0], &val[1], &val[2], &val[3], &val[4], &val[5]) != 6) {
             printf("Get HW address failed\r\n");
-
+        }
         for (i = 0; i < 6; i++) {
             mac[i] = (unsigned char) val[i];
         }
@@ -220,22 +222,19 @@ void mbed_mac_address(char *mac)
     }
 }
 
-void wlan_emac_link_change(bool up)
+void RTW_EMAC::wlan_emac_link_change(bool up)
 {
-    if (link_state_cb) {
-        link_state_cb(link_state_data, up);
+    if (emac_link_state_cb) {
+        emac_link_state_cb(up);
     }
 }
 
-emac_interface_t *wlan_emac_init_interface()
-{
-
-    if (_emac == NULL) {
-        _emac = (emac_interface_t*) malloc(sizeof(emac_interface_t));
-        MBED_ASSERT(_emac);
-        _emac->hw = NULL;
-        memcpy((void*)&_emac->ops, &wlan_emac_interface, sizeof(wlan_emac_interface));
-    }
-    return _emac;
+RTW_EMAC &RTW_EMAC::get_instance() {
+    static RTW_EMAC rtw_emac;
+    return rtw_emac;
+}
+// Weak so a module can override
+MBED_WEAK EMAC &EMAC::get_default_instance() {
+    return RTW_EMAC::get_instance();
 }
 #endif

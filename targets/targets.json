@@ -3922,10 +3922,10 @@
         "default_toolchain": "GCC_ARM",
         "inherits": ["Target"],
         "detect_code": ["4600"],
-        "extra_labels": ["Realtek", "AMEBA", "RTL8195A"],
+        "extra_labels": ["Realtek", "AMEBA", "RTL8195A", "RTW_EMAC"],
         "macros": ["__RTL8195A__","CONFIG_PLATFORM_8195A","CONFIG_MBED_ENABLED","PLATFORM_CMSIS_RTOS","MBED_FAULT_HANDLER_DISABLED"],
         "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
-        "device_has": ["ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SPI", "TRNG", "FLASH"],
+        "device_has": ["ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SPI", "TRNG", "FLASH", "EMAC"],
         "features": ["LWIP"],
         "post_binary_hook": {
             "function": "RTL8195ACode.binary_hook",
