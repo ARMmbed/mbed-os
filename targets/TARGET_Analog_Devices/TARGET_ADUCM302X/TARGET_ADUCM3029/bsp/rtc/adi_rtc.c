@@ -6,7 +6,7 @@
  * @date:    $Date: 2016-07-26 13:09:22 -0400 (Tue, 26 Jul 2016) $
  *----------------------------------------------------------------------------
  *
-Copyright (c) 2010-2016 Analog Devices, Inc.
+Copyright (c) 2010-2018 Analog Devices, Inc.
 
 All rights reserved.
 
@@ -304,18 +304,19 @@ ADI_RTC_RESULT adi_rtc_Open(
 
     pDevice->pRTCRegs->SR0 = ADI_RTC_SR3_IRQ_STATUS_MASK;
     SYNC_AFTER_WRITE(SR0,BITM_RTC_SR0_WSYNCSR0)
-
+    /* Preserve RTC counter value while re-initialization
     pDevice->pRTCRegs->CNT0 = 0u;
     pDevice->pRTCRegs->CNT1 = 0u;
     SYNC_AFTER_WRITE(SR0,BITM_RTC_SR0_WSYNCCNT0)
-
+    */
     /* local pointer to instance data */
     aRTCDeviceInfo[DeviceNumber].hDevice = pDevice;
     pDevice->pDeviceInfo = &aRTCDeviceInfo[DeviceNumber];
 
-    /* Use static configuration to initialize the RTC */
+    /* Do not use static configuration to
+       preserve RTC counter value while re-initialization
     rtc_init(pDevice,&aRTCConfig[DeviceNumber]);
-
+    */
     /* store handle at application handle pointer */
     *phDevice = pDevice;
     pDevice->eIRQn =  aRTCDeviceInfo[DeviceNumber].eIRQn;
