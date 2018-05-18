@@ -56,8 +56,8 @@ typedef struct
 } cbMAIN_WlanStartParams;
 
 /*---------------------------------------------------------------------------
-* Callback to indicate that initialization of BT stack is completed.
-*-------------------------------------------------------------------------*/
+ * Callback to indicate that initialization of BT stack is completed.
+ *-------------------------------------------------------------------------*/
 typedef void(*cbMAIN_initBtComplete)(void);
 
 /*===========================================================================
@@ -65,81 +65,81 @@ typedef void(*cbMAIN_initBtComplete)(void);
  *=========================================================================*/
 
 /**
-* Initialize OS, timers, GPIO's, heap and OTP.
-*
-* @return void
-*/
+ * Initialize OS, timers, GPIO's, heap and OTP.
+ *
+ * @return void
+ */
 extern void cbMAIN_initOS(void);
 
 /**
-* Start Bluetooth HW.
-*
-* @param pInitParameters Initial configuration parameters. These parameters can
-*                        not be changed once Bluetooth has been started.
-* @param callback Will be invoked when initialisation is done.
-* @return void
-*/
+ * Start Bluetooth HW.
+ *
+ * @param pInitParameters Initial configuration parameters. These parameters can
+ *                        not be changed once Bluetooth has been started.
+ * @param callback Will be invoked when initialisation is done.
+ * @return void
+ */
 extern void cbMAIN_initBt(cbMAIN_BtInitParams *pInitParameters, cbMAIN_initBtComplete callback);
 
 /**
-* Initialize WLAN component.
-* @return Port specific TARGET identifier
-*/
+ * Initialize WLAN component.
+ * @return Port specific TARGET identifier
+ */
 extern cb_int32 cbMAIN_initWlan(void);
 
 /**
-* Start WLAN component.
-* Create WLAN driver instance, bind it to targetId and start the driver.
-*
-* @param targetId Port specific TARGET identifier.
-* @param params Start parameters passed to WLAN driver instance.
-* @return cbSTATUS_OK if successful, otherwise cbSTATUS_ERROR.
-*/
+ * Start WLAN component.
+ * Create WLAN driver instance, bind it to targetId and start the driver.
+ *
+ * @param targetId Port specific TARGET identifier.
+ * @param params Start parameters passed to WLAN driver instance.
+ * @return cbSTATUS_OK if successful, otherwise cbSTATUS_ERROR.
+ */
 extern cb_int32 cbMAIN_startWlan(cb_int32 targetId, cbMAIN_WlanStartParams *params);
 
 /**
-* Register error handler function.
-*
-* @param errHandler Function to be invoked in case of error.
-* @return void
-*/
+ * Register error handler function.
+ *
+ * @param errHandler Function to be invoked in case of error.
+ * @return void
+ */
 extern void cbMAIN_registerErrorHandler(cbMAIN_ErrorHandler errHandler);
 
 /**
-* Start driver OS. This must be called after all cbMAIN_initOS/cbMAIN_initBt/cbMAIN_initWlan
-* to start the driver thread.
-*
-* @return void
-*/
+ * Start driver OS. This must be called after all cbMAIN_initOS/cbMAIN_initBt/cbMAIN_initWlan
+ * to start the driver thread.
+ *
+ * @return void
+ */
 extern void cbMAIN_startOS(void);
 
 /**
-* Get event queue. Used for running a function in the same thread context as the driver.
-* Can not be called before cbMAIN_initOS/cbMAIN_initBt/cbMAIN_initWlan.
-* Use cbMAIN_dispatchEventQueue to trigger the driver to call the queued up functions.
-* @return EventQueue     Pointer to the event queue where function calls can be enqueued.
-*/
+ * Get event queue. Used for running a function in the same thread context as the driver.
+ * Can not be called before cbMAIN_initOS/cbMAIN_initBt/cbMAIN_initWlan.
+ * Use cbMAIN_dispatchEventQueue to trigger the driver to call the queued up functions.
+ * @return EventQueue     Pointer to the event queue where function calls can be enqueued.
+ */
 extern EventQueue* cbMAIN_getEventQueue(void);
 
 /**
-* Lock driver from usage. This must be used if a C API function is used outside of the driver thread context.
-* The driver should only be locked for as small time as possible.
-* @return void
-*/
+ * Lock driver from usage. This must be used if a C API function is used outside of the driver thread context.
+ * The driver should only be locked for as small time as possible.
+ * @return void
+ */
 extern void cbMAIN_driverLock(void);
 
 /**
-* Unlock driver. used when the C API function has finished executing to release the driver for others to use.
-*
-* @return void
-*/
+ * Unlock driver. used when the C API function has finished executing to release the driver for others to use.
+ *
+ * @return void
+ */
 extern void cbMAIN_driverUnlock(void);
 
 /**
-* Dispatch event queue. Should be called to trigger calls that have been queued up in the driver context
-*
-* @return void
-*/
+ * Dispatch event queue. Should be called to trigger calls that have been queued up in the driver context
+ *
+ * @return void
+ */
 extern void cbMAIN_dispatchEventQueue(void);
 
 #endif /*_CB_MAIN_H_*/

@@ -48,6 +48,7 @@
 using namespace utest::v1;
 
 static unsigned char eth_mac_addr[ETH_MAC_ADDR_LEN];
+EMAC *emac_handle = NULL;
 
 void test_emac_initialize()
 {
@@ -104,7 +105,7 @@ unsigned char *emac_if_get_hw_addr(void)
 
 EMAC *emac_if_get(void)
 {
-    return &EMAC::get_default_instance();
+    return emac_handle;
 }
 
 EmacTestMemoryManager *emac_m_mngr_get(void)
@@ -112,9 +113,9 @@ EmacTestMemoryManager *emac_m_mngr_get(void)
     return &EmacTestMemoryManager::get_instance();
 }
 
-bool emac_if_init(void)
+bool emac_if_init(EMAC *emac)
 {
-    static EMAC *emac = &EMAC::get_default_instance();
+    emac_handle = emac;
 
     emac->set_link_input_cb(emac_if_link_input_cb);
     emac->set_link_state_cb(emac_if_link_state_change_cb);

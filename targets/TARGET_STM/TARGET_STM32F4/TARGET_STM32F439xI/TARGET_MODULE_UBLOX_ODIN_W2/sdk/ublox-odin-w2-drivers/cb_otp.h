@@ -48,6 +48,10 @@ typedef enum
     cbOTP_MAC_DEBUG_UNIT,
     cbOTP_SERIAL_NUMBER,
     cbOTP_TYPE_CODE,
+    cbOTP_SIGNATURE,
+    cbOTP_MAC_WLAN_AP,
+    cbOTP_UUID,
+    cbOTP_RF_FREQ_CALIBRATION,
     cbOTP_RESERVED_UNUSED = 255
 } cbOTP_Id;
 

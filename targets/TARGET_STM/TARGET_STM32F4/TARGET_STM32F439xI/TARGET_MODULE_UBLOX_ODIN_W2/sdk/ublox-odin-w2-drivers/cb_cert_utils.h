@@ -55,12 +55,12 @@ typedef cb_uint32 cbCERT_StreamPosition;
  * @ingroup wlan
  */
 struct cbCERT_Stream_s {
-    cb_int32(*read)(const cbCERT_Stream *stream, void *buf, cb_uint32 count);  /**< Read function pointer, place count bytes in buf. */
+    cb_int32(*read)(const cbCERT_Stream *stream, void *buf, cb_uint32 count);   /**< Read function pointer, place count bytes in buf. */
     cb_int32(*write)(const cbCERT_Stream *stream, void *buf, cb_uint32 count);  /**< Read function pointer, place count bytes in buf. */
-    void(*rewind)(const cbCERT_Stream *stream); /**< Rewind function pointer, rewind stream internal iterator to the beginning. Mandatory for all streams. */
-    void(*setPosition)(const cbCERT_Stream *stream, cbCERT_StreamPosition position); /**< Set absolute position. */
-    cbCERT_StreamPosition(*getPosition)(const cbCERT_Stream *stream); /**< Get current position. */
-    cb_uint32(*getSize)(const cbCERT_Stream *stream);  /**< GetSize function pointer, return total size of stream contents. */
+    void(*rewind)(const cbCERT_Stream *stream);  /**< Rewind function pointer, rewind stream internal iterator to the beginning. Mandatory for all streams. */
+    void(*setPosition)(const cbCERT_Stream *stream, cbCERT_StreamPosition position);    /**< Set absolute position. */
+    cbCERT_StreamPosition(*getPosition)(const cbCERT_Stream *stream);   /**< Get current position. */
+    cb_uint32(*getSize)(const cbCERT_Stream *stream);   /**< GetSize function pointer, return total size of stream contents. */
 };
 
 /*===========================================================================
