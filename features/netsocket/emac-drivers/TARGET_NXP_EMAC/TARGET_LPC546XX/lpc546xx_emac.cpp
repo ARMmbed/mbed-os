@@ -202,26 +202,26 @@ bool LPC546XX_EMAC::low_level_init_successful()
     AT_NONCACHEABLE_SECTION_ALIGN(static enet_rx_bd_struct_t rx_desc_start_addr[ENET_RX_RING_LEN], ENET_BUFF_ALIGNMENT);
     AT_NONCACHEABLE_SECTION_ALIGN(static enet_tx_bd_struct_t tx_desc_start_addr[ENET_TX_RING_LEN], ENET_BUFF_ALIGNMENT);
 
+    /* prepare the buffer configuration. */
+   enet_buffer_config_t buffCfg = {
+       ENET_RX_RING_LEN,
+       ENET_TX_RING_LEN,
+       &tx_desc_start_addr[0],
+       &tx_desc_start_addr[0],
+       &rx_desc_start_addr[0],
+       &rx_desc_start_addr[ENET_RX_RING_LEN],
+       rx_ptr,
+       ENET_BuffSizeAlign(ENET_ETH_MAX_FLEN),
+   };
+
     /* Create buffers for each receive BD */
     for (i = 0; i < ENET_RX_RING_LEN; i++) {
-        rx_buff[i] = memory_manager->alloc_heap(ENET_ETH_MAX_FLEN, ENET_BUFF_ALIGNMENT);
+        rx_buff[i] = memory_manager->alloc_heap(buffCfg.rxBuffSizeAlign, ENET_BUFF_ALIGNMENT);
         if (NULL == rx_buff[i])
             return false;
 
         rx_ptr[i] = (uint32_t)memory_manager->get_ptr(rx_buff[i]);
     }
-
-     /* prepare the buffer configuration. */
-    enet_buffer_config_t buffCfg = {
-        ENET_RX_RING_LEN,
-        ENET_TX_RING_LEN,
-        &tx_desc_start_addr[0],
-        &tx_desc_start_addr[0],
-        &rx_desc_start_addr[0],
-        &rx_desc_start_addr[ENET_RX_RING_LEN],
-        rx_ptr,
-        ENET_ALIGN(ENET_ETH_MAX_FLEN, ENET_BUFF_ALIGNMENT),
-    };
 
     ENET_Init(ENET, &config, hwaddr, refClock);
 
@@ -266,7 +266,7 @@ emac_mem_buf_t *LPC546XX_EMAC::low_level_input()
         update_read_buffer(bdPtr, NULL);
     } else {
         if (bdPtr->control & ENET_RXDESCRIP_WR_LD_MASK) {
-            length = (bdPtr->control & ENET_RXDESCRIP_WR_PACKETLEN_MASK);
+            length = (bdPtr->control & ENET_RXDESCRIP_WR_PACKETLEN_MASK) - 4;
         } else {
             length = rxBdRing->rxBuffSizeAlign;
         }
@@ -276,7 +276,7 @@ emac_mem_buf_t *LPC546XX_EMAC::low_level_input()
         memory_manager->set_len(p, length);
 
         /* Attempt to queue new buffer */
-        temp_rxbuf = memory_manager->alloc_heap(ENET_ETH_MAX_FLEN, ENET_BUFF_ALIGNMENT);
+        temp_rxbuf = memory_manager->alloc_heap(rxBdRing->rxBuffSizeAlign, ENET_BUFF_ALIGNMENT);
         if (NULL == temp_rxbuf) {
             /* Re-queue the same buffer */
             update_read_buffer(bdPtr, NULL);
