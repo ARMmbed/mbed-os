@@ -381,11 +381,12 @@ private:
     virtual void on_connected(
         connection_handle_t connection,
         Gap::Role_t role,
-        BLEProtocol::AddressType_t peer_address_type,
+        peer_address_type_t peer_address_type,
         const BLEProtocol::AddressBytes_t peer_address,
         BLEProtocol::AddressType_t local_address_type,
         const BLEProtocol::AddressBytes_t local_address,
-        const Gap::ConnectionParams_t *connection_params
+        const Gap::ConnectionParams_t *connection_params,
+        const BLEProtocol::AddressBytes_t resolved_peer_address
     );
 
     /**

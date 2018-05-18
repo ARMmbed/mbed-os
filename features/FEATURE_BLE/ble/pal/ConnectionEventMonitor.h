@@ -48,15 +48,18 @@ public:
          * @param[in] local_address_type type of address of the local device.
          * @param[in] local_address Address of the local device that was used during connection.
          * @param[in] connection_params connection parameters like interval, latency and timeout.
+         * @param[in] resolved_peer_address resolved address of the peer; may
+         * be NULL.
          */
         virtual void on_connected(
             connection_handle_t connection,
             ::Gap::Role_t role,
-            BLEProtocol::AddressType_t peer_address_type,
+            ble::peer_address_type_t peer_address_type,
             const BLEProtocol::AddressBytes_t peer_address,
             BLEProtocol::AddressType_t local_address_type,
             const BLEProtocol::AddressBytes_t local_address,
-            const ::Gap::ConnectionParams_t *connection_params
+            const ::Gap::ConnectionParams_t *connection_params,
+            const BLEProtocol::AddressBytes_t resolved_peer_address
         ) = 0;
 
         /**

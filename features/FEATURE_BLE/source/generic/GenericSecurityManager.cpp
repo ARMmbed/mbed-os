@@ -964,11 +964,12 @@ void GenericSecurityManager::set_mitm_performed(connection_handle_t connection, 
 void GenericSecurityManager::on_connected(
     connection_handle_t connection,
     Gap::Role_t role,
-    BLEProtocol::AddressType_t peer_address_type,
+    peer_address_type_t peer_address_type,
     const BLEProtocol::AddressBytes_t peer_address,
     BLEProtocol::AddressType_t local_address_type,
     const BLEProtocol::AddressBytes_t local_address,
-    const Gap::ConnectionParams_t *connection_params
+    const Gap::ConnectionParams_t *connection_params,
+    const BLEProtocol::AddressBytes_t resolved_peer_address
 ) {
     MBED_ASSERT(_db);
     ControlBlock_t *cb = acquire_control_block(connection);
@@ -980,13 +981,20 @@ void GenericSecurityManager::on_connected(
     cb->local_address = local_address;
     cb->is_master = (role == Gap::CENTRAL);
 
+    // normalize the address
+    if (resolved_peer_address && resolved_peer_address != ble::address_t()) {
+        peer_address = resolved_peer_address;
+    }
+
     // get the associated db handle and the distribution flags if any
     cb->db_entry = _db->open_entry(peer_address_type, peer_address);
 
     SecurityDistributionFlags_t* flags = _db->get_distribution_flags(cb->db_entry);
 
     flags->peer_address = peer_address;
-    flags->peer_address_is_public = (peer_address_type == BLEProtocol::AddressType::PUBLIC);
+    flags->peer_address_is_public =
+        (peer_address_type == peer_address_type_t::PUBLIC) ||
+        (peer_address_type == peer_address_type_t::PUBLIC_IDENTITY);
 
     const bool signing = cb->signing_override_default ?
                          cb->signing_requested :
