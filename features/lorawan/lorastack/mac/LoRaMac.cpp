@@ -179,7 +179,7 @@ void LoRaMac::post_process_mcps_req()
         }
 
     } else {
-        //UNCONFIRMED
+        //UNCONFIRMED or PROPRIETARY
         if (_params.is_ul_frame_counter_fixed == false) {
             _params.ul_frame_counter++;
         }
@@ -1217,24 +1217,25 @@ int16_t LoRaMac::prepare_ongoing_tx(const uint8_t port,
         }
     }
 
-    // Handles all unconfirmed messages, including proprietary and multicast
-    if ((flags & MSG_FLAG_MASK) == MSG_UNCONFIRMED_FLAG
-            || (flags & MSG_FLAG_MASK) == MSG_UNCONFIRMED_MULTICAST
-            || (flags & MSG_FLAG_MASK) == MSG_UNCONFIRMED_PROPRIETARY) {
-
+    // Handles unconfirmed messages
+    if (flags & MSG_UNCONFIRMED_FLAG) {
          _ongoing_tx_msg.type = MCPS_UNCONFIRMED;
          _ongoing_tx_msg.fport = port;
          _ongoing_tx_msg.nb_trials = 1;
     }
 
-    // Handles all confirmed messages, including proprietary and multicast
-    if ((flags & MSG_FLAG_MASK) == MSG_CONFIRMED_FLAG
-            || (flags & MSG_FLAG_MASK) == MSG_CONFIRMED_MULTICAST
-            || (flags & MSG_FLAG_MASK) == MSG_CONFIRMED_PROPRIETARY) {
-
+    // Handles confirmed messages
+    if (flags & MSG_CONFIRMED_FLAG) {
         _ongoing_tx_msg.type = MCPS_CONFIRMED;
         _ongoing_tx_msg.fport = port;
         _ongoing_tx_msg.nb_trials = num_retries;
+    }
+
+    // Handles proprietary messages
+    if (flags & MSG_PROPRIETARY_FLAG) {
+        _ongoing_tx_msg.type = MCPS_PROPRIETARY;
+        _ongoing_tx_msg.fport = port;
+        _ongoing_tx_msg.nb_trials = 1;
     }
 
     tr_info("RTS = %u bytes, PEND = %u, Port: %u",
@@ -1269,7 +1270,6 @@ lorawan_status_t LoRaMac::send_ongoing_tx()
         machdr.bits.mtype = FRAME_TYPE_DATA_CONFIRMED_UP;
         _params.max_ack_timeout_retries = _ongoing_tx_msg.nb_trials;
     } else if (_ongoing_tx_msg.type == MCPS_PROPRIETARY) {
-        //TODO: Is this dead code currently??? Nobody sets this type
         machdr.bits.mtype = FRAME_TYPE_PROPRIETARY;
     } else {
         return LORAWAN_STATUS_SERVICE_UNKNOWN;
