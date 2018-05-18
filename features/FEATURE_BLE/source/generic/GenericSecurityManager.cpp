@@ -123,7 +123,7 @@ ble_error_t GenericSecurityManager::reset(void) {
 }
 
 ble_error_t GenericSecurityManager::preserveBondingStateOnReset(bool enabled) {
-    MBED_ASSERT(_db);
+    if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     _db->set_restore(enabled);
     return BLE_ERROR_NONE;
 }
@@ -133,13 +133,13 @@ ble_error_t GenericSecurityManager::preserveBondingStateOnReset(bool enabled) {
 //
 
 ble_error_t GenericSecurityManager::purgeAllBondingState(void) {
-    MBED_ASSERT(_db);
+    if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     _db->clear_entries();
     return BLE_ERROR_NONE;
 }
 
 ble_error_t GenericSecurityManager::generateWhitelistFromBondTable(Gap::Whitelist_t *whitelist) const {
-    MBED_ASSERT(_db);
+    if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     if (eventHandler) {
         _db->generate_whitelist_from_bond_table(
             mbed::callback(eventHandler, &::SecurityManager::EventHandler::whitelistFromBondTable),
@@ -154,6 +154,7 @@ ble_error_t GenericSecurityManager::generateWhitelistFromBondTable(Gap::Whitelis
 //
 
 ble_error_t GenericSecurityManager::requestPairing(connection_handle_t connection) {
+    if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
         return BLE_ERROR_INVALID_PARAM;
@@ -206,6 +207,7 @@ ble_error_t GenericSecurityManager::requestPairing(connection_handle_t connectio
 }
 
 ble_error_t GenericSecurityManager::acceptPairingRequest(connection_handle_t connection) {
+    if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
         return BLE_ERROR_INVALID_PARAM;
@@ -263,10 +265,12 @@ ble_error_t GenericSecurityManager::acceptPairingRequest(connection_handle_t con
 }
 
 ble_error_t GenericSecurityManager::cancelPairingRequest(connection_handle_t connection) {
+    if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     return _pal.cancel_pairing(connection, pairing_failure_t::UNSPECIFIED_REASON);
 }
 
 ble_error_t GenericSecurityManager::setPairingRequestAuthorisation(bool required) {
+    if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     _pairing_authorisation_required = required;
     return BLE_ERROR_NONE;
 }
@@ -289,10 +293,12 @@ ble_error_t GenericSecurityManager::getSecureConnectionsSupport(bool *enabled) {
 //
 
 ble_error_t GenericSecurityManager::setIoCapability(SecurityIOCapabilities_t iocaps) {
+    if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     return _pal.set_io_capability((io_capability_t::type) iocaps);
 }
 
 ble_error_t GenericSecurityManager::setDisplayPasskey(const Passkey_t passkey) {
+    if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     return _pal.set_display_passkey(PasskeyAscii::to_num(passkey));
 }
 
@@ -300,6 +306,7 @@ ble_error_t GenericSecurityManager::setAuthenticationTimeout(
     connection_handle_t connection,
     uint32_t timeout_in_ms
 ) {
+    if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     return _pal.set_authentication_timeout(connection, timeout_in_ms / 10);
 }
 
@@ -307,6 +314,7 @@ ble_error_t GenericSecurityManager::getAuthenticationTimeout(
     connection_handle_t connection,
     uint32_t *timeout_in_ms
 ) {
+    if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     uint16_t timeout_in_10ms;
     ble_error_t status = _pal.get_authentication_timeout(connection, timeout_in_10ms);
     *timeout_in_ms = 10 * timeout_in_10ms;
@@ -317,6 +325,7 @@ ble_error_t GenericSecurityManager::setLinkSecurity(
     connection_handle_t connection,
     SecurityMode_t securityMode
 ) {
+    if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
         return BLE_ERROR_INVALID_PARAM;
@@ -348,6 +357,7 @@ ble_error_t GenericSecurityManager::setLinkSecurity(
 }
 
 ble_error_t GenericSecurityManager::setKeypressNotification(bool enabled) {
+    if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     _default_authentication.set_keypress_notification(enabled);
     return BLE_ERROR_NONE;
 }
@@ -356,7 +366,7 @@ ble_error_t GenericSecurityManager::enableSigning(
     connection_handle_t connection,
     bool enabled
 ) {
-    MBED_ASSERT(_db);
+    if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
         return BLE_ERROR_INVALID_PARAM;
@@ -406,7 +416,7 @@ ble_error_t GenericSecurityManager::getLinkEncryption(
     connection_handle_t connection,
     link_encryption_t *encryption
 ) {
-    MBED_ASSERT(_db);
+    if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
         return BLE_ERROR_INVALID_PARAM;
@@ -440,7 +450,7 @@ ble_error_t GenericSecurityManager::setLinkEncryption(
     connection_handle_t connection,
     link_encryption_t encryption
 ) {
-    MBED_ASSERT(_db);
+    if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
         return BLE_ERROR_INVALID_PARAM;
@@ -511,7 +521,7 @@ ble_error_t GenericSecurityManager::getEncryptionKeySize(
     connection_handle_t connection,
     uint8_t *size
 ) {
-    MBED_ASSERT(_db);
+    if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
         return BLE_ERROR_INVALID_PARAM;
@@ -530,6 +540,7 @@ ble_error_t GenericSecurityManager::setEncryptionKeyRequirements(
     uint8_t minimumByteSize,
     uint8_t maximumByteSize
 ) {
+    if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     return _pal.set_encryption_key_requirements(minimumByteSize, maximumByteSize);
 }
 
@@ -538,7 +549,7 @@ ble_error_t GenericSecurityManager::setEncryptionKeyRequirements(
 //
 
 ble_error_t GenericSecurityManager::getSigningKey(connection_handle_t connection, bool authenticated) {
-    MBED_ASSERT(_db);
+    if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
         return BLE_ERROR_INVALID_PARAM;
@@ -576,6 +587,7 @@ ble_error_t GenericSecurityManager::getSigningKey(connection_handle_t connection
 //
 
 ble_error_t GenericSecurityManager::setPrivateAddressTimeout(uint16_t timeout_in_seconds) {
+    if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
    return _pal.set_private_address_timeout(timeout_in_seconds);
 }
 
@@ -584,7 +596,7 @@ ble_error_t GenericSecurityManager::setPrivateAddressTimeout(uint16_t timeout_in
 //
 
 ble_error_t GenericSecurityManager::requestAuthentication(connection_handle_t connection) {
-    MBED_ASSERT(_db);
+    if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
         return BLE_ERROR_INVALID_PARAM;
@@ -619,6 +631,7 @@ ble_error_t GenericSecurityManager::requestAuthentication(connection_handle_t co
 ble_error_t GenericSecurityManager::generateOOB(
     const address_t *address
 ) {
+    if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     /* legacy pairing */
     ble_error_t status = get_random_data(_oob_temporary_key.data(), 16);
 
@@ -658,6 +671,7 @@ ble_error_t GenericSecurityManager::setOOBDataUsage(
     bool useOOB,
     bool OOBProvidesMITM
 ) {
+    if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
         return BLE_ERROR_INVALID_PARAM;
@@ -677,6 +691,7 @@ ble_error_t GenericSecurityManager::confirmationEntered(
     connection_handle_t connection,
     bool confirmation
 ) {
+    if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     return _pal.confirmation_entered(connection, confirmation);
 }
 
@@ -684,6 +699,7 @@ ble_error_t GenericSecurityManager::passkeyEntered(
     connection_handle_t connection,
     Passkey_t passkey
 ) {
+    if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     return _pal.passkey_request_reply(
         connection,
         PasskeyAscii::to_num(passkey)
@@ -694,6 +710,7 @@ ble_error_t GenericSecurityManager::sendKeypressNotification(
     connection_handle_t connection,
     Keypress_t keypress
 ) {
+    if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     return _pal.send_keypress_notification(connection, keypress);
 }
 
@@ -701,7 +718,7 @@ ble_error_t GenericSecurityManager::legacyPairingOobReceived(
     const address_t *address,
     const oob_tk_t *tk
 ) {
-    MBED_ASSERT(_db);
+    if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     if (address && tk) {
         ControlBlock_t *cb = get_control_block(*address);
         if (!cb) {
@@ -736,6 +753,7 @@ ble_error_t GenericSecurityManager::oobReceived(
     const oob_lesc_value_t *random,
     const oob_confirm_t *confirm
 ) {
+    if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     if (address && random && confirm) {
         _oob_peer_address = *address;
         _oob_peer_random = *random;
@@ -751,7 +769,7 @@ ble_error_t GenericSecurityManager::oobReceived(
 //
 
 ble_error_t GenericSecurityManager::init_signing() {
-    MBED_ASSERT(_db);
+    if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     const csrk_t *pcsrk = _db->get_local_csrk();
     sign_count_t local_sign_counter = _db->get_local_sign_counter();
 
@@ -791,6 +809,7 @@ ble_error_t GenericSecurityManager::get_random_data(uint8_t *buffer, size_t size
 }
 
 ble_error_t GenericSecurityManager::slave_security_request(connection_handle_t connection) {
+    if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
         return BLE_ERROR_INVALID_PARAM;
@@ -801,7 +820,7 @@ ble_error_t GenericSecurityManager::slave_security_request(connection_handle_t c
 }
 
 ble_error_t GenericSecurityManager::enable_encryption(connection_handle_t connection) {
-    MBED_ASSERT(_db);
+    if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     ControlBlock_t *cb = get_control_block(connection);
     if (!cb) {
         return BLE_ERROR_INVALID_PARAM;
