@@ -12,7 +12,7 @@
 #include "cb_otp.h"
 #include "cb_main.h"
 
-#define WIFI_EMAC_MTU_SIZE  (1500U)
+#define OdinWiFiEMAC_MTU_SIZE  (1500U)
 static const char _ifname[] = "WL0";
 
 cb_boolean handleWlanTargetCopyFromDataFrame(uint8_t* buffer, cbWLANTARGET_dataFrame* frame, uint32_t size, uint32_t offsetInFrame);
@@ -37,7 +37,7 @@ static const cbWLANTARGET_Callback _wlanTargetCallback =
 
 void handleWlanStatusIndication(void *dummy, cbWLAN_StatusIndicationInfo status, void *data)
 {
-    WIFI_EMAC &instance = WIFI_EMAC::get_instance();
+    OdinWiFiEMAC &instance = OdinWiFiEMAC::get_instance();
     bool linkUp = false;
     bool sendCb = true;
     (void)dummy;
@@ -65,7 +65,7 @@ void handleWlanStatusIndication(void *dummy, cbWLAN_StatusIndicationInfo status,
 
 void handleWlanPacketIndication(void *dummy, cbWLAN_PacketIndicationInfo *packetInfo)
 {
-    WIFI_EMAC &instance = WIFI_EMAC::get_instance();
+    OdinWiFiEMAC &instance = OdinWiFiEMAC::get_instance();
     (void)dummy;
 
     if (instance.emac_link_input_cb) {
@@ -75,17 +75,17 @@ void handleWlanPacketIndication(void *dummy, cbWLAN_PacketIndicationInfo *packet
 
 cb_boolean handleWlanTargetCopyFromDataFrame(uint8_t* buffer, cbWLANTARGET_dataFrame* frame, uint32_t size, uint32_t offsetInFrame)
 {
-    EMACMemoryManager *mem = WIFI_EMAC::get_instance().memory_manager;
+    EMACMemoryManager *mem = OdinWiFiEMAC::get_instance().memory_manager;
     MBED_ASSERT(mem != NULL);
 
-    //emac_mem_buf_t* phead = (emac_mem_buf_t *)frame;
-    emac_mem_buf_t* pbuf = (emac_mem_buf_t *)frame;
+    emac_mem_buf_t* phead = static_cast<emac_mem_buf_t *>(frame);
+    emac_mem_buf_t* pbuf;
     uint32_t copySize, bytesCopied = 0, pbufOffset = 0;
 
     MBED_ASSERT(frame != NULL);
     MBED_ASSERT(buffer != NULL);
 
-    //pbuf = mem->get_next(phead);
+    pbuf = phead;
     while (pbuf != NULL) {
         if ((pbufOffset + mem->get_len(pbuf)) >= offsetInFrame) {
             copySize = cb_MIN(size, mem->get_len(pbuf) - (offsetInFrame - pbufOffset));
@@ -114,17 +114,17 @@ cb_boolean handleWlanTargetCopyFromDataFrame(uint8_t* buffer, cbWLANTARGET_dataF
 
 cb_boolean handleWlanTargetCopyToDataFrame(cbWLANTARGET_dataFrame* frame, uint8_t* buffer, uint32_t size, uint32_t offsetInFrame)
 {
-    EMACMemoryManager *mem = WIFI_EMAC::get_instance().memory_manager;
+    EMACMemoryManager *mem = OdinWiFiEMAC::get_instance().memory_manager;
     MBED_ASSERT(mem != NULL);
 
-    //emac_mem_buf_t* phead = (emac_mem_buf_t *)frame;
-    emac_mem_buf_t* pbuf = (emac_mem_buf_t *)frame;
+    emac_mem_buf_t* phead = static_cast<emac_mem_buf_t *>(frame);
+    emac_mem_buf_t* pbuf;
     uint32_t copySize, bytesCopied = 0, pbufOffset = 0;
 
     MBED_ASSERT(frame != NULL);
     MBED_ASSERT(buffer != NULL);
 
-    //pbuf = mem->get_next(phead);
+    pbuf = phead;
     while (pbuf != NULL) {
         if ((pbufOffset + mem->get_len(pbuf)) >= offsetInFrame) {
             copySize = cb_MIN(size, mem->get_len(pbuf) - (offsetInFrame - pbufOffset));
@@ -153,23 +153,23 @@ cb_boolean handleWlanTargetCopyToDataFrame(cbWLANTARGET_dataFrame* frame, uint8_
 
 cbWLANTARGET_dataFrame* handleWlanTargetAllocDataFrame(uint32_t size)
 {
-    EMACMemoryManager *mem = WIFI_EMAC::get_instance().memory_manager;
+    EMACMemoryManager *mem = OdinWiFiEMAC::get_instance().memory_manager;
     MBED_ASSERT(mem != NULL);
-    return (cbWLANTARGET_dataFrame*)mem->alloc_pool(size,0);
+    return (cbWLANTARGET_dataFrame*)mem->alloc_pool(size, 0);
 }
 
 void handleWlanTargetFreeDataFrame(cbWLANTARGET_dataFrame* frame)
 {
-    EMACMemoryManager *mem = WIFI_EMAC::get_instance().memory_manager;
+    EMACMemoryManager *mem = OdinWiFiEMAC::get_instance().memory_manager;
     MBED_ASSERT(mem != NULL);
-    mem->free((emac_mem_buf_t*)frame);
+    mem->free(static_cast<emac_mem_buf_t *>(frame));
 }
 
 uint32_t handleWlanTargetGetDataFrameSize(cbWLANTARGET_dataFrame* frame)
 {
-    EMACMemoryManager *mem = WIFI_EMAC::get_instance().memory_manager;
+    EMACMemoryManager *mem = OdinWiFiEMAC::get_instance().memory_manager;
     MBED_ASSERT(mem != NULL);
-    return mem->get_total_len((emac_mem_buf_t*)frame);
+    return mem->get_total_len(static_cast<emac_mem_buf_t *>(frame));
 }
 
 uint8_t handleWlanTargetGetDataFrameTID(cbWLANTARGET_dataFrame* frame)
@@ -178,7 +178,7 @@ uint8_t handleWlanTargetGetDataFrameTID(cbWLANTARGET_dataFrame* frame)
     return (uint8_t)cbWLAN_AC_BE;
 }
 
-WIFI_EMAC::WIFI_EMAC()
+OdinWiFiEMAC::OdinWiFiEMAC()
 {
     emac_link_input_cb = NULL;
     emac_link_state_cb = NULL;
@@ -190,9 +190,9 @@ void send_wlan_packet(void *buf)
     cbWLAN_sendPacket(buf);
 }
 
-bool WIFI_EMAC::link_out(emac_mem_buf_t *buf)
+bool OdinWiFiEMAC::link_out(emac_mem_buf_t *buf)
 {
-    EMACMemoryManager *mem = WIFI_EMAC::get_instance().memory_manager;
+    EMACMemoryManager *mem = OdinWiFiEMAC::get_instance().memory_manager;
 
     // Break call chain to avoid the driver affecting stack usage for the IP stack thread too much
     emac_mem_buf_t *new_buf = mem->alloc_pool(mem->get_total_len(buf), 0);
@@ -209,40 +209,40 @@ bool WIFI_EMAC::link_out(emac_mem_buf_t *buf)
     return true;
 }
 
-bool WIFI_EMAC::power_up()
+bool OdinWiFiEMAC::power_up()
 {
     /* Initialize the hardware */
     /* No-op at this stage */
     return true;
 }
 
-uint32_t WIFI_EMAC::get_mtu_size() const
+uint32_t OdinWiFiEMAC::get_mtu_size() const
 {
-    return WIFI_EMAC_MTU_SIZE;
+    return OdinWiFiEMAC_MTU_SIZE;
 }
 
-void WIFI_EMAC::get_ifname(char *name, uint8_t size) const
+void OdinWiFiEMAC::get_ifname(char *name, uint8_t size) const
 {
     memcpy(name, _ifname, (size < sizeof(_ifname)) ? size : sizeof(_ifname));
 }
 
-uint8_t WIFI_EMAC::get_hwaddr_size() const
+uint8_t OdinWiFiEMAC::get_hwaddr_size() const
 {
     return sizeof(cbWLAN_MACAddress);
 }
 
-bool WIFI_EMAC::get_hwaddr(uint8_t *addr) const
+bool OdinWiFiEMAC::get_hwaddr(uint8_t *addr) const
 {
     cbOTP_read(cbOTP_MAC_WLAN, sizeof(cbWLAN_MACAddress), addr);
     return true;
 }
 
-void WIFI_EMAC::set_hwaddr(const uint8_t *addr)
+void OdinWiFiEMAC::set_hwaddr(const uint8_t *addr)
 {
   /* No-op at this stage */
 }
 
-void WIFI_EMAC::set_link_input_cb(emac_link_input_cb_t input_cb)
+void OdinWiFiEMAC::set_link_input_cb(emac_link_input_cb_t input_cb)
 {
     emac_link_input_cb = input_cb;
 
@@ -251,7 +251,7 @@ void WIFI_EMAC::set_link_input_cb(emac_link_input_cb_t input_cb)
     cbMAIN_driverUnlock();
 }
 
-void WIFI_EMAC::set_link_state_cb(emac_link_state_change_cb_t state_cb)
+void OdinWiFiEMAC::set_link_state_cb(emac_link_state_change_cb_t state_cb)
 {
     emac_link_state_cb = state_cb;
 
@@ -260,45 +260,39 @@ void WIFI_EMAC::set_link_state_cb(emac_link_state_change_cb_t state_cb)
     cbMAIN_driverUnlock();
 }
 
-void WIFI_EMAC::power_down()
+void OdinWiFiEMAC::power_down()
 {
   /* No-op at this stage */
 }
 
-void WIFI_EMAC::set_memory_manager(EMACMemoryManager &mem_mngr)
+void OdinWiFiEMAC::set_memory_manager(EMACMemoryManager &mem_mngr)
 {
     memory_manager = &mem_mngr;
 }
 
-uint32_t WIFI_EMAC::get_align_preference() const
+uint32_t OdinWiFiEMAC::get_align_preference() const
 {
-    return 1; // TODO not sure if there is a requirement but don't think so
+    return 1;
 }
 
-void WIFI_EMAC::add_multicast_group(const uint8_t *address)
+void OdinWiFiEMAC::add_multicast_group(const uint8_t *address)
 {
-    // TODO anything to do here for WiFi?
+
 }
 
-void WIFI_EMAC::remove_multicast_group(const uint8_t *address)
+void OdinWiFiEMAC::remove_multicast_group(const uint8_t *address)
 {
-    // TODO anything to do here for WiFi?
+
 }
 
-void WIFI_EMAC::set_all_multicast(bool all)
+void OdinWiFiEMAC::set_all_multicast(bool all)
 {
-    // TODO anything to do here for WiFi?
+
 }
 
-WIFI_EMAC &WIFI_EMAC::get_instance() {
-    static WIFI_EMAC emac;
+OdinWiFiEMAC &OdinWiFiEMAC::get_instance() {
+    static OdinWiFiEMAC emac;
     return emac;
-}
-
-// Weak so a module can override
-MBED_WEAK EMAC &EMAC::get_default_instance()
-{
-    return WIFI_EMAC::get_instance();
 }
 
 #endif // DEVICE_WIFI

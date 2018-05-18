@@ -73,10 +73,10 @@ extern "C" {
 #define cbWLAN_MAX_DOMAIN_LENGTH        64
 
 /**
-* Size of the misc buffer in @ref cbWM_ChangeBSS and @ref cbWM_StartFT.
-*
-* @ingroup types
-*/
+ * Size of the misc buffer in @ref cbWM_ChangeBSS and @ref cbWM_StartFT.
+ *
+ * @ingroup types
+ */
 #define MISC_BUFFER_SIZE 255
 
 #define cbWLAN_FTIE_SIZE 255
@@ -86,6 +86,7 @@ extern "C" {
 /*===========================================================================
  * TYPES
  *=========================================================================*/
+
 /**
  * Start parameters passed to WLAN driver.
  *
@@ -140,8 +141,6 @@ typedef struct cbWLAN_WPAPSK {
  */
 typedef struct cbWLAN_WPAPSKConnectParameters {
     cbWLAN_WPAPSK           psk; /**< WPA pre-shared key*/
-#if defined(CB_FEATURE_802DOT11W)
-#endif
 } cbWLAN_WPAPSKConnectParameters;
 
 #if defined(CB_FEATURE_802DOT11R)
@@ -157,7 +156,7 @@ typedef struct cbWLAN_AssociateInformationElements{
     cb_uint32  mdIeLen;
     cb_uint8   ftIe[cbWLAN_FTIE_SIZE];
     cb_uint32  ftIeLen;
-}cbWLAN_AssociateInformationElements;
+} cbWLAN_AssociateInformationElements;
 #endif
 
 #if defined(CB_FEATURE_802DOT11W)
@@ -200,7 +199,7 @@ typedef struct cbWLAN_CommonApParameters {
     cbWLAN_RateMask         basicRates;     /**< Basic rates. */
     cbWLAN_RateMask         allowedRates;   /**< BSS allowed rates. */
     cb_uint8                dtimInterval;     /**< Dtim Interval. */
-}cbWLAN_CommonApParameters;
+} cbWLAN_CommonApParameters;
 
 
 /**

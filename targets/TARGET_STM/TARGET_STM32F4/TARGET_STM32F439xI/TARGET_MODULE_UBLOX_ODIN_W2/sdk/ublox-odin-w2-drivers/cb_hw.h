@@ -52,7 +52,7 @@ typedef enum {
     cbHW_RESET_REASON_UNKNOWN = 0,
     cbHW_RESET_REASON_FW_UPDATE,
     cbHW_RESET_REASON_PRODUCTION_MODE
-}cbHW_ResetReason;
+} cbHW_ResetReason;
 
 typedef enum {
     cbHW_FLOW_CONTROL_DISABLED = 0,
@@ -64,7 +64,7 @@ typedef enum {
     cbHW_IRQ_MEDIUM = 3U,
     cbHW_IRQ_DEFAULT = 5U,
     cbHW_IRQ_LOW = 12U
-}cbHW_PRIO_LVL;
+} cbHW_PRIO_LVL;
 
 typedef enum {
     cbHW_SYSTICK_DISABLED,
@@ -74,7 +74,7 @@ typedef enum {
 
 typedef enum {
     cbHW_HASH_MD5
-}cbHW_HashType;
+} cbHW_HashType;
 /*===========================================================================
  * TYPES
  *=========================================================================*/
