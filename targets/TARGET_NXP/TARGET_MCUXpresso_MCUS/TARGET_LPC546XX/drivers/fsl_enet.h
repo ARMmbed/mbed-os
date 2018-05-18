@@ -674,10 +674,10 @@ static inline void ENET_SetMacAddr(ENET_Type *base, uint8_t *macAddr)
 {
     assert(macAddr);
 
-    /* Set Macaddr */
+    /* Set Macaddr - low last as that synchronizes the update */
+    base->MAC_ADDR_HIGH = ((uint32_t)macAddr[5] << 8) | ((uint32_t)macAddr[4]);
     base->MAC_ADDR_LOW = ((uint32_t)macAddr[3] << 24) | ((uint32_t)macAddr[2] << 16) | ((uint32_t)macAddr[1] << 8) |
                          ((uint32_t)macAddr[0]);
-    base->MAC_ADDR_HIGH = ((uint32_t)macAddr[5] << 8) | ((uint32_t)macAddr[4]);
 }
 
 /*!
