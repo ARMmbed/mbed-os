@@ -48,7 +48,7 @@ ble_error_t GenericSecurityManager::init(
     	return result;
     }
 
-    result = setDatabaseFile(db_path);
+    result = init_database(db_path);
     if (result != BLE_ERROR_NONE) {
         return result;
     }
@@ -79,49 +79,38 @@ ble_error_t GenericSecurityManager::init(
         init_signing();
     }
 
+    init_resolving_list();
+
     _connection_monitor.set_connection_event_handler(this);
     _signing_monitor.set_signing_event_handler(this);
     _pal.set_event_handler(this);
 
-    uint8_t resolving_list_capacity = _pal.read_resolving_list_capacity();
-    SecurityEntryIdentity_t* identity_list_p =
-        new (std::nothrow) SecurityEntryIdentity_t[resolving_list_capacity];
-
-    if (identity_list_p) {
-        ArrayView<SecurityEntryIdentity_t> identity_list(
-            identity_list_p,
-            resolving_list_capacity
-        );
-
-        _db->get_identity_list(
-            mbed::callback(this, &GenericSecurityManager::on_identity_list_retrieved),
-            identity_list
-        );
-    }
-
     return BLE_ERROR_NONE;
 }
 
-ble_error_t GenericSecurityManager::setDatabaseFile(
+ble_error_t GenericSecurityManager::setDatabaseFilepath(
     const char *db_path
 ) {
-    if (_db) {
-        delete _db;
+    if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
+
+    /* operation only allowed with no connections active */
+    for (size_t i = 0; i < MAX_CONTROL_BLOCKS; i++) {
+        if (_control_blocks[i].connected) {
+            return BLE_ERROR_OPERATION_NOT_PERMITTED;
+        }
     }
 
-    FILE* db_file = FileSecurityDb::open_db_file(db_path);
-
-    if (db_file) {
-        _db = new (std::nothrow) FileSecurityDb(db_file);
-    } else {
-        _db = new (std::nothrow) MemorySecurityDb();
+    ble_error_t result = init_database(db_path);
+    if (result != BLE_ERROR_NONE) {
+        return result;
     }
 
-    if (!_db) {
-        return BLE_ERROR_NO_MEM;
+    result = init_database(db_path);
+    if (result != BLE_ERROR_NONE) {
+        return result;
     }
 
-    _db->restore();
+    init_resolving_list();
 
     return BLE_ERROR_NONE;
 }
@@ -778,6 +767,49 @@ ble_error_t GenericSecurityManager::oobReceived(
 ////////////////////////////////////////////////////////////////////////////
 // Helper functions
 //
+
+ble_error_t GenericSecurityManager::init_database(
+    const char *db_path
+) {
+    if (_db) {
+        delete _db;
+    }
+
+    FILE* db_file = FileSecurityDb::open_db_file(db_path);
+
+    if (db_file) {
+        _db = new (std::nothrow) FileSecurityDb(db_file);
+    } else {
+        _db = new (std::nothrow) MemorySecurityDb();
+    }
+
+    if (!_db) {
+        return BLE_ERROR_NO_MEM;
+    }
+
+    _db->restore();
+
+    return BLE_ERROR_NONE;
+}
+
+ble_error_t GenericSecurityManager::init_resolving_list() {
+    /* match the resolving list to the currently stored set of IRKs */
+    uint8_t resolving_list_capacity = _pal.read_resolving_list_capacity();
+    SecurityEntryIdentity_t* identity_list_p =
+        new (std::nothrow) SecurityEntryIdentity_t[resolving_list_capacity];
+
+    if (identity_list_p) {
+        ArrayView<SecurityEntryIdentity_t> identity_list(
+            identity_list_p,
+            resolving_list_capacity
+        );
+
+        _db->get_identity_list(
+            mbed::callback(this, &GenericSecurityManager::on_identity_list_retrieved),
+            identity_list
+        );
+    }
+}
 
 ble_error_t GenericSecurityManager::init_signing() {
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;

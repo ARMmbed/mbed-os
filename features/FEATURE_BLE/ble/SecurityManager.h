@@ -464,15 +464,17 @@ public:
     }
 
     /**
-     * Change the file used for the security datagse. If path is invalid or a NULL is passed
+     * Change the file used for the security database. If path is invalid or a NULL is passed
      * keys will only be stored in memory.
+     *
+     * @note This operation is only allowed with no active connections.
      *
      * @param[in]  dbPath        Path to the file used to store keys in the filesystem,
      *                           if NULL keys will be only stored in memory
      *
      * @return BLE_ERROR_NONE on success.
      */
-    virtual ble_error_t setDatabaseFile(const char *dbFilepath = NULL) {
+    virtual ble_error_t setDatabaseFilepath(const char *dbFilepath = NULL) {
         (void)dbFilepath;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
