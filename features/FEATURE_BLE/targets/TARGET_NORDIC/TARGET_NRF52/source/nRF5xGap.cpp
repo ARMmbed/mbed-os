@@ -26,10 +26,15 @@
 #include "headers/ble_hci.h"
 #include "ble/pal/ConnectionEventMonitor.h"
 #include "nRF5xPalSecurityManager.h"
+#include <algorithm>
 
 using ble::pal::vendor::nordic::nRF5xSecurityManager;
 using ble::ArrayView;
 using ble::pal::advertising_peer_address_type_t;
+using ble::peer_address_type_t;
+
+typedef BLEProtocol::AddressType LegacyAddressType;
+typedef BLEProtocol::AddressType_t LegacyAddressType_t;
 
 namespace {
 
@@ -85,29 +90,32 @@ bool is_advertising_non_connectable(const GapAdvertisingParams &params) {
     }
 }
 
-bool is_identity_address(BLEProtocol::AddressType_t address_type) {
-    switch (address_type) {
-        case BLEProtocol::AddressType::PUBLIC_IDENTITY:
-        case BLEProtocol::AddressType::RANDOM_STATIC_IDENTITY:
-            return true;
-        default:
-            return false;
-    }
+bool is_identity_address(peer_address_type_t address_type) {
+    return address_type == peer_address_type_t::PUBLIC_IDENTITY ||
+        address_type == peer_address_type_t::RANDOM_STATIC_IDENTITY;
 }
 
-BLEProtocol::AddressType_t convert_nordic_address(uint8_t address) {
-    if (address == BLE_GAP_ADDR_TYPE_PUBLIC) {
-        return BLEProtocol::AddressType::PUBLIC;
+peer_address_type_t convert_nordic_address(bool identity, uint8_t address) {
+    if (identity) {
+        if (address == BLE_GAP_ADDR_TYPE_PUBLIC) {
+            return peer_address_type_t::PUBLIC_IDENTITY;
+        } else {
+            return peer_address_type_t::RANDOM_STATIC_IDENTITY;
+        }
     } else {
-        return BLEProtocol::AddressType::RANDOM;
+        if (address == BLE_GAP_ADDR_TYPE_PUBLIC) {
+            return peer_address_type_t::PUBLIC;
+        } else {
+            return peer_address_type_t::RANDOM;
+        }
     }
 }
 
-BLEProtocol::AddressType_t convert_identity_address(advertising_peer_address_type_t address) {
+peer_address_type_t convert_identity_address(advertising_peer_address_type_t address) {
     if (address == advertising_peer_address_type_t::PUBLIC_ADDRESS) {
-        return BLEProtocol::AddressType::PUBLIC_IDENTITY;
+        return peer_address_type_t::PUBLIC_IDENTITY;
     } else {
-        return BLEProtocol::AddressType::RANDOM_STATIC_IDENTITY;
+        return peer_address_type_t::RANDOM_STATIC_IDENTITY;
     }
 }
 
@@ -129,7 +137,7 @@ nRF5xGap::nRF5xGap() : Gap(),
     _privacy_enabled(false),
     _peripheral_privacy_configuration(default_peripheral_privacy_configuration),
     _central_privacy_configuration(default_central_privacy_configuration),
-    _non_private_address_type(BLEProtocol::AddressType::RANDOM)
+    _non_private_address_type(LegacyAddressType::RANDOM_STATIC)
 {
         m_connectionHandle = BLE_CONN_HANDLE_INVALID;
 }
@@ -453,11 +461,60 @@ ble_error_t nRF5xGap::stopAdvertising(void)
     return BLE_ERROR_NONE;
 }
 
-ble_error_t nRF5xGap::connect(const Address_t             peerAddr,
-                              BLEProtocol::AddressType_t  peerAddrType,
-                              const ConnectionParams_t   *connectionParams,
-                              const GapScanningParams    *scanParamsIn)
-{
+ble_error_t nRF5xGap::connect(
+    const Address_t peerAddr,
+    peer_address_type_t peerAddrType,
+    const ConnectionParams_t *connectionParams,
+    const GapScanningParams *scanParamsIn
+) {
+    // NOTE: Nordic address type is an closer to LegacyAddressType: resolved
+    // address are treaded either as PUBLIC or RANDOM STATIC adresses.
+    // The idea is to get the conversion done here and call the legacy function.
+
+    LegacyAddressType_t legacy_address;
+
+    switch (peerAddrType.value()) {
+        case peer_address_type_t::PUBLIC:
+        case peer_address_type_t::PUBLIC_IDENTITY:
+            legacy_address = LegacyAddressType::PUBLIC;
+            break;
+        case peer_address_type_t::RANDOM_STATIC_IDENTITY:
+            legacy_address = LegacyAddressType::RANDOM_STATIC;
+            break;
+        case peer_address_type_t::RANDOM: {
+            RandomAddressType_t random_address_type(RandomAddressType_t::STATIC);
+            ble_error_t err = getRandomAddressType(peerAddr, &random_address_type);
+            if (err) {
+                return err;
+            }
+            switch (random_address_type.value()) {
+                case RandomAddressType_t::STATIC:
+                    legacy_address = LegacyAddressType::RANDOM_STATIC;
+                    break;
+                case RandomAddressType_t::NON_RESOLVABLE_PRIVATE:
+                    legacy_address = LegacyAddressType::RANDOM_PRIVATE_NON_RESOLVABLE;
+                    break;
+                case RandomAddressType_t::RESOLVABLE_PRIVATE:
+                    legacy_address = LegacyAddressType::RANDOM_PRIVATE_RESOLVABLE;
+                    break;
+                default:
+                    return BLE_ERROR_UNSPECIFIED;
+            }
+        }   break;
+        default:
+            return BLE_ERROR_INVALID_PARAM;
+    }
+
+    return connect(peerAddr, legacy_address, connectionParams, scanParamsIn);
+}
+
+
+ble_error_t nRF5xGap::connect(
+    const Address_t peerAddr,
+    LegacyAddressType_t peerAddrType,
+    const ConnectionParams_t *connectionParams,
+    const GapScanningParams *scanParamsIn
+) {
     ble_gap_addr_t addr;
     ble_gap_addr_t* addr_ptr = &addr;
     addr.addr_type = peerAddrType;
@@ -722,11 +779,11 @@ uint16_t nRF5xGap::getConnectionHandle(void)
     @endcode
 */
 /**************************************************************************/
-ble_error_t nRF5xGap::setAddress(AddressType_t type, const Address_t address)
+ble_error_t nRF5xGap::setAddress(LegacyAddressType_t type, const Address_t address)
 {
-    using BLEProtocol::AddressType;
-
-    if (type != AddressType::PUBLIC || type != AddressType::RANDOM_STATIC) {
+    if (type != LegacyAddressType::PUBLIC &&
+        type != LegacyAddressType::RANDOM_STATIC
+    ) {
         return BLE_ERROR_INVALID_PARAM;
     }
 
@@ -736,7 +793,7 @@ ble_error_t nRF5xGap::setAddress(AddressType_t type, const Address_t address)
     
     ble_gap_addr_t dev_addr;
     memcpy(dev_addr.addr, address, ADDR_LEN);
-    if (type == AddressType::PUBLIC) {
+    if (type == LegacyAddressType::PUBLIC) {
         dev_addr.addr_type = BLE_GAP_ADDR_TYPE_PUBLIC;
     } else {
         dev_addr.addr_type = BLE_GAP_ADDR_TYPE_RANDOM_STATIC;
@@ -752,8 +809,9 @@ ble_error_t nRF5xGap::setAddress(AddressType_t type, const Address_t address)
         case NRF_SUCCESS:
             return BLE_ERROR_NONE;
         case NRF_ERROR_INVALID_ADDR:
-        case BLE_ERROR_GAP_INVALID_BLE_ADDR:
             return BLE_ERROR_INVALID_PARAM;
+        case BLE_ERROR_GAP_INVALID_BLE_ADDR:
+            return BLE_ERROR_PARAM_OUT_OF_RANGE;
         case NRF_ERROR_BUSY:
             return BLE_STACK_BUSY;
         case NRF_ERROR_INVALID_STATE:
@@ -781,11 +839,11 @@ ble_error_t nRF5xGap::getAddress(AddressType_t *typeP, Address_t address)
 
     switch (dev_addr.addr_type) {
         case BLE_GAP_ADDR_TYPE_PUBLIC:
-            *typeP = BLEProtocol::AddressType::PUBLIC;
+            *typeP = LegacyAddressType::PUBLIC;
             break;
 
         case BLE_GAP_ADDR_TYPE_RANDOM_STATIC:
-            *typeP = BLEProtocol::AddressType::RANDOM_STATIC;
+            *typeP = LegacyAddressType::RANDOM_STATIC;
             break;
 
         default:
@@ -924,7 +982,7 @@ ble_error_t nRF5xGap::getWhitelist(Gap::Whitelist_t &whitelistOut) const
     uint32_t i;
     for (i = 0; i < whitelistAddressesSize && i < whitelistOut.capacity; ++i) {
         memcpy( &whitelistOut.addresses[i].address, &whitelistAddresses[i].addr, sizeof(whitelistOut.addresses[0].address));
-        whitelistOut.addresses[i].type = static_cast<BLEProtocol::AddressType_t> (whitelistAddresses[i].addr_type);
+        whitelistOut.addresses[i].type = static_cast<LegacyAddressType_t> (whitelistAddresses[i].addr_type);
 
 
     }
@@ -971,7 +1029,9 @@ ble_error_t nRF5xGap::setWhitelist(const Gap::Whitelist_t &whitelistIn)
 
     /* Test for invalid parameters before we change the internal state */
     for (uint32_t i = 0; i < whitelistIn.size; ++i) {
-        if (whitelistIn.addresses[i].type == BLEProtocol::AddressType::RANDOM_PRIVATE_NON_RESOLVABLE) {
+        if (whitelistIn.addresses[i].type == LegacyAddressType::RANDOM_PRIVATE_NON_RESOLVABLE ||
+            whitelistIn.addresses[i].type == LegacyAddressType::RANDOM_PRIVATE_RESOLVABLE
+        ) {
             /* This is not allowed because it is completely meaningless */
             return BLE_ERROR_INVALID_PARAM;
         }
@@ -1260,15 +1320,13 @@ ble_error_t nRF5xGap::update_identities_list(bool resolution_enabled)
 }
 
 void nRF5xGap::on_connection(Gap::Handle_t handle, const ble_gap_evt_connected_t& evt) {
-    using BLEProtocol::AddressType;
-
     // set the new connection handle as the _default_ handle in gap
     setConnectionHandle(handle);
 
     // deal with own address
-    AddressType_t own_addr_type;
-    Address_t own_address;
-    const uint8_t* own_resolvable_address = NULL;
+    LegacyAddressType_t own_addr_type;
+    ble::address_t own_address;
+    ble::address_t own_resolvable_address;
 
 #if  (NRF_SD_BLE_API_VERSION <= 2)
     if (evt.own_addr.addr_type == BLE_GAP_ADDR_TYPE_PUBLIC) {
@@ -1278,12 +1336,36 @@ void nRF5xGap::on_connection(Gap::Handle_t handle, const ble_gap_evt_connected_t
     }
     memcpy(own_address, evt.own_addr.addr, sizeof(own_address));
 #else
-    // FIXME: handle privacy ???
-    getAddress(&own_addr_type, own_address);
+    getAddress(&own_addr_type, own_address.data());
 #endif
 
     if (_privacy_enabled) {
-        own_resolvable_address = own_address;
+        // swap own address with own resolvable address as when privacy is
+        // enabled own_address is invalid and the address returned by getAddress
+        // is the resolvable one.
+        std::swap(own_address, own_resolvable_address);
+        own_addr_type = LegacyAddressType::RANDOM_PRIVATE_RESOLVABLE;
+    }
+
+#if (NRF_SD_BLE_API_VERSION <= 2)
+    bool private_peer_known = evt.irk_match;
+#else
+    bool private_peer_known = evt.peer_addr.addr_id_peer;
+#endif
+
+    // Filter out private address non resolved if the its required by the
+    // resolution policy
+    if (_privacy_enabled &&
+        evt.role == BLE_GAP_ROLE_PERIPH &&
+        _peripheral_privacy_configuration.resolution_strategy == PeripheralPrivacyConfiguration_t::REJECT_NON_RESOLVED_ADDRESS &&
+        evt.peer_addr.addr_type == BLE_GAP_ADDR_TYPE_RANDOM_PRIVATE_RESOLVABLE &&
+        private_peer_known == false &&
+        get_sm().get_resolving_list().size() > 0
+    ) {
+        // FIXME: should use BLE_HCI_AUTHENTICATION_FAILURE; not possible
+        // with the softdevice ...
+        sd_ble_gap_disconnect(handle, BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
+        return;
     }
 
     // deal with the peer address: If privacy is enabled then the softdevice
@@ -1292,38 +1374,15 @@ void nRF5xGap::on_connection(Gap::Handle_t handle, const ble_gap_evt_connected_t
     // Depending on the privacy chosen by the application, connection request
     // from privacy enabled peers may trigger a disconnection, the pairing procedure
     // or the authentication procedure.
-    AddressType_t peer_addr_type;
-    const uint8_t* peer_address;
-    const uint8_t* peer_resolvable_address;
-
-#if (NRF_SD_BLE_API_VERSION <= 2)
-    bool private_peer_known = evt.irk_match;
-#else
-    bool private_peer_known = evt.peer_addr.addr_id_peer;
-#endif
-
-
-    if (private_peer_known) {
-        peer_addr_type = convert_nordic_address(evt.peer_addr.addr_type);;
-        peer_address = evt.peer_addr.addr;
-        peer_resolvable_address = evt.peer_addr.addr;
-    } else {
-        if (_privacy_enabled &&
-            evt.role == BLE_GAP_ROLE_PERIPH &&
-            _peripheral_privacy_configuration.resolution_strategy == PeripheralPrivacyConfiguration_t::REJECT_NON_RESOLVED_ADDRESS &&
-            evt.peer_addr.addr_type == BLE_GAP_ADDR_TYPE_RANDOM_PRIVATE_RESOLVABLE &&
-            get_sm().get_resolving_list().size() > 0
-        ) {
-            // FIXME: should use BLE_HCI_AUTHENTICATION_FAILURE; not possible
-            // with the softdevice ...
-            sd_ble_gap_disconnect(handle, BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
-            return;
-        }
-
-        peer_addr_type = convert_nordic_address(evt.peer_addr.addr_type);
-        peer_address = evt.peer_addr.addr;
-        peer_resolvable_address = NULL;
-    }
+    peer_address_type_t peer_addr_type = convert_nordic_address(
+        private_peer_known,
+        evt.peer_addr.addr_type
+    );
+    // NOTE: when privacy is enabled, the only address returned is the resolved
+    // address; set peer and resolved address to the same value in such case.
+    const uint8_t* peer_address = evt.peer_addr.addr;
+    const uint8_t* peer_resolvable_address =
+        private_peer_known ? peer_address : NULL;
 
     // notify internal event handler before applying the resolution strategy
     if (_connection_event_handler) {
@@ -1333,14 +1392,15 @@ void nRF5xGap::on_connection(Gap::Handle_t handle, const ble_gap_evt_connected_t
             peer_addr_type,
             peer_address,
             own_addr_type,
-            own_address,
-            reinterpret_cast<const ConnectionParams_t *>(&(evt.conn_params))
+            own_address.data(),
+            reinterpret_cast<const ConnectionParams_t *>(&(evt.conn_params)),
+            peer_resolvable_address
         );
     }
 
     // Apply authentication strategy before application notification
-    if (!private_peer_known &&
-        _privacy_enabled &&
+    if (_privacy_enabled &&
+        !private_peer_known &&
         evt.role == BLE_GAP_ROLE_PERIPH &&
         evt.peer_addr.addr_type == BLE_GAP_ADDR_TYPE_RANDOM_PRIVATE_RESOLVABLE
     ) {
@@ -1364,24 +1424,27 @@ void nRF5xGap::on_connection(Gap::Handle_t handle, const ble_gap_evt_connected_t
         peer_addr_type,
         peer_address,
         own_addr_type,
-        own_address,
+        own_address.data(),
         reinterpret_cast<const ConnectionParams_t *>(&(evt.conn_params)),
         peer_resolvable_address,
-        own_resolvable_address
+        own_resolvable_address.data()
     );
 }
 
 void nRF5xGap::on_advertising_packet(const ble_gap_evt_adv_report_t &evt) {
-    using BLEProtocol::AddressType;
+    bool peer_address_resolved = evt.peer_addr.addr_id_peer;
 
     if (_privacy_enabled &&
-        evt.peer_addr.addr_id_peer == 0 &&
+         peer_address_resolved == false &&
         _central_privacy_configuration.resolution_strategy == CentralPrivacyConfiguration_t::RESOLVE_AND_FILTER
     ) {
         return;
     }
 
-    AddressType_t peer_addr_type = convert_nordic_address(evt.peer_addr.addr_type);
+    peer_address_type_t peer_addr_type = convert_nordic_address(
+        evt.peer_addr.addr_id_peer,
+        evt.peer_addr.addr_type
+    );
     const uint8_t* peer_address = evt.peer_addr.addr;
 
     processAdvertisementReport(
