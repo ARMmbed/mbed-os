@@ -137,21 +137,15 @@ const PinMap PinMap_SPI_SSEL[] = {
 
 /************PWM***************/
 const PinMap PinMap_PWM[] = {
-    {PTA0,  PWM_6,  3}, // PTA0 , TPM0 CH5    
-    {PTA1,  PWM_9 , 3}, // PTA1 , TPM2 CH0
-    {PTA2,  PWM_10, 3}, // PTA2 , TPM2 CH1
+    {PTA0,  PWM_6,  3}, // PTA0 , TPM0 CH5
     {PTA3,  PWM_1,  3}, // PTA3 , TPM0 CH0
     {PTA4,  PWM_2 , 3}, // PTA4 , TPM0 CH1
     {PTA5,  PWM_3 , 3}, // PTA5 , TPM0 CH2
     {PTA12, PWM_7 , 3}, // PTA12, TPM1 CH0
-    {PTA13, PWM_8 , 3}, // PTA13, TPM1 CH1  
+    {PTA13, PWM_8 , 3}, // PTA13, TPM1 CH1
 
     {PTB0,  PWM_7,  3}, // PTB0 , TPM1 CH0
     {PTB1,  PWM_8,  3}, // PTB1 , TPM1 CH1
-    {PTB2,  PWM_9,  3}, // PTB2 , TPM2 CH0
-    {PTB3,  PWM_10, 3}, // PTB3 , TPM2 CH1
-    {PTB18, PWM_9,  3}, // PTB18, TPM2 CH0
-    {PTB19, PWM_10, 3}, // PTB18, TPM2 CH1
 
     {PTC1,  PWM_1,  4}, // PTC1 , TPM0 CH0
     {PTC2,  PWM_2,  4}, // PTC2 , TPM0 CH1
@@ -161,14 +155,12 @@ const PinMap PinMap_PWM[] = {
     {PTD0,  PWM_1 , 4}, // PTD0 , TPM0 CH0
     {PTD1,  PWM_2 , 4}, // PTD0 , TPM0 CH1
     {PTD2,  PWM_3 , 4}, // PTD2 , TPM0 CH2
-    {PTD3,  PWM_4 , 4}, // PTD3 , TPM0 CH3    
+    {PTD3,  PWM_4 , 4}, // PTD3 , TPM0 CH3
     {PTD4,  PWM_5 , 4}, // PTD4 , TPM0 CH4
     {PTD5,  PWM_6 , 4}, // PTD5 , TPM0 CH5
 
     {PTE20, PWM_7,  3}, // PTE20, TPM1 CH0
     {PTE21, PWM_8,  3}, // PTE21, TPM1 CH1
-    {PTE22, PWM_9,  3}, // PTE22, TPM2 CH0
-    {PTE23, PWM_10, 3}, // PTE23, TPM2 CH1
     {PTE24, PWM_1,  3}, // PTE24, TPM0 CH0
     {PTE25, PWM_2,  3}, // PTE25, TPM0 CH1
     {PTE29, PWM_3,  3}, // PTE29, TPM0 CH2
