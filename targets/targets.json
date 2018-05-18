@@ -541,7 +541,7 @@
         "is_disk_virtual": true,
         "default_toolchain": "ARM",
         "detect_code": ["0261"],
-        "device_has": ["USTICKER", "ANALOGIN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
+        "device_has": ["USTICKER", "LPTICKER", "ANALOGIN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
         "default_lib": "std",
         "release_versions": ["2"],
         "device_name": "MKL27Z64xxx4"
@@ -555,7 +555,7 @@
         "is_disk_virtual": true,
         "inherits": ["Target"],
         "detect_code": ["0262"],
-        "device_has": ["USTICKER", "ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SEMIHOST", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
+        "device_has": ["USTICKER", "LPTICKER", "ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SEMIHOST", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
         "release_versions": ["2", "5"],
         "device_name": "MKL43Z256xxx4"
     },
@@ -600,7 +600,7 @@
         "macros": ["CPU_MKW41Z512VHT4", "FSL_RTOS_MBED"],
         "inherits": ["Target"],
         "detect_code": ["0201"],
-        "device_has": ["USTICKER", "ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "TRNG", "STDIO_MESSAGES"],
+        "device_has": ["USTICKER", "LPTICKER", "ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "TRNG", "STDIO_MESSAGES"],
         "release_versions": ["2", "5"],
         "device_name": "MKW41Z512xxx4"
     },
