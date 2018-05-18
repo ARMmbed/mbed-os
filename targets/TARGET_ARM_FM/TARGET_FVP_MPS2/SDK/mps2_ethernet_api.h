@@ -28,7 +28,7 @@ extern "C" {
 // Connection constants
 
 // send ethernet write buffer, returning the packet size sent
-int ethernet_transmission(unsigned char * pkt, unsigned int length);
+int ethernet_transmission(unsigned char *pkt, unsigned int length);
 
 // recieve from ethernet buffer, returning packet size, or 0 if no packet
 int ethernet_reception(unsigned int *recvbuf, unsigned int *index);

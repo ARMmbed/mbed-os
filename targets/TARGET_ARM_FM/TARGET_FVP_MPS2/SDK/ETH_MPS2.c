@@ -2,32 +2,32 @@
 *
 * Copyright (c) 2006-2018 ARM Limited
 * All rights reserved.
-* 
-* Redistribution and use in source and binary forms, with or without 
+*
+* Redistribution and use in source and binary forms, with or without
 * modification, are permitted provided that the following conditions are met:
-* 
-* 1. Redistributions of source code must retain the above copyright notice, 
+*
+* 1. Redistributions of source code must retain the above copyright notice,
 * this list of conditions and the following disclaimer.
-* 
-* 2. Redistributions in binary form must reproduce the above copyright notice, 
-* this list of conditions and the following disclaimer in the documentation 
+*
+* 2. Redistributions in binary form must reproduce the above copyright notice,
+* this list of conditions and the following disclaimer in the documentation
 * and/or other materials provided with the distribution.
-* 
-* 3. Neither the name of the copyright holder nor the names of its contributors 
-* may be used to endorse or promote products derived from this software without 
+*
+* 3. Neither the name of the copyright holder nor the names of its contributors
+* may be used to endorse or promote products derived from this software without
 * specific prior written permission.
-* 
-* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
-* AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
-* IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
-* ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE 
-* LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR 
-* CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF 
-* SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS 
-* INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
-* CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
-* ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
-* POSSIBILITY OF SUCH DAMAGE. 
+*
+* THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+* AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+* IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+* ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+* LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+* CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+* SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+* INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+* CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+* ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+* POSSIBILITY OF SUCH DAMAGE.
 */
 
 /*
@@ -47,7 +47,7 @@ unsigned int smsc9220_mac_regread(unsigned char regoffset, unsigned int *data)
 
     error = 0;
     val = SMSC9220->MAC_CSR_CMD;
-    if(!(val & ((unsigned int)1 << 31))) {    // Make sure there's no pending operation
+    if (!(val & ((unsigned int)1 << 31))) {    // Make sure there's no pending operation
         maccmd = 0;
         maccmd |= regoffset;
         maccmd |= ((unsigned int)1 << 30);     // Indicates read
@@ -59,13 +59,13 @@ unsigned int smsc9220_mac_regread(unsigned char regoffset, unsigned int *data)
             val = SMSC9220->BYTE_TEST;  // A no-op read.
             wait_ms(1);
             timedout--;
-        } while(timedout && (SMSC9220->MAC_CSR_CMD & ((unsigned int)1 << 31)));
+        } while (timedout && (SMSC9220->MAC_CSR_CMD & ((unsigned int)1 << 31)));
 
-        if(!timedout) {
+        if (!timedout) {
             error = 1;
-        }
-        else
+        } else {
             *data = SMSC9220->MAC_CSR_DATA;
+        }
     } else {
         *data = 0;
     }
@@ -80,7 +80,7 @@ unsigned int smsc9220_mac_regwrite(unsigned char regoffset, unsigned int data)
 
     error = 0;
     read = SMSC9220->MAC_CSR_CMD;
-    if(!(read & ((unsigned int)1 << 31))) { // Make sure there's no pending operation
+    if (!(read & ((unsigned int)1 << 31))) { // Make sure there's no pending operation
         SMSC9220->MAC_CSR_DATA = data;      // Store data.
         maccmd = 0;
         maccmd |= regoffset;
@@ -93,27 +93,28 @@ unsigned int smsc9220_mac_regwrite(unsigned char regoffset, unsigned int data)
             read = SMSC9220->BYTE_TEST;     // A no-op read.
             wait_ms(1);
             timedout--;
-        } while(timedout && (SMSC9220->MAC_CSR_CMD & ((unsigned int)1 << 31)));
+        } while (timedout && (SMSC9220->MAC_CSR_CMD & ((unsigned int)1 << 31)));
 
-        if(!timedout) {
+        if (!timedout) {
             error = 1;
         }
     } else {
-       printf("Warning: SMSC9220 MAC CSR is busy. No data written.\n");
+        printf("Warning: SMSC9220 MAC CSR is busy. No data written.\n");
     }
     return error;
 }
 
 unsigned int smsc9220_phy_regread(unsigned char regoffset, unsigned short *data)
 {
-    unsigned int val, phycmd; int error;
+    unsigned int val, phycmd;
+    int error;
     int timedout;
 
     error = 0;
 
     smsc9220_mac_regread(SMSC9220_MAC_MII_ACC, &val);
 
-    if(!(val & 1)) {    // Not busy
+    if (!(val & 1)) {    // Not busy
         phycmd = 0;
         phycmd |= (1 << 11);                 // 1 to [15:11]
         phycmd |= ((regoffset & 0x1F) << 6); // Put regoffset to [10:6]
@@ -127,14 +128,14 @@ unsigned int smsc9220_phy_regread(unsigned char regoffset, unsigned short *data)
         do {
             wait_ms(1);
             timedout--;
-            smsc9220_mac_regread(SMSC9220_MAC_MII_ACC,&val);
-        } while(timedout && (val & ((unsigned int)1 << 0)));
+            smsc9220_mac_regread(SMSC9220_MAC_MII_ACC, &val);
+        } while (timedout && (val & ((unsigned int)1 << 0)));
 
-        if(!timedout) {
+        if (!timedout) {
             error = 1;
-        }
-        else
+        } else {
             smsc9220_mac_regread(SMSC9220_MAC_MII_DATA, (unsigned int *)data);
+        }
 
     } else {
         *data = 0;
@@ -144,14 +145,15 @@ unsigned int smsc9220_phy_regread(unsigned char regoffset, unsigned short *data)
 
 unsigned int smsc9220_phy_regwrite(unsigned char regoffset, unsigned short data)
 {
-    unsigned int val, phycmd; int error;
+    unsigned int val, phycmd;
+    int error;
     int timedout;
 
     error = 0;
 
     smsc9220_mac_regread(SMSC9220_MAC_MII_ACC, &val);
 
-    if(!(val & 1)) {    // Not busy
+    if (!(val & 1)) {    // Not busy
         smsc9220_mac_regwrite(SMSC9220_MAC_MII_DATA, (data & 0xFFFF)); // Load the data
         phycmd = 0;
         phycmd |= (1 << 11);                    // 1 to [15:11]
@@ -168,9 +170,9 @@ unsigned int smsc9220_phy_regwrite(unsigned char regoffset, unsigned short data)
             wait_ms(1);
             timedout--;
             smsc9220_mac_regread(SMSC9220_MAC_MII_ACC, &phycmd);
-        } while(timedout && (phycmd & (1 << 0)));
+        } while (timedout && (phycmd & (1 << 0)));
 
-        if(!timedout) {
+        if (!timedout) {
             error = 1;
         }
 
@@ -198,10 +200,11 @@ unsigned int smsc9220_soft_reset(void)
     do {
         wait_ms(1);
         timedout--;
-    } while(timedout && (SMSC9220->HW_CFG & 1));
+    } while (timedout && (SMSC9220->HW_CFG & 1));
 
-    if(!timedout)
+    if (!timedout) {
         return 1;
+    }
 
     return 0;
 }
@@ -209,8 +212,9 @@ unsigned int smsc9220_soft_reset(void)
 void smsc9220_set_txfifo(unsigned int val)
 {
     // 2kb minimum, 14kb maximum
-    if(val < 2 || val > 14)
+    if (val < 2 || val > 14) {
         return;
+    }
 
     SMSC9220->HW_CFG = val << 16;
 }
@@ -226,10 +230,11 @@ unsigned int smsc9220_wait_eeprom(void)
         wait_ms(1);
         timedout--;
 
-    } while(timedout && (SMSC9220->E2P_CMD & ((unsigned int) 1 << 31)));
+    } while (timedout && (SMSC9220->E2P_CMD & ((unsigned int) 1 << 31)));
 
-    if(!timedout)
+    if (!timedout) {
         return 1;
+    }
 
     return 0;
 }
@@ -246,8 +251,8 @@ unsigned int smsc9220_check_phy(void)
 {
     unsigned short phyid1, phyid2;
 
-    smsc9220_phy_regread(SMSC9220_PHY_ID1,&phyid1);
-    smsc9220_phy_regread(SMSC9220_PHY_ID2,&phyid2);
+    smsc9220_phy_regread(SMSC9220_PHY_ID1, &phyid1);
+    smsc9220_phy_regread(SMSC9220_PHY_ID2, &phyid2);
     return ((phyid1 == 0xFFFF && phyid2 == 0xFFFF) ||
             (phyid1 == 0x0 && phyid2 == 0x0));
 }
@@ -258,13 +263,13 @@ unsigned int smsc9220_reset_phy(void)
     int error;
 
     error = 0;
-    if(smsc9220_phy_regread(SMSC9220_PHY_BCONTROL, &read)) {
+    if (smsc9220_phy_regread(SMSC9220_PHY_BCONTROL, &read)) {
         error = 1;
         return error;
     }
 
     read |= (1 << 15);
-    if(smsc9220_phy_regwrite(SMSC9220_PHY_BCONTROL, read)) {
+    if (smsc9220_phy_regwrite(SMSC9220_PHY_BCONTROL, read)) {
         error = 1;
         return error;
     }
@@ -370,11 +375,11 @@ unsigned int smsc9220_recv_packet(unsigned int *recvbuf, unsigned int *index)
 
     rxfifo_inf = SMSC9220->RX_FIFO_INF;
 
-    if(rxfifo_inf & 0xFFFF) { // If there's data
+    if (rxfifo_inf & 0xFFFF) { // If there's data
         rxfifo_stat = SMSC9220->RX_STAT_PORT;
-        if(rxfifo_stat != 0) {   // Fetch status of this packet
+        if (rxfifo_stat != 0) {   // Fetch status of this packet
             pktsize = ((rxfifo_stat >> 16) & 0x3FFF);
-            if(rxfifo_stat & (1 << 15)) {
+            if (rxfifo_stat & (1 << 15)) {
                 printf("Error occured during receiving of packets on the bus.\n");
                 return 1;
             } else {
@@ -384,7 +389,7 @@ unsigned int smsc9220_recv_packet(unsigned int *recvbuf, unsigned int *index)
                  */
                 dwords_to_read = (pktsize + 3) >> 2;
                 // PIO copy of data received:
-                while(dwords_to_read > 0) {
+                while (dwords_to_read > 0) {
                     recvbuf[*index] = SMSC9220->RX_DATA_PORT;
                     (*index)++;
                     dwords_to_read--;
@@ -407,7 +412,7 @@ unsigned int smsc9220_recv_packet(unsigned int *recvbuf, unsigned int *index)
 // Does the actual transfer of data to FIFO, note it does no
 // fifo availability checking. This should be done by caller.
 // Assumes the whole frame is transferred at once as a single segment
-void smsc9220_xmit_packet(unsigned char * pkt, unsigned int length)
+void smsc9220_xmit_packet(unsigned char *pkt, unsigned int length)
 {
     unsigned int txcmd_a, txcmd_b;
     unsigned int dwords_to_write;
@@ -432,18 +437,18 @@ void smsc9220_xmit_packet(unsigned char * pkt, unsigned int length)
     dwritten = dwords_to_write = (length + 3) >> 2;
 
     // PIO Copy to FIFO. Could replace this with DMA.
-    while(dwords_to_write > 0) {
-         SMSC9220->TX_DATA_PORT = *pktptr;
-         pktptr++;
-         dwords_to_write--;
+    while (dwords_to_write > 0) {
+        SMSC9220->TX_DATA_PORT = *pktptr;
+        pktptr++;
+        dwords_to_write--;
     }
 
     xmit_stat = SMSC9220->TX_STAT_PORT;
     xmit_stat2 = SMSC9220->TX_STAT_PORT;
     xmit_inf = SMSC9220->TX_FIFO_INF;
 
-    if(xmit_stat2 != 0 ) {
-        for(i = 0; i < 6; i++) {
+    if (xmit_stat2 != 0) {
+        for (i = 0; i < 6; i++) {
             xmit_stat2 = SMSC9220->TX_STAT_PORT;
         }
     }

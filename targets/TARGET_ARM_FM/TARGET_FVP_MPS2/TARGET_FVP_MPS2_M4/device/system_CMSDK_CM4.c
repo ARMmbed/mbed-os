@@ -64,10 +64,10 @@ uint32_t SystemCoreClock = __SYSTEM_CLOCK;/*!< System Clock Frequency (Core Cloc
  * @brief  Updates the SystemCoreClock with current core Clock
  *         retrieved from cpu registers.
  */
-void SystemCoreClockUpdate (void)
+void SystemCoreClockUpdate(void)
 {
 
-  SystemCoreClock = __SYSTEM_CLOCK;
+    SystemCoreClock = __SYSTEM_CLOCK;
 
 }
 
@@ -80,17 +80,17 @@ void SystemCoreClockUpdate (void)
  * @brief  Setup the microcontroller system.
  *         Initialize the System.
  */
-void SystemInit (void)
+void SystemInit(void)
 {
-  #if (__FPU_USED == 1)
-    SCB->CPACR |= ((3UL << 10*2) |                 /* set CP10 Full Access */
-                   (3UL << 11*2)  );               /* set CP11 Full Access */
-  #endif
-
-#ifdef UNALIGNED_SUPPORT_DISABLE
-  SCB->CCR |= SCB_CCR_UNALIGN_TRP_Msk;
+#if (__FPU_USED == 1)
+    SCB->CPACR |= ((3UL << 10 * 2) |               /* set CP10 Full Access */
+                   (3UL << 11 * 2));               /* set CP11 Full Access */
 #endif
 
-  SystemCoreClock = __SYSTEM_CLOCK;
+#ifdef UNALIGNED_SUPPORT_DISABLE
+    SCB->CCR |= SCB_CCR_UNALIGN_TRP_Msk;
+#endif
+
+    SystemCoreClock = __SYSTEM_CLOCK;
 
 }

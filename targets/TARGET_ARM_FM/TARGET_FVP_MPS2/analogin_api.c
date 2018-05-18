@@ -38,73 +38,77 @@ static const PinMap PinMap_ADC[] = {
 };
 
 static const PinMap PinMap_SPI_SCLK[] = {
-    {ADC_SCLK , SPI_3, 0},
-    {NC   , NC   , 0}
+    {ADC_SCLK, SPI_3, 0},
+    {NC, NC, 0}
 };
 
 static const PinMap PinMap_SPI_MOSI[] = {
     {ADC_MOSI, SPI_3, 0},
-    {NC   , NC   , 0}
+    {NC, NC, 0}
 };
 
 static const PinMap PinMap_SPI_MISO[] = {
     {ADC_MISO, SPI_3, 0},
-    {NC   , NC   , 0}
+    {NC, NC, 0}
 };
 
 static const PinMap PinMap_SPI_SSEL[] = {
     {ADC_SSEL, SPI_3, 0},
-    {NC   , NC   , 0}
+    {NC, NC, 0}
 };
 
 #define ADC_RANGE    ADC_12BIT_RANGE
 int analog_spi_inited = 0;
 
-void analogin_init(analogin_t *obj, PinName pin) {
-    
+void analogin_init(analogin_t *obj, PinName pin)
+{
+
     obj->adc = (ADCName)pinmap_peripheral(pin, PinMap_ADC);
-  MBED_ASSERT(obj->adc != (ADCName)NC);
-  obj->pin = pin;
-    obj->pin_number = pin-600;
-    obj->address = (0x0000 | (pin-600));
-    
+    MBED_ASSERT(obj->adc != (ADCName)NC);
+    obj->pin = pin;
+    obj->pin_number = pin - 600;
+    obj->address = (0x0000 | (pin - 600));
+
     SPIName adc_mosi = (SPIName)pinmap_peripheral(ADC_MOSI, PinMap_SPI_MOSI);
-  SPIName adc_miso = (SPIName)pinmap_peripheral(ADC_MISO, PinMap_SPI_MISO);
-  SPIName adc_sclk = (SPIName)pinmap_peripheral(ADC_SCLK, PinMap_SPI_SCLK);
-  SPIName adc_ssel = (SPIName)pinmap_peripheral(ADC_SSEL, PinMap_SPI_SSEL);
-  SPIName adc_data = (SPIName)pinmap_merge(adc_mosi, adc_miso);
-  SPIName adc_cntl = (SPIName)pinmap_merge(adc_sclk, adc_ssel);
-  obj->adc_spi = (MPS2_SSP_TypeDef*)pinmap_merge(adc_data, adc_cntl);
-  
-    if(analog_spi_inited == 0){
-    obj->adc_spi->CR1       = 0;
-    obj->adc_spi->CR0       = SSP_CR0_SCR_DFLT | SSP_CR0_FRF_MOT | SSP_CR0_DSS_16;
-    obj->adc_spi->CPSR      = SSP_CPSR_DFLT; 
-    obj->adc_spi->IMSC      = 0x8; 
-    obj->adc_spi->DMACR     = 0;
-    obj->adc_spi->CR1       = SSP_CR1_SSE_Msk;
-    obj->adc_spi->ICR       = 0x3;  
-    analog_spi_inited = 1;
+    SPIName adc_miso = (SPIName)pinmap_peripheral(ADC_MISO, PinMap_SPI_MISO);
+    SPIName adc_sclk = (SPIName)pinmap_peripheral(ADC_SCLK, PinMap_SPI_SCLK);
+    SPIName adc_ssel = (SPIName)pinmap_peripheral(ADC_SSEL, PinMap_SPI_SSEL);
+    SPIName adc_data = (SPIName)pinmap_merge(adc_mosi, adc_miso);
+    SPIName adc_cntl = (SPIName)pinmap_merge(adc_sclk, adc_ssel);
+    obj->adc_spi = (MPS2_SSP_TypeDef *)pinmap_merge(adc_data, adc_cntl);
+
+    if (analog_spi_inited == 0) {
+        obj->adc_spi->CR1       = 0;
+        obj->adc_spi->CR0       = SSP_CR0_SCR_DFLT | SSP_CR0_FRF_MOT | SSP_CR0_DSS_16;
+        obj->adc_spi->CPSR      = SSP_CPSR_DFLT;
+        obj->adc_spi->IMSC      = 0x8;
+        obj->adc_spi->DMACR     = 0;
+        obj->adc_spi->CR1       = SSP_CR1_SSE_Msk;
+        obj->adc_spi->ICR       = 0x3;
+        analog_spi_inited = 1;
     }
-    
-  pinmap_pinout(ADC_MOSI, PinMap_SPI_MOSI);
-  pinmap_pinout(ADC_MISO, PinMap_SPI_MISO);
-  pinmap_pinout(ADC_SCLK, PinMap_SPI_SCLK);
-  pinmap_pinout(ADC_SSEL, PinMap_SPI_SSEL);
-  pinmap_pinout(pin, PinMap_ADC);
+
+    pinmap_pinout(ADC_MOSI, PinMap_SPI_MOSI);
+    pinmap_pinout(ADC_MISO, PinMap_SPI_MISO);
+    pinmap_pinout(ADC_SCLK, PinMap_SPI_SCLK);
+    pinmap_pinout(ADC_SSEL, PinMap_SPI_SSEL);
+    pinmap_pinout(pin, PinMap_ADC);
 }
 
-static inline uint32_t adc_read(analogin_t *obj) {
+static inline uint32_t adc_read(analogin_t *obj)
+{
     return 0;
 }
 
 
-float analogin_read(analogin_t *obj) {
+float analogin_read(analogin_t *obj)
+{
     uint32_t value = adc_read(obj);
     return 0;
 }
 
-uint16_t analogin_read_u16(analogin_t *obj) {
+uint16_t analogin_read_u16(analogin_t *obj)
+{
     return 0;
 }
 

@@ -38,14 +38,14 @@
  *----------------------------------------------------------------------------*/
 int ethernet_init()
 {
-      int error;
+    int error;
     error = 0;
 
-    if(smsc9220_check_id()) {
+    if (smsc9220_check_id()) {
         error = TRUE;
     }
 
-    if(smsc9220_soft_reset()) {
+    if (smsc9220_soft_reset()) {
         error = TRUE;
     }
 
@@ -55,7 +55,7 @@ int ethernet_init()
     // threshold to defaults specified.
     SMSC9220->AFC_CFG = 0x006E3740;
 
-    if(smsc9220_wait_eeprom()) {
+    if (smsc9220_wait_eeprom()) {
         error = TRUE;
     }
 
@@ -66,11 +66,11 @@ int ethernet_init()
 
     /* Configure MAC addresses here if needed. */
 
-    if(smsc9220_check_phy()) {
+    if (smsc9220_check_phy()) {
         error = TRUE;
     }
 
-    if(smsc9220_reset_phy()) {
+    if (smsc9220_reset_phy()) {
         error = TRUE;
         return error;
     }
@@ -81,7 +81,7 @@ int ethernet_init()
         unsigned short phyreset;
         phyreset = 0;
         smsc9220_phy_regread(SMSC9220_PHY_BCONTROL, &phyreset);
-        if(phyreset & (1 << 15)) {
+        if (phyreset & (1 << 15)) {
             error = TRUE;
             return error;
         }
@@ -93,7 +93,7 @@ int ethernet_init()
 
     /* Begin to establish link */
     smsc9220_establish_link();      // bit [12] of BCONTROL seems self-clearing.
-                                    // Although it's not so in the manual.
+    // Although it's not so in the manual.
 
     /* Interrupt threshold */
     SMSC9220->FIFO_INT = 0xFF000000;
@@ -118,20 +118,21 @@ int ethernet_init()
 /*----------------------------------------------------------------------------
   Ethernet Device Uninitialize
  *----------------------------------------------------------------------------*/
-void ethernet_free() {
+void ethernet_free()
+{
 }
 
 int ethernet_write(const char *data, int size)
 {
-        return 0;
+    return 0;
 }
 
-int ethernet_send() 
+int ethernet_send()
 {
- return 0;
+    return 0;
 }
 
-int ethernet_receive() 
+int ethernet_receive()
 {
     return 0;
 }
@@ -143,16 +144,17 @@ int ethernet_receive()
 // It is possible to use read multible times.
 // Each time read will start reading after the last read byte before.
 
-int ethernet_read(char *data, int dlen) 
+int ethernet_read(char *data, int dlen)
 {
     return 0;
 }
 
-void ethernet_address(char *mac) {
+void ethernet_address(char *mac)
+{
     mbed_mac_address(mac);
 }
 
-int ethernet_link(void) 
+int ethernet_link(void)
 {
     return 0;
 }
