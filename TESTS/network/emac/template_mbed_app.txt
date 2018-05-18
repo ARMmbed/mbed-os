@@ -15,7 +15,7 @@
         "echo-server-trace": {
             "help": "Trace incoming messages on echo server",
             "value": 0
-        },        
+        },
         "wifi-scan": {
             "help": "Scan and list access points",
             "value": 0

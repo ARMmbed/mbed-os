@@ -21,7 +21,10 @@
 #include "netsocket/WiFiInterface.h"
 #include "nsapi.h"
 #include "rtos.h"
-#include "lwip/netif.h"
+#include "netif.h"
+#include "rtw_emac.h"
+#include "OnboardNetworkStack.h"
+#include "LWIPStack.h"
 
 // Forward declaration
 class NetworkStack;
@@ -34,7 +37,10 @@ class RTWInterface: public WiFiInterface
 public:
     /** RTWWlanInterface lifetime
      */
-    RTWInterface(bool debug=false);
+    RTWInterface(
+        RTW_EMAC &rtw_emac = RTW_EMAC::get_instance(),
+        OnboardNetworkStack &rtw_lwip_stack = OnboardNetworkStack::get_default_instance());
+
     ~RTWInterface();
 
     /** Set a static IP address
@@ -143,13 +149,19 @@ public:
      */
     virtual const char *get_gateway();
 
+    RTW_EMAC &get_emac() const { return rtw_emac; }
+
+    virtual RTWInterface *rtwInterface() { return this; }
+
 protected:
     /** Provide access to the underlying stack
      *
      *  @return The underlying network stack 
      */
     virtual NetworkStack *get_stack();
-
+    RTW_EMAC &rtw_emac;
+    OnboardNetworkStack &rtw_obn_stack;
+    OnboardNetworkStack::Interface *rtw_interface;
     bool _dhcp;
     char _ssid[256];
     char _pass[256];
@@ -157,7 +169,7 @@ protected:
     uint8_t _channel;
     char _ip_address[IPADDR_STRLEN_MAX];
     char _netmask[NSAPI_IPv4_SIZE];
-    char _gateway[NSAPI_IPv4_SIZE];
+    char _gateway[NSAPI_IPv4_SIZE];  
+    char _mac_address[NSAPI_MAC_SIZE];
 };
-
 #endif
