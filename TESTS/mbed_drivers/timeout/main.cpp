@@ -19,6 +19,10 @@
 #include "unity/unity.h"
 #include "timeout_tests.h"
 
+#if !DEVICE_USTICKER
+#error [NOT_SUPPORTED] usticker not supported for this target.
+#endif
+
 using namespace utest::v1;
 
 utest::v1::status_t greentea_failure_handler(const Case * const source, const failure_t reason)
