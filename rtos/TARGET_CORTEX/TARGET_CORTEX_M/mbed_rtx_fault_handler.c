@@ -61,21 +61,21 @@ __NO_RETURN void mbed_fault_handler (uint32_t fault_type, void *mbed_fault_conte
     mbed_error_print("\n\nContext:",NULL);
     print_context_info();
         
-    mbed_error_print("\n\nThread Info:\nCurrent:",NULL);
+    mbed_error_print("\n\nThreads Info:\nCurrent:",NULL);
     print_thread(((osRtxInfo_t *)osRtxInfoIn)->thread.run.curr);
   
     mbed_error_print("\nNext:",NULL);
     print_thread(((osRtxInfo_t *)osRtxInfoIn)->thread.run.next);
     
-    mbed_error_print("\nWait Threads:",NULL);
+    mbed_error_print("\nWait:",NULL);
     osRtxThread_t *threads = ((osRtxInfo_t *)osRtxInfoIn)->thread.wait_list;
     print_threads_info(threads);
     
-    mbed_error_print("\nDelay Threads:",NULL);
+    mbed_error_print("\nDelay:",NULL);
     threads = ((osRtxInfo_t *)osRtxInfoIn)->thread.delay_list;
     print_threads_info(threads);
     
-    mbed_error_print("\nIdle Thread:",NULL);
+    mbed_error_print("\nIdle:",NULL);
     threads = ((osRtxInfo_t *)osRtxInfoIn)->thread.idle;
     print_threads_info(threads);
     

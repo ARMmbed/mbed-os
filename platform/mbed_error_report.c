@@ -25,6 +25,22 @@ extern int stdio_uart_inited;
 extern serial_t stdio_uart;
 #endif
 
+//Helper macro to get the current SP
+#define GET_CURRENT_SP(sp)                                                          \
+                        {                                                           \
+                            /*If in Handler mode we are always using MSP*/          \
+                            if( __get_IPSR() != 0U ) {                              \
+                                sp = __get_MSP();                                   \
+                            } else {                                                \
+                                /*Look into CONTROL.SPSEL value*/                   \
+                                if ((__get_CONTROL() & 2U) == 0U) {                 \
+                                    sp = __get_MSP();/*Read MSP*/                   \
+                                } else {                                            \
+                                    sp = __get_PSP();/*Read PSP*/                   \
+                                }                                                   \
+                            }                                                       \
+                        }    
+
 /* Converts a uint32 to hex char string */
 static void value_to_hex_str(uint32_t value, char *hex_str)
 {
@@ -51,22 +67,6 @@ static void value_to_dec_str(uint32_t value, char *dec_str)
     while(value > 0) {
         dec_str[i++] = dec_char_map[value % 10];
         value = value / 10;
-    }
-}
-
-//Helper function to get the current SP
-static unsigned int get_current_sp()
-{
-    //If in Handler mode we are always using MSP
-    if( __get_IPSR() != 0U ) {
-        return __get_MSP();
-    } else {
-        //Look into CONTROL.SPSEL value
-        if ((__get_CONTROL() & 2U) == 0U) {
-            return __get_PSP();//Read PSP
-        } else {
-            return __get_MSP();//Read MSP
-        }
     }
 }
 
@@ -106,7 +106,7 @@ and prints it in hex format.
 */
 void mbed_error_print(char *fmtstr, uint32_t *values)
 {
-#if DEVICE_SERIAL
+#if DEVICE_SERIAL || DEVICE_ITM
     int i = 0;
     int idx = 0;
     int vidx = 0;
@@ -119,8 +119,7 @@ void mbed_error_print(char *fmtstr, uint32_t *values)
     while(fmtstr[i] != '\0') {
         if(fmtstr[i]=='%') {
             i++;
-            if(fmtstr[i]=='x') {
-                memset(num_str, '0', sizeof(num_str));
+            if(fmtstr[i]=='x' || fmtstr[i]=='d') {
                 //print the number in hex format
                 value_to_hex_str(values[vidx++],num_str);
                 for(idx=7; idx>=0; idx--) {
@@ -131,7 +130,7 @@ void mbed_error_print(char *fmtstr, uint32_t *values)
                 memset(num_str, '0', sizeof(num_str));
                 //print the number in dec format
                 value_to_dec_str(values[vidx++],num_str);
-                idx=7;
+                idx=5;//Start from 5 as we dont have big decimal numbers
                 while(num_str[idx--]=='0' && idx > 0);//Dont print zeros at front
                 for(idx++;idx>=0; idx--) {
                     mbed_error_putc(num_str[idx]);
@@ -146,9 +145,7 @@ void mbed_error_print(char *fmtstr, uint32_t *values)
                 }
                 str = NULL;
             } else {
-                //print the % and char without formatting and keep going
-                mbed_error_putc('%');
-                mbed_error_putc(fmtstr[i]);
+                //Do not handle any other % formatting and keep going
             }
         } else {
             //handle carriage returns
@@ -182,59 +179,61 @@ void print_thread(osRtxThread_t *thread)
     data[2]=thread->stack_size;
     data[3]=(uint32_t)thread->stack_mem;
     data[4]=thread->sp;
-    mbed_error_print("\nState: 0x%x EntryFn: 0x%x Stack Size: 0x%x Mem: 0x%x SP: 0x%x", data);
+    mbed_error_print("\nState: 0x%x Entry: 0x%x Stack Size: 0x%x Mem: 0x%x SP: 0x%x", data);
 }
 #endif
 
+/* Prints the error information */
 void mbed_report_error(mbed_error_ctx *error_ctx, char *error_msg) 
 {
-    int error_code = GET_MBED_ERROR_CODE(error_ctx->error_status);
-    int error_entity = GET_MBED_ERROR_MODULE(error_ctx->error_status);
+    uint32_t error_vals[3] = {0};
+    error_vals[0] = error_ctx->error_status;
+    error_vals[1] = GET_MBED_ERROR_CODE(error_ctx->error_status);
+    error_vals[2] = GET_MBED_ERROR_MODULE(error_ctx->error_status);
     
-    mbed_error_print("\n\n++ MbedOS Error Info ++\nError Status: 0x%x", (uint32_t *)&error_ctx->error_status);
-    mbed_error_print("\nError Code: %d", (uint32_t *)&error_code);
-    mbed_error_print("\nError Entity: %d\nError Message: ", (uint32_t *)&error_entity);
+    mbed_error_print("\n\n++ MbedOS Error Info ++\nError Status: 0x%x Code: %d Entity: %d\nError Message: ", error_vals);
     
-    //Report error info based on error code, some errors require different info
-    if(error_code == ERROR_CODE_HARDFAULT_EXCEPTION || 
-       error_code == ERROR_CODE_MEMMANAGE_EXCEPTION || 
-       error_code == ERROR_CODE_BUSFAULT_EXCEPTION || 
-       error_code == ERROR_CODE_USAGEFAULT_EXCEPTION ) {
+    //Report error info based on error code, some errors require different 
+    //error_vals[1] contains the error code
+    if(error_vals[1] == ERROR_CODE_HARDFAULT_EXCEPTION || 
+       error_vals[1] == ERROR_CODE_MEMMANAGE_EXCEPTION || 
+       error_vals[1] == ERROR_CODE_BUSFAULT_EXCEPTION || 
+       error_vals[1] == ERROR_CODE_USAGEFAULT_EXCEPTION ) {
         mbed_error_print(error_msg, NULL);
-        mbed_error_print("\nError Location: 0x%x\n", (uint32_t *)&error_ctx->error_value);
+        mbed_error_print("\nLocation: 0x%x\n", (uint32_t *)&error_ctx->error_value);
     } else {
-        switch (error_code) {
+        switch (error_vals[1]) {
             //These are errors reported by kernel handled from mbed_rtx_handlers
             case ERROR_CODE_RTOS_EVENT:
                 mbed_error_print("Kernel Error: 0x%x, ", (uint32_t *)&error_ctx->error_value);
                 break;
             
             case ERROR_CODE_RTOS_THREAD_EVENT:
-                mbed_error_print("Thread Error: 0x%x, ", (uint32_t *)&error_ctx->error_value);
+                mbed_error_print("Thread: 0x%x, ", (uint32_t *)&error_ctx->error_value);
                 break;
             
             case ERROR_CODE_RTOS_MUTEX_EVENT:
-                mbed_error_print("Mutex Error: 0x%x, ", (uint32_t *)&error_ctx->error_value);
+                mbed_error_print("Mutex: 0x%x, ", (uint32_t *)&error_ctx->error_value);
                 break;
             
             case ERROR_CODE_RTOS_SEMAPHORE_EVENT:
-                mbed_error_print("Semaphore Error: 0x%x, ", (uint32_t *)&error_ctx->error_value);
+                mbed_error_print("Semaphore: 0x%x, ", (uint32_t *)&error_ctx->error_value);
                 break;
             
             case ERROR_CODE_RTOS_MEMORY_POOL_EVENT:
-                mbed_error_print("MemoryPool Error: 0x%x, ", (uint32_t *)&error_ctx->error_value);
+                mbed_error_print("MemoryPool: 0x%x, ", (uint32_t *)&error_ctx->error_value);
                 break;
             
             case ERROR_CODE_RTOS_EVENT_FLAGS_EVENT:
-                mbed_error_print("EventFlags Error: 0x%x, ", (uint32_t *)&error_ctx->error_value);
+                mbed_error_print("EventFlags: 0x%x, ", (uint32_t *)&error_ctx->error_value);
                 break;
             
             case ERROR_CODE_RTOS_TIMER_EVENT:
-                mbed_error_print("Timer Error: 0x%x, ", (uint32_t *)&error_ctx->error_value);
+                mbed_error_print("Timer: 0x%x, ", (uint32_t *)&error_ctx->error_value);
                 break;
             
             case ERROR_CODE_RTOS_MESSAGE_QUEUE_EVENT:    
-                mbed_error_print("MessageQueue Error: 0x%x, ", (uint32_t *)&error_ctx->error_value);
+                mbed_error_print("MessageQueue: 0x%x, ", (uint32_t *)&error_ctx->error_value);
                 break;
             
             default:
@@ -242,7 +241,7 @@ void mbed_report_error(mbed_error_ctx *error_ctx, char *error_msg)
                 break;
         }
         mbed_error_print(error_msg, NULL);
-        mbed_error_print("\nError Location: 0x%x", (uint32_t *)&error_ctx->error_address);
+        mbed_error_print("\nLocation: 0x%x", (uint32_t *)&error_ctx->error_address);
 #ifdef MBED_CONF_ERROR_FILENAME_CAPTURE_ENABLED
         if(NULL != error_ctx->error_filename) {
             //for string, we must pass address of a ptr which has the address of the string 
@@ -259,12 +258,20 @@ void mbed_report_error(mbed_error_ctx *error_ctx, char *error_msg)
         error_ctx->thread_entry_address = (uint32_t)current_thread->thread_addr;
         error_ctx->thread_stack_size = current_thread->stack_size;
         error_ctx->thread_stack_mem = (uint32_t)current_thread->stack_mem;
-        error_ctx->thread_current_sp = get_current_sp();
+#ifdef TARGET_CORTEX_M        
+        GET_CURRENT_SP(error_ctx->thread_current_sp);
             
         //Take advantage of the fact that the thread info in context struct is consecutively placed
-        mbed_error_print("\nError Value: 0x%x\nCurrent Thread: Id: 0x%x EntryFn: 0x%x StackSize: 0x%x StackMem: 0x%x SP: 0x%x ", 
+        mbed_error_print("\nError Value: 0x%x\nCurrent Thread: Id: 0x%x Entry: 0x%x StackSize: 0x%x StackMem: 0x%x SP: 0x%x ", 
                             (uint32_t *)&error_ctx->error_value);
-#endif
+#else
+        //For Cortex-A targets we dont have support to capture the current SP
+        //Take advantage of the fact that the thread info in context struct is consecutively placed
+        mbed_error_print("\nError Value: 0x%x\nCurrent Thread: Id: 0x%x Entry: 0x%x StackSize: 0x%x StackMem: 0x%x ", 
+                            (uint32_t *)&error_ctx->error_value);
+#endif //TARGET_CORTEX_M
+   
+#endif //MBED_CONF_RTOS_PRESENT
     }
     
     mbed_error_print("\n-- MbedOS Error Info --", NULL);
