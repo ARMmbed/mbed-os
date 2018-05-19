@@ -30,7 +30,7 @@ static uint8_t error_in_progress = 0;
 static int error_count = 0;
 static mbed_error_ctx first_error_ctx = {0};
 static mbed_error_ctx last_error_ctx = {0};
-static MbedErrorHook error_hook = NULL;
+static mbed_error_hook_t error_hook = NULL;
 
 //Helper function to halt the system
 static void mbed_halt_system(void)
@@ -66,7 +66,7 @@ WEAK void error(const char* format, ...) {
 }
 
 //Set an error status with the error handling system
-MbedErrorStatus handle_error(MbedErrorStatus error_status, const char *error_msg, unsigned int error_value, const char *filename, int line_number) 
+mbed_error_status_t handle_error(mbed_error_status_t error_status, const char *error_msg, unsigned int error_value, const char *filename, int line_number) 
 {
     mbed_error_ctx current_error_ctx;
     
@@ -136,14 +136,14 @@ MbedErrorStatus handle_error(MbedErrorStatus error_status, const char *error_msg
 }
 
 //Return the first error
-MbedErrorStatus get_first_error(void) 
+mbed_error_status_t get_first_error(void) 
 {
     //return the first error recorded
     return first_error_ctx.error_status;
 }
 
 //Return the last error
-MbedErrorStatus get_last_error(void) 
+mbed_error_status_t get_last_error(void) 
 {
     //return the last error recorded
     return last_error_ctx.error_status;
@@ -157,13 +157,13 @@ int get_error_count(void)
 }
 
 //Sets a fatal error 
-MbedErrorStatus set_warning(MbedErrorStatus error_status, const char *error_msg, unsigned int error_value, const char *filename, int line_number) 
+mbed_error_status_t set_warning(mbed_error_status_t error_status, const char *error_msg, unsigned int error_value, const char *filename, int line_number) 
 {
     return handle_error(error_status, error_msg, error_value, filename, line_number);
 }
 
 //Sets a fatal error 
-MbedErrorStatus set_error(MbedErrorStatus error_status, const char *error_msg, unsigned int error_value, const char *filename, int line_number) 
+mbed_error_status_t set_error(mbed_error_status_t error_status, const char *error_msg, unsigned int error_value, const char *filename, int line_number) 
 {
     //set the error reported and then halt the system
     if( ERROR_SUCCESS != handle_error(error_status, error_msg, error_value, filename, line_number) )
@@ -174,7 +174,7 @@ MbedErrorStatus set_error(MbedErrorStatus error_status, const char *error_msg, u
 }
 
 //Register an application defined callback with error handling
-MbedErrorStatus set_error_hook(MbedErrorHook error_hook_in) 
+mbed_error_status_t set_error_hook(mbed_error_hook_t error_hook_in) 
 {
     //register the new hook/callback
     if( error_hook_in != NULL )  {
@@ -186,21 +186,21 @@ MbedErrorStatus set_error_hook(MbedErrorHook error_hook_in)
 }
 
 //Retrieve the first error context from error log 
-MbedErrorStatus get_first_error_log_info (mbed_error_ctx *error_info) 
+mbed_error_status_t get_first_error_log_info (mbed_error_ctx *error_info) 
 {
     memcpy(error_info, &first_error_ctx, sizeof(first_error_ctx));
     return ERROR_SUCCESS;
 }
 
 //Retrieve the last error context from error log 
-MbedErrorStatus get_last_error_log_info (mbed_error_ctx *error_info) 
+mbed_error_status_t get_last_error_log_info (mbed_error_ctx *error_info) 
 {
     memcpy(error_info, &last_error_ctx, sizeof(mbed_error_ctx));
     return ERROR_SUCCESS;
 }
 
-//Makes an MbedErrorStatus value
-MbedErrorStatus make_mbed_error(MbedErrorType error_type, MbedModuleType entity, MbedErrorCode error_code) 
+//Makes an mbed_error_status_t value
+mbed_error_status_t make_mbed_error(mbed_error_type_t error_type, mbed_module_type_t entity, mbed_error_code_t error_code) 
 {
     switch(error_type)
     {
@@ -232,9 +232,9 @@ MbedErrorStatus make_mbed_error(MbedErrorType error_type, MbedModuleType entity,
  * @return                      0 or ERROR_SUCCESS on success.
  *
  */
-MbedErrorStatus clear_all_errors(void) 
+mbed_error_status_t clear_all_errors(void) 
 {
-    MbedErrorStatus status = ERROR_SUCCESS;
+    mbed_error_status_t status = ERROR_SUCCESS;
     
     //Make sure we dont multiple clients resetting
     core_util_critical_section_enter();
@@ -252,7 +252,7 @@ MbedErrorStatus clear_all_errors(void)
 
 #ifndef MBED_CONF_ERROR_LOG_DISABLED
 //Retrieve the error context from error log at the specified index
-MbedErrorStatus get_error_log_info (int index, mbed_error_ctx *error_info) 
+mbed_error_status_t get_error_log_info (int index, mbed_error_ctx *error_info) 
 {
     return mbed_log_get_error(index, error_info);
 }
@@ -263,9 +263,9 @@ int get_error_log_count(void)
     return mbed_log_get_error_log_count();
 }
 
-MbedErrorStatus save_error_log(const char *path)
+mbed_error_status_t save_error_log(const char *path)
 {
-    MbedErrorStatus ret = ERROR_SUCCESS;
+    mbed_error_status_t ret = ERROR_SUCCESS;
     mbed_error_ctx ctx = {0};
     int log_count = mbed_log_get_error_log_count();
     FILE *error_log_file = NULL;

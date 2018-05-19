@@ -27,7 +27,7 @@
 static mbed_error_ctx mbed_error_ctx_log[MBED_CONF_ERROR_LOG_SIZE] = {0};
 static int error_log_count = -1;
 
-MbedErrorStatus mbed_log_put_error(mbed_error_ctx *error_ctx)
+mbed_error_status_t mbed_log_put_error(mbed_error_ctx *error_ctx)
 {
     //Return error if error_ctx is NULL
     if(NULL == error_ctx) {
@@ -42,7 +42,7 @@ MbedErrorStatus mbed_log_put_error(mbed_error_ctx *error_ctx)
     return ERROR_SUCCESS;
 }
 
-MbedErrorStatus mbed_log_get_error(int index, mbed_error_ctx *error_ctx)
+mbed_error_status_t mbed_log_get_error(int index, mbed_error_ctx *error_ctx)
 {
     //Return error if index is more than max log size
     if(index >= MBED_CONF_ERROR_LOG_SIZE) {
@@ -70,7 +70,7 @@ mbed_error_ctx *mbed_log_get_entry(void)
     return ctx;
 }
 
-MbedErrorStatus mbed_log_get_last_error(mbed_error_ctx *error_ctx)
+mbed_error_status_t mbed_log_get_last_error(mbed_error_ctx *error_ctx)
 {
     if(-1 == error_log_count) {
         return ERROR_ITEM_NOT_FOUND;
@@ -87,7 +87,7 @@ int mbed_log_get_error_log_count()
     return (error_log_count >= MBED_CONF_ERROR_LOG_SIZE? MBED_CONF_ERROR_LOG_SIZE:error_log_count+1);
 }
 
-MbedErrorStatus mbed_log_reset()
+mbed_error_status_t mbed_log_reset()
 {
     core_util_critical_section_enter();
     error_log_count = -1;

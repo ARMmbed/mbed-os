@@ -37,7 +37,7 @@ extern "C" {
  *
  *
  */
-MbedErrorStatus mbed_log_put_error(mbed_error_ctx *error_ctx);
+mbed_error_status_t mbed_log_put_error(mbed_error_ctx *error_ctx);
     
 /*
  * Reads the error entry from the error list with the specified index
@@ -50,7 +50,7 @@ MbedErrorStatus mbed_log_put_error(mbed_error_ctx *error_ctx);
  *
  *
  */
-MbedErrorStatus mbed_log_get_error(int index, mbed_error_ctx *error_ctx);
+mbed_error_status_t mbed_log_get_error(int index, mbed_error_ctx *error_ctx);
 
 /*
  * Gets a reference to the next error entry in the error log where in the error ctx can be filled in.
@@ -72,7 +72,7 @@ mbed_error_ctx *mbed_log_get_entry(void);
  *
  *
  */
-MbedErrorStatus mbed_log_get_last_error(mbed_error_ctx *error_ctx);
+mbed_error_status_t mbed_log_get_last_error(mbed_error_ctx *error_ctx);
 
 /*
  * Returns the number of error entries in the error list
@@ -92,7 +92,7 @@ int mbed_log_get_error_log_count(void);
  *
  *
  */
-MbedErrorStatus mbed_log_reset(void);
+mbed_error_status_t mbed_log_reset(void);
 
 /*
  * Saves the error log information to a file
@@ -105,7 +105,7 @@ MbedErrorStatus mbed_log_reset(void);
  * @note                        Filesystem support is required in order for this function to work.
  *
  */
-MbedErrorStatus mbed_save_error_log(const char *path);    
+mbed_error_status_t mbed_save_error_log(const char *path);    
     
 #ifdef __cplusplus
 }
