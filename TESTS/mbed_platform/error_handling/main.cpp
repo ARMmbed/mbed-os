@@ -274,11 +274,11 @@ void test_error_logging()
     SET_WARNING(ERROR_INVALID_DATA_DETECTED, "Invalid data", 4 );
     SET_WARNING(ERROR_INVALID_OPERATION, "Invalid operation", 5 );
     
-    status = get_error_log_info( 3, &error_ctx );
+    status = get_error_log_info( 2, &error_ctx );
     TEST_ASSERT_EQUAL_UINT(ERROR_INVALID_DATA_DETECTED, error_ctx.error_status);
     TEST_ASSERT_EQUAL_UINT(4, error_ctx.error_value);
     
-    status = get_error_log_info( 4, &error_ctx );
+    status = get_error_log_info( 3, &error_ctx );
     TEST_ASSERT_EQUAL_UINT(ERROR_INVALID_OPERATION, error_ctx.error_status);
     TEST_ASSERT_EQUAL_UINT(5, error_ctx.error_value);
     
@@ -288,12 +288,11 @@ void test_error_logging()
     SET_WARNING(ERROR_INVALID_FORMAT, "Invalid format error", 8 );
     SET_WARNING(ERROR_NOT_READY, "Not ready error", 9 );
     
-    //Last 5 entries
+    //Last 4 entries
     SET_WARNING(ERROR_TIME_OUT, "Timeout error", 10 );
     SET_WARNING(ERROR_ALREADY_IN_USE, "Already in use error", 11 );
     SET_WARNING(ERROR_UNSUPPORTED, "Not supported error", 12 );
     SET_WARNING(ERROR_ACCESS_DENIED, "Access denied error", 13 );
-    SET_WARNING(ERROR_ITEM_NOT_FOUND, "Not found error", 14 );
     
     status = get_error_log_info( 0, &error_ctx );
     TEST_ASSERT_EQUAL_UINT(ERROR_TIME_OUT, error_ctx.error_status);
@@ -310,10 +309,6 @@ void test_error_logging()
     status = get_error_log_info( 3, &error_ctx );
     TEST_ASSERT_EQUAL_UINT(ERROR_ACCESS_DENIED, error_ctx.error_status);
     TEST_ASSERT_EQUAL_UINT(13, error_ctx.error_value);
-    
-    status = get_error_log_info( 4, &error_ctx );
-    TEST_ASSERT_EQUAL_UINT(ERROR_ITEM_NOT_FOUND, error_ctx.error_status);
-    TEST_ASSERT_EQUAL_UINT(14, error_ctx.error_value);
     
     //Try an index which is invalid, we should get ERROR_INVALID_ARGUMENT back
     status = get_error_log_info( 99, &error_ctx );

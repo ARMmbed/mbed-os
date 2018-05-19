@@ -101,7 +101,7 @@ typedef int MbedErrorStatus;
  * @param  error_code       Error code value to be used, must be between 1 and 255(inclusive).
  *
  */
-#define DEFINE_POSIX_ERROR( error_name, error_code )   \
+#define MBED_DEFINE_POSIX_ERROR( error_name, error_code )   \
                      ERROR_CODE_##error_name = error_code,  \
                      ERROR_##error_name = -(MBED_POSIX_ERROR_BASE + error_code)
 
@@ -111,7 +111,7 @@ typedef int MbedErrorStatus;
  * @param  error_code       Error code value to be used, must be between 256 and 4096(inclusive).
  *
  */
-#define DEFINE_SYSTEM_ERROR( error_name, error_code )   \
+#define MBED_DEFINE_SYSTEM_ERROR( error_name, error_code )   \
                       ERROR_CODE_##error_name = MBED_SYSTEM_ERROR_BASE + error_code,  \
                       ERROR_##error_name = MAKE_MBED_ERROR(ERROR_TYPE_SYSTEM, MODULE_UNKNOWN, ERROR_CODE_##error_name)
 
@@ -121,7 +121,7 @@ typedef int MbedErrorStatus;
  * @param  error_code       Error code value to be used, must be between 4097 and 65535(inclusive).
  *
  */
-#define DEFINE_CUSTOM_ERROR( error_name, error_code )   \
+#define MBED_DEFINE_CUSTOM_ERROR( error_name, error_code )   \
                       ERROR_CODE_##error_name = MBED_CUSTOM_ERROR_BASE + error_code,  \
                       ERROR_##error_name = MAKE_MBED_ERROR(ERROR_TYPE_CUSTOM, MODULE_UNKNOWN, ERROR_CODE_##error_name)
 
@@ -280,19 +280,19 @@ typedef enum _MbedModuleType
  *  It defines all of Posix Error Codes/Statuses and Mbed System Error Codes/Statuses.\n\n
  *
  *  @note
- *  Posix Error codes are defined using the macro DEFINE_POSIX_ERROR\n
- *  For example DEFINE_POSIX_ERROR( EPERM, EPERM ). This effectively defines the following values:\n
+ *  Posix Error codes are defined using the macro MBED_DEFINE_POSIX_ERROR\n
+ *  For example MBED_DEFINE_POSIX_ERROR( EPERM, EPERM ). This effectively defines the following values:\n
  *      ERROR_CODE_EPERM = EPERM\n
  *      ERROR_EPERM = -EPERM\n
  *
- *  Posix Error codes are defined using the macro DEFINE_POSIX_ERROR\n
- *  For example DEFINE_POSIX_ERROR( EPERM, EPERM ). This macro defines the following values:\n
+ *  Posix Error codes are defined using the macro MBED_DEFINE_POSIX_ERROR\n
+ *  For example MBED_DEFINE_POSIX_ERROR( EPERM, EPERM ). This macro defines the following values:\n
  *      ERROR_CODE_EPERM = MBED_POSIX_ERROR_BASE+EPERM\n
  *      ERROR_EPERM = -(MBED_POSIX_ERROR_BASE+EPERM)\n
  *  Its effectively equivalent to:\n
  *      ERROR_CODE_EPERM = 1\n
  *      ERROR_EPERM = -1\n 
- *  All Posix error codes currently supported by MbedOS(defined in mbed_retarget.h) are defined using the DEFINE_POSIX_ERROR macro.\n\n
+ *  All Posix error codes currently supported by MbedOS(defined in mbed_retarget.h) are defined using the MBED_DEFINE_POSIX_ERROR macro.\n\n
  *  Below are the Posic error codes and the description:\n
  *  \verbatim
     EPERM                      1        Operation not permitted 
@@ -429,15 +429,15 @@ typedef enum _MbedModuleType
     \endverbatim
  *
  *  @note
- *  MbedOS System Error codes are defined using the macro DEFINE_SYSTEM_ERROR\n
- *  For example DEFINE_SYSTEM_ERROR( INVALID_ARGUMENT ,1 ) macro defines the following values:\n
+ *  MbedOS System Error codes are defined using the macro MBED_DEFINE_SYSTEM_ERROR\n
+ *  For example MBED_DEFINE_SYSTEM_ERROR( INVALID_ARGUMENT ,1 ) macro defines the following values:\n
  *      ERROR_CODE_INVALID_ARGUMENT = MBED_SYSTEM_ERROR_BASE+1\n
  *      ERROR_INVALID_ARGUMENT = MAKE_MBED_ERROR(ERROR_TYPE_SYSTEM, MODULE_UNKNOWN, ERROR_CODE_INVALID_ARGUMENT)\n
  *  Its effectively equivalent to:\n
  *      ERROR_CODE_INVALID_ARGUMENT = 1\n
  *      ERROR_INVALID_ARGUMENT = 0x80FF0001\n (Note that MODULE field is set to MODULE_UNKNOWN) 
- *  New System Error codes should be defined using DEFINE_SYSTEM_ERROR macro and must have an unique error code value\n
- *  passed as the second argument in the DEFINE_SYSTEM_ERROR macro.\n\n
+ *  New System Error codes should be defined using MBED_DEFINE_SYSTEM_ERROR macro and must have an unique error code value\n
+ *  passed as the second argument in the MBED_DEFINE_SYSTEM_ERROR macro.\n\n
  *  Below are the Mbed System error codes and the description:
  *  \verbatim 
     UNKNOWN                    256      Unknown error 
@@ -554,206 +554,206 @@ typedef enum _MbedErrorCode
     //POSIX ERROR CODE definitions starts at offset 0(MBED_POSIX_ERROR_BASE) to align them with actual Posix Error Code
     //defintions in mbed_retarget.h
     //                  Error Name                                    Error Code
-    DEFINE_POSIX_ERROR( EPERM                 ,EPERM           ),  /* 1       Operation not permitted */
-    DEFINE_POSIX_ERROR( ENOENT                ,ENOENT          ),  /* 2       No such file or directory */
-    DEFINE_POSIX_ERROR( ESRCH                 ,ESRCH           ),  /* 3       No such process */
-    DEFINE_POSIX_ERROR( EINTR                 ,EINTR           ),  /* 4       Interrupted system call */
-    DEFINE_POSIX_ERROR( EIO                   ,EIO             ),  /* 5       I/O error */
-    DEFINE_POSIX_ERROR( ENXIO                 ,ENXIO           ),  /* 6       No such device or address */
-    DEFINE_POSIX_ERROR( E2BIG                 ,E2BIG           ),  /* 7       Argument list too long */
-    DEFINE_POSIX_ERROR( ENOEXEC               ,ENOEXEC         ),  /* 8       Exec format error */
-    DEFINE_POSIX_ERROR( EBADF                 ,EBADF           ),  /* 9       Bad file number */
-    DEFINE_POSIX_ERROR( ECHILD                ,ECHILD          ),  /* 10      No child processes */
-    DEFINE_POSIX_ERROR( EAGAIN                ,EAGAIN          ),  /* 11      Try again */
-    DEFINE_POSIX_ERROR( ENOMEM                ,ENOMEM          ),  /* 12      Out of memory */
-    DEFINE_POSIX_ERROR( EACCES                ,EACCES          ),  /* 13      Permission denied */
-    DEFINE_POSIX_ERROR( EFAULT                ,EFAULT          ),  /* 14      Bad address */
-    DEFINE_POSIX_ERROR( ENOTBLK               ,ENOTBLK         ),  /* 15      Block device required */
-    DEFINE_POSIX_ERROR( EBUSY                 ,EBUSY           ),  /* 16      Device or resource busy */
-    DEFINE_POSIX_ERROR( EEXIST                ,EEXIST          ),  /* 17      File exists */
-    DEFINE_POSIX_ERROR( EXDEV                 ,EXDEV           ),  /* 18      Cross-device link */
-    DEFINE_POSIX_ERROR( ENODEV                ,ENODEV          ),  /* 19      No such device */
-    DEFINE_POSIX_ERROR( ENOTDIR               ,ENOTDIR         ),  /* 20      Not a directory */
-    DEFINE_POSIX_ERROR( EISDIR                ,EISDIR          ),  /* 21      Is a directory */
-    DEFINE_POSIX_ERROR( EINVAL                ,EINVAL          ),  /* 22      Invalid argument */
-    DEFINE_POSIX_ERROR( ENFILE                ,ENFILE          ),  /* 23      File table overflow */
-    DEFINE_POSIX_ERROR( EMFILE                ,EMFILE          ),  /* 24      Too many open files */
-    DEFINE_POSIX_ERROR( ENOTTY                ,ENOTTY          ),  /* 25      Not a typewriter */
-    DEFINE_POSIX_ERROR( ETXTBSY               ,ETXTBSY         ),  /* 26      Text file busy */
-    DEFINE_POSIX_ERROR( EFBIG                 ,EFBIG           ),  /* 27      File too large */
-    DEFINE_POSIX_ERROR( ENOSPC                ,ENOSPC          ),  /* 28      No space left on device */
-    DEFINE_POSIX_ERROR( ESPIPE                ,ESPIPE          ),  /* 29      Illegal seek */
-    DEFINE_POSIX_ERROR( EROFS                 ,EROFS           ),  /* 30      Read-only file system */
-    DEFINE_POSIX_ERROR( EMLINK                ,EMLINK          ),  /* 31      Too many links */
-    DEFINE_POSIX_ERROR( EPIPE                 ,EPIPE           ),  /* 32      Broken pipe */
-    DEFINE_POSIX_ERROR( EDOM                  ,EDOM            ),  /* 33      Math argument out of domain of func */
-    DEFINE_POSIX_ERROR( ERANGE                ,ERANGE          ),  /* 34      Math result not representable */
-    DEFINE_POSIX_ERROR( EDEADLK               ,EDEADLK         ),  /* 35      Resource deadlock would occur */
-    DEFINE_POSIX_ERROR( ENAMETOOLONG          ,ENAMETOOLONG    ),  /* 36      File name too long */
-    DEFINE_POSIX_ERROR( ENOLCK                ,ENOLCK          ),  /* 37      No record locks available */
-    DEFINE_POSIX_ERROR( ENOSYS                ,ENOSYS          ),  /* 38      Function not implemented */
-    DEFINE_POSIX_ERROR( ENOTEMPTY             ,ENOTEMPTY       ),  /* 39      Directory not empty */
-    DEFINE_POSIX_ERROR( ELOOP                 ,ELOOP           ),  /* 40      Too many symbolic links encountered */
-    DEFINE_POSIX_ERROR( EWOULDBLOCK           ,EAGAIN          ),  /* EAGAIN  Operation would block */
-    DEFINE_POSIX_ERROR( ENOMSG                ,ENOMSG          ),  /* 42      No message of desired type */
-    DEFINE_POSIX_ERROR( EIDRM                 ,EIDRM           ),  /* 43      Identifier removed */
-    DEFINE_POSIX_ERROR( ECHRNG                ,ECHRNG          ),  /* 44      Channel number out of range */
-    DEFINE_POSIX_ERROR( EL2NSYNC              ,EL2NSYNC        ),  /* 45      Level 2 not synchronized */
-    DEFINE_POSIX_ERROR( EL3HLT                ,EL3HLT          ),  /* 46      Level 3 halted */
-    DEFINE_POSIX_ERROR( EL3RST                ,EL3RST          ),  /* 47      Level 3 reset */
-    DEFINE_POSIX_ERROR( ELNRNG                ,ELNRNG          ),  /* 48      Link number out of range */
-    DEFINE_POSIX_ERROR( EUNATCH               ,EUNATCH         ),  /* 49      Protocol driver not attached */
-    DEFINE_POSIX_ERROR( ENOCSI                ,ENOCSI          ),  /* 50      No CSI structure available */
-    DEFINE_POSIX_ERROR( EL2HLT                ,EL2HLT          ),  /* 51      Level 2 halted */
-    DEFINE_POSIX_ERROR( EBADE                 ,EBADE           ),  /* 52      Invalid exchange */
-    DEFINE_POSIX_ERROR( EBADR                 ,EBADR           ),  /* 53      Invalid request descriptor */
-    DEFINE_POSIX_ERROR( EXFULL                ,EXFULL          ),  /* 54      Exchange full */
-    DEFINE_POSIX_ERROR( ENOANO                ,ENOANO          ),  /* 55      No anode */
-    DEFINE_POSIX_ERROR( EBADRQC               ,EBADRQC         ),  /* 56      Invalid request code */
-    DEFINE_POSIX_ERROR( EBADSLT               ,EBADSLT         ),  /* 57      Invalid slot */
-    DEFINE_POSIX_ERROR( EDEADLOCK             ,EDEADLK         ),  /* EDEADLK Resource deadlock would occur */
-    DEFINE_POSIX_ERROR( EBFONT                ,EBFONT          ),  /* 59      Bad font file format */
-    DEFINE_POSIX_ERROR( ENOSTR                ,ENOSTR          ),  /* 60      Device not a stream */
-    DEFINE_POSIX_ERROR( ENODATA               ,ENODATA         ),  /* 61      No data available */
-    DEFINE_POSIX_ERROR( ETIME                 ,ETIME           ),  /* 62      Timer expired */
-    DEFINE_POSIX_ERROR( ENOSR                 ,ENOSR           ),  /* 63      Out of streams resources */
-    DEFINE_POSIX_ERROR( ENONET                ,ENONET          ),  /* 64      Machine is not on the network */
-    DEFINE_POSIX_ERROR( ENOPKG                ,ENOPKG          ),  /* 65      Package not installed */
-    DEFINE_POSIX_ERROR( EREMOTE               ,EREMOTE         ),  /* 66      Object is remote */
-    DEFINE_POSIX_ERROR( ENOLINK               ,ENOLINK         ),  /* 67      Link has been severed */
-    DEFINE_POSIX_ERROR( EADV                  ,EADV            ),  /* 68      Advertise error */
-    DEFINE_POSIX_ERROR( ESRMNT                ,ESRMNT          ),  /* 69      Srmount error */
-    DEFINE_POSIX_ERROR( ECOMM                 ,ECOMM           ),  /* 70      Communication error on send */
-    DEFINE_POSIX_ERROR( EPROTO                ,EPROTO          ),  /* 71      Protocol error */
-    DEFINE_POSIX_ERROR( EMULTIHOP             ,EMULTIHOP       ),  /* 72      Multihop attempted */
-    DEFINE_POSIX_ERROR( EDOTDOT               ,EDOTDOT         ),  /* 73      RFS specific error */
-    DEFINE_POSIX_ERROR( EBADMSG               ,EBADMSG         ),  /* 74      Not a data message */
-    DEFINE_POSIX_ERROR( EOVERFLOW             ,EOVERFLOW       ),  /* 75      Value too large for defined data type */
-    DEFINE_POSIX_ERROR( ENOTUNIQ              ,ENOTUNIQ        ),  /* 76      Name not unique on network */
-    DEFINE_POSIX_ERROR( EBADFD                ,EBADFD          ),  /* 77      File descriptor in bad state */
-    DEFINE_POSIX_ERROR( EREMCHG               ,EREMCHG         ),  /* 78      Remote address changed */
-    DEFINE_POSIX_ERROR( ELIBACC               ,ELIBACC         ),  /* 79      Can not access a needed shared library */
-    DEFINE_POSIX_ERROR( ELIBBAD               ,ELIBBAD         ),  /* 80      Accessing a corrupted shared library */
-    DEFINE_POSIX_ERROR( ELIBSCN               ,ELIBSCN         ),  /* 81      .lib section in a.out corrupted */
-    DEFINE_POSIX_ERROR( ELIBMAX               ,ELIBMAX         ),  /* 82      Attempting to link in too many shared libraries */
-    DEFINE_POSIX_ERROR( ELIBEXEC              ,ELIBEXEC        ),  /* 83      Cannot exec a shared library directly */
-    DEFINE_POSIX_ERROR( EILSEQ                ,EILSEQ          ),  /* 84      Illegal byte sequence */
-    DEFINE_POSIX_ERROR( ERESTART              ,ERESTART        ),  /* 85      Interrupted system call should be restarted */
-    DEFINE_POSIX_ERROR( ESTRPIPE              ,ESTRPIPE        ),  /* 86      Streams pipe error */
-    DEFINE_POSIX_ERROR( EUSERS                ,EUSERS          ),  /* 87      Too many users */
-    DEFINE_POSIX_ERROR( ENOTSOCK              ,ENOTSOCK        ),  /* 88      Socket operation on non-socket */
-    DEFINE_POSIX_ERROR( EDESTADDRREQ          ,EDESTADDRREQ    ),  /* 89      Destination address required */
-    DEFINE_POSIX_ERROR( EMSGSIZE              ,EMSGSIZE        ),  /* 90      Message too long */
-    DEFINE_POSIX_ERROR( EPROTOTYPE            ,EPROTOTYPE      ),  /* 91      Protocol wrong type for socket */
-    DEFINE_POSIX_ERROR( ENOPROTOOPT           ,ENOPROTOOPT     ),  /* 92      Protocol not available */
-    DEFINE_POSIX_ERROR( EPROTONOSUPPORT       ,EPROTONOSUPPORT ),  /* 93      Protocol not supported */
-    DEFINE_POSIX_ERROR( ESOCKTNOSUPPORT       ,ESOCKTNOSUPPORT ),  /* 94      Socket type not supported */
-    DEFINE_POSIX_ERROR( EOPNOTSUPP            ,EOPNOTSUPP      ),  /* 95      Operation not supported on transport endpoint */
-    DEFINE_POSIX_ERROR( EPFNOSUPPORT          ,EPFNOSUPPORT    ),  /* 96      Protocol family not supported */
-    DEFINE_POSIX_ERROR( EAFNOSUPPORT          ,EAFNOSUPPORT    ),  /* 97      Address family not supported by protocol */
-    DEFINE_POSIX_ERROR( EADDRINUSE            ,EADDRINUSE      ),  /* 98      Address already in use */
-    DEFINE_POSIX_ERROR( EADDRNOTAVAIL         ,EADDRNOTAVAIL   ),  /* 99      Cannot assign requested address */
-    DEFINE_POSIX_ERROR( ENETDOWN              ,ENETDOWN        ),  /* 100     Network is down */
-    DEFINE_POSIX_ERROR( ENETUNREACH           ,ENETUNREACH     ),  /* 101     Network is unreachable */
-    DEFINE_POSIX_ERROR( ENETRESET             ,ENETRESET       ),  /* 102     Network dropped connection because of reset */
-    DEFINE_POSIX_ERROR( ECONNABORTED          ,ECONNABORTED    ),  /* 103     Software caused connection abort */
-    DEFINE_POSIX_ERROR( ECONNRESET            ,ECONNRESET      ),  /* 104     Connection reset by peer */
-    DEFINE_POSIX_ERROR( ENOBUFS               ,ENOBUFS         ),  /* 105     No buffer space available */
-    DEFINE_POSIX_ERROR( EISCONN               ,EISCONN         ),  /* 106     Transport endpoint is already connected */
-    DEFINE_POSIX_ERROR( ENOTCONN              ,ENOTCONN        ),  /* 107     Transport endpoint is not connected */
-    DEFINE_POSIX_ERROR( ESHUTDOWN             ,ESHUTDOWN       ),  /* 108     Cannot send after transport endpoint shutdown */
-    DEFINE_POSIX_ERROR( ETOOMANYREFS          ,ETOOMANYREFS    ),  /* 109     Too many references: cannot splice */
-    DEFINE_POSIX_ERROR( ETIMEDOUT             ,ETIMEDOUT       ),  /* 110     Connection timed out */
-    DEFINE_POSIX_ERROR( ECONNREFUSED          ,ECONNREFUSED    ),  /* 111     Connection refused */
-    DEFINE_POSIX_ERROR( EHOSTDOWN             ,EHOSTDOWN       ),  /* 112     Host is down */
-    DEFINE_POSIX_ERROR( EHOSTUNREACH          ,EHOSTUNREACH    ),  /* 113     No route to host */
-    DEFINE_POSIX_ERROR( EALREADY              ,EALREADY        ),  /* 114     Operation already in progress */
-    DEFINE_POSIX_ERROR( EINPROGRESS           ,EINPROGRESS     ),  /* 115     Operation now in progress */
-    DEFINE_POSIX_ERROR( ESTALE                ,ESTALE          ),  /* 116     Stale NFS file handle */
-    DEFINE_POSIX_ERROR( EUCLEAN               ,EUCLEAN         ),  /* 117     Structure needs cleaning */
-    DEFINE_POSIX_ERROR( ENOTNAM               ,ENOTNAM         ),  /* 118     Not a XENIX named type file */
-    DEFINE_POSIX_ERROR( ENAVAIL               ,ENAVAIL         ),  /* 119     No XENIX semaphores available */
-    DEFINE_POSIX_ERROR( EISNAM                ,EISNAM          ),  /* 120     Is a named type file */
-    DEFINE_POSIX_ERROR( EREMOTEIO             ,EREMOTEIO       ),  /* 121     Remote I/O error */
-    DEFINE_POSIX_ERROR( EDQUOT                ,EDQUOT          ),  /* 122     Quota exceeded */
-    DEFINE_POSIX_ERROR( ENOMEDIUM             ,ENOMEDIUM       ),  /* 123     No medium found */
-    DEFINE_POSIX_ERROR( EMEDIUMTYPE           ,EMEDIUMTYPE     ),  /* 124     Wrong medium type */
-    DEFINE_POSIX_ERROR( ECANCELED             ,ECANCELED       ),  /* 125     Operation Canceled */
-    DEFINE_POSIX_ERROR( ENOKEY                ,ENOKEY          ),  /* 126     Required key not available */
-    DEFINE_POSIX_ERROR( EKEYEXPIRED           ,EKEYEXPIRED     ),  /* 127     Key has expired */
-    DEFINE_POSIX_ERROR( EKEYREVOKED           ,EKEYREVOKED     ),  /* 128     Key has been revoked */
-    DEFINE_POSIX_ERROR( EKEYREJECTED          ,EKEYREJECTED    ),  /* 129     Key was rejected by service */
-    DEFINE_POSIX_ERROR( EOWNERDEAD            ,EOWNERDEAD      ),  /* 130     Owner died */
-    DEFINE_POSIX_ERROR( ENOTRECOVERABLE       ,ENOTRECOVERABLE ),  /* 131     State not recoverable */
+    MBED_DEFINE_POSIX_ERROR( EPERM                 ,EPERM           ),  /* 1       Operation not permitted */
+    MBED_DEFINE_POSIX_ERROR( ENOENT                ,ENOENT          ),  /* 2       No such file or directory */
+    MBED_DEFINE_POSIX_ERROR( ESRCH                 ,ESRCH           ),  /* 3       No such process */
+    MBED_DEFINE_POSIX_ERROR( EINTR                 ,EINTR           ),  /* 4       Interrupted system call */
+    MBED_DEFINE_POSIX_ERROR( EIO                   ,EIO             ),  /* 5       I/O error */
+    MBED_DEFINE_POSIX_ERROR( ENXIO                 ,ENXIO           ),  /* 6       No such device or address */
+    MBED_DEFINE_POSIX_ERROR( E2BIG                 ,E2BIG           ),  /* 7       Argument list too long */
+    MBED_DEFINE_POSIX_ERROR( ENOEXEC               ,ENOEXEC         ),  /* 8       Exec format error */
+    MBED_DEFINE_POSIX_ERROR( EBADF                 ,EBADF           ),  /* 9       Bad file number */
+    MBED_DEFINE_POSIX_ERROR( ECHILD                ,ECHILD          ),  /* 10      No child processes */
+    MBED_DEFINE_POSIX_ERROR( EAGAIN                ,EAGAIN          ),  /* 11      Try again */
+    MBED_DEFINE_POSIX_ERROR( ENOMEM                ,ENOMEM          ),  /* 12      Out of memory */
+    MBED_DEFINE_POSIX_ERROR( EACCES                ,EACCES          ),  /* 13      Permission denied */
+    MBED_DEFINE_POSIX_ERROR( EFAULT                ,EFAULT          ),  /* 14      Bad address */
+    MBED_DEFINE_POSIX_ERROR( ENOTBLK               ,ENOTBLK         ),  /* 15      Block device required */
+    MBED_DEFINE_POSIX_ERROR( EBUSY                 ,EBUSY           ),  /* 16      Device or resource busy */
+    MBED_DEFINE_POSIX_ERROR( EEXIST                ,EEXIST          ),  /* 17      File exists */
+    MBED_DEFINE_POSIX_ERROR( EXDEV                 ,EXDEV           ),  /* 18      Cross-device link */
+    MBED_DEFINE_POSIX_ERROR( ENODEV                ,ENODEV          ),  /* 19      No such device */
+    MBED_DEFINE_POSIX_ERROR( ENOTDIR               ,ENOTDIR         ),  /* 20      Not a directory */
+    MBED_DEFINE_POSIX_ERROR( EISDIR                ,EISDIR          ),  /* 21      Is a directory */
+    MBED_DEFINE_POSIX_ERROR( EINVAL                ,EINVAL          ),  /* 22      Invalid argument */
+    MBED_DEFINE_POSIX_ERROR( ENFILE                ,ENFILE          ),  /* 23      File table overflow */
+    MBED_DEFINE_POSIX_ERROR( EMFILE                ,EMFILE          ),  /* 24      Too many open files */
+    MBED_DEFINE_POSIX_ERROR( ENOTTY                ,ENOTTY          ),  /* 25      Not a typewriter */
+    MBED_DEFINE_POSIX_ERROR( ETXTBSY               ,ETXTBSY         ),  /* 26      Text file busy */
+    MBED_DEFINE_POSIX_ERROR( EFBIG                 ,EFBIG           ),  /* 27      File too large */
+    MBED_DEFINE_POSIX_ERROR( ENOSPC                ,ENOSPC          ),  /* 28      No space left on device */
+    MBED_DEFINE_POSIX_ERROR( ESPIPE                ,ESPIPE          ),  /* 29      Illegal seek */
+    MBED_DEFINE_POSIX_ERROR( EROFS                 ,EROFS           ),  /* 30      Read-only file system */
+    MBED_DEFINE_POSIX_ERROR( EMLINK                ,EMLINK          ),  /* 31      Too many links */
+    MBED_DEFINE_POSIX_ERROR( EPIPE                 ,EPIPE           ),  /* 32      Broken pipe */
+    MBED_DEFINE_POSIX_ERROR( EDOM                  ,EDOM            ),  /* 33      Math argument out of domain of func */
+    MBED_DEFINE_POSIX_ERROR( ERANGE                ,ERANGE          ),  /* 34      Math result not representable */
+    MBED_DEFINE_POSIX_ERROR( EDEADLK               ,EDEADLK         ),  /* 35      Resource deadlock would occur */
+    MBED_DEFINE_POSIX_ERROR( ENAMETOOLONG          ,ENAMETOOLONG    ),  /* 36      File name too long */
+    MBED_DEFINE_POSIX_ERROR( ENOLCK                ,ENOLCK          ),  /* 37      No record locks available */
+    MBED_DEFINE_POSIX_ERROR( ENOSYS                ,ENOSYS          ),  /* 38      Function not implemented */
+    MBED_DEFINE_POSIX_ERROR( ENOTEMPTY             ,ENOTEMPTY       ),  /* 39      Directory not empty */
+    MBED_DEFINE_POSIX_ERROR( ELOOP                 ,ELOOP           ),  /* 40      Too many symbolic links encountered */
+    MBED_DEFINE_POSIX_ERROR( EWOULDBLOCK           ,EAGAIN          ),  /* EAGAIN  Operation would block */
+    MBED_DEFINE_POSIX_ERROR( ENOMSG                ,ENOMSG          ),  /* 42      No message of desired type */
+    MBED_DEFINE_POSIX_ERROR( EIDRM                 ,EIDRM           ),  /* 43      Identifier removed */
+    MBED_DEFINE_POSIX_ERROR( ECHRNG                ,ECHRNG          ),  /* 44      Channel number out of range */
+    MBED_DEFINE_POSIX_ERROR( EL2NSYNC              ,EL2NSYNC        ),  /* 45      Level 2 not synchronized */
+    MBED_DEFINE_POSIX_ERROR( EL3HLT                ,EL3HLT          ),  /* 46      Level 3 halted */
+    MBED_DEFINE_POSIX_ERROR( EL3RST                ,EL3RST          ),  /* 47      Level 3 reset */
+    MBED_DEFINE_POSIX_ERROR( ELNRNG                ,ELNRNG          ),  /* 48      Link number out of range */
+    MBED_DEFINE_POSIX_ERROR( EUNATCH               ,EUNATCH         ),  /* 49      Protocol driver not attached */
+    MBED_DEFINE_POSIX_ERROR( ENOCSI                ,ENOCSI          ),  /* 50      No CSI structure available */
+    MBED_DEFINE_POSIX_ERROR( EL2HLT                ,EL2HLT          ),  /* 51      Level 2 halted */
+    MBED_DEFINE_POSIX_ERROR( EBADE                 ,EBADE           ),  /* 52      Invalid exchange */
+    MBED_DEFINE_POSIX_ERROR( EBADR                 ,EBADR           ),  /* 53      Invalid request descriptor */
+    MBED_DEFINE_POSIX_ERROR( EXFULL                ,EXFULL          ),  /* 54      Exchange full */
+    MBED_DEFINE_POSIX_ERROR( ENOANO                ,ENOANO          ),  /* 55      No anode */
+    MBED_DEFINE_POSIX_ERROR( EBADRQC               ,EBADRQC         ),  /* 56      Invalid request code */
+    MBED_DEFINE_POSIX_ERROR( EBADSLT               ,EBADSLT         ),  /* 57      Invalid slot */
+    MBED_DEFINE_POSIX_ERROR( EDEADLOCK             ,EDEADLK         ),  /* EDEADLK Resource deadlock would occur */
+    MBED_DEFINE_POSIX_ERROR( EBFONT                ,EBFONT          ),  /* 59      Bad font file format */
+    MBED_DEFINE_POSIX_ERROR( ENOSTR                ,ENOSTR          ),  /* 60      Device not a stream */
+    MBED_DEFINE_POSIX_ERROR( ENODATA               ,ENODATA         ),  /* 61      No data available */
+    MBED_DEFINE_POSIX_ERROR( ETIME                 ,ETIME           ),  /* 62      Timer expired */
+    MBED_DEFINE_POSIX_ERROR( ENOSR                 ,ENOSR           ),  /* 63      Out of streams resources */
+    MBED_DEFINE_POSIX_ERROR( ENONET                ,ENONET          ),  /* 64      Machine is not on the network */
+    MBED_DEFINE_POSIX_ERROR( ENOPKG                ,ENOPKG          ),  /* 65      Package not installed */
+    MBED_DEFINE_POSIX_ERROR( EREMOTE               ,EREMOTE         ),  /* 66      Object is remote */
+    MBED_DEFINE_POSIX_ERROR( ENOLINK               ,ENOLINK         ),  /* 67      Link has been severed */
+    MBED_DEFINE_POSIX_ERROR( EADV                  ,EADV            ),  /* 68      Advertise error */
+    MBED_DEFINE_POSIX_ERROR( ESRMNT                ,ESRMNT          ),  /* 69      Srmount error */
+    MBED_DEFINE_POSIX_ERROR( ECOMM                 ,ECOMM           ),  /* 70      Communication error on send */
+    MBED_DEFINE_POSIX_ERROR( EPROTO                ,EPROTO          ),  /* 71      Protocol error */
+    MBED_DEFINE_POSIX_ERROR( EMULTIHOP             ,EMULTIHOP       ),  /* 72      Multihop attempted */
+    MBED_DEFINE_POSIX_ERROR( EDOTDOT               ,EDOTDOT         ),  /* 73      RFS specific error */
+    MBED_DEFINE_POSIX_ERROR( EBADMSG               ,EBADMSG         ),  /* 74      Not a data message */
+    MBED_DEFINE_POSIX_ERROR( EOVERFLOW             ,EOVERFLOW       ),  /* 75      Value too large for defined data type */
+    MBED_DEFINE_POSIX_ERROR( ENOTUNIQ              ,ENOTUNIQ        ),  /* 76      Name not unique on network */
+    MBED_DEFINE_POSIX_ERROR( EBADFD                ,EBADFD          ),  /* 77      File descriptor in bad state */
+    MBED_DEFINE_POSIX_ERROR( EREMCHG               ,EREMCHG         ),  /* 78      Remote address changed */
+    MBED_DEFINE_POSIX_ERROR( ELIBACC               ,ELIBACC         ),  /* 79      Can not access a needed shared library */
+    MBED_DEFINE_POSIX_ERROR( ELIBBAD               ,ELIBBAD         ),  /* 80      Accessing a corrupted shared library */
+    MBED_DEFINE_POSIX_ERROR( ELIBSCN               ,ELIBSCN         ),  /* 81      .lib section in a.out corrupted */
+    MBED_DEFINE_POSIX_ERROR( ELIBMAX               ,ELIBMAX         ),  /* 82      Attempting to link in too many shared libraries */
+    MBED_DEFINE_POSIX_ERROR( ELIBEXEC              ,ELIBEXEC        ),  /* 83      Cannot exec a shared library directly */
+    MBED_DEFINE_POSIX_ERROR( EILSEQ                ,EILSEQ          ),  /* 84      Illegal byte sequence */
+    MBED_DEFINE_POSIX_ERROR( ERESTART              ,ERESTART        ),  /* 85      Interrupted system call should be restarted */
+    MBED_DEFINE_POSIX_ERROR( ESTRPIPE              ,ESTRPIPE        ),  /* 86      Streams pipe error */
+    MBED_DEFINE_POSIX_ERROR( EUSERS                ,EUSERS          ),  /* 87      Too many users */
+    MBED_DEFINE_POSIX_ERROR( ENOTSOCK              ,ENOTSOCK        ),  /* 88      Socket operation on non-socket */
+    MBED_DEFINE_POSIX_ERROR( EDESTADDRREQ          ,EDESTADDRREQ    ),  /* 89      Destination address required */
+    MBED_DEFINE_POSIX_ERROR( EMSGSIZE              ,EMSGSIZE        ),  /* 90      Message too long */
+    MBED_DEFINE_POSIX_ERROR( EPROTOTYPE            ,EPROTOTYPE      ),  /* 91      Protocol wrong type for socket */
+    MBED_DEFINE_POSIX_ERROR( ENOPROTOOPT           ,ENOPROTOOPT     ),  /* 92      Protocol not available */
+    MBED_DEFINE_POSIX_ERROR( EPROTONOSUPPORT       ,EPROTONOSUPPORT ),  /* 93      Protocol not supported */
+    MBED_DEFINE_POSIX_ERROR( ESOCKTNOSUPPORT       ,ESOCKTNOSUPPORT ),  /* 94      Socket type not supported */
+    MBED_DEFINE_POSIX_ERROR( EOPNOTSUPP            ,EOPNOTSUPP      ),  /* 95      Operation not supported on transport endpoint */
+    MBED_DEFINE_POSIX_ERROR( EPFNOSUPPORT          ,EPFNOSUPPORT    ),  /* 96      Protocol family not supported */
+    MBED_DEFINE_POSIX_ERROR( EAFNOSUPPORT          ,EAFNOSUPPORT    ),  /* 97      Address family not supported by protocol */
+    MBED_DEFINE_POSIX_ERROR( EADDRINUSE            ,EADDRINUSE      ),  /* 98      Address already in use */
+    MBED_DEFINE_POSIX_ERROR( EADDRNOTAVAIL         ,EADDRNOTAVAIL   ),  /* 99      Cannot assign requested address */
+    MBED_DEFINE_POSIX_ERROR( ENETDOWN              ,ENETDOWN        ),  /* 100     Network is down */
+    MBED_DEFINE_POSIX_ERROR( ENETUNREACH           ,ENETUNREACH     ),  /* 101     Network is unreachable */
+    MBED_DEFINE_POSIX_ERROR( ENETRESET             ,ENETRESET       ),  /* 102     Network dropped connection because of reset */
+    MBED_DEFINE_POSIX_ERROR( ECONNABORTED          ,ECONNABORTED    ),  /* 103     Software caused connection abort */
+    MBED_DEFINE_POSIX_ERROR( ECONNRESET            ,ECONNRESET      ),  /* 104     Connection reset by peer */
+    MBED_DEFINE_POSIX_ERROR( ENOBUFS               ,ENOBUFS         ),  /* 105     No buffer space available */
+    MBED_DEFINE_POSIX_ERROR( EISCONN               ,EISCONN         ),  /* 106     Transport endpoint is already connected */
+    MBED_DEFINE_POSIX_ERROR( ENOTCONN              ,ENOTCONN        ),  /* 107     Transport endpoint is not connected */
+    MBED_DEFINE_POSIX_ERROR( ESHUTDOWN             ,ESHUTDOWN       ),  /* 108     Cannot send after transport endpoint shutdown */
+    MBED_DEFINE_POSIX_ERROR( ETOOMANYREFS          ,ETOOMANYREFS    ),  /* 109     Too many references: cannot splice */
+    MBED_DEFINE_POSIX_ERROR( ETIMEDOUT             ,ETIMEDOUT       ),  /* 110     Connection timed out */
+    MBED_DEFINE_POSIX_ERROR( ECONNREFUSED          ,ECONNREFUSED    ),  /* 111     Connection refused */
+    MBED_DEFINE_POSIX_ERROR( EHOSTDOWN             ,EHOSTDOWN       ),  /* 112     Host is down */
+    MBED_DEFINE_POSIX_ERROR( EHOSTUNREACH          ,EHOSTUNREACH    ),  /* 113     No route to host */
+    MBED_DEFINE_POSIX_ERROR( EALREADY              ,EALREADY        ),  /* 114     Operation already in progress */
+    MBED_DEFINE_POSIX_ERROR( EINPROGRESS           ,EINPROGRESS     ),  /* 115     Operation now in progress */
+    MBED_DEFINE_POSIX_ERROR( ESTALE                ,ESTALE          ),  /* 116     Stale NFS file handle */
+    MBED_DEFINE_POSIX_ERROR( EUCLEAN               ,EUCLEAN         ),  /* 117     Structure needs cleaning */
+    MBED_DEFINE_POSIX_ERROR( ENOTNAM               ,ENOTNAM         ),  /* 118     Not a XENIX named type file */
+    MBED_DEFINE_POSIX_ERROR( ENAVAIL               ,ENAVAIL         ),  /* 119     No XENIX semaphores available */
+    MBED_DEFINE_POSIX_ERROR( EISNAM                ,EISNAM          ),  /* 120     Is a named type file */
+    MBED_DEFINE_POSIX_ERROR( EREMOTEIO             ,EREMOTEIO       ),  /* 121     Remote I/O error */
+    MBED_DEFINE_POSIX_ERROR( EDQUOT                ,EDQUOT          ),  /* 122     Quota exceeded */
+    MBED_DEFINE_POSIX_ERROR( ENOMEDIUM             ,ENOMEDIUM       ),  /* 123     No medium found */
+    MBED_DEFINE_POSIX_ERROR( EMEDIUMTYPE           ,EMEDIUMTYPE     ),  /* 124     Wrong medium type */
+    MBED_DEFINE_POSIX_ERROR( ECANCELED             ,ECANCELED       ),  /* 125     Operation Canceled */
+    MBED_DEFINE_POSIX_ERROR( ENOKEY                ,ENOKEY          ),  /* 126     Required key not available */
+    MBED_DEFINE_POSIX_ERROR( EKEYEXPIRED           ,EKEYEXPIRED     ),  /* 127     Key has expired */
+    MBED_DEFINE_POSIX_ERROR( EKEYREVOKED           ,EKEYREVOKED     ),  /* 128     Key has been revoked */
+    MBED_DEFINE_POSIX_ERROR( EKEYREJECTED          ,EKEYREJECTED    ),  /* 129     Key was rejected by service */
+    MBED_DEFINE_POSIX_ERROR( EOWNERDEAD            ,EOWNERDEAD      ),  /* 130     Owner died */
+    MBED_DEFINE_POSIX_ERROR( ENOTRECOVERABLE       ,ENOTRECOVERABLE ),  /* 131     State not recoverable */
     
     //Below are MBED SYSTEM ERROR CODE definitions
     //MBED SYSTEM ERROR CODE definitions starts at offset MBED_SYSTEM_ERROR_BASE, see above.
     //                   Error Name                 Error Offset   Error Code
-    DEFINE_SYSTEM_ERROR( UNKNOWN                    ,0 ),          /* 256      Unknown error */
-    DEFINE_SYSTEM_ERROR( INVALID_ARGUMENT           ,1 ),          /* 257      Invalid Argument */
-    DEFINE_SYSTEM_ERROR( INVALID_DATA_DETECTED      ,2 ),          /* 258      Invalid data detected */
-    DEFINE_SYSTEM_ERROR( INVALID_FORMAT             ,3 ),          /* 259      Invalid format */
-    DEFINE_SYSTEM_ERROR( INVALID_INDEX              ,4 ),          /* 260      Invalid Index */
-    DEFINE_SYSTEM_ERROR( INVALID_SIZE               ,5 ),          /* 261      Inavlid Size */
-    DEFINE_SYSTEM_ERROR( INVALID_OPERATION          ,6 ),          /* 262      Invalid Operation */
-    DEFINE_SYSTEM_ERROR( ITEM_NOT_FOUND             ,7 ),          /* 263      Item Not Found */
-    DEFINE_SYSTEM_ERROR( ACCESS_DENIED              ,8 ),          /* 264      Access Denied */
-    DEFINE_SYSTEM_ERROR( UNSUPPORTED                ,9 ),          /* 265      Unsupported */
-    DEFINE_SYSTEM_ERROR( BUFFER_FULL                ,10 ),         /* 266      Buffer Full */
-    DEFINE_SYSTEM_ERROR( MEDIA_FULL                 ,11 ),         /* 267      Media/Disk Full */
-    DEFINE_SYSTEM_ERROR( ALREADY_IN_USE             ,12 ),         /* 268      Already in use */
-    DEFINE_SYSTEM_ERROR( TIME_OUT                   ,13 ),         /* 269      Timeout error */
-    DEFINE_SYSTEM_ERROR( NOT_READY                  ,14 ),         /* 270      Not Ready */
-    DEFINE_SYSTEM_ERROR( FAILED_OPERATION           ,15 ),         /* 271      Requested Operation failed */
-    DEFINE_SYSTEM_ERROR( OPERATION_PROHIBITED       ,16 ),         /* 272      Operation prohibited */
-    DEFINE_SYSTEM_ERROR( OPERATION_ABORTED          ,17 ),         /* 273      Operation failed */
-    DEFINE_SYSTEM_ERROR( WRITE_PROTECTED            ,18 ),         /* 274      Attempt to write to write-protected resource */
-    DEFINE_SYSTEM_ERROR( NO_RESPONSE                ,19 ),         /* 275      No response */
-    DEFINE_SYSTEM_ERROR( SEMAPHORE_LOCK_FAILED      ,20 ),         /* 276      Sempahore lock failed */
-    DEFINE_SYSTEM_ERROR( MUTEX_LOCK_FAILED          ,21 ),         /* 277      Mutex lock failed */
-    DEFINE_SYSTEM_ERROR( SEMAPHORE_UNLOCK_FAILED    ,22 ),         /* 278      Sempahore unlock failed */
-    DEFINE_SYSTEM_ERROR( MUTEX_UNLOCK_FAILED        ,23 ),         /* 279      Mutex unlock failed */
-    DEFINE_SYSTEM_ERROR( CRC_ERROR                  ,24 ),         /* 280      CRC error or mismatch */
-    DEFINE_SYSTEM_ERROR( OPEN_FAILED                ,25 ),         /* 281      Open failed */
-    DEFINE_SYSTEM_ERROR( CLOSE_FAILED               ,26 ),         /* 282      Close failed */
-    DEFINE_SYSTEM_ERROR( READ_FAILED                ,27 ),         /* 283      Read failed */
-    DEFINE_SYSTEM_ERROR( WRITE_FAILED               ,28 ),         /* 284      Write failed */
-    DEFINE_SYSTEM_ERROR( INITIALIZATION_FAILED      ,29 ),         /* 285      Initialization failed */
-    DEFINE_SYSTEM_ERROR( BOOT_FAILURE               ,30 ),         /* 286      Boot failure */
-    DEFINE_SYSTEM_ERROR( OUT_OF_MEMORY              ,31 ),         /* 287      Out of memory */
-    DEFINE_SYSTEM_ERROR( OUT_OF_RESOURCES           ,32 ),         /* 288      Out of resources */
-    DEFINE_SYSTEM_ERROR( ALLOC_FAILED               ,33 ),         /* 289      Alloc failed */
-    DEFINE_SYSTEM_ERROR( FREE_FAILED                ,34 ),         /* 290      Free failed */
-    DEFINE_SYSTEM_ERROR( OVERFLOW                   ,35 ),         /* 291      Overflow error */
-    DEFINE_SYSTEM_ERROR( UNDERFLOW                  ,36 ),         /* 292      Underflow error */
-    DEFINE_SYSTEM_ERROR( STACK_OVERFLOW             ,37 ),         /* 293      Stack overflow error */
-    DEFINE_SYSTEM_ERROR( ISR_QUEUE_OVERFLOW         ,38 ),         /* 294      ISR queue overflow */
-    DEFINE_SYSTEM_ERROR( TIMER_QUEUE_OVERFLOW       ,39 ),         /* 295      Timer Queue overflow */
-    DEFINE_SYSTEM_ERROR( CLIB_SPACE_UNAVAILABLE     ,40 ),         /* 296      Standard library error - Space unavailable */
-    DEFINE_SYSTEM_ERROR( CLIB_EXCEPTION             ,41 ),         /* 297      Standard library error - Exception */
-    DEFINE_SYSTEM_ERROR( CLIB_MUTEX_INIT_FAILURE    ,42 ),         /* 298      Standard library error - Mutex Init failure */
-    DEFINE_SYSTEM_ERROR( CREATE_FAILED              ,43 ),         /* 299      Create failed */
-    DEFINE_SYSTEM_ERROR( DELETE_FAILED              ,44 ),         /* 300      Delete failed */
-    DEFINE_SYSTEM_ERROR( THREAD_CREATE_FAILED       ,45 ),         /* 301      Thread Create failed */
-    DEFINE_SYSTEM_ERROR( THREAD_DELETE_FAILED       ,46 ),         /* 302      Thread Delete failed */
-    DEFINE_SYSTEM_ERROR( PROHIBITED_IN_ISR_CONTEXT  ,47 ),         /* 303      Operation Prohibited in ISR context */
-    DEFINE_SYSTEM_ERROR( PINMAP_INVALID             ,48 ),         /* 304      Pinmap Invalid */
-    DEFINE_SYSTEM_ERROR( RTOS_EVENT                 ,49 ),         /* 305      Unknown Rtos Error */
-    DEFINE_SYSTEM_ERROR( RTOS_THREAD_EVENT          ,50 ),         /* 306      Rtos Thread Error */
-    DEFINE_SYSTEM_ERROR( RTOS_MUTEX_EVENT           ,51 ),         /* 307      Rtos Mutex Error */
-    DEFINE_SYSTEM_ERROR( RTOS_SEMAPHORE_EVENT       ,52 ),         /* 308      Rtos Semaphore Error */
-    DEFINE_SYSTEM_ERROR( RTOS_MEMORY_POOL_EVENT     ,53 ),         /* 309      Rtos Memory Pool Error */
-    DEFINE_SYSTEM_ERROR( RTOS_TIMER_EVENT           ,54 ),         /* 310      Rtos Timer Error */
-    DEFINE_SYSTEM_ERROR( RTOS_EVENT_FLAGS_EVENT     ,55 ),         /* 311      Rtos Event flags Error */
-    DEFINE_SYSTEM_ERROR( RTOS_MESSAGE_QUEUE_EVENT   ,56 ),         /* 312      Rtos Message queue Error */
-    DEFINE_SYSTEM_ERROR( DEVICE_BUSY                ,57 ),         /* 313      Device Busy */
-    DEFINE_SYSTEM_ERROR( CONFIG_UNSUPPORTED         ,58 ),         /* 314      Configuration not supported */
-    DEFINE_SYSTEM_ERROR( CONFIG_MISMATCH            ,59 ),         /* 315      Configuration mismatch */
-    DEFINE_SYSTEM_ERROR( ALREADY_INITIALIZED        ,60 ),         /* 316      Already initialzied */
-    DEFINE_SYSTEM_ERROR( HARDFAULT_EXCEPTION        ,61 ),         /* 317      HardFault exception */
-    DEFINE_SYSTEM_ERROR( MEMMANAGE_EXCEPTION        ,62 ),         /* 318      MemManage exception */
-    DEFINE_SYSTEM_ERROR( BUSFAULT_EXCEPTION         ,63 ),         /* 319      BusFault exception */
-    DEFINE_SYSTEM_ERROR( USAGEFAULT_EXCEPTION       ,64 ),         /* 320      UsageFault exception*/
+    MBED_DEFINE_SYSTEM_ERROR( UNKNOWN                    ,0 ),          /* 256      Unknown error */
+    MBED_DEFINE_SYSTEM_ERROR( INVALID_ARGUMENT           ,1 ),          /* 257      Invalid Argument */
+    MBED_DEFINE_SYSTEM_ERROR( INVALID_DATA_DETECTED      ,2 ),          /* 258      Invalid data detected */
+    MBED_DEFINE_SYSTEM_ERROR( INVALID_FORMAT             ,3 ),          /* 259      Invalid format */
+    MBED_DEFINE_SYSTEM_ERROR( INVALID_INDEX              ,4 ),          /* 260      Invalid Index */
+    MBED_DEFINE_SYSTEM_ERROR( INVALID_SIZE               ,5 ),          /* 261      Inavlid Size */
+    MBED_DEFINE_SYSTEM_ERROR( INVALID_OPERATION          ,6 ),          /* 262      Invalid Operation */
+    MBED_DEFINE_SYSTEM_ERROR( ITEM_NOT_FOUND             ,7 ),          /* 263      Item Not Found */
+    MBED_DEFINE_SYSTEM_ERROR( ACCESS_DENIED              ,8 ),          /* 264      Access Denied */
+    MBED_DEFINE_SYSTEM_ERROR( UNSUPPORTED                ,9 ),          /* 265      Unsupported */
+    MBED_DEFINE_SYSTEM_ERROR( BUFFER_FULL                ,10 ),         /* 266      Buffer Full */
+    MBED_DEFINE_SYSTEM_ERROR( MEDIA_FULL                 ,11 ),         /* 267      Media/Disk Full */
+    MBED_DEFINE_SYSTEM_ERROR( ALREADY_IN_USE             ,12 ),         /* 268      Already in use */
+    MBED_DEFINE_SYSTEM_ERROR( TIME_OUT                   ,13 ),         /* 269      Timeout error */
+    MBED_DEFINE_SYSTEM_ERROR( NOT_READY                  ,14 ),         /* 270      Not Ready */
+    MBED_DEFINE_SYSTEM_ERROR( FAILED_OPERATION           ,15 ),         /* 271      Requested Operation failed */
+    MBED_DEFINE_SYSTEM_ERROR( OPERATION_PROHIBITED       ,16 ),         /* 272      Operation prohibited */
+    MBED_DEFINE_SYSTEM_ERROR( OPERATION_ABORTED          ,17 ),         /* 273      Operation failed */
+    MBED_DEFINE_SYSTEM_ERROR( WRITE_PROTECTED            ,18 ),         /* 274      Attempt to write to write-protected resource */
+    MBED_DEFINE_SYSTEM_ERROR( NO_RESPONSE                ,19 ),         /* 275      No response */
+    MBED_DEFINE_SYSTEM_ERROR( SEMAPHORE_LOCK_FAILED      ,20 ),         /* 276      Sempahore lock failed */
+    MBED_DEFINE_SYSTEM_ERROR( MUTEX_LOCK_FAILED          ,21 ),         /* 277      Mutex lock failed */
+    MBED_DEFINE_SYSTEM_ERROR( SEMAPHORE_UNLOCK_FAILED    ,22 ),         /* 278      Sempahore unlock failed */
+    MBED_DEFINE_SYSTEM_ERROR( MUTEX_UNLOCK_FAILED        ,23 ),         /* 279      Mutex unlock failed */
+    MBED_DEFINE_SYSTEM_ERROR( CRC_ERROR                  ,24 ),         /* 280      CRC error or mismatch */
+    MBED_DEFINE_SYSTEM_ERROR( OPEN_FAILED                ,25 ),         /* 281      Open failed */
+    MBED_DEFINE_SYSTEM_ERROR( CLOSE_FAILED               ,26 ),         /* 282      Close failed */
+    MBED_DEFINE_SYSTEM_ERROR( READ_FAILED                ,27 ),         /* 283      Read failed */
+    MBED_DEFINE_SYSTEM_ERROR( WRITE_FAILED               ,28 ),         /* 284      Write failed */
+    MBED_DEFINE_SYSTEM_ERROR( INITIALIZATION_FAILED      ,29 ),         /* 285      Initialization failed */
+    MBED_DEFINE_SYSTEM_ERROR( BOOT_FAILURE               ,30 ),         /* 286      Boot failure */
+    MBED_DEFINE_SYSTEM_ERROR( OUT_OF_MEMORY              ,31 ),         /* 287      Out of memory */
+    MBED_DEFINE_SYSTEM_ERROR( OUT_OF_RESOURCES           ,32 ),         /* 288      Out of resources */
+    MBED_DEFINE_SYSTEM_ERROR( ALLOC_FAILED               ,33 ),         /* 289      Alloc failed */
+    MBED_DEFINE_SYSTEM_ERROR( FREE_FAILED                ,34 ),         /* 290      Free failed */
+    MBED_DEFINE_SYSTEM_ERROR( OVERFLOW                   ,35 ),         /* 291      Overflow error */
+    MBED_DEFINE_SYSTEM_ERROR( UNDERFLOW                  ,36 ),         /* 292      Underflow error */
+    MBED_DEFINE_SYSTEM_ERROR( STACK_OVERFLOW             ,37 ),         /* 293      Stack overflow error */
+    MBED_DEFINE_SYSTEM_ERROR( ISR_QUEUE_OVERFLOW         ,38 ),         /* 294      ISR queue overflow */
+    MBED_DEFINE_SYSTEM_ERROR( TIMER_QUEUE_OVERFLOW       ,39 ),         /* 295      Timer Queue overflow */
+    MBED_DEFINE_SYSTEM_ERROR( CLIB_SPACE_UNAVAILABLE     ,40 ),         /* 296      Standard library error - Space unavailable */
+    MBED_DEFINE_SYSTEM_ERROR( CLIB_EXCEPTION             ,41 ),         /* 297      Standard library error - Exception */
+    MBED_DEFINE_SYSTEM_ERROR( CLIB_MUTEX_INIT_FAILURE    ,42 ),         /* 298      Standard library error - Mutex Init failure */
+    MBED_DEFINE_SYSTEM_ERROR( CREATE_FAILED              ,43 ),         /* 299      Create failed */
+    MBED_DEFINE_SYSTEM_ERROR( DELETE_FAILED              ,44 ),         /* 300      Delete failed */
+    MBED_DEFINE_SYSTEM_ERROR( THREAD_CREATE_FAILED       ,45 ),         /* 301      Thread Create failed */
+    MBED_DEFINE_SYSTEM_ERROR( THREAD_DELETE_FAILED       ,46 ),         /* 302      Thread Delete failed */
+    MBED_DEFINE_SYSTEM_ERROR( PROHIBITED_IN_ISR_CONTEXT  ,47 ),         /* 303      Operation Prohibited in ISR context */
+    MBED_DEFINE_SYSTEM_ERROR( PINMAP_INVALID             ,48 ),         /* 304      Pinmap Invalid */
+    MBED_DEFINE_SYSTEM_ERROR( RTOS_EVENT                 ,49 ),         /* 305      Unknown Rtos Error */
+    MBED_DEFINE_SYSTEM_ERROR( RTOS_THREAD_EVENT          ,50 ),         /* 306      Rtos Thread Error */
+    MBED_DEFINE_SYSTEM_ERROR( RTOS_MUTEX_EVENT           ,51 ),         /* 307      Rtos Mutex Error */
+    MBED_DEFINE_SYSTEM_ERROR( RTOS_SEMAPHORE_EVENT       ,52 ),         /* 308      Rtos Semaphore Error */
+    MBED_DEFINE_SYSTEM_ERROR( RTOS_MEMORY_POOL_EVENT     ,53 ),         /* 309      Rtos Memory Pool Error */
+    MBED_DEFINE_SYSTEM_ERROR( RTOS_TIMER_EVENT           ,54 ),         /* 310      Rtos Timer Error */
+    MBED_DEFINE_SYSTEM_ERROR( RTOS_EVENT_FLAGS_EVENT     ,55 ),         /* 311      Rtos Event flags Error */
+    MBED_DEFINE_SYSTEM_ERROR( RTOS_MESSAGE_QUEUE_EVENT   ,56 ),         /* 312      Rtos Message queue Error */
+    MBED_DEFINE_SYSTEM_ERROR( DEVICE_BUSY                ,57 ),         /* 313      Device Busy */
+    MBED_DEFINE_SYSTEM_ERROR( CONFIG_UNSUPPORTED         ,58 ),         /* 314      Configuration not supported */
+    MBED_DEFINE_SYSTEM_ERROR( CONFIG_MISMATCH            ,59 ),         /* 315      Configuration mismatch */
+    MBED_DEFINE_SYSTEM_ERROR( ALREADY_INITIALIZED        ,60 ),         /* 316      Already initialzied */
+    MBED_DEFINE_SYSTEM_ERROR( HARDFAULT_EXCEPTION        ,61 ),         /* 317      HardFault exception */
+    MBED_DEFINE_SYSTEM_ERROR( MEMMANAGE_EXCEPTION        ,62 ),         /* 318      MemManage exception */
+    MBED_DEFINE_SYSTEM_ERROR( BUSFAULT_EXCEPTION         ,63 ),         /* 319      BusFault exception */
+    MBED_DEFINE_SYSTEM_ERROR( USAGEFAULT_EXCEPTION       ,64 ),         /* 320      UsageFault exception*/
         
     //Everytime you add a new system error code, you must update
     //Error documentation under Handbook to capture the info on

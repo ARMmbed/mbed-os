@@ -236,13 +236,17 @@ MbedErrorStatus clear_all_errors(void)
 {
     MbedErrorStatus status = ERROR_SUCCESS;
     
+    //Make sure we dont multiple clients resetting
+    core_util_critical_section_enter();
     //Clear the error and context capturing buffer
     memset(&last_error_ctx, sizeof(mbed_error_ctx), 0);
     //reset error count to 0
     error_count = 0;
 #ifndef MBED_CONF_ERROR_LOG_DISABLED    
     status = mbed_log_reset();
-#endif    
+#endif
+    core_util_critical_section_exit();
+    
     return status;
 }
 
