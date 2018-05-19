@@ -27,9 +27,9 @@ using utest::v1::Case;
  */
 void test_system_errors()
 {
-    MbedErrorStatus error = MAKE_ERROR(MODULE_APPLICATION, ERROR_CODE_UNKNOWN);
+    mbed_error_status_t error = MAKE_ERROR(MODULE_APPLICATION, ERROR_CODE_UNKNOWN);
     SET_WARNING(error, "Error Unknown", 0xAABBCCDD );
-    MbedErrorStatus lastError = get_last_error();
+    mbed_error_status_t lastError = get_last_error();
     printf("\nlastError = 0x%08X", lastError );
     TEST_ASSERT_EQUAL_UINT(error, lastError);
     
@@ -57,9 +57,9 @@ void test_system_errors()
  */
 void test_custom_errors()
 {
-    MbedErrorStatus error = MAKE_CUSTOM_ERROR(MODULE_APPLICATION, ERROR_CODE_UNKNOWN);
+    mbed_error_status_t error = MAKE_CUSTOM_ERROR(MODULE_APPLICATION, ERROR_CODE_UNKNOWN);
     SET_WARNING(error, "Custom Error Unknown", 0x1234 );
-    MbedErrorStatus lastError = get_last_error();
+    mbed_error_status_t lastError = get_last_error();
     printf("\nlastError = 0x%08X", lastError );
     TEST_ASSERT_EQUAL_UINT(error, lastError);
     
@@ -82,7 +82,7 @@ void test_custom_errors()
 void test_posix_errors()
 {
     SET_WARNING(ERROR_EPERM, "Posix Error Eperm", 0x1234 );
-    MbedErrorStatus lastError = get_last_error();
+    mbed_error_status_t lastError = get_last_error();
     printf("\nlastError = 0x%08X", lastError );
     TEST_ASSERT_EQUAL_UINT(ERROR_EPERM, lastError);
     
@@ -113,7 +113,7 @@ void test_first_and_last_error_capture()
     SET_WARNING(ERROR_MUTEX_UNLOCK_FAILED, "Mutex unlock failed", 0x99AA );
     SET_WARNING(ERROR_SEMAPHORE_UNLOCK_FAILED, "Semaphore unlock failed", 0xBBCC );
     
-    MbedErrorStatus error = get_last_error();
+    mbed_error_status_t error = get_last_error();
     printf("\nlastError = 0x%08X", error );
     TEST_ASSERT_EQUAL_UINT(ERROR_SEMAPHORE_UNLOCK_FAILED, error);
     
@@ -149,13 +149,13 @@ void test_error_count_and_reset()
 void test_error_encoding()
 {
     SET_WARNING(ERROR_OUT_OF_RESOURCES, "System type error", 0x1100 );
-    MbedErrorStatus lastError = get_last_error();
+    mbed_error_status_t lastError = get_last_error();
     printf("\nlastError = 0x%08X", lastError );
     TEST_ASSERT_EQUAL_UINT(ERROR_TYPE_SYSTEM, GET_MBED_ERROR_TYPE(lastError));
     TEST_ASSERT_EQUAL_UINT(MODULE_UNKNOWN, GET_MBED_ERROR_MODULE(lastError));
     TEST_ASSERT_EQUAL_UINT(ERROR_CODE_OUT_OF_RESOURCES, GET_MBED_ERROR_CODE(lastError));
     
-    MbedErrorStatus error = MAKE_CUSTOM_ERROR(MODULE_PLATFORM, ERROR_CODE_CREATE_FAILED);
+    mbed_error_status_t error = MAKE_CUSTOM_ERROR(MODULE_PLATFORM, ERROR_CODE_CREATE_FAILED);
     SET_WARNING(error, "Custom Error Type", 0x2233);
     lastError = get_last_error();
     printf("\nlastError = 0x%08X", lastError );
@@ -202,11 +202,11 @@ void test_error_value()
     mbed_error_ctx error_ctx = {0};
     
     SET_WARNING(ERROR_OUT_OF_RESOURCES, "System type error", error_value );
-    MbedErrorStatus status = get_last_error_log_info( &error_ctx );
+    mbed_error_status_t status = get_last_error_log_info( &error_ctx );
     TEST_ASSERT(status == ERROR_SUCCESS);
     TEST_ASSERT_EQUAL_UINT(error_value, error_ctx.error_value);
     
-    MbedErrorStatus error = MAKE_CUSTOM_ERROR(MODULE_PLATFORM, ERROR_CODE_CREATE_FAILED);
+    mbed_error_status_t error = MAKE_CUSTOM_ERROR(MODULE_PLATFORM, ERROR_CODE_CREATE_FAILED);
     error_value = 0xABCD;
     SET_WARNING(error, "Custom Error Type", error_value);
     status = get_last_error_log_info( &error_ctx );
@@ -228,7 +228,7 @@ void test_error_context_capture()
     mbed_error_ctx error_ctx = {0};
     
     SET_WARNING(ERROR_INVALID_ARGUMENT, "System type error", error_value );
-    MbedErrorStatus status = get_last_error_log_info( &error_ctx );
+    mbed_error_status_t status = get_last_error_log_info( &error_ctx );
     TEST_ASSERT(status == ERROR_SUCCESS);
     TEST_ASSERT_EQUAL_UINT(error_value, error_ctx.error_value);
     TEST_ASSERT_EQUAL_UINT(osThreadGetId(), error_ctx.thread_id);
@@ -258,7 +258,7 @@ void test_error_logging()
     SET_WARNING(ERROR_INVALID_SIZE, "Invalid size error", 2 );
     SET_WARNING(ERROR_INVALID_FORMAT, "Invalid format error", 3 );
     
-    MbedErrorStatus status = get_error_log_info( 0, &error_ctx );
+    mbed_error_status_t status = get_error_log_info( 0, &error_ctx );
     TEST_ASSERT_EQUAL_UINT(ERROR_INVALID_ARGUMENT, error_ctx.error_status);
     TEST_ASSERT_EQUAL_UINT(1, error_ctx.error_value);
     
@@ -319,7 +319,7 @@ void test_error_logging()
 #define NUM_TEST_THREADS 10
 
 //Error logger threads
-void err_thread_func(MbedErrorStatus *error_status)
+void err_thread_func(mbed_error_status_t *error_status)
 {
     //printf("\nError Status = 0x%08X\n",*error_status);
     SET_WARNING(*error_status, "Error from Multi-Threaded error logging test", *error_status );
@@ -333,7 +333,7 @@ void test_error_logging_multithread()
     mbed_error_ctx error_ctx = {0};
     int i=0;
     Thread errThread[NUM_TEST_THREADS];
-    MbedErrorStatus error_status[NUM_TEST_THREADS] = { 
+    mbed_error_status_t error_status[NUM_TEST_THREADS] = { 
                                         ERROR_INVALID_ARGUMENT, ERROR_INVALID_DATA_DETECTED, ERROR_INVALID_FORMAT, ERROR_INVALID_SIZE, ERROR_INVALID_OPERATION, 
                                         ERROR_ITEM_NOT_FOUND, ERROR_ACCESS_DENIED, ERROR_FAILED_OPERATION, ERROR_OPERATION_PROHIBITED, ERROR_OPERATION_ABORTED
     };
@@ -350,7 +350,7 @@ void test_error_logging_multithread()
     i = get_error_log_count()-1;
     //printf("\nError log count = %d\n", i+1);
     for(;i>=0;--i) {
-        MbedErrorStatus status = get_error_log_info( i, &error_ctx );
+        mbed_error_status_t status = get_error_log_info( i, &error_ctx );
         if(status != ERROR_SUCCESS) {
             TEST_FAIL();
         }
