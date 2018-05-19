@@ -56,7 +56,7 @@ void us_ticker_irq_handler(void);
 
 static int us_ticker_inited = 0;
 
-static ADI_TMR_CONFIG tmrConfig, tmr2Config;
+static ADI_TMR_CONFIG tmrConfig;
 
 static volatile uint32_t Upper_count = 0, largecnt = 0;
 
@@ -200,14 +200,14 @@ static void event_timer()
         } else
             cnt = 65536u - cnt;
 
-        tmr2Config.nLoad        = cnt;
-        tmr2Config.nAsyncLoad   = cnt;
-        adi_tmr_ConfigTimer(ADI_TMR_DEVICE_GP2, tmr2Config);
+        tmrConfig.nLoad        = cnt;
+        tmrConfig.nAsyncLoad   = cnt;
+        adi_tmr_ConfigTimer(ADI_TMR_DEVICE_GP2, tmrConfig);
         adi_tmr_Enable(ADI_TMR_DEVICE_GP2, true);
     } else {
-        tmr2Config.nLoad        = 65535u;
-        tmr2Config.nAsyncLoad   = 65535u;
-        adi_tmr_ConfigTimer(ADI_TMR_DEVICE_GP2, tmr2Config);
+        tmrConfig.nLoad        = 65535u;
+        tmrConfig.nAsyncLoad   = 65535u;
+        adi_tmr_ConfigTimer(ADI_TMR_DEVICE_GP2, tmrConfig);
         adi_tmr_Enable(ADI_TMR_DEVICE_GP2, true);
     }
 }
@@ -247,6 +247,8 @@ static void GP2CallbackFunction(void *pCBParam, uint32_t Event, void  * pArg)
 void us_ticker_init(void)
 {
     if (us_ticker_inited) {
+        // Disable ticker interrupt on reinitialization
+        adi_tmr_Enable(ADI_TMR_DEVICE_GP2, false);
         return;
     }
 
@@ -281,15 +283,15 @@ void us_ticker_init(void)
     adi_tmr_ConfigTimer(ADI_TMR_DEVICE_GP1, tmrConfig);
 
     /* Configure GP2 for doing event counts */
-    tmr2Config.bCountingUp  = true;
-    tmr2Config.bPeriodic    = true;
-    tmr2Config.ePrescaler   = ADI_TMR_PRESCALER_256;   // TMR2 at 26MHz/256
-    tmr2Config.eClockSource = ADI_TMR_CLOCK_PCLK;      // TMR source is PCLK (most examples use HFOSC)
-    tmr2Config.nLoad        = 0;
-    tmr2Config.nAsyncLoad   = 0;
-    tmr2Config.bReloading   = false;
-    tmr2Config.bSyncBypass  = true;                    // Allow x1 prescale
-    adi_tmr_ConfigTimer(ADI_TMR_DEVICE_GP2, tmr2Config);
+    tmrConfig.bCountingUp  = true;
+    tmrConfig.bPeriodic    = true;
+    tmrConfig.ePrescaler   = ADI_TMR_PRESCALER_256;   // TMR2 at 26MHz/256
+    tmrConfig.eClockSource = ADI_TMR_CLOCK_PCLK;      // TMR source is PCLK (most examples use HFOSC)
+    tmrConfig.nLoad        = 0;
+    tmrConfig.nAsyncLoad   = 0;
+    tmrConfig.bReloading   = false;
+    tmrConfig.bSyncBypass  = true;                    // Allow x1 prescale
+    adi_tmr_ConfigTimer(ADI_TMR_DEVICE_GP2, tmrConfig);
 
 
     /*------------------------- GP TIMER ENABLE ------------------------------*/
@@ -326,14 +328,15 @@ void us_ticker_clear_interrupt(void)
 
 void us_ticker_set_interrupt(timestamp_t timestamp)
 {
-
+    // if timestamp is already past, do not set interrupt
+    if ((timestamp + 10) <= us_ticker_read()) return;
     /* timestamp is when interrupt should fire.
      *
      * This MUST not be called if another timer event is currently enabled.
      *
      */
     calc_event_counts(timestamp);             // use timestamp to calculate largecnt to control number of timer interrupts
-    tmr2Config.ePrescaler   = ADI_TMR_PRESCALER_256;   // TMR2 at 26MHz/256
+    tmrConfig.ePrescaler   = ADI_TMR_PRESCALER_256;   // TMR2 at 26MHz/256
     event_timer();                            // uses largecnt to initiate timer interrupts
 }
 
@@ -346,7 +349,7 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
 void us_ticker_fire_interrupt(void)
 {
     largecnt = 1;                              // set a minimal interval so interrupt fire immediately
-    tmr2Config.ePrescaler   = ADI_TMR_PRESCALER_1;   // TMR2 at 26MHz/1
+    tmrConfig.ePrescaler   = ADI_TMR_PRESCALER_1;   // TMR2 at 26MHz/1
     event_timer();                             // enable the timer and interrupt
 }
 
