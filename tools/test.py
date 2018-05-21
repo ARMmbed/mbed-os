@@ -228,18 +228,23 @@ if __name__ == '__main__':
             else:
                 # Build all the tests
                 notify = TerminalNotifier(options.verbose)
-                test_build_success, test_build = build_tests(tests, [options.build_dir], options.build_dir, mcu, toolchain,
-                        clean=options.clean,
-                        report=build_report,
-                        properties=build_properties,
-                        macros=options.macros,
-                        notify=notify,
-                        jobs=options.jobs,
-                        continue_on_build_fail=options.continue_on_build_fail,
-                        app_config=config,
-                        build_profile=profile,
-                        stats_depth=options.stats_depth,
-                        ignore=options.ignore)
+                test_build_success, test_build = build_tests(
+                    tests,
+                    [os.path.relpath(options.build_dir)],
+                    options.build_dir,
+                    mcu,
+                    toolchain,
+                    clean=options.clean,
+                    report=build_report,
+                    properties=build_properties,
+                    macros=options.macros,
+                    notify=notify,
+                    jobs=options.jobs,
+                    continue_on_build_fail=options.continue_on_build_fail,
+                    app_config=config,
+                    build_profile=profile,
+                    stats_depth=options.stats_depth,
+                    ignore=options.ignore)
 
                 # If a path to a test spec is provided, write it to a file
                 if options.test_spec:
