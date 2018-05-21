@@ -23,6 +23,9 @@ static volatile bool state_saved = false;
 
 static void nordic_nvic_critical_region_enter(void);
 static void nordic_nvic_critical_region_exit(void);
+#else
+extern void app_util_enable_irq();
+extern void app_util_disable_irq();
 #endif
 
 void hal_critical_section_enter()
@@ -56,7 +59,11 @@ void hal_critical_section_exit()
 
 bool hal_in_critical_section(void)
 {
+#if defined(SOFTDEVICE_PRESENT)
     return (state_saved != 0);
+#else
+    return false;
+#endif
 }
 
 
