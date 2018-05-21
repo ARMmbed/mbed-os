@@ -17,6 +17,8 @@
 #include "cmsis.h"
 #include "mbed_interface.h"
 #include "nrf_soc.h"
+#include "nrf_timer.h"
+#include "us_ticker.h"
 
 #if defined(SOFTDEVICE_PRESENT)
 #include "nrf_sdh.h"
@@ -30,6 +32,8 @@
 #define SCB_ICSR_RESERVED_BITS_MASK     0x9E43F03F
 
 #define FPU_EXCEPTION_MASK 0x0000009F
+
+extern bool us_ticker_initialized;
 
 void hal_sleep(void)
 {
@@ -83,6 +87,14 @@ void hal_sleep(void)
 
 void hal_deepsleep(void)
 {
+    if (us_ticker_initialized) {
+        nrf_timer_task_trigger(NRF_TIMER1, NRF_TIMER_TASK_STOP);
+    }
+
     hal_sleep();
+
+    if (us_ticker_initialized) {
+        nrf_timer_task_trigger(NRF_TIMER1, NRF_TIMER_TASK_START);
+    }
     //   NRF_POWER->SYSTEMOFF=1;
 }
