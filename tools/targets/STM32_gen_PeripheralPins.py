@@ -9,7 +9,7 @@ import textwrap
 from xml.dom.minidom import parse, Node
 from argparse import RawTextHelpFormatter
 
-GENPINMAP_VERSION = "1.1"
+GENPINMAP_VERSION = "1.2"
 
 ADD_DEVICE_IFDEF = 0
 ADD_QSPI_FEATURE = 0
@@ -65,6 +65,7 @@ TIM_MST_LIST = { # Timer used for us ticker is hardcoded in this script
 "NUCLEO_F746ZG":"TIM5",
 "NUCLEO_F767ZI":"TIM5",
 "NUCLEO_F722ZE":"TIM5",
+"NUCLEO_H743ZI":"TIM5",
 "NUCLEO_L053R8":"TIM21",
 "NUCLEO_L073RZ":"TIM21",
 "NUCLEO_L031K6":"TIM21",
@@ -312,7 +313,6 @@ def print_header():
  *******************************************************************************
  *
  * Automatically generated from %s
- * genpinmap script version %s
  */
 
 #include "PeripheralPins.h"
@@ -336,7 +336,7 @@ def print_header():
 //
 //==============================================================================
 
-""" % (datetime.datetime.now().year, os.path.basename(input_file_name), GENPINMAP_VERSION))
+""" % (datetime.datetime.now().year, os.path.basename(input_file_name)))
     out_c_file.write( s )
 
     s =  ("""/* mbed Microcontroller Library
@@ -369,7 +369,6 @@ def print_header():
  *******************************************************************************
  *
  * Automatically generated from %s
- * genpinmap script version %s
  */
 
 #ifndef MBED_PINNAMES_H
@@ -391,7 +390,7 @@ typedef enum {
 
 typedef enum {
 
-""" % (datetime.datetime.now().year, os.path.basename(input_file_name), GENPINMAP_VERSION))
+""" % (datetime.datetime.now().year, os.path.basename(input_file_name)))
     out_h_file.write( s )
 
 
@@ -992,8 +991,8 @@ def parse_BoardFile(fileName):
         except:
             pass
 
-
 # main
+print ("\nScript version %s" % GENPINMAP_VERSION)
 cur_dir = os.getcwd()
 PeripheralPins_c_filename = 'PeripheralPins.c'
 PinNames_h_filename = 'PinNames.h'
@@ -1006,16 +1005,16 @@ except IOError:
     config_file = open(config_filename, "w")
     if sys.platform.startswith('win32'):
         print("Platform is Windows")
-        cubemxdir = 'C:\\Program Files (x86)\\STMicroelectronics\\STM32Cube\\STM32CubeMX\\db'
+        cubemxdir = 'C:\\Program Files (x86)\\STMicroelectronics\\STM32Cube\\STM32CubeMX'
     elif sys.platform.startswith('linux'):
         print("Platform is Linux")
-        cubemxdir = os.getenv("HOME")+'/STM32CubeMX/db'
+        cubemxdir = os.getenv("HOME")+'/STM32CubeMX'
     elif sys.platform.startswith('darwin'):
         print("Platform is Mac OSX")
-        cubemxdir = '/Applications/STMicroelectronics/STM32CubeMX.app/Contents/Resources/db'
+        cubemxdir = '/Applications/STMicroelectronics/STM32CubeMX.app/Contents/Resources'
     else:
         print("Platform unknown")
-        cubemxdir = '<Set CubeMX install directory>/db'
+        cubemxdir = '<Set CubeMX install directory>'
     config_file.write(json.dumps({"CUBEMX_DIRECTORY":cubemxdir}))
     config_file.close()
     exit(1)
@@ -1056,9 +1055,19 @@ if not(os.path.isdir(cubemxdir)):
     print ("\n ! ! ! please check the value you set for 'CUBEMX_DIRECTORY' in '%s' file" % config_filename)
     quit()
 
-cubemxdirMCU = os.path.join(cubemxdir, 'mcu')
-cubemxdirIP = os.path.join(cubemxdir, 'mcu', 'IP')
-cubemxdirBOARDS = os.path.join(cubemxdir, 'plugins', 'boardmanager', 'boards')
+cubemxdirMCU = os.path.join(cubemxdir, 'db', 'mcu')
+cubemxdirIP = os.path.join(cubemxdir, 'db', 'mcu', 'IP')
+cubemxdirBOARDS = os.path.join(cubemxdir, 'db', 'plugins', 'boardmanager', 'boards')
+
+version_file = os.path.join(cubemxdir, 'db', 'package.xml')
+try:
+    xml_file = parse(version_file)
+    PackDescription_item = xml_file.getElementsByTagName('PackDescription')
+    for item in PackDescription_item:
+        CUBEMX_DB_VERSION = item.attributes['Release'].value
+except:
+    CUBEMX_DB_VERSION = "NOT_FOUND"
+print ("CubeMX DB version %s\n" % CUBEMX_DB_VERSION)
 
 if args.list:
     FileCount = 0
@@ -1090,7 +1099,7 @@ if args.mcu:
     else:
         mcu_list = fnmatch.filter(os.listdir(cubemxdirMCU), '*%s*' % args.mcu)
         if len(mcu_list) == 0:
-            print ("\n ! ! ! " + args.mcu + " file not found")
+            print (" ! ! ! " + args.mcu + " file not found")
             print (" ! ! ! Check in " + cubemxdirMCU + " the correct name of this file")
             print (" ! ! ! You may use double quotes for this file if it contains special characters")
             quit()
@@ -1100,16 +1109,16 @@ if args.target:
     if not(os.path.isfile(board_file_name)):
         board_list = fnmatch.filter(os.listdir(cubemxdirBOARDS), '*%s*AllConfig.ioc' % args.target)
         if len(board_list) == 0:
-            print ("\n ! ! ! No file contains " + args.target)
+            print (" ! ! ! No file contains " + args.target)
             print (" ! ! ! Check in " + cubemxdirBOARDS + " the correct filter to apply")
             quit()
         elif len(board_list) > 1:
-            print ("\n ! ! ! Multiple files contains " + args.target)
-            print (board_list)
+            print (" ! ! ! Multiple files contains " + args.target)
+            for board_elem in board_list: print (board_elem)
             print (" ! ! ! Only the first one will be parsed\n")
         board_file_name = os.path.join(cubemxdirBOARDS,board_list[0])
         if not (os.path.isfile(board_file_name)):
-            print ("\n ! ! ! " + args.target + " file not found")
+            print (" ! ! ! " + args.target + " file not found")
             print (" ! ! ! Check in " + cubemxdirBOARDS + " the correct name of this file")
             print (" ! ! ! You may use double quotes for this file if it contains special characters")
             quit()
@@ -1199,7 +1208,6 @@ for mcu_file in mcu_list:
     nb_pin = (len(io_list))
     nb_connected_pin = len(PinLabel)
     print (" * I/O pins found: %i connected: %i\n" % (nb_pin, nb_connected_pin))
-    # print ("done\n")
     clean_all_lists()
 
     out_c_file.close()
