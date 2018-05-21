@@ -4032,5 +4032,20 @@
         "detect_code": ["7013"],
         "release_versions": ["5"],
         "bootloader_supported": true
+    },
+    "RDA5981X": {
+        "inherits": ["Target"],
+        "core": "Cortex-M4F",
+        "public": false,
+        "extra_labels": ["RDA", "UNO_91H", "FLASH_CMSIS_ALGO"],
+        "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
+        "macros": ["TWO_RAM_REGIONS"],
+        "device_has": ["PORTIN", "PORTOUT", "PORTINOUT", "INTERRUPTIN", "SERIAL", "STDIO_MESSAGES", "PWMOUT", "SPI", "LOWPOWERTIMER", "ANALOGIN", "FLASH", "RTC"],
+        "post_binary_hook": {"function": "RDATargetCode.binary_hook"},
+        "release_versions": ["2", "5"]
+    },
+    "UNO_81C": {
+        "inherits": ["RDA5981X"],
+        "detect_code": ["8002"]
     }
 }

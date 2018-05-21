@@ -536,6 +536,65 @@ class RTL8195ACode:
     def binary_hook(t_self, resources, elf, binf):
         from tools.targets.REALTEK_RTL8195AM import rtl8195a_elf2bin
         rtl8195a_elf2bin(t_self, elf, binf)
+
+class RDATargetCode:
+    @staticmethod
+    def conv_bin_to_rcf(binf, rcff, bytew):
+        fh_bin = open(binf, 'rb')
+        fh_rcf = open(rcff, "wb")
+        try:
+            while True:
+                chunk = fh_bin.read(bytew)
+                if not chunk:
+                    break
+                hexstr = binascii.b2a_hex(chunk)
+                fh_rcf.write(hexstr)
+                fh_rcf.write("\r\n")
+        finally:
+            fh_rcf.close()
+            fh_bin.close()
+
+    @staticmethod
+    def dump_cmd_stdout_to_file(cmdlist, outf):
+        fileh = open(outf, 'w')
+        try:
+            cmd_str = ' '.join(cmdlist)
+            stdio_str = os.popen(cmd_str).read()
+            fileh.write(stdio_str)
+        finally:
+            fileh.close()
+
+    @staticmethod
+    def binary_hook(t_self, resources, elf, binf):
+        elf2bin_tool = getattr(t_self, 'elf2bin', None)
+        cmd_tool = getattr(t_self, 'default_cmd', None)
+        if elf2bin_tool is None or cmd_tool is None:
+            print("Get tool failed")
+        else:
+            basef = os.path.splitext(binf)[0]
+            rcff = basef + '.rcf'
+            dasmf = basef + '_dasm.txt'
+            dataf = basef + '_data.txt'
+            if os.path.basename(elf2bin_tool) == 'fromelf':
+                rcf_cmd = [elf2bin_tool, '--vhx', '--8x1', '-o', rcff, elf]
+                dasm_cmd = [elf2bin_tool, '--text', '-rc', '-o', dasmf, elf]
+                data_cmd = [elf2bin_tool, '--text', '-ad', '-o', dataf, elf]
+                cmd_tool(rcf_cmd)
+                cmd_tool(dasm_cmd)
+                cmd_tool(data_cmd)
+            elif os.path.basename(elf2bin_tool) == 'arm-none-eabi-objcopy':
+                objdump_tool = elf2bin_tool.replace('-objcopy', '-objdump')
+                dasm_cmd = [objdump_tool, '-dS', '-j', '.text', elf]
+                data_cmd = [objdump_tool, '-dS', '-j', '.data', elf]
+                RDATargetCode.conv_bin_to_rcf(binf, rcff, 1)
+                RDATargetCode.dump_cmd_stdout_to_file(dasm_cmd, dasmf)
+                RDATargetCode.dump_cmd_stdout_to_file(data_cmd, dataf)
+            elif os.path.basename(elf2bin_tool) == 'ielftool':
+                objdump_tool = elf2bin_tool.replace('ielftool', 'ielfdumparm')
+                dasm_cmd = [objdump_tool, '-a', '--no_header', '-o', dasmf, elf]
+                RDATargetCode.conv_bin_to_rcf(binf, rcff, 1)
+                cmd_tool(dasm_cmd)
+
 ################################################################################
 
 # Instantiate all public targets
