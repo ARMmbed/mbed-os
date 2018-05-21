@@ -78,6 +78,7 @@ public:
 
     virtual ble_error_t startAdvertising(const GapAdvertisingParams &);
     virtual ble_error_t stopAdvertising(void);
+    virtual ble_error_t connect(const Address_t, ble::peer_address_type_t peerAddrType, const ConnectionParams_t *connectionParams, const GapScanningParams *scanParams);
     virtual ble_error_t connect(const Address_t, BLEProtocol::AddressType_t peerAddrType, const ConnectionParams_t *connectionParams, const GapScanningParams *scanParams);
     virtual ble_error_t disconnect(Handle_t connectionHandle, DisconnectionReason_t reason);
     virtual ble_error_t disconnect(DisconnectionReason_t reason);
@@ -158,39 +159,6 @@ private:
     /* Internal representation of a whitelist */
     uint8_t         whitelistAddressesSize;
     ble_gap_addr_t  whitelistAddresses[YOTTA_CFG_WHITELIST_MAX_SIZE];
-
-#if  (NRF_SD_BLE_API_VERSION <= 2)
-    /*
-     * An internal function used to populate the ble_gap_whitelist_t that will be used by
-     * the SoftDevice for filtering requests. This function is needed because for the BLE
-     * API the whitelist is just a collection of keys, but for the stack it also includes
-     * the IRK table.
-     */
-    ble_error_t generateStackWhitelist(ble_gap_whitelist_t &whitelist);
-#endif
-    
-#if  (NRF_SD_BLE_API_VERSION >= 3)
-    /* internal type for passing a whitelist and a identities list. */
-    typedef struct
-    {
-        ble_gap_addr_t addrs[YOTTA_CFG_WHITELIST_MAX_SIZE];
-        uint32_t addrs_cnt;
-        
-        ble_gap_id_key_t identities[YOTTA_CFG_IRK_TABLE_MAX_SIZE];
-        uint32_t identities_cnt;
-    } GapWhiteAndIdentityList_t;
-    
-    /* Function for preparing setting of the whitelist feature and the identity-resolving feature (privacy).*/
-    ble_error_t getStackWhiteIdentityList(GapWhiteAndIdentityList_t &whiteAndIdentityList);
-
-    /* Function for applying setting of the whitelist feature and identity-resolving feature (privacy).*/
-    ble_error_t applyWhiteIdentityList(GapWhiteAndIdentityList_t &whiteAndIdentityList);
-
-    /* Function for introducing whitelist feature and the identity-resolving feature setting into SoftDevice.
-     *
-     * This function incorporates getStackWhiteIdentityList and applyWhiteIdentityList together. */
-    ble_error_t updateWhiteAndIdentityListInStack(void);
-#endif
 
 private:
     bool    radioNotificationCallbackParam; /* parameter to be passed into the Timeout-generated radio notification callback. */
@@ -303,7 +271,7 @@ private:
     bool _privacy_enabled;
     PeripheralPrivacyConfiguration_t _peripheral_privacy_configuration;
     CentralPrivacyConfiguration_t _central_privacy_configuration;
-    AddressType_t _non_private_type;
+    AddressType_t _non_private_address_type;
     Address_t _non_private_address;
 
     /*
