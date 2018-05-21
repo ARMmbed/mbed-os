@@ -119,7 +119,7 @@ void sleep_manager_lock_deep_sleep_internal(void)
     core_util_critical_section_enter();
     if (deep_sleep_lock == USHRT_MAX) {
         core_util_critical_section_exit();
-        SET_ERROR(MAKE_ERROR(MODULE_HAL, ERROR_CODE_OVERFLOW), "DeepSleepLock overflow (> USHRT_MAX)", deep_sleep_lock);
+        MBED_ERROR(MAKE_ERROR(MODULE_HAL, MBED_ERROR_CODE_OVERFLOW), "DeepSleepLock overflow (> USHRT_MAX)", deep_sleep_lock);
     }
     core_util_atomic_incr_u16(&deep_sleep_lock, 1);
     core_util_critical_section_exit();
@@ -130,7 +130,7 @@ void sleep_manager_unlock_deep_sleep_internal(void)
     core_util_critical_section_enter();
     if (deep_sleep_lock == 0) {
         core_util_critical_section_exit();
-        SET_ERROR(MAKE_ERROR(MODULE_HAL, ERROR_CODE_UNDERFLOW), "DeepSleepLock underflow (< 0)", deep_sleep_lock);
+        MBED_ERROR(MAKE_ERROR(MODULE_HAL, MBED_ERROR_CODE_UNDERFLOW), "DeepSleepLock underflow (< 0)", deep_sleep_lock);
     }
     core_util_atomic_decr_u16(&deep_sleep_lock, 1);
     core_util_critical_section_exit();

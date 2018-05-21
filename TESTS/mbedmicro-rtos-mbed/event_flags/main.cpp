@@ -53,9 +53,9 @@ void error(const char* format, ...) {
 }
 
 //Override the set_error function to trap the errors 
-mbed_error_status_t set_error(mbed_error_status_t error_status, const char *error_msg, unsigned int error_value, const char *filename, int line_number) 
+mbed_error_status_t mbed_error(mbed_error_status_t error_status, const char *error_msg, unsigned int error_value, const char *filename, int line_number) 
 {
-    return ERROR_SUCCESS;
+    return MBED_SUCCESS;
 }
 #endif
 

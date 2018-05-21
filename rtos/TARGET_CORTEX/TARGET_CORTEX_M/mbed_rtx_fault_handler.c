@@ -32,30 +32,30 @@ mbed_fault_context_t mbed_fault_context;
 //This runs in fault context and uses special functions(defined in mbed_rtx_fault_handler.c) to print the information without using C-lib support.
 __NO_RETURN void mbed_fault_handler (uint32_t fault_type, void *mbed_fault_context_in, void *osRtxInfoIn)
 {
-    mbed_error_status_t faultStatus = ERROR_SUCCESS;
+    mbed_error_status_t faultStatus = MBED_SUCCESS;
     
     mbed_error_print("\n++ MbedOS Fault Handler ++\n\nFaultType: ",NULL);
         
     switch( fault_type ) {
       case HARD_FAULT_EXCEPTION: 
         mbed_error_print("HardFault",NULL);
-        faultStatus = ERROR_HARDFAULT_EXCEPTION;      
+        faultStatus = MBED_ERROR_HARDFAULT_EXCEPTION;      
         break;
       case MEMMANAGE_FAULT_EXCEPTION: 
         mbed_error_print("MemManageFault",NULL); 
-        faultStatus = ERROR_MEMMANAGE_EXCEPTION;
+        faultStatus = MBED_ERROR_MEMMANAGE_EXCEPTION;
         break;
       case BUS_FAULT_EXCEPTION: 
         mbed_error_print("BusFault",NULL); 
-        faultStatus = ERROR_BUSFAULT_EXCEPTION;
+        faultStatus = MBED_ERROR_BUSFAULT_EXCEPTION;
         break;
       case USAGE_FAULT_EXCEPTION: 
         mbed_error_print("UsageFault",NULL); 
-        faultStatus = ERROR_USAGEFAULT_EXCEPTION;
+        faultStatus = MBED_ERROR_USAGEFAULT_EXCEPTION;
         break;
       default: 
         mbed_error_print("Unknown Fault",NULL); 
-        faultStatus = ERROR_UNKNOWN;
+        faultStatus = MBED_ERROR_UNKNOWN;
         break;
     }
     mbed_error_print("\n\nContext:",NULL);
@@ -81,8 +81,8 @@ __NO_RETURN void mbed_fault_handler (uint32_t fault_type, void *mbed_fault_conte
     
     mbed_error_print("\n\n-- MbedOS Fault Handler --\n\n",NULL);
     
-    //Now call set_error, to log the error and halt the system
-    set_error( MAKE_ERROR( MODULE_UNKNOWN, faultStatus ), "System encountered an unrecoverable fault excaption, halting system.", mbed_fault_context.PC_reg, NULL, 0 );
+    //Now call mbed_error, to log the error and halt the system
+    mbed_error( MAKE_ERROR( MODULE_UNKNOWN, faultStatus ), "System encountered an unrecoverable fault excaption, halting system.", mbed_fault_context.PC_reg, NULL, 0 );
     
     /* In case we return, just spin here, we have already crashed */
     for (;;) { 

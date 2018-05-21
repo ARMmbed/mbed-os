@@ -72,18 +72,22 @@ mbed_error_status_t handle_error(mbed_error_status_t error_status, const char *e
     
     //Error status should always be < 0
     if(error_status >= 0) {
-        //This is a weird situation, someone called set_error with invalid error code.
+        //This is a weird situation, someone called mbed_error with invalid error code.
         //We will still handle the situation but change the error code to ERROR_INVALID_ARGUMENT, atleast the context will have info on who called it
-        error_status = ERROR_INVALID_ARGUMENT;
+        error_status = MBED_ERROR_INVALID_ARGUMENT;
     }
     
-    //Use critsect here, as we don't want processing more than one error at the same time
+    //Prevent corruption by holding out other callers
+    //and we also need this until we remove the error call completely
+    while (error_in_progress == 1);
+    
+    //Use critsect here, as we don't want inadvertant modification of this global variable
     core_util_critical_section_enter();
+    error_in_progress = 1;
+    core_util_critical_section_exit();
     
     //Increment error count
     error_count++;
-    //Use critsect here, as we don't want processing more than one error at the same time
-    core_util_critical_section_exit();
     
     //Clear the context capturing buffer
     memset(&current_error_ctx, sizeof(mbed_error_ctx), 0);
@@ -106,8 +110,6 @@ mbed_error_status_t handle_error(mbed_error_status_t error_status, const char *e
     }
 #endif
     
-    //Use critsect here, as we don't want processing more than one error at the same time
-    core_util_critical_section_enter();
     //Report the error
     mbed_report_error(&current_error_ctx, (char *)error_msg);
     
@@ -119,9 +121,6 @@ mbed_error_status_t handle_error(mbed_error_status_t error_status, const char *e
     //copy this error to last error
     memcpy(&last_error_ctx, &current_error_ctx, sizeof(mbed_error_ctx));
     
-    //Use critsect here, as we don't want processing more than one error at the same time
-    core_util_critical_section_exit();
-    
 #ifndef MBED_CONF_ERROR_LOG_DISABLED    
     //Log the error with error log
     mbed_log_put_error(&current_error_ctx);
@@ -132,7 +131,9 @@ mbed_error_status_t handle_error(mbed_error_status_t error_status, const char *e
         error_hook(&last_error_ctx);
     }
     
-    return ERROR_SUCCESS;
+    error_in_progress = 0;
+    
+    return MBED_SUCCESS;
 }
 
 //Return the first error
@@ -157,20 +158,20 @@ int get_error_count(void)
 }
 
 //Sets a fatal error 
-mbed_error_status_t set_warning(mbed_error_status_t error_status, const char *error_msg, unsigned int error_value, const char *filename, int line_number) 
+mbed_error_status_t mbed_warning(mbed_error_status_t error_status, const char *error_msg, unsigned int error_value, const char *filename, int line_number) 
 {
     return handle_error(error_status, error_msg, error_value, filename, line_number);
 }
 
 //Sets a fatal error 
-WEAK mbed_error_status_t set_error(mbed_error_status_t error_status, const char *error_msg, unsigned int error_value, const char *filename, int line_number) 
+WEAK mbed_error_status_t mbed_error(mbed_error_status_t error_status, const char *error_msg, unsigned int error_value, const char *filename, int line_number) 
 {
     //set the error reported and then halt the system
-    if( ERROR_SUCCESS != handle_error(error_status, error_msg, error_value, filename, line_number) )
-        return ERROR_FAILED_OPERATION;
+    if( MBED_SUCCESS != handle_error(error_status, error_msg, error_value, filename, line_number) )
+        return MBED_ERROR_FAILED_OPERATION;
     mbed_halt_system();
     
-    return ERROR_FAILED_OPERATION;
+    return MBED_ERROR_FAILED_OPERATION;
 }
 
 //Register an application defined callback with error handling
@@ -179,24 +180,24 @@ mbed_error_status_t set_error_hook(mbed_error_hook_t error_hook_in)
     //register the new hook/callback
     if( error_hook_in != NULL )  {
         error_hook = error_hook_in;
-        return ERROR_SUCCESS;
+        return MBED_SUCCESS;
     } 
     
-    return ERROR_INVALID_ARGUMENT;
+    return MBED_ERROR_INVALID_ARGUMENT;
 }
 
 //Retrieve the first error context from error log 
 mbed_error_status_t get_first_error_log_info (mbed_error_ctx *error_info) 
 {
     memcpy(error_info, &first_error_ctx, sizeof(first_error_ctx));
-    return ERROR_SUCCESS;
+    return MBED_SUCCESS;
 }
 
 //Retrieve the last error context from error log 
 mbed_error_status_t get_last_error_log_info (mbed_error_ctx *error_info) 
 {
     memcpy(error_info, &last_error_ctx, sizeof(mbed_error_ctx));
-    return ERROR_SUCCESS;
+    return MBED_SUCCESS;
 }
 
 //Makes an mbed_error_status_t value
@@ -204,19 +205,19 @@ mbed_error_status_t make_mbed_error(mbed_error_type_t error_type, mbed_module_ty
 {
     switch(error_type)
     {
-        case ERROR_TYPE_POSIX:
+        case MBED_ERROR_TYPE_POSIX:
             if(error_code >= MBED_POSIX_ERROR_BASE && error_code <= MBED_SYSTEM_ERROR_BASE)
                 return -error_code;
             break;
             
-        case ERROR_TYPE_SYSTEM:
+        case MBED_ERROR_TYPE_SYSTEM:
             if(error_code >= MBED_SYSTEM_ERROR_BASE && error_code <= MBED_CUSTOM_ERROR_BASE)
-                return MAKE_MBED_ERROR(ERROR_TYPE_SYSTEM, entity, error_code);
+                return MAKE_MBED_ERROR(MBED_ERROR_TYPE_SYSTEM, entity, error_code);
             break;
             
-        case ERROR_TYPE_CUSTOM:
+        case MBED_ERROR_TYPE_CUSTOM:
             if(error_code >= MBED_CUSTOM_ERROR_BASE)
-                return MAKE_MBED_ERROR(ERROR_TYPE_CUSTOM, entity, error_code);
+                return MAKE_MBED_ERROR(MBED_ERROR_TYPE_CUSTOM, entity, error_code);
             break;
             
         default:
@@ -224,17 +225,17 @@ mbed_error_status_t make_mbed_error(mbed_error_type_t error_type, mbed_module_ty
     }
     
     //If we are passed incorrect values return a generic system error
-    return MAKE_MBED_ERROR(ERROR_TYPE_SYSTEM, MODULE_UNKNOWN, ERROR_CODE_UNKNOWN);
+    return MAKE_MBED_ERROR(MBED_ERROR_TYPE_SYSTEM, MODULE_UNKNOWN, MBED_ERROR_CODE_UNKNOWN);
 }
 
 /**
  * Clears all the last error, error count and all entries in the error log.
- * @return                      0 or ERROR_SUCCESS on success.
+ * @return                      0 or MBED_SUCCESS on success.
  *
  */
 mbed_error_status_t clear_all_errors(void) 
 {
-    mbed_error_status_t status = ERROR_SUCCESS;
+    mbed_error_status_t status = MBED_SUCCESS;
     
     //Make sure we dont multiple clients resetting
     core_util_critical_section_enter();
@@ -265,20 +266,20 @@ int get_error_log_count(void)
 
 mbed_error_status_t save_error_log(const char *path)
 {
-    mbed_error_status_t ret = ERROR_SUCCESS;
+    mbed_error_status_t ret = MBED_SUCCESS;
     mbed_error_ctx ctx = {0};
     int log_count = mbed_log_get_error_log_count();
     FILE *error_log_file = NULL;
     
     //Ensure path is valid
     if(path==NULL) {
-        ret = MAKE_ERROR(MODULE_PLATFORM, ERROR_CODE_INVALID_ARGUMENT);
+        ret = MAKE_ERROR(MODULE_PLATFORM, MBED_ERROR_CODE_INVALID_ARGUMENT);
         goto exit;
     }
     
     //Open the file for saving the error log info
     if((error_log_file = fopen( path, "w" ) ) == NULL){
-        ret = MAKE_ERROR(MODULE_PLATFORM, ERROR_CODE_OPEN_FAILED);
+        ret = MAKE_ERROR(MODULE_PLATFORM, MBED_ERROR_CODE_OPEN_FAILED);
         goto exit;
     }
     
@@ -288,7 +289,7 @@ mbed_error_status_t save_error_log(const char *path)
         (unsigned int)first_error_ctx.thread_id, 
         (unsigned int)first_error_ctx.error_address, 
         (unsigned int)first_error_ctx.error_value) <= 0) {
-        ret = MAKE_ERROR(MODULE_PLATFORM, ERROR_CODE_WRITE_FAILED);
+        ret = MAKE_ERROR(MODULE_PLATFORM, MBED_ERROR_CODE_WRITE_FAILED);
         goto exit;
     }
     
@@ -297,7 +298,7 @@ mbed_error_status_t save_error_log(const char *path)
         (unsigned int)last_error_ctx.thread_id, 
         (unsigned int)last_error_ctx.error_address, 
         (unsigned int)last_error_ctx.error_value) <= 0) {
-        ret = MAKE_ERROR(MODULE_PLATFORM, ERROR_CODE_WRITE_FAILED);
+        ret = MAKE_ERROR(MODULE_PLATFORM, MBED_ERROR_CODE_WRITE_FAILED);
         goto exit;
     }
     
@@ -311,7 +312,7 @@ mbed_error_status_t save_error_log(const char *path)
             (unsigned int)ctx.thread_id, 
             (unsigned int)ctx.error_address, 
             (unsigned int)ctx.error_value) <= 0) {
-            ret = MAKE_ERROR(MODULE_PLATFORM, ERROR_CODE_WRITE_FAILED);
+            ret = MAKE_ERROR(MODULE_PLATFORM, MBED_ERROR_CODE_WRITE_FAILED);
             goto exit;
         }
     }

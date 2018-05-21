@@ -31,7 +31,7 @@ extern "C" {
  * Puts/Adds an error entry into the error list
  * 
  * @param  error_ctx            pointer to the mbed_error_ctx struct with the error context
- * @return                      0 or ERROR_SUCCESS on success.
+ * @return                      0 or MBED_SUCCESS on success.
  *                              ERROR_WRITE_FAILED if writing to file failed
  *                              ERROR_INVALID_ARGUMENT if path is not valid 
  *
@@ -44,7 +44,7 @@ mbed_error_status_t mbed_log_put_error(mbed_error_ctx *error_ctx);
  * 
  * @param  index                Index of the error context to be retrieved. It starts from 0 and 0 is the oldest.
  * @param  error_ctx            pointer to the mbed_error_ctx struct where the error context will be filled, this should be allocated by the caller
- * @return                      0 or ERROR_SUCCESS on success.
+ * @return                      0 or MBED_SUCCESS on success.
  *                              ERROR_WRITE_FAILED if writing to file failed
  *                              ERROR_INVALID_ARGUMENT if path is not valid 
  *
@@ -66,7 +66,7 @@ mbed_error_ctx *mbed_log_get_entry(void);
  * Reads the last(latest) error entry from the error list
  * 
  * @param  error_ctx            pointer to the mbed_error_ctx struct where the error context will be filled, this should be allocated by the caller
- * @return                      0 or ERROR_SUCCESS on success.
+ * @return                      0 or MBED_SUCCESS on success.
  *                              ERROR_WRITE_FAILED if writing to file failed
  *                              ERROR_INVALID_ARGUMENT if path is not valid 
  *
@@ -86,7 +86,7 @@ int mbed_log_get_error_log_count(void);
 /*
  * Resets the error log by resetting the number of errors to 0 and clears all previous errors in the log
  * 
- * @return                      0 or ERROR_SUCCESS on success.
+ * @return                      0 or MBED_SUCCESS on success.
  *                              ERROR_WRITE_FAILED if writing to file failed
  *                              ERROR_INVALID_ARGUMENT if path is not valid 
  *
@@ -98,7 +98,7 @@ mbed_error_status_t mbed_log_reset(void);
  * Saves the error log information to a file
  * 
  * @param  path                 path to the file in the filesystem
- * @return                      0 or ERROR_SUCCESS on success.
+ * @return                      0 or MBED_SUCCESS on success.
  *                              ERROR_WRITE_FAILED if writing to file failed
  *                              ERROR_INVALID_ARGUMENT if path is not valid 
  *

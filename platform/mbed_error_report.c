@@ -188,51 +188,51 @@ void mbed_report_error(mbed_error_ctx *error_ctx, char *error_msg)
 {
     uint32_t error_vals[3] = {0};
     error_vals[0] = error_ctx->error_status;
-    error_vals[1] = GET_MBED_ERROR_CODE(error_ctx->error_status);
-    error_vals[2] = GET_MBED_ERROR_MODULE(error_ctx->error_status);
+    error_vals[1] = MBED_GET_ERROR_CODE(error_ctx->error_status);
+    error_vals[2] = MBED_GET_ERROR_MODULE(error_ctx->error_status);
     
     mbed_error_print("\n\n++ MbedOS Error Info ++\nError Status: 0x%x Code: %d Entity: %d\nError Message: ", error_vals);
     
     //Report error info based on error code, some errors require different 
     //error_vals[1] contains the error code
-    if(error_vals[1] == ERROR_CODE_HARDFAULT_EXCEPTION || 
-       error_vals[1] == ERROR_CODE_MEMMANAGE_EXCEPTION || 
-       error_vals[1] == ERROR_CODE_BUSFAULT_EXCEPTION || 
-       error_vals[1] == ERROR_CODE_USAGEFAULT_EXCEPTION ) {
+    if(error_vals[1] == MBED_ERROR_CODE_HARDFAULT_EXCEPTION || 
+       error_vals[1] == MBED_ERROR_CODE_MEMMANAGE_EXCEPTION || 
+       error_vals[1] == MBED_ERROR_CODE_BUSFAULT_EXCEPTION || 
+       error_vals[1] == MBED_ERROR_CODE_USAGEFAULT_EXCEPTION ) {
         mbed_error_print(error_msg, NULL);
         mbed_error_print("\nLocation: 0x%x\n", (uint32_t *)&error_ctx->error_value);
     } else {
         switch (error_vals[1]) {
             //These are errors reported by kernel handled from mbed_rtx_handlers
-            case ERROR_CODE_RTOS_EVENT:
+            case MBED_ERROR_CODE_RTOS_EVENT:
                 mbed_error_print("Kernel Error: 0x%x, ", (uint32_t *)&error_ctx->error_value);
                 break;
             
-            case ERROR_CODE_RTOS_THREAD_EVENT:
+            case MBED_ERROR_CODE_RTOS_THREAD_EVENT:
                 mbed_error_print("Thread: 0x%x, ", (uint32_t *)&error_ctx->error_value);
                 break;
             
-            case ERROR_CODE_RTOS_MUTEX_EVENT:
+            case MBED_ERROR_CODE_RTOS_MUTEX_EVENT:
                 mbed_error_print("Mutex: 0x%x, ", (uint32_t *)&error_ctx->error_value);
                 break;
             
-            case ERROR_CODE_RTOS_SEMAPHORE_EVENT:
+            case MBED_ERROR_CODE_RTOS_SEMAPHORE_EVENT:
                 mbed_error_print("Semaphore: 0x%x, ", (uint32_t *)&error_ctx->error_value);
                 break;
             
-            case ERROR_CODE_RTOS_MEMORY_POOL_EVENT:
+            case MBED_ERROR_CODE_RTOS_MEMORY_POOL_EVENT:
                 mbed_error_print("MemoryPool: 0x%x, ", (uint32_t *)&error_ctx->error_value);
                 break;
             
-            case ERROR_CODE_RTOS_EVENT_FLAGS_EVENT:
+            case MBED_ERROR_CODE_RTOS_EVENT_FLAGS_EVENT:
                 mbed_error_print("EventFlags: 0x%x, ", (uint32_t *)&error_ctx->error_value);
                 break;
             
-            case ERROR_CODE_RTOS_TIMER_EVENT:
+            case MBED_ERROR_CODE_RTOS_TIMER_EVENT:
                 mbed_error_print("Timer: 0x%x, ", (uint32_t *)&error_ctx->error_value);
                 break;
             
-            case ERROR_CODE_RTOS_MESSAGE_QUEUE_EVENT:    
+            case MBED_ERROR_CODE_RTOS_MESSAGE_QUEUE_EVENT:    
                 mbed_error_print("MessageQueue: 0x%x, ", (uint32_t *)&error_ctx->error_value);
                 break;
             
