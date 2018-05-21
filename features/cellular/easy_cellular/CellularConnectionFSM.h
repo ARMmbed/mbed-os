@@ -117,7 +117,9 @@ public:
      */
     CellularDevice *get_device();
 
-    /** Get cellular sim interface
+    /** Get cellular sim interface. SIM interface is released after SIM is open and ready for use (moving from STATE_SIM_PIN to next state).
+     *  After SIM interface is closed this method will return NULL. SIM interface can be created again via CellularDevice
+     *  which you can get with the method get_device().
      *  @return sim interface, NULL on failure
      */
     CellularSIM *get_sim();

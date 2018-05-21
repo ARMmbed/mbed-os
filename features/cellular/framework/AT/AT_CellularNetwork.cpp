@@ -351,8 +351,12 @@ nsapi_error_t AT_CellularNetwork::open_data_channel()
 
     _at.resp_start("CONNECT", true);
     if (_at.get_last_error()) {
-        tr_warn("Failed to CONNECT");
+        tr_error("Failed to CONNECT");
+        return _at.get_last_error();
     }
+
+    _at.set_is_filehandle_usable(false);
+
     /* Initialize PPP
      * If blocking: mbed_ppp_init() is a blocking call, it will block until
                   connected, or timeout after 30 seconds*/
@@ -376,6 +380,7 @@ nsapi_error_t AT_CellularNetwork::disconnect()
     // will set the correct sigio and nonblocking
     _at.lock();
     _at.set_file_handle(_at.get_file_handle());
+    _at.set_is_filehandle_usable(true);
     _at.unlock();
     return err;
 #else

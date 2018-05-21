@@ -402,6 +402,8 @@ void CellularConnectionFSM::device_ready()
         _event_status_cb((nsapi_event_t)CellularDeviceReady, 0);
     }
     _power->remove_device_ready_urc_cb(mbed::callback(this, &CellularConnectionFSM::ready_urc_cb));
+    _cellularDevice->close_power();
+    _power = NULL;
 }
 
 void CellularConnectionFSM::state_device_ready()
@@ -434,7 +436,8 @@ void CellularConnectionFSM::state_sim_pin()
             retry_state_or_fail();
             return;
         }
-
+        _cellularDevice->close_sim();
+        _sim = NULL;
         if (_plmn) {
             enter_to_state(STATE_MANUAL_REGISTERING_NETWORK);
         } else {
