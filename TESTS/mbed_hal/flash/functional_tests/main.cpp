@@ -98,16 +98,18 @@ MBED_NOINLINE
 static int time_cpu_cycles(uint32_t cycles)
 {
     Timer timer;
+
+    core_util_critical_section_enter();
+
     timer.start();
 
-    int timer_start = timer.read_us();
-
-    uint32_t delay = cycles;
-    delay_loop(delay);
-    int timer_end = timer.read_us();
+    delay_loop(cycles);
 
     timer.stop();
-    return timer_end - timer_start;
+
+    core_util_critical_section_exit();
+
+    return timer.read_us();
 }
 
 void flash_init_test()
