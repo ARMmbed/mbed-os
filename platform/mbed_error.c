@@ -163,7 +163,7 @@ mbed_error_status_t set_warning(mbed_error_status_t error_status, const char *er
 }
 
 //Sets a fatal error 
-mbed_error_status_t set_error(mbed_error_status_t error_status, const char *error_msg, unsigned int error_value, const char *filename, int line_number) 
+WEAK mbed_error_status_t set_error(mbed_error_status_t error_status, const char *error_msg, unsigned int error_value, const char *filename, int line_number) 
 {
     //set the error reported and then halt the system
     if( ERROR_SUCCESS != handle_error(error_status, error_msg, error_value, filename, line_number) )

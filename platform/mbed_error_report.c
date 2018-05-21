@@ -119,7 +119,7 @@ void mbed_error_print(char *fmtstr, uint32_t *values)
     while(fmtstr[i] != '\0') {
         if(fmtstr[i]=='%') {
             i++;
-            if(fmtstr[i]=='x' || fmtstr[i]=='d') {
+            if(fmtstr[i]=='x') {
                 //print the number in hex format
                 value_to_hex_str(values[vidx++],num_str);
                 for(idx=7; idx>=0; idx--) {
