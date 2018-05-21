@@ -35,6 +35,17 @@ typedef struct {
   uint32_t                   cb_size;   ///< size of provided memory for control block
 } osSemaphoreAttr_t;
 
+//Thread
+typedef enum {
+  osPriorityNormal        = 24       ///< Priority: normal
+} osPriority_t;
+
+typedef void *osThreadId_t;
+
+/// Attributes structure for thread.
+typedef struct {
+} osThreadAttr_t;
+
 #define osWaitForever         0xFFFFFFFFU
 
 

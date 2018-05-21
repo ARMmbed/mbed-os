@@ -17,6 +17,7 @@
 
 #include <time.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include "mbed_wait_api.h"
 #include "AT_CellularSMS.h"
 #include "CellularUtil.h"

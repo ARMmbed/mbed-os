@@ -15,4 +15,12 @@
  * limitations under the License.
  */
 
-#define EAGAIN 11
+#include "Thread.h"
+
+namespace rtos {
+
+osStatus Thread::wait_until(uint64_t millisec) {
+    return 0;
+}
+
+}

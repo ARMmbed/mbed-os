@@ -102,13 +102,14 @@ const void *SocketAddress::get_ip_bytes() const
 
 nsapi_version_t SocketAddress::get_ip_version() const
 {
-    nsapi_version_t ver;
+    nsapi_version_t ver = NSAPI_IPv6;
     return ver;
 }
 
 nsapi_addr_t SocketAddress::get_addr() const
 {
     nsapi_addr_t addr;
+    addr.version = NSAPI_IPv6;
     return _addr;
 }
 

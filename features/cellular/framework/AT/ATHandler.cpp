@@ -23,9 +23,7 @@
 #include "FileHandle.h"
 #include "mbed_wait_api.h"
 #include "mbed_debug.h"
-#ifdef MBED_CONF_RTOS_PRESENT
 #include "rtos/Thread.h"
-#endif
 #include "Kernel.h"
 #include "CellularUtil.h"
 
