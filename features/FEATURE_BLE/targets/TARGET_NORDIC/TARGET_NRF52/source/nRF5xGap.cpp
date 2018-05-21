@@ -1322,7 +1322,7 @@ void nRF5xGap::on_connection(Gap::Handle_t handle, const ble_gap_evt_connected_t
     // deal with own address
     LegacyAddressType_t own_addr_type;
     ble::address_t own_address;
-    ble::address_t own_resolvable_address;
+    const uint8_t* own_resolvable_address = NULL;
 
 #if  (NRF_SD_BLE_API_VERSION <= 2)
     if (evt.own_addr.addr_type == BLE_GAP_ADDR_TYPE_PUBLIC) {
@@ -1334,14 +1334,6 @@ void nRF5xGap::on_connection(Gap::Handle_t handle, const ble_gap_evt_connected_t
 #else
     getAddress(&own_addr_type, own_address.data());
 #endif
-
-    if (_privacy_enabled) {
-        // swap own address with own resolvable address as when privacy is
-        // enabled own_address is invalid and the address returned by getAddress
-        // is the resolvable one.
-        std::swap(own_address, own_resolvable_address);
-        own_addr_type = LegacyAddressType::RANDOM_PRIVATE_RESOLVABLE;
-    }
 
 #if (NRF_SD_BLE_API_VERSION <= 2)
     bool private_peer_known = evt.irk_match;
@@ -1374,11 +1366,11 @@ void nRF5xGap::on_connection(Gap::Handle_t handle, const ble_gap_evt_connected_t
         private_peer_known,
         evt.peer_addr.addr_type
     );
+
     // NOTE: when privacy is enabled, the only address returned is the resolved
-    // address; set peer and resolved address to the same value in such case.
+    // address.
     const uint8_t* peer_address = evt.peer_addr.addr;
-    const uint8_t* peer_resolvable_address =
-        private_peer_known ? peer_address : NULL;
+    const uint8_t* peer_resolvable_address = NULL;
 
     // notify internal event handler before applying the resolution strategy
     if (_connection_event_handler) {
@@ -1422,7 +1414,7 @@ void nRF5xGap::on_connection(Gap::Handle_t handle, const ble_gap_evt_connected_t
         own_address.data(),
         reinterpret_cast<const ConnectionParams_t *>(&(evt.conn_params)),
         peer_resolvable_address,
-        own_resolvable_address.data()
+        own_resolvable_address
     );
 }
 
