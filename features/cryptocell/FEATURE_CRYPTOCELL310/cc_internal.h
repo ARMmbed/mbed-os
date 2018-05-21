@@ -106,7 +106,9 @@ typedef struct
  *             different standard tests to pass.
  *
  *
- * \param grp_id           The mbedtls mbedtls_ecp_group_id to convert
+ * \param mbedtls_rand      The mbedtls rnd context pointer
+ * \param outSizeBytes      The size of the output buffer
+ * \param out_ptr           Pointer to the output buffer
  *
  * \return     \c The corresponding CRYS_ECPKI_DomainID_t.
  *                CRYS_ECPKI_DomainID_OffMode if not recognized.

@@ -12,10 +12,9 @@ To port your CC 310 driver to Mbed OS on your specific target, do the following:
 
 1. In `targets.json` add the following  to your target:
  	* `MBEDTLS_CONFIG_HW_SUPPORT` to `macros_add` key. This instructs Mbed TLS to look for an alternative cryptographic implementation.
- 	* `CRYPTOCELL` to `device_has_add` key. Use this in your common code that you need to remove from compilation in case CC exists in your board. Use `#if !defined(DEVICE_CRYPTOCELL)` and  `#if defined(DEVICE_CRYPTOCELL)`.
- 	* `CRYPTOCELL310` to `extra_labels_add` key. The build system uses this to look for the CC 310 code and binaries.
-1. In `objects.h`, include `objects_cryptocell.h`. You can use the `DEVICE_CRYPTOCELL` precompilation check as defined above.
-1. In `features/mbedtls/targets/TARGET_CRYPTOCELL310/TARGET_<target name>`, add your platform-specific libraries for all toolchains in `TOOLCHAIN_ARM`, `TOOLCHAIN_GCC_ARM` and `TOOLCHAIN_IAR` respectively.
+ 	* `CRYPTOCELL310` to `feature`. Use this in your common code that you need to remove from compilation in case CC exists in your board. Use `#if !defined(FEATURE_CRYPTOCELL310)` and  `#if defined(FEATURE_CRYPTOCELL310)`.
+1. In `objects.h`, include `objects_cryptocell.h`. You can use the `FEATURE_CRYPTOCELL310` precompilation check as defined above.
+1. In `features/cryptocell/FEATURE_CRYPTOCELL310/TARGET_<target name>`, add your platform-specific libraries for all toolchains in `TOOLCHAIN_ARM`, `TOOLCHAIN_GCC_ARM` and `TOOLCHAIN_IAR` respectively.
 1. Add your CC setup code:
 	* Implement `cc_platform_setup()` and `cc_platform_terminate()` to enable CC on your platform, in case you have board-specific setup functionality, required for CC setup. These functions can be empty.
 	* Define `cc_platform_ctx` in `cc_platform.h` in a way that suits your implementation.

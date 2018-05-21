@@ -3683,8 +3683,7 @@
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF52840"],
         "macros_add": ["MBEDTLS_CONFIG_HW_SUPPORT"],
-        "device_has_add": ["CRYPTOCELL"],
-        "extra_labels_add": ["CRYPTOCELL310"],
+        "features": ["CRYPTOCELL310"],
         "release_versions": ["5"],
         "device_name": "nRF52840_xxAA"
     },
