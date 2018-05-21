@@ -117,20 +117,13 @@ __asm static void start_new_application(void *sp, void *pc)
 
 void start_new_application(void *sp, void *pc)
 {
+    __asm volatile (
 #if defined(__CORTEX_M23)
-    __asm volatile (
-        "ldr    r2, =0      \n"
-        "msr    control, r2 \n" // Switch to main stack
-        "mov    sp, %0      \n"
-        "msr    primask, r2 \n" // Enable interrupts
-        "bx     %1          \n"
-        :
-        : "l" (sp), "l" (pc)
-        : "r2", "cc", "memory"
-    );
+        "movw   r2, #0      \n"
+        "movt   r2, #0      \n"
 #else
-    __asm volatile (
         "mov    r2, #0      \n"
+#endif
         "msr    control, r2 \n" // Switch to main stack
         "mov    sp, %0      \n"
         "msr    primask, r2 \n" // Enable interrupts
@@ -139,7 +132,6 @@ void start_new_application(void *sp, void *pc)
         : "l" (sp), "l" (pc)
         : "r2", "cc", "memory"
     );
-#endif
 }
 
 #else
