@@ -3608,6 +3608,7 @@
             "I2C_ASYNCH",
             "INTERRUPTIN",
             "ITM",
+            "LPTICKER",
             "PORTIN",
             "PORTINOUT",
             "PORTOUT",
@@ -3656,7 +3657,7 @@
     "NRF52_DK": {
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF52832"],
-        "release_versions": [],
+        "release_versions": ["5"],
         "device_name": "nRF52832_xxAA"
     },
     "UBLOX_EVA_NINA": {
