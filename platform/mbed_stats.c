@@ -1,8 +1,9 @@
+#include "mbed_assert.h"
 #include "mbed_stats.h"
 #include <string.h>
 #include <stdlib.h>
-#include "mbed_assert.h"
 
+#include "device.h"
 #ifdef MBED_CONF_RTOS_PRESENT
 #include "cmsis_os2.h"
 #elif defined(MBED_STACK_STATS_ENABLED) || defined(MBED_THREAD_STATS_ENABLED)
@@ -96,6 +97,32 @@ size_t mbed_stats_thread_get_each(mbed_stats_thread_t *stats, size_t count)
     osKernelUnlock();
     free(threads);
 #endif
-
     return i;
+}
+
+void mbed_stats_sys_get(mbed_stats_sys_t *stats)
+{
+    MBED_ASSERT(stats != NULL);
+    memset(stats, 0, sizeof(mbed_stats_sys_t));
+
+#if defined(MBED_SYS_STATS_ENABLED)
+#if defined(MBED_VERSION)
+    stats->os_version = MBED_VERSION;
+#endif
+#if defined(__CORTEX_M)
+    stats->cpu_id = SCB->CPUID;
+#endif
+#if defined(__IAR_SYSTEMS_ICC__)
+    stats->compiler_id = IAR;
+    stats->compiler_version = __VER__;
+#elif defined(__CC_ARM)
+    stats->compiler_id = ARM;
+    stats->compiler_version = __ARMCC_VERSION;
+#elif defined(__GNUC__)
+    stats->compiler_id = GCC_ARM;
+    stats->compiler_version = (__GNUC__ * 10000 + __GNUC_MINOR__ * 100);
+#endif
+
+#endif
+    return;
 }
