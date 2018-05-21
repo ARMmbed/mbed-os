@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_def.h
   * @author  MCD Application Team
-  * @version V1.4.0
-  * @date    16-December-2016
   * @brief   This file contains HAL common defines, enumeration, macros and 
   *          structures definitions. 
   ******************************************************************************
@@ -46,7 +44,9 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f3xx.h"
-#include "stm32_hal_legacy.h"
+#if defined USE_LEGACY
+#include "stm32_hal_legacy.h" // MBED patch
+#endif
 #include <stdio.h>
 
 /* Exported types ------------------------------------------------------------*/
@@ -86,7 +86,7 @@ typedef enum
 #define UNUSED(x) ((void)(x))
                          
 /** @brief Reset the Handle's State field.
-  * @param __HANDLE__: specifies the Peripheral Handle.
+  * @param __HANDLE__ specifies the Peripheral Handle.
   * @note  This macro can be used for the following purpose:
   *          - When the Handle is declared as local variable; before passing it as parameter
   *            to HAL_PPP_Init() for the first time, it is mandatory to use this macro
@@ -122,9 +122,13 @@ typedef enum
                                       (__HANDLE__)->Lock = HAL_UNLOCKED;    \
                                     }while (0U)
 #endif /* USE_RTOS */
+
+// MBED patch
 #if defined (__CC_ARM)
 #pragma diag_suppress 3731
 #endif
+
+// MBED patch
 static inline  void atomic_set_u32(volatile uint32_t *ptr, uint32_t mask)
 {
 	uint32_t newValue;
@@ -134,7 +138,7 @@ static inline  void atomic_set_u32(volatile uint32_t *ptr, uint32_t mask)
 	} while (__STREXW(newValue, ptr));
 }
 
-
+// MBED patch
 static inline  void atomic_clr_u32(volatile uint32_t *ptr, uint32_t mask)
 {
 	uint32_t newValue;
@@ -144,6 +148,7 @@ static inline  void atomic_clr_u32(volatile uint32_t *ptr, uint32_t mask)
 	} while (__STREXW(newValue, ptr));
 }
 
+// MBED patch
 #if  defined ( __GNUC__ ) && !defined ( __CC_ARM )
   #ifndef __weak
     #define __weak   __attribute__((weak))

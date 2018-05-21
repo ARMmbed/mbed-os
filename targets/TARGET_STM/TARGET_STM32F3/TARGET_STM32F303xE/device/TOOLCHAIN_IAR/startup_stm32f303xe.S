@@ -1,8 +1,6 @@
 ;/******************** (C) COPYRIGHT 2014 STMicroelectronics ********************
 ;* File Name          : startup_stm32f303xe.s
 ;* Author             : MCD Application Team
-;* Version            : V2.1.0
-;* Date               : 12-Sept-2014
 ;* Description        : STM32F303RE/STM32F303VE/STM32F303ZE devices vector table 
 ;*                      for EWARM toolchain.
 ;*                      This module performs:
@@ -15,8 +13,6 @@
 ;*                      After Reset the Cortex-M4 processor is in Thread mode,
 ;*                      priority is Privileged, and the Stack is set to Main.
 ;********************************************************************************
-;*
-;* <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
 ;*
 ;* Redistribution and use in source and binary forms, with or without modification,
 ;* are permitted provided that the following conditions are met:

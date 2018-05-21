@@ -120,7 +120,7 @@ def add_result_to_report(report, result):
     result_wrap = {0: result}
     report[target][toolchain][id_name].append(result_wrap)
 
-def get_config(src_paths, target, toolchain_name):
+def get_config(src_paths, target, toolchain_name, app_config=None):
     """Get the configuration object for a target-toolchain combination
 
     Positional arguments:
@@ -133,7 +133,8 @@ def get_config(src_paths, target, toolchain_name):
         src_paths = [src_paths]
 
     # Pass all params to the unified prepare_resources()
-    toolchain = prepare_toolchain(src_paths, None, target, toolchain_name)
+    toolchain = prepare_toolchain(src_paths, None, target, toolchain_name,
+                                  app_config=app_config)
 
     # Scan src_path for config files
     resources = toolchain.scan_resources(src_paths[0])
@@ -438,6 +439,7 @@ def merge_region_list(region_list, destination, padding=b'\xFF'):
         if region.filename:
             print("  Filling region %s with %s" % (region.name, region.filename))
             part = intelhex_offset(region.filename, offset=region.start)
+            part.start_addr = None
             part_size = (part.maxaddr() - part.minaddr()) + 1
             if part_size > region.size:
                 raise ToolException("Contents of region %s does not fit"

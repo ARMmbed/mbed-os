@@ -158,8 +158,16 @@ typedef enum sn_coap_status_ {
     COAP_STATUS_PARSER_BLOCKWISE_MSG_REJECTED  = 5, /**< Blockwise message received but not supported by compiling switch */
     COAP_STATUS_PARSER_BLOCKWISE_MSG_RECEIVED  = 6, /**< Blockwise message fully received and returned to app.
                                                          User must take care of releasing whole payload of the blockwise messages */
-    COAP_STATUS_BUILDER_MESSAGE_SENDING_FAILED = 7  /**< When re-transmissions have been done and ACK not received, CoAP library calls
+    COAP_STATUS_BUILDER_MESSAGE_SENDING_FAILED = 7, /**< When re-transmissions have been done and ACK not received, CoAP library calls
                                                          RX callback with this status */
+
+    COAP_STATUS_BUILDER_BLOCK_SENDING_FAILED   = 8, /**< Blockwise message sending timeout.
+                                                         The msg_id in sn_coap_hdr_s* parameter of RX callback is set to the same value
+                                                         as in the first block sent, and parameter sn_nsdl_addr_s* is set as NULL.  */
+    COAP_STATUS_BUILDER_BLOCK_SENDING_DONE     = 9  /**< Blockwise message sending, last block sent.
+                                                         The msg_id in sn_coap_hdr_s* parameter of RX callback is set to the same value
+                                                         as in the first block sent, and parameter sn_nsdl_addr_s* is set as NULL. */
+
 } sn_coap_status_e;
 
 

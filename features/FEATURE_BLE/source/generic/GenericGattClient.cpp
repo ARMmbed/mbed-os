@@ -147,6 +147,7 @@ struct GenericGattClient::DiscoveryControlBlock : public ProcedureControlBlock {
 				const AttErrorResponse& error = static_cast<const AttErrorResponse&>(message);
 				if (error.error_code != AttErrorResponse::ATTRIBUTE_NOT_FOUND) {
 					terminate(client);
+					return;
 				}
 
 				switch (error.request_opcode) {

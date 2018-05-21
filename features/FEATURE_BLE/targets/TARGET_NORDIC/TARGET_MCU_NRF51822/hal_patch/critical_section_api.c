@@ -72,7 +72,7 @@ void hal_critical_section_exit(void)
 
     // Restore the state as it was prior to entering the critical section.
     if (_use_softdevice_routine) {
-        sd_nvic_critical_region_exit(_state._sd_state)
+        sd_nvic_critical_region_exit(_state._sd_state);
     } else {
         __set_PRIMASK(_state._PRIMASK_state);
     }

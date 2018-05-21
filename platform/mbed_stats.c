@@ -11,6 +11,7 @@
 
 void mbed_stats_stack_get(mbed_stats_stack_t *stats)
 {
+    MBED_ASSERT(stats != NULL);
     memset(stats, 0, sizeof(mbed_stats_stack_t));
 
 #if MBED_STACK_STATS_ENABLED && MBED_CONF_RTOS_PRESENT
@@ -38,6 +39,7 @@ void mbed_stats_stack_get(mbed_stats_stack_t *stats)
 
 size_t mbed_stats_stack_get_each(mbed_stats_stack_t *stats, size_t count)
 {
+    MBED_ASSERT(stats != NULL);
     memset(stats, 0, count*sizeof(mbed_stats_stack_t));
     size_t i = 0;
 

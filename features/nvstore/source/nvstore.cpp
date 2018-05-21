@@ -23,7 +23,6 @@
 #include "FlashIAP.h"
 #include "mbed_critical.h"
 #include "mbed_assert.h"
-#include "Thread.h"
 #include "mbed_wait_api.h"
 #include <algorithm>
 #include <string.h>

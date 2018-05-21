@@ -39,6 +39,15 @@
 #include "rtc.h"
 #include "cmsis_nvic.h"
 
+#define US_PER_SEC 1000000
+
+static time_t m_time_base;
+
+static uint32_t rtc_seconds_get()
+{
+    return (uint32_t)((fRtcRead() / US_PER_SEC) & 0xFFFFFFFF);
+}
+
 /* See rtc_apc.h for description */
 
 void rtc_init(void)
@@ -61,13 +70,20 @@ int rtc_isenabled(void)
 /* See rtc_apc.h for description */
 time_t rtc_read(void)
 {
-    return (uint32_t)(fRtcRead() & 0xFFFFFFFF); /* TODO Truncating 64 bit value to 32 bit */
+    return m_time_base + rtc_seconds_get();
 }
 
 /* See rtc_apc.h for description */
 void rtc_write(time_t t)
 {
-    fRtcWrite(t);
+    uint32_t seconds;
+    do {
+        seconds = rtc_seconds_get();
+        m_time_base = t - seconds;
+    /* If the number of seconds indicated by the counter changed during the
+       update of the time base, just repeat the update, now using the new
+       number of seconds. */
+    } while (seconds != rtc_seconds_get());
 }
 
 #endif /* DEVICE_RTC */

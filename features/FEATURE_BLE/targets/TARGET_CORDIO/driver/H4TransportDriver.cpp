@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#if DEVICE_SERIAL && DEVICE_SERIAL_FC
+
 #include "H4TransportDriver.h"
 
 namespace ble {
@@ -68,3 +70,5 @@ void H4TransportDriver::on_controller_irq()
 } // namespace cordio
 } // namespace vendor
 } // namespace ble
+
+#endif

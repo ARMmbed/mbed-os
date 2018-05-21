@@ -27,9 +27,9 @@ import fnmatch
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
 
-from tools.config import ConfigException
+from tools.config import ConfigException, Config
 from tools.test_api import test_path_to_name, find_tests, get_test_config, print_tests, build_tests, test_spec_from_test_builds
-import tools.test_configs as TestConfig
+from tools.test_configs import get_default_config
 from tools.options import get_default_options_parser, extract_profile, extract_mcus
 from tools.build_api import build_project, build_library
 from tools.build_api import print_build_memory_usage
@@ -144,10 +144,13 @@ if __name__ == '__main__':
             config = get_test_config(options.test_config, mcu)
             if not config:
                 args_error(parser, "argument --test-config contains invalid path or identifier")
-        elif not options.app_config:
-            config = TestConfig.get_default_config(options.source_dir or ['.'], mcu)
-        else:
+        elif options.app_config:
             config = options.app_config
+        else:
+            config = Config.find_app_config(options.source_dir)
+
+        if not config:
+            config = get_default_config(options.source_dir or ['.'], mcu)
 
         # Find all tests in the relevant paths
         for path in all_paths:

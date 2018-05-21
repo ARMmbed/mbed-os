@@ -78,9 +78,11 @@ def test_find_tests_app_config(build_path, target, toolchain_name, app_config):
     src_paths = ['.']
     set_targets_json_location()
     with patch('tools.test_api.scan_resources') as mock_scan_resources,\
-         patch('tools.test_api.build_project') as mock_build_project:
+         patch('tools.test_api.build_project') as mock_build_project,\
+         patch('tools.test_api.get_config') as mock_get_config:
         mock_build_project.return_value = "build_project"
         mock_scan_resources().inc_dirs.return_value = []
+        mock_get_config.return_value = ({}, "", "")
 
         build_tests(tests, src_paths, build_path, target, toolchain_name,
                     app_config=app_config)
@@ -91,3 +93,5 @@ def test_find_tests_app_config(build_path, target, toolchain_name, app_config):
                 "build_tests was not called with app_config"
             assert args[1]['app_config'] == app_config,\
                 "build_tests was called with an incorrect app_config"
+        mock_get_config.called_with(src_paths, target,
+                                    toolchain_name, app_conifg=app_config)

@@ -126,7 +126,6 @@ void remove_filehandle(FileHandle *file) {
 #if DEVICE_SERIAL
 extern int stdio_uart_inited;
 extern serial_t stdio_uart;
-#endif
 
 /* Private FileHandle to implement backwards-compatible functionality of
  * direct HAL serial access for default stdin/stdout/stderr.
@@ -193,6 +192,7 @@ short DirectSerial::poll(short events) const {
     }
     return revents;
 }
+#endif
 
 class Sink : public FileHandle {
 public:
