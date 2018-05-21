@@ -345,23 +345,28 @@ void ticker_increment_test(void)
 
         uint32_t num_of_cycles = NUM_OF_CYCLES;
 
-        const uint32_t base_tick_count = count_ticks(num_of_cycles, 1);
+        uint32_t base_tick_count = count_ticks(num_of_cycles, 1);
         uint32_t next_tick_count = base_tick_count;
         uint32_t inc_val = 0;
 
         while (inc_val < 100) {
+
             next_tick_count = count_ticks(num_of_cycles + inc_val, 1);
 
             if (next_tick_count == base_tick_count) {
+
                 /* Same tick count, so increase num of cycles. */
                 inc_val++;
             } else {
+
                 /* It is possible that the difference between base and next
                  * tick count on some platforms is greater that 1, in this case we need
                  * to repeat counting with the reduced number of cycles (for slower boards).
                  * In cases if difference is exactly 1 we can exit the loop.
                  */
                 num_of_cycles /= 2;
+                inc_val = 0;
+                base_tick_count = count_ticks(num_of_cycles, 1);
 
                 if (next_tick_count - base_tick_count == 1 ||
                     base_tick_count - next_tick_count == 1) {
