@@ -133,8 +133,16 @@ static void nvstore_basic_functionality_test()
     result = nvstore.set(19, 10, &(nvstore_testing_buf_set[3]));
     TEST_ASSERT_EQUAL(NVSTORE_ALREADY_EXISTS, result);
 
-    result = nvstore.set_alloc_key(key, 17, &(nvstore_testing_buf_set[3]));
+    result = nvstore.allocate_key(key, 3);
     TEST_ASSERT_EQUAL(NVSTORE_NUM_PREDEFINED_KEYS, key);
+    TEST_ASSERT_EQUAL(NVSTORE_SUCCESS, result);
+    result = nvstore.set(NVSTORE_NUM_PREDEFINED_KEYS, 17, &(nvstore_testing_buf_set[3]));
+    TEST_ASSERT_EQUAL(NVSTORE_SUCCESS, result);
+
+    result = nvstore.allocate_key(key, 3);
+    TEST_ASSERT_EQUAL(NVSTORE_NUM_PREDEFINED_KEYS + 1, key);
+    TEST_ASSERT_EQUAL(NVSTORE_SUCCESS, result);
+    result = nvstore.set(NVSTORE_NUM_PREDEFINED_KEYS + 1, 17, &(nvstore_testing_buf_set[3]));
     TEST_ASSERT_EQUAL(NVSTORE_SUCCESS, result);
 
     // Make sure set items are also gotten OK after reset
@@ -167,6 +175,20 @@ static void nvstore_basic_functionality_test()
     TEST_ASSERT_EQUAL(NVSTORE_SUCCESS, result);
     TEST_ASSERT_EQUAL(17, actual_len_bytes);
     TEST_ASSERT_EQUAL_UINT8_ARRAY(&nvstore_testing_buf_set[3], nvstore_testing_buf_get, 17);
+
+    result = nvstore.get(NVSTORE_NUM_PREDEFINED_KEYS + 1, 64, nvstore_testing_buf_get, actual_len_bytes);
+    TEST_ASSERT_EQUAL(NVSTORE_SUCCESS, result);
+    TEST_ASSERT_EQUAL(17, actual_len_bytes);
+    TEST_ASSERT_EQUAL_UINT8_ARRAY(&nvstore_testing_buf_set[3], nvstore_testing_buf_get, 17);
+
+    result = nvstore.free_all_keys_by_owner(3);
+    TEST_ASSERT_EQUAL(NVSTORE_SUCCESS, result);
+
+    result = nvstore.get(NVSTORE_NUM_PREDEFINED_KEYS, 64, nvstore_testing_buf_get, actual_len_bytes);
+    TEST_ASSERT_EQUAL(NVSTORE_NOT_FOUND, result);
+
+    result = nvstore.get(NVSTORE_NUM_PREDEFINED_KEYS + 1, 64, nvstore_testing_buf_get, actual_len_bytes);
+    TEST_ASSERT_EQUAL(NVSTORE_NOT_FOUND, result);
 
     result = nvstore.get(10, 65, nvstore_testing_buf_get, actual_len_bytes);
     TEST_ASSERT_EQUAL(NVSTORE_SUCCESS, result);
@@ -345,6 +367,12 @@ static void nvstore_basic_functionality_test()
     TEST_ASSERT_EQUAL(NVSTORE_SUCCESS, result);
     TEST_ASSERT_EQUAL(53, actual_len_bytes);
     TEST_ASSERT_EQUAL_UINT8_ARRAY(&(nvstore_testing_buf_set[10]), nvstore_testing_buf_get, 53);
+
+    result = nvstore.get(NVSTORE_NUM_PREDEFINED_KEYS, 64, nvstore_testing_buf_get, actual_len_bytes);
+    TEST_ASSERT_EQUAL(NVSTORE_NOT_FOUND, result);
+
+    result = nvstore.get(NVSTORE_NUM_PREDEFINED_KEYS + 1, 64, nvstore_testing_buf_get, actual_len_bytes);
+    TEST_ASSERT_EQUAL(NVSTORE_NOT_FOUND, result);
 
     delete[] nvstore_testing_buf_set;
     delete[] nvstore_testing_buf_get;
