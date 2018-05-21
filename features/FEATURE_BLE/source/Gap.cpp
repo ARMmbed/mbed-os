@@ -175,7 +175,7 @@ ble_error_t Gap::getRandomAddressType(
         case 0x00:
             *type = RandomAddressType_t::NON_RESOLVABLE_PRIVATE;
             return BLE_ERROR_NONE;
-        case 0x02:
+        case 0x01:
             *type = RandomAddressType_t::RESOLVABLE_PRIVATE;
             return BLE_ERROR_NONE;
         default:
