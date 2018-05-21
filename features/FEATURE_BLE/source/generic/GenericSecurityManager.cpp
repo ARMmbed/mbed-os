@@ -42,13 +42,14 @@ ble_error_t GenericSecurityManager::init(
     bool signing,
     const char* db_path
 ) {
-
     ble_error_t result = _pal.initialize();
+
     if (result != BLE_ERROR_NONE) {
     	return result;
     }
 
     result = init_database(db_path);
+
     if (result != BLE_ERROR_NONE) {
         return result;
     }
@@ -79,11 +80,16 @@ ble_error_t GenericSecurityManager::init(
         init_signing();
     }
 
-    init_resolving_list();
-
     _connection_monitor.set_connection_event_handler(this);
     _signing_monitor.set_signing_event_handler(this);
     _pal.set_event_handler(this);
+
+    result = init_resolving_list();
+
+    if (result != BLE_ERROR_NONE) {
+        delete _db;
+        return result;
+    }
 
     return BLE_ERROR_NONE;
 }
@@ -766,9 +772,7 @@ ble_error_t GenericSecurityManager::oobReceived(
 ble_error_t GenericSecurityManager::init_database(
     const char *db_path
 ) {
-    if (_db) {
-        delete _db;
-    }
+    delete _db;
 
     FILE* db_file = FileSecurityDb::open_db_file(db_path);
 
