@@ -32,6 +32,7 @@ using namespace utest::v1;
 #endif
 
 #define TEST_DELAY_US 50000ULL
+#define DELTA         2
 
 class TestTimerEvent: public TimerEvent {
 private:
@@ -129,7 +130,7 @@ void test_insert(void) {
     int32_t sem_slots = tte.sem_wait(0);
     TEST_ASSERT_EQUAL(0, sem_slots);
 
-    sem_slots = tte.sem_wait(TEST_DELAY_US / 1000 + 1);
+    sem_slots = tte.sem_wait(TEST_DELAY_US / 1000 + DELTA);
     TEST_ASSERT_EQUAL(1, sem_slots);
 
     tte.remove();
@@ -158,7 +159,7 @@ void test_remove(void) {
     TEST_ASSERT_EQUAL(0, sem_slots);
     tte.remove();
 
-    sem_slots = tte.sem_wait(TEST_DELAY_US * 2 / 1000 + 1);
+    sem_slots = tte.sem_wait(TEST_DELAY_US * 2 / 1000 + DELTA);
     TEST_ASSERT_EQUAL(0, sem_slots);
 }
 
