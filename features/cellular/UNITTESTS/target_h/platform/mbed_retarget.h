@@ -15,4 +15,5 @@
  * limitations under the License.
  */
 
+#include <sys/types.h>
 #define EAGAIN 11

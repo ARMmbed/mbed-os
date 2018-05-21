@@ -20,5 +20,6 @@
 #include "rtx_os.h"
 
 #define os_semaphore_t      osRtxSemaphore_t
+#define os_thread_t         osRtxThread_t
 
 #endif

@@ -21,6 +21,7 @@ TEST_SRC_FILES = \
         ../../stubs/Timer_stub.cpp \
         ../../stubs/equeue_stub.cpp \
         ../../stubs/Kernel.cpp \
+        ../../stubs/Thread_stub.cpp \
 
 include ../../MakefileWorker.mk
 
