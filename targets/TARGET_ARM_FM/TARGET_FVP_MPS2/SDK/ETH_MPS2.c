@@ -188,7 +188,7 @@ unsigned int smsc9220_read_id(void)
     return SMSC9220->ID_REV;
 }
 
-// Initiates a soft reset, returns failure or success.
+// Initiates a soft reset, returns 0 on success, or 1 on failure. 
 unsigned int smsc9220_soft_reset(void)
 {
     int timedout;
@@ -260,18 +260,14 @@ unsigned int smsc9220_check_phy(void)
 unsigned int smsc9220_reset_phy(void)
 {
     unsigned short read;
-    int error;
 
-    error = 0;
     if (smsc9220_phy_regread(SMSC9220_PHY_BCONTROL, &read)) {
-        error = 1;
-        return error;
+        return 1;
     }
 
     read |= (1 << 15);
     if (smsc9220_phy_regwrite(SMSC9220_PHY_BCONTROL, read)) {
-        error = 1;
-        return error;
+        return 1;
     }
     return 0;
 }

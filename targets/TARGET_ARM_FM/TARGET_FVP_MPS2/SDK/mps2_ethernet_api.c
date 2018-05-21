@@ -60,13 +60,10 @@ int smsc9220_check_id(void)
 
 int smsc9220_check_macaddress(void)
 {
-    int error;
     const unsigned int mac_valid_high = 0xC00A;
     const unsigned int mac_valid_low = 0x00F70200;
     unsigned int mac_low;
     unsigned int mac_high;
-
-    error = 0;
 
     // Read current mac address.
     smsc9220_mac_regread(SMSC9220_MAC_ADDRH, &mac_high);
@@ -82,11 +79,10 @@ int smsc9220_check_macaddress(void)
 
 
     if (mac_high != mac_valid_high || mac_low != mac_valid_low) {
-        error = TRUE;
-        return error;
+        return 1;
     }
 
-    return error;
+    return 0;
 }
 
 void smsc9220_print_mac_registers()
