@@ -53,6 +53,8 @@ public:
         const char* db_path = NULL
     );
 
+    virtual ble_error_t setDatabaseFilepath(const char *db_path = NULL);
+
     virtual ble_error_t reset();
 
     virtual ble_error_t preserveBondingStateOnReset(
@@ -263,6 +265,22 @@ public:
     //
 
 private:
+
+    /**
+     * Initialise the database, if database already exists it will close it and open the new one.
+     *
+     * @param db_path path to file to store secure db
+     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
+     */
+    ble_error_t init_database(const char *db_path = NULL);
+
+    /**
+     * Generate identity list based on the database of IRK and apply it to the resolving list.
+     *
+     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
+     */
+    ble_error_t init_resolving_list();
+
     /**
      * Generate the CSRK if needed.
      *
