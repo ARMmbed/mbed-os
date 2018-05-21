@@ -968,8 +968,7 @@ void GenericSecurityManager::on_connected(
     const BLEProtocol::AddressBytes_t peer_address,
     BLEProtocol::AddressType_t local_address_type,
     const BLEProtocol::AddressBytes_t local_address,
-    const Gap::ConnectionParams_t *connection_params,
-    const BLEProtocol::AddressBytes_t resolved_peer_address
+    const Gap::ConnectionParams_t *connection_params
 ) {
     MBED_ASSERT(_db);
     ControlBlock_t *cb = acquire_control_block(connection);
@@ -980,11 +979,6 @@ void GenericSecurityManager::on_connected(
     // setup the control block
     cb->local_address = local_address;
     cb->is_master = (role == Gap::CENTRAL);
-
-    // normalize the address
-    if (resolved_peer_address && resolved_peer_address != ble::address_t()) {
-        peer_address = resolved_peer_address;
-    }
 
     // get the associated db handle and the distribution flags if any
     cb->db_entry = _db->open_entry(peer_address_type, peer_address);

@@ -1393,8 +1393,7 @@ void nRF5xGap::on_connection(Gap::Handle_t handle, const ble_gap_evt_connected_t
             peer_address,
             own_addr_type,
             own_address.data(),
-            reinterpret_cast<const ConnectionParams_t *>(&(evt.conn_params)),
-            peer_resolvable_address
+            reinterpret_cast<const ConnectionParams_t *>(&(evt.conn_params))
         );
     }
 

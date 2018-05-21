@@ -58,8 +58,7 @@ public:
             const BLEProtocol::AddressBytes_t peer_address,
             BLEProtocol::AddressType_t local_address_type,
             const BLEProtocol::AddressBytes_t local_address,
-            const ::Gap::ConnectionParams_t *connection_params,
-            const BLEProtocol::AddressBytes_t resolved_peer_address
+            const ::Gap::ConnectionParams_t *connection_params
         ) = 0;
 
         /**
