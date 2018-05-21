@@ -63,9 +63,9 @@ extern "C" {
                                                     (MBED_ERROR_STATUS_MODULE_MASK & (module << MBED_ERROR_STATUS_MODULE_POS)) |        \
                                                     (MBED_ERROR_STATUS_TYPE_MASK & (type << MBED_ERROR_STATUS_TYPE_POS)))    
 
-#define GET_MBED_ERROR_TYPE( error_status )         ((error_status & MBED_ERROR_STATUS_TYPE_MASK) >> MBED_ERROR_STATUS_TYPE_POS)
-#define GET_MBED_ERROR_MODULE( error_status )       ((error_status & MBED_ERROR_STATUS_MODULE_MASK) >> MBED_ERROR_STATUS_MODULE_POS)    
-#define GET_MBED_ERROR_CODE( error_status )         (int)((GET_MBED_ERROR_TYPE( error_status ) == ERROR_TYPE_POSIX)?(-error_status):((error_status & MBED_ERROR_STATUS_CODE_MASK) >> MBED_ERROR_STATUS_CODE_POS))
+#define MBED_GET_ERROR_TYPE( error_status )         ((error_status & MBED_ERROR_STATUS_TYPE_MASK) >> MBED_ERROR_STATUS_TYPE_POS)
+#define MBED_GET_ERROR_MODULE( error_status )       ((error_status & MBED_ERROR_STATUS_MODULE_MASK) >> MBED_ERROR_STATUS_MODULE_POS)    
+#define MBED_GET_ERROR_CODE( error_status )         (int)((MBED_GET_ERROR_TYPE( error_status ) == MBED_ERROR_TYPE_POSIX)?(-error_status):((error_status & MBED_ERROR_STATUS_CODE_MASK) >> MBED_ERROR_STATUS_CODE_POS))
 
 /** mbed_error_status_t description
  *
@@ -102,8 +102,8 @@ typedef int mbed_error_status_t;
  *
  */
 #define MBED_DEFINE_POSIX_ERROR( error_name, error_code )   \
-                     ERROR_CODE_##error_name = error_code,  \
-                     ERROR_##error_name = -(MBED_POSIX_ERROR_BASE + error_code)
+                     MBED_ERROR_CODE_##error_name = error_code,  \
+                     MBED_ERROR_##error_name = -(MBED_POSIX_ERROR_BASE + error_code)
 
 /**
  * Macro for defining a System error status. This macro is used to define System error values in mbed_error_code_t enumeration.
@@ -112,8 +112,8 @@ typedef int mbed_error_status_t;
  *
  */
 #define MBED_DEFINE_SYSTEM_ERROR( error_name, error_code )   \
-                      ERROR_CODE_##error_name = MBED_SYSTEM_ERROR_BASE + error_code,  \
-                      ERROR_##error_name = MAKE_MBED_ERROR(ERROR_TYPE_SYSTEM, MODULE_UNKNOWN, ERROR_CODE_##error_name)
+                      MBED_ERROR_CODE_##error_name = MBED_SYSTEM_ERROR_BASE + error_code,  \
+                      MBED_ERROR_##error_name = MAKE_MBED_ERROR(MBED_ERROR_TYPE_SYSTEM, MODULE_UNKNOWN, MBED_ERROR_CODE_##error_name)
 
 /**
  * Macro for defining a Custom error status. This macro is used to define custom error values in mbed_error_code_t enumeration.
@@ -122,52 +122,52 @@ typedef int mbed_error_status_t;
  *
  */
 #define MBED_DEFINE_CUSTOM_ERROR( error_name, error_code )   \
-                      ERROR_CODE_##error_name = MBED_CUSTOM_ERROR_BASE + error_code,  \
-                      ERROR_##error_name = MAKE_MBED_ERROR(ERROR_TYPE_CUSTOM, MODULE_UNKNOWN, ERROR_CODE_##error_name)
+                      MBED_ERROR_CODE_##error_name = MBED_CUSTOM_ERROR_BASE + error_code,  \
+                      MBED_ERROR_##error_name = MAKE_MBED_ERROR(MBED_ERROR_TYPE_CUSTOM, MODULE_UNKNOWN, MBED_ERROR_CODE_##error_name)
 
 
 /**
- * Macro for setting a system error. This macro will log the error, prints the error report and return to the caller. Its a wrapper for calling set_error API.
+ * Macro for setting a system error. This macro will log the error, prints the error report and return to the caller. Its a wrapper for calling mbed_error API.
  * @param  error_status     mbed_error_status_t status to be set(See mbed_error_status_t enum above for available error status values).
  * @param  error_msg        The error message to be printed out to STDIO/Serial.
  * @param  error_value      Value associated with the error status. This would depend on error code/error scenario.
  *
  * @code
  * 
- * SET_ERROR( ERROR_INVALID_SIZE, "MyDriver: Invalid size in read", size_val )
+ * MBED_ERROR( ERROR_INVALID_SIZE, "MyDriver: Invalid size in read", size_val )
  *
  * @endcode
- * @note The macro calls set_error API with filename and line number info without caller explicitly passing them.
- *        Since this macro is a wrapper for set_error API callers should process the return value from this macro which is the return value from calling set_error API.
+ * @note The macro calls mbed_error API with filename and line number info without caller explicitly passing them.
+ *        Since this macro is a wrapper for mbed_error API callers should process the return value from this macro which is the return value from calling mbed_error API.
  *
  */
 #ifdef MBED_CONF_ERROR_FILENAME_CAPTURE_ENABLED
-    #define SET_WARNING( error_status, error_msg, error_value )             set_warning( error_status, (const char *)error_msg, (uint32_t)error_value, (const char *)MBED_FILENAME, __LINE__ )
+    #define MBED_WARNING( error_status, error_msg, error_value )             mbed_warning( error_status, (const char *)error_msg, (uint32_t)error_value, (const char *)MBED_FILENAME, __LINE__ )
 #else
-    #define SET_WARNING( error_status, error_msg, error_value )             set_warning( error_status, (const char *)error_msg, (uint32_t)error_value, NULL, 0 )
+    #define MBED_WARNING( error_status, error_msg, error_value )             mbed_warning( error_status, (const char *)error_msg, (uint32_t)error_value, NULL, 0 )
 #endif
 
 /**
- * Macro for setting a fatal system error. This macro will log the error, prints the error report and halts the system. Its a wrapper for calling set_error API
+ * Macro for setting a fatal system error. This macro will log the error, prints the error report and halts the system. Its a wrapper for calling mbed_error API
  * @param  error_status     mbed_error_status_t status to be set(See mbed_error_status_t enum above for available error status values).
  * @param  error_msg        The error message to be printed out to STDIO/Serial.
  * @param  error_value      Value associated with the error status. This would depend on error code/error scenario.
- * @return                  0 or ERROR_SUCCESS.
- *                          ERROR_INVALID_ARGUMENT if called with invalid error status/codes
+ * @return                  0 or MBED_SUCCESS.
+ *                          MBED_ERROR_INVALID_ARGUMENT if called with invalid error status/codes
  *
  * @code
  * 
- * SET_ERROR( ERROR_MUTEX_LOCK_FAILED, "MyDriver: Can't lock driver Mutex", &my_mutex )
+ * MBED_ERROR( MBED_ERROR_MUTEX_LOCK_FAILED, "MyDriver: Can't lock driver Mutex", &my_mutex )
  *
  * @endcode
- * @note The macro calls set_error API with filename and line number info without caller explicitly passing them.
-*        Since this macro is a wrapper for set_error API callers should process the return value from this macro which is the return value from calling set_error API. 
+ * @note The macro calls mbed_error API with filename and line number info without caller explicitly passing them.
+*        Since this macro is a wrapper for mbed_error API callers should process the return value from this macro which is the return value from calling mbed_error API. 
  *
  */
 #ifdef MBED_CONF_ERROR_FILENAME_CAPTURE_ENABLED
-    #define SET_ERROR( error_status, error_msg, error_value )       set_error( error_status, (const char *)error_msg, (uint32_t)error_value, (const char *)MBED_FILENAME, __LINE__ )
+    #define MBED_ERROR( error_status, error_msg, error_value )       mbed_error( error_status, (const char *)error_msg, (uint32_t)error_value, (const char *)MBED_FILENAME, __LINE__ )
 #else
-    #define SET_ERROR( error_status, error_msg, error_value )       set_error( error_status, (const char *)error_msg, (uint32_t)error_value, NULL, 0 )
+    #define MBED_ERROR( error_status, error_msg, error_value )       mbed_error( error_status, (const char *)error_msg, (uint32_t)error_value, NULL, 0 )
 #endif         
 
 //Error Type definition
@@ -175,19 +175,19 @@ typedef int mbed_error_status_t;
  *  @note
  *  This enumeration defines the Error types supported. The value of these enum values will be encoded into mbed_error_status_t TYPE field.\n
  *      See mbed_error_status_t description for more info.\n
- *         ERROR_TYPE_SYSTEM - Used to indicate that the error status is of System defined Error type.\n
- *         ERROR_TYPE_CUSTOM - Used to indicate that the error status is of Custom defined Error type.\n 
- *         ERROR_TYPE_POSIX  - Used to indicate that the error status is of Posix error type.\n 
+ *         MBED_ERROR_TYPE_SYSTEM - Used to indicate that the error status is of System defined Error type.\n
+ *         MBED_ERROR_TYPE_CUSTOM - Used to indicate that the error status is of Custom defined Error type.\n 
+ *         MBED_ERROR_TYPE_POSIX  - Used to indicate that the error status is of Posix error type.\n 
  *
  */
 typedef enum _mbed_error_type_t
 {
-    ERROR_TYPE_SYSTEM = 0,
-    ERROR_TYPE_CUSTOM = 1,
+    MBED_ERROR_TYPE_SYSTEM = 0,
+    MBED_ERROR_TYPE_CUSTOM = 1,
     //2 is reserved
     //Use 3 for POSIX because we are mapping -1 to -255 to POSIX error codes
     //and thus we must use 3 to match the type bits in error status representation which are from 0xFFFFFFFF to 0xFFFFFF00
-    ERROR_TYPE_POSIX = 3
+    MBED_ERROR_TYPE_POSIX = 3
 } mbed_error_type_t;        
 
 //Module type/id definitions
@@ -195,13 +195,13 @@ typedef enum _mbed_error_type_t
  * @note
  * This enumeration defines the module types. The value of these enum values will be encoded into mbed_error_status_t MODULE field.\n\n
  *      See mbed_error_status_t description for more info.\n
- *          MODULE_UNKNOWN - This module type can be used if caller of the set_error/set_warning doesn't know who is the actual originator of the error.\n
+ *          MODULE_UNKNOWN - This module type can be used if caller of the mbed_error/mbed_warning doesn't know who is the actual originator of the error.\n
  *                       Other module values can be used to provide more info on who/where the error originated from.\n\n
  *                       For example, if I2C driver is the component originating the error you can use MODULE_DRIVER_I2C to provide more info.\n
  *                       Its used in call to MAKE_ERROR/MAKE_SYSTEM_ERROR/MAKE_CUSTOM_ERROR macros.\n
  *
  * @code
- *      Example: mbed_error_status_t i2c_driver_error = MAKE_ERROR( MODULE_DRIVER_I2C, ERROR_CONFIG_UNSUPPORTED );
+ *      Example: mbed_error_status_t i2c_driver_error = MAKE_ERROR( MODULE_DRIVER_I2C, MBED_ERROR_CONFIG_UNSUPPORTED );
  * @endcode
  * 
  * @note
@@ -266,8 +266,8 @@ typedef enum _mbed_module_type
     MODULE_MAX = MODULE_UNKNOWN
 } mbed_module_type_t;
 
-//Use ERROR_SUCCESS(=0) or any postive number for successful returns
-#define ERROR_SUCCESS           0
+//Use MBED_SUCCESS(=0) or any postive number for successful returns
+#define MBED_SUCCESS           0
 
 #define MBED_POSIX_ERROR_BASE   0
 #define MBED_SYSTEM_ERROR_BASE  256
@@ -806,8 +806,8 @@ typedef struct _mbed_error_ctx {
  *                  Code snippets below show valid format.
  *
  * @deprecated
- * This function has been deprecated, please use one of SET_WARNING/SET_ERROR macros 
- * or one of set_error/set_warning functions.
+ * This function has been deprecated, please use one of MBED_WARNING/MBED_ERROR macros 
+ * or one of mbed_error/mbed_warning functions.
  *
  * @code
  * #error "That shouldn't have happened!"
@@ -846,7 +846,7 @@ typedef struct _mbed_error_ctx {
  *
  */
     
-MBED_DEPRECATED_SINCE("mbed-os-5.9", "This function has been deprecated, please use one of SET_WARNING/SET_ERROR macros or one of set_warning/set_error functions" )
+MBED_DEPRECATED_SINCE("mbed-os-5.9", "This function has been deprecated, please use one of MBED_WARNING/MBED_ERROR macros or one of mbed_warning/mbed_error functions" )
 
 void error(const char* format, ...);
 
@@ -857,13 +857,13 @@ void error(const char* format, ...);
  *
  * @code
  * 
- * mbed_error_status_t driver_error = MAKE_SYSTEM_ERROR( MODULE_DRIVER_USB, ERROR_CODE_INITIALIZATION_FAILED )
+ * mbed_error_status_t driver_error = MAKE_SYSTEM_ERROR( MODULE_DRIVER_USB, MBED_ERROR_CODE_INITIALIZATION_FAILED )
  *
  * @endcode
- * @note This macro generate mbed_error_status_t-es with error type set to ERROR_TYPE_SYSTEM
+ * @note This macro generate mbed_error_status_t-es with error type set to MBED_ERROR_TYPE_SYSTEM
  *
  */
-#define MAKE_SYSTEM_ERROR(module, error_code)                   MAKE_MBED_ERROR(ERROR_TYPE_SYSTEM, module, error_code)
+#define MAKE_SYSTEM_ERROR(module, error_code)                   MAKE_MBED_ERROR(MBED_ERROR_TYPE_SYSTEM, module, error_code)
 
 /**
  * Call this Macro to generate a mbed_error_status_t value for a Custom error
@@ -875,10 +875,10 @@ void error(const char* format, ...);
  * mbed_error_status_t custom_error = MAKE_CUSTOM_ERROR( MODULE_APPLICATION, 0xDEAD//16-bit custom error code )
  *
  * @endcode
- * @note This macro generate mbed_error_status_t-es with error type set to ERROR_TYPE_CUSTOM
+ * @note This macro generate mbed_error_status_t-es with error type set to MBED_ERROR_TYPE_CUSTOM
  *
  */
-#define MAKE_CUSTOM_ERROR(module, error_code)                   MAKE_MBED_ERROR(ERROR_TYPE_CUSTOM, module, error_code)
+#define MAKE_CUSTOM_ERROR(module, error_code)                   MAKE_MBED_ERROR(MBED_ERROR_TYPE_CUSTOM, module, error_code)
 
 /**
  * Call this Macro to generate a mbed_error_status_t value for a System error
@@ -887,10 +887,10 @@ void error(const char* format, ...);
  *
  * @code
  * 
- * mbed_error_status_t new_error = MAKE_ERROR( MODULE_DRIVER_USB, ERROR_INITIALIZATION_FAILED )
+ * mbed_error_status_t new_error = MAKE_ERROR( MODULE_DRIVER_USB, MBED_ERROR_INITIALIZATION_FAILED )
  *
  * @endcode
- * @note This macro generate mbed_error_status_t-es with error type set to ERROR_TYPE_SYSTEM
+ * @note This macro generate mbed_error_status_t-es with error type set to MBED_ERROR_TYPE_SYSTEM
  *
  */
 #define MAKE_ERROR(module, error_code)                          MAKE_SYSTEM_ERROR(module, error_code)
@@ -914,29 +914,29 @@ typedef void (*mbed_error_hook_t)(const mbed_error_ctx *error_ctx);
  * @param  error_value      Value associated with the error status. This would depend on error code/error scenario.
  * @param  filename         Name of the source file originating the error( Most callers can pass __FILE__ here ).
  * @param  line_number      The line number of the source file originating the error( Most callers can pass __LINE__ here ) .
- * @return                  0 or ERROR_SUCCESS.
- *                          ERROR_INVALID_ARGUMENT if called with invalid error status/codes 
+ * @return                  0 or MBED_SUCCESS.
+ *                          MBED_ERROR_INVALID_ARGUMENT if called with invalid error status/codes 
  *
  * @code
  * 
- * set_error( ERROR_OUT_OF_MEMORY, "Out of memory error", 0, __FILE__, __LINE__ )
+ * mbed_error( ERROR_OUT_OF_MEMORY, "Out of memory error", 0, __FILE__, __LINE__ )
  *
  * @endcode
  *
- * @note See SET_WARNING/SET_ERROR macros which provides a wrapper on this API
+ * @note See MBED_WARNING/MBED_ERROR macros which provides a wrapper on this API
  */
-mbed_error_status_t set_warning(mbed_error_status_t error_status, const char *error_msg, unsigned int error_value, const char *filename, int line_number);
+mbed_error_status_t mbed_warning(mbed_error_status_t error_status, const char *error_msg, unsigned int error_value, const char *filename, int line_number);
 
 /**
  * Returns the first system error reported.
- * @return                  mbed_error_status_t code logged for the first error or ERROR_SUCCESS if no errors are logged.
+ * @return                  mbed_error_status_t code logged for the first error or MBED_SUCCESS if no errors are logged.
  *
  */
 mbed_error_status_t get_first_error(void);
 
 /**
  * Returns the most recent system error reported.
- * @return                  mbed_error_status_t code logged for the last error or ERROR_SUCCESS if no errors are logged.
+ * @return                  mbed_error_status_t code logged for the last error or MBED_SUCCESS if no errors are logged.
  *
  */
 mbed_error_status_t get_last_error(void);
@@ -956,26 +956,26 @@ int get_error_count(void);
  * @param  error_value      Value associated with the error status. This would depend on error code/error scenario.
  * @param  filename         Name of the source file originating the error( Most callers can pass __FILE__ here ).
  * @param  line_number      The line number of the source file originating the error( Most callers can pass __LINE__ here ) .
- * @return                  0 or ERROR_SUCCESS.
- *                          ERROR_INVALID_ARGUMENT if called with invalid error status/codes 
+ * @return                  0 or MBED_SUCCESS.
+ *                          MBED_ERROR_INVALID_ARGUMENT if called with invalid error status/codes 
  *
  * @code
  * 
- * set_error( ERROR_PROHIBITED_OPERATION, "Prohibited operation tried", 0, __FILE__, __LINE__ )
+ * mbed_error( MBED_ERROR_PROHIBITED_OPERATION, "Prohibited operation tried", 0, __FILE__, __LINE__ )
  *
  * @endcode
  *
- * @note See SET_WARNING/SET_ERROR macros which provides a wrapper on this API
+ * @note See MBED_WARNING/MBED_ERROR macros which provides a wrapper on this API
  */
-mbed_error_status_t set_error(mbed_error_status_t error_status, const char *error_msg, unsigned int error_value, const char *filename, int line_number);
+mbed_error_status_t mbed_error(mbed_error_status_t error_status, const char *error_msg, unsigned int error_value, const char *filename, int line_number);
 
 /**
  * Registers an application defined error callback with the error handling system. 
- * This function will be called with error context info whenever system handles a set_error/set_warning call
- * NOTE: This function should be implemented for re-entrancy as multiple threads may invoke set_error which may cause error hook to be called.
+ * This function will be called with error context info whenever system handles a mbed_error/mbed_warning call
+ * NOTE: This function should be implemented for re-entrancy as multiple threads may invoke mbed_error which may cause error hook to be called.
  * @param  custom_error_hook    mbed_error_status_t status to be set(See mbed_error_status_t enum above for available error status values).
- * @return                      0 or ERROR_SUCCESS on success.
- *                              ERROR_INVALID_ARGUMENT in case of NULL for custom_error_hook
+ * @return                      0 or MBED_SUCCESS on success.
+ *                              MBED_ERROR_INVALID_ARGUMENT in case of NULL for custom_error_hook
  *
  * @code
  * 
@@ -993,25 +993,25 @@ mbed_error_status_t set_error_hook(mbed_error_hook_t custom_error_hook);
 
 /**
  * Reads the first error context information logged.
- * @param  error_info           This is the mbed_error_context info captured as part of the first set_error call. The caller should pass a pointer to mbed_error_context struct allocated by the caller.
- * @return                      0 or ERROR_SUCCESS on success.
- *                              ERROR_INVALID_ARGUMENT in case of invalid index
+ * @param  error_info           This is the mbed_error_context info captured as part of the first mbed_error call. The caller should pass a pointer to mbed_error_context struct allocated by the caller.
+ * @return                      0 or MBED_SUCCESS on success.
+ *                              MBED_ERROR_INVALID_ARGUMENT in case of invalid index
  *
  */
 mbed_error_status_t get_first_error_log_info(mbed_error_ctx *error_info);
 
 /**
  * Reads the last error context information logged.
- * @param  error_info           This is the mbed_error_context info captured as part of the last set_error call. The caller should pass a pointer to mbed_error_context struct allocated by the caller.
- * @return                      0 or ERROR_SUCCESS on success.
- *                              ERROR_INVALID_ARGUMENT in case of invalid index
+ * @param  error_info           This is the mbed_error_context info captured as part of the last mbed_error call. The caller should pass a pointer to mbed_error_context struct allocated by the caller.
+ * @return                      0 or MBED_ERROR_SUCCESS on success.
+ *                              MBED_ERROR_INVALID_ARGUMENT in case of invalid index
  *
  */
 mbed_error_status_t get_last_error_log_info(mbed_error_ctx *error_info);
 
 /**
  * Clears all the last error, error count and all entries in the error log.
- * @return                      0 or ERROR_SUCCESS on success.
+ * @return                      0 or MBED_SUCCESS on success.
  *
  */
 mbed_error_status_t clear_all_errors(void);
@@ -1021,7 +1021,7 @@ mbed_error_status_t clear_all_errors(void);
  * @param  error_type           Error type based on mbed_error_type_t enum.
  * @param  module               Module type based on mbed_module_type_t enum.
  * @param  error_code           Error codes defined by mbed_error_code_t enum
- * @return                      0 or ERROR_SUCCESS on success.
+ * @return                      0 or MBED_ERROR_SUCCESS on success.
  *
  */
 mbed_error_status_t make_mbed_error(mbed_error_type_t error_type, mbed_module_type_t module, mbed_error_code_t error_code);
@@ -1040,8 +1040,8 @@ int get_error_log_count(void);
  *                              The number of entries in the error log depth is configured during build and the max index depends on max depth of error log.\n
  *                              index = 0 points to the oldest entry in the log, and index = (max log depth - 1) points to the latest entry in the error log.\n
  * @param  error_info           This is the mbed_error_context info captured as part of the log. The caller should pass a pointer to mbed_error_context struct allocated by the caller.
- * @return                      0 or ERROR_SUCCESS on success.
- *                              ERROR_INVALID_ARGUMENT in case of invalid index
+ * @return                      0 or MBED_SUCCESS on success.
+ *                              MBED_ERROR_INVALID_ARGUMENT in case of invalid index
  *
  */
 mbed_error_status_t get_error_log_info(int index, mbed_error_ctx *error_info);
@@ -1050,9 +1050,9 @@ mbed_error_status_t get_error_log_info(int index, mbed_error_ctx *error_info);
  * Saves the error log information to a file
  * 
  * @param  path                 path to the file in the filesystem
- * @return                      0 or ERROR_SUCCESS on success.
- *                              ERROR_WRITE_FAILED if writing to file failed
- *                              ERROR_INVALID_ARGUMENT if path is not valid 
+ * @return                      0 or MBED_ERROR_SUCCESS on success.
+ *                              MBED_ERROR_WRITE_FAILED if writing to file failed
+ *                              MBED_ERROR_INVALID_ARGUMENT if path is not valid 
  *
  * @note                        Filesystem support is required in order for this function to work.
  *

@@ -31,7 +31,7 @@ mbed_error_status_t mbed_log_put_error(mbed_error_ctx *error_ctx)
 {
     //Return error if error_ctx is NULL
     if(NULL == error_ctx) {
-        return ERROR_INVALID_ARGUMENT;
+        return MBED_ERROR_INVALID_ARGUMENT;
     }
     
     core_util_critical_section_enter();
@@ -39,14 +39,14 @@ mbed_error_status_t mbed_log_put_error(mbed_error_ctx *error_ctx)
     memcpy(&mbed_error_ctx_log[error_log_count % MBED_CONF_ERROR_LOG_SIZE], error_ctx, sizeof(mbed_error_ctx) );
     core_util_critical_section_exit(); 
     
-    return ERROR_SUCCESS;
+    return MBED_SUCCESS;
 }
 
 mbed_error_status_t mbed_log_get_error(int index, mbed_error_ctx *error_ctx)
 {
     //Return error if index is more than max log size
     if(index >= MBED_CONF_ERROR_LOG_SIZE) {
-        return ERROR_INVALID_ARGUMENT;
+        return MBED_ERROR_INVALID_ARGUMENT;
     }
     
     core_util_critical_section_enter();
@@ -57,7 +57,7 @@ mbed_error_status_t mbed_log_get_error(int index, mbed_error_ctx *error_ctx)
     core_util_critical_section_exit(); 
     memcpy(error_ctx, &mbed_error_ctx_log[index % MBED_CONF_ERROR_LOG_SIZE], sizeof(mbed_error_ctx) );
         
-    return ERROR_SUCCESS;
+    return MBED_SUCCESS;
 }
 
 mbed_error_ctx *mbed_log_get_entry(void)
@@ -73,13 +73,13 @@ mbed_error_ctx *mbed_log_get_entry(void)
 mbed_error_status_t mbed_log_get_last_error(mbed_error_ctx *error_ctx)
 {
     if(-1 == error_log_count) {
-        return ERROR_ITEM_NOT_FOUND;
+        return MBED_ERROR_ITEM_NOT_FOUND;
     }
     core_util_critical_section_enter();
     memcpy(error_ctx, &mbed_error_ctx_log[error_log_count % MBED_CONF_ERROR_LOG_SIZE], sizeof(mbed_error_ctx) );
     core_util_critical_section_exit(); 
     
-    return ERROR_SUCCESS;
+    return MBED_SUCCESS;
 }
 
 int mbed_log_get_error_log_count()
@@ -93,7 +93,7 @@ mbed_error_status_t mbed_log_reset()
     error_log_count = -1;
     core_util_critical_section_exit(); 
     
-    return ERROR_SUCCESS;
+    return MBED_SUCCESS;
 }
 
 #endif

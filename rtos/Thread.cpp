@@ -78,13 +78,13 @@ void Thread::constructor(Callback<void()> task,
 
     switch (start(task)) {
         case osErrorResource:
-            SET_ERROR(MAKE_ERROR(MODULE_PLATFORM, ERROR_CODE_OUT_OF_RESOURCES), "OS ran out of threads!\n", task);
+            MBED_ERROR(MAKE_ERROR(MODULE_PLATFORM, MBED_ERROR_CODE_OUT_OF_RESOURCES), "OS ran out of threads!\n", task);
             break;
         case osErrorParameter:
-            SET_ERROR(MAKE_ERROR(MODULE_PLATFORM, ERROR_CODE_ALREADY_IN_USE), "Thread already running!\n", task);
+            MBED_ERROR(MAKE_ERROR(MODULE_PLATFORM, MBED_ERROR_CODE_ALREADY_IN_USE), "Thread already running!\n", task);
             break;
         case osErrorNoMemory:
-            SET_ERROR(MAKE_ERROR(MODULE_PLATFORM, ERROR_CODE_OUT_OF_MEMORY), "Error allocating the stack memory\n", task);
+            MBED_ERROR(MAKE_ERROR(MODULE_PLATFORM, MBED_ERROR_CODE_OUT_OF_MEMORY), "Error allocating the stack memory\n", task);
         default:
             break;
     }
