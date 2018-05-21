@@ -441,7 +441,7 @@ public:
      *                           support out-of-band exchanges of security data.
      * @param[in]  passkey       To specify a static passkey.
      * @param[in]  signing       Generate and distribute signing key during pairing
-     * @param[in]  dbPath        Path to the file used to store keys in the filesystem,
+     * @param[in]  dbFilepath    Path to the file used to store keys in the filesystem,
      *                           if NULL keys will be only stored in memory
      *
      *
@@ -469,7 +469,7 @@ public:
      *
      * @note This operation is only allowed with no active connections.
      *
-     * @param[in]  dbPath        Path to the file used to store keys in the filesystem,
+     * @param[in]  dbFilepath    Path to the file used to store keys in the filesystem,
      *                           if NULL keys will be only stored in memory
      *
      * @return BLE_ERROR_NONE on success.
