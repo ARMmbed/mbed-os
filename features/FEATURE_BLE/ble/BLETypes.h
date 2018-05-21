@@ -564,6 +564,12 @@ struct peer_address_type_t :SafeEnum<peer_address_type_t, uint8_t> {
      */
     peer_address_type_t(type value) :
         SafeEnum<peer_address_type_t, uint8_t>(value) { }
+
+    /**
+     * Default initialization of peer_address_type_t.
+     */
+    peer_address_type_t() :
+        SafeEnum<peer_address_type_t, uint8_t>(PUBLIC) { }
 };
 
 } // namespace ble
