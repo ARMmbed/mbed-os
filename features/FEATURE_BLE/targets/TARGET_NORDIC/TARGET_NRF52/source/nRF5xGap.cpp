@@ -44,12 +44,8 @@ nRF5xSecurityManager& get_sm() {
 
 ble_error_t set_private_resolvable_address() {
 #if (NRF_SD_BLE_API_VERSION <= 2)
-    ble_gap_addr_t addr = {
-        BLE_GAP_ADDR_TYPE_RANDOM_PRIVATE_RESOLVABLE
-    };
-
-    sd_ble_gap_address_set(BLE_GAP_ADDR_CYCLE_MODE_AUTO, &addr);
-    return BLE_ERROR_NONE;
+    ble_gap_addr_t addr = { BLE_GAP_ADDR_TYPE_RANDOM_PRIVATE_RESOLVABLE };
+    uint32_t err = sd_ble_gap_address_set(BLE_GAP_ADDR_CYCLE_MODE_AUTO, &addr);
 #else
     ble_gap_privacy_params_t privacy_config = { 0 };
     uint32_t err = sd_ble_gap_privacy_get(&privacy_config);
@@ -59,14 +55,14 @@ ble_error_t set_private_resolvable_address() {
 
     privacy_config.private_addr_type = BLE_GAP_ADDR_TYPE_RANDOM_PRIVATE_RESOLVABLE;
     err = sd_ble_gap_privacy_set(&privacy_config);
-    return err ? BLE_ERROR_UNSPECIFIED : BLE_ERROR_NONE;
 #endif
+    return err ? BLE_ERROR_UNSPECIFIED : BLE_ERROR_NONE;
 }
 
 ble_error_t set_private_non_resolvable_address() {
 #if (NRF_SD_BLE_API_VERSION <= 2)
     ble_gap_addr_t addr = { BLE_GAP_ADDR_TYPE_RANDOM_PRIVATE_NON_RESOLVABLE };
-    sd_ble_gap_address_set(BLE_GAP_ADDR_CYCLE_MODE_AUTO, &addr);
+    uint32_t err = sd_ble_gap_address_set(BLE_GAP_ADDR_CYCLE_MODE_AUTO, &addr);
 #else
     ble_gap_privacy_params_t privacy_config = { 0 };
     uint32_t err = sd_ble_gap_privacy_get(&privacy_config);
@@ -76,8 +72,8 @@ ble_error_t set_private_non_resolvable_address() {
 
     privacy_config.private_addr_type = BLE_GAP_ADDR_TYPE_RANDOM_PRIVATE_NON_RESOLVABLE;
     err = sd_ble_gap_privacy_set(&privacy_config);
-    return err ? BLE_ERROR_UNSPECIFIED : BLE_ERROR_NONE;
 #endif
+    return err ? BLE_ERROR_UNSPECIFIED : BLE_ERROR_NONE;
 }
 
 bool is_advertising_non_connectable(const GapAdvertisingParams &params) {
