@@ -441,6 +441,10 @@ lorawan_status_t LoRaWANStack::set_device_class(const device_class_t& device_cla
 
 lorawan_status_t  LoRaWANStack::acquire_tx_metadata(lorawan_tx_metadata &tx_metadata)
 {
+    if (DEVICE_STATE_NOT_INITIALIZED == _device_current_state) {
+        return LORAWAN_STATUS_NOT_INITIALIZED;
+    }
+
     if (!_tx_metadata.stale) {
         tx_metadata = _tx_metadata;
         _tx_metadata.stale = true;
@@ -452,6 +456,10 @@ lorawan_status_t  LoRaWANStack::acquire_tx_metadata(lorawan_tx_metadata &tx_meta
 
 lorawan_status_t LoRaWANStack::acquire_rx_metadata(lorawan_rx_metadata &metadata)
 {
+    if (DEVICE_STATE_NOT_INITIALIZED == _device_current_state) {
+        return LORAWAN_STATUS_NOT_INITIALIZED;
+    }
+
     if (!_rx_metadata.stale) {
         metadata = _rx_metadata;
         _rx_metadata.stale = true;
@@ -463,6 +471,10 @@ lorawan_status_t LoRaWANStack::acquire_rx_metadata(lorawan_rx_metadata &metadata
 
 lorawan_status_t LoRaWANStack::acquire_backoff_metadata(int& backoff)
 {
+    if (DEVICE_STATE_NOT_INITIALIZED == _device_current_state) {
+        return LORAWAN_STATUS_NOT_INITIALIZED;
+    }
+
     int id = _loramac.get_backoff_timer_event_id();
 
     if (_loramac.get_backoff_timer_event_id() > 0) {
