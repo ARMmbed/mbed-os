@@ -14,20 +14,35 @@
  * limitations under the License.
  */
 #include "lp_ticker_api.h"
-
-#if DEVICE_LOWPOWERTIMER
-
 #include "common_rtc.h"
-#include "mbed_critical.h"
+#include "platform/mbed_critical.h"
+
+#if DEVICE_LPTICKER
+
+/* LP ticker is driven by 32kHz clock and counter length is 24 bits. */
+const ticker_info_t* lp_ticker_get_info()
+{
+    static const ticker_info_t info = {
+        RTC_FREQ,
+        RTC_COUNTER_BITS
+    };
+    return &info;
+}
 
 void lp_ticker_init(void)
 {
     common_rtc_init();
 }
 
+void lp_ticker_free(void)
+{
+    // A common counter is used for RTC, lp_ticker and us_ticker, so it can't be
+    // disabled here, but this does not cause any extra cost.
+}
+
 uint32_t lp_ticker_read()
 {
-    return (uint32_t)common_rtc_64bit_us_get();
+    return nrf_rtc_counter_get(COMMON_RTC_INSTANCE);
 }
 
 void lp_ticker_set_interrupt(timestamp_t timestamp)
@@ -39,14 +54,17 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
 void lp_ticker_fire_interrupt(void)
 {
     core_util_critical_section_enter();
-    m_common_sw_irq_flag |= LP_TICKER_SW_IRQ_MASK;
+
+    lp_ticker_interrupt_fire = true;
+
     NVIC_SetPendingIRQ(RTC1_IRQn);
+
     core_util_critical_section_exit();
 }
 
 void lp_ticker_disable_interrupt(void)
 {
-    nrf_rtc_event_disable(COMMON_RTC_INSTANCE, LP_TICKER_INT_MASK);
+    nrf_rtc_int_disable(COMMON_RTC_INSTANCE, LP_TICKER_INT_MASK);
 }
 
 void lp_ticker_clear_interrupt(void)
@@ -54,4 +72,4 @@ void lp_ticker_clear_interrupt(void)
     nrf_rtc_event_clear(COMMON_RTC_INSTANCE, LP_TICKER_EVENT);
 }
 
-#endif // DEVICE_LOWPOWERTIMER
+#endif // DEVICE_LPTICKER
