@@ -364,6 +364,25 @@ void equeue_cancel(equeue_t *q, int id) {
     }
 }
 
+int equeue_timeleft(equeue_t *q, int id) {
+    int ret = -1;
+
+    if (!id) {
+        return -1;
+    }
+
+    // decode event from unique id and check that the local id matches
+    struct equeue_event *e = (struct equeue_event *)
+            &q->buffer[id & ((1 << q->npw2)-1)];
+
+    equeue_mutex_lock(&q->queuelock);
+    if (e->id == id >> q->npw2) {
+        ret = equeue_clampdiff(e->target, equeue_tick());
+    }
+    equeue_mutex_unlock(&q->queuelock);
+    return ret;
+}
+
 void equeue_break(equeue_t *q) {
     equeue_mutex_lock(&q->queuelock);
     q->break_requested = true;

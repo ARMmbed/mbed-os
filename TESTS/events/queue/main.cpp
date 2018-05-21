@@ -250,6 +250,46 @@ void event_inference_test() {
     TEST_ASSERT_EQUAL(counter, 60);
 }
 
+int timeleft_events[2];
+
+void check_time_left(EventQueue* queue, int index, int expected) {
+    const int event_id = timeleft_events[index];
+    TEST_ASSERT_INT_WITHIN(2, expected, queue->time_left(event_id));
+    touched = true;
+}
+
+void time_left(EventQueue* queue, int index) {
+    const int event_id = timeleft_events[index];
+    TEST_ASSERT_EQUAL(0, queue->time_left(event_id));
+}
+
+void time_left_test() {
+    EventQueue queue(TEST_EQUEUE_SIZE);
+
+    // Enque check events
+    TEST_ASSERT(queue.call_in(50, check_time_left, &queue, 0, 100-50));
+    TEST_ASSERT(queue.call_in(200, check_time_left, &queue, 1, 200-200));
+
+    // Enque events to be checked
+    timeleft_events[0] = queue.call_in(100, time_left, &queue, 0);
+    timeleft_events[1] = queue.call_in(200, time_left, &queue, 1);
+    TEST_ASSERT(timeleft_events[0]);
+    TEST_ASSERT(timeleft_events[1]);
+
+    queue.dispatch(300);
+
+    // Ensure check was called
+    TEST_ASSERT(touched);
+    touched = false;
+
+    int id = queue.call(func0);
+    TEST_ASSERT(id);
+    TEST_ASSERT_EQUAL(0, queue.time_left(id));
+    queue.dispatch(10);
+
+    // Test invalid event id
+    TEST_ASSERT_EQUAL(-1, queue.time_left(0));
+}
 
 // Test setup
 utest::v1::status_t test_setup(const size_t number_of_cases) {
@@ -274,6 +314,8 @@ const Case cases[] = {
     Case("Testing the event class", event_class_test),
     Case("Testing the event class helpers", event_class_helper_test),
     Case("Testing the event inference", event_inference_test),
+
+    Case("Testing time_left", time_left_test),
 };
 
 Specification specification(test_setup, cases);
