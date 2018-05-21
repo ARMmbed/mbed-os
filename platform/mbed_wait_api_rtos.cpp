@@ -25,11 +25,11 @@
 #include "platform/mbed_power_mgmt.h"
 
 void wait(float s) {
-    wait_us(s * 1000000.0f);
+    wait_ms(s * 1000.0f);
 }
 
 void wait_ms(int ms) {
-    wait_us(ms * 1000);
+    Thread::wait((uint32_t)ms);
 }
 
 void wait_us(int us) {
