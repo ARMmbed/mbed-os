@@ -316,7 +316,7 @@ void test_error_logging()
     
 }
 
-#define NUM_TEST_THREADS 10
+#define NUM_TEST_THREADS 5
 
 //Error logger threads
 void err_thread_func(mbed_error_status_t *error_status)
@@ -471,7 +471,7 @@ void test_save_error_log()
 
 utest::v1::status_t test_setup(const size_t number_of_cases)
 {
-    GREENTEA_SETUP(100, "default_auto");
+    GREENTEA_SETUP(300, "default_auto");
     return utest::v1::verbose_test_setup_handler(number_of_cases);
 }
 
