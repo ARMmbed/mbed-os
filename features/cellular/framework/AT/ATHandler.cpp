@@ -72,6 +72,7 @@ ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, int timeout, const char 
     _fh_sigio_set(false),
     _processing(false),
     _ref_count(1),
+    _is_fh_usable(true),
     _stop_tag(NULL),
     _delimiter(DEFAULT_DELIMITER),
     _prefix_matched(false),
@@ -149,6 +150,11 @@ FileHandle *ATHandler::get_file_handle()
 void ATHandler::set_file_handle(FileHandle *fh)
 {
     _fileHandle = fh;
+}
+
+void ATHandler::set_is_filehandle_usable(bool usable)
+{
+    _is_fh_usable = usable;
 }
 
 nsapi_error_t ATHandler::set_urc_handler(const char *prefix, mbed::Callback<void()> callback)
@@ -269,6 +275,10 @@ void ATHandler::restore_at_timeout()
 
 void ATHandler::process_oob()
 {
+    if (!_is_fh_usable) {
+        tr_debug("process_oob, filehandle is not usable, return...");
+        return;
+    }
     lock();
     tr_debug("process_oob readable=%d, pos=%u, len=%u", _fileHandle->readable(), _recv_pos,  _recv_len);
     if (_fileHandle->readable() || (_recv_pos < _recv_len)) {
