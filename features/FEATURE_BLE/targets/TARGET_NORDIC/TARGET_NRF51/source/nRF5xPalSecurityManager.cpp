@@ -373,7 +373,7 @@ ble_error_t nRF5xSecurityManager::cancel_pairing(
 ble_error_t nRF5xSecurityManager::get_secure_connections_support(
     bool &enabled
 ) {
-    enabled = true;
+    enabled = false;
     return BLE_ERROR_NONE;
 }
 
