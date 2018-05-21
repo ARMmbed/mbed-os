@@ -130,7 +130,7 @@ int DeviceKey::write_key_to_nvstore(uint32_t *input, size_t isize)
 
 int DeviceKey::read_key_from_nvstore(uint32_t *output, size_t& size)
 {
-    if (size > UINT16_MAX) {
+    if (size > (uint16_t)-1) {
         return DEVICEKEY_INVALID_PARAM;
     }
 
