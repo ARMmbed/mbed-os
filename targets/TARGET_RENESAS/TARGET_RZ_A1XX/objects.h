@@ -81,6 +81,10 @@ struct trng_s {
     uint8_t dummy;
 };
 
+struct flash_s {
+    uint8_t dummy;
+};
+
 #ifdef __cplusplus
 }
 #endif
