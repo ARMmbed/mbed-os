@@ -24,6 +24,7 @@
 #define MBED_STATS_H
 #include <stdint.h>
 #include <stddef.h>
+#include "hal/ticker_api.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -32,6 +33,7 @@ extern "C" {
 #ifdef MBED_ALL_STATS_ENABLED
 #define MBED_SYS_STATS_ENABLED      1
 #define MBED_STACK_STATS_ENABLED    1
+#define MBED_CPU_STATS_ENABLED      1
 #define MBED_HEAP_STATS_ENABLED     1
 #define MBED_THREAD_STATS_ENABLED   1
 #endif
@@ -82,6 +84,23 @@ void mbed_stats_stack_get(mbed_stats_stack_t *stats);
  *                  this is equal to the number of stacks on the system.
  */
 size_t mbed_stats_stack_get_each(mbed_stats_stack_t *stats, size_t count);
+
+/**
+ * struct mbed_stats_cpu_t definition
+ */
+typedef struct {
+    us_timestamp_t uptime;            /**< Time since system is up and running */
+    us_timestamp_t idle_time;         /**< Time spent in idle thread since system is up and running */
+    us_timestamp_t sleep_time;        /**< Time spent in sleep since system is up and running */
+    us_timestamp_t deep_sleep_time;   /**< Time spent in deep sleep since system is up and running */
+} mbed_stats_cpu_t;
+
+/**
+ *  Fill the passed in CPU stat structure with CPU statistics.
+ *
+ *  @param stats    A pointer to the mbed_stats_cpu_t structure to fill
+ */
+void mbed_stats_cpu_get(mbed_stats_cpu_t *stats);
 
 /**
  * struct mbed_stats_thread_t definition
