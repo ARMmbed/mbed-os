@@ -90,9 +90,16 @@ FILE* FileSecurityDb::open_db_file(const char *db_path) {
         return NULL;
     }
 
-    FILE *db_file = fopen(db_path, "wb+");
+    /* try to open an existing file */
+    FILE *db_file = fopen(db_path, "rb+");
 
     if (!db_file) {
+        /* file doesn't exist, create it */
+        db_file = fopen(db_path, "wb+");
+    }
+
+    if (!db_file) {
+        /* failed to create a file, abort */
         return NULL;
     }
 
