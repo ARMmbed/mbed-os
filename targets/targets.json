@@ -3624,8 +3624,10 @@
             "TARGET_NRF52840",
             "CMSIS_VECTAB_VIRTUAL",
             "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\"",
-            "MBED_TICKLESS"
+            "MBED_TICKLESS",
+            "MBEDTLS_CONFIG_HW_SUPPORT"
         ],
+        "features": ["CRYPTOCELL310"],
         "device_has": [
             "ANALOGIN",
             "FLASH",
@@ -3682,8 +3684,6 @@
     "NRF52840_DK": {
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF52840"],
-        "macros_add": ["MBEDTLS_CONFIG_HW_SUPPORT"],
-        "features": ["CRYPTOCELL310"],
         "release_versions": ["5"],
         "device_name": "nRF52840_xxAA"
     },
