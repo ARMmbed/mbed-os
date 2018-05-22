@@ -444,7 +444,7 @@ int SDBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
         response = _write(buffer, SPI_START_BLOCK, _block_size);
 
         // Only CRC and general write error are communicated via response token
-        if ((response == SPI_DATA_CRC_ERROR) || (response == SPI_DATA_WRITE_ERROR)) {
+        if (response != SPI_DATA_ACCEPTED) {
             debug_if(SD_DBG, "Single Block Write failed: 0x%x \n", response);
             status = SD_BLOCK_DEVICE_ERROR_WRITE;
         }
