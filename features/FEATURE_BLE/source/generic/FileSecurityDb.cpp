@@ -21,7 +21,8 @@ namespace generic {
 
 const uint16_t DB_VERSION = 1;
 
-#define DB_STORE_OFFSET_LOCAL_KEYS    (0)
+#define DB_STORE_OFFSET_FLAGS         (0)
+#define DB_STORE_OFFSET_LOCAL_KEYS    (DB_STORE_OFFSET_FLAGS + sizeof(SecurityDistributionFlags_t))
 #define DB_STORE_OFFSET_PEER_KEYS     (DB_STORE_OFFSET_LOCAL_KEYS + sizeof(SecurityEntryKeys_t))
 #define DB_STORE_OFFSET_PEER_IDENTITY (DB_STORE_OFFSET_PEER_KEYS + sizeof(SecurityEntryKeys_t))
 #define DB_STORE_OFFSET_PEER_SIGNING  (DB_STORE_OFFSET_PEER_IDENTITY + sizeof(SecurityEntryIdentity_t))
@@ -44,18 +45,13 @@ const uint16_t DB_VERSION = 1;
 #define PAD4(value) ((((value - 1) / 4) * 4) + 4)
 
 #define DB_SIZE_STORE \
-    PAD4(sizeof(SecurityEntryKeys_t) + \
-    sizeof(SecurityEntryKeys_t) + \
-    sizeof(SecurityEntryIdentity_t) + \
-    sizeof(SecurityEntrySigning_t) + \
-    sizeof(sign_count_t))
-
-/* without the size of the file offset as we don't store it */
-#define DB_SIZE_ENTRY \
-    (sizeof(SecurityDistributionFlags_t) + sizeof(sign_count_t))
-
-#define DB_SIZE_ENTRIES \
-    (FileSecurityDb::MAX_ENTRIES * DB_SIZE_ENTRY)
+    PAD4( \
+        sizeof(SecurityDistributionFlags_t) + \
+        sizeof(SecurityEntryKeys_t) + \
+        sizeof(SecurityEntryKeys_t) + \
+        sizeof(SecurityEntryIdentity_t) + \
+        sizeof(SecurityEntrySigning_t) \
+    )
 
 #define DB_SIZE_STORES \
     (FileSecurityDb::MAX_ENTRIES * DB_SIZE_STORE)
@@ -65,8 +61,7 @@ const uint16_t DB_VERSION = 1;
 #define DB_OFFSET_LOCAL_IDENTITY   (DB_OFFSET_RESTORE + sizeof(bool))
 #define DB_OFFSET_LOCAL_CSRK       (DB_OFFSET_LOCAL_IDENTITY + sizeof(SecurityEntryIdentity_t))
 #define DB_OFFSET_LOCAL_SIGN_COUNT (DB_OFFSET_LOCAL_CSRK + sizeof(csrk_t))
-#define DB_OFFSET_ENTRIES          (DB_OFFSET_LOCAL_SIGN_COUNT + sizeof(sign_count_t))
-#define DB_OFFSET_STORES           (DB_OFFSET_ENTRIES + DB_SIZE_ENTRIES)
+#define DB_OFFSET_STORES           (DB_OFFSET_LOCAL_SIGN_COUNT + sizeof(sign_count_t))
 #define DB_OFFSET_MAX              (DB_OFFSET_STORES + DB_SIZE_STORES)
 #define DB_SIZE                    PAD4(DB_OFFSET_MAX)
 
@@ -288,10 +283,10 @@ void FileSecurityDb::restore() {
     db_read(&_local_csrk, DB_OFFSET_LOCAL_CSRK);
     db_read(&_local_sign_counter, DB_OFFSET_LOCAL_SIGN_COUNT);
 
-    fseek(_db_file, DB_OFFSET_ENTRIES, SEEK_SET);
-    /* we read the entries partially and fill the offsets ourselves*/
+    /* read flags and sign counters */
     for (size_t i = 0; i < get_entry_count(); i++) {
-        fread(&_entries[i], DB_SIZE_ENTRY, 1, _db_file);
+        db_read(&_entries[i].flags, _entries[i].file_offset + DB_STORE_OFFSET_FLAGS);
+        db_read(&_entries[i].peer_sign_counter, _entries[i].file_offset + DB_STORE_OFFSET_PEER_SIGNING_COUNT);
     }
 
 }
@@ -303,6 +298,7 @@ void FileSecurityDb::sync(entry_handle_t db_handle) {
     }
 
     db_write(&entry->peer_sign_counter, entry->file_offset + DB_STORE_OFFSET_PEER_SIGNING_COUNT);
+    db_write(&entry->flags, entry->file_offset + DB_STORE_OFFSET_FLAGS);
 }
 
 void FileSecurityDb::set_restore(bool reload) {
