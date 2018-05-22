@@ -1603,14 +1603,12 @@ void GenericSecurityManager::on_ltk_request(
         return;
     }
 
-    if (flags->ltk_stored) {
-        _db->get_entry_local_keys(
-            mbed::callback(this, &GenericSecurityManager::set_ltk_cb),
-            cb->db_entry,
-            ediv,
-            rand
-        );
-    }
+    _db->get_entry_local_keys(
+        mbed::callback(this, &GenericSecurityManager::set_ltk_cb),
+        cb->db_entry,
+        ediv,
+        rand
+    );
 }
 
 /* control blocks list management */
