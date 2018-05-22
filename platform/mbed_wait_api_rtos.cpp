@@ -29,7 +29,14 @@ void wait(float s) {
 }
 
 void wait_ms(int ms) {
-    Thread::wait((uint32_t)ms);
+    // Shouldn't be calling a wait function from a critical section,
+    // but in case someone does...
+    if (core_util_are_interrupts_enabled()) {
+        Thread::wait((uint32_t)ms);
+    } else {
+        wait_us(ms * 1000);
+    }
+
 }
 
 void wait_us(int us) {
