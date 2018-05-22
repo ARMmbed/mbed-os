@@ -431,9 +431,7 @@ int8_t thread_tasklet_connect(mesh_interface_cb callback, int8_t nwk_interface_i
             // -1 handler already used by other tasklet
             // -2 memory allocation failure
             return thread_tasklet_data_ptr->tasklet;
-        }
-
-        ns_event_loop_thread_start();
+        }        
     } else {
         thread_tasklet_data_ptr->tasklet = tasklet;
         mesh_system_send_connect_event(thread_tasklet_data_ptr->tasklet);
