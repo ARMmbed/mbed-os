@@ -458,7 +458,11 @@ ble_error_t nRF5xGap::connect(
             return BLE_ERROR_INVALID_PARAM;
     }
 
-    return connect(peerAddr, legacy_address, connectionParams, scanParamsIn);
+    bool identity =
+        peerAddrType == peer_address_type_t::PUBLIC_IDENTITY ||
+        peerAddrType == peer_address_type_t::RANDOM_STATIC_IDENTITY;
+
+    return connect(peerAddr, legacy_address, connectionParams, scanParamsIn, identity);
 }
 
 ble_error_t nRF5xGap::connect(
@@ -466,6 +470,18 @@ ble_error_t nRF5xGap::connect(
     LegacyAddressType_t peerAddrType,
     const ConnectionParams_t *connectionParams,
     const GapScanningParams *scanParamsIn
+) {
+    return connect(peerAddr, peerAddrType, connectionParams, scanParamsIn, /* identity */ false);
+}
+
+
+
+ble_error_t nRF5xGap::connect(
+    const Address_t peerAddr,
+    LegacyAddressType_t peerAddrType,
+    const ConnectionParams_t *connectionParams,
+    const GapScanningParams *scanParamsIn,
+    bool identity
 ) {
     ble_gap_addr_t addr;
     ble_gap_addr_t* addr_ptr = &addr;
@@ -485,7 +501,7 @@ ble_error_t nRF5xGap::connect(
         connParams.conn_sup_timeout  = 600;
     }
 
-    ble_gap_scan_params_t scanParams ={0};
+    ble_gap_scan_params_t scanParams = { 0 };
 
 #if  (NRF_SD_BLE_API_VERSION <= 2)
     /* Allocate the stack's whitelist statically */
@@ -513,6 +529,11 @@ ble_error_t nRF5xGap::connect(
                 whitelistIrkPtrs[i] = (ble_gap_irk_t*) entries[i].peer_irk.data();
             }
             whitelist.irk_count = limit;
+
+            if (identity) {
+                scanParams.selective = true;
+                addr_ptr = NULL;
+            }
         }
 
         set_private_resolvable_address();
