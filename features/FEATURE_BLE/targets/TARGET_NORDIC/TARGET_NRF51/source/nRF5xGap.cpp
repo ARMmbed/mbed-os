@@ -1352,7 +1352,9 @@ void nRF5xGap::on_advertising_packet(const ble_gap_evt_adv_report_t &evt) {
         if (entry) {
             peer_address = entry->peer_identity_address.data();
             peer_addr_type = convert_identity_address(entry->peer_identity_address_type);
-        } else if (_central_privacy_configuration.resolution_strategy != CentralPrivacyConfiguration_t::RESOLVE_AND_FORWARD) {
+        } else if (_central_privacy_configuration.resolution_strategy == CentralPrivacyConfiguration_t::RESOLVE_AND_FORWARD ||
+            get_sm().get_resolving_list().size() == 0
+        ) {
             peer_addr_type = convert_nordic_address(evt.peer_addr.addr_type);
         } else {
             // filter out the packet.
