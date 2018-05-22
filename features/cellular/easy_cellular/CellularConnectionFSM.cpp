@@ -39,7 +39,7 @@ namespace mbed {
 
 CellularConnectionFSM::CellularConnectionFSM() :
         _serial(0), _state(STATE_INIT), _next_state(_state), _status_callback(0), _network(0), _power(0), _sim(0),
-        _queue(8 * EVENTS_EVENT_SIZE), _queue_thread(0), _retry_count(0), _state_retry_count(0), _at_queue(8 * EVENTS_EVENT_SIZE)
+        _queue(8 * EVENTS_EVENT_SIZE), _queue_thread(0), _retry_count(0), _state_retry_count(0), _at_queue(2 * EVENTS_EVENT_SIZE)
 {
     memset(_sim_pin, 0, sizeof(_sim_pin));
 #if MBED_CONF_CELLULAR_RANDOM_MAX_START_DELAY == 0
@@ -60,7 +60,7 @@ CellularConnectionFSM::CellularConnectionFSM() :
     _retry_timeout_array[8] = 600;
     _retry_timeout_array[9] = TIMEOUT_NETWORK_MAX;
     _retry_array_length = MAX_RETRY_ARRAY_SIZE;
-    
+
     _cellularDevice = new CELLULAR_DEVICE(_at_queue);
 }
 
@@ -153,22 +153,6 @@ bool CellularConnectionFSM::open_sim()
     }
 
     return state == CellularSIM::SimStateReady;
-}
-
-void CellularConnectionFSM::device_ready()
-{
-    CellularInformation *info = _cellularDevice->open_information(_serial);
-    char device_info_buf[2048]; // may be up to 2048 according to 3GPP
-
-    if (info->get_manufacturer(device_info_buf, sizeof(device_info_buf)) == NSAPI_ERROR_OK) {
-        tr_info("Cellular device manufacturer: %s", device_info_buf);
-    }
-    if (info->get_model(device_info_buf, sizeof(device_info_buf)) == NSAPI_ERROR_OK) {
-        tr_info("Cellular device model: %s", device_info_buf);
-    }
-    if (info->get_revision(device_info_buf, sizeof(device_info_buf)) == NSAPI_ERROR_OK) {
-        tr_info("Cellular device revision: %s", device_info_buf);
-    }
 }
 
 bool CellularConnectionFSM::set_network_registration(char *plmn)
@@ -301,7 +285,9 @@ void CellularConnectionFSM::event()
                 tr_info("Cellular device ready");
                 _next_state = STATE_SIM_PIN;
                 _retry_count = 0;
-                device_ready();
+                _cellularDevice->close_power();
+                _power = NULL;
+
             } else {
                 tr_info("Waiting for cellular device (retry %d/%d, timeout %d ms)", _retry_count, RETRY_COUNT_DEFAULT,
                         TIMEOUT_POWER_ON);
@@ -320,6 +306,8 @@ void CellularConnectionFSM::event()
                 _next_state = STATE_REGISTERING_NETWORK;
                 _retry_count = 0;
                 _state_retry_count = 0;
+                _cellularDevice->close_sim();
+                _sim = NULL;
                 tr_info("Check for network registration");
             } else {
                 if (_retry_count++ <= RETRY_COUNT_DEFAULT) {
@@ -498,7 +486,7 @@ nsapi_error_t CellularConnectionFSM::start_dispatch()
 
     MBED_ASSERT(!_queue_thread);
 
-    _queue_thread = new rtos::Thread;
+    _queue_thread = new rtos::Thread(osPriorityNormal, 2048);
     if (!_queue_thread) {
         stop();
         return NSAPI_ERROR_NO_MEMORY;
@@ -517,6 +505,10 @@ void CellularConnectionFSM::stop()
     tr_info("CellularConnectionUtil::stop");
     _cellularDevice->close_power();
     _cellularDevice->close_network();
+    _cellularDevice->close_sim();
+    _power = NULL;
+    _network = NULL;
+    _sim = NULL;
     if (_queue_thread) {
         _queue_thread->terminate();
         _queue_thread = NULL;
