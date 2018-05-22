@@ -1,42 +1,51 @@
 /*
 ** ###################################################################
-**     Processors:          MIMXRT1052CVL5A
-**                          MIMXRT1052DVL6A
+**     Processors:          MIMXRT1052CVJ5B
+**                          MIMXRT1052CVL5B
+**                          MIMXRT1052DVJ6B
+**                          MIMXRT1052DVL6B
 **
 **     Compiler:            GNU C Compiler
-**     Reference manual:    IMXRT1050RM Rev.C, 08/2017
+**     Reference manual:    IMXRT1050RM Rev.1, 03/2018
 **     Version:             rev. 0.1, 2017-01-10
-**     Build:               b171108
+**     Build:               b180509
 **
 **     Abstract:
 **         Linker file for the GNU C Compiler
 **
+**     The Clear BSD License
 **     Copyright 2016 Freescale Semiconductor, Inc.
-**     Copyright 2016-2017 NXP
-**     Redistribution and use in source and binary forms, with or without modification,
-**     are permitted provided that the following conditions are met:
+**     Copyright 2016-2018 NXP
+**     All rights reserved.
 **
-**     1. Redistributions of source code must retain the above copyright notice, this list
-**       of conditions and the following disclaimer.
+**     Redistribution and use in source and binary forms, with or without
+**     modification, are permitted (subject to the limitations in the
+**     disclaimer below) provided that the following conditions are met:
 **
-**     2. Redistributions in binary form must reproduce the above copyright notice, this
-**       list of conditions and the following disclaimer in the documentation and/or
-**       other materials provided with the distribution.
+**     * Redistributions of source code must retain the above copyright
+**       notice, this list of conditions and the following disclaimer.
 **
-**     3. Neither the name of the copyright holder nor the names of its
-**       contributors may be used to endorse or promote products derived from this
-**       software without specific prior written permission.
+**     * Redistributions in binary form must reproduce the above copyright
+**       notice, this list of conditions and the following disclaimer in the
+**       documentation and/or other materials provided with the distribution.
 **
-**     THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-**     ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-**     WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-**     DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
-**     ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-**     (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-**     LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
-**     ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-**     (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-**     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+**     * Neither the name of the copyright holder nor the names of its
+**       contributors may be used to endorse or promote products derived from
+**       this software without specific prior written permission.
+**
+**     NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE
+**     GRANTED BY THIS LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT
+**     HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
+**     WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+**     MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+**     DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+**     LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+**     CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+**     SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+**     BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+**     WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+**     OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
+**     IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 **
 **     http:                 www.nxp.com
 **     mail:                 support@nxp.com
@@ -49,15 +58,8 @@ ENTRY(Reset_Handler)
 
 __ram_vector_table__ = 1;
 
-/* With the RTOS in use, this does not affect the main stack size. The size of
- * the stack where main runs is determined via the RTOS. */
-__stack_size__ = 0x400;
-
-/* This is the guaranteed minimum available heap size for an application. When
- * uVisor is enabled, this is also the maximum available heap size. The
- * HEAP_SIZE value is set by uVisor porters to balance the size of the legacy
- * heap and the page heap in uVisor applications. */
-__heap_size__ = 0x1000;
+__stack_size__ = 0x8000;
+__heap_size__ = 0x10000;
 
 HEAP_SIZE  = DEFINED(__heap_size__)  ? __heap_size__  : 0x0400;
 STACK_SIZE = DEFINED(__stack_size__) ? __stack_size__ : 0x0400;
@@ -66,15 +68,38 @@ M_VECTOR_RAM_SIZE = DEFINED(__ram_vector_table__) ? 0x0400 : 0x0;
 /* Specify the memory areas */
 MEMORY
 {
+  m_flash_config        (RX)  : ORIGIN = 0x60000000, LENGTH = 0x00001000
+  m_ivt                 (RX)  : ORIGIN = 0x60001000, LENGTH = 0x00001000
   m_interrupts          (RX)  : ORIGIN = 0x60002000, LENGTH = 0x00000400
   m_text                (RX)  : ORIGIN = 0x60002400, LENGTH = 0x03FFDC00
-  m_data                (RW)  : ORIGIN = 0x20000000, LENGTH = 0x00020000
-  m_data2               (RW)  : ORIGIN = 0x20200000, LENGTH = 0x00040000
+  m_data                (RW)  : ORIGIN = 0x80000000, LENGTH = 0x01E00000
+  m_ncache              (RW)  : ORIGIN = 0x81E00000, LENGTH = 0x00200000
+  m_data2               (RW)  : ORIGIN = 0x20000000, LENGTH = 0x00020000
+  m_data3               (RW)  : ORIGIN = 0x20200000, LENGTH = 0x00040000
 }
 
 /* Define output sections */
 SECTIONS
 {
+  .flash_config :
+  {
+    . = ALIGN(4);
+    __FLASH_BASE = .;
+    KEEP(* (.boot_hdr.conf))     /* flash config section */
+    . = ALIGN(4);
+  } > m_flash_config
+
+  ivt_begin= ORIGIN(m_flash_config) + LENGTH(m_flash_config);
+
+  .ivt : AT(ivt_begin)
+  {
+    . = ALIGN(4);
+    KEEP(* (.boot_hdr.ivt))           /* ivt section */
+    KEEP(* (.boot_hdr.boot_data))     /* boot section */
+    KEEP(* (.boot_hdr.dcd_data))      /* dcd section */
+    . = ALIGN(4);
+  } > m_ivt
+
   /* The startup code goes first into internal RAM */
   .interrupts :
   {
@@ -182,7 +207,7 @@ SECTIONS
     . += M_VECTOR_RAM_SIZE;
     . = ALIGN(4);
     __interrupts_ram_end__ = .; /* Define a global symbol at data end */
-  } > m_data
+  } > m_data2
 
   __VECTOR_RAM = DEFINED(__ram_vector_table__) ? __VECTOR_RAM__ : ORIGIN(m_interrupts);
   __RAM_VECTOR_TABLE_SIZE_BYTES = DEFINED(__ram_vector_table__) ? (__interrupts_ram_end__ - __interrupts_ram_start__) : 0x0;
@@ -207,14 +232,14 @@ SECTIONS
     *(NonCacheable.init)
     . = ALIGN(4);
     __noncachedata_init_end__ = .;   /* create a global symbol at initialized ncache data end */
-  } > m_data
+  } > m_ncache
   . = __noncachedata_init_end__;
   .ncache :
   {
     *(NonCacheable)
     . = ALIGN(4);
     __noncachedata_end__ = .;     /* define a global symbol at ncache data end */
-  } > m_data
+  } > m_ncache
 
   __DATA_END = __NDATA_ROM + (__noncachedata_init_end__ - __noncachedata_start__);
   text_end = ORIGIN(m_text) + LENGTH(m_text);
