@@ -48,8 +48,8 @@ initialize by copy { readwrite };
 initialize by copy { section .intvec };
 do not initialize  { section .noinit };
 
-/* place at address mem:__region_INTVEC_FLASH_start__  { section .intvec }; */
-place in VEC_region    { section .intvec }; 
+//place at address mem:__region_INTVEC_FLASH_start__  { section .intvec }; /* */
+place in VEC_region  { section .intvec }; 
 place in FLASH_region  { readonly };
 place in DATA_region   { block RW };
 place in DATA_region   { block ZI };

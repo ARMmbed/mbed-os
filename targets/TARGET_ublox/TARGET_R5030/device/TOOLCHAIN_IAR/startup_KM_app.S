@@ -43,7 +43,7 @@
         ; Stack size default : 1024
         ; Heap size default : 2048
         ; Forward declaration of sections.
-        ;SECTION CSTACK:DATA:NOROOT(3)
+        SECTION CSTACK:DATA:NOROOT(3)
 
         SECTION .intvec:CODE:NOROOT(4)
         EXTERN  __iar_program_start
@@ -55,13 +55,13 @@
 
         DATA
 __Vectors
-        DCD     0x20010000
+        DCD     sfe(CSTACK)
         DCD     Reset_Handler
         DCD     NMI_Handler
         DCD     HardFault_Handler
-        DCD     0
-        DCD     0
-        DCD     0
+        DCD     MemManage_Handler
+        DCD     BusFault_Handler
+        DCD     UsageFault_Handler
         DCD     0
         DCD     0
         DCD     0
@@ -143,6 +143,18 @@ NMI_Handler
         PUBWEAK HardFault_Handler
         SECTION .text:CODE:NOROOT(1)
 HardFault_Handler
+        B .
+        PUBWEAK MemManage_Handler
+        SECTION .text:CODE:NOROOT(1)
+MemManage_Handler
+        B .
+        PUBWEAK BusFault_Handler
+        SECTION .text:CODE:NOROOT(1)
+BusFault_Handler
+        B .
+        PUBWEAK UsageFault_Handler
+        SECTION .text:CODE:NOROOT(1)
+UsageFault_Handler
         B .
         PUBWEAK SVC_Handler
         SECTION .text:CODE:NOROOT(1)
