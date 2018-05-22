@@ -267,16 +267,15 @@ void FileSecurityDb::set_entry_peer_sign_counter(
 /* saving and loading from nvm */
 
 void FileSecurityDb::restore() {
-
-    fseek(_db_file, DB_OFFSET_RESTORE, SEEK_SET);
-
     /* restore if requested */
-    bool restore_toggle;
-    if (fread(&restore_toggle, sizeof(bool), 1, _db_file) == 1) {
-        if (!restore_toggle) {
-            erase_db_file(_db_file);
-            return;
-        }
+    bool restore_toggle = false;
+    db_read(&restore_toggle, DB_OFFSET_RESTORE);
+
+    if (!restore_toggle) {
+        erase_db_file(_db_file);
+
+        db_write(&DB_VERSION, DB_OFFSET_VERSION);
+        return;
     }
 
     db_read(&_local_identity, DB_OFFSET_LOCAL_IDENTITY);
