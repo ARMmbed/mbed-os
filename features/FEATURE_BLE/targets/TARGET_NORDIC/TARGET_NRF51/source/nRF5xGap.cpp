@@ -1248,6 +1248,16 @@ void nRF5xGap::on_connection(Gap::Handle_t handle, const ble_gap_evt_connected_t
 
 #if (NRF_SD_BLE_API_VERSION <= 2)
     bool private_peer_known = evt.irk_match;
+
+    // thanks to softdevice consistencies; addresses are not resolved on the
+    // peripheral side ...
+    if (_privacy_enabled &&
+        evt.role == BLE_GAP_ROLE_PERIPH &&
+        _peripheral_privacy_configuration.resolution_strategy != PeripheralPrivacyConfiguration_t::DO_NOT_RESOLVE &&
+        get_sm().resolve_address(evt.peer_addr.addr) != NULL
+    ) {
+        private_peer_known = true;
+    }
 #else
     bool private_peer_known = evt.peer_addr.addr_id_peer;
 #endif
