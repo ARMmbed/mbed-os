@@ -27,6 +27,18 @@
 #include <stdint.h>
 #include <stddef.h>
 
+/* Include logic for errno so we can get errno defined but not bring in error_t,
+ * including errno here prevents an include later, which would redefine our
+ * error codes
+ */
+#ifndef __error_t_defined
+#define __error_t_defined 1
+#include <errno.h>
+#undef __error_t_defined
+#else
+#include <errno.h>
+#endif
+
 /* We can get the following standard types from sys/types for gcc, but we
  * need to define the types ourselves for the other compilers that normally
  * target embedded systems */
