@@ -841,6 +841,7 @@ EXCLUDE_PATTERNS       = */tools/* \
                          */BUILD/* \
                          */rtos/TARGET_CORTEX/rtx* \
                          */cmsis/* \
+                         */features/cryptocell/* \
                          */features/mbedtls/* \
                          */features/storage/* \
                          */features/unsupported/* \
