@@ -19,6 +19,7 @@
 #define MBED_DEVICE_H
 
 #define DEVICE_ID_LENGTH       24
+#define BOARD_FLASH_SIZE       (0x4000000U)
 
 #include "objects.h"
 
