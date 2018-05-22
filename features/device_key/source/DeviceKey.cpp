@@ -175,13 +175,13 @@ int DeviceKey::get_derived_key(uint32_t *ikey_buff, size_t ikey_size, const unsi
 
     const mbedtls_cipher_info_t *cipher_info = mbedtls_cipher_info_from_type(mbedtls_cipher_type);
 
-    mbedtls_cipher_init(&ctx);
-    ret = mbedtls_cipher_setup(&ctx, cipher_info);
-    if (ret != 0) {
-        goto finish;
-    }
-
     do {
+
+    	mbedtls_cipher_init(&ctx);
+    	ret = mbedtls_cipher_setup(&ctx, cipher_info);
+    	if (ret != 0) {
+    	    goto finish;
+    	}
 
         ret = mbedtls_cipher_cmac_starts(&ctx, (unsigned char *)ikey_buff, ikey_size * 8);
         if (ret != 0) {
@@ -215,14 +215,15 @@ int DeviceKey::get_derived_key(uint32_t *ikey_buff, size_t ikey_size, const unsi
             goto finish;
         }
 
+        mbedtls_cipher_free( &ctx );
+
         counter++;
 
     } while (DEVICE_KEY_16BYTE * counter < ikey_type);
 
 finish:
-    mbedtls_cipher_free( &ctx );
-
     if (DEVICEKEY_SUCCESS != ret) {
+    	mbedtls_cipher_free( &ctx );
         return DEVICEKEY_ERR_CMAC_GENERIC_FAILURE;
     }
 

@@ -38,8 +38,8 @@ using namespace utest::v1;
 #define MSG_KEY_DEVICE_TEST_STEP4 "check_consistency_step4"
 #define MSG_KEY_DEVICE_TEST_SUITE_ENDED "Test suite ended"
 
-void generate_derived_key_consistency_16_byte_key_reset_test(char *key);
-void generate_derived_key_consistency_32_byte_key_reset_test(char *key);
+void generate_derived_key_consistency_16_byte_key_long_consistency_test(char *key);
+void generate_derived_key_consistency_32_byte_key_long_consistency_test(char *key);
 
 /*
  * Injection of a dummy key when there is no TRNG
@@ -58,33 +58,26 @@ int inject_dummy_rot_key()
 #endif
 }
 
-void generate_derived_key_reset_test()
+void generate_derived_key_long_consistency_test()
 {
-    greentea_send_kv(MSG_KEY_DEVICE_READY, MSG_VALUE_DUMMY);
-
     static char key[MSG_KEY_LEN + 1] = { };
     static char value[MSG_VALUE_LEN + 1] = { };
-    memset(key, 0, MSG_KEY_LEN + 1);
-    memset(value, 0, MSG_VALUE_LEN + 1);
 
-    greentea_parse_kv(key, value, MSG_KEY_LEN, MSG_VALUE_LEN);
+    strcpy(key, MSG_KEY_DEVICE_TEST_STEP1);
+    generate_derived_key_consistency_16_byte_key_long_consistency_test(key);
+    strcpy(key, MSG_KEY_DEVICE_TEST_STEP2);
+    generate_derived_key_consistency_16_byte_key_long_consistency_test(key);
+    strcpy(key, MSG_KEY_DEVICE_TEST_STEP3);
+    generate_derived_key_consistency_32_byte_key_long_consistency_test(key);
+    strcpy(key, MSG_KEY_DEVICE_TEST_STEP4);
+    generate_derived_key_consistency_32_byte_key_long_consistency_test(key);
 
-    if (strcmp(key, MSG_KEY_DEVICE_TEST_STEP1) == 0 || strcmp(key, MSG_KEY_DEVICE_TEST_STEP2) == 0) {
-        generate_derived_key_consistency_16_byte_key_reset_test(key);
-        return generate_derived_key_reset_test();
-    }
-
-    if (strcmp(key, MSG_KEY_DEVICE_TEST_STEP3) == 0 || strcmp(key, MSG_KEY_DEVICE_TEST_STEP4) == 0) {
-        return generate_derived_key_consistency_32_byte_key_reset_test(key);
-    }
-
-    TEST_ASSERT_MESSAGE(false, key); //Indicates error!!!
 }
 
 /*
  * Test the consistency of derived 16 byte key result after device reset.
  */
-void generate_derived_key_consistency_16_byte_key_reset_test(char *key)
+void generate_derived_key_consistency_16_byte_key_long_consistency_test(char *key)
 {
     unsigned char output1[DEVICE_KEY_16BYTE];
     unsigned char output2[DEVICE_KEY_16BYTE];
@@ -115,8 +108,6 @@ void generate_derived_key_consistency_16_byte_key_reset_test(char *key)
         ret = nvstore.set(15, DEVICE_KEY_16BYTE, output1);
         TEST_ASSERT_EQUAL_INT32(0, ret);
 
-        system_reset();
-        TEST_ASSERT_MESSAGE(false, "system_reset() did not reset the device as expected.");
     } else if (strcmp(key, MSG_KEY_DEVICE_TEST_STEP2) == 0) {
 
         //Second step: Read from NVStore at index 15 there should be a derived key there.
@@ -136,7 +127,6 @@ void generate_derived_key_consistency_16_byte_key_reset_test(char *key)
         ret = nvstore.reset();
         TEST_ASSERT_EQUAL_INT(DEVICEKEY_SUCCESS, ret);
 
-        greentea_send_kv(MSG_KEY_DEVICE_FINISH, MSG_VALUE_DUMMY);
     } else {
         TEST_ASSERT_MESSAGE(false, "Unknown test step received");
     }
@@ -145,7 +135,7 @@ void generate_derived_key_consistency_16_byte_key_reset_test(char *key)
 /*
  * Test the consistency of derived 32 byte key result after device reset.
  */
-void generate_derived_key_consistency_32_byte_key_reset_test(char *key)
+void generate_derived_key_consistency_32_byte_key_long_consistency_test(char *key)
 {
     unsigned char output1[DEVICE_KEY_32BYTE];
     unsigned char output2[DEVICE_KEY_32BYTE];
@@ -176,8 +166,6 @@ void generate_derived_key_consistency_32_byte_key_reset_test(char *key)
         ret = nvstore.set(15, DEVICE_KEY_32BYTE, output1);
         TEST_ASSERT_EQUAL_INT32(0, ret);
 
-        system_reset();
-        TEST_ASSERT_MESSAGE(false, "system_reset() did not reset the device as expected.");
     } else if (strcmp(key, MSG_KEY_DEVICE_TEST_STEP4) == 0) {
 
         //Fourth step: Read from NVStore at index 15 there should be a derived key there.
@@ -197,7 +185,6 @@ void generate_derived_key_consistency_32_byte_key_reset_test(char *key)
         ret = nvstore.reset();
         TEST_ASSERT_EQUAL_INT(DEVICEKEY_SUCCESS, ret);
 
-        greentea_send_kv(MSG_KEY_DEVICE_FINISH, MSG_VALUE_DUMMY);
     } else {
         TEST_ASSERT_MESSAGE(false, "Unknown test step received");
     }
@@ -461,7 +448,7 @@ utest::v1::status_t greentea_failure_handler(const Case *const source, const fai
 
 //Currently there can be only one test that contains reset and it has to be the first test!
 Case cases[] = {
-    Case("Device Key - derived key reset",                   generate_derived_key_reset_test,                   greentea_failure_handler),
+    Case("Device Key - long consistency test",               generate_derived_key_long_consistency_test,                   greentea_failure_handler),
     Case("Device Key - inject value wrong size",             device_inject_root_of_trust_wrong_size_test,       greentea_failure_handler),
     Case("Device Key - inject value 16 byte size",           device_inject_root_of_trust_16_byte_size_test,     greentea_failure_handler),
     Case("Device Key - inject value 32 byte size",           device_inject_root_of_trust_32_byte_size_test,     greentea_failure_handler),
@@ -475,7 +462,7 @@ Case cases[] = {
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
 {
-    GREENTEA_SETUP(14, "devicekey_reset");
+    GREENTEA_SETUP(14, "default_auto");
     return greentea_test_setup_handler(number_of_cases);
 }
 
@@ -484,7 +471,6 @@ Specification specification(greentea_test_setup, cases, greentea_test_teardown_h
 int main()
 {
     bool ret = Harness::run(specification);
-    greentea_send_kv(MSG_KEY_DEVICE_TEST_SUITE_ENDED, MSG_VALUE_DUMMY);
 
     return ret;
 }
