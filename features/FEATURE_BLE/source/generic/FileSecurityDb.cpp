@@ -112,10 +112,9 @@ FILE* FileSecurityDb::open_db_file(const char *db_path) {
 
     if ((fread(&version, sizeof(version), 1, db_file) == 1) &&
         (version == DB_VERSION)) {
-        /* version checks out, try the size */
-        fseek(db_file, DB_SIZE - 1, SEEK_SET);
-        /* read one byte and expect to hit EOF */
-        if ((fread(&version, 1, 1, db_file) != 1) || !feof(db_file)) {
+        /* if file size differs from database size init the file */
+        fseek(db_file, 0, SEEK_END);
+        if (ftell(db_file) != DB_SIZE) {
             init = true;
         }
     } else {
