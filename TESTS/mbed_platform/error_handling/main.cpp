@@ -36,7 +36,7 @@ void test_error_count_and_reset()
     TEST_ASSERT_EQUAL_INT(count, get_error_count());
     
     //clear the errors and error count to 0
-    clear_all_errors();
+    mbed_clear_all_errors();
     
     //Now the error count should be 0
     TEST_ASSERT_EQUAL_INT(0, get_error_count());
@@ -56,15 +56,15 @@ void test_error_capturing()
     MBED_WARNING(MBED_ERROR_OUT_OF_RESOURCES, "System type error", 0x1100 );
     mbed_error_status_t lastError = get_last_error();
     TEST_ASSERT_EQUAL_UINT(MBED_ERROR_TYPE_SYSTEM, MBED_GET_ERROR_TYPE(lastError));
-    TEST_ASSERT_EQUAL_UINT(MODULE_UNKNOWN, MBED_GET_ERROR_MODULE(lastError));
+    TEST_ASSERT_EQUAL_UINT(MBED_MODULE_UNKNOWN, MBED_GET_ERROR_MODULE(lastError));
     TEST_ASSERT_EQUAL_UINT(MBED_ERROR_CODE_OUT_OF_RESOURCES, MBED_GET_ERROR_CODE(lastError));
     
-    mbed_error_status_t error = MAKE_ERROR(MODULE_DRIVER_SERIAL, MBED_ERROR_CODE_OUT_OF_RESOURCES);
+    mbed_error_status_t error = MBED_MAKE_ERROR(MBED_MODULE_DRIVER_SERIAL, MBED_ERROR_CODE_OUT_OF_RESOURCES);
     MBED_WARNING(error, "Error Serial", 0xAA );
     lastError = get_last_error();
     TEST_ASSERT_EQUAL_UINT(error, lastError);
     
-    error = MAKE_CUSTOM_ERROR(MODULE_APPLICATION, MBED_ERROR_CODE_UNKNOWN);
+    error = MBED_MAKE_CUSTOM_ERROR(MBED_MODULE_APPLICATION, MBED_ERROR_CODE_UNKNOWN);
     MBED_WARNING(error, "Custom Error Unknown", 0x1234 );
     lastError = get_last_error();
     TEST_ASSERT_EQUAL_UINT(error, lastError);
@@ -73,13 +73,13 @@ void test_error_capturing()
     lastError = get_last_error();
     TEST_ASSERT_EQUAL_UINT(MBED_ERROR_EPERM, lastError);
     
-    error = MAKE_CUSTOM_ERROR(MODULE_PLATFORM, MBED_ERROR_CODE_CREATE_FAILED);
+    error = MBED_MAKE_CUSTOM_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_CREATE_FAILED);
     MBED_WARNING(error, "Custom Error Type", error_value);
     lastError = get_last_error();
     TEST_ASSERT_EQUAL_UINT(MBED_ERROR_TYPE_CUSTOM, MBED_GET_ERROR_TYPE(lastError));
-    TEST_ASSERT_EQUAL_UINT(MODULE_PLATFORM, MBED_GET_ERROR_MODULE(lastError));
+    TEST_ASSERT_EQUAL_UINT(MBED_MODULE_PLATFORM, MBED_GET_ERROR_MODULE(lastError));
     TEST_ASSERT_EQUAL_UINT(MBED_ERROR_CODE_CREATE_FAILED, MBED_GET_ERROR_CODE(lastError));
-    mbed_error_status_t status = get_last_error_log_info( &error_ctx );
+    mbed_error_status_t status = mbed_get_last_error_log_info( &error_ctx );
     TEST_ASSERT(status == MBED_SUCCESS);
     TEST_ASSERT_EQUAL_UINT(error_value, error_ctx.error_value);
     
@@ -87,20 +87,20 @@ void test_error_capturing()
     MBED_WARNING(MBED_ERROR_EACCES, "Posix Error", error_value );
     lastError = get_last_error();
     TEST_ASSERT_EQUAL_UINT(MBED_ERROR_TYPE_POSIX, MBED_GET_ERROR_TYPE(lastError));
-    TEST_ASSERT_EQUAL_UINT(MODULE_UNKNOWN, MBED_GET_ERROR_MODULE(lastError));
+    TEST_ASSERT_EQUAL_UINT(MBED_MODULE_UNKNOWN, MBED_GET_ERROR_MODULE(lastError));
     TEST_ASSERT_EQUAL_UINT(MBED_ERROR_CODE_EACCES, MBED_GET_ERROR_CODE(lastError));
-    status = get_last_error_log_info( &error_ctx );
+    status = mbed_get_last_error_log_info( &error_ctx );
     TEST_ASSERT(status == MBED_SUCCESS);
     TEST_ASSERT_EQUAL_UINT(error_value, error_ctx.error_value);
     
     error_value = 0;
-    error = MAKE_ERROR(MODULE_HAL, MBED_ERROR_CODE_UNKNOWN);
+    error = MBED_MAKE_ERROR(MBED_MODULE_HAL, MBED_ERROR_CODE_UNKNOWN);
     MBED_WARNING(error, "HAL Entity error", error_value );
     lastError = get_last_error();
     TEST_ASSERT_EQUAL_UINT(MBED_ERROR_TYPE_SYSTEM, MBED_GET_ERROR_TYPE(lastError));
-    TEST_ASSERT_EQUAL_UINT(MODULE_HAL, MBED_GET_ERROR_MODULE(lastError));
+    TEST_ASSERT_EQUAL_UINT(MBED_MODULE_HAL, MBED_GET_ERROR_MODULE(lastError));
     TEST_ASSERT_EQUAL_UINT(MBED_ERROR_CODE_UNKNOWN, MBED_GET_ERROR_CODE(lastError));
-    status = get_last_error_log_info( &error_ctx );
+    status = mbed_get_last_error_log_info( &error_ctx );
     TEST_ASSERT(status == MBED_SUCCESS);
     TEST_ASSERT_EQUAL_UINT(error_value, error_ctx.error_value);
     
@@ -121,7 +121,7 @@ void test_error_context_capture()
     mbed_error_ctx error_ctx = {0};
     
     MBED_WARNING(MBED_ERROR_INVALID_ARGUMENT, "System type error", error_value );
-    mbed_error_status_t status = get_last_error_log_info( &error_ctx );
+    mbed_error_status_t status = mbed_get_last_error_log_info( &error_ctx );
     TEST_ASSERT(status == MBED_SUCCESS);
     TEST_ASSERT_EQUAL_UINT(error_value, error_ctx.error_value);
     TEST_ASSERT_EQUAL_UINT(osThreadGetId(), error_ctx.thread_id);
@@ -144,22 +144,22 @@ void test_error_logging()
     mbed_error_ctx error_ctx = {0};
     
     //clear the current errors first
-    clear_all_errors();
+    mbed_clear_all_errors();
     
     //log 3 errors and retrieve them to ensure they are correct
     MBED_WARNING(MBED_ERROR_INVALID_ARGUMENT, "Invalid argument", 1 );
     MBED_WARNING(MBED_ERROR_INVALID_SIZE, "Invalid size", 2 );
     MBED_WARNING(MBED_ERROR_INVALID_FORMAT, "Invalid format", 3 );
     
-    mbed_error_status_t status = get_error_log_info( 0, &error_ctx );
+    mbed_error_status_t status = mbed_get_error_log_info( 0, &error_ctx );
     TEST_ASSERT_EQUAL_UINT(MBED_ERROR_INVALID_ARGUMENT, error_ctx.error_status);
     TEST_ASSERT_EQUAL_UINT(1, error_ctx.error_value);
     
-    status = get_error_log_info( 1, &error_ctx );
+    status = mbed_get_error_log_info( 1, &error_ctx );
     TEST_ASSERT_EQUAL_UINT(MBED_ERROR_INVALID_SIZE, error_ctx.error_status);
     TEST_ASSERT_EQUAL_UINT(2, error_ctx.error_value);
     
-    status = get_error_log_info( 2, &error_ctx );
+    status = mbed_get_error_log_info( 2, &error_ctx );
     TEST_ASSERT_EQUAL_UINT(MBED_ERROR_INVALID_FORMAT, error_ctx.error_status);
     TEST_ASSERT_EQUAL_UINT(3, error_ctx.error_value);
     
@@ -175,24 +175,24 @@ void test_error_logging()
     MBED_WARNING(MBED_ERROR_UNSUPPORTED, "Not supported", 12 );
     MBED_WARNING(MBED_ERROR_ACCESS_DENIED, "Access denied", 13 );
     
-    status = get_error_log_info( 0, &error_ctx );
+    status = mbed_get_error_log_info( 0, &error_ctx );
     TEST_ASSERT_EQUAL_UINT(MBED_ERROR_TIME_OUT, error_ctx.error_status);
     TEST_ASSERT_EQUAL_UINT(10, error_ctx.error_value);
     
-    status = get_error_log_info( 1, &error_ctx );
+    status = mbed_get_error_log_info( 1, &error_ctx );
     TEST_ASSERT_EQUAL_UINT(MBED_ERROR_ALREADY_IN_USE, error_ctx.error_status);
     TEST_ASSERT_EQUAL_UINT(11, error_ctx.error_value);
     
-    status = get_error_log_info( 2, &error_ctx );
+    status = mbed_get_error_log_info( 2, &error_ctx );
     TEST_ASSERT_EQUAL_UINT(MBED_ERROR_UNSUPPORTED, error_ctx.error_status);
     TEST_ASSERT_EQUAL_UINT(12, error_ctx.error_value);
     
-    status = get_error_log_info( 3, &error_ctx );
+    status = mbed_get_error_log_info( 3, &error_ctx );
     TEST_ASSERT_EQUAL_UINT(MBED_ERROR_ACCESS_DENIED, error_ctx.error_status);
     TEST_ASSERT_EQUAL_UINT(13, error_ctx.error_value);
     
     //Try an index which is invalid, we should get ERROR_INVALID_ARGUMENT back
-    status = get_error_log_info( 99, &error_ctx );
+    status = mbed_get_error_log_info( 99, &error_ctx );
     TEST_ASSERT_EQUAL_UINT(MBED_ERROR_INVALID_ARGUMENT, status);
     
 }
@@ -228,10 +228,10 @@ void test_error_logging_multithread()
         errThread[i]->join();
     }
     
-    i = get_error_log_count()-1;
+    i = mbed_get_error_log_count()-1;
     //printf("\nError log count = %d\n", i+1);
     for(;i>=0;--i) {
-        mbed_error_status_t status = get_error_log_info( i, &error_ctx );
+        mbed_error_status_t status = mbed_get_error_log_info( i, &error_ctx );
         if(status != MBED_SUCCESS) {
             TEST_FAIL();
         }
@@ -252,7 +252,7 @@ void MyErrorHook(const mbed_error_ctx *error_ctx)
  */
 void test_error_hook()
 {
-    if( MBED_SUCCESS != set_error_hook(MyErrorHook)) {
+    if( MBED_SUCCESS != mbed_set_error_hook(MyErrorHook)) {
         TEST_FAIL();
     }
     
@@ -317,7 +317,7 @@ void test_save_error_log()
         TEST_FAIL();
     }
     
-    if(MBED_SUCCESS != save_error_log("/fs/errors.log")) {
+    if(MBED_SUCCESS != mbed_save_error_log("/fs/errors.log")) {
         printf("Failed saving error log");
         TEST_FAIL();
     }

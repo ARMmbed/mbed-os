@@ -323,7 +323,7 @@ void mbed_start_main(void)
     _main_thread_attr.name = "main_thread";
     osThreadId_t result = osThreadNew((osThreadFunc_t)pre_main, NULL, &_main_thread_attr);
     if ((void *)result == NULL) {
-        MBED_ERROR(MAKE_ERROR(MODULE_PLATFORM, MBED_ERROR_CODE_INITIALIZATION_FAILED), "Pre main thread not created", &_main_thread_attr);
+        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_INITIALIZATION_FAILED), "Pre main thread not created", &_main_thread_attr);
     }
 
     osKernelStart();
