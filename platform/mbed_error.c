@@ -19,6 +19,7 @@
 #include "platform/mbed_toolchain.h"
 #include "platform/mbed_error.h"
 #include "platform/mbed_interface.h"
+
 #if DEVICE_STDIO_MESSAGES
 #include <stdio.h>
 #endif

@@ -39,6 +39,26 @@
         "poll-use-lowpower-timer": {
             "help": "Enable use of low power timer class for poll(). May cause missing events.",
             "value": false
+        },
+
+        "logging-enable": {
+            "help": "Select the default tracing as mbed_logging.",
+            "value": false
+        },
+
+        "log-max-level": {
+            "help": "Option to set select maximum level of logs enabled at compile time",
+            "value": 8
+        },
+
+        "log-max-str-size": {
+            "help": "Maximum size of single string message supported by Logging module",
+            "value": 128
+        },
+
+        "log-max-buffer-size": {
+            "help": "Maximum buffer size for storing log messages",
+            "value": 512
         }
     },
     "target_overrides": {

@@ -1581,7 +1581,11 @@ static uint8_t nd_router_bootstrap_timer(nd_router_t *cur, protocol_interface_in
                     cur->nd_timer = nd_params.rs_retry_interval_min;
                     cur->nd_timer += randLIB_get_16bit() & nd_params.timer_random_max;
                     cur->ns_retry--;
-                    tr_debug(cur->nd_state == ND_RS_UNCAST ? "RS" : "RS+");
+                    if (cur->nd_state == ND_RS_UNCAST) {
+                        tr_debug("RS");
+                    } else {
+                        tr_debug("RS+");
+                    }
                 } else {
                     cur->nd_timer = 2;
                 }

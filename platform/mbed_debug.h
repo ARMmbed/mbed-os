@@ -5,7 +5,7 @@
  * \defgroup platform_debug Debug functions
  * @{
  */
- 
+
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2013 ARM Limited
  *
@@ -27,6 +27,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 #endif
+#include "mbed_toolchain.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -36,7 +37,10 @@ extern "C" {
 /** Output a debug message
  *
  * @param format printf-style format string, followed by variables
+ *  @deprecated The debug API is deprecated. Replaced by MBED_TRACE.
  */
+MBED_DEPRECATED_SINCE("mbed-os-5.9", "The debug API is deprecated. "
+                      "Use MBED_TRACE instead.")
 static inline void debug(const char *format, ...) {
 #if DEVICE_STDIO_MESSAGES && !defined(NDEBUG)
     va_list args;
@@ -46,7 +50,6 @@ static inline void debug(const char *format, ...) {
 #endif
 }
 
-
 /** Conditionally output a debug message
  *
  * NOTE: If the condition is constant false (== 0) and the compiler optimization
@@ -54,7 +57,10 @@ static inline void debug(const char *format, ...) {
  *
  * @param condition output only if condition is true (!= 0)
  * @param format printf-style format string, followed by variables
+ * @deprecated The debug_if API is deprecated. Replaced by MBED_TRACE_IF.
  */
+MBED_DEPRECATED_SINCE("mbed-os-5.9", "The debug_if API is deprecated. "
+                      "Use MBED_TRACE_IF instead.")
 static inline void debug_if(int condition, const char *format, ...) {
 #if DEVICE_STDIO_MESSAGES && !defined(NDEBUG)
     if (condition) {
@@ -65,7 +71,6 @@ static inline void debug_if(int condition, const char *format, ...) {
     }
 #endif
 }
-
 
 #ifdef __cplusplus
 }

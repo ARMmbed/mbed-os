@@ -169,6 +169,7 @@
 #include "mbed_toolchain.h"
 #include "mbed_error.h"
 #include "mbed_critical.h"
+#include "platform/mbed_log_trace.h"
 #if defined(__IAR_SYSTEMS_ICC__ ) && (__VER__ >= 8000000)
 #include <DLib_Threads.h>
 #endif
@@ -195,6 +196,24 @@ osMutexId_t               singleton_mutex_id;
 mbed_rtos_storage_mutex_t singleton_mutex_obj;
 osMutexAttr_t             singleton_mutex_attr;
 
+#if !defined(NDEBUG)
+/** Logging thread stack size can be configured by application, default it is 512 bytes */
+#ifndef MBED_CONF_APP_LOG_STACK_SIZE
+#define MBED_CONF_APP_LOG_STACK_SIZE    512
+#endif
+
+/** Logging thread priority can be configured by application, default it is osPriorityNormal */
+#ifndef MBED_CONF_LOG_THREAD_PRIORITY
+#define MBED_CONF_LOG_THREAD_PRIORITY   osPriorityNormal
+#endif
+
+osThreadAttr_t _log_thread_attr;
+char *_log_stack = NULL;
+mbed_rtos_storage_thread_t _log_obj;
+
+void log_print_data(void);
+void mbed_logging_init(void);
+#endif
 /*
  * Sanity check values
  */
@@ -306,6 +325,34 @@ WEAK void mbed_main(void) {
 
 }
 
+#if !defined(NDEBUG)
+void mbed_log_thread_create(void)
+{
+    // Allocate memory for thread stack, if no memory isr logging will be inactive
+    // but system will not stall
+    _log_stack = (char *) malloc(MBED_CONF_APP_LOG_STACK_SIZE);
+    if (NULL == _log_stack) {
+        MBED_ERR("BOOT", "Not enough memory for logging");
+        return;
+    }
+
+    // Create an additional logging thread
+    _log_thread_attr.stack_mem = _log_stack;
+    _log_thread_attr.stack_size = MBED_CONF_APP_LOG_STACK_SIZE;
+    _log_thread_attr.cb_size = sizeof(_log_obj);
+    _log_thread_attr.cb_mem = &_log_obj;
+    _log_thread_attr.priority = MBED_CONF_LOG_THREAD_PRIORITY;
+    _log_thread_attr.name = "logging_thread";
+    osThreadId_t result = osThreadNew((osThreadFunc_t)log_print_data, NULL, &_log_thread_attr);
+    if ((void *)result == NULL) {
+        MBED_ERR("BOOT", "Logging thread not created");
+        return;
+    }
+
+    mbed_logging_init();
+}
+#endif
+
 /* This function can be implemented by the target to perform higher level target initialization, before the mbed OS or
  * RTX is started.
  */
@@ -374,6 +421,9 @@ void pre_main()
     singleton_mutex_id = osMutexNew(&singleton_mutex_attr);
 
     $Super$$__cpp_initialize__aeabi_();
+#if !defined(NDEBUG)
+    mbed_log_thread_create();
+#endif
     main();
 }
 
@@ -394,7 +444,9 @@ void pre_main (void)
     singleton_mutex_id = osMutexNew(&singleton_mutex_attr);
 
     __rt_lib_init((unsigned)mbed_heap_start, (unsigned)(mbed_heap_start + mbed_heap_size));
-
+#if !defined(NDEBUG)
+    mbed_log_thread_create();
+#endif
     main(0, NULL);
 }
 
@@ -438,7 +490,7 @@ typedef void *mutex;
 #define OS_MUTEX_STATIC_NUM   8
 mutex _static_mutexes[OS_MUTEX_STATIC_NUM] = {NULL};
 mbed_rtos_storage_mutex_t _static_mutexes_mem[OS_MUTEX_STATIC_NUM] = {NULL};
- 
+
 int _mutex_initialize(mutex *m)
 {
     osMutexAttr_t attr;
@@ -552,7 +604,9 @@ void pre_main(void)
     env_mutex_id = osMutexNew(&env_mutex_attr);
 
     __libc_init_array();
-
+#if !defined(NDEBUG)
+    mbed_log_thread_create();
+#endif
     main(0, NULL);
 }
 
@@ -634,6 +688,9 @@ void pre_main(void)
     }
 
     mbed_main();
+#if !defined(NDEBUG)
+    mbed_log_thread_create();
+#endif
     main();
 }
 

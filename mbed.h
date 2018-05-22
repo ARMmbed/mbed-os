@@ -46,6 +46,7 @@
 #include "platform/mbed_interface.h"
 #include "platform/mbed_assert.h"
 #include "platform/mbed_debug.h"
+#include "platform/mbed_log_trace.h"
 
 // mbed Peripheral components
 #include "drivers/DigitalIn.h"
