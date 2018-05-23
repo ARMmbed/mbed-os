@@ -15,6 +15,9 @@
  */
 
 #include "us_ticker_api.h"
+
+#if DEVICE_USTICKER
+
 #include "sleep_api.h"
 #include "mbed_assert.h"
 #include "nu_modutil.h"
@@ -45,6 +48,10 @@ static int ticker_inited = 0;
 void us_ticker_init(void)
 {
     if (ticker_inited) {
+        /* By HAL spec, ticker_init allows the ticker to keep counting and disables the
+         * ticker interrupt. */
+        us_ticker_disable_interrupt();
+        us_ticker_clear_interrupt();
         return;
     }
     ticker_inited = 1;
@@ -75,11 +82,30 @@ void us_ticker_init(void)
 
     NVIC_EnableIRQ(TIMER_MODINIT.irq_n);
 
-    TIMER_EnableInt(timer_base);
+    TIMER_DisableInt(timer_base);
 
     TIMER_Start(timer_base);
     /* Wait for timer to start counting and raise active flag */
     while(! (timer_base->CTL & TIMER_CTL_ACTSTS_Msk));
+}
+
+void us_ticker_free(void)
+{
+    TIMER_T *timer_base = (TIMER_T *) NU_MODBASE(TIMER_MODINIT.modname);
+
+    /* Stop counting */
+    TIMER_Stop(timer_base);
+    /* Wait for timer to stop counting and unset active flag */
+    while((timer_base->CTL & TIMER_CTL_ACTSTS_Msk));
+
+    /* Disable interrupt */
+    TIMER_DisableInt(timer_base);
+    NVIC_DisableIRQ(TIMER_MODINIT.irq_n);
+
+    /* Disable IP clock */
+    CLK_DisableModuleClock(TIMER_MODINIT.clkidx);
+
+    ticker_inited = 0;
 }
 
 uint32_t us_ticker_read()
@@ -110,6 +136,8 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
     uint32_t cmp_timer = timestamp * NU_TMRCLK_PER_TICK;
     cmp_timer = NU_CLAMP(cmp_timer, TMR_CMP_MIN, TMR_CMP_MAX);
     timer_base->CMP = cmp_timer;
+
+    TIMER_EnableInt(timer_base);
 }
 
 void us_ticker_disable_interrupt(void)
@@ -145,3 +173,5 @@ static void tmr0_vec(void)
     // NOTE: us_ticker_set_interrupt() may get called in us_ticker_irq_handler();
     us_ticker_irq_handler();
 }
+
+#endif
