@@ -36,8 +36,7 @@
  *
  */
 
-#if DEVICE_I2C
-
+#if (defined(DEVICE_I2C) && defined(DEVICE_LPTICKER))
 /* I2C
  *
  * This HAL implementation uses the nrf_drv_twi.h API primarily but switches to TWI for the
@@ -131,8 +130,6 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
 
     if (first_init) {
         first_init = false;
-        /* Initialize low power ticker. Used for timeouts. */
-        lp_ticker_init();
 
         /* Register interrupt handlers in driver with the NVIC. */
         NVIC_SetVector(SPIM0_SPIS0_TWIM0_TWIS0_SPI0_TWI0_IRQn, (uint32_t) SPIM0_SPIS0_TWIM0_TWIS0_SPI0_TWI0_IRQHandler);

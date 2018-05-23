@@ -72,7 +72,6 @@ int32_t flash_init(flash_t *obj)
 
     if (first_init) {
         first_init = false;
-        lp_ticker_init();
     }
 
     return 0;
