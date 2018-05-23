@@ -55,6 +55,10 @@ static int ticker_inited = 0;
 void lp_ticker_init(void)
 {
     if (ticker_inited) {
+        /* By HAL spec, ticker_init allows the ticker to keep counting and disables the
+         * ticker interrupt. */
+        lp_ticker_disable_interrupt();
+        lp_ticker_clear_interrupt();
         return;
     }
     ticker_inited = 1;
@@ -92,7 +96,7 @@ void lp_ticker_init(void)
 
     NVIC_EnableIRQ(TIMER_MODINIT.irq_n);
 
-    TIMER_EnableInt(timer_base);
+    TIMER_DisableInt(timer_base);
     wait_us((NU_US_PER_SEC / NU_TMRCLK_PER_SEC) * 3);
 
     TIMER_EnableWakeup(timer_base);
@@ -103,6 +107,33 @@ void lp_ticker_init(void)
 
     /* Wait for timer to start counting and raise active flag */
     while(! (timer_base->CTL & TIMER_CTL_TMR_ACT_Msk));
+}
+
+void lp_ticker_free(void)
+{
+    TIMER_T *timer_base = (TIMER_T *) NU_MODBASE(TIMER_MODINIT.modname);
+
+    /* Stop counting */
+    TIMER_Stop(timer_base);
+    wait_us((NU_US_PER_SEC / NU_TMRCLK_PER_SEC) * 3);
+
+    /* Wait for timer to stop counting and unset active flag */
+    while((timer_base->CTL & TIMER_CTL_TMR_ACT_Msk));
+
+    /* Disable wakeup */
+    TIMER_DisableWakeup(timer_base);
+    wait_us((NU_US_PER_SEC / NU_TMRCLK_PER_SEC) * 3);
+
+    /* Disable interrupt */
+    TIMER_DisableInt(timer_base);
+    wait_us((NU_US_PER_SEC / NU_TMRCLK_PER_SEC) * 3);
+
+    NVIC_DisableIRQ(TIMER_MODINIT.irq_n);
+
+    /* Disable IP clock */
+    CLK_DisableModuleClock(TIMER_MODINIT.clkidx);
+
+    ticker_inited = 0;
 }
 
 timestamp_t lp_ticker_read()
@@ -134,6 +165,9 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
     cmp_timer = NU_CLAMP(cmp_timer, TMR_CMP_MIN, TMR_CMP_MAX);
 
     timer_base->CMPR = cmp_timer;
+    wait_us((NU_US_PER_SEC / NU_TMRCLK_PER_SEC) * 3);
+
+    TIMER_EnableInt(timer_base);
     wait_us((NU_US_PER_SEC / NU_TMRCLK_PER_SEC) * 3);
 }
 
