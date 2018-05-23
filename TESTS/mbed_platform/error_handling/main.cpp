@@ -30,7 +30,7 @@ void test_error_count_and_reset()
     
     //Log multiple errors and get the error count and make sure its 15
     for(int i=0; i<count; i++) {
-        MBED_WARNING(MBED_ERROR_OUT_OF_MEMORY, "Out of memory", i);
+        MBED_WARNING1(MBED_ERROR_OUT_OF_MEMORY, "Out of memory", i);
     }
     
     TEST_ASSERT_EQUAL_INT(count, mbed_get_error_count());
@@ -53,28 +53,28 @@ void test_error_capturing()
     
     //first clear all errors and start afresh
     
-    MBED_WARNING(MBED_ERROR_OUT_OF_RESOURCES, "System type error", 0x1100 );
+    MBED_WARNING1(MBED_ERROR_OUT_OF_RESOURCES, "System type error", 0x1100 );
     mbed_error_status_t lastError = mbed_get_last_error();
     TEST_ASSERT_EQUAL_UINT(MBED_ERROR_TYPE_SYSTEM, MBED_GET_ERROR_TYPE(lastError));
     TEST_ASSERT_EQUAL_UINT(MBED_MODULE_UNKNOWN, MBED_GET_ERROR_MODULE(lastError));
     TEST_ASSERT_EQUAL_UINT(MBED_ERROR_CODE_OUT_OF_RESOURCES, MBED_GET_ERROR_CODE(lastError));
     
     mbed_error_status_t error = MBED_MAKE_ERROR(MBED_MODULE_DRIVER_SERIAL, MBED_ERROR_CODE_OUT_OF_RESOURCES);
-    MBED_WARNING(error, "Error Serial", 0xAA );
+    MBED_WARNING1(error, "Error Serial", 0xAA );
     lastError = mbed_get_last_error();
     TEST_ASSERT_EQUAL_UINT(error, lastError);
     
     error = MBED_MAKE_CUSTOM_ERROR(MBED_MODULE_APPLICATION, MBED_ERROR_CODE_UNKNOWN);
-    MBED_WARNING(error, "Custom Error Unknown", 0x1234 );
+    MBED_WARNING1(error, "Custom Error Unknown", 0x1234 );
     lastError = mbed_get_last_error();
     TEST_ASSERT_EQUAL_UINT(error, lastError);
     
-    MBED_WARNING(MBED_ERROR_EPERM, "Posix Error Eperm", 0x1234 );
+    MBED_WARNING1(MBED_ERROR_EPERM, "Posix Error Eperm", 0x1234 );
     lastError = mbed_get_last_error();
     TEST_ASSERT_EQUAL_UINT(MBED_ERROR_EPERM, lastError);
     
     error = MBED_MAKE_CUSTOM_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_CREATE_FAILED);
-    MBED_WARNING(error, "Custom Error Type", error_value);
+    MBED_WARNING1(error, "Custom Error Type", error_value);
     lastError = mbed_get_last_error();
     TEST_ASSERT_EQUAL_UINT(MBED_ERROR_TYPE_CUSTOM, MBED_GET_ERROR_TYPE(lastError));
     TEST_ASSERT_EQUAL_UINT(MBED_MODULE_PLATFORM, MBED_GET_ERROR_MODULE(lastError));
@@ -84,7 +84,7 @@ void test_error_capturing()
     TEST_ASSERT_EQUAL_UINT(error_value, error_ctx.error_value);
     
     error_value = 0xAABBCC;
-    MBED_WARNING(MBED_ERROR_EACCES, "Posix Error", error_value );
+    MBED_WARNING1(MBED_ERROR_EACCES, "Posix Error", error_value );
     lastError = mbed_get_last_error();
     TEST_ASSERT_EQUAL_UINT(MBED_ERROR_TYPE_POSIX, MBED_GET_ERROR_TYPE(lastError));
     TEST_ASSERT_EQUAL_UINT(MBED_MODULE_UNKNOWN, MBED_GET_ERROR_MODULE(lastError));
@@ -95,7 +95,7 @@ void test_error_capturing()
     
     error_value = 0;
     error = MBED_MAKE_ERROR(MBED_MODULE_HAL, MBED_ERROR_CODE_UNKNOWN);
-    MBED_WARNING(error, "HAL Entity error", error_value );
+    MBED_WARNING1(error, "HAL Entity error", error_value );
     lastError = mbed_get_last_error();
     TEST_ASSERT_EQUAL_UINT(MBED_ERROR_TYPE_SYSTEM, MBED_GET_ERROR_TYPE(lastError));
     TEST_ASSERT_EQUAL_UINT(MBED_MODULE_HAL, MBED_GET_ERROR_MODULE(lastError));
@@ -104,7 +104,7 @@ void test_error_capturing()
     TEST_ASSERT(status == MBED_SUCCESS);
     TEST_ASSERT_EQUAL_UINT(error_value, error_ctx.error_value);
     
-    MBED_WARNING(MBED_ERROR_MUTEX_LOCK_FAILED, "Mutex lock failed", 0x4455 );
+    MBED_WARNING1(MBED_ERROR_MUTEX_LOCK_FAILED, "Mutex lock failed", 0x4455 );
     error = mbed_get_last_error();
     TEST_ASSERT_EQUAL_UINT(MBED_ERROR_MUTEX_LOCK_FAILED, error);
     
@@ -120,7 +120,7 @@ void test_error_context_capture()
     uint32_t error_value = 0xABCD;
     mbed_error_ctx error_ctx = {0};
     
-    MBED_WARNING(MBED_ERROR_INVALID_ARGUMENT, "System type error", error_value );
+    MBED_WARNING1(MBED_ERROR_INVALID_ARGUMENT, "System type error", error_value );
     mbed_error_status_t status = mbed_get_last_error_info( &error_ctx );
     TEST_ASSERT(status == MBED_SUCCESS);
     TEST_ASSERT_EQUAL_UINT(error_value, error_ctx.error_value);
@@ -147,9 +147,9 @@ void test_error_logging()
     mbed_clear_all_errors();
     
     //log 3 errors and retrieve them to ensure they are correct
-    MBED_WARNING(MBED_ERROR_INVALID_ARGUMENT, "Invalid argument", 1 );
-    MBED_WARNING(MBED_ERROR_INVALID_SIZE, "Invalid size", 2 );
-    MBED_WARNING(MBED_ERROR_INVALID_FORMAT, "Invalid format", 3 );
+    MBED_WARNING1(MBED_ERROR_INVALID_ARGUMENT, "Invalid argument", 1 );
+    MBED_WARNING1(MBED_ERROR_INVALID_SIZE, "Invalid size", 2 );
+    MBED_WARNING1(MBED_ERROR_INVALID_FORMAT, "Invalid format", 3 );
     
     mbed_error_status_t status = mbed_get_error_hist_info( 0, &error_ctx );
     TEST_ASSERT_EQUAL_UINT(MBED_ERROR_INVALID_ARGUMENT, error_ctx.error_status);
@@ -164,16 +164,16 @@ void test_error_logging()
     TEST_ASSERT_EQUAL_UINT(3, error_ctx.error_value);
     
     //Log a bunch of errors to overflow the error log and retrieve them
-    MBED_WARNING(MBED_ERROR_INVALID_ARGUMENT, "Invalid argument", 6 );
-    MBED_WARNING(MBED_ERROR_INVALID_SIZE, "Invalid size", 7 );
-    MBED_WARNING(MBED_ERROR_INVALID_FORMAT, "Invalid format", 8 );
-    MBED_WARNING(MBED_ERROR_NOT_READY, "Not ready error", 9 );
+    MBED_WARNING1(MBED_ERROR_INVALID_ARGUMENT, "Invalid argument", 6 );
+    MBED_WARNING1(MBED_ERROR_INVALID_SIZE, "Invalid size", 7 );
+    MBED_WARNING1(MBED_ERROR_INVALID_FORMAT, "Invalid format", 8 );
+    MBED_WARNING1(MBED_ERROR_NOT_READY, "Not ready error", 9 );
     
     //Last 4 entries
-    MBED_WARNING(MBED_ERROR_TIME_OUT, "Timeout error", 10 );
-    MBED_WARNING(MBED_ERROR_ALREADY_IN_USE, "Already in use error", 11 );
-    MBED_WARNING(MBED_ERROR_UNSUPPORTED, "Not supported", 12 );
-    MBED_WARNING(MBED_ERROR_ACCESS_DENIED, "Access denied", 13 );
+    MBED_WARNING1(MBED_ERROR_TIME_OUT, "Timeout error", 10 );
+    MBED_WARNING1(MBED_ERROR_ALREADY_IN_USE, "Already in use error", 11 );
+    MBED_WARNING1(MBED_ERROR_UNSUPPORTED, "Not supported", 12 );
+    MBED_WARNING1(MBED_ERROR_ACCESS_DENIED, "Access denied", 13 );
     
     status = mbed_get_error_hist_info( 0, &error_ctx );
     TEST_ASSERT_EQUAL_UINT(MBED_ERROR_TIME_OUT, error_ctx.error_status);
@@ -202,7 +202,7 @@ void test_error_logging()
 //Error logger threads
 void err_thread_func(mbed_error_status_t *error_status)
 {
-    MBED_WARNING(*error_status, "Error from Multi-Threaded error logging test", *error_status );
+    MBED_WARNING1(*error_status, "Error from Multi-Threaded error logging test", *error_status );
 }
 
 
@@ -254,7 +254,7 @@ void test_error_hook()
         TEST_FAIL();
     }
     
-    MBED_WARNING(MBED_ERROR_INVALID_ARGUMENT, "Test for error hook", 1234);
+    MBED_WARNING1(MBED_ERROR_INVALID_ARGUMENT, "Test for error hook", 1234);
     int32_t sem_status = callback_sem.wait(5000);
     
     TEST_ASSERT(sem_status > 0);
@@ -295,11 +295,11 @@ MBED_TEST_SIM_BLOCKDEVICE_DECL;
 void test_save_error_log()
 {
     //Log some errors
-    MBED_WARNING(MBED_ERROR_TIME_OUT, "Timeout error", 1 );
-    MBED_WARNING(MBED_ERROR_ALREADY_IN_USE, "Already in use error", 2 );
-    MBED_WARNING(MBED_ERROR_UNSUPPORTED, "Not supported error", 3 );
-    MBED_WARNING(MBED_ERROR_ACCESS_DENIED, "Access denied error", 4 );
-    MBED_WARNING(MBED_ERROR_ITEM_NOT_FOUND, "Not found error", 5 );
+    MBED_WARNING1(MBED_ERROR_TIME_OUT, "Timeout error", 1 );
+    MBED_WARNING1(MBED_ERROR_ALREADY_IN_USE, "Already in use error", 2 );
+    MBED_WARNING1(MBED_ERROR_UNSUPPORTED, "Not supported error", 3 );
+    MBED_WARNING1(MBED_ERROR_ACCESS_DENIED, "Access denied error", 4 );
+    MBED_WARNING1(MBED_ERROR_ITEM_NOT_FOUND, "Not found error", 5 );
     
     int error = 0;
     

@@ -538,7 +538,7 @@ extern "C" int PREFIX(_write)(FILEHANDLE fh, const unsigned char *buffer, unsign
 
 #if defined(MBED_TRAP_ERRORS_ENABLED) && MBED_TRAP_ERRORS_ENABLED && defined(MBED_CONF_RTOS_PRESENT)
     if (core_util_is_isr_active() || !core_util_are_interrupts_enabled()) {
-        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_PROHIBITED_IN_ISR_CONTEXT), "Error - writing to a file in an ISR or critical section\r\n", fh);
+        MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_PROHIBITED_IN_ISR_CONTEXT), "Error - writing to a file in an ISR or critical section\r\n", fh);
     }
 #endif
 
@@ -646,7 +646,7 @@ extern "C" int PREFIX(_read)(FILEHANDLE fh, unsigned char *buffer, unsigned int 
 
 #if defined(MBED_TRAP_ERRORS_ENABLED) && MBED_TRAP_ERRORS_ENABLED && defined(MBED_CONF_RTOS_PRESENT)
     if (core_util_is_isr_active() || !core_util_are_interrupts_enabled()) {
-        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_PROHIBITED_IN_ISR_CONTEXT), "Error - reading from a file in an ISR or critical section\r\n", fh);
+        MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_PROHIBITED_IN_ISR_CONTEXT), "Error - reading from a file in an ISR or critical section\r\n", fh);
     }
 #endif
 
@@ -1088,7 +1088,7 @@ extern "C" int statvfs(const char *path, struct statvfs *buf) {
 #include "mbed_error.h"
 namespace __gnu_cxx {
     void __verbose_terminate_handler() {
-        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_CLIB_EXCEPTION),"Exception", 0);
+        MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_CLIB_EXCEPTION),"Exception", 0);
     }
 }
 extern "C" WEAK void __cxa_pure_virtual(void);
@@ -1387,7 +1387,7 @@ void *operator new(std::size_t count)
 {
     void *buffer = malloc_wrapper(count, MBED_CALLER_ADDR());
     if (NULL == buffer) {
-        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_OUT_OF_MEMORY), "Operator new out of memory\r\n", count);
+        MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_OUT_OF_MEMORY), "Operator new out of memory\r\n", count);
     }
     return buffer;
 }
@@ -1431,7 +1431,7 @@ void *operator new(std::size_t count)
 {
     void *buffer = malloc_wrapper(_REENT, count, MBED_CALLER_ADDR());
     if (NULL == buffer) {
-        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_OUT_OF_MEMORY), "Operator new out of memory\r\n", count);
+        MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_OUT_OF_MEMORY), "Operator new out of memory\r\n", count);
     }
     return buffer;
 }
@@ -1440,7 +1440,7 @@ void *operator new[](std::size_t count)
 {
     void *buffer = malloc_wrapper(_REENT, count, MBED_CALLER_ADDR());
     if (NULL == buffer) {
-        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_OUT_OF_MEMORY), "Operator new out of memory\r\n", count);
+        MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_OUT_OF_MEMORY), "Operator new out of memory\r\n", count);
     }
     return buffer;
 }
@@ -1471,7 +1471,7 @@ void *operator new(std::size_t count)
 {
     void *buffer = malloc(count);
     if (NULL == buffer) {
-        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_OUT_OF_MEMORY), "Operator new out of memory\r\n", count);
+        MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_OUT_OF_MEMORY), "Operator new out of memory\r\n", count);
     }
     return buffer;
 }
@@ -1480,7 +1480,7 @@ void *operator new[](std::size_t count)
 {
     void *buffer = malloc(count);
     if (NULL == buffer) {
-        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_OUT_OF_MEMORY), "Operator new[] out of memory\r\n", count);
+        MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_OUT_OF_MEMORY), "Operator new[] out of memory\r\n", count);
     }
     return buffer;
 }

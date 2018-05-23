@@ -57,13 +57,13 @@ int ReadOnlyBlockDevice::read(void *buffer, bd_addr_t addr, bd_size_t size)
 
 int ReadOnlyBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t size)
 {
-    MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_BLOCK_DEVICE, MBED_ERROR_CODE_WRITE_PROTECTED), "ReadOnlyBlockDevice::program() not allowed", addr);
+    MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_BLOCK_DEVICE, MBED_ERROR_CODE_WRITE_PROTECTED), "ReadOnlyBlockDevice::program() not allowed", addr);
     return MBED_ERROR_WRITE_PROTECTED;
 }
 
 int ReadOnlyBlockDevice::erase(bd_addr_t addr, bd_size_t size)
 {
-    MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_BLOCK_DEVICE, MBED_ERROR_CODE_WRITE_PROTECTED), "ReadOnlyBlockDevice::erase() not allowed", addr);
+    MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_BLOCK_DEVICE, MBED_ERROR_CODE_WRITE_PROTECTED), "ReadOnlyBlockDevice::erase() not allowed", addr);
     return MBED_ERROR_WRITE_PROTECTED;
 }
 

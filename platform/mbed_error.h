@@ -127,47 +127,55 @@ typedef int mbed_error_status_t;
 
 
 /**
- * Macro for setting a system error. This macro will log the error, prints the error report and return to the caller. Its a wrapper for calling mbed_error API.
+ * Macros for setting a system warning. These macros will log the error, Its a wrapper for calling mbed_warning API.
+ * There are 2 versions of this macro. MBED_WARNING takes status and message. MBED_WARNING1 takes an additional context specific argument
  * @param  error_status     mbed_error_status_t status to be set(See mbed_error_status_t enum above for available error status values).
  * @param  error_msg        The error message to be printed out to STDIO/Serial.
  * @param  error_value      Value associated with the error status. This would depend on error code/error scenario.
  *
  * @code
  * 
- * MBED_ERROR( ERROR_INVALID_SIZE, "MyDriver: Invalid size in read", size_val )
+ * MBED_WARNING( ERROR_INVALID_SIZE, "MyDriver: Invalid size in read" )
+ * MBED_WARNING1( ERROR_INVALID_SIZE, "MyDriver: Invalid size in read", size_val )
  *
  * @endcode
- * @note The macro calls mbed_error API with filename and line number info without caller explicitly passing them.
- *        Since this macro is a wrapper for mbed_error API callers should process the return value from this macro which is the return value from calling mbed_error API.
+ * @note The macro calls mbed_warning API with filename and line number info without caller explicitly passing them.
+ *        Since this macro is a wrapper for mbed_warning API callers should process the return value from this macro which is the return value from calling mbed_error API.
  *
  */
 #ifdef MBED_CONF_ERROR_FILENAME_CAPTURE_ENABLED
-    #define MBED_WARNING( error_status, error_msg, error_value )             mbed_warning( error_status, (const char *)error_msg, (uint32_t)error_value, (const char *)MBED_FILENAME, __LINE__ )
+    #define MBED_WARNING( error_status, error_msg )                           mbed_warning( error_status, (const char *)error_msg, (uint32_t)0          , (const char *)MBED_FILENAME, __LINE__ )
+    #define MBED_WARNING1( error_status, error_msg, error_value )             mbed_warning( error_status, (const char *)error_msg, (uint32_t)error_value, (const char *)MBED_FILENAME, __LINE__ )
 #else
-    #define MBED_WARNING( error_status, error_msg, error_value )             mbed_warning( error_status, (const char *)error_msg, (uint32_t)error_value, NULL, 0 )
+    #define MBED_WARNING( error_status, error_msg )                           mbed_warning( error_status, (const char *)error_msg, (uint32_t)0,           NULL, 0 )    
+    #define MBED_WARNING1( error_status, error_msg, error_value )             mbed_warning( error_status, (const char *)error_msg, (uint32_t)error_value, NULL, 0 )
 #endif
 
 /**
- * Macro for setting a fatal system error. This macro will log the error, prints the error report and halts the system. Its a wrapper for calling mbed_error API
+ * Macros for setting a fatal system error. These macros will log the error, prints the error report and halts the system. Its a wrapper for calling mbed_error API.
+ * There are 2 versions of this macro. MBED_ERROR takes status and message. MBED_ERROR1 takes an additional context specific argument
  * @param  error_status     mbed_error_status_t status to be set(See mbed_error_status_t enum above for available error status values).
  * @param  error_msg        The error message to be printed out to STDIO/Serial.
- * @param  error_value      Value associated with the error status. This would depend on error code/error scenario.
+ * @param  error_value      Value associated with the error status. This would depend on error code/error scenario. Only available with MBED_ERROR1
  * @return                  0 or MBED_SUCCESS.
  *                          MBED_ERROR_INVALID_ARGUMENT if called with invalid error status/codes
  *
  * @code
  * 
- * MBED_ERROR( MBED_ERROR_MUTEX_LOCK_FAILED, "MyDriver: Can't lock driver Mutex", &my_mutex )
+ * MBED_ERROR( MBED_ERROR_MUTEX_LOCK_FAILED, "MyDriver: Can't lock driver Mutex" )
+ * MBED_ERROR1( MBED_ERROR_MUTEX_LOCK_FAILED, "MyDriver: Can't lock driver Mutex", &my_mutex )
  *
  * @endcode
  * @note The macro calls mbed_error API with filename and line number info without caller explicitly passing them.
-*        Since this macro is a wrapper for mbed_error API callers should process the return value from this macro which is the return value from calling mbed_error API. 
+ *       Since this macro is a wrapper for mbed_error API callers should process the return value from this macro which is the return value from calling mbed_error API. 
  *
  */
 #ifdef MBED_CONF_ERROR_FILENAME_CAPTURE_ENABLED
-    #define MBED_ERROR( error_status, error_msg, error_value )       mbed_error( error_status, (const char *)error_msg, (uint32_t)error_value, (const char *)MBED_FILENAME, __LINE__ )
+    #define MBED_ERROR( error_status, error_msg )                     mbed_error( error_status, (const char *)error_msg, (uint32_t)0          , (const char *)MBED_FILENAME, __LINE__ )
+    #define MBED_ERROR1( error_status, error_msg, error_value )       mbed_error( error_status, (const char *)error_msg, (uint32_t)error_value, (const char *)MBED_FILENAME, __LINE__ )
 #else
-    #define MBED_ERROR( error_status, error_msg, error_value )       mbed_error( error_status, (const char *)error_msg, (uint32_t)error_value, NULL, 0 )
+    #define MBED_ERROR( error_status, error_msg )                     mbed_error( error_status, (const char *)error_msg, (uint32_t)0          , NULL, 0 )
+    #define MBED_ERROR1( error_status, error_msg, error_value )       mbed_error( error_status, (const char *)error_msg, (uint32_t)error_value, NULL, 0 )
 #endif         
 
 //Error Type definition
@@ -901,7 +909,7 @@ void error(const char* format, ...);
 typedef void (*mbed_error_hook_t)(const mbed_error_ctx *error_ctx);
 
 /**
- * Call this function to set a system error/warning. This function will log the error status with the context info, prints the error report and return to caller.
+ * Call this function to set a system error/warning. This function will log the error status with the context info and return to caller.
  *
  * @param  error_status     mbed_error_status_t status to be set(See mbed_error_status_t enum above for available error status values).
  * @param  error_msg        The error message to be printed out to STDIO/Serial.
@@ -943,7 +951,7 @@ mbed_error_status_t mbed_get_last_error(void);
 int mbed_get_error_count(void);
 
 /**
- * Call this function to set a fatal system error and halt the system. This function will log the fatal error with the context info and prints the error report.
+ * Call this function to set a fatal system error and halt the system. This function will log the fatal error with the context info and prints the error report and halts the system.
  * 
  * @param  error_status     mbed_error_status_t status to be set(See mbed_error_status_t enum above for available error status values).
  * @param  error_msg        The error message to be printed out to STDIO/Serial.
@@ -986,7 +994,7 @@ mbed_error_status_t mbed_error(mbed_error_status_t error_status, const char *err
 mbed_error_status_t mbed_set_error_hook(mbed_error_hook_t custom_error_hook);
 
 /**
- * Reads the first error context information logged.
+ * Reads the first error context information captured.
  * @param  error_info           This is the mbed_error_context info captured as part of the first mbed_error call. The caller should pass a pointer to mbed_error_context struct allocated by the caller.
  * @return                      0 or MBED_SUCCESS on success.
  *                              MBED_ERROR_INVALID_ARGUMENT in case of invalid index
@@ -995,7 +1003,7 @@ mbed_error_status_t mbed_set_error_hook(mbed_error_hook_t custom_error_hook);
 mbed_error_status_t mbed_get_first_error_info(mbed_error_ctx *error_info);
 
 /**
- * Reads the last error context information logged.
+ * Reads the last error context information captured.
  * @param  error_info           This is the mbed_error_context info captured as part of the last mbed_error call. The caller should pass a pointer to mbed_error_context struct allocated by the caller.
  * @return                      0 or MBED_ERROR_SUCCESS on success.
  *                              MBED_ERROR_INVALID_ARGUMENT in case of invalid index
@@ -1004,7 +1012,7 @@ mbed_error_status_t mbed_get_first_error_info(mbed_error_ctx *error_info);
 mbed_error_status_t mbed_get_last_error_info(mbed_error_ctx *error_info);
 
 /**
- * Clears all the last error, error count and all entries in the error log.
+ * Clears the last error, first error, error count and all entries in the error history.
  * @return                      0 or MBED_SUCCESS on success.
  *
  */
@@ -1021,19 +1029,19 @@ mbed_error_status_t mbed_clear_all_errors(void);
 mbed_error_status_t mbed_make_error(mbed_error_type_t error_type, mbed_module_type_t module, mbed_error_code_t error_code);
 
 /**
- * Returns the current number of entries in the error log, if there has been more than max number of errors logged the number returned will be max depth of error log.
- * @return                      Current number of entries in the error log.
+ * Returns the current number of entries in the error history, if there has been more than max number of errors logged the number returned will be max depth of error history.
+ * @return                      Current number of entries in the error history.
  *
  */
 int mbed_get_error_hist_count(void);
 
 /**
- * Reads the error context information for a specific error log specified by the index.
+ * Reads the error context information for a specific error from error history, specified by the index.
  * 
- * @param  index                index of the error context entry in the log to be retrieved.\n
- *                              The number of entries in the error log depth is configured during build and the max index depends on max depth of error log.\n
- *                              index = 0 points to the oldest entry in the log, and index = (max log depth - 1) points to the latest entry in the error log.\n
- * @param  error_info           This is the mbed_error_context info captured as part of the log. The caller should pass a pointer to mbed_error_context struct allocated by the caller.
+ * @param  index                index of the error context entry in the history to be retrieved.\n
+ *                              The number of entries in the error history is configured during build and the max index depends on max depth of error history.\n
+ *                              index = 0 points to the oldest entry in the history, and index = (max history depth - 1) points to the latest entry in the error history.\n
+ * @param  error_info           This is the mbed_error_context info captured as part of the error history. The caller should pass a pointer to mbed_error_context struct allocated by the caller.
  * @return                      0 or MBED_SUCCESS on success.
  *                              MBED_ERROR_INVALID_ARGUMENT in case of invalid index
  *
@@ -1041,7 +1049,7 @@ int mbed_get_error_hist_count(void);
 mbed_error_status_t mbed_get_error_hist_info(int index, mbed_error_ctx *error_info);
 
 /**
- * Saves the error log information to a file
+ * Saves the error history information to a file
  * 
  * @param  path                 path to the file in the filesystem
  * @return                      0 or MBED_ERROR_SUCCESS on success.
