@@ -85,7 +85,7 @@ int mbedtls_ccm_encrypt_and_tag( mbedtls_ccm_context *ctx, size_t length,
     if( iv_len < 7 || iv_len > 13 )
         return ( MBEDTLS_ERR_CCM_BAD_INPUT );
 
-#if defined(MBEDTLS_HAVE_INT64)
+#if SIZE_MAX > UINT_MAX
     if( length > 0xFFFFFFFF || add_len > 0xFFFFFFFF )
         return ( MBEDTLS_ERR_CCM_BAD_INPUT );
 #endif
@@ -122,7 +122,7 @@ int mbedtls_ccm_auth_decrypt( mbedtls_ccm_context *ctx, size_t length,
     if( iv_len < 7 || iv_len > 13 )
         return ( MBEDTLS_ERR_CCM_BAD_INPUT );
 
-#if defined(MBEDTLS_HAVE_INT64)
+#if SIZE_MAX > UINT_MAX
     if( length > 0xFFFFFFFF || add_len > 0xFFFFFFFF )
         return ( MBEDTLS_ERR_CCM_BAD_INPUT );
 #endif

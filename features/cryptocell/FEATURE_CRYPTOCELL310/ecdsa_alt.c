@@ -78,7 +78,7 @@ int mbedtls_ecdsa_sign( mbedtls_ecp_group *grp, mbedtls_mpi *r, mbedtls_mpi *s,
     mbedtls_rand_func_container cc_rand = { f_rng, p_rng };
     const CRYS_ECPKI_Domain_t*  pDomain =  CRYS_ECPKI_GetEcDomain ( convert_mbedtls_grp_id_to_crys_domain_id( grp->id ) );
 
-#if defined(MBEDTLS_HAVE_INT64)
+#if SIZE_MAX > UINT_MAX
     if( blen > 0xFFFFFFFF )
     {
         return ( MBEDTLS_ERR_ECP_BAD_INPUT_DATA );
@@ -176,7 +176,7 @@ int mbedtls_ecdsa_verify( mbedtls_ecp_group *grp,
     uint32_t signature_size = ( ( grp->nbits + 7 ) / 8 ) * 2;
     const CRYS_ECPKI_Domain_t*  pDomain =  CRYS_ECPKI_GetEcDomain ( convert_mbedtls_grp_id_to_crys_domain_id( grp->id ) );
 
-#if defined(MBEDTLS_HAVE_INT64)
+#if SIZE_MAX > UINT_MAX
     if( blen > 0xFFFFFFFF )
     {
         return( MBEDTLS_ERR_ECP_BAD_INPUT_DATA );
