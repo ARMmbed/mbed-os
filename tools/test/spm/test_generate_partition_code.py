@@ -317,6 +317,14 @@ def test_valid_json(temp_test_data):
                     r'External SFID\(s\) .* can\'t be found in any partition manifest.'
             ),
             id='orphan_extern_ids'
+        ),
+        pytest.param(
+            dict(manifests[1], extern_sfids=[manifests[0]['secure_functions'][0]['name']]),
+            (
+                    ValueError,
+                    r'Detected a circular call dependency between the partitions.'
+            ),
+            id='circular_call_dependency'
         )
     ]
 )
@@ -707,7 +715,7 @@ def test_generate_partitions_sources(monkeypatch, test_template_setup):
        still exist and that modified times of the generated files didn't
        change.
 
-    :param monkeypatch: The 'monkeypath' fixture
+    :param monkeypatch: The 'monkeypatch' fixture
            (https://docs.pytest.org/en/latest/monkeypatch.html).
     :param test_template_setup: The 'test_template_setup' fixture.
     :return:
@@ -763,3 +771,78 @@ def test_generate_partitions_sources(monkeypatch, test_template_setup):
 
     for f in os.listdir(spm_output_dir):
         assert autogen_files[f] == os.path.getmtime(os.path.join(spm_output_dir, f))
+
+
+circular_call_dependency_params = {
+    'no manifests': {
+        'manifests': [],
+        'result': False
+    },
+    'one manifest': {
+        'manifests': ['PARTITION1'],
+        'result': False
+    },
+    '2 manifests with dependency': {
+        'manifests': ['PARTITION1', 'PARTITION2'],
+        'result': True
+    },
+    '2 manifests without dependency': {
+        'manifests': ['PARTITION1', 'PARTITION3'],
+        'result': False
+    },
+    '5 manifests with dependency': {
+        'manifests': ['PARTITION1', 'PARTITION3', 'PARTITION4', 'PARTITION5', 'PARTITION6'],
+        'result': True
+    },
+    '5 manifests without dependency': {
+        'manifests': ['PARTITION1', 'PARTITION3', 'PARTITION4', 'PARTITION6', 'PARTITION7'],
+        'result': False
+    }
+}
+
+
+@pytest.fixture(params=circular_call_dependency_params.values(),
+                ids=circular_call_dependency_params.keys())
+def circular_dependencies(request, tmpdir_factory):
+    """
+    Fixture (https://docs.pytest.org/en/latest/fixture.html) function to be
+    used by the tests.
+    This fixture function Creates a JSON manifest file from a given partition
+    dictionary and save it
+    to a temporary directory.
+    This fixture uses the 'temp_test_data' fixture.
+    This fixture is a parametrized fixture
+    (https://docs.pytest.org/en/latest/fixture.html#parametrizing-fixtures).
+    The scope of this fixture is a specific test.
+
+    :param request: Request object which contain the current parameter from
+           'circular_call_dependency_params'.
+    :param temp_test_data: The 'temp_test_data' fixture.
+    :return: A Dictionary containing these values:
+             - files - list of manifest filesgenerated
+             - The expected result from check_circular_call_dependencies
+    """
+    test_dir = tmpdir_factory.mktemp('test_data')
+
+    test_manifests = filter(lambda x: x['name'] in request.param['manifests'],
+                            manifests_for_circular_call_dependency_checks)
+    manifest_files = [
+        dump_manifest_to_json(manifest, manifest['name'], test_dir) for
+        manifest in test_manifests]
+
+    return {'files': manifest_files, 'result': request.param['result']}
+
+
+def test_check_circular_call_dependencies(circular_dependencies):
+    """
+    Test detection of circular call dependencies between the partitions.
+    The test performs the circular call dependency check in a few
+    predefined partition topologies and compares the result with the expected value.
+
+    :param circular_dependencies: the 'circular_dependencies' fixture
+    :return:
+    """
+
+    objects = [Manifest.from_json(_file) for _file in circular_dependencies['files']]
+
+    assert check_circular_call_dependencies(objects) == circular_dependencies['result']
