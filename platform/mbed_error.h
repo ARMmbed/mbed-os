@@ -34,7 +34,7 @@ extern "C" {
  */   
 
 /** Define this macro to disable error logging, note that the first and last error capture will still be active by default.
- *  MBED_CONF_ERROR_LOG_DISABLED  
+ *  MBED_CONF_ERROR_HIST_DISABLED  
  */
     
 #ifndef MBED_CONF_MAX_ERROR_FILENAME_LEN
@@ -805,10 +805,6 @@ typedef struct _mbed_error_ctx {
  * @param format    C string that contains data stream to be printed.
  *                  Code snippets below show valid format.
  *
- * @deprecated
- * This function has been deprecated, please use one of MBED_WARNING/MBED_ERROR macros 
- * or one of mbed_error/mbed_warning functions.
- *
  * @code
  * #error "That shouldn't have happened!"
  * @endcode
@@ -846,8 +842,6 @@ typedef struct _mbed_error_ctx {
  *
  */
     
-MBED_DEPRECATED_SINCE("mbed-os-5.9", "This function has been deprecated, please use one of MBED_WARNING/MBED_ERROR macros or one of mbed_warning/mbed_error functions" )
-
 void error(const char* format, ...);
 
 /**
@@ -932,21 +926,21 @@ mbed_error_status_t mbed_warning(mbed_error_status_t error_status, const char *e
  * @return                  mbed_error_status_t code logged for the first error or MBED_SUCCESS if no errors are logged.
  *
  */
-mbed_error_status_t get_first_error(void);
+mbed_error_status_t mbed_get_first_error(void);
 
 /**
  * Returns the most recent system error reported.
  * @return                  mbed_error_status_t code logged for the last error or MBED_SUCCESS if no errors are logged.
  *
  */
-mbed_error_status_t get_last_error(void);
+mbed_error_status_t mbed_get_last_error(void);
 
 /**
  * Returns the number of system errors reported after boot.
  * @return                  int Number of errors reported.
  *
  */
-int get_error_count(void);
+int mbed_get_error_count(void);
 
 /**
  * Call this function to set a fatal system error and halt the system. This function will log the fatal error with the context info and prints the error report.
@@ -998,7 +992,7 @@ mbed_error_status_t mbed_set_error_hook(mbed_error_hook_t custom_error_hook);
  *                              MBED_ERROR_INVALID_ARGUMENT in case of invalid index
  *
  */
-mbed_error_status_t mbed_get_first_error_log_info(mbed_error_ctx *error_info);
+mbed_error_status_t mbed_get_first_error_info(mbed_error_ctx *error_info);
 
 /**
  * Reads the last error context information logged.
@@ -1007,7 +1001,7 @@ mbed_error_status_t mbed_get_first_error_log_info(mbed_error_ctx *error_info);
  *                              MBED_ERROR_INVALID_ARGUMENT in case of invalid index
  *
  */
-mbed_error_status_t mbed_get_last_error_log_info(mbed_error_ctx *error_info);
+mbed_error_status_t mbed_get_last_error_info(mbed_error_ctx *error_info);
 
 /**
  * Clears all the last error, error count and all entries in the error log.
@@ -1031,7 +1025,7 @@ mbed_error_status_t mbed_make_error(mbed_error_type_t error_type, mbed_module_ty
  * @return                      Current number of entries in the error log.
  *
  */
-int mbed_get_error_log_count(void);
+int mbed_get_error_hist_count(void);
 
 /**
  * Reads the error context information for a specific error log specified by the index.
@@ -1044,7 +1038,7 @@ int mbed_get_error_log_count(void);
  *                              MBED_ERROR_INVALID_ARGUMENT in case of invalid index
  *
  */
-mbed_error_status_t mbed_get_error_log_info(int index, mbed_error_ctx *error_info);
+mbed_error_status_t mbed_get_error_hist_info(int index, mbed_error_ctx *error_info);
 
 /**
  * Saves the error log information to a file
@@ -1057,7 +1051,7 @@ mbed_error_status_t mbed_get_error_log_info(int index, mbed_error_ctx *error_inf
  * @note                        Filesystem support is required in order for this function to work.
  *
  */
-mbed_error_status_t mbed_save_error_log(const char *path);
+mbed_error_status_t mbed_save_error_hist(const char *path);
 
 #ifdef __cplusplus
 }
