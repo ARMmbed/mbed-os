@@ -18,7 +18,7 @@ from __future__ import print_function, division, absolute_import
 
 import re
 import sys
-from os import stat, walk, getcwd, sep, remove, path
+from os import stat, walk, getcwd, sep, remove
 from copy import copy
 from time import time, sleep
 from shutil import copyfile
@@ -987,7 +987,7 @@ class mbedToolchain:
         # Check dependencies
         _, ext = splitext(source)
         ext = ext.lower()
-        
+
         source = abspath(source) if PRINT_COMPILER_OUTPUT_AS_LINK else source
 
         if ext == '.c' or  ext == '.cpp':

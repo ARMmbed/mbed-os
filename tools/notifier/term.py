@@ -18,7 +18,7 @@ from __future__ import print_function, division, absolute_import
 import re
 import sys
 from os import getcwd
-from os.path import basename
+from os.path import (basename, abspath)
 
 from . import Notifier
 from ..settings import (PRINT_COMPILER_OUTPUT_AS_LINK,
