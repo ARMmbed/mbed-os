@@ -86,7 +86,7 @@ class TerminalNotifier(Notifier):
             event['severity'] = event['severity'].title()
 
             if PRINT_COMPILER_OUTPUT_AS_LINK:
-                event['file'] = getcwd() + event['file'].strip('.')
+                event['file'] = abspath(event['file'])
                 return '[{severity}] {file}:{line}:{col}: {message}'.format(
                     **event)
             else:

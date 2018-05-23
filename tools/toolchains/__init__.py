@@ -18,7 +18,7 @@ from __future__ import print_function, division, absolute_import
 
 import re
 import sys
-from os import stat, walk, getcwd, sep, remove
+from os import stat, walk, getcwd, sep, remove, path
 from copy import copy
 from time import time, sleep
 from shutil import copyfile
@@ -433,7 +433,7 @@ class mbedToolchain:
         self.build_all = False
 
         # Build output dir
-        self.build_dir = build_dir
+        self.build_dir = path.abspath(build_dir) if PRINT_COMPILER_OUTPUT_AS_LINK else build_dir
         self.timestamp = time()
 
         # Number of concurrent build jobs. 0 means auto (based on host system cores)
@@ -987,6 +987,8 @@ class mbedToolchain:
         # Check dependencies
         _, ext = splitext(source)
         ext = ext.lower()
+        
+        source = abspath(source) if PRINT_COMPILER_OUTPUT_AS_LINK else source
 
         if ext == '.c' or  ext == '.cpp':
             base, _ = splitext(object)
