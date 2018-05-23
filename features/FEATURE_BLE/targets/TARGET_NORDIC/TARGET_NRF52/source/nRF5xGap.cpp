@@ -501,7 +501,11 @@ ble_error_t nRF5xGap::connect(
             return BLE_ERROR_INVALID_PARAM;
     }
 
-    return connect(peerAddr, legacy_address, connectionParams, scanParamsIn);
+    bool identity =
+        peerAddrType == peer_address_type_t::PUBLIC_IDENTITY ||
+        peerAddrType == peer_address_type_t::RANDOM_STATIC_IDENTITY;
+
+    return connect(peerAddr, legacy_address, connectionParams, scanParamsIn, identity);
 }
 
 
@@ -510,6 +514,16 @@ ble_error_t nRF5xGap::connect(
     LegacyAddressType_t peerAddrType,
     const ConnectionParams_t *connectionParams,
     const GapScanningParams *scanParamsIn
+) {
+    return connect(peerAddr, peerAddrType, connectionParams, scanParamsIn, false);
+}
+
+ble_error_t nRF5xGap::connect(
+    const Address_t peerAddr,
+    LegacyAddressType_t peerAddrType,
+    const ConnectionParams_t *connectionParams,
+    const GapScanningParams *scanParamsIn,
+    bool identity
 ) {
     ble_gap_addr_t addr;
     ble_gap_addr_t* addr_ptr = &addr;
@@ -585,23 +599,16 @@ ble_error_t nRF5xGap::connect(
     
     scanParams.use_whitelist = (whitelistAddressesSize) ? 1 : 0;
 
-    if ((addr.addr_type == 	BLE_GAP_ADDR_TYPE_RANDOM_PRIVATE_RESOLVABLE)
-    	|| (addr.addr_type == 	BLE_GAP_ADDR_TYPE_RANDOM_PRIVATE_NON_RESOLVABLE)) {
-        /* If a device is using Resolvable Private Addresses Section 1.3.2.2 (Core spec v4.2 volume 6 part B),
-        it shall also have an Identity Address that is either a Public or Random Static address type.”
-        To establish a connection, a static address must be provided by the application to the SoftDevice.
-        The SoftDevice resolves the address and connects to the right device if it is available. */
-        addr.addr_id_peer = 1;
-        addr.addr_type = BLE_GAP_ADDR_TYPE_PUBLIC;
-    } else {
-        addr.addr_id_peer = 0;
-    }
-
     if (_privacy_enabled) {
         bool enable_resolution =
             _central_privacy_configuration.resolution_strategy != CentralPrivacyConfiguration_t::DO_NOT_RESOLVE;
 
         update_identities_list(enable_resolution);
+
+        if (enable_resolution && identity) {
+            addr.addr_id_peer = 1;
+        }
+
         set_private_resolvable_address();
     }
 
