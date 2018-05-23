@@ -1432,7 +1432,9 @@ void nRF5xGap::on_advertising_packet(const ble_gap_evt_adv_report_t &evt) {
     bool peer_address_resolved = evt.peer_addr.addr_id_peer;
 
     if (_privacy_enabled &&
-         peer_address_resolved == false &&
+        evt.peer_addr.addr_type == BLE_GAP_ADDR_TYPE_RANDOM_PRIVATE_RESOLVABLE &&
+        peer_address_resolved == false &&
+        get_sm().get_resolving_list().size() > 0 &&
         _central_privacy_configuration.resolution_strategy == CentralPrivacyConfiguration_t::RESOLVE_AND_FILTER
     ) {
         return;
