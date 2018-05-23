@@ -194,6 +194,9 @@ void common_rtc_set_interrupt(uint32_t ticks_count, uint32_t cc_channel,
 
     core_util_critical_section_enter();
 
+    /* Wrap ticks_count before comparisons. */
+    ticks_count = RTC_WRAP(ticks_count);
+
     /* COMPARE occurs when a CC register is N and the COUNTER value transitions from N-1 to N.
      * If the COUNTER is N, writing N+2 to a CC register is guaranteed to trigger a
      * COMPARE event at N+2.
@@ -202,10 +205,10 @@ void common_rtc_set_interrupt(uint32_t ticks_count, uint32_t cc_channel,
 
     if (now == ticks_count ||
         RTC_WRAP(now + 1) == ticks_count) {
-        ticks_count += 2;
+        ticks_count = RTC_WRAP(ticks_count + 2);
     }
 
-    nrf_rtc_cc_set(COMMON_RTC_INSTANCE, cc_channel, RTC_WRAP(ticks_count));
+    nrf_rtc_cc_set(COMMON_RTC_INSTANCE, cc_channel, ticks_count);
 
     if (!nrf_rtc_int_is_enabled(COMMON_RTC_INSTANCE, int_mask)) {
         nrf_rtc_event_clear(COMMON_RTC_INSTANCE, LP_TICKER_EVENT);
