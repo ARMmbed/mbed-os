@@ -77,7 +77,7 @@ void us_ticker_init(void)
 
     nrf_timer_frequency_set(NRF_TIMER1, NRF_TIMER_FREQ_1MHz);
 
-    nrf_timer_bit_width_set(NRF_TIMER1, NRF_TIMER_BIT_WIDTH_16);
+    nrf_timer_bit_width_set(NRF_TIMER1, NRF_TIMER_BIT_WIDTH_32);
 
     nrf_timer_cc_write(NRF_TIMER1, NRF_TIMER_CC_CHANNEL0, 0);
 
@@ -110,7 +110,7 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
 {
     core_util_critical_section_enter();
 
-    nrf_timer_cc_write(NRF_TIMER1, NRF_TIMER_CC_CHANNEL0, timestamp & 0xFFFF);
+    nrf_timer_cc_write(NRF_TIMER1, NRF_TIMER_CC_CHANNEL0, timestamp);
 
     if (!nrf_timer_int_enable_check(NRF_TIMER1, nrf_timer_compare_int_get(NRF_TIMER_CC_CHANNEL0))) {
         nrf_timer_event_clear(NRF_TIMER1, NRF_TIMER_EVENT_COMPARE0);

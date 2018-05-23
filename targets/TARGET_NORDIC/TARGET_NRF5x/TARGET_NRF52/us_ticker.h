@@ -18,9 +18,9 @@
 #define US_TICKER_H
 
 /* TIMER0 is reserved for SoftDevice. We will use TIMER1 for us ticker
- * which counter size is 16 bits. */
+ * which counter size is 32 bits. */
 
-#define US_TICKER_COUNTER_BITS        16u
+#define US_TICKER_COUNTER_BITS        32u
 #define US_TICKER_FREQ                1000000
 
 #endif // US_TICKER_H
