@@ -430,7 +430,7 @@ void CellularConnectionFSM::state_sim_pin()
             }
         }
         if (!success) {
-            tr_warning("Failed to set any URC's for registration");
+            tr_warn("Failed to set any URC's for registration");
             retry_state_or_fail();
             return;
         }
