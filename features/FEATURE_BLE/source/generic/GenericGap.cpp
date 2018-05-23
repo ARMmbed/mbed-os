@@ -1180,8 +1180,8 @@ void GenericGap::on_advertising_report(const pal::GapAdvertisingReportEvent& e)
             advertising.address_type == pal::connection_peer_address_type_t::RANDOM_ADDRESS &&
             is_random_private_resolvable_address(advertising.address.data())
         ) {
-                // Filter it out
-            return;
+            // Filter it out
+            continue;
         }
 
         // note 1-to-1 conversion between connection_peer_address_type_t and
