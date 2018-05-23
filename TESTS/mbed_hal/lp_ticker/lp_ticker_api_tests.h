@@ -32,7 +32,7 @@ extern "C" {
  *
  * Given ticker is available.
  * When ticker information data is obtained.
- * Then collected data indicates that ticker frequency is between 8KHz and 64KHz and the counter is at least 12 bits wide.
+ * Then collected data indicates that ticker frequency is between 4KHz and 64KHz and the counter is at least 12 bits wide.
  */
 void lp_ticker_info_test(void);
 
