@@ -4032,5 +4032,35 @@
         "detect_code": ["7013"],
         "release_versions": ["5"],
         "bootloader_supported": true
+    },
+    "XMC_XXXX": {
+        "inherits": ["Target"],
+        "extra_labels": ["Infineon", "XMCLib"],
+        "supported_toolchains": ["GCC_ARM"],
+        "public": false
+    },
+    "XMC_4XXX": {
+        "inherits": ["XMC_XXXX"],
+        "extra_labels_add": ["XMC4XXX"],
+        "core": "Cortex-M4F",
+        "public": false
+    },
+    "XMC_4500": {
+        "inherits": ["XMC_4XXX"],
+        "extra_labels_add": ["XMC4500"],
+        "device_has": ["SERIAL", "INTERRUPTIN", "ANALOGOUT", "ANALOGIN", "PWMOUT", "I2C", "RTC", "FLASH", "SPI"],
+        "macros_add": ["XMC4500_F100x1024"],
+        "OUTPUT_EXT": "hex"
+    },
+    "XMC_4500_RELAX_KIT": {
+        "inherits": ["XMC_4500"],
+        "macros_add": ["XMC4500_RELAX_KIT", "XMC_ETH_PHY_KSZ8031RNL"],
+        "features_add": ["LWIP"],
+        "OUTPUT_EXT": "hex"
+    },
+    "XMC_4500_RELAX_KIT_LITE": {
+        "inherits": ["XMC_4500"],
+        "macros_add": ["XMC4500_RELAX_KIT_LITE"],
+        "OUTPUT_EXT": "hex"
     }
 }

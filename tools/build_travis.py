@@ -168,6 +168,12 @@ build_list = [
         )
     },
 
+    {
+        "INFINEON":
+        (
+            { "target": "XMC4500",  "toolchains": "GCC_ARM", "libs": ["dsp"] },
+        )
+    },
 
     {
         "NUVOTON":
