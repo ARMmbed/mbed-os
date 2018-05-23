@@ -50,7 +50,7 @@
 #define BLE_DEPRECATED_API_USE_END \
         _Pragma("pop")
 #else
-#define BLE_DEPRECATED_API_USE_BEGIN
+#define BLE_DEPRECATED_API_USE_END
 #endif
 
 static const char* error_strings[] = {
