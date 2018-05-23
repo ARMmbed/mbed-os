@@ -440,7 +440,7 @@ public:
      * @return A handle to the entry.
      */
     virtual entry_handle_t open_entry(
-        BLEProtocol::AddressType_t peer_address_type,
+        peer_address_type_t peer_address_type,
         const address_t &peer_address
     ) {
         entry_handle_t db_handle = find_entry_by_peer_address(peer_address_type, peer_address);
@@ -451,8 +451,8 @@ public:
         SecurityDistributionFlags_t* flags = get_free_entry_flags();
         if (flags) {
             const bool peer_address_public =
-                (peer_address_type == BLEProtocol::AddressType::PUBLIC) ||
-                (peer_address_type == BLEProtocol::AddressType::PUBLIC_IDENTITY);
+                (peer_address_type == peer_address_type_t::PUBLIC) ||
+                (peer_address_type == peer_address_type_t::PUBLIC_IDENTITY);
             /* we need some address to store, so we store even random ones
              * this address will be used as an id, possibly replaced later
              * by identity address */
@@ -473,12 +473,12 @@ public:
      * @return A handle to the entry.
      */
     virtual entry_handle_t find_entry_by_peer_address(
-        BLEProtocol::AddressType_t peer_address_type,
+        peer_address_type_t peer_address_type,
         const address_t &peer_address
     ) {
         const bool peer_address_public =
-            (peer_address_type == BLEProtocol::AddressType::PUBLIC) ||
-            (peer_address_type == BLEProtocol::AddressType::PUBLIC_IDENTITY);
+            (peer_address_type == peer_address_type_t::PUBLIC) ||
+            (peer_address_type == peer_address_type_t::PUBLIC_IDENTITY);
 
         for (size_t i = 0; i < get_entry_count(); i++) {
             entry_handle_t db_handle = get_entry_handle_by_index(i);
@@ -486,7 +486,7 @@ public:
 
             /* only look among disconnected entries */
             if (flags && !flags->connected) {
-                if (peer_address_type == BLEProtocol::AddressType::PUBLIC_IDENTITY &&
+                if (peer_address_type == peer_address_type_t::PUBLIC_IDENTITY &&
                     flags->irk_stored == false) {
                     continue;
                 }
@@ -536,7 +536,7 @@ public:
      * @return A handle to the entry.
      */
     virtual void remove_entry(
-        BLEProtocol::AddressType_t peer_address_type,
+        peer_address_type_t peer_address_type,
         const address_t &peer_address
     ) {
         entry_handle_t db_handle = find_entry_by_peer_address(peer_address_type, peer_address);

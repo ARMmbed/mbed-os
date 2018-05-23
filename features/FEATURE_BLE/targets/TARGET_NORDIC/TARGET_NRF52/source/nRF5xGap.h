@@ -86,6 +86,7 @@ public:
 
     virtual ble_error_t startAdvertising(const GapAdvertisingParams &);
     virtual ble_error_t stopAdvertising(void);
+    virtual ble_error_t connect(const Address_t, ble::peer_address_type_t peerAddrType, const ConnectionParams_t *connectionParams, const GapScanningParams *scanParams);
     virtual ble_error_t connect(const Address_t, BLEProtocol::AddressType_t peerAddrType, const ConnectionParams_t *connectionParams, const GapScanningParams *scanParams);
     virtual ble_error_t disconnect(Handle_t connectionHandle, DisconnectionReason_t reason);
     virtual ble_error_t disconnect(DisconnectionReason_t reason);

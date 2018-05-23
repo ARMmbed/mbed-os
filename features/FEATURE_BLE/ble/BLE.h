@@ -457,9 +457,7 @@ public:
     ble_error_t setAddress(
         BLEProtocol::AddressType_t type,
         const BLEProtocol::AddressBytes_t address
-    ) {
-        return gap().setAddress(type, address);
-    }
+    );
 
     /**
      * Fetch the Bluetooth Low Energy MAC address and type.
@@ -1009,9 +1007,7 @@ public:
     ble_error_t connect(const BLEProtocol::AddressBytes_t  peerAddr,
                         BLEProtocol::AddressType_t         peerAddrType = BLEProtocol::AddressType::RANDOM_STATIC,
                         const Gap::ConnectionParams_t     *connectionParams = NULL,
-                        const GapScanningParams           *scanParams = NULL) {
-        return gap().connect(peerAddr, peerAddrType, connectionParams, scanParams);
-    }
+                        const GapScanningParams           *scanParams = NULL);
 
     /**
      * This call initiates the disconnection procedure, and its completion is
@@ -1045,9 +1041,7 @@ public:
      * connection.
      */
     MBED_DEPRECATED("Use ble.gap().disconnect(...)")
-    ble_error_t disconnect(Gap::DisconnectionReason_t reason) {
-        return gap().disconnect(reason);
-    }
+    ble_error_t disconnect(Gap::DisconnectionReason_t reason);
 
     /**
      * Returns the current Gap state of the device using a bitmask that

@@ -87,25 +87,7 @@ namespace BLEProtocol {
              * on RANDOM instead. Use Gap::getRandomAddressType to retrieve the
              * type of the random address.
              */
-            RANDOM_PRIVATE_NON_RESOLVABLE,
-
-            /**
-             * Random address.
-             *
-             * Use Gap::getRandomAddressType to retrieve the type of the random
-             * address.
-             */
-            RANDOM,
-
-            /**
-             * A Public address used as a device identity address.
-             */
-            PUBLIC_IDENTITY,
-
-            /**
-             * A Random static address used as a device identity address.
-             */
-            RANDOM_STATIC_IDENTITY
+            RANDOM_PRIVATE_NON_RESOLVABLE
         };
     };
 

@@ -32,6 +32,8 @@
 #include "mbedtls/entropy.h"
 #include "mbedtls/ecp.h"
 
+#endif
+
 #include "platform/NonCopyable.h"
 #include "platform/CriticalSectionLock.h"
 #include "ble/BLETypes.h"
@@ -45,6 +47,8 @@ namespace ble {
 namespace pal {
 namespace vendor {
 namespace nordic {
+
+#if defined(MBEDTLS_ECDH_C)
 
 CryptoToolbox::CryptoToolbox() : _initialized(false) {
     mbedtls_entropy_init(&_entropy_context);
@@ -131,6 +135,8 @@ bool CryptoToolbox::generate_shared_secret(
     return err ? false : true;
 }
 
+#endif
+
 bool CryptoToolbox::ah(
     const ArrayView<const uint8_t, irk_size_>& irk,
     const ArrayView<const uint8_t, prand_size_>& prand,
@@ -161,6 +167,7 @@ bool CryptoToolbox::ah(
     return true;
 }
 
+#if defined(MBEDTLS_ECDH_C)
 
 void CryptoToolbox::load_mpi(mbedtls_mpi& dest, const ArrayView<const uint8_t, lesc_key_size_>& src) {
     ble::public_key_coord_t src_be = src.data();
@@ -173,6 +180,8 @@ void CryptoToolbox::store_mpi(ArrayView<uint8_t, lesc_key_size_>& dest, const mb
     swap_endian(dest.data(), dest.size());
 }
 
+#endif
+
 void CryptoToolbox::swap_endian(uint8_t* buf, size_t len) {
     for(size_t low = 0, high = (len - 1); high > low; --high, ++low) {
         std::swap(buf[low], buf[high]);
@@ -183,6 +192,3 @@ void CryptoToolbox::swap_endian(uint8_t* buf, size_t len) {
 } // vendor
 } // pal
 } // ble
-
-#endif //defined(MBEDTLS_ECDH_C)
-

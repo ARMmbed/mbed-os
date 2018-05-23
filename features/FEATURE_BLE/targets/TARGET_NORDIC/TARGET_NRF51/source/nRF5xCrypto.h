@@ -31,6 +31,8 @@
 #include "mbedtls/entropy.h"
 #include "mbedtls/ecp.h"
 
+#endif
+
 #include "platform/NonCopyable.h"
 #include "ble/BLETypes.h"
 
@@ -64,6 +66,8 @@ public:
      * Size of prand.
      */
     static const ptrdiff_t prand_size_ = 3;
+
+#if defined(MBEDTLS_ECDH_C)
 
     /**
      * Create a new CryptoToolbox.
@@ -105,6 +109,8 @@ public:
         ArrayView<uint8_t, lesc_key_size_> shared_secret
     );
 
+#endif
+
     /**
      * Execute the function ah. This function can be used to generate private
      * resolvable addresses and resolve them.
@@ -118,29 +124,33 @@ public:
      *
      * @return true in case of success and false otherwise.
      */
-    bool ah(
+    static bool ah(
         const ArrayView<const uint8_t, irk_size_>& irk,
         const ArrayView<const uint8_t, prand_size_>& prand,
         ArrayView<uint8_t, hash_size_> hash
     );
 
 private:
+
+#if defined(MBEDTLS_ECDH_C)
     void load_mpi(mbedtls_mpi& dest, const ArrayView<const uint8_t, lesc_key_size_>& src);
 
     void store_mpi(ArrayView<uint8_t, lesc_key_size_>& dest, const mbedtls_mpi& src);
+#endif
 
-    void swap_endian(uint8_t* buf, size_t len);
+    static void swap_endian(uint8_t* buf, size_t len);
 
+#if defined(MBEDTLS_ECDH_C)
     bool _initialized;
     mbedtls_entropy_context _entropy_context;
     mbedtls_ecp_group _group;
+#endif
+
 };
 
 } // nordic
 } // vendor
 } // pal
 } // ble
-
-#endif // defined(MBEDTLS_ECDH_C)
 
 #endif // NRF5X_CRYPTO_

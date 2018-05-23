@@ -393,11 +393,13 @@ private:
                 // note the usage of the stack handle, not the HCI handle
                 conn_evt->hdr.param,
                 (connection_role_t::type) conn_evt->role,
-                (advertising_peer_address_type_t::type) conn_evt->addrType,
+                (peer_address_type_t::type) conn_evt->addrType,
                 conn_evt->peerAddr,
                 conn_evt->connInterval,
                 conn_evt->connLatency,
-                conn_evt->supTimeout
+                conn_evt->supTimeout,
+                conn_evt->localRpa,
+                conn_evt->peerRpa
             );
         }
     };

@@ -529,6 +529,49 @@ struct att_security_requirement_t : SafeEnum<att_security_requirement_t, uint8_t
         SafeEnum<att_security_requirement_t, uint8_t>(value) { }
 };
 
+/**
+ * Type that describes a peer device address type.
+ */
+struct peer_address_type_t :SafeEnum<peer_address_type_t, uint8_t> {
+    /** struct scoped enum wrapped by the class */
+    enum type {
+        /**
+         * Public device address.
+         */
+        PUBLIC = 0,
+
+        /**
+         * Random address.
+         *
+         * Use Gap::getRandomAddressType to retrieve the type of the random
+         * address.
+         */
+        RANDOM,
+
+        /**
+         * A Public address used as a device identity address.
+         */
+        PUBLIC_IDENTITY,
+
+        /**
+         * A Random static address used as a device identity address.
+         */
+        RANDOM_STATIC_IDENTITY
+    };
+
+    /**
+     * Construct a new instance of peer_address_type_t.
+     */
+    peer_address_type_t(type value) :
+        SafeEnum<peer_address_type_t, uint8_t>(value) { }
+
+    /**
+     * Default initialization of peer_address_type_t.
+     */
+    peer_address_type_t() :
+        SafeEnum<peer_address_type_t, uint8_t>(PUBLIC) { }
+};
+
 } // namespace ble
 
 /**

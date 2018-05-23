@@ -118,6 +118,16 @@ public:
      */
     virtual ble_error_t connect(
         const BLEProtocol::AddressBytes_t peerAddr,
+        PeerAddressType_t peerAddrType,
+        const ConnectionParams_t *connectionParams,
+        const GapScanningParams *scanParams
+    );
+
+    /**
+     * @see Gap::connect
+     */
+    virtual ble_error_t connect(
+        const BLEProtocol::AddressBytes_t peerAddr,
         BLEProtocol::AddressType_t peerAddrType,
         const ConnectionParams_t *connectionParams,
         const GapScanningParams *scanParams
@@ -295,11 +305,13 @@ public:
     void processConnectionEvent(
         Handle_t handle,
         Role_t role,
-        BLEProtocol::AddressType_t peerAddrType,
+        peer_address_type_t peerAddrType,
         const BLEProtocol::AddressBytes_t peerAddr,
         BLEProtocol::AddressType_t ownAddrType,
         const BLEProtocol::AddressBytes_t ownAddr,
-        const ConnectionParams_t *connectionParams
+        const ConnectionParams_t *connectionParams,
+        const uint8_t *peerResolvableAddr,
+        const uint8_t *localResolvableAddr
     );
 
     /**

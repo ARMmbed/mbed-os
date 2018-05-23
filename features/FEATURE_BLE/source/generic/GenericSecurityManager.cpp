@@ -1031,7 +1031,7 @@ void GenericSecurityManager::set_mitm_performed(connection_handle_t connection, 
 void GenericSecurityManager::on_connected(
     connection_handle_t connection,
     Gap::Role_t role,
-    BLEProtocol::AddressType_t peer_address_type,
+    peer_address_type_t peer_address_type,
     const BLEProtocol::AddressBytes_t peer_address,
     BLEProtocol::AddressType_t local_address_type,
     const BLEProtocol::AddressBytes_t local_address,
@@ -1053,7 +1053,9 @@ void GenericSecurityManager::on_connected(
     SecurityDistributionFlags_t* flags = _db->get_distribution_flags(cb->db_entry);
 
     flags->peer_address = peer_address;
-    flags->peer_address_is_public = (peer_address_type == BLEProtocol::AddressType::PUBLIC);
+    flags->peer_address_is_public =
+        (peer_address_type == peer_address_type_t::PUBLIC) ||
+        (peer_address_type == peer_address_type_t::PUBLIC_IDENTITY);
 
     const bool signing = cb->signing_override_default ?
                          cb->signing_requested :

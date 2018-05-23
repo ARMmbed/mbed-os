@@ -213,7 +213,6 @@ nRF5xSecurityManager::get_resolving_list() {
 
 const nRF5xSecurityManager::resolving_list_entry_t*
 nRF5xSecurityManager::resolve_address(const address_t& resolvable_address) {
-#if defined(MBEDTLS_ECDH_C)
     typedef byte_array_t<CryptoToolbox::hash_size_> hash_t;
 
     for (size_t i = 0; i < resolving_list_entry_count; ++i) {
@@ -222,7 +221,7 @@ nRF5xSecurityManager::resolve_address(const address_t& resolvable_address) {
 
         // Compute the hash part from the random address part when the irk of
         // the entry is used
-        _crypto.ah(
+        CryptoToolbox::ah(
             make_const_ArrayView<CryptoToolbox::irk_size_>(entry.peer_irk),
             make_const_ArrayView<CryptoToolbox::prand_size_>(
                 resolvable_address.data() + CryptoToolbox::hash_size_
@@ -237,7 +236,7 @@ nRF5xSecurityManager::resolve_address(const address_t& resolvable_address) {
             return &entry;
         }
     }
-#endif
+
     return NULL;
 }
 
@@ -373,7 +372,7 @@ ble_error_t nRF5xSecurityManager::cancel_pairing(
 ble_error_t nRF5xSecurityManager::get_secure_connections_support(
     bool &enabled
 ) {
-    enabled = true;
+    enabled = false;
     return BLE_ERROR_NONE;
 }
 
