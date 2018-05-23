@@ -28,6 +28,10 @@ namespace ATHandler_stub {
     extern nsapi_error_t nsapi_error_value;
     extern uint8_t nsapi_error_ok_counter;
     extern int int_value;
+    extern int ref_count;
+    extern int timeout;
+    extern bool default_timeout;
+    extern bool debug_on;
     extern ssize_t ssize_value;
     extern char* read_string_value;
     extern size_t size_value;
