@@ -2509,7 +2509,7 @@
     "RBLAB_BLENANO2": {
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF52832"],
-        "release_versions": [],
+        "release_versions": ["5"],
         "device_name": "nRF52832_xxAA"
     },
     "NRF51822_Y5_MBUG": {
@@ -3662,29 +3662,29 @@
     },
     "UBLOX_EVA_NINA": {
         "inherits": ["MCU_NRF52832"],
-        "release_versions": [],
+        "release_versions": ["5"],
         "device_name": "nRF52832_xxAA"
     },
     "UBLOX_EVK_NINA_B1": {
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF52832"],
-        "release_versions": [],
+        "release_versions": ["5"],
         "device_name": "nRF52832_xxAA"
     },
     "MTB_UBLOX_NINA_B1": {
         "inherits": ["MCU_NRF52832"],
-        "release_versions": [],
+        "release_versions": ["5"],
         "device_name": "nRF52832_xxAA"
     },
     "MTB_LAIRD_BL652": {
         "inherits": ["MCU_NRF52832"],
-        "release_versions": [],
+        "release_versions": ["5"],
         "device_name": "nRF52832_xxAA"
     },
     "DELTA_DFBM_NQ620": {
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF52832"],
-        "release_versions": [],
+        "release_versions": ["5"],
         "device_name": "nRF52832_xxAA"
     },
     "MCU_NRF52840": {
@@ -4028,7 +4028,7 @@
     "VBLUNO52": {
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF52832"],
-        "release_versions": [],
+        "release_versions": ["5"],
         "device_name": "nRF52832_xxAA"
     },
     "NUMAKER_PFM_M487": {
