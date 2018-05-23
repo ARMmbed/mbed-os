@@ -98,10 +98,176 @@ manifests = [
         'irqs': [
             {"line_num": 22, "signal": "ISR22"},
             {"line_num": 23, "signal": "ISR23"}
-        ],
-        'extern_sfids': ['SFID1', 'SFID2']
+        ]
     }
 ]
+
+manifests_for_circular_call_dependency_checks = [
+    {
+        'name': 'PARTITION1',
+        'id': '0x7FFFFFFF',
+        'type': 'SECURE',
+        'priority': 'NORMAL',
+        'entry_point': 'test_main',
+        'stack_size': 512,
+        'heap_size': 2048,
+        'source_files': ['src1.cpp'],
+        'secure_functions': [
+            {
+                'name': 'SFID1',
+                'identifier': '0x00000001',
+                'signal': 'SFID1',
+                'non_secure_clients': False
+            },
+            {
+                'name': 'SFID2',
+                'identifier': '0x00000002',
+                'signal': 'SFID2',
+                'non_secure_clients': False
+            }
+        ],
+        'extern_sfids': ['SFID3', 'SFID4']
+    },
+    {
+        'name': 'PARTITION2',
+        'id': '0x7FFFFFFE',
+        'type': 'SECURE',
+        'priority': 'NORMAL',
+        'entry_point': 'test_main',
+        'stack_size': 512,
+        'heap_size': 2048,
+        'source_files': ['src2.cpp'],
+        'secure_functions': [
+            {
+                'name': 'SFID3',
+                'identifier': '0x00000003',
+                'signal': 'SFID3',
+                'non_secure_clients': False
+            },
+            {
+                'name': 'SFID4',
+                'identifier': '0x00000004',
+                'signal': 'SFID4',
+                'non_secure_clients': False
+            }
+        ],
+        'extern_sfids': ['SFID1', 'SFID2']
+    },
+    {
+        'name': 'PARTITION3',
+        'id': '0x7FFFFFFD',
+        'type': 'SECURE',
+        'priority': 'NORMAL',
+        'entry_point': 'test_main',
+        'stack_size': 512,
+        'heap_size': 2048,
+        'source_files': ['src3.cpp'],
+        'secure_functions': [
+            {
+                'name': 'SFID5',
+                'identifier': '0x00000005',
+                'signal': 'SFID5',
+                'non_secure_clients': False
+            }
+        ],
+        'extern_sfids': ['SFID7']
+    },
+    {
+        'name': 'PARTITION4',
+        'id': '0x7FFFFFFC',
+        'type': 'SECURE',
+        'priority': 'NORMAL',
+        'entry_point': 'test_main',
+        'stack_size': 512,
+        'heap_size': 2048,
+        'source_files': ['src4.cpp'],
+        'secure_functions': [
+            {
+                'name': 'SFID6',
+                'identifier': '0x00000006',
+                'signal': 'SFID6',
+                'non_secure_clients': False
+            },
+            {
+                'name': 'SFID7',
+                'identifier': '0x00000007',
+                'signal': 'SFID7',
+                'non_secure_clients': False
+            },
+        ],
+        'extern_sfids': ['SFID9']
+    },
+    {
+        'name': 'PARTITION5',
+        'id': '0x7FFFFFFB',
+        'type': 'SECURE',
+        'priority': 'NORMAL',
+        'entry_point': 'test_main',
+        'stack_size': 512,
+        'heap_size': 2048,
+        'source_files': ['src5.cpp'],
+        'secure_functions': [
+            {
+                'name': 'SFID8',
+                'identifier': '0x00000008',
+                'signal': 'SFID8',
+                'non_secure_clients': False
+            },
+            {
+                'name': 'SFID9',
+                'identifier': '0x00000009',
+                'signal': 'SFID9',
+                'non_secure_clients': False
+            }
+        ],
+        'extern_sfids': ['SFID5']
+    },
+    {
+        'name': 'PARTITION6',
+        'id': '0x7FFFFFFA',
+        'type': 'SECURE',
+        'priority': 'NORMAL',
+        'entry_point': 'test_main',
+        'stack_size': 512,
+        'heap_size': 2048,
+        'source_files': ['src6.cpp'],
+        'secure_functions': [
+            {
+                'name': 'SFID10',
+                'identifier': '0x0000000A',
+                'signal': 'SFID10',
+                'non_secure_clients': False
+            },
+            {
+                'name': 'SFID11',
+                'identifier': '0x0000000B',
+                'signal': 'SFID11',
+                'non_secure_clients': False
+            }
+        ],
+        'extern_sfids': ['SFID7', 'SFID5']
+    },
+    {
+        'name': 'PARTITION7',
+        'id': '0x7FFFFFF9',
+        'type': 'SECURE',
+        'priority': 'NORMAL',
+        'entry_point': 'test_main',
+        'stack_size': 512,
+        'heap_size': 2048,
+        'source_files': ['src6.cpp'],
+        'secure_functions': [
+            {
+                'name': 'SFID12',
+                'identifier': '0x0000000C',
+                'signal': 'SFID12',
+                'non_secure_clients': False
+            }
+        ]
+    }
+]
+
+
 
 invalid_minor_version_policy_sf = [
     {
@@ -286,6 +452,13 @@ test_partition_template = '''{
         {{"}" if loop.last else "},"}}
 {% endfor %}
     ],
+{% if partition.extern_sfids %}
+    "extern_sfids": [
+{% for ext_sfid in partition.extern_sfids %}
+        "{{ext_sfid}}"{{"" if loop.last else ","}}
+{% endfor %}
+    ],
+{% endif %}
     "source_files": [
 {% for src in partition.source_files %}
         "{{src|basename}}"{{"" if loop.last else ","}}
@@ -297,11 +470,6 @@ test_partition_template = '''{
             "line_num": {{irq.line_num}},
             "signal": "{{irq.signal}}"
         {{"}" if loop.last else "},"}}
-{% endfor %}
-    ],
-    "extern_sfids": [
-{% for ext_sfid in partition.extern_sfids %}
-        "{{ext_sfid}}"{{"" if loop.last else ","}}
 {% endfor %}
     ]
 }

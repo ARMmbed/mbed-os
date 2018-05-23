@@ -1,5 +1,4 @@
 #!/usr/bin/python
-import fnmatch
 import glob
 import itertools
 import json
@@ -56,7 +55,7 @@ class SecureFunction(object):
         Secure Function C'tor (Aligned with json schema)
 
         :param name: Secure function identifier (available to user)
-        :param identifier: Secure function numeric enumaration.
+        :param identifier: Secure function numeric enumeration.
         :param signal: Secure Function identifier inside the partition
         :param non_secure_clients: True to allow connections from non-secure
                partitions
@@ -286,6 +285,7 @@ class Manifest(object):
         Load a partition manifest file
 
         :param manifest_file: Manifest file path
+        :param skip_src: Ignore the `source_files` entry
         :return: Manifest object
         """
 
@@ -402,6 +402,48 @@ class Manifest(object):
         return generated_files
 
 
+def check_circular_call_dependencies(manifests):
+    """
+    Check if there is a circular dependency between the partitions described by the manifests.
+    A circular dependency might happen if there is a scenario in which a partition calls a secure function in another
+    partition which than calls another secure function which resides in the originating partition.
+    For example: Partition A has a secure function A1 and extern sfid B1, partition B has a secure function B1 and
+                 extern sfid A1.
+
+    :param manifests: List of the partition manifests.
+    :return: True if a circular dependency exists, false otherwise.
+    """
+
+    # Construct a call graph.
+    call_graph = {}
+    for manifest in manifests:
+        call_graph[manifest.name] = {
+            'calls': manifest.find_dependencies(manifests),
+            'called_by': set()
+        }
+    for manifest_name in call_graph:
+        for called in call_graph[manifest_name]['calls']:
+            call_graph[called]['called_by'].add(manifest_name)
+
+    # Run topological sort on the call graph.
+    while len(call_graph) > 0:
+        # Find all the nodes that aren't called by anyone and
+        # therefore can be removed.
+        nodes_to_remove = filter(lambda x: len(call_graph[x]['called_by']) == 0, call_graph.keys())
+
+        # If no node can be removed we have a circle.
+        if not nodes_to_remove:
+            return True
+
+        # Remove the nodes.
+        for node in nodes_to_remove:
+            for called in call_graph[node]['calls']:
+                call_graph[called]['called_by'].remove(node)
+            call_graph.pop(node)
+
+    return False
+
+
 def validate_partition_manifests(manifests):
     """
     Check the correctness of the manifests list
@@ -513,6 +555,9 @@ def validate_partition_manifests(manifests):
                 "any partition manifest.".format(
                     ', '.join(missing_sfids), manifest.file)
             )
+
+    if check_circular_call_dependencies(manifests):
+        raise ValueError("Detected a circular call dependency between the partitions.")
 
 
 def get_latest_timestamp(*files):
