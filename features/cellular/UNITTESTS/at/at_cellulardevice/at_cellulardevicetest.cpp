@@ -97,3 +97,17 @@ TEST(AT_CellularDevice, test_AT_CellularDevice_close_information)
     unit->test_AT_CellularDevice_close_information();
 }
 
+TEST(AT_CellularDevice, test_AT_CellularDevice_set_timeout)
+{
+    unit->test_AT_CellularDevice_set_timeout();
+}
+
+TEST(AT_CellularDevice, test_AT_CellularDevice_modem_debug_on)
+{
+    unit->test_AT_CellularDevice_modem_debug_on();
+}
+
+TEST(AT_CellularDevice, test_AT_CellularDevice_get_stack)
+{
+    unit->test_AT_CellularDevice_get_stack();
+}

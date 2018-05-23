@@ -31,6 +31,10 @@ const int DEFAULT_AT_TIMEOUT = 1000; // at default timeout in milliseconds
 nsapi_error_t ATHandler_stub::nsapi_error_value = 0;
 uint8_t ATHandler_stub::nsapi_error_ok_counter = 0;
 int ATHandler_stub::int_value = -1;
+int ATHandler_stub::ref_count = 0;
+int ATHandler_stub::timeout = 0;
+bool ATHandler_stub::default_timeout = 0;
+bool ATHandler_stub::debug_on = 0;
 ssize_t ATHandler_stub::ssize_value = 0;
 char* ATHandler_stub::read_string_value = NULL;
 size_t ATHandler_stub::size_value = 0;
@@ -47,27 +51,32 @@ ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, int timeout, const char 
     _fileHandle(fh),
     _queue(queue)
 {
+    ATHandler_stub::ref_count = 1;
 }
 
 void ATHandler::enable_debug(bool enable)
 {
+    ATHandler_stub::debug_on = enable;
 }
 
 ATHandler::~ATHandler()
 {
+    ATHandler_stub::ref_count = -909;
 }
 
 void ATHandler::inc_ref_count()
 {
+    ATHandler_stub::ref_count++;
 }
 
 void ATHandler::dec_ref_count()
 {
+    ATHandler_stub::ref_count--;
 }
 
 int ATHandler::get_ref_count()
 {
-    return ATHandler_stub::int_value;
+    return ATHandler_stub::ref_count;
 }
 
 FileHandle *ATHandler::get_file_handle()
@@ -113,6 +122,8 @@ nsapi_error_t ATHandler::unlock_return_error()
 
 void ATHandler::set_at_timeout(uint32_t timeout_milliseconds, bool default_timeout)
 {
+    ATHandler_stub::timeout = timeout_milliseconds;
+    ATHandler_stub::default_timeout = default_timeout;
 }
 
 void ATHandler::restore_at_timeout()
