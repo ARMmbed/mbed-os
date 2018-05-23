@@ -1340,6 +1340,9 @@ void nRF5xGap::on_connection(Gap::Handle_t handle, const ble_gap_evt_connected_t
     memcpy(own_address, evt.own_addr.addr, sizeof(own_address));
 #else
     getAddress(&own_addr_type, own_address.data());
+    if (_privacy_enabled) {
+        own_addr_type = LegacyAddressType::RANDOM_PRIVATE_RESOLVABLE;
+    }
 #endif
 
 #if (NRF_SD_BLE_API_VERSION <= 2)
