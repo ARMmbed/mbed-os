@@ -211,11 +211,11 @@ int8_t mle_class_set_new_key_pending(int8_t interface_id);
 
 int16_t mle_class_free_entry_count_get(int8_t interface_id);
 
-mle_neigh_table_entry_t *mle_class_get_entry_by_ll64(int8_t interface_id, uint8_t linkMargin, const uint8_t *ipv6Address, bool allocateNew);
+mle_neigh_table_entry_t *mle_class_get_entry_by_ll64(int8_t interface_id, uint8_t linkMargin, const uint8_t *ipv6Address, bool allocateNew, bool *new_entry_allocated);
 
 mle_neigh_table_entry_t *mle_class_discover_entry_by_ll64(int8_t interface_id, const uint8_t *ipv6Address);
 
-mle_neigh_table_entry_t *mle_class_get_entry_by_mac64(int8_t interface_id, uint8_t linkMargin, const uint8_t *mac64, bool allocateNew);
+mle_neigh_table_entry_t *mle_class_get_entry_by_mac64(int8_t interface_id, uint8_t linkMargin, const uint8_t *mac64, bool allocateNew, bool *new_entry_allocated);
 
 mle_neigh_table_entry_t *mle_class_get_by_link_address(int8_t interface_id, const uint8_t *address, addrtype_t type);
 

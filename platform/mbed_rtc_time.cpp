@@ -23,16 +23,53 @@
 static SingletonPtr<PlatformMutex> _mutex;
 
 #if DEVICE_RTC
+
 static void (*_rtc_init)(void) = rtc_init;
 static int (*_rtc_isenabled)(void) = rtc_isenabled;
 static time_t (*_rtc_read)(void) = rtc_read;
 static void (*_rtc_write)(time_t t) = rtc_write;
-#else
+
+#elif DEVICE_LOWPOWERTIMER
+
+#include "drivers/LowPowerTimer.h"
+
+static SingletonPtr<mbed::LowPowerTimer> _rtc_lp_timer;
+static uint64_t _rtc_lp_base;
+static bool _rtc_enabled;
+
+static void _rtc_lpticker_init(void)
+{
+    _rtc_lp_timer->start();
+    _rtc_enabled = true;
+}
+
+static int _rtc_lpticker_isenabled(void)
+{
+    return (_rtc_enabled == true);
+}
+
+static time_t _rtc_lpticker_read(void)
+{
+    return (uint64_t)_rtc_lp_timer->read() + _rtc_lp_base;
+}
+
+static void _rtc_lpticker_write(time_t t)
+{
+    _rtc_lp_base = t;
+}
+
+static void (*_rtc_init)(void) = _rtc_lpticker_init;
+static int (*_rtc_isenabled)(void) = _rtc_lpticker_isenabled;
+static time_t (*_rtc_read)(void) = _rtc_lpticker_read;
+static void (*_rtc_write)(time_t t) = _rtc_lpticker_write;
+
+#else /* DEVICE_LOWPOWERTIMER */
+
 static void (*_rtc_init)(void) = NULL;
 static int (*_rtc_isenabled)(void) = NULL;
 static time_t (*_rtc_read)(void) = NULL;
 static void (*_rtc_write)(time_t t) = NULL;
-#endif
+#endif /* DEVICE_LOWPOWERTIMER */
 
 #ifdef __cplusplus
 extern "C" {

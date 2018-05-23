@@ -82,6 +82,7 @@ typedef enum ipv6_route_src {
     ROUTE_THREAD,
     ROUTE_THREAD_BORDER_ROUTER,
     ROUTE_THREAD_PROXIED_HOST,
+    ROUTE_THREAD_BBR,
     ROUTE_REDIRECT,     /* Only occurs in destination cache */
     ROUTE_MAX,
 } ipv6_route_src_t;

@@ -31,6 +31,10 @@
 #ifndef THREAD_CONFIG_H_
 #define THREAD_CONFIG_H_
 
+/**
+ * Thread stack configuration values. All constants that are specified in Thread specification can be found from thread_constants.h
+ */
+
 #include "thread_constants.h"
 
 /**
@@ -306,6 +310,21 @@
  * Delay value for sending proactive address notification after router upgrade
  */
 #define THREAD_PROACTIVE_AN_SEND_DELAY 2
+
+/*
+ * Parent response wait time (in 100ms) when "R" bit is set in scan mask TLV (rounded up from  0.75 seconds)
+ */
+#define THREAD_PARENT_REQ_SCANMASK_R_TIMEOUT 9
+
+/*
+ * Parent response wait time (in 100ms) when both "R" and "E" bit is set in scan mask TLV (rounded up from 1.25 seconds)
+ */
+#define THREAD_PARENT_REQ_SCANMASK_RE_TIMEOUT 15
+
+/*
+ * When BBR is started, router address is requested from leader with following status
+ */
+#define THREAD_BBR_ROUTER_ID_REQUEST_STATUS THREAD_COAP_STATUS_TLV_HAVE_CHILD_ID_REQUEST
 
 /**
  * Build time flag to enable THCI special traces for test harness purposes

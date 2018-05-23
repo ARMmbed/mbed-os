@@ -118,6 +118,8 @@ void thread_leader_service_network_data_changed(protocol_interface_info_entry_t 
 
 void thread_leader_service_timer(protocol_interface_info_entry_t *cur, uint32_t ticks);
 
+int thread_leader_mleid_rloc_map_to_nvm_write(protocol_interface_info_entry_t *cur);
+
 /** Get first child ID from network data based on parent ID
  *
  * \param thread_info
@@ -160,6 +162,8 @@ void thread_leader_service_router_state_changed(thread_info_t *thread_info, uint
 #define thread_leader_service_child_id_from_networkdata_get(thread_info,router_short_addr)
 
 #define thread_leader_service_router_state_changed(thread_info, router_id, available, interface_id)
+
+#define thread_leader_mleid_rloc_map_to_nvm_write(cur) (0)
 
 #endif /*HAVE_THREAD_LEADER_SERVICE*/
 

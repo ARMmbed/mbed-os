@@ -855,7 +855,7 @@ static buffer_t *rpl_control_dio_handler(protocol_interface_info_entry_t *cur, r
     }
 
     /* Even if we're not currently rooting - what if it's our address? Ignore stale info on network */
-    if (protcol_interface_address_compare(NULL, dodagid) == 0) {
+    if (addr_interface_address_compare(cur, dodagid) == 0) {
         tr_info("DIO our DODAGID %s", trace_ipv6(dodagid));
         /* Should we transmit poison? */
         goto invalid_parent;

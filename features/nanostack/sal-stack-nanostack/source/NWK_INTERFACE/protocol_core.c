@@ -1085,10 +1085,12 @@ void protocol_core_dhcpv6_allocated_address_remove(protocol_interface_info_entry
     }
 }
 
-int8_t protcol_interface_address_compare(protocol_interface_info_entry_t *cur, const uint8_t *addr)
+/* XXX note that this does not perform any scope checks, so will for example match
+ * link local addresses on any interface - you may want addr_interface_address_compare */
+int8_t protocol_interface_address_compare(const uint8_t *addr)
 {
-    ns_list_foreach(protocol_interface_info_entry_t, other, &protocol_interface_info_list) {
-        if (other != cur && addr_is_assigned_to_interface(other, addr)) {
+    ns_list_foreach(protocol_interface_info_entry_t, cur, &protocol_interface_info_list) {
+        if (addr_is_assigned_to_interface(cur, addr)) {
             return 0;
         }
     }

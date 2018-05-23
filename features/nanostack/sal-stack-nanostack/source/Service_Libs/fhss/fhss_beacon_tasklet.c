@@ -68,7 +68,9 @@ static void fhss_beacon_tasklet_func(arm_event_s* event)
     if (!fhss_structure) {
         return;
     }
+#ifdef FEA_TRACE_SUPPORT
     uint8_t parent_address[8];
+#endif
     fhss_clear_active_event(fhss_structure, event->event_type);
     // skip the init event as there will be a timer event after
     if (event->event_type == FHSS_TIMER_EVENT) {

@@ -20,13 +20,55 @@
 #include "sleep_api.h"
 #include "mbed_error.h"
 #include "mbed_debug.h"
+#include "mbed_stats.h"
+#include "lp_ticker_api.h"
 #include <limits.h>
 #include <stdio.h>
+#include "mbed_stats.h"
+
 
 #if DEVICE_SLEEP
 
 // deep sleep locking counter. A target is allowed to deep sleep if counter == 0
 static uint16_t deep_sleep_lock = 0U;
+static us_timestamp_t sleep_time = 0;
+static us_timestamp_t deep_sleep_time = 0;
+
+#if defined(MBED_CPU_STATS_ENABLED) && defined(DEVICE_LOWPOWERTIMER)
+static ticker_data_t *sleep_ticker = NULL;
+#endif
+
+static inline us_timestamp_t read_us(void)
+{
+#if defined(MBED_CPU_STATS_ENABLED) && defined(DEVICE_LOWPOWERTIMER)
+    if (NULL == sleep_ticker) {
+        sleep_ticker = (ticker_data_t *)get_lp_ticker_data();
+    }
+    return ticker_read_us(sleep_ticker);
+#else
+    return 0;
+#endif
+}
+
+us_timestamp_t mbed_time_idle(void)
+{
+    return (sleep_time + deep_sleep_time);
+}
+
+us_timestamp_t mbed_uptime(void)
+{
+    return read_us();
+}
+
+us_timestamp_t mbed_time_sleep(void)
+{
+    return sleep_time;
+}
+
+us_timestamp_t mbed_time_deepsleep(void)
+{
+    return deep_sleep_time;
+}
 
 #ifdef MBED_SLEEP_TRACING_ENABLED
 
@@ -34,7 +76,7 @@ static uint16_t deep_sleep_lock = 0U;
 #define STATISTIC_COUNT  10
 
 typedef struct sleep_statistic {
-    const char* identifier;
+    const char *identifier;
     uint8_t count;
 } sleep_statistic_t;
 
@@ -83,7 +125,7 @@ static void sleep_tracker_print_stats(void)
     }
 }
 
-void sleep_tracker_lock(const char* const filename, int line)
+void sleep_tracker_lock(const char *const filename, int line)
 {
     sleep_statistic_t *stat = sleep_tracker_find(filename);
 
@@ -147,16 +189,27 @@ void sleep_manager_sleep_auto(void)
     sleep_tracker_print_stats();
 #endif
     core_util_critical_section_enter();
+    us_timestamp_t start = read_us();
+    bool deep = false;
+
 // debug profile should keep debuggers attached, no deep sleep allowed
 #ifdef MBED_DEBUG
     hal_sleep();
 #else
     if (sleep_manager_can_deep_sleep()) {
+        deep = true;
         hal_deepsleep();
     } else {
         hal_sleep();
     }
 #endif
+
+    us_timestamp_t end = read_us();
+    if (true == deep) {
+        deep_sleep_time += end - start;
+    } else {
+        sleep_time += end - start;
+    }
     core_util_critical_section_exit();
 }
 

@@ -245,7 +245,7 @@
         "mbed": [],
         "test-repo-source": "github",
         "features" : [],
-        "targets" : [],
+        "targets" : ["K64F"],
         "toolchains" : [],
         "exporters": [],
         "compile" : true,

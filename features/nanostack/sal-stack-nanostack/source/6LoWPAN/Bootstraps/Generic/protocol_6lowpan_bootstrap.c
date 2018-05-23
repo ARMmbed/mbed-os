@@ -758,7 +758,7 @@ static int mle_router_accept_request_build(protocol_interface_info_entry_t *cur,
 
 static void protocol_6lowpan_link_reject_handler(protocol_interface_info_entry_t *cur, uint8_t *ll64)
 {
-    mle_neigh_table_entry_t *entry_temp = mle_class_get_entry_by_ll64(cur->id, 0, ll64, false);
+    mle_neigh_table_entry_t *entry_temp = mle_class_get_entry_by_ll64(cur->id, 0, ll64, false, NULL);
     tr_debug("MLE link reject");
     if (entry_temp) {
         mle_class_remove_entry(cur->id, entry_temp);
@@ -1081,7 +1081,7 @@ void mle_6lowpan_message_handler(int8_t interface_id, mle_message_t *mle_msg, ml
                 mle_6lowpan_data->link_req_token_bucket--;
             } else {
                 //Update only old information based on link request
-                entry_temp = mle_class_get_entry_by_ll64(interface_id, linkMargin, mle_msg->packet_src_address, false);
+                entry_temp = mle_class_get_entry_by_ll64(interface_id, linkMargin, mle_msg->packet_src_address, false, NULL);
                 if (entry_temp) {
                     mle_neigh_time_and_mode_update(entry_temp,mle_msg->data_ptr, mle_msg->data_length);
                     mle_neigh_entry_update_by_mle_tlv_list(interface_id, entry_temp, mle_msg->data_ptr, mle_msg->data_length, cur->mac, own_mac16);
@@ -1118,12 +1118,12 @@ void mle_6lowpan_message_handler(int8_t interface_id, mle_message_t *mle_msg, ml
 
             tr_debug("Accept & Request");
 
-            entry_temp = mle_class_get_entry_by_ll64(interface_id, linkMargin, mle_msg->packet_src_address, false);
+            entry_temp = mle_class_get_entry_by_ll64(interface_id, linkMargin, mle_msg->packet_src_address, false, NULL);
 
             if (!entry_temp) {
                 // If there is space for neighbors try to allocate new entry
                 if (mle_6lowpan_neighbor_limit_check(interface_id, mle_msg, true)) {
-                    entry_temp = mle_class_get_entry_by_ll64(interface_id, linkMargin, mle_msg->packet_src_address, true);
+                    entry_temp = mle_class_get_entry_by_ll64(interface_id, linkMargin, mle_msg->packet_src_address, true, NULL);
                 }
             }
 
@@ -1185,7 +1185,7 @@ void mle_6lowpan_message_handler(int8_t interface_id, mle_message_t *mle_msg, ml
                     mode = *t_ptr;
                 }
 
-                entry_temp = mle_class_get_entry_by_ll64(interface_id, linkMargin, mle_msg->packet_src_address, false);
+                entry_temp = mle_class_get_entry_by_ll64(interface_id, linkMargin, mle_msg->packet_src_address, false, NULL);
                 if (!entry_temp) {
                     if ((mode & MLE_DEV_MASK) == MLE_FFD_DEV) {
                         // If there is space for neighbors synchronizes to new router
@@ -2787,7 +2787,7 @@ bool lowpan_neighbour_data_clean(int8_t interface_id, const uint8_t *link_local_
 {
     bool return_value = false;
 #ifndef NO_MLE
-    mle_neigh_table_entry_t * neigh_entry = mle_class_get_entry_by_ll64(interface_id, 0, link_local_address, false);
+    mle_neigh_table_entry_t * neigh_entry = mle_class_get_entry_by_ll64(interface_id, 0, link_local_address, false, NULL);
     if (neigh_entry) {
         //Remove entry
         if (neigh_entry->priorityFlag) {

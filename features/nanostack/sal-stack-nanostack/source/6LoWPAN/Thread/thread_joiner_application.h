@@ -69,6 +69,7 @@ struct link_configuration *thread_joiner_application_get_config(int8_t interface
 uint64_t thread_joiner_application_active_timestamp_get(int8_t interface_id);
 uint8_t thread_joiner_application_security_policy_get(int8_t interface_id);
 void thread_joiner_application_active_timestamp_set(int8_t interface_id, uint64_t timestamp);
+uint8_t *thread_joiner_application_network_name_get(int8_t interface_id);
 uint8_t *thread_joiner_application_active_config_tlv_list_get(uint8_t interface_id, uint16_t *length);
 
 uint8_t *thread_joiner_application_active_config_params_get(uint8_t interface_id, uint16_t *length);

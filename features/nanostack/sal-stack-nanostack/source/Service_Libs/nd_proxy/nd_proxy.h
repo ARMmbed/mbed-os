@@ -125,7 +125,7 @@ bool nd_proxy_enabled_for_upstream(int8_t interface_id);
  *\return true Address validated behind downstream_id_ptr interface
  *\return false Unknown address for this proxy
  */
-bool nd_proxy_target_address_validation(int8_t upstream_id, uint8_t *address, int8_t *downstream_id_ptr);
+bool nd_proxy_target_address_validation(int8_t upstream_id, uint8_t *address);
 /**
  * Downstream interface validate prefix route on Link status from connected Upstream interface
  *
@@ -147,9 +147,9 @@ NS_DUMMY_DEFINITIONS_OK
 #define nd_proxy_upstream_interface_unregister(interface_id) -1
 #define nd_proxy_enabled_for_downstream(interface_id) false
 #define nd_proxy_enabled_for_upstream(interface_id) false
-#define nd_proxy_target_address_validation(upstream_id, address, downstream_id_ptr) false
+#define nd_proxy_target_address_validation(upstream_id, address) false
 #define nd_proxy_upstream_route_onlink(downstream_id, address) false
-#define nd_proxy_target_address_validation(upstream_id, address, downstream_id_ptr) false
+
 #endif /* HAVE_ND_PROXY */
 
 #endif /* ND_PROXY_H_ */

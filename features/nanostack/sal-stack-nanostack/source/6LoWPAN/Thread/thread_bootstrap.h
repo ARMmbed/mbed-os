@@ -106,7 +106,7 @@ void thread_general_mle_receive_cb(int8_t interface_id, mle_message_t *mle_msg, 
 int thread_bootstrap_reset_child_info(protocol_interface_info_entry_t *cur, struct mle_neigh_table_entry_t *child);
 void thread_bootstrap_ready(struct protocol_interface_info_entry *cur);
 int thread_bootstrap_reset(struct protocol_interface_info_entry *cur);
-void thread_clean_all_routers_from_neighbor_list(int8_t interface_id);
+void thread_neighbor_list_clean(struct protocol_interface_info_entry *cur);
 bool thread_bootstrap_request_network_data(struct protocol_interface_info_entry *cur, struct thread_leader_data_s *leaderData, uint16_t short_address);
 bool thread_check_is_this_my_parent(struct protocol_interface_info_entry *cur, struct mle_neigh_table_entry_t *entry_temp);
 void thread_clean_old_16_bit_address_based_addresses(struct protocol_interface_info_entry *cur);

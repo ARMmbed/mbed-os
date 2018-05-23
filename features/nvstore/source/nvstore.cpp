@@ -23,7 +23,6 @@
 #include "FlashIAP.h"
 #include "mbed_critical.h"
 #include "mbed_assert.h"
-#include "Thread.h"
 #include "mbed_wait_api.h"
 #include <algorithm>
 #include <string.h>
@@ -42,15 +41,24 @@ static const uint16_t last_reserved_key = master_record_key;
 typedef struct
 {
     uint16_t key_and_flags;
-    uint16_t size;
+    uint16_t size_and_owner;
     uint32_t crc;
 } nvstore_record_header_t;
 
-static const uint32_t offs_by_key_area_mask     = 0x80000000UL;
-static const uint32_t offs_by_key_set_once_mask = 0x40000000UL;
-static const uint32_t offs_by_key_flag_mask     = 0xC0000000UL;
-static const unsigned int offs_by_key_area_bit_pos     = 31;
-static const unsigned int offs_by_key_set_once_bit_pos = 30;
+static const uint32_t offs_by_key_area_mask      = 0x00000001UL;
+static const uint32_t offs_by_key_set_once_mask  = 0x00000002UL;
+static const uint32_t offs_by_key_allocated_mask = 0x00000004UL;
+static const uint32_t offs_by_key_flag_mask      = 0x00000007UL;
+static const uint32_t offs_by_key_offset_mask    = 0x0FFFFFF8UL;
+static const uint32_t offs_by_key_owner_mask     = 0xF0000000UL;
+
+static const unsigned int offs_by_key_area_bit_pos     = 0;
+static const unsigned int offs_by_key_set_once_bit_pos = 1;
+static const unsigned int offs_by_key_owner_bit_pos    = 28;
+
+static const uint16_t size_mask  = 0x0FFF;
+static const uint16_t owner_mask = 0xF000;
+static const unsigned int owner_bit_pos = 12;
 
 typedef struct {
     uint16_t version;
@@ -59,6 +67,7 @@ typedef struct {
 } master_record_data_t;
 
 static const uint32_t min_area_size = 4096;
+static const uint32_t max_data_size = 4096;
 
 static const int num_write_retries = 16;
 
@@ -134,7 +143,6 @@ NVStore::NVStore() : _init_done(0), _init_attempts(0), _active_area(0), _max_key
       _active_area_version(0), _free_space_offset(0), _size(0), _mutex(0), _offset_by_key(0), _flash(0),
       _min_prog_size(0), _page_buf(0)
 {
-    memset(_flash_area_params, 0, sizeof(_flash_area_params));
 }
 
 NVStore::~NVStore()
@@ -306,7 +314,7 @@ int NVStore::calc_empty_space(uint8_t area, uint32_t &offset)
 
 int NVStore::read_record(uint8_t area, uint32_t offset, uint16_t buf_size, void *buf,
                          uint16_t &actual_size, int validate_only, int &valid,
-                         uint16_t &key, uint16_t &flags, uint32_t &next_offset)
+                         uint16_t &key, uint16_t &flags, uint8_t &owner, uint32_t &next_offset)
 {
     uint8_t int_buf[128];
     void *buf_ptr;
@@ -327,13 +335,14 @@ int NVStore::read_record(uint8_t area, uint32_t offset, uint16_t buf_size, void 
     actual_size = 0;
     key   = header.key_and_flags & ~header_flag_mask;
     flags = header.key_and_flags & header_flag_mask;
+    owner = (header.size_and_owner & owner_mask) >> owner_bit_pos;
 
     if ((key >= _max_keys) && (key != master_record_key)) {
         valid = 0;
         return NVSTORE_SUCCESS;
     }
 
-    data_size = header.size;
+    data_size = header.size_and_owner & size_mask;
     offset += sizeof(header);
 
     // In case of validate only enabled, we use our internal buffer for data reading,
@@ -368,13 +377,13 @@ int NVStore::read_record(uint8_t area, uint32_t offset, uint16_t buf_size, void 
         return NVSTORE_SUCCESS;
     }
 
-    actual_size = header.size;
+    actual_size = header.size_and_owner & size_mask;
     next_offset = align_up(offset, _min_prog_size);
 
     return NVSTORE_SUCCESS;
 }
 
-int NVStore::write_record(uint8_t area, uint32_t offset, uint16_t key, uint16_t flags,
+int NVStore::write_record(uint8_t area, uint32_t offset, uint16_t key, uint16_t flags, uint8_t owner,
                           uint32_t data_size, const void *data_buf, uint32_t &next_offset)
 {
     nvstore_record_header_t header;
@@ -383,7 +392,7 @@ int NVStore::write_record(uint8_t area, uint32_t offset, uint16_t key, uint16_t 
     uint8_t *prog_buf;
 
     header.key_and_flags = key | flags;
-    header.size = data_size;
+    header.size_and_owner = data_size | (owner << owner_bit_pos);
     header.crc = 0; // Satisfy compiler
     crc = crc32(crc, sizeof(header) - sizeof(header.crc), (uint8_t *) &header);
     if (data_size) {
@@ -436,7 +445,7 @@ int NVStore::write_master_record(uint8_t area, uint16_t version, uint32_t &next_
     master_rec.version = version;
     master_rec.reserved1 = 0;
     master_rec.reserved2 = 0;
-    return write_record(area, 0, master_record_key, 0, sizeof(master_rec),
+    return write_record(area, 0, master_record_key, 0, 0, sizeof(master_rec),
                         &master_rec, next_offset);
 }
 
@@ -466,7 +475,7 @@ int NVStore::copy_record(uint8_t from_area, uint32_t from_offset, uint32_t to_of
     }
 
     header = (nvstore_record_header_t *) read_buf;
-    record_size = sizeof(nvstore_record_header_t) + header->size;
+    record_size = sizeof(nvstore_record_header_t) + (header->size_and_owner & size_mask);
 
     // No need to copy records whose flags indicate deletion
     if (header->key_and_flags & delete_item_flag) {
@@ -508,7 +517,7 @@ int NVStore::copy_record(uint8_t from_area, uint32_t from_offset, uint32_t to_of
     return NVSTORE_SUCCESS;
 }
 
-int NVStore::garbage_collection(uint16_t key, uint16_t flags, uint16_t buf_size, const void *buf)
+int NVStore::garbage_collection(uint16_t key, uint16_t flags, uint8_t owner, uint16_t buf_size, const void *buf)
 {
     uint32_t curr_offset, new_area_offset, next_offset;
     int ret;
@@ -520,7 +529,7 @@ int NVStore::garbage_collection(uint16_t key, uint16_t flags, uint16_t buf_size,
     // otherwise we may either write it twice (if already included), or lose it in case we decide
     // to skip it at garbage collection phase (and the system crashes).
     if ((key != no_key) && !(flags & delete_item_flag)) {
-        ret = write_record(1 - _active_area, new_area_offset, key, 0, buf_size, buf, next_offset);
+        ret = write_record(1 - _active_area, new_area_offset, key, 0, owner, buf_size, buf, next_offset);
         if (ret != NVSTORE_SUCCESS) {
             return ret;
         }
@@ -533,7 +542,7 @@ int NVStore::garbage_collection(uint16_t key, uint16_t flags, uint16_t buf_size,
     // to the other area.
     for (key = 0; key < _max_keys; key++) {
         curr_offset = _offset_by_key[key];
-        uint16_t save_flags = curr_offset & offs_by_key_area_mask;
+        uint16_t save_flags = curr_offset & offs_by_key_flag_mask & ~offs_by_key_area_mask;
         curr_area = (uint8_t)(curr_offset >> offs_by_key_area_bit_pos) & 1;
         curr_offset &= ~offs_by_key_flag_mask;
         if ((!curr_offset) || (curr_area != _active_area)) {
@@ -575,7 +584,7 @@ int NVStore::do_get(uint16_t key, uint16_t buf_size, void *buf, uint16_t &actual
     int valid;
     uint32_t record_offset, next_offset;
     uint16_t read_type, flags;
-    uint8_t area;
+    uint8_t area, owner;
 
     if (!_init_done) {
         ret = init();
@@ -597,19 +606,19 @@ int NVStore::do_get(uint16_t key, uint16_t buf_size, void *buf, uint16_t &actual
     }
 
     _mutex->lock();
+	
     record_offset = _offset_by_key[key];
+    area = (uint8_t)(record_offset >> offs_by_key_area_bit_pos) & 1;
+    record_offset &= offs_by_key_offset_mask;
 
     if (!record_offset) {
         _mutex->unlock();
         return NVSTORE_NOT_FOUND;
     }
 
-    area = (uint8_t)(record_offset >> offs_by_key_area_bit_pos) & 1;
-    record_offset &= ~offs_by_key_flag_mask;
-
     ret = read_record(area, record_offset, buf_size, buf,
                       actual_size, validate_only, valid,
-                      read_type, flags, next_offset);
+                      read_type, flags, owner, next_offset);
     if ((ret == NVSTORE_SUCCESS) && !valid) {
         ret = NVSTORE_DATA_CORRUPT;
     }
@@ -628,11 +637,12 @@ int NVStore::get_item_size(uint16_t key, uint16_t &actual_size)
     return do_get(key, 0, NULL, actual_size, 1);
 }
 
-int NVStore::do_set(uint16_t &key, uint16_t buf_size, const void *buf, uint16_t flags)
+int NVStore::do_set(uint16_t key, uint16_t buf_size, const void *buf, uint16_t flags)
 {
     int ret = NVSTORE_SUCCESS;
     uint32_t record_offset, record_size, new_free_space;
     uint32_t next_offset;
+    uint8_t owner;
 
     if (!_init_done) {
         ret = init();
@@ -641,11 +651,11 @@ int NVStore::do_set(uint16_t &key, uint16_t buf_size, const void *buf, uint16_t 
         }
     }
 
-    if ((key != no_key) && (key >= _max_keys)) {
+    if (key >= _max_keys) {
         return NVSTORE_BAD_VALUE;
     }
 
-    if ((key == no_key) && (flags & delete_item_flag)) {
+    if (buf_size >= max_data_size) {
         return NVSTORE_BAD_VALUE;
     }
 
@@ -653,11 +663,11 @@ int NVStore::do_set(uint16_t &key, uint16_t buf_size, const void *buf, uint16_t 
         buf_size = 0;
     }
 
-    if ((flags & delete_item_flag) && !_offset_by_key[key]) {
+    if ((flags & delete_item_flag) && !(_offset_by_key[key] & offs_by_key_offset_mask)) {
         return NVSTORE_NOT_FOUND;
     }
 
-    if ((key != no_key) && (_offset_by_key[key] & offs_by_key_set_once_mask)) {
+    if (_offset_by_key[key] & offs_by_key_set_once_mask) {
         return NVSTORE_ALREADY_EXISTS;
     }
 
@@ -665,40 +675,31 @@ int NVStore::do_set(uint16_t &key, uint16_t buf_size, const void *buf, uint16_t 
 
     _mutex->lock();
 
-    if (key == no_key) {
-        for (key = NVSTORE_NUM_PREDEFINED_KEYS; key < _max_keys; key++) {
-            if (!_offset_by_key[key]) {
-                break;
-            }
-        }
-        if (key == _max_keys) {
-            return NVSTORE_NO_FREE_KEY;
-        }
-    }
-
+    owner = (_offset_by_key[key] & offs_by_key_owner_mask) >> offs_by_key_owner_bit_pos;
     new_free_space = core_util_atomic_incr_u32(&_free_space_offset, record_size);
     record_offset = new_free_space - record_size;
 
     // If we cross the area limit, we need to invoke GC.
     if (new_free_space >= _size) {
-        ret = garbage_collection(key, flags, buf_size, buf);
+        ret = garbage_collection(key, flags, owner, buf_size, buf);
         _mutex->unlock();
         return ret;
     }
 
     // Now write the record
-    ret = write_record(_active_area, record_offset, key, flags, buf_size, buf, next_offset);
+    ret = write_record(_active_area, record_offset, key, flags, owner, buf_size, buf, next_offset);
     if (ret != NVSTORE_SUCCESS) {
         _mutex->unlock();
         return ret;
     }
 
-    // Update _offset_by_key. High bit indicates area.
+    // Update _offset_by_key
     if (flags & delete_item_flag) {
         _offset_by_key[key] = 0;
     } else {
         _offset_by_key[key] = record_offset | (_active_area << offs_by_key_area_bit_pos) |
-                              (((flags & set_once_flag) != 0) << offs_by_key_set_once_bit_pos);
+                              (((flags & set_once_flag) != 0) << offs_by_key_set_once_bit_pos) |
+                              (owner << offs_by_key_owner_bit_pos);
     }
 
     _mutex->unlock();
@@ -716,10 +717,67 @@ int NVStore::set_once(uint16_t key, uint16_t buf_size, const void *buf)
     return do_set(key, buf_size, buf, set_once_flag);
 }
 
-int NVStore::set_alloc_key(uint16_t &key, uint16_t buf_size, const void *buf)
+int NVStore::allocate_key(uint16_t &key, uint8_t owner)
 {
-    key = no_key;
-    return do_set(key, buf_size, buf, 0);
+    int ret = NVSTORE_SUCCESS;
+
+    if ((owner == NVSTORE_UNSPECIFIED_OWNER) || (owner >= NVSTORE_MAX_OWNERS)) {
+        return NVSTORE_BAD_VALUE;
+    }
+
+    if (!_init_done) {
+        ret = init();
+        if (ret != NVSTORE_SUCCESS) {
+            return ret;
+        }
+    }
+
+    _mutex->lock();
+
+    for (key = NVSTORE_NUM_PREDEFINED_KEYS; key < _max_keys; key++) {
+        if (!_offset_by_key[key]) {
+            break;
+        }
+    }
+    if (key == _max_keys) {
+        ret = NVSTORE_NO_FREE_KEY;
+    } else {
+        _offset_by_key[key] |= offs_by_key_allocated_mask | (owner << offs_by_key_owner_bit_pos);
+    }
+    _mutex->unlock();
+    return ret;
+}
+
+int NVStore::free_all_keys_by_owner(uint8_t owner)
+{
+    int ret = NVSTORE_SUCCESS;
+
+    if ((owner == NVSTORE_UNSPECIFIED_OWNER) || (owner >= NVSTORE_MAX_OWNERS)) {
+        return NVSTORE_BAD_VALUE;
+    }
+
+    if (!_init_done) {
+        ret = init();
+        if (ret != NVSTORE_SUCCESS) {
+            return ret;
+        }
+    }
+
+    _mutex->lock();
+
+    for (uint16_t key = 0; key < _max_keys; key++) {
+        uint8_t curr_owner = (_offset_by_key[key] & offs_by_key_owner_mask) >> offs_by_key_owner_bit_pos;
+        if (curr_owner != owner) {
+            continue;
+        }
+        ret = remove(key);
+        if (ret) {
+            break;
+        }
+    }
+
+    _mutex->unlock();
+    return ret;
 }
 
 int NVStore::remove(uint16_t key)
@@ -740,6 +798,7 @@ int NVStore::init()
     uint16_t flags;
     uint16_t versions[NVSTORE_NUM_AREAS];
     uint16_t actual_size;
+    uint8_t owner;
 
     if (_init_done) {
         return NVSTORE_SUCCESS;
@@ -800,7 +859,7 @@ int NVStore::init()
         master_record_data_t master_rec;
         ret = read_record(area, 0, sizeof(master_rec), &master_rec,
                           actual_size, 0, valid,
-                          key, flags, next_offset);
+                          key, flags, owner, next_offset);
         MBED_ASSERT((ret == NVSTORE_SUCCESS) || (ret == NVSTORE_BUFF_TOO_SMALL));
         if (ret == NVSTORE_BUFF_TOO_SMALL) {
             // Buf too small error means that we have a corrupt master record -
@@ -854,20 +913,21 @@ int NVStore::init()
     while (_free_space_offset < free_space_offset_of_area[_active_area]) {
         ret = read_record(_active_area, _free_space_offset, 0, NULL,
                           actual_size, 1, valid,
-                          key, flags, next_offset);
+                          key, flags, owner, next_offset);
         MBED_ASSERT(ret == NVSTORE_SUCCESS);
 
         // In case we have a faulty record, this probably means that the system crashed when written.
         // Perform a garbage collection, to make the the other area valid.
         if (!valid) {
-            ret = garbage_collection(no_key, 0, 0, NULL);
+            ret = garbage_collection(no_key, 0, 0, 0, NULL);
             break;
         }
         if (flags & delete_item_flag) {
             _offset_by_key[key] = 0;
         } else {
             _offset_by_key[key] = _free_space_offset | (_active_area << offs_by_key_area_bit_pos) |
-                                  (((flags & set_once_flag) != 0) << offs_by_key_set_once_bit_pos);
+                                  (((flags & set_once_flag) != 0) << offs_by_key_set_once_bit_pos) |
+                                  (owner << offs_by_key_owner_bit_pos);
         }
         _free_space_offset = next_offset;
     }

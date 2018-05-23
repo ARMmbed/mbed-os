@@ -433,8 +433,9 @@ void mac_helper_coordinator_address_set(protocol_interface_info_entry_t *interfa
     if (adr_type == ADDR_802_15_4_SHORT) {
         memcpy(interface->mac_parameters->mac_cordinator_info.mac_mlme_coord_address, adr_ptr, 2);
         interface->mac_parameters->mac_cordinator_info.cord_adr_mode = MAC_ADDR_MODE_16_BIT;
+        uint16_t short_addr = common_read_16_bit(interface->mac_parameters->mac_cordinator_info.mac_mlme_coord_address);
         set_req.attr = macCoordShortAddress;
-        set_req.value_pointer = &interface->mac_parameters->mac_cordinator_info.mac_mlme_coord_address;
+        set_req.value_pointer = &short_addr;
         set_req.value_size = 2;
     } else if (adr_type == ADDR_802_15_4_LONG) {
         memcpy(interface->mac_parameters->mac_cordinator_info.mac_mlme_coord_address, adr_ptr, 8);
@@ -767,8 +768,10 @@ static uint8_t mac_helper_header_security_aux_header_length(uint8_t keyIdmode) {
     switch (keyIdmode) {
         case MAC_KEY_ID_MODE_SRC8_IDX:
             header_length += 4; //64-bit key source first part
+            /* fall through  */
         case MAC_KEY_ID_MODE_SRC4_IDX:
             header_length += 4; //32-bit key source inline
+            /* fall through  */
         case MAC_KEY_ID_MODE_IDX:
             header_length += 1;
             break;
@@ -830,13 +833,13 @@ void mac_helper_devicetable_remove(mac_api_t *mac_api, uint8_t attribute_index)
     mac_api->mlme_req(mac_api,MLME_SET , &set_req);
 }
 
-void mac_helper_devicetable_set(mle_neigh_table_entry_t *entry_temp, protocol_interface_info_entry_t *cur, uint32_t frame_counter, uint8_t keyID)
+void mac_helper_devicetable_set(mle_neigh_table_entry_t *entry_temp, protocol_interface_info_entry_t *cur, uint32_t frame_counter, uint8_t keyID, bool force_set)
 {
     if (!cur->mac_api) {
         return;
     }
 
-    if (cur->mac_parameters->SecurityEnabled && cur->mac_parameters->mac_default_key_index != keyID) {
+    if (!force_set && cur->mac_parameters->SecurityEnabled && cur->mac_parameters->mac_default_key_index != keyID) {
         tr_debug("Do not set counter by index %u != %u", cur->mac_parameters->mac_default_key_index, keyID);
         return;
     }

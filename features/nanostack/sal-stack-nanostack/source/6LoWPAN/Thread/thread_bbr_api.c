@@ -738,7 +738,7 @@ static bool thread_bbr_activated(thread_bbr_t *this, uint32_t seconds)
         return true;
     }
     // We will try to become router. This is done only in 120 seconds intervals if failed
-    thread_router_bootstrap_router_id_request(cur, 0);
+    thread_router_bootstrap_router_id_request(cur, THREAD_BBR_ROUTER_ID_REQUEST_STATUS);
     this->router_upgrade_delay_timer = 120;
     return false;
 }
@@ -755,8 +755,8 @@ bool thread_bbr_routing_enabled(protocol_interface_info_entry_t *cur)
 
 void thread_bbr_network_data_update_notify(protocol_interface_info_entry_t *cur)
 {
-    (void) cur;
     thread_mdns_network_data_update_notify();
+    thread_extension_bbr_route_update(cur);
 }
 #endif /* HAVE_THREAD_BORDER_ROUTER*/
 

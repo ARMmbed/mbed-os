@@ -1059,7 +1059,7 @@ static bool rpl_downward_process_targets_for_transit(rpl_dodag_t *dodag, bool st
                         /* In Non-Storing mode, add the transit to the target, and we'll re-evaluate system routes later */
                         ipv6_route_table_remove_info(-1, ROUTE_RPL_DAO_SR, target);
                         if (transit_opt) {
-                            if (protcol_interface_address_compare(NULL, parent) == 0) {
+                            if (protocol_interface_address_compare(parent) == 0) {
                                 /* If we're transit, it's on-link */
                                 ipv6_route_add_with_info(prefix, prefix_len, interface_id, NULL, ROUTE_RPL_DAO_SR, target, 0, target->lifetime, 0);
                             } else {
@@ -1122,7 +1122,7 @@ static void rpl_downward_link_transits_to_targets(rpl_instance_t *instance)
     }
     ns_list_foreach(rpl_dao_target_t, target, &instance->dao_targets) {
         ns_list_foreach(rpl_dao_root_transit_t, transit, &target->info.root.transits) {
-            if (protcol_interface_address_compare(NULL, transit->transit) == 0) {
+            if (protocol_interface_address_compare(transit->transit) == 0) {
                 /* It points to us (the DODAG root) - mark this with NULL */
                 transit->parent = NULL;
                 target->connected = true;

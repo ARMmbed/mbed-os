@@ -47,6 +47,10 @@ void EventQueue::cancel(int id) {
     return equeue_cancel(&_equeue, id);
 }
 
+int EventQueue::time_left(int id) {
+    return equeue_timeleft(&_equeue, id);
+}
+
 void EventQueue::background(Callback<void(int)> update) {
     _update = update;
 

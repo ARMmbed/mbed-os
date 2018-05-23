@@ -35,39 +35,48 @@
 static int fat_error_remap(FRESULT res)
 {
     switch(res) {
-        case FR_OK:                     /* (0) Succeeded */
-            return 0;                   /* no error */
-        case FR_DISK_ERR:               /* (1) A hard error occurred in the low level disk I/O layer */
-        case FR_NOT_READY:              /* (3) The physical drive cannot work */
-            return -EIO;                /* I/O error */
-        case FR_NO_FILE:                /* (4) Could not find the file */
-        case FR_NO_PATH:                /* (5) Could not find the path */
-        case FR_INVALID_NAME:           /* (6) The path name format is invalid */
-        case FR_INVALID_DRIVE:          /* (11) The logical drive number is invalid */
-        case FR_NO_FILESYSTEM:          /* (13) There is no valid FAT volume */
-            return -ENOENT;             /* No such file or directory */
-        case FR_DENIED:                 /* (7) Access denied due to prohibited access or directory full */
-            return -EACCES;             /* Permission denied */
-        case FR_EXIST:                  /* (8) Access denied due to prohibited access */
-            return -EEXIST;             /* File exists */
-        case FR_WRITE_PROTECTED:        /* (10) The physical drive is write protected */
-        case FR_LOCKED:                 /* (16) The operation is rejected according to the file sharing policy */
-            return -EACCES;             /* Permission denied */
-        case FR_INVALID_OBJECT:         /* (9) The file/directory object is invalid */
-            return -EFAULT;             /* Bad address */
-        case FR_NOT_ENABLED:            /* (12) The volume has no work area */
-            return -ENXIO;              /* No such device or address */
-        case FR_NOT_ENOUGH_CORE:        /* (17) LFN working buffer could not be allocated */
-            return -ENOMEM;             /* Not enough space */
-        case FR_TOO_MANY_OPEN_FILES:    /* (18) Number of open files > _FS_LOCK */
-            return -ENFILE;             /* Too many open files in system */
-        case FR_INVALID_PARAMETER:      /* (19) Given parameter is invalid */
-            return -ENOEXEC;            /* Exec format error */
-        case FR_INT_ERR:                /* (2) Assertion failed */
-        case FR_MKFS_ABORTED:           /* (14) The f_mkfs() aborted due to any parameter error */
-        case FR_TIMEOUT:                /* (15) Could not get a grant to access the volume within defined period */
-        default:                        /* Bad file number */
+        case FR_OK:                   // (0) Succeeded
+            return 0;
+        case FR_DISK_ERR:             // (1) A hard error occurred in the low level disk I/O layer
+            return -EIO;
+        case FR_INT_ERR:              // (2) Assertion failed
+            return -1;
+        case FR_NOT_READY:            // (3) The physical drive cannot work
+            return -EIO;
+        case FR_NO_FILE:              // (4) Could not find the file
+            return -ENOENT;
+        case FR_NO_PATH:              // (5) Could not find the path
+            return -ENOTDIR;
+        case FR_INVALID_NAME:         // (6) The path name format is invalid
+            return -EINVAL;
+        case FR_DENIED:               // (7) Access denied due to prohibited access or directory full
+            return -EACCES;
+        case FR_EXIST:                // (8) Access denied due to prohibited access
+            return -EEXIST;
+        case FR_INVALID_OBJECT:       // (9) The file/directory object is invalid
             return -EBADF;
+        case FR_WRITE_PROTECTED:      // (10) The physical drive is write protected
+            return -EACCES;
+        case FR_INVALID_DRIVE:        // (11) The logical drive number is invalid
+            return -ENODEV;
+        case FR_NOT_ENABLED:          // (12) The volume has no work area
+            return -ENODEV;
+        case FR_NO_FILESYSTEM:        // (13) There is no valid FAT volume
+            return -EINVAL;
+        case FR_MKFS_ABORTED:         // (14) The f_mkfs() aborted due to any problem
+            return -EIO;
+        case FR_TIMEOUT:              // (15) Could not get a grant to access the volume within defined period
+            return -ETIMEDOUT;
+        case FR_LOCKED:               // (16) The operation is rejected according to the file sharing policy
+            return -EBUSY;
+        case FR_NOT_ENOUGH_CORE:      // (17) LFN working buffer could not be allocated
+            return -ENOMEM;
+        case FR_TOO_MANY_OPEN_FILES:  // (18) Number of open files > FF_FS_LOCK
+            return -ENFILE;
+        case FR_INVALID_PARAMETER:    // (19) Given parameter is invalid
+            return -EINVAL;
+        default:
+            return -res;
     }
 }
 
@@ -333,24 +342,83 @@ int FATFileSystem::unmount()
 int FATFileSystem::format(BlockDevice *bd, bd_size_t cluster_size)
 {
     FATFileSystem fs;
-    int err = fs.mount(bd, false);
+    fs.lock();
+
+    int err = bd->init();
     if (err) {
+        fs.unlock();
+        return err;
+    }
+
+    // erase first handful of blocks
+    bd_size_t header = 2*bd->get_erase_size();
+    err = bd->erase(0, header);
+    if (err) {
+        bd->deinit();
+        fs.unlock();
+        return err;
+    }
+
+    if (bd->get_erase_value() < 0) {
+        // erase is unknown, need to write 1s
+        bd_size_t program_size = bd->get_program_size();
+        void *buf = malloc(program_size);
+        if (!buf) {
+            bd->deinit();
+            fs.unlock();
+            return -ENOMEM;
+        }
+
+        memset(buf, 0xff, program_size);
+
+        for (bd_addr_t i = 0; i < header; i += program_size) {
+            err = bd->program(buf, i, program_size);
+            if (err) {
+                free(buf);
+                bd->deinit();
+                fs.unlock();
+                return err;
+            }
+        }
+
+        free(buf);
+    }
+
+    // trim entire device to indicate it is unneeded
+    err = bd->trim(0, bd->size());
+    if (err) {
+        bd->deinit();
+        fs.unlock();
+        return err;
+    }
+
+    err = bd->deinit();
+    if (err) {
+        fs.unlock();
+        return err;
+    }
+
+    err = fs.mount(bd, false);
+    if (err) {
+        fs.unlock();
         return err;
     }
 
     // Logical drive number, Partitioning rule, Allocation unit size (bytes per cluster)
-    fs.lock();
     FRESULT res = f_mkfs(fs._fsid, FM_ANY | FM_SFD, cluster_size, NULL, 0);
-    fs.unlock();
     if (res != FR_OK) {
+        fs.unmount();
+        fs.unlock();
         return fat_error_remap(res);
     }
 
     err = fs.unmount();
     if (err) {
+        fs.unlock();
         return err;
     }
 
+    fs.unlock();
     return 0;
 }
 
@@ -395,6 +463,10 @@ int FATFileSystem::remove(const char *path)
 
     if (res != FR_OK) {
         debug_if(FFS_DBG, "f_unlink() failed: %d\n", res);
+        if (res == FR_DENIED) {
+            printf("hi %d -> %d\n", FR_DENIED, -ENOTEMPTY);
+            return -ENOTEMPTY;
+        }
     }
     return fat_error_remap(res);
 }

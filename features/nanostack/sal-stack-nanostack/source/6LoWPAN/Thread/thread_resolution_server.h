@@ -58,7 +58,7 @@ extern "C" {
  *
  * /return return 0 for success, negative if unable to respond.
  */
-typedef int thread_resolution_server_addr_query_cb(int8_t interface_id, const uint8_t target_addr[static 16], uint16_t *addr_out, bool *proxy, uint32_t *last_transaction_time, uint8_t *mleid_ptr);
+typedef int thread_resolution_server_addr_query_cb(int8_t interface_id, const uint8_t target_addr[static 16], uint16_t *rloc, uint16_t *addr_out, bool *proxy, uint32_t *last_transaction_time, uint8_t *mleid_ptr);
 
 #ifdef HAVE_THREAD_NEIGHBOR_DISCOVERY
 

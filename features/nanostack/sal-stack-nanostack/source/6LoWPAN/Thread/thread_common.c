@@ -233,8 +233,8 @@ int8_t thread_bootstrap_down(protocol_interface_info_entry_t *cur)
     tr_debug("SET thread Idle");
     //stop polling
     mac_data_poll_disable(cur);
-    //Clean routers from mle table
-    thread_clean_all_routers_from_neighbor_list(cur->id);
+    //Clean mle table
+    thread_neighbor_list_clean(cur);
     // store frame counters
     if (cur->thread_info) {
         thread_nvm_fast_data_t fast_data;
@@ -249,6 +249,7 @@ int8_t thread_bootstrap_down(protocol_interface_info_entry_t *cur)
         thread_joiner_application_configuration_nvm_save(cur->id);
         mac_pairwise_key_flush_list(cur->id);
         thread_discovery_reset(cur->id);
+        thread_leader_mleid_rloc_map_to_nvm_write(cur);
         thread_bootstrap_stop(cur);
         mle_service_interface_unregister(cur->id);
         thread_management_server_delete(cur->id);
@@ -524,6 +525,7 @@ thread_leader_info_t *thread_allocate_and_init_leader_private_data(void)
     thread_leader_info_t *leader_info = ns_dyn_mem_alloc(sizeof(thread_leader_info_t));
     if (leader_info) {
         leader_info->leader_id_seq_timer = ID_SEQUENCE_PERIOD;
+        leader_info->leader_nvm_sync_timer = 0;
     }
     return leader_info;
 }
@@ -717,6 +719,7 @@ void thread_child_id_request_info_init(thread_pending_child_id_req_t *child_info
 thread_pending_child_id_req_t *thread_child_id_request_allocate(void)
 {
     thread_pending_child_id_req_t *req = ns_dyn_mem_alloc(sizeof(thread_pending_child_id_req_t));
+    memset(req->eiid, 0 , 8);
     thread_child_id_request_info_init(req);
     return req;
 }
@@ -880,7 +883,6 @@ static void thread_child_update_req_timer(protocol_interface_info_entry_t *cur, 
     if (cur->thread_info->childUpdateReqTimer == -1) {
         return;
     }
-
     if (cur->thread_info->childUpdateReqTimer > seconds) {
         cur->thread_info->childUpdateReqTimer -= seconds;
     } else {
@@ -1712,7 +1714,8 @@ uint8_t *thread_address_registration_tlv_write(uint8_t *ptr, protocol_interface_
             // Maximum length of address registrations
             continue;
         }
-        if (addr_ipv6_scope(e->address, cur) == IPV6_SCOPE_GLOBAL) {
+        if (addr_ipv6_scope(e->address, cur) == IPV6_SCOPE_GLOBAL || (addr_ipv6_scope(e->address, cur) == IPV6_SCOPE_REALM_LOCAL
+                && !thread_addr_is_mesh_local_16(e->address, cur))) {
             ctx = lowpan_context_get_by_address(&cur->lowpan_contexts, e->address);
             if (ctx) {
                 //Write TLV to list
@@ -1725,7 +1728,6 @@ uint8_t *thread_address_registration_tlv_write(uint8_t *ptr, protocol_interface_
                 memcpy(ptr, e->address, 16);
                 ptr += 16;
                 *address_len_ptr += 17;
-
             }
         }
     }
@@ -1838,7 +1840,7 @@ static void thread_tx_failure_handler(int8_t nwk_id, uint8_t accumulated_failure
     }
 
     if (accumulated_failures >= THREAD_MAC_TRANSMISSIONS*THREAD_FAILED_CHILD_TRANSMISSIONS) {
-        thread_reset_neighbour_info(cur, neighbor);
+        mle_class_remove_entry(cur->id, neighbor);
     }
 }
 
@@ -1848,8 +1850,8 @@ void thread_reset_neighbour_info(protocol_interface_info_entry_t *cur, mle_neigh
     thread_parent_info_t *thread_endnode_parent = thread_info(cur)->thread_endnode_parent;
 
     if (!thread_i_am_router(cur) && thread_endnode_parent && thread_endnode_parent->shortAddress == neighbour->short_adr) {
-        tr_warn("End device lost Parent!\n");
         if(cur->nwk_bootstrap_state != ER_CHILD_ID_REQ) {
+            tr_warn("End device lost parent, reset!\n");
             thread_bootstrap_connection_error(cur->id, CON_PARENT_CONNECT_DOWN, NULL);
         }
     }

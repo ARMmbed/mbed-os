@@ -817,6 +817,12 @@ static void thread_discovery_request_msg_handler(thread_discovery_class_t * disc
     }
     tr_debug("Thread discovery request message RX");
 
+    // Check if we have room for new neighbor
+    if (mle_class_free_entry_count_get(discovery_class->interface_id) < 1) {
+        tr_debug("MLE table full, skip request");
+        return;
+    }
+
     //validate message
     mle_tlv_info_t discovery_tlv;
     //Parse Message

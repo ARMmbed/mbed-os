@@ -238,6 +238,7 @@ void thread_dynamic_storage_build_mle_table(int8_t interface_id)
     tr_debug("Dynamic storage: building MLE table.");
 
     thread_network_dynamic_data_entry_t *storeEntry = thread_network_synch_find(interface_id);
+    bool new_entry_created;
 
     if (!storeEntry) {
         storeEntry = thread_network_synch_create(interface_id);
@@ -261,7 +262,7 @@ void thread_dynamic_storage_build_mle_table(int8_t interface_id)
         }
         uint8_t *mac64 = storeEntry->networ_dynamic_data_parameters.children[i].long_addr;
         tr_debug("Child: %04x, %s", storeEntry->networ_dynamic_data_parameters.children[i].short_addr, trace_array(mac64, 8));
-        mle_neigh_table_entry_t *entry = mle_class_get_entry_by_mac64(interface_id, 64, mac64, true);
+        mle_neigh_table_entry_t *entry = mle_class_get_entry_by_mac64(interface_id, 64, mac64, true, &new_entry_created);
         if (entry) {
             entry->short_adr = storeEntry->networ_dynamic_data_parameters.children[i].short_addr;
             entry->mle_frame_counter = storeEntry->networ_dynamic_data_parameters.children[i].mle_frame_counter;
@@ -272,7 +273,7 @@ void thread_dynamic_storage_build_mle_table(int8_t interface_id)
 
             if (cur && cur->mac_parameters) {
                 // Set MAC layer frame counter for the child
-                mac_helper_devicetable_set(entry, cur, storeEntry->networ_dynamic_data_parameters.children[i].mac_frame_counter, cur->mac_parameters->mac_default_key_index);
+                mac_helper_devicetable_set(entry, cur, storeEntry->networ_dynamic_data_parameters.children[i].mac_frame_counter, cur->mac_parameters->mac_default_key_index, new_entry_created);
             }
         }
     }

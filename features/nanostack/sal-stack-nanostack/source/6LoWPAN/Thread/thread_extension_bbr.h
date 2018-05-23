@@ -38,15 +38,30 @@
 extern "C" {
 #endif
 
+#if defined(HAVE_THREAD_V2) && defined(HAVE_THREAD_BORDER_ROUTER)
+
+int8_t thread_extension_bbr_init(int8_t interface_id, int8_t backbone_interface_id);
+void thread_extension_bbr_delete(int8_t interface_id);
+bool thread_extension_bbr_nd_query_process(protocol_interface_info_entry_t *cur, const uint8_t *target_addr, uint16_t rloc);
+void thread_extension_bbr_seconds_timer(int8_t interface_id, uint32_t seconds);
+int thread_extension_bbr_timeout_set(int8_t interface_id, uint32_t timeout_a, uint32_t timeout_b, uint32_t delay);
+int thread_extension_bbr_address_set(int8_t interface_id, const uint8_t *addr_ptr, uint16_t port);
+void thread_extension_bbr_route_update(protocol_interface_info_entry_t *cur);
+
+
+#else
+
 #define thread_extension_bbr_init(interface_id, backbone_interface_id)
 #define thread_extension_bbr_delete(interface_id)
-#define thread_extension_bbr_nd_query_process(cur, target_addr) false
+#define thread_extension_bbr_nd_query_process(cur, target_addr, rloc) false
 #define thread_extension_bbr_seconds_timer(interface_id, seconds)
 #define thread_extension_bbr_timeout_set(interface_id, timeout_a, timeout_b, delay)
 #define thread_extension_bbr_address_set(interface_id, addr_ptr, port) (-1)
+#define thread_extension_bbr_route_update(cur)
+#endif
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* THREAD_EXTENSION_BBR_H_ */
+#endif //HAVE_THREAD_BORDER_ROUTER && HAVE_THREAD_V2

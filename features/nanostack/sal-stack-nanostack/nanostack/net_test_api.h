@@ -24,6 +24,7 @@
 #define NET_TEST_API_H_
 
 #include "ns_types.h"
+#include "Service_Libs/mle_service/mle_service_api.h"
 
 /**
  * \brief Makes TCP protocol drop given number of packets from a particular state (TX side).
@@ -55,5 +56,12 @@ int8_t arm_nwk_test_tcp_drop_rx(int state, uint8_t count);
  * Testing API for TCP reset any packet drop counters.
  */
 void arm_nwk_test_tcp_drop_reset(void);
+
+/**
+ * \brief Set callback for MLE message receiving filter.
+ *
+ * Testing API for setting MLE receive callback for message filtering purposes.
+ */
+void arm_nwk_test_mle_receive_filter_set(mle_service_filter_cb *response_filter_cb);
 
 #endif //NET_TEST_API_H_
