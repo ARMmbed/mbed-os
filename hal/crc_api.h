@@ -73,18 +73,18 @@ extern "C" {
  *
  * Supported polynomials are restricted to the named polynomials that can be
  * constructed in the MbedCRC class, POLY_8BIT_CCITT, POLY_7BIT_SD,
- * POLY_16BIT_CCITT, POLY_16BIT_IBM, POLY_32BIT_ANSI.
+ * POLY_16BIT_CCITT, POLY_16BIT_IBM and POLY_32BIT_ANSI.
  *
  * The current platform must support the given polynomials default parameters
- * in order to return a true response, these include: reflect in, reflect out,
- * initial xor, and final xor. For example POLY_32BIT_ANSI requires an initial
+ * in order to return a true response. These include: reflect in, reflect out,
+ * initial xor and final xor. For example, POLY_32BIT_ANSI requires an initial
  * and final xor of 0xFFFFFFFF, and reflection of both input and output. If any
- * of these settings cannot be configured the polynomial is not supported.
+ * of these settings cannot be configured, the polynomial is not supported.
  *
- * This function is thread safe, it safe to call from multiple contexts if
+ * This function is thread safe; it safe to call from multiple contexts if
  * required.
  *
- * \param config Contains CRC configuration parameters for initialising the
+ * \param config Contains CRC configuration parameters for initializing the
  *               hardware CRC module. For example, polynomial and initial seed
  *               values.
  *
@@ -92,14 +92,14 @@ extern "C" {
  */
 bool hal_crc_is_supported(const crc_mbed_config_t* config);
 
-/** Initialise the hardware CRC module with the given polynomial
+/** Initialize the hardware CRC module with the given polynomial
  *
- * After calling this function the CRC HAL module will be ready to receive data
+ * After calling this function, the CRC HAL module is ready to receive data
  * using the hal_crc_compute_partial() function. The CRC module on the board
- * will be configured internally with the specified configuration and be ready
+ * is configured internally with the specified configuration and is ready
  * to receive data.
  *
- * The platform will configure itself based on the default configuration
+ * The platform configures itself based on the default configuration
  * parameters of the input polynomial.
  *
  * This function must be called before calling hal_crc_compute_partial().
@@ -108,17 +108,17 @@ bool hal_crc_is_supported(const crc_mbed_config_t* config);
  * platform. The polynomial must be checked for support using the
  * hal_crc_is_supported() function.
  *
- * Calling hal_crc_compute_partial_start() multiple times without finalising the
- * CRC calculation with hal_crc_get_result() will override the current
- * configuration and state and the intermediate result of the computation will
- * be lost.
+ * Calling hal_crc_compute_partial_start() multiple times without finalizing the
+ * CRC calculation with hal_crc_get_result() overrides the current
+ * configuration and state, and the intermediate result of the computation is
+ * lost.
  *
- * This function is not thread safe, a CRC calculation must not be started from
- * two different threads or contexts at the same time, calling this function
+ * This function is not thread safe. A CRC calculation must not be started from
+ * two different threads or contexts at the same time; calling this function
  * from two different contexts may lead to configurations being overwritten and
  * results being lost.
  *
- * \param config Contains CRC configuration parameters for initialising the
+ * \param config Contains CRC configuration parameters for initializing the
  *               hardware CRC module. For example, polynomial and initial seed
  *               values.
  */
@@ -129,22 +129,22 @@ void hal_crc_compute_partial_start(const crc_mbed_config_t* config);
  * Writes input data buffer bytes to the CRC data register. The CRC module
  * must interpret the data as an array of bytes.
  *
- * The final transformations are not applied to the data, the CRC module must
+ * The final transformations are not applied to the data; the CRC module must
  * retain the intermediate result so that additional calls to this function
  * can be made, appending the additional data to the calculation.
  *
- * To obtain the final result of the CRC calculation hal_crc_get_result() is
+ * To obtain the final result of the CRC calculation, hal_crc_get_result() is
  * called to apply the final transformations to the data.
  *
  * If the function is passed an undefined pointer, or the size of the buffer is
- * specified to be 0, this function will do nothing and return.
+ * specified to be 0, this function does nothing and returns.
  *
- * This function can be call multiple times in succession, this can be used
+ * This function can be called multiple times in succession. This can be used
  * to calculate the CRC result of streamed data.
  *
  * This function is not thread safe. There is only one instance of the CRC
- * module active at a time, calling this function from multiple contexts will
- * append different data to the same, single instance of the module causing an
+ * module active at a time. Calling this function from multiple contexts
+ * appends different data to the same, single instance of the module, which causes an
  * erroneous value to be calculated.
  *
  * \param data Input data stream to be written into the CRC calculation
@@ -160,16 +160,16 @@ void hal_crc_compute_partial(const uint8_t *data, const size_t size);
  *
  * Additional transformations that are used in the default configuration of the
  * input polynomial are applied to the result before it is returned from this
- * function, these transformations include: The final xor being appended to the
+ * function. These transformations include: the final xor being appended to the
  * calculation, and the result being reflected if required.
  *
  * Calling this function multiple times is undefined. The first call to this
- * function will return the final result of the CRC calculation, the return
- * value on successive calls is undefined as the contents of the register after
+ * function returns the final result of the CRC calculation. The return
+ * value on successive calls is undefined because the contents of the register after
  * accessing them is platform-specific.
  *
  * This function is not thread safe. There is only one instance of the CRC
- * module active at a time, calling this function from multiple contexts may
+ * module active at a time. Calling this function from multiple contexts may
  * return incorrect data or affect the current state of the module.
  *
  * \return The final CRC checksum after the reflections and final calculations
