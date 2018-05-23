@@ -43,8 +43,16 @@
 #include "lp_ticker_api.h"
 #include "mbed_critical.h"
 
-#if defined(NRF52_ERRATA_20)
-    #include "softdevice_handler.h"
+#if defined(NRF52_PAN_20)
+/* Macro for testing if the SoftDevice is active, regardless of whether the
+ * application is build with the SoftDevice or not.
+ */
+#if defined(SOFTDEVICE_PRESENT)
+#include "nrf_sdh.h"
+#define NRF_HAL_SD_IS_ENABLED() nrf_sdh_is_enabled()
+#else
+#define NRF_HAL_SD_IS_ENABLED() 0
+#endif
 #endif
 
 
@@ -92,8 +100,8 @@ void COMMON_RTC_IRQ_HANDLER(void)
 /* Function for fix errata 20: RTC Register values are invalid. */
 __STATIC_INLINE void errata_20(void)
 {
-#if defined(NRF52_ERRATA_20)
-    if (!softdevice_handler_is_enabled())
+#if defined(NRF52_PAN_20)
+    if (!NRF_HAL_SD_IS_ENABLED())
     {
         NRF_CLOCK->EVENTS_LFCLKSTARTED = 0;
         NRF_CLOCK->TASKS_LFCLKSTART    = 1;
