@@ -20,7 +20,7 @@
 #include "platform/FileHandle.h"
 
 namespace mbed {
-  
+
 class SerialWireOutput : public FileHandle {
 
 public:
@@ -71,7 +71,7 @@ public:
         return 0;
     }
 };
- 
+
 } // namespace mbed
 
 #endif
