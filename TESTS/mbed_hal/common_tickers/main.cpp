@@ -52,6 +52,7 @@ unsigned int ticker_overflow_delta;
 
 /* Auxiliary function to count ticker ticks elapsed during execution of N cycles of empty while loop.
  * Parameter <step> is used to disable compiler optimisation. */
+MBED_NOINLINE
 uint32_t count_ticks(uint32_t cycles, uint32_t step)
 {
     register uint32_t reg_cycles = cycles;
