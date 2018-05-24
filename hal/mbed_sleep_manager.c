@@ -34,13 +34,13 @@ static uint16_t deep_sleep_lock = 0U;
 static us_timestamp_t sleep_time = 0;
 static us_timestamp_t deep_sleep_time = 0;
 
-#if defined(MBED_CPU_STATS_ENABLED) && defined(DEVICE_LOWPOWERTIMER)
+#if defined(MBED_CPU_STATS_ENABLED) && defined(DEVICE_LPTICKER)
 static ticker_data_t *sleep_ticker = NULL;
 #endif
 
 static inline us_timestamp_t read_us(void)
 {
-#if defined(MBED_CPU_STATS_ENABLED) && defined(DEVICE_LOWPOWERTIMER)
+#if defined(MBED_CPU_STATS_ENABLED) && defined(DEVICE_LPTICKER)
     if (NULL == sleep_ticker) {
         sleep_ticker = (ticker_data_t *)get_lp_ticker_data();
     }
