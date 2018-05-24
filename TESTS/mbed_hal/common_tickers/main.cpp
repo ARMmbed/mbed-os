@@ -117,7 +117,7 @@ void ticker_event_handler_stub(const ticker_data_t * const ticker)
     }
 
     /* Indicate that ISR has been executed in interrupt context. */
-    if (IS_IRQ_MODE()) {
+    if (IsIrqMode()) {
         intFlag++;
     }
 }
