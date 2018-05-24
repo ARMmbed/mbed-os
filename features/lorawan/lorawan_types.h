@@ -192,7 +192,7 @@ typedef struct lorawan_connect {
  * TX_DONE              - When a packet is sent
  * TX_TIMEOUT,          - When stack was unable to send packet in TX window
  * TX_ERROR,            - A general TX error
- * TX_CRYPTO_ERROR,     - If MIC fails, or any other crypto relted error
+ * CRYPTO_ERROR,        - A crypto error indicating wrong keys
  * TX_SCHEDULING_ERROR, - When stack is unable to schedule packet
  * RX_DONE,             - When there is something to receive
  * RX_TIMEOUT,          - Not yet mapped
@@ -209,7 +209,8 @@ typedef enum lora_events {
     TX_DONE,
     TX_TIMEOUT,
     TX_ERROR,
-    TX_CRYPTO_ERROR,
+    CRYPTO_ERROR,
+    TX_CRYPTO_ERROR = CRYPTO_ERROR, //keeping this for backward compatibility
     TX_SCHEDULING_ERROR,
     RX_DONE,
     RX_TIMEOUT,

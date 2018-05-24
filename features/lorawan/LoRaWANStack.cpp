@@ -608,55 +608,59 @@ void LoRaWANStack::process_reception(const uint8_t* const payload, uint16_t size
         mlme_confirm_handler();
     }
 
-    if (_loramac.nwk_joined()) {
-        if (_loramac.get_mcps_confirmation()->req_type == MCPS_CONFIRMED) {
-            // if ack was not received, we will try retransmission after
-            // ACK_TIMEOUT. handle_data_frame() already disables ACK_TIMEOUT timer
-            // if ack was received. Otherwise, following method will be called in
-            // LoRaMac.cpp, on_ack_timeout_timer_event().
-            if (_loramac.get_mcps_indication()->is_ack_recvd) {
-                tr_debug("Ack=OK, NbTrials=%d", _loramac.get_mcps_confirmation()->nb_retries);
-                _loramac.post_process_mcps_req();
-                _ctrl_flags |= TX_DONE_FLAG;
-                _ctrl_flags &= ~TX_ONGOING_FLAG;
-                state_controller(DEVICE_STATE_STATUS_CHECK);
-            } else {
-                if (!_loramac.continue_sending_process()) {
-                    tr_error("Retries exhausted for Class A device");
-                    _ctrl_flags &= ~TX_DONE_FLAG;
-                    _ctrl_flags |= TX_ONGOING_FLAG;
-                    state_controller(DEVICE_STATE_STATUS_CHECK);
-                }
-            }
-        } else {
-            // handle UNCONFIRMED, PROPRIETARY case here, RX slots were turned off due to
-            // valid packet reception, so we generate a TX_DONE event
+    if (!_loramac.nwk_joined()) {
+        return;
+    }
+
+    // if the outgoing message was of CONFIRMED type
+    if (_loramac.get_mcps_confirmation()->req_type == MCPS_CONFIRMED) {
+        // if ack was not received, we will try retransmission after
+        // ACK_TIMEOUT. handle_data_frame() already disables ACK_TIMEOUT timer
+        // if ack was received. Otherwise, following method will be called in
+        // LoRaMac.cpp, on_ack_timeout_timer_event().
+        if (_loramac.get_mcps_indication()->is_ack_recvd) {
+            tr_debug("Ack=OK, NbTrials=%d",
+                     _loramac.get_mcps_confirmation()->nb_retries);
             _loramac.post_process_mcps_req();
             _ctrl_flags |= TX_DONE_FLAG;
+            _ctrl_flags &= ~TX_ONGOING_FLAG;
             state_controller(DEVICE_STATE_STATUS_CHECK);
+        } else {
+            if (!_loramac.continue_sending_process()) {
+                tr_error("Retries exhausted for Class A device");
+                _ctrl_flags &= ~TX_DONE_FLAG;
+                _ctrl_flags |= TX_ONGOING_FLAG;
+                state_controller(DEVICE_STATE_STATUS_CHECK);
+            }
         }
+    } else {
+        // handle UNCONFIRMED case here, RX slots were turned off due to
+        // valid packet reception
+        _loramac.post_process_mcps_req();
+        _ctrl_flags |= TX_DONE_FLAG;
+        state_controller(DEVICE_STATE_STATUS_CHECK);
+    }
 
-        // handle any pending MCPS indication
-        if (_loramac.get_mcps_indication()->pending) {
-            _loramac.post_process_mcps_ind();
-            _ctrl_flags |= MSG_RECVD_FLAG;
-            state_controller(DEVICE_STATE_STATUS_CHECK);
-        }
+    // handle any pending MCPS indication
+    if (_loramac.get_mcps_indication()->pending) {
+        _loramac.post_process_mcps_ind();
+        _ctrl_flags |= MSG_RECVD_FLAG;
+        state_controller(DEVICE_STATE_STATUS_CHECK);
+    }
 
-        // change the state only if a TX cycle completes for Class A
-        // For class C it's not needed as it will already be in receiving
-        // state, no matter if the TX cycle completed or not.
-        if (!(_ctrl_flags & TX_ONGOING_FLAG)) {
-            // we are done here, update the state
-              state_machine_run_to_completion();
-        }
+    // change the state only if a TX cycle completes for Class A
+    // For class C it's not needed as it will already be in receiving
+    // state, no matter if the TX cycle completed or not.
+    if (!(_ctrl_flags & TX_ONGOING_FLAG)) {
+        // we are done here, update the state
+        state_machine_run_to_completion();
+    }
 
-        if (_loramac.get_mlme_indication()->pending) {
-            tr_debug("MLME Indication pending");
-            _loramac.post_process_mlme_ind();
-            tr_debug("Automatic uplink requested");
-            mlme_indication_handler();
-        }
+    if (_loramac.get_mlme_indication()->pending) {
+        tr_debug("MLME Indication pending");
+        _loramac.post_process_mlme_ind();
+        tr_debug("Immediate Uplink requested");
+        mlme_indication_handler();
     }
 
     _ready_for_rx = true;
@@ -765,6 +769,7 @@ void LoRaWANStack::send_automatic_uplink_message(const uint8_t port)
 {
     const int16_t ret = handle_tx(port, NULL, 0, MSG_CONFIRMED_FLAG, true, true);
     if (ret < 0) {
+        tr_debug("Failed to generate AUTOMATIC UPLINK, error code = %d", ret);
         send_event_to_application(AUTOMATIC_UPLINK_ERROR);
     }
 }
@@ -871,8 +876,16 @@ void LoRaWANStack::mlme_confirm_handler()
             state_controller(DEVICE_STATE_CONNECTED);
         } else {
             tr_error("Joining error: %d", _loramac.get_mlme_confirmation()->status);
-            _device_current_state = DEVICE_STATE_AWAITING_JOIN_ACCEPT;
-            state_controller(DEVICE_STATE_JOINING);
+            if (_loramac.get_mlme_confirmation()->status == LORAMAC_EVENT_INFO_STATUS_CRYPTO_FAIL) {
+                // fatal error
+                _device_current_state = DEVICE_STATE_IDLE;
+                send_event_to_application(CRYPTO_ERROR);
+            } else {
+                // non-fatal, retry if possible
+                _device_current_state = DEVICE_STATE_AWAITING_JOIN_ACCEPT;
+                state_controller(DEVICE_STATE_JOINING);
+            }
+
         }
     }
 }

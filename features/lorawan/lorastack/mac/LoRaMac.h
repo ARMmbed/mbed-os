@@ -675,6 +675,8 @@ private:
 
     bool _is_nwk_joined;
 
+    bool _continuous_rx2_window_open;
+
     device_class_t _device_class;
 
 #if defined(LORAWAN_COMPLIANCE_TEST)
