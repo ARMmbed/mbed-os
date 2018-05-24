@@ -60,8 +60,8 @@ enum opcode {
 
 /* non-exhaustive command list */
 enum command {
-    DATAFLASH_COMMAND_WRITE_DISABLE        = 0x3D2A7F9A,
-    DATAFLASH_COMMAND_WRITE_ENABLE         = 0x3D2A7FA9,
+    DATAFLASH_COMMAND_WRITE_DISABLE        = 0x3D2A7FA9,
+    DATAFLASH_COMMAND_WRITE_ENABLE         = 0x3D2A7F9A,
     DATAFLASH_COMMAND_BINARY_PAGE_SIZE     = 0x3D2A80A6,
     DATAFLASH_COMMAND_DATAFLASH_PAGE_SIZE  = 0x3D2A80A7,
 };
@@ -525,20 +525,18 @@ void DataFlashBlockDevice::_write_enable(bool enable)
 
     /* enable writing, disable write protection */
     if (enable) {
+    /* if not-write-protected pin is connected, select it */
+        if (_nwp.is_connected()) {
+            _nwp = 1;
+        }
 
         /* send 4 byte command enabling writes */
         _write_command(DATAFLASH_COMMAND_WRITE_ENABLE, NULL, 0);
+    } else {
 
         /* if not-write-protected pin is connected, deselect it */
         if (_nwp.is_connected()) {
             _nwp = 0;
-        }
-
-    } else {
-
-        /* if not-write-protected pin is connected, select it */
-        if (_nwp.is_connected()) {
-            _nwp = 1;
         }
 
         /* send 4 byte command disabling writes */
