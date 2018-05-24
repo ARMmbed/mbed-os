@@ -54,6 +54,14 @@ extern "C" {
 
 #include "nrf_uart.h"
 
+#if defined(FEATURE_CRYPTOCELL310)
+#include "objects_cryptocell.h"
+#else
+struct trng_s {
+    uint32_t placeholder;
+};
+#endif
+
 struct serial_s {
     int                 instance;
     uint32_t            tx;
@@ -131,10 +139,6 @@ struct gpio_irq_s {
 };
 
 struct flash_s {
-    uint32_t placeholder;
-};
-
-struct trng_s {
     uint32_t placeholder;
 };
 

@@ -1,5 +1,6 @@
 BUILD
 cmsis
+features/cryptocell
 features/mbedtls
 features/FEATURE_LWIP/lwip
 rtos/TARGET_CORTEX/rtx4
