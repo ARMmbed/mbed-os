@@ -55,6 +55,11 @@ struct Sync {
 void error(const char* format, ...) {
     (void) format;
 }
+
+mbed_error_status_t mbed_error(mbed_error_status_t error_status, const char *error_msg, unsigned int error_value, const char *filename, int line_number) 
+{
+    return MBED_SUCCESS;
+}
 #endif
 
 

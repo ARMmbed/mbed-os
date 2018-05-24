@@ -19,6 +19,7 @@
 #include "rtx_evr.h"
 #include "mbed_rtx.h"
 #include "mbed_error.h"
+#include "mbed_interface.h"
 #include "RTX_Config.h"
 
 #ifdef RTE_Compiler_EventRecorder
@@ -46,31 +47,27 @@ __NO_RETURN uint32_t osRtxErrorNotify (uint32_t code, void *object_id)
       case osRtxErrorStackUnderflow:
         // Stack underflow detected for thread (thread_id=object_id)
         // Note: "overflow" is printed instead of "underflow" due to end user familiarity with overflow errors
-        error("CMSIS-RTOS error: Stack overflow (status: 0x%X, task ID: 0x%X, task name: %s)\n\r",
-                code, object_id, osThreadGetName(object_id));
+        MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_KERNEL, MBED_ERROR_CODE_STACK_OVERFLOW), "CMSIS-RTOS error: Stack overflow", code);
         break;
       case osRtxErrorISRQueueOverflow:
         // ISR Queue overflow detected when inserting object (object_id)
-        error("CMSIS-RTOS error: ISR Queue overflow (status: 0x%X, task ID: 0x%X, object ID: 0x%X)\n\r",
-                code, tid, object_id);
+        MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_KERNEL, MBED_ERROR_CODE_ISR_QUEUE_OVERFLOW), "CMSIS-RTOS error: ISR Queue overflow", code);
         break;
       case osRtxErrorTimerQueueOverflow:
         // User Timer Callback Queue overflow detected for timer (timer_id=object_id)
-        error("CMSIS-RTOS error: User Timer Callback Queue overflow (status: 0x%X, task ID: 0x%X, timer ID: 0x%X)\n\r",
-                code, tid, object_id);
+        MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_KERNEL, MBED_ERROR_CODE_TIMER_QUEUE_OVERFLOW), "CMSIS-RTOS error: User Timer Callback Queue overflow", code);
         break;
       case osRtxErrorClibSpace:
         // Standard C/C++ library libspace not available: increase OS_THREAD_LIBSPACE_NUM
-        error("CMSIS-RTOS error: STD C/C++ library libspace not available (status: 0x%X, task ID: 0x%X)\n\r",
-                code, tid);
+        MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_KERNEL, MBED_ERROR_CODE_CLIB_SPACE_UNAVAILABLE), "CMSIS-RTOS error: STD C/C++ library libspace not available", code);
         break;
       case osRtxErrorClibMutex:
         // Standard C/C++ library mutex initialization failed
-        error("CMSIS-RTOS error: STD C/C++ library mutex initialization failed (status: 0x%X, task ID: 0x%X)\n\r",
-                code, tid);
+        MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_KERNEL, MBED_ERROR_CODE_CLIB_MUTEX_INIT_FAILURE), "CMSIS-RTOS error: STD C/C++ library mutex initialization failed", code);
         break;
       default:
-        error("CMSIS-RTOS error: Unknown (status: 0x%X, task ID: 0x%X)\n\r", code, tid);
+        //Unknown error flagged from kernel  
+        MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_KERNEL, MBED_ERROR_CODE_UNKNOWN), "CMSIS-RTOS error: Unknown", code);
         break;
     }
 
@@ -102,27 +99,27 @@ static const char* error_msg(int32_t status)
 
 void EvrRtxKernelError (int32_t status)
 {
-    error("Kernel error %i: %s\r\n", status, error_msg(status));
+    MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_RTOS_EVENT), error_msg(status), status);
 }
 
 void EvrRtxThreadError (osThreadId_t thread_id, int32_t status)
 {
-    error("Thread %p error %i: %s\r\n", thread_id, status, error_msg(status));
+    MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_RTOS_THREAD_EVENT), error_msg(status), thread_id);
 }
 
 void EvrRtxTimerError (osTimerId_t timer_id, int32_t status)
 {
-    error("Timer %p error %i: %s\r\n", timer_id, status, error_msg(status));
+    MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_RTOS_TIMER_EVENT), error_msg(status), timer_id);
 }
 
 void EvrRtxEventFlagsError (osEventFlagsId_t ef_id, int32_t status)
 {
-    error("Event %p error %i: %s\r\n", ef_id, status, error_msg(status));
+    MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_RTOS_EVENT_FLAGS_EVENT), error_msg(status), ef_id);
 }
 
 void EvrRtxMutexError (osMutexId_t mutex_id, int32_t status)
 {
-    error("Mutex %p error %i: %s\r\n", mutex_id, status, error_msg(status));
+    MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_RTOS_MUTEX_EVENT), error_msg(status), mutex_id);
 }
 
 void EvrRtxSemaphoreError (osSemaphoreId_t semaphore_id, int32_t status)
@@ -132,17 +129,17 @@ void EvrRtxSemaphoreError (osSemaphoreId_t semaphore_id, int32_t status)
         return;
     }
 
-    error("Semaphore %p error %i\r\n", semaphore_id, status);
+    MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_RTOS_SEMAPHORE_EVENT), error_msg(status), semaphore_id);
 }
 
 void EvrRtxMemoryPoolError (osMemoryPoolId_t mp_id, int32_t status)
 {
-    error("Memory Pool %p error %i\r\n", mp_id, status);
+    MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_RTOS_MEMORY_POOL_EVENT), error_msg(status), mp_id);
 }
 
 void EvrRtxMessageQueueError (osMessageQueueId_t mq_id, int32_t status)
 {
-    error("Message Queue %p error %i\r\n", mq_id, status);
+    MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_RTOS_MESSAGE_QUEUE_EVENT), error_msg(status), mq_id);
 }
 
 #endif

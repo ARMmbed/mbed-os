@@ -51,6 +51,12 @@ Semaphore sync_sem(0, 1);
 void error(const char* format, ...) {
     (void) format;
 }
+
+//Override the set_error function to trap the errors 
+mbed_error_status_t mbed_error(mbed_error_status_t error_status, const char *error_msg, unsigned int error_value, const char *filename, int line_number) 
+{
+    return MBED_SUCCESS;
+}
 #endif
 
 template<uint32_t flags, uint32_t wait_ms>

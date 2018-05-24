@@ -69,7 +69,7 @@ public:
             sleep_manager_lock_deep_sleep();
         }
         if (0 == count) {
-            error("DeepSleepLock overflow (> USHRT_MAX)");
+            MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_OVERFLOW), "DeepSleepLock overflow (> USHRT_MAX)", count);
         }
     }
 
@@ -83,7 +83,7 @@ public:
         }
         if (count == USHRT_MAX) {
             core_util_critical_section_exit();
-            error("DeepSleepLock underflow (< 0)");
+            MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_UNDERFLOW), "DeepSleepLock underflow (< 0)", count);
         }
     }
 };

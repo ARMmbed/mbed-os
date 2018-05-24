@@ -29,7 +29,7 @@ Stream::Stream(const char *name) : FileLike(name), _file(NULL) {
     if (_file) {
         mbed_set_unbuffered_stream(_file);
     } else {
-        error("Stream obj failure, errno=%d\r\n", errno);
+        MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_OPEN_FAILED), "Stream obj failure", _file);
     }
 }
 
