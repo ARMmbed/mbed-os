@@ -58,6 +58,12 @@ using namespace events;
     #endif
 #endif
 
+/**
+ * Bit mask for message flags
+ */
+
+#define MSG_FLAG_MASK                         0x0F
+
 /*****************************************************************************
  * Constructor                                                               *
  ****************************************************************************/
@@ -286,10 +292,17 @@ int16_t LoRaWANStack::handle_tx(const uint8_t port, const uint8_t* data,
         return status;
     }
 
-    if (flags == 0 ||
-        (flags & MSG_FLAG_MASK) == (MSG_CONFIRMED_FLAG|MSG_UNCONFIRMED_FLAG)) {
-        tr_error("CONFIRMED and UNCONFIRMED are mutually exclusive for send()");
-        return LORAWAN_STATUS_PARAMETER_INVALID;
+    // All the flags mutually exclusive. In addition to that MSG_MULTICAST_FLAG cannot be
+    // used for uplink.
+    switch (flags & MSG_FLAG_MASK) {
+        case MSG_UNCONFIRMED_FLAG:
+        case MSG_CONFIRMED_FLAG:
+        case MSG_PROPRIETARY_FLAG:
+            break;
+
+        default:
+            tr_error("Invalid send flags");
+            return LORAWAN_STATUS_PARAMETER_INVALID;
     }
 
     int16_t len = _loramac.prepare_ongoing_tx(port, data, length, flags, _num_retry);
@@ -527,8 +540,8 @@ void LoRaWANStack::process_reception(const uint8_t* const payload, uint16_t size
                 state_controller(DEVICE_STATE_STATUS_CHECK);
             }
         } else {
-            // handle UNCONFIRMED case here, RX slots were turned off due to
-            // valid packet reception
+            // handle UNCONFIRMED, PROPRIETARY case here, RX slots were turned off due to
+            // valid packet reception, so we generate a TX_DONE event
             _loramac.post_process_mcps_req();
             _ctrl_flags |= TX_DONE_FLAG;
             state_controller(DEVICE_STATE_STATUS_CHECK);
