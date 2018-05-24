@@ -91,9 +91,9 @@
                      ]
                   },
                   {% if float_abi %}
-                  "-mfloat-abi=${value}" : {
-                     "type" : "command",
-                     "value" : "{{ float_abi }}"
+                  "arm.toolchain.gcc.cpp.linker.option.fpu.abi" : {
+                     "type" : "baseId",
+                     "value" : "arm.toolchain.gcc.c.linker.option.fpu.abi.{{ float_abi }}"
                   },
                   {% endif %}
                   "-T" : {
