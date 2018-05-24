@@ -31,3 +31,7 @@ align-reference=name
 # Attach { for classes and namespaces
 attach-namespaces
 attach-classes
+
+# Extend longer lines, define maximum 120 value. This results in aligned code,
+# otherwise the lines are broken and not consistent 
+max-continuation-indent=120
