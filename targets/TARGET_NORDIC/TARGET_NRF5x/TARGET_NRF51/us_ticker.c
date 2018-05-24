@@ -137,6 +137,9 @@ void us_ticker_clear_interrupt(void)
 
 void us_ticker_free(void)
 {
-    // A common counter is used for RTC, lp_ticker and us_ticker, so it can't be
-    // disabled here, but this does not cause any extra cost.
+    nrf_timer_task_trigger(NRF_TIMER1, NRF_TIMER_TASK_STOP);
+
+    nrf_timer_int_disable(NRF_TIMER1, nrf_timer_compare_int_get(NRF_TIMER_CC_CHANNEL0));
+
+    us_ticker_initialized = false;
 }
