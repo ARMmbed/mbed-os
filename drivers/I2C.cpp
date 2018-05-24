@@ -41,7 +41,8 @@ I2C::I2C(PinName sda, PinName scl) :
     _owner = this;
 }
 
-void I2C::frequency(int hz) {
+void I2C::frequency(int hz)
+{
     lock();
     _hz = hz;
 
@@ -53,7 +54,8 @@ void I2C::frequency(int hz) {
     unlock();
 }
 
-void I2C::aquire() {
+void I2C::aquire()
+{
     lock();
     if (_owner != this) {
         i2c_frequency(&_i2c, _hz);
@@ -63,7 +65,8 @@ void I2C::aquire() {
 }
 
 // write - Master Transmitter Mode
-int I2C::write(int address, const char* data, int length, bool repeated) {
+int I2C::write(int address, const char *data, int length, bool repeated)
+{
     lock();
     aquire();
 
@@ -74,7 +77,8 @@ int I2C::write(int address, const char* data, int length, bool repeated) {
     return length != written;
 }
 
-int I2C::write(int data) {
+int I2C::write(int data)
+{
     lock();
     int ret = i2c_byte_write(&_i2c, data);
     unlock();
@@ -82,7 +86,8 @@ int I2C::write(int data) {
 }
 
 // read - Master Receiver Mode
-int I2C::read(int address, char* data, int length, bool repeated) {
+int I2C::read(int address, char *data, int length, bool repeated)
+{
     lock();
     aquire();
 
@@ -93,7 +98,8 @@ int I2C::read(int address, char* data, int length, bool repeated) {
     return length != read;
 }
 
-int I2C::read(int ack) {
+int I2C::read(int ack)
+{
     lock();
     int ret;
     if (ack) {
@@ -105,29 +111,33 @@ int I2C::read(int ack) {
     return ret;
 }
 
-void I2C::start(void) {
+void I2C::start(void)
+{
     lock();
     i2c_start(&_i2c);
     unlock();
 }
 
-void I2C::stop(void) {
+void I2C::stop(void)
+{
     lock();
     i2c_stop(&_i2c);
     unlock();
 }
 
-void I2C::lock() {
+void I2C::lock()
+{
     _mutex->lock();
 }
 
-void I2C::unlock() {
+void I2C::unlock()
+{
     _mutex->unlock();
 }
 
 #if DEVICE_I2C_ASYNCH
 
-int I2C::transfer(int address, const char *tx_buffer, int tx_length, char *rx_buffer, int rx_length, const event_callback_t& callback, int event, bool repeated)
+int I2C::transfer(int address, const char *tx_buffer, int tx_length, char *rx_buffer, int rx_length, const event_callback_t &callback, int event, bool repeated)
 {
     lock();
     if (i2c_active(&_i2c)) {

@@ -86,7 +86,7 @@ public:
      *  @param sclk SPI Clock pin
      *  @param ssel SPI chip select pin
      */
-    SPI(PinName mosi, PinName miso, PinName sclk, PinName ssel=NC);
+    SPI(PinName mosi, PinName miso, PinName sclk, PinName ssel = NC);
 
     /** Configure the data transmission format
      *
@@ -157,7 +157,7 @@ public:
     /** Start non-blocking SPI transfer using 8bit buffers.
      *
      * This function locks the deep sleep until any event has occurred
-     * 
+     *
      * @param tx_buffer The TX buffer with data to be transfered. If NULL is passed,
      *                  the default SPI value is sent
      * @param tx_length The length of TX buffer in bytes
@@ -169,11 +169,12 @@ public:
      * @return Zero if the transfer has started, or -1 if SPI peripheral is busy
      */
     template<typename Type>
-    int transfer(const Type *tx_buffer, int tx_length, Type *rx_buffer, int rx_length, const event_callback_t& callback, int event = SPI_EVENT_COMPLETE) {
+    int transfer(const Type *tx_buffer, int tx_length, Type *rx_buffer, int rx_length, const event_callback_t &callback, int event = SPI_EVENT_COMPLETE)
+    {
         if (spi_active(&_spi)) {
-            return queue_transfer(tx_buffer, tx_length, rx_buffer, rx_length, sizeof(Type)*8, callback, event);
+            return queue_transfer(tx_buffer, tx_length, rx_buffer, rx_length, sizeof(Type) * 8, callback, event);
         }
-        start_transfer(tx_buffer, tx_length, rx_buffer, rx_length, sizeof(Type)*8, callback, event);
+        start_transfer(tx_buffer, tx_length, rx_buffer, rx_length, sizeof(Type) * 8, callback, event);
         return 0;
     }
 
@@ -215,7 +216,7 @@ protected:
      * @param event     The logical OR of events to modify
      * @return Zero if the transfer has started or was added to the queue, or -1 if SPI peripheral is busy/buffer is full
     */
-    int transfer(const void *tx_buffer, int tx_length, void *rx_buffer, int rx_length, unsigned char bit_width, const event_callback_t& callback, int event);
+    int transfer(const void *tx_buffer, int tx_length, void *rx_buffer, int rx_length, unsigned char bit_width, const event_callback_t &callback, int event);
 
     /**
      *
@@ -230,7 +231,7 @@ protected:
      * @param event     The logical OR of events to modify
      * @return Zero if a transfer was added to the queue, or -1 if the queue is full
     */
-    int queue_transfer(const void *tx_buffer, int tx_length, void *rx_buffer, int rx_length, unsigned char bit_width, const event_callback_t& callback, int event);
+    int queue_transfer(const void *tx_buffer, int tx_length, void *rx_buffer, int rx_length, unsigned char bit_width, const event_callback_t &callback, int event);
 
     /** Configures a callback, spi peripheral and initiate a new transfer
      *
@@ -244,7 +245,7 @@ protected:
      * @param callback  The event callback function
      * @param event     The logical OR of events to modify
     */
-    void start_transfer(const void *tx_buffer, int tx_length, void *rx_buffer, int rx_length, unsigned char bit_width, const event_callback_t& callback, int event);
+    void start_transfer(const void *tx_buffer, int tx_length, void *rx_buffer, int rx_length, unsigned char bit_width, const event_callback_t &callback, int event);
 
 private:
     /** Lock deep sleep only if it is not yet locked */
@@ -272,7 +273,8 @@ private:
 #endif
 
 public:
-    virtual ~SPI() {
+    virtual ~SPI()
+    {
     }
 
 protected:
