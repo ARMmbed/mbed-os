@@ -20,7 +20,7 @@
 #include "stdint.h"
 #include "platform/NonCopyable.h"
 
-#if (NVSTORE_ENABLED)
+#if (NVSTORE_ENABLED) || defined(DOXYGEN_ONLY)
 
 namespace mbed {
 /** \addtogroup drivers */
