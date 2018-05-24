@@ -43,47 +43,47 @@ __NO_RETURN void mbed_fault_handler (uint32_t fault_type, void *mbed_fault_conte
 {
     fault_print_init();
     fault_print_str("\r\n++ MbedOS Fault Handler ++\r\n\r\nFaultType: ",NULL);
-        
+
     switch( fault_type ) {
-      case HARD_FAULT_EXCEPTION: 
-        fault_print_str("HardFault",NULL); 
+      case HARD_FAULT_EXCEPTION:
+        fault_print_str("HardFault",NULL);
         break;
-      case MEMMANAGE_FAULT_EXCEPTION: 
-        fault_print_str("MemManageFault",NULL); 
+      case MEMMANAGE_FAULT_EXCEPTION:
+        fault_print_str("MemManageFault",NULL);
         break;
-      case BUS_FAULT_EXCEPTION: 
-        fault_print_str("BusFault",NULL); 
+      case BUS_FAULT_EXCEPTION:
+        fault_print_str("BusFault",NULL);
         break;
-      case USAGE_FAULT_EXCEPTION: 
-        fault_print_str("UsageFault",NULL); 
+      case USAGE_FAULT_EXCEPTION:
+        fault_print_str("UsageFault",NULL);
         break;
-      default: 
-        fault_print_str("Unknown Fault",NULL); 
+      default:
+        fault_print_str("Unknown Fault",NULL);
         break;
     }
     fault_print_str("\r\n\r\nContext:",NULL);
     print_context_info();
-        
+
     fault_print_str("\r\n\r\nThread Info:\r\nCurrent:",NULL);
     print_thread(((osRtxInfo_t *)osRtxInfoIn)->thread.run.curr);
-  
+
     fault_print_str("\r\nNext:",NULL);
     print_thread(((osRtxInfo_t *)osRtxInfoIn)->thread.run.next);
-    
+
     fault_print_str("\r\nWait Threads:",NULL);
     osRtxThread_t *threads = ((osRtxInfo_t *)osRtxInfoIn)->thread.wait_list;
     print_threads_info(threads);
-    
+
     fault_print_str("\r\nDelay Threads:",NULL);
     threads = ((osRtxInfo_t *)osRtxInfoIn)->thread.delay_list;
     print_threads_info(threads);
-    
+
     fault_print_str("\r\nIdle Thread:",NULL);
     threads = ((osRtxInfo_t *)osRtxInfoIn)->thread.idle;
     print_threads_info(threads);
-    
+
     fault_print_str("\r\n\r\n-- MbedOS Fault Handler --\r\n\r\n",NULL);
-        
+
     /* Just spin here, we have already crashed */
     for (;;) {}
 }
@@ -110,14 +110,14 @@ void print_context_info()
                      "\r\nxPSR : %"
                      "\r\nPSP  : %"
                      "\r\nMSP  : %", (uint32_t *)&mbed_fault_context);
-                       
+
     //Capture CPUID to get core/cpu info
     fault_print_str("\r\nCPUID: %",(uint32_t *)&SCB->CPUID);
-    
+
 #if !defined(TARGET_M0) && !defined(TARGET_M0P)
     //Capture fault information registers to infer the cause of exception
     uint32_t FSR[7] = {0};
-    
+
     FSR[0] = SCB->HFSR;
     //Split/Capture CFSR into MMFSR, BFSR, UFSR
     FSR[1] = 0xFF & SCB->CFSR;//MMFSR
@@ -133,7 +133,7 @@ void print_context_info()
                     "\r\nDFSR : %"
                     "\r\nAFSR : %"
                     "\r\nSHCSR: %",FSR);
-    
+
     //Print MMFAR only if its valid as indicated by MMFSR
     if(FSR[1] & 0x80) {
         fault_print_str("\r\nMMFAR: %",(uint32_t *)&SCB->MMFAR);
@@ -147,13 +147,13 @@ void print_context_info()
     if(mbed_fault_context.EXC_RETURN & 0x8) {
         fault_print_str("\r\nMode : Thread", NULL);
         //Print Priv level in Thread mode - We capture CONTROL reg which reflects the privilege.
-        //Note that the CONTROL register captured still reflects the privilege status of the 
+        //Note that the CONTROL register captured still reflects the privilege status of the
         //thread mode eventhough we are in Handler mode by the time we capture it.
         if(mbed_fault_context.CONTROL & 0x1) {
             fault_print_str("\r\nPriv : User", NULL);
         } else {
             fault_print_str("\r\nPriv : Privileged", NULL);
-        }        
+        }
     } else {
         fault_print_str("\r\nMode : Handler", NULL);
         fault_print_str("\r\nPriv : Privileged", NULL);
@@ -195,12 +195,12 @@ void fault_print_init()
     if (!stdio_uart_inited) {
         serial_init(&stdio_uart, STDIO_UART_TX, STDIO_UART_RX);
     }
-#endif    
+#endif
 }
 
-/* Limited print functionality which prints the string out to 
-stdout/uart without using stdlib by directly calling serial-api 
-and also uses less resources 
+/* Limited print functionality which prints the string out to
+stdout/uart without using stdlib by directly calling serial-api
+and also uses less resources
 The fmtstr contains the format string for printing and for every %
 found in that it fetches a uint32 value from values buffer
 and prints it in hex format.
@@ -212,7 +212,7 @@ void fault_print_str(char *fmtstr, uint32_t *values)
     int idx = 0;
     int vidx = 0;
     char hex_str[9]={0};
-        
+
     while(fmtstr[i] != '\0') {
         if(fmtstr[i]=='%') {
             hex_to_str(values[vidx++],hex_str);
@@ -227,7 +227,7 @@ void fault_print_str(char *fmtstr, uint32_t *values)
         }
         i++;
     }
-#endif    
+#endif
 }
 
 /* Converts a uint32 to hex char string */
@@ -235,10 +235,10 @@ void hex_to_str(uint32_t value, char *hex_str)
 {
     char hex_char_map[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
     int i = 0;
-    
+
     //Return without converting if hex_str is not provided
     if(hex_str == NULL) return;
-        
+
     for(i=7; i>=0; i--) {
         hex_str[i] = hex_char_map[(value & (0xf << (i * 4))) >> (i * 4)];
     }
