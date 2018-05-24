@@ -16,7 +16,6 @@ convert-tabs
 
 # Indent switches and cases
 indent-switches
-indent-cases
 
 # Remove spaces in and around parentheses
 unpad-paren
