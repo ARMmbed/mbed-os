@@ -38,11 +38,9 @@
 extern "C" {
 #if (IS_LEGACY_DEVICE_MANAGER_ENABLED)
     #include "pstorage.h"
-    #include "device_manager.h"
 #else
     #include "fstorage.h"
     #include "fds.h"
-    #include "peer_manager.h"
     #include "ble_conn_state.h"
 #endif
 
@@ -52,8 +50,8 @@ extern "C" {
 
 #include "nrf_ble_hci.h"
 
-#include "nRF5XPalGattClient.h"
-
+#include "nRF5xPalGattClient.h"
+#include "nRF5xPalSecurityManager.h"
 
 
 bool isEventsSignaled = false;
@@ -63,7 +61,7 @@ void            app_error_handler(uint32_t error_code, uint32_t line_num, const 
 extern "C" void SD_EVT_IRQHandler(void); // export the softdevice event handler for registration by nvic-set-vector.
 
 
-static void btle_handler(ble_evt_t *p_ble_evt);
+void btle_handler(ble_evt_t *p_ble_evt);
 
 static void sys_evt_dispatch(uint32_t sys_evt)
 {
@@ -145,9 +143,6 @@ error_t btle_init(void)
         return ERROR_INVALID_PARAM;
     }
 
-    // Peer Manger must been initialised prior any other call to its API (this file and btle_security_pm.cpp)
-    pm_init();
-
 #if  (NRF_SD_BLE_API_VERSION <= 2)
     ble_gap_addr_t addr;
     if (sd_ble_gap_address_get(&addr) != NRF_SUCCESS) {
@@ -157,9 +152,7 @@ error_t btle_init(void)
         return ERROR_INVALID_PARAM;
     }
 #else
-    ble_gap_privacy_params_t privacy_params = {0};
-    privacy_params.privacy_mode = BLE_GAP_PRIVACY_MODE_OFF;
-    pm_privacy_set(&privacy_params);
+
 #endif
 
     ASSERT_STATUS( softdevice_ble_evt_handler_set(btle_handler));
@@ -168,9 +161,10 @@ error_t btle_init(void)
     return btle_gap_init();
 }
 
-static void btle_handler(ble_evt_t *p_ble_evt)
+void btle_handler(ble_evt_t *p_ble_evt)
 {
-    using ble::pal::vendor::nordic::nRF5XGattClient;
+    using ble::pal::vendor::nordic::nRF5xGattClient;
+    using ble::pal::vendor::nordic::nRF5xSecurityManager;
 
     /* Library service handlers */
 #if SDK_CONN_PARAMS_MODULE_ENABLE
@@ -178,59 +172,29 @@ static void btle_handler(ble_evt_t *p_ble_evt)
 #endif
 
 #if (IS_LEGACY_DEVICE_MANAGER_ENABLED)
-    dm_ble_evt_handler(p_ble_evt);
 #else
     // Forward BLE events to the Connection State module.
     // This must be called before any event handler that uses this module.
     ble_conn_state_on_ble_evt(p_ble_evt);
-
-    // Forward BLE events to the Peer Manager
-    pm_on_ble_evt(p_ble_evt);
 #endif
 
 #if !defined(TARGET_MCU_NRF51_16K_S110) && !defined(TARGET_MCU_NRF51_32K_S110)
-    nRF5XGattClient::handle_events(p_ble_evt);
+    nRF5xGattClient::handle_events(p_ble_evt);
 #endif
 
     nRF5xn               &ble             = nRF5xn::Instance(BLE::DEFAULT_INSTANCE);
     nRF5xGap             &gap             = (nRF5xGap &) ble.getGap();
     nRF5xGattServer      &gattServer      = (nRF5xGattServer &) ble.getGattServer();
-    nRF5xSecurityManager &securityManager = (nRF5xSecurityManager &) ble.getSecurityManager();
+    nRF5xSecurityManager &securityManager = nRF5xSecurityManager::get_security_manager();
 
     /* Custom event handler */
     switch (p_ble_evt->header.evt_id) {
-        case BLE_GAP_EVT_CONNECTED: {
-            Gap::Handle_t handle = p_ble_evt->evt.gap_evt.conn_handle;
-#if defined(TARGET_MCU_NRF51_16K_S110) || defined(TARGET_MCU_NRF51_32K_S110)
-            /* Only peripheral role is supported by S110 */
-            Gap::Role_t role = Gap::PERIPHERAL;
-#else
-            Gap::Role_t role = static_cast<Gap::Role_t>(p_ble_evt->evt.gap_evt.params.connected.role);
-#endif
-            gap.setConnectionHandle(handle);
-            const Gap::ConnectionParams_t *params = reinterpret_cast<Gap::ConnectionParams_t *>(&(p_ble_evt->evt.gap_evt.params.connected.conn_params));
-            const ble_gap_addr_t *peer = &p_ble_evt->evt.gap_evt.params.connected.peer_addr;
-#if  (NRF_SD_BLE_API_VERSION <= 2)
-            const ble_gap_addr_t *own  = &p_ble_evt->evt.gap_evt.params.connected.own_addr;
-
-            gap.processConnectionEvent(handle,
-                                       role,
-                                       static_cast<BLEProtocol::AddressType_t>(peer->addr_type), peer->addr,
-                                       static_cast<BLEProtocol::AddressType_t>(own->addr_type),  own->addr,
-                                       params);
-#else
-            Gap::AddressType_t addr_type;
-            Gap::Address_t     own_address;
-            gap.getAddress(&addr_type, own_address);
-
-            gap.processConnectionEvent(handle,
-                                       role,
-                                       static_cast<BLEProtocol::AddressType_t>(peer->addr_type), peer->addr,
-                                       addr_type,  own_address,
-                                       params);
-#endif
+        case BLE_GAP_EVT_CONNECTED:
+            gap.on_connection(
+                p_ble_evt->evt.gap_evt.conn_handle,
+                p_ble_evt->evt.gap_evt.params.connected
+            );
             break;
-        }
 
         case BLE_GAP_EVT_DISCONNECTED: {
             Gap::Handle_t handle = p_ble_evt->evt.gap_evt.conn_handle;
@@ -258,16 +222,12 @@ static void btle_handler(ble_evt_t *p_ble_evt)
 
 #if !defined(TARGET_MCU_NRF51_16K_S110) && !defined(TARGET_MCU_NRF51_32K_S110)
             // Close all pending discoveries for this connection
-            nRF5XGattClient::handle_connection_termination(handle);
+            nRF5xGattClient::handle_connection_termination(handle);
 #endif
 
             gap.processDisconnectionEvent(handle, reason);
             break;
         }
-
-        case BLE_GAP_EVT_PASSKEY_DISPLAY:
-            securityManager.processPasskeyDisplayEvent(p_ble_evt->evt.gap_evt.conn_handle, p_ble_evt->evt.gap_evt.params.passkey_display.passkey);
-            break;
 
         case BLE_GAP_EVT_TIMEOUT:
             gap.processTimeoutEvent(static_cast<Gap::TimeoutSource_t>(p_ble_evt->evt.gap_evt.params.timeout.src));
@@ -280,21 +240,16 @@ static void btle_handler(ble_evt_t *p_ble_evt)
             // BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION));
             break;
 
-        case BLE_GAP_EVT_ADV_REPORT: {
-            const ble_gap_evt_adv_report_t *advReport = &p_ble_evt->evt.gap_evt.params.adv_report;
-            gap.processAdvertisementReport(advReport->peer_addr.addr,
-                                           advReport->rssi,
-                                           advReport->scan_rsp,
-                                           static_cast<GapAdvertisingParams::AdvertisingType_t>(advReport->type),
-                                           advReport->dlen,
-                                           advReport->data,
-                                           static_cast<BLEProtocol::AddressType_t>(advReport->peer_addr.addr_type));
+        case BLE_GAP_EVT_ADV_REPORT:
+            gap.on_advertising_packet(p_ble_evt->evt.gap_evt.params.adv_report);
             break;
-        }
 
         default:
             break;
     }
+
+    // Process security manager events
+    securityManager.sm_handler(p_ble_evt);
 
     gattServer.hwCallback(p_ble_evt);
 }

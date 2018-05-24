@@ -308,6 +308,18 @@ public:
         return BLE_ERROR_NONE;
     }
 
+    virtual bool is_privacy_supported() {
+        // We only support controller-based privacy, so return whether the controller supports it
+        return HciLlPrivacySupported();
+    }
+    
+    virtual ble_error_t set_address_resolution(
+        bool enable
+    ) {
+        DmPrivSetAddrResEnable(enable);
+        return BLE_ERROR_NONE;
+    }
+
     // singleton of the ARM Cordio client
     static Gap& get_gap() {
         static Gap _gap;
@@ -381,11 +393,13 @@ private:
                 // note the usage of the stack handle, not the HCI handle
                 conn_evt->hdr.param,
                 (connection_role_t::type) conn_evt->role,
-                (advertising_peer_address_type_t::type) conn_evt->addrType,
+                (peer_address_type_t::type) conn_evt->addrType,
                 conn_evt->peerAddr,
                 conn_evt->connInterval,
                 conn_evt->connLatency,
-                conn_evt->supTimeout
+                conn_evt->supTimeout,
+                conn_evt->localRpa,
+                conn_evt->peerRpa
             );
         }
     };

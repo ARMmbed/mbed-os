@@ -44,6 +44,7 @@
 #include "ble/GapAdvertisingData.h"
 #include "ble/Gap.h"
 #include "ble/GapScanningParams.h"
+#include "ble/pal/ConnectionEventMonitor.h"
 
 #include "nrf_soc.h"
 
@@ -51,8 +52,6 @@ extern "C" {
 #include "ble_radio_notification.h"
 #include "app_util_platform.h"
 }
-
-#include "btle_security.h"
 
 void radioNotificationStaticCallback(bool param);
 
@@ -62,9 +61,12 @@ void radioNotificationStaticCallback(bool param);
 
 */
 /**************************************************************************/
-class nRF5xGap : public Gap
-{
+class nRF5xGap : public ::Gap, public ble::pal::ConnectionEventMonitor {
 public:
+    nRF5xGap();
+
+    virtual ~nRF5xGap() { }
+
     /* Functions that must be implemented from Gap */
     virtual ble_error_t setAddress(AddressType_t  type,  const Address_t address);
     virtual ble_error_t getAddress(AddressType_t *typeP, Address_t address);
@@ -76,7 +78,9 @@ public:
 
     virtual ble_error_t startAdvertising(const GapAdvertisingParams &);
     virtual ble_error_t stopAdvertising(void);
+    virtual ble_error_t connect(const Address_t, ble::peer_address_type_t peerAddrType, const ConnectionParams_t *connectionParams, const GapScanningParams *scanParams);
     virtual ble_error_t connect(const Address_t, BLEProtocol::AddressType_t peerAddrType, const ConnectionParams_t *connectionParams, const GapScanningParams *scanParams);
+            ble_error_t connect(const Address_t, BLEProtocol::AddressType_t peerAddrType, const ConnectionParams_t *connectionParams, const GapScanningParams *scanParams, bool identity);
     virtual ble_error_t disconnect(Handle_t connectionHandle, DisconnectionReason_t reason);
     virtual ble_error_t disconnect(DisconnectionReason_t reason);
 
@@ -120,6 +124,24 @@ public:
         return BLE_ERROR_UNSPECIFIED;
     }
 
+    virtual ble_error_t enablePrivacy(bool enable);
+
+    virtual ble_error_t setPeripheralPrivacyConfiguration(
+        const PeripheralPrivacyConfiguration_t *configuration
+    );
+
+    virtual ble_error_t getPeripheralPrivacyConfiguration(
+        PeripheralPrivacyConfiguration_t *configuration
+    );
+
+    virtual ble_error_t setCentralPrivacyConfiguration(
+        const CentralPrivacyConfiguration_t *configuration
+    );
+
+    virtual ble_error_t getCentralPrivacyConfiguration(
+        CentralPrivacyConfiguration_t *configuration
+    );
+
 /* Observer role is not supported by S110, return BLE_ERROR_NOT_IMPLEMENTED */
 #if !defined(TARGET_MCU_NRF51_16K_S110) && !defined(TARGET_MCU_NRF51_32K_S110)
     virtual ble_error_t startRadioScan(const GapScanningParams &scanningParams);
@@ -138,39 +160,6 @@ private:
     /* Internal representation of a whitelist */
     uint8_t         whitelistAddressesSize;
     ble_gap_addr_t  whitelistAddresses[YOTTA_CFG_WHITELIST_MAX_SIZE];
-
-#if  (NRF_SD_BLE_API_VERSION <= 2)
-    /*
-     * An internal function used to populate the ble_gap_whitelist_t that will be used by
-     * the SoftDevice for filtering requests. This function is needed because for the BLE
-     * API the whitelist is just a collection of keys, but for the stack it also includes
-     * the IRK table.
-     */
-    ble_error_t generateStackWhitelist(ble_gap_whitelist_t &whitelist);
-#endif
-    
-#if  (NRF_SD_BLE_API_VERSION >= 3)
-    /* internal type for passing a whitelist and a identities list. */
-    typedef struct
-    {
-        ble_gap_addr_t addrs[YOTTA_CFG_WHITELIST_MAX_SIZE];
-        uint32_t addrs_cnt;
-        
-        ble_gap_id_key_t identities[YOTTA_CFG_IRK_TABLE_MAX_SIZE];
-        uint32_t identities_cnt;
-    } GapWhiteAndIdentityList_t;
-    
-    /* Function for preparing setting of the whitelist feature and the identity-resolving feature (privacy).*/
-    ble_error_t getStackWhiteIdentityList(GapWhiteAndIdentityList_t &whiteAndIdentityList);
-
-    /* Function for applying setting of the whitelist feature and identity-resolving feature (privacy).*/
-    ble_error_t applyWhiteIdentityList(GapWhiteAndIdentityList_t &whiteAndIdentityList);
-
-    /* Function for introducing whitelist feature and the identity-resolving feature setting into SoftDevice.
-     *
-     * This function incorporates getStackWhiteIdentityList and applyWhiteIdentityList together. */
-    ble_error_t updateWhiteAndIdentityListInStack(void);
-#endif
 
 private:
     bool    radioNotificationCallbackParam; /* parameter to be passed into the Timeout-generated radio notification callback. */
@@ -254,20 +243,42 @@ private:
     }
     friend void radioNotificationStaticCallback(bool param); /* allow invocations of processRadioNotificationEvent() */
 
+public:
+    /** @note Implements ConnectionEventMonitor.
+     *  @copydoc ConnectionEventMonitor::set_connection_event_handler
+     */
+    virtual void set_connection_event_handler(
+        ConnectionEventMonitor::EventHandler* connection_event_handler
+    );
+
+    /**
+     * @copydoc ::Gap::processDisconnectionEvent
+     */
+    void processDisconnectionEvent(
+        Handle_t handle,
+        DisconnectionReason_t reason
+    );
+
 private:
+    friend void btle_handler(ble_evt_t *p_ble_evt);
+
+    void on_connection(Handle_t handle, const ble_gap_evt_connected_t& evt);
+    void on_advertising_packet(const ble_gap_evt_adv_report_t &evt);
+
     uint16_t m_connectionHandle;
+
+    ConnectionEventMonitor::EventHandler* _connection_event_handler;
+
+    bool _privacy_enabled;
+    PeripheralPrivacyConfiguration_t _peripheral_privacy_configuration;
+    CentralPrivacyConfiguration_t _central_privacy_configuration;
+    AddressType_t _non_private_address_type;
+    Address_t _non_private_address;
 
     /*
      * Allow instantiation from nRF5xn when required.
      */
     friend class nRF5xn;
-
-    nRF5xGap() :
-        advertisingPolicyMode(Gap::ADV_POLICY_IGNORE_WHITELIST),
-        scanningPolicyMode(Gap::SCAN_POLICY_IGNORE_WHITELIST),
-        whitelistAddressesSize(0) {
-        m_connectionHandle = BLE_CONN_HANDLE_INVALID;
-    }
 
     nRF5xGap(nRF5xGap const &);
     void operator=(nRF5xGap const &);

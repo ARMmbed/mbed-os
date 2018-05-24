@@ -21,10 +21,13 @@
 #include "ble/blecommon.h"
 #include "ble/BLEInstanceBase.h"
 #include "ble/generic/GenericGattClient.h"
+#include "ble/generic/GenericSecurityManager.h"
+#include "ble/pal/SimpleEventQueue.h"
+#include "nRF5xPalSecurityManager.h"
+
 
 #include "nRF5xGap.h"
 #include "nRF5xGattServer.h"
-#include "nRF5xSecurityManager.h"
 
 #include "btle.h"
 
@@ -82,18 +85,14 @@ public:
     }
 
     /**
-     * Accessors to Security Manager. This function checks whether a SecurityManager
-     * object was previously instantiated. If such object does not exist, then
-     * it is created before returning.
-     *
-     * @return  A reference to GattServer.
+     * @see BLEInstanceBase::getSecurityManager
      */
-    virtual nRF5xSecurityManager &getSecurityManager() {
-        if (securityManagerInstance == NULL) {
-            securityManagerInstance = new nRF5xSecurityManager();
-        }
-        return *securityManagerInstance;
-    }
+    virtual SecurityManager &getSecurityManager();
+
+    /**
+     * @see BLEInstanceBase::getSecurityManager
+     */
+    virtual const SecurityManager &getSecurityManager() const;
 
     /**
      * Accessors to GAP. This function checks whether gapInstance points to an
@@ -130,23 +129,6 @@ public:
         return *gattServerInstance;
     };
 
-    /**
-     * Accessors to Security Manager. This function checks whether a SecurityManager
-     * object was previously instantiated. If such object does not exist, then
-     * it is created before returning.
-     *
-     * @return  A const reference to GattServer.
-     *
-     * @note  The accessor is able to modify the object's state because the
-     *        internal pointer has been declared mutable.
-     */
-    virtual const nRF5xSecurityManager &getSecurityManager() const {
-        if (securityManagerInstance == NULL) {
-            securityManagerInstance = new nRF5xSecurityManager();
-        }
-        return *securityManagerInstance;
-    }
-
     virtual void waitForEvent(void);
 
     virtual void processEvents();
@@ -170,10 +152,7 @@ private:
                                                             *   it can be assigned inside a 'const' function. */
     ble::generic::GenericGattClient gattClient;
 
-    mutable nRF5xSecurityManager *securityManagerInstance; /**< Pointer to the SecurityManager object instance.
-                                                            *   If NULL, then SecurityManager has not been initialized.
-                                                            *   The pointer has been declared as 'mutable' so that
-                                                            *   it can be assigned inside a 'const' function. */
+    
 };
 
 #endif

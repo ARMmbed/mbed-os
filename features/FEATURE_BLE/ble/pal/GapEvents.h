@@ -140,7 +140,6 @@ struct GapConnectionCompleteEvent : public GapEvent {
      * @param supervision_timeout Supervision timeout of the connection. It
      * shall be in the range [0x000A : 0x0C80] where a unit represent 10ms.
      *
-     * @note: See Bluetooth 5 Vol 2 PartE: 7.7.65.1 LE Connection Complete Event
      * @note: See Bluetooth 5 Vol 2 PartE: 7.7.65.10 LE Enhanced Connection
      * Complete Event
      */
@@ -158,12 +157,78 @@ struct GapConnectionCompleteEvent : public GapEvent {
         status(status),
         connection_handle(connection_handle),
         role(role),
+        peer_address_type(
+            peer_address_type == advertising_peer_address_type_t::PUBLIC_ADDRESS ?
+                peer_address_type_t::PUBLIC :
+                peer_address_type_t::RANDOM
+        ),
+        peer_address(peer_address),
+        connection_interval(connection_interval),
+        connection_latency(connection_latency),
+        supervision_timeout(supervision_timeout),
+        local_resolvable_private_address(),
+        peer_resolvable_private_address() {
+    }
+
+    /**
+     * Construct a new GapConnectionCompleteEvent.
+     *
+     * @param status Status of the operation: 0x00 in case of success otherwise
+     * the error code associated with the failure.
+     *
+     * @param connection_handle handle of the connection created. This handle
+     * will be used to address the connection in any connection oriented
+     * operation.
+     *
+     * @param role Role of the LE subsystem in the connection.
+     *
+     * @param address_type Type of address used by the peer for this connection.
+     *
+     * @param address Address of the peer used to establish the connection.
+     *
+     * @param connection_interval Connection interval used on this connection.
+     * It shall be in a range [0x0006 : 0x0C80]. A unit is equal to 1.25ms.
+     *
+     * @param connection_latency Number of connection events the slave can
+     * drop.
+     *
+     * @param supervision_timeout Supervision timeout of the connection. It
+     * shall be in the range [0x000A : 0x0C80] where a unit represent 10ms.
+     *
+     * @param local_resolvable_private_address Resolvable private address used
+     * by the local device to establish the connection.
+     *
+     * @param peer_resolvable_private_address Resolvable private address used
+     * by the peer to establish the connection.
+     *
+     * @note: See Bluetooth 5 Vol 2 PartE: 7.7.65.10 LE Enhanced Connection
+     * Complete Event
+     */
+    GapConnectionCompleteEvent(
+        uint8_t status,
+        connection_handle_t connection_handle,
+        connection_role_t role,
+        peer_address_type_t peer_address_type,
+        const address_t& peer_address,
+        uint16_t connection_interval,
+        uint16_t connection_latency,
+        uint16_t supervision_timeout,
+        const address_t& local_resolvable_private_address,
+        const address_t& peer_resolvable_private_address
+    ) :
+        GapEvent(GapEventType::CONNECTION_COMPLETE),
+        status(status),
+        connection_handle(connection_handle),
+        role(role),
         peer_address_type(peer_address_type),
         peer_address(peer_address),
         connection_interval(connection_interval),
         connection_latency(connection_latency),
-        supervision_timeout(supervision_timeout) {
+        supervision_timeout(supervision_timeout),
+        local_resolvable_private_address(local_resolvable_private_address),
+        peer_resolvable_private_address(peer_resolvable_private_address) {
     }
+
 
     /*
      * @param status Indicate if the connection succesfully completed or not:
@@ -188,7 +253,7 @@ struct GapConnectionCompleteEvent : public GapEvent {
     /**
      * Peer address type.
      */
-    const advertising_peer_address_type_t peer_address_type;
+    const peer_address_type_t peer_address_type;
 
     /**
      * Peer address.
@@ -211,6 +276,18 @@ struct GapConnectionCompleteEvent : public GapEvent {
      * It shall be in the range [0x000A : 0x0C80] where a unit represent 10ms.
      */
     const uint16_t supervision_timeout;
+
+    /**
+     * Resolvable private address of the local device.
+     * Set to all 0 if not available.
+     */
+    const address_t local_resolvable_private_address;
+
+    /**
+     * Resolvable private address of the peer.
+     * Set to all 0 if not available.     *
+     */
+    const address_t peer_resolvable_private_address;
 };
 
 

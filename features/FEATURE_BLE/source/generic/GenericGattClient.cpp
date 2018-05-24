@@ -21,6 +21,8 @@
 #include <ble/DiscoveredCharacteristic.h>
 #include "ble/generic/GenericGattClient.h"
 #include "ble/blecommon.h"
+#include "ble/BLEInstanceBase.h"
+#include "ble/generic/GenericSecurityManager.h"
 #include <algorithm>
 
 using ble::pal::AttServerMessage;
@@ -37,6 +39,11 @@ using ble::pal::AttExecuteWriteResponse;
 using ble::pal::AttHandleValueIndication;
 using ble::pal::AttHandleValueNotification;
 using ble::pal::AttFindInformationResponse;
+
+#define PREPARE_WRITE_HEADER_LENGTH 5
+#define WRITE_HEADER_LENGTH 3
+#define CMAC_LENGTH 8
+#define MAC_COUNTER_LENGTH 4
 
 namespace ble {
 namespace generic {
@@ -930,6 +937,7 @@ struct GenericGattClient::DescriptorDiscoveryControlBlock : public ProcedureCont
 GenericGattClient::GenericGattClient(pal::GattClient* pal_client) :
 	_pal_client(pal_client),
 	_termination_callback(),
+	_signing_event_handler(NULL),
 	 control_blocks(NULL),
 	_is_reseting(false) {
 	_pal_client->when_server_message_received(
@@ -1075,67 +1083,94 @@ ble_error_t GenericGattClient::write(
 		return BLE_ERROR_INVALID_STATE;
 	}
 
-	uint16_t mtu = get_mtu(connection_handle);
+    uint16_t mtu = get_mtu(connection_handle);
 
-	if (cmd == GattClient::GATT_OP_WRITE_CMD) {
-		if (length > (uint16_t)(mtu - 3)) {
-			return BLE_ERROR_PARAM_OUT_OF_RANGE;
-		}
-		return _pal_client->write_without_response(
-			connection_handle,
-			attribute_handle,
-			make_const_ArrayView(value, length)
-		);
-	} else {
-		uint8_t* data = NULL;
+    /* if link is encrypted signed writes should be normal writes */
+    if (cmd == GattClient::GATT_OP_SIGNED_WRITE_CMD) {
+        ble::link_encryption_t encryption(ble::link_encryption_t::NOT_ENCRYPTED);
+        SecurityManager &sm = createBLEInstance()->getSecurityManager();
+        ble_error_t status = sm.getLinkEncryption(connection_handle, &encryption);
+        if (status == BLE_ERROR_NONE &&
+            (encryption == link_encryption_t::ENCRYPTED ||
+             encryption == link_encryption_t::ENCRYPTED_WITH_MITM ||
+             encryption == link_encryption_t::ENCRYPTED_WITH_SC_AND_MITM)
+        ) {
+            cmd = GattClient::GATT_OP_WRITE_CMD;
+        }
+    }
 
-		if (length > (uint16_t)(mtu - 3)) {
-			data = (uint8_t*) malloc(length);
-			if (data == NULL) {
-				return BLE_ERROR_NO_MEM;
-			}
-			memcpy(data, value, length);
-		}
+    if (cmd == GattClient::GATT_OP_WRITE_CMD) {
+        if (length > (uint16_t) (mtu - WRITE_HEADER_LENGTH)) {
+            return BLE_ERROR_PARAM_OUT_OF_RANGE;
+        }
+        return _pal_client->write_without_response(
+            connection_handle,
+            attribute_handle,
+            make_const_ArrayView(value, length)
+        );
+    } else if (cmd == GattClient::GATT_OP_SIGNED_WRITE_CMD) {
+        if (length > (uint16_t) (mtu - WRITE_HEADER_LENGTH - CMAC_LENGTH - MAC_COUNTER_LENGTH)) {
+            return BLE_ERROR_PARAM_OUT_OF_RANGE;
+        }
+        ble_error_t status = _pal_client->signed_write_without_response(
+            connection_handle,
+            attribute_handle,
+            make_const_ArrayView(value, length)
+        );
+        if (_signing_event_handler && (status == BLE_ERROR_NONE)) {
+            _signing_event_handler->on_signed_write();
+        }
+        return status;
+    } else {
+        uint8_t* data = NULL;
 
-		WriteControlBlock* write_pcb = new(std::nothrow) WriteControlBlock(
-			connection_handle,
-			attribute_handle,
-			data,
-			length
-		);
+        if (length > (uint16_t) (mtu - WRITE_HEADER_LENGTH)) {
+            data = (uint8_t*) malloc(length);
+            if (data == NULL) {
+                return BLE_ERROR_NO_MEM;
+            }
+            memcpy(data, value, length);
+        }
 
-		if (write_pcb == NULL) {
-			free(data);
-			return BLE_ERROR_NO_MEM;
-		}
+        WriteControlBlock* write_pcb = new (std::nothrow) WriteControlBlock(
+            connection_handle,
+            attribute_handle,
+            data,
+            length
+        );
 
-		insert_control_block(write_pcb);
+        if (write_pcb == NULL) {
+            free(data);
+            return BLE_ERROR_NO_MEM;
+        }
 
-		ble_error_t err = BLE_ERROR_UNSPECIFIED;
-		if (data) {
-			err = _pal_client->queue_prepare_write(
-				connection_handle,
-				attribute_handle,
-				make_const_ArrayView(value, mtu - 5),
-				/* offset */ 0
-			);
-		} else {
-			err = _pal_client->write_attribute(
-				connection_handle,
-				attribute_handle,
-				make_const_ArrayView(value, length)
-			);
-		}
+        insert_control_block(write_pcb);
 
-		if (err) {
-			remove_control_block(write_pcb);
-			delete write_pcb;
-		}
+        ble_error_t err = BLE_ERROR_UNSPECIFIED;
+        if (data) {
+            err = _pal_client->queue_prepare_write(
+                connection_handle,
+                attribute_handle,
+                make_const_ArrayView(value, mtu - PREPARE_WRITE_HEADER_LENGTH),
+                /* offset */0
+            );
+        } else {
+            err = _pal_client->write_attribute(
+                connection_handle,
+                attribute_handle,
+                make_const_ArrayView(value, length)
+            );
+        }
 
-		return err;
-	}
+        if (err) {
+            remove_control_block(write_pcb);
+            delete write_pcb;
+        }
 
-	return BLE_ERROR_NOT_IMPLEMENTED;
+        return err;
+    }
+
+    return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
 void GenericGattClient::onServiceDiscoveryTermination(
@@ -1236,6 +1271,12 @@ ble_error_t GenericGattClient::reset(void) {
 	_is_reseting = false;
 
 	return BLE_ERROR_NONE;
+}
+
+void GenericGattClient::set_signing_event_handler(
+    EventHandler *signing_event_handler
+) {
+    _signing_event_handler = signing_event_handler;
 }
 
 void GenericGattClient::on_termination(Gap::Handle_t connection_handle) {

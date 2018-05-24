@@ -23,6 +23,7 @@
 #include "ble/BLEProtocol.h"
 #include "ble/Gap.h"
 #include "ble/pal/PalGap.h"
+#include "ble/pal/PalSecurityManager.h"
 #include "ble/pal/GapEvents.h"
 #include "ble/pal/GapTypes.h"
 #include "ble/BLETypes.h"
@@ -55,11 +56,15 @@ public:
      *
      * @param generic_access_service Platform abstraction instance managing
      * the GATT generic access service.
+     * 
+     * @param pal_sm Security Manager Platform abstraction instance containing the base
+     * Security Manager primitives.
      */
     GenericGap(
         pal::EventQueue &event_queue,
         pal::Gap &pal_gap,
-        pal::GenericAccessService &generic_access_service
+        pal::GenericAccessService &generic_access_service,
+        pal::SecurityManager &pal_sm
     );
 
     /**
@@ -107,6 +112,16 @@ public:
      * @see Gap::stopScan
      */
     virtual ble_error_t stopScan();
+
+    /**
+     * @see Gap::connect
+     */
+    virtual ble_error_t connect(
+        const BLEProtocol::AddressBytes_t peerAddr,
+        PeerAddressType_t peerAddrType,
+        const ConnectionParams_t *connectionParams,
+        const GapScanningParams *scanParams
+    );
 
     /**
      * @see Gap::connect
@@ -234,6 +249,39 @@ public:
     virtual ble_error_t initRadioNotification(void);
 
     /**
+     * @see Gap::enablePrivacy
+     */
+    virtual ble_error_t enablePrivacy(bool enable);
+
+    /**
+     * @see Gap::setPeripheralPrivacyConfiguration
+     */
+    virtual ble_error_t setPeripheralPrivacyConfiguration(
+        const PeripheralPrivacyConfiguration_t *configuration
+    );
+
+    /**
+     * @see Gap::getPeripheralPrivacyConfiguration
+     */
+    virtual ble_error_t getPeripheralPrivacyConfiguration(
+        PeripheralPrivacyConfiguration_t *configuration
+    );
+
+    /**
+     * @see Gap::setCentralPrivacyConfiguration
+     */
+    virtual ble_error_t setCentralPrivacyConfiguration(
+        const CentralPrivacyConfiguration_t *configuration
+    );
+
+    /**
+     * @see Gap::getCentralPrivacyConfiguration
+     */
+    virtual ble_error_t getCentralPrivacyConfiguration(
+        CentralPrivacyConfiguration_t *configuration
+    );
+
+    /**
      * @see Gap::setAdvertisingData
      */
     virtual ble_error_t setAdvertisingData(
@@ -257,11 +305,13 @@ public:
     void processConnectionEvent(
         Handle_t handle,
         Role_t role,
-        BLEProtocol::AddressType_t peerAddrType,
+        peer_address_type_t peerAddrType,
         const BLEProtocol::AddressBytes_t peerAddr,
         BLEProtocol::AddressType_t ownAddrType,
         const BLEProtocol::AddressBytes_t ownAddr,
-        const ConnectionParams_t *connectionParams
+        const ConnectionParams_t *connectionParams,
+        const uint8_t *peerResolvableAddr,
+        const uint8_t *localResolvableAddr
     );
 
     /**
@@ -302,21 +352,45 @@ private:
 
     void on_unexpected_error(const pal::GapUnexpectedErrorEvent &e);
 
-    pal::own_address_type_t get_own_address_type();
+    enum AddressUseType_t {
+        CENTRAL_CONNECTION,
+        CENTRAL_SCAN,
+        PERIPHERAL_CONNECTABLE,
+        PERIPHERAL_NON_CONNECTABLE
+    };
+
+    pal::own_address_type_t get_own_address_type(AddressUseType_t address_use_type);
 
     bool initialize_whitelist() const;
+
+    ble_error_t update_address_resolution_setting();
+
+    void set_random_address_rotation(bool enable);
+
+    void update_random_address();
+
+    void on_address_rotation_timeout();
 
     pal::EventQueue& _event_queue;
     pal::Gap &_pal_gap;
     pal::GenericAccessService &_gap_service;
+    pal::SecurityManager &_pal_sm;
     BLEProtocol::AddressType_t _address_type;
     ble::address_t _address;
     pal::initiator_policy_t _initiator_policy_mode;
     pal::scanning_filter_policy_t _scanning_filter_policy;
     pal::advertising_filter_policy_t _advertising_filter_policy;
     mutable Whitelist_t _whitelist;
+    
+    bool _privacy_enabled;
+    PeripheralPrivacyConfiguration_t _peripheral_privacy_configuration;
+    CentralPrivacyConfiguration_t _central_privacy_configuration;
+    ble::address_t _random_static_identity_address;
+    bool _random_address_rotating;
+    
     mbed::Timeout _advertising_timeout;
     mbed::Timeout _scan_timeout;
+    mbed::Ticker _address_rotation_ticker;
     pal::ConnectionEventMonitor::EventHandler *_connection_event_handler;
 };
 

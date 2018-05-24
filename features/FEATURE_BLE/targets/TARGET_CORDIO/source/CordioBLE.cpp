@@ -164,30 +164,24 @@ const char* BLE::getVersion()
     return version;
 }
 
-::Gap& BLE::getGap()
+generic::GenericGap& BLE::getGap()
 {
-    typedef ::Gap& return_type;
-    const BLE* self = this;
-    return const_cast<return_type>(self->getGap());
-}
-
-const ::Gap& BLE::getGap() const
-{
-    return getGenericGap();
-};
-
-const generic::GenericGap& BLE::getGenericGap() const
-{
-    static pal::vendor::cordio::Gap& cordio_pal_gap =
-        pal::vendor::cordio::Gap::get_gap();
     static pal::vendor::cordio::GenericAccessService cordio_gap_service;
     static ble::generic::GenericGap gap(
         _event_queue,
-        cordio_pal_gap,
-        cordio_gap_service
+        pal::vendor::cordio::Gap::get_gap(),
+        cordio_gap_service,
+        pal::vendor::cordio::CordioSecurityManager::get_security_manager()
     );
+
     return gap;
 }
+
+const generic::GenericGap& BLE::getGap() const
+{
+    BLE &self = const_cast<BLE&>(*this);
+    return const_cast<const generic::GenericGap&>(self.getGap());
+};
 
 GattServer& BLE::getGattServer()
 {
@@ -199,7 +193,7 @@ const GattServer& BLE::getGattServer() const
     return cordio::GattServer::getInstance();
 }
 
-::GattClient& BLE::getGattClient()
+generic::GenericGattClient& BLE::getGattClient()
 {
     static pal::AttClientToGattClientAdapter pal_client(
         pal::vendor::cordio::CordioAttClient::get_client()
@@ -211,21 +205,20 @@ const GattServer& BLE::getGattServer() const
 
 SecurityManager& BLE::getSecurityManager()
 {
-    const BLE* self = this;
-    return const_cast<SecurityManager&>(self->getSecurityManager());
+    static SigningEventMonitorProxy signing_event_monitor(*this);
+    static generic::GenericSecurityManager m_instance(
+        pal::vendor::cordio::CordioSecurityManager::get_security_manager(),
+        getGap(),
+        signing_event_monitor
+    );
+
+    return m_instance;
 }
 
 const SecurityManager& BLE::getSecurityManager() const
 {
-    static pal::MemorySecurityDb m_db;
-    pal::vendor::cordio::CordioSecurityManager &m_pal = pal::vendor::cordio::CordioSecurityManager::get_security_manager();
-    static generic::GenericSecurityManager m_instance(
-        m_pal,
-        m_db,
-        const_cast<generic::GenericGap&>(getGenericGap())
-    );
-
-    return m_instance;
+    const BLE &self = const_cast<BLE&>(*this);
+    return const_cast<const SecurityManager&>(self.getSecurityManager());
 }
 
 void BLE::waitForEvent()
@@ -361,7 +354,10 @@ void BLE::stack_setup()
     AttHandlerInit(handlerId);
     AttsInit();
     AttsIndInit();
+    AttsSignInit();
+    AttsAuthorRegister(GattServer::atts_auth_cb);
     AttcInit();
+    AttcSignInit();
 
     handlerId = WsfOsSetNextHandler(SmpHandler);
     SmpHandlerInit(handlerId);

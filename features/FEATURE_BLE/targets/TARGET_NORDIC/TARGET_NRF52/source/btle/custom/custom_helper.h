@@ -42,7 +42,9 @@ ble_uuid_t custom_convert_to_nordic_uuid(const UUID &uuid);
 error_t custom_add_in_characteristic(uint16_t                  service_handle,
                                      ble_uuid_t               *p_uuid,
                                      uint8_t                   properties,
-                                     SecurityManager::SecurityMode_t requiredSecurity,
+                                     GattAttribute::Security_t read_security,
+                                     GattAttribute::Security_t write_security,
+                                     GattAttribute::Security_t update_security,
                                      uint8_t                  *p_data,
                                      uint16_t                  length,
                                      uint16_t                  max_length,
@@ -61,7 +63,9 @@ error_t custom_add_in_descriptor(uint16_t                      char_handle,
                                      uint16_t                  length,
                                      uint16_t                  max_length,
                                      bool                      has_variable_len,
-                                     uint16_t                 *p_desc_handle);
+                                     uint16_t                 *p_desc_handle,
+                                     GattAttribute::Security_t read_security,
+                                     GattAttribute::Security_t write_security);
 
 #ifdef __cplusplus
 }

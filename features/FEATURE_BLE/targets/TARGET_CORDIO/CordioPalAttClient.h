@@ -17,6 +17,7 @@
 #ifndef CORDIO_PAL_ATT_CLIENT_
 #define CORDIO_PAL_ATT_CLIENT_
 
+#include "CordioGattServer.h"
 #include "ble/pal/AttClient.h"
 #include "ble/pal/SimpleAttServerMessage.h"
 #include "att_api.h"
@@ -30,7 +31,8 @@ namespace cordio {
 class CordioAttClient : public ::ble::pal::AttClient {
 
 public:
-    CordioAttClient() : ::ble::pal::AttClient() { }
+    CordioAttClient() : ::ble::pal::AttClient(), _local_sign_counter(0) { }
+
     virtual ~CordioAttClient() { }
 
     /**
@@ -216,11 +218,24 @@ public:
         AttcSignedWriteCmd(
             connection_handle,
             attribute_handle,
-            /* sign counter from flash or AttsGetSignCounter() ? */ 0,
+            _local_sign_counter,
             value.size(),
             const_cast<uint8_t*>(value.data())
         );
+        _local_sign_counter++;
         return BLE_ERROR_NONE;
+    }
+
+    /**
+     * Initialises the counter used to sign messages. Counter will be incremented every
+     * time a message is signed.
+     *
+     * @param sign_counter initialise the signing counter to this value
+     */
+    virtual void set_sign_counter(
+        sign_count_t sign_counter
+    ) {
+        _local_sign_counter = sign_counter;
     }
 
     /**
@@ -335,6 +350,9 @@ public:
                 return;
             }
         }
+
+        // pass events not handled to the server side
+        ble::vendor::cordio::GattServer::getInstance().att_cb(event);
     }
 
 private:
@@ -612,6 +630,8 @@ private:
             );
         }
     };
+private:
+    sign_count_t _local_sign_counter;
 };
 
 } // cordio

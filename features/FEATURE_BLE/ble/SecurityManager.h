@@ -31,7 +31,9 @@
  * and/or exchanging keys used for the current connection. Bonding means saving this information so that
  * it can later be used after reconnecting without having to pair again. This saves time and power.
  *
- * There are many ways to provide these at different levels of security depending on your requirements
+ * @par Paring
+ *
+ * There are several ways to provide different levels of security during pairing depending on your requirements
  * and the facilities provided by the application. The process starts with initialising the SecurityManager
  * with default options for new connections. Some settings can later be changed per link or globally.
  *
@@ -42,6 +44,8 @@
  * what algorithm is used. For details @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 3, Part H - 2.3.5.1.
  * You can change the IO capabilities after initialisation with setIoCapability(). This will take effect
  * for all subsequent pairings.
+ *
+ * @par Out of Band data used in pairing
  *
  * Sharing this information through IO capabilities means user interaction which limits the degree of
  * protection due to the limit of the amount of data that we can expect the user to transfer. Another
@@ -57,7 +61,27 @@
  * it. If either side doesn't support it Legacy Pairing will be used. This is an older standard of pairing.
  * If higher security is required legacy pairing can be disabled by calling allowLegacyPairing(false);
  *
- * \par How to use
+ * @par Signing
+ *
+ * Applications may require a level of security providing confidence that data transfers are coming
+ * from a trusted source. This can be achieved by encrypting the link which also provides added confidentiality.
+ * Encryption is a good choice when a device stays connected but introduces latency due to the need of encrypting the
+ * link if the device only connects periodically to transfer data. If confidentiality is not required data GATT
+ * server may allow writes to happen over an unencrypted link but authenticated by a signature present in each packet.
+ * This signature relies on having sent a signing key to the peer during pairing prior to sending any signed packets.
+ *
+ * @par Persistence of Security information
+ *
+ * Security Manager stores all the data required for its operation on active links. Depending on resources
+ * available on the device it will also attempt to store data for disconnected devices which have bonded to be
+ * reused when reconnected.
+ *
+ * If the application has initialised a filesystem and the Security Manager has been provided with a
+ * filepath during the init() call it may also provide data persistence across resets. This must be enabled by
+ * calling preserveBondingStateOnReset(). Persistence is not guaranteed and may fail if abnormally terminated.
+ * The Security Manager may also fall back to a non-persistent implementation if the resources are too limited.
+ *
+ * @par How to use
  *
  * First thing you need to do is to initialise the manager by calling init() with your chosen settings.
  *
@@ -87,7 +111,7 @@
  * accetPairing() or cancelPairing(). The result will be communicated on both peers through an event calling
  * pairingResult() in the EventHandler.
  *
- * \par Sequence diagrams
+ * @par Sequence diagrams
  *
  * Sequence diagram "Just Works" pairing
  *
@@ -103,7 +127,7 @@
  *  |        |                          |<---[pairing complete]----->|                        |            |
  *  |<- pairingResult() <---------------|                            |----------------> pairingResult() -->|
  *  |        |                          |                            |                        |            |
- * \endverbatim
+ * @endverbatim
  * 
  *  @note the requestPairing() call isn't required to trigger pairing. Pairing will also be triggered
  *  if you request encryption and authentication and no bonding information is available. The sequence will
@@ -121,7 +145,7 @@
  *  |       |                           |<-[encryption established]->|                        |            |
  *  |<- linkEncryptionResult() <--------|                            |---------> linkEncryptionResult() -->|
  *  |       |                           |                            |                        |            |
- * \endverbatim
+ * @endverbatim
  * 
  * @note if bonding information is not available, pairing will be triggered
  *
@@ -149,7 +173,7 @@
  *  |        |                          |<---[pairing complete]----->|                        |            |
  *  |<- pairingResult() <---------------|                            |----------------> pairingResult() -->|
  *  |        |                          |                            |                        |            |
- * \endverbatim
+ * @endverbatim
  * 
  */
 
@@ -417,6 +441,9 @@ public:
      *                           support out-of-band exchanges of security data.
      * @param[in]  passkey       To specify a static passkey.
      * @param[in]  signing       Generate and distribute signing key during pairing
+     * @param[in]  dbFilepath    Path to the file used to store keys in the filesystem,
+     *                           if NULL keys will be only stored in memory
+     *
      *
      * @return BLE_ERROR_NONE on success.
      */
@@ -424,13 +451,31 @@ public:
                              bool                     requireMITM   = true,
                              SecurityIOCapabilities_t iocaps        = IO_CAPS_NONE,
                              const Passkey_t          passkey       = NULL,
-                             bool                     signing       = true) {
+                             bool                     signing       = true,
+                             const char              *dbFilepath    = NULL) {
         /* Avoid compiler warnings about unused variables. */
         (void)enableBonding;
         (void)requireMITM;
         (void)iocaps;
         (void)passkey;
+        (void)dbFilepath;
 
+        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
+    }
+
+    /**
+     * Change the file used for the security database. If path is invalid or a NULL is passed
+     * keys will only be stored in memory.
+     *
+     * @note This operation is only allowed with no active connections.
+     *
+     * @param[in]  dbFilepath    Path to the file used to store keys in the filesystem,
+     *                           if NULL keys will be only stored in memory
+     *
+     * @return BLE_ERROR_NONE on success.
+     */
+    virtual ble_error_t setDatabaseFilepath(const char *dbFilepath = NULL) {
+        (void)dbFilepath;
         return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
     }
 
@@ -736,13 +781,47 @@ public:
     //
 
     /**
-     * Enable OOB data usage during paring.
+     * Generate OOB data with the given address. If Secure Connections is supported this will
+     * also generate Secure Connections OOB data on top of legacy pairing OOB data. This can be used
+     * to generate such data before the connection takes place.
+     *
+     * In this model the OOB exchange takes place before the devices connect. Devices should establish
+     * communication over another channel and exchange the OOB data. The address provided will be used
+     * by the peer to associate the received data with the address of the device it will then connect
+     * to over BLE.
+     *
+     * @param[in] address The local address you will use in the connection using this OOB data. This
+     *                    address will be returned along with the rest of the OOB data when generation
+     *                    is complete. Using an invalid address is illegal.
+     * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
+     */
+    virtual ble_error_t generateOOB(const ble::address_t *address) {
+        /* Avoid compiler warnings about unused variables */
+        (void) address;
+        return BLE_ERROR_NOT_IMPLEMENTED; /* Requesting action from porters: override this API if security is supported. */
+    }
+
+    /**
+     * Enable OOB data usage during paring. If Secure Connections is supported enabling useOOB will
+     * generate Secure Connections OOB data through oobGenerated() on top of legacy pairing OOB data.
+     *
+     * You do not have to call this function to return received OOB data. Use legacyPairingOobReceived
+     * or oobReceived to hand it in. This will allow the stack to use it if possible. You only need to
+     * call this function to attempt legacy OOB data exchange after pairing start and to inform
+     * the stack OOB data does not provide MITM protection (by default it is set to provide this).
+     *
+     * In this model the OOB exchange takes places after the devices have connected but possibly
+     * prior to pairing. For secure connections pairing must not be started until after the OOB
+     * data has been sent and/or received. The address in the OOB data generated will match
+     * the original address used to establish the connection and will be used by the peer to
+     * identify which connection the OOB data belongs to.
      *
      * @param[in] connectionHandle Handle to identify the connection.
      * @param[in] useOOB If set to true, authenticate using OOB data.
      * @param[in] OOBProvidesMITM If set to true keys exchanged during pairing using OOB data
-     *                            will provide MITM protection. This indicates that the form
-     *                            of exchange used by the OOB data itself provides MITM protection.
+     *                            will provide Man-in-the-Middle protection. This indicates that
+     *                            the form of exchange used by the OOB data itself provides MITM
+     *                            protection.
      * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
      */
     virtual ble_error_t setOOBDataUsage(ble::connection_handle_t connectionHandle, bool useOOB, bool OOBProvidesMITM = true) {
@@ -933,15 +1012,31 @@ public:
      */
      ble_error_t getLinkSecurity(ble::connection_handle_t connectionHandle, LinkSecurityStatus_t *securityStatus) {
         ble::link_encryption_t encryption(ble::link_encryption_t::NOT_ENCRYPTED);
-        ble_error_t status = getLinkEncryption(connectionHandle, &encryption);
-        /* legacy support limits the return values */
-        if (encryption.value() == ble::link_encryption_t::ENCRYPTED_WITH_MITM) {
-            *securityStatus = ENCRYPTED;
-        } else {
-            *securityStatus = (LinkSecurityStatus_t)encryption.value();
+        ble_error_t err = getLinkEncryption(connectionHandle, &encryption);
+        if (err) {
+            return err;
         }
 
-        return status;
+        switch (encryption.value()) {
+            case ble::link_encryption_t::NOT_ENCRYPTED:
+                *securityStatus = NOT_ENCRYPTED;
+                break;
+            case ble::link_encryption_t::ENCRYPTION_IN_PROGRESS:
+                *securityStatus = ENCRYPTION_IN_PROGRESS;
+                break;
+            case ble::link_encryption_t::ENCRYPTED:
+            case ble::link_encryption_t::ENCRYPTED_WITH_MITM:
+            case ble::link_encryption_t::ENCRYPTED_WITH_SC_AND_MITM:
+                *securityStatus = ENCRYPTED;
+                break;
+            default:
+                // should never happen
+                MBED_ASSERT(false);
+                *securityStatus = NOT_ENCRYPTED;
+                break;
+        }
+
+        return BLE_ERROR_NONE;
     }
 
     /**
@@ -1045,7 +1140,10 @@ private:
                 SecurityManager::SecurityMode_t securityMode;
                 if (result == ble::link_encryption_t::ENCRYPTED) {
                     securityMode = SECURITY_MODE_ENCRYPTION_NO_MITM;
-                } else if (result == ble::link_encryption_t::ENCRYPTED_WITH_MITM) {
+                } else if (
+                    result == ble::link_encryption_t::ENCRYPTED_WITH_MITM ||
+                    result == ble::link_encryption_t::ENCRYPTED_WITH_SC_AND_MITM
+                ) {
                     securityMode = SECURITY_MODE_ENCRYPTION_WITH_MITM;
                 } else {
                     securityMode = SECURITY_MODE_ENCRYPTION_OPEN_LINK;

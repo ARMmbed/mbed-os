@@ -31,7 +31,7 @@ extern "C" {
 #include "softdevice_handler.h"
 }
 
-#include "nRF5XPalGattClient.h"
+#include "nRF5xPalGattClient.h"
 
 /**
  * The singleton which represents the nRF51822 transport for the BLE.
@@ -62,8 +62,7 @@ nRF5xn::nRF5xn(void) :
     instanceID(BLE::DEFAULT_INSTANCE),
     gapInstance(),
     gattServerInstance(NULL),
-    gattClient(&(ble::pal::vendor::nordic::nRF5XGattClient::get_client())),
-    securityManagerInstance(NULL)
+    gattClient(&(ble::pal::vendor::nordic::nRF5xGattClient::get_client()))
 {
 }
 
@@ -126,7 +125,7 @@ ble_error_t nRF5xn::init(BLE::InstanceID_t instanceID, FunctionPointerWithContex
         return BLE_ERROR_ALREADY_INITIALIZED;
     }
 
-    instanceID   = instanceID;
+    this->instanceID = instanceID;
 
     /* ToDo: Clear memory contents, reset the SD, etc. */
     if (btle_init() != ERROR_NONE) {
@@ -171,19 +170,11 @@ ble_error_t nRF5xn::shutdown(void)
         return BLE_STACK_BUSY;
     }
 
-
     /* Shutdown the BLE API and nRF51 glue code */
     ble_error_t error;
 
     if (gattServerInstance != NULL) {
         error = gattServerInstance->reset();
-        if (error != BLE_ERROR_NONE) {
-            return error;
-        }
-    }
-
-    if (securityManagerInstance != NULL) {
-        error = securityManagerInstance->reset();
         if (error != BLE_ERROR_NONE) {
             return error;
         }
@@ -209,6 +200,29 @@ ble_error_t nRF5xn::shutdown(void)
     return BLE_ERROR_NONE;
 }
 
+SecurityManager& nRF5xn::getSecurityManager()
+{
+    const nRF5xn* self = this;
+    return const_cast<SecurityManager&>(self->getSecurityManager());
+}
+
+const SecurityManager& nRF5xn::getSecurityManager() const
+{
+    ble::pal::vendor::nordic::nRF5xSecurityManager &m_pal =
+        ble::pal::vendor::nordic::nRF5xSecurityManager::get_security_manager();
+    static struct : ble::pal::SigningEventMonitor {
+        virtual void set_signing_event_handler(EventHandler *signing_event_handler) { }
+    } dummy_signing_event_monitor;
+
+    static ble::generic::GenericSecurityManager m_instance(
+        m_pal,
+        const_cast<nRF5xGap&>(getGap()),
+        dummy_signing_event_monitor
+    );
+
+    return m_instance;
+}
+
 void
 nRF5xn::waitForEvent(void)
 {
@@ -217,8 +231,12 @@ nRF5xn::waitForEvent(void)
 }
 
 void nRF5xn::processEvents() {
+    core_util_critical_section_enter();
     if (isEventsSignaled) {
         isEventsSignaled = false;
+        core_util_critical_section_exit();
         intern_softdevice_events_execute();
+    } else {
+        core_util_critical_section_exit();
     }
 }

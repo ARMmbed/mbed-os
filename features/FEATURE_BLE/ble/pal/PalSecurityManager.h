@@ -27,10 +27,10 @@
 namespace ble {
 namespace pal {
 
-typedef SecurityManager::SecurityCompletionStatus_t SecurityCompletionStatus_t;
-typedef SecurityManager::SecurityMode_t SecurityMode_t;
-typedef SecurityManager::LinkSecurityStatus_t LinkSecurityStatus_t;
-typedef SecurityManager::Keypress_t Keypress_t;
+typedef ::SecurityManager::SecurityCompletionStatus_t SecurityCompletionStatus_t;
+typedef ::SecurityManager::SecurityMode_t SecurityMode_t;
+typedef ::SecurityManager::LinkSecurityStatus_t LinkSecurityStatus_t;
+typedef ::SecurityManager::Keypress_t Keypress_t;
 
 /**
  * Key distribution as required by the SMP with convenient setters and getters,
@@ -371,7 +371,18 @@ public:
          * Request OOB data from the user application.
          *
          * @param[in] connection connection handle
-         * @note shall be followed by: pal::SecurityManager::legacy_pairing_oob_data_request_reply
+         * @note shall be followed by: pal::SecurityManager::secure_connections_oob_request_reply
+         * or a cancellation of the procedure.
+         */
+        virtual void on_secure_connections_oob_request(
+            connection_handle_t connection
+        ) = 0;
+
+        /**
+         * Request OOB data from the user application.
+         *
+         * @param[in] connection connection handle
+         * @note shall be followed by: pal::SecurityManager::legacy_pairing_oob_request_reply
          * or a cancellation of the procedure.
          */
         virtual void on_legacy_pairing_oob_request(
@@ -379,31 +390,22 @@ public:
         ) = 0;
 
         /**
-         * Request OOB data to be verified against received public keys.
+         * Send OOB data to the application for transport to the peer.
          *
-         * @param[in] public_key_x newly generated public key (x coordinate)
-         * @param[in] public_key_y newly generated public key (y coordinate)
+         * @param[in] connection connection handle
+         * @param[in] random random number used to generate the confirmation
+         * @param[in] confirm confirmation value to be use for authentication
+         *                    in secure connections pairing
+         * @return BLE_ERROR_NONE or appropriate error code indicating the failure reason.
          */
-        virtual void on_oob_data_verification_request(
-            connection_handle_t connection,
-            const public_key_coord_t &peer_public_key_x,
-            const public_key_coord_t &peer_public_key_y
+        virtual void on_secure_connections_oob_generated(
+            const oob_lesc_value_t &random,
+            const oob_confirm_t &confirm
         ) = 0;
 
         ////////////////////////////////////////////////////////////////////////////
         // Keys
         //
-
-        /**
-         * Provide the local public key.
-         *
-         * @param[in] public_key_x newly generated public key (x coordinate)
-         * @param[in] public_key_y newly generated public key (y coordinate)
-         */
-        virtual void on_public_key_generated(
-            const public_key_coord_t &public_key_x,
-            const public_key_coord_t &public_key_y
-        ) = 0;
 
         /**
          * Store the results of key generation of the stage 2 of secure connections pairing
@@ -542,21 +544,21 @@ public:
     /**
      * Initialise stack. Called before first use.
      *
-     * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
+     * @return BLE_ERROR_NONE On success, else an error code indicating reason for failure
      */
     virtual ble_error_t initialize() = 0;
 
     /**
      * Finalise all actions. Called before shutdown.
      *
-     * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
+     * @return BLE_ERROR_NONE On success, else an error code indicating reason for failure
      */
     virtual ble_error_t terminate() = 0;
 
     /**
      * Reset to same state as after initialize.
      *
-     * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
+     * @return BLE_ERROR_NONE On success, else an error code indicating reason for failure
      */
     virtual ble_error_t reset()  = 0;
 
@@ -571,7 +573,7 @@ public:
      * @warning: The number of entries is considered fixed.
      *
      * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 2, Part E: 7.8.41
-     * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
+     * @return BLE_ERROR_NONE On success, else an error code indicating reason for failure
      */
     virtual uint8_t read_resolving_list_capacity() = 0;
 
@@ -582,7 +584,7 @@ public:
      * @param[in] peer_identity_address address of the device whose entry is to be added
      * @param[in] peer_irk peer identity resolving key
      * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 2, Part E: 7.8.38
-     * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
+     * @return BLE_ERROR_NONE On success, else an error code indicating reason for failure
      */
     virtual ble_error_t add_device_to_resolving_list(
         advertising_peer_address_type_t peer_identity_address_type,
@@ -596,7 +598,7 @@ public:
      * @param[in] peer_identity_address_type public/private indicator
      * @param[in] peer_identity_address address of the device whose entry is to be removed
      * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 2, Part E: 7.8.39
-     * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
+     * @return BLE_ERROR_NONE On success, else an error code indicating reason for failure
      */
     virtual ble_error_t remove_device_from_resolving_list(
         advertising_peer_address_type_t peer_identity_address_type,
@@ -607,7 +609,7 @@ public:
      * Remove all devices from the resolving list.
      *
      * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 2, Part E: 7.8.40
-     * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
+     * @return BLE_ERROR_NONE On success, else an error code indicating reason for failure
      */
     virtual ble_error_t clear_resolving_list() = 0;
 
@@ -624,7 +626,7 @@ public:
      * @param[in] initiator_dist key distribution
      * @param[in] responder_dist key distribution
      * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 3, Part H - 3.5.1
-     * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
+     * @return BLE_ERROR_NONE On success, else an error code indicating reason for failure
      */
     virtual ble_error_t send_pairing_request(
         connection_handle_t connection,
@@ -643,7 +645,7 @@ public:
      * @param[in] authentication_requirements authentication requirements
      * @param[in] initiator_dist key distribution
      * @param[in] responder_dist key distribution
-     * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
+     * @return BLE_ERROR_NONE On success, else an error code indicating reason for failure
      */
     virtual ble_error_t send_pairing_response(
         connection_handle_t connection,
@@ -659,7 +661,7 @@ public:
      * @param[in] connection connection handle
      * @param[in] reason pairing failure error
      * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 3, Part H - 3.5.5
-     * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
+     * @return BLE_ERROR_NONE On success, else an error code indicating reason for failure
      */
     virtual ble_error_t cancel_pairing(
         connection_handle_t connection,
@@ -674,7 +676,7 @@ public:
      * Check if the Secure Connections feature is supported by the stack and controller.
      *
      * @param[out] enabled true if SC are supported
-     * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
+     * @return BLE_ERROR_NONE On success, else an error code indicating reason for failure
      */
     virtual ble_error_t get_secure_connections_support(
         bool &enabled
@@ -684,7 +686,7 @@ public:
      * Set the IO capability that will be used during pairing feature exchange.
      *
      * @param[in] io_capability type of IO capabilities available on the local device
-     * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
+     * @return BLE_ERROR_NONE On success, else an error code indicating reason for failure
      */
     virtual ble_error_t set_io_capability(
         io_capability_t io_capability
@@ -700,7 +702,7 @@ public:
      *
      * @param[in] connection connection handle
      * @param[in] timeout_in_10ms time measured in units of 10 milliseconds
-     * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
+     * @return BLE_ERROR_NONE On success, else an error code indicating reason for failure
      */
     virtual ble_error_t set_authentication_timeout(
         connection_handle_t connection,
@@ -713,7 +715,7 @@ public:
      *
      * @param[in] connection connection handle
      * @param[out] timeout_in_10ms time measured in units of 10 milliseconds
-     * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
+     * @return BLE_ERROR_NONE On success, else an error code indicating reason for failure
      */
     virtual ble_error_t get_authentication_timeout(
         connection_handle_t connection,
@@ -731,7 +733,7 @@ public:
      * required for pairing. This value shall be in the range
      * [min_encryption_key_size : 16].
      *
-     * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
+     * @return BLE_ERROR_NONE On success, else an error code indicating reason for failure
      */
     virtual ble_error_t set_encryption_key_requirements(
         uint8_t min_encryption_key_size,
@@ -746,7 +748,7 @@ public:
      *
      * @param[in] connection connection handle
      * @param[in] authentication authentication requirements
-     * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
+     * @return BLE_ERROR_NONE On success, else an error code indicating reason for failure
      */
     virtual ble_error_t slave_security_request(
         connection_handle_t connection,
@@ -767,7 +769,7 @@ public:
      * @param[in] ediv encryption diversifier from the peer
      * @param[in] rand random value from the peer
      * @param[in] mitm does the LTK have man in the middle protection
-     * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
+     * @return BLE_ERROR_NONE On success, else an error code indicating reason for failure
      */
     virtual ble_error_t enable_encryption(
         connection_handle_t connection,
@@ -784,7 +786,7 @@ public:
      * @param[in] connection connection handle
      * @param[in] ltk long term key from the peer
      * @param[in] mitm does the LTK have man in the middle protection
-     * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
+     * @return BLE_ERROR_NONE On success, else an error code indicating reason for failure
      */
     virtual ble_error_t enable_encryption(
         connection_handle_t connection,
@@ -798,7 +800,7 @@ public:
      *
      * @param[in] key encryption key
      * @param[in,out] data data to be encrypted, if successful contains the result
-     * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
+     * @return BLE_ERROR_NONE On success, else an error code indicating reason for failure
      */
     virtual ble_error_t encrypt_data(
         const byte_array_t<16> &key,
@@ -824,7 +826,7 @@ public:
      * @param[in] ltk long term key
      * @param[in] mitm does the LTK have man in the middle protection
      * @param[in] secure_connections is this a secure_connections pairing
-     * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
+     * @return BLE_ERROR_NONE On success, else an error code indicating reason for failure
      */
     virtual ble_error_t set_ltk(
         connection_handle_t connection,
@@ -837,7 +839,7 @@ public:
      * Inform the stack we don't have the LTK.
      *
      * @param[in] connection connection handle
-     * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
+     * @return BLE_ERROR_NONE On success, else an error code indicating reason for failure
      */
     virtual ble_error_t set_ltk_not_found(
         connection_handle_t connection
@@ -847,7 +849,7 @@ public:
      * Set the local IRK.
      *
      * @param[in] irk identity resolution key
-     * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
+     * @return BLE_ERROR_NONE On success, else an error code indicating reason for failure
      */
     virtual ble_error_t set_irk(
         const irk_t &irk
@@ -856,20 +858,32 @@ public:
     /**
      * Set the local CSRK.
      *
-     * @param[in] csrk signing key
-     * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
+     * @param[in] csrk local signing key
+     * @param[in] sign_counter local signing counter
+     * @return BLE_ERROR_NONE On success, else an error code indicating reason for failure
      */
     virtual ble_error_t set_csrk(
-        const csrk_t &csrk
+        const csrk_t &csrk,
+        sign_count_t sign_counter
     ) = 0;
 
     /**
-     * Generate the Public key. This will also generate the private key.
-     * Public key will be returned as an event handler callback when it's ready.
+     * Set the peer CSRK for particular connection.
      *
+     * @param[in] connection connection handle
+     * @param[in] csrk signing key
+     * @param[in] authenticated is the CSRK authenticated
+     * @param[in] sign_counter signing counter
      * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
      */
-    virtual ble_error_t generate_public_key() = 0;
+    virtual ble_error_t set_peer_csrk(
+        connection_handle_t connection,
+        const csrk_t &csrk,
+        bool authenticated,
+        sign_count_t sign_counter
+    ) = 0;
+
+    virtual ble_error_t remove_peer_csrk(connection_handle_t connection) = 0;
 
     ////////////////////////////////////////////////////////////////////////////
     // Authentication
@@ -880,7 +894,7 @@ public:
      *
      * @param[out] random_data returns 8 octets of random data
      * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 2, Part H 2
-     * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
+     * @return BLE_ERROR_NONE On success, else an error code indicating reason for failure
      */
     virtual ble_error_t get_random_data(
         byte_array_t<8> &random_data
@@ -908,7 +922,7 @@ public:
      * passkey is set to 0 then the security manager generates a random
      * passkey every time it calls SecurityManagerEvent::on_passkey_display.
      *
-     * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
+     * @return BLE_ERROR_NONE On success, else an error code indicating reason for failure
      */
     virtual ble_error_t set_display_passkey(
         passkey_num_t passkey
@@ -917,7 +931,7 @@ public:
     /**
      * Reply to a passkey request received from the SecurityManagerEventHandler.
      *
-     * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
+     * @return BLE_ERROR_NONE On success, else an error code indicating reason for failure
      */
     virtual ble_error_t passkey_request_reply(
         connection_handle_t connection,
@@ -925,13 +939,30 @@ public:
     ) = 0;
 
     /**
-     * Reply to an oob data request received from the SecurityManagerEventHandler.
+     * Reply to a Secure Connections oob data request received from the SecurityManagerEventHandler.
+     *
+     * @param[in] connection connection handle
+     * @param[in] local_random local random number used for the last oob exchange
+     * @param[in] peer_random random number used to generate the confirmation on peer
+     * @param[in] peer_confirm confirmation value to be use for authentication
+     *                         in secure connections pairing
+     * @return BLE_ERROR_NONE On success, else an error code indicating reason for failure
+     */
+    virtual ble_error_t secure_connections_oob_request_reply(
+        connection_handle_t connection,
+        const oob_lesc_value_t &local_random,
+        const oob_lesc_value_t &peer_random,
+        const oob_confirm_t &peer_confirm
+    ) = 0;
+
+    /**
+     * Reply to a legacy pairing oob data request received from the SecurityManagerEventHandler.
      *
      * @param[in] connection connection handle
      * @param[in] oob_data pointer to out of band data
-     * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
+     * @return BLE_ERROR_NONE On success, else an error code indicating reason for failure
      */
-    virtual ble_error_t legacy_pairing_oob_data_request_reply(
+    virtual ble_error_t legacy_pairing_oob_request_reply(
         connection_handle_t connection,
         const oob_tk_t &oob_data
     ) = 0;
@@ -942,7 +973,7 @@ public:
      *
      * @param[in] connection connection handle
      * @param[in] confirmation true if the user indicated the numbers match
-     * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
+     * @return BLE_ERROR_NONE On success, else an error code indicating reason for failure
      */
     virtual ble_error_t confirmation_entered(
         connection_handle_t connection,
@@ -955,7 +986,7 @@ public:
      *
      * @param[in] connection connection handle
      * @param[in] keypress type of keypress event
-     * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
+     * @return BLE_ERROR_NONE On success, else an error code indicating reason for failure
      */
     virtual ble_error_t send_keypress_notification(
         connection_handle_t connection,
@@ -963,21 +994,10 @@ public:
     ) = 0;
 
     /**
-     * Notify the stack that the OOB data has been verified and supply the peer's random number.
-     * If the verification failed this will not be called and cancel_pairing will be called instead.
-     *
-     * @param[in] connection connection handle
-     * @param[in] local_random random number sent from the local device to be used in further
-     *                       calculations by the stack, set to 0 if peer reported no OOB present
-     * @param[in] peer_random random number from the peer to be used in further
-     *                       calculations by the stack, set to 0 if no OOB data received
-     * @retval BLE_ERROR_NONE On success, else an error code indicating reason for failure
+     * Generate local OOB data to be sent to the application which sends it to the peer.
+     * @return BLE_ERROR_NONE On success, else an error code indicating reason for failure
      */
-    virtual ble_error_t oob_data_verified(
-        connection_handle_t connection,
-        const oob_lesc_value_t &local_random,
-        const oob_lesc_value_t &peer_random
-    ) = 0;
+    virtual ble_error_t generate_secure_connections_oob() = 0;
 
     /* Entry points for the underlying stack to report events back to the user. */
 public:
