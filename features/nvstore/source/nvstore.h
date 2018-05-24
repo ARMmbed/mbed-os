@@ -49,6 +49,8 @@ typedef enum {
 
     // All predefined keys used for internal features should be defined here
 
+    NVSTORE_DEVICEKEY_KEY               = 4,
+
     NVSTORE_LAST_PREDEFINED_KEY         = 15,
     NVSTORE_NUM_PREDEFINED_KEYS
 } nvstore_predefined_keys_e;
