@@ -19,6 +19,7 @@
 #include "api/inc/rpc_exports.h"
 #include "api/inc/uvisor_semaphore.h"
 #include "api/inc/box_config.h"
+#include "api/inc/uvisor_deprecation.h"
 #include "mbed_interface.h"
 #include "cmsis_os2.h"
 #include <stdint.h>
