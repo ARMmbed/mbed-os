@@ -35,7 +35,6 @@ void spm_reboot(void)
         status = osSemaphoreDelete(g_spm.partitions[i].semaphore);
         MBED_ASSERT(status == osOK);
 
-        g_spm.partitions[i].partition_state = PARTITION_STATE_INVALID;
         g_spm.partitions[i].thread_id = NULL;
         for (uint32_t j = 0; j < g_spm.partitions[i].sec_funcs_count; ++j) {
             g_spm.partitions[i].sec_funcs[j].partition = NULL;

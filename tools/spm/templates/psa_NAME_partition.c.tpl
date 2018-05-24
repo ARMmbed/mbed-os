@@ -125,6 +125,5 @@ void {{partition.name|lower}}_init(partition_t *partition)
     if (NULL == partition->thread_id) {
         SPM_PANIC("Failed to create start main thread of partition {{partition.name|lower}}!\n");
     }
-    partition->partition_state = PARTITION_STATE_IDLE;
 }
 {# End of file #}

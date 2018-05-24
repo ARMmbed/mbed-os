@@ -146,7 +146,30 @@ void psa_get(psa_signal_t signum, psa_msg_t *msg)
     SPM_ASSERT((active_msg->channel->rhandle == NULL) ||
                (active_msg->type != PSA_IPC_MSG_TYPE_CONNECT));
 
-    PARTITION_STATE_ASSERT(curr_partition, PARTITION_STATE_ACTIVE);
+    ChannelState expected_channel_state = CHANNEL_STATE_INVALID;
+    ChannelState next_channel_state = CHANNEL_STATE_INVALID;
+    switch (active_msg->type) {
+        case PSA_IPC_MSG_TYPE_CONNECT:
+            expected_channel_state = CHANNEL_STATE_CONNECTING;
+            next_channel_state = CHANNEL_STATE_IDLE;
+            break;
+
+        case PSA_IPC_MSG_TYPE_CALL:
+            expected_channel_state = CHANNEL_STATE_PENDING;
+            next_channel_state = CHANNEL_STATE_ACTIVE;
+            break;
+
+        case PSA_IPC_MSG_TYPE_DISCONNECT:
+            expected_channel_state = CHANNEL_STATE_INVALID;
+            next_channel_state = CHANNEL_STATE_INVALID;
+            break;
+
+        default:
+            SPM_PANIC("Unexpected message type %d\n", active_msg->type);
+    }
+    CHANNEL_STATE_ASSERT(active_msg->channel->state, expected_channel_state);
+
+    active_msg->channel->state = next_channel_state;
 
     if (curr_partition->msg_handle == PSA_NULL_HANDLE) {
         psa_error_t status = spm_msg_handle_create(
@@ -183,7 +206,7 @@ static size_t read_or_skip(psa_handle_t msg_handle, uint32_t invec_idx, void *bu
     SPM_ASSERT((active_msg->type > PSA_IPC_MSG_TYPE_INVALID) &&
                (active_msg->type <= PSA_IPC_MSG_TYPE_MAX));
 
-    PARTITION_STATE_ASSERT(active_msg->channel->dst_sec_func->partition, PARTITION_STATE_ACTIVE);
+    CHANNEL_STATE_ASSERT(active_msg->channel->state, CHANNEL_STATE_ACTIVE);
 
     psa_invec_t *active_iovec = &active_msg->in_vec[invec_idx];
 
@@ -236,7 +259,7 @@ void psa_write(psa_handle_t msg_handle, uint32_t outvec_idx, const void *buffer,
     SPM_ASSERT((active_msg->type > PSA_IPC_MSG_TYPE_INVALID) &&
                (active_msg->type <= PSA_IPC_MSG_TYPE_MAX));
 
-    PARTITION_STATE_ASSERT(active_msg->channel->dst_sec_func->partition, PARTITION_STATE_ACTIVE);
+    CHANNEL_STATE_ASSERT(active_msg->channel->state, CHANNEL_STATE_ACTIVE);
 
     psa_outvec_t *active_iovec = &active_msg->out_vec[outvec_idx];
 
@@ -269,12 +292,34 @@ void psa_end(psa_handle_t msg_handle, psa_error_t retval)
 
     secure_func_t *dst_sec_func = active_msg->channel->dst_sec_func;
 
-    PARTITION_STATE_ASSERT(dst_sec_func->partition, PARTITION_STATE_ACTIVE);
+    ChannelState expected_channel_state = CHANNEL_STATE_INVALID;
+    ChannelState next_channel_state = CHANNEL_STATE_INVALID;
+    switch (active_msg->type) {
+        case PSA_IPC_MSG_TYPE_CONNECT:
+            expected_channel_state = CHANNEL_STATE_IDLE;
+            next_channel_state = (retval < 0 ? CHANNEL_STATE_INVALID : CHANNEL_STATE_IDLE);
+            break;
+
+        case PSA_IPC_MSG_TYPE_CALL:
+            expected_channel_state = CHANNEL_STATE_ACTIVE;
+            next_channel_state = CHANNEL_STATE_IDLE;
+            break;
+
+        case PSA_IPC_MSG_TYPE_DISCONNECT:
+            expected_channel_state = CHANNEL_STATE_INVALID;
+            next_channel_state = CHANNEL_STATE_INVALID;
+            break;
+
+        default:
+            SPM_PANIC("Unexpected message type %d\n", active_msg->type);
+    }
+
+    CHANNEL_STATE_ASSERT(active_msg->channel->state, expected_channel_state);
+
+    active_msg->channel->state = next_channel_state;
 
     active_msg->type = PSA_IPC_MSG_TYPE_INVALID; // Invalidate active_msg
     active_msg->rc = retval;
-
-    dst_sec_func->partition->partition_state = PARTITION_STATE_COMPLETED;
 
     partition_t *curr_partition = active_partition_get();
     SPM_ASSERT(NULL != curr_partition);        // active thread in SPM must be in partition DB

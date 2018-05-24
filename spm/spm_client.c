@@ -117,8 +117,6 @@ psa_handle_t psa_connect(uint32_t sfid, uint32_t minor_version)
     osStatus_t os_status = osMutexAcquire(dst_partition->mutex, osWaitForever);
     SPM_ASSERT(osOK == os_status);
 
-    PARTITION_STATE_ASSERT(dst_partition, PARTITION_STATE_IDLE);
-
     ipc_channel_t *channel = (ipc_channel_t *)osMemoryPoolAlloc(g_spm.channel_mem_pool, 0);
     if (NULL == channel) {
         os_status = osMutexRelease(dst_partition->mutex);
@@ -127,6 +125,7 @@ psa_handle_t psa_connect(uint32_t sfid, uint32_t minor_version)
     }
 
     memset(channel, 0, sizeof(ipc_channel_t));
+    channel->state = CHANNEL_STATE_CONNECTING;
     channel->src_partition = current_part;
     channel->dst_sec_func = dst_sec_func;
     channel->rhandle = NULL;
@@ -138,8 +137,6 @@ psa_handle_t psa_connect(uint32_t sfid, uint32_t minor_version)
 
     active_msg->type = PSA_IPC_MSG_TYPE_CONNECT;
 
-    dst_partition->partition_state = PARTITION_STATE_ACTIVE;
-
     int32_t flags = (int32_t)osThreadFlagsSet(dst_partition->thread_id, dst_sec_func->mask);
     SPM_ASSERT(flags >= 0);
     PSA_UNUSED(flags);
@@ -147,18 +144,21 @@ psa_handle_t psa_connect(uint32_t sfid, uint32_t minor_version)
     os_status = osSemaphoreAcquire(dst_partition->semaphore, osWaitForever);
     SPM_ASSERT(osOK == os_status);
 
-    PARTITION_STATE_ASSERT(dst_partition, PARTITION_STATE_COMPLETED);
-
     psa_handle_t handle = active_msg->rc;
     if (PSA_SUCCESS == active_msg->rc) {
+        CHANNEL_STATE_ASSERT(channel->state, CHANNEL_STATE_IDLE);
+
         psa_error_t status = spm_channel_handle_create(channel, PSA_HANDLE_MGR_INVALID_FRIEND_OWNER, &handle);
         // handle_create() is expected to pass since channel allocation has already passed,
         // and the channels handler manager has the same storage size as the channels pool storage size
         SPM_ASSERT(PSA_SUCCESS == status);
         PSA_UNUSED(status);
-    }
+    } else {
+        CHANNEL_STATE_ASSERT(channel->state, CHANNEL_STATE_INVALID);
 
-    dst_partition->partition_state = PARTITION_STATE_IDLE;
+        os_status = osMemoryPoolFree(g_spm.channel_mem_pool, channel);
+        SPM_ASSERT(osOK == os_status);
+    }
 
     os_status = osMutexRelease(dst_partition->mutex);
     SPM_ASSERT(osOK == os_status);
@@ -176,6 +176,10 @@ psa_error_t psa_call(
     size_t out_len
     )
 {
+    if (handle <= 0) {
+        SPM_PANIC("handle (%d) is invalid, must be a positive number\n", handle);
+    }
+
     if (in_len != 0) {
         if (in_len > PSA_MAX_INVEC_LEN) {
             SPM_PANIC("in_len (%d) is bigger than allowed (%d)\n", in_len, PSA_MAX_INVEC_LEN);
@@ -225,7 +229,7 @@ psa_error_t psa_call(
     osStatus_t os_status = osMutexAcquire(dst_partition->mutex, osWaitForever);
     SPM_ASSERT(osOK == os_status);
 
-    PARTITION_STATE_ASSERT(dst_partition, PARTITION_STATE_IDLE);
+    CHANNEL_STATE_ASSERT(channel->state, CHANNEL_STATE_IDLE);
 
     active_msg_t *active_msg = &(dst_partition->active_msg);
     SPM_ASSERT(PSA_IPC_MSG_TYPE_INVALID == active_msg->type);
@@ -244,7 +248,7 @@ psa_error_t psa_call(
 
     active_msg->type = PSA_IPC_MSG_TYPE_CALL;
 
-    dst_partition->partition_state = PARTITION_STATE_ACTIVE;
+    channel->state = CHANNEL_STATE_PENDING;
 
     int32_t flags = (int32_t)osThreadFlagsSet(dst_partition->thread_id, dst_sec_func->mask);
     SPM_ASSERT(flags >= 0);
@@ -253,9 +257,7 @@ psa_error_t psa_call(
     os_status = osSemaphoreAcquire(dst_partition->semaphore, osWaitForever);
     SPM_ASSERT(osOK == os_status);
 
-    PARTITION_STATE_ASSERT(dst_partition, PARTITION_STATE_COMPLETED);
-
-    dst_partition->partition_state = PARTITION_STATE_IDLE;
+    CHANNEL_STATE_ASSERT(channel->state, CHANNEL_STATE_IDLE);
 
     psa_error_t rc = active_msg->rc;
     memset(active_msg, 0, sizeof(active_msg_t));
@@ -270,7 +272,7 @@ psa_error_t psa_call(
 
 psa_error_t psa_close(psa_handle_t handle)
 {
-    if (handle == PSA_NULL_HANDLE) {
+    if (handle <= 0) {
         return PSA_SUCCESS;
     }
 
@@ -285,7 +287,7 @@ psa_error_t psa_close(psa_handle_t handle)
     osStatus_t os_status = osMutexAcquire(dst_partition->mutex, osWaitForever);
     SPM_ASSERT(osOK == os_status);
 
-    PARTITION_STATE_ASSERT(dst_partition, PARTITION_STATE_IDLE);
+    CHANNEL_STATE_ASSERT(channel->state, CHANNEL_STATE_IDLE);
 
     active_msg_t *active_msg = &(dst_partition->active_msg);
     SPM_ASSERT(PSA_IPC_MSG_TYPE_INVALID == active_msg->type);
@@ -294,7 +296,7 @@ psa_error_t psa_close(psa_handle_t handle)
 
     active_msg->type = PSA_IPC_MSG_TYPE_DISCONNECT;
 
-    dst_partition->partition_state = PARTITION_STATE_ACTIVE;
+    channel->state = CHANNEL_STATE_INVALID;
 
     int32_t flags = (int32_t)osThreadFlagsSet(dst_partition->thread_id, dst_sec_func->mask);
     SPM_ASSERT(flags >= 0);
@@ -303,9 +305,7 @@ psa_error_t psa_close(psa_handle_t handle)
     os_status = osSemaphoreAcquire(dst_partition->semaphore, osWaitForever);
     SPM_ASSERT(osOK == os_status);
 
-    PARTITION_STATE_ASSERT(dst_partition, PARTITION_STATE_COMPLETED);
-
-    dst_partition->partition_state = PARTITION_STATE_IDLE;
+    CHANNEL_STATE_ASSERT(channel->state, CHANNEL_STATE_INVALID);
 
     spm_channel_handle_destroy(handle);
 
