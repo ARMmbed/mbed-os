@@ -1,6 +1,30 @@
 {
     "name": "nsapi",
     "config": {
-        "present": 1
+        "present": 1,
+        "default-stack": "LWIP",
+        "default-wifi-ssid": null,
+        "default-wifi-password": null,
+        "default-wifi-security": "NONE",
+        "default-cellular-apn": null,
+        "default-cellular-username": null,
+        "default-cellular-password": null,
+        "default-mesh-type": "THREAD",
+        "dns-response-wait-time": {
+            "help": "How long the DNS translator waits for a reply from a server in milliseconds",
+            "value": 5000
+        },
+        "dns-total-attempts": {
+            "help": "Number of total DNS query attempts that the DNS translator makes",
+            "value": 3
+        },
+        "dns-retries": {
+            "help": "Number of DNS query retries that the DNS translator makes per server, before moving on to the next server. Total retries/attempts is always limited by dns-total-attempts.",
+            "value": 0
+        },
+        "dns-cache-size": {
+            "help": "Number of cached host name resolutions",
+            "value": 3
+        }
     }
 }

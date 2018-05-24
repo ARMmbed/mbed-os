@@ -103,6 +103,13 @@ typedef unsigned int nsapi_size_t;
  */
 typedef signed int nsapi_size_or_error_t;
 
+/** Type used to represent either a value or error
+ *
+ *  A valid nsapi_value_or_error_t is either a non-negative value or a
+ *  negative error code from the nsapi_error_t
+ */
+typedef signed int nsapi_value_or_error_t;
+
 /** Enum of encryption types
  *
  *  The security type specifies a particular security to use when

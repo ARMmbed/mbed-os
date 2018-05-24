@@ -22,12 +22,11 @@
 
 #if MBED_CONF_APP_TEST_WIFI || MBED_CONF_APP_TEST_ETHERNET
 
-extern "C" {   // netif input
-#include "tcpip.h"
-}
+#include "mbed.h"
 
-#include "emac_api.h"
-#include "emac_stack_mem.h"
+#include "EMAC.h"
+#include "EMACMemoryManager.h"
+#include "emac_TestMemoryManager.h"
 
 #include "emac_tests.h"
 #include "emac_initialize.h"
@@ -58,16 +57,26 @@ extern struct netif *netif_list;
 // Broadcast address
 const unsigned char eth_mac_broadcast_addr[ETH_MAC_ADDR_LEN] = {0xff,0xff,0xff,0xff,0xff,0xff};
 
+// MTU size
+static int eth_mtu_size = 0;
+
 // Event queue
-static EventQueue worker_loop_event_queue;
+static rtos::Semaphore worker_loop_semaphore;
+static rtos::Semaphore link_status_semaphore;
+static EventQueue worker_loop_event_queue(20 * EVENTS_EVENT_SIZE);
 static void worker_loop_event_cb(int event);
 static Event<void(int)> worker_loop_event(&worker_loop_event_queue, worker_loop_event_cb);
-static void link_input_event_cb(emac_stack_mem_chain_t *mem_chain_p);
-static Event<void(emac_stack_mem_chain_t *)> link_input_event(&worker_loop_event_queue, link_input_event_cb);
+static void link_input_event_cb(void *buf);
+static Event<void(void *)> link_input_event(&worker_loop_event_queue, link_input_event_cb);
 
 // Found echo server addresses
 static unsigned char eth_mac_echo_server_addr[ECHO_SERVER_COUNT][ETH_MAC_ADDR_LEN];
 static int etc_mac_echo_server_free_index = 0;
+
+static bool output_memory = true;
+static bool input_memory = true;
+
+static void (*current_test_step_cb_fnc)(int opt);
 
 // Outgoing messages
 static outgoing_msg_t outgoing_msgs[OUTGOING_MSG_COUNT];
@@ -75,6 +84,7 @@ static outgoing_msg_t outgoing_msgs[OUTGOING_MSG_COUNT];
 static unsigned int trace_level = 0;
 static unsigned int error_flags = 0;
 static unsigned int no_response_cnt = 0;
+static bool link_up = false;
 
 int emac_if_find_outgoing_msg(int receipt_number)
 {
@@ -97,7 +107,10 @@ int emac_if_count_outgoing_msg(void)
 
     for (int i = 0; i < OUTGOING_MSG_COUNT; i++) {
         if (outgoing_msgs[i].length) {
-            count++;
+
+            if (!(outgoing_msgs[i].flags & RESPONSE_RECEIVED)) {
+                count++;
+            }
         }
     }
 
@@ -197,29 +210,31 @@ void emac_if_validate_outgoing_msg(void)
     }
 }
 
-void emac_if_update_reply_to_outgoing_msg(int receipt_number, int lenght, int invalid_data_index)
+bool emac_if_update_reply_to_outgoing_msg(int receipt_number, int length, int invalid_data_index)
 {
     int32_t outgoing_msg_index = emac_if_find_outgoing_msg(receipt_number);
 
     if (outgoing_msg_index >= 0) {
         outgoing_msgs[outgoing_msg_index].flags |= RESPONSE_RECEIVED;
 
-#if MBED_CONF_APP_TEST_ETHERNET
         if (outgoing_msgs[outgoing_msg_index].length < ETH_FRAME_MIN_LEN) {
-            if (lenght != ETH_FRAME_MIN_LEN) {
+            /* If length of the sent message is smaller than Ethernet minimum frame length, validates against
+               minimum frame length or sent length (in case frame has been converted to be longer than minimum
+               length does not validate length)  */
+            if (length != ETH_FRAME_MIN_LEN && outgoing_msgs[outgoing_msg_index].length != length && length < ETH_FRAME_MIN_LEN ) {
                 outgoing_msgs[outgoing_msg_index].flags |= INVALID_LENGHT;
             }
         } else {
-#endif
-            if (outgoing_msgs[outgoing_msg_index].length != lenght) {
+            if (outgoing_msgs[outgoing_msg_index].length != length) {
                 outgoing_msgs[outgoing_msg_index].flags |= INVALID_LENGHT;
             }
-#if MBED_CONF_APP_TEST_ETHERNET
         }
-#endif
         if (invalid_data_index && invalid_data_index < outgoing_msgs[outgoing_msg_index].length) {
             outgoing_msgs[outgoing_msg_index].flags |= INVALID_DATA;
         }
+        return true;
+    } else {
+        return false;
     }
 }
 
@@ -276,7 +291,15 @@ unsigned int emac_if_get_error_flags(void)
     return error_flags_value;
 }
 
-void emac_if_reset_error_flags(void)
+void emac_if_reset_error_flags(unsigned int error_flags_value)
+{
+    error_flags &= ~error_flags_value;
+    if (error_flags_value & NO_RESPONSE) {
+        no_response_cnt = 0;
+    }
+}
+
+void emac_if_reset_all_error_flags(void)
 {
     error_flags = 0;
     no_response_cnt = 0;
@@ -307,6 +330,11 @@ void emac_if_set_trace_level(char trace_level_value)
     trace_level = trace_level_value;
 }
 
+char emac_if_get_trace_level(void)
+{
+    return trace_level;
+}
+
 void emac_if_trace_to_ascii_hex_dump(const char *prefix, int len, unsigned char *data)
 {
     int line_len = 0;
@@ -324,7 +352,48 @@ void emac_if_trace_to_ascii_hex_dump(const char *prefix, int len, unsigned char 
     printf("\r\n\r\n");
 }
 
-void emac_if_link_state_change_cb(void *data, bool up)
+void emac_if_set_all_multicast(bool all)
+{
+    emac_if_get()->set_all_multicast(all);
+}
+
+void emac_if_add_multicast_group(uint8_t *address)
+{
+    emac_if_get()->add_multicast_group(address);
+}
+
+void emac_if_set_output_memory(bool memory)
+{
+    output_memory = memory;
+}
+
+void emac_if_set_input_memory(bool memory)
+{
+    input_memory = memory;
+
+    emac_if_set_memory(memory);
+}
+
+void emac_if_check_memory(bool output)
+{
+    if (output) {
+        emac_if_set_memory(output_memory);
+    } else {
+        emac_if_set_memory(input_memory);
+    }
+}
+
+void emac_if_set_memory(bool memory)
+{
+    static bool memory_value = true;
+    if (memory_value != memory ) {
+        memory_value = memory;
+        EmacTestMemoryManager *mem_mngr = emac_m_mngr_get();
+        mem_mngr->set_memory_available(memory);
+    }
+}
+
+void emac_if_link_state_change_cb(bool up)
 {
     if (up) {
         worker_loop_event.post(LINK_UP);
@@ -333,21 +402,21 @@ void emac_if_link_state_change_cb(void *data, bool up)
     }
 }
 
-void emac_if_link_input_cb(void *data, emac_stack_mem_chain_t *mem_chain_p)
+void emac_if_link_input_cb(void *buf)
 {
-    link_input_event.post(mem_chain_p);
+    link_input_event.post(buf);
 }
 
-static void link_input_event_cb(emac_stack_mem_chain_t *mem_chain_p)
+static void link_input_event_cb(void *buf)
 {
-    int lenght = emac_stack_mem_len(0, mem_chain_p);
+    int length = emac_m_mngr_get()->get_total_len(buf);
 
-    if (lenght >= ETH_FRAME_HEADER_LEN) {
+    if (length >= ETH_FRAME_HEADER_LEN) {
         // Ethernet input frame
         unsigned char eth_input_frame_data[ETH_FRAME_HEADER_LEN];
         memset(eth_input_frame_data, 0, ETH_FRAME_HEADER_LEN);
 
-        int invalid_data_index = emac_if_memory_buffer_read(mem_chain_p, eth_input_frame_data);
+        int invalid_data_index = emac_if_memory_buffer_read(buf, eth_input_frame_data);
 
         if (eth_input_frame_data[12] == 0x90 && eth_input_frame_data[13] == 0x00) {
             unsigned char eth_output_frame_data[ETH_FRAME_HEADER_LEN];
@@ -356,81 +425,129 @@ static void link_input_event_cb(emac_stack_mem_chain_t *mem_chain_p)
             ctp_function function = emac_if_ctp_header_handle(eth_input_frame_data, eth_output_frame_data, emac_if_get_hw_addr(), &receipt_number);
 
             if (function == CTP_REPLY) {
-                emac_if_update_reply_to_outgoing_msg(receipt_number, lenght, invalid_data_index);
+                // If reply has valid receipt number
+                if (emac_if_update_reply_to_outgoing_msg(receipt_number, length, invalid_data_index)) {
+                    // Checks received messages for errors
+                    emac_if_validate_outgoing_msg();
+                    // Removes not replied retry entries if any
+                    emac_if_reset_outgoing_msg();
+                    // Removes retry entries no response flags
+                    emac_if_reset_error_flags(NO_RESPONSE);
+                    // Calls test loop
+                    worker_loop_event_queue.call(current_test_step_cb_fnc, INPUT);
+                }
 #if MBED_CONF_APP_ECHO_SERVER
             // Echoes only if configured as echo server
             } else if (function == CTP_FORWARD) {
-                emac_if_memory_buffer_write(mem_chain_p, eth_output_frame_data, false);
-                emac_if_get()->ops.link_out(emac_if_get(), mem_chain_p);
+                emac_if_memory_buffer_write(buf, eth_output_frame_data, false);
+                emac_if_get()->link_out(buf);
+                buf = 0;
 #endif
             }
 
             emac_if_add_echo_server_addr(&eth_input_frame_data[6]);
 
-            emac_stack_mem_free(0, mem_chain_p);
-
             if (trace_level & TRACE_ETH_FRAMES) {
-                 printf("LEN %i\r\n\r\n", lenght);
+                 printf("INP> LEN %i\r\n\r\n", length);
                  const char trace_type[] = "INP>";
                  emac_if_trace_to_ascii_hex_dump(trace_type, ETH_FRAME_HEADER_LEN, eth_input_frame_data);
             }
-            return;
         }
     }
 
-    // Forward other than CTP frames to lwip
-    struct netif *netif;
-
-    /* loop through netif's */
-    netif = netif_list;
-    if (netif != NULL) {
-        struct pbuf *p = (struct pbuf *)mem_chain_p;
-
-        /* pass all packets to ethernet_input, which decides what packets it supports */
-        if (netif->input(p, netif) != ERR_OK) {
-            emac_stack_mem_free(0, mem_chain_p);
-        }
-    } else {
-        emac_stack_mem_free(0, mem_chain_p);
+    if (buf) {
+        emac_m_mngr_get()->free(buf);
     }
 }
 
-void worker_loop_start(void (*test_step_cb_fnc)(void), int timeout)
+static unsigned char thread_stack[2048];
+
+void worker_loop(void);
+
+void worker_loop_init(void)
 {
-    int test_step_cb_timer = worker_loop_event_queue.call_every(timeout, test_step_cb_fnc);
+    static rtos::Thread worker_loop_thread(osPriorityNormal, 2048, thread_stack);
+
+    static bool init_done = false;
+
+    if (!init_done) {
+        if (worker_loop_thread.get_state() == Thread::Deleted) {
+            worker_loop_thread.start(mbed::callback(&worker_loop));
+        }
+        init_done = true;
+    }
+}
+
+void worker_loop_start(void (*test_step_cb_fnc)(int opt), int timeout)
+{
+    current_test_step_cb_fnc = test_step_cb_fnc;
+
+    int test_step_cb_timer = worker_loop_event_queue.call_every(timeout, test_step_cb_fnc, TIMEOUT);
     int timeout_outgoing_msg_timer = worker_loop_event_queue.call_every(1000, emac_if_timeout_outgoing_msg);
 
+    int validate_outgoing_msg_timer = 0;
+    if (timeout > 500) {
+        // For long test step callback timeouts validates messages also between callback timeouts
+        validate_outgoing_msg_timer = worker_loop_event_queue.call_every(200, emac_if_validate_outgoing_msg);
+    }
+
 #if MBED_CONF_APP_ECHO_SERVER
-    worker_loop_event_queue.dispatch_forever();
+    worker_loop_semaphore.wait();
 #else
-    worker_loop_event_queue.dispatch(600 * SECOND_TO_MS);
+    worker_loop_semaphore.wait(600 * SECOND_TO_MS);
 #endif
 
     worker_loop_event_queue.cancel(test_step_cb_timer);
     worker_loop_event_queue.cancel(timeout_outgoing_msg_timer);
+    if (validate_outgoing_msg_timer) {
+        worker_loop_event_queue.cancel(validate_outgoing_msg_timer);
+    }
 
-    worker_loop_event_queue.dispatch(5);
+    osDelay(1000);
 }
 
 static void worker_loop_event_cb(int event)
 {
     if (event == LINK_UP) {
-        printf("cable connected\r\n\r\n");
+        link_up = true;
+        link_status_semaphore.release();
     }
 
     if (event == LINK_DOWN) {
-        printf("cable disconnected\r\n\r\n");
+        link_up = false;
+    }
+}
+
+void worker_loop_link_up_wait(void)
+{
+    if (!link_up) {
+        link_status_semaphore.wait();
     }
 }
 
 void worker_loop_end(void)
 {
-    worker_loop_event_queue.break_dispatch();
+    worker_loop_semaphore.release();
+}
+
+void worker_loop(void)
+{
+    worker_loop_event_queue.dispatch_forever();
 }
 
 unsigned char *emac_if_get_own_addr(void)
 {
     return (emac_if_get_hw_addr());
+}
+
+int emac_if_get_mtu_size()
+{
+    return eth_mtu_size;
+}
+
+void emac_if_set_mtu_size(int mtu_size)
+{
+    eth_mtu_size = mtu_size;
 }
 
 #endif

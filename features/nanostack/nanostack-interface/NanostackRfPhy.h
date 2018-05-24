@@ -24,6 +24,13 @@
 class NanostackRfPhy : public NanostackPhy {
 public:
 
+    /** Return the default on-board NanostackRfPhy
+     *
+     * Returns the default on-board NanostackRfPhy - this will be target-specific, and
+     * may not be available on all targets.
+     */
+    static NanostackRfPhy &get_default_instance();
+
     /** Register this physical interface with Nanostack
      *
      *  @return         Device driver ID or a negative error

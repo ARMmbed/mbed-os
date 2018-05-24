@@ -16,6 +16,10 @@
             "console-uart-flow-control": {
                 "help": "Console hardware flow control. Options: null, RTS, CTS, RTSCTS.",
                 "value": null
+            },
+            "network-default-interface-type": {
+                "help": "Default network interface type. Typical options: null, ETHERNET, WIFI, CELLULAR, MESH",
+                "value": null
             }
         }
     },
@@ -243,7 +247,10 @@
         "release_versions": ["2", "5"],
         "features": ["LWIP"],
         "device_name": "LPC1768",
-        "bootloader_supported": true
+        "bootloader_supported": true,
+        "overrides": {
+            "network-default-interface-type": "ETHERNET"
+        }
     },
     "LPC1769": {
         "inherits": ["LPC1768"],
@@ -260,7 +267,10 @@
         "release_versions": ["2", "5"],
         "features": ["LWIP"],
         "device_name": "LPC1768",
-        "bootloader_supported": true
+        "bootloader_supported": true,
+        "overrides": {
+            "network-default-interface-type": "ETHERNET"
+        }
     },
     "UBLOX_C027": {
         "supported_form_factors": ["ARDUINO"],
@@ -285,7 +295,10 @@
         "release_versions": ["2", "5"],
         "features": ["LWIP"],
         "device_name": "LPC1768",
-        "bootloader_supported": true
+        "bootloader_supported": true,
+        "overrides": {
+            "network-default-interface-type": "CELLULAR"
+        }
     },
     "XBED_LPC1768": {
         "inherits": ["LPCTarget"],
@@ -357,7 +370,10 @@
         },
         "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "DEBUG_AWARENESS", "ETHERNET", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
         "features": ["LWIP"],
-        "device_name": "LPC4088FBD144"
+        "device_name": "LPC4088FBD144",
+        "overrides": {
+            "network-default-interface-type": "ETHERNET"
+        }
     },
     "LPC4088": {
         "inherits": ["MCU_LPC4088"],
@@ -610,16 +626,19 @@
         "supported_form_factors": ["ARDUINO"],
         "core": "Cortex-M4F",
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
-        "extra_labels": ["Freescale", "MCUXpresso_MCUS", "KSDK2_MCUS", "FRDM", "KPSDK_MCUS", "KPSDK_CODE", "MCU_K64F"],
+        "extra_labels": ["Freescale", "MCUXpresso_MCUS", "KSDK2_MCUS", "FRDM", "KPSDK_MCUS", "KPSDK_CODE", "MCU_K64F", "Freescale_EMAC"],
         "is_disk_virtual": true,
         "macros": ["CPU_MK64FN1M0VMD12", "FSL_RTOS_MBED"],
         "inherits": ["Target"],
         "detect_code": ["0240"],
-        "device_has": ["ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE", "STDIO_MESSAGES", "STORAGE", "TRNG", "FLASH"],
+        "device_has": ["ANALOGIN", "ANALOGOUT", "EMAC", "I2C", "I2CSLAVE", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE", "STDIO_MESSAGES", "STORAGE", "TRNG", "FLASH"],
         "features": ["LWIP", "STORAGE"],
         "release_versions": ["2", "5"],
         "device_name": "MK64FN1M0xxx12",
-        "bootloader_supported": true
+        "bootloader_supported": true,
+        "overrides": {
+            "network-default-interface-type": "ETHERNET"
+        }
     },
     "EV_COG_AD4050LZ": {
         "inherits": ["Target"],
@@ -674,16 +693,19 @@
         "supported_form_factors": ["ARDUINO"],
         "core": "Cortex-M4F",
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
-        "extra_labels": ["Freescale", "MCUXpresso_MCUS", "KSDK2_MCUS", "FRDM"],
+        "extra_labels": ["Freescale", "MCUXpresso_MCUS", "KSDK2_MCUS", "FRDM", "Freescale_EMAC"],
         "is_disk_virtual": true,
         "macros": ["CPU_MK66FN2M0VMD18", "FSL_RTOS_MBED"],
         "inherits": ["Target"],
         "detect_code": ["0311"],
-        "device_has": ["ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "TRNG", "FLASH"],
+        "device_has": ["ANALOGIN", "ANALOGOUT", "EMAC", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "TRNG", "FLASH"],
         "features": ["LWIP"],
         "release_versions": ["2", "5"],
         "device_name": "MK66FN2M0xxx18",
-        "bootloader_supported": true
+        "bootloader_supported": true,
+        "overrides": {
+            "network-default-interface-type": "ETHERNET"
+        }
     },
     "K82F": {
         "supported_form_factors": ["ARDUINO"],
@@ -752,13 +774,16 @@
     "MCU_LPC546XX": {
         "core": "Cortex-M4F",
         "supported_toolchains": ["ARM", "IAR", "GCC_ARM"],
-        "extra_labels": ["NXP", "MCUXpresso_MCUS", "LPCXpresso", "LPC", "LPC546XX"],
+        "extra_labels": ["NXP", "MCUXpresso_MCUS", "LPCXpresso", "LPC", "LPC546XX", "NXP_EMAC"],
         "is_disk_virtual": true,
         "macros": ["CPU_LPC54628J512ET180", "FSL_RTOS_MBED"],
         "inherits": ["Target"],
-        "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "FLASH", "TRNG"],
+        "device_has": ["ANALOGIN", "EMAC", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "RTC", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "FLASH", "TRNG"],
         "features": ["LWIP"],
-        "device_name" : "LPC54628J512ET180"
+        "device_name" : "LPC54628J512ET180",
+        "overrides": {
+            "network-default-interface-type": "ETHERNET"
+        }
     },
     "LPC546XX": {
         "supported_form_factors": ["ARDUINO"],
@@ -913,7 +938,7 @@
         "inherits": ["FAMILY_STM32"],
         "supported_form_factors": ["ARDUINO", "MORPHO"],
         "core": "Cortex-M3",
-        "extra_labels_add": ["STM32F2", "STM32F207ZG"],
+        "extra_labels_add": ["STM32F2", "STM32F207ZG", "STM_EMAC"],
         "config": {
             "d11_configuration": {
                 "help": "Value: PA_7 for the default board configuration, PB_5 in case of solder bridge update (SB121 off/ SB122 on)",
@@ -928,10 +953,13 @@
         },
         "detect_code": ["0835"],
         "macros_add": ["USBHOST_OTHER"],
-        "device_has_add": ["ANALOGOUT", "CAN", "SERIAL_ASYNCH", "SERIAL_FC", "FLASH"],
+        "device_has_add": ["ANALOGOUT", "CAN", "EMAC", "SERIAL_ASYNCH", "SERIAL_FC", "FLASH"],
         "features": ["LWIP"],
         "release_versions": ["2", "5"],
-        "device_name": "STM32F207ZG"
+        "device_name": "STM32F207ZG",
+        "overrides": {
+            "network-default-interface-type": "ETHERNET"
+        }
     },
     "NUCLEO_F302R8": {
         "inherits": ["FAMILY_STM32"],
@@ -1239,14 +1267,17 @@
                 "macro_name": "CLOCK_SOURCE_USB"
             }
         },
-        "extra_labels_add": ["STM32F4", "STM32F429", "STM32F429ZI", "STM32F429xx", "STM32F429xI"],
+        "extra_labels_add": ["STM32F4", "STM32F429", "STM32F429ZI", "STM32F429xx", "STM32F429xI", "STM_EMAC"],
         "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
-        "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
+        "device_has_add": ["ANALOGOUT", "CAN", "EMAC", "LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
         "detect_code": ["0796"],
         "features": ["LWIP"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F429ZI",
-        "bootloader_supported": true
+        "bootloader_supported": true,
+        "overrides": {
+            "network-default-interface-type": "ETHERNET"
+        }
     },
     "NUCLEO_F439ZI": {
         "inherits": ["FAMILY_STM32"],
@@ -1269,14 +1300,17 @@
                 "macro_name": "CLOCK_SOURCE_USB"
             }
         },
-        "extra_labels_add": ["STM32F4", "STM32F439", "STM32F439ZI", "STM32F439xx", "STM32F439xI"],
+        "extra_labels_add": ["STM32F4", "STM32F439", "STM32F439ZI", "STM32F439xx", "STM32F439xI", "STM_EMAC"],
         "macros_add": ["MBEDTLS_CONFIG_HW_SUPPORT", "USB_STM_HAL", "USBHOST_OTHER"],
-        "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_FC", "TRNG", "FLASH"],
+        "device_has_add": ["ANALOGOUT", "CAN", "EMAC", "LOWPOWERTIMER", "SERIAL_FC", "TRNG", "FLASH"],
         "detect_code": ["0797"],
         "features": ["LWIP"],
         "release_versions": ["2", "5"],
         "device_name" : "STM32F439ZI",
-        "bootloader_supported": true
+        "bootloader_supported": true,
+        "overrides": {
+            "network-default-interface-type": "ETHERNET"
+        }
     },
     "NUCLEO_F446RE": {
         "inherits": ["FAMILY_STM32"],
@@ -1328,7 +1362,7 @@
     "NUCLEO_F746ZG": {
         "inherits": ["FAMILY_STM32"],
         "core": "Cortex-M7F",
-        "extra_labels_add": ["STM32F7", "STM32F746", "STM32F746xG", "STM32F746ZG"],
+        "extra_labels_add": ["STM32F7", "STM32F746", "STM32F746xG", "STM32F746ZG", "STM_EMAC"],
         "config": {
             "d11_configuration": {
                 "help": "Value: PA_7 for the default board configuration, PB_5 in case of solder bridge update (SB121 off/ SB122 on)",
@@ -1348,16 +1382,19 @@
         "macros_add": ["USBHOST_OTHER"],
         "supported_form_factors": ["ARDUINO"],
         "detect_code": ["0816"],
-        "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_ASYNCH", "TRNG", "FLASH"],
+        "device_has_add": ["ANALOGOUT", "CAN", "EMAC", "LOWPOWERTIMER", "SERIAL_ASYNCH", "TRNG", "FLASH"],
         "features": ["LWIP"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F746ZG",
-        "bootloader_supported": true
+        "bootloader_supported": true,
+        "overrides": {
+            "network-default-interface-type": "ETHERNET"
+        }
     },
     "NUCLEO_F756ZG": {
         "inherits": ["FAMILY_STM32"],
         "core": "Cortex-M7F",
-        "extra_labels_add": ["STM32F7", "STM32F756", "STM32F756xG", "STM32F756ZG"],
+        "extra_labels_add": ["STM32F7", "STM32F756", "STM32F756xG", "STM32F756ZG", "STM_EMAC"],
         "config": {
             "d11_configuration": {
                 "help": "Value: PA_7 for the default board configuration, PB_5 in case of solder bridge update (SB121 off/ SB122 on)",
@@ -1377,15 +1414,18 @@
         "macros_add": ["TRANSACTION_QUEUE_SIZE_SPI=2", "USBHOST_OTHER", "MBEDTLS_CONFIG_HW_SUPPORT"],
         "supported_form_factors": ["ARDUINO"],
         "detect_code": ["0819"],
-        "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_ASYNCH", "TRNG", "FLASH"],
+        "device_has_add": ["ANALOGOUT", "CAN", "EMAC", "LOWPOWERTIMER", "SERIAL_ASYNCH", "TRNG", "FLASH"],
         "features": ["LWIP"],
         "release_versions": ["2", "5"],
-        "device_name": "STM32F756ZG"
+        "device_name": "STM32F756ZG",
+        "overrides": {
+            "network-default-interface-type": "ETHERNET"
+        }
     },
     "NUCLEO_F767ZI": {
         "inherits": ["FAMILY_STM32"],
         "core": "Cortex-M7FD",
-        "extra_labels_add": ["STM32F7", "STM32F767", "STM32F767xI", "STM32F767ZI"],
+        "extra_labels_add": ["STM32F7", "STM32F767", "STM32F767xI", "STM32F767ZI", "STM_EMAC"],
         "config": {
             "d11_configuration": {
                 "help": "Value: PA_7 for the default board configuration, PB_5 in case of solder bridge update (SB121 off/ SB122 on)",
@@ -1405,11 +1445,14 @@
         "supported_form_factors": ["ARDUINO"],
         "macros_add": ["USBHOST_OTHER"],
         "detect_code": ["0818"],
-        "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_ASYNCH", "TRNG", "FLASH"],
+        "device_has_add": ["ANALOGOUT", "CAN", "EMAC", "LOWPOWERTIMER", "SERIAL_ASYNCH", "TRNG", "FLASH"],
         "features": ["LWIP"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F767ZI",
-        "bootloader_supported": true
+        "bootloader_supported": true,
+        "overrides": {
+            "network-default-interface-type": "ETHERNET"
+        }
     },
     "NUCLEO_L011K4": {
         "inherits": ["FAMILY_STM32"],
@@ -1847,7 +1890,7 @@
     "DISCO_F746NG": {
         "inherits": ["FAMILY_STM32"],
         "core": "Cortex-M7F",
-        "extra_labels_add": ["STM32F7", "STM32F746", "STM32F746xG", "STM32F746NG"],
+        "extra_labels_add": ["STM32F7", "STM32F746", "STM32F746xG", "STM32F746NG", "STM_EMAC"],
         "supported_form_factors": ["ARDUINO"],
         "config": {
             "clock_source": {
@@ -1866,15 +1909,18 @@
         },
         "detect_code": ["0815"],
         "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
-        "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_ASYNCH", "TRNG", "FLASH"],
+        "device_has_add": ["ANALOGOUT", "CAN", "EMAC", "LOWPOWERTIMER", "SERIAL_ASYNCH", "TRNG", "FLASH"],
         "features": ["LWIP"],
         "release_versions": ["2", "5"],
-        "device_name": "STM32F746NG"
+        "device_name": "STM32F746NG",
+        "overrides": {
+            "network-default-interface-type": "ETHERNET"
+        }
     },
     "DISCO_F769NI": {
         "inherits": ["FAMILY_STM32"],
         "core": "Cortex-M7FD",
-        "extra_labels_add": ["STM32F7", "STM32F769", "STM32F769xI", "STM32F769NI"],
+        "extra_labels_add": ["STM32F7", "STM32F769", "STM32F769xI", "STM32F769NI", "STM_EMAC"],
         "supported_form_factors": ["ARDUINO"],
         "config": {
             "clock_source": {
@@ -1889,10 +1935,13 @@
         },
         "detect_code": ["0817"],
         "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
-        "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_ASYNCH", "TRNG", "FLASH"],
+        "device_has_add": ["ANALOGOUT", "CAN", "EMAC", "LOWPOWERTIMER", "SERIAL_ASYNCH", "TRNG", "FLASH"],
         "features": ["LWIP"],
         "release_versions": ["2", "5"],
-        "device_name": "STM32F769NI"
+        "device_name": "STM32F769NI",
+        "overrides": {
+            "network-default-interface-type": "ETHERNET"
+        }
     },
     "DISCO_L475VG_IOT01A": {
         "inherits": ["FAMILY_STM32"],
@@ -2094,14 +2143,17 @@
     "MODULE_UBLOX_ODIN_W2": {
         "inherits": ["FAMILY_STM32"],
         "core": "Cortex-M4F",
-        "extra_labels_add": ["STM32F4", "STM32F439", "STM32F439ZI","STM32F439xx", "STM32F439xI"],
-        "macros": ["MBEDTLS_CONFIG_HW_SUPPORT", "HSE_VALUE=24000000", "HSE_STARTUP_TIMEOUT=5000", "CB_INTERFACE_SDIO","CB_CHIP_WL18XX","SUPPORT_80211D_ALWAYS","WLAN_ENABLED","MBEDTLS_ARC4_C","MBEDTLS_DES_C","MBEDTLS_MD4_C","MBEDTLS_MD5_C","MBEDTLS_SHA1_C"],
-        "device_has_add": ["CAN", "EMAC", "TRNG", "FLASH"],
+        "extra_labels_add": ["STM32F4", "STM32F439", "STM32F439ZI","STM32F439xx", "STM32F439xI", "STM_EMAC"],
+        "macros": ["MBEDTLS_CONFIG_HW_SUPPORT", "HSE_VALUE=24000000", "HSE_STARTUP_TIMEOUT=5000", "CB_INTERFACE_SDIO","CB_CHIP_WL18XX","SUPPORT_80211D_ALWAYS","WLAN_ENABLED","CB_FEATURE_802DOT11W","CB_FEATURE_802DOT11R","MBEDTLS_ARC4_C","MBEDTLS_DES_C","MBEDTLS_MD4_C","MBEDTLS_MD5_C","MBEDTLS_SHA1_C"],
+        "device_has_add": ["CAN", "EMAC", "TRNG", "FLASH", "WIFI"],
         "device_has_remove": ["RTC", "SLEEP"],
         "features": ["LWIP"],
         "device_name": "STM32F439ZI",
         "public": false,
-        "bootloader_supported": true
+        "bootloader_supported": true,
+        "overrides": {
+            "network-default-interface-type": "WIFI"
+        }
     },
     "UBLOX_EVK_ODIN_W2": {
         "inherits": ["MODULE_UBLOX_ODIN_W2"],
@@ -2145,7 +2197,7 @@
         "supported_form_factors": ["ARDUINO"],
         "core": "Cortex-M4F",
         "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
-        "extra_labels_add": ["STM32F4", "STM32F437", "STM32F437VG", "STM32F437xx", "STM32F437xG"],
+        "extra_labels_add": ["STM32F4", "STM32F437", "STM32F437VG", "STM32F437xx", "STM32F437xG", "STM_EMAC"],
         "config": {
             "modem_is_on_board": {
                 "help": "Value: Tells the build system that the modem is on-board as oppose to a plug-in shield/module.",
@@ -2160,11 +2212,14 @@
         },
         "macros_add": ["MBEDTLS_CONFIG_HW_SUPPORT", "HSE_VALUE=12000000", "GNSSBAUD=9600"],
         "overrides": {"lse_available": 0},
-        "device_has_add": ["ANALOGOUT", "SERIAL_FC", "TRNG", "FLASH"],
+        "device_has_add": ["ANALOGOUT", "EMAC", "SERIAL_FC", "TRNG", "FLASH"],
         "features": ["LWIP"],
         "public": false,
         "device_name": "STM32F437VG",
-        "bootloader_supported": true
+        "bootloader_supported": true,
+        "overrides": {
+            "network-default-interface-type": "ETHERNET"
+        }
     },
     "UBLOX_C030_U201": {
         "inherits": ["UBLOX_C030"],
@@ -2721,17 +2776,22 @@
         "extra_labels": ["RENESAS", "RZ_A1XX"],
         "device_has": ["ANALOGIN", "CAN", "ETHERNET", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES"],
         "features": ["LWIP"],
-        "program_cycle_s": 2
+        "program_cycle_s": 2,
+        "overrides": {
+            "network-default-interface-type": "ETHERNET"
+        }
     },
     "RZ_A1H": {
         "inherits": ["RZ_A1XX"],
         "supported_form_factors": ["ARDUINO"],
-        "extra_labels_add": ["RZA1H", "MBRZA1H"],
+        "extra_labels_add": ["RZA1H", "MBRZA1H", "RZ_A1_EMAC"],
+        "device_has_add": ["EMAC"],
         "release_versions": ["2", "5"]
     },
     "VK_RZ_A1H": {
         "inherits": ["RZ_A1XX"],
-        "extra_labels_add": ["RZA1H", "VKRZA1H"],
+        "extra_labels_add": ["RZA1H", "VKRZA1H", "RZ_A1_EMAC"],
+        "device_has_add": ["EMAC"],
         "release_versions": ["2", "5"]
     },
     "GR_LYCHEE": {
@@ -2741,7 +2801,10 @@
         "device_has_add": ["TRNG"],
         "device_has_remove": ["ETHERNET"],
         "features_remove": ["LWIP"],
-        "release_versions": ["2", "5"]
+        "release_versions": ["2", "5"],
+        "overrides": {
+            "network-default-interface-type": null
+        }
     },
     "MAXWSNENV": {
         "inherits": ["Target"],
@@ -3697,7 +3760,7 @@
     "NUMAKER_PFM_NUC472": {
         "core": "Cortex-M4F",
         "default_toolchain": "ARM",
-        "extra_labels": ["NUVOTON", "NUC472", "NU_XRAM_SUPPORTED", "FLASH_CMSIS_ALGO"],
+        "extra_labels": ["NUVOTON", "NUC472", "NU_XRAM_SUPPORTED", "FLASH_CMSIS_ALGO", "NUVOTON_EMAC"],
         "is_disk_virtual": true,
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "config": {
@@ -3720,11 +3783,14 @@
         },
         "inherits": ["Target"],
         "macros_add": ["MBEDTLS_CONFIG_HW_SUPPORT"],
-        "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "TRNG", "CAN", "FLASH"],
+        "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "TRNG", "CAN", "FLASH", "EMAC"],
         "features": ["LWIP"],
         "release_versions": ["5"],
         "device_name": "NUC472HI8AE",
-        "bootloader_supported": true
+        "bootloader_supported": true,
+        "overrides": {
+            "network-default-interface-type": "ETHERNET"
+        }
     },
     "NCS36510": {
         "inherits": ["Target"],
@@ -3856,16 +3922,19 @@
         "default_toolchain": "GCC_ARM",
         "inherits": ["Target"],
         "detect_code": ["4600"],
-        "extra_labels": ["Realtek", "AMEBA", "RTL8195A"],
+        "extra_labels": ["Realtek", "AMEBA", "RTL8195A", "RTW_EMAC"],
         "macros": ["__RTL8195A__","CONFIG_PLATFORM_8195A","CONFIG_MBED_ENABLED","PLATFORM_CMSIS_RTOS","MBED_FAULT_HANDLER_DISABLED"],
         "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
-        "device_has": ["ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SPI", "TRNG", "EMAC", "FLASH"],
+        "device_has": ["ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SPI", "TRNG", "FLASH", "EMAC"],
         "features": ["LWIP"],
         "post_binary_hook": {
             "function": "RTL8195ACode.binary_hook",
             "toolchains": ["ARM_STD", "GCC_ARM", "IAR"]
         },
-        "release_versions": ["5"]
+        "release_versions": ["5"],
+        "overrides": {
+            "network-default-interface-type": "ETHERNET"
+        }
     },
     "VBLUNO51_LEGACY": {
         "supported_form_factors": ["ARDUINO"],
@@ -3954,7 +4023,7 @@
     "NUMAKER_PFM_M487": {
         "core": "Cortex-M4F",
         "default_toolchain": "ARM",
-        "extra_labels": ["NUVOTON", "M480", "FLASH_CMSIS_ALGO"],
+        "extra_labels": ["NUVOTON", "M480", "FLASH_CMSIS_ALGO","NUVOTON_EMAC"],
         "is_disk_virtual": true,
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "config": {
@@ -3985,11 +4054,14 @@
         },
         "inherits": ["Target"],
         "macros_add": ["MBEDTLS_CONFIG_HW_SUPPORT"],
-        "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "TRNG", "FLASH", "CAN"],
+        "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LOWPOWERTIMER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "TRNG", "FLASH", "CAN", "EMAC"],
         "features": ["LWIP"],
         "release_versions": ["5"],
         "device_name": "M487JIDAE",
-        "bootloader_supported": true
+        "bootloader_supported": true,
+        "overrides": {
+            "network-default-interface-type": "ETHERNET"
+        }
     },
     "TMPM066": {
         "inherits": ["Target"],

@@ -14,20 +14,21 @@
  * limitations under the License.
  */
 
+#include "MeshInterfaceNanostack.h"
+
 #include "include/callback_handler.h"
 
-
-static MeshInterfaceNanostack *_handler = NULL;
+static Nanostack::Interface *_handler = NULL;
 
 void __mesh_handler_c_callback(mesh_connection_status_t state)
 {
 
     if (_handler) {
-        _handler->mesh_network_handler(state);
+        _handler->network_handler(state);
     }
 }
 
-void __mesh_handler_set_callback(MeshInterfaceNanostack *handler)
+void __mesh_handler_set_callback(Nanostack::Interface *handler)
 {
     _handler = handler;
 }

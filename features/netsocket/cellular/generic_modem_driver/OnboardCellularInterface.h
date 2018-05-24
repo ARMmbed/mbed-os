@@ -19,6 +19,7 @@
 #include "EasyCellularConnection.h"
 #ifdef CELLULAR_DEVICE
 typedef mbed::EasyCellularConnection OnboardCellularInterface;
+#define ONBOARD_CELLULAR_INTERFACE_AVAILABLE
 #elif MODEM_ON_BOARD && MODEM_ON_BOARD_UART && NSAPI_PPP_AVAILABLE
 
 #include "UARTCellularInterface.h"
@@ -94,6 +95,8 @@ protected:
     MBED_DEPRECATED_SINCE("mbed-os-5.9", "This API will be deprecated, use mbed-os/features/cellular/framework/API/CellularPower.h instead.")
     virtual void modem_power_down();
 };
+
+#define ONBOARD_CELLULAR_INTERFACE_AVAILABLE
 
 #endif //MODEM_ON_BOARD && MODEM_ON_BOARD_UART && NSAPI_PPP_AVAILABLE
 #endif //ONBOARD_CELLULAR_INTERFACE_

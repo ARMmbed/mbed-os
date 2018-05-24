@@ -20,8 +20,12 @@
 #include "stddef.h"
 #include <new>
 
-
 // Default NetworkStack operations
+const char *NetworkStack::get_ip_address()
+{
+    return 0;
+
+}
 nsapi_error_t NetworkStack::gethostbyname(const char *name, SocketAddress *address, nsapi_version_t version)
 {
     // check for simple ip addresses
@@ -45,9 +49,47 @@ nsapi_error_t NetworkStack::gethostbyname(const char *name, SocketAddress *addre
     return nsapi_dns_query(this, name, address, version);
 }
 
+nsapi_value_or_error_t NetworkStack::gethostbyname_async(const char *name, hostbyname_cb_t callback, nsapi_version_t version)
+{
+    SocketAddress address;
+
+    // check for simple ip addresses
+    if (address.set_ip_address(name)) {
+        if (version != NSAPI_UNSPEC && address.get_ip_version() != version) {
+            return NSAPI_ERROR_DNS_FAILURE;
+        }
+
+        callback(NSAPI_ERROR_OK, &address);
+        return NSAPI_ERROR_OK;
+    }
+
+    // if the version is unspecified, try to guess the version from the
+    // ip address of the underlying stack
+    if (version == NSAPI_UNSPEC) {
+        SocketAddress testaddress;
+        if (testaddress.set_ip_address(this->get_ip_address())) {
+            version = testaddress.get_ip_version();
+        }
+    }
+
+    call_in_callback_cb_t call_in_cb = get_call_in_callback();
+
+    return nsapi_dns_query_async(this, name, callback, call_in_cb, version);
+}
+
+nsapi_error_t NetworkStack::gethostbyname_async_cancel(int id)
+{
+    return nsapi_dns_query_async_cancel(id);
+}
+
 nsapi_error_t NetworkStack::add_dns_server(const SocketAddress &address)
 {
     return nsapi_dns_add_server(address);
+}
+
+nsapi_error_t NetworkStack::get_dns_server(int index, SocketAddress *address)
+{
+    return NSAPI_ERROR_UNSUPPORTED;
 }
 
 nsapi_error_t NetworkStack::setstackopt(int level, int optname, const void *optval, unsigned optlen)
@@ -70,6 +112,32 @@ nsapi_error_t NetworkStack::getsockopt(void *handle, int level, int optname, voi
     return NSAPI_ERROR_UNSUPPORTED;
 }
 
+nsapi_error_t NetworkStack::call_in(int delay, mbed::Callback<void()> func)
+{
+    events::EventQueue *event_queue = mbed::mbed_event_queue();
+
+    if (!event_queue) {
+        return NSAPI_ERROR_NO_MEMORY;
+    }
+
+    if (delay > 0) {
+        if (event_queue->call_in(delay, func) == 0) {
+            return NSAPI_ERROR_NO_MEMORY;
+        }
+    } else {
+        if (event_queue->call(func) == 0) {
+            return NSAPI_ERROR_NO_MEMORY;
+        }
+    }
+
+    return NSAPI_ERROR_OK;
+}
+
+call_in_callback_cb_t NetworkStack::get_call_in_callback()
+{
+    call_in_callback_cb_t cb(this, &NetworkStack::call_in);
+    return cb;
+}
 
 // NetworkStackWrapper class for encapsulating the raw nsapi_stack structure
 class NetworkStackWrapper : public NetworkStack

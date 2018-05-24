@@ -9,7 +9,7 @@
         },
         "connect-statement" : {
             "help" : "Must use 'net' variable name",
-            "value" : "((EthernetInterface *)net)->connect()"
+            "value" : "net->connect()"
         },
         "echo-server-addr" : {
             "help" : "IP address of echo server",
@@ -22,6 +22,12 @@
         "tcp-echo-prefix" : {
             "help" : "Some servers send a prefix before echoed message",
             "value" : "\"u-blox AG TCP/UDP test service\\n\""
+        }
+    },
+    "target_overrides": {
+        "*": {
+            "target.features_add": ["LWIP"],
+            "nsapi.default-stack": "LWIP"
         }
     }
 }

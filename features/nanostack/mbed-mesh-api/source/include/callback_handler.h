@@ -21,6 +21,7 @@
 #include "mesh_interface_types.h"
 
 #ifdef __cplusplus
+#include "MeshInterfaceNanostack.h"
 extern "C" {
 #endif
 
@@ -31,8 +32,7 @@ void __mesh_handler_c_callback(mesh_connection_status_t state);
 #endif
 
 #ifdef __cplusplus
-#include "NanostackInterface.h"
-void __mesh_handler_set_callback(MeshInterfaceNanostack *handler);
+void __mesh_handler_set_callback(Nanostack::Interface *handler);
 #endif
 
 #endif /* __INCLUDE_CALLBACK_HANDLER_H__ */

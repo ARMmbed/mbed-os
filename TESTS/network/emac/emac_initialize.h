@@ -18,7 +18,9 @@
 #ifndef EMAC_INITIALIZE_H
 #define EMAC_INITIALIZE_H
 
-uint8_t *emac_if_get_hw_addr(void);
-emac_interface_t *emac_if_get(void);
+unsigned char *emac_if_get_hw_addr(void);
+bool emac_if_init(EMAC *emac);
+EMAC *emac_if_get(void);
+EmacTestMemoryManager *emac_m_mngr_get(void);
 
 #endif /* EMAC_INITIALIZE_H */

@@ -153,7 +153,19 @@
 #define cb_INT16_MIN    ((cb_int16)0x8000)
 #define cb_INT32_MIN    ((cb_int32)0x80000000)
 
-
+/* Packed struct default defines */
+#ifndef cb_PACKED_STRUCT_ATTR_INLINE_POST
+#  define cb_PACKED_STRUCT_ATTR_INLINE_POST
+#endif
+#ifndef cb_PACKED_STRUCT_ATTR_INLINE_PRE
+#  define cb_PACKED_STRUCT_ATTR_INLINE_PRE
+#endif
+#ifndef cb_PACKED_STRUCT_ATTR_PRE
+#  define cb_PACKED_STRUCT_ATTR_PRE
+#endif
+#ifndef cb_PACKED_STRUCT_ATTR_POST
+#  define cb_PACKED_STRUCT_ATTR_POST
+#endif
 
 #define cb_PACKED_STRUCT_BEGIN(name) \
     cb_PACKED_STRUCT_ATTR_PRE \

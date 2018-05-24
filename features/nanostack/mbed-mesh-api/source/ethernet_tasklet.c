@@ -224,20 +224,6 @@ void enet_tasklet_network_state_changed(mesh_connection_status_t status)
 }
 
 /* Public functions */
-int8_t enet_tasklet_get_ip_address(char *address, int8_t len)
-{
-    uint8_t binary_ipv6[16];
-
-    if ((len >= 40) && (0 == arm_net_address_get(
-                            tasklet_data_ptr->network_interface_id, ADDR_IPV6_GP, binary_ipv6))) {
-        ip6tos(binary_ipv6, address);
-        //tr_debug("IP address: %s", address);
-        return 0;
-    } else {
-        return -1;
-    }
-}
-
 int8_t enet_tasklet_connect(mesh_interface_cb callback, int8_t nwk_interface_id)
 {
     int8_t re_connecting = true;

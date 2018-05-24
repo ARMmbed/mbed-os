@@ -28,40 +28,53 @@
 
 using namespace utest::v1;
 
-void test_emac_unicast_frame_len_cb(void)
+void test_emac_unicast_frame_len_cb(int opt)
 {
-    emac_if_validate_outgoing_msg();
+    static bool send_request = true;
+    static int no_response_cnt = 0;
+    static int retries = 0;
+    static int msg_len = 0;
 
-    static uint32_t counter = 0;
-
-    // Send unicast to echo server
-    if (counter < 16) {
-        static uint32_t msg_len = 0;
-
-        emac_if_ctp_msg_build(msg_len, emac_if_get_echo_server_addr(0), emac_if_get_own_addr(), emac_if_get_own_addr());
-
-        msg_len += 100;
-
-        if (msg_len > 1514) {
-            msg_len = 1514;
+    // Timeout
+    if (opt == TIMEOUT && send_request) {
+        CTP_MSG_SEND(msg_len, emac_if_get_echo_server_addr(0), emac_if_get_own_addr(), emac_if_get_own_addr(), 0);
+        send_request = false;
+        no_response_cnt = 0;
+    } else if (opt == TIMEOUT) {
+        if (++no_response_cnt > 5) {
+            if (++retries > 5) {
+                printf("too many retries\r\n\r\n");
+                SET_ERROR_FLAGS(TEST_FAILED);
+                END_TEST_LOOP;
+            } else {
+                printf("retry count %i\r\n\r\n", retries);
+                send_request = true;
+            }
         }
     }
 
-    if (counter > 18) {
-        if (emac_if_count_outgoing_msg() == 0) {
-            worker_loop_end();
+    // Echo response received
+    if (opt == INPUT) {
+        if (msg_len == ETH_MAX_LEN) {
+            END_TEST_LOOP;
+        } else if (msg_len + 50 >= ETH_MAX_LEN) {
+            msg_len = ETH_MAX_LEN;
+        } else {
+            msg_len += 50;
         }
+        printf("message length %i\r\n\r\n", msg_len);
+        retries = 0;
+        send_request = true;
     }
-    counter++;
 }
 
 void test_emac_unicast_frame_len()
 {
-    RESET_ERROR_FLAGS;
-    SET_TRACE_LEVEL(TRACE_SUCCESS | TRACE_FAILURE);
+    RESET_ALL_ERROR_FLAGS;
+    SET_TRACE_LEVEL(TRACE_SEND | TRACE_SUCCESS | TRACE_FAILURE);
 
-    if (emac_if_count_echo_server_addr()) {
-        worker_loop_start(test_emac_unicast_frame_len_cb, 1 * SECOND_TO_MS);
+    if (ECHO_SERVER_ADDRESS_KNOWN) {
+        START_TEST_LOOP(test_emac_unicast_frame_len_cb, 100);
     }
 
     PRINT_ERROR_FLAGS;

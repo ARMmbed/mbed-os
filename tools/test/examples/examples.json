@@ -80,8 +80,9 @@
           "https://os.mbed.com/teams/mbed-os-examples/code/mbed-os-example-client"
       ],
       "test-repo-source": "github",
-      "features" : ["LWIP"],
-      "targets" : [],
+      "features" : [],
+      "targets" : ["Freescale_EMAC", "NUVOTON_EMAC", "NXP_EMAC", "RZ_A1_EMAC",
+                   "STM_EMAC"],
       "toolchains" : [],
       "exporters": [],
       "compile" : false,
@@ -94,8 +95,9 @@
       "mbed": [
       ],
       "test-repo-source": "github",
-      "features" : ["LWIP"],
-      "targets" : [],
+      "features" : [],
+      "targets" : ["Freescale_EMAC", "NUVOTON_EMAC", "NXP_EMAC", "RZ_A1_EMAC",
+                   "STM_EMAC"],
       "toolchains" : [],
       "exporters": [],
       "compile" : true,
@@ -209,8 +211,8 @@
       "targets" : ["K64F", "K66F", "NUCLEO_F429ZI"],
       "toolchains" : [],
       "exporters": [],
-      "compile" : true,
-      "export": true,
+      "compile" : false,
+      "export": false,
       "auto-update" : false
     },
     {

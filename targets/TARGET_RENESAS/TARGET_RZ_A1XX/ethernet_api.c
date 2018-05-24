@@ -138,6 +138,12 @@ static ethernetext_cb_fnc *p_recv_cb_fnc    = NULL;
 static char               mac_addr[6]       = {0x00, 0x02, 0xF7, 0xF0, 0x00, 0x00}; /* MAC Address */
 static uint32_t           phy_id            = 0;
 static uint32_t           start_stop        = 1;  /* 0:stop  1:start */
+static uint32_t           tsu_ten_tmp       = 0;
+
+volatile struct st_ether_from_tsu_adrh0*  ETHER_FROM_TSU_ADRH0_ARRAY[ ETHER_FROM_TSU_ADRH0_ARRAY_COUNT ] =
+    /* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
+    ETHER_FROM_TSU_ADRH0_ARRAY_ADDRESS_LIST;
+    /* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
 
 /* function */
 static void lan_reg_reset(void);
@@ -314,6 +320,75 @@ void ethernetext_set_link_mode(int32_t link) {
     lan_desc_create();          /* Initialize of buffer memory */
     lan_reg_set(link);          /* E-DMAC, E-MAC initialization */
 }
+
+void ethernetext_add_multicast_group(const uint8_t *addr) {
+    uint32_t cnt;
+    uint32_t tmp_data_h;
+    uint32_t tmp_data_l;
+
+    if (tsu_ten_tmp == 0xFFFFFFFF) {
+        ethernetext_set_all_multicast(1);
+    } else {
+        tmp_data_h = ((uint32_t)addr[0] << 24) | ((uint32_t)addr[1] << 16) | ((uint32_t)addr[2] << 8) | ((uint32_t)addr[3]);
+        tmp_data_l = ((uint32_t)addr[4] << 8) | ((uint32_t)addr[5]);
+
+        for (cnt = 0; cnt < 32; cnt++) {
+            if ((tsu_ten_tmp & (0x80000000 >> cnt)) == 0) {
+                while ((ETHERTSU_ADSBSY & 0x00000001) != 0) {
+                    ;
+                }
+                ETHER_FROM_TSU_ADRH0_ARRAY[cnt]->TSU_ADRH0 = tmp_data_h;
+                while ((ETHERTSU_ADSBSY & 0x00000001) != 0) {
+                    ;
+                }
+                ETHER_FROM_TSU_ADRH0_ARRAY[cnt]->TSU_ADRL0 = tmp_data_l;
+                if ((ETHERECMR0 & 0x00002000) != 0) {
+                    ETHERTSU_TEN |= (0x80000000 >> cnt);
+                }
+                tsu_ten_tmp  |= (0x80000000 >> cnt);
+                break;
+            }
+        }
+    }
+}
+
+void ethernetext_remove_multicast_group(const uint8_t *addr) {
+    uint32_t cnt;
+    uint32_t tmp_data_h;
+    uint32_t tmp_data_l;
+
+    tmp_data_h = ((uint32_t)addr[0] << 24) | ((uint32_t)addr[1] << 16) | ((uint32_t)addr[2] << 8) | ((uint32_t)addr[3]);
+    tmp_data_l = ((uint32_t)addr[4] << 8) | ((uint32_t)addr[5]);
+
+    for (cnt = 0; cnt< 32; cnt++) {
+        if ((ETHER_FROM_TSU_ADRH0_ARRAY[cnt]->TSU_ADRH0  == tmp_data_h) && 
+            (ETHER_FROM_TSU_ADRH0_ARRAY[cnt]->TSU_ADRL0  == tmp_data_l)) {
+            while ((ETHERTSU_ADSBSY & 0x00000001) != 0) {
+                ;
+            }
+            ETHER_FROM_TSU_ADRH0_ARRAY[cnt]->TSU_ADRH0 = 0;
+            while ((ETHERTSU_ADSBSY & 0x00000001) != 0) {
+                ;
+            }
+            ETHER_FROM_TSU_ADRH0_ARRAY[cnt]->TSU_ADRL0 = 0;
+
+            ETHERTSU_TEN &= ~(0x80000000 >> cnt);
+            tsu_ten_tmp  &= ~(0x80000000 >> cnt);
+            break;
+        }
+    }
+}
+
+void ethernetext_set_all_multicast(int all) {
+    if (all != 0) {
+        ETHERECMR0 &= ~(0x00002000);
+        ETHERTSU_TEN = 0x00000000;
+    } else {
+        ETHERECMR0 |= 0x00002000;
+        ETHERTSU_TEN = tsu_ten_tmp;
+    }
+}
+
 
 int ethernet_init() {
     ethernet_cfg_t ethcfg;
@@ -611,6 +686,7 @@ static void lan_reg_set(int32_t link) {
     } else {
         ETHERECMR0 &= ~0x00000002;      /* Set to half-duplex mode */
     }
+    ETHERECMR0     |=  0x00002000;      /* MCT = 1 */
 
     /* Interrupt-related */
     if (p_recv_cb_fnc != NULL) {
