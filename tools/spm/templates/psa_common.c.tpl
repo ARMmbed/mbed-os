@@ -37,7 +37,6 @@ partition_t g_partitions[{{partitions|count}}] = {
 {% for partition in partitions %}
     {
         .partition_id = {{partition.id}},
-        .partition_state = PARTITION_STATE_INVALID,
         .thread_id = 0,
         .flags_sf = {{partition.name|upper}}_WAIT_ANY_SFID_MSK,
         .flags_interrupts = {{partition.name|upper}}_WAIT_ANY_IRQ_MSK | {{partition.name|upper}}_DOORBELL_MSK,

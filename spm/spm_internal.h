@@ -26,26 +26,27 @@
 extern "C" {
 #endif
 
-#define PARTITION_STATE_ASSERT(partition, partition_state_expected)                                       \
-do {                                                                                                      \
-    if (partition->partition_state != partition_state_expected) {                                         \
-        SPM_PANIC("partition with ID 0x%x is in incorrect processing state: %d while %d is expected!\n",  \
-            partition->partition_id, partition->partition_state, partition_state_expected);               \
-    }                                                                                                     \
+#define CHANNEL_STATE_ASSERT(current_state, expected_state)                                \
+do {                                                                                       \
+    if (current_state != expected_state) {                                                 \
+        SPM_PANIC("channel in incorrect processing state: %d while %d is expected!\n",     \
+            current_state, expected_state);                                                \
+    }                                                                                      \
 } while (0)
 
 typedef struct partition partition_t;
 typedef struct ipc_channel ipc_channel_t;
 
 /*
- * Enumeration for the possible Partition processing states.
+ * Enumeration for the possible channel processing states.
  */
 typedef enum partition_state {
-    PARTITION_STATE_INVALID = 0,
-    PARTITION_STATE_IDLE = 1,
-    PARTITION_STATE_ACTIVE = 2,
-    PARTITION_STATE_COMPLETED = 3
-} PartitionState;
+    CHANNEL_STATE_INVALID = 0,
+    CHANNEL_STATE_CONNECTING = 1,
+    CHANNEL_STATE_IDLE = 2,
+    CHANNEL_STATE_PENDING = 3,
+    CHANNEL_STATE_ACTIVE = 4
+} ChannelState;
 
 /*
  * Structure containing the SPM internal data.
@@ -86,7 +87,6 @@ typedef struct secure_func {
  */
 typedef struct partition {
     const int32_t partition_id; /* The Partition ID.*/
-    PartitionState partition_state; /* The current processing state of the Partition.*/
     osThreadId_t thread_id; /* Thread ID of the Partition thread.*/
     const uint32_t flags_sf; /* Mask of all the SF signals the partition supports.*/
     const uint32_t flags_interrupts; /* Mask of all the IRQs & doorbell which the partition supports.*/
@@ -104,6 +104,7 @@ typedef struct partition {
  * Structure containing Partition->Secure-Function channel information.
  */
 typedef struct ipc_channel {
+    ChannelState state; /* The current processing state of the channel.*/
     partition_t *src_partition; /* Pointer to the Partition which connects to the Secure function.*/
     secure_func_t *dst_sec_func; /* Pointer to the connected Secure Function.*/
     void *rhandle; /* Reverse handle to be used for this channel.*/
