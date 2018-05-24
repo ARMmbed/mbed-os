@@ -3644,6 +3644,7 @@
             "I2C_ASYNCH",
             "INTERRUPTIN",
             "ITM",
+            "LPTICKER",
             "PORTIN",
             "PORTINOUT",
             "PORTOUT",
@@ -3656,7 +3657,8 @@
             "SPI",
             "SPI_ASYNCH",
             "STCLK_OFF_DURING_SLEEP",
-            "TRNG"
+            "TRNG",
+            "USTICKER"
         ],
         "extra_labels": [
             "NORDIC",
@@ -3692,7 +3694,7 @@
     "NRF52840_DK": {
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF52840"],
-        "release_versions": [],
+        "release_versions": ["5"],
         "device_name": "nRF52840_xxAA"
     },
     "BLUEPILL_F103C8": {
