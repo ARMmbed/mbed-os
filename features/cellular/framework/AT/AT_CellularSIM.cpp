@@ -38,7 +38,7 @@ nsapi_error_t AT_CellularSIM::get_sim_state(SimState &state)
     _at.cmd_start("AT+CPIN?");
     _at.cmd_stop();
     _at.resp_start("+CPIN:");
-    ssize_t len = _at.read_string(simstr, sizeof (simstr));
+    ssize_t len = _at.read_string(simstr, sizeof(simstr));
     if (len != -1) {
         if (len >= 5 && memcmp(simstr, "READY", 5) == 0) {
             state = SimStateReady;
@@ -61,13 +61,13 @@ nsapi_error_t AT_CellularSIM::get_sim_state(SimState &state)
 #if MBED_CONF_MBED_TRACE_ENABLE
     switch (state) {
         case SimStatePinNeeded:
-            tr_error("SIM PIN required");
+            tr_info("SIM PIN required");
             break;
         case SimStatePukNeeded:
             tr_error("SIM PUK required");
             break;
         case SimStateUnknown:
-            tr_error("SIM state unknown");
+            tr_warn("SIM state unknown");
             break;
         default:
             tr_info("SIM is ready");
@@ -134,7 +134,7 @@ nsapi_error_t AT_CellularSIM::set_pin_query(const char *sim_pin, bool query_pin)
     return _at.unlock_return_error();
 }
 
-nsapi_error_t AT_CellularSIM::get_imsi(char* imsi)
+nsapi_error_t AT_CellularSIM::get_imsi(char *imsi)
 {
     _at.lock();
     _at.cmd_start("AT+CIMI");

@@ -28,8 +28,7 @@
 #include "Callback.h"
 #include "EventQueue.h"
 
-namespace mbed
-{
+namespace mbed {
 
 class FileHandle;
 
@@ -64,8 +63,7 @@ struct device_err_t {
  *
  *  Class for sending AT commands and parsing AT responses.
  */
-class ATHandler
-{
+class ATHandler {
 
 public:
     /** Constructor
@@ -220,7 +218,7 @@ public:
      *
      *  @param cmd  AT command to be written to modem
      */
-    void cmd_start(const char* cmd);
+    void cmd_start(const char *cmd);
 
     /** Writes integer type AT command subparameter. Starts with the delimiter if not the first param after cmd_start.
      *  In case of failure when writing, the last error is set to NSAPI_ERROR_DEVICE_ERROR.
@@ -236,7 +234,7 @@ public:
      *  @param param string to be written to modem as AT command subparameter
      *  @param useQuotations flag indicating whether the string should be included in quotation marks
      */
-    void write_string(const char* param,  bool useQuotations = true);
+    void write_string(const char *param,  bool useQuotations = true);
 
     /** Stops the AT command by writing command-line terminator CR to mark command as finished.
      */
@@ -360,16 +358,22 @@ public:
      */
     bool consume_to_stop_tag();
 
-    /**  Sets _debug_on flag.
-     *
-     *  @param enable value to be set for _debug_on flag
-     */
-    void enable_debug(bool enable);
-
     /** Return the last 3GPP error code.
      *  @return last 3GPP error code
      */
     int get_3gpp_error();
+
+public: // just for debugging
+    /**
+     * AT debugging, when enabled will print all data read and written,
+     * non-printable chars are printed as "[%d]".
+     *
+     * AT debug can be enabled at compile time using MBED_CONF_CELLULAR_DEBUG_AT flag or at runtime
+     * calling set_debug(). Note that MBED_CONF_MBED_TRACE_ENABLE must also be enabled.
+     *
+     *  @param debug_on Enable/disable debugging
+     */
+    void set_debug(bool debug_on);
 
 private:
 
@@ -438,10 +442,10 @@ private:
     // Returns true on successful read OR false on timeout.
     bool fill_buffer(bool wait_for_timeout = true);
 
-    void set_tag(tag_t* tag_dest, const char *tag_seq);
+    void set_tag(tag_t *tag_dest, const char *tag_seq);
 
     // Rewinds the receiving buffer and compares it against given str.
-    bool match(const char* str, size_t size);
+    bool match(const char *str, size_t size);
     // Iterates URCs and checks if they match the receiving buffer content.
     // If URC match sets the scope to information response and after urc's cb returns
     // finishes the information response scope(consumes to CRLF).
@@ -495,12 +499,15 @@ private:
      *
      * @return pointer to first occurrence of src in dest
      */
-    const char* mem_str(const char* dest, size_t dest_len, const char* src, size_t src_len);
+    const char *mem_str(const char *dest, size_t dest_len, const char *src, size_t src_len);
 
     // check is urc is already added
     bool find_urc_handler(const char *prefix, mbed::Callback<void()> callback);
 
     ssize_t read(char *buf, size_t size, bool read_even_stop_tag, bool hex);
+
+    // print contents of a buffer to trace log
+    void debug_print(char *p, int len);
 };
 
 } // namespace mbed

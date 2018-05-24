@@ -45,7 +45,7 @@ AT_CellularDevice::~AT_CellularDevice()
 }
 
 // each parser is associated with one filehandle (that is UART)
-ATHandler* AT_CellularDevice::get_at_handler(FileHandle *fileHandle)
+ATHandler *AT_CellularDevice::get_at_handler(FileHandle *fileHandle)
 {
     if (!fileHandle) {
         return NULL;
@@ -62,7 +62,7 @@ ATHandler* AT_CellularDevice::get_at_handler(FileHandle *fileHandle)
     atHandler = new ATHandler(fileHandle, _queue, _default_timeout, "\r", get_send_delay());
     if (atHandler) {
         if (_modem_debug_on) {
-            atHandler->enable_debug(_modem_debug_on);
+            atHandler->set_debug(_modem_debug_on);
         }
         atHandler->_nextATHandler = _atHandlers;
         _atHandlers = atHandler;
@@ -71,7 +71,7 @@ ATHandler* AT_CellularDevice::get_at_handler(FileHandle *fileHandle)
     return atHandler;
 }
 
-void AT_CellularDevice::release_at_handler(ATHandler* at_handler)
+void AT_CellularDevice::release_at_handler(ATHandler *at_handler)
 {
     if (!at_handler) {
         return;
@@ -92,7 +92,7 @@ void AT_CellularDevice::release_at_handler(ATHandler* at_handler)
                 break;
             } else {
                 prev = atHandler;
-                atHandler =atHandler->_nextATHandler;
+                atHandler = atHandler->_nextATHandler;
             }
         }
     }
@@ -234,7 +234,7 @@ void AT_CellularDevice::modem_debug_on(bool on)
 
     ATHandler *atHandler = _atHandlers;
     while (atHandler) {
-        atHandler->enable_debug(_modem_debug_on);
+        atHandler->set_debug(_modem_debug_on);
         atHandler = atHandler->_nextATHandler;
     }
 }
