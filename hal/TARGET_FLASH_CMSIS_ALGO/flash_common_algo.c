@@ -19,7 +19,7 @@
 #include "mbed_critical.h"
 #include "mbed_toolchain.h"
 
-#ifndef __DOMAIN_NS
+#ifndef DOMAIN_NS
 
 #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
 #include <arm_cmse.h>
@@ -260,4 +260,4 @@ MBED_NONSECURE_ENTRY uint32_t flash_get_size(const flash_t *obj)
     return obj->target_config->flash_size;
 }
 
-#endif  // #ifndef __DOMAIN_NS
+#endif  // #ifndef DOMAIN_NS

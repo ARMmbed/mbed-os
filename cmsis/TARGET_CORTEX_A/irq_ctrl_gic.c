@@ -24,7 +24,8 @@
 
 #include <stddef.h>
 
-#include <cmsis.h>
+#include "RTE_Components.h"
+#include CMSIS_device_header
 
 #include "irq_ctrl.h"
 
@@ -125,13 +126,11 @@ __WEAK uint32_t IRQ_GetEnableState (IRQn_ID_t irqn) {
 
 /// Configure interrupt request mode.
 __WEAK int32_t IRQ_SetMode (IRQn_ID_t irqn, uint32_t mode) {
-  int32_t status;
   uint32_t val;
   uint8_t cfg;
   uint8_t secure;
   uint8_t cpu;
-
-  status = 0;
+  int32_t status = 0;
 
   if ((irqn >= 0) && (irqn < (IRQn_ID_t)IRQ_GIC_LINE_COUNT)) {
     // Check triggering mode
@@ -142,6 +141,7 @@ __WEAK int32_t IRQ_SetMode (IRQn_ID_t irqn, uint32_t mode) {
     } else if (val == IRQ_MODE_TRIG_EDGE) {
       cfg = 0x02U;
     } else {
+      cfg = 0x00U;
       status = -1;
     }
 
@@ -156,15 +156,16 @@ __WEAK int32_t IRQ_SetMode (IRQn_ID_t irqn, uint32_t mode) {
     val = mode & IRQ_MODE_DOMAIN_Msk;
 
     if (val == IRQ_MODE_DOMAIN_NONSECURE) {
-      secure = 0;
+      secure = 0U;
     } else {
       // Check security extensions support
       val = GIC_DistributorInfo() & (1UL << 10U);
 
       if (val != 0U) {
         // Security extensions are supported
-        secure = 1;
+        secure = 1U;
       } else {
+        secure = 0U;
         status = -1;
       }
     }
@@ -173,7 +174,7 @@ __WEAK int32_t IRQ_SetMode (IRQn_ID_t irqn, uint32_t mode) {
     val = mode & IRQ_MODE_CPU_Msk;
 
     if (val == IRQ_MODE_CPU_ALL) {
-      cpu = 0xFF;
+      cpu = 0xFFU;
     } else {
       cpu = val >> IRQ_MODE_CPU_Pos;
     }

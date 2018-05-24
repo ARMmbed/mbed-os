@@ -26,8 +26,8 @@
         .file    "except.S"
         .syntax  unified
                 
-#ifndef __DOMAIN_NS 
-#define __DOMAIN_NS 1
+#ifndef DOMAIN_NS
+#define DOMAIN_NS 1
 #endif
 
         .equ     FAULT_TYPE_HARD_FAULT,         0x10
@@ -103,7 +103,7 @@ UsageFault_Handler:
         .cantunwind
 
 Fault_Handler:
-#if (__DOMAIN_NS == 1)
+#if (DOMAIN_NS == 1)
         MRS      R0,MSP
         LDR      R1,=0x4                
         MOV      R2,LR

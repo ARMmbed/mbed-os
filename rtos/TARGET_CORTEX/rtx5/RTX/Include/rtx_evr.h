@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017 ARM Limited. All rights reserved.
+ * Copyright (c) 2013-2018 Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -27,8 +27,8 @@
 #define RTX_EVR_H_
 
 #include "cmsis_os2.h"                  // CMSIS RTOS API
+#include "RTX_Config.h"                 // RTX Configuration
 #include "rtx_os.h"                     // RTX OS definitions
-#include "RTX_Config.h"
 
 
 /// Extended Status codes
@@ -68,7 +68,7 @@ extern void EvrRtxMemoryInit (void *mem, uint32_t size, uint32_t result);
   \brief  Event on memory allocate (Op)
   \param[in]  mem           pointer to memory pool.
   \param[in]  size          size of a memory block in bytes.
-  \param[in]  type          memory block type: 0 - generic, 1 - control block
+  \param[in]  type          memory block type: 0 - generic, 1 - control block.
   \param[in]  block         pointer to allocated memory block or NULL in case of no memory is available.
 */
 #if (!defined(EVR_RTX_DISABLE) && (OS_EVR_MEMORY != 0) && !defined(EVR_RTX_MEMORY_ALLOC_DISABLE))
@@ -372,17 +372,18 @@ extern void EvrRtxThreadNew (osThreadFunc_t func, void *argument, const osThread
 /**
   \brief  Event on successful thread create (Op)
   \param[in]  thread_id     thread ID obtained by \ref osThreadNew or \ref osThreadGetId.
+  \param[in]  thread_addr   thread entry address.
 */
 #if (!defined(EVR_RTX_DISABLE) && (OS_EVR_THREAD != 0) && !defined(EVR_RTX_THREAD_CREATED_DISABLE))
-extern void EvrRtxThreadCreated (osThreadId_t thread_id);
+extern void EvrRtxThreadCreated (osThreadId_t thread_id, uint32_t thread_addr);
 #else
-#define EvrRtxThreadCreated(thread_id)
+#define EvrRtxThreadCreated(thread_id, thread_addr)
 #endif
 
 /**
   \brief  Event on thread name retrieve (API)
   \param[in]  thread_id     thread ID obtained by \ref osThreadNew or \ref osThreadGetId.
-  \param[in]  name          pointer to thread object name
+  \param[in]  name          pointer to thread object name.
 */
 #if (!defined(EVR_RTX_DISABLE) && (OS_EVR_THREAD != 0) && !defined(EVR_RTX_THREAD_GET_NAME_DISABLE))
 extern void EvrRtxThreadGetName (osThreadId_t thread_id, const char *name);
@@ -566,7 +567,7 @@ extern void EvrRtxThreadBlocked (osThreadId_t thread_id, uint32_t timeout);
 #endif
 
 /**
-  \brief  Event on blocked thread release (Op)
+  \brief  Event on thread execution unblock (Op)
   \param[in]  thread_id     thread ID obtained by \ref osThreadNew or \ref osThreadGetId.
   \param[in]  ret_val       extended execution status of the thread.
 */
@@ -577,13 +578,23 @@ extern void EvrRtxThreadUnblocked (osThreadId_t thread_id, uint32_t ret_val);
 #endif
 
 /**
-  \brief  Event on current running thread switch (Op)
+  \brief  Event on running thread pre-emption (Op)
   \param[in]  thread_id     thread ID obtained by \ref osThreadNew or \ref osThreadGetId.
 */
-#if (!defined(EVR_RTX_DISABLE) && (OS_EVR_THREAD != 0) && !defined(EVR_RTX_THREAD_SWITCH_DISABLE))
-extern void EvrRtxThreadSwitch (osThreadId_t thread_id);
+#if (!defined(EVR_RTX_DISABLE) && (OS_EVR_THREAD != 0) && !defined(EVR_RTX_THREAD_PREEMPTED_DISABLE))
+extern void EvrRtxThreadPreempted (osThreadId_t thread_id);
 #else
-#define EvrRtxThreadSwitch(thread_id)
+#define EvrRtxThreadPreempted(thread_id)
+#endif
+
+/**
+  \brief  Event on running thread switch (Op)
+  \param[in]  thread_id     thread ID obtained by \ref osThreadNew or \ref osThreadGetId.
+*/
+#if (!defined(EVR_RTX_DISABLE) && (OS_EVR_THREAD != 0) && !defined(EVR_RTX_THREAD_SWITCHED_DISABLE))
+extern void EvrRtxThreadSwitched (osThreadId_t thread_id);
+#else
+#define EvrRtxThreadSwitched(thread_id)
 #endif
 
 /**
@@ -651,7 +662,7 @@ extern void EvrRtxThreadFlagsSet (osThreadId_t thread_id, uint32_t flags);
 /**
   \brief  Event on successful thread flags set (Op)
   \param[in]  thread_id     thread ID obtained by \ref osThreadNew or \ref osThreadGetId.
-  \param[in]  thread_flags  thread flags after setting
+  \param[in]  thread_flags  thread flags after setting.
 */
 #if (!defined(EVR_RTX_DISABLE) && (OS_EVR_THREAD != 0) && !defined(EVR_RTX_THREAD_FLAGS_SET_DONE_DISABLE))
 extern void EvrRtxThreadFlagsSetDone (osThreadId_t thread_id, uint32_t thread_flags);
@@ -671,7 +682,7 @@ extern void EvrRtxThreadFlagsClear (uint32_t flags);
 
 /**
   \brief  Event on successful thread flags clear (Op)
-  \param[in]  thread_flags  thread flags before clearing
+  \param[in]  thread_flags  thread flags before clearing.
 */
 #if (!defined(EVR_RTX_DISABLE) && (OS_EVR_THREAD != 0) && !defined(EVR_RTX_THREAD_FLAGS_CLEAR_DONE_DISABLE))
 extern void EvrRtxThreadFlagsClearDone (uint32_t thread_flags);
@@ -726,7 +737,7 @@ extern void EvrRtxThreadFlagsWaitTimeout (void);
   \brief  Event on successful wait for thread flags (Op)
   \param[in]  flags         flags to wait for.
   \param[in]  options       flags options (osFlagsXxxx).
-  \param[in]  thread_flags  thread flags before clearing
+  \param[in]  thread_flags  thread flags before clearing.
 */
 #if (!defined(EVR_RTX_DISABLE) && (OS_EVR_THREAD != 0) && !defined(EVR_RTX_THREAD_FLAGS_WAIT_COMPLETED_DISABLE))
 extern void EvrRtxThreadFlagsWaitCompleted (uint32_t flags, uint32_t options, uint32_t thread_flags);
@@ -747,7 +758,7 @@ extern void EvrRtxThreadFlagsWaitNotCompleted (uint32_t flags, uint32_t options)
 
 /**
   \brief  Event on wait for timeout (API)
-  \param[in]  ticks         \ref CMSIS_RTOS_TimeOutValue "time ticks" value
+  \param[in]  ticks         \ref CMSIS_RTOS_TimeOutValue "time ticks" value.
 */
 #if (!defined(EVR_RTX_DISABLE) && (OS_EVR_THREAD != 0) && !defined(EVR_RTX_THREAD_DELAY_DISABLE))
 extern void EvrRtxThreadDelay (uint32_t ticks);
@@ -757,7 +768,7 @@ extern void EvrRtxThreadDelay (uint32_t ticks);
 
 /**
   \brief  Event on wait until specified time (API)
-  \param[in]  ticks         absolute time in ticks
+  \param[in]  ticks         absolute time in ticks.
 */
 #if (!defined(EVR_RTX_DISABLE) && (OS_EVR_THREAD != 0) && !defined(EVR_RTX_THREAD_DELAY_UNTIL_DISABLE))
 extern void EvrRtxThreadDelayUntil (uint32_t ticks);
@@ -815,17 +826,18 @@ extern void EvrRtxTimerNew (osTimerFunc_t func, osTimerType_t type, void *argume
 
 /**
   \brief  Event on successful timer create (Op)
-  \param[in]  timer_id      timer ID obtained by \ref osTimerNew
+  \param[in]  timer_id      timer ID obtained by \ref osTimerNew.
+  \param[in]  name          pointer to timer object name.
 */
 #if (!defined(EVR_RTX_DISABLE) && (OS_EVR_TIMER != 0) && !defined(EVR_RTX_TIMER_CREATED_DISABLE))
-extern void EvrRtxTimerCreated (osTimerId_t timer_id);
+extern void EvrRtxTimerCreated (osTimerId_t timer_id, const char *name);
 #else
-#define EvrRtxTimerCreated(timer_id);
+#define EvrRtxTimerCreated(timer_id, name);
 #endif
 
 /**
   \brief  Event on timer name retrieve (API)
-  \param[in]  timer_id      timer ID obtained by \ref osTimerNew
+  \param[in]  timer_id      timer ID obtained by \ref osTimerNew.
   \param[in]  name          pointer to timer object name.
 */
 #if (!defined(EVR_RTX_DISABLE) && (OS_EVR_TIMER != 0) && !defined(EVR_RTX_TIMER_GET_NAME_DISABLE))
@@ -836,7 +848,7 @@ extern void EvrRtxTimerGetName (osTimerId_t timer_id, const char *name);
 
 /**
   \brief  Event on timer start (API)
-  \param[in]  timer_id      timer ID obtained by \ref osTimerNew
+  \param[in]  timer_id      timer ID obtained by \ref osTimerNew.
   \param[in]  ticks         \ref CMSIS_RTOS_TimeOutValue "time ticks" value of the timer.
 */
 #if (!defined(EVR_RTX_DISABLE) && (OS_EVR_TIMER != 0) && !defined(EVR_RTX_TIMER_START_DISABLE))
@@ -847,7 +859,7 @@ extern void EvrRtxTimerStart (osTimerId_t timer_id, uint32_t ticks);
 
 /**
   \brief  Event on successful timer start (Op)
-  \param[in]  timer_id      timer ID obtained by \ref osTimerNew
+  \param[in]  timer_id      timer ID obtained by \ref osTimerNew.
 */
 #if (!defined(EVR_RTX_DISABLE) && (OS_EVR_TIMER != 0) && !defined(EVR_RTX_TIMER_STARTED_DISABLE))
 extern void EvrRtxTimerStarted (osTimerId_t timer_id);
@@ -857,7 +869,7 @@ extern void EvrRtxTimerStarted (osTimerId_t timer_id);
 
 /**
   \brief  Event on timer stop (API)
-  \param[in]  timer_id      timer ID obtained by \ref osTimerNew
+  \param[in]  timer_id      timer ID obtained by \ref osTimerNew.
 */
 #if (!defined(EVR_RTX_DISABLE) && (OS_EVR_TIMER != 0) && !defined(EVR_RTX_TIMER_STOP_DISABLE))
 extern void EvrRtxTimerStop (osTimerId_t timer_id);
@@ -867,7 +879,7 @@ extern void EvrRtxTimerStop (osTimerId_t timer_id);
 
 /**
   \brief  Event on successful timer stop (Op)
-  \param[in]  timer_id      timer ID obtained by \ref osTimerNew
+  \param[in]  timer_id      timer ID obtained by \ref osTimerNew.
 */
 #if (!defined(EVR_RTX_DISABLE) && (OS_EVR_TIMER != 0) && !defined(EVR_RTX_TIMER_STOPPED_DISABLE))
 extern void EvrRtxTimerStopped (osTimerId_t timer_id);
@@ -877,8 +889,8 @@ extern void EvrRtxTimerStopped (osTimerId_t timer_id);
 
 /**
   \brief  Event on timer running state check (API)
-  \param[in]  timer_id      timer ID obtained by \ref osTimerNew
-  \param[in]  running       running state: 0 not running, 1 running
+  \param[in]  timer_id      timer ID obtained by \ref osTimerNew.
+  \param[in]  running       running state: 0 not running, 1 running.
 */
 #if (!defined(EVR_RTX_DISABLE) && (OS_EVR_TIMER != 0) && !defined(EVR_RTX_TIMER_IS_RUNNING_DISABLE))
 extern void EvrRtxTimerIsRunning (osTimerId_t timer_id, uint32_t running);
@@ -888,7 +900,7 @@ extern void EvrRtxTimerIsRunning (osTimerId_t timer_id, uint32_t running);
 
 /**
   \brief  Event on timer delete (API)
-  \param[in]  timer_id      timer ID obtained by \ref osTimerNew
+  \param[in]  timer_id      timer ID obtained by \ref osTimerNew.
 */
 #if (!defined(EVR_RTX_DISABLE) && (OS_EVR_TIMER != 0) && !defined(EVR_RTX_TIMER_DELETE_DISABLE))
 extern void EvrRtxTimerDelete (osTimerId_t timer_id);
@@ -898,7 +910,7 @@ extern void EvrRtxTimerDelete (osTimerId_t timer_id);
 
 /**
   \brief  Event on successful timer delete (Op)
-  \param[in]  timer_id      timer ID obtained by \ref osTimerNew
+  \param[in]  timer_id      timer ID obtained by \ref osTimerNew.
 */
 #if (!defined(EVR_RTX_DISABLE) && (OS_EVR_TIMER != 0) && !defined(EVR_RTX_TIMER_DESTROYED_DISABLE))
 extern void EvrRtxTimerDestroyed (osTimerId_t timer_id);
@@ -922,7 +934,7 @@ extern void EvrRtxEventFlagsError (osEventFlagsId_t ef_id, int32_t status);
 
 /**
   \brief  Event on event flags create and initialize (API)
-  \param[in]  attr          event flags attributes
+  \param[in]  attr          event flags attributes.
 */
 #if (!defined(EVR_RTX_DISABLE) && (OS_EVR_EVFLAGS != 0) && !defined(EVR_RTX_EVENT_FLAGS_NEW_DISABLE))
 extern void EvrRtxEventFlagsNew (const osEventFlagsAttr_t *attr);
@@ -933,11 +945,12 @@ extern void EvrRtxEventFlagsNew (const osEventFlagsAttr_t *attr);
 /**
   \brief  Event on successful event flags create (Op)
   \param[in]  ef_id         event flags ID obtained by \ref osEventFlagsNew.
+  \param[in]  name          pointer to event flags object name.
 */
 #if (!defined(EVR_RTX_DISABLE) && (OS_EVR_EVFLAGS != 0) && !defined(EVR_RTX_EVENT_FLAGS_CREATED_DISABLE))
-extern void EvrRtxEventFlagsCreated (osEventFlagsId_t ef_id);
+extern void EvrRtxEventFlagsCreated (osEventFlagsId_t ef_id, const char *name);
 #else
-#define EvrRtxEventFlagsCreated(ef_id)
+#define EvrRtxEventFlagsCreated(ef_id, name)
 #endif
 
 /**
@@ -965,7 +978,7 @@ extern void EvrRtxEventFlagsSet (osEventFlagsId_t ef_id, uint32_t flags);
 /**
   \brief  Event on successful event flags set (Op)
   \param[in]  ef_id         event flags ID obtained by \ref osEventFlagsNew.
-  \param[in]  event_flags   event flags after setting
+  \param[in]  event_flags   event flags after setting.
 */
 #if (!defined(EVR_RTX_DISABLE) && (OS_EVR_EVFLAGS != 0) && !defined(EVR_RTX_EVENT_FLAGS_SET_DONE_DISABLE))
 extern void EvrRtxEventFlagsSetDone (osEventFlagsId_t ef_id, uint32_t event_flags);
@@ -987,7 +1000,7 @@ extern void EvrRtxEventFlagsClear (osEventFlagsId_t ef_id, uint32_t flags);
 /**
   \brief  Event on successful event flags clear (Op)
   \param[in]  ef_id         event flags ID obtained by \ref osEventFlagsNew.
-  \param[in]  event_flags   event flags before clearing
+  \param[in]  event_flags   event flags before clearing.
 */
 #if (!defined(EVR_RTX_DISABLE) && (OS_EVR_EVFLAGS != 0) && !defined(EVR_RTX_EVENT_FLAGS_CLEAR_DONE_DISABLE))
 extern void EvrRtxEventFlagsClearDone (osEventFlagsId_t ef_id, uint32_t event_flags);
@@ -1103,7 +1116,7 @@ extern void EvrRtxMutexError (osMutexId_t mutex_id, int32_t status);
 
 /**
   \brief  Event on mutex create and initialize (API)
-  \param[in]  attr      mutex attributes
+  \param[in]  attr      mutex attributes.
 */
 #if (!defined(EVR_RTX_DISABLE) && (OS_EVR_MUTEX != 0) && !defined(EVR_RTX_MUTEX_NEW_DISABLE))
 extern void EvrRtxMutexNew (const osMutexAttr_t *attr);
@@ -1114,17 +1127,18 @@ extern void EvrRtxMutexNew (const osMutexAttr_t *attr);
 /**
   \brief  Event on successful mutex create (Op)
   \param[in]  mutex_id  mutex ID obtained by \ref osMutexNew.
+  \param[in]  name      pointer to mutex object name.
 */
 #if (!defined(EVR_RTX_DISABLE) && (OS_EVR_MUTEX != 0) && !defined(EVR_RTX_MUTEX_CREATED_DISABLE))
-extern void EvrRtxMutexCreated (osMutexId_t mutex_id);
+extern void EvrRtxMutexCreated (osMutexId_t mutex_id, const char *name);
 #else
-#define EvrRtxMutexCreated(mutex_id)
+#define EvrRtxMutexCreated(mutex_id, name)
 #endif
 
 /**
   \brief  Event on mutex name retrieve (API)
   \param[in]  mutex_id  mutex ID obtained by \ref osMutexNew.
-  \param[in]  name      pointer to mutex object name
+  \param[in]  name      pointer to mutex object name.
 */
 #if (!defined(EVR_RTX_DISABLE) && (OS_EVR_MUTEX != 0) && !defined(EVR_RTX_MUTEX_GET_NAME_DISABLE))
 extern void EvrRtxMutexGetName (osMutexId_t mutex_id, const char *name);
@@ -1167,7 +1181,7 @@ extern void EvrRtxMutexAcquireTimeout (osMutexId_t mutex_id);
 /**
   \brief  Event on successful mutex acquire (Op)
   \param[in]  mutex_id  mutex ID obtained by \ref osMutexNew.
-  \param[in]  lock      current number of times mutex object is locked
+  \param[in]  lock      current number of times mutex object is locked.
 */
 #if (!defined(EVR_RTX_DISABLE) && (OS_EVR_MUTEX != 0) && !defined(EVR_RTX_MUTEX_ACQUIRED_DISABLE))
 extern void EvrRtxMutexAcquired (osMutexId_t mutex_id, uint32_t lock);
@@ -1198,7 +1212,7 @@ extern void EvrRtxMutexRelease (osMutexId_t mutex_id);
 /**
   \brief  Event on successful mutex release (Op)
   \param[in]  mutex_id  mutex ID obtained by \ref osMutexNew.
-  \param[in]  lock      current number of times mutex object is locked
+  \param[in]  lock      current number of times mutex object is locked.
 */
 #if (!defined(EVR_RTX_DISABLE) && (OS_EVR_MUTEX != 0) && !defined(EVR_RTX_MUTEX_RELEASED_DISABLE))
 extern void EvrRtxMutexReleased (osMutexId_t mutex_id, uint32_t lock);
@@ -1266,11 +1280,12 @@ extern void EvrRtxSemaphoreNew (uint32_t max_count, uint32_t initial_count, cons
 /**
   \brief  Event on successful semaphore create (Op)
   \param[in]  semaphore_id  semaphore ID obtained by \ref osSemaphoreNew.
+  \param[in]  name          pointer to semaphore object name.
 */
 #if (!defined(EVR_RTX_DISABLE) && (OS_EVR_SEMAPHORE != 0) && !defined(EVR_RTX_SEMAPHORE_CREATED_DISABLE))
-extern void EvrRtxSemaphoreCreated (osSemaphoreId_t semaphore_id);
+extern void EvrRtxSemaphoreCreated (osSemaphoreId_t semaphore_id, const char *name);
 #else
-#define EvrRtxSemaphoreCreated(semaphore_id)
+#define EvrRtxSemaphoreCreated(semaphore_id, name)
 #endif
 
 /**
@@ -1416,11 +1431,12 @@ extern void EvrRtxMemoryPoolNew (uint32_t block_count, uint32_t block_size, cons
 /**
   \brief  Event on successful memory pool create (Op)
   \param[in]  mp_id         memory pool ID obtained by \ref osMemoryPoolNew.
+  \param[in]  name          pointer to memory pool object name.
 */
 #if (!defined(EVR_RTX_DISABLE) && (OS_EVR_MEMPOOL != 0) && !defined(EVR_RTX_MEMORY_POOL_CREATED_DISABLE))
-extern void EvrRtxMemoryPoolCreated (osMemoryPoolId_t mp_id);
+extern void EvrRtxMemoryPoolCreated (osMemoryPoolId_t mp_id, const char *name);
 #else
-#define EvrRtxMemoryPoolCreated(mp_id)
+#define EvrRtxMemoryPoolCreated(mp_id, name)
 #endif
 
 /**
@@ -1613,11 +1629,12 @@ extern void EvrRtxMessageQueueNew (uint32_t msg_count, uint32_t msg_size, const 
 /**
   \brief  Event on successful message queue create (Op)
   \param[in]  mq_id         message queue ID obtained by \ref osMessageQueueNew.
+  \param[in]  name          pointer to message queue object name.
 */
 #if (!defined(EVR_RTX_DISABLE) && (OS_EVR_MSGQUEUE != 0) && !defined(EVR_RTX_MESSAGE_QUEUE_CREATED_DISABLE))
-extern void EvrRtxMessageQueueCreated (osMessageQueueId_t mq_id);
+extern void EvrRtxMessageQueueCreated (osMessageQueueId_t mq_id, const char *name);
 #else
-#define EvrRtxMessageQueueCreated(mq_id)
+#define EvrRtxMessageQueueCreated(mq_id, name)
 #endif
 
 /**

@@ -1,5 +1,11 @@
+/******************************************************************************
+ * @file     tz_context.c
+ * @brief    Context Management for Armv8-M TrustZone - Sample implementation
+ * @version  V1.1.1
+ * @date     10. January 2018
+ ******************************************************************************/
 /*
- * Copyright (c) 2015-2016 ARM Limited. All rights reserved.
+ * Copyright (c) 2016-2018 Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  *

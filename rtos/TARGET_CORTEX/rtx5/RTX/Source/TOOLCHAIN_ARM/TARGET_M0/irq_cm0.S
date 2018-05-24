@@ -1,5 +1,5 @@
 ;/*
-; * Copyright (c) 2013-2017 ARM Limited. All rights reserved.
+; * Copyright (c) 2013-2018 Arm Limited. All rights reserved.
 ; *
 ; * SPDX-License-Identifier: Apache-2.0
 ; *
@@ -44,18 +44,26 @@ SVC_Handler     PROC
                 EXPORT   SVC_Handler
                 IMPORT   osRtxUserSVC
                 IMPORT   osRtxInfo
+                IF       :DEF:MPU_LOAD
+                IMPORT   osRtxMpuLoad
+                ENDIF
 
+                MOV      R0,LR
+                LSRS     R0,R0,#3               ; Determine return stack from EXC_RETURN bit 2
+                BCC      SVC_MSP                ; Branch if return stack is MSP
                 MRS      R0,PSP                 ; Get PSP
+
+SVC_Number
                 LDR      R1,[R0,#24]            ; Load saved PC from stack
                 SUBS     R1,R1,#2               ; Point to SVC instruction
                 LDRB     R1,[R1]                ; Load SVC number
                 CMP      R1,#0
                 BNE      SVC_User               ; Branch if not SVC 0
 
-                PUSH     {R0,LR}                ; Save PSP and EXC_RETURN
+                PUSH     {R0,LR}                ; Save SP and EXC_RETURN
                 LDMIA    R0,{R0-R3}             ; Load function parameters from stack
                 BLX      R7                     ; Call service function
-                POP      {R2,R3}                ; Restore PSP and EXC_RETURN
+                POP      {R2,R3}                ; Restore SP and EXC_RETURN
                 STMIA    R2!,{R0-R1}            ; Store function return values
                 MOV      LR,R3                  ; Set EXC_RETURN
 
@@ -70,7 +78,7 @@ SVC_Context
 
 SVC_ContextSave
                 MRS      R0,PSP                 ; Get PSP
-                SUBS     R0,R0,#32              ; Adjust address
+                SUBS     R0,R0,#32              ; Calculate SP
                 STR      R0,[R1,#TCB_SP_OFS]    ; Store SP
                 STMIA    R0!,{R4-R7}            ; Save R4..R7
                 MOV      R4,R8
@@ -80,8 +88,15 @@ SVC_ContextSave
                 STMIA    R0!,{R4-R7}            ; Save R8..R11
 
 SVC_ContextSwitch
-                SUBS     R3,R3,#8
+                SUBS     R3,R3,#8               ; Adjust address
                 STR      R2,[R3]                ; osRtxInfo.thread.run: curr = next
+
+                IF       :DEF:MPU_LOAD
+                PUSH     {R2,R3}                ; Save registers
+                MOV      R0,R2                  ; osRtxMpuLoad parameter
+                BL       osRtxMpuLoad           ; Load MPU for next thread
+                POP      {R2,R3}                ; Restore registers
+                ENDIF
 
 SVC_ContextRestore
                 LDR      R0,[R2,#TCB_SP_OFS]    ; Load SP
@@ -99,26 +114,30 @@ SVC_ContextRestore
                 MVNS     R0,R0                  ; Set EXC_RETURN value
                 BX       R0                     ; Exit from handler
 
+SVC_MSP
+                MRS      R0,MSP                 ; Get MSP
+                B        SVC_Number
+
 SVC_Exit
                 BX       LR                     ; Exit from handler
 
 SVC_User
-                PUSH     {R4,LR}                ; Save registers
                 LDR      R2,=osRtxUserSVC       ; Load address of SVC table
                 LDR      R3,[R2]                ; Load SVC maximum number
                 CMP      R1,R3                  ; Check SVC number range
-                BHI      SVC_Done               ; Branch if out of range
+                BHI      SVC_Exit               ; Branch if out of range
 
+                PUSH     {R0,LR}                ; Save SP and EXC_RETURN
                 LSLS     R1,R1,#2
-                LDR      R4,[R2,R1]             ; Load address of SVC function
-
+                LDR      R3,[R2,R1]             ; Load address of SVC function
+                MOV      R12,R3
                 LDMIA    R0,{R0-R3}             ; Load function parameters from stack
-                BLX      R4                     ; Call service function
-                MRS      R4,PSP                 ; Get PSP
-                STMIA    R4!,{R0-R3}            ; Store function return values
+                BLX      R12                    ; Call service function
+                POP      {R2,R3}                ; Restore SP and EXC_RETURN
+                STR      R0,[R2]                ; Store function return value
+                MOV      LR,R3                  ; Set EXC_RETURN
 
-SVC_Done
-                POP      {R4,PC}                ; Return from handler
+                BX       LR                     ; Return from handler
 
                 ALIGN
                 ENDP

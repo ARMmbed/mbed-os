@@ -1,8 +1,8 @@
 /**************************************************************************//**
  * @file     os_tick.h
  * @brief    CMSIS OS Tick header file
- * @version  V1.0.0
- * @date     05. June 2017
+ * @version  V1.0.1
+ * @date     24. November 2017
  ******************************************************************************/
 /*
  * Copyright (c) 2017-2017 ARM Limited. All rights reserved.
@@ -40,16 +40,13 @@ typedef void (*IRQHandler_t) (void);
 int32_t  OS_Tick_Setup (uint32_t freq, IRQHandler_t handler);
 
 /// Enable OS Tick.
-/// \return 0 on success, -1 on error.
-int32_t  OS_Tick_Enable (void);
+void     OS_Tick_Enable (void);
 
 /// Disable OS Tick.
-/// \return 0 on success, -1 on error.
-int32_t  OS_Tick_Disable (void);
+void     OS_Tick_Disable (void);
 
 /// Acknowledge OS Tick IRQ.
-/// \return 0 on success, -1 on error.
-int32_t  OS_Tick_AcknowledgeIRQ (void);
+void     OS_Tick_AcknowledgeIRQ (void);
 
 /// Get OS Tick IRQ number.
 /// \return OS Tick IRQ number.

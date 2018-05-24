@@ -23,8 +23,8 @@
 ; */
 #ifndef MBED_FAULT_HANDLER_DISABLED
                 
-#ifndef __DOMAIN_NS 
-#define __DOMAIN_NS 1
+#ifndef DOMAIN_NS
+#define DOMAIN_NS 1
 #endif
                 
 FAULT_TYPE_HARD_FAULT           EQU      0x10
@@ -67,7 +67,7 @@ UsageFault_Handler\
                     
 Fault_Handler   PROC
                 EXPORT   Fault_Handler
-#if (__DOMAIN_NS == 1)                       
+#if (DOMAIN_NS == 1)
                 IMPORT   osRtxInfo
                 IMPORT   mbed_fault_handler
                 IMPORT   mbed_fault_context

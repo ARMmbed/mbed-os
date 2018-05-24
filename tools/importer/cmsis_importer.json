@@ -111,6 +111,10 @@
       "dest_folder" : "rtos/TARGET_CORTEX/rtx5/Include/"
     },
     {
+      "src_folder" : "CMSIS/RTOS2/Source/",
+      "dest_folder" : "rtos/TARGET_CORTEX/rtx5/Source/"
+    },
+    {
       "src_folder" : "CMSIS/RTOS2/RTX/Include1/",
       "dest_folder" : "rtos/TARGET_CORTEX/rtx4/"
     },
@@ -136,21 +140,19 @@
     }
   ],
    "commit_sha" : [
-      "428acae1b2ac15c3ad523e8d40755a9301220822",
-      "d9d622afe0ca8c7ab9d24c17f9fe59b54dcc61c9",
-      "a1fcd36be8ee00aba2c9c1b079f5728368922bc8",
-      "f3db103d481d8729950414868cfc8123b8055601",
-      "c07cc6b0f42ff4fe215aa1641a043e205d9128a5",
-      "dd8fdf4c768e5fef3a7ce2e014de4339dbafe5ce",
-      "2a837ea97900cc30f82e5a23b95b3f293d17eae1",
-      "c03b3f9eedab7cb0732d1519c4f1a8d90b08eede",
-      "314a9eb559752132a89b0dbd986db960b3ab9055",
-      "e83fd0099a69e6eb865e4e6fcadbfb1328c04c85",
-      "a019acaf8d6fb1f0512414d072f667cc2749b1d9",
-      "a884fdc0639ae4e17299838ec9de4fddd83cf93c",
-      "6c827cb5879bc096e45efd992dfadcb96c1d50bc",
-      "919282322e106b82fea50878f41b6c75a7eb356b",
-      "d0a43b8af0eef4775ec4c3da5994ecceb9ed4558"
+      "466b74e518eb9a4f2389dee1fc58ec1617be35d7",
+      "a06759d76e286994e457ba5aa6a8f6bb028828ce",
+      "0f0f21fdfeb25f0b350bbaba560270537f873e7a",
+      "3f7a235c6cc118b0bf634f330185718ef95477d9",
+      "0774ee3c8515ba447230433f44aab94a2cea02d2",
+      "5611950394fda1308087520ef3381c95244df201",
+      "b108cc8a8ad3d5e9c51b4ef95139aacf690d4223",
+      "adb6e821cc448f005e63ba9c7e2ce335abd54082",
+      "acd8ab1ff0588410f0fc5463fa12094250a371fb",
+      "1a511c456143bd31606f6a47807f506da1b51b90",
+      "474d2e3c9944d2866a0643795aafdfee743488eb",
+      "7b3a3a441ab6451462bd476721d6e8cb6ddd6c9d",
+      "d30da821a19fb6776e15eea33c5b45052a264dfd"
     ]
 }
 

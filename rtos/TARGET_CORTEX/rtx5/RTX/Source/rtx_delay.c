@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017 ARM Limited. All rights reserved.
+ * Copyright (c) 2013-2018 Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -28,60 +28,72 @@
 
 //  ==== Service Calls ====
 
-//  Service Calls definitions
-SVC0_1(Delay,      osStatus_t, uint32_t)
-SVC0_1(DelayUntil, osStatus_t, uint32_t)
-
 /// Wait for Timeout (Time Delay).
 /// \note API identical to osDelay
-osStatus_t svcRtxDelay (uint32_t ticks) {
+static osStatus_t svcRtxDelay (uint32_t ticks) {
 
-  if (ticks == 0U) {
-    return osOK;
+  if (ticks != 0U) {
+    if (!osRtxThreadWaitEnter(osRtxThreadWaitingDelay, ticks)) {
+      EvrRtxThreadDelayCompleted();
+    }
   }
-
-  osRtxThreadWaitEnter(osRtxThreadWaitingDelay, ticks);
 
   return osOK;
 }
 
 /// Wait until specified time.
 /// \note API identical to osDelayUntil
-osStatus_t svcRtxDelayUntil (uint32_t ticks) {
+static osStatus_t svcRtxDelayUntil (uint32_t ticks) {
 
   ticks -= osRtxInfo.kernel.tick;
   if (ticks == 0xFFFFFFFFU) {
-    EvrRtxThreadError(NULL, osErrorParameter);
+    EvrRtxThreadError(NULL, (int32_t)osErrorParameter);
+    //lint -e{904} "Return statement before end of function" [MISRA Note 1]
     return osErrorParameter;
   }
-  if (ticks == 0U) {
-    return osOK;
-  }
 
-  osRtxThreadWaitEnter(osRtxThreadWaitingDelay, ticks);
+  if (ticks != 0U) {
+    if (!osRtxThreadWaitEnter(osRtxThreadWaitingDelay, ticks)) {
+      EvrRtxThreadDelayCompleted();
+    }
+  }
 
   return osOK;
 }
+
+//  Service Calls definitions
+//lint ++flb "Library Begin" [MISRA Note 11]
+SVC0_1(Delay,      osStatus_t, uint32_t)
+SVC0_1(DelayUntil, osStatus_t, uint32_t)
+//lint --flb "Library End"
 
 
 //  ==== Public API ====
 
 /// Wait for Timeout (Time Delay).
 osStatus_t osDelay (uint32_t ticks) {
+  osStatus_t status;
+
   EvrRtxThreadDelay(ticks);
-  if (IS_IRQ_MODE() || IS_IRQ_MASKED()) {
-    EvrRtxThreadError(NULL, osErrorISR);
-    return osErrorISR;
+  if (IsIrqMode() || IsIrqMasked()) {
+    EvrRtxThreadError(NULL, (int32_t)osErrorISR);
+    status = osErrorISR;
+  } else {
+    status = __svcDelay(ticks);
   }
-  return __svcDelay(ticks);
+  return status;
 }
 
 /// Wait until specified time.
 osStatus_t osDelayUntil (uint32_t ticks) {
+  osStatus_t status;
+
   EvrRtxThreadDelayUntil(ticks);
-  if (IS_IRQ_MODE() || IS_IRQ_MASKED()) {
-    EvrRtxThreadError(NULL, osErrorISR);
-    return osErrorISR;
+  if (IsIrqMode() || IsIrqMasked()) {
+    EvrRtxThreadError(NULL, (int32_t)osErrorISR);
+    status = osErrorISR;
+  } else {
+    status = __svcDelayUntil(ticks);
   }
-  return __svcDelayUntil(ticks);
+  return status;
 }

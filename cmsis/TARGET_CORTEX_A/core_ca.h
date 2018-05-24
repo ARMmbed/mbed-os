@@ -950,8 +950,8 @@ __STATIC_FORCEINLINE uint8_t __log2_up(uint32_t n)
 */
 __STATIC_FORCEINLINE void __L1C_MaintainDCacheSetWay(uint32_t level, uint32_t maint)
 {
-  register volatile uint32_t Dummy;
-  register volatile uint32_t ccsidr;
+  uint32_t Dummy;
+  uint32_t ccsidr;
   uint32_t num_sets;
   uint32_t num_ways;
   uint32_t shift_way;
@@ -960,7 +960,7 @@ __STATIC_FORCEINLINE void __L1C_MaintainDCacheSetWay(uint32_t level, uint32_t ma
 
   Dummy = level << 1U;
   /* set csselr, select ccsidr register */
-  __set_CCSIDR(Dummy);
+  __set_CSSELR(Dummy);
   /* get current ccsidr register */
   ccsidr = __get_CCSIDR();
   num_sets = ((ccsidr & 0x0FFFE000U) >> 13U) + 1U;
@@ -992,7 +992,7 @@ __STATIC_FORCEINLINE void __L1C_MaintainDCacheSetWay(uint32_t level, uint32_t ma
 * \param [in] op 0 - invalidate, 1 - clean, otherwise - invalidate and clean
 */
 __STATIC_FORCEINLINE void L1C_CleanInvalidateCache(uint32_t op) {
-  register volatile uint32_t clidr;
+  uint32_t clidr;
   uint32_t cache_type;
   clidr =  __get_CLIDR();
   for(uint32_t i = 0U; i<7U; i++)

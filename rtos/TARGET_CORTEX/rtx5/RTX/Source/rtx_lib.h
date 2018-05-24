@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017 ARM Limited. All rights reserved.
+ * Copyright (c) 2013-2018 Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -27,13 +27,14 @@
 #define RTX_LIB_H_
 
 #include <string.h>
-#include <stdbool.h>
 #include "rtx_core_c.h"                 // Cortex core definitions
-#if ((__ARM_ARCH_8M_BASE__ != 0) || (__ARM_ARCH_8M_MAIN__ != 0))
+#if ((defined(__ARM_ARCH_8M_BASE__) && (__ARM_ARCH_8M_BASE__ != 0)) || \
+     (defined(__ARM_ARCH_8M_MAIN__) && (__ARM_ARCH_8M_MAIN__ != 0)))
 #include "tz_context.h"                 // TrustZone Context API
 #endif
-#include "os_tick.h"
+#include "os_tick.h"                    // CMSIS OS Tick API
 #include "cmsis_os2.h"                  // CMSIS RTOS API
+#include "RTX_Config.h"                 // RTX Configuration
 #include "rtx_os.h"                     // RTX OS definitions
 #include "rtx_evr.h"                    // RTX Event Recorder definitions
 
@@ -54,37 +55,140 @@
 
 //  ==== Inline functions ====
 
-// Kernel Inline functions
-__STATIC_INLINE uint8_t      osRtxKernelGetState   (void) { return osRtxInfo.kernel.state; }
+// Thread ID
+__STATIC_INLINE os_thread_t *osRtxThreadId (osThreadId_t thread_id) {
+  //lint -e{9079} -e{9087} "cast from pointer to void to pointer to object type" [MISRA Note 2]
+  return ((os_thread_t *)thread_id);
+}
+// Timer ID
+__STATIC_INLINE os_timer_t *osRtxTimerId (osTimerId_t timer_id) {
+  //lint -e{9079} -e{9087} "cast from pointer to void to pointer to object type" [MISRA Note 2]
+  return ((os_timer_t *)timer_id);
+}
+// Event Flags ID
+__STATIC_INLINE os_event_flags_t *osRtxEventFlagsId (osEventFlagsId_t ef_id) {
+  //lint -e{9079} -e{9087} "cast from pointer to void to pointer to object type" [MISRA Note 2]
+  return ((os_event_flags_t *)ef_id);
+}
+// Mutex ID
+__STATIC_INLINE os_mutex_t *osRtxMutexId (osMutexId_t mutex_id) {
+  //lint -e{9079} -e{9087} "cast from pointer to void to pointer to object type" [MISRA Note 2]
+  return ((os_mutex_t *)mutex_id);
+}
+// Semaphore ID
+__STATIC_INLINE os_semaphore_t *osRtxSemaphoreId (osSemaphoreId_t semaphore_id) {
+  //lint -e{9079} -e{9087} "cast from pointer to void to pointer to object type" [MISRA Note 2]
+  return ((os_semaphore_t *)semaphore_id);
+}
+// Memory Pool ID
+__STATIC_INLINE os_memory_pool_t *osRtxMemoryPoolId (osMemoryPoolId_t mp_id) {
+  //lint -e{9079} -e{9087} "cast from pointer to void to pointer to object type" [MISRA Note 2]
+  return ((os_memory_pool_t *)mp_id);
+}
+// Message Queue ID
+__STATIC_INLINE os_message_queue_t *osRtxMessageQueueId (osMessageQueueId_t mq_id) {
+  //lint -e{9079} -e{9087} "cast from pointer to void to pointer to object type" [MISRA Note 2]
+  return ((os_message_queue_t *)mq_id);
+}
 
-// Thread Inline functions
-__STATIC_INLINE os_thread_t *osRtxThreadGetRunning (void) { return osRtxInfo.thread.run.curr; }
-__STATIC_INLINE void         osRtxThreadSetRunning (os_thread_t *thread) { osRtxInfo.thread.run.curr = thread; }
+// Generic Object
+__STATIC_INLINE os_object_t *osRtxObject (void *object) {
+  //lint -e{9079} -e{9087} "cast from pointer to void to pointer to object type" [MISRA Note 3]
+  return ((os_object_t *)object);
+}
+
+// Thread Object
+__STATIC_INLINE os_thread_t *osRtxThreadObject (os_object_t *object) {
+  //lint -e{740} -e{826} -e{9087} "cast from pointer to generic object to specific object" [MISRA Note 4]
+  return ((os_thread_t *)object);
+}
+// Timer Object
+__STATIC_INLINE os_timer_t *osRtxTimerObject (os_object_t *object) {
+  //lint -e{740} -e{826} -e{9087} "cast from pointer to generic object to specific object" [MISRA Note 4]
+  return ((os_timer_t *)object);
+}
+// Event Flags Object
+__STATIC_INLINE os_event_flags_t *osRtxEventFlagsObject (os_object_t *object) {
+  //lint -e{740} -e{826} -e{9087} "cast from pointer to generic object to specific object" [MISRA Note 4]
+  return ((os_event_flags_t *)object);
+}
+// Mutex Object
+__STATIC_INLINE os_mutex_t *osRtxMutexObject (os_object_t *object) {
+  //lint -e{740} -e{826} -e{9087} "cast from pointer to generic object to specific object" [MISRA Note 4]
+  return ((os_mutex_t *)object);
+}
+// Semaphore Object
+__STATIC_INLINE os_semaphore_t *osRtxSemaphoreObject (os_object_t *object) {
+  //lint -e{740} -e{826} -e{9087} "cast from pointer to generic object to specific object" [MISRA Note 4]
+  return ((os_semaphore_t *)object);
+}
+// Memory Pool Object
+__STATIC_INLINE os_memory_pool_t *osRtxMemoryPoolObject (os_object_t *object) {
+  //lint -e{740} -e{826} -e{9087} "cast from pointer to generic object to specific object" [MISRA Note 4]
+  return ((os_memory_pool_t *)object);
+}
+// Message Queue Object
+__STATIC_INLINE os_message_queue_t *osRtxMessageQueueObject (os_object_t *object) {
+  //lint -e{740} -e{826} -e{9087} "cast from pointer to generic object to specific object" [MISRA Note 4]
+  return ((os_message_queue_t *)object);
+}
+// Message Object
+__STATIC_INLINE os_message_t *osRtxMessageObject (os_object_t *object) {
+  //lint -e{740} -e{826} -e{9087} "cast from pointer to generic object to specific object" [MISRA Note 4]
+  return ((os_message_t *)object);
+}
+
+// Kernel State
+__STATIC_INLINE osKernelState_t osRtxKernelState (void) {
+  //lint -e{9030} -e{9034} "cast to enum"
+  return ((osKernelState_t)(osRtxInfo.kernel.state));
+}
+
+// Thread State
+__STATIC_INLINE osThreadState_t osRtxThreadState (const os_thread_t *thread) {
+  uint8_t state = thread->state & osRtxThreadStateMask;
+  //lint -e{9030} -e{9034} "cast to enum"
+  return ((osThreadState_t)state);
+}
+
+// Thread Priority
+__STATIC_INLINE osPriority_t osRtxThreadPriority (const os_thread_t *thread) {
+  //lint -e{9030} -e{9034} "cast to enum"
+  return ((osPriority_t)thread->priority);
+}
+
+// Kernel Get State
+__STATIC_INLINE uint8_t osRtxKernelGetState (void) {
+  return osRtxInfo.kernel.state;
+}
+
+// Thread Get/Set Running
+__STATIC_INLINE os_thread_t *osRtxThreadGetRunning (void) {
+  return osRtxInfo.thread.run.curr;
+}
+__STATIC_INLINE void osRtxThreadSetRunning (os_thread_t *thread) {
+  osRtxInfo.thread.run.curr = thread;
+}
 
 
 //  ==== Library functions ====
 
 // Thread Library functions
-extern void         osRtxThreadListPut     (volatile os_object_t *object, os_thread_t *thread);
-extern os_thread_t *osRtxThreadListGet     (volatile os_object_t *object);
-extern void        *osRtxThreadListRoot    (os_thread_t  *thread);
-extern void         osRtxThreadListSort    (os_thread_t  *thread);
-extern void         osRtxThreadListRemove  (os_thread_t  *thread);
-extern void         osRtxThreadListUnlink  (os_thread_t **thread_list, os_thread_t *thread);
-extern void         osRtxThreadReadyPut    (os_thread_t  *thread);
-extern void         osRtxThreadDelayInsert (os_thread_t  *thread, uint32_t delay);
-extern void         osRtxThreadDelayRemove (os_thread_t  *thread);
-extern void         osRtxThreadDelayTick   (void);
-extern uint32_t    *osRtxThreadRegPtr      (os_thread_t  *thread);
-extern void         osRtxThreadBlock       (os_thread_t  *thread);
-extern void         osRtxThreadSwitch      (os_thread_t  *thread);
-extern void         osRtxThreadDispatch    (os_thread_t  *thread);
-extern void         osRtxThreadWaitExit    (os_thread_t  *thread, uint32_t ret_val, bool dispatch);
-extern bool         osRtxThreadWaitEnter   (uint8_t state, uint32_t timeout);
-extern void         osRtxThreadStackCheck  (void);
+extern void         osRtxThreadListPut    (os_object_t *object, os_thread_t *thread);
+extern os_thread_t *osRtxThreadListGet    (os_object_t *object);
+extern void         osRtxThreadListSort   (os_thread_t *thread);
+extern void         osRtxThreadListRemove (os_thread_t *thread);
+extern void         osRtxThreadReadyPut   (os_thread_t *thread);
+extern void         osRtxThreadDelayTick  (void);
+extern uint32_t    *osRtxThreadRegPtr     (const os_thread_t *thread);
+extern void         osRtxThreadSwitch     (os_thread_t *thread);
+extern void         osRtxThreadDispatch   (os_thread_t *thread);
+extern void         osRtxThreadWaitExit   (os_thread_t *thread, uint32_t ret_val, bool_t dispatch);
+extern bool_t       osRtxThreadWaitEnter  (uint8_t state, uint32_t timeout);
+extern void         osRtxThreadStackCheck (void);
+extern bool_t       osRtxThreadStartup    (void);
 
 // Timer Library functions
-extern void osRtxTimerTick   (void);
 extern void osRtxTimerThread (void *argument);
 
 // Mutex Library functions
@@ -96,7 +200,7 @@ extern void    *osRtxMemoryAlloc(void *mem, uint32_t size, uint32_t type);
 extern uint32_t osRtxMemoryFree (void *mem, void *block);
 
 // Memory Pool Library functions
-extern uint32_t   osRtxMemoryPoolInit  (os_mp_info_t *mp_info, uint32_t blocks, uint32_t block_size, void *block_mem);
+extern uint32_t   osRtxMemoryPoolInit  (os_mp_info_t *mp_info, uint32_t block_count, uint32_t block_size, void *block_mem);
 extern void      *osRtxMemoryPoolAlloc (os_mp_info_t *mp_info);
 extern osStatus_t osRtxMemoryPoolFree  (os_mp_info_t *mp_info, void *block);
 
@@ -104,114 +208,6 @@ extern osStatus_t osRtxMemoryPoolFree  (os_mp_info_t *mp_info, void *block);
 extern void osRtxTick_Handler   (void);
 extern void osRtxPendSV_Handler (void);
 extern void osRtxPostProcess    (os_object_t *object);
-
-// Post ISR processing functions
-extern void osRtxThreadPostProcess       (os_thread_t      *thread);
-extern void osRtxEventFlagsPostProcess   (os_event_flags_t *ef);
-extern void osRtxSemaphorePostProcess    (os_semaphore_t   *semaphore);
-extern void osRtxMemoryPoolPostProcess   (os_memory_pool_t *mp);
-extern void osRtxMessageQueuePostProcess (os_message_t     *msg);
-
-
-//  ==== Service Calls ====
-
-// Kernel Service Calls
-extern osStatus_t       svcRtxKernelInitialize       (void);
-extern osStatus_t       svcRtxKernelGetInfo          (osVersion_t *version, char *id_buf, uint32_t id_size);
-extern osKernelState_t  svcRtxKernelGetState         (void);
-extern osStatus_t       svcRtxKernelStart            (void);
-extern int32_t          svcRtxKernelLock             (void);
-extern int32_t          svcRtxKernelUnlock           (void);
-extern int32_t          svcRtxKernelRestoreLock      (int32_t lock);
-extern uint32_t         svcRtxKernelSuspend          (void);
-extern void             svcRtxKernelResume           (uint32_t sleep_ticks);
-extern uint32_t         svcRtxKernelGetTickCount     (void);
-extern uint32_t         svcRtxKernelGetTickFreq      (void);
-extern uint32_t         svcRtxKernelGetSysTimerCount (void);
-extern uint32_t         svcRtxKernelGetSysTimerFreq  (void);
-
-// Thread Service Calls
-extern osThreadId_t     svcRtxThreadNew          (osThreadFunc_t func, void *argument, const osThreadAttr_t *attr, void *context);
-extern const char *     svcRtxThreadGetName      (osThreadId_t thread_id);
-extern osThreadId_t     svcRtxThreadGetId        (void);
-extern osThreadState_t  svcRtxThreadGetState     (osThreadId_t thread_id);
-extern uint32_t         svcRtxThreadGetStackSize (osThreadId_t thread_id);
-extern uint32_t         svcRtxThreadGetStackSpace(osThreadId_t thread_id);
-extern osStatus_t       svcRtxThreadSetPriority  (osThreadId_t thread_id, osPriority_t priority);
-extern osPriority_t     svcRtxThreadGetPriority  (osThreadId_t thread_id);
-extern osStatus_t       svcRtxThreadYield        (void);
-extern osStatus_t       svcRtxThreadSuspend      (osThreadId_t thread_id);
-extern osStatus_t       svcRtxThreadResume       (osThreadId_t thread_id);
-extern osStatus_t       svcRtxThreadDetach       (osThreadId_t thread_id);
-extern osStatus_t       svcRtxThreadJoin         (osThreadId_t thread_id);
-extern void             svcRtxThreadExit         (void);
-extern osStatus_t       svcRtxThreadTerminate    (osThreadId_t thread_id);
-extern uint32_t         svcRtxThreadGetCount     (void);
-extern uint32_t         svcRtxThreadEnumerate    (osThreadId_t *thread_array, uint32_t array_items);
-extern uint32_t         svcRtxThreadFlagsSet     (osThreadId_t thread_id, uint32_t flags);
-extern uint32_t         svcRtxThreadFlagsClear   (uint32_t flags);
-extern uint32_t         svcRtxThreadFlagsGet     (void);
-extern uint32_t         svcRtxThreadFlagsWait    (uint32_t flags, uint32_t options, uint32_t timeout);
-
-// Delay Service Calls
-extern osStatus_t       svcRtxDelay      (uint32_t ticks);
-extern osStatus_t       svcRtxDelayUntil (uint32_t ticks);
-
-// Timer Service Calls
-extern osTimerId_t      svcRtxTimerNew       (osTimerFunc_t func, osTimerType_t type, void *argument, const osTimerAttr_t *attr);
-extern const char *     svcRtxTimerGetName   (osTimerId_t timer_id);
-extern osStatus_t       svcRtxTimerStart     (osTimerId_t timer_id, uint32_t ticks);
-extern osStatus_t       svcRtxTimerStop      (osTimerId_t timer_id);
-extern uint32_t         svcRtxTimerIsRunning (osTimerId_t timer_id);
-extern osStatus_t       svcRtxTimerDelete    (osTimerId_t timer_id);
-
-// Event Flags Service Calls
-extern osEventFlagsId_t svcRtxEventFlagsNew     (const osEventFlagsAttr_t *attr);
-extern const char *     svcRtxEventFlagsGetName (osEventFlagsId_t ef_id);
-extern uint32_t         svcRtxEventFlagsSet     (osEventFlagsId_t ef_id, uint32_t flags);
-extern uint32_t         svcRtxEventFlagsClear   (osEventFlagsId_t ef_id, uint32_t flags);
-extern uint32_t         svcRtxEventFlagsGet     (osEventFlagsId_t ef_id);
-extern uint32_t         svcRtxEventFlagsWait    (osEventFlagsId_t ef_id, uint32_t flags, uint32_t options, uint32_t timeout);
-extern osStatus_t       svcRtxEventFlagsDelete  (osEventFlagsId_t ef_id);
-
-// Mutex Service Calls
-extern osMutexId_t      svcRtxMutexNew      (const osMutexAttr_t *attr);
-extern const char *     svcRtxMutexGetName  (osMutexId_t mutex_id);
-extern osStatus_t       svcRtxMutexAcquire  (osMutexId_t mutex_id, uint32_t timeout);
-extern osStatus_t       svcRtxMutexRelease  (osMutexId_t mutex_id);
-extern osThreadId_t     svcRtxMutexGetOwner (osMutexId_t mutex_id);
-extern osStatus_t       svcRtxMutexDelete   (osMutexId_t mutex_id);
-
-// Semaphore Service Calls
-extern osSemaphoreId_t  svcRtxSemaphoreNew     (uint32_t max_count, uint32_t initial_count, const osSemaphoreAttr_t *attr);
-extern const char *     svcRtxSemaphoreGetName (osSemaphoreId_t semaphore_id);
-extern osStatus_t       svcRtxSemaphoreRelease (osSemaphoreId_t semaphore_id);
-extern osStatus_t       svcRtxSemaphoreAcquire (osSemaphoreId_t semaphore_id, uint32_t timeout);
-extern uint32_t         svcRtxSemaphoreGetCount(osSemaphoreId_t semaphore_id);
-extern osStatus_t       svcRtxSemaphoreDelete  (osSemaphoreId_t semaphore_id);
-
-// Memory Pool Service Calls
-extern osMemoryPoolId_t svcRtxMemoryPoolNew          (uint32_t blocks, uint32_t block_size, const osMemoryPoolAttr_t *attr);
-extern const char *     svcRtxMemoryPoolGetName      (osMemoryPoolId_t mp_id);
-extern void *           svcRtxMemoryPoolAlloc        (osMemoryPoolId_t mp_id, uint32_t timeout);
-extern osStatus_t       svcRtxMemoryPoolFree         (osMemoryPoolId_t mp_id, void *block);
-extern uint32_t         svcRtxMemoryPoolGetCapacity  (osMemoryPoolId_t mp_id);
-extern uint32_t         svcRtxMemoryPoolGetBlockSize (osMemoryPoolId_t mp_id);
-extern uint32_t         svcRtxMemoryPoolGetCount     (osMemoryPoolId_t mp_id);
-extern uint32_t         svcRtxMemoryPoolGetSpace     (osMemoryPoolId_t mp_id);
-extern osStatus_t       svcRtxMemoryPoolDelete       (osMemoryPoolId_t mp_id);
-
-// Message Queue Service Calls
-extern osMessageQueueId_t svcRtxMessageQueueNew         (uint32_t msg_count, uint32_t msg_size, const osMessageQueueAttr_t *attr);
-extern const char *       svcRtxMessageQueueGetName     (osMessageQueueId_t mq_id);
-extern osStatus_t         svcRtxMessageQueuePut         (osMessageQueueId_t mq_id, const void *msg_ptr, uint8_t  msg_prio, uint32_t timeout);
-extern osStatus_t         svcRtxMessageQueueGet         (osMessageQueueId_t mq_id,       void *msg_ptr, uint8_t *msg_prio, uint32_t timeout);
-extern uint32_t           svcRtxMessageQueueGetCapacity (osMessageQueueId_t mq_id);
-extern uint32_t           svcRtxMessageQueueGetMsgSize  (osMessageQueueId_t mq_id);
-extern uint32_t           svcRtxMessageQueueGetCount    (osMessageQueueId_t mq_id);
-extern uint32_t           svcRtxMessageQueueGetSpace    (osMessageQueueId_t mq_id);
-extern osStatus_t         svcRtxMessageQueueReset       (osMessageQueueId_t mq_id);
-extern osStatus_t         svcRtxMessageQueueDelete      (osMessageQueueId_t mq_id);
 
 
 #endif  // RTX_LIB_H_

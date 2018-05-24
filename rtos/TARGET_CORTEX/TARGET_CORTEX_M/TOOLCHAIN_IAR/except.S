@@ -31,8 +31,8 @@ FAULT_TYPE_USAGE_FAULT          EQU      0x40
 
 #ifndef MBED_FAULT_HANDLER_DISABLED
                 
-#ifndef __DOMAIN_NS 
-#define __DOMAIN_NS 1
+#ifndef DOMAIN_NS
+#define DOMAIN_NS 1
 #endif
                 PRESERVE8
                 SECTION .rodata:DATA:NOROOT(2)
@@ -62,7 +62,7 @@ UsageFault_Handler
                 
 Fault_Handler
                 EXPORT  Fault_Handler
-#if (__DOMAIN_NS == 1)                    
+#if (DOMAIN_NS == 1)
                 IMPORT  osRtxInfo
                 IMPORT  mbed_fault_context    
                 IMPORT  mbed_fault_handler    

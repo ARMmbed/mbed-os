@@ -1,11 +1,11 @@
 /**************************************************************************//**
  * @file     cmsis_armcc.h
- * @brief    CMSIS compiler ARMCC (ARM compiler V5) header file
- * @version  V5.0.2
- * @date     13. February 2017
+ * @brief    CMSIS compiler ARMCC (Arm Compiler 5) header file
+ * @version  V5.0.4
+ * @date     10. January 2018
  ******************************************************************************/
 /*
- * Copyright (c) 2009-2017 ARM Limited. All rights reserved.
+ * Copyright (c) 2009-2018 Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -27,7 +27,7 @@
 
 
 #if defined(__ARMCC_VERSION) && (__ARMCC_VERSION < 400677)
-  #error "Please use ARM Compiler Toolchain V4.0.677 or later!"
+  #error "Please use Arm Compiler Toolchain V4.0.677 or later!"
 #endif
 
 /* CMSIS compiler control architecture macros */
@@ -58,6 +58,9 @@
 #ifndef   __STATIC_INLINE
   #define __STATIC_INLINE                        static __inline
 #endif
+#ifndef   __STATIC_FORCEINLINE                 
+  #define __STATIC_FORCEINLINE                   static __forceinline
+#endif           
 #ifndef   __NO_RETURN
   #define __NO_RETURN                            __declspec(noreturn)
 #endif
@@ -445,9 +448,10 @@ __STATIC_INLINE void __set_FPSCR(uint32_t fpscr)
                    __schedule_barrier();\
                 } while (0U)
 
+                  
 /**
   \brief   Reverse byte order (32 bit)
-  \details Reverses the byte order in integer value.
+  \details Reverses the byte order in unsigned integer value. For example, 0x12345678 becomes 0x78563412.
   \param [in]    value  Value to reverse
   \return               Reversed value
  */
@@ -456,12 +460,12 @@ __STATIC_INLINE void __set_FPSCR(uint32_t fpscr)
 
 /**
   \brief   Reverse byte order (16 bit)
-  \details Reverses the byte order in two unsigned short values.
+  \details Reverses the byte order within each halfword of a word. For example, 0x12345678 becomes 0x34127856.
   \param [in]    value  Value to reverse
   \return               Reversed value
  */
 #ifndef __NO_EMBEDDED_ASM
-__attribute__((section(".rev16_text"))) __STATIC_INLINE __ASM uint16_t __REV16(uint16_t value)
+__attribute__((section(".rev16_text"))) __STATIC_INLINE __ASM uint32_t __REV16(uint32_t value)
 {
   rev16 r0, r0
   bx lr
@@ -470,8 +474,8 @@ __attribute__((section(".rev16_text"))) __STATIC_INLINE __ASM uint16_t __REV16(u
 
 
 /**
-  \brief   Reverse byte order in signed short value
-  \details Reverses the byte order in a signed short value with sign extension to integer.
+  \brief   Reverse byte order (16 bit)
+  \details Reverses the byte order in a 16-bit value and returns the signed 16-bit result. For example, 0x0080 becomes 0x8000.
   \param [in]    value  Value to reverse
   \return               Reversed value
  */
@@ -736,12 +740,16 @@ __attribute__((section(".rrx_text"))) __STATIC_INLINE __ASM uint32_t __RRX(uint3
  */
 __attribute__((always_inline)) __STATIC_INLINE int32_t __SSAT(int32_t val, uint32_t sat)
 {
-  if ((sat >= 1U) && (sat <= 32U)) {
+  if ((sat >= 1U) && (sat <= 32U))
+  {
     const int32_t max = (int32_t)((1U << (sat - 1U)) - 1U);
     const int32_t min = -1 - max ;
-    if (val > max) {
+    if (val > max)
+    {
       return max;
-    } else if (val < min) {
+    }
+    else if (val < min)
+    {
       return min;
     }
   }
@@ -757,11 +765,15 @@ __attribute__((always_inline)) __STATIC_INLINE int32_t __SSAT(int32_t val, uint3
  */
 __attribute__((always_inline)) __STATIC_INLINE uint32_t __USAT(int32_t val, uint32_t sat)
 {
-  if (sat <= 31U) {
+  if (sat <= 31U)
+  {
     const uint32_t max = ((1U << sat) - 1U);
-    if (val > (int32_t)max) {
+    if (val > (int32_t)max)
+    {
       return max;
-    } else if (val < 0) {
+    }
+    else if (val < 0)
+    {
       return 0U;
     }
   }
