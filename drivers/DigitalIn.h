@@ -55,7 +55,8 @@ public:
      *
      *  @param pin DigitalIn pin to connect to
      */
-    DigitalIn(PinName pin) : gpio() {
+    DigitalIn(PinName pin) : gpio()
+    {
         // No lock needed in the constructor
         gpio_init_in(&gpio, pin);
     }
@@ -65,7 +66,8 @@ public:
      *  @param pin DigitalIn pin to connect to
      *  @param mode the initial mode of the pin
      */
-    DigitalIn(PinName pin, PinMode mode) : gpio() {
+    DigitalIn(PinName pin, PinMode mode) : gpio()
+    {
         // No lock needed in the constructor
         gpio_init_in_ex(&gpio, pin, mode);
     }
@@ -75,7 +77,8 @@ public:
      *    An integer representing the state of the input pin,
      *    0 for logical 0, 1 for logical 1
      */
-    int read() {
+    int read()
+    {
         // Thread safe / atomic HAL call
         return gpio_read(&gpio);
     }
@@ -84,7 +87,8 @@ public:
      *
      *  @param pull PullUp, PullDown, PullNone, OpenDrain
      */
-    void mode(PinMode pull) {
+    void mode(PinMode pull)
+    {
         core_util_critical_section_enter();
         gpio_mode(&gpio, pull);
         core_util_critical_section_exit();
@@ -96,7 +100,8 @@ public:
      *    Non zero value if pin is connected to uc GPIO
      *    0 if gpio object was initialized with NC
      */
-    int is_connected() {
+    int is_connected()
+    {
         // Thread safe / atomic HAL call
         return gpio_is_connected(&gpio);
     }
@@ -104,7 +109,8 @@ public:
     /** An operator shorthand for read()
      * \sa DigitalIn::read()
      */
-    operator int() {
+    operator int()
+    {
         // Underlying read is thread safe
         return read();
     }
