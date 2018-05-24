@@ -25,28 +25,33 @@
 
 namespace mbed {
 
-RawSerial::RawSerial(PinName tx, PinName rx, int baud) : SerialBase(tx, rx, baud) {
+RawSerial::RawSerial(PinName tx, PinName rx, int baud) : SerialBase(tx, rx, baud)
+{
     // No lock needed in the constructor
 }
 
-int RawSerial::getc() {
+int RawSerial::getc()
+{
     lock();
     int ret = _base_getc();
     unlock();
     return ret;
 }
 
-int RawSerial::putc(int c) {
+int RawSerial::putc(int c)
+{
     lock();
     int ret = _base_putc(c);
     unlock();
     return ret;
 }
 
-int RawSerial::puts(const char *str) {
+int RawSerial::puts(const char *str)
+{
     lock();
-    while (*str)
+    while (*str) {
         putc(*str ++);
+    }
     unlock();
     return 0;
 }
@@ -55,7 +60,8 @@ int RawSerial::puts(const char *str) {
 // means we can't call printf() directly, so we use sprintf() instead.
 // We only call malloc() for the sprintf() buffer if the buffer
 // length is above a certain threshold, otherwise we use just the stack.
-int RawSerial::printf(const char *format, ...) {
+int RawSerial::printf(const char *format, ...)
+{
     lock();
     std::va_list arg;
     va_start(arg, format);
@@ -80,13 +86,15 @@ int RawSerial::printf(const char *format, ...) {
 
 /** Acquire exclusive access to this serial port
  */
-void RawSerial::lock() {
+void RawSerial::lock()
+{
     // No lock used - external synchronization required
 }
 
 /** Release exclusive access to this serial port
  */
-void RawSerial::unlock() {
+void RawSerial::unlock()
+{
     // No lock used - external synchronization required
 }
 
