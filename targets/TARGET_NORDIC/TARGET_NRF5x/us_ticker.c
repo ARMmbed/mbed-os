@@ -100,6 +100,9 @@ void us_ticker_init(void)
 
     nrf_timer_task_trigger(NRF_TIMER1, NRF_TIMER_TASK_START);
 
+    /* Bug fix. First value can't be trusted. */
+    nrf_timer_task_trigger(NRF_TIMER1, NRF_TIMER_TASK_CAPTURE1);
+
     us_ticker_initialized = true;
 }
 
