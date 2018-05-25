@@ -253,6 +253,19 @@
         "compile" : true,
         "export": true,
         "auto-update" : true
+    },
+    {
+        "name": "mbed-os-example-devicekey",
+        "github":"https://github.com/ARMmbed/mbed-os-example-devicekey",
+        "mbed": [],
+        "test-repo-source": "github",
+        "features" : [],
+        "targets" : ["K64F"],
+        "toolchains" : [],
+        "exporters": [],
+        "compile" : true,
+        "export": true,
+        "auto-update" : true
     }      
   ]
 }
