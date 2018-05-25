@@ -39,7 +39,7 @@ static const uint32_t DELAY_10S = 10;
 static const uint32_t RTC_TOLERANCE = 1;
 static const uint32_t TOLERANCE_ACCURACY_US = (DELAY_10S * US_PER_SEC / ACCURACY_FACTOR);
 
-#if DEVICE_LOWPOWERTIMER
+#if DEVICE_LPTICKER
 volatile bool expired;
 
 void callback(void)
@@ -102,7 +102,7 @@ void rtc_init_test()
     rtc_free();
 }
 
-#if DEVICE_LOWPOWERTIMER
+#if DEVICE_LPTICKER
 /** Test that the RTC keeps counting in the various sleep modes. */
 
 void rtc_sleep_test()
@@ -233,7 +233,7 @@ void rtc_enabled_test()
 
 Case cases[] = {
     Case("RTC - init", rtc_init_test),
-#if DEVICE_LOWPOWERTIMER
+#if DEVICE_LPTICKER
     Case("RTC - sleep", rtc_sleep_test),
 #endif
     Case("RTC - persist", rtc_persist_test),

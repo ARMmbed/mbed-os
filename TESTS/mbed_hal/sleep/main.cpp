@@ -87,7 +87,7 @@ void us_ticker_isr(const ticker_data_t * const ticker_data)
     us_ticker_clear_interrupt();
 }
 
-#ifdef DEVICE_LOWPOWERTIMER
+#ifdef DEVICE_LPTICKER
 void lp_ticker_isr(const ticker_data_t *const ticker_data)
 {
     lp_ticker_clear_interrupt();
@@ -131,7 +131,7 @@ void sleep_usticker_test()
     TEST_ASSERT_TRUE(sleep_manager_can_deep_sleep());
 }
 
-#ifdef DEVICE_LOWPOWERTIMER
+#ifdef DEVICE_LPTICKER
 
 /* Test that wake-up time from sleep should be less than 10 ms and
  * low power ticker interrupt can wake-up target from sleep. */
@@ -220,7 +220,7 @@ utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
 {
     GREENTEA_SETUP(60, "default_auto");
     us_ticker_init();
-#if DEVICE_LOWPOWERTIMER
+#if DEVICE_LPTICKER
     lp_ticker_init();
 #endif
     /* Suspend RTOS Kernel to enable sleep modes. */
@@ -230,7 +230,7 @@ utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
 
 Case cases[] =
         { Case("sleep - source of wake-up - us ticker", sleep_usticker_test, greentea_failure_handler),
-#if DEVICE_LOWPOWERTIMER
+#if DEVICE_LPTICKER
         Case("deep-sleep - source of wake-up - lp ticker",deepsleep_lpticker_test, greentea_failure_handler),
         Case("deep-sleep - high-speed clocks are turned off",deepsleep_high_speed_clocks_turned_off_test, greentea_failure_handler),
 #endif

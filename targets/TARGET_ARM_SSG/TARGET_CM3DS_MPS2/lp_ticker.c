@@ -25,7 +25,7 @@
 #include "lp_ticker_api.h"
 #include "platform_devices.h"
 
-#if DEVICE_LOWPOWERTIMER
+#if DEVICE_LPTICKER
 /**
  * \brief Calculate clocks to us
  *

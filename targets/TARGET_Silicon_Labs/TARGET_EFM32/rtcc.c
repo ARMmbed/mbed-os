@@ -22,7 +22,7 @@
  ******************************************************************************/
 
 #include "device.h"
-#if DEVICE_RTC || DEVICE_LOWPOWERTIMER
+#if DEVICE_RTC || DEVICE_LPTICKER
 
 /* Use RTCC on devices that have it */
 #if defined(RTCC_PRESENT)
