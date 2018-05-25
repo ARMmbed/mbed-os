@@ -2155,7 +2155,7 @@
         "extra_labels_add": ["STM32F4", "STM32F439", "STM32F439ZI","STM32F439xx", "STM32F439xI", "STM_EMAC"],
         "macros": ["MBEDTLS_CONFIG_HW_SUPPORT", "HSE_VALUE=24000000", "HSE_STARTUP_TIMEOUT=5000", "CB_INTERFACE_SDIO","CB_CHIP_WL18XX","SUPPORT_80211D_ALWAYS","WLAN_ENABLED","CB_FEATURE_802DOT11W","CB_FEATURE_802DOT11R","MBEDTLS_ARC4_C","MBEDTLS_DES_C","MBEDTLS_MD4_C","MBEDTLS_MD5_C","MBEDTLS_SHA1_C"],
         "device_has_add": ["CAN", "EMAC", "TRNG", "FLASH", "WIFI"],
-        "device_has_remove": ["SLEEP"],
+        "device_has_remove": [],
         "features": ["LWIP"],
         "device_name": "STM32F439ZI",
         "public": false,
@@ -2168,7 +2168,7 @@
         "inherits": ["MODULE_UBLOX_ODIN_W2"],
         "supported_form_factors": ["ARDUINO"],
         "release_versions": ["5"],
-        "device_has_remove": ["RTC"],
+        "device_has_remove": [],
         "config": {
             "stdio_uart_tx_help": {
                 "help": "Value: D8(default) or D1"
@@ -2200,7 +2200,7 @@
     },
     "MTB_UBLOX_ODIN_W2": {
         "inherits": ["MODULE_UBLOX_ODIN_W2"],
-        "device_has_add": ["USTICKER"],
+        "device_has_add": [],
         "release_versions": ["5"]
      },
     "UBLOX_C030": {
