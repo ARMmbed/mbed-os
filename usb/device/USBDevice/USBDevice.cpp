@@ -376,6 +376,7 @@ bool USBDevice::_request_set_configuration()
         _phy->unconfigure();
         _change_state(Address);
     } else {
+        _endpoint_add_remove_allowed = true;
         _transfer.user_callback = SetConfiguration;
         callback_set_configuration(_device.configuration);
     }
@@ -399,6 +400,14 @@ void USBDevice::_complete_set_configuration()
     assert_locked();
 
     bool success = _transfer.args.status;
+    if ((_abort_control || !success) && !configured()) {
+        // The set configuration request was aborted or failed so
+        // reset any endpoints which may have been added.
+        memset(_endpoint_info, 0, sizeof(_endpoint_info));
+        _device.configuration = 0;
+        _endpoint_add_remove_allowed = false;
+    }
+
 
     _transfer.user_callback = None;
     if (_abort_control) {
@@ -1054,6 +1063,11 @@ bool USBDevice::endpoint_add(usb_ep_t endpoint, uint32_t max_packet_size, usb_ep
         return false;
     }
 
+    if (!_endpoint_add_remove_allowed) {
+        unlock();
+        return false;
+    }
+
     endpoint_info_t *info = &_endpoint_info[EP_TO_INDEX(endpoint)];
     MBED_ASSERT(!(info->flags & ENDPOINT_ENABLED));
     MBED_ASSERT(max_packet_size <= 1024);
@@ -1076,6 +1090,11 @@ void USBDevice::endpoint_remove(usb_ep_t endpoint)
 
     if (!EP_INDEXABLE(endpoint)) {
         MBED_ASSERT(0);
+        unlock();
+        return;
+    }
+
+    if (!_endpoint_add_remove_allowed) {
         unlock();
         return;
     }
@@ -1122,7 +1141,12 @@ void USBDevice::endpoint_stall(usb_ep_t endpoint)
     }
 
     endpoint_info_t *info = &_endpoint_info[EP_TO_INDEX(endpoint)];
-    MBED_ASSERT(info->flags & ENDPOINT_ENABLED);
+    if (!(info->flags & ENDPOINT_ENABLED)) {
+        // Invalid endpoint is being used
+        MBED_ASSERT(!configured());
+        unlock();
+        return;
+    }
 
     info->flags |= ENDPOINT_STALLED;
     _phy->endpoint_stall(endpoint);
@@ -1141,7 +1165,12 @@ void USBDevice::endpoint_unstall(usb_ep_t endpoint)
     }
 
     endpoint_info_t *info = &_endpoint_info[EP_TO_INDEX(endpoint)];
-    MBED_ASSERT(info->flags & ENDPOINT_ENABLED);
+    if (!(info->flags & ENDPOINT_ENABLED)) {
+        // Invalid endpoint is being used
+        MBED_ASSERT(!configured());
+        unlock();
+        return;
+    }
 
     info->flags &= ~ENDPOINT_STALLED;
     _phy->endpoint_unstall(endpoint);
@@ -1232,6 +1261,7 @@ USBDevice::USBDevice(USBPhy *phy, uint16_t vendor_id, uint16_t product_id, uint1
     _phy = phy;
     _initialized = false;
     _connected = false;
+    _endpoint_add_remove_allowed = false;
     _current_interface = 0;
     _current_alternate = 0;
     _locked = 0;
@@ -1275,16 +1305,10 @@ void USBDevice::endpoint_abort(usb_ep_t endpoint)
         return;
     }
 
-    bool configuring = _transfer.user_callback == SetConfiguration;
-    if (!configured() && !configuring) {
-        unlock();
-        return;
-    }
-
     endpoint_info_t *info = &_endpoint_info[EP_TO_INDEX(endpoint)];
     if (!(info->flags & ENDPOINT_ENABLED)) {
-        // Invalid endpoint is being used
-        MBED_ASSERT(0);
+        // Assert that only valid endpoints are used when in the configured state
+        MBED_ASSERT(!configured());
         unlock();
         return;
     }
@@ -1307,16 +1331,10 @@ bool USBDevice::read_start(usb_ep_t endpoint, uint8_t *buffer, uint32_t max_size
         return false;
     }
 
-    bool configuring = _transfer.user_callback == SetConfiguration;
-    if (!configured() && !configuring) {
-        unlock();
-        return false;
-    }
-
     endpoint_info_t *info = &_endpoint_info[EP_TO_INDEX(endpoint)];
     if (!(info->flags & ENDPOINT_ENABLED)) {
-        // Invalid endpoint is being used
-        MBED_ASSERT(0);
+        // Assert that only valid endpoints are used when in the configured state
+        MBED_ASSERT(!configured());
         unlock();
         return false;
     }
@@ -1353,15 +1371,10 @@ uint32_t USBDevice::read_finish(usb_ep_t endpoint)
         return 0;
     }
 
-    if (!configured()) {
-        unlock();
-        return 0;
-    }
-
     endpoint_info_t *info = &_endpoint_info[EP_TO_INDEX(endpoint)];
     if (!(info->flags & ENDPOINT_ENABLED)) {
-        // Invalid endpoint is being used
-        MBED_ASSERT(0);
+        // Assert that only valid endpoints are used when in the configured state
+        MBED_ASSERT(!configured());
         unlock();
         return 0;
     }
@@ -1382,16 +1395,10 @@ bool USBDevice::write_start(usb_ep_t endpoint, uint8_t *buffer, uint32_t size)
         return false;
     }
 
-    bool configuring = _transfer.user_callback == SetConfiguration;
-    if (!configured() && !configuring) {
-        unlock();
-        return false;
-    }
-
     endpoint_info_t *info = &_endpoint_info[EP_TO_INDEX(endpoint)];
     if (!(info->flags & ENDPOINT_ENABLED)) {
-        // Invalid endpoint is being used
-        MBED_ASSERT(0);
+        // Assert that only valid endpoints are used when in the configured state
+        MBED_ASSERT(!configured());
         unlock();
         return false;
     }
@@ -1431,18 +1438,13 @@ uint32_t USBDevice::write_finish(usb_ep_t endpoint)
     if (!EP_INDEXABLE(endpoint)) {
         MBED_ASSERT(0);
         unlock();
-        return false;
-    }
-
-    if (!configured()) {
-        unlock();
-        return false;
+        return 0;
     }
 
     endpoint_info_t *info = &_endpoint_info[EP_TO_INDEX(endpoint)];
     if (!(info->flags & ENDPOINT_ENABLED)) {
-        // Invalid endpoint is being used
-        MBED_ASSERT(0);
+        // Assert that only valid endpoints are used when in the configured state
+        MBED_ASSERT(!configured());
         unlock();
         return 0;
     }
@@ -1593,6 +1595,7 @@ void USBDevice::_change_state(DeviceState new_state) {
     if (leaving_configured_state) {
         memset(_endpoint_info, 0, sizeof(_endpoint_info));
         _device.configuration = 0;
+        _endpoint_add_remove_allowed = false;
     }
 
     if (leaving_default_state) {
