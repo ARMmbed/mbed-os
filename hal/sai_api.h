@@ -86,7 +86,7 @@ extern "C" {
  * \defgroup hal_sai_tests sai hal tests
  * The sai HAL tests ensure driver conformance to defined behaviour.
  *
- * To run the sleep hal tests use the command:
+ * To run the SAI hal tests use the command:
  *
  *     mbed test -t <toolchain> -m <target> -n tests-mbed_hal-sai*
  *
