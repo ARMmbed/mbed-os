@@ -384,7 +384,6 @@ int8_t nd_tasklet_connect(mesh_interface_cb callback, int8_t nwk_interface_id)
             // -2 memory allocation failure
             return tasklet_data_ptr->tasklet;
         }
-        ns_event_loop_thread_start();
     } else {
         tasklet_data_ptr->tasklet = tasklet_id;
         mesh_system_send_connect_event(tasklet_data_ptr->tasklet);
