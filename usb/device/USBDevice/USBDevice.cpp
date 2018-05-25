@@ -331,13 +331,11 @@ void USBDevice::_complete_request_xfer_done()
     _transfer.user_callback = None;
     if (_abort_control) {
         _control_abort();
-        unlock();
         return;
     }
 
     if (!success) {
         _phy->ep0_stall();
-        unlock();
         return;
     }
 
@@ -405,7 +403,6 @@ void USBDevice::_complete_set_configuration()
     _transfer.user_callback = None;
     if (_abort_control) {
         _control_abort();
-        unlock();
         return;
     }
 
@@ -478,7 +475,6 @@ void USBDevice::_complete_set_interface()
     _transfer.user_callback = None;
     if (_abort_control) {
         _control_abort();
-        unlock();
         return;
     }
 
@@ -716,7 +712,6 @@ void USBDevice::_complete_request()
         } else {
             _control_abort();
         }
-        unlock();
         return;
     }
 
@@ -1563,8 +1558,6 @@ void USBDevice::lock()
 
 void USBDevice::unlock()
 {
-    MBED_ASSERT(_locked > 0);
-
     if (_locked == 1) {
         // Perform post processing before fully unlocking
         while (_post_process != NULL) {
@@ -1574,6 +1567,7 @@ void USBDevice::unlock()
         }
     }
 
+    MBED_ASSERT(_locked > 0);
     _locked--;
     core_util_critical_section_exit();
 }
