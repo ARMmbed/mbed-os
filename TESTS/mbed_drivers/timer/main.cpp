@@ -45,9 +45,9 @@ extern uint32_t SystemCoreClock;
  * 1000 ms delay: tolerance = 20500 us
  *
  *  */
-#define DELTA_US(delay_ms) (500 + delay_ms * US_PER_MSEC / 50)
-#define DELTA_MS(delay_ms) (1 + (delay_ms * US_PER_MSEC / 50 / US_PER_MSEC))
-#define DELTA_S(delay_ms) (0.000500f + (((float)delay_ms) / MSEC_PER_SEC / 50))
+#define DELTA_US(delay_ms) (500 + (delay_ms) * US_PER_MSEC / 50)
+#define DELTA_MS(delay_ms) (1 + ((delay_ms) * US_PER_MSEC / 50 / US_PER_MSEC))
+#define DELTA_S(delay_ms) (0.000500f + (((float)(delay_ms)) / MSEC_PER_SEC / 50))
 
 #define TICKER_FREQ_1MHZ 1000000
 #define TICKER_BITS 32

@@ -46,23 +46,14 @@ extern uint32_t SystemCoreClock;
  * 1000 ms delay: tolerance = 50500 us
  *
  *  */
-#define DELTA_US(delay_ms) (500 + delay_ms * US_PER_MSEC / 20)
-#define DELTA_MS(delay_ms) (1 + (delay_ms * US_PER_MSEC / 20 / US_PER_MSEC))
-#define DELTA_S(delay_ms) (0.000500f + (((float)delay_ms) / MSEC_PER_SEC / 20))
 
 #define US_PER_SEC       1000000
 #define US_PER_MSEC      1000
-#define TOLERANCE_FACTOR 80000.0f
-#define US_FACTOR        1000000.0f
-#define CLOCK_MAX        130000000
+#define MSEC_PER_SEC     1000
 
-static const int delta_sys_clk_us = (SystemCoreClock < CLOCK_MAX? ((int) (TOLERANCE_FACTOR / (float) SystemCoreClock * US_FACTOR)):((int) (TOLERANCE_FACTOR / (float) CLOCK_MAX * US_FACTOR)));
-
-/* When test performs time measurement using Timer in sequence, then measurement error accumulates
- * in the successive attempts. */
- #define DELTA_US(i) (delta_sys_clk_us * i)
- #define DELTA_S(i)  ((float)delta_sys_clk_us * i / US_PER_SEC)
- #define DELTA_MS(i) (1 + ( (i * delta_sys_clk_us) / US_PER_MSEC))
+#define DELTA_US(delay_ms) (500 + (delay_ms) * US_PER_MSEC / 20)
+#define DELTA_MS(delay_ms) (1 + ((delay_ms) * US_PER_MSEC / 20 / US_PER_MSEC))
+#define DELTA_S(delay_ms) (0.000500f + (((float)(delay_ms)) / MSEC_PER_SEC / 20))
 
 /* This test verifies if low power timer is stopped after
  * creation.
