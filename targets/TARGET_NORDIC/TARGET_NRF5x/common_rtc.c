@@ -173,13 +173,7 @@ void common_rtc_init(void)
     nrf_rtc_int_disable(COMMON_RTC_INSTANCE, LP_TICKER_INT_MASK);
 #endif
 
-    nrf_drv_common_irq_enable(nrf_drv_get_IRQn(COMMON_RTC_INSTANCE),
-#ifdef NRF51
-        APP_IRQ_PRIORITY_LOW
-#elif defined(NRF52) || defined(NRF52840_XXAA)
-        APP_IRQ_PRIORITY_LOWEST
-#endif
-        );
+    nrf_drv_common_irq_enable(nrf_drv_get_IRQn(COMMON_RTC_INSTANCE), APP_IRQ_PRIORITY_HIGH);
 
     nrf_rtc_task_trigger(COMMON_RTC_INSTANCE, NRF_RTC_TASK_START);
 
