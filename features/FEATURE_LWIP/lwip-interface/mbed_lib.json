@@ -107,7 +107,16 @@
         "Freescale": {
             "mem-size": 36560
         },
-        "NXP": {
+        "LPC1768": {
+            "mem-size": 16362
+        },
+        "LPC4088": {
+            "mem-size": 15360
+        },
+        "LPC4088_DM": {
+            "mem-size": 15360
+        },
+        "LPC546XX": {
             "mem-size": 36496
         }
     }
