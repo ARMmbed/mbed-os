@@ -83,6 +83,7 @@ LoRaMac::LoRaMac()
       _mlme_indication(),
       _mlme_confirmation(),
       _is_nwk_joined(false),
+      _continuous_rx2_window_open(false),
       _device_class(CLASS_A)
 {
     _params.keys.dev_eui = NULL;
@@ -170,7 +171,6 @@ void LoRaMac::post_process_mcps_req()
                 _params.ul_frame_counter++;
             }
         }
-
     } else {
         //UNCONFIRMED or PROPRIETARY
         if (_params.is_ul_frame_counter_fixed == false) {
@@ -197,7 +197,9 @@ void LoRaMac::on_radio_tx_done(void)
         _lora_phy.put_radio_to_sleep();
     } else {
         // this will open a continuous RX2 window until time==RECV_DELAY1
-        open_rx2_window();
+        if (!_continuous_rx2_window_open) {
+            open_rx2_window();
+        }
     }
 
     if(_params.is_rx_window_enabled == true) {
@@ -208,7 +210,7 @@ void LoRaMac::on_radio_tx_done(void)
             _lora_time.start(_params.timers.rx_window2_timer, _params.rx_window2_delay);
         }
 
-        if (_params.is_node_ack_requested == true) {
+        if (_params.is_node_ack_requested) {
             _lora_time.start(_params.timers.ack_timeout_timer,
                              _params.rx_window2_delay + _lora_phy.get_ack_timeout());
         }
@@ -224,20 +226,10 @@ void LoRaMac::on_radio_tx_done(void)
     _params.timers.aggregated_last_tx_time = cur_time;
 }
 
-void LoRaMac::abort_rx(void)
-{
-    if (_params.is_node_ack_requested) {
-        const int ret = _ev_queue->call(this, &LoRaMac::on_ack_timeout_timer_event);
-        MBED_ASSERT(ret != 0);
-        (void)ret;
-    }
-}
-
 /**
  * This part handles incoming frames in response to Radio RX Interrupt
  */
-void LoRaMac::handle_join_accept_frame(const uint8_t *payload,
-                                       uint16_t size)
+void LoRaMac::handle_join_accept_frame(const uint8_t *payload, uint16_t size)
 {
     uint32_t mic = 0;
     uint32_t mic_rx = 0;
@@ -268,7 +260,7 @@ void LoRaMac::handle_join_accept_frame(const uint8_t *payload,
     mic_rx |= ((uint32_t) _params.rx_buffer[size - LORAMAC_MFR_LEN + 3] << 24);
 
     if (mic_rx == mic) {
-
+        _lora_time.stop(_params.timers.rx_window2_timer);
         if (_lora_crypto.compute_skeys_for_join_frame(_params.keys.app_key,
                                                       APPKEY_KEY_LENGTH,
                                                       _params.rx_buffer + 1,
@@ -527,7 +519,7 @@ void LoRaMac::handle_data_frame(const uint8_t* const payload,
         if (!is_multicast) {
             // We are not the destination of this frame.
             _mcps_indication.status = LORAMAC_EVENT_INFO_STATUS_ADDRESS_FAIL;
-            abort_rx();
+            _mcps_indication.pending = false;
             return;
         }
     } else {
@@ -544,9 +536,14 @@ void LoRaMac::handle_data_frame(const uint8_t* const payload,
     if (!message_integrity_check(payload, size, &ptr_pos, address,
                                  &downlink_counter, nwk_skey)) {
         tr_error("MIC failed");
-        abort_rx();
+        _mcps_indication.status = LORAMAC_EVENT_INFO_STATUS_MIC_FAIL;
+        _mcps_indication.pending = false;
         return;
     }
+
+    // message is intended for us and MIC have passed, stop RX2 Window
+    // Spec: 3.3.4 Receiver Activity during the receive windows
+    _lora_time.stop(_params.timers.rx_window2_timer);
 
     _mcps_confirmation.ack_received = false;
     _mcps_indication.is_ack_recvd = false;
@@ -575,7 +572,6 @@ void LoRaMac::handle_data_frame(const uint8_t* const payload,
             _mcps_indication.status = LORAMAC_EVENT_INFO_STATUS_DOWNLINK_REPEATED;
             _mcps_indication.dl_frame_counter = downlink_counter;
             _mcps_indication.pending = false;
-            abort_rx();
 
             return;
         }
@@ -607,7 +603,7 @@ void LoRaMac::handle_data_frame(const uint8_t* const payload,
                 tr_debug("Discarding duplicate frame");
                 _mcps_indication.pending = false;
                 _mcps_indication.status = LORAMAC_EVENT_INFO_STATUS_DOWNLINK_REPEATED;
-                abort_rx();
+
                 return;
             }
         }
@@ -619,7 +615,7 @@ void LoRaMac::handle_data_frame(const uint8_t* const payload,
     // to take retransmissions and repetitions into account. Error cases
     // will be handled in function OnMacStateCheckTimerEvent.
     if (_params.is_node_ack_requested) {
-        if (fctrl.bits.ack == 1) {
+        if (fctrl.bits.ack) {
             _mac_commands.clear_command_buffer();
             _mcps_confirmation.ack_received = fctrl.bits.ack;
             _mcps_indication.is_ack_recvd = fctrl.bits.ack;
@@ -648,8 +644,10 @@ void LoRaMac::handle_data_frame(const uint8_t* const payload,
         _mcps_indication.buffer_size = size - ptr_pos;
     }
 
-    check_to_disable_ack_timeout(_params.is_node_ack_requested, _device_class, _mcps_confirmation.ack_received,
-                                 _params.ack_timeout_retry_counter, _params.max_ack_timeout_retries );
+    // only stop act timer, if the ack is actually recieved
+    if (_mcps_confirmation.ack_received) {
+        _lora_time.stop(_params.timers.ack_timeout_timer);
+    }
 }
 
 void LoRaMac::set_batterylevel_callback(mbed::Callback<uint8_t(void)> battery_level)
@@ -660,12 +658,19 @@ void LoRaMac::set_batterylevel_callback(mbed::Callback<uint8_t(void)> battery_le
 void LoRaMac::on_radio_rx_done(const uint8_t* const payload, uint16_t size,
                                int16_t rssi, int8_t snr)
 {
-    // on reception turn off queued timers
-    _lora_time.stop(_params.timers.rx_window1_timer);
-    _lora_time.stop(_params.timers.rx_window2_timer);
+    // stop the RX1 timer here if its the first RX slot.
+    // If the MIC will pass we will stop RX2 timer as well later.
+    // If its RX2, stop RX2 timer.
+    if (_params.rx_slot == RX_SLOT_WIN_1) {
+        _lora_time.stop(_params.timers.rx_window1_timer);
+    } else if (_params.rx_slot == RX_SLOT_WIN_2) {
+        _lora_time.stop(_params.timers.rx_window2_timer);
+    }
 
     if (_device_class == CLASS_C) {
-         open_rx2_window();
+        if (!_continuous_rx2_window_open) {
+            open_rx2_window();
+        }
      } else {
          _lora_phy.put_radio_to_sleep();
      }
@@ -679,7 +684,6 @@ void LoRaMac::on_radio_rx_done(const uint8_t* const payload, uint16_t size,
         case FRAME_TYPE_JOIN_ACCEPT:
 
             if (nwk_joined()) {
-                abort_rx();
                 _mlme_confirmation.pending = false;
                 return;
             } else {
@@ -778,7 +782,7 @@ bool LoRaMac::continue_joining_process()
 
 bool LoRaMac::continue_sending_process()
 {
-    if (_params.ack_timeout_retry_counter >= _params.max_ack_timeout_retries) {
+    if (_params.ack_timeout_retry_counter > _params.max_ack_timeout_retries) {
         _mac_commands.clear_command_buffer();
         _params.adr_ack_counter++;
         return false;
@@ -842,11 +846,14 @@ void LoRaMac::on_backoff_timer_expiry(void)
     Lock lock(*this);
     lorawan_status_t status = schedule_tx();
     MBED_ASSERT(status==LORAWAN_STATUS_OK);
+    (void) status;
 }
 
 void LoRaMac::open_rx1_window(void)
 {
     Lock lock(*this);
+    tr_debug("Opening RX1 Window");
+    _continuous_rx2_window_open = false;
     _lora_time.stop(_params.timers.rx_window1_timer);
     _params.rx_slot = RX_SLOT_WIN_1;
 
@@ -871,6 +878,7 @@ void LoRaMac::open_rx1_window(void)
 void LoRaMac::open_rx2_window()
 {
     Lock lock(*this);
+    tr_debug("Opening RX2 Window");
     _lora_time.stop(_params.timers.rx_window2_timer);
 
     _params.rx_window2_config.channel = _params.channel;
@@ -879,7 +887,13 @@ void LoRaMac::open_rx2_window()
     _params.rx_window2_config.is_repeater_supported = _params.is_repeater_supported;
     _params.rx_window2_config.rx_slot = RX_SLOT_WIN_2;
 
-    _params.rx_window2_config.is_rx_continuous = get_device_class()==CLASS_C ? true : false;
+    if (get_device_class() == CLASS_C) {
+        _continuous_rx2_window_open = true;
+        _params.rx_window2_config.is_rx_continuous = true;
+    } else {
+        _continuous_rx2_window_open = false;
+        _params.rx_window2_config.is_rx_continuous = false;
+    }
 
     _mcps_indication.rx_datarate = _params.rx_window2_config.datarate;
 
@@ -893,45 +907,33 @@ void LoRaMac::open_rx2_window()
     }
 }
 
-void LoRaMac::check_to_disable_ack_timeout(bool node_ack_requested,
-                                           device_class_t dev_class,
-                                           bool ack_received,
-                                           uint8_t ack_timeout_retries_counter,
-                                           uint8_t ack_timeout_retries)
-{
-    // There are three cases where we need to stop the AckTimeoutTimer:
-    if( node_ack_requested == false ) {
-        if( dev_class == CLASS_C ) {
-            // FIRST CASE
-            // We have performed an unconfirmed uplink in class c mode
-            // and have received a downlink in RX1 or RX2.
-            _lora_time.stop(_params.timers.ack_timeout_timer);
-        }
-    } else {
-        if( ack_received == 1 ) {
-            // SECOND CASE
-            // We received an ACK for previously sent confirmable message
-            _lora_time.stop(_params.timers.ack_timeout_timer);
-        } else {
-            // THIRD CASE
-            // Max number of retries exceeded for confirmable message
-            if( ack_timeout_retries_counter > ack_timeout_retries ) {
-                _lora_time.stop(_params.timers.ack_timeout_timer);
-            }
-        }
-    }
-}
-
 void LoRaMac::on_ack_timeout_timer_event(void)
 {
     Lock lock(*this);
-    _params.ack_timeout_retry_counter++;
 
-    // reduce data rate
-    if ((_params.ack_timeout_retry_counter % 2)) {
+    if (_params.ack_timeout_retry_counter > _params.max_ack_timeout_retries) {
+        if (get_device_class() == CLASS_C) {
+            // no need to use EventQueue as LoRaWANStack and LoRaMac are always
+            // in same context
+            _mcps_confirmation.status = LORAMAC_EVENT_INFO_STATUS_ERROR;
+            _ack_expiry_handler_for_class_c.call();
+        }
+        return;
+    }
+
+    tr_debug("ACK_TIMEOUT Elapses, Retrying ...");
+    _lora_time.stop(_params.timers.ack_timeout_timer);
+
+    // reduce data rate on every 2nd attempt if and only if the
+    // ADR is on
+    if ((_params.ack_timeout_retry_counter % 2)
+            && (_params.sys_params.adr_on)) {
+        tr_debug("Trading datarate for range");
         _params.sys_params.channel_data_rate = _lora_phy.get_next_lower_tx_datarate(
                                                _params.sys_params.channel_data_rate);
     }
+
+    _mcps_confirmation.nb_retries = _params.ack_timeout_retry_counter;
 
     // Schedule a retry
     if (handle_retransmission() != LORAWAN_STATUS_OK) {
@@ -943,12 +945,14 @@ void LoRaMac::on_ack_timeout_timer_event(void)
         _mac_commands.clear_command_buffer();
         _params.is_node_ack_requested = false;
         _mcps_confirmation.ack_received = false;
-        _mcps_confirmation.nb_retries = _params.ack_timeout_retry_counter;
 
         // now that is a critical failure
         lorawan_status_t status = handle_retransmission();
         MBED_ASSERT(status==LORAWAN_STATUS_OK);
+        (void) status;
     }
+
+    _params.ack_timeout_retry_counter++;
 }
 
 bool LoRaMac::validate_payload_length(uint16_t length,
@@ -1008,6 +1012,27 @@ lorawan_status_t LoRaMac::send(loramac_mhdr_t *machdr, const uint8_t fport,
     return status;
 }
 
+int LoRaMac::get_backoff_timer_event_id(void)
+{
+    return _params.timers.backoff_timer.timer_id;
+}
+
+lorawan_status_t LoRaMac::clear_tx_pipe(void)
+{
+    // check if the event is not already queued
+    if (_ev_queue->time_left(get_backoff_timer_event_id()) > 0) {
+        _lora_time.stop(_params.timers.backoff_timer);
+        _lora_time.stop(_params.timers.ack_timeout_timer);
+        memset(_params.tx_buffer, 0, sizeof _params.tx_buffer);
+        _params.tx_buffer_len = 0;
+        reset_ongoing_tx(true);
+        tr_debug("Sending Cancelled");
+        return LORAWAN_STATUS_OK;
+    }
+
+    return LORAWAN_STATUS_BUSY;
+}
+
 lorawan_status_t LoRaMac::schedule_tx()
 {
     channel_selection_params_t next_channel;
@@ -1041,7 +1066,7 @@ lorawan_status_t LoRaMac::schedule_tx()
             return status;
         case LORAWAN_STATUS_DUTYCYCLE_RESTRICTED:
             if (backoff_time != 0) {
-                tr_debug("Next Transmission in %lu ms", backoff_time);
+                tr_debug("DC enforced: Transmitting in %lu ms", backoff_time);
                 _lora_time.start(_params.timers.backoff_timer, backoff_time);
             }
             return LORAWAN_STATUS_OK;
@@ -1049,7 +1074,7 @@ lorawan_status_t LoRaMac::schedule_tx()
             break;
     }
 
-    tr_debug("Next Channel Idx=%d, DR=%d", _params.channel, next_channel.current_datarate);
+    tr_debug("TX: Channel=%d, DR=%d", _params.channel, next_channel.current_datarate);
 
     uint8_t dr_offset = _lora_phy.apply_DR_offset(_params.sys_params.channel_data_rate,
                                                   _params.sys_params.rx1_dr_offset);
@@ -1078,6 +1103,12 @@ lorawan_status_t LoRaMac::schedule_tx()
                 + _params.rx_window1_config.window_offset;
         _params.rx_window2_delay = _params.sys_params.recv_delay2
                 + _params.rx_window2_config.window_offset;
+    }
+
+    // handle the ack to the server here so that if the sending was cancelled
+    // by the user in the backoff period, we would still ack the previous frame.
+    if (_params.is_srv_ack_requested) {
+        _params.is_srv_ack_requested = false;
     }
 
     return send_frame_on_channel(_params.channel);
@@ -1244,9 +1275,7 @@ lorawan_status_t LoRaMac::send_ongoing_tx()
     _params.is_last_tx_join_request = false;
     int8_t datarate = _params.sys_params.channel_data_rate;
 
-    // TODO: The comment is different than the code???
-    // Apply the minimum possible datarate.
-    // Some regions have limitations for the minimum datarate.
+    // This prohibits the data rate going below the minimum value.
     datarate = MAX(datarate, (int8_t)_lora_phy.get_minimum_tx_datarate());
 
     loramac_mhdr_t machdr;
@@ -1290,11 +1319,14 @@ device_class_t LoRaMac::get_device_class() const
     return _device_class;
 }
 
-void LoRaMac::set_device_class(const device_class_t& device_class)
+void LoRaMac::set_device_class(const device_class_t& device_class,
+                               mbed::Callback<void(void)>ack_expiry_handler)
 {
     _device_class = device_class;
+    _ack_expiry_handler_for_class_c = ack_expiry_handler;
 
     if (CLASS_A == _device_class) {
+        tr_debug("Changing device class to -> CLASS_A");
         _lora_phy.put_radio_to_sleep();
     } else if (CLASS_C == _device_class) {
         _params.is_node_ack_requested = false;
@@ -1306,8 +1338,11 @@ void LoRaMac::set_device_class(const device_class_t& device_class)
                     &_params.rx_window2_config);
     }
     if (CLASS_C == _device_class) {
+        tr_debug("Changing device class to -> CLASS_C");
         open_rx2_window();
     }
+
+
 }
 
 void LoRaMac::setup_link_check_request()
@@ -1483,7 +1518,7 @@ lorawan_status_t LoRaMac::prepare_frame(loramac_mhdr_t *machdr,
             }
 
             if (_params.is_srv_ack_requested == true) {
-                _params.is_srv_ack_requested = false;
+                tr_debug("Acking to NS");
                 fctrl->bits.ack = 1;
             }
 

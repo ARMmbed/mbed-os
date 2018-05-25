@@ -436,6 +436,72 @@ public:
      */
     virtual lorawan_status_t set_device_class(const device_class_t device_class);
 
+    /** Get hold of TX meta-data
+     *
+     * Use this method to acquire any TX meta-data related to previous
+     * transmission.
+     * TX meta-data is only available right after the transmission is completed.
+     * In other words, you can check for TX meta-data right after receiving the
+     * TX_DONE event.
+     *
+     * @param    metadata    the inbound structure that will be filled if the meta-data
+     *                       is available.
+     *
+     * @return               LORAWAN_STATUS_OK if the meta-data is available, otherwise
+     *                       LORAWAN_STATUS_METADATA_NOT_AVAILABLE is returned.
+     */
+    virtual lorawan_status_t get_tx_metadata(lorawan_tx_metadata &metadata);
+
+    /** Get hold of RX meta-data
+     *
+     * Use this method to acquire any RX meta-data related to current
+     * reception.
+     * RX meta-data is only available right after the reception is completed.
+     * In other words, you can check for RX meta-data right after receiving the
+     * RX_DONE event.
+     *
+     * @param    metadata    the inbound structure that will be filled if the meta-data
+     *                       is available.
+     *
+     * @return               LORAWAN_STATUS_OK if the meta-data is available, otherwise
+     *                       LORAWAN_STATUS_METADATA_NOT_AVAILABLE is returned.
+     */
+    virtual lorawan_status_t get_rx_metadata(lorawan_rx_metadata &metadata);
+
+    /** Get hold of backoff time
+     *
+     * In the TX path, because of automatic duty cycling, the transmission is delayed
+     * by a certain amount of time which is the backoff time. While the system schedules
+     * application data to be sent, the application can inquire about how much time is
+     * left in the actual transmission to happen.
+     *
+     * The system will provide you with a backoff time only if the application data is
+     * in the TX pipe. If however, the event is already queued for the transmission, this
+     * API returns a LORAWAN_STATUS_METADATA_NOT_AVAILABLE error code.
+     *
+     * @param    backoff    the inbound integer that will be carry the backoff time if it
+     *                      is available.
+     *
+     * @return              LORAWAN_STATUS_OK if the meta-data regarding backoff is available,
+     *                      otherwise LORAWAN_STATUS_METADATA_NOT_AVAILABLE is returned.
+     *
+     */
+    virtual lorawan_status_t get_backoff_metadata(int &backoff);
+
+    /** Cancel outgoing transmission
+     *
+     * This API is used to cancel any outstanding transmission in the TX pipe.
+     * If an event for transmission is not already queued at the end of backoff timer,
+     * the system can cancel the outstanding outgoing packet. Otherwise, the system is
+     * busy sending and can't be held back. The system will not try to re-send if the
+     * outgoing message was a CONFIRMED message even if the ack is not received.
+     *
+     * @return              LORAWAN_STATUS_OK if the sending is cancelled.
+     *                      LORAWAN_STATUS_BUSY otherwise.
+     *
+     */
+    virtual lorawan_status_t cancel_sending(void);
+
     void lock(void) { _lw_stack.lock(); }
     void unlock(void) { _lw_stack.unlock(); }
 

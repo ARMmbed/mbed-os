@@ -351,8 +351,10 @@ public:
     /**
      * @brief set_device_class Sets active device class.
      * @param device_class Device class to use.
+     * @param ack_expiry_handler callback function to inform about ack expiry
      */
-    void set_device_class(const device_class_t& device_class);
+    void set_device_class(const device_class_t& device_class,
+                          mbed::Callback<void(void)>ack_expiry_handler);
 
     /**
      * @brief opens a continuous RX2 window for Class C devices
@@ -443,6 +445,17 @@ public:
     void set_batterylevel_callback(mbed::Callback<uint8_t(void)> battery_level);
 
     /**
+     * Returns the event ID of backoff timer.
+     */
+    int get_backoff_timer_event_id(void);
+
+    /**
+     * Clears out the TX pipe by discarding any outgoing message if the backoff
+     * timer is still running.
+     */
+    lorawan_status_t clear_tx_pipe(void);
+
+    /**
      * These locks trample through to the upper layers and make
      * the stack thread safe.
      */
@@ -459,11 +472,6 @@ private:
 #if MBED_CONF_RTOS_PRESENT
     rtos::Mutex _mutex;
 #endif
-
-    /**
-     * Aborts reception
-     */
-    void abort_rx(void);
 
     /**
      * Handles a Join Accept frame
@@ -637,6 +645,13 @@ private:
     events::EventQueue *_ev_queue;
 
     /**
+     * Class C doesn't timeout in RX2 window as it is a continuous window.
+     * We use this callback to inform the LoRaWANStack controller that the
+     * system cannot do more retries.
+     */
+    mbed::Callback<void(void)> _ack_expiry_handler_for_class_c;
+
+    /**
      * Structure to hold MCPS indication data.
      */
     loramac_mcps_indication_t _mcps_indication;
@@ -659,6 +674,8 @@ private:
     loramac_tx_message_t _ongoing_tx_msg;
 
     bool _is_nwk_joined;
+
+    bool _continuous_rx2_window_open;
 
     device_class_t _device_class;
 
