@@ -5,5 +5,7 @@
     "ODIN_WIFI" : "OdinInterface.json",
     "ODIN_ETHERNET" : "Odin_EthernetInterface.json",
     "REALTEK_WIFI" : "RealtekInterface.json",	
-    "ESP8266_WIFI" : "ESP8266Interface.json"
+    "ESP8266_WIFI" : "ESP8266Interface.json",
+    "WICED_WIFI" : "WicedInterface.json",
+    "IDW0XX1_WIFI" : "SpwfSAInterface.json"
 }

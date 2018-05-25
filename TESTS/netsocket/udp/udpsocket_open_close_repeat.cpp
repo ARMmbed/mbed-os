@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited, All Rights Reserved
+ * Copyright (c) 2018, ARM Limited, All Rights Reserved
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -15,27 +15,26 @@
  * limitations under the License.
  */
 
-#ifndef MBED_CONF_APP_OBJECT_CONSTRUCTION
-    #error [NOT_SUPPORTED] No network interface found for this target.
-#endif
-
-#if !defined(MBED_CONF_APP_WIFI_SECURE_SSID) && !defined(MBED_CONF_APP_WIFI_UNSECURE_SSID)
-    #error [NOT_SUPPORTED] Requires parameters from mbed_app.json
-#endif
-
+#include "greentea-client/test_env.h"
 #include "mbed.h"
 #include MBED_CONF_APP_HEADER_FILE
+#include "udp_tests.h"
+#include "UDPSocket.h"
+#include "unity/unity.h"
+#include "utest.h"
 
-WiFiInterface *get_interface()
+using namespace utest::v1;
+
+void UDPSOCKET_OPEN_CLOSE_REPEAT()
 {
-    static WiFiInterface *interface = NULL;
-
-    if (interface) {
-        interface->disconnect();
-        return interface;
+    UDPSocket *sock = new UDPSocket;
+    if (!sock) {
+        TEST_FAIL();
     }
 
-    interface = MBED_CONF_APP_OBJECT_CONSTRUCTION;
-
-    return interface;
+    for (int i = 0; i < 2; i++) {
+        TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock->open(get_interface()));
+        TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock->close());
+    }
+    delete sock;
 }

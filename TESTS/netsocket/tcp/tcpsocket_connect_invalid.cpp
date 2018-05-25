@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited, All Rights Reserved
+ * Copyright (c) 2018, ARM Limited, All Rights Reserved
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -16,22 +16,25 @@
  */
 
 #include "mbed.h"
+#include MBED_CONF_APP_HEADER_FILE
+#include "TCPSocket.h"
 #include "greentea-client/test_env.h"
-#include "unity.h"
+#include "unity/unity.h"
 #include "utest.h"
-#include "wifi_tests.h"
+#include "tcp_tests.h"
 
 using namespace utest::v1;
 
-#if defined(MBED_CONF_APP_WIFI_UNSECURE_SSID)
-
-void wifi_connect_params_valid_unsecure(void)
+void TCPSOCKET_CONNECT_INVALID()
 {
-    WiFiInterface *wifi = get_interface();
-    TEST_ASSERT_EQUAL_INT(NSAPI_ERROR_OK, wifi->connect(MBED_CONF_APP_WIFI_UNSECURE_SSID, NULL));
-    TEST_ASSERT_EQUAL_INT(NSAPI_ERROR_OK, wifi->disconnect());
-    TEST_ASSERT_EQUAL_INT(NSAPI_ERROR_OK, wifi->connect(MBED_CONF_APP_WIFI_UNSECURE_SSID, ""));
-    TEST_ASSERT_EQUAL_INT(NSAPI_ERROR_OK, wifi->disconnect());
-}
+    TCPSocket sock;
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.open(get_interface()));
 
-#endif // defined(MBED_CONF_APP_WIFI_UNSECURE_SSID)
+    TEST_ASSERT(sock.connect(NULL, 9) < 0);
+    TEST_ASSERT(sock.connect("", 9) < 0);
+    TEST_ASSERT(sock.connect("", 0) < 0);
+    TEST_ASSERT(sock.connect(MBED_CONF_APP_ECHO_SERVER_ADDR, 0) < 0);
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.connect(MBED_CONF_APP_ECHO_SERVER_ADDR, 9));
+
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
+}

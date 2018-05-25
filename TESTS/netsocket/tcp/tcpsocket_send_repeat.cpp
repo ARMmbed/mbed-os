@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited, All Rights Reserved
+ * Copyright (c) 2018, ARM Limited, All Rights Reserved
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -15,27 +15,28 @@
  * limitations under the License.
  */
 
-#ifndef MBED_CONF_APP_OBJECT_CONSTRUCTION
-    #error [NOT_SUPPORTED] No network interface found for this target.
-#endif
-
-#if !defined(MBED_CONF_APP_WIFI_SECURE_SSID) && !defined(MBED_CONF_APP_WIFI_UNSECURE_SSID)
-    #error [NOT_SUPPORTED] Requires parameters from mbed_app.json
-#endif
-
 #include "mbed.h"
 #include MBED_CONF_APP_HEADER_FILE
+#include "TCPSocket.h"
+#include "greentea-client/test_env.h"
+#include "unity/unity.h"
+#include "utest.h"
+#include "tcp_tests.h"
 
-WiFiInterface *get_interface()
+using namespace utest::v1;
+
+void TCPSOCKET_SEND_REPEAT()
 {
-    static WiFiInterface *interface = NULL;
+    TCPSocket sock;
+    tcpsocket_connect_to_discard_srv(sock);
 
-    if (interface) {
-        interface->disconnect();
-        return interface;
+    int err;
+    Timer timer;
+    static const char tx_buffer[] = {'h','e','l','l','o'};
+    for (int i = 0; i < 1000; i++) {
+        err = sock.send(tx_buffer, sizeof(tx_buffer));
+        TEST_ASSERT_EQUAL(sizeof(tx_buffer), err);
     }
 
-    interface = MBED_CONF_APP_OBJECT_CONSTRUCTION;
-
-    return interface;
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
 }

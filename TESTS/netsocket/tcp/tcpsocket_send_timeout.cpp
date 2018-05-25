@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, ARM Limited, All Rights Reserved
+ * Copyright (c) 2018, ARM Limited, All Rights Reserved
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -16,22 +16,31 @@
  */
 
 #include "mbed.h"
+#include MBED_CONF_APP_HEADER_FILE
+#include "TCPSocket.h"
 #include "greentea-client/test_env.h"
-#include "unity.h"
+#include "unity/unity.h"
 #include "utest.h"
-#include "wifi_tests.h"
+#include "tcp_tests.h"
 
 using namespace utest::v1;
 
-#if defined(MBED_CONF_APP_WIFI_UNSECURE_SSID)
-
-void wifi_connect_params_valid_unsecure(void)
+void TCPSOCKET_SEND_TIMEOUT()
 {
-    WiFiInterface *wifi = get_interface();
-    TEST_ASSERT_EQUAL_INT(NSAPI_ERROR_OK, wifi->connect(MBED_CONF_APP_WIFI_UNSECURE_SSID, NULL));
-    TEST_ASSERT_EQUAL_INT(NSAPI_ERROR_OK, wifi->disconnect());
-    TEST_ASSERT_EQUAL_INT(NSAPI_ERROR_OK, wifi->connect(MBED_CONF_APP_WIFI_UNSECURE_SSID, ""));
-    TEST_ASSERT_EQUAL_INT(NSAPI_ERROR_OK, wifi->disconnect());
-}
+    TCPSocket sock;
+    tcpsocket_connect_to_discard_srv(sock);
 
-#endif // defined(MBED_CONF_APP_WIFI_UNSECURE_SSID)
+    int err;
+    Timer timer;
+    static const char tx_buffer[] = {'h','e','l','l','o'};
+    for (int i = 0; i < 10; i++) {
+        timer.reset();
+        timer.start();
+        err = sock.send(tx_buffer, sizeof(tx_buffer));
+        timer.stop();
+        TEST_ASSERT_EQUAL(sizeof(tx_buffer), err);
+        TEST_ASSERT(timer.read_ms() <= 800);
+    }
+
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
+}
