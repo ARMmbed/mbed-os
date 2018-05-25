@@ -595,6 +595,7 @@ private:
     USBPhy *_phy;
     bool _initialized;
     bool _connected;
+    bool _endpoint_add_remove_allowed;
     control_transfer_t _transfer;
     usb_device_t _device;
     uint32_t _max_packet_size_ep0;
