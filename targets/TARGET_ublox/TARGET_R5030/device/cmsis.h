@@ -1,5 +1,6 @@
-/* mbed Microcontroller Library
- * Copyright (c) 2016 u-blox
+/*
+ * PackageLicenseDeclared: Apache-2.0
+ * Copyright (c) 2015 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +15,13 @@
  * limitations under the License.
  */
 
-#ifndef MBED_MBED_RTX_H
-#define MBED_MBED_RTX_H
+#ifndef MBED_CMSIS_H
+#define MBED_CMSIS_H
 
-#if defined(TARGET_HI2110)
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x01000000 + 0x05000 - 256)
-#endif
-#endif
+#include "KM_app.h"
+#include "cmsis_nvic.h"
 
-#if defined(TARGET_R5030)
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x20000000 + 0x10000)
+/**  Reference clock in Hz */
+#define CLOCKS_REFERENCE_CLOCK_FREQ   32768
 
 #endif
-#else
-#error "INITIAL_SP is not defined for this target in the mbed_rtx.h file"
-#endif
-
-#endif  // MBED_MBED_RTX_H

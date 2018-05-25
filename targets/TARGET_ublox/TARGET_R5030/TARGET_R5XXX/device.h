@@ -1,5 +1,7 @@
+// The 'features' section in 'target.json' is now used to create the device's hardware preprocessor switches.
+// Check the 'features' section of the target description in 'targets.json' for more details.
 /* mbed Microcontroller Library
- * Copyright (c) 2016 u-blox
+ * Copyright (c) 2006-2013 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,23 +15,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifndef MBED_DEVICE_H
+#define MBED_DEVICE_H
 
-#ifndef MBED_MBED_RTX_H
-#define MBED_MBED_RTX_H
-
-#if defined(TARGET_HI2110)
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x01000000 + 0x05000 - 256)
-#endif
-#endif
-
-#if defined(TARGET_R5030)
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x20000000 + 0x10000)
+#include "objects.h"
 
 #endif
-#else
-#error "INITIAL_SP is not defined for this target in the mbed_rtx.h file"
-#endif
-
-#endif  // MBED_MBED_RTX_H

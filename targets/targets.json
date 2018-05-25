@@ -2229,6 +2229,27 @@
         "inherits": ["UBLOX_C030"],
         "release_versions": ["5"]
     },
+	"R5030": {
+        "inherits": ["Target"],
+        "core": "Cortex-M7",
+        "default_toolchain": "GCC_ARM",
+        "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
+        "extra_labels": ["ublox","R5030"],
+		"macros": ["CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""],
+        "public": false,
+        "target_overrides": {
+            "*": {
+                "core.stdio-flush-at-exit": false
+            }
+        },
+        "device_has": ["PORTIN", "PORTINOUT", "PORTOUT", "SERIAL", "STDIO_MESSAGES", "I2C"],
+        "default_lib": "std",
+        "release_versions": ["5"]
+   },
+    "R5XXX": {
+        "inherits": ["R5030"],
+        "extra_labels": ["ublox","R5030","R5XXX"]
+    },
     "UBLOX_C030_R410M": {
         "inherits": ["UBLOX_C030"],
         "release_versions": ["5"]

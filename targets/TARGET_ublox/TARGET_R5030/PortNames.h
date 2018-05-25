@@ -13,23 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifndef MBED_PORTNAMES_H
+#define MBED_PORTNAMES_H
 
-#ifndef MBED_MBED_RTX_H
-#define MBED_MBED_RTX_H
-
-#if defined(TARGET_HI2110)
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x01000000 + 0x05000 - 256)
-#endif
+#ifdef __cplusplus
+extern "C" {
 #endif
 
-#if defined(TARGET_R5030)
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x20000000 + 0x10000)
+typedef enum {
+    Port0 = 0, //GPIO pins 0-19
+    PortMaxNumber
+} PortName;
 
+#ifdef __cplusplus
+}
 #endif
-#else
-#error "INITIAL_SP is not defined for this target in the mbed_rtx.h file"
 #endif
-
-#endif  // MBED_MBED_RTX_H
