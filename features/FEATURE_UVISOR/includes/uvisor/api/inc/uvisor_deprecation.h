@@ -18,7 +18,7 @@
 #define __UVISOR_DEPRECATION_H__
 
 #if defined(UVISOR_PRESENT) && UVISOR_PRESENT == 1
-#warning "---- WARNING: You are using FEATURE_UVISOR which is deprecated since mbed-os-5.9!! ----"
+#warning "Warning: You are using FEATURE_UVISOR, which is unsupported as of Mbed OS 5.9."
 #endif
 
 #endif  // __UVISOR_DEPRECATION_H__
