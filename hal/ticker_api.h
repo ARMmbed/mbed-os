@@ -80,6 +80,7 @@ typedef struct {
     uint64_t tick_remainder;            /**< Ticks that have not been added to base_time */
     us_timestamp_t present_time;        /**< Store the timestamp used for present time */
     bool initialized;                   /**< Indicate if the instance is initialized */
+    uint8_t frequency_shifts;           /**< If frequency is a value of 2^n, this is n, otherwise 0 */ 
 } ticker_event_queue_t;
 
 /** Ticker's data structure

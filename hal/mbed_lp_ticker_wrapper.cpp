@@ -15,12 +15,12 @@
  */
 #include "hal/lp_ticker_api.h"
 
-#if DEVICE_LOWPOWERTIMER && (LOWPOWERTIMER_DELAY_TICKS > 0)
+#if DEVICE_LPTICKER && (LPTICKER_DELAY_TICKS > 0)
 
 #include "Timeout.h"
 #include "mbed_critical.h"
 
-static const timestamp_t min_delta = LOWPOWERTIMER_DELAY_TICKS;
+static const timestamp_t min_delta = LPTICKER_DELAY_TICKS;
 
 static bool init = false;
 static bool pending = false;
@@ -108,7 +108,7 @@ static void set_interrupt_later()
  * Wrapper around lp_ticker_set_interrupt to prevent blocking
  *
  * Problems this function is solving:
- * 1. Interrupt may not fire if set earlier than LOWPOWERTIMER_DELAY_TICKS low power clock cycles
+ * 1. Interrupt may not fire if set earlier than LPTICKER_DELAY_TICKS low power clock cycles
  * 2. Setting the interrupt back-to-back will block
  *
  * This wrapper function prevents lp_ticker_set_interrupt from being called
