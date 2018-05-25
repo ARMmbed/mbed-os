@@ -57,8 +57,6 @@ void timer_oc_irq_handler(void)
             __HAL_TIM_CLEAR_IT(&TimMasterHandle, TIM_IT_CC2);
             uint32_t val = __HAL_TIM_GET_COUNTER(&TimMasterHandle);
             if ((val - PreviousVal) >= HAL_TICK_DELAY) {
-                // Increment HAL variable
-                HAL_IncTick();
                 // Prepare next interrupt
                 __HAL_TIM_SET_COMPARE(&TimMasterHandle, TIM_CHANNEL_2, val + HAL_TICK_DELAY);
                 PreviousVal = val;
