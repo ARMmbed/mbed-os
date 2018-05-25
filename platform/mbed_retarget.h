@@ -27,15 +27,20 @@
 #include <stdint.h>
 #include <stddef.h>
 
+#ifdef TARGET_SIMULATOR
+#include <sys/types.h>
+#endif
+
+
 /* We can get the following standard types from sys/types for gcc, but we
  * need to define the types ourselves for the other compilers that normally
  * target embedded systems */
 typedef signed   int  ssize_t;  ///< Signed size type, usually encodes negative errors
 #ifndef TARGET_SIMULATOR
 typedef signed   long off_t;    ///< Offset in a data stream
+typedef unsigned long long fsblkcnt_t;  ///< Count of file system blocks
 #endif
 typedef unsigned int  nfds_t;   ///< Number of file descriptors
-typedef unsigned long long fsblkcnt_t;  ///< Count of file system blocks
 #if defined(__ARMCC_VERSION) || !defined(__GNUC__)
 typedef unsigned int  mode_t;   ///< Mode for opening files
 typedef unsigned int  dev_t;    ///< Device ID type
