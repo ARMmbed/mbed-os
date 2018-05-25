@@ -70,12 +70,15 @@ nsapi_error_t EMACInterface::connect()
 
 nsapi_error_t EMACInterface::disconnect()
 {
-    return _interface->bringdown();
+    if (_interface) {
+        return _interface->bringdown();
+    }
+    return NSAPI_ERROR_NO_CONNECTION;
 }
 
 const char *EMACInterface::get_mac_address()
 {
-    if (_interface->get_mac_address(_mac_address, sizeof(_mac_address))) {
+    if (_interface && _interface->get_mac_address(_mac_address, sizeof(_mac_address))) {
         return _mac_address;
     }
     return NULL;
@@ -83,7 +86,7 @@ const char *EMACInterface::get_mac_address()
 
 const char *EMACInterface::get_ip_address()
 {
-    if (_interface->get_ip_address(_ip_address, sizeof(_ip_address))) {
+    if (_interface && _interface->get_ip_address(_ip_address, sizeof(_ip_address))) {
         return _ip_address;
     }
 
@@ -92,7 +95,7 @@ const char *EMACInterface::get_ip_address()
 
 const char *EMACInterface::get_netmask()
 {
-    if (_interface->get_netmask(_netmask, sizeof(_netmask))) {
+    if (_interface && _interface->get_netmask(_netmask, sizeof(_netmask))) {
         return _netmask;
     }
 
@@ -101,7 +104,7 @@ const char *EMACInterface::get_netmask()
 
 const char *EMACInterface::get_gateway()
 {
-    if (_interface->get_gateway(_gateway, sizeof(_gateway))) {
+    if (_interface && _interface->get_gateway(_gateway, sizeof(_gateway))) {
         return _gateway;
     }
 
