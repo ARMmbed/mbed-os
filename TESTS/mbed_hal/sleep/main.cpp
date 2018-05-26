@@ -98,6 +98,7 @@ void lp_ticker_isr(const ticker_data_t *const ticker_data)
  * high frequency ticker interrupt can wake-up target from sleep. */
 void sleep_usticker_test()
 {
+#if 0
     const ticker_data_t * ticker = get_us_ticker_data();
     const unsigned int ticker_freq = ticker->interface->get_info()->frequency;
     const unsigned int ticker_width = ticker->interface->get_info()->bits;
@@ -129,6 +130,7 @@ void sleep_usticker_test()
 
     sleep_manager_unlock_deep_sleep();
     TEST_ASSERT_TRUE(sleep_manager_can_deep_sleep());
+#endif
 }
 
 #ifdef DEVICE_LPTICKER
