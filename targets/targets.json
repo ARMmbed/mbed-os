@@ -645,7 +645,7 @@
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "macros": ["__ADUCM4050__", "EV_COG_AD4050LZ"],
         "extra_labels": ["Analog_Devices", "ADUCM4X50", "ADUCM4050", "EV_COG_AD4050LZ", "FLASH_CMSIS_ALGO"],
-        "device_has": ["USTICKER", "RTC", "SERIAL", "STDIO_MESSAGES", "TRNG", "SLEEP", "INTERRUPTIN", "SPI", "I2C", "FLASH", "ANALOGIN"],
+        "device_has": ["USTICKER", "RTC", "SERIAL", "STDIO_MESSAGES", "TRNG", "SLEEP", "INTERRUPTIN", "SPI", "I2C", "ANALOGIN"],
         "device_name": "ADuCM4050",
         "detect_code": ["0603"],
         "release_versions": ["5"],
@@ -670,7 +670,7 @@
         "extra_labels": ["Freescale", "MCUXpresso_MCUS", "KSDK2_MCUS", "KPSDK_MCUS", "KPSDK_CODE", "MCU_K64F"],
         "is_disk_virtual": true,
         "macros": ["CPU_MK64FN1M0VMD12", "FSL_RTOS_MBED", "TARGET_K64F"],
-        "device_has": ["USTICKER", "LPTICKER", "RTC", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE", "STDIO_MESSAGES", "FLASH"],
+        "device_has": ["USTICKER", "LPTICKER", "RTC", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE", "STDIO_MESSAGES"],
         "device_name": "MK64FN1M0xxx12"
     },
     "HEXIWEAR": {
