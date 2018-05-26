@@ -173,21 +173,6 @@
       "auto-update" : true
     },
     {
-      "name": "mbed-os-example-fat-filesystem",
-      "github":"https://github.com/ARMmbed/mbed-os-example-fat-filesystem",
-      "mbed": [
-          "https://os.mbed.com/teams/mbed-os-examples/code/mbed-os-example-fat-filesystem"
-      ],
-      "test-repo-source": "github",
-      "features" : [],
-      "targets" : ["K64F"],
-      "toolchains" : [],
-      "exporters": [],
-      "compile" : true,
-      "export": true,
-      "auto-update" : true
-    },
-    {
         "name": "mbed-os-example-filesystem",
         "github":"https://github.com/ARMmbed/mbed-os-example-filesystem",
         "mbed": [
@@ -266,6 +251,85 @@
         "compile" : true,
         "export": true,
         "auto-update" : true
-    }      
+    },      
+    {
+        "name": "mbed-os-example-thread-statistics",
+        "github":"https://github.com/ARMmbed/mbed-os-example-thread-statistics",
+        "mbed": [],
+        "test-repo-source": "github",
+        "features" : [],
+        "targets" : ["K64F"],
+        "toolchains" : [],
+        "exporters": [],
+        "compile" : true,
+        "export": true,
+        "auto-update" : true
+    },
+    {
+        "name": "mbed-os-example-sys-info",
+        "github":"https://github.com/ARMmbed/mbed-os-example-sys-info",
+        "mbed": [],
+        "test-repo-source": "github",
+        "features" : [],
+        "targets" : ["K64F"],
+        "toolchains" : [],
+        "exporters": [],
+        "compile" : true,
+        "export": true,
+        "auto-update" : true
+    },
+    {
+        "name": "mbed-os-example-cpu-usage",
+        "github":"https://github.com/ARMmbed/mbed-os-example-cpu-usage",
+        "mbed": [],
+        "test-repo-source": "github",
+        "features" : [],
+        "targets" : ["K64F"],
+        "toolchains" : [],
+        "exporters": [],
+        "compile" : true,
+        "export": true,
+        "auto-update" : true
+    },
+    {
+        "name": "mbed-os-example-cpu-stats",
+        "github":"https://github.com/ARMmbed/mbed-os-example-cpu-stats",
+        "mbed": [],
+        "test-repo-source": "github",
+        "features" : [],
+        "targets" : ["K64F"],
+        "toolchains" : [],
+        "exporters": [],
+        "compile" : true,
+        "export": true,
+        "auto-update" : true
+    },
+    {
+        "name": "mbed-os-example-error-handling",
+        "github":"https://github.com/ARMmbed/mbed-os-example-error-handling",
+        "mbed": [],
+        "test-repo-source": "github",
+        "features" : [],
+        "targets" : ["K64F"],
+        "toolchains" : [],
+        "exporters": [],
+        "compile" : true,
+        "export": true,
+        "auto-update" : true
+    },
+    {
+        "name": "mbed-os-example-blockdevice",
+        "github":"https://github.com/armmbed/mbed-os-example-blockdevice",
+        "mbed": [],
+        "test-repo-source": "github",
+        "features" : [],
+        "targets" : ["K64F"],
+        "toolchains" : [],
+        "exporters": [],
+        "compile" : true,
+        "export": true,
+        "auto-update" : true
+    }
+    
   ]
 }
