@@ -74,6 +74,7 @@ void SysTimer::suspend(uint32_t ticks)
 {
     core_util_critical_section_enter();
 
+    remove();
     schedule_tick(ticks);
     _suspend_time_passed = false;
     _suspended = true;
