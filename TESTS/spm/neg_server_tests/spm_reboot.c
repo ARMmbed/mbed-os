@@ -55,6 +55,13 @@ void spm_reboot(void)
     memset(g_active_messages_data, 0, (sizeof(spm_active_msg_t) * MBED_CONF_SPM_IPC_MAX_NUM_OF_MESSAGES));
     memset(&g_spm, 0, sizeof(g_spm));
 
+    g_spm.channels_handle_mgr.handle_generator = PSA_HANDLE_MGR_INVALID_HANDLE;
+    g_spm.channels_handle_mgr.pool_size        = MBED_CONF_SPM_IPC_MAX_NUM_OF_CHANNELS;
+    g_spm.channels_handle_mgr.handles_pool     = g_channels_handle_storage;
+    g_spm.messages_handle_mgr.handle_generator = PSA_HANDLE_MGR_INVALID_HANDLE;
+    g_spm.messages_handle_mgr.pool_size        = MBED_CONF_SPM_IPC_MAX_NUM_OF_MESSAGES;
+    g_spm.messages_handle_mgr.handles_pool     = g_messages_handle_storage;
+
     psa_spm_init();
     PSA_UNUSED(status);
 }

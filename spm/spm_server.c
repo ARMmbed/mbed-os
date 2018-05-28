@@ -98,8 +98,8 @@ static psa_handle_t copy_message_to_spm(spm_ipc_channel_t *channel, int32_t curr
     // Memory allocated from MemoryPool isn't zeroed - thus a temporary variable will make sure we will start from a clear state.
     spm_active_msg_t temp_active_message = {
         .channel = channel,
-        .in_vec = {0},
-        .out_vec = {0},
+        .in_vec = {{0}},
+        .out_vec = {{0}},
         .rc = 0,
         .type = channel->msg_type
     };
