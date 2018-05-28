@@ -118,6 +118,7 @@ public:
         nsapi_error_t set_dhcp();
         static void netif_link_irq(struct netif *netif);
         static void netif_status_irq(struct netif *netif);
+        static Interface *our_if_from_netif(struct netif *netif);
 
     #if LWIP_ETHERNET
         static err_t emac_low_level_output(struct netif *netif, struct pbuf *p);
@@ -165,6 +166,8 @@ public:
         bool ppp;
         mbed::Callback<void(nsapi_event_t, intptr_t)> client_callback;
         struct netif netif;
+        static Interface *list;
+        Interface *next;
         LWIPMemoryManager *memory_manager;
     };
 
@@ -193,10 +196,11 @@ public:
      *
      * @param      pcb              PPP implementation specific user data; will be passed to PPP callbacks
      * @param      default_if       true if the interface should be treated as the default one
+     * @param      stack            Allow manual selection of IPv4 and/or IPv6
      * @param[out] interface_out    set to interface handle that must be passed to subsequent mbed_stack calls
      * @return                      NSAPI_ERROR_OK on success, or error code
      */
-    nsapi_error_t _add_ppp_interface(void *pcb, bool default_if, LWIP::Interface **interface_out);
+    nsapi_error_t _add_ppp_interface(void *pcb, bool default_if, nsapi_ip_stack_t stack, LWIP::Interface **interface_out);
 
     /** Get a domain name server from a list of servers to query
      *

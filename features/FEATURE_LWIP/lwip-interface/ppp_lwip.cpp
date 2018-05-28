@@ -370,7 +370,7 @@ nsapi_error_t nsapi_ppp_connect(FileHandle *stream, Callback<void(nsapi_event_t,
 
     if (!my_interface) {
         LWIP &lwip = LWIP::get_instance();
-        retcode = lwip._add_ppp_interface(stream, true, &my_interface);
+        retcode = lwip._add_ppp_interface(stream, true, stack, &my_interface);
         if (retcode != NSAPI_ERROR_OK) {
             my_interface = NULL;
             return retcode;
