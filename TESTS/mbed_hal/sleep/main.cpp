@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#if 1 || !DEVICE_SLEEP
+#if !DEVICE_SLEEP
 #error [NOT_SUPPORTED] sleep not supported for this target
 #endif
 
