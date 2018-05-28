@@ -127,7 +127,7 @@ void rtc_init(void)
 __NONSECURE_ENTRY
 void rtc_free(void)
 {
-    // N/A
+    CLK_DisableModuleClock_S(rtc_modinit.clkidx);
 }
 
 __NONSECURE_ENTRY
@@ -169,9 +169,17 @@ time_t rtc_read(void)
         if (! _rtc_maketime(&datetime_tm, &t_hwrtc_origin, RTC_FULL_LEAP_YEAR_SUPPORT)) {
             return 0;
         }
+
+        /* Load t_write from RTC spare register to cross reset cycle */
+        RTC_T *rtc_base = (RTC_T *) NU_MODBASE(rtc_modinit.modname);
+        RTC_WaitAccessEnable();
+        RTC_EnableSpareAccess();
+        RTC_WaitAccessEnable();
+        t_write = RTC_READ_SPARE_REGISTER(rtc_base, 0);
     }
 
     S_RTC_TIME_DATA_T hwrtc_datetime_2K_present;
+    RTC_WaitAccessEnable();
     RTC_GetDateAndTime(&hwrtc_datetime_2K_present);
     /* Convert date time from H/W RTC to struct TM */
     rtc_convert_datetime_hwrtc_to_tm(&datetime_tm, &hwrtc_datetime_2K_present);
@@ -195,6 +203,14 @@ void rtc_write(time_t t)
 
     t_write = t;
 
+    /* Store t_write to RTC spare register to cross reset cycle */
+    RTC_T *rtc_base = (RTC_T *) NU_MODBASE(rtc_modinit.modname);
+    RTC_WaitAccessEnable();
+    RTC_EnableSpareAccess();
+    RTC_WaitAccessEnable();
+    RTC_WRITE_SPARE_REGISTER(rtc_base, 0, t_write);
+
+    RTC_WaitAccessEnable();
     RTC_SetDateAndTime((S_RTC_TIME_DATA_T *) &DATETIME_HWRTC_ORIGIN);
     /* NOTE: When engine is clocked by low power clock source (LXT/LIRC), we need to wait for 3 engine clocks. */
     wait_us((NU_US_PER_SEC / NU_RTCCLK_PER_SEC) * 3);
