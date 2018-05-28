@@ -29,12 +29,7 @@ using namespace utest::v1;
 
 #define TEST_CYCLES         10000000
 
-#ifdef TARGET_NRF52
-/* The increased tolerance is to account for the imprecise timers on the NRF52. */
-#define ALLOWED_DRIFT_PPM   (1000000/50000)   //5.0%
-#else
 #define ALLOWED_DRIFT_PPM   (1000000/5000)    //0.5%
-#endif
 
 /*
     return values to be checked are documented at:
@@ -103,16 +98,18 @@ MBED_NOINLINE
 static int time_cpu_cycles(uint32_t cycles)
 {
     Timer timer;
+
+    core_util_critical_section_enter();
+
     timer.start();
 
-    int timer_start = timer.read_us();
-
-    uint32_t delay = cycles;
-    delay_loop(delay);
-    int timer_end = timer.read_us();
+    delay_loop(cycles);
 
     timer.stop();
-    return timer_end - timer_start;
+
+    core_util_critical_section_exit();
+
+    return timer.read_us();
 }
 
 void flash_init_test()

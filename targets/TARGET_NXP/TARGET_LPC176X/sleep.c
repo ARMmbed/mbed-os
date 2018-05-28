@@ -17,6 +17,13 @@
 #include "cmsis.h"
 #include "mbed_interface.h"
 
+/*
+ * @note
+ *  The mbed interface semihosting is disconnected as part of going to sleep, and can not be restored.
+ * Flash re-programming and the USB serial port will remain active, but the mbed program will no longer be
+ * able to access the LocalFileSystem
+ */
+
 void hal_sleep(void) {
 
 #if (DEVICE_SEMIHOST == 1)

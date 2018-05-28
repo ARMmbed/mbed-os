@@ -50,9 +50,7 @@ typedef enum {
     PWM_5  = (0 << TPM_SHIFT) | (4),  // TPM0 CH4
     PWM_6  = (0 << TPM_SHIFT) | (5),  // TPM0 CH5
     PWM_7  = (1 << TPM_SHIFT) | (0),  // TPM1 CH0
-    PWM_8  = (1 << TPM_SHIFT) | (1),  // TPM1 CH1
-    PWM_9  = (2 << TPM_SHIFT) | (0),  // TPM2 CH0
-    PWM_10 = (2 << TPM_SHIFT) | (1),  // TPM2 CH1
+    PWM_8  = (1 << TPM_SHIFT) | (1)   // TPM1 CH1
 } PWMName;
 
 #define ADC_INSTANCE_SHIFT           8

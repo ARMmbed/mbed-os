@@ -25,6 +25,7 @@
 #include "lp_ticker_api.h"
 #include "platform_devices.h"
 
+#if DEVICE_LPTICKER
 /**
  * \brief Calculate clocks to us
  *
@@ -111,3 +112,5 @@ void TIMER1_IRQHandler(void)
 {
     cmsdk_ticker_irq_handler(&timer_data);
 }
+
+#endif

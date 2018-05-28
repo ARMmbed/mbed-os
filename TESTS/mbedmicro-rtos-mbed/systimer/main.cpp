@@ -17,7 +17,7 @@
 #error [NOT_SUPPORTED] Tickless mode not supported for this target.
 #endif
 
-#if !DEVICE_LOWPOWERTIMER
+#if !DEVICE_LPTICKER
 #error [NOT_SUPPORTED] Current SysTimer implementation requires lp ticker support.
 #endif
 
@@ -251,6 +251,7 @@ void test_handler_called_once(void)
     TEST_ASSERT_EQUAL_UINT32(1, st.get_tick());
 }
 
+#if DEVICE_SLEEP
 /** Test wake up from sleep
  *
  * Given a SysTimer with a tick scheduled in the future
@@ -279,7 +280,7 @@ void test_sleep(void)
     TEST_ASSERT_UINT64_WITHIN(DELAY_DELTA_US, DELAY_US, timer.read_high_resolution_us());
 }
 
-#if DEVICE_LOWPOWERTIMER
+#if DEVICE_LPTICKER
 /** Test wake up from deepsleep
  *
  * Given a SysTimer with a tick scheduled in the future
@@ -316,6 +317,7 @@ void test_deepsleep(void)
     TEST_ASSERT_UINT64_WITHIN(DELAY_DELTA_US, DELAY_US, lptimer.read_high_resolution_us());
 }
 #endif
+#endif
 
 utest::v1::status_t test_setup(const size_t number_of_cases)
 {
@@ -330,9 +332,11 @@ Case cases[] = {
     Case("Tick can be cancelled", test_cancel_tick),
     Case("Schedule zero ticks", test_schedule_zero),
     Case("Handler called once", test_handler_called_once),
+#if DEVICE_SLEEP
     Case("Wake up from sleep", test_sleep),
-#if DEVICE_LOWPOWERTIMER
+#if DEVICE_LPTICKER
     Case("Wake up from deep sleep", test_deepsleep),
+#endif
 #endif
 
 };

@@ -25,6 +25,10 @@ using namespace utest::v1;
   #error [NOT_SUPPORTED] test not supported
 #endif
 
+#if !DEVICE_USTICKER
+  #error [NOT_SUPPORTED] test not supported
+#endif
+
 #define THREAD_DELAY     30
 #define SEMAPHORE_SLOTS  2
 #define SEM_CHANGES      100

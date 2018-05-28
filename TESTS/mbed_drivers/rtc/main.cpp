@@ -21,7 +21,7 @@
 #include "rtos.h"
 #include "rtc_api.h"
 
-#if !DEVICE_RTC
+#if !DEVICE_RTC || !DEVICE_USTICKER
 #error [NOT_SUPPORTED] test not supported
 #endif
 

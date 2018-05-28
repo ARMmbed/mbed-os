@@ -132,12 +132,5 @@ const PinMap PinMap_PWM[] = {
     {PTB3,  PWM_6, 5},
     {PTC4,  PWM_5, 5},
     {PTC5,  PWM_6, 5},
-    /* TPM 2 */
-    {PTA18, PWM_7, 5},
-    {PTA19, PWM_8, 5},
-    {PTB16, PWM_7, 5},
-    {PTB17, PWM_8, 5},
-    {PTC6,  PWM_7, 5},
-    {PTC7,  PWM_8, 5},
     {NC   , NC   , 0}
 };

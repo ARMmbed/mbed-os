@@ -117,6 +117,11 @@ void mbed_sdk_init()
 # error "Low energy clock selection not valid"
 #endif
 
+#if defined(RTCC_PRESENT)
+    /* Turn RTCC clock gate back on to keep RTC time correct */
+    CMU_ClockEnable(cmuClock_RTCC, true);
+#endif
+
 #if defined(EFM_BC_EN)
     /* Enable BC line driver to avoid garbage on CDC port */
     gpio_init_out_ex(&bc_enable, EFM_BC_EN, 1);
