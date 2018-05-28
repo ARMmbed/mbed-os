@@ -105,6 +105,11 @@ void sleep_usticker_test()
 
     const ticker_irq_handler_type us_ticker_irq_handler_org = set_us_ticker_irq_handler(us_ticker_isr);
 
+    // call ticker_read_us to initialize ticker upper layer
+    // prevents subsequent scheduling of max_delta interrupt during ticker initialization while test execution
+    // (e.g when ticker_read_us is called)
+    ticker_read_us(ticker);
+
     /* Test only sleep functionality. */
     sleep_manager_lock_deep_sleep();
     TEST_ASSERT_FALSE_MESSAGE(sleep_manager_can_deep_sleep(), "deep sleep should be locked");
@@ -142,6 +147,11 @@ void deepsleep_lpticker_test()
     const ticker_data_t * ticker = get_lp_ticker_data();
     const unsigned int ticker_freq = ticker->interface->get_info()->frequency;
     const unsigned int ticker_width = ticker->interface->get_info()->bits;
+
+    // call ticker_read_us to initialize ticker upper layer
+    // prevents subsequent scheduling of max_delta interrupt during ticker initialization while test execution
+    // (e.g when ticker_read_us is called)
+    ticker_read_us(ticker);
 
     const ticker_irq_handler_type lp_ticker_irq_handler_org = set_lp_ticker_irq_handler(lp_ticker_isr);
 
