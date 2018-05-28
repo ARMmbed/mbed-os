@@ -100,7 +100,7 @@ void rtc_init(void)
 
 void rtc_free(void)
 {
-    // N/A
+    CLK_DisableModuleClock(rtc_modinit.clkidx);
 }
 
 int rtc_isenabled(void)

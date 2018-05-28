@@ -100,7 +100,7 @@ void rtc_init(void)
 
 void rtc_free(void)
 {
-    // N/A
+    CLK_DisableModuleClock(rtc_modinit.clkidx);
 }
 
 int rtc_isenabled(void)
@@ -114,6 +114,7 @@ int rtc_isenabled(void)
     // NOTE: Check RTC Init Active flag to support crossing reset cycle.
     return !! (RTC->INIT & RTC_INIT_ACTIVE_Msk);
 }
+
 time_t rtc_read(void)
 {
     /* NOTE: After boot, RTC time registers are not synced immediately, about 1 sec latency.
