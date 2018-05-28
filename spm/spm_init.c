@@ -18,6 +18,14 @@
 #include "spm_internal.h"
 #include "handles_manager.h"
 
+MBED_STATIC_ASSERT( MBED_CONF_SPM_IPC_MAX_NUM_OF_CHANNELS <= PSA_HANDLE_MGR_MAX_HANDLES_NUM,
+                    "Number of channels exceeds maximum number of handles allowed in handles manager!"
+                  );
+
+MBED_STATIC_ASSERT( MBED_CONF_SPM_IPC_MAX_NUM_OF_MESSAGES <= PSA_HANDLE_MGR_MAX_HANDLES_NUM,
+                    "Number of active messages exceeds maximum number of handles allowed in handles manager!"
+                  );
+
 psa_handle_item_t g_channels_handle_storage[MBED_CONF_SPM_IPC_MAX_NUM_OF_CHANNELS] = {0};
 spm_ipc_channel_t g_channel_data[MBED_CONF_SPM_IPC_MAX_NUM_OF_CHANNELS] = {0};
 osRtxMemoryPool_t g_channel_mem_pool_storage = {0};
@@ -42,16 +50,28 @@ osMemoryPoolAttr_t g_active_messages_mem_pool_attr = {
     .mp_size = sizeof(g_active_messages_data)
 };
 
-spm_db_t g_spm = {0};
+spm_db_t g_spm = {
+    .partitions = NULL,
+    .partition_count = 0,
+    .channels_handle_mgr = {
+        .handle_generator = PSA_HANDLE_MGR_INVALID_HANDLE,
+        .pool_size        = MBED_CONF_SPM_IPC_MAX_NUM_OF_CHANNELS,
+        .handles_pool     = g_channels_handle_storage
+    },
+    .messages_handle_mgr = {
+        .handle_generator = PSA_HANDLE_MGR_INVALID_HANDLE,
+        .pool_size        = MBED_CONF_SPM_IPC_MAX_NUM_OF_MESSAGES,
+        .handles_pool     = g_messages_handle_storage
+    },
+    .channel_mem_pool = NULL,
+    .active_messages_mem_pool = NULL
+};
 
 // forward declaration
 uint32_t init_partitions(spm_partition_t **partitions);
 
 void psa_spm_init(void)
 {
-    psa_hndl_mgr_init(&(g_spm.channels_handle_mgr), g_channels_handle_storage, MBED_CONF_SPM_IPC_MAX_NUM_OF_CHANNELS);
-    psa_hndl_mgr_init(&(g_spm.messages_handle_mgr), g_messages_handle_storage, MBED_CONF_SPM_IPC_MAX_NUM_OF_MESSAGES);
-
     g_spm.channel_mem_pool = osMemoryPoolNew(
         MBED_CONF_SPM_IPC_MAX_NUM_OF_CHANNELS,
         sizeof(spm_ipc_channel_t),
