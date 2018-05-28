@@ -4224,7 +4224,7 @@
         "default_toolchain": "GCC_ARM",
         "extra_labels": ["NUVOTON", "M2351", "M2351KIAAEES", "FLASH_CMSIS_ALGO"],
         "OUTPUT_EXT": "hex",
-        "macros": ["MBED_FAULT_HANDLER_DISABLED", "MBED_TZ_DEFAULT_ACCESS=1"],
+        "macros": ["MBED_FAULT_HANDLER_DISABLED", "MBED_TZ_DEFAULT_ACCESS=1", "LPTICKER_DELAY_TICKS=3"],
         "is_disk_virtual": true,
         "supported_toolchains": ["GCC_ARM", "IAR", "ARMC6"],
         "config": {
@@ -4246,7 +4246,7 @@
             }
         },
         "inherits": ["Target"],
-        "device_has": ["USTICKER", "ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "LOWPOWERTIMER", "RTC", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "TRNG", "FLASH"],
+        "device_has": ["USTICKER", "LPTICKER", "ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "RTC", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "TRNG", "FLASH"],
         "detect_code": ["1305"],
         "release_versions": ["5"],
         "device_name": "M2351KIAAEES",
