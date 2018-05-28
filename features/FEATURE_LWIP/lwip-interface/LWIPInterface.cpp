@@ -40,6 +40,19 @@
 
 #include "LWIPStack.h"
 
+LWIP::Interface *LWIP::Interface::list;
+
+LWIP::Interface *LWIP::Interface::our_if_from_netif(struct netif *netif)
+{
+    for (Interface *interface = list; interface; interface = interface->next) {
+        if (netif == &interface->netif) {
+            return interface;
+        }
+    }
+
+    return NULL;
+}
+
 static void add_dns_addr_to_dns_list_index(const u8_t addr_type, const u8_t index)
 {
 #if LWIP_IPV6
@@ -152,7 +165,7 @@ nsapi_error_t LWIP::Interface::set_dhcp()
 
 void LWIP::Interface::netif_link_irq(struct netif *netif)
 {
-    LWIP::Interface *interface = static_cast<LWIP::Interface *>(netif->state);
+    LWIP::Interface *interface = our_if_from_netif(netif);
 
     if (netif_is_link_up(&interface->netif)) {
         nsapi_error_t dhcp_status = interface->set_dhcp();
@@ -170,7 +183,7 @@ void LWIP::Interface::netif_link_irq(struct netif *netif)
 
 void LWIP::Interface::netif_status_irq(struct netif *netif)
 {
-    LWIP::Interface *interface = static_cast<LWIP::Interface *>(netif->state);
+    LWIP::Interface *interface = our_if_from_netif(netif);
 
     if (netif_is_up(&interface->netif)) {
         bool dns_addr_has_to_be_added = false;
@@ -325,7 +338,8 @@ LWIP::Interface::Interface() :
     has_both_addr = osSemaphoreNew(UINT16_MAX, 0, &attr);
 #endif
 
-    netif.state = this;
+    next = list;
+    list = this;
 }
 
 nsapi_error_t LWIP::add_ethernet_interface(EMAC &emac, bool default_if, OnboardNetworkStack::Interface **interface_out)
@@ -385,33 +399,36 @@ nsapi_error_t LWIP::add_ethernet_interface(EMAC &emac, bool default_if, OnboardN
 }
 
 /* Internal API to preserve existing PPP functionality - revise to better match mbed_ipstak_add_ethernet_interface later */
-nsapi_error_t LWIP::_add_ppp_interface(void *hw, bool default_if, LWIP::Interface **interface_out)
+nsapi_error_t LWIP::_add_ppp_interface(void *hw, bool default_if, nsapi_ip_stack_t stack, LWIP::Interface **interface_out)
 {
-#if LWIP_PPP
-    Interface *interface = new (nothrow) Interface();
+#if LWIP_PPP_API
+    Interface *interface = new (std::nothrow) Interface();
     if (!interface) {
         return NSAPI_ERROR_NO_MEMORY;
     }
     interface->hw = hw;
     interface->ppp = true;
 
-    ret = ppp_lwip_if_init(hw, &interface->netif);
+    nsapi_error_t ret = ppp_lwip_if_init(hw, &interface->netif, stack);
     if (ret != NSAPI_ERROR_OK) {
         free(interface);
         return ret;
     }
 
-    if (default_if)
+    if (default_if) {
         netif_set_default(&interface->netif);
+        default_interface = interface;
+    }
 
-    netif_set_link_callback(&interface->netif, mbed_lwip_netif_link_irq);
-    netif_set_status_callback(&interface->netif, mbed_lwip_netif_status_irq);
+    netif_set_link_callback(&interface->netif, &LWIP::Interface::netif_link_irq);
+    netif_set_status_callback(&interface->netif, &LWIP::Interface::netif_status_irq);
 
     *interface_out = interface;
 
+    return NSAPI_ERROR_OK;
 #else
     return NSAPI_ERROR_UNSUPPORTED;
-#endif //LWIP_PPP
+#endif //LWIP_PPP_API
 }
 
 
