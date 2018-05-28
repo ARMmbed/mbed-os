@@ -49,7 +49,8 @@ static void powerdown_nvic()
     int j;
 
 #if defined(__CORTEX_M23)
-    isr_groups_32 = 16;
+    // M23 doesn't support ICTR and supports up to 240 external interrupts.
+    isr_groups_32 = 8;
 #else
     isr_groups_32 = ((SCnSCB->ICTR & SCnSCB_ICTR_INTLINESNUM_Msk) >> SCnSCB_ICTR_INTLINESNUM_Pos) + 1;
 #endif
@@ -76,13 +77,19 @@ static void powerdown_scb(uint32_t vtor)
     SCB->AIRCR = 0x05FA | 0x0000;
     SCB->SCR = 0x00000000;
     // SCB->CCR     - Implementation defined value
+#if defined(__CORTEX_M23)
+    for (i = 0; i < 2; i++) {
+        SCB->SHPR[i] = 0x00;
+    }
+#else
     for (i = 0; i < 12; i++) {
-#if defined(__CORTEX_M7) || defined(__CORTEX_M23)
+#if defined(__CORTEX_M7)
         SCB->SHPR[i] = 0x00;
 #else
         SCB->SHP[i] = 0x00;
 #endif
     }
+#endif
     SCB->SHCSR = 0x00000000;
 #if defined(__CORTEX_M23)
 #else
@@ -118,12 +125,8 @@ __asm static void start_new_application(void *sp, void *pc)
 void start_new_application(void *sp, void *pc)
 {
     __asm volatile (
-#if defined(__CORTEX_M23)
-        "movw   r2, #0      \n"
+        "movw   r2, #0      \n" // Fail to compile "mov r2, #0" with ARMC6. Replace with movw/movt.
         "movt   r2, #0      \n"
-#else
-        "mov    r2, #0      \n"
-#endif
         "msr    control, r2 \n" // Switch to main stack
         "mov    sp, %0      \n"
         "msr    primask, r2 \n" // Enable interrupts
