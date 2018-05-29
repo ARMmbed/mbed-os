@@ -136,17 +136,6 @@ struct lp_timer_s {
 };
 #endif
 
-#if DEVICE_SLEEP
-#define NUM_SLEEP_MODES 5
-typedef enum {
-    EM0 = 0,
-    EM1 = 1,
-    EM2 = 2,
-    EM3 = 3,
-    EM4 = 4
-} sleepstate_enum;
-#endif
-
 #if DEVICE_FLASH
 struct flash_s {
     MSC_TypeDef *msc;
@@ -156,6 +145,12 @@ struct flash_s {
 #if DEVICE_TRNG
 struct trng_s {
     TRNG_TypeDef *instance;
+};
+#endif
+
+#if DEVICE_CAN
+struct can_s {
+    CAN_TypeDef *instance;
 };
 #endif
 
