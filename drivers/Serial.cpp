@@ -15,6 +15,7 @@
  */
 #include "drivers/Serial.h"
 #include "platform/mbed_wait_api.h"
+#include "platform/mbed_critical.h"
 
 #if DEVICE_SERIAL
 
@@ -36,12 +37,42 @@ int Serial::_putc(int c) {
     return _base_putc(c);
 }
 
+int Serial::getc() {
+    // Mutex is already held
+	if(!core_util_is_isr_active())
+	{
+        return Stream::getc();
+	}
+	else
+	{
+        return _base_getc();
+	}
+}
+
+int Serial::putc(int c) {
+    // Mutex is already held
+	if(!core_util_is_isr_active())
+	{
+        return Stream::putc(c);
+	}
+	else
+	{
+        return _base_putc(c);
+	}
+}
+
 void Serial::lock() {
-    _mutex.lock();
+	if(!core_util_is_isr_active())
+	{
+        _mutex.lock();
+	}
 }
 
 void Serial::unlock() {
-    _mutex.unlock();
+	if(!core_util_is_isr_active())
+	{
+        _mutex.unlock();
+	}
 }
 
 } // namespace mbed
