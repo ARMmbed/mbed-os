@@ -83,7 +83,10 @@ protected:
     virtual void unlock() {
         // Stub
     }
-};
+}
+MBED_DEPRECATED_SINCE("mbed-os-5.8",
+                      "Stream does not conform to current POSIX-like FileHandle semantics - implement FileHandle directly. "
+                      "Users of FileHandles can use fdopen() to get a FILE * for <stdio.h> calls.");
 /**@}*/
 
 /**@}*/
