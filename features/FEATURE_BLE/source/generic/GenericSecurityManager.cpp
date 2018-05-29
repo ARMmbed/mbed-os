@@ -142,6 +142,9 @@ ble_error_t GenericSecurityManager::purgeAllBondingState(void) {
 ble_error_t GenericSecurityManager::generateWhitelistFromBondTable(Gap::Whitelist_t *whitelist) const {
     if (!_db) return BLE_ERROR_INITIALIZATION_INCOMPLETE;
     if (eventHandler) {
+        if (!whitelist) {
+            return BLE_ERROR_INVALID_PARAM;
+        }
         _db->generate_whitelist_from_bond_table(
             mbed::callback(eventHandler, &::SecurityManager::EventHandler::whitelistFromBondTable),
             whitelist
