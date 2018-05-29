@@ -16,10 +16,11 @@ limitations under the License.
 """
 import re
 from os import remove
-from os.path import join, splitext, exists
+from os.path import join, splitext, exists, dirname, basename
 
 from tools.toolchains import mbedToolchain, TOOLCHAIN_PATHS
 from tools.hooks import hook_tool
+from tools.utils import mkdir
 
 class IAR(mbedToolchain):
     LIBRARY_EXT = '.a'
@@ -154,14 +155,24 @@ class IAR(mbedToolchain):
 
     @hook_tool
     def assemble(self, source, object, includes):
-        # Build assemble command
-        cmd = self.asm + self.get_compile_options(self.get_symbols(True), includes, True) + ["-o", object, source]
+
+        # Preprocess first, then assemble
+        dir = join(dirname(object), '.temp')
+        mkdir(dir)
+        tempfile = join(dir, basename(object) + '.E.s')
+
+        # Build preprocess assemble command
+        cmd_pre = self.cc + self.get_compile_options(self.get_symbols(True), includes) + ["--preprocess=n", tempfile, source]
+
+        # Build main assemble command
+        cmd = self.asm + ["-o", object, tempfile]
 
         # Call cmdline hook
+        cmd_pre = self.hook.get_cmdline_assembler(cmd_pre)
         cmd = self.hook.get_cmdline_assembler(cmd)
 
         # Return command array, don't execute
-        return [cmd]
+        return [cmd_pre, cmd]
 
     @hook_tool
     def compile(self, cc, source, object, includes):
