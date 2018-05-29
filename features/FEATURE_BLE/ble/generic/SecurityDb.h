@@ -584,7 +584,7 @@ public:
         WhitelistDbCb_t cb,
         ::Gap::Whitelist_t *whitelist
     ) {
-        for (size_t i = 0; i < get_entry_count() && i < whitelist->capacity; i++) {
+        for (size_t i = 0; i < get_entry_count() && whitelist->size < whitelist->capacity; i++) {
             entry_handle_t db_handle = get_entry_handle_by_index(i);
             SecurityDistributionFlags_t* flags = get_distribution_flags(db_handle);
 
@@ -592,20 +592,24 @@ public:
                 continue;
             }
 
-            if (flags->peer_address_is_public) {
-                whitelist->addresses[i].type = BLEProtocol::AddressType::PUBLIC;
-            } else {
-                whitelist->addresses[i].type = BLEProtocol::AddressType::RANDOM_STATIC;
+            SecurityEntryIdentity_t* identity = read_in_entry_peer_identity(db_handle);
+            if (!identity) {
+                continue;
             }
 
-            SecurityEntryIdentity_t* identity = read_in_entry_peer_identity(db_handle);
-            if (identity) {
-                memcpy(
-                    whitelist->addresses[i].address,
-                    identity->identity_address.data(),
-                    sizeof(BLEProtocol::AddressBytes_t)
-                );
+            memcpy(
+                whitelist->addresses[whitelist->size].address,
+                identity->identity_address.data(),
+                sizeof(BLEProtocol::AddressBytes_t)
+            );
+
+            if (flags->peer_address_is_public) {
+                whitelist->addresses[whitelist->size].type = BLEProtocol::AddressType::PUBLIC;
+            } else {
+                whitelist->addresses[whitelist->size].type = BLEProtocol::AddressType::RANDOM_STATIC;
             }
+
+            whitelist->size++;
         }
 
         cb(whitelist);
