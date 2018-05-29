@@ -209,7 +209,7 @@
     "STM32F091RC": {
         "OGChipSelectEditMenu": "STM32F091RC\tST STM32F091RC"
     },
-    "RZ_A1H": {
+    "R7S72100": {
         "OGChipSelectEditMenu": "R7S721001\tRenesas R7S721001",
         "CoreVariant": 37,
         "GFPUCoreSlave": 37,
@@ -223,7 +223,7 @@
         "GBECoreSlave": 37,
         "NEON":1
     },
-    "GR_LYCHEE": {
+    "R7S72103": {
         "OGChipSelectEditMenu": "R7S721030\tRenesas R7S721030",
         "CoreVariant": 37,
         "GFPUCoreSlave": 37,
