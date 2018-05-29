@@ -250,7 +250,10 @@ nsapi_size_or_error_t AT_CellularStack::socket_sendto(nsapi_socket_t handle, con
 
         _at.unlock();
         if (ret_val != NSAPI_ERROR_OK) {
+            tr_error("Error creating socket to send to: %s error code: %d", addr.get_ip_address(), ret_val);
             return ret_val;
+        } else {
+            tr_info("Success creating socket to send to: %s", addr.get_ip_address());
         }
     }
 
@@ -265,6 +268,12 @@ nsapi_size_or_error_t AT_CellularStack::socket_sendto(nsapi_socket_t handle, con
     _at.lock();
 
     ret_val = socket_sendto_impl(socket, addr, data, size);
+    
+    if (ret_val <= 0) {
+        tr_error("Error sending to: %s error code: %d", addr.get_ip_address(), ret_val);
+    } else {
+        tr_info("Success sending %d Bytes to: %s", ret_val, addr.get_ip_address());
+    }
 
     _at.unlock();
 
