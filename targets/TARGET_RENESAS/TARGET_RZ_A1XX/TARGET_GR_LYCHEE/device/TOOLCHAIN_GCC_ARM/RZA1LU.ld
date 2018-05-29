@@ -1,14 +1,33 @@
 /* Linker script for mbed RZ_A1LU */
 
 /* Linker script to configure memory regions. */
+
+#if !defined(MBED_APP_START)
+  #define MBED_APP_START 0x18000000
+#endif
+
+#if !defined(MBED_APP_SIZE)
+  #define MBED_APP_SIZE 0x800000
+#endif
+
+#define BOOT_LOADER_ADDR    (MBED_APP_START)
+#if (MBED_APP_START == 0x18000000)
+  #define BOOT_LOADER_SIZE  (0x00004000)
+#else
+  #define BOOT_LOADER_SIZE  (0x00000000)
+#endif
+
+#define SFLASH_ADDR         (MBED_APP_START + BOOT_LOADER_SIZE)
+#define SFLASH_SIZE         (MBED_APP_SIZE - BOOT_LOADER_SIZE)
+
 MEMORY
 {
-  ROM   (rx)  : ORIGIN = 0x00000000, LENGTH = 0x02000000
-  BOOT_LOADER (rx) : ORIGIN = 0x18000000, LENGTH = 0x00004000 
-  SFLASH (rx) : ORIGIN = 0x18004000, LENGTH = 0x07FFC000 
-  L_TTB (rw)  : ORIGIN = 0x20000000, LENGTH = 0x00004000 
-  RAM (rwx) : ORIGIN = 0x20020000, LENGTH = 0x001E0000
-  RAM_NC (rwx) : ORIGIN = 0x20200000, LENGTH = 0x00100000
+  ROM   (rx)       : ORIGIN = 0x00000000,       LENGTH = 0x02000000
+  BOOT_LOADER (rx) : ORIGIN = BOOT_LOADER_ADDR, LENGTH = BOOT_LOADER_SIZE 
+  SFLASH (rx)      : ORIGIN = SFLASH_ADDR,      LENGTH = SFLASH_SIZE 
+  L_TTB (rw)       : ORIGIN = 0x20000000,       LENGTH = 0x00004000 
+  RAM (rwx)        : ORIGIN = 0x20020000,       LENGTH = 0x001E0000
+  RAM_NC (rwx)     : ORIGIN = 0x20200000,       LENGTH = 0x00100000
 }
 
 /* Linker script to place sections and symbol values. Should be used together
@@ -41,17 +60,18 @@ ENTRY(Reset_Handler)
 
 SECTIONS
 {
+#if (MBED_APP_START == 0x18000000)
     .boot :
     {
         KEEP(*(.boot_loader)) 
     } > BOOT_LOADER 
+#endif
 
     .text :
     {
 
         Image$$VECTORS$$Base = .;
         * (RESET)
-        . += 0x00000400;
 
         KEEP(*(.isr_vector))
         *(SVC_TABLE)
