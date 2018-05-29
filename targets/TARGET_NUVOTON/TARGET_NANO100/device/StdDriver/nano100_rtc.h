@@ -210,6 +210,26 @@ typedef struct {
  */
 #define RTC_DISABLE_TICK_WAKEUP() (RTC->TTR &= ~RTC_TTR_TWKE_Msk);
 
+/* Declare these inline functions here to avoid MISRA C 2004 rule 8.1 error */
+static __INLINE void RTC_WaitAccessEnable(void);
+
+/**
+  * @brief      Wait RTC Access Enable
+  *
+  * @param      None
+  *
+  * @return     None
+  *
+  * @details    This function is used to enable the maximum RTC read/write accessible time.
+  */
+static __INLINE void RTC_WaitAccessEnable(void)
+{
+    /* NOTE: When RTC->AER is written with RTC_WRITE_KEY frequently, we may lock in the loop here.
+     *       A workaround is to re-initialize RTC->INIR without checking RTC->INIR[ACTIVE] flag. */
+    RTC->INIR = RTC_INIT_KEY;
+    RTC->AER = RTC_WRITE_KEY;
+    while(!(RTC->AER & RTC_AER_ENF_Msk)) RTC->AER = RTC_WRITE_KEY;
+}
 
 void RTC_Open(S_RTC_TIME_DATA_T *sPt);
 void RTC_Close(void);
@@ -217,6 +237,7 @@ void RTC_32KCalibration(int32_t i32FrequencyX100);
 void RTC_SetTickPeriod(uint32_t u32TickSelection);
 void RTC_EnableInt(uint32_t u32IntFlagMask);
 void RTC_DisableInt(uint32_t u32IntFlagMask);
+void RTC_EnableSpareAccess(void);
 uint32_t RTC_GetDayOfWeek(void);
 void RTC_DisableTamperDetection(void);
 void RTC_EnableTamperDetection(uint32_t u32PinCondition);
