@@ -15,17 +15,17 @@
 #include <secure_time_utils.h>
 #include "secure_time_client_spe.h"
 #include "mbed_error.h"
-#include "cmsis_os2.h"
 #include "rtos/Kernel.h"
 
 using namespace rtos;
+
+#define SECURE_TIME_MILLISECS_IN_SEC    (1000UL)
 
 static uint64_t g_boot_time_in_secs = 0;
 
 uint64_t secure_time_get_seconds_since_boot(void)
 {
-    uint32_t freq = osKernelGetTickFreq();
-    return Kernel::get_ms_count() / freq;
+    return Kernel::get_ms_count() / SECURE_TIME_MILLISECS_IN_SEC;
 }
 
 void secure_time_update_boot_time(uint64_t new_time)
