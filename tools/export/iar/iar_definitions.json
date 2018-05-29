@@ -2,6 +2,9 @@
     "STM32L443RC": {
         "OGChipSelectEditMenu": "STM32L443RC\tST STM32L443RC"
     },
+    "STM32L433RC": {
+        "OGChipSelectEditMenu": "STM32L433RC\tST STM32L433RC"
+    },      
     "STM32L496AG": {
         "OGChipSelectEditMenu": "STM32L496AG\tST STM32L496AG"
     },
