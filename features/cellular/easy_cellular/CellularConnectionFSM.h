@@ -95,7 +95,7 @@ public:
     /** Get event queue that can be chained to main event queue (or use start_dispatch)
      *  @return event queue
      */
-    events::EventQueue* get_queue();
+    events::EventQueue *get_queue();
 
     /** Start event queue dispatching
      *  @return see nsapi_error_t, 0 on success
@@ -110,17 +110,17 @@ public:
     /** Get cellular network interface
      *  @return network interface, NULL on failure
      */
-    CellularNetwork* get_network();
+    CellularNetwork *get_network();
 
     /** Get cellular device interface
      *  @return device interface, NULL on failure
      */
-    CellularDevice* get_device();
+    CellularDevice *get_device();
 
     /** Get cellular sim interface
      *  @return sim interface, NULL on failure
      */
-    CellularSIM* get_sim();
+    CellularSIM *get_sim();
 
     /** Change cellular connection to the target state
      *  @param state to continue. Default is to connect.
@@ -153,18 +153,14 @@ public:
      *  @param state state which is returned in string format
      *  @return      string format of the given state
      */
-    const char* get_state_string(CellularState state);
+    const char *get_state_string(CellularState state);
 
 private:
     bool power_on();
     bool open_sim();
     bool get_network_registration(CellularNetwork::RegistrationType type, CellularNetwork::RegistrationStatus &status, bool &is_registered);
-    bool set_network_registration();
-    bool get_attach_network(CellularNetwork::AttachStatus &status);
-    bool set_attach_network();
     bool is_registered();
-    bool device_ready();
-    nsapi_error_t is_automatic_registering(bool& auto_reg);
+    void device_ready();
 
     // state functions to keep state machine simple
     void state_init();
@@ -215,7 +211,7 @@ private:
     events::EventQueue _at_queue;
     char _st_string[20];
     int _event_id;
-    const char* _plmn;
+    const char *_plmn;
     bool _command_success;
     bool _plmn_network_found;
 };

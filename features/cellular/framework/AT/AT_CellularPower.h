@@ -49,6 +49,8 @@ public:
 
     virtual nsapi_error_t opt_receive_period(int mode, EDRXAccessTechnology act_type, uint8_t edrx_value);
 
+    virtual nsapi_error_t is_device_ready();
+
     virtual nsapi_error_t set_device_ready_urc_cb(mbed::Callback<void()> callback);
 
     virtual void remove_device_ready_urc_cb(mbed::Callback<void()> callback);

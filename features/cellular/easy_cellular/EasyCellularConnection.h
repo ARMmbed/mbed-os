@@ -164,7 +164,7 @@ private:
 
     UARTSerial _cellularSerial;
     rtos::Semaphore _cellularSemaphore;
-    CellularConnectionFSM _cellularConnectionFSM;
+    CellularConnectionFSM *_cellularConnectionFSM;
     nsapi_error_t _credentials_err;
     Callback<void(nsapi_event_t, intptr_t)> _status_cb;
 };
