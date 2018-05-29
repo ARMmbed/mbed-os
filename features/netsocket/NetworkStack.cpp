@@ -114,7 +114,7 @@ nsapi_error_t NetworkStack::getsockopt(void *handle, int level, int optname, voi
 
 nsapi_error_t NetworkStack::call_in(int delay, mbed::Callback<void()> func)
 {
-    events::EventQueue *event_queue = mbed::mbed_event_queue();
+    static events::EventQueue *event_queue = mbed::mbed_event_queue();
 
     if (!event_queue) {
         return NSAPI_ERROR_NO_MEMORY;

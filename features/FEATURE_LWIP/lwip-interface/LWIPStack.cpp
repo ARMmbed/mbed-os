@@ -209,7 +209,7 @@ void LWIP::tcpip_thread_callback(void *ptr)
 
 nsapi_error_t LWIP::call_in(int delay, mbed::Callback<void()> func)
 {
-    lwip_callback *cb = new lwip_callback;
+    lwip_callback *cb = new (std::nothrow) lwip_callback;
     if (!cb) {
         return NSAPI_ERROR_NO_MEMORY;
     }
