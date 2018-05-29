@@ -14,12 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef __RTX_LIB_H__
-#define __RTX_LIB_H__
 
-#include "rtx_os.h"
+#ifndef CMSIS_OS_H_
+#define CMSIS_OS_H_
 
-#define os_semaphore_t      osRtxSemaphore_t
-#define os_thread_t         osRtxThread_t
+#include "cmsis_os2.h"
+
+#define osPriority osPriority_t
+
+#define osThreadId osThreadId_t
+
+typedef struct {
+} osEvent;
 
 #endif

@@ -14,12 +14,5 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef __RTX_LIB_H__
-#define __RTX_LIB_H__
 
-#include "rtx_os.h"
-
-#define os_semaphore_t      osRtxSemaphore_t
-#define os_thread_t         osRtxThread_t
-
-#endif
+typedef void* Mutex;

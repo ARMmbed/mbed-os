@@ -14,12 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef __RTX_LIB_H__
-#define __RTX_LIB_H__
 
-#include "rtx_os.h"
+#include "Thread.h"
 
-#define os_semaphore_t      osRtxSemaphore_t
-#define os_thread_t         osRtxThread_t
+namespace rtos {
 
-#endif
+osStatus Thread::wait_until(uint64_t millisec) {
+    return 0;
+}
+
+}

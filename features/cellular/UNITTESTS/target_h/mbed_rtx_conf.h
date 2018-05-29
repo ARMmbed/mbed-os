@@ -15,4 +15,4 @@
  * limitations under the License.
  */
 
-#define EAGAIN 11
+#define OS_STACK_SIZE 0
