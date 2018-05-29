@@ -51,7 +51,7 @@
  * (At max speed the wraparound is at 69730 years, which is unlikely as well)
  ******************************************************************************/
 
-#if defined(RTC_PRESENT)
+#if defined(RTC_PRESENT) && !defined(RTCC_PRESENT)
 #include "em_rtc.h"
 #include "em_cmu.h"
 #include "lp_ticker_api.h"
