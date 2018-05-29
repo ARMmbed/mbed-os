@@ -2902,7 +2902,7 @@
     "EFM32": {
         "inherits": ["Target"],
         "extra_labels": ["Silicon_Labs", "EFM32"],
-        "macros": ["MBEDTLS_CONFIG_HW_SUPPORT", "MBED_TICKLESS"],
+        "macros": ["MBEDTLS_CONFIG_HW_SUPPORT", "MBED_TICKLESS", "EM_MSC_RUN_FROM_FLASH"],
         "public": false
     },
     "EFM32GG990F1024": {

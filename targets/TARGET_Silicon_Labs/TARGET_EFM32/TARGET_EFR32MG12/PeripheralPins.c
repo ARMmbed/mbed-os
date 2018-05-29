@@ -301,7 +301,6 @@ const PinMap PinMap_SPI_MOSI[] = {
     {PF4,  SPI_1, 28},
     {PF5,  SPI_1, 29},
     {PF6,  SPI_1, 30},
-    {PF7,  SPI_1, 31},
 #endif
 #ifdef USART2_BASE
     /* USART2 */
@@ -318,6 +317,7 @@ const PinMap PinMap_SPI_MOSI[] = {
     {PB8,  SPI_2, 11},
     {PB9,  SPI_2, 12},
     {PB10, SPI_2, 13},
+    {PF7,  SPI_2, 20},
     {PF8,  SPI_2, 21},
     {PF9,  SPI_2, 22},
     {PF10, SPI_2, 23},
@@ -381,7 +381,6 @@ const PinMap PinMap_SPI_MISO[] = {
     {PF4,  SPI_1, 27},
     {PF5,  SPI_1, 28},
     {PF6,  SPI_1, 29},
-    {PF7,  SPI_1, 30},
     {PA0,  SPI_1, 31},
 #endif
 #ifdef USART2_BASE
@@ -399,6 +398,7 @@ const PinMap PinMap_SPI_MISO[] = {
     {PB8,  SPI_2, 10},
     {PB9,  SPI_2, 11},
     {PB10, SPI_2, 12},
+    {PF7,  SPI_2, 19},
     {PF8,  SPI_2, 20},
     {PF9,  SPI_2, 21},
     {PF10, SPI_2, 22},
@@ -462,7 +462,6 @@ const PinMap PinMap_SPI_CLK[] = {
     {PF4,  SPI_1, 26},
     {PF5,  SPI_1, 27},
     {PF6,  SPI_1, 28},
-    {PF7,  SPI_1, 29},
     {PA0,  SPI_1, 30},
     {PA1,  SPI_1, 31},
 #endif
@@ -480,6 +479,7 @@ const PinMap PinMap_SPI_CLK[] = {
     {PB8,  SPI_2, 9},
     {PB9,  SPI_2, 10},
     {PB10, SPI_2, 11},
+    {PF7,  SPI_2, 18},
     {PF8,  SPI_2, 19},
     {PF9,  SPI_2, 20},
     {PF10, SPI_2, 21},
@@ -544,7 +544,6 @@ const PinMap PinMap_SPI_CS[] = {
     {PF4,  SPI_1, 25},
     {PF5,  SPI_1, 26},
     {PF6,  SPI_1, 27},
-    {PF7,  SPI_1, 28},
 #endif
 #ifdef USART2_BASE
     /* USART2 */
@@ -559,6 +558,7 @@ const PinMap PinMap_SPI_CS[] = {
     {PB8,  SPI_2, 8},
     {PB9,  SPI_2, 9},
     {PB10, SPI_2, 10},
+    {PF7,  SPI_2, 17},
     {PF8,  SPI_2, 18},
     {PF9,  SPI_2, 19},
     {PF10, SPI_2, 20},
