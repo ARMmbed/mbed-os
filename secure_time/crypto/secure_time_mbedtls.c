@@ -20,15 +20,10 @@
 #include "mbedtls/pk.h"
 #include "mbedtls/md.h"
 #include "mbedtls/entropy.h"
-#include "mbedtls/ctr_drbg.h"
 
-/*
- * Structure containing contexts for random number generation.
- */
-typedef struct secure_time_random_ctx {
-    mbedtls_ctr_drbg_context ctr_drbg_ctx; /* CTR_DRBG context structure. */
-    mbedtls_entropy_context entropy_ctx;   /* Entropy context structure. */
-} secure_time_random_ctx_t;
+#if !defined(MBEDTLS_ENTROPY_C)
+#error [NOT_SUPPORTED] MBEDTLS_ENTROPY_C needs to be enabled for this feature
+#endif
 
 static mbedtls_md_type_t md_type_from_signature_alg(SignatureAlg alg)
 {
@@ -84,24 +79,6 @@ static void calculate_hash(
     mbedtls_md_free(&md_ctx);
 }
 
-static void random_ctx_init(secure_time_random_ctx_t *ctx)
-{
-    int rc = SECURE_TIME_SUCCESS;
-
-    mbedtls_entropy_init(&(ctx->entropy_ctx));
-    mbedtls_ctr_drbg_init(&(ctx->ctr_drbg_ctx));
-    rc = mbedtls_ctr_drbg_seed(
-        &(ctx->ctr_drbg_ctx),
-        mbedtls_entropy_func,
-        &(ctx->entropy_ctx),
-        0,
-        0
-        );
-    if (SECURE_TIME_SUCCESS != rc) {
-        error("mbedtls_ctr_drbg_seed() failed! (rc=%d)", rc);
-    }
-}
-
 int32_t secure_time_verify_signature(
     const void *data,
     size_t data_size,
@@ -152,16 +129,19 @@ int32_t secure_time_verify_signature(
 void secure_time_generate_random_bytes(size_t size, void *random_buf)
 {
     int rc = SECURE_TIME_SUCCESS;
-    secure_time_random_ctx_t *random_ctx =
-        (secure_time_random_ctx_t *)malloc(sizeof(*random_ctx));
-    if (NULL == random_ctx) {
-        error("Failed to allocate memory for random_ctx!");
-    }
-    random_ctx_init(random_ctx);
 
-    rc = mbedtls_ctr_drbg_random(&(random_ctx->ctr_drbg_ctx), (unsigned char *)random_buf, size);
-    if (SECURE_TIME_SUCCESS != rc) {
-        error("mbedtls_ctr_drbg_random() failed! (rc=%d)", rc);
+    mbedtls_entropy_context *entropy_ctx = (mbedtls_entropy_context *)malloc(sizeof(*entropy_ctx));
+    if (NULL == entropy_ctx) {
+        error("Failed to allocate memory for entropy_ctx!");
     }
-    free(random_ctx);
+
+    mbedtls_entropy_init(entropy_ctx);
+
+    rc = mbedtls_entropy_func(entropy_ctx, (unsigned char *)random_buf, size);
+    if (SECURE_TIME_SUCCESS != rc) {
+        error("mbedtls_entropy_func() failed! (rc=%d)", rc);
+    }
+
+    mbedtls_entropy_free(entropy_ctx);
+    free(entropy_ctx);
 }
