@@ -111,6 +111,8 @@ class IAR(Exporter):
                self.resources.c_sources + self.resources.cpp_sources + \
                self.resources.objects + self.resources.libraries
         flags = self.flags
+        _, macros = self.toolchain.config.get_config_data()
+        defines = ['-D%s' % d for d in macros] if macros else [""]
         c_flags = list(set(flags['common_flags']
                                     + flags['c_flags']
                                     + flags['cxx_flags']))
@@ -133,7 +135,8 @@ class IAR(Exporter):
             'include_paths': [self.format_file(src) for src in self.resources.inc_dirs],
             'device': self.iar_device(),
             'ewp': sep+self.project_name + ".ewp",
-            'debugger': debugger
+            'debugger': debugger,
+            'defines': defines
         }
         ctx.update(flags)
 
@@ -200,5 +203,3 @@ class IAR(Exporter):
             return -1
         else:
             return 0
-
-
