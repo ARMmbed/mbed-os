@@ -12,6 +12,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#if defined(DEVICE_TRNG)
+
 #include "secure_time_utils.h"
 #include "secure_time_impl.h"
 #include "secure_time_client_spe.h"
@@ -405,3 +408,5 @@ uint64_t secure_time_get_impl(void)
     uint64_t secs_since_boot = secure_time_get_seconds_since_boot();
     return (boot_time > 0) ? (boot_time + secs_since_boot) : 0;
 }
+
+#endif // defined(DEVICE_TRNG)

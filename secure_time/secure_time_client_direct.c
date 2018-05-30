@@ -18,6 +18,8 @@
 // It can be used to built standalone Secure Time module without requiring SPM
 // implementation.
 
+#if defined(DEVICE_TRNG)
+
 #include "secure_time_client.h"
 #include "secure_time_impl.h"
 
@@ -40,3 +42,5 @@ uint64_t secure_time_get(void)
 {
     return secure_time_get_impl();
 }
+
+#endif // defined(DEVICE_TRNG)
