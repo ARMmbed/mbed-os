@@ -18,6 +18,14 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+// secure_time needs TRNG and NVSTORE enabled
+#if !defined(DEVICE_TRNG) || !NVSTORE_ENABLED
+#undef SECURE_TIME_ENABLED
+#define SECURE_TIME_ENABLED 0
+#endif
+
+#if (SECURE_TIME_ENABLED) || defined(DOXYGEN_ONLY)
+
 #include "secure_time_client.h"
 
 /** @addtogroup Secure-Time-API-SPE
@@ -117,5 +125,7 @@ int32_t secure_time_get_stored_public_key_size(size_t *actual_size);
 #endif
 
 /** @}*/ // end of Secure-Time-API group
+
+#endif // (SECURE_TIME_ENABLED) || defined(DOXYGEN_ONLY)
 
 #endif  // __SECURE_TIME_CLIENT_SPE_H__

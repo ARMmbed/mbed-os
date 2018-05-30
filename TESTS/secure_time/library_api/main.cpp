@@ -27,12 +27,8 @@
 #include "libgcov-embedded.h"
 #endif
 
-#if !NVSTORE_ENABLED
-#error [NOT_SUPPORTED] NVSTORE needs to be enabled for this test
-#endif
-
-#if !defined(DEVICE_TRNG)
-#error [NOT_SUPPORTED] DEVICE_TRNG needs to be defined for this test
+#if !SECURE_TIME_ENABLED
+#error [NOT_SUPPORTED] SECURE_TIME needs to be enabled for this test
 #endif
 
 using namespace utest::v1;
@@ -558,7 +554,7 @@ utest::v1::status_t test_setup(const size_t number_of_cases)
 {
    // Setup Greentea using a reasonable timeout in seconds
 #ifndef NO_GREENTEA
-   GREENTEA_SETUP(120, "default_auto");
+//   GREENTEA_SETUP(120, "default_auto");
 #endif
    return verbose_test_setup_handler(number_of_cases);
 }

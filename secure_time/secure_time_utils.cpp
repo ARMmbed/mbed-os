@@ -12,10 +12,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #include <secure_time_utils.h>
 #include "secure_time_client_spe.h"
 #include "mbed_error.h"
 #include "rtos/Kernel.h"
+
+#if SECURE_TIME_ENABLED
 
 using namespace rtos;
 
@@ -37,3 +40,5 @@ uint64_t secure_time_get_boot_time(void)
 {
     return g_boot_time_in_secs;
 }
+
+#endif // SECURE_TIME_ENABLED

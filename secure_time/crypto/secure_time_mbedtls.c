@@ -13,8 +13,6 @@
  * limitations under the License.
  */
 
-#if defined(DEVICE_TRNG)
-
 #include "secure_time_crypto.h"
 #include "secure_time_client_spe.h"
 #include "mbed_error.h"
@@ -23,6 +21,8 @@
 #include "mbedtls/md.h"
 #include "mbedtls/entropy.h"
 #include "mbedtls/ctr_drbg.h"
+
+#if SECURE_TIME_ENABLED
 
 /*
  * Structure containing contexts for random number generation.
@@ -156,4 +156,4 @@ void secure_time_generate_random_bytes(size_t size, void *random_buf)
     }
 }
 
-#endif // defined(DEVICE_TRNG)
+#endif // SECURE_TIME_ENABLED
