@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
-#include <secure_time_utils.h>
+#include "nvstore.h"
+#include "secure_time_utils.h"
 #include "secure_time_storage.h"
 #include "secure_time_client_spe.h"
 #include "secure_time_impl.h"
-#include "nvstore.h"
 #include "mbed_toolchain.h"
 #include "mbed_error.h"
 

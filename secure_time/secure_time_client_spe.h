@@ -18,8 +18,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-// secure_time needs TRNG and NVSTORE enabled
-#if !defined(DEVICE_TRNG) || !NVSTORE_ENABLED
+// secure_time needs TRNG and NVSTORE enabled (NVSTORE depends on FLASH)
+#if !defined(DEVICE_TRNG) || !defined(DEVICE_FLASH)
 #undef SECURE_TIME_ENABLED
 #define SECURE_TIME_ENABLED 0
 #endif
