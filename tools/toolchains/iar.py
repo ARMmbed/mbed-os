@@ -179,8 +179,10 @@ class IAR(mbedToolchain):
 
     @hook_tool
     def assemble(self, source, object, includes):
+        _, macros = self.config.get_config_data()
+        defines = ['-D%s' % d for d in macros] if macros else [""]
         # Build assemble command
-        cmd = self.asm + self.get_compile_options(self.get_symbols(True), includes, True) + ["-o", object, source]
+        cmd = self.asm + self.get_compile_options(self.get_symbols(True), includes, True) + defines + ["-o", object, source]
 
         # Call cmdline hook
         cmd = self.hook.get_cmdline_assembler(cmd)

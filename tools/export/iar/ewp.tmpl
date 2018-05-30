@@ -479,7 +479,9 @@
 				</option>
 				<option>
 					<name>ADefines</name>
-					<state></state>
+					{% for d in defines %}
+					<state>{{d}}</state>
+					{% endfor %}
 				</option>
 				<option>
 					<name>AList</name>
