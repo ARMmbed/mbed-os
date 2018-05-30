@@ -24,6 +24,10 @@
 
 #include "BlockDevice.h"
 
+enum {
+    BD_ERROR_ERASE_UNIT_WORN_OUT     = -3301,
+};
+
 
 /** Heap backed block device which simulates failures
  *
