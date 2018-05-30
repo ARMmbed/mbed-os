@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #include <secure_time_utils.h>
 #include "secure_time_storage.h"
 #include "secure_time_client_spe.h"
@@ -20,9 +21,7 @@
 #include "mbed_toolchain.h"
 #include "mbed_error.h"
 
-#if !NVSTORE_ENABLED
-#error [NOT_SUPPORTED] NVSTORE needs to be enabled
-#endif
+#if SECURE_TIME_ENABLED
 
 MBED_WEAK int32_t secure_time_set_stored_public_key_impl(const void* pubkey, size_t key_size)
 {
@@ -123,3 +122,5 @@ void secure_time_get_stored_back_time(uint64_t *stored_back_time)
         *stored_back_time = 0;
     }
 }
+
+#endif // SECURE_TIME_ENABLED

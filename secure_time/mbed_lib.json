@@ -1,0 +1,10 @@
+{
+    "name": "secure_time",
+    "config": {
+        "enabled": {
+            "macro_name": "SECURE_TIME_ENABLED",
+            "value": true,
+            "help": "Enabled"
+        }
+    }
+}
