@@ -18,7 +18,9 @@
 
 #define CMSIS_device_header <cmsis.h>
 
+#if defined(MBED_CONF_RTOS_PRESENT)
 #include "mbed_rtx_conf.h"
+#endif
 #include "mbed_cmsis_conf.h"
 
 #endif
