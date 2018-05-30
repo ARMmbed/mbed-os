@@ -13,8 +13,6 @@
  * limitations under the License.
  */
 
-#if defined(DEVICE_TRNG)
-
 #include "secure_time_utils.h"
 #include "secure_time_impl.h"
 #include "secure_time_client_spe.h"
@@ -23,6 +21,8 @@
 #include "mbed_error.h"
 #include "platform/mbed_rtc_time.h"
 #include <string.h>
+
+#if SECURE_TIME_ENABLED
 
 #define SECURE_TIME_NONCE_GENERATION_TIME_INVALID       UINT64_MAX
 
@@ -409,4 +409,4 @@ uint64_t secure_time_get_impl(void)
     return (boot_time > 0) ? (boot_time + secs_since_boot) : 0;
 }
 
-#endif // defined(DEVICE_TRNG)
+#endif // SECURE_TIME_ENABLED

@@ -23,6 +23,8 @@
 #include "secure_time_client_spe.h"
 #include "secure_time_impl.h"
 
+#if SECURE_TIME_ENABLED
+
 int32_t secure_time_set_stored_public_key(const void* pubkey, size_t key_size)
 {
     return secure_time_set_stored_public_key_impl(pubkey, key_size);
@@ -41,3 +43,5 @@ int32_t secure_time_get_stored_public_key_size(size_t *actual_size)
 {
     return secure_time_get_stored_public_key_size_impl(actual_size);
 }
+
+#endif // SECURE_TIME_ENABLED
