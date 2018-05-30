@@ -31,6 +31,10 @@
 #error [NOT_SUPPORTED] NVSTORE needs to be enabled for this test
 #endif
 
+#if !defined(DEVICE_TRNG)
+#error [NOT_SUPPORTED] DEVICE_TRNG needs to be defined for this test
+#endif
+
 using namespace utest::v1;
 
 #define SECURE_TIME_TEST_SECS_PER_MINUTE    (60)
