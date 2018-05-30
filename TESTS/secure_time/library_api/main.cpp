@@ -13,15 +13,15 @@
  * limitations under the License.
  */
 
-#include <secure_time_utils.h>
+#include "secure_time_utils.h"
 #include "greentea-client/test_env.h"
 #include "unity.h"
 #include "utest.h"
+#include "nvstore.h"
 #include "secure_time_client_spe.h"
 #include "secure_time_impl.h"
 #include "secure_time_storage.h"
 #include "secure_time_test_utils.h"
-#include "nvstore.h"
 
 #ifdef ENABLE_LIBGCOV_PORT
 #include "libgcov-embedded.h"
