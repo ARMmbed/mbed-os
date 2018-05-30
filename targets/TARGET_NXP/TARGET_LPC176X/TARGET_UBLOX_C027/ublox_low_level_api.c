@@ -42,6 +42,7 @@ void ublox_mdm_init(void)
     // Can't use wait_ms() as RTOS isn't initialised yet
     //wait_ms(50); // when USB cable is inserted the interface chip issues
     // Here's the code from the non-RTOS version
+    us_ticker_init();
     uint32_t start = us_ticker_read();
     while ((us_ticker_read() - start) < 50000);
 }
