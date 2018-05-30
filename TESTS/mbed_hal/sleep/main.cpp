@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#if 1 || !DEVICE_SLEEP
+#if !DEVICE_SLEEP
 #error [NOT_SUPPORTED] sleep not supported for this target
 #endif
 
@@ -25,6 +25,7 @@
 #include "greentea-client/test_env.h"
 
 #include "sleep_api_tests.h"
+#include "mbed_power_mgmt.h"
 
 #define US_PER_S 1000000
 
@@ -98,7 +99,6 @@ void lp_ticker_isr(const ticker_data_t *const ticker_data)
  * high frequency ticker interrupt can wake-up target from sleep. */
 void sleep_usticker_test()
 {
-#if 0
     const ticker_data_t * ticker = get_us_ticker_data();
     const unsigned int ticker_freq = ticker->interface->get_info()->frequency;
     const unsigned int ticker_width = ticker->interface->get_info()->bits;
@@ -130,7 +130,6 @@ void sleep_usticker_test()
 
     sleep_manager_unlock_deep_sleep();
     TEST_ASSERT_TRUE(sleep_manager_can_deep_sleep());
-#endif
 }
 
 #ifdef DEVICE_LPTICKER
@@ -218,6 +217,11 @@ utest::v1::status_t greentea_failure_handler(const Case * const source, const fa
     return STATUS_CONTINUE;
 }
 
+us_timestamp_t disable_stats_read(void)
+{
+    return 0;
+}
+
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
 {
     GREENTEA_SETUP(60, "default_auto");
@@ -225,6 +229,7 @@ utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
 #if DEVICE_LPTICKER
     lp_ticker_init();
 #endif
+    mbed_stats_ticker_read = disable_stats_read;
     /* Suspend RTOS Kernel to enable sleep modes. */
     osKernelSuspend();
     return greentea_test_setup_handler(number_of_cases);

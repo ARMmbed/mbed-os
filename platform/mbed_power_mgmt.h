@@ -235,6 +235,13 @@ us_timestamp_t mbed_time_idle(void);
  */
 us_timestamp_t mbed_uptime(void);
 
+/* Set ticker read function.
+ * Default lpticker is used to read timer data for stats collection.
+ * User can disable stats collection by setting empty - zero return
+ * function.
+ */
+extern us_timestamp_t (*mbed_stats_ticker_read)(void);
+
 #ifdef __cplusplus
 }
 #endif
