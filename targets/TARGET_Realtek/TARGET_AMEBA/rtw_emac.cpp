@@ -51,7 +51,7 @@ static void wlan_get_ifname(emac_interface_t *emac, char *name, uint8_t size)
 
 static uint8_t wlan_get_hwaddr_size(emac_interface_t *emac)
 {
-    return ETHARP_HWADDR_LEN;
+    return ETH_HWADDR_LEN;
 }
 
 static void wlan_get_hwaddr(emac_interface_t *emac, uint8_t *addr)
