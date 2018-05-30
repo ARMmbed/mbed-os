@@ -7,5 +7,6 @@
     "REALTEK_WIFI" : "RealtekInterface.json",	
     "ESP8266_WIFI" : "ESP8266Interface.json",
     "WICED_WIFI" : "WicedInterface.json",
+    "ISM43362_WIFI" : "ISM43362Interface.json",
     "IDW0XX1_WIFI" : "SpwfSAInterface.json"
 }
