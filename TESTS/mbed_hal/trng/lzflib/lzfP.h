@@ -1,16 +1,16 @@
 /*
  * Copyright (c) 2000-2007 Marc Alexander Lehmann <schmorp@schmorp.de>
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modifica-
  * tion, are permitted provided that the following conditions are met:
- * 
+ *
  *   1.  Redistributions of source code must retain the above copyright notice,
  *       this list of conditions and the following disclaimer.
- * 
+ *
  *   2.  Redistributions in binary form must reproduce the above copyright
  *       notice, this list of conditions and the following disclaimer in the
  *       documentation and/or other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED
  * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MER-
  * CHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO
@@ -157,10 +157,10 @@ typedef unsigned char u8;
 
 #if LZF_USE_OFFSETS
 # define LZF_HSLOT_BIAS ((const u8 *)in_data)
-  typedef unsigned int LZF_HSLOT;
+typedef unsigned int LZF_HSLOT;
 #else
 # define LZF_HSLOT_BIAS 0
-  typedef const u8 *LZF_HSLOT;
+typedef const u8 *LZF_HSLOT;
 #endif
 
 typedef LZF_HSLOT LZF_STATE[1 << (HLOG)];
@@ -168,9 +168,9 @@ typedef LZF_HSLOT LZF_STATE[1 << (HLOG)];
 #if !STRICT_ALIGN
 /* for unaligned accesses we need a 16 bit datatype. */
 # if USHRT_MAX == 65535
-    typedef unsigned short u16;
+typedef unsigned short u16;
 # elif UINT_MAX == 65535
-    typedef unsigned int u16;
+typedef unsigned int u16;
 # else
 #  undef STRICT_ALIGN
 #  define STRICT_ALIGN 1
