@@ -59,39 +59,3 @@ def test_find_tests_app_config(base_dir, target, toolchain_name, app_config):
             "prepare_toolchain was not called with app_config"
         assert args[1]['app_config'] == app_config,\
             "prepare_toolchain was called with an incorrect app_config"
-
-
-@pytest.mark.parametrize("build_path", ["build_path"])
-@pytest.mark.parametrize("target", ["K64F"])
-@pytest.mark.parametrize("toolchain_name", ["ARM"])
-@pytest.mark.parametrize("app_config", ["app_config", None])
-def test_find_tests_app_config(build_path, target, toolchain_name, app_config):
-    """
-    Test find_tests for correct use of app_config
-
-    :param base_dir: dummy value for the test base directory
-    :param target: the target to "test" for
-    :param toolchain_name: the toolchain to use for "testing"
-    :param app_config: Application configuration parameter to find tests
-    """
-    tests = {'test1': 'test1_path','test2': 'test2_path'}
-    src_paths = ['.']
-    set_targets_json_location()
-    with patch('tools.test_api.scan_resources') as mock_scan_resources,\
-         patch('tools.test_api.build_project') as mock_build_project,\
-         patch('tools.test_api.get_config') as mock_get_config:
-        mock_build_project.return_value = "build_project"
-        mock_scan_resources().inc_dirs.return_value = []
-        mock_get_config.return_value = ({}, "", "")
-
-        build_tests(tests, src_paths, build_path, target, toolchain_name,
-                    app_config=app_config)
-
-        arg_list = mock_build_project.call_args_list
-        for args in arg_list:
-            assert 'app_config' in args[1],\
-                "build_tests was not called with app_config"
-            assert args[1]['app_config'] == app_config,\
-                "build_tests was called with an incorrect app_config"
-        mock_get_config.called_with(src_paths, target,
-                                    toolchain_name, app_conifg=app_config)
