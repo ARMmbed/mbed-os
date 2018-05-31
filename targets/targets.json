@@ -3622,7 +3622,8 @@
             "SPI_ASYNCH",
             "STCLK_OFF_DURING_SLEEP",
             "TRNG",
-            "USTICKER"
+            "USTICKER",
+            "SLEEP"
         ],
         "extra_labels": [
             "NORDIC",
