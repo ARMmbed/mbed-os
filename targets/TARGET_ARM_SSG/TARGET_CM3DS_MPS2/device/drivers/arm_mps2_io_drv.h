@@ -66,6 +66,21 @@ void arm_mps2_io_write_leds(struct arm_mps2_io_dev_t* dev,
                             uint32_t value);
 
 /**
+ * \brief  Writes corresponding pin in FPGA IO MISC register.
+ *
+ * \param[in] dev      MPS2 IO device where to write \ref arm_mps2_io_dev_t
+ * \param[in] pin_num  Pin number.
+ * \param[in] value    Value to set.
+ *
+ * \note This function doesn't check if dev is NULL.
+ * \note This function doesn't support port access.
+ */
+void arm_mps2_io_write_misc(struct arm_mps2_io_dev_t* dev,
+                            enum arm_mps2_io_access_t access,
+                            uint8_t pin_num,
+                            uint32_t value);
+
+/**
  * \brief Reads the buttons status.
  *
  * \param[in] dev      MPS2 IO device where to read \ref arm_mps2_io_dev_t
