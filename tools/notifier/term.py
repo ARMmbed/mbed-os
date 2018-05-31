@@ -14,6 +14,7 @@
 # limitations under the License.
 
 from __future__ import print_function, division, absolute_import
+from past.builtins import basestring
 
 import re
 import sys
