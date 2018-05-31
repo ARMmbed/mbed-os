@@ -56,6 +56,10 @@ class DS5_5(Exporter):
                     'name': basename(file), 'type': n, 'path': file
                 })
 
+        config_header = self.toolchain.get_config_header()
+        if config_header:
+            config_header = relpath(config_header, self.resources.file_basepath[config_header])
+
         target = self.target.lower()
         ctx = {
             'name': self.project_name,
@@ -66,6 +70,7 @@ class DS5_5(Exporter):
             'symbols': self.toolchain.get_symbols(),
             'target_name': target,
             'core': self.toolchain.target.core,
+            'preinclude': config_header,
         }
 
         self.gen_file('ds5_5/project.tmpl', ctx, '.project')
