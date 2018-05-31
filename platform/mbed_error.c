@@ -129,16 +129,10 @@ mbed_error_status_t handle_error(mbed_error_status_t error_status, const char *e
 
 #ifdef MBED_CONF_ERROR_FILENAME_CAPTURE_ENABLED
     //Capture filename/linenumber if provided
-    //Index for tracking error_filename 
-    int idx = 0;
-    
-    if(NULL != filename) {
-        while(idx < MBED_CONF_MAX_ERROR_FILENAME_LEN && (filename[idx] != '\0')) {
-            current_error_ctx.error_filename[idx] = filename[idx];
-            idx++;
-        }
-        current_error_ctx.error_line_number = line_number;
-    }
+    //Index for tracking error_filename
+    memset(&current_error_ctx.error_filename, 0, MBED_CONF_MAX_ERROR_FILENAME_LEN);
+    strncpy(current_error_ctx.error_filename, filename, MBED_CONF_MAX_ERROR_FILENAME_LEN);
+    current_error_ctx.error_line_number = line_number;
 #endif
     
     //Capture the fist system error and store it
@@ -359,7 +353,7 @@ static void print_error_report(mbed_error_ctx *ctx, const char *error_msg)
     uint32_t error_code = MBED_GET_ERROR_CODE(ctx->error_status);
     uint32_t error_module = MBED_GET_ERROR_MODULE(ctx->error_status);
     
-    mbed_error_printf("\n\n++ MbedOS Error Info ++\nError Status: 0x%x Code: %d Entity: %d\nError Message: ", ctx->error_status, error_code, error_module);
+    mbed_error_printf("\n\n++ MbedOS Error Info ++\nError Status: 0x%x Code: %d Module: %d\nError Message: ", ctx->error_status, error_code, error_module);
     
     //Report error info based on error code, some errors require different 
     //error_vals[1] contains the error code
@@ -410,12 +404,10 @@ static void print_error_report(mbed_error_ctx *ctx, const char *error_msg)
         }
         mbed_error_printf(error_msg, NULL);
         mbed_error_printf("\nLocation: 0x%x", ctx->error_address);
-#ifdef MBED_CONF_ERROR_FILENAME_CAPTURE_ENABLED
-        if(NULL != error_ctx->error_filename) {
+#if defined(MBED_CONF_ERROR_FILENAME_CAPTURE_ENABLED) && !defined(NDEBUG)
+        if(NULL != ctx->error_filename) {
             //for string, we must pass address of a ptr which has the address of the string 
-            uint32_t *file_name = (uint32_t *)&error_ctx->error_filename[0];
-            mbed_error_printf("\nFile:%s", &file_name);
-            mbed_error_printf("+0x%x", ctx->error_line_number);
+            mbed_error_printf("\nFile:%s+%d", ctx->error_filename, ctx->error_line_number);
         }
 #endif 
 
