@@ -53,6 +53,7 @@ MbedCRC<POLY_16BIT_CCITT, 16>::MbedCRC(uint32_t initial_xor, uint32_t final_xor,
         _initial_value(initial_xor), _final_xor(final_xor), _reflect_data(reflect_data), _reflect_remainder(reflect_remainder),
         _crc_table((uint32_t *)Table_CRC_16bit_CCITT)
 {
+    mbed_crc_ctor();
 }
 
 template<>
