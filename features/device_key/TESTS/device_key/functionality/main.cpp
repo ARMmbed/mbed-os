@@ -434,7 +434,7 @@ void generate_derived_key_wrong_key_type_test()
     ret = inject_dummy_rot_key();
     TEST_ASSERT_EQUAL_INT(DEVICEKEY_SUCCESS, ret);
 
-    memset(output, 0, DEVICE_KEY_32BYTE);
+    memset(output, 0, DEVICE_KEY_16BYTE);
     ret = devkey.generate_derived_key(salt, salt_size, output, 12);//96 bit key type is not supported
     TEST_ASSERT_EQUAL_INT32(DEVICEKEY_INVALID_KEY_TYPE, ret);
 
