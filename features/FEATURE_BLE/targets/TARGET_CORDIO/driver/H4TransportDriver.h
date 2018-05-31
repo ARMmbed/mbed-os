@@ -69,7 +69,7 @@ public:
 private:
     void on_controller_irq();
 
-    Serial uart;
+    RawSerial uart;
     PinName cts;
     PinName rts;
 };
