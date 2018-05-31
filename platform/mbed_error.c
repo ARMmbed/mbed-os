@@ -51,6 +51,7 @@ static mbed_error_ctx first_error_ctx = {0};
 static mbed_error_ctx last_error_ctx = {0};
 static mbed_error_hook_t error_hook = NULL;
 static void print_error_report(mbed_error_ctx *ctx, const char *);
+static mbed_error_status_t handle_error(mbed_error_status_t error_status, unsigned int error_value, const char *filename, int line_number);
 
 //Helper function to halt the system
 static void mbed_halt_system(void)
@@ -72,20 +73,23 @@ WEAK void error(const char* format, ...) {
     if (error_in_progress) {
         return;
     }
+    
+    //Call handle_error/print_error_report permanently setting error_in_progress flag
+    handle_error(MBED_ERROR_UNKNOWN, 0, NULL, 0);
+    print_error_report(&last_error_ctx, "Fatal Run-time error");
     error_in_progress = 1;
 
 #ifndef NDEBUG
     va_list arg;
     va_start(arg, format);
     mbed_error_vfprintf(format, arg);
-    MBED_ERROR(MBED_ERROR_UNKNOWN, "Fatal Run-time Error");
     va_end(arg);
 #endif
     exit(1);
 }
 
 //Set an error status with the error handling system
-mbed_error_status_t handle_error(mbed_error_status_t error_status, const char *error_msg, unsigned int error_value, const char *filename, int line_number) 
+static mbed_error_status_t handle_error(mbed_error_status_t error_status, unsigned int error_value, const char *filename, int line_number) 
 {
     mbed_error_ctx current_error_ctx;
     
@@ -182,14 +186,14 @@ int mbed_get_error_count(void)
 //Sets a fatal error 
 mbed_error_status_t mbed_warning(mbed_error_status_t error_status, const char *error_msg, unsigned int error_value, const char *filename, int line_number) 
 {
-    return handle_error(error_status, error_msg, error_value, filename, line_number);
+    return handle_error(error_status, error_value, filename, line_number);
 }
 
 //Sets a fatal error 
 WEAK mbed_error_status_t mbed_error(mbed_error_status_t error_status, const char *error_msg, unsigned int error_value, const char *filename, int line_number) 
 {
     //set the error reported and then halt the system
-    if( MBED_SUCCESS != handle_error(error_status, error_msg, error_value, filename, line_number) )
+    if( MBED_SUCCESS != handle_error(error_status, error_value, filename, line_number) )
         return MBED_ERROR_FAILED_OPERATION;
     
     //On fatal errors print the error context/report
@@ -421,7 +425,7 @@ static void print_error_report(mbed_error_ctx *ctx, const char *error_msg)
 #endif //TARGET_CORTEX_M
     }
     
-    mbed_error_printf("\n-- MbedOS Error Info --");
+    mbed_error_printf("\n-- MbedOS Error Info --\n");
 }
 
 
