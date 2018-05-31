@@ -56,17 +56,18 @@ class DS5_5(Exporter):
                     'name': basename(file), 'type': n, 'path': file
                 })
 
+        target = self.target.lower()
         ctx = {
             'name': self.project_name,
             'include_paths': self.resources.inc_dirs,
             'scatter_file': self.resources.linker_script,
             'object_files': self.resources.objects + self.resources.libraries,
             'source_files': source_files,
-            'symbols': self.toolchain.get_symbols()
+            'symbols': self.toolchain.get_symbols(),
+            'target_name': target,
+            'core': self.toolchain.target.core,
         }
-        target = self.target.lower()
 
-        # Project file
-        self.gen_file('ds5_5/%s.project.tmpl' % target, ctx, '.project')
-        self.gen_file('ds5_5/%s.cproject.tmpl' % target, ctx, '.cproject')
-        self.gen_file('ds5_5/%s.launch.tmpl' % target, ctx, 'ds5_%s.launch' % target)
+        self.gen_file('ds5_5/project.tmpl', ctx, '.project')
+        self.gen_file('ds5_5/cproject.tmpl', ctx, '.cproject')
+        self.gen_file('ds5_5/launch.tmpl', ctx, 'ds5_%s.launch' % target)
