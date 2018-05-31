@@ -18,7 +18,8 @@
 #define __UVISOR_DEPRECATION_H__
 
 #if defined(UVISOR_PRESENT) && UVISOR_PRESENT == 1
-#warning "Warning: You are using FEATURE_UVISOR, which is unsupported as of Mbed OS 5.9."
+#warning "Warning: uVisor is superseded by the Secure Partition Manager (SPM) defined in the ARM Platform Security Architecture (PSA). \
+          uVisor is deprecated as of Mbed OS 5.9, and being replaced by a native PSA-compliant implementation of SPM."
 #endif
 
 #endif  // __UVISOR_DEPRECATION_H__
