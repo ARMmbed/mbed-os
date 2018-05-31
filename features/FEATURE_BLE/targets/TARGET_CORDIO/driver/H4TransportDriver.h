@@ -69,6 +69,10 @@ public:
 private:
     void on_controller_irq();
 
+    // Use RawSerial as opposed to Serial as we don't require the locking primitives
+    // provided by the Serial class (access to the UART should be exclusive to this driver)
+    // Furthermore, we access the peripheral in interrupt context which would clash
+    // with Serial's locking facilities
     RawSerial uart;
     PinName cts;
     PinName rts;
