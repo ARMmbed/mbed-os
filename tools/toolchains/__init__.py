@@ -45,7 +45,7 @@ from ..memap import MemapParser
 CPU_COUNT_MIN = 1
 CPU_COEF = 1
 
-class LazyDict(dict):
+class LazyDict(object):
     def __init__(self):
         self.eager = {}
         self.lazy = {}
@@ -252,8 +252,6 @@ class Resources:
             headername = basename(filename)
             dupe_headers.setdefault(headername, set())
             dupe_headers[headername] |= set([headername])
-        for res in self.features.values():
-            res._collect_duplicates(dupe_dict, dupe_headers)
         return dupe_dict, dupe_headers
 
     def detect_duplicates(self, toolchain):
