@@ -123,9 +123,6 @@ void mbed_stats_sys_get(mbed_stats_sys_t *stats)
     memset(stats, 0, sizeof(mbed_stats_sys_t));
 
 #if defined(MBED_SYS_STATS_ENABLED)
-#if defined(MBED_VERSION)
-    stats->os_version = MBED_VERSION;
-#endif
 #if defined(__CORTEX_M)
     stats->cpu_id = SCB->CPUID;
 #endif
