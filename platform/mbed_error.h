@@ -143,12 +143,17 @@ typedef int mbed_error_status_t;
  *        Since this macro is a wrapper for mbed_warning API callers should process the return value from this macro which is the return value from calling mbed_error API.
  *
  */
-#ifdef MBED_CONF_ERROR_FILENAME_CAPTURE_ENABLED
-    #define MBED_WARNING1( error_status, error_msg, error_value )     mbed_warning( error_status, (const char *)error_msg, (uint32_t)error_value, (const char *)MBED_FILENAME, __LINE__ )
-    #define MBED_WARNING( error_status, error_msg )                   mbed_warning( error_status, (const char *)error_msg, (uint32_t)0          , (const char *)MBED_FILENAME, __LINE__ )
+#ifdef NDEBUG
+    #define MBED_WARNING1( error_status, error_msg, error_value )         mbed_warning( error_status, (const char *)NULL, (uint32_t)error_value, NULL, 0 )
+    #define MBED_WARNING( error_status, error_msg )                       mbed_warning( error_status, (const char *)NULL, (uint32_t)0,           NULL, 0 )    
 #else
-    #define MBED_WARNING1( error_status, error_msg, error_value )     mbed_warning( error_status, (const char *)error_msg, (uint32_t)error_value, NULL, 0 )
-    #define MBED_WARNING( error_status, error_msg )                   mbed_warning( error_status, (const char *)error_msg, (uint32_t)0,           NULL, 0 )    
+    #if defined(MBED_CONF_ERROR_FILENAME_CAPTURE_ENABLED)
+        #define MBED_WARNING1( error_status, error_msg, error_value )     mbed_warning( error_status, (const char *)error_msg, (uint32_t)error_value, (const char *)MBED_FILENAME, __LINE__ )
+        #define MBED_WARNING( error_status, error_msg )                   mbed_warning( error_status, (const char *)error_msg, (uint32_t)0          , (const char *)MBED_FILENAME, __LINE__ )
+    #else
+        #define MBED_WARNING1( error_status, error_msg, error_value )     mbed_warning( error_status, (const char *)error_msg, (uint32_t)error_value, NULL, 0 )
+        #define MBED_WARNING( error_status, error_msg )                   mbed_warning( error_status, (const char *)error_msg, (uint32_t)0,           NULL, 0 )    
+    #endif    
 #endif
 
 /**
@@ -170,13 +175,18 @@ typedef int mbed_error_status_t;
  *       Since this macro is a wrapper for mbed_error API callers should process the return value from this macro which is the return value from calling mbed_error API. 
  *
  */
-#ifdef MBED_CONF_ERROR_FILENAME_CAPTURE_ENABLED
-    #define MBED_ERROR1( error_status, error_msg, error_value )       mbed_error( error_status, (const char *)error_msg, (uint32_t)error_value, (const char *)MBED_FILENAME, __LINE__ )
-    #define MBED_ERROR( error_status, error_msg )                     mbed_error( error_status, (const char *)error_msg, (uint32_t)0          , (const char *)MBED_FILENAME, __LINE__ )
+#ifdef NDEBUG
+    #define MBED_ERROR1( error_status, error_msg, error_value )           mbed_error( error_status, (const char *)NULL, (uint32_t)error_value, NULL, 0 )
+    #define MBED_ERROR( error_status, error_msg )                         mbed_error( error_status, (const char *)NULL, (uint32_t)0          , NULL, 0 )
 #else
-    #define MBED_ERROR1( error_status, error_msg, error_value )       mbed_error( error_status, (const char *)error_msg, (uint32_t)error_value, NULL, 0 )
-    #define MBED_ERROR( error_status, error_msg )                     mbed_error( error_status, (const char *)error_msg, (uint32_t)0          , NULL, 0 )
-#endif         
+    #if defined(MBED_CONF_ERROR_FILENAME_CAPTURE_ENABLED)
+        #define MBED_ERROR1( error_status, error_msg, error_value )       mbed_error( error_status, (const char *)error_msg, (uint32_t)error_value, (const char *)MBED_FILENAME, __LINE__ )
+        #define MBED_ERROR( error_status, error_msg )                     mbed_error( error_status, (const char *)error_msg, (uint32_t)0          , (const char *)MBED_FILENAME, __LINE__ )
+    #else
+        #define MBED_ERROR1( error_status, error_msg, error_value )       mbed_error( error_status, (const char *)error_msg, (uint32_t)error_value, NULL, 0 )
+        #define MBED_ERROR( error_status, error_msg )                     mbed_error( error_status, (const char *)error_msg, (uint32_t)0          , NULL, 0 )
+    #endif    
+#endif
 
 //Error Type definition
 /** mbed_error_type_t definition
