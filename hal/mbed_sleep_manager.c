@@ -38,7 +38,7 @@ static us_timestamp_t deep_sleep_time = 0;
 static ticker_data_t *sleep_ticker = NULL;
 #endif
 
-static inline us_timestamp_t read_us(void)
+static inline us_timestamp_t default_stats_ticker_read(void)
 {
 #if defined(MBED_CPU_STATS_ENABLED) && defined(DEVICE_LPTICKER)
     if (NULL == sleep_ticker) {
@@ -50,6 +50,8 @@ static inline us_timestamp_t read_us(void)
 #endif
 }
 
+us_timestamp_t (*mbed_stats_ticker_read)(void) = default_stats_ticker_read;
+
 us_timestamp_t mbed_time_idle(void)
 {
     return (sleep_time + deep_sleep_time);
@@ -57,7 +59,7 @@ us_timestamp_t mbed_time_idle(void)
 
 us_timestamp_t mbed_uptime(void)
 {
-    return read_us();
+    return mbed_stats_ticker_read();
 }
 
 us_timestamp_t mbed_time_sleep(void)
@@ -189,7 +191,7 @@ void sleep_manager_sleep_auto(void)
     sleep_tracker_print_stats();
 #endif
     core_util_critical_section_enter();
-    us_timestamp_t start = read_us();
+    us_timestamp_t start = mbed_stats_ticker_read();
     bool deep = false;
 
 // debug profile should keep debuggers attached, no deep sleep allowed
@@ -204,7 +206,7 @@ void sleep_manager_sleep_auto(void)
     }
 #endif
 
-    us_timestamp_t end = read_us();
+    us_timestamp_t end = mbed_stats_ticker_read();
     if (true == deep) {
         deep_sleep_time += end - start;
     } else {
