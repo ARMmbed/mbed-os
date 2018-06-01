@@ -32,8 +32,6 @@ namespace
 
     static const int BURST_CNT = 100;
     static const int BURST_SIZE = 1220;
-    char rx_buffer[BURST_SIZE] = {0};
-    char tx_buffer[BURST_SIZE] = {0};
 }
 
 static void _sigio_handler(osThreadId id) {
@@ -47,7 +45,7 @@ void TCPSOCKET_ECHOTEST_BURST()
     sock.sigio(callback(_sigio_handler, Thread::gettid()));
 
     // TX buffer to be preserved for comparison
-    fill_tx_buffer_ascii(tx_buffer, BURST_SIZE);
+    fill_tx_buffer_ascii(tcp_global::tx_buffer, BURST_SIZE);
 
     int recvd;
     int bt_left;
@@ -55,7 +53,7 @@ void TCPSOCKET_ECHOTEST_BURST()
     for (int i = 0; i < BURST_CNT; i++) {
         bt_left = BURST_SIZE;
         while (bt_left > 0) {
-            sent = sock.send(&(tx_buffer[BURST_SIZE-bt_left]), bt_left);
+            sent = sock.send(&(tcp_global::tx_buffer[BURST_SIZE-bt_left]), bt_left);
             if (sent == NSAPI_ERROR_WOULD_BLOCK) {
                 if(osSignalWait(SIGNAL_SIGIO, SIGIO_TIMEOUT).status == osEventTimeout) {
                     TEST_FAIL();
@@ -70,7 +68,7 @@ void TCPSOCKET_ECHOTEST_BURST()
 
         bt_left = BURST_SIZE;
         while (bt_left > 0) {
-            recvd = sock.recv(&(rx_buffer[BURST_SIZE-bt_left]), BURST_SIZE);
+            recvd = sock.recv(&(tcp_global::rx_buffer[BURST_SIZE-bt_left]), BURST_SIZE);
             if (recvd < 0) {
                 printf("[%02d] network error %d\n", i, recvd);
                 break;
@@ -83,7 +81,7 @@ void TCPSOCKET_ECHOTEST_BURST()
             TEST_FAIL();
         }
 
-        TEST_ASSERT_EQUAL(0, memcmp(tx_buffer, rx_buffer, BURST_SIZE));
+        TEST_ASSERT_EQUAL(0, memcmp(tcp_global::tx_buffer, tcp_global::rx_buffer, BURST_SIZE));
     }
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
 }
@@ -96,7 +94,7 @@ void TCPSOCKET_ECHOTEST_BURST_NONBLOCK()
     sock.sigio(callback(_sigio_handler, Thread::gettid()));
 
     // TX buffer to be preserved for comparison
-    fill_tx_buffer_ascii(tx_buffer, BURST_SIZE);
+    fill_tx_buffer_ascii(tcp_global::tx_buffer, BURST_SIZE);
 
     int sent;
     int recvd;
@@ -104,7 +102,7 @@ void TCPSOCKET_ECHOTEST_BURST_NONBLOCK()
     for (int i = 0; i < BURST_CNT; i++) {
         bt_left = BURST_SIZE;
         while (bt_left > 0) {
-            sent = sock.send(&(tx_buffer[BURST_SIZE-bt_left]), bt_left);
+            sent = sock.send(&(tcp_global::tx_buffer[BURST_SIZE-bt_left]), bt_left);
             if (sent == NSAPI_ERROR_WOULD_BLOCK) {
                 if(osSignalWait(SIGNAL_SIGIO, SIGIO_TIMEOUT).status == osEventTimeout) {
                     TEST_FAIL();
@@ -120,7 +118,7 @@ void TCPSOCKET_ECHOTEST_BURST_NONBLOCK()
 
         bt_left = BURST_SIZE;
         while (bt_left > 0) {
-            recvd = sock.recv(&(rx_buffer[BURST_SIZE-bt_left]), BURST_SIZE);
+            recvd = sock.recv(&(tcp_global::rx_buffer[BURST_SIZE-bt_left]), BURST_SIZE);
             if (recvd == NSAPI_ERROR_WOULD_BLOCK) {
                 if(osSignalWait(SIGNAL_SIGIO, SIGIO_TIMEOUT).status == osEventTimeout) {
                     printf("[bt#%02d] packet timeout...", i);
@@ -140,7 +138,7 @@ void TCPSOCKET_ECHOTEST_BURST_NONBLOCK()
             TEST_FAIL();
         }
 
-        TEST_ASSERT_EQUAL(0, memcmp(tx_buffer, rx_buffer, BURST_SIZE));
+        TEST_ASSERT_EQUAL(0, memcmp(tcp_global::tx_buffer, tcp_global::rx_buffer, BURST_SIZE));
     }
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
 }
