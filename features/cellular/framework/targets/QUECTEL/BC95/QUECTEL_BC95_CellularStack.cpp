@@ -119,7 +119,7 @@ nsapi_error_t QUECTEL_BC95_CellularStack::create_socket_impl(CellularSocket *soc
         }
     }
 
-    if (!socketOpenWorking) {
+    if (!socketOpenWorking || (sock_id == -1)) {
         tr_error("Socket create failed!");
         return NSAPI_ERROR_NO_SOCKET;
     }
