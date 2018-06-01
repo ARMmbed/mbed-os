@@ -40,21 +40,37 @@ static const struct nu_modinit_s timer0_modinit = {TIMER_0, TMR0_MODULE, CLK_CLK
 
 #define TIMER_MODINIT      timer0_modinit
 
-static int ticker_inited = 0;
+/* S/W interrupt enable/disable
+ * 
+ * Because H/W interrupt enable/disable (TIMER_EnableInt/TIMER_DisableInt) needs delay for lp_ticker,
+ * we introduce S/W interrupt enable/disable to avoid blocking code. With S/W interrupt enable/disable,
+ * H/W interrupt is always enabled after ticker_init. A S/W flag is used to tell whether or not
+ * ticker_irq_handler is ready to call.
+ */
+
+/* Ticker uninitialized */
+#define NU_TICKER_UNINIT            0
+/* Ticker initialized with interrupt disabled */
+#define NU_TICKER_INIT_INTR_DIS     1
+/* Ticker initialized with interrupt enabled */
+#define NU_TICKER_INIT_INTR_EN      2
+
+/* Track ticker status */
+static volatile uint16_t ticker_stat = NU_TICKER_UNINIT;
 
 #define TMR_CMP_MIN         2
 #define TMR_CMP_MAX         0xFFFFFFu
 
 void us_ticker_init(void)
 {
-    if (ticker_inited) {
+    if (ticker_stat) {
         /* By HAL spec, ticker_init allows the ticker to keep counting and disables the
          * ticker interrupt. */
         us_ticker_disable_interrupt();
         us_ticker_clear_interrupt();
         return;
     }
-    ticker_inited = 1;
+    ticker_stat = NU_TICKER_INIT_INTR_DIS;
 
     // Reset IP
     SYS_ResetModule(TIMER_MODINIT.rsetidx);
@@ -81,7 +97,7 @@ void us_ticker_init(void)
 
     NVIC_EnableIRQ(TIMER_MODINIT.irq_n);
 
-    TIMER_DisableInt(timer_base);
+    TIMER_EnableInt(timer_base);
 
     TIMER_Start(timer_base);
     /* Wait for timer to start counting and raise active flag */
@@ -105,12 +121,12 @@ void us_ticker_free(void)
     /* Disable IP clock */
     CLK_DisableModuleClock(TIMER_MODINIT.clkidx);
 
-    ticker_inited = 0;
+    ticker_stat = NU_TICKER_UNINIT;
 }
 
 uint32_t us_ticker_read()
 {
-    if (! ticker_inited) {
+    if (ticker_stat == NU_TICKER_UNINIT) {
         us_ticker_init();
     }
 
@@ -121,6 +137,9 @@ uint32_t us_ticker_read()
 
 void us_ticker_set_interrupt(timestamp_t timestamp)
 {
+    /* We can call ticker_irq_handler now. */
+    ticker_stat = NU_TICKER_INIT_INTR_EN;
+
     /* In continuous mode, counter will be reset to zero with the following sequence: 
      * 1. Stop counting
      * 2. Configure new CMP value
@@ -136,13 +155,12 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
     uint32_t cmp_timer = timestamp * NU_TMRCLK_PER_TICK;
     cmp_timer = NU_CLAMP(cmp_timer, TMR_CMP_MIN, TMR_CMP_MAX);
     timer_base->CMP = cmp_timer;
-
-    TIMER_EnableInt(timer_base);
 }
 
 void us_ticker_disable_interrupt(void)
 {
-    TIMER_DisableInt((TIMER_T *) NU_MODBASE(TIMER_MODINIT.modname));
+    /* We cannot call ticker_irq_handler now. */
+    ticker_stat = NU_TICKER_INIT_INTR_DIS;
 }
 
 void us_ticker_clear_interrupt(void)
@@ -152,6 +170,9 @@ void us_ticker_clear_interrupt(void)
 
 void us_ticker_fire_interrupt(void)
 {
+    /* We can call ticker_irq_handler now. */
+    ticker_stat = NU_TICKER_INIT_INTR_EN;
+
     // NOTE: This event was in the past. Set the interrupt as pending, but don't process it here.
     //       This prevents a recursive loop under heavy load which can lead to a stack overflow.
     NVIC_SetPendingIRQ(TIMER_MODINIT.irq_n);
@@ -168,10 +189,15 @@ const ticker_info_t* us_ticker_get_info()
 
 static void tmr0_vec(void)
 {
-    TIMER_ClearIntFlag((TIMER_T *) NU_MODBASE(TIMER_MODINIT.modname));
-    
+    /* NOTE: We need to clear interrupt flag earlier to reduce possibility of dummy interrupt.
+     * This is because "clear interrupt flag" needs delay which isn't added here to avoid
+     * blocking in ISR code. */
+    us_ticker_clear_interrupt();
+
     // NOTE: us_ticker_set_interrupt() may get called in us_ticker_irq_handler();
-    us_ticker_irq_handler();
+    if (ticker_stat == NU_TICKER_INIT_INTR_EN) {
+        us_ticker_irq_handler();
+    }
 }
 
 #endif
