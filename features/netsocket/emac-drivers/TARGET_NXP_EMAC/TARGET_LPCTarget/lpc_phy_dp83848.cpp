@@ -23,15 +23,12 @@
 * use without further testing or modification.
 **********************************************************************/
 
-#include "lwip/opt.h"
-#include "lwip/err.h"
-#include "lwip/tcpip.h"
-#include "lwip/snmp.h"
+#include "netsocket/nsapi_types.h"
 #include "lpc_emac_config.h"
+#include "lpc17_emac.h"
 #include "lpc_phy.h"
 #include "lpc17xx_emac.h"
 
-#if LWIP_ARP || LWIP_ETHERNET
 
 /** @defgroup dp83848_phy	PHY status and control for the DP83848.
  * @ingroup lwip_phy
@@ -110,12 +107,13 @@
 #define DP83848C_ID         0x20005C90  /**< PHY Identifier - DP83848C */
 #define LAN8720_ID          0x0007C0F0  /**< PHY Identifier - LAN8720  */
 
+
 /** \brief PHY status structure used to indicate current status of PHY.
  */
 typedef struct {
-	u32_t     phy_speed_100mbs:1; /**< 10/100 MBS connection speed flag. */
-	u32_t     phy_full_duplex:1;  /**< Half/full duplex connection speed flag. */
-	u32_t     phy_link_active:1;  /**< Phy link active flag. */
+	unsigned int phy_speed_100mbs:1; /**< 10/100 MBS connection speed flag. */
+	unsigned int phy_full_duplex:1;  /**< Half/full duplex connection speed flag. */
+	unsigned int phy_link_active:1;  /**< Phy link active flag. */
 } PHY_STATUS_TYPE;
 
 /** \brief  PHY update flags */
@@ -125,16 +123,16 @@ static PHY_STATUS_TYPE physts;
 static PHY_STATUS_TYPE olddphysts;
 
 /** \brief  PHY update counter for state machine */
-static s32_t phyustate;
+static int32_t phyustate;
 
 /** \brief  Holds the PHY ID */
-static u32_t phy_id;
+static uint32_t phy_id;
 
 /** \brief  Temporary holder of link status for LAN7420 */
-static u32_t phy_lan7420_sts_tmp;
+static uint32_t phy_lan7420_sts_tmp;
 
 /* Write a value via the MII link (non-blocking) */
-void lpc_mii_write_noblock(u32_t PhyReg, u32_t Value)
+void lpc_mii_write_noblock(uint32_t PhyReg, uint32_t Value)
 {
 	/* Write value at PHY address and register */
 	LPC_EMAC->MADR = (LPC_PHYDEF_PHYADDR << 8) | PhyReg;
@@ -142,10 +140,10 @@ void lpc_mii_write_noblock(u32_t PhyReg, u32_t Value)
 }
 
 /* Write a value via the MII link (blocking) */
-err_t lpc_mii_write(u32_t PhyReg, u32_t Value)
+bool lpc_mii_write(uint32_t PhyReg, uint32_t Value)
 {
-	u32_t mst = 250;
-	err_t sts = ERR_OK;
+	uint32_t mst = 250;
+	int8_t sts = 0;
 
 	/* Write value at PHY address and register */
 	lpc_mii_write_noblock(PhyReg, Value);
@@ -162,28 +160,28 @@ err_t lpc_mii_write(u32_t PhyReg, u32_t Value)
 	}
 
 	if (sts != 0)
-		sts = ERR_TIMEOUT;
+		return false;
 
-	return sts;
+	return true;
 }
 
 /* Reads current MII link busy status */
-u32_t lpc_mii_is_busy(void)
+uint32_t lpc_mii_is_busy(void)
 {
-	return (u32_t) (LPC_EMAC->MIND & EMAC_MIND_BUSY);
+	return (uint32_t) (LPC_EMAC->MIND & EMAC_MIND_BUSY);
 }
 
 /* Starts a read operation via the MII link (non-blocking) */
-u32_t lpc_mii_read_data(void)
+uint32_t lpc_mii_read_data(void)
 {
-	u32_t data = LPC_EMAC->MRDD;
+	uint32_t data = LPC_EMAC->MRDD;
 	LPC_EMAC->MCMD = 0;
 
 	return data;
 }
 
 /* Starts a read operation via the MII link (non-blocking) */
-void lpc_mii_read_noblock(u32_t PhyReg)
+void lpc_mii_read_noblock(uint32_t PhyReg)
 {
 	/* Read value at PHY address and register */
 	LPC_EMAC->MADR = (LPC_PHYDEF_PHYADDR << 8) | PhyReg;
@@ -191,10 +189,10 @@ void lpc_mii_read_noblock(u32_t PhyReg)
 }
 
 /* Read a value via the MII link (blocking) */
-err_t lpc_mii_read(u32_t PhyReg, u32_t *data)
+bool lpc_mii_read(uint32_t PhyReg, uint32_t *data)
 {
-	u32_t mst = 250;
-	err_t sts = ERR_OK;
+	uint32_t mst = 250;
+	int8_t sts = 0;
 
 	/* Read value at PHY address and register */
 	lpc_mii_read_noblock(PhyReg);
@@ -214,12 +212,10 @@ err_t lpc_mii_read(u32_t PhyReg, u32_t *data)
 	LPC_EMAC->MCMD = 0;
 
 	if (sts != 0)
-		sts = ERR_TIMEOUT;
+		return false;
 
-	return sts;
+	return true;
 }
-
-
 
 /** \brief  Update PHY status from passed value
  *
@@ -227,13 +223,13 @@ err_t lpc_mii_read(u32_t PhyReg, u32_t *data)
  *  passed PHY status word. The PHY status indicate if the link
  *  is active, the connection speed, and duplex.
  *
- *  \param[in]    netif   NETIF structure
+ *  \param[in]    lpc17_emac LPC17 EMAC
  *  \param[in]    linksts Status word from PHY
- *  \return        1 if the status has changed, otherwise 0
+ *  \return       1 if the status has changed, otherwise 0
  */
-static s32_t lpc_update_phy_sts(struct netif *netif, u32_t linksts)
+static int32_t lpc_update_phy_sts(LPC17_EMAC *lpc17_emac, uint32_t linksts)
 {
-	s32_t changed = 0;
+	int32_t changed = 0;
 
 	/* Update link active status */
 	if (linksts & LNK_STAT_VALID)
@@ -258,14 +254,10 @@ static s32_t lpc_update_phy_sts(struct netif *netif, u32_t linksts)
 		if (physts.phy_speed_100mbs) {
 			/* 100MBit mode. */
 			lpc_emac_set_speed(1);
-
-			NETIF_INIT_SNMP(netif, snmp_ifType_ethernet_csmacd, 100000000);
 		}
 		else {
 			/* 10MBit mode. */
 			lpc_emac_set_speed(0);
-
-			NETIF_INIT_SNMP(netif, snmp_ifType_ethernet_csmacd, 10000000);
 		}
 
 		olddphysts.phy_speed_100mbs = physts.phy_speed_100mbs;
@@ -283,19 +275,12 @@ static s32_t lpc_update_phy_sts(struct netif *netif, u32_t linksts)
 
 	if (physts.phy_link_active != olddphysts.phy_link_active) {
 		changed = 1;
-#if NO_SYS == 1
-		if (physts.phy_link_active)
-			netif_set_link_up(netif);
-		else
-			netif_set_link_down(netif);
-#else
-        if (physts.phy_link_active)
-            tcpip_callback_with_block((tcpip_callback_fn) netif_set_link_up,
-                (void*) netif, 1);
-         else
-            tcpip_callback_with_block((tcpip_callback_fn) netif_set_link_down,
-                (void*) netif, 1);
-#endif
+
+        if (physts.phy_link_active) {
+            lpc17_emac->update_link_status(true);
+        } else {
+            lpc17_emac->update_link_status(false);
+        }
 
 		olddphysts.phy_link_active = physts.phy_link_active;
 	}
@@ -310,14 +295,14 @@ static s32_t lpc_update_phy_sts(struct netif *netif, u32_t linksts)
  *  initialization. Configuration of the PHY at startup is
  *  controlled by setting up configuration defines in lpc_phy.h.
  *
- *  \param[in]     netif   NETIF structure
- *  \param[in]     rmii    If set, configures the PHY for RMII mode
- *  \return         ERR_OK if the setup was successful, otherwise ERR_TIMEOUT
+ *  \param[in]     lpc17_emac LPC17 EMAC
+ *  \param[in]     rmii       If set, configures the PHY for RMII mode
+ *  \return        ERR_OK     if the setup was successful, otherwise ERR_TIMEOUT
  */
-err_t lpc_phy_init(struct netif *netif, int rmii)
+bool lpc_phy_init(LPC17_EMAC *lpc17_emac, int rmii)
 {
-	u32_t tmp;
-	s32_t i;
+	uint32_t tmp;
+	int32_t i;
 
 	physts.phy_speed_100mbs = olddphysts.phy_speed_100mbs = 0;
 	physts.phy_full_duplex = olddphysts.phy_full_duplex = 0;
@@ -326,13 +311,14 @@ err_t lpc_phy_init(struct netif *netif, int rmii)
 
 	/* Only first read and write are checked for failure */
 	/* Put the DP83848C in reset mode and wait for completion */
-	if (lpc_mii_write(DP8_BMCR_REG, DP8_RESET) != 0)
-		return ERR_TIMEOUT;
+	if (!lpc_mii_write(DP8_BMCR_REG, DP8_RESET)) {
+	    return false;
+	}
 	i = 400;
 	while (i > 0) {
 	    osDelay(1);   /* 1 ms */
-		if (lpc_mii_read(DP8_BMCR_REG, &tmp) != 0)
-			return ERR_TIMEOUT;
+		if (!lpc_mii_read(DP8_BMCR_REG, &tmp))
+			return false;
 
 		if (!(tmp & (DP8_RESET | DP8_POWER_DOWN)))
 			i = -1;
@@ -341,7 +327,7 @@ err_t lpc_phy_init(struct netif *netif, int rmii)
 	}
 	/* Timeout? */
 	if (i == 0)
-		return ERR_TIMEOUT;
+		return false;
 
 	// read PHY ID
 	lpc_mii_read(DP8_IDR1_REG, &tmp);
@@ -370,15 +356,19 @@ err_t lpc_phy_init(struct netif *netif, int rmii)
 	/* The link is not set active at this point, but will be detected
        later */
 
-	return ERR_OK;
+	return true;
 }
 
-/* Phy status update state machine */
-s32_t lpc_phy_sts_sm(struct netif *netif)
+/** \brief Phy status update state machine
+ *
+ *  \param[in]     lpc17_emac LPC17 EMAC
+ *  \return        1 if the status has changed, otherwise 0
+ */
+int32_t lpc_phy_sts_sm(LPC17_EMAC *lpc17_emac)
 {
-	s32_t changed = 0;
-	u32_t data = 0;
-	u32_t tmp;
+	int32_t changed = 0;
+	uint32_t data = 0;
+	uint32_t tmp;
 
 	switch (phyustate) {
 		default:
@@ -424,7 +414,7 @@ s32_t lpc_phy_sts_sm(struct netif *netif)
 					data = phy_lan7420_sts_tmp;          
 				}
 
-				changed = lpc_update_phy_sts(netif, data);        
+				changed = lpc_update_phy_sts(lpc17_emac, data);
 				phyustate = 0;                
 			}
 			break;
@@ -432,8 +422,6 @@ s32_t lpc_phy_sts_sm(struct netif *netif)
 
 	return changed;
 }
-
-#endif /* LWIP_ARP || LWIP_ETHERNET */
 
 /**
  * @}
