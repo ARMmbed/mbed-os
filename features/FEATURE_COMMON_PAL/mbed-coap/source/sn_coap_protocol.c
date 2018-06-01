@@ -265,12 +265,6 @@ void sn_coap_protocol_clear_sent_blockwise_messages(struct coap_s *handle)
 
     /* Loop all stored Blockwise messages in Linked list */
     ns_list_foreach_safe(coap_blockwise_msg_s, removed_blocwise_msg_ptr, &handle->linked_list_blockwise_sent_msgs) {
-        if (removed_blocwise_msg_ptr->coap_msg_ptr) {
-            handle->sn_coap_protocol_free(removed_blocwise_msg_ptr->coap_msg_ptr->payload_ptr);
-            removed_blocwise_msg_ptr->coap_msg_ptr->payload_ptr = 0;
-            sn_coap_parser_release_allocated_coap_msg_mem(handle, removed_blocwise_msg_ptr->coap_msg_ptr);
-            removed_blocwise_msg_ptr->coap_msg_ptr = 0;
-        }
         sn_coap_protocol_linked_list_blockwise_msg_remove(handle, removed_blocwise_msg_ptr);
     }
 #endif
@@ -1472,9 +1466,12 @@ static void sn_coap_protocol_handle_blockwise_timout(struct coap_s *handle)
     ns_list_foreach_safe(coap_blockwise_msg_s, removed_blocwise_msg_ptr, &handle->linked_list_blockwise_sent_msgs) {
         if ((handle->system_time - removed_blocwise_msg_ptr->timestamp)  > SN_COAP_BLOCKWISE_MAX_TIME_DATA_STORED) {
 
+            // Item must be removed from the list before calling the rx_callback function.
+            // Callback could actually clear the list and free the item and cause a use after free when callback returns.
+            ns_list_remove(&handle->linked_list_blockwise_sent_msgs, removed_blocwise_msg_ptr);
+
             /* * * * This messages has timed out, remove it from Linked list * * * */
             if( removed_blocwise_msg_ptr->coap_msg_ptr ){
-
                 if (handle->sn_coap_rx_callback) {
                     /* Notify the application about the time out */
                     removed_blocwise_msg_ptr->coap_msg_ptr->coap_status = COAP_STATUS_BUILDER_BLOCK_SENDING_FAILED;
@@ -1482,16 +1479,14 @@ static void sn_coap_protocol_handle_blockwise_timout(struct coap_s *handle)
                     handle->sn_coap_rx_callback(removed_blocwise_msg_ptr->coap_msg_ptr, NULL, removed_blocwise_msg_ptr->param);
                 }
 
-                if(removed_blocwise_msg_ptr->coap_msg_ptr->payload_ptr){
-                    handle->sn_coap_protocol_free(removed_blocwise_msg_ptr->coap_msg_ptr->payload_ptr);
-                    removed_blocwise_msg_ptr->coap_msg_ptr->payload_ptr = 0;
-                }
+                handle->sn_coap_protocol_free(removed_blocwise_msg_ptr->coap_msg_ptr->payload_ptr);
                 sn_coap_parser_release_allocated_coap_msg_mem(handle, removed_blocwise_msg_ptr->coap_msg_ptr);
-                removed_blocwise_msg_ptr->coap_msg_ptr = 0;
             }
-            sn_coap_protocol_linked_list_blockwise_msg_remove(handle, removed_blocwise_msg_ptr);
+
+            handle->sn_coap_protocol_free(removed_blocwise_msg_ptr);
         }
     }
+
 
     /* Loop all incoming Blockwise messages */
     ns_list_foreach_safe(coap_blockwise_payload_s, removed_blocwise_payload_ptr, &handle->linked_list_blockwise_received_payloads) {
