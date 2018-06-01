@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 #include "CellularUtil.h"
+#include "randLIB.h"
 #include <string.h>
 #include <stdlib.h>
 
@@ -315,12 +316,9 @@ int char_str_to_hex_str(const char* str, uint16_t len, char *buf, bool omit_lead
 
 uint16_t get_dynamic_ip_port()
 {
-    static uint16_t port;
-    port++;
-    if (port < 49152) {
-        port = 49152;
-    }
-    return port;
+    randLIB_seed_random(); 
+
+    return (randLIB_get_16bit() | 0xC000);
 }
 
 } // namespace mbed_cellular_util
