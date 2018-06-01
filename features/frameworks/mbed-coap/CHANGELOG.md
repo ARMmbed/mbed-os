@@ -1,5 +1,11 @@
 # Change Log
 
+## [v4.4.4](https://github.com/ARMmbed/mbed-coap/releases/tag/v4.4.4) 
+**Closed issues:**
+ - IOTCLT-2638 [GitHub] hardfault during reconnection retry with Thread
+
+-[Full Changelog](https://github.com/ARMmbed/mbed-coap/compare/v4.4.3...v4.4.4)
+
 ## [v4.4.3](https://github.com/ARMmbed/mbed-coap/releases/tag/v4.4.3) 
 **Closed issues:**
  - IOTCLT-2506 [GitHub] Cannot set registration time if server does not use max age option
