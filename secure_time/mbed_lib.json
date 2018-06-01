@@ -6,5 +6,10 @@
             "value": true,
             "help": "Enabled"
         }
+    },
+    "target_overrides": {
+        "NUCLEO_F410RB": {
+            "enabled": 0
+        }
     }
 }
