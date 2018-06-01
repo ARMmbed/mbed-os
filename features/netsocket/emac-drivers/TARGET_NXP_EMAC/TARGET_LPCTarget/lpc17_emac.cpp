@@ -116,6 +116,7 @@ struct lpc_enetdata {
     volatile uint32_t rx_free_descs; /**< Count of free RX descriptors */
     emac_mem_buf_t *txb[LPC_NUM_BUFF_TXDESCS]; /**< TX pbuf pointer list, zero-copy mode */
     uint32_t lpc_last_tx_idx; /**< TX last descriptor index, zero-copy mode */
+    uint32_t lpc_reserved_tx_num; /**< Number of reserved TX descriptors, zero-copy mode */
 };
 
 #if defined(TARGET_LPC1768) || defined(TARGET_LPC1769)
@@ -419,6 +420,7 @@ bool LPC17_EMAC::lpc_tx_setup()
     LPC_EMAC->TxDescriptorNumber = LPC_NUM_BUFF_TXDESCS - 1;
 
     lpc_enetdata.lpc_last_tx_idx = 0;
+    lpc_enetdata.lpc_reserved_tx_num = 0;
 
     return true;
 }
@@ -431,7 +433,8 @@ void LPC17_EMAC::lpc_tx_reclaim_st(uint32_t cidx)
 {
     TXLockMutex.lock();
 
-    while (cidx != lpc_enetdata.lpc_last_tx_idx) {
+    // If consume index not last freed index or all descriptors in use
+    while (cidx != lpc_enetdata.lpc_last_tx_idx || lpc_enetdata.lpc_reserved_tx_num == LPC_NUM_BUFF_TXDESCS) {
         if (lpc_enetdata.txb[lpc_enetdata.lpc_last_tx_idx] != NULL) {
             memory_manager->free(lpc_enetdata.txb[lpc_enetdata.lpc_last_tx_idx]);
             lpc_enetdata.txb[lpc_enetdata.lpc_last_tx_idx] = NULL;
@@ -443,6 +446,7 @@ void LPC17_EMAC::lpc_tx_reclaim_st(uint32_t cidx)
         if (lpc_enetdata.lpc_last_tx_idx >= LPC_NUM_BUFF_TXDESCS) {
             lpc_enetdata.lpc_last_tx_idx = 0;
         }
+        lpc_enetdata.lpc_reserved_tx_num--;
     }
 
     TXLockMutex.unlock();
@@ -573,6 +577,7 @@ bool LPC17_EMAC::link_out(emac_mem_buf_t *p)
         if (idx >= LPC_NUM_BUFF_TXDESCS) {
             idx = 0;
         }
+        lpc_enetdata.lpc_reserved_tx_num++;
     }
 
     LPC_EMAC->TxProduceIndex = idx;
