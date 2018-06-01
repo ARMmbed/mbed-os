@@ -459,7 +459,7 @@ def merge_region_list(region_list, destination, notify, padding=b'\xFF'):
     notify.info("Space used after regions merged: 0x%x" %
                 (merged.maxaddr() - merged.minaddr() + 1))
     with open(destination, "wb+") as output:
-        merged.tofile(output, format=format.strip("."))
+        merged.tofile(destination, format=format.strip("."))
 
 def scan_resources(src_paths, toolchain, dependencies_paths=None,
                    inc_dirs=None, base_path=None, collect_ignores=False):
