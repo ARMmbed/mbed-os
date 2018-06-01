@@ -132,6 +132,7 @@ private:
     void swap_endian(uint8_t* buf, size_t len);
 
     bool _initialized;
+    mbedtls_platform_context _platform_context;
     mbedtls_entropy_context _entropy_context;
     mbedtls_ecp_group _group;
 };
