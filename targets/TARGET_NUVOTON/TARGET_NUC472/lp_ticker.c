@@ -42,7 +42,23 @@ static const struct nu_modinit_s timer1_modinit = {TIMER_1, TMR1_MODULE, CLK_CLK
 
 #define TIMER_MODINIT      timer1_modinit
 
-static int ticker_inited = 0;
+/* S/W interrupt enable/disable
+ * 
+ * Because H/W interrupt enable/disable (TIMER_EnableInt/TIMER_DisableInt) needs delay for lp_ticker,
+ * we introduce S/W interrupt enable/disable to avoid blocking code. With S/W interrupt enable/disable,
+ * H/W interrupt is always enabled after ticker_init. A S/W flag is used to tell whether or not
+ * ticker_irq_handler is ready to call.
+ */
+
+/* Ticker uninitialized */
+#define NU_TICKER_UNINIT            0
+/* Ticker initialized with interrupt disabled */
+#define NU_TICKER_INIT_INTR_DIS     1
+/* Ticker initialized with interrupt enabled */
+#define NU_TICKER_INIT_INTR_EN      2
+
+/* Track ticker status */
+static volatile uint16_t ticker_stat = NU_TICKER_UNINIT;
 
 #define TMR_CMP_MIN         2
 #define TMR_CMP_MAX         0xFFFFFFu
@@ -52,14 +68,14 @@ static int ticker_inited = 0;
 
 void lp_ticker_init(void)
 {
-    if (ticker_inited) {
+    if (ticker_stat) {
         /* By HAL spec, ticker_init allows the ticker to keep counting and disables the
          * ticker interrupt. */
         lp_ticker_disable_interrupt();
         lp_ticker_clear_interrupt();
         return;
     }
-    ticker_inited = 1;
+    ticker_stat = NU_TICKER_INIT_INTR_DIS;
 
     // Reset module
     SYS_ResetModule(TIMER_MODINIT.rsetidx);
@@ -91,7 +107,7 @@ void lp_ticker_init(void)
 
     NVIC_EnableIRQ(TIMER_MODINIT.irq_n);
 
-    TIMER_DisableInt(timer_base);
+    TIMER_EnableInt(timer_base);
     wait_us((NU_US_PER_SEC / NU_TMRCLK_PER_SEC) * 3);
 
     TIMER_EnableWakeup(timer_base);
@@ -128,12 +144,12 @@ void lp_ticker_free(void)
     /* Disable IP clock */
     CLK_DisableModuleClock(TIMER_MODINIT.clkidx);
 
-    ticker_inited = 0;
+    ticker_stat = NU_TICKER_UNINIT;
 }
 
 timestamp_t lp_ticker_read()
 {
-    if (! ticker_inited) {
+    if (ticker_stat == NU_TICKER_UNINIT) {
         lp_ticker_init();
     }
 
@@ -144,6 +160,9 @@ timestamp_t lp_ticker_read()
 
 void lp_ticker_set_interrupt(timestamp_t timestamp)
 {
+    /* We can call ticker_irq_handler now. */
+    ticker_stat = NU_TICKER_INIT_INTR_EN;
+
     /* In continuous mode, counter will be reset to zero with the following sequence: 
      * 1. Stop counting
      * 2. Configure new CMP value
@@ -159,27 +178,33 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
     uint32_t cmp_timer = timestamp * NU_TMRCLK_PER_TICK;
     cmp_timer = NU_CLAMP(cmp_timer, TMR_CMP_MIN, TMR_CMP_MAX);
 
+    /* NOTE: Rely on LPTICKER_DELAY_TICKS to be non-blocking. */
     timer_base->CMP = cmp_timer;
-    wait_us((NU_US_PER_SEC / NU_TMRCLK_PER_SEC) * 3);
-
-    TIMER_EnableInt(timer_base);
-    wait_us((NU_US_PER_SEC / NU_TMRCLK_PER_SEC) * 3);
 }
 
 void lp_ticker_disable_interrupt(void)
 {
-    TIMER_DisableInt((TIMER_T *) NU_MODBASE(TIMER_MODINIT.modname));
-    wait_us((NU_US_PER_SEC / NU_TMRCLK_PER_SEC) * 3);
+    /* We cannot call ticker_irq_handler now. */
+    ticker_stat = NU_TICKER_INIT_INTR_DIS;
 }
 
 void lp_ticker_clear_interrupt(void)
 {
-    TIMER_ClearIntFlag((TIMER_T *) NU_MODBASE(TIMER_MODINIT.modname));
-    wait_us((NU_US_PER_SEC / NU_TMRCLK_PER_SEC) * 3);
+    /* To avoid sync issue, we clear TIF/TWKF simultaneously rather than call separate 
+     * driver API:
+     *
+     * TIMER_ClearIntFlag((TIMER_T *) NU_MODBASE(TIMER_MODINIT.modname));
+     * TIMER_ClearWakeupFlag((TIMER_T *) NU_MODBASE(TIMER_MODINIT.modname));
+     */
+    TIMER_T *timer_base = (TIMER_T *) NU_MODBASE(TIMER_MODINIT.modname);
+    timer_base->INTSTS = TIMER_INTSTS_TIF_Msk | TIMER_INTSTS_TWKF_Msk;
 }
 
 void lp_ticker_fire_interrupt(void)
 {
+    /* We can call ticker_irq_handler now. */
+    ticker_stat = NU_TICKER_INIT_INTR_EN;
+
     // NOTE: This event was in the past. Set the interrupt as pending, but don't process it here.
     //       This prevents a recursive loop under heavy load which can lead to a stack overflow.
     NVIC_SetPendingIRQ(TIMER_MODINIT.irq_n);
@@ -196,14 +221,15 @@ const ticker_info_t* lp_ticker_get_info()
 
 static void tmr1_vec(void)
 {
-    TIMER_ClearIntFlag((TIMER_T *) NU_MODBASE(TIMER_MODINIT.modname));
-    wait_us((NU_US_PER_SEC / NU_TMRCLK_PER_SEC) * 3);
-
-    TIMER_ClearWakeupFlag((TIMER_T *) NU_MODBASE(TIMER_MODINIT.modname));
-    wait_us((NU_US_PER_SEC / NU_TMRCLK_PER_SEC) * 3);
+    /* NOTE: We need to clear interrupt flag earlier to reduce possibility of dummy interrupt.
+     * This is because "clear interrupt flag" needs delay which isn't added here to avoid
+     * blocking in ISR code. */
+    lp_ticker_clear_interrupt();
 
     // NOTE: lp_ticker_set_interrupt() may get called in lp_ticker_irq_handler();
-    lp_ticker_irq_handler();
+    if (ticker_stat == NU_TICKER_INIT_INTR_EN) {
+        lp_ticker_irq_handler();
+    }
 }
 
 #endif
