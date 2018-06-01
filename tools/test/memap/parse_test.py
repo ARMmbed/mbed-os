@@ -64,8 +64,6 @@ def test_parse_gcc():
         parsed_data_os_agnostic[k.replace('/', sep)] = PARSED_GCC_DATA[k]
 
     assert memap.modules == parsed_data_os_agnostic
-    memap.parse(join(dirname(__file__), "gcc.map"), "GCC_CR")
-    assert memap.modules == parsed_data_os_agnostic
 
 
 def test_add_empty_module():
