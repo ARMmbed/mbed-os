@@ -36,7 +36,9 @@
 #define DATAFLASH_PAGE_BIT_528     10
 
 /* enable debug */
+#ifndef DATAFLASH_DEBUG
 #define DATAFLASH_DEBUG 0
+#endif /* DATAFLASH_DEBUG */
 
 #if DATAFLASH_DEBUG
 #define DEBUG_PRINTF(...) printf(__VA_ARGS__)
