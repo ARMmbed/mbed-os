@@ -36,6 +36,32 @@
 
 using namespace utest::v1;
 
+/* For LPC boards define the memory bank ourselves to give us section placement
+   control */
+#ifndef ETHMEM_SECTION
+#if defined(TARGET_LPC4088) || defined(TARGET_LPC4088_DM)
+#  if defined (__ICCARM__)
+#     define ETHMEM_SECTION
+#  elif defined(TOOLCHAIN_GCC_CR)
+#     define ETHMEM_SECTION __attribute__((section(".data.$RamPeriph32")))
+#  else
+#     define ETHMEM_SECTION __attribute__((section("AHBSRAM0"),aligned))
+#  endif
+#elif defined(TARGET_LPC1768) || defined(TARGET_LPC1769)
+#  if defined (__ICCARM__)
+#     define ETHMEM_SECTION
+#  elif defined(TOOLCHAIN_GCC_CR)
+#     define ETHMEM_SECTION __attribute__((section(".data.$RamPeriph32")))
+#  else
+#     define ETHMEM_SECTION __attribute__((section("AHBSRAM1"),aligned))
+#  endif
+#endif
+#endif
+
+#ifndef ETHMEM_SECTION
+#define ETHMEM_SECTION
+#endif
+
 typedef struct {
     int length;
     int receipt_number;
@@ -63,7 +89,12 @@ static int eth_mtu_size = 0;
 // Event queue
 static rtos::Semaphore worker_loop_semaphore;
 static rtos::Semaphore link_status_semaphore;
-static EventQueue worker_loop_event_queue(20 * EVENTS_EVENT_SIZE);
+
+#if defined (__ICCARM__)
+#pragma location = ".ethusbram"
+#endif
+ETHMEM_SECTION static EventQueue worker_loop_event_queue(20 * EVENTS_EVENT_SIZE);
+
 static void worker_loop_event_cb(int event);
 static Event<void(int)> worker_loop_event(&worker_loop_event_queue, worker_loop_event_cb);
 static void link_input_event_cb(void *buf);
@@ -460,7 +491,11 @@ static void link_input_event_cb(void *buf)
     }
 }
 
-static unsigned char thread_stack[2048];
+
+#if defined (__ICCARM__)
+#pragma location = ".ethusbram"
+#endif
+ETHMEM_SECTION static unsigned char thread_stack[2048];
 
 void worker_loop(void);
 
