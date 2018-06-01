@@ -1266,7 +1266,7 @@ void nRF5xGap::on_connection(Gap::Handle_t handle, const ble_gap_evt_connected_t
         const resolving_list_entry_t* entry = get_sm().resolve_address(
             evt.peer_addr.addr
         );
-        MBED_ASSERT(entry == NULL);
+        MBED_ASSERT(entry != NULL);
 
         peer_addr_type = convert_identity_address(entry->peer_identity_address_type);
         peer_address = entry->peer_identity_address.data();
