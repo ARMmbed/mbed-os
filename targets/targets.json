@@ -1724,6 +1724,40 @@
         "release_versions": ["2"],
         "device_name": "STM32F407VG"
     },
+    "WIO_3G": {
+        "inherits": ["FAMILY_STM32"],
+        "core": "Cortex-M4F",
+        "config": {
+            "clock_source": {
+                "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
+                "value": "USE_PLL_HSE_XTAL|USE_PLL_HSI",
+                "macro_name": "CLOCK_SOURCE"
+            },
+            "clock_source_usb": {
+                "help": "As 48 Mhz clock is configured for USB, SYSCLK has to be reduced from 180 to 168 MHz (set 0 for the max SYSCLK value)",
+                "value": "1",
+                "macro_name": "CLOCK_SOURCE_USB"
+            },
+            "modem_is_on_board": {
+                "help": "Value: Tells the build system that the modem is on-board as oppose to a plug-in shield/module.",
+                "value": 1,
+                "macro_name": "MODEM_ON_BOARD"
+            },
+            "modem_data_connection_type": {
+                "help": "Value: Defines how the modem is wired up to the MCU, e.g., data connection can be a UART or USB and so forth.",
+                "value": 1,
+                "macro_name": "MODEM_ON_BOARD_UART"
+            }
+        },
+        "extra_labels_add": ["STM32F4", "STM32F439", "STM32F439VI", "STM32F439xx", "STM32F439xI"],
+        "macros_add": ["MBEDTLS_CONFIG_HW_SUPPORT", "USB_STM_HAL", "USBHOST_OTHER"],
+        "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_FC", "TRNG", "FLASH"],
+        "detect_code": ["9014"],
+        "features": ["LWIP"],
+        "release_versions": ["2", "5"],
+        "device_name" : "STM32F439VI",
+        "bootloader_supported": true
+    },
     "DISCO_F051R8": {
         "inherits": ["FAMILY_STM32"],
         "core": "Cortex-M0",

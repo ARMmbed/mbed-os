@@ -429,11 +429,21 @@ nsapi_error_t AT_CellularNetwork::set_context_to_be_activated()
 
     // if user has defined user name and password we need to call CGAUTH before activating or modifying context
     if (_pwd && _uname) {
+#if defined(TARGET_WIO_3G)
+        _at.cmd_start("AT+QICSGP=");
+        _at.write_int(_cid);
+        _at.write_int(1); // context type 1=IPv4
+        _at.write_string(_apn);
+        _at.write_string(_uname);
+        _at.write_string(_pwd);
+        _at.write_int(_authentication_type);
+#else
         _at.cmd_start("AT+CGAUTH=");
         _at.write_int(_cid);
         _at.write_int(_authentication_type);
         _at.write_string(_uname);
         _at.write_string(_pwd);
+#endif
         _at.cmd_stop();
         _at.resp_start();
         _at.resp_stop();
