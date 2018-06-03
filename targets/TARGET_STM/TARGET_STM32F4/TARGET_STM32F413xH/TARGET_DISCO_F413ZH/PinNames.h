@@ -84,7 +84,7 @@ typedef enum {
     PB_3        = 0x13,
     PB_3_ALT0   = PB_3|ALT0,
     PB_4        = 0x14,
-    PB_4_ALT0   = PA_4|ALT0,
+    PB_4_ALT0   = PB_4|ALT0,
     PB_5        = 0x15,
     PB_5_ALT0   = PB_5|ALT0,
     PB_6        = 0x16,
