@@ -107,7 +107,7 @@ uint16_t adc_read(analogin_t *obj)
 
     // Configure ADC channel
     sConfig.Rank         = 1;
-    sConfig.SamplingTime = ADC_SAMPLETIME_15CYCLES;
+    sConfig.SamplingTime = ADC_SAMPLETIME_56CYCLES;
     sConfig.Offset       = 0;
 
     switch (obj->channel) {
@@ -161,16 +161,25 @@ uint16_t adc_read(analogin_t *obj)
             break;
         case 16:
             sConfig.Channel = ADC_CHANNEL_TEMPSENSOR;
+            sConfig.SamplingTime = ADC_SAMPLETIME_480CYCLES;
             break;
         case 17:
             sConfig.Channel = ADC_CHANNEL_VREFINT;
+            sConfig.SamplingTime = ADC_SAMPLETIME_480CYCLES;
             break;
         case 18:
             sConfig.Channel = ADC_CHANNEL_VBAT;
+            sConfig.SamplingTime = ADC_SAMPLETIME_480CYCLES;
             break;
         default:
             return 0;
     }
+
+    // Measuring VBAT sets the ADC_CCR_VBATE bit in ADC->CCR, and there is not
+    // possibility with the ST HAL driver to clear it. If it isn't cleared,
+    // VBAT remains connected to the ADC channel in preference to temperature,
+    // so VBAT readings are returned in place of temperature.
+    ADC->CCR &= ~(ADC_CCR_VBATE | ADC_CCR_TSVREFE);
 
     HAL_ADC_ConfigChannel(&obj->handle, &sConfig);
 
