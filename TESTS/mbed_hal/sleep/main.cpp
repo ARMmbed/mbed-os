@@ -37,7 +37,12 @@ using namespace utest::v1;
 
 /* Used for regular sleep mode, a target should be awake within 10 us. Define us delta value as follows:
  * delta = default 10 us + worst ticker resolution + extra time for code execution */
+#if defined(MBED_CPU_STATS_ENABLED)
+/* extra 25us for stats computation (for more details see MBED_CPU_STATS_ENABLED) */
+static const uint32_t sleep_mode_delta_us = (10 + 4 + 5 + 25);
+#else
 static const uint32_t sleep_mode_delta_us = (10 + 4 + 5);
+#endif
 
 /* Used for deep-sleep mode, a target should be awake within 10 ms. Define us delta value as follows:
  * delta = default 10 ms + worst ticker resolution + extra time for code execution */
@@ -98,7 +103,6 @@ void lp_ticker_isr(const ticker_data_t *const ticker_data)
  * high frequency ticker interrupt can wake-up target from sleep. */
 void sleep_usticker_test()
 {
-#if 0
     const ticker_data_t * ticker = get_us_ticker_data();
     const unsigned int ticker_freq = ticker->interface->get_info()->frequency;
     const unsigned int ticker_width = ticker->interface->get_info()->bits;
@@ -109,6 +113,12 @@ void sleep_usticker_test()
     // prevents subsequent scheduling of max_delta interrupt during ticker initialization while test execution
     // (e.g when ticker_read_us is called)
     ticker_read_us(ticker);
+#ifdef DEVICE_LPTICKER
+    // call ticker_read_us to initialize lp_ticker
+    // prevents scheduling interrupt during ticker initialization (in lp_ticker_init) while test execution
+    // (e.g when ticker_read_us is called for lp_ticker, see MBED_CPU_STATS_ENABLED)
+    ticker_read_us(get_lp_ticker_data());
+#endif
 
     /* Test only sleep functionality. */
     sleep_manager_lock_deep_sleep();
@@ -135,7 +145,6 @@ void sleep_usticker_test()
 
     sleep_manager_unlock_deep_sleep();
     TEST_ASSERT_TRUE(sleep_manager_can_deep_sleep());
-#endif
 }
 
 #ifdef DEVICE_LPTICKER
