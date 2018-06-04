@@ -57,7 +57,12 @@ typedef enum {
 
 typedef enum {
     NVSTORE_UNSPECIFIED_OWNER           = 0,
+
     // All owners (by features) should be specified here.
+
+    NVSTORE_STORAGELITE_OWNER           = 1,
+
+    // Should not exceed this
     NVSTORE_MAX_OWNERS                  = 16
 } nvstore_owner_e;
 
