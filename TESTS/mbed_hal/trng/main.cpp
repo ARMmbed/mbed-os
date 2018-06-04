@@ -44,12 +44,8 @@
 #include "hal/trng_api.h"
 #include "base64b.h"
 #include "nvstore.h"
+#include "pithy.h"
 #include <stdio.h>
-
-/*Include LZF Compressor librart */
-extern "C" {
-#include "lzf.h"
-}
 
 #if !DEVICE_TRNG
 #error [NOT_SUPPORTED] TRNG API not supported for this target
@@ -104,11 +100,10 @@ static int fill_buffer_trng(uint8_t *buffer, trng_t *trng_obj, size_t trng_len)
 static void compress_and_compare(char *key, char *value)
 {
     trng_t trng_obj;
-    uint8_t out_comp_buf[BUFFER_LEN * 2] = {0}, buffer[BUFFER_LEN] = {0};
+    uint8_t out_comp_buf[BUFFER_LEN * 4] = {0}, buffer[BUFFER_LEN] = {0};
     uint8_t input_buf[BUFFER_LEN * 2] = {0}, temp_buff[BUFFER_LEN * 2] = {0};
-    size_t out_comp_buf_len = 0;
-    unsigned int comp_res = 0, result = 0;
-    unsigned char htab[32][32] = {0};
+    size_t comp_sz = 0;
+    unsigned int result = 0;
 
 #if NVSTORE_RESET
     NVStore& nvstore = NVStore::get_instance();
@@ -134,35 +129,29 @@ static void compress_and_compare(char *key, char *value)
     result = fill_buffer_trng(buffer, &trng_obj, sizeof(buffer));
     TEST_ASSERT_EQUAL(0, result);
 
-    /*lzf_compress will try to compress the random data, if it succeeded it means the data is not really random*/
+    /*pithy_Compress will try to compress the random data, if it succeeded it means the data is not really random*/
     if (strcmp(key, MSG_TRNG_TEST_STEP1) == 0) {
         printf("\n******TRNG_TEST_STEP1*****\n");
-        out_comp_buf_len = BUFFER_LEN + (BUFFER_LEN / 4);
-        comp_res = lzf_compress((const void *)buffer,
-                                (unsigned int)sizeof(buffer),
-                                (void *)out_comp_buf,
-                                out_comp_buf_len,
-                                (unsigned char **)htab);
-        if (comp_res >= BUFFER_LEN) {
+
+        comp_sz = pithy_Compress((char *)buffer, sizeof(buffer), (char *)out_comp_buf, sizeof(out_comp_buf), 9);
+
+        if (comp_sz >= BUFFER_LEN) {
             printf("trng_get_bytes for buffer size %d was successful", sizeof(buffer));
         } else {
             printf("trng_get_bytes for buffer size %d was unsuccessful", sizeof(buffer));
             TEST_ASSERT(false);
         }
         printf("\n******FINISHED_TRNG_TEST_STEP1*****\n\n");
+
     } else if (strcmp(key, MSG_TRNG_TEST_STEP2) == 0) {
+        /*pithy_Compress will try to compress the random data with a different buffer sizem*/
         printf("\n******TRNG_TEST_STEP2*****\n");
         result = fill_buffer_trng(temp_buff, &trng_obj, sizeof(temp_buff));
         TEST_ASSERT_EQUAL(0, result);
 
-        out_comp_buf_len = 2 * BUFFER_LEN + (BUFFER_LEN / 2);
-        comp_res = lzf_compress((const void *)temp_buff,
-                                (unsigned int)sizeof(temp_buff),
-                                (void *)out_comp_buf,
-                                out_comp_buf_len,
-                                (unsigned char **)htab);
+        comp_sz = pithy_Compress((char *)temp_buff, sizeof(temp_buff), (char *)out_comp_buf, sizeof(out_comp_buf), 9);
 
-        if (comp_res >= BUFFER_LEN) {
+        if (comp_sz >= BUFFER_LEN) {
             printf("trng_get_bytes for buffer size %d was successful", sizeof(temp_buff));
         } else {
             printf("trng_get_bytes for buffer size %d was unsuccessful", sizeof(temp_buff));
@@ -172,14 +161,10 @@ static void compress_and_compare(char *key, char *value)
 
         printf("******TRNG_TEST_STEP3*****\n");
 
-        memcpy(input_buf + BUFFER_LEN, buffer, BUFFER_LEN);
-        comp_res = lzf_compress((const void *)input_buf,
-                                (unsigned int)sizeof(input_buf),
-                                (void *)out_comp_buf,
-                                out_comp_buf_len,
-                                (unsigned char **)htab);
+        /*pithy_Compress will try to compress the random data from before reset concatenated with new random data*/
+        comp_sz = pithy_Compress((char *)input_buf, sizeof(input_buf), (char *)out_comp_buf, sizeof(out_comp_buf), 9);
 
-        if (comp_res >= BUFFER_LEN) {
+        if (comp_sz >= BUFFER_LEN) {
             printf("compression for concatenated buffer after reset was successful");
         } else {
             printf("compression for concatenated buffer after reset was unsuccessful");
