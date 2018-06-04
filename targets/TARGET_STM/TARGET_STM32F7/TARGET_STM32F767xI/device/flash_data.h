@@ -43,7 +43,7 @@
 //   1) enable the FLASH_DUAL_BANK configuration using a json file
 //   2) enable the nDBANK option byte using STLink-Utility software
 //=====================================================================
-#ifdef MBED_CONF_TARGET_FLASH_DUAL_BANK
+#if MBED_CONF_TARGET_FLASH_DUAL_BANK
 
 #define ADDR_FLASH_SECTOR_0     ((uint32_t)0x08000000) /* Base address of Sector 0, 16 Kbytes */
 #define ADDR_FLASH_SECTOR_1     ((uint32_t)0x08004000) /* Base address of Sector 1, 16 Kbytes */
