@@ -43,16 +43,26 @@
 #include "PortNames.h"
 #include "PeripheralNames.h"
 #include "PinNames.h"
-#include "nrf_drv_spi.h"
-#include "nrf_twi.h"
 
+#if DEVICE_SPI
+#include "nrf_drv_spi.h"
+#endif
+
+#if DEVICE_I2C
+#include "nrf_twi.h"
+#endif
+
+#if DEVICE_PWMOUT
 #include "nrf_pwm.h"
+#endif
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "nrf_uart.h"
+#if DEVICE_SERIAL
+#include "nrf_uarte.h"
+#endif
 
 #if defined(FEATURE_CRYPTOCELL310)
 #include "objects_cryptocell.h"
@@ -62,15 +72,16 @@ struct trng_s {
 };
 #endif
 
+#if DEVICE_SERIAL
 struct serial_s {
     int                 instance;
     uint32_t            tx;
     uint32_t            rx;
     uint32_t            cts;
     uint32_t            rts;
-    nrf_uart_hwfc_t     hwfc;
-    nrf_uart_parity_t   parity;
-    nrf_uart_baudrate_t baudrate;
+    nrf_uarte_hwfc_t     hwfc;
+    nrf_uarte_parity_t   parity;
+    nrf_uarte_baudrate_t baudrate;
     uint32_t            context;
     uint32_t            handler;
     uint32_t            mask;
@@ -86,7 +97,9 @@ struct serial_s {
     uint32_t            rx_event;
 #endif
 };
+#endif
 
+#if DEVICE_SPI
 struct spi_s {
     int instance;
     PinName cs;
@@ -99,12 +112,14 @@ struct spi_s {
     uint32_t event;
 #endif
 };
+#endif
 
 struct port_s {
     PortName port;
     uint32_t mask;
 };
 
+#if DEVICE_PWMOUT
 struct pwmout_s {
     int instance;
     PinName pin;
@@ -113,7 +128,9 @@ struct pwmout_s {
     float percent;
     nrf_pwm_sequence_t sequence;
 };
+#endif
 
+#if DEVICE_I2C
 struct i2c_s {
     int instance;
     PinName sda;
@@ -129,6 +146,7 @@ struct i2c_s {
     uint32_t event;
 #endif
 };
+#endif
 
 struct analogin_s {
     uint8_t channel;

@@ -29,7 +29,7 @@
 
 #ifdef S110
     #define IS_LEGACY_DEVICE_MANAGER_ENABLED 1
-#elif defined(S130) || defined(S132)
+#elif defined(S112) || defined(S130) || defined(S132)
     #define IS_LEGACY_DEVICE_MANAGER_ENABLED 0
 #endif
 
@@ -158,10 +158,11 @@ error_t btle_init(void)
     memset(&ble_cfg, 0, sizeof(ble_cfg_t));
     ble_cfg.conn_cfg.conn_cfg_tag = NRF_CONNECTION_TAG;
     ble_cfg.gap_cfg.role_count_cfg.periph_role_count  = PERIPHERAL_LINK_COUNT;
+#if !defined(S112)
     ble_cfg.gap_cfg.role_count_cfg.central_role_count = CENTRAL_LINK_COUNT;
     ble_cfg.gap_cfg.role_count_cfg.central_sec_count  = CENTRAL_LINK_COUNT ?
                                                         BLE_GAP_ROLE_COUNT_CENTRAL_SEC_DEFAULT : 0;
-
+#endif
     err_code = sd_ble_cfg_set(BLE_GAP_CFG_ROLE_COUNT, &ble_cfg, ram_start);
     if(err_code  != NRF_SUCCESS) {
         return ERROR_INVALID_PARAM;
@@ -347,8 +348,8 @@ void btle_handler(const ble_evt_t *p_ble_evt)
                 p_ble_evt->evt.gap_evt.params.phy_update
             );
             break;
-
-        	// Handle Data length negotiation request
+#ifndef S112
+        // Handle Data length negotiation request
         case BLE_GAP_EVT_DATA_LENGTH_UPDATE_REQUEST:
         {
             ble_gap_evt_t       const * p_gap_evt = &p_ble_evt->evt.gap_evt;
@@ -368,6 +369,7 @@ void btle_handler(const ble_evt_t *p_ble_evt)
             ASSERT_STATUS_RET_VOID(sd_ble_gap_data_length_update(p_gap_evt->conn_handle, &dlp, NULL));
         		break;
         }
+#endif // !S112
 
         	// Handle MTU exchange request
         case BLE_GATTS_EVT_EXCHANGE_MTU_REQUEST:
@@ -377,7 +379,8 @@ void btle_handler(const ble_evt_t *p_ble_evt)
             ASSERT_STATUS_RET_VOID(sd_ble_gatts_exchange_mtu_reply(conn_handle, NRF_SDH_BLE_GATT_MAX_MTU_SIZE));
         		break;
         }
-#endif
+#endif // (NRF_SD_BLE_API_VERSION >= 5)
+#ifndef S112
         case BLE_GAP_EVT_CONN_PARAM_UPDATE_REQUEST: {
             Gap::Handle_t connection = p_ble_evt->evt.gap_evt.conn_handle;
             const ble_gap_evt_conn_param_update_request_t *update_request =
@@ -386,7 +389,7 @@ void btle_handler(const ble_evt_t *p_ble_evt)
             sd_ble_gap_conn_param_update(connection, &update_request->conn_params);
             break;
         }
-
+#endif
         case BLE_GAP_EVT_TIMEOUT:
             gap.processTimeoutEvent(static_cast<Gap::TimeoutSource_t>(p_ble_evt->evt.gap_evt.params.timeout.src));
             break;
@@ -398,9 +401,11 @@ void btle_handler(const ble_evt_t *p_ble_evt)
             // BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION));
             break;
 
+#ifndef S112
         case BLE_GAP_EVT_ADV_REPORT:
             gap.on_advertising_packet(p_ble_evt->evt.gap_evt.params.adv_report);
             break;
+#endif
 
         default:
             break;

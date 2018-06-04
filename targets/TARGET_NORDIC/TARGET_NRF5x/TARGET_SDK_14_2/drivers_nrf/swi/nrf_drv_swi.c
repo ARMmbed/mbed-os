@@ -84,6 +84,10 @@ STATIC_ASSERT(SWI_COUNT > 0);
  #endif
 #endif
 
+#ifdef NRF52810_XXAA
+#define SWI_DISABLE2  1uL
+#endif 
+
 #ifdef SWI_DISABLE2
  #undef SWI_DISABLE2
  #define SWI_DISABLE2  1uL

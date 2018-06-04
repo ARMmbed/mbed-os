@@ -3868,6 +3868,73 @@
         "device_has": ["USTICKER", "LPTICKER", "ANALOGIN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"],
         "device_name": "nRF51822_xxAC"
     },
+    "MCU_NRF52810": {
+        "inherits": ["Target"],
+        "core": "Cortex-M4",
+        "macros": [
+            "BOARD_PCA10040", 
+            "TARGET_NRF52810",
+            "CMSIS_VECTAB_VIRTUAL",
+            "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\"",
+            "MBED_TICKLESS"
+        ],
+        "device_has": [
+            "ANALOGIN", 
+            "FLASH",
+            "INTERRUPTIN", 
+            "LOWPOWERTIMER", 
+            "PORTIN", 
+            "PORTINOUT", 
+            "PORTOUT", 
+            "PWMOUT", 
+            "RTC", 
+            "SERIAL",
+            "SERIAL_ASYNCH",
+            "SERIAL_FC",
+            "SLEEP", 
+            "STCLK_OFF_DURING_SLEEP",
+            "TRNG"
+        ],        
+        "extra_labels": [
+            "NORDIC",
+            "NRF5x",
+            "NRF52",
+            "SDK_14_2",
+            "SOFTDEVICE_COMMON",
+            "SOFTDEVICE_S112"
+        ],
+        "config": {
+            "lf_clock_src": {
+                "macro_name": "MBED_CONF_NORDIC_NRF_LF_CLOCK_SRC",
+                "help": "Select Low Frequency clock source. Options: NRF_LF_SRC_XTAL, NRF_LF_SRC_SYNTH, and NRF_LF_SRC_RC",
+                "value": "NRF_LF_SRC_XTAL"
+            },
+            "lf_clock_rc_calib_timer_interval": {
+                "macro_name": "MBED_CONF_NORDIC_NRF_LF_CLOCK_CALIB_TIMER_INTERVAL",
+                "value": 16
+            },
+            "lf_clock_rc_calib_mode_config": {
+                "macro_name": "MBED_CONF_NORDIC_NRF_LF_CLOCK_CALIB_MODE_CONFIG",
+                "value": 0
+            }
+        },
+        "mbed_ram_start": "0x20001AF0",
+        "mbed_ram_size": "0x4510",
+        "OUTPUT_EXT": "hex",
+        "is_disk_virtual": true,
+        "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
+        "public": false,
+        "detect_code": ["1101"],
+        "program_cycle_s": 6,
+        "bootloader_supported": true,
+        "default_lib": "small",
+        "device_name": "nRF52810_xxAA",
+        "target_overrides": {
+            "*": {
+                "nordic-ble.central_link_count": 0
+            }
+        }
+    },
     "MCU_NRF52832": {
         "inherits": ["Target"],
         "core": "Cortex-M4F",
@@ -3936,6 +4003,7 @@
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF52832"],
         "release_versions": ["5"],
+        "default_lib": "small",
         "device_name": "nRF52832_xxAA"
     },
     "SDT52832B": {

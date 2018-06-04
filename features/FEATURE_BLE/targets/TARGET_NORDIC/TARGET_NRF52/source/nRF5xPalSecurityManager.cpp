@@ -453,6 +453,9 @@ ble_error_t nRF5xSecurityManager::enable_encryption(
     const ediv_t &ediv,
     bool mitm
 ) {
+#if defined(S112)
+    return BLE_ERROR_NOT_IMPLEMENTED;
+#else
     ble_gap_master_id_t master_id;
     memcpy(master_id.rand, rand.data(), rand.size());
     memcpy(&master_id.ediv, ediv.data(), ediv.size());
@@ -472,6 +475,7 @@ ble_error_t nRF5xSecurityManager::enable_encryption(
     );
 
     return convert_sd_error(err);
+#endif    
 }
 
 ble_error_t nRF5xSecurityManager::enable_encryption(
@@ -479,6 +483,9 @@ ble_error_t nRF5xSecurityManager::enable_encryption(
     const ltk_t &ltk,
     bool mitm
 ) {
+#if defined(S112)
+    return BLE_ERROR_NOT_IMPLEMENTED;
+#else
     ble_gap_master_id_t master_id = {0};
 
     ble_gap_enc_info_t enc_info;
@@ -494,6 +501,7 @@ ble_error_t nRF5xSecurityManager::enable_encryption(
     );
 
     return convert_sd_error(err);
+#endif    
 }
 
 ble_error_t nRF5xSecurityManager::encrypt_data(

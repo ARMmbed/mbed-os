@@ -201,8 +201,8 @@ ble_error_t nRF5xGap::startAdvertising(const GapAdvertisingParams &params)
     return BLE_ERROR_NONE;
 }
 
-/* Observer role is not supported by S110, return BLE_ERROR_NOT_IMPLEMENTED */
-#if !defined(TARGET_MCU_NRF51_16K_S110) && !defined(TARGET_MCU_NRF51_32K_S110)
+/* Observer role is not supported by S110 or S112, return BLE_ERROR_NOT_IMPLEMENTED */
+#if !defined(TARGET_MCU_NRF51_16K_S110) && !defined(TARGET_MCU_NRF51_32K_S110) && !defined(S112)
 ble_error_t nRF5xGap::startRadioScan(const GapScanningParams &scanningParams)
 {
     /* Allocate the stack's whitelist statically */
@@ -246,7 +246,7 @@ ble_error_t nRF5xGap::stopScan(void) {
 
     return BLE_STACK_BUSY;
 }
-#endif
+#endif // !defined(TARGET_MCU_NRF51_16K_S110) && !defined(TARGET_MCU_NRF51_32K_S110) && !defined(S112)
 
 /**************************************************************************/
 /*!
@@ -274,6 +274,8 @@ ble_error_t nRF5xGap::stopAdvertising(void)
     return BLE_ERROR_NONE;
 }
 
+/* Central role is not supported by S112, return BLE_ERROR_NOT_IMPLEMENTED */
+#ifndef S112
 ble_error_t nRF5xGap::connect(const Address_t             peerAddr,
                               BLEProtocol::AddressType_t  peerAddrType,
                               const ConnectionParams_t   *connectionParams,
@@ -351,6 +353,7 @@ ble_error_t nRF5xGap::connect(const Address_t             peerAddr,
             return BLE_ERROR_UNSPECIFIED;
     }
 }
+#endif // ! S112
 
 ble_error_t nRF5xGap::disconnect(Handle_t connectionHandle, DisconnectionReason_t reason)
 {

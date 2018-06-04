@@ -369,7 +369,7 @@ ble_error_t nRF5xGap::startAdvertising(const GapAdvertisingParams &params)
 }
 
 /* Observer role is not supported by S110, return BLE_ERROR_NOT_IMPLEMENTED */
-#if !defined(TARGET_MCU_NRF51_16K_S110) && !defined(TARGET_MCU_NRF51_32K_S110)
+#if !defined(TARGET_MCU_NRF51_16K_S110) && !defined(TARGET_MCU_NRF51_32K_S110) && !defined(S112)
 ble_error_t nRF5xGap::startRadioScan(const GapScanningParams &scanningParams)
 {
 
@@ -465,6 +465,7 @@ ble_error_t nRF5xGap::stopAdvertising(void)
     return BLE_ERROR_NONE;
 }
 
+#if !defined(S112)
 ble_error_t nRF5xGap::connect(
     const Address_t peerAddr,
     peer_address_type_t peerAddrType,
@@ -660,6 +661,7 @@ ble_error_t nRF5xGap::connect(
             return BLE_ERROR_UNSPECIFIED;
     }
 }
+#endif // !defined(S112)
 
 ble_error_t nRF5xGap::readPhy(Handle_t connection) {
     /*
@@ -1011,7 +1013,7 @@ void nRF5xGap::getPermittedTxPowerValues(const int8_t **valueArrayPP, size_t *co
     static const int8_t permittedTxValues[] = {
         -30, -20, -16, -12, -8, -4, 0, 4
     };
-#elif defined(NRF52)
+#elif defined(NRF52) || defined(NRF52810_XXAA)
 #if  NRF_SD_BLE_API_VERSION >= 5
     static const int8_t permittedTxValues[] = {
         -40, -20, -16, -12, -8, -4, 0, 3, 4
@@ -1525,6 +1527,7 @@ void nRF5xGap::on_connection(Gap::Handle_t handle, const ble_gap_evt_connected_t
     );
 }
 
+#if !defined(S112)
 void nRF5xGap::on_advertising_packet(const ble_gap_evt_adv_report_t &evt) {
     bool peer_address_resolved = evt.peer_addr.addr_id_peer;
 
@@ -1553,6 +1556,7 @@ void nRF5xGap::on_advertising_packet(const ble_gap_evt_adv_report_t &evt) {
         peer_addr_type
     );
 }
+#endif
 
 ble_error_t nRF5xGap::get_role(ble::connection_handle_t connection, Role_t& role) {
     for (size_t i = 0; i < max_connections_count; ++i) {

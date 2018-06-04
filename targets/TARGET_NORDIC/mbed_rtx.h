@@ -31,6 +31,12 @@
 #define OS_SYSTICK              0
 #endif
 
+#elif defined(TARGET_MCU_NRF52810)
+
+#ifndef INITIAL_SP
+#define INITIAL_SP              (0x20006000UL)
+#endif
+
 #elif defined(TARGET_MCU_NRF52832)
 
 #ifndef INITIAL_SP

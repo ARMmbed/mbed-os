@@ -22,6 +22,8 @@
 
 #if defined(TARGET_MCU_NRF51822)
 #define GPIO_PIN_COUNT 31
+#elif defined(TARGET_MCU_NRF52810)
+#define GPIO_PIN_COUNT 32
 #elif defined(TARGET_MCU_NRF52832)
 #define GPIO_PIN_COUNT 32
 #elif defined(TARGET_MCU_NRF52840)

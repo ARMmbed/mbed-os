@@ -111,7 +111,7 @@ extern "C" {
  */
 #if defined(NRF51)
     #define CODE_PAGE_SIZE            (PAGE_SIZE_IN_WORDS * sizeof(uint32_t))
-#elif defined(NRF52) || defined(NRF52840_XXAA)
+#elif defined( NRF52_SERIES )
     #define CODE_PAGE_SIZE            (MBR_PAGE_SIZE_IN_WORDS * sizeof(uint32_t))
 #else
     #error "Architecture not set."
@@ -132,6 +132,8 @@ extern "C" {
 
 #if defined ( NRF51 )
     #define BOOTLOADER_SETTINGS_ADDRESS     (0x0003FC00UL)
+#elif defined( NRF52810_XXAA )
+    #define BOOTLOADER_SETTINGS_ADDRESS     (0x0002F000UL)
 #elif defined( NRF52832_XXAA )
     #define BOOTLOADER_SETTINGS_ADDRESS     (0x0007F000UL)
 #elif defined( NRF52840_XXAA )
@@ -162,6 +164,29 @@ extern "C" {
 #else
 #define NRF_MBR_PARAMS_PAGE_ADDRESS         (0x000FE000UL)
 #endif
+
+#endif
+
+
+#if defined(NRF52810_XXAA)
+
+/* NOTE: NRF52810_XXAA settings in this file have been picked from SDK 15.0.0
+
+/**
+ * @brief   MBR parameters page in UICR.
+ *
+ * Register location in UICR where the page address of the MBR parameters page is stored (only used by the nRF52 MBR).
+ *
+ * @note If the value at the given location is 0xFFFFFFFF, no MBR parameters page is set.
+ */
+#define NRF_UICR_MBR_PARAMS_PAGE_ADDRESS    (NRF_UICR_BASE + 0x18)
+
+
+/** @brief Page location of the MBR parameters page address.
+ *
+ */
+
+#define NRF_MBR_PARAMS_PAGE_ADDRESS (0x0002E000UL)
 
 #endif
 

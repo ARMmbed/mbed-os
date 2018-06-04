@@ -21,7 +21,12 @@
 
 #include <stdio.h>
 
+#if SPI_COUNT
 #define SPI2C_INSTANCES SPI_COUNT
+#else
+#define SPI2C_INSTANCES 0
+#endif
+
 
 static void * nordic_spi2c_owners[SPI2C_INSTANCES] = { NULL, NULL, NULL };
 

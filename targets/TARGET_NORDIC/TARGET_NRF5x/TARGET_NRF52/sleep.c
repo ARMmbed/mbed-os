@@ -43,7 +43,7 @@ void hal_sleep(void)
     // the processor from disabled interrupts.
     SCB->SCR |= SCB_SCR_SEVONPEND_Msk;
 
-#if defined(NRF52)  || defined(NRF52840_XXAA)
+#if defined(NRF52) || defined(NRF52840_XXAA)
     /* Clear exceptions and PendingIRQ from the FPU unit */
     __set_FPSCR(__get_FPSCR()  & ~(FPU_EXCEPTION_MASK));
     (void) __get_FPSCR();

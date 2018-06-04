@@ -47,6 +47,8 @@ static NRF_GPIO_Type * const m_ports[] = GPIO_REG_LIST;
 
 #if defined(TARGET_MCU_NRF51822)
     static const uint32_t m_gpio_pin_count[] = {31};
+#elif defined(TARGET_MCU_NRF52810)
+    static const uint32_t m_gpio_pin_count[] = {32};
 #elif defined(TARGET_MCU_NRF52832)
     static const uint32_t m_gpio_pin_count[] = {32};
 #elif defined(TARGET_MCU_NRF52840)
@@ -60,7 +62,7 @@ static NRF_GPIO_Type * const m_ports[] = GPIO_REG_LIST;
 
 PinName port_pin(PortName port, int pin_n)
 {
-#if defined(TARGET_MCU_NRF51822) || defined(TARGET_MCU_NRF52832)
+#if defined(TARGET_MCU_NRF51822) || defined(TARGET_MCU_NRF52810) || defined(TARGET_MCU_NRF52832)
     return (PinName)pin_n;
 #else    
     return (PinName)NRF_GPIO_PIN_MAP(port, pin_n);

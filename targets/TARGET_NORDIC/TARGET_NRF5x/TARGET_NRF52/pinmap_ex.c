@@ -29,10 +29,29 @@
 #endif
 
 /* Define number of instances */
+#if TWI_COUNT
 #define NORDIC_TWI_COUNT TWI_COUNT
+#else 
+#define NORDIC_TWI_COUNT 0
+#endif
+
+#if SPI_COUNT
 #define NORDIC_SPI_COUNT SPI_COUNT
+#else 
+#define NORDIC_SPI_COUNT 0
+#endif
+
+#if PWM_COUNT
 #define NORDIC_PWM_COUNT PWM_COUNT
+#else 
+#define NORDIC_PWM_COUNT 0
+#endif
+
+#if UARTE_COUNT
 #define NORDIC_UART_COUNT UARTE_COUNT
+#else 
+#define NORDIC_UART_COUNT 0
+#endif
 
 /* Define which instance to return when there are no free instances left.
  * The Mbed HAL API doesn't provide a way for signaling initialization errors

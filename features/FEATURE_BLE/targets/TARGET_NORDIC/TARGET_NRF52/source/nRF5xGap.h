@@ -86,10 +86,11 @@ public:
 
     virtual ble_error_t startAdvertising(const GapAdvertisingParams &);
     virtual ble_error_t stopAdvertising(void);
+    #if !defined(S112)
     virtual ble_error_t connect(const Address_t, ble::peer_address_type_t peerAddrType, const ConnectionParams_t *connectionParams, const GapScanningParams *scanParams);
     virtual ble_error_t connect(const Address_t, BLEProtocol::AddressType_t peerAddrType, const ConnectionParams_t *connectionParams, const GapScanningParams *scanParams);
             ble_error_t connect(const Address_t, BLEProtocol::AddressType_t peerAddrType, const ConnectionParams_t *connectionParams, const GapScanningParams *scanParams, bool identity);
-
+    #endif
     virtual ble_error_t readPhy(Handle_t connection);
     virtual ble_error_t setPreferredPhys(
         const ble::phy_set_t* txPhys,
@@ -162,8 +163,8 @@ public:
     virtual ble_error_t getCentralPrivacyConfiguration(
         CentralPrivacyConfiguration_t *configuration
     );
-/* Observer role is not supported by S110, return BLE_ERROR_NOT_IMPLEMENTED */
-#if !defined(TARGET_MCU_NRF51_16K_S110) && !defined(TARGET_MCU_NRF51_32K_S110)
+/* Observer role is not supported by S110 or S112, return BLE_ERROR_NOT_IMPLEMENTED */
+#if !defined(TARGET_MCU_NRF51_16K_S110) && !defined(TARGET_MCU_NRF51_32K_S110) && !defined(S112)
     virtual ble_error_t startRadioScan(const GapScanningParams &scanningParams);
     virtual ble_error_t stopScan(void);
 #endif
@@ -294,7 +295,9 @@ private:
 
     ble_error_t update_identities_list(bool resolution_enabled);
     void on_connection(Handle_t handle, const ble_gap_evt_connected_t& evt);
+    #if !defined(S112)
     void on_advertising_packet(const ble_gap_evt_adv_report_t &evt);
+    #endif
 
     void allocate_connection_role(ble::connection_handle_t, Role_t);
     void release_connection_role(ble::connection_handle_t);
