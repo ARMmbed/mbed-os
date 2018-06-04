@@ -20,8 +20,9 @@
 
 #ifndef __PLATFORM_ALT__
 #define __PLATFORM_ALT__
-#include "cc_platform.h"
-#include "crys_rnd.h"
+#include "platform_mbed.h"
+#if defined(MBEDTLS_PLATFORM_SETUP_TEARDOWN_ALT)
+#include "crypto_platform.h"
 
 /**
  * \brief   The platform context structure.
@@ -30,40 +31,37 @@
  *          setup or teardown operations.
  */
 typedef struct {
-    cc_platform_ctx platform_impl_ctx; /** A context holding all the partner's platform specific context */
-    /*
-     * Add CRYS_RND_State_t rndState; when https://github.com/ARMmbed/mbedtls/issues/1200 is supported
-     * */
+    crypto_platform_ctx platform_impl_ctx; /* A context holding all the platform specific context for cryptography. Should be defined in crypto_platform.h */
 }
 mbedtls_platform_context;
 
 
+void mbedtls_platform_init( mbedtls_platform_context* ctx);
 /**
- * \brief   This function performs any partner platform initialization operations,
- *          needed top enable CryptoCell.
+ * \brief   This function performs any platform initialization operations,
+ *          needed for setting up cryptographic modules.
  *
  * \param   ctx     The platform specific context.
  *
  * \return          \c 0 on success.
  *
- * \note    This function is intended to allow platform-specific initialization for CryptoCell,
- *          and is called before initializing the CC library(SaSi_LibInit). Its
+ * \note    This function is intended to allow platform-specific initialization for Mbed TLS,
+ *          and is called before initializing the Mbed TLS functions. Its
  *          implementation is platform-specific, and its implementation MUST be provided.
  *
  */
-int cc_platform_setup( cc_platform_ctx *ctx );
+int crypto_platform_setup( crypto_platform_ctx *ctx );
 
 /**
- * \brief   This function performs any partner platform teardown operations, to disable CryptoCell.
+ * \brief   This function performs any  platform teardown operations, to disable cryptographic operations.
  *
  * \param   ctx     The platform specific context.
  *
- * \note    This function is called after terminating CC library(SaSi_LibFini)
- *          and intended to free any resource used for CryptoCell by the platform.
+ * \note    This function is intended to free any resource used Mbed TLS by the platform.
  *          Its implementation is platform-specific,and its implementation MUST be provided.
  *
  */
-void cc_platform_terminate( cc_platform_ctx *ctx );
-
+void crypto_platform_terminate( crypto_platform_ctx *ctx );
+#endif
 #endif /* __PLATFORM_ALT__ */
 

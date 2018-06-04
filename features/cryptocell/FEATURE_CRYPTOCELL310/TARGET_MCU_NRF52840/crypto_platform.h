@@ -19,6 +19,7 @@
   */
 #ifndef __CC_PLATFORM_H_
 #define __CC_PLATFORM_H_
+#if defined(MBEDTLS_PLATFORM_SETUP_TEARDOWN_ALT)
 /**
  * \brief   The CC platform context structure.
  *
@@ -27,7 +28,10 @@
  */
 typedef struct {
     char dummy; /**< Placeholder member, as empty structs are not portable. */
+    /*
+     * Add CRYS_RND_State_t rndState; when https://github.com/ARMmbed/mbedtls/issues/1200 is supported
+     */
 }
-cc_platform_ctx;
-
+crypto_platform_ctx;
+#endif /* MBEDTLS_PLATFORM_SETUP_TEARDOWN_ALT */
 #endif /* __CC_PLATFORM_H_ */
