@@ -52,6 +52,10 @@
 extern "C" {
 #endif
 
+#if !defined(NDEBUG) && !defined(DEBUG_NRF_USER)
+#define DEBUG_NRF_USER
+#endif
+
 #if defined(DEBUG_NRF) || defined(DEBUG_NRF_USER)
 
 /** @brief Function for handling assertions.
