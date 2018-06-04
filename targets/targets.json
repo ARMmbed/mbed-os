@@ -1435,6 +1435,10 @@
         "core": "Cortex-M7FD",
         "extra_labels_add": ["STM32F7", "STM32F767", "STM32F767xI", "STM32F767ZI", "STM_EMAC"],
         "config": {
+            "flash_dual_bank": {
+                "help": "Default board configuration is Single Bank Flash. If you enable Dual Bank with ST Link Utility, set value to 1",
+                "value": "0"
+            },
             "d11_configuration": {
                 "help": "Value: PA_7 for the default board configuration, PB_5 in case of solder bridge update (SB121 off/ SB122 on)",
                 "value": "PA_7",
@@ -1936,6 +1940,10 @@
         "extra_labels_add": ["STM32F7", "STM32F769", "STM32F769xI", "STM32F769NI", "STM_EMAC"],
         "supported_form_factors": ["ARDUINO"],
         "config": {
+            "flash_dual_bank": {
+                "help": "Default board configuration is Single Bank Flash. If you enable Dual Bank with ST Link Utility, set value to 1",
+                "value": "0"
+            },
             "clock_source": {
                 "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL | USE_PLL_HSI",
                 "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",

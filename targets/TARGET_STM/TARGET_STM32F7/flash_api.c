@@ -48,7 +48,7 @@ int32_t flash_init(flash_t *obj)
     HAL_FLASHEx_OBGetConfig(&OBInit);
     /* Allow Access to option bytes sector */
     HAL_FLASH_OB_Lock();
-#ifdef MBED_CONF_TARGET_FLASH_DUAL_BANK
+#if MBED_CONF_TARGET_FLASH_DUAL_BANK
     if ((OBInit.USERConfig & OB_NDBANK_SINGLE_BANK) == OB_NDBANK_SINGLE_BANK)
     {
         error("The Dual Bank mode option byte (nDBANK) must be enabled (box unchecked)\n");
@@ -62,7 +62,7 @@ int32_t flash_init(flash_t *obj)
     }
 #endif
 #else // Devices supporting Single Bank only
-#ifdef MBED_CONF_TARGET_FLASH_DUAL_BANK
+#if MBED_CONF_TARGET_FLASH_DUAL_BANK
 #error "The Dual Bank configuration is not supported on this device."
 #endif
 #endif
@@ -207,7 +207,7 @@ static uint32_t GetSector(uint32_t address)
 {
     uint32_t sector = 0;
     uint32_t tmp = address - ADDR_FLASH_SECTOR_0;
-#if defined(MBED_CONF_TARGET_FLASH_DUAL_BANK) && defined(FLASH_OPTCR_nDBANK)
+#if (MBED_CONF_TARGET_FLASH_DUAL_BANK) && defined(FLASH_OPTCR_nDBANK)
     if (address < ADDR_FLASH_SECTOR_4) { // Sectors 0 to 3
         sector += tmp >> 14;
     } else if (address < ADDR_FLASH_SECTOR_5) { // Sector 4
@@ -244,7 +244,7 @@ static uint32_t GetSector(uint32_t address)
 static uint32_t GetSectorSize(uint32_t Sector)
 {
     uint32_t sectorsize = 0x00;
-#if defined(MBED_CONF_TARGET_FLASH_DUAL_BANK) && defined(FLASH_OPTCR_nDBANK)
+#if (MBED_CONF_TARGET_FLASH_DUAL_BANK) && defined(FLASH_OPTCR_nDBANK)
     if ((Sector == FLASH_SECTOR_0) || (Sector == FLASH_SECTOR_1) ||\
         (Sector == FLASH_SECTOR_2) || (Sector == FLASH_SECTOR_3) ||\
         (Sector == FLASH_SECTOR_12) || (Sector == FLASH_SECTOR_13) ||\
