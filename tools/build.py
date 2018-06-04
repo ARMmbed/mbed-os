@@ -184,7 +184,7 @@ if __name__ == '__main__':
                 skipped.append(tt_id)
             else:
                 try:
-                    notify = TerminalNotifer(options.verbose, options.silent)
+                    notify = TerminalNotifier(options.verbose, options.silent)
                     mcu = TARGET_MAP[target]
                     profile = extract_profile(parser, options, toolchain)
                     if options.source_dir:
