@@ -12,10 +12,13 @@
         "critical-section-usable-from-interrupt": {
             "help": "Make critical section API usable from interrupt context. Else a mutex is used as locking primitive. Consult arm_hal_interrupt.c for possible side effects on interrupt latency.",
             "value": false
-        }
-        ,
+        },
         "event-loop-dispatch-from-application": {
             "help": "Application is responsible of message dispatch loop. Else launch a separate thread for event-loop.",
+            "value": false
+        },
+        "event-loop-use-mbed-events": {
+            "help": "Use Mbed OS global event queue for Nanostack event loop, rather than our own thread.",
             "value": false
         }
     }
