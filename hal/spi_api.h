@@ -41,32 +41,24 @@
  *   a copy of the pointer (keep an alias to the object) as it may be stack allocated and/or moved.
  * - The hal implementation must support both clock phases.
  * - The hal implementation must support both clock polarities.
- * - The hal implementation must support either master or slave or both modes.
- * - The hal implementation must support either lsb first or msb first or both bit ordering.
- * - The hal implementation must support either continuous or noncontinuous or both modes.
- * - The hal implementation must support at least 1 word length in the range 4 to 32.
+ * - The hal implementation must support master mode.
+ * - The hal implementation must support both lsb first and msb first.
+ * - The hal implementation must support both continuous and noncontinuous modes.
+ * - The hal implementation must support at least a word length of 8 bit and any value in the range
+ *   4 to 32.
  * - The hal implementation must support the simplex and full duplex modes.
- * - The hal implementation may or may not support the half-duplex, dual and/or quad-io modes.
+ * - The hal implementation may support slave mode.
  * - The generated clock must be lower than or equal to the requested frequency minimising the
  *   deviation.
  *
- *
  * - spi_get_capabilities(..)
- *   - returns NULL if passed a NULL pointer.
- *   - returns NULL if the peripheral cannot be identified.
  *   - returns a constant pointer to a constant structure describing the capabilities of the
  *     related peripheral.
  *   - returned value is independent from the SPI channel usage.
  * - spi_init(..)
- *   - returns SPI_RESULT_INVALID_PARAM if any of the parameters is NULL.
- *   - returns SPI_RESULT_DEVICE_BUSY if the identifying set of pin is already associated to an
- *     instance of spi_t.
- *   - returns SPI_RESULT_CONFIG_UNSUPPORTED if the device can not achieve the requested parameters
- *     (Frequency, mode ...).
- *   - returns SPI_RESULT_OK if the device device was associated successfully to the object.
+ *   - initialises the pins.
  * - spi_transfer(..)
  *   - returns `true` if the operation succeeded.
- *   - returns `false` if any of the parameters is NULL.
  *   - returns `false` if the peripheral is busy with another transaction.
  *   - returns `false` if an error occurred. An error can be due to :
  *     - conflicting master ;
@@ -80,19 +72,17 @@
  *     are dropped.
  *   - if the device is available, it locks the device and blocks until completion (or error).
  * - spi_free(..)
- *   - does nothing if passed a NULL pointer.
  *   - cancel all pending or on going transaction/transfer and then deinitialise (clock out) this
- *     device if it was the last device associated to this peripheral.
- * - spi_data_available(..)
- *   - returns false if passed a NULL pointer.
- *   - in master mode, returns false.
- *   - in slave mode, returns true if data is available for read.
+ *     device if it was the last channel associated to this SPI peripheral.
+ *   - deinitialise the pins.
  *
  * # Undefined behaviours
  * - calling any instance method before `spi_init()`.
  * - calling any other instance method than `spi_init()` after `spi_free()`.
  * - calling any instance method while another one is running.
  * - calling any method from an interrupt context.
+ * - calling any method with an invalid parameter.
+ * - killing the spi_transfer_args_t or any of the pointer buffer before the end of the transaction.
  *
  * # Lexicon
  * ## Transfer/Transaction
@@ -132,19 +122,6 @@
  */
 
 /**
- * This enumerates the possible transmission mode of a SPI peripheral.
- *
- * The SPI_MODE_QUAD_IO mode may also be backed by a QSPI peripheral in "legacy SPI" mode.
- */
-typedef enum {
-    SPI_MODE_SIMPLEX, /**< Unidirectional communication on a single wire. */
-    SPI_MODE_HALF_DUPLEX, /**< Bidirectional communication on a single wire. */
-    SPI_MODE_FULL_DUPLEX, /**< Bidirectional communication on two wire (MISO/MOSI). */
-    SPI_MODE_DUAL_IO, /**< Half-duplex communication on 2 wires (transferring 2 bits per clock).*/
-    SPI_MODE_QUAD_IO, /**< Half-duplex communication on 4 wires (transferring 4 bits per clock).*/
-} spi_mode_t;
-
-/**
  * This is the hal level SPI "class".
  *
  * The actual definition of this structure is delegated to the device implementation of the hal.
@@ -159,12 +136,9 @@ typedef struct spi_t spi_t;
  */
 typedef struct {
     PinName ss; /**< Slave select pin. */
-    PinName miso; /**< Master In Slave our or D1 in DUAL and QUADIO mode */
-    /** Master Out Slave In, D2 in DUAL and QUARD-IO mode or may not be connected in 3-wires mode.*/
-    PinName mosi;
+    PinName miso; /**< Master In Slave Out. */
+    PinName mosi; /**< Master Out Slave In. */
     PinName mclk; /**< Master Clock pin. */
-    PinName d3; /**< Used in QUADIO mode. */
-    PinName d4; /**< Used in QUADIO mode. */
 } spi_pins_t;
 
 /**
@@ -189,16 +163,6 @@ typedef struct {
 } spi_init_t;
 
 /**
- * This enumerates the possible result of the spi_init function.
- */
-typedef enum {
-    SPI_RESULT_OK = 0, /**< Operation successful. */
-    SPI_RESULT_CONFIG_UNSUPPORTED = -1, /**< The required parameters are not supported by the device. */
-    SPI_RESULT_INVALID_PARAM = -2, /**< The given parameter(s) is/are invalid. */
-    SPI_RESULT_DEVICE_BUSY = -3, /**< The requested peripheral/SS p)in is already initialised. */
-} spi_result_t;
-
-/**
  * This is describes the capabilities of a SPI channel.
  * The elements of this structure are independent. This means that a supported feature is supported
  * regardless of other feature settings.
@@ -213,25 +177,8 @@ typedef struct {
      */
     uint32_t    maximum_frequency;
     /** Each bit represents the corresponding word length. lsb => 1bit, msb => 32bit. */
-    uint32_t    word_length; 
-    enum {
-        SPI_CONTINUOUS_MODE_NONCONTINUOUS, /**< The channel only supports the noncontinuous mode. */
-        SPI_CONTINUOUS_MODE_CONTINUOUS, /**< The channel only supports the continuous mode. */
-        SPI_CONTINUOUS_MODE_BOTH, /**< The channel supports both mode. */
-    } continuous_mode;
-    enum {
-        SPI_AUTHORITY_MASTER, /**< The device only supports the master mode. */
-        SPI_AUTHORITY_SLAVE, /**< The device only supports the slave mode. */
-        SPI_AUTHORITY_BOTH, /**< The device supports both modes. */
-    } authority; /**< Describes the bus authority capability of this channel. */
-    bool        support_half_duplex; /**< The device supports the half duplex (aka 3 wires) mode. */
-    bool        support_dual_io; /**< The device supports the 2 wires mode. */
-    bool        support_quad_io; /**< The device supports the 4 wires mode. */
-    enum {
-        SPI_BITORDERING_MSB_FIRST, /**< The device can only send data msb first */
-        SPI_BITORDERING_LSB_FIRST, /**< The device can only send data lsb first */
-        SPI_BITORDERING_BOTH, /**< The device can send data in both bit ordering */
-    } bit_ordering;
+    uint32_t    word_length;
+    bool        support_slave_mode; /**< If true, the device can handle SPI slave mode. */
 } spi_capabilities_t;
 
 /**
@@ -254,40 +201,28 @@ extern "C" {
 /**
  * Obtains the capabilities of a SPI channel.
  *
- * - returns NULL if passed a NULL pointer.
- * - returns NULL if the peripheral cannot be identified.
  * - returns a constant pointer to a constant structure describing the capabilities of the
- *   related peripheral.
- * - returned value is independent from the SPI channel usage.
+ *   related peripheral regardless of whether the device is in use or not.
  *
  * @param[in]   pins    spi_pins_t structure identifying a SPI channel.
- * @return NULL if the device cannot be identified or a constant pointer to a constant structure
- *         describing the capabilities of the device.
+ * @return A constant pointer to a constant structure describing the capabilities of the device.
  */
 const spi_capabilities_t *const spi_get_capabilities(const spi_pins_t *pins);
 
 /**
  * Initialises a SPI instance.
  *
- * - returns SPI_RESULT_INVALID_PARAM if any of the parameters is NULL.
- * - returns SPI_RESULT_DEVICE_BUSY if the identifying set of pin is already associated to an
- *   instance of spi_t.
- * - returns SPI_RESULT_CONFIG_UNSUPPORTED if the device can not achieve the requested parameters
- *   (Frequency, mode ...).
- * - returns SPI_RESULT_OK if the device device was associated successfully to the object.
+ *   - initialises the pins.
  *
  * @param[in,out] obj   A spi_t instance to initialise.
  * @param[in]     init  Initialisation parameters.
- *
- * @return SPI_RESULT_OK on success. See spi_result_t for more details about failures.
  */
-spi_result_t spi_init(spi_t *obj, const spi_init_t *init);
+void spi_init(spi_t *obj, const spi_init_t *init);
 
 /**
  * Processes a transfer blocking until completion if the device is available.
  *
  * - returns `true` if the operation succeeded.
- * - returns `false` if any of the parameters is NULL.
  * - returns `false` if the peripheral is busy with another transaction.
  * - returns `false` if an error occurred. An error can be due to :
  *   - conflicting master ;
@@ -301,7 +236,8 @@ spi_result_t spi_init(spi_t *obj, const spi_init_t *init);
  *   are dropped.
  * - if the device is available, it locks the device and blocks until completion (or error).
  *
- * @warning The spi_transfer_args_t instance must live for the whole duration of this method.
+ * @warning The spi_transfer_args_t and the pointed buffers must live for the whole duration of this
+ *          method.
  *
  * @param[in,out] obj   An initialised spi_t instance.
  * @param[in]     args  An spi_transfer_args_t instance.
@@ -313,38 +249,15 @@ bool spi_transfer(spi_t *obj, const spi_transfer_args_t *args);
 /**
  * Frees the SPI instance.
  *
- * - does nothing if passed a NULL pointer.
  * - cancel all pending or on going transaction/transfer and then deinitialise (clock out) this
  *   device if it was the last device associated to this peripheral.
+ * - deinitialise the pins.
  *
  * @param[in,out] obj   An initialised spi_t instance.
  *
  * @return `true` on success.
  */
 void spi_free(spi_t *obj);
-
-#if DEVICE_SPISLAVE
-/**
- * \defgroup hal_spi_deprecated SPI: Deprecated API for SPISlave class.
- * The following function is deprecated and is provided solely to maintain compatibility with the
- * \ref mbed::SPISlave driver class.
- * @{
- */
-
-/**
- * Returns true if a symbol is available for reading.
- *
- * - returns false if passed a NULL pointer.
- * - in master mode, returns false.
- * - in slave mode, returns true if data is available for read.
- *
- * @param[in] obj   A pointer to a spi_t object.
- */
-bool spi_data_available(spi_t *obj);
-/**
- * @}
- */
-#endif /* DEVICE_SPISLAVE */
 
 /**
  * @}
