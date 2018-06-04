@@ -51,7 +51,9 @@ typedef double              float64_t;
 Typedef definitions
 ******************************************************************************/
 typedef char                char_t;
-typedef int                 bool_t;
+#ifndef bool_t
+typedef bool                bool_t;
+#endif
 typedef int                 int_t;
 typedef long double         float128_t;
 typedef signed long         long_t;

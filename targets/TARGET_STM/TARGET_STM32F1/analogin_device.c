@@ -35,12 +35,9 @@
 #include "pinmap.h"
 #include "mbed_error.h"
 #include "PeripheralPins.h"
-#include <stdbool.h>
 
 void analogin_init(analogin_t *obj, PinName pin)
 {
-    static bool adc_calibrated = false;
-    RCC_PeriphCLKInitTypeDef  PeriphClkInit;
     uint32_t function = (uint32_t)NC;
 
     // ADC Internal Channels "pins"  (Temperature, Vref, Vbat, ...)
@@ -86,8 +83,8 @@ void analogin_init(analogin_t *obj, PinName pin)
     }
 
     // This section is done only once
-    if (!adc_calibrated) {
-        adc_calibrated = true;
+    if (__HAL_RCC_GET_ADC_SOURCE() != RCC_ADCPCLK2_DIV6) {
+        RCC_PeriphCLKInitTypeDef  PeriphClkInit;
         // Configure ADC clock prescaler
         // Caution: On STM32F1, ADC clock frequency max is 14 MHz (refer to device datasheet).
         // Therefore, ADC clock prescaler must be configured in function
@@ -108,7 +105,7 @@ uint16_t adc_read(analogin_t *obj)
 
     // Configure ADC channel
     sConfig.Rank         = 1;
-    sConfig.SamplingTime = ADC_SAMPLETIME_7CYCLES_5;
+    sConfig.SamplingTime = ADC_SAMPLETIME_41CYCLES_5;
 
     switch (obj->channel) {
         case 0:
@@ -161,9 +158,11 @@ uint16_t adc_read(analogin_t *obj)
             break;
         case 16:
             sConfig.Channel = ADC_CHANNEL_TEMPSENSOR;
+            sConfig.SamplingTime = ADC_SAMPLETIME_239CYCLES_5;
             break;
         case 17:
             sConfig.Channel = ADC_CHANNEL_VREFINT;
+            sConfig.SamplingTime = ADC_SAMPLETIME_239CYCLES_5;
             break;
         default:
             return 0;

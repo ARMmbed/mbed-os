@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
  *******************************************************************************
- * Copyright (c) 2017, STMicroelectronics
+ * Copyright (c) 2018, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,6 +27,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 
@@ -53,6 +54,7 @@ typedef enum {
     PA_1_ALT1 = PA_1|ALT1,
     PA_2  = 0x02,
     PA_2_ALT0 = PA_2|ALT0,
+    PA_2_ALT1 = PA_2|ALT1,
     PA_3  = 0x03,
     PA_3_ALT0 = PA_3|ALT0,
     PA_3_ALT1 = PA_3|ALT1,
@@ -66,6 +68,7 @@ typedef enum {
     PA_7  = 0x07,
     PA_7_ALT0 = PA_7|ALT0,
     PA_7_ALT1 = PA_7|ALT1,
+    PA_7_ALT2 = PA_7|ALT2,
     PA_8  = 0x08,
     PA_9  = 0x09,
     PA_10 = 0x0A,
@@ -108,12 +111,16 @@ typedef enum {
 
     PC_0  = 0x20,
     PC_0_ALT0 = PC_0|ALT0,
+    PC_0_ALT1 = PC_0|ALT1,
     PC_1  = 0x21,
     PC_1_ALT0 = PC_1|ALT0,
+    PC_1_ALT1 = PC_1|ALT1,
     PC_2  = 0x22,
     PC_2_ALT0 = PC_2|ALT0,
+    PC_2_ALT1 = PC_2|ALT1,
     PC_3  = 0x23,
     PC_3_ALT0 = PC_3|ALT0,
+    PC_3_ALT1 = PC_3|ALT1,
     PC_4  = 0x24,
     PC_4_ALT0 = PC_4|ALT0,
     PC_5  = 0x25,
@@ -268,29 +275,75 @@ typedef enum {
     SPI_CS      = D10,
     PWM_OUT     = D9,
 
-    //USB pins
-    USB_OTG_HS_ULPI_D0 = PA_3,
-    USB_OTG_HS_SOF = PA_4,
-    USB_OTG_HS_ULPI_CK = PA_5,
-    USB_OTG_FS_SOF = PA_8,
-    USB_OTG_FS_VBUS = PA_9,
-    USB_OTG_FS_ID = PA_10,
+/**** USB pins ****/
     USB_OTG_FS_DM = PA_11,
     USB_OTG_FS_DP = PA_12,
-    USB_OTG_HS_ULPI_D1 = PB_0,
-    USB_OTG_HS_ULPI_D2 = PB_1,
-    USB_OTG_HS_ULPI_D7 = PB_5,
-    USB_OTG_HS_ULPI_D3 = PB_10,
-    USB_OTG_HS_ULPI_D4 = PB_11,
-    USB_OTG_HS_ID = PB_12,
-    USB_OTG_HS_ULPI_D5 = PB_12,
-    USB_OTG_HS_ULPI_D6 = PB_13,
-    USB_OTG_HS_VBUS = PB_13,
+    USB_OTG_FS_ID = PA_10,
+    USB_OTG_FS_SOF = PA_8,
+    USB_OTG_FS_VBUS = PA_9,
     USB_OTG_HS_DM = PB_14,
     USB_OTG_HS_DP = PB_15,
-    USB_OTG_HS_ULPI_STP = PC_0,
+    USB_OTG_HS_ID = PB_12,
+    USB_OTG_HS_SOF = PA_4,
+    USB_OTG_HS_ULPI_CK = PA_5,
+    USB_OTG_HS_ULPI_D0 = PA_3,
+    USB_OTG_HS_ULPI_D1 = PB_0,
+    USB_OTG_HS_ULPI_D2 = PB_1,
+    USB_OTG_HS_ULPI_D3 = PB_10,
+    USB_OTG_HS_ULPI_D4 = PB_11,
+    USB_OTG_HS_ULPI_D5 = PB_12,
+    USB_OTG_HS_ULPI_D6 = PB_13,
+    USB_OTG_HS_ULPI_D7 = PB_5,
     USB_OTG_HS_ULPI_DIR = PC_2,
     USB_OTG_HS_ULPI_NXT = PC_3,
+    USB_OTG_HS_ULPI_STP = PC_0,
+    USB_OTG_HS_VBUS = PB_13,
+
+/**** ETHERNET pins ****/
+    ETH_COL = PA_3,
+    ETH_CRS = PA_0,
+    ETH_CRS_DV = PA_7,
+    ETH_MDC = PC_1,
+    ETH_MDIO = PA_2,
+    ETH_PPS_OUT = PG_8,
+    ETH_PPS_OUT_ALT0 = PB_5,
+    ETH_REF_CLK = PA_1,
+    ETH_RXD0 = PC_4,
+    ETH_RXD1 = PC_5,
+    ETH_RXD2 = PB_0,
+    ETH_RXD3 = PB_1,
+    ETH_RX_CLK = PA_1,
+    ETH_RX_DV = PA_7,
+    ETH_RX_ER = PB_10,
+    ETH_TXD0 = PB_12,
+    ETH_TXD0_ALT0 = PG_13,
+    ETH_TXD1 = PB_13,
+    ETH_TXD1_ALT0 = PG_14,
+    ETH_TXD2 = PC_2,
+    ETH_TXD3 = PE_2,
+    ETH_TXD3_ALT0 = PB_8,
+    ETH_TX_CLK = PC_3,
+    ETH_TX_EN = PB_11,
+    ETH_TX_EN_ALT0 = PG_11,
+
+/**** OSCILLATOR pins ****/
+    RCC_OSC32_IN = PC_14,
+    RCC_OSC32_OUT = PC_15,
+    RCC_OSC_IN = PH_0,
+    RCC_OSC_OUT = PH_1,
+
+/**** DEBUG pins ****/
+    SYS_JTCK_SWCLK = PA_14,
+    SYS_JTDI = PA_15,
+    SYS_JTDO_SWO = PB_3,
+    SYS_JTMS_SWDIO = PA_13,
+    SYS_JTRST = PB_4,
+    SYS_TRACECLK = PE_2,
+    SYS_TRACED0 = PE_3,
+    SYS_TRACED1 = PE_4,
+    SYS_TRACED2 = PE_5,
+    SYS_TRACED3 = PE_6,
+    SYS_WKUP = PA_0,
 
     // Not connected
     NC = (int)0xFFFFFFFF

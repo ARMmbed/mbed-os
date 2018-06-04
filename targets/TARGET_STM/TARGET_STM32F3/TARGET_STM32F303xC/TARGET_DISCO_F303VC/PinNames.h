@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
  *******************************************************************************
- * Copyright (c) 2016, STMicroelectronics
+ * Copyright (c) 2018, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,6 +27,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 
@@ -38,52 +39,100 @@ extern "C" {
 #endif
 
 typedef enum {
+    ALT0  = 0x100,
+    ALT1  = 0x200,
+    ALT2  = 0x300,
+    ALT3  = 0x400
+} ALTx;
+
+typedef enum {
     PA_0  = 0x00,
     PA_1  = 0x01,
     PA_2  = 0x02,
     PA_3  = 0x03,
     PA_4  = 0x04,
+    PA_4_ALT0 = PA_4|ALT0,
     PA_5  = 0x05,
     PA_6  = 0x06,
+    PA_6_ALT0 = PA_6|ALT0,
     PA_7  = 0x07,
+    PA_7_ALT0 = PA_7|ALT0,
+    PA_7_ALT1 = PA_7|ALT1,
+    PA_7_ALT2 = PA_7|ALT2,
     PA_8  = 0x08,
     PA_9  = 0x09,
     PA_10 = 0x0A,
     PA_11 = 0x0B,
+    PA_11_ALT0 = PA_11|ALT0,
+    PA_11_ALT1 = PA_11|ALT1,
     PA_12 = 0x0C,
+    PA_12_ALT0 = PA_12|ALT0,
+    PA_12_ALT1 = PA_12|ALT1,
     PA_13 = 0x0D,
+    PA_13_ALT0 = PA_13|ALT0,
     PA_14 = 0x0E,
     PA_15 = 0x0F,
+    PA_15_ALT0 = PA_15|ALT0,
 
     PB_0  = 0x10,
+    PB_0_ALT0 = PB_0|ALT0,
+    PB_0_ALT1 = PB_0|ALT1,
     PB_1  = 0x11,
+    PB_1_ALT0 = PB_1|ALT0,
+    PB_1_ALT1 = PB_1|ALT1,
     PB_2  = 0x12,
     PB_3  = 0x13,
+    PB_3_ALT0 = PB_3|ALT0,
     PB_4  = 0x14,
+    PB_4_ALT0 = PB_4|ALT0,
+    PB_4_ALT1 = PB_4|ALT1,
     PB_5  = 0x15,
+    PB_5_ALT0 = PB_5|ALT0,
+    PB_5_ALT1 = PB_5|ALT1,
     PB_6  = 0x16,
+    PB_6_ALT0 = PB_6|ALT0,
+    PB_6_ALT1 = PB_6|ALT1,
     PB_7  = 0x17,
+    PB_7_ALT0 = PB_7|ALT0,
+    PB_7_ALT1 = PB_7|ALT1,
     PB_8  = 0x18,
+    PB_8_ALT0 = PB_8|ALT0,
+    PB_8_ALT1 = PB_8|ALT1,
     PB_9  = 0x19,
+    PB_9_ALT0 = PB_9|ALT0,
+    PB_9_ALT1 = PB_9|ALT1,
     PB_10 = 0x1A,
     PB_11 = 0x1B,
     PB_12 = 0x1C,
     PB_13 = 0x1D,
     PB_14 = 0x1E,
+    PB_14_ALT0 = PB_14|ALT0,
     PB_15 = 0x1F,
+    PB_15_ALT0 = PB_15|ALT0,
+    PB_15_ALT1 = PB_15|ALT1,
 
     PC_0  = 0x20,
+    PC_0_ALT0 = PC_0|ALT0,
     PC_1  = 0x21,
+    PC_1_ALT0 = PC_1|ALT0,
     PC_2  = 0x22,
+    PC_2_ALT0 = PC_2|ALT0,
     PC_3  = 0x23,
+    PC_3_ALT0 = PC_3|ALT0,
     PC_4  = 0x24,
     PC_5  = 0x25,
     PC_6  = 0x26,
+    PC_6_ALT0 = PC_6|ALT0,
     PC_7  = 0x27,
+    PC_7_ALT0 = PC_7|ALT0,
     PC_8  = 0x28,
+    PC_8_ALT0 = PC_8|ALT0,
     PC_9  = 0x29,
+    PC_9_ALT0 = PC_9|ALT0,
     PC_10 = 0x2A,
+    PC_10_ALT0 = PC_10|ALT0,
     PC_11 = 0x2B,
+    PC_11_ALT0 = PC_11|ALT0,
     PC_12 = 0x2C,
     PC_13 = 0x2D,
     PC_14 = 0x2E,
@@ -100,10 +149,15 @@ typedef enum {
     PD_8  = 0x38,
     PD_9  = 0x39,
     PD_10 = 0x3A,
+    PD_10_ALT0 = PD_10|ALT0,
     PD_11 = 0x3B,
+    PD_11_ALT0 = PD_11|ALT0,
     PD_12 = 0x3C,
+    PD_12_ALT0 = PD_12|ALT0,
     PD_13 = 0x3D,
+    PD_13_ALT0 = PD_13|ALT0,
     PD_14 = 0x3E,
+    PD_14_ALT0 = PD_14|ALT0,
     PD_15 = 0x3F,
 
     PE_0  = 0x40,
@@ -115,6 +169,7 @@ typedef enum {
     PE_6  = 0x46,
     PE_7  = 0x47,
     PE_8  = 0x48,
+    PE_8_ALT0 = PE_8|ALT0,
     PE_9  = 0x49,
     PE_10 = 0x4A,
     PE_11 = 0x4B,
@@ -126,6 +181,7 @@ typedef enum {
     PF_0  = 0x50,
     PF_1  = 0x51,
     PF_2  = 0x52,
+    PF_2_ALT0 = PF_2|ALT0,
     PF_3  = 0x53,
     PF_4  = 0x54,
     PF_5  = 0x55,
@@ -215,9 +271,30 @@ typedef enum {
     SPI_CS      = PB_6,
     PWM_OUT     = PB_4,
 
-    //USB pins
+/**** USB pins ****/
     USB_DM = PA_11,
     USB_DP = PA_12,
+
+/**** OSCILLATOR pins ****/
+    RCC_OSC32_IN = PC_14,
+    RCC_OSC32_OUT = PC_15,
+    RCC_OSC_IN = PF_0,
+    RCC_OSC_OUT = PF_1,
+
+/**** DEBUG pins ****/
+    SYS_JTCK_SWCLK = PA_14,
+    SYS_JTDI = PA_15,
+    SYS_JTDO_TRACESWO = PB_3,
+    SYS_JTMS_SWDIO = PA_13,
+    SYS_NJTRST = PB_4,
+    SYS_TRACECK = PE_2,
+    SYS_TRACED0 = PE_3,
+    SYS_TRACED1 = PE_4,
+    SYS_TRACED2 = PE_5,
+    SYS_TRACED3 = PE_6,
+    SYS_WKUP1 = PA_0,
+    SYS_WKUP2 = PC_13,
+    SYS_WKUP3 = PE_6,
 
     // Not connected
     NC = (int)0xFFFFFFFF
