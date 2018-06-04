@@ -1,5 +1,6 @@
 import sys
 from io import open
+from os import sep
 from os.path import isfile, join, dirname
 import json
 
@@ -20,9 +21,12 @@ PARSED_ARM_DATA = {
 def test_parse_armcc():
     memap = MemapParser()
     memap.parse(join(dirname(__file__), "arm.map"), "ARM")
-    assert memap.modules == PARSED_ARM_DATA
-    memap.parse(join(dirname(__file__), "arm.map"), "UARM")
-    assert memap.modules == PARSED_ARM_DATA
+
+    parsed_data_os_agnostic = dict()
+    for k in PARSED_ARM_DATA:
+        parsed_data_os_agnostic[k.replace('/', sep)] = PARSED_ARM_DATA[k]
+
+    assert memap.modules == parsed_data_os_agnostic
 
 PARSED_IAR_DATA = {
     "startup/startup.o": {".text": 0xc0},
@@ -35,7 +39,12 @@ PARSED_IAR_DATA = {
 def test_parse_iar():
     memap = MemapParser()
     memap.parse(join(dirname(__file__), "iar.map"), "IAR")
-    assert memap.modules == PARSED_IAR_DATA
+
+    parsed_data_os_agnostic = dict()
+    for k in PARSED_IAR_DATA:
+        parsed_data_os_agnostic[k.replace('/', sep)] = PARSED_IAR_DATA[k]
+
+    assert memap.modules == parsed_data_os_agnostic
 
 PARSED_GCC_DATA = {
     "startup/startup.o": {".text": 0xc0},
@@ -49,9 +58,14 @@ PARSED_GCC_DATA = {
 def test_parse_gcc():
     memap = MemapParser()
     memap.parse(join(dirname(__file__), "gcc.map"), "GCC_ARM")
-    assert memap.modules == PARSED_GCC_DATA
+
+    parsed_data_os_agnostic = dict()
+    for k in PARSED_GCC_DATA:
+        parsed_data_os_agnostic[k.replace('/', sep)] = PARSED_GCC_DATA[k]
+
+    assert memap.modules == parsed_data_os_agnostic
     memap.parse(join(dirname(__file__), "gcc.map"), "GCC_CR")
-    assert memap.modules == PARSED_GCC_DATA
+    assert memap.modules == parsed_data_os_agnostic
 
 
 def test_add_empty_module():
