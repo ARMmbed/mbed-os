@@ -24,3 +24,6 @@
 #if defined(MBEDTLS_CONFIG_HW_SUPPORT)
 #include "mbedtls_device.h"
 #endif
+
+#define MBEDTLS_PLATFORM_INVALID_DATA    -0x0080
+#define MBEDTLS_PLATFORM_HW_FAILED       -0x0082

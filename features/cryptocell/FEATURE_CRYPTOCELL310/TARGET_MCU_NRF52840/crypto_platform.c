@@ -34,7 +34,7 @@ int crypto_platform_setup( crypto_platform_ctx *ctx )
     NRF_CRYPTOCELL->ENABLE = 1;
 
     if( SaSi_LibInit( &rndState, &rndWorkBuff ) != 0 )
-          return ( -1 );
+          return ( MBEDTLS_PLATFORM_HW_FAILED );
 
     return ( 0 );
 }

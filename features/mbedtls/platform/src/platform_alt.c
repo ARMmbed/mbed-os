@@ -27,7 +27,7 @@ int mbedtls_platform_setup( mbedtls_platform_context *ctx )
 {
     int ret = 0;
     if( ctx == NULL )
-        return ( -1 );
+        return ( MBEDTLS_PLATFORM_INVALID_DATA );
 
     reference_count++;
 
@@ -44,15 +44,13 @@ void mbedtls_platform_teardown( mbedtls_platform_context *ctx )
     if( ctx == NULL )
         return;
 
-    if( reference_count == 0 )
-        return;
-
     reference_count--;
 
-    if( reference_count == 0 )
+    if( reference_count <= 0 )
     {
         /* call platform specific code to terminate crypto driver*/
         crypto_platform_terminate( &ctx->platform_impl_ctx );
+        reference_count = 0;
     }
 }
 
