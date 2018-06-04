@@ -54,9 +54,9 @@ ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, int timeout, const char 
     ATHandler_stub::ref_count = 1;
 }
 
-void ATHandler::enable_debug(bool enable)
+void ATHandler::set_debug(bool debug_on)
 {
-    ATHandler_stub::debug_on = enable;
+    ATHandler_stub::debug_on = debug_on;
 }
 
 ATHandler::~ATHandler()

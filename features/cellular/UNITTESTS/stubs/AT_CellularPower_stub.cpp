@@ -74,3 +74,7 @@ void AT_CellularPower::remove_device_ready_urc_cb(mbed::Callback<void()> callbac
 
 }
 
+nsapi_error_t AT_CellularPower::is_device_ready()
+{
+    return NSAPI_ERROR_OK;
+}

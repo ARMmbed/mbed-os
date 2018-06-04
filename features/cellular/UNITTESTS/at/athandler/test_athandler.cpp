@@ -778,15 +778,15 @@ void Test_ATHandler::test_ATHandler_consume_to_stop_tag()
     CHECK(at.consume_to_stop_tag());
 }
 
-void Test_ATHandler::test_ATHandler_enable_debug()
+void Test_ATHandler::test_ATHandler_set_debug()
 {
     EventQueue que;
     FileHandle_stub fh1;
 
     ATHandler at(&fh1, que, 0, ",");
-    at.enable_debug(true);
+    at.set_debug(true);
 
-    at.enable_debug(false);
+    at.set_debug(false);
 }
 
 void Test_ATHandler::test_ATHandler_get_3gpp_error()
