@@ -401,7 +401,7 @@ PITHY_STATIC_INLINE size_t pithy_FindMatchLength(const char *s1, const char *s2,
 
 PITHY_STATIC_INLINE char *pithy_EmitLiteral(char *op, const char *literal, size_t len, int allow_fast_path)
 {
-    ssize_t n = len - 1l;
+    int n = len - 1l;
     if (PITHY_EXPECT_T(n < 60l)) {
         *op++ = PITHY_LITERAL | (n << 2);
         if (PITHY_EXPECT_T(allow_fast_path) && PITHY_EXPECT_T(len <= 16ul)) {
@@ -461,7 +461,7 @@ PITHY_STATIC_INLINE char *pithy_EmitCopyLessThan63(char *op, size_t offset, size
 {
     DCHECK((len < 63ul) && (len >= 4ul) && (offset < kBlockSize));
     if (PITHY_EXPECT_T(len < 12ul) && PITHY_EXPECT_T(offset < 2048ul)) {
-        ssize_t lenMinus4 = len - 4l;
+        int lenMinus4 = len - 4l;
         DCHECK(lenMinus4 < 8l);
         *op++ = PITHY_COPY_1_BYTE_OFFSET | (lenMinus4 << 2) | ((offset >> 8) << 5);
         *op++ = offset & 0xff;
@@ -573,7 +573,7 @@ size_t pithy_Compress(const char *uncompressed,
                     DCHECK((matchCandidatePtr >= uncompressed) && (matchCandidatePtr < uncompressedPtr));
                     hashTable[uncompressedBytesHash] = uncompressedPtr;
                 } while ((PITHY_EXPECT_T(uncompressedBytes != pithy_Load32(matchCandidatePtr))) ||
-                         PITHY_EXPECT_F((uncompressedPtr - matchCandidatePtr) >= ((ssize_t)(kBlockSize - 2ul))));
+                         PITHY_EXPECT_F((uncompressedPtr - matchCandidatePtr) >= ((int)(kBlockSize - 2ul))));
 
                 DCHECK((nextEmitUncompressedPtr + 16ul) <= uncompressedEnd);
                 compressedPtr = pithy_EmitLiteral(compressedPtr,
@@ -640,7 +640,7 @@ size_t pithy_Compress(const char *uncompressed,
                     DCHECK((matchCandidatePtr >= uncompressed) && (matchCandidatePtr < uncompressedPtr));
                     hashTable[uncompressedBytesHash] = uncompressedPtr;
                 } while (PITHY_EXPECT_F(uncompressedBytes == pithy_Load32(matchCandidatePtr)) &&
-                         PITHY_EXPECT_T((uncompressedPtr - matchCandidatePtr) < ((ssize_t)(kBlockSize - 2ul))));
+                         PITHY_EXPECT_T((uncompressedPtr - matchCandidatePtr) < ((int)(kBlockSize - 2ul))));
 
                 nextUncompressedBytes = pithy_GetUint32AtOffset(uncompressedBytes64, 4u);
                 nextUncompressedBytesHash = pithy_HashBytes(nextUncompressedBytes, shift);
@@ -745,7 +745,7 @@ int pithy_Decompress(const char *compressed, size_t compressedLength, char *deco
 
         const unsigned char c          = *((const unsigned char *)(compressedPtr++));
         const unsigned char cLowerBits = (c & 0x3u);
-        const ssize_t       spaceLeft  = (decompressedEnd - decompressedPtr);
+        const int       spaceLeft  = (decompressedEnd - decompressedPtr);
 
         if ((cLowerBits == PITHY_LITERAL)) {
             size_t literalLength = (c >> 2) + 1;
@@ -761,7 +761,7 @@ int pithy_Decompress(const char *compressed, size_t compressedLength, char *deco
                     literalLength = (pithy_LoadHost32(compressedPtr) & pithy_wordmask[literalLengthBytes]) + 1;
                     compressedPtr += literalLengthBytes;
                 }
-                if (PITHY_EXPECT_F(spaceLeft < (ssize_t)literalLength) ||
+                if (PITHY_EXPECT_F(spaceLeft < (int)literalLength) ||
                         PITHY_EXPECT_F((compressedPtr + literalLength) > compressedEnd)) {
                     break;
                 }
@@ -779,7 +779,7 @@ int pithy_Decompress(const char *compressed, size_t compressedLength, char *deco
 
             DCHECK((compressedPtr <= compressedEnd) && (copyOffset > 0ul) && (spaceLeft > 0l) && (length > 0ul));
 
-            if (PITHY_EXPECT_F((decompressedPtr - decompressedOut) <= ((ssize_t)copyOffset - 1l))) {
+            if (PITHY_EXPECT_F((decompressedPtr - decompressedOut) <= ((int)copyOffset - 1l))) {
                 break;
             }
             if (PITHY_EXPECT_T(length <= 16ul) && 
@@ -803,7 +803,7 @@ int pithy_Decompress(const char *compressed, size_t compressedLength, char *deco
                 }
 
                 char    *copyFrom   = decompressedPtr - copyOffset, *copyTo = decompressedPtr;
-                ssize_t  copyLength = (ssize_t)length;
+                int  copyLength = (int)length;
 
                 if (PITHY_EXPECT_F(copyLength > 256l) && PITHY_EXPECT_T(copyOffset > (size_t)copyLength)) {
                     if (PITHY_EXPECT_F(spaceLeft < copyLength)) {
