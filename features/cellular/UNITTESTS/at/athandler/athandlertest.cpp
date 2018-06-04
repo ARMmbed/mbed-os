@@ -207,9 +207,9 @@ TEST(ATHandler, test_ATHandler_consume_to_stop_tag)
     unit->test_ATHandler_consume_to_stop_tag();
 }
 
-TEST(ATHandler, test_ATHandler_enable_debug)
+TEST(ATHandler, test_ATHandler_set_debug)
 {
-    unit->test_ATHandler_enable_debug();
+    unit->test_ATHandler_set_debug();
 }
 
 TEST(ATHandler, test_ATHandler_get_3gpp_error)

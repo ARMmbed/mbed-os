@@ -92,7 +92,7 @@ public:
 
     void test_ATHandler_consume_to_stop_tag();
 
-    void test_ATHandler_enable_debug();
+    void test_ATHandler_set_debug();
 
     void test_ATHandler_get_3gpp_error();
 };

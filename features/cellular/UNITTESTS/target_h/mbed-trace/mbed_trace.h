@@ -14,28 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifndef MBED_OS_FEATURES_CELLULAR_MBED_TRACE_H_
+#define MBED_OS_FEATURES_CELLULAR_MBED_TRACE_H_
 
-#ifndef CELLULAR_LOG_H_
-#define CELLULAR_LOG_H_
 
-#if defined(HAVE_DEBUG) && !defined(FEA_TRACE_SUPPORT)
-#define FEA_TRACE_SUPPORT
-#endif
+//usage macros:
+#define tr_debug(...)
+#define tr_info(...)
+#define tr_warning(...)
+#define tr_warn(...)
+#define tr_error(...)
+#define tr_err(...)
 
-#include "mbed-trace/mbed_trace.h"
-#ifndef TRACE_GROUP
-#define TRACE_GROUP  "CELL"
-#endif // TRACE_GROUP
 
-/**
- * Set mutex wait/release functions for 'tr_' macros,
- * implementation here is modified from that found from mbed_trace.
- */
-namespace mbed_cellular_trace {
-void mutex_wait_function_set(void (*mutex_wait_f)(void));
-void mutex_release_function_set(void (*mutex_release_f)(void));
-void mutex_wait();
-void mutex_release();
-}
-
-#endif // CELLULAR_LOG_H_
+#endif /* MBED_OS_FEATURES_CELLULAR_MBED_TRACE_H_ */
