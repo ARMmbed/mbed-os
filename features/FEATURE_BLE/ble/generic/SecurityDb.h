@@ -588,7 +588,7 @@ public:
             entry_handle_t db_handle = get_entry_handle_by_index(i);
             SecurityDistributionFlags_t* flags = get_distribution_flags(db_handle);
 
-            if (!flags) {
+            if (!flags || !flags->irk_stored) {
                 continue;
             }
 
