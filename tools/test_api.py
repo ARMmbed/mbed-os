@@ -77,6 +77,7 @@ from tools.utils import argparse_uppercase_type
 from tools.utils import argparse_lowercase_type
 from tools.utils import argparse_many
 from tools.notifier.mock import MockNotifier
+from tools.notifier.term import TerminalNotifier
 
 import tools.host_tests.host_tests_plugins as host_tests_plugins
 
@@ -386,7 +387,8 @@ class SingleTestRunner(object):
                     jobs=self.opts_jobs,
                     report=build_report,
                     properties=build_properties,
-                    build_profile=profile)
+                    build_profile=profile,
+                    notify=TerminalNotifier())
 
                 if not build_mbed_libs_result:
                     print(self.logger.log_line(
@@ -466,7 +468,8 @@ class SingleTestRunner(object):
                               jobs=self.opts_jobs,
                               report=build_report,
                               properties=build_properties,
-                              build_profile=profile)
+                              build_profile=profile,
+                              notify=TerminalNotifier())
 
                 except ToolException:
                     print(self.logger.log_line(
@@ -505,13 +508,16 @@ class SingleTestRunner(object):
 
                 project_name = self.opts_firmware_global_name if self.opts_firmware_global_name else None
                 try:
-                    path = build_project(test.source_dir, join(build_dir, test_id), T,
+                    path = build_project(
+                        test.source_dir, join(build_dir, test_id), T,
                         toolchain, test.dependencies, clean=clean_project_options,
                         name=project_name, macros=MACROS,
                         inc_dirs=INC_DIRS, jobs=self.opts_jobs, report=build_report,
                         properties=build_properties, project_id=test_id,
                         project_description=test.get_description(),
-                        build_profile=profile, stats_depth=stats_depth)
+                        build_profile=profile, stats_depth=stats_depth,
+                        notify=TerminalNotifier(),
+                    )
 
                 except Exception as e:
                     project_name_str = project_name if project_name is not None else test_id
