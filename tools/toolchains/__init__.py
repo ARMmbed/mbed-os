@@ -473,6 +473,17 @@ class mbedToolchain:
             self.macros.append("MBED_ROM_SIZE=0x%x" % int(rom_size_override, 0))
             self.make_ld_define("MBED_ROM_SIZE", int(rom_size_override, 0))
 
+        # Pass SRAM information (MBED_RAM_START/MBED_RAM_SIZE) to compiler/linker
+        # if target configuration options (mbed_ram_start/mbed_ram_size) are defined.
+        ram_start_override = getattr(self.target, "mbed_ram_start", False)
+        if ram_start_override:
+            self.macros.append("MBED_RAM_START=0x%x" % int(ram_start_override, 0))
+            self.make_ld_define("MBED_RAM_START", int(ram_start_override, 0))
+        ram_size_override = getattr(self.target, "mbed_ram_size", False)
+        if ram_size_override:
+            self.macros.append("MBED_RAM_SIZE=0x%x" % int(ram_size_override, 0))
+            self.make_ld_define("MBED_RAM_SIZE", int(ram_size_override, 0))
+
         # Stats cache is used to reduce the amount of IO requests to stat
         # header files during dependency change. See need_update()
         self.stat_cache = {}
