@@ -7,7 +7,11 @@
             "value": 0
         },
         "ipc_max_num_of_channels": {
-            "help": "Maximum number of active channels",
+            "help": "maximum number of PSA channels that can be opened at the same time",
+            "value": 10
+        },
+        "ipc_max_num_of_messages": {
+            "help": "maximum number of messages SPM Core can handle at a time",
             "value": 10
         }
     },

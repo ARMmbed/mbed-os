@@ -101,9 +101,8 @@ psa_error_t psa_call(
  * Sends the ::PSA_IPC_MSG_TYPE_DISCONNECT message to the Secure Function so it can clean up resources.
  *
  * @param[in] handle Handle for the connection.
- * @return PSA_SUCCESS or negative error code if failed.
  */
-psa_error_t psa_close(psa_handle_t handle);
+void psa_close(psa_handle_t handle);
 
 /** @}*/ // end of Client-API group
 

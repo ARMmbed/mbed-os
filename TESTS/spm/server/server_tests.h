@@ -42,7 +42,6 @@ typedef psa_error_t (*psa_test_server_side_func)(psa_error_t*);
 PSA_TEST(wait_timeout)
 PSA_TEST(identity_during_connect)
 PSA_TEST(identity_during_call)
-PSA_TEST(identity_during_close)
 PSA_TEST(get_msg_twice)
 PSA_TEST(msg_size_assertion)
 PSA_TEST(reject_connection)
@@ -54,5 +53,5 @@ PSA_TEST(skip_more_than_left)
 PSA_TEST(rhandle_factorial)
 PSA_TEST(cross_partition_call)
 PSA_TEST(doorbell_test)
-
+PSA_TEST(psa_end_on_NULL_HANDLE)
 #endif /* __UVISOR_MBED_SPM_SERVER_TESTS_H__ */

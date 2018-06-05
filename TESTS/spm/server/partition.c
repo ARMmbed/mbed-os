@@ -44,7 +44,7 @@ void part1_main(void *ptr)
     while (1) {
         signals = psa_wait_any(PSA_WAIT_BLOCK);
         if (0 == (signals & CONTROL_MSK)) {
-            SPM_PANIC("returned from psa_wait_any without CONTROL_SF bit on\n");
+            SPM_PANIC("returned from psa_wait_any without CONTROL_SF bit on signals=(0x%08x)\n", signals);
         }
 
         psa_get(CONTROL_MSK, &msg);

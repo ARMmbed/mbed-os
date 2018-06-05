@@ -32,9 +32,9 @@ void server_main1(void *ptr)
             psa_msg_t msg = {0};
             psa_get(NEG_CLIENT_PART1_SF1_MSK, &msg);
             switch (msg.type) {
-                case PSA_IPC_MSG_TYPE_CONNECT: {
+                case PSA_IPC_MSG_TYPE_CONNECT:
+                case PSA_IPC_MSG_TYPE_DISCONNECT:
                     break;
-                }
                 case PSA_IPC_MSG_TYPE_CALL: {
                     memset(msg_buff, 0, msg_buff_SIZE);
                     uint32_t bytes_read = 0;
@@ -47,13 +47,11 @@ void server_main1(void *ptr)
                     }
                     break;
                 }
-                case PSA_IPC_MSG_TYPE_DISCONNECT: {
-                    break;
-                }
                 default: {
                     SPM_ASSERT(false);
                 }
             }
+
             psa_end(msg.handle, PSA_SUCCESS);
         }
     }

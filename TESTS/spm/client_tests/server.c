@@ -29,9 +29,9 @@ void server_main(void *ptr)
             psa_msg_t msg = {0};
             psa_get(PART1_SF1_MSK, &msg);
             switch (msg.type) {
-                case PSA_IPC_MSG_TYPE_CONNECT: {
+                case PSA_IPC_MSG_TYPE_CONNECT:
+                case PSA_IPC_MSG_TYPE_DISCONNECT:
                     break;
-                }
                 case PSA_IPC_MSG_TYPE_CALL: {
                     memset(data, 0, sizeof(data));
                     if (msg.in_size[0] + msg.in_size[1] + msg.in_size[2] > 1) {
@@ -44,9 +44,6 @@ void server_main(void *ptr)
                         uint8_t resp_offset = data[1];
                         psa_write(msg.handle, 0, (const void*)(data + resp_offset), resp_size);
                     }
-                    break;
-                }
-                case PSA_IPC_MSG_TYPE_DISCONNECT: {
                     break;
                 }
                 default: {

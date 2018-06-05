@@ -83,10 +83,10 @@ static void client_ipc_tests_call(
 
 static void client_ipc_tests_close(psa_handle_t handle)
 {
-    error_t status = PSA_SUCCESS;
-    status = psa_close(handle);
+    psa_close(handle);
 
-    TEST_ASSERT_EQUAL_INT(PSA_SUCCESS, status);
+    // Wait for psa_close to finish on server side
+    osDelay(50);
 }
 
 //Testing iovec 0 sent as NULL
@@ -333,85 +333,6 @@ void multi_thread_diff_handles()
 
 }
 
-static void call_same_handle(th_struct_t *thr_attr)
-{
-    client_ipc_tests_call(thr_attr->handle,
-                          thr_attr->iovec_temp,
-                          PSA_MAX_INVEC_LEN,
-                          CLIENT_RSP_BUF_SIZE,
-                          thr_attr->expected,
-                          thr_attr->expected_size);
-    osDelay(10);
-}
-
-//Testing multiple parallel calls to the same SFID with the same handle
-void multi_thread_same_handle()
-{
-    Thread T1, T2, T3;
-    th_struct_t thr_attr[] = {{0}, {0}, {0}};
-
-    psa_handle_t handle = client_ipc_tests_connect(PART1_SF1, MINOR_VER);
-
-    uint8_t meta_iovec_1[] = { 2,            //expect_size
-                               2             //off
-                             };
-    uint8_t buff1[] = {1, 2, 3};
-    uint8_t buff2[] = {4, 5, 6};
-    uint8_t expected_buff_1[] = {1, 2};
-
-    psa_invec_t iovec_temp_1[PSA_MAX_INVEC_LEN] = {{meta_iovec_1, sizeof(meta_iovec_1)},
-                                           {buff1, sizeof(buff1)},
-                                           {buff2, sizeof(buff2)}};
-
-    set_struct(&thr_attr[0], handle, iovec_temp_1, expected_buff_1, sizeof(expected_buff_1));
-    osStatus err = T1.start(callback(call_same_handle, (th_struct_t *)&thr_attr[0]));
-    if (err) {
-       TEST_FAIL_MESSAGE("creating thread failed!");
-    }
-
-    uint8_t meta_iovec_2[] = { 2,            //expect_size
-                               3             //off
-                             };
-    uint8_t expected_buff_2[] = {2, 3};
-
-    psa_invec_t iovec_temp_2[PSA_MAX_INVEC_LEN] = {{meta_iovec_2, sizeof(meta_iovec_2)},
-                                            {buff1, sizeof(buff1)},
-                                            {buff2, sizeof(buff2)}};
-    set_struct(&thr_attr[1], handle, iovec_temp_2, expected_buff_2, sizeof(expected_buff_2));
-    err = T2.start(callback(call_same_handle, (th_struct_t *)&thr_attr[1]));
-    if (err) {
-       TEST_FAIL_MESSAGE("creating thread failed!");
-    }
-
-    uint8_t meta_iovec_3[] = { 2,            //expect_size
-                               4             //off
-                             };
-    uint8_t expected_buff_3[] = {3, 4};
-
-    psa_invec_t iovec_temp_3[PSA_MAX_INVEC_LEN] = {{meta_iovec_3, sizeof(meta_iovec_3)},
-                                            {buff1, sizeof(buff1)},
-                                            {buff2, sizeof(buff2)}};
-    set_struct(&thr_attr[2], handle, iovec_temp_3, expected_buff_3, sizeof(expected_buff_3));
-    err = T3.start(callback(call_same_handle, (th_struct *)&thr_attr[2]));
-    if (err) {
-       TEST_FAIL_MESSAGE("creating thread failed!");
-    }
-
-    err = T1.join();
-    if (err) {
-       TEST_FAIL_MESSAGE("joining thread failed!");
-    }
-    err = T2.join();
-    if (err) {
-       TEST_FAIL_MESSAGE("joining thread failed!");
-    }
-    err = T3.join();
-    if (err) {
-       TEST_FAIL_MESSAGE("joining thread failed!");
-    }
-
-    client_ipc_tests_close(handle);
-}
 
 //Testing exceeding num of max channels allowed by psa_connect
 void exceed_num_of_max_channels()
@@ -449,7 +370,6 @@ Case cases[] = {
     Case("Testing client rx_tx_null", rx_tx_null),
     Case("Testing client multiple_call from a single thread", multiple_call),
     Case("Testing client multiple calls on different channels to the same SFID", multi_thread_diff_handles),
-    Case("Testing client multiple calls on the same channel to the same SFID", multi_thread_same_handle),
     Case("Testing client exceed num of max channels allowed", exceed_num_of_max_channels),
     Case("Testing client close on NULL handle", client_close_null_handle),
 };

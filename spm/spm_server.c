@@ -24,24 +24,9 @@
 #define PSA_SIG_DOORBELL_MSK    (1 << PSA_SIG_DOORBELL_POS) // Mask for PSA_DOORBELL signal
 
 
-extern spm_t g_spm;
+extern spm_db_t g_spm;
 
-// This function should do proper validation
-static inline bool is_buffer_accessible(const void *ptr, size_t size)
-{
-    if (NULL == ptr) {
-        return false;
-    }
-
-    if (((uintptr_t)ptr + size) < ((uintptr_t)ptr)) {
-        return false;
-    }
-
-    PSA_UNUSED(size);
-    return true;
-}
-
-static inline partition_t *partition_get_by_pid(int32_t partition_id)
+static inline spm_partition_t *get_partition_by_pid(int32_t partition_id)
 {
     for (uint32_t i = 0; i < g_spm.partition_count; ++i) {
         if (g_spm.partitions[i].partition_id == partition_id) {
@@ -52,24 +37,184 @@ static inline partition_t *partition_get_by_pid(int32_t partition_id)
     return NULL;
 }
 
-static inline error_t spm_msg_handle_create(void *handle_mem, int32_t friend_pid, psa_handle_t *handle)
+static inline error_t create_msg_handle(void *handle_mem, int32_t friend_pid, psa_handle_t *handle)
 {
     return psa_hndl_mgr_handle_create(&(g_spm.messages_handle_mgr), handle_mem, friend_pid, handle);
 }
 
-static inline void spm_msg_handle_destroy(psa_handle_t handle)
+static inline spm_active_msg_t *get_msg_from_handle(psa_handle_t handle)
+{
+    spm_active_msg_t *handle_mem = NULL;
+    psa_hndl_mgr_handle_get_mem(&(g_spm.messages_handle_mgr), handle, (void **)&handle_mem);
+    return handle_mem;
+}
+
+static inline void destroy_msg_handle(psa_handle_t handle)
 {
     psa_hndl_mgr_handle_destroy(&(g_spm.messages_handle_mgr), handle);
 }
 
-static inline void spm_msg_handle_get_mem(psa_handle_t handle, active_msg_t **handle_mem)
+static inline void destroy_channel_handle(psa_handle_t handle)
 {
-    psa_hndl_mgr_handle_get_mem(&(g_spm.messages_handle_mgr), handle, (void **)handle_mem);
+    psa_hndl_mgr_handle_destroy(&(g_spm.channels_handle_mgr), handle);
 }
+
+
+static inline spm_secure_func_t *get_secure_function(spm_partition_t *prt, psa_signal_t signal)
+{
+    for (size_t i = 0; i < prt->sec_funcs_count; i++) {
+        if (prt->sec_funcs[i].mask == signal) {
+            return &prt->sec_funcs[i];
+        }
+    }
+
+    return NULL;
+}
+
+static inline void validate_iovec(const void *vec, const uint32_t len)
+{
+    if (
+        !(
+            ((vec == NULL) && (len == 0)) ||
+            ((vec != NULL) && (len > 0) && (len <= PSA_MAX_INVEC_LEN))
+        )
+    ) {
+        SPM_PANIC("Failed iovec Validation iovec=(0X%p) len=(%d)\n", vec, len);
+    }
+}
+
+/*
+ * This function validates the parameters sent from the user and copies it to an active message
+ *
+ * Function assumptions:
+ * * channel is allocated from SPM Core memory
+ * * channel->msg_ptr potentially allocated from nonsecure memory
+ * * user_msg allocated from secure partition memory - not trusted by SPM Core
+*/
+static psa_handle_t copy_message_to_spm(spm_ipc_channel_t *channel, int32_t current_partition_id, psa_msg_t *user_msg)
+{
+    psa_handle_t handle = PSA_NULL_HANDLE;
+
+    // Memory allocated from MemoryPool isn't zeroed - thus a temporary variable will make sure we will start from a clear state.
+    spm_active_msg_t temp_active_message = {
+        .channel = channel,
+        .in_vec = {0},
+        .out_vec = {0},
+        .rc = 0,
+        .type = channel->msg_type
+    };
+
+    if (channel->msg_type == PSA_IPC_MSG_TYPE_CALL) {
+        if (!is_buffer_accessible(channel->msg_ptr, sizeof(spm_pending_call_msg_t), channel->src_partition)) {
+            SPM_PANIC("message data is inaccessible\n");
+        }
+
+        spm_pending_call_msg_t *call_msg_data = (spm_pending_call_msg_t *)channel->msg_ptr;
+
+        // Copy pointers and sizes to secure memory to prevent TOCTOU
+        const psa_invec_t *temp_invec = call_msg_data->in_vec;
+        const uint32_t temp_invec_size = call_msg_data->in_vec_size;
+        const psa_outvec_t *temp_outvec = call_msg_data->out_vec;
+        const uint32_t temp_outvec_size = call_msg_data->out_vec_size;
+
+        validate_iovec(temp_invec, temp_invec_size);
+        validate_iovec(temp_outvec, temp_outvec_size);
+
+        if (temp_invec != NULL) {
+            if (!is_buffer_accessible(temp_invec, temp_invec_size * sizeof(*temp_invec), channel->src_partition)) {
+                SPM_PANIC("in_vec is inaccessible\n");
+            }
+
+            for (uint32_t i = 0; i < temp_invec_size; ++i) {
+                if (temp_invec[i].len == 0) {
+                    continue;
+                }
+
+                // Copy struct
+                temp_active_message.in_vec[i] = temp_invec[i];
+                user_msg->in_size[i] = temp_invec[i].len;
+
+                // Copy then check to prevent TOCTOU
+                if (!is_buffer_accessible(temp_active_message.in_vec[i].base, temp_active_message.in_vec[i].len, channel->src_partition)) {
+                    SPM_PANIC("in_vec[%d] is inaccessible\n", i);
+                }
+
+            }
+        }
+
+        if (temp_outvec != NULL) {
+            if (!is_buffer_accessible(temp_outvec, temp_outvec_size * sizeof(*temp_outvec), channel->src_partition)) {
+                SPM_PANIC("out_vec is inaccessible\n");
+            }
+
+            for (uint32_t i = 0; i < temp_outvec_size; ++i) {
+                if (temp_outvec[i].len == 0) {
+                    continue;
+                }
+
+                // Copy struct
+                temp_active_message.out_vec[i] = temp_outvec[i];
+                user_msg->out_size[i] = temp_outvec[i].len;
+
+                // Copy then check to prevent TOCTOU
+                if (!is_buffer_accessible(temp_active_message.out_vec[i].base, temp_active_message.out_vec[i].len, channel->src_partition)) {
+                    SPM_PANIC("out_vec[%d] is inaccessible\n", i);
+                }
+            }
+        }
+    }
+
+    // Allocating from SPM-Core internal memory
+    spm_active_msg_t *active_msg = (spm_active_msg_t *)osMemoryPoolAlloc(g_spm.active_messages_mem_pool, osWaitForever);
+    if (NULL == active_msg) {
+        SPM_PANIC("Could not allocate active message");
+    }
+
+    // Copy struct
+    *active_msg = temp_active_message;
+
+    psa_error_t status = create_msg_handle(active_msg, current_partition_id, &handle);
+    SPM_ASSERT(PSA_SUCCESS == status);
+    PSA_UNUSED(status);
+
+    user_msg->type = channel->msg_type;
+    user_msg->rhandle = channel->rhandle;
+    user_msg->handle = handle;
+    return handle;
+}
+
+static spm_ipc_channel_t * spm_secure_func_queue_dequeue(spm_secure_func_t *sec_func)
+{
+    osStatus_t os_status = osMutexAcquire(sec_func->partition->mutex, osWaitForever);
+    SPM_ASSERT(osOK == os_status);
+    PSA_UNUSED(os_status);
+
+    spm_ipc_channel_t *ret = sec_func->queue.head;
+
+    if (ret == NULL) {
+        SPM_PANIC("Dequeue from empty queue");
+    }
+
+    sec_func->queue.head = ret->next;
+    ret->next = NULL;
+
+    if (sec_func->queue.head == NULL) {
+        sec_func->queue.tail = NULL;
+        int32_t flags = (int32_t)osThreadFlagsClear(sec_func->mask);
+        SPM_ASSERT(flags >= 0);
+        PSA_UNUSED(flags);
+    }
+
+    os_status = osMutexRelease(sec_func->partition->mutex);
+    SPM_ASSERT(osOK == os_status);
+
+    return ret;
+}
+
 
 static uint32_t psa_wait(bool wait_any, uint32_t bitmask, uint32_t timeout)
 {
-    partition_t *curr_partition = active_partition_get();
+    spm_partition_t *curr_partition = get_active_partition();
     SPM_ASSERT(NULL != curr_partition); // active thread in SPM must be in partition DB
 
     uint32_t flags_all = curr_partition->flags_sf | curr_partition->flags_interrupts;
@@ -111,14 +256,14 @@ uint32_t psa_wait_interrupt(uint32_t interrupt_mask, uint32_t timeout)
 
 void psa_get(psa_signal_t signum, psa_msg_t *msg)
 {
-    if (!is_buffer_accessible(msg, sizeof(psa_msg_t))) {
+    spm_partition_t *curr_partition = get_active_partition();
+    SPM_ASSERT(NULL != curr_partition); // active thread in SPM must be in partition DB
+
+    if (!is_buffer_accessible(msg, sizeof(*msg), curr_partition)) {
         SPM_PANIC("msg is inaccessible\n");
     }
 
-    // TODO: assert memory range [msg, msg + sizeof(psa_msg_t)] is writable by the caller
-
-    partition_t *curr_partition = active_partition_get();
-    SPM_ASSERT(NULL != curr_partition); // active thread in SPM must be in partition DB
+    memset(msg, 0, sizeof(*msg));
 
     // signum must be ONLY ONE of the bits of curr_partition->flags_sf
     bool is_one_bit = ((signum != 0) && !(signum & (signum - 1)));
@@ -135,63 +280,50 @@ void psa_get(psa_signal_t signum, psa_msg_t *msg)
         SPM_PANIC("flag is not active!\n");
     }
 
-    int32_t flags = (int32_t)osThreadFlagsClear(signum);
-    SPM_ASSERT(flags >= 0);
-    PSA_UNUSED(flags);
+    spm_secure_func_t *curr_sec_func = get_secure_function(curr_partition, signum);
+    if (curr_sec_func == NULL) {
+        SPM_PANIC("Recieved signal (0x%08x) that does not match any ecure function", signum);
+    }
+    spm_ipc_channel_t *curr_channel = spm_secure_func_queue_dequeue(curr_sec_func);
 
-    active_msg_t *active_msg = &(curr_partition->active_msg);
-    SPM_ASSERT((active_msg->type > PSA_IPC_MSG_TYPE_INVALID) &&
-               (active_msg->type <= PSA_IPC_MSG_TYPE_MAX));
+    SPM_ASSERT((curr_channel->msg_type > PSA_IPC_MSG_TYPE_INVALID) &&
+               (curr_channel->msg_type <= PSA_IPC_MSG_TYPE_MAX));
 
-    SPM_ASSERT((active_msg->channel->rhandle == NULL) ||
-               (active_msg->type != PSA_IPC_MSG_TYPE_CONNECT));
-
-    ChannelState expected_channel_state = CHANNEL_STATE_INVALID;
-    ChannelState next_channel_state = CHANNEL_STATE_INVALID;
-    switch (active_msg->type) {
+    switch (curr_channel->msg_type) {
         case PSA_IPC_MSG_TYPE_CONNECT:
-            expected_channel_state = CHANNEL_STATE_CONNECTING;
-            next_channel_state = CHANNEL_STATE_IDLE;
+            CHANNEL_STATE_ASSERT(curr_channel->state, CHANNEL_STATE_CONNECTING);
+            curr_channel->state = CHANNEL_STATE_IDLE;
             break;
 
         case PSA_IPC_MSG_TYPE_CALL:
-            expected_channel_state = CHANNEL_STATE_PENDING;
-            next_channel_state = CHANNEL_STATE_ACTIVE;
+            CHANNEL_STATE_ASSERT(curr_channel->state, CHANNEL_STATE_PENDING);
+            curr_channel->state = CHANNEL_STATE_ACTIVE;
             break;
 
         case PSA_IPC_MSG_TYPE_DISCONNECT:
-            expected_channel_state = CHANNEL_STATE_INVALID;
-            next_channel_state = CHANNEL_STATE_INVALID;
+        {
+            CHANNEL_STATE_ASSERT(curr_channel->state, CHANNEL_STATE_INVALID);
+            curr_channel->state = CHANNEL_STATE_INVALID;
+            msg->handle = PSA_NULL_HANDLE;
+            msg->type = PSA_IPC_MSG_TYPE_DISCONNECT;
+            msg->rhandle = curr_channel->rhandle;
+
+            // Handle resides in msg_ptr because psa_close is asynchronous
+            psa_handle_t channel_handle = (psa_handle_t)curr_channel->msg_ptr;
+            destroy_channel_handle(channel_handle);
+
+            memset(curr_channel, 0, sizeof(*curr_channel));
+            osStatus_t os_status = osMemoryPoolFree(g_spm.channel_mem_pool, curr_channel);
+            SPM_ASSERT(osOK == os_status);
+            PSA_UNUSED(os_status);
+            return;
             break;
-
+        }
         default:
-            SPM_PANIC("Unexpected message type %d\n", active_msg->type);
-    }
-    CHANNEL_STATE_ASSERT(active_msg->channel->state, expected_channel_state);
-
-    active_msg->channel->state = next_channel_state;
-
-    if (curr_partition->msg_handle == PSA_NULL_HANDLE) {
-        psa_error_t status = spm_msg_handle_create(
-                active_msg,
-                curr_partition->partition_id,
-                &(curr_partition->msg_handle)
-                );
-        SPM_ASSERT(PSA_SUCCESS == status);
-        PSA_UNUSED(status);
+            SPM_PANIC("Unexpected message type %d\n", curr_channel->msg_type);
     }
 
-    msg->type = active_msg->type;
-    msg->handle = curr_partition->msg_handle;
-    msg->rhandle = active_msg->channel->rhandle;
-
-    for (size_t i = 0; i < PSA_MAX_INVEC_LEN; i++) {
-        msg->in_size[i] = active_msg->in_vec[i].len;
-    }
-
-    for (size_t i = 0; i < PSA_MAX_OUTVEC_LEN; i++) {
-        msg->out_size[i] = active_msg->out_vec[i].len;
-    }
+    copy_message_to_spm(curr_channel, curr_partition->partition_id, msg);
 }
 
 static size_t read_or_skip(psa_handle_t msg_handle, uint32_t invec_idx, void *buf, size_t num_bytes)
@@ -200,9 +332,7 @@ static size_t read_or_skip(psa_handle_t msg_handle, uint32_t invec_idx, void *bu
         SPM_PANIC("Invalid invec_idx\n");
     }
 
-    active_msg_t *active_msg = NULL;
-    spm_msg_handle_get_mem(msg_handle, &active_msg);
-
+    spm_active_msg_t *active_msg = get_msg_from_handle(msg_handle);
     SPM_ASSERT((active_msg->type > PSA_IPC_MSG_TYPE_INVALID) &&
                (active_msg->type <= PSA_IPC_MSG_TYPE_MAX));
 
@@ -227,7 +357,10 @@ static size_t read_or_skip(psa_handle_t msg_handle, uint32_t invec_idx, void *bu
 
 size_t psa_read(psa_handle_t msg_handle, uint32_t invec_idx, void *buf, size_t num_bytes)
 {
-    if (!is_buffer_accessible(buf, num_bytes)) {
+    spm_partition_t *curr_partition = get_active_partition();
+    SPM_ASSERT(NULL != curr_partition); // active thread in SPM must be in partition DB
+
+    if (!is_buffer_accessible(buf, num_bytes, curr_partition)) {
         SPM_PANIC("buffer is inaccessible\n");
     }
 
@@ -245,7 +378,10 @@ void psa_write(psa_handle_t msg_handle, uint32_t outvec_idx, const void *buffer,
         return;
     }
 
-    if (!is_buffer_accessible(buffer, num_bytes)) {
+    spm_partition_t *curr_partition = get_active_partition();
+    SPM_ASSERT(NULL != curr_partition); // active thread in S
+
+    if (!is_buffer_accessible(buffer, num_bytes, curr_partition)) {
         SPM_PANIC("buffer is inaccessible\n");
     }
 
@@ -253,9 +389,7 @@ void psa_write(psa_handle_t msg_handle, uint32_t outvec_idx, const void *buffer,
         SPM_PANIC("Invalid outvec_idx %d \n", outvec_idx);
     }
 
-    active_msg_t *active_msg = NULL;
-    spm_msg_handle_get_mem(msg_handle, &active_msg);
-
+    spm_active_msg_t *active_msg = get_msg_from_handle(msg_handle);
     SPM_ASSERT((active_msg->type > PSA_IPC_MSG_TYPE_INVALID) &&
                (active_msg->type <= PSA_IPC_MSG_TYPE_MAX));
 
@@ -267,10 +401,6 @@ void psa_write(psa_handle_t msg_handle, uint32_t outvec_idx, const void *buffer,
         SPM_PANIC("Invalid write operation (Requested %d, Avialable %d)\n", num_bytes, active_iovec->len);
     }
 
-    if (!is_buffer_accessible(active_iovec->base, num_bytes)) {
-        SPM_PANIC("Output vector is inaccessible\n");
-    }
-
     memcpy((uint8_t *)(active_iovec->base), buffer, num_bytes);
     active_iovec->base = (void *)((uint8_t *)active_iovec->base + num_bytes);
     active_iovec->len -= num_bytes;
@@ -280,62 +410,82 @@ void psa_write(psa_handle_t msg_handle, uint32_t outvec_idx, const void *buffer,
 
 void psa_end(psa_handle_t msg_handle, psa_error_t retval)
 {
-    active_msg_t *active_msg = NULL;
-    spm_msg_handle_get_mem(msg_handle, &active_msg);
+    // handle should be PSA_NULL_HANDLE when serving PSA_IPC_MSG_TYPE_DISCONNECT
+    if (msg_handle == PSA_NULL_HANDLE) {
+        return;
+    }
 
+    spm_active_msg_t *active_msg = get_msg_from_handle(msg_handle);
     SPM_ASSERT((active_msg->type > PSA_IPC_MSG_TYPE_INVALID) &&
                (active_msg->type <= PSA_IPC_MSG_TYPE_MAX));
 
-    if ((active_msg->channel->rhandle != NULL) && (active_msg->type == PSA_IPC_MSG_TYPE_DISCONNECT)){
-        SPM_PANIC("Try closing channel without clearing rhandle first\n");
-    }
+    spm_ipc_channel_t *active_channel = active_msg->channel;
+    SPM_ASSERT(active_channel != NULL);
 
-    secure_func_t *dst_sec_func = active_msg->channel->dst_sec_func;
-
-    ChannelState expected_channel_state = CHANNEL_STATE_INVALID;
-    ChannelState next_channel_state = CHANNEL_STATE_INVALID;
-    switch (active_msg->type) {
-        case PSA_IPC_MSG_TYPE_CONNECT:
-            expected_channel_state = CHANNEL_STATE_IDLE;
-            next_channel_state = (retval < 0 ? CHANNEL_STATE_INVALID : CHANNEL_STATE_IDLE);
-            break;
-
-        case PSA_IPC_MSG_TYPE_CALL:
-            expected_channel_state = CHANNEL_STATE_ACTIVE;
-            next_channel_state = CHANNEL_STATE_IDLE;
-            break;
-
-        case PSA_IPC_MSG_TYPE_DISCONNECT:
-            expected_channel_state = CHANNEL_STATE_INVALID;
-            next_channel_state = CHANNEL_STATE_INVALID;
-            break;
-
-        default:
-            SPM_PANIC("Unexpected message type %d\n", active_msg->type);
-    }
-
-    CHANNEL_STATE_ASSERT(active_msg->channel->state, expected_channel_state);
-
-    active_msg->channel->state = next_channel_state;
-
-    active_msg->type = PSA_IPC_MSG_TYPE_INVALID; // Invalidate active_msg
-    active_msg->rc = retval;
-
-    partition_t *curr_partition = active_partition_get();
-    SPM_ASSERT(NULL != curr_partition);        // active thread in SPM must be in partition DB
-    spm_msg_handle_destroy(curr_partition->msg_handle);
-    curr_partition->msg_handle = PSA_NULL_HANDLE;
-
-    osStatus_t os_status = osSemaphoreRelease(dst_sec_func->partition->semaphore);
+    memset(active_msg, 0, sizeof(*active_msg));
+    osStatus_t os_status = osMemoryPoolFree(g_spm.active_messages_mem_pool, active_msg);
     SPM_ASSERT(osOK == os_status);
     PSA_UNUSED(os_status);
+
+    destroy_msg_handle(msg_handle);
+
+    osSemaphoreId_t completion_sem_id = NULL;
+    bool nspe_call = (active_channel->src_partition == NULL);
+    switch(active_channel->msg_type) {
+        case PSA_IPC_MSG_TYPE_CONNECT:
+        {
+            CHANNEL_STATE_ASSERT(active_channel->state, CHANNEL_STATE_IDLE);
+            active_channel->state = (retval < 0 ? CHANNEL_STATE_INVALID : CHANNEL_STATE_IDLE);
+            spm_pending_connect_msg_t *connect_msg_data  = (spm_pending_connect_msg_t *)(active_channel->msg_ptr);
+            completion_sem_id = connect_msg_data ->completion_sem_id;
+
+            if (retval != PSA_SUCCESS) {
+                memset(active_channel, 0, sizeof(*active_channel));
+                os_status = osMemoryPoolFree(g_spm.channel_mem_pool, active_channel);
+                SPM_ASSERT(osOK == os_status);
+                // In psa_connect handle was written to user's memory before the connection was established.
+                // Channel state machine and ACL will prevent attacker from doing bad stuff before we overwrite it with negative return code
+                destroy_channel_handle((psa_handle_t)connect_msg_data ->rc);
+                // Replace the handle we created in the user's memory with the error code
+                connect_msg_data ->rc = retval;
+                active_channel = NULL;
+            }
+            break;
+        }
+        case PSA_IPC_MSG_TYPE_CALL:
+        {
+            CHANNEL_STATE_ASSERT(active_channel->state, CHANNEL_STATE_ACTIVE);
+            active_channel->state = CHANNEL_STATE_IDLE;
+            spm_pending_call_msg_t *call_msg_data = (spm_pending_call_msg_t *)(active_channel->msg_ptr);
+            call_msg_data->rc = retval;
+            completion_sem_id = call_msg_data->completion_sem_id;
+            break;
+        }
+        default:
+            SPM_PANIC("Invalid message type %d\n", active_channel->msg_type);
+            break;
+    }
+
+    if (active_channel != NULL) {
+        CHANNEL_STATE_ASSERT(active_channel->state, CHANNEL_STATE_IDLE);
+        active_channel->msg_ptr = NULL;
+        active_channel->msg_type = PSA_IPC_MSG_TYPE_INVALID;
+    }
+
+    if (nspe_call) {
+        nspe_done(completion_sem_id);
+    } else {
+        osStatus_t os_status = osSemaphoreRelease(completion_sem_id);
+        SPM_ASSERT(osOK == os_status);
+        PSA_UNUSED(os_status);
+    }
 
     return;
 }
 
 void psa_notify(int32_t partition_id)
 {
-    partition_t *target_partition = partition_get_by_pid(partition_id);
+    spm_partition_t *target_partition = get_partition_by_pid(partition_id);
     if (NULL == target_partition) {
         SPM_PANIC("Could not find partition (partition_id = %d)\n",
         partition_id
@@ -356,9 +506,7 @@ void psa_clear(void)
 
 int32_t psa_identity(psa_handle_t msg_handle)
 {
-    active_msg_t *active_msg = NULL;
-
-    spm_msg_handle_get_mem(msg_handle, &active_msg);
+    spm_active_msg_t *active_msg = get_msg_from_handle(msg_handle);
     SPM_ASSERT(active_msg->channel != NULL);
     if (active_msg->channel->src_partition == NULL) {
         return PSA_NSPE_IDENTIFIER;
@@ -369,7 +517,6 @@ int32_t psa_identity(psa_handle_t msg_handle)
 
 void psa_set_rhandle(psa_handle_t msg_handle, void *rhandle)
 {
-    active_msg_t *msg = NULL;
-    spm_msg_handle_get_mem(msg_handle, &msg);
-    msg->channel->rhandle = rhandle;
+    spm_active_msg_t *active_msg = get_msg_from_handle(msg_handle);
+    active_msg->channel->rhandle = rhandle;
 }

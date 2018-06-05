@@ -62,8 +62,6 @@ static psa_error_t proccess_disconnect_request(void)
         res = ((res != PSA_SUCCESS) ? res : PSA_GENERIC_ERROR);
     }
 
-    psa_end(msg.handle, res);
-
     return res;
 }
 
@@ -143,48 +141,6 @@ PSA_TEST_SERVER(identity_during_call)
 
     disconnect_status = proccess_disconnect_request();
     test_status  = (test_status != PSA_SUCCESS) ? test_status : disconnect_status;
-
-    return test_status;
-}
-
-PSA_TEST_SERVER(identity_during_close)
-{
-    psa_error_t test_status = PSA_SUCCESS;
-    psa_msg_t msg = {0};
-    int32_t identity = 0;
-    uint32_t signals = 0;
-
-    test_status = proccess_connect_request();
-    if (test_status != PSA_SUCCESS) {
-        return test_status;
-    }
-
-    signals = psa_wait_any(PSA_WAIT_BLOCK);
-    if ((signals & TEST_MSK) == 0) {
-        test_status = PSA_GENERIC_ERROR;
-    }
-
-    psa_get(TEST_MSK, &msg);
-    if (msg.type != PSA_IPC_MSG_TYPE_CALL) {
-        test_status = ((test_status != PSA_SUCCESS) ? test_status : PSA_GENERIC_ERROR);
-    }
-
-    psa_end(msg.handle, PSA_SUCCESS);
-    memset(&msg, 0, sizeof(msg));
-
-    signals = psa_wait_any(PSA_WAIT_BLOCK);
-    if ((signals & TEST_MSK) == 0) {
-        test_status = ((test_status != PSA_SUCCESS) ? test_status : PSA_GENERIC_ERROR);
-    }
-
-    psa_get(TEST_MSK, &msg);
-    if (msg.type != PSA_IPC_MSG_TYPE_DISCONNECT) {
-        test_status = ((test_status != PSA_SUCCESS) ? test_status : PSA_GENERIC_ERROR);
-    }
-
-    identity = psa_identity(msg.handle);
-    *status_ptr = (identity == -1) ? PSA_SUCCESS : PSA_GENERIC_ERROR;
-    psa_end(msg.handle, PSA_SUCCESS);
 
     return test_status;
 }
@@ -545,7 +501,6 @@ PSA_TEST_SERVER(rhandle_factorial)
             }
 
             free(msg.rhandle);
-            psa_set_rhandle(msg.handle, NULL);
             disconnect_count++;
             break;
         default:
@@ -624,11 +579,10 @@ PSA_TEST_SERVER(cross_partition_call)
         partition_call_status = psa_call(conn_handle, &data, 1, &resp, 1);
     }
 
-    if (partition_call_status == PSA_SUCCESS) {
-        partition_call_status = psa_close(conn_handle);
-    }
-
     *status_ptr = partition_call_status;
+    if (partition_call_status == PSA_SUCCESS) {
+        psa_close(conn_handle);
+    }
 
     if (PSA_SUCCESS == partition_call_status) {
         psa_write(msg.handle, 0, buff, data_read);
@@ -686,7 +640,7 @@ PSA_TEST_SERVER(doorbell_test)
 
     if (partition_call_status == PSA_SUCCESS) {
         psa_clear();
-        partition_call_status = psa_close(conn_handle);
+        psa_close(conn_handle);
     }
     // -- Connection with partition2 - END
 
@@ -700,13 +654,38 @@ PSA_TEST_SERVER(doorbell_test)
     return test_status;
 }
 
+PSA_TEST_SERVER(psa_end_on_NULL_HANDLE)
+{
+    psa_error_t test_status = PSA_SUCCESS;
+    psa_error_t disconnect_status = PSA_SUCCESS;
+    psa_msg_t msg = {0};
+
+    uint32_t signals = psa_wait_any(PSA_WAIT_BLOCK);
+    if ((signals & TEST_MSK) == 0) {
+        test_status = PSA_GENERIC_ERROR;
+    }
+
+    psa_get(TEST_MSK, &msg);
+    if (msg.type != PSA_IPC_MSG_TYPE_CONNECT) {
+        test_status = ((test_status != PSA_SUCCESS) ? test_status : PSA_GENERIC_ERROR);
+    }
+
+    *status_ptr = (msg.handle != PSA_NULL_HANDLE) ? PSA_SUCCESS : PSA_GENERIC_ERROR;
+
+    psa_end(PSA_NULL_HANDLE, PSA_SUCCESS);
+    psa_end(msg.handle, PSA_SUCCESS);
+
+    disconnect_status = proccess_disconnect_request();
+    test_status  = (test_status != PSA_SUCCESS) ? test_status : disconnect_status;
+
+    return test_status;
+}
 
 
 psa_test_server_side_func test_list[] = {
     PSA_TEST_SERVER_NAME(wait_timeout),
     PSA_TEST_SERVER_NAME(identity_during_connect),
     PSA_TEST_SERVER_NAME(identity_during_call),
-    PSA_TEST_SERVER_NAME(identity_during_close),
     PSA_TEST_SERVER_NAME(msg_size_assertion),
     PSA_TEST_SERVER_NAME(reject_connection),
     PSA_TEST_SERVER_NAME(read_at_outofboud_offset),
@@ -717,5 +696,6 @@ psa_test_server_side_func test_list[] = {
     PSA_TEST_SERVER_NAME(rhandle_factorial),
     PSA_TEST_SERVER_NAME(cross_partition_call),
     PSA_TEST_SERVER_NAME(doorbell_test),
+    PSA_TEST_SERVER_NAME(psa_end_on_NULL_HANDLE),
     NULL
 };

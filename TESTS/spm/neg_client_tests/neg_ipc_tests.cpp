@@ -78,10 +78,10 @@ static void negative_client_ipc_tests_call( psa_handle_t handle,
 
 static void negative_client_ipc_tests_close(psa_handle_t handle)
 {
-    error_t status = PSA_SUCCESS;
-    status = psa_close(handle);
+    psa_close(handle);
 
-    TEST_ASSERT_EQUAL_INT(PSA_SUCCESS, status);
+    // Wait for psa_close to finish on server side
+    osDelay(50);
 }
 
 //Testing client call with an invalid SFID
