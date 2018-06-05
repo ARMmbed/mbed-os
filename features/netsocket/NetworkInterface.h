@@ -64,7 +64,7 @@ public:
      *
      * * ETHERNET: EthernetInterface, using default EMAC and OnboardNetworkStack
      * * MESH: ThreadInterface or LoWPANNDInterface, using default NanostackRfPhy
-     * * CELLULAR: OnboardModemInterface
+     * * CELLULAR: CellularBase
      * * WIFI: None - always provided by a specific class
      *
      * Specific drivers may be activated by other settings of the

@@ -137,6 +137,12 @@ public:
      *  @param plmn operator in numeric format. See more from 3GPP TS 27.007 chapter 7.3.
      */
     void set_plmn(const char* plmn);
+
+    /** Create a new default cellular network interface.
+     *  @return a network instance which application must free, NULL on failure
+	 */
+    static CellularBase *get_default_instance();
+
 protected:
 
     /** Provide access to the NetworkStack object
