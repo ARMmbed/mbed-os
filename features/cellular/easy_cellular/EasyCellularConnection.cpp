@@ -336,6 +336,11 @@ NetworkStack *EasyCellularConnection::get_stack()
     }
 }
 
+CellularBase *EasyCellularConnection::get_default_instance()
+{
+    return new EasyCellularConnection();
+}
+
 } // namespace
 
 #endif // CELLULAR_DEVICE
