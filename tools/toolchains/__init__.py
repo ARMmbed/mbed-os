@@ -462,6 +462,17 @@ class mbedToolchain:
         if 'UVISOR' in self.target.features and 'UVISOR_SUPPORTED' in self.target.extra_labels:
             self.target.core = re.sub(r"F$", '', self.target.core)
 
+        # Pass flash information (MBED_ROM_START/MBED_ROM_SIZE) to compiler/linker
+        # if target configuration options (mbed_rom_start/mbed_rom_size) are defined.
+        rom_start_override = getattr(self.target, "mbed_rom_start", False)
+        if rom_start_override:
+            self.macros.append("MBED_ROM_START=0x%x" % int(rom_start_override, 0))
+            self.make_ld_define("MBED_ROM_START", int(rom_start_override, 0))
+        rom_size_override = getattr(self.target, "mbed_rom_size", False)
+        if rom_size_override:
+            self.macros.append("MBED_ROM_SIZE=0x%x" % int(rom_size_override, 0))
+            self.make_ld_define("MBED_ROM_SIZE", int(rom_size_override, 0))
+
         # Stats cache is used to reduce the amount of IO requests to stat
         # header files during dependency change. See need_update()
         self.stat_cache = {}
