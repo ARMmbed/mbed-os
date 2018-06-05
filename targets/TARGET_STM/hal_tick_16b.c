@@ -18,8 +18,6 @@
 // A 16-bit timer is used
 #if TIM_MST_16BIT
 
-#define DEBUG_TICK 0 // Set to 1 to toggle a pin (see below which pin) at each tick
-
 extern TIM_HandleTypeDef TimMasterHandle;
 
 volatile uint32_t PreviousVal = 0;
@@ -47,23 +45,6 @@ void timer_oc_irq_handler(void)
         if (__HAL_TIM_GET_IT_SOURCE(&TimMasterHandle, TIM_IT_CC1) == SET) {
             __HAL_TIM_CLEAR_IT(&TimMasterHandle, TIM_IT_CC1);
                    us_ticker_irq_handler();
-        }
-    }
-
-    // Channel 2 for HAL tick
-    if (__HAL_TIM_GET_FLAG(&TimMasterHandle, TIM_FLAG_CC2) == SET) {
-
-        if (__HAL_TIM_GET_IT_SOURCE(&TimMasterHandle, TIM_IT_CC2) == SET) {
-            __HAL_TIM_CLEAR_IT(&TimMasterHandle, TIM_IT_CC2);
-            uint32_t val = __HAL_TIM_GET_COUNTER(&TimMasterHandle);
-            if ((val - PreviousVal) >= HAL_TICK_DELAY) {
-                // Prepare next interrupt
-                __HAL_TIM_SET_COMPARE(&TimMasterHandle, TIM_CHANNEL_2, val + HAL_TICK_DELAY);
-                PreviousVal = val;
-#if DEBUG_TICK > 0
-                HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_6);
-#endif
-            }
         }
     }
 }
@@ -95,22 +76,10 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
 #endif
     HAL_TIM_Base_Init(&TimMasterHandle);
 
-    //LL_TIM_EnableUpdateEvent(TimMasterHandle.Instance);
-
     // Configure output compare channel 1 for mbed timeout (enabled later when used)
     HAL_TIM_OC_Start(&TimMasterHandle, TIM_CHANNEL_1);
 
-    // Configure output compare channel 2 for HAL tick
-    HAL_TIM_OC_Start(&TimMasterHandle, TIM_CHANNEL_2);
-    PreviousVal = __HAL_TIM_GET_COUNTER(&TimMasterHandle);
-    __HAL_TIM_SET_COMPARE(&TimMasterHandle, TIM_CHANNEL_2, PreviousVal + HAL_TICK_DELAY);
-
-
-
-    // Configure interrupts
-    // Update interrupt used for 32-bit counter
     // Output compare channel 1 interrupt for mbed timeout
-    // Output compare channel 2 interrupt for HAL tick
 #if defined(TARGET_STM32F0)
     NVIC_SetVector(TIM_MST_UP_IRQ, (uint32_t)timer_update_irq_handler);
     NVIC_EnableIRQ(TIM_MST_UP_IRQ);
@@ -123,9 +92,6 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
     NVIC_EnableIRQ(TIM_MST_IRQ);
 #endif
 
-    // Enable interrupts
-    __HAL_TIM_ENABLE_IT(&TimMasterHandle, TIM_IT_CC2); // For HAL tick
-
     // Enable timer
     HAL_TIM_Base_Start(&TimMasterHandle);
 
@@ -135,29 +101,7 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
     TIM_MST_DBGMCU_FREEZE;
 #endif
 
-#if DEBUG_TICK > 0
-    __HAL_RCC_GPIOB_CLK_ENABLE();
-    GPIO_InitTypeDef GPIO_InitStruct;
-    GPIO_InitStruct.Pin = GPIO_PIN_6;
-    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStruct.Pull = GPIO_PULLUP;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FAST;
-    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-#endif
-
     return HAL_OK;
-}
-
-/* NOTE: must be called with interrupts disabled! */
-void HAL_SuspendTick(void)
-{
-    __HAL_TIM_DISABLE_IT(&TimMasterHandle, TIM_IT_CC2);
-}
-
-/* NOTE: must be called with interrupts disabled! */
-void HAL_ResumeTick(void)
-{
-    __HAL_TIM_ENABLE_IT(&TimMasterHandle, TIM_IT_CC2);
 }
 
 #endif // TIM_MST_16BIT
