@@ -234,24 +234,17 @@ void server_end_invalid_handle()
     TEST_FAIL_MESSAGE("server_end_invalid_handle negative test failed at client side");
 }
 
-//Testing server end handle is null (PSA_NULL_HANDLE)
-void server_end_null_handle()
-{
-    psa_connect(PART2_END_NULL_HANDLE, MINOR_VER);
-
-    TEST_FAIL_MESSAGE("server_end_null_handle negative test failed at client side");
-}
-
 //Testing server end rhandle is not NULL and msg type is disconnect
-void server_set_rhandle_invalid()
+void server_set_rhandle_during_disconnect()
 {
     psa_handle_t handle = 0;
 
-    handle = negative_server_ipc_tests_connect(PART2_SET_RHANDLE_INVALID, MINOR_VER);
+    handle = negative_server_ipc_tests_connect(PART2_SET_RHANDLE_DURING_DISCONNECT, MINOR_VER);
 
     psa_close(handle);
-
-    TEST_FAIL_MESSAGE("server_set_rhandle_invalid negative test failed at client side");
+    // Wait for psa_close to finish on server side
+    osDelay(50);
+    TEST_FAIL_MESSAGE("server_set_rhandle_during_disconnect negative test failed at client side");
 }
 
 //Testing server notify partition id doesnt exist
@@ -339,8 +332,7 @@ PSA_NEG_TEST(server_write_rx_buff_null)
 PSA_NEG_TEST(server_write_invalid_handle)
 PSA_NEG_TEST(server_write_null_handle)
 PSA_NEG_TEST(server_end_invalid_handle)
-PSA_NEG_TEST(server_end_null_handle)
-PSA_NEG_TEST(server_set_rhandle_invalid)
+PSA_NEG_TEST(server_set_rhandle_during_disconnect)
 PSA_NEG_TEST(server_notify_part_id_invalid)
 PSA_NEG_TEST(server_psa_identity_invalid_handle)
 PSA_NEG_TEST(server_psa_identity_null_handle)
@@ -381,8 +373,7 @@ Case cases[] = {
     SPM_UTEST_CASE("Testing server write handle does not exist on the platform", server_write_invalid_handle),
     SPM_UTEST_CASE("Testing server write handle is PSA_NULL_HANDLE", server_write_null_handle),
     SPM_UTEST_CASE("Testing server end handle does not exist on the platform", server_end_invalid_handle),
-    SPM_UTEST_CASE("Testing server end handle is PSA_NULL_HANDLE", server_end_null_handle),
-    SPM_UTEST_CASE("Testing server set rhandle is not NULL while msg type is disconnect", server_set_rhandle_invalid),
+    SPM_UTEST_CASE("Testing server set rhandle during disconnect", server_set_rhandle_during_disconnect),
     SPM_UTEST_CASE("Testing server notify partition id doesnt exist", server_notify_part_id_invalid),
     SPM_UTEST_CASE("Testing server identify handle does not exist on the platform", server_psa_identity_invalid_handle),
     SPM_UTEST_CASE("Testing server identify handle is PSA_NULL_HANDLE", server_psa_identity_null_handle),

@@ -58,8 +58,8 @@ void part2_main(void *ptr)
                     str = NULL;
                     break;
                 }
-                case PSA_IPC_MSG_TYPE_DISCONNECT:
                 case PSA_IPC_MSG_TYPE_CONNECT:
+                case PSA_IPC_MSG_TYPE_DISCONNECT:
                     break;
                 default:
                     SPM_PANIC("Unexpected message type %d!", (int)(msg.type));
@@ -71,7 +71,6 @@ void part2_main(void *ptr)
         else {  // -- Doorbell test
 
             psa_get(SF_DB_TST_MSK, &msg);
-
             switch (msg.type) {
                 case PSA_IPC_MSG_TYPE_CALL:
                 {
@@ -88,12 +87,10 @@ void part2_main(void *ptr)
                     psa_notify(caller_part_id);
                     break;
                 }
-
-                case PSA_IPC_MSG_TYPE_DISCONNECT:
                 case PSA_IPC_MSG_TYPE_CONNECT:
+                case PSA_IPC_MSG_TYPE_DISCONNECT:
                     psa_end(msg.handle, PSA_SUCCESS);
                     break;
-
                 default:
                     SPM_PANIC("Unexpected message type %d!", (int)(msg.type));
                     break;

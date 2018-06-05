@@ -33,7 +33,7 @@ extern const uint32_t {{partition.name|lower}}_external_sfids[{{partition.extern
 {% endfor %} {# partition in partitions #}
 
 {% if partitions|count > 0 %}
-partition_t g_partitions[{{partitions|count}}] = {
+spm_partition_t g_partitions[{{partitions|count}}] = {
 {% for partition in partitions %}
     {
         .partition_id = {{partition.id}},
@@ -48,21 +48,11 @@ partition_t g_partitions[{{partitions|count}}] = {
         .extern_sfids = NULL,
     {% endif %}
         .extern_sfids_count = {{partition.name|upper}}_EXT_SF_COUNT,
-        .mutex = NULL,
-        .semaphore = NULL,
-        .active_msg = {0},
-        .msg_handle = PSA_NULL_HANDLE
     },
 {% endfor %}
 };
 {% else %}
-partition_t *g_partitions = NULL;
-{% endif %}
-
-{% if partitions|count > 0 %}
-psa_handle_item_t g_messages_handle_storage[{{partitions|count}}] = {0};
-{% else %}
-psa_handle_item_t *g_messages_handle_storage = NULL;
+spm_partition_t *g_partitions = NULL;
 {% endif %}
 
 /* Check all the defined MMIO regions for overlapping. */
@@ -75,10 +65,10 @@ static_assert(
 
 // forward declaration of partition initializers
 {% for partition in partitions %}
-void {{partition.name|lower}}_init(partition_t *partition);
+void {{partition.name|lower}}_init(spm_partition_t *partition);
 {% endfor %} {# partition in partitions #}
 
-uint32_t init_partitions(partition_t **partitions)
+uint32_t init_partitions(spm_partition_t **partitions)
 {
     if (NULL == partitions) {
         SPM_PANIC("partitions is NULL!\n");

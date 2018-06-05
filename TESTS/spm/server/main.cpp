@@ -37,23 +37,19 @@ char cross_part_buf[] = "Hello and welcome SPM";
 PSA_TEST_CLIENT(wait_timeout)
 {
     osDelay(50);
-    psa_error_t status = PSA_SUCCESS;
     psa_handle_t test_handle = psa_connect(TEST, TEST_SF_MINOR);
     TEST_ASSERT(test_handle > 0);
 
-    status = psa_close(test_handle);
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, status);
+    psa_close(test_handle);
 }
 
 
 PSA_TEST_CLIENT(identity_during_connect)
 {
-    psa_error_t status = PSA_SUCCESS;
     psa_handle_t test_handle = psa_connect(TEST, TEST_SF_MINOR);
     TEST_ASSERT(test_handle > 0);
 
-    status = psa_close(test_handle);
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, status);
+    psa_close(test_handle);
 }
 
 
@@ -66,21 +62,7 @@ PSA_TEST_CLIENT(identity_during_call)
     status = psa_call(test_handle, NULL, 0, NULL, 0);
     TEST_ASSERT_EQUAL(PSA_SUCCESS, status);
 
-    status = psa_close(test_handle);
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, status);
-}
-
-PSA_TEST_CLIENT(identity_during_close)
-{
-    psa_error_t status = PSA_SUCCESS;
-    psa_handle_t test_handle = psa_connect(TEST, TEST_SF_MINOR);
-    TEST_ASSERT(test_handle > 0);
-
-    status = psa_call(test_handle, NULL, 0, NULL, 0);
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, status);
-
-    status = psa_close(test_handle);
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, status);
+    psa_close(test_handle);
 }
 
 PSA_TEST_CLIENT(msg_size_assertion)
@@ -97,8 +79,7 @@ PSA_TEST_CLIENT(msg_size_assertion)
     status = psa_call(test_handle, data, 3, NULL, 0);
     TEST_ASSERT_EQUAL(PSA_SUCCESS, status);
 
-    status = psa_close(test_handle);
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, status);
+    psa_close(test_handle);
 }
 
 PSA_TEST_CLIENT(reject_connection)
@@ -117,8 +98,7 @@ PSA_TEST_CLIENT(read_at_outofboud_offset)
     status = psa_call(test_handle, &data, 1, NULL, 0);
     TEST_ASSERT_EQUAL(PSA_SUCCESS, status);
 
-    status = psa_close(test_handle);
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, status);
+    psa_close(test_handle);
 }
 
 PSA_TEST_CLIENT(msg_read_truncation)
@@ -135,8 +115,7 @@ PSA_TEST_CLIENT(msg_read_truncation)
     status = psa_call(test_handle, data, 3, NULL, 0);
     TEST_ASSERT_EQUAL(PSA_SUCCESS, status);
 
-    status = psa_close(test_handle);
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, status);
+    psa_close(test_handle);
 }
 
 PSA_TEST_CLIENT(skip_zero)
@@ -149,8 +128,7 @@ PSA_TEST_CLIENT(skip_zero)
     status = psa_call(test_handle, &data, 1, NULL, 0);
     TEST_ASSERT_EQUAL(PSA_SUCCESS, status);
 
-    status = psa_close(test_handle);
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, status);
+    psa_close(test_handle);
 }
 
 PSA_TEST_CLIENT(skip_some)
@@ -163,8 +141,7 @@ PSA_TEST_CLIENT(skip_some)
     status = psa_call(test_handle, &data, 1, NULL, 0);
     TEST_ASSERT_EQUAL(PSA_SUCCESS, status);
 
-    status = psa_close(test_handle);
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, status);
+    psa_close(test_handle);
 }
 
 PSA_TEST_CLIENT(skip_more_than_left)
@@ -177,8 +154,7 @@ PSA_TEST_CLIENT(skip_more_than_left)
     status = psa_call(test_handle, &data, 1, NULL, 0);
     TEST_ASSERT_EQUAL(PSA_SUCCESS, status);
 
-    status = psa_close(test_handle);
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, status);
+    psa_close(test_handle);
 }
 
 PSA_TEST_CLIENT(rhandle_factorial)
@@ -197,8 +173,7 @@ PSA_TEST_CLIENT(rhandle_factorial)
         TEST_ASSERT_EQUAL(value, secure_value);
     }
 
-    status = psa_close(test_handle);
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, status);
+    psa_close(test_handle);
 }
 
 PSA_TEST_CLIENT(cross_partition_call)
@@ -217,8 +192,7 @@ PSA_TEST_CLIENT(cross_partition_call)
     TEST_ASSERT_EQUAL_STRING_LEN("MPS emoclew dna olleHMPS emoclew dna olleH", response_buf, in_len*2);
     free(response_buf);
 
-    status = psa_close(test_handle);
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, status);
+    psa_close(test_handle);
 }
 
 // Test a common DOORBELL scenario
@@ -230,8 +204,15 @@ PSA_TEST_CLIENT(doorbell_test)
     psa_error_t status = psa_call(test_handle, NULL, 0, NULL, 0);
     TEST_ASSERT_EQUAL(PSA_SUCCESS, status);
 
-    status = psa_close(test_handle);
-    TEST_ASSERT_EQUAL(PSA_SUCCESS, status);
+    psa_close(test_handle);
+}
+
+PSA_TEST_CLIENT(psa_end_on_NULL_HANDLE)
+{
+    psa_handle_t test_handle = psa_connect(TEST, TEST_SF_MINOR);
+    TEST_ASSERT(test_handle > 0);
+
+    psa_close(test_handle);
 }
 
 
@@ -273,6 +254,9 @@ utest::v1::status_t spm_case_teardown(const Case *const source, const size_t pas
     psa_invec_t data = {&action, sizeof(action)};
     psa_outvec_t resp = {&test_status, sizeof(test_status)};
 
+    // Wait for psa_close to finish on server side
+    osDelay(50);
+
     status = psa_call(control_handle, &data, 1, &resp, 1);
     TEST_ASSERT_EQUAL(PSA_SUCCESS, status);
     TEST_ASSERT_EQUAL(PSA_SUCCESS, test_status);
@@ -285,7 +269,6 @@ Case cases[] = {
     SPM_UTEST_CASE("Wait invalid time", wait_timeout),
     SPM_UTEST_CASE("Get identity during connect", identity_during_connect),
     SPM_UTEST_CASE("Get identity during call", identity_during_call),
-    SPM_UTEST_CASE("Get identity during disconnect", identity_during_close),
     SPM_UTEST_CASE("Assert msg size", msg_size_assertion),
     SPM_UTEST_CASE("Reject on connect", reject_connection),
     SPM_UTEST_CASE("Read at an out of bound offset", read_at_outofboud_offset),
@@ -296,6 +279,7 @@ Case cases[] = {
     SPM_UTEST_CASE("Test rhandle implementation by calculating the factorial function", rhandle_factorial),
     SPM_UTEST_CASE("Test a call flow between 2 secure partitions", cross_partition_call),
     SPM_UTEST_CASE("Test a common DOORBELL scenario", doorbell_test),
+    SPM_UTEST_CASE("Test psa_end call on NULL_HANDLE", psa_end_on_NULL_HANDLE),
 };
 
 //Declare your test specification with a custom setup handler

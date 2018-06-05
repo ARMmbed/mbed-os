@@ -61,8 +61,10 @@ void example_main(void)
     TEST_ASSERT_EQUAL_STRING(CLIENT_EXPECTED_RESPONSE, response_buf);
 
     free(response_buf);
-    status = psa_close(conn_handle);
-    TEST_ASSERT_MESSAGE(PSA_SUCCESS == status, "psa_close() failed");
+    psa_close(conn_handle);
+
+    // Wait for psa_close to finish on server side
+    osDelay(50);
 }
 
 // --------------------------------- Test Framework ---------------------------------- */

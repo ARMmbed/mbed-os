@@ -12,24 +12,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #include "cmsis_os2.h"
 #include "psa_defs.h"
 #include "spm_internal.h"
-#include "spm_panic.h"
 
-extern spm_db_t g_spm;
 
-spm_partition_t *get_active_partition(void)
+// These implementations are meant to be used only for SPM level 0.
+
+bool is_buffer_accessible(const void *ptr, size_t size, spm_partition_t * accessing_partition)
 {
-    osThreadId_t active_thread_id = osThreadGetId();
-    SPM_ASSERT(NULL != active_thread_id);
-
-    for (uint32_t i = 0; i < g_spm.partition_count; ++i) {
-        if (g_spm.partitions[i].thread_id == active_thread_id) {
-            return &(g_spm.partitions[i]);
-        }
+    if (NULL == ptr) {
+        return false;
     }
 
-    return NULL; // Valid in case of NSPE
+    if (((uintptr_t)ptr + size) < ((uintptr_t)ptr)) {
+        return false;
+    }
+
+    PSA_UNUSED(accessing_partition);
+    return true;
+}
+
+
+void nspe_done(osSemaphoreId_t completion_sem_id)
+{
+    osStatus_t os_status = osSemaphoreRelease(completion_sem_id);
+    SPM_ASSERT(osOK == os_status);
+    PSA_UNUSED(os_status);
 }

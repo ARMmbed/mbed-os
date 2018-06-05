@@ -124,7 +124,7 @@ error_t psa_hndl_mgr_handle_create(psa_handle_manager_t *handle_mgr, void *handl
 
 
     /* Get active partition id - Needed for requester identification */
-    partition_t *curr_part_ptr = active_partition_get();
+    spm_partition_t *curr_part_ptr = get_active_partition();
     int32_t      current_pid   = ((curr_part_ptr != NULL) ? curr_part_ptr->partition_id : PSA_NSPE_IDENTIFIER);
     uint32_t expected = INT32_MAX;
     /* Avoid passing INT32_MAX. Start again from 0 if reached.
@@ -188,7 +188,7 @@ void psa_hndl_mgr_handle_destroy(psa_handle_manager_t *handle_mgr, psa_handle_t 
 
 
     /* Get active partition id - Needed for requester identification */
-    partition_t *curr_part_ptr = active_partition_get();
+    spm_partition_t *curr_part_ptr = get_active_partition();
     int32_t      current_pid   = ((curr_part_ptr != NULL) ? curr_part_ptr->partition_id : PSA_NSPE_IDENTIFIER);
 
 
@@ -197,10 +197,11 @@ void psa_hndl_mgr_handle_destroy(psa_handle_manager_t *handle_mgr, psa_handle_t 
 
         if(handle_mgr->handles_pool[pool_ix].handle == handle) {
 
-            if(handle_mgr->handles_pool[pool_ix].handle_owner != current_pid) {
+            if((handle_mgr->handles_pool[pool_ix].handle_owner != current_pid) &&
+                (handle_mgr->handles_pool[pool_ix].handle_friend != current_pid)) {
 
                 // The SPM_PANIC() macro will exit the program
-                SPM_PANIC("[ERROR] Request for destroy by non-owner!\n");
+                SPM_PANIC("[ERROR] Request for destroy by non-owner or friend!\n");
             }
 
             /* Handle found in handles pool */
@@ -247,7 +248,7 @@ void psa_hndl_mgr_handle_get_mem(psa_handle_manager_t *handle_mgr, psa_handle_t 
 
 
     /* Get active partition id - Needed for requester identification */
-    partition_t *curr_part_ptr = active_partition_get();
+    spm_partition_t *curr_part_ptr = get_active_partition();
     int32_t      current_pid   = ((curr_part_ptr != NULL) ? curr_part_ptr->partition_id : PSA_NSPE_IDENTIFIER);
 
 

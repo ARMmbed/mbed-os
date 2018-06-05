@@ -12,14 +12,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 #include <string.h>
 #include "spm_internal.h"
 
-extern spm_t g_spm;
+extern spm_db_t g_spm;
 extern psa_handle_item_t g_channels_handle_storage[];
 extern psa_handle_item_t g_messages_handle_storage[];
-extern ipc_channel_t g_channel_data[];
+extern spm_ipc_channel_t g_channel_data[];
+extern spm_active_msg_t g_active_messages_data[];
 
 void psa_spm_init(void);
 
@@ -32,26 +33,26 @@ void spm_reboot(void)
         MBED_ASSERT(status == osOK);
         status = osMutexDelete(g_spm.partitions[i].mutex);
         MBED_ASSERT(status == osOK);
-        status = osSemaphoreDelete(g_spm.partitions[i].semaphore);
-        MBED_ASSERT(status == osOK);
 
-        g_spm.partitions[i].thread_id = NULL;
         for (uint32_t j = 0; j < g_spm.partitions[i].sec_funcs_count; ++j) {
             g_spm.partitions[i].sec_funcs[j].partition = NULL;
+            g_spm.partitions[i].sec_funcs[j].queue.head = NULL;
+            g_spm.partitions[i].sec_funcs[j].queue.tail = NULL;
         }
 
         g_spm.partitions[i].sec_funcs = NULL;
         g_spm.partitions[i].mutex = NULL;
-        g_spm.partitions[i].semaphore = NULL;
-        memset(&(g_spm.partitions[i].active_msg), 0, sizeof(active_msg_t));
-        g_spm.partitions[i].msg_handle = PSA_NULL_HANDLE;
+        g_spm.partitions[i].thread_id = NULL;
     }
 
     status = osMemoryPoolDelete(g_spm.channel_mem_pool);
     MBED_ASSERT(status == osOK);
+    status = osMemoryPoolDelete(g_spm.active_messages_mem_pool);
+    MBED_ASSERT(status == osOK);
     memset(g_channels_handle_storage, 0, (sizeof(psa_handle_item_t) * MBED_CONF_SPM_IPC_MAX_NUM_OF_CHANNELS));
-    memset(g_messages_handle_storage, 0, (sizeof(psa_handle_item_t) * g_spm.partition_count));
-    memset(g_channel_data, 0, (sizeof(ipc_channel_t) * MBED_CONF_SPM_IPC_MAX_NUM_OF_CHANNELS));
+    memset(g_messages_handle_storage, 0, (sizeof(psa_handle_item_t) * MBED_CONF_SPM_IPC_MAX_NUM_OF_MESSAGES));
+    memset(g_channel_data, 0, (sizeof(spm_ipc_channel_t) * MBED_CONF_SPM_IPC_MAX_NUM_OF_CHANNELS));
+    memset(g_active_messages_data, 0, (sizeof(spm_active_msg_t) * MBED_CONF_SPM_IPC_MAX_NUM_OF_MESSAGES));
     memset(&g_spm, 0, sizeof(g_spm));
 
     psa_spm_init();

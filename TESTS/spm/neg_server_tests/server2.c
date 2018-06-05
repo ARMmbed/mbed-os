@@ -204,24 +204,12 @@ void server_main2(void *ptr)
             psa_end(invalid_handle, PSA_SUCCESS);
             TEST_FAIL_MESSAGE("server_end_invalid_handle negative test failed");
         }
-        else if (signals & PART2_END_NULL_HANDLE_MSK) {
-            psa_get(PART2_END_NULL_HANDLE_MSK, &msg);
-            switch (msg.type) {
-                case PSA_IPC_MSG_TYPE_CONNECT: {
-                    break;
-                }
-                default: {
-                    TEST_FAIL_MESSAGE("server_end_null_handle msg type failure");
-                }
-            }
-            psa_end(PSA_NULL_HANDLE, PSA_SUCCESS);
-            TEST_FAIL_MESSAGE("server_end_null_handle negative test failed");
-        }
-        else if (signals & PART2_SET_RHANDLE_INVALID_MSK) {
+        else if (signals & PART2_SET_RHANDLE_DURING_DISCONNECT_MSK) {
             bool is_disconnect = false;
-            psa_get(PART2_SET_RHANDLE_INVALID_MSK, &msg);
+            psa_get(PART2_SET_RHANDLE_DURING_DISCONNECT_MSK, &msg);
             switch (msg.type) {
                 case PSA_IPC_MSG_TYPE_CONNECT: {
+                    psa_end(msg.handle, PSA_SUCCESS);
                     break;
                 }
                 case PSA_IPC_MSG_TYPE_DISCONNECT: {
@@ -231,12 +219,11 @@ void server_main2(void *ptr)
                     break;
                 }
                 default: {
-                    TEST_FAIL_MESSAGE("server_end_rhandle_invalid msg type failure");
+                    TEST_FAIL_MESSAGE("server_set_rhandle_during_disconnect msg type failure");
                 }
             }
-            psa_end(msg.handle, PSA_SUCCESS);
             if (is_disconnect) {
-                TEST_FAIL_MESSAGE("server_end_rhandle_invalid negative test failed");
+                TEST_FAIL_MESSAGE("server_set_rhandle_during_disconnect negative test failed");
             }
         }
         else if (signals & PART2_NOTIFY_PART_ID_INVALID_MSK) {

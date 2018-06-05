@@ -119,24 +119,16 @@
       "minor_policy": "relaxed"
     },
     {
-      "name": "PART2_END_NULL_HANDLE",
+      "name": "PART2_SET_RHANDLE_DURING_DISCONNECT",
       "identifier": "0x00001A19",
-      "signal": "PART2_END_NULL_HANDLE_MSK",
-      "non_secure_clients": true,
-      "minor_version": 5,
-      "minor_policy": "relaxed"
-    },
-    {
-      "name": "PART2_SET_RHANDLE_INVALID",
-      "identifier": "0x00001A1A",
-      "signal": "PART2_SET_RHANDLE_INVALID_MSK",
+      "signal": "PART2_SET_RHANDLE_DURING_DISCONNECT_MSK",
       "non_secure_clients": true,
       "minor_version": 5,
       "minor_policy": "relaxed"
     },
     {
       "name": "PART2_NOTIFY_PART_ID_INVALID",
-      "identifier": "0x00001A1B",
+      "identifier": "0x00001A1A",
       "signal": "PART2_NOTIFY_PART_ID_INVALID_MSK",
       "non_secure_clients": true,
       "minor_version": 5,
@@ -144,7 +136,7 @@
     },
     {
       "name": "PART2_IDENTITY_INVALID_HANDLE",
-      "identifier": "0x00001A1C",
+      "identifier": "0x00001A1B",
       "signal": "PART2_IDENTITY_INVALID_HANDLE_MSK",
       "non_secure_clients": true,
       "minor_version": 5,
@@ -152,7 +144,7 @@
     },
     {
       "name": "PART2_IDENTITY_NULL_HANDLE",
-      "identifier": "0x00001A1D",
+      "identifier": "0x00001A1C",
       "signal": "PART2_IDENTITY_NULL_HANDLE_MSK",
       "non_secure_clients": true,
       "minor_version": 5,
@@ -160,7 +152,7 @@
     },
     {
       "name": "PART2_SET_RHANDLE_INVALID_HANDLE",
-      "identifier": "0x00001A1E",
+      "identifier": "0x00001A1D",
       "signal": "PART2_SET_RHANDLE_INVALID_HANDLE_MSK",
       "non_secure_clients": true,
       "minor_version": 5,
@@ -168,7 +160,7 @@
     },
     {
       "name": "PART2_SET_RHANDLE_NULL_HANDLE",
-      "identifier": "0x00001A1F",
+      "identifier": "0x00001A1E",
       "signal": "PART2_SET_RHANDLE_NULL_HANDLE_MSK",
       "non_secure_clients": true,
       "minor_version": 5,
@@ -176,7 +168,7 @@
     },
     {
       "name": "PART2_READ_WRAPAROUND",
-      "identifier": "0x00001A20",
+      "identifier": "0x00001A1F",
       "signal": "PART2_READ_WRAPAROUND_MSK",
       "non_secure_clients": true,
       "minor_version": 5,
@@ -184,7 +176,7 @@
     },
     {
       "name": "PART2_READ_EXCESE_INVEC",
-      "identifier": "0x00001A21",
+      "identifier": "0x00001A20",
       "signal": "PART2_READ_EXCESE_INVEC_MSK",
       "non_secure_clients": true,
       "minor_version": 5,
@@ -192,7 +184,7 @@
     },
     {
       "name": "PART2_WRITE_WRAPAROUND",
-      "identifier": "0x00001A22",
+      "identifier": "0x00001A21",
       "signal": "PART2_WRITE_WRAPAROUND_MSK",
       "non_secure_clients": true,
       "minor_version": 5,
@@ -200,7 +192,7 @@
     },
     {
       "name": "PART2_WRITE_EXCESE_OUTVEC",
-      "identifier": "0x00001A23",
+      "identifier": "0x00001A22",
       "signal": "PART2_WRITE_EXCESE_OUTVEC_MSK",
       "non_secure_clients": true,
       "minor_version": 5,
