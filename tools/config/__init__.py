@@ -575,6 +575,19 @@ class Config(object):
             except KeyError:
                 raise ConfigException("Not enough information in CMSIS packs to "
                                       "build a bootloader project")
+            
+        # Override rom_start/rom_size
+        #
+        # This is usually done for a target which:
+        # 1. Doesn't support CMSIS pack, or
+        # 2. Supports TrustZone and user needs to change its flash partition
+        rom_start_override = getattr(self.target, "mbed_rom_start", False)
+        if rom_start_override:
+            rom_start = int(rom_start_override, 0)
+        rom_size_override = getattr(self.target, "mbed_rom_size", False)
+        if rom_size_override:
+            rom_size = int(rom_size_override, 0)
+
         if self.target.bootloader_img or self.target.restrict_size:
             return self._generate_bootloader_build(rom_start, rom_size)
         elif self.target.mbed_app_start or self.target.mbed_app_size:
