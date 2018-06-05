@@ -731,7 +731,7 @@ class mbedToolchain:
 
         elif ext == self.LINKER_EXT:
             if resources.linker_script is not None:
-                self.info("Warning: Multiple linker scripts detected: %s -> %s" % (resources.linker_script, file_path))
+                self.notify.info("Warning: Multiple linker scripts detected: %s -> %s" % (resources.linker_script, file_path))
             resources.linker_script = file_path
 
         elif ext == '.lib':
@@ -1083,7 +1083,7 @@ class mbedToolchain:
         lib = self.STD_LIB_NAME % name
         fout = join(dir, lib)
         if self.need_update(fout, objects):
-            self.info("Library: %s" % lib)
+            self.notify.info("Library: %s" % lib)
             self.archive(objects, fout)
             needed_update = True
 
@@ -1173,7 +1173,7 @@ class mbedToolchain:
 
         # Parse and decode a map file
         if memap.parse(abspath(map), toolchain) is False:
-            self.info("Unknown toolchain for memory statistics %s" % toolchain)
+            self.notify.info("Unknown toolchain for memory statistics %s" % toolchain)
             return None
 
         # Store the memap instance for later use

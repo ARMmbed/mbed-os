@@ -184,7 +184,7 @@ if __name__ == '__main__':
                 skipped.append(tt_id)
             else:
                 try:
-                    notify = TerminalNotifer(options.verbose, options.silent)
+                    notifier = TerminalNotifier(options.verbose, options.silent)
                     mcu = TARGET_MAP[target]
                     profile = extract_profile(parser, options, toolchain)
                     if options.source_dir:
@@ -197,6 +197,7 @@ if __name__ == '__main__':
                             name=options.artifact_name,
                             build_profile=profile,
                             ignore=options.ignore,
+                            notify = notifier,
                         )
                     else:
                         lib_build_res = build_mbed_libs(
@@ -206,6 +207,7 @@ if __name__ == '__main__':
                             macros=options.macros,
                             build_profile=profile,
                             ignore=options.ignore,
+                            notify=notifier,
                         )
 
                     for lib_id in libraries:
