@@ -359,14 +359,12 @@ void ticker_insert_event_us(const ticker_data_t *const ticker, ticker_event_t *o
     /* if prev is NULL we're at the head */
     if (prev == NULL) {
         ticker->queue->head = obj;
+        schedule_interrupt(ticker);
     } else {
         prev->next = obj;
     }
 
-    schedule_interrupt(ticker);
-
     core_util_critical_section_exit();
-
 }
 
 void ticker_remove_event(const ticker_data_t *const ticker, ticker_event_t *obj)
