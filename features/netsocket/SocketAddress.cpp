@@ -18,6 +18,7 @@
 #include "NetworkInterface.h"
 #include "NetworkStack.h"
 #include <string.h>
+#include "ip6string.h"
 #include "mbed.h"
 
 
@@ -86,59 +87,9 @@ static void ipv4_from_address(uint8_t *bytes, const char *addr)
     }
 }
 
-static int ipv6_scan_chunk(uint16_t *shorts, const char *chunk) {
-    int count = 0;
-    int i = 0;
-
-    for (; count < NSAPI_IPv6_BYTES/2; count++) {
-        unsigned short s;
-        int scanned = sscanf(&chunk[i], "%hx", &s);
-        if (scanned < 1) {
-            return count;
-        }
-
-        shorts[count] = s;
-
-        for (; chunk[i] != ':'; i++) {
-            if (!chunk[i]) {
-                return count+1;
-            }
-        }
-
-        i++;
-    }
-
-    return count;
-}
-
 static void ipv6_from_address(uint8_t *bytes, const char *addr)
 {
-    // Start with zeroed address
-    uint16_t shorts[NSAPI_IPv6_BYTES/2];
-    int suffix = 0;
-
-    // Find double colons and scan suffix
-    for (int i = 0; addr[i]; i++) {
-        if (addr[i] == ':' && addr[i+1] == ':') {
-            suffix = ipv6_scan_chunk(shorts, &addr[i+2]);
-            break;
-        }
-    }
-
-    // Move suffix to end
-    memmove(&shorts[NSAPI_IPv6_BYTES/2-suffix], &shorts[0],
-            suffix*sizeof(uint16_t));
-    memset(&shorts[0], 0,
-            (NSAPI_IPv6_BYTES/2-suffix)*sizeof(uint16_t));
-
-    // Scan prefix
-    ipv6_scan_chunk(shorts, &addr[0]);
-
-    // Flip bytes
-    for (int i = 0; i < NSAPI_IPv6_BYTES/2; i++) {
-        bytes[2*i+0] = (uint8_t)(shorts[i] >> 8);
-        bytes[2*i+1] = (uint8_t)(shorts[i] >> 0);
-    }
+    stoip6(addr, strlen(addr), bytes);
 }
 
 static void ipv4_to_address(char *addr, const uint8_t *bytes)
@@ -148,11 +99,7 @@ static void ipv4_to_address(char *addr, const uint8_t *bytes)
 
 static void ipv6_to_address(char *addr, const uint8_t *bytes)
 {
-    for (int i = 0; i < NSAPI_IPv6_BYTES/2; i++) {
-        sprintf(&addr[5*i], "%02x%02x", bytes[2*i], bytes[2*i+1]);
-        addr[5*i+4] = ':';
-    }
-    addr[NSAPI_IPv6_SIZE-1] = '\0';
+    ip6tos(bytes, addr);
 }
 
 
