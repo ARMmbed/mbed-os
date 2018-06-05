@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
  *******************************************************************************
- * Copyright (c) 2015, STMicroelectronics
+ * Copyright (c) 2018, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,6 +27,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 
@@ -133,6 +134,19 @@ typedef enum {
     SPI_SCK     = PB_3,
     SPI_CS      = PA_11,
     PWM_OUT     = PB_0,
+
+/**** OSCILLATOR pins ****/
+    RCC_OSC32_IN = PC_14,
+    RCC_OSC32_OUT = PC_15,
+
+/**** DEBUG pins ****/
+    SYS_PVD_IN = PB_7,
+    SYS_SWCLK = PA_14,
+    SYS_SWDIO = PA_13,
+    SYS_VREF_OUT_PB0 = PB_0,
+    SYS_VREF_OUT_PB1 = PB_1,
+    SYS_WKUP1 = PA_0,
+    SYS_WKUP3 = PA_2,
 
     // Not connected
     NC = (int)0xFFFFFFFF

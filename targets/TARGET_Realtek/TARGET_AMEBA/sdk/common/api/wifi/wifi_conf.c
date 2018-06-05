@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include <dhcp/dhcps.h>
+//#include <dhcp/dhcps.h>
 //#include <flash/stm32_flash.h>
 #include <platform/platform_stdlib.h>
 #include <wifi/wifi_conf.h>
@@ -1001,7 +1001,9 @@ int wifi_off(void)
 		return 0;
 	}
 #if CONFIG_LWIP_LAYER
-	dhcps_deinit();
+#ifndef CONFIG_MBED_ENABLED
+    dhcps_deinit();
+#endif
 #if !DEVICE_EMAC
 	LwIP_DHCP(0, DHCP_STOP);
 	netif_set_down(&xnetif[0]);
@@ -1043,7 +1045,9 @@ int wifi_off(void)
 int wifi_off_fastly(void)
 {
 #if CONFIG_LWIP_LAYER
-	dhcps_deinit();
+#ifndef CONFIG_MBED_ENABLED
+    dhcps_deinit();
+#endif
 #if !DEVICE_EMAC
 	LwIP_DHCP(0, DHCP_STOP);
 #endif
@@ -1688,7 +1692,9 @@ int wifi_restart_ap(
 	}
 	
 	// stop dhcp server
-	dhcps_deinit();
+#ifndef CONFIG_MBED_ENABLED
+    dhcps_deinit();
+#endif
 
 #ifdef  CONFIG_CONCURRENT_MODE
 	if(idx > 0){

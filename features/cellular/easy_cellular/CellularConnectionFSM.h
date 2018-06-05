@@ -107,7 +107,8 @@ public:
      */
     CellularDevice* get_device();
 
-    /** Get cellular sim interface
+    /** Get cellular sim interface. After SIM is open and ready (move from state STATE_SIM_PIN) SIM interface is closed to save resources.
+     *  After SIM interface is closed this method will return NULL and any instances got via this method before this are invalid.
      *  @return sim interface, NULL on failure
      */
     CellularSIM* get_sim();
@@ -144,7 +145,6 @@ private:
     NetworkStack *get_stack();
 
 private:
-    void device_ready();
     void report_failure(const char* msg);
     void event();
 
