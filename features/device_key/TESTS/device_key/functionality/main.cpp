@@ -100,6 +100,7 @@ void generate_derived_key_consistency_16_byte_key_long_consistency_test(char *ke
         TEST_ASSERT_EQUAL_INT(DEVICEKEY_SUCCESS, ret);
 
         memset(output1, 0, sizeof(output1));
+        memset(empty_buffer, 0, sizeof(empty_buffer));
         ret = devkey.generate_derived_key(salt, salt_size, output1, key_type);
         TEST_ASSERT_EQUAL_INT32(0, ret);
         bool is_empty = !memcmp(empty_buffer, output1, sizeof(output1));
@@ -158,6 +159,7 @@ void generate_derived_key_consistency_32_byte_key_long_consistency_test(char *ke
         TEST_ASSERT_EQUAL_INT(DEVICEKEY_SUCCESS, ret);
 
         memset(output1, 0, sizeof(output1));
+        memset(empty_buffer, 0, sizeof(empty_buffer));
         ret = devkey.generate_derived_key(salt, salt_size, output1, key_type);
         TEST_ASSERT_EQUAL_INT32(0, ret);
         bool is_empty = !memcmp(empty_buffer, output1, sizeof(output1));
@@ -307,6 +309,7 @@ void generate_derived_key_consistency_16_byte_key_test()
 
     size_t salt_size = sizeof(salt);
     memset(output1, 0, sizeof(output1));
+    memset(empty_buffer, 0, sizeof(empty_buffer));
     ret = devkey.generate_derived_key(salt, salt_size, output1, key_type);
     TEST_ASSERT_EQUAL_INT32(0, ret);
     bool is_empty = !memcmp(empty_buffer, output1, sizeof(output1));
@@ -341,6 +344,7 @@ void generate_derived_key_consistency_32_byte_key_test()
 
     size_t salt_size = sizeof(salt);
     memset(output1, 0, sizeof(output1));
+    memset(empty_buffer, 0, sizeof(empty_buffer));
     ret = devkey.generate_derived_key(salt, salt_size, output1, key_type);
     TEST_ASSERT_EQUAL_INT32(0, ret);
     bool is_empty = !memcmp(empty_buffer, output1, sizeof(output1));
@@ -434,7 +438,7 @@ void generate_derived_key_wrong_key_type_test()
     ret = inject_dummy_rot_key();
     TEST_ASSERT_EQUAL_INT(DEVICEKEY_SUCCESS, ret);
 
-    memset(output, 0, DEVICE_KEY_32BYTE);
+    memset(output, 0, DEVICE_KEY_16BYTE);
     ret = devkey.generate_derived_key(salt, salt_size, output, 12);//96 bit key type is not supported
     TEST_ASSERT_EQUAL_INT32(DEVICEKEY_INVALID_KEY_TYPE, ret);
 
