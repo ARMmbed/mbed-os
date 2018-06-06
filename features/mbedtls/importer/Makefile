@@ -68,8 +68,9 @@ deploy: rsync
 	# Adjusting the default mbed TLS config file to mbed purposes
 	./adjust-config.sh $(MBED_TLS_DIR)/scripts/config.pl $(TARGET_INC)/mbedtls/config.h
 	#
-	# Copy the trimmed config that does not require entropy source
+	# Copy and adjust the trimmed config that does not require entropy source
 	cp $(MBED_TLS_DIR)/configs/config-no-entropy.h $(TARGET_INC)/mbedtls/.
+	./adjust-no-entropy-config.sh $(MBED_TLS_DIR)/scripts/config.pl $(TARGET_INC)/mbedtls/config-no-entropy.h
 
 deploy-tests: deploy
 	#
