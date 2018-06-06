@@ -62,3 +62,8 @@ TEST(AT_CellularSIM, test_AT_CellularSIM_get_sim_state)
     unit->test_AT_CellularSIM_get_sim_state();
 }
 
+TEST(AT_CellularSIM, test_AT_CellularSIM_get_imsi)
+{
+    unit->test_AT_CellularSIM_get_imsi();
+}
+

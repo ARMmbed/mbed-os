@@ -33,6 +33,8 @@ public:
     void test_AT_CellularSIM_set_pin_query();
 
     void test_AT_CellularSIM_get_sim_state();
+
+    void test_AT_CellularSIM_get_imsi();
 };
 
 #endif // TEST_AT_CELLULARSIM_H
