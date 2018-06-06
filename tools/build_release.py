@@ -78,6 +78,8 @@ if __name__ == '__main__':
     if options.platforms != "":
         platforms = set(options.platforms.split(","))
 
+    status = True
+
     if options.build_tests:
         # Get all paths
         directories = options.build_tests.split(',')
@@ -182,6 +184,7 @@ if __name__ == '__main__':
 
                 except Exception, e:
                     print str(e)
+                    status = False
 
     # copy targets.json file as part of the release
     copy(join(dirname(abspath(__file__)), '..', 'targets', 'targets.json'), MBED_LIBRARIES)
@@ -194,7 +197,7 @@ if __name__ == '__main__':
     print "\n\nCompleted in: (%.2f)s" % (time() - start)
 
     print_report_exporter = ReportExporter(ResultExporterType.PRINT, package="build")
-    status = print_report_exporter.report(build_report)
+    status = status and print_report_exporter.report(build_report)
 
     if not status:
         sys.exit(1)
