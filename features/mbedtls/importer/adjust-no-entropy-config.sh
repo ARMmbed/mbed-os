@@ -2,14 +2,14 @@
 #
 # This file is part of mbed TLS (https://tls.mbed.org)
 #
-# Copyright (c) 2015-2018, ARM Limited, All Rights Reserved
+# Copyright (c) 2018, ARM Limited, All Rights Reserved
 #
 # Purpose
 #
 # Comments and uncomments #define lines in the given configuration header file
 # to configure the file for use in mbed OS.
 #
-# Usage: adjust-config.sh [path to config script] [path to no-entropy config file]
+# Usage: adjust-no-entropy-config.sh [path to config script] [path to no-entropy config file]
 #
 set -eu
 
