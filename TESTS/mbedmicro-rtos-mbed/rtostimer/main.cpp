@@ -30,6 +30,10 @@ using namespace utest::v1;
 #error invalid RESTART_DELAY_MS value
 #endif
 
+#if !DEVICE_USTICKER
+  #error [NOT_SUPPORTED] test not supported
+#endif
+
 class Stopwatch: public Timer {
 private:
     Semaphore _sem;
@@ -84,6 +88,11 @@ void sem_callback(Semaphore *sem)
 void error(const char* format, ...)
 {
     (void) format;
+}
+
+mbed_error_status_t mbed_error(mbed_error_status_t error_status, const char *error_msg, unsigned int error_value, const char *filename, int line_number) 
+{
+    return MBED_SUCCESS;
 }
 #endif
 

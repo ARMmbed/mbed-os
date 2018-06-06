@@ -66,13 +66,15 @@ static void ipv4_from_address(uint8_t *bytes, const char *addr)
     int i = 0;
 
     for (; count < NSAPI_IPv4_BYTES; count++) {
-        unsigned char b;
-        int scanned = sscanf(&addr[i], "%hhu", &b);
+        unsigned d;
+        // Not using %hh, since it might be missing in newlib-based toolchains.
+        // See also: https://git.io/vxiw5
+        int scanned = sscanf(&addr[i], "%u", &d);
         if (scanned < 1) {
             return;
         }
 
-        bytes[count] = b;
+        bytes[count] = static_cast<uint8_t>(d);
 
         for (; addr[i] != '.'; i++) {
             if (!addr[i]) {

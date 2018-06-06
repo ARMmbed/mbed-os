@@ -18,20 +18,108 @@
 * you agree to the additional terms and conditions found by accessing the
 * following link:
 * http://www.renesas.com/disclaimer*
-* Copyright (C) 2013-2014 Renesas Electronics Corporation. All rights reserved.
+* Copyright (C) 2013-2015 Renesas Electronics Corporation. All rights reserved.
 *******************************************************************************/
 /*******************************************************************************
 * File Name : ceu_iodefine.h
 * $Rev: $
 * $Date::                           $
-* Description : Definition of I/O Register (V1.00a)
+* Description : Definition of I/O Register for RZ/A1H,M (V2.00h)
 ******************************************************************************/
 #ifndef CEU_IODEFINE_H
 #define CEU_IODEFINE_H
+/* ->QAC 0639 : Over 127 members (C90) */
+/* ->QAC 0857 : Over 1024 #define (C90) */
+/* ->MISRA 18.4 : Pack unpack union */ /* ->SEC M1.6.2 */
 /* ->SEC M1.10.1 : Not magic number */
 
-struct st_ceu
-{                                                          /* CEU              */
+#define CEU     (*(struct st_ceu     *)0xE8210000uL) /* CEU */
+
+
+/* Start of channel array defines of CEU */
+
+/* Channel array defines of CEUn */
+/*(Sample) value = CEUn[ channel ]->CAMOR; */
+#define CEUn_COUNT  (3)
+#define CEUn_ADDRESS_LIST \
+{   /* ->MISRA 11.3 */ /* ->SEC R2.7.1 */ \
+    (volatile struct st_ceu_n*)&CEU_A, \
+    (volatile struct st_ceu_n*)&CEU_B, \
+    (volatile struct st_ceu_n*)&CEU_M \
+}   /* <-MISRA 11.3 */ /* <-SEC R2.7.1 */ /* { } is for MISRA 19.4 */
+#define CEU_A   (*(struct st_ceu_n *)&CEU.CAPSR)                 /* CEU_A */
+#define CEU_B   (*(struct st_ceu_n *)&CEU.dummy3111)             /* CEU_B */
+#define CEU_M   (*(struct st_ceu_n *)&CEU.dummy3151)             /* CEU_M */
+
+/* End of channel array defines of CEU */
+
+
+#define CEUCAPSR (CEU.CAPSR)
+#define CEUCAPCR (CEU.CAPCR)
+#define CEUCAMCR (CEU.CAMCR)
+#define CEUCMCYR (CEU.CMCYR)
+#define CEUCAMOR_A (CEU.CAMOR_A)
+#define CEUCAPWR_A (CEU.CAPWR_A)
+#define CEUCAIFR (CEU.CAIFR)
+#define CEUCRCNTR (CEU.CRCNTR)
+#define CEUCRCMPR (CEU.CRCMPR)
+#define CEUCFLCR_A (CEU.CFLCR_A)
+#define CEUCFSZR_A (CEU.CFSZR_A)
+#define CEUCDWDR_A (CEU.CDWDR_A)
+#define CEUCDAYR_A (CEU.CDAYR_A)
+#define CEUCDACR_A (CEU.CDACR_A)
+#define CEUCDBYR_A (CEU.CDBYR_A)
+#define CEUCDBCR_A (CEU.CDBCR_A)
+#define CEUCBDSR_A (CEU.CBDSR_A)
+#define CEUCFWCR (CEU.CFWCR)
+#define CEUCLFCR_A (CEU.CLFCR_A)
+#define CEUCDOCR_A (CEU.CDOCR_A)
+#define CEUCEIER (CEU.CEIER)
+#define CEUCETCR (CEU.CETCR)
+#define CEUCSTSR (CEU.CSTSR)
+#define CEUCDSSR (CEU.CDSSR)
+#define CEUCDAYR2_A (CEU.CDAYR2_A)
+#define CEUCDACR2_A (CEU.CDACR2_A)
+#define CEUCDBYR2_A (CEU.CDBYR2_A)
+#define CEUCDBCR2_A (CEU.CDBCR2_A)
+#define CEUCAMOR_B (CEU.CAMOR_B)
+#define CEUCAPWR_B (CEU.CAPWR_B)
+#define CEUCFLCR_B (CEU.CFLCR_B)
+#define CEUCFSZR_B (CEU.CFSZR_B)
+#define CEUCDWDR_B (CEU.CDWDR_B)
+#define CEUCDAYR_B (CEU.CDAYR_B)
+#define CEUCDACR_B (CEU.CDACR_B)
+#define CEUCDBYR_B (CEU.CDBYR_B)
+#define CEUCDBCR_B (CEU.CDBCR_B)
+#define CEUCBDSR_B (CEU.CBDSR_B)
+#define CEUCLFCR_B (CEU.CLFCR_B)
+#define CEUCDOCR_B (CEU.CDOCR_B)
+#define CEUCDAYR2_B (CEU.CDAYR2_B)
+#define CEUCDACR2_B (CEU.CDACR2_B)
+#define CEUCDBYR2_B (CEU.CDBYR2_B)
+#define CEUCDBCR2_B (CEU.CDBCR2_B)
+#define CEUCAMOR_M (CEU.CAMOR_M)
+#define CEUCAPWR_M (CEU.CAPWR_M)
+#define CEUCFLCR_M (CEU.CFLCR_M)
+#define CEUCFSZR_M (CEU.CFSZR_M)
+#define CEUCDWDR_M (CEU.CDWDR_M)
+#define CEUCDAYR_M (CEU.CDAYR_M)
+#define CEUCDACR_M (CEU.CDACR_M)
+#define CEUCDBYR_M (CEU.CDBYR_M)
+#define CEUCDBCR_M (CEU.CDBCR_M)
+#define CEUCBDSR_M (CEU.CBDSR_M)
+#define CEUCLFCR_M (CEU.CLFCR_M)
+#define CEUCDOCR_M (CEU.CDOCR_M)
+#define CEUCDAYR2_M (CEU.CDAYR2_M)
+#define CEUCDACR2_M (CEU.CDACR2_M)
+#define CEUCDBYR2_M (CEU.CDBYR2_M)
+#define CEUCDBCR2_M (CEU.CDBCR2_M)
+
+
+typedef struct st_ceu
+{
+                                                           /* CEU              */
+
 /* start of struct st_ceu_n */
     volatile uint32_t  CAPSR;                                  /*  CAPSR           */
     volatile uint32_t  CAPCR;                                  /*  CAPCR           */
@@ -67,8 +155,10 @@ struct st_ceu
     volatile uint32_t  CDACR2_A;                               /*  CDACR2_A        */
     volatile uint32_t  CDBYR2_A;                               /*  CDBYR2_A        */
     volatile uint32_t  CDBCR2_A;                               /*  CDBCR2_A        */
+
 /* end of struct st_ceu_n */
     volatile uint8_t   dummy3110[3936];                        /*                  */
+
 /* start of struct st_ceu_n */
     volatile uint8_t   dummy3111[4];                           /*                  */
     volatile uint8_t   dummy3112[4];                           /*                  */
@@ -104,8 +194,10 @@ struct st_ceu
     volatile uint32_t  CDACR2_B;                               /*  CDACR2_B        */
     volatile uint32_t  CDBYR2_B;                               /*  CDBYR2_B        */
     volatile uint32_t  CDBCR2_B;                               /*  CDBCR2_B        */
+
 /* end of struct st_ceu_n */
     volatile uint8_t   dummy3150[3936];                        /*                  */
+
 /* start of struct st_ceu_n */
     volatile uint8_t   dummy3151[4];                           /*                  */
     volatile uint8_t   dummy3152[4];                           /*                  */
@@ -141,12 +233,14 @@ struct st_ceu
     volatile uint32_t  CDACR2_M;                               /*  CDACR2_M        */
     volatile uint32_t  CDBYR2_M;                               /*  CDBYR2_M        */
     volatile uint32_t  CDBCR2_M;                               /*  CDBCR2_M        */
+
 /* end of struct st_ceu_n */
-};
+} r_io_ceu_t;
 
 
-struct st_ceu_n
+typedef struct st_ceu_n
 {
+ 
     volatile uint32_t  not_common1;                            /*                  */
     volatile uint32_t  not_common2;                            /*                  */
     volatile uint32_t  not_common3;                            /*                  */
@@ -181,89 +275,21 @@ struct st_ceu_n
     volatile uint32_t  CDACR2;                                 /*  CDACR2          */
     volatile uint32_t  CDBYR2;                                 /*  CDBYR2          */
     volatile uint32_t  CDBCR2;                                 /*  CDBCR2          */
-};
+} r_io_ceu_n_t;
 
 
-#define CEU     (*(struct st_ceu     *)0xE8210000uL) /* CEU */
+/* Channel array defines of CEUn (2)*/
+#ifdef  DECLARE_CEUn_CHANNELS
+volatile struct st_ceu_n*  CEUn[ CEUn_COUNT ] =
+    /* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
+    CEUn_ADDRESS_LIST;
+    /* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
+#endif  /* DECLARE_CEUn_CHANNELS */
+/* End of channel array defines of CEUn (2)*/
 
 
-/* Start of channnel array defines of CEU */
-
-/* Channnel array defines of CEUn */
-/*(Sample) value = CEUn[ channel ]->CAMOR; */
-#define CEUn_COUNT  3
-#define CEUn_ADDRESS_LIST \
-{   /* ->MISRA 11.3 */ /* ->SEC R2.7.1 */ \
-    (volatile struct st_ceu_n*)&CEU_A, \
-    (volatile struct st_ceu_n*)&CEU_B, \
-    (volatile struct st_ceu_n*)&CEU_M \
-}   /* <-MISRA 11.3 */ /* <-SEC R2.7.1 */ /* { } is for MISRA 19.4 */
-#define CEU_A   (*(struct st_ceu_n *)&CEU.CAPSR)                 /* CEU_A */
-#define CEU_B   (*(struct st_ceu_n *)&CEU.dummy3111)             /* CEU_B */
-#define CEU_M   (*(struct st_ceu_n *)&CEU.dummy3151)             /* CEU_M */
-
-/* End of channnel array defines of CEU */
-
-
-#define CEUCAPSR CEU.CAPSR
-#define CEUCAPCR CEU.CAPCR
-#define CEUCAMCR CEU.CAMCR
-#define CEUCMCYR CEU.CMCYR
-#define CEUCAMOR_A CEU.CAMOR_A
-#define CEUCAPWR_A CEU.CAPWR_A
-#define CEUCAIFR CEU.CAIFR
-#define CEUCRCNTR CEU.CRCNTR
-#define CEUCRCMPR CEU.CRCMPR
-#define CEUCFLCR_A CEU.CFLCR_A
-#define CEUCFSZR_A CEU.CFSZR_A
-#define CEUCDWDR_A CEU.CDWDR_A
-#define CEUCDAYR_A CEU.CDAYR_A
-#define CEUCDACR_A CEU.CDACR_A
-#define CEUCDBYR_A CEU.CDBYR_A
-#define CEUCDBCR_A CEU.CDBCR_A
-#define CEUCBDSR_A CEU.CBDSR_A
-#define CEUCFWCR CEU.CFWCR
-#define CEUCLFCR_A CEU.CLFCR_A
-#define CEUCDOCR_A CEU.CDOCR_A
-#define CEUCEIER CEU.CEIER
-#define CEUCETCR CEU.CETCR
-#define CEUCSTSR CEU.CSTSR
-#define CEUCDSSR CEU.CDSSR
-#define CEUCDAYR2_A CEU.CDAYR2_A
-#define CEUCDACR2_A CEU.CDACR2_A
-#define CEUCDBYR2_A CEU.CDBYR2_A
-#define CEUCDBCR2_A CEU.CDBCR2_A
-#define CEUCAMOR_B CEU.CAMOR_B
-#define CEUCAPWR_B CEU.CAPWR_B
-#define CEUCFLCR_B CEU.CFLCR_B
-#define CEUCFSZR_B CEU.CFSZR_B
-#define CEUCDWDR_B CEU.CDWDR_B
-#define CEUCDAYR_B CEU.CDAYR_B
-#define CEUCDACR_B CEU.CDACR_B
-#define CEUCDBYR_B CEU.CDBYR_B
-#define CEUCDBCR_B CEU.CDBCR_B
-#define CEUCBDSR_B CEU.CBDSR_B
-#define CEUCLFCR_B CEU.CLFCR_B
-#define CEUCDOCR_B CEU.CDOCR_B
-#define CEUCDAYR2_B CEU.CDAYR2_B
-#define CEUCDACR2_B CEU.CDACR2_B
-#define CEUCDBYR2_B CEU.CDBYR2_B
-#define CEUCDBCR2_B CEU.CDBCR2_B
-#define CEUCAMOR_M CEU.CAMOR_M
-#define CEUCAPWR_M CEU.CAPWR_M
-#define CEUCFLCR_M CEU.CFLCR_M
-#define CEUCFSZR_M CEU.CFSZR_M
-#define CEUCDWDR_M CEU.CDWDR_M
-#define CEUCDAYR_M CEU.CDAYR_M
-#define CEUCDACR_M CEU.CDACR_M
-#define CEUCDBYR_M CEU.CDBYR_M
-#define CEUCDBCR_M CEU.CDBCR_M
-#define CEUCBDSR_M CEU.CBDSR_M
-#define CEUCLFCR_M CEU.CLFCR_M
-#define CEUCDOCR_M CEU.CDOCR_M
-#define CEUCDAYR2_M CEU.CDAYR2_M
-#define CEUCDACR2_M CEU.CDACR2_M
-#define CEUCDBYR2_M CEU.CDBYR2_M
-#define CEUCDBCR2_M CEU.CDBCR2_M
 /* <-SEC M1.10.1 */
+/* <-MISRA 18.4 */ /* <-SEC M1.6.2 */
+/* <-QAC 0857 */
+/* <-QAC 0639 */
 #endif

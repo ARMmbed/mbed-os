@@ -1,0 +1,41 @@
+/*
+ * Copyright (c) 2017, Arm Limited and affiliates.
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#ifndef CELLULAR_TARGETS_TELIT_HE910_TELIT_HE910_H_
+#define CELLULAR_TARGETS_TELIT_HE910_TELIT_HE910_H_
+
+#include "AT_CellularDevice.h"
+
+//the delay between sending AT commands
+#define DEFAULT_DELAY_BETWEEN_AT_COMMANDS 20
+
+namespace mbed {
+
+class TELIT_HE910 : public AT_CellularDevice
+{
+
+public:
+    TELIT_HE910(events::EventQueue &queue);
+    virtual ~TELIT_HE910();
+
+public: // from CellularDevice
+    virtual CellularPower *open_power(FileHandle *fh);
+    virtual CellularNetwork *open_network(FileHandle *fh);
+    virtual uint16_t get_send_delay();
+};
+} // namespace mbed
+#endif /* CELLULAR_TARGETS_TELIT_HE910_TELIT_HE910_H_ */

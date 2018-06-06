@@ -30,6 +30,10 @@ extern "C" {
 typedef struct gpio_s {
     struct arm_gpio_dev_t *gpio_dev;
     struct arm_mps2_io_dev_t *mps2_io_dev;
+    void (*arm_mps2_io_write)(struct arm_mps2_io_dev_t* dev,
+                            enum arm_mps2_io_access_t access,
+                            uint8_t pin_num,
+                            uint32_t value);
     uint32_t pin_number;
     PinDirection direction;
 } gpio_t;
@@ -58,21 +62,17 @@ struct i2c_s {
     uint32_t freq_us;       /* Stores I2C frequency in microseconds */
 };
 
-struct tsc_s {
-    MPS2_I2C_TypeDef *tsc;
-};
-
-struct audio_s {
-    MPS2_I2S_TypeDef *audio_I2S;
-    MPS2_I2C_TypeDef *audio_I2C;
-};
-
 struct spi_s {
     struct spi_pl022_dev_t *spi;
 };
 
 struct analogin_s {
     uint16_t ctrl_register;  /* Control bits with the channel identifier */
+};
+
+/* This TRNG structure is not used by the HAL implementation. */
+struct trng_s {
+    uint8_t not_used;
 };
 
 #ifdef __cplusplus

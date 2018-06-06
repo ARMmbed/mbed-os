@@ -145,7 +145,7 @@ HAL_StatusTypeDef HAL_PCD_Init(PCD_HandleTypeDef *hpcd)
 
   // MBED: added
   if(hpcd->State == HAL_PCD_STATE_RESET)
-  {  
+  {
     /* Allocate lock resource and initialize it */
     hpcd->Lock = HAL_UNLOCKED;
 	for (i = 0; i < hpcd->Init.dev_endpoints ; i++)
@@ -1300,7 +1300,7 @@ static HAL_StatusTypeDef PCD_WriteEmptyTxFifo(PCD_HandleTypeDef *hpcd, uint32_t 
 {
   USB_OTG_GlobalTypeDef *USBx = hpcd->Instance;
   USB_OTG_EPTypeDef *ep;
-  int32_t len = 0;
+  uint32_t len;
   uint32_t len32b;
   uint32_t fifoemptymsk = 0;
 
@@ -1334,7 +1334,7 @@ static HAL_StatusTypeDef PCD_WriteEmptyTxFifo(PCD_HandleTypeDef *hpcd, uint32_t 
     ep->xfer_count += len;
   }
 
-  if(len <= 0)
+  if (ep->xfer_count >= ep->xfer_len)
   {
     fifoemptymsk = 0x1 << epnum;
     atomic_clr_u32(&USBx_DEVICE->DIEPEMPMSK,  fifoemptymsk); // MBED: changed

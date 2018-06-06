@@ -2,13 +2,11 @@
   ******************************************************************************
   * @file    stm32l1xx_ll_fsmc.h
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    01-July-2016
   * @brief   Header file of FSMC HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -303,10 +301,10 @@ typedef struct
 /** @defgroup FSMC_NORSRAM_Bank FSMC NOR/SRAM Bank
   * @{
   */
-#define FSMC_NORSRAM_BANK1                       ((uint32_t)0x00000000)
-#define FSMC_NORSRAM_BANK2                       ((uint32_t)0x00000002)
-#define FSMC_NORSRAM_BANK3                       ((uint32_t)0x00000004)
-#define FSMC_NORSRAM_BANK4                       ((uint32_t)0x00000006)
+#define FSMC_NORSRAM_BANK1                       (0x00000000U)
+#define FSMC_NORSRAM_BANK2                       (0x00000002U)
+#define FSMC_NORSRAM_BANK3                       (0x00000004U)
+#define FSMC_NORSRAM_BANK4                       (0x00000006U)
 
 /**
   * @}
@@ -316,7 +314,7 @@ typedef struct
   * @{
   */
 
-#define FSMC_DATA_ADDRESS_MUX_DISABLE            ((uint32_t)0x00000000)
+#define FSMC_DATA_ADDRESS_MUX_DISABLE            (0x00000000U)
 #define FSMC_DATA_ADDRESS_MUX_ENABLE             ((uint32_t)FSMC_BCRx_MUXEN)
 
 /**
@@ -327,7 +325,7 @@ typedef struct
   * @{
   */
 
-#define FSMC_MEMORY_TYPE_SRAM                    ((uint32_t)0x00000000)
+#define FSMC_MEMORY_TYPE_SRAM                    (0x00000000U)
 #define FSMC_MEMORY_TYPE_PSRAM                   ((uint32_t)FSMC_BCRx_MTYP_0)
 #define FSMC_MEMORY_TYPE_NOR                     ((uint32_t)FSMC_BCRx_MTYP_1)
 
@@ -339,7 +337,7 @@ typedef struct
   * @{
   */
 
-#define FSMC_NORSRAM_MEM_BUS_WIDTH_8             ((uint32_t)0x00000000)
+#define FSMC_NORSRAM_MEM_BUS_WIDTH_8             (0x00000000U)
 #define FSMC_NORSRAM_MEM_BUS_WIDTH_16            ((uint32_t)FSMC_BCRx_MWID_0)
 #define FSMC_NORSRAM_MEM_BUS_WIDTH_32            ((uint32_t)FSMC_BCRx_MWID_1)
 
@@ -352,7 +350,7 @@ typedef struct
   */
 
 #define FSMC_NORSRAM_FLASH_ACCESS_ENABLE         ((uint32_t)FSMC_BCRx_FACCEN)
-#define FSMC_NORSRAM_FLASH_ACCESS_DISABLE        ((uint32_t)0x00000000)
+#define FSMC_NORSRAM_FLASH_ACCESS_DISABLE        (0x00000000U)
 /**
   * @}
   */
@@ -361,7 +359,7 @@ typedef struct
   * @{
   */
 
-#define FSMC_BURST_ACCESS_MODE_DISABLE           ((uint32_t)0x00000000)
+#define FSMC_BURST_ACCESS_MODE_DISABLE           (0x00000000U)
 #define FSMC_BURST_ACCESS_MODE_ENABLE            ((uint32_t)FSMC_BCRx_BURSTEN)
 
 /**
@@ -373,7 +371,7 @@ typedef struct
   * @{
   */
 
-#define FSMC_WAIT_SIGNAL_POLARITY_LOW            ((uint32_t)0x00000000)
+#define FSMC_WAIT_SIGNAL_POLARITY_LOW            (0x00000000U)
 #define FSMC_WAIT_SIGNAL_POLARITY_HIGH           ((uint32_t)FSMC_BCRx_WAITPOL)
 
 /**
@@ -384,7 +382,7 @@ typedef struct
   * @{
   */
 
-#define FSMC_WRAP_MODE_DISABLE                   ((uint32_t)0x00000000)
+#define FSMC_WRAP_MODE_DISABLE                   (0x00000000U)
 #define FSMC_WRAP_MODE_ENABLE                    ((uint32_t)FSMC_BCRx_WRAPMOD)
 
 /**
@@ -395,7 +393,7 @@ typedef struct
   * @{
   */
 
-#define FSMC_WAIT_TIMING_BEFORE_WS               ((uint32_t)0x00000000)
+#define FSMC_WAIT_TIMING_BEFORE_WS               (0x00000000U)
 #define FSMC_WAIT_TIMING_DURING_WS               ((uint32_t)FSMC_BCRx_WAITCFG)
 
 /**
@@ -406,7 +404,7 @@ typedef struct
   * @{
   */
 
-#define FSMC_WRITE_OPERATION_DISABLE             ((uint32_t)0x00000000)
+#define FSMC_WRITE_OPERATION_DISABLE             (0x00000000U)
 #define FSMC_WRITE_OPERATION_ENABLE              ((uint32_t)FSMC_BCRx_WREN)
 
 /**
@@ -417,7 +415,7 @@ typedef struct
   * @{
   */
 
-#define FSMC_WAIT_SIGNAL_DISABLE                 ((uint32_t)0x00000000)
+#define FSMC_WAIT_SIGNAL_DISABLE                 (0x00000000U)
 #define FSMC_WAIT_SIGNAL_ENABLE                  ((uint32_t)FSMC_BCRx_WAITEN)
 
 /**
@@ -428,7 +426,7 @@ typedef struct
   * @{
   */
 
-#define FSMC_EXTENDED_MODE_DISABLE               ((uint32_t)0x00000000)
+#define FSMC_EXTENDED_MODE_DISABLE               (0x00000000U)
 #define FSMC_EXTENDED_MODE_ENABLE                ((uint32_t)FSMC_BCRx_EXTMOD)
 
 /**
@@ -439,7 +437,7 @@ typedef struct
   * @{
   */
 
-#define FSMC_ASYNCHRONOUS_WAIT_DISABLE           ((uint32_t)0x00000000)
+#define FSMC_ASYNCHRONOUS_WAIT_DISABLE           (0x00000000U)
 #define FSMC_ASYNCHRONOUS_WAIT_ENABLE            ((uint32_t)FSMC_BCRx_ASYNCWAIT)
 
 /**
@@ -450,7 +448,7 @@ typedef struct
   * @{
   */
 
-#define FSMC_WRITE_BURST_DISABLE                 ((uint32_t)0x00000000)
+#define FSMC_WRITE_BURST_DISABLE                 (0x00000000U)
 #define FSMC_WRITE_BURST_ENABLE                  ((uint32_t)FSMC_BCRx_CBURSTRW)
 
 /**
@@ -461,7 +459,7 @@ typedef struct
   * @{
   */
 
-#define FSMC_ACCESS_MODE_A                        ((uint32_t)0x00000000)
+#define FSMC_ACCESS_MODE_A                        (0x00000000U)
 #define FSMC_ACCESS_MODE_B                        ((uint32_t)FSMC_BTRx_ACCMOD_0)
 #define FSMC_ACCESS_MODE_C                        ((uint32_t)FSMC_BTRx_ACCMOD_1)
 #define FSMC_ACCESS_MODE_D                        ((uint32_t)(FSMC_BTRx_ACCMOD_0 | FSMC_BTRx_ACCMOD_1))

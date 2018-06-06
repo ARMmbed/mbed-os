@@ -28,11 +28,9 @@ class GCC(mbedToolchain):
     STD_LIB_NAME = "lib%s.a"
     DIAGNOSTIC_PATTERN = re.compile('((?P<file>[^:]+):(?P<line>\d+):)(?P<col>\d+):? (?P<severity>warning|[eE]rror|fatal error): (?P<message>.+)')
 
-    def __init__(self, target,  notify=None, macros=None,
-                 silent=False, extra_verbose=False, build_profile=None,
+    def __init__(self, target,  notify=None, macros=None, build_profile=None,
                  build_dir=None):
-        mbedToolchain.__init__(self, target, notify, macros, silent,
-                               extra_verbose=extra_verbose,
+        mbedToolchain.__init__(self, target, notify, macros,
                                build_profile=build_profile, build_dir=build_dir)
 
         tool_path=TOOLCHAIN_PATHS['GCC_ARM']
@@ -48,21 +46,20 @@ class GCC(mbedToolchain):
             self.flags["ld"].append("--specs=nano.specs")
 
         if target.core == "Cortex-M0+":
-            cpu = "cortex-m0plus"
-        elif target.core == "Cortex-M4F":
-            cpu = "cortex-m4"
-        elif target.core == "Cortex-M7F":
-            cpu = "cortex-m7"
-        elif target.core == "Cortex-M7FD":
-            cpu = "cortex-m7"
-        elif target.core == "Cortex-M23-NS":
-            cpu = "cortex-m23"
-        elif target.core == "Cortex-M33-NS":
-            cpu = "cortex-m33"
+            self.cpu = ["-mcpu=cortex-m0plus"]
+        elif target.core.startswith("Cortex-M4"):
+            self.cpu = ["-mcpu=cortex-m4"]
+        elif target.core.startswith("Cortex-M7"):
+            self.cpu = ["-mcpu=cortex-m7"]
+        elif target.core.startswith("Cortex-M23"):
+            self.cpu = ["-mcpu=cortex-m23"]
+        elif target.core.startswith("Cortex-M33F"):
+            self.cpu = ["-mcpu=cortex-m33"]
+        elif target.core.startswith("Cortex-M33"):
+            self.cpu = ["-march=armv8-m.main"]
         else:
-            cpu = target.core.lower()
+            self.cpu = ["-mcpu={}".format(target.core.lower())]
 
-        self.cpu = ["-mcpu=%s" % cpu]
         if target.core.startswith("Cortex-M"):
             self.cpu.append("-mthumb")
 
@@ -85,7 +82,9 @@ class GCC(mbedToolchain):
             self.cpu.append("-mfloat-abi=hard")
             self.cpu.append("-mno-unaligned-access")
 
-        if target.core == "Cortex-M23" or target.core == "Cortex-M33":
+        if ((target.core.startswith("Cortex-M23") or
+             target.core.startswith("Cortex-M33")) and
+            not target.core.endswith("-NS")):
             self.cpu.append("-mcmse")
         elif target.core == "Cortex-M23-NS" or target.core == "Cortex-M33-NS":
              self.flags["ld"].append("-D__DOMAIN_NS=1")
@@ -118,7 +117,7 @@ class GCC(mbedToolchain):
             match = self.DIAGNOSTIC_PATTERN.search(line)
             if match is not None:
                 if msg is not None:
-                    self.cc_info(msg)
+                    self.notify.cc_info(msg)
                     msg = None
                 msg = {
                     'severity': match.group('severity').lower(),
@@ -132,7 +131,7 @@ class GCC(mbedToolchain):
                 }
 
         if msg is not None:
-            self.cc_info(msg)
+            self.notify.cc_info(msg)
 
     def get_dep_option(self, object):
         base, _ = splitext(object)
@@ -199,7 +198,7 @@ class GCC(mbedToolchain):
             preproc_output = join(dirname(output), ".link_script.ld")
             cmd = (self.preproc + [mem_map] + self.ld[1:] +
                    [ "-o", preproc_output])
-            self.cc_verbose("Preproc: %s" % ' '.join(cmd))
+            self.notify.cc_verbose("Preproc: %s" % ' '.join(cmd))
             self.default_cmd(cmd)
             mem_map = preproc_output
 
@@ -229,10 +228,10 @@ class GCC(mbedToolchain):
             cmd = [cmd_linker, "@%s" % link_files]
 
         # Exec command
-        self.cc_verbose("Link: %s" % ' '.join(cmd))
+        self.notify.cc_verbose("Link: %s" % ' '.join(cmd))
         self.default_cmd(cmd)
         if self.target.core == "Cortex-M23" or self.target.core == "Cortex-M33":
-            self.info("Secure Library Object %s" %secure_file)
+            self.notify.info("Secure Library Object %s" %secure_file)
 
     @hook_tool
     def archive(self, objects, lib_path):
@@ -255,7 +254,7 @@ class GCC(mbedToolchain):
         cmd = self.hook.get_cmdline_binary(cmd)
 
         # Exec command
-        self.cc_verbose("FromELF: %s" % ' '.join(cmd))
+        self.notify.cc_verbose("FromELF: %s" % ' '.join(cmd))
         self.default_cmd(cmd)
 
     @staticmethod

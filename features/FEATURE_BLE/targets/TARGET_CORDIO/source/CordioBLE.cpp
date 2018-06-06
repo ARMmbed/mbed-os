@@ -35,6 +35,7 @@
 #include "mbed_assert.h"
 
 #include "CordioPalAttClient.h"
+#include "CordioPalSecurityManager.h"
 
 /*! WSF handler ID */
 wsfHandlerId_t stack_handler_id;
@@ -163,24 +164,23 @@ const char* BLE::getVersion()
     return version;
 }
 
-::Gap& BLE::getGap()
+generic::GenericGap& BLE::getGap()
 {
-    typedef ::Gap& return_type;
-    const BLE* self = this;
-    return const_cast<return_type>(self->getGap());
-}
-
-const ::Gap& BLE::getGap() const
-{
-    static pal::vendor::cordio::Gap& cordio_pal_gap =
-        pal::vendor::cordio::Gap::get_gap();
     static pal::vendor::cordio::GenericAccessService cordio_gap_service;
     static ble::generic::GenericGap gap(
         _event_queue,
-        cordio_pal_gap,
-        cordio_gap_service
+        pal::vendor::cordio::Gap::get_gap(),
+        cordio_gap_service,
+        pal::vendor::cordio::CordioSecurityManager::get_security_manager()
     );
+
     return gap;
+}
+
+const generic::GenericGap& BLE::getGap() const
+{
+    BLE &self = const_cast<BLE&>(*this);
+    return const_cast<const generic::GenericGap&>(self.getGap());
 };
 
 GattServer& BLE::getGattServer()
@@ -193,7 +193,7 @@ const GattServer& BLE::getGattServer() const
     return cordio::GattServer::getInstance();
 }
 
-::GattClient& BLE::getGattClient()
+generic::GenericGattClient& BLE::getGattClient()
 {
     static pal::AttClientToGattClientAdapter pal_client(
         pal::vendor::cordio::CordioAttClient::get_client()
@@ -205,12 +205,20 @@ const GattServer& BLE::getGattServer() const
 
 SecurityManager& BLE::getSecurityManager()
 {
-    return cordio::SecurityManager::getInstance();
+    static SigningEventMonitorProxy signing_event_monitor(*this);
+    static generic::GenericSecurityManager m_instance(
+        pal::vendor::cordio::CordioSecurityManager::get_security_manager(),
+        getGap(),
+        signing_event_monitor
+    );
+
+    return m_instance;
 }
 
 const SecurityManager& BLE::getSecurityManager() const
 {
-    return cordio::SecurityManager::getInstance();
+    const BLE &self = const_cast<BLE&>(*this);
+    return const_cast<const SecurityManager&>(self.getSecurityManager());
 }
 
 void BLE::waitForEvent()
@@ -238,6 +246,10 @@ void BLE::processEvents()
  void BLE::stack_handler(wsfEventMask_t event, wsfMsgHdr_t* msg)
  {
     if (msg == NULL) {
+        return;
+    }
+
+    if (ble::pal::vendor::cordio::CordioSecurityManager::get_security_manager().sm_handler(msg)) {
         return;
     }
 
@@ -311,11 +323,10 @@ void BLE::stack_setup()
     SecInit();
 
     // Note: enable once security is supported
-#if 0
+    SecRandInit();
     SecAesInit();
     SecCmacInit();
     SecEccInit();
-#endif
 
     handlerId = WsfOsSetNextHandler(HciHandler);
     HciHandlerInit(handlerId);
@@ -329,10 +340,8 @@ void BLE::stack_setup()
     DmSecInit();
 
     // Note: enable once security is supported
-#if 0
     DmSecLescInit();
     DmPrivInit();
-#endif
     DmHandlerInit(handlerId);
 
     handlerId = WsfOsSetNextHandler(L2cSlaveHandler);
@@ -345,14 +354,21 @@ void BLE::stack_setup()
     AttHandlerInit(handlerId);
     AttsInit();
     AttsIndInit();
+    AttsSignInit();
+    AttsAuthorRegister(GattServer::atts_auth_cb);
     AttcInit();
+    AttcSignInit();
 
     handlerId = WsfOsSetNextHandler(SmpHandler);
     SmpHandlerInit(handlerId);
+    SmprInit();
     SmprScInit();
     SmpiInit();
+    SmpiScInit();
 
     stack_handler_id = WsfOsSetNextHandler(&BLE::stack_handler);
+
+    HciSetMaxRxAclLen(100);
 
     DmRegister(BLE::device_manager_cb);
     DmConnRegister(DM_CLIENT_ID_APP, BLE::device_manager_cb);

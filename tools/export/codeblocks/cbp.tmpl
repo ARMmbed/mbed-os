@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="{{project_name}}" />
+		<Option pch_mode="2" />
+		<Option compiler="arm-elf-gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin/Debug/{{project_name}}.elf" prefix_auto="1" extension_auto="0" />
+				<Option object_output="obj/Debug/" />
+				<Option type="1" />
+				<Option compiler="arm-elf-gcc" />
+				<Option use_console_runner="0" />
+				<Compiler>
+					{%  for f in debug_flags -%}
+					<Add option="{{f}}" />
+					{%  endfor -%}
+				</Compiler>
+				<Linker>
+					<Add option='-Wl,-Map,&quot;bin/Debug/{{project_name}}.map&quot;' />
+				</Linker>
+				{% if ncs36510addfib -%}
+				<ExtraCommands>
+					<Add after="ncs36510updatefib -u bin/Debug/{{project_name}}.elf" />
+				</ExtraCommands>
+				{% endif -%}
+			</Target>
+			<Target title="Release">
+				<Option output="bin/Release/{{project_name}}.elf" prefix_auto="1" extension_auto="0" />
+				<Option object_output="obj/Release/" />
+				<Option type="1" />
+				<Option compiler="arm-elf-gcc" />
+				<Option use_console_runner="0" />
+				<Compiler>
+                                        <Add option="-DNDEBUG" />
+					{%  for f in release_flags -%}
+					<Add option="{{f}}" />
+					{%  endfor -%}
+				</Compiler>
+				<Linker>
+					<Add option='-Wl,-Map,&quot;bin/Release/{{project_name}}.map&quot;' />
+				</Linker>
+				{% if ncs36510addfib -%}
+				<ExtraCommands>
+					<Add after="ncs36510updatefib -u bin/Release/{{project_name}}.elf" />
+				</ExtraCommands>
+				{% endif -%}
+			</Target>
+		</Build>
+		<Compiler>
+			{%  for f in comp_flags -%}
+			<Add option="{{f}}" />
+			{%  endfor -%}
+			{%  for f in include_paths -%}
+			<Add directory="{{f}}" />
+			{%  endfor -%}
+		</Compiler>
+		<Linker>
+			{%  for f in ld_flags -%}
+			<Add option="{{f}}" />
+			{%  endfor -%}
+			<Add option="-T {{linker_script}}" />
+			<Add option="-Wl,--start-group {{sys_libs|join(" ")}} {{libraries|join(" ")}} -Wl,--end-group" />
+			{%  for f in sys_libs -%}
+			<Add option="{{f}}" />
+			{%  endfor -%}
+			{%  for f in libraries -%}
+			<Add option="{{f}}" />
+			{%  endfor -%}
+		</Linker>
+		{%  for f in headers -%}
+		<Unit filename="{{f}}"/>
+		{%  endfor -%}
+		{%  for f in c_sources -%}
+		<Unit filename="{{f}}">
+			<Option compilerVar="CC" />
+		</Unit>
+		{%  endfor -%}
+		{%  for f in s_sources -%}
+		<Unit filename="{{f}}">
+			<Option compilerVar="CPP" />
+		</Unit>
+		{%  endfor -%}
+		{%  for f in cpp_sources -%}
+		<Unit filename="{{f}}">
+			<Option compilerVar="CPP" />
+		</Unit>
+		{%  endfor -%}
+		<Extensions>
+		        {% if openocdboard != '' -%}
+			<debugger>
+				<remote_debugging target="Release">
+					<options conn_type="3" serial_baud="115200" pipe_command="openocd -p -l openocd.log -f {{openocdboard}}" additional_cmds='monitor reset halt&#x0A;monitor flash write_image erase &quot;bin/Release/{{project_name}}.elf&quot;&#x0A;file &quot;bin/Release/{{project_name}}.elf&quot;&#x0A;monitor reset halt&#x0A;' extended_remote="1" />
+				</remote_debugging>
+				<remote_debugging target="Debug">
+					<options conn_type="3" serial_baud="115200" pipe_command="openocd -p -l openocd.log -f {{openocdboard}}" additional_cmds='monitor reset halt&#x0A;monitor flash write_image erase &quot;bin/Debug/{{project_name}}.elf&quot;&#x0A;file &quot;bin/Debug/{{project_name}}.elf&quot;&#x0A;monitor reset halt&#x0A;' extended_remote="1" />
+				</remote_debugging>
+			</debugger>
+			{% endif -%}
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

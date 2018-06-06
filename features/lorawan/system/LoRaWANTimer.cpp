@@ -18,7 +18,7 @@ Copyright (c) 2017, Arm Limited and affiliates.
 SPDX-License-Identifier: BSD-3-Clause
 */
 
-#include "lorawan/system/LoRaWANTimer.h"
+#include "LoRaWANTimer.h"
 
 LoRaWANTimeHandler::LoRaWANTimeHandler()
     : _queue(NULL)

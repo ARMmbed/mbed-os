@@ -26,22 +26,6 @@
 #define WSF_TYPES_H
 
 /**************************************************************************************************
-  Macros
-**************************************************************************************************/
-
-#ifndef NULL
-#define NULL  0
-#endif
-
-#ifndef TRUE
-#define TRUE  1
-#endif
-
-#ifndef FALSE
-#define FALSE 0
-#endif
-
-/**************************************************************************************************
   Data Types
 **************************************************************************************************/
 
@@ -60,7 +44,6 @@ typedef unsigned long uint32_t;
 typedef unsigned long long uint64_t;
 #endif
 
-/* Boolean data type */
-typedef uint8_t bool_t;
+#include <rtx_core_cm.h>
 
 #endif /* WSF_TYPES_H */

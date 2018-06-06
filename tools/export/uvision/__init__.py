@@ -1,3 +1,6 @@
+from __future__ import print_function, absolute_import
+from builtins import str
+
 import os
 from os.path import sep, normpath, join, exists
 import ntpath
@@ -11,9 +14,6 @@ from tools.arm_pack_manager import Cache
 from tools.targets import TARGET_MAP
 from tools.export.exporters import Exporter, apply_supported_whitelist
 from tools.export.cmsis import DeviceCMSIS
-
-cache_d = False
-
 
 class DeviceUvision(DeviceCMSIS):
     """Uvision Device class, inherits CMSIS Device class
@@ -178,7 +178,7 @@ class Uvision(Exporter):
         template = ["--no_vla", "--cpp", "--c99"]
         # Flag is invalid if set in template
         # Optimizations are also set in the template
-        invalid_flag = lambda x: x in template or re.match("-O(\d|time)", x) 
+        invalid_flag = lambda x: x in template or re.match("-O(\d|time)", x)
         flags['c_flags'] = [flag.replace('"','\\"') for flag in c_flags if not invalid_flag(flag)]
         flags['c_flags'] = " ".join(flags['c_flags'])
         flags['ld_flags'] = " ".join(flags['ld_flags'])
@@ -189,7 +189,7 @@ class Uvision(Exporter):
         grouped = self.group_project_files(srcs)
         for group, files in grouped.items():
             grouped[group] = sorted(list(self.uv_files(files)),
-                                    key=lambda (_, __, name): name.lower())
+                                    key=lambda tuple: tuple[2].lower())
         return grouped
 
     @staticmethod
@@ -205,8 +205,6 @@ class Uvision(Exporter):
     def generate(self):
         """Generate the .uvproj file"""
         cache = Cache(True, False)
-        if cache_d:
-            cache.cache_descriptors()
 
         srcs = self.resources.headers + self.resources.s_sources + \
                self.resources.c_sources + self.resources.cpp_sources + \
@@ -216,8 +214,9 @@ class Uvision(Exporter):
             # project_files => dict of generators - file group to generator of
             # UVFile tuples defined above
             'project_files': sorted(list(self.format_src(srcs).items()),
-                                    key=lambda (group, _): group.lower()),
-            'include_paths': '; '.join(self.resources.inc_dirs).encode('utf-8'),
+                                    key=lambda tuple: tuple[0].lower()),
+            'include_paths': ';'.join(self.filter_dot(d) for d in
+                                      self.resources.inc_dirs).encode('utf-8'),
             'device': DeviceUvision(self.target),
         }
         sct_file = self.resources.linker_script
@@ -262,7 +261,7 @@ class Uvision(Exporter):
 
         # Print the log file to stdout
         with open(log_name, 'r') as f:
-            print f.read()
+            print(f.read())
 
         # Cleanup the exported and built files
         if cleanup:

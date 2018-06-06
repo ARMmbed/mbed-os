@@ -1,11 +1,11 @@
 /**************************************************************************//**
  * @file     cmsis_armclang.h
  * @brief    CMSIS compiler specific macros, functions, instructions
- * @version  V1.0.1
- * @date     07. Sep 2017
+ * @version  V1.0.2
+ * @date     10. January 2018
  ******************************************************************************/
 /*
- * Copyright (c) 2009-2017 ARM Limited. All rights reserved.
+ * Copyright (c) 2009-2018 Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -28,7 +28,7 @@
 #pragma clang system_header   /* treat file as system include file */
 
 #ifndef __ARM_COMPAT_H
-#include <arm_compat.h>    /* Compatibility header for ARM Compiler 5 intrinsics */
+#include <arm_compat.h>    /* Compatibility header for Arm Compiler 5 intrinsics */
 #endif
 
 /* CMSIS compiler specific defines */

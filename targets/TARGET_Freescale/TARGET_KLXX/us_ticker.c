@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+ * Copyright (c) 2006-2018 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,15 +18,29 @@
 #include "PeripheralNames.h"
 #include "clk_freqs.h"
 
+const ticker_info_t* us_ticker_get_info()
+{
+    static const ticker_info_t info = {
+        1000000,    // 1 MHz
+             32     // 32 bit counter
+    };
+    return &info;
+}
+
+static bool us_ticker_inited = false;
+
 static void pit_init(void);
 static void lptmr_init(void);
 
-static int us_ticker_inited = 0;
 
 void us_ticker_init(void) {
-    if (us_ticker_inited) return;
-    us_ticker_inited = 1;
-    
+    if (us_ticker_inited) {
+        /* calling init again should cancel current interrupt */
+        us_ticker_disable_interrupt();
+        return;
+    }
+    us_ticker_inited = true;
+
     pit_init();
     lptmr_init();
 }
@@ -37,28 +51,25 @@ void us_ticker_init(void) {
 static void pit_init(void) {
     SIM->SCGC6 |= SIM_SCGC6_PIT_MASK;   // Clock PIT
     PIT->MCR = 0;                       // Enable PIT
-    
+
     // Channel 1
     PIT->CHANNEL[1].LDVAL = 0xFFFFFFFF;
     PIT->CHANNEL[1].TCTRL = PIT_TCTRL_CHN_MASK;    // Chain to timer 0, disable Interrupts
     PIT->CHANNEL[1].TCTRL |= PIT_TCTRL_TEN_MASK;   // Start timer 1
-    
+
     // Use channel 0 as a prescaler for channel 1
     PIT->CHANNEL[0].LDVAL = (bus_frequency() + 500000) / 1000000 - 1;
     PIT->CHANNEL[0].TCTRL = PIT_TCTRL_TEN_MASK;    // Start timer 0, disable interrupts
 }
 
 uint32_t us_ticker_read() {
-    if (!us_ticker_inited)
-        us_ticker_init();
-    
     // The PIT is a countdown timer
     return ~(PIT->CHANNEL[1].CVAL);
 }
 
 /******************************************************************************
  * Timer Event
- * 
+ *
  * It schedules interrupts at given (32bit)us interval of time.
  * It is implemented used the 16bit Low Power Timer that remains powered in all
  * power modes.
@@ -66,11 +77,11 @@ uint32_t us_ticker_read() {
 static void lptmr_isr(void);
 
 static void lptmr_init(void) {
-	uint32_t extosc;
+    uint32_t extosc;
 
     /* Clock the timer */
     SIM->SCGC5 |= SIM_SCGC5_LPTMR_MASK;
-    
+
     /* Reset */
     LPTMR0->CSR = 0;
 
@@ -114,7 +125,7 @@ static void lptmr_init(void) {
         }
     }
 #if defined(TARGET_KL43Z)
-    //No suitable actual IRC oscillator clock -> Set it to (8MHz / divider) 
+    //No suitable actual IRC oscillator clock -> Set it to (8MHz / divider)
     MCG->SC &= ~MCG_SC_FCRDIV_MASK;
     MCG->MC &= ~MCG->MC & MCG_MC_LIRC_DIV2_MASK;
     LPTMR0->PSR = LPTMR_PSR_PCS(0) | LPTMR_PSR_PRESCALE(2);
@@ -135,7 +146,7 @@ static void lptmr_init(void) {
             MCG->SC |= MCG_SC_FCRDIV(2);
             LPTMR0->PSR |= LPTMR_PSR_PBYP_MASK;
     }
-#endif    
+#endif
 }
 
 void us_ticker_disable_interrupt(void) {
@@ -152,13 +163,13 @@ static uint16_t us_ticker_int_remainder = 0;
 static void lptmr_set(unsigned short count) {
     /* Reset */
     LPTMR0->CSR = 0;
-    
+
     /* Set the compare register */
     LPTMR0->CMR = count;
-    
+
     /* Enable interrupt */
     LPTMR0->CSR |= LPTMR_CSR_TIE_MASK;
-    
+
     /* Start the timer */
     LPTMR0->CSR |= LPTMR_CSR_TEN_MASK;
 }
@@ -166,17 +177,20 @@ static void lptmr_set(unsigned short count) {
 static void lptmr_isr(void) {
     // write 1 to TCF to clear the LPT timer compare flag
     LPTMR0->CSR |= LPTMR_CSR_TCF_MASK;
-    
+
     if (us_ticker_int_counter > 0) {
         lptmr_set(0xFFFF);
         us_ticker_int_counter--;
-    
+
     } else {
         if (us_ticker_int_remainder > 0) {
             lptmr_set(us_ticker_int_remainder);
             us_ticker_int_remainder = 0;
-        
+
         } else {
+            /* Stop the timer */
+            LPTMR0->CSR &= ~LPTMR_CSR_TEN_MASK;
+
             // This function is going to disable the interrupts if there are
             // no other events in the queue
             us_ticker_irq_handler();

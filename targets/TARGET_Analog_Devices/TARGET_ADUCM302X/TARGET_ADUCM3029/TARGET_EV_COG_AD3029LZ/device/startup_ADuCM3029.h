@@ -7,7 +7,7 @@
  * @date:    $Date: $
  *-----------------------------------------------------------------------------
  *
-Copyright (c) 2010-2017 Analog Devices, Inc.
+Copyright (c) 2010-2018 Analog Devices, Inc.
 
 All rights reserved.
 
@@ -62,6 +62,8 @@ RESET_EXCPT_HNDLR
 #define __STARTUP_H__
 
 #define VECTOR_SECTION                 ".vectors"
+/* IVT typedefs. */
+typedef void( *pFunc )( void );
 
 #ifdef __ARMCC_VERSION
 void Default_Handler(void);
@@ -71,6 +73,8 @@ void Default_Handler(void);
 #define RESET_EXCPT_HNDLR              __main
 #define COMPILER_NAME                  "ARMCC"
 #define WEAK_FUNCTION(x)               void x (void) __attribute__((weak, alias("Default_Handler")));
+extern uint32_t Load$$LR$$LR_IROM1$$Base[];
+#define NVIC_FLASH_VECTOR_ADDRESS      ((uint32_t)Load$$LR$$LR_IROM1$$Base)
 
 #elif defined(__ICCARM__)
 #pragma diag_suppress=Pm093,Pm140
@@ -80,6 +84,8 @@ void Default_Handler(void);
 #define RESET_EXCPT_HNDLR              __iar_program_start
 #define COMPILER_NAME                  "ICCARM"
 #define WEAK_FUNCTION(x)    WEAK_FUNC  ( void x (void)) { while(1){} }
+#pragma section=VECTOR_SECTION
+#define NVIC_FLASH_VECTOR_ADDRESS      ((uint32_t)__section_begin(VECTOR_SECTION))
 
 #elif defined(__GNUC__)
 extern unsigned __etext;
@@ -105,8 +111,11 @@ extern int  __START(void) __attribute__((noreturn));    /* main entry point */
 #define IVT_NAME                       __Vectors
 #define COMPILER_NAME                  "GNUC"
 #define WEAK_FUNCTION(x)               void x (void) __attribute__ ((weak, alias("Default_Handler")));
+extern const pFunc IVT_NAME[];
+#define NVIC_FLASH_VECTOR_ADDRESS      ((uint32_t)IVT_NAME)
 #define __STARTUP_CLEAR_BSS_MULTIPLE
 #endif // __GNUC__
+
 #define LASTCRCPAGE                    0
 #define BLANKX4   0xFFFFFFFF
 #define BLANKX20  BLANKX4,BLANKX4,BLANKX4,BLANKX4,BLANKX4,BLANKX4,BLANKX4,BLANKX4
@@ -115,8 +124,6 @@ extern int  __START(void) __attribute__((noreturn));    /* main entry point */
 #define BLANKX60  BLANKX20,BLANKX20,BLANKX20
 void RESET_EXCPT_HNDLR(void);
 void Reset_Handler(void);
-/* IVT typedefs. */
-typedef void( *pFunc )( void );
 
 #define ADUCM3029_VECTORS           /* Cortex-M3 Exceptions Handler */ \
     Reset_Handler,                            /* -15 */                \

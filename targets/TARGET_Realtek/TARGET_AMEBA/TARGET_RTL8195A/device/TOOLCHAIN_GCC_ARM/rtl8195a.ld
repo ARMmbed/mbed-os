@@ -67,18 +67,17 @@ SECTIONS
     .text.sram1 :
     {
         . = ALIGN(4);
-        *rtl8195a_crypto.o (.text* .rodata*)
+        *rtl8195a_crypto*.o (.text* .rodata*)
         *mbedtls*.o (.text* .rodata*)
         *libc.a: (.text* .rodata*)
+        *lib_peripheral_mbed_gcc.a: (.text* .rodata*)
+        *_api*.o (.text* .rodata*)
+        *main*.o (.text* .rodata*)
     } > SRAM1
 
     .text.sram2 :
     {
         . = ALIGN(4);
-        *(.mon.ram.text*)
-        *(.hal.flash.text*)
-        *(.hal.sdrc.text*)
-        *(.hal.gpio.text*)
         *(.text*)
 
         KEEP(*(.init))
@@ -165,9 +164,11 @@ SECTIONS
     .bss.sram1 (NOLOAD) :
     {
         __bss_sram_start__ = .;
-        *rtl8195a_crypto.o (.bss* COMMON)
+        *rtl8195a_crypto*.o (.bss* COMMON)
         *mbedtls*.o (.bss* COMMON)
         *(.bss.thread_stack_main)
+        *lib_peripheral_mbed_gcc.a: (.bss* COMMON)
+        *mbed_boot*.o (.bss* COMMON)
         __bss_sram_end__ = .;
     } > SRAM1
 
@@ -198,11 +199,11 @@ SECTIONS
         __HeapLimit = .;
     } > SRAM1
     
-    .TCM_overlay :
+    .TCM_overlay (NOLOAD):
     {
         __bss_dtcm_start__ = .;
-        *lwip_mem.o (.bss*)
-        *lwip_memp.o (.bss*)
+        *lwip_mem*.o (.bss* COMMON)
+        *lwip_memp*.o (.bss* COMMON)
         *(.tcm.heap*)
         __bss_dtcm_end__ = .;
     } > TCM

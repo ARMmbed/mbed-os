@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_lptim.h
   * @author  MCD Application Team
-  * @version V1.7.0
-  * @date    31-May-2016
   * @brief   Header file of LPTIM HAL module.
   ******************************************************************************
   * @attention
@@ -113,7 +111,7 @@ typedef struct
 typedef struct
 {
   uint32_t Source;        /*!< Selects the Trigger source.
-                          This parameter can be a value of @ref LPTIMEx_Trigger_Source */
+                          This parameter can be a value of @ref LPTIM_Trigger_Source */
   
   uint32_t ActiveEdge;    /*!< Selects the Trigger active edge.
                           Note: This parameter is used only when an external trigger is used.

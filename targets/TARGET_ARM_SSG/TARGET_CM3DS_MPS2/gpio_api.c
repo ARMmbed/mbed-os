@@ -20,6 +20,8 @@
 #include "objects.h"
 #include "mbed_error.h"
 
+#define RESERVED_MISC_PIN 7u
+
 enum io_type {
     GPIO_DEVICE,
     MPS2_IO_DEVICE,
@@ -63,6 +65,38 @@ uint32_t gpio_set(PinName pin)
     }
 }
 
+/*
+ *  FPGA MISC bit mapping:
+ *    [31:7] Reserved
+ *    [6] CLCD_BL_CTRL
+ *    [5] CLCD_RD
+ *    [4] CLCD_RS
+ *    [3] CLCD_RESET
+ *    [2] Reserved
+ *    [1] SPI_nSS
+ *    [0] CLCD_CS
+ */
+static uint32_t gpio_fpga_misc_pin(PinName pin)
+{
+    uint32_t pin_number = RESERVED_MISC_PIN;
+
+    if (pin == CLCD_SSEL) {
+        pin_number = 0u;
+    } else if (pin == SPI_SSEL) {
+        pin_number = 1u;
+    } else if (pin == CLCD_RESET) {
+        pin_number = 3u;
+    } else if (pin == CLCD_RS) {
+        pin_number = 4u;
+    } else if (pin == CLCD_RD) {
+        pin_number = 5u;
+    } else if (pin == CLCD_BL_CTRL){
+        pin_number = 6u;
+    }
+
+    return pin_number;
+}
+
 void gpio_init(gpio_t *obj, PinName pin)
 {
     struct arm_gpio_dev_t *gpio_dev;
@@ -100,6 +134,7 @@ void gpio_init(gpio_t *obj, PinName pin)
 
         obj->gpio_dev = gpio_dev;
         obj->mps2_io_dev = NULL;
+        obj->arm_mps2_io_write = NULL;
         obj->pin_number = GPIO_PIN_NUMBER(pin);
         /* GPIO is input by default */
         obj->direction = PIN_INPUT;
@@ -112,14 +147,25 @@ void gpio_init(gpio_t *obj, PinName pin)
         obj->gpio_dev = NULL;
         obj->mps2_io_dev = &ARM_MPS2_IO_FPGAIO_DEV;
         obj->pin_number = pin - USERLED1;
+        obj->arm_mps2_io_write = arm_mps2_io_write_leds;
         obj->direction = PIN_OUTPUT;
         return;
     } else if (pin == USERSW1 || pin == USERSW2) {
         /* User Push buttons */
         obj->gpio_dev = NULL;
         obj->mps2_io_dev = &ARM_MPS2_IO_FPGAIO_DEV;
+        obj->arm_mps2_io_write = NULL;
         obj->pin_number = pin - USERSW1;
         obj->direction = PIN_INPUT;
+        return;
+    }
+    /* Check if pin is a MISC pin */
+    obj->pin_number = gpio_fpga_misc_pin(pin);
+    if (obj->pin_number != RESERVED_MISC_PIN) {
+        obj->gpio_dev = NULL;
+        obj->mps2_io_dev = &ARM_MPS2_IO_FPGAIO_DEV;
+        obj->arm_mps2_io_write = arm_mps2_io_write_misc;
+        obj->direction = PIN_OUTPUT;
         return;
     }
 #endif /* ARM_MPS2_IO_FPGAIO */
@@ -129,6 +175,7 @@ void gpio_init(gpio_t *obj, PinName pin)
         /* MCC LEDs */
         obj->gpio_dev = NULL;
         obj->mps2_io_dev = &ARM_MPS2_IO_SCC_DEV;
+        obj->arm_mps2_io_write = NULL;
         obj->pin_number = pin - LED1;
         obj->direction = PIN_OUTPUT;
         return;
@@ -136,6 +183,7 @@ void gpio_init(gpio_t *obj, PinName pin)
         /* MCC Switches */
         obj->gpio_dev = NULL;
         obj->mps2_io_dev = &ARM_MPS2_IO_SCC_DEV;
+        obj->arm_mps2_io_write = NULL;
         obj->pin_number = pin - SW1;
         obj->direction = PIN_INPUT;
         return;
@@ -208,8 +256,10 @@ void gpio_write(gpio_t *obj, int value)
              */
             return;
         }
-        arm_mps2_io_write_leds(obj->mps2_io_dev, ARM_MPS2_IO_ACCESS_PIN,
+        if (obj->arm_mps2_io_write != NULL) {
+            obj->arm_mps2_io_write(obj->mps2_io_dev, ARM_MPS2_IO_ACCESS_PIN,
                                obj->pin_number, (uint32_t)value);
+        }
         return;
     case DEVICE_UNKNOWN:
         break;

@@ -24,6 +24,7 @@
 #endif
 
 #elif defined(TARGET_LPC11U24)        \
+     || defined(TARGET_LPC11CXX)  \
      || defined(TARGET_LPC11U35_401)  \
      || defined(TARGET_LPC11U35_501)  \
      || defined(TARGET_LPCCAPPUCCINO)

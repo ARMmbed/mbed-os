@@ -142,6 +142,15 @@ public:
         return 0;
     }
 
+    /** Check current blocking or non-blocking mode for file operations.
+     *
+     *  @return             true for blocking mode, false for non-blocking mode.
+     */
+    virtual bool is_blocking() const
+    {
+        return _blocking;
+    }
+
     /** Register a callback on state change of the file.
      *
      *  The specified callback will be called on state changes such as when

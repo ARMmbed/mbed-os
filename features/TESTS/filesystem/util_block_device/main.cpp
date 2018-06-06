@@ -48,6 +48,7 @@ void test_slicing() {
     TEST_ASSERT_EQUAL(0, err);
 
     TEST_ASSERT_EQUAL(BLOCK_SIZE, slice1.get_program_size());
+    TEST_ASSERT_EQUAL(BLOCK_SIZE, slice1.get_erase_size(BLOCK_SIZE));
     TEST_ASSERT_EQUAL((BLOCK_COUNT/2)*BLOCK_SIZE, slice1.size());
 
     // Fill with random sequence
@@ -142,6 +143,7 @@ void test_chaining() {
     TEST_ASSERT_EQUAL(0, err);
 
     TEST_ASSERT_EQUAL(BLOCK_SIZE, chain.get_program_size());
+    TEST_ASSERT_EQUAL(BLOCK_SIZE, chain.get_erase_size((BLOCK_COUNT/2)*BLOCK_SIZE+1));
     TEST_ASSERT_EQUAL(BLOCK_COUNT*BLOCK_SIZE, chain.size());
 
     // Fill with random sequence

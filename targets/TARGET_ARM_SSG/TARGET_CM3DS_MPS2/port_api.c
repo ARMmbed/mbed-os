@@ -25,7 +25,7 @@ PinName port_pin(PortName port, int pin_n)
         return NC;
     }
 
-    return (PINS_PER_GPIO * port + pin_n);
+    return (PinName)(PINS_PER_GPIO * port + pin_n);
 }
 
 void port_init(port_t *obj, PortName port, int mask, PinDirection dir)

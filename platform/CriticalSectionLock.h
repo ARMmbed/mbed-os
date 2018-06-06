@@ -68,6 +68,7 @@ public:
     }
 
     /** Mark the start of a critical section
+     *  @deprecated This function is inconsistent with RAII and is being removed in the future. Replaced by static function CriticalSectionLock::enable.
      *
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.8",
@@ -79,6 +80,7 @@ public:
     }
 
     /** Mark the end of a critical section
+     *  @deprecated This function is inconsistent with RAII and is being removed in the future. Replaced by static function CriticalSectionLock::enable.
      *
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.8",

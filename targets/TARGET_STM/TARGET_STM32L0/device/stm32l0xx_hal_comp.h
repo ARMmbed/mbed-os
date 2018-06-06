@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_comp.h
   * @author  MCD Application Team
-  * @version V1.7.0
-  * @date    31-May-2016
   * @brief   Header file of COMP HAL module.
   ******************************************************************************
   * @attention
@@ -586,7 +584,7 @@ typedef struct
                                                      ((LPTIMCONNECTION) == COMP_LPTIMCONNECTION_IN2_ENABLED))
 
 #define IS_COMP2_LPTIMCONNECTION_RESTRICTED(LPTIMCONNECTION)   (((LPTIMCONNECTION) == COMP_LPTIMCONNECTION_DISABLED) || \
-                                                                ((LPTIMCONNECTION) == COMP_LPTIMCONNECTION_IN2_ENABLED))
+                                                                ((LPTIMCONNECTION) == COMP_LPTIMCONNECTION_IN1_ENABLED))
 
 #define IS_COMP_OUTPUTPOL(POL)  (((POL) == COMP_OUTPUTPOL_NONINVERTED)  || \
                                  ((POL) == COMP_OUTPUTPOL_INVERTED))

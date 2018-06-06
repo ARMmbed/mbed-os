@@ -18,20 +18,88 @@
 * you agree to the additional terms and conditions found by accessing the
 * following link:
 * http://www.renesas.com/disclaimer*
-* Copyright (C) 2013-2014 Renesas Electronics Corporation. All rights reserved.
+* Copyright (C) 2013-2015 Renesas Electronics Corporation. All rights reserved.
 *******************************************************************************/
 /*******************************************************************************
 * File Name : jcu_iodefine.h
 * $Rev: $
 * $Date::                           $
-* Description : Definition of I/O Register (V1.00a)
+* Description : Definition of I/O Register for RZ/A1H,M (V2.00h)
 ******************************************************************************/
 #ifndef JCU_IODEFINE_H
 #define JCU_IODEFINE_H
+/* ->QAC 0639 : Over 127 members (C90) */
+/* ->QAC 0857 : Over 1024 #define (C90) */
+/* ->MISRA 18.4 : Pack unpack union */ /* ->SEC M1.6.2 */
 /* ->SEC M1.10.1 : Not magic number */
 
-struct st_jcu
-{                                                          /* JCU              */
+#define JCU     (*(struct st_jcu     *)0xE8017000uL) /* JCU */
+
+
+/* Start of channel array defines of JCU */
+
+/* Channel array defines of JCU_JCQTBL0 */
+/*(Sample) value = JCU_JCQTBL0[ channel ]->JCQTBL0; */
+#define JCU_JCQTBL0_COUNT  (4)
+#define JCU_JCQTBL0_ADDRESS_LIST \
+{   /* ->MISRA 11.3 */ /* ->SEC R2.7.1 */ \
+    &JCU_FROM_JCQTBL0, &JCU_FROM_JCQTBL1, &JCU_FROM_JCQTBL2, &JCU_FROM_JCQTBL3 \
+}   /* <-MISRA 11.3 */ /* <-SEC R2.7.1 */ /* { } is for MISRA 19.4 */
+#define JCU_FROM_JCQTBL0 (*(struct st_jcu_from_jcqtbl0 *)&JCU.JCQTBL0) /* JCU_FROM_JCQTBL0 */
+#define JCU_FROM_JCQTBL1 (*(struct st_jcu_from_jcqtbl0 *)&JCU.JCQTBL1) /* JCU_FROM_JCQTBL1 */
+#define JCU_FROM_JCQTBL2 (*(struct st_jcu_from_jcqtbl0 *)&JCU.JCQTBL2) /* JCU_FROM_JCQTBL2 */
+#define JCU_FROM_JCQTBL3 (*(struct st_jcu_from_jcqtbl0 *)&JCU.JCQTBL3) /* JCU_FROM_JCQTBL3 */
+
+/* End of channel array defines of JCU */
+
+
+#define JCUJCMOD (JCU.JCMOD)
+#define JCUJCCMD (JCU.JCCMD)
+#define JCUJCQTN (JCU.JCQTN)
+#define JCUJCHTN (JCU.JCHTN)
+#define JCUJCDRIU (JCU.JCDRIU)
+#define JCUJCDRID (JCU.JCDRID)
+#define JCUJCVSZU (JCU.JCVSZU)
+#define JCUJCVSZD (JCU.JCVSZD)
+#define JCUJCHSZU (JCU.JCHSZU)
+#define JCUJCHSZD (JCU.JCHSZD)
+#define JCUJCDTCU (JCU.JCDTCU)
+#define JCUJCDTCM (JCU.JCDTCM)
+#define JCUJCDTCD (JCU.JCDTCD)
+#define JCUJINTE0 (JCU.JINTE0)
+#define JCUJINTS0 (JCU.JINTS0)
+#define JCUJCDERR (JCU.JCDERR)
+#define JCUJCRST (JCU.JCRST)
+#define JCUJIFECNT (JCU.JIFECNT)
+#define JCUJIFESA (JCU.JIFESA)
+#define JCUJIFESOFST (JCU.JIFESOFST)
+#define JCUJIFEDA (JCU.JIFEDA)
+#define JCUJIFESLC (JCU.JIFESLC)
+#define JCUJIFEDDC (JCU.JIFEDDC)
+#define JCUJIFDCNT (JCU.JIFDCNT)
+#define JCUJIFDSA (JCU.JIFDSA)
+#define JCUJIFDDOFST (JCU.JIFDDOFST)
+#define JCUJIFDDA (JCU.JIFDDA)
+#define JCUJIFDSDC (JCU.JIFDSDC)
+#define JCUJIFDDLC (JCU.JIFDDLC)
+#define JCUJIFDADT (JCU.JIFDADT)
+#define JCUJINTE1 (JCU.JINTE1)
+#define JCUJINTS1 (JCU.JINTS1)
+#define JCUJIFESVSZ (JCU.JIFESVSZ)
+#define JCUJIFESHSZ (JCU.JIFESHSZ)
+#define JCUJCQTBL0 (JCU.JCQTBL0)
+#define JCUJCQTBL1 (JCU.JCQTBL1)
+#define JCUJCQTBL2 (JCU.JCQTBL2)
+#define JCUJCQTBL3 (JCU.JCQTBL3)
+#define JCUJCHTBD0 (JCU.JCHTBD0)
+#define JCUJCHTBA0 (JCU.JCHTBA0)
+#define JCUJCHTBD1 (JCU.JCHTBD1)
+#define JCUJCHTBA1 (JCU.JCHTBA1)
+
+
+typedef struct st_jcu
+{
+                                                           /* JCU              */
     volatile uint8_t   JCMOD;                                  /*  JCMOD           */
     volatile uint8_t   JCCMD;                                  /*  JCCMD           */
     volatile uint8_t   dummy145[1];                            /*                  */
@@ -70,21 +138,29 @@ struct st_jcu
     volatile uint32_t  JIFESVSZ;                               /*  JIFESVSZ        */
     volatile uint32_t  JIFESHSZ;                               /*  JIFESHSZ        */
     volatile uint8_t   dummy148[100];                          /*                  */
+
 /* start of struct st_jcu_from_jcqtbl0 */
     volatile uint8_t   JCQTBL0;                                /*  JCQTBL0         */
     volatile uint8_t   dummy149[63];                           /*                  */
+
 /* end of struct st_jcu_from_jcqtbl0 */
+
 /* start of struct st_jcu_from_jcqtbl0 */
     volatile uint8_t   JCQTBL1;                                /*  JCQTBL1         */
     volatile uint8_t   dummy150[63];                           /*                  */
+
 /* end of struct st_jcu_from_jcqtbl0 */
+
 /* start of struct st_jcu_from_jcqtbl0 */
     volatile uint8_t   JCQTBL2;                                /*  JCQTBL2         */
     volatile uint8_t   dummy151[63];                           /*                  */
+
 /* end of struct st_jcu_from_jcqtbl0 */
+
 /* start of struct st_jcu_from_jcqtbl0 */
     volatile uint8_t   JCQTBL3;                                /*  JCQTBL3         */
     volatile uint8_t   dummy152[63];                           /*                  */
+
 /* end of struct st_jcu_from_jcqtbl0 */
     volatile uint8_t   JCHTBD0;                                /*  JCHTBD0         */
     volatile uint8_t   dummy153[31];                           /*                  */
@@ -93,77 +169,29 @@ struct st_jcu
     volatile uint8_t   JCHTBD1;                                /*  JCHTBD1         */
     volatile uint8_t   dummy155[31];                           /*                  */
     volatile uint8_t   JCHTBA1;                                /*  JCHTBA1         */
-};
+} r_io_jcu_t;
 
 
-struct st_jcu_from_jcqtbl0
+typedef struct st_jcu_from_jcqtbl0
 {
+ 
     volatile uint8_t   JCQTBL0;                                /*  JCQTBL0         */
     volatile uint8_t   dummy1[63];                             /*                  */
-};
+} r_io_jcu_from_jcqtbl0_t;
 
 
-#define JCU     (*(struct st_jcu     *)0xE8017000uL) /* JCU */
+/* Channel array defines of JCU (2)*/
+#ifdef  DECLARE_JCU_JCQTBL0_CHANNELS
+volatile struct st_jcu_from_jcqtbl0*  JCU_JCQTBL0[ JCU_JCQTBL0_COUNT ] =
+    /* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
+    JCU_JCQTBL0_ADDRESS_LIST;
+    /* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
+#endif  /* DECLARE_JCU_JCQTBL0_CHANNELS */
+/* End of channel array defines of JCU (2)*/
 
 
-/* Start of channnel array defines of JCU */
-
-/* Channnel array defines of JCU_JCQTBL0 */
-/*(Sample) value = JCU_JCQTBL0[ channel ]->JCQTBL0; */
-#define JCU_JCQTBL0_COUNT  4
-#define JCU_JCQTBL0_ADDRESS_LIST \
-{   /* ->MISRA 11.3 */ /* ->SEC R2.7.1 */ \
-    &JCU_FROM_JCQTBL0, &JCU_FROM_JCQTBL1, &JCU_FROM_JCQTBL2, &JCU_FROM_JCQTBL3 \
-}   /* <-MISRA 11.3 */ /* <-SEC R2.7.1 */ /* { } is for MISRA 19.4 */
-#define JCU_FROM_JCQTBL0 (*(struct st_jcu_from_jcqtbl0 *)&JCU.JCQTBL0) /* JCU_FROM_JCQTBL0 */
-#define JCU_FROM_JCQTBL1 (*(struct st_jcu_from_jcqtbl0 *)&JCU.JCQTBL1) /* JCU_FROM_JCQTBL1 */
-#define JCU_FROM_JCQTBL2 (*(struct st_jcu_from_jcqtbl0 *)&JCU.JCQTBL2) /* JCU_FROM_JCQTBL2 */
-#define JCU_FROM_JCQTBL3 (*(struct st_jcu_from_jcqtbl0 *)&JCU.JCQTBL3) /* JCU_FROM_JCQTBL3 */
-
-/* End of channnel array defines of JCU */
-
-
-#define JCUJCMOD JCU.JCMOD
-#define JCUJCCMD JCU.JCCMD
-#define JCUJCQTN JCU.JCQTN
-#define JCUJCHTN JCU.JCHTN
-#define JCUJCDRIU JCU.JCDRIU
-#define JCUJCDRID JCU.JCDRID
-#define JCUJCVSZU JCU.JCVSZU
-#define JCUJCVSZD JCU.JCVSZD
-#define JCUJCHSZU JCU.JCHSZU
-#define JCUJCHSZD JCU.JCHSZD
-#define JCUJCDTCU JCU.JCDTCU
-#define JCUJCDTCM JCU.JCDTCM
-#define JCUJCDTCD JCU.JCDTCD
-#define JCUJINTE0 JCU.JINTE0
-#define JCUJINTS0 JCU.JINTS0
-#define JCUJCDERR JCU.JCDERR
-#define JCUJCRST JCU.JCRST
-#define JCUJIFECNT JCU.JIFECNT
-#define JCUJIFESA JCU.JIFESA
-#define JCUJIFESOFST JCU.JIFESOFST
-#define JCUJIFEDA JCU.JIFEDA
-#define JCUJIFESLC JCU.JIFESLC
-#define JCUJIFEDDC JCU.JIFEDDC
-#define JCUJIFDCNT JCU.JIFDCNT
-#define JCUJIFDSA JCU.JIFDSA
-#define JCUJIFDDOFST JCU.JIFDDOFST
-#define JCUJIFDDA JCU.JIFDDA
-#define JCUJIFDSDC JCU.JIFDSDC
-#define JCUJIFDDLC JCU.JIFDDLC
-#define JCUJIFDADT JCU.JIFDADT
-#define JCUJINTE1 JCU.JINTE1
-#define JCUJINTS1 JCU.JINTS1
-#define JCUJIFESVSZ JCU.JIFESVSZ
-#define JCUJIFESHSZ JCU.JIFESHSZ
-#define JCUJCQTBL0 JCU.JCQTBL0
-#define JCUJCQTBL1 JCU.JCQTBL1
-#define JCUJCQTBL2 JCU.JCQTBL2
-#define JCUJCQTBL3 JCU.JCQTBL3
-#define JCUJCHTBD0 JCU.JCHTBD0
-#define JCUJCHTBA0 JCU.JCHTBA0
-#define JCUJCHTBD1 JCU.JCHTBD1
-#define JCUJCHTBA1 JCU.JCHTBA1
 /* <-SEC M1.10.1 */
+/* <-MISRA 18.4 */ /* <-SEC M1.6.2 */
+/* <-QAC 0857 */
+/* <-QAC 0639 */
 #endif

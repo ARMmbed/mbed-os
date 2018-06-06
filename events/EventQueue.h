@@ -114,15 +114,36 @@ public:
      *  one of the call functions. It is safe to call cancel after an event
      *  has already been dispatched.
      *
+     *  id must be valid i.e. event must have not finished executing.
+     *
      *  The cancel function is irq safe.
      *
      *  If called while the event queue's dispatch loop is active, the cancel
-     *  function does not garuntee that the event will not execute after it
+     *  function does not guarantee that the event will not execute after it
      *  returns, as the event may have already begun executing.
      *
      *  @param id       Unique id of the event
      */
     void cancel(int id);
+
+    /** Query how much time is left for delayed event
+     *
+     *  If the event is delayed, this function can be used to query how much time
+     *  is left until the event is due to be dispatched.
+     *
+     *  id must be valid i.e. event must have not finished executing.
+     *
+     *  This function is irq safe.
+     *
+     *  @param id       Unique id of the event
+     *
+     *  @return         Remaining time in milliseconds or
+     *                   0 if event is already due to be dispatched or
+     *                     is currently executing.
+     *                  Undefined if id is invalid.
+     *
+     */
+    int time_left(int id);
 
     /** Background an event queue onto a single-shot timer-interrupt
      *
@@ -171,6 +192,8 @@ public:
      *  @return         A unique id that represents the posted event and can
      *                  be passed to cancel, or an id of 0 if there is not
      *                  enough memory to allocate the event.
+     *                  Returned id will remain valid until event has finished
+     *                  executing.
      */
     template <typename F>
     int call(F f) {
@@ -701,6 +724,9 @@ public:
     }
 
     /** Calls an event on the queue periodically
+     *
+     *  @note The first call_every event occurs after the specified delay.
+     *  To create a periodic event that fires immediately, @see Event.
      *
      *  The specified callback will be executed in the context of the event
      *  queue's dispatch loop.

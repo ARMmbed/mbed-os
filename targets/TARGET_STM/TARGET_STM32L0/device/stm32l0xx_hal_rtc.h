@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_rtc.h
   * @author  MCD Application Team
-  * @version V1.7.0
-  * @date    31-May-2016
   * @brief   Header file of RTC HAL module.
   ******************************************************************************
   * @attention

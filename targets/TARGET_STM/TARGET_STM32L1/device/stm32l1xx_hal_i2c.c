@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_i2c.c
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    01-July-2016
   * @brief   I2C HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Inter Integrated Circuit (I2C) peripheral:
@@ -211,7 +209,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -257,12 +255,12 @@
 /** @defgroup I2C_Private_Define I2C Private Define
   * @{
   */
-#define I2C_TIMEOUT_FLAG          ((uint32_t)35U)         /*!< Timeout 35 ms             */
-#define I2C_TIMEOUT_ADDR_SLAVE    ((uint32_t)10000U)      /*!< Timeout 10 s              */
-#define I2C_TIMEOUT_BUSY_FLAG     ((uint32_t)25U)         /*!< Timeout 25 ms             */
-#define I2C_NO_OPTION_FRAME       ((uint32_t)0xFFFF0000U) /*!< XferOptions default value */
+#define I2C_TIMEOUT_FLAG          (35U)         /*!< Timeout 35 ms             */
+#define I2C_TIMEOUT_ADDR_SLAVE    (10000U)      /*!< Timeout 10 s              */
+#define I2C_TIMEOUT_BUSY_FLAG     (25U)         /*!< Timeout 25 ms             */
+#define I2C_NO_OPTION_FRAME       (0xFFFF0000U) /*!< XferOptions default value */
 
-#define I2C_MIN_PCLK_FREQ         ((uint32_t)2000000U)    /*!< 2 MHz                     */
+#define I2C_MIN_PCLK_FREQ         (2000000U)    /*!< 2 MHz                     */
 
 /* Private define for @ref PreviousState usage */
 #define I2C_STATE_MSK             ((uint32_t)((HAL_I2C_STATE_BUSY_TX | HAL_I2C_STATE_BUSY_RX) & (~(uint32_t)HAL_I2C_STATE_READY))) /*!< Mask State define, keep only RX and TX bits            */

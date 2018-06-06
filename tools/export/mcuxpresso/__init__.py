@@ -22,6 +22,8 @@ the MCUXpresso IDE from NXP
 Based on GNU ARM Eclipse Exporter from Liviu Ionescu <ilg@livius.net>
 modified for MCUXpresso by Johannes Stratmann <jojos62@online.de>
 """
+from __future__ import print_function, absolute_import
+from builtins import str
 
 import copy
 import tempfile
@@ -37,9 +39,6 @@ from tools.export.exporters import apply_supported_whitelist
 from tools.targets import TARGET_MAP
 from tools.utils import NotSupportedException
 from tools.build_api import prepare_toolchain
-
-
-# =============================================================================
 
 
 POST_BINARY_WHITELIST = set([
@@ -72,12 +71,6 @@ class MCUXpresso(GNUARMEclipse):
         """
         if not self.resources.linker_script:
             raise NotSupportedException("No linker script found.")
-
-        print
-        print 'Create a GNU ARM Eclipse C++ managed project'
-        print 'Project name: {0}'.format(self.project_name)
-        print 'Target: {0}'.format(self.toolchain.target.name)
-        print 'Toolchain: {0}'.format(self.TOOLCHAIN)
 
         self.resources.win_to_unix()
 
@@ -115,16 +108,13 @@ class MCUXpresso(GNUARMEclipse):
 
         self.include_path = [
             self.filter_dot(s) for s in self.resources.inc_dirs]
-        print 'Include folders: {0}'.format(len(self.include_path))
 
         self.as_defines = self.toolchain.get_symbols(True)
         self.c_defines = self.toolchain.get_symbols()
         self.cpp_defines = self.c_defines
-        print 'Symbols: {0}'.format(len(self.c_defines))
 
         self.ld_script = self.filter_dot(
             self.resources.linker_script)
-        print 'Linker script: {0}'.format(self.ld_script)
 
         self.options = {}
         profile_ids.remove('develop')
@@ -143,7 +133,6 @@ class MCUXpresso(GNUARMEclipse):
             opts['name'] = opts['id'].capitalize()
 
             print
-            print 'Build configuration: {0}'.format(opts['name'])
 
             profile = profiles[id]
 
@@ -158,12 +147,6 @@ class MCUXpresso(GNUARMEclipse):
             toolchain.build_dir = self.toolchain.build_dir
 
             flags = self.toolchain_flags(toolchain)
-
-            print 'Common flags:', ' '.join(flags['common_flags'])
-            print 'C++ flags:', ' '.join(flags['cxx_flags'])
-            print 'C flags:', ' '.join(flags['c_flags'])
-            print 'ASM flags:', ' '.join(flags['asm_flags'])
-            print 'Linker flags:', ' '.join(flags['ld_flags'])
 
             # Most GNU ARM Eclipse options have a parent,
             # either debug or release.
@@ -227,8 +210,8 @@ class MCUXpresso(GNUARMEclipse):
         self.gen_file_nonoverwrite('mcuxpresso/mbedignore.tmpl', jinja_ctx,
                                    '.mbedignore')
 
-        print
-        print 'Done. Import the \'{0}\' project in Eclipse.'.format(self.project_name)
+        print('Done. Import the \'{0}\' project in MCUXpresso.'.format(
+            self.project_name))
 
     @staticmethod
     def clean(_):
@@ -296,7 +279,7 @@ class MCUXpresso(GNUARMEclipse):
         else:
             ret_string = "FAILURE: build returned %s \n" % ret_code
 
-        print "%s\n%s\n%s\n%s" % (stdout_string, out, err_string, ret_string)
+        print("%s\n%s\n%s\n%s" % (stdout_string, out, err_string, ret_string))
 
         if log_name:
             # Write the output to the log file
@@ -345,14 +328,6 @@ class MCUXpresso(GNUARMEclipse):
 
         # Make a copy of the flags, to be one by one removed after processing.
         flags = copy.deepcopy(flags_in)
-
-        if False:
-            print
-            print 'common_flags', flags['common_flags']
-            print 'asm_flags', flags['asm_flags']
-            print 'c_flags', flags['c_flags']
-            print 'cxx_flags', flags['cxx_flags']
-            print 'ld_flags', flags['ld_flags']
 
         # Initialise the 'last resort' options where all unrecognised
         # options will be collected.
@@ -733,15 +708,3 @@ class MCUXpresso(GNUARMEclipse):
         opts['c']['other'] = opts['c']['other'].strip()
         opts['cpp']['other'] = opts['cpp']['other'].strip()
         opts['ld']['other'] = opts['ld']['other'].strip()
-
-        if False:
-            print
-            print opts
-
-            print
-            print 'common_flags', flags['common_flags']
-            print 'asm_flags', flags['asm_flags']
-            print 'c_flags', flags['c_flags']
-            print 'cxx_flags', flags['cxx_flags']
-            print 'ld_flags', flags['ld_flags']
-

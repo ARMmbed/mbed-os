@@ -342,24 +342,83 @@ int FATFileSystem::unmount()
 int FATFileSystem::format(BlockDevice *bd, bd_size_t cluster_size)
 {
     FATFileSystem fs;
-    int err = fs.mount(bd, false);
+    fs.lock();
+
+    int err = bd->init();
     if (err) {
+        fs.unlock();
+        return err;
+    }
+
+    // erase first handful of blocks
+    bd_size_t header = 2*bd->get_erase_size();
+    err = bd->erase(0, header);
+    if (err) {
+        bd->deinit();
+        fs.unlock();
+        return err;
+    }
+
+    if (bd->get_erase_value() < 0) {
+        // erase is unknown, need to write 1s
+        bd_size_t program_size = bd->get_program_size();
+        void *buf = malloc(program_size);
+        if (!buf) {
+            bd->deinit();
+            fs.unlock();
+            return -ENOMEM;
+        }
+
+        memset(buf, 0xff, program_size);
+
+        for (bd_addr_t i = 0; i < header; i += program_size) {
+            err = bd->program(buf, i, program_size);
+            if (err) {
+                free(buf);
+                bd->deinit();
+                fs.unlock();
+                return err;
+            }
+        }
+
+        free(buf);
+    }
+
+    // trim entire device to indicate it is unneeded
+    err = bd->trim(0, bd->size());
+    if (err) {
+        bd->deinit();
+        fs.unlock();
+        return err;
+    }
+
+    err = bd->deinit();
+    if (err) {
+        fs.unlock();
+        return err;
+    }
+
+    err = fs.mount(bd, false);
+    if (err) {
+        fs.unlock();
         return err;
     }
 
     // Logical drive number, Partitioning rule, Allocation unit size (bytes per cluster)
-    fs.lock();
     FRESULT res = f_mkfs(fs._fsid, FM_ANY | FM_SFD, cluster_size, NULL, 0);
-    fs.unlock();
     if (res != FR_OK) {
+        fs.unmount();
+        fs.unlock();
         return fat_error_remap(res);
     }
 
     err = fs.unmount();
     if (err) {
+        fs.unlock();
         return err;
     }
 
+    fs.unlock();
     return 0;
 }
 
@@ -404,6 +463,10 @@ int FATFileSystem::remove(const char *path)
 
     if (res != FR_OK) {
         debug_if(FFS_DBG, "f_unlink() failed: %d\n", res);
+        if (res == FR_DENIED) {
+            printf("hi %d -> %d\n", FR_DENIED, -ENOTEMPTY);
+            return -ENOTEMPTY;
+        }
     }
     return fat_error_remap(res);
 }
@@ -733,6 +796,7 @@ void FATFileSystem::dir_seek(fs_dir_t dir, off_t offset)
         FRESULT res;
 
         res = f_readdir(dh, &finfo);
+        dptr = dh->dptr;
         if (res != FR_OK) {
             break;
         } else if (finfo.fname[0] == 0) {

@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2016 ARM Limited
+ * Copyright (c) 2018 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,27 @@
  * limitations under the License.
  */
 
-#if DEVICE_LOWPOWERTIMER
+#if DEVICE_LPTICKER
 
 #include "lp_ticker_api.h"
-#include "fsl_snvs_hp.h"
 #include "fsl_gpt.h"
 #include "cmsis.h"
-#include "rtc_api.h"
 
-#define LOWFREQ_REF_CLK_HZ (32768)
+const ticker_info_t* lp_ticker_get_info()
+{
+    static const ticker_info_t info = {
+        32768,        // 32kHz
+           32         // 32 bit counter
+    };
+    return &info;
+}
 
 static bool lp_ticker_inited = false;
 
 static void gpt_isr(void)
 {
     GPT_ClearStatusFlags(GPT2, kGPT_OutputCompare1Flag);
-    GPT_StopTimer(GPT2);
-
+    GPT_DisableInterrupts(GPT2, kGPT_OutputCompare1InterruptEnable);
     lp_ticker_irq_handler();
 }
 
@@ -41,71 +45,48 @@ void lp_ticker_init(void)
 {
     gpt_config_t gptConfig;
 
-    if (lp_ticker_inited) {
-        return;
-    }
-    lp_ticker_inited = true;
+    if (!lp_ticker_inited) {
+        /* Setup GPT */
+        GPT_GetDefaultConfig(&gptConfig);
+        /* Use 32kHz drive */
+        gptConfig.clockSource = kGPT_ClockSource_LowFreq;
+        gptConfig.enableFreeRun = true;
+        gptConfig.enableMode = false;
 
-    /* Setup low resolution clock - RTC */
-    if (!rtc_isenabled()) {
-        rtc_init();
+        GPT_Init(GPT2, &gptConfig);
+        GPT_EnableInterrupts(GPT2, kGPT_OutputCompare1InterruptEnable);
+        NVIC_ClearPendingIRQ(GPT2_IRQn);
+        NVIC_SetVector(GPT2_IRQn, (uint32_t)gpt_isr);
+        EnableIRQ(GPT2_IRQn);
+        GPT_StartTimer(GPT2);
+        lp_ticker_inited = true;
+    } else {
+        GPT_DisableInterrupts(GPT2, kGPT_OutputCompare1InterruptEnable);
     }
-
-    /* Setup GPT */
-    GPT_GetDefaultConfig(&gptConfig);
-    /* Use 32kHz drive */
-    gptConfig.clockSource = kGPT_ClockSource_LowFreq;
-    GPT_Init(GPT2, &gptConfig);
-    GPT_EnableInterrupts(GPT2, kGPT_OutputCompare1InterruptEnable);
-    NVIC_ClearPendingIRQ(GPT2_IRQn);
-    NVIC_SetVector(GPT2_IRQn, (uint32_t)gpt_isr);
-    EnableIRQ(GPT2_IRQn);
 }
 
 /** Read the current counter
  *
- * @return The current timer's counter value in microseconds
+ * @return The current timer's counter value in ticks
  */
 uint32_t lp_ticker_read(void)
 {
-    uint32_t ticks = 0;
-    uint64_t tmp = 0;
-
-    if (!lp_ticker_inited) {
-        lp_ticker_init();
-    }
-
-    /* Do consecutive reads until value is correct */
-    do
-    {
-        ticks = tmp;
-        tmp = SNVS->HPRTCLR;
-    } while (tmp != ticks);
-
-    return COUNT_TO_USEC(ticks, LOWFREQ_REF_CLK_HZ);;
+    return GPT_GetCurrentTimerCount(GPT2);
 }
 
 /** Set interrupt for specified timestamp
  *
- * @param timestamp The time in microseconds to be set
+ * @param timestamp The time in ticks to be set
  */
 void lp_ticker_set_interrupt(timestamp_t timestamp)
 {
-    uint32_t now_us, delta_us, delta_ticks;
-
-    if (!lp_ticker_inited) {
-        lp_ticker_init();
+    if (timestamp == 0) {
+        timestamp = 1;
     }
 
-    now_us = lp_ticker_read();
-    delta_us = timestamp > now_us ? timestamp - now_us : (uint32_t)((uint64_t)timestamp + 0xFFFFFFFF - now_us);
-
-    delta_ticks = USEC_TO_COUNT(delta_us, LOWFREQ_REF_CLK_HZ);
-    if (delta_ticks == 0) {
-        delta_ticks = 1;
-    }
-
-    GPT_SetOutputCompareValue(GPT2, kGPT_OutputCompare_Channel1, delta_ticks);
+    GPT_StopTimer(GPT2);
+    GPT_SetOutputCompareValue(GPT2, kGPT_OutputCompare_Channel1, timestamp);
+    GPT_ClearStatusFlags(GPT2, kGPT_OutputCompare1Flag);
     GPT_EnableInterrupts(GPT2, kGPT_OutputCompare1InterruptEnable);
     GPT_StartTimer(GPT2);
 }
@@ -131,4 +112,4 @@ void lp_ticker_clear_interrupt(void)
     GPT_ClearStatusFlags(GPT2, kGPT_OutputCompare1Flag);
 }
 
-#endif /* DEVICE_LOWPOWERTIMER */
+#endif /* DEVICE_LPTICKER */

@@ -92,50 +92,50 @@ typedef struct {
  */
 typedef sys_cfg_t sys_cfg_uart_t;
 
-/** 
+/**
  * Structure type for I2CM System Configuration.
  * @ingroup  i2cm
  */
 typedef sys_cfg_t sys_cfg_i2cm_t;
 
-/** 
- * Structure type for I2CS System Configuration. 
+/**
+ * Structure type for I2CS System Configuration.
  * @ingroup i2cs
  */
 typedef sys_cfg_t sys_cfg_i2cs_t;
 
-/** 
- * Structure type for SPIM System Configuration. 
+/**
+ * Structure type for SPIM System Configuration.
  * @ingroup spim
  */
 typedef sys_cfg_t sys_cfg_spim_t;
 
-/** 
- * Structure type for SPIX System Configuration. 
- * @ingroup spix 
+/**
+ * Structure type for SPIX System Configuration.
+ * @ingroup spix
  */
 typedef sys_cfg_t sys_cfg_spix_t;
 
-/** 
- * Structure type for OWM System Configuration. 
+/**
+ * Structure type for OWM System Configuration.
  * @ingroup owm
  */
 typedef sys_cfg_t sys_cfg_owm_t;
 
-/** 
- * Structure type for Timer System Configuration. 
+/**
+ * Structure type for Timer System Configuration.
  * @ingroup timer
  */
 typedef gpio_cfg_t sys_cfg_tmr_t;
 
-/** 
+/**
  * Structure type for Pulse Train System Configuration.
  * @ingroup pulsetrain
  */
 typedef gpio_cfg_t sys_cfg_pt_t;
 
 /**
- * Structure type for Pulse Train Clock Scale Configuration. 
+ * Structure type for Pulse Train Clock Scale Configuration.
  * @ingroup clkman
  * @ingroup pulsetrain
  */
@@ -168,7 +168,7 @@ uint32_t SYS_CPU_GetFreq(void);
  * @ingroup    adc
  */
 int SYS_ADC_Init(void);
-  
+
 /**
  * @brief      System level initialization for the AES module.
  * @return     #E_NO_ERROR if everything is successful
@@ -299,14 +299,14 @@ int SYS_SPIX_Init(const sys_cfg_spix_t *sys_cfg, uint32_t baud);
  * @return     #E_NO_ERROR if everything is successful
  * @ingroup    spix
  */
-int SYS_SPIX_Shutdown();
+int SYS_SPIX_Shutdown(void);
 
 /**
  * @brief      Get the frequency of the SPIX module source clock
  * @return     frequency in Hz
  * @ingroup    spix
  */
-uint32_t SYS_SPIX_GetFreq();
+uint32_t SYS_SPIX_GetFreq(void);
 
 /**
  * @brief      System level initialization for OWM module.

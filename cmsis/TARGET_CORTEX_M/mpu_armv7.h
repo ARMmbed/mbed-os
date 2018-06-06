@@ -1,11 +1,11 @@
 /******************************************************************************
  * @file     mpu_armv7.h
- * @brief    CMSIS MPU API for ARMv7 MPU
- * @version  V5.0.3
- * @date     09. August 2017
+ * @brief    CMSIS MPU API for Armv7-M MPU
+ * @version  V5.0.4
+ * @date     10. January 2018
  ******************************************************************************/
 /*
- * Copyright (c) 2017 ARM Limited. All rights reserved.
+ * Copyright (c) 2017-2018 Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -21,6 +21,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+ 
+#if   defined ( __ICCARM__ )
+  #pragma system_include         /* treat file as system include file for MISRA check */
+#elif defined (__clang__)
+  #pragma clang system_header    /* treat file as system include file */
+#endif
  
 #ifndef ARM_MPU_ARMV7_H
 #define ARM_MPU_ARMV7_H
@@ -72,7 +78,7 @@
    (MPU_RBAR_VALID_Msk))
 
 /**
-* MPU Region Attribut and Size Register Value
+* MPU Region Attribute and Size Register Value
 * 
 * \param DisableExec       Instruction access disable bit, 1= disable instruction fetches.
 * \param AccessPermission  Data access permissions, allows you to configure read/write access for User and Privileged mode.
@@ -98,7 +104,7 @@
 /**
 * Struct for a single MPU Region
 */
-typedef struct _ARM_MPU_Region_t {
+typedef struct {
   uint32_t RBAR; //!< The region base address register value (RBAR)
   uint32_t RASR; //!< The region attribute and size register value (RASR) \ref MPU_RASR
 } ARM_MPU_Region_t;
@@ -179,13 +185,13 @@ __STATIC_INLINE void orderedCpy(volatile uint32_t* dst, const uint32_t* __RESTRI
 */
 __STATIC_INLINE void ARM_MPU_Load(ARM_MPU_Region_t const* table, uint32_t cnt) 
 {
-  static const uint32_t rowWordSize = sizeof(ARM_MPU_Region_t)/4U;
-  if (cnt > MPU_TYPE_RALIASES) {
+  const uint32_t rowWordSize = sizeof(ARM_MPU_Region_t)/4U;
+  while (cnt > MPU_TYPE_RALIASES) {
     orderedCpy(&(MPU->RBAR), &(table->RBAR), MPU_TYPE_RALIASES*rowWordSize);
-    ARM_MPU_Load(table+MPU_TYPE_RALIASES, cnt-MPU_TYPE_RALIASES);
-  } else {
-    orderedCpy(&(MPU->RBAR), &(table->RBAR), cnt*rowWordSize);
+    table += MPU_TYPE_RALIASES;
+    cnt -= MPU_TYPE_RALIASES;
   }
+  orderedCpy(&(MPU->RBAR), &(table->RBAR), cnt*rowWordSize);
 }
 
 #endif

@@ -41,27 +41,27 @@ extern "C" {
  *=========================================================================*/
 
 /**
-* Put watchdog in a defined state.
-*/
+ * Put watchdog in a defined state.
+ */
 void cbWD_init(void);
 
 /**
-* Resets the CPU.
-*/
+ * Resets the CPU.
+ */
 void cbWD_systemReset(void);
 
 /**
-* Enables watchdog. Watchdog needs to be polled using cbWD_poll() with
-* shorter intervals then specified by timeInMilliseconds.
-*
-* @param timeInMilliseconds Watchdog timeout in milliseconds.
-*/
+ * Enables watchdog. Watchdog needs to be polled using cbWD_poll() with
+ * shorter intervals then specified by timeInMilliseconds.
+ *
+ * @param timeInMilliseconds Watchdog timeout in milliseconds.
+ */
 void cbWD_enable(cb_uint32 timeInMilliseconds);
 
 /**
-* Poll the watchdog timer. This must be done with shorter intervalls
-* than the time in cbWD_enable().
-*/
+ * Poll the watchdog timer. This must be done with shorter intervalls
+ * than the time in cbWD_enable().
+ */
 void cbWD_poll(void);
 
 #ifdef __cplusplus

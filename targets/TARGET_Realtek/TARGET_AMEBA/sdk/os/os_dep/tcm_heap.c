@@ -67,7 +67,7 @@ void tcm_heap_dump(void)
 		chunk;
 		prev = chunk, chunk = chunk->next)
 	{
-		printf(" prev %x, chunk %x, size %d \n\r", prev, chunk, chunk->size);
+		printf(" prev %p, chunk %p, size %d \n\r", prev, chunk, chunk->size);
 	}
 	printf("--------------\n\r");
 }
@@ -333,7 +333,7 @@ int tcm_heap_testRun(void)
 	alloc_test(ALLOC_SIZE2, TEST_LEN2);
 	/* Try to allocate the whole heap */
 	uint8_t *b = tcm_heap_allocmem(HEAP_SIZE);
-	int i, j;
+	int j;
 	//ASSERT(b);
 	//ASSERT(heap_freeSpace(&h) == 0);
 

@@ -18,20 +18,108 @@
 * you agree to the additional terms and conditions found by accessing the
 * following link:
 * http://www.renesas.com/disclaimer*
-* Copyright (C) 2013-2014 Renesas Electronics Corporation. All rights reserved.
+* Copyright (C) 2013-2015 Renesas Electronics Corporation. All rights reserved.
 *******************************************************************************/
 /*******************************************************************************
 * File Name : mtu2_iodefine.h
 * $Rev: $
 * $Date::                           $
-* Description : Definition of I/O Register (V1.00a)
+* Description : Definition of I/O Register for RZ/A1H,M (V2.00h)
 ******************************************************************************/
 #ifndef MTU2_IODEFINE_H
 #define MTU2_IODEFINE_H
+/* ->QAC 0639 : Over 127 members (C90) */
+/* ->QAC 0857 : Over 1024 #define (C90) */
+/* ->MISRA 18.4 : Pack unpack union */ /* ->SEC M1.6.2 */
 /* ->SEC M1.10.1 : Not magic number */
 
-struct st_mtu2
-{                                                          /* MTU2             */
+#define MTU2    (*(struct st_mtu2    *)0xFCFF0000uL) /* MTU2 */
+
+
+#define MTU2TCR_2 (MTU2.TCR_2)
+#define MTU2TMDR_2 (MTU2.TMDR_2)
+#define MTU2TIOR_2 (MTU2.TIOR_2)
+#define MTU2TIER_2 (MTU2.TIER_2)
+#define MTU2TSR_2 (MTU2.TSR_2)
+#define MTU2TCNT_2 (MTU2.TCNT_2)
+#define MTU2TGRA_2 (MTU2.TGRA_2)
+#define MTU2TGRB_2 (MTU2.TGRB_2)
+#define MTU2TCR_3 (MTU2.TCR_3)
+#define MTU2TCR_4 (MTU2.TCR_4)
+#define MTU2TMDR_3 (MTU2.TMDR_3)
+#define MTU2TMDR_4 (MTU2.TMDR_4)
+#define MTU2TIORH_3 (MTU2.TIORH_3)
+#define MTU2TIORL_3 (MTU2.TIORL_3)
+#define MTU2TIORH_4 (MTU2.TIORH_4)
+#define MTU2TIORL_4 (MTU2.TIORL_4)
+#define MTU2TIER_3 (MTU2.TIER_3)
+#define MTU2TIER_4 (MTU2.TIER_4)
+#define MTU2TOER (MTU2.TOER)
+#define MTU2TGCR (MTU2.TGCR)
+#define MTU2TOCR1 (MTU2.TOCR1)
+#define MTU2TOCR2 (MTU2.TOCR2)
+#define MTU2TCNT_3 (MTU2.TCNT_3)
+#define MTU2TCNT_4 (MTU2.TCNT_4)
+#define MTU2TCDR (MTU2.TCDR)
+#define MTU2TDDR (MTU2.TDDR)
+#define MTU2TGRA_3 (MTU2.TGRA_3)
+#define MTU2TGRB_3 (MTU2.TGRB_3)
+#define MTU2TGRA_4 (MTU2.TGRA_4)
+#define MTU2TGRB_4 (MTU2.TGRB_4)
+#define MTU2TCNTS (MTU2.TCNTS)
+#define MTU2TCBR (MTU2.TCBR)
+#define MTU2TGRC_3 (MTU2.TGRC_3)
+#define MTU2TGRD_3 (MTU2.TGRD_3)
+#define MTU2TGRC_4 (MTU2.TGRC_4)
+#define MTU2TGRD_4 (MTU2.TGRD_4)
+#define MTU2TSR_3 (MTU2.TSR_3)
+#define MTU2TSR_4 (MTU2.TSR_4)
+#define MTU2TITCR (MTU2.TITCR)
+#define MTU2TITCNT (MTU2.TITCNT)
+#define MTU2TBTER (MTU2.TBTER)
+#define MTU2TDER (MTU2.TDER)
+#define MTU2TOLBR (MTU2.TOLBR)
+#define MTU2TBTM_3 (MTU2.TBTM_3)
+#define MTU2TBTM_4 (MTU2.TBTM_4)
+#define MTU2TADCR (MTU2.TADCR)
+#define MTU2TADCORA_4 (MTU2.TADCORA_4)
+#define MTU2TADCORB_4 (MTU2.TADCORB_4)
+#define MTU2TADCOBRA_4 (MTU2.TADCOBRA_4)
+#define MTU2TADCOBRB_4 (MTU2.TADCOBRB_4)
+#define MTU2TWCR (MTU2.TWCR)
+#define MTU2TSTR (MTU2.TSTR)
+#define MTU2TSYR (MTU2.TSYR)
+#define MTU2TRWER (MTU2.TRWER)
+#define MTU2TCR_0 (MTU2.TCR_0)
+#define MTU2TMDR_0 (MTU2.TMDR_0)
+#define MTU2TIORH_0 (MTU2.TIORH_0)
+#define MTU2TIORL_0 (MTU2.TIORL_0)
+#define MTU2TIER_0 (MTU2.TIER_0)
+#define MTU2TSR_0 (MTU2.TSR_0)
+#define MTU2TCNT_0 (MTU2.TCNT_0)
+#define MTU2TGRA_0 (MTU2.TGRA_0)
+#define MTU2TGRB_0 (MTU2.TGRB_0)
+#define MTU2TGRC_0 (MTU2.TGRC_0)
+#define MTU2TGRD_0 (MTU2.TGRD_0)
+#define MTU2TGRE_0 (MTU2.TGRE_0)
+#define MTU2TGRF_0 (MTU2.TGRF_0)
+#define MTU2TIER2_0 (MTU2.TIER2_0)
+#define MTU2TSR2_0 (MTU2.TSR2_0)
+#define MTU2TBTM_0 (MTU2.TBTM_0)
+#define MTU2TCR_1 (MTU2.TCR_1)
+#define MTU2TMDR_1 (MTU2.TMDR_1)
+#define MTU2TIOR_1 (MTU2.TIOR_1)
+#define MTU2TIER_1 (MTU2.TIER_1)
+#define MTU2TSR_1 (MTU2.TSR_1)
+#define MTU2TCNT_1 (MTU2.TCNT_1)
+#define MTU2TGRA_1 (MTU2.TGRA_1)
+#define MTU2TGRB_1 (MTU2.TGRB_1)
+#define MTU2TICCR (MTU2.TICCR)
+
+
+typedef struct st_mtu2
+{
+                                                           /* MTU2             */
     volatile uint8_t   TCR_2;                                  /*  TCR_2           */
     volatile uint8_t   TMDR_2;                                 /*  TMDR_2          */
     volatile uint8_t   TIOR_2;                                 /*  TIOR_2          */
@@ -128,90 +216,11 @@ struct st_mtu2
     volatile uint16_t TGRB_1;                                 /*  TGRB_1          */
     volatile uint8_t   dummy536[4];                            /*                  */
     volatile uint8_t   TICCR;                                  /*  TICCR           */
-};
+} r_io_mtu2_t;
 
 
-#define MTU2    (*(struct st_mtu2    *)0xFCFF0000uL) /* MTU2 */
-
-
-#define MTU2TCR_2 MTU2.TCR_2
-#define MTU2TMDR_2 MTU2.TMDR_2
-#define MTU2TIOR_2 MTU2.TIOR_2
-#define MTU2TIER_2 MTU2.TIER_2
-#define MTU2TSR_2 MTU2.TSR_2
-#define MTU2TCNT_2 MTU2.TCNT_2
-#define MTU2TGRA_2 MTU2.TGRA_2
-#define MTU2TGRB_2 MTU2.TGRB_2
-#define MTU2TCR_3 MTU2.TCR_3
-#define MTU2TCR_4 MTU2.TCR_4
-#define MTU2TMDR_3 MTU2.TMDR_3
-#define MTU2TMDR_4 MTU2.TMDR_4
-#define MTU2TIORH_3 MTU2.TIORH_3
-#define MTU2TIORL_3 MTU2.TIORL_3
-#define MTU2TIORH_4 MTU2.TIORH_4
-#define MTU2TIORL_4 MTU2.TIORL_4
-#define MTU2TIER_3 MTU2.TIER_3
-#define MTU2TIER_4 MTU2.TIER_4
-#define MTU2TOER MTU2.TOER
-#define MTU2TGCR MTU2.TGCR
-#define MTU2TOCR1 MTU2.TOCR1
-#define MTU2TOCR2 MTU2.TOCR2
-#define MTU2TCNT_3 MTU2.TCNT_3
-#define MTU2TCNT_4 MTU2.TCNT_4
-#define MTU2TCDR MTU2.TCDR
-#define MTU2TDDR MTU2.TDDR
-#define MTU2TGRA_3 MTU2.TGRA_3
-#define MTU2TGRB_3 MTU2.TGRB_3
-#define MTU2TGRA_4 MTU2.TGRA_4
-#define MTU2TGRB_4 MTU2.TGRB_4
-#define MTU2TCNTS MTU2.TCNTS
-#define MTU2TCBR MTU2.TCBR
-#define MTU2TGRC_3 MTU2.TGRC_3
-#define MTU2TGRD_3 MTU2.TGRD_3
-#define MTU2TGRC_4 MTU2.TGRC_4
-#define MTU2TGRD_4 MTU2.TGRD_4
-#define MTU2TSR_3 MTU2.TSR_3
-#define MTU2TSR_4 MTU2.TSR_4
-#define MTU2TITCR MTU2.TITCR
-#define MTU2TITCNT MTU2.TITCNT
-#define MTU2TBTER MTU2.TBTER
-#define MTU2TDER MTU2.TDER
-#define MTU2TOLBR MTU2.TOLBR
-#define MTU2TBTM_3 MTU2.TBTM_3
-#define MTU2TBTM_4 MTU2.TBTM_4
-#define MTU2TADCR MTU2.TADCR
-#define MTU2TADCORA_4 MTU2.TADCORA_4
-#define MTU2TADCORB_4 MTU2.TADCORB_4
-#define MTU2TADCOBRA_4 MTU2.TADCOBRA_4
-#define MTU2TADCOBRB_4 MTU2.TADCOBRB_4
-#define MTU2TWCR MTU2.TWCR
-#define MTU2TSTR MTU2.TSTR
-#define MTU2TSYR MTU2.TSYR
-#define MTU2TRWER MTU2.TRWER
-#define MTU2TCR_0 MTU2.TCR_0
-#define MTU2TMDR_0 MTU2.TMDR_0
-#define MTU2TIORH_0 MTU2.TIORH_0
-#define MTU2TIORL_0 MTU2.TIORL_0
-#define MTU2TIER_0 MTU2.TIER_0
-#define MTU2TSR_0 MTU2.TSR_0
-#define MTU2TCNT_0 MTU2.TCNT_0
-#define MTU2TGRA_0 MTU2.TGRA_0
-#define MTU2TGRB_0 MTU2.TGRB_0
-#define MTU2TGRC_0 MTU2.TGRC_0
-#define MTU2TGRD_0 MTU2.TGRD_0
-#define MTU2TGRE_0 MTU2.TGRE_0
-#define MTU2TGRF_0 MTU2.TGRF_0
-#define MTU2TIER2_0 MTU2.TIER2_0
-#define MTU2TSR2_0 MTU2.TSR2_0
-#define MTU2TBTM_0 MTU2.TBTM_0
-#define MTU2TCR_1 MTU2.TCR_1
-#define MTU2TMDR_1 MTU2.TMDR_1
-#define MTU2TIOR_1 MTU2.TIOR_1
-#define MTU2TIER_1 MTU2.TIER_1
-#define MTU2TSR_1 MTU2.TSR_1
-#define MTU2TCNT_1 MTU2.TCNT_1
-#define MTU2TGRA_1 MTU2.TGRA_1
-#define MTU2TGRB_1 MTU2.TGRB_1
-#define MTU2TICCR MTU2.TICCR
 /* <-SEC M1.10.1 */
+/* <-MISRA 18.4 */ /* <-SEC M1.6.2 */
+/* <-QAC 0857 */
+/* <-QAC 0639 */
 #endif

@@ -1,17 +1,27 @@
 /*
- * Portions Copyright (c) 2016 Analog Devices, Inc.
+ * Portions Copyright (c) 2016 - 2018 Analog Devices, Inc.
  *
  * Based on Device/ARM/ARMCM4/Source/GCC/gcc_arm.ld file in
  * ARM.CMSIS.4.5.0.pack.
  */
 
+#if !defined(MBED_APP_START)
+  #define MBED_APP_START 0
+#endif
+
+#if !defined(MBED_APP_SIZE)
+  #define MBED_APP_SIZE 0x7F000
+#endif
+
+#define ADUCM_SECTOR_SIZE 0x800
+
 /* Linker script to configure memory regions. */
 MEMORY
 {
   /* The first 0x800 bytes of flash */
-  FLASH0 (rx) : ORIGIN = 0x00000000, LENGTH = 0x800
-  /* The remaining bytes of flash minus 4KB Protected Key Storage */
-  FLASH (rx) : ORIGIN = 0x00000800, LENGTH = 512k - 4k - 0x800
+  FLASH0 (rx) : ORIGIN = MBED_APP_START, LENGTH = ADUCM_SECTOR_SIZE
+  /* The rest of the flash */
+  FLASH (rx) : ORIGIN = MBED_APP_START + ADUCM_SECTOR_SIZE, LENGTH = MBED_APP_SIZE - ADUCM_SECTOR_SIZE
   /* SRAM bank 0 */
   DSRAM_A (rwx) : ORIGIN = 0x20000200, LENGTH = 32k - 0x200
   /* SRAM bank 3+4+5+6+7 */
@@ -74,13 +84,6 @@ SECTIONS
         __Vectors_Size = __Vectors_End - __Vectors;
         __end__ = .;
         KEEP(*(.checksum))
-    } > FLASH0
-
-    .security_options :
-    {
-        . = ALIGN(4);
-        KEEP(*(.security_options))
-        . = ALIGN(4);
     } > FLASH0
 
     .text :

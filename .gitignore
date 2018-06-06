@@ -86,3 +86,5 @@ tags
 
 # Visual Studio Code
 .vscode/
+
+features/FEATURE_BLE/targets/TARGET_CORDIO/stack_backup/

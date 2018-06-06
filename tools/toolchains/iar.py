@@ -36,12 +36,9 @@ class IAR(mbedToolchain):
         Returns False otherwise."""
         return mbedToolchain.generic_check_executable("IAR", 'iccarm', 2, "bin")
 
-    def __init__(self, target, notify=None, macros=None,
-                 silent=False, extra_verbose=False, build_profile=None,
+    def __init__(self, target, notify=None, macros=None, build_profile=None,
                  build_dir=None):
-        mbedToolchain.__init__(self, target, notify, macros, silent,
-                               build_dir=build_dir,
-                               extra_verbose=extra_verbose,
+        mbedToolchain.__init__(self, target, notify, macros, build_dir=build_dir,
                                build_profile=build_profile)
         if target.core == "Cortex-M7F" or target.core == "Cortex-M7FD":
             cpuchoice = "Cortex-M7"
@@ -104,7 +101,7 @@ class IAR(mbedToolchain):
             match = IAR.DIAGNOSTIC_PATTERN.match(line)
             if match is not None:
                 if msg is not None:
-                    self.cc_info(msg)
+                    self.notify.cc_info(msg)
                     msg = None
                 msg = {
                     'severity': match.group('severity').lower(),
@@ -121,13 +118,13 @@ class IAR(mbedToolchain):
                 match = IAR.INDEX_PATTERN.match(line)
                 if match is not None:
                     msg['col'] = len(match.group('col'))
-                    self.cc_info(msg)
+                    self.notify.cc_info(msg)
                     msg = None
                 else:
                     msg['text'] += line+"\n"
 
         if msg is not None:
-            self.cc_info(msg)
+            self.notify.cc_info(msg)
 
     def get_dep_option(self, object):
         base, _ = splitext(object)
@@ -207,7 +204,7 @@ class IAR(mbedToolchain):
             cmd = [cmd_linker, '-f', link_files]
 
         # Exec command
-        self.cc_verbose("Link: %s" % ' '.join(cmd))
+        self.notify.cc_verbose("Link: %s" % ' '.join(cmd))
         self.default_cmd(cmd)
 
     @hook_tool
@@ -233,7 +230,7 @@ class IAR(mbedToolchain):
         cmd = self.hook.get_cmdline_binary(cmd)
 
         # Exec command
-        self.cc_verbose("FromELF: %s" % ' '.join(cmd))
+        self.notify.cc_verbose("FromELF: %s" % ' '.join(cmd))
         self.default_cmd(cmd)
 
     @staticmethod

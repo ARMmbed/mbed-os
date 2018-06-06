@@ -642,7 +642,7 @@ __STATIC_INLINE void __FPU_Enable(void)
     "        VMOV    D14,R2,R2         \n"
     "        VMOV    D15,R2,R2         \n"
 
-#if __ARM_NEON == 1
+#if (defined(__ARM_NEON) && (__ARM_NEON == 1))
     //Initialise D32 registers to 0
     "        VMOV    D16,R2,R2         \n"
     "        VMOV    D17,R2,R2         \n"

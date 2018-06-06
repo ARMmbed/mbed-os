@@ -43,8 +43,8 @@ struct nu_spi_var {
 #endif
 };
 
-// NOTE:
-// NANO130: No support for relocating vector table. ISR vector passed into NVIC_SetVector() can only be weak symbol defined in startup_Nano100Series.c.
+/* NOTE: NANO130 doesn't support relocating vector table. ISR vector passed into NVIC_SetVector() can
+ *       only be weak symbol defined in startup_Nano100Series.c. */
 void SPI0_IRQHandler(void);
 void SPI1_IRQHandler(void);
 void SPI2_IRQHandler(void);
@@ -74,6 +74,38 @@ static struct nu_spi_var spi2_var = {
     .pdma_perp_rx       =   PDMA_SPI2_RX
 #endif
 };
+
+/* Synchronous version of SPI_ENABLE()/SPI_DISABLE() macros
+ *
+ * The SPI peripheral clock is asynchronous with the system clock. In order to make sure the SPI
+ * control logic is enabled/disabled, this bit indicates the real status of SPI controller.
+ *
+ * NOTE: All configurations shall be ready before calling SPI_ENABLE_SYNC().
+ * NOTE: Before changing the configurations of SPIx_CTL, SPIx_CLKDIV, SPIx_SSCTL and SPIx_FIFOCTL registers,
+ *       user shall clear the SPIEN (SPIx_CTL[0]) and confirm the SPIENSTS (SPIx_STATUS[15]) is 0
+ *       (by SPI_DISABLE_SYNC here).
+ *
+ * NOTE:
+ * 1. NUC472/M453/M487: SPI_CTL.SPIEN is controlled by software (in FIFO mode).
+ * 2. NANO130: SPI_CTL.GO_BUSY is controlled by hardware in FIFO mode.
+ */
+__STATIC_INLINE void SPI_ENABLE_SYNC(SPI_T *spi_base)
+{
+    /* NOTE: On NANO130, FIFO mode defaults to disabled. */
+    if (! (spi_base->CTL & SPI_CTL_FIFOM_Msk)) {
+        SPI_EnableFIFO(spi_base, NU_SPI_FIFO_DEPTH / 2, NU_SPI_FIFO_DEPTH / 2);
+    }
+}
+__STATIC_INLINE void SPI_DISABLE_SYNC(SPI_T *spi_base)
+{
+    /* NOTE: On NANO130, SPI_CTL.GO_BUSY always reads as 1 in slave/FIFO mode. So disable FIFO first. */
+    if (spi_base->CTL & SPI_CTL_FIFOM_Msk) {
+        SPI_DisableFIFO(spi_base);
+    }
+    
+    /* NOTE: SPI H/W may get out of state without the busy check */
+    while (SPI_IS_BUSY(spi_base));
+}
 
 #if DEVICE_SPI_ASYNCH
 static void spi_enable_vector_interrupt(spi_t *obj, uint32_t handler, uint8_t enable);
@@ -124,32 +156,38 @@ void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel
 
     const struct nu_modinit_s *modinit = get_modinit(obj->spi.spi, spi_modinit_tab);
     MBED_ASSERT(modinit != NULL);
-    MBED_ASSERT((SPIName) modinit->modname == obj->spi.spi);
-    
+    MBED_ASSERT(modinit->modname == (int) obj->spi.spi);
+
     // Reset this module
     SYS_ResetModule(modinit->rsetidx);
-    
+
     // Select IP clock source
     CLK_SetModuleClock(modinit->clkidx, modinit->clksrc, modinit->clkdiv);
     // Enable IP clock
     CLK_EnableModuleClock(modinit->clkidx);
-    
+
     pinmap_pinout(mosi, PinMap_SPI_MOSI);
     pinmap_pinout(miso, PinMap_SPI_MISO);
     pinmap_pinout(sclk, PinMap_SPI_SCLK);
     pinmap_pinout(ssel, PinMap_SPI_SSEL);
-    
+
     obj->spi.pin_mosi = mosi;
     obj->spi.pin_miso = miso;
     obj->spi.pin_sclk = sclk;
     obj->spi.pin_ssel = ssel;
 
-    
+
 #if DEVICE_SPI_ASYNCH
     obj->spi.dma_usage = DMA_USAGE_NEVER;
     obj->spi.event = 0;
     obj->spi.dma_chn_id_tx = DMA_ERROR_OUT_OF_CHANNELS;
     obj->spi.dma_chn_id_rx = DMA_ERROR_OUT_OF_CHANNELS;
+    
+    /* NOTE: We use vector to judge if asynchronous transfer is on-going (spi_active).
+     *       At initial time, asynchronous transfer is not on-going and so vector must
+     *       be cleared to zero for correct judgement. */
+    /* NOTE: On NANO130, vector table is fixed in ROM and cannot be modified. */
+    obj->spi.hdlr_async = 0;
 #endif
 
     // Mark this module to be inited.
@@ -171,33 +209,29 @@ void spi_free(spi_t *obj)
 #endif
 
     SPI_Close((SPI_T *) NU_MODBASE(obj->spi.spi));
-    
+
     const struct nu_modinit_s *modinit = get_modinit(obj->spi.spi, spi_modinit_tab);
     MBED_ASSERT(modinit != NULL);
-    MBED_ASSERT((SPIName) modinit->modname == obj->spi.spi);
+    MBED_ASSERT(modinit->modname == (int) obj->spi.spi);
+
     SPI_DisableInt(((SPI_T *) NU_MODBASE(obj->spi.spi)), (SPI_FIFO_RXOVR_INTEN_MASK | SPI_FIFO_RX_INTEN_MASK | SPI_FIFO_TX_INTEN_MASK));
     NVIC_DisableIRQ(modinit->irq_n);
-    
+
     // Disable IP clock
     CLK_DisableModuleClock(modinit->clkidx);
-    
+
     // Mark this module to be deinited.
     int i = modinit - spi_modinit_tab;
     spi_modinit_mask &= ~(1 << i);
 }
+
 void spi_format(spi_t *obj, int bits, int mode, int slave)
 {
     MBED_ASSERT(bits >= NU_SPI_FRAME_MIN && bits <= NU_SPI_FRAME_MAX);
-    
-    SPI_T *spi_base = (SPI_T *) NU_MODBASE(obj->spi.spi);
-    
-    // NOTE: All configurations should be ready before enabling SPI peripheral.
-    // NOTE: Re-configuration is allowed only as SPI peripheral is idle.
-    // NOTE: 
-    // NANO130, SPI_CTL.GO_BUSY always reads as 1 in slave/FIFO mode. So disable FIFO first.
-    SPI_DisableFIFO(spi_base);
-    while (SPI_IS_BUSY(spi_base));
 
+    SPI_T *spi_base = (SPI_T *) NU_MODBASE(obj->spi.spi);
+
+    SPI_DISABLE_SYNC(spi_base);
 
     SPI_Open(spi_base,
         slave ? SPI_SLAVE : SPI_MASTER,
@@ -241,46 +275,43 @@ void spi_format(spi_t *obj, int bits, int mode, int slave)
         spi_base->SSR |= SPI_SSR_SS_LTRIG_Msk;
     }
     
-    // NOTE: 
-    // NANO130: FIFO mode defaults to disabled.
-    SPI_EnableFIFO(spi_base, NU_SPI_FIFO_DEPTH / 2, NU_SPI_FIFO_DEPTH / 2);
+    /* NOTE: M451's/M480's/M2351's SPI_Open() will enable SPI transfer (SPI_CTL_SPIEN_Msk).
+     *       We cannot use SPI_CTL_SPIEN_Msk for judgement of spi_active().
+     *       Judge with vector instead. */
 }
 
 void spi_frequency(spi_t *obj, int hz)
 {
     SPI_T *spi_base = (SPI_T *) NU_MODBASE(obj->spi.spi);
     
-    // NANO130, SPI_CTL.GO_BUSY always reads as 1 in slave/FIFO mode. So disable FIFO first.
-    SPI_DisableFIFO(spi_base);
-    while (SPI_IS_BUSY(spi_base));
+    SPI_DISABLE_SYNC(spi_base);
 
     SPI_SetBusClock((SPI_T *) NU_MODBASE(obj->spi.spi), hz);
-    
-    // NOTE: 
-    // NANO130: FIFO mode defaults to disabled.
-    SPI_EnableFIFO(spi_base, NU_SPI_FIFO_DEPTH / 2, NU_SPI_FIFO_DEPTH / 2);
 }
 
 
 int spi_master_write(spi_t *obj, int value)
 {
     SPI_T *spi_base = (SPI_T *) NU_MODBASE(obj->spi.spi);
-    
+
     // NOTE: Data in receive FIFO can be read out via ICE.
     // NOTE:
     // NUC472/M453/M487: SPI_CTL.SPIEN is controlled by software (in FIFO mode).
     // NANO130: SPI_CTL.GO_BUSY is controlled by hardware in FIFO mode.
-    
+    SPI_ENABLE_SYNC(spi_base);
+
     // Wait for tx buffer empty
     while(! spi_writeable(obj));
     uint32_t TX = (NU_MODSUBINDEX(obj->spi.spi) == 0) ? ((uint32_t) &spi_base->TX0) : ((uint32_t) &spi_base->TX1);
     M32(TX) = value;
-    
+
     // Wait for rx buffer full
     while (! spi_readable(obj));
     uint32_t RX = (NU_MODSUBINDEX(obj->spi.spi) == 0) ? ((uint32_t) &spi_base->RX0) : ((uint32_t) &spi_base->RX1);
     int value2 = M32(RX);
-    
+
+    /* We don't call SPI_DISABLE_SYNC here for performance. */
+
     return value2;
 }
 
@@ -303,21 +334,19 @@ int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length,
 #if DEVICE_SPISLAVE
 int spi_slave_receive(spi_t *obj)
 {
-    // NOTE:
-    // NUC472/M453/M487: SPI_CTL.SPIEN is controlled by software (in FIFO mode).
-    // NANO130: SPI_CTL.GO_BUSY is controlled by hardware in FIFO mode.
-    
+    SPI_T *spi_base = (SPI_T *) NU_MODBASE(obj->spi.spi);
+
+    SPI_ENABLE_SYNC(spi_base);
+
     return spi_readable(obj);
 };
 
 int spi_slave_read(spi_t *obj)
 {
     SPI_T *spi_base = (SPI_T *) NU_MODBASE(obj->spi.spi);
-    
-    // NOTE:
-    // NUC472/M453/M487: SPI_CTL.SPIEN is controlled by software (in FIFO mode).
-    // NANO130: SPI_CTL.GO_BUSY is controlled by hardware in FIFO mode.
-    
+
+    SPI_ENABLE_SYNC(spi_base);
+
     // Wait for rx buffer full
     while (! spi_readable(obj));
     uint32_t RX = (NU_MODSUBINDEX(obj->spi.spi) == 0) ? ((uint32_t) &spi_base->RX0) : ((uint32_t) &spi_base->RX1);
@@ -328,11 +357,9 @@ int spi_slave_read(spi_t *obj)
 void spi_slave_write(spi_t *obj, int value)
 {
     SPI_T *spi_base = (SPI_T *) NU_MODBASE(obj->spi.spi);
-    
-    // NOTE:
-    // NUC472/M453/M487: SPI_CTL.SPIEN is controlled by software (in FIFO mode).
-    // NANO130: SPI_CTL.GO_BUSY is controlled by hardware in FIFO mode.
-    
+
+    SPI_ENABLE_SYNC(spi_base);
+
     // Wait for tx buffer empty
     while(! spi_writeable(obj));
     uint32_t TX = (NU_MODSUBINDEX(obj->spi.spi) == 0) ? ((uint32_t) &spi_base->TX0) : ((uint32_t) &spi_base->TX1);
@@ -360,15 +387,13 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
         dma_channel_free(obj->spi.dma_chn_id_rx);
         obj->spi.dma_chn_id_rx = DMA_ERROR_OUT_OF_CHANNELS;
     }
-    
+
     // SPI IRQ is necessary for both interrupt way and DMA way
     spi_enable_event(obj, event, 1);
     spi_buffer_set(obj, tx, tx_length, rx, rx_length);
-            
-    // NOTE:
-    // NUC472/M453/M487: SPI_CTL.SPIEN is controlled by software (in FIFO mode).
-    // NANO130: SPI_CTL.GO_BUSY is controlled by hardware in FIFO mode.
-    
+
+    SPI_ENABLE_SYNC(spi_base);
+
     if (obj->spi.dma_usage == DMA_USAGE_NEVER) {
         // Interrupt way
         spi_master_write_asynch(obj, NU_SPI_FIFO_DEPTH / 2);
@@ -378,7 +403,7 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
         // DMA way
         const struct nu_modinit_s *modinit = get_modinit(obj->spi.spi, spi_modinit_tab);
         MBED_ASSERT(modinit != NULL);
-        MBED_ASSERT((SPIName) modinit->modname == obj->spi.spi);
+        MBED_ASSERT(modinit->modname == (int) obj->spi.spi);
         
         // Configure tx DMA
         dma_enable(obj->spi.dma_chn_id_tx, 1);                  // Enable this DMA channel
@@ -423,14 +448,35 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
             PDMA_IER_TD_IE_Msk);    // Interrupt type
         // Register DMA event handler
         dma_set_handler(obj->spi.dma_chn_id_rx, (uint32_t) spi_dma_handler_rx, (uint32_t) obj, DMA_EVENT_ALL);
-        
-        // Start tx/rx DMA transfer
+
+        /* Start tx/rx DMA transfer
+         *
+         * If we have both PDMA and SPI interrupts enabled and PDMA priority is lower than SPI priority,
+         * we would trap in SPI interrupt handler endlessly with the sequence:
+         *
+         * 1. PDMA TX transfer done interrupt occurs and is well handled.
+         * 2. SPI RX FIFO threshold interrupt occurs. Trap here because PDMA RX transfer done interrupt doesn't get handled.
+         * 3. PDMA RX transfer done interrupt occurs but it cannot be handled due to above.
+         *
+         * To fix it, we don't enable SPI TX/RX threshold interrupts but keep SPI vector handler set to be called
+         * in PDMA TX/RX transfer done interrupt handlers (spi_dma_handler_tx/spi_dma_handler_rx).
+         */
         spi_enable_vector_interrupt(obj, handler, 1);
-        // No TX/RX FIFO threshold interrupt
+        /* No TX/RX FIFO threshold interrupt */
         spi_master_enable_interrupt(obj, 0, SPI_FIFO_RX_INTEN_MASK | SPI_FIFO_TX_INTEN_MASK);
-        // NOTE: It is safer to start rx DMA first and then tx DMA. Otherwise, receive FIFO is subject to overflow by tx DMA.
-        SPI_TRIGGER_RX_PDMA(((SPI_T *) NU_MODBASE(obj->spi.spi)));
-        SPI_TRIGGER_TX_PDMA(((SPI_T *) NU_MODBASE(obj->spi.spi)));
+
+        /* Order to enable PDMA TX/RX functions
+         *
+         * H/W spec: In SPI Master mode with full duplex transfer, if both TX and RX PDMA functions are
+         *           enabled, RX PDMA function cannot be enabled prior to TX PDMA function. User can enable
+         *           TX PDMA function firstly or enable both functions simultaneously.
+         * Per real test, it is safer to start RX PDMA first and then TX PDMA. Otherwise, receive FIFO is 
+         * subject to overflow by TX DMA.
+         *
+         * With the above conflicts, we enable PDMA TX/RX functions simultaneously.
+         */
+        spi_base->DMA |= (SPI_DMA_TX_DMA_EN_Msk | SPI_DMA_RX_DMA_EN_Msk);
+
         PDMA_Trigger(obj->spi.dma_chn_id_rx);
         PDMA_Trigger(obj->spi.dma_chn_id_tx);
     }
@@ -445,7 +491,7 @@ void spi_master_transfer(spi_t *obj, const void *tx, size_t tx_length, void *rx,
 void spi_abort_asynch(spi_t *obj)
 {
     SPI_T *spi_base = (SPI_T *) NU_MODBASE(obj->spi.spi);
-    
+
     if (obj->spi.dma_usage != DMA_USAGE_NEVER) {
         // Receive FIFO Overrun in case of tx length > rx length on DMA way
         if (spi_base->STATUS & SPI_STATUS_RX_OVER_RUN_Msk) {
@@ -457,25 +503,23 @@ void spi_abort_asynch(spi_t *obj)
             // NOTE: On NUC472, next PDMA transfer will fail with PDMA_STOP() called.
             dma_enable(obj->spi.dma_chn_id_tx, 0);
         }
-        //SPI_DISABLE_TX_PDMA(((SPI_T *) NU_MODBASE(obj->spi.spi)));
         spi_base->DMA &= ~SPI_DMA_TX_DMA_EN_Msk;
-        
+
         if (obj->spi.dma_chn_id_rx != DMA_ERROR_OUT_OF_CHANNELS) {
             PDMA_DisableInt(obj->spi.dma_chn_id_rx, PDMA_IER_TD_IE_Msk);
             // NOTE: On NUC472, next PDMA transfer will fail with PDMA_STOP() called.
             dma_enable(obj->spi.dma_chn_id_rx, 0);
         }
-        //SPI_DISABLE_RX_PDMA(((SPI_T *) NU_MODBASE(obj->spi.spi)));
         spi_base->DMA &= ~SPI_DMA_RX_DMA_EN_Msk;
     }
-    
+
     // Necessary for both interrupt way and DMA way
     spi_enable_vector_interrupt(obj, 0, 0);
     spi_master_enable_interrupt(obj, 0, SPI_FIFO_RX_INTEN_MASK | SPI_FIFO_TX_INTEN_MASK);
 
-    // NOTE: SPI H/W may get out of state without the busy check.
-    while (SPI_IS_BUSY(spi_base));
-    
+    /* Necessary for accessing FIFOCTL below */
+    SPI_DISABLE_SYNC(spi_base);
+
     SPI_ClearRxFIFO(spi_base);
     SPI_ClearTxFIFO(spi_base);
 }
@@ -500,9 +544,14 @@ uint32_t spi_irq_handler_asynch(spi_t *obj)
 
 uint8_t spi_active(spi_t *obj)
 {
-    SPI_T *spi_base = (SPI_T *) NU_MODBASE(obj->spi.spi);
-    
-    return SPI_IS_BUSY(spi_base);
+    const struct nu_modinit_s *modinit = get_modinit(obj->spi.spi, spi_modinit_tab);
+    MBED_ASSERT(modinit != NULL);
+    MBED_ASSERT(modinit->modname == (int) obj->spi.spi);
+
+    /* Vector will be cleared when asynchronous transfer is finished or aborted.
+       Use it to judge if asynchronous transfer is on-going. */
+    /* NOTE: On NANO130, vector table is fixed in ROM and cannot be modified. */ 
+    return obj->spi.hdlr_async ? 1 : 0;
 }
 
 void SPI0_IRQHandler(void)
@@ -537,7 +586,7 @@ static int spi_readable(spi_t * obj)
 }
 
 static void spi_enable_event(spi_t *obj, uint32_t event, uint8_t enable)
-{   
+{
     obj->spi.event &= ~SPI_EVENT_ALL;
     obj->spi.event |= (event & SPI_EVENT_ALL);
     if (event & SPI_EVENT_RX_OVERFLOW) {
@@ -549,20 +598,21 @@ static void spi_enable_vector_interrupt(spi_t *obj, uint32_t handler, uint8_t en
 {
     const struct nu_modinit_s *modinit = get_modinit(obj->spi.spi, spi_modinit_tab);
     MBED_ASSERT(modinit != NULL);
-    MBED_ASSERT((SPIName) modinit->modname == obj->spi.spi);
+    MBED_ASSERT(modinit->modname == (int) obj->spi.spi);
     
     struct nu_spi_var *var = (struct nu_spi_var *) modinit->var;
     
     if (enable) {
         var->obj = obj;
         obj->spi.hdlr_async = handler;
-        NVIC_SetVector(modinit->irq_n, (uint32_t) var->vec);
+        /* NOTE: On NANO130, vector table is fixed in ROM and cannot be modified. */
         NVIC_EnableIRQ(modinit->irq_n);
     }
     else {
         NVIC_DisableIRQ(modinit->irq_n);
+        /* NOTE: On NANO130, vector table is fixed in ROM and cannot be modified. */
         var->obj = NULL;
-        obj->spi.hdlr_async = handler;
+        obj->spi.hdlr_async = 0;
     }
 }
 
@@ -585,16 +635,16 @@ static uint32_t spi_event_check(spi_t *obj)
 {
     SPI_T *spi_base = (SPI_T *) NU_MODBASE(obj->spi.spi);
     uint32_t event = 0;
-    
+
     if (obj->spi.dma_usage == DMA_USAGE_NEVER) {
         uint32_t n_rec = spi_master_read_asynch(obj);
         spi_master_write_asynch(obj, n_rec);
     }
-    
+
     if (spi_is_tx_complete(obj) && spi_is_rx_complete(obj)) {
         event |= SPI_EVENT_COMPLETE;
     }
-    
+
     // Receive FIFO Overrun
     if (spi_base->STATUS & SPI_STATUS_RX_OVER_RUN_Msk) {
         spi_base->STATUS = SPI_STATUS_RX_OVER_RUN_Msk;
@@ -603,10 +653,11 @@ static uint32_t spi_event_check(spi_t *obj)
             event |= SPI_EVENT_RX_OVERFLOW;
         }
     }
-    
+
     // Receive Time-Out
     if (spi_base->STATUS & SPI_STATUS_TIME_OUT_STS_Msk) {
         spi_base->STATUS = SPI_STATUS_TIME_OUT_STS_Msk;
+        // Not using this IF. Just clear it.
     }
     
     return event;
@@ -652,12 +703,12 @@ static uint32_t spi_master_write_asynch(spi_t *obj, uint32_t tx_limit)
                     tx += 1;
                     break;
             }
-        
+
             obj->tx_buff.pos ++;
         }
         n_words ++;
     }
-    
+
     //Return the number of words that have been sent
     return n_words;
 }
@@ -708,12 +759,12 @@ static uint32_t spi_master_read_asynch(spi_t *obj)
                     *rx ++ = M32(RX);
                     break;
             }
-        
+
             obj->rx_buff.pos ++;
         }
         n_words ++;
     }
-    
+
     // Return the number of words received
     return n_words;
 }
@@ -739,12 +790,12 @@ static void spi_check_dma_usage(DMAUsage *dma_usage, int *dma_ch_tx, int *dma_ch
         if (*dma_ch_rx == DMA_ERROR_OUT_OF_CHANNELS) {
             *dma_ch_rx = dma_channel_allocate(DMA_CAP_NONE);
         }
-        
+
         if (*dma_ch_tx == DMA_ERROR_OUT_OF_CHANNELS || *dma_ch_rx == DMA_ERROR_OUT_OF_CHANNELS) {
             *dma_usage = DMA_USAGE_NEVER;
         }
     }
-    
+
     if (*dma_usage == DMA_USAGE_NEVER) {
         dma_channel_free(*dma_ch_tx);
         *dma_ch_tx = DMA_ERROR_OUT_OF_CHANNELS;
@@ -756,12 +807,12 @@ static void spi_check_dma_usage(DMAUsage *dma_usage, int *dma_ch_tx, int *dma_ch
 static uint8_t spi_get_data_width(spi_t *obj)
 {    
     SPI_T *spi_base = (SPI_T *) NU_MODBASE(obj->spi.spi);
-    
+
     uint32_t data_width = ((spi_base->CTL & SPI_CTL_TX_BIT_LEN_Msk) >> SPI_CTL_TX_BIT_LEN_Pos);
     if (data_width == 0) {
         data_width = 32;
     }
-    
+
     return data_width;
 }
 
@@ -778,7 +829,7 @@ static int spi_is_rx_complete(spi_t *obj)
 static void spi_dma_handler_tx(uint32_t id, uint32_t event_dma)
 {
     spi_t *obj = (spi_t *) id;
-    
+
     // TODO: Pass this error to caller
     if (event_dma & DMA_EVENT_ABORT) {
     }
@@ -789,11 +840,11 @@ static void spi_dma_handler_tx(uint32_t id, uint32_t event_dma)
     // TODO: Pass this error to caller
     if (event_dma & DMA_EVENT_TIMEOUT) {
     }
-    
+
     const struct nu_modinit_s *modinit = get_modinit(obj->spi.spi, spi_modinit_tab);
     MBED_ASSERT(modinit != NULL);
-    MBED_ASSERT((SPIName) modinit->modname == obj->spi.spi);
-    
+    MBED_ASSERT(modinit->modname == (int) obj->spi.spi);
+
     void (*vec)(void) = (void (*)(void)) NVIC_GetVector(modinit->irq_n);
     vec();
 }
@@ -801,7 +852,7 @@ static void spi_dma_handler_tx(uint32_t id, uint32_t event_dma)
 static void spi_dma_handler_rx(uint32_t id, uint32_t event_dma)
 {
     spi_t *obj = (spi_t *) id;
-    
+
     // TODO: Pass this error to caller
     if (event_dma & DMA_EVENT_ABORT) {
     }
@@ -812,11 +863,11 @@ static void spi_dma_handler_rx(uint32_t id, uint32_t event_dma)
     // TODO: Pass this error to caller
     if (event_dma & DMA_EVENT_TIMEOUT) {
     }
-    
+
     const struct nu_modinit_s *modinit = get_modinit(obj->spi.spi, spi_modinit_tab);
     MBED_ASSERT(modinit != NULL);
-    MBED_ASSERT((SPIName) modinit->modname == obj->spi.spi);
-    
+    MBED_ASSERT(modinit->modname == (int) obj->spi.spi);
+
     void (*vec)(void) = (void (*)(void)) NVIC_GetVector(modinit->irq_n);
     vec();
 }

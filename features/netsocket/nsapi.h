@@ -33,7 +33,7 @@
 #include "netsocket/NetworkInterface.h"
 #include "netsocket/EthInterface.h"
 #include "netsocket/WiFiInterface.h"
-#include "netsocket/CellularInterface.h"
+#include "netsocket/CellularBase.h"
 #include "netsocket/MeshInterface.h"
 
 #include "netsocket/Socket.h"

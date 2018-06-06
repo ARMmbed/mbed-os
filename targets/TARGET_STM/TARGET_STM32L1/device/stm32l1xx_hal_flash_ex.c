@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_flash_ex.c
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    01-July-2016
   * @brief   Extended FLASH HAL module driver.
   *    
   *          This file provides firmware functions to manage the following 
@@ -38,7 +36,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -205,7 +203,7 @@ static HAL_StatusTypeDef  FLASH_DATAEEPROM_ProgramByte(uint32_t Address, uint8_t
 HAL_StatusTypeDef HAL_FLASHEx_Erase(FLASH_EraseInitTypeDef *pEraseInit, uint32_t *PageError)
 {
   HAL_StatusTypeDef status = HAL_ERROR;
-  uint32_t address = 0;
+  uint32_t address = 0U;
   
   /* Process Locked */
   __HAL_LOCK(&pFlash);
@@ -222,7 +220,7 @@ HAL_StatusTypeDef HAL_FLASHEx_Erase(FLASH_EraseInitTypeDef *pEraseInit, uint32_t
     assert_param(IS_NBPAGES(pEraseInit->NbPages));
     assert_param(IS_FLASH_TYPEERASE(pEraseInit->TypeErase));
     assert_param(IS_FLASH_PROGRAM_ADDRESS(pEraseInit->PageAddress));
-    assert_param(IS_FLASH_PROGRAM_ADDRESS((pEraseInit->PageAddress & ~(FLASH_PAGE_SIZE - 1)) + pEraseInit->NbPages * FLASH_PAGE_SIZE - 1));
+    assert_param(IS_FLASH_PROGRAM_ADDRESS((pEraseInit->PageAddress & ~(FLASH_PAGE_SIZE - 1U)) + pEraseInit->NbPages * FLASH_PAGE_SIZE - 1U));
 
 #if defined(STM32L151xDX) || defined(STM32L152xDX) || defined(STM32L162xDX)
     /* Check on which bank belongs the 1st address to erase */
@@ -230,7 +228,7 @@ HAL_StatusTypeDef HAL_FLASHEx_Erase(FLASH_EraseInitTypeDef *pEraseInit, uint32_t
     {
       /* BANK1 */
       /* Check that last page to erase still belongs to BANK1 */
-      if (((pEraseInit->PageAddress & ~(FLASH_PAGE_SIZE - 1)) + pEraseInit->NbPages * FLASH_PAGE_SIZE - 1) > FLASH_BANK1_END)
+      if (((pEraseInit->PageAddress & ~(FLASH_PAGE_SIZE - 1U)) + pEraseInit->NbPages * FLASH_PAGE_SIZE - 1U) > FLASH_BANK1_END)
       {
         /*  Last page does not belong to BANK1, erase procedure cannot be performed because memory is not
             continuous */
@@ -243,7 +241,7 @@ HAL_StatusTypeDef HAL_FLASHEx_Erase(FLASH_EraseInitTypeDef *pEraseInit, uint32_t
     {
       /* BANK2 */
       /* Check that last page to erase still belongs to BANK2 */
-      if (((pEraseInit->PageAddress & ~(FLASH_PAGE_SIZE - 1)) + pEraseInit->NbPages * FLASH_PAGE_SIZE - 1) > FLASH_BANK2_END)
+      if (((pEraseInit->PageAddress & ~(FLASH_PAGE_SIZE - 1U)) + pEraseInit->NbPages * FLASH_PAGE_SIZE - 1U) > FLASH_BANK2_END)
       {
         /*  Last page does not belong to BANK2, erase procedure cannot be performed because memory is not
             continuous */
@@ -300,7 +298,7 @@ HAL_StatusTypeDef HAL_FLASHEx_Erase(FLASH_EraseInitTypeDef *pEraseInit, uint32_t
   */
 HAL_StatusTypeDef HAL_FLASHEx_Erase_IT(FLASH_EraseInitTypeDef *pEraseInit)
 {
-  HAL_StatusTypeDef status = HAL_OK;
+  HAL_StatusTypeDef status = HAL_ERROR;
 
   /* If procedure already ongoing, reject the next one */
   if (pFlash.ProcedureOnGoing != FLASH_PROC_NONE)
@@ -312,7 +310,7 @@ HAL_StatusTypeDef HAL_FLASHEx_Erase_IT(FLASH_EraseInitTypeDef *pEraseInit)
   assert_param(IS_NBPAGES(pEraseInit->NbPages));
   assert_param(IS_FLASH_TYPEERASE(pEraseInit->TypeErase));
   assert_param(IS_FLASH_PROGRAM_ADDRESS(pEraseInit->PageAddress));
-  assert_param(IS_FLASH_PROGRAM_ADDRESS((pEraseInit->PageAddress & ~(FLASH_PAGE_SIZE - 1)) + pEraseInit->NbPages * FLASH_PAGE_SIZE - 1));
+  assert_param(IS_FLASH_PROGRAM_ADDRESS((pEraseInit->PageAddress & ~(FLASH_PAGE_SIZE - 1U)) + pEraseInit->NbPages * FLASH_PAGE_SIZE - 1U));
 
   /* Process Locked */
   __HAL_LOCK(&pFlash);
@@ -323,7 +321,7 @@ HAL_StatusTypeDef HAL_FLASHEx_Erase_IT(FLASH_EraseInitTypeDef *pEraseInit)
     {
       /* BANK1 */
       /* Check that last page to erase still belongs to BANK1 */
-      if (((pEraseInit->PageAddress & ~(FLASH_PAGE_SIZE - 1)) + pEraseInit->NbPages * FLASH_PAGE_SIZE - 1) > FLASH_BANK1_END)
+      if (((pEraseInit->PageAddress & ~(FLASH_PAGE_SIZE - 1U)) + pEraseInit->NbPages * FLASH_PAGE_SIZE - 1U) > FLASH_BANK1_END)
       {
         /*  Last page does not belong to BANK1, erase procedure cannot be performed because memory is not
             continuous */
@@ -336,7 +334,7 @@ HAL_StatusTypeDef HAL_FLASHEx_Erase_IT(FLASH_EraseInitTypeDef *pEraseInit)
     {
       /* BANK2 */
       /* Check that last page to erase still belongs to BANK2 */
-      if (((pEraseInit->PageAddress & ~(FLASH_PAGE_SIZE - 1)) + pEraseInit->NbPages * FLASH_PAGE_SIZE - 1) > FLASH_BANK2_END)
+      if (((pEraseInit->PageAddress & ~(FLASH_PAGE_SIZE - 1U)) + pEraseInit->NbPages * FLASH_PAGE_SIZE - 1U) > FLASH_BANK2_END)
       {
         /*  Last page does not belong to BANK2, erase procedure cannot be performed because memory is not
             continuous */
@@ -347,15 +345,26 @@ HAL_StatusTypeDef HAL_FLASHEx_Erase_IT(FLASH_EraseInitTypeDef *pEraseInit)
     }
 #endif /* STM32L151xDX || STM32L152xDX || STM32L162xDX */
 
-  /* Enable End of FLASH Operation and Error source interrupts */
-  __HAL_FLASH_ENABLE_IT(FLASH_IT_EOP | FLASH_IT_ERR);
+  /* Wait for last operation to be completed */
+  status = FLASH_WaitForLastOperation(FLASH_TIMEOUT_VALUE);
   
-  pFlash.ProcedureOnGoing = FLASH_PROC_PAGEERASE;
-  pFlash.NbPagesToErase = pEraseInit->NbPages;
-  pFlash.Page = pEraseInit->PageAddress;
+  if (status == HAL_OK)
+  {
+    /* Enable End of FLASH Operation and Error source interrupts */
+    __HAL_FLASH_ENABLE_IT(FLASH_IT_EOP | FLASH_IT_ERR);
+    
+    pFlash.ProcedureOnGoing = FLASH_PROC_PAGEERASE;
+    pFlash.NbPagesToErase = pEraseInit->NbPages;
+    pFlash.Page = pEraseInit->PageAddress;
 
-  /*Erase 1st page and wait for IT*/
-  FLASH_PageErase(pEraseInit->PageAddress);
+    /*Erase 1st page and wait for IT*/
+    FLASH_PageErase(pEraseInit->PageAddress);
+  }
+  else
+  {
+    /* Process Unlocked */
+    __HAL_UNLOCK(&pFlash);
+  }
 
   return status;
 }
@@ -605,7 +614,7 @@ HAL_StatusTypeDef HAL_FLASHEx_AdvOBProgram (FLASH_AdvOBProgramInitTypeDef *pAdvO
   */
 void HAL_FLASHEx_AdvOBGetConfig(FLASH_AdvOBProgramInitTypeDef *pAdvOBInit)
 {
-  pAdvOBInit->OptionType = 0;
+  pAdvOBInit->OptionType = 0U;
   
 #if defined(FLASH_OBR_SPRMOD)
       
@@ -630,7 +639,7 @@ void HAL_FLASHEx_AdvOBGetConfig(FLASH_AdvOBProgramInitTypeDef *pAdvOBInit)
   pAdvOBInit->OptionType |= OPTIONBYTE_BOOTCONFIG;
 
   /* Get Boot config OB */
-  pAdvOBInit->BootConfig = (FLASH->OBR & FLASH_OBR_nRST_BFB2) >> 16;
+  pAdvOBInit->BootConfig = (FLASH->OBR & FLASH_OBR_nRST_BFB2) >> 16U;
 
 #endif /* FLASH_OBR_nRST_BFB2 */
 }
@@ -649,10 +658,10 @@ void HAL_FLASHEx_AdvOBGetConfig(FLASH_AdvOBProgramInitTypeDef *pAdvOBInit)
 HAL_StatusTypeDef HAL_FLASHEx_OB_SelectPCROP(void)
 {
   HAL_StatusTypeDef status = HAL_OK;
-  uint16_t tmp1 = 0;
-  uint32_t tmp2 = 0;
-  uint8_t optiontmp = 0;
-  uint16_t optiontmp2 = 0;
+  uint16_t tmp1 = 0U;
+  uint32_t tmp2 = 0U;
+  uint8_t optiontmp = 0U;
+  uint16_t optiontmp2 = 0U;
   
   status = FLASH_WaitForLastOperation(FLASH_TIMEOUT_VALUE);
   
@@ -664,7 +673,7 @@ HAL_StatusTypeDef HAL_FLASHEx_OB_SelectPCROP(void)
   
   /* calculate the option byte to write */
   tmp1 = (uint16_t)(~(optiontmp2 ));
-  tmp2 = (uint32_t)(((uint32_t)((uint32_t)(tmp1) << 16)) | ((uint32_t)optiontmp2));
+  tmp2 = (uint32_t)(((uint32_t)((uint32_t)(tmp1) << 16U)) | ((uint32_t)optiontmp2));
   
   if(status == HAL_OK)
   {         
@@ -692,10 +701,10 @@ HAL_StatusTypeDef HAL_FLASHEx_OB_SelectPCROP(void)
 HAL_StatusTypeDef HAL_FLASHEx_OB_DeSelectPCROP(void)
 {
   HAL_StatusTypeDef status = HAL_OK;
-  uint16_t tmp1 = 0;
-  uint32_t tmp2 = 0;
-  uint8_t optiontmp = 0;
-  uint16_t optiontmp2 = 0;
+  uint16_t tmp1 = 0U;
+  uint32_t tmp2 = 0U;
+  uint8_t optiontmp = 0U;
+  uint16_t optiontmp2 = 0U;
   
   status = FLASH_WaitForLastOperation(FLASH_TIMEOUT_VALUE);
   
@@ -707,7 +716,7 @@ HAL_StatusTypeDef HAL_FLASHEx_OB_DeSelectPCROP(void)
   
   /* calculate the option byte to write */
   tmp1 = (uint16_t)(~(optiontmp2 ));
-  tmp2 = (uint32_t)(((uint32_t)((uint32_t)(tmp1) << 16)) | ((uint32_t)optiontmp2));
+  tmp2 = (uint32_t)(((uint32_t)((uint32_t)(tmp1) << 16U)) | ((uint32_t)optiontmp2));
   
   if(status == HAL_OK)
   {         
@@ -813,7 +822,7 @@ HAL_StatusTypeDef HAL_FLASHEx_DATAEEPROM_Erase(uint32_t TypeErase, uint32_t Addr
     if(TypeErase == FLASH_TYPEERASEDATA_WORD)
     {
       /* Write 00000000h to valid address in the data memory */
-      *(__IO uint32_t *) Address = 0x00000000;
+      *(__IO uint32_t *) Address = 0x00000000U;
     }
 
     if(TypeErase == FLASH_TYPEERASEDATA_HALFWORD)
@@ -846,8 +855,8 @@ HAL_StatusTypeDef HAL_FLASHEx_DATAEEPROM_Erase(uint32_t TypeErase, uint32_t Addr
   *         this function to configure the Fixed Time Programming.
   * @param  TypeProgram  Indicate the way to program at a specified address.
   *         This parameter can be a value of @ref FLASHEx_Type_Program_Data
-  * @param  Address  specifies the address to be programmed.
-  * @param  Data specifies the data to be programmed
+  * @param  Address  specifie the address to be programmed.
+  * @param  Data     specifie the data to be programmed
   * 
   * @retval HAL_StatusTypeDef HAL Status
   */
@@ -870,43 +879,43 @@ HAL_StatusTypeDef   HAL_FLASHEx_DATAEEPROM_Program(uint32_t TypeProgram, uint32_
     /* Clean the error context */
     pFlash.ErrorCode = HAL_FLASH_ERROR_NONE;
 
-    if(TypeProgram == FLASH_TYPEPROGRAMDATA_FASTBYTE)
-    {
-      /*Program word (8-bit) at a specified address.*/
-      status = FLASH_DATAEEPROM_FastProgramByte(Address, (uint8_t) Data);
-    }
-    
-    if(TypeProgram == FLASH_TYPEPROGRAMDATA_FASTHALFWORD)
-    {
-      /* Program halfword (16-bit) at a specified address.*/
-      status = FLASH_DATAEEPROM_FastProgramHalfWord(Address, (uint16_t) Data);
-    }    
-    
-    if(TypeProgram == FLASH_TYPEPROGRAMDATA_FASTWORD)
-    {
-      /* Program word (32-bit) at a specified address.*/
-      status = FLASH_DATAEEPROM_FastProgramWord(Address, (uint32_t) Data);
-    }
-    
     if(TypeProgram == FLASH_TYPEPROGRAMDATA_WORD)
     {
       /* Program word (32-bit) at a specified address.*/
       status = FLASH_DATAEEPROM_ProgramWord(Address, (uint32_t) Data);
     }
-       
-    if(TypeProgram == FLASH_TYPEPROGRAMDATA_HALFWORD)
+    else if(TypeProgram == FLASH_TYPEPROGRAMDATA_HALFWORD)
     {
       /* Program halfword (16-bit) at a specified address.*/
       status = FLASH_DATAEEPROM_ProgramHalfWord(Address, (uint16_t) Data);
     }
-        
-    if(TypeProgram == FLASH_TYPEPROGRAMDATA_BYTE)
+    else if(TypeProgram == FLASH_TYPEPROGRAMDATA_BYTE)
     {
       /* Program byte (8-bit) at a specified address.*/
       status = FLASH_DATAEEPROM_ProgramByte(Address, (uint8_t) Data);
     }
+    else if(TypeProgram == FLASH_TYPEPROGRAMDATA_FASTBYTE)
+    {
+      /*Program word (8-bit) at a specified address.*/
+      status = FLASH_DATAEEPROM_FastProgramByte(Address, (uint8_t) Data);
+    }
+    else if(TypeProgram == FLASH_TYPEPROGRAMDATA_FASTHALFWORD)
+    {
+      /* Program halfword (16-bit) at a specified address.*/
+      status = FLASH_DATAEEPROM_FastProgramHalfWord(Address, (uint16_t) Data);
+    }    
+    else if(TypeProgram == FLASH_TYPEPROGRAMDATA_FASTWORD)
+    {
+      /* Program word (32-bit) at a specified address.*/
+      status = FLASH_DATAEEPROM_FastProgramWord(Address, (uint32_t) Data);
+    }
+    else
+    {
+      status = HAL_ERROR;
+    }
+
   }
-  
+
   /* Process Unlocked */
   __HAL_UNLOCK(&pFlash);
 
@@ -965,7 +974,7 @@ void HAL_FLASHEx_DATAEEPROM_DisableFixedTimeProgram(void)
 static HAL_StatusTypeDef FLASH_OB_RDPConfig(uint8_t OB_RDP)
 {
   HAL_StatusTypeDef status = HAL_OK;
-  uint32_t tmp1 = 0, tmp2 = 0, tmp3 = 0;
+  uint32_t tmp1 = 0U, tmp2 = 0U, tmp3 = 0U;
   
   /* Check the parameters */
   assert_param(IS_OB_RDP(OB_RDP));
@@ -991,7 +1000,7 @@ static HAL_StatusTypeDef FLASH_OB_RDPConfig(uint8_t OB_RDP)
 
     /* calculate the option byte to write */
     tmp1 = (~((uint32_t)(OB_RDP | tmp3)));
-    tmp2 = (uint32_t)(((uint32_t)((uint32_t)(tmp1) << 16)) | ((uint32_t)(OB_RDP | tmp3)));
+    tmp2 = (uint32_t)(((uint32_t)((uint32_t)(tmp1) << 16U)) | ((uint32_t)(OB_RDP | tmp3)));
 
     /* Wait for last operation to be completed */
     status = FLASH_WaitForLastOperation(FLASH_TIMEOUT_VALUE);
@@ -1029,16 +1038,16 @@ static HAL_StatusTypeDef FLASH_OB_RDPConfig(uint8_t OB_RDP)
 static HAL_StatusTypeDef FLASH_OB_BORConfig(uint8_t OB_BOR)
 {
   HAL_StatusTypeDef status = HAL_OK;
-  uint32_t tmp = 0, tmp1 = 0;
+  uint32_t tmp = 0U, tmp1 = 0U;
 
   /* Check the parameters */
   assert_param(IS_OB_BOR_LEVEL(OB_BOR));
 
   /* Get the User Option byte register */
-  tmp1 = OB->USER & ((~FLASH_OBR_BOR_LEV) >> 16);
+  tmp1 = OB->USER & ((~FLASH_OBR_BOR_LEV) >> 16U);
 
-  /* Calculate the option byte to write - [0xFF | nUSER | 0x00 | USER]*/
-  tmp = (uint32_t)~((OB_BOR | tmp1)) << 16;
+  /* Calculate the option byte to write - [0xFFU | nUSER | 0x00U | USER]*/
+  tmp = (uint32_t)~((OB_BOR | tmp1)) << 16U;
   tmp |= (OB_BOR | tmp1);
     
   /* Wait for last operation to be completed */
@@ -1067,7 +1076,7 @@ static HAL_StatusTypeDef FLASH_OB_BORConfig(uint8_t OB_BOR)
 static uint8_t FLASH_OB_GetUser(void)
 {
   /* Return the User Option Byte */
-  return (uint8_t)((FLASH->OBR & FLASH_OBR_USER) >> 16);
+  return (uint8_t)((FLASH->OBR & FLASH_OBR_USER) >> 16U);
 }
 
 /**
@@ -1090,7 +1099,7 @@ static uint8_t FLASH_OB_GetRDP(void)
 static uint8_t FLASH_OB_GetBOR(void)
 {
   /* Return the BOR level */
-  return (uint8_t)((FLASH->OBR & (uint32_t)FLASH_OBR_BOR_LEV) >> 16);
+  return (uint8_t)((FLASH->OBR & (uint32_t)FLASH_OBR_BOR_LEV) >> 16U);
 }
 
 /**
@@ -1114,7 +1123,7 @@ static HAL_StatusTypeDef FLASH_OB_WRPConfig(FLASH_OBProgramInitTypeDef *pOBInit,
     pFlash.ErrorCode = HAL_FLASH_ERROR_NONE;
 
     /* WRP for sector between 0 to 31 */
-    if (pOBInit->WRPSector0To31 != 0)
+    if (pOBInit->WRPSector0To31 != 0U)
     {
       FLASH_OB_WRPConfigWRP1OrPCROP1(pOBInit->WRPSector0To31, NewState);
     }
@@ -1126,7 +1135,7 @@ static HAL_StatusTypeDef FLASH_OB_WRPConfig(FLASH_OBProgramInitTypeDef *pOBInit,
       
     /* Pages for Cat3, Cat4 & Cat5 devices*/
     /* WRP for sector between 32 to 63 */
-    if (pOBInit->WRPSector32To63 != 0)
+    if (pOBInit->WRPSector32To63 != 0U)
     {
       FLASH_OB_WRPConfigWRP2OrPCROP2(pOBInit->WRPSector32To63, NewState);
     }
@@ -1139,7 +1148,7 @@ static HAL_StatusTypeDef FLASH_OB_WRPConfig(FLASH_OBProgramInitTypeDef *pOBInit,
       
     /* Pages for devices with FLASH >= 256KB*/
     /* WRP for sector between 64 to 95 */
-    if (pOBInit->WRPSector64To95 != 0)
+    if (pOBInit->WRPSector64To95 != 0U)
     {
       FLASH_OB_WRPConfigWRP3(pOBInit->WRPSector64To95, NewState);
     }
@@ -1151,7 +1160,7 @@ static HAL_StatusTypeDef FLASH_OB_WRPConfig(FLASH_OBProgramInitTypeDef *pOBInit,
 
     /* Pages for Cat5 devices*/
     /* WRP for sector between 96 to 127 */
-    if (pOBInit->WRPSector96To127 != 0)
+    if (pOBInit->WRPSector96To127 != 0U)
     {
       FLASH_OB_WRPConfigWRP4(pOBInit->WRPSector96To127, NewState);
     }
@@ -1199,7 +1208,7 @@ static HAL_StatusTypeDef FLASH_OB_PCROPConfig(FLASH_AdvOBProgramInitTypeDef *pAd
 
     /* Pages for Cat2 devices*/
     /* PCROP for sector between 0 to 31 */
-    if (pAdvOBInit->PCROPSector0To31 != 0)
+    if (pAdvOBInit->PCROPSector0To31 != 0U)
     {
       FLASH_OB_WRPConfigWRP1OrPCROP1(pAdvOBInit->PCROPSector0To31, pcropstate);
     }
@@ -1208,7 +1217,7 @@ static HAL_StatusTypeDef FLASH_OB_PCROPConfig(FLASH_AdvOBProgramInitTypeDef *pAd
 
     /* Pages for Cat3 devices*/
     /* WRP for sector between 32 to 63 */
-    if (pAdvOBInit->PCROPSector32To63 != 0)
+    if (pAdvOBInit->PCROPSector32To63 != 0U)
     {
       FLASH_OB_WRPConfigWRP2OrPCROP2(pAdvOBInit->PCROPSector32To63, pcropstate);
     }
@@ -1234,9 +1243,9 @@ static HAL_StatusTypeDef FLASH_OB_PCROPConfig(FLASH_AdvOBProgramInitTypeDef *pAd
   */
 static void FLASH_OB_WRPConfigWRP1OrPCROP1(uint32_t WRP1OrPCROP1, FunctionalState NewState)
 {
-  uint32_t wrp01data = 0, wrp23data = 0;
+  uint32_t wrp01data = 0U, wrp23data = 0U;
   
-  uint32_t tmp1 = 0, tmp2 = 0;
+  uint32_t tmp1 = 0U, tmp2 = 0U;
   
   /* Check the parameters */
   assert_param(IS_OB_WRP(WRP1OrPCROP1));
@@ -1245,22 +1254,22 @@ static void FLASH_OB_WRPConfigWRP1OrPCROP1(uint32_t WRP1OrPCROP1, FunctionalStat
   if (NewState != DISABLE)
   {
     wrp01data = (uint16_t)(((WRP1OrPCROP1 & WRP_MASK_LOW) | OB->WRP01));
-    wrp23data = (uint16_t)((((WRP1OrPCROP1 & WRP_MASK_HIGH)>>16 | OB->WRP23))); 
-    tmp1 = (uint32_t)(~(wrp01data) << 16)|(wrp01data);
+    wrp23data = (uint16_t)((((WRP1OrPCROP1 & WRP_MASK_HIGH)>>16U | OB->WRP23))); 
+    tmp1 = (uint32_t)(~(wrp01data) << 16U)|(wrp01data);
     OB->WRP01 = tmp1;
 
-    tmp2 = (uint32_t)(~(wrp23data) << 16)|(wrp23data);
+    tmp2 = (uint32_t)(~(wrp23data) << 16U)|(wrp23data);
     OB->WRP23 = tmp2;      
   }
   else
   {
     wrp01data = (uint16_t)(~WRP1OrPCROP1 & (WRP_MASK_LOW & OB->WRP01));
-    wrp23data = (uint16_t)((((~WRP1OrPCROP1 & WRP_MASK_HIGH)>>16 & OB->WRP23))); 
+    wrp23data = (uint16_t)((((~WRP1OrPCROP1 & WRP_MASK_HIGH)>>16U & OB->WRP23))); 
 
-    tmp1 = (uint32_t)((~wrp01data) << 16)|(wrp01data);
+    tmp1 = (uint32_t)((~wrp01data) << 16U)|(wrp01data);
     OB->WRP01 = tmp1;
     
-    tmp2 = (uint32_t)((~wrp23data) << 16)|(wrp23data);
+    tmp2 = (uint32_t)((~wrp23data) << 16U)|(wrp23data);
     OB->WRP23 = tmp2;
   }
 }
@@ -1280,9 +1289,9 @@ static void FLASH_OB_WRPConfigWRP1OrPCROP1(uint32_t WRP1OrPCROP1, FunctionalStat
   */
 static void FLASH_OB_WRPConfigWRP2OrPCROP2(uint32_t WRP2OrPCROP2, FunctionalState NewState)
 {
-  uint32_t wrp45data = 0, wrp67data = 0;
+  uint32_t wrp45data = 0U, wrp67data = 0U;
   
-  uint32_t tmp1 = 0, tmp2 = 0;
+  uint32_t tmp1 = 0U, tmp2 = 0U;
   
   /* Check the parameters */
   assert_param(IS_OB_WRP(WRP2OrPCROP2));
@@ -1291,22 +1300,22 @@ static void FLASH_OB_WRPConfigWRP2OrPCROP2(uint32_t WRP2OrPCROP2, FunctionalStat
   if (NewState != DISABLE)
   {
     wrp45data = (uint16_t)(((WRP2OrPCROP2 & WRP_MASK_LOW) | OB->WRP45));
-    wrp67data = (uint16_t)((((WRP2OrPCROP2 & WRP_MASK_HIGH)>>16 | OB->WRP67))); 
-    tmp1 = (uint32_t)(~(wrp45data) << 16)|(wrp45data);
+    wrp67data = (uint16_t)((((WRP2OrPCROP2 & WRP_MASK_HIGH)>>16U | OB->WRP67))); 
+    tmp1 = (uint32_t)(~(wrp45data) << 16U)|(wrp45data);
     OB->WRP45 = tmp1;
     
-    tmp2 = (uint32_t)(~(wrp67data) << 16)|(wrp67data);
+    tmp2 = (uint32_t)(~(wrp67data) << 16U)|(wrp67data);
     OB->WRP67 = tmp2;
   }
   else
   {
     wrp45data = (uint16_t)(~WRP2OrPCROP2 & (WRP_MASK_LOW & OB->WRP45));
-    wrp67data = (uint16_t)((((~WRP2OrPCROP2 & WRP_MASK_HIGH)>>16 & OB->WRP67))); 
+    wrp67data = (uint16_t)((((~WRP2OrPCROP2 & WRP_MASK_HIGH)>>16U & OB->WRP67))); 
     
-    tmp1 = (uint32_t)((~wrp45data) << 16)|(wrp45data);
+    tmp1 = (uint32_t)((~wrp45data) << 16U)|(wrp45data);
     OB->WRP45 = tmp1;
     
-    tmp2 = (uint32_t)((~wrp67data) << 16)|(wrp67data);
+    tmp2 = (uint32_t)((~wrp67data) << 16U)|(wrp67data);
     OB->WRP67 = tmp2;
   }
 }
@@ -1326,9 +1335,9 @@ static void FLASH_OB_WRPConfigWRP2OrPCROP2(uint32_t WRP2OrPCROP2, FunctionalStat
   */
 static void FLASH_OB_WRPConfigWRP3(uint32_t WRP3, FunctionalState NewState)
 {
-  uint32_t wrp89data = 0, wrp1011data = 0;
+  uint32_t wrp89data = 0U, wrp1011data = 0U;
   
-  uint32_t tmp1 = 0, tmp2 = 0;
+  uint32_t tmp1 = 0U, tmp2 = 0U;
   
   /* Check the parameters */
   assert_param(IS_OB_WRP(WRP3));
@@ -1337,22 +1346,22 @@ static void FLASH_OB_WRPConfigWRP3(uint32_t WRP3, FunctionalState NewState)
   if (NewState != DISABLE)
   {
     wrp89data = (uint16_t)(((WRP3 & WRP_MASK_LOW) | OB->WRP89));
-    wrp1011data = (uint16_t)((((WRP3 & WRP_MASK_HIGH)>>16 | OB->WRP1011))); 
-    tmp1 = (uint32_t)(~(wrp89data) << 16)|(wrp89data);
+    wrp1011data = (uint16_t)((((WRP3 & WRP_MASK_HIGH)>>16U | OB->WRP1011))); 
+    tmp1 = (uint32_t)(~(wrp89data) << 16U)|(wrp89data);
     OB->WRP89 = tmp1;
 
-    tmp2 = (uint32_t)(~(wrp1011data) << 16)|(wrp1011data);
+    tmp2 = (uint32_t)(~(wrp1011data) << 16U)|(wrp1011data);
     OB->WRP1011 = tmp2;      
   }
   else
   {
     wrp89data = (uint16_t)(~WRP3 & (WRP_MASK_LOW & OB->WRP89));
-    wrp1011data = (uint16_t)((((~WRP3 & WRP_MASK_HIGH)>>16 & OB->WRP1011))); 
+    wrp1011data = (uint16_t)((((~WRP3 & WRP_MASK_HIGH)>>16U & OB->WRP1011))); 
 
-    tmp1 = (uint32_t)((~wrp89data) << 16)|(wrp89data);
+    tmp1 = (uint32_t)((~wrp89data) << 16U)|(wrp89data);
     OB->WRP89 = tmp1;
 
-    tmp2 = (uint32_t)((~wrp1011data) << 16)|(wrp1011data);
+    tmp2 = (uint32_t)((~wrp1011data) << 16U)|(wrp1011data);
     OB->WRP1011 = tmp2;
   }
 }
@@ -1371,9 +1380,9 @@ static void FLASH_OB_WRPConfigWRP3(uint32_t WRP3, FunctionalState NewState)
   */
 static void FLASH_OB_WRPConfigWRP4(uint32_t WRP4, FunctionalState NewState)
 {
-  uint32_t wrp1213data = 0, wrp1415data = 0;
+  uint32_t wrp1213data = 0U, wrp1415data = 0U;
   
-  uint32_t tmp1 = 0, tmp2 = 0;
+  uint32_t tmp1 = 0U, tmp2 = 0U;
   
   /* Check the parameters */
   assert_param(IS_OB_WRP(WRP4));
@@ -1382,22 +1391,22 @@ static void FLASH_OB_WRPConfigWRP4(uint32_t WRP4, FunctionalState NewState)
   if (NewState != DISABLE)
   {
     wrp1213data = (uint16_t)(((WRP4 & WRP_MASK_LOW) | OB->WRP1213));
-    wrp1415data = (uint16_t)((((WRP4 & WRP_MASK_HIGH)>>16 | OB->WRP1415))); 
-    tmp1 = (uint32_t)(~(wrp1213data) << 16)|(wrp1213data);
+    wrp1415data = (uint16_t)((((WRP4 & WRP_MASK_HIGH)>>16U | OB->WRP1415))); 
+    tmp1 = (uint32_t)(~(wrp1213data) << 16U)|(wrp1213data);
     OB->WRP1213 = tmp1;
 
-    tmp2 = (uint32_t)(~(wrp1415data) << 16)|(wrp1415data);
+    tmp2 = (uint32_t)(~(wrp1415data) << 16U)|(wrp1415data);
     OB->WRP1415 = tmp2;      
   }
   else
   {
     wrp1213data = (uint16_t)(~WRP4 & (WRP_MASK_LOW & OB->WRP1213));
-    wrp1415data = (uint16_t)((((~WRP4 & WRP_MASK_HIGH)>>16 & OB->WRP1415))); 
+    wrp1415data = (uint16_t)((((~WRP4 & WRP_MASK_HIGH)>>16U & OB->WRP1415))); 
 
-    tmp1 = (uint32_t)((~wrp1213data) << 16)|(wrp1213data);
+    tmp1 = (uint32_t)((~wrp1213data) << 16U)|(wrp1213data);
     OB->WRP1213 = tmp1;
 
-    tmp2 = (uint32_t)((~wrp1415data) << 16)|(wrp1415data);
+    tmp2 = (uint32_t)((~wrp1415data) << 16U)|(wrp1415data);
     OB->WRP1415 = tmp2;
   }
 }
@@ -1422,7 +1431,7 @@ static void FLASH_OB_WRPConfigWRP4(uint32_t WRP4, FunctionalState NewState)
 static HAL_StatusTypeDef FLASH_OB_UserConfig(uint8_t OB_IWDG, uint8_t OB_STOP, uint8_t OB_STDBY)
 {
   HAL_StatusTypeDef status = HAL_OK; 
-  uint32_t tmp = 0, tmp1 = 0;
+  uint32_t tmp = 0U, tmp1 = 0U;
 
   /* Check the parameters */
   assert_param(IS_OB_IWDG_SOURCE(OB_IWDG));
@@ -1430,10 +1439,10 @@ static HAL_StatusTypeDef FLASH_OB_UserConfig(uint8_t OB_IWDG, uint8_t OB_STOP, u
   assert_param(IS_OB_STDBY_SOURCE(OB_STDBY));
 
   /* Get the User Option byte register */
-  tmp1 = OB->USER & ((~FLASH_OBR_USER) >> 16);
+  tmp1 = OB->USER & ((~FLASH_OBR_USER) >> 16U);
 
   /* Calculate the user option byte to write */ 
-  tmp = (uint32_t)(((uint32_t)~((uint32_t)((uint32_t)(OB_IWDG) | (uint32_t)(OB_STOP) | (uint32_t)(OB_STDBY) | tmp1))) << 16);
+  tmp = (uint32_t)(((uint32_t)~((uint32_t)((uint32_t)(OB_IWDG) | (uint32_t)(OB_STOP) | (uint32_t)(OB_STDBY) | tmp1))) << 16U);
   tmp |= ((uint32_t)(OB_IWDG) | ((uint32_t)OB_STOP) | (uint32_t)(OB_STDBY) | tmp1);
   
   /* Wait for last operation to be completed */
@@ -1475,16 +1484,16 @@ static HAL_StatusTypeDef FLASH_OB_UserConfig(uint8_t OB_IWDG, uint8_t OB_STOP, u
 static HAL_StatusTypeDef FLASH_OB_BootConfig(uint8_t OB_BOOT)
 {
   HAL_StatusTypeDef status = HAL_OK; 
-  uint32_t tmp = 0, tmp1 = 0;
+  uint32_t tmp = 0U, tmp1 = 0U;
 
   /* Check the parameters */
   assert_param(IS_OB_BOOT_BANK(OB_BOOT));
 
   /* Get the User Option byte register  and BOR Level*/
-  tmp1 = OB->USER & ((~FLASH_OBR_nRST_BFB2) >> 16);
+  tmp1 = OB->USER & ((~FLASH_OBR_nRST_BFB2) >> 16U);
 
   /* Calculate the option byte to write */
-  tmp = (uint32_t)~(OB_BOOT | tmp1) << 16;
+  tmp = (uint32_t)~(OB_BOOT | tmp1) << 16U;
   tmp |= (OB_BOOT | tmp1);
 
   /* Wait for last operation to be completed */
@@ -1525,7 +1534,7 @@ static HAL_StatusTypeDef FLASH_DATAEEPROM_FastProgramByte(uint32_t Address, uint
 {
   HAL_StatusTypeDef status = HAL_OK;
 #if defined(STM32L100xB) || defined(STM32L151xB) || defined(STM32L152xB)
-  uint32_t tmp = 0, tmpaddr = 0;
+  uint32_t tmp = 0U, tmpaddr = 0U;
 #endif /* STM32L100xB || STM32L151xB || STM32L152xB  */
   
   /* Check the parameters */
@@ -1541,7 +1550,7 @@ static HAL_StatusTypeDef FLASH_DATAEEPROM_FastProgramByte(uint32_t Address, uint
 
 #if defined(STM32L100xB) || defined(STM32L151xB) || defined(STM32L152xB)
     /* Possible only on Cat1 devices */
-    if(Data != (uint8_t)0x00) 
+    if(Data != (uint8_t)0x00U) 
     {
       /* If the previous operation is completed, proceed to write the new Data */
       *(__IO uint8_t *)Address = Data;
@@ -1551,14 +1560,14 @@ static HAL_StatusTypeDef FLASH_DATAEEPROM_FastProgramByte(uint32_t Address, uint
     }
     else
     {
-      tmpaddr = Address & 0xFFFFFFFC;
+      tmpaddr = Address & 0xFFFFFFFCU;
       tmp = * (__IO uint32_t *) tmpaddr;
-      tmpaddr = 0xFF << ((uint32_t) (0x8 * (Address & 0x3)));
+      tmpaddr = 0xFFU << ((uint32_t) (0x8U * (Address & 0x3U)));
       tmp &= ~tmpaddr;
-      status = HAL_FLASHEx_DATAEEPROM_Erase(FLASH_TYPEERASEDATA_WORD, Address & 0xFFFFFFFC);
+      status = HAL_FLASHEx_DATAEEPROM_Erase(FLASH_TYPEERASEDATA_WORD, Address & 0xFFFFFFFCU);
       /* Process Unlocked */
       __HAL_UNLOCK(&pFlash);
-      status = HAL_FLASHEx_DATAEEPROM_Program(FLASH_TYPEPROGRAMDATA_FASTWORD, (Address & 0xFFFFFFFC), tmp);
+      status = HAL_FLASHEx_DATAEEPROM_Program(FLASH_TYPEPROGRAMDATA_FASTWORD, (Address & 0xFFFFFFFCU), tmp);
       /* Process Locked */
       __HAL_LOCK(&pFlash);
     }
@@ -1585,7 +1594,7 @@ static HAL_StatusTypeDef FLASH_DATAEEPROM_FastProgramHalfWord(uint32_t Address, 
 {
   HAL_StatusTypeDef status = HAL_OK;
 #if defined(STM32L100xB) || defined(STM32L151xB) || defined(STM32L152xB)
-  uint32_t tmp = 0, tmpaddr = 0;
+  uint32_t tmp = 0U, tmpaddr = 0U;
 #endif /* STM32L100xB || STM32L151xB || STM32L152xB  */
   
   /* Check the parameters */
@@ -1601,7 +1610,7 @@ static HAL_StatusTypeDef FLASH_DATAEEPROM_FastProgramHalfWord(uint32_t Address, 
 
 #if defined(STM32L100xB) || defined(STM32L151xB) || defined(STM32L152xB)
     /* Possible only on Cat1 devices */
-    if(Data != (uint16_t)0x0000) 
+    if(Data != (uint16_t)0x0000U) 
     {
       /* If the previous operation is completed, proceed to write the new data */
       *(__IO uint16_t *)Address = Data;
@@ -1613,19 +1622,19 @@ static HAL_StatusTypeDef FLASH_DATAEEPROM_FastProgramHalfWord(uint32_t Address, 
     {
       /* Process Unlocked */
       __HAL_UNLOCK(&pFlash);
-      if((Address & 0x3) != 0x3)
+      if((Address & 0x3U) != 0x3U)
       {
-        tmpaddr = Address & 0xFFFFFFFC;
+        tmpaddr = Address & 0xFFFFFFFCU;
         tmp = * (__IO uint32_t *) tmpaddr;
-        tmpaddr = 0xFFFF << ((uint32_t) (0x8 * (Address & 0x3)));
+        tmpaddr = 0xFFFFU << ((uint32_t) (0x8U * (Address & 0x3U)));
         tmp &= ~tmpaddr;        
-        status = HAL_FLASHEx_DATAEEPROM_Erase(FLASH_TYPEERASEDATA_WORD, Address & 0xFFFFFFFC);
-        status = HAL_FLASHEx_DATAEEPROM_Program(FLASH_TYPEPROGRAMDATA_FASTWORD, (Address & 0xFFFFFFFC), tmp);
+        status = HAL_FLASHEx_DATAEEPROM_Erase(FLASH_TYPEERASEDATA_WORD, Address & 0xFFFFFFFCU);
+        status = HAL_FLASHEx_DATAEEPROM_Program(FLASH_TYPEPROGRAMDATA_FASTWORD, (Address & 0xFFFFFFFCU), tmp);
       }
       else
       {
-        HAL_FLASHEx_DATAEEPROM_Program(FLASH_TYPEPROGRAMDATA_FASTBYTE, Address, 0x00);
-        HAL_FLASHEx_DATAEEPROM_Program(FLASH_TYPEPROGRAMDATA_FASTBYTE, Address + 1, 0x00);
+        HAL_FLASHEx_DATAEEPROM_Program(FLASH_TYPEPROGRAMDATA_FASTBYTE, Address, 0x00U);
+        HAL_FLASHEx_DATAEEPROM_Program(FLASH_TYPEPROGRAMDATA_FASTBYTE, Address + 1U, 0x00U);
       }
       /* Process Locked */
       __HAL_LOCK(&pFlash);
@@ -1684,7 +1693,7 @@ static HAL_StatusTypeDef FLASH_DATAEEPROM_ProgramByte(uint32_t Address, uint8_t 
 {
   HAL_StatusTypeDef status = HAL_OK;
 #if defined(STM32L100xB) || defined(STM32L151xB) || defined(STM32L152xB)
-  uint32_t tmp = 0, tmpaddr = 0;
+  uint32_t tmp = 0U, tmpaddr = 0U;
 #endif /* STM32L100xB || STM32L151xB || STM32L152xB  */
   
   /* Check the parameters */
@@ -1696,7 +1705,7 @@ static HAL_StatusTypeDef FLASH_DATAEEPROM_ProgramByte(uint32_t Address, uint8_t 
   if(status == HAL_OK)
   {
 #if defined(STM32L100xB) || defined(STM32L151xB) || defined(STM32L152xB)
-    if(Data != (uint8_t) 0x00)
+    if(Data != (uint8_t) 0x00U)
     {  
       *(__IO uint8_t *)Address = Data;
     
@@ -1706,14 +1715,14 @@ static HAL_StatusTypeDef FLASH_DATAEEPROM_ProgramByte(uint32_t Address, uint8_t 
     }
     else
     {
-      tmpaddr = Address & 0xFFFFFFFC;
+      tmpaddr = Address & 0xFFFFFFFCU;
       tmp = * (__IO uint32_t *) tmpaddr;
-      tmpaddr = 0xFF << ((uint32_t) (0x8 * (Address & 0x3)));
+      tmpaddr = 0xFFU << ((uint32_t) (0x8U * (Address & 0x3U)));
       tmp &= ~tmpaddr;        
-      status = HAL_FLASHEx_DATAEEPROM_Erase(FLASH_TYPEERASEDATA_WORD, Address & 0xFFFFFFFC);
+      status = HAL_FLASHEx_DATAEEPROM_Erase(FLASH_TYPEERASEDATA_WORD, Address & 0xFFFFFFFCU);
       /* Process Unlocked */
       __HAL_UNLOCK(&pFlash);
-      status = HAL_FLASHEx_DATAEEPROM_Program(FLASH_TYPEPROGRAMDATA_FASTWORD, (Address & 0xFFFFFFFC), tmp);
+      status = HAL_FLASHEx_DATAEEPROM_Program(FLASH_TYPEPROGRAMDATA_FASTWORD, (Address & 0xFFFFFFFCU), tmp);
       /* Process Locked */
       __HAL_LOCK(&pFlash);
     }
@@ -1738,7 +1747,7 @@ static HAL_StatusTypeDef FLASH_DATAEEPROM_ProgramHalfWord(uint32_t Address, uint
 {
   HAL_StatusTypeDef status = HAL_OK;
 #if defined(STM32L100xB) || defined(STM32L151xB) || defined(STM32L152xB)
-  uint32_t tmp = 0, tmpaddr = 0;
+  uint32_t tmp = 0U, tmpaddr = 0U;
 #endif /* STM32L100xB || STM32L151xB || STM32L152xB  */
   
   /* Check the parameters */
@@ -1750,7 +1759,7 @@ static HAL_StatusTypeDef FLASH_DATAEEPROM_ProgramHalfWord(uint32_t Address, uint
   if(status == HAL_OK)
   {
 #if defined(STM32L100xB) || defined(STM32L151xB) || defined(STM32L152xB)
-    if(Data != (uint16_t)0x0000)
+    if(Data != (uint16_t)0x0000U)
     {
       *(__IO uint16_t *)Address = Data;
    
@@ -1761,19 +1770,19 @@ static HAL_StatusTypeDef FLASH_DATAEEPROM_ProgramHalfWord(uint32_t Address, uint
     {
       /* Process Unlocked */
       __HAL_UNLOCK(&pFlash);
-      if((Address & 0x3) != 0x3)
+      if((Address & 0x3U) != 0x3U)
       {
-        tmpaddr = Address & 0xFFFFFFFC;
+        tmpaddr = Address & 0xFFFFFFFCU;
         tmp = * (__IO uint32_t *) tmpaddr;
-        tmpaddr = 0xFFFF << ((uint32_t) (0x8 * (Address & 0x3)));
+        tmpaddr = 0xFFFFU << ((uint32_t) (0x8U * (Address & 0x3U)));
         tmp &= ~tmpaddr;          
-        status = HAL_FLASHEx_DATAEEPROM_Erase(FLASH_TYPEERASEDATA_WORD, Address & 0xFFFFFFFC);
-        status = HAL_FLASHEx_DATAEEPROM_Program(FLASH_TYPEPROGRAMDATA_FASTWORD, (Address & 0xFFFFFFFC), tmp);
+        status = HAL_FLASHEx_DATAEEPROM_Erase(FLASH_TYPEERASEDATA_WORD, Address & 0xFFFFFFFCU);
+        status = HAL_FLASHEx_DATAEEPROM_Program(FLASH_TYPEPROGRAMDATA_FASTWORD, (Address & 0xFFFFFFFCU), tmp);
       }
       else
       {
-        HAL_FLASHEx_DATAEEPROM_Program(FLASH_TYPEPROGRAMDATA_FASTBYTE, Address, 0x00);
-        HAL_FLASHEx_DATAEEPROM_Program(FLASH_TYPEPROGRAMDATA_FASTBYTE, Address + 1, 0x00);
+        HAL_FLASHEx_DATAEEPROM_Program(FLASH_TYPEPROGRAMDATA_FASTBYTE, Address, 0x00U);
+        HAL_FLASHEx_DATAEEPROM_Program(FLASH_TYPEPROGRAMDATA_FASTBYTE, Address + 1U, 0x00U);
       }
       /* Process Locked */
       __HAL_LOCK(&pFlash);

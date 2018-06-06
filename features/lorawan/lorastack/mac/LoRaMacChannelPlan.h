@@ -28,9 +28,8 @@ SPDX-License-Identifier: BSD-3-Clause
 #ifndef MBED_LORAWAN_LORAMACCHANNELPLAN_H_
 #define MBED_LORAWAN_LORAMACCHANNELPLAN_H_
 
-#include "lorawan/system/lorawan_data_structures.h"
+#include "system/lorawan_data_structures.h"
 #include "lorastack/phy/LoRaPHY.h"
-#include "lorastack/mac/LoRaMacMib.h"
 
 class LoRaMacChannelPlan {
 
@@ -54,9 +53,8 @@ public:
      * Stores pointers to PHY layer MIB subsystem
      *
      * @param phy    pointer to PHY layer
-     * @param mib    pointer to MIB subsystem
      */
-    void activate_channelplan_subsystem(LoRaPHY *phy,LoRaMacMib *mib);
+    void activate_channelplan_subsystem(LoRaPHY *phy);
 
     /** Set a given channel plan
      *
@@ -75,15 +73,15 @@ public:
      *
      * Used to get active channel plan.
      *
-     * @param plan      a reference to application provided channel plan structure
-     *                  which gets filled in with active channel plan data.
+     * @param plan          a reference to application provided channel plan structure
+     *                      which gets filled in with active channel plan data.
      *
-     * @param params    pointer to active MAC layer parameters.
+     * @param channel_list  pointer to structure containing channel information
      *
-     * @return          LORAWAN_STATUS_OK if everything goes well otherwise
-     *                  a negative error code is returned.
+     * @return              LORAWAN_STATUS_OK if everything goes well otherwise
+     *                      a negative error code is returned.
      */
-    lorawan_status_t get_plan(lorawan_channelplan_t& plan, loramac_protocol_params *params);
+    lorawan_status_t get_plan(lorawan_channelplan_t& plan, const channel_params_t* channel_list);
 
     /** Remove the active channel plan
      *
@@ -109,7 +107,6 @@ private:
      * Local handles
      */
     LoRaPHY *_lora_phy;
-    LoRaMacMib * _mib;
 };
 
 

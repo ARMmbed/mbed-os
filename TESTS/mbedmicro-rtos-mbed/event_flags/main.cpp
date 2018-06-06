@@ -26,6 +26,10 @@ using utest::v1::Case;
   #error [NOT_SUPPORTED] test not supported
 #endif
 
+#if !DEVICE_USTICKER
+  #error [NOT_SUPPORTED] test not supported
+#endif
+
 #define THREAD_STACK_SIZE   320 /* 512B stack on GCC_ARM compiler cause out of memory on some 16kB RAM boards e.g. NUCLEO_F070RB */
 
 #define MAX_FLAG_POS 30
@@ -50,6 +54,12 @@ Semaphore sync_sem(0, 1);
 #if defined(MBED_TRAP_ERRORS_ENABLED) && MBED_TRAP_ERRORS_ENABLED
 void error(const char* format, ...) {
     (void) format;
+}
+
+//Override the set_error function to trap the errors 
+mbed_error_status_t mbed_error(mbed_error_status_t error_status, const char *error_msg, unsigned int error_value, const char *filename, int line_number) 
+{
+    return MBED_SUCCESS;
 }
 #endif
 

@@ -14,5 +14,25 @@
     "NUCLEO_F429ZI": {
         "default_test_configuration": "HEAPBLOCKDEVICE_AND_ETHERNET",
         "test_configurations": ["HEAPBLOCKDEVICE_AND_ETHERNET"]
+    },
+    "MTB_UBLOX_ODIN_W2": {
+        "default_test_configuration": "NONE",
+        "test_configurations": ["ODIN_WIFI"]
+    },
+    "MTB_ADV_WISE_1530": {
+        "default_test_configuration": "NONE",
+        "test_configurations": ["WICED_WIFI"]
+    },
+    "MTB_USI_WM_BN_BM_22": {
+        "default_test_configuration": "NONE",
+        "test_configurations": ["WICED_WIFI"]
+    },
+    "MTB_MXCHIP_EMW3166": {
+        "default_test_configuration": "NONE",
+        "test_configurations": ["WICED_WIFI"]
+    },
+    "NUCLEO_F401RE": {
+        "default_test_configuration": "NONE",
+        "test_configurations": ["IDW0XX1_WIFI"]
     }
 }

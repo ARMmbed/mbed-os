@@ -65,7 +65,8 @@ static const sector_info_t sectors_info[] = {
 };
 
 static const flash_target_config_t flash_target_config = {
-    .page_size  = 0x800,    // 2 KB
+    .page_size  = 4,        // 4 bytes
+                            // Here page_size is program unit, which is different than FMC definition.
     .flash_start = 0x0,
     .flash_size = 0x40000,  // 256 KB
     .sectors = sectors_info,

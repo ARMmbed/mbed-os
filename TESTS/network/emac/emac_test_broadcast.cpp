@@ -28,42 +28,73 @@
 
 using namespace utest::v1;
 
-void test_emac_broadcast_cb(void)
+void test_emac_broadcast_cb(int opt)
 {
-    emac_if_validate_outgoing_msg();
+    static bool send_request = true;
+    static int no_response_cnt = 0;
+    static int retries = 0;
+    static int test_step = 0;
+    static int msg_len = 100;
+    static int wait = 0;
 
-    static int counter = 0;
+    if (wait) {
+        --wait;
+        return;
+    }
 
-    // Send three broadcast
-    if (counter < 3) {
-        emac_if_ctp_msg_build(100, eth_mac_broadcast_addr, emac_if_get_own_addr(), emac_if_get_own_addr());
-        counter++;
-    } else if (counter < 6) {
-        counter++;
-    } else if (counter < 9) {
-        emac_if_ctp_msg_build(50, eth_mac_broadcast_addr, emac_if_get_own_addr(), emac_if_get_own_addr());
-        counter++;
-    } else if (counter < 12) {
-        counter++;
-    } else if (counter == 12) {
-        emac_if_reset_outgoing_msg();
-        // ignore errors since just probing
-        RESET_ERROR_FLAGS;
 #if MBED_CONF_APP_ECHO_SERVER
-        printf("echo server started successfully\r\n\r\n");
-        counter = 255;
-#else
-        worker_loop_end();
+    static bool echo_server_started = false;
+    if (!echo_server_started) {
+#if MBED_CONF_APP_ECHO_SERVER_TRACE == 0
+        SET_TRACE_LEVEL(TRACE_NONE);
 #endif
+        printf("echo server started successfully\r\n\r\n");
+        echo_server_started = true;
+    } else {
+        // Sends broadcast every 60 seconds
+        CTP_MSG_SEND(msg_len, eth_mac_broadcast_addr, emac_if_get_own_addr(), emac_if_get_own_addr(), 0);
+        wait = 60;
+    }
+    return;
+#endif
+
+    // Timeout
+    if (opt == TIMEOUT && send_request) {
+        CTP_MSG_SEND(msg_len, eth_mac_broadcast_addr, emac_if_get_own_addr(), emac_if_get_own_addr(), 0);
+        send_request = false;
+        no_response_cnt = 0;
+    } else if (opt == TIMEOUT) {
+        if (++no_response_cnt > 3) {
+            if (++retries > 6) {
+                printf("too many retries\r\n\r\n");
+                END_TEST_LOOP;
+            } else {
+                printf("retry count %i\r\n\r\n", retries);
+                send_request = true;
+            }
+        }
+    }
+
+    // Echo response received
+    if (opt == INPUT) {
+        ++test_step;
+        if (test_step == 3) {
+            msg_len = 60;
+            wait = 3;
+        } else if (test_step == 6) {
+            END_TEST_LOOP;
+        }
+        retries = 0;
+        send_request = true;
     }
 }
 
 void test_emac_broadcast(void)
 {
-    RESET_ERROR_FLAGS;
-    SET_TRACE_LEVEL(TRACE_ETH_FRAMES | TRACE_SUCCESS | TRACE_FAILURE);
+    RESET_ALL_ERROR_FLAGS;
+    SET_TRACE_LEVEL(TRACE_SEND | TRACE_ETH_FRAMES | TRACE_SUCCESS | TRACE_FAILURE);
 
-    worker_loop_start(test_emac_broadcast_cb, 10 * SECOND_TO_MS);
+    START_TEST_LOOP(test_emac_broadcast_cb, 1 * SECOND_TO_MS);
 
     PRINT_ERROR_FLAGS;
     TEST_ASSERT_FALSE(ERROR_FLAGS);

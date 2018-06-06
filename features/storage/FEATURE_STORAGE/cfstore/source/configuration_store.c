@@ -1555,7 +1555,7 @@ static int32_t cfstore_flash_map_error(int32_t flash_journal_status_code)
  *          In flash journal async mode, when:
  *              - a FlashJournal_xxx() function has been invoked, and
  *              - before the async completion has been received and processed
- *          the application context code should alway co-ordinate access to
+ *          the application context code should always coordinate access to
  *          context variables modified by interrupt and application context
  *          by use of the critical_section_xxx.
  */
@@ -3497,7 +3497,7 @@ static int32_t cfstore_create(const char* key_name, ARM_CFSTORE_SIZE value_len, 
         ret = cfstore_recreate(key_name, value_len, hkey, &hkvt);
         goto out1;
     }
-    /* not a valid hkvt implying the key_name wasnt found */
+    /* not a valid hkvt implying the key_name wasn't found */
 
     /* create new key */
     ret = cfstore_validate_key_desc(kdesc);

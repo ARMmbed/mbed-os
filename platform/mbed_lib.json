@@ -34,6 +34,11 @@
         "force-non-copyable-error": {
             "help": "Force compile time error when a NonCopyable object is copied",
             "value": false
+        },
+
+        "poll-use-lowpower-timer": {
+            "help": "Enable use of low power timer class for poll(). May cause missing events.",
+            "value": false
         }
     },
     "target_overrides": {

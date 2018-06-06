@@ -391,6 +391,26 @@ void break_test(void) {
     equeue_destroy(&q);
 }
 
+void break_no_windup_test(void) {
+    equeue_t q;
+    int err = equeue_create(&q, 2048);
+    test_assert(!err);
+
+    int count = 0;
+    equeue_call_every(&q, 0, simple_func, &count);
+
+    equeue_break(&q);
+    equeue_break(&q);
+    equeue_dispatch(&q, -1);
+    test_assert(count == 1);
+
+    count = 0;
+    equeue_dispatch(&q, 55);
+    test_assert(count > 1);
+
+    equeue_destroy(&q);
+}
+
 void period_test(void) {
     equeue_t q;
     int err = equeue_create(&q, 2048);
@@ -687,6 +707,43 @@ void multithreaded_barrage_test(int N) {
     equeue_destroy(&q);
 }
 
+struct count_and_queue
+{
+    int p;
+    equeue_t* q;
+};
+
+void simple_breaker(void *p) {
+    struct count_and_queue* caq = (struct count_and_queue*)p;
+    equeue_break(caq->q);
+    usleep(10000);
+    caq->p++;
+}
+
+void break_request_cleared_on_timeout(void) {
+    equeue_t q;
+    int err = equeue_create(&q, 2048);
+    test_assert(!err);
+
+    struct count_and_queue pq;
+    pq.p = 0;
+    pq.q = &q;
+
+    int id = equeue_call_every(&q, 10, simple_breaker, &pq);
+
+    equeue_dispatch(&q, 10);
+    test_assert(pq.p == 1);
+
+    equeue_cancel(&q, id);
+
+    int count = 0;
+    equeue_call_every(&q, 10, simple_func, &count);
+
+    equeue_dispatch(&q, 55);
+    test_assert(count > 1);
+
+    equeue_destroy(&q);
+}
 
 int main() {
     printf("beginning tests...\n");
@@ -702,6 +759,7 @@ int main() {
     test_run(cancel_unnecessarily_test);
     test_run(loop_protect_test);
     test_run(break_test);
+    test_run(break_no_windup_test);
     test_run(period_test);
     test_run(nested_test);
     test_run(sloth_test);
@@ -712,6 +770,7 @@ int main() {
     test_run(simple_barrage_test, 20);
     test_run(fragmenting_barrage_test, 20);
     test_run(multithreaded_barrage_test, 20);
+    test_run(break_request_cleared_on_timeout);
 
     printf("done!\n");
     return test_failure;

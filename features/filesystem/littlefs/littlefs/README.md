@@ -16,7 +16,7 @@ of memory. Recursion is avoided, and dynamic memory is limited to configurable
 buffers that can be provided statically.
 
 **Power-loss resilient** - The littlefs is designed for systems that may have
-random power failures. The littlefs has strong copy-on-write guaruntees, and
+random power failures. The littlefs has strong copy-on-write guarantees, and
 storage on disk is always kept in a valid state.
 
 **Wear leveling** - Because the most common form of embedded storage is erodible
@@ -88,7 +88,7 @@ int main(void) {
 ## Usage
 
 Detailed documentation (or at least as much detail as is currently available)
-can be cound in the comments in [lfs.h](lfs.h).
+can be found in the comments in [lfs.h](lfs.h).
 
 As you may have noticed, littlefs takes in a configuration structure that
 defines how the filesystem operates. The configuration struct provides the
@@ -105,7 +105,7 @@ Once mounted, the littlefs provides a full set of POSIX-like file and
 directory functions, with the deviation that the allocation of filesystem
 structures must be provided by the user.
 
-All POSIX operations, such as remove and rename, are atomic, even in the event
+All POSIX operations, such as remove and rename, are atomic, even in event
 of power loss. Additionally, no file updates are actually committed to the
 filesystem until sync or close is called on the file.
 
@@ -141,8 +141,14 @@ make test
 
 ## Related projects
 
+[Mbed OS](https://github.com/ARMmbed/mbed-os/tree/master/features/filesystem/littlefs) -
+The easiest way to get started with littlefs is to jump into [Mbed](https://os.mbed.com/),
+which already has block device drivers for most forms of embedded storage. The
+littlefs is available in Mbed OS as the [LittleFileSystem](https://os.mbed.com/docs/latest/reference/littlefilesystem.html)
+class.
+
 [littlefs-fuse](https://github.com/geky/littlefs-fuse) - A [FUSE](https://github.com/libfuse/libfuse)
-wrapper for littlefs. The project allows you to mount littlefs directly in a
+wrapper for littlefs. The project allows you to mount littlefs directly on a
 Linux machine. Can be useful for debugging littlefs if you have an SD card
 handy.
 

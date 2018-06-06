@@ -290,8 +290,8 @@ struct netconn {
 /** @ingroup netconn_common
  * Create new netconn connection
  * @param t @ref netconn_type */
-#define netconn_new(t)                  netconn_new_with_proto_and_callback(t, 0, NULL)
-#define netconn_new_with_callback(t, c) netconn_new_with_proto_and_callback(t, 0, c)
+#define netconn_new(t)                             netconn_new_with_proto_and_callback(t, 0, NULL)
+#define netconn_new_with_callback(t, c)            netconn_new_with_proto_and_callback(t, 0, c)
 struct netconn *netconn_new_with_proto_and_callback(enum netconn_type t, u8_t proto,
                                              netconn_callback callback);
 err_t   netconn_delete(struct netconn *conn);

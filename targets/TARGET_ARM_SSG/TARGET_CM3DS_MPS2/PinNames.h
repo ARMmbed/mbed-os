@@ -18,6 +18,10 @@
 
 #include "cmsis.h"
 
+/* Pins used by mbed OS to identify STDIO UART pins */
+#define STDIO_UART_TX     USBTX
+#define STDIO_UART_RX     USBRX
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -26,8 +30,6 @@ typedef enum {
         PIN_INPUT,
         PIN_OUTPUT
 } PinDirection;
-
-#define PORT_SHIFT  5
 
 typedef enum {
     /* MPS2 EXP Pin Names */

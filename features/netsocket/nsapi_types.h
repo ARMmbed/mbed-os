@@ -54,6 +54,7 @@ enum nsapi_error {
     NSAPI_ERROR_CONNECTION_LOST     = -3016,     /*!< connection lost */
     NSAPI_ERROR_CONNECTION_TIMEOUT  = -3017,     /*!< connection timed out */
     NSAPI_ERROR_ADDRESS_IN_USE      = -3018,     /*!< Address already in use */
+    NSAPI_ERROR_TIMEOUT             = -3019,     /*!< operation timed out */
 };
 
 
@@ -73,13 +74,15 @@ enum nsapi_error {
 
 
 /** Enum of event types
- * 
+ *
  *  Event callbacks are accompanied with an event-dependent parameter passed as an intptr_t.
  *
  *  @enum nsapi_event
  */
  typedef enum nsapi_event {
-    NSAPI_EVENT_CONNECTION_STATUS_CHANGE = 0 /*!< network connection status has changed, the parameter = new status (nsapi_connection_status_t) */
+    NSAPI_EVENT_CONNECTION_STATUS_CHANGE = 0, /*!< network connection status has changed, the parameter = new status (nsapi_connection_status_t) */
+    NSAPI_EVENT_CELLULAR_STATUS_BASE     = 0x1000,  /*!< Cellular modem status has changed, See the enum values from enum cellular_connection_status_t in /features/cellular/framework/common/CellularCommon.h */
+    NSAPI_EVENT_CELLULAR_STATUS_END      = 0x1FFF   /*!< cellular modem status has changed, See the enum values from enum cellular_connection_status_t in /features/cellular/framework/common/CellularCommon.h */
 } nsapi_event_t;
 
 
@@ -100,6 +103,13 @@ typedef unsigned int nsapi_size_t;
  *  negative error code from the nsapi_error_t
  */
 typedef signed int nsapi_size_or_error_t;
+
+/** Type used to represent either a value or error
+ *
+ *  A valid nsapi_value_or_error_t is either a non-negative value or a
+ *  negative error code from the nsapi_error_t
+ */
+typedef signed int nsapi_value_or_error_t;
 
 /** Enum of encryption types
  *
@@ -403,7 +413,7 @@ typedef struct nsapi_stack_api
 
     /** Bind a specific address to a socket
      *
-     *  Binding a socket specifies the address and port on which to recieve
+     *  Binding a socket specifies the address and port on which to receive
      *  data. If the IP address is zeroed, only the port is bound.
      *
      *  @param stack    Stack handle

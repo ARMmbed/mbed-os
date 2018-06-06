@@ -249,7 +249,9 @@ LoRaPHYAS923::LoRaPHYAS923(LoRaWANTimeHandler &lora_time)
     // Default Channels are always enabled in the channel list,
     // rest will be added later
     channels[0] = AS923_LC1;
+    channels[0].band = 0;
     channels[1] = AS923_LC2;
+    channels[1].band = 0;
 
     // Initialize the default channel mask
     default_channel_mask[0] = LC(1) + LC(2);
@@ -280,7 +282,7 @@ LoRaPHYAS923::LoRaPHYAS923(LoRaWANTimeHandler &lora_time)
     phy_params.payloads.table = (void *) max_payload_table;
     phy_params.payloads.size = 8;
     phy_params.payloads_with_repeater.table = (void *) max_payload_table_with_repeater;
-    phy_params.payloads.size = 8;
+    phy_params.payloads_with_repeater.size = 8;
 
     // dwell time setting, 400 ms
     phy_params.ul_dwell_time_setting = 1;
@@ -291,7 +293,8 @@ LoRaPHYAS923::LoRaPHYAS923(LoRaWANTimeHandler &lora_time)
     phy_params.accept_tx_param_setup_req = true;
     phy_params.fsk_supported = true;
     phy_params.cflist_supported = true;
-
+    phy_params.dl_channel_req_supported = true;
+    phy_params.custom_channelplans_supported = true;
     phy_params.default_channel_cnt = AS923_NUMB_DEFAULT_CHANNELS;
     phy_params.max_channel_cnt = AS923_MAX_NB_CHANNELS;
     phy_params.cflist_channel_cnt = AS923_NUMB_CHANNELS_CF_LIST;
@@ -334,9 +337,9 @@ int8_t LoRaPHYAS923::get_alternate_DR(uint8_t nb_trials)
     return AS923_DWELL_LIMIT_DATARATE;
 }
 
-bool LoRaPHYAS923::set_next_channel(channel_selection_params_t* next_channel_prams,
-                                    uint8_t* channel, lorawan_time_t* time,
-                                    lorawan_time_t* aggregate_timeoff)
+lorawan_status_t LoRaPHYAS923::set_next_channel(channel_selection_params_t* next_channel_prams,
+                                                uint8_t* channel, lorawan_time_t* time,
+                                                lorawan_time_t* aggregate_timeoff)
 {
     uint8_t next_channel_idx = 0;
     uint8_t nb_enabled_channels = 0;
@@ -387,23 +390,23 @@ bool LoRaPHYAS923::set_next_channel(channel_selection_params_t* next_channel_pra
                 _radio->unlock();
                 *channel = next_channel_idx;
                 *time = 0;
-                return true;
+                return LORAWAN_STATUS_OK;
             }
         }
         _radio->unlock();
-        return false;
+        return LORAWAN_STATUS_NO_FREE_CHANNEL_FOUND;
     } else {
 
         if (delay_tx > 0) {
             // Delay transmission due to AggregatedTimeOff or to a band time off
             *time = next_tx_delay;
-            return true;
+            return LORAWAN_STATUS_DUTYCYCLE_RESTRICTED;
         }
 
         // Datarate not supported by any channel, restore defaults
         channel_mask[0] |= LC( 1 ) + LC( 2 );
         *time = 0;
-        return false;
+        return LORAWAN_STATUS_NO_CHANNEL_FOUND;
     }
 }
 

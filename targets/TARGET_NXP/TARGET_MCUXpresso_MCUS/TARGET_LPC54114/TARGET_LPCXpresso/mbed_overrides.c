@@ -41,7 +41,6 @@ void ADC_ClockPower_Configuration(void)
     POWER_DisablePD(kPDRUNCFG_PD_TEMPS);    /* Power on the temperature sensor. */
 
     /* Enable the clock. */
-    CLOCK_AttachClk(kFRO12M_to_MAIN_CLK);
     CLOCK_EnableClock(kCLOCK_Adc0);
 }
 

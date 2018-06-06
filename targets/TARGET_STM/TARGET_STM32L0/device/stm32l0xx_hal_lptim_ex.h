@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_lptim_ex.h
   * @author  MCD Application Team
-  * @version V1.7.0
-  * @date    31-May-2016
   * @brief   Header file of LPTIM Extended HAL module.
   ******************************************************************************
   * @attention
@@ -61,7 +59,7 @@
   */
 
 
-/** @defgroup LPTIMEx_Trigger_Source Trigger source
+/** @defgroup LPTIM_Trigger_Source Trigger source
   * @{
   */
 #define LPTIM_TRIGSOURCE_SOFTWARE               ((uint32_t)0x0000FFFFU)

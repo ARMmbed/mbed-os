@@ -841,13 +841,19 @@ EXCLUDE_PATTERNS       = */tools/* \
                          */BUILD/* \
                          */rtos/TARGET_CORTEX/rtx* \
                          */cmsis/* \
+                         */features/cryptocell/* \
                          */features/mbedtls/* \
                          */features/storage/* \
                          */features/unsupported/* \
-                         */features/FEATURE_COMMON_PAL/* \
                          */features/FEATURE_LWIP/* \
                          */features/FEATURE_UVISOR/* \
-                         */features/nanostack/* \
+                         */features/nanostack/sal-stack-nanostack/* \
+                         */features/nanostack/coap-service/* \
+                         */mbed-trace/* \
+                         */mbed-coap/* \
+                         */nanostack-libservice/* \
+                         */mbed-client-randlib/* \
+                         */nanostack/sal-stack-nanostack-eventloop/* \
                          */ble/generic/* \
                          */ble/pal/*
 
@@ -2063,14 +2069,17 @@ PREDEFINED             = DOXYGEN_ONLY            \
                          DEVICE_ANALOGIN         \
                          DEVICE_ANALOGOUT        \
                          DEVICE_CAN              \
+                         DEVICE_CRC              \
                          DEVICE_ETHERNET         \
                          DEVICE_EMAC             \
+                         DEVICE_ETH              \
                          DEVICE_FLASH            \
                          DEVICE_I2C              \
                          DEVICE_I2CSLAVE         \
                          DEVICE_I2C_ASYNCH       \
                          DEVICE_INTERRUPTIN      \
-                         DEVICE_LOWPOWERTIMER    \
+                         DEVICE_ITM              \
+                         DEVICE_LPTICKER         \
                          DEVICE_PORTIN           \
                          DEVICE_PORTINOUT        \
                          DEVICE_PORTOUT          \

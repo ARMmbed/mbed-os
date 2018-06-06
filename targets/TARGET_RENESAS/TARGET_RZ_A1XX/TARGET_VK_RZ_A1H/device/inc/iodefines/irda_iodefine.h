@@ -18,25 +18,36 @@
 * you agree to the additional terms and conditions found by accessing the
 * following link:
 * http://www.renesas.com/disclaimer*
-* Copyright (C) 2013-2014 Renesas Electronics Corporation. All rights reserved.
+* Copyright (C) 2013-2015 Renesas Electronics Corporation. All rights reserved.
 *******************************************************************************/
 /*******************************************************************************
 * File Name : irda_iodefine.h
 * $Rev: $
 * $Date::                           $
-* Description : Definition of I/O Register (V1.00a)
+* Description : Definition of I/O Register for RZ/A1H,M (V2.00h)
 ******************************************************************************/
 #ifndef IRDA_IODEFINE_H
 #define IRDA_IODEFINE_H
-
-struct st_irda
-{                                                          /* IRDA             */
-    volatile uint8_t   IRCR;                                   /*  IRCR            */
-};
-
+/* ->QAC 0639 : Over 127 members (C90) */
+/* ->QAC 0857 : Over 1024 #define (C90) */
+/* ->MISRA 18.4 : Pack unpack union */ /* ->SEC M1.6.2 */
+/* ->SEC M1.10.1 : Not magic number */
 
 #define IRDA    (*(struct st_irda    *)0xE8014000uL) /* IRDA */
 
 
-#define IRDAIRCR IRDA.IRCR
+#define IRDAIRCR (IRDA.IRCR)
+
+
+typedef struct st_irda
+{
+                                                           /* IRDA             */
+    volatile uint8_t   IRCR;                                   /*  IRCR            */
+} r_io_irda_t;
+
+
+/* <-SEC M1.10.1 */
+/* <-MISRA 18.4 */ /* <-SEC M1.6.2 */
+/* <-QAC 0857 */
+/* <-QAC 0639 */
 #endif

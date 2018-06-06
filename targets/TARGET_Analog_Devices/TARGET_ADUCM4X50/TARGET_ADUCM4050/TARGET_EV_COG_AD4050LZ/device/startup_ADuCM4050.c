@@ -6,7 +6,7 @@
  * @date:    $Date: $
  *-----------------------------------------------------------------------------
  *
-Copyright (c) 2010-2017 Analog Devices, Inc.
+Copyright (c) 2010-2018 Analog Devices, Inc.
 
 All rights reserved.
 
@@ -45,7 +45,6 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  *****************************************************************************/
 #ifdef __ARMCC_VERSION
-#include <stdint.h>
 #include <rt_misc.h>
 #endif
 #include <cmsis.h>
@@ -53,23 +52,21 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <mbed_rtx.h>
 
 /*----------------------------------------------------------------------------
+  External function Declaration
+ *----------------------------------------------------------------------------*/
+extern void SramInit(void);
+
+/*----------------------------------------------------------------------------
   Checksum options
  *----------------------------------------------------------------------------*/
-#if defined (__ARMCC_VERSION)
-__attribute__((section(".ARM.__at_0x000001A0")))
-#elif defined(__ICCARM__)
+
+#if defined(__ICCARM__)
 __root
 #endif
 const uint32_t SECTION_PLACE(blank_checksum[],".checksum") =
 {
     BLANKX60,BLANKX600
 };
-
-
-/*----------------------------------------------------------------------------
-  External function Declaration
- *----------------------------------------------------------------------------*/
-extern void SramInit(void);
 
 /*----------------------------------------------------------------------------
   Exception / Interrupt Handler

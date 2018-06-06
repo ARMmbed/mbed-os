@@ -23,13 +23,13 @@
 
 #include "CordioHCIDriver.h"
 #include "CordioGattServer.h"
-#include "CordioSecurityManager.h"
 #include "CordioPalAttClient.h"
 #include "ble/pal/AttClientToGattClientAdapter.h"
 #include "ble/generic/GenericGattClient.h"
 #include "CordioPalGap.h"
 #include "CordioPalGenericAccessService.h"
 #include "ble/generic/GenericGap.h"
+#include "ble/generic/GenericSecurityManager.h"
 #include "ble/pal/SimpleEventQueue.h"
 
 namespace ble {
@@ -84,12 +84,12 @@ public:
     /**
      * @see BLEInstanceBase::getGap
      */
-    virtual ::Gap& getGap();
+    virtual generic::GenericGap& getGap();
 
     /**
      * @see BLEInstanceBase::getGap
      */
-    virtual const ::Gap& getGap() const;
+    virtual const generic::GenericGap& getGap() const;
 
     /**
      * @see BLEInstanceBase::getGattServer
@@ -104,7 +104,7 @@ public:
     /**
      * @see BLEInstanceBase::getGattClient
      */
-    virtual ::GattClient &getGattClient();
+    virtual generic::GenericGattClient &getGattClient();
 
     /**
      * @see BLEInstanceBase::getSecurityManager
@@ -127,6 +127,12 @@ public:
     virtual void processEvents();
 
 private:
+    /**
+     * Return singleton.
+     * @return GenericGap instance.
+     */
+    const generic::GenericGap& getGenericGap() const;
+
     static void stack_handler(wsfEventMask_t event, wsfMsgHdr_t* msg);
     static void device_manager_cb(dmEvt_t* dm_event);
     static void connection_handler(dmEvt_t* dm_event);
@@ -147,6 +153,17 @@ private:
 
     ::BLE::InstanceID_t instanceID;
     mutable pal::SimpleEventQueue _event_queue;
+
+    class SigningEventMonitorProxy : public pal::SigningEventMonitor {
+    public:
+        SigningEventMonitorProxy(BLE &ble) : _ble(ble) { }
+        virtual void set_signing_event_handler(pal::SigningEventMonitor::EventHandler *handler) {
+            _ble.getGattClient().set_signing_event_handler(handler);
+            _ble.getGattServer().set_signing_event_handler(handler);
+        }
+    private:
+        BLE &_ble;
+    };
 };
 
 } // namespace cordio

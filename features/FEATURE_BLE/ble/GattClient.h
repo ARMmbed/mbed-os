@@ -116,6 +116,15 @@ public:
          * The server does not acknowledge the status of the operation.
          */
         GATT_OP_WRITE_CMD = 0x02,
+
+        /**
+         * Signed Write command.
+         *
+         * It is used to request the server to write the value of an attribute
+         * using a signed packet. The server does not acknowledge the status
+         * of the operation.
+         */
+        GATT_OP_SIGNED_WRITE_CMD = 0x03
     };
 
     /**

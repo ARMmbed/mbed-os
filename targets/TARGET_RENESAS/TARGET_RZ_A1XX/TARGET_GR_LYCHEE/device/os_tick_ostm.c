@@ -131,7 +131,7 @@ int32_t OS_Tick_Setup (uint32_t freq, IRQHandler_t handler)
 }
 
 /// Enable OS Tick.
-int32_t  OS_Tick_Enable (void)
+void  OS_Tick_Enable (void)
 {
 
   if (OSTM_PendIRQ != 0U) {
@@ -141,12 +141,10 @@ int32_t  OS_Tick_Enable (void)
 
   // Start the OSTM counter
   OSTM.OSTMnTS = 0x01U;
-
-  return (0);
 }
 
 /// Disable OS Tick.
-int32_t  OS_Tick_Disable (void) {
+void  OS_Tick_Disable (void) {
 
   // Stop the OSTM counter
   OSTM.OSTMnTT = 0x01U;
@@ -155,14 +153,12 @@ int32_t  OS_Tick_Disable (void) {
     IRQ_ClearPending (OSTM_IRQn);
     OSTM_PendIRQ = 1U;
   }
-
-  return (0);
 }
 
 // Acknowledge OS Tick IRQ.
-int32_t OS_Tick_AcknowledgeIRQ (void)
+void OS_Tick_AcknowledgeIRQ (void)
 {
-  return (IRQ_ClearPending (OSTM_IRQn));
+  IRQ_ClearPending (OSTM_IRQn);
 }
 
 // Get OS Tick IRQ number.

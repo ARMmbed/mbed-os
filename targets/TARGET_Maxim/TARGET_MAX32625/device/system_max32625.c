@@ -171,6 +171,10 @@ __weak int PreInit(void)
     return 0;
 }
 
+/* Override this function for early platform initialization
+*/
+__weak void low_level_init(void) {}
+
 /* This function is called just before control is transferred to main().
  */
 void SystemInit(void)
@@ -257,6 +261,9 @@ void SystemInit(void)
     __DSB();
     __ISB();
 #endif
+
+    /* Early platform initialization */
+    low_level_init();
 
     /* Perform an initial trim of the internal ring oscillator */
     CLKMAN_TrimRO();

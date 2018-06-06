@@ -12,6 +12,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from __future__ import print_function, absolute_import
+from builtins import str
+
 
 from os.path import join, exists, realpath, relpath, basename, isfile, splitext
 from os import makedirs, listdir, remove, rmdir
@@ -46,7 +49,7 @@ class VSCode(Makefile):
                 self.gen_file('vscode/%s.tmpl' % file, ctx,
                               '.vscode/%s.json' % file)
             else:
-                print 'Keeping existing %s.json' % file
+                print('Keeping existing %s.json' % file)
 
         # So.... I want all .h and .hpp files in self.resources.inc_dirs
         all_directories = []

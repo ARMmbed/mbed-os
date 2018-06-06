@@ -20,7 +20,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "cmsis.h"
-#include "mbed_sleep.h"
+#include "mbed_power_mgmt.h"
 #include "mbed_critical.h"
 #include "ticker_api.h"
 #include "us_ticker_api.h"

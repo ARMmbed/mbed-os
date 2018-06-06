@@ -268,8 +268,11 @@ LoRaPHYEU868::LoRaPHYEU868(LoRaWANTimeHandler &lora_time)
 
     // Default Channels are always enabled, rest will be added later
     channels[0] = EU868_LC1;
+    channels[0].band = 1;
     channels[1] = EU868_LC2;
+    channels[1].band = 1;
     channels[2] = EU868_LC3;
+    channels[2].band = 1;
 
     // Initialize the channels default mask
     default_channel_mask[0] = LC(1) + LC(2) + LC(3);
@@ -299,7 +302,7 @@ LoRaPHYEU868::LoRaPHYEU868(LoRaWANTimeHandler &lora_time)
     phy_params.payloads.table = (void *) max_payloads_EU868;
     phy_params.payloads.size = 8;
     phy_params.payloads_with_repeater.table = (void *) max_payloads_repeater_EU868;
-    phy_params.payloads.size = 8;
+    phy_params.payloads_with_repeater.size = 8;
 
     // dwell time setting
     phy_params.ul_dwell_time_setting = 0;

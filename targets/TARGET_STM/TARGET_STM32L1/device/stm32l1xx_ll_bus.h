@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32l1xx_ll_bus.h
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    01-July-2016
   * @brief   Header file of BUS LL module.
 
   @verbatim                
@@ -25,7 +23,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -89,7 +87,7 @@ extern "C" {
 /** @defgroup BUS_LL_EC_AHB1_GRP1_PERIPH  AHB1 GRP1 PERIPH
   * @{
   */
-#define LL_AHB1_GRP1_PERIPH_ALL            (uint32_t)0xFFFFFFFFU
+#define LL_AHB1_GRP1_PERIPH_ALL            0xFFFFFFFFU
 #define LL_AHB1_GRP1_PERIPH_GPIOA          RCC_AHBENR_GPIOAEN
 #define LL_AHB1_GRP1_PERIPH_GPIOB          RCC_AHBENR_GPIOBEN
 #define LL_AHB1_GRP1_PERIPH_GPIOC          RCC_AHBENR_GPIOCEN
@@ -124,7 +122,7 @@ extern "C" {
 /** @defgroup BUS_LL_EC_APB1_GRP1_PERIPH  APB1 GRP1 PERIPH
   * @{
   */
-#define LL_APB1_GRP1_PERIPH_ALL            (uint32_t)0xFFFFFFFFU
+#define LL_APB1_GRP1_PERIPH_ALL            0xFFFFFFFFU
 #define LL_APB1_GRP1_PERIPH_TIM2           RCC_APB1ENR_TIM2EN
 #define LL_APB1_GRP1_PERIPH_TIM3           RCC_APB1ENR_TIM3EN
 #define LL_APB1_GRP1_PERIPH_TIM4           RCC_APB1ENR_TIM4EN
@@ -166,7 +164,7 @@ extern "C" {
 /** @defgroup BUS_LL_EC_APB2_GRP1_PERIPH  APB2 GRP1 PERIPH
   * @{
   */
-#define LL_APB2_GRP1_PERIPH_ALL            (uint32_t)0xFFFFFFFFU
+#define LL_APB2_GRP1_PERIPH_ALL            0xFFFFFFFFU
 #define LL_APB2_GRP1_PERIPH_SYSCFG         RCC_APB2ENR_SYSCFGEN
 #define LL_APB2_GRP1_PERIPH_TIM9           RCC_APB2ENR_TIM9EN
 #define LL_APB2_GRP1_PERIPH_TIM10          RCC_APB2ENR_TIM10EN

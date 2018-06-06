@@ -19,12 +19,13 @@
 
 void hal_sleep(void) {
     LPC_SC->PCON = 0x0;
-    
+
     // SRC[SLEEPDEEP] set to 0 = sleep
     SCB->SCR &= ~SCB_SCR_SLEEPDEEP_Msk;
-    
+
     // wait for interrupt
     __WFI();
+    __NOP();
 }
 
 /*

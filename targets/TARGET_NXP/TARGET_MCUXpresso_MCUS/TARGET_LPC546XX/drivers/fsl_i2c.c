@@ -201,6 +201,12 @@ status_t I2C_MasterStart(I2C_Type *base, uint8_t address, i2c_direction_t direct
     /* Start the transfer */
     base->MSTCTL = I2C_MSTCTL_MSTSTART_MASK;
 
+    result = I2C_PendingStatusWait(base);
+    if (result == kStatus_I2C_Timeout)
+    {
+        return kStatus_I2C_Timeout;
+    }
+
     return kStatus_Success;
 }
 
@@ -214,6 +220,13 @@ status_t I2C_MasterStop(I2C_Type *base)
     }
 
     base->MSTCTL = I2C_MSTCTL_MSTSTOP_MASK;
+
+    result = I2C_PendingStatusWait(base);
+    if (result == kStatus_I2C_Timeout)
+    {
+        return kStatus_I2C_Timeout;
+    }
+
     return kStatus_Success;
 }
 

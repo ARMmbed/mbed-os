@@ -53,7 +53,7 @@ int RTW_STATUS_CODE(int error_code)
 u32 rtw_atoi(u8* s)
 {
 	int num=0,flag=0;
-	int i;
+	size_t i;
 
 	for(i=0;i<=strlen((char *)s);i++)
 	{
@@ -202,10 +202,11 @@ void add_mem_usage(_list *pmem_table, void *ptr, int size, int *used_num, int fl
 		return;
 	}
 	else{
-		if(flag == MEM_MONITOR_FLAG_WPAS)
+		if(flag == MEM_MONITOR_FLAG_WPAS) {
 			DBG_INFO("Alloc memory at %p with size of %d", ptr, size);
-		else
+		} else {
 			DBG_INFO("Alloc memory at %p with size of %d", ptr, size);
+		}
 	}
 #if CONFIG_MEM_MONITOR & MEM_MONITOR_LEAK
 	mem_entry = (struct mem_entry *) _rtw_malloc(sizeof(struct mem_entry));
@@ -1060,7 +1061,7 @@ static void worker_thread_main( void *arg )
 			message.function(message.buf, message.buf_len, message.flags, message.user_data);
 			if(message.buf){
 				//printf("\n!!!!!Free %p(%d)\n", message.buf, message.buf_len);
-				_rtw_mfree(message.buf, message.buf_len);
+				_rtw_mfree((u8 *)message.buf, message.buf_len);
 			}
 		}
 	}

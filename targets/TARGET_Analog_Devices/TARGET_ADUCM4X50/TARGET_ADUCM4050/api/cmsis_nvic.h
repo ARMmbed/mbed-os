@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010-2017 Analog Devices, Inc.
+ * Copyright (c) 2010-2018 Analog Devices, Inc.
  *
  * All rights reserved.
  *
@@ -48,7 +48,6 @@
 #define NVIC_NUM_VECTORS     (NVIC_USER_IRQ_OFFSET + NVIC_USER_IRQ_NUMBER)
 
 #define NVIC_RAM_VECTOR_ADDRESS   0x20000000
-#define NVIC_FLASH_VECTOR_ADDRESS 0x0
 
 #ifdef __cplusplus
 extern "C" {

@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32l1xx_hal.c
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    01-July-2016
   * @brief   HAL module driver.
   *          This is the common part of the HAL initialization
   *
@@ -23,7 +21,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -75,15 +73,15 @@
  * @brief STM32L1xx HAL Driver version number
    */
 #define __STM32L1xx_HAL_VERSION_MAIN   (0x01) /*!< [31:24] main version */
-#define __STM32L1xx_HAL_VERSION_SUB1   (0x02) /*!< [23:16] sub1 version */
-#define __STM32L1xx_HAL_VERSION_SUB2   (0x00) /*!< [15:8]  sub2 version */
+#define __STM32L1xx_HAL_VERSION_SUB1   (0x03) /*!< [23:16] sub1 version */
+#define __STM32L1xx_HAL_VERSION_SUB2   (0x01) /*!< [15:8]  sub2 version */
 #define __STM32L1xx_HAL_VERSION_RC     (0x00) /*!< [7:0]  release candidate */
 #define __STM32L1xx_HAL_VERSION         ((__STM32L1xx_HAL_VERSION_MAIN << 24)\
                                         |(__STM32L1xx_HAL_VERSION_SUB1 << 16)\
                                         |(__STM32L1xx_HAL_VERSION_SUB2 << 8 )\
                                         |(__STM32L1xx_HAL_VERSION_RC))
 
-#define IDCODE_DEVID_MASK    ((uint32_t)0x00000FFF)
+#define IDCODE_DEVID_MASK    (0x00000FFFU)
 
 /**
   * @}

@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_lcd.h
   * @author  MCD Application Team
-  * @version V1.7.0
-  * @date    31-May-2016
   * @brief   Header file of LCD Controller HAL module.
   ******************************************************************************
   * @attention
@@ -35,7 +33,6 @@
   ******************************************************************************
   */
 
-#if defined (STM32L053xx) || defined (STM32L063xx) || defined (STM32L073xx) || defined (STM32L083xx)
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __STM32L0xx_HAL_LCD_H
@@ -45,6 +42,7 @@
  extern "C" {
 #endif
 
+#if defined (STM32L053xx) || defined (STM32L063xx) || defined (STM32L073xx) || defined (STM32L083xx)
    
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l0xx_hal_def.h"
@@ -434,7 +432,7 @@ typedef struct
 /**
   * @}
   */
-      
+
 /** @defgroup LCD_BUFEN LCD Voltage output buffer enable
   * @{
   */
@@ -794,14 +792,13 @@ HAL_StatusTypeDef     LCD_WaitForSynchro(LCD_HandleTypeDef *hlcd);
   * @}
   */
 
+#endif /* STM32L053xx || STM32L063xx || STM32L073xx || STM32L083xx */
+
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* __STM32L0xx_HAL_LCD_H */
-
-
-#endif /* STM32L053xx || STM32L063xx || STM32L073xx || STM32L083xx */
 
 /******************* (C) COPYRIGHT 2016 STMicroelectronics *****END OF FILE****/
 

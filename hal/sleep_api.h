@@ -27,36 +27,69 @@
 extern "C" {
 #endif
 
+/**
+ * \defgroup hal_sleep sleep hal requirements
+ * Low level interface to the sleep mode of a target.
+ *
+ * # Defined behaviour
+ *
+ * * Sleep mode
+ *   * wake-up time should be less than 10 us - Verified by sleep_usticker_test().
+ *   * the processor can be woken up by any internal peripheral interrupt  - Verified by sleep_usticker_test().
+ *   * all peripherals operate as in run mode - not verified.
+ *   * the processor can be woken up by external pin interrupt - not verified.
+ * * Deep sleep
+ *   * the wake-up time should be less than 10 ms - Verified by deepsleep_lpticker_test().
+ *   * lp ticker should wake up a target from this mode - Verified by deepsleep_lpticker_test().
+ *   * RTC should wake up a target from this mode - not verified.
+ *   * an external interrupt on a pin should wake up a target from this mode - not verified.
+ *   * a watchdog timer should wake up a target from this mode - not verified.
+ *   * High-speed clocks are turned off - Verified by deepsleep_high_speed_clocks_turned_off_test().
+ *   * RTC keeps time - Verified by rtc_sleep_test().
+ *
+ * # Undefined behaviour
+ *
+ * * peripherals aside from RTC, GPIO and lp ticker result in undefined behaviour in deep sleep.
+ * @{
+ */
+
+/**
+ * \defgroup hal_sleep_tests sleep hal tests
+ * The sleep HAL tests ensure driver conformance to defined behaviour.
+ *
+ * To run the sleep hal tests use the command:
+ *
+ *     mbed test -t <toolchain> -m <target> -n tests-mbed_hal-sleep*
+ *
+ */
+
 /** Send the microcontroller to sleep
  *
- * The processor is setup ready for sleep, and sent to sleep using __WFI(). In this mode, the
+ * The processor is setup ready for sleep, and sent to sleep. In this mode, the
  * system clock to the core is stopped until a reset or an interrupt occurs. This eliminates
  * dynamic power used by the processor, memory systems and buses. The processor, peripheral and
  * memory state are maintained, and the peripherals continue to work and can generate interrupts.
  *
  * The processor can be woken up by any internal peripheral interrupt or external pin interrupt.
  *
- * @note
- *  The mbed interface semihosting is disconnected as part of going to sleep, and can not be restored.
- * Flash re-programming and the USB serial port will remain active, but the mbed program will no longer be
- * able to access the LocalFileSystem
+ * The wake-up time shall be less than 10 us.
+ * 
  */
 void hal_sleep(void);
 
 /** Send the microcontroller to deep sleep
  *
  * This processor is setup ready for deep sleep, and sent to sleep using __WFI(). This mode
- * has the same sleep features as sleep plus it powers down peripherals and clocks. All state
- * is still maintained.
+ * has the same sleep features as sleep plus it powers down peripherals and high frequency clocks.
+ * All state is still maintained.
  *
- * The processor can only be woken up by an external interrupt on a pin or a watchdog timer.
+ * The processor can only be woken up by low power ticker, RTC, an external interrupt on a pin or a watchdog timer.
  *
- * @note
- *  The mbed interface semihosting is disconnected as part of going to sleep, and can not be restored.
- * Flash re-programming and the USB serial port will remain active, but the mbed program will no longer be
- * able to access the LocalFileSystem
+ * The wake-up time shall be less than 10 ms.
  */
 void hal_deepsleep(void);
+
+/**@}*/
 
 #ifdef __cplusplus
 }
@@ -66,4 +99,4 @@ void hal_deepsleep(void);
 
 #endif
 
-/** @}*/
+/**@}*/

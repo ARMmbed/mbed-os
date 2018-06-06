@@ -17,6 +17,8 @@
 #ifndef CORDIO_H4_TRANSPORT_DRIVER_H_
 #define CORDIO_H4_TRANSPORT_DRIVER_H_
 
+#if (DEVICE_SERIAL && DEVICE_SERIAL_FC) || defined(DOXYGEN_ONLY)
+
 #include <stdint.h>
 #include "mbed.h"
 #include "CordioHCITransportDriver.h"
@@ -27,6 +29,9 @@ namespace cordio {
 
 /**
  * Implementation of the H4 driver.
+ *
+ * @note This HCI transport implementation is not accessible to devices that do
+ * not expose serial flow control.
  */
 class H4TransportDriver : public CordioHCITransportDriver {
 public:
@@ -64,7 +69,11 @@ public:
 private:
     void on_controller_irq();
 
-    Serial uart;
+    // Use RawSerial as opposed to Serial as we don't require the locking primitives
+    // provided by the Serial class (access to the UART should be exclusive to this driver)
+    // Furthermore, we access the peripheral in interrupt context which would clash
+    // with Serial's locking facilities
+    RawSerial uart;
     PinName cts;
     PinName rts;
 };
@@ -72,5 +81,7 @@ private:
 } // namespace cordio
 } // namespace vendor
 } // namespace ble
+
+#endif
 
 #endif /* CORDIO_H4_TRANSPORT_DRIVER_H_ */

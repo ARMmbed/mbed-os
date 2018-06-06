@@ -46,7 +46,7 @@ void NMI_Handler(void)
     gpio_init_in(&gpio, PTA4);
 }
 
-#ifdef DEVICE_RTC
+#if DEVICE_RTC || DEVICE_LPTICKER
 // Enable the RTC oscillator if available on the board
 void rtc_setup_oscillator(RTC_Type *base)
 {
@@ -54,3 +54,9 @@ void rtc_setup_oscillator(RTC_Type *base)
     RTC->CR |= RTC_CR_OSCE_MASK;
 }
 #endif
+
+// Set the UART clock source
+void serial_clock_init(void)
+{
+    CLOCK_SetLpuartClock(2U);
+}

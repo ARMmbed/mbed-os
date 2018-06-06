@@ -1,8 +1,5 @@
 /*
- * MPS2 CMSIS Library
- */
-/*
- * Copyright (c) 2009-2017 ARM Limited. All rights reserved.
+ * Copyright (c) 2009-2018 ARM Limited. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -18,20 +15,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 /*
  * This file is derivative of CMSIS V5.00 gcc_arm.ld
+ *
+ * Linker script for mbed CM3DS on MPS2
  */
-/* Linker script for mbed CM3DS on MPS2 */
 
-/* Linker script to configure memory regions. */
-/* The length of the VECTORS region is a bit larger than
- * is necessary based on the number of exception handlers.
- */
+#include "../memory_zones.h"
+#include "../cmsis_nvic.h"
+
 MEMORY
 {
-  VECTORS (rx)          : ORIGIN = 0x00000000, LENGTH = 0x00000400
-  FLASH (rx)            : ORIGIN = 0x00000400, LENGTH = 0x00040000 - 0x00000400
-  RAM (rwx)             : ORIGIN = 0x20000000, LENGTH = 0x00020000
+  VECTORS (rx)          : ORIGIN = FLASH_START,       LENGTH = FLASH_SIZE
+  FLASH (rx)            : ORIGIN = ZBT_SSRAM1_START,  LENGTH = ZBT_SSRAM1_SIZE
+  RAM (rwx)             : ORIGIN = ZBT_SSRAM23_START, LENGTH = ZBT_SSRAM23_SIZE
 }
 
 /* Linker script to place sections and symbol values. Should be used together
@@ -66,7 +64,7 @@ HEAP_SIZE  = 0x4000;
 STACK_SIZE = 0x1000;
 
 /* Size of the vector table in SRAM */
-M_VECTOR_RAM_SIZE = 0x140;
+M_VECTOR_RAM_SIZE = NVIC_VECTORS_SIZE;
 
 SECTIONS
 {

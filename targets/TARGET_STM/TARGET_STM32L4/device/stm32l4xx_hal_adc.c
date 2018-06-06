@@ -2312,7 +2312,6 @@ HAL_StatusTypeDef HAL_ADC_ConfigChannel(ADC_HandleTypeDef* hadc, ADC_ChannelConf
     /* Parameters update conditioned to ADC state:                              */
     /* Parameters that can be updated only when ADC is disabled:                */
     /*  - Single or differential mode                                           */
-    /*  - Internal measurement channels: Vbat/VrefInt/TempSensor                */
     if (ADC_IS_ENABLE(hadc) == RESET)
     {
       /* Set mode single-ended or differential input of the selected ADC channel */
@@ -2325,71 +2324,56 @@ HAL_StatusTypeDef HAL_ADC_ConfigChannel(ADC_HandleTypeDef* hadc, ADC_ChannelConf
         LL_ADC_SetChannelSamplingTime(hadc->Instance, __LL_ADC_DECIMAL_NB_TO_CHANNEL(__LL_ADC_CHANNEL_TO_DECIMAL_NB(sConfig->Channel) + 1), sConfig->SamplingTime);
       }
       
-      /* Management of internal measurement channels: Vbat/VrefInt/TempSensor.  */
-      /* If internal channel selected, enable dedicated internal buffers and    */
-      /* paths.                                                                 */
-      /* Note: these internal measurement paths can be disabled using           */
-      /* HAL_ADC_DeInit().                                                      */
-         
-      /* Configuration of common ADC parameters                                 */
-      /* If the requested internal measurement path has already been enabled,   */
-      /* bypass the configuration processing.                                   */
-      if (( (sConfig->Channel == ADC_CHANNEL_TEMPSENSOR) &&
-            ((LL_ADC_GetCommonPathInternalCh(__LL_ADC_COMMON_INSTANCE(hadc->Instance)) & LL_ADC_PATH_INTERNAL_TEMPSENSOR) == 0U)) ||
-          ( (sConfig->Channel == ADC_CHANNEL_VBAT)       &&
-            ((LL_ADC_GetCommonPathInternalCh(__LL_ADC_COMMON_INSTANCE(hadc->Instance)) & LL_ADC_PATH_INTERNAL_VBAT) == 0U))       ||
-          ( (sConfig->Channel == ADC_CHANNEL_VREFINT)    &&
-            ((LL_ADC_GetCommonPathInternalCh(__LL_ADC_COMMON_INSTANCE(hadc->Instance)) & LL_ADC_PATH_INTERNAL_VREFINT) == 0U))
-         )
+    }
+
+    /* Management of internal measurement channels: Vbat/VrefInt/TempSensor.  */
+    /* If internal channel selected, enable dedicated internal buffers and    */
+    /* paths.                                                                 */
+    /* Note: these internal measurement paths can be disabled using           */
+    /* HAL_ADC_DeInit().                                                      */
+
+    /* Configuration of common ADC parameters                                 */
+    /* If the requested internal measurement path has already been enabled,   */
+    /* bypass the configuration processing.                                   */
+    if (( (sConfig->Channel == ADC_CHANNEL_TEMPSENSOR) &&
+          ((LL_ADC_GetCommonPathInternalCh(__LL_ADC_COMMON_INSTANCE(hadc->Instance)) & LL_ADC_PATH_INTERNAL_TEMPSENSOR) == 0U)) ||
+        ( (sConfig->Channel == ADC_CHANNEL_VBAT)       &&
+          ((LL_ADC_GetCommonPathInternalCh(__LL_ADC_COMMON_INSTANCE(hadc->Instance)) & LL_ADC_PATH_INTERNAL_VBAT) == 0U))       ||
+        ( (sConfig->Channel == ADC_CHANNEL_VREFINT)    &&
+          ((LL_ADC_GetCommonPathInternalCh(__LL_ADC_COMMON_INSTANCE(hadc->Instance)) & LL_ADC_PATH_INTERNAL_VREFINT) == 0U))
+       )
+    {
+      /* Configuration of common ADC parameters (continuation)                */
+
+      if (sConfig->Channel == ADC_CHANNEL_TEMPSENSOR)
       {
-        /* Configuration of common ADC parameters (continuation)                */
-  
-        /* Software is allowed to change common parameters only when all ADCs   */
-        /* of the common group are disabled.                                    */
-        if ((ADC_IS_ENABLE(hadc) == RESET)   &&
-           (ADC_ANY_OTHER_ENABLED(hadc) == RESET) )
+        if (ADC_TEMPERATURE_SENSOR_INSTANCE(hadc))
         {
-          if (sConfig->Channel == ADC_CHANNEL_TEMPSENSOR)
+          LL_ADC_SetCommonPathInternalCh(__LL_ADC_COMMON_INSTANCE(hadc->Instance), LL_ADC_PATH_INTERNAL_TEMPSENSOR | LL_ADC_GetCommonPathInternalCh(__LL_ADC_COMMON_INSTANCE(hadc->Instance)));
+
+          /* Delay for temperature sensor stabilization time */
+          /* Wait loop initialization and execution */
+          /* Note: Variable divided by 2 to compensate partially          */
+          /*       CPU processing cycles.                                 */
+          wait_loop_index = (LL_ADC_DELAY_TEMPSENSOR_STAB_US * (SystemCoreClock / (1000000 * 2)));
+          while(wait_loop_index != 0)
           {
-            if (ADC_TEMPERATURE_SENSOR_INSTANCE(hadc)) 
-            {
-              LL_ADC_SetCommonPathInternalCh(__LL_ADC_COMMON_INSTANCE(hadc->Instance), LL_ADC_PATH_INTERNAL_TEMPSENSOR | LL_ADC_GetCommonPathInternalCh(__LL_ADC_COMMON_INSTANCE(hadc->Instance)));
-              
-              /* Delay for temperature sensor stabilization time */
-              /* Wait loop initialization and execution */
-              /* Note: Variable divided by 2 to compensate partially          */
-              /*       CPU processing cycles.                                 */
-              wait_loop_index = (LL_ADC_DELAY_TEMPSENSOR_STAB_US * (SystemCoreClock / (1000000 * 2)));
-              while(wait_loop_index != 0)
-              {
-                wait_loop_index--;
-              }
-            }
-          }
-          else if (sConfig->Channel == ADC_CHANNEL_VBAT)
-          {
-            if (ADC_BATTERY_VOLTAGE_INSTANCE(hadc))
-            {
-              LL_ADC_SetCommonPathInternalCh(__LL_ADC_COMMON_INSTANCE(hadc->Instance), LL_ADC_PATH_INTERNAL_VBAT | LL_ADC_GetCommonPathInternalCh(__LL_ADC_COMMON_INSTANCE(hadc->Instance)));
-            }
-          }
-          else if (sConfig->Channel == ADC_CHANNEL_VREFINT)
-          {
-            if (ADC_VREFINT_INSTANCE(hadc))
-            {
-              LL_ADC_SetCommonPathInternalCh(__LL_ADC_COMMON_INSTANCE(hadc->Instance), LL_ADC_PATH_INTERNAL_VREFINT | LL_ADC_GetCommonPathInternalCh(__LL_ADC_COMMON_INSTANCE(hadc->Instance)));
-            }
+            wait_loop_index--;
           }
         }
-        /* If the requested internal measurement path has already been          */
-        /* enabled and other ADC of the common group are enabled, internal      */
-        /* measurement paths cannot be enabled.                                 */
-        else  
+      }
+      else if (sConfig->Channel == ADC_CHANNEL_VBAT)
+      {
+        if (ADC_BATTERY_VOLTAGE_INSTANCE(hadc))
         {
-          /* Update ADC state machine to error */
-          SET_BIT(hadc->State, HAL_ADC_STATE_ERROR_CONFIG);
-          
-          tmp_hal_status = HAL_ERROR;
+          LL_ADC_SetCommonPathInternalCh(__LL_ADC_COMMON_INSTANCE(hadc->Instance), LL_ADC_PATH_INTERNAL_VBAT | LL_ADC_GetCommonPathInternalCh(__LL_ADC_COMMON_INSTANCE(hadc->Instance)));
+        }
+      }
+      else if (sConfig->Channel == ADC_CHANNEL_VREFINT)
+      {
+        if (ADC_VREFINT_INSTANCE(hadc))
+        {
+          LL_ADC_SetCommonPathInternalCh(__LL_ADC_COMMON_INSTANCE(hadc->Instance), LL_ADC_PATH_INTERNAL_VREFINT | LL_ADC_GetCommonPathInternalCh(__LL_ADC_COMMON_INSTANCE(hadc->Instance)));
         }
       }
     }

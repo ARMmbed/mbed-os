@@ -27,12 +27,18 @@
  *  Common interface that is shared between WiFi devices
  *  @addtogroup netsocket
  */
-class WiFiInterface: public NetworkInterface
+class WiFiInterface: public virtual NetworkInterface
 {
 public:
-    /** WiFiInterface lifetime
+    /** Get the default WiFi interface.
+     *
+     * This is provided as a weak method so applications can override.
+     * Default behaviour is to get the target's default interface, if
+     * any.
+     *
+     * @return pointer to interface, if any
      */
-    virtual ~WiFiInterface() {};
+    static WiFiInterface *get_default_instance();
 
     /** Set the WiFi network credentials
      *
@@ -99,6 +105,21 @@ public:
      *                   negative on error see @a nsapi_error
      */
     virtual nsapi_size_or_error_t scan(WiFiAccessPoint *res, nsapi_size_t count) = 0;
+
+    virtual WiFiInterface *wifiInterface() {
+        return this;
+    }
+
+protected:
+
+    /** Get the target's default WiFi interface.
+     *
+     * This is provided as a weak method so targets can override. The
+     * default implementation returns NULL.
+     *
+     * @return pointer to interface, if any
+     */
+    static WiFiInterface *get_target_default_instance();
 };
 
 #endif

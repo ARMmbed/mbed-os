@@ -370,7 +370,7 @@ class LPCTargetCode(object):
     @staticmethod
     def lpc_patch(t_self, resources, elf, binf):
         """Patch an elf file"""
-        t_self.debug("LPC Patch: %s" % os.path.split(binf)[1])
+        t_self.notify.debug("LPC Patch: %s" % os.path.split(binf)[1])
         patch(binf)
 
 class LPC4088Code(object):
@@ -404,7 +404,7 @@ class LPC4088Code(object):
         # file to 'binf'
         shutil.rmtree(binf, True)
         os.rename(binf + '.temp', binf)
-        t_self.debug("Generated custom binary file (internal flash + SPIFI)")
+        t_self.notify.debug("Generated custom binary file (internal flash + SPIFI)")
         LPCTargetCode.lpc_patch(t_self, resources, elf, binf)
 
 class TEENSY3_1Code(object):
@@ -471,8 +471,8 @@ class MCU_NRF51Code(object):
             in t_self.target.EXPECTED_SOFTDEVICES_WITH_OFFSETS:
             for hexf in resources.hex_files:
                 if hexf.find(softdevice_and_offset_entry['name']) != -1:
-                    t_self.debug("SoftDevice file found %s."
-                                 % softdevice_and_offset_entry['name'])
+                    t_self.notify.debug("SoftDevice file found %s."
+                                        % softdevice_and_offset_entry['name'])
                     sdf = hexf
 
                 if sdf is not None:
@@ -481,7 +481,7 @@ class MCU_NRF51Code(object):
                 break
 
         if sdf is None:
-            t_self.debug("Hex file not found. Aborting.")
+            t_self.notify.debug("Hex file not found. Aborting.")
             return
 
         # Look for bootloader file that matches this soft device or bootloader
@@ -490,13 +490,13 @@ class MCU_NRF51Code(object):
         if t_self.target.MERGE_BOOTLOADER is True:
             for hexf in resources.hex_files:
                 if hexf.find(t_self.target.OVERRIDE_BOOTLOADER_FILENAME) != -1:
-                    t_self.debug("Bootloader file found %s."
-                                 % t_self.target.OVERRIDE_BOOTLOADER_FILENAME)
+                    t_self.notify.debug("Bootloader file found %s."
+                                        % t_self.target.OVERRIDE_BOOTLOADER_FILENAME)
                     blf = hexf
                     break
                 elif hexf.find(softdevice_and_offset_entry['boot']) != -1:
-                    t_self.debug("Bootloader file found %s."
-                                 % softdevice_and_offset_entry['boot'])
+                    t_self.notify.debug("Bootloader file found %s."
+                                        % softdevice_and_offset_entry['boot'])
                     blf = hexf
                     break
 
@@ -510,13 +510,13 @@ class MCU_NRF51Code(object):
             binh.loadbin(binf, softdevice_and_offset_entry['offset'])
 
         if t_self.target.MERGE_SOFT_DEVICE is True:
-            t_self.debug("Merge SoftDevice file %s"
-                         % softdevice_and_offset_entry['name'])
+            t_self.notify.debug("Merge SoftDevice file %s"
+                                % softdevice_and_offset_entry['name'])
             sdh = IntelHex(sdf)
             binh.merge(sdh)
 
         if t_self.target.MERGE_BOOTLOADER is True and blf is not None:
-            t_self.debug("Merge BootLoader file %s" % blf)
+            t_self.notify.debug("Merge BootLoader file %s" % blf)
             blh = IntelHex(blf)
             binh.merge(blh)
 

@@ -31,13 +31,25 @@ void wifi_set_credential(void)
     error = iface->set_credentials(NULL, NULL, NSAPI_SECURITY_NONE);
     TEST_ASSERT(error == NSAPI_ERROR_PARAMETER);
 
+    error = iface->set_credentials("", "", NSAPI_SECURITY_NONE);
+    TEST_ASSERT(error == NSAPI_ERROR_PARAMETER);
+
     error = iface->set_credentials("OK", NULL, NSAPI_SECURITY_NONE);
+    TEST_ASSERT(error == NSAPI_ERROR_OK);
+
+    error = iface->set_credentials("OK", "", NSAPI_SECURITY_NONE);
     TEST_ASSERT(error == NSAPI_ERROR_OK);
 
     error = iface->set_credentials("OK", NULL, NSAPI_SECURITY_WEP);
     TEST_ASSERT(error == NSAPI_ERROR_PARAMETER);
 
+    error = iface->set_credentials("OK", "", NSAPI_SECURITY_WEP);
+    TEST_ASSERT(error == NSAPI_ERROR_PARAMETER);
+
     error = iface->set_credentials("OK", NULL, NSAPI_SECURITY_WPA_WPA2);
+    TEST_ASSERT(error == NSAPI_ERROR_PARAMETER);
+
+    error = iface->set_credentials("OK", "", NSAPI_SECURITY_WPA_WPA2);
     TEST_ASSERT(error == NSAPI_ERROR_PARAMETER);
 
     error = iface->set_credentials("OK", NULL, NSAPI_SECURITY_NONE);

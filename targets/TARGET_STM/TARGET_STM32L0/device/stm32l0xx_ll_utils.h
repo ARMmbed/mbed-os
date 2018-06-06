@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32l0xx_ll_utils.h
   * @author  MCD Application Team
-  * @version V1.7.0
-  * @date    31-May-2016
   * @brief   Header file of UTILS LL module.
   @verbatim
   ==============================================================================
@@ -75,7 +73,7 @@ extern "C" {
   */
 
 /* Max delay can be used in LL_mDelay */
-#define LL_MAX_DELAY                  (uint32_t)0xFFFFFFFFU
+#define LL_MAX_DELAY                  0xFFFFFFFFU
 
 /**
  * @brief Unique device ID register base address
@@ -86,6 +84,7 @@ extern "C" {
  * @brief Flash size data register base address
  */
 #define FLASHSIZE_BASE_ADDRESS        FLASHSIZE_BASE
+
 
 /**
   * @}
@@ -157,11 +156,12 @@ typedef struct
 /** @defgroup UTILS_EC_HSE_BYPASS HSE Bypass activation
   * @{
   */
-#define LL_UTILS_HSEBYPASS_OFF        (uint32_t)0x00000000U       /*!< HSE Bypass is not enabled                */
-#define LL_UTILS_HSEBYPASS_ON         (uint32_t)0x00000001U       /*!< HSE Bypass is enabled                    */
+#define LL_UTILS_HSEBYPASS_OFF        0x00000000U       /*!< HSE Bypass is not enabled                */
+#define LL_UTILS_HSEBYPASS_ON         0x00000001U       /*!< HSE Bypass is enabled                    */
 /**
   * @}
   */
+
 
 /**
   * @}
@@ -215,6 +215,7 @@ __STATIC_INLINE uint32_t LL_GetFlashSize(void)
 {
   return (uint16_t)(READ_REG(*((uint32_t *)FLASHSIZE_BASE_ADDRESS)));
 }
+
 
 /**
   * @}

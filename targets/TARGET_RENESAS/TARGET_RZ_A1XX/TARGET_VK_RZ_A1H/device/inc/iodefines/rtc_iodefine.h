@@ -18,20 +18,50 @@
 * you agree to the additional terms and conditions found by accessing the
 * following link:
 * http://www.renesas.com/disclaimer*
-* Copyright (C) 2013-2014 Renesas Electronics Corporation. All rights reserved.
+* Copyright (C) 2013-2015 Renesas Electronics Corporation. All rights reserved.
 *******************************************************************************/
 /*******************************************************************************
 * File Name : rtc_iodefine.h
 * $Rev: $
 * $Date::                           $
-* Description : Definition of I/O Register (V1.00a)
+* Description : Definition of I/O Register for RZ/A1H,M (V2.00h)
 ******************************************************************************/
 #ifndef RTC_IODEFINE_H
 #define RTC_IODEFINE_H
+/* ->QAC 0639 : Over 127 members (C90) */
+/* ->QAC 0857 : Over 1024 #define (C90) */
+/* ->MISRA 18.4 : Pack unpack union */ /* ->SEC M1.6.2 */
 /* ->SEC M1.10.1 : Not magic number */
 
-struct st_rtc
-{                                                          /* RTC              */
+#define RTC     (*(struct st_rtc     *)0xFCFF1000uL) /* RTC */
+
+
+#define RTCR64CNT (RTC.R64CNT)
+#define RTCRSECCNT (RTC.RSECCNT)
+#define RTCRMINCNT (RTC.RMINCNT)
+#define RTCRHRCNT (RTC.RHRCNT)
+#define RTCRWKCNT (RTC.RWKCNT)
+#define RTCRDAYCNT (RTC.RDAYCNT)
+#define RTCRMONCNT (RTC.RMONCNT)
+#define RTCRYRCNT (RTC.RYRCNT)
+#define RTCRSECAR (RTC.RSECAR)
+#define RTCRMINAR (RTC.RMINAR)
+#define RTCRHRAR (RTC.RHRAR)
+#define RTCRWKAR (RTC.RWKAR)
+#define RTCRDAYAR (RTC.RDAYAR)
+#define RTCRMONAR (RTC.RMONAR)
+#define RTCRCR1 (RTC.RCR1)
+#define RTCRCR2 (RTC.RCR2)
+#define RTCRYRAR (RTC.RYRAR)
+#define RTCRCR3 (RTC.RCR3)
+#define RTCRCR5 (RTC.RCR5)
+#define RTCRFRH (RTC.RFRH)
+#define RTCRFRL (RTC.RFRL)
+
+
+typedef struct st_rtc
+{
+                                                           /* RTC              */
     volatile uint8_t   R64CNT;                                 /*  R64CNT          */
     volatile uint8_t   dummy537[1];                            /*                  */
     volatile uint8_t   RSECCNT;                                /*  RSECCNT         */
@@ -71,32 +101,11 @@ struct st_rtc
     volatile uint8_t   dummy554[3];                            /*                  */
     volatile uint16_t RFRH;                                   /*  RFRH            */
     volatile uint16_t RFRL;                                   /*  RFRL            */
-};
+} r_io_rtc_t;
 
 
-#define RTC     (*(struct st_rtc     *)0xFCFF1000uL) /* RTC */
-
-
-#define RTCR64CNT RTC.R64CNT
-#define RTCRSECCNT RTC.RSECCNT
-#define RTCRMINCNT RTC.RMINCNT
-#define RTCRHRCNT RTC.RHRCNT
-#define RTCRWKCNT RTC.RWKCNT
-#define RTCRDAYCNT RTC.RDAYCNT
-#define RTCRMONCNT RTC.RMONCNT
-#define RTCRYRCNT RTC.RYRCNT
-#define RTCRSECAR RTC.RSECAR
-#define RTCRMINAR RTC.RMINAR
-#define RTCRHRAR RTC.RHRAR
-#define RTCRWKAR RTC.RWKAR
-#define RTCRDAYAR RTC.RDAYAR
-#define RTCRMONAR RTC.RMONAR
-#define RTCRCR1 RTC.RCR1
-#define RTCRCR2 RTC.RCR2
-#define RTCRYRAR RTC.RYRAR
-#define RTCRCR3 RTC.RCR3
-#define RTCRCR5 RTC.RCR5
-#define RTCRFRH RTC.RFRH
-#define RTCRFRL RTC.RFRL
 /* <-SEC M1.10.1 */
+/* <-MISRA 18.4 */ /* <-SEC M1.6.2 */
+/* <-QAC 0857 */
+/* <-QAC 0639 */
 #endif

@@ -259,6 +259,20 @@ class Exporter(object):
     def all_supported_targets(cls):
         return [t for t in TARGET_MAP.keys() if cls.is_target_supported(t)]
 
+    @staticmethod
+    def filter_dot(str):
+        """
+        Remove the './' or '.\\' prefix, if present.
+        """
+        if str == None:
+            return None
+        if str[:2] == './':
+            return str[2:]
+        if str[:2] == '.\\':
+            return str[2:]
+        return str
+
+
 
 def apply_supported_whitelist(compiler, whitelist, target):
     """Generate a list of supported targets for a given compiler and post-binary hook

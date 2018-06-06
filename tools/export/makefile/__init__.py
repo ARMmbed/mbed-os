@@ -14,6 +14,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+from __future__ import print_function, absolute_import
+from builtins import str
+
 from os.path import splitext, basename, relpath, join, abspath, dirname,\
     exists
 from os import remove
@@ -121,6 +124,10 @@ class Makefile(Exporter):
                     'to_be_compiled']:
             ctx[key] = sorted(ctx[key])
         ctx.update(self.format_flags())
+        # Add the virtual path the the include option in the ASM flags
+        for index, flag in enumerate(ctx['asm_flags']):
+            if flag.startswith('-I'):
+                ctx['asm_flags'][index] = "-I" + ctx['vpath'][0] + "/" + ctx['asm_flags'][index][2:]
 
         for templatefile in \
             ['makefile/%s_%s.tmpl' % (self.TEMPLATE,
@@ -178,7 +185,7 @@ class Makefile(Exporter):
         else:
             out_string += "FAILURE"
 
-        print out_string
+        print(out_string)
 
         if log_name:
             # Write the output to the log file

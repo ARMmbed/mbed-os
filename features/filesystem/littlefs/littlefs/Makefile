@@ -1,8 +1,8 @@
 TARGET = lfs
 
-CC = gcc
-AR = ar
-SIZE = size
+CC ?= gcc
+AR ?= ar
+SIZE ?= size
 
 SRC += $(wildcard *.c emubd/*.c)
 OBJ := $(SRC:.c=.o)
@@ -14,15 +14,15 @@ TEST := $(patsubst tests/%.sh,%,$(wildcard tests/test_*))
 SHELL = /bin/bash -o pipefail
 
 ifdef DEBUG
-CFLAGS += -O0 -g3
+override CFLAGS += -O0 -g3
 else
-CFLAGS += -Os
+override CFLAGS += -Os
 endif
 ifdef WORD
-CFLAGS += -m$(WORD)
+override CFLAGS += -m$(WORD)
 endif
-CFLAGS += -I.
-CFLAGS += -std=c99 -Wall -pedantic
+override CFLAGS += -I.
+override CFLAGS += -std=c99 -Wall -pedantic
 
 
 all: $(TARGET)
@@ -33,11 +33,11 @@ size: $(OBJ)
 	$(SIZE) -t $^
 
 .SUFFIXES:
-test: test_format test_dirs test_files test_seek test_parallel \
+test: test_format test_dirs test_files test_seek test_truncate test_parallel \
 	test_alloc test_paths test_orphan test_move test_corrupt
 test_%: tests/test_%.sh
 ifdef QUIET
-	./$< | sed -n '/^[-=]/p'
+	@./$< | sed -n '/^[-=]/p'
 else
 	./$<
 endif

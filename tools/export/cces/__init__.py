@@ -108,14 +108,14 @@ class CCES(Exporter):
         return CCES.format_path(path, "PARENT-1-PROJECT_LOC/")
 
     @staticmethod
-    def clean_flags(container, flags):
+    def clean_flags(container, flags_to_remove):
         """
         Some flags are handled by CCES already, so there's no need
         to include them twice.
         """
-        for flag in container:
-            if flag in flags:
-                flags.remove(flag)
+        for flag in flags_to_remove:
+            if flag in container:
+                container.remove(flag)
 
     @staticmethod
     def parse_flags(flags, options, booleans):

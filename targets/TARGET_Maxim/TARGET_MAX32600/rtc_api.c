@@ -33,6 +33,7 @@
 
 #include "rtc_api.h"
 #include "lp_ticker_api.h"
+#include "ticker_api.h"
 #include "cmsis.h"
 #include "rtc_regs.h"
 #include "pwrseq_regs.h"
@@ -73,8 +74,10 @@ void rtc_init(void)
     MXC_PWRSEQ->reg0 |= MXC_F_PWRSEQ_REG0_PWR_RTCEN_RUN;
 
     // Prepare interrupt handlers
+#ifdef DEVICE_LPTICKER
     NVIC_SetVector(RTC0_IRQn, (uint32_t)lp_ticker_irq_handler);
     NVIC_EnableIRQ(RTC0_IRQn);
+#endif
     NVIC_SetVector(RTC3_IRQn, (uint32_t)overflow_handler);
     NVIC_EnableIRQ(RTC3_IRQn);
 
@@ -235,20 +238,20 @@ void lp_ticker_fire_interrupt(void)
 }
 
 //******************************************************************************
-inline void lp_ticker_disable_interrupt(void)
+void lp_ticker_disable_interrupt(void)
 {
     MXC_RTCTMR->inten &= ~MXC_F_RTC_INTEN_COMP0;
 }
 
 //******************************************************************************
-inline void lp_ticker_clear_interrupt(void)
+void lp_ticker_clear_interrupt(void)
 {
     MXC_RTCTMR->flags = MXC_F_RTC_FLAGS_ASYNC_CLR_FLAGS;
     MXC_PWRSEQ->flags = MXC_F_PWRSEQ_MSK_FLAGS_RTC_CMPR0;
 }
 
 //******************************************************************************
-inline uint32_t lp_ticker_read(void)
+uint32_t lp_ticker_read(void)
 {
     return rtc_read64();
 }

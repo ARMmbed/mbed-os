@@ -26,7 +26,7 @@
 #if DEVICE_PWMOUT
 
 #include "mbed_assert.h"
-#include "mbed_sleep.h"
+#include "mbed_power_mgmt.h"
 #include "pwmout_api.h"
 #include "pinmap.h"
 #include "PeripheralPins.h"

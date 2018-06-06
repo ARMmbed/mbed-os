@@ -23,6 +23,15 @@
 #include <stdbool.h>
 #include "mbed.h"
 
+// Ticker operations
+#if MBED_CONF_RTOS_PRESENT
+
+unsigned equeue_tick() {
+    return osKernelGetTickCount();
+}
+
+#else
+
 #if MBED_CONF_EVENTS_USE_LOWPOWER_TIMER_TICKER
 #define ALIAS_TIMER      LowPowerTimer
 #define ALIAS_TICKER     LowPowerTicker
@@ -33,7 +42,6 @@
 #define ALIAS_TIMEOUT    Timeout
 #endif
 
-// Ticker operations
 static bool equeue_tick_inited = false;
 static volatile unsigned equeue_minutes = 0;
 static unsigned equeue_timer[
@@ -77,6 +85,7 @@ unsigned equeue_tick() {
     return minutes + ms;
 }
 
+#endif
 
 // Mutex operations
 int equeue_mutex_create(equeue_mutex_t *m) { return 0; }

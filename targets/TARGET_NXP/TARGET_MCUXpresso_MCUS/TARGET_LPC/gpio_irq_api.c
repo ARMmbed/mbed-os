@@ -25,6 +25,8 @@
 #include "fsl_pint.h"
 #include "mbed_error.h"
 
+#define INTERRUPT_PORTS 2
+
 static uint32_t channel_ids[NUMBER_OF_GPIO_INTS] = {0};
 static gpio_irq_handler irq_handler;
 /* Array of PORT IRQ number. */
@@ -82,6 +84,10 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
 
     obj->pin = pin & 0x1F;
     obj->port = pin / 32;
+
+    if (obj->port >= INTERRUPT_PORTS) {
+        return -1;
+    }
 
     /* Connect trigger sources to PINT */
     INPUTMUX_Init(INPUTMUX);

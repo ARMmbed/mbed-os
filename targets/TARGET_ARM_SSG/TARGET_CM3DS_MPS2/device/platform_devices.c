@@ -15,7 +15,8 @@
  */
 
 #include "platform_devices.h"
-#include "SMM_MPS2.h"
+/* Base addresses of peripherals */
+#include "CM3DS.h"
 
 /* ARM CMSDK Timer driver structures */
 #ifdef ARM_CMSDK_TIMER0

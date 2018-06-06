@@ -19,10 +19,6 @@
 #ifndef LWIPOPTS_H
 #define LWIPOPTS_H
 
-#if MBED_CONF_LWIP_ETHERNET_ENABLED
-#include "lwipopts_conf.h"
-#endif
-
 // Workaround for Linux timeval
 #if defined (TOOLCHAIN_GCC)
 #define LWIP_TIMEVAL_PRIVATE 0
@@ -149,7 +145,7 @@
 
 #ifdef MBED_CONF_LWIP_PBUF_POOL_BUFSIZE
 #undef PBUF_POOL_BUFSIZE
-#define PBUF_POOL_BUFSIZE           MBED_CONF_LWIP_PBUF_POOL_BUFSIZE
+#define PBUF_POOL_BUFSIZE           LWIP_MEM_ALIGN_SIZE(MBED_CONF_LWIP_PBUF_POOL_BUFSIZE)
 #else
 #ifndef PBUF_POOL_BUFSIZE
 #if LWIP_IPV6
@@ -210,7 +206,6 @@
 
 #if MBED_CONF_LWIP_TCP_ENABLED
 #define LWIP_TCP                    1
-#define TCP_QUEUE_OOSEQ             0
 #define TCP_OVERSIZE                0
 #define LWIP_TCP_KEEPALIVE          1
 #else
@@ -218,6 +213,8 @@
 #endif
 
 #define LWIP_DNS                    1
+// Only DNS address storage is enabled
+#define LWIP_FULL_DNS               0
 #define LWIP_SOCKET                 0
 
 #define SO_REUSE                    1

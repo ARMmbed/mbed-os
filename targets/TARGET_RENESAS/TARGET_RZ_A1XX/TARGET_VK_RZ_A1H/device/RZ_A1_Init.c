@@ -47,7 +47,9 @@ Macro definitions
 
 #define GPIO_PORT0_BOOTMODE_BITMASK (0x000fu)
 
+#if (defined(TARGET_DEBUG) || !defined(RUN_FROM_SDRAM))
 #define CS2_SDRAM
+#endif
 
 /******************************************************************************
 Imported global variables and functions (from other files)

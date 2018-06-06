@@ -20,6 +20,7 @@
 #include <algorithm>
 #include "ble/GattClient.h"
 #include "ble/pal/PalGattClient.h"
+#include "ble/pal/SigningEventMonitor.h"
 
 // IMPORTANT: private header. Not part of the public interface.
 
@@ -31,7 +32,8 @@ namespace generic {
  * It requires a pal::GattClient injected at construction site.
  * @attention: Not part of the public interface of BLE API.
  */
-class GenericGattClient : public GattClient {
+class GenericGattClient : public GattClient,
+                          public pal::SigningEventMonitor {
 public:
     /**
      * Create a GenericGattClient from a pal::GattClient
@@ -114,6 +116,11 @@ public:
 	 */
     virtual ble_error_t reset(void);
 
+    /**
+     * @see ble::pal::SigningEventMonitor::set_signing_event_handler
+     */
+    virtual void set_signing_event_handler(pal::SigningEventMonitor::EventHandler *signing_event_handler);
+
 private:
     struct ProcedureControlBlock;
     struct DiscoveryControlBlock;
@@ -136,6 +143,7 @@ private:
 
     pal::GattClient* const _pal_client;
     ServiceDiscovery::TerminationCallback_t _termination_callback;
+    pal::SigningEventMonitor::EventHandler* _signing_event_handler;
     mutable ProcedureControlBlock* control_blocks;
     bool _is_reseting;
 };

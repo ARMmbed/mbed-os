@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
  *******************************************************************************
- * Copyright (c) 2016, STMicroelectronics
+ * Copyright (c) 2018, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,11 +27,16 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 
 #include "cmsis.h"
 #include "PinNamesTypes.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef enum {
     ALT0  = 0x100,
@@ -39,10 +44,6 @@ typedef enum {
     ALT2  = 0x300,
     ALT3  = 0x400
 } ALTx;
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 typedef enum {
   PA_0  = 0x00,
@@ -64,6 +65,7 @@ typedef enum {
   PA_13 = 0x0D,
   PA_14 = 0x0E,
   PA_15 = 0x0F,
+  PA_15_ALT0 = PA_15|ALT0,
 
   PB_0  = 0x10,
   PB_1  = 0x11,
@@ -138,13 +140,27 @@ typedef enum {
   SPI_CS      = PA_11,
   PWM_OUT     = PB_0,
 
-    //USB pins
+/**** USB pins ****/
     USB_DM = PA_11,
     USB_DP = PA_12,
     USB_NOE = PA_13,
 
-  // Not connected
-  NC = (int)0xFFFFFFFF
+/**** OSCILLATOR pins ****/
+    RCC_OSC32_IN = PC_14,
+    RCC_OSC32_OUT = PC_15,
+
+/**** DEBUG pins ****/
+    SYS_JTCK_SWCLK = PA_14,
+    SYS_JTDI = PA_15,
+    SYS_JTDO_SWO = PB_3,
+    SYS_JTMS_SWDIO = PA_13,
+    SYS_JTRST = PB_4,
+    SYS_PVD_IN = PB_7,
+    SYS_WKUP1 = PA_0,
+    SYS_WKUP4 = PA_2,
+
+    // Not connected
+    NC = (int)0xFFFFFFFF
 } PinName;
 
 #ifdef __cplusplus

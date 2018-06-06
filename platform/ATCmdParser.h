@@ -124,6 +124,7 @@ public:
 
     /**
      * For backwards compatibility.
+     * @deprecated Do not use this function. This function has been replaced with set_timeout for consistency.
      *
      * Please use set_timeout(int) API only from now on.
      * Allows timeout to be changed between commands
@@ -149,6 +150,7 @@ public:
 
     /**
      * For backwards compatibility.
+     * @deprecated Do not use this function. This function has been replaced with set_delimiter for consistency.
      *
      * Please use set_delimiter(const char *) API only from now on.
      * Sets string of characters to use as line delimiters
@@ -173,6 +175,7 @@ public:
 
     /**
      * For backwards compatibility.
+     * @deprecated Do not use this function. This function has been replaced with debug_on for consistency.
      *
      * Allows traces from modem to be turned on or off
      *

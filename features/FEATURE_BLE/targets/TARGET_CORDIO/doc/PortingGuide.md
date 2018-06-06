@@ -37,37 +37,6 @@ property of the target.
     }
 ```
 
-### Include prebuilt libraries 
-
-Last, the target shall also include the cordio libraries into the build. 
-
-Four prebuilt libraries are provided: 
-* `wscore`: which contains the base component used by the Cordio stack.
-* `wsstack`: The BLE stack itself, if contains the GAP and GATT layer as well as 
-the Security manager implementation.
-* `wssec`: The low level implementation of the security layer.
-* `wshci`: The HCI layer.
-
-The `wssec` and `wshci` libraries are delivered in feature folders. It allows 
-vendors to override those library if necessary. This can be required if the port 
-use specific crypto routine or require an highly modified HCI layer. 
-
-To include the default library in the target, the features have to be added in 
-this list of the features of the target: 
-* `WSSEC`: Include the default `wssec` library.
-* `WSHCI`: Include the default `wshci` library.
-
-The target should also compile the sources of the BLE Cordio port. It is 
-achieved by adding the string `CORDIO` in the list of the `extra_labels` 
-property of the target. 
-
-```json
-    "TARGET_NAME": {
-        "extra_labels": ["target extra labels ...", "CORDIO"],
-        "features": ["target features ...", "BLE", "WSHCI", "WSSEC"]
-    }
-```
-
 ## CordioHCIDriver implementation: 
 
 A port shall include an HCI driver for the BLE module used by the target and 
@@ -93,8 +62,10 @@ More information about the architecture can be found in the
 
 #### HCITransport 
 
-> **Note:** If the Bluetooth controller uses an H4 communication interface, this 
-step can be skipped.
+> **Note:** If the Bluetooth controller uses an H4 communication interface and
+the host exposes serial flow control in mbed then this step can be skipped and
+the class `ble::vendor::cordio::H4TransportDriver` can be used as the transport
+driver.
 
 An empty transport driver can be coded as: 
 
@@ -517,22 +488,6 @@ ble::vendor::cordio::CordioHCIDriver& ble_cordio_get_hci_driver() {
     return hci_driver;
 }
 ```
-
-## Examples
-
-Implementation examples might be found for: 
-* [ST BlueNRG module](../../TARGET_NUCLEO_F401RE/BlueNrgHCIDriver.cpp): It uses
-a custom transport driver and a vendor specific is sent right after the answer 
-to the reset command to switch the controller to link layer mode only.
-* [EM9301 module](../../TARGET_Maxim/TARGET_MAX32620HSP/EM9301HCIDriver.cpp): 
-it uses a custom transport driver and doesn't doesn't send the command *Set 
-Event Mask Page 2*  to the controller during the reset sequence because this 
-command is not supported by the controller.
-* [PAN1326](../../TARGET_Maxim/TARGET_MAX32630FTHR/CC2564HCIDriver.cpp): It 
-uses the H4 transport driver. The reset sequence start by sending a 
-*service pack* then once the service pack has been transferred it continue 
-with the regular reset sequence.
-
 
 
 

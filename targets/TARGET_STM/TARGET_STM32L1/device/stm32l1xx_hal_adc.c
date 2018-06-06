@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_adc.c
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    01-July-2016
   * @brief   This file provides firmware functions to manage the following 
   *          functionalities of the Analog to Digital Convertor (ADC)
   *          peripheral:
@@ -256,7 +254,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -309,18 +307,18 @@
   /* Ex of profile low frequency : Clock source at 0.1 MHz, ADC clock         */
   /* prescaler 4, sampling time 7.5 ADC clock cycles, resolution 12 bits.     */
   /* Unit: ms                                                                 */
-  #define ADC_ENABLE_TIMEOUT              ((uint32_t) 2)
-  #define ADC_DISABLE_TIMEOUT             ((uint32_t) 2)
+  #define ADC_ENABLE_TIMEOUT              (2U)
+  #define ADC_DISABLE_TIMEOUT             (2U)
 
   /* Delay for ADC stabilization time.                                        */
   /* Maximum delay is 1us (refer to device datasheet, parameter tSTAB).       */
   /* Unit: us                                                                 */
-  #define ADC_STAB_DELAY_US               ((uint32_t) 3)
+  #define ADC_STAB_DELAY_US               (3U)
 
   /* Delay for temperature sensor stabilization time.                         */
   /* Maximum delay is 10us (refer to device datasheet, parameter tSTART).     */
   /* Unit: us                                                                 */
-  #define ADC_TEMPSENSOR_DELAY_US         ((uint32_t) 10)
+  #define ADC_TEMPSENSOR_DELAY_US         (10U)
 
 /**
   * @}

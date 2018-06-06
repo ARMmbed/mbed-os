@@ -78,7 +78,7 @@ public:
 
     /** Bind a specific address to a socket
      *
-     *  Binding a socket specifies the address and port on which to recieve
+     *  Binding a socket specifies the address and port on which to receive
      *  data.
      *
      *  @param port     Local port to bind
@@ -88,7 +88,7 @@ public:
 
     /** Bind a specific address to a socket
      *
-     *  Binding a socket specifies the address and port on which to recieve
+     *  Binding a socket specifies the address and port on which to receive
      *  data. If the IP address is zeroed, only the port is bound.
      *
      *  @param address  Null-terminated local address to bind
@@ -99,7 +99,7 @@ public:
 
     /** Bind a specific address to a socket
      *
-     *  Binding a socket specifies the address and port on which to recieve
+     *  Binding a socket specifies the address and port on which to receive
      *  data. If the IP address is zeroed, only the port is bound.
      *
      *  @param address  Local address to bind

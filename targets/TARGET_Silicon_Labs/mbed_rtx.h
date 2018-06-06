@@ -20,31 +20,31 @@
 #include <stdint.h>
 #include "clocking.h"
 
-#if defined(TARGET_EFM32GG_STK3700)
+#if defined(TARGET_EFM32GG)
 
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20020000UL)
 #endif
 
-#elif defined(TARGET_EFM32HG_STK3400)
+#elif defined(TARGET_EFM32HG)
 
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20002000UL)
 #endif
 
-#elif defined(TARGET_EFM32LG_STK3600)
+#elif defined(TARGET_EFM32LG)
 
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20008000UL)
 #endif
 
-#elif defined(TARGET_EFM32PG_STK3401)
+#elif defined(TARGET_EFM32PG)
 
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20008000UL)
 #endif
 
-#elif defined(TARGET_EFM32WG_STK3800)
+#elif defined(TARGET_EFM32WG)
 
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20008000UL)

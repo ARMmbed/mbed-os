@@ -2,14 +2,18 @@
     "config": {
         "test-ethernet": {
             "help": "Enable ethernet testing",
-            "value": 0
+            "value": 1
         },
         "test-wifi": {
             "help": "Enable wifi testing",
-            "value": 1
+            "value": 0
         },
         "echo-server": {
             "help": "Build test to be echo server",
+            "value": 0
+        },
+        "echo-server-trace": {
+            "help": "Trace incoming messages on echo server",
             "value": 0
         },
         "wifi-scan": {
@@ -27,6 +31,11 @@
         "wifi-password": {
             "help": "WiFi Password",
             "value": "\"PASSWORD\""
+        }
+    },
+    "target_overrides": {
+        "*": {
+            "nsapi.default-stack": "TEST"
         }
     }
 }

@@ -163,6 +163,10 @@ const PinMap PinMap_ADC[] = {
     { AIN_3, ADC, ADC_CH_3 },
     { AIN_4, ADC, ADC_CH_0_DIV_5 },
     { AIN_5, ADC, ADC_CH_1_DIV_5 },
+    { AIN_6, ADC, ADC_CH_VDDB_DIV_4 },
+    { AIN_7, ADC, ADC_CH_VDD18 },
+    { AIN_8, ADC, ADC_CH_VDD12 },
+    { AIN_9, ADC, ADC_CH_VRTC_DIV_2 },
     { NC,    NC,  0 }
 };
 

@@ -158,7 +158,7 @@ int ATCmdParser::vscanf(const char *format, va_list args)
         if (j+1 >= _buffer_size - offset) {
             return false;
         }
-        // Recieve next character
+        // Receive next character
         int c = getc();
         if (c < 0) {
             return -1;
@@ -394,6 +394,19 @@ bool ATCmdParser::process_oob()
         if (c < 0) {
             return false;
         }
+        // Simplify newlines (borrowed from retarget.cpp)
+        if ((c == CR && _in_prev != LF) ||
+            (c == LF && _in_prev != CR)) {
+            _in_prev = c;
+            c = '\n';
+        } else if ((c == CR && _in_prev == LF) ||
+                   (c == LF && _in_prev == CR)) {
+            _in_prev = c;
+            // onto next character
+            continue;
+        } else {
+            _in_prev = c;
+        }
         _buffer[i++] = c;
         _buffer[i] = 0;
 
@@ -411,9 +424,7 @@ bool ATCmdParser::process_oob()
         
         // Clear the buffer when we hit a newline or ran out of space
         // running out of space usually means we ran into binary data
-        if (i+1 >= _buffer_size ||
-            strcmp(&_buffer[i-_output_delim_size], _output_delimiter) == 0) {
-
+        if (((i+1) >= _buffer_size) || (c == '\n')) {
             debug_if(_dbg_on, "AT< %s", _buffer);
             i = 0;
         }

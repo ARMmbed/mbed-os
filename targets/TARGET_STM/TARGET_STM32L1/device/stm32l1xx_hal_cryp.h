@@ -2,13 +2,11 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_cryp.h
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    01-July-2016
   * @brief   Header file of CRYP HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -143,7 +141,7 @@ typedef struct
 /** @defgroup CRYP_Data_Type CRYP Data Type
   * @{
   */
-#define CRYP_DATATYPE_32B         ((uint32_t)0x00000000)
+#define CRYP_DATATYPE_32B         (0x00000000U)
 #define CRYP_DATATYPE_16B         AES_CR_DATATYPE_0
 #define CRYP_DATATYPE_8B          AES_CR_DATATYPE_1
 #define CRYP_DATATYPE_1B          AES_CR_DATATYPE
@@ -161,7 +159,7 @@ typedef struct
   */ 
 #define CRYP_CR_ALGOMODE_DIRECTION              (uint32_t)(AES_CR_MODE|AES_CR_CHMOD)
 
-#define CRYP_CR_ALGOMODE_AES_ECB_ENCRYPT        ((uint32_t)0x00000000)
+#define CRYP_CR_ALGOMODE_AES_ECB_ENCRYPT        (0x00000000U)
 #define CRYP_CR_ALGOMODE_AES_ECB_KEYDERDECRYPT  (AES_CR_MODE)
 #define CRYP_CR_ALGOMODE_AES_CBC_ENCRYPT        (AES_CR_CHMOD_0)
 #define CRYP_CR_ALGOMODE_AES_CBC_KEYDERDECRYPT  ((uint32_t)(AES_CR_CHMOD_0|AES_CR_MODE))

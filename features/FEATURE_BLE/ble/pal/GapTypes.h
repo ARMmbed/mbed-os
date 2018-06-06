@@ -411,78 +411,6 @@ struct initiator_policy_t : SafeEnum<initiator_policy_t, uint8_t> {
 
 
 /**
- * MAC address data type.
- */
-struct address_t {
-    /**
-     * Create an invalid mac address, equal to FF:FF:FF:FF:FF:FF
-     */
-    address_t() {
-        memset(value, 0xFF, sizeof(value));
-    }
-
-    /**
-     * Initialize a mac address from an array of bytes.
-     *
-     * @param input_value value of the MAC address.
-     */
-    address_t(const uint8_t (&input_value)[6]) {
-        memcpy(value, input_value, sizeof(value));
-    }
-
-    /**
-     * Initialize a mac address from a pointer to a buffer.
-     *
-     * @param input_value Buffer containing the mac address. It shall be at
-     * least 6 long.
-     *
-     * @param tag Tag used to select this constructor. The value does not matter.
-     */
-    address_t(const uint8_t* input_value, bool tag) {
-        memcpy(value, input_value, sizeof(value));
-    }
-
-    /**
-     * Equal operator between two addresses.
-     */
-    friend bool operator==(const address_t& lhs, const address_t& rhs) {
-        return memcmp(lhs.value, rhs.value, sizeof(lhs.value)) == 0;
-    }
-
-    /**
-     * Non equal operator between two addresses.
-     */
-    friend bool operator!=(const address_t& lhs, const address_t& rhs) {
-        return !(lhs == rhs);
-    }
-
-    /**
-     * Subscript operator to access mac address content
-     */
-    uint8_t operator[](uint8_t i) const {
-        return value[i];
-    }
-
-    /**
-     * Return the pointer to the buffer holding mac address.
-     */
-    const uint8_t* data() const {
-        return value;
-    }
-
-    /**
-     * Size in byte of a mac address.
-     */
-    uint8_t size() const {
-        return sizeof(value);
-    }
-
-private:
-    uint8_t value[6];
-};
-
-
-/**
  * Hold advertising data.
  */
 struct advertising_data_t {
@@ -550,7 +478,6 @@ struct advertising_data_t {
 private:
     uint8_t value[31];
 };
-
 
 /**
  * Type of advertising the LE subsystem can use when it advertise.

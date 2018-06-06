@@ -936,7 +936,7 @@ The following provides general notes on the handling of errors:
 - Supported backends may include non-volatile storage (flash) and SRAM.
 - For example. if a non-volatile storage (flash) backend is supported, then the flushing of data to the NV store must be atomic.
   This may require that flushing of data to flash is commited using an atomic write operation e.g. of a CRC32 value for the 
-  commit data. If power loss occured during the atomic write then the CRC32 would be invalid, the previously written data would
+  commit data. If power loss occurred during the atomic write then the CRC32 would be invalid, the previously written data would
   not be valid, and the system would have to revert to a previous version of the data that has successfully commited the correct CRC32
   value. 
   
@@ -1080,7 +1080,7 @@ split the writing of the value into M writes, where N/M is smaller than availabl
 In the case the the Write() call fails with return code `ARM_CFSTORE_DRIVER_ERROR_OUT_OF_MEMORY`
 then the client may retry the write transaction with a smaller length (less bytes).
 
-Further, a client of the Write() function should alway check the returned value of the
+Further, a client of the Write() function should always check the returned value of the
 len argment as this records the actual number of bytes written. CFSTORE may be able to 
 write a number of bytes less that the total number in the data buffer supplied by the 
 client. The unwritten bytes should be supplied to a second call to Write(). 

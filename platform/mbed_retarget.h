@@ -27,6 +27,18 @@
 #include <stdint.h>
 #include <stddef.h>
 
+/* Include logic for errno so we can get errno defined but not bring in error_t,
+ * including errno here prevents an include later, which would redefine our
+ * error codes
+ */
+#ifndef __error_t_defined
+#define __error_t_defined 1
+#include <errno.h>
+#undef __error_t_defined
+#else
+#include <errno.h>
+#endif
+
 /* We can get the following standard types from sys/types for gcc, but we
  * need to define the types ourselves for the other compilers that normally
  * target embedded systems */
@@ -43,14 +55,20 @@ typedef unsigned int  uid_t;    ///< User ID
 typedef unsigned int  gid_t;    ///< Group ID
 #endif
 
-#define O_RDONLY 0      ///< Open for reading
-#define O_WRONLY 1      ///< Open for writing
-#define O_RDWR   2      ///< Open for reading and writing
-#define O_CREAT  0x0200 ///< Create file if it does not exist
-#define O_TRUNC  0x0400 ///< Truncate file to zero length
-#define O_EXCL   0x0800 ///< Fail if file exists
-#define O_APPEND 0x0008 ///< Set file offset to end of file prior to each write
-#define O_BINARY 0x8000 ///< Open file in binary mode
+/* Flags for open() and fcntl(GETFL/SETFL)
+ * At present, fcntl only supports reading and writing O_NONBLOCK
+ */
+#define O_RDONLY 0        ///< Open for reading
+#define O_WRONLY 1        ///< Open for writing
+#define O_RDWR   2        ///< Open for reading and writing
+#define O_NONBLOCK 0x0004 ///< Non-blocking mode
+#define O_APPEND   0x0008 ///< Set file offset to end of file prior to each write
+#define O_CREAT    0x0200 ///< Create file if it does not exist
+#define O_TRUNC    0x0400 ///< Truncate file to zero length
+#define O_EXCL     0x0800 ///< Fail if file exists
+#define O_BINARY   0x8000 ///< Open file in binary mode
+
+#define O_ACCMODE   (O_RDONLY|O_WRONLY|O_RDWR)
 
 #define NAME_MAX 255    ///< Maximum size of a name in a file path
 
@@ -422,7 +440,7 @@ typedef struct Dir DIR;
 #define     S_IXUSR 0000100 ///< execute/search permission, owner
 #define S_IRWXG     (S_IRGRP | S_IWGRP | S_IXGRP)
 #define     S_IRGRP 0000040 ///< read permission, group
-#define     S_IWGRP 0000020 ///< write permission, grougroup
+#define     S_IWGRP 0000020 ///< write permission, group
 #define     S_IXGRP 0000010 ///< execute/search permission, group
 #define S_IRWXO     (S_IROTH | S_IWOTH | S_IXOTH)
 #define     S_IROTH 0000004 ///< read permission, other
@@ -461,7 +479,7 @@ struct statvfs {
     unsigned long  f_namemax;  ///< Maximum filename length
 };
 
-/* The following are dirent.h definitions are declared here to garuntee
+/* The following are dirent.h definitions are declared here to guarantee
  * consistency where structure may be different with different toolchains
  */
 struct dirent {
@@ -479,6 +497,10 @@ enum {
     DT_LNK,     ///< This is a symbolic link.
     DT_SOCK,    ///< This is a UNIX domain socket.
 };
+
+/* fcntl.h defines */
+#define F_GETFL 3
+#define F_SETFL 4
 
 struct pollfd {
     int fd;
@@ -503,7 +525,8 @@ extern "C" {
     off_t lseek(int fildes, off_t offset, int whence);
     int isatty(int fildes);
     int fsync(int fildes);
-    int fstat(int fh, struct stat *st);
+    int fstat(int fildes, struct stat *st);
+    int fcntl(int fildes, int cmd, ...);
     int poll(struct pollfd fds[], nfds_t nfds, int timeout);
     int close(int fildes);
     int stat(const char *path, struct stat *st);

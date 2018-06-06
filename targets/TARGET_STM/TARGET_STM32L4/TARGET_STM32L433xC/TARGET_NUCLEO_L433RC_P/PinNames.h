@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
  *******************************************************************************
- * Copyright (c) 2016, STMicroelectronics
+ * Copyright (c) 2018, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,6 +27,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 
@@ -38,10 +39,10 @@ extern "C" {
 #endif
 
 typedef enum {
-  ALT0 = 0x100,
-  ALT1 = 0x200,
-  ALT2 = 0x300,
-  ALT3 = 0x400
+    ALT0  = 0x100,
+    ALT1  = 0x200,
+    ALT2  = 0x300,
+    ALT3  = 0x400
 } ALTx;
 
 typedef enum {
@@ -111,7 +112,6 @@ typedef enum {
   PC_14 = 0x2E,
   PC_15 = 0x2F,
 
-    
   PD_2  = 0x32,
 #ifdef STM32L433_100PINS // LQFP100 or UFBGA100 versions
   PD_0  = 0x30,
@@ -165,10 +165,6 @@ typedef enum {
   A3          = PC_2,
   A4          = PC_1,
   A5          = PC_0,
-    
-  A6          = PA_7,
-  A7          = PA_2,
-    
   D0          = PA_2,
   D1          = PA_3,
   D2          = PA_12,
@@ -183,8 +179,10 @@ typedef enum {
   D11         = PB_15,
   D12         = PB_14,
   D13         = PB_13,
+  D14         = PB_7,
+  D15         = PB_8,
 
-    // STDIO for console print
+  // STDIO for console print
 #ifdef MBED_CONF_TARGET_STDIO_UART_TX
     STDIO_UART_TX = MBED_CONF_TARGET_STDIO_UART_TX,
 #else
@@ -197,12 +195,12 @@ typedef enum {
 #endif
 
   // Generic signals namings
-  LED1        = PA_5,
-  LED2        = PA_5,
-  LED3        = PA_5,
-  LED4        = PA_5,
+  LED1        = PB_13,
+  LED2        = PB_13,
+  LED3        = PB_13,
+  LED4        = PB_13,
   USER_BUTTON = PC_13,
-  BUTTON1 = USER_BUTTON,
+  BUTTON1     = USER_BUTTON,
   SERIAL_TX   = STDIO_UART_TX,
   SERIAL_RX   = STDIO_UART_RX,
   USBTX       = STDIO_UART_TX,
@@ -215,13 +213,31 @@ typedef enum {
   SPI_CS      = D10,
   PWM_OUT     = D9,
 
-  //USB pins
-  USB_DM = PA_11,
-  USB_DP = PA_12,
-  USB_NOE = PA_13,
+/**** USB pins ****/
+    USB_DM = PA_11,
+    USB_DP = PA_12,
+    USB_NOE = PC_9,
+    USB_NOE_ALT0 = PA_13,
 
-  // Not connected
-  NC = (int)0xFFFFFFFF
+/**** OSCILLATOR pins ****/
+    RCC_OSC32_IN = PC_14,
+    RCC_OSC32_OUT = PC_15,
+    RCC_OSC_IN = PH_0,
+    RCC_OSC_OUT = PH_1,
+
+/**** DEBUG pins ****/
+    SYS_JTCK_SWCLK = PA_14,
+    SYS_JTDI = PA_15,
+    SYS_JTDO_SWO = PB_3,
+    SYS_JTMS_SWDIO = PA_13,
+    SYS_JTRST = PB_4,
+    SYS_PVD_IN = PB_7,
+    SYS_WKUP1 = PA_0,
+    SYS_WKUP2 = PC_13,
+    SYS_WKUP4 = PA_2,
+
+    // Not connected
+    NC = (int)0xFFFFFFFF
 } PinName;
 
 #ifdef __cplusplus

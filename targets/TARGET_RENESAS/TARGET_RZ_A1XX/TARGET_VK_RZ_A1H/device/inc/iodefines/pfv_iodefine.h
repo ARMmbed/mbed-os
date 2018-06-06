@@ -18,25 +18,112 @@
 * you agree to the additional terms and conditions found by accessing the
 * following link:
 * http://www.renesas.com/disclaimer*
-* Copyright (C) 2013-2014 Renesas Electronics Corporation. All rights reserved.
+* Copyright (C) 2013-2015 Renesas Electronics Corporation. All rights reserved.
 *******************************************************************************/
 /*******************************************************************************
 * File Name : pfv_iodefine.h
 * $Rev: $
 * $Date::                           $
-* Description : Definition of I/O Register (V1.00a)
+* Description : Definition of I/O Register for RZ/A1H,M (V2.00h)
 ******************************************************************************/
 #ifndef PFV_IODEFINE_H
 #define PFV_IODEFINE_H
+/* ->QAC 0639 : Over 127 members (C90) */
+/* ->QAC 0857 : Over 1024 #define (C90) */
+/* ->MISRA 18.4 : Pack unpack union */ /* ->SEC M1.6.2 */
 /* ->SEC M1.10.1 : Not magic number */
 
-struct st_pfv
-{                                                          /* PFV              */
+#define PFV0    (*(struct st_pfv     *)0xE8205000uL) /* PFV0 */
+#define PFV1    (*(struct st_pfv     *)0xE8205800uL) /* PFV1 */
+
+
+/* Start of channel array defines of PFV */
+
+/* Channel array defines of PFV */
+/*(Sample) value = PFV[ channel ]->PFVCR; */
+#define PFV_COUNT  (2)
+#define PFV_ADDRESS_LIST \
+{   /* ->MISRA 11.3 */ /* ->SEC R2.7.1 */ \
+    &PFV0, &PFV1 \
+}   /* <-MISRA 11.3 */ /* <-SEC R2.7.1 */ /* { } is for MISRA 19.4 */
+
+/* End of channel array defines of PFV */
+
+
+#define PFV0PFVCR (PFV0.PFVCR)
+#define PFV0PFVICR (PFV0.PFVICR)
+#define PFV0PFVISR (PFV0.PFVISR)
+#define PFV0PFVID0 (PFV0.PFVID0)
+#define PFV0PFVID1 (PFV0.PFVID1)
+#define PFV0PFVID2 (PFV0.PFVID2)
+#define PFV0PFVID3 (PFV0.PFVID3)
+#define PFV0PFVID4 (PFV0.PFVID4)
+#define PFV0PFVID5 (PFV0.PFVID5)
+#define PFV0PFVID6 (PFV0.PFVID6)
+#define PFV0PFVID7 (PFV0.PFVID7)
+#define PFV0PFVOD0 (PFV0.PFVOD0)
+#define PFV0PFVOD1 (PFV0.PFVOD1)
+#define PFV0PFVOD2 (PFV0.PFVOD2)
+#define PFV0PFVOD3 (PFV0.PFVOD3)
+#define PFV0PFVOD4 (PFV0.PFVOD4)
+#define PFV0PFVOD5 (PFV0.PFVOD5)
+#define PFV0PFVOD6 (PFV0.PFVOD6)
+#define PFV0PFVOD7 (PFV0.PFVOD7)
+#define PFV0PFVIFSR (PFV0.PFVIFSR)
+#define PFV0PFVOFSR (PFV0.PFVOFSR)
+#define PFV0PFVACR (PFV0.PFVACR)
+#define PFV0PFV_MTX_MODE (PFV0.PFV_MTX_MODE)
+#define PFV0PFV_MTX_YG_ADJ0 (PFV0.PFV_MTX_YG_ADJ0)
+#define PFV0PFV_MTX_YG_ADJ1 (PFV0.PFV_MTX_YG_ADJ1)
+#define PFV0PFV_MTX_CBB_ADJ0 (PFV0.PFV_MTX_CBB_ADJ0)
+#define PFV0PFV_MTX_CBB_ADJ1 (PFV0.PFV_MTX_CBB_ADJ1)
+#define PFV0PFV_MTX_CRR_ADJ0 (PFV0.PFV_MTX_CRR_ADJ0)
+#define PFV0PFV_MTX_CRR_ADJ1 (PFV0.PFV_MTX_CRR_ADJ1)
+#define PFV0PFVSZR (PFV0.PFVSZR)
+#define PFV1PFVCR (PFV1.PFVCR)
+#define PFV1PFVICR (PFV1.PFVICR)
+#define PFV1PFVISR (PFV1.PFVISR)
+#define PFV1PFVID0 (PFV1.PFVID0)
+#define PFV1PFVID1 (PFV1.PFVID1)
+#define PFV1PFVID2 (PFV1.PFVID2)
+#define PFV1PFVID3 (PFV1.PFVID3)
+#define PFV1PFVID4 (PFV1.PFVID4)
+#define PFV1PFVID5 (PFV1.PFVID5)
+#define PFV1PFVID6 (PFV1.PFVID6)
+#define PFV1PFVID7 (PFV1.PFVID7)
+#define PFV1PFVOD0 (PFV1.PFVOD0)
+#define PFV1PFVOD1 (PFV1.PFVOD1)
+#define PFV1PFVOD2 (PFV1.PFVOD2)
+#define PFV1PFVOD3 (PFV1.PFVOD3)
+#define PFV1PFVOD4 (PFV1.PFVOD4)
+#define PFV1PFVOD5 (PFV1.PFVOD5)
+#define PFV1PFVOD6 (PFV1.PFVOD6)
+#define PFV1PFVOD7 (PFV1.PFVOD7)
+#define PFV1PFVIFSR (PFV1.PFVIFSR)
+#define PFV1PFVOFSR (PFV1.PFVOFSR)
+#define PFV1PFVACR (PFV1.PFVACR)
+#define PFV1PFV_MTX_MODE (PFV1.PFV_MTX_MODE)
+#define PFV1PFV_MTX_YG_ADJ0 (PFV1.PFV_MTX_YG_ADJ0)
+#define PFV1PFV_MTX_YG_ADJ1 (PFV1.PFV_MTX_YG_ADJ1)
+#define PFV1PFV_MTX_CBB_ADJ0 (PFV1.PFV_MTX_CBB_ADJ0)
+#define PFV1PFV_MTX_CBB_ADJ1 (PFV1.PFV_MTX_CBB_ADJ1)
+#define PFV1PFV_MTX_CRR_ADJ0 (PFV1.PFV_MTX_CRR_ADJ0)
+#define PFV1PFV_MTX_CRR_ADJ1 (PFV1.PFV_MTX_CRR_ADJ1)
+#define PFV1PFVSZR (PFV1.PFVSZR)
+
+#define PFVID_COUNT (8)
+#define PFVOD_COUNT (8)
+
+
+typedef struct st_pfv
+{
+                                                           /* PFV              */
     volatile uint32_t  PFVCR;                                  /*  PFVCR           */
     volatile uint32_t  PFVICR;                                 /*  PFVICR          */
     volatile uint32_t  PFVISR;                                 /*  PFVISR          */
     volatile uint8_t   dummy1[20];                             /*                  */
-#define PFVID_COUNT 8
+
+/* #define PFVID_COUNT (8) */
     volatile uint32_t  PFVID0;                                 /*  PFVID0          */
     volatile uint32_t  PFVID1;                                 /*  PFVID1          */
     volatile uint32_t  PFVID2;                                 /*  PFVID2          */
@@ -45,7 +132,8 @@ struct st_pfv
     volatile uint32_t  PFVID5;                                 /*  PFVID5          */
     volatile uint32_t  PFVID6;                                 /*  PFVID6          */
     volatile uint32_t  PFVID7;                                 /*  PFVID7          */
-#define PFVOD_COUNT 8
+
+/* #define PFVOD_COUNT (8) */
     volatile uint32_t  PFVOD0;                                 /*  PFVOD0          */
     volatile uint32_t  PFVOD1;                                 /*  PFVOD1          */
     volatile uint32_t  PFVOD2;                                 /*  PFVOD2          */
@@ -66,85 +154,21 @@ struct st_pfv
     volatile uint32_t  PFV_MTX_CRR_ADJ0;                       /*  PFV_MTX_CRR_ADJ0 */
     volatile uint32_t  PFV_MTX_CRR_ADJ1;                       /*  PFV_MTX_CRR_ADJ1 */
     volatile uint32_t  PFVSZR;                                 /*  PFVSZR          */
-};
+} r_io_pfv_t;
 
 
-#define PFV0    (*(struct st_pfv     *)0xE8205000uL) /* PFV0 */
-#define PFV1    (*(struct st_pfv     *)0xE8205800uL) /* PFV1 */
+/* Channel array defines of PFV (2)*/
+#ifdef  DECLARE_PFV_CHANNELS
+volatile struct st_pfv*  PFV[ PFV_COUNT ] =
+    /* ->MISRA 11.3 */ /* ->SEC R2.7.1 */
+    PFV_ADDRESS_LIST;
+    /* <-MISRA 11.3 */ /* <-SEC R2.7.1 */
+#endif  /* DECLARE_PFV_CHANNELS */
+/* End of channel array defines of PFV (2)*/
 
 
-/* Start of channnel array defines of PFV */
-
-/* Channnel array defines of PFV */
-/*(Sample) value = PFV[ channel ]->PFVCR; */
-#define PFV_COUNT  2
-#define PFV_ADDRESS_LIST \
-{   /* ->MISRA 11.3 */ /* ->SEC R2.7.1 */ \
-    &PFV0, &PFV1 \
-}   /* <-MISRA 11.3 */ /* <-SEC R2.7.1 */ /* { } is for MISRA 19.4 */
-
-/* End of channnel array defines of PFV */
-
-
-#define PFV0PFVCR PFV0.PFVCR
-#define PFV0PFVICR PFV0.PFVICR
-#define PFV0PFVISR PFV0.PFVISR
-#define PFV0PFVID0 PFV0.PFVID0
-#define PFV0PFVID1 PFV0.PFVID1
-#define PFV0PFVID2 PFV0.PFVID2
-#define PFV0PFVID3 PFV0.PFVID3
-#define PFV0PFVID4 PFV0.PFVID4
-#define PFV0PFVID5 PFV0.PFVID5
-#define PFV0PFVID6 PFV0.PFVID6
-#define PFV0PFVID7 PFV0.PFVID7
-#define PFV0PFVOD0 PFV0.PFVOD0
-#define PFV0PFVOD1 PFV0.PFVOD1
-#define PFV0PFVOD2 PFV0.PFVOD2
-#define PFV0PFVOD3 PFV0.PFVOD3
-#define PFV0PFVOD4 PFV0.PFVOD4
-#define PFV0PFVOD5 PFV0.PFVOD5
-#define PFV0PFVOD6 PFV0.PFVOD6
-#define PFV0PFVOD7 PFV0.PFVOD7
-#define PFV0PFVIFSR PFV0.PFVIFSR
-#define PFV0PFVOFSR PFV0.PFVOFSR
-#define PFV0PFVACR PFV0.PFVACR
-#define PFV0PFV_MTX_MODE PFV0.PFV_MTX_MODE
-#define PFV0PFV_MTX_YG_ADJ0 PFV0.PFV_MTX_YG_ADJ0
-#define PFV0PFV_MTX_YG_ADJ1 PFV0.PFV_MTX_YG_ADJ1
-#define PFV0PFV_MTX_CBB_ADJ0 PFV0.PFV_MTX_CBB_ADJ0
-#define PFV0PFV_MTX_CBB_ADJ1 PFV0.PFV_MTX_CBB_ADJ1
-#define PFV0PFV_MTX_CRR_ADJ0 PFV0.PFV_MTX_CRR_ADJ0
-#define PFV0PFV_MTX_CRR_ADJ1 PFV0.PFV_MTX_CRR_ADJ1
-#define PFV0PFVSZR PFV0.PFVSZR
-#define PFV1PFVCR PFV1.PFVCR
-#define PFV1PFVICR PFV1.PFVICR
-#define PFV1PFVISR PFV1.PFVISR
-#define PFV1PFVID0 PFV1.PFVID0
-#define PFV1PFVID1 PFV1.PFVID1
-#define PFV1PFVID2 PFV1.PFVID2
-#define PFV1PFVID3 PFV1.PFVID3
-#define PFV1PFVID4 PFV1.PFVID4
-#define PFV1PFVID5 PFV1.PFVID5
-#define PFV1PFVID6 PFV1.PFVID6
-#define PFV1PFVID7 PFV1.PFVID7
-#define PFV1PFVOD0 PFV1.PFVOD0
-#define PFV1PFVOD1 PFV1.PFVOD1
-#define PFV1PFVOD2 PFV1.PFVOD2
-#define PFV1PFVOD3 PFV1.PFVOD3
-#define PFV1PFVOD4 PFV1.PFVOD4
-#define PFV1PFVOD5 PFV1.PFVOD5
-#define PFV1PFVOD6 PFV1.PFVOD6
-#define PFV1PFVOD7 PFV1.PFVOD7
-#define PFV1PFVIFSR PFV1.PFVIFSR
-#define PFV1PFVOFSR PFV1.PFVOFSR
-#define PFV1PFVACR PFV1.PFVACR
-#define PFV1PFV_MTX_MODE PFV1.PFV_MTX_MODE
-#define PFV1PFV_MTX_YG_ADJ0 PFV1.PFV_MTX_YG_ADJ0
-#define PFV1PFV_MTX_YG_ADJ1 PFV1.PFV_MTX_YG_ADJ1
-#define PFV1PFV_MTX_CBB_ADJ0 PFV1.PFV_MTX_CBB_ADJ0
-#define PFV1PFV_MTX_CBB_ADJ1 PFV1.PFV_MTX_CBB_ADJ1
-#define PFV1PFV_MTX_CRR_ADJ0 PFV1.PFV_MTX_CRR_ADJ0
-#define PFV1PFV_MTX_CRR_ADJ1 PFV1.PFV_MTX_CRR_ADJ1
-#define PFV1PFVSZR PFV1.PFVSZR
 /* <-SEC M1.10.1 */
+/* <-MISRA 18.4 */ /* <-SEC M1.6.2 */
+/* <-QAC 0857 */
+/* <-QAC 0639 */
 #endif

@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_crc_ex.c
   * @author  MCD Application Team
-  * @version V1.7.0
-  * @date    31-May-2016
   * @brief   Extended CRC HAL module driver.
   *    
   *          This file provides firmware functions to manage the following 
@@ -120,24 +118,33 @@ HAL_StatusTypeDef HAL_CRCEx_Polynomial_Set(CRC_HandleTypeDef *hcrc, uint32_t Pol
    * Look for MSB position: msb will contain the degree of
    *  the second to the largest polynomial member. E.g., for
    *  X^7 + X^6 + X^5 + X^2 + 1, msb = 6. */
-  while (((Pol & ((uint32_t)(0x1U) << msb)) == 0U) && (msb-- > 0U));
+  while (((Pol & (1U << msb)) == 0) && (msb-- > 0)){}
 
   switch (PolyLength)
   {
     case CRC_POLYLENGTH_7B:
-      if (msb >= HAL_CRC_LENGTH_7B) return  HAL_ERROR;
+      if (msb >= HAL_CRC_LENGTH_7B) 
+      {
+        return  HAL_ERROR;
+      }
       break;
     case CRC_POLYLENGTH_8B:
-      if (msb >= HAL_CRC_LENGTH_8B) return  HAL_ERROR;
+      if (msb >= HAL_CRC_LENGTH_8B)
+      {
+        return  HAL_ERROR;
+      }      
       break;
     case CRC_POLYLENGTH_16B:
-      if (msb >= HAL_CRC_LENGTH_16B) return  HAL_ERROR;
+      if (msb >= HAL_CRC_LENGTH_16B)
+      {
+        return  HAL_ERROR;
+      }      
       break;
     case CRC_POLYLENGTH_32B:
       /* no polynomial definition vs. polynomial length issue possible */
-      break;
-  default:
-      break;
+      break; 
+    default:
+      break;                  
   }
 
   /* set generating polynomial */

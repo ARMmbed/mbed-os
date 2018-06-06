@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#include <string.h>
+
 #include "objects.h"
 #include "PinNames.h"
 #include "hal_i2c.h"
@@ -78,18 +80,18 @@ extern u32 ConfigDebugErr;
 extern u32 ConfigDebuginfo;
 void i2c_init(i2c_t *obj, PinName sda, PinName scl)
 {    
-    uint32_t i2c_sel;
-    uint32_t i2c_idx;
+    int i2c_sel;
+    int i2c_idx;
     PSAL_I2C_MNGT_ADPT      pSalI2CMngtAdpt     = NULL;
     PSAL_I2C_USERCB_ADPT    pSalI2CUserCBAdpt   = NULL;
     PSAL_I2C_HND            pSalI2CHND          = NULL;
     
     // Determine the I2C to use
-    uint32_t i2c_sda = (uint32_t)pinmap_peripheral(sda, PinMap_I2C_SDA);
-    uint32_t i2c_scl = (uint32_t)pinmap_peripheral(scl, PinMap_I2C_SCL);
+    int i2c_sda = (uint32_t)pinmap_peripheral(sda, PinMap_I2C_SDA);
+    int i2c_scl = (uint32_t)pinmap_peripheral(scl, PinMap_I2C_SCL);
     ConfigDebugErr &= (~(_DBG_I2C_|_DBG_GDMA_));
     ConfigDebugInfo&= (~(_DBG_I2C_|_DBG_GDMA_));
-    i2c_sel = (uint32_t)pinmap_merge(i2c_sda, i2c_scl);
+    i2c_sel = pinmap_merge(i2c_sda, i2c_scl);
     i2c_idx = RTL_GET_PERI_IDX(i2c_sel);
     if (unlikely(i2c_idx == NC)) {
         DBG_8195A("%s: Cannot find matched UART\n", __FUNCTION__);
@@ -457,7 +459,6 @@ void i2c_slave_address(i2c_t *obj, int idx, uint32_t address, uint32_t mask)
     pSalI2CHND              = &(pSalI2CMngtAdpt->pSalHndPriv->SalI2CHndPriv);
     address = (address & 0xFE ) >>1;
     
-    uint16_t i2c_default_addr   = (uint16_t) pSalI2CHND->I2CAckAddr;
     uint16_t i2c_user_addr      = (uint16_t) address;
 
     if (i2c_target_addr[pSalI2CHND->DevNum] != i2c_user_addr) {

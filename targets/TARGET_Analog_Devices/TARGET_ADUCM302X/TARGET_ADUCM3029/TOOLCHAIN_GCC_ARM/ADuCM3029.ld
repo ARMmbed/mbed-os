@@ -1,17 +1,27 @@
 /*
- * Portions Copyright (c) 2016 - 2017 Analog Devices, Inc.
+ * Portions Copyright (c) 2016 - 2018 Analog Devices, Inc.
  *
  * Based on Device/ARM/ARMCM3/Source/GCC/gcc_arm.ld file in
  * ARM.CMSIS.4.5.0.pack.
  */
 
+#if !defined(MBED_APP_START)
+  #define MBED_APP_START 0
+#endif
+
+#if !defined(MBED_APP_SIZE)
+  #define MBED_APP_SIZE 0x40000
+#endif
+
+#define ADUCM_SECTOR_SIZE 0x800
+
 /* Linker script to configure memory regions. */
 MEMORY
 {
-  /* Flash bank0 */
-  FLASH0 (rx) : ORIGIN = 0x00000000, LENGTH = 0x800
-  /* Flash bank0 - bank127*/
-  FLASH (rx) : ORIGIN = 0x00000800, LENGTH = 256k - 0x800
+  /* The first 0x800 bytes of flash */
+  FLASH0 (rx) : ORIGIN = MBED_APP_START, LENGTH = ADUCM_SECTOR_SIZE
+  /* The rest of the flash */
+  FLASH (rx) : ORIGIN = MBED_APP_START + ADUCM_SECTOR_SIZE, LENGTH = MBED_APP_SIZE - ADUCM_SECTOR_SIZE
   /* SRAM bank 0+1 */
   DSRAM_V (rwx) : ORIGIN = 0x20000000, LENGTH = 0x200
   DSRAM_A (rwx) : ORIGIN = 0x20000200, LENGTH = 16k - 0x200

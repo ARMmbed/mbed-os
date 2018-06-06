@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <errno.h>
 #include "mbed.h"
 #include "greentea-client/test_env.h"
 #include "unity.h"
 #include "utest.h"
 #include <stdlib.h>
-#include <errno.h>
 
 using namespace utest::v1;
 
@@ -354,7 +354,7 @@ void test_directory_remove()
         res = fs.mount(&bd);
         TEST_ASSERT_EQUAL(0, res);
         res = remove("/fs/" "potato");
-        TEST_ASSERT_EQUAL(EINVAL, errno);
+        TEST_ASSERT_EQUAL(ENOTEMPTY, errno);
         res = remove("/fs/" "potato/sweet");
         TEST_ASSERT_EQUAL(0, res);
         res = remove("/fs/" "potato/baked");
@@ -536,7 +536,7 @@ void test_directory_rename()
         res = mkdir("/fs/" "warmpotato/mushy", 0777);
         TEST_ASSERT_EQUAL(0, res);
         res = rename("/fs/" "hotpotato", "/fs/" "warmpotato");
-        TEST_ASSERT_EQUAL(EINVAL, errno);
+        TEST_ASSERT_EQUAL(ENOTEMPTY, errno);
         res = remove("/fs/" "warmpotato/mushy");
         TEST_ASSERT_EQUAL(0, res);
         res = rename("/fs/" "hotpotato", "/fs/" "warmpotato");
@@ -600,7 +600,7 @@ void test_directory_rename()
         res = rename("/fs/" "warmpotato/fried", "/fs/" "coldpotato/fried");
         TEST_ASSERT_EQUAL(0, res);
         res = remove("/fs/" "coldpotato");
-        TEST_ASSERT_EQUAL(EINVAL, errno);
+        TEST_ASSERT_EQUAL(ENOTEMPTY, errno);
         res = remove("/fs/" "warmpotato");
         TEST_ASSERT_EQUAL(0, res);
         res = fs.unmount();

@@ -45,6 +45,7 @@ from tools.targets import TARGET_MAP
 from tools.options import get_default_options_parser
 from tools.options import extract_profile
 from tools.options import extract_mcus
+from tools.notifier.term import TerminalNotifier
 from tools.build_api import build_project
 from tools.build_api import mcu_toolchain_matrix
 from tools.build_api import mcu_toolchain_list
@@ -54,7 +55,6 @@ from utils import argparse_filestring_type
 from utils import argparse_many
 from utils import argparse_dir_not_parent
 from tools.toolchains import mbedToolchain, TOOLCHAIN_CLASSES, TOOLCHAIN_PATHS
-from tools.settings import CLI_COLOR_MAP
 
 if __name__ == '__main__':
     # Parse Options
@@ -140,6 +140,8 @@ if __name__ == '__main__':
                       default=None, help="The build (output) directory")
     parser.add_argument("-N", "--artifact-name", dest="artifact_name",
                       default=None, help="The built project's name")
+    parser.add_argument("--ignore", dest="ignore", type=argparse_many(str),
+                        default=None, help="Comma separated list of patterns to add to mbedignore (eg. ./main.cpp)")
     parser.add_argument("-d", "--disk", dest="disk",
                       default=None, help="The mbed disk")
     parser.add_argument("-s", "--serial", dest="serial",
@@ -232,16 +234,7 @@ if __name__ == '__main__':
         args_error(parser, "argument --build is required when argument --source is provided")
 
 
-    if options.color:
-        # This import happens late to prevent initializing colorization when we don't need it
-        import colorize
-        if options.verbose:
-            notify = mbedToolchain.print_notify_verbose
-        else:
-            notify = mbedToolchain.print_notify
-        notify = colorize.print_in_color_notifier(CLI_COLOR_MAP, notify)
-    else:
-        notify = None
+    notify = TerminalNotifier(options.verbose, options.silent, options.color)
 
     if not TOOLCHAIN_CLASSES[toolchain].check_executable():
         search_path = TOOLCHAIN_PATHS[toolchain] or "No path set"
@@ -283,10 +276,8 @@ if __name__ == '__main__':
                                      set(test.dependencies),
                                      linker_script=options.linker_script,
                                      clean=options.clean,
-                                     verbose=options.verbose,
                                      notify=notify,
                                      report=build_data_blob,
-                                     silent=options.silent,
                                      macros=options.macros,
                                      jobs=options.jobs,
                                      name=options.artifact_name,
@@ -295,7 +286,8 @@ if __name__ == '__main__':
                                      build_profile=extract_profile(parser,
                                                                    options,
                                                                    toolchain),
-                                     stats_depth=options.stats_depth)
+                                     stats_depth=options.stats_depth,
+                                     ignore=options.ignore)
             print('Image: %s'% bin_file)
 
             if options.disk:

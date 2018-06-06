@@ -1,0 +1,27 @@
+{
+    "config": {
+        "header-file": {
+            "help" : "String for including your driver header file",
+            "value" : "\"SpwfSAInterface.h\""
+        },
+        "object-construction" : {
+            "value" : "new SpwfSAInterface( D8, D2 )"
+        },
+        "connect-statement" : {
+            "help" : "Must use 'net' variable name, replace WIFI_SSID, WIFI_PASSWORD, WIFI_SECURITY with your WiFi settings",
+            "value" : "((SpwfSAInterface *)net)->connect(WIFI_SSID, WIFI_PASSWORD, WIFI_SECURITY)"
+        },
+        "echo-server-addr" : {
+            "help" : "IP address of echo server",
+            "value" : "\"echo.mbedcloudtesting.com\""
+        },
+        "echo-server-port" : {
+            "help" : "Port of echo server",
+            "value" : "7"
+        },
+        "tcp-echo-prefix" : {
+            "help" : "Some servers send a prefix before echoed message",
+            "value" : null
+        }
+    }
+}

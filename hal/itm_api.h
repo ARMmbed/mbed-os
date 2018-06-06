@@ -1,3 +1,5 @@
+/** \addtogroup hal */
+/** @{*/
 /* mbed Microcontroller Library
  * Copyright (c) 2017 ARM Limited
  *
@@ -26,21 +28,13 @@ extern "C" {
 #endif
 
 /**
- * @defgroup hal_itm_port ITM Stimulus Ports
- *
+ * \defgroup itm_hal Instrumented Trace Macrocell HAL API
  * @{
  */
 
 enum {
     ITM_PORT_SWO = 0
 };
-
-/**@}*/
-
-/**
- * \defgroup itm_hal Instrumented Trace Macrocell HAL API
- * @{
- */
 
 /**
  * @brief      Target specific initialization function.
@@ -89,3 +83,5 @@ uint32_t mbed_itm_send(uint32_t port, uint32_t data);
 #endif
 
 #endif /* MBED_ITM_API_H */
+
+/**@}*/

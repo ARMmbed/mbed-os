@@ -58,6 +58,18 @@ struct spi_s {
     uint8_t bits;
 };
 
+#if defined(DEVICE_FLASH)
+struct flash_s {
+    uint8_t dummy;
+};
+#endif
+
+#if defined(DEVICE_TRNG)
+struct trng_s {
+    uint8_t dummy;
+};
+#endif
+
 #include "gpio_object.h"
 
 #ifdef __cplusplus

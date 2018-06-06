@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009-2017 ARM Limited. All rights reserved.
+ * Copyright (c) 2009-2018 ARM Limited. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -14,7 +14,9 @@
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
+ */
+
+/*
  * This file is derivative of CMSIS V5.00 system_ARMCM3.c
  */
 
@@ -23,7 +25,7 @@
 /*----------------------------------------------------------------------------
  * Define clocks
  *----------------------------------------------------------------------------*/
-#define __XTAL (48000000UL) /* Oscillator frequency */
+#define __XTAL (50000000UL) /* Oscillator frequency */
 
 #define __SYSTEM_CLOCK (__XTAL / 2)
 

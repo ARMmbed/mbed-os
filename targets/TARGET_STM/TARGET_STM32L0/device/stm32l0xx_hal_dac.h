@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_dac.h
   * @author  MCD Application Team
-  * @version V1.7.0
-  * @date    31-May-2016
   * @brief   Header file of DAC HAL module.
   ******************************************************************************
   * @attention
@@ -280,7 +278,7 @@ CLEAR_BIT((__HANDLE__)->Instance->CR, (DAC_CR_EN1 << (__DAC_CHANNEL__)))
 
   
 #define __HAL_DAC_ENABLE_IT(__HANDLE__, __INTERRUPT__) \
-SET_BIT((__HANDLE__)->Instance->CR, __INTERRUPT__)
+SET_BIT((__HANDLE__)->Instance->CR, (__INTERRUPT__))
 
 
 /** @brief Disable the DAC interrupt
@@ -289,7 +287,7 @@ SET_BIT((__HANDLE__)->Instance->CR, __INTERRUPT__)
   * @retval None
   */
 #define __HAL_DAC_DISABLE_IT(__HANDLE__, __INTERRUPT__) \
-CLEAR_BIT((__HANDLE__)->Instance->CR, __INTERRUPT__)
+CLEAR_BIT((__HANDLE__)->Instance->CR, (__INTERRUPT__))
 
 /** @brief  Check whether the specified DAC interrupt source is enabled or not.
   * @param __HANDLE__: DAC handle

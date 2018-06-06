@@ -72,6 +72,9 @@ public:
     static const Handle_t INVALID_HANDLE = 0x0000;
 
 public:
+
+    typedef ble::att_security_requirement_t Security_t;
+
     /**
      * Construct an attribute.
      *
@@ -102,6 +105,9 @@ public:
      *    true // variable length
      * );
      * @endcode
+     *
+     * @note By default, read and write operations are allowed and does not
+     * require any security.
      */
     GattAttribute(
         const UUID &uuid,
@@ -113,8 +119,12 @@ public:
         _valuePtr(valuePtr),
         _lenMax(maxLen),
         _len(len),
+        _handle(),
         _hasVariableLen(hasVariableLen),
-        _handle() {
+        _read_allowed(true),
+        _read_security(Security_t::NONE),
+        _write_allowed(true),
+        _write_security(Security_t::NONE) {
     }
 
 public:
@@ -209,6 +219,78 @@ public:
         return _hasVariableLen;
     }
 
+    /**
+     * Allow or disallow read operation from a client.
+     * @param allow_read Read is allowed if true.
+     */
+    void allowRead(bool allow_read)
+    {
+        _read_allowed = allow_read;
+    }
+
+    /**
+     * Indicate if a client is allowed to read the attribute.
+     * @return true if a client is allowed to read the attribute.
+     */
+    bool isReadAllowed(void) const
+    {
+        return _read_allowed;
+    }
+
+    /**
+     * Set the security requirements of the read operations.
+     * @param requirement The security level required by the read operations.
+     */
+    void setReadSecurityRequirement(Security_t requirement)
+    {
+        _read_security = requirement.value();
+    }
+
+    /**
+     * Return the security level required by read operations.
+     * @return The security level of the read operations.
+     */
+    Security_t getReadSecurityRequirement() const
+    {
+        return static_cast<Security_t::type>(_read_security);
+    }
+
+    /**
+     * Allow or disallow write operation from a client.
+     * @param allow_write Write is allowed if true.
+     */
+    void allowWrite(bool allow_write)
+    {
+        _write_allowed = allow_write;
+    }
+
+    /**
+     * Indicate if a client is allowed to write the attribute.
+     * @return true if a client is allowed to write the attribute.
+     */
+    bool isWriteAllowed(void) const
+    {
+        return _write_allowed;
+    }
+
+    /**
+     * Set the security requirements of the write operations.
+     * @param requirement The security level required by the write operations.
+     */
+    void setWriteSecurityRequirement(Security_t requirement)
+    {
+        _write_security = requirement.value();
+    }
+
+    /**
+     * Return the security level required by write operations.
+     * @return The security level of the write operations.
+     */
+    Security_t getWriteSecurityRequirement() const
+    {
+        return static_cast<Security_t::type>(_write_security);
+    }
+
 private:
     /**
      * Characteristic's UUID.
@@ -231,14 +313,34 @@ private:
     uint16_t _len;
 
     /**
+     * The attribute's handle in the ATT table.
+     */
+    Handle_t _handle;
+
+    /**
      * Whether the length of the value can change throughout time.
      */
     bool _hasVariableLen;
 
     /**
-     * The attribute's handle in the ATT table.
+     * Whether read is allowed or not.
      */
-    Handle_t _handle;
+    uint8_t _read_allowed:1;
+
+    /**
+     * Security applied to the read operation.
+     */
+    uint8_t _read_security: Security_t::size;
+
+    /**
+     * Whether write is allowed or not.
+     */
+    uint8_t _write_allowed:1;
+
+    /**
+     * Security applied to the write operation.
+     */
+    uint8_t _write_security: Security_t::size;
 
 private:
     /* Disallow copy and assignment. */

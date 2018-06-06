@@ -33,8 +33,9 @@ build_list = [
     {
     "STM":
         (
-        { "target": "B96B_F446VE",     "toolchains": "GCC_ARM", "libs": ["dsp"] },
+        { "target": "B96B_F446VE",       "toolchains": "GCC_ARM", "libs": ["dsp"] },
         { "target": "NUCLEO_L053R8",     "toolchains": "GCC_ARM", "libs": ["dsp"] },
+        { "target": "MTB_RAK811",        "toolchains": "GCC_ARM"},
         { "target": "NUCLEO_L152RE",     "toolchains": "GCC_ARM", "libs": ["dsp"] },
         { "target": "NUCLEO_F030R8",     "toolchains": "GCC_ARM", "libs": ["dsp"] },
         { "target": "NUCLEO_F031K6",     "toolchains": "GCC_ARM", "libs": ["dsp"] },
@@ -50,6 +51,7 @@ build_list = [
         { "target": "NUCLEO_F303ZE",     "toolchains": "GCC_ARM", "libs": ["dsp", "usb"] },
         { "target": "NUCLEO_F334R8",     "toolchains": "GCC_ARM", "libs": ["dsp"] },
         { "target": "NUCLEO_F401RE",     "toolchains": "GCC_ARM", "libs": ["dsp", "usb"] },
+        { "target": "STEVAL_3DP001V1",   "toolchains": "GCC_ARM", "libs": ["dsp", "usb"] },
         { "target": "NUCLEO_F410RB",     "toolchains": "GCC_ARM", "libs": ["dsp"] },
         { "target": "NUCLEO_F411RE",     "toolchains": "GCC_ARM", "libs": ["dsp", "usb"] },
         { "target": "NUCLEO_F412ZG",     "toolchains": "GCC_ARM", "libs": ["dsp"] },
@@ -144,15 +146,6 @@ build_list = [
             { "target": "EFM32GG_STK3700",   "toolchains": "GCC_ARM", "libs": ["dsp", "usb"] },
             { "target": "EFM32WG_STK3800",   "toolchains": "GCC_ARM", "libs": ["dsp", "usb"] },
             { "target": "EFM32PG_STK3401",   "toolchains": "GCC_ARM", "libs": ["dsp"] },
-        )
-    },
-
-    {
-        "MAXIM":
-        (
-            { "target": "MAXWSNENV",    "toolchains": "GCC_ARM", "libs": ["dsp"] },
-            { "target": "MAX32600MBED", "toolchains": "GCC_ARM", "libs": ["dsp"] },
-            { "target": "MAX32620HSP",  "toolchains": "GCC_ARM", "libs": ["dsp"] },
         )
     },
 

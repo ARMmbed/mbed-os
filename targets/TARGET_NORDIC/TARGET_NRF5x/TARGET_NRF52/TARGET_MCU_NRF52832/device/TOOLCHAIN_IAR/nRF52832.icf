@@ -1,0 +1,75 @@
+/*###ICF### Section handled by ICF editor, don't touch! ****/
+/*-Editor annotation file-*/
+/* IcfEditorFile="$TOOLKIT_DIR$\config\ide\IcfEditor\cortex_v1_0.xml" */
+
+/* Default to no softdevice */
+if (!isdefinedsymbol(MBED_APP_START)) {
+    define symbol MBED_APP_START = 0x0;
+}
+
+if (!isdefinedsymbol(MBED_APP_SIZE)) {
+    define symbol MBED_APP_SIZE = 0x80000;
+}
+
+/* If app_start is 0, do not set aside space for the softdevice */
+if (MBED_APP_START == 0) {
+  define symbol MBED_RAM_START = 0x20000000;
+  define symbol MBED_RAM_SIZE  = 0x10000;
+} else {
+  define symbol MBED_RAM_START = 0x20003188;
+  define symbol MBED_RAM_SIZE  = 0x3CE78;
+}
+
+define symbol MBED_RAM0_START = MBED_RAM_START;
+define symbol MBED_RAM0_SIZE  = 0xDC;
+define symbol MBED_RAM1_START = (MBED_RAM_START + MBED_RAM0_SIZE);
+define symbol MBED_RAM1_SIZE  = (MBED_RAM_SIZE - MBED_RAM0_SIZE);
+
+/*-Specials-*/
+define symbol __ICFEDIT_intvec_start__ = MBED_APP_START;
+
+/*-Memory Regions-*/
+define symbol __ICFEDIT_region_ROM_start__      = MBED_APP_START;
+define symbol __ICFEDIT_region_ROM_end__        = MBED_APP_START + MBED_APP_SIZE - 1;
+define symbol __ICFEDIT_region_RAM_NVIC_start__ = MBED_RAM0_START;
+define symbol __ICFEDIT_region_RAM_NVIC_end__   = MBED_RAM0_START + MBED_RAM0_SIZE - 1;
+define symbol __ICFEDIT_region_RAM_start__      = MBED_RAM1_START;
+define symbol __ICFEDIT_region_RAM_end__        = MBED_RAM1_START + MBED_RAM1_SIZE - 1;
+export symbol __ICFEDIT_region_RAM_start__;
+export symbol __ICFEDIT_region_RAM_end__;
+
+/*-Sizes-*/
+/*Heap 1/4 of ram and stack 1/8*/
+define symbol __ICFEDIT_size_cstack__   = 0x800;
+define symbol __ICFEDIT_size_heap__     = 0x5800;
+/**** End of ICF editor section. ###ICF###*/
+
+define symbol __code_start_soft_device__ = 0x0;
+
+define memory mem with size = 4G;
+define region ROM_region   = mem:[from __ICFEDIT_region_ROM_start__   to __ICFEDIT_region_ROM_end__];
+define region RAM_region   = mem:[from __ICFEDIT_region_RAM_start__   to __ICFEDIT_region_RAM_end__];
+
+define block CSTACK    with alignment = 8, size = __ICFEDIT_size_cstack__   { };
+define block HEAP      with alignment = 8, size = __ICFEDIT_size_heap__     { };
+
+initialize by copy { readwrite };
+do not initialize  { section .noinit };
+place at address mem:__ICFEDIT_region_RAM_NVIC_start__ { section .noinit };
+
+keep { section .intvec };
+place at address mem:__ICFEDIT_intvec_start__ { readonly section .intvec };
+place in ROM_region   { readonly };
+place in RAM_region   { readwrite,
+                        block HEAP,
+                        block CSTACK };
+
+/*This is used for mbed applications build inside the Embedded workbench
+Applications build with the python scritps use a hex merge so need to merge it
+inside the linker. The linker can only use binary files so the hex merge is not possible
+through the linker. That is why a binary is used instead of a hex image for the embedded project.
+*/
+if(isdefinedsymbol(SOFT_DEVICE_BIN))
+{
+  place at address mem:__code_start_soft_device__ { section .noinit_softdevice };
+}

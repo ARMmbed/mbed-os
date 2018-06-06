@@ -18,7 +18,6 @@
 #include "unity.h"
 #include "utest.h"
 #include <stdlib.h>
-#include <errno.h>
 
 using namespace utest::v1;
 
@@ -354,7 +353,7 @@ void test_directory_remove()
         res = fs.mount(&bd);
         TEST_ASSERT_EQUAL(0, res);
         res = fs.remove("potato");
-        TEST_ASSERT_EQUAL(-EINVAL, res);
+        TEST_ASSERT_EQUAL(-ENOTEMPTY, res);
         res = fs.remove("potato/sweet");
         TEST_ASSERT_EQUAL(0, res);
         res = fs.remove("potato/baked");
@@ -536,7 +535,7 @@ void test_directory_rename()
         res = fs.mkdir("warmpotato/mushy", 0777);
         TEST_ASSERT_EQUAL(0, res);
         res = fs.rename("hotpotato", "warmpotato");
-        TEST_ASSERT_EQUAL(-EINVAL, res);
+        TEST_ASSERT_EQUAL(-ENOTEMPTY, res);
         res = fs.remove("warmpotato/mushy");
         TEST_ASSERT_EQUAL(0, res);
         res = fs.rename("hotpotato", "warmpotato");
@@ -600,7 +599,7 @@ void test_directory_rename()
         res = fs.rename("warmpotato/fried", "coldpotato/fried");
         TEST_ASSERT_EQUAL(0, res);
         res = fs.remove("coldpotato");
-        TEST_ASSERT_EQUAL(-EINVAL, res);
+        TEST_ASSERT_EQUAL(-ENOTEMPTY, res);
         res = fs.remove("warmpotato");
         TEST_ASSERT_EQUAL(0, res);
         res = fs.unmount();

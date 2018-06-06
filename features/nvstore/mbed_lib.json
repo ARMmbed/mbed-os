@@ -1,0 +1,31 @@
+{
+    "name": "nvstore",
+    "config": {
+        "enabled": {
+            "macro_name": "NVSTORE_ENABLED",
+            "value": true,
+            "help": "Enabled"
+        },
+        "max_keys": {
+            "macro_name": "NVSTORE_MAX_KEYS",
+            "value": 16,
+            "help": "Maximal number of allowed NVStore keys"
+        },
+        "area_1_address": {
+            "macro_name": "NVSTORE_AREA_1_ADDRESS",
+            "help": "Area 1 address"
+        },
+        "area_1_size": {
+            "macro_name": "NVSTORE_AREA_1_SIZE",
+            "help": "Area 1 size"
+        },
+        "area_2_address": {
+            "macro_name": "NVSTORE_AREA_2_ADDRESS",
+            "help": "Area 2 address"
+        },
+        "area_2_size": {
+            "macro_name": "NVSTORE_AREA_2_SIZE",
+            "help": "Area 2 size"
+        }
+    }
+}

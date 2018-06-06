@@ -19,8 +19,12 @@
 #include "hal/itm_api.h"
 #include "platform/FileHandle.h"
 
+namespace mbed {
+  
 class SerialWireOutput : public FileHandle {
+
 public:
+
     SerialWireOutput(void)
     {
         /* Initialize ITM using internal init function. */
@@ -67,5 +71,7 @@ public:
         return 0;
     }
 };
+ 
+} // namespace mbed
 
 #endif

@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2017 ARM Limited
+ * Copyright (c) 2017-2018 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 #include "cmsis.h"
 #include "mbed_error.h"
 #include "mbed_wait_api.h"
-#include "SMM_MPS2.h"
+#include "CM3DS.h"
 #include "pinmap.h"
 
 /*

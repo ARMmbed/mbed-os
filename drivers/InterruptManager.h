@@ -26,6 +26,7 @@ namespace mbed {
 /** \addtogroup drivers */
 
 /** Use this singleton if you need to chain interrupt handlers.
+ *  @deprecated Do not use this class. This class is not part of the public API of mbed-os and is being removed in the future.
  *
  * @note Synchronization level: Thread safe
  *
@@ -57,6 +58,8 @@ namespace mbed {
 class InterruptManager : private NonCopyable<InterruptManager> {
 public:
     /** Get the instance of InterruptManager Class
+     *  @deprecated 
+     *  Do not use this function, this class is not part of the public API of mbed-os and is being removed in the future.
      *
      *  @return the only instance of this class
      */
@@ -65,12 +68,17 @@ public:
     static InterruptManager* get();
 
     /** Destroy the current instance of the interrupt manager
+     *  @deprecated 
+     *  Do not use this function, this class is not part of the public API of mbed-os and is being removed in the future.
+     *
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.6", "This class is not part of the "
         "public API of mbed-os and is being removed in the future.")
     static void destroy();
 
     /** Add a handler for an interrupt at the end of the handler list
+     *  @deprecated 
+     *  Do not use this function, this class is not part of the public API of mbed-os and is being removed in the future.
      *
      *  @param function the handler to add
      *  @param irq interrupt number
@@ -86,6 +94,8 @@ public:
     }
 
     /** Add a handler for an interrupt at the beginning of the handler list
+     *  @deprecated 
+     *  Do not use this function, this class is not part of the public API of mbed-os and is being removed in the future.
      *
      *  @param function the handler to add
      *  @param irq interrupt number
@@ -101,6 +111,8 @@ public:
     }
 
     /** Add a handler for an interrupt at the end of the handler list
+     *  @deprecated 
+     *  Do not use this function, this class is not part of the public API of mbed-os and is being removed in the future.
      *
      *  @param tptr pointer to the object that has the handler function
      *  @param mptr pointer to the actual handler function
@@ -118,6 +130,8 @@ public:
     }
 
     /** Add a handler for an interrupt at the beginning of the handler list
+     *  @deprecated 
+     *  Do not use this function, this class is not part of the public API of mbed-os and is being removed in the future.
      *
      *  @param tptr pointer to the object that has the handler function
      *  @param mptr pointer to the actual handler function
@@ -135,6 +149,8 @@ public:
     }
 
     /** Remove a handler from an interrupt
+     *  @deprecated 
+     *  Do not use this function, this class is not part of the public API of mbed-os and is being removed in the future.
      *
      *  @param handler the function object for the handler to remove
      *  @param irq the interrupt number

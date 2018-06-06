@@ -305,12 +305,11 @@ void UARTSerial::rx_irq(void)
 void UARTSerial::tx_irq(void)
 {
     bool was_full = _txbuf.full();
+    char data;
 
     /* Write to the peripheral if there is something to write
      * and if the peripheral is available to write. */
-    while (!_txbuf.empty() && SerialBase::writeable()) {
-        char data;
-        _txbuf.pop(data);
+    while (SerialBase::writeable() && _txbuf.pop(data)) {
         SerialBase::_base_putc(data);
     }
 

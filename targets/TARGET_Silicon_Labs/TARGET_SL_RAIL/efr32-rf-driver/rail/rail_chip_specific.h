@@ -2,7 +2,7 @@
  * @file rail_chip_specific.h
  * @brief This file contains the type definitions for EFR32 chip specific
  *        aspects of RAIL.
- * @copyright Copyright 2015 Silicon Laboratories, Inc. http://www.silabs.com
+ * @copyright Copyright 2015 Silicon Laboratories, Inc. www.silabs.com
  ******************************************************************************/
 
 #ifndef __RAIL_CHIP_SPECIFIC_H_
@@ -16,6 +16,10 @@
 #include "em_gpio.h"
 
 #include "rail_types.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 // -----------------------------------------------------------------------------
 // Multiprotocol
@@ -62,9 +66,9 @@
  */
 
 /** EFR32 specific temperature calibration bit */
-#define RAIL_CAL_TEMP_VCO         (0x00000001)
+#define RAIL_CAL_TEMP_VCO         (0x00000001U)
 /** EFR32 specific IR calibration bit */
-#define RAIL_CAL_ONETIME_IRCAL    (0x00010000)
+#define RAIL_CAL_ONETIME_IRCAL    (0x00010000U)
 
 /** Mask to run temperature dependent calibrations */
 #define RAIL_CAL_TEMP             (RAIL_CAL_TEMP_VCO)
@@ -77,9 +81,74 @@
 /** Mask to run all possible calibrations for this chip */
 #define RAIL_CAL_ALL              (RAIL_CAL_TEMP | RAIL_CAL_ONETIME)
 /** Mask to run all pending calibrations */
-#define RAIL_CAL_ALL_PENDING      (0x00000000)
+#define RAIL_CAL_ALL_PENDING      (0x00000000U)
 /** Invalid calibration value */
-#define RAIL_CAL_INVALID_VALUE    (0xFFFFFFFF)
+#define RAIL_CAL_INVALID_VALUE    (0xFFFFFFFFU)
+
+/**
+ * Applies a given image rejection calibration value.
+ *
+ * @param[in] railHandle A RAIL instance handle.
+ * @param[in] imageRejection The image rejection value to apply.
+ * @return Status code indicating success of the function call.
+ *
+ * Take an image rejection calibration value and apply it. This value should be
+ * determined from a previous run of \ref RAIL_CalibrateIr on the same
+ * physical device with the same radio configuration. The imageRejection value
+ * will also be stored to the \ref RAIL_ChannelConfigEntry_t::attr, if possible.
+ *
+ * If multiple protocols are used, this function will return
+ * \ref RAIL_STATUS_INVALID_STATE if it is called and the given railHandle is
+ * not active. The caller must attempt to re-call this function later, in that
+ * case.
+ */
+RAIL_Status_t RAIL_ApplyIrCalibration(RAIL_Handle_t railHandle,
+                                      uint32_t imageRejection);
+
+/**
+ * Run the image rejection calibration
+ *
+ * @param[in] railHandle A RAIL instance handle.
+ * @param[out] imageRejection The result of the image rejection calibration.
+ * @return Status code indicating success of the function call.
+ *
+ * Run the image rejection calibration, and apply the resulting value. If the
+ * imageRejection parameter is non-NULL, then also store the value at that
+ * location. The imageRejection value will also be stored to the
+ * \ref RAIL_ChannelConfigEntry_t::attr, if possible. This is a long-running
+ * calibration that adds significant code space when run, and can be run with a
+ * separate firmware image on each device in order to save code space in the
+ * final image.
+ *
+ * If multiple protocols are used, this function will return
+ * \ref RAIL_STATUS_INVALID_STATE if it is called and the given railHandle is
+ * not active. The caller must attempt to re-call this function later, in that
+ * case.
+ */
+RAIL_Status_t RAIL_CalibrateIr(RAIL_Handle_t railHandle,
+                               uint32_t *imageRejection);
+
+/**
+ * Run the temperature calibration
+ *
+ * @param[in] railHandle A RAIL instance handle.
+ * @return Status code indicating success of the function call.
+ *
+ * Run the temperature calibration, which needs to recalibrate the synth if
+ * the temperature crosses 0C or the temperature delta since the last
+ * calibration exceeds 70C while sitting in receive. RAIL will run VCO
+ * calibration automatically upon entering receive state so the application can
+ * omit this calibration if the stack will re-enter receive with enough
+ * frequency to not hit this temperature delta. If the application does not
+ * calibrate for temperature, it's possible to miss receive packets due to
+ * drift in the carrier frequency.
+ *
+ * If multiple protocols are used, this function will return
+ * \ref RAIL_STATUS_INVALID_STATE if it is called and the given railHandle is
+ * not active. In that case the calibration will be automatically performed the
+ * next time the radio enters receive.
+ */
+RAIL_Status_t RAIL_CalibrateTemp(RAIL_Handle_t railHandle);
 
 /**
  * @struct RAIL_CalValues_t
@@ -310,5 +379,49 @@ typedef struct RAIL_PtiConfig {
 } RAIL_PtiConfig_t;
 
 /** @} */ // end of group PTI_EFR32
+
+// -----------------------------------------------------------------------------
+// Antenna Control
+// -----------------------------------------------------------------------------
+/**
+ * @addtogroup Antenna_Control_EFR32 EFR32
+ * @{
+ * @brief EFR32 Antenna Control functionality
+ * @ingroup Antenna
+ *
+ * These enums and structures are used with RAIL Antenna Control API. EFR32 supports
+ * up to two antennas and with configurable pin locations.
+ */
+
+/**
+ * @struct RAIL_AntennaConfig_t
+ * @brief Configuration for Antenna switch pins.
+ */
+typedef struct RAIL_AntennaConfig {
+  /** MODEM_ROUTEPEN fields */
+  /** Antenna 0 Pin Enable */
+  bool ant0PinEn;
+  /** Antenna 1 Pin Enable */
+  bool ant1PinEn;
+  /** MODEM_ROUTELOC1 fields */
+  /** Antenna 0 location for pin/port */
+  uint8_t ant0Loc;
+  /** Antenna 0 output GPIO port */
+  GPIO_Port_TypeDef ant0Port;
+  /** Antenna 0 output GPIO pin */
+  uint8_t ant0Pin;
+  /** Antenna 1 location for pin/port */
+  uint8_t ant1Loc;
+  /** Antenna 1 output GPIO port */
+  GPIO_Port_TypeDef ant1Port;
+  /** Antenna 1 output GPIO pin */
+  uint8_t ant1Pin;
+} RAIL_AntennaConfig_t;
+
+/** @} */ // end of group Antenna_Control_EFR32
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

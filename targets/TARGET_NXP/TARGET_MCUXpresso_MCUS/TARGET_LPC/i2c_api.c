@@ -23,9 +23,6 @@
 #include "fsl_i2c.h"
 #include "PeripheralPins.h"
 
-/* 7 bit IIC addr - R/W flag not included */
-static int i2c_address = 0;
-
 /* Array of I2C peripheral base address. */
 static I2C_Type *const i2c_addrs[] = I2C_BASE_PTRS;
 
@@ -98,8 +95,7 @@ int i2c_start(i2c_t *obj)
     I2C_Type *base = i2c_addrs[obj->instance];
     uint32_t status;
 
-    do
-    {
+    do {
         status = I2C_GetStatusFlags(base);
     } while ((status & I2C_STAT_MSTPENDING_MASK) == 0);
 
@@ -107,7 +103,12 @@ int i2c_start(i2c_t *obj)
     I2C_MasterClearStatusFlags(base, I2C_STAT_MSTARBLOSS_MASK | I2C_STAT_MSTSTSTPERR_MASK);
 
     /* Start the transfer */
+    base->MSTDAT = 0;
     base->MSTCTL = I2C_MSTCTL_MSTSTART_MASK;
+
+    do {
+        status = I2C_GetStatusFlags(base);
+    } while ((status & I2C_STAT_MSTPENDING_MASK) == 0);
 
     return 0;
 }
@@ -117,8 +118,7 @@ int i2c_stop(i2c_t *obj)
     I2C_Type *base = i2c_addrs[obj->instance];
     uint32_t status;
 
-    do
-    {
+    do {
         status = I2C_GetStatusFlags(base);
     } while ((status & I2C_STAT_MSTPENDING_MASK) == 0);
 
@@ -126,6 +126,10 @@ int i2c_stop(i2c_t *obj)
     I2C_MasterClearStatusFlags(base, I2C_STAT_MSTARBLOSS_MASK | I2C_STAT_MSTSTSTPERR_MASK);
 
     base->MSTCTL = I2C_MSTCTL_MSTSTOP_MASK;
+
+    do {
+        status = I2C_GetStatusFlags(base);
+    } while ((status & I2C_STAT_MSTPENDING_MASK) == 0);
 
     return 0;
 }
@@ -140,7 +144,6 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
     I2C_Type *base = i2c_addrs[obj->instance];
     i2c_master_transfer_t master_xfer;
 
-    i2c_address = address >> 1;
     memset(&master_xfer, 0, sizeof(master_xfer));
     master_xfer.slaveAddress = address >> 1;
     master_xfer.direction = kI2C_Read;
@@ -154,9 +157,6 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
     }
     obj->next_repeated_start = master_xfer.flags & kI2C_TransferNoStopFlag ? 1 : 0;
 
-    /* The below function will issue a STOP signal at the end of the transfer.
-     * This is required by the hardware in order to receive the last byte
-     */
     if (I2C_MasterTransferBlocking(base, &master_xfer) != kStatus_Success) {
         return I2C_ERROR_NO_SLAVE;
     }
@@ -212,33 +212,49 @@ int i2c_byte_read(i2c_t *obj, int last)
 {
     uint8_t data;
     I2C_Type *base = i2c_addrs[obj->instance];
-    i2c_master_transfer_t master_xfer;
+    uint32_t status;
 
-    memset(&master_xfer, 0, sizeof(master_xfer));
-    master_xfer.slaveAddress = i2c_address;
-    master_xfer.direction = kI2C_Read;
-    master_xfer.data = &data;
-    master_xfer.dataSize = 1;
+    do {
+        status = I2C_GetStatusFlags(base);
+    } while ((status & I2C_STAT_MSTPENDING_MASK) == 0);
 
-    if (I2C_MasterTransferBlocking(base, &master_xfer) != kStatus_Success) {
-        return I2C_ERROR_NO_SLAVE;
+    data = base->MSTDAT;
+
+    if (!last) {
+        base->MSTCTL = I2C_MSTCTL_MSTCONTINUE_MASK; //ACK and Continue
     }
+
     return data;
 }
 
 int i2c_byte_write(i2c_t *obj, int data)
 {
-    status_t ret_value;
+    I2C_Type *base = i2c_addrs[obj->instance];
+    uint32_t status;
+    int ret_value = 1;
 
-    ret_value = I2C_MasterWriteBlocking(i2c_addrs[obj->instance], (uint8_t *)(&data), 1, kI2C_TransferNoStopFlag);
+    // write the data
+    base->MSTDAT = data;
 
-    if (ret_value == kStatus_Success) {
-        return 1;
-    } else if (ret_value == kStatus_I2C_Nak) {
-        return 0;
-    } else {
-        return 2;
+    base->MSTCTL = I2C_MSTCTL_MSTCONTINUE_MASK;
+
+    do {
+        status = I2C_GetStatusFlags(base);
+    } while ((status & I2C_STAT_MSTPENDING_MASK) == 0);
+
+
+    /* Check if arbitration lost */
+    if (status & I2C_STAT_MSTARBLOSS_MASK) {
+        I2C_MasterClearStatusFlags(base, I2C_STAT_MSTARBLOSS_MASK);
+        ret_value = 2;
     }
+
+    /* Check if no acknowledgement (NAK) */
+    if (((status & I2C_STAT_MSTSTATE_MASK) >> I2C_STAT_MSTSTATE_SHIFT) == I2C_STAT_MSTCODE_NACKDAT) {
+        ret_value = 0;
+    }
+
+    return ret_value;
 }
 
 

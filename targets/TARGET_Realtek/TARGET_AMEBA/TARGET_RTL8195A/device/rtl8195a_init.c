@@ -18,14 +18,14 @@
 #if defined(__CC_ARM) || \
     (defined (__ARMCC_VERSION) && __ARMCC_VERSION >= 6010050)
 
-extern uint8_t Image$$RW_IRAM2$$ZI$$Base[];
-extern uint8_t Image$$RW_IRAM2$$ZI$$Limit[];
+extern uint8_t Image$$RW_IRAM1$$ZI$$Base[];
+extern uint8_t Image$$RW_IRAM1$$ZI$$Limit[];
 extern uint8_t Image$$TCM_OVERLAY$$ZI$$Base[];
 extern uint8_t Image$$TCM_OVERLAY$$ZI$$Limit[];
 extern uint8_t Image$$RW_DRAM2$$ZI$$Base[];
 extern uint8_t Image$$RW_DRAM2$$ZI$$Limit[];
-#define __bss_sram_start__ Image$$RW_IRAM2$$ZI$$Base
-#define __bss_sram_end__   Image$$RW_IRAM2$$ZI$$Limit
+#define __bss_sram_start__ Image$$RW_IRAM1$$ZI$$Base
+#define __bss_sram_end__   Image$$RW_IRAM1$$ZI$$Limit
 #define __bss_dtcm_start__ Image$$TCM_OVERLAY$$ZI$$Base
 #define __bss_dtcm_end__   Image$$TCM_OVERLAY$$ZI$$Limit
 #define __bss_dram_start__ Image$$RW_DRAM2$$ZI$$Base

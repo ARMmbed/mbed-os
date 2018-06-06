@@ -19,8 +19,8 @@
 #ifndef LORAWAN_BASE_H_
 #define LORAWAN_BASE_H_
 
-#include "lorawan/system/lorawan_data_structures.h"
 #include "events/EventQueue.h"
+#include "lorawan_types.h"
 
 class LoRaWANBase {
 
@@ -220,7 +220,7 @@ public:
     virtual int16_t send(uint8_t port, const uint8_t* data,
                          uint16_t length, int flags) = 0;
 
-    /** Receives a message from the Network Server.
+    /** Receives a message from the Network Server on a specific port.
      *
      * @param port              The application port number. Port numbers 0 and 224
      *                          are reserved, whereas port numbers from 1 to 223
@@ -259,42 +259,33 @@ public:
      *                                  nothing available to read at the moment.
      *                             iv)  A negative error code on failure.
      */
-    virtual int16_t receive(uint8_t port, uint8_t* data, uint16_t length,
-                            int flags) = 0;
+    virtual int16_t receive(uint8_t port, uint8_t* data, uint16_t length, int flags) = 0;
+
+    /** Receives a message from the Network Server from any port.
+     *
+     * @param data              A pointer to buffer where the received data will be
+     *                          stored.
+     *
+     * @param length            The size of data in bytes
+     *
+     * @param port              Return the number of port to which message was received.
+     *
+     * @param flags             Return flags to determine what type of message was received.
+     *                          MSG_UNCONFIRMED_FLAG = 0x01
+     *                          MSG_CONFIRMED_FLAG = 0x02
+     *                          MSG_MULTICAST_FLAG = 0x04
+     *                          MSG_PROPRIETARY_FLAG = 0x08
+     *
+     * @return                  It could be one of these:
+     *                             i)   0 if there is nothing else to read.
+     *                             ii)  Number of bytes written to user buffer.
+     *                             iii) LORAWAN_STATUS_WOULD_BLOCK if there is
+     *                                  nothing available to read at the moment.
+     *                             iv)  A negative error code on failure.
+     */
+    virtual int16_t receive(uint8_t* data, uint16_t length, uint8_t& port, int& flags) = 0;
 
     /** Add application callbacks to the stack.
-     *
-     * 'lorawan_app_callbacks_t' is a structure that holds pointers to the application
-     * provided methods which are needed to be called in response to certain
-     * requests. The structure is default constructed to set all pointers to NULL.
-     * So if the user does not provide the pointer, a response will not be posted.
-     * However, the 'lorawan_events' callback is mandatory to be provided as it
-     * contains essential events.
-     *
-     * Events that can be posted to user via 'lorawan_events' are:
-     *
-     * CONNECTED            - When the connection is complete
-     * DISCONNECTED         - When the protocol is shut down in response to disconnect()
-     * TX_DONE              - When a packet is sent
-     * TX_TIMEOUT,          - When stack was unable to send packet in TX window
-     * TX_ERROR,            - A general TX error
-     * TX_CRYPTO_ERROR,     - If MIC fails, or any other crypto relted error
-     * TX_SCHEDULING_ERROR, - When stack is unable to schedule packet
-     * RX_DONE,             - When there is something to receive
-     * RX_TIMEOUT,          - Not yet mapped
-     * RX_ERROR             - A general RX error
-     *
-     * Other responses to certain standard requests are an item for the future.
-     * For example, a link check request could be sent whenever the device tries
-     * to send a message and if the network server responds with a link check resposne,
-     * the stack notifies the application be calling the appropriate method. For example,
-     * 'link_check_resp' callback could be used to collect a response for a link check
-     * request MAC command and the result is thus transported to the application
-     * via callback function provided.
-     *
-     * As can be seen from declaration, mbed::Callback<void(uint8_t, uint8_t)> *link_check_resp)
-     * carries two parameters. First one is Demodulation Margin and the second one
-     * is number of gateways involved in the path to network server.
      *
      * An example of using this API with a latch onto 'lorawan_events' could be:
      *
@@ -310,9 +301,9 @@ public:
      *  lorawan.connect();
      * }
      *
-     * static void my_event_handler(lora_events_t events)
+     * static void my_event_handler(lorawan_event_t event)
      * {
-     *  switch(events) {
+     *  switch(event) {
      *      case CONNECTED:
      *          //do something
      *          break;
@@ -329,8 +320,88 @@ public:
      *
      * @param callbacks         A pointer to the structure containing application
      *                          callbacks.
+     *
+     * @return                  LORAWAN_STATUS_OK on success, a negative error
+     *                          code on failure.
      */
     virtual lorawan_status_t add_app_callbacks(lorawan_app_callbacks_t *callbacks) = 0;
+
+    /** Change device class
+     *
+     * Change current device class.
+     *
+     * @param    device_class   The device class
+     *
+     * @return                  LORAWAN_STATUS_OK on success,
+     *                          LORAWAN_STATUS_UNSUPPORTED is requested class is not supported,
+     *                          or other negative error code if request failed.
+     */
+    virtual lorawan_status_t set_device_class(device_class_t device_class) = 0;
+
+    /** Get hold of TX meta-data
+     *
+     * Use this method to acquire any TX meta-data related to previous
+     * transmission.
+     * TX meta-data is only available right after the transmission is completed.
+     * In other words, you can check for TX meta-data right after receiving the
+     * TX_DONE event.
+     *
+     * @param    metadata    the inbound structure that will be filled if the meta-data
+     *                       is available.
+     *
+     * @return               LORAWAN_STATUS_OK if the meta-data is available, otherwise
+     *                       LORAWAN_STATUS_METADATA_NOT_AVAILABLE is returned.
+     */
+    virtual lorawan_status_t get_tx_metadata(lorawan_tx_metadata &metadata) = 0;
+
+    /** Get hold of RX meta-data
+     *
+     * Use this method to acquire any RX meta-data related to current
+     * reception.
+     * RX meta-data is only available right after the reception is completed.
+     * In other words, you can check for RX meta-data right after receiving the
+     * RX_DONE event.
+     *
+     * @param    metadata    the inbound structure that will be filled if the meta-data
+     *                       is available.
+     *
+     * @return               LORAWAN_STATUS_OK if the meta-data is available, otherwise
+     *                       LORAWAN_STATUS_METADATA_NOT_AVAILABLE is returned.
+     */
+    virtual lorawan_status_t get_rx_metadata(lorawan_rx_metadata &metadata) = 0;
+
+    /** Get hold of backoff time
+     *
+     * In the TX path, because of automatic duty cycling, the transmission is delayed
+     * by a certain amount of time which is the backoff time. While the system schedules
+     * application data to be sent, the application can inquire about how much time is
+     * left in the actual transmission to happen.
+     *
+     * The system will provide you with a backoff time only if the application data is
+     * in the TX pipe. If however, the event is already queued for the transmission, this
+     * API returns a LORAWAN_STATUS_METADATA_NOT_AVAILABLE error code.
+     *
+     * @param    backoff    the inbound integer that will be carry the backoff time if it
+     *                      is available.
+     *
+     * @return              LORAWAN_STATUS_OK if the meta-data regarding backoff is available,
+     *                      otherwise LORAWAN_STATUS_METADATA_NOT_AVAILABLE is returned.
+     *
+     */
+    virtual lorawan_status_t get_backoff_metadata(int &backoff) = 0;
+
+    /** Cancel outgoing transmission
+     *
+     * This API is used to cancel any outstanding transmission in the TX pipe.
+     * If an event for transmission is not already queued at the end of backoff timer,
+     * the system can cancel the outstanding outgoing packet. Otherwise, the system is
+     * busy sending and can't be held back.
+     *
+     * @return              LORAWAN_STATUS_OK if the sending is cancelled.
+     *                      LORAWAN_STATUS_BUSY otherwise.
+     *
+     */
+    virtual lorawan_status_t cancel_sending(void) = 0;
 };
 
 #endif /* LORAWAN_BASE_H_ */

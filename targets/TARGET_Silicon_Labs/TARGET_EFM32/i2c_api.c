@@ -28,7 +28,7 @@
 #if DEVICE_I2C
 
 #include "mbed_assert.h"
-#include "mbed_sleep.h"
+#include "mbed_power_mgmt.h"
 #include "i2c_api.h"
 #include "PeripheralPins.h"
 #include "pinmap_function.h"

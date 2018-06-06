@@ -34,10 +34,19 @@
 
 #define OS_STACK_SIZE               MBED_CONF_APP_THREAD_STACK_SIZE
 
-#define OS_TIMER_THREAD_STACK_SIZE 768
-#ifndef OS_IDLE_THREAD_STACK_SIZE
-#define OS_IDLE_THREAD_STACK_SIZE  512
+/** The timer thread's stack size can be configured by the application, if not explicitly specified, it'll default to 768 */
+#ifndef MBED_CONF_APP_TIMER_THREAD_STACK_SIZE
+#define MBED_CONF_APP_TIMER_THREAD_STACK_SIZE   768
 #endif
+
+#define OS_TIMER_THREAD_STACK_SIZE  MBED_CONF_APP_TIMER_THREAD_STACK_SIZE
+
+/** The idle thread's stack size can be configured by the application, if not explicitly specified, it'll default to 512 */
+#ifndef MBED_CONF_APP_IDLE_THREAD_STACK_SIZE
+#define MBED_CONF_APP_IDLE_THREAD_STACK_SIZE    512
+#endif
+
+#define OS_IDLE_THREAD_STACK_SIZE   MBED_CONF_APP_IDLE_THREAD_STACK_SIZE
 
 #define OS_DYNAMIC_MEM_SIZE         0
 
@@ -45,7 +54,11 @@
 #error "OS Tickrate must be 1000 for system timing"
 #endif
 
-#if !defined(OS_STACK_WATERMARK) && (defined(MBED_STACK_STATS_ENABLED) && MBED_STACK_STATS_ENABLED)
+#if !defined(OS_STACK_WATERMARK) && (defined(MBED_STACK_STATS_ENABLED) || defined(MBED_ALL_STATS_ENABLED))
+#define OS_STACK_WATERMARK          1
+#endif
+
+#if !defined(OS_STACK_WATERMARK) && defined(MBED_THREAD_STATS_ENABLED)
 #define OS_STACK_WATERMARK          1
 #endif
 
