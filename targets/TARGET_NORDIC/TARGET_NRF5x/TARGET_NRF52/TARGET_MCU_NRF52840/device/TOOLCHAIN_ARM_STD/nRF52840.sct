@@ -27,11 +27,6 @@ LR_IROM1 MBED_APP_START MBED_APP_SIZE {
   ER_IROM1 MBED_APP_START MBED_APP_SIZE {
    *.o (RESET, +First)
    *(InRoot$$Sections)
-   __start_sdh_soc_observers *(sdh_soc_observers) __stop_sdh_soc_observers
-   __start_sdh_stack_observers *(sdh_stack_observers) __stop_sdh_stack_observers
-   __start_sdh_req_observers *(sdh_req_observers) __stop_sdh_req_observers
-   __start_sdh_state_observers *(sdh_state_observers) __stop_sdh_state_observers
-   __start_sdh_ble_observers *(sdh_ble_observers) __stop_sdh_ble_observers   
    .ANY (+RO)
   }
   RW_IRAM0 MBED_RAM0_START UNINIT MBED_RAM0_SIZE { ;no init section
