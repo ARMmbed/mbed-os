@@ -3,12 +3,12 @@
    213	Jaeden Amero
     89	Niklas Hauser
     27	Fangyi Zhou
-    14	Michael Schwarcz
+    17	Michael Schwarcz
+     9	Irit Arkin
      8	Alexander Zilberkant
-     7	Irit Arkin
-     6	Amir Cohen
+     7	Amir Cohen
      6	Roman Kuznetsov
-     4	Amanda Butler
+     5	Amanda Butler
      4	Oren Cohen
      3	AnotherButler
      3	Danny Shavit
