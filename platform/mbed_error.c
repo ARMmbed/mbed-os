@@ -15,6 +15,7 @@
  */
 #include <stdlib.h>
 #include <stdarg.h>
+#include <string.h>
 #include "device.h"
 #include "platform/mbed_critical.h"
 #include "platform/mbed_error.h"
