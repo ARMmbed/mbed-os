@@ -60,83 +60,13 @@ LEGACY_TOOLCHAIN_NAMES = {
     'ARMC6': 'ARMC6',
 }
 
-class LazyDict(object):
-    def __init__(self):
-        self.eager = {}
-        self.lazy = {}
-
-    def add_lazy(self, key, thunk):
-        if key in self.eager:
-            del self.eager[key]
-        self.lazy[key] = thunk
-
-    def __getitem__(self, key):
-        if  (key not in self.eager
-             and key in self.lazy):
-            self.eager[key] = self.lazy[key]()
-            del self.lazy[key]
-        return self.eager[key]
-
-    def __setitem__(self, key, value):
-        self.eager[key] = value
-
-    def __delitem__(self, key):
-        if key in self.eager:
-            del self.eager[key]
-        else:
-            del self.lazy[key]
-
-    def __contains__(self, key):
-        return key in self.eager or key in self.lazy
-
-    def __iter__(self):
-        return chain(iter(self.eager), iter(self.lazy))
-
-    def __len__(self):
-        return len(self.eager) + len(self.lazy)
-
-    def __str__(self):
-        return "Lazy{%s}" % (
-            ", ".join("%r: %r" % (k, v) for k, v in
-                      chain(self.eager.items(), ((k, "not evaluated")
-                                                     for k in self.lazy))))
-
-    def update(self, other):
-        if isinstance(other, LazyDict):
-            self.eager.update(other.eager)
-            self.lazy.update(other.lazy)
-        else:
-            self.eager.update(other)
-
-    def items(self):
-        """Warning: This forces the evaluation all of the items in this LazyDict
-        that are iterated over."""
-        for k, v in self.eager.items():
-            yield k, v
-        for k in self.lazy.keys():
-            yield k, self[k]
-
-    def apply(self, fn):
-        """Delay the application of a computation to all items of the lazy dict.
-        Does no computation now. Instead the comuptation is performed when a
-        consumer attempts to access a value in this LazyDict"""
-        new_lazy = {}
-        for k, f in self.lazy.items():
-            def closure(f=f):
-                return fn(f())
-            new_lazy[k] = closure
-        for k, v in self.eager.items():
-            def closure(v=v):
-                return fn(v)
-            new_lazy[k] = closure
-        self.lazy = new_lazy
-        self.eager = {}
 
 class Resources(object):
     def __init__(self, notify, base_path=None, collect_ignores=False):
         self.notify = notify
         self.base_path = base_path
         self.collect_ignores = collect_ignores
+        self._label_paths = []
 
         self.file_basepath = {}
 
@@ -165,8 +95,6 @@ class Resources(object):
         self.bin_files = []
         self.json_files = []
 
-        # Features
-        self.features = LazyDict()
         self.ignored_dirs = []
 
         self.labels = {
@@ -226,8 +154,8 @@ class Resources(object):
         self.bin_files += resources.bin_files
         self.json_files += resources.json_files
 
-        self.features.update(resources.features)
         self.ignored_dirs += resources.ignored_dirs
+        self._label_paths += resources._label_paths
 
         return self
 
@@ -271,7 +199,6 @@ class Resources(object):
         def closure(res, export_path=export_path, loc=loc):
             res.subtract_basepath(export_path, loc)
             return res
-        self.features.apply(closure)
 
     def _collect_duplicates(self, dupe_dict, dupe_headers):
         for filename in self.s_sources + self.c_sources + self.cpp_sources:
@@ -282,8 +209,6 @@ class Resources(object):
             headername = basename(filename)
             dupe_headers.setdefault(headername, set())
             dupe_headers[headername] |= set([headername])
-        for res in self.features.values():
-            res._collect_duplicates(dupe_dict, dupe_headers)
         return dupe_dict, dupe_headers
 
     def detect_duplicates(self, toolchain):
@@ -318,10 +243,6 @@ class Resources(object):
             v = [rel_path(f, base, dot) for f in getattr(self, field)]
             setattr(self, field, v)
 
-        def to_apply(feature, base=base, dot=dot):
-            feature.relative_to(base, dot)
-        self.features.apply(to_apply)
-
         if self.linker_script is not None:
             self.linker_script = rel_path(self.linker_script, base, dot)
 
@@ -332,10 +253,6 @@ class Resources(object):
                       'hex_files', 'bin_files', 'json_files']:
             v = [f.replace('\\', '/') for f in getattr(self, field)]
             setattr(self, field, v)
-
-        def to_apply(feature):
-            feature.win_to_unix()
-        self.features.apply(to_apply)
 
         if self.linker_script is not None:
             self.linker_script = self.linker_script.replace('\\', '/')
@@ -357,8 +274,6 @@ class Resources(object):
 
                 ('Hex files', self.hex_files),
                 ('Bin files', self.bin_files),
-
-                ('Features', self.features),
             ):
             if resources:
                 s.append('%s:\n  ' % label + '\n  '.join(resources))
@@ -372,6 +287,13 @@ class Resources(object):
     def _add_labels(self, prefix, labels):
         self.labels.setdefault(prefix, [])
         self.labels[prefix].extend(labels)
+        prefixed_labels = set("%s_%s" % (prefix, label) for label in labels)
+        for path, base_path in self._label_paths:
+            if basename(path) in prefixed_labels:
+                self.add_directory(path, base_path)
+        self._label_paths = [(p, b) for p, b in self._label_paths
+                             if basename(p) not in prefixed_labels]
+
 
     def add_target_labels(self, target):
         self._add_labels("TARGET_", target.labels)
@@ -408,8 +330,7 @@ class Resources(object):
 
 
     def add_features(self, features):
-        for feat in features:
-            self.features[feat]
+        self._add_labels("FEATURE", features)
 
     # A helper function for scan_resources. _add_dir traverses *path* (assumed to be a
     # directory) and heeds the ".mbedignore" files along the way. _add_dir calls _add_file
@@ -448,27 +369,17 @@ class Resources(object):
 
             for d in copy(dirs):
                 dir_path = join(root, d)
-                # Add internal repo folders/files. This is needed for exporters
                 if d == '.hg' or d == '.git':
                     self.repo_dirs.append(dir_path)
-
-                if ((d.startswith('.') or d in self.legacy_ignore_dirs) or
-                    # Ignore targets that do not match the TARGET in extra_labels list
-                    (d.startswith('TARGET_') and d[7:] not in self.labels['TARGET']) or
-                    # Ignore toolchain that do not match the current TOOLCHAIN
+                if ((d.startswith('TARGET_') and d[7:] not in self.labels['TARGET']) or
                     (d.startswith('TOOLCHAIN_') and d[10:] not in self.labels['TOOLCHAIN']) or
-                    # Ignore .mbedignore files
-                    self.is_ignored(join(relpath(root, base_path), d,"")) or
-                    # Ignore TESTS dir
-                    (d == 'TESTS')):
-                        self.ignore_dir(dir_path)
-                        dirs.remove(d)
-                elif d.startswith('FEATURE_'):
-                    # Recursively scan features but ignore them in the current scan.
-                    # These are dynamically added by the config system if the conditions are matched
-                    def closure (dir_path=dir_path, base_path=base_path):
-                        return self.add_directory(dir_path, base_path=base_path)
-                    self.features.add_lazy(d[8:], closure)
+                    (d.startswith('FEATURE_') and d[8:] not in self.labels['FEATURE'])):
+                    self._label_paths.append((dir_path, base_path))
+                    self.ignore_dir(dir_path)
+                    dirs.remove(d)
+                elif ((d.startswith('.') or d in self.legacy_ignore_dirs) or
+                      self.is_ignored(join(relpath(root, base_path), d,"")) or
+                      (d == 'TESTS')):
                     self.ignore_dir(dir_path)
                     dirs.remove(d)
                 elif exclude_paths:
@@ -523,7 +434,8 @@ class Resources(object):
         elif ext in ('.sct', '.icf', '.ld'):
             if self.linker_script is not None:
                 self.notify.info("Warning: Multiple linker scripts detected: %s and %s" % (self.linker_script, file_path))
-            self.linker_script = file_path
+            else:
+                self.linker_script = file_path
 
         elif ext == '.lib':
             self.lib_refs.append(file_path)
