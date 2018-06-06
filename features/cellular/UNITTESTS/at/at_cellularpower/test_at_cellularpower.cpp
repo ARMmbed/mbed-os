@@ -54,7 +54,7 @@ void Test_AT_CellularPower::test_AT_CellularPower_on()
     ATHandler at(&fh1, que, 0, ",");
 
     AT_CellularPower pow(at);
-    CHECK(NSAPI_ERROR_UNSUPPORTED == pow.on())
+    CHECK(NSAPI_ERROR_UNSUPPORTED == pow.on());
 }
 
 void Test_AT_CellularPower::test_AT_CellularPower_off()
@@ -64,7 +64,7 @@ void Test_AT_CellularPower::test_AT_CellularPower_off()
     ATHandler at(&fh1, que, 0, ",");
 
     AT_CellularPower pow(at);
-    CHECK(NSAPI_ERROR_UNSUPPORTED == pow.off())
+    CHECK(NSAPI_ERROR_UNSUPPORTED == pow.off());
 }
 
 void Test_AT_CellularPower::test_AT_CellularPower_set_at_mode()
@@ -75,7 +75,7 @@ void Test_AT_CellularPower::test_AT_CellularPower_set_at_mode()
 
     AT_CellularPower pow(at);
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_AUTH_FAILURE;
-    CHECK(NSAPI_ERROR_AUTH_FAILURE == pow.set_at_mode())
+    CHECK(NSAPI_ERROR_AUTH_FAILURE == pow.set_at_mode());
 }
 
 void Test_AT_CellularPower::test_AT_CellularPower_set_power_level()
@@ -87,6 +87,8 @@ void Test_AT_CellularPower::test_AT_CellularPower_set_power_level()
     AT_CellularPower pow(at);
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_AUTH_FAILURE;
     CHECK(NSAPI_ERROR_AUTH_FAILURE == pow.set_power_level(6));
+    CHECK(NSAPI_ERROR_AUTH_FAILURE == pow.set_power_level(1,1));
+    CHECK(NSAPI_ERROR_AUTH_FAILURE == pow.set_power_level(1,0));
 }
 
 void Test_AT_CellularPower::test_AT_CellularPower_reset()
@@ -135,4 +137,42 @@ void Test_AT_CellularPower::test_AT_CellularPower_opt_receive_period()
     AT_CellularPower pow(at);
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_AUTH_FAILURE;
     CHECK(NSAPI_ERROR_AUTH_FAILURE == pow.opt_receive_period(1, CellularPower::EDRXUTRAN_Iu_mode, 3));
+}
+
+void Test_AT_CellularPower::test_AT_CellularPower_is_device_ready()
+{
+    EventQueue que;
+    FileHandle_stub fh1;
+    ATHandler at(&fh1, que, 0, ",");
+
+    AT_CellularPower pow(at);
+    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_AUTH_FAILURE;
+    CHECK(NSAPI_ERROR_AUTH_FAILURE == pow.is_device_ready());
+}
+
+static void device_ready_cb()
+{
+}
+
+void Test_AT_CellularPower::test_AT_CellularPower_set_device_ready_urc_cb()
+{
+    EventQueue que;
+    FileHandle_stub fh1;
+    ATHandler at(&fh1, que, 0, ",");
+
+    AT_CellularPower pow(at);
+    CHECK(NSAPI_ERROR_UNSUPPORTED == pow.set_device_ready_urc_cb(&device_ready_cb));
+}
+
+void Test_AT_CellularPower::test_AT_CellularPower_remove_device_ready_urc_cb()
+{
+    EventQueue que;
+    FileHandle_stub fh1;
+    ATHandler at(&fh1, que, 0, ",");
+
+    AT_CellularPower pow(at);
+    CHECK(NSAPI_ERROR_UNSUPPORTED == pow.set_device_ready_urc_cb(&device_ready_cb));
+
+    pow.remove_device_ready_urc_cb(NULL);
+    pow.remove_device_ready_urc_cb(&device_ready_cb);
 }
