@@ -344,20 +344,34 @@ void ticker_increment_test(void)
     } else {  // high frequency tickers
 
         uint32_t num_of_cycles = NUM_OF_CYCLES;
+        const uint32_t repeat_count = 20;
+        const uint32_t max_inc_val = 100;
 
         uint32_t base_tick_count = count_ticks(num_of_cycles, 1);
         uint32_t next_tick_count = base_tick_count;
         uint32_t inc_val = 0;
+        uint32_t repeat_cnt = 0;
 
-        while (inc_val < 100) {
-
+        while (inc_val < max_inc_val) {
             next_tick_count = count_ticks(num_of_cycles + inc_val, 1);
 
             if (next_tick_count == base_tick_count) {
 
-                /* Same tick count, so increase num of cycles. */
-                inc_val++;
+                /* Same tick count, so repeat 20 times and than
+                 * increase num of cycles by 1.
+                 */
+                if (repeat_cnt == repeat_count) {
+                    inc_val++;
+                    repeat_cnt = 0;
+                }
+
+                repeat_cnt++;
             } else {
+                /* Check if we got 1 tick diff. */
+                if (next_tick_count - base_tick_count == 1 ||
+                    base_tick_count - next_tick_count == 1) {
+                    break;
+                }
 
                 /* It is possible that the difference between base and next
                  * tick count on some platforms is greater that 1, in this case we need
@@ -366,12 +380,8 @@ void ticker_increment_test(void)
                  */
                 num_of_cycles /= 2;
                 inc_val = 0;
+                repeat_cnt = 0;
                 base_tick_count = count_ticks(num_of_cycles, 1);
-
-                if (next_tick_count - base_tick_count == 1 ||
-                    base_tick_count - next_tick_count == 1) {
-                    break;
-                }
             }
         }
 

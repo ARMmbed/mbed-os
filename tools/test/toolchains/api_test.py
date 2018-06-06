@@ -16,7 +16,7 @@ from tools.toolchains import TOOLCHAIN_CLASSES, LEGACY_TOOLCHAIN_NAMES,\
 from tools.targets import TARGET_MAP
 from tools.notifier.mock import MockNotifier
 
-ALPHABET = [char for char in printable if char not in [u'.', u'/']]
+ALPHABET = [char for char in printable if char not in [u'.', u'/', u'\\']]
 
 @given(fixed_dictionaries({
     'common': lists(text()),
@@ -175,7 +175,7 @@ def test_detect_duplicates(filenames):
     assert "dupe.c" in notification["message"]
     assert "dupe.cpp" in notification["message"]
 
-@given(text(alphabet=ALPHABET + ["/"], min_size=1))
+@given(text(alphabet=ALPHABET + [os.sep], min_size=1))
 @given(booleans())
 @given(booleans())
 @settings(max_examples=20)

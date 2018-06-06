@@ -45,7 +45,7 @@ from ..memap import MemapParser
 CPU_COUNT_MIN = 1
 CPU_COEF = 1
 
-class LazyDict(dict):
+class LazyDict(object):
     def __init__(self):
         self.eager = {}
         self.lazy = {}
@@ -252,8 +252,6 @@ class Resources:
             headername = basename(filename)
             dupe_headers.setdefault(headername, set())
             dupe_headers[headername] |= set([headername])
-        for res in self.features.values():
-            res._collect_duplicates(dupe_dict, dupe_headers)
         return dupe_dict, dupe_headers
 
     def detect_duplicates(self, toolchain):
@@ -733,7 +731,7 @@ class mbedToolchain:
 
         elif ext == self.LINKER_EXT:
             if resources.linker_script is not None:
-                self.info("Warning: Multiple linker scripts detected: %s -> %s" % (resources.linker_script, file_path))
+                self.notify.info("Warning: Multiple linker scripts detected: %s -> %s" % (resources.linker_script, file_path))
             resources.linker_script = file_path
 
         elif ext == '.lib':
@@ -1085,7 +1083,7 @@ class mbedToolchain:
         lib = self.STD_LIB_NAME % name
         fout = join(dir, lib)
         if self.need_update(fout, objects):
-            self.info("Library: %s" % lib)
+            self.notify.info("Library: %s" % lib)
             self.archive(objects, fout)
             needed_update = True
 
@@ -1175,7 +1173,7 @@ class mbedToolchain:
 
         # Parse and decode a map file
         if memap.parse(abspath(map), toolchain) is False:
-            self.info("Unknown toolchain for memory statistics %s" % toolchain)
+            self.notify.info("Unknown toolchain for memory statistics %s" % toolchain)
             return None
 
         # Store the memap instance for later use
