@@ -25,9 +25,16 @@
 
 #include "hal/lp_ticker_api.h"
 #include "mbed_critical.h"
+#if defined(TARGET_CORTEX_A)
+#include "rtx_core_ca.h"
+#else//Cortex-M
 #include "rtx_core_cm.h"
+#endif
 extern "C" {
 #include "rtx_lib.h"
+#if defined(TARGET_CORTEX_A)
+#include "irq_ctrl.h"
+#endif
 }
 
 #if (defined(NO_SYSTICK))
@@ -58,7 +65,7 @@ SysTimer::SysTimer(const ticker_data_t *data) :
 
 void SysTimer::setup_irq()
 {
-#if (defined(NO_SYSTICK))
+#if (defined(NO_SYSTICK) && !defined (TARGET_CORTEX_A))
     NVIC_SetVector(mbed_get_m0_tick_irqn(), (uint32_t)SysTick_Handler);
     NVIC_SetPriority(mbed_get_m0_tick_irqn(), 0xFF); /* RTOS requires lowest priority */
     NVIC_EnableIRQ(mbed_get_m0_tick_irqn());
@@ -148,6 +155,8 @@ void SysTimer::_set_irq_pending()
 
 #if (defined(NO_SYSTICK))
     NVIC_SetPendingIRQ(mbed_get_m0_tick_irqn());
+#elif (TARGET_CORTEX_A)
+    IRQ_SetPending(mbed_get_a9_tick_irqn());
 #else
     SCB->ICSR = SCB_ICSR_PENDSTSET_Msk;
 #endif
