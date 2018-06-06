@@ -2132,10 +2132,11 @@
         "inherits": ["FAMILY_STM32"],
         "supported_form_factors": ["ARDUINO"],
         "core": "Cortex-M3",
-        "default_toolchain": "uARM",
+        "default_toolchain": "ARM",
+        "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "extra_labels_add": ["STM32L1", "STM32L152RC"],
         "detect_code": ["4100"],
-        "device_has_add": ["ANALOGOUT", "LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC", "FLASH"],
+        "device_has_add": ["ANALOGOUT", "LOWPOWERTIMER", "SERIAL_ASYNCH", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "STM32L152RC"
     },
