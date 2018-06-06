@@ -29,6 +29,9 @@
 // Convert physical endpoint number to register bit
 #define EP(endpoint) (1UL<<DESC_TO_PHY(endpoint))
 
+// Check if this is an isochronous endpoint
+#define ISO_EP(endpoint)        ((((endpoint) & 0xF) == 3) || (((endpoint) & 0xF) == 6) || (((endpoint) & 0xF) == 9) || (((endpoint) & 0xF) == 12))
+
 #define DESC_TO_PHY(endpoint) ((((endpoint)&0x0F)<<1) | (((endpoint) & 0x80) ? 1:0))
 #define PHY_TO_DESC(endpoint) (((endpoint)>>1)|(((endpoint)&1)?0x80:0))
 
@@ -121,6 +124,13 @@
 static USBPhyHw *instance;
 
 static uint32_t opStarted;
+
+static const usb_ep_t ISO_EPS[] = {
+        0x03, 0x83,
+        0x06, 0x86,
+        0x09, 0x89,
+        0x0C, 0x8C
+};
 
 static void SIECommand(uint32_t command)
 {
@@ -465,6 +475,9 @@ void USBPhyHw::disconnect(void)
 
     // Disconnect USB device
     SIEdisconnect();
+
+    // Reset all started operations
+    opStarted = 0;
 }
 
 void USBPhyHw::configure(void)
@@ -551,7 +564,7 @@ uint32_t USBPhyHw::endpoint_read_result(usb_ep_t endpoint)
     read_sizes[endpoint] = 0;
 
     // Don't clear isochronous endpoints
-    if ((DESC_TO_PHY(endpoint) >> 1) % 3 || (DESC_TO_PHY(endpoint) >> 1) == 0) {
+    if (!ISO_EP(endpoint)) {
         SIEselectEndpoint(endpoint);
         SIEclearBuffer();
     }
@@ -692,6 +705,20 @@ void USBPhyHw::process(void)
         events->sof(SIEgetFrameNumber());
         // Clear interrupt status flag
         LPC_USB->USBDevIntClr = FRAME;
+
+        // There is no ISO interrupt, instead a packet is transferred every SOF
+        for (uint32_t i = 0; i < sizeof(ISO_EPS) / sizeof(ISO_EPS[0]); i++) {
+            uint8_t endpoint = ISO_EPS[i];
+            if (opStarted & EP(endpoint)) {
+                opStarted &= ~EP(endpoint);
+                if (IN_EP(endpoint)) {
+                    events->in(endpoint);
+                } else {
+                    events->out(endpoint);
+                }
+            }
+        }
+
     }
 
     if (LPC_USB->USBDevIntSt & DEV_STAT) {
@@ -717,6 +744,7 @@ void USBPhyHw::process(void)
             }
             memset(read_buffers, 0, sizeof(read_buffers));
             memset(read_sizes, 0, sizeof(read_sizes));
+            opStarted = 0;
             events->reset();
         }
     }
@@ -752,12 +780,16 @@ void USBPhyHw::process(void)
             }
         }
 
-        //TODO - should probably process in the reverse order
         for (uint8_t num = 2; num < 16 * 2; num++) {
             uint8_t endpoint = PHY_TO_DESC(num);
             if (LPC_USB->USBEpIntSt & EP(endpoint)) {
                 selectEndpointClearInterrupt(endpoint);
+                if (ISO_EP(endpoint)) {
+                    // Processing for ISO endpoints done in FRAME handling
+                    continue;
+                }
                 if (opStarted & EP(endpoint)) {
+                    opStarted &= ~EP(endpoint);
                     if (IN_EP(endpoint)) {
                         events->in(endpoint);
                     } else {
