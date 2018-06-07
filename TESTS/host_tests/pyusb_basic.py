@@ -290,6 +290,19 @@ class PyusbBasicTest(BaseHostTest):
         except (RuntimeError) as exc:
             self.report_error(exc)
 
+    def _callback_ep_test_data_toggle(self, key, value, timestamp):
+        self.log("Received serial %s" % (value))
+
+        dev = self.find_device(value)
+        if(dev == None):
+            return
+
+        try:
+            ep_test_data_toggle(dev, log=print)
+            self.report_success()
+        except (RuntimeError) as exc:
+            self.report_error(exc)
+
     def _callback_reset_support(self, key, value, timestamp):
         status = "false" if sys.platform == "darwin" else "true"
         self.log("Reset supported: %s" % status)
@@ -345,6 +358,7 @@ class PyusbBasicTest(BaseHostTest):
         self.register_callback('ep_test_parallel_transfers', self._callback_ep_test_parallel_transfers)
         self.register_callback('ep_test_parallel_transfers_ctrl', self._callback_ep_test_parallel_transfers_ctrl)
         self.register_callback('ep_test_abort', self._callback_ep_test_abort)
+        self.register_callback('ep_test_data_toggle', self._callback_ep_test_data_toggle)
 
         self.register_callback('reset_support', self._callback_reset_support)
 
@@ -1352,6 +1366,106 @@ def ep_test_abort(dev, log, verbose=False):
                     'Value {1} B out of range [{2}, {3}).'
                     .format(ep_out, num_bytes_written,
                             NUM_PACKETS_UNTIL_ABORT * ep_out.wMaxPacketSize, payload_size))
+
+
+def ep_test_data_toggle(dev, log, verbose=False):
+    """Test data toggle reset for bulk OUT/IN endpoint pairs.
+
+    Given a USB device
+    When an interface is set
+    Then the data toggle bits for all endpoints are reset to DATA0
+    When clear feature is called for an endpoint that *IS NOT* stalled
+    Then the data toggle is reset to DATA0 for that endpoint
+    When clear halt is called for an endpoint that *IS* stalled
+    Then the data toggle is reset to DATA0 for that endpoint
+    """
+    cfg = dev.get_active_configuration()
+    for intf in cfg:
+        log('interface {}, alt {} -- '.format(intf.bInterfaceNumber, intf.bAlternateSetting), end='')
+        if intf.bAlternateSetting == 0:
+            log('skipping the default AlternateSetting')
+            continue
+        log('running tests')
+
+        if verbose:
+            log('Testing data toggle reset for bulk endpoint pair.')
+
+        # 1.1 reset OUT and IN data toggle to DATA0
+        intf.set_altsetting()
+        bulk_out, bulk_in = find_ep_pair(intf, usb.ENDPOINT_TYPE_BULK)
+
+        # 1.2 send and receive a single data packet,
+        # so both OUT and IN endpoints switch to DATA1
+        loopback_ep_test(bulk_out, bulk_in, bulk_out.wMaxPacketSize)
+
+        # 1.3 reset OUT and IN data toggle to DATA0
+        # USB spec, section 9.1.1.5
+        # "
+        # Configuring a device or changing an alternate setting causes all of the status and
+        # configuration values associated with endpoints in the affected interfaces to be set to their default values.
+        # This includes setting the data toggle of any endpoint using data toggles to the value DATA0.
+        # "
+        intf.set_altsetting()
+        bulk_out, bulk_in = find_ep_pair(intf, usb.ENDPOINT_TYPE_BULK)
+
+        # 1.4 verify that host and USB device are still in sync with respect to data toggle
+        try:
+            loopback_ep_test(bulk_out, bulk_in, bulk_out.wMaxPacketSize)
+        except usb.USBError as err:
+            if verbose:
+                log(USB_ERROR_FMT.format(err, bulk_out, bulk_in, bulk_out.wMaxPacketSize))
+            raise_unconditionally(lineno(), 'Data toggle not reset when setting interface.')
+
+        # 2.1 reset OUT and IN data toggle to DATA0
+        intf.set_altsetting()
+        bulk_out, bulk_in = find_ep_pair(intf, usb.ENDPOINT_TYPE_BULK)
+
+        # 2.2 send and receive a single data packet,
+        # so both OUT and IN endpoints switch to DATA1
+        loopback_ep_test(bulk_out, bulk_in, bulk_out.wMaxPacketSize)
+
+        # 2.3 reset OUT data toggle to DATA0
+        # USB spec, section 9.4.5
+        # "
+        # For endpoints using data toggle, regardless of whether an endpoint has the Halt feature set, a
+        # ClearFeature(ENDPOINT_HALT) request always results in the data toggle being reinitialized to DATA0.
+        # "
+        bulk_out.clear_halt()
+#         request_endpoint_read_start(dev, bulk_out)
+
+        # 2.4 verify that host and USB device are still in sync with respect to data toggle
+        try:
+            loopback_ep_test(bulk_out, bulk_in, bulk_out.wMaxPacketSize)
+        except usb.USBError as err:
+            if verbose:
+                log(USB_ERROR_FMT.format(err, bulk_out, bulk_in, bulk_out.wMaxPacketSize))
+            raise_unconditionally(lineno(), 'Data toggle not reset when calling ClearFeature(ENDPOINT_HALT) '
+                                  'on an endpoint that has not been halted.')
+
+        # 3.1 reset OUT and IN data toggle to DATA0
+        intf.set_altsetting()
+        bulk_out, bulk_in = find_ep_pair(intf, usb.ENDPOINT_TYPE_BULK)
+
+        # 3.2 send and receive a single data packet,
+        # so both OUT and IN endpoints switch to DATA1
+        loopback_ep_test(bulk_out, bulk_in, bulk_out.wMaxPacketSize)
+
+        # 3.3 reset IN data toggle to DATA0
+        # USB spec, section 9.4.5
+        # "
+        # For endpoints using data toggle, regardless of whether an endpoint has the Halt feature set, a
+        # ClearFeature(ENDPOINT_HALT) request always results in the data toggle being reinitialized to DATA0.
+        # "
+        usb.control.set_feature(dev, FEATURE_ENDPOINT_HALT, bulk_in)
+        bulk_in.clear_halt()
+
+        # 3.4 verify that host and USB device are still in sync with respect to data toggle
+        try:
+            loopback_ep_test(bulk_out, bulk_in, bulk_out.wMaxPacketSize)
+        except usb.USBError as err:
+            if verbose:
+                log(USB_ERROR_FMT.format(err, bulk_out, bulk_in, bulk_out.wMaxPacketSize))
+            raise_unconditionally(lineno(), 'Data toggle not reset when clearing endpoint halt.')
 
 
 def device_reset_test(log):
