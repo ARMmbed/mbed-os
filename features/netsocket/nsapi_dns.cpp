@@ -80,6 +80,7 @@ struct DNS_QUERY {
     uint8_t dns_server;
     uint8_t retries;
     uint8_t total_attempts;
+    uint8_t send_success;
     uint8_t count;
     dns_state state;
 };
@@ -87,7 +88,7 @@ struct DNS_QUERY {
 static void nsapi_dns_cache_add(const char *host, nsapi_addr_t *address, uint32_t ttl);
 static nsapi_size_or_error_t nsapi_dns_cache_find(const char *host, nsapi_version_t version, nsapi_addr_t *address);
 
-static nsapi_error_t nsapi_dns_get_server_addr(NetworkStack *stack, uint8_t *index, uint8_t *total_attempts, SocketAddress *dns_addr);
+static nsapi_error_t nsapi_dns_get_server_addr(NetworkStack *stack, uint8_t *index, uint8_t *total_attempts, uint8_t *send_success, SocketAddress *dns_addr);
 
 static void nsapi_dns_query_async_create(void *ptr);
 static nsapi_error_t nsapi_dns_query_async_delete(int unique_id);
@@ -384,7 +385,7 @@ static nsapi_error_t nsapi_dns_cache_find(const char *host, nsapi_version_t vers
     return ret_val;
 }
 
-static nsapi_error_t nsapi_dns_get_server_addr(NetworkStack *stack, uint8_t *index, uint8_t *total_attempts, SocketAddress *dns_addr)
+static nsapi_error_t nsapi_dns_get_server_addr(NetworkStack *stack, uint8_t *index, uint8_t *total_attempts, uint8_t *send_success, SocketAddress *dns_addr)
 {
     bool dns_addr_set = false;
 
@@ -393,8 +394,10 @@ static nsapi_error_t nsapi_dns_get_server_addr(NetworkStack *stack, uint8_t *ind
     }
 
     if (*index >= DNS_SERVERS_SIZE + DNS_STACK_SERVERS_NUM) {
-        if (*total_attempts) {
+        // If there are total attempts left and send to has been successful at least once on this round
+        if (*total_attempts && *send_success) {
             *index = 0;
+            *send_success = 0;
         } else {
             return NSAPI_ERROR_NO_ADDRESS;
         }
@@ -453,11 +456,12 @@ static nsapi_size_or_error_t nsapi_dns_query_multiple(NetworkStack *stack, const
     uint8_t retries = MBED_CONF_NSAPI_DNS_RETRIES;
     uint8_t index = 0;
     uint8_t total_attempts = MBED_CONF_NSAPI_DNS_TOTAL_ATTEMPTS;
+    uint8_t send_success = 0;
 
     // check against each dns server
     while (true) {
         SocketAddress dns_addr;
-        err = nsapi_dns_get_server_addr(stack, &index, &total_attempts, &dns_addr);
+        err = nsapi_dns_get_server_addr(stack, &index, &total_attempts, &send_success, &dns_addr);
         if (err != NSAPI_ERROR_OK) {
             break;
         }
@@ -473,6 +477,8 @@ static nsapi_size_or_error_t nsapi_dns_query_multiple(NetworkStack *stack, const
             index++;
             continue;
         }
+
+        send_success++;
 
         if (total_attempts) {
             total_attempts--;
@@ -650,6 +656,7 @@ nsapi_value_or_error_t nsapi_dns_query_multiple_async(NetworkStack *stack, const
     query->dns_server = 0;
     query->retries = MBED_CONF_NSAPI_DNS_RETRIES + 1;
     query->total_attempts =  MBED_CONF_NSAPI_DNS_TOTAL_ATTEMPTS;
+    query->send_success = 0;
     query->dns_message_id = 0;
     query->socket_timeout = 0;
     query->total_timeout = MBED_CONF_NSAPI_DNS_TOTAL_ATTEMPTS * MBED_CONF_NSAPI_DNS_RESPONSE_WAIT_TIME + 500;
@@ -971,7 +978,7 @@ static void nsapi_dns_query_async_send(void *ptr)
 
     while (true) {
         SocketAddress dns_addr;
-        nsapi_size_or_error_t err = nsapi_dns_get_server_addr(query->stack, &(query->dns_server), &(query->total_attempts), &dns_addr);
+        nsapi_size_or_error_t err = nsapi_dns_get_server_addr(query->stack, &(query->dns_server), &(query->total_attempts), &(query->send_success), &dns_addr);
         if (err != NSAPI_ERROR_OK) {
             nsapi_dns_query_async_resp(query, NSAPI_ERROR_TIMEOUT, NULL);
             free(packet);
@@ -986,6 +993,8 @@ static void nsapi_dns_query_async_send(void *ptr)
             break;
         }
     }
+
+    query->send_success++;
 
     if (query->total_attempts) {
         query->total_attempts--;
