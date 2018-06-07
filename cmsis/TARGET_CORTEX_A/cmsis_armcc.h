@@ -451,8 +451,8 @@ __STATIC_INLINE void __set_FPEXC(uint32_t fpexc)
  * Include common core functions to access Coprocessor 15 registers
  */
 
-#define __get_CP(cp, op1, Rt, CRn, CRm, op2) do { register uint32_t tmp __ASM("cp" # cp ":" # op1 ":c" # CRn ":c" # CRm ":" # op2); (Rt) = tmp; } while(0)
-#define __set_CP(cp, op1, Rt, CRn, CRm, op2) do { register uint32_t tmp __ASM("cp" # cp ":" # op1 ":c" # CRn ":c" # CRm ":" # op2); tmp = (Rt); } while(0)
+#define __get_CP(cp, op1, Rt, CRn, CRm, op2) do { register volatile uint32_t tmp __ASM("cp" # cp ":" # op1 ":c" # CRn ":c" # CRm ":" # op2); (Rt) = tmp; } while(0)
+#define __set_CP(cp, op1, Rt, CRn, CRm, op2) do { register volatile uint32_t tmp __ASM("cp" # cp ":" # op1 ":c" # CRn ":c" # CRm ":" # op2); tmp = (Rt); } while(0)
 #define __get_CP64(cp, op1, Rt, CRm) \
   do { \
     uint32_t ltmp, htmp; \
