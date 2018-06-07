@@ -1144,6 +1144,7 @@ void GenericSecurityManager::on_pairing_request(
     /* cancel pairing if secure connection paring is not possible */
     if (!_legacy_pairing_allowed && !authentication.get_secure_connections()) {
         cancelPairingRequest(connection);
+        return;
     }
 
     ControlBlock_t *cb = get_control_block(connection);
