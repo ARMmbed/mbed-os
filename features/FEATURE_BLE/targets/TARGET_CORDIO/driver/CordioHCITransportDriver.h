@@ -28,6 +28,10 @@ namespace cordio {
  * It allow the stack to write data in the HCI channel.
  */
 class CordioHCITransportDriver {
+
+    // hook for internal tests and passthrough driver
+    friend class CordioHCIHook;
+
 public:
     /**
      * Driver destructor.
