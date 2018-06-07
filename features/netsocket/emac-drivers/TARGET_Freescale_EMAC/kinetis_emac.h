@@ -138,6 +138,8 @@ public:
 
 private:
     bool low_level_init_successful();
+    status_t init_enet_phy(ENET_Type *base, uint32_t phyAddr, uint32_t srcClock_Hz);
+    status_t auto_negotiation(ENET_Type *base, uint32_t phyAddr);
     void rx_isr();
     void tx_isr();
     void packet_rx();
