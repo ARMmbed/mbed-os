@@ -29,7 +29,7 @@ bool hal_crc_is_supported(const crc_mbed_config_t* config)
     return false;
   }
 
-  if ((config->width != 32) || (config->width != 16)) {
+  if ((config->width != 32) && (config->width != 16)) {
     return false;
   }
 
