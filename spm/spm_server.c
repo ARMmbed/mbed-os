@@ -37,16 +37,14 @@ static inline spm_partition_t *get_partition_by_pid(int32_t partition_id)
     return NULL;
 }
 
-static inline error_t create_msg_handle(void *handle_mem, int32_t friend_pid, psa_handle_t *handle)
+static inline psa_handle_t create_msg_handle(void *handle_mem, int32_t friend_pid)
 {
-    return psa_hndl_mgr_handle_create(&(g_spm.messages_handle_mgr), handle_mem, friend_pid, handle);
+    return psa_hndl_mgr_handle_create(&(g_spm.messages_handle_mgr), handle_mem, friend_pid);
 }
 
 static inline spm_active_msg_t *get_msg_from_handle(psa_handle_t handle)
 {
-    spm_active_msg_t *handle_mem = NULL;
-    psa_hndl_mgr_handle_get_mem(&(g_spm.messages_handle_mgr), handle, (void **)&handle_mem);
-    return handle_mem;
+    return (spm_active_msg_t *)psa_hndl_mgr_handle_get_mem(&(g_spm.messages_handle_mgr), handle);
 }
 
 static inline void destroy_msg_handle(psa_handle_t handle)
@@ -93,8 +91,6 @@ static inline void validate_iovec(const void *vec, const uint32_t len)
 */
 static psa_handle_t copy_message_to_spm(spm_ipc_channel_t *channel, int32_t current_partition_id, psa_msg_t *user_msg)
 {
-    psa_handle_t handle = PSA_NULL_HANDLE;
-
     // Memory allocated from MemoryPool isn't zeroed - thus a temporary variable will make sure we will start from a clear state.
     spm_active_msg_t temp_active_message = {
         .channel = channel,
@@ -173,9 +169,7 @@ static psa_handle_t copy_message_to_spm(spm_ipc_channel_t *channel, int32_t curr
     // Copy struct
     *active_msg = temp_active_message;
 
-    psa_error_t status = create_msg_handle(active_msg, current_partition_id, &handle);
-    SPM_ASSERT(PSA_SUCCESS == status);
-    PSA_UNUSED(status);
+    psa_handle_t handle = create_msg_handle(active_msg, current_partition_id);
 
     user_msg->type = channel->msg_type;
     user_msg->rhandle = channel->rhandle;
@@ -308,14 +302,19 @@ void psa_get(psa_signal_t signum, psa_msg_t *msg)
             msg->type = PSA_IPC_MSG_TYPE_DISCONNECT;
             msg->rhandle = curr_channel->rhandle;
 
-            // Handle resides in msg_ptr because psa_close is asynchronous
-            psa_handle_t channel_handle = (psa_handle_t)curr_channel->msg_ptr;
-            destroy_channel_handle(channel_handle);
+            // !!!!!NOTE!!!!! handles must be destroyed before osMemoryPoolFree().
+            // Channel creation fails on resource exhaustion and handle will be created
+            // only after a successful memory allocation and is not expected to fail.
+            {
+                // Handle resides in msg_ptr because psa_close is asynchronous
+                psa_handle_t channel_handle = (psa_handle_t)curr_channel->msg_ptr;
+                destroy_channel_handle(channel_handle);
 
-            memset(curr_channel, 0, sizeof(*curr_channel));
-            osStatus_t os_status = osMemoryPoolFree(g_spm.channel_mem_pool, curr_channel);
-            SPM_ASSERT(osOK == os_status);
-            PSA_UNUSED(os_status);
+                memset(curr_channel, 0, sizeof(*curr_channel));
+                osStatus_t os_status = osMemoryPoolFree(g_spm.channel_mem_pool, curr_channel);
+                SPM_ASSERT(osOK == os_status);
+                PSA_UNUSED(os_status);
+            }
             return;
             break;
         }
@@ -422,12 +421,17 @@ void psa_end(psa_handle_t msg_handle, psa_error_t retval)
     spm_ipc_channel_t *active_channel = active_msg->channel;
     SPM_ASSERT(active_channel != NULL);
 
-    memset(active_msg, 0, sizeof(*active_msg));
-    osStatus_t os_status = osMemoryPoolFree(g_spm.active_messages_mem_pool, active_msg);
-    SPM_ASSERT(osOK == os_status);
-    PSA_UNUSED(os_status);
+    // !!!!!NOTE!!!!! handles must be destroyed before osMemoryPoolFree().
+    // Message creation blocked on resource exhaustion and handle will be created
+    // only after a successful memory allocation and is not expected to fail.
+    {
+        destroy_msg_handle(msg_handle);
 
-    destroy_msg_handle(msg_handle);
+        memset(active_msg, 0, sizeof(*active_msg));
+        osStatus_t os_status = osMemoryPoolFree(g_spm.active_messages_mem_pool, active_msg);
+        SPM_ASSERT(osOK == os_status);
+        PSA_UNUSED(os_status);
+    }
 
     osSemaphoreId_t completion_sem_id = NULL;
     bool nspe_call = (active_channel->src_partition == NULL);
@@ -440,12 +444,21 @@ void psa_end(psa_handle_t msg_handle, psa_error_t retval)
             completion_sem_id = connect_msg_data ->completion_sem_id;
 
             if (retval != PSA_SUCCESS) {
-                memset(active_channel, 0, sizeof(*active_channel));
-                os_status = osMemoryPoolFree(g_spm.channel_mem_pool, active_channel);
-                SPM_ASSERT(osOK == os_status);
-                // In psa_connect handle was written to user's memory before the connection was established.
-                // Channel state machine and ACL will prevent attacker from doing bad stuff before we overwrite it with negative return code
-                destroy_channel_handle((psa_handle_t)connect_msg_data ->rc);
+                // !!!!!NOTE!!!!! handles must be destroyed before osMemoryPoolFree().
+                // Channel creation fails on resource exhaustion and handle will be created
+                // only after a successful memory allocation and is not expected to fail.
+                {
+                    // In psa_connect the handle was written to user's memory before
+                    // the connection was established.
+                    // Channel state machine and ACL will prevent attacker from 
+                    // doing bad stuff before we overwrite it with a negative return code.
+                    destroy_channel_handle((psa_handle_t)connect_msg_data ->rc);
+
+                    memset(active_channel, 0, sizeof(*active_channel));
+                    osStatus_t os_status = osMemoryPoolFree(g_spm.channel_mem_pool, active_channel);
+                    SPM_ASSERT(osOK == os_status);
+                    PSA_UNUSED(os_status);
+                }
                 // Replace the handle we created in the user's memory with the error code
                 connect_msg_data ->rc = retval;
                 active_channel = NULL;

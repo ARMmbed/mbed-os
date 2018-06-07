@@ -68,16 +68,14 @@ static inline void spm_validate_connection_allowed(spm_secure_func_t *target, sp
     }
 }
 
-static inline error_t create_channel_handle(void *handle_mem, int32_t friend_pid, psa_handle_t *handle)
+static inline psa_handle_t create_channel_handle(void *handle_mem, int32_t friend_pid)
 {
-    return psa_hndl_mgr_handle_create(&(g_spm.channels_handle_mgr), handle_mem, friend_pid, handle);
+    return psa_hndl_mgr_handle_create(&(g_spm.channels_handle_mgr), handle_mem, friend_pid);
 }
 
 static inline spm_ipc_channel_t *get_channel_from_handle(psa_handle_t handle)
 {
-    spm_ipc_channel_t *handle_mem = NULL;
-    psa_hndl_mgr_handle_get_mem(&(g_spm.channels_handle_mgr), handle, (void **)&handle_mem);
-    return handle_mem;
+    return (spm_ipc_channel_t *)psa_hndl_mgr_handle_get_mem(&(g_spm.channels_handle_mgr), handle);
 }
 
 static void spm_secure_func_queue_enqueue(spm_secure_func_t *sec_func, spm_ipc_channel_t *item)
@@ -134,15 +132,9 @@ void psa_connect_async(spm_pending_connect_msg_t *msg)
 
         return;
     }
-
-    psa_handle_t handle = PSA_NULL_HANDLE;
-    psa_error_t status = create_channel_handle(channel, dst_sec_func->partition->partition_id, &handle);
-    // handle_create() is expected to pass since channel allocation has already passed,
-    // and the channels handler manager has the same storage size as the channels pool storage size
-    SPM_ASSERT(PSA_SUCCESS == status);
-    PSA_UNUSED(status);
+    
     // Create the handle in the user message so we could destroy it in case of failure.
-    msg->rc = handle;
+    msg->rc = (psa_error_t)create_channel_handle(channel, dst_sec_func->partition->partition_id);
 
     // NOTE: all struct fields must be initialized as the allocated memory is not zeroed.
     channel->state = CHANNEL_STATE_CONNECTING;
