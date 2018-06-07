@@ -32,11 +32,16 @@
 
 #if MBED_CONF_APP_TEST_WIFI
 
-#ifdef TARGET_UBLOX_EVK_ODIN_W2
+#if defined(TARGET_UBLOX_EVK_ODIN_W2) || defined(TARGET_MTB_UBLOX_ODIN_W2)
 #include "OdinWiFiInterface.h"
 #endif
 #ifdef TARGET_REALTEK_RTL8195AM
 #include "RTWInterface.h"
+#endif
+#if defined(TARGET_MTB_ADV_WISE_1530)   || \
+    defined(TARGET_MTB_USI_WM_BN_BM_22) || \
+    defined(TARGET_MTB_MXCHIP_EMW3166)
+#include "WicedInterface.h"
 #endif
 
 #endif
@@ -61,10 +66,14 @@ void test_emac_initialize()
 #elif MBED_CONF_APP_TEST_WIFI
 
     // Add wifi classes here
-#ifdef TARGET_UBLOX_EVK_ODIN_W2
+#if defined(TARGET_UBLOX_EVK_ODIN_W2) || defined(TARGET_MTB_UBLOX_ODIN_W2)
     static WiFiInterface *network_interface = new OdinWiFiInterface;
-#elif TARGET_REALTEK_RTL8195AM
+#elif defined(TARGET_REALTEK_RTL8195AM)
     static WiFiInterface *network_interface = new RTWInterface;
+#elif defined(TARGET_MTB_ADV_WISE_1530)   || \
+      defined(TARGET_MTB_USI_WM_BN_BM_22) || \
+      defined(TARGET_MTB_MXCHIP_EMW3166)
+    static WiFiInterface *network_interface = new WicedInterface;
 #else
     static WiFiInterface *network_interface = new WiFiInterface;
 #endif

@@ -9,7 +9,7 @@
         },
         "connect-statement" : {
             "help" : "Must use 'net' variable name, replace WIFI_SSID, WIFI_PASSWORD, WIFI_SECURITY with your WiFi settings",
-            "value" : "((WicedInterface *)net)->connect(WIFI_SSID, WIFI_PASSWORD, WIFI_SECURITY)"
+            "value" : "net->wifiInterface()->connect(WIFI_SSID, WIFI_PASSWORD, WIFI_SECURITY)"
         },
         "echo-server-addr" : {
             "help" : "IP address of echo server",
@@ -30,6 +30,9 @@
         }
     },
     "target_overrides": {
+        "*": {
+            "nsapi.default-stack": "LWIP"
+        },
         "MTB_ADV_WISE_1530": {
             "target.extra_labels_add": ["WICED"],
             "target.features_add": ["BLE", "LWIP"]
