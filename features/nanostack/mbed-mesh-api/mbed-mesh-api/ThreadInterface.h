@@ -30,12 +30,12 @@ public:
      *
      *  Must initialize to initialize the mesh on a phy.
      */
-    ThreadInterface() : user_set_eui64(false) { }
+    ThreadInterface() { }
 
     /** Create an initialized ThreadInterface
      *
      */
-    ThreadInterface(NanostackRfPhy *phy) : MeshInterfaceNanostack(phy), user_set_eui64(false) { }
+    ThreadInterface(NanostackRfPhy *phy) : MeshInterfaceNanostack(phy) { }
 
     /**
      * \brief Sets the eui64 for the device configuration.
@@ -43,6 +43,13 @@ public:
      * The value must be set before calling the connect function.
      * */
     void device_eui64_set(const uint8_t *eui64);
+
+    /**
+     * \brief Reads the eui64 from the device configuration.
+     * By default this value is read from the radio driver, but it may have
+     * been set by device_eui64_set().
+     * */
+    void device_eui64_get(uint8_t *eui64);
 
     /**
      * \brief sets the PSKd for the device configuration.
@@ -59,9 +66,6 @@ public:
     virtual int disconnect();
 protected:
     Nanostack::ThreadInterface *get_interface() const;
-
-private:
-    bool user_set_eui64;
 };
 
 #endif // THREADINTERFACE_H

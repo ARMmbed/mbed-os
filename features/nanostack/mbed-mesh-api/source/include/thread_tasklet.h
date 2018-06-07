@@ -59,9 +59,14 @@ int8_t thread_tasklet_network_init(int8_t device_id);
 /*
  * \brief Sets eui64 for the device configuration
  * \param eui64 eui64 to be set
- * \param pskd private shared key
  */
 void thread_tasklet_device_eui64_set(const uint8_t *eui64);
+
+/*
+ * \brief Gets eui64 from the device configuration
+ * \param eui64 buffer for output eui64
+ */
+void thread_tasklet_device_eui64_get(uint8_t *eui64);
 
 /*
  * \brief Sets PSKd for the device configuration

@@ -474,6 +474,11 @@ void thread_tasklet_device_eui64_set(const uint8_t *eui64)
     memcpy(device_configuration.eui64, eui64, 8);
 }
 
+void thread_tasklet_device_eui64_get(uint8_t *eui64)
+{
+    memcpy(eui64, device_configuration.eui64, 8);
+}
+
 uint8_t thread_tasklet_device_pskd_set(const char *pskd)
 {
     int len = strlen(pskd);
