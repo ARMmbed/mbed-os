@@ -431,7 +431,7 @@ class mbedToolchain:
         self.build_all = False
 
         # Build output dir
-        self.build_dir = build_dir
+        self.build_dir = abspath(build_dir) if PRINT_COMPILER_OUTPUT_AS_LINK else build_dir
         self.timestamp = time()
 
         # Number of concurrent build jobs. 0 means auto (based on host system cores)
@@ -985,6 +985,8 @@ class mbedToolchain:
         # Check dependencies
         _, ext = splitext(source)
         ext = ext.lower()
+
+        source = abspath(source) if PRINT_COMPILER_OUTPUT_AS_LINK else source
 
         if ext == '.c' or  ext == '.cpp':
             base, _ = splitext(object)
