@@ -385,6 +385,45 @@ void ep_test_abort()
     }
 }
 
+/** Test data toggle reset for bulk OUT/IN endpoint pairs
+ *
+ * Given a USB device
+ * When an interface is set
+ * Then the data toggle bits for all endpoints are reset to DATA0
+ * When clear feature is called for an endpoint that *IS NOT* stalled
+ * Then the data toggle is reset to DATA0 for that endpoint
+ * When clear halt is called for an endpoint that *IS* stalled
+ * Then the data toggle is reset to DATA0 for that endpoint
+ */
+void ep_test_data_toggle()
+{
+    uint16_t vendor_id = 0x0d28;
+    // Use a product ID different than that used in other tests,
+    // to help Windows hosts use the correct configuration descriptor.
+    uint16_t product_id = 0x0206;
+    uint16_t product_release = 0x0001;
+    char _key[11] = { };
+    char _value[128] = { };
+
+    {
+        USBEndpointTester serial(get_phy(), vendor_id, product_id, product_release, false);
+        greentea_send_kv("ep_test_data_toggle", serial.get_serial_desc_string());
+        greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
+#if EP_DBG
+        wait_ms(100);
+        printf("cnt_cb_set_conf = %lu\r\n", serial.get_cnt_cb_set_conf());
+        printf("cnt_cb_set_intf = %lu\r\n", serial.get_cnt_cb_set_intf());
+        printf("cnt_cb_bulk_out = %lu\r\n", serial.get_cnt_cb_bulk_out());
+        printf("cnt_cb_bulk_in  = %lu\r\n", serial.get_cnt_cb_bulk_in());
+        printf("cnt_cb_int_out  = %lu\r\n", serial.get_cnt_cb_int_out());
+        printf("cnt_cb_int_in   = %lu\r\n", serial.get_cnt_cb_int_in());
+        printf("cnt_cb_iso_out  = %lu\r\n", serial.get_cnt_cb_iso_out());
+        printf("cnt_cb_iso_in   = %lu\r\n", serial.get_cnt_cb_iso_in());
+#endif
+        TEST_ASSERT_EQUAL_STRING("pass", _key);
+    }
+}
+
 /** Test USB implementation against repeated reset
 
     Given an initialized USB (HOST <---> DUT connection established)
@@ -602,7 +641,8 @@ Case cases[] = {
     Case("endpoint test halt", ep_test_halt),
     Case("endpoint test parallel transfers", ep_test_parallel_transfers),
     Case("endpoint test parallel transfers ctrl", ep_test_parallel_transfers_ctrl),
-    Case("endpoint test abort", ep_test_abort)
+    Case("endpoint test abort", ep_test_abort),
+    Case("endpoint test data toggle reset", ep_test_data_toggle)
 };
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
