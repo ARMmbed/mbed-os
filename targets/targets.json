@@ -811,6 +811,7 @@
         "detect_code": ["0725"],
         "macros_add": ["CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""],
         "device_has_add": ["CRC", "SERIAL_FC"],
+        "device_has_remove": ["LPTICKER"],
         "default_lib": "small",
         "release_versions": ["2"],
         "device_name": "STM32F030R8"
@@ -832,6 +833,7 @@
         "overrides": {"lse_available": 0},
         "macros_add": ["CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""],
         "device_has_add": ["CRC", "SERIAL_FC"],
+        "device_has_remove": ["LPTICKER"],
         "default_lib": "small",
         "release_versions": ["2"],
         "device_name": "STM32F031K6"
@@ -853,6 +855,7 @@
         "overrides": {"lse_available": 0},
         "macros_add": ["CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""],
         "device_has_add": ["CAN", "CRC", "SERIAL_FC"],
+        "device_has_remove": ["LPTICKER"],
         "default_lib": "small",
         "release_versions": ["2"],
         "device_name": "STM32F042K6"
@@ -1738,6 +1741,7 @@
         },
         "macros_add": ["CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""],
         "device_has_add": ["CRC", "SERIAL_FC"],
+        "device_has_remove": ["LPTICKER"],
         "device_name": "STM32F051R8"
     },
     "DISCO_F100RB": {
@@ -3768,7 +3772,7 @@
         "extra_labels_add": ["STM32F1", "STM32F103C8"],
         "supported_toolchains": ["GCC_ARM"],
         "device_has_add": [],
-        "device_has_remove": ["STDIO_MESSAGES"]
+        "device_has_remove": ["STDIO_MESSAGES", "LPTICKER"]
     },
     "NUMAKER_PFM_NUC472": {
         "core": "Cortex-M4F",
