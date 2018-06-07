@@ -87,9 +87,9 @@ handles_pool
 
 /* ------------------------------------- Functions ----------------------------------- */
 
-error_t psa_hndl_mgr_handle_create(psa_handle_manager_t *handle_manager, void *handle_mem, int32_t friend_pid, psa_handle_t *handle);
-void psa_hndl_mgr_handle_destroy(psa_handle_manager_t *handle_manager, psa_handle_t handle);
-void psa_hndl_mgr_handle_get_mem(psa_handle_manager_t *handle_manager, psa_handle_t handle, void **handle_mem);
+psa_handle_t psa_hndl_mgr_handle_create(psa_handle_manager_t *handle_mgr, void *handle_mem, int32_t friend_pid);
+void psa_hndl_mgr_handle_destroy(psa_handle_manager_t *handle_mgr, psa_handle_t handle);
+void *psa_hndl_mgr_handle_get_mem(psa_handle_manager_t *handle_mgr, psa_handle_t handle);
 
 
 #ifdef __cplusplus
