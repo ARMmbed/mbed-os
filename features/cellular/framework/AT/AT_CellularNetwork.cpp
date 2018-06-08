@@ -243,7 +243,16 @@ nsapi_error_t AT_CellularNetwork::activate_context()
 {
     _at.lock();
 
-    nsapi_error_t err = set_context_to_be_activated();
+    nsapi_error_t err = NSAPI_ERROR_OK;
+
+    // try to find or create context with suitable stack
+    if(get_context()) {
+        // try to authenticate user before activating or modifying context
+        err = do_user_authentication();
+    } else {
+        err = NSAPI_ERROR_NO_CONNECTION;
+    }
+
     if (err != NSAPI_ERROR_OK) {
         _at.unlock();
         tr_error("Failed to activate network context! (%d)", err);
@@ -420,7 +429,7 @@ void AT_CellularNetwork::ppp_status_cb(nsapi_event_t event, intptr_t parameter)
 }
 #endif
 
-nsapi_error_t AT_CellularNetwork::set_context_to_be_activated()
+nsapi_error_t AT_CellularNetwork::do_user_authentication()
 {
     // try to find or create context with suitable stack
     if (!get_context()) {
@@ -429,21 +438,11 @@ nsapi_error_t AT_CellularNetwork::set_context_to_be_activated()
 
     // if user has defined user name and password we need to call CGAUTH before activating or modifying context
     if (_pwd && _uname) {
-#if defined(TARGET_WIO_3G)
-        _at.cmd_start("AT+QICSGP=");
-        _at.write_int(_cid);
-        _at.write_int(1); // context type 1=IPv4
-        _at.write_string(_apn);
-        _at.write_string(_uname);
-        _at.write_string(_pwd);
-        _at.write_int(_authentication_type);
-#else
         _at.cmd_start("AT+CGAUTH=");
         _at.write_int(_cid);
         _at.write_int(_authentication_type);
         _at.write_string(_uname);
         _at.write_string(_pwd);
-#endif
         _at.cmd_stop();
         _at.resp_start();
         _at.resp_stop();
@@ -452,7 +451,7 @@ nsapi_error_t AT_CellularNetwork::set_context_to_be_activated()
         }
     }
 
-    return _at.get_last_error();
+    return NSAPI_ERROR_OK;
 }
 
 bool AT_CellularNetwork::set_new_context(int cid)

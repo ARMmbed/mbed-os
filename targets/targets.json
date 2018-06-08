@@ -1729,7 +1729,7 @@
         "core": "Cortex-M4F",
         "config": {
             "clock_source": {
-                "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
+                "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL | USE_PLL_HSI",
                 "value": "USE_PLL_HSE_XTAL|USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
             },
