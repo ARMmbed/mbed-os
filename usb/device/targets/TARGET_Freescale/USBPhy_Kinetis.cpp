@@ -125,6 +125,10 @@ void USBPhyHw::init(USBPhyEvents *events)
     MPU->CESR=0;
 #endif
 
+#if (defined(FSL_FEATURE_SOC_SYSMPU_COUNT) && (FSL_FEATURE_SOC_SYSMPU_COUNT > 0U))
+    SYSMPU->CESR=0;
+#endif
+
 #if defined(TARGET_KL43Z) || defined(TARGET_K22F) || defined(TARGET_K64F)
     // enable USBFS clock
     CLOCK_EnableUsbfs0Clock(kCLOCK_UsbSrcIrc48M, 48000000U);
