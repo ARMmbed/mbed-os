@@ -462,32 +462,6 @@ class mbedToolchain:
         if 'UVISOR' in self.target.features and 'UVISOR_SUPPORTED' in self.target.extra_labels:
             self.target.core = re.sub(r"F$", '', self.target.core)
 
-        # Pass flash information (MBED_ROM_START/MBED_ROM_SIZE) to compiler/linker
-        # if target configuration options (mbed_rom_start/mbed_rom_size) are defined.
-        rom_start_override = getattr(self.target, "mbed_rom_start", False)
-        if rom_start_override:
-            self.macros.append("MBED_ROM_START=0x%x" % int(rom_start_override, 0))
-            _ = self.make_ld_define("MBED_ROM_START", int(rom_start_override, 0))
-            self.flags["ld"].append(_)
-        rom_size_override = getattr(self.target, "mbed_rom_size", False)
-        if rom_size_override:
-            self.macros.append("MBED_ROM_SIZE=0x%x" % int(rom_size_override, 0))
-            _ = self.make_ld_define("MBED_ROM_SIZE", int(rom_size_override, 0))
-            self.flags["ld"].append(_)
-
-        # Pass SRAM information (MBED_RAM_START/MBED_RAM_SIZE) to compiler/linker
-        # if target configuration options (mbed_ram_start/mbed_ram_size) are defined.
-        ram_start_override = getattr(self.target, "mbed_ram_start", False)
-        if ram_start_override:
-            self.macros.append("MBED_RAM_START=0x%x" % int(ram_start_override, 0))
-            _ = self.make_ld_define("MBED_RAM_START", int(ram_start_override, 0))
-            self.flags["ld"].append(_)
-        ram_size_override = getattr(self.target, "mbed_ram_size", False)
-        if ram_size_override:
-            self.macros.append("MBED_RAM_SIZE=0x%x" % int(ram_size_override, 0))
-            _ = self.make_ld_define("MBED_RAM_SIZE", int(ram_size_override, 0))
-            self.flags["ld"].append(_)
-
         # Stats cache is used to reduce the amount of IO requests to stat
         # header files during dependency change. See need_update()
         self.stat_cache = {}
@@ -1210,33 +1184,50 @@ class mbedToolchain:
 
         return None
 
-    def add_regions(self):
-        """Add regions to the build profile, if there are any.
-        """
-        regions = list(self.config.regions)
-        self.notify.info("Using regions %s in this build."
-                         % ", ".join(region.name for region in regions))
-        for region in regions:
-            for define in [(region.name.upper() + "_ADDR", region.start),
-                           (region.name.upper() + "_SIZE", region.size)]:
-                define_string = "-D%s=0x%x" %  define
-                self.cc.append(define_string)
-                self.cppc.append(define_string)
-                self.flags["common"].append(define_string)
+    def _add_defines_from_region(self, region):
+        for define in [(region.name.upper() + "_ADDR", region.start),
+                        (region.name.upper() + "_SIZE", region.size)]:
+            define_string = "-D%s=0x%x" %  define
+            self.cc.append(define_string)
+            self.cppc.append(define_string)
+            self.flags["common"].append(define_string)
+
+    def _add_all_regions(self, region_list, active_region_name):
+        for region in region_list:
+            self._add_defines_from_region(region)
             if region.active:
-                for define in [("MBED_APP_START", region.start),
-                               ("MBED_APP_SIZE", region.size)]:
+                for define in [
+                        ("%s_START" % active_region_name, region.start),
+                        ("%s_SIZE" % active_region_name, region.size)
+                ]:
                     define_string = self.make_ld_define(*define)
                     self.ld.append(define_string)
                     self.flags["ld"].append(define_string)
             self.notify.info("  Region %s: size 0x%x, offset 0x%x"
                              % (region.name, region.size, region.start))
 
+    def add_regions(self):
+        """Add regions to the build profile, if there are any.
+        """
+        if self.config.has_regions:
+            regions = list(self.config.regions)
+            self.notify.info("Using ROM region%s %s in this build." % (
+                "s" if len(regions) > 1 else "",
+                ", ".join(r.name for r in regions)
+            ))
+            self._add_all_regions(regions, "MBED_APP")
+        if self.config.has_ram_regions:
+            regions = list(self.config.ram_regions)
+            self.notify.info("Using RAM region%s %s in this build." % (
+                "s" if len(regions) > 1 else "",
+                ", ".join(r.name for r in regions)
+            ))
+            self._add_all_regions(regions, "MBED_RAM")
+
     # Set the configuration data
     def set_config_data(self, config_data):
         self.config_data = config_data
-        if self.config.has_regions:
-            self.add_regions()
+        self.add_regions()
 
     # Creates the configuration header if needed:
     # - if there is no configuration data, "mbed_config.h" is not create (or deleted if it exists).

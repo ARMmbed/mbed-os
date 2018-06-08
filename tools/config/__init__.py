@@ -41,10 +41,25 @@ try:
 except NameError:
     unicode = str
 PATH_OVERRIDES = set(["target.bootloader_img"])
-BOOTLOADER_OVERRIDES = set(["target.bootloader_img", "target.restrict_size",
-                            "target.header_format", "target.header_offset",
-                            "target.app_offset",
-                            "target.mbed_app_start", "target.mbed_app_size"])
+ROM_OVERRIDES = set([
+    # managed BL
+    "target.bootloader_img", "target.restrict_size",
+    "target.header_format", "target.header_offset",
+    "target.app_offset",
+
+    # unmanaged BL
+    "target.mbed_app_start", "target.mbed_app_size",
+
+    # both
+    "target.mbed_rom_start", "target.mbed_rom_size",
+])
+RAM_OVERRIDES = set([
+    # both
+    "target.mbed_ram_start", "target.mbed_ram_size",
+])
+
+BOOTLOADER_OVERRIDES = ROM_OVERRIDES | RAM_OVERRIDES
+
 
 
 # Base class for all configuration exceptions
@@ -355,6 +370,7 @@ def _process_macros(mlist, macros, unit_name, unit_kind):
 
 
 Region = namedtuple("Region", "name start size active filename")
+RamRegion = namedtuple("RamRegion", "name start size active")
 
 class Config(object):
     """'Config' implements the mbed configuration mechanism"""
@@ -525,7 +541,16 @@ class Config(object):
     @property
     def has_regions(self):
         """Does this config have regions defined?"""
-        for override in BOOTLOADER_OVERRIDES:
+        for override in ROM_OVERRIDES:
+            _, attr = override.split(".")
+            if getattr(self.target, attr, None):
+                return True
+        return False
+
+    @property
+    def has_ram_regions(self):
+        """Does this config have regions defined?"""
+        for override in RAM_OVERRIDES:
             _, attr = override.split(".")
             if getattr(self.target, attr, None):
                 return True
@@ -545,9 +570,7 @@ class Config(object):
             return sectors
         raise ConfigException("No sector info available")
 
-    @property
-    def regions(self):
-        """Generate a list of regions from the config"""
+    def _get_cmsis_part(self):
         if not self.target.bootloader_supported:
             raise ConfigException("Bootloader not supported on this target.")
         if not hasattr(self.target, "device_name"):
@@ -558,43 +581,63 @@ class Config(object):
             raise ConfigException("Bootloader not supported on this target: "
                                   "targets.json `device_name` not found in "
                                   "arm_pack_manager index.")
-        cmsis_part = cache.index[self.target.device_name]
+        return cache.index[self.target.device_name]
+
+    def _get_mem_specs(self, memories, cmsis_part, exception_text):
+        for memory in memories:
+            try:
+                size = cmsis_part['memory']['IRAM1']['size']
+                start = cmsis_part['memory']['IRAM1']['start']
+                return (start, size)
+            except KeyError:
+                continue
+        raise ConfigException(exception_text)
+
+    @property
+    def ram_regions(self):
+        """Generate a list of ram regions from the config"""
+        cmsis_part = self._get_cmsis_part()
+        ram_start, ram_size = self._get_mem_specs(
+            ["IRAM1", "SRAM0"],
+            cmsis_part,
+            "Not enough information in CMSIS packs to build a ram sharing project"
+        )
+        # Override ram_start/ram_size
+        #
+        # This is usually done for a target which:
+        # 1. Doesn't support CMSIS pack, or
+        # 2. Supports TrustZone and user needs to change its flash partition
+        ram_start = getattr(self.target, "mbed_ram_start", False) or ram_start
+        ram_size = getattr(self.target, "mbed_ram_size", False) or ram_size
+        return [RamRegion("application_ram", int(ram_start, 0), int(ram_size, 0), True)]
+
+    @property
+    def regions(self):
+        """Generate a list of regions from the config"""
+        cmsis_part = self._get_cmsis_part()
         if  ((self.target.bootloader_img or self.target.restrict_size) and
              (self.target.mbed_app_start or self.target.mbed_app_size)):
             raise ConfigException(
                 "target.bootloader_img and target.restirct_size are "
                 "incompatible with target.mbed_app_start and "
                 "target.mbed_app_size")
-        try:
-            rom_size = int(cmsis_part['memory']['IROM1']['size'], 0)
-            rom_start = int(cmsis_part['memory']['IROM1']['start'], 0)
-        except KeyError:
-            try:
-                rom_size = int(cmsis_part['memory']['PROGRAM_FLASH']['size'], 0)
-                rom_start = int(cmsis_part['memory']['PROGRAM_FLASH']['start'], 0)
-            except KeyError:
-                raise ConfigException("Not enough information in CMSIS packs to "
-                                      "build a bootloader project")
-            
+        rom_start, rom_size = self._get_mem_specs(
+            ["IROM1", "PROMGRAM_FLASH"],
+            cmsis_part,
+            "Not enough information in CMSIS packs to build a bootloader project"
+        )
         # Override rom_start/rom_size
         #
         # This is usually done for a target which:
         # 1. Doesn't support CMSIS pack, or
         # 2. Supports TrustZone and user needs to change its flash partition
-        rom_start_override = getattr(self.target, "mbed_rom_start", False)
-        if rom_start_override:
-            rom_start = int(rom_start_override, 0)
-        rom_size_override = getattr(self.target, "mbed_rom_size", False)
-        if rom_size_override:
-            rom_size = int(rom_size_override, 0)
+        rom_start = int(getattr(self.target, "mbed_rom_start", False) or rom_start, 0)
+        rom_size = int(getattr(self.target, "mbed_rom_size", False) or rom_size, 0)
 
         if self.target.bootloader_img or self.target.restrict_size:
             return self._generate_bootloader_build(rom_start, rom_size)
-        elif self.target.mbed_app_start or self.target.mbed_app_size:
-            return self._generate_linker_overrides(rom_start, rom_size)
         else:
-            raise ConfigException(
-                "Bootloader build requested but no bootlader configuration")
+            return self._generate_linker_overrides(rom_start, rom_size)
 
     @staticmethod
     def header_member_size(member):
