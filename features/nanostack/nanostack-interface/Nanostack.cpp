@@ -449,7 +449,7 @@ void NanostackSocket::event_connection_reset(socket_callback_t *sock_cb)
 Nanostack::Nanostack()
     : call_event_tasklet(-1)
 {
-
+    mesh_system_init();
 }
 
 void Nanostack::call_event_tasklet_main(arm_event_s *event)
