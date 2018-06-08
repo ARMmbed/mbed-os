@@ -4128,7 +4128,7 @@
         "public": false,
         "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
         "OUTPUT_EXT": "elf",
-        "device_has": ["AACI", "ANALOGIN", "CLCD", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "SERIAL", "SERIAL_FC", "SPI", "SPISLAVE", "TSC"],
+        "device_has": ["AACI", "ANALOGIN", "CLCD", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "SERIAL", "SERIAL_FC", "SPI", "SPISLAVE", "TSC", "USTICKER"],
         "release_versions": ["5"]
     },
     "FVP_MPS2_M0": {
