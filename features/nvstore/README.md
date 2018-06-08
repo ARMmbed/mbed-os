@@ -22,7 +22,7 @@ Each item is kept in an entry containing a header and data, where the header hol
 - get: Get the value of an item, given key.
 - set: Set the value of an item, given key and value.
 - set_once: Like set, but allows only a one time setting of this item (and disables deleting of this item).
-- alloc_key: Allocates a free key (from the non predefined keys) to an owner (an owning feature).
+- alloc_key: Allocates a free key (from the keys that are not predefined) to an owner (an owning feature).
 - free_all_keys_by_owner: Free all allocated keys, given an owner.
 - remove: Remove an item, given key.
 - get_item_size: Get the item value size (in bytes).
