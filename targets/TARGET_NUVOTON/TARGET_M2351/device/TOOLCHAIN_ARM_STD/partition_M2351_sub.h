@@ -14,8 +14,8 @@
 /* Secure flash size: 256 KB */
 #define NU_TZ_SECURE_FLASH_SIZE     0x40000
 
-/* Secure SRAM size: 24 KB */
-#define NU_TZ_SECURE_SRAM_SIZE      0x6000
+/* Secure SRAM size: 32 KB */
+#define NU_TZ_SECURE_SRAM_SIZE      0x8000
 
 /* NSC region size: 4 KB */
 #define NU_TZ_NSC_REGION_SIZE       0x1000
