@@ -1,5 +1,3 @@
-include partition_M2351_sub
-
 /*###ICF### Section handled by ICF editor, don't touch! ****/
 /*-Editor annotation file-*/
 /* IcfEditorFile="$TOOLKIT_DIR$\config\ide\IcfEditor\cortex_v1_0.xml" */
@@ -7,21 +5,21 @@ include partition_M2351_sub
 if (isdefinedsymbol(__DOMAIN_NS)) {
 
     if (! isdefinedsymbol(MBED_APP_START)) {
-        define symbol MBED_APP_START                = 0x10000000 + NU_TZ_SECURE_FLASH_SIZE;
+        define symbol MBED_APP_START                = 0x10040000;
     }
 
     if (! isdefinedsymbol(MBED_APP_SIZE)) {
-        define symbol MBED_APP_SIZE                 = 0x80000 - NU_TZ_SECURE_FLASH_SIZE;
+        define symbol MBED_APP_SIZE                 = 0x40000;
     }
 
 
     /*-Specials-*/
-    define symbol __ICFEDIT_intvec_start__ = MBED_APP_START;
+    define symbol __ICFEDIT_intvec_start__          = MBED_APP_START;
     /*-Memory Regions-*/
     define symbol __ICFEDIT_region_ROM_start__      = MBED_APP_START;
     define symbol __ICFEDIT_region_ROM_end__        = MBED_APP_START + MBED_APP_SIZE - 1;
-    define symbol __ICFEDIT_region_IRAM_start__     = 0x30000000 + NU_TZ_SECURE_SRAM_SIZE;
-    define symbol __ICFEDIT_region_IRAM_end__       = 0x30018000 - 1;
+    define symbol __ICFEDIT_region_IRAM_start__     = MBED_RAM_START;
+    define symbol __ICFEDIT_region_IRAM_end__       = MBED_RAM_START + MBED_RAM_SIZE - 1;
     
     /*-Sizes-*/
     define symbol __ICFEDIT_size_cstack__           = 0x800;
@@ -30,35 +28,38 @@ if (isdefinedsymbol(__DOMAIN_NS)) {
 } else {
 
     if (! isdefinedsymbol(MBED_APP_START)) {
-        define symbol MBED_APP_START = 0;
+        define symbol MBED_APP_START                = 0x0;
     }
 
     if (! isdefinedsymbol(MBED_APP_SIZE)) {
-        define symbol MBED_APP_SIZE                 = NU_TZ_SECURE_FLASH_SIZE;
+        define symbol MBED_APP_SIZE                 = 0x40000;
     }
-    
+
     /* Requirements for NSC location
      *
      * 1. By IDAU, 0~0x4000 is secure. NSC can only locate in 0x4000~0x10000000.
      * 2. Greentea flash IAP uses last 4 sectors for its test. Avoid this range.
-     * 3. Greentea NVSTORE uses last 2 sectors or 4KB x 2 for its test. Avoid this range.
+     * 3. Greentea NVSTORE uses last 2 sectors or 4KiB x 2 for its test. Avoid this range.
+     * 4. NSC region size defaults to 4KiB if not defined.
      */
-    define exported symbol NU_TZ_NSC_REGION_BASE    = MBED_APP_START + MBED_APP_SIZE - 0x2000 - NU_TZ_NSC_REGION_SIZE;
+    if (! isdefinedsymbol(NU_TZ_NSC_START)) {
+        define symbol NU_TZ_NSC_START               = MBED_APP_START + MBED_APP_SIZE - 0x2000 - NU_TZ_NSC_SIZE;
+    }
+    define exported symbol __NU_TZ_NSC_start__      = NU_TZ_NSC_START;
+    if (! isdefinedsymbol(NU_TZ_NSC_SIZE)) {
+        define symbol NU_TZ_NSC_SIZE                = 0x1000;
+    }
+    define exported symbol __NU_TZ_NSC_size__       = NU_TZ_NSC_SIZE;
 
     /*-Specials-*/
     define symbol __ICFEDIT_intvec_start__          = MBED_APP_START;
     /*-Memory Regions-*/
     define symbol __ICFEDIT_region_ROM_start__      = MBED_APP_START;
     define symbol __ICFEDIT_region_ROM_end__        = MBED_APP_START + MBED_APP_SIZE - 1;
-    define symbol __ICFEDIT_region_NSCROM_start__   = NU_TZ_NSC_REGION_BASE;
-    define symbol __ICFEDIT_region_NSCROM_end__     = NU_TZ_NSC_REGION_BASE + NU_TZ_NSC_REGION_SIZE - 1;
-    define symbol __ICFEDIT_region_IRAM_start__     = 0x20000000;
-    define symbol __ICFEDIT_region_IRAM_end__       = 0x20000000 + NU_TZ_SECURE_SRAM_SIZE - 1;
-
-    export symbol __NU_TZ_SECURE_FLASH_SIZE__       = NU_TZ_SECURE_FLASH_SIZE;
-    export symbol __NU_TZ_SECURE_SRAM_SIZE__        = NU_TZ_SECURE_SRAM_SIZE;
-    export symbol __NU_TZ_NSC_REGION_BASE__         = NU_TZ_NSC_REGION_BASE;
-    export symbol __NU_TZ_NSC_REGION_SIZE__         = NU_TZ_NSC_REGION_SIZE;
+    define symbol __ICFEDIT_region_NSCROM_start__   = NU_TZ_NSC_START;
+    define symbol __ICFEDIT_region_NSCROM_end__     = NU_TZ_NSC_START + NU_TZ_NSC_SIZE - 1;
+    define symbol __ICFEDIT_region_IRAM_start__     = MBED_RAM_START;
+    define symbol __ICFEDIT_region_IRAM_end__       = MBED_RAM_START + MBED_RAM_SIZE - 1;
 
     /*-Sizes-*/
     define symbol __ICFEDIT_size_cstack__           = 0x800;
