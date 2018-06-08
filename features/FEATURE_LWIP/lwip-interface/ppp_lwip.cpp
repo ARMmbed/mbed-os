@@ -295,18 +295,16 @@ extern "C" err_t ppp_lwip_connect(void *pcb)
 
 extern "C" err_t ppp_lwip_disconnect(void *pcb)
 {
+    err_t ret = ERR_OK;
     if (ppp_active) {
-        err_t ret = ppp_close(my_ppp_pcb, 0);
-        if (ret != ERR_OK) {
-            return ret;
+        ret = ppp_close(my_ppp_pcb, 0);
+        if (ret == ERR_OK) {
+            /* close call made, now let's catch the response in the status callback */
+            sys_arch_sem_wait(&ppp_close_sem, 0);
         }
-
-        /* close call made, now let's catch the response in the status callback */
-        sys_arch_sem_wait(&ppp_close_sem, 0);
         ppp_active = false;
     }
-
-    return ERR_OK;
+    return ret;
 }
 
 extern "C" nsapi_error_t ppp_lwip_if_init(void *pcb, struct netif *netif, const nsapi_ip_stack_t stack)
@@ -384,6 +382,7 @@ nsapi_error_t nsapi_ppp_connect(FileHandle *stream, Callback<void(nsapi_event_t,
 
     if (retcode != NSAPI_ERROR_OK) {
         connection_status_cb = NULL;
+        my_stream->sigio(NULL);
         my_stream->set_blocking(true);
         my_stream = NULL;
     }
