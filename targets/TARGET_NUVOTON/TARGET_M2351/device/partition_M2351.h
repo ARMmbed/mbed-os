@@ -11,33 +11,41 @@
 #ifndef PARTITION_M2351
 #define PARTITION_M2351
 
+#ifndef MBED_ROM_SIZE
+    #define NU_TZ_SECURE_FLASH_SIZE     0x40000
+#else
+    #define NU_TZ_SECURE_FLASH_SIZE     MBED_ROM_SIZE
+#endif
+
+#ifndef APPLICATION_RAM_SIZE
+    #define NU_TZ_SECURE_SRAM_SIZE      0x8000
+#else
+    #define NU_TZ_SECURE_SRAM_SIZE      APPLICATION_RAM_SIZE
+#endif
+
 #if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
 
-#include "partition_M2351_sub.h"
+extern int Load$$LR$$LR_IROM_NSC$$Base;
+extern int Load$$LR$$LR_IROM_NSC$$Length;
 
-extern int Image$$NSC_ROM$$Base;
-
-#define NU_TZ_NSC_REGION_BASE   ((uint32_t) &Image$$NSC_ROM$$Base)
+#define NU_TZ_NSC_REGION_START  ((uint32_t) &Load$$LR$$LR_IROM_NSC$$Base)
+#define NU_TZ_NSC_REGION_SIZE   ((uint32_t) &Load$$LR$$LR_IROM_NSC$$Length)
 
 #elif defined(__ICCARM__)
 
-extern int __NU_TZ_SECURE_FLASH_SIZE__;
-extern int __NU_TZ_SECURE_SRAM_SIZE__;
-extern int __NU_TZ_NSC_REGION_BASE__;
-extern int __NU_TZ_NSC_REGION_SIZE__;
+extern int __NU_TZ_NSC_start__;
+extern int __NU_TZ_NSC_size__;
 
-#define NU_TZ_SECURE_FLASH_SIZE     ((uint32_t) &__NU_TZ_SECURE_FLASH_SIZE__)
-#define NU_TZ_SECURE_SRAM_SIZE      ((uint32_t) &__NU_TZ_SECURE_SRAM_SIZE__)
-#define NU_TZ_NSC_REGION_BASE       ((uint32_t) &__NU_TZ_NSC_REGION_BASE__)
-#define NU_TZ_NSC_REGION_SIZE       ((uint32_t) &__NU_TZ_NSC_REGION_SIZE__)
+#define NU_TZ_NSC_REGION_START  ((uint32_t) &__NU_TZ_NSC_start__)
+#define NU_TZ_NSC_REGION_SIZE   ((uint32_t) &__NU_TZ_NSC_size__)
 
 #elif defined(__GNUC__)
 
-#include "partition_M2351_sub.h"
+extern int __nu_tz_nsc_start;
+extern int __nu_tz_nsc_size;
 
-extern int __sgstubs_start;
-
-#define NU_TZ_NSC_REGION_BASE   ((uint32_t) &__sgstubs_start)
+#define NU_TZ_NSC_REGION_START  ((uint32_t) &__nu_tz_nsc_start)
+#define NU_TZ_NSC_REGION_SIZE   ((uint32_t) &__nu_tz_nsc_size)
 
 #endif
 
@@ -48,8 +56,8 @@ extern int __sgstubs_start;
 #if (! defined(NU_TZ_SECURE_SRAM_SIZE))
 #error("NU_TZ_SECURE_SRAM_SIZE not defined")
 #endif
-#if (! defined(NU_TZ_NSC_REGION_BASE))
-#error("NU_TZ_NSC_REGION_BASE not defined")
+#if (! defined(NU_TZ_NSC_REGION_START))
+#error("NU_TZ_NSC_REGION_START not defined")
 #endif
 #if (! defined(NU_TZ_NSC_REGION_SIZE))
 #error("NU_TZ_NSC_REGION_SIZE not defined")
@@ -431,11 +439,11 @@ __STATIC_INLINE void SCU_Setup(void)
 /*
 //     <o>Start Address <0-0xFFFFFFE0>
 */
-#define SAU_INIT_START3     NU_TZ_NSC_REGION_BASE
+#define SAU_INIT_START3     NU_TZ_NSC_REGION_START
 /*
 //     <o>End Address <0x1F-0xFFFFFFFF>
 */
-#define SAU_INIT_END3       (NU_TZ_NSC_REGION_BASE + NU_TZ_NSC_REGION_SIZE - 1)
+#define SAU_INIT_END3       (NU_TZ_NSC_REGION_START + NU_TZ_NSC_REGION_SIZE - 1)
 /*
 //     <o>Region is
 //         <0=>Non-Secure

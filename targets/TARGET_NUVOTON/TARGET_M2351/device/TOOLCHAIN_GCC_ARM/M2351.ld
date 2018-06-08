@@ -2,66 +2,92 @@
  * Nuvoton M2351 GCC linker script file
  */
 
+/* Default flash/SRAM partition
+ *
+ * Default flash partition:
+ *   Secure:        256KiB
+ *   Non-secure:    256KiB
+ * 
+ * Default SRAM partition:
+ *   Secure:        32KiB
+ *   Non-secure:    64KiB
+ */
+#if defined(__DOMAIN_NS) && __DOMAIN_NS
+
+#ifndef MBED_APP_START
+#define MBED_APP_START      0x10040000
+#endif
+
+#ifndef MBED_APP_SIZE
+#define MBED_APP_SIZE       0x40000
+#endif
+
+#ifndef MBED_RAM_START
+#define MBED_RAM_START      0x30008000
+#endif
+
+#ifndef MBED_RAM_SIZE
+#define MBED_RAM_SIZE       0x10000
+#endif
+
+#else
+
+#ifndef MBED_APP_START
+#define MBED_APP_START      0x0
+#endif
+
+#ifndef MBED_APP_SIZE
+#define MBED_APP_SIZE       0x40000
+#endif
+
+#ifndef MBED_RAM_START
+#define MBED_RAM_START      0x20000000
+#endif
+
+#ifndef MBED_RAM_SIZE
+#define MBED_RAM_SIZE       0x8000
+#endif
+
+#endif
+
 #if defined(__DOMAIN_NS) && __DOMAIN_NS
 StackSize = 0x800;
 #else
 StackSize = 0x800;
-#endif
-
-#include "partition_M2351_sub.h"
-
-/* Check relevant macros have been defined */
-#if (! defined(NU_TZ_SECURE_FLASH_SIZE))
-#error("NU_TZ_SECURE_FLASH_SIZE not defined")
-#endif
-#if (! defined(NU_TZ_SECURE_SRAM_SIZE))
-#error("NU_TZ_SECURE_SRAM_SIZE not defined")
-#endif
-#if (! defined(NU_TZ_NSC_REGION_SIZE))
-#error("NU_TZ_NSC_REGION_SIZE not defined")
 #endif
 
 /* Requirements for NSC location
  *
  * 1. By IDAU, 0~0x4000 is secure. NSC can only locate in 0x4000~0x10000000.
  * 2. Greentea flash IAP uses last 4 sectors for its test. Avoid this range.
- * 3. Greentea NVSTORE uses last 2 sectors or 4KB x 2 for its test. Avoid this range.
+ * 3. Greentea NVSTORE uses last 2 sectors or 4KiB x 2 for its test. Avoid this range.
+ * 4. NSC region size defaults to 4KiB if not defined.
  */
-#define NU_TZ_NSC_REGION_BASE       (MBED_APP_START + MBED_APP_SIZE - 0x2000 - NU_TZ_NSC_REGION_SIZE)
+#ifndef NU_TZ_NSC_START
+#define NU_TZ_NSC_START         (MBED_APP_START + MBED_APP_SIZE - 0x2000 - NU_TZ_NSC_SIZE)
+#endif
+#ifndef NU_TZ_NSC_SIZE
+#define NU_TZ_NSC_SIZE          0x1000
+#endif
+
 
 #if defined(__DOMAIN_NS) && __DOMAIN_NS
-
-#if (! defined(MBED_APP_START))
-#define MBED_APP_START              (0x10000000 + NU_TZ_SECURE_FLASH_SIZE)
-#endif
-
-#if (! defined(MBED_APP_SIZE))
-#define MBED_APP_SIZE               (0x80000 - NU_TZ_SECURE_FLASH_SIZE)
-#endif
-
-MEMORY
-{
-  VECTORS (rx)          : ORIGIN = MBED_APP_START,                      LENGTH = 0x00000400
-  FLASH (rx)            : ORIGIN = MBED_APP_START + 0x400,              LENGTH = MBED_APP_SIZE - 0x400
-  RAM_INTERN (rwx)      : ORIGIN = 0x30000000 + NU_TZ_SECURE_SRAM_SIZE, LENGTH = 0x00018000 - NU_TZ_SECURE_SRAM_SIZE
-}
-
-#else
-
-#if (! defined(MBED_APP_START))
-#define MBED_APP_START              0
-#endif
-
-#if (! defined(MBED_APP_SIZE))
-#define MBED_APP_SIZE               NU_TZ_SECURE_FLASH_SIZE
-#endif
 
 MEMORY
 {
   VECTORS (rx)          : ORIGIN = MBED_APP_START,          LENGTH = 0x00000400
-  FLASH (rx)            : ORIGIN = MBED_APP_START + 0x400,  LENGTH = NU_TZ_NSC_REGION_BASE - MBED_APP_START - 0x400
-  NSC_FLASH (rx)        : ORIGIN = NU_TZ_NSC_REGION_BASE,   LENGTH = NU_TZ_NSC_REGION_SIZE
-  RAM_INTERN (rwx)      : ORIGIN = 0x20000000,              LENGTH = NU_TZ_SECURE_SRAM_SIZE
+  FLASH (rx)            : ORIGIN = MBED_APP_START + 0x400,  LENGTH = MBED_APP_SIZE - 0x400
+  RAM_INTERN (rwx)      : ORIGIN = MBED_RAM_START,          LENGTH = MBED_RAM_SIZE
+}
+
+#else
+
+MEMORY
+{
+  VECTORS (rx)          : ORIGIN = MBED_APP_START,          LENGTH = 0x00000400
+  FLASH (rx)            : ORIGIN = MBED_APP_START + 0x400,  LENGTH = NU_TZ_NSC_START - MBED_APP_START - 0x400
+  NSC_FLASH (rx)        : ORIGIN = NU_TZ_NSC_START,         LENGTH = NU_TZ_NSC_SIZE
+  RAM_INTERN (rwx)      : ORIGIN = MBED_RAM_START,          LENGTH = MBED_RAM_SIZE
 }
 
 #endif
@@ -174,6 +200,9 @@ SECTIONS
         *(.gnu.sgstubs.*)
        __sgstubs_end = .;    
     } > NSC_FLASH
+
+    __nu_tz_nsc_start = NU_TZ_NSC_START;
+    __nu_tz_nsc_size = NU_TZ_NSC_SIZE;
 
     /* By IDAU, 0~0x4000 is secure. NSC can only locate in 0x4000~0x10000000. */
     ASSERT(__sgstubs_start >= 0x4000, "By IDAU, 0~0x4000 is secure. NSC can only locate in 0x4000~0x10000000.")
