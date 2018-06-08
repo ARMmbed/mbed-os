@@ -118,7 +118,7 @@ public:
 /* Observer role is not supported by S110, return BLE_ERROR_NOT_IMPLEMENTED */
 #if !defined(TARGET_MCU_NRF51_16K_S110) && !defined(TARGET_MCU_NRF51_32K_S110)
     virtual ble_error_t startRadioScan(const GapScanningParams &scanningParams);
-    virtual ble_error_t stopScan(void);
+    virtual ble_error_t stopRadioScan(void);
 #endif
 
 private:

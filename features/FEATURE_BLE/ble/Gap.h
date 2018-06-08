@@ -511,6 +511,11 @@ public:
          * If set, the device is connected to at least one other peer.
          */
         unsigned connected : 1;
+        
+        /**
+         * If set, the device is currently scanning.
+         */
+        unsigned scanning: 1;
     };
 
     /**
@@ -1222,20 +1227,6 @@ public:
     }
 
     /**
-     * Stop the ongoing scanning procedure.
-     *
-     * The current scanning parameters remain in effect.
-     *
-     * @retval BLE_ERROR_NONE if successfully stopped scanning procedure.
-     */
-    virtual ble_error_t stopScan()
-    {
-        /* Requesting action from porter(s): override this API if this capability
-           is supported. */
-        return BLE_ERROR_NOT_IMPLEMENTED;
-    }
-
-    /**
      * Initiate a connection to a peer.
      *
      * Once the connection is established, a ConnectionCallbackParams_t event is
@@ -1714,6 +1705,18 @@ protected:
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
+    /**
+     * Stop scanning procedure in the underlying BLE stack.
+     *
+     * @retval BLE_ERROR_NONE if successfully stopped scanning procedure.
+     */
+    virtual ble_error_t stopRadioScan()
+    {
+        /* Requesting action from porter(s): override this API if this capability
+           is supported. */
+        return BLE_ERROR_NOT_IMPLEMENTED;
+    }
+
     /*
      * APIs with nonvirtual implementations.
      */
@@ -2135,7 +2138,7 @@ public:
         }
 
         /* If scanning is already active, propagate the new setting to the stack. */
-        if (scanningActive) {
+        if (state.scanning) {
             return startRadioScan(_scanningParams);
         }
 
@@ -2161,7 +2164,7 @@ public:
         }
 
         /* If scanning is already active, propagate the new settings to the stack. */
-        if (scanningActive) {
+        if (state.scanning) {
             return startRadioScan(_scanningParams);
         }
 
@@ -2185,7 +2188,7 @@ public:
         _scanningParams.setActiveScanning(activeScanning);
 
         /* If scanning is already active, propagate the new settings to the stack. */
-        if (scanningActive) {
+        if (state.scanning) {
             return startRadioScan(_scanningParams);
         }
 
@@ -2212,7 +2215,7 @@ public:
         ble_error_t err = BLE_ERROR_NONE;
         if (callback) {
             if ((err = startRadioScan(_scanningParams)) == BLE_ERROR_NONE) {
-                scanningActive = true;
+                state.scanning = 1;
                 onAdvertisementReport.attach(callback);
             }
         }
@@ -2245,11 +2248,29 @@ public:
         ble_error_t err = BLE_ERROR_NONE;
         if (object && callbackMember) {
             if ((err = startRadioScan(_scanningParams)) == BLE_ERROR_NONE) {
-                scanningActive = true;
+                state.scanning = 1;
                 onAdvertisementReport.attach(object, callbackMember);
             }
         }
 
+        return err;
+    }
+
+    /**
+     * Stop the ongoing scanning procedure.
+     *
+     * The current scanning parameters remain in effect.
+     *
+     * @retval BLE_ERROR_NONE if successfully stopped scanning procedure.
+     */
+    ble_error_t stopScan()
+    {
+        ble_error_t err = BLE_ERROR_NONE;
+        if (state.scanning) {
+            if ((err = stopRadioScan()) == BLE_ERROR_NONE) {
+                state.scanning = 0;
+            }
+        }
         return err;
     }
 
@@ -2640,10 +2661,8 @@ public:
         /* Clear Gap state */
         state.advertising = 0;
         state.connected   = 0;
+        state.scanning    = 0;
         connectionCount   = 0;
-
-        /* Clear scanning state */
-        scanningActive = false;
 
         /* Clear advertising and scanning data */
         _advPayload.clear();
@@ -2670,7 +2689,6 @@ protected:
         _scanResponse(),
         connectionCount(0),
         state(),
-        scanningActive(false),
         timeoutCallbackChain(),
         radioNotificationCallback(),
         onAdvertisementReport(),
@@ -2847,6 +2865,9 @@ public:
         if (source == TIMEOUT_SRC_ADVERTISING) {
             /* Update gap state if the source is an advertising timeout */
             state.advertising = 0;
+        } else if (source == TIMEOUT_SRC_SCAN) {
+            /* Update gat state if the source is an scanning timeout */
+            state.scanning = 0;
         }
         if (timeoutCallbackChain) {
             timeoutCallbackChain(source);
@@ -2883,11 +2904,6 @@ protected:
      * Current GAP state.
      */
     GapState_t state;
-
-    /**
-     * Active scanning flag.
-     */
-    bool scanningActive;
 
 protected:
     /**

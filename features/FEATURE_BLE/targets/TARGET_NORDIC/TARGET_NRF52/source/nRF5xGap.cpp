@@ -422,7 +422,7 @@ ble_error_t nRF5xGap::startRadioScan(const GapScanningParams &scanningParams)
     return BLE_ERROR_NONE;
 }
 
-ble_error_t nRF5xGap::stopScan(void) {
+ble_error_t nRF5xGap::stopRadioScan() {
     if (sd_ble_gap_scan_stop() == NRF_SUCCESS) {
         return BLE_ERROR_NONE;
     }

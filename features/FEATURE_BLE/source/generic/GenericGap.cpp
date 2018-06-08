@@ -515,7 +515,7 @@ ble_error_t GenericGap::stopAdvertising()
     return BLE_ERROR_NONE;
 }
 
-ble_error_t GenericGap::stopScan()
+ble_error_t GenericGap::stopRadioScan()
 {
     ble_error_t err = _pal_gap.scan_enable(false, false);
     if (err) {

@@ -171,7 +171,7 @@ ble_error_t ArmGap::startRadioScan(const GapScanningParams &scanningParams)
     return BLE_ERROR_NONE;
 }
 
-ble_error_t ArmGap::stopScan(void)
+ble_error_t ArmGap::stopRadioScan(void)
 {
     DmScanStop();
     return BLE_ERROR_NONE;

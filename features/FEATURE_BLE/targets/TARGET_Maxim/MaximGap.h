@@ -88,7 +88,7 @@ public:
     virtual ble_error_t updateConnectionParams(Handle_t handle, const ConnectionParams_t *params);
 
     virtual ble_error_t startRadioScan(const GapScanningParams &scanningParams);
-    virtual ble_error_t stopScan(void);
+    virtual ble_error_t stopRadioScan(void);
 
     void     advertisingStopped(void);
 

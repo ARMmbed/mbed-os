@@ -111,7 +111,7 @@ public:
     /**
      * @see Gap::stopScan
      */
-    virtual ble_error_t stopScan();
+    virtual ble_error_t stopRadioScan();
 
     /**
      * @see Gap::connect

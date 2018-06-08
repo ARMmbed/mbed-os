@@ -189,7 +189,7 @@ ble_error_t MaximGap::startRadioScan(const GapScanningParams &scanningParams)
     return BLE_ERROR_NONE;
 }
 
-ble_error_t MaximGap::stopScan(void)
+ble_error_t MaximGap::stopRadioScan(void)
 {
     DmScanStop();
     return BLE_ERROR_NONE;
