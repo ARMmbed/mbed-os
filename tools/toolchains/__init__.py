@@ -467,22 +467,26 @@ class mbedToolchain:
         rom_start_override = getattr(self.target, "mbed_rom_start", False)
         if rom_start_override:
             self.macros.append("MBED_ROM_START=0x%x" % int(rom_start_override, 0))
-            self.make_ld_define("MBED_ROM_START", int(rom_start_override, 0))
+            _ = self.make_ld_define("MBED_ROM_START", int(rom_start_override, 0))
+            self.flags["ld"].append(_)
         rom_size_override = getattr(self.target, "mbed_rom_size", False)
         if rom_size_override:
             self.macros.append("MBED_ROM_SIZE=0x%x" % int(rom_size_override, 0))
-            self.make_ld_define("MBED_ROM_SIZE", int(rom_size_override, 0))
+            _ = self.make_ld_define("MBED_ROM_SIZE", int(rom_size_override, 0))
+            self.flags["ld"].append(_)
 
         # Pass SRAM information (MBED_RAM_START/MBED_RAM_SIZE) to compiler/linker
         # if target configuration options (mbed_ram_start/mbed_ram_size) are defined.
         ram_start_override = getattr(self.target, "mbed_ram_start", False)
         if ram_start_override:
             self.macros.append("MBED_RAM_START=0x%x" % int(ram_start_override, 0))
-            self.make_ld_define("MBED_RAM_START", int(ram_start_override, 0))
+            _ = self.make_ld_define("MBED_RAM_START", int(ram_start_override, 0))
+            self.flags["ld"].append(_)
         ram_size_override = getattr(self.target, "mbed_ram_size", False)
         if ram_size_override:
             self.macros.append("MBED_RAM_SIZE=0x%x" % int(ram_size_override, 0))
-            self.make_ld_define("MBED_RAM_SIZE", int(ram_size_override, 0))
+            _ = self.make_ld_define("MBED_RAM_SIZE", int(ram_size_override, 0))
+            self.flags["ld"].append(_)
 
         # Stats cache is used to reduce the amount of IO requests to stat
         # header files during dependency change. See need_update()
