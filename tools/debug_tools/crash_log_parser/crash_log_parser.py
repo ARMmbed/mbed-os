@@ -130,11 +130,17 @@ def main(crash_log, elfhelper):
         
         elif eachline.startswith("PC"):
             pc_val = parse_line_for_register(eachline)
-            pc_name = elfhelper.function_name_for_addr(int(pc_val, 16))
+            if elfhelper:
+                pc_name = elfhelper.function_name_for_addr(int(pc_val, 16))
+            else:
+                pc_name = "<unknown-symbol>"
                         
         elif eachline.startswith("LR"):
             lr_val = parse_line_for_register(eachline)
-            lr_name = elfhelper.function_name_for_addr(int(lr_val, 16))
+            if elfhelper:
+                lr_name = elfhelper.function_name_for_addr(int(lr_val, 16))
+            else:
+                lr_name = "<unknown-symbol>"
             
         elif eachline.startswith("SP"):
             sp_val = parse_line_for_register(eachline)
@@ -181,20 +187,27 @@ if __name__ == '__main__':
     parser.add_argument(metavar='CRASH LOG', type=argparse.FileType('rb', 0),
                         dest='crashlog',help='path to crash log file')      
     parser.add_argument(metavar='ELF FILE', type=argparse.FileType('rb', 0),
-                        dest='elffile',help='path to elf file')             
+                        nargs='?',const=None,dest='elffile',help='path to elf file')             
     parser.add_argument(metavar='MAP FILE', type=argparse.FileType('rb', 0),
-                        dest='mapfile',help='path to map file')                                    
+                        nargs='?',const=None,dest='mapfile',help='path to map file')                                    
 
     # get and validate arguments
     args = parser.parse_args()
-    
-    elfhelper = ElfHelper(args.elffile, args.mapfile)
+
+    # if both the ELF and MAP files are present, the addresses can be converted to symbol names
+    if args.elffile and args.mapfile:
+        elfhelper = ElfHelper(args.elffile, args.mapfile)
+    else:
+        print("ELF or MAP file missing, logging raw values.")
+        elfhelper = None
     
     # parse input and write to output
     main(args.crashlog, elfhelper)
     
     #close all files
-    args.elffile.close()
-    args.mapfile.close()
+    if args.elffile:
+        args.elffile.close()
+    if args.mapfile:
+        args.mapfile.close()
     args.crashlog.close()
 
