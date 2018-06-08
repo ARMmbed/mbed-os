@@ -278,7 +278,7 @@ typedef struct {
 #define CMSDK_DUALTIMER1_CTRL_INTEN_Msk      (0x1ul << CMSDK_DUALTIMER1_CTRL_INTEN_Pos)       /* CMSDK_DUALTIMER1 CTRL_INTEN: CTRL Int Enable Mask */
 
 #define CMSDK_DUALTIMER1_CTRL_PRESCALE_Pos   2                                                /* CMSDK_DUALTIMER1 CTRL_PRESCALE: CTRL PRESCALE Position */
-#define CMSDK_DUALTIMER1_CTRL_PRESCALE_Msk   (0x3ul << CMSDK_DUALTIMER1_CTRL_PRESCALE_Pos)    /* CMSDK_DUALTIMER1 CTRL_PRESCALE: CTRL PRESCALE Mask */
+#define CMSDK_DUALTIMER1_CTRL_PRESCALE_Msk   (0x1ul << CMSDK_DUALTIMER1_CTRL_PRESCALE_Pos)    /* CMSDK_DUALTIMER1 CTRL_PRESCALE: CTRL PRESCALE Mask */
 
 #define CMSDK_DUALTIMER1_CTRL_SIZE_Pos       1                                                /* CMSDK_DUALTIMER1 CTRL_SIZE: CTRL SIZE Position */
 #define CMSDK_DUALTIMER1_CTRL_SIZE_Msk       (0x1ul << CMSDK_DUALTIMER1_CTRL_SIZE_Pos)        /* CMSDK_DUALTIMER1 CTRL_SIZE: CTRL SIZE Mask */
@@ -314,7 +314,7 @@ typedef struct {
 #define CMSDK_DUALTIMER2_CTRL_INTEN_Msk      (0x1ul << CMSDK_DUALTIMER2_CTRL_INTEN_Pos)       /* CMSDK_DUALTIMER2 CTRL_INTEN: CTRL Int Enable Mask */
 
 #define CMSDK_DUALTIMER2_CTRL_PRESCALE_Pos   2                                                /* CMSDK_DUALTIMER2 CTRL_PRESCALE: CTRL PRESCALE Position */
-#define CMSDK_DUALTIMER2_CTRL_PRESCALE_Msk   (0x3ul << CMSDK_DUALTIMER2_CTRL_PRESCALE_Pos)    /* CMSDK_DUALTIMER2 CTRL_PRESCALE: CTRL PRESCALE Mask */
+#define CMSDK_DUALTIMER2_CTRL_PRESCALE_Msk   (0x1ul << CMSDK_DUALTIMER2_CTRL_PRESCALE_Pos)    /* CMSDK_DUALTIMER2 CTRL_PRESCALE: CTRL PRESCALE Mask */
 
 #define CMSDK_DUALTIMER2_CTRL_SIZE_Pos       1                                                /* CMSDK_DUALTIMER2 CTRL_SIZE: CTRL SIZE Position */
 #define CMSDK_DUALTIMER2_CTRL_SIZE_Msk       (0x1ul << CMSDK_DUALTIMER2_CTRL_SIZE_Pos)        /* CMSDK_DUALTIMER2 CTRL_SIZE: CTRL SIZE Mask */
@@ -337,12 +337,12 @@ typedef struct {
 
 typedef struct {
     __IO uint32_t TimerLoad;                   /* Offset: 0x000 (R/W) Timer Load */
-    __I  uint32_t TimerValue;                  /* Offset: 0x000 (R/W) Timer Counter Current Value */
-    __IO uint32_t TimerControl;                /* Offset: 0x000 (R/W) Timer Control */
-    __O  uint32_t TimerIntClr;                 /* Offset: 0x000 (R/W) Timer Interrupt Clear */
-    __I  uint32_t TimerRIS;                    /* Offset: 0x000 (R/W) Timer Raw Interrupt Status */
-    __I  uint32_t TimerMIS;                    /* Offset: 0x000 (R/W) Timer Masked Interrupt Status */
-    __IO uint32_t TimerBGLoad;                 /* Offset: 0x000 (R/W) Background Load Register */
+    __I  uint32_t TimerValue;                  /* Offset: 0x004 (R/ ) Timer Counter Current Value */
+    __IO uint32_t TimerControl;                /* Offset: 0x008 (R/W) Timer Control */
+    __O  uint32_t TimerIntClr;                 /* Offset: 0x00C ( /W) Timer Interrupt Clear */
+    __I  uint32_t TimerRIS;                    /* Offset: 0x010 (R/ ) Timer Raw Interrupt Status */
+    __I  uint32_t TimerMIS;                    /* Offset: 0x014 (R/ ) Timer Masked Interrupt Status */
+    __IO uint32_t TimerBGLoad;                 /* Offset: 0x018 (R/W) Background Load Register */
 } CMSDK_DUALTIMER_SINGLE_TypeDef;
 
 #define CMSDK_DUALTIMER_LOAD_Pos             0                                               /* CMSDK_DUALTIMER LOAD: LOAD Position */
