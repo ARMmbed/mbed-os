@@ -33,7 +33,7 @@ extern "C" {
 #endif
 
 /** @addtogroup Client-API
- *  The C interface for connecting to a Secure Function and calling it.@n
+ *  The C interface for connecting to a Root of Trust Service and calling it.@n
  *  All functions are blocking.
  * @{
  */
@@ -50,28 +50,28 @@ extern "C" {
 uint32_t psa_framework_version(void);
 
 /**
- * Retrieve the minor version of a Secure Function by its SFID.
+ * Retrieve the minor version of a Root of Trust Service by its SID.
  *
- * @param[in] sfid The Secure Function ID
- * @return Minor version of Secure Function or PSA_VERSION_NONE if Secure Function not present on the system.
+ * @param[in] sid The Root of Trust Service ID
+ * @return Minor version of Root of Trust Service or PSA_VERSION_NONE if Root of Trust Service not present on the system.
  */
-uint32_t psa_version(uint32_t sfid);
+uint32_t psa_version(uint32_t sid);
 
 /**
- * Connect to a Secure Function by its SFID.
+ * Connect to a Root of Trust Service by its SID.
  *
- * @note A minor version number must be provided to allow the Secure Function to handle minor variations of the protocol.
+ * @note A minor version number must be provided to allow the Root of Trust Service to handle minor variations of the protocol.
  *
- * @param[in] sfid          The Secure Function ID.
+ * @param[in] sid          The Root of Trust Service ID.
  * @param[in] minor_version The minor version to be used for this connection.
  * @return A handle for the connection if greater than 0, else one of the following errors:@n
- *         @a PSA_CONNECTION_REFUSED_BUSY if the Secure Function cannot handle any more connections.@n
- *         @a PSA_CONNECTION_REFUSED_PERM if the Secure Function does not exist or access is denied.
+ *         @a PSA_CONNECTION_REFUSED_BUSY if the Root of Trust Service cannot handle any more connections.@n
+ *         @a PSA_CONNECTION_REFUSED_PERM if the Root of Trust Service does not exist or access is denied.
  */
-psa_handle_t psa_connect(uint32_t sfid, uint32_t minor_version);
+psa_handle_t psa_connect(uint32_t sid, uint32_t minor_version);
 
 /**
- * Call a connected Secure Function.@n
+ * Call a connected Root of Trust Service.@n
  * The caller must provide an array of ::psa_invec_t structures as the input payload.
  *
  * TODO: Need to align again when API definitions are updated in spec
@@ -79,14 +79,14 @@ psa_handle_t psa_connect(uint32_t sfid, uint32_t minor_version);
  * @param[in]  handle   Handle for the connection.
  * @param[in]  in_vec   Array of ::psa_invec_t structures.
  * @param[in]  in_len   Number of ::psa_invec_t structures in in_vec. (At most ::PSA_MAX_INVEC_LEN)
- * @param[out] out_vec  Array of ::psa_outvec_t structures for optional Secure function response.
+ * @param[out] out_vec  Array of ::psa_outvec_t structures for optional Root of Trust Service response.
  * @param[in]  out_len  Number of ::psa_outvec_t structures in out_vec. (At most ::PSA_MAX_OUTVEC_LEN)
  * @return Positive numbers with an application-specific return code or negative numbers on error:@n
  *         @a PSA_INVALID_MEM if the specified buffers in in_vec or out_vec contain an invalid memory address
  *                            (pointing to non-existent memory or lack of permission for this memory).
  *         @a PSA_MSG_PAYLOAD_TOO_LARGE/PSA_MSG_PAYLOAD_TOO_SMALL if there is an issue with the payload size.@n
  *         @a PSA_INVALID_HANDLE if the handle is not valid.@n
- *         @a PSA_RESPONSE_PAYLOAD_UNSUPPORTED if the caller specified a response buffer but the Secure Function does not send response payloads.
+ *         @a PSA_RESPONSE_PAYLOAD_UNSUPPORTED if the caller specified a response buffer but the Root of Trust Service does not send response payloads.
  */
 psa_error_t psa_call(
     psa_handle_t handle,
@@ -97,8 +97,8 @@ psa_error_t psa_call(
     );
 
 /**
- * Close a connection to a Secure Function.
- * Sends the ::PSA_IPC_MSG_TYPE_DISCONNECT message to the Secure Function so it can clean up resources.
+ * Close a connection to a Root of Trust Service.
+ * Sends the ::PSA_IPC_MSG_TYPE_DISCONNECT message to the Root of Trust Service so it can clean up resources.
  *
  * @param[in] handle Handle for the connection.
  */

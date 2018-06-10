@@ -34,13 +34,13 @@ void spm_reboot(void)
         status = osMutexDelete(g_spm.partitions[i].mutex);
         MBED_ASSERT(status == osOK);
 
-        for (uint32_t j = 0; j < g_spm.partitions[i].sec_funcs_count; ++j) {
-            g_spm.partitions[i].sec_funcs[j].partition = NULL;
-            g_spm.partitions[i].sec_funcs[j].queue.head = NULL;
-            g_spm.partitions[i].sec_funcs[j].queue.tail = NULL;
+        for (uint32_t j = 0; j < g_spm.partitions[i].rot_services_count; ++j) {
+            g_spm.partitions[i].rot_services[j].partition = NULL;
+            g_spm.partitions[i].rot_services[j].queue.head = NULL;
+            g_spm.partitions[i].rot_services[j].queue.tail = NULL;
         }
 
-        g_spm.partitions[i].sec_funcs = NULL;
+        g_spm.partitions[i].rot_services = NULL;
         g_spm.partitions[i].mutex = NULL;
         g_spm.partitions[i].thread_id = NULL;
     }

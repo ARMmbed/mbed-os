@@ -39,8 +39,8 @@ def assert_int(num):
     return res
 
 
-class SecureFunction(object):
-    MINOR_POLICIES = ['strict', 'relaxed']
+class RotService(object):
+    MINOR_POLICIES = ['STRICT', 'RELAXED']
 
     def __init__(
             self,
@@ -49,17 +49,17 @@ class SecureFunction(object):
             signal,
             non_secure_clients,
             minor_version=1,
-            minor_policy='strict'
+            minor_policy='STRICT'
     ):
         """
-        Secure Function C'tor (Aligned with json schema)
+        Root of Trust Service C'tor (Aligned with json schema)
 
-        :param name: Secure function identifier (available to user)
-        :param identifier: Secure function numeric enumeration.
-        :param signal: Secure Function identifier inside the partition
+        :param name: Root of Trust Service identifier (available to user)
+        :param identifier: Root of Trust Service numeric enumeration.
+        :param signal: Root of Trust Service identifier inside the partition
         :param non_secure_clients: True to allow connections from non-secure
                partitions
-        :param minor_version: Secure function version
+        :param minor_version: Root of Trust Service version
         :param minor_policy: Enforcement level of minor version
         """
         self.name = name
@@ -160,7 +160,7 @@ class Manifest(object):
         'NORMAL': 'osPriorityNormal',
         'HIGH': 'osPriorityHigh'
     }
-    PARTITION_TYPES = ['SECURE', 'TRUSTED']
+    PARTITION_TYPES = ['APPLICATION-ROT', 'PSA-ROT']
 
     def __init__(
             self,
@@ -174,8 +174,8 @@ class Manifest(object):
             stack_size,
             source_files,
             mmio_regions=None,
-            secure_functions=None,
-            extern_sfids=None,
+            rot_services=None,
+            extern_sids=None,
             irqs=None
     ):
         """
@@ -193,9 +193,9 @@ class Manifest(object):
         :param source_files: List of files assembling the partition
                (relative paths)
         :param mmio_regions: List of MMIO regions used by the partition
-        :param secure_functions: List of Secure functions declared by the
+        :param rot_services: List of Root of Trust Services declared by the
                partition
-        :param extern_sfids: List of Secure Functions the partition can call
+        :param extern_sids: List of Root of Trust Services the partition can call
         :param irqs: List of interrupts the partition can handle
         """
         assert manifest_file is not None
@@ -209,8 +209,8 @@ class Manifest(object):
         assert source_files is not None
 
         mmio_regions = [] if mmio_regions is None else mmio_regions
-        secure_functions = [] if secure_functions is None else secure_functions
-        extern_sfids = [] if extern_sfids is None else extern_sfids
+        rot_services = [] if rot_services is None else rot_services
+        extern_sids = [] if extern_sids is None else extern_sids
         irqs = [] if irqs is None else irqs
 
         assert os.path.isfile(manifest_file)
@@ -235,8 +235,8 @@ class Manifest(object):
             self.source_files = [source_files]
 
         self.mmio_regions = mmio_regions
-        self.secure_functions = secure_functions
-        self.extern_sfids = extern_sfids
+        self.rot_services = rot_services
+        self.extern_sids = extern_sids
         self.irqs = irqs
 
         for src_file in self.source_files:
@@ -245,20 +245,20 @@ class Manifest(object):
                     src_file, self.file
                 )
 
-        for sf in self.secure_functions:
-            assert isinstance(sf, SecureFunction)
+        for rot_srv in self.rot_services:
+            assert isinstance(rot_srv, RotService)
 
-        for extern_sfid in self.extern_sfids:
-            assert isinstance(extern_sfid, basestring)
+        for extern_sid in self.extern_sids:
+            assert isinstance(extern_sid, basestring)
 
-        assert len(self.extern_sfids) == len(set(self.extern_sfids)), \
-            'Detected duplicates external SFIDs in {}'.format(self.file)
+        assert len(self.extern_sids) == len(set(self.extern_sids)), \
+            'Detected duplicates external SIDs in {}'.format(self.file)
 
         for irq in self.irqs:
             assert isinstance(irq, Irq)
 
-        assert len(self.secure_functions) + len(self.irqs) > 0,\
-            'Manifest {} - {} does not contain at least 1 IRQ or SF'.format(
+        assert len(self.rot_services) + len(self.irqs) > 0,\
+            'Manifest {} - {} does not contain at least 1 IRQ or ROT_SRV'.format(
                 self.name, self.file
             )
 
@@ -274,8 +274,8 @@ class Manifest(object):
             (self.entry_point == other.entry_point) and
             (self.source_files == other.source_files) and
             (self.mmio_regions == other.mmio_regions) and
-            (self.secure_functions == other.secure_functions) and
-            (self.extern_sfids == other.extern_sfids) and
+            (self.rot_services == other.rot_services) and
+            (self.extern_sids == other.extern_sids) and
             (self.irqs == other.irqs)
         )
 
@@ -313,9 +313,9 @@ class Manifest(object):
         for mmio_region in manifest.get('mmio_regions', []):
             mmio_regions.append(MmioRegion(**mmio_region))
 
-        secure_functions = []
-        for sf in manifest.get('secure_functions', []):
-            secure_functions.append(SecureFunction(**sf))
+        rot_services = []
+        for rot_srv in manifest.get('services', []):
+            rot_services.append(RotService(**rot_srv))
 
         irqs = []
         for irq in manifest.get('irqs', []):
@@ -332,14 +332,14 @@ class Manifest(object):
             entry_point=manifest['entry_point'],
             source_files=source_files,
             mmio_regions=mmio_regions,
-            secure_functions=secure_functions,
-            extern_sfids=manifest.get('extern_sfids', []),
+            rot_services=rot_services,
+            extern_sids=manifest.get('extern_sids', []),
             irqs=irqs
         )
 
     @property
-    def sfids(self):
-        return [sf.name for sf in self.secure_functions]
+    def sids(self):
+        return [rot_srv.name for rot_srv in self.rot_services]
 
     @property
     def autogen_folder(self):
@@ -367,18 +367,18 @@ class Manifest(object):
 
     def find_dependencies(self, manifests):
         """
-        Find other manifests which holds Secure functions that
+        Find other manifests which holds Root of Trust Services that
         are declared as extern in this manifest
 
         :param manifests: list of manifests to filter
         :return: list of manifest's names that holds current
-                extern secure functions
+                extern Root of Trust Services
         """
 
         manifests = filter(lambda man: man != self, manifests)
-        extern_sfids_set = set(self.extern_sfids)
+        extern_sids_set = set(self.extern_sids)
         return [manifest.name for manifest in manifests
-                if extern_sfids_set.intersection(set(manifest.sfids))]
+                if extern_sids_set.intersection(set(manifest.sids))]
 
     def templates_to_files(self, templates, output_dir):
         """
@@ -405,10 +405,10 @@ class Manifest(object):
 def check_circular_call_dependencies(manifests):
     """
     Check if there is a circular dependency between the partitions described by the manifests.
-    A circular dependency might happen if there is a scenario in which a partition calls a secure function in another
-    partition which than calls another secure function which resides in the originating partition.
-    For example: Partition A has a secure function A1 and extern sfid B1, partition B has a secure function B1 and
-                 extern sfid A1.
+    A circular dependency might happen if there is a scenario in which a partition calls a Root of Trust Service in another
+    partition which than calls another Root of Trust Service which resides in the originating partition.
+    For example: Partition A has a Root of Trust Service A1 and extern sid B1, partition B has a Root of Trust Service B1 and
+                 extern sid A1.
 
     :param manifests: List of the partition manifests.
     :return: True if a circular dependency exists, false otherwise.
@@ -456,9 +456,9 @@ def validate_partition_manifests(manifests):
 
     partitions_names = {}
     partitions_ids = {}
-    secure_function_ids = {}
-    secure_function_names = {}
-    secure_function_signals = {}
+    rot_service_ids = {}
+    rot_service_names = {}
+    rot_service_signals = {}
     irq_signals = {}
     irq_numbers = {}
 
@@ -487,40 +487,40 @@ def validate_partition_manifests(manifests):
             )
         partitions_ids[manifest.id] = manifest.file
 
-        # Make sure all the secure function IDs and signals are unique.
-        for secure_function in manifest.secure_functions:
-            if secure_function.name in secure_function_names:
+        # Make sure all the Root of Trust Service IDs and signals are unique.
+        for rot_service in manifest.rot_services:
+            if rot_service.name in rot_service_names:
                 raise ValueError(
-                    'Secure function name {} is found '
+                    'Root of Trust Service name {} is found '
                     'in both {} and {}.'.format(
-                        secure_function.name,
-                        secure_function_names[secure_function.name],
+                        rot_service.name,
+                        rot_service_names[rot_service.name],
                         manifest.file
                     )
                 )
-            secure_function_names[secure_function.name] = manifest.file
+            rot_service_names[rot_service.name] = manifest.file
 
-            if secure_function.signal in secure_function_signals:
+            if rot_service.signal in rot_service_signals:
                 raise ValueError(
-                    'Secure function signal {} is found '
+                    'Root of Trust Service signal {} is found '
                     'in both {} and {}.'.format(
-                        secure_function.signal,
-                        secure_function_signals[secure_function.signal],
+                        rot_service.signal,
+                        rot_service_signals[rot_service.signal],
                         manifest.file
                     )
                 )
-            secure_function_signals[secure_function.signal] = manifest.file
+            rot_service_signals[rot_service.signal] = manifest.file
 
-            if secure_function.numeric_id in secure_function_ids:
+            if rot_service.numeric_id in rot_service_ids:
                 raise ValueError(
-                    'Secure function identifier {} is found '
+                    'Root of Trust Service identifier {} is found '
                     'in both {} and {}.'.format(
-                        secure_function.numeric_id,
-                        secure_function_ids[secure_function.numeric_id],
+                        rot_service.numeric_id,
+                        rot_service_ids[rot_service.numeric_id],
                         manifest.file
                     )
                 )
-            secure_function_ids[secure_function.numeric_id] = manifest.file
+            rot_service_ids[rot_service.numeric_id] = manifest.file
 
         # Make sure all the IRQ signals and line-numbers are unique.
         for irq in manifest.irqs:
@@ -544,16 +544,16 @@ def validate_partition_manifests(manifests):
                 )
             irq_numbers[irq.line_num] = manifest.file
 
-    # Check that all the external SFIDs can be found.
-    declared_sfids = set(secure_function_names.keys())
+    # Check that all the external SIDs can be found.
+    declared_sids = set(rot_service_names.keys())
     for manifest in manifests:
-        extern_sfids = set(manifest.extern_sfids)
-        if not extern_sfids.issubset(declared_sfids):
-            missing_sfids = extern_sfids.difference(declared_sfids)
+        extern_sids = set(manifest.extern_sids)
+        if not extern_sids.issubset(declared_sids):
+            missing_sids = extern_sids.difference(declared_sids)
             raise ValueError(
-                "External SFID(s) {} required by {} can't be found in "
+                "External SID(s) {} required by {} can't be found in "
                 "any partition manifest.".format(
-                    ', '.join(missing_sfids), manifest.file)
+                    ', '.join(missing_sids), manifest.file)
             )
 
     if check_circular_call_dependencies(manifests):
@@ -666,7 +666,7 @@ def generate_partitions_sources(manifest_files, extra_filters=None):
     :return: List of paths to the generated files
     """
 
-    # Construct a list of all the manifests and sfids.
+    # Construct a list of all the manifests and sids.
     manifests = []
     for manifest_file in manifest_files:
         manifest = Manifest.from_json(manifest_file)

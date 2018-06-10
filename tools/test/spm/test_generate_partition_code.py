@@ -133,9 +133,9 @@ modified_json_params = {
                       k != 'source_files'},
         'assert': jexcep.ValidationError
     },
-    'missing_irqs_and_sfids': {
+    'missing_irqs_and_sids': {
         'partition': {k: manifests[0][k] for k in manifests[0] if
-                      k not in ['secure_functions', 'irqs']},
+                      k not in ['services', 'irqs']},
         'assert': AssertionError
     },
     'empty_source_files': {
@@ -144,17 +144,17 @@ modified_json_params = {
     },
     'invalid_minor_policy': {
         'partition': dict(manifests[0],
-                          secure_functions=invalid_minor_version_policy_sf),
+                          services=invalid_minor_version_policy_rot_srv),
         'assert': jexcep.ValidationError
     },
     'invalid_nspe_callable': {
         'partition': dict(manifests[0],
-                          secure_functions=invalid_nspe_callable_sf),
+                          services=invalid_nspe_callable_rot_srv),
         'assert': jexcep.ValidationError
     },
     'missing_nspe_callable': {
         'partition': dict(manifests[0],
-                          secure_functions=missing_nspe_callable_sf),
+                          services=missing_nspe_callable_rot_srv),
         'assert': jexcep.ValidationError
     },
     'invalid_stack_size': {
@@ -196,8 +196,8 @@ modified_json_params = {
         'partition': dict(manifests[0], id='0xFFFFFFFF'),
         'assert': jexcep.ValidationError
     },
-    'duplicates_extern_sfids': {
-        'partition': dict(manifests[0], extern_sfids=['SFID66', 'SFID66']),
+    'duplicates_extern_sids': {
+        'partition': dict(manifests[0], extern_sids=['SID66', 'SID66']),
         'assert': jexcep.ValidationError
     }
 }
@@ -284,21 +284,21 @@ def test_valid_json(temp_test_data):
         ),
         pytest.param(
             dict(manifests[1],
-                 secure_functions=manifests[0]['secure_functions']),
-            (ValueError, r'Secure function name .* is found in both .*'),
-            id='duplicate_sf_name'
+                 services=manifests[0]['services']),
+            (ValueError, r'Root of Trust Service name .* is found in both .*'),
+            id='duplicate_rot_srv_name'
         ),
         pytest.param(
             dict(manifests[1],
-                 secure_functions=duplicate_signal_secure_functions),
-            (ValueError, r'Secure function signal .* is found in both .*'),
-            id='duplicate_sf_signal'
+                 services=duplicate_signal_rot_services),
+            (ValueError, r'Root of Trust Service signal .* is found in both .*'),
+            id='duplicate_rot_srv_signal'
         ),
         pytest.param(
             dict(manifests[1],
-                 secure_functions=duplicate_identifier_secure_functions),
-            (ValueError, r'Secure function identifier .* is found in both .*'),
-            id='duplicate_sf_identifier'
+                 services=duplicate_identifier_rot_services),
+            (ValueError, r'Root of Trust Service identifier .* is found in both .*'),
+            id='duplicate_rot_srv_identifier'
         ),
         pytest.param(
             dict(manifests[1], irqs=duplicate_signal_irqs),
@@ -311,15 +311,15 @@ def test_valid_json(temp_test_data):
             id='duplicate_irq_line_num'
         ),
         pytest.param(
-            dict(manifests[1], extern_sfids=['SFID66', 'SFID999']),
+            dict(manifests[1], extern_sids=['SID66', 'SID999']),
             (
                     ValueError,
-                    r'External SFID\(s\) .* can\'t be found in any partition manifest.'
+                    r'External SID\(s\) .* can\'t be found in any partition manifest.'
             ),
             id='orphan_extern_ids'
         ),
         pytest.param(
-            dict(manifests[1], extern_sfids=[manifests[0]['secure_functions'][0]['name']]),
+            dict(manifests[1], extern_sids=[manifests[0]['services'][0]['name']]),
             (
                     ValueError,
                     r'Detected a circular call dependency between the partitions.'
@@ -366,36 +366,36 @@ Each parameter is a dictionary which contains these keys:
   'expected': The expected field object.
 """
 verify_json_params = {
-    'missing_minor_version_secure_functions': {
+    'missing_minor_version_rot_services': {
         'partition': dict(manifests[0],
-                          secure_functions=missing_minor_version_sf),
-        'field': 'secure_functions',
+                          services=missing_minor_version_rot_srv),
+        'field': 'rot_services',
         'expected': [
-            SecureFunction(
-                name='SFID1', identifier='0x00000001',signal='SFID1',
-                minor_policy='relaxed', non_secure_clients=True, minor_version=1
+            RotService(
+                name='SID1', identifier='0x00000001',signal='SID1',
+                minor_policy='RELAXED', non_secure_clients=True, minor_version=1
             )
         ]
     },
-    'missing_minor_version_policy_secure_functions': {
+    'missing_minor_version_policy_rot_services': {
         'partition': dict(manifests[0],
-                          secure_functions=missing_minor_version_policy_sf),
-        'field': 'secure_functions',
+                          services=missing_minor_version_policy_rot_srv),
+        'field': 'rot_services',
         'expected': [
-            SecureFunction(
-                name='SFID2', identifier='0x00000002', signal='SFID2',
-                minor_policy='strict', non_secure_clients=True, minor_version=1
+            RotService(
+                name='SID2', identifier='0x00000002', signal='SID2',
+                minor_policy='STRICT', non_secure_clients=True, minor_version=1
             )
         ]
     },
-    'missing_minor_completley_secure_functions': {
+    'missing_minor_completley_rot_services': {
         'partition': dict(manifests[0],
-                          secure_functions=missing_minor_completley_sf),
-        'field': 'secure_functions',
+                          services=missing_minor_completley_rot_srv),
+        'field': 'rot_services',
         'expected': [
-            SecureFunction(
-                name='SFID2', identifier='0x00000002', signal='SFID2',
-                minor_policy='strict', non_secure_clients=False, minor_version=1
+            RotService(
+                name='SID2', identifier='0x00000002', signal='SID2',
+                minor_policy='STRICT', non_secure_clients=False, minor_version=1
             )
         ]
     }
@@ -427,7 +427,7 @@ def verify_json(request, tmpdir_factory):
     files_list = [
         dump_manifest_to_json(request.param['partition'], '%s1' % test_name,
                               test_dir),
-        dump_manifest_to_json(dict(manifests[1], extern_sfids=[]),
+        dump_manifest_to_json(dict(manifests[1], extern_sids=[]),
                               '%s2' % test_name, test_dir)
     ]
     return {'files_list': files_list, 'field': request.param['field'],

@@ -22,8 +22,8 @@
 #ifndef PSA_{{partition.name|upper}}_PARTITION_H
 #define PSA_{{partition.name|upper}}_PARTITION_H
 
-#define {{partition.name|upper}}_SF_COUNT ({{partition.secure_functions|count}}UL)
-#define {{partition.name|upper}}_EXT_SF_COUNT ({{partition.extern_sfids|count}}UL)
+#define {{partition.name|upper}}_ROT_SRV_COUNT ({{partition.rot_services|count}}UL)
+#define {{partition.name|upper}}_EXT_ROT_SRV_COUNT ({{partition.extern_sids|count}}UL)
 
 /* {{partition.name}} event flags */
 #define {{partition.name|upper}}_RESERVED1_POS (1UL)
@@ -35,21 +35,21 @@
 #define {{partition.name|upper}}_DOORBELL_POS (3UL)
 #define {{partition.name|upper}}_DOORBELL_MSK (1UL << {{partition.name|upper}}_DOORBELL_POS)
 
-{% for sf in partition.secure_functions %}
-#define {{sf.signal|upper}}_POS ({{loop.index + 3}}UL)
-#define {{sf.signal|upper}} (1UL << {{sf.signal|upper}}_POS)
+{% for rot_srv in partition.rot_services %}
+#define {{rot_srv.signal|upper}}_POS ({{loop.index + 3}}UL)
+#define {{rot_srv.signal|upper}} (1UL << {{rot_srv.signal|upper}}_POS)
 {% endfor %}
 
-#define {{partition.name|upper}}_WAIT_ANY_SFID_MSK (\
-{% for sf in partition.secure_functions %}
-    {{sf.signal|upper}}{{")" if loop.last else " | \\"}}
+#define {{partition.name|upper}}_WAIT_ANY_SID_MSK (\
+{% for rot_srv in partition.rot_services %}
+    {{rot_srv.signal|upper}}{{")" if loop.last else " | \\"}}
 {% endfor %}
 
 #define {{partition.name|upper}}_WAIT_ANY_IRQ_MSK (0) // TODO: Implement when IRQ logic is ready
 
 #define {{partition.name|upper}}_WAIT_ANY_MSK (\
     {{partition.name|upper}}_DOORBELL_MSK | \
-    {{partition.name|upper}}_WAIT_ANY_SFID_MSK | \
+    {{partition.name|upper}}_WAIT_ANY_SID_MSK | \
     {{partition.name|upper}}_WAIT_ANY_IRQ_MSK)
 
 #endif // PSA_{{partition.name|upper}}_PARTITION_H

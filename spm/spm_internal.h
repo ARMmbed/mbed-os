@@ -34,6 +34,9 @@ do {                                                                            
     }                                                                                      \
 } while (0)
 
+#define SPM_COMPLETION_SEM_MAX_COUNT (1UL) /**< Maximum number of available tokens for a completion semaphore.*/
+#define SPM_COMPLETION_SEM_INITIAL_COUNT (0UL) /**< Initial number of available tokens for a completion semaphore.*/
+
 typedef struct spm_partition spm_partition_t;
 typedef struct spm_ipc_channel spm_ipc_channel_t;
 
@@ -61,18 +64,18 @@ typedef struct spm_db {
 } spm_db_t;
 
 /*
- * Structure containing the currently active message for a Secure Function.
+ * Structure containing the currently active message for a Root of Trust Service.
  */
 typedef struct spm_active_msg {
     spm_ipc_channel_t *channel; /* Pointer to the channel delivering this message.*/
     psa_invec_t in_vec[PSA_MAX_INVEC_LEN]; /* IOvecs sent.*/
     psa_outvec_t out_vec[PSA_MAX_OUTVEC_LEN]; /* IOvecs for response.*/
-    psa_error_t rc; /* Return code to be filled by the Secure Function.*/
+    psa_error_t rc; /* Return code to be filled by the Root of Trust Service.*/
     SpmMsgType type; /* The message type, one of ::spm_msg_type.*/
 } spm_active_msg_t;
 
 /*
- * Structure containing data sent from NSPE for SF call.
+ * Structure containing data sent from NSPE for ROT_SRV call.
  */
 typedef struct spm_pending_call_msg {
     psa_handle_t channel; /* Handle pointing to the channel */
@@ -80,7 +83,7 @@ typedef struct spm_pending_call_msg {
     uint32_t in_vec_size; /* Number of Invecs sent.*/
     const psa_outvec_t *out_vec; /* Outvecs for response.*/
     uint32_t out_vec_size; /* Number of Outvecs for response.*/
-    psa_error_t rc; /* Return code to be filled by the Secure Function.*/
+    psa_error_t rc; /* Return code to be filled by the Root of Trust Service.*/
     osSemaphoreId_t completion_sem_id; /* Semaphore to be released at the end of execution */
 } spm_pending_call_msg_t;
 
@@ -88,14 +91,14 @@ typedef struct spm_pending_call_msg {
  * Structure containing data sent from NSPE for connection.
  */
 typedef struct spm_pending_connect_msg {
-    uint32_t sfid; /* The Secure Function ID to be called*/
-    uint32_t min_version; /* Minor version of the Secure Function interface.*/
-    psa_error_t rc; /* Return code to be filled by the Secure Function.*/
+    uint32_t sid; /* The Root of Trust Service ID to be called*/
+    uint32_t min_version; /* Minor version of the Root of Trust Service interface.*/
+    psa_error_t rc; /* Return code to be filled by the Root of Trust Service.*/
     osSemaphoreId_t completion_sem_id; /* Semaphore to be released at the end of execution */
 } spm_pending_connect_msg_t;
 
 /*
- * Structure to aggregate channels queue in a Secure function.
+ * Structure to aggregate channels queue in a Root of Trust Service.
  */
 typedef struct spm_channel_linked_list {
     spm_ipc_channel_t *head; /* List's first object*/
@@ -103,24 +106,24 @@ typedef struct spm_channel_linked_list {
 } spm_channel_linked_list_t;
 
 /*
- * Structure containing resources and attributes of a Secure Function.
+ * Structure containing resources and attributes of a Root of Trust Service.
  */
-typedef struct spm_secure_func {
-    const uint32_t sfid; /* The Secure Function ID.*/
-    const uint32_t mask; /* The signal for this Secure function*/
-    spm_partition_t *partition; /* Pointer to the Partition which the Secure function belongs to.*/
-    const uint32_t min_version; /* Minor version of the Secure Function interface.*/
-    const uint32_t min_version_policy; /* Minor version policy of the Secure function.*/
-    const bool allow_nspe; /* Whether to allow non-secure clients to connect to the Secure Functions.*/
-    spm_channel_linked_list_t queue; /* Queue of channels holding SF operations waiting to be served. */
-} spm_secure_func_t;
+typedef struct spm_rot_service {
+    const uint32_t sid; /* The Root of Trust Service ID.*/
+    const uint32_t mask; /* The signal for this Root of Trust Service*/
+    spm_partition_t *partition; /* Pointer to the Partition which the Root of Trust Service belongs to.*/
+    const uint32_t min_version; /* Minor version of the Root of Trust Service interface.*/
+    const uint32_t min_version_policy; /* Minor version policy of the Root of Trust Service.*/
+    const bool allow_nspe; /* Whether to allow non-secure clients to connect to the Root of Trust Service.*/
+    spm_channel_linked_list_t queue; /* Queue of channels holding ROT_SRV operations waiting to be served. */
+} spm_rot_service_t;
 
 /*
- * Structure containing Partition->Secure-Function channel information.
+ * Structure containing Partition->RoT-Service channel information.
  */
 typedef struct spm_ipc_channel {
-    spm_partition_t *src_partition; /* Pointer to the Partition which connects to the Secure function.*/
-    spm_secure_func_t *dst_sec_func; /* Pointer to the connected Secure Function.*/
+    spm_partition_t *src_partition; /* Pointer to the Partition which connects to the Root of Trust Service.*/
+    spm_rot_service_t *dst_rot_service; /* Pointer to the connected Root of Trust Service.*/
     void *rhandle; /* Reverse handle to be used for this channel.*/
     void *msg_ptr; /* message data sent from user */
     struct spm_ipc_channel *next; /* Next channel in the chain  */
@@ -134,13 +137,13 @@ typedef struct spm_ipc_channel {
 typedef struct spm_partition {
     const int32_t partition_id; /* The Partition ID.*/
     osThreadId_t thread_id; /* Thread ID of the Partition thread.*/
-    const uint32_t flags_sf; /* Mask of all the SF signals the partition supports.*/
+    const uint32_t flags_rot_srv; /* Mask of all the ROT_SRV signals the partition supports.*/
     const uint32_t flags_interrupts; /* Mask of all the IRQs & doorbell which the partition supports.*/
-    spm_secure_func_t *sec_funcs; /* Array of the Partition's Secure Functions.*/
-    const uint32_t sec_funcs_count; /* Number of the Partition's Secure Functions.*/
-    const uint32_t *extern_sfids; /* Array of Secure Function IDs which the partition can connect to.*/
-    const uint32_t extern_sfids_count; /* Number of Secure Functions which the partition can connect to.*/
-    osMutexId_t mutex; /* Mutex for all secure_function's queues operations. */
+    spm_rot_service_t *rot_services; /* Array of the Partition's Root of Trust Services.*/
+    const uint32_t rot_services_count; /* Number of the Partition's Root of Trust Services.*/
+    const uint32_t *extern_sids; /* Array of Root of Trust Service IDs which the partition can connect to.*/
+    const uint32_t extern_sids_count; /* Number of Root of Trust Services which the partition can connect to.*/
+    osMutexId_t mutex; /* Mutex for all rot_service's queues operations. */
 } spm_partition_t;
 
 
@@ -170,14 +173,14 @@ bool is_buffer_accessible(const void *ptr, size_t size, spm_partition_t * access
 void nspe_done(osSemaphoreId_t completion_sem_id);
 
 /**
- * Validates parameters sent from caller and queues a connect message on the correct SF.
+ * Validates parameters sent from caller and queues a connect message on the correct ROT_SRV.
  *
  * @param[in] msg - pointer to connect message struct
  */
 void psa_connect_async(spm_pending_connect_msg_t *msg);
 
 /**
- * Validates parameters sent from caller and queues a call message on the correct SF.
+ * Validates parameters sent from caller and queues a call message on the correct ROT_SRV.
  *
  * @param[in] msg - pointer to call message struct
  */

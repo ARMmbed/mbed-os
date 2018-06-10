@@ -10,7 +10,7 @@
     },
     "type": {
       "description": "Whether the partition is unprivileged or part of the trusted computing base.",
-      "enum": ["SECURE", "TRUSTED"]
+      "enum": ["APPLICATION-ROT", "PSA-ROT"]
     },
     "priority": {
       "description": "Partition task priority.",
@@ -47,16 +47,16 @@
       },
       "uniqueItems": true
     },
-    "secure_functions": {
-      "description": "List of Secure Function objects which the partition implements.",
+    "services": {
+      "description": "List of RoT Service objects which the partition implements.",
       "type": "array",
       "items": {
-        "$ref": "#/definitions/secure_func"
+        "$ref": "#/definitions/service"
       },
       "uniqueItems": true
     },
-    "extern_sfids": {
-      "description": "List of SFID which the partition code depends on and allowed to access.",
+    "extern_sids": {
+      "description": "List of SID which the partition code depends on and allowed to access.",
       "type": "array",
       "items": {
         "$ref": "#/definitions/c_macro"
@@ -143,34 +143,34 @@
         }
       }
     },
-    "secure_func": {
+    "service": {
       "required": ["name", "identifier", "non_secure_clients", "signal"],
       "properties": {
         "name": {
-          "description": "Alphanumeric C macro for referring to a Secure Function. (all capital)",
+          "description": "Alphanumeric C macro for referring to a RoT Service from source code (all capital)",
           "$ref": "#/definitions/c_macro"
         },
         "identifier": {
-          "description": "Numeric value representing the secure function.",
+          "description": "The integer value of the NAME field",
           "$ref": "#/definitions/positive_integer_or_hex_string"
         },
         "non_secure_clients": {
-          "description": "Denote whether the secure Function is exposed to non-secure clients.",
+          "description": "Denote whether the RoT Service is exposed to non-secure clients.",
           "type": "boolean"
         },
         "signal": {
-          "description": "Alphanumeric C macro for referring to the Secure Function's signal value. (all capital)",
+          "description": "Alphanumeric C macro for referring to the RoT Service's signal value. (all capital)",
           "$ref": "#/definitions/c_macro"
         },
         "minor_version": {
-          "description": "Optional: Minor version number of the Secure Function's interface.",
+          "description": "Optional: Minor version number of the RoT Service's interface.",
           "$ref": "#/definitions/positive_integer",
           "default": 1
         },
         "minor_policy": {
-          "description": "Optional: Minor version policy to apply on connections to the Secure function.",
-          "enum": ["strict", "relaxed"],
-          "default": "strict"
+          "description": "Optional: Minor version policy to apply on connections to the RoT Service.",
+          "enum": ["STRICT", "RELAXED"],
+          "default": "STRICT"
         }
       }
     },

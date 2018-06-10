@@ -32,8 +32,8 @@ void server_main1(void *ptr)
 
     while (true) {
         signals = psa_wait_any(PSA_WAIT_BLOCK);
-        if (signals & PART1_CALL_NON_EXISTS_EXTERN_SFID_MSK) {
-            psa_get(PART1_CALL_NON_EXISTS_EXTERN_SFID_MSK, &msg);
+        if (signals & PART1_CALL_NON_EXISTS_EXTERN_SID_MSK) {
+            psa_get(PART1_CALL_NON_EXISTS_EXTERN_SID_MSK, &msg);
             switch (msg.type) {
                 case PSA_IPC_MSG_TYPE_CONNECT: {
                     psa_end(msg.handle, PSA_SUCCESS);
@@ -41,11 +41,11 @@ void server_main1(void *ptr)
                 }
                 case PSA_IPC_MSG_TYPE_CALL: {
                     psa_connect(PART2_CALL_INSIDE_PARTITION, MINOR_VER);
-                    TEST_FAIL_MESSAGE("server_call_sfid_without_extern_sfid negative test failed");
+                    TEST_FAIL_MESSAGE("server_call_sid_without_extern_sid negative test failed");
                     break;
                 }
                 default: {
-                    TEST_FAIL_MESSAGE("server_call_sfid_without_extern_sfid msg type failure");
+                    TEST_FAIL_MESSAGE("server_call_sid_without_extern_sid msg type failure");
                 }
             }
         } else {

@@ -31,7 +31,7 @@
 #define MINOR_VER               5
 #define CLIENT_RSP_BUF_SIZE     128
 #define OFFSET_POS              1
-#define INVALID_SFID            (NEG_CLIENT_PART1_SF1 + 30)
+#define INVALID_SID            (NEG_CLIENT_PART1_ROT_SRV1 + 30)
 #define INVALID_MINOR           (MINOR_VER + 10)
 #define INVALID_TX_LEN          (PSA_MAX_INVEC_LEN + 1)
 
@@ -54,9 +54,9 @@ void error(const char* format, ...)
 
 /* ------------------------------------- Functions ----------------------------------- */
 
-static psa_handle_t negative_client_ipc_tests_connect(uint32_t sfid, uint32_t minor_version)
+static psa_handle_t negative_client_ipc_tests_connect(uint32_t sid, uint32_t minor_version)
 {
-    psa_handle_t handle = psa_connect(sfid, minor_version);
+    psa_handle_t handle = psa_connect(sid, minor_version);
     TEST_ASSERT_TRUE(handle > 0);
     return handle;
 }
@@ -84,34 +84,34 @@ static void negative_client_ipc_tests_close(psa_handle_t handle)
     osDelay(50);
 }
 
-//Testing client call with an invalid SFID
-void client_connect_invalid_sfid()
+//Testing client call with an invalid SID
+void client_connect_invalid_sid()
 {
-    psa_connect( INVALID_SFID,
+    psa_connect( INVALID_SID,
                  MINOR_VER
                );
 
-    TEST_FAIL_MESSAGE("client_connect_invalid_sfid negative test failed");
+    TEST_FAIL_MESSAGE("client_connect_invalid_sid negative test failed");
 }
 
 //Testing client connect version policy is RELAXED and minor version is bigger than the minimum version
-void client_connect_invalid_pol_ver_relaxed()
+void client_connect_invalid_pol_ver_RELAXED()
 {
-    psa_connect( NEG_CLIENT_PART1_SF1,           //NEG_CLIENT_PART1_SF1 should have relaxed policy
+    psa_connect( NEG_CLIENT_PART1_ROT_SRV1,           //NEG_CLIENT_PART1_ROT_SRV1 should have RELAXED policy
                  INVALID_MINOR
                );
 
-    TEST_FAIL_MESSAGE("client_connect_invalid_pol_ver_relaxed negative test failed");
+    TEST_FAIL_MESSAGE("client_connect_invalid_pol_ver_RELAXED negative test failed");
 }
 
 //Testing client connect version policy is STRICT and minor version is different than the minimum version
-void client_connect_invalid_pol_ver_strict()
+void client_connect_invalid_pol_ver_STRICT()
 {
-    psa_connect( NEG_CLIENT_PART1_SF2,           //NEG_CLIENT_PART1_SF2 should have strict policy
+    psa_connect( NEG_CLIENT_PART1_ROT_SRV2,           //NEG_CLIENT_PART1_ROT_SRV2 should have STRICT policy
                  INVALID_MINOR
                );
 
-    TEST_FAIL_MESSAGE("client_connect_invalid_pol_ver_strict negative test failed");
+    TEST_FAIL_MESSAGE("client_connect_invalid_pol_ver_STRICT negative test failed");
 }
 
 //Testing client call num of iovec (tx_len) is bigger than max value allowed
@@ -119,7 +119,7 @@ void client_call_invalid_tx_len()
 {
     psa_handle_t handle = 0;
 
-    handle = negative_client_ipc_tests_connect(NEG_CLIENT_PART1_SF1, MINOR_VER);
+    handle = negative_client_ipc_tests_connect(NEG_CLIENT_PART1_ROT_SRV1, MINOR_VER);
 
     uint8_t data[2] = {1, 0};
 
@@ -145,7 +145,7 @@ void client_call_rx_buff_null_rx_len_not_zero()
         {data, sizeof(data)}
     };
 
-    handle = negative_client_ipc_tests_connect(NEG_CLIENT_PART1_SF1, MINOR_VER);
+    handle = negative_client_ipc_tests_connect(NEG_CLIENT_PART1_ROT_SRV1, MINOR_VER);
 
     psa_call(handle, iovec_temp, PSA_MAX_INVEC_LEN, NULL, 1);
 
@@ -157,7 +157,7 @@ void client_call_iovecs_null_tx_len_not_zero()
 {
     psa_handle_t handle = 0;
 
-    handle = negative_client_ipc_tests_connect(NEG_CLIENT_PART1_SF1, MINOR_VER);
+    handle = negative_client_ipc_tests_connect(NEG_CLIENT_PART1_ROT_SRV1, MINOR_VER);
     memset(response_buf, 0, CLIENT_RSP_BUF_SIZE);
     psa_outvec_t resp = { response_buf, CLIENT_RSP_BUF_SIZE };
 
@@ -169,7 +169,7 @@ void client_call_iovecs_null_tx_len_not_zero()
 //Testing client call iovec base
 void client_call_iovec_base_null_len_not_zero()
 {
-    negative_client_ipc_tests_connect(NEG_CLIENT_PART1_SF1, MINOR_VER);
+    negative_client_ipc_tests_connect(NEG_CLIENT_PART1_ROT_SRV1, MINOR_VER);
 
     uint8_t data[2] = {1, 0};
 
@@ -189,7 +189,7 @@ void client_call_invalid_handle()
 {
     psa_handle_t handle = 0, invalid_handle = 0;
 
-    handle = negative_client_ipc_tests_connect(NEG_CLIENT_PART1_SF1, MINOR_VER);
+    handle = negative_client_ipc_tests_connect(NEG_CLIENT_PART1_ROT_SRV1, MINOR_VER);
     invalid_handle = handle + 10;
 
     uint8_t data[2] = {1, 0};
@@ -208,7 +208,7 @@ void client_call_invalid_handle()
 //Testing client call handle is null (PSA_NULL_HANDLE)
 void client_call_handle_is_null()
 {
-    negative_client_ipc_tests_connect(NEG_CLIENT_PART1_SF1, MINOR_VER);
+    negative_client_ipc_tests_connect(NEG_CLIENT_PART1_ROT_SRV1, MINOR_VER);
 
     uint8_t data[2] = {1, 0};
 
@@ -228,7 +228,7 @@ void client_close_invalid_handle()
 {
     psa_handle_t handle = 0, invalid_handle = 0;
 
-    handle = negative_client_ipc_tests_connect(NEG_CLIENT_PART1_SF1, MINOR_VER);
+    handle = negative_client_ipc_tests_connect(NEG_CLIENT_PART1_ROT_SRV1, MINOR_VER);
     invalid_handle = handle + 10;
 
     uint8_t data[2] = {1, 0};
@@ -251,7 +251,7 @@ void client_call_buffer_wrap_around()
     psa_handle_t handle = 0;
     psa_invec_t iovec_temp = { (void *)0x80000000, UINT32_MAX };
 
-    handle = negative_client_ipc_tests_connect(NEG_CLIENT_PART1_SF1, MINOR_VER);
+    handle = negative_client_ipc_tests_connect(NEG_CLIENT_PART1_ROT_SRV1, MINOR_VER);
     psa_call(handle, &iovec_temp, 1, NULL, 0);
 
     TEST_FAIL_MESSAGE("client_call_buffer_wrap_around negative test failed");
@@ -259,7 +259,7 @@ void client_call_buffer_wrap_around()
 
 void client_connect_not_allowed_from_nspe()
 {
-    psa_connect(NEG_CLIENT_PART1_SF2, 5);
+    psa_connect(NEG_CLIENT_PART1_ROT_SRV2, 5);
 
     TEST_FAIL_MESSAGE("client_connect_not_allowed_from_nspe negative test failed");
 }
@@ -275,15 +275,15 @@ void client_call_excese_outvec()
         {data, sizeof(data)}
     };
 
-    handle = negative_client_ipc_tests_connect(NEG_CLIENT_PART1_SF1, MINOR_VER);
+    handle = negative_client_ipc_tests_connect(NEG_CLIENT_PART1_ROT_SRV1, MINOR_VER);
     psa_call(handle, NULL, 0, iovec_temp, PSA_MAX_OUTVEC_LEN + 1);
 
     TEST_FAIL_MESSAGE("client_call_excese_outvec negative test failed");
 }
 
-PSA_NEG_TEST(client_connect_invalid_sfid)
-PSA_NEG_TEST(client_connect_invalid_pol_ver_relaxed)
-PSA_NEG_TEST(client_connect_invalid_pol_ver_strict)
+PSA_NEG_TEST(client_connect_invalid_sid)
+PSA_NEG_TEST(client_connect_invalid_pol_ver_RELAXED)
+PSA_NEG_TEST(client_connect_invalid_pol_ver_STRICT)
 PSA_NEG_TEST(client_call_invalid_tx_len)
 PSA_NEG_TEST(client_call_rx_buff_null_rx_len_not_zero)
 PSA_NEG_TEST(client_call_iovecs_null_tx_len_not_zero)
@@ -306,9 +306,9 @@ utest::v1::status_t spm_case_teardown(const Case *const source, const size_t pas
 
 // Test cases
 Case cases[] = {
-    SPM_UTEST_CASE("Testing client connect invalid sfid", client_connect_invalid_sfid),
-    SPM_UTEST_CASE("Testing client connect version policy relaxed invalid minor", client_connect_invalid_pol_ver_relaxed),
-    SPM_UTEST_CASE("Testing client connect version policy strict invalid minor", client_connect_invalid_pol_ver_strict),
+    SPM_UTEST_CASE("Testing client connect invalid sid", client_connect_invalid_sid),
+    SPM_UTEST_CASE("Testing client connect version policy RELAXED invalid minor", client_connect_invalid_pol_ver_RELAXED),
+    SPM_UTEST_CASE("Testing client connect version policy STRICT invalid minor", client_connect_invalid_pol_ver_STRICT),
     SPM_UTEST_CASE("Testing client call invalid tx_len", client_call_invalid_tx_len),
     SPM_UTEST_CASE("Testing client call rx_buff is NULL rx_len is not 0", client_call_rx_buff_null_rx_len_not_zero),
     SPM_UTEST_CASE("Testing client call iovecs is NULL tx_len is not 0", client_call_iovecs_null_tx_len_not_zero),
@@ -317,7 +317,7 @@ Case cases[] = {
     SPM_UTEST_CASE("Testing client call handle is PSA_NULL_HANDLE", client_call_handle_is_null),
     SPM_UTEST_CASE("Testing client close handle does not exist", client_close_invalid_handle),
     SPM_UTEST_CASE("Testing client call with buffer wrap-around", client_call_buffer_wrap_around),
-    SPM_UTEST_CASE("Testing client connect to non-NSPE SF", client_connect_not_allowed_from_nspe),
+    SPM_UTEST_CASE("Testing client connect to non-NSPE ROT_SRV", client_connect_not_allowed_from_nspe),
     SPM_UTEST_CASE("Testing client call with too much outvec's", client_call_excese_outvec)
 };
 

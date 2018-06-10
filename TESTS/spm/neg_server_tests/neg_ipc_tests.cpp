@@ -31,7 +31,7 @@
 #define MINOR_VER               5
 #define CLIENT_RSP_BUF_SIZE     128
 #define OFFSET_POS              1
-#define INVALID_SFID            (PART1_SF1 + 30)
+#define INVALID_SID            (PART1_ROT_SRV1 + 30)
 #define INVALID_MINOR           (MINOR_VER + 10)
 #define INVALID_TX_LEN          (PSA_MAX_INVEC_LEN + 1)
 
@@ -54,9 +54,9 @@ void error(const char* format, ...)
 
 /* ------------------------------------- Functions ----------------------------------- */
 
-static psa_handle_t negative_server_ipc_tests_connect(uint32_t sfid, uint32_t minor_version)
+static psa_handle_t negative_server_ipc_tests_connect(uint32_t sid, uint32_t minor_version)
 {
-    psa_handle_t handle = psa_connect(sfid, minor_version);
+    psa_handle_t handle = psa_connect(sid, minor_version);
     TEST_ASSERT_TRUE(handle > 0);
     return handle;
 }

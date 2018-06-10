@@ -50,9 +50,6 @@ extern "C" {
 #define PSA_MINOR_VERSION_POLICY_RELAXED (0UL) /**< Don't perform minor version check during psa_connect().*/
 #define PSA_MINOR_VERSION_POLICY_STRICT (1UL) /**< Force minor version check during psa_connect().*/
 
-#define PSA_SEC_FUNC_SEM_MAX_COUNT (1UL) /**< Maximum number of available tokens for a Secure Function semaphore.*/
-#define PSA_SEC_FUNC_SEM_INITIAL_COUNT (0UL) /**< Initial number of available tokens for a Secure Function semaphore.*/
-
 #define PSA_MMIO_PERM_READ_ONLY                     0x000000001
 #define PSA_MMIO_PERM_READ_WRITE                    0x000000003
 
@@ -92,7 +89,7 @@ typedef psa_error_t error_t;
 /* -------------------------------------- Structs ------------------------------------ */
 
 /**
- * Structure containing the PSA IPC message sent from a client partition to a secure function.
+ * Structure containing the PSA IPC message sent from a client partition to a Root of Trust Service.
  */
 typedef struct psa_msg {
     uint32_t type;                       /**< The message type, one of ::spm_msg_type.*/

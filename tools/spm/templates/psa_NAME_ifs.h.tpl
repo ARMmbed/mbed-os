@@ -19,12 +19,12 @@
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  **********************************************************************************************************************/
 
-#ifndef PSA_{{partition.name|upper}}_PARTITION_SECURE_FUNCTIONS_H
-#define PSA_{{partition.name|upper}}_PARTITION_SECURE_FUNCTIONS_H
+#ifndef PSA_{{partition.name|upper}}_PARTITION_ROT_SERVICES_H
+#define PSA_{{partition.name|upper}}_PARTITION_ROT_SERVICES_H
 
-{% for sf in partition.secure_functions %}
-#define {{sf.name|upper}} {{sf.id}}
+{% for rot_srv in partition.rot_services %}
+#define {{rot_srv.name|upper}} {{rot_srv.id}}
 {% endfor %}
 
-#endif // PSA_{{partition.name|upper}}_PARTITION_SECURE_FUNCTIONS_H
+#endif // PSA_{{partition.name|upper}}_PARTITION_ROT_SERVICES_H
 {# End of file #}

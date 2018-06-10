@@ -58,11 +58,11 @@ static inline void destroy_channel_handle(psa_handle_t handle)
 }
 
 
-static inline spm_secure_func_t *get_secure_function(spm_partition_t *prt, psa_signal_t signal)
+static inline spm_rot_service_t *get_rot_service(spm_partition_t *prt, psa_signal_t signal)
 {
-    for (size_t i = 0; i < prt->sec_funcs_count; i++) {
-        if (prt->sec_funcs[i].mask == signal) {
-            return &prt->sec_funcs[i];
+    for (size_t i = 0; i < prt->rot_services_count; i++) {
+        if (prt->rot_services[i].mask == signal) {
+            return &prt->rot_services[i];
         }
     }
 
@@ -177,29 +177,29 @@ static psa_handle_t copy_message_to_spm(spm_ipc_channel_t *channel, int32_t curr
     return handle;
 }
 
-static spm_ipc_channel_t * spm_secure_func_queue_dequeue(spm_secure_func_t *sec_func)
+static spm_ipc_channel_t * spm_rot_service_queue_dequeue(spm_rot_service_t *rot_service)
 {
-    osStatus_t os_status = osMutexAcquire(sec_func->partition->mutex, osWaitForever);
+    osStatus_t os_status = osMutexAcquire(rot_service->partition->mutex, osWaitForever);
     SPM_ASSERT(osOK == os_status);
     PSA_UNUSED(os_status);
 
-    spm_ipc_channel_t *ret = sec_func->queue.head;
+    spm_ipc_channel_t *ret = rot_service->queue.head;
 
     if (ret == NULL) {
         SPM_PANIC("Dequeue from empty queue");
     }
 
-    sec_func->queue.head = ret->next;
+    rot_service->queue.head = ret->next;
     ret->next = NULL;
 
-    if (sec_func->queue.head == NULL) {
-        sec_func->queue.tail = NULL;
-        int32_t flags = (int32_t)osThreadFlagsClear(sec_func->mask);
+    if (rot_service->queue.head == NULL) {
+        rot_service->queue.tail = NULL;
+        int32_t flags = (int32_t)osThreadFlagsClear(rot_service->mask);
         SPM_ASSERT(flags >= 0);
         PSA_UNUSED(flags);
     }
 
-    os_status = osMutexRelease(sec_func->partition->mutex);
+    os_status = osMutexRelease(rot_service->partition->mutex);
     SPM_ASSERT(osOK == os_status);
 
     return ret;
@@ -211,7 +211,7 @@ static uint32_t psa_wait(bool wait_any, uint32_t bitmask, uint32_t timeout)
     spm_partition_t *curr_partition = get_active_partition();
     SPM_ASSERT(NULL != curr_partition); // active thread in SPM must be in partition DB
 
-    uint32_t flags_all = curr_partition->flags_sf | curr_partition->flags_interrupts;
+    uint32_t flags_all = curr_partition->flags_rot_srv | curr_partition->flags_interrupts;
 
     // In case we're waiting for any signal the bitmask must contain all the flags, otherwise
     // we should be waiting for a subset of interrupt signals.
@@ -231,7 +231,7 @@ static uint32_t psa_wait(bool wait_any, uint32_t bitmask, uint32_t timeout)
         (PSA_WAIT_BLOCK == timeout) ? osWaitForever : timeout
         );
 
-    // Asserted_signals must be a subset of the supported SF and interrupt signals.
+    // Asserted_signals must be a subset of the supported ROT_SRV and interrupt signals.
     SPM_ASSERT((asserted_signals == (asserted_signals & flags_all)) ||
                ((PSA_WAIT_BLOCK != timeout) && (osFlagsErrorTimeout == asserted_signals)));
 
@@ -259,13 +259,13 @@ void psa_get(psa_signal_t signum, psa_msg_t *msg)
 
     memset(msg, 0, sizeof(*msg));
 
-    // signum must be ONLY ONE of the bits of curr_partition->flags_sf
+    // signum must be ONLY ONE of the bits of curr_partition->flags_rot_srv
     bool is_one_bit = ((signum != 0) && !(signum & (signum - 1)));
-    if (!is_one_bit || !(signum & (curr_partition->flags_sf | curr_partition->flags_interrupts))) {
+    if (!is_one_bit || !(signum & (curr_partition->flags_rot_srv | curr_partition->flags_interrupts))) {
         SPM_PANIC(
             "signum 0x%x must have only 1 bit ON and must be a subset of 0x%x!\n",
             signum,
-            curr_partition->flags_sf | curr_partition->flags_interrupts
+            curr_partition->flags_rot_srv | curr_partition->flags_interrupts
             );
     }
 
@@ -274,11 +274,11 @@ void psa_get(psa_signal_t signum, psa_msg_t *msg)
         SPM_PANIC("flag is not active!\n");
     }
 
-    spm_secure_func_t *curr_sec_func = get_secure_function(curr_partition, signum);
-    if (curr_sec_func == NULL) {
+    spm_rot_service_t *curr_rot_service = get_rot_service(curr_partition, signum);
+    if (curr_rot_service == NULL) {
         SPM_PANIC("Recieved signal (0x%08x) that does not match any ecure function", signum);
     }
-    spm_ipc_channel_t *curr_channel = spm_secure_func_queue_dequeue(curr_sec_func);
+    spm_ipc_channel_t *curr_channel = spm_rot_service_queue_dequeue(curr_rot_service);
 
     SPM_ASSERT((curr_channel->msg_type > PSA_IPC_MSG_TYPE_INVALID) &&
                (curr_channel->msg_type <= PSA_IPC_MSG_TYPE_MAX));
@@ -450,7 +450,7 @@ void psa_end(psa_handle_t msg_handle, psa_error_t retval)
                 {
                     // In psa_connect the handle was written to user's memory before
                     // the connection was established.
-                    // Channel state machine and ACL will prevent attacker from 
+                    // Channel state machine and ACL will prevent attacker from
                     // doing bad stuff before we overwrite it with a negative return code.
                     destroy_channel_handle((psa_handle_t)connect_msg_data ->rc);
 

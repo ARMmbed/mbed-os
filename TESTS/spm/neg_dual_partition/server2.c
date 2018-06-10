@@ -53,11 +53,11 @@ void server_main2(void *ptr)
                 }
                 case PSA_IPC_MSG_TYPE_CALL: {
                     psa_connect(DUMMY, MINOR_VER);
-                    TEST_FAIL_MESSAGE("server_call_sfid_in_same_partition negative test failed");
+                    TEST_FAIL_MESSAGE("server_call_sid_in_same_partition negative test failed");
                     break;
                 }
                 default: {
-                    TEST_FAIL_MESSAGE("server_call_sfid_in_same_partition msg type failure");
+                    TEST_FAIL_MESSAGE("server_call_sid_in_same_partition msg type failure");
                 }
             }
         } else {

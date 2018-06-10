@@ -29,16 +29,16 @@ void part2_main(void *ptr)
 
     while (1) {
         signals = psa_wait_any(PSA_WAIT_BLOCK);
-        if (0 == (signals & (SF_REVERSE_MSK | SF_DB_TST_MSK))) {
-            SPM_PANIC("returned from psa_wait_any without SF_REVERSE_MSK or SF_DB_TST_MSK bit on\n");
+        if (0 == (signals & (ROT_SRV_REVERSE_MSK | ROT_SRV_DB_TST_MSK))) {
+            SPM_PANIC("returned from psa_wait_any without ROT_SRV_REVERSE_MSK or ROT_SRV_DB_TST_MSK bit on\n");
         }
-        if(signals & SF_REVERSE_MSK) {
-            psa_get(SF_REVERSE_MSK, &msg);
+        if(signals & ROT_SRV_REVERSE_MSK) {
+            psa_get(ROT_SRV_REVERSE_MSK, &msg);
             switch (msg.type) {
                 case PSA_IPC_MSG_TYPE_CALL:
                 {
                     if ((msg.in_size[0] + msg.in_size[1] + msg.in_size[2]) == 0) {
-                        SPM_PANIC("got a zero message size to REVERSE SF\n");
+                        SPM_PANIC("got a zero message size to REVERSE ROT_SRV\n");
                     }
 
                     len = msg.in_size[0];
@@ -70,7 +70,7 @@ void part2_main(void *ptr)
         }
         else {  // -- Doorbell test
 
-            psa_get(SF_DB_TST_MSK, &msg);
+            psa_get(ROT_SRV_DB_TST_MSK, &msg);
             switch (msg.type) {
                 case PSA_IPC_MSG_TYPE_CALL:
                 {

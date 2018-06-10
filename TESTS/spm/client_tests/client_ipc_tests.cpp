@@ -40,9 +40,9 @@ typedef struct th_struct {
 
 /* ------------------------------------- Functions ----------------------------------- */
 
-static psa_handle_t client_ipc_tests_connect(uint32_t sfid, uint32_t minor_version)
+static psa_handle_t client_ipc_tests_connect(uint32_t sid, uint32_t minor_version)
 {
-    psa_handle_t handle = psa_connect(sfid, minor_version);
+    psa_handle_t handle = psa_connect(sid, minor_version);
 
     TEST_ASSERT_TRUE(handle > 0);
 
@@ -94,7 +94,7 @@ void iovec_0_NULL()
 {
     psa_handle_t handle = 0;
 
-    handle = client_ipc_tests_connect(PART1_SF1, MINOR_VER);
+    handle = client_ipc_tests_connect(PART1_ROT_SRV1, MINOR_VER);
 
     uint8_t expect_size = 5;
     uint8_t off = 2;
@@ -117,7 +117,7 @@ void iovec_1_NULL()
 {
     psa_handle_t handle = 0;
 
-    handle = client_ipc_tests_connect(PART1_SF1, MINOR_VER);
+    handle = client_ipc_tests_connect(PART1_ROT_SRV1, MINOR_VER);
 
     uint8_t expect_size = 2;
     uint8_t off = 3;
@@ -140,7 +140,7 @@ void iovec_2_NULL()
 {
     psa_handle_t handle = 0;
 
-    handle = client_ipc_tests_connect(PART1_SF1, MINOR_VER);
+    handle = client_ipc_tests_connect(PART1_ROT_SRV1, MINOR_VER);
 
     uint8_t expect_size = 2;
     uint8_t off = 3;
@@ -163,7 +163,7 @@ void rx_buff_null()
 {
     psa_handle_t handle = 0;
 
-    handle = client_ipc_tests_connect(PART1_SF1, MINOR_VER);
+    handle = client_ipc_tests_connect(PART1_ROT_SRV1, MINOR_VER);
 
     uint8_t expect_size = 0, off = 2;
 
@@ -184,7 +184,7 @@ void tx_buff_null()
 {
     psa_handle_t handle = 0;
 
-    handle = client_ipc_tests_connect(PART1_SF1, MINOR_VER);
+    handle = client_ipc_tests_connect(PART1_ROT_SRV1, MINOR_VER);
 
     client_ipc_tests_call(handle, NULL, 0, CLIENT_RSP_BUF_SIZE, NULL, 0);
 
@@ -196,19 +196,19 @@ void rx_tx_null()
 {
     psa_handle_t handle = 0;
 
-    handle = client_ipc_tests_connect(PART1_SF1, MINOR_VER);
+    handle = client_ipc_tests_connect(PART1_ROT_SRV1, MINOR_VER);
 
     client_ipc_tests_call(handle, NULL, 0, 0, NULL, 0);
 
     client_ipc_tests_close(handle);
 }
 
-//Testing multiple subsequent calls to the same SFID
+//Testing multiple subsequent calls to the same SID
 void multiple_call()
 {
     psa_handle_t handle = 0;
 
-    handle = client_ipc_tests_connect(PART1_SF1, MINOR_VER);
+    handle = client_ipc_tests_connect(PART1_ROT_SRV1, MINOR_VER);
 
     uint8_t expect_size = 2, off = 2;
 
@@ -252,7 +252,7 @@ static void call_diff_handle(th_struct_t *thr_attr)
 {
     psa_handle_t handle = 0;
 
-    handle = client_ipc_tests_connect(PART1_SF1, MINOR_VER);
+    handle = client_ipc_tests_connect(PART1_ROT_SRV1, MINOR_VER);
 
     client_ipc_tests_call(handle,
                           thr_attr->iovec_temp,
@@ -266,7 +266,7 @@ static void call_diff_handle(th_struct_t *thr_attr)
     client_ipc_tests_close(handle);
 }
 
-//Testing multiple parallel calls to the same SFID with different handles
+//Testing multiple parallel calls to the same SID with different handles
 void multi_thread_diff_handles()
 {
     Thread T1, T2, T3;
@@ -342,10 +342,10 @@ void exceed_num_of_max_channels()
 
     for (i = 0; i < MBED_CONF_SPM_IPC_MAX_NUM_OF_CHANNELS + 1; i++) {
         if (i != MBED_CONF_SPM_IPC_MAX_NUM_OF_CHANNELS) {
-            handle[i] = client_ipc_tests_connect(PART1_SF1, MINOR_VER);
+            handle[i] = client_ipc_tests_connect(PART1_ROT_SRV1, MINOR_VER);
         }
         else {
-            handle[i] = psa_connect(PART1_SF1, MINOR_VER);
+            handle[i] = psa_connect(PART1_ROT_SRV1, MINOR_VER);
             TEST_ASSERT_EQUAL_INT32(PSA_CONNECTION_REFUSED_BUSY, handle[i]);
         }
     }
@@ -369,7 +369,7 @@ Case cases[] = {
     Case("Testing client tx_buff_null", tx_buff_null),
     Case("Testing client rx_tx_null", rx_tx_null),
     Case("Testing client multiple_call from a single thread", multiple_call),
-    Case("Testing client multiple calls on different channels to the same SFID", multi_thread_diff_handles),
+    Case("Testing client multiple calls on different channels to the same SID", multi_thread_diff_handles),
     Case("Testing client exceed num of max channels allowed", exceed_num_of_max_channels),
     Case("Testing client close on NULL handle", client_close_null_handle),
 };

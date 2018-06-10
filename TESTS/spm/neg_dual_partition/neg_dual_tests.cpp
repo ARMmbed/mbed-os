@@ -47,27 +47,27 @@ void error(const char* format, ...)
 
 /* ------------------------------------- Functions ----------------------------------- */
 
-void server_call_sfid_without_extern_sfid()
+void server_call_sid_without_extern_sid()
 {
-    psa_handle_t handle = psa_connect(PART1_CALL_NON_EXISTS_EXTERN_SFID, MINOR_VER);
+    psa_handle_t handle = psa_connect(PART1_CALL_NON_EXISTS_EXTERN_SID, MINOR_VER);
     TEST_ASSERT_TRUE(handle > 0);
 
     psa_call(handle, NULL, 0, NULL, 0);
-    TEST_FAIL_MESSAGE("psa_call from SP to SFID not listed as extern_sfids didn't fail");
+    TEST_FAIL_MESSAGE("psa_call from SP to SID not listed as extern_sids didn't fail");
 }
 
-void server_call_sfid_in_same_partition()
+void server_call_sid_in_same_partition()
 {
     psa_handle_t handle = psa_connect(PART2_CALL_INSIDE_PARTITION, MINOR_VER);
     TEST_ASSERT_TRUE(handle > 0);
 
     psa_call(handle, NULL, 0, NULL, 0);
-    TEST_FAIL_MESSAGE("psa_call from SP to SFID within same SP didn't fail");
+    TEST_FAIL_MESSAGE("psa_call from SP to SID within same SP didn't fail");
 }
 
 
-PSA_NEG_TEST(server_call_sfid_without_extern_sfid)
-PSA_NEG_TEST(server_call_sfid_in_same_partition)
+PSA_NEG_TEST(server_call_sid_without_extern_sid)
+PSA_NEG_TEST(server_call_sid_in_same_partition)
 
 utest::v1::status_t spm_case_teardown(const Case *const source, const size_t passed, const size_t failed, const failure_t reason)
 {
@@ -80,8 +80,8 @@ utest::v1::status_t spm_case_teardown(const Case *const source, const size_t pas
 
 // Test cases
 Case cases[] = {
-    SPM_UTEST_CASE("Testing server calling sfid without extern sfid", server_call_sfid_without_extern_sfid),
-    SPM_UTEST_CASE("Testing server calling sfid within the same partition", server_call_sfid_in_same_partition)
+    SPM_UTEST_CASE("Testing server calling sid without extern sid", server_call_sid_without_extern_sid),
+    SPM_UTEST_CASE("Testing server calling sid within the same partition", server_call_sid_in_same_partition)
 };
 
 utest::v1::status_t spm_setup(const size_t number_of_cases)
