@@ -29,12 +29,12 @@ void part1_main(void *ptr)
     while (1) {
 
         signals = psa_wait_any(PSA_WAIT_BLOCK);
-        SPM_ASSERT(signals == SF1_MSK);
+        SPM_ASSERT(signals == ROT_SRV1_MSK);
         PSA_UNUSED(signals);
 
         osDelay(500);
 
-        psa_get(SF1_MSK, &msg);
+        psa_get(ROT_SRV1_MSK, &msg);
         if (msg.handle != PSA_NULL_HANDLE) {
             client_id = psa_identity(msg.handle);
             SPM_ASSERT(client_id == PSA_NSPE_IDENTIFIER);

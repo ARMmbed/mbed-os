@@ -44,14 +44,14 @@ void part1_main(void *ptr)
     while (1) {
         signals = psa_wait_any(PSA_WAIT_BLOCK);
         if (0 == (signals & CONTROL_MSK)) {
-            SPM_PANIC("returned from psa_wait_any without CONTROL_SF bit on signals=(0x%08x)\n", signals);
+            SPM_PANIC("returned from psa_wait_any without CONTROL_ROT_SRV bit on signals=(0x%08x)\n", signals);
         }
 
         psa_get(CONTROL_MSK, &msg);
         switch (msg.type) {
         case PSA_IPC_MSG_TYPE_CALL:
             if (msg.in_size[0] == 0) {
-                SPM_PANIC("got a zero message size to CONTROL SF\n");
+                SPM_PANIC("got a zero message size to CONTROL ROT_SRV\n");
             }
 
             if (psa_read(msg.handle, 0, &action, sizeof(action)) != sizeof(action)) {

@@ -27,8 +27,8 @@
 {% endfor %} {# partition in partitions #}
 
 {% for partition in partitions %}
-{% if partition.extern_sfids|count > 0 %}
-extern const uint32_t {{partition.name|lower}}_external_sfids[{{partition.extern_sfids|count}}];
+{% if partition.extern_sids|count > 0 %}
+extern const uint32_t {{partition.name|lower}}_external_sids[{{partition.extern_sids|count}}];
 {% endif %}
 {% endfor %} {# partition in partitions #}
 
@@ -38,16 +38,16 @@ spm_partition_t g_partitions[{{partitions|count}}] = {
     {
         .partition_id = {{partition.id}},
         .thread_id = 0,
-        .flags_sf = {{partition.name|upper}}_WAIT_ANY_SFID_MSK,
+        .flags_rot_srv = {{partition.name|upper}}_WAIT_ANY_SID_MSK,
         .flags_interrupts = {{partition.name|upper}}_WAIT_ANY_IRQ_MSK | {{partition.name|upper}}_DOORBELL_MSK,
-        .sec_funcs = NULL,
-        .sec_funcs_count = {{partition.name|upper}}_SF_COUNT,
-    {% if partition.extern_sfids|count > 0 %}
-        .extern_sfids = {{partition.name|lower}}_external_sfids,
+        .rot_services = NULL,
+        .rot_services_count = {{partition.name|upper}}_ROT_SRV_COUNT,
+    {% if partition.extern_sids|count > 0 %}
+        .extern_sids = {{partition.name|lower}}_external_sids,
     {% else %}
-        .extern_sfids = NULL,
+        .extern_sids = NULL,
     {% endif %}
-        .extern_sfids_count = {{partition.name|upper}}_EXT_SF_COUNT,
+        .extern_sids_count = {{partition.name|upper}}_EXT_ROT_SRV_COUNT,
     },
 {% endfor %}
 };

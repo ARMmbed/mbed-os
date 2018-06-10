@@ -42,7 +42,7 @@ char msg_buf[] = CLIENT_TX_MSG;
 
 void example_main(void)
 {
-    psa_handle_t conn_handle = psa_connect(SF1, CLIENT_MINOR_VERSION);
+    psa_handle_t conn_handle = psa_connect(ROT_SRV1, CLIENT_MINOR_VERSION);
     TEST_ASSERT_MESSAGE(conn_handle > 0, "psa_connect() failed");
 
 

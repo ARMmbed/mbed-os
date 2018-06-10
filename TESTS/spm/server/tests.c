@@ -22,7 +22,7 @@
 #include "server_tests.h"
 
 /**
- * Proccess a generic connect message to TEST SF.
+ * Proccess a generic connect message to TEST ROT_SRV.
  * @return PSA_SUCCESS or negative error code if failed.
  */
 static psa_error_t proccess_connect_request(void)
@@ -45,7 +45,7 @@ static psa_error_t proccess_connect_request(void)
 }
 
 /**
- * Proccess a generic disconnect message to TEST SF.
+ * Proccess a generic disconnect message to TEST ROT_SRV.
  * @return PSA_SUCCESS or negative error code if failed.
  */
 static psa_error_t proccess_disconnect_request(void)
@@ -452,7 +452,7 @@ PSA_TEST_SERVER(rhandle_factorial)
     while (1) {
         signals = psa_wait_any(PSA_WAIT_BLOCK);
         if (0 == (signals & TEST_MSK)) {
-            SPM_PANIC("returned from psa_wait_any without SF_FACTORIAL bit on\n");
+            SPM_PANIC("returned from psa_wait_any without ROT_SRV_FACTORIAL bit on\n");
         }
 
         psa_get(TEST_MSK, &msg);
@@ -474,7 +474,7 @@ PSA_TEST_SERVER(rhandle_factorial)
             break;
         case PSA_IPC_MSG_TYPE_CALL:
             if (msg.in_size[0] + msg.in_size[1] + msg.in_size[2] > 0) {
-                SPM_PANIC("SF_FACTORIAL SF should not get any params\n");
+                SPM_PANIC("ROT_SRV_FACTORIAL ROT_SRV should not get any params\n");
             }
 
             if (NULL == msg.rhandle){
@@ -570,7 +570,7 @@ PSA_TEST_SERVER(cross_partition_call)
     psa_invec_t data = { buff, data_read };
 
     psa_outvec_t resp = { buff, data_read };
-    psa_handle_t conn_handle = psa_connect(SF_REVERSE, 5);
+    psa_handle_t conn_handle = psa_connect(ROT_SRV_REVERSE, 5);
     if (conn_handle <= 0) {
         partition_call_status = PSA_GENERIC_ERROR;
     }
@@ -621,7 +621,7 @@ PSA_TEST_SERVER(doorbell_test)
     }
 
     // -- Connection with partition2 - START
-    psa_handle_t conn_handle = psa_connect(SF_DB_TST, 5);
+    psa_handle_t conn_handle = psa_connect(ROT_SRV_DB_TST, 5);
     if (conn_handle <= 0) {
         partition_call_status = PSA_GENERIC_ERROR;
     }

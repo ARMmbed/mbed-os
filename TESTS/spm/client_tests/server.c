@@ -25,9 +25,9 @@ void server_main(void *ptr)
     uint32_t signals = 0;
     while (1) {
         signals = psa_wait_any(PSA_WAIT_BLOCK);
-        if (signals & PART1_SF1_MSK) {
+        if (signals & PART1_ROT_SRV1_MSK) {
             psa_msg_t msg = {0};
-            psa_get(PART1_SF1_MSK, &msg);
+            psa_get(PART1_ROT_SRV1_MSK, &msg);
             switch (msg.type) {
                 case PSA_IPC_MSG_TYPE_CONNECT:
                 case PSA_IPC_MSG_TYPE_DISCONNECT:

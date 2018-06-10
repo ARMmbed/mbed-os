@@ -49,15 +49,15 @@ osThreadAttr_t {{partition.name|lower}}_thread_attr = {
     .reserved = 0
     };
 
-spm_secure_func_t {{partition.name|lower}}_sec_funcs[{{partition.name|upper}}_SF_COUNT] = {
-{% for sf in partition.secure_functions %}
+spm_rot_service_t {{partition.name|lower}}_rot_services[{{partition.name|upper}}_ROT_SRV_COUNT] = {
+{% for rot_srv in partition.rot_services %}
     {
-        .sfid = {{sf.name|upper}},
-        .mask = {{sf.signal|upper}},
+        .sid = {{rot_srv.name|upper}},
+        .mask = {{rot_srv.signal|upper}},
         .partition = NULL,
-        .min_version = {{sf.minor_version}},
-        .min_version_policy = PSA_MINOR_VERSION_POLICY_{{sf.minor_policy|upper}},
-{% if sf.nspe_callable %}
+        .min_version = {{rot_srv.minor_version}},
+        .min_version_policy = PSA_MINOR_VERSION_POLICY_{{rot_srv.minor_policy|upper}},
+{% if rot_srv.nspe_callable %}
         .allow_nspe = true,
 {% else %}
         .allow_nspe = false,
@@ -70,16 +70,16 @@ spm_secure_func_t {{partition.name|lower}}_sec_funcs[{{partition.name|upper}}_SF
 {% endfor %}
 };
 
-{% if partition.extern_sfids|count > 0 %}
-/* External SFIDs used by {{partition.name}} */
-const uint32_t {{partition.name|lower}}_external_sfids[{{partition.extern_sfids|count}}] =
+{% if partition.extern_sids|count > 0 %}
+/* External SIDs used by {{partition.name}} */
+const uint32_t {{partition.name|lower}}_external_sids[{{partition.extern_sids|count}}] =
 {
-{% for sfid in partition.extern_sfids %}
-    {{sfid|upper}},
+{% for sid in partition.extern_sids %}
+    {{sid|upper}},
 {% endfor %}
 };
 {% endif %}
-{% for sf in partition.secure_functions %}
+{% for rot_srv in partition.rot_services %}
 {% endfor %}
 
 static osRtxMutex_t {{partition.name|lower}}_mutex = {0};
@@ -103,10 +103,10 @@ void {{partition.name|lower}}_init(spm_partition_t *partition)
         SPM_PANIC("Failed to create mutex for secure partition {{partition.name|lower}}!\n");
     }
 
-    for (uint32_t i = 0; i < {{partition.name|upper}}_SF_COUNT; ++i) {
-        {{partition.name|lower}}_sec_funcs[i].partition = partition;
+    for (uint32_t i = 0; i < {{partition.name|upper}}_ROT_SRV_COUNT; ++i) {
+        {{partition.name|lower}}_rot_services[i].partition = partition;
     }
-    partition->sec_funcs = {{partition.name|lower}}_sec_funcs;
+    partition->rot_services = {{partition.name|lower}}_rot_services;
 
     partition->thread_id = osThreadNew({{partition.entry_point}}, NULL, &{{partition.name|lower}}_thread_attr);
     if (NULL == partition->thread_id) {

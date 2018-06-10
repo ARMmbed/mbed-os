@@ -8,7 +8,7 @@ The SPM provides hardware-enforced partitions for individual code blocks by limi
 
 The SPM and the secure partitions are located in the Secure Processing Environment (SPE), isolating them from the Non-Secure Processing Environment (NSPE), which contains the application firmware, OS kernel and libraries, and other nonsecure hardware resources.
 
-A secure partition is a container for one or more secure functions, and a platform may have multiple secure partitions. Secure partitions provide the execution environment for security functionality.
+A secure partition is a container for one or more root of trust services, and a platform may have multiple secure partitions. Secure partitions provide the execution environment for security functionality.
 
 Platform hardware, such as the Security Attribution Unit (SAU) and Memory Protection Unit (MPU) in the new ARMv8-M platforms, enforces the separation of partitions. Other platforms may use different mechanisms to provide equivalent isolation for the partitions.
 
@@ -22,7 +22,7 @@ If you are prototyping software or using platforms without SAU or MPU, you can c
 
 ### Using secure partitions
 
-Secure partitions are located within the SPE, and must contain at least one set of related security operations (known as a secure function) or at least one Interrupt Request (IRQ). You can have multiple secure functions in a single secure partition.
+Secure partitions are located within the SPE, and must contain at least one set of related security operations (known as a root of trust service) or at least one Interrupt Request (IRQ). You can have multiple root of trust services in a single secure partition.
 
 For a secure partition, you need:
 
@@ -30,7 +30,7 @@ For a secure partition, you need:
   * Be single threaded.
   * Be structured as a loop that waits for inputs.
   * Never exit its loop (considered as a programming error).
-  * Be written in C or 'extern "C"' to avoid C++ name mangling. 
+  * Be written in C or 'extern "C"' to avoid C++ name mangling.
   * Follow PSA IPC rules. Secure partitions communicate with one another using the IPC API defined in [IPC API](https://github.com/ARMmbed/PSA-IPC-doc/blob/master/IPC_revision.md). All IPC messages must eventually be completed [`call psa_end()`]. Note that the SPM does not schedule IPC messages fairly.
 * A **manifest file** in JSON format, that describes the Secure Partition characteristics. The specifications in the manifest file are validated during the build process and at run time.
 
@@ -41,15 +41,15 @@ The secure partition manifest file describes the properties of the secure partit
 * **entry_point** is the function name of the partition's thread.
 * **source_files** is the list of source files containing the partition's code.
 * **heap_size** sets the heap size for platforms that have an isolation level of 2 and higher.
-* **secure_functions** is the list of the partition's secure functions with their properties.
-* **extern_sfids** defines a dependency to other Secure Function (referenced by SFID). If the manifest does not specify the access between a partition (acting as client) and a secure function (acting as server), then the client is not able to send any messages to the secure function.
+* **services** is the list of the partition's root of trust services with their properties.
+* **extern_sids** defines a dependency to other Root of Trust Service (referenced by SID). If the manifest does not specify the access between a partition (acting as client) and a root of trust service (acting as server), then the client is not able to send any messages to the root of trust service.
 
 For example:
 
 ```json
 {
   "name": "BOX_MAIN",
-  "type": "SECURE",
+  "type": "APPLICATION-ROT",
   "priority": "NORMAL",
   "id": "0x7BADD00D",
   "entry_point": "main",
@@ -87,16 +87,16 @@ For example:
       "permission": "READ-ONLY"
     }
   ],
-  "secure_functions": [
+  "services": [
     {
-      "sfid": "PSA_TRUSTED_UPDATE",
+      "sid": "PSA_TRUSTED_UPDATE",
       "signal": "PSA_TRUSTED_UPDATE",
       "non_secure_clients": true,
       "minor_version": 1,
-      "minor_policy": "strict"
+      "minor_policy": "STRICT"
     }
   ],
-  "extern_sfids": [
+  "extern_sids": [
     "PSA_CRYPTO_RSA",
     "PSA_CRYPTO_AES"
   ],

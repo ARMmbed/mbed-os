@@ -32,8 +32,8 @@
 extern "C" {
 #endif
 
-/** @addtogroup Secure-Function-API
- *  The C interface for a Secure Function in a Partition.
+/** @addtogroup RoT-Service-API
+ *  The C interface for a Root of Trust Service in a Partition.
  * @{
  */
 
@@ -48,7 +48,7 @@ extern "C" {
 uint32_t psa_wait_any(uint32_t timeout);
 
 /**
- * Return iterrupt/doorbell signals that have been asserted based on the bitmask provided.@n
+ * Return interrupt/doorbell signals that have been asserted based on the bitmask provided.@n
  * The mask contains a set of signals the caller is interested in handling and must be a subset
  * of combined interrupt and doorbell mask for the calling partition.
  *
@@ -82,7 +82,7 @@ void psa_get(psa_signal_t signum, psa_msg_t *msg);
  * Associate the caller-provided private data with a specified handle.
  *
  * @param[in] msg_handle Handle for the caller's message.
- * @param[in] rhandle    Reverse handle allocated by the secure function.
+ * @param[in] rhandle    Reverse handle allocated by the Root of Trust Service.
  */
 void psa_set_rhandle(psa_handle_t msg_handle, void *rhandle);
 
@@ -159,7 +159,7 @@ void psa_clear(void);
  */
 void psa_eoi(uint32_t irq_signal);
 
-/** @}*/ // end of Secure-Function-API group
+/** @}*/ // end of RoT-Service-API group
 
 #ifdef __cplusplus
 }

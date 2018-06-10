@@ -28,9 +28,9 @@ void server_main1(void *ptr)
     memset(msg_buff, 0, sizeof(msg_buff));
     while (true) {
         signals = psa_wait_any(PSA_WAIT_BLOCK);
-        if (signals & NEG_CLIENT_PART1_SF1_MSK) {
+        if (signals & NEG_CLIENT_PART1_ROT_SRV1_MSK) {
             psa_msg_t msg = {0};
-            psa_get(NEG_CLIENT_PART1_SF1_MSK, &msg);
+            psa_get(NEG_CLIENT_PART1_ROT_SRV1_MSK, &msg);
             switch (msg.type) {
                 case PSA_IPC_MSG_TYPE_CONNECT:
                 case PSA_IPC_MSG_TYPE_DISCONNECT:

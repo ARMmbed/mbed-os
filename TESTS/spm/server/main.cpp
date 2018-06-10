@@ -26,7 +26,7 @@
 #include "server_tests.h"
 using namespace utest::v1;
 
-#define TEST_SF_MINOR   12
+#define TEST_ROT_SRV_MINOR   12
 #define OUT_BUFFER_SIZE 60
 
 psa_handle_t control_handle = 0;
@@ -37,7 +37,7 @@ char cross_part_buf[] = "Hello and welcome SPM";
 PSA_TEST_CLIENT(wait_timeout)
 {
     osDelay(50);
-    psa_handle_t test_handle = psa_connect(TEST, TEST_SF_MINOR);
+    psa_handle_t test_handle = psa_connect(TEST, TEST_ROT_SRV_MINOR);
     TEST_ASSERT(test_handle > 0);
 
     psa_close(test_handle);
@@ -46,7 +46,7 @@ PSA_TEST_CLIENT(wait_timeout)
 
 PSA_TEST_CLIENT(identity_during_connect)
 {
-    psa_handle_t test_handle = psa_connect(TEST, TEST_SF_MINOR);
+    psa_handle_t test_handle = psa_connect(TEST, TEST_ROT_SRV_MINOR);
     TEST_ASSERT(test_handle > 0);
 
     psa_close(test_handle);
@@ -56,7 +56,7 @@ PSA_TEST_CLIENT(identity_during_connect)
 PSA_TEST_CLIENT(identity_during_call)
 {
     psa_error_t status = PSA_SUCCESS;
-    psa_handle_t test_handle = psa_connect(TEST, TEST_SF_MINOR);
+    psa_handle_t test_handle = psa_connect(TEST, TEST_ROT_SRV_MINOR);
     TEST_ASSERT(test_handle > 0);
 
     status = psa_call(test_handle, NULL, 0, NULL, 0);
@@ -73,7 +73,7 @@ PSA_TEST_CLIENT(msg_size_assertion)
         {test_str + 5, 6},
         {test_str + 13, 1}
     };
-    psa_handle_t test_handle = psa_connect(TEST, TEST_SF_MINOR);
+    psa_handle_t test_handle = psa_connect(TEST, TEST_ROT_SRV_MINOR);
     TEST_ASSERT(test_handle > 0);
 
     status = psa_call(test_handle, data, 3, NULL, 0);
@@ -84,7 +84,7 @@ PSA_TEST_CLIENT(msg_size_assertion)
 
 PSA_TEST_CLIENT(reject_connection)
 {
-    psa_handle_t test_handle = psa_connect(TEST, TEST_SF_MINOR);
+    psa_handle_t test_handle = psa_connect(TEST, TEST_ROT_SRV_MINOR);
     TEST_ASSERT_EQUAL(PSA_CONNECTION_REFUSED_PERM, test_handle);
 }
 
@@ -92,7 +92,7 @@ PSA_TEST_CLIENT(read_at_outofboud_offset)
 {
     psa_error_t status = PSA_SUCCESS;
     psa_invec_t data = { test_str, sizeof(test_str) };
-    psa_handle_t test_handle = psa_connect(TEST, TEST_SF_MINOR);
+    psa_handle_t test_handle = psa_connect(TEST, TEST_ROT_SRV_MINOR);
     TEST_ASSERT(test_handle > 0);
 
     status = psa_call(test_handle, &data, 1, NULL, 0);
@@ -109,7 +109,7 @@ PSA_TEST_CLIENT(msg_read_truncation)
         {test_str + 5, 6},
         {test_str + 13, 1}
     };
-    psa_handle_t test_handle = psa_connect(TEST, TEST_SF_MINOR);
+    psa_handle_t test_handle = psa_connect(TEST, TEST_ROT_SRV_MINOR);
     TEST_ASSERT(test_handle > 0);
 
     status = psa_call(test_handle, data, 3, NULL, 0);
@@ -122,7 +122,7 @@ PSA_TEST_CLIENT(skip_zero)
 {
     psa_error_t status = PSA_SUCCESS;
     psa_invec_t data = { test_str, sizeof(test_str) };
-    psa_handle_t test_handle = psa_connect(TEST, TEST_SF_MINOR);
+    psa_handle_t test_handle = psa_connect(TEST, TEST_ROT_SRV_MINOR);
     TEST_ASSERT(test_handle > 0);
 
     status = psa_call(test_handle, &data, 1, NULL, 0);
@@ -135,7 +135,7 @@ PSA_TEST_CLIENT(skip_some)
 {
     psa_error_t status = PSA_SUCCESS;
     psa_invec_t data = { test_str, sizeof(test_str) };
-    psa_handle_t test_handle = psa_connect(TEST, TEST_SF_MINOR);
+    psa_handle_t test_handle = psa_connect(TEST, TEST_ROT_SRV_MINOR);
     TEST_ASSERT(test_handle > 0);
 
     status = psa_call(test_handle, &data, 1, NULL, 0);
@@ -148,7 +148,7 @@ PSA_TEST_CLIENT(skip_more_than_left)
 {
     psa_error_t status = PSA_SUCCESS;
     psa_invec_t data = { test_str, 8 };
-    psa_handle_t test_handle = psa_connect(TEST, TEST_SF_MINOR);
+    psa_handle_t test_handle = psa_connect(TEST, TEST_ROT_SRV_MINOR);
     TEST_ASSERT(test_handle > 0);
 
     status = psa_call(test_handle, &data, 1, NULL, 0);
@@ -163,7 +163,7 @@ PSA_TEST_CLIENT(rhandle_factorial)
     uint32_t value = 1;
     psa_error_t status = PSA_SUCCESS;
     psa_outvec_t resp = { &secure_value, sizeof(secure_value) };
-    psa_handle_t test_handle = psa_connect(TEST, TEST_SF_MINOR);
+    psa_handle_t test_handle = psa_connect(TEST, TEST_ROT_SRV_MINOR);
     TEST_ASSERT(test_handle > 0);
 
     for (uint32_t i = 1; i <= 5; i++) {
@@ -178,7 +178,7 @@ PSA_TEST_CLIENT(rhandle_factorial)
 
 PSA_TEST_CLIENT(cross_partition_call)
 {
-    psa_handle_t test_handle = psa_connect(TEST, TEST_SF_MINOR);
+    psa_handle_t test_handle = psa_connect(TEST, TEST_ROT_SRV_MINOR);
     size_t in_len = strlen(cross_part_buf);
     TEST_ASSERT_MESSAGE(test_handle > 0, "psa_connect() failed");
 
@@ -198,7 +198,7 @@ PSA_TEST_CLIENT(cross_partition_call)
 // Test a common DOORBELL scenario
 PSA_TEST_CLIENT(doorbell_test)
 {
-    psa_handle_t test_handle = psa_connect(TEST, TEST_SF_MINOR);
+    psa_handle_t test_handle = psa_connect(TEST, TEST_ROT_SRV_MINOR);
     TEST_ASSERT_MESSAGE(test_handle > 0, "psa_connect() failed");
 
     psa_error_t status = psa_call(test_handle, NULL, 0, NULL, 0);
@@ -209,7 +209,7 @@ PSA_TEST_CLIENT(doorbell_test)
 
 PSA_TEST_CLIENT(psa_end_on_NULL_HANDLE)
 {
-    psa_handle_t test_handle = psa_connect(TEST, TEST_SF_MINOR);
+    psa_handle_t test_handle = psa_connect(TEST, TEST_ROT_SRV_MINOR);
     TEST_ASSERT(test_handle > 0);
 
     psa_close(test_handle);
@@ -219,7 +219,7 @@ PSA_TEST_CLIENT(psa_end_on_NULL_HANDLE)
 utest::v1::status_t spm_setup(const size_t number_of_cases) {
     control_handle = psa_connect(CONTROL, 0);
     if (control_handle < 0) {
-        SPM_PANIC("Could not open a connection with CONTROL SF");
+        SPM_PANIC("Could not open a connection with CONTROL ROT_SRV");
     }
 
 #ifndef NO_GREENTEA
