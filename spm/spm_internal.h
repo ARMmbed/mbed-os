@@ -21,6 +21,7 @@
 #include "psa_defs.h"
 #include "spm_panic.h"
 #include "handles_manager.h"
+#include "cmsis_compiler.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -74,10 +75,13 @@ typedef struct spm_active_msg {
     SpmMsgType type; /* The message type, one of ::spm_msg_type.*/
 } spm_active_msg_t;
 
+
+// spm_pending_call_msg struct below is packed since in a dual processor solution
+// it is used in both processors
 /*
  * Structure containing data sent from NSPE for ROT_SRV call.
  */
-typedef struct spm_pending_call_msg {
+typedef __PACKED_STRUCT spm_pending_call_msg {
     psa_handle_t channel; /* Handle pointing to the channel */
     const psa_invec_t *in_vec; /* Invecs sent.*/
     uint32_t in_vec_size; /* Number of Invecs sent.*/
@@ -85,17 +89,19 @@ typedef struct spm_pending_call_msg {
     uint32_t out_vec_size; /* Number of Outvecs for response.*/
     psa_error_t rc; /* Return code to be filled by the Root of Trust Service.*/
     osSemaphoreId_t completion_sem_id; /* Semaphore to be released at the end of execution */
-} spm_pending_call_msg_t;
+} __ALIGNED(4) spm_pending_call_msg_t;
 
+// spm_pending_connect_msg struct below is packed since in a dual processor solution
+// it is used in both processors
 /*
  * Structure containing data sent from NSPE for connection.
  */
-typedef struct spm_pending_connect_msg {
+typedef __PACKED_STRUCT spm_pending_connect_msg {
     uint32_t sid; /* The Root of Trust Service ID to be called*/
     uint32_t min_version; /* Minor version of the Root of Trust Service interface.*/
     psa_error_t rc; /* Return code to be filled by the Root of Trust Service.*/
     osSemaphoreId_t completion_sem_id; /* Semaphore to be released at the end of execution */
-} spm_pending_connect_msg_t;
+} __ALIGNED(4) spm_pending_connect_msg_t;
 
 /*
  * Structure to aggregate channels queue in a Root of Trust Service.
