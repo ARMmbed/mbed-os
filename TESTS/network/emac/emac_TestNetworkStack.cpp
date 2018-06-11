@@ -39,6 +39,18 @@ nsapi_error_t EmacTestNetworkStack::add_dns_server(const SocketAddress &address)
     return NSAPI_ERROR_OK;
 }
 
+nsapi_error_t EmacTestNetworkStack::call_in(int delay, mbed::Callback<void()> func)
+{
+    // Implemented as empty to save memory
+    return NSAPI_ERROR_DEVICE_ERROR;
+}
+
+EmacTestNetworkStack::call_in_callback_cb_t EmacTestNetworkStack::get_call_in_callback()
+{
+    call_in_callback_cb_t cb(this, &EmacTestNetworkStack::call_in);
+    return cb;
+}
+
 nsapi_error_t EmacTestNetworkStack::socket_open(nsapi_socket_t *handle, nsapi_protocol_t proto)
 {
     return NSAPI_ERROR_OK;

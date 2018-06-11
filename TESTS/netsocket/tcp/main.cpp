@@ -34,6 +34,9 @@ namespace
     NetworkInterface* net;
 }
 
+char tcp_global::rx_buffer[RX_BUFF_SIZE];
+char tcp_global::tx_buffer[TX_BUFF_SIZE];
+
 NetworkInterface* get_interface()
 {
     return net;
