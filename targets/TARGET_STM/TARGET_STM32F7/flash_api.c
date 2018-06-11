@@ -32,14 +32,43 @@
 #include "flash_api.h"
 #include "flash_data.h"
 #include "platform/mbed_critical.h"
+#include "mbed_error.h"
 
 static uint32_t GetSector(uint32_t Address);
 static uint32_t GetSectorSize(uint32_t Sector);
 
 int32_t flash_init(flash_t *obj)
 {
+    // Check Dual Bank option byte (nDBANK) on devices supporting both single and dual bank configurations
+#ifdef FLASH_OPTCR_nDBANK
+    FLASH_OBProgramInitTypeDef OBInit;
+    /* Allow Access to option bytes sector */
+    HAL_FLASH_OB_Unlock();
+    /* Get the Dual bank configuration status */
+    HAL_FLASHEx_OBGetConfig(&OBInit);
+    /* Allow Access to option bytes sector */
+    HAL_FLASH_OB_Lock();
+#if MBED_CONF_TARGET_FLASH_DUAL_BANK
+    if ((OBInit.USERConfig & OB_NDBANK_SINGLE_BANK) == OB_NDBANK_SINGLE_BANK)
+    {
+        error("The Dual Bank mode option byte (nDBANK) must be enabled (box unchecked)\n");
+        return -1;
+    }
+#else // SINGLE BANK
+    if ((OBInit.USERConfig & OB_NDBANK_SINGLE_BANK) == OB_NDBANK_DUAL_BANK)
+    {
+        error("The Dual Bank mode option byte (nDBANK) must be disabled (box checked)\n");
+        return -1;
+    }
+#endif
+#else // Devices supporting Single Bank only
+#if MBED_CONF_TARGET_FLASH_DUAL_BANK
+#error "The Dual Bank configuration is not supported on this device."
+#endif
+#endif
     return 0;
 }
+
 int32_t flash_free(flash_t *obj)
 {
     return 0;
@@ -70,7 +99,6 @@ int32_t flash_erase_sector(flash_t *obj, uint32_t address)
 {
     /* Variable used for Erase procedure */
     FLASH_EraseInitTypeDef EraseInitStruct;
-    FLASH_OBProgramInitTypeDef OBInit;
     uint32_t SectorId;
     uint32_t SectorError = 0;
     int32_t status = 0;
@@ -94,24 +122,7 @@ int32_t flash_erase_sector(flash_t *obj, uint32_t address)
     /* Get the 1st sector to erase */
     SectorId = GetSector(address);
 
-    /* Allow Access to option bytes sector */
-    HAL_FLASH_OB_Unlock();
-    /* Get the Dual bank configuration status */
-    HAL_FLASHEx_OBGetConfig(&OBInit);
-    /* Allow Access to option bytes sector */
-    HAL_FLASH_OB_Lock();
-
-#if defined (FLASH_OPTCR_nDBANK)
-    /* On targets that support dynamic single or dual bank configuration
-     * Check that we're in SINGLE Bank mode, only supported mode now.
-     */
-    if((OBInit.USERConfig & OB_NDBANK_SINGLE_BANK) != OB_NDBANK_SINGLE_BANK) {
-        /*  We don't support the DUAL BANK MODE for now, so return error */
-        return -1;
-    }
-#endif
-
-    /* Fill EraseInit structure*/
+    /* Fill EraseInit structure */
     EraseInitStruct.TypeErase = FLASH_TYPEERASE_SECTORS;
     EraseInitStruct.VoltageRange = FLASH_VOLTAGE_RANGE_3;
     EraseInitStruct.Sector = SectorId;
@@ -196,17 +207,32 @@ static uint32_t GetSector(uint32_t address)
 {
     uint32_t sector = 0;
     uint32_t tmp = address - ADDR_FLASH_SECTOR_0;
-
-    if (address < ADDR_FLASH_SECTOR_4) {
-        // 32k sectorsize
-        sector += tmp >>15;
-    } else if (address < ADDR_FLASH_SECTOR_5) {
-        //64k sector size
+#if (MBED_CONF_TARGET_FLASH_DUAL_BANK) && defined(FLASH_OPTCR_nDBANK)
+    if (address < ADDR_FLASH_SECTOR_4) { // Sectors 0 to 3
+        sector += tmp >> 14;
+    } else if (address < ADDR_FLASH_SECTOR_5) { // Sector 4
         sector += FLASH_SECTOR_4;
-    } else {
-        sector += 4 + (tmp >>18);
+    } else if (address < ADDR_FLASH_SECTOR_12) { // Sectors 5 to 11
+        sector += 4 + (tmp >> 17);
+    } else if (address < ADDR_FLASH_SECTOR_16) { // Sectors 12 to 15
+        tmp = address - ADDR_FLASH_SECTOR_12;
+        sector += 12 + (tmp >> 14);
+    } else if (address < ADDR_FLASH_SECTOR_17) { // Sector 16
+        sector += FLASH_SECTOR_16;
     }
-
+    else { // Sectors 17 to 23
+        tmp = address - ADDR_FLASH_SECTOR_12;
+        sector += 16 + (tmp >> 17);
+    }
+#else // SINGLE BANK
+    if (address < ADDR_FLASH_SECTOR_4) { // Sectors 0 to 3
+        sector += tmp >> 15;
+    } else if (address < ADDR_FLASH_SECTOR_5) { // Sector 4
+        sector += FLASH_SECTOR_4;
+    } else { // Sectors 5 to 11
+        sector += 4 + (tmp >> 18);
+    }
+#endif
     return sector;
 }
 
@@ -218,6 +244,18 @@ static uint32_t GetSector(uint32_t address)
 static uint32_t GetSectorSize(uint32_t Sector)
 {
     uint32_t sectorsize = 0x00;
+#if (MBED_CONF_TARGET_FLASH_DUAL_BANK) && defined(FLASH_OPTCR_nDBANK)
+    if ((Sector == FLASH_SECTOR_0) || (Sector == FLASH_SECTOR_1) ||\
+        (Sector == FLASH_SECTOR_2) || (Sector == FLASH_SECTOR_3) ||\
+        (Sector == FLASH_SECTOR_12) || (Sector == FLASH_SECTOR_13) ||\
+        (Sector == FLASH_SECTOR_14) || (Sector == FLASH_SECTOR_15)) {
+            sectorsize = 16 * 1024;
+    } else if ((Sector == FLASH_SECTOR_4) || (Sector == FLASH_SECTOR_16)) {
+            sectorsize = 64 * 1024;
+    } else {
+            sectorsize = 128 * 1024;
+    }
+#else // SINGLE BANK
     if ((Sector == FLASH_SECTOR_0) || (Sector == FLASH_SECTOR_1) ||\
         (Sector == FLASH_SECTOR_2) || (Sector == FLASH_SECTOR_3)) {
             sectorsize = 32 * 1024;
@@ -226,7 +264,7 @@ static uint32_t GetSectorSize(uint32_t Sector)
     } else {
             sectorsize = 256 * 1024;
     }
-
+#endif
     return sectorsize;
 }
 
