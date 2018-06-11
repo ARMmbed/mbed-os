@@ -40,37 +40,23 @@ static const struct nu_modinit_s timer0_modinit = {TIMER_0, TMR0_MODULE, CLK_CLK
 
 #define TIMER_MODINIT      timer0_modinit
 
-/* S/W interrupt enable/disable
- * 
- * Because H/W interrupt enable/disable (TIMER_EnableInt/TIMER_DisableInt) needs delay for lp_ticker,
- * we introduce S/W interrupt enable/disable to avoid blocking code. With S/W interrupt enable/disable,
- * H/W interrupt is always enabled after ticker_init. A S/W flag is used to tell whether or not
- * ticker_irq_handler is ready to call.
- */
-
-/* Ticker uninitialized */
-#define NU_TICKER_UNINIT            0
-/* Ticker initialized with interrupt disabled */
-#define NU_TICKER_INIT_INTR_DIS     1
-/* Ticker initialized with interrupt enabled */
-#define NU_TICKER_INIT_INTR_EN      2
-
 /* Track ticker status */
-static volatile uint16_t ticker_stat = NU_TICKER_UNINIT;
+static volatile uint16_t ticker_inited = 0;
 
 #define TMR_CMP_MIN         2
 #define TMR_CMP_MAX         0xFFFFFFu
 
 void us_ticker_init(void)
 {
-    if (ticker_stat) {
+    if (ticker_inited) {
         /* By HAL spec, ticker_init allows the ticker to keep counting and disables the
          * ticker interrupt. */
         us_ticker_disable_interrupt();
         us_ticker_clear_interrupt();
+        NVIC_ClearPendingIRQ(TIMER_MODINIT.irq_n);
         return;
     }
-    ticker_stat = NU_TICKER_INIT_INTR_DIS;
+    ticker_inited = 1;
 
     // Reset IP
     SYS_ResetModule(TIMER_MODINIT.rsetidx);
@@ -95,7 +81,7 @@ void us_ticker_init(void)
 
     NVIC_SetVector(TIMER_MODINIT.irq_n, (uint32_t) TIMER_MODINIT.var);
 
-    NVIC_EnableIRQ(TIMER_MODINIT.irq_n);
+    NVIC_DisableIRQ(TIMER_MODINIT.irq_n);
 
     TIMER_EnableInt(timer_base);
 
@@ -121,12 +107,12 @@ void us_ticker_free(void)
     /* Disable IP clock */
     CLK_DisableModuleClock(TIMER_MODINIT.clkidx);
 
-    ticker_stat = NU_TICKER_UNINIT;
+    ticker_inited = 0;
 }
 
 uint32_t us_ticker_read()
 {
-    if (ticker_stat == NU_TICKER_UNINIT) {
+    if (! ticker_inited) {
         us_ticker_init();
     }
 
@@ -137,9 +123,6 @@ uint32_t us_ticker_read()
 
 void us_ticker_set_interrupt(timestamp_t timestamp)
 {
-    /* We can call ticker_irq_handler now. */
-    ticker_stat = NU_TICKER_INIT_INTR_EN;
-
     /* In continuous mode, counter will be reset to zero with the following sequence: 
      * 1. Stop counting
      * 2. Configure new CMP value
@@ -155,12 +138,15 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
     uint32_t cmp_timer = timestamp * NU_TMRCLK_PER_TICK;
     cmp_timer = NU_CLAMP(cmp_timer, TMR_CMP_MIN, TMR_CMP_MAX);
     timer_base->CMP = cmp_timer;
+
+    /* We can call ticker_irq_handler now. */
+    NVIC_EnableIRQ(TIMER_MODINIT.irq_n);
 }
 
 void us_ticker_disable_interrupt(void)
 {
     /* We cannot call ticker_irq_handler now. */
-    ticker_stat = NU_TICKER_INIT_INTR_DIS;
+    NVIC_DisableIRQ(TIMER_MODINIT.irq_n);
 }
 
 void us_ticker_clear_interrupt(void)
@@ -170,12 +156,12 @@ void us_ticker_clear_interrupt(void)
 
 void us_ticker_fire_interrupt(void)
 {
-    /* We can call ticker_irq_handler now. */
-    ticker_stat = NU_TICKER_INIT_INTR_EN;
-
     // NOTE: This event was in the past. Set the interrupt as pending, but don't process it here.
     //       This prevents a recursive loop under heavy load which can lead to a stack overflow.
     NVIC_SetPendingIRQ(TIMER_MODINIT.irq_n);
+
+    /* We can call ticker_irq_handler now. */
+    NVIC_EnableIRQ(TIMER_MODINIT.irq_n);
 }
 
 const ticker_info_t* us_ticker_get_info()
@@ -189,15 +175,11 @@ const ticker_info_t* us_ticker_get_info()
 
 static void tmr0_vec(void)
 {
-    /* NOTE: We need to clear interrupt flag earlier to reduce possibility of dummy interrupt.
-     * This is because "clear interrupt flag" needs delay which isn't added here to avoid
-     * blocking in ISR code. */
     us_ticker_clear_interrupt();
+    us_ticker_disable_interrupt();
 
     // NOTE: us_ticker_set_interrupt() may get called in us_ticker_irq_handler();
-    if (ticker_stat == NU_TICKER_INIT_INTR_EN) {
-        us_ticker_irq_handler();
-    }
+    us_ticker_irq_handler();
 }
 
 #endif
