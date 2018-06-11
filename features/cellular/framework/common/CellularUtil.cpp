@@ -18,6 +18,14 @@
 #include <string.h>
 #include <stdlib.h>
 
+
+#include "randLIB.h"
+#define RANDOM_PORT_NUMBER_START 49152
+#define RANDOM_PORT_NUMBER_END 65535
+#define RANDOM_PORT_NUMBER_COUNT (RANDOM_PORT_NUMBER_END - RANDOM_PORT_NUMBER_START + 1)
+#define RANDOM_PORT_NUMBER_MAX_STEP 100
+
+
 namespace mbed_cellular_util {
 
 void convert_ipv6(char* ip)
@@ -315,12 +323,19 @@ int char_str_to_hex_str(const char* str, uint16_t len, char *buf, bool omit_lead
 
 uint16_t get_dynamic_ip_port()
 {
-    static uint16_t port;
-    port++;
-    if (port < 49152) {
-        port = 49152;
+    static uint16_t port_counter = RANDOM_PORT_NUMBER_COUNT;
+
+    if (port_counter == RANDOM_PORT_NUMBER_COUNT) {
+        randLIB_seed_random();
+        port_counter = randLIB_get_random_in_range(0, RANDOM_PORT_NUMBER_COUNT - 1);
     }
-    return port;
+
+    port_counter += randLIB_get_random_in_range(1, RANDOM_PORT_NUMBER_MAX_STEP);
+    if (port_counter >= RANDOM_PORT_NUMBER_COUNT) {
+        port_counter -= RANDOM_PORT_NUMBER_COUNT;
+    }
+ 
+    return (RANDOM_PORT_NUMBER_START + port_counter);
 }
 
 } // namespace mbed_cellular_util
