@@ -394,7 +394,7 @@ static void replay_blob(void)
         SECURE_TIME_NONCE_MISSING,
         secure_time_set_trusted_commit(blob, blob_size)
         );
-    TEST_ASSERT_UINT64_WITHIN(7, set_time, secure_time_get());
+    TEST_ASSERT_UINT64_WITHIN(5, set_time + 4, secure_time_get());
 }
 /*
 void nonce_timeout(void)
