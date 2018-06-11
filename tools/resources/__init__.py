@@ -369,6 +369,9 @@ class Resources(object):
             base_path = path
         if self.collect_ignores and path in self.ignored_dirs:
             self.ignored_dirs.remove(path)
+        if exclude_paths:
+            self.add_ignore_patterns(
+                path, base_path, [join(e, "*") for e in exclude_paths])
 
         for root, dirs, files in walk(path, followlinks=True):
             # Check if folder contains .mbedignore
@@ -395,17 +398,10 @@ class Resources(object):
                     self._label_paths.append((dir_path, base_path))
                     self.ignore_dir(dir_path)
                     dirs.remove(d)
-                elif ((d.startswith('.') or d in self.legacy_ignore_dirs) or
-                      self.is_ignored(join(relpath(root, base_path), d,""))):
+                elif (d.startswith('.') or d in self.legacy_ignore_dirs or
+                      self.is_ignored(join(root_path, d, ""))):
                     self.ignore_dir(dir_path)
                     dirs.remove(d)
-                elif exclude_paths:
-                    for exclude_path in exclude_paths:
-                        rel_path = relpath(dir_path, exclude_path)
-                        if not (rel_path.startswith('..')):
-                            self.ignore_dir(dir_path)
-                            dirs.remove(d)
-                            break
 
             # Add root to include paths
             root = root.rstrip("/")
@@ -416,9 +412,10 @@ class Resources(object):
                 file_path = join(root, file)
                 self._add_file(file_path, base_path)
 
-    # A helper function for both scan_resources and _add_dir. _add_file adds one file
-    # (*file_path*) to the resources object based on the file type.
-    def _add_file(self, file_path, base_path, exclude_paths=None):
+    def _add_file(self, file_path, base_path):
+        """ Add a single file into the resources object that was found by
+        scanning starting as base_path
+        """
 
         if  (self.is_ignored(relpath(file_path, base_path)) or
              basename(file_path).startswith(".")):
