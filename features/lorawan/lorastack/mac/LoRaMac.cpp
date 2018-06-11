@@ -669,22 +669,12 @@ void LoRaMac::on_radio_tx_done(lorawan_time_t timestamp)
 void LoRaMac::on_radio_rx_done(const uint8_t* const payload, uint16_t size,
                                int16_t rssi, int8_t snr)
 {
-    // stop the RX1 timer here if its the first RX slot.
-    // If the MIC will pass we will stop RX2 timer as well later.
-    // If its RX2, stop RX2 timer.
-    if (_params.rx_slot == RX_SLOT_WIN_1) {
+    if (_device_class == CLASS_C && !_continuous_rx2_window_open) {
+        open_rx2_window();
+    } else {
         _lora_time.stop(_params.timers.rx_window1_timer);
-    } else if (_params.rx_slot == RX_SLOT_WIN_2) {
-        _lora_time.stop(_params.timers.rx_window2_timer);
+        _lora_phy.put_radio_to_sleep();
     }
-
-    if (_device_class == CLASS_C) {
-        if (!_continuous_rx2_window_open) {
-            open_rx2_window();
-        }
-     } else {
-         _lora_phy.put_radio_to_sleep();
-     }
 
     loramac_mhdr_t mac_hdr;
     uint8_t pos = 0;
