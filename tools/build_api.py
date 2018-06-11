@@ -561,7 +561,7 @@ def build_project(src_paths, build_path, target, toolchain_name,
             map_html = join(build_path, name + "_map.html")
             memap_instance.generate_output('html', stats_depth, map_html)
 
-        resources.detect_duplicates(toolchain)
+        resources.detect_duplicates()
 
         if report != None:
             end = time()
