@@ -11,9 +11,13 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..",
                                     ".."))
 sys.path.insert(0, ROOT)
 
-from tools.toolchains import TOOLCHAIN_CLASSES, LEGACY_TOOLCHAIN_NAMES,\
-    Resources, TOOLCHAIN_PATHS, mbedToolchain
-from tools.targets import TARGET_MAP
+from tools.toolchains import (
+    TOOLCHAIN_CLASSES,
+    TOOLCHAIN_PATHS,
+    mbedToolchain,
+)
+from tools.resources import LEGACY_TOOLCHAIN_NAMES, Resources
+from tools.targets import TARGET_MAP, set_targets_json_location
 from tools.notifier.mock import MockNotifier
 
 ALPHABET = [char for char in printable if char not in [u'.', u'/', u'\\']]
@@ -111,6 +115,7 @@ def test_toolchain_profile_c(profile, source_file):
     filename = deepcopy(source_file)
     filename[-1] += ".c"
     to_compile = os.path.join(*filename)
+    set_targets_json_location()
     with patch('os.mkdir') as _mkdir:
         for _, tc_class in TOOLCHAIN_CLASSES.items():
             toolchain = tc_class(TARGET_MAP["K64F"], build_profile=profile,
@@ -241,12 +246,11 @@ def test_detect_duplicates(filenames):
     s_sources = [os.path.join(name, "dupe.s") for name in filenames]
     cpp_sources = [os.path.join(name, "dupe.cpp") for name in filenames]
     notify = MockNotifier()
-    toolchain = TOOLCHAIN_CLASSES["ARM"](TARGET_MAP["K64F"], notify=notify)
-    res = Resources()
+    res = Resources(notify)
     res.c_sources = c_sources
     res.s_sources = s_sources
     res.cpp_sources = cpp_sources
-    assert res.detect_duplicates(toolchain) == 1,\
+    assert res.detect_duplicates() == 1,\
         "Not Enough duplicates found"
 
     notification = notify.messages[0]
