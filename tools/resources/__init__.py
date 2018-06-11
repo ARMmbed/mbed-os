@@ -477,23 +477,26 @@ class Resources(object):
 
 
     def scan_with_toolchain(self, src_paths, toolchain, dependencies_paths=None,
-                            inc_dirs=None, base_path=None, exclude=True):
+                            inc_dirs=None, exclude=True):
         """ Scan resources using initialized toolcain
 
         Positional arguments
         src_paths - the paths to source directories
         toolchain - valid toolchain object
+
+        Keyword arguments
         dependencies_paths - dependency paths that we should scan for include dirs
         inc_dirs - additional include directories which should be added to
-                the scanner resources
+                   the scanner resources
+        exclude - Exclude the toolchain's build directory from the resources
         """
         self.add_toolchain_labels(toolchain)
         for path in src_paths:
             if exists(path):
                 if exclude:
-                    self.add_directory(path, base_path, exclude_paths=[toolchain.build_dir])
+                    self.add_directory(path, exclude_paths=[toolchain.build_dir])
                 else:
-                    self.add_directory(path, base_path)
+                    self.add_directory(path)
 
         # Scan dependency paths for include dirs
         if dependencies_paths is not None:
@@ -519,14 +522,11 @@ class Resources(object):
 
         return self
 
-    def scan_with_config(self, src_paths, config, exclude=True, base_path=None):
+    def scan_with_config(self, src_paths, config):
         if config.target:
             self.add_target_labels(config.target)
         for path in src_paths:
             if exists(path):
-                if exclude:
-                    self.add_directory(path, base_path, exclude_paths=[toolchain.build_dir])
-                else:
-                    self.add_directory(path, base_path)
+                self.add_directory(path)
         config.load_resources(self)
         return self
