@@ -32,8 +32,8 @@
 
 #include "fsl_enet.h"
 
-#define ENET_RX_RING_LEN              (16)
-#define ENET_TX_RING_LEN              (8)
+#define ENET_RX_RING_LEN              MBED_CONF_KINETIS_EMAC_RX_RING_LEN
+#define ENET_TX_RING_LEN              MBED_CONF_KINETIS_EMAC_TX_RING_LEN
 
 #define ENET_ETH_MAX_FLEN             (1522) // recommended size for a VLAN frame
 
