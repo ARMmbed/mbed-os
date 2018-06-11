@@ -229,25 +229,22 @@ class Resources(object):
             dupe_headers[headername] |= set([headername])
         return dupe_dict, dupe_headers
 
-    def detect_duplicates(self, toolchain):
+    def detect_duplicates(self):
         """Detect all potential ambiguities in filenames and report them with
         a toolchain notification
-
-        Positional Arguments:
-        toolchain - used for notifications
         """
         count = 0
         dupe_dict, dupe_headers = self._collect_duplicates(dict(), dict())
         for objname, filenames in dupe_dict.items():
             if len(filenames) > 1:
                 count+=1
-                toolchain.tool_error(
+                self.notify.tool_error(
                     "Object file %s.o is not unique! It could be made from: %s"\
                     % (objname, " ".join(filenames)))
         for headername, locations in dupe_headers.items():
             if len(locations) > 1:
                 count+=1
-                toolchain.tool_error(
+                self.notify.tool_error(
                     "Header file %s is not unique! It could be: %s" %\
                     (headername, " ".join(locations)))
         return count
