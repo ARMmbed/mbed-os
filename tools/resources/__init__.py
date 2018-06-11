@@ -46,10 +46,28 @@ from ..toolchains import TOOLCHAINS
 # standard labels for the "TARGET_" and "TOOLCHAIN_" specific directories, but
 # had the knowledge of a list of these directories to be ignored.
 LEGACY_IGNORE_DIRS = set([
-    'LPC11U24', 'LPC1768', 'LPC2368', 'LPC4088', 'LPC812', 'KL25Z',
-    'ARM', 'uARM', 'IAR',
-    'GCC_ARM', 'GCC_CS', 'GCC_CR', 'GCC_CW', 'GCC_CW_EWL', 'GCC_CW_NEWLIB',
-    'ARMC6'
+    # Legacy Targets
+    'LPC11U24',
+    'LPC1768',
+    'LPC2368',
+    'LPC4088',
+    'LPC812',
+    'KL25Z',
+
+    # Legacy Toolchains
+    'ARM',
+    'uARM',
+    'IAR',
+    'GCC_ARM',
+    'GCC_CS',
+    'GCC_CR',
+    'GCC_CW',
+    'GCC_CW_EWL',
+    'GCC_CW_NEWLIB',
+    'ARMC6',
+
+    # Tests, here for simplicity
+    'TESTS',
 ])
 LEGACY_TOOLCHAIN_NAMES = {
     'ARM_STD':'ARM',
@@ -378,8 +396,7 @@ class Resources(object):
                     self.ignore_dir(dir_path)
                     dirs.remove(d)
                 elif ((d.startswith('.') or d in self.legacy_ignore_dirs) or
-                      self.is_ignored(join(relpath(root, base_path), d,"")) or
-                      (d == 'TESTS')):
+                      self.is_ignored(join(relpath(root, base_path), d,""))):
                     self.ignore_dir(dir_path)
                     dirs.remove(d)
                 elif exclude_paths:
