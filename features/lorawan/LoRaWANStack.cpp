@@ -962,8 +962,9 @@ void LoRaWANStack::mcps_indication_handler()
             _rx_msg.msg.mcps_indication.type = mcps_indication->type;
 
             // Notify application about received frame..
-            tr_debug("Packet Received %d bytes",
-                     _rx_msg.msg.mcps_indication.buffer_size);
+            tr_debug("Packet Received %d bytes, Port=%d",
+                     _rx_msg.msg.mcps_indication.buffer_size,
+                     mcps_indication->port);
             _rx_msg.receive_ready = true;
             send_event_to_application(RX_DONE);
         }
