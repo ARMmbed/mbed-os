@@ -2084,7 +2084,7 @@ def find_tests(base_dir, target_name, toolchain_name, app_config=None):
 
     # Scan the directory for paths to probe for 'TESTS' folders
     base_resources = Resources(MockNotifier())
-    base_resources.add_directory(base_dir, None)
+    base_resources.add_directory(base_dir)
 
     dirs = base_resources.inc_dirs
     for directory in dirs:

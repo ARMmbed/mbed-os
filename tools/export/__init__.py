@@ -280,7 +280,7 @@ def export_project(src_paths, export_path, target, ide, libraries_paths=None,
         res = Resources(collect_ignores=True)
         res.add_toolchain_labels(toolchain)
         for p in path:
-            res.add_directory(p, None)
+            res.add_directory(p)
         resource_dict[loc] =  res
     resources = Resources()
 
