@@ -295,19 +295,15 @@ extern "C" err_t ppp_lwip_connect(void *pcb)
 
 extern "C" err_t ppp_lwip_disconnect(void *pcb)
 {
-    err_t ret = ppp_close(my_ppp_pcb, 0);
-    if (ret != ERR_OK) {
-        return ret;
+    err_t ret = ERR_OK;
+    if (ppp_active) {
+        ret = ppp_close(my_ppp_pcb, 0);
+        if (ret == ERR_OK) {
+            /* close call made, now let's catch the response in the status callback */
+            sys_arch_sem_wait(&ppp_close_sem, 0);
+        }
+        ppp_active = false;
     }
-
-    /* close call made, now let's catch the response in the status callback */
-    sys_arch_sem_wait(&ppp_close_sem, 0);
-
-    /* Detach callbacks, and put handle back to default blocking mode */
-    my_stream->sigio(Callback<void()>());
-    my_stream->set_blocking(true);
-    my_stream = NULL;
-
     return ret;
 }
 
@@ -373,6 +369,9 @@ nsapi_error_t nsapi_ppp_connect(FileHandle *stream, Callback<void(nsapi_event_t,
         retcode = lwip._add_ppp_interface(stream, true, stack, &my_interface);
         if (retcode != NSAPI_ERROR_OK) {
             my_interface = NULL;
+            my_stream->set_blocking(true);
+            my_stream = NULL;
+            connection_status_cb = NULL;
             return retcode;
         }
     }
@@ -380,6 +379,13 @@ nsapi_error_t nsapi_ppp_connect(FileHandle *stream, Callback<void(nsapi_event_t,
     // mustn't start calling input until after connect -
     // attach deferred until ppp_lwip_connect, called from mbed_lwip_bringup
     retcode = my_interface->bringup(false, NULL, NULL, NULL, stack, blocking_connect);
+
+    if (retcode != NSAPI_ERROR_OK) {
+        connection_status_cb = NULL;
+        my_stream->sigio(NULL);
+        my_stream->set_blocking(true);
+        my_stream = NULL;
+    }
 
     if (retcode != NSAPI_ERROR_OK && connect_error_code != NSAPI_ERROR_OK) {
         return connect_error_code;
@@ -390,7 +396,19 @@ nsapi_error_t nsapi_ppp_connect(FileHandle *stream, Callback<void(nsapi_event_t,
 
 nsapi_error_t nsapi_ppp_disconnect(FileHandle *stream)
 {
-    return my_interface->bringdown();
+    if (my_stream != stream) {
+        return NSAPI_ERROR_NO_CONNECTION;
+    }
+
+    nsapi_error_t retcode = my_interface->bringdown();
+
+    connection_status_cb = NULL;
+    /* Detach callbacks, and put handle back to default blocking mode */
+    my_stream->sigio(NULL);
+    my_stream->set_blocking(true);
+    my_stream = NULL;
+
+    return retcode;
 }
 
 NetworkStack *nsapi_ppp_get_stack()
