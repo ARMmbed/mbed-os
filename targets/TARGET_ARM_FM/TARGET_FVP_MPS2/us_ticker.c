@@ -46,8 +46,8 @@ void us_ticker_init(void)
     US_TICKER_TIMER1->TimerControl |= CMSDK_DUALTIMER1_CTRL_SIZE_Msk; // set TIMER1 to 32 bit counter
     US_TICKER_TIMER2->TimerControl |= CMSDK_DUALTIMER2_CTRL_SIZE_Msk; // set TIMER2 to 32 bit counter
 
-    US_TICKER_TIMER1->TimerControl |= CMSDK_DUALTIMER1_CTRL_PRESCALE_Msk; // set TIMER1 with 4 stages prescale
-    US_TICKER_TIMER2->TimerControl |= CMSDK_DUALTIMER2_CTRL_PRESCALE_Msk; // set TIMER2 with 4 stages prescale
+    US_TICKER_TIMER1->TimerControl |= 0x1 << CMSDK_DUALTIMER1_CTRL_PRESCALE_Pos; // set TIMER1 with 4 stages prescale
+    US_TICKER_TIMER2->TimerControl |= 0x1 << CMSDK_DUALTIMER2_CTRL_PRESCALE_Pos; // set TIMER2 with 4 stages prescale
 
     US_TICKER_TIMER2->TimerControl |= CMSDK_DUALTIMER2_CTRL_MODE_Msk;     // set TIMER2 periodic mode
 
@@ -57,7 +57,6 @@ void us_ticker_init(void)
     US_TICKER_TIMER2->TimerControl |= CMSDK_DUALTIMER2_CTRL_EN_Msk; // enable TIMER2 counter
 
     NVIC_SetVector(US_TICKER_TIMER_IRQn, (uint32_t)us_ticker_irq_handler);
-    NVIC_EnableIRQ(US_TICKER_TIMER_IRQn);
     us_ticker_inited = 1;
 }
 
@@ -74,27 +73,22 @@ void us_ticker_free(void)
 
 uint32_t us_ticker_read()
 {
-    if (!us_ticker_inited) {
-        us_ticker_init();
-    }
-
     return ~US_TICKER_TIMER1->TimerValue;
 }
 
 void us_ticker_set_interrupt(timestamp_t timestamp)
 {
-    if (!us_ticker_inited) {
-        us_ticker_init();
-    }
-
     uint32_t delta =  timestamp - us_ticker_read();
+    US_TICKER_TIMER2->TimerControl  &= ~CMSDK_DUALTIMER2_CTRL_EN_Msk;  // disable TIMER2
     US_TICKER_TIMER2->TimerLoad = delta;                               // Set TIMER2 load value
     US_TICKER_TIMER2->TimerControl |= CMSDK_DUALTIMER2_CTRL_INTEN_Msk; // enable TIMER2 interrupt
-
+    US_TICKER_TIMER2->TimerControl |= CMSDK_DUALTIMER2_CTRL_EN_Msk;    // enable TIMER2 counter
+    NVIC_EnableIRQ(US_TICKER_TIMER_IRQn);
 }
 
 void us_ticker_fire_interrupt(void)
 {
+    NVIC_EnableIRQ(US_TICKER_TIMER_IRQn);
     NVIC_SetPendingIRQ(US_TICKER_TIMER_IRQn);
 }
 
@@ -102,6 +96,7 @@ void us_ticker_fire_interrupt(void)
 void us_ticker_disable_interrupt(void)
 {
     US_TICKER_TIMER2->TimerControl &= ~CMSDK_DUALTIMER2_CTRL_INTEN_Msk;
+    NVIC_DisableIRQ(US_TICKER_TIMER_IRQn);
 }
 
 void us_ticker_clear_interrupt(void)
