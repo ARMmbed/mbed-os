@@ -854,9 +854,11 @@ void LoRaWANStack::mlme_indication_handler()
 #if MBED_CONF_LORA_AUTOMATIC_UPLINK_MESSAGE
         _automatic_uplink_ongoing = true;
         tr_debug("mlme indication: sending empty uplink to port 0 to acknowledge MAC commands...");
-        send_automatic_uplink_message(0);
+        const uint8_t port = 0;
+        const int ret = _queue->call(this, &LoRaWANStack::send_automatic_uplink_message, port);
+        MBED_ASSERT(ret != 0);
+        (void)ret;
 #else
-
         send_event_to_application(UPLINK_REQUIRED);
 #endif
         return;
@@ -984,7 +986,9 @@ void LoRaWANStack::mcps_indication_handler()
 #if (MBED_CONF_LORA_AUTOMATIC_UPLINK_MESSAGE)
             tr_debug("Sending empty uplink message...");
             _automatic_uplink_ongoing = true;
-            send_automatic_uplink_message(mcps_indication->port);
+            const int ret = _queue->call(this, &LoRaWANStack::send_automatic_uplink_message, mcps_indication->port);
+            MBED_ASSERT(ret != 0);
+            (void)ret;
 #else
             send_event_to_application(UPLINK_REQUIRED);
 #endif
