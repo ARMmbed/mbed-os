@@ -158,8 +158,6 @@ typedef struct {
     bool clock_phase; /**< True if data line is valid when leaving active state. */
     bool clock_polarity; /**< True if the clock's rest state is high (+Vcc). */
     bool continuous_mode; /**< True to use the continuous mode. */
-
-    spi_mode_t  mode; /**< Transmission mode. See spi_mode_t. */
 } spi_init_t;
 
 /**
