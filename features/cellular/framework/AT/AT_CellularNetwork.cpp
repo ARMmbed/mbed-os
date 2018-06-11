@@ -431,11 +431,6 @@ void AT_CellularNetwork::ppp_status_cb(nsapi_event_t event, intptr_t parameter)
 
 nsapi_error_t AT_CellularNetwork::do_user_authentication()
 {
-    // try to find or create context with suitable stack
-    if (!get_context()) {
-        return NSAPI_ERROR_NO_CONNECTION;
-    }
-
     // if user has defined user name and password we need to call CGAUTH before activating or modifying context
     if (_pwd && _uname) {
         _at.cmd_start("AT+CGAUTH=");

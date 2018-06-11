@@ -154,6 +154,7 @@ private:
     void free_credentials();
 
     nsapi_error_t open_data_channel();
+    bool get_context();
     bool set_new_context(int cid);
 
     nsapi_error_t delete_current_context();
@@ -179,7 +180,6 @@ protected:
     int _cell_id;
     nsapi_connection_status_t _connect_status;
     virtual nsapi_error_t do_user_authentication();
-    bool get_context();
     bool _new_context_set;
     bool _is_context_active;
     RegistrationStatus _reg_status;

@@ -45,11 +45,6 @@ nsapi_error_t QUECTEL_UG96_CellularNetwork::set_access_technology_impl(RadioAcce
 
 nsapi_error_t QUECTEL_UG96_CellularNetwork::do_user_authentication()
 {
-    // try to find or create context with suitable stack
-    if (!get_context()) {
-        return NSAPI_ERROR_NO_CONNECTION;
-    }
-
     if (_pwd && _uname) {
         _at.cmd_start("AT+QICSGP=");
         _at.write_int(_cid);
