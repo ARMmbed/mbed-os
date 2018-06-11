@@ -558,7 +558,10 @@ def build_project(src_paths, build_path, target, toolchain_name,
             map_csv = join(build_path, name + "_map.csv")
             memap_instance.generate_output('csv-ci', stats_depth, map_csv)
 
-        resources.detect_duplicates(toolchain)
+            map_html = join(build_path, name + "_map.html")
+            memap_instance.generate_output('html', stats_depth, map_html)
+
+        resources.detect_duplicates()
 
         if report != None:
             end = time()
