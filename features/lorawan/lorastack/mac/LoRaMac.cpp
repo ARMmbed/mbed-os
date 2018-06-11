@@ -666,7 +666,7 @@ void LoRaMac::on_radio_tx_done(lorawan_time_t timestamp)
     _params.timers.aggregated_last_tx_time = timestamp;
 }
 
-void LoRaMac::on_radio_rx_done(const uint8_t* const payload, uint16_t size,
+void LoRaMac::on_radio_rx_done(const uint8_t *const payload, uint16_t size,
                                int16_t rssi, int8_t snr)
 {
     if (_device_class == CLASS_C && !_continuous_rx2_window_open) {
