@@ -88,7 +88,7 @@ void EMACPhy::emac_phy_rx(emac_mem_buf_t *mem)
         }
     }
 
-    if (ptr) {
+    if (ptr && phy.phy_rx_cb) {
         phy.phy_rx_cb(ptr, total_len, 0xff, 0, device_id);
     }
     ns_dyn_mem_free(tmpbuf);
@@ -125,6 +125,18 @@ int8_t EMACPhy::phy_register()
 {
     if (device_id < 0) {
 
+        phy.PHY_MAC = mac_addr;
+        phy.address_write = emac_phy_address_write;
+        phy.driver_description = const_cast<char*>("ETH");
+        phy.link_type = PHY_LINK_ETHERNET_TYPE;
+        phy.phy_MTU = 0;
+        phy.phy_header_length = 0;
+        phy.phy_tail_length = 0;
+        phy.state_control = emac_phy_interface_state_control;
+        phy.tx = emac_phy_tx;
+        phy.phy_rx_cb = NULL;
+        phy.phy_tx_done_cb = NULL;
+
         emac.set_memory_manager(memory_manager);
         emac.set_link_input_cb(callback(this, &EMACPhy::emac_phy_rx));
 
@@ -141,17 +153,6 @@ int8_t EMACPhy::phy_register()
 
         emac.set_all_multicast(true);
 
-        phy.PHY_MAC = mac_addr;
-        phy.address_write = emac_phy_address_write;
-        phy.driver_description = const_cast<char*>("ETH");
-        phy.link_type = PHY_LINK_ETHERNET_TYPE;
-        phy.phy_MTU = 0;
-        phy.phy_header_length = 0;
-        phy.phy_tail_length = 0;
-        phy.state_control = emac_phy_interface_state_control;
-        phy.tx = emac_phy_tx;
-        phy.phy_rx_cb = NULL;
-        phy.phy_tx_done_cb = NULL;
         device_id = arm_net_phy_register(&phy);
        // driver_readiness_status_callback = driver_status_cb;
 
