@@ -189,41 +189,14 @@ void LoRaMac::post_process_mlme_ind()
     _mlme_indication.pending = false;
 }
 
-void LoRaMac::on_radio_tx_done(void)
+lorawan_time_t LoRaMac::get_current_time(void)
 {
-    lorawan_time_t cur_time = _lora_time.get_current_time();
+    return _lora_time.get_current_time();
+}
 
-    if (_device_class != CLASS_C) {
-        _lora_phy.put_radio_to_sleep();
-    } else {
-        // this will open a continuous RX2 window until time==RECV_DELAY1
-        if (!_continuous_rx2_window_open) {
-            open_rx2_window();
-        }
-    }
-
-    if (_params.is_rx_window_enabled == true) {
-        // start timer after which rx1_window will get opened
-        _lora_time.start(_params.timers.rx_window1_timer, _params.rx_window1_delay);
-
-        if (_device_class != CLASS_C) {
-            _lora_time.start(_params.timers.rx_window2_timer, _params.rx_window2_delay);
-        }
-
-        if (_params.is_node_ack_requested) {
-            _lora_time.start(_params.timers.ack_timeout_timer,
-                             _params.rx_window2_delay + _lora_phy.get_ack_timeout());
-        }
-    } else {
-        _mcps_confirmation.status = LORAMAC_EVENT_INFO_STATUS_OK;
-        _mlme_confirmation.status = LORAMAC_EVENT_INFO_STATUS_RX2_TIMEOUT;
-    }
-
-    _params.last_channel_idx = _params.channel;
-
-    _lora_phy.set_last_tx_done(_params.channel, _is_nwk_joined, cur_time);
-
-    _params.timers.aggregated_last_tx_time = cur_time;
+rx_slot_t LoRaMac::get_current_slot(void)
+{
+    return _params.rx_slot;
 }
 
 /**
@@ -656,7 +629,44 @@ void LoRaMac::set_batterylevel_callback(mbed::Callback<uint8_t(void)> battery_le
     _mac_commands.set_batterylevel_callback(battery_level);
 }
 
-void LoRaMac::on_radio_rx_done(const uint8_t *const payload, uint16_t size,
+void LoRaMac::on_radio_tx_done(lorawan_time_t timestamp)
+{
+    if (_device_class == CLASS_C) {
+        // this will open a continuous RX2 window until time==RECV_DELAY1
+        open_rx2_window();
+    } else {
+        _lora_phy.put_radio_to_sleep();
+    }
+
+    if(_params.is_rx_window_enabled == true) {
+        lorawan_time_t time_diff = _lora_time.get_current_time() - timestamp;
+        // start timer after which rx1_window will get opened
+        _lora_time.start(_params.timers.rx_window1_timer,
+                         _params.rx_window1_delay - time_diff);
+
+        if (_device_class != CLASS_C) {
+            _lora_time.start(_params.timers.rx_window2_timer,
+                             _params.rx_window2_delay - time_diff);
+        }
+
+        if (_params.is_node_ack_requested) {
+            _lora_time.start(_params.timers.ack_timeout_timer,
+                             (_params.rx_window2_delay - time_diff) +
+                             _lora_phy.get_ack_timeout());
+        }
+    } else {
+        _mcps_confirmation.status = LORAMAC_EVENT_INFO_STATUS_OK;
+        _mlme_confirmation.status = LORAMAC_EVENT_INFO_STATUS_RX2_TIMEOUT;
+    }
+
+    _params.last_channel_idx = _params.channel;
+
+    _lora_phy.set_last_tx_done(_params.channel, _is_nwk_joined, timestamp);
+
+    _params.timers.aggregated_last_tx_time = timestamp;
+}
+
+void LoRaMac::on_radio_rx_done(const uint8_t* const payload, uint16_t size,
                                int16_t rssi, int8_t snr)
 {
     // stop the RX1 timer here if its the first RX slot.
@@ -731,9 +741,11 @@ void LoRaMac::on_radio_tx_timeout(void)
     post_process_mcps_req();
 }
 
-rx_slot_t LoRaMac::on_radio_rx_timeout(bool is_timeout)
+void LoRaMac::on_radio_rx_timeout(bool is_timeout)
 {
-    if (_device_class != CLASS_C) {
+    if (_device_class == CLASS_C && !_continuous_rx2_window_open) {
+        open_rx2_window();
+    } else {
         _lora_phy.put_radio_to_sleep();
     }
 
@@ -763,12 +775,6 @@ rx_slot_t LoRaMac::on_radio_rx_timeout(bool is_timeout)
                 LORAMAC_EVENT_INFO_STATUS_RX2_TIMEOUT :
                 LORAMAC_EVENT_INFO_STATUS_RX2_ERROR;
     }
-
-    if (_device_class == CLASS_C) {
-        open_rx2_window();
-    }
-
-    return _params.rx_slot;
 }
 
 bool LoRaMac::continue_joining_process()
@@ -857,7 +863,6 @@ void LoRaMac::on_backoff_timer_expiry(void)
 void LoRaMac::open_rx1_window(void)
 {
     Lock lock(*this);
-    tr_debug("Opening RX1 Window");
     _continuous_rx2_window_open = false;
     _lora_time.stop(_params.timers.rx_window1_timer);
     _params.rx_slot = RX_SLOT_WIN_1;
@@ -878,25 +883,26 @@ void LoRaMac::open_rx1_window(void)
 
     _lora_phy.setup_rx_window(_params.rx_window1_config.is_rx_continuous,
                               _params.sys_params.max_rx_win_time);
+
+    tr_debug("Opening RX1 Window");
 }
 
 void LoRaMac::open_rx2_window()
 {
     Lock lock(*this);
-    tr_debug("Opening RX2 Window");
+    _continuous_rx2_window_open = true;
     _lora_time.stop(_params.timers.rx_window2_timer);
 
     _params.rx_window2_config.channel = _params.channel;
     _params.rx_window2_config.frequency = _params.sys_params.rx2_channel.frequency;
     _params.rx_window2_config.dl_dwell_time = _params.sys_params.downlink_dwell_time;
     _params.rx_window2_config.is_repeater_supported = _params.is_repeater_supported;
-    _params.rx_window2_config.rx_slot = RX_SLOT_WIN_2;
+    _params.rx_window2_config.rx_slot = _params.rx_window2_config.is_rx_continuous ?
+            RX_SLOT_WIN_CLASS_C : RX_SLOT_WIN_2;
 
     if (get_device_class() == CLASS_C) {
-        _continuous_rx2_window_open = true;
         _params.rx_window2_config.is_rx_continuous = true;
     } else {
-        _continuous_rx2_window_open = false;
         _params.rx_window2_config.is_rx_continuous = false;
     }
 
@@ -907,9 +913,10 @@ void LoRaMac::open_rx2_window()
         _lora_phy.setup_rx_window(_params.rx_window2_config.is_rx_continuous,
                                   _params.sys_params.max_rx_win_time);
 
-        _params.rx_slot = _params.rx_window2_config.is_rx_continuous ?
-                          RX_SLOT_WIN_CLASS_C : RX_SLOT_WIN_2;
+        _params.rx_slot = _params.rx_window2_config.rx_slot;
     }
+
+    tr_debug("Opening RX2 Window, Frequency = %u", _params.rx_window2_config.frequency);
 }
 
 void LoRaMac::on_ack_timeout_timer_event(void)
@@ -1346,8 +1353,6 @@ void LoRaMac::set_device_class(const device_class_t &device_class,
         tr_debug("Changing device class to -> CLASS_C");
         open_rx2_window();
     }
-
-
 }
 
 void LoRaMac::setup_link_check_request()

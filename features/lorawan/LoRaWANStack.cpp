@@ -503,6 +503,7 @@ lorawan_status_t LoRaWANStack::acquire_backoff_metadata(int& backoff)
  ****************************************************************************/
 void LoRaWANStack::tx_interrupt_handler(void)
 {
+    _tx_timestamp = _loramac.get_current_time();
     const int ret = _queue->call(this, &LoRaWANStack::process_transmission);
     MBED_ASSERT(ret != 0);
     (void)ret;
@@ -565,7 +566,7 @@ void LoRaWANStack::process_transmission_timeout()
 void LoRaWANStack::process_transmission(void)
 {
     tr_debug("Transmission completed");
-    _loramac.on_radio_tx_done();
+    _loramac.on_radio_tx_done(_tx_timestamp);
 
     make_tx_metadata_available();
 
@@ -680,10 +681,12 @@ void LoRaWANStack::process_reception(const uint8_t *const payload, uint16_t size
 
 void LoRaWANStack::process_reception_timeout(bool is_timeout)
 {
+    rx_slot_t slot = _loramac.get_current_slot();
+
     // when is_timeout == false, a CRC error took place in the received frame
     // we treat that erroneous frame as no frame received at all, hence handle
     // it exactly as we would handle timeout
-    rx_slot_t slot = _loramac.on_radio_rx_timeout(is_timeout);
+    _loramac.on_radio_rx_timeout(is_timeout);
 
     if (slot == RX_SLOT_WIN_2 && !_loramac.nwk_joined()) {
         state_controller(DEVICE_STATE_JOINING);
