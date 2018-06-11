@@ -1034,6 +1034,10 @@ uint8_t LoRaPHY::accept_rx_param_setup_req(rx_param_setup_req_t* params)
 {
     uint8_t status = 0x07;
 
+    if (lookup_band_for_frequency(params->frequency) < 0) {
+        status &= 0xFE;
+    }
+
     // Verify radio frequency
     if (_radio->check_rf_frequency(params->frequency) == false) {
         status &= 0xFE; // Channel frequency KO
