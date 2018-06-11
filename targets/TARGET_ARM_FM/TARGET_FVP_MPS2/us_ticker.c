@@ -62,12 +62,9 @@ void us_ticker_init(void)
 
 void us_ticker_free(void)
 {
-    if (!us_ticker_inited) {
-        return;
-    }
-
     US_TICKER_TIMER1->TimerControl  &= ~CMSDK_DUALTIMER1_CTRL_EN_Msk; // disable TIMER1
     US_TICKER_TIMER2->TimerControl  &= ~CMSDK_DUALTIMER2_CTRL_EN_Msk; // disable TIMER2
+    us_ticker_disable_interrupt();
     us_ticker_inited = 0;
 }
 
