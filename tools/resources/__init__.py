@@ -14,10 +14,10 @@
 # limitations under the License.
 
 """
-The scanning rules and Resources object.
+# The scanning rules and Resources object.
 
 A project in Mbed OS contains metadata in the file system as directory names.
-These directory names adhere to a set of rules referred to as  canning rules.
+These directory names adhere to a set of rules referred to as scanning rules.
 The following are the English version of the scanning rules:
 
 Directory names starting with "TEST_", "TARGET_", "TOOLCHAIN_" and "FEATURE_"
@@ -294,9 +294,11 @@ class Resources(object):
         self._label_paths = [(p, b) for p, b in self._label_paths
                              if basename(p) not in prefixed_labels]
 
-
     def add_target_labels(self, target):
-        self._add_labels("TARGET_", target.labels)
+        self._add_labels("TARGET", target.labels)
+
+    def add_features(self, features):
+        self._add_labels("FEATURE", features)
 
     def add_toolchain_labels(self, toolchain):
         for prefix, value in toolchain.get_labels().items():
@@ -328,39 +330,37 @@ class Resources(object):
         if self.ignore_patterns:
             self._ignore_regex = re.compile("|".join(fnmatch.translate(p) for p in self.ignore_patterns))
 
+    def _not_current_label(self, dirname, label_type):
+        return (dirname.startswith(label_type + "_") and
+                dirname[len(label_type) + 1:] not in self.labels[label_type])
 
-    def add_features(self, features):
-        self._add_labels("FEATURE", features)
+    def add_directory(self, path, base_path=None, exclude_paths=None):
+        """ Scan a directory and include its resources in this resources obejct
 
-    # A helper function for scan_resources. _add_dir traverses *path* (assumed to be a
-    # directory) and heeds the ".mbedignore" files along the way. _add_dir calls _add_file
-    # on every file it considers adding to the resources object.
-    def add_directory(self, path, base_path, exclude_paths=None):
-        """ os.walk(top[, topdown=True[, onerror=None[, followlinks=False]]])
-        When topdown is True, the caller can modify the dirnames list in-place
-        (perhaps using del or slice assignment), and walk() will only recurse into
-        the subdirectories whose names remain in dirnames; this can be used to prune
-        the search, impose a specific order of visiting, or even to inform walk()
-        about directories the caller creates or renames before it resumes walk()
-        again. Modifying dirnames when topdown is False is ineffective, because in
-        bottom-up mode the directories in dirnames are generated before dirpath
-        itself is generated.
+        Positional arguments:
+        path - the path to search for resources
+
+        Keyword arguments
+        base_path - If this is part of an incremental scan, include the origin
+                    directory root of the scan here
+        exclude_paths - A list of paths that are to be excluded from a build
         """
         self.notify.progress("scan", abspath(path))
+
         if base_path is None:
             base_path = path
+        if self.collect_ignores and path in self.ignored_dirs:
+            self.ignored_dirs.remove(path)
+
         for root, dirs, files in walk(path, followlinks=True):
             # Check if folder contains .mbedignore
             if ".mbedignore" in files:
                 with open (join(root,".mbedignore"), "r") as f:
                     lines=f.readlines()
-                    lines = [l.strip() for l in lines] # Strip whitespaces
-                    lines = [l for l in lines if l != ""] # Strip empty lines
-                    lines = [l for l in lines if not re.match("^#",l)] # Strip comment lines
-                    # Append root path to glob patterns and append patterns to ignore_patterns
+                    lines = [l.strip() for l in lines
+                             if l.strip() != "" and not l.startswith("#")]
                     self.add_ignore_patterns(root, base_path, lines)
 
-            # Skip the whole folder if ignored, e.g. .mbedignore containing '*'
             root_path =join(relpath(root, base_path))
             if self.is_ignored(join(root_path,"")):
                 self.ignore_dir(root_path)
@@ -371,9 +371,9 @@ class Resources(object):
                 dir_path = join(root, d)
                 if d == '.hg' or d == '.git':
                     self.repo_dirs.append(dir_path)
-                if ((d.startswith('TARGET_') and d[7:] not in self.labels['TARGET']) or
-                    (d.startswith('TOOLCHAIN_') and d[10:] not in self.labels['TOOLCHAIN']) or
-                    (d.startswith('FEATURE_') and d[8:] not in self.labels['FEATURE'])):
+
+                if (any(self._not_current_label(d, t) for t
+                        in ['TARGET', 'TOOLCHAIN', 'FEATURE'])):
                     self._label_paths.append((dir_path, base_path))
                     self.ignore_dir(dir_path)
                     dirs.remove(d)
