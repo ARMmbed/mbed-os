@@ -495,7 +495,7 @@ class Resources(object):
         if dependencies_paths is not None:
             toolchain.progress("dep", dependencies_paths)
             for dep in dependencies_paths:
-                lib_self = self.__class__(self.base_path, self.collect_ignores)\
+                lib_self = self.__class__(self.notify, self.collect_ignores)\
                                .scan_with_toolchain([dep], toolchain)
                 self.inc_dirs.extend(lib_self.inc_dirs)
 

@@ -142,7 +142,7 @@ def get_config(src_paths, target, toolchain_name=None, app_config=None):
         res.scan_with_toolchain(src_paths, toolchain, exclude=False)
     else:
         config = Config(target, src_paths, app_config=app_config)
-        res.scan_with_config(src_paths, config, exclude=False)
+        res.scan_with_config(src_paths, config)
     if config.has_regions:
         _ = list(config.regions)
 
@@ -520,7 +520,6 @@ def build_project(src_paths, build_path, target, toolchain_name,
                             vendor_label)
 
     try:
-        # Call unified scan_resources
         resources = Resources(notify).scan_with_toolchain(
             src_paths, toolchain, inc_dirs=inc_dirs)
 
@@ -680,7 +679,6 @@ def build_library(src_paths, build_path, target, toolchain_name,
             raise Exception(error_msg)
 
     try:
-        # Call unified scan_resources
         resources = Resources(notify).scan_with_toolchain(
             src_paths, toolchain, dependencies_paths, inc_dirs=inc_dirs)
 
@@ -783,7 +781,6 @@ def build_lib(lib_id, target, toolchain_name, clean=False, macros=None,
     build_path = lib.build_dir
     dependencies_paths = lib.dependencies
     inc_dirs = lib.inc_dirs
-    inc_dirs_ext = lib.inc_dirs_ext
 
     if not isinstance(src_paths, list):
         src_paths = [src_paths]
@@ -791,7 +788,7 @@ def build_lib(lib_id, target, toolchain_name, clean=False, macros=None,
     # The first path will give the name to the library
     name = basename(src_paths[0])
 
-    if report != None:
+    if report is not None:
         start = time()
         id_name = name.upper()
         description = name
@@ -831,48 +828,22 @@ def build_lib(lib_id, target, toolchain_name, clean=False, macros=None,
             ignore=ignore)
 
         notify.info("Building library %s (%s, %s)" %
-                       (name.upper(), target.name, toolchain_name))
+                    (name.upper(), target.name, toolchain_name))
 
         # Take into account the library configuration (MBED_CONFIG_FILE)
         config = toolchain.config
         config.add_config_files([MBED_CONFIG_FILE])
 
         # Scan Resources
-        resources = []
-        for src_path in src_paths:
-            resources.append(toolchain.scan_resources(src_path))
-
-        # Add extra include directories / files which are required by library
-        # This files usually are not in the same directory as source files so
-        # previous scan will not include them
-        if inc_dirs_ext is not None:
-            for inc_ext in inc_dirs_ext:
-                resources.append(toolchain.scan_resources(inc_ext))
-
-        # Dependencies Include Paths
-        dependencies_include_dir = []
-        if dependencies_paths is not None:
-            for path in dependencies_paths:
-                lib_resources = toolchain.scan_resources(path)
-                dependencies_include_dir.extend(lib_resources.inc_dirs)
-                dependencies_include_dir.extend(map(dirname, lib_resources.inc_dirs))
-
-        if inc_dirs:
-            dependencies_include_dir.extend(inc_dirs)
-
-        # Add other discovered configuration data to the configuration object
-        for res in resources:
-            config.load_resources(res)
-        toolchain.set_config_data(toolchain.config.get_config_data())
-
+        resources = Resources(notify).scan_with_toolchain(
+            src_paths + (lib.inc_dirs_ext or []), toolchain,
+            inc_dirs=inc_dirs, dependencies_paths=dependencies_paths)
 
         # Copy Headers
-        for resource in resources:
-            toolchain.copy_files(resource.headers, build_path,
-                                 resources=resource)
+        toolchain.copy_files(resources.headers, build_path,
+                             resources=resources)
 
-        dependencies_include_dir.extend(
-            toolchain.scan_resources(build_path).inc_dirs)
+        dependencies_include_dir = Resources(notify).sacn_with_toolchain([build_path], toolchain).inc_dirs
 
         # Compile Sources
         objects = []
@@ -973,7 +944,7 @@ def build_mbed_libs(target, toolchain_name, clean=False, macros=None,
 
         # mbed
         notify.info("Building library %s (%s, %s)" %
-                       ('MBED', target.name, toolchain_name))
+                    ('MBED', target.name, toolchain_name))
 
         # Common Headers
         toolchain.copy_files([MBED_HEADER], MBED_LIBRARIES)
@@ -982,16 +953,16 @@ def build_mbed_libs(target, toolchain_name, clean=False, macros=None,
         for dir, dest in [(MBED_DRIVERS, MBED_LIBRARIES_DRIVERS),
                           (MBED_PLATFORM, MBED_LIBRARIES_PLATFORM),
                           (MBED_HAL, MBED_LIBRARIES_HAL)]:
-            resources = toolchain.scan_resources(dir)
+            resources = Resources(notify).scan_with_toolchain([dir], toolchain)
             toolchain.copy_files(resources.headers, dest)
             library_incdirs.append(dest)
 
-        cmsis_implementation = toolchain.scan_resources(MBED_CMSIS_PATH)
+        cmsis_implementation = Resources(notify).scan_with_toolchain([MBED_CMSIS_PATH], toolchain)
         toolchain.copy_files(cmsis_implementation.headers, build_target)
         toolchain.copy_files(cmsis_implementation.linker_script, build_toolchain)
         toolchain.copy_files(cmsis_implementation.bin_files, build_toolchain)
 
-        hal_implementation = toolchain.scan_resources(MBED_TARGETS_PATH)
+        hal_implementation = Resources(notify).scan_with_toolchain([MBED_TARGETS_PATH], toolchain)
         toolchain.copy_files(hal_implementation.headers +
                              hal_implementation.hex_files +
                              hal_implementation.libraries +
@@ -999,15 +970,14 @@ def build_mbed_libs(target, toolchain_name, clean=False, macros=None,
                              build_target, resources=hal_implementation)
         toolchain.copy_files(hal_implementation.linker_script, build_toolchain)
         toolchain.copy_files(hal_implementation.bin_files, build_toolchain)
-        incdirs = toolchain.scan_resources(build_target).inc_dirs
+        incdirs = Resources(notify).scan_with_toolchain([build_target], toolchain).inc_dirs
         objects = toolchain.compile_sources(cmsis_implementation + hal_implementation,
                                             library_incdirs + incdirs + [tmp_path])
         toolchain.copy_files(objects, build_toolchain)
 
         # Common Sources
-        mbed_resources = None
-        for dir in [MBED_DRIVERS, MBED_PLATFORM, MBED_HAL]:
-            mbed_resources += toolchain.scan_resources(dir)
+        mbed_resources = Resources(notify).scan_with_toolchain(
+            [MBED_DRIVERS, MBED_PLATFORM, MBED_HAL], toolchain)
 
         objects = toolchain.compile_sources(mbed_resources,
                                             library_incdirs + incdirs)
