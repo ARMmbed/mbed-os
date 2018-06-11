@@ -18,8 +18,8 @@ limitations under the License.
 import unittest
 from collections import namedtuple
 from mock import patch, MagicMock
-from tools.build_api import prepare_toolchain, build_project, build_library,\
-    scan_resources
+from tools.build_api import prepare_toolchain, build_project, build_library
+from tools.resources import Resources
 from tools.toolchains import TOOLCHAINS
 from tools.notifier.mock import MockNotifier
 
@@ -65,9 +65,10 @@ class BuildApiTests(unittest.TestCase):
     def test_always_complete_build(self, *_):
         notify = MockNotifier()
         toolchain = prepare_toolchain(self.src_paths, self.build_path, self.target,
-                                        self.toolchain_name, notify=notify)
+                                      self.toolchain_name, notify=notify)
 
-        res = scan_resources(self.src_paths, toolchain)
+        res = Resources(MockNotifier()).scan_with_toolchain(
+            self.src_paths, toolchain)
 
         toolchain.RESPONSE_FILES=False
         toolchain.config_processed = True
@@ -116,7 +117,7 @@ class BuildApiTests(unittest.TestCase):
         mock_config_init.assert_called_once_with(self.target, self.src_paths,
                                                  app_config=None)
 
-    @patch('tools.build_api.scan_resources')
+    @patch('tools.build_api.Resources')
     @patch('tools.build_api.mkdir')
     @patch('os.path.exists')
     @patch('tools.build_api.prepare_toolchain')
@@ -127,7 +128,7 @@ class BuildApiTests(unittest.TestCase):
         :param mock_prepare_toolchain: mock of function prepare_toolchain
         :param mock_exists: mock of function os.path.exists
         :param _: mock of function mkdir (not tested)
-        :param __: mock of function scan_resources (not tested)
+        :param __: mock of class Resources (not tested)
         :return:
         """
         notify = MockNotifier()
@@ -146,7 +147,7 @@ class BuildApiTests(unittest.TestCase):
         self.assertEqual(args[1]['app_config'], app_config,
                          "prepare_toolchain was called with an incorrect app_config")
 
-    @patch('tools.build_api.scan_resources')
+    @patch('tools.build_api.Resources')
     @patch('tools.build_api.mkdir')
     @patch('os.path.exists')
     @patch('tools.build_api.prepare_toolchain')
@@ -157,7 +158,7 @@ class BuildApiTests(unittest.TestCase):
         :param mock_prepare_toolchain: mock of function prepare_toolchain
         :param mock_exists: mock of function os.path.exists
         :param _: mock of function mkdir (not tested)
-        :param __: mock of function scan_resources (not tested)
+        :param __: mock of class Resources (not tested)
         :return:
         """
         notify = MockNotifier()
@@ -176,7 +177,7 @@ class BuildApiTests(unittest.TestCase):
         self.assertEqual(args[1]['app_config'], None,
                          "prepare_toolchain was called with an incorrect app_config")
 
-    @patch('tools.build_api.scan_resources')
+    @patch('tools.build_api.Resources')
     @patch('tools.build_api.mkdir')
     @patch('os.path.exists')
     @patch('tools.build_api.prepare_toolchain')
@@ -187,7 +188,7 @@ class BuildApiTests(unittest.TestCase):
         :param mock_prepare_toolchain: mock of function prepare_toolchain
         :param mock_exists: mock of function os.path.exists
         :param _: mock of function mkdir (not tested)
-        :param __: mock of function scan_resources (not tested)
+        :param __: mock of class Resources (not tested)
         :return:
         """
         notify = MockNotifier()
@@ -203,7 +204,7 @@ class BuildApiTests(unittest.TestCase):
         self.assertEqual(args[1]['app_config'], app_config,
                          "prepare_toolchain was called with an incorrect app_config")
 
-    @patch('tools.build_api.scan_resources')
+    @patch('tools.build_api.Resources')
     @patch('tools.build_api.mkdir')
     @patch('os.path.exists')
     @patch('tools.build_api.prepare_toolchain')
@@ -214,7 +215,7 @@ class BuildApiTests(unittest.TestCase):
         :param mock_prepare_toolchain: mock of function prepare_toolchain
         :param mock_exists: mock of function os.path.exists
         :param _: mock of function mkdir (not tested)
-        :param __: mock of function scan_resources (not tested)
+        :param __: mock of class Resources (not tested)
         :return:
         """
         notify = MockNotifier()
