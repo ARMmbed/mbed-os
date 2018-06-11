@@ -386,7 +386,7 @@ public:
     /**
      * MAC operations upon successful transmission
      */
-    void on_radio_tx_done(void);
+    void on_radio_tx_done(lorawan_time_t timestamp);
 
     /**
      * MAC operations upon reception
@@ -407,7 +407,7 @@ public:
      *
      * @return current RX slot
      */
-    rx_slot_t on_radio_rx_timeout(bool is_timeout);
+    void on_radio_rx_timeout(bool is_timeout);
 
     /**
      * Handles retransmissions of Join requests if an Accept
@@ -454,6 +454,16 @@ public:
      * timer is still running.
      */
     lorawan_status_t clear_tx_pipe(void);
+
+    /**
+     * Gets the current time
+     */
+    lorawan_time_t get_current_time(void);
+
+    /**
+     * Gets the current receive slot
+     */
+    rx_slot_t get_current_slot(void);
 
     /**
      * These locks trample through to the upper layers and make
