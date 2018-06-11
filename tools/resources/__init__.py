@@ -324,10 +324,6 @@ class Resources(object):
         self.legacy_ignore_dirs -= set(
             [toolchain.target.name, LEGACY_TOOLCHAIN_NAMES[toolchain.name]])
 
-    def get_labels(self):
-        """
-        """
-
     def is_ignored(self, file_path):
         """Check if file path is ignored by any .mbedignore thus far"""
         return self._ignore_regex.match(normcase(file_path))
