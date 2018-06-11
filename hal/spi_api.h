@@ -145,8 +145,6 @@ typedef struct {
  * This structure groups all initialisation parameters required by a SPI interface.
  */
 typedef struct {
-    spi_pins_t pins; /**< Pins to use for this channel. */
-
     /**< This symbol will be sent as a place holder in full-duplex mode in case more symbols are to
          be read than to be sent. */
     uint32_t fill_symbol;
@@ -158,7 +156,7 @@ typedef struct {
     bool clock_phase; /**< True if data line is valid when leaving active state. */
     bool clock_polarity; /**< True if the clock's rest state is high (+Vcc). */
     bool continuous_mode; /**< True to use the continuous mode. */
-} spi_init_t;
+} spi_config_t;
 
 /**
  * This is describes the capabilities of a SPI channel.
@@ -186,6 +184,7 @@ typedef struct {
  * platform's endianness.
  */
 typedef struct {
+    spi_config_t config; /**< Configuration to use on this transfer. */
     const uint8_t *tx; /**< A buffer containing the data to be sent. */
     uint32_t tx_count; /**< The number of symbol to send. */
     uint8_t *rx; /**< A buffer to store the received data. */
@@ -215,7 +214,7 @@ const spi_capabilities_t *const spi_get_capabilities(const spi_pins_t *pins);
  * @param[in,out] obj   A spi_t instance to initialise.
  * @param[in]     init  Initialisation parameters.
  */
-void spi_init(spi_t *obj, const spi_init_t *init);
+void spi_init(spi_t *obj, const spi_pins_t *pins);
 
 /**
  * Processes a transfer blocking until completion if the device is available.
