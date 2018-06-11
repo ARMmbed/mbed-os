@@ -1086,15 +1086,17 @@ void ATHandler::flush()
 
 void ATHandler::debug_print(char *p, int len)
 {
-#if MBED_CONF_MBED_TRACE_ENABLE
+#if MBED_CONF_CELLULAR_DEBUG_AT
     if (_debug_on) {
+#if MBED_CONF_MBED_TRACE_ENABLE
         mbed_cellular_trace::mutex_wait();
+#endif
         for (ssize_t i = 0; i < len; i++) {
             char c = *p++;
             if (!isprint(c)) {
                 if (c == '\r') {
+                    debug("\n");
                 } else if (c == '\n') {
-                    debug("%c", c);
                 } else {
                     debug("[%d]", c);
                 }
@@ -1102,7 +1104,9 @@ void ATHandler::debug_print(char *p, int len)
                 debug("%c", c);
             }
         }
+#if MBED_CONF_MBED_TRACE_ENABLE
         mbed_cellular_trace::mutex_release();
-    }
 #endif
+    }
+#endif // MBED_CONF_CELLULAR_DEBUG_AT
 }
