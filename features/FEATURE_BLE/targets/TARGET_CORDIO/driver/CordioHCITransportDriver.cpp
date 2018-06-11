@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#include <algorithm>
+#include <limits>
+
 #include "CordioHCITransportDriver.h"
 #include "CordioHCIDriver.h"
 
@@ -23,9 +26,22 @@ namespace ble {
 namespace vendor {
 namespace cordio {
 
+CordioHCITransportDriver::data_received_handler_t
+    CordioHCITransportDriver::data_received_handler = hciTrSerialRxIncoming;
+
 void CordioHCITransportDriver::on_data_received(uint8_t* data, uint16_t len)
 {
-    hciTrSerialRxIncoming(data, len);
+    while (len) {
+        uint8_t chunk_length = std::min(len, (uint16_t) std::numeric_limits<uint8_t>::max());
+        data_received_handler(data, chunk_length);
+        len = len - chunk_length;
+        data = data + chunk_length;
+    }
+}
+
+void CordioHCITransportDriver::set_data_received_handler(data_received_handler_t handler)
+{
+    data_received_handler = handler;
 }
 
 } // namespace cordio
