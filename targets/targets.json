@@ -240,10 +240,10 @@
     "LPC1768": {
         "inherits": ["LPCTarget"],
         "core": "Cortex-M3",
-        "extra_labels": ["NXP", "LPC176X", "MBED_LPC1768"],
+        "extra_labels": ["NXP", "LPC176X", "MBED_LPC1768", "NXP_EMAC"],
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "GCC_CR", "IAR"],
         "detect_code": ["1010"],
-        "device_has": ["USTICKER", "ANALOGIN", "ANALOGOUT", "CAN", "DEBUG_AWARENESS", "ETHERNET", "I2C", "I2CSLAVE", "INTERRUPTIN", "LOCALFILESYSTEM", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SEMIHOST", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "FLASH"],
+        "device_has": ["USTICKER", "ANALOGIN", "ANALOGOUT", "CAN", "DEBUG_AWARENESS", "EMAC", "ETHERNET", "I2C", "I2CSLAVE", "INTERRUPTIN", "LOCALFILESYSTEM", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SEMIHOST", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "FLASH"],
         "release_versions": ["2", "5"],
         "features": ["LWIP"],
         "device_name": "LPC1768",
@@ -260,10 +260,10 @@
         "supported_form_factors": ["ARDUINO"],
         "core": "Cortex-M3",
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "GCC_CR", "IAR"],
-        "extra_labels": ["NXP", "LPC176X"],
+        "extra_labels": ["NXP", "LPC176X", "NXP_EMAC"],
         "macros": ["TARGET_LPC1768"],
         "inherits": ["LPCTarget"],
-        "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "DEBUG_AWARENESS", "ETHERNET", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "FLASH"],
+        "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "DEBUG_AWARENESS", "EMAC", "ETHERNET", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "FLASH"],
         "release_versions": ["2", "5"],
         "features": ["LWIP"],
         "device_name": "LPC1768",
@@ -276,7 +276,7 @@
         "supported_form_factors": ["ARDUINO"],
         "core": "Cortex-M3",
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "GCC_CR", "IAR"],
-        "extra_labels": ["NXP", "LPC176X"],
+        "extra_labels": ["NXP", "LPC176X", "NXP_EMAC"],
         "config": {
             "modem_is_on_board": {
                 "help": "Value: Tells the build system that the modem is on-board as oppose to a plug-in shield/module.",
@@ -291,7 +291,7 @@
         },
         "macros": ["TARGET_LPC1768"],
         "inherits": ["LPCTarget"],
-        "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "DEBUG_AWARENESS", "ETHERNET", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "FLASH"],
+        "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "DEBUG_AWARENESS", "EMAC", "ETHERNET", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "FLASH"],
         "release_versions": ["2", "5"],
         "features": ["LWIP"],
         "device_name": "LPC1768",
@@ -362,13 +362,13 @@
     "MCU_LPC4088": {
         "inherits": ["LPCTarget"],
         "core": "Cortex-M4F",
-        "extra_labels": ["NXP", "LPC408X"],
+        "extra_labels": ["NXP", "LPC408X", "NXP_EMAC"],
         "is_disk_virtual": true,
         "supported_toolchains": ["ARM", "GCC_CR", "GCC_ARM", "IAR"],
         "post_binary_hook": {
             "function": "LPC4088Code.binary_hook"
         },
-        "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "DEBUG_AWARENESS", "ETHERNET", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
+        "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "DEBUG_AWARENESS", "EMAC", "ETHERNET", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
         "features": ["LWIP"],
         "device_name": "LPC4088FBD144",
         "overrides": {

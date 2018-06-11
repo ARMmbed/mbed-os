@@ -26,14 +26,12 @@
 #ifndef __LPC_EMAC_CONFIG_H
 #define __LPC_EMAC_CONFIG_H
 
-#include "lwip/opt.h"
+#define LPC17_ETH_IF_NAME         "lpc"
+#define LPC17_ETH_HWADDR_SIZE      6
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
+#define DEFAULT_THREAD_STACKSIZE 512
 
-/** @defgroup lwip_phy_config	LWIP PHY configuration
+/** @defgroup lwip_phy_config	PHY configuration
  * @ingroup lwip_phy
  *
  * Configuration options for the PHY connected to the LPC EMAC.
@@ -67,8 +65,7 @@ extern "C"
  * @}
  */
 
-/** @defgroup lwip_emac_config	LWIP EMAC configuration
- * @ingroup lwip_emac
+/** @defgroup emac_config	EMAC configuration
  *
  * Configuration options for the LPC EMAC.
  * @{
@@ -81,18 +78,18 @@ extern "C"
 /** \brief  Defines the number of descriptors used for RX. This
  *          must be a minimum value of 2.
  */
-#define LPC_NUM_BUFF_RXDESCS 3
+#define LPC_NUM_BUFF_RXDESCS 4
 
 /** \brief  Defines the number of descriptors used for TX. Must
  *          be a minimum value of 2.
  */
-#define LPC_NUM_BUFF_TXDESCS (TCP_SND_QUEUELEN + 1)
+#define LPC_NUM_BUFF_TXDESCS 9
 
-/** \brief  Set this define to 1 to enable bounce buffers for transmit pbufs
- *          that cannot be sent via the zero-copy method. Some chained pbufs
- *          may have a payload address that links to an area of memory that
+/** \brief  Set this define to 1 to enable bounce buffers for transmit memory
+ *          buffers that cannot be sent via the zero-copy method. Some chained
+ *          buffers may have a payload address that links to an area of memory that
  *          cannot be used for transmit DMA operations. If this define is
- *          set to 1, an extra check will be made with the pbufs. If a buffer
+ *          set to 1, an extra check will be made with the buffers. If a buffer
  *          is determined to be non-usable for zero-copy, a temporary bounce
  *          buffer will be created and used instead.
  */
@@ -101,10 +98,6 @@ extern "C"
 /**		  
  * @}
  */
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* __LPC_EMAC_CONFIG_H */
 
