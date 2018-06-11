@@ -135,7 +135,7 @@ public:
      *          \ref LORAWAN_STATUS_BUSY
      *          \ref LORAWAN_STATUS_PARAMETER_INVALID
      */
-    lorawan_status_t add_channel_plan(const lorawan_channelplan_t& plan);
+    lorawan_status_t add_channel_plan(const lorawan_channelplan_t &plan);
 
     /**
      * @brief   Removes a channel plan from the system.
@@ -166,7 +166,7 @@ public:
      *          \ref LORAWAN_STATUS_BUSY
      *          \ref LORAWAN_STATUS_PARAMETER_INVALID
      */
-    lorawan_status_t get_channel_plan(lorawan_channelplan_t& plan);
+    lorawan_status_t get_channel_plan(lorawan_channelplan_t &plan);
 
     /**
      * @brief   Remove a given channel from the active plan.
@@ -221,7 +221,7 @@ public:
      * @param radio            LoRaRadio object, i.e., the radio driver
      *
      */
-    void bind_radio_driver(LoRaRadio& radio);
+    void bind_radio_driver(LoRaRadio &radio);
 
     /**
      * @brief Configures the events to trigger an MLME-Indication with
@@ -333,7 +333,7 @@ public:
      * @param num_retries Number of retries for a confirmed type message
      * @return The number of bytes prepared for sending.
      */
-    int16_t prepare_ongoing_tx(const uint8_t port, const uint8_t* data,
+    int16_t prepare_ongoing_tx(const uint8_t port, const uint8_t *data,
                                uint16_t length, uint8_t flags, uint8_t num_retries);
 
     /**
@@ -353,7 +353,7 @@ public:
      * @param device_class Device class to use.
      * @param ack_expiry_handler callback function to inform about ack expiry
      */
-    void set_device_class(const device_class_t& device_class,
+    void set_device_class(const device_class_t &device_class,
                           mbed::Callback<void(void)>ack_expiry_handler);
 
     /**
@@ -391,7 +391,7 @@ public:
     /**
      * MAC operations upon reception
      */
-    void on_radio_rx_done(const uint8_t* const payload, uint16_t size,
+    void on_radio_rx_done(const uint8_t *const payload, uint16_t size,
                           int16_t rssi, int8_t snr);
 
     /**
@@ -460,8 +460,16 @@ public:
      * the stack thread safe.
      */
 #if MBED_CONF_RTOS_PRESENT
-    void lock(void) { osStatus status = _mutex.lock(); MBED_ASSERT(status == osOK); }
-    void unlock(void) { osStatus status = _mutex.unlock(); MBED_ASSERT(status == osOK); }
+    void lock(void)
+    {
+        osStatus status = _mutex.lock();
+        MBED_ASSERT(status == osOK);
+    }
+    void unlock(void)
+    {
+        osStatus status = _mutex.unlock();
+        MBED_ASSERT(status == osOK);
+    }
 #else
     void lock(void) { }
     void unlock(void) { }
@@ -511,10 +519,10 @@ private:
      * payload
      */
     void extract_data_and_mac_commands(const uint8_t *payload, uint16_t size,
-                                      uint8_t fopts_len, uint8_t *nwk_skey,
-                                      uint8_t *app_skey, uint32_t address,
-                                      uint32_t downlink_frame_counter,
-                                      int16_t rssi, int8_t snr);
+                                       uint8_t fopts_len, uint8_t *nwk_skey,
+                                       uint8_t *app_skey, uint32_t address,
+                                       uint32_t downlink_frame_counter,
+                                       int16_t rssi, int8_t snr);
     /**
      * Decrypts and extracts MAC commands from the received encrypted
      * payload if there is no data

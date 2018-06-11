@@ -67,7 +67,7 @@ public:
      * @param radio            LoRaRadio object, i.e., the radio driver
      *
      */
-    void bind_radio_driver(LoRaRadio& radio);
+    void bind_radio_driver(LoRaRadio &radio);
 
     /** End device initialization.
      * @param queue            A pointer to an EventQueue passed from the application.
@@ -281,7 +281,7 @@ public:
      *                          LORAWAN_STATUS_WOULD_BLOCK if another TX is
      *                          ongoing, or a negative error code on failure.
      */
-    int16_t handle_tx(uint8_t port, const uint8_t* data,
+    int16_t handle_tx(uint8_t port, const uint8_t *data,
                       uint16_t length, uint8_t flags,
                       bool null_allowed = false, bool allow_port_0 = false);
 
@@ -334,7 +334,7 @@ public:
      *                                  nothing available to read at the moment.
      *                             iv)  A negative error code on failure.
      */
-    int16_t handle_rx(uint8_t* data, uint16_t length, uint8_t& port, int& flags, bool validate_params);
+    int16_t handle_rx(uint8_t *data, uint16_t length, uint8_t &port, int &flags, bool validate_params);
 
     /** Send Link Check Request MAC command.
      *
@@ -377,7 +377,7 @@ public:
      *                          LORAWAN_STATUS_UNSUPPORTED is requested class is not supported,
      *                          or other negative error code if request failed.
      */
-    lorawan_status_t set_device_class(const device_class_t& device_class);
+    lorawan_status_t set_device_class(const device_class_t &device_class);
 
     /** Acquire TX meta-data
      *
@@ -425,8 +425,14 @@ public:
      */
     lorawan_status_t stop_sending(void);
 
-    void lock(void) { _loramac.lock(); }
-    void unlock(void) { _loramac.unlock(); }
+    void lock(void)
+    {
+        _loramac.lock();
+    }
+    void unlock(void)
+    {
+        _loramac.unlock();
+    }
 
 private:
     typedef mbed::ScopedLock<LoRaWANStack> Lock;
@@ -443,14 +449,14 @@ private:
     /**
      * Helpers for state controller
      */
-    void process_uninitialized_state(lorawan_status_t& op_status);
-    void process_idle_state(lorawan_status_t& op_status);
+    void process_uninitialized_state(lorawan_status_t &op_status);
+    void process_idle_state(lorawan_status_t &op_status);
     void process_connected_state();
-    void process_connecting_state(lorawan_status_t& op_status);
-    void process_joining_state(lorawan_status_t& op_status);
-    void process_scheduling_state(lorawan_status_t& op_status);
+    void process_connecting_state(lorawan_status_t &op_status);
+    void process_joining_state(lorawan_status_t &op_status);
+    void process_scheduling_state(lorawan_status_t &op_status);
     void process_status_check_state();
-    void process_shutdown_state(lorawan_status_t& op_status);
+    void process_shutdown_state(lorawan_status_t &op_status);
     void state_machine_run_to_completion(void);
 
     /**
