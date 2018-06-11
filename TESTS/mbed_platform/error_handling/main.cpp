@@ -132,12 +132,12 @@ void test_error_context_capture()
     TEST_ASSERT_EQUAL_UINT((uint32_t)current_thread->thread_addr, error_ctx.thread_entry_address);
     TEST_ASSERT_EQUAL_UINT((uint32_t)current_thread->stack_size, error_ctx.thread_stack_size);
     TEST_ASSERT_EQUAL_UINT((uint32_t)current_thread->stack_mem, error_ctx.thread_stack_mem);
-#ifdef MBED_CONF_ERROR_FILENAME_CAPTURE_ENABLED
+#if MBED_CONF_PLATFORM_ERROR_FILENAME_CAPTURE_ENABLED
     TEST_ASSERT_EQUAL_STRING(MBED_FILENAME, error_ctx.error_filename);
 #endif    
 }
 
-#ifndef MBED_CONF_ERROR_HIST_DISABLED
+#if MBED_CONF_PLATFORM_ERROR_HIST_ENABLED
 /** Test error logging functionality
  */
 void test_error_logging()
@@ -351,7 +351,7 @@ Case cases[] = {
     Case("Test error context capture", test_error_context_capture),
 #endif //MBED_CONF_RTOS_PRESENT
     Case("Test error hook", test_error_hook),
-#ifndef MBED_CONF_ERROR_HIST_DISABLED    
+#if MBED_CONF_PLATFORM_ERROR_HIST_ENABLED    
     Case("Test error logging", test_error_logging),
 #if MBED_CONF_RTOS_PRESENT
     Case("Test error handling multi-threaded", test_error_logging_multithread),

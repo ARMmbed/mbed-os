@@ -30,15 +30,15 @@ extern "C" {
 #endif
 
 /** Define this macro to include filenames in error context. For release builds, do not include filename to save memory.    
- *  MBED_CONF_ERROR_FILENAME_CAPTURE_ENABLED
+ *  MBED_PLATFORM_CONF_ERROR_FILENAME_CAPTURE_ENABLED
  */   
 
 /** Define this macro to disable error logging, note that the first and last error capture will still be active by default.
- *  MBED_CONF_ERROR_HIST_DISABLED  
+ *  MBED_PLATFORM_CONF_ERROR_HIST_DISABLED  
  */
     
-#ifndef MBED_CONF_MAX_ERROR_FILENAME_LEN
-#define MBED_CONF_MAX_ERROR_FILENAME_LEN            16
+#ifndef MBED_CONF_PLATFORM_MAX_ERROR_FILENAME_LEN
+#define MBED_CONF_PLATFORM_MAX_ERROR_FILENAME_LEN            16
 #endif    
 
 #define MBED_ERROR_STATUS_CODE_MASK                 (0x0000FFFF)
@@ -147,7 +147,7 @@ typedef int mbed_error_status_t;
     #define MBED_WARNING1( error_status, error_msg, error_value )         mbed_warning( error_status, (const char *)NULL, (uint32_t)error_value, NULL, 0 )
     #define MBED_WARNING( error_status, error_msg )                       mbed_warning( error_status, (const char *)NULL, (uint32_t)0,           NULL, 0 )    
 #else
-    #if defined(MBED_CONF_ERROR_FILENAME_CAPTURE_ENABLED)
+    #if MBED_CONF_PLATFORM_ERROR_FILENAME_CAPTURE_ENABLED
         #define MBED_WARNING1( error_status, error_msg, error_value )     mbed_warning( error_status, (const char *)error_msg, (uint32_t)error_value, (const char *)MBED_FILENAME, __LINE__ )
         #define MBED_WARNING( error_status, error_msg )                   mbed_warning( error_status, (const char *)error_msg, (uint32_t)0          , (const char *)MBED_FILENAME, __LINE__ )
     #else
@@ -179,7 +179,7 @@ typedef int mbed_error_status_t;
     #define MBED_ERROR1( error_status, error_msg, error_value )           mbed_error( error_status, (const char *)NULL, (uint32_t)error_value, NULL, 0 )
     #define MBED_ERROR( error_status, error_msg )                         mbed_error( error_status, (const char *)NULL, (uint32_t)0          , NULL, 0 )
 #else
-    #if defined(MBED_CONF_ERROR_FILENAME_CAPTURE_ENABLED)
+    #if MBED_CONF_PLATFORM_ERROR_FILENAME_CAPTURE_ENABLED
         #define MBED_ERROR1( error_status, error_msg, error_value )       mbed_error( error_status, (const char *)error_msg, (uint32_t)error_value, (const char *)MBED_FILENAME, __LINE__ )
         #define MBED_ERROR( error_status, error_msg )                     mbed_error( error_status, (const char *)error_msg, (uint32_t)0          , (const char *)MBED_FILENAME, __LINE__ )
     #else
@@ -812,8 +812,8 @@ typedef struct _mbed_error_ctx {
     uint32_t thread_stack_size;
     uint32_t thread_stack_mem;
     uint32_t thread_current_sp;
-#ifdef MBED_CONF_ERROR_FILENAME_CAPTURE_ENABLED
-    char error_filename[MBED_CONF_MAX_ERROR_FILENAME_LEN];
+#ifdef MBED_CONF_PLATFORM_MAX_ERROR_FILENAME_LEN
+    char error_filename[MBED_CONF_PLATFORM_MAX_ERROR_FILENAME_LEN];
     uint32_t error_line_number;
 #endif    
 } mbed_error_ctx;
