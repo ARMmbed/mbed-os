@@ -68,20 +68,20 @@ using namespace events;
  * Constructor                                                               *
  ****************************************************************************/
 LoRaWANStack::LoRaWANStack()
-: _loramac(),
-  _device_current_state(DEVICE_STATE_NOT_INITIALIZED),
-  _lw_session(),
-  _tx_msg(),
-  _rx_msg(),
-  _tx_metadata(),
-  _rx_metadata(),
-  _num_retry(1),
-  _ctrl_flags(IDLE_FLAG),
-  _app_port(INVALID_PORT),
-  _link_check_requested(false),
-  _automatic_uplink_ongoing(false),
-  _ready_for_rx(true),
-  _queue(NULL)
+    : _loramac(),
+      _device_current_state(DEVICE_STATE_NOT_INITIALIZED),
+      _lw_session(),
+      _tx_msg(),
+      _rx_msg(),
+      _tx_metadata(),
+      _rx_metadata(),
+      _num_retry(1),
+      _ctrl_flags(IDLE_FLAG),
+      _app_port(INVALID_PORT),
+      _link_check_requested(false),
+      _automatic_uplink_ongoing(false),
+      _ready_for_rx(true),
+      _queue(NULL)
 {
     _tx_metadata.stale = true;
     _rx_metadata.stale = true;
@@ -481,7 +481,7 @@ lorawan_status_t LoRaWANStack::acquire_rx_metadata(lorawan_rx_metadata &metadata
     return LORAWAN_STATUS_METADATA_NOT_AVAILABLE;
 }
 
-lorawan_status_t LoRaWANStack::acquire_backoff_metadata(int& backoff)
+lorawan_status_t LoRaWANStack::acquire_backoff_metadata(int &backoff)
 {
     if (DEVICE_STATE_NOT_INITIALIZED == _device_current_state) {
         return LORAWAN_STATUS_NOT_INITIALIZED;
@@ -1362,9 +1362,11 @@ void LoRaWANStack::compliance_test_handler(loramac_mcps_indication_t *mcps_indic
                 } else if (mcps_indication->buffer_size == 7) {
                     loramac_mlme_req_t mlme_req;
                     mlme_req.type = MLME_TXCW_1;
-                    mlme_req.cw_tx_mode.timeout = (uint16_t)((mcps_indication->buffer[1] << 8) | mcps_indication->buffer[2]);
-                    mlme_req.cw_tx_mode.frequency = (uint32_t)((mcps_indication->buffer[3] << 16) | (mcps_indication->buffer[4] << 8)
-                        | mcps_indication->buffer[5]) * 100;
+                    mlme_req.cw_tx_mode.timeout = (uint16_t)((mcps_indication->buffer[1] << 8)
+                            | mcps_indication->buffer[2]);
+                    mlme_req.cw_tx_mode.frequency = (uint32_t)((mcps_indication->buffer[3] << 16)
+                            | (mcps_indication->buffer[4] << 8)
+                            | mcps_indication->buffer[5]) * 100;
                     mlme_req.cw_tx_mode.power = mcps_indication->buffer[6];
                     _loramac.mlme_request(&mlme_req);
                 }
