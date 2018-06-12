@@ -17,6 +17,7 @@
 #include "objects.h"
 #include "spi_api.h"
 
+#if DEVICE_SPI
 #include "PinNames.h"
 #include "pinmap.h"
 #include "hal_ssi.h"
@@ -295,4 +296,4 @@ int spi_busy (spi_t *obj)
     return (int)pHalSsiOp->HalSsiBusy(pHalSsiAdaptor);
 }
 
-
+#endif

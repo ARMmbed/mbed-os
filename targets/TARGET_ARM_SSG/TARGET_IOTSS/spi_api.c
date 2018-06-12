@@ -15,6 +15,7 @@
  */
 #include <math.h>
 
+#if DEVICE_SPI
 #include "spi_api.h"
 #include "spi_def.h"
 #include "cmsis.h"
@@ -299,3 +300,4 @@ void spi_slave_write(spi_t *obj, int value) {
 int spi_busy(spi_t *obj) {
     return ssp_busy(obj);
 }
+#endif /* DEVICE_SPI */

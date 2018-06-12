@@ -20,6 +20,7 @@
 #include "pinmap.h"
 #include "mbed_error.h"
 
+#if DEVICE_SPI
 #define SPIS_MESSAGE_SIZE 1
 volatile uint8_t m_tx_buf[SPIS_MESSAGE_SIZE] = {0};
 volatile uint8_t m_rx_buf[SPIS_MESSAGE_SIZE] = {0};
@@ -299,3 +300,4 @@ void spi_slave_write(spi_t *obj, int value)
     obj->spis->EVENTS_ACQUIRED = 0;
     obj->spis->EVENTS_END      = 0;
 }
+#endif /* DEVICE_SPI */

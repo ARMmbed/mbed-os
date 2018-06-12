@@ -32,6 +32,7 @@
 #include "pinmap.h"
 #include "tmpm46b_ssp.h"
 
+#if DEVICE_SPI
 static const PinMap PinMap_SPI_SCLK[] = {
     {PK4, SPI_0, PIN_DATA(2, 1)},
     {PF3, SPI_1, PIN_DATA(5, 1)},
@@ -281,3 +282,4 @@ uint8_t spi_get_module(spi_t *obj)
 {
     return (uint8_t)(obj->module);
 }
+#endif /* DEVICE_SPI */

@@ -21,6 +21,7 @@
 #include "pinmap.h"
 #include "mbed_error.h"
 
+#if DEVICE_SPI
 static const SWM_Map SWM_SPI_SSEL[] = {
     {4, 0},
     {5, 24},
@@ -278,3 +279,4 @@ void spi_slave_write(spi_t *obj, int value)
     while (spi_writeable(obj) == 0) ;
     obj->spi->TXDAT = value;
 }
+#endif /* DEVICE_SPI */

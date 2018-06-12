@@ -39,6 +39,7 @@
 #include "pinmap.h"
 #include "PeripheralPins.h"
 
+#if DEVICE_SPI
 //******************************************************************************
 void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel)
 {
@@ -233,3 +234,4 @@ uint8_t spi_get_module(spi_t *obj)
 {
     return obj->index;
 }
+#endif /* DEVICE_SPI */

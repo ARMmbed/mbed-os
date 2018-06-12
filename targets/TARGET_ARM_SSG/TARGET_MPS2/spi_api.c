@@ -22,6 +22,7 @@
 #include "mbed_error.h"
 #include "mbed_wait_api.h"
 
+#if DEVICE_SPI
 static const PinMap PinMap_SPI_SCLK[] = {
     {SCLK_SPI , SPI_0, 0},
     {CLCD_SCLK , SPI_1, 0},
@@ -299,3 +300,4 @@ void spi_slave_write(spi_t *obj, int value) {
 int spi_busy(spi_t *obj) {
     return ssp_busy(obj);
 }
+#endif /* DEVICE_SPI */

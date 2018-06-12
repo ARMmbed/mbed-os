@@ -23,6 +23,7 @@
 #include "RZ_A1_Init.h"
 #include "mbed_drv_cfg.h"
 
+#if DEVICE_SPI
 static const struct st_rspi *RSPI[] = RSPI_ADDRESS_LIST;
 
 static inline void spi_disable(spi_t *obj);
@@ -533,4 +534,5 @@ void spi_abort_asynch(spi_t *obj)
     spi_enable(obj);
 }
 
-#endif
+#endif /* DEVICE_SPI_ASYNCH */
+#endif /* DEVICE_SPI */

@@ -22,6 +22,7 @@
 #include "mbed_error.h"
 #include "mbed_wait_api.h"
 
+#if DEVICE_SPI
 /*
  * Driver private data structure that should not be shared by multiple
  * instances of the driver (same driver for multiple instances of the IP)
@@ -284,3 +285,4 @@ uint8_t spi_get_module(spi_t *obj) {
 int spi_busy(spi_t *obj) {
     return 0;
 }
+#endif /* DEVICE_SPI */

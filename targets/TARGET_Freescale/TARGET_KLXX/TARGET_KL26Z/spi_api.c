@@ -16,6 +16,7 @@
 #include "mbed_assert.h"
 #include "spi_api.h"
 
+#if DEVICE_SPI
 #include <math.h>
 
 #include "cmsis.h"
@@ -239,3 +240,4 @@ void spi_slave_write(spi_t *obj, int value) {
     }
 
 }
+#endif /* DEVICE_SPI */
