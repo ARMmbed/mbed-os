@@ -461,6 +461,8 @@ def validate_partition_manifests(manifests):
     rot_service_signals = {}
     irq_signals = {}
     irq_numbers = {}
+    all_extern_sids = set()
+    spe_contained_manifests = []
 
     for manifest in manifests:
         # Make sure the partition names are unique.
@@ -486,6 +488,8 @@ def validate_partition_manifests(manifests):
                 )
             )
         partitions_ids[manifest.id] = manifest.file
+
+        is_nspe_callabale = False
 
         # Make sure all the Root of Trust Service IDs and signals are unique.
         for rot_service in manifest.rot_services:
@@ -521,6 +525,10 @@ def validate_partition_manifests(manifests):
                     )
                 )
             rot_service_ids[rot_service.numeric_id] = manifest.file
+            is_nspe_callabale |= rot_service.nspe_callable
+
+        if not is_nspe_callabale:
+            spe_contained_manifests.append(manifest)
 
         # Make sure all the IRQ signals and line-numbers are unique.
         for irq in manifest.irqs:
@@ -544,6 +552,8 @@ def validate_partition_manifests(manifests):
                 )
             irq_numbers[irq.line_num] = manifest.file
 
+        all_extern_sids.update(manifest.extern_sids)
+
     # Check that all the external SIDs can be found.
     declared_sids = set(rot_service_names.keys())
     for manifest in manifests:
@@ -558,6 +568,17 @@ def validate_partition_manifests(manifests):
 
     if check_circular_call_dependencies(manifests):
         raise ValueError("Detected a circular call dependency between the partitions.")
+
+    for manifest in spe_contained_manifests:
+        rot_services = set([service.name for service in manifest.rot_services])
+        if not rot_services.intersection(all_extern_sids):
+            raise ValueError(
+                'Partition {} (defined by {}) is not accessible from NSPE '
+                'and not referenced by any other partition.'.format(
+                    manifest.name,
+                    manifest.file
+                )
+            )
 
 
 def get_latest_timestamp(*files):

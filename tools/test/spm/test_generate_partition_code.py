@@ -270,65 +270,63 @@ def test_valid_json(temp_test_data):
 #   'assertion': A tuple containing the expected assertion and assertion
 #                string which must occur when running with this parameter.
 @pytest.mark.parametrize(
-    'manifest, assertion',
+    'manifests, assertion',
     [
         pytest.param(
-            dict(manifests[1], name=manifests[0]['name']),
+            [manifests[0], dict(manifests[1], name=manifests[0]['name'])],
             (ValueError, r'Partition name .* is not unique, .*'),
             id='duplicate_partition_name'
         ),
         pytest.param(
-            dict(manifests[1], id=manifests[0]['id']),
+            [manifests[0], dict(manifests[1], id=manifests[0]['id'])],
             (ValueError, r'Partition id .* is not unique, .*'),
             id='duplicate_partition_id'
         ),
         pytest.param(
-            dict(manifests[1],
-                 services=manifests[0]['services']),
+            [manifests[0], dict(manifests[1], services=manifests[0]['services'])],
             (ValueError, r'Root of Trust Service name .* is found in both .*'),
             id='duplicate_rot_srv_name'
         ),
         pytest.param(
-            dict(manifests[1],
-                 services=duplicate_signal_rot_services),
+            [manifests[0], dict(manifests[1], services=duplicate_signal_rot_services)],
             (ValueError, r'Root of Trust Service signal .* is found in both .*'),
             id='duplicate_rot_srv_signal'
         ),
         pytest.param(
-            dict(manifests[1],
-                 services=duplicate_identifier_rot_services),
+            [manifests[0], dict(manifests[1], services=duplicate_identifier_rot_services)],
             (ValueError, r'Root of Trust Service identifier .* is found in both .*'),
             id='duplicate_rot_srv_identifier'
         ),
         pytest.param(
-            dict(manifests[1], irqs=duplicate_signal_irqs),
+            [manifests[0], dict(manifests[1], irqs=duplicate_signal_irqs)],
             (ValueError, r'IRQ signal .* is found in both .*'),
             id='duplicate_irq_signal'
         ),
         pytest.param(
-            dict(manifests[1], irqs=duplicate_line_num_irqs),
+            [manifests[0], dict(manifests[1], irqs=duplicate_line_num_irqs)],
             (ValueError, r'IRQ line number .* is found in both .*'),
             id='duplicate_irq_line_num'
         ),
         pytest.param(
-            dict(manifests[1], extern_sids=['SID66', 'SID999']),
-            (
-                    ValueError,
-                    r'External SID\(s\) .* can\'t be found in any partition manifest.'
-            ),
+            [manifests[0], dict(manifests[1], extern_sids=['SID66', 'SID999'])],
+            (ValueError, r'External SID\(s\) .* can\'t be found in any partition manifest.'),
             id='orphan_extern_ids'
         ),
         pytest.param(
-            dict(manifests[1], extern_sids=[manifests[0]['services'][0]['name']]),
-            (
-                    ValueError,
-                    r'Detected a circular call dependency between the partitions.'
-            ),
+            [manifests[0], dict(manifests[1], extern_sids=[manifests[0]['services'][0]['name']])],
+            (ValueError, r'Detected a circular call dependency between the partitions.'),
             id='circular_call_dependency'
+        ),
+        pytest.param(
+            [{k: manifests[0][k] for k in manifests[0] if k != 'extern_sids'},
+             dict(manifests[1], services=spe_contained_rot_services)],
+            (ValueError, r'Partition .* is not accessible from NSPE '
+                         'and not referenced by any other partition.'),
+            id='dead_partition'
         )
     ]
 )
-def test_validate_partition_manifest(request, temp_test_data, manifest,
+def test_validate_partition_manifest(request, temp_test_data, manifests,
                                      assertion):
     """
     Test which creates an invalid manifest object (after passing JSON schema
@@ -345,13 +343,11 @@ def test_validate_partition_manifest(request, temp_test_data, manifest,
     :return:
     """
     test_name = extract_test_name(request.node.name)
-    test_json = dump_manifest_to_json(manifest, test_name,
-                                      temp_test_data['dir'])
-    faulty_manifest = Manifest.from_json(test_json)
+    jsons = [dump_manifest_to_json(m, '%s_%d' % (test_name, i), temp_test_data['dir']) for i, m in enumerate(manifests)]
+    created_manifests = [Manifest.from_json(json) for json in jsons]
 
     with pytest.raises(assertion[0], match=assertion[1]):
-        validate_partition_manifests(
-            [faulty_manifest, temp_test_data['manifest']])
+        validate_partition_manifests(created_manifests)
 
 
 """
@@ -395,7 +391,7 @@ verify_json_params = {
         'expected': [
             RotService(
                 name='SID2', identifier='0x00000002', signal='SID2',
-                minor_policy='STRICT', non_secure_clients=False, minor_version=1
+                minor_policy='STRICT', non_secure_clients=True, minor_version=1
             )
         ]
     }

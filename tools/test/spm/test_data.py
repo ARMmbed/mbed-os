@@ -316,7 +316,7 @@ duplicate_signal_rot_services = [
         'signal': 'SID2',
         'minor_version': 12,
         'minor_policy': 'STRICT',
-        'non_secure_clients': False
+        'non_secure_clients': True
     },
 ]
 
@@ -335,8 +335,27 @@ duplicate_identifier_rot_services = [
         'signal': 'SID4',
         'minor_version': 12,
         'minor_policy': 'STRICT',
+        'non_secure_clients': True
+    },
+]
+
+spe_contained_rot_services = [
+    {
+        'name': 'SID5',
+        'identifier': '0x00000005',
+        'signal': 'SID5',
+        'minor_version': 5,
+        'minor_policy': 'RELAXED',
         'non_secure_clients': False
     },
+    {
+        'name': 'SID6',
+        'identifier': '0x00000006',
+        'signal': 'SID6',
+        'minor_version': 12,
+        'minor_policy': 'STRICT',
+        'non_secure_clients': False
+    }
 ]
 
 missing_minor_version_rot_srv = [
@@ -360,7 +379,7 @@ missing_minor_version_policy_rot_srv = [
 ]
 
 missing_minor_completley_rot_srv = [
-    {'name': 'SID2', 'identifier': '0x00000002', 'signal': 'SID2', 'non_secure_clients': False}
+    {'name': 'SID2', 'identifier': '0x00000002', 'signal': 'SID2', 'non_secure_clients': True}
 ]
 
 duplicate_signal_irqs = [
