@@ -85,24 +85,24 @@ void AT_CellularNetwork::free_credentials()
 {
     if (_uname) {
         free(_uname);
+        _uname = NULL;
     }
 
     if (_pwd) {
         free(_pwd);
+        _pwd = NULL;
     }
 
     if (_apn) {
         free(_apn);
+        _apn = NULL;
     }
 }
 
 void AT_CellularNetwork::urc_no_carrier()
 {
     tr_error("Data call failed: no carrier");
-    _connect_status = NSAPI_STATUS_DISCONNECTED;
-    if (_connection_status_cb) {
-        _connection_status_cb(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_STATUS_DISCONNECTED);
-    }
+    call_network_cb(NSAPI_STATUS_DISCONNECTED, NSAPI_ERROR_OK);
 }
 
 void AT_CellularNetwork::read_reg_params_and_compare(RegistrationType type)
@@ -166,6 +166,8 @@ void AT_CellularNetwork::urc_cgreg()
 nsapi_error_t AT_CellularNetwork::set_credentials(const char *apn,
         const char *username, const char *password)
 {
+    free_credentials();
+
     size_t len;
     if (apn && (len = strlen(apn)) > 0) {
         _apn = (char *)malloc(len * sizeof(char) + 1);
@@ -256,11 +258,7 @@ nsapi_error_t AT_CellularNetwork::activate_context()
     if (err != NSAPI_ERROR_OK) {
         _at.unlock();
         tr_error("Failed to activate network context! (%d)", err);
-
-        _connect_status = NSAPI_STATUS_DISCONNECTED;
-        if (_connection_status_cb) {
-            _connection_status_cb(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_STATUS_DISCONNECTED);
-        }
+        call_network_cb(NSAPI_STATUS_DISCONNECTED, NSAPI_ERROR_OK);
 
         return err;
     }
@@ -310,21 +308,14 @@ nsapi_error_t AT_CellularNetwork::activate_context()
 
 nsapi_error_t AT_CellularNetwork::connect()
 {
-    _connect_status = NSAPI_STATUS_CONNECTING;
-    if (_connection_status_cb) {
-        _connection_status_cb(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_STATUS_CONNECTING);
-    }
+    call_network_cb(NSAPI_STATUS_CONNECTING, NSAPI_ERROR_OK);
 
     nsapi_error_t err = NSAPI_ERROR_OK;
     if (!_is_context_active) {
         err = activate_context();
     }
     if (err) {
-        _connect_status = NSAPI_STATUS_DISCONNECTED;
-        if (_connection_status_cb) {
-            _connection_status_cb(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_STATUS_DISCONNECTED);
-        }
-
+        call_network_cb(NSAPI_STATUS_DISCONNECTED, err);
         return err;
     }
 
@@ -341,10 +332,7 @@ nsapi_error_t AT_CellularNetwork::connect()
         return err;
     }
 #else
-    _connect_status = NSAPI_STATUS_GLOBAL_UP;
-    if (_connection_status_cb) {
-        _connection_status_cb(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_STATUS_GLOBAL_UP);
-    }
+    call_network_cb(NSAPI_STATUS_GLOBAL_UP, NSAPI_ERROR_OK);
 #endif
 
     return NSAPI_ERROR_OK;
@@ -401,13 +389,22 @@ nsapi_error_t AT_CellularNetwork::disconnect()
     _at.resp_stop();
     _at.restore_at_timeout();
 
-    _connect_status = NSAPI_STATUS_DISCONNECTED;
-    if (_connection_status_cb) {
-        _connection_status_cb(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_STATUS_DISCONNECTED);
-    }
+    call_network_cb(NSAPI_STATUS_DISCONNECTED, _at.get_last_error());
 
     return _at.unlock_return_error();
 #endif
+}
+
+void AT_CellularNetwork::call_network_cb(nsapi_connection_status_t status, nsapi_error_t err)
+{
+    if (err == NSAPI_ERROR_OK) {
+        if (_connect_status != status) {
+            _connect_status = status;
+            if (_connection_status_cb) {
+                _connection_status_cb(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, _connect_status);
+            }
+        }
+    }
 }
 
 void AT_CellularNetwork::attach(Callback<void(nsapi_event_t, intptr_t)> status_cb)
@@ -829,6 +826,8 @@ nsapi_error_t AT_CellularNetwork::detach()
     _at.resp_start();
     _at.resp_stop();
 
+    call_network_cb(NSAPI_STATUS_DISCONNECTED, _at.get_last_error());
+
     return _at.unlock_return_error();
 }
 
@@ -1048,10 +1047,8 @@ nsapi_error_t AT_CellularNetwork::get_rate_control(
         }
     }
     _at.resp_stop();
-    nsapi_error_t ret = _at.get_last_error();
-    _at.unlock();
 
-    return (ret == NSAPI_ERROR_OK) ? NSAPI_ERROR_OK : NSAPI_ERROR_PARAMETER;
+    return _at.unlock_return_error();
 }
 
 nsapi_error_t AT_CellularNetwork::get_pdpcontext_params(pdpContextList_t &params_list)
