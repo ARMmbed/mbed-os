@@ -1,0 +1,217 @@
+cmake_minimum_required(VERSION 3.0.2)
+
+set(PROJECT_NAME unittests)
+set(LIB_NAME MbedOS)
+
+project(${PROJECT_NAME})
+
+# Setup c++ standard
+macro(use_cxx11)
+    if (CMAKE_VERSION VERSION_LESS 3.1)
+        if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11")
+        endif()
+    else()
+        set(CMAKE_CXX_STANDARD 11)
+        set(CMAKE_CXX_STANDARD_REQUIRED ON)
+    endif()
+endmacro()
+
+use_cxx11()
+
+####################
+# GTEST
+####################
+
+# Download and unpack googletest at configure time
+configure_file(googletest-CMakeLists.txt.in googletest-download/CMakeLists.txt)
+execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
+    RESULT_VARIABLE result
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/googletest-download)
+if (result)
+    message(FATAL_ERROR "CMake failed for google test: ${result}")
+endif()
+execute_process(COMMAND ${CMAKE_COMMAND} --build .
+    RESULT_VARIABLE result
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/googletest-download)
+if (result)
+    message(FATAL_ERROR "Build failed for google test: ${result}")
+endif()
+
+# Prevent overriding the parent project's compiler/linker
+# settings on Windows
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+
+# Add googletest directly to our build. This defines
+# the gtest and gtest_main targets.
+add_subdirectory(${CMAKE_BINARY_DIR}/googletest-src
+                 ${CMAKE_BINARY_DIR}/googletest-build
+                 EXCLUDE_FROM_ALL)
+
+# The gtest/gtest_main targets carry header search path
+# dependencies automatically when using CMake 2.8.11 or
+# later. Otherwise we have to add them here ourselves.
+if (CMAKE_VERSION VERSION_LESS 2.8.11)
+    include_directories(BEFORE SYSTEM
+      "${gtest_SOURCE_DIR}/include")
+else()
+    target_include_directories(gmock_main SYSTEM BEFORE INTERFACE
+      "${gtest_SOURCE_DIR}/include")
+endif()
+
+####################
+# TESTING
+####################
+
+enable_testing()
+
+set_property(DIRECTORY APPEND PROPERTY ADDITIONAL_MAKE_CLEAN_FILES
+  "${CMAKE_BINARY_DIR}/Testing"
+)
+
+####################
+# CODE COVERAGE SETUP
+####################
+
+if (COVERAGE AND COVERAGE_FTYPE)
+
+# Include coverage module
+include(CodeCoverage/CodeCoverage.cmake)
+
+# Append coverage compiler flags
+APPEND_COVERAGE_COMPILER_FLAGS()
+
+  # Ignore google test and test files from coverage reports by default.
+  if (NOT DEFINED COVERAGE_EXCLUDES)
+    set(COVERAGE_EXCLUDES
+      "${gtest_SOURCE_DIR}/include/\\*"
+      "${PROJECT_SOURCE_DIR}"
+    )
+  endif()
+
+endif(COVERAGE AND COVERAGE_FTYPE)
+
+####################
+# UNIT TESTS
+####################
+
+# Set include dirs.
+set(unittest-includes-base
+  "${PROJECT_SOURCE_DIR}/target_h"
+  "${PROJECT_SOURCE_DIR}/target_h/events"
+  "${PROJECT_SOURCE_DIR}/stubs"
+  "${PROJECT_SOURCE_DIR}/.."
+  "${PROJECT_SOURCE_DIR}/../features"
+  "${PROJECT_SOURCE_DIR}/../platform"
+  "${PROJECT_SOURCE_DIR}/../drivers"
+  "${PROJECT_SOURCE_DIR}/../hal"
+  "${PROJECT_SOURCE_DIR}/../events"
+  "${PROJECT_SOURCE_DIR}/../rtos/TARGET_CORTEX"
+  "${PROJECT_SOURCE_DIR}/../rtos/TARGET_CORTEX/rtx5/Include"
+  "${PROJECT_SOURCE_DIR}/../cmsis"
+)
+
+# Init variable for library source, test source files and test suites.
+set(unittest-sources)
+set(unittest-test-sources)
+set(TEST_SUITES)
+set(COVERAGE_TARGETS)
+
+# Get all matched tests.
+file(GLOB_RECURSE unittest-file-list
+  "unittest.cmake"
+)
+
+if ("${unittest-file-list}" STREQUAL "")
+  message(FATAL_ERROR "No tests found. Exiting...")
+endif()
+
+# Create unit test targets
+foreach(testfile ${unittest-file-list})
+  ####################
+  # DEFINE TARGETS
+  ####################
+
+  # Add base includes
+  set(unittest-includes ${unittest-includes-base})
+
+  # Get source files
+  include("${testfile}")
+
+  if(TEST_SUITE_NAME)
+    set(TEST_SUITES ${TEST_SUITES} ${TEST_SUITE_NAME})
+  else()
+    message(FATAL_ERROR "No TEST_SUITE_NAME found in test file. Add it to ${testfile}.")
+  endif()
+
+  set(LIBS_TO_BE_LINKED gtest_main)
+
+  # Build directories list
+  set(BUILD_DIRECTORIES)
+
+  if (unittest-sources)
+    # Create the testable static library.
+    add_library("${TEST_SUITE_NAME}.${LIB_NAME}" STATIC ${unittest-sources})
+    target_include_directories("${TEST_SUITE_NAME}.${LIB_NAME}" PRIVATE ${unittest-includes})
+    set(LIBS_TO_BE_LINKED ${LIBS_TO_BE_LINKED} "${TEST_SUITE_NAME}.${LIB_NAME}")
+
+    # Append lib build directory to list
+    list(APPEND BUILD_DIRECTORIES "./CMakeFiles/${TEST_SUITE_NAME}.${LIB_NAME}.dir")
+  endif(unittest-sources)
+
+  if (unittest-test-sources)
+    # Create the executable.
+    add_executable(${TEST_SUITE_NAME} ${unittest-test-sources})
+    target_include_directories(${TEST_SUITE_NAME} PRIVATE ${unittest-includes})
+
+    # Link the executable with the libraries.
+    target_link_libraries(${TEST_SUITE_NAME} ${LIBS_TO_BE_LINKED})
+
+    add_test(NAME "${TEST_SUITE_NAME}UnitTests" COMMAND ${TEST_SUITE_NAME})
+
+    # Append test build directory to list
+    list(APPEND BUILD_DIRECTORIES "./CMakeFiles/${TEST_SUITE_NAME}.dir")
+  else()
+    message(WARNING "No test source files found for ${TEST_SUITE_NAME}.\n")
+  endif(unittest-test-sources)
+
+  ####################
+  # SETUP CODE COVERAGE FOR TARGETS
+  ####################
+
+  # Create a separate coverage target for each executable.
+  if (COVERAGE AND COVERAGE STREQUAL "separate" AND unittest-test-sources)
+    set(_name "${TEST_SUITE_NAME}_coverage")
+
+    SETUP_TARGET_FOR_COVERAGE(
+      NAME ${_name}
+      EXECUTABLE ${TEST_SUITE_NAME} -j ${PROCESSOR_COUNT}
+      DEPENDENCIES ${TEST_SUITE_NAME}
+      DIRECTORIES ${BUILD_DIRECTORIES}
+      OUTPUT ${COVERAGE_FTYPE}
+    )
+
+    # Add to coverage targets
+    set(COVERAGE_TARGETS ${COVERAGE_TARGETS} ${_name})
+  endif(COVERAGE AND COVERAGE STREQUAL "separate" AND unittest-test-sources)
+endforeach(testfile)
+
+# Create a single coverage target for all executables.
+if (COVERAGE AND COVERAGE STREQUAL "merged")
+  set(_name "coverage_merged")
+
+  SETUP_TARGET_FOR_COVERAGE(
+    NAME ${_name}
+    EXECUTABLE ${CMAKE_MAKE_PROGRAM} test ARGS=\"-V -D ExperimentalTest\" -j ${PROCESSOR_COUNT}
+    DEPENDENCIES ${TEST_SUITES}
+    DIRECTORIES .
+    OUTPUT ${COVERAGE_FTYPE}
+  )
+
+  # Add to coverage targets
+  set(COVERAGE_TARGETS ${COVERAGE_TARGETS} ${_name})
+endif(COVERAGE AND COVERAGE STREQUAL "merged")
+
+add_custom_target(coverage
+  DEPENDS ${COVERAGE_TARGETS}
+)
