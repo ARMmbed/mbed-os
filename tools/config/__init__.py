@@ -30,6 +30,7 @@ from jinja2 import FileSystemLoader, StrictUndefined
 from jinja2.environment import Environment
 from jsonschema import Draft4Validator, RefResolver
 
+from ..resources import FileType
 from ..utils import (json_file_to_dict, intelhex_offset, integer,
                      NotSupportedException)
 from ..arm_pack_manager import Cache
@@ -46,6 +47,14 @@ BOOTLOADER_OVERRIDES = set(["target.bootloader_img", "target.restrict_size",
                             "target.app_offset",
                             "target.mbed_app_start", "target.mbed_app_size"])
 
+ALLOWED_FEATURES = [
+    "UVISOR", "BLE", "CLIENT", "IPV4", "LWIP", "COMMON_PAL", "STORAGE",
+    "NANOSTACK","CRYPTOCELL310",
+    # Nanostack configurations
+    "LOWPAN_BORDER_ROUTER", "LOWPAN_HOST", "LOWPAN_ROUTER", "NANOSTACK_FULL",
+    "THREAD_BORDER_ROUTER", "THREAD_END_DEVICE", "THREAD_ROUTER",
+    "ETHERNET_HOST",
+]
 
 # Base class for all configuration exceptions
 class ConfigException(Exception):
@@ -366,13 +375,6 @@ class Config(object):
 
     __unused_overrides = set(["target.bootloader_img", "target.restrict_size",
                               "target.mbed_app_start", "target.mbed_app_size"])
-
-    # Allowed features in configurations
-    __allowed_features = [
-        "UVISOR", "BLE", "CLIENT", "IPV4", "LWIP", "COMMON_PAL", "STORAGE", "NANOSTACK","CRYPTOCELL310",
-        # Nanostack configurations
-        "LOWPAN_BORDER_ROUTER", "LOWPAN_HOST", "LOWPAN_ROUTER", "NANOSTACK_FULL", "THREAD_BORDER_ROUTER", "THREAD_END_DEVICE", "THREAD_ROUTER", "ETHERNET_HOST"
-        ]
 
     @classmethod
     def find_app_config(cls, top_level_dirs):
@@ -977,7 +979,7 @@ class Config(object):
             .update_target(self.target)
 
         for feature in self.target.features:
-            if feature not in self.__allowed_features:
+            if feature not in ALLOWED_FEATURES:
                 raise ConfigException(
                     "Feature '%s' is not a supported features" % feature)
 
@@ -1014,7 +1016,9 @@ class Config(object):
         while True:
             # Add/update the configuration with any .json files found while
             # scanning
-            self.add_config_files(resources.json_files)
+            self.add_config_files(
+                f.path for f in resources.get_file_refs(FileType.JSON)
+            )
 
             # Add features while we find new ones
             features = set(self.get_features())

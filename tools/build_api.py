@@ -42,7 +42,7 @@ from .paths import (MBED_CMSIS_PATH, MBED_TARGETS_PATH, MBED_LIBRARIES,
                     MBED_CONFIG_FILE, MBED_LIBRARIES_DRIVERS,
                     MBED_LIBRARIES_PLATFORM, MBED_LIBRARIES_HAL,
                     BUILD_DIR)
-from .resources import Resources
+from .resources import Resources, FileType
 from .notifier.mock import MockNotifier
 from .targets import TARGET_NAMES, TARGET_MAP
 from .libraries import Library
@@ -529,7 +529,7 @@ def build_project(src_paths, build_path, target, toolchain_name,
 
         # Compile Sources
         objects = toolchain.compile_sources(resources, resources.inc_dirs)
-        resources.objects.extend(objects)
+        resources.add_files_to_type(FileType.OBJECT, objects)
 
         # Link Program
         if toolchain.config.has_regions:

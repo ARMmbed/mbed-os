@@ -10,6 +10,7 @@ import copy
 
 from tools.targets import TARGET_MAP
 from tools.utils import mkdir
+from tools.resources import FileType
 
 
 class TargetNotSupportedException(Exception):
@@ -87,12 +88,8 @@ class Exporter(object):
         return self.TOOLCHAIN
 
     def add_config(self):
-        """Add the containgin directory of mbed_config.h to include dirs"""
-        config = self.toolchain.get_config_header()
-        if config:
-            self.resources.inc_dirs.append(
-                dirname(relpath(config,
-                                self.resources.file_basepath[config])))
+        """Add the containing directory of mbed_config.h to include dirs"""
+        pass
 
     @property
     def flags(self):
@@ -116,11 +113,15 @@ class Exporter(object):
         flags['c_flags'] += c_defines
         flags['cxx_flags'] += c_defines
         if config_header:
-            config_header = relpath(config_header,
-                                    self.resources.file_basepath[config_header])
-            flags['c_flags'] += self.toolchain.get_config_option(config_header)
+            def is_config_header(f):
+                return f.path == config_header
+            config_header= filter(
+                is_config_header, self.resources.get_file_refs(FileType.HEADER)
+            )[0]
+            flags['c_flags'] += self.toolchain.get_config_option(
+                config_header.name)
             flags['cxx_flags'] += self.toolchain.get_config_option(
-                config_header)
+                config_header.name)
         return flags
 
     def get_source_paths(self):
@@ -181,8 +182,7 @@ class Exporter(object):
         Positional Arguments:
         src - the src's location
         """
-        rel_path = relpath(src, self.resources.file_basepath[src])
-        path_list = os.path.normpath(rel_path).split(os.sep)
+        path_list = os.path.normpath(src).split(os.sep)
         assert len(path_list) >= 1
         if len(path_list) == 1:
             key = self.project_name
