@@ -162,7 +162,7 @@ private:
 
     void read_reg_params_and_compare(RegistrationType type);
     void read_reg_params(RegistrationType type, RegistrationStatus &reg_status, int &lac, int &cell_id, int &act);
-
+    void call_network_cb(nsapi_connection_status_t status, nsapi_error_t err);
 #if NSAPI_PPP_AVAILABLE
     void ppp_status_cb(nsapi_event_t, intptr_t);
 #endif
