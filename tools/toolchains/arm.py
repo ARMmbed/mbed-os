@@ -56,6 +56,12 @@ class ARM(mbedToolchain):
             raise NotSupportedException(
                 "this compiler does not support the core %s" % target.core)
 
+        if getattr(target, "defalut_lib", "std") == "small":
+            if "-DMBED_RTOS_SINGLE_THREAD" not in self.flags['common']:
+                self.flags['common'].append("-DMBED_RTOS_SINGLE_THREAD")
+            if "--library_type=microlib" not in self.flags['ld']:
+                self.flags['ld'].append("--library_type=microlib")
+
         if target.core == "Cortex-M0+":
             cpu = "Cortex-M0"
         elif target.core == "Cortex-M4F":
@@ -291,8 +297,8 @@ class ARM_STD(ARM):
                  build_profile=None, build_dir=None):
         ARM.__init__(self, target, notify, macros, build_dir=build_dir,
                      build_profile=build_profile)
-        if "ARM" not in target.supported_toolchains:
-            raise NotSupportedException("ARM compiler support is required for ARM build")
+        if not set(("ARM", "uARM")).intersection(set(target.supported_toolchains)):
+            raise NotSupportedException("ARM/uARM compiler support is required for ARM build")
 
 
 class ARM_MICRO(ARM):
