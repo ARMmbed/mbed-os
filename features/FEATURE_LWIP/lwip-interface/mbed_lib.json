@@ -116,6 +116,12 @@
         "LPC4088_DM": {
             "mem-size": 15360
         },
+        "UBLOX_C027": {
+            "mem-size": 16362
+        },
+        "ARCH_PRO": {
+            "mem-size": 16362
+        },      
         "LPC546XX": {
             "mem-size": 36496
         }

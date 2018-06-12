@@ -24,6 +24,17 @@ void fill_tx_buffer_ascii(char *buff, size_t len);
 void tcpsocket_connect_to_echo_srv(TCPSocket& sock);
 void tcpsocket_connect_to_discard_srv(TCPSocket& sock);
 
+namespace tcp_global
+{
+static const int TCP_OS_STACK_SIZE = 1024;
+
+static const int RX_BUFF_SIZE = 1220;
+static const int TX_BUFF_SIZE = 1220;
+
+extern char rx_buffer[RX_BUFF_SIZE];
+extern char tx_buffer[TX_BUFF_SIZE];
+}
+
 /*
  * Test cases
  */

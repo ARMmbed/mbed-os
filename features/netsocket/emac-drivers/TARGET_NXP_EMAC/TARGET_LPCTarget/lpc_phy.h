@@ -26,15 +26,6 @@
 #ifndef __LPC_PHY_H_
 #define __LPC_PHY_H_
 
-#include "lwip/opt.h"
-#include "lwip/err.h"
-#include "lwip/netif.h"
-
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-
 /* These PHY functions are usually part of the EMAC driver */
 
 /** \brief  Phy status update state machine
@@ -43,9 +34,10 @@ extern "C"
  *  status without blocking. It must be occasionally called for the
  *  PHY status to be maintained.
  *
- *  \param[in]     netif   NETIF structure
+ *  \param[in]     lpc17_emac LPC17 EMAC
  */
-s32_t lpc_phy_sts_sm(struct netif *netif);
+
+int32_t lpc_phy_sts_sm(LPC17_EMAC *lpc17_emac);
 
 /** \brief  Initialize the PHY
  *
@@ -54,11 +46,11 @@ s32_t lpc_phy_sts_sm(struct netif *netif);
  *  initialization. Configuration of the PHY at startup is
  *  controlled by setting up configuration defines in lpc_phy.h.
  *
- *  \param[in]     netif   NETIF structure
+ *  \param[in]     lpc17_emac LPC17 EMAC
  *  \param[in]     rmii    If set, configures the PHY for RMII mode
- *  \return         ERR_OK if the setup was successful, otherwise ERR_TIMEOUT
+ *  \return        ERR_OK if the setup was successful, otherwise ERR_TIMEOUT
  */
-err_t lpc_phy_init(struct netif *netif, int rmii);
+bool lpc_phy_init(LPC17_EMAC *lpc17_emac, int rmii);
 
 /** \brief  Write a value via the MII link (non-blocking)
  *
@@ -70,7 +62,7 @@ err_t lpc_phy_init(struct netif *netif, int rmii);
  *  \param[in]      PhyReg  PHY register to write to
  *  \param[in]      Value   Value to write
  */
-void lpc_mii_write_noblock(u32_t PhyReg, u32_t Value);
+void lpc_mii_write_noblock(uint32_t PhyReg, uint32_t Value);
 
 /** \brief  Write a value via the MII link (blocking)
  *
@@ -81,7 +73,7 @@ void lpc_mii_write_noblock(u32_t PhyReg, u32_t Value);
  *  \param[in]      Value   Value to write
  * \returns         0 if the write was successful, otherwise !0
  */
-err_t lpc_mii_write(u32_t PhyReg, u32_t Value);
+bool lpc_mii_write(uint32_t PhyReg, uint32_t Value);
 
 /** \brief  Reads current MII link busy status
  *
@@ -91,7 +83,7 @@ err_t lpc_mii_write(u32_t PhyReg, u32_t Value);
  *
  *  \returns         !0 if the MII link is busy, otherwise 0
  */
-u32_t lpc_mii_is_busy(void);
+uint32_t lpc_mii_is_busy(void);
 
 /** \brief  Starts a read operation via the MII link (non-blocking)
  *
@@ -102,7 +94,7 @@ u32_t lpc_mii_is_busy(void);
  *
  *  \returns          The current value in the MII value register
  */
-u32_t lpc_mii_read_data(void);
+uint32_t lpc_mii_read_data(void);
 
 /** \brief  Starts a read operation via the MII link (non-blocking)
  *
@@ -112,8 +104,11 @@ u32_t lpc_mii_read_data(void);
  *  can be read.
  *
  *  \param[in]      PhyReg  PHY register to read from
+ *  \param[in]      data    Pointer to where to save data read via MII
+ *  \returns        0 if the read was successful, otherwise !0
+ *
  */
-err_t lpc_mii_read(u32_t PhyReg, u32_t *data);
+bool lpc_mii_read(uint32_t PhyReg, uint32_t *data);
 
 /** \brief  Read a value via the MII link (blocking)
  *
@@ -121,10 +116,8 @@ err_t lpc_mii_read(u32_t PhyReg, u32_t *data);
  *  or a connected device. The function will block until complete.
  * 
  *  \param[in]      PhyReg  PHY register to read from
- *  \param[in]      data    Pointer to where to save data read via MII
- *  \returns         0 if the read was successful, otherwise !0
  */
-void lpc_mii_read_noblock(u32_t PhyReg);
+void lpc_mii_read_noblock(uint32_t PhyReg);
 
 /**
  * This function provides a method for the PHY to setup the EMAC
@@ -141,10 +134,6 @@ void lpc_emac_set_duplex(int full_duplex);
  * @param[in] mbs_100     0 = 10mbs mode, 1 = 100mbs mode
  */
 void lpc_emac_set_speed(int mbs_100);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* __LPC_PHY_H_ */
 

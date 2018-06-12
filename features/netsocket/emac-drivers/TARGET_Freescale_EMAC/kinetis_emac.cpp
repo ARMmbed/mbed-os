@@ -55,7 +55,7 @@ uint8_t *rx_desc_start_addr;
 // RX packet buffer pointers
 emac_mem_buf_t *rx_buff[ENET_RX_RING_LEN];
 // TX packet buffer pointers
-emac_mem_buf_t *tx_buff[ENET_RX_RING_LEN];
+emac_mem_buf_t *tx_buff[ENET_TX_RING_LEN];
 // RX packet payload pointers
 uint32_t *rx_ptr[ENET_RX_RING_LEN];
 

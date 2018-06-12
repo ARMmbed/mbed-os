@@ -55,7 +55,6 @@
 
 #define TIM_MST_PCLK  1 // Select the peripheral clock number (1 or 2)
 
-#define HAL_TICK_DELAY (1000) // 1 ms
 
 #ifdef __cplusplus
 }

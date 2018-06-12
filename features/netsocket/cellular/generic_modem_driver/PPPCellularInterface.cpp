@@ -749,7 +749,7 @@ const char *PPPCellularInterface::get_netmask()
 
 const char *PPPCellularInterface::get_gateway()
 {
-    return nsapi_ppp_get_ip_addr(_fh);
+    return nsapi_ppp_get_gw_addr(_fh);
 }
 
 /** Power down modem

@@ -22,7 +22,7 @@
         "asm": [],
         "c": ["-D__ASSERT_MSG", "-std=gnu99"],
         "cxx": ["-fno-rtti", "-std=gnu++98"],
-        "ld": ["--legacyalign", "--no_strict_wchar_size", "--no_strict_enum_size"]
+        "ld": ["--legacyalign", "--no_strict_wchar_size", "--no_strict_enum_size", "--show_full_path"]
     },
     "ARM": {
         "common": ["-c", "--gnu", "-Otime", "--split_sections",

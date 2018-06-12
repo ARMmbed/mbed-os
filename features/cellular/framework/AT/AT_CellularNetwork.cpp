@@ -374,11 +374,9 @@ nsapi_error_t AT_CellularNetwork::disconnect()
     nsapi_error_t err = nsapi_ppp_disconnect(_at.get_file_handle());
     // after ppp disconnect if we wan't to use same at handler we need to set filehandle again to athandler so it
     // will set the correct sigio and nonblocking
-    if (err == NSAPI_ERROR_OK) {
-        _at.lock();
-        _at.set_file_handle(_at.get_file_handle());
-        _at.unlock();
-    }
+    _at.lock();
+    _at.set_file_handle(_at.get_file_handle());
+    _at.unlock();
     return err;
 #else
     _at.lock();
