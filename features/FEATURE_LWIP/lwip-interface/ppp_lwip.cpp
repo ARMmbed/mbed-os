@@ -452,7 +452,7 @@ const char *nsapi_ppp_get_gw_addr(FileHandle *stream)
 
     static char gwaddr[IPADDR_STRLEN_MAX];
     if (stream == my_stream) {
-        if (my_interface->get_netmask(gwaddr, IPADDR_STRLEN_MAX)) {
+        if (my_interface->get_gateway(gwaddr, IPADDR_STRLEN_MAX)) {
             return gwaddr;
         }
     }
