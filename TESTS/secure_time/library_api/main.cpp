@@ -154,7 +154,7 @@ static const uint8_t pubkey3[] = {
 };
 
 static uint8_t blob[SECURE_TIME_TESTS_MAX_BLOB_SIZE_BYTES] = {0};
-static uint8_t blob2[SECURE_TIME_TESTS_MAX_BLOB_SIZE_BYTES] = {0};
+static uint8_t *blob2 = NULL;
 
 static data_buffer_t delegation_pubkeys[] = {
     {pubkey1, sizeof(pubkey1)},
@@ -335,9 +335,15 @@ void wrong_nonce(void)
 
     secure_time_set_trusted_init(&nonce1);
     size_t blob_size1 = create_blob(set_time, nonce1, delegation_pubkeys, privkeys, 0, blob, SECURE_TIME_TESTS_MAX_BLOB_SIZE_BYTES);
+    size_t blob_size2 = blob_size1 + 10;
+
+    if (NULL == blob2) {
+        blob2 = (uint8_t *)malloc(blob_size2);
+        TEST_ASSERT_NOT_NULL(blob2);
+    }
 
     secure_time_set_trusted_init(&nonce2);
-    size_t blob_size2 = create_blob(set_time, nonce2, delegation_pubkeys, privkeys, 0, blob2, SECURE_TIME_TESTS_MAX_BLOB_SIZE_BYTES);
+    blob_size2 = create_blob(set_time, nonce2, delegation_pubkeys, privkeys, 0, blob2, blob_size2);
 
     TEST_ASSERT_EQUAL_HEX(
         SECURE_TIME_NONCE_NOT_MATCH,
@@ -358,9 +364,15 @@ void wrong_nonce2(void)
 
     secure_time_set_trusted_init(&nonce1);
     size_t blob_size1 = create_blob(set_time, nonce1, delegation_pubkeys, privkeys, 0, blob, SECURE_TIME_TESTS_MAX_BLOB_SIZE_BYTES);
+    size_t blob_size2 = blob_size1 + 10;
+
+    if (NULL == blob2) {
+        blob2 = (uint8_t *)malloc(blob_size2);
+        TEST_ASSERT_NOT_NULL(blob2);
+    }
 
     secure_time_set_trusted_init(&nonce2);
-    size_t blob_size2 = create_blob(set_time, nonce2, delegation_pubkeys, privkeys, 0, blob2, SECURE_TIME_TESTS_MAX_BLOB_SIZE_BYTES);
+    blob_size2 = create_blob(set_time, nonce2, delegation_pubkeys, privkeys, 0, blob2, blob_size2);
 
     TEST_ASSERT_EQUAL_HEX(
         SECURE_TIME_SUCCESS,
@@ -529,6 +541,16 @@ utest::v1::status_t storage_setup(const Case *const source, const size_t index_o
     return greentea_case_setup_handler(source, index_of_case);
 }
 
+utest::v1::status_t blob2_teardown(const Case *const source, const size_t passed, const size_t failed,
+        const failure_t reason)
+{
+    if (NULL != blob2) {
+        free(blob2);
+        blob2 = NULL;
+    }
+    return greentea_case_teardown_handler(source, passed, failed, reason);
+}
+
 // Test cases
 Case cases[] = {
     Case("Set trusted: Blob with an empty delegation list", blob_without_delegations),
@@ -539,8 +561,8 @@ Case cases[] = {
     Case("Set trusted: Malformed blob signature size", malformed_delegation_signature_size),
     Case("Set trusted: Delegation size too short", delegation_size_too_short),
     Case("Set trusted: Delegation size too long", delegation_size_too_long),
-    Case("Set trusted: Wrong nonce #1", wrong_nonce),
-    Case("Set trusted: Wrong nonce #2", wrong_nonce2),
+    Case("Set trusted: Wrong nonce #1", wrong_nonce, blob2_teardown),
+    Case("Set trusted: Wrong nonce #2", wrong_nonce2, blob2_teardown),
     Case("Set trusted: Replay same blob", replay_blob),
     //Case("Set trusted: Nonce timeout", nonce_timeout),
     Case("Set normal: Forward time, no storage update", storage_setup, normal_set_forward_no_storage_update),
