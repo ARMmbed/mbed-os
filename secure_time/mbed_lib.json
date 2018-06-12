@@ -9,7 +9,7 @@
     },
     "target_overrides": {
         "NUCLEO_F410RB": {
-            "enabled": 0
+            "enabled": false
         }
     }
 }

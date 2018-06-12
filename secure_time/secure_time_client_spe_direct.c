@@ -31,7 +31,7 @@ int32_t secure_time_set_stored_public_key(const void* pubkey, size_t key_size)
 }
 
 int32_t secure_time_get_stored_public_key(
-    uint8_t *pubkey,
+    void *pubkey,
     size_t size,
     size_t *actual_size
 )

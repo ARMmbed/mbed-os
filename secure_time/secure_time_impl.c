@@ -66,7 +66,7 @@ static void invalidate_nonce(nonce_data_t *nonce_data)
     nonce_data->nonce = 0;
 }
 
-static bool is_nonce_valid(nonce_data_t *nonce)
+static bool is_nonce_valid(const nonce_data_t *nonce)
 {
     return (SECURE_TIME_NONCE_GENERATION_TIME_INVALID != nonce->generation_time);
 }
