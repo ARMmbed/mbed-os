@@ -650,7 +650,7 @@ class Config(object):
             new_size = Config._align_floor(start + new_size, self.sectors) - start
             yield Region("application", start, new_size, True, None)
             start += new_size
-            if self.target.header_format:
+            if self.target.header_format and not self.target.bootloader_img:
                 if self.target.header_offset:
                     start = self._assign_new_offset(
                         rom_start, start, self.target.header_offset, "header")
