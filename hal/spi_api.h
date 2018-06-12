@@ -212,7 +212,7 @@ const spi_capabilities_t *const spi_get_capabilities(const spi_pins_t *pins);
  *   - initialises the pins.
  *
  * @param[in,out] obj   A spi_t instance to initialise.
- * @param[in]     init  Initialisation parameters.
+ * @param[in]     pins  spi_pins_t structure identifying a SPI channel.
  */
 void spi_init(spi_t *obj, const spi_pins_t *pins);
 
