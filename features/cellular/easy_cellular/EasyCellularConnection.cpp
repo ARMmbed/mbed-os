@@ -42,7 +42,7 @@ bool EasyCellularConnection::cellular_status(int state, int next_state)
 
     if (_target_state == state) {
         tr_info("Target state reached: %s", _cellularConnectionFSM->get_state_string(_target_state));
-        MBED_ASSERT(_cellularSemaphore.release() == osOK);
+        (void)_cellularSemaphore.release();
         return false; // return false -> state machine is halted
     }
     return true;
