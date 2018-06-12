@@ -38,6 +38,7 @@ from ..utils import (run_cmd, mkdir, rel_path, ToolException,
 from ..settings import MBED_ORG_USER, PRINT_COMPILER_OUTPUT_AS_LINK
 from .. import hooks
 from ..notifier.term import TerminalNotifier
+from ..resources import FileType
 from ..memap import MemapParser
 from ..config import ConfigException
 
@@ -284,7 +285,7 @@ class mbedToolchain:
 
         return resources
 
-    def copy_files(self, files_paths, trg_path, resources=None, rel_path=None):
+    def copy_files(self, files_paths, trg_path, resources=None):
         # Handle a single file
         if not isinstance(files_paths, list):
             files_paths = [files_paths]
@@ -294,12 +295,7 @@ class mbedToolchain:
                 files_paths.remove(source)
 
         for source in files_paths:
-            if resources is not None and source in resources.file_basepath:
-                relative_path = relpath(source, resources.file_basepath[source])
-            elif rel_path is not None:
-                relative_path = relpath(source, rel_path)
-            else:
-                _, relative_path = split(source)
+            _, relative_path = split(source)
 
             target = join(trg_path, relative_path)
 
@@ -310,10 +306,10 @@ class mbedToolchain:
 
     # THIS METHOD IS BEING OVERRIDDEN BY THE MBED ONLINE BUILD SYSTEM
     # ANY CHANGE OF PARAMETERS OR RETURN VALUES WILL BREAK COMPATIBILITY
-    def relative_object_path(self, build_path, base_dir, source):
-        source_dir, name, _ = split_path(source)
+    def relative_object_path(self, build_path, file_ref):
+        source_dir, name, _ = split_path(file_ref.name)
 
-        obj_dir = relpath(join(build_path, relpath(source_dir, base_dir)))
+        obj_dir = relpath(join(build_path, source_dir))
         if obj_dir is not self.prev_dir:
             self.prev_dir = obj_dir
             mkdir(obj_dir)
@@ -368,7 +364,11 @@ class mbedToolchain:
     # ANY CHANGE OF PARAMETERS OR RETURN VALUES WILL BREAK COMPATIBILITY
     def compile_sources(self, resources, inc_dirs=None):
         # Web IDE progress bar for project build
-        files_to_compile = resources.s_sources + resources.c_sources + resources.cpp_sources
+        files_to_compile = (
+            resources.get_file_refs(FileType.ASM_SRC) +
+            resources.get_file_refs(FileType.C_SRC) +
+            resources.get_file_refs(FileType.CPP_SRC)
+        )
         self.to_be_compiled = len(files_to_compile)
         self.compiled = 0
 
@@ -399,11 +399,10 @@ class mbedToolchain:
         # Sort compile queue for consistency
         files_to_compile.sort()
         for source in files_to_compile:
-            object = self.relative_object_path(
-                self.build_dir, resources.file_basepath[source], source)
+            object = self.relative_object_path(self.build_dir, source)
 
             # Queue mode (multiprocessing)
-            commands = self.compile_command(source, object, inc_paths)
+            commands = self.compile_command(source.path, object, inc_paths)
             if commands is not None:
                 queue.append({
                     'source': source,
@@ -429,7 +428,7 @@ class mbedToolchain:
             result = compile_worker(item)
 
             self.compiled += 1
-            self.progress("compile", item['source'], build_update=True)
+            self.progress("compile", item['source'].name, build_update=True)
             for res in result['results']:
                 self.notify.cc_verbose("Compile: %s" % ' '.join(res['command']), result['source'])
                 self.compile_output([
@@ -467,7 +466,7 @@ class mbedToolchain:
                         results.remove(r)
 
                         self.compiled += 1
-                        self.progress("compile", result['source'], build_update=True)
+                        self.progress("compile", result['source'].name, build_update=True)
                         for res in result['results']:
                             self.notify.cc_verbose("Compile: %s" % ' '.join(res['command']), result['source'])
                             self.compile_output([
@@ -628,15 +627,15 @@ class mbedToolchain:
         bin = None if ext == 'elf' else full_path
         map = join(tmp_path, name + '.map')
 
-        r.objects = sorted(set(r.objects))
+        objects = sorted(set(r.objects))
         config_file = ([self.config.app_config_location]
                        if self.config.app_config_location else [])
-        dependencies = r.objects + r.libraries + [r.linker_script] + config_file
+        dependencies = objects + r.libraries + [r.linker_script] + config_file
         dependencies.append(join(self.build_dir, self.PROFILE_FILE_NAME + "-ld"))
         if self.need_update(elf, dependencies):
             needed_update = True
             self.progress("link", name)
-            self.link(elf, r.objects, r.libraries, r.lib_dirs, r.linker_script)
+            self.link(elf, objects, r.libraries, r.lib_dirs, r.linker_script)
 
         if bin and self.need_update(bin, [elf]):
             needed_update = True

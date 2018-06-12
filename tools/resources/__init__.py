@@ -34,13 +34,12 @@ from __future__ import print_function, division, absolute_import
 
 import fnmatch
 import re
+from collections import namedtuple, defaultdict
 from copy import copy
 from itertools import chain
 from os import walk
 from os.path import (join, splitext, dirname, relpath, basename, split, normcase,
                      abspath, exists)
-
-from ..toolchains import TOOLCHAINS
 
 # Support legacy build conventions: the original mbed build system did not have
 # standard labels for the "TARGET_" and "TOOLCHAIN_" specific directories, but
@@ -79,39 +78,53 @@ LEGACY_TOOLCHAIN_NAMES = {
 }
 
 
+FileRef = namedtuple("FileRef", "name path")
+
+class FileType(object):
+    C_SRC = "c"
+    CPP_SRC = "c++"
+    ASM_SRC = "s"
+    HEADER = "header"
+    INC_DIR = "inc"
+    LIB_DIR = "libdir"
+    LIB = "lib"
+    OBJECT = "o"
+    HEX = "hex"
+    BIN = "bin"
+    JSON = "json"
+    LD_SCRIPT = "ld"
+    LIB_REF = "libref"
+    BLD_REF = "bldref"
+    REPO_DIR = "repodir"
+
+    def __init__(self):
+        raise NotImplemented
+
 class Resources(object):
-    def __init__(self, notify, base_path=None, collect_ignores=False):
+    ALL_FILE_TYPES = [
+        FileType.C_SRC,
+        FileType.CPP_SRC,
+        FileType.ASM_SRC,
+        FileType.HEADER,
+        FileType.INC_DIR,
+        FileType.LIB_DIR,
+        FileType.LIB,
+        FileType.OBJECT,
+        FileType.HEX,
+        FileType.BIN,
+        FileType.JSON,
+        FileType.LD_SCRIPT,
+        FileType.LIB_REF,
+        FileType.BLD_REF,
+        FileType.REPO_DIR,
+    ]
+
+    def __init__(self, notify, collect_ignores=False):
         self.notify = notify
-        self.base_path = base_path
         self.collect_ignores = collect_ignores
+        self._file_refs = defaultdict(list)
         self._label_paths = []
 
-        self.file_basepath = {}
-
-        self.inc_dirs = []
-        self.headers = []
-
-        self.s_sources = []
-        self.c_sources = []
-        self.cpp_sources = []
-
-        self.lib_dirs = set([])
-        self.objects = []
-        self.libraries = []
-
-        # mbed special files
-        self.lib_builds = []
-        self.lib_refs = []
-
-        self.repo_dirs = []
-        self.repo_files = []
-
-        self.linker_script = None
-
-        # Other files
-        self.hex_files = []
-        self.bin_files = []
-        self.json_files = []
 
         self.ignored_dirs = []
 
@@ -122,11 +135,12 @@ class Resources(object):
         }
 
         # Pre-mbed 2.0 ignore dirs
-        self.legacy_ignore_dirs = (LEGACY_IGNORE_DIRS | TOOLCHAINS)
+        self.legacy_ignore_dirs = (LEGACY_IGNORE_DIRS)
 
         # Ignore patterns from .mbedignore files
         self.ignore_patterns = []
         self._ignore_regex = re.compile("$^")
+
 
     def __add__(self, resources):
         if resources is None:
@@ -145,78 +159,14 @@ class Resources(object):
             self.ignored_dirs.append(directory)
 
     def add(self, resources):
-        for f,p in resources.file_basepath.items():
-            self.file_basepath[f] = p
-
-        self.inc_dirs += resources.inc_dirs
-        self.headers += resources.headers
-
-        self.s_sources += resources.s_sources
-        self.c_sources += resources.c_sources
-        self.cpp_sources += resources.cpp_sources
-
+        for file_type in self.ALL_FILE_TYPES:
+            self._file_refs[file_type].extend(resources._file_refs[file_type])
         self.lib_dirs |= resources.lib_dirs
-        self.objects += resources.objects
-        self.libraries += resources.libraries
-
-        self.lib_builds += resources.lib_builds
-        self.lib_refs += resources.lib_refs
-
-        self.repo_dirs += resources.repo_dirs
-        self.repo_files += resources.repo_files
-
-        if resources.linker_script is not None:
-            self.linker_script = resources.linker_script
-
-        self.hex_files += resources.hex_files
-        self.bin_files += resources.bin_files
-        self.json_files += resources.json_files
 
         self.ignored_dirs += resources.ignored_dirs
         self._label_paths += resources._label_paths
 
         return self
-
-    def rewrite_basepath(self, file_name, export_path, loc):
-        """ Replace the basepath of filename with export_path
-
-        Positional arguments:
-        file_name - the absolute path to a file
-        export_path - the final destination of the file after export
-        """
-        new_f = join(loc, relpath(file_name, self.file_basepath[file_name]))
-        self.file_basepath[new_f] = export_path
-        return new_f
-
-    def subtract_basepath(self, export_path, loc=""):
-        """ Rewrite all of the basepaths with the export_path
-
-        Positional arguments:
-        export_path - the final destination of the resources with respect to the
-        generated project files
-        """
-        keys = ['s_sources', 'c_sources', 'cpp_sources', 'hex_files',
-                'objects', 'libraries', 'inc_dirs', 'headers', 'linker_script',
-                'lib_dirs']
-        for key in keys:
-            vals = getattr(self, key)
-            if isinstance(vals, set):
-                vals = list(vals)
-            if isinstance(vals, list):
-                new_vals = []
-                for val in vals:
-                    new_vals.append(self.rewrite_basepath(
-                        val, export_path, loc))
-                if isinstance(getattr(self, key), set):
-                    setattr(self, key, set(new_vals))
-                else:
-                    setattr(self, key, new_vals)
-            elif vals:
-                setattr(self, key, self.rewrite_basepath(
-                    vals, export_path, loc))
-        def closure(res, export_path=export_path, loc=loc):
-            res.subtract_basepath(export_path, loc)
-            return res
 
     def _collect_duplicates(self, dupe_dict, dupe_headers):
         for filename in self.s_sources + self.c_sources + self.cpp_sources:
@@ -249,52 +199,41 @@ class Resources(object):
                     (headername, " ".join(locations)))
         return count
 
-
     def relative_to(self, base, dot=False):
-        for field in ['inc_dirs', 'headers', 's_sources', 'c_sources',
-                      'cpp_sources', 'lib_dirs', 'objects', 'libraries',
-                      'lib_builds', 'lib_refs', 'repo_dirs', 'repo_files',
-                      'hex_files', 'bin_files', 'json_files']:
-            v = [rel_path(f, base, dot) for f in getattr(self, field)]
-            setattr(self, field, v)
-
-        if self.linker_script is not None:
-            self.linker_script = rel_path(self.linker_script, base, dot)
+        for file_type in self.ALL_FILE_TYPES:
+            v = [f._replace(name=rel_path(f, base, dot)) for
+                 f in self.get_file_refs(file_type)]
+            self._file_refs[file_type] = v
 
     def win_to_unix(self):
-        for field in ['inc_dirs', 'headers', 's_sources', 'c_sources',
-                      'cpp_sources', 'lib_dirs', 'objects', 'libraries',
-                      'lib_builds', 'lib_refs', 'repo_dirs', 'repo_files',
-                      'hex_files', 'bin_files', 'json_files']:
-            v = [f.replace('\\', '/') for f in getattr(self, field)]
-            setattr(self, field, v)
-
-        if self.linker_script is not None:
-            self.linker_script = self.linker_script.replace('\\', '/')
+        for file_type in self.ALL_FILE_TYPES:
+            v = [f._replace(name=f.replace('\\', '/')) for
+                 f in self.get_file_refs(file_type)]
+            self._file_refs[file_type] = v
 
     def __str__(self):
         s = []
 
-        for (label, resources) in (
-                ('Include Directories', self.inc_dirs),
-                ('Headers', self.headers),
+        for (label, file_type) in (
+                ('Include Directories', FileType.INC_DIR),
+                ('Headers', FileType.HEADER),
 
-                ('Assembly sources', self.s_sources),
-                ('C sources', self.c_sources),
-                ('C++ sources', self.cpp_sources),
+                ('Assembly sources', FileType.ASM_SRC),
+                ('C sources', FileType.C_SRC),
+                ('C++ sources', FileType.CPP_SRC),
 
-                ('Library directories', self.lib_dirs),
-                ('Objects', self.objects),
-                ('Libraries', self.libraries),
+                ('Library directories', FileType.LIB_DIR),
+                ('Objects', FileType.OBJECT),
+                ('Libraries', FileType.LIB),
 
-                ('Hex files', self.hex_files),
-                ('Bin files', self.bin_files),
+                ('Hex files', FileType.HEX),
+                ('Bin files', FileType.BIN),
+                ('Linker script', FileType.LD_SCRIPT)
             ):
+            resources = self.get_file_refs(file_type)
             if resources:
-                s.append('%s:\n  ' % label + '\n  '.join(resources))
-
-        if self.linker_script:
-            s.append('Linker Script: ' + self.linker_script)
+                s.append('%s:\n  ' % label + '\n  '.join(
+                    "%s -> %s" % (name, path) for name, path in resources))
 
         return '\n'.join(s)
 
@@ -303,10 +242,10 @@ class Resources(object):
         self.labels.setdefault(prefix, [])
         self.labels[prefix].extend(labels)
         prefixed_labels = set("%s_%s" % (prefix, label) for label in labels)
-        for path, base_path in self._label_paths:
+        for path, base_path, into_path in self._label_paths:
             if basename(path) in prefixed_labels:
-                self.add_directory(path, base_path)
-        self._label_paths = [(p, b) for p, b in self._label_paths
+                self.add_directory(path, base_path, into_path)
+        self._label_paths = [(p, b, i) for p, b, i in self._label_paths
                              if basename(p) not in prefixed_labels]
 
     def add_target_labels(self, target):
@@ -345,7 +284,83 @@ class Resources(object):
         return (dirname.startswith(label_type + "_") and
                 dirname[len(label_type) + 1:] not in self.labels[label_type])
 
-    def add_directory(self, path, base_path=None, exclude_paths=None):
+    def add_file_ref(self, file_type, file_name, file_path):
+        ref = FileRef(file_name, file_path)
+        self._file_refs[file_type].append(ref)
+
+    def get_file_refs(self, file_type):
+        """Return a list of FileRef for every file of the given type"""
+        return self._file_refs[file_type]
+
+    def get_file_names(self, file_type):
+        return [f.name for f in self.get_file_refs(file_type)]
+
+    def add_files_to_type(self, file_type, files):
+        self._file_refs[file_type].extend(FileRef(f, f) for f in files)
+
+    @property
+    def inc_dirs(self):
+        return self.get_file_names(FileType.INC_DIR)
+
+    @property
+    def headers(self):
+        return self.get_file_names(FileType.HEADER)
+
+    @property
+    def s_sources(self):
+        return self.get_file_names(FileType.ASM_SRC)
+
+    @property
+    def c_sources(self):
+        return self.get_file_names(FileType.C_SRC)
+
+    @property
+    def cpp_sources(self):
+        return self.get_file_names(FileType.CPP_SRC)
+
+    @property
+    def lib_dirs(self):
+        return self.get_file_names(FileType.LIB_DIR)
+
+    @property
+    def objects(self):
+        return self.get_file_names(FileType.OBJECT)
+
+    @property
+    def libraries(self):
+        return self.get_file_names(FileType.LIB)
+
+    @property
+    def lib_builds(self):
+        return self.get_file_names(FileType.BLD_REF)
+
+    @property
+    def lib_refs(self):
+        return self.get_file_names(FileType.LIB_REF)
+
+    @property
+    def linker_script(self):
+        return self.get_file_names(FileType.LD_SCRIPT)[0]
+
+    @property
+    def hex_files(self):
+        return self.get_file_names(FileType.HEX)
+
+    @property
+    def bin_files(self):
+        return self.get_file_names(FileType.BIN)
+
+    @property
+    def json_files(self):
+        return self.get_file_names(FileType.JSON)
+
+    def add_directory(
+            self,
+            path,
+            base_path=None,
+            into_path=None,
+            exclude_paths=None,
+    ):
         """ Scan a directory and include its resources in this resources obejct
 
         Positional arguments:
@@ -354,12 +369,16 @@ class Resources(object):
         Keyword arguments
         base_path - If this is part of an incremental scan, include the origin
                     directory root of the scan here
+        into_path - Pretend that scanned files are within the specified
+                    directory within a project instead of using their actual path
         exclude_paths - A list of paths that are to be excluded from a build
         """
         self.notify.progress("scan", abspath(path))
 
         if base_path is None:
             base_path = path
+        if into_path is None:
+            into_path = path
         if self.collect_ignores and path in self.ignored_dirs:
             self.ignored_dirs.remove(path)
         if exclude_paths:
@@ -384,11 +403,12 @@ class Resources(object):
             for d in copy(dirs):
                 dir_path = join(root, d)
                 if d == '.hg' or d == '.git':
-                    self.repo_dirs.append(dir_path)
+                    fake_path = join(into_path, relpath(dir_path, base_path))
+                    self.add_file_ref(FileType.REPO_DIR, fake_path, dir_path)
 
                 if (any(self._not_current_label(d, t) for t
                         in ['TARGET', 'TOOLCHAIN', 'FEATURE'])):
-                    self._label_paths.append((dir_path, base_path))
+                    self._label_paths.append((dir_path, base_path, into_path))
                     self.ignore_dir(dir_path)
                     dirs.remove(d)
                 elif (d.startswith('.') or d in self.legacy_ignore_dirs or
@@ -398,14 +418,35 @@ class Resources(object):
 
             # Add root to include paths
             root = root.rstrip("/")
-            self.inc_dirs.append(root)
-            self.file_basepath[root] = base_path
+            fake_root = join(into_path, relpath(root, base_path))
+            self.add_file_ref(FileType.INC_DIR, fake_root, root)
 
             for file in files:
                 file_path = join(root, file)
-                self._add_file(file_path, base_path)
+                self._add_file(file_path, base_path, into_path)
 
-    def _add_file(self, file_path, base_path):
+    _EXT = {
+        ".c": FileType.C_SRC,
+        ".cc": FileType.CPP_SRC,
+        ".cpp": FileType.CPP_SRC,
+        ".s": FileType.ASM_SRC,
+        ".h": FileType.HEADER,
+        ".hh": FileType.HEADER,
+        ".hpp": FileType.HEADER,
+        ".o": FileType.OBJECT,
+        ".hex": FileType.HEX,
+        ".bin": FileType.BIN,
+        ".json": FileType.JSON,
+        ".a": FileType.LIB,
+        ".ar": FileType.LIB,
+        ".sct": FileType.LD_SCRIPT,
+        ".ld": FileType.LD_SCRIPT,
+        ".icf": FileType.LD_SCRIPT,
+        ".lib": FileType.LIB_REF,
+        ".bld": FileType.BLD_REF,
+    }
+
+    def _add_file(self, file_path, base_path, into_path):
         """ Add a single file into the resources object that was found by
         scanning starting as base_path
         """
@@ -415,55 +456,13 @@ class Resources(object):
             self.ignore_dir(relpath(file_path, base_path))
             return
 
-        self.file_basepath[file_path] = base_path
+        fake_path = join(into_path, relpath(file_path, base_path))
         _, ext = splitext(file_path)
-        ext = ext.lower()
-
-        if   ext == '.s':
-            self.s_sources.append(file_path)
-
-        elif ext == '.c':
-            self.c_sources.append(file_path)
-
-        elif ext == '.cpp' or ext == '.cc':
-            self.cpp_sources.append(file_path)
-
-        elif ext == '.h' or ext == '.hpp' or ext == '.hh':
-            self.headers.append(file_path)
-
-        elif ext == '.o':
-            self.objects.append(file_path)
-
-        elif ext in ('.a', '.ar'):
-            self.libraries.append(file_path)
-            self.lib_dirs.add(dirname(file_path))
-
-        elif ext in ('.sct', '.icf', '.ld'):
-            if self.linker_script is not None:
-                self.notify.info("Warning: Multiple linker scripts detected: %s and %s" % (self.linker_script, file_path))
-            else:
-                self.linker_script = file_path
-
-        elif ext == '.lib':
-            self.lib_refs.append(file_path)
-
-        elif ext == '.bld':
-            self.lib_builds.append(file_path)
-
-        elif basename(file_path) == '.hgignore':
-            self.repo_files.append(file_path)
-
-        elif basename(file_path) == '.gitignore':
-            self.repo_files.append(file_path)
-
-        elif ext == '.hex':
-            self.hex_files.append(file_path)
-
-        elif ext == '.bin':
-            self.bin_files.append(file_path)
-
-        elif ext == '.json':
-            self.json_files.append(file_path)
+        try:
+            file_type = self._EXT[ext.lower()]
+            self.add_file_ref(file_type, fake_path, file_path)
+        except KeyError:
+            pass
 
 
     def scan_with_toolchain(self, src_paths, toolchain, dependencies_paths=None,
