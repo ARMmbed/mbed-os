@@ -91,6 +91,12 @@ class ARM(mbedToolchain):
 
         self.SHEBANG += " --cpu=%s" % cpu
 
+    def _get_toolchain_labels(self):
+        if getattr(self.target, "defalut_lib", "std") == "small":
+            return ["ARM", "ARM_MICRO"]
+        else:
+            return ["ARM", "ARM_STD"]
+
     def parse_dependencies(self, dep_path):
         dependencies = []
         for line in open(dep_path).readlines():
@@ -393,6 +399,9 @@ class ARMC6(ARM_STD):
         self.ld = [join(TOOLCHAIN_PATHS["ARMC6"], "armlink")] + self.flags['ld']
         self.ar = [join(TOOLCHAIN_PATHS["ARMC6"], "armar")]
         self.elf2bin = join(TOOLCHAIN_PATHS["ARMC6"], "fromelf")
+
+    def _get_toolchain_labels(self):
+        return ["ARM", "ARM_STD", "ARMC6"]
 
     def parse_dependencies(self, dep_path):
         return mbedToolchain.parse_dependencies(self, dep_path)

@@ -532,8 +532,7 @@ class mbedToolchain:
 
     def get_labels(self):
         if self.labels is None:
-            toolchain_labels = [c.__name__ for c in getmro(self.__class__)]
-            toolchain_labels.remove('mbedToolchain')
+            toolchain_labels = self._get_toolchain_labels()
             self.labels = {
                 'TARGET': self.target.labels,
                 'FEATURE': self.target.features,
@@ -550,6 +549,12 @@ class mbedToolchain:
             else:
                 self.labels['TARGET'].append("RELEASE")
         return self.labels
+
+    def _get_toolchain_labels(self):
+        toolchain_labels = [c.__name__ for c in getmro(self.__class__)]
+        toolchain_labels.remove('mbedToolchain')
+        toolchain_labels.remove('object')
+        return toolchain_labels
 
 
     # Determine whether a source file needs updating/compiling
