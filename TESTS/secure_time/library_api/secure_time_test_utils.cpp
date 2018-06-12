@@ -15,6 +15,7 @@
 
 #include "secure_time_test_utils.h"
 #include "secure_time_client_spe.h"
+#include "secure_time_utils.h"
 #include "unity.h"
 #include <string.h>
 

@@ -33,7 +33,7 @@ MBED_WEAK int32_t secure_time_set_stored_public_key_impl(const void* pubkey, siz
     return rc;
 }
 
-MBED_WEAK int32_t secure_time_get_stored_public_key_impl(uint8_t *pubkey, size_t size, size_t *actual_size)
+MBED_WEAK int32_t secure_time_get_stored_public_key_impl(void *pubkey, size_t size, size_t *actual_size)
 {
     if (NULL == pubkey) {
         error("pubkey is NULL!");

@@ -22,17 +22,20 @@
 #include "mbedtls/entropy.h"
 #include "mbedtls/ctr_drbg.h"
 
+#include <stdbool.h>
+
 #if SECURE_TIME_ENABLED
 
 /*
  * Structure containing contexts for random number generation.
  */
 typedef struct secure_time_random_ctx {
+    bool initialized;
     mbedtls_ctr_drbg_context ctr_drbg_ctx; /* CTR_DRBG context structure. */
     mbedtls_entropy_context entropy_ctx;   /* Entropy context structure. */
 } secure_time_random_ctx_t;
 
-secure_time_random_ctx_t *random_ctx = NULL;
+static secure_time_random_ctx_t random_ctx = {0};
 
 static void random_ctx_init(secure_time_random_ctx_t *ctx)
 {
@@ -85,7 +88,7 @@ static void calculate_hash(
         error("mbedtls_md_info_from_type() returned NULL!");
     }
 
-    rc = mbedtls_md(md_info, (const unsigned char *)data, data_size, hash);
+    rc = mbedtls_md(md_info, data, data_size, hash);
     if (SECURE_TIME_SUCCESS != rc) {
         error("mbedtls_md() failed! (rc=%d)", rc);
     }
@@ -101,7 +104,7 @@ int32_t secure_time_verify_signature(
     )
 {
     int rc = SECURE_TIME_SUCCESS;
-    uint8_t hash[MBEDTLS_MD_MAX_SIZE] = {0};
+    uint8_t hash[MBEDTLS_MD_MAX_SIZE];
     mbedtls_pk_context pubkey_ctx = {0};
 
     mbedtls_md_type_t md_type = md_type_from_signature_alg(SIGNATURE_ALG_SHA256_ECDSA);
@@ -122,14 +125,7 @@ int32_t secure_time_verify_signature(
         error("Unable to verify signature");
     }
 
-    rc = mbedtls_pk_verify(
-        &pubkey_ctx,
-        md_type,
-        hash,
-        0,
-        (const unsigned char *)sign,
-        sign_size
-        );
+    rc = mbedtls_pk_verify(&pubkey_ctx, md_type, hash, 0, sign, sign_size);
     if (SECURE_TIME_SUCCESS != rc) {
         rc = SECURE_TIME_SIGNATURE_VERIFICATION_FAILED;
     }
@@ -142,15 +138,12 @@ void secure_time_generate_random_bytes(size_t size, void *random_buf)
 {
     int rc = SECURE_TIME_SUCCESS;
 
-    if (NULL == random_ctx) {
-        random_ctx = (secure_time_random_ctx_t *)malloc(sizeof(*random_ctx));
-        if (NULL == random_ctx) {
-            error("Failed to allocate memory for random_ctx!");
-        }
-        random_ctx_init(random_ctx);
+    if (false == random_ctx.initialized) {
+        random_ctx_init(&random_ctx);
+        random_ctx.initialized = true;
     }
 
-    rc = mbedtls_ctr_drbg_random(&(random_ctx->ctr_drbg_ctx), (unsigned char *)random_buf, size);
+    rc = mbedtls_ctr_drbg_random(&(random_ctx.ctr_drbg_ctx), random_buf, size);
     if (SECURE_TIME_SUCCESS != rc) {
         error("mbedtls_ctr_drbg_random() failed! (rc=%d)", rc);
     }

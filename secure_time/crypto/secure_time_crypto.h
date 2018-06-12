@@ -23,6 +23,15 @@ extern "C" {
 #endif
 
 /*
+ * Enumeration for the possible blob signature algorithms
+ */
+typedef enum signature_alg {
+    SIGNATURE_ALG_INVALID = 0,      /**< Invalid algorithm type */
+    SIGNATURE_ALG_SHA256_ECDSA = 1, /**< ECDSA on a SHA256 hash */
+    SIGNATURE_ALG_MAX = SIGNATURE_ALG_SHA256_ECDSA
+} SignatureAlg;
+
+/*
  * Verify the data buffer signature.
  *
  * @param[in] data         Data buffer.

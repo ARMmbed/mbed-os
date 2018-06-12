@@ -22,6 +22,42 @@
 extern "C" {
 #endif
 
+/*< Maximal allowed blob size in bytes. */
+#define SECURE_TIME_MAX_BLOB_SIZE_BYTES                 (10 * 1024UL)
+
+/*< Timestamp size in bytes. */
+#define SECURE_TIME_TIMESTAMP_SIZE_BYTES                (8UL)
+
+/*< Nonce size in bytes. */
+#define SECURE_TIME_NONCE_SIZE_BYTES                    (8UL)
+
+/*< The size of delegation length in bytes. */
+#define SECURE_TIME_DELEGATION_LENGTH_SIZE_BYTES        (2UL)
+
+/*< The size of public key length field in bytes. */
+#define SECURE_TIME_PUBKEY_LENGTH_SIZE_BYTES            (2UL)
+
+/*< The size of signature length field in bytes. */
+#define SECURE_TIME_SIGNATURE_LENGTH_SIZE_BYTES         (2UL)
+
+/*< The size of public key length field in bytes. */
+#define SECURE_TIME_PUBKEY_LENGTH_SIZE_BYTES            (2UL)
+
+/*< The size of the constant length blob header. */
+#define SECURE_TIME_BLOB_HEADER_SIZE_BYTES              \
+    (                                                   \
+    SECURE_TIME_TIMESTAMP_SIZE_BYTES +                  \
+    SECURE_TIME_NONCE_SIZE_BYTES +                      \
+    SECURE_TIME_DELEGATION_LENGTH_SIZE_BYTES            \
+    )
+
+/*< The location of the delegation length field in the blob. */
+#define SECURE_TIME_DELEGATION_LENGTH_OFFSET            \
+    (                                                   \
+    SECURE_TIME_TIMESTAMP_SIZE_BYTES +                  \
+    SECURE_TIME_NONCE_SIZE_BYTES                        \
+    )
+
 #define SECURE_TIME_MIN_RTC_LATENCY_SEC                 (100UL)
 
 /*
