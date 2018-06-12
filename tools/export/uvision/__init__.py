@@ -133,9 +133,16 @@ class Uvision(Exporter):
     @classmethod
     def is_target_supported(cls, target_name):
         target = TARGET_MAP[target_name]
-        return apply_supported_whitelist(
-            cls.TOOLCHAIN, cls.POST_BINARY_WHITELIST, target) and\
-            DeviceCMSIS.check_supported(target_name)
+        if not (set(target.supported_toolchains) and set(["ARM", "uARM"])):
+            return False
+        if not DeviceCMSIS.check_supported(target_name):
+            return False
+        if not hasattr(target, "post_binary_hook"):
+            return True
+        if target.post_binary_hook['function'] in cls.POST_BINARY_WHITELIST:
+            return True
+        else:
+            return False
 
     #File associations within .uvprojx file
     file_types = {'.cpp': 8, '.c': 1, '.s': 2,
