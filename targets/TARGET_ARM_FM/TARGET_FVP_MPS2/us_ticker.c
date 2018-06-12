@@ -28,7 +28,7 @@
  *  TIMER1 is for counting, and returns inverted binary when read from it
  *  TIMER2 is for generate interrupts
  */
-int us_ticker_inited = 0;
+static int us_ticker_inited = 0;
 
 void us_ticker_init(void)
 {
