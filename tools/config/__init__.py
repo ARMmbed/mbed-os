@@ -586,8 +586,8 @@ class Config(object):
     def _get_mem_specs(self, memories, cmsis_part, exception_text):
         for memory in memories:
             try:
-                size = cmsis_part['memory']['IRAM1']['size']
-                start = cmsis_part['memory']['IRAM1']['start']
+                size = cmsis_part['memory'][memory]['size']
+                start = cmsis_part['memory'][memory]['start']
                 return (start, size)
             except KeyError:
                 continue
