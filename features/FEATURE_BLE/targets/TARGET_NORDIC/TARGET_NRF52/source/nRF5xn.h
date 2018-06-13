@@ -54,7 +54,7 @@ public:
      *        always needed in a BLE application. Therefore it is allocated
      *        statically.
      */
-    virtual Gap &getGap() {
+    virtual nRF5xGap &getGap() {
         return gapInstance;
     };
 
