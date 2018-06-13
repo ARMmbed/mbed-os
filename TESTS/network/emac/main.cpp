@@ -70,6 +70,7 @@ Case cases[] = {
     Case("EMAC unicast", test_emac_unicast),
     Case("EMAC unicast frame length", test_emac_unicast_frame_len),
     Case("EMAC unicast burst", test_emac_unicast_burst),
+    Case("EMAC unicast long", test_emac_unicast_long),
     Case("EMAC multicast filter", test_emac_multicast_filter),
     Case("EMAC memory", test_emac_memory)
 };
