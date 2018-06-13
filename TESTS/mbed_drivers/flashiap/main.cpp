@@ -23,11 +23,14 @@
 #include "utest/utest_serial.h"
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"
+#include "FlashIAP.h"
+#include "unity.h"
 #include <algorithm>
 
 #include "mbed.h"
 
 using namespace utest::v1;
+
 
 void flashiap_init_test()
 {
@@ -59,6 +62,9 @@ void flashiap_program_test()
     // the one before the last sector in the system
     uint32_t address = (flash_device.get_flash_start() + flash_device.get_flash_size()) - (sector_size);
     TEST_ASSERT_TRUE(address != 0UL);
+    utest_printf("ROM ends at 0x%lx, test starts at 0x%lx\n", FLASHIAP_ROM_END, address);
+    TEST_SKIP_UNLESS_MESSAGE(address >= FLASHIAP_ROM_END, "Test skipped. Test region overlaps code.");
+
     ret = flash_device.erase(address, sector_size);
     TEST_ASSERT_EQUAL_INT32(0, ret);
 
@@ -93,6 +99,7 @@ void flashiap_program_test()
     TEST_ASSERT_EQUAL_INT32(0, ret);
 }
 
+
 void flashiap_cross_sector_program_test()
 {
     FlashIAP flash_device;
@@ -111,6 +118,7 @@ void flashiap_cross_sector_program_test()
         agg_size += sector_size;
         address -= sector_size;
     }
+    TEST_SKIP_UNLESS_MESSAGE(address >= FLASHIAP_ROM_END, "Test skipped. Test region overlaps code.");
     ret = flash_device.erase(address, agg_size);
     TEST_ASSERT_EQUAL_INT32(0, ret);
 
@@ -166,6 +174,7 @@ void flashiap_program_error_test()
     TEST_ASSERT_TRUE(address != 0UL);
 
     // unaligned address
+    TEST_SKIP_UNLESS_MESSAGE(address >= FLASHIAP_ROM_END, "Test skipped. Test region overlaps code.");
     ret = flash_device.erase(address + 1, sector_size);
     TEST_ASSERT_EQUAL_INT32(-1, ret);
     if (flash_device.get_page_size() > 1) {
@@ -185,7 +194,7 @@ void flashiap_timing_test()
     uint32_t ret = flash_device.init();
     TEST_ASSERT_EQUAL_INT32(0, ret);
     mbed::Timer timer;
-    int num_write_sizes;
+    unsigned int num_write_sizes;
     unsigned int curr_time, byte_usec_ratio;
     unsigned int avg_erase_time = 0;
     unsigned int max_erase_time = 0, min_erase_time = (unsigned int) -1;
@@ -222,7 +231,7 @@ void flashiap_timing_test()
         uint32_t address = base_address;
         unsigned int avg_write_time = 0;
         unsigned int max_write_time = 0, min_write_time = (unsigned int) -1;
-        int num_writes;
+        unsigned int num_writes;
         for (num_writes = 0; num_writes < max_writes; num_writes++) {
             if ((address + write_size) > end_address) {
                 break;
