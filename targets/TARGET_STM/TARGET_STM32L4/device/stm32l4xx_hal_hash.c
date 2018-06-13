@@ -1349,13 +1349,15 @@ static void HASH_DMAError(DMA_HandleTypeDef *hdma)
 static HAL_StatusTypeDef HASH_WriteData(HASH_HandleTypeDef *hhash, uint8_t *pInBuffer, uint32_t Size)
 {
   uint32_t buffercounter;
-  __IO uint32_t inputaddr = (uint32_t) pInBuffer;
   
   for(buffercounter = 0; buffercounter < Size; buffercounter+=4)
   {
     /* Write input data 4 bytes at a time */
-    HASH->DIN = *(uint32_t*)inputaddr;
-    inputaddr+=4;
+    uint32_t data = (uint32_t) *pInBuffer++;
+    data |= (uint32_t) *pInBuffer++ << 8;
+    data |= (uint32_t) *pInBuffer++ << 16;
+    data |= (uint32_t) *pInBuffer++ << 24;
+    HASH->DIN = data;
     
     /* If the suspension flag has been raised and if the processing is not about
        to end, suspend processing */
@@ -1373,14 +1375,14 @@ static HAL_StatusTypeDef HASH_WriteData(HASH_HandleTypeDef *hhash, uint8_t *pInB
         if ((hhash->Phase == HAL_HASH_PHASE_PROCESS) || (hhash->Phase == HAL_HASH_PHASE_HMAC_STEP_2))
         {
           /* Save current reading and writing locations of Input and Output buffers */
-          hhash->pHashInBuffPtr =  (uint8_t *)inputaddr;
+          hhash->pHashInBuffPtr = pInBuffer;
           /* Save the number of bytes that remain to be processed at this point */
           hhash->HashInCount    =  Size - (buffercounter + 4);
         }
         else if ((hhash->Phase == HAL_HASH_PHASE_HMAC_STEP_1) || (hhash->Phase == HAL_HASH_PHASE_HMAC_STEP_3))
         {
           /* Save current reading and writing locations of Input and Output buffers */
-          hhash->pHashKeyBuffPtr  =  (uint8_t *)inputaddr;
+          hhash->pHashKeyBuffPtr = pInBuffer;
           /* Save the number of bytes that remain to be processed at this point */
           hhash->HashKeyCount  =  Size - (buffercounter + 4);        
         }
@@ -1686,15 +1688,21 @@ static uint32_t HASH_Write_Block_Data(HASH_HandleTypeDef *hhash)
       (16 32-bit words, or 64 bytes are entered) */
     for(buffercounter = 0; buffercounter < 64; buffercounter+=4)
     {
-      HASH->DIN = *(uint32_t*)inputaddr;
-      inputaddr+=4;
+      uint32_t data = (uint32_t) *(uint8_t *)inputaddr++;
+      data |= (uint32_t) *(uint8_t *)inputaddr++ << 8;
+      data |= (uint32_t) *(uint8_t *)inputaddr++ << 16;
+      data |= (uint32_t) *(uint8_t *)inputaddr++ << 24;
+      HASH->DIN = data;
     }
     /* If this is the start of input data entering, an additional word
       must be entered to start up the HASH processing */
     if(hhash->HashITCounter == 2)
     {
-      HASH->DIN = *(uint32_t*)inputaddr;
-      inputaddr+=4;
+      uint32_t data = (uint32_t) *(uint8_t *)inputaddr++;
+      data |= (uint32_t) *(uint8_t *)inputaddr++ << 8;
+      data |= (uint32_t) *(uint8_t *)inputaddr++ << 16;
+      data |= (uint32_t) *(uint8_t *)inputaddr++ << 24;
+      HASH->DIN = data;
       if(hhash->HashInCount >= 68)
       {
         /* There are still data waiting to be entered in the IP.
@@ -1733,8 +1741,11 @@ static uint32_t HASH_Write_Block_Data(HASH_HandleTypeDef *hhash)
     /* Write the Input block in the Data IN register */
     for(buffercounter = 0; buffercounter < (inputcounter+3)/4; buffercounter++)
     {
-      HASH->DIN = *(uint32_t*)inputaddr;
-      inputaddr+=4;
+      uint32_t data = (uint32_t) *(uint8_t *)inputaddr++;
+      data |= (uint32_t) *(uint8_t *)inputaddr++ << 8;
+      data |= (uint32_t) *(uint8_t *)inputaddr++ << 16;
+      data |= (uint32_t) *(uint8_t *)inputaddr++ << 24;
+      HASH->DIN = data;
     }
     /* Start the Digest calculation */
     __HAL_HASH_START_DIGEST();
