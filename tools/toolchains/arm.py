@@ -56,7 +56,7 @@ class ARM(mbedToolchain):
             raise NotSupportedException(
                 "this compiler does not support the core %s" % target.core)
 
-        if getattr(target, "defalut_lib", "std") == "small":
+        if getattr(target, "default_lib", "std") == "small":
             if "-DMBED_RTOS_SINGLE_THREAD" not in self.flags['common']:
                 self.flags['common'].append("-DMBED_RTOS_SINGLE_THREAD")
             if "--library_type=microlib" not in self.flags['ld']:
@@ -92,7 +92,7 @@ class ARM(mbedToolchain):
         self.SHEBANG += " --cpu=%s" % cpu
 
     def _get_toolchain_labels(self):
-        if getattr(self.target, "defalut_lib", "std") == "small":
+        if getattr(self.target, "default_lib", "std") == "small":
             return ["ARM", "ARM_MICRO"]
         else:
             return ["ARM", "ARM_STD"]
