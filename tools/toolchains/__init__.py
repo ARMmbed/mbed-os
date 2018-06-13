@@ -374,7 +374,8 @@ class mbedToolchain:
 
         self.notify.cc_verbose("Macros: "+' '.join(['-D%s' % s for s in self.get_symbols()]))
 
-        inc_paths = resources.inc_dirs
+        inc_paths = [path for _, path
+                     in resources.get_file_refs(FileType.INC_DIR)]
         if inc_dirs is not None:
             if isinstance(inc_dirs, list):
                 inc_paths.extend(inc_dirs)
