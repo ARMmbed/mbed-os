@@ -483,9 +483,9 @@ class Resources(object):
         for path in src_paths:
             if exists(path):
                 if exclude:
-                    self.add_directory(path, exclude_paths=[toolchain.build_dir])
+                    self.add_directory(path, into_path="", exclude_paths=[toolchain.build_dir])
                 else:
-                    self.add_directory(path)
+                    self.add_directory(path, into_path="")
 
         # Scan dependency paths for include dirs
         if dependencies_paths is not None:
