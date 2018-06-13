@@ -277,6 +277,9 @@ ble_error_t nRF5xSecurityManager::send_pairing_response(
 ) {
     pairing_control_block_t* pairing_cb = allocate_pairing_cb(connection);
     if (!pairing_cb) {
+        // not enough memory; try to reject the pairing request instead of
+        // waiting for timeout.
+        cancel_pairing(connection, pairing_failure_t::UNSPECIFIED_REASON);
         return BLE_ERROR_NO_MEM;
     }
     pairing_cb->role = PAIRING_RESPONDER;
