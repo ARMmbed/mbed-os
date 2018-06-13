@@ -259,11 +259,25 @@ public:
         DisconnectionReason_t reason
     );
 
+    /**
+     * Return the role of the local peripheral for a given connection.
+     *
+     * @param[in] connection The connection queried.
+     * @param[out] role The role of the local device in the connection.
+     *
+     * @return BLE_ERROR_NONE in case of success or an appropriate error code.
+     */
+    ble_error_t get_role(ble::connection_handle_t connection, Role_t& role);
+
 private:
     friend void btle_handler(ble_evt_t *p_ble_evt);
 
     void on_connection(Handle_t handle, const ble_gap_evt_connected_t& evt);
     void on_advertising_packet(const ble_gap_evt_adv_report_t &evt);
+
+    void allocate_connection_role(ble::connection_handle_t, Role_t);
+    void release_connection_role(ble::connection_handle_t);
+    void release_all_connections_role();
 
     uint16_t m_connectionHandle;
 
@@ -274,6 +288,23 @@ private:
     CentralPrivacyConfiguration_t _central_privacy_configuration;
     AddressType_t _non_private_address_type;
     Address_t _non_private_address;
+
+    struct connection_role_t {
+        connection_role_t() :
+            connection(),
+            is_peripheral(false),
+            is_allocated(false)
+        { }
+
+        ble::connection_handle_t connection;
+        uint8_t is_peripheral:1;
+        uint8_t is_allocated:1;
+    };
+
+    static const size_t max_connections_count =
+        NRF_SDH_BLE_PERIPHERAL_LINK_COUNT + NRF_SDH_BLE_CENTRAL_LINK_COUNT;
+
+    connection_role_t _connections_role[max_connections_count];
 
     /*
      * Allow instantiation from nRF5xn when required.
