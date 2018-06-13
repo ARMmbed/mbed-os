@@ -120,31 +120,33 @@ class Resources(object):
     ]
 
     def __init__(self, notify, collect_ignores=False):
-        self.notify = notify
-        self.collect_ignores = collect_ignores
-        self._file_refs = defaultdict(list)
-        self._label_paths = []
-        self._win_to_unix = False
-
-
+        # publicly accessible things
         self.ignored_dirs = []
 
-        self.labels = {
-            "TARGET": [],
-            "TOOLCHAIN": [],
-            "FEATURE": []
-        }
-
         # Pre-mbed 2.0 ignore dirs
-        self.legacy_ignore_dirs = (LEGACY_IGNORE_DIRS)
+        self._legacy_ignore_dirs = (LEGACY_IGNORE_DIRS)
 
-        # Ignore patterns from .mbedignore files
-        self.ignore_patterns = []
+        # Primate parameters
+        self._notify = notify
+        self._collect_ignores = collect_ignores
+
+        # Storage for file references, indexed by file type
+        self._file_refs = defaultdict(list)
+
+        # Incremental scan related
+        self._label_paths = []
+        self._labels = {"TARGET": [], "TOOLCHAIN": [], "FEATURE": []}
+
+        # Should we convert all paths to unix-style?
+        self._win_to_unix = False
+
+        # Ignore patterns from .mbedignore files and add_ignore_patters
+        self._ignore_patterns = []
         self._ignore_regex = re.compile("$^")
 
 
     def ignore_dir(self, directory):
-        if self.collect_ignores:
+        if self._collect_ignores:
             self.ignored_dirs.append(directory)
 
     def _collect_duplicates(self, dupe_dict, dupe_headers):
@@ -167,13 +169,13 @@ class Resources(object):
         for objname, filenames in dupe_dict.items():
             if len(filenames) > 1:
                 count+=1
-                self.notify.tool_error(
+                self._notify.tool_error(
                     "Object file %s.o is not unique! It could be made from: %s"\
                     % (objname, " ".join(filenames)))
         for headername, locations in dupe_headers.items():
             if len(locations) > 1:
                 count+=1
-                self.notify.tool_error(
+                self._notify.tool_error(
                     "Header file %s is not unique! It could be: %s" %\
                     (headername, " ".join(locations)))
         return count
@@ -213,8 +215,7 @@ class Resources(object):
 
 
     def _add_labels(self, prefix, labels):
-        self.labels.setdefault(prefix, [])
-        self.labels[prefix].extend(labels)
+        self._labels[prefix].extend(labels)
         prefixed_labels = set("%s_%s" % (prefix, label) for label in labels)
         for path, base_path, into_path in self._label_paths:
             if basename(path) in prefixed_labels:
@@ -231,7 +232,7 @@ class Resources(object):
     def add_toolchain_labels(self, toolchain):
         for prefix, value in toolchain.get_labels().items():
             self._add_labels(prefix, value)
-        self.legacy_ignore_dirs -= set(
+        self._legacy_ignore_dirs -= set(
             [toolchain.target.name, LEGACY_TOOLCHAIN_NAMES[toolchain.name]])
 
     def is_ignored(self, file_path):
@@ -248,15 +249,17 @@ class Resources(object):
         """
         real_base = relpath(root, base_path)
         if real_base == ".":
-            self.ignore_patterns.extend(normcase(p) for p in patterns)
+            self._ignore_patterns.extend(normcase(p) for p in patterns)
         else:
-            self.ignore_patterns.extend(normcase(join(real_base, pat)) for pat in patterns)
-        if self.ignore_patterns:
-            self._ignore_regex = re.compile("|".join(fnmatch.translate(p) for p in self.ignore_patterns))
+            self._ignore_patterns.extend(
+                normcase(join(real_base, pat)) for pat in patterns)
+        if self._ignore_patterns:
+            self._ignore_regex = re.compile("|".join(
+                fnmatch.translate(p) for p in self._ignore_patterns))
 
     def _not_current_label(self, dirname, label_type):
         return (dirname.startswith(label_type + "_") and
-                dirname[len(label_type) + 1:] not in self.labels[label_type])
+                dirname[len(label_type) + 1:] not in self._labels[label_type])
 
     def add_file_ref(self, file_type, file_name, file_path):
         if self._win_to_unix:
@@ -351,13 +354,13 @@ class Resources(object):
                     directory within a project instead of using their actual path
         exclude_paths - A list of paths that are to be excluded from a build
         """
-        self.notify.progress("scan", abspath(path))
+        self._notify.progress("scan", abspath(path))
 
         if base_path is None:
             base_path = path
         if into_path is None:
             into_path = path
-        if self.collect_ignores and path in self.ignored_dirs:
+        if self._collect_ignores and path in self.ignored_dirs:
             self.ignored_dirs.remove(path)
         if exclude_paths:
             self.add_ignore_patterns(
@@ -389,7 +392,7 @@ class Resources(object):
                     self._label_paths.append((dir_path, base_path, into_path))
                     self.ignore_dir(dir_path)
                     dirs.remove(d)
-                elif (d.startswith('.') or d in self.legacy_ignore_dirs or
+                elif (d.startswith('.') or d in self._legacy_ignore_dirs or
                       self.is_ignored(join(root_path, d, ""))):
                     self.ignore_dir(dir_path)
                     dirs.remove(d)
@@ -474,7 +477,7 @@ class Resources(object):
         if dependencies_paths is not None:
             toolchain.progress("dep", dependencies_paths)
             for dep in dependencies_paths:
-                lib_self = self.__class__(self.notify, self.collect_ignores)\
+                lib_self = self.__class__(self._notify, self._collect_ignores)\
                                .scan_with_toolchain([dep], toolchain)
                 self.inc_dirs.extend(lib_self.inc_dirs)
 
