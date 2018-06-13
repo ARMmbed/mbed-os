@@ -124,6 +124,7 @@ class Resources(object):
         self.collect_ignores = collect_ignores
         self._file_refs = defaultdict(list)
         self._label_paths = []
+        self._win_to_unix = False
 
 
         self.ignored_dirs = []
@@ -142,31 +143,9 @@ class Resources(object):
         self._ignore_regex = re.compile("$^")
 
 
-    def __add__(self, resources):
-        if resources is None:
-            return self
-        else:
-            return self.add(resources)
-
-    def __radd__(self, resources):
-        if resources is None:
-            return self
-        else:
-            return self.add(resources)
-
     def ignore_dir(self, directory):
         if self.collect_ignores:
             self.ignored_dirs.append(directory)
-
-    def add(self, resources):
-        for file_type in self.ALL_FILE_TYPES:
-            self._file_refs[file_type].extend(resources._file_refs[file_type])
-        self.lib_dirs |= resources.lib_dirs
-
-        self.ignored_dirs += resources.ignored_dirs
-        self._label_paths += resources._label_paths
-
-        return self
 
     def _collect_duplicates(self, dupe_dict, dupe_headers):
         for filename in self.s_sources + self.c_sources + self.cpp_sources:
@@ -199,13 +178,8 @@ class Resources(object):
                     (headername, " ".join(locations)))
         return count
 
-    def relative_to(self, base, dot=False):
-        for file_type in self.ALL_FILE_TYPES:
-            v = [f._replace(name=rel_path(f, base, dot)) for
-                 f in self.get_file_refs(file_type)]
-            self._file_refs[file_type] = v
-
     def win_to_unix(self):
+        self._win_to_unix = True
         for file_type in self.ALL_FILE_TYPES:
             v = [f._replace(name=f.replace('\\', '/')) for
                  f in self.get_file_refs(file_type)]
@@ -285,7 +259,10 @@ class Resources(object):
                 dirname[len(label_type) + 1:] not in self.labels[label_type])
 
     def add_file_ref(self, file_type, file_name, file_path):
-        ref = FileRef(file_name, file_path)
+        if self._win_to_unix:
+            ref = FileRef(file_name.replace("\\", "/"), file_path)
+        else:
+            ref = FileRef(file_name, file_path)
         self._file_refs[file_type].append(ref)
 
     def get_file_refs(self, file_type):
@@ -296,7 +273,8 @@ class Resources(object):
         return [f.name for f in self.get_file_refs(file_type)]
 
     def add_files_to_type(self, file_type, files):
-        self._file_refs[file_type].extend(FileRef(f, f) for f in files)
+        for f in files:
+            self.add_file_ref(file_type, f, f)
 
     @property
     def inc_dirs(self):
