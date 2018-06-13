@@ -631,12 +631,15 @@ class mbedToolchain:
         objects = sorted(set(r.objects))
         config_file = ([self.config.app_config_location]
                        if self.config.app_config_location else [])
-        dependencies = objects + r.libraries + [r.linker_script] + config_file
+        linker_script = [path for _, path in r.get_file_refs(FileType.LD_SCRIPT)
+                         if path.endswith(self.LINKER_EXT)][-1]
+        lib_dirs = [path for _, path in r.get_file_refs(FileType.LIB_DIR)]
+        dependencies = objects + r.libraries + [linker_script] + config_file
         dependencies.append(join(self.build_dir, self.PROFILE_FILE_NAME + "-ld"))
         if self.need_update(elf, dependencies):
             needed_update = True
             self.progress("link", name)
-            self.link(elf, objects, r.libraries, r.lib_dirs, r.linker_script)
+            self.link(elf, objects, r.libraries, lib_dirs, linker_script)
 
         if bin and self.need_update(bin, [elf]):
             needed_update = True
