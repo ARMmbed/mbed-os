@@ -134,7 +134,7 @@ public:
     virtual void processEvents();
 
 public:
-    static nRF5xn& Instance(BLE::InstanceID_t instanceId);
+    static nRF5xn& Instance(BLE::InstanceID_t instanceId = BLE::DEFAULT_INSTANCE);
 
 private:
     bool              initialized;
