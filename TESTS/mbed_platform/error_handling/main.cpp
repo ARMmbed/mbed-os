@@ -124,7 +124,7 @@ void test_error_context_capture()
     mbed_error_status_t status = mbed_get_last_error_info( &error_ctx );
     TEST_ASSERT(status == MBED_SUCCESS);
     TEST_ASSERT_EQUAL_UINT(error_value, error_ctx.error_value);
-    TEST_ASSERT_EQUAL_UINT(osThreadGetId(), error_ctx.thread_id);
+    TEST_ASSERT_EQUAL_UINT((uint32_t)osThreadGetId(), error_ctx.thread_id);
     
     //Capture thread info and compare
     osRtxThread_t *current_thread = osRtxInfo.thread.run.curr;
