@@ -525,7 +525,7 @@ def build_project(src_paths, build_path, target, toolchain_name,
 
         # Change linker script if specified
         if linker_script is not None:
-            resources.linker_script = linker_script
+            resources.add_file_ref(linker_script, linker_script)
 
         # Compile Sources
         objects = toolchain.compile_sources(resources, resources.inc_dirs)
