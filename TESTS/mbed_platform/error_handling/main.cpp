@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-#if MBED_CONF_RTOS_PRESENT
-
 #include "greentea-client/test_env.h"
 #include "utest/utest.h"
 #include "unity/unity.h"
@@ -349,15 +347,19 @@ utest::v1::status_t test_setup(const size_t number_of_cases)
 Case cases[] = {
     Case("Test error counting and reset", test_error_count_and_reset),
     Case("Test error encoding, value capture, first and last errors", test_error_capturing),
+#if MBED_CONF_RTOS_PRESENT
     Case("Test error context capture", test_error_context_capture),
+#endif //MBED_CONF_RTOS_PRESENT
     Case("Test error hook", test_error_hook),
 #ifndef MBED_CONF_ERROR_HIST_DISABLED    
     Case("Test error logging", test_error_logging),
+#if MBED_CONF_RTOS_PRESENT
     Case("Test error handling multi-threaded", test_error_logging_multithread),
+#endif //MBED_CONF_RTOS_PRESENT
 #ifdef MBED_TEST_SIM_BLOCKDEVICE    
     Case("Test error save log", test_save_error_log),
-#endif    
-#endif    
+#endif //MBED_TEST_SIM_BLOCKDEVICE
+#endif //MBED_CONF_ERROR_HIST_DISABLED
 };
 
 utest::v1::Specification specification(test_setup, cases);
@@ -366,5 +368,3 @@ int main()
 {
     return !utest::v1::Harness::run(specification);
 }
-
-#endif //MBED_CONF_RTOS_PRESENT
