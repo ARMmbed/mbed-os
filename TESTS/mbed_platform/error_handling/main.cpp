@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#if MBED_CONF_RTOS_PRESENT
+
 #include "greentea-client/test_env.h"
 #include "utest/utest.h"
 #include "unity/unity.h"
@@ -363,3 +366,5 @@ int main()
 {
     return !utest::v1::Harness::run(specification);
 }
+
+#endif //MBED_CONF_RTOS_PRESENT
