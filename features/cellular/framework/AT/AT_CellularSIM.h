@@ -28,8 +28,7 @@ namespace mbed {
  *
  *  Class for SIM card handling.
  */
-class AT_CellularSIM : public CellularSIM, public AT_CellularBase
-{
+class AT_CellularSIM : public CellularSIM, public AT_CellularBase {
 
 public:
     AT_CellularSIM(ATHandler &atHandler);
@@ -44,7 +43,9 @@ public:
 
     virtual nsapi_error_t get_sim_state(SimState &state);
 
-    virtual nsapi_error_t get_imsi(char* imsi);
+    virtual nsapi_error_t get_imsi(char *imsi);
+
+    virtual nsapi_error_t get_iccid(char *buf, size_t buf_size);
 };
 
 } // namespace mbed

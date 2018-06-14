@@ -18,19 +18,21 @@
 #ifndef CELLULAR_SIM_H_
 #define CELLULAR_SIM_H_
 
+#include <stddef.h>
+
 #include "nsapi_types.h"
 
 namespace mbed {
 
 const int MAX_SIM_READY_WAITING_TIME = 30;
 const int MAX_IMSI_LENGTH = 15;
+const int MAX_ICCID_LENGTH = 20 + 1; // +1 for zero termination
 /**
  *  Class CellularSIM
  *
  *  An abstract interface for SIM card handling.
  */
-class CellularSIM
-{
+class CellularSIM {
 protected:
     // friend of CellularDevice so that it's the only way to close/delete this class.
     friend class CellularDevice;
@@ -84,7 +86,15 @@ public:
      *  @param imsi     preallocated char* which after successful request contains imsi
      *  @return         zero on success
      */
-    virtual nsapi_error_t get_imsi(char* imsi) = 0;
+    virtual nsapi_error_t get_imsi(char *imsi) = 0;
+
+    /** Get serial number from the SIM card
+     *
+     *  @param buf      SIM ICCID as zero terminated string
+     *  @param buf_size max length of SIM ICCID is MAX_ICCID_LENGTH
+     *  @return         zero on success, on failure negative error code
+     */
+    virtual nsapi_error_t get_iccid(char *buf, size_t buf_size) = 0;
 };
 
 } // namespace mbed
