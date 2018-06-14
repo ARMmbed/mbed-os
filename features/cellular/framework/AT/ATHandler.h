@@ -175,6 +175,13 @@ public:
      */
     void set_file_handle(FileHandle *fh);
 
+    /** Set is file handle usable. Some situations like after going to data mode, file handle is not usable anymore.
+     *  Any items in queue are not to be processed.
+     *
+     *  @param usable true for usable filehandle
+     */
+    void set_is_filehandle_usable(bool usable);
+
 protected:
     void event();
 #ifdef AT_HANDLER_MUTEX
@@ -209,6 +216,7 @@ private:
 
     bool _processing;
     int32_t _ref_count;
+    bool _is_fh_usable;
 
     //*************************************
 public:
