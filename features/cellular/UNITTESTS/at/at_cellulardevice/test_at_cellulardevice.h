@@ -47,6 +47,12 @@ public:
     void test_AT_CellularDevice_close_sim();
 
     void test_AT_CellularDevice_close_information();
+
+    void test_AT_CellularDevice_set_timeout();
+
+    void test_AT_CellularDevice_modem_debug_on();
+
+    void test_AT_CellularDevice_get_stack();
 };
 
 #endif // TEST_AT_CELLULARDEVICE_H
