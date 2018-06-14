@@ -89,6 +89,7 @@ uint8_t ep1_buffer[2][MAX_PACKET_SIZE_EP1];
 uint8_t ep2_buffer[2][MAX_PACKET_SIZE_EP2];
 uint8_t ep3_buffer[2][MAX_PACKET_SIZE_EP3];
 
+static bool setup_suspend = false;
 static uint8_t set_addr = 0;
 static uint8_t addr = 0;
 static ctrl_xfer_t ctrl_xfer = CTRL_XFER_READY;
@@ -317,6 +318,12 @@ void USBPhyHw::ep0_read(uint8_t *data, uint32_t size)
     } else {
         endpoint_read(EP0OUT, data, size);
     }
+
+    // Clear suspend after the setup stage
+    if (setup_suspend) {
+        USB0->CTL &= ~USB_CTL_TXSUSPENDTOKENBUSY_MASK;
+        setup_suspend = false;
+    }
 }
 
 uint32_t USBPhyHw::ep0_read_result()
@@ -336,6 +343,12 @@ void USBPhyHw::ep0_write(uint8_t *buffer, uint32_t size)
         ctrl_xfer = CTRL_XFER_READY;
      }
     endpoint_write(EP0IN, buffer, size);
+
+    // Clear suspend after the setup stage
+    if (setup_suspend) {
+        USB0->CTL &= ~USB_CTL_TXSUSPENDTOKENBUSY_MASK;
+        setup_suspend = false;
+    }
 }
 
 void USBPhyHw::ep0_stall()
@@ -345,6 +358,13 @@ void USBPhyHw::ep0_stall()
         return;
     }
     ctrl_xfer = CTRL_XFER_READY;
+
+    // Clear suspend after the setup stage
+    if (setup_suspend) {
+        USB0->CTL &= ~USB_CTL_TXSUSPENDTOKENBUSY_MASK;
+        setup_suspend = false;
+    }
+
     core_util_critical_section_enter();
     endpoint_stall(EP0OUT);
     // Prepare for next setup packet
@@ -503,7 +523,6 @@ bool USBPhyHw::endpoint_read_result_core(usb_ep_t endpoint, uint8_t *data, uint3
         }
     }
 
-    USB0->CTL &= ~USB_CTL_TXSUSPENDTOKENBUSY_MASK;
     *bytes_read = sz;
 
     epComplete &= ~EP(DESC_TO_PHY(endpoint));
@@ -564,6 +583,7 @@ void USBPhyHw::process()
         }
 
         // enable control endpoint
+        setup_suspend = false;
         endpoint_add(EP0OUT, MAX_PACKET_SIZE_EP0, USB_EP_TYPE_CTRL);
         endpoint_add(EP0IN, MAX_PACKET_SIZE_EP0, USB_EP_TYPE_CTRL);
 
@@ -608,7 +628,7 @@ void USBPhyHw::process()
     }
 
     // token interrupt
-    if (istat & 1<<3) {
+    if (istat & USB_ISTAT_TOKDNE_MASK) {
         uint32_t num  = (USB0->STAT >> 4) & 0x0F;
         uint32_t dir  = (USB0->STAT >> 3) & 0x01;
         uint32_t ev_odd = (USB0->STAT >> 2) & 0x01;
@@ -616,6 +636,7 @@ void USBPhyHw::process()
 
         // setup packet
         if ((num == 0) && (TOK_PID((EP_BDT_IDX(num, dir, ev_odd))) == SETUP_TOKEN)) {
+            setup_suspend = true;
             Data1 |= 0x02 | 0x01; // set DATA1 for TX and RX
             bdt[EP_BDT_IDX(0, TX, EVEN)].info &= ~BD_OWN_MASK;
             bdt[EP_BDT_IDX(0, TX, ODD)].info  &= ~BD_OWN_MASK;
@@ -663,6 +684,16 @@ void USBPhyHw::process()
     if (istat & USB_ISTAT_ERROR_MASK) {
         USB0->ERRSTAT = 0xFF;
         USB0->ISTAT = USB_ISTAT_ERROR_MASK;
+    }
+
+    // Check if the suspend condition should be removed here
+    // 1. Don't attempt to clear USB_CTL_TXSUSPENDTOKENBUSY_MASK if it isn't set. This
+    //      is to avoid potential race conditions.
+    // 2. If a setup packet is being processed then remove suspend on the next control transfer rather than here
+    // 3. Process all pending packets before removing suspend
+    bool suspended = (USB0->CTL & USB_CTL_TXSUSPENDTOKENBUSY_MASK) != 0;
+    if (suspended && !setup_suspend && ((USB0->ISTAT & USB_ISTAT_TOKDNE_MASK) == 0)) {
+        USB0->CTL &= ~USB_CTL_TXSUSPENDTOKENBUSY_MASK;
     }
 
     NVIC_ClearPendingIRQ(USB0_IRQn);
