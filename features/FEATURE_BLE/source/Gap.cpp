@@ -296,8 +296,14 @@ void Gap::processConnectionEvent(
     const uint8_t *localResolvableAddr
 ) {
     /* Update Gap state */
-    state.advertising = 0;
-    state.connected   = 1;
+    if (role == PERIPHERAL) {
+        state.advertising = 0;
+    } else {
+        MBED_ASSERT(role == CENTRAL);
+        stopRadioScan();
+        state.scanning = 0;
+    }
+    state.connected = 1;
     ++connectionCount;
 
     ConnectionCallbackParams_t callbackParams(
