@@ -411,11 +411,23 @@ void USBPhyHw::endpoint_remove(usb_ep_t endpoint)
 
 void USBPhyHw::endpoint_stall(usb_ep_t endpoint)
 {
-    USB0->ENDPOINT[DESC_TO_LOG(endpoint)].ENDPT |= USB_ENDPT_EPSTALL_MASK;
+    if (DESC_TO_LOG(endpoint) == 0) {
+        USB0->ENDPOINT[DESC_TO_LOG(endpoint)].ENDPT |= USB_ENDPT_EPSTALL_MASK;
+    } else {
+        uint8_t dir = DESC_EP_IN(endpoint) ? TX : RX;
+        uint32_t idx = EP_BDT_IDX(DESC_TO_LOG(endpoint), dir, 0);
+        bdt[idx].info |= BD_OWN_MASK | BD_STALL_MASK;
+    }
 }
 
 void USBPhyHw::endpoint_unstall(usb_ep_t endpoint)
 {
+
+    if (DESC_TO_LOG(endpoint) != 0) {
+        uint8_t dir = DESC_EP_IN(endpoint) ? TX : RX;
+        uint32_t idx = EP_BDT_IDX(DESC_TO_LOG(endpoint), dir, 0);
+        bdt[idx].info &= ~(BD_OWN_MASK | BD_STALL_MASK);
+    }
     USB0->ENDPOINT[DESC_TO_LOG(endpoint)].ENDPT &= ~USB_ENDPT_EPSTALL_MASK;
 }
 
