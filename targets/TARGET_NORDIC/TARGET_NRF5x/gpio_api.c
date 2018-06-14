@@ -129,8 +129,18 @@ static void gpio_apply_config(uint8_t pin)
             cfg.hi_accuracy = false;
             cfg.is_watcher = false;
             cfg.sense = NRF_GPIOTE_POLARITY_TOGGLE;
+            switch(m_gpio_cfg[pin].pull) {
+                case PullUp:
+                    cfg.pull = NRF_GPIO_PIN_PULLUP;
+                break;
+                case PullDown:
+                    cfg.pull = NRF_GPIO_PIN_PULLDOWN;
+                break;
+                default:
+                    cfg.pull = NRF_GPIO_PIN_NOPULL;
+                break;
+            }
             if (m_gpio_cfg[pin].used_as_irq) {
-                cfg.pull = NRF_GPIO_PIN_PULLUP;
                 nrf_drv_gpiote_in_init(pin, &cfg, gpiote_irq_handler);
                 if ((m_gpio_irq_enabled & ((gpio_mask_t)1 << pin))
                     && (m_gpio_cfg[pin].irq_rise || m_gpio_cfg[pin].irq_fall))
@@ -139,17 +149,6 @@ static void gpio_apply_config(uint8_t pin)
                 }
             }
             else {
-                switch(m_gpio_cfg[pin].pull) {
-                    case PullUp:
-                        cfg.pull = NRF_GPIO_PIN_PULLUP;
-                    break;
-                    case PullDown:
-                        cfg.pull = NRF_GPIO_PIN_PULLDOWN;
-                    break;
-                    default:
-                        cfg.pull = NRF_GPIO_PIN_NOPULL;
-                    break;
-                }
                 nrf_gpio_cfg_input(pin,cfg.pull);
             }
         }
