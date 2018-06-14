@@ -110,11 +110,10 @@ public:
     /** Receive a data from a socket
      *
      *  Receives a data and stores the source address in address if address
-     *  is not NULL. Returns the number of bytes written into the buffer. If the
-     *  datagram is larger than the buffer, the excess data is silently discarded.
+     *  is not NULL. Returns the number of bytes written into the buffer.
      *
      *  By default, recvfrom blocks until a datagram is received. If socket is set to
-     *  non-blocking or times out with no datagram, NSAPI_ERROR_WOULD_BLOCK
+     *  non-blocking or times out with no data, NSAPI_ERROR_WOULD_BLOCK
      *  is returned.
      *
      *  @param address  Destination for the source address or NULL
@@ -213,6 +212,32 @@ public:
      *  @return         0 on success, negative error code on failure
      */
     virtual nsapi_error_t getsockopt(int level, int optname, void *optval, unsigned *optlen) = 0;
+
+    /** Accepts a connection on a socket.
+     *
+     *  The server socket must be bound and set to listen for connections.
+     *  On a new connection, returns connected network socket which user is expected to call close()
+     *  and that deallocates the resources. Referencing a returned pointer after a close()
+     *  call is not allowed and leads to undefined behaviour.
+     *
+     *  By default, accept blocks until incomming connection occurs. If socket is set to
+     *  non-blocking or times out, error is set to NSAPI_ERROR_WOULD_BLOCK.
+     *
+     *  @param error      pointer to storage of the error value or NULL
+     *  @return           pointer to a socket
+     */
+    virtual Socket *accept(nsapi_error_t *error = NULL) = 0;
+
+    /** Listen for incoming connections.
+     *
+     *  Marks the socket as a passive socket that can be used to accept
+     *  incoming connections.
+     *
+     *  @param backlog  Number of pending connections that can be queued
+     *                  simultaneously, defaults to 1
+     *  @return         0 on success, negative error code on failure
+     */
+    virtual nsapi_error_t listen(int backlog = 1) = 0;
 };
 
 

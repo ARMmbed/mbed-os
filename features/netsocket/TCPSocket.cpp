@@ -18,12 +18,7 @@
 #include "Timer.h"
 #include "mbed_assert.h"
 
-#define READ_FLAG           0x1u
-#define WRITE_FLAG          0x2u
-
 TCPSocket::TCPSocket()
-    : _pending(0), _event_flag(),
-      _read_in_progress(false), _write_in_progress(false)
 {
 }
 
@@ -45,8 +40,8 @@ nsapi_error_t TCPSocket::connect(const SocketAddress &address)
     // If this assert is hit then there are two threads
     // performing a send at the same time which is undefined
     // behavior
-    MBED_ASSERT(!_write_in_progress);
-    _write_in_progress = true;
+    MBED_ASSERT(_writers == 0);
+    _writers++;
 
     bool blocking_connect_in_progress = false;
 
@@ -77,7 +72,10 @@ nsapi_error_t TCPSocket::connect(const SocketAddress &address)
         }
     }
 
-    _write_in_progress = false;
+    _writers--;
+    if (!_socket) {
+        _event_flag.set(FINISHED_FLAG);
+    }
 
     /* Non-blocking connect gives "EISCONN" once done - convert to OK for blocking mode if we became connected during this call */
     if (ret == NSAPI_ERROR_IS_CONNECTED && blocking_connect_in_progress) {
@@ -116,8 +114,8 @@ nsapi_size_or_error_t TCPSocket::send(const void *data, nsapi_size_t size)
     // If this assert is hit then there are two threads
     // performing a send at the same time which is undefined
     // behavior
-    MBED_ASSERT(!_write_in_progress);
-    _write_in_progress = true;
+    MBED_ASSERT(_writers == 0);
+    _writers++;
 
     // Unlike recv, we should write the whole thing if blocking. POSIX only
     // allows partial as a side-effect of signal handling; it normally tries to
@@ -156,7 +154,11 @@ nsapi_size_or_error_t TCPSocket::send(const void *data, nsapi_size_t size)
         }
     }
 
-    _write_in_progress = false;
+    _writers--;
+    if (!_socket) {
+        _event_flag.set(FINISHED_FLAG);
+    }
+
     _lock.unlock();
     if (ret <= 0 && ret != NSAPI_ERROR_WOULD_BLOCK) {
         return ret;
@@ -181,8 +183,8 @@ nsapi_size_or_error_t TCPSocket::recv(void *data, nsapi_size_t size)
     // If this assert is hit then there are two threads
     // performing a recv at the same time which is undefined
     // behavior
-    MBED_ASSERT(!_read_in_progress);
-    _read_in_progress = true;
+    MBED_ASSERT(_readers == 0);
+    _readers++;
 
     while (true) {
         if (!_socket) {
@@ -211,7 +213,11 @@ nsapi_size_or_error_t TCPSocket::recv(void *data, nsapi_size_t size)
         }
     }
 
-    _read_in_progress = false;
+    _readers--;
+    if (!_socket) {
+        _event_flag.set(FINISHED_FLAG);
+    }
+
     _lock.unlock();
     return ret;
 }
@@ -224,12 +230,74 @@ nsapi_size_or_error_t TCPSocket::recvfrom(SocketAddress *address, void *data, ns
     return recv(data, size);
 }
 
-void TCPSocket::event()
+nsapi_error_t TCPSocket::listen(int backlog)
 {
-    _event_flag.set(READ_FLAG|WRITE_FLAG);
+    _lock.lock();
+    nsapi_error_t ret;
 
-    _pending += 1;
-    if (_callback && _pending == 1) {
-        _callback();
+    if (!_socket) {
+        ret = NSAPI_ERROR_NO_SOCKET;
+    } else {
+        ret = _stack->socket_listen(_socket, backlog);
     }
+
+    _lock.unlock();
+    return ret;
+}
+
+TCPSocket *TCPSocket::accept(nsapi_error_t *error)
+{
+    _lock.lock();
+    TCPSocket *connection = NULL;
+
+    _readers++;
+
+    while (true) {
+        if (!_socket) {
+            *error = NSAPI_ERROR_NO_SOCKET;
+            break;
+        }
+
+        _pending = 0;
+        void *socket;
+        SocketAddress address;
+        *error = _stack->socket_accept(_socket, &socket, &address);
+
+        if (0 == *error) {
+            TCPSocket *connection = new TCPSocket();
+            connection->_lock.lock();
+            connection->_factory_allocated = true; // Destroy automatically on close()
+            connection->_remote_peer = address;
+            connection->_stack = _stack;
+            connection->_socket = socket;
+            connection->_event = mbed::Callback<void()>(connection, &TCPSocket::event);
+            _stack->socket_attach(socket, &mbed::Callback<void()>::thunk, &connection->_event);
+
+            connection->_lock.unlock();
+            break;
+        } else if ((_timeout == 0) || (*error != NSAPI_ERROR_WOULD_BLOCK)) {
+            break;
+        } else {
+            uint32_t flag;
+
+            // Release lock before blocking so other threads
+            // accessing this object aren't blocked
+            _lock.unlock();
+            flag = _event_flag.wait_any(READ_FLAG, _timeout);
+            _lock.lock();
+
+            if (flag & osFlagsError) {
+                // Timeout break
+                *error = NSAPI_ERROR_WOULD_BLOCK;
+                break;
+            }
+        }
+    }
+
+    _readers--;
+    if (!_socket) {
+        _event_flag.set(FINISHED_FLAG);
+    }
+    _lock.unlock();
+    return connection;
 }

@@ -18,12 +18,7 @@
 #include "Timer.h"
 #include "mbed_assert.h"
 
-#define TCP_EVENT           "UDP_Events"
-#define READ_FLAG           0x1u
-#define WRITE_FLAG          0x2u
-
 UDPSocket::UDPSocket()
-    : _pending(0), _event_flag()
 {
 }
 
@@ -64,6 +59,8 @@ nsapi_size_or_error_t UDPSocket::sendto(const SocketAddress &address, const void
     _lock.lock();
     nsapi_size_or_error_t ret;
 
+    _writers++;
+
     while (true) {
         if (!_socket) {
             ret = NSAPI_ERROR_NO_SOCKET;
@@ -92,6 +89,10 @@ nsapi_size_or_error_t UDPSocket::sendto(const SocketAddress &address, const void
         }
     }
 
+    _writers--;
+    if (!_socket || !_writers) {
+         _event_flag.set(FINISHED_FLAG);
+    }
     _lock.unlock();
     return ret;
 }
@@ -107,6 +108,13 @@ nsapi_size_or_error_t UDPSocket::recvfrom(SocketAddress *address, void *buffer, 
 {
     _lock.lock();
     nsapi_size_or_error_t ret;
+    SocketAddress ignored;
+
+    if (!address) {
+        address = &ignored;
+    }
+
+    _readers++;
 
     while (true) {
         if (!_socket) {
@@ -136,22 +144,29 @@ nsapi_size_or_error_t UDPSocket::recvfrom(SocketAddress *address, void *buffer, 
         }
     }
 
+    _readers--;
+    if (!_socket || !_readers) {
+         _event_flag.set(FINISHED_FLAG);
+    }
+
     _lock.unlock();
     return ret;
 }
 
 nsapi_size_or_error_t UDPSocket::recv(void *buffer, nsapi_size_t size)
 {
-    SocketAddress ignored; // Dangerous, I'm spending ~50 bytes from stack for address space that I'll ignore.
-    return recvfrom(&ignored, buffer, size);
+    return recvfrom(NULL, buffer, size);
 }
 
-void UDPSocket::event()
+Socket *UDPSocket::accept(nsapi_error_t *error)
 {
-    _event_flag.set(READ_FLAG|WRITE_FLAG);
-
-    _pending += 1;
-    if (_callback && _pending == 1) {
-        _callback();
+    if (error) {
+        *error = NSAPI_ERROR_UNSUPPORTED;
     }
+    return NULL;
+}
+
+nsapi_error_t UDPSocket::listen(int)
+{
+    return NSAPI_ERROR_UNSUPPORTED;
 }

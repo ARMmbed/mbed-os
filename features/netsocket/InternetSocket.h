@@ -23,6 +23,7 @@
 #include "netsocket/Socket.h"
 #include "netsocket/NetworkStack.h"
 #include "rtos/Mutex.h"
+#include "rtos/EventFlags.h"
 #include "Callback.h"
 #include "mbed_toolchain.h"
 
@@ -217,7 +218,7 @@ public:
 protected:
     InternetSocket();
     virtual nsapi_protocol_t get_proto() = 0;
-    virtual void event() = 0;
+    virtual void event();
     int modify_multicast_group(const SocketAddress &address, nsapi_socket_option_t socketopt);
 
     NetworkStack *_stack;
@@ -225,8 +226,18 @@ protected:
     uint32_t _timeout;
     mbed::Callback<void()> _event;
     mbed::Callback<void()> _callback;
+    rtos::EventFlags _event_flag;
     rtos::Mutex _lock;
     SocketAddress _remote_peer;
+    uint8_t _readers;
+    uint8_t _writers;
+    volatile unsigned _pending;
+    bool _factory_allocated;
+
+    // Event flags
+    static const int READ_FLAG     = 0x1u;
+    static const int WRITE_FLAG    = 0x2u;
+    static const int FINISHED_FLAG = 0x3u;
 };
 
 #endif // INTERNETSOCKET_H

@@ -20,9 +20,9 @@
 using namespace mbed;
 
 InternetSocket::InternetSocket()
-    : _stack(0)
-    , _socket(0)
-    , _timeout(osWaitForever)
+    : _stack(0), _socket(0), _timeout(osWaitForever),
+      _readers(0), _writers(0), _factory_allocated(false),
+      _pending(0)
 {
 }
 
@@ -68,7 +68,19 @@ nsapi_error_t InternetSocket::close()
     // on this socket
     event();
 
+    // Wait until all readers and writers are gone
+    while (_readers || _writers) {
+        _lock.unlock();
+        _event_flag.wait_any(FINISHED_FLAG, osWaitForever);
+        _lock.lock();
+    }
+
     _lock.unlock();
+
+    // When allocated by accept() call, will self desctruct on close();
+    if (_factory_allocated) {
+        delete this;
+    }
     return ret;
 }
 
@@ -171,6 +183,15 @@ nsapi_error_t InternetSocket::getsockopt(int level, int optname, void *optval, u
     _lock.unlock();
     return ret;
 
+}
+void InternetSocket::event()
+{
+    _event_flag.set(READ_FLAG|WRITE_FLAG);
+
+    _pending += 1;
+    if (_callback && _pending == 1) {
+        _callback();
+    }
 }
 
 void InternetSocket::sigio(Callback<void()> callback)

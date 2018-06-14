@@ -45,7 +45,6 @@ public:
      */
     template <typename S>
     UDPSocket(S *stack)
-        : _pending(0), _event_flag(0)
     {
         open(stack);
     }
@@ -152,12 +151,23 @@ public:
      *                  code on failure.
      */
     virtual nsapi_size_or_error_t recv(void *data, nsapi_size_t size);
+
+    /** Not implemented for UDP
+     *
+     *  @param error      unused
+     *  @return           NSAPI_ERROR_UNSUPPORTED
+     */
+    virtual Socket *accept(nsapi_error_t *error = NULL);
+
+    /** Not implemented for UDP
+     *
+     *  @param backlog    unused
+     *  @return           NSAPI_ERROR_UNSUPPORTED
+     */
+    virtual nsapi_error_t listen(int backlog = 1);
+
 protected:
     virtual nsapi_protocol_t get_proto();
-    virtual void event();
-
-    volatile unsigned _pending;
-    rtos::EventFlags _event_flag;
 };
 
 

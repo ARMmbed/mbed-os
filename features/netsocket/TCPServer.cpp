@@ -18,7 +18,6 @@
 #include "mbed.h"
 
 TCPServer::TCPServer()
-    : _pending(0), _accept_sem(0)
 {
 }
 
@@ -27,29 +26,8 @@ TCPServer::~TCPServer()
     close();
 }
 
-nsapi_protocol_t TCPServer::get_proto()
-{
-    return NSAPI_TCP;
-}
-
-nsapi_error_t TCPServer::listen(int backlog)
-{
-    _lock.lock();
-    nsapi_error_t ret;
-
-    if (!_socket) {
-        ret = NSAPI_ERROR_NO_SOCKET;
-    } else {
-        ret = _stack->socket_listen(_socket, backlog);
-    }
-
-    _lock.unlock();
-    return ret;
-}
-
 nsapi_error_t TCPServer::accept(TCPSocket *connection, SocketAddress *address)
 {
-    _lock.lock();
     nsapi_error_t ret;
 
     while (true) {
@@ -76,19 +54,19 @@ nsapi_error_t TCPServer::accept(TCPSocket *connection, SocketAddress *address)
 
             connection->_lock.unlock();
             break;
-        } else if (NSAPI_ERROR_WOULD_BLOCK != ret) {
+        } else if ((_timeout == 0) || (ret != NSAPI_ERROR_WOULD_BLOCK)) {
             break;
         } else {
-            int32_t count;
+            uint32_t flag;
 
             // Release lock before blocking so other threads
             // accessing this object aren't blocked
             _lock.unlock();
-            count = _accept_sem.wait(_timeout);
+            flag = _event_flag.wait_any(READ_FLAG, _timeout);
             _lock.lock();
 
-            if (count < 1) {
-                // Semaphore wait timed out so break out and return
+            if (flag & osFlagsError) {
+                // Timeout break
                 ret = NSAPI_ERROR_WOULD_BLOCK;
                 break;
             }
@@ -97,42 +75,4 @@ nsapi_error_t TCPServer::accept(TCPSocket *connection, SocketAddress *address)
 
     _lock.unlock();
     return ret;
-}
-
-void TCPServer::event()
-{
-    int32_t acount = _accept_sem.wait(0);
-    if (acount <= 1) {
-        _accept_sem.release();
-    }
-
-    _pending += 1;
-    if (_callback && _pending == 1) {
-        _callback();
-    }
-}
-
-nsapi_error_t TCPServer::connect(const SocketAddress)
-{
-    return NSAPI_ERROR_UNSUPPORTED;
-}
-
-nsapi_size_or_error_t TCPServer::send(const void *, nsapi_size_t)
-{
-    return NSAPI_ERROR_UNSUPPORTED;
-}
-
-nsapi_size_or_error_t TCPServer::recv(void *, nsapi_size_t)
-{
-    return NSAPI_ERROR_UNSUPPORTED;
-}
-
-nsapi_size_or_error_t TCPServer::sendto(const SocketAddress&, const void *, nsapi_size_t)
-{
-    return NSAPI_ERROR_UNSUPPORTED;
-}
-
-nsapi_size_or_error_t TCPServer::recvfrom(SocketAddress*, void *, nsapi_size_t)
-{
-    return NSAPI_ERROR_UNSUPPORTED;
 }
