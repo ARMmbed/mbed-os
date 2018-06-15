@@ -68,7 +68,6 @@ int ExhaustibleBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_
     MBED_ASSERT(is_valid_program(addr, size));
 
     if (_erase_array[addr / get_erase_size()] == 0) {
-        // TODO possibly something more destructive here
         return 0;
     }
 
@@ -79,17 +78,25 @@ int ExhaustibleBlockDevice::erase(bd_addr_t addr, bd_size_t size)
 {
     MBED_ASSERT(is_valid_erase(addr, size));
 
-    // use an erase cycle
-    if (_erase_array[addr / get_erase_size()] > 0) {
-        _erase_array[addr / get_erase_size()] -= 1;
+    bd_size_t eu_size = get_erase_size();
+    while (size) {
+        // use an erase cycle
+        if (_erase_array[addr / eu_size] > 0) {
+            _erase_array[addr / eu_size] -= 1;
+        }
+
+        if (_erase_array[addr / eu_size] > 0) {
+            int  err = _bd->erase(addr, eu_size);
+            if (err) {
+                return err;
+            }
+        }
+
+        addr += eu_size;
+        size -= eu_size;
     }
 
-    if (_erase_array[addr / get_erase_size()] == 0) {
-        // TODO possibly something more destructive here
-        return 0;
-    }
-
-    return _bd->erase(addr, size);
+    return 0;
 }
 
 bd_size_t ExhaustibleBlockDevice::get_read_size() const
