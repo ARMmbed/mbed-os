@@ -2187,7 +2187,7 @@
         "release_versions": ["2", "5"],
         "device_name": "STM32L471QG",
         "bootloader_supported": true,
-       "features": ["IPV4"]
+        "features": ["IPV4", "NANOSTACK", "COMMON_PAL"]
     },
     "MTB_MTS_DRAGONFLY": {
         "inherits": ["FAMILY_STM32"],

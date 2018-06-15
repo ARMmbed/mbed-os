@@ -22,15 +22,15 @@ void ublox_board_init(void) {
     gpio_t gpio;
 
     // Enable power to 3V3
-    gpio_init_inout(&gpio, RADIO_PWR, PIN_OUTPUT, OpenDrain, 1);
-    gpio_init_inout(&gpio, VUSB_EN, PIN_OUTPUT, OpenDrain, 0);
+    gpio_init_inout(&gpio, RADIO_PWR, PIN_OUTPUT, PushPullNoPull, 1);
+    gpio_init_inout(&gpio, VUSB_EN, PIN_OUTPUT, OpenDrainNoPull, 0);
     
     // start with modem disabled 
     gpio_init_out_ex(&gpio, MDMRST,    0);
 #if defined(TARGET_UBLOX_C030_R410M)
     gpio_init_inout(&gpio, MDMPWRON, PIN_OUTPUT, OpenDrain, 1);
 #else
-    gpio_init_out_ex(&gpio, MDMPWRON,  0);
+    gpio_init_inout(&gpio, MDMPWRON,  PIN_OUTPUT, OpenDrainNoPull, 1);
 #endif
     gpio_init_out_ex(&gpio, MDMRTS,    0);
     //gpio_init_in_ex(&gpio,  MDMCURRENTSENSE, PullNone);
