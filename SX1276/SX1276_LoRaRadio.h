@@ -218,7 +218,7 @@ public:
      *  @param timeout       Reception timeout [ms]
      *
      */
-    virtual void receive(uint32_t timeout);
+    virtual void receive(uint32_t /**timeout**/);
 
     /**
      *  Sets the carrier frequency
@@ -375,10 +375,11 @@ private:
     // Default is 256 bytes
     uint8_t _data_buffer[MAX_DATA_BUFFER_SIZE_SX1276];
 
-    // TX/RX Timers - all use milisecond units
+    // TX timer in ms. This timer is used as a fail safe for TX.
+    // If the chip fails to transmit, its a fatal error, reflecting
+    // some catastrophic bus failure etc. We wish to have the control
+    // back from the driver in such a case.
     mbed::Timeout tx_timeout_timer;
-    mbed::Timeout rx_timeout_timer;
-    mbed::Timeout rx_timeout_sync_word;
 
 #ifdef MBED_CONF_RTOS_PRESENT
     // Thread to handle interrupts

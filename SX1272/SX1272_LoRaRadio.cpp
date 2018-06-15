@@ -306,7 +306,6 @@ void SX1272_LoRaRadio::sleep()
 {
     // stop timers
     tx_timeout_timer.detach();
-    rx_timeout_timer.detach();
 
     // put module in sleep mode
     set_operation_mode(RF_OPMODE_SLEEP);
@@ -415,8 +414,7 @@ void SX1272_LoRaRadio::set_rx_config(radio_modems_t modem, uint32_t bandwidth,
             _rf_settings.fsk.iq_inverted = iq_inverted;
             _rf_settings.fsk.rx_continuous = rx_continuous;
             _rf_settings.fsk.preamble_len = preamble_len;
-            _rf_settings.fsk.rx_single_timeout =
-                    symb_timeout * ((1.0 / (double) datarate) * 8.0) * 1e3;
+            _rf_settings.fsk.rx_single_timeout = (symb_timeout + 1) / 2; // dividing by 2 as our detector size is 2 symbols (16 bytes)
 
             datarate = (uint16_t) ((double) XTAL_FREQ / (double) datarate);
             write_to_register(REG_BITRATEMSB, (uint8_t) (datarate >> 8));
@@ -867,19 +865,13 @@ void SX1272_LoRaRadio::transmit(uint32_t timeout)
  * and finally a DIO0 interrupt let's the state machine know that a packet is
  * ready to be read from the FIFO
  */
-void SX1272_LoRaRadio::receive(uint32_t timeout)
+void SX1272_LoRaRadio::receive(uint32_t)
 {
     switch (_rf_settings.modem) {
         case MODEM_FSK:
-            if (timeout == 0 && _rf_settings.fsk.rx_continuous == false) {
-                // user messed up probably timeout was 0 but mode was not
-                // continuous, force it to be continuous
-                _rf_settings.fsk.rx_continuous = true;
-            }
-
             // DIO0=PayloadReady
             // DIO1=FifoLevel
-            // DIO2=SyncAddr
+            // DIO2=RxTimeout
             // DIO3=FifoEmpty
             // DIO4=Preamble
             // DIO5=ModeReady
@@ -889,7 +881,7 @@ void SX1272_LoRaRadio::receive(uint32_t timeout)
                               RF_DIOMAPPING1_DIO2_MASK) |
                               RF_DIOMAPPING1_DIO0_00 |
                               RF_DIOMAPPING1_DIO1_00 |
-                              RF_DIOMAPPING1_DIO2_11);
+                              RF_DIOMAPPING1_DIO2_10);
 
             write_to_register(REG_DIOMAPPING2, (read_register(REG_DIOMAPPING2) &
                               RF_DIOMAPPING2_DIO4_MASK &
@@ -904,6 +896,11 @@ void SX1272_LoRaRadio::receive(uint32_t timeout)
                               RF_RXCONFIG_AGCAUTO_ON |
                               RF_RXCONFIG_RXTRIGER_PREAMBLEDETECT);
 
+            write_to_register(REG_RXTIMEOUT2, _rf_settings.fsk.rx_single_timeout <= 255 ?
+                                              _rf_settings.fsk.rx_single_timeout : 255);
+            write_to_register(REG_RXTIMEOUT3, 0x00);
+            write_to_register(REG_RXTIMEOUT1, 0x00);
+
             _rf_settings.fsk_packet_handler.preamble_detected = 0;
             _rf_settings.fsk_packet_handler.sync_word_detected = 0;
             _rf_settings.fsk_packet_handler.nb_bytes = 0;
@@ -912,11 +909,6 @@ void SX1272_LoRaRadio::receive(uint32_t timeout)
             break;
 
         case MODEM_LORA:
-            if (timeout == 0 && _rf_settings.lora.rx_continuous == false) {
-                // user messed up probably timeout was 0 but mode was not
-                // continuous, force it to be continuous
-                _rf_settings.lora.rx_continuous = true;
-            }
 
             if (_rf_settings.lora.iq_inverted == true) {
                 write_to_register(REG_LR_INVERTIQ, ((read_register(REG_LR_INVERTIQ) &
@@ -971,21 +963,8 @@ void SX1272_LoRaRadio::receive(uint32_t timeout)
 
     _rf_settings.state = RF_RX_RUNNING;
 
-    if (timeout != 0) {
-        rx_timeout_timer.attach_us(callback(this,
-                                            &SX1272_LoRaRadio::timeout_irq_isr),
-                                            timeout*1e3);
-    }
-
     if (_rf_settings.modem == MODEM_FSK) {
         set_operation_mode(RF_OPMODE_RECEIVER);
-
-        if (_rf_settings.fsk.rx_continuous == false) {
-            rx_timeout_sync_word.attach_us(callback(this,
-                                     &SX1272_LoRaRadio::timeout_irq_isr),
-                                     _rf_settings.fsk.rx_single_timeout * 1e3);
-        }
-
         return;
     }
 
@@ -1144,8 +1123,6 @@ void SX1272_LoRaRadio::set_tx_continuous_wave(uint32_t freq, int8_t power,
 void SX1272_LoRaRadio::standby( void )
 {
     tx_timeout_timer.detach();
-    rx_timeout_timer.detach();
-
     set_operation_mode(RF_OPMODE_STANDBY);
     _rf_settings.state = RF_IDLE;
 }
@@ -1732,7 +1709,6 @@ void SX1272_LoRaRadio::handle_dio0_irq()
 
 
                             if (_rf_settings.fsk.rx_continuous == false) {
-                                rx_timeout_sync_word.detach();
                                 _rf_settings.state = RF_IDLE;
                             } else {
                                 // Continuous mode restart Rx chain
@@ -1740,8 +1716,6 @@ void SX1272_LoRaRadio::handle_dio0_irq()
                                                   read_register(REG_RXCONFIG) |
                                                   RF_RXCONFIG_RESTARTRXWITHOUTPLLLOCK);
                             }
-
-                            rx_timeout_timer.detach();
 
                             if ((_radio_events != NULL)
                                     && (_radio_events->rx_error)) {
@@ -1756,6 +1730,15 @@ void SX1272_LoRaRadio::handle_dio0_irq()
                             break;
                         }
                     }
+
+                    // This block was moved from dio2_handler.
+                    // We can have a snapshot of RSSI here as at this point it
+                    // should be more smoothed out.
+                    _rf_settings.fsk_packet_handler.rssi_value = -(read_register(REG_RSSIVALUE) >> 1);
+                    _rf_settings.fsk_packet_handler.afc_value = (int32_t)(double)(((uint16_t)read_register(REG_AFCMSB) << 8) |
+                                                                                   (uint16_t)read_register(REG_AFCLSB)) *
+                                                                                   (double)FREQ_STEP;
+                    _rf_settings.fsk_packet_handler.rx_gain = (read_register(REG_LNA) >> 5) & 0x07;
 
                     // Read received packet size
                     if ((_rf_settings.fsk_packet_handler.size == 0)
@@ -1778,14 +1761,11 @@ void SX1272_LoRaRadio::handle_dio0_irq()
 
                     if (_rf_settings.fsk.rx_continuous == false) {
                         _rf_settings.state = RF_IDLE;
-                        rx_timeout_sync_word.detach();
                     } else {
                         // Continuous mode restart Rx chain
                         write_to_register(REG_RXCONFIG, read_register(REG_RXCONFIG)
                                         | RF_RXCONFIG_RESTARTRXWITHOUTPLLLOCK);
                     }
-
-                    rx_timeout_timer.detach();
 
                     if ((_radio_events != NULL) && (_radio_events->rx_done)) {
                         _radio_events->rx_done(
@@ -1814,7 +1794,6 @@ void SX1272_LoRaRadio::handle_dio0_irq()
                         if (_rf_settings.lora.rx_continuous == false) {
                             _rf_settings.state = RF_IDLE;
                         }
-                        rx_timeout_timer.detach();
 
                         if ((_radio_events != NULL)
                                 && (_radio_events->rx_error)) {
@@ -1849,7 +1828,6 @@ void SX1272_LoRaRadio::handle_dio0_irq()
                     if (_rf_settings.lora.rx_continuous == false) {
                         _rf_settings.state = RF_IDLE;
                     }
-                    rx_timeout_timer.detach();
 
                     if ((_radio_events != NULL)
                             && (_radio_events->rx_done)) {
@@ -1923,7 +1901,6 @@ void SX1272_LoRaRadio::handle_dio1_irq()
                    break;
                case MODEM_LORA:
                    // Sync time out
-                   rx_timeout_timer.detach( );
                    _rf_settings.state = RF_IDLE;
                    if ((_radio_events != NULL) && (_radio_events->rx_timeout)) {
                         _radio_events->rx_timeout();
@@ -1969,23 +1946,33 @@ void SX1272_LoRaRadio::handle_dio2_irq(void)
             switch( _rf_settings.modem )
             {
             case MODEM_FSK:
+                _rf_settings.fsk_packet_handler.preamble_detected = 0;
+                _rf_settings.fsk_packet_handler.sync_word_detected = 0;
+                _rf_settings.fsk_packet_handler.nb_bytes = 0;
+                _rf_settings.fsk_packet_handler.size = 0;
 
-                // DIO4 must have been asserted to set preamble_detected to true
-                if( ( _rf_settings.fsk_packet_handler.preamble_detected == 1 ) && ( _rf_settings.fsk_packet_handler.sync_word_detected == 0 ) )
-                {
-                    if (_rf_settings.fsk.rx_continuous == false) {
-                        rx_timeout_sync_word.detach( );
-                    }
+                // Clear Irqs
+                write_to_register(REG_IRQFLAGS1, RF_IRQFLAGS1_RSSI |
+                                  RF_IRQFLAGS1_PREAMBLEDETECT |
+                                  RF_IRQFLAGS1_SYNCADDRESSMATCH |
+                                  RF_IRQFLAGS1_TIMEOUT);
 
-                    _rf_settings.fsk_packet_handler.sync_word_detected = 1;
+                write_to_register( REG_IRQFLAGS2, RF_IRQFLAGS2_FIFOOVERRUN);
 
-                    _rf_settings.fsk_packet_handler.rssi_value = -( read_register( REG_RSSIVALUE ) >> 1 );
-
-                    _rf_settings.fsk_packet_handler.afc_value = ( int32_t )( double )( ( ( uint16_t )read_register( REG_AFCMSB ) << 8 ) |
-                                                                           ( uint16_t )read_register( REG_AFCLSB ) ) *
-                                                                           ( double )FREQ_STEP;
-                    _rf_settings.fsk_packet_handler.rx_gain = ( read_register( REG_LNA ) >> 5 ) & 0x07;
+                if (_rf_settings.fsk.rx_continuous == true) {
+                    // Continuous mode restart Rx chain
+                    write_to_register( REG_RXCONFIG,
+                                      read_register(REG_RXCONFIG) |
+                                      RF_RXCONFIG_RESTARTRXWITHOUTPLLLOCK);
+                } else {
+                    _rf_settings.state = RF_IDLE;
                 }
+
+                if ((_radio_events != NULL)
+                        && (_radio_events->rx_timeout)) {
+                    _radio_events->rx_timeout();
+                }
+
                 break;
             case MODEM_LORA:
                 if( _rf_settings.lora.freq_hop_on == true )
@@ -2117,8 +2104,6 @@ void SX1272_LoRaRadio::handle_timeout_irq()
              else
              {
                  _rf_settings.state = RF_IDLE;
-                 rx_timeout_sync_word.attach_us(callback(this, &SX1272_LoRaRadio::timeout_irq_isr),
-                                              _rf_settings.fsk.rx_single_timeout * 1e3);
              }
          }
 
