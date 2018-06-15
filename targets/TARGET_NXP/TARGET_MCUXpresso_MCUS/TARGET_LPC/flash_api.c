@@ -61,7 +61,6 @@ int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data, 
 
     uint32_t status;
     int32_t ret = -1;
-    uint8_t buf[FSL_FEATURE_SYSCON_FLASH_PAGE_SIZE_BYTES];
 
     if (address == 0) {                              // Check for Vector Table
         n = *((unsigned long *)(data + 0)) +
@@ -74,9 +73,6 @@ int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data, 
         *((unsigned long *)(data + 7)) = 0 - n;  // Signature at Reserved Vector
     }
 
-    /* Copy into a local buffer to ensure address is word-aligned */
-    memcpy(&buf, data, FSL_FEATURE_SYSCON_FLASH_PAGE_SIZE_BYTES);
-
     /* We need to prevent flash accesses during program operation */
     core_util_critical_section_enter();
 
@@ -84,7 +80,7 @@ int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data, 
 
     status = FLASHIAP_PrepareSectorForWrite(sector_number, sector_number);
     if (status == kStatus_FLASHIAP_Success) {
-        status = FLASHIAP_CopyRamToFlash(address, (uint32_t *)&buf,
+        status = FLASHIAP_CopyRamToFlash(address, (uint32_t *)data,
                                         FSL_FEATURE_SYSCON_FLASH_PAGE_SIZE_BYTES, SystemCoreClock);
         if (status == kStatus_FLASHIAP_Success) {
             ret = 0;
