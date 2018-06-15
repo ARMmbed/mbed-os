@@ -111,11 +111,9 @@ class IAR(Exporter):
                self.resources.c_sources + self.resources.cpp_sources + \
                self.resources.objects + self.resources.libraries
         flags = self.flags
-        _, macros = self.toolchain.config.get_config_data()
-        defines = ['-D%s' % d for d in macros] if macros else [""]
         c_flags = list(set(flags['common_flags']
-                                    + flags['c_flags']
-                                    + flags['cxx_flags']))
+                           + flags['c_flags']
+                           + flags['cxx_flags']))
         # Flags set in template to be set by user in IDE
         template = ["--vla", "--no_static_destruction"]
         # Flag invalid if set in template
@@ -136,7 +134,6 @@ class IAR(Exporter):
             'device': self.iar_device(),
             'ewp': sep+self.project_name + ".ewp",
             'debugger': debugger,
-            'defines': defines
         }
         ctx.update(flags)
 
