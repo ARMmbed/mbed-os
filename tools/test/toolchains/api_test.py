@@ -16,7 +16,7 @@ from tools.toolchains import (
     TOOLCHAIN_PATHS,
     mbedToolchain,
 )
-from tools.resources import LEGACY_TOOLCHAIN_NAMES, Resources
+from tools.resources import LEGACY_TOOLCHAIN_NAMES, Resources, FileType
 from tools.targets import TARGET_MAP, set_targets_json_location
 from tools.notifier.mock import MockNotifier
 
@@ -247,9 +247,9 @@ def test_detect_duplicates(filenames):
     cpp_sources = [os.path.join(name, "dupe.cpp") for name in filenames]
     notify = MockNotifier()
     res = Resources(notify)
-    res.c_sources = c_sources
-    res.s_sources = s_sources
-    res.cpp_sources = cpp_sources
+    res.add_files_to_type(FileType.C_SRC, c_sources)
+    res.add_files_to_type(FileType.ASM_SRC, s_sources)
+    res.add_files_to_type(FileType.CPP_SRC, cpp_sources)
     assert res.detect_duplicates() == 1,\
         "Not Enough duplicates found"
 
