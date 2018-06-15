@@ -77,57 +77,6 @@ class GNUARMEclipse(Exporter):
         return apply_supported_whitelist(
             cls.TOOLCHAIN, POST_BINARY_WHITELIST, target)
 
-    # override
-    @property
-    def flags(self):
-        """Returns a dictionary of toolchain flags.
-        Keys of the dictionary are:
-        cxx_flags    - c++ flags
-        c_flags      - c flags
-        ld_flags     - linker flags
-        asm_flags    - assembler flags
-        common_flags - common options
-
-        The difference from the parent function is that it does not
-        add macro definitions, since they are passed separately.
-        """
-
-        config_header = self.toolchain.get_config_header()
-        flags = {key + "_flags": copy.deepcopy(value) for key, value
-                 in self.toolchain.flags.items()}
-        if config_header:
-            config_header = relpath(config_header,
-                                    self.resources.file_basepath[config_header])
-            flags['c_flags'] += self.toolchain.get_config_option(config_header)
-            flags['cxx_flags'] += self.toolchain.get_config_option(
-                config_header)
-        return flags
-
-    def toolchain_flags(self, toolchain):
-        """Returns a dictionary of toolchain flags.
-        Keys of the dictionary are:
-        cxx_flags    - c++ flags
-        c_flags      - c flags
-        ld_flags     - linker flags
-        asm_flags    - assembler flags
-        common_flags - common options
-
-        The difference from the above is that it takes a parameter.
-        """
-
-        # Note: use the config options from the currently selected toolchain.
-        config_header = self.toolchain.get_config_header()
-
-        flags = {key + "_flags": copy.deepcopy(value) for key, value
-                 in toolchain.flags.items()}
-        if config_header:
-            config_header = relpath(config_header,
-                                    self.resources.file_basepath[config_header])
-            header_options = self.toolchain.get_config_option(config_header)
-            flags['c_flags'] += header_options
-            flags['cxx_flags'] += header_options
-        return flags
-
     def validate_resources(self):
         if not self.resources.linker_script:
             raise NotSupportedException("No linker script found.")

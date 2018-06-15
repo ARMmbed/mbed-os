@@ -24,6 +24,7 @@ import sys
 from subprocess import check_output, CalledProcessError, Popen, PIPE
 import shutil
 from jinja2.exceptions import TemplateNotFound
+from tools.resources import FileType
 from tools.export.exporters import Exporter, apply_supported_whitelist
 from tools.utils import NotSupportedException
 from tools.targets import TARGET_MAP
@@ -237,11 +238,12 @@ class Arm(Makefile):
 
     def generate(self):
         if self.resources.linker_script:
-            sct_file = self.resources.linker_script
+            sct_file = self.resources.get_file_refs(FileType.LD_SCRIPT)[-1]
             new_script = self.toolchain.correct_scatter_shebang(
-                sct_file, join(self.resources.file_basepath[sct_file], "BUILD"))
+                sct_file.path, dirname(sct_file.name))
             if new_script is not sct_file:
-                self.resources.linker_script = new_script
+                self.resources.add_files_to_type(
+                    FileType.LD_SCRIPT, [new_script])
                 self.generated_files.append(new_script)
         return super(Arm, self).generate()
 
