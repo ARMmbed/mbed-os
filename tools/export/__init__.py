@@ -265,8 +265,8 @@ def export_project(src_paths, export_path, target, ide, libraries_paths=None,
         name = basename(normpath(abspath(src_paths[0])))
 
     resources = Resources(notify, collect_ignores=True)
+    resources.add_toolchain_labels(toolchain)
     for loc, path in src_paths.items():
-        resources.add_toolchain_labels(toolchain)
         for p in path:
             resources.add_directory(p, into_path=loc)
     toolchain.build_dir = export_path
