@@ -342,7 +342,7 @@ float USBAudio::get_volume()
 {
     lock();
 
-    float ret = _mute ? 0.0 : _volume;
+    float ret = _mute ? 0.0f : _volume;
 
     unlock();
     return ret;

@@ -41,8 +41,9 @@
 
 
 USBTester::USBTester(USBPhy *phy, uint16_t vendor_id, uint16_t product_id, uint16_t product_release):
-                        USBDevice(phy, vendor_id, product_id, product_release), reset_count(0), suspend_count(0),
-                        resume_count(0), interface_0_alt_set(NONE), interface_1_alt_set(NONE), configuration_set(NONE)
+                        USBDevice(phy, vendor_id, product_id, product_release), interface_0_alt_set(NONE),
+                        interface_1_alt_set(NONE), configuration_set(NONE), reset_count(0),
+                        suspend_count(0), resume_count(0)
 {
 
     EndpointResolver resolver(endpoint_table());
