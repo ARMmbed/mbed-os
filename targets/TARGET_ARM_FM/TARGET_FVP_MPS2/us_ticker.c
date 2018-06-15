@@ -25,9 +25,15 @@
  *  with interrupt fired counter reaches 0.
  *
  *  So 2 Timers are used to construct mbed OS HAL ticker.
+ *  
  *  TIMER1 is for counting, and returns inverted binary when read from it
- *  TIMER2 is for generate interrupts
+ *  TIMER1 will be kept in free-running mode (default, and not generate interrupts)
+ *  
+ *  TIMER2 is for generating interrupts
+ *  So TIMER2 is set to periodic mode, which start decrement counting form LOADVALUE generates interrupts at 0
+ *  and TIMER2 also set into one-shot mode, which counter halts when is reaches 0 
  */
+ 
 static int us_ticker_inited = 0;
 
 void us_ticker_init(void)
@@ -50,11 +56,9 @@ void us_ticker_init(void)
     US_TICKER_TIMER2->TimerControl |= 0x1 << CMSDK_DUALTIMER2_CTRL_PRESCALE_Pos; // set TIMER2 with 4 stages prescale
 
     US_TICKER_TIMER2->TimerControl |= CMSDK_DUALTIMER2_CTRL_MODE_Msk;     // set TIMER2 periodic mode
-
     US_TICKER_TIMER2->TimerControl |= CMSDK_DUALTIMER2_CTRL_ONESHOOT_Msk; // set TIMER2 one-shot mode
 
     US_TICKER_TIMER1->TimerControl |= CMSDK_DUALTIMER1_CTRL_EN_Msk; // enable TIMER1 counter
-    US_TICKER_TIMER2->TimerControl |= CMSDK_DUALTIMER2_CTRL_EN_Msk; // enable TIMER2 counter
 
     NVIC_SetVector(US_TICKER_TIMER_IRQn, (uint32_t)us_ticker_irq_handler);
     us_ticker_inited = 1;
@@ -76,7 +80,7 @@ uint32_t us_ticker_read()
 void us_ticker_set_interrupt(timestamp_t timestamp)
 {
     uint32_t delta =  timestamp - us_ticker_read();
-    US_TICKER_TIMER2->TimerControl  &= ~CMSDK_DUALTIMER2_CTRL_EN_Msk;  // disable TIMER2
+    US_TICKER_TIMER2->TimerControl &= ~CMSDK_DUALTIMER2_CTRL_EN_Msk;   // disable TIMER2
     US_TICKER_TIMER2->TimerLoad = delta;                               // Set TIMER2 load value
     US_TICKER_TIMER2->TimerControl |= CMSDK_DUALTIMER2_CTRL_INTEN_Msk; // enable TIMER2 interrupt
     US_TICKER_TIMER2->TimerControl |= CMSDK_DUALTIMER2_CTRL_EN_Msk;    // enable TIMER2 counter
@@ -93,6 +97,7 @@ void us_ticker_fire_interrupt(void)
 void us_ticker_disable_interrupt(void)
 {
     US_TICKER_TIMER2->TimerControl &= ~CMSDK_DUALTIMER2_CTRL_INTEN_Msk;
+    US_TICKER_TIMER2->TimerControl &= ~CMSDK_DUALTIMER2_CTRL_EN_Msk;  // disable TIMER2
     NVIC_DisableIRQ(US_TICKER_TIMER_IRQn);
 }
 
@@ -104,7 +109,7 @@ void us_ticker_clear_interrupt(void)
 const ticker_info_t *us_ticker_get_info(void)
 {
     static const ticker_info_t info = {
-        1562500,    // 4 stages prescale from 25MHz (dived by 16)
+        1562500,    // 4 stages prescaled from 25MHz (dived by 16)
         32     // 32 bit counter
     };
     return &info;
