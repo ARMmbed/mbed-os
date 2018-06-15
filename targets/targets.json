@@ -1711,6 +1711,7 @@
         "device_has_remove": ["LPTICKER"],
         "release_versions": ["5"],
         "device_name": "STM32L486RG",
+        "bootloader_supported": true,
         "OUTPUT_EXT": "hex"
     },
     "ARCH_MAX": {
