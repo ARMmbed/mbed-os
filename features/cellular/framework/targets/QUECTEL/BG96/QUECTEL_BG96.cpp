@@ -29,8 +29,14 @@ using namespace events;
 #define MAX_STARTUP_TRIALS 5
 #define MAX_RESET_TRIALS 5
 
+static const AT_CellularBase::SupportedFeature unsupported_features[] =  {
+    AT_CellularBase::AT_CGSN_WITH_TYPE,
+    AT_CellularBase::SUPPORTED_FEATURE_END_MARK
+};
+
 QUECTEL_BG96::QUECTEL_BG96(EventQueue &queue) : AT_CellularDevice(queue)
 {
+    AT_CellularBase::set_unsupported_features(unsupported_features);
 }
 
 QUECTEL_BG96::~QUECTEL_BG96()

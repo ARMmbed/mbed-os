@@ -49,6 +49,11 @@ nsapi_error_t AT_CellularInformation::get_serial_number(char *buf, size_t buf_si
     if (type == SN) {
         return get_info("AT+CGSN", buf, buf_size);
     }
+
+    if (!is_supported(AT_CGSN_WITH_TYPE)) {
+        return NSAPI_ERROR_UNSUPPORTED;
+    }
+
     _at.lock();
     _at.cmd_start("AT+CGSN=");
     _at.write_int(type);

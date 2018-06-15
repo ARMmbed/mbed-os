@@ -70,12 +70,12 @@ public:
      *  @return         zero on success, on failure negative error code
      */
     enum SerialNumberType {
-        SN = 0,
-        IMEI = 1,
-        IMEISV = 2,
-        SVN  = 3
+        SN = 0, // Serial Number
+        IMEI = 1, // International Mobile station Equipment Identity
+        IMEISV = 2, // IMEI and Software Version number
+        SVN  = 3 // Software Version Number
     };
-    virtual nsapi_size_or_error_t get_serial_number(char *buf, size_t buf_size, SerialNumberType type) = 0;
+    virtual nsapi_size_or_error_t get_serial_number(char *buf, size_t buf_size, SerialNumberType type = SN) = 0;
 };
 
 } // namespace mbed
