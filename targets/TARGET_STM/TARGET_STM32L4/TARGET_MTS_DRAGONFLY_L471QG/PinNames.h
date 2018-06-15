@@ -252,22 +252,22 @@ typedef enum {
 	LED4 = D3,
 
 	// SERIAL PORT
-    SERIAL_TX  = D1,
-    SERIAL_RX  = D0,
-    SERIAL_RTS = D6,
-    SERIAL_CTS = D3,
-    SERIAL_DCD = D4,
-    SERIAL_DSR = D5,
-    SERIAL_DTR = D7,
-    SERIAL_RI  = D8,
+	SERIAL_TX  = D1,
+	SERIAL_RX  = D0,
+	SERIAL_RTS = D6,
+	SERIAL_CTS = D3,
+	SERIAL_DCD = D4,
+	SERIAL_DSR = D5,
+	SERIAL_DTR = D7,
+	SERIAL_RI  = D8,
 
 	// SPI1 and SPI2 are available on Arduino pins
-    SPI1_MOSI = D11,
-    SPI1_MISO = D12,
-    SPI1_SCK  = D13,
-    SPI2_MOSI = D2,
-    SPI2_MISO = A0,
-    SPI2_SCK  = D9,
+	SPI1_MOSI = D11,
+	SPI1_MISO = D12,
+	SPI1_SCK  = D13,
+	SPI2_MOSI = D2,
+	SPI2_MISO = A0,
+	SPI2_SCK  = D9,
 
     // SPI3 connects to flash part
 	SPI3_MOSI = PC_12,
@@ -276,10 +276,10 @@ typedef enum {
 	SPI3_SSEL = PG_12,
 
     // I2C1 and I2C3 are available on Arduino pins
-    I2C1_SCL = D15,
-    I2C1_SDA = D14,
-    I2C3_SCL = D7,
-    I2C3_SDA = A5,
+	I2C1_SCL = D15,
+	I2C1_SDA = D14,
+	I2C3_SCL = D7,
+	I2C3_SDA = A5,
 
 	// Modem
 	RADIO_PWR   = PC_3,
@@ -310,7 +310,6 @@ typedef enum {
 	MDMDTR   = RADIO_DTR, // Data Terminal Ready
 	MDMRI    = RADIO_RI, // Ring Indicator
 
-
 	CELL_GPIO5 = PE_11,
 	CELL_GPIO2 = PE_13,
 	CELL_GPIO3 = PE_14,
@@ -325,10 +324,10 @@ typedef enum {
 	MDMRST = RADIO_RESET,
 	MDMCURRENTSENSE = (int) 0xFFFFFFFF,
 
-    // GNSS
-    GNSSEN  = (int) 0xFFFFFFFF,     // VCC_IO to GNSS, should be set to push-pull, no pull-up, output
-    GNSSTXD =(int) 0xFFFFFFFF,
-    GNSSRXD = (int) 0xFFFFFFFF,
+	// GNSS
+	GNSSEN  = (int) 0xFFFFFFFF,     // VCC_IO to GNSS, should be set to push-pull, no pull-up, output
+	GNSSTXD =(int) 0xFFFFFFFF,
+	GNSSRXD = (int) 0xFFFFFFFF,
 	PWR3V3 = (int) 0xFFFFFFFF,
 
 	WAKEUP   = D3,
