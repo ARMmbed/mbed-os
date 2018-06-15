@@ -243,7 +243,16 @@ nsapi_error_t AT_CellularNetwork::activate_context()
 {
     _at.lock();
 
-    nsapi_error_t err = set_context_to_be_activated();
+    nsapi_error_t err = NSAPI_ERROR_OK;
+
+    // try to find or create context with suitable stack
+    if(get_context()) {
+        // try to authenticate user before activating or modifying context
+        err = do_user_authentication();
+    } else {
+        err = NSAPI_ERROR_NO_CONNECTION;
+    }
+
     if (err != NSAPI_ERROR_OK) {
         _at.unlock();
         tr_error("Failed to activate network context! (%d)", err);
@@ -351,8 +360,12 @@ nsapi_error_t AT_CellularNetwork::open_data_channel()
 
     _at.resp_start("CONNECT", true);
     if (_at.get_last_error()) {
-        tr_warn("Failed to CONNECT");
+        tr_error("Failed to CONNECT");
+        return _at.get_last_error();
     }
+
+    _at.set_is_filehandle_usable(false);
+
     /* Initialize PPP
      * If blocking: mbed_ppp_init() is a blocking call, it will block until
                   connected, or timeout after 30 seconds*/
@@ -371,7 +384,14 @@ nsapi_error_t AT_CellularNetwork::open_data_channel()
 nsapi_error_t AT_CellularNetwork::disconnect()
 {
 #if NSAPI_PPP_AVAILABLE
-    return nsapi_ppp_disconnect(_at.get_file_handle());
+    nsapi_error_t err = nsapi_ppp_disconnect(_at.get_file_handle());
+    // after ppp disconnect if we wan't to use same at handler we need to set filehandle again to athandler so it
+    // will set the correct sigio and nonblocking
+    _at.lock();
+    _at.set_file_handle(_at.get_file_handle());
+    _at.set_is_filehandle_usable(true);
+    _at.unlock();
+    return err;
 #else
     _at.lock();
     _at.cmd_start("AT+CGACT=0,");
@@ -420,13 +440,8 @@ void AT_CellularNetwork::ppp_status_cb(nsapi_event_t event, intptr_t parameter)
 }
 #endif
 
-nsapi_error_t AT_CellularNetwork::set_context_to_be_activated()
+nsapi_error_t AT_CellularNetwork::do_user_authentication()
 {
-    // try to find or create context with suitable stack
-    if (!get_context()) {
-        return NSAPI_ERROR_NO_CONNECTION;
-    }
-
     // if user has defined user name and password we need to call CGAUTH before activating or modifying context
     if (_pwd && _uname) {
         _at.cmd_start("AT+CGAUTH=");
@@ -442,7 +457,7 @@ nsapi_error_t AT_CellularNetwork::set_context_to_be_activated()
         }
     }
 
-    return _at.get_last_error();
+    return NSAPI_ERROR_OK;
 }
 
 bool AT_CellularNetwork::set_new_context(int cid)

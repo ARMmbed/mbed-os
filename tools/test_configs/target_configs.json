@@ -15,6 +15,14 @@
         "default_test_configuration": "HEAPBLOCKDEVICE_AND_ETHERNET",
         "test_configurations": ["HEAPBLOCKDEVICE_AND_ETHERNET"]
     },
+    "DISCO_L475VG_IOT01A": {
+        "default_test_configuration": "NONE",
+        "test_configurations": ["ISM43362_WIFI"]
+    },
+    "DISCO_F413ZH": {
+        "default_test_configuration": "NONE",
+        "test_configurations": ["ISM43362_WIFI"]
+    },
     "MTB_UBLOX_ODIN_W2": {
         "default_test_configuration": "NONE",
         "test_configurations": ["ODIN_WIFI"]

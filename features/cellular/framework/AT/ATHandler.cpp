@@ -23,9 +23,7 @@
 #include "FileHandle.h"
 #include "mbed_wait_api.h"
 #include "mbed_debug.h"
-#ifdef MBED_CONF_RTOS_PRESENT
 #include "rtos/Thread.h"
-#endif
 #include "Kernel.h"
 #include "CellularUtil.h"
 
@@ -74,6 +72,7 @@ ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, int timeout, const char 
     _fh_sigio_set(false),
     _processing(false),
     _ref_count(1),
+    _is_fh_usable(true),
     _stop_tag(NULL),
     _delimiter(DEFAULT_DELIMITER),
     _prefix_matched(false),
@@ -151,6 +150,11 @@ FileHandle *ATHandler::get_file_handle()
 void ATHandler::set_file_handle(FileHandle *fh)
 {
     _fileHandle = fh;
+}
+
+void ATHandler::set_is_filehandle_usable(bool usable)
+{
+    _is_fh_usable = usable;
 }
 
 nsapi_error_t ATHandler::set_urc_handler(const char *prefix, mbed::Callback<void()> callback)
@@ -271,6 +275,10 @@ void ATHandler::restore_at_timeout()
 
 void ATHandler::process_oob()
 {
+    if (!_is_fh_usable) {
+        tr_debug("process_oob, filehandle is not usable, return...");
+        return;
+    }
     lock();
     tr_debug("process_oob readable=%d, pos=%u, len=%u", _fileHandle->readable(), _recv_pos,  _recv_len);
     if (_fileHandle->readable() || (_recv_pos < _recv_len)) {
@@ -282,21 +290,19 @@ void ATHandler::process_oob()
                 if (!(_fileHandle->readable() || (_recv_pos < _recv_len))) {
                     break; // we have nothing to read anymore
                 }
-                _start_time = rtos::Kernel::get_ms_count(); // time to process next (potential) URC
             } else if (mem_str(_recv_buff, _recv_len, CRLF, CRLF_LENGTH)) { // If no match found, look for CRLF and consume everything up to CRLF
                 consume_to_tag(CRLF, true);
             } else {
                 if (!fill_buffer()) {
+                    reset_buffer(); // consume anything that could not be handled
                     break;
                 }
+                _start_time = rtos::Kernel::get_ms_count();
             }
         }
         _at_timeout = timeout;
     }
     tr_debug("process_oob exit");
-
-    flush(); // consume anything that could not be handled
-
     unlock();
 }
 
@@ -1090,15 +1096,17 @@ void ATHandler::flush()
 
 void ATHandler::debug_print(char *p, int len)
 {
-#if MBED_CONF_MBED_TRACE_ENABLE
+#if MBED_CONF_CELLULAR_DEBUG_AT
     if (_debug_on) {
+#if MBED_CONF_MBED_TRACE_ENABLE
         mbed_cellular_trace::mutex_wait();
+#endif
         for (ssize_t i = 0; i < len; i++) {
             char c = *p++;
             if (!isprint(c)) {
                 if (c == '\r') {
+                    debug("\n");
                 } else if (c == '\n') {
-                    debug("%c", c);
                 } else {
                     debug("[%d]", c);
                 }
@@ -1106,7 +1114,9 @@ void ATHandler::debug_print(char *p, int len)
                 debug("%c", c);
             }
         }
+#if MBED_CONF_MBED_TRACE_ENABLE
         mbed_cellular_trace::mutex_release();
-    }
 #endif
+    }
+#endif // MBED_CONF_CELLULAR_DEBUG_AT
 }

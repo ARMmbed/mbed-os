@@ -46,6 +46,16 @@ struct arm_mps2_io_reg_map_t {
                                           *         [31:2] : Reserved
                                           *         [1:0]  : Buttons */
     } button_reg;
+    volatile uint32_t reserved1[16];
+    volatile uint32_t misc;              /* Offset: 0x04C (R/W)  Misc control
+                                          *              [31:7] : Reserved
+                                          *              [6] : CLCD_BL_CTRL
+                                          *              [5] : CLCD_RD
+                                          *              [4] : CLCD_RS
+                                          *              [3] : CLCD_RESET
+                                          *              [2] : Reserved
+                                          *              [1] : SPI_nSS
+                                          *              [0] : CLCD_CS */
 };
 
 void arm_mps2_io_write_leds(struct arm_mps2_io_dev_t* dev,
@@ -110,6 +120,25 @@ void arm_mps2_io_write_leds(struct arm_mps2_io_dev_t* dev,
 
         break;
     /* default: explicitely not used to force to cover all enumeration cases */
+    }
+}
+
+void arm_mps2_io_write_misc(struct arm_mps2_io_dev_t* dev,
+                            enum arm_mps2_io_access_t access,
+                            uint8_t pin_num,
+                            uint32_t value)
+{
+    struct arm_mps2_io_reg_map_t* p_mps2_io_port =
+                                  (struct arm_mps2_io_reg_map_t*)dev->cfg->base;
+
+    /* The MISC write is for FPGAIO only */
+    if (dev->cfg->type != ARM_MPS2_IO_TYPE_FPGAIO)
+        return;
+
+    if (value) {
+        p_mps2_io_port->misc |= (1UL << pin_num);
+    } else {
+        p_mps2_io_port->misc &= ~(1UL << pin_num);
     }
 }
 

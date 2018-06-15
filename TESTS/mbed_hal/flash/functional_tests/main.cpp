@@ -229,44 +229,6 @@ void flash_program_page_test()
     delete[] data_flashed;
 }
 
-// make sure programming works with an unaligned data buffer
-void flash_buffer_alignment_test()
-{
-    flash_t test_flash;
-    int32_t ret = flash_init(&test_flash);
-    TEST_ASSERT_EQUAL_INT32(0, ret);
-
-    const uint32_t page_size = flash_get_page_size(&test_flash);
-    const uint32_t buf_size = page_size + 4;
-    uint8_t *data = new uint8_t[buf_size];
-    uint8_t *data_flashed = new uint8_t[buf_size];
-    for (uint32_t i = 0; i < buf_size; i++) {
-        data[i] = i & 0xFF;
-    }
-
-    // use the last four pages for the alignment test
-    const uint32_t flash_end = flash_get_start_address(&test_flash) + flash_get_size(&test_flash);
-    const uint32_t test_addr = flash_end - page_size * 4;
-    const uint32_t erase_sector_boundary = ALIGN_DOWN(test_addr, flash_get_sector_size(&test_flash, test_addr));
-    erase_range(&test_flash, erase_sector_boundary, flash_end - erase_sector_boundary);
-
-    // make sure page program works with an unaligned data buffer
-    for (uint32_t i = 0; i < 4; i++) {
-        const uint32_t addr = test_addr + i * page_size;
-        ret = flash_program_page(&test_flash, addr, data + i, page_size);
-        TEST_ASSERT_EQUAL_INT32(0, ret);
-
-        ret = flash_read(&test_flash, addr, data_flashed, page_size);
-        TEST_ASSERT_EQUAL_INT32(0, ret);
-        TEST_ASSERT_EQUAL_UINT8_ARRAY(data + i, data_flashed, page_size);
-    }
-
-    ret = flash_free(&test_flash);
-    TEST_ASSERT_EQUAL_INT32(0, ret);
-    delete[] data;
-    delete[] data_flashed;
-}
-
 // check the execution speed at the start and end of the test to make sure
 // cache settings weren't changed
 void flash_clock_and_cache_test()
@@ -281,7 +243,6 @@ Case cases[] = {
     Case("Flash - mapping alignment", flash_mapping_alignment_test),
     Case("Flash - erase sector", flash_erase_sector_test),
     Case("Flash - program page", flash_program_page_test),
-    Case("Flash - buffer alignment test", flash_buffer_alignment_test),
     Case("Flash - clock and cache test", flash_clock_and_cache_test),
 };
 

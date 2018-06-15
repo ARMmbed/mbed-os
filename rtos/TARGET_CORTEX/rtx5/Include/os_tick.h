@@ -26,6 +26,9 @@
 #define OS_TICK_H
 
 #include <stdint.h>
+#if defined(TARGET_CORTEX_A)
+#include "irq_ctrl.h"
+#endif
 
 /// IRQ Handler.
 #ifndef IRQHANDLER_T
@@ -68,4 +71,9 @@ uint32_t OS_Tick_GetCount (void);
 /// \return OS Tick overflow status (1 - overflow, 0 - no overflow).
 uint32_t OS_Tick_GetOverflow (void);
 
+/// Get Cortex-A9 OS Timer interrupt number
+/// \returns Cortex-A9 OS Timer interrupt number (134)
+#if defined(TARGET_CORTEX_A)
+IRQn_ID_t mbed_get_a9_tick_irqn(void);
+#endif
 #endif  /* OS_TICK_H */

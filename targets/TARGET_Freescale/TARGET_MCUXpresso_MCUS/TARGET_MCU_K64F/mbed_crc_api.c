@@ -25,67 +25,83 @@ static uint32_t final_xor;
 
 bool hal_crc_is_supported(const crc_mbed_config_t* config)
 {
-  if (config == NULL) {
-    return false;
-  }
+    if (config == NULL) {
+        return false;
+    }
 
-  if ((config->width != 32) || (config->width != 16)) {
-    return false;
-  }
+    if ((config->width != 32) && (config->width != 16)) {
+        return false;
+    }
 
-  return true;
+    return true;
 }
 
 void hal_crc_compute_partial_start(const crc_mbed_config_t* config)
 {
-  if (config == NULL) {
-    return;
-  }
+    if (config == NULL) {
+        return;
+    }
 
-  width = (config->width == 32) ? kCrcBits32 : kCrcBits16;
-  final_xor = config->final_xor;
+    width = (config->width == 32) ? kCrcBits32 : kCrcBits16;
+    final_xor = config->final_xor;
 
-  crc_config_t platform_config;
-  platform_config.polynomial         = config->polynomial;
-  platform_config.seed               = config->initial_xor;
-  platform_config.reflectIn          = config->reflect_in;
-  platform_config.reflectOut         = config->reflect_out;
-  platform_config.complementChecksum = (config->final_xor == 0xFFFFFFFFU);
-  platform_config.crcBits            = width;
-  platform_config.crcResult          = kCrcFinalChecksum;
+    crc_config_t platform_config;
+    platform_config.polynomial = config->polynomial;
+    platform_config.seed = config->initial_xor;
+    platform_config.reflectIn = config->reflect_in;
+    platform_config.reflectOut = config->reflect_out;
+    if ((width == kCrcBits16 && config->final_xor == 0xFFFFU) ||
+        (width == kCrcBits32 && config->final_xor == 0xFFFFFFFFU)) {
+        platform_config.complementChecksum = true;
+    } else {
+        platform_config.complementChecksum = false;
+    }
+    platform_config.crcBits = width;
+    platform_config.crcResult = kCrcFinalChecksum;
 
-  CRC_Init(CRC0, &platform_config);
+    CRC_Init(CRC0, &platform_config);
 }
 
 void hal_crc_compute_partial(const uint8_t *data, const size_t size)
 {
-  if (data == NULL) {
-    return;
-  }
+    if (data == NULL) {
+        return;
+    }
 
-  if (size == 0) {
-    return;
-  }
+    if (size == 0) {
+        return;
+    }
 
-  CRC_WriteData(CRC0, data, size);
+    CRC_WriteData(CRC0, data, size);
 }
 
 uint32_t hal_crc_get_result(void)
 {
-  if ((final_xor != 0x00000000U) && (final_xor != 0xFFFFFFFFU)) {
-    CRC_WriteData(CRC0, (uint8_t*)&final_xor, sizeof(final_xor));
-  }
+    uint32_t result;
 
-  switch (width)
-  {
-    case kCrcBits16:
-      return CRC_Get16bitResult(CRC0);
-    case kCrcBits32:
-      return CRC_Get32bitResult(CRC0);
-    default:
-      MBED_ASSERT("Unhandled switch case");
-      return 0;
-  }
+    const bool manual_final_xor = ((final_xor != 0x00000000U) &&
+                                   ((final_xor != 0xFFFFFFFFU && width == kCrcBits32) ||
+                                    (final_xor != 0xFFFFU && width == kCrcBits16)));
+
+    switch (width)
+    {
+        case kCrcBits16:
+            result = CRC_Get16bitResult(CRC0);
+            if (manual_final_xor) {
+                result ^= final_xor;
+                result &= 0xFFFF;
+            }
+            return result;
+        case kCrcBits32:
+            result = CRC_Get32bitResult(CRC0);
+            if (manual_final_xor) {
+                result ^= final_xor;
+            }
+            return result;
+        default:
+            MBED_ASSERT("Unhandled switch case");
+        return 0;
+    }
 }
 
 #endif // DEVICE_CRC

@@ -161,16 +161,15 @@ uint16_t adc_read(analogin_t *obj)
             break;
         case 16:
             sConfig.Channel = ADC_CHANNEL_TEMPSENSOR;
+            sConfig.SamplingTime = ADC_SAMPLETIME_480CYCLES; // Minimum ADC sampling time when reading the temperature is 10us
             break;
         case 17:
             sConfig.Channel = ADC_CHANNEL_VREFINT;
-            /*  From experiment, measurement needs max sampling time to be valid */
-            sConfig.SamplingTime = ADC_SAMPLETIME_480CYCLES;
+            sConfig.SamplingTime = ADC_SAMPLETIME_480CYCLES; // Minimum ADC sampling time when reading the internal reference voltage is 10us
             break;
         case 18:
             sConfig.Channel = ADC_CHANNEL_VBAT;
-            /*  From experiment, measurement needs max sampling time to be valid */
-            sConfig.SamplingTime = ADC_SAMPLETIME_480CYCLES;
+            sConfig.SamplingTime = ADC_SAMPLETIME_480CYCLES; // Minimum ADC sampling time when reading the VBAT is 5us
             break;
         default:
             return 0;

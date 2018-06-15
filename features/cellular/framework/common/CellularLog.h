@@ -18,8 +18,6 @@
 #ifndef CELLULAR_LOG_H_
 #define CELLULAR_LOG_H_
 
-#include "rtos.h"
-
 #if defined(HAVE_DEBUG) && !defined(FEA_TRACE_SUPPORT)
 #define FEA_TRACE_SUPPORT
 #endif

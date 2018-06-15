@@ -431,20 +431,19 @@ typedef union {
     /*!
      * The structure containing single access to header bits.
      */
-    struct hdr_bits_s
-    {
+    struct hdr_bits_s {
         /*!
          * Major version.
          */
-        uint8_t major           : 2;
+        uint8_t major : 2;
         /*!
          * RFU
          */
-        uint8_t RFU             : 3;
+        uint8_t RFU : 3;
         /*!
          * Message type
          */
-        uint8_t mtype           : 3;
+        uint8_t mtype : 3;
     } bits;
 } loramac_mhdr_t;
 
@@ -461,28 +460,27 @@ typedef union {
     /*!
      * The structure containing single access to bits.
      */
-    struct ctrl_bits_s
-    {
+    struct ctrl_bits_s {
         /*!
          * Frame options length.
          */
-        uint8_t fopts_len        : 4;
+        uint8_t fopts_len : 4;
         /*!
          * Frame pending bit.
          */
-        uint8_t fpending        : 1;
+        uint8_t fpending : 1;
         /*!
          * Message acknowledge bit.
          */
-        uint8_t ack             : 1;
+        uint8_t ack : 1;
         /*!
          * ADR acknowledgment request bit.
          */
-        uint8_t adr_ack_req       : 1;
+        uint8_t adr_ack_req : 1;
         /*!
          * ADR control in the frame header.
          */
-        uint8_t adr             : 1;
+        uint8_t adr : 1;
     } bits;
 } loramac_frame_ctrl_t;
 
@@ -858,14 +856,6 @@ typedef enum device_states {
 } device_states_t;
 
 /**
- * Enumeration for LoRaWAN connection type.
- */
-typedef enum lorawan_connect_type {
-    LORAWAN_CONNECTION_OTAA = 0,    /**< Over The Air Activation */
-    LORAWAN_CONNECTION_ABP          /**< Activation By Personalization */
-} lorawan_connect_type_t;
-
-/**
  * Stack level TX message structure
  */
 typedef struct {
@@ -1023,7 +1013,7 @@ typedef struct {
     /*!
      * The RX window timeout
      */
-     uint32_t window_timeout;
+    uint32_t window_timeout;
     /*!
      * The RX window offset
      */
@@ -1085,39 +1075,39 @@ typedef struct {
 } loramac_keys;
 
 typedef struct {
-      /*!
-       * Aggregated duty cycle management
-       */
-      lorawan_time_t aggregated_last_tx_time;
-      lorawan_time_t aggregated_timeoff;
+    /*!
+     * Aggregated duty cycle management
+     */
+    lorawan_time_t aggregated_last_tx_time;
+    lorawan_time_t aggregated_timeoff;
 
-      /*!
-       * Stores the time at LoRaMac initialization.
-       *
-       * \remark Used for the BACKOFF_DC computation.
-       */
-      lorawan_time_t mac_init_time;
+    /*!
+     * Stores the time at LoRaMac initialization.
+     *
+     * \remark Used for the BACKOFF_DC computation.
+     */
+    lorawan_time_t mac_init_time;
 
-      /*!
-       * Last transmission time on air
-       */
-      lorawan_time_t tx_toa;
+    /*!
+     * Last transmission time on air
+     */
+    lorawan_time_t tx_toa;
 
-      /*!
-       * LoRaMac duty cycle backoff timer
-       */
-      timer_event_t backoff_timer;
+    /*!
+     * LoRaMac duty cycle backoff timer
+     */
+    timer_event_t backoff_timer;
 
-      /*!
-       * LoRaMac reception windows timers
-       */
-      timer_event_t rx_window1_timer;
-      timer_event_t rx_window2_timer;
+    /*!
+     * LoRaMac reception windows timers
+     */
+    timer_event_t rx_window1_timer;
+    timer_event_t rx_window2_timer;
 
-      /*!
-       * Acknowledge timeout timer. Used for packet retransmissions.
-       */
-      timer_event_t ack_timeout_timer;
+    /*!
+     * Acknowledge timeout timer. Used for packet retransmissions.
+     */
+    timer_event_t ack_timeout_timer;
 
 } lorawan_timers;
 
@@ -1126,7 +1116,7 @@ typedef struct {
     /*!
      * Holds the type of current Receive window slot
      */
-     rx_slot_t rx_slot;
+    rx_slot_t rx_slot;
 
     /*!
      * Indicates if the node is connected to a private or public network

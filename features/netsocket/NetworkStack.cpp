@@ -28,6 +28,10 @@ const char *NetworkStack::get_ip_address()
 }
 nsapi_error_t NetworkStack::gethostbyname(const char *name, SocketAddress *address, nsapi_version_t version)
 {
+    if (name[0] == '\0') {
+        return NSAPI_ERROR_PARAMETER;
+    }
+
     // check for simple ip addresses
     if (address->set_ip_address(name)) {
         if (version != NSAPI_UNSPEC && address->get_ip_version() != version) {
@@ -52,6 +56,10 @@ nsapi_error_t NetworkStack::gethostbyname(const char *name, SocketAddress *addre
 nsapi_value_or_error_t NetworkStack::gethostbyname_async(const char *name, hostbyname_cb_t callback, nsapi_version_t version)
 {
     SocketAddress address;
+
+    if (name[0] == '\0') {
+        return NSAPI_ERROR_PARAMETER;
+    }
 
     // check for simple ip addresses
     if (address.set_ip_address(name)) {
@@ -114,7 +122,7 @@ nsapi_error_t NetworkStack::getsockopt(void *handle, int level, int optname, voi
 
 nsapi_error_t NetworkStack::call_in(int delay, mbed::Callback<void()> func)
 {
-    events::EventQueue *event_queue = mbed::mbed_event_queue();
+    static events::EventQueue *event_queue = mbed::mbed_event_queue();
 
     if (!event_queue) {
         return NSAPI_ERROR_NO_MEMORY;

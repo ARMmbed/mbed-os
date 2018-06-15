@@ -53,7 +53,6 @@ irqRtxLib       DCB      0                          ; Non weak library reference
                 EXPORT   IRQ_PendSV
 IRQ_NestLevel   DCD      0                          ; IRQ nesting level counter
 IRQ_PendSV      DCB      0                          ; Pending SVC flag
-SVC_Active      DCB      0                          ; SVC handler execution active flag
 
 
                 SECTION .text:CODE:NOROOT(2)
@@ -159,15 +158,19 @@ DAbt_Handler
 
 IRQ_Handler
                 EXPORT  IRQ_Handler
-                IMPORT  osRtxInfo
                 IMPORT  IRQ_GetActiveIRQ
                 IMPORT  IRQ_GetHandler
                 IMPORT  IRQ_EndOfInterrupt
 
                 SUB     LR, LR, #4                  ; Pre-adjust LR
-                SRSFD   SP!, #MODE_SVC              ; Save LR_irq and SPRS_irq on to the SVC stack
+                SRSFD   SP!, #MODE_SVC              ; Save LR_irq and SPSR_irq on to the SVC stack
                 CPS     #MODE_SVC                   ; Change to SVC mode
                 PUSH    {R0-R3, R12, LR}            ; Save APCS corruptible registers
+
+                LDR     R0, =IRQ_NestLevel
+                LDR     R1, [R0]
+                ADD     R1, R1, #1                  ; Increment IRQ nesting level
+                STR     R1, [R0]
 
                 MOV     R3, SP                      ; Move SP into R3
                 AND     R3, R3, #4                  ; Get stack adjustment to ensure 8-byte alignment
@@ -176,11 +179,6 @@ IRQ_Handler
 
                 BLX     IRQ_GetActiveIRQ            ; Retrieve interrupt ID into R0
                 MOV     R4, R0                      ; Move interrupt ID to R4
-
-                LDR     R1, =IRQ_NestLevel
-                LDR     R3, [R1]                    ; Load IRQ nest level and increment it
-                ADD     R3, R3, #1
-                STR     R3, [R1]
 
                 BLX     IRQ_GetHandler              ; Retrieve interrupt handler address for current ID
                 CMP     R0, #0                      ; Check if handler address is 0
@@ -194,47 +192,15 @@ IRQ_End
                 MOV     R0, R4                      ; Move interrupt ID to R0
                 BLX     IRQ_EndOfInterrupt          ; Signal end of interrupt
 
-                LDR     R2, =IRQ_NestLevel
-                LDR     R1, [R2]                    ; Load IRQ nest level and
-                SUBS    R1, R1, #1                  ; decrement it
-                STR     R1, [R2]
-                BNE     IRQ_Exit                    ; Not zero, exit from IRQ handler
-
-                LDR     R0, =SVC_Active
-                LDRB    R0, [R0]                    ; Load SVC_Active flag
-                CMP     R0, #0
-                BNE     IRQ_SwitchCheck             ; Skip post processing when SVC active
-
-                ; RTX IRQ post processing check
-                PUSH    {R5, R6}                    ; Save user R5 and R6
-                MOV     R6, #0
-                LDR     R5, =IRQ_PendSV             ; Load address of IRQ_PendSV flag
-                B       IRQ_PendCheck
-IRQ_PendExec
-                STRB    R6, [R5]                    ; Clear PendSV flag
-                CPSIE   i                           ; Re-enable interrupts
-                BLX     osRtxPendSV_Handler         ; Post process pending objects
-                CPSID   i                           ; Disable interrupts
-IRQ_PendCheck
-                LDRB    R0, [R5]                    ; Load PendSV flag
-                CMP     R0, #1                      ; Compare PendSV value
-                BEQ     IRQ_PendExec                ; Branch to IRQ_PendExec if PendSV is set
-                POP     {R5, R6}                    ; Restore user R5 and R6
-
-IRQ_SwitchCheck
-                ; RTX IRQ context switch check
-                LDR     R12, =osRtxInfo+I_T_RUN_OFS ; Load address of osRtxInfo.run
-                LDM     R12, {R0, R1}               ; Load osRtxInfo.thread.run: curr & next
-                CMP     R0, R1                      ; Check if context switch is required
-                BEQ     IRQ_Exit
-
                 POP     {R3, R4}                    ; Restore stack adjustment(R3) and user data(R4)
                 ADD     SP, SP, R3                  ; Unadjust stack
-                B       osRtxContextSwitch
 
-IRQ_Exit
-                POP     {R3, R4}                    ; Restore stack adjustment(R3) and user data(R4)
-                ADD     SP, SP, R3                  ; Unadjust stack
+                BL      osRtxContextSwitch          ; Continue in context switcher
+
+                LDR     R0, =IRQ_NestLevel
+                LDR     R1, [R0]
+                SUBS    R1, R1, #1                  ; Decrement IRQ nesting level
+                STR     R1, [R0]
 
                 POP     {R0-R3, R12, LR}            ; Restore stacked APCS registers
                 RFEFD   SP!                         ; Return from IRQ handler
@@ -244,7 +210,6 @@ SVC_Handler
                 EXPORT  SVC_Handler
                 IMPORT  IRQ_Disable
                 IMPORT  IRQ_Enable
-                IMPORT  osRtxPendSV_Handler
                 IMPORT  osRtxUserSVC
                 IMPORT  osRtxInfo
 
@@ -262,16 +227,18 @@ SVC_Handler
 
                 PUSH    {R0-R3}
 
-                LDR     R3, =osRtxInfo
-                LDR     R1, [R3, #I_K_STATE_OFS]    ; Load RTX5 kernel state
+                LDR     R0, =IRQ_NestLevel
+                LDR     R1, [R0]
+                ADD     R1, R1, #1                  ; Increment IRQ nesting level
+                STR     R1, [R0]
+
+                LDR     R0, =osRtxInfo
+                LDR     R1, [R0, #I_K_STATE_OFS]    ; Load RTX5 kernel state
                 CMP     R1, #K_STATE_RUNNING        ; Check osKernelRunning
                 BLT     SVC_FuncCall                ; Continue if kernel is not running
-                LDR     R0, [R3, #I_TICK_IRQN_OFS]  ; Load OS Tick irqn
+                LDR     R0, [R0, #I_TICK_IRQN_OFS]  ; Load OS Tick irqn
                 BLX     IRQ_Disable                 ; Disable OS Tick interrupt
 SVC_FuncCall
-                LDR     R0, =SVC_Active
-                MOV     R1, #1
-                STRB    R1, [R0]                    ; Set SVC_Active flag
                 POP     {R0-R3}
 
                 LDR     R12, [SP]                   ; Reload R12 from stack
@@ -280,44 +247,30 @@ SVC_FuncCall
                 BLX     R12                         ; Branch to SVC function
                 CPSID   i                           ; Disable interrupts
 
-                SUB     SP, SP, #4                  ; Adjust SP
+                SUB     SP, SP, #4
                 STM     SP, {SP}^                   ; Store SP_usr onto stack
                 POP     {R12}                       ; Pop SP_usr into R12
                 SUB     R12, R12, #16               ; Adjust pointer to SP_usr
                 LDMDB   R12, {R2,R3}                ; Load return values from SVC function
                 PUSH    {R0-R3}                     ; Push return values to stack
 
-                PUSH    {R4, R5}                    ; Save R4 and R5
-                MOV     R5, #0
-                LDR     R4, =IRQ_PendSV             ; Load address of IRQ_PendSV
-                B       SVC_PendCheck
-SVC_PendExec
-                STRB    R5, [R4]                    ; Clear IRQ_PendSV flag
-                CPSIE   i                           ; Re-enable interrupts
-                BLX     osRtxPendSV_Handler         ; Post process pending objects
-                CPSID   i                           ; Disable interrupts
-SVC_PendCheck
-                LDRB    R0, [R4]                    ; Load IRQ_PendSV flag
-                CMP     R0, #1                      ; Compare IRQ_PendSV value
-                BEQ     SVC_PendExec                ; Branch to SVC_PendExec if IRQ_PendSV is set
-                POP     {R4, R5}                    ; Restore R4 and R5
-
-                LDR     R0, =SVC_Active
-                MOV     R1, #0
-                STRB    R1, [R0]                    ; Clear SVC_Active flag
-
-                LDR     R12, =osRtxInfo
-                LDR     R1, [R12, #I_K_STATE_OFS]   ; Load RTX5 kernel state
+                LDR     R0, =osRtxInfo
+                LDR     R1, [R0, #I_K_STATE_OFS]    ; Load RTX5 kernel state
                 CMP     R1, #K_STATE_RUNNING        ; Check osKernelRunning
                 BLT     SVC_ContextCheck            ; Continue if kernel is not running
-                LDR     R0, [R12, #I_TICK_IRQN_OFS] ; Load OS Tick irqn
+                LDR     R0, [R0, #I_TICK_IRQN_OFS]  ; Load OS Tick irqn
                 BLX     IRQ_Enable                  ; Enable OS Tick interrupt
+
 SVC_ContextCheck
-                ADD     R12, R12, #I_T_RUN_OFS      ; Load address of osRtxInfo.thread.run
-                LDM     R12, {R0, R1}               ; Load osRtxInfo.thread.run: curr & next
-                CMP     R0, R1                      ; Check if context switch is required
-                BEQ     osRtxContextExit            ; Exit if curr and next are equal
-                B       osRtxContextSwitch          ; Continue in context switcher
+                BL      osRtxContextSwitch          ; Continue in context switcher
+
+                LDR     R0, =IRQ_NestLevel
+                LDR     R1, [R0]
+                SUB     R1, R1, #1                  ; Decrement IRQ nesting level
+                STR     R1, [R0]
+
+                POP     {R0-R3, R12, LR}            ; Restore stacked APCS registers
+                RFEFD   SP!                         ; Return from exception
 
 SVC_User
                 PUSH    {R4, R5}
@@ -325,10 +278,8 @@ SVC_User
                 LDR     R4,[R5]                     ; Load SVC maximum number
                 CMP     R12,R4                      ; Check SVC number range
                 BHI     SVC_Done                    ; Branch if out of range
-
                 LDR     R12,[R5,R12,LSL #2]         ; Load SVC Function Address
                 BLX     R12                         ; Call SVC Function
-
 SVC_Done
                 POP     {R4, R5, R12, LR}
                 RFEFD   SP!                         ; Return from exception
@@ -336,30 +287,55 @@ SVC_Done
 
 osRtxContextSwitch
                 EXPORT  osRtxContextSwitch
+                IMPORT  osRtxPendSV_Handler
+                IMPORT  osRtxInfo
+                IMPORT  IRQ_Disable
+                IMPORT  IRQ_Enable
 
-                ; R0  = osRtxInfo.thread.run.curr
-                ; R1  = osRtxInfo.thread.run.next
-                ; R12 = &osRtxInfo.thread.run
+                PUSH    {LR}
+
+                ; Check interrupt nesting level
+                LDR     R0, =IRQ_NestLevel
+                LDR     R1, [R0]                    ; Load IRQ nest level
+                CMP     R1, #1
+                BNE     osRtxContextExit            ; Nesting interrupts, exit context switcher
+
+                LDR     R12, =osRtxInfo+I_T_RUN_OFS ; Load address of osRtxInfo.run
+                LDM     R12, {R0, R1}               ; Load osRtxInfo.thread.run: curr & next
+                LDR     R2, =IRQ_PendSV             ; Load address of IRQ_PendSV flag
+                LDRB    R3, [R2]                    ; Load PendSV flag
+
+                CMP     R0, R1                      ; Check if context switch is required
+                BNE     osRtxContextCheck           ; Not equal, check if context save required
+                CMP     R3, #1                      ; Compare IRQ_PendSV value
+                BNE     osRtxContextExit            ; No post processing (and no context switch requested)
+
+osRtxContextCheck
+                STR     R1, [R12]                   ; Store run.next as run.curr
+                ; R0 = curr, R1 = next, R2 = &IRQ_PendSV, R3 = IRQ_PendSV, R12 = &osRtxInfo.thread.run
+                PUSH    {R1-R3, R12}
 
                 CMP     R0, #0                      ; Is osRtxInfo.thread.run.curr == 0
-                ADDEQ   SP, SP, #32                 ; Equal, curr deleted, adjust current SP
-                BEQ     osRtxContextRestore         ; Restore context, run.curr = run.next;
+                BEQ     osRtxPostProcess            ; Current deleted, skip context save
 
 osRtxContextSave
+                MOV     LR, R0                      ; Move &osRtxInfo.thread.run.curr to LR
+                MOV     R0, SP                      ; Move SP_svc into R0
+                ADD     R0, R0, #20                 ; Adjust SP_svc to R0 of the basic frame
                 SUB     SP, SP, #4
                 STM     SP, {SP}^                   ; Save SP_usr to current stack
-                POP     {R3}                        ; Pop SP_usr into R3
+                POP     {R1}                        ; Pop SP_usr into R1
 
-                SUB     R3, R3, #64                 ; Adjust user sp to end of basic frame (R4)
-                STMIA   R3!, {R4-R11}               ; Save R4-R11 to user
-                POP     {R4-R8}                     ; Pop current R0-R12 into R4-R8
-                STMIA   R3!, {R4-R8}                ; Store them to user stack
-                STM     R3, {LR}^                   ; Store LR_usr directly
-                ADD     R3, R3, #4                  ; Adjust user sp to PC
-                POP     {R4-R6}                     ; Pop current LR, PC, CPSR
-                STMIA   R3!, {R5-R6}                ; Restore user PC and CPSR
+                SUB     R1, R1, #64                 ; Adjust SP_usr to R4 of the basic frame
+                STMIA   R1!, {R4-R11}               ; Save R4-R11 to user stack
+                LDMIA   R0!, {R4-R8}                ; Load stacked R0-R3,R12 into R4-R8
+                STMIA   R1!, {R4-R8}                ; Store them to user stack
+                STM     R1, {LR}^                   ; Store LR_usr directly
+                ADD     R1, R1, #4                  ; Adjust user sp to PC
+                LDMIB   R0!, {R5-R6}                ; Load current PC, CPSR
+                STMIA   R1!, {R5-R6}                ; Restore user PC and CPSR
 
-                SUB     R3, R3, #64                 ; Adjust user sp to R4
+                SUB     R1, R1, #64                 ; Adjust SP_usr to stacked R4
 
                 ; Check if VFP state need to be saved
                 MRC     p15, 0, R2, c1, c0, 2       ; VFP/NEON access enabled? (CPACR)
@@ -368,62 +344,93 @@ osRtxContextSave
                 BNE     osRtxContextSave1           ; Continue, no VFP
 
                 VMRS    R2, FPSCR
-                STMDB   R3!, {R2,R12}               ; Push FPSCR, maintain 8-byte alignment
+                STMDB   R1!, {R2,R12}               ; Push FPSCR, maintain 8-byte alignment
 
-                VSTMDB  R3!, {D0-D15}               ; Save D0-D15
+                VSTMDB  R1!, {D0-D15}               ; Save D0-D15
                 #ifdef  __ARM_ADVANCED_SIMD__
-                VSTMDB  R3!, {D16-D31}              ; Save D16-D31
+                VSTMDB  R1!, {D16-D31}              ; Save D16-D31
                 #endif
-                LDRB    R2, [R0, #TCB_SP_FRAME]
+
+                LDRB    R2, [LR, #TCB_SP_FRAME]     ; Load osRtxInfo.thread.run.curr frame info
                 #ifdef  __ARM_ADVANCED_SIMD__
                 ORR     R2, R2, #4                  ; NEON state
                 #else
                 ORR     R2, R2, #2                  ; VFP state
                 #endif
-                STRB    R2, [R0, #TCB_SP_FRAME]     ; Record VFP/NEON state
+                STRB    R2, [LR, #TCB_SP_FRAME]     ; Store VFP/NEON state
 
 osRtxContextSave1
-                STR     R3, [R0, #TCB_SP_OFS]       ; Store user sp to osRtxInfo.thread.run.curr
+                STR     R1, [LR, #TCB_SP_OFS]       ; Store user sp to osRtxInfo.thread.run.curr
+
+osRtxPostProcess
+                ; RTX IRQ post processing check
+                POP     {R8-R11}                    ; Pop R8 = run.next, R9 = &IRQ_PendSV, R10 = IRQ_PendSV, R11 = &osRtxInfo.thread.run
+                CMP     R10, #1                     ; Compare PendSV value
+                BNE     osRtxContextRestore         ; Skip post processing if not pending
+
+                MOV     R4, SP                      ; Move SP_svc into R4
+                AND     R4, R4, #4                  ; Get stack adjustment to ensure 8-byte alignment
+                SUB     SP, SP, R4                  ; Adjust stack
+
+                ; Disable OS Tick
+                LDR     R5, =osRtxInfo              ; Load address of osRtxInfo
+                LDR     R5, [R5, #I_TICK_IRQN_OFS]  ; Load OS Tick irqn
+                MOV     R0, R5                      ; Set it as function parameter
+                BLX     IRQ_Disable                 ; Disable OS Tick interrupt
+                MOV     R6, #0                      ; Set PendSV clear value
+                B       osRtxPendCheck
+osRtxPendExec
+                STRB    R6, [R9]                    ; Clear PendSV flag
+                CPSIE   i                           ; Re-enable interrupts
+                BLX     osRtxPendSV_Handler         ; Post process pending objects
+                CPSID   i                           ; Disable interrupts
+osRtxPendCheck
+                LDR     R8, [R11, #4]               ; Load osRtxInfo.thread.run.next
+                STR     R8, [R11]                   ; Store run.next as run.curr
+                LDRB    R0, [R9]                    ; Load PendSV flag
+                CMP     R0, #1                      ; Compare PendSV value
+                BEQ     osRtxPendExec               ; Branch to PendExec if PendSV is set
+
+                ; Re-enable OS Tick
+                MOV     R0, R5                      ; Restore irqn as function parameter
+                BLX     IRQ_Enable                  ; Enable OS Tick interrupt
+
+                ADD     SP, SP, R4                  ; Restore stack adjustment
 
 osRtxContextRestore
-                STR     R1, [R12]                   ; Store run.next to run.curr
-                LDR     R3, [R1, #TCB_SP_OFS]       ; Load next osRtxThread_t.sp
-                LDRB    R2, [R1, #TCB_SP_FRAME]     ; Load next osRtxThread_t.stack_frame
+                LDR     LR, [R8, #TCB_SP_OFS]       ; Load next osRtxThread_t.sp
+                LDRB    R2, [R8, #TCB_SP_FRAME]     ; Load next osRtxThread_t.stack_frame
 
                 ANDS    R2, R2, #0x6                ; Check stack frame for VFP context
                 MRC     p15, 0, R2, c1, c0, 2       ; Read CPACR
-                ANDEQ   R2, R2, #0xFF0FFFFF         ; Disable VFP/NEON access if incoming task does not have stacked VFP/NEON state
-                ORRNE   R2, R2, #0x00F00000         ; Enable VFP/NEON access if incoming task does have stacked VFP/NEON state
+                ANDEQ   R2, R2, #0xFF0FFFFF         ; VFP/NEON state not stacked, disable VFP/NEON
+                ORRNE   R2, R2, #0x00F00000         ; VFP/NEON state is stacked, enable VFP/NEON
                 MCR     p15, 0, R2, c1, c0, 2       ; Write CPACR
                 BEQ     osRtxContextRestore1        ; No VFP
-                ISB                                 ; Only sync if we enabled VFP, otherwise we will context switch before next VFP instruction anyway
+                ISB                                 ; Sync if VFP was enabled
                 #ifdef  __ARM_ADVANCED_SIMD__
-                VLDMIA  R3!, {D16-D31}              ; Restore D16-D31
+                VLDMIA  LR!, {D16-D31}              ; Restore D16-D31
                 #endif
-                VLDMIA  R3!, {D0-D15}               ; Restore D0-D15
-                LDR     R2, [R3]
+                VLDMIA  LR!, {D0-D15}               ; Restore D0-D15
+                LDR     R2, [LR]
                 VMSR    FPSCR, R2                   ; Restore FPSCR
-                ADD     R3, R3, #8
+                ADD     LR, LR, #8                  ; Adjust sp pointer to R4
 
 osRtxContextRestore1
-                LDMIA   R3!, {R4-R11}               ; Restore R4-R11
-                MOV     R12, R3                     ; Move sp pointer to R12
-                ADD     R3, R3, #32                 ; Adjust sp
-                PUSH    {R3}                        ; Push sp onto stack
-                LDMIA   SP, {SP}^                   ; Restore SP_usr
+                LDMIA   LR!, {R4-R11}               ; Restore R4-R11
+                ADD     R12, LR, #32                ; Adjust sp and save it into R12
+                PUSH    {R12}                       ; Push sp onto stack
+                LDM     SP, {SP}^                   ; Restore SP_usr directly
                 ADD     SP, SP, #4                  ; Adjust SP_svc
-                LDMIA   R12!, {R0-R3}               ; Restore User R0-R3
-                LDR     LR, [R12, #12]              ; Load SPSR into LR
-                MSR     SPSR_CXSF, LR               ; Restore SPSR
-                ADD     R12, R12, #4                ; Adjust pointer to LR
-                LDM     R12, {LR}^                  ; Restore LR_usr directly into LR
-                LDR     LR, [R12, #4]               ; Restore LR
-                LDR     R12, [R12, #-4]             ; Restore R12
-
-                MOVS    PC, LR                      ; Return from exception
+                LDMIA   LR!, {R0-R3, R12}           ; Load user registers R0-R3,R12
+                STMIB   SP!, {R0-R3, R12}           ; Store them to SP_svc
+                LDM     LR, {LR}^                   ; Restore LR_usr directly
+                LDMIB   LR!, {R0-R1}                ; Load user registers PC,CPSR
+                ADD     SP, SP, #4
+                STMIB   SP!, {R0-R1}                ; Store them to SP_svc
+                SUB     SP, SP, #32                 ; Adjust SP_svc to stacked LR
 
 osRtxContextExit
-                POP     {R0-R3, R12, LR}            ; Restore stacked APCS registers
-                RFEFD   SP!                         ; Return from exception
+                POP     {PC}                        ; Return
 
                 END

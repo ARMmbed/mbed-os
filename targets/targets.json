@@ -240,10 +240,10 @@
     "LPC1768": {
         "inherits": ["LPCTarget"],
         "core": "Cortex-M3",
-        "extra_labels": ["NXP", "LPC176X", "MBED_LPC1768"],
+        "extra_labels": ["NXP", "LPC176X", "MBED_LPC1768", "NXP_EMAC"],
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "GCC_CR", "IAR"],
         "detect_code": ["1010"],
-        "device_has": ["USTICKER", "ANALOGIN", "ANALOGOUT", "CAN", "DEBUG_AWARENESS", "ETHERNET", "I2C", "I2CSLAVE", "INTERRUPTIN", "LOCALFILESYSTEM", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SEMIHOST", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "FLASH"],
+        "device_has": ["USTICKER", "ANALOGIN", "ANALOGOUT", "CAN", "DEBUG_AWARENESS", "EMAC", "ETHERNET", "I2C", "I2CSLAVE", "INTERRUPTIN", "LOCALFILESYSTEM", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SEMIHOST", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "FLASH"],
         "release_versions": ["2", "5"],
         "features": ["LWIP"],
         "device_name": "LPC1768",
@@ -260,10 +260,10 @@
         "supported_form_factors": ["ARDUINO"],
         "core": "Cortex-M3",
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "GCC_CR", "IAR"],
-        "extra_labels": ["NXP", "LPC176X"],
+        "extra_labels": ["NXP", "LPC176X", "NXP_EMAC"],
         "macros": ["TARGET_LPC1768"],
         "inherits": ["LPCTarget"],
-        "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "DEBUG_AWARENESS", "ETHERNET", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "FLASH"],
+        "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "DEBUG_AWARENESS", "EMAC", "ETHERNET", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "FLASH"],
         "release_versions": ["2", "5"],
         "features": ["LWIP"],
         "device_name": "LPC1768",
@@ -276,7 +276,7 @@
         "supported_form_factors": ["ARDUINO"],
         "core": "Cortex-M3",
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "GCC_CR", "IAR"],
-        "extra_labels": ["NXP", "LPC176X"],
+        "extra_labels": ["NXP", "LPC176X", "NXP_EMAC"],
         "config": {
             "modem_is_on_board": {
                 "help": "Value: Tells the build system that the modem is on-board as oppose to a plug-in shield/module.",
@@ -291,7 +291,7 @@
         },
         "macros": ["TARGET_LPC1768"],
         "inherits": ["LPCTarget"],
-        "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "DEBUG_AWARENESS", "ETHERNET", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "FLASH"],
+        "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "DEBUG_AWARENESS", "EMAC", "ETHERNET", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "FLASH"],
         "release_versions": ["2", "5"],
         "features": ["LWIP"],
         "device_name": "LPC1768",
@@ -362,13 +362,13 @@
     "MCU_LPC4088": {
         "inherits": ["LPCTarget"],
         "core": "Cortex-M4F",
-        "extra_labels": ["NXP", "LPC408X"],
+        "extra_labels": ["NXP", "LPC408X", "NXP_EMAC"],
         "is_disk_virtual": true,
         "supported_toolchains": ["ARM", "GCC_CR", "GCC_ARM", "IAR"],
         "post_binary_hook": {
             "function": "LPC4088Code.binary_hook"
         },
-        "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "DEBUG_AWARENESS", "ETHERNET", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
+        "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "DEBUG_AWARENESS", "EMAC", "ETHERNET", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
         "features": ["LWIP"],
         "device_name": "LPC4088FBD144",
         "overrides": {
@@ -811,6 +811,7 @@
         "detect_code": ["0725"],
         "macros_add": ["CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""],
         "device_has_add": ["CRC", "SERIAL_FC"],
+        "device_has_remove": ["LPTICKER"],
         "default_lib": "small",
         "release_versions": ["2"],
         "device_name": "STM32F030R8"
@@ -832,6 +833,7 @@
         "overrides": {"lse_available": 0},
         "macros_add": ["CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""],
         "device_has_add": ["CRC", "SERIAL_FC"],
+        "device_has_remove": ["LPTICKER"],
         "default_lib": "small",
         "release_versions": ["2"],
         "device_name": "STM32F031K6"
@@ -853,6 +855,7 @@
         "overrides": {"lse_available": 0},
         "macros_add": ["CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""],
         "device_has_add": ["CAN", "CRC", "SERIAL_FC"],
+        "device_has_remove": ["LPTICKER"],
         "default_lib": "small",
         "release_versions": ["2"],
         "device_name": "STM32F042K6"
@@ -1432,6 +1435,10 @@
         "core": "Cortex-M7FD",
         "extra_labels_add": ["STM32F7", "STM32F767", "STM32F767xI", "STM32F767ZI", "STM_EMAC"],
         "config": {
+            "flash_dual_bank": {
+                "help": "Default board configuration is Single Bank Flash. If you enable Dual Bank with ST Link Utility, set value to 1",
+                "value": "0"
+            },
             "d11_configuration": {
                 "help": "Value: PA_7 for the default board configuration, PB_5 in case of solder bridge update (SB121 off/ SB122 on)",
                 "value": "PA_7",
@@ -1724,6 +1731,40 @@
         "release_versions": ["2"],
         "device_name": "STM32F407VG"
     },
+    "WIO_3G": {
+        "inherits": ["FAMILY_STM32"],
+        "core": "Cortex-M4F",
+        "config": {
+            "clock_source": {
+                "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL | USE_PLL_HSI",
+                "value": "USE_PLL_HSE_XTAL|USE_PLL_HSI",
+                "macro_name": "CLOCK_SOURCE"
+            },
+            "clock_source_usb": {
+                "help": "As 48 Mhz clock is configured for USB, SYSCLK has to be reduced from 180 to 168 MHz (set 0 for the max SYSCLK value)",
+                "value": "1",
+                "macro_name": "CLOCK_SOURCE_USB"
+            },
+            "modem_is_on_board": {
+                "help": "Value: Tells the build system that the modem is on-board as oppose to a plug-in shield/module.",
+                "value": 1,
+                "macro_name": "MODEM_ON_BOARD"
+            },
+            "modem_data_connection_type": {
+                "help": "Value: Defines how the modem is wired up to the MCU, e.g., data connection can be a UART or USB and so forth.",
+                "value": 1,
+                "macro_name": "MODEM_ON_BOARD_UART"
+            }
+        },
+        "extra_labels_add": ["STM32F4", "STM32F439", "STM32F439VI", "STM32F439xx", "STM32F439xI"],
+        "macros_add": ["MBEDTLS_CONFIG_HW_SUPPORT", "USB_STM_HAL", "USBHOST_OTHER"],
+        "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_FC", "TRNG", "FLASH"],
+        "detect_code": ["9014"],
+        "features": ["LWIP"],
+        "release_versions": ["2", "5"],
+        "device_name" : "STM32F439VI",
+        "bootloader_supported": true
+    },
     "DISCO_F051R8": {
         "inherits": ["FAMILY_STM32"],
         "core": "Cortex-M0",
@@ -1738,6 +1779,7 @@
         },
         "macros_add": ["CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""],
         "device_has_add": ["CRC", "SERIAL_FC"],
+        "device_has_remove": ["LPTICKER"],
         "device_name": "STM32F051R8"
     },
     "DISCO_F100RB": {
@@ -1932,6 +1974,10 @@
         "extra_labels_add": ["STM32F7", "STM32F769", "STM32F769xI", "STM32F769NI", "STM_EMAC"],
         "supported_form_factors": ["ARDUINO"],
         "config": {
+            "flash_dual_bank": {
+                "help": "Default board configuration is Single Bank Flash. If you enable Dual Bank with ST Link Utility, set value to 1",
+                "value": "0"
+            },
             "clock_source": {
                 "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL | USE_PLL_HSI",
                 "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
@@ -2902,7 +2948,7 @@
     "EFM32": {
         "inherits": ["Target"],
         "extra_labels": ["Silicon_Labs", "EFM32"],
-        "macros": ["MBEDTLS_CONFIG_HW_SUPPORT", "MBED_TICKLESS"],
+        "macros": ["MBEDTLS_CONFIG_HW_SUPPORT", "MBED_TICKLESS", "EM_MSC_RUN_FROM_FLASH"],
         "public": false
     },
     "EFM32GG990F1024": {
@@ -3768,7 +3814,7 @@
         "extra_labels_add": ["STM32F1", "STM32F103C8"],
         "supported_toolchains": ["GCC_ARM"],
         "device_has_add": [],
-        "device_has_remove": ["STDIO_MESSAGES"]
+        "device_has_remove": ["STDIO_MESSAGES", "LPTICKER"]
     },
     "NUMAKER_PFM_NUC472": {
         "core": "Cortex-M4F",
@@ -3796,7 +3842,7 @@
         },
         "inherits": ["Target"],
         "macros_add": ["MBEDTLS_CONFIG_HW_SUPPORT"],
-        "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "TRNG", "CAN", "FLASH", "EMAC"],
+        "device_has": ["RTC", "ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "TRNG", "CAN", "FLASH", "EMAC"],
         "features": ["LWIP"],
         "release_versions": ["5"],
         "device_name": "NUC472HI8AE",
@@ -3868,7 +3914,7 @@
         },
         "inherits": ["Target"],
         "progen": {"target": "numaker-pfm-m453"},
-        "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "CAN", "FLASH"],
+        "device_has": ["RTC", "ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "CAN", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "M453VG6AE",
         "bootloader_supported": true
@@ -3899,7 +3945,7 @@
         },
         "inherits": ["Target"],
         "macros": ["CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\"","MBED_FAULT_HANDLER_DISABLED"],
-        "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH"],
+        "device_has": ["RTC", "ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH"],
         "release_versions": ["5"],
         "device_name": "NANO130KE3BN"
     },
@@ -4067,7 +4113,7 @@
         },
         "inherits": ["Target"],
         "macros_add": ["MBEDTLS_CONFIG_HW_SUPPORT"],
-        "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "TRNG", "FLASH", "CAN", "EMAC"],
+        "device_has": ["RTC", "ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "TRNG", "FLASH", "CAN", "EMAC"],
         "features": ["LWIP"],
         "release_versions": ["5"],
         "device_name": "M487JIDAE",

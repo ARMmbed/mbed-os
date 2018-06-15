@@ -55,7 +55,9 @@ void hal_crc_compute_partial_start(const crc_mbed_config_t* config)
 
 void hal_crc_compute_partial(const uint8_t *data, const size_t size)
 {
-  HAL_CRC_Accumulate(&current_state, (uint32_t *)data, size);
+  if (data && size) {
+      HAL_CRC_Accumulate(&current_state, (uint32_t *)data, size);
+  }
 }
 
 uint32_t hal_crc_get_result(void)

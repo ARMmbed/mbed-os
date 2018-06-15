@@ -149,7 +149,6 @@ private:
     void urc_cereg();
     void urc_cgreg();
 
-    nsapi_error_t set_context_to_be_activated();
     nsapi_ip_stack_t string_to_stack_type(const char* pdp_type);
 
     void free_credentials();
@@ -180,6 +179,7 @@ protected:
     AuthenticationType _authentication_type;
     int _cell_id;
     nsapi_connection_status_t _connect_status;
+    virtual nsapi_error_t do_user_authentication();
     bool _new_context_set;
     bool _is_context_active;
     RegistrationStatus _reg_status;

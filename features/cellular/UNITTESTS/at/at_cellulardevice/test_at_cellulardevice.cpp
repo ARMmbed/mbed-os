@@ -112,22 +112,56 @@ void Test_AT_CellularDevice::test_AT_CellularDevice_open_information()
 
 void Test_AT_CellularDevice::test_AT_CellularDevice_close_network()
 {
+    EventQueue que;
+    AT_CellularDevice dev(que);
+    FileHandle_stub fh1;
+    ATHandler_stub::ref_count = 0;
 
+    CHECK(dev.open_network(&fh1));
+    CHECK(ATHandler_stub::ref_count == 1);
+
+    dev.close_network();
 }
 
 void Test_AT_CellularDevice::test_AT_CellularDevice_close_sms()
 {
+    EventQueue que;
+    AT_CellularDevice dev(que);
+    FileHandle_stub fh1;
+    ATHandler_stub::ref_count = 0;
 
+    CHECK(dev.open_sms(&fh1));
+    CHECK(ATHandler_stub::ref_count == 1);
+
+    dev.close_sms();
 }
 
 void Test_AT_CellularDevice::test_AT_CellularDevice_close_power()
 {
+    EventQueue que;
+    AT_CellularDevice dev(que);
+    FileHandle_stub fh1;
+    ATHandler_stub::ref_count = 0;
 
+    CHECK(dev.open_power(&fh1));
+    CHECK(ATHandler_stub::ref_count == 1);
+
+    dev.close_power();
 }
 
 void Test_AT_CellularDevice::test_AT_CellularDevice_close_sim()
 {
+    EventQueue que;
+    AT_CellularDevice dev(que);
+    FileHandle_stub fh1;
+    ATHandler_stub::ref_count = 0;
 
+
+    CHECK(dev.open_sim(&fh1));
+    dev.close_sms(); // this should not affect to refcount as it's not opened
+    CHECK(ATHandler_stub::ref_count == 1);
+
+    dev.close_sim();
 }
 
 void Test_AT_CellularDevice::test_AT_CellularDevice_close_information()
@@ -153,5 +187,63 @@ void Test_AT_CellularDevice::test_AT_CellularDevice_close_information()
     dev.close_information();
 
     ATHandler_stub::fh_value = NULL;
+}
+
+void Test_AT_CellularDevice::test_AT_CellularDevice_set_timeout()
+{
+    EventQueue que;
+    AT_CellularDevice dev(que);
+    FileHandle_stub fh1;
+    ATHandler_stub::timeout = 0;
+    ATHandler_stub::default_timeout = false;
+
+    // no interfaces open so settings timeout should not change anything
+    dev.set_timeout(5000);
+    CHECK(ATHandler_stub::timeout == 0);
+    CHECK(ATHandler_stub::default_timeout == false);
+
+    CHECK(dev.open_sim(&fh1));
+    CHECK(ATHandler_stub::ref_count == 1);
+
+    dev.set_timeout(5000);
+    CHECK(ATHandler_stub::timeout == 5000);
+    CHECK(ATHandler_stub::default_timeout == true);
+
+    dev.close_sim();
+}
+
+void Test_AT_CellularDevice::test_AT_CellularDevice_modem_debug_on()
+{
+    EventQueue que;
+    AT_CellularDevice dev(que);
+    FileHandle_stub fh1;
+    ATHandler_stub::debug_on = false;
+
+    // no interfaces open so debug toggling should not affect
+    dev.modem_debug_on(true);
+    CHECK(ATHandler_stub::debug_on == false);
+
+    CHECK(dev.open_sim(&fh1));
+    CHECK(ATHandler_stub::ref_count == 1);
+
+    dev.modem_debug_on(true);
+    CHECK(ATHandler_stub::debug_on == true);
+
+    dev.close_sim();
+}
+
+void Test_AT_CellularDevice::test_AT_CellularDevice_get_stack()
+{
+    EventQueue que;
+    AT_CellularDevice dev(que);
+    FileHandle_stub fh1;
+
+    NetworkStack *stack = dev.get_stack();
+    CHECK(stack == NULL);
+
+    CHECK(dev.open_network(&fh1));
+
+    stack = dev.get_stack();
+    CHECK(stack == NULL); // Not in PPP so also null but this is got from the network class
 }
 

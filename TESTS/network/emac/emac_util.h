@@ -58,7 +58,7 @@ extern const unsigned char eth_mac_broadcast_addr[];
 #define RESET_ERROR_FLAGS(flags) emac_if_reset_error_flags(flags)
 
 #define ETH_FRAME_HEADER_LEN    28
-#define ETH_FRAME_MIN_LEN       60
+#define ETH_FRAME_MIN_LEN       60 + 4
 #define ETH_MAC_ADDR_LEN        6
 
 #define TIMEOUT                 1

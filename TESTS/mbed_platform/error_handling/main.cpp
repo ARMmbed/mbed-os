@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #include "greentea-client/test_env.h"
 #include "utest/utest.h"
 #include "unity/unity.h"
@@ -124,7 +125,7 @@ void test_error_context_capture()
     mbed_error_status_t status = mbed_get_last_error_info( &error_ctx );
     TEST_ASSERT(status == MBED_SUCCESS);
     TEST_ASSERT_EQUAL_UINT(error_value, error_ctx.error_value);
-    TEST_ASSERT_EQUAL_UINT(osThreadGetId(), error_ctx.thread_id);
+    TEST_ASSERT_EQUAL_UINT((uint32_t)osThreadGetId(), error_ctx.thread_id);
     
     //Capture thread info and compare
     osRtxThread_t *current_thread = osRtxInfo.thread.run.curr;
@@ -346,15 +347,19 @@ utest::v1::status_t test_setup(const size_t number_of_cases)
 Case cases[] = {
     Case("Test error counting and reset", test_error_count_and_reset),
     Case("Test error encoding, value capture, first and last errors", test_error_capturing),
+#if MBED_CONF_RTOS_PRESENT
     Case("Test error context capture", test_error_context_capture),
+#endif //MBED_CONF_RTOS_PRESENT
     Case("Test error hook", test_error_hook),
 #ifndef MBED_CONF_ERROR_HIST_DISABLED    
     Case("Test error logging", test_error_logging),
+#if MBED_CONF_RTOS_PRESENT
     Case("Test error handling multi-threaded", test_error_logging_multithread),
+#endif //MBED_CONF_RTOS_PRESENT
 #ifdef MBED_TEST_SIM_BLOCKDEVICE    
     Case("Test error save log", test_save_error_log),
-#endif    
-#endif    
+#endif //MBED_TEST_SIM_BLOCKDEVICE
+#endif //MBED_CONF_ERROR_HIST_DISABLED
 };
 
 utest::v1::Specification specification(test_setup, cases);

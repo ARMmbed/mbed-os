@@ -77,3 +77,13 @@ nsapi_error_t NetworkInterface::set_blocking(bool blocking)
     return NSAPI_ERROR_UNSUPPORTED;
 }
 
+nsapi_value_or_error_t NetworkInterface::gethostbyname_async(char const*, mbed::Callback<void (int, SocketAddress*)>, nsapi_version)
+{
+    return NSAPI_ERROR_UNSUPPORTED;
+}
+
+nsapi_error_t NetworkInterface::gethostbyname_async_cancel(int id)
+{
+    return NSAPI_ERROR_UNSUPPORTED;
+}
+

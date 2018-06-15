@@ -23,7 +23,7 @@
 
 using namespace events;
 
-LoRaWANInterface::LoRaWANInterface(LoRaRadio& radio)
+LoRaWANInterface::LoRaWANInterface(LoRaRadio &radio)
 {
     _lw_stack.bind_radio_driver(radio);
 }
@@ -116,7 +116,7 @@ lorawan_status_t LoRaWANInterface::remove_channel_plan()
     return _lw_stack.drop_channel_list();
 }
 
-int16_t LoRaWANInterface::send(uint8_t port, const uint8_t* data, uint16_t length, int flags)
+int16_t LoRaWANInterface::send(uint8_t port, const uint8_t *data, uint16_t length, int flags)
 {
     Lock lock(*this);
     return _lw_stack.handle_tx(port, data, length, flags);
@@ -146,13 +146,13 @@ lorawan_status_t LoRaWANInterface::get_backoff_metadata(int &backoff)
     return _lw_stack.acquire_backoff_metadata(backoff);
 }
 
-int16_t LoRaWANInterface::receive(uint8_t port, uint8_t* data, uint16_t length, int flags)
+int16_t LoRaWANInterface::receive(uint8_t port, uint8_t *data, uint16_t length, int flags)
 {
     Lock lock(*this);
     return _lw_stack.handle_rx(data, length, port, flags, true);
 }
 
-int16_t LoRaWANInterface::receive(uint8_t* data, uint16_t length, uint8_t& port, int& flags)
+int16_t LoRaWANInterface::receive(uint8_t *data, uint16_t length, uint8_t &port, int &flags)
 {
     Lock lock(*this);
     return _lw_stack.handle_rx(data, length, port, flags, false);

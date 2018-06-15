@@ -44,6 +44,9 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f7xx_hal_def.h"
 
+/* Include low level driver */
+#include "stm32f7xx_ll_adc.h"
+
 /** @addtogroup STM32F7xx_HAL_Driver
   * @{
   */

@@ -27,7 +27,7 @@
             "ppp-cell-iface.apn-lookup": false,
             "cellular.use-apn-lookup": false,
             "target.features_add": ["LWIP"],
-            "mbed-trace.enable": true,
+            "mbed-trace.enable": false,
             "lwip.ipv4-enabled": true,
             "lwip.ipv6-enabled": true,
             "lwip.tcp-enabled": false,

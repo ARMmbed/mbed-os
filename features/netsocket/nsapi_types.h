@@ -54,6 +54,7 @@ enum nsapi_error {
     NSAPI_ERROR_CONNECTION_LOST     = -3016,     /*!< connection lost */
     NSAPI_ERROR_CONNECTION_TIMEOUT  = -3017,     /*!< connection timed out */
     NSAPI_ERROR_ADDRESS_IN_USE      = -3018,     /*!< Address already in use */
+    NSAPI_ERROR_TIMEOUT             = -3019,     /*!< operation timed out */
 };
 
 

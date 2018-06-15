@@ -35,11 +35,9 @@
 #include "pinmap.h"
 #include "mbed_error.h"
 #include "PeripheralPins.h"
-#include <stdbool.h>
 
 void analogin_init(analogin_t *obj, PinName pin)
 {
-    static bool adc_calibrated = false;
     uint32_t function = (uint32_t)NC;
 
     // ADC Internal Channels "pins"  (Temperature, Vref, Vbat, ...)
@@ -106,12 +104,10 @@ void analogin_init(analogin_t *obj, PinName pin)
 #endif
 
     if (HAL_ADC_Init(&obj->handle) != HAL_OK) {
-        error("Cannot initialize ADC");
+        error("Cannot initialize ADC\n");
     }
 
-    // ADC calibration is done only once
-    if (!adc_calibrated) {
-        adc_calibrated = true;
+    if (!HAL_ADCEx_Calibration_GetValue(&obj->handle, ADC_SINGLE_ENDED)) {
         HAL_ADCEx_Calibration_Start(&obj->handle, ADC_SINGLE_ENDED);
     }
 }
@@ -171,16 +167,47 @@ uint16_t adc_read(analogin_t *obj)
             sConfig.Channel = ADC_CHANNEL_14;
             break;
         case 15:
-            sConfig.Channel = ADC_CHANNEL_15;
+            if ((ADCName)obj->handle.Instance == ADC_1) {
+                sConfig.Channel = ADC_CHANNEL_VOPAMP1;
+                sConfig.SamplingTime = ADC_SAMPLETIME_181CYCLES_5;
+            }
+            else {
+                sConfig.Channel = ADC_CHANNEL_15;
+            }
             break;
         case 16:
-            sConfig.Channel = ADC_CHANNEL_16;
+            if ((ADCName)obj->handle.Instance == ADC_1) {
+                sConfig.Channel = ADC_CHANNEL_TEMPSENSOR;
+                sConfig.SamplingTime = ADC_SAMPLETIME_181CYCLES_5;
+            }
+            else {
+                sConfig.Channel = ADC_CHANNEL_16;
+            }
             break;
         case 17:
-            sConfig.Channel = ADC_CHANNEL_17;
+            sConfig.SamplingTime = ADC_SAMPLETIME_181CYCLES_5;
+            if ((ADCName)obj->handle.Instance == ADC_1) {
+                sConfig.Channel = ADC_CHANNEL_VBAT;
+            }
+#if defined(ADC2)
+            if ((ADCName)obj->handle.Instance == ADC_2) {
+                sConfig.Channel = ADC_CHANNEL_VOPAMP2;
+            }
+#endif
+#if defined(ADC3)
+            if ((ADCName)obj->handle.Instance == ADC_3) {
+                sConfig.Channel = ADC_CHANNEL_VOPAMP3;
+            }
+#endif
+#if defined(ADC4)
+            if ((ADCName)obj->handle.Instance == ADC_4) {
+                sConfig.Channel = ADC_CHANNEL_VOPAMP4;
+            }
+#endif
             break;
         case 18:
-            sConfig.Channel = ADC_CHANNEL_18;
+            sConfig.SamplingTime = ADC_SAMPLETIME_181CYCLES_5;
+            sConfig.Channel = ADC_CHANNEL_VREFINT;
             break;
         default:
             return 0;
