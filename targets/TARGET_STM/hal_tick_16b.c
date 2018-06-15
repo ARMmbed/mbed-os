@@ -34,7 +34,8 @@ void timer_irq_handler(void)
 
 #if defined(TARGET_STM32F0)
 } // end timer_update_irq_handler function
-// Used for mbed timeout (channel 1) and HAL tick (channel 2)
+
+// Channel 1 used for mbed timeout
 void timer_oc_irq_handler(void)
 {
     TimMasterHandle.Instance = TIM_MST;
