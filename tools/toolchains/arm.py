@@ -175,6 +175,9 @@ class ARM(mbedToolchain):
 
     def get_compile_options(self, defines, includes, for_asm=False):
         opts = ['-D%s' % d for d in defines]
+        config_header = self.get_config_header()
+        if config_header is not None:
+            opts = opts + self.get_config_option(config_header)
         if for_asm:
             return opts
         if self.RESPONSE_FILES:
@@ -182,9 +185,6 @@ class ARM(mbedToolchain):
         else:
             opts += ["-I%s" % i for i in includes]
 
-        config_header = self.get_config_header()
-        if config_header is not None:
-            opts = opts + self.get_config_option(config_header)
         return opts
 
     @hook_tool
