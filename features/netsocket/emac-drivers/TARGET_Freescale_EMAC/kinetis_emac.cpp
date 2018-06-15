@@ -66,8 +66,6 @@ uint32_t *rx_ptr[ENET_RX_RING_LEN];
 #define ENET_ALIGN(x,align)   ((unsigned int)((x) + ((align)-1)) & (unsigned int)(~(unsigned int)((align)- 1)))
 
 extern "C" void kinetis_init_eth_hardware(void);
-extern "C" uint32_t ENET_GetInstance(ENET_Type *base);
-extern "C" clock_ip_name_t s_enetClock[];
 
 /* \brief Flags for worker thread */
 #define FLAG_TX  1
@@ -232,7 +230,7 @@ bool Kinetis_EMAC::low_level_init_successful()
 
     ENET_GetDefaultConfig(&config);
 
-    if (init_enet_phy(ENET, phyAddr, sysClock) != kStatus_Success) {
+    if (PHY_Init(ENET, phyAddr, sysClock) != kStatus_Success) {
         return false;
     }
 
@@ -261,78 +259,6 @@ bool Kinetis_EMAC::low_level_init_successful()
     ENET_ActiveRead(ENET);
 
     return true;
-}
-
-status_t Kinetis_EMAC::init_enet_phy(ENET_Type *base, uint32_t phyAddr, uint32_t srcClock_Hz)
-{
-    status_t result = kStatus_Success;
-    uint32_t instance = ENET_GetInstance(base);
-
-#if TARGET_K66F
-    uint32_t counter = 0xFFFFFU;
-    uint32_t idReg = 0;
-
-#if !(defined(FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL) && FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL)
-    /* Set SMI first. */
-    CLOCK_EnableClock(s_enetClock[instance]);
-#endif /* FSL_SDK_DISABLE_DRIVER_CLOCK_CONTROL */
-    ENET_SetSMI(base, srcClock_Hz, false);
-
-    /* Initialization after PHY stars to work. */
-    while ((idReg != PHY_CONTROL_ID1) && (counter != 0)) {
-        PHY_Read(base, phyAddr, PHY_ID1_REG, &idReg);
-        counter --;
-    }
-
-    if (!counter) {
-        return kStatus_Fail;
-    }
-
-    counter = 0xFFFFFU;
-#elif TARGET_K64F
-    /* Set SMI first. */
-    CLOCK_EnableClock(s_enetClock[instance]);
-    ENET_SetSMI(base, srcClock_Hz, false);
-#else
-#error invalid target!
-#endif
-
-    /* Reset PHY. */
-    result = PHY_Write(base, phyAddr, PHY_BASICCONTROL_REG, PHY_BCTL_RESET_MASK);
-    return result;
-}
-
-status_t Kinetis_EMAC::auto_negotiation(ENET_Type *base, uint32_t phyAddr)
-{
-    uint32_t bssReg;
-    status_t result;
-    uint32_t counter = 0xFFFFFFU;
-
-    /* Set the negotiation. */
-    result = PHY_Write(base, phyAddr, PHY_AUTONEG_ADVERTISE_REG,
-                       (PHY_100BASETX_FULLDUPLEX_MASK | PHY_100BASETX_HALFDUPLEX_MASK |
-                        PHY_10BASETX_FULLDUPLEX_MASK | PHY_10BASETX_HALFDUPLEX_MASK | 0x1U));
-    if (result == kStatus_Success) {
-        result = PHY_Write(base, phyAddr, PHY_BASICCONTROL_REG,
-                           (PHY_BCTL_AUTONEG_MASK | PHY_BCTL_RESTART_AUTONEG_MASK));
-        if (result == kStatus_Success) {
-            /* Check auto negotiation complete. */
-            while (counter --) {
-                result = PHY_Read(base, phyAddr, PHY_BASICSTATUS_REG, &bssReg);
-                if (result == kStatus_Success) {
-                    if ((bssReg & PHY_BSTATUS_AUTONEGCOMP_MASK) != 0) {
-                        break;
-                    }
-                }
-
-                if (!counter) {
-                    return kStatus_PHY_AutoNegotiateFail;
-                }
-            }
-        }
-    }
-
-    return result;
 }
 
 /** \brief  Allocates a emac_mem_buf_t and returns the data from the incoming packet.
@@ -544,7 +470,7 @@ void Kinetis_EMAC::phy_task()
 
     if (crt_state.connected == STATE_LINK_UP) {
         if (prev_state.connected != STATE_LINK_UP) {
-            auto_negotiation(ENET, phyAddr);
+            PHY_AutoNegotiation(ENET, phyAddr);
         }
 
         PHY_GetLinkSpeedDuplex(ENET, phyAddr, &crt_state.speed, &crt_state.duplex);
