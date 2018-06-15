@@ -26,7 +26,11 @@ public:
 
     void test_AT_CellularNetwork_constructor();
 
+    void test_AT_CellularNetwork_init();
+
     void test_AT_CellularNetwork_set_credentials();
+
+    void test_AT_CellularNetwork_activate_context();
 
     void test_AT_CellularNetwork_connect();
 
@@ -37,6 +41,10 @@ public:
     void test_AT_CellularNetwork_set_registration();
 
     void test_AT_CellularNetwork_get_registration_status();
+
+    void test_AT_CellularNetwork_get_network_registering_mode();
+
+    void test_AT_CellularNetwork_set_registration_urc();
 
     void test_AT_CellularNetwork_set_attach();
 
@@ -51,6 +59,8 @@ public:
     void test_AT_CellularNetwork_get_ip_address();
 
     void test_AT_CellularNetwork_set_access_technology();
+
+    void test_AT_CellularNetwork_get_access_technology();
 
     void test_AT_CellularNetwork_scan_plmn();
 
@@ -75,6 +85,12 @@ public:
     void test_AT_CellularNetwork_get_operator_params();
 
     void test_AT_CellularNetwork_get_operator_names();
+
+    void test_AT_CellularNetwork_attach();
+
+    void test_get_connection_status();
+
+    void test_set_blocking();
 };
 
 #endif // TEST_AT_CELLULARNETWORK_H
