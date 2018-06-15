@@ -90,21 +90,6 @@ nsapi_error_t AT_CellularNetwork::set_blocking(bool blocking)
     return NSAPI_ERROR_OK;;
 }
 
-nsapi_error_t AT_CellularNetwork::set_context_to_be_activated()
-{
-    return NSAPI_ERROR_OK;
-}
-
-//bool AT_CellularNetwork::set_new_context(nsapi_ip_stack_t stack, int cid)
-//{
-//  return false;
-//}
-
-//bool AT_CellularNetwork::get_context(nsapi_ip_stack_t requested_stack)
-//{
-//    return false;
-//}
-
 nsapi_ip_stack_t AT_CellularNetwork::string_to_stack_type(const char* pdp_type)
 {
     return IPV4_STACK;
@@ -261,3 +246,11 @@ nsapi_error_t AT_CellularNetwork::get_operator_names(operator_names_list &op_nam
 {
     return NSAPI_ERROR_OK;
 }
+
+nsapi_error_t AT_CellularNetwork::do_user_authentication()
+{
+    return NSAPI_ERROR_OK;
+}
+
+
+
