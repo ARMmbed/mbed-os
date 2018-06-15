@@ -102,7 +102,7 @@ void AT_CellularNetwork::free_credentials()
 void AT_CellularNetwork::urc_no_carrier()
 {
     tr_error("Data call failed: no carrier");
-    call_network_cb(NSAPI_STATUS_DISCONNECTED, NSAPI_ERROR_OK);
+    call_network_cb(NSAPI_STATUS_DISCONNECTED);
 }
 
 void AT_CellularNetwork::read_reg_params_and_compare(RegistrationType type)
@@ -248,7 +248,7 @@ nsapi_error_t AT_CellularNetwork::activate_context()
     nsapi_error_t err = NSAPI_ERROR_OK;
 
     // try to find or create context with suitable stack
-    if(get_context()) {
+    if (get_context()) {
         // try to authenticate user before activating or modifying context
         err = do_user_authentication();
     } else {
@@ -258,7 +258,7 @@ nsapi_error_t AT_CellularNetwork::activate_context()
     if (err != NSAPI_ERROR_OK) {
         _at.unlock();
         tr_error("Failed to activate network context! (%d)", err);
-        call_network_cb(NSAPI_STATUS_DISCONNECTED, NSAPI_ERROR_OK);
+        call_network_cb(NSAPI_STATUS_DISCONNECTED);
 
         return err;
     }
@@ -308,14 +308,14 @@ nsapi_error_t AT_CellularNetwork::activate_context()
 
 nsapi_error_t AT_CellularNetwork::connect()
 {
-    call_network_cb(NSAPI_STATUS_CONNECTING, NSAPI_ERROR_OK);
+    call_network_cb(NSAPI_STATUS_CONNECTING);
 
     nsapi_error_t err = NSAPI_ERROR_OK;
     if (!_is_context_active) {
         err = activate_context();
     }
     if (err) {
-        call_network_cb(NSAPI_STATUS_DISCONNECTED, err);
+        call_network_cb(NSAPI_STATUS_DISCONNECTED);
         return err;
     }
 
@@ -325,14 +325,11 @@ nsapi_error_t AT_CellularNetwork::connect()
     _at.unlock();
     if (err != NSAPI_ERROR_OK) {
         tr_error("Failed to open data channel!");
-        _connect_status = NSAPI_STATUS_DISCONNECTED;
-        if (_connection_status_cb) {
-            _connection_status_cb(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_STATUS_DISCONNECTED);
-        }
+        call_network_cb(NSAPI_STATUS_DISCONNECTED);
         return err;
     }
 #else
-    call_network_cb(NSAPI_STATUS_GLOBAL_UP, NSAPI_ERROR_OK);
+    call_network_cb(NSAPI_STATUS_GLOBAL_UP);
 #endif
 
     return NSAPI_ERROR_OK;
@@ -389,20 +386,18 @@ nsapi_error_t AT_CellularNetwork::disconnect()
     _at.resp_stop();
     _at.restore_at_timeout();
 
-    call_network_cb(NSAPI_STATUS_DISCONNECTED, _at.get_last_error());
+    call_network_cb(NSAPI_STATUS_DISCONNECTED);
 
     return _at.unlock_return_error();
 #endif
 }
 
-void AT_CellularNetwork::call_network_cb(nsapi_connection_status_t status, nsapi_error_t err)
+void AT_CellularNetwork::call_network_cb(nsapi_connection_status_t status)
 {
-    if (err == NSAPI_ERROR_OK) {
-        if (_connect_status != status) {
-            _connect_status = status;
-            if (_connection_status_cb) {
-                _connection_status_cb(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, _connect_status);
-            }
+    if (_connect_status != status) {
+        _connect_status = status;
+        if (_connection_status_cb) {
+            _connection_status_cb(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, _connect_status);
         }
     }
 }
@@ -572,6 +567,7 @@ bool AT_CellularNetwork::get_context()
                             break;
                         }
                     } else {
+                        // requested dual stack or stack is not specified
                         // If dual PDP need to check for IPV4 or IPV6 modem support. Prefer IPv6.
                         if (pdp_stack == IPV4V6_STACK) {
                             if (modem_supports_ipv6) {
@@ -826,7 +822,7 @@ nsapi_error_t AT_CellularNetwork::detach()
     _at.resp_start();
     _at.resp_stop();
 
-    call_network_cb(NSAPI_STATUS_DISCONNECTED, _at.get_last_error());
+    call_network_cb(NSAPI_STATUS_DISCONNECTED);
 
     return _at.unlock_return_error();
 }
