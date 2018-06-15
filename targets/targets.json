@@ -2242,7 +2242,7 @@
         "extra_labels_add": ["STM32L4", "STM32L471QG", "STM32L471xG", "STM32L471xx"],
         "config": {
             "clock_source": {
-                "help": "Mask value : USE_PLL_HSE_EXTC (need HW patch) | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI | USE_PLL_MSI",
+                "help": "Mask value : USE_PLL_HSI | USE_PLL_MSI",
                 "value": "USE_PLL_MSI",
                 "macro_name": "CLOCK_SOURCE"
             },
