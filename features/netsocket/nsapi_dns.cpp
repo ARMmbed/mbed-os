@@ -111,12 +111,15 @@ static nsapi_addr_t dns_servers[DNS_SERVERS_SIZE] = {
                   0,0, 0,0, 0x1c,0x04, 0xb1,0x2f}},
 };
 
+#if (MBED_CONF_NSAPI_DNS_CACHE_SIZE > 0)
 static DNS_CACHE *dns_cache[MBED_CONF_NSAPI_DNS_CACHE_SIZE];
+// Protects cache shared between blocking and asynchronous calls
+static SingletonPtr<PlatformMutex> dns_cache_mutex;
+#endif
+
 static uint16_t dns_message_id = 1;
 static int dns_unique_id = 1;
 static DNS_QUERY *dns_query_queue[DNS_QUERY_QUEUE_SIZE];
-// Protects cache shared between blocking and asynchronous calls
-static SingletonPtr<PlatformMutex> dns_cache_mutex;
 // Protects from several threads running asynchronous DNS
 static SingletonPtr<PlatformMutex> dns_mutex;
 static SingletonPtr<call_in_callback_cb_t> dns_call_in;
@@ -306,6 +309,7 @@ static int dns_scan_response(const uint8_t *ptr, uint16_t exp_id, uint32_t *ttl,
 
 static void nsapi_dns_cache_add(const char *host, nsapi_addr_t *address, uint32_t ttl)
 {
+#if (MBED_CONF_NSAPI_DNS_CACHE_SIZE > 0)
     // RFC 1034: if TTL is zero, entry is not added to cache
     if (ttl == 0) {
         return;
@@ -354,12 +358,14 @@ static void nsapi_dns_cache_add(const char *host, nsapi_addr_t *address, uint32_
     }
 
     dns_cache_mutex->unlock();
+#endif
 }
 
 static nsapi_error_t nsapi_dns_cache_find(const char *host, nsapi_version_t version, nsapi_addr_t *address)
 {
     nsapi_error_t ret_val = NSAPI_ERROR_NO_ADDRESS;
 
+#if (MBED_CONF_NSAPI_DNS_CACHE_SIZE > 0)
     dns_cache_mutex->lock();
 
     for (int i = 0; i < MBED_CONF_NSAPI_DNS_CACHE_SIZE; i++) {
@@ -382,6 +388,7 @@ static nsapi_error_t nsapi_dns_cache_find(const char *host, nsapi_version_t vers
     }
 
     dns_cache_mutex->unlock();
+#endif
 
     return ret_val;
 }
