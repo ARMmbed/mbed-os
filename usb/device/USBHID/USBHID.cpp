@@ -26,7 +26,7 @@ public:
 
     }
 
-    ~AsyncSend()
+    virtual ~AsyncSend()
     {
 
     }
@@ -58,7 +58,7 @@ public:
 
     }
 
-    ~AsyncRead()
+    virtual ~AsyncRead()
     {
 
     }
@@ -90,7 +90,7 @@ public:
 
     }
 
-    ~AsyncWait()
+    virtual ~AsyncWait()
     {
 
     }
