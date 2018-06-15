@@ -10,6 +10,7 @@ TEST_SRC_FILES = \
 	main.cpp \
         utiltest.cpp \
         test_util.cpp \
+        ../../stubs/randLIB_stub.cpp \
 
 include ../../MakefileWorker.mk
 

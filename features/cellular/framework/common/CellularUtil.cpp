@@ -334,7 +334,7 @@ uint16_t get_dynamic_ip_port()
     if (port_counter >= RANDOM_PORT_NUMBER_COUNT) {
         port_counter -= RANDOM_PORT_NUMBER_COUNT;
     }
- 
+
     return (RANDOM_PORT_NUMBER_START + port_counter);
 }
 
