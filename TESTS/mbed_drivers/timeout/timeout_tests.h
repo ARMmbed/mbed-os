@@ -305,14 +305,19 @@ void test_deepsleep(void)
     LowPowerTimer timer;
 
     /*
-     * Since deepsleep() may shut down the UART peripheral, we wait for 10ms
+     * Since deepsleep() may shut down the UART peripheral, we wait for 20ms
      * to allow for hardware serial buffers to completely flush.
+     *
+     * Take NUMAKER_PFM_NUC472 as an example:
+     * Its UART peripheral has 16-byte Tx FIFO. With baud rate set to 9600, flush
+     * Tx FIFO would take: 16 * 8 * 1000 / 9600 = 13.3 (ms). So set wait time to
+     * 20ms here for safe.
 
      * This should be replaced with a better function that checks if the
      * hardware buffers are empty. However, such an API does not exist now,
      * so we'll use the wait_ms() function for now.
      */
-    wait_ms(10);
+    wait_ms(20);
 
     timer.start();
     timeout.attach_callback(mbed::callback(sem_callback, &sem), delay_us);
