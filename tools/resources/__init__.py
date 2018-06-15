@@ -183,7 +183,7 @@ class Resources(object):
     def win_to_unix(self):
         self._win_to_unix = True
         for file_type in self.ALL_FILE_TYPES:
-            v = [f._replace(name=f.replace('\\', '/')) for
+            v = [f._replace(name=f.name.replace('\\', '/')) for
                  f in self.get_file_refs(file_type)]
             self._file_refs[file_type] = v
 
