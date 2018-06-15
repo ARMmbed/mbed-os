@@ -321,7 +321,11 @@ class Resources(object):
 
     @property
     def linker_script(self):
-        return self.get_file_names(FileType.LD_SCRIPT)[-1]
+        options = self.get_file_names(FileType.LD_SCRIPT)
+        if options:
+            return options[-1]
+        else:
+            return None
 
     @property
     def hex_files(self):
