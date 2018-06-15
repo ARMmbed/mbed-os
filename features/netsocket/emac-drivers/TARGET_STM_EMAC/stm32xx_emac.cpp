@@ -125,7 +125,7 @@ bool STM32_EMAC::low_level_init_successful()
 #endif
     EthHandle.Init.MACAddr = &MACAddr[0];
     EthHandle.Init.RxMode = ETH_RXINTERRUPT_MODE;
-    EthHandle.Init.ChecksumMode = ETH_CHECKSUM_BY_HARDWARE;
+    EthHandle.Init.ChecksumMode = ETH_CHECKSUM_BY_SOFTWARE;
     EthHandle.Init.MediaInterface = ETH_MEDIA_INTERFACE_RMII;
     HAL_ETH_Init(&EthHandle);
 
