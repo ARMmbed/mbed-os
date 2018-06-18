@@ -114,9 +114,9 @@ public:
     virtual ble_error_t stopRadioScan();
 
     /**
-     * @see Gap::connect
+     * @see Gap::startRadioConnect
      */
-    virtual ble_error_t connect(
+    virtual ble_error_t startRadioConnect(
         const BLEProtocol::AddressBytes_t peerAddr,
         PeerAddressType_t peerAddrType,
         const ConnectionParams_t *connectionParams,
@@ -124,9 +124,9 @@ public:
     );
 
     /**
-     * @see Gap::connect
+     * @see Gap::startRadioConnect
      */
-    virtual ble_error_t connect(
+    virtual ble_error_t startRadioConnect(
         const BLEProtocol::AddressBytes_t peerAddr,
         BLEProtocol::AddressType_t peerAddrType,
         const ConnectionParams_t *connectionParams,

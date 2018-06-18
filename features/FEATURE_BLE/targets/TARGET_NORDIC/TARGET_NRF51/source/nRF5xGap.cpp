@@ -414,7 +414,7 @@ ble_error_t nRF5xGap::stopAdvertising(void)
     return BLE_ERROR_NONE;
 }
 
-ble_error_t nRF5xGap::connect(
+ble_error_t nRF5xGap::startRadioConnect(
     const Address_t peerAddr,
     peer_address_type_t peerAddrType,
     const ConnectionParams_t *connectionParams,
@@ -465,7 +465,7 @@ ble_error_t nRF5xGap::connect(
     return connect(peerAddr, legacy_address, connectionParams, scanParamsIn, identity);
 }
 
-ble_error_t nRF5xGap::connect(
+ble_error_t nRF5xGap::startRadioConnect(
     const Address_t peerAddr,
     LegacyAddressType_t peerAddrType,
     const ConnectionParams_t *connectionParams,

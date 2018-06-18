@@ -274,10 +274,10 @@ ble_error_t nRF5xGap::stopAdvertising(void)
     return BLE_ERROR_NONE;
 }
 
-ble_error_t nRF5xGap::connect(const Address_t             peerAddr,
-                              BLEProtocol::AddressType_t  peerAddrType,
-                              const ConnectionParams_t   *connectionParams,
-                              const GapScanningParams    *scanParamsIn)
+ble_error_t nRF5xGap::startRadioConnect(const Address_t             peerAddr,
+                                        BLEProtocol::AddressType_t  peerAddrType,
+                                        const ConnectionParams_t   *connectionParams,
+                                        const GapScanningParams    *scanParamsIn)
 {
     ble_gap_addr_t addr;
     addr.addr_type = peerAddrType;

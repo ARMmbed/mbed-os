@@ -529,7 +529,7 @@ ble_error_t GenericGap::stopRadioScan()
     return BLE_ERROR_NONE;
 }
 
-ble_error_t GenericGap::connect(
+ble_error_t GenericGap::startRadioConnect(
     const Address_t peerAddr,
     PeerAddressType_t peerAddrType,
     const ConnectionParams_t *connectionParams,
@@ -551,9 +551,6 @@ ble_error_t GenericGap::connect(
         return BLE_ERROR_PARAM_OUT_OF_RANGE;
     }
 
-    // Force scan stop before initiating the scan used for connection
-    stopScan();
-
     return _pal_gap.create_connection(
         scanParams->getInterval(),
         scanParams->getWindow(),
@@ -571,13 +568,13 @@ ble_error_t GenericGap::connect(
 }
 
 
-ble_error_t GenericGap::connect(
+ble_error_t GenericGap::startRadioConnect(
     const Address_t peerAddr,
     LegacyAddressType_t peerAddrType,
     const ConnectionParams_t* connectionParams,
     const GapScanningParams* scanParams
 ) {
-    return connect(
+    return startRadioConnect(
         peerAddr,
         to_peer_address_type(peerAddrType),
         connectionParams,

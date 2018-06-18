@@ -1232,6 +1232,8 @@ public:
      * Once the connection is established, a ConnectionCallbackParams_t event is
      * emitted to handlers that have been registered with onConnection().
      *
+     * @note It stops scanning procedure if there is.
+     *
      * @param[in] peerAddr MAC address of the peer. It must be in LSB format.
      * @param[in] peerAddrType Address type of the peer. It is usually obtained
      * from advertising frames.
@@ -1242,21 +1244,16 @@ public:
      * successfully. The connectionCallChain (if set) is invoked upon
      * a connection event.
      */
-    virtual ble_error_t connect(
+    ble_error_t connect(
         const BLEProtocol::AddressBytes_t peerAddr,
         PeerAddressType_t peerAddrType,
         const ConnectionParams_t *connectionParams,
         const GapScanningParams *scanParams
     ) {
-        /* Avoid compiler warnings about unused variables. */
-        (void)peerAddr;
-        (void)peerAddrType;
-        (void)connectionParams;
-        (void)scanParams;
+        // Force scan stop before initiating the scan used for connection
+        stopScan();
 
-        /* Requesting action from porter(s): override this API if this capability
-           is supported. */
-        return BLE_ERROR_NOT_IMPLEMENTED;
+        return startRadioConnect(peerAddr, peerAddrType, connectionParams, scanParams);
     }
 
     /**
@@ -1264,6 +1261,8 @@ public:
      *
      * Once the connection is established, a ConnectionCallbackParams_t event is
      * emitted to handlers that have been registered with onConnection().
+     *
+     * @note It stops scanning procedure if there is.
      *
      * @param[in] peerAddr MAC address of the peer. It must be in LSB format.
      * @param[in] peerAddrType Address type of the peer.
@@ -1283,21 +1282,16 @@ public:
         "This function won't work if privacy is enabled; You must use the overload "
         "accepting PeerAddressType_t."
     )
-    virtual ble_error_t connect(
+    ble_error_t connect(
         const BLEProtocol::AddressBytes_t peerAddr,
         BLEProtocol::AddressType_t peerAddrType,
         const ConnectionParams_t *connectionParams,
         const GapScanningParams *scanParams
     ) {
-        /* Avoid compiler warnings about unused variables. */
-        (void)peerAddr;
-        (void)peerAddrType;
-        (void)connectionParams;
-        (void)scanParams;
+        // Force scan stop before initiating the scan used for connection
+        stopScan();
 
-        /* Requesting action from porter(s): override this API if this capability
-           is supported. */
-        return BLE_ERROR_NOT_IMPLEMENTED;
+        return startRadioConnect(peerAddr, peerAddrType, connectionParams, scanParams);
     }
 
     /**
@@ -1712,6 +1706,80 @@ protected:
      */
     virtual ble_error_t stopRadioScan()
     {
+        /* Requesting action from porter(s): override this API if this capability
+           is supported. */
+        return BLE_ERROR_NOT_IMPLEMENTED;
+    }
+
+    /**
+     * Initiate a connecting procedure to a peer in the underlying BLE stack.
+     *
+     * Once the connection is established, a ConnectionCallbackParams_t event is
+     * emitted to handlers that have been registered with onConnection().
+     *
+     * @param[in] peerAddr MAC address of the peer. It must be in LSB format.
+     * @param[in] peerAddrType Address type of the peer. It is usually obtained
+     * from advertising frames.
+     * @param[in] connectionParams Connection parameters to use.
+     * @param[in] scanParams Scan parameters used to find the peer.
+     *
+     * @return BLE_ERROR_NONE if connection establishment procedure is started
+     * successfully. The connectionCallChain (if set) is invoked upon
+     * a connection event.
+     */
+    virtual ble_error_t startRadioConnect(
+        const BLEProtocol::AddressBytes_t peerAddr,
+        PeerAddressType_t peerAddrType,
+        const ConnectionParams_t *connectionParams,
+        const GapScanningParams *scanParams
+    ) {
+        /* Avoid compiler warnings about unused variables. */
+        (void)peerAddr;
+        (void)peerAddrType;
+        (void)connectionParams;
+        (void)scanParams;
+
+        /* Requesting action from porter(s): override this API if this capability
+           is supported. */
+        return BLE_ERROR_NOT_IMPLEMENTED;
+    }
+
+    /**
+     * Initiate a connecting procedure to a peer in the underlying BLE stack.
+     *
+     * Once the connection is established, a ConnectionCallbackParams_t event is
+     * emitted to handlers that have been registered with onConnection().
+     *
+     * @param[in] peerAddr MAC address of the peer. It must be in LSB format.
+     * @param[in] peerAddrType Address type of the peer.
+     * @param[in] connectionParams Connection parameters to use.
+     * @param[in] scanParams Scan parameters used to find the peer.
+     *
+     * @deprecated BLEProtocol::AddressType_t is not able to to carry accurate
+     * meaning when privacy is in use. Please Uses the connect overload that
+     * accept a PeerAddressType_t as the peer address type.
+     *
+     * @return BLE_ERROR_NONE if connection establishment procedure is started
+     * successfully. The connectionCallChain (if set) is invoked upon
+     * a connection event.
+     */
+    MBED_DEPRECATED_SINCE(
+        "mbed-os-5.9.0",
+        "This function won't work if privacy is enabled; You must use the overload "
+        "accepting PeerAddressType_t."
+    )
+    virtual ble_error_t startRadioConnect(
+        const BLEProtocol::AddressBytes_t peerAddr,
+        BLEProtocol::AddressType_t peerAddrType,
+        const ConnectionParams_t *connectionParams,
+        const GapScanningParams *scanParams
+    ) {
+        /* Avoid compiler warnings about unused variables. */
+        (void)peerAddr;
+        (void)peerAddrType;
+        (void)connectionParams;
+        (void)scanParams;
+
         /* Requesting action from porter(s): override this API if this capability
            is supported. */
         return BLE_ERROR_NOT_IMPLEMENTED;
