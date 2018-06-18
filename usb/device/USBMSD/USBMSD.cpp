@@ -63,7 +63,7 @@ enum Status {
 
 USBMSD::USBMSD(BlockDevice *bd, USBPhy *phy, uint16_t vendor_id, uint16_t product_id, uint16_t product_release)
     : USBDevice(phy, vendor_id, product_id, product_release),
-      _in_task(&_queue), _out_task(&_queue), _reset_task(&_queue), _control_task(&_queue), _configure_task(&_queue)
+      _init(false), _in_task(&_queue), _out_task(&_queue), _reset_task(&_queue), _control_task(&_queue), _configure_task(&_queue)
 {
     _bd = bd;
     _bd->init();
@@ -91,16 +91,26 @@ USBMSD::~USBMSD()
 {
     disconnect();
     _bd->deinit();
+    deinit();
 }
 
 bool USBMSD::connect()
 {
+    _mutex_init.lock();
     _mutex.lock();
+
+    // already initialized
+    if (_init) {
+        _mutex.unlock();
+        _mutex_init.unlock();
+        return false;
+    }
 
     //disk initialization
     if (disk_status() & NO_INIT) {
         if (disk_initialize()) {
             _mutex.unlock();
+            _mutex_init.unlock();
             return false;
         }
     }
@@ -118,25 +128,31 @@ bool USBMSD::connect()
             _page = (uint8_t *)malloc(_block_size * sizeof(uint8_t));
             if (_page == NULL) {
                 _mutex.unlock();
+                _mutex_init.unlock();
                 return false;
             }
         }
     } else {
         _mutex.unlock();
+        _mutex_init.unlock();
         return false;
     }
 
     //connect the device
     USBDevice::connect();
+    _init = true;
     _mutex.unlock();
+    _mutex_init.unlock();
     return true;
 }
 
 void USBMSD::disconnect()
 {
+    _mutex_init.lock();
     _mutex.lock();
 
     USBDevice::disconnect();
+    _init = false;
 
     _in_task.cancel();
     _out_task.cancel();
@@ -144,17 +160,23 @@ void USBMSD::disconnect()
     _control_task.cancel();
     _configure_task.cancel();
 
+    _mutex.unlock();
+
+    // object mutex must be unlocked for waiting
     _in_task.wait();
     _out_task.wait();
     _reset_task.wait();
     _control_task.wait();
     _configure_task.wait();
 
+    _mutex.lock();
+
     //De-allocate MSD page size:
     free(_page);
     _page = NULL;
 
     _mutex.unlock();
+    _mutex_init.unlock();
 }
 
 bool USBMSD::ready()
@@ -231,6 +253,7 @@ void USBMSD::callback_state_change(DeviceState new_state)
     // called in ISR context
 
     if (new_state != Configured) {
+        _reset_task.cancel();
         _reset_task.call();
     }
 }
