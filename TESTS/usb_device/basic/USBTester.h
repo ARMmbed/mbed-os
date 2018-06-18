@@ -38,7 +38,7 @@ public:
     */
     USBTester(USBPhy *phy, uint16_t vendor_id, uint16_t product_id, uint16_t product_release);
 
-    ~USBTester();
+    virtual ~USBTester();
 
     /*
     *

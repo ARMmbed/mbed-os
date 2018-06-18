@@ -122,7 +122,7 @@ int EndpointResolver::next_index(usb_ep_type_t type, bool in_not_out)
             continue;
         }
 
-        if (shared && (1 << other)) {
+        if (shared && (_used & (1 << other))) {
             // This endpoint can only be one direction at a time and is in
             // use by the other direction
             continue;
