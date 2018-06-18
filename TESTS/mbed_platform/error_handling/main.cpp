@@ -261,7 +261,7 @@ void test_error_hook()
     TEST_ASSERT(sem_status > 0);
 }
 
-#ifdef MBED_TEST_SIM_BLOCKDEVICE
+#if MBED_CONF_PLATFORM_ERROR_HIST_ENABLED && defined(MBED_TEST_SIM_BLOCKDEVICE)
 
 // test configuration
 #ifndef MBED_TEST_FILESYSTEM
@@ -356,7 +356,7 @@ Case cases[] = {
 #if MBED_CONF_RTOS_PRESENT
     Case("Test error handling multi-threaded", test_error_logging_multithread),
 #endif //MBED_CONF_RTOS_PRESENT
-#ifdef MBED_TEST_SIM_BLOCKDEVICE    
+#if MBED_CONF_PLATFORM_ERROR_HIST_ENABLED && defined(MBED_TEST_SIM_BLOCKDEVICE)
     Case("Test error save log", test_save_error_log),
 #endif //MBED_TEST_SIM_BLOCKDEVICE
 #endif //MBED_CONF_ERROR_HIST_DISABLED
