@@ -275,6 +275,9 @@ class Resources(object):
     def get_file_names(self, file_type):
         return [f.name for f in self.get_file_refs(file_type)]
 
+    def get_file_paths(self, file_type):
+        return [f.path for f in self.get_file_refs(file_type)]
+
     def add_files_to_type(self, file_type, files):
         for f in files:
             self.add_file_ref(file_type, f, f)

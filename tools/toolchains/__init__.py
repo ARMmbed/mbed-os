@@ -374,8 +374,7 @@ class mbedToolchain:
 
         self.notify.cc_verbose("Macros: "+' '.join(['-D%s' % s for s in self.get_symbols()]))
 
-        inc_paths = [path for _, path
-                     in resources.get_file_refs(FileType.INC_DIR)]
+        inc_paths = resources.get_file_paths(FileType.INC_DIR)
         if inc_dirs is not None:
             if isinstance(inc_dirs, list):
                 inc_paths.extend(inc_dirs)
@@ -628,14 +627,13 @@ class mbedToolchain:
         bin = None if ext == 'elf' else full_path
         map = join(tmp_path, name + '.map')
 
-        objects = sorted(set([path for _, path
-                              in r.get_file_refs(FileType.OBJECT)]))
+        objects = sorted(set(r.get_file_paths(FileType.OBJECT)))
         config_file = ([self.config.app_config_location]
                        if self.config.app_config_location else [])
         linker_script = [path for _, path in r.get_file_refs(FileType.LD_SCRIPT)
                          if path.endswith(self.LINKER_EXT)][-1]
-        lib_dirs = [path for _, path in r.get_file_refs(FileType.LIB_DIR)]
-        libraries = [path for _, path in r.get_file_refs(FileType.LIB)]
+        lib_dirs = r.get_file_paths(FileType.LIB_DIR)
+        libraries = r.get_file_paths(FileType.LIB)
         dependencies = objects + libraries + [linker_script] + config_file
         dependencies.append(join(self.build_dir, self.PROFILE_FILE_NAME + "-ld"))
         if self.need_update(elf, dependencies):
