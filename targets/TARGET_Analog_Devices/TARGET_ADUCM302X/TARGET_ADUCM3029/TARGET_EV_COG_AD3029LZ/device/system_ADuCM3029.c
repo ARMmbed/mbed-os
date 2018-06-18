@@ -157,8 +157,8 @@ void SramInit(void)
     adi_system_EnableRetention(ADI_SRAM_BANK_2, true);
     /* To disable the instruction SRAM and entire 64K of SRAM is used as DSRAM */
     adi_system_EnableISRAM(false);
-    /* To disable the instruction cache  */
-    adi_system_EnableCache(false);
+    /* To enable the 4K instruction cache out of DSRAM */
+    adi_system_EnableCache(true);
 }
 
 
