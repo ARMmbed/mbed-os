@@ -431,6 +431,11 @@ class Resources(object):
         ".bld": FileType.BLD_REF,
     }
 
+    _DIR_EXT = {
+        ".a": FileType.LIB_DIR,
+        ".ar": FileType.LIB_DIR,
+    }
+
     def _add_file(self, file_path, base_path, into_path):
         """ Add a single file into the resources object that was found by
         scanning starting as base_path
@@ -446,6 +451,11 @@ class Resources(object):
         try:
             file_type = self._EXT[ext.lower()]
             self.add_file_ref(file_type, fake_path, file_path)
+        except KeyError:
+            pass
+        try:
+            dir_type = self._DIR_EXT[ext.lower()]
+            self.add_file_ref(dir_type, dirname(fake_path), dirname(file_path))
         except KeyError:
             pass
 
