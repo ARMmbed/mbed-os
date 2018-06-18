@@ -21,9 +21,24 @@
 I2CEEBlockDevice::I2CEEBlockDevice(
         PinName sda, PinName scl, uint8_t addr,
         bd_size_t size, bd_size_t block, int freq)
-    : _i2c(sda, scl), _i2c_addr(addr), _size(size), _block(block)
+    : _i2c_p(new I2C(sda, scl)), _i2c(*_i2c_p), _i2c_addr(addr),
+      _size(size), _block(block)
 {
     _i2c.frequency(freq);
+}
+
+I2CEEBlockDevice::I2CEEBlockDevice(
+        I2C &i2c_obj, uint8_t addr,
+        bd_size_t size, bd_size_t block)
+    : _i2c_p(NULL), _i2c(i2c_obj), _i2c_addr(addr),
+      _size(size), _block(block)
+{
+}
+I2CEEBlockDevice::~I2CEEBlockDevice()
+{
+    if (_i2c_p != NULL){
+        delete  _i2c_p;
+    }
 }
 
 int I2CEEBlockDevice::init()
