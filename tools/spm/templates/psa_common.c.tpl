@@ -45,9 +45,9 @@ spm_partition_t g_partitions[{{partitions|count}}] = {
         .flags_rot_srv = 0,
     {% endif %}
     {% if partition.irqs|count > 0 %}
-        .flags_interrupts = {{partition.name|upper}}_WAIT_ANY_IRQ_MSK | {{partition.name|upper}}_DOORBELL_MSK,
+        .flags_interrupts = {{partition.name|upper}}_WAIT_ANY_IRQ_MSK,
     {% else %}
-        .flags_interrupts = {{partition.name|upper}}_DOORBELL_MSK,
+        .flags_interrupts = 0,
     {% endif %}
         .rot_services = NULL,
     {% if partition.rot_services|count > 0 %}

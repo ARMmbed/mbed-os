@@ -40,9 +40,9 @@ void server_main2(void *ptr)
     memset(res_buff, 0, sizeof(res_buff));
 
     while (true) {
-        signals = psa_wait_any(PSA_WAIT_BLOCK);
+        signals = psa_wait_any(PSA_BLOCK);
         if (signals & PART2_INT_MASK_MSK) {
-            psa_wait_interrupt(INVALID_INT_MASK, PSA_WAIT_BLOCK);
+            psa_wait_interrupt(INVALID_INT_MASK, PSA_BLOCK);
             TEST_FAIL_MESSAGE("server_interrupt_mask_invalid negative test failed");
         }
         else if (signals & PART2_GET_MSG_NULL_MSK) {
@@ -69,10 +69,10 @@ void server_main2(void *ptr)
         else if (signals & PART2_READ_INVALID_HANDLE_MSK) {
             psa_get(PART2_READ_INVALID_HANDLE_MSK, &msg);
             switch (msg.type) {
-                case PSA_IPC_MSG_TYPE_CONNECT: {
+                case PSA_IPC_CONNECT: {
                     break;
                 }
-                case PSA_IPC_MSG_TYPE_CALL: {
+                case PSA_IPC_CALL: {
                     psa_handle_t invalid_handle = msg.handle  + 10;
                     psa_read(invalid_handle, 0, msg_buf, msg.in_size[0]);
                     TEST_FAIL_MESSAGE("server_read_invalid_handle negative test failed");
@@ -87,10 +87,10 @@ void server_main2(void *ptr)
         else if (signals & PART2_READ_NULL_HANDLE_MSK) {
             psa_get(PART2_READ_NULL_HANDLE_MSK, &msg);
             switch (msg.type) {
-                case PSA_IPC_MSG_TYPE_CONNECT: {
+                case PSA_IPC_CONNECT: {
                     break;
                 }
-                case PSA_IPC_MSG_TYPE_CALL: {
+                case PSA_IPC_CALL: {
                     psa_read(PSA_NULL_HANDLE, 0, msg_buf, msg.in_size[0]);
                     TEST_FAIL_MESSAGE("server_read_null_handle negative test failed");
                     break;
@@ -104,10 +104,10 @@ void server_main2(void *ptr)
         else if (signals & PART2_WRITE_BUFFER_NULL_MSK) {
             psa_get(PART2_WRITE_BUFFER_NULL_MSK, &msg);
             switch (msg.type) {
-                case PSA_IPC_MSG_TYPE_CONNECT: {
+                case PSA_IPC_CONNECT: {
                     break;
                 }
-                case PSA_IPC_MSG_TYPE_CALL: {
+                case PSA_IPC_CALL: {
                     size_t read_bytes = 0;
                     for (size_t i = 0; i< PSA_MAX_INVEC_LEN; i++) {
                         read_bytes += psa_read(msg.handle, i, msg_buf + read_bytes, msg.in_size[i]);
@@ -126,10 +126,10 @@ void server_main2(void *ptr)
         else if (signals & PART2_WRITE_RX_BUFF_NULL_MSK) {
             psa_get(PART2_WRITE_RX_BUFF_NULL_MSK, &msg);
             switch (msg.type) {
-                case PSA_IPC_MSG_TYPE_CONNECT: {
+                case PSA_IPC_CONNECT: {
                     break;
                 }
-                case PSA_IPC_MSG_TYPE_CALL: {
+                case PSA_IPC_CALL: {
                     size_t read_bytes = 0;
                     for (size_t i = 0; i< PSA_MAX_INVEC_LEN; i++) {
                         read_bytes += psa_read(msg.handle, i, msg_buf + read_bytes, msg.in_size[i]);
@@ -148,10 +148,10 @@ void server_main2(void *ptr)
         else if (signals & PART2_WRITE_INVALID_HANDLE_MSK) {
             psa_get(PART2_WRITE_INVALID_HANDLE_MSK, &msg);
             switch (msg.type) {
-                case PSA_IPC_MSG_TYPE_CONNECT: {
+                case PSA_IPC_CONNECT: {
                     break;
                 }
-                case PSA_IPC_MSG_TYPE_CALL: {
+                case PSA_IPC_CALL: {
                     size_t read_bytes = 0;
                     for (size_t i = 0; i< PSA_MAX_INVEC_LEN; i++) {
                         read_bytes += psa_read(msg.handle, i, msg_buf + read_bytes, msg.in_size[i]);
@@ -171,10 +171,10 @@ void server_main2(void *ptr)
         else if (signals & PART2_WRITE_NULL_HANDLE_MSK) {
             psa_get(PART2_WRITE_NULL_HANDLE_MSK, &msg);
             switch (msg.type) {
-                case PSA_IPC_MSG_TYPE_CONNECT: {
+                case PSA_IPC_CONNECT: {
                     break;
                 }
-                case PSA_IPC_MSG_TYPE_CALL: {
+                case PSA_IPC_CALL: {
                     size_t read_bytes = 0;
                     for (size_t i = 0; i< PSA_MAX_INVEC_LEN; i++) {
                         read_bytes += psa_read(msg.handle, i, msg_buf + read_bytes, msg.in_size[i]);
@@ -193,7 +193,7 @@ void server_main2(void *ptr)
         else if (signals & PART2_END_INVALID_HANDLE_MSK) {
             psa_get(PART2_END_INVALID_HANDLE_MSK, &msg);
             switch (msg.type) {
-                case PSA_IPC_MSG_TYPE_CONNECT: {
+                case PSA_IPC_CONNECT: {
                     break;
                 }
                 default: {
@@ -208,11 +208,11 @@ void server_main2(void *ptr)
             bool is_disconnect = false;
             psa_get(PART2_SET_RHANDLE_DURING_DISCONNECT_MSK, &msg);
             switch (msg.type) {
-                case PSA_IPC_MSG_TYPE_CONNECT: {
+                case PSA_IPC_CONNECT: {
                     psa_end(msg.handle, PSA_SUCCESS);
                     break;
                 }
-                case PSA_IPC_MSG_TYPE_DISCONNECT: {
+                case PSA_IPC_DISCONNECT: {
                     uint32_t false_rhandle = FALSE_RHANDLE;
                     psa_set_rhandle(msg.handle, &false_rhandle);
                     is_disconnect = true;
@@ -229,7 +229,7 @@ void server_main2(void *ptr)
         else if (signals & PART2_NOTIFY_PART_ID_INVALID_MSK) {
             psa_get(PART2_NOTIFY_PART_ID_INVALID_MSK, &msg);
             switch (msg.type) {
-                case PSA_IPC_MSG_TYPE_CONNECT: {
+                case PSA_IPC_CONNECT: {
                     psa_notify(INVALID_PARTION_ID);
                     TEST_FAIL_MESSAGE("server_notify_part_id_invalid negative test failed");
                     break;
@@ -243,7 +243,7 @@ void server_main2(void *ptr)
         else if (signals & PART2_IDENTITY_INVALID_HANDLE_MSK) {
             psa_get(PART2_IDENTITY_INVALID_HANDLE_MSK, &msg);
             switch (msg.type) {
-                case PSA_IPC_MSG_TYPE_CONNECT: {
+                case PSA_IPC_CONNECT: {
                     int32_t ret = 0;
                     psa_handle_t invalid_handle = msg.handle  + 10;
                     ret = psa_identity(invalid_handle);
@@ -260,7 +260,7 @@ void server_main2(void *ptr)
         else if (signals & PART2_IDENTITY_NULL_HANDLE_MSK) {
             psa_get(PART2_IDENTITY_NULL_HANDLE_MSK, &msg);
             switch (msg.type) {
-                case PSA_IPC_MSG_TYPE_CONNECT: {
+                case PSA_IPC_CONNECT: {
                     int32_t ret = 0;
                     ret = psa_identity(PSA_NULL_HANDLE);
                     PSA_UNUSED(ret);
@@ -276,7 +276,7 @@ void server_main2(void *ptr)
         else if (signals & PART2_SET_RHANDLE_INVALID_HANDLE_MSK) {
             psa_get(PART2_SET_RHANDLE_INVALID_HANDLE_MSK, &msg);
             switch (msg.type) {
-                case PSA_IPC_MSG_TYPE_CONNECT: {
+                case PSA_IPC_CONNECT: {
                     psa_handle_t invalid_handle = msg.handle  + 10;
                     psa_set_rhandle(invalid_handle, NULL);
                     TEST_FAIL_MESSAGE("server_set_rhandle_invalid_handle negative test failed");
@@ -291,7 +291,7 @@ void server_main2(void *ptr)
         else if (signals & PART2_SET_RHANDLE_NULL_HANDLE_MSK) {
             psa_get(PART2_SET_RHANDLE_NULL_HANDLE_MSK, &msg);
             switch (msg.type) {
-                case PSA_IPC_MSG_TYPE_CONNECT: {
+                case PSA_IPC_CONNECT: {
                     psa_set_rhandle(PSA_NULL_HANDLE, NULL);
                     TEST_FAIL_MESSAGE("server_set_rhandle_part_id_invalid negative test failed");
                     break;
@@ -305,10 +305,10 @@ void server_main2(void *ptr)
         else if (signals & PART2_READ_WRAPAROUND_MSK) {
             psa_get(PART2_READ_WRAPAROUND_MSK, &msg);
             switch (msg.type) {
-                case PSA_IPC_MSG_TYPE_CONNECT: {
+                case PSA_IPC_CONNECT: {
                     break;
                 }
-                case PSA_IPC_MSG_TYPE_CALL: {
+                case PSA_IPC_CALL: {
                     psa_read(msg.handle, 0, (void*)0x80000000, UINT32_MAX);
                     TEST_FAIL_MESSAGE("server_read_on_wraparound_msg_ptr negative test failed");
                     break;
@@ -323,10 +323,10 @@ void server_main2(void *ptr)
         else if (signals & PART2_READ_EXCESE_INVEC_MSK) {
             psa_get(PART2_READ_EXCESE_INVEC_MSK, &msg);
             switch (msg.type) {
-                case PSA_IPC_MSG_TYPE_CONNECT: {
+                case PSA_IPC_CONNECT: {
                     break;
                 }
-                case PSA_IPC_MSG_TYPE_CALL: {
+                case PSA_IPC_CALL: {
                     uint32_t val = 0;
                     psa_read(msg.handle, PSA_MAX_INVEC_LEN + 1, &val, sizeof(val));
                     TEST_FAIL_MESSAGE("server_read_on_wraparound_msg_ptr negative test failed");
@@ -342,10 +342,10 @@ void server_main2(void *ptr)
         else if (signals & PART2_WRITE_WRAPAROUND_MSK) {
             psa_get(PART2_WRITE_WRAPAROUND_MSK, &msg);
             switch (msg.type) {
-                case PSA_IPC_MSG_TYPE_CONNECT: {
+                case PSA_IPC_CONNECT: {
                     break;
                 }
-                case PSA_IPC_MSG_TYPE_CALL: {
+                case PSA_IPC_CALL: {
                     psa_write(msg.handle, 0, (void*)0x80000000, UINT32_MAX);
                     TEST_FAIL_MESSAGE("server_write_on_wraparound_msg_ptr negative test failed");
                     break;
@@ -360,10 +360,10 @@ void server_main2(void *ptr)
         else if (signals & PART2_WRITE_EXCESE_OUTVEC_MSK) {
             psa_get(PART2_WRITE_EXCESE_OUTVEC_MSK, &msg);
             switch (msg.type) {
-                case PSA_IPC_MSG_TYPE_CONNECT: {
+                case PSA_IPC_CONNECT: {
                     break;
                 }
-                case PSA_IPC_MSG_TYPE_CALL: {
+                case PSA_IPC_CALL: {
                     uint32_t val = 0;
                     psa_write(msg.handle, PSA_MAX_OUTVEC_LEN + 1, &val, sizeof(val));
                     TEST_FAIL_MESSAGE("server_write_from_excese_outvec negative test failed");

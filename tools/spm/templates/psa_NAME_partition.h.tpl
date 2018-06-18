@@ -34,9 +34,6 @@
 #define {{partition.name|upper}}_RESERVED2_POS (2UL)
 #define {{partition.name|upper}}_RESERVED2_MSK (1UL << {{partition.name|upper}}_RESERVED2_POS)
 
-#define {{partition.name|upper}}_DOORBELL_POS (3UL)
-#define {{partition.name|upper}}_DOORBELL_MSK (1UL << {{partition.name|upper}}_DOORBELL_POS)
-
 {% for irq in partition.irqs %}
 #define {{irq.signal|upper}}_POS ({{loop.index + 3 }}UL)
 #define {{irq.signal|upper}} (1UL << {{irq.signal|upper}}_POS)
@@ -61,6 +58,7 @@
 {% endfor %}
 {% endif %}
 
+/*
 #define {{partition.name|upper}}_WAIT_ANY_MSK (\
 {% if partition.irqs|count > 0 %}
     {{partition.name|upper}}_WAIT_ANY_IRQ_MSK | \
@@ -68,7 +66,8 @@
 {% if partition.rot_services|count > 0 %}
     {{partition.name|upper}}_WAIT_ANY_SID_MSK) | \
 {% endif %}
-    {{partition.name|upper}}_DOORBELL_MSK)
+    PSA_DOORBELL)
+*/
 
 {% if partition.irqs|count > 0 %}
 uint32_t spm_{{partition.name|lower}}_signal_to_irq_mapper(uint32_t signal);

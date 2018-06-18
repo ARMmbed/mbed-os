@@ -85,7 +85,7 @@ PSA_TEST_CLIENT(msg_size_assertion)
 PSA_TEST_CLIENT(reject_connection)
 {
     psa_handle_t test_handle = psa_connect(TEST, TEST_ROT_SRV_MINOR);
-    TEST_ASSERT_EQUAL(PSA_CONNECTION_REFUSED_PERM, test_handle);
+    TEST_ASSERT_EQUAL(PSA_CONNECTION_REFUSED, test_handle);
 }
 
 PSA_TEST_CLIENT(read_at_outofboud_offset)

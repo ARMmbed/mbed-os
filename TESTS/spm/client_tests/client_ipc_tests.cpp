@@ -346,7 +346,7 @@ void exceed_num_of_max_channels()
         }
         else {
             handle[i] = psa_connect(PART1_ROT_SRV1, MINOR_VER);
-            TEST_ASSERT_EQUAL_INT32(PSA_CONNECTION_REFUSED_BUSY, handle[i]);
+            TEST_ASSERT_EQUAL_INT32(PSA_CONNECTION_REFUSED, handle[i]);
         }
     }
 

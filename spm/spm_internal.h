@@ -35,8 +35,14 @@ do {                                                                            
     }                                                                                      \
 } while (0)
 
-#define SPM_COMPLETION_SEM_MAX_COUNT (1UL) /**< Maximum number of available tokens for a completion semaphore.*/
-#define SPM_COMPLETION_SEM_INITIAL_COUNT (0UL) /**< Initial number of available tokens for a completion semaphore.*/
+#define SPM_COMPLETION_SEM_MAX_COUNT (1UL) /* Maximum number of available tokens for a completion semaphore. */
+#define SPM_COMPLETION_SEM_INITIAL_COUNT (0UL) /* Initial number of available tokens for a completion semaphore. */
+
+#define PSA_MMIO_PERM_READ_ONLY   (0x000000001)
+#define PSA_MMIO_PERM_READ_WRITE  (0x000000003)
+
+#define PSA_RESERVED_ERROR_MIN (INT32_MIN + 1)
+#define PSA_RESERVED_ERROR_MAX (INT32_MIN + 127)
 
 typedef struct spm_partition spm_partition_t;
 typedef struct spm_ipc_channel spm_ipc_channel_t;
@@ -77,8 +83,6 @@ typedef struct spm_active_msg {
     spm_ipc_channel_t *channel; /* Pointer to the channel delivering this message.*/
     psa_invec_t in_vec[PSA_MAX_INVEC_LEN]; /* IOvecs sent.*/
     psa_outvec_t out_vec[PSA_MAX_OUTVEC_LEN]; /* IOvecs for response.*/
-    psa_error_t rc; /* Return code to be filled by the Root of Trust Service.*/
-    SpmMsgType type; /* The message type, one of ::spm_msg_type.*/
 } spm_active_msg_t;
 
 
@@ -139,7 +143,7 @@ typedef struct spm_ipc_channel {
     void *rhandle; /* Reverse handle to be used for this channel.*/
     void *msg_ptr; /* message data sent from user */
     struct spm_ipc_channel *next; /* Next channel in the chain  */
-    SpmMsgType msg_type; /* The message type, one of ::spm_msg_type.*/
+    uint8_t msg_type; /* The message type.*/
     ChannelState state; /* The current processing state of the channel.*/
 } spm_ipc_channel_t;
 
@@ -160,7 +164,7 @@ typedef struct spm_partition {
 } spm_partition_t;
 
 
-/**
+/*
  * Returns a pointer to the secure partition struct of the active thread, or NULL for NSPE threads
  */
 spm_partition_t *get_active_partition(void);
@@ -185,14 +189,14 @@ bool is_buffer_accessible(const void *ptr, size_t size, spm_partition_t * access
  */
 void nspe_done(osSemaphoreId_t completion_sem_id);
 
-/**
+/*
  * Validates parameters sent from caller and queues a connect message on the correct ROT_SRV.
  *
  * @param[in] msg - pointer to connect message struct
  */
 void psa_connect_async(spm_pending_connect_msg_t *msg);
 
-/**
+/*
  * Validates parameters sent from caller and queues a call message on the correct ROT_SRV.
  *
  * @param[in] msg - pointer to call message struct

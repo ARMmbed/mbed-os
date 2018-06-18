@@ -64,9 +64,8 @@ uint32_t psa_version(uint32_t sid);
  *
  * @param[in] sid          The Root of Trust Service ID.
  * @param[in] minor_version The minor version to be used for this connection.
- * @return A handle for the connection if greater than 0, else one of the following errors:@n
- *         @a PSA_CONNECTION_REFUSED_BUSY if the Root of Trust Service cannot handle any more connections.@n
- *         @a PSA_CONNECTION_REFUSED_PERM if the Root of Trust Service does not exist or access is denied.
+ * @return A handle for the connection if greater than 0, else:@n
+ *         @a PSA_CONNECTION_REFUSED if the Root of Trust Service cannot handle any more connections.@n
  */
 psa_handle_t psa_connect(uint32_t sid, uint32_t minor_version);
 
@@ -74,19 +73,15 @@ psa_handle_t psa_connect(uint32_t sid, uint32_t minor_version);
  * Call a connected Root of Trust Service.@n
  * The caller must provide an array of ::psa_invec_t structures as the input payload.
  *
- * TODO: Need to align again when API definitions are updated in spec
- *
  * @param[in]  handle   Handle for the connection.
  * @param[in]  in_vec   Array of ::psa_invec_t structures.
  * @param[in]  in_len   Number of ::psa_invec_t structures in in_vec. (At most ::PSA_MAX_INVEC_LEN)
  * @param[out] out_vec  Array of ::psa_outvec_t structures for optional Root of Trust Service response.
  * @param[in]  out_len  Number of ::psa_outvec_t structures in out_vec. (At most ::PSA_MAX_OUTVEC_LEN)
- * @return Positive numbers with an application-specific return code or negative numbers on error:@n
- *         @a PSA_INVALID_MEM if the specified buffers in in_vec or out_vec contain an invalid memory address
- *                            (pointing to non-existent memory or lack of permission for this memory).
- *         @a PSA_MSG_PAYLOAD_TOO_LARGE/PSA_MSG_PAYLOAD_TOO_SMALL if there is an issue with the payload size.@n
- *         @a PSA_INVALID_HANDLE if the handle is not valid.@n
- *         @a PSA_RESPONSE_PAYLOAD_UNSUPPORTED if the caller specified a response buffer but the Root of Trust Service does not send response payloads.
+ * @return 0 for success or@n
+ *         @a positive numbers for application-specific return code.
+ *         @a negative number for application-specific error code.
+ *         @a PSA_DROP_CONNECTION if the connection has been dropped by the RoT Service.
  */
 psa_error_t psa_call(
     psa_handle_t handle,
@@ -98,7 +93,7 @@ psa_error_t psa_call(
 
 /**
  * Close a connection to a Root of Trust Service.
- * Sends the ::PSA_IPC_MSG_TYPE_DISCONNECT message to the Root of Trust Service so it can clean up resources.
+ * Sends the ::PSA_IPC_DISCONNECT message to the Root of Trust Service so it can clean up resources.
  *
  * @param[in] handle Handle for the connection.
  */

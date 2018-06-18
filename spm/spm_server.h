@@ -41,8 +41,8 @@ extern "C" {
  * Return the signals that have been asserted.@n
  *
  * @param[in] timeout timeout value:@n
- *            @a PSA_WAIT_BLOCK block the caller until any signal is asserted.@n
- *            @a PSA_WAIT_POLL Returns immediately.
+ *            @a PSA_BLOCK block the caller until any signal is asserted.@n
+ *            @a PSA_POLL Returns immediately.
  * @return 32-bit value of asserted signals.
  */
 uint32_t psa_wait_any(uint32_t timeout);
@@ -54,8 +54,8 @@ uint32_t psa_wait_any(uint32_t timeout);
  *
  * @param[in] interrupt_mask mask of signals.
  * @param[in] timeout timeout value:@n
- *            @a PSA_WAIT_BLOCK block the caller until one of the requested signals is asserted.@n
- *            @a PSA_WAIT_POLL Returns immediately.
+ *            @a PSA_BLOCK block the caller until one of the requested signals is asserted.@n
+ *            @a PSA_POLL Returns immediately.
  * @return 32-bit value of asserted signals.
  */
 uint32_t psa_wait_interrupt(uint32_t interrupt_mask, uint32_t timeout);
@@ -66,7 +66,7 @@ uint32_t psa_wait_interrupt(uint32_t interrupt_mask, uint32_t timeout);
  * @note Bit[31] is set if the caller is from the NSPE.
  *
  * @param[in] msg_handle Handle for the caller's message.
- * @return Partition ID.
+ * @return Caller's partition ID
  */
 int32_t psa_identity(psa_handle_t msg_handle);
 
@@ -112,7 +112,7 @@ size_t psa_read(psa_handle_t msg_handle, uint32_t invec_idx, void *buf, size_t n
  * @param[in]  msg_handle Handle for the client's message.
  * @param[in]  invec_idx  ::psa_invec index to be skipped.
  * @param[in]  num_bytes  Number of bytes to skip.
- * @return Number of bytes skipped.
+ * @return Number of bytes skipped or 0 if offset is greater than the size attribute of psa_msg.
  */
 size_t psa_skip(psa_handle_t msg_handle, uint32_t invec_idx, size_t num_bytes);
 

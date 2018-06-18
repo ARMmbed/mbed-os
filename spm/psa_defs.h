@@ -37,47 +37,41 @@ extern "C" {
 #define UINT32_MAX ((uint32_t)-1)
 #endif
 
+#if !defined(INT32_MIN)
+#define INT32_MIN   (-0x7fffffff - 1)
+#endif
+
+#define PSA_FRAMEWORK_VERSION    (0x0009) /**< Version of the PSA Framework API. */
+#define PSA_VERSION_NONE         (0L)     /**< Identifier for an unimplemented RoT Service. */
+
 #define PSA_NSPE_IDENTIFIER (-1L)  /**< "Partition" identifier of the NSPE.*/
 
 #define PSA_NULL_HANDLE ((psa_handle_t)0)   /**< Denotes an invalid handle.*/
 
-#define PSA_MAX_INVEC_LEN (3UL) /**< Maximum number of psa_invec_t structures allowed for psa_call().*/
+#define PSA_MAX_INVEC_LEN (3UL)  /**< Maximum number of psa_invec_t structures allowed for psa_call().*/
 #define PSA_MAX_OUTVEC_LEN (3UL) /**< Maximum number of psa_outvec_t structures allowed for psa_write().*/
 
-#define PSA_WAIT_POLL (0UL) /**< Returns immediately even if none of the requested signals is asserted.*/
-#define PSA_WAIT_BLOCK UINT32_MAX /**< Block the caller until one of the requested signals is asserted.*/
+#define PSA_MAX_IOVEC (4UL) /**< Maximum number of psa_invec_t and psa_outvec_t structures allowed for psa_call().*/
+
+#define PSA_POLL  (0x00000000UL) /**< Returns immediately even if none of the requested signals is asserted.*/
+#define PSA_BLOCK (0x80000000UL) /**< Block the caller until one of the requested signals is asserted.*/
 
 #define PSA_MINOR_VERSION_POLICY_RELAXED (0UL) /**< Don't perform minor version check during psa_connect().*/
-#define PSA_MINOR_VERSION_POLICY_STRICT (1UL) /**< Force minor version check during psa_connect().*/
+#define PSA_MINOR_VERSION_POLICY_STRICT (1UL)  /**< Force minor version check during psa_connect().*/
 
-#define PSA_MMIO_PERM_READ_ONLY                     0x000000001
-#define PSA_MMIO_PERM_READ_WRITE                    0x000000003
+#define PSA_DOORBELL (0x00000008UL) /**< Mask for PSA_DOORBELL signal.*/
 
-#define PSA_SUCCESS                    (0L)
+#define PSA_SUCCESS              (0L) /**< A general result code for calls to psa_call()  indicating success.*/
+#define PSA_CONNECTION_ACCEPTED  (0L) /**< The result code for calls to psa_connect() indicating the acceptance of a new connection request.*/
+#define PSA_IPC_CONNECT          (1)  /**< The IPC message type that indicates a new connection.*/
+#define PSA_IPC_CALL             (2)  /**< The IPC message type that indicates a client request.*/
+#define PSA_IPC_DISCONNECT       (3)  /**< The IPC message type that indicates the end of a connection.*/
 
 /* Error codes */
-#define PSA_INVALID_PARAMETERS        (-1L)
-#define PSA_INVALID_MEM               (-2L)
-#define PSA_CONNECTION_REFUSED_PERM   (-3L)
-#define PSA_CONNECTION_REFUSED_BUSY   (-4L)
-#define PSA_GENERIC_ERROR             (-5L)
-#define PSA_MEM_ALLOC_FAILED          (-6L)
-#define PSA_MSG_UNDELIVERED           (-7L)
+#define PSA_DROP_CONNECTION     (INT32_MIN)       /**< The result code in a call to psa_end() to indicate a non-recoverable error in the client.*/
+#define PSA_CONNECTION_REFUSED  (INT32_MIN + 1)    /**< The return value from psa_connect() if the RoT Service or SPM was unable to establish a connection.*/
 
 #define PSA_UNUSED(var) ((void)(var))
-
-/* -------------------------------------- Enums -------------------------------------- */
-
-/**
- * Enumeration for the available PSA IPC message types
- */
-typedef enum spm_msg_type {
-    PSA_IPC_MSG_TYPE_INVALID = 0,                       /**< Invalid message type */
-    PSA_IPC_MSG_TYPE_CONNECT = 1,                       /**< Sent by psa_connect() */
-    PSA_IPC_MSG_TYPE_CALL = 2,                          /**< Sent by psa_call() */
-    PSA_IPC_MSG_TYPE_DISCONNECT = 3,                    /**< Sent by psa_close() */
-    PSA_IPC_MSG_TYPE_MAX = PSA_IPC_MSG_TYPE_DISCONNECT
-} SpmMsgType;
 
 /* -------------------------------------- Typedefs ----------------------------------- */
 
@@ -92,7 +86,7 @@ typedef psa_error_t error_t;
  * Structure containing the PSA IPC message sent from a client partition to a Root of Trust Service.
  */
 typedef struct psa_msg {
-    uint32_t type;                       /**< The message type, one of ::spm_msg_type.*/
+    uint32_t type;                       /**< The message type.*/
     psa_handle_t handle;                 /**< Handle for the internal message structure.*/
     void *rhandle;                       /**< Reverse handle.*/
     size_t in_size[PSA_MAX_INVEC_LEN];   /**< Array of sizes in bytes of the message payloads.*/

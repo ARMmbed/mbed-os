@@ -21,10 +21,6 @@
 #include "handles_manager.h"
 #include "cmsis.h"
 
-#define PSA_SIG_DOORBELL_POS    3                           // Bit position for PSA_DOORBELL signal
-#define PSA_SIG_DOORBELL_MSK    (1 << PSA_SIG_DOORBELL_POS) // Mask for PSA_DOORBELL signal
-
-
 extern spm_db_t g_spm;
 
 static inline spm_partition_t *get_partition_by_pid(int32_t partition_id)
@@ -96,12 +92,10 @@ static psa_handle_t copy_message_to_spm(spm_ipc_channel_t *channel, int32_t curr
     spm_active_msg_t temp_active_message = {
         .channel = channel,
         .in_vec = {{0}},
-        .out_vec = {{0}},
-        .rc = 0,
-        .type = channel->msg_type
+        .out_vec = {{0}}
     };
 
-    if (channel->msg_type == PSA_IPC_MSG_TYPE_CALL) {
+    if (channel->msg_type == PSA_IPC_CALL) {
         if (!is_buffer_accessible(channel->msg_ptr, sizeof(spm_pending_call_msg_t), channel->src_partition)) {
             SPM_PANIC("message data is inaccessible\n");
         }
@@ -212,7 +206,8 @@ static uint32_t psa_wait(bool wait_any, uint32_t bitmask, uint32_t timeout)
     spm_partition_t *curr_partition = get_active_partition();
     SPM_ASSERT(NULL != curr_partition); // active thread in SPM must be in partition DB
 
-    uint32_t flags_all = curr_partition->flags_rot_srv | curr_partition->flags_interrupts;
+    uint32_t flags_interrupts = curr_partition->flags_interrupts | PSA_DOORBELL;
+    uint32_t flags_all = curr_partition->flags_rot_srv | flags_interrupts;
 
     // In case we're waiting for any signal the bitmask must contain all the flags, otherwise
     // we should be waiting for a subset of interrupt signals.
@@ -220,21 +215,21 @@ static uint32_t psa_wait(bool wait_any, uint32_t bitmask, uint32_t timeout)
         bitmask = flags_all;
     } else {
         // Make sure the interrupt mask contains only a subset of interrupt signal mask.
-        if (bitmask != (curr_partition->flags_interrupts & bitmask)) {
+        if (bitmask != (flags_interrupts & bitmask)) {
             SPM_PANIC("interrupt mask 0x%x must have only bits from 0x%x!\n",
-                bitmask, curr_partition->flags_interrupts);
+                bitmask, flags_interrupts);
         }
     }
 
     uint32_t asserted_signals = osThreadFlagsWait(
         bitmask,
         osFlagsWaitAny | osFlagsNoClear,
-        (PSA_WAIT_BLOCK == timeout) ? osWaitForever : timeout
-        );
+        (PSA_BLOCK == timeout) ? osWaitForever : timeout
+    );
 
     // Asserted_signals must be a subset of the supported ROT_SRV and interrupt signals.
     SPM_ASSERT((asserted_signals == (asserted_signals & flags_all)) ||
-               ((PSA_WAIT_BLOCK != timeout) && (osFlagsErrorTimeout == asserted_signals)));
+               ((PSA_BLOCK != timeout) && (osFlagsErrorTimeout == asserted_signals)));
 
     return (osFlagsErrorTimeout == asserted_signals) ? 0 : asserted_signals;
 }
@@ -281,26 +276,23 @@ void psa_get(psa_signal_t signum, psa_msg_t *msg)
     }
     spm_ipc_channel_t *curr_channel = spm_rot_service_queue_dequeue(curr_rot_service);
 
-    SPM_ASSERT((curr_channel->msg_type > PSA_IPC_MSG_TYPE_INVALID) &&
-               (curr_channel->msg_type <= PSA_IPC_MSG_TYPE_MAX));
-
     switch (curr_channel->msg_type) {
-        case PSA_IPC_MSG_TYPE_CONNECT:
+        case PSA_IPC_CONNECT:
             CHANNEL_STATE_ASSERT(curr_channel->state, CHANNEL_STATE_CONNECTING);
             curr_channel->state = CHANNEL_STATE_IDLE;
             break;
 
-        case PSA_IPC_MSG_TYPE_CALL:
+        case PSA_IPC_CALL:
             CHANNEL_STATE_ASSERT(curr_channel->state, CHANNEL_STATE_PENDING);
             curr_channel->state = CHANNEL_STATE_ACTIVE;
             break;
 
-        case PSA_IPC_MSG_TYPE_DISCONNECT:
+        case PSA_IPC_DISCONNECT:
         {
             CHANNEL_STATE_ASSERT(curr_channel->state, CHANNEL_STATE_INVALID);
             curr_channel->state = CHANNEL_STATE_INVALID;
             msg->handle = PSA_NULL_HANDLE;
-            msg->type = PSA_IPC_MSG_TYPE_DISCONNECT;
+            msg->type = PSA_IPC_DISCONNECT;
             msg->rhandle = curr_channel->rhandle;
 
             // !!!!!NOTE!!!!! handles must be destroyed before osMemoryPoolFree().
@@ -320,7 +312,8 @@ void psa_get(psa_signal_t signum, psa_msg_t *msg)
             break;
         }
         default:
-            SPM_PANIC("Unexpected message type %d\n", curr_channel->msg_type);
+            SPM_ASSERT(!"psa_get - unexpected message type");
+            break;
     }
 
     copy_message_to_spm(curr_channel, curr_partition->partition_id, msg);
@@ -333,8 +326,6 @@ static size_t read_or_skip(psa_handle_t msg_handle, uint32_t invec_idx, void *bu
     }
 
     spm_active_msg_t *active_msg = get_msg_from_handle(msg_handle);
-    SPM_ASSERT((active_msg->type > PSA_IPC_MSG_TYPE_INVALID) &&
-               (active_msg->type <= PSA_IPC_MSG_TYPE_MAX));
 
     CHANNEL_STATE_ASSERT(active_msg->channel->state, CHANNEL_STATE_ACTIVE);
 
@@ -390,8 +381,6 @@ void psa_write(psa_handle_t msg_handle, uint32_t outvec_idx, const void *buffer,
     }
 
     spm_active_msg_t *active_msg = get_msg_from_handle(msg_handle);
-    SPM_ASSERT((active_msg->type > PSA_IPC_MSG_TYPE_INVALID) &&
-               (active_msg->type <= PSA_IPC_MSG_TYPE_MAX));
 
     CHANNEL_STATE_ASSERT(active_msg->channel->state, CHANNEL_STATE_ACTIVE);
 
@@ -410,15 +399,12 @@ void psa_write(psa_handle_t msg_handle, uint32_t outvec_idx, const void *buffer,
 
 void psa_end(psa_handle_t msg_handle, psa_error_t retval)
 {
-    // handle should be PSA_NULL_HANDLE when serving PSA_IPC_MSG_TYPE_DISCONNECT
+    // handle should be PSA_NULL_HANDLE when serving PSA_IPC_DISCONNECT
     if (msg_handle == PSA_NULL_HANDLE) {
         return;
     }
 
     spm_active_msg_t *active_msg = get_msg_from_handle(msg_handle);
-    SPM_ASSERT((active_msg->type > PSA_IPC_MSG_TYPE_INVALID) &&
-               (active_msg->type <= PSA_IPC_MSG_TYPE_MAX));
-
     spm_ipc_channel_t *active_channel = active_msg->channel;
     SPM_ASSERT(active_channel != NULL);
 
@@ -437,14 +423,18 @@ void psa_end(psa_handle_t msg_handle, psa_error_t retval)
     osSemaphoreId_t completion_sem_id = NULL;
     bool nspe_call = (active_channel->src_partition == NULL);
     switch(active_channel->msg_type) {
-        case PSA_IPC_MSG_TYPE_CONNECT:
+        case PSA_IPC_CONNECT:
         {
             CHANNEL_STATE_ASSERT(active_channel->state, CHANNEL_STATE_IDLE);
+            if ((retval != PSA_CONNECTION_ACCEPTED) && (retval != PSA_CONNECTION_REFUSED)) {
+                SPM_PANIC("retval (0X%08x) is not allowed for PSA_IPC_CONNECT", retval);
+            }
+
             active_channel->state = (retval < 0 ? CHANNEL_STATE_INVALID : CHANNEL_STATE_IDLE);
             spm_pending_connect_msg_t *connect_msg_data  = (spm_pending_connect_msg_t *)(active_channel->msg_ptr);
             completion_sem_id = connect_msg_data ->completion_sem_id;
 
-            if (retval != PSA_SUCCESS) {
+            if (retval != PSA_CONNECTION_ACCEPTED) {
                 // !!!!!NOTE!!!!! handles must be destroyed before osMemoryPoolFree().
                 // Channel creation fails on resource exhaustion and handle will be created
                 // only after a successful memory allocation and is not expected to fail.
@@ -466,8 +456,12 @@ void psa_end(psa_handle_t msg_handle, psa_error_t retval)
             }
             break;
         }
-        case PSA_IPC_MSG_TYPE_CALL:
+        case PSA_IPC_CALL:
         {
+            if ((retval >= PSA_RESERVED_ERROR_MIN) && (retval <= PSA_RESERVED_ERROR_MAX)) {
+                SPM_PANIC("retval (0X%08x) is not allowed for PSA_IPC_CALL", retval);
+            }
+
             CHANNEL_STATE_ASSERT(active_channel->state, CHANNEL_STATE_ACTIVE);
             active_channel->state = CHANNEL_STATE_IDLE;
             spm_pending_call_msg_t *call_msg_data = (spm_pending_call_msg_t *)(active_channel->msg_ptr);
@@ -476,14 +470,14 @@ void psa_end(psa_handle_t msg_handle, psa_error_t retval)
             break;
         }
         default:
-            SPM_PANIC("Invalid message type %d\n", active_channel->msg_type);
+            SPM_ASSERT(!"psa_end - unexpected message type");
             break;
     }
 
     if (active_channel != NULL) {
         CHANNEL_STATE_ASSERT(active_channel->state, CHANNEL_STATE_IDLE);
         active_channel->msg_ptr = NULL;
-        active_channel->msg_type = PSA_IPC_MSG_TYPE_INVALID;
+        active_channel->msg_type = 0;  // uninitialized
     }
 
     if (nspe_call) {
@@ -506,14 +500,14 @@ void psa_notify(int32_t partition_id)
         );
     }
 
-    int32_t flags = (int32_t)osThreadFlagsSet(target_partition->thread_id, PSA_SIG_DOORBELL_MSK);
+    int32_t flags = (int32_t)osThreadFlagsSet(target_partition->thread_id, PSA_DOORBELL);
     SPM_ASSERT(flags >= 0);
     PSA_UNUSED(flags);
 }
 
 void psa_clear(void)
 {
-    int32_t flags = (int32_t)osThreadFlagsClear(PSA_SIG_DOORBELL_MSK);
+    int32_t flags = (int32_t)osThreadFlagsClear(PSA_DOORBELL);
     SPM_ASSERT(flags >= 0);
     PSA_UNUSED(flags);
 }

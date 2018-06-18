@@ -31,15 +31,15 @@ void server_main1(void *ptr)
     uint32_t signals = 0;
 
     while (true) {
-        signals = psa_wait_any(PSA_WAIT_BLOCK);
+        signals = psa_wait_any(PSA_BLOCK);
         if (signals & PART1_CALL_NON_EXISTS_EXTERN_SID_MSK) {
             psa_get(PART1_CALL_NON_EXISTS_EXTERN_SID_MSK, &msg);
             switch (msg.type) {
-                case PSA_IPC_MSG_TYPE_CONNECT: {
+                case PSA_IPC_CONNECT: {
                     psa_end(msg.handle, PSA_SUCCESS);
                     break;
                 }
-                case PSA_IPC_MSG_TYPE_CALL: {
+                case PSA_IPC_CALL: {
                     psa_connect(PART2_CALL_INSIDE_PARTITION, MINOR_VER);
                     TEST_FAIL_MESSAGE("server_call_sid_without_extern_sid negative test failed");
                     break;

@@ -28,14 +28,14 @@ void part2_main(void *ptr)
     char *str = NULL;
 
     while (1) {
-        signals = psa_wait_any(PSA_WAIT_BLOCK);
+        signals = psa_wait_any(PSA_BLOCK);
         if (0 == (signals & (ROT_SRV_REVERSE_MSK | ROT_SRV_DB_TST_MSK))) {
             SPM_PANIC("returned from psa_wait_any without ROT_SRV_REVERSE_MSK or ROT_SRV_DB_TST_MSK bit on\n");
         }
         if(signals & ROT_SRV_REVERSE_MSK) {
             psa_get(ROT_SRV_REVERSE_MSK, &msg);
             switch (msg.type) {
-                case PSA_IPC_MSG_TYPE_CALL:
+                case PSA_IPC_CALL:
                 {
                     if ((msg.in_size[0] + msg.in_size[1] + msg.in_size[2]) == 0) {
                         SPM_PANIC("got a zero message size to REVERSE ROT_SRV\n");
@@ -58,8 +58,8 @@ void part2_main(void *ptr)
                     str = NULL;
                     break;
                 }
-                case PSA_IPC_MSG_TYPE_CONNECT:
-                case PSA_IPC_MSG_TYPE_DISCONNECT:
+                case PSA_IPC_CONNECT:
+                case PSA_IPC_DISCONNECT:
                     break;
                 default:
                     SPM_PANIC("Unexpected message type %d!", (int)(msg.type));
@@ -72,7 +72,7 @@ void part2_main(void *ptr)
 
             psa_get(ROT_SRV_DB_TST_MSK, &msg);
             switch (msg.type) {
-                case PSA_IPC_MSG_TYPE_CALL:
+                case PSA_IPC_CALL:
                 {
                     int32_t caller_part_id = psa_identity(msg.handle);
                     // Doorbell contract is valid only between secure partitions
@@ -87,8 +87,8 @@ void part2_main(void *ptr)
                     psa_notify(caller_part_id);
                     break;
                 }
-                case PSA_IPC_MSG_TYPE_CONNECT:
-                case PSA_IPC_MSG_TYPE_DISCONNECT:
+                case PSA_IPC_CONNECT:
+                case PSA_IPC_DISCONNECT:
                     psa_end(msg.handle, PSA_SUCCESS);
                     break;
                 default:

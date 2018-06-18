@@ -24,15 +24,15 @@ void server_main(void *ptr)
 {
     uint32_t signals = 0;
     while (1) {
-        signals = psa_wait_any(PSA_WAIT_BLOCK);
+        signals = psa_wait_any(PSA_BLOCK);
         if (signals & PART1_ROT_SRV1_MSK) {
             psa_msg_t msg = {0};
             psa_get(PART1_ROT_SRV1_MSK, &msg);
             switch (msg.type) {
-                case PSA_IPC_MSG_TYPE_CONNECT:
-                case PSA_IPC_MSG_TYPE_DISCONNECT:
+                case PSA_IPC_CONNECT:
+                case PSA_IPC_DISCONNECT:
                     break;
-                case PSA_IPC_MSG_TYPE_CALL: {
+                case PSA_IPC_CALL: {
                     memset(data, 0, sizeof(data));
                     if (msg.in_size[0] + msg.in_size[1] + msg.in_size[2] > 1) {
                         size_t offset = psa_read(msg.handle, 0, (void*)data, msg.in_size[0]);

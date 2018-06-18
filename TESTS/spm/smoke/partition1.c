@@ -28,7 +28,7 @@ void part1_main(void *ptr)
 
     while (1) {
 
-        signals = psa_wait_any(PSA_WAIT_BLOCK);
+        signals = psa_wait_any(PSA_BLOCK);
         SPM_ASSERT(signals == ROT_SRV1_MSK);
         PSA_UNUSED(signals);
 
@@ -42,7 +42,7 @@ void part1_main(void *ptr)
         }
 
         switch (msg.type) {
-            case PSA_IPC_MSG_TYPE_CALL:
+            case PSA_IPC_CALL:
             {
                 SPM_ASSERT((msg.in_size[0] + msg.in_size[1] + msg.in_size[2]) == ACTUAL_MSG_SIZE);
                 SPM_ASSERT(msg.out_size[0] == SERVER_RSP_BUF_SIZE);
@@ -73,10 +73,10 @@ void part1_main(void *ptr)
                 read_ptr = NULL;
                 break;
             }
-            case PSA_IPC_MSG_TYPE_DISCONNECT:
+            case PSA_IPC_DISCONNECT:
                 SPM_ASSERT(msg.handle == PSA_NULL_HANDLE);
                 // Fallthrough
-            case PSA_IPC_MSG_TYPE_CONNECT:
+            case PSA_IPC_CONNECT:
             {
                 SPM_ASSERT(msg.out_size[0] == 0);
                 SPM_ASSERT(msg.out_size[1] == 0);
