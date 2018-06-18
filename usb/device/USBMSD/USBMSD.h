@@ -189,6 +189,9 @@ private:
         uint8_t  Status;
     } CSW;
 
+    // If this class has been initialized
+    bool _init;
+
     //state of the bulk-only state machine
     Stage _stage;
 
@@ -232,6 +235,7 @@ private:
     Task<void()> _configure_task;
 
     BlockDevice *_bd;
+    rtos::Mutex _mutex_init;
     rtos::Mutex _mutex;
 
     // space for config descriptor
