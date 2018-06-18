@@ -23,6 +23,7 @@ void test_emac_broadcast();
 void test_emac_unicast();
 void test_emac_unicast_frame_len();
 void test_emac_unicast_burst();
+void test_emac_unicast_long();
 void test_emac_multicast_filter();
 void test_emac_memory();
 

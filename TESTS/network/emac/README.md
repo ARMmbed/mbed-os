@@ -124,6 +124,12 @@ The test case passes if there are no responses from the echo server, but further
 2. Repeats the sending 10 times. 
 3. Verifies that all are replied. 
 
+### EMAC unicast long
+ 
+1. Sends CTP unicast messages with random Ethernet message length.
+2. Repeats the sending 50000 times. 
+3. Verifies that all are replied. 
+
 ### EMAC multicast filter
  
 Tests multicast filtering. Multicast filtering is an optional feature for the EMAC. The test does not fail if filtering is not implemented.
