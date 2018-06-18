@@ -99,17 +99,17 @@ MBED_NOINLINE void print_context_info(void)
                     ,SCB->HFSR, (0xFF & SCB->CFSR), ((0xFF00 & SCB->CFSR) >> 8), ((0xFFFF0000 & SCB->CFSR) >> 16), SCB->DFSR, SCB->AFSR ); 
     
     //Print MMFAR only if its valid as indicated by MMFSR
-    if((0xFF & SCB->CFSR) & 0x80) {
+    if ((0xFF & SCB->CFSR) & 0x80) {
         mbed_error_printf("\nMMFAR: %08X",SCB->MMFAR); 
     }
     //Print BFAR only if its valid as indicated by BFSR
-    if(((0xFF00 & SCB->CFSR) >> 8) & 0x80) {
+    if (((0xFF00 & SCB->CFSR) >> 8) & 0x80) {
         mbed_error_printf("\nBFAR : %08X",SCB->BFAR); 
     }
 #endif
     
     //Print Mode
-    if(mbed_fault_context.EXC_RETURN & 0x8) {
+    if (mbed_fault_context.EXC_RETURN & 0x8) {
         mbed_error_printf("\nMode : Thread");
         //Print Priv level in Thread mode - We capture CONTROL reg which reflects the privilege.
         //Note that the CONTROL register captured still reflects the privilege status of the 
@@ -124,7 +124,7 @@ MBED_NOINLINE void print_context_info(void)
         mbed_error_printf("\nPriv : Privileged"); 
     }
     //Print Return Stack
-    if(mbed_fault_context.EXC_RETURN & 0x4) {
+    if (mbed_fault_context.EXC_RETURN & 0x4) {
         mbed_error_printf("\nStack: PSP"); 
     } else {
         mbed_error_printf("\nStack: MSP"); 
