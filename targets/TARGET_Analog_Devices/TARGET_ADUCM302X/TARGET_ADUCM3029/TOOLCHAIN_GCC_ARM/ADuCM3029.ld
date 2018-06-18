@@ -27,7 +27,7 @@ MEMORY
   DSRAM_A (rwx) : ORIGIN = 0x20000200, LENGTH = 16k - 0x200
   DSRAM_C (rwx) : ORIGIN = 0x20004000, LENGTH = 16k
   /* SRAM bank 3 */
-  DSRAM_B (rwx) : ORIGIN = 0x20040000, LENGTH = 32k
+  DSRAM_B (rwx) : ORIGIN = 0x20040000, LENGTH = 28k
 }
 
 /* Library configurations */

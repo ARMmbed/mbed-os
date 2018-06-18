@@ -23,7 +23,7 @@ MEMORY
   /* The rest of the flash */
   FLASH (rx) : ORIGIN = MBED_APP_START + ADUCM_SECTOR_SIZE, LENGTH = MBED_APP_SIZE - ADUCM_SECTOR_SIZE
   /* SRAM bank 0 */
-  DSRAM_A (rwx) : ORIGIN = 0x20000200, LENGTH = 32k - 0x200
+  DSRAM_A (rwx) : ORIGIN = 0x20000200, LENGTH = 28k - 0x200
   /* SRAM bank 3+4+5+6+7 */
   DSRAM_B (rwx) : ORIGIN = 0x20048000, LENGTH = 64k
   /* stack must not be in bank 1,2,7 where ISRAM or CACHE
