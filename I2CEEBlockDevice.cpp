@@ -21,24 +21,22 @@
 I2CEEBlockDevice::I2CEEBlockDevice(
         PinName sda, PinName scl, uint8_t addr,
         bd_size_t size, bd_size_t block, int freq)
-    : _i2c_p(new I2C(sda, scl)), _i2c(*_i2c_p), _i2c_addr(addr),
-      _size(size), _block(block)
+    : _i2c_addr(addr), _size(size), _block(block)
 {
-    _i2c.frequency(freq);
+    _i2c = new I2C(sda, scl);
+    _i2c->frequency(freq);
 }
 
 I2CEEBlockDevice::I2CEEBlockDevice(
-        I2C &i2c_obj, uint8_t addr,
+        I2C * i2c_obj, uint8_t addr,
         bd_size_t size, bd_size_t block)
-    : _i2c_p(NULL), _i2c(i2c_obj), _i2c_addr(addr),
-      _size(size), _block(block)
+    : _i2c_addr(addr), _size(size), _block(block)
 {
+    _i2c = i2c_obj;
 }
 I2CEEBlockDevice::~I2CEEBlockDevice()
 {
-    if (_i2c_p != NULL){
-        delete  _i2c_p;
-    }
+    _i2c->~I2C();
 }
 
 int I2CEEBlockDevice::init()
@@ -56,15 +54,15 @@ int I2CEEBlockDevice::read(void *buffer, bd_addr_t addr, bd_size_t size)
     // Check the address and size fit onto the chip.
     MBED_ASSERT(is_valid_read(addr, size));
 
-    _i2c.start();
-    if (!_i2c.write(_i2c_addr | 0) ||
-        !_i2c.write((char)(addr >> 8)) ||
-        !_i2c.write((char)(addr & 0xff))) {
+    _i2c->start();
+    if (!_i2c->write(_i2c_addr | 0) ||
+        !_i2c->write((char)(addr >> 8)) ||
+        !_i2c->write((char)(addr & 0xff))) {
         return BD_ERROR_DEVICE_ERROR;
     }
-    _i2c.stop();
+    _i2c->stop();
 
-    if (_i2c.read(_i2c_addr, static_cast<char*>(buffer), size) < 0) {
+    if (_i2c->read(_i2c_addr, static_cast<char*>(buffer), size) < 0) {
         return BD_ERROR_DEVICE_ERROR;
     }
 
@@ -81,17 +79,17 @@ int I2CEEBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t size
         uint32_t off = addr % _block;
         uint32_t chunk = (off + size < _block) ? size : (_block - off);
 
-        _i2c.start();
-        if (!_i2c.write(_i2c_addr | 0) ||
-            !_i2c.write((char)(addr >> 8)) ||
-            !_i2c.write((char)(addr & 0xff))) {
+        _i2c->start();
+        if (!_i2c->write(_i2c_addr | 0) ||
+            !_i2c->write((char)(addr >> 8)) ||
+            !_i2c->write((char)(addr & 0xff))) {
             return BD_ERROR_DEVICE_ERROR;
         }
 
         for (unsigned i = 0; i < chunk; i++) {
-            _i2c.write(static_cast<const char*>(buffer)[i]);
+            _i2c->write(static_cast<const char*>(buffer)[i]);
         }
-        _i2c.stop();
+        _i2c->stop();
 
         int err = _sync();
         if (err) {
@@ -118,7 +116,7 @@ int I2CEEBlockDevice::_sync()
     // so loop trying to do a zero byte write until it is ACKed
     // by the chip.
     for (int i = 0; i < I2CEE_TIMEOUT; i++) {
-        if (_i2c.write(_i2c_addr | 0, 0, 0) < 1) {
+        if (_i2c->write(_i2c_addr | 0, 0, 0) < 1) {
             return 0;
         }
 
