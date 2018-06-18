@@ -20,6 +20,7 @@ from distutils.spawn import find_executable
 
 from tools.toolchains import mbedToolchain, TOOLCHAIN_PATHS
 from tools.hooks import hook_tool
+from tools.utils import run_cmd, NotSupportedException
 
 class GCC(mbedToolchain):
     LINKER_EXT = '.ld'
@@ -27,6 +28,9 @@ class GCC(mbedToolchain):
 
     STD_LIB_NAME = "lib%s.a"
     DIAGNOSTIC_PATTERN = re.compile('((?P<file>[^:]+):(?P<line>\d+):)(?P<col>\d+):? (?P<severity>warning|[eE]rror|fatal error): (?P<message>.+)')
+
+    GCC_MAJOR = "6"
+    GCC_VERSION_RE = re.compile("[0-9]*\.[0-9]*\.[0-9]*")
 
     def __init__(self, target,  notify=None, macros=None, build_profile=None,
                  build_dir=None):
@@ -106,6 +110,23 @@ class GCC(mbedToolchain):
 
         self.ar = join(tool_path, "arm-none-eabi-ar")
         self.elf2bin = join(tool_path, "arm-none-eabi-objcopy")
+
+    def version_check(self):
+        stdout, _, retcode = run_cmd([self.cc[0], "--version"], redirect=True)
+        found_version = None
+        for line in stdout.splitlines():
+            for word in line.split():
+                match = self.GCC_VERSION_RE.match(word)
+                if match:
+                    found_version = match.group(0)
+        if found_version and not found_version.startswith(self.GCC_MAJOR + "."):
+            raise NotSupportedException(
+                "GCC_ARM compiler version mismatch: Have {}; expected major version {}"
+                .format(found_version, self.GCC_MAJOR))
+        elif not found_version:
+            raise NotSupportedException(
+                "GCC_ARM compiler version mismatch: Could Not detect compiler "
+                "version; expected {}".format(self.GCC_MAJOR))
 
     def is_not_supported_error(self, output):
         return "error: #error [NOT_SUPPORTED]" in output
