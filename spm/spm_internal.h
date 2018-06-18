@@ -27,14 +27,6 @@
 extern "C" {
 #endif
 
-#define CHANNEL_STATE_ASSERT(current_state, expected_state)                                \
-do {                                                                                       \
-    if (current_state != expected_state) {                                                 \
-        SPM_PANIC("channel in incorrect processing state: %d while %d is expected!\n",     \
-            current_state, expected_state);                                                \
-    }                                                                                      \
-} while (0)
-
 #define SPM_COMPLETION_SEM_MAX_COUNT (1UL) /* Maximum number of available tokens for a completion semaphore. */
 #define SPM_COMPLETION_SEM_INITIAL_COUNT (0UL) /* Initial number of available tokens for a completion semaphore. */
 
@@ -53,16 +45,21 @@ typedef struct spm_ipc_channel spm_ipc_channel_t;
  */
 typedef uint32_t (*spm_signal_to_irq_mapper_t)(uint32_t);
 
-/*
- * Enumeration for the possible channel processing states.
- */
-typedef enum partition_state {
-    CHANNEL_STATE_INVALID = 0,
-    CHANNEL_STATE_CONNECTING = 1,
-    CHANNEL_STATE_IDLE = 2,
-    CHANNEL_STATE_PENDING = 3,
-    CHANNEL_STATE_ACTIVE = 4
-} ChannelState;
+#define SPM_CHANNEL_STATE_UNINITIALIZED_MSK    (0x00) //Should not be used.
+#define SPM_CHANNEL_STATE_INVALID_MSK          (0x01)
+#define SPM_CHANNEL_STATE_CONNECTING_MSK       (0x02)
+#define SPM_CHANNEL_STATE_IDLE_MSK             (0x04)
+#define SPM_CHANNEL_STATE_PENDING_MSK          (0x08)
+#define SPM_CHANNEL_STATE_ACTIVE_MSK           (0x10)
+#define SPM_CHANNEL_STATE_DROPPED_MSK          (0x20)
+
+#define CHANNEL_STATE_ASSERT(current_state, expected_state)                                  \
+do {                                                                                         \
+    if ((current_state & (expected_state)) == 0) {                                           \
+        SPM_PANIC("channel in incorrect processing state: %d while %d is expected!\n",       \
+            current_state, expected_state);                                                  \
+    }                                                                                        \
+} while (0)
 
 /*
  * Structure containing the SPM internal data.
@@ -144,7 +141,7 @@ typedef struct spm_ipc_channel {
     void *msg_ptr; /* message data sent from user */
     struct spm_ipc_channel *next; /* Next channel in the chain  */
     uint8_t msg_type; /* The message type.*/
-    ChannelState state; /* The current processing state of the channel.*/
+    uint8_t state; /* The current processing state of the channel.*/
 } spm_ipc_channel_t;
 
 /*

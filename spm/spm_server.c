@@ -278,19 +278,19 @@ void psa_get(psa_signal_t signum, psa_msg_t *msg)
 
     switch (curr_channel->msg_type) {
         case PSA_IPC_CONNECT:
-            CHANNEL_STATE_ASSERT(curr_channel->state, CHANNEL_STATE_CONNECTING);
-            curr_channel->state = CHANNEL_STATE_IDLE;
+            CHANNEL_STATE_ASSERT(curr_channel->state, SPM_CHANNEL_STATE_CONNECTING_MSK);
+            curr_channel->state = SPM_CHANNEL_STATE_IDLE_MSK;
             break;
 
         case PSA_IPC_CALL:
-            CHANNEL_STATE_ASSERT(curr_channel->state, CHANNEL_STATE_PENDING);
-            curr_channel->state = CHANNEL_STATE_ACTIVE;
+            CHANNEL_STATE_ASSERT(curr_channel->state, SPM_CHANNEL_STATE_PENDING_MSK);
+            curr_channel->state = SPM_CHANNEL_STATE_ACTIVE_MSK;
             break;
 
         case PSA_IPC_DISCONNECT:
         {
-            CHANNEL_STATE_ASSERT(curr_channel->state, CHANNEL_STATE_INVALID);
-            curr_channel->state = CHANNEL_STATE_INVALID;
+            CHANNEL_STATE_ASSERT(curr_channel->state, SPM_CHANNEL_STATE_INVALID_MSK);
+            curr_channel->state = SPM_CHANNEL_STATE_INVALID_MSK;
             msg->handle = PSA_NULL_HANDLE;
             msg->type = PSA_IPC_DISCONNECT;
             msg->rhandle = curr_channel->rhandle;
@@ -327,7 +327,7 @@ static size_t read_or_skip(psa_handle_t msg_handle, uint32_t invec_idx, void *bu
 
     spm_active_msg_t *active_msg = get_msg_from_handle(msg_handle);
 
-    CHANNEL_STATE_ASSERT(active_msg->channel->state, CHANNEL_STATE_ACTIVE);
+    CHANNEL_STATE_ASSERT(active_msg->channel->state, SPM_CHANNEL_STATE_ACTIVE_MSK);
 
     psa_invec_t *active_iovec = &active_msg->in_vec[invec_idx];
 
@@ -382,7 +382,7 @@ void psa_write(psa_handle_t msg_handle, uint32_t outvec_idx, const void *buffer,
 
     spm_active_msg_t *active_msg = get_msg_from_handle(msg_handle);
 
-    CHANNEL_STATE_ASSERT(active_msg->channel->state, CHANNEL_STATE_ACTIVE);
+    CHANNEL_STATE_ASSERT(active_msg->channel->state, SPM_CHANNEL_STATE_ACTIVE_MSK);
 
     psa_outvec_t *active_iovec = &active_msg->out_vec[outvec_idx];
 
@@ -425,12 +425,12 @@ void psa_end(psa_handle_t msg_handle, psa_error_t retval)
     switch(active_channel->msg_type) {
         case PSA_IPC_CONNECT:
         {
-            CHANNEL_STATE_ASSERT(active_channel->state, CHANNEL_STATE_IDLE);
+            CHANNEL_STATE_ASSERT(active_channel->state, SPM_CHANNEL_STATE_IDLE_MSK);
             if ((retval != PSA_CONNECTION_ACCEPTED) && (retval != PSA_CONNECTION_REFUSED)) {
                 SPM_PANIC("retval (0X%08x) is not allowed for PSA_IPC_CONNECT", retval);
             }
 
-            active_channel->state = (retval < 0 ? CHANNEL_STATE_INVALID : CHANNEL_STATE_IDLE);
+            active_channel->state = (retval < 0 ? SPM_CHANNEL_STATE_INVALID_MSK : SPM_CHANNEL_STATE_IDLE_MSK);
             spm_pending_connect_msg_t *connect_msg_data  = (spm_pending_connect_msg_t *)(active_channel->msg_ptr);
             completion_sem_id = connect_msg_data ->completion_sem_id;
 
@@ -462,8 +462,13 @@ void psa_end(psa_handle_t msg_handle, psa_error_t retval)
                 SPM_PANIC("retval (0X%08x) is not allowed for PSA_IPC_CALL", retval);
             }
 
-            CHANNEL_STATE_ASSERT(active_channel->state, CHANNEL_STATE_ACTIVE);
-            active_channel->state = CHANNEL_STATE_IDLE;
+            CHANNEL_STATE_ASSERT(active_channel->state, SPM_CHANNEL_STATE_ACTIVE_MSK);
+            if (retval == PSA_DROP_CONNECTION) {
+                active_channel->state = SPM_CHANNEL_STATE_DROPPED_MSK;
+            } else {
+                active_channel->state = SPM_CHANNEL_STATE_IDLE_MSK;
+            }
+
             spm_pending_call_msg_t *call_msg_data = (spm_pending_call_msg_t *)(active_channel->msg_ptr);
             call_msg_data->rc = retval;
             completion_sem_id = call_msg_data->completion_sem_id;
@@ -475,7 +480,6 @@ void psa_end(psa_handle_t msg_handle, psa_error_t retval)
     }
 
     if (active_channel != NULL) {
-        CHANNEL_STATE_ASSERT(active_channel->state, CHANNEL_STATE_IDLE);
         active_channel->msg_ptr = NULL;
         active_channel->msg_type = 0;  // uninitialized
     }

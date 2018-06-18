@@ -71,7 +71,7 @@ static void client_ipc_tests_call(
                         (tx_len ? iovec_temp : NULL),
                         tx_len,
                         (rx_len ? &resp : NULL),
-                        rx_len ? 1 : 0
+                        (rx_len ? 1 : 0)
                     );
 
     if (expected) {
@@ -360,6 +360,19 @@ void client_close_null_handle()
     client_ipc_tests_close(PSA_NULL_HANDLE);
 }
 
+void drop_connection()
+{
+    psa_handle_t handle = client_ipc_tests_connect(DROP_CONN, MINOR_VER);
+    psa_error_t status = psa_call(handle, NULL, 0, NULL, 0);
+    TEST_ASSERT_EQUAL_INT(PSA_DROP_CONNECTION, status);
+
+    status = PSA_SUCCESS;
+    status = psa_call(handle, NULL, 0, NULL, 0);
+    TEST_ASSERT_EQUAL_INT(PSA_DROP_CONNECTION, status);
+
+    client_ipc_tests_close(handle);
+}
+
  // Test cases
 Case cases[] = {
     Case("Testing client iovec_0_NULL", iovec_0_NULL),
@@ -372,6 +385,7 @@ Case cases[] = {
     Case("Testing client multiple calls on different channels to the same SID", multi_thread_diff_handles),
     Case("Testing client exceed num of max channels allowed", exceed_num_of_max_channels),
     Case("Testing client close on NULL handle", client_close_null_handle),
+    Case("Testing DROP_CONNECTION State", drop_connection),
 };
 
 utest::v1::status_t test_setup(const size_t number_of_cases)

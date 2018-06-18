@@ -23,10 +23,10 @@ uint8_t data[MSG_BUF_SIZE] = {0};
 void server_main(void *ptr)
 {
     uint32_t signals = 0;
+    psa_msg_t msg = {0};
     while (1) {
         signals = psa_wait_any(PSA_BLOCK);
         if (signals & PART1_ROT_SRV1_MSK) {
-            psa_msg_t msg = {0};
             psa_get(PART1_ROT_SRV1_MSK, &msg);
             switch (msg.type) {
                 case PSA_IPC_CONNECT:
@@ -51,6 +51,21 @@ void server_main(void *ptr)
                 }
             }
             psa_end(msg.handle, PSA_SUCCESS);
+        } else if (signals & DROP_CONN_MSK) {
+            psa_get(DROP_CONN_MSK, &msg);
+            switch (msg.type) {
+                case PSA_IPC_CONNECT:
+                case PSA_IPC_DISCONNECT:
+                    psa_end(msg.handle, PSA_SUCCESS);
+                    break;
+                case PSA_IPC_CALL:
+                    psa_end(msg.handle, PSA_DROP_CONNECTION);
+                    break;
+                default:
+                    SPM_PANIC("Invalid msg type");
+            }
+        } else {
+            SPM_PANIC("Recieved invalid signal %d", signals);
         }
     }
 

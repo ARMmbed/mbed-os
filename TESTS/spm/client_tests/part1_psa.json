@@ -13,6 +13,14 @@
       "non_secure_clients": true,
       "minor_version": 5,
       "minor_policy": "RELAXED"
+    },
+    {
+      "name": "DROP_CONN",
+      "identifier": "0x00001A06",
+      "signal": "DROP_CONN_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "RELAXED"
     }
   ],
   "source_files": [
