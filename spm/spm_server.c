@@ -19,6 +19,7 @@
 #include "spm_internal.h"
 #include "spm_panic.h"
 #include "handles_manager.h"
+#include "cmsis.h"
 
 #define PSA_SIG_DOORBELL_POS    3                           // Bit position for PSA_DOORBELL signal
 #define PSA_SIG_DOORBELL_MSK    (1 << PSA_SIG_DOORBELL_POS) // Mask for PSA_DOORBELL signal
@@ -261,12 +262,12 @@ void psa_get(psa_signal_t signum, psa_msg_t *msg)
 
     // signum must be ONLY ONE of the bits of curr_partition->flags_rot_srv
     bool is_one_bit = ((signum != 0) && !(signum & (signum - 1)));
-    if (!is_one_bit || !(signum & (curr_partition->flags_rot_srv | curr_partition->flags_interrupts))) {
+    if (!is_one_bit || !(signum & curr_partition->flags_rot_srv)) {
         SPM_PANIC(
             "signum 0x%x must have only 1 bit ON and must be a subset of 0x%x!\n",
             signum,
-            curr_partition->flags_rot_srv | curr_partition->flags_interrupts
-            );
+            curr_partition->flags_rot_srv
+        );
     }
 
     uint32_t active_flags = osThreadFlagsGet();
@@ -276,7 +277,7 @@ void psa_get(psa_signal_t signum, psa_msg_t *msg)
 
     spm_rot_service_t *curr_rot_service = get_rot_service(curr_partition, signum);
     if (curr_rot_service == NULL) {
-        SPM_PANIC("Recieved signal (0x%08x) that does not match any ecure function", signum);
+        SPM_PANIC("Recieved signal (0x%08x) that does not match any root of trust service", signum);
     }
     spm_ipc_channel_t *curr_channel = spm_rot_service_queue_dequeue(curr_rot_service);
 
@@ -532,4 +533,29 @@ void psa_set_rhandle(psa_handle_t msg_handle, void *rhandle)
 {
     spm_active_msg_t *active_msg = get_msg_from_handle(msg_handle);
     active_msg->channel->rhandle = rhandle;
+}
+
+void psa_eoi(uint32_t irq_signal)
+{
+    spm_partition_t *curr_partition = get_active_partition();
+    SPM_ASSERT(NULL != curr_partition);
+    if (curr_partition->irq_mapper == NULL) {
+        SPM_PANIC("Try to clear an interrupt flag without declaring IRQ");
+    }
+
+    if (0 == (curr_partition->flags_interrupts & irq_signal)) {
+        SPM_PANIC("Signal %d not in irq range\n", irq_signal);
+    }
+
+    bool is_one_bit = ((irq_signal != 0) && !(irq_signal & (irq_signal - 1)));
+    if (!is_one_bit) {
+        SPM_PANIC("signal 0x%x must have only 1 bit ON!\n",irq_signal);
+    }
+
+    uint32_t irq_line = curr_partition->irq_mapper(irq_signal);
+    NVIC_EnableIRQ(irq_line);
+
+    int32_t flags = (int32_t)osThreadFlagsClear(irq_signal);
+    SPM_ASSERT(flags >= 0);
+    PSA_UNUSED(flags);
 }

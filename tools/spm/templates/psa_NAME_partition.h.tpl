@@ -22,7 +22,9 @@
 #ifndef PSA_{{partition.name|upper}}_PARTITION_H
 #define PSA_{{partition.name|upper}}_PARTITION_H
 
+{% if partition.rot_services|count > 0 %}
 #define {{partition.name|upper}}_ROT_SRV_COUNT ({{partition.rot_services|count}}UL)
+{% endif %}
 #define {{partition.name|upper}}_EXT_ROT_SRV_COUNT ({{partition.extern_sids|count}}UL)
 
 /* {{partition.name}} event flags */
@@ -35,22 +37,42 @@
 #define {{partition.name|upper}}_DOORBELL_POS (3UL)
 #define {{partition.name|upper}}_DOORBELL_MSK (1UL << {{partition.name|upper}}_DOORBELL_POS)
 
+{% for irq in partition.irqs %}
+#define {{irq.signal|upper}}_POS ({{loop.index + 3 }}UL)
+#define {{irq.signal|upper}} (1UL << {{irq.signal|upper}}_POS)
+{% endfor %}
+
+{% if partition.irqs|count > 0 %}
+#define {{partition.name|upper}}_WAIT_ANY_IRQ_MSK (\
+{% for irq in partition.irqs %}
+    {{irq.signal|upper}}{{")" if loop.last else " | \\"}}
+{% endfor %}
+{% endif %}
+
 {% for rot_srv in partition.rot_services %}
-#define {{rot_srv.signal|upper}}_POS ({{loop.index + 3}}UL)
+#define {{rot_srv.signal|upper}}_POS ({{loop.index + 3 + partition.irqs|count}}UL)
 #define {{rot_srv.signal|upper}} (1UL << {{rot_srv.signal|upper}}_POS)
 {% endfor %}
 
+{% if partition.rot_services|count > 0 %}
 #define {{partition.name|upper}}_WAIT_ANY_SID_MSK (\
 {% for rot_srv in partition.rot_services %}
     {{rot_srv.signal|upper}}{{")" if loop.last else " | \\"}}
 {% endfor %}
-
-#define {{partition.name|upper}}_WAIT_ANY_IRQ_MSK (0) // TODO: Implement when IRQ logic is ready
+{% endif %}
 
 #define {{partition.name|upper}}_WAIT_ANY_MSK (\
-    {{partition.name|upper}}_DOORBELL_MSK | \
-    {{partition.name|upper}}_WAIT_ANY_SID_MSK | \
-    {{partition.name|upper}}_WAIT_ANY_IRQ_MSK)
+{% if partition.irqs|count > 0 %}
+    {{partition.name|upper}}_WAIT_ANY_IRQ_MSK | \
+{% endif %}
+{% if partition.rot_services|count > 0 %}
+    {{partition.name|upper}}_WAIT_ANY_SID_MSK) | \
+{% endif %}
+    {{partition.name|upper}}_DOORBELL_MSK)
+
+{% if partition.irqs|count > 0 %}
+uint32_t spm_{{partition.name|lower}}_signal_to_irq_mapper(uint32_t signal);
+{% endif %}
 
 #endif // PSA_{{partition.name|upper}}_PARTITION_H
 {# End of file #}

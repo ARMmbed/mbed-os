@@ -19,6 +19,7 @@
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  **********************************************************************************************************************/
 
+#include "cmsis.h"
 #include "mbed_toolchain.h" /* For using MBED_ALIGN macro */
 #include "rtx_os.h"
 #include "spm_panic.h"
@@ -49,6 +50,7 @@ osThreadAttr_t {{partition.name|lower}}_thread_attr = {
     .reserved = 0
     };
 
+{% if partition.rot_services|count > 0 %}
 spm_rot_service_t {{partition.name|lower}}_rot_services[{{partition.name|upper}}_ROT_SRV_COUNT] = {
 {% for rot_srv in partition.rot_services %}
     {
@@ -69,6 +71,7 @@ spm_rot_service_t {{partition.name|lower}}_rot_services[{{partition.name|upper}}
     },
 {% endfor %}
 };
+{% endif %}
 
 {% if partition.extern_sids|count > 0 %}
 /* External SIDs used by {{partition.name}} */
@@ -90,6 +93,26 @@ static const osMutexAttr_t {{partition.name|lower}}_mutex_attr = {
     .cb_size = sizeof({{partition.name|lower}}_mutex),
 };
 
+{% if partition.irqs|count > 0 %}
+// Mapper function from irq signal to interupts number
+uint32_t spm_{{partition.name|lower}}_signal_to_irq_mapper(uint32_t signal)
+{
+    SPM_ASSERT({{partition.name|upper}}_WAIT_ANY_IRQ_MSK & signal)
+    switch(signal){
+    {% for irq in partition.irqs %}
+        case {{ irq.signal }}:
+            return {{irq.line_num}};
+            break;
+    {% endfor %}
+        default:
+            break;
+    }
+
+    SPM_PANIC("Unknown signal number %d", signal);
+    return 0;
+}
+{% endif %}
+
 extern void {{partition.entry_point}}(void *ptr);
 
 void {{partition.name|lower}}_init(spm_partition_t *partition)
@@ -103,10 +126,14 @@ void {{partition.name|lower}}_init(spm_partition_t *partition)
         SPM_PANIC("Failed to create mutex for secure partition {{partition.name|lower}}!\n");
     }
 
+    {% if partition.rot_services|count > 0 %}
     for (uint32_t i = 0; i < {{partition.name|upper}}_ROT_SRV_COUNT; ++i) {
         {{partition.name|lower}}_rot_services[i].partition = partition;
     }
     partition->rot_services = {{partition.name|lower}}_rot_services;
+    {% else %}
+    partition->rot_services = NULL;
+    {% endif %}
 
     partition->thread_id = osThreadNew({{partition.entry_point}}, NULL, &{{partition.name|lower}}_thread_attr);
     if (NULL == partition->thread_id) {

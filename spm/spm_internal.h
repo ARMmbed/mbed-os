@@ -42,6 +42,12 @@ typedef struct spm_partition spm_partition_t;
 typedef struct spm_ipc_channel spm_ipc_channel_t;
 
 /*
+ * IRQ signal mapper definition.
+ * The function will not return on invalid signal.
+ */
+typedef uint32_t (*spm_signal_to_irq_mapper_t)(uint32_t);
+
+/*
  * Enumeration for the possible channel processing states.
  */
 typedef enum partition_state {
@@ -150,6 +156,7 @@ typedef struct spm_partition {
     const uint32_t *extern_sids; /* Array of Root of Trust Service IDs which the partition can connect to.*/
     const uint32_t extern_sids_count; /* Number of Root of Trust Services which the partition can connect to.*/
     osMutexId_t mutex; /* Mutex for all rot_service's queues operations. */
+    spm_signal_to_irq_mapper_t irq_mapper; /* a function which maps signal to irq number*/
 } spm_partition_t;
 
 
