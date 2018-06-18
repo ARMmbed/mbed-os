@@ -1537,6 +1537,13 @@ class mbedToolchain:
     def get_config_macros(self):
         return self.config.config_to_macros(self.config_data) if self.config_data else []
 
+    @abstractmethod
+    def version_check(self):
+        """Check the version of a compiler being used and raise a
+        NotSupportedException when it's incorrect.
+        """
+        raise NotImplemented
+
     @property
     def report(self):
         to_ret = {}

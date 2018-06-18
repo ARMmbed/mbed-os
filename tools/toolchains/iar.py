@@ -20,6 +20,7 @@ from os.path import join, splitext, exists
 
 from tools.toolchains import mbedToolchain, TOOLCHAIN_PATHS
 from tools.hooks import hook_tool
+from tools.utils import run_cmd, NotSupportedException
 
 class IAR(mbedToolchain):
     LIBRARY_EXT = '.a'
@@ -28,6 +29,8 @@ class IAR(mbedToolchain):
 
     DIAGNOSTIC_PATTERN = re.compile('"(?P<file>[^"]+)",(?P<line>[\d]+)\s+(?P<severity>Warning|Error|Fatal error)(?P<message>.+)')
     INDEX_PATTERN  = re.compile('(?P<col>\s*)\^')
+    IAR_VERSION_RE = re.compile("IAR ANSI C/C\+\+ Compiler V([0-9]+.[0-9]+)")
+    IAR_VERSION = "7.80"
 
     @staticmethod
     def check_executable():
@@ -90,6 +93,23 @@ class IAR(mbedToolchain):
         self.ld   = [join(IAR_BIN, "ilinkarm")] + self.flags['ld']
         self.ar = join(IAR_BIN, "iarchive")
         self.elf2bin = join(IAR_BIN, "ielftool")
+
+    def version_check(self):
+        stdout, _, retcode = run_cmd([self.cc[0], "--version"], redirect=True)
+        found_version = None
+        for line in stdout.splitlines():
+            match = self.IAR_VERSION_RE.match(line)
+            if match:
+                found_version = match.group(1)
+        if found_version and not found_version.startswith(self.IAR_VERSION):
+            raise NotSupportedException(
+                "IAR compiler version mismatch: Have {}; expected {}"
+                .format(found_version, self.IAR_VERSION))
+        elif not found_version:
+            raise NotSupportedException(
+                "IAR compiler version mismatch: Could Not detect compiler "
+                "version; expected {}".format(self.IAR_VERSION))
+
 
     def parse_dependencies(self, dep_path):
         return [(self.CHROOT if self.CHROOT else '')+path.strip() for path in open(dep_path).readlines()

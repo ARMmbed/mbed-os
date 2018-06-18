@@ -26,7 +26,7 @@ from shutil import rmtree
 
 from tools.toolchains import mbedToolchain, TOOLCHAIN_PATHS
 from tools.hooks import hook_tool
-from tools.utils import mkdir, NotSupportedException
+from tools.utils import mkdir, NotSupportedException, run_cmd
 
 class ARM(mbedToolchain):
     LINKER_EXT = '.sct'
@@ -39,6 +39,8 @@ class ARM(mbedToolchain):
     SHEBANG = "#! armcc -E"
     SUPPORTED_CORES = ["Cortex-M0", "Cortex-M0+", "Cortex-M3", "Cortex-M4",
                        "Cortex-M4F", "Cortex-M7", "Cortex-M7F", "Cortex-M7FD", "Cortex-A9"]
+    ARMCC_VERSION = "5.06"
+    ARMCC_VERSION_RE = re.compile("^Product: ARM Compiler (.*)$")
 
     @staticmethod
     def check_executable():
@@ -90,6 +92,17 @@ class ARM(mbedToolchain):
         self.elf2bin = join(ARM_BIN, "fromelf")
 
         self.SHEBANG += " --cpu=%s" % cpu
+
+    def version_check(self):
+        stdout, _, retcode = run_cmd([self.cc[0], "--vsn"], redirect=True)
+        first_line = stdout.splitlines()[0]
+        match = self.ARMCC_VERSION_RE.match(first_line)
+        if match:
+            found_version = match.group(1)
+            if not found_version.startswith(self.ARMCC_VERSION):
+                raise NotSupportedException(
+                    "ARM compiler version mismatch: Have {}; expected {}"
+                    .format(found_version, self.ARMCC_VERSION))
 
     def _get_toolchain_labels(self):
         if getattr(self.target, "default_lib", "std") == "small":
@@ -324,6 +337,8 @@ class ARMC6(ARM_STD):
                        "Cortex-M4F", "Cortex-M7", "Cortex-M7F", "Cortex-M7FD",
                        "Cortex-M23", "Cortex-M23-NS", "Cortex-M33",
                        "CortexM33-NS", "Cortex-A9"]
+    ARMCC_VERSION = "6.10"
+
     @staticmethod
     def check_executable():
         return mbedToolchain.generic_check_executable("ARMC6", "armclang", 1)
