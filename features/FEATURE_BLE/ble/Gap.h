@@ -2112,9 +2112,16 @@ public:
      *
      * @note All restrictions from setScanParams(uint16_t, uint16_t, uint16_t, bool) apply.
      */
-    ble_error_t setScanParams(GapScanningParams scanningParams) {
-        _scanningParams = scanningParams;
-        return BLE_ERROR_NONE;
+    ble_error_t setScanParams(const GapScanningParams& scanningParams) {
+        ble_error_t rc;
+        if (((rc = _scanningParams.setInterval(scanningParams.getInterval())) == BLE_ERROR_NONE) &&
+            ((rc = _scanningParams.setWindow(scanningParams.getWindow()))     == BLE_ERROR_NONE) &&
+            ((rc = _scanningParams.setTimeout(scanningParams.getTimeout()))   == BLE_ERROR_NONE)) {
+            _scanningParams.setActiveScanning(scanningParams.getActiveScanning());
+            return BLE_ERROR_NONE;
+        }
+
+        return rc;
     }
 
     /**
