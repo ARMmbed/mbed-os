@@ -238,12 +238,12 @@ int USBMSD::disk_status()
     return 0;
 }
 
-void USBMSD::_isr_out(usb_ep_t endpoint)
+void USBMSD::_isr_out()
 {
     _out_task.call();
 }
 
-void USBMSD::_isr_in(usb_ep_t endpoint)
+void USBMSD::_isr_in()
 {
     _in_task.call();
 }
