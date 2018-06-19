@@ -233,7 +233,7 @@ bool USBHID::read_nb(HID_REPORT *report)
     return success;
 }
 
-void USBHID::_send_isr(usb_ep_t endpoint)
+void USBHID::_send_isr()
 {
     assert_locked();
 
@@ -247,7 +247,7 @@ void USBHID::_send_isr(usb_ep_t endpoint)
 
 }
 
-void USBHID::_read_isr(usb_ep_t endpoint)
+void USBHID::_read_isr()
 {
     assert_locked();
 

@@ -62,7 +62,7 @@ private:
     bool set_configuration(uint16_t configuration);
     bool set_interface(uint16_t interface, uint16_t alternate);
     bool setup_iterface(uint8_t ep_in, uint8_t ep_out, uint32_t ep_size, usb_ep_type_t ep_type,
-                        uint8_t *buf, uint32_t buf_size, void (USBTester::*callback)(usb_ep_t endpoint));
+                        uint8_t *buf, uint32_t buf_size, void (USBTester::*callback)());
     void remove_iterface(uint16_t interface);
     int16_t interface_0_alt_set;
     int16_t interface_1_alt_set;
@@ -117,8 +117,8 @@ protected:
     virtual void callback_request_xfer_done(const setup_packet_t *setup, bool aborted);
     virtual void callback_set_configuration(uint8_t configuration);
     virtual void callback_set_interface(uint16_t interface, uint8_t alternate);
-    virtual void epbulk_out_callback(usb_ep_t endpoint);
-    virtual void epint_out_callback(usb_ep_t endpoint);
+    virtual void epbulk_out_callback();
+    virtual void epint_out_callback();
     virtual void callback_reset();
     uint8_t ctrl_buf[2048];
 

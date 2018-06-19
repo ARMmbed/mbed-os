@@ -194,10 +194,10 @@ protected:
     void _change_terminal_connected(bool connected);
 
     void _send_isr_start();
-    void _send_isr(usb_ep_t endpoint);
+    void _send_isr();
 
     void _receive_isr_start();
-    void _receive_isr(usb_ep_t endpoint);
+    void _receive_isr();
 
     usb_ep_t _bulk_in;
     usb_ep_t _bulk_out;
