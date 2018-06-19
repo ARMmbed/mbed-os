@@ -2103,6 +2103,21 @@ public:
     }
 
     /**
+     * Set the parameters used during a scan procedure.
+     *
+     * @param[in] scanningParams Parameter struct containing the interval, period,
+     * timeout and active scanning toggle.
+     *
+     * @return BLE_ERROR_NONE if the scan parameters were correctly set.
+     *
+     * @note All restrictions from setScanParams(uint16_t, uint16_t, uint16_t, bool) apply.
+     */
+    ble_error_t setScanParams(GapScanningParams scanningParams) {
+        _scanningParams = scanningParams;
+        return BLE_ERROR_NONE;
+    }
+
+    /**
      * Set the interval parameter used during scanning procedures.
      *
      * @param[in] interval Interval in ms between the start of two consecutive
