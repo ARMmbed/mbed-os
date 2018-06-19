@@ -290,17 +290,10 @@ class mbedToolchain:
         if not isinstance(files_paths, list):
             files_paths = [files_paths]
 
-        for source in files_paths:
-            if source is None:
-                files_paths.remove(source)
-
-        for source in files_paths:
-            _, relative_path = split(source)
-
-            target = join(trg_path, relative_path)
-
+        for dest, source in files_paths:
+            target = join(trg_path, dest)
             if (target != source) and (self.need_update(target, [source])):
-                self.progress("copy", relative_path)
+                self.progress("copy", dest)
                 mkdir(dirname(target))
                 copyfile(source, target)
 
