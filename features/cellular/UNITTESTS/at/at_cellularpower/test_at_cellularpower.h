@@ -39,6 +39,12 @@ public:
     void test_AT_CellularPower_opt_power_save_mode();
 
     void test_AT_CellularPower_opt_receive_period();
+
+    void test_AT_CellularPower_is_device_ready();
+
+    void test_AT_CellularPower_set_device_ready_urc_cb();
+
+    void test_AT_CellularPower_remove_device_ready_urc_cb();
 };
 
 #endif // TEST_AT_CELLULARPOWER_H

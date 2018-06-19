@@ -41,7 +41,7 @@ public:
 
     virtual nsapi_error_t set_at_mode();
 
-    virtual nsapi_error_t set_power_level(int func_level);
+    virtual nsapi_error_t set_power_level(int func_level, int do_reset = 1);
 
     virtual nsapi_error_t reset();
 

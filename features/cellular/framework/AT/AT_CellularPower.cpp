@@ -60,11 +60,12 @@ nsapi_error_t AT_CellularPower::set_at_mode()
     return _at.unlock_return_error();
 }
 
-nsapi_error_t AT_CellularPower::set_power_level(int func_level)
+nsapi_error_t AT_CellularPower::set_power_level(int func_level, int do_reset)
 {
     _at.lock();
     _at.cmd_start("AT+CFUN=");
     _at.write_int(func_level);
+    _at.write_int(do_reset);
     _at.cmd_stop();
     _at.resp_start();
     _at.resp_stop();

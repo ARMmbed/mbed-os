@@ -77,3 +77,17 @@ TEST(AT_CellularPower, test_AT_CellularPower_opt_receive_period)
     unit->test_AT_CellularPower_opt_receive_period();
 }
 
+TEST(AT_CellularPower, test_AT_CellularPower_is_device_ready)
+{
+    unit->test_AT_CellularPower_is_device_ready();
+}
+
+TEST(AT_CellularPower, test_AT_CellularPower_set_device_ready_urc_cb)
+{
+    unit->test_AT_CellularPower_set_device_ready_urc_cb();
+}
+
+TEST(AT_CellularPower, test_AT_CellularPower_remove_device_ready_urc_cb)
+{
+    unit->test_AT_CellularPower_remove_device_ready_urc_cb();
+}

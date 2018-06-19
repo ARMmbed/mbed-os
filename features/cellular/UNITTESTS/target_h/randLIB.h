@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Arm Limited and affiliates.
+ * Copyright (c) 2017, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,14 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef CELLULAR_UNITTESTS_MBED_TRACE_H_
-#define CELLULAR_UNITTESTS_MBED_TRACE_H_
+#ifndef FEATURES_CELLULAR_UNITTESTS_TARGET_H_RANDLIB_H_
+#define FEATURES_CELLULAR_UNITTESTS_TARGET_H_RANDLIB_H_
 
-#define tr_debug(...)
-#define tr_info(...)
-#define tr_warning(...)
-#define tr_warn(...)
-#define tr_error(...)
-#define tr_err(...)
+#include <stdint.h>
 
-#endif /* CELLULAR_UNITTESTS_MBED_TRACE_H_ */
+extern void randLIB_seed_random(void);
+
+uint16_t randLIB_get_random_in_range(uint16_t min, uint16_t max);
+
+
+#endif /* FEATURES_CELLULAR_UNITTESTS_TARGET_H_RANDLIB_H_ */
