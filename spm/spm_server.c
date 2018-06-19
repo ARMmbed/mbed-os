@@ -66,18 +66,6 @@ static inline spm_rot_service_t *get_rot_service(spm_partition_t *prt, psa_signa
     return NULL;
 }
 
-static inline void validate_iovec(const void *vec, const uint32_t len)
-{
-    if (
-        !(
-            ((vec == NULL) && (len == 0)) ||
-            ((vec != NULL) && (len > 0) && (len <= PSA_MAX_INVEC_LEN))
-        )
-    ) {
-        SPM_PANIC("Failed iovec Validation iovec=(0X%p) len=(%d)\n", vec, len);
-    }
-}
-
 /*
  * This function validates the parameters sent from the user and copies it to an active message
  *
@@ -91,8 +79,8 @@ static psa_handle_t copy_message_to_spm(spm_ipc_channel_t *channel, int32_t curr
     // Memory allocated from MemoryPool isn't zeroed - thus a temporary variable will make sure we will start from a clear state.
     spm_active_msg_t temp_active_message = {
         .channel = channel,
-        .in_vec = {{0}},
-        .out_vec = {{0}}
+        .iovecs = {{.in = {0}}},
+        .out_index = 0,
     };
 
     if (channel->msg_type == PSA_IPC_CALL) {
@@ -108,10 +96,10 @@ static psa_handle_t copy_message_to_spm(spm_ipc_channel_t *channel, int32_t curr
         const psa_outvec_t *temp_outvec = call_msg_data->out_vec;
         const uint32_t temp_outvec_size = call_msg_data->out_vec_size;
 
-        validate_iovec(temp_invec, temp_invec_size);
-        validate_iovec(temp_outvec, temp_outvec_size);
+        validate_iovec(temp_invec, temp_invec_size, temp_outvec, temp_outvec_size);
+        temp_active_message.out_index = (uint8_t)temp_invec_size;
 
-        if (temp_invec != NULL) {
+        if (temp_invec_size > 0) {
             if (!is_buffer_accessible(temp_invec, temp_invec_size * sizeof(*temp_invec), channel->src_partition)) {
                 SPM_PANIC("in_vec is inaccessible\n");
             }
@@ -122,18 +110,20 @@ static psa_handle_t copy_message_to_spm(spm_ipc_channel_t *channel, int32_t curr
                 }
 
                 // Copy struct
-                temp_active_message.in_vec[i] = temp_invec[i];
+                temp_active_message.iovecs[i].in = temp_invec[i];
                 user_msg->in_size[i] = temp_invec[i].len;
 
                 // Copy then check to prevent TOCTOU
-                if (!is_buffer_accessible(temp_active_message.in_vec[i].base, temp_active_message.in_vec[i].len, channel->src_partition)) {
+                if (!is_buffer_accessible(
+                    temp_active_message.iovecs[i].in.base,
+                    temp_active_message.iovecs[i].in.len,
+                    channel->src_partition)) {
                     SPM_PANIC("in_vec[%d] is inaccessible\n", i);
                 }
-
             }
         }
 
-        if (temp_outvec != NULL) {
+        if (temp_outvec_size > 0) {
             if (!is_buffer_accessible(temp_outvec, temp_outvec_size * sizeof(*temp_outvec), channel->src_partition)) {
                 SPM_PANIC("out_vec is inaccessible\n");
             }
@@ -144,11 +134,14 @@ static psa_handle_t copy_message_to_spm(spm_ipc_channel_t *channel, int32_t curr
                 }
 
                 // Copy struct
-                temp_active_message.out_vec[i] = temp_outvec[i];
+                temp_active_message.iovecs[temp_invec_size + i].out = temp_outvec[i];
                 user_msg->out_size[i] = temp_outvec[i].len;
 
                 // Copy then check to prevent TOCTOU
-                if (!is_buffer_accessible(temp_active_message.out_vec[i].base, temp_active_message.out_vec[i].len, channel->src_partition)) {
+                if (!is_buffer_accessible(
+                    temp_active_message.iovecs[temp_invec_size + i].out.base,
+                    temp_active_message.iovecs[temp_invec_size + i].out.len,
+                    channel->src_partition)) {
                     SPM_PANIC("out_vec[%d] is inaccessible\n", i);
                 }
             }
@@ -309,7 +302,6 @@ void psa_get(psa_signal_t signum, psa_msg_t *msg)
                 PSA_UNUSED(os_status);
             }
             return;
-            break;
         }
         default:
             SPM_ASSERT(!"psa_get - unexpected message type");
@@ -321,15 +313,19 @@ void psa_get(psa_signal_t signum, psa_msg_t *msg)
 
 static size_t read_or_skip(psa_handle_t msg_handle, uint32_t invec_idx, void *buf, size_t num_bytes)
 {
-    if (invec_idx >= PSA_MAX_INVEC_LEN) {
-        SPM_PANIC("Invalid invec_idx\n");
-    }
-
     spm_active_msg_t *active_msg = get_msg_from_handle(msg_handle);
 
     CHANNEL_STATE_ASSERT(active_msg->channel->state, SPM_CHANNEL_STATE_ACTIVE_MSK);
 
-    psa_invec_t *active_iovec = &active_msg->in_vec[invec_idx];
+    if (invec_idx >= PSA_MAX_IOVEC) {
+        SPM_PANIC("Invalid invec_idx\n");
+    }
+
+    if (invec_idx >= active_msg->out_index) {
+        return 0;
+    }
+
+    psa_invec_t *active_iovec = &active_msg->iovecs[invec_idx].in;
 
     if (num_bytes > active_iovec->len) {
         num_bytes = active_iovec->len;
@@ -376,16 +372,16 @@ void psa_write(psa_handle_t msg_handle, uint32_t outvec_idx, const void *buffer,
         SPM_PANIC("buffer is inaccessible\n");
     }
 
-    if (outvec_idx >= PSA_MAX_OUTVEC_LEN) {
-        SPM_PANIC("Invalid outvec_idx %d \n", outvec_idx);
-    }
-
     spm_active_msg_t *active_msg = get_msg_from_handle(msg_handle);
 
     CHANNEL_STATE_ASSERT(active_msg->channel->state, SPM_CHANNEL_STATE_ACTIVE_MSK);
 
-    psa_outvec_t *active_iovec = &active_msg->out_vec[outvec_idx];
+    outvec_idx += active_msg->out_index;
+    if (outvec_idx >= PSA_MAX_IOVEC) {
+        SPM_PANIC("Invalid outvec_idx\n");
+    }
 
+    psa_outvec_t *active_iovec = &active_msg->iovecs[outvec_idx].out;
     if (num_bytes > active_iovec->len) {
         SPM_PANIC("Invalid write operation (Requested %d, Avialable %d)\n", num_bytes, active_iovec->len);
     }
@@ -550,7 +546,7 @@ void psa_eoi(uint32_t irq_signal)
         SPM_PANIC("signal 0x%x must have only 1 bit ON!\n",irq_signal);
     }
 
-    uint32_t irq_line = curr_partition->irq_mapper(irq_signal);
+    IRQn_Type irq_line = (IRQn_Type)curr_partition->irq_mapper(irq_signal);
     NVIC_EnableIRQ(irq_line);
 
     int32_t flags = (int32_t)osThreadFlagsClear(irq_signal);

@@ -75,9 +75,9 @@ psa_handle_t psa_connect(uint32_t sid, uint32_t minor_version);
  *
  * @param[in]  handle   Handle for the connection.
  * @param[in]  in_vec   Array of ::psa_invec_t structures.
- * @param[in]  in_len   Number of ::psa_invec_t structures in in_vec. (At most ::PSA_MAX_INVEC_LEN)
+ * @param[in]  in_len   Number of ::psa_invec_t structures in in_vec. (At most ::PSA_MAX_IOVEC - out_len)
  * @param[out] out_vec  Array of ::psa_outvec_t structures for optional Root of Trust Service response.
- * @param[in]  out_len  Number of ::psa_outvec_t structures in out_vec. (At most ::PSA_MAX_OUTVEC_LEN)
+ * @param[in]  out_len  Number of ::psa_outvec_t structures in out_vec. (At most ::PSA_MAX_IOVEC - in_len)
  * @return 0 for success or@n
  *         @a positive numbers for application-specific return code.
  *         @a negative number for application-specific error code.

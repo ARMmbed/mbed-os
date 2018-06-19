@@ -33,3 +33,21 @@ spm_partition_t *get_active_partition(void)
 
     return NULL; // Valid in case of NSPE
 }
+
+inline void validate_iovec(
+    const void *in_vec,
+    const uint32_t in_len,
+    const void *out_vec,
+    const uint32_t out_len
+    )
+{
+    if (
+        !(
+            ((in_vec != NULL) || (in_len == 0)) &&
+            ((out_vec != NULL) || (out_len == 0)) &&
+            (in_len + out_len <= PSA_MAX_IOVEC)
+        )
+    ) {
+        SPM_PANIC("Failed iovec Validation invec=(0X%p) inlen=(%d) outvec=(0X%p) outlen=(%d)\n", in_vec, in_len, out_vec, out_len);
+    }
+}

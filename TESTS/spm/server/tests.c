@@ -174,11 +174,11 @@ PSA_TEST_SERVER(msg_size_assertion)
     if (msg.type != PSA_IPC_CALL) {
         test_status = ((test_status != PSA_SUCCESS) ? test_status : PSA_TEST_ERROR);
     }
-    for (size_t i = 0; i < PSA_MAX_INVEC_LEN; i++) {
+    for (size_t i = 0; i < PSA_MAX_IOVEC; i++) {
         read_size += psa_read(msg.handle, i, buff + read_size, msg.in_size[i]);
     }
 
-    if (((msg.in_size[0] + msg.in_size[1] + msg.in_size[2]) != 11)  ||
+    if (((msg.in_size[0] + msg.in_size[1] + msg.in_size[2] + msg.in_size[3]) != 11)  ||
         (read_size != 11) ||
         (strncmp(buff, "abcdfghijkn", 11) != 0)) {
         *status_ptr = PSA_TEST_ERROR;

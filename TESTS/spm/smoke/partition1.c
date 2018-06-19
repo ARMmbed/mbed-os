@@ -54,7 +54,7 @@ void part1_main(void *ptr)
                 memset(read_msg_buf, 0, SERVER_READ_MSG_BUF_SIZE);
                 char *read_ptr = read_msg_buf;
 
-                for (size_t i = 0; i < PSA_MAX_INVEC_LEN; i++) {
+                for (size_t i = 0; i < PSA_MAX_IOVEC - 1; i++) {
 
                     bytes_read += psa_read(msg.handle, i, read_ptr, msg.in_size[i]);
                     read_ptr = read_msg_buf + bytes_read;

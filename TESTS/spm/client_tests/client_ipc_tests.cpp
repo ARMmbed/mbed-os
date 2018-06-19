@@ -103,11 +103,11 @@ void iovec_0_NULL()
     uint8_t buff1[] = {1, 2, 3, 4, 5};
     uint8_t expected_buff[] = {1, 2, 3, 4, 5};
 
-    psa_invec_t iovec_temp[PSA_MAX_INVEC_LEN] = {{NULL, 0},
+    psa_invec_t iovec_temp[PSA_MAX_IOVEC - 1] = {{NULL, 0},
                                            {meta_iovec, sizeof(meta_iovec)},
                                            {buff1, sizeof(buff1)}};
 
-    client_ipc_tests_call(handle, iovec_temp, PSA_MAX_INVEC_LEN, CLIENT_RSP_BUF_SIZE, expected_buff, sizeof(expected_buff));
+    client_ipc_tests_call(handle, iovec_temp, PSA_MAX_IOVEC - 1, CLIENT_RSP_BUF_SIZE, expected_buff, sizeof(expected_buff));
 
     client_ipc_tests_close(handle);
 }
@@ -126,11 +126,11 @@ void iovec_1_NULL()
     uint8_t buff1[] = {1, 2, 3, 4, 5};
     uint8_t expected_buff[] = {2, 3};
 
-    psa_invec_t iovec_temp[PSA_MAX_INVEC_LEN] = {{meta_iovec, sizeof(meta_iovec)},
+    psa_invec_t iovec_temp[PSA_MAX_IOVEC - 1] = {{meta_iovec, sizeof(meta_iovec)},
                                            {NULL, 0},
                                            {buff1, sizeof(buff1)}};
 
-    client_ipc_tests_call(handle, iovec_temp, PSA_MAX_INVEC_LEN, CLIENT_RSP_BUF_SIZE, expected_buff, sizeof(expected_buff));
+    client_ipc_tests_call(handle, iovec_temp, PSA_MAX_IOVEC - 1, CLIENT_RSP_BUF_SIZE, expected_buff, sizeof(expected_buff));
 
     client_ipc_tests_close(handle);
 }
@@ -149,11 +149,11 @@ void iovec_2_NULL()
     uint8_t buff1[] = {1, 2, 3, 4, 5};
     uint8_t expected_buff[] = {2, 3};
 
-    psa_invec_t iovec_temp[PSA_MAX_INVEC_LEN] = {{meta_iovec, sizeof(meta_iovec)},
+    psa_invec_t iovec_temp[PSA_MAX_IOVEC - 1] = {{meta_iovec, sizeof(meta_iovec)},
                                            {buff1, sizeof(buff1)},
                                            {NULL, 0}};
 
-    client_ipc_tests_call(handle, iovec_temp, PSA_MAX_INVEC_LEN, CLIENT_RSP_BUF_SIZE, expected_buff, sizeof(expected_buff));
+    client_ipc_tests_call(handle, iovec_temp, PSA_MAX_IOVEC - 1, CLIENT_RSP_BUF_SIZE, expected_buff, sizeof(expected_buff));
 
     client_ipc_tests_close(handle);
 }
@@ -170,11 +170,11 @@ void rx_buff_null()
     uint8_t meta_iovec[2] = {expect_size, off};
     uint8_t buff1[] = {1, 2, 3, 4, 5}, buff2[] = {6};
 
-    psa_invec_t iovec_temp[PSA_MAX_INVEC_LEN] = {{meta_iovec, sizeof(meta_iovec)},
+    psa_invec_t iovec_temp[PSA_MAX_IOVEC - 1] = {{meta_iovec, sizeof(meta_iovec)},
                                            {buff1, sizeof(buff1)},
                                            {buff2, sizeof(buff2)}};
 
-    client_ipc_tests_call(handle, iovec_temp, PSA_MAX_INVEC_LEN, 0, NULL, 0);
+    client_ipc_tests_call(handle, iovec_temp, PSA_MAX_IOVEC - 1, 0, NULL, 0);
 
     client_ipc_tests_close(handle);
 }
@@ -217,25 +217,25 @@ void multiple_call()
     uint8_t buff2[] = {4, 5, 6};
     uint8_t expected_buff[] = {1, 2};
 
-    psa_invec_t iovec_temp[PSA_MAX_INVEC_LEN] = {{meta_iovec, sizeof(meta_iovec)},
+    psa_invec_t iovec_temp[PSA_MAX_IOVEC - 1] = {{meta_iovec, sizeof(meta_iovec)},
                                            {buff1, sizeof(buff1)},
                                            {buff2, sizeof(buff2)}};
 
-    client_ipc_tests_call(handle, iovec_temp, PSA_MAX_INVEC_LEN, CLIENT_RSP_BUF_SIZE, expected_buff, sizeof(expected_buff));
+    client_ipc_tests_call(handle, iovec_temp, PSA_MAX_IOVEC - 1, CLIENT_RSP_BUF_SIZE, expected_buff, sizeof(expected_buff));
 
     meta_iovec[1] = 3;              //off
     iovec_temp[0].base = meta_iovec;
     expected_buff[0] = 2;
     expected_buff[1] = 3;
 
-    client_ipc_tests_call(handle, iovec_temp, PSA_MAX_INVEC_LEN, CLIENT_RSP_BUF_SIZE, expected_buff, sizeof(expected_buff));
+    client_ipc_tests_call(handle, iovec_temp, PSA_MAX_IOVEC - 1, CLIENT_RSP_BUF_SIZE, expected_buff, sizeof(expected_buff));
 
     meta_iovec[1] = 4;              //off
     iovec_temp[0].base = meta_iovec;
     expected_buff[0] = 3;
     expected_buff[1] = 4;
 
-    client_ipc_tests_call(handle, iovec_temp, PSA_MAX_INVEC_LEN, CLIENT_RSP_BUF_SIZE, expected_buff, sizeof(expected_buff));
+    client_ipc_tests_call(handle, iovec_temp, PSA_MAX_IOVEC - 1, CLIENT_RSP_BUF_SIZE, expected_buff, sizeof(expected_buff));
 
     client_ipc_tests_close(handle);
 }
@@ -256,7 +256,7 @@ static void call_diff_handle(th_struct_t *thr_attr)
 
     client_ipc_tests_call(handle,
                           thr_attr->iovec_temp,
-                          PSA_MAX_INVEC_LEN,
+                          PSA_MAX_IOVEC - 1,
                           CLIENT_RSP_BUF_SIZE,
                           thr_attr->expected,
                           thr_attr->expected_size);
@@ -279,7 +279,7 @@ void multi_thread_diff_handles()
     uint8_t buff2[] = {4, 5, 6};
     uint8_t expected_buff_1[] = {1, 2};
 
-    psa_invec_t iovec_temp_1[PSA_MAX_INVEC_LEN] = {{meta_iovec_1, sizeof(meta_iovec_1)},
+    psa_invec_t iovec_temp_1[PSA_MAX_IOVEC - 1] = {{meta_iovec_1, sizeof(meta_iovec_1)},
                                            {buff1, sizeof(buff1)},
                                            {buff2, sizeof(buff2)}};
 
@@ -294,7 +294,7 @@ void multi_thread_diff_handles()
                              };
     uint8_t expected_buff_2[] = {2, 3};
 
-    psa_invec_t iovec_temp_2[PSA_MAX_INVEC_LEN] = {{meta_iovec_2, sizeof(meta_iovec_2)},
+    psa_invec_t iovec_temp_2[PSA_MAX_IOVEC - 1] = {{meta_iovec_2, sizeof(meta_iovec_2)},
                                            {buff1, sizeof(buff1)},
                                            {buff2, sizeof(buff2)}};
     set_struct(&thr_attr[1], 0, iovec_temp_2, expected_buff_2, sizeof(expected_buff_2));
@@ -308,7 +308,7 @@ void multi_thread_diff_handles()
                              };
     uint8_t expected_buff_3[] = {3, 4};
 
-    psa_invec_t iovec_temp_3[PSA_MAX_INVEC_LEN] = {{meta_iovec_3, sizeof(meta_iovec_3)},
+    psa_invec_t iovec_temp_3[PSA_MAX_IOVEC - 1] = {{meta_iovec_3, sizeof(meta_iovec_3)},
                                            {buff1, sizeof(buff1)},
                                            {buff2, sizeof(buff2)}};
 

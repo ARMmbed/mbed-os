@@ -36,8 +36,13 @@ extern "C" {
 #define PSA_RESERVED_ERROR_MIN (INT32_MIN + 1)
 #define PSA_RESERVED_ERROR_MAX (INT32_MIN + 127)
 
-typedef struct spm_partition spm_partition_t;
-typedef struct spm_ipc_channel spm_ipc_channel_t;
+struct spm_partition;
+struct spm_ipc_channel;
+
+typedef union spm_iovec {
+    psa_invec_t in;
+    psa_outvec_t out;
+} spm_iovec_t;
 
 /*
  * IRQ signal mapper definition.
@@ -60,28 +65,6 @@ do {                                                                            
             current_state, expected_state);                                                  \
     }                                                                                        \
 } while (0)
-
-/*
- * Structure containing the SPM internal data.
- */
-typedef struct spm_db {
-    spm_partition_t *partitions; /* Array of all the Secure Partitions in the system.*/
-    uint32_t partition_count; /* Number of Secure Partitions in the system.*/
-    psa_handle_manager_t channels_handle_mgr;
-    psa_handle_manager_t messages_handle_mgr;
-    osMemoryPoolId_t channel_mem_pool; /* Channel memory pool identifier.*/
-    osMemoryPoolId_t active_messages_mem_pool; /* Channel memory pool identifier.*/
-} spm_db_t;
-
-/*
- * Structure containing the currently active message for a Root of Trust Service.
- */
-typedef struct spm_active_msg {
-    spm_ipc_channel_t *channel; /* Pointer to the channel delivering this message.*/
-    psa_invec_t in_vec[PSA_MAX_INVEC_LEN]; /* IOvecs sent.*/
-    psa_outvec_t out_vec[PSA_MAX_OUTVEC_LEN]; /* IOvecs for response.*/
-} spm_active_msg_t;
-
 
 // spm_pending_call_msg struct below is packed since in a dual processor solution
 // it is used in both processors
@@ -114,8 +97,8 @@ typedef __PACKED_STRUCT spm_pending_connect_msg {
  * Structure to aggregate channels queue in a Root of Trust Service.
  */
 typedef struct spm_channel_linked_list {
-    spm_ipc_channel_t *head; /* List's first object*/
-    spm_ipc_channel_t *tail; /* List's last object*/
+    struct spm_ipc_channel *head; /* List's first object*/
+    struct spm_ipc_channel *tail; /* List's last object*/
 } spm_channel_linked_list_t;
 
 /*
@@ -124,7 +107,7 @@ typedef struct spm_channel_linked_list {
 typedef struct spm_rot_service {
     const uint32_t sid; /* The Root of Trust Service ID.*/
     const uint32_t mask; /* The signal for this Root of Trust Service*/
-    spm_partition_t *partition; /* Pointer to the Partition which the Root of Trust Service belongs to.*/
+    struct spm_partition *partition; /* Pointer to the Partition which the Root of Trust Service belongs to.*/
     const uint32_t min_version; /* Minor version of the Root of Trust Service interface.*/
     const uint32_t min_version_policy; /* Minor version policy of the Root of Trust Service.*/
     const bool allow_nspe; /* Whether to allow non-secure clients to connect to the Root of Trust Service.*/
@@ -135,7 +118,7 @@ typedef struct spm_rot_service {
  * Structure containing Partition->RoT-Service channel information.
  */
 typedef struct spm_ipc_channel {
-    spm_partition_t *src_partition; /* Pointer to the Partition which connects to the Root of Trust Service.*/
+    struct spm_partition *src_partition; /* Pointer to the Partition which connects to the Root of Trust Service.*/
     spm_rot_service_t *dst_rot_service; /* Pointer to the connected Root of Trust Service.*/
     void *rhandle; /* Reverse handle to be used for this channel.*/
     void *msg_ptr; /* message data sent from user */
@@ -143,6 +126,15 @@ typedef struct spm_ipc_channel {
     uint8_t msg_type; /* The message type.*/
     uint8_t state; /* The current processing state of the channel.*/
 } spm_ipc_channel_t;
+
+/*
+ * Structure containing the currently active message for a Root of Trust Service.
+ */
+typedef struct spm_active_msg {
+    spm_ipc_channel_t *channel; /* Pointer to the channel delivering this message.*/
+    spm_iovec_t iovecs[PSA_MAX_IOVEC]; /* IOvecs sent for message and response.*/
+    uint8_t out_index; /* First index of outvecs in iovecs*/
+} spm_active_msg_t;
 
 /*
  * Structure containing resources and attributes of a Secure Partition.
@@ -160,6 +152,17 @@ typedef struct spm_partition {
     spm_signal_to_irq_mapper_t irq_mapper; /* a function which maps signal to irq number*/
 } spm_partition_t;
 
+/*
+ * Structure containing the SPM internal data.
+ */
+typedef struct spm_db {
+    spm_partition_t *partitions; /* Array of all the Secure Partitions in the system.*/
+    uint32_t partition_count; /* Number of Secure Partitions in the system.*/
+    psa_handle_manager_t channels_handle_mgr;
+    psa_handle_manager_t messages_handle_mgr;
+    osMemoryPoolId_t channel_mem_pool; /* Channel memory pool identifier.*/
+    osMemoryPoolId_t active_messages_mem_pool; /* Channel memory pool identifier.*/
+} spm_db_t;
 
 /*
  * Returns a pointer to the secure partition struct of the active thread, or NULL for NSPE threads
@@ -199,6 +202,22 @@ void psa_connect_async(spm_pending_connect_msg_t *msg);
  * @param[in] msg - pointer to call message struct
  */
 void psa_call_async(spm_pending_call_msg_t *msg);
+
+
+/*
+ * Validates IOvecs.
+ *
+ * @param[in] in_vec - psa_invec_t array
+ * @param[in] in_len - number of elements in in_vec
+ * @param[in] out_vec - psa_outvec_t array
+ * @param[in] out_len - number of elements in out_vec
+*/
+void validate_iovec(
+    const void *in_vec,
+    const uint32_t in_len,
+    const void *out_vec,
+    const uint32_t out_len
+    );
 
 #ifdef __cplusplus
 }

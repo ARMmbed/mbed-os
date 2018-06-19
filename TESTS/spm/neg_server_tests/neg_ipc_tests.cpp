@@ -31,10 +31,8 @@
 #define MINOR_VER               5
 #define CLIENT_RSP_BUF_SIZE     128
 #define OFFSET_POS              1
-#define INVALID_SID            (PART1_ROT_SRV1 + 30)
+#define INVALID_SID             (PART1_ROT_SRV1 + 30)
 #define INVALID_MINOR           (MINOR_VER + 10)
-#define INVALID_TX_LEN          (PSA_MAX_INVEC_LEN + 1)
-
 
 using namespace utest::v1;
 
@@ -127,10 +125,11 @@ void server_get_signum_twice()
 void server_read_invalid_handle()
 {
     psa_handle_t handle = 0;
-
+    uint32_t data = 52;
+    psa_invec_t data_vec = {&data, sizeof(data)};
     handle = negative_server_ipc_tests_connect(PART2_READ_INVALID_HANDLE, MINOR_VER);
 
-    negative_server_ipc_tests_call(handle, NULL, 0, NULL, 0);
+    negative_server_ipc_tests_call(handle, &data_vec, 1, NULL, 0);
 
     TEST_FAIL_MESSAGE("server_read_invalid_handle negative test failed at client side");
 }
@@ -139,10 +138,11 @@ void server_read_invalid_handle()
 void server_read_null_handle()
 {
     psa_handle_t handle = 0;
-
+    uint32_t data = 52;
+    psa_invec_t data_vec = {&data, sizeof(data)};
     handle = negative_server_ipc_tests_connect(PART2_READ_NULL_HANDLE, MINOR_VER);
 
-    negative_server_ipc_tests_call(handle, NULL, 0, NULL, 0);
+    negative_server_ipc_tests_call(handle, &data_vec, 1, NULL, 0);
 
     TEST_FAIL_MESSAGE("server_read_null_handle negative test failed at client side");
 }
@@ -155,14 +155,14 @@ void server_write_null_buffer()
     handle = negative_server_ipc_tests_connect(PART2_WRITE_BUFFER_NULL, MINOR_VER);
 
     uint8_t data[2] = {1, 0};
-    psa_invec_t iovec_temp[PSA_MAX_INVEC_LEN] = {
+    psa_invec_t iovec_temp[PSA_MAX_IOVEC - 1] = {
         {data, sizeof(data)},
         {data, sizeof(data)},
         {data, sizeof(data)}
     };
     psa_outvec_t resp = { NULL, CLIENT_RSP_BUF_SIZE };
 
-    negative_server_ipc_tests_call(handle, iovec_temp, PSA_MAX_INVEC_LEN, &resp, 1);
+    negative_server_ipc_tests_call(handle, iovec_temp, PSA_MAX_IOVEC - 1, &resp, 1);
 
     TEST_FAIL_MESSAGE("server_write_null_buffer negative test failed at client side");
 }
@@ -175,13 +175,14 @@ void server_write_rx_buff_null()
     handle = negative_server_ipc_tests_connect(PART2_WRITE_RX_BUFF_NULL, MINOR_VER);
 
     uint8_t data[2] = {1, 0};
-    psa_invec_t iovec_temp[PSA_MAX_INVEC_LEN] = {
+    psa_invec_t iovec_temp[PSA_MAX_IOVEC] = {
+        {data, sizeof(data)},
         {data, sizeof(data)},
         {data, sizeof(data)},
         {data, sizeof(data)}
     };
 
-    negative_server_ipc_tests_call(handle, iovec_temp, PSA_MAX_INVEC_LEN, NULL, 0);
+    negative_server_ipc_tests_call(handle, iovec_temp, PSA_MAX_IOVEC, NULL, 0);
 
     TEST_FAIL_MESSAGE("server_write_rx_buff_null negative test failed at client side");
 }
@@ -194,14 +195,14 @@ void server_write_invalid_handle()
     handle = negative_server_ipc_tests_connect(PART2_WRITE_INVALID_HANDLE, MINOR_VER);
 
     uint8_t data[2] = {1, 0};
-    psa_invec_t iovec_temp[PSA_MAX_INVEC_LEN] = {
+    psa_invec_t iovec_temp[PSA_MAX_IOVEC - 1] = {
         {data, sizeof(data)},
         {data, sizeof(data)},
         {data, sizeof(data)}
     };
     psa_outvec_t resp = { response_buf, CLIENT_RSP_BUF_SIZE };
 
-    negative_server_ipc_tests_call(handle, iovec_temp, PSA_MAX_INVEC_LEN, &resp, 1);
+    negative_server_ipc_tests_call(handle, iovec_temp, PSA_MAX_IOVEC - 1, &resp, 1);
 
     TEST_FAIL_MESSAGE("server_write_invalid_handle negative test failed at client side");
 }
@@ -214,14 +215,14 @@ void server_write_null_handle()
     handle = negative_server_ipc_tests_connect(PART2_WRITE_NULL_HANDLE, MINOR_VER);
 
     uint8_t data[2] = {1, 0};
-    psa_invec_t iovec_temp[PSA_MAX_INVEC_LEN] = {
+    psa_invec_t iovec_temp[PSA_MAX_IOVEC - 1] = {
         {data, sizeof(data)},
         {data, sizeof(data)},
         {data, sizeof(data)}
     };
     psa_outvec_t resp = { response_buf, CLIENT_RSP_BUF_SIZE };
 
-    negative_server_ipc_tests_call(handle, iovec_temp, PSA_MAX_INVEC_LEN, &resp, 1);
+    negative_server_ipc_tests_call(handle, iovec_temp, PSA_MAX_IOVEC - 1, &resp, 1);
 
     TEST_FAIL_MESSAGE("server_write_null_handle negative test failed at client side");
 }

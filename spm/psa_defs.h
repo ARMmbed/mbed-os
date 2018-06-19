@@ -48,9 +48,6 @@ extern "C" {
 
 #define PSA_NULL_HANDLE ((psa_handle_t)0)   /**< Denotes an invalid handle.*/
 
-#define PSA_MAX_INVEC_LEN (3UL)  /**< Maximum number of psa_invec_t structures allowed for psa_call().*/
-#define PSA_MAX_OUTVEC_LEN (3UL) /**< Maximum number of psa_outvec_t structures allowed for psa_write().*/
-
 #define PSA_MAX_IOVEC (4UL) /**< Maximum number of psa_invec_t and psa_outvec_t structures allowed for psa_call().*/
 
 #define PSA_POLL  (0x00000000UL) /**< Returns immediately even if none of the requested signals is asserted.*/
@@ -86,11 +83,11 @@ typedef psa_error_t error_t;
  * Structure containing the PSA IPC message sent from a client partition to a Root of Trust Service.
  */
 typedef struct psa_msg {
-    uint32_t type;                       /**< The message type.*/
-    psa_handle_t handle;                 /**< Handle for the internal message structure.*/
-    void *rhandle;                       /**< Reverse handle.*/
-    size_t in_size[PSA_MAX_INVEC_LEN];   /**< Array of sizes in bytes of the message payloads.*/
-    size_t out_size[PSA_MAX_OUTVEC_LEN]; /**< Array of sizes in bytes of the response buffers.*/
+    uint32_t type;                   /**< The message type.*/
+    psa_handle_t handle;             /**< Handle for the internal message structure.*/
+    void *rhandle;                   /**< Reverse handle.*/
+    size_t in_size[PSA_MAX_IOVEC];   /**< Array of sizes in bytes of the message payloads.*/
+    size_t out_size[PSA_MAX_IOVEC];  /**< Array of sizes in bytes of the response buffers.*/
 } psa_msg_t;
 
 /**

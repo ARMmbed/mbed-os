@@ -46,7 +46,7 @@ void example_main(void)
     TEST_ASSERT_MESSAGE(conn_handle > 0, "psa_connect() failed");
 
 
-    psa_invec_t iovec[PSA_MAX_INVEC_LEN] = {
+    psa_invec_t iovec[PSA_MAX_IOVEC - 1] = {
         { msg_buf, 6 },
         { msg_buf + 6, 12 },
         { msg_buf + 18, 4 }
@@ -56,7 +56,7 @@ void example_main(void)
     memset(response_buf, 0, CLIENT_RSP_BUF_SIZE);
     psa_outvec_t outvec = {response_buf, CLIENT_RSP_BUF_SIZE};
 
-    psa_error_t status = psa_call(conn_handle, iovec, 3, &outvec, 1);
+    psa_error_t status = psa_call(conn_handle, iovec, PSA_MAX_IOVEC - 1, &outvec, 1);
     TEST_ASSERT_MESSAGE(PSA_SUCCESS == status, "psa_call() failed");
     TEST_ASSERT_EQUAL_STRING(CLIENT_EXPECTED_RESPONSE, response_buf);
 

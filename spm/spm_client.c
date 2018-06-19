@@ -204,25 +204,7 @@ void psa_call_async(spm_pending_call_msg_t *msg)
         return;
     }
 
-    if (msg->in_vec_size != 0) {
-        if (msg->in_vec_size > PSA_MAX_INVEC_LEN) {
-            SPM_PANIC("in_len (%d) is bigger than allowed (%d)\n", msg->in_vec_size, PSA_MAX_INVEC_LEN);
-        }
-
-        if (msg->in_vec == NULL) {
-            SPM_PANIC("in_vec NULL but len is not 0 (%d) \n", msg->in_vec_size);
-        }
-    }
-
-    if (msg->out_vec_size != 0) {
-        if (msg->out_vec_size > PSA_MAX_OUTVEC_LEN) {
-            SPM_PANIC("out_len (%d) is bigger than allowed (%d)\n", msg->out_vec_size, PSA_MAX_OUTVEC_LEN);
-        }
-
-        if (msg->out_vec == NULL) {
-            SPM_PANIC("out_vec NULL but len is not 0 (%d) \n", msg->out_vec_size);
-        }
-    }
+    validate_iovec(msg->in_vec, msg->in_vec_size, msg->out_vec, msg->out_vec_size);
     CHANNEL_STATE_ASSERT(channel->state, SPM_CHANNEL_STATE_IDLE_MSK);
     spm_rot_service_t *dst_rot_service = channel->dst_rot_service;
     channel->state = SPM_CHANNEL_STATE_PENDING_MSK;

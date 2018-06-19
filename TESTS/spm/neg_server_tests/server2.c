@@ -109,7 +109,7 @@ void server_main2(void *ptr)
                 }
                 case PSA_IPC_CALL: {
                     size_t read_bytes = 0;
-                    for (size_t i = 0; i< PSA_MAX_INVEC_LEN; i++) {
+                    for (size_t i = 0; i< PSA_MAX_IOVEC - 1; i++) {
                         read_bytes += psa_read(msg.handle, i, msg_buf + read_bytes, msg.in_size[i]);
                     }
 
@@ -131,7 +131,7 @@ void server_main2(void *ptr)
                 }
                 case PSA_IPC_CALL: {
                     size_t read_bytes = 0;
-                    for (size_t i = 0; i< PSA_MAX_INVEC_LEN; i++) {
+                    for (size_t i = 0; i< PSA_MAX_IOVEC; i++) {
                         read_bytes += psa_read(msg.handle, i, msg_buf + read_bytes, msg.in_size[i]);
                     }
 
@@ -153,7 +153,7 @@ void server_main2(void *ptr)
                 }
                 case PSA_IPC_CALL: {
                     size_t read_bytes = 0;
-                    for (size_t i = 0; i< PSA_MAX_INVEC_LEN; i++) {
+                    for (size_t i = 0; i< PSA_MAX_IOVEC - 1; i++) {
                         read_bytes += psa_read(msg.handle, i, msg_buf + read_bytes, msg.in_size[i]);
                     }
 
@@ -176,7 +176,7 @@ void server_main2(void *ptr)
                 }
                 case PSA_IPC_CALL: {
                     size_t read_bytes = 0;
-                    for (size_t i = 0; i< PSA_MAX_INVEC_LEN; i++) {
+                    for (size_t i = 0; i< PSA_MAX_IOVEC - 1; i++) {
                         read_bytes += psa_read(msg.handle, i, msg_buf + read_bytes, msg.in_size[i]);
                     }
 
@@ -328,7 +328,7 @@ void server_main2(void *ptr)
                 }
                 case PSA_IPC_CALL: {
                     uint32_t val = 0;
-                    psa_read(msg.handle, PSA_MAX_INVEC_LEN + 1, &val, sizeof(val));
+                    psa_read(msg.handle, PSA_MAX_IOVEC + 1, &val, sizeof(val));
                     TEST_FAIL_MESSAGE("server_read_on_wraparound_msg_ptr negative test failed");
                     break;
                 }
@@ -365,7 +365,7 @@ void server_main2(void *ptr)
                 }
                 case PSA_IPC_CALL: {
                     uint32_t val = 0;
-                    psa_write(msg.handle, PSA_MAX_OUTVEC_LEN + 1, &val, sizeof(val));
+                    psa_write(msg.handle, PSA_MAX_IOVEC + 1, &val, sizeof(val));
                     TEST_FAIL_MESSAGE("server_write_from_excese_outvec negative test failed");
                     break;
                 }

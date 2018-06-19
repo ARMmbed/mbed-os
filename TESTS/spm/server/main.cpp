@@ -68,15 +68,16 @@ PSA_TEST_CLIENT(identity_during_call)
 PSA_TEST_CLIENT(msg_size_assertion)
 {
     psa_error_t status = PSA_SUCCESS;
-    psa_invec_t data[3] = {
+    psa_invec_t data[PSA_MAX_IOVEC] = {
         {test_str, 4},
         {test_str + 5, 6},
-        {test_str + 13, 1}
+        {test_str + 13, 1},
+        {NULL, 0}
     };
     psa_handle_t test_handle = psa_connect(TEST, TEST_ROT_SRV_MINOR);
     TEST_ASSERT(test_handle > 0);
 
-    status = psa_call(test_handle, data, 3, NULL, 0);
+    status = psa_call(test_handle, data, PSA_MAX_IOVEC, NULL, 0);
     TEST_ASSERT_EQUAL(PSA_SUCCESS, status);
 
     psa_close(test_handle);
