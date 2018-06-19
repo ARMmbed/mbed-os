@@ -275,11 +275,11 @@ private:
     void _build_configuration_desc();
 
     void _receive_change(ChannelState new_state);
-    void _receive_isr(usb_ep_t ep);
+    void _receive_isr();
     void _send_change(ChannelState new_state);
     void _send_isr_start();
     void _send_isr_next_sync();
-    void _send_isr(usb_ep_t ep);
+    void _send_isr();
 
     // has connect been called
     bool _connected;

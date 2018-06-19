@@ -221,7 +221,7 @@ void USBTester::callback_set_configuration(uint8_t configuration)
 }
 
 bool USBTester::setup_iterface(uint8_t ep_in, uint8_t ep_out, uint32_t ep_size, usb_ep_type_t ep_type,
-                               uint8_t *buf, uint32_t buf_size, void (USBTester::*callback)(usb_ep_t endpoint))
+                               uint8_t *buf, uint32_t buf_size, void (USBTester::*callback)())
 {
     bool success = false;
 
@@ -690,13 +690,13 @@ const uint8_t *USBTester::configuration_desc(uint8_t index)
     }
 }
 
-void USBTester::epint_out_callback(usb_ep_t endpoint)
+void USBTester::epint_out_callback()
 {
-    read_finish(endpoint);
-    read_start(endpoint, int_buf, sizeof(int_buf));
+    read_finish(int_out);
+    read_start(int_out, int_buf, sizeof(int_buf));
 }
-void USBTester::epbulk_out_callback(usb_ep_t endpoint)
+void USBTester::epbulk_out_callback()
 {
-    read_finish(endpoint);
-    read_start(endpoint, bulk_buf, sizeof(bulk_buf));
+    read_finish(bulk_out);
+    read_start(bulk_out, bulk_buf, sizeof(bulk_buf));
 }
