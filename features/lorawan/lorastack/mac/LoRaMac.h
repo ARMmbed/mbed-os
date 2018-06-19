@@ -386,7 +386,7 @@ public:
     /**
      * MAC operations upon successful transmission
      */
-    void on_radio_tx_done(void);
+    void on_radio_tx_done(lorawan_time_t timestamp);
 
     /**
      * MAC operations upon reception
@@ -407,7 +407,7 @@ public:
      *
      * @return current RX slot
      */
-    rx_slot_t on_radio_rx_timeout(bool is_timeout);
+    void on_radio_rx_timeout(bool is_timeout);
 
     /**
      * Handles retransmissions of Join requests if an Accept
@@ -454,6 +454,16 @@ public:
      * timer is still running.
      */
     lorawan_status_t clear_tx_pipe(void);
+
+    /**
+     * Gets the current time
+     */
+    lorawan_time_t get_current_time(void);
+
+    /**
+     * Gets the current receive slot
+     */
+    rx_slot_t get_current_slot(void);
 
     /**
      * These locks trample through to the upper layers and make
@@ -757,7 +767,7 @@ public: // Test interface
      *          \ref LORAWAN_STATUS_OK
      *          \ref LORAWAN_STATUS_PARAMETER_INVALID
      */
-    lorawan_status_t LoRaMacSetTxTimer( uint32_t NextTxTime );
+    lorawan_status_t LoRaMacSetTxTimer(uint32_t NextTxTime);
 
     /**
      * \brief   LoRaMAC stop tx timer.
@@ -768,7 +778,7 @@ public: // Test interface
      *          \ref LORAWAN_STATUS_OK
      *          \ref LORAWAN_STATUS_PARAMETER_INVALID
      */
-    lorawan_status_t LoRaMacStopTxTimer( );
+    lorawan_status_t LoRaMacStopTxTimer();
 
     /**
      * \brief   Enabled or disables the reception windows
@@ -778,7 +788,7 @@ public: // Test interface
      *
      * \param   [in] enable - Enabled or disables the reception windows
      */
-    void LoRaMacTestRxWindowsOn( bool enable );
+    void LoRaMacTestRxWindowsOn(bool enable);
 
     /**
      * \brief   Enables the MIC field test
@@ -788,7 +798,7 @@ public: // Test interface
      *
      * \param   [in] txPacketCounter - Fixed Tx packet counter value
      */
-    void LoRaMacTestSetMic( uint16_t txPacketCounter );
+    void LoRaMacTestSetMic(uint16_t txPacketCounter);
 
     /**
      * \brief   Enabled or disables the duty cycle
@@ -798,7 +808,7 @@ public: // Test interface
      *
      * \param   [in] enable - Enabled or disables the duty cycle
      */
-    void LoRaMacTestSetDutyCycleOn( bool enable );
+    void LoRaMacTestSetDutyCycleOn(bool enable);
 
     /**
      * \brief   Sets the channel index
@@ -808,7 +818,7 @@ public: // Test interface
      *
      * \param   [in] channel - Channel index
      */
-    void LoRaMacTestSetChannel( uint8_t channel );
+    void LoRaMacTestSetChannel(uint8_t channel);
 
 private:
     /**

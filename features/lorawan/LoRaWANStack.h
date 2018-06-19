@@ -548,6 +548,7 @@ private:
     volatile bool _ready_for_rx;
     uint8_t _rx_payload[LORAMAC_PHY_MAXPAYLOAD];
     events::EventQueue *_queue;
+    lorawan_time_t _tx_timestamp;
 
 #if defined(LORAWAN_COMPLIANCE_TEST)
 

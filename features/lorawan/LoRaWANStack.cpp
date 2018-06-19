@@ -68,20 +68,20 @@ using namespace events;
  * Constructor                                                               *
  ****************************************************************************/
 LoRaWANStack::LoRaWANStack()
-: _loramac(),
-  _device_current_state(DEVICE_STATE_NOT_INITIALIZED),
-  _lw_session(),
-  _tx_msg(),
-  _rx_msg(),
-  _tx_metadata(),
-  _rx_metadata(),
-  _num_retry(1),
-  _ctrl_flags(IDLE_FLAG),
-  _app_port(INVALID_PORT),
-  _link_check_requested(false),
-  _automatic_uplink_ongoing(false),
-  _ready_for_rx(true),
-  _queue(NULL)
+    : _loramac(),
+      _device_current_state(DEVICE_STATE_NOT_INITIALIZED),
+      _lw_session(),
+      _tx_msg(),
+      _rx_msg(),
+      _tx_metadata(),
+      _rx_metadata(),
+      _num_retry(1),
+      _ctrl_flags(IDLE_FLAG),
+      _app_port(INVALID_PORT),
+      _link_check_requested(false),
+      _automatic_uplink_ongoing(false),
+      _ready_for_rx(true),
+      _queue(NULL)
 {
     _tx_metadata.stale = true;
     _rx_metadata.stale = true;
@@ -481,7 +481,7 @@ lorawan_status_t LoRaWANStack::acquire_rx_metadata(lorawan_rx_metadata &metadata
     return LORAWAN_STATUS_METADATA_NOT_AVAILABLE;
 }
 
-lorawan_status_t LoRaWANStack::acquire_backoff_metadata(int& backoff)
+lorawan_status_t LoRaWANStack::acquire_backoff_metadata(int &backoff)
 {
     if (DEVICE_STATE_NOT_INITIALIZED == _device_current_state) {
         return LORAWAN_STATUS_NOT_INITIALIZED;
@@ -503,6 +503,7 @@ lorawan_status_t LoRaWANStack::acquire_backoff_metadata(int& backoff)
  ****************************************************************************/
 void LoRaWANStack::tx_interrupt_handler(void)
 {
+    _tx_timestamp = _loramac.get_current_time();
     const int ret = _queue->call(this, &LoRaWANStack::process_transmission);
     MBED_ASSERT(ret != 0);
     (void)ret;
@@ -565,7 +566,7 @@ void LoRaWANStack::process_transmission_timeout()
 void LoRaWANStack::process_transmission(void)
 {
     tr_debug("Transmission completed");
-    _loramac.on_radio_tx_done();
+    _loramac.on_radio_tx_done(_tx_timestamp);
 
     make_tx_metadata_available();
 
@@ -680,10 +681,12 @@ void LoRaWANStack::process_reception(const uint8_t *const payload, uint16_t size
 
 void LoRaWANStack::process_reception_timeout(bool is_timeout)
 {
+    rx_slot_t slot = _loramac.get_current_slot();
+
     // when is_timeout == false, a CRC error took place in the received frame
     // we treat that erroneous frame as no frame received at all, hence handle
     // it exactly as we would handle timeout
-    rx_slot_t slot = _loramac.on_radio_rx_timeout(is_timeout);
+    _loramac.on_radio_rx_timeout(is_timeout);
 
     if (slot == RX_SLOT_WIN_2 && !_loramac.nwk_joined()) {
         state_controller(DEVICE_STATE_JOINING);
@@ -851,9 +854,11 @@ void LoRaWANStack::mlme_indication_handler()
 #if MBED_CONF_LORA_AUTOMATIC_UPLINK_MESSAGE
         _automatic_uplink_ongoing = true;
         tr_debug("mlme indication: sending empty uplink to port 0 to acknowledge MAC commands...");
-        send_automatic_uplink_message(0);
+        const uint8_t port = 0;
+        const int ret = _queue->call(this, &LoRaWANStack::send_automatic_uplink_message, port);
+        MBED_ASSERT(ret != 0);
+        (void)ret;
 #else
-
         send_event_to_application(UPLINK_REQUIRED);
 #endif
         return;
@@ -957,8 +962,9 @@ void LoRaWANStack::mcps_indication_handler()
             _rx_msg.msg.mcps_indication.type = mcps_indication->type;
 
             // Notify application about received frame..
-            tr_debug("Packet Received %d bytes",
-                     _rx_msg.msg.mcps_indication.buffer_size);
+            tr_debug("Packet Received %d bytes, Port=%d",
+                     _rx_msg.msg.mcps_indication.buffer_size,
+                     mcps_indication->port);
             _rx_msg.receive_ready = true;
             send_event_to_application(RX_DONE);
         }
@@ -981,7 +987,9 @@ void LoRaWANStack::mcps_indication_handler()
 #if (MBED_CONF_LORA_AUTOMATIC_UPLINK_MESSAGE)
             tr_debug("Sending empty uplink message...");
             _automatic_uplink_ongoing = true;
-            send_automatic_uplink_message(mcps_indication->port);
+            const int ret = _queue->call(this, &LoRaWANStack::send_automatic_uplink_message, mcps_indication->port);
+            MBED_ASSERT(ret != 0);
+            (void)ret;
 #else
             send_event_to_application(UPLINK_REQUIRED);
 #endif
@@ -1354,9 +1362,11 @@ void LoRaWANStack::compliance_test_handler(loramac_mcps_indication_t *mcps_indic
                 } else if (mcps_indication->buffer_size == 7) {
                     loramac_mlme_req_t mlme_req;
                     mlme_req.type = MLME_TXCW_1;
-                    mlme_req.cw_tx_mode.timeout = (uint16_t)((mcps_indication->buffer[1] << 8) | mcps_indication->buffer[2]);
-                    mlme_req.cw_tx_mode.frequency = (uint32_t)((mcps_indication->buffer[3] << 16) | (mcps_indication->buffer[4] << 8)
-                        | mcps_indication->buffer[5]) * 100;
+                    mlme_req.cw_tx_mode.timeout = (uint16_t)((mcps_indication->buffer[1] << 8)
+                            | mcps_indication->buffer[2]);
+                    mlme_req.cw_tx_mode.frequency = (uint32_t)((mcps_indication->buffer[3] << 16)
+                            | (mcps_indication->buffer[4] << 8)
+                            | mcps_indication->buffer[5]) * 100;
                     mlme_req.cw_tx_mode.power = mcps_indication->buffer[6];
                     _loramac.mlme_request(&mlme_req);
                 }
