@@ -40,7 +40,7 @@ try:
     from Queue import Queue, Empty
 except ImportError:
     from queue import Queue, Empty
-from os.path import join, exists, basename, relpath
+from os.path import join, exists, basename, relpath, isdir
 from threading import Thread, Lock
 from multiprocessing import Pool, cpu_count
 from subprocess import Popen, PIPE
@@ -2083,49 +2083,33 @@ def find_tests(base_dir, target_name, toolchain_name, app_config=None):
     commons = []
 
     # Scan the directory for paths to probe for 'TESTS' folders
-    base_resources = Resources(MockNotifier())
+    base_resources = Resources(MockNotifier(), collect_ignores=True)
     base_resources.add_directory(base_dir)
 
-    dirs = base_resources.inc_dirs
+    dirs = [d for d in base_resources.ignored_dirs if basename(d) == 'TESTS']
     for directory in dirs:
-        subdirs = os.listdir(directory)
-
-        # If the directory contains a subdirectory called 'TESTS', scan it for test cases
-        if 'TESTS' in subdirs:
-            walk_base_dir = join(directory, 'TESTS')
-            test_resources = Resources(MockNotifier())
-            test_resources.add_directory(walk_base_dir, base_dir)
-
-            # Loop through all subdirectories
-            for d in test_resources.inc_dirs:
-
-                # If the test case folder is not called 'host_tests' or 'COMMON' and it is
-                # located two folders down from the main 'TESTS' folder (ex. TESTS/testgroup/testcase)
-                # then add it to the tests
-                relative_path = relpath(d, walk_base_dir)
-                relative_path_parts = os.path.normpath(relative_path).split(os.sep)
-                if len(relative_path_parts) == 2:
-                    test_group_directory_path, test_case_directory = os.path.split(d)
-                    test_group_directory = os.path.basename(test_group_directory_path)
-
-                    # Check to make sure discoverd folder is not in a host test directory or common directory
-                    special_dirs = ['host_tests', 'COMMON']
-                    if test_group_directory not in special_dirs and test_case_directory not in special_dirs:
-                        test_name = test_path_to_name(d, base_dir)
-                        tests[(test_name, walk_base_dir, test_group_directory, test_case_directory)] = [d]
-
-                # Also find any COMMON paths, we'll add these later once we find all the base tests
-                if 'COMMON' in relative_path_parts:
-                    if relative_path_parts[0] != 'COMMON':
-                        def predicate(base_pred, group_pred, name_base_group_case):
-                            (name, base, group, case) = name_base_group_case
-                            return base == base_pred and group == group_pred
-                        commons.append((functools.partial(predicate, walk_base_dir, relative_path_parts[0]), d))
-                    else:
-                        def predicate(base_pred, name_base_group_case):
-                            (name, base, group, case) = name_base_group_case
-                            return base == base_pred
-                        commons.append((functools.partial(predicate, walk_base_dir), d))
+        for test_group_directory in os.listdir(directory):
+            grp_dir = join(directory, test_group_directory)
+            if not isdir(grp_dir):
+                continue
+            for test_case_directory in os.listdir(grp_dir):
+                d = join(directory, test_group_directory, test_case_directory)
+                if not isdir(d):
+                    continue
+                special_dirs = ['host_tests', 'COMMON']
+                if test_group_directory not in special_dirs and test_case_directory not in special_dirs:
+                    test_name = test_path_to_name(d, base_dir)
+                    tests[(test_name, directory, test_group_directory, test_case_directory)] = [d]
+                if test_case_directory == 'COMMON':
+                    def predicate(base_pred, group_pred, name_base_group_case):
+                        (name, base, group, case) = name_base_group_case
+                        return base == base_pred and group == group_pred
+                    commons.append((functools.partial(predicate, directory, test_group_directory), d))
+            if test_group_directory == 'COMMON':
+                def predicate(base_pred, name_base_group_case):
+                    (name, base, group, case) = name_base_group_case
+                    return base == base_pred
+                commons.append((functools.partial(predicate, directory), grp_dir))
 
     # Apply common directories
     for pred, path in commons:

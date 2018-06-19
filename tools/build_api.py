@@ -480,7 +480,6 @@ def build_project(src_paths, build_path, target, toolchain_name,
     stats_depth - depth level for memap to display file/dirs
     ignore - list of paths to add to mbedignore
     """
-
     # Convert src_path to a list if needed
     if not isinstance(src_paths, list):
         src_paths = [src_paths]
@@ -628,6 +627,7 @@ def build_library(src_paths, build_path, target, toolchain_name,
     # Convert src_path to a list if needed
     if not isinstance(src_paths, list):
         src_paths = [src_paths]
+    src_paths = [relpath(s) for s in src_paths]
 
     # Build path
     if archive:
@@ -679,28 +679,25 @@ def build_library(src_paths, build_path, target, toolchain_name,
             raise Exception(error_msg)
 
     try:
-        resources = Resources(notify).scan_with_toolchain(
+        res = Resources(notify).scan_with_toolchain(
             src_paths, toolchain, dependencies_paths, inc_dirs=inc_dirs)
 
         # Copy headers, objects and static libraries - all files needed for
         # static lib
-        toolchain.copy_files(resources.headers, build_path, resources=resources)
-        toolchain.copy_files(resources.objects, build_path, resources=resources)
-        toolchain.copy_files(resources.libraries, build_path,
-                             resources=resources)
-        toolchain.copy_files(resources.json_files, build_path,
-                             resources=resources)
-        if resources.linker_script:
-            toolchain.copy_files(resources.linker_script, build_path,
-                                 resources=resources)
-
-        if resources.hex_files:
-            toolchain.copy_files(resources.hex_files, build_path,
-                                 resources=resources)
-
+        to_copy = (
+            res.get_file_refs(FileType.HEADER) +
+            res.get_file_refs(FileType.OBJECT) +
+            res.get_file_refs(FileType.LIB) +
+            res.get_file_refs(FileType.JSON) +
+            res.get_file_refs(FileType.LD_SCRIPT) +
+            res.get_file_refs(FileType.HEX) +
+            res.get_file_refs(FileType.BIN)
+        )
+        toolchain.copy_files(to_copy, build_path)
         # Compile Sources
-        objects = toolchain.compile_sources(resources, resources.inc_dirs)
-        resources.objects.extend(objects)
+        objects = toolchain.compile_sources(
+            res, res.get_file_paths(FileType.INC_DIR))
+        res.add_files_to_type(FileType.OBJECT, objects)
 
         if archive:
             toolchain.build_library(objects, build_path, name)
@@ -714,8 +711,6 @@ def build_library(src_paths, build_path, target, toolchain_name,
             end = time()
             cur_result["elapsed_time"] = end - start
             cur_result["result"] = "OK"
-
-
             add_result_to_report(report, cur_result)
         return True
 
@@ -840,8 +835,8 @@ def build_lib(lib_id, target, toolchain_name, clean=False, macros=None,
             inc_dirs=inc_dirs, dependencies_paths=dependencies_paths)
 
         # Copy Headers
-        toolchain.copy_files(resources.headers, build_path,
-                             resources=resources)
+        toolchain.copy_files(
+            resources.get_file_refs(FileType.HEADER), build_path)
 
         dependencies_include_dir = Resources(notify).sacn_with_toolchain([build_path], toolchain).inc_dirs
 
@@ -968,14 +963,18 @@ def build_mbed_libs(target, toolchain_name, clean=False, macros=None,
         toolchain.set_config_data(toolchain.config.get_config_data())
 
         # distribute header files
-        toolchain.copy_files([MBED_HEADER], MBED_LIBRARIES)
+        toolchain.copy_files(
+            [FileRef(basename(MBED_HEADER),MBED_HEADER)], MBED_LIBRARIES)
         library_incdirs = [dirname(MBED_LIBRARIES), MBED_LIBRARIES]
 
         for dir, dest in [(MBED_DRIVERS, MBED_LIBRARIES_DRIVERS),
                           (MBED_PLATFORM, MBED_LIBRARIES_PLATFORM),
                           (MBED_HAL, MBED_LIBRARIES_HAL)]:
             resources = Resources(notify).scan_with_toolchain([dir], toolchain)
-            toolchain.copy_files(resources.headers, dest)
+            toolchain.copy_files(
+                [FileRef(basename(p), p) for p
+                 in resources.get_file_paths(FileType.HEADER)] ,
+                dest)
             library_incdirs.append(dest)
 
         # collect resources of the libs to compile
@@ -1011,7 +1010,7 @@ def build_mbed_libs(target, toolchain_name, clean=False, macros=None,
         hal_objects = toolchain.compile_sources(hal_res, incdirs + [tmp_path])
 
         # Copy everything into the build directory
-        to_copy = sum([
+        to_copy = [FileRef(basename(p), p) for p in sum([
             hal_res.headers,
             hal_res.hex_files,
             hal_res.bin_files,
@@ -1022,7 +1021,7 @@ def build_mbed_libs(target, toolchain_name, clean=False, macros=None,
             cmsis_objects,
             hal_objects,
             separate_objects,
-        ], [])
+        ], [])]
         toolchain.copy_files(to_copy, build_toolchain)
 
         if report is not None:
