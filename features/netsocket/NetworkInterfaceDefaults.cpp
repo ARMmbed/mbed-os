@@ -83,7 +83,7 @@ MBED_WEAK NetworkInterface *NetworkInterface::get_target_default_instance()
      * we have at least an access point name.
      */
 #ifdef MBED_CONF_NSAPI_DEFAULT_WIFI_SSID
-    WiFiInterface *wifi = WifiInterface::get_default_instance();
+    WiFiInterface *wifi = WiFiInterface::get_default_instance();
     if (!wifi) {
         return NULL;
     }
@@ -97,6 +97,7 @@ MBED_WEAK NetworkInterface *NetworkInterface::get_target_default_instance()
 #define concat(x,y) concat_(x,y)
 #define SECURITY concat(NSAPI_SECURITY_,MBED_CONF_NSAPI_DEFAULT_WIFI_SECURITY)
     wifi->set_credentials(MBED_CONF_NSAPI_DEFAULT_WIFI_SSID, MBED_CONF_NSAPI_DEFAULT_WIFI_PASSWORD, SECURITY);
+    return wifi;
 #else
     return NULL;
 #endif
