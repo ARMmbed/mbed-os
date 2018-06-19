@@ -528,7 +528,7 @@ def build_project(src_paths, build_path, target, toolchain_name,
             resources.add_file_ref(linker_script, linker_script)
 
         # Compile Sources
-        objects = toolchain.compile_sources(resources, resources.inc_dirs)
+        objects = toolchain.compile_sources(resources, sorted(resources.get_file_paths(FileType.INC_DIR)))
         resources.add_files_to_type(FileType.OBJECT, objects)
 
         # Link Program
