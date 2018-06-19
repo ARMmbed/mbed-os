@@ -241,3 +241,5 @@ protected:
 };
 
 #endif // INTERNETSOCKET_H
+
+/** @}*/
