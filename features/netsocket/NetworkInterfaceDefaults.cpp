@@ -82,21 +82,22 @@ MBED_WEAK NetworkInterface *NetworkInterface::get_target_default_instance()
      * We do not hook up to WifiInterface::get_default_instance() unless
      * we have at least an access point name.
      */
-#ifdef MBED_CONF_DEFAULT_WIFI_SSID
-    WiFiInterface *wifi = WifiInterface::get_default_instance();
+#ifdef MBED_CONF_NSAPI_DEFAULT_WIFI_SSID
+    WiFiInterface *wifi = WiFiInterface::get_default_instance();
     if (!wifi) {
         return NULL;
     }
-#ifndef MBED_CONF_DEFAULT_WIFI_PASSWORD
-#define MBED_CONF_DEFAULT_WIFI_PASSWORD NULL
+#ifndef MBED_CONF_NSAPI_DEFAULT_WIFI_PASSWORD
+#define MBED_CONF_NSAPI_DEFAULT_WIFI_PASSWORD NULL
 #endif
-#ifndef MBED_CONF_DEFAULT_WIFI_SECURITY
-#define MBED_CONF_DEFAULT_WIFI_SECURITY NONE
+#ifndef MBED_CONF_NSAPI_DEFAULT_WIFI_SECURITY
+#define MBED_CONF_NSAPI_DEFAULT_WIFI_SECURITY NONE
 #endif
 #define concat_(x,y) x##y
 #define concat(x,y) concat_(x,y)
-#define SECURITY concat(NSAPI_SECURITY_,MBED_CONF_DEFAULT_WIFI_SECURITY)
-    wifi->set_credentials(MBED_CONF_DEFAULT_WIFI_SSID, MBED_CONF_DEFAULT_WIFI_PASSWORD, SECURITY);
+#define SECURITY concat(NSAPI_SECURITY_,MBED_CONF_NSAPI_DEFAULT_WIFI_SECURITY)
+    wifi->set_credentials(MBED_CONF_NSAPI_DEFAULT_WIFI_SSID, MBED_CONF_NSAPI_DEFAULT_WIFI_PASSWORD, SECURITY);
+    return wifi;
 #else
     return NULL;
 #endif
@@ -116,17 +117,17 @@ MBED_WEAK NetworkInterface *NetworkInterface::get_target_default_instance()
     /* CellularBase is expected to attempt to work without any parameters - we
      * will try, at least.
      */
-#ifdef MBED_CONF_DEFAULT_CELLULAR_APN
-#ifndef MBED_CONF_DEFAULT_CELLULAR_USERNAME
-#define MBED_CONF_DEFAULT_CELLULAR_USERNAME NULL
+#ifdef MBED_CONF_NSAPI_DEFAULT_CELLULAR_APN
+#ifndef MBED_CONF_NSAPI_DEFAULT_CELLULAR_USERNAME
+#define MBED_CONF_NSAPI_DEFAULT_CELLULAR_USERNAME NULL
 #endif
-#ifndef MBED_CONF_DEFAULT_CELLULAR_PASSWORD
-#define MBED_CONF_DEFAULT_CELLULAR_PASSWORD NULL
+#ifndef MBED_CONF_NSAPI_DEFAULT_CELLULAR_PASSWORD
+#define MBED_CONF_NSAPI_DEFAULT_CELLULAR_PASSWORD NULL
 #endif
-    cellular->set_credentials(MBED_CONF_DEFAULT_CELLULAR_APN, MBED_CONF_DEFAULT_CELLULAR_USERNAME, MBED_CONF_DEFAULT_CELLULAR_PASSWORD);
+    cellular->set_credentials(MBED_CONF_NSAPI_DEFAULT_CELLULAR_APN, MBED_CONF_NSAPI_DEFAULT_CELLULAR_USERNAME, MBED_CONF_NSAPI_DEFAULT_CELLULAR_PASSWORD);
 #endif
-#ifdef MBED_CONF_DEFAULT_CELLULAR_SIM_PIN
-    cellular->set_sim_pin(MBED_CONF_DEFAULT_CELLULAR_SIM_PIN);
+#ifdef MBED_CONF_NSAPI_DEFAULT_CELLULAR_SIM_PIN
+    cellular->set_sim_pin(MBED_CONF_NSAPI_DEFAULT_CELLULAR_SIM_PIN);
 #endif
 
     return cellular;
