@@ -34,8 +34,6 @@ nsapi_protocol_t UDPSocket::get_proto()
 
 nsapi_error_t UDPSocket::connect(const SocketAddress &address)
 {
-    if (!address)
-        return NSAPI_ERROR_PARAMETER;
     _remote_peer = address;
     return NSAPI_ERROR_OK;
 }

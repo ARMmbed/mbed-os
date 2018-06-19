@@ -114,10 +114,10 @@ public:
      */
     void set_port(uint16_t port);
 
-    /** Get the human readable IP address
+    /** Get the human-readable IP address
      *
      *  Allocates memory for a string and converts binary address to
-     *  human readable format. String is freed in the destructor.
+     *  human-readable format. String is freed in the destructor.
      *
      *  @return         Null-terminated representation of the IP Address
      */
@@ -153,7 +153,7 @@ public:
      */
     operator bool() const;
 
-    /** Copy addres from another SocketAddress
+    /** Copy address from another SocketAddress
      *
      * @param addr  SocketAddress to copy
      */

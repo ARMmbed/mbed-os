@@ -249,21 +249,22 @@ TCPSocket *TCPSocket::accept(nsapi_error_t *error)
 {
     _lock.lock();
     TCPSocket *connection = NULL;
+    nsapi_error_t ret;
 
     _readers++;
 
     while (true) {
         if (!_socket) {
-            *error = NSAPI_ERROR_NO_SOCKET;
+            ret = NSAPI_ERROR_NO_SOCKET;
             break;
         }
 
         _pending = 0;
         void *socket;
         SocketAddress address;
-        *error = _stack->socket_accept(_socket, &socket, &address);
+        ret = _stack->socket_accept(_socket, &socket, &address);
 
-        if (0 == *error) {
+        if (0 == ret) {
             TCPSocket *connection = new TCPSocket();
             connection->_lock.lock();
             connection->_factory_allocated = true; // Destroy automatically on close()
@@ -275,7 +276,7 @@ TCPSocket *TCPSocket::accept(nsapi_error_t *error)
 
             connection->_lock.unlock();
             break;
-        } else if ((_timeout == 0) || (*error != NSAPI_ERROR_WOULD_BLOCK)) {
+        } else if ((_timeout == 0) || (ret != NSAPI_ERROR_WOULD_BLOCK)) {
             break;
         } else {
             uint32_t flag;
@@ -288,7 +289,7 @@ TCPSocket *TCPSocket::accept(nsapi_error_t *error)
 
             if (flag & osFlagsError) {
                 // Timeout break
-                *error = NSAPI_ERROR_WOULD_BLOCK;
+                ret = NSAPI_ERROR_WOULD_BLOCK;
                 break;
             }
         }
@@ -299,5 +300,8 @@ TCPSocket *TCPSocket::accept(nsapi_error_t *error)
         _event_flag.set(FINISHED_FLAG);
     }
     _lock.unlock();
+    if (error) {
+        *error = ret;
+    }
     return connection;
 }
