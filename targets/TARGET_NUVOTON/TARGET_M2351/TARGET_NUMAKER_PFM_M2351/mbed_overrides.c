@@ -55,15 +55,11 @@ void mbed_sdk_init(void)
     /* Wait for HIRC48 clock ready */
     CLK_WaitClockReady(CLK_STATUS_HIRC48STB_Msk);
 
+    
+#if defined(NU_CHIP_MAJOR) && (NU_CHIP_MAJOR == 1UL)
     /* NOTE: There is a reset halt issue with PLL in A version. Work around it
      *       by using HIRC48 instead of PLL as HCLK clock source. */
-#if 0
-    /* Select HCLK clock source as HIRC and HCLK clock divider as 1 */
-    CLK_SetHCLK(CLK_CLKSEL0_HCLKSEL_HIRC, CLK_CLKDIV0_HCLK(1));
-    
-    /* Set core clock as 48M from PLL */
-    CLK_SetCoreClock(FREQ_48MHZ);
-#else
+
     /* Trim HIRC48 to 48M against LXT */
 
     /* Reset TISTS48M status flags */
@@ -90,6 +86,9 @@ void mbed_sdk_init(void)
     }
     
     CLK_SetHCLK(CLK_CLKSEL0_HCLKSEL_HIRC48, CLK_CLKDIV0_HCLK(1UL));
+#else
+    /* Set core clock as 64M from PLL */
+    CLK_SetCoreClock(FREQ_64MHZ);
 #endif
     
     /* Update System Core Clock */
