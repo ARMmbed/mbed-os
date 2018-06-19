@@ -17,6 +17,7 @@ limitations under the License.
 import re
 from os.path import join, basename, splitext, dirname, exists
 from distutils.spawn import find_executable
+from distutils.version import LooseVersion
 
 from tools.toolchains import mbedToolchain, TOOLCHAIN_PATHS
 from tools.hooks import hook_tool
@@ -29,7 +30,7 @@ class GCC(mbedToolchain):
     STD_LIB_NAME = "lib%s.a"
     DIAGNOSTIC_PATTERN = re.compile('((?P<file>[^:]+):(?P<line>\d+):)(?P<col>\d+):? (?P<severity>warning|[eE]rror|fatal error): (?P<message>.+)')
 
-    GCC_MAJOR = "6"
+    GCC_RANGE = (LooseVersion("6.0.0"), LooseVersion("7.0.0"))
     GCC_VERSION_RE = re.compile("[0-9]*\.[0-9]*\.[0-9]*")
 
     def __init__(self, target,  notify=None, macros=None, build_profile=None,
@@ -118,15 +119,24 @@ class GCC(mbedToolchain):
             for word in line.split():
                 match = self.GCC_VERSION_RE.match(word)
                 if match:
-                    found_version = match.group(0)
-        if found_version and not found_version.startswith(self.GCC_MAJOR + "."):
-            raise NotSupportedException(
-                "GCC_ARM compiler version mismatch: Have {}; expected major version {}"
-                .format(found_version, self.GCC_MAJOR))
+                    found_version = LooseVersion(match.group(0))
+        min_ver, max_ver = self.GCC_RANGE
+        if found_version and (found_version < min_ver or found_version >= max_ver):
+            msg = ("Compiler version mismatch: Have {}; "
+                   "expected version >= {} and < {}"
+                   .format(found_version, min_ver, max_ver))
         elif not found_version:
-            raise NotSupportedException(
-                "GCC_ARM compiler version mismatch: Could Not detect compiler "
-                "version; expected {}".format(self.GCC_MAJOR))
+            msg = ("Compiler version mismatch: Could not detect version; "
+                   "expected version >= {} and < {}"
+                   .format(min_ver, max_ver))
+        if msg:
+            self.notify.cc_info({
+                "message": msg,
+                "file": "",
+                "line": "",
+                "col": "",
+                "severity": "ERROR",
+            })
 
     def is_not_supported_error(self, output):
         return "error: #error [NOT_SUPPORTED]" in output
