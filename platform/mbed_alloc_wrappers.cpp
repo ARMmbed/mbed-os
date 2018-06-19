@@ -71,9 +71,6 @@ void mbed_stats_heap_get(mbed_stats_heap_t *stats)
 
 #if defined(TOOLCHAIN_GCC)
 
-#ifdef   FEATURE_UVISOR
-#include "uvisor-lib/uvisor-lib.h"
-#endif/* FEATURE_UVISOR */
 
 extern "C" {
     void *__real__malloc_r(struct _reent *r, size_t size);
@@ -85,8 +82,6 @@ extern "C" {
     void free_wrapper(struct _reent *r, void *ptr, void *caller);
 }
 
-// TODO: memory tracing doesn't work with uVisor enabled.
-#if !defined(FEATURE_UVISOR)
 
 extern "C" void *__wrap__malloc_r(struct _reent *r, size_t size)
 {
@@ -225,7 +220,6 @@ extern "C" void *__wrap__memalign_r(struct _reent *r, size_t alignment, size_t b
     return __real__memalign_r(r, alignment, bytes);
 }
 
-#endif // if !defined(FEATURE_UVISOR)
 
 
 /******************************************************************************/

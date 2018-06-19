@@ -36,10 +36,6 @@
 #include "greentea-client/test_env.h"
 #include "cfstore_utest.h"
 
-#ifdef YOTTA_CFG_CFSTORE_UVISOR
-#include "uvisor-lib/uvisor-lib.h"
-#endif /* YOTTA_CFG_CFSTORE_UVISOR */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -55,13 +51,6 @@ using namespace utest::v1;
 #define CFSTORE_CREATE_MALLOC_SIZE            1024
 
 static char cfstore_create_utest_msg_g[CFSTORE_UTEST_MSG_BUF_SIZE];
-
-/* Configure secure box. */
-#ifdef YOTTA_CFG_CFSTORE_UVISOR
-UVISOR_BOX_NAMESPACE("com.arm.mbed.cfstore.test.create.box1");
-UVISOR_BOX_CONFIG(cfstore_create_box1, UVISOR_BOX_STACK_SIZE);
-#endif /* YOTTA_CFG_CFSTORE_UVISOR */
-
 
 /// @cond CFSTORE_DOXYGEN_DISABLE
 #define CFSTORE_CREATE_TEST_01_TABLE_HEAD_ENTRY_01     { "Lefkada.Vathi.Meganisi.Atokos.Vathi.Ithaki.PeriPigathi.AgiosAndreas.Sami.Kefalonia.AgiaEffimia.AgiaSofia.Fiskardo.Frikes.Kioni.Meganissi.Lefkada", "Penelope"}

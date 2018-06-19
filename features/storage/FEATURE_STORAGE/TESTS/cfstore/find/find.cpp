@@ -33,9 +33,6 @@
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"
 #include "cfstore_utest.h"
-#ifdef YOTTA_CFG_CFSTORE_UVISOR
-#include "uvisor-lib/uvisor-lib.h"
-#endif /* YOTTA_CFG_CFSTORE_UVISOR */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -47,11 +44,6 @@ using namespace utest::v1;
 
 static char cfstore_find_utest_msg_g[CFSTORE_UTEST_MSG_BUF_SIZE];
 
-/* Configure secure box. */
-#ifdef YOTTA_CFG_CFSTORE_UVISOR
-UVISOR_BOX_NAMESPACE("com.arm.mbed.cfstore.test.find.box1");
-UVISOR_BOX_CONFIG(cfstore_find_box1, UVISOR_BOX_STACK_SIZE);
-#endif /* YOTTA_CFG_CFSTORE_UVISOR */
 
 
 /* report whether built/configured for flash sync or async mode */

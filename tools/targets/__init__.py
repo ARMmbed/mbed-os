@@ -319,10 +319,6 @@ class Target(namedtuple("Target", "name json_data resolution_order resolution_or
         if "Target" in names:
             names.remove("Target")
         labels = (names + CORE_LABELS[self.core] + self.extra_labels)
-        # Automatically define UVISOR_UNSUPPORTED if the target doesn't
-        # specifically define UVISOR_SUPPORTED
-        if "UVISOR_SUPPORTED" not in labels:
-            labels.append("UVISOR_UNSUPPORTED")
         return labels
 
     def init_hooks(self, hook, toolchain):

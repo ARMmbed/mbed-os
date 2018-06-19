@@ -34,30 +34,6 @@
 #include "core_cmSecureAccess.h"
 #include "fsl_common.h"
 
-#ifdef FEATURE_UVISOR
-
-/* We cannot use the register gateway to secure this access,
- * since some accesses use dynamically computed addresses and
- * values, which are not supported by the register gateway.
- * Therefore, these accesses are implemented using the uVisor
- * secure access.
- */
-#define __FSL_CLOCK_SECURE_WRITE(addr, val) \
-    ADDRESS_WRITE(*addr, addr, val)
-
-#define __FSL_CLOCK_SECURE_READ(addr) \
-    ADDRESS_READ(*addr, addr)
-
-#define __FSL_CLOCK_SECURE_BITS_SET(addr, mask) \
-    __FSL_CLOCK_SECURE_WRITE(addr, __FSL_CLOCK_SECURE_READ(addr) | (mask))
-
-#define __FSL_CLOCK_SECURE_BITS_CLEAR(addr, mask) \
-    __FSL_CLOCK_SECURE_WRITE(addr, __FSL_CLOCK_SECURE_READ(addr) & ~(mask))
-
-#define __FSL_CLOCK_SECURE_BITS_SET_VALUE(addr, mask, val) \
-    __FSL_CLOCK_SECURE_WRITE(addr, (__FSL_CLOCK_SECURE_READ(addr) & ~(mask)) | ((val) & (mask)))
-
-#else
 
 /* Fallback implementation. */
 #define __FSL_CLOCK_SECURE_WRITE(addr, val) \
@@ -75,7 +51,6 @@
 #define __FSL_CLOCK_SECURE_BITS_SET_VALUE(addr, mask, val) \
     SECURE_BITS_SET_VALUE(addr, mask, val)
 
-#endif
 
 /*! @addtogroup clock */
 /*! @{ */

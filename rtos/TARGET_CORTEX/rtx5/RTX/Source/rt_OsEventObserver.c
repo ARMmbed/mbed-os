@@ -24,19 +24,6 @@
  */
 #include "rt_OsEventObserver.h"
 
-/*
- *  _____ _____  ____  __ _____
- * |  ___|_ _\ \/ /  \/  | ____|
- * | |_   | | \  /| |\/| |  _|
- * |  _|  | | /  \| |  | | |___
- * |_|   |___/_/\_\_|  |_|_____|
- *
- * FIXME:
- * The osEventObs variable must be in protected memory. If not every box
- * and box 0 can modify osEventObs to point to any handler to run code
- * privileged. This issue is tracked at
- * <https://github.com/ARMmbed/uvisor/issues/235>.
- */
 const OsEventObserver *osEventObs;
 
 void osRegisterForOsEvents(const OsEventObserver *observer)

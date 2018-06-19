@@ -33,10 +33,6 @@
 #include <core-util/critical.h>
 #endif /* CFSTORE_CONFIG_MBED_OS_VERSION == 3 */
 
-#ifdef YOTTA_CFG_CFSTORE_UVISOR
-#include "uvisor-lib/uvisor-lib.h"
-#endif /* YOTTA_CFG_CFSTORE_UVISOR */
-
 #ifdef CFSTORE_CONFIG_BACKEND_FLASH_ENABLED
 #include "cfstore_svm.h"
 #include "flash_journal_strategy_sequential.h"
@@ -438,11 +434,6 @@ typedef struct cfstore_file_t
     uint32_t wlocation;
     uint8_t *head;
     ARM_CFSTORE_FMODE flags;
-#ifdef YOTTA_CFG_CFSTORE_UVISOR
-    // todo: add this into mix.
-    //int uvisor_client_box_id;
-#endif
-
 } cfstore_file_t;
 
 /* @brief   structure used to compose table for mapping flash journal error codes to cfstore error codes */
@@ -457,15 +448,13 @@ typedef struct cfstore_flash_journal_error_code_node
  * Globals
  */
 #ifndef CFSTORE_STORAGE_DRIVER_CONFIG_HARDWARE_MTD_ASYNC_OPS
-static ARM_CFSTORE_CAPABILITIES cfstore_caps_g = { .asynchronous_ops = 1, .uvisor_support_enabled = 0 };
+static ARM_CFSTORE_CAPABILITIES cfstore_caps_g = { .asynchronous_ops = 1 };
 #else
-static ARM_CFSTORE_CAPABILITIES cfstore_caps_g = { .asynchronous_ops = CFSTORE_STORAGE_DRIVER_CONFIG_HARDWARE_MTD_ASYNC_OPS, .uvisor_support_enabled = 0 };
+static ARM_CFSTORE_CAPABILITIES cfstore_caps_g = { .asynchronous_ops = CFSTORE_STORAGE_DRIVER_CONFIG_HARDWARE_MTD_ASYNC_OPS };
 #endif /* CFSTORE_STORAGE_DRIVER_CONFIG_HARDWARE_MTD_ASYNC_OPS */
 
 static const ARM_DRIVER_VERSION cfstore_driver_version_g = { .api = ARM_CFSTORE_API_VERSION, .drv = ARM_CFSTORE_DRV_VERSION };
 
-#ifndef YOTTA_CFG_CFSTORE_UVISOR
-/* uvisor is not being used so instantiate a context */
 static cfstore_ctx_t cfstore_ctx_g = {
         .file_list.next = NULL,
         .file_list.prev = NULL,
@@ -478,101 +467,6 @@ static cfstore_ctx_t cfstore_ctx_g = {
         .client_context = NULL,
         .f_reserved0 = 0,
 };
-#endif /* YOTTA_CFG_CFSTORE_UVISOR */
-
-#ifdef YOTTA_CFG_CFSTORE_UVISOR
-
-/*
- * Configure the secure box compartment
- */
-static const char const cfstore_uvisor_namespace_root_g[] = "com.arm.mbed.";
-// UVISOR_BOX_NAMESPACE("com.arm.mbed.configuration-store");
-// macro: static const char *const __uvisor_box_namespace = box_namespace
-static const char *const __uvisor_box_namespace = "com.arm.mbed.configuration-store";
-
-/* although the descriptor is empty, the main box descriptor is inherited and added to whats here. */
-static const UvisorBoxAclItem cfstore_acl_list_g[] = {
-    /* todo: this needs completing with correct data for the secure flash partition above the binary
-     *
-     0xabaadfood = start of secure flash in address map (flash journal partition
-     0xbeefbeef = size in bytes of secure flash partition
-     {(void *) 0xabaadfood, 0xbeefbeef, UVISOR_TACLDEF_PERIPH},
-     */
-     /* put reference to k64 subfamily reference manual and cmsis k64f target header as to where this comes from */
-     {FTFE,    sizeof(*FTFE),    UVISOR_TACLDEF_PERIPH},
-};
-
-/* UVISOR_BOX_CONFIG_CTX(configuration_store, UVISOR_BOX_STACK_SIZE, cfstore_ctx_t);
- *
- * It would be better to use the following macro:
- * 	UVISOR_BOX_CONFIG(configuration_store, cfstore_acl_list_g, UVISOR_BOX_STACK_SIZE, cfstore_ctx_t);
- * rather than the unpacked macro code that follows.
- *
- * #define __UVISOR_BOX_CONFIG(box_name, acl_list, acl_list_count, stack_size, context_size) \
- *     \
- *     uint8_t __attribute__((section(".keep.uvisor.bss.boxes"), aligned(32))) \
- *         box_name ## _reserved[UVISOR_STACK_SIZE_ROUND(((UVISOR_MIN_STACK(stack_size) + (context_size))*8)/6)]; \
- *     \
- *     static const __attribute__((section(".keep.uvisor.cfgtbl"), aligned(4))) UvisorBoxConfig box_name ## _cfg = { \
- *         UVISOR_BOX_MAGIC, \
- *         UVISOR_BOX_VERSION, \
- *         UVISOR_MIN_STACK(stack_size), \
- *         context_size, \
- *         __uvisor_box_namespace, \
- *         acl_list, \
- *         acl_list_count \
- *     }; \
- *     \
- *     extern const __attribute__((section(".keep.uvisor.cfgtbl_ptr"), aligned(4))) void * const box_name ## _cfg_ptr = &box_name ## _cfg;
- *
- * However, the macro currently generates warnings that need to be fixed i.e.
- * =====================================================================================================================================================================================
- * d:/datastore/public/jobs/yr2016/2247/sdh_dev_10/configuration-store/source/configuration_store.c:490:1: error: initializer element is not constant
- * UVISOR_BOX_CONFIG(configuration_store, cfstore_acl_list_g, UVISOR_BOX_STACK_SIZE, cfstore_ctx_t);
- * ^
- * d:/datastore/public/jobs/yr2016/2247/sdh_dev_10/configuration-store/source/configuration_store.c:490:1: error: (near initialization for 'configuration_store_cfg.box_namespace')
- * In file included from d:/datastore/public/jobs/yr2016/2247/sdh_dev_10/configuration-store/yotta_modules/uvisor-lib/uvisor-lib/uvisor-lib.h:38:0,
- * 		from d:/datastore/public/jobs/yr2016/2247/sdh_dev_10/configuration-store/source/configuration_store.c:27:
- * d:/datastore/public/jobs/yr2016/2247/sdh_dev_10/configuration-store/source/configuration_store.c:490:19: warning: 'configuration_store_cfg_ptr' initialized and declared 'extern'
- * UVISOR_BOX_CONFIG(configuration_store, cfstore_acl_list_g, UVISOR_BOX_STACK_SIZE, cfstore_ctx_t);
- *                    ^
- * d:/datastore/public/jobs/yr2016/2247/sdh_dev_10/configuration-store/yotta_modules/uvisor-lib/uvisor-lib/box_config.h:74:95: note: in definition of macro '__UVISOR_BOX_CONFIG'
- *      extern const __attribute__((section(".keep.uvisor.cfgtbl_ptr"), aligned(4))) void * const box_name ## _cfg_ptr = &box_name ## _cfg;
- *                                                                                                     ^
- * d:/datastore/public/jobs/yr2016/2247/sdh_dev_10/configuration-store/yotta_modules/uvisor-lib/uvisor-lib/box_config.h:57:55: note: in expansion of macro '__UVISOR_BOX_CONFIG_CONTEXT'
- * #define __UVISOR_BOX_MACRO(_1, _2, _3, _4, NAME, ...) NAME
- *                                                        ^
- * d:/datastore/public/jobs/yr2016/2247/sdh_dev_10/configuration-store/yotta_modules/uvisor-lib/uvisor-lib/box_config.h:101:5: note: in expansion of macro 'UVISOR_BOX_CONFIG_ACL'
- *      UVISOR_BOX_CONFIG_ACL(__VA_ARGS__)
- *           ^
- * d:/datastore/public/jobs/yr2016/2247/sdh_dev_10/configuration-store/source/configuration_store.c:490:1: note: in expansion of macro 'UVISOR_BOX_CONFIG'
- * UVISOR_BOX_CONFIG(configuration_store, cfstore_acl_list_g, UVISOR_BOX_STACK_SIZE, cfstore_ctx_t);
- * ^
- * ninja: build stopped: subcommand failed.
- * error: command ['ninja'] failed
- * =====================================================================================================================================================================================
- * The UVISOR_BOX_CONFIG() macro expands to include the following:
- * 		extern const __attribute__((section(".keep.uvisor.cfgtbl_ptr"), aligned(4))) void * const configuration_store_cfg_ptr = &configuration_store_cfg;
- * The extern at the beginning of the line creates a warning when in a c file, and so needs to be removed/fixed.
- * There are also many other warnings from the macro expansion which need to be investigated further.
- *
- * todo: possible investigation: move configuration_store.c -> configuration_store.cpp
- */
-uint8_t __attribute__((section(".keep.uvisor.bss.boxes"), aligned(32))) configuration_store_reserved[UVISOR_STACK_SIZE_ROUND(((UVISOR_MIN_STACK(UVISOR_BOX_STACK_SIZE) + (sizeof(cfstore_ctx_t)))*8)/6)];
-static const __attribute__((section(".keep.uvisor.cfgtbl"), aligned(4))) UvisorBoxConfig configuration_store_cfg = {
-	UVISOR_BOX_MAGIC,
-	UVISOR_BOX_VERSION,
-	UVISOR_MIN_STACK(UVISOR_BOX_STACK_SIZE),
-	sizeof(cfstore_ctx_t),
-	"com.arm.mbed.configuration-store", //problem using__uvisor_box_namespace defined above so inserting string directly here
-	cfstore_acl_list_g,
-	UVISOR_ARRAY_COUNT(cfstore_acl_list_g)
-};
-
-const __attribute__((section(".keep.uvisor.cfgtbl_ptr"), aligned(4))) void * const configuration_store_cfg_ptr = &configuration_store_cfg;
-UVISOR_EXTERN cfstore_ctx_t * const uvisor_ctx;
-
-#endif /* YOTTA_CFG_CFSTORE_UVISOR */
 
 /*
  * client notifier helper function
@@ -599,13 +493,7 @@ static bool cfstore_ctx_is_initialised(cfstore_ctx_t* ctx)
 /* @brief   helper function to return a pointer to the global cfstore context. */
 static inline cfstore_ctx_t* cfstore_ctx_get(void)
 {
-#ifdef YOTTA_CFG_CFSTORE_UVISOR
-	/* use the secure cfstore_ctx_t struct allocated by uvisor for use */
-	return (cfstore_ctx_t*) uvisor_ctx;
-#else
-	/* use the insecure statically allocated data struct */
 	return &cfstore_ctx_g;
-#endif
 }
 
 /** @brief   helper function to compute the total size of the KVs stored in the
@@ -836,72 +724,6 @@ static CFSTORE_INLINE int32_t cfstore_hkvt_refcount_inc(cfstore_area_hkvt_t* hkv
  * security/permissions helper functions
  */
 
-#ifdef YOTTA_CFG_CFSTORE_UVISOR
-/**
- * @brief   check that a client (cfstore-uvisor client box) is the "owner" of the
- *          KV. Owner means the client that can create or created the KV. This is
- *          determined by the clients namespace and whether the KV path name falls
- *          within that name space
- * @param   key_name
- * 			the name of the KV being created.
- * 			the validation that the key_name is composed of permissible chars is
- * 			carried out before this function is called.
- * @note
- * Conceptually, cfstore supports the following KV path namespaces:
- * 	- com.arm.mbed.
- * 	- guids of the form xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx where x is a hex digit.
- *
- *  In the cfstore implementation, explicit checking of the structure of the
- *  namespace string is not required. Cfstore only need enforce that:
- *  	the root of the KV pathname == cfstore client uvisor namespace.
- */
-static int32_t cfstore_uvisor_is_client_kv_owner(char* key_name, int32_t* cfstore_uvisor_box_id)
-{
-    int32_t calling_box_id;
-    int32_t ret;
-    /* We store the calling_box_namespace on our stack, lest somebody else modify it. */
-    char calling_box_namespace[UVISOR_MAX_BOX_NAMESPACE_LENGTH];
-
-    CFSTORE_FENTRYLOG("%s:entered\n", __func__);
-    memset(calling_box_namespace, 0, sizeof(calling_box_namespace));
-    /* Get the ID of the box that called this box through the most recent secure gateway. */
-    calling_box_id = uvisor_box_id_caller();
-    if(calling_box_id < 0){
-        CFSTORE_ERRLOG("%s: Error: uvisor uvisor_box_id_caller() returned invalid id (calling_box_id=%d\n", __func__, (int) calling_box_id);
-        return ARM_CFSTORE_DRIVER_ERROR_UVISOR_BOX_ID;
-    }
-    if(cfstore_uvisor_box_id){
-        *cfstore_uvisor_box_id = calling_box_id;
-    }
-    if(calling_box_id == 0){
-        /* the cfstore uvisor client is the main box.
-         * main box is not allowed to create a key as a client is only permitted to create KVs in their namespace. */
-        CFSTORE_ERRLOG("%s: Error: uvisor box id identifies cfstore client cannot create KVs (calling_box_id=%d\n", __func__, (int) calling_box_id);
-        return ARM_CFSTORE_DRIVER_ERROR_UVISOR_BOX_ID;
-    }
-    /* Copy the name of the calling box to our stack. */
-    ret = uvisor_box_namespace(calling_box_id, calling_box_namespace, sizeof(calling_box_namespace));
-    if(ret < 0){
-        /* error */
-        CFSTORE_ERRLOG("%s: Error: unable to recover uvisor box namespace\n", __func__);
-        return ARM_CFSTORE_DRIVER_ERROR_UVISOR_NAMESPACE;
-    }
-    /* check the cfstore client uvisor box namespace is non-trivial */
-    if(strlen(calling_box_namespace) == 0){
-        CFSTORE_ERRLOG("%s: Error: uvisor box namespace is zero length\n", __func__);
-        return ARM_CFSTORE_DRIVER_ERROR_UVISOR_NAMESPACE;
-    }
-    /* check that the key name is within the root domain namespace */
-    if(strncmp(calling_box_namespace, key_name, sizeof(calling_box_namespace)) != 0) {
-        /* The key_name does not fall within the cfstore-uvisor client namespace and therefore the create is not allowed */
-        CFSTORE_ERRLOG("%s: Error: key name (%s) is not permitted to be created within client uvisor box namespace (%s) of cfstore client\n", __func__, key_name, calling_box_namespace);
-        return ARM_CFSTORE_DRIVER_ERROR_NO_PERMISSIONS;
-    }
-    /* We've passed all our checks, so we allow the calling box. */
-    return ARM_DRIVER_OK;
-}
-#endif /* YOTTA_CFG_CFSTORE_UVISOR */
-
 /**
  * @brief   check that the cfstore client (caller, which is a uvisor box)
  *          is only trying to access its own namespace.
@@ -931,13 +753,6 @@ static int32_t cfstore_uvisor_security_context_prefix_check(const char* key_name
 static int32_t cfstore_is_client_kv_owner(const char* key_name, int32_t* cfstore_uvisor_box_id)
 {
     CFSTORE_FENTRYLOG("%s:entered\n", __func__);
-/*
-#ifdef YOTTA_CFG_CFSTORE_UVISOR
-    return cfstore_uvisor_is_client_kv_owner(key_name, cfstore_uvisor_box_id);
-#else
-    return ARM_DRIVER_OK;
-#endif
-*/
     (void) key_name;
     (void) cfstore_uvisor_box_id;
     return ARM_DRIVER_OK;
@@ -966,90 +781,6 @@ static bool cfstore_is_kv_client_deletable(cfstore_file_t* file)
     (void) file;
     return true;
 }
-
-#ifdef YOTTA_CFG_CFSTORE_UVISOR
-/* @brief   helper function to determine whether this cfstore-uvisor client box can read a given KV */
-static bool cfstore_is_kv_client_readable(cfstore_area_hkvt_t* hkvt)
-{
-    bool bret = false;
-    int32_t ret = ARM_DRIVER_ERROR;
-    char key_name[CFSTORE_KEY_NAME_MAX_LENGTH+1];
-    uint8_t key_name_len = CFSTORE_KEY_NAME_MAX_LENGTH+1;
-    cfstore_area_header_t *hdr = (cfstore_area_header_t*) hkvt->head;
-
-
-    CFSTORE_FENTRYLOG("%s:entered\n", __func__);
-    memset(key_name, 0, key_name_len);
-    ret = cfstore_get_key_name_ex(hkvt, key_name, &key_name_len);
-    if(ret < ARM_DRIVER_OK){
-        CFSTORE_ERRLOG("%s:Error: cfstore_get_key_name_ex() returned error.\n", __func__);
-        return bret;
-    }
-    ret = cfstore_is_client_kv_owner(key_name, NULL);
-    if(ret == ARM_DRIVER_OK){
-        /* cfstore-usvisor client box is the "owner" of the key */
-        bret = hdr->perm_owner_read;
-    } else {
-        /* cfstore-usvisor client box is not the "owner" of the key i.e. is the "other" */
-        bret = hdr->perm_other_read;
-    }
-    return bret;
-}
-
-/* @brief   helper function to determine whether this client can write a given KV */
-static bool cfstore_is_kv_client_writable(cfstore_area_hkvt_t* hkvt)
-{
-    bool bret = false;
-    int32_t ret = ARM_DRIVER_ERROR;
-    char key_name[CFSTORE_KEY_NAME_MAX_LENGTH+1];
-    uint8_t key_name_len = CFSTORE_KEY_NAME_MAX_LENGTH+1;
-    cfstore_area_header_t *hdr = (cfstore_area_header_t*) hkvt->head;
-
-    CFSTORE_FENTRYLOG("%s:entered\n", __func__);
-    memset(key_name, 0, key_name_len);
-    ret = cfstore_get_key_name_ex(hkvt, key_name, &key_name_len);
-    if(ret < ARM_DRIVER_OK){
-        CFSTORE_ERRLOG("%s:Error: cfstore_get_key_name_ex() returned error.\n", __func__);
-        return bret;
-    }
-    ret = cfstore_is_client_kv_owner(key_name, NULL);
-    if(ret == ARM_DRIVER_OK){
-        /* cfstore-usvisor client box is the "owner" of the key */
-        bret = hdr->perm_owner_write;
-    } else {
-        /* cfstore-usvisor client box is not the "owner" of the key i.e. is the "other" */
-        bret = hdr->perm_other_write;
-    }
-    return bret;
-}
-
-/* @brief   helper function to determine whether this client can execute a given KV */
-static bool cfstore_is_kv_client_executable(cfstore_area_hkvt_t* hkvt)
-{
-    bool bret = false;
-    int32_t ret = ARM_DRIVER_ERROR;
-    char key_name[CFSTORE_KEY_NAME_MAX_LENGTH+1];
-    uint8_t key_name_len = CFSTORE_KEY_NAME_MAX_LENGTH+1;
-    cfstore_area_header_t *hdr = (cfstore_area_header_t*) hkvt->head;
-
-    CFSTORE_FENTRYLOG("%s:entered\n", __func__);
-    memset(key_name, 0, key_name_len);
-    ret = cfstore_get_key_name_ex(hkvt, key_name, &key_name_len);
-    if(ret < ARM_DRIVER_OK){
-        CFSTORE_ERRLOG("%s:Error: cfstore_get_key_name_ex() returned error.\n", __func__);
-        return bret;
-    }
-    ret = cfstore_is_client_kv_owner(key_name, NULL);
-    if(ret == ARM_DRIVER_OK){
-        /* cfstore-usvisor client box is the "owner" of the key */
-        bret = hdr->perm_owner_execute;
-    } else {
-        /* cfstore-usvisor client box is not the "owner" of the key i.e. is the "other" */
-        bret = hdr->perm_other_execute;
-    }
-    return bret;
-}
-#endif  /* YOTTA_CFG_CFSTORE_UVISOR */
 
 /* @brief   helper function to determine whether this client can read a given KV */
 static bool cfstore_is_kv_client_readable(cfstore_area_hkvt_t* hkvt)
@@ -4097,213 +3828,6 @@ out0:
     return ret;
 }
 
-
-#ifdef YOTTA_CFG_CFSTORE_UVISOR
-
-/*
- * uvisor secure gateways for ARM_CFSTORE_DRIVER access methods.
- */
-
-UVISOR_EXTERN int32_t __cfstore_uvisor_close(ARM_CFSTORE_HANDLE hkey)
-{
-    CFSTORE_FENTRYLOG("%s:entered\n", __func__);
-	return cfstore_close(hkey);
-}
-
-static int32_t cfstore_uvisor_close(ARM_CFSTORE_HANDLE hkey)
-{
-    CFSTORE_FENTRYLOG("%s:entered\n", __func__);
-	return secure_gateway(configuration_store, __cfstore_uvisor_close, hkey);
-}
-
-UVISOR_EXTERN int32_t __cfstore_uvisor_create(const char* key_name, ARM_CFSTORE_SIZE value_len, const ARM_CFSTORE_KEYDESC* kdesc, ARM_CFSTORE_HANDLE hkey)
-{
-    CFSTORE_FENTRYLOG("%s:entered\n", __func__);
-	return cfstore_create(key_name, value_len, kdesc, hkey);
-}
-
-static int32_t cfstore_uvisor_create(const char* key_name, ARM_CFSTORE_SIZE value_len, const ARM_CFSTORE_KEYDESC* kdesc, ARM_CFSTORE_HANDLE hkey)
-{
-    CFSTORE_FENTRYLOG("%s:entered\n", __func__);
-	return secure_gateway(configuration_store, __cfstore_uvisor_create, key_name, value_len, kdesc, hkey);
-}
-
-UVISOR_EXTERN int32_t __cfstore_uvisor_delete(ARM_CFSTORE_HANDLE hkey)
-{
-    CFSTORE_FENTRYLOG("%s:entered\n", __func__);
-	return cfstore_delete(hkey);
-}
-
-static int32_t cfstore_uvisor_delete(ARM_CFSTORE_HANDLE hkey)
-{
-    CFSTORE_FENTRYLOG("%s:entered\n", __func__);
-	return secure_gateway(configuration_store, __cfstore_uvisor_delete, hkey);
-}
-
-UVISOR_EXTERN int32_t __cfstore_uvisor_find(const char* key_name_query, const ARM_CFSTORE_HANDLE previous, ARM_CFSTORE_HANDLE next)
-{
-    CFSTORE_FENTRYLOG("%s:entered\n", __func__);
-	return cfstore_find(key_name_query, previous, next);
-}
-
-static int32_t cfstore_uvisor_find(const char* key_name_query, const ARM_CFSTORE_HANDLE previous, ARM_CFSTORE_HANDLE next)
-{
-    CFSTORE_FENTRYLOG("%s:entered\n", __func__);
-	return secure_gateway(configuration_store, __cfstore_uvisor_find, key_name_query, previous, next);
-}
-
-UVISOR_EXTERN int32_t __cfstore_uvisor_flush(int dummy)
-{
-    CFSTORE_FENTRYLOG("%s:entered\n", __func__);
-	(void) dummy;
-	return cfstore_flush();
-}
-
-static int32_t cfstore_uvisor_flush(void)
-{
-	int dummy = 0;
-
-	CFSTORE_FENTRYLOG("%s:entered\n", __func__);
-	return secure_gateway(configuration_store, __cfstore_uvisor_flush, dummy);
-}
-
-UVISOR_EXTERN int32_t __cfstore_uvisor_get_key_name(ARM_CFSTORE_HANDLE hkey, char* key_name, uint8_t *key_name_len)
-{
-    CFSTORE_FENTRYLOG("%s:entered\n", __func__);
-	return cfstore_get_key_name(hkey, key_name, key_name_len);
-}
-
-static int32_t cfstore_uvisor_get_key_name(ARM_CFSTORE_HANDLE hkey, char* key_name, uint8_t *key_name_len)
-{
-    CFSTORE_FENTRYLOG("%s:entered\n", __func__);
-	return secure_gateway(configuration_store, __cfstore_uvisor_get_key_name, hkey, key_name, key_name_len);
-}
-
-UVISOR_EXTERN int32_t __cfstore_uvisor_get_value_len(ARM_CFSTORE_HANDLE hkey, ARM_CFSTORE_SIZE *value_len)
-{
-    CFSTORE_FENTRYLOG("%s:entered\n", __func__);
-	return cfstore_get_value_len(hkey, value_len);
-}
-
-static int32_t cfstore_uvisor_get_value_len(ARM_CFSTORE_HANDLE hkey, ARM_CFSTORE_SIZE *value_len)
-{
-    CFSTORE_FENTRYLOG("%s:entered\n", __func__);
-	return secure_gateway(configuration_store, __cfstore_uvisor_get_value_len, hkey, value_len);
-}
-
-UVISOR_EXTERN int32_t __cfstore_uvisor_initialize(ARM_CFSTORE_CALLBACK callback, void* client_context)
-{
-    CFSTORE_FENTRYLOG("%s:entered\n", __func__);
-	return cfstore_initialise(callback, client_context);
-}
-
-static int32_t cfstore_uvisor_initialise(ARM_CFSTORE_CALLBACK callback, void* client_context)
-{
-    CFSTORE_FENTRYLOG("%s:entered\n", __func__);
-	return secure_gateway(configuration_store, __cfstore_uvisor_initialize, callback, client_context);
-}
-
-/* type to convert between ARM_CFSTORE_FMODE and uint32 for passing flags through secure gw */
-typedef union cfstore_fmode_flags_t
-{
-	ARM_CFSTORE_FMODE flags;
-	uint32_t val;
-} cfstore_fmode_flags_t;
-
-UVISOR_EXTERN int32_t __cfstore_uvisor_open(const char* key_name, uint32_t flags, ARM_CFSTORE_HANDLE hkey)
-{
-	cfstore_fmode_flags_t uflags;
-
-	CFSTORE_FENTRYLOG("%s:entered\n", __func__);
-	uflags.val = flags;
-	return cfstore_open(key_name, uflags.flags, hkey);
-}
-
-static int32_t cfstore_uvisor_open(const char* key_name, ARM_CFSTORE_FMODE flags, ARM_CFSTORE_HANDLE hkey)
-{
-	cfstore_fmode_flags_t uflags;
-
-    CFSTORE_FENTRYLOG("%s:entered\n", __func__);
-    uflags.flags = flags;
-	return secure_gateway(configuration_store, __cfstore_uvisor_open, key_name, uflags.val, hkey);
-}
-
-UVISOR_EXTERN int32_t __cfstore_uvisor_read(ARM_CFSTORE_HANDLE hkey, void* data, ARM_CFSTORE_SIZE* len)
-{
-    CFSTORE_FENTRYLOG("%s:entered\n", __func__);
-	return cfstore_read(hkey, data, len);
-}
-
-static int32_t cfstore_uvisor_read(ARM_CFSTORE_HANDLE hkey, void* data, ARM_CFSTORE_SIZE* len)
-{
-    CFSTORE_FENTRYLOG("%s:entered\n", __func__);
-	return secure_gateway(configuration_store, __cfstore_uvisor_read, hkey, data, len);
-}
-
-UVISOR_EXTERN int32_t __cfstore_uvisor_rseek(ARM_CFSTORE_HANDLE hkey, ARM_CFSTORE_OFFSET offset)
-{
-    CFSTORE_FENTRYLOG("%s:entered\n", __func__);
-	return cfstore_rseek(hkey, offset);
-}
-
-static int32_t cfstore_uvisor_rseek(ARM_CFSTORE_HANDLE hkey, ARM_CFSTORE_OFFSET offset)
-{
-    CFSTORE_FENTRYLOG("%s:entered\n", __func__);
-	return secure_gateway(configuration_store, __cfstore_uvisor_rseek, hkey, offset);
-}
-
-UVISOR_EXTERN int32_t __cfstore_uvisor_uninitialise(int dummy)
-{
-    CFSTORE_FENTRYLOG("%s:entered\n", __func__);
-	(void) dummy;
-	return cfstore_uninitialise();
-}
-
-static int32_t cfstore_uvisor_uninitialize(void)
-{
-	int dummy = 0;
-
-    CFSTORE_FENTRYLOG("%s:entered\n", __func__);
-	return secure_gateway(configuration_store, __cfstore_uvisor_uninitialise, dummy);
-}
-
-UVISOR_EXTERN int32_t __cfstore_uvisor_write(ARM_CFSTORE_HANDLE hkey, const char* data, ARM_CFSTORE_SIZE* len)
-{
-    CFSTORE_FENTRYLOG("%s:entered\n", __func__);
-	return cfstore_write(hkey, data, len);
-}
-
-static int32_t cfstore_uvisor_write(ARM_CFSTORE_HANDLE hkey, const char* data, ARM_CFSTORE_SIZE* len)
-{
-    CFSTORE_FENTRYLOG("%s:entered\n", __func__);
-	return secure_gateway(configuration_store, __cfstore_uvisor_write, hkey, data, len);
-}
-
-
-ARM_CFSTORE_DRIVER cfstore_driver =
-{
-        .Close = cfstore_uvisor_close,
-        .Create = cfstore_uvisor_create,
-        .Delete= cfstore_uvisor_delete,
-        .Find = cfstore_uvisor_find,
-        .Flush = cfstore_uvisor_flush,
-        .GetCapabilities = cfstore_get_capabilities,
-        .GetKeyName = cfstore_uvisor_get_key_name,
-        .GetStatus = cfstore_get_status,
-        .GetValueLen = cfstore_uvisor_get_value_len,
-        .GetVersion = cfstore_get_version,
-        .Initialize = cfstore_uvisor_initialise,
-        .Open = cfstore_uvisor_open,
-        .PowerControl = cfstore_power_control,
-        .Read = cfstore_uvisor_read,
-        .Rseek = cfstore_uvisor_rseek,
-        .Uninitialize = cfstore_uvisor_uninitialize,
-        .Write = cfstore_uvisor_write,
-};
-
-#else
-
-/* non-uvisor interface */
 ARM_CFSTORE_DRIVER cfstore_driver =
 {
         .Close = cfstore_close,
@@ -4324,6 +3848,3 @@ ARM_CFSTORE_DRIVER cfstore_driver =
         .Uninitialize = cfstore_uninitialise,
         .Write = cfstore_write,
 };
-
-#endif /* YOTTA_CFG_CFSTORE_UVISOR */
-

@@ -109,13 +109,6 @@ static void default_idle_hook(void)
     osKernelResume(os_timer->resume());
 }
 
-#elif defined(FEATURE_UVISOR)
-
-static void default_idle_hook(void)
-{
-    /* uVisor can't sleep. See <https://github.com/ARMmbed/uvisor/issues/420>
-     * for details. */
-}
 
 #else
 

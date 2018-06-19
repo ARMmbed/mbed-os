@@ -10,14 +10,12 @@
 /*
  * CFSTORE_CONFIG_BACKEND_FLASH_ENABLED
  *  = 1 >1 build with the flash
- * CFSTORE_CONFIG_BACKEND_UVISOR_ENABLED
  * CFSTORE_CONFIG_MBED_OS_VERSION
  *  3 => mbedosV3
  *  4 => morpheus
  */
 
 /* default values */
-#define CFSTORE_CONFIG_BACKEND_UVISOR_ENABLED   0
 #define CFSTORE_CONFIG_MBED_OS_VERSION		    3
 
 /* default build config overridden by package manager configuration
@@ -27,8 +25,6 @@
  *
  * YOTTA_CFG_CFSTORE_BACKEND_SRAM
  *   build only for sram backend (no flash integration)
- * YOTTA_CFG_CFSTORE_UVISOR_ENABLE
- *   build with uvisor enable
  *
  * */
 

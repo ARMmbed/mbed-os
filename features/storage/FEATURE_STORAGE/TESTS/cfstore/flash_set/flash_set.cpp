@@ -29,10 +29,6 @@
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"
 #include "cfstore_utest.h"
-#ifdef YOTTA_CFG_CFSTORE_UVISOR
-#include "uvisor-lib/uvisor-lib.h"
-#include "cfstore_uvisor.h"
-#endif /* YOTTA_CFG_CFSTORE_UVISOR */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -41,15 +37,6 @@
 
 using namespace utest::v1;
 
-#ifdef YOTTA_CFG_CFSTORE_UVISOR
-/* Create the main box ACL list for the application.
- * The main ACL gets inherited by all the other boxes
- */
-CFSTORE_UVISOR_MAIN_ACL(cfstore_acl_uvisor_box_flash_set_g);
-
-/* Enable uVisor. */
-UVISOR_SET_MODE_ACL(UVISOR_ENABLED, cfstore_acl_uvisor_box_flash_set_g);
-#endif /* YOTTA_CFG_CFSTORE_UVISOR */
 
 
 

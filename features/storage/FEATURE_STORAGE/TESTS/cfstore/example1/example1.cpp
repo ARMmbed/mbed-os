@@ -68,10 +68,6 @@
 #include "utest/utest.h"
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"
-#ifdef YOTTA_CFG_CFSTORE_UVISOR
-#include "uvisor-lib/uvisor-lib.h"
-#include "cfstore_uvisor.h"
-#endif /* YOTTA_CFG_CFSTORE_UVISOR */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -135,10 +131,6 @@ int main()
 #include "flash_journal.h"
 #include "Driver_Common.h"
 #endif /* CFSTORE_CONFIG_BACKEND_FLASH_ENABLED */
-
-#ifdef YOTTA_CFG_CONFIG_UVISOR
-#include "uvisor-lib/uvisor-lib.h"
-#endif /* YOTTA_CFG_CONFIG_UVISOR */
 
 #include <stdio.h>
 #include <stdlib.h>

@@ -32,10 +32,6 @@
 #include "greentea-client/test_env.h"
 #include "cfstore_utest.h"
 
-#ifdef YOTTA_CFG_CFSTORE_UVISOR
-#include "uvisor-lib/uvisor-lib.h"
-#endif /* YOTTA_CFG_CFSTORE_UVISOR */
-
 #include <stdio.h>
 #include <string.h>
 #include <inttypes.h>
@@ -43,12 +39,6 @@
 using namespace utest::v1;
 
 static char cfstore_close_utest_msg_g[CFSTORE_UTEST_MSG_BUF_SIZE];
-
-/* Configure secure box. */
-#ifdef YOTTA_CFG_CFSTORE_UVISOR
-UVISOR_BOX_NAMESPACE("com.arm.mbed.cfstore.test.close.box1");
-UVISOR_BOX_CONFIG(cfstore_close_box1, UVISOR_BOX_STACK_SIZE);
-#endif /* YOTTA_CFG_CFSTORE_UVISOR */
 
 /* KV data for test_01 */
 static cfstore_kv_data_t cfstore_close_test_01_kv_data[] = {

@@ -94,9 +94,6 @@ SVC_ContextSave:
         STRB     LR, [R1,#TCB_SF_OFS]   // Store stack frame information
 
 SVC_ContextSwitch:
-#ifdef FEATURE_UVISOR
-        CPSID I // The call to the thread switch helper and PSP loading must be atomic.
-#endif
         /* The call to thread_switch_helper can clobber R2 and R3, but we don't
          * want to clobber R2 or R3. We can't save R2 and R3 to the stack (as
          * the stack we save them onto is likely to be inaccessible after the
@@ -120,9 +117,6 @@ SVC_ContextRestore:
 #endif
         LDMIA    R0!,{R4-R11}           // Restore R4..R11
         MSR      PSP,R0                 // Set PSP
-#ifdef FEATURE_UVISOR
-        CPSIE I                         // The PSP has been set. Re-enable interrupts.
-#endif
 
 SVC_Exit:
         BX       LR                     // Exit from handler

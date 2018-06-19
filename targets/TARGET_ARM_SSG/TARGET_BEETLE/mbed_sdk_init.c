@@ -23,10 +23,8 @@ void mbed_sdk_init(void) {
     EFlash_DriverInitialize();
     EFlash_ClockConfig();
 
-#if !defined(FEATURE_UVISOR) || !defined(TARGET_UVISOR_SUPPORTED)
     /* Enable Flash Cache Stats */
     FCache_DriverInitialize();
     FCache_Enable(1);
     FCache_Invalidate();
-#endif
 }

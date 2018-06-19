@@ -39,10 +39,6 @@
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"
 
-#ifdef YOTTA_CFG_CFSTORE_UVISOR
-#include "uvisor-lib/uvisor-lib.h"
-#include "cfstore_uvisor.h"
-#endif /* YOTTA_CFG_CFSTORE_UVISOR */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -52,16 +48,6 @@
 using namespace utest::v1;
 
 static char cfstore_flush3_utest_msg_g[CFSTORE_UTEST_MSG_BUF_SIZE];
-
-#ifdef YOTTA_CFG_CFSTORE_UVISOR
-/* Create the main box ACL list for the application.
- * The main ACL gets inherited by all the other boxes
- */
-CFSTORE_UVISOR_MAIN_ACL(cfstore_acl_uvisor_box_flush3_g);
-
-/* Enable uVisor. */
-UVISOR_SET_MODE_ACL(UVISOR_ENABLED, cfstore_acl_uvisor_box_flush3_g);
-#endif /* YOTTA_CFG_CFSTORE_UVISOR */
 
 /// @cond CFSTORE_DOXYGEN_DISABLE
 #ifdef CFSTORE_DEBUG
@@ -303,11 +289,6 @@ int32_t cfstore_flush3_start(void)
 	caps = cfstoreDriver->GetCapabilities();
     if(caps.asynchronous_ops == true){
         CFSTORE_DBGLOG("%s:Please configure CFstore to work in synchronous mode. This can be change in config.json file.\n", __func__);
-        status = ARM_DRIVER_ERROR;
-        goto out;
-    }
-    if(caps.uvisor_support_enabled == true){
-        CFSTORE_DBGLOG("%s:Please enable uvisor spv box.\n", __func__);
         status = ARM_DRIVER_ERROR;
         goto out;
     }

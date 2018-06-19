@@ -103,13 +103,6 @@ __isr_vector:
 Reset_Handler:
     ldr    r0, =SystemInit
     blx    r0
-/* The call to uvisor_init() happens independently of uVisor being enabled or
-* not, so it is conditionally compiled only based on FEATURE_UVISOR. */
-#if defined(FEATURE_UVISOR) && defined(TARGET_UVISOR_SUPPORTED)
-    /* Call uvisor_init() */
-    ldr   r0, =uvisor_init
-    blx   r0
-#endif /* FEATURE_UVISOR && TARGET_UVISOR_SUPPORTED */
 /*
  * Loop to copy data from read only memory to RAM. The ranges
  * of copy from/to are specified by following symbols evaluated in

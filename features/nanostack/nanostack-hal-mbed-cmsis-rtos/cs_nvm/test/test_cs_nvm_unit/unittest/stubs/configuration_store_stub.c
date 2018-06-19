@@ -38,7 +38,7 @@ static int32_t test_cfstore_flush(void)
 
 ARM_CFSTORE_CAPABILITIES test_cfstore_get_capabilities(void)
 {
-    static ARM_CFSTORE_CAPABILITIES cfstore_caps_g = { .asynchronous_ops = 1, .uvisor_support_enabled = 0 };
+    static ARM_CFSTORE_CAPABILITIES cfstore_caps_g = { .asynchronous_ops = 1 };
     return cfstore_caps_g;
 }
 
