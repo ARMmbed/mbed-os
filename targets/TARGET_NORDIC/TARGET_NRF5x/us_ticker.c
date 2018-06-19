@@ -110,7 +110,7 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
 {
     core_util_critical_section_enter();
 
-    const uint32_t counter_mask = ((1 << US_TICKER_COUNTER_BITS) - 1);
+    const uint32_t counter_mask = ((1ULL << US_TICKER_COUNTER_BITS) - 1);
 
     nrf_timer_cc_write(NRF_TIMER1, NRF_TIMER_CC_CHANNEL0, timestamp & counter_mask);
 
