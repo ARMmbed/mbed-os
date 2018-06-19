@@ -135,27 +135,34 @@ typedef enum {
     D5 = PB_2,
     D6 = PC_12,
     D7 = PC_11,
-    D8 = PA_5,
-    D9 = PA_4,
-    D10 = PA_3,
-    D11 = PA_0,
-    D12 = PA_1,
-    D13 = PA_2,
+    D8 = PC_9,
+    D9 = PC_10,
+    D10 = PF_9,
+    D11 = PF_6,
+    D12 = PF_7,
+    D13 = PF_8,
     D14 = PG_3,
     D15 = PG_2,
     
-    // FIXME: other board-specific naming
+    // Other board-specific naming
+    
     // UART naming
     USBTX = PB_13,
     USBRX = PB_12,
     STDIO_UART_TX   = USBTX,
     STDIO_UART_RX   = USBRX,
+    
+    // I2C naming
+    I2C_SCL = D15,
+    I2C_SDA = D14,
+    
     // LED naming
     LED1 = PA_10,
     LED2 = PA_11,
     LED3 = PA_10,  // No real LED. Just for passing ATS.
     LED4 = PA_11,  // No real LED. Just for passing ATS.
     LED_GREEN = LED2,
+    
     // Button naming
     SW2 = PB_0,
     SW3 = PB_1,
