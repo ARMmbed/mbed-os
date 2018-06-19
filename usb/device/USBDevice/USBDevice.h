@@ -42,7 +42,7 @@
  */
 class USBDevice: public  USBPhyEvents {
 public:
-    typedef void (USBDevice::*ep_cb_t)(usb_ep_t endpoint);
+    typedef void (USBDevice::*ep_cb_t)();
 
     enum RequestResult {
         Receive = 0,
@@ -157,7 +157,7 @@ public:
     * @returns true if successful, false otherwise
     */
     template<typename T>
-    bool endpoint_add(usb_ep_t endpoint, uint32_t max_packet, usb_ep_type_t type, void (T::*callback)(usb_ep_t endpoint))
+    bool endpoint_add(usb_ep_t endpoint, uint32_t max_packet, usb_ep_type_t type, void (T::*callback)())
     {
         return endpoint_add(endpoint, max_packet, type, static_cast<ep_cb_t>(callback));
     }
@@ -539,7 +539,7 @@ private:
     void _complete_set_interface();
 
     struct endpoint_info_t {
-        void (USBDevice::*callback)(usb_ep_t endpoint);
+        ep_cb_t callback;
         uint16_t max_packet_size;
         uint16_t transfer_size;
         uint8_t flags;
