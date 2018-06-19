@@ -37,7 +37,7 @@ import re
 from collections import namedtuple, defaultdict
 from copy import copy
 from itertools import chain
-from os import walk
+from os import walk, sep
 from os.path import (join, splitext, dirname, relpath, basename, split, normcase,
                      abspath, exists)
 
@@ -131,7 +131,7 @@ class Resources(object):
         self._collect_ignores = collect_ignores
 
         # Storage for file references, indexed by file type
-        self._file_refs = defaultdict(list)
+        self._file_refs = defaultdict(set)
 
         # Incremental scan related
         self._label_paths = []
@@ -266,17 +266,35 @@ class Resources(object):
             ref = FileRef(file_name.replace("\\", "/"), file_path)
         else:
             ref = FileRef(file_name, file_path)
-        self._file_refs[file_type].append(ref)
+        self._file_refs[file_type].add(ref)
 
     def get_file_refs(self, file_type):
         """Return a list of FileRef for every file of the given type"""
-        return self._file_refs[file_type]
+        return list(self._file_refs[file_type])
+
+    @staticmethod
+    def _all_parents(files):
+        for name in files:
+            components = name.split(sep)
+            for n in range(1, len(components)):
+                parent = join(*components[:n])
+                yield parent
+
+    def _get_from_refs(self, file_type, key):
+        if file_type is FileType.INC_DIR:
+            parents = set(self._all_parents(self._get_from_refs(
+                FileType.HEADER, key)))
+            parents.add(".")
+        else:
+            parents = set()
+        return list(parents) + [key(f) for f in self.get_file_refs(file_type)]
+
 
     def get_file_names(self, file_type):
-        return [f.name for f in self.get_file_refs(file_type)]
+        return self._get_from_refs(file_type, lambda f: f.name)
 
     def get_file_paths(self, file_type):
-        return [f.path for f in self.get_file_refs(file_type)]
+        return self._get_from_refs(file_type, lambda f: f.path)
 
     def add_files_to_type(self, file_type, files):
         for f in files:
@@ -406,8 +424,6 @@ class Resources(object):
 
             # Add root to include paths
             root = root.rstrip("/")
-            fake_root = join(into_path, relpath(root, base_path))
-            self.add_file_ref(FileType.INC_DIR, fake_root, root)
 
             for file in files:
                 file_path = join(root, file)
