@@ -245,8 +245,8 @@ protected:
 
 private:
     void _init(uint8_t output_report_length, uint8_t input_report_length);
-    void _send_isr(usb_ep_t endpoint);
-    void _read_isr(usb_ep_t endpoint);
+    void _send_isr();
+    void _read_isr();
 
     class AsyncSend;
     class AsyncRead;

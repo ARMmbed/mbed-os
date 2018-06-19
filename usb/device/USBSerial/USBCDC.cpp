@@ -410,11 +410,11 @@ void USBCDC::_send_isr_start()
 * Called by when CDC data is sent
 * Warning: Called in ISR
 */
-void USBCDC::_send_isr(usb_ep_t endpoint)
+void USBCDC::_send_isr()
 {
     assert_locked();
 
-    write_finish(endpoint);
+    write_finish(_bulk_in);
     _tx_buf = _tx_buffer;
     _tx_size = 0;
     _tx_in_progress = false;
@@ -472,7 +472,7 @@ void USBCDC::_receive_isr_start()
 * Called by when CDC data is received
 * Warning: Called in ISR
 */
-void USBCDC::_receive_isr(usb_ep_t endpoint)
+void USBCDC::_receive_isr()
 {
     assert_locked();
 
