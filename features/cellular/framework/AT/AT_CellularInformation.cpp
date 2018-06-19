@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+#include <stdio.h>
+
 #include "AT_CellularInformation.h"
 
 using namespace mbed;
@@ -42,6 +44,26 @@ nsapi_error_t AT_CellularInformation::get_revision(char *buf, size_t buf_size)
     return get_info("AT+CGMR", buf, buf_size);
 }
 
+nsapi_error_t AT_CellularInformation::get_serial_number(char *buf, size_t buf_size, SerialNumberType type)
+{
+    if (type == SN) {
+        return get_info("AT+CGSN", buf, buf_size);
+    }
+
+    if (!is_supported(AT_CGSN_WITH_TYPE)) {
+        return NSAPI_ERROR_UNSUPPORTED;
+    }
+
+    _at.lock();
+    _at.cmd_start("AT+CGSN=");
+    _at.write_int(type);
+    _at.cmd_stop();
+    _at.resp_start("+CGSN:");
+    _at.read_string(buf, buf_size);
+    _at.resp_stop();
+    return _at.unlock_return_error();
+}
+
 nsapi_error_t AT_CellularInformation::get_info(const char *cmd, char *buf, size_t buf_size)
 {
     _at.lock();
@@ -50,7 +72,7 @@ nsapi_error_t AT_CellularInformation::get_info(const char *cmd, char *buf, size_
     _at.cmd_stop();
     _at.set_delimiter(0);
     _at.resp_start();
-    _at.read_string(buf, buf_size-1);
+    _at.read_string(buf, buf_size - 1);
     _at.resp_stop();
     _at.set_default_delimiter();
 

@@ -28,25 +28,26 @@ namespace mbed {
  *
  * Class that provides information about cellular device.
  */
-class AT_CellularInformation : public CellularInformation, public AT_CellularBase
-{
+class AT_CellularInformation : public CellularInformation, public AT_CellularBase {
 public:
     AT_CellularInformation(ATHandler &atHandler);
     virtual ~AT_CellularInformation();
 
 public:
-    virtual nsapi_size_or_error_t get_manufacturer(char *buf, size_t buf_size);
+    virtual nsapi_error_t get_manufacturer(char *buf, size_t buf_size);
 
-    virtual nsapi_size_or_error_t get_model(char *buf, size_t buf_size);
+    virtual nsapi_error_t get_model(char *buf, size_t buf_size);
 
-    virtual nsapi_size_or_error_t get_revision(char *buf, size_t buf_size);
+    virtual nsapi_error_t get_revision(char *buf, size_t buf_size);
+
+    virtual nsapi_error_t get_serial_number(char *buf, size_t buf_size, SerialNumberType type);
 
 protected:
     /** Request information text from cellular device
      *
      *  @param cmd      3gpp command string
-     *  @param buf      manufacturer identification
-     *  @param buf_size max length of manufacturer identification is 2048 characters
+     *  @param buf      buffer for response
+     *  @param buf_size buffer size
      *  @return         on success read character count, on failure negative error code
      */
     nsapi_error_t get_info(const char *cmd, char *buf, size_t buf_size);

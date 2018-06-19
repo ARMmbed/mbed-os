@@ -150,3 +150,14 @@ nsapi_error_t AT_CellularSIM::get_imsi(char *imsi)
     _at.resp_stop();
     return _at.unlock_return_error();
 }
+
+nsapi_error_t AT_CellularSIM::get_iccid(char *buf, size_t buf_size)
+{
+    _at.lock();
+    _at.cmd_start("AT+CCID?");
+    _at.cmd_stop();
+    _at.resp_start("+CCID:");
+    _at.read_string(buf, buf_size);
+    _at.resp_stop();
+    return _at.unlock_return_error();
+}

@@ -28,8 +28,7 @@ namespace mbed {
  *
  *  An abstract interface that provides information about cellular device.
  */
-class CellularInformation
-{
+class CellularInformation {
 protected:
     // friend of CellularDevice so that it's the only way to close/delete this class.
     friend class CellularDevice;
@@ -41,27 +40,42 @@ protected:
 public:
     /** Request manufacturer identification of cellular device
      *
-     *  @param buf      manufacturer identification
+     *  @param buf      manufacturer identification as zero terminated string
      *  @param buf_size max length of manufacturer identification is 2048 characters
-     *  @return         on success read character count, on failure negative error code
+     *  @return         zero on success, on failure negative error code
      */
-    virtual nsapi_size_or_error_t get_manufacturer(char *buf, size_t buf_size) = 0;
+    virtual nsapi_error_t get_manufacturer(char *buf, size_t buf_size) = 0;
 
     /** Request model identification of cellular device
      *
-     *  @param buf      model identification
+     *  @param buf      model identification as zero terminated string
      *  @param buf_size max length of model identification is 2048 characters
-     *  @return         on success read character count, on failure negative error code
+     *  @return         zero on success, on failure negative error code
      */
-    virtual nsapi_size_or_error_t get_model(char *buf, size_t buf_size) = 0;
+    virtual nsapi_error_t get_model(char *buf, size_t buf_size) = 0;
 
     /** Request revision identification of cellular device
      *
-     *  @param buf      revision identification
+     *  @param buf      revision identification as zero terminated string
      *  @param buf_size max length of revision identification is 2048 characters
-     *  @return         on success read character count, on failure negative error code
+     *  @return         zero on success, on failure negative error code
      */
-    virtual nsapi_size_or_error_t get_revision(char *buf, size_t buf_size) = 0;
+    virtual nsapi_error_t get_revision(char *buf, size_t buf_size) = 0;
+
+    /** Request serial number identification of cellular device
+     *
+     *  @param buf      serial number as zero terminated string
+     *  @param buf_size max length of serial number is 2048 characters
+     *  @param type     serial number type to read
+     *  @return         zero on success, on failure negative error code
+     */
+    enum SerialNumberType {
+        SN = 0, // Serial Number
+        IMEI = 1, // International Mobile station Equipment Identity
+        IMEISV = 2, // IMEI and Software Version number
+        SVN  = 3 // Software Version Number
+    };
+    virtual nsapi_size_or_error_t get_serial_number(char *buf, size_t buf_size, SerialNumberType type = SN) = 0;
 };
 
 } // namespace mbed

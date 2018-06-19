@@ -22,9 +22,14 @@
 using namespace mbed;
 using namespace events;
 
+static const AT_CellularBase::SupportedFeature unsupported_features[] =  {
+    AT_CellularBase::AT_CGSN_WITH_TYPE, // HE910/UE910/UL865/UE866 AT Commands Reference Guide Rev. 11-2006-10-14
+    AT_CellularBase::SUPPORTED_FEATURE_END_MARK
+};
+
 TELIT_HE910::TELIT_HE910(EventQueue &queue) : AT_CellularDevice(queue)
 {
-
+    AT_CellularBase::set_unsupported_features(unsupported_features);
 }
 
 TELIT_HE910::~TELIT_HE910()
