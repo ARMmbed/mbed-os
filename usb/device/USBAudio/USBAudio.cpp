@@ -883,10 +883,9 @@ void USBAudio::_receive_change(ChannelState new_state)
     }
 }
 
-void USBAudio::_receive_isr(usb_ep_t ep)
+void USBAudio::_receive_isr()
 {
     assert_locked();
-    MBED_ASSERT(ep == _episo_out);
 
     uint32_t size = read_finish(_episo_out);
 
@@ -984,10 +983,9 @@ void USBAudio::_send_isr_next_sync()
     _tx_frame_fract += _tx_fract_frames_per_xfer;
 }
 
-void USBAudio::_send_isr(usb_ep_t ep)
+void USBAudio::_send_isr()
 {
     assert_locked();
-    MBED_ASSERT(ep == _episo_in);
 
     write_finish(_episo_in);
 

@@ -311,14 +311,14 @@ const uint8_t *USBMIDI::configuration_desc(uint8_t index)
     return _config_descriptor;
 }
 
-void USBMIDI::_in_callback(usb_ep_t ep)
+void USBMIDI::_in_callback()
 {
     assert_locked();
 
     _flags.set(FLAG_WRITE_DONE);
 }
 
-void USBMIDI::_out_callback(usb_ep_t ep)
+void USBMIDI::_out_callback()
 {
     assert_locked();
 
