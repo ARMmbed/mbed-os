@@ -250,8 +250,8 @@ private:
     virtual void callback_request(const setup_packet_t *setup);
     virtual void callback_request_xfer_done(const setup_packet_t *setup, bool aborted);
 
-    void _isr_out(usb_ep_t endpoint);
-    void _isr_in(usb_ep_t endpoint);
+    void _isr_out();
+    void _isr_in();
 
     void _out();
     void _in();
