@@ -52,6 +52,9 @@ static const nrf_drv_spi_t nordic_nrf5_spi_instance[3] = {
     NRF_DRV_SPI_INSTANCE(2)
 };
 
+/* Keep track of which instance has been initialized. */
+static bool nordic_nrf5_spi_initialized[3] = { false, false, false };
+
 /* Forware declare interrupt handler. */
 #if DEVICE_SPI_ASYNCH
 static void nordic_nrf5_spi_event_handler(nrf_drv_spi_evt_t const *p_event, void *p_context);
@@ -93,8 +96,10 @@ static void spi_configure_driver_instance(spi_t *obj)
         /* Update applied, reset flag. */
         spi_inst->update = false;
 
-        /* clean up and initialize peripheral. */
-        nrf_drv_spi_uninit(&nordic_nrf5_spi_instance[instance]);
+        /* Clean up and uninitialize peripheral if already initialized. */
+        if (nordic_nrf5_spi_initialized[instance]) {
+            nrf_drv_spi_uninit(&nordic_nrf5_spi_instance[instance]);
+        }
 
 #if DEVICE_SPI_ASYNCH
         /* Set callback handler in asynchronous mode. */
@@ -107,6 +112,10 @@ static void spi_configure_driver_instance(spi_t *obj)
         /* Set callback handler to NULL in synchronous mode. */
         nrf_drv_spi_init(&nordic_nrf5_spi_instance[instance], &(spi_inst->config), NULL, NULL);
 #endif
+
+        /* Mark instance as initialized. */
+        nordic_nrf5_spi_initialized[instance] = true;
+
         /* Claim ownership of peripheral. */
         object_owner_spi2c_set(instance, obj);
     }
@@ -201,6 +210,9 @@ void spi_free(spi_t *obj)
 
     /* Use driver uninit to free instance. */
     nrf_drv_spi_uninit(&nordic_nrf5_spi_instance[instance]);
+
+    /* Mark instance as uninitialized. */
+    nordic_nrf5_spi_initialized[instance] = false;
 }
 
 /** Configure the SPI format
