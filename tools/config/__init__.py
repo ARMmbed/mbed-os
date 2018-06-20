@@ -727,7 +727,6 @@ class Config(object):
         unit_name - the unit (library/application) that defines this parameter
         unit_kind - the kind of the unit ("library" or "application")
         """
-        self.config_errors = []
         _process_config_parameters(data.get("config", {}), params, unit_name,
                                    unit_kind)
         for label, overrides in data.get("target_overrides", {}).items():
