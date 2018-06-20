@@ -187,6 +187,8 @@ def test_toolchain_profile_asm(profile, source_file):
                                  notify=MockNotifier)
             toolchain.inc_md5 = ""
             toolchain.build_dir = ""
+            toolchain.config = MagicMock()
+            toolchain.config.get_config_data_macros.return_value = []
             for parameter in profile['asm']:
                 assert any(parameter in cmd for cmd in toolchain.asm), \
                     "Toolchain %s did not propagate arg %s" % (toolchain.name,
