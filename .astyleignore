@@ -11,6 +11,7 @@ features/FEATURE_BLE/targets
 features/FEATURE_LWIP/lwip-interface/lwip
 features/unsupported/
 features/FEATURE_COMMON_PAL/
+hal/storage_abstraction
 FEATURE_NANOSTACK/coap-service
 FEATURE_NANOSTACK/sal-stack-nanostack
 rtos/TARGET_CORTEX/rtx5
