@@ -97,7 +97,7 @@ static int32_t flash_algo_uninit(flash_t *obj, uint32_t address, uint32_t functi
  *  @param end_addr     End address to check. Could be the same as start_addr to just check start_addr
  *                      for e.g. flash_erase_sector.
  *  @return             0 for success, -1 for error
- */ 
+ */
 static int32_t flash_check_nonsecure(flash_t *obj, uint32_t start_addr, uint32_t end_addr)
 {
     /* Check if end address wraps around */
@@ -107,14 +107,14 @@ static int32_t flash_check_nonsecure(flash_t *obj, uint32_t start_addr, uint32_t
 
     /* Check if start address is in non-secure flash */
     if ((start_addr < obj->target_config_ns->flash_start) ||
-        (start_addr >= (obj->target_config_ns->flash_start + obj->target_config_ns->flash_size))) {
+            (start_addr >= (obj->target_config_ns->flash_start + obj->target_config_ns->flash_size))) {
         return -1;
     }
 
     /* Check if end address is in non-secure flash */
     if (end_addr != start_addr) {
         if ((end_addr < obj->target_config_ns->flash_start) ||
-            (end_addr >= (obj->target_config_ns->flash_start + obj->target_config_ns->flash_size))) {
+                (end_addr >= (obj->target_config_ns->flash_start + obj->target_config_ns->flash_size))) {
             return -1;
         }
     }
