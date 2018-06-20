@@ -176,8 +176,8 @@ private:
     Callback<void()> _callback;
 
     void _init();
-    void _in_callback(usb_ep_t);
-    void _out_callback(usb_ep_t);
+    void _in_callback();
+    void _out_callback();
     bool _next_message();
 };
 
