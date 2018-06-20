@@ -89,7 +89,7 @@ static const PinMap PinMap_UART_RTS[] = {
 
 static const PinMap PinMap_UART_CTS[] = {
     {P1_11, UART_1, (SCU_PINIO_FAST | 1)},
-    {P5_4,  UART_1, (SCU_PINIO_FAST | 4),
+    {P5_4,  UART_1, (SCU_PINIO_FAST | 4)},
     {PC_2,  UART_1, (SCU_PINIO_FAST | 2)},
     {PE_7,  UART_1, (SCU_PINIO_FAST | 2)},
     {NC,    NC,     0}
