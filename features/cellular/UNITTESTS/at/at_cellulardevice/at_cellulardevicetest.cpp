@@ -111,3 +111,8 @@ TEST(AT_CellularDevice, test_AT_CellularDevice_get_stack)
 {
     unit->test_AT_CellularDevice_get_stack();
 }
+
+TEST(AT_CellularDevice, test_AT_CellularDevice_get_send_delay)
+{
+    unit->test_AT_CellularDevice_get_send_delay();
+}

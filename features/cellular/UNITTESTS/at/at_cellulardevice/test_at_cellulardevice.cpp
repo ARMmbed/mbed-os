@@ -50,12 +50,12 @@ void Test_AT_CellularDevice::test_AT_CellularDevice_get_at_handler()
     FileHandle_stub fh2;
     FileHandle_stub fh3;
 
-    dev.open_network(&fh1);
-    dev.open_sms(&fh2);
+    CHECK(dev.open_network(&fh1));
+    CHECK(dev.open_sms(&fh2));
     AT_CellularBase_stub::handler_value = AT_CellularBase_stub::handler_at_constructor_value;
-    dev.open_sim(&fh3);
+    CHECK(dev.open_sim(&fh3));
     ATHandler_stub::fh_value = &fh1;
-    dev.open_power(&fh1);
+    CHECK(dev.open_power(&fh1));
 
     ATHandler_stub::fh_value = NULL;
 }
@@ -121,6 +121,7 @@ void Test_AT_CellularDevice::test_AT_CellularDevice_close_network()
     CHECK(ATHandler_stub::ref_count == 1);
 
     dev.close_network();
+    CHECK(ATHandler_stub::ref_count == 0);
 }
 
 void Test_AT_CellularDevice::test_AT_CellularDevice_close_sms()
@@ -134,6 +135,7 @@ void Test_AT_CellularDevice::test_AT_CellularDevice_close_sms()
     CHECK(ATHandler_stub::ref_count == 1);
 
     dev.close_sms();
+    CHECK(ATHandler_stub::ref_count == 0);
 }
 
 void Test_AT_CellularDevice::test_AT_CellularDevice_close_power()
@@ -147,6 +149,7 @@ void Test_AT_CellularDevice::test_AT_CellularDevice_close_power()
     CHECK(ATHandler_stub::ref_count == 1);
 
     dev.close_power();
+    CHECK(ATHandler_stub::ref_count == 0);
 }
 
 void Test_AT_CellularDevice::test_AT_CellularDevice_close_sim()
@@ -162,6 +165,7 @@ void Test_AT_CellularDevice::test_AT_CellularDevice_close_sim()
     CHECK(ATHandler_stub::ref_count == 1);
 
     dev.close_sim();
+    CHECK(ATHandler_stub::ref_count == 0);
 }
 
 void Test_AT_CellularDevice::test_AT_CellularDevice_close_information()
@@ -210,6 +214,13 @@ void Test_AT_CellularDevice::test_AT_CellularDevice_set_timeout()
     CHECK(ATHandler_stub::default_timeout == true);
 
     dev.close_sim();
+}
+
+void Test_AT_CellularDevice::test_AT_CellularDevice_get_send_delay()
+{
+    EventQueue que;
+    AT_CellularDevice dev(que);
+    CHECK(0 == dev.get_send_delay());
 }
 
 void Test_AT_CellularDevice::test_AT_CellularDevice_modem_debug_on()

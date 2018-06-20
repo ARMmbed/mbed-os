@@ -57,12 +57,14 @@ void Test_AT_CellularSIM::test_AT_CellularSIM_set_pin()
     ATHandler at(&fh1, que, 0, ",");
 
     AT_CellularSIM sim(at);
-    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_AUTH_FAILURE;
-    CHECK(NSAPI_ERROR_AUTH_FAILURE == sim.set_pin("12"));
-
-    char table2[] = "READY";
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
-    ATHandler_stub::read_string_value = table2;
+    CHECK(NSAPI_ERROR_OK == sim.set_pin("12"));
+
+    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_DEVICE_ERROR;
+    CHECK(NSAPI_ERROR_DEVICE_ERROR == sim.set_pin("12"));
+
+    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
+    ATHandler_stub::read_string_value = "READY";
     ATHandler_stub::ssize_value = 5;
     CHECK(NSAPI_ERROR_OK == sim.set_pin("12"));
 
@@ -76,12 +78,14 @@ void Test_AT_CellularSIM::test_AT_CellularSIM_change_pin()
     ATHandler at(&fh1, que, 0, ",");
 
     AT_CellularSIM sim(at);
-    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_AUTH_FAILURE;
-    CHECK(NSAPI_ERROR_AUTH_FAILURE == sim.change_pin("12", "34"));
+    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
+    CHECK(NSAPI_ERROR_OK == sim.change_pin("12", "34"));
+    CHECK(NSAPI_ERROR_OK == sim.change_pin(NULL, "34"));
+    CHECK(NSAPI_ERROR_OK == sim.change_pin("12", NULL));
+    CHECK(NSAPI_ERROR_OK == sim.change_pin(NULL, NULL));
 
-    CHECK(NSAPI_ERROR_AUTH_FAILURE == sim.change_pin(NULL, "34"));
-    CHECK(NSAPI_ERROR_AUTH_FAILURE == sim.change_pin("12", NULL));
-    CHECK(NSAPI_ERROR_AUTH_FAILURE == sim.change_pin(NULL, NULL));
+    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_DEVICE_ERROR;
+    CHECK(NSAPI_ERROR_DEVICE_ERROR == sim.change_pin("12", "34"));
 }
 
 void Test_AT_CellularSIM::test_AT_CellularSIM_set_pin_query()
@@ -91,13 +95,17 @@ void Test_AT_CellularSIM::test_AT_CellularSIM_set_pin_query()
     ATHandler at(&fh1, que, 0, ",");
 
     AT_CellularSIM sim(at);
-    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_AUTH_FAILURE;
-    CHECK(NSAPI_ERROR_AUTH_FAILURE == sim.set_pin_query("12", true));
-    CHECK(NSAPI_ERROR_AUTH_FAILURE == sim.set_pin_query(NULL, true));
+    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
+    CHECK(NSAPI_ERROR_OK == sim.set_pin_query("12", true));
+    CHECK(NSAPI_ERROR_OK == sim.set_pin_query(NULL, true));
 
-    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_AUTH_FAILURE;
-    CHECK(NSAPI_ERROR_AUTH_FAILURE == sim.set_pin_query("12", false));
-    CHECK(NSAPI_ERROR_AUTH_FAILURE == sim.set_pin_query(NULL, false));
+    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
+    CHECK(NSAPI_ERROR_OK == sim.set_pin_query("12", false));
+    CHECK(NSAPI_ERROR_OK == sim.set_pin_query(NULL, false));
+
+    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_DEVICE_ERROR;
+    CHECK(NSAPI_ERROR_DEVICE_ERROR == sim.set_pin_query("12", false));
+    CHECK(NSAPI_ERROR_DEVICE_ERROR == sim.set_pin_query("12", true));
 }
 
 void Test_AT_CellularSIM::test_AT_CellularSIM_get_sim_state()
@@ -108,33 +116,30 @@ void Test_AT_CellularSIM::test_AT_CellularSIM_get_sim_state()
 
     AT_CellularSIM sim(at);
     CellularSIM::SimState state;
-    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_AUTH_FAILURE;
+    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
     ATHandler_stub::ssize_value = -1;
-    CHECK(NSAPI_ERROR_AUTH_FAILURE == sim.get_sim_state(state));
+    ATHandler_stub::read_string_value = NULL;
+    CHECK(NSAPI_ERROR_OK == sim.get_sim_state(state));
     CHECK(CellularSIM::SimStateUnknown == state);
 
-    char table2[] = "READY";
-    ATHandler_stub::read_string_value = table2;
+    ATHandler_stub::read_string_value = "READY";
     ATHandler_stub::ssize_value = 5;
-    CHECK(NSAPI_ERROR_AUTH_FAILURE == sim.get_sim_state(state));
+    CHECK(NSAPI_ERROR_OK == sim.get_sim_state(state));
     CHECK(CellularSIM::SimStateReady == state);
 
-    char table3[] = "SIM PIN";
-    ATHandler_stub::read_string_value = table3;
+    ATHandler_stub::read_string_value = "SIM PIN";
     ATHandler_stub::ssize_value = 7;
-    CHECK(NSAPI_ERROR_AUTH_FAILURE == sim.get_sim_state(state));
+    CHECK(NSAPI_ERROR_OK == sim.get_sim_state(state));
     CHECK(CellularSIM::SimStatePinNeeded == state);
 
-    char table4[] = "SIM PUK";
-    ATHandler_stub::read_string_value = table4;
+    ATHandler_stub::read_string_value = "SIM PUK";
     ATHandler_stub::ssize_value = 7;
-    CHECK(NSAPI_ERROR_AUTH_FAILURE == sim.get_sim_state(state));
+    CHECK(NSAPI_ERROR_OK == sim.get_sim_state(state));
     CHECK(CellularSIM::SimStatePukNeeded == state);
 
-    char table5[] = "SOME CRAP";
-    ATHandler_stub::read_string_value = table5;
+    ATHandler_stub::read_string_value = "SOME CRAP";
     ATHandler_stub::ssize_value = 9;
-    CHECK(NSAPI_ERROR_AUTH_FAILURE == sim.get_sim_state(state));
+    CHECK(NSAPI_ERROR_OK == sim.get_sim_state(state));
     CHECK(CellularSIM::SimStateUnknown == state);
 }
 
@@ -152,10 +157,39 @@ void Test_AT_CellularSIM::test_AT_CellularSIM_get_imsi()
     CHECK(NSAPI_ERROR_OK == sim.get_imsi(imsi));
     CHECK(strcmp(ATHandler_stub::read_string_value, imsi) == 0);
 
+    ATHandler_stub::read_string_value = NULL;
+    ATHandler_stub::ssize_value = -1;
+    ATHandler_stub::read_string_index = -1;
+    imsi[0] = 0;
+    CHECK(NSAPI_ERROR_DEVICE_ERROR == sim.get_imsi(imsi));
+    CHECK(strlen(imsi) == 0);
+
     CHECK(NSAPI_ERROR_PARAMETER == sim.get_imsi(NULL));
 
     // this would fail as get_imsi should take another param which is the size of the buffer which we could use for validation.
     // Now we have improved documentation that that the given imsi buffer size must be over 15.
     //char imsi2[5];
     //CHECK(NSAPI_ERROR_PARAMETER == sim.get_imsi(imsi2));
+}
+
+void Test_AT_CellularSIM::test_AT_CellularSIM_get_iccid()
+{
+    EventQueue que;
+    FileHandle_stub fh1;
+    ATHandler at(&fh1, que, 0, ",");
+
+    char buf[16];
+    AT_CellularSIM sim(at);
+    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
+    ATHandler_stub::read_string_value = "123456789012345";
+    ATHandler_stub::ssize_value = 15;
+    CHECK(NSAPI_ERROR_OK == sim.get_iccid(buf, 16));
+    CHECK(strcmp(ATHandler_stub::read_string_value, buf) == 0);
+
+    buf[0] = 0;
+    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_DEVICE_ERROR;
+    ATHandler_stub::read_string_value = NULL;
+    ATHandler_stub::ssize_value = -1;
+    CHECK(NSAPI_ERROR_DEVICE_ERROR == sim.get_iccid(buf, 16));
+    CHECK(strlen(buf) == 0);
 }
