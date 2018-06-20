@@ -173,13 +173,7 @@ void common_rtc_init(void)
     nrf_rtc_int_disable(COMMON_RTC_INSTANCE, LP_TICKER_INT_MASK);
 #endif
 
-    nrf_drv_common_irq_enable(nrf_drv_get_IRQn(COMMON_RTC_INSTANCE),
-#ifdef NRF51
-        APP_IRQ_PRIORITY_LOW
-#elif defined(NRF52) || defined(NRF52840_XXAA)
-        APP_IRQ_PRIORITY_LOWEST
-#endif
-        );
+    nrf_drv_common_irq_enable(nrf_drv_get_IRQn(COMMON_RTC_INSTANCE), APP_IRQ_PRIORITY_HIGH);
 
     nrf_rtc_task_trigger(COMMON_RTC_INSTANCE, NRF_RTC_TASK_START);
 
@@ -194,6 +188,9 @@ void common_rtc_set_interrupt(uint32_t ticks_count, uint32_t cc_channel,
 
     core_util_critical_section_enter();
 
+    /* Wrap ticks_count before comparisons. */
+    ticks_count = RTC_WRAP(ticks_count);
+
     /* COMPARE occurs when a CC register is N and the COUNTER value transitions from N-1 to N.
      * If the COUNTER is N, writing N+2 to a CC register is guaranteed to trigger a
      * COMPARE event at N+2.
@@ -202,10 +199,10 @@ void common_rtc_set_interrupt(uint32_t ticks_count, uint32_t cc_channel,
 
     if (now == ticks_count ||
         RTC_WRAP(now + 1) == ticks_count) {
-        ticks_count += 2;
+        ticks_count = RTC_WRAP(ticks_count + 2);
     }
 
-    nrf_rtc_cc_set(COMMON_RTC_INSTANCE, cc_channel, RTC_WRAP(ticks_count));
+    nrf_rtc_cc_set(COMMON_RTC_INSTANCE, cc_channel, ticks_count);
 
     if (!nrf_rtc_int_is_enabled(COMMON_RTC_INSTANCE, int_mask)) {
         nrf_rtc_event_clear(COMMON_RTC_INSTANCE, LP_TICKER_EVENT);

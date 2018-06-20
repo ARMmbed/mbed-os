@@ -70,14 +70,18 @@ void us_ticker_init(void)
 
     /* Configure timer as follows:
      * - timer mode,
-     * - timer width 16 bits,
+     * - timer width 16 bits for NRF51 and 32 bits for NRF52,
      * - timer freq 1 MHz.
      */
     nrf_timer_mode_set(NRF_TIMER1, NRF_TIMER_MODE_TIMER);
 
     nrf_timer_frequency_set(NRF_TIMER1, NRF_TIMER_FREQ_1MHz);
 
+#ifdef NRF52
+    nrf_timer_bit_width_set(NRF_TIMER1, NRF_TIMER_BIT_WIDTH_32);
+#else
     nrf_timer_bit_width_set(NRF_TIMER1, NRF_TIMER_BIT_WIDTH_16);
+#endif
 
     nrf_timer_cc_write(NRF_TIMER1, NRF_TIMER_CC_CHANNEL0, 0);
 
@@ -85,16 +89,12 @@ void us_ticker_init(void)
 
     NVIC_SetVector(TIMER1_IRQn, (uint32_t)us_ticker_irq_handler);
 
-    nrf_drv_common_irq_enable(TIMER1_IRQn,
-
-#ifdef NRF51
-        APP_IRQ_PRIORITY_LOW
-#elif defined(NRF52) || defined(NRF52840_XXAA)
-        APP_IRQ_PRIORITY_LOWEST
-#endif
-        );
+    nrf_drv_common_irq_enable(TIMER1_IRQn, APP_IRQ_PRIORITY_HIGH);
 
     nrf_timer_task_trigger(NRF_TIMER1, NRF_TIMER_TASK_START);
+
+    /* Bug fix. First value can't be trusted. */
+    nrf_timer_task_trigger(NRF_TIMER1, NRF_TIMER_TASK_CAPTURE1);
 
     us_ticker_initialized = true;
 }
@@ -110,7 +110,9 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
 {
     core_util_critical_section_enter();
 
-    nrf_timer_cc_write(NRF_TIMER1, NRF_TIMER_CC_CHANNEL0, timestamp & 0xFFFF);
+    const uint32_t counter_mask = ((1ULL << US_TICKER_COUNTER_BITS) - 1);
+
+    nrf_timer_cc_write(NRF_TIMER1, NRF_TIMER_CC_CHANNEL0, timestamp & counter_mask);
 
     if (!nrf_timer_int_enable_check(NRF_TIMER1, nrf_timer_compare_int_get(NRF_TIMER_CC_CHANNEL0))) {
         nrf_timer_event_clear(NRF_TIMER1, NRF_TIMER_EVENT_COMPARE0);
@@ -137,6 +139,9 @@ void us_ticker_clear_interrupt(void)
 
 void us_ticker_free(void)
 {
-    // A common counter is used for RTC, lp_ticker and us_ticker, so it can't be
-    // disabled here, but this does not cause any extra cost.
+    nrf_timer_task_trigger(NRF_TIMER1, NRF_TIMER_TASK_STOP);
+
+    nrf_timer_int_disable(NRF_TIMER1, nrf_timer_compare_int_get(NRF_TIMER_CC_CHANNEL0));
+
+    us_ticker_initialized = false;
 }
