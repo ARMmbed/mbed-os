@@ -27,6 +27,7 @@ from os.path import (join, splitext, exists, relpath, dirname, basename, split,
 from itertools import chain
 from inspect import getmro
 from copy import deepcopy
+from collections import namedtuple
 from abc import ABCMeta, abstractmethod
 from distutils.spawn import find_executable
 from multiprocessing import Pool, cpu_count
@@ -39,6 +40,7 @@ from ..settings import MBED_ORG_USER, PRINT_COMPILER_OUTPUT_AS_LINK
 from .. import hooks
 from ..notifier.term import TerminalNotifier
 from ..memap import MemapParser
+from ..config import ConfigException
 
 
 #Disables multiprocessing if set to higher number than the host machine CPUs
@@ -1184,9 +1186,9 @@ class mbedToolchain:
 
         return None
 
-    def _add_defines_from_region(self, region):
-        for define in [(region.name.upper() + "_ADDR", region.start),
-                        (region.name.upper() + "_SIZE", region.size)]:
+    def _add_defines_from_region(self, region, suffixes=['_ADDR', '_SIZE']):
+        for define in [(region.name.upper() + suffixes[0], region.start),
+                       (region.name.upper() + suffixes[1], region.size)]:
             define_string = "-D%s=0x%x" %  define
             self.cc.append(define_string)
             self.cppc.append(define_string)
@@ -1223,6 +1225,15 @@ class mbedToolchain:
                 ", ".join(r.name for r in regions)
             ))
             self._add_all_regions(regions, "MBED_RAM")
+        try:
+            rom_start, rom_size = self.config.rom
+            Region = namedtuple("Region", "name start size")
+            self._add_defines_from_region(
+                Region("MBED_ROM", rom_start, rom_size),
+                suffixes=["_START", "_SIZE"]
+            )
+        except ConfigException:
+            pass
 
     # Set the configuration data
     def set_config_data(self, config_data):

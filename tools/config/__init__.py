@@ -594,6 +594,25 @@ class Config(object):
         raise ConfigException(exception_text)
 
     @property
+    def rom(self):
+        """Get rom information as a pair of start_addr, size"""
+        # Override rom_start/rom_size
+        #
+        # This is usually done for a target which:
+        # 1. Doesn't support CMSIS pack, or
+        # 2. Supports TrustZone and user needs to change its flash partition
+        cmsis_part = self._get_cmsis_part()
+        rom_start, rom_size = self._get_mem_specs(
+            ["IROM1", "PROGRAM_FLASH"],
+            cmsis_part,
+            "Not enough information in CMSIS packs to build a bootloader "
+            "project"
+        )
+        rom_start = int(getattr(self.target, "mbed_rom_start", False) or rom_start, 0)
+        rom_size = int(getattr(self.target, "mbed_rom_size", False) or rom_size, 0)
+        return (rom_start, rom_size)
+
+    @property
     def ram_regions(self):
         """Generate a list of ram regions from the config"""
         cmsis_part = self._get_cmsis_part()
@@ -614,30 +633,16 @@ class Config(object):
     @property
     def regions(self):
         """Generate a list of regions from the config"""
-        cmsis_part = self._get_cmsis_part()
         if  ((self.target.bootloader_img or self.target.restrict_size) and
              (self.target.mbed_app_start or self.target.mbed_app_size)):
             raise ConfigException(
                 "target.bootloader_img and target.restirct_size are "
                 "incompatible with target.mbed_app_start and "
                 "target.mbed_app_size")
-        rom_start, rom_size = self._get_mem_specs(
-            ["IROM1", "PROMGRAM_FLASH"],
-            cmsis_part,
-            "Not enough information in CMSIS packs to build a bootloader project"
-        )
-        # Override rom_start/rom_size
-        #
-        # This is usually done for a target which:
-        # 1. Doesn't support CMSIS pack, or
-        # 2. Supports TrustZone and user needs to change its flash partition
-        rom_start = int(getattr(self.target, "mbed_rom_start", False) or rom_start, 0)
-        rom_size = int(getattr(self.target, "mbed_rom_size", False) or rom_size, 0)
-
         if self.target.bootloader_img or self.target.restrict_size:
-            return self._generate_bootloader_build(rom_start, rom_size)
+            return self._generate_bootloader_build(*self.rom)
         else:
-            return self._generate_linker_overrides(rom_start, rom_size)
+            return self._generate_linker_overrides(*self.rom)
 
     @staticmethod
     def header_member_size(member):
