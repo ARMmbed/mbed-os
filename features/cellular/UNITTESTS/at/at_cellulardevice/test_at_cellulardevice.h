@@ -53,6 +53,8 @@ public:
     void test_AT_CellularDevice_modem_debug_on();
 
     void test_AT_CellularDevice_get_stack();
+
+    void test_AT_CellularDevice_get_send_delay();
 };
 
 #endif // TEST_AT_CELLULARDEVICE_H

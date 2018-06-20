@@ -27,6 +27,10 @@ public:
     void test_AT_CellularBase_get_at_handler();
 
     void test_AT_CellularBase_get_device_error();
+
+    void test_AT_CellularBase_set_unsupported_features();
+
+    void test_AT_CellularBase_is_supported();
 };
 
 #endif // TEST_AT_CELLULARBASE_H

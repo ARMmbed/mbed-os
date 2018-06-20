@@ -48,3 +48,12 @@ TEST(AT_CellularBase, test_AT_CellularBase_get_device_error)
     unit->test_AT_CellularBase_get_device_error();
 }
 
+TEST(AT_CellularBase, test_AT_CellularBase_set_unsupported_features)
+{
+    unit->test_AT_CellularBase_set_unsupported_features();
+}
+
+TEST(AT_CellularBase, test_AT_CellularBase_is_supported)
+{
+    unit->test_AT_CellularBase_is_supported();
+}
