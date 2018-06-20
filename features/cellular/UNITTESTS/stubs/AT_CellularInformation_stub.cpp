@@ -42,3 +42,8 @@ nsapi_error_t AT_CellularInformation::get_revision(char *buf, size_t buf_size)
 {
     return 0;
 }
+
+nsapi_error_t AT_CellularInformation::get_serial_number(char *buf, size_t buf_size, SerialNumberType type)
+{
+    return 0;
+}

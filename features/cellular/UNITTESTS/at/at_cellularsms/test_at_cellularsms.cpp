@@ -57,7 +57,7 @@ void Test_AT_CellularSMS::test_AT_CellularSMS_initialize()
 
     AT_CellularSMS sms(at);
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_AUTH_FAILURE;
-    CHECK(NSAPI_ERROR_AUTH_FAILURE == sms.initialize(CellularSMS::CellularSMSMmodeText));
+    CHECK(NSAPI_ERROR_NO_MEMORY == sms.initialize(CellularSMS::CellularSMSMmodeText));
 }
 
 

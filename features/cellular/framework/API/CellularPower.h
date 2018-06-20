@@ -92,7 +92,7 @@ public:
      *
      *  @return zero on success
      */
-    virtual nsapi_error_t set_power_level(int func_level, int do_reset = 1) = 0;
+    virtual nsapi_error_t set_power_level(int func_level, int do_reset = 0) = 0;
 
     /** Reset and wake-up cellular device.
      *

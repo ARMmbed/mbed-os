@@ -21,6 +21,7 @@ TEST_SRC_FILES = \
         ../../stubs/us_ticker_stub.cpp \
         ../../stubs/mbed_assert_stub.cpp \
         ../../stubs/SocketAddress_stub.cpp \
+        ../../stubs/randLIB_stub.cpp \
 
 include ../../MakefileWorker.mk
 
