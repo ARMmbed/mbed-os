@@ -73,7 +73,7 @@ extern "C" {
  * The processor can be woken up by any internal peripheral interrupt or external pin interrupt.
  *
  * The wake-up time shall be less than 10 us.
- * 
+ *
  */
 void hal_sleep(void);
 

@@ -145,7 +145,7 @@ extern "C" {
  *
  * \return  True if running if the polynomial is supported, false if not.
  */
-bool hal_crc_is_supported(const crc_mbed_config_t* config);
+bool hal_crc_is_supported(const crc_mbed_config_t *config);
 
 /** Initialize the hardware CRC module with the given polynomial
  *
@@ -177,7 +177,7 @@ bool hal_crc_is_supported(const crc_mbed_config_t* config);
  *               hardware CRC module. For example, polynomial and initial seed
  *               values.
  */
-void hal_crc_compute_partial_start(const crc_mbed_config_t* config);
+void hal_crc_compute_partial_start(const crc_mbed_config_t *config);
 
 /** Writes data to the current CRC module.
  *
