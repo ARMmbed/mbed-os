@@ -164,7 +164,7 @@ ssize_t ATHandler::read_string(char *buf, size_t size, bool read_even_stop_tag)
 
     if (ATHandler_stub::read_string_index == kRead_string_table_size) {
         if (ATHandler_stub::read_string_value && ATHandler_stub::ssize_value >= 0) {
-            memcpy(buf, ATHandler_stub::read_string_value, ATHandler_stub::ssize_value);
+            memcpy(buf, ATHandler_stub::read_string_value, ATHandler_stub::ssize_value+1);
         }
         return ATHandler_stub::ssize_value;
     }
