@@ -70,12 +70,25 @@ static void test_stack_initialization() {
     // At this point ble is suppose to be initialized; inspect the various state
     // of the stack.
     TEST_ASSERT_EQUAL(INITIALIZATION_SUCCESS, initialization_state);
+
+    // ensure that the size of ACL buffer of the controller has been filled in
+    // during the initialisation
     TEST_ASSERT_NOT_EQUAL(0, hciCoreCb.bufSize);
+
+    // Ensure that the total number of buffer available in the controller has
+    // been filled in during the initialisation
     TEST_ASSERT_NOT_EQUAL(0, hciCoreCb.numBufs);
+
+    // Ensure that at least one HCI buffer is available
     TEST_ASSERT_NOT_EQUAL(0, hciCoreCb.availBufs);
 
+    // Ensure that allowed LE state has been filled in during initialisation
+    // Note: see BT command LE Read Supported States Command in BT specification
     uint8_t invalid_le_states[HCI_LE_STATES_LEN] = { 0 };
     TEST_ASSERT_NOT_EQUAL(0, memcmp(invalid_le_states, hciCoreCb.leStates, HCI_LE_STATES_LEN));
+
+    // Ensure that the size of the whitelist of the controller has been filled
+    // in during the initialisation
     TEST_ASSERT_NOT_EQUAL(0, hciCoreCb.whiteListSize);
 
     // Note: cannot test supported features are the list may be null
