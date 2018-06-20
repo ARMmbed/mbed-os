@@ -18,34 +18,25 @@
 #include "PeripheralNames.h"
 #include "hal_tick.h"
 
-// ************************************ 16-bit timer ************************************
-#if TIM_MST_16BIT
-#define TIMER_TICKER_BIT_WIDTH 16
-// ************************************ 32-bit timer ************************************
-#else
-#define TIMER_TICKER_BIT_WIDTH 32
-#endif
-
 TIM_HandleTypeDef TimMasterHandle;
 
 const ticker_info_t *us_ticker_get_info()
 {
     static const ticker_info_t info = {
         1000000,
-        TIMER_TICKER_BIT_WIDTH
+        TIM_MST_BIT_WIDTH
     };
     return &info;
 }
 
-volatile uint32_t PreviousVal = 0;
-
 void us_ticker_irq_handler(void);
 
 // ************************************ 16-bit timer ************************************
-#if TIM_MST_16BIT
+#if TIM_MST_BIT_WIDTH == 16
 
 #if defined(TARGET_STM32F0)
-void timer_update_irq_handler(void) {
+void timer_update_irq_handler(void)
+{
 #else
 void timer_irq_handler(void)
 {
@@ -55,13 +46,10 @@ void timer_irq_handler(void)
 #if defined(TARGET_STM32F0)
 } // end timer_update_irq_handler function
 
-// Channel 1 used for mbed timeout
 void timer_oc_irq_handler(void)
 {
     TimMasterHandle.Instance = TIM_MST;
 #endif
-
-    // Channel 1 for mbed timeout
     if (__HAL_TIM_GET_FLAG(&TimMasterHandle, TIM_FLAG_CC1) == SET) {
         if (__HAL_TIM_GET_IT_SOURCE(&TimMasterHandle, TIM_IT_CC1) == SET) {
             __HAL_TIM_CLEAR_IT(&TimMasterHandle, TIM_IT_CC1);
@@ -75,7 +63,7 @@ void timer_oc_irq_handler(void)
 
 void timer_irq_handler(void)
 {
-    // Channel 1 for mbed timeout
+    TimMasterHandle.Instance = TIM_MST;
     if (__HAL_TIM_GET_FLAG(&TimMasterHandle, TIM_FLAG_CC1) == SET) {
         if (__HAL_TIM_GET_IT_SOURCE(&TimMasterHandle, TIM_IT_CC1) == SET) {
             __HAL_TIM_CLEAR_IT(&TimMasterHandle, TIM_IT_CC1);
@@ -90,7 +78,7 @@ void us_ticker_init(void)
 {
 
 // ************************************ 16-bit timer ************************************
-#if TIM_MST_16BIT
+#if TIM_MST_BIT_WIDTH == 16
     // Enable timer clock
     TIM_MST_RCC;
 
@@ -102,7 +90,7 @@ void us_ticker_init(void)
     SystemCoreClockUpdate();
 
     // Configure time base
-    TimMasterHandle.Instance = TIM_MST;
+    TimMasterHandle.Instance           = TIM_MST;
     TimMasterHandle.Init.Period        = 0xFFFF;
     TimMasterHandle.Init.Prescaler     = (uint32_t)(SystemCoreClock / 1000000) - 1; // 1 us tick
     TimMasterHandle.Init.ClockDivision = 0;
@@ -230,11 +218,9 @@ void us_ticker_fire_interrupt(void)
 {
     __HAL_TIM_CLEAR_FLAG(&TimMasterHandle, TIM_FLAG_CC1);
     LL_TIM_GenerateEvent_CC1(TimMasterHandle.Instance);
-    // Enable IT
     __HAL_TIM_ENABLE_IT(&TimMasterHandle, TIM_IT_CC1);
 }
 
-/* NOTE: must be called with interrupts disabled! */
 void us_ticker_disable_interrupt(void)
 {
     __HAL_TIM_DISABLE_IT(&TimMasterHandle, TIM_IT_CC1);

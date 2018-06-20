@@ -51,7 +51,7 @@
 #define TIM_MST_RESET_ON   __TIM4_FORCE_RESET()
 #define TIM_MST_RESET_OFF  __TIM4_RELEASE_RESET()
 
-#define TIM_MST_16BIT  1 // 1=16-bit timer, 0=32-bit timer
+#define TIM_MST_BIT_WIDTH  16 // 16 or 32
 
 #define TIM_MST_PCLK  1 // Select the peripheral clock number (1 or 2)
 
