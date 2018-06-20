@@ -25,7 +25,6 @@
 #include "events/Task.h"
 #include "BlockDevice.h"
 #include "Mutex.h"
-#include "usb_phy_api.h"
 
 #include "USBDevice.h"
 
@@ -46,7 +45,6 @@
  * USBMSD usb(&sd);
  *
  * int main() {
- *     usb.connect();
  *
  *     while(true) {
  *         usb.process();
@@ -66,12 +64,31 @@ public:
     * for the block device to connect.
     *
     * @param bd BlockDevice to mount as a USB drive
-    * @param phy USB phy to use
+    * @param connect_blocking true to perform a blocking connect, false to start in a disconnected state
     * @param vendor_id Your vendor_id
     * @param product_id Your product_id
     * @param product_release Your preoduct_release
     */
-    USBMSD(BlockDevice *bd, USBPhy *phy=get_usb_phy(), uint16_t vendor_id = 0x0703, uint16_t product_id = 0x0104, uint16_t product_release = 0x0001);
+    USBMSD(BlockDevice *bd, bool connect_blocking = true, uint16_t vendor_id = 0x0703, uint16_t product_id = 0x0104, uint16_t product_release = 0x0001);
+
+    /**
+    * Fully featured constructor
+    *
+    * Construct this object with the supplied USBPhy and parameters. The user
+    * this object is responsible for calling connect() or init().
+    *
+    * @note Derived classes must use this constructor and call init() or
+    * connect() themselves. Derived classes should also call deinit() in
+    * their destructor. This ensures that no interrupts can occur when the
+    * object is partially constructed or destroyed.
+    *
+    * @param phy USB phy to use
+    * @param bd BlockDevice to mount as a USB drive
+    * @param vendor_id Your vendor_id
+    * @param product_id Your product_id
+    * @param product_release Your preoduct_release
+    */
+    USBMSD(USBPhy *phy, BlockDevice *bd, uint16_t vendor_id, uint16_t product_id, uint16_t product_release);
 
     /**
      * Destroy this object
@@ -82,7 +99,7 @@ public:
     virtual ~USBMSD();
 
     /**
-    * Connect the USB MSD device. Establish disk initialization before really connect the device.
+    * Connect the USB MSD device.
     *
     * @returns true if successful
     */
@@ -92,13 +109,6 @@ public:
     * Disconnect the USB MSD device.
     */
     void disconnect();
-
-    /**
-     * Check if USB is connected
-     *
-     * @return true if a USB is connected, false otherwise
-     */
-    bool ready();
 
     /**
     * Perform USB processing
@@ -190,7 +200,7 @@ private:
     } CSW;
 
     // If this class has been initialized
-    bool _init;
+    bool _initialized;
 
     //state of the bulk-only state machine
     Stage _stage;
@@ -259,6 +269,7 @@ private:
     void _control(const setup_packet_t *request);
     void _configure();
 
+    void _init();
     void _process();
     void _write_next(uint8_t *data, uint32_t size);
     void _read_next();
