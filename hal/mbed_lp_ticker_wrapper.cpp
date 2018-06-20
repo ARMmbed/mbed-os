@@ -43,7 +43,7 @@ static void init_local()
 {
     MBED_ASSERT(core_util_in_critical_section());
 
-    const ticker_info_t* info = lp_ticker_get_info();
+    const ticker_info_t *info = lp_ticker_get_info();
     if (info->bits >= 32) {
         mask = 0xffffffff;
     } else {

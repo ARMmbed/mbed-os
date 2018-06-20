@@ -34,7 +34,7 @@ static const ticker_data_t us_data = {
     .queue = &events
 };
 
-const ticker_data_t* get_us_ticker_data(void)
+const ticker_data_t *get_us_ticker_data(void)
 {
     return &us_data;
 }
