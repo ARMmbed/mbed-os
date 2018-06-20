@@ -571,7 +571,7 @@ def validate_partition_manifests(manifests):
 
     for manifest in spe_contained_manifests:
         rot_services = set([service.name for service in manifest.rot_services])
-        if not rot_services.intersection(all_extern_sids):
+        if not rot_services.intersection(all_extern_sids) and len(manifest.irqs) == 0:
             raise ValueError(
                 'Partition {} (defined by {}) is not accessible from NSPE '
                 'and not referenced by any other partition.'.format(

@@ -319,7 +319,8 @@ def test_valid_json(temp_test_data):
         ),
         pytest.param(
             [{k: manifests[0][k] for k in manifests[0] if k != 'extern_sids'},
-             dict(manifests[1], services=spe_contained_rot_services)],
+             dict({k: manifests[1][k] for k in manifests[1] if k != 'services'
+                   and k != 'irqs'}, services=spe_contained_rot_services)],
             (ValueError, r'Partition .* is not accessible from NSPE '
                          'and not referenced by any other partition.'),
             id='dead_partition'
