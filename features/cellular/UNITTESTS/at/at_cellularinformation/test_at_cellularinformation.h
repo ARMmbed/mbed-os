@@ -29,6 +29,8 @@ public:
     void test_AT_CellularInformation_get_model();
 
     void test_AT_CellularInformation_get_revision();
+
+    void test_AT_CellularInformation_get_serial_number();
 };
 
 #endif // TEST_AT_CELLULARINFORMATION_H
