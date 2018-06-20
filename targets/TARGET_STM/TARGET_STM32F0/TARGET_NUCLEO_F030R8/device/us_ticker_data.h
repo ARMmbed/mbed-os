@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef __HAL_TICK_H
-#define __HAL_TICK_H
+#ifndef __US_TICKER_DATA_H
+#define __US_TICKER_DATA_H
 
 #ifdef __cplusplus
  extern "C" {
@@ -42,5 +42,5 @@
 }
 #endif
 
-#endif // __HAL_TICK_H
+#endif // __US_TICKER_DATA_H
 
