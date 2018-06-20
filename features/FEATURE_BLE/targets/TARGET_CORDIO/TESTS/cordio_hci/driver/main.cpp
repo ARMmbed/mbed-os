@@ -55,7 +55,7 @@ static void on_initialization_complete(BLE::InitializationCompleteCallbackContex
     if (params->error == BLE_ERROR_NONE) {
         initialization_state = INITIALIZATION_SUCCESS;
     } else {
-        initialization_state = INITIALIZATION_SUCCESS;
+        initialization_state = INITIALIZATION_FAILURE;
     }
 
     event_queue.break_dispatch();
