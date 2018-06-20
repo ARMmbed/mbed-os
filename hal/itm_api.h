@@ -38,15 +38,15 @@ enum {
 
 /**
  * @brief      Target specific initialization function.
- *             This function is responsible for initializing and configuring 
- *             the debug clock for the ITM and setting up the SWO pin for 
+ *             This function is responsible for initializing and configuring
+ *             the debug clock for the ITM and setting up the SWO pin for
  *             debug output.
- *             
+ *
  *             The only Cortex-M register that should be modified is the clock
  *             prescaler in TPI->ACPR.
- *             
- *             The generic mbed_itm_init initialization function will setup: 
- *             
+ *
+ *             The generic mbed_itm_init initialization function will setup:
+ *
  *                  ITM->LAR
  *                  ITM->TPR
  *                  ITM->TCR
@@ -54,7 +54,7 @@ enum {
  *                  TPI->SPPR
  *                  TPI->FFCR
  *                  DWT->CTRL
- *                  
+ *
  *             for SWO output on stimulus port 0.
  */
 void itm_init(void);
