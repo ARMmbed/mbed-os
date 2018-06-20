@@ -284,7 +284,7 @@ bool SX1272_LoRaRadio::check_rf_frequency(uint32_t frequency)
 void SX1272_LoRaRadio::set_channel(uint32_t freq)
 {
     _rf_settings.channel = freq;
-    freq = (uint32_t) ((double) freq / (double) FREQ_STEP);
+    freq = (uint32_t) ((float) freq / (float) FREQ_STEP);
     write_to_register(REG_FRFMSB, (uint8_t) ((freq >> 16) & 0xFF));
     write_to_register(REG_FRFMID, (uint8_t) ((freq >> 8) & 0xFF));
     write_to_register(REG_FRFLSB, (uint8_t) (freq & 0xFF));
@@ -416,7 +416,7 @@ void SX1272_LoRaRadio::set_rx_config(radio_modems_t modem, uint32_t bandwidth,
             _rf_settings.fsk.preamble_len = preamble_len;
             _rf_settings.fsk.rx_single_timeout = (symb_timeout + 1) / 2; // dividing by 2 as our detector size is 2 symbols (16 bytes)
 
-            datarate = (uint16_t) ((double) XTAL_FREQ / (double) datarate);
+            datarate = (uint16_t) ((float) XTAL_FREQ / (float) datarate);
             write_to_register(REG_BITRATEMSB, (uint8_t) (datarate >> 8));
             write_to_register(REG_BITRATELSB, (uint8_t) (datarate & 0xFF));
 
@@ -545,11 +545,11 @@ void SX1272_LoRaRadio::set_tx_config(radio_modems_t modem, int8_t power,
             _rf_settings.fsk.iq_inverted = iq_inverted;
             _rf_settings.fsk.tx_timeout = timeout;
 
-            fdev = (uint16_t) ((double) fdev / (double) FREQ_STEP);
+            fdev = (uint16_t) ((float) fdev / (float) FREQ_STEP);
             write_to_register( REG_FDEVMSB, (uint8_t) (fdev >> 8));
             write_to_register( REG_FDEVLSB, (uint8_t) (fdev & 0xFF));
 
-            datarate = (uint16_t) ((double) XTAL_FREQ / (double) datarate);
+            datarate = (uint16_t) ((float) XTAL_FREQ / (float) datarate);
             write_to_register( REG_BITRATEMSB, (uint8_t) (datarate >> 8));
             write_to_register( REG_BITRATELSB, (uint8_t) (datarate & 0xFF));
 
@@ -656,48 +656,48 @@ uint32_t SX1272_LoRaRadio::time_on_air(radio_modems_t modem, uint8_t pkt_len)
                                     + ((read_register( REG_SYNCCONFIG)
                                             & ~RF_SYNCCONFIG_SYNCSIZE_MASK) + 1)
                                     + ((_rf_settings.fsk.fix_len == 0x01) ?
-                                            0.0 : 1.0)
+                                            0.0f : 1.0f)
                                     + (((read_register( REG_PACKETCONFIG1)
                                             & ~RF_PACKETCONFIG1_ADDRSFILTERING_MASK)
-                                            != 0x00) ? 1.0 : 0) + pkt_len
+                                            != 0x00) ? 1.0f : 0) + pkt_len
                                     + ((_rf_settings.fsk.crc_on == 0x01) ?
-                                            2.0 : 0))
-                            / _rf_settings.fsk.datarate) * 1e3);
+                                            2.0f : 0))
+                            / _rf_settings.fsk.datarate) * 1000);
         }
             break;
         case MODEM_LORA: {
-            double bw = 0.0;
+            float bw = 0.0f;
             switch (_rf_settings.lora.bandwidth) {
                 case 0: // 125 kHz
-                    bw = 125e3;
+                    bw = 125000;
                     break;
                 case 1: // 250 kHz
-                    bw = 250e3;
+                    bw = 250000;
                     break;
                 case 2: // 500 kHz
-                    bw = 500e3;
+                    bw = 500000;
                     break;
             }
 
             // Symbol rate : time for one symbol (secs)
-            double rs = bw / (1 << _rf_settings.lora.datarate);
-            double ts = 1 / rs;
+            float rs = bw / (1 << _rf_settings.lora.datarate);
+            float ts = 1 / rs;
             // time of preamble
-            double preamble_time = (_rf_settings.lora.preamble_len + 4.25) * ts;
+            float preamble_time = (_rf_settings.lora.preamble_len + 4.25f) * ts;
             // Symbol length of payload and time
-            double tmp = ceil((8 * pkt_len - 4 * _rf_settings.lora.datarate + 28
+            float tmp = ceil((8 * pkt_len - 4 * _rf_settings.lora.datarate + 28
                             + 16 * _rf_settings.lora.crc_on -
                             (_rf_settings.lora.fix_len ? 20 : 0))
-                            / (double) (4 * (_rf_settings.lora.datarate -
+                            / (float) (4 * (_rf_settings.lora.datarate -
                                        ((_rf_settings.lora.low_datarate_optimize
                                                     > 0) ? 2 : 0)))) *
                                                     (_rf_settings.lora.coderate + 4);
-            double n_payload = 8 + ((tmp > 0) ? tmp : 0);
-            double t_payload = n_payload * ts;
+            float n_payload = 8 + ((tmp > 0) ? tmp : 0);
+            float t_payload = n_payload * ts;
             // Time on air
-            double t_onair = preamble_time + t_payload;
+            float t_onair = preamble_time + t_payload;
             // return ms secs
-            airtime = floor(t_onair * 1e3 + 0.999);
+            airtime = floor(t_onair * 1000 + 0.999f);
         }
             break;
     }
@@ -1735,9 +1735,9 @@ void SX1272_LoRaRadio::handle_dio0_irq()
                     // We can have a snapshot of RSSI here as at this point it
                     // should be more smoothed out.
                     _rf_settings.fsk_packet_handler.rssi_value = -(read_register(REG_RSSIVALUE) >> 1);
-                    _rf_settings.fsk_packet_handler.afc_value = (int32_t)(double)(((uint16_t)read_register(REG_AFCMSB) << 8) |
+                    _rf_settings.fsk_packet_handler.afc_value = (int32_t)(float)(((uint16_t)read_register(REG_AFCMSB) << 8) |
                                                                                    (uint16_t)read_register(REG_AFCLSB)) *
-                                                                                   (double)FREQ_STEP;
+                                                                                   (float)FREQ_STEP;
                     _rf_settings.fsk_packet_handler.rx_gain = (read_register(REG_LNA) >> 5) & 0x07;
 
                     // Read received packet size
