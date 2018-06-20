@@ -14,45 +14,18 @@
  * limitations under the License.
  */
 #include "hal/us_ticker_api.h"
-#include "hal_tick.h"
 
 // Overwrite default HAL functions defined as "weak"
 
-// This variable is set to 1 at the of mbed_sdk_init function.
-// The ticker_read_us function must not be called until the mbed_sdk_init is terminated.
-extern int mbed_sdk_inited;
+HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
+{
+    us_ticker_init();
+    return HAL_OK;
+}
 
-#if TIM_MST_16BIT
-// Variables also reset in HAL_InitTick()
-uint32_t prev_time = 0;
-uint32_t elapsed_time = 0;
-#endif
-
-// 1 ms tick is required for ST HAL driver
 uint32_t HAL_GetTick()
 {
-#if TIM_MST_16BIT
-    uint32_t new_time;
-    if (mbed_sdk_inited) {
-        // Apply the latest time recorded just before the sdk is inited
-        new_time = ticker_read_us(get_us_ticker_data()) + prev_time;
-        prev_time = 0; // Use this time only once
-        return (new_time / 1000);
-    }
-    else {
-        new_time = us_ticker_read();
-        elapsed_time += (new_time - prev_time) & 0xFFFF; // Only use the lower 16 bits
-        prev_time = new_time;
-        return (elapsed_time / 1000);
-    }
-#else // 32-bit timer
-    if (mbed_sdk_inited) {
-        return (ticker_read_us(get_us_ticker_data()) / 1000);
-    }
-    else {
-        return (us_ticker_read() / 1000);
-    }
-#endif
+    return ticker_read_us(get_us_ticker_data()) / 1000; // 1 ms tick is required for ST HAL_Delay function
 }
 
 void HAL_SuspendTick(void)
