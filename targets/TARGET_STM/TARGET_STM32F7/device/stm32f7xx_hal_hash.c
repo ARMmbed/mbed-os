@@ -222,12 +222,14 @@ static void HASH_DMAError(DMA_HandleTypeDef *hdma)
 static void HASH_WriteData(uint8_t *pInBuffer, uint32_t Size)
 {
   uint32_t buffercounter;
-  uint32_t inputaddr = (uint32_t) pInBuffer;
   
   for(buffercounter = 0; buffercounter < Size; buffercounter+=4)
   {
-    HASH->DIN = *(uint32_t*)inputaddr;
-    inputaddr+=4;
+    uint32_t data = (uint32_t) *pInBuffer++;
+    data |= (uint32_t) *pInBuffer++ << 8;
+    data |= (uint32_t) *pInBuffer++ << 16;
+    data |= (uint32_t) *pInBuffer++ << 24;
+    HASH->DIN = data;
   }
 }
 
