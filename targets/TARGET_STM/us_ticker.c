@@ -18,8 +18,10 @@
 #include "PeripheralNames.h"
 #include "hal_tick.h"
 
+// ************************************ 16-bit timer ************************************
 #if TIM_MST_16BIT
 #define TIMER_TICKER_BIT_WIDTH 16
+// ************************************ 32-bit timer ************************************
 #else
 #define TIMER_TICKER_BIT_WIDTH 32
 #endif
@@ -35,10 +37,176 @@ const ticker_info_t *us_ticker_get_info()
     return &info;
 }
 
+volatile uint32_t PreviousVal = 0;
+
+void us_ticker_irq_handler(void);
+
+// ************************************ 16-bit timer ************************************
+#if TIM_MST_16BIT
+
+#if defined(TARGET_STM32F0)
+void timer_update_irq_handler(void) {
+#else
+void timer_irq_handler(void)
+{
+#endif
+    TimMasterHandle.Instance = TIM_MST;
+
+#if defined(TARGET_STM32F0)
+} // end timer_update_irq_handler function
+
+// Channel 1 used for mbed timeout
+void timer_oc_irq_handler(void)
+{
+    TimMasterHandle.Instance = TIM_MST;
+#endif
+
+    // Channel 1 for mbed timeout
+    if (__HAL_TIM_GET_FLAG(&TimMasterHandle, TIM_FLAG_CC1) == SET) {
+        if (__HAL_TIM_GET_IT_SOURCE(&TimMasterHandle, TIM_IT_CC1) == SET) {
+            __HAL_TIM_CLEAR_IT(&TimMasterHandle, TIM_IT_CC1);
+                   us_ticker_irq_handler();
+        }
+    }
+}
+
+// ************************************ 32-bit timer ************************************
+#else
+
+void timer_irq_handler(void)
+{
+    // Channel 1 for mbed timeout
+    if (__HAL_TIM_GET_FLAG(&TimMasterHandle, TIM_FLAG_CC1) == SET) {
+        if (__HAL_TIM_GET_IT_SOURCE(&TimMasterHandle, TIM_IT_CC1) == SET) {
+            __HAL_TIM_CLEAR_IT(&TimMasterHandle, TIM_IT_CC1);
+            us_ticker_irq_handler();
+        }
+    }
+}
+
+#endif // 16-bit/32-bit timer
+
 void us_ticker_init(void)
 {
-    /* NOTE: assuming that HAL tick has already been initialized! */
+
+// ************************************ 16-bit timer ************************************
+#if TIM_MST_16BIT
+    // Enable timer clock
+    TIM_MST_RCC;
+
+    // Reset timer
+    TIM_MST_RESET_ON;
+    TIM_MST_RESET_OFF;
+
+    // Update the SystemCoreClock variable
+    SystemCoreClockUpdate();
+
+    // Configure time base
+    TimMasterHandle.Instance = TIM_MST;
+    TimMasterHandle.Init.Period        = 0xFFFF;
+    TimMasterHandle.Init.Prescaler     = (uint32_t)(SystemCoreClock / 1000000) - 1; // 1 us tick
+    TimMasterHandle.Init.ClockDivision = 0;
+    TimMasterHandle.Init.CounterMode   = TIM_COUNTERMODE_UP;
+#if !defined(TARGET_STM32L0) && !defined(TARGET_STM32L1)
+    TimMasterHandle.Init.RepetitionCounter = 0;
+#endif
+#ifdef TIM_AUTORELOAD_PRELOAD_DISABLE
+    TimMasterHandle.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+#endif
+    HAL_TIM_Base_Init(&TimMasterHandle);
+
+    // Configure output compare channel 1 for mbed timeout (enabled later when used)
+    HAL_TIM_OC_Start(&TimMasterHandle, TIM_CHANNEL_1);
+
+    // Output compare channel 1 interrupt for mbed timeout
+#if defined(TARGET_STM32F0)
+    NVIC_SetVector(TIM_MST_UP_IRQ, (uint32_t)timer_update_irq_handler);
+    NVIC_EnableIRQ(TIM_MST_UP_IRQ);
+    NVIC_SetPriority(TIM_MST_UP_IRQ, 0);
+    NVIC_SetVector(TIM_MST_OC_IRQ, (uint32_t)timer_oc_irq_handler);
+    NVIC_EnableIRQ(TIM_MST_OC_IRQ);
+    NVIC_SetPriority(TIM_MST_OC_IRQ, 1);
+#else
+    NVIC_SetVector(TIM_MST_IRQ, (uint32_t)timer_irq_handler);
+    NVIC_EnableIRQ(TIM_MST_IRQ);
+#endif
+
+    // Enable timer
+    HAL_TIM_Base_Start(&TimMasterHandle);
+
+    // Freeze timer on stop/breakpoint
+    // Define the FREEZE_TIMER_ON_DEBUG macro in mbed_app.json for example
+#if !defined(NDEBUG) && defined(FREEZE_TIMER_ON_DEBUG) && defined(TIM_MST_DBGMCU_FREEZE)
+    TIM_MST_DBGMCU_FREEZE;
+#endif
+
     __HAL_TIM_DISABLE_IT(&TimMasterHandle, TIM_IT_CC1);
+
+// ************************************ 32-bit timer ************************************
+#else
+
+    RCC_ClkInitTypeDef RCC_ClkInitStruct;
+    uint32_t PclkFreq;
+
+    // Get clock configuration
+    // Note: PclkFreq contains here the Latency (not used after)
+    HAL_RCC_GetClockConfig(&RCC_ClkInitStruct, &PclkFreq);
+
+    // Get timer clock value
+#if TIM_MST_PCLK == 1
+    PclkFreq = HAL_RCC_GetPCLK1Freq();
+#else
+    PclkFreq = HAL_RCC_GetPCLK2Freq();
+#endif
+
+    // Enable timer clock
+    TIM_MST_RCC;
+
+    // Reset timer
+    TIM_MST_RESET_ON;
+    TIM_MST_RESET_OFF;
+
+    // Configure time base
+    TimMasterHandle.Instance = TIM_MST;
+    TimMasterHandle.Init.Period          = 0xFFFFFFFF;
+
+    // TIMxCLK = PCLKx when the APB prescaler = 1 else TIMxCLK = 2 * PCLKx
+#if TIM_MST_PCLK == 1
+    if (RCC_ClkInitStruct.APB1CLKDivider == RCC_HCLK_DIV1) {
+#else
+    if (RCC_ClkInitStruct.APB2CLKDivider == RCC_HCLK_DIV1) {
+#endif
+        TimMasterHandle.Init.Prescaler   = (uint16_t)((PclkFreq) / 1000000) - 1; // 1 us tick
+    } else {
+        TimMasterHandle.Init.Prescaler   = (uint16_t)((PclkFreq * 2) / 1000000) - 1; // 1 us tick
+    }
+
+    TimMasterHandle.Init.ClockDivision     = 0;
+    TimMasterHandle.Init.CounterMode       = TIM_COUNTERMODE_UP;
+#if !TARGET_STM32L1
+    TimMasterHandle.Init.RepetitionCounter = 0;
+#endif
+#ifdef TIM_AUTORELOAD_PRELOAD_DISABLE
+    TimMasterHandle.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+#endif
+    HAL_TIM_OC_Init(&TimMasterHandle);
+
+    NVIC_SetVector(TIM_MST_IRQ, (uint32_t)timer_irq_handler);
+    NVIC_EnableIRQ(TIM_MST_IRQ);
+
+    // Channel 1 for mbed timeout
+    HAL_TIM_OC_Start(&TimMasterHandle, TIM_CHANNEL_1);
+
+    // Freeze timer on stop/breakpoint
+    // Define the FREEZE_TIMER_ON_DEBUG macro in mbed_app.json for example
+#if !defined(NDEBUG) && defined(FREEZE_TIMER_ON_DEBUG) && defined(TIM_MST_DBGMCU_FREEZE)
+    TIM_MST_DBGMCU_FREEZE;
+#endif
+
+    __HAL_TIM_DISABLE_IT(&TimMasterHandle, TIM_IT_CC1);
+
+#endif // 16-bit/32-bit timer
+
 }
 
 uint32_t us_ticker_read()
