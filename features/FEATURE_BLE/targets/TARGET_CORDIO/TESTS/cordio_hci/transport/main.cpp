@@ -15,11 +15,12 @@
  */
 
 #include <stdio.h>
+#include <algorithm>
 
 #include "driver/CordioHCITransportDriver.h"
 #include "driver/CordioHCIDriver.h"
 #include "hci_defs.h"
-#include "rtos/Semaphore.h"
+#include "rtos/EventFlags.h"
 
 #include "greentea-client/test_env.h"
 #include "utest/utest.h"
@@ -56,106 +57,161 @@ struct CordioHCIHook {
 
 using ble::vendor::cordio::CordioHCIHook;
 
+//
+// Handle signal mechanism
+//
 #define RESET_COMMAND_TIMEOUT (10 * 1000)
+
+static const uint32_t RESET_RECEIVED_FLAG = 1 << 0;
+static const uint32_t RECEPTION_ERROR_FLAG = 1 << 1;
+static const uint32_t RESET_STATUS_ERROR_FLAG = 1 << 2;
+
+static const uint32_t WAITING_FLAGS =
+    RESET_RECEIVED_FLAG | RECEPTION_ERROR_FLAG | RESET_STATUS_ERROR_FLAG;
+
+static rtos::EventFlags event_channel;
+
+static void signal_flag(uint32_t flag) {
+    if (!(event_channel.get() & flag)) {
+        event_channel.set(flag);
+    }
+}
+
+uint32_t wait_for_event() {
+    // clear reception flags
+    uint32_t flags = event_channel.get();
+    event_channel.clear(flags & ~RESET_RECEIVED_FLAG);
+
+    return event_channel.wait_any(
+        WAITING_FLAGS,
+        /* timeout */ RESET_COMMAND_TIMEOUT,
+        /* clear */ false
+    );
+}
+
+//
+// Handle reset command reception
+//
+
 #define RESET_PARAMETER_LENGTH  4
 #define RESET_EXPECTED_STATUS  0
 #define HCI_OPCODE_RESET_LSB (HCI_OPCODE_RESET & 0xFF)
 #define HCI_OPCODE_RESET_MSB (HCI_OPCODE_RESET >> 8)
+#define RESET_PACKET_LENGTH (1 + HCI_EVT_HDR_LEN + RESET_PARAMETER_LENGTH)
+#define RESET_STATUS_INDEX 6
 
-enum test_result_t {
-    TEST_RESULT_TIMEOUT_FAILURE,
-    TEST_RESULT_FAILURE,
-    TEST_RESULT_SUCCESS
-};
+static bool is_reset_event(const uint8_t* data, uint16_t len) {
+    if (len != RESET_PACKET_LENGTH) {
+        return false;
+    }
 
-enum state_t {
-    WAITING_EVENT_PACKET,
-    WAITING_EVENT_CODE_COMPLETE,
-    WAITING_PARAMETER_LENGTH,
-    WAITING_STATUS,
-    WAITING_NUM_HCI_EVT_PACKET,
-    WAITING_OPCODE_LSB,
-    WAITING_OPCODE_MSB,
-    DONE
-};
+    if (*data++ != HCI_EVT_TYPE) {
+        return false;
+    }
 
-static state_t state = WAITING_EVENT_PACKET;
-static test_result_t test_result = TEST_RESULT_TIMEOUT_FAILURE;
+    if (*data++ != HCI_CMD_CMPL_EVT) {
+        return false;
+    }
 
-static rtos::Semaphore sem;
+    if (*data++ != RESET_PARAMETER_LENGTH) {
+        return false;
+    }
+
+    // Note skip num of HCI packet as this is controller dependent
+    data++;
+
+    if (*data++ != HCI_OPCODE_RESET_LSB) {
+        return false;
+    }
+
+    if (*data++ != HCI_OPCODE_RESET_MSB) {
+        return false;
+    }
+
+    return true;
+}
+
+static void hci_driver_rx_reset_handler(uint8_t* data, uint8_t len) {
+    enum packet_state_t {
+        WAITING_FOR_PACKET_TYPE,
+        WAITING_FOR_HEADER_COMPLETE,
+        WAITING_FOR_DATA_COMPLETE,
+        SYNCHRONIZATION_ERROR,
+        STATUS_ERROR
+    };
+
+    static uint8_t packet[256] = { 0 };
+    static uint16_t position = 0;
+    static uint16_t packet_length;
+    static packet_state_t reception_state = WAITING_FOR_PACKET_TYPE;
+
+    while (len) {
+        switch (reception_state) {
+            case WAITING_FOR_PACKET_TYPE:
+                if (*data != HCI_EVT_TYPE) {
+                    reception_state = SYNCHRONIZATION_ERROR;
+                    signal_flag(RECEPTION_ERROR_FLAG);
+                    return;
+                }
+
+                packet[position++] = *data++;
+                --len;
+                packet_length = 1 + HCI_EVT_HDR_LEN;
+                reception_state = WAITING_FOR_HEADER_COMPLETE;
+                break;
+
+            case WAITING_FOR_HEADER_COMPLETE:
+            case WAITING_FOR_DATA_COMPLETE: {
+                uint16_t step = std::min((uint16_t) len, (uint16_t) (packet_length - position));
+                memcpy(packet + position, data, step);
+                position+= step;
+                data += step;
+                len -= step;
+
+                if (reception_state == WAITING_FOR_HEADER_COMPLETE &&
+                    position == packet_length
+                ) {
+                    reception_state = WAITING_FOR_DATA_COMPLETE;
+                    packet_length += packet[HCI_EVT_HDR_LEN];
+                }
+            }   break;
+
+
+            // dead end; we never exit from the error state; just asignal it again.
+            case SYNCHRONIZATION_ERROR:
+                signal_flag(RECEPTION_ERROR_FLAG);
+                return;
+
+            case STATUS_ERROR:
+                signal_flag(RESET_STATUS_ERROR_FLAG);
+                return;
+        }
+
+        bool packet_complete = (reception_state == WAITING_FOR_DATA_COMPLETE) &&
+            (position == packet_length);
+
+        if (packet_complete) {
+            if (is_reset_event(packet, packet_length)) {
+                if (packet[RESET_STATUS_INDEX] != RESET_EXPECTED_STATUS) {
+                    reception_state = STATUS_ERROR;
+                    signal_flag(RESET_STATUS_ERROR_FLAG);
+                    return;
+                } else {
+                    signal_flag(RESET_RECEIVED_FLAG);
+                }
+            }
+
+            reception_state = WAITING_FOR_PACKET_TYPE;
+            position = 0;
+            packet_length = 1;
+        }
+    }
+}
 
 static uint8_t reset_cmd[] = {
     HCI_OPCODE_RESET_LSB, HCI_OPCODE_RESET_MSB,  // reset opcode
     0 // parameter length
 };
-
-static void hci_driver_rx_dummy_handler(uint8_t* data, uint8_t len) { }
-
-static void hci_driver_rx_reset_handler(uint8_t* data, uint8_t len) {
-    for (size_t i = 0; i < len; ++i) {
-        switch (state) {
-            case WAITING_EVENT_PACKET:
-                if (data[i] == HCI_EVT_TYPE) {
-                    state = WAITING_EVENT_CODE_COMPLETE;
-                } else {
-                    test_result = TEST_RESULT_FAILURE;
-                }
-                break;
-
-            case WAITING_EVENT_CODE_COMPLETE:
-                if (data[i] == HCI_CMD_CMPL_EVT) {
-                    state = WAITING_PARAMETER_LENGTH;
-                } else {
-                    test_result = TEST_RESULT_FAILURE;
-                }
-                break;
-
-            case WAITING_PARAMETER_LENGTH:
-                if (data[i] == RESET_PARAMETER_LENGTH) {
-                    state = WAITING_NUM_HCI_EVT_PACKET;
-                } else {
-                    test_result = TEST_RESULT_FAILURE;
-                }
-                break;
-
-            case WAITING_NUM_HCI_EVT_PACKET:
-                // controler dependent; can be any value, pass on to the next token
-                state = WAITING_OPCODE_LSB;
-                break;
-
-            case WAITING_OPCODE_LSB:
-                if (data[i] == HCI_OPCODE_RESET_LSB) {
-                    state = WAITING_OPCODE_MSB;
-                } else {
-                    test_result = TEST_RESULT_FAILURE;
-                }
-                break;
-
-            case WAITING_OPCODE_MSB:
-                if (data[i] == HCI_OPCODE_RESET_MSB) {
-                    state = WAITING_STATUS;
-                } else {
-                    test_result = TEST_RESULT_FAILURE;
-                }
-                break;
-
-            case WAITING_STATUS:
-                if (data[i] == RESET_EXPECTED_STATUS) {
-                    test_result = TEST_RESULT_SUCCESS;
-                    state = DONE;
-                } else {
-                    test_result = TEST_RESULT_FAILURE;
-                }
-                break;
-        }
-
-        if (test_result != TEST_RESULT_TIMEOUT_FAILURE) {
-            CordioHCIHook::set_data_received_handler(hci_driver_rx_dummy_handler);
-            sem.release();
-            return;
-        }
-    }
-}
 
 void test_reset_command() {
     CordioHCIDriver& driver = CordioHCIHook::get_driver();
@@ -164,18 +220,40 @@ void test_reset_command() {
     driver.initialize();
 
     CordioHCIHook::set_data_received_handler(hci_driver_rx_reset_handler);
+
     transport_driver.write(HCI_CMD_TYPE, sizeof(reset_cmd), reset_cmd);
-    sem.wait(RESET_COMMAND_TIMEOUT);
-    CordioHCIHook::set_data_received_handler(hci_driver_rx_dummy_handler);
+    uint32_t events = wait_for_event();
+
+    TEST_ASSERT_EQUAL(RESET_RECEIVED_FLAG, events);
 
     driver.terminate();
+}
 
-    TEST_ASSERT_EQUAL(TEST_RESULT_SUCCESS, test_result);
-    TEST_ASSERT_EQUAL(DONE, state);
+#define EXPECTED_CONSECUTIVE_RESET   10
+
+void test_multiple_reset_command() {
+    CordioHCIDriver& driver = CordioHCIHook::get_driver();
+    CordioHCITransportDriver& transport_driver = CordioHCIHook::get_transport_driver();
+
+    driver.initialize();
+
+    CordioHCIHook::set_data_received_handler(hci_driver_rx_reset_handler);
+
+    for (size_t i = 0; i < EXPECTED_CONSECUTIVE_RESET; ++i) {
+        transport_driver.write(HCI_CMD_TYPE, sizeof(reset_cmd), reset_cmd);
+        uint32_t events = wait_for_event();
+        TEST_ASSERT_EQUAL(RESET_RECEIVED_FLAG, events);
+        if (events != RESET_RECEIVED_FLAG) {
+            break;
+        }
+    }
+
+    driver.terminate();
 }
 
 Case cases[] = {
     Case("Test reset command", test_reset_command),
+    Case("Test multiple reset commands", test_multiple_reset_command)
 };
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases) {
