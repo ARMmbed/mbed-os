@@ -17,6 +17,7 @@
 #include "stdint.h"
 #include "USBMSD.h"
 #include "EndpointResolver.h"
+#include "usb_phy_api.h"
 
 #define DISK_OK         0x00
 #define NO_INIT         0x01
@@ -61,11 +62,28 @@ enum Status {
     CSW_ERROR,
 };
 
-USBMSD::USBMSD(BlockDevice *bd, USBPhy *phy, uint16_t vendor_id, uint16_t product_id, uint16_t product_release)
-    : USBDevice(phy, vendor_id, product_id, product_release),
-      _init(false), _in_task(&_queue), _out_task(&_queue), _reset_task(&_queue), _control_task(&_queue), _configure_task(&_queue)
+USBMSD::USBMSD(BlockDevice *bd, bool connect_blocking, uint16_t vendor_id, uint16_t product_id, uint16_t product_release)
+    : USBDevice(get_usb_phy(), vendor_id, product_id, product_release),
+      _initialized(false), _in_task(&_queue), _out_task(&_queue), _reset_task(&_queue), _control_task(&_queue), _configure_task(&_queue), _bd(bd)
 {
-    _bd = bd;
+    _init();
+    if (connect_blocking) {
+        connect();
+    } else {
+        init();
+    }
+}
+
+USBMSD::USBMSD(USBPhy *phy, BlockDevice *bd, uint16_t vendor_id, uint16_t product_id, uint16_t product_release)
+    : USBDevice(phy, vendor_id, product_id, product_release),
+      _initialized(false), _in_task(&_queue), _out_task(&_queue), _reset_task(&_queue), _control_task(&_queue), _configure_task(&_queue), _bd(bd)
+{
+    _init();
+}
+
+
+void USBMSD::_init()
+{
     _bd->init();
 
     _in_task = callback(this, &USBMSD::_in);
@@ -100,7 +118,7 @@ bool USBMSD::connect()
     _mutex.lock();
 
     // already initialized
-    if (_init) {
+    if (_initialized) {
         _mutex.unlock();
         _mutex_init.unlock();
         return false;
@@ -140,7 +158,7 @@ bool USBMSD::connect()
 
     //connect the device
     USBDevice::connect();
-    _init = true;
+    _initialized = true;
     _mutex.unlock();
     _mutex_init.unlock();
     return true;
@@ -152,7 +170,7 @@ void USBMSD::disconnect()
     _mutex.lock();
 
     USBDevice::disconnect();
-    _init = false;
+    _initialized = false;
 
     _in_task.cancel();
     _out_task.cancel();
@@ -177,11 +195,6 @@ void USBMSD::disconnect()
 
     _mutex.unlock();
     _mutex_init.unlock();
-}
-
-bool USBMSD::ready()
-{
-    return configured();
 }
 
 void USBMSD::process()
