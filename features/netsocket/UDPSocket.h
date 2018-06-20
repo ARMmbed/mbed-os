@@ -99,6 +99,11 @@ public:
      *  is not NULL. Returns the number of bytes written into the buffer. If the
      *  datagram is larger than the buffer, the excess data is silently discarded.
      *
+     *  If socket is connected, only packets coming from connected peer address
+     *  are accepted.
+     *
+     *  @note recvfrom() is allowed write to address and data buffers even if error occurs.
+     *
      *  By default, recvfrom blocks until a datagram is received. If socket is set to
      *  non-blocking or times out with no datagram, NSAPI_ERROR_WOULD_BLOCK
      *  is returned.
@@ -114,7 +119,9 @@ public:
 
     /** Set remote peer address
      *
-     *  Set the remote address for next send() call.
+     *  Set the remote address for next send() call and filtering
+     *  for incomming packets. To reset the address, zero initialised
+     *  SocketAddress must be in the address parameter.
      *
      *  @param address  The SocketAddress of the remote host
      *  @return         0 on success, negative error code on failure
@@ -140,6 +147,11 @@ public:
     /** Receive data from a socket.
      *
      *  This is equivalent of calling recvfrom(NULL, data, size).
+     *
+     *  If socket is connected, only packets coming from connected peer address
+     *  are accepted.
+     *
+     *  @note recv() is allowed write to data buffer even if error occurs.
      *
      *  By default, recv blocks until some data is received. If socket is set to
      *  non-blocking or times out, NSAPI_ERROR_WOULD_BLOCK can be returned to

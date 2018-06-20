@@ -42,13 +42,18 @@ public:
      */
     virtual nsapi_error_t close() = 0;
 
-    /** Connects socket to a remote host.
+    /** Connects socket to a remote address.
      *
-     *  Initiates a connection to a remote server specified by the
-     *  indicated address. In case of connectionless protocol, set
-     *  the remote address for next send() call.
+     *  Attempt to make connection on connection-mode protocol or set or reset
+     *  the peer address on connectionless protocol.
      *
-     *  @param address  The SocketAddress of the remote host
+     *  Also connectionless protocols use the connected address to filter
+     *  incoming packets for recv() and recvfrom() calls.
+     *
+     *  To reset the peer address, zero initialised(default constructor) SocketAddress
+     *  object have to be in the address parameter.
+     *
+     *  @param address  The SocketAddress of the remote peer
      *  @return         0 on success, negative error code on failure
      */
     virtual nsapi_error_t connect(const SocketAddress &address) = 0;
@@ -74,6 +79,11 @@ public:
      *
      *  Receive data from connected socket or in case of connectionless socket
      *  this is equivalent of calling recvfrom(NULL, data, size).
+     *
+     *  If socket is connected, only packets coming from connected peer address
+     *  are accepted.
+     *
+     *  @note recv() is allowed write to data buffer even if error occurs.
      *
      *  By default, recv blocks until some data is received. If socket is set to
      *  non-blocking or times out, NSAPI_ERROR_WOULD_BLOCK can be returned to
@@ -111,6 +121,11 @@ public:
      *
      *  Receives a data and stores the source address in address if address
      *  is not NULL. Returns the number of bytes written into the buffer.
+     *
+     *  If socket is connected, only packets coming from connected peer address
+     *  are accepted.
+     *
+     *  @note recvfrom() is allowed write to address and data buffers even if error occurs.
      *
      *  By default, recvfrom blocks until a datagram is received. If socket is set to
      *  non-blocking or times out with no data, NSAPI_ERROR_WOULD_BLOCK
