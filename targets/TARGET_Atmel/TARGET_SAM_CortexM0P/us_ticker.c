@@ -155,6 +155,11 @@ void us_ticker_disable_interrupt(void)
     NVIC_DisableIRQ(TICKER_COUNTER_IRQn);
 }
 
+void us_ticker_fire_interrupt(void)
+{
+    NVIC_SetPendingIRQ(TICKER_COUNTER_IRQn);
+}
+
 void us_ticker_clear_interrupt(void)
 {
     uint32_t status_flags;
