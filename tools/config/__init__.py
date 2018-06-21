@@ -68,6 +68,19 @@ class ConfigException(Exception):
     errors"""
     pass
 
+class UndefinedParameter(ConfigException):
+    def __init__(self, param, name, kind, label):
+        self.param = param
+        self.name = name
+        self.kind = kind
+        self.label = label
+
+    def __str__(self):
+        return "Attempt to override undefined parameter '{}' in '{}'".format(
+            self.param,
+            ConfigParameter.get_display_name(self.name, self.kind, self.label),
+        )
+
 class ConfigParameter(object):
     """This class keeps information about a single configuration parameter"""
 
@@ -857,13 +870,8 @@ class Config(object):
                         continue
                     else:
                         self.config_errors.append(
-                            ConfigException(
-                                "Attempt to override undefined parameter" +
-                                (" '%s' in '%s'"
-                                 % (full_name,
-                                    ConfigParameter.get_display_name(unit_name,
-                                                                     unit_kind,
-                                                                     label)))))
+                            UndefinedParameter(
+                                full_name, unit_name, unit_kind, label))
 
         for cumulatives in self.cumulative_overrides.values():
             cumulatives.update_target(self.target)
@@ -911,10 +919,7 @@ class Config(object):
                     continue
                 if (full_name not in params) or \
                    (params[full_name].defined_by[7:] not in rel_names):
-                    raise ConfigException(
-                        "Attempt to override undefined parameter '%s' in '%s'"
-                        % (name,
-                           ConfigParameter.get_display_name(tname, "target")))
+                    raise UndefinedParameter(name, tname, "target", "")
                 # Otherwise update the value of the parameter
                 params[full_name].set_value(val, tname, "target")
         return params
@@ -1050,8 +1055,13 @@ class Config(object):
 
         Arguments: None
         """
-        if self.config_errors:
-            raise self.config_errors[0]
+        params, _ = self.get_config_data()
+        for error in self.config_errors:
+            if  (isinstance(error, UndefinedParameter) and
+                 error.param in params):
+                continue
+            else:
+                raise error
         return True
 
 
@@ -1071,7 +1081,6 @@ class Config(object):
         """
         # Update configuration files until added features creates no changes
         prev_features = set()
-        self.validate_config()
         while True:
             # Add/update the configuration with any .json files found while
             # scanning
