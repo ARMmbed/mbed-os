@@ -178,6 +178,9 @@ public:
     /**
     * Stall an endpoint
     *
+    * If there is an ongoing transfer on this endpoint then it will
+    * be aborted.
+    *
     * @param endpoint Endpoint to stall
     * @note You cannot stall endpoint 0 with this function
     * @note This endpoint must already have been setup with endpoint_add
@@ -186,6 +189,10 @@ public:
 
     /**
     * Unstall an endpoint
+    *
+    * Unstalling an endpoint resets data toggle back to DATA0.
+    * Additionally, if there is an ongoing transfer on this endpoint
+    * it will be aborted.
     *
     * @param endpoint Endpoint to unstall
     * @note This endpoint must already have been setup with endpoint_add
