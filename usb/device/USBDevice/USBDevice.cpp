@@ -1151,6 +1151,10 @@ void USBDevice::endpoint_stall(usb_ep_t endpoint)
     info->flags |= ENDPOINT_STALLED;
     _phy->endpoint_stall(endpoint);
 
+    if (info->pending) {
+       endpoint_abort(endpoint);
+    }
+
     unlock();
 }
 
@@ -1170,6 +1174,10 @@ void USBDevice::endpoint_unstall(usb_ep_t endpoint)
         MBED_ASSERT(!configured());
         unlock();
         return;
+    }
+
+    if (info->pending) {
+        endpoint_abort(endpoint);
     }
 
     info->flags &= ~ENDPOINT_STALLED;
