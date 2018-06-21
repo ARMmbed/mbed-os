@@ -423,6 +423,65 @@ void __rt_entry (void) {
     mbed_start_main();
 }
 
+/* Move all code here from RTX code base (rtx_lib.c) and do some modifications:
+ *
+ * 1. _mutex_initialize/_mutex_free are re-implemented to meet Mbed. 
+ * 2. All _mutex_* functions are declared with '__USED' to avoid excluded by linker.
+ */
+#if defined(RTX_NO_MULTITHREAD_CLIB)
+
+#define LIBSPACE_SIZE 96
+
+//lint -esym(714,__user_perthread_libspace,_mutex_*) "Referenced by C library"
+//lint -esym(765,__user_perthread_libspace,_mutex_*) "Global scope"
+//lint -esym(9003, os_libspace*) "variables 'os_libspace*' defined at module scope"
+
+// Memory for libspace
+static uint32_t os_libspace[OS_THREAD_LIBSPACE_NUM+1][LIBSPACE_SIZE/4] \
+__attribute__((section(".bss.os.libspace")));
+
+// Thread IDs for libspace
+static osThreadId_t os_libspace_id[OS_THREAD_LIBSPACE_NUM] \
+__attribute__((section(".bss.os.libspace")));
+
+// Check if Kernel has been started
+static uint32_t os_kernel_is_active (void) {
+    static uint8_t os_kernel_active = 0U;
+
+    if (os_kernel_active == 0U) {
+        if (osKernelGetState() > osKernelReady) {
+            os_kernel_active = 1U;
+        }
+    }
+    return (uint32_t)os_kernel_active;
+}
+
+// Provide libspace for current thread
+void *__user_perthread_libspace (void) {
+    osThreadId_t id;
+    uint32_t     n;
+
+    if (os_kernel_is_active() != 0U) {
+        id = osThreadGetId();
+        for (n = 0U; n < (uint32_t)OS_THREAD_LIBSPACE_NUM; n++) {
+            if (os_libspace_id[n] == NULL) {
+                os_libspace_id[n] = id;
+            }
+            if (os_libspace_id[n] == id) {
+                break;
+            }
+        }
+        if (n == (uint32_t)OS_THREAD_LIBSPACE_NUM) {
+            (void)osRtxErrorNotify(osRtxErrorClibSpace, id);
+        }
+    } else {
+        n = OS_THREAD_LIBSPACE_NUM;
+    }
+
+    //lint -e{9087} "cast between pointers to different object types"
+    return (void *)&os_libspace[n][0];
+}
+
 /* ARM toolchain requires dynamically created mutexes to enforce thread safety. There's
    up to 8 static mutexes, protecting atexit, signalinit, stdin, stdout, stderr, stream_list,
    fp_trap_init and the heap. Additionally for each call to fopen one extra mutex will be
@@ -438,8 +497,13 @@ typedef void *mutex;
 #define OS_MUTEX_STATIC_NUM   8
 mutex _static_mutexes[OS_MUTEX_STATIC_NUM] = {NULL};
 mbed_rtos_storage_mutex_t _static_mutexes_mem[OS_MUTEX_STATIC_NUM] = {NULL};
- 
-int _mutex_initialize(mutex *m)
+
+//lint -save "Function prototypes defined in C library"
+//lint -e970 "Use of 'int' outside of a typedef"
+//lint -e818 "Pointer 'm' could be declared as pointing to const"
+
+/* Initialize mutex */
+__USED int _mutex_initialize(mutex *m)
 {
     osMutexAttr_t attr;
     memset(&attr, 0, sizeof(attr));
@@ -485,7 +549,22 @@ int _mutex_initialize(mutex *m)
     return 1;
 }
 
-void _mutex_free(mutex *m) {
+/* Acquire mutex */
+__USED void _mutex_acquire(mutex *m) {
+    if (os_kernel_is_active() != 0U) {
+        (void)osMutexAcquire(*m, osWaitForever);
+    }
+}
+
+/* Release mutex */
+__USED void _mutex_release(mutex *m) {
+    if (os_kernel_is_active() != 0U) {
+        (void)osMutexRelease(*m);
+    }
+}
+
+/* Free mutex */
+__USED void _mutex_free(mutex *m) {
     mutex *slot = NULL;
     core_util_critical_section_enter();
     for (int i = 0; i < OS_MUTEX_STATIC_NUM; i++) {
@@ -507,6 +586,7 @@ void _mutex_free(mutex *m) {
 
 }
 
+#endif /* RTX_NO_MULTITHREAD_CLIB */
 #endif /* ARMC */
 #elif defined (__GNUC__) /******************** GCC ********************/
 
