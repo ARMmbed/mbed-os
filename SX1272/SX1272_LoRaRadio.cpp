@@ -896,10 +896,15 @@ void SX1272_LoRaRadio::receive(void)
                               RF_RXCONFIG_AGCAUTO_ON |
                               RF_RXCONFIG_RXTRIGER_PREAMBLEDETECT);
 
-            write_to_register(REG_RXTIMEOUT2, _rf_settings.fsk.rx_single_timeout <= 255 ?
-                                              _rf_settings.fsk.rx_single_timeout : 255);
-            write_to_register(REG_RXTIMEOUT3, 0x00);
-            write_to_register(REG_RXTIMEOUT1, 0x00);
+            if (!_rf_settings.fsk.rx_continuous) {
+                // the value for rx timeout in symbols cannot be more than 255
+                // as the preamble length is fixed. We assert here for quick
+                // diagnostics
+                MBED_ASSERT(_rf_settings.fsk.rx_single_timeout <= 255);
+                write_to_register(REG_RXTIMEOUT2, _rf_settings.fsk.rx_single_timeout);
+                write_to_register(REG_RXTIMEOUT3, 0x00);
+                write_to_register(REG_RXTIMEOUT1, 0x00);
+            }
 
             _rf_settings.fsk_packet_handler.preamble_detected = 0;
             _rf_settings.fsk_packet_handler.sync_word_detected = 0;
