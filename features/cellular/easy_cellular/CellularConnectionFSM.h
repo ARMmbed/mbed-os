@@ -118,8 +118,8 @@ public:
     CellularDevice *get_device();
 
     /** Get cellular sim interface. SIM interface is released when moving from STATE_ATTACHING_NETWORK to STATE_ACTIVATING_PDP_CONTEXT.
-     *  After SIM interface is closed this method will return NULL and any instances fetched via this method are invalid.
-     *  SIM interface can be created again via CellularDevice which you can get with the method get_device().
+     *  After SIM interface is closed, this method returns NULL, and any instances fetched using this method are invalid.
+     *  SIM interface can be created again using CellularDevice, which you can get with the method get_device().
      *  @return sim interface, NULL on failure
      */
     CellularSIM *get_sim();
