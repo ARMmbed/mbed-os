@@ -844,7 +844,7 @@ void SX1276_LoRaRadio::standby( void )
  * and finally a DIO0 interrupt let's the state machine know that a packet is
  * ready to be read from the FIFO
  */
-void SX1276_LoRaRadio::receive(uint32_t)
+void SX1276_LoRaRadio::receive(void)
 {
     switch (_rf_settings.modem) {
         case MODEM_FSK:
