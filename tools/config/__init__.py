@@ -414,6 +414,7 @@ class Config(object):
         search for a configuration file).
         """
         config_errors = []
+        self.config_errors = []
         self.app_config_location = app_config
         if self.app_config_location is None and top_level_dirs:
             self.app_config_location = self.find_app_config(top_level_dirs)
