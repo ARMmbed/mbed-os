@@ -54,17 +54,17 @@ static void urc_callback()
 static void wait_for_power(CellularPower* pwr)
 {
     nsapi_error_t err = pwr->set_device_ready_urc_cb(&urc_callback);
-    MBED_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_UNSUPPORTED);
+    TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_UNSUPPORTED);
 
     int sanity_count = 0;
     while (pwr->is_device_ready() != NSAPI_ERROR_OK) {
         sanity_count++;
         wait(1);
-        MBED_ASSERT(sanity_count < 20);
+        TEST_ASSERT(sanity_count < 20);
     }
 
     err = pwr->set_at_mode();
-    MBED_ASSERT(err == NSAPI_ERROR_OK);
+    TEST_ASSERT(err == NSAPI_ERROR_OK);
 
     pwr->remove_device_ready_urc_cb(&urc_callback);
 }
@@ -75,17 +75,17 @@ static void test_power_interface()
     CellularPower* pwr = cellular_device->open_power(&cellular_serial);
 
     nsapi_error_t err = pwr->on();
-    MBED_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_UNSUPPORTED);
+    TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_UNSUPPORTED);
     wait_for_power(pwr);
 
-    MBED_ASSERT(pwr->set_power_level(1,0) == NSAPI_ERROR_OK);
+    TEST_ASSERT(pwr->set_power_level(1,0) == NSAPI_ERROR_OK);
 
     err = pwr->reset();
-    MBED_ASSERT(err == NSAPI_ERROR_OK);
+    TEST_ASSERT(err == NSAPI_ERROR_OK);
     wait_for_power(pwr);
 
     err = pwr->off();
-    MBED_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_UNSUPPORTED);
+    TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_UNSUPPORTED);
 }
 
 using namespace utest::v1;

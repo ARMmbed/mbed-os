@@ -145,7 +145,7 @@ static void network_callback(nsapi_event_t ev, intptr_t ptr)
 {
     if (ev == NSAPI_EVENT_CONNECTION_STATUS_CHANGE) {
         if (ptr == NSAPI_STATUS_GLOBAL_UP) {
-            MBED_ASSERT(network_semaphore.release() == osOK);
+            TEST_ASSERT(network_semaphore.release() == osOK);
         }
     }
 }
