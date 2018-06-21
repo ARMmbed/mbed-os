@@ -22,7 +22,7 @@
 namespace events {
 /** \addtogroup events */
 
-/** Event
+/*  Event
  *
  *  Representation of an event for fine-grain dispatch control
  * @ingroup events
@@ -30,7 +30,7 @@ namespace events {
 template <typename F>
 class Event;
 
-/** Event
+/*  Event
  *
  *  Representation of an event for fine-grain dispatch control
  * @ingroup events
@@ -444,7 +444,7 @@ public:
     }
 };
 
-/** Event
+/*  Event
  *
  *  Representation of an event for fine-grain dispatch control
  * @ingroup events
@@ -862,7 +862,7 @@ public:
     }
 };
 
-/** Event
+/*  Event
  *
  *  Representation of an event for fine-grain dispatch control
  * @ingroup events
@@ -1280,7 +1280,7 @@ public:
     }
 };
 
-/** Event
+/*  Event
  *
  *  Representation of an event for fine-grain dispatch control
  * @ingroup events
@@ -1698,7 +1698,7 @@ public:
     }
 };
 
-/** Event
+/*  Event
  *
  *  Representation of an event for fine-grain dispatch control
  * @ingroup events
@@ -2308,7 +2308,7 @@ private:
     }
 
 public:
-    /** Create an event
+    /*  Create an event
      *  @param q                Event queue to dispatch on
      *  @param f                Function to execute when the event is dispatched
      *  @param c0               Argument to bind to the callback, these arguments are
@@ -2321,7 +2321,7 @@ public:
         new (this) Event(q, EventQueue::context15<F, C0, A0, A1, A2, A3, A4>(f, c0));
     }
 
-    /** Create an event
+    /*  Create an event
      *  @param q                Event queue to dispatch on
      *  @param f                Function to execute when the event is dispatched
      *  @param c0,c1            Arguments to bind to the callback, these arguments are
@@ -2334,7 +2334,7 @@ public:
         new (this) Event(q, EventQueue::context25<F, C0, C1, A0, A1, A2, A3, A4>(f, c0, c1));
     }
 
-    /** Create an event
+    /*  Create an event
      *  @param q                Event queue to dispatch on
      *  @param f                Function to execute when the event is dispatched
      *  @param c0,c1,c2         Arguments to bind to the callback, these arguments are
@@ -2347,7 +2347,7 @@ public:
         new (this) Event(q, EventQueue::context35<F, C0, C1, C2, A0, A1, A2, A3, A4>(f, c0, c1, c2));
     }
 
-    /** Create an event
+    /*  Create an event
      *  @param q                Event queue to dispatch on
      *  @param f                Function to execute when the event is dispatched
      *  @param c0,c1,c2,c3      Arguments to bind to the callback, these arguments are
@@ -2373,7 +2373,7 @@ public:
         new (this) Event(q, EventQueue::context55<F, C0, C1, C2, C3, C4, A0, A1, A2, A3, A4>(f, c0, c1, c2, c3, c4));
     }
 
-    /** Create an event
+    /*  Create an event
      *  @see Event::Event
      */
     template <typename T, typename R, typename B0>
@@ -2381,7 +2381,7 @@ public:
         new (this) Event(q, mbed::callback(obj, method), b0);
     }
 
-    /** Create an event
+    /*  Create an event
      *  @see Event::Event
      */
     template <typename T, typename R, typename B0>
@@ -2389,7 +2389,7 @@ public:
         new (this) Event(q, mbed::callback(obj, method), b0);
     }
 
-    /** Create an event
+    /*  Create an event
      *  @see Event::Event
      */
     template <typename T, typename R, typename B0>
@@ -2397,7 +2397,7 @@ public:
         new (this) Event(q, mbed::callback(obj, method), b0);
     }
 
-    /** Create an event
+    /*  Create an event
      *  @see Event::Event
      */
     template <typename T, typename R, typename B0>
@@ -2405,7 +2405,7 @@ public:
         new (this) Event(q, mbed::callback(obj, method), b0);
     }
 
-    /** Create an event
+    /*  Create an event
      *  @see Event::Event
      */
     template <typename T, typename R, typename B0, typename B1>
@@ -2413,7 +2413,7 @@ public:
         new (this) Event(q, mbed::callback(obj, method), b0, b1);
     }
 
-    /** Create an event
+    /*  Create an event
      *  @see Event::Event
      */
     template <typename T, typename R, typename B0, typename B1>
@@ -2421,7 +2421,7 @@ public:
         new (this) Event(q, mbed::callback(obj, method), b0, b1);
     }
 
-    /** Create an event
+    /*  Create an event
      *  @see Event::Event
      */
     template <typename T, typename R, typename B0, typename B1>
@@ -2429,7 +2429,7 @@ public:
         new (this) Event(q, mbed::callback(obj, method), b0, b1);
     }
 
-    /** Create an event
+    /*  Create an event
      *  @see Event::Event
      */
     template <typename T, typename R, typename B0, typename B1>
@@ -2437,7 +2437,7 @@ public:
         new (this) Event(q, mbed::callback(obj, method), b0, b1);
     }
 
-    /** Create an event
+    /*  Create an event
      *  @see Event::Event
      */
     template <typename T, typename R, typename B0, typename B1, typename B2>
@@ -2445,7 +2445,7 @@ public:
         new (this) Event(q, mbed::callback(obj, method), b0, b1, b2);
     }
 
-    /** Create an event
+    /*  Create an event
      *  @see Event::Event
      */
     template <typename T, typename R, typename B0, typename B1, typename B2>
@@ -2453,7 +2453,7 @@ public:
         new (this) Event(q, mbed::callback(obj, method), b0, b1, b2);
     }
 
-    /** Create an event
+    /*  Create an event
      *  @see Event::Event
      */
     template <typename T, typename R, typename B0, typename B1, typename B2>
@@ -2461,7 +2461,7 @@ public:
         new (this) Event(q, mbed::callback(obj, method), b0, b1, b2);
     }
 
-    /** Create an event
+    /*  Create an event
      *  @see Event::Event
      */
     template <typename T, typename R, typename B0, typename B1, typename B2>
@@ -2469,7 +2469,7 @@ public:
         new (this) Event(q, mbed::callback(obj, method), b0, b1, b2);
     }
 
-    /** Create an event
+    /*  Create an event
      *  @see Event::Event
      */
     template <typename T, typename R, typename B0, typename B1, typename B2, typename B3>
@@ -2477,7 +2477,7 @@ public:
         new (this) Event(q, mbed::callback(obj, method), b0, b1, b2, b3);
     }
 
-    /** Create an event
+    /*  Create an event
      *  @see Event::Event
      */
     template <typename T, typename R, typename B0, typename B1, typename B2, typename B3>
@@ -2485,7 +2485,7 @@ public:
         new (this) Event(q, mbed::callback(obj, method), b0, b1, b2, b3);
     }
 
-    /** Create an event
+    /*  Create an event
      *  @see Event::Event
      */
     template <typename T, typename R, typename B0, typename B1, typename B2, typename B3>
@@ -2493,7 +2493,7 @@ public:
         new (this) Event(q, mbed::callback(obj, method), b0, b1, b2, b3);
     }
 
-    /** Create an event
+    /*  Create an event
      *  @see Event::Event
      */
     template <typename T, typename R, typename B0, typename B1, typename B2, typename B3>
@@ -2502,14 +2502,20 @@ public:
     }
 
     /** Create an event
-     *  @see Event::Event
+     *  @param q                Event queue to dispatch on
+     *  @param obj              Object to execute the member function on
+     *  @param method           Member function to execute when the event is dispatched
+     *  @param b0,b1,b2,b3,b4   Arguments to bind to the callback, these arguments are
+     *                          allocated on an irq-safe allocator from the event queue's
+     *                          memory pool. Must be type-compatible with b0..b4, the
+     *                          arguments to the underlying callback.
      */
     template <typename T, typename R, typename B0, typename B1, typename B2, typename B3, typename B4>
     Event(EventQueue *q, T *obj, R (T::*method)(B0, B1, B2, B3, B4, A0, A1, A2, A3, A4), B0 b0, B1 b1, B2 b2, B3 b3, B4 b4) {
         new (this) Event(q, mbed::callback(obj, method), b0, b1, b2, b3, b4);
     }
 
-    /** Create an event
+    /*  Create an event
      *  @see Event::Event
      */
     template <typename T, typename R, typename B0, typename B1, typename B2, typename B3, typename B4>
@@ -2517,7 +2523,7 @@ public:
         new (this) Event(q, mbed::callback(obj, method), b0, b1, b2, b3, b4);
     }
 
-    /** Create an event
+    /*  Create an event
      *  @see Event::Event
      */
     template <typename T, typename R, typename B0, typename B1, typename B2, typename B3, typename B4>
@@ -2525,7 +2531,7 @@ public:
         new (this) Event(q, mbed::callback(obj, method), b0, b1, b2, b3, b4);
     }
 
-    /** Create an event
+    /*  Create an event
      *  @see Event::Event
      */
     template <typename T, typename R, typename B0, typename B1, typename B2, typename B3, typename B4>
