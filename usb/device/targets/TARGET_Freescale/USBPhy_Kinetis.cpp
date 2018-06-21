@@ -436,6 +436,8 @@ void USBPhyHw::endpoint_stall(usb_ep_t endpoint)
 
 void USBPhyHw::endpoint_unstall(usb_ep_t endpoint)
 {
+    // Next transfer will be a DATA0 packet
+    Data1 &= ~(1 << DESC_TO_PHY(endpoint));
     USB0->ENDPOINT[DESC_TO_LOG(endpoint)].ENDPT &= ~USB_ENDPT_EPSTALL_MASK;
 }
 
