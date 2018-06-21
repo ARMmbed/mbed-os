@@ -33,7 +33,7 @@ class USBEndpointTester: public USBDevice {
 public:
     USBEndpointTester(USBPhy *phy, uint16_t vendor_id, uint16_t product_id, uint16_t product_release,
             bool abort_transfer_test);
-    ~USBEndpointTester();
+    virtual ~USBEndpointTester();
     const char *get_serial_desc_string();
     void start_ep_in_abort_test();
 
@@ -94,12 +94,12 @@ protected:
     void _setup_non_zero_endpoints();
     bool _setup_interface(uint16_t interface, uint8_t alternate);
 
-    virtual void _cb_bulk_out(usb_ep_t endpoint);
-    virtual void _cb_bulk_in(usb_ep_t endpoint);
-    virtual void _cb_int_out(usb_ep_t endpoint);
-    virtual void _cb_int_in(usb_ep_t endpoint);
-    virtual void _cb_iso_out(usb_ep_t endpoint);
-    virtual void _cb_iso_in(usb_ep_t endpoint);
+    virtual void _cb_bulk_out();
+    virtual void _cb_bulk_in();
+    virtual void _cb_int_out();
+    virtual void _cb_int_in();
+    virtual void _cb_iso_out();
+    virtual void _cb_iso_in();
 
 private:
     const char *get_desc_string(const uint8_t *desc);
