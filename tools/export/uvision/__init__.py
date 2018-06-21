@@ -137,6 +137,8 @@ class Uvision(Exporter):
             return False
         if not DeviceCMSIS.check_supported(target_name):
             return False
+        if "Cortex-A" in target.core:
+            return False
         if not hasattr(target, "post_binary_hook"):
             return True
         if target.post_binary_hook['function'] in cls.POST_BINARY_WHITELIST:
