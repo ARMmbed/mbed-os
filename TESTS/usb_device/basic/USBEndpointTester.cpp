@@ -228,6 +228,29 @@ void USBEndpointTester::callback_request(const setup_packet_t *setup)
                 result = PassThrough;
                 break;
         }
+    } else if ((setup->bmRequestType.Type == STANDARD_TYPE) && (setup->bmRequestType.Recipient == ENDPOINT_RECIPIENT)) {
+        if (setup->bRequest == CLEAR_FEATURE) {
+            usb_ep_t ep = setup->wIndex;
+            bool valid = false;
+            uint32_t ep_index = 0;
+            if (ep == _endpoints[EP_BULK_OUT]) {
+                valid = true;
+                ep_index = EP_BULK_OUT;
+            } else if (ep == _endpoints[EP_INT_OUT]) {
+                valid = true;
+                ep_index = EP_INT_OUT;
+            } else if (ep == _endpoints[EP_ISO_OUT]) {
+                valid = true;
+                ep_index = EP_ISO_OUT;
+            }
+
+            if (valid) {
+                // Restart reads when an OUT endpoint is unstalled
+                result = Success;
+                endpoint_unstall(ep);
+                read_start(_endpoints[ep_index], _endpoint_buffs[ep_index], (*_endpoint_configs)[ep_index].max_packet);
+            }
+        }
     }
     complete_request(result, data, size);
 }
