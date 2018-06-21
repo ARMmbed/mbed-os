@@ -241,7 +241,9 @@ int MBRBlockDevice::init()
     _size   = fromle32(table->entries[_part-1].lba_size)   * sector;
 
     // Check that block addresses are valid
-    MBED_ASSERT(_bd->is_valid_erase(_offset, _size));
+    if (!_bd->is_valid_erase(_offset, _size)) {
+        return BD_ERROR_INVALID_PARTITION;
+    }
 
     delete[] buffer;
     return 0;
