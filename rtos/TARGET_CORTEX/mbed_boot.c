@@ -423,6 +423,11 @@ void __rt_entry (void) {
     mbed_start_main();
 }
 
+/* Move all code here from RTX code base (rtx_lib.c) and do some modifications:
+ *
+ * 1. _mutex_initialize/_mutex_free are re-implemented to meet Mbed. 
+ * 2. All _mutex_* functions are declared with '__USED' to avoid excluded by linker.
+ */
 #if defined(RTX_NO_MULTITHREAD_CLIB)
 
 #define LIBSPACE_SIZE 96
