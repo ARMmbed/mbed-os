@@ -27,6 +27,7 @@ from os.path import (join, splitext, exists, relpath, dirname, basename, split,
 from itertools import chain
 from inspect import getmro
 from copy import deepcopy
+from collections import namedtuple
 from abc import ABCMeta, abstractmethod
 from distutils.spawn import find_executable
 from multiprocessing import Pool, cpu_count
@@ -39,6 +40,7 @@ from ..settings import MBED_ORG_USER, PRINT_COMPILER_OUTPUT_AS_LINK
 from .. import hooks
 from ..notifier.term import TerminalNotifier
 from ..memap import MemapParser
+from ..config import ConfigException
 
 
 #Disables multiprocessing if set to higher number than the host machine CPUs
@@ -1191,33 +1193,59 @@ class mbedToolchain:
 
         return None
 
-    def add_regions(self):
-        """Add regions to the build profile, if there are any.
-        """
-        regions = list(self.config.regions)
-        self.notify.info("Using regions %s in this build."
-                         % ", ".join(region.name for region in regions))
-        for region in regions:
-            for define in [(region.name.upper() + "_ADDR", region.start),
-                           (region.name.upper() + "_SIZE", region.size)]:
-                define_string = "-D%s=0x%x" %  define
-                self.cc.append(define_string)
-                self.cppc.append(define_string)
-                self.flags["common"].append(define_string)
+    def _add_defines_from_region(self, region, suffixes=['_ADDR', '_SIZE']):
+        for define in [(region.name.upper() + suffixes[0], region.start),
+                       (region.name.upper() + suffixes[1], region.size)]:
+            define_string = "-D%s=0x%x" %  define
+            self.cc.append(define_string)
+            self.cppc.append(define_string)
+            self.flags["common"].append(define_string)
+
+    def _add_all_regions(self, region_list, active_region_name):
+        for region in region_list:
+            self._add_defines_from_region(region)
             if region.active:
-                for define in [("MBED_APP_START", region.start),
-                               ("MBED_APP_SIZE", region.size)]:
+                for define in [
+                        ("%s_START" % active_region_name, region.start),
+                        ("%s_SIZE" % active_region_name, region.size)
+                ]:
                     define_string = self.make_ld_define(*define)
                     self.ld.append(define_string)
                     self.flags["ld"].append(define_string)
             self.notify.info("  Region %s: size 0x%x, offset 0x%x"
                              % (region.name, region.size, region.start))
 
+    def add_regions(self):
+        """Add regions to the build profile, if there are any.
+        """
+        if self.config.has_regions:
+            regions = list(self.config.regions)
+            self.notify.info("Using ROM region%s %s in this build." % (
+                "s" if len(regions) > 1 else "",
+                ", ".join(r.name for r in regions)
+            ))
+            self._add_all_regions(regions, "MBED_APP")
+        if self.config.has_ram_regions:
+            regions = list(self.config.ram_regions)
+            self.notify.info("Using RAM region%s %s in this build." % (
+                "s" if len(regions) > 1 else "",
+                ", ".join(r.name for r in regions)
+            ))
+            self._add_all_regions(regions, "MBED_RAM")
+        try:
+            rom_start, rom_size = self.config.rom
+            Region = namedtuple("Region", "name start size")
+            self._add_defines_from_region(
+                Region("MBED_ROM", rom_start, rom_size),
+                suffixes=["_START", "_SIZE"]
+            )
+        except ConfigException:
+            pass
+
     # Set the configuration data
     def set_config_data(self, config_data):
         self.config_data = config_data
-        if self.config.has_regions:
-            self.add_regions()
+        self.add_regions()
 
     # Creates the configuration header if needed:
     # - if there is no configuration data, "mbed_config.h" is not create (or deleted if it exists).
