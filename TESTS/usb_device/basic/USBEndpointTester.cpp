@@ -684,10 +684,10 @@ const uint8_t *USBEndpointTester::configuration_desc(uint8_t index)
     }
 }
 
-void USBEndpointTester::_cb_bulk_out(usb_ep_t endpoint)
+void USBEndpointTester::_cb_bulk_out()
 {
     _cnt_cb_bulk_out++;
-    uint32_t rx_size = read_finish(endpoint);
+    uint32_t rx_size = read_finish(_endpoints[EP_BULK_OUT]);
 
     if (_abort_transfer_test == false) {
         // Send data back to host using the IN endpoint.
@@ -699,15 +699,15 @@ void USBEndpointTester::_cb_bulk_out(usb_ep_t endpoint)
         _num_packets_bulk_out_abort++;
         read_start(_endpoints[EP_BULK_OUT], _endpoint_buffs[EP_BULK_OUT], (*_endpoint_configs)[EP_BULK_OUT].max_packet);
         if (_num_packets_bulk_out_abort == NUM_PACKETS_UNTIL_ABORT) {
-            endpoint_abort(endpoint);
+            endpoint_abort(_endpoints[EP_BULK_OUT]);
         }
     }
 }
 
-void USBEndpointTester::_cb_bulk_in(usb_ep_t endpoint)
+void USBEndpointTester::_cb_bulk_in()
 {
     _cnt_cb_bulk_in++;
-    write_finish(endpoint);
+    write_finish(_endpoints[EP_BULK_IN]);
 
     if (_abort_transfer_test == false) {
         // Receive more data from the host using the OUT endpoint.
@@ -721,15 +721,15 @@ void USBEndpointTester::_cb_bulk_in(usb_ep_t endpoint)
         memset(_endpoint_buffs[EP_BULK_IN], _num_packets_bulk_in_abort, (*_endpoint_configs)[EP_BULK_IN].max_packet);
         write_start(_endpoints[EP_BULK_IN], _endpoint_buffs[EP_BULK_IN], (*_endpoint_configs)[EP_BULK_IN].max_packet);
         if (_num_packets_bulk_in_abort == NUM_PACKETS_UNTIL_ABORT) {
-            endpoint_abort(endpoint);
+            endpoint_abort(_endpoints[EP_BULK_IN]);
         }
     }
 }
 
-void USBEndpointTester::_cb_int_out(usb_ep_t endpoint)
+void USBEndpointTester::_cb_int_out()
 {
     _cnt_cb_int_out++;
-    uint32_t rx_size = read_finish(endpoint);
+    uint32_t rx_size = read_finish(_endpoints[EP_INT_OUT]);
     if (_abort_transfer_test == false) {
         // Send data back to host using the IN endpoint.
         memset(_endpoint_buffs[EP_INT_IN], 0, (*_endpoint_configs)[EP_INT_IN].max_packet);
@@ -740,15 +740,15 @@ void USBEndpointTester::_cb_int_out(usb_ep_t endpoint)
         _num_packets_int_out_abort++;
         read_start(_endpoints[EP_INT_OUT], _endpoint_buffs[EP_INT_OUT], (*_endpoint_configs)[EP_INT_OUT].max_packet);
         if (_num_packets_int_out_abort == NUM_PACKETS_UNTIL_ABORT) {
-            endpoint_abort(endpoint);
+            endpoint_abort(_endpoints[EP_INT_OUT]);
         }
     }
 }
 
-void USBEndpointTester::_cb_int_in(usb_ep_t endpoint)
+void USBEndpointTester::_cb_int_in()
 {
     _cnt_cb_int_in++;
-    write_finish(endpoint);
+    write_finish(_endpoints[EP_INT_IN]);
     if (_abort_transfer_test == false) {
         // Receive more data from the host using the OUT endpoint.
         read_start(_endpoints[EP_INT_OUT], _endpoint_buffs[EP_INT_OUT], (*_endpoint_configs)[EP_INT_OUT].max_packet);
@@ -761,25 +761,25 @@ void USBEndpointTester::_cb_int_in(usb_ep_t endpoint)
         memset(_endpoint_buffs[EP_INT_IN], _num_packets_int_in_abort, (*_endpoint_configs)[EP_INT_IN].max_packet);
         write_start(_endpoints[EP_INT_IN], _endpoint_buffs[EP_INT_IN], (*_endpoint_configs)[EP_INT_IN].max_packet);
         if (_num_packets_int_in_abort == NUM_PACKETS_UNTIL_ABORT) {
-            endpoint_abort(endpoint);
+            endpoint_abort(_endpoints[EP_INT_IN]);
         }
     }
 }
 
-void USBEndpointTester::_cb_iso_out(usb_ep_t endpoint)
+void USBEndpointTester::_cb_iso_out()
 {
     _cnt_cb_iso_out++;
-    uint32_t rx_size = read_finish(endpoint);
+    uint32_t rx_size = read_finish(_endpoints[EP_ISO_OUT]);
     // Send data back to host using the IN endpoint.
     memset(_endpoint_buffs[EP_ISO_IN], 0, (*_endpoint_configs)[EP_ISO_IN].max_packet);
     memcpy(_endpoint_buffs[EP_ISO_IN], _endpoint_buffs[EP_ISO_OUT], rx_size);
     write_start(_endpoints[EP_ISO_IN], _endpoint_buffs[EP_ISO_IN], rx_size);
 }
 
-void USBEndpointTester::_cb_iso_in(usb_ep_t endpoint)
+void USBEndpointTester::_cb_iso_in()
 {
     _cnt_cb_iso_in++;
-    write_finish(endpoint);
+    write_finish(_endpoints[EP_ISO_IN]);
     // Receive more data from the host using the OUT endpoint.
     read_start(_endpoints[EP_ISO_OUT], _endpoint_buffs[EP_ISO_OUT], (*_endpoint_configs)[EP_ISO_OUT].max_packet);
 }
