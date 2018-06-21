@@ -404,11 +404,6 @@
 #define OS_THREAD_LIBSPACE_NUM      OS_THREAD_NUM
 #endif
  
-
-// Don't adopt default multi-thread support for ARM/ARMC6 toolchains from RTX code base.
-// Provide Mbed-specific instead.
-#define RTX_NO_MULTITHREAD_CLIB
-
 //------------- <<< end of configuration section >>> ---------------------------
  
 #endif  // RTX_CONFIG_H_
