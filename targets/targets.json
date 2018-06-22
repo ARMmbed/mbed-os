@@ -2846,8 +2846,10 @@
         "inherits": ["RZ_A1XX"],
         "supported_form_factors": ["ARDUINO"],
         "extra_labels_add": ["RZA1H", "MBRZA1H", "RZ_A1_EMAC"],
-        "device_has_add": ["EMAC"],
-        "release_versions": ["2", "5"]
+        "device_has_add": ["EMAC", "FLASH"],
+        "release_versions": ["2", "5"],
+        "device_name": "R7S72100",
+        "bootloader_supported": true
     },
     "VK_RZ_A1H": {
         "inherits": ["RZ_A1XX"],
@@ -2859,10 +2861,12 @@
         "inherits": ["RZ_A1XX"],
         "supported_form_factors": ["ARDUINO"],
         "extra_labels_add": ["RZA1UL", "MBRZA1LU"],
-        "device_has_add": ["TRNG"],
+        "device_has_add": ["TRNG", "FLASH"],
         "device_has_remove": ["ETHERNET"],
         "features_remove": ["LWIP"],
         "release_versions": ["2", "5"],
+        "device_name": "R7S72103",
+        "bootloader_supported": true,
         "overrides": {
             "network-default-interface-type": null
         }

@@ -21,6 +21,15 @@
 
 #if MBED_APPLICATION_SUPPORT
 
+#if defined(__CORTEX_A9)
+
+void mbed_start_application(uintptr_t address)
+{
+    ((void(*)())address)();
+}
+
+#else
+
 static void powerdown_nvic(void);
 static void powerdown_scb(uint32_t vtor);
 static void start_new_application(void *sp, void *pc);
@@ -141,6 +150,8 @@ void start_new_application(void *sp, void *pc)
 #else
 
 #error "Unsupported toolchain"
+
+#endif
 
 #endif
 
