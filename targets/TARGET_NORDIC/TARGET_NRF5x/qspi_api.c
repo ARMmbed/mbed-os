@@ -241,7 +241,6 @@ qspi_status_t qspi_read(qspi_t *obj, const qspi_command_t *command, void *data, 
 qspi_status_t qspi_command_transfer(qspi_t *obj, const qspi_command_t *command, const void *tx_data, size_t tx_size, void *rx_data, size_t rx_size)
 {
     ret_code_t ret_code;
-    uint32_t i;
     uint8_t data[8];
     uint32_t data_size = tx_size + rx_size;
  
@@ -252,15 +251,26 @@ qspi_status_t qspi_command_transfer(qspi_t *obj, const qspi_command_t *command, 
     qspi_cinstr_config.wipwait   = false;
     qspi_cinstr_config.wren      = false;
  
-    if (data_size < 9) {
+    if(!command->address.disabled && data_size == 0) {
+        // erase command with address
+        if (command->address.size == QSPI_CFG_ADDR_SIZE_24) {
+            qspi_cinstr_config.length = NRF_QSPI_CINSTR_LEN_4B;
+        } else if (command->address.size == QSPI_CFG_ADDR_SIZE_32) {
+            qspi_cinstr_config.length = NRF_QSPI_CINSTR_LEN_5B;
+        } else {
+            return QSPI_STATUS_INVALID_PARAMETER;
+        }
+        for (uint32_t i = 0; i < (uint32_t)qspi_cinstr_config.length - 1; ++i) {
+            data[i] = ((uint8_t *)&command->address.value)[i];
+        }
+    } else if (data_size < 9) {
         qspi_cinstr_config.length = (nrf_qspi_cinstr_len_t)(NRF_QSPI_CINSTR_LEN_1B + data_size);
+        // preparing data to send
+        for (uint32_t i = 0; i < tx_size; ++i) {
+            data[i] = ((uint8_t *)tx_data)[i];
+        }
     } else {
         return QSPI_STATUS_ERROR;
-    }
- 
-    // preparing data to send
-    for (i = 0; i < tx_size; ++i) {
-        data[i] = ((uint8_t *)tx_data)[i];
     }
  
     ret_code = nrf_drv_qspi_cinstr_xfer(&qspi_cinstr_config, data, data);
@@ -269,7 +279,7 @@ qspi_status_t qspi_command_transfer(qspi_t *obj, const qspi_command_t *command, 
     }
  
     // preparing received data
-    for (i = 0; i < rx_size; ++i) {
+    for (uint32_t i = 0; i < rx_size; ++i) {
         // Data is sending as a normal SPI transmission so there is one buffer to send and receive data.
         ((uint8_t *)rx_data)[i] = data[i];
     }
