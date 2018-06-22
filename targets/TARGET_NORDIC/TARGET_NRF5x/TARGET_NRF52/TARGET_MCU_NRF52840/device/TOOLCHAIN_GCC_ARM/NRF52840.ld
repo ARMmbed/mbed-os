@@ -198,12 +198,19 @@ SECTIONS
 
     __edata = .;
 
+    .nvictable (NOLOAD) :
+    {
+      PROVIDE(__start_nvictable = .);
+      KEEP(*(.nvictable))
+      PROVIDE(__stop_nvictable = .);
+    } > RAM_NVIC
+
     .noinit (NOLOAD) :
     {
       PROVIDE(__start_noinit = .);
       KEEP(*(.noinit))
       PROVIDE(__stop_noinit = .);
-    } > RAM_NVIC
+    } > RAM
 
     .bss :
     {
