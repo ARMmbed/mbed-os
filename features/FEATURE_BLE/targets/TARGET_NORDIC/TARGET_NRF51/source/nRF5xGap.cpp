@@ -1389,7 +1389,6 @@ ble_error_t nRF5xGap::get_role(ble::connection_handle_t connection, Role_t& role
         if (c.is_allocated && c.connection == connection) {
             role = c.is_peripheral ? PERIPHERAL : CENTRAL;
             return BLE_ERROR_NONE;
-
         }
     }
 
