@@ -354,7 +354,7 @@ ble_error_t nRF5xSecurityManager::cancel_pairing(
     // a pairing feature exchange from a central.
     if (!pairing_cb) {
         ::Gap::Role_t current_role;
-        if (!nRF5xn::Instance().getGap().get_role(connection, current_role)) {
+        if (nRF5xn::Instance().getGap().get_role(connection, current_role) != BLE_ERROR_NONE) {
             return BLE_ERROR_INVALID_PARAM;
         }
 
