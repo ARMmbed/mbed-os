@@ -436,8 +436,6 @@ void CellularConnectionFSM::state_sim_pin()
             retry_state_or_fail();
             return;
         }
-        _cellularDevice->close_sim();
-        _sim = NULL;
         if (_plmn) {
             enter_to_state(STATE_MANUAL_REGISTERING_NETWORK);
         } else {
@@ -485,6 +483,8 @@ void CellularConnectionFSM::state_attaching()
 {
     _cellularDevice->set_timeout(TIMEOUT_CONNECT);
     if (_network->set_attach() == NSAPI_ERROR_OK) {
+        _cellularDevice->close_sim();
+        _sim = NULL;
         enter_to_state(STATE_ACTIVATING_PDP_CONTEXT);
     } else {
         retry_state_or_fail();
