@@ -47,6 +47,7 @@ void onboard_modem_init()
     gpio_init_inout(&gpio, BUF_EN, PIN_OUTPUT, OpenDrainNoPull,   0);
     gpio_init_inout(&gpio, MDMRST,  PIN_OUTPUT, OpenDrainNoPull,  1);
     gpio_init_inout(&gpio, MDMPWRON, PIN_OUTPUT, OpenDrainNoPull, 1);
+    gpio_init_inout(&gpio, RADIO_DTR, PIN_OUTPUT, OpenDrainNoPull, 0);
 }
 
 void onboard_modem_deinit()
@@ -57,6 +58,7 @@ void onboard_modem_deinit()
     gpio_init_inout(&gpio, MDMRST,PIN_OUTPUT, OpenDrainNoPull, 0);
     gpio_init_inout(&gpio, BUF_EN, PIN_OUTPUT, OpenDrainNoPull,   1);
     gpio_init_inout(&gpio, RADIO_PWR, PIN_OUTPUT, PushPullNoPull,   0);
+    gpio_init_inout(&gpio, RADIO_DTR, PIN_OUTPUT, OpenDrainNoPull, 1);
 }
 
 
