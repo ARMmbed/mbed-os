@@ -3370,6 +3370,7 @@
         "extra_labels": ["Atmel", "SAM_CortexM0P", "SAML21"],
         "supported_toolchains": ["GCC_ARM", "ARM", "uARM"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH"],
+        "release_versions": ["2", "5"],
         "device_name": "ATSAML21J18A"
     },
     "SAMG55J19": {
