@@ -34,7 +34,15 @@ bool UBLOX_PPP_CellularNetwork::get_modem_stack_type(nsapi_ip_stack_t requested_
 
 AT_CellularNetwork::RegistrationMode UBLOX_PPP_CellularNetwork::has_registration(RegistrationType reg_type)
 {
+//<<<<<<< HEAD
     return (reg_type == C_REG || reg_type == C_GREG) ? RegistrationModeLAC : RegistrationModeDisable;
+//=======
+//#ifdef TARGET_DRAGONFLY_L471QG
+//	return (reg_type == C_REG || reg_type == C_EREG);
+//#else
+//    return (reg_type == C_REG || reg_type == C_GREG || reg_type == C_EREG);
+//#endif
+//>>>>>>> changes to support mts dragonfly nano ppp
 }
 
 nsapi_error_t UBLOX_PPP_CellularNetwork::set_access_technology_impl(RadioAccessTechnology opRat)
