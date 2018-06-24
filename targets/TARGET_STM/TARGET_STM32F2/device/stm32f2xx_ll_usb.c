@@ -745,61 +745,6 @@ HAL_StatusTypeDef USB_EP0StartXfer(USB_OTG_GlobalTypeDef *USBx , USB_OTG_EPTypeD
   }
   return HAL_OK;
 }
-/**
-  * @brief  USB_EPStoptXfer : setup and starts a transfer over an EP
-  * @param  USBx : Selected device
-  * @param  ep: pointer to endpoint structure
-  * @param  dma: USB dma enabled or disabled 
-  *          This parameter can be one of these values:
-  *           0 : DMA feature not used 
-  *           1 : DMA feature used  
-  * @retval HAL status
-  */
-HAL_StatusTypeDef USB_EPStopXfer(USB_OTG_GlobalTypeDef *USBx , USB_OTG_EPTypeDef *ep, uint8_t dma)
-{
-  HAL_StatusTypeDef ret = HAL_OK;
-  /* IN endpoint */
-  if (ep->is_in == 1U)
-  {
-
-    /* EP enable, IN data in FIFO */
-    if (((USBx_INEP(ep->num)->DIEPCTL) & USB_OTG_DIEPCTL_EPENA) == USB_OTG_DIEPCTL_EPENA)
-    {
-      volatile uint32_t loop=0;
-      USBx_INEP(ep->num)->DIEPCTL |= (USB_OTG_DIEPCTL_EPDIS);
-      while(((USBx_INEP(ep->num)->DIEPCTL) & USB_OTG_DIEPCTL_EPENA) ==  USB_OTG_DIEPCTL_EPENA)
-      {/*  data sheet say that EPDISD: Endpoint disabled interrupt must be raised
-           to consider the endpoint as disable */
-        /*  fix me loop for test only */
-        loop++;
-        if (loop > 10000L) {
-          ret =HAL_ERROR;
-          break;
-        }
-      }
-    }
-  }
-  else /* OUT endpoint */
-  {
-    if (((USBx_OUTEP(ep->num)->DOEPCTL) & USB_OTG_DOEPCTL_EPENA) == USB_OTG_DOEPCTL_EPENA)
-    {
-      volatile uint32_t loop=0;
-      USBx_OUTEP(ep->num)->DOEPCTL |= (USB_OTG_DOEPCTL_EPDIS);
-      while(((USBx_OUTEP(ep->num)->DOEPCTL) & USB_OTG_DOEPCTL_EPENA) ==  USB_OTG_DOEPCTL_EPENA)
-      {/*  data sheet say that EPDISD: Endpoint disabled interrupt must be raised
-           to consider the endpoint as disable */
-        /*  Fix me loop for test only */	
-        loop++;
-        if (loop > 10000L) {
-          ret =HAL_ERROR;
-          break;
-        }
-      }
-    }
-  }
-  return ret;
-}
-
 
 /**
   * @brief  USB_WritePacket : Writes a packet into the Tx FIFO associated 
