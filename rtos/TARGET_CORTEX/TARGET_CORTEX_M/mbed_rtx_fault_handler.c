@@ -17,16 +17,11 @@
 #include "rtx_os.h"
 #include "device.h"
 #include "platform/mbed_error.h"
+#include "platform/mbed_interface.h"
 #include "hal/serial_api.h"
-#include "hal/itm_api.h"
 
 #ifndef MBED_FAULT_HANDLER_DISABLED
 #include "mbed_rtx_fault_handler.h"
-
-#ifdef DEVICE_SERIAL
-extern int stdio_uart_inited;
-extern serial_t stdio_uart;
-#endif
 
 //Functions Prototypes
 void print_context_info(void);
@@ -34,261 +29,105 @@ void print_context_info(void);
 //Global for populating the context in exception handler
 mbed_fault_context_t mbed_fault_context;
 
-/* Converts a uint32 to hex char string */
-static void value_to_hex_str(uint32_t value, char *hex_str)
-{
-    char hex_char_map[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
-    int i = 0;
-    
-    //Return without converting if hex_str is not provided
-    if(hex_str == NULL) return;
-        
-    for(i=7; i>=0; i--) {
-        hex_str[i] = hex_char_map[(value & (0xf << (i * 4))) >> (i * 4)];
-    }
-}
-
-static void fault_print_init(void)
-{
-#if DEVICE_SERIAL
-    /* Initializes std uart if not init-ed yet */
-    if (!stdio_uart_inited) {
-        serial_init(&stdio_uart, STDIO_UART_TX, STDIO_UART_RX);
-    }
-#endif
-
-#if DEVICE_ITM
-    /*Initialize ITM interfaces*/
-    mbed_itm_init();
-#endif
-}
-
-static void fault_putc(char ch)
-{
-#if DEVICE_SERIAL
-    serial_putc(&stdio_uart, ch);
-#endif
-
-#if DEVICE_ITM
-    /*Initialize ITM interfaces*/
-    mbed_itm_send(ITM_PORT_SWO, ch);
-#endif
-}
-
-/* Limited print functionality which prints the string out to 
-stdout/uart without using stdlib by directly calling serial-api 
-and also uses less resources 
-The fmtstr contains the format string for printing and for every %
-found in that it fetches a uint32 value from values buffer
-and prints it in hex format.
-*/
-static void fault_print(char *fmtstr, uint32_t *values)
-{
-#if DEVICE_SERIAL || DEVICE_ITM
-    int i = 0;
-    int idx = 0;
-    int vidx = 0;
-    char num_str[9]={0};
-    char *str=NULL;
-    
-    //Init error reporting interfaces
-    fault_print_init();
-        
-    while(fmtstr[i] != '\0') {
-        if(fmtstr[i]=='%') {
-            i++;
-            if(fmtstr[i]=='x') {
-                //print the number in hex format
-                value_to_hex_str(values[vidx++],num_str);
-                for(idx=7; idx>=0; idx--) {
-                    fault_putc(num_str[idx]);
-                }
-            }
-            else if(fmtstr[i]=='s') {
-                //print the string
-                str = (char *)((uint32_t)values[vidx++]);
-                while(*str != '\0') {
-                    fault_putc(*str);
-                    str++;
-                }
-                str = NULL;
-            } else {
-                //Do not handle any other % formatting and keep going
-            }
-        } else {
-            //handle carriage returns
-            if (fmtstr[i] == '\n') {
-                fault_putc('\r');
-            }
-            fault_putc(fmtstr[i]);
-        }
-        i++;
-    }
-#endif    
-}
-
-#ifdef MBED_CONF_RTOS_PRESENT 
-/* Prints info of a thread(using osRtxThread_t struct)*/
-static void print_thread(osRtxThread_t *thread)
-{
-    uint32_t data[5];
-
-    data[0]=thread->state;
-    data[1]=thread->thread_addr;
-    data[2]=thread->stack_size;
-    data[3]=(uint32_t)thread->stack_mem;
-    data[4]=thread->sp;
-    fault_print("\nState: 0x%x Entry: 0x%x Stack Size: 0x%x Mem: 0x%x SP: 0x%x", data);
-}
-
-/* Prints thread info from a list */
-static void print_threads_info(osRtxThread_t *threads)
-{
-    while(threads != NULL) {
-        print_thread( threads );
-        threads = threads->thread_next;
-    }
-}
-
-#endif
-
 //This is a handler function called from Fault handler to print the error information out.
 //This runs in fault context and uses special functions(defined in mbed_rtx_fault_handler.c) to print the information without using C-lib support.
-__NO_RETURN void mbed_fault_handler (uint32_t fault_type, void *mbed_fault_context_in, void *osRtxInfoIn)
+void mbed_fault_handler (uint32_t fault_type, void *mbed_fault_context_in, void *osRtxInfoIn)
 {
     mbed_error_status_t faultStatus = MBED_SUCCESS;
     
-    fault_print("\n++ MbedOS Fault Handler ++\n\nFaultType: ",NULL);
+    mbed_error_printf("\n++ MbedOS Fault Handler ++\n\nFaultType: ");
         
     switch( fault_type ) {
-      case HARD_FAULT_EXCEPTION: 
-        fault_print("HardFault",NULL);
-        faultStatus = MBED_ERROR_HARDFAULT_EXCEPTION;      
-        break;
       case MEMMANAGE_FAULT_EXCEPTION: 
-        fault_print("MemManageFault",NULL); 
+        mbed_error_printf("MemManageFault"); 
         faultStatus = MBED_ERROR_MEMMANAGE_EXCEPTION;
         break;
+      
       case BUS_FAULT_EXCEPTION: 
-        fault_print("BusFault",NULL); 
+        mbed_error_printf("BusFault"); 
         faultStatus = MBED_ERROR_BUSFAULT_EXCEPTION;
         break;
+      
       case USAGE_FAULT_EXCEPTION: 
-        fault_print("UsageFault",NULL); 
+        mbed_error_printf("UsageFault"); 
         faultStatus = MBED_ERROR_USAGEFAULT_EXCEPTION;
         break;
-      default: 
-        fault_print("Unknown Fault",NULL); 
-        faultStatus = MBED_ERROR_UNKNOWN;
+      
+      //There is no way we can hit this code without getting an exception, so we have the default treated like hardfault
+      case HARD_FAULT_EXCEPTION: 
+      default:    
+        mbed_error_printf("HardFault");
+        faultStatus = MBED_ERROR_HARDFAULT_EXCEPTION;      
         break;
     }
-    fault_print("\n\nContext:",NULL);
+    mbed_error_printf("\n\nContext:");
     print_context_info();
-        
-    fault_print("\n\nThreads Info:\nCurrent:",NULL);
-    print_thread(((osRtxInfo_t *)osRtxInfoIn)->thread.run.curr);
-  
-    fault_print("\nNext:",NULL);
-    print_thread(((osRtxInfo_t *)osRtxInfoIn)->thread.run.next);
     
-    fault_print("\nWait:",NULL);
-    osRtxThread_t *threads = ((osRtxInfo_t *)osRtxInfoIn)->thread.wait_list;
-    print_threads_info(threads);
-    
-    fault_print("\nDelay:",NULL);
-    threads = ((osRtxInfo_t *)osRtxInfoIn)->thread.delay_list;
-    print_threads_info(threads);
-    
-    fault_print("\nIdle:",NULL);
-    threads = ((osRtxInfo_t *)osRtxInfoIn)->thread.idle;
-    print_threads_info(threads);
-    
-    fault_print("\n\n-- MbedOS Fault Handler --\n\n",NULL);
+    mbed_error_printf("\n\n-- MbedOS Fault Handler --\n\n");
     
     //Now call mbed_error, to log the error and halt the system
-    mbed_error( MBED_MAKE_ERROR( MBED_MODULE_UNKNOWN, faultStatus ), "System encountered an unrecoverable fault exception, halting system.", mbed_fault_context.PC_reg, NULL, 0 );
+    mbed_error( faultStatus, "Unrecoverable fault excaption.", mbed_fault_context.PC_reg, NULL, 0 );
     
-    /* In case we return, just spin here, we have already crashed */
-    for (;;) { 
-        __WFI(); 
-    }
 }
 
-void print_context_info(void)
+MBED_NOINLINE void print_context_info(void)
 {
     //Context Regs
-    fault_print("\nR0   : %x" 
-                    "\nR1   : %x" 
-                    "\nR2   : %x" 
-                    "\nR3   : %x" 
-                    "\nR4   : %x" 
-                    "\nR5   : %x" 
-                    "\nR6   : %x" 
-                    "\nR7   : %x" 
-                    "\nR8   : %x" 
-                    "\nR9   : %x" 
-                    "\nR10  : %x" 
-                    "\nR11  : %x" 
-                    "\nR12  : %x" 
-                    "\nSP   : %x" 
-                    "\nLR   : %x" 
-                    "\nPC   : %x" 
-                    "\nxPSR : %x" 
-                    "\nPSP  : %x" 
-                    "\nMSP  : %x", (uint32_t *)&mbed_fault_context);
+    for(int i=0;i<13;i++) {
+        mbed_error_printf("\nR%-4d: %08X", i, ((uint32_t *)&mbed_fault_context)[i]);  
+    }
+        
+    mbed_error_printf("\nSP   : %08X" 
+                      "\nLR   : %08X" 
+                      "\nPC   : %08X" 
+                      "\nxPSR : %08X" 
+                      "\nPSP  : %08X" 
+                      "\nMSP  : %08X", mbed_fault_context.SP_reg, mbed_fault_context.LR_reg, mbed_fault_context.PC_reg, 
+                                     mbed_fault_context.xPSR, mbed_fault_context.PSP, mbed_fault_context.MSP );
                        
     //Capture CPUID to get core/cpu info
-    fault_print("\nCPUID: %x",(uint32_t *)&SCB->CPUID);
+    mbed_error_printf("\nCPUID: %08X", SCB->CPUID);
     
 #if !defined(TARGET_M0) && !defined(TARGET_M0P)
     //Capture fault information registers to infer the cause of exception
-    uint32_t FSR[7] = {0};
-    
-    FSR[0] = SCB->HFSR;
-    //Split/Capture CFSR into MMFSR, BFSR, UFSR
-    FSR[1] = 0xFF & SCB->CFSR;//MMFSR
-    FSR[2] = (0xFF00 & SCB->CFSR) >> 8;//BFSR
-    FSR[3] = (0xFFFF0000 & SCB->CFSR) >> 16;//UFSR
-    FSR[4] = SCB->DFSR;
-    FSR[5] = SCB->AFSR;
-    FSR[6] = SCB->SHCSR;
-    fault_print("\nHFSR : %x"
-                    "\nMMFSR: %x"
-                    "\nBFSR : %x"
-                    "\nUFSR : %x"
-                    "\nDFSR : %x"
-                    "\nAFSR : %x"
-                    "\nSHCSR: %x",FSR); 
+    mbed_error_printf("\nHFSR : %08X"
+                    "\nMMFSR: %08X"
+                    "\nBFSR : %08X"
+                    "\nUFSR : %08X"
+                    "\nDFSR : %08X"
+                    "\nAFSR : %08X"  ////Split/Capture CFSR into MMFSR, BFSR, UFSR
+                    ,SCB->HFSR, (0xFF & SCB->CFSR), ((0xFF00 & SCB->CFSR) >> 8), ((0xFFFF0000 & SCB->CFSR) >> 16), SCB->DFSR, SCB->AFSR ); 
     
     //Print MMFAR only if its valid as indicated by MMFSR
-    if(FSR[1] & 0x80) {
-        fault_print("\nMMFAR: %x",(uint32_t *)&SCB->MMFAR); 
+    if ((0xFF & SCB->CFSR) & 0x80) {
+        mbed_error_printf("\nMMFAR: %08X",SCB->MMFAR); 
     }
     //Print BFAR only if its valid as indicated by BFSR
-    if(FSR[2] & 0x80) {
-        fault_print("\nBFAR : %x",(uint32_t *)&SCB->BFAR); 
+    if (((0xFF00 & SCB->CFSR) >> 8) & 0x80) {
+        mbed_error_printf("\nBFAR : %08X",SCB->BFAR); 
     }
 #endif
+    
     //Print Mode
-    if(mbed_fault_context.EXC_RETURN & 0x8) {
-        fault_print("\nMode : Thread", NULL);
+    if (mbed_fault_context.EXC_RETURN & 0x8) {
+        mbed_error_printf("\nMode : Thread");
         //Print Priv level in Thread mode - We capture CONTROL reg which reflects the privilege.
         //Note that the CONTROL register captured still reflects the privilege status of the 
         //thread mode eventhough we are in Handler mode by the time we capture it.
         if(mbed_fault_context.CONTROL & 0x1) {
-            fault_print("\nPriv : User", NULL); 
+            mbed_error_printf("\nPriv : User"); 
         } else {
-            fault_print("\nPriv : Privileged", NULL); 
+            mbed_error_printf("\nPriv : Privileged"); 
         }        
     } else {
-        fault_print("\nMode : Handler", NULL); 
-        fault_print("\nPriv : Privileged", NULL); 
+        mbed_error_printf("\nMode : Handler"); 
+        mbed_error_printf("\nPriv : Privileged"); 
     }
     //Print Return Stack
-    if(mbed_fault_context.EXC_RETURN & 0x4) {
-        fault_print("\nStack: PSP", NULL); 
+    if (mbed_fault_context.EXC_RETURN & 0x4) {
+        mbed_error_printf("\nStack: PSP"); 
     } else {
-        fault_print("\nStack: MSP", NULL); 
+        mbed_error_printf("\nStack: MSP"); 
     }
 }
 

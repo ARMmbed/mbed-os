@@ -53,6 +53,6 @@ typedef struct {
 
 //This is a handler function called from Fault handler to print the error information out.
 //This runs in fault context and uses special functions(defined in mbed_rtx_fault_handler.c) to print the information without using C-lib support.
-__NO_RETURN void mbed_fault_handler (uint32_t fault_type, void *mbed_fault_context_in, void *osRtxInfoIn);
+void mbed_fault_handler (uint32_t fault_type, void *mbed_fault_context_in, void *osRtxInfoIn);
 
 #endif
