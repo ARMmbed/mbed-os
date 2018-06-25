@@ -95,13 +95,13 @@ static const osMutexAttr_t {{partition.name|lower}}_mutex_attr = {
 
 {% if partition.irqs|count > 0 %}
 // Mapper function from irq signal to interupts number
-uint32_t spm_{{partition.name|lower}}_signal_to_irq_mapper(uint32_t signal)
+IRQn_Type spm_{{partition.name|lower}}_signal_to_irq_mapper(uint32_t signal)
 {
     SPM_ASSERT({{partition.name|upper}}_WAIT_ANY_IRQ_MSK & signal);
     switch(signal){
     {% for irq in partition.irqs %}
         case {{ irq.signal }}:
-            return {{irq.line_num}};
+            return (IRQn_Type){{irq.line_num}};
             break;
     {% endfor %}
         default:

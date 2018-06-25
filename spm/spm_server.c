@@ -546,7 +546,7 @@ void psa_eoi(uint32_t irq_signal)
         SPM_PANIC("signal 0x%x must have only 1 bit ON!\n",irq_signal);
     }
 
-    IRQn_Type irq_line = (IRQn_Type)curr_partition->irq_mapper(irq_signal);
+    IRQn_Type irq_line = curr_partition->irq_mapper(irq_signal);
     NVIC_EnableIRQ(irq_line);
 
     int32_t flags = (int32_t)osThreadFlagsClear(irq_signal);

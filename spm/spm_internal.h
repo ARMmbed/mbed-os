@@ -18,6 +18,7 @@
 
 #include <stdbool.h>
 #include "cmsis_os2.h"
+#include "cmsis.h"
 #include "psa_defs.h"
 #include "spm_panic.h"
 #include "handles_manager.h"
@@ -48,7 +49,7 @@ typedef union spm_iovec {
  * IRQ signal mapper definition.
  * The function will not return on invalid signal.
  */
-typedef uint32_t (*spm_signal_to_irq_mapper_t)(uint32_t);
+typedef IRQn_Type (*spm_signal_to_irq_mapper_t)(uint32_t);
 
 #define SPM_CHANNEL_STATE_UNINITIALIZED_MSK    (0x00) //Should not be used.
 #define SPM_CHANNEL_STATE_INVALID_MSK          (0x01)
