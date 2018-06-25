@@ -104,6 +104,7 @@
   * @{
   */
 static HAL_StatusTypeDef PCD_WriteEmptyTxFifo(PCD_HandleTypeDef *hpcd, uint32_t epnum);
+static HAL_StatusTypeDef PCD_ReadRxFifo(PCD_HandleTypeDef *hpcd);
 /**
   * @}
   */
@@ -314,7 +315,6 @@ void HAL_PCD_IRQHandler(PCD_HandleTypeDef *hpcd)
   USB_OTG_GlobalTypeDef *USBx = hpcd->Instance;
   uint32_t i = 0U, ep_intr = 0U, epint = 0U, epnum = 0U;
   uint32_t fifoemptymsk = 0U, temp = 0U;
-  USB_OTG_EPTypeDef *ep;
   uint32_t hclk = 120000000U; 
   
   /* ensure that we are in device mode */
@@ -366,6 +366,11 @@ void HAL_PCD_IRQHandler(PCD_HandleTypeDef *hpcd)
             }
           }
           
+          if (( epint & USB_OTG_DOEPINT_EPDISD) == USB_OTG_DOEPINT_EPDISD)
+          {
+              CLEAR_OUT_EP_INTR(epnum, USB_OTG_DOEPINT_EPDISD);
+          }
+
           if(( epint & USB_OTG_DOEPINT_STUP) == USB_OTG_DOEPINT_STUP)
           {
             /* Inform the upper layer that a setup packet is available */
@@ -596,27 +601,7 @@ void HAL_PCD_IRQHandler(PCD_HandleTypeDef *hpcd)
     /* Handle RxQLevel Interrupt */
     if(__HAL_PCD_GET_FLAG(hpcd, USB_OTG_GINTSTS_RXFLVL))
     {
-      USB_MASK_INTERRUPT(hpcd->Instance, USB_OTG_GINTSTS_RXFLVL);
-      
-      temp = USBx->GRXSTSP;
-      
-      ep = &hpcd->OUT_ep[temp & USB_OTG_GRXSTSP_EPNUM];
-      
-      if(((temp & USB_OTG_GRXSTSP_PKTSTS) >> 17U) ==  STS_DATA_UPDT)
-      {
-        if((temp & USB_OTG_GRXSTSP_BCNT) != 0U)
-        {
-          USB_ReadPacket(USBx, ep->xfer_buff, (temp & USB_OTG_GRXSTSP_BCNT) >> 4U);
-          ep->xfer_buff += (temp & USB_OTG_GRXSTSP_BCNT) >> 4U;
-          ep->xfer_count += (temp & USB_OTG_GRXSTSP_BCNT) >> 4U;
-        }
-      }
-      else if (((temp & USB_OTG_GRXSTSP_PKTSTS) >> 17U) ==  STS_SETUP_UPDT)
-      {
-        USB_ReadPacket(USBx, (uint8_t *)hpcd->Setup, 8U);
-        ep->xfer_count += (temp & USB_OTG_GRXSTSP_BCNT) >> 4U;
-      }
-      USB_UNMASK_INTERRUPT(hpcd->Instance, USB_OTG_GINTSTS_RXFLVL);
+      PCD_ReadRxFifo(hpcd);
     }
     
     /* Handle SOF Interrupt */
@@ -1044,6 +1029,84 @@ HAL_StatusTypeDef HAL_PCD_EP_Transmit(PCD_HandleTypeDef *hpcd, uint8_t ep_addr, 
 }
 
 /**
+  * @brief  Abort a transaction.  
+  * @param  hpcd: PCD handle
+  * @param  ep_addr: endpoint address
+  * @retval HAL status
+  */
+HAL_StatusTypeDef HAL_PCD_EP_Abort(PCD_HandleTypeDef *hpcd, uint8_t ep_addr)
+{
+  USB_OTG_GlobalTypeDef *USBx = hpcd->Instance;
+  HAL_StatusTypeDef ret = HAL_OK;
+  USB_OTG_EPTypeDef *ep;
+
+  if ((0x80 & ep_addr) == 0x80)
+  {
+    ep = &hpcd->IN_ep[ep_addr & 0x7F];
+  }
+  else
+  {
+    ep = &hpcd->OUT_ep[ep_addr];
+  }
+
+  __HAL_LOCK(&hpcd->EPLock[ep_addr & 0x7F]);
+
+  ep->num   = ep_addr & 0x7F;
+  ep->is_in = ((ep_addr & 0x80) == 0x80);
+
+  USB_EPSetNak(hpcd->Instance, ep);
+
+  if ((0x80 & ep_addr) == 0x80)
+  {
+      ret = USB_EPStopXfer(hpcd->Instance , ep);
+      if (ret == HAL_OK)
+      {
+        ret = USB_FlushTxFifo(hpcd->Instance, ep_addr & 0x7F);
+      }
+  }
+  else
+  {
+    /* Set global NAK */
+    USBx_DEVICE->DCTL |= USB_OTG_DCTL_SGONAK;
+
+    /* Read all entries from the fifo so global NAK takes effect */
+    while (__HAL_PCD_GET_FLAG(hpcd, USB_OTG_GINTSTS_RXFLVL))
+    {
+      PCD_ReadRxFifo(hpcd);
+    }
+
+    /* Stop the transfer */
+    ret = USB_EPStopXfer(hpcd->Instance , ep);
+    if (ret == HAL_BUSY)
+    {
+      /* If USB_EPStopXfer returns HAL_BUSY then a setup packet
+       * arrived after the rx fifo was processed but before USB_EPStopXfer
+       * was called. Process the rx fifo one more time to read the
+       * setup packet.
+       *
+       * Note - after the setup packet has been received no further
+       * packets will be received over USB. This is because the next
+       * phase (data or status) of the control transfer started by
+       * the setup packet will be naked until global nak is cleared.
+       */
+      while (__HAL_PCD_GET_FLAG(hpcd, USB_OTG_GINTSTS_RXFLVL))
+      {
+        PCD_ReadRxFifo(hpcd);
+      }
+
+      ret = USB_EPStopXfer(hpcd->Instance , ep);
+    }
+
+    /* Clear global nak */
+    USBx_DEVICE->DCTL |= USB_OTG_DCTL_CGONAK;
+  }
+
+  __HAL_UNLOCK(&hpcd->EPLock[ep_addr & 0x7F]);
+
+  return ret;
+}
+
+/**
   * @brief  Set a STALL condition over an endpoint.
   * @param  hpcd: PCD handle
   * @param  ep_addr: endpoint address
@@ -1254,6 +1317,42 @@ static HAL_StatusTypeDef PCD_WriteEmptyTxFifo(PCD_HandleTypeDef *hpcd, uint32_t 
   }
   
   return HAL_OK;  
+}
+
+/**
+  * @brief  Process the next RX fifo entry
+  * @param  hpcd: PCD handle
+  * @retval HAL status
+  */
+static HAL_StatusTypeDef PCD_ReadRxFifo(PCD_HandleTypeDef *hpcd)
+{
+    USB_OTG_GlobalTypeDef *USBx = hpcd->Instance;
+    USB_OTG_EPTypeDef *ep;
+    uint32_t temp = 0;
+
+    USB_MASK_INTERRUPT(hpcd->Instance, USB_OTG_GINTSTS_RXFLVL);
+
+    temp = USBx->GRXSTSP;
+
+    ep = &hpcd->OUT_ep[temp & USB_OTG_GRXSTSP_EPNUM];
+
+    if(((temp & USB_OTG_GRXSTSP_PKTSTS) >> 17U) ==  STS_DATA_UPDT)
+    {
+      if((temp & USB_OTG_GRXSTSP_BCNT) != 0U)
+      {
+        USB_ReadPacket(USBx, ep->xfer_buff, (temp & USB_OTG_GRXSTSP_BCNT) >> 4U);
+        ep->xfer_buff += (temp & USB_OTG_GRXSTSP_BCNT) >> 4U;
+        ep->xfer_count += (temp & USB_OTG_GRXSTSP_BCNT) >> 4U;
+      }
+    }
+    else if (((temp & USB_OTG_GRXSTSP_PKTSTS) >> 17U) ==  STS_SETUP_UPDT)
+    {
+      USB_ReadPacket(USBx, (uint8_t *)hpcd->Setup, 8U);
+      ep->xfer_count += (temp & USB_OTG_GRXSTSP_BCNT) >> 4U;
+    }
+    USB_UNMASK_INTERRUPT(hpcd->Instance, USB_OTG_GINTSTS_RXFLVL);
+
+    return HAL_OK;
 }
 
 /**
