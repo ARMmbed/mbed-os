@@ -27,8 +27,10 @@
 using namespace utest::v1;
 
 #define MINOR_VER               0
+#define DROP_CONN_MINOR_VER     5
 #define CLIENT_RSP_BUF_SIZE     128
 #define OFFSET_POS              1
+#define INVALID_SID             0x00001A020
 
 
 typedef struct th_struct {
@@ -362,7 +364,7 @@ void client_close_null_handle()
 
 void drop_connection()
 {
-    psa_handle_t handle = client_ipc_tests_connect(DROP_CONN, MINOR_VER);
+    psa_handle_t handle = client_ipc_tests_connect(DROP_CONN, DROP_CONN_MINOR_VER);
     psa_error_t status = psa_call(handle, NULL, 0, NULL, 0);
     TEST_ASSERT_EQUAL_INT(PSA_DROP_CONNECTION, status);
 
@@ -372,6 +374,25 @@ void drop_connection()
 
     client_ipc_tests_close(handle);
 }
+
+void verify_psa_framework_version()
+{
+    uint32_t ff_version = psa_framework_version();
+    TEST_ASSERT_EQUAL_INT(PSA_FRAMEWORK_VERSION, ff_version);
+}
+
+void psa_version_existing()
+{
+    uint32_t rot_version = psa_version(DROP_CONN);
+    TEST_ASSERT_EQUAL_INT(DROP_CONN_MINOR_VER, rot_version);
+}
+
+void psa_version_non_existing()
+{
+    uint32_t rot_version = psa_version(INVALID_SID);
+    TEST_ASSERT_EQUAL_INT(PSA_VERSION_NONE, rot_version);
+}
+
 
  // Test cases
 Case cases[] = {
@@ -386,6 +407,9 @@ Case cases[] = {
     Case("Testing client exceed num of max channels allowed", exceed_num_of_max_channels),
     Case("Testing client close on NULL handle", client_close_null_handle),
     Case("Testing DROP_CONNECTION State", drop_connection),
+    Case("Testing client psa_framework_version() API", verify_psa_framework_version),
+    Case("Testing client psa_version() API on existing SID", psa_version_existing),
+    Case("Testing client psa_version() API on non-existing SID", psa_version_non_existing),
 };
 
 utest::v1::status_t test_setup(const size_t number_of_cases)

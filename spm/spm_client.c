@@ -277,3 +277,20 @@ void psa_close(psa_handle_t handle)
 
     spm_rot_service_queue_enqueue(channel->dst_rot_service, channel);
 }
+
+uint32_t psa_framework_version(void)
+{
+    return (uint32_t)PSA_FRAMEWORK_VERSION;
+}
+
+
+uint32_t psa_version(uint32_t sid)
+{
+    uint32_t version = PSA_VERSION_NONE;
+    spm_rot_service_t *service = rot_service_get(sid);
+    if (service != NULL) {
+        version = service->min_version;
+    }
+
+    return version;
+}
