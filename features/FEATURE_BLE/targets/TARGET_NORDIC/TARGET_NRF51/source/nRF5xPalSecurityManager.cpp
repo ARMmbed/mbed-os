@@ -16,6 +16,9 @@
 
 #include <stdint.h>
 #include "nRF5xPalSecurityManager.h"
+#include "nRF5xn.h"
+#include "ble/Gap.h"
+#include "nRF5xGap.h"
 #include "nrf_ble.h"
 #include "nrf_ble_gap.h"
 #include "nrf_soc.h"
@@ -297,6 +300,9 @@ ble_error_t nRF5xSecurityManager::send_pairing_response(
 ) {
     pairing_control_block_t* pairing_cb = allocate_pairing_cb(connection);
     if (!pairing_cb) {
+        // not enough memory; try to reject the pairing request instead of
+        // waiting for timeout.
+        cancel_pairing(connection, pairing_failure_t::UNSPECIFIED_REASON);
         return BLE_ERROR_NO_MEM;
     }
     pairing_cb->role = PAIRING_RESPONDER;
@@ -339,22 +345,33 @@ ble_error_t nRF5xSecurityManager::send_pairing_response(
 ble_error_t nRF5xSecurityManager::cancel_pairing(
     connection_handle_t connection, pairing_failure_t reason
 ) {
-    // this is the default path except when a key is expected to be entered by
-    // the user.
-    uint32_t err = sd_ble_gap_sec_params_reply(
-        connection,
-        reason.value() | 0x80,
-        /* sec params */ NULL,
-        /* keyset */ NULL
-    );
+    uint32_t err = 0;
 
-    if (!err) {
-        return BLE_ERROR_NONE;
-    }
+    pairing_control_block_t* pairing_cb = get_pairing_cb(connection);
 
-    // Failed because we're in the wrong state; try to cancel pairing with
-    // sd_ble_gap_auth_key_reply
-    if (err == NRF_ERROR_INVALID_STATE) {
+    // If there is no control block yet then if the local device is a central
+    // then we must reject the security request otherwise it is a response to
+    // a pairing feature exchange from a central.
+    if (!pairing_cb) {
+        ::Gap::Role_t current_role;
+        if (nRF5xn::Instance().getGap().get_role(connection, current_role) != BLE_ERROR_NONE) {
+            return BLE_ERROR_INVALID_PARAM;
+        }
+
+        if (current_role == ::Gap::PERIPHERAL) {
+            // response to a pairing feature request
+            err = sd_ble_gap_sec_params_reply(
+                connection,
+                reason.value() | 0x80,
+                /* sec params */ NULL,
+                /* keyset */ NULL
+            );
+        } else {
+            // response to a peripheral security request
+            err = sd_ble_gap_authenticate(connection, NULL);
+        }
+    } else {
+        // At this point this must be a response to a key
         err = sd_ble_gap_auth_key_reply(
             connection,
             /* key type */ BLE_GAP_AUTH_KEY_TYPE_NONE,
