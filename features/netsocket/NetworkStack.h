@@ -165,7 +165,7 @@ public:
     virtual OnboardNetworkStack *onboardNetworkStack() { return 0; }
 
 protected:
-    friend class Socket;
+    friend class InternetSocket;
     friend class UDPSocket;
     friend class TCPSocket;
     friend class TCPServer;

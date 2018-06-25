@@ -20,7 +20,7 @@
 #ifndef TCPSOCKET_H
 #define TCPSOCKET_H
 
-#include "netsocket/Socket.h"
+#include "netsocket/InternetSocket.h"
 #include "netsocket/NetworkStack.h"
 #include "netsocket/NetworkInterface.h"
 #include "rtos/EventFlags.h"
@@ -28,7 +28,7 @@
 
 /** TCP socket connection
  */
-class TCPSocket : public Socket {
+class TCPSocket : public InternetSocket {
 public:
     /** Create an uninitialized socket
      *
@@ -45,8 +45,6 @@ public:
      */
     template <typename S>
     TCPSocket(S *stack)
-        : _pending(0), _event_flag(0),
-          _read_in_progress(false), _write_in_progress(false)
     {
         open(stack);
     }
@@ -60,7 +58,7 @@ public:
    /** Override multicast functions to return error for TCP
     *
     */
-    int join_multicast_group(const SocketAddress &address) { return NSAPI_ERROR_UNSUPPORTED; }
+    virtual int join_multicast_group(const SocketAddress &address) { return NSAPI_ERROR_UNSUPPORTED; }
 
     /** Connects TCP socket to a remote host
      *
@@ -81,8 +79,8 @@ public:
      *  @param address  The SocketAddress of the remote host
      *  @return         0 on success, negative error code on failure
      */
-    nsapi_error_t connect(const SocketAddress &address);
-    
+    virtual nsapi_error_t connect(const SocketAddress &address);
+
     /** Send data over a TCP socket
      *
      *  The socket must be connected to a remote host. Returns the number of
@@ -97,8 +95,8 @@ public:
      *  @return         Number of sent bytes on success, negative error
      *                  code on failure
      */
-    nsapi_size_or_error_t send(const void *data, nsapi_size_t size);
-    
+    virtual nsapi_size_or_error_t send(const void *data, nsapi_size_t size);
+
     /** Receive data over a TCP socket
      *
      *  The socket must be connected to a remote host. Returns the number of
@@ -115,18 +113,72 @@ public:
      *                  and the peer has performed an orderly shutdown,
      *                  recv() returns 0.
      */
-    nsapi_size_or_error_t recv(void *data, nsapi_size_t size);
+    virtual nsapi_size_or_error_t recv(void *data, nsapi_size_t size);
+
+    /** Send data on a socket.
+     *
+     * TCP socket is connection oriented protocol, so address is ignored.
+     *
+     * By default, sendto blocks until data is sent. If socket is set to
+     * non-blocking or times out, NSAPI_ERROR_WOULD_BLOCK is returned
+     * immediately.
+     *
+     *  @param address  Remote address
+     *  @param data     Buffer of data to send to the host
+     *  @param size     Size of the buffer in bytes
+     *  @return         Number of sent bytes on success, negative error
+     *                  code on failure
+     */
+    virtual nsapi_size_or_error_t sendto(const SocketAddress &address,
+            const void *data, nsapi_size_t size);
+
+    /** Receive a data from a socket
+     *
+     *  Receives a data and stores the source address in address if address
+     *  is not NULL. Returns the number of bytes written into the buffer.
+     *
+     *  By default, recvfrom blocks until a data is received. If socket is set to
+     *  non-blocking or times out with no datagram, NSAPI_ERROR_WOULD_BLOCK
+     *  is returned.
+     *
+     *  @param address  Destination for the source address or NULL
+     *  @param data     Destination buffer for datagram received from the host
+     *  @param size     Size of the buffer in bytes
+     *  @return         Number of received bytes on success, negative error
+     *                  code on failure
+     */
+    virtual nsapi_size_or_error_t recvfrom(SocketAddress *address,
+            void *data, nsapi_size_t size);
+
+    /** Accepts a connection on a socket.
+     *
+     *  The server socket must be bound and set to listen for connections.
+     *  On a new connection, returns connected network socket which user is expected to call close()
+     *  and that deallocates the resources. Referencing a returned pointer after a close()
+     *  call is not allowed and leads to undefined behaviour.
+     *
+     *  By default, accept blocks until incomming connection occurs. If socket is set to
+     *  non-blocking or times out, error is set to NSAPI_ERROR_WOULD_BLOCK.
+     *
+     *  @param error      pointer to storage of the error value or NULL
+     *  @return           pointer to a socket
+     */
+    virtual TCPSocket *accept(nsapi_error_t *error = NULL);
+
+    /** Listen for incoming connections.
+     *
+     *  Marks the socket as a passive socket that can be used to accept
+     *  incoming connections.
+     *
+     *  @param backlog  Number of pending connections that can be queued
+     *                  simultaneously, defaults to 1
+     *  @return         0 on success, negative error code on failure
+     */
+    virtual nsapi_error_t listen(int backlog = 1);
 
 protected:
     friend class TCPServer;
-
     virtual nsapi_protocol_t get_proto();
-    virtual void event();
-
-    volatile unsigned _pending;
-    rtos::EventFlags _event_flag;
-    bool _read_in_progress;
-    bool _write_in_progress;
 };
 
 

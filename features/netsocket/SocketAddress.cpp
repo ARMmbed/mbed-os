@@ -18,8 +18,9 @@
 #include "NetworkInterface.h"
 #include "NetworkStack.h"
 #include <string.h>
+#include <stdio.h>
 #include "ip6string.h"
-#include "mbed.h"
+
 
 
 static bool ipv4_is_valid(const char *addr)
@@ -105,35 +106,36 @@ static void ipv6_to_address(char *addr, const uint8_t *bytes)
 
 SocketAddress::SocketAddress(nsapi_addr_t addr, uint16_t port)
 {
-    _ip_address[0] = '\0';
+    _ip_address = NULL;
     set_addr(addr);
     set_port(port);
 }
 
 SocketAddress::SocketAddress(const char *addr, uint16_t port)
 {
-    _ip_address[0] = '\0';
+    _ip_address = NULL;
     set_ip_address(addr);
     set_port(port);
 }
 
 SocketAddress::SocketAddress(const void *bytes, nsapi_version_t version, uint16_t port)
 {
-    _ip_address[0] = '\0';
+    _ip_address = NULL;
     set_ip_bytes(bytes, version);
     set_port(port);
 }
 
 SocketAddress::SocketAddress(const SocketAddress &addr)
 {
-    _ip_address[0] = '\0';
+    _ip_address = NULL;
     set_addr(addr.get_addr());
     set_port(addr.get_port());
 }
 
 bool SocketAddress::set_ip_address(const char *addr)
 {
-    _ip_address[0] = '\0';
+    delete[] _ip_address;
+    _ip_address = NULL;
 
     if (addr && ipv4_is_valid(addr)) {
         _addr.version = NSAPI_IPv4;
@@ -165,7 +167,8 @@ void SocketAddress::set_ip_bytes(const void *bytes, nsapi_version_t version)
 
 void SocketAddress::set_addr(nsapi_addr_t addr)
 {
-    _ip_address[0] = '\0';
+    delete[] _ip_address;
+    _ip_address = NULL;
     _addr = addr;
 }
 
@@ -180,7 +183,8 @@ const char *SocketAddress::get_ip_address() const
         return NULL;
     }
 
-    if (!_ip_address[0]) {
+    if (!_ip_address) {
+        _ip_address = new char[NSAPI_IP_SIZE];
         if (_addr.version == NSAPI_IPv4) {
             ipv4_to_address(_ip_address, _addr.bytes);
         } else if (_addr.version == NSAPI_IPv6) {
@@ -234,6 +238,15 @@ SocketAddress::operator bool() const
     }
 }
 
+SocketAddress &SocketAddress::operator=(const SocketAddress &addr)
+{
+    delete[] _ip_address;
+    _ip_address = NULL;
+    set_addr(addr.get_addr());
+    set_port(addr.get_port());
+    return *this;
+}
+
 bool operator==(const SocketAddress &a, const SocketAddress &b)
 {
     if (!a && !b) {
@@ -256,7 +269,7 @@ bool operator!=(const SocketAddress &a, const SocketAddress &b)
 
 void SocketAddress::_SocketAddress(NetworkStack *iface, const char *host, uint16_t port)
 {
-    _ip_address[0] = '\0';
+    _ip_address = NULL;
 
     // gethostbyname must check for literals, so can call it directly
     int err = iface->gethostbyname(host, this);
@@ -265,4 +278,9 @@ void SocketAddress::_SocketAddress(NetworkStack *iface, const char *host, uint16
         _addr = nsapi_addr_t();
         _port = 0;
     }
+}
+
+SocketAddress::~SocketAddress()
+{
+    delete[] _ip_address;
 }
