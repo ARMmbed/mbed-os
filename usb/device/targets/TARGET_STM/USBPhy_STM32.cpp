@@ -41,6 +41,19 @@
 #define LOG_OUT_TO_EP(ep)   ((ep) | 0x00)
 #define IDX_TO_EP(ep)       (((ep) >> 1)|((ep) & 1) << 7)
 
+/* endpoint defines */
+#define NUM_ENDPOINTS           4
+#define MAX_PACKET_NON_ISO      64
+#define MAX_PACKET_ISO          (256 + 128)     // Spec can go up to 1023, only ram for this though
+#define ENDPOINT_NON_ISO        (USB_EP_ATTR_ALLOW_BULK | USB_EP_ATTR_ALLOW_INT)
+
+static const uint32_t tx_ep_sizes[NUM_ENDPOINTS] = {
+        MAX_PACKET_NON_ISO,
+        MAX_PACKET_NON_ISO,
+        MAX_PACKET_NON_ISO,
+        MAX_PACKET_ISO
+};
+
 uint32_t HAL_PCDEx_GetTxFiFo(PCD_HandleTypeDef *hpcd, uint8_t fifo)
 {
     uint32_t len;
@@ -274,11 +287,28 @@ void USBPhyHw::init(USBPhyEvents *events)
     hpcd.State = HAL_PCD_STATE_RESET;
     HAL_PCD_Init(&hpcd);
 
+
+    uint32_t total_bytes = 0;
+
+    /* Reserve space in the RX buffer for:
+     * - 1 isochonous packet
+     * - 2 max sized non-isochonous packets
+     * - setup buffer - 10 words as specified by Reference Manual
+     * - global nak out - 1 words as specified by Reference Manual
+     */
+    uint32_t fifo_size = (MAX_PACKET_ISO + 4) + (MAX_PACKET_NON_ISO + 4) * 2 + (10 * 4) + (1 * 4);
+    HAL_PCDEx_SetRxFiFo(&hpcd, (fifo_size / 4));
+    total_bytes += fifo_size;
+
+    /* Reserve Tx space up front */
+    for (int i = 0; i < NUM_ENDPOINTS; i++) {
+        fifo_size =  tx_ep_sizes[i] + 4;
+        HAL_PCDEx_SetTxFiFo(&hpcd, i, fifo_size / 4);
+        total_bytes += fifo_size;
+    }
+
     /* 1.25 kbytes */
-    /* min value 16 (= 16 x 4 bytes) */
-    /* max value 256 (= 1K bytes ) */
-    /* maximum sum is 0x140 */
-    HAL_PCDEx_SetRxFiFo(&hpcd, (MAXTRANSFER_SIZE / 4));
+    MBED_ASSERT(total_bytes <= 1280);
 
     // Configure interrupt vector
     NVIC_SetVector(USBHAL_IRQn, (uint32_t)&_usbisr);
@@ -340,24 +370,24 @@ void USBPhyHw::remote_wakeup()
 const usb_ep_table_t *USBPhyHw::endpoint_table()
 {
     static const usb_ep_table_t table = {
-        1280, // 1.25K for endpoint buffers
+        1280, // 1.25K for endpoint buffers but space is allocated up front
         {
-            {USB_EP_ATTR_ALLOW_CTRL | USB_EP_ATTR_DIR_IN_AND_OUT, 1, 80},
-            {USB_EP_ATTR_ALLOW_ALL | USB_EP_ATTR_DIR_IN_AND_OUT,  1, 4},
-            {USB_EP_ATTR_ALLOW_ALL | USB_EP_ATTR_DIR_IN_AND_OUT,  1, 4},
-            {USB_EP_ATTR_ALLOW_ALL | USB_EP_ATTR_DIR_IN_AND_OUT,  1, 4},
-            {USB_EP_ATTR_ALLOW_ALL | USB_EP_ATTR_DIR_IN_AND_OUT,  1, 4},
-            {0                     | USB_EP_ATTR_DIR_IN_AND_OUT,  1, 4},
-            {0                     | USB_EP_ATTR_DIR_IN_AND_OUT,  1, 4},
-            {0                     | USB_EP_ATTR_DIR_IN_AND_OUT,  1, 4},
-            {0                     | USB_EP_ATTR_DIR_IN_AND_OUT,  1, 4},
-            {0                     | USB_EP_ATTR_DIR_IN_AND_OUT,  1, 4},
-            {0                     | USB_EP_ATTR_DIR_IN_AND_OUT,  1, 4},
-            {0                     | USB_EP_ATTR_DIR_IN_AND_OUT,  1, 4},
-            {0                     | USB_EP_ATTR_DIR_IN_AND_OUT,  1, 4},
-            {0                     | USB_EP_ATTR_DIR_IN_AND_OUT,  1, 4},
-            {0                     | USB_EP_ATTR_DIR_IN_AND_OUT,  1, 4},
-            {0                     | USB_EP_ATTR_DIR_IN_AND_OUT,  1, 4}
+            {USB_EP_ATTR_ALLOW_CTRL | USB_EP_ATTR_DIR_IN_AND_OUT, 0, 0},
+            {ENDPOINT_NON_ISO      | USB_EP_ATTR_DIR_IN_AND_OUT,  0, 0},
+            {ENDPOINT_NON_ISO      | USB_EP_ATTR_DIR_IN_AND_OUT,  0, 0},
+            {USB_EP_ATTR_ALLOW_ALL | USB_EP_ATTR_DIR_IN_AND_OUT,  0, 0},
+            {0                     | USB_EP_ATTR_DIR_IN_AND_OUT,  0, 0},
+            {0                     | USB_EP_ATTR_DIR_IN_AND_OUT,  0, 0},
+            {0                     | USB_EP_ATTR_DIR_IN_AND_OUT,  0, 0},
+            {0                     | USB_EP_ATTR_DIR_IN_AND_OUT,  0, 0},
+            {0                     | USB_EP_ATTR_DIR_IN_AND_OUT,  0, 0},
+            {0                     | USB_EP_ATTR_DIR_IN_AND_OUT,  0, 0},
+            {0                     | USB_EP_ATTR_DIR_IN_AND_OUT,  0, 0},
+            {0                     | USB_EP_ATTR_DIR_IN_AND_OUT,  0, 0},
+            {0                     | USB_EP_ATTR_DIR_IN_AND_OUT,  0, 0},
+            {0                     | USB_EP_ATTR_DIR_IN_AND_OUT,  0, 0},
+            {0                     | USB_EP_ATTR_DIR_IN_AND_OUT,  0, 0},
+            {0                     | USB_EP_ATTR_DIR_IN_AND_OUT,  0, 0}
         }
     };
     return &table;
@@ -409,9 +439,12 @@ void USBPhyHw::ep0_stall()
 bool USBPhyHw::endpoint_add(usb_ep_t endpoint, uint32_t max_packet, usb_ep_type_t type)
 {
     uint32_t len;
-    if (max_packet > MAXTRANSFER_SIZE) return false;
+
+    /*
+     * Endpoints are configured in init since re-configuring
+     * fifos when endpoints are added or removed causes tests to fail.
+     */
     if (endpoint & 0x80) {
-        HAL_PCDEx_SetTxFiFo(&hpcd, endpoint & 0x7f, (max_packet / 4) + 1);
         len = HAL_PCDEx_GetTxFiFo(&hpcd,endpoint & 0x7f);
         MBED_ASSERT(len >= max_packet);
     }
