@@ -30,7 +30,7 @@ class IAR(mbedToolchain):
 
     DIAGNOSTIC_PATTERN = re.compile('"(?P<file>[^"]+)",(?P<line>[\d]+)\s+(?P<severity>Warning|Error|Fatal error)(?P<message>.+)')
     INDEX_PATTERN  = re.compile('(?P<col>\s*)\^')
-    IAR_VERSION_RE = re.compile("IAR ANSI C/C\+\+ Compiler V([0-9]+.[0-9]+)")
+    IAR_VERSION_RE = re.compile("IAR ANSI C/C\+\+ Compiler V(\d+\.\d+)")
     IAR_VERSION = LooseVersion("7.80")
 
     @staticmethod
