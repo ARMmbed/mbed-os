@@ -23,7 +23,6 @@
 namespace mbed {
 
 #define BG96_SOCKET_MAX 12
-#define BG96_MAX_PACKET_SIZE 1460
 #define BG96_CREATE_SOCKET_TIMEOUT 150000 //150 seconds
 
 class QUECTEL_BG96_CellularStack : public AT_CellularStack
@@ -42,8 +41,6 @@ protected: // NetworkStack
 protected: // AT_CellularStack
 
     virtual int get_max_socket_count();
-
-    virtual int get_max_packet_size();
 
     virtual bool is_protocol_supported(nsapi_protocol_t protocol);
 

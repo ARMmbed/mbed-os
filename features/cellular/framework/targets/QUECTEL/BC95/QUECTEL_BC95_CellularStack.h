@@ -21,7 +21,6 @@
 #include "AT_CellularStack.h"
 
 #define BC95_SOCKET_MAX 7
-#define BC95_MAX_PACKET_SIZE 1358
 
 namespace mbed {
 
@@ -41,8 +40,6 @@ protected: // NetworkStack
 protected: // AT_CellularStack
 
     virtual int get_max_socket_count();
-
-    virtual int get_max_packet_size();
 
     virtual bool is_protocol_supported(nsapi_protocol_t protocol);
 

@@ -64,11 +64,6 @@ int QUECTEL_BG96_CellularStack::get_max_socket_count()
     return BG96_SOCKET_MAX;
 }
 
-int QUECTEL_BG96_CellularStack::get_max_packet_size()
-{
-    return BG96_MAX_PACKET_SIZE;
-}
-
 bool QUECTEL_BG96_CellularStack::is_protocol_supported(nsapi_protocol_t protocol)
 {
     return (protocol == NSAPI_UDP);

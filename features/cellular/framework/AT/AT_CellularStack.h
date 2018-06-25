@@ -106,11 +106,6 @@ protected:
     virtual int get_max_socket_count() = 0;
 
     /**
-    * Gets maximum packet size
-    */
-    virtual int get_max_packet_size() = 0;
-
-    /**
     * Checks if modem supports the given protocol
     *
     * @param protocol   Protocol type
