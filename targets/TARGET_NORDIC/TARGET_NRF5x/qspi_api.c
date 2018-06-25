@@ -246,8 +246,8 @@ qspi_status_t qspi_command_transfer(qspi_t *obj, const qspi_command_t *command, 
  
     nrf_qspi_cinstr_conf_t qspi_cinstr_config;
     qspi_cinstr_config.opcode    = command->instruction.value;
-    qspi_cinstr_config.io2_level = false;
-    qspi_cinstr_config.io3_level = false;
+    qspi_cinstr_config.io2_level = true;
+    qspi_cinstr_config.io3_level = true;
     qspi_cinstr_config.wipwait   = false;
     qspi_cinstr_config.wren      = false;
  
