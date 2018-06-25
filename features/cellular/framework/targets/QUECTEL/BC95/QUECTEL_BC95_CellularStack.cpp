@@ -61,11 +61,6 @@ int QUECTEL_BC95_CellularStack::get_max_socket_count()
     return BC95_SOCKET_MAX;
 }
 
-int QUECTEL_BC95_CellularStack::get_max_packet_size()
-{
-    return BC95_MAX_PACKET_SIZE;
-}
-
 bool QUECTEL_BC95_CellularStack::is_protocol_supported(nsapi_protocol_t protocol)
 {
     return (protocol == NSAPI_UDP);
@@ -146,7 +141,7 @@ nsapi_size_or_error_t QUECTEL_BC95_CellularStack::socket_sendto_impl(CellularSoc
 {
     int sent_len = 0;
 
-    char *hexstr = new char[BC95_MAX_PACKET_SIZE*2+1];
+    char *hexstr = new char[size*2+1];
     int hexlen = char_str_to_hex_str((const char*)data, size, hexstr);
     // NULL terminated for write_string
     hexstr[hexlen] = 0;
@@ -154,7 +149,7 @@ nsapi_size_or_error_t QUECTEL_BC95_CellularStack::socket_sendto_impl(CellularSoc
     _at.write_int(socket->id);
     _at.write_string(address.get_ip_address(), false);
     _at.write_int(address.get_port());
-    _at.write_int(size <= BC95_MAX_PACKET_SIZE ? size : BC95_MAX_PACKET_SIZE);
+    _at.write_int(size);
     _at.write_string(hexstr, false);
     _at.cmd_stop();
     _at.resp_start();
@@ -181,7 +176,7 @@ nsapi_size_or_error_t QUECTEL_BC95_CellularStack::socket_recvfrom_impl(CellularS
 
     _at.cmd_start("AT+NSORF=");
     _at.write_int(socket->id);
-    _at.write_int(size <= BC95_MAX_PACKET_SIZE ? size : BC95_MAX_PACKET_SIZE);
+    _at.write_int(size);
     _at.cmd_stop();
     _at.resp_start();
     // receiving socket id

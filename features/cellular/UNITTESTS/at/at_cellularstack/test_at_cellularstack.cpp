@@ -34,7 +34,6 @@ public:
     bool bool_value;
     bool max_sock_value;
     nsapi_error_t create_error;
-    int max_packet_size;
     CellularSocket socket;
 
     MyStack(ATHandler &atr, int cid, nsapi_ip_stack_t typ) : AT_CellularStack(atr, cid, typ)
@@ -42,12 +41,9 @@ public:
         bool_value = false;
         max_sock_value = 0;
         create_error = NSAPI_ERROR_OK;
-        max_packet_size = 0;
     }
 
     virtual int get_max_socket_count(){return max_sock_value;}
-
-    virtual int get_max_packet_size(){return max_packet_size;}
 
     virtual bool is_protocol_supported(nsapi_protocol_t protocol){return bool_value;}
 
@@ -266,7 +262,6 @@ void Test_AT_CellularStack::test_AT_CellularStack_socket_sendto()
     CHECK(NSAPI_ERROR_CONNECTION_LOST == st.socket_sendto(sock, addr, "addr", 4));
 
     st.create_error = NSAPI_ERROR_OK;
-    st.max_packet_size = 6;
     CHECK(NSAPI_ERROR_OK == st.socket_sendto(sock, addr, "addr", 4));
 }
 
@@ -301,7 +296,6 @@ void Test_AT_CellularStack::test_AT_CellularStack_socket_recvfrom()
     CHECK(NSAPI_ERROR_CONNECTION_LOST == st.socket_recvfrom(sock, &addr, table, 4));
 
     st.create_error = NSAPI_ERROR_OK;
-    st.max_packet_size = 6;
     CHECK(NSAPI_ERROR_OK == st.socket_recvfrom(sock, &addr, table, 4));
 }
 
