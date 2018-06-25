@@ -105,7 +105,7 @@ class ARM(mbedToolchain):
             msg = ("Compiler version mismatch: Have {}; "
                    "expected version >= {} and < {}"
                    .format(found_version, min_ver, max_ver))
-        elif len(match.groups()) != 1:
+        elif not match or len(match.groups()) != 1:
             msg = ("Compiler version mismatch: Could not detect version; "
                    "expected version >= {} and < {}"
                    .format(min_ver, max_ver))

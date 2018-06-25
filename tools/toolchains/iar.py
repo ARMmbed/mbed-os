@@ -103,7 +103,7 @@ class IAR(mbedToolchain):
         if found_version and LooseVersion(found_version) != self.IAR_VERSION:
             msg = "Compiler version mismatch: Have {}; expected {}".format(
                 found_version, self.IAR_VERSION)
-        elif len(match.groups()) != 1:
+        elif not match or len(match.groups()) != 1:
             msg = ("Compiler version mismatch: Could Not detect compiler "
                    "version; expected {}".format(self.IAR_VERSION))
         if msg:
