@@ -57,6 +57,7 @@
 		SYSTEM_INTERRUPT_MODULE_TCC##n,
 #endif
 
+#define min(a, b)           (((a) < (b)) ?  (a) : (b))
 #define _SIZE_MAX(size) ((size==32u) ? 0xFFFFFFFF : ( \
 		(1u << size) - 1))
 
