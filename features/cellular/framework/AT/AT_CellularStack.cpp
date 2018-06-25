@@ -257,11 +257,8 @@ nsapi_size_or_error_t AT_CellularStack::socket_sendto(nsapi_socket_t handle, con
         }
     }
 
-    unsigned max_packet_size = get_max_packet_size();
-
     /* Check parameters */
-    if (addr.get_ip_version() == NSAPI_UNSPEC ||
-            size > max_packet_size) {
+    if (addr.get_ip_version() == NSAPI_UNSPEC) {
         return NSAPI_ERROR_DEVICE_ERROR;
     }
 
