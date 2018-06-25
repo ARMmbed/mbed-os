@@ -68,6 +68,5 @@ void server_main(void *ptr)
             SPM_PANIC("Recieved invalid signal %d", signals);
         }
     }
-
-    return;
 }
+

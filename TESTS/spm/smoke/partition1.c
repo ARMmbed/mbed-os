@@ -91,6 +91,5 @@ void part1_main(void *ptr)
 
         psa_end(msg.handle, PSA_SUCCESS);
     }
-
-    return;
 }
+

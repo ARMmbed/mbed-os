@@ -380,6 +380,5 @@ void server_main2(void *ptr)
             SPM_ASSERT(false);
         }
     }
-
-    return;
 }
+

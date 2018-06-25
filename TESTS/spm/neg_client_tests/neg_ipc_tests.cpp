@@ -48,8 +48,8 @@ void error(const char* format, ...)
     error_thrown = true;
     osStatus status = test_sem.release();
     MBED_ASSERT(status == osOK);
-    while(1);
     PSA_UNUSED(status);
+    while(1);
 }
 
 /* ------------------------------------- Functions ----------------------------------- */
@@ -335,6 +335,6 @@ Specification specification(spm_setup, cases);
 
 int main()
 {
-    !Harness::run(specification);
+    Harness::run(specification);
     return 0;
 }

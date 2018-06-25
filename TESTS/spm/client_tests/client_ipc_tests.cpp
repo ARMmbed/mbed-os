@@ -425,6 +425,6 @@ Specification specification(test_setup, cases);
 
 int main()
 {
-    !Harness::run(specification);
+    Harness::run(specification);
     return 0;
 }
