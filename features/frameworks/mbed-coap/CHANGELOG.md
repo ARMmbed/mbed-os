@@ -1,5 +1,19 @@
 # Change Log
 
+## [v4.5.0](https://github.com/ARMmbed/mbed-coap/releases/tag/v4.5.0) 
+**Closed issues:**
+ - IIOTCLT-2769 - mbed-coap: extra response received after registration
+
+Added own flag to enable blockwise support, without setting default blockwise
+payload size. This allows to receive blockwise messages while still sending
+without blockwise.
+
+Fix CoAP request blockwise response handling
+When request is sent, response can have blockwise option set. All requests must
+be stored to the linked list.
+
+-[Full Changelog](https://github.com/ARMmbed/mbed-coap/compare/v4.4.4...v4.5.0)
+
 ## [v4.4.4](https://github.com/ARMmbed/mbed-coap/releases/tag/v4.4.4) 
 **Closed issues:**
  - IOTCLT-2638 [GitHub] hardfault during reconnection retry with Thread

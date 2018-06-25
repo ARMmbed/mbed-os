@@ -39,7 +39,8 @@
  *
  * \brief For Message blockwising
  * Init value for the maximum payload size to be sent and received at one blockwise message
- * Setting of this value to 0 will disable this feature, and also reduce use of ROM memory
+ * Setting of this value to 0 with SN_COAP_BLOCKWISE_ENABLED will disable this feature, and
+ * also reduce use of ROM memory.
  * Note: This define is common for both received and sent Blockwise messages
  */
 #undef SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE   /* 0 */ // < Must be 2^x and x is at least 4. Suitable values: 0, 16, 32, 64, 128, 256, 512 and 1024
@@ -106,6 +107,13 @@
  * Note that value has no effect if blockwise transfer is disabled.
  */
 #undef SN_COAP_MAX_NONBLOCKWISE_PAYLOAD_SIZE        /* 0 */
+
+/**
+ * \def SN_COAP_BLOCKWISE_ENABLED
+ * \brief Enables the blockwise functionality in CoAP library also when blockwise payload
+ * size is set to '0' in  SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE.
+ */
+#undef SN_COAP_BLOCKWISE_ENABLED                    /* 0 */
 
 #ifdef MBED_CLIENT_USER_CONFIG_FILE
 #include MBED_CLIENT_USER_CONFIG_FILE
