@@ -36,3 +36,4 @@ add_code() {
 }
 
 conf set MBEDTLS_CMAC_C
+conf unset MBEDTLS_CIPHER_MODE_XTS
