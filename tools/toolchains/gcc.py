@@ -114,18 +114,15 @@ class GCC(mbedToolchain):
 
     def version_check(self):
         stdout, _, retcode = run_cmd([self.cc[0], "--version"], redirect=True)
-        found_version = None
-        for line in stdout.splitlines():
-            for word in line.split():
-                match = self.GCC_VERSION_RE.match(word)
-                if match:
-                    found_version = LooseVersion(match.group(0))
+        msg = None
+        match = self.GCC_VERSION_RE.search(stdout)
+        found_version = LooseVersion(match.group(0)) if match else None
         min_ver, max_ver = self.GCC_RANGE
         if found_version and (found_version < min_ver or found_version >= max_ver):
             msg = ("Compiler version mismatch: Have {}; "
                    "expected version >= {} and < {}"
                    .format(found_version, min_ver, max_ver))
-        elif not found_version:
+        elif len(match.groups()) != 1:
             msg = ("Compiler version mismatch: Could not detect version; "
                    "expected version >= {} and < {}"
                    .format(min_ver, max_ver))
