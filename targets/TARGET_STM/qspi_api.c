@@ -192,7 +192,8 @@ qspi_status_t qspi_init(qspi_t *obj, PinName io0, PinName io1, PinName io2, PinN
 qspi_status_t qspi_free(qspi_t *obj)
 {
     // TODO
-    return QSPI_STATUS_ERROR;
+    //return QSPI_STATUS_ERROR;
+    return QSPI_STATUS_OK;
 }
 
 qspi_status_t qspi_frequency(qspi_t *obj, int hz)
