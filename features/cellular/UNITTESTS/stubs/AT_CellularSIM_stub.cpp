@@ -52,3 +52,8 @@ nsapi_error_t AT_CellularSIM::get_imsi(char* imsi)
 {
     return NSAPI_ERROR_OK;
 }
+
+nsapi_error_t AT_CellularSIM::get_iccid(char *buf, size_t buf_size)
+{
+    return NSAPI_ERROR_OK;
+}
