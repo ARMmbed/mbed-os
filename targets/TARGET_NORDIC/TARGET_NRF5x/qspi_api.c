@@ -56,6 +56,18 @@ TODO
 #define MBED_HAL_QSPI_HZ_TO_CONFIG(hz)  ((32000000/(hz))-1)
 #define MBED_HAL_QSPI_MAX_FREQ          32000000UL
 
+// NRF supported R/W opcodes
+#define FAST_READ_opcode    0x0B
+#define READ2O_opcode       0x3B
+#define READ2IO_opcode      0xBB
+#define READ4O_opcode       0x6B
+#define READ4IO_opcode      0xEB
+
+#define PP_opcode           0x02
+#define PP2O_opcode         0xA2
+#define PP4O_opcode         0x32
+#define PP4IO_opcode        0x38
+
 static nrf_drv_qspi_config_t config;
 
 // Private helper function to track initialization
@@ -63,93 +75,119 @@ static ret_code_t _qspi_drv_init(void);
 
 qspi_status_t qspi_prepare_command(qspi_t *obj, const qspi_command_t *command, bool write) 
 {
-    //Use custom command if provided by the caller
-    if(command->instruction.value != 0) {
-        //Use custom command if provided
+    // we need to remap opcodes to NRF ID's
+    // most commmon are 1-1-1, 1-1-4, 1-4-4
+
+    // 1-1-1
+    if (command->instruction.bus_width == QSPI_CFG_BUS_SINGLE &&
+        command->address.bus_width == QSPI_CFG_BUS_SINGLE &&
+        command->data.bus_width == QSPI_CFG_BUS_SINGLE) {
         if (write) {
-            config.prot_if.writeoc = (nrf_qspi_writeoc_t)command->instruction.value;
-        } else {
-            config.prot_if.readoc = (nrf_qspi_readoc_t)command->instruction.value;
-        }
-    } else {
-        // we need to remap to command-address-data - x_x_x
-        // most commmon are 1-1-1, 1-1-4, 1-4-4
-        // 1-1-1
-        if (command->instruction.bus_width == QSPI_CFG_BUS_SINGLE &&
-            command->address.bus_width == QSPI_CFG_BUS_SINGLE &&
-            command->data.bus_width == QSPI_CFG_BUS_SINGLE) {
-            if (write) {
+            if (command->instruction.value == PP_opcode) {
                 config.prot_if.writeoc = NRF_QSPI_WRITEOC_PP;
             } else {
+                return QSPI_STATUS_INVALID_PARAMETER;
+            }
+        } else {
+            if (command->instruction.value == FAST_READ_opcode) {
                 config.prot_if.readoc = NRF_QSPI_READOC_FASTREAD;
-            }
-        // 1-1-4
-        } else if (command->instruction.bus_width == QSPI_CFG_BUS_SINGLE &&
-            command->address.bus_width == QSPI_CFG_BUS_SINGLE &&
-            command->data.bus_width == QSPI_CFG_BUS_QUAD) {
-            // 1_1_4
-            if (write) {
-                config.prot_if.writeoc = NRF_QSPI_WRITEOC_PP4O;
             } else {
-                config.prot_if.readoc = NRF_QSPI_READOC_READ4O;
-            }
-        // 1-4-4
-        } else if (command->instruction.bus_width == QSPI_CFG_BUS_SINGLE &&
-            command->address.bus_width == QSPI_CFG_BUS_QUAD &&
-            command->data.bus_width == QSPI_CFG_BUS_QUAD) {
-            // 1_4_4
-            if (write) {
-                config.prot_if.writeoc = NRF_QSPI_WRITEOC_PP4IO;
-            } else {
-                config.prot_if.readoc = NRF_QSPI_READOC_READ4IO;
-            }
-        // 1-1-2
-        } else if (command->instruction.bus_width == QSPI_CFG_BUS_SINGLE &&
-            command->address.bus_width == QSPI_CFG_BUS_SINGLE &&
-            command->data.bus_width == QSPI_CFG_BUS_DUAL) {
-            // 1-1-2
-            if (write) {
-                config.prot_if.writeoc = NRF_QSPI_WRITEOC_PP2O;
-            } else {
-                config.prot_if.readoc = NRF_QSPI_READOC_READ2O;
-            }
-        // 1-2-2
-        } else if (command->instruction.bus_width == QSPI_CFG_BUS_SINGLE &&
-            command->address.bus_width == QSPI_CFG_BUS_DUAL &&
-            command->data.bus_width == QSPI_CFG_BUS_DUAL) {
-            // 1-2-2
-            if (write) {
-                //Currently NRF52840 does not define PP2IO, so use PP2O for 1-2-2 mode
-                config.prot_if.writeoc = NRF_QSPI_WRITEOC_PP2O;
-            } else {
-                config.prot_if.readoc = NRF_QSPI_READOC_READ2IO;
+                return QSPI_STATUS_INVALID_PARAMETER;
             }
         }
-    }    
+    // 1-1-4
+    } else if (command->instruction.bus_width == QSPI_CFG_BUS_SINGLE &&
+        command->address.bus_width == QSPI_CFG_BUS_SINGLE &&
+        command->data.bus_width == QSPI_CFG_BUS_QUAD) {
+        // 1_1_4
+        if (write) {
+            if (command->instruction.value == PP4O_opcode) {
+                config.prot_if.writeoc = NRF_QSPI_WRITEOC_PP4O;
+            } else {
+                return QSPI_STATUS_INVALID_PARAMETER;
+            }
+        } else {
+            if (command->instruction.value == READ4O_opcode) {
+                config.prot_if.readoc = NRF_QSPI_READOC_READ4O;
+            } else {
+                return QSPI_STATUS_INVALID_PARAMETER;
+            }
+        }
+    // 1-4-4
+    } else if (command->instruction.bus_width == QSPI_CFG_BUS_SINGLE &&
+        command->address.bus_width == QSPI_CFG_BUS_QUAD &&
+        command->data.bus_width == QSPI_CFG_BUS_QUAD) {
+        // 1_4_4
+        if (write) {
+            if (command->instruction.value == PP4IO_opcode) {
+                config.prot_if.writeoc = NRF_QSPI_WRITEOC_PP4IO;
+            } else {
+                return QSPI_STATUS_INVALID_PARAMETER;
+            }
+        } else {
+            if (command->instruction.value == READ4IO_opcode) {
+                config.prot_if.readoc = NRF_QSPI_READOC_READ4IO;
+            } else {
+                return QSPI_STATUS_INVALID_PARAMETER;
+            }
+        }
+    // 1-1-2
+    } else if (command->instruction.bus_width == QSPI_CFG_BUS_SINGLE &&
+        command->address.bus_width == QSPI_CFG_BUS_SINGLE &&
+        command->data.bus_width == QSPI_CFG_BUS_DUAL) {
+        // 1-1-2
+        if (write) {
+            if (command->instruction.value == PP2O_opcode) {
+                config.prot_if.writeoc = NRF_QSPI_WRITEOC_PP2O;
+            } else {
+                return QSPI_STATUS_INVALID_PARAMETER;
+            }
+        } else {
+            if (command->instruction.value == READ2O_opcode) {
+                config.prot_if.readoc = NRF_QSPI_READOC_READ2O;
+            } else {
+                return QSPI_STATUS_INVALID_PARAMETER;
+            }
+        }
+    // 1-2-2
+    } else if (command->instruction.bus_width == QSPI_CFG_BUS_SINGLE &&
+        command->address.bus_width == QSPI_CFG_BUS_DUAL &&
+        command->data.bus_width == QSPI_CFG_BUS_DUAL) {
+        // 1-2-2
+        if (write) {
+            // 1-2-2 write is not supported
+            return QSPI_STATUS_INVALID_PARAMETER;
+        } else {
+            if (command->instruction.value == READ2IO_opcode) {
+                config.prot_if.readoc = NRF_QSPI_READOC_READ2IO;
+            } else {
+                return QSPI_STATUS_INVALID_PARAMETER;
+            }
+        }
+    } else {
+        return QSPI_STATUS_INVALID_PARAMETER;
+    }
     
-    qspi_status_t ret = QSPI_STATUS_OK;
     // supporting only 24 or 32 bit address
     if (command->address.size == QSPI_CFG_ADDR_SIZE_24) {
         config.prot_if.addrmode = NRF_QSPI_ADDRMODE_24BIT;
     } else if (command->address.size == QSPI_CFG_ADDR_SIZE_32) {
         config.prot_if.addrmode = NRF_QSPI_ADDRMODE_32BIT;
     } else {
-        ret = QSPI_STATUS_INVALID_PARAMETER;
+        return QSPI_STATUS_INVALID_PARAMETER;
     }
     
     //Configure QSPI with new command format
-    if(ret == QSPI_STATUS_OK) {
-        ret_code_t ret_status = _qspi_drv_init();
-        if (ret_status != NRF_SUCCESS ) {
-            if (ret_status == NRF_ERROR_INVALID_PARAM) {
-                return QSPI_STATUS_INVALID_PARAMETER;
-            } else {
-                return QSPI_STATUS_ERROR;
-            }
+    ret_code_t ret_status = _qspi_drv_init();
+    if (ret_status != NRF_SUCCESS ) {
+        if (ret_status == NRF_ERROR_INVALID_PARAM) {
+            return QSPI_STATUS_INVALID_PARAMETER;
+        } else {
+            return QSPI_STATUS_ERROR;
         }
     }
     
-    return ret;
+    return QSPI_STATUS_OK;
 }
 
 qspi_status_t qspi_init(qspi_t *obj, PinName io0, PinName io1, PinName io2, PinName io3, PinName sclk, PinName ssel, uint32_t hz, uint8_t mode)
@@ -169,8 +207,8 @@ qspi_status_t qspi_init(qspi_t *obj, PinName io0, PinName io1, PinName io2, PinN
     config.pins.io3_pin = (uint32_t)io3;
     config.irq_priority = SPI_DEFAULT_CONFIG_IRQ_PRIORITY;
 
-    config.phy_if.sck_freq = (nrf_qspi_frequency_t)MBED_HAL_QSPI_HZ_TO_CONFIG(hz),
-    config.phy_if.sck_delay = 0x05,
+    config.phy_if.sck_freq = (nrf_qspi_frequency_t)MBED_HAL_QSPI_HZ_TO_CONFIG(hz);
+    config.phy_if.sck_delay = 0x05;
     config.phy_if.dpmen = false;
     config.phy_if.spi_mode = mode == 0 ? NRF_QSPI_MODE_0 : NRF_QSPI_MODE_1;
 
