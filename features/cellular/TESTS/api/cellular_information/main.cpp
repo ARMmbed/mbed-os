@@ -75,23 +75,26 @@ static void init_to_sim_state()
 static void test_information_interface()
 {
     CellularInformation *info = cellular.get_device()->open_information(&cellular_serial);
+    const int kbuf_size = 100;
+    char *buf = (char*)malloc(sizeof(char) * kbuf_size);
 
-    char buf[100];
-    TEST_ASSERT(info->get_manufacturer(buf, 100) == NSAPI_ERROR_OK);
-    TEST_ASSERT(info->get_model(buf, 100) == NSAPI_ERROR_OK);
-    TEST_ASSERT(info->get_revision(buf, 100) == NSAPI_ERROR_OK);
-    TEST_ASSERT(info->get_serial_number(buf, 100, CellularInformation::SN) == NSAPI_ERROR_OK);
+    TEST_ASSERT(info->get_manufacturer(buf, kbuf_size) == NSAPI_ERROR_OK);
+    TEST_ASSERT(info->get_model(buf, kbuf_size) == NSAPI_ERROR_OK);
+    TEST_ASSERT(info->get_revision(buf, kbuf_size) == NSAPI_ERROR_OK);
+    TEST_ASSERT(info->get_serial_number(buf, kbuf_size, CellularInformation::SN) == NSAPI_ERROR_OK);
 
-    nsapi_error_t err = info->get_serial_number(buf, 100, CellularInformation::IMEI);
+    nsapi_error_t err = info->get_serial_number(buf, kbuf_size, CellularInformation::IMEI);
     TEST_ASSERT(err == NSAPI_ERROR_UNSUPPORTED || err == NSAPI_ERROR_OK);
 
-    err = info->get_serial_number(buf, 100, CellularInformation::IMEISV);
+    err = info->get_serial_number(buf, kbuf_size, CellularInformation::IMEISV);
     TEST_ASSERT(err == NSAPI_ERROR_UNSUPPORTED || err == NSAPI_ERROR_OK);
 
-    err = info->get_serial_number(buf, 100, CellularInformation::SVN);
+    err = info->get_serial_number(buf, kbuf_size, CellularInformation::SVN);
     TEST_ASSERT(err == NSAPI_ERROR_UNSUPPORTED || err == NSAPI_ERROR_OK);
 
     cellular.get_device()->close_information();
+
+    free(buf);
 }
 
 using namespace utest::v1;
