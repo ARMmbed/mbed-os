@@ -41,7 +41,7 @@ class ARM(mbedToolchain):
     SUPPORTED_CORES = ["Cortex-M0", "Cortex-M0+", "Cortex-M3", "Cortex-M4",
                        "Cortex-M4F", "Cortex-M7", "Cortex-M7F", "Cortex-M7FD", "Cortex-A9"]
     ARMCC_RANGE = (LooseVersion("5.06"), LooseVersion("5.07"))
-    ARMCC_VERSION_RE = re.compile("^Product: ARM Compiler (\d+.\d+)")
+    ARMCC_VERSION_RE = re.compile("Product: ARM Compiler (\d+.\d+)")
 
     @staticmethod
     def check_executable():
@@ -98,17 +98,16 @@ class ARM(mbedToolchain):
         stdout, _, retcode = run_cmd([self.cc[0], "--vsn"], redirect=True)
         msg = None
         min_ver, max_ver = self.ARMCC_RANGE
-        first_line = stdout.splitlines()[0]
-        match = self.ARMCC_VERSION_RE.match(first_line)
-        if match:
-            found_version = LooseVersion(match.group(1))
-            if found_version < min_ver or found_version > max_ver:
-                msg = ("Compiler version mismatch: Have {}; "
-                       "expected >= {} < {}"
-                       .format(found_version, min_ver, max_ver))
-        else:
+        match = self.ARMCC_VERSION_RE.search(stdout)
+        found_version = LooseVersion(match.group(0)) if match else None
+        min_ver, max_ver = self.ARM_RANGE
+        if found_version and (found_version < min_ver or found_version >= max_ver):
+            msg = ("Compiler version mismatch: Have {}; "
+                   "expected version >= {} and < {}"
+                   .format(found_version, min_ver, max_ver))
+        elif len(match.groups()) != 1:
             msg = ("Compiler version mismatch: Could not detect version; "
-                   "expected >= {} < {}"
+                   "expected version >= {} and < {}"
                    .format(min_ver, max_ver))
 
         if msg:
