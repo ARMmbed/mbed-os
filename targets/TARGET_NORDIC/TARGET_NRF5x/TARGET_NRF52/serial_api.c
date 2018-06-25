@@ -675,9 +675,16 @@ static void nordic_nrf5_uart_event_handler(int instance)
 
         nrf_uarte_event_clear(nordic_nrf5_uart_register[instance], NRF_UARTE_EVENT_TXDRDY);
 
-        /* In non-async transfers this will generate and interrupt if callback and mask is set. */
+        /* In non-async transfers this will generate an interrupt if callback and mask is set. */
         if (!nordic_nrf5_uart_state[instance].tx_asynch) {
 
+            /* Disable TXDRDY event again. */
+            nordic_nrf5_uart_register[instance]->INTEN &= ~NRF_UARTE_INT_TXDRDY_MASK;
+
+            /* Release mutex. As the owner this call is safe. */
+            nordic_nrf5_uart_state[instance].tx_in_progress = 0;
+
+            /* Call event handler. */
             nordic_nrf5_uart_event_handler_endtx(instance);
         }
     }
@@ -1449,9 +1456,7 @@ void serial_putc(serial_t *obj, int character)
      * been transmitted and ENDTX when the entire buffer has been sent.
      *
      * For the blocking serial_putc, TXDRDY interrupts are enabled and only used for the
-     * single character TX IRQ callback handler. The ENDTX event does not generate an interrupt
-     * but is caught using a busy-wait loop. Once ENDTX has been generated we disable TXDRDY
-     * interrupts again.
+     * single character TX IRQ callback handler.
      */
 
     /* Arm Tx DMA buffer. */
@@ -1470,15 +1475,6 @@ void serial_putc(serial_t *obj, int character)
     /* Trigger DMA transfer. */
     nrf_uarte_task_trigger(nordic_nrf5_uart_register[instance],
                            NRF_UARTE_TASK_STARTTX);
-
-    /* Busy-wait until the ENDTX event occurs. */
-    while (!nrf_uarte_event_check(nordic_nrf5_uart_register[instance], NRF_UARTE_EVENT_ENDTX));
-
-    /* Disable TXDRDY event again. */
-    nordic_nrf5_uart_register[instance]->INTEN &= ~NRF_UARTE_INT_TXDRDY_MASK;
-
-    /* Release mutex. As the owner this call is safe. */
-    nordic_nrf5_uart_state[instance].tx_in_progress = 0;
 }
 
 /** Check if the serial peripheral is readable
