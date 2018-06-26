@@ -30,6 +30,7 @@
 const char* GREENTEA_TEST_ENV_END = "end";
 const char* GREENTEA_TEST_ENV_EXIT = "__exit";
 const char* GREENTEA_TEST_ENV_SYNC = "__sync";
+const char* GREENTEA_TEST_HOST_ACK = "hostAck";
 const char* GREENTEA_TEST_ENV_TIMEOUT = "__timeout";
 const char* GREENTEA_TEST_ENV_HOST_TEST_NAME = "__host_test_name";
 const char* GREENTEA_TEST_ENV_HOST_TEST_VERSION = "__version";
@@ -72,14 +73,23 @@ void _GREENTEA_SETUP_COMMON(const int timeout, const char *host_test_name, char 
     // Example value of sync_uuid == "0dad4a9d-59a3-4aec-810d-d5fb09d852c1"
 
     char _key[8] = {0};
+    bool runTests = false;
 
-    while (1) {
+    while (!runTests) {
         greentea_parse_kv(_key, buffer, sizeof(_key), size);
-        greentea_write_string("mbedmbedmbedmbedmbedmbedmbedmbed\r\n");
         if (strcmp(_key, GREENTEA_TEST_ENV_SYNC) == 0) {
-            // Found correct __sync message
+            greentea_write_string("Host Key parsed\r\n");
+            // Send back the key to Host and wait for acknowledgment
             greentea_send_kv(_key, buffer);
-            break;
+        }
+        /**
+          *  Once the host key is parsed, we would send back that key to host and wait 
+          *  for an acknowledgment from host that the key we sent back is correct. If we dont
+          *  get back the ack, we keep waiting and parse values further until we get the ack. This
+          *  is to take care of issues when we encounter old keys in buffer and assume them to be right ones.
+          */
+        if (strcmp(_key, GREENTEA_TEST_HOST_ACK) == 0) {
+            runTests = true;
         }
     }
 

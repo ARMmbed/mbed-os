@@ -55,6 +55,7 @@
 extern const char* GREENTEA_TEST_ENV_END;
 extern const char* GREENTEA_TEST_ENV_EXIT;
 extern const char* GREENTEA_TEST_ENV_SYNC;
+extern const char* GREENTEA_TEST_HOST_ACK;
 extern const char* GREENTEA_TEST_ENV_TIMEOUT;
 extern const char* GREENTEA_TEST_ENV_HOST_TEST_NAME;
 extern const char* GREENTEA_TEST_ENV_HOST_TEST_VERSION;
