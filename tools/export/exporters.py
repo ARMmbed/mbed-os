@@ -118,6 +118,11 @@ class Exporter(object):
                 config_header.name)
         return flags
 
+    @property
+    def libraries(self):
+        return [l for l in self.resources.get_file_names(FileType.LIB)
+                if l.endswith(self.toolchain.LIBRARY_EXT)]
+
     def toolchain_flags(self, toolchain):
         """Returns a dictionary of toolchain flags.
         Keys of the dictionary are:

@@ -90,8 +90,7 @@ class CodeBlocks(GccArm):
                                             not x.startswith('obj'))];
 
         c_sources = sorted([self.filter_dot(s) for s in self.resources.c_sources])
-        libraries = [self.prepare_lib(basename(lib)) for lib
-                     in self.resources.libraries]
+        libraries = [self.prepare_lib(basename(lib)) for lib in self.libraries]
         sys_libs = [self.prepare_sys_lib(lib) for lib
                     in self.toolchain.sys_libs]
         ncs36510fib = (hasattr(self.toolchain.target, 'post_binary_hook') and

@@ -60,7 +60,7 @@ class DS5_5(Exporter):
             'name': self.project_name,
             'include_paths': self.resources.inc_dirs,
             'scatter_file': self.resources.linker_script,
-            'object_files': self.resources.objects + self.resources.libraries,
+            'object_files': self.resources.objects + self.libraries,
             'source_files': source_files,
             'symbols': self.toolchain.get_symbols()
         }

@@ -434,7 +434,7 @@ class Sw4STM32(GNUARMEclipse):
         self.resources.win_to_unix()
 
         libraries = []
-        for lib in self.resources.libraries:
+        for lib in self.libraries:
             library, _ = splitext(basename(lib))
             libraries.append(library[3:])
 

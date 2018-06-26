@@ -318,7 +318,7 @@ class CCES(Exporter):
         cxx_flags = self.flags['cxx_flags'] + self.flags['common_flags']
 
         libs = []
-        for libpath in self.resources.libraries:
+        for libpath in self.libraries:
             lib = os.path.splitext(os.path.basename(libpath))[0]
             libs.append(lib[3:]) # skip 'lib' prefix
 

@@ -218,7 +218,7 @@ class Uvision(Exporter):
 
         srcs = self.resources.headers + self.resources.s_sources + \
                self.resources.c_sources + self.resources.cpp_sources + \
-               self.resources.objects + self.resources.libraries
+               self.resources.objects + self.libraries
         ctx = {
             'name': self.project_name,
             # project_files => dict of generators - file group to generator of
