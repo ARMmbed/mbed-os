@@ -6715,8 +6715,7 @@
             "NORDIC",
             "NRF5x",
             "NRF52",
-            "SDK_14_2",
-            "NORDIC_SOFTDEVICE",
+            "SDK_15_0",
             "SOFTDEVICE_COMMON",
             "SOFTDEVICE_S132_FULL"
         ],
@@ -6839,8 +6838,7 @@
             "NORDIC",
             "NRF5x",
             "NRF52",
-            "SDK_14_2",
-            "NORDIC_SOFTDEVICE",
+            "SDK_15_0",
             "SOFTDEVICE_COMMON",
             "SOFTDEVICE_S140_FULL"
         ],

@@ -106,18 +106,9 @@
  */
 typedef enum
 {
-    NRF_UARTE_EVENT_RXDRDY    = offsetof(NRF_UARTE_Type, EVENTS_RXDRDY),
     NRF_UARTE_EVENT_TXDRDY    = offsetof(NRF_UARTE_Type, EVENTS_TXDRDY),
 } nrf_uarte_event_extra_t;
 
-/**
- * Missing interrupt masks.
- */
-typedef enum
-{
-    NRF_UARTE_INT_RXDRDY_MASK = UARTE_INTENSET_RXDRDY_Msk,
-    NRF_UARTE_INT_TXDRDY_MASK = UARTE_INTENSET_TXDRDY_Msk,
-} nrf_uarte_int_mask_extra_t;
 
 /**
  * Internal struct for storing each UARTE instance's state:
