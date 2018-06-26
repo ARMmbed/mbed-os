@@ -18,6 +18,7 @@ from tools.notifier.mock import MockNotifier
 
 ALPHABET = [char for char in printable if char not in [u'.', u'/', u'\\']]
 
+
 @patch('tools.toolchains.arm.run_cmd')
 def test_arm_version_check(_run_cmd):
     _run_cmd.return_value = ("""
@@ -36,6 +37,28 @@ def test_arm_version_check(_run_cmd):
     """, "", 0)
     toolchain.version_check()
     assert len(notifier.messages) == 1
+
+
+@patch('tools.toolchains.iar.run_cmd')
+def test_iar_version_check(_run_cmd):
+    _run_cmd.return_value = ("""
+    IAR ANSI C/C++ Compiler V7.80.1.28/LNX for ARM
+    """, "", 0)
+    notifier = MockNotifier()
+    toolchain = TOOLCHAIN_CLASSES["IAR"](TARGET_MAP["K64F"], notify=notifier)
+    toolchain.version_check()
+    assert notifier.messages == []
+    _run_cmd.return_value = ("""
+    IAR ANSI C/C++ Compiler V/LNX for ARM
+    """, "", 0)
+    toolchain.version_check()
+    assert len(notifier.messages) == 1
+    _run_cmd.return_value = ("""
+    IAR ANSI C/C++ Compiler V/8.80LNX for ARM
+    """, "", 0)
+    toolchain.version_check()
+    assert len(notifier.messages) == 2
+
 
 @given(fixed_dictionaries({
     'common': lists(text()),
