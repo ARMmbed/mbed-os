@@ -109,7 +109,13 @@ matrix:
     - env:
         - NAME=astyle
       install:
-      - curl -v -LO --retry 20 http://downloads.sourceforge.net/project/astyle/astyle/astyle%203.1/astyle_3.1_linux.tar.gz;
+      - result=56;
+        counter=10;
+        while [[ ($result == 56) && (&counter != 0) ]]; do
+          curl -v -LO --retry 20 http://downloads.sourceforge.net/project/astyle/astyle/astyle%203.1/astyle_3.1_linux.tar.gz;
+          result=$?;
+          counter--; 
+        done;
         mkdir -p BUILD && tar xf astyle_3.1_linux.tar.gz -C BUILD;
         pushd BUILD/astyle/build/gcc;
         make;
