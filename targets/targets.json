@@ -1473,6 +1473,7 @@
             "PORTINOUT",
             "PORTOUT",
             "PWMOUT",
+            "RESET_REASON",
             "SERIAL",
             "SERIAL_FC",
             "SERIAL_ASYNCH",
