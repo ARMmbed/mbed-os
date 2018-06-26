@@ -375,9 +375,8 @@ void server_main2(void *ptr)
                 }
             }
             psa_end(msg.handle, PSA_SUCCESS);
-        }
-        else {
-            SPM_ASSERT(false);
+        } else {
+            SPM_PANIC("Unknown signal (0x%08x)", signals);
         }
     }
 }

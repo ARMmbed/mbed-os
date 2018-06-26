@@ -61,7 +61,7 @@ void server_main2(void *ptr)
                 }
             }
         } else {
-            SPM_ASSERT(0);
+            SPM_PANIC("Unknown signal (0x%08x)", signals);
         }
     }
 }

@@ -29,24 +29,31 @@ void part1_main(void *ptr)
     while (1) {
 
         signals = psa_wait_any(PSA_BLOCK);
-        SPM_ASSERT(signals == ROT_SRV1_MSK);
-        PSA_UNUSED(signals);
+        if ((signals & ROT_SRV1_MSK) != ROT_SRV1_MSK) {
+            SPM_PANIC("Recieved unknown signal (0x%08x)\n", signals);
+        }
 
         osDelay(500);
 
         psa_get(ROT_SRV1_MSK, &msg);
         if (msg.handle != PSA_NULL_HANDLE) {
             client_id = psa_identity(msg.handle);
-            SPM_ASSERT(client_id == PSA_NSPE_IDENTIFIER);
-            PSA_UNUSED(client_id);
+            if (client_id != PSA_NSPE_IDENTIFIER) {
+                SPM_PANIC("Recieved message from unexpected source (0x%08x)\n", client_id);
+            }
         }
 
         switch (msg.type) {
             case PSA_IPC_CALL:
             {
-                SPM_ASSERT((msg.in_size[0] + msg.in_size[1] + msg.in_size[2]) == ACTUAL_MSG_SIZE);
-                SPM_ASSERT(msg.out_size[0] == SERVER_RSP_BUF_SIZE);
-                uint32_t bytes_read = 0;
+                if (
+                    ((msg.in_size[0] + msg.in_size[1] + msg.in_size[2] + msg.in_size[3]) != ACTUAL_MSG_SIZE) ||
+                    (msg.out_size[0] != SERVER_RSP_BUF_SIZE)
+                ) {
+                    SPM_PANIC("Recieved message does not comply with message convention");
+                }
+
+
                 char *read_msg_buf = malloc(sizeof(char) * SERVER_READ_MSG_BUF_SIZE);
                 if (NULL == read_msg_buf) {
                     SPM_PANIC("Failed to allocate Memory");
@@ -55,12 +62,13 @@ void part1_main(void *ptr)
                 char *read_ptr = read_msg_buf;
 
                 for (size_t i = 0; i < PSA_MAX_IOVEC - 1; i++) {
+                    uint32_t bytes_read = psa_read(msg.handle, i, read_ptr, msg.in_size[i]);
+                    if (bytes_read != msg.in_size[i]) {
+                        SPM_PANIC("Expected to read %d, got %d", msg.in_size[i], bytes_read);
+                    }
 
-                    bytes_read += psa_read(msg.handle, i, read_ptr, msg.in_size[i]);
-                    read_ptr = read_msg_buf + bytes_read;
+                    read_ptr += bytes_read;
                 }
-
-                SPM_ASSERT(bytes_read == (msg.in_size[0] + msg.in_size[1] + msg.in_size[2]));
 
                 int cmp_res = strcmp(SERVER_EXPECTED_READ_MSG, read_msg_buf);
                 if(cmp_res != 0) {
@@ -74,13 +82,20 @@ void part1_main(void *ptr)
                 break;
             }
             case PSA_IPC_DISCONNECT:
-                SPM_ASSERT(msg.handle == PSA_NULL_HANDLE);
+                if (msg.handle != PSA_NULL_HANDLE) {
+                    SPM_PANIC("expected PSA_NULL_HANDLE recieved 0x%08x", msg.handle);
+                }
                 // Fallthrough
             case PSA_IPC_CONNECT:
             {
-                SPM_ASSERT(msg.out_size[0] == 0);
-                SPM_ASSERT(msg.out_size[1] == 0);
-                SPM_ASSERT(msg.out_size[2] == 0);
+                if (
+                    (msg.out_size[0] != 0) || (msg.out_size[1] != 0) ||
+                    (msg.out_size[2] != 0) || (msg.out_size[3] != 0) ||
+                    (msg.in_size[0] != 0) || (msg.in_size[1] != 0) ||
+                    (msg.in_size[2] != 0) || (msg.in_size[3] != 0)
+                ) {
+                    SPM_PANIC("Should not recieve iovecs in PSA_IPC_CONNECT");
+                }
 
                 break;
             }

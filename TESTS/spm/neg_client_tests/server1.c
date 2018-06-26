@@ -47,9 +47,9 @@ void server_main1(void *ptr)
                     }
                     break;
                 }
-                default: {
-                    SPM_ASSERT(false);
-                }
+                default:
+                    SPM_PANIC("Unknown message type");
+                    break;
             }
 
             psa_end(msg.handle, PSA_SUCCESS);
