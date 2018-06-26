@@ -144,7 +144,7 @@ class SimplicityV3(Exporter):
                         main_files.append(source)
 
         libraries = []
-        for lib in self.resources.libraries:
+        for lib in self.libraries:
             l, _ = splitext(basename(lib))
             if l[3:] not in EXCLUDED_LIBS:
                 libraries.append(l[3:])

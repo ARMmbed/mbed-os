@@ -70,7 +70,7 @@ class Makefile(Exporter):
                           self.resources.cpp_sources]
 
         libraries = [self.prepare_lib(basename(lib)) for lib
-                     in self.resources.libraries]
+                     in self.libraries]
         sys_libs = [self.prepare_sys_lib(lib) for lib
                     in self.toolchain.sys_libs]
 

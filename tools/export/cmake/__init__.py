@@ -68,7 +68,7 @@ class CMake(Exporter):
         srcs = [re.sub(r'^[.]/', '', f) for f in srcs]
 
         # additional libraries
-        libraries = [self.prepare_lib(basename(lib)) for lib in self.resources.libraries]
+        libraries = [self.prepare_lib(basename(lib)) for lib in self.libraries]
         sys_libs = [self.prepare_sys_lib(lib) for lib in self.toolchain.sys_libs]
 
         # sort includes reverse, so the deepest dir comes first (ensures short includes)

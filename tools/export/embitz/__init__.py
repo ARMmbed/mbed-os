@@ -60,7 +60,7 @@ class EmBitz(Exporter):
                 })
 
         libraries = []
-        for lib in self.resources.libraries:
+        for lib in self.libraries:
             l, _ = splitext(basename(lib))
             libraries.append(l[3:])
 
