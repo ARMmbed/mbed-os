@@ -1382,6 +1382,7 @@
             "PORTINOUT",
             "PORTOUT",
             "PWMOUT",
+            "RESET_REASON",
             "SERIAL",
             "SERIAL_FC",
             "SERIAL_ASYNCH",
@@ -2510,7 +2511,8 @@
             "SERIAL_ASYNCH",
             "SERIAL_FC",
             "TRNG",
-            "FLASH"
+            "FLASH",
+            "WATCHDOG"
         ],
         "detect_code": ["0796"],
         "release_versions": ["2", "5"],
