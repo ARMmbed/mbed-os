@@ -99,8 +99,8 @@ class ARM(mbedToolchain):
         msg = None
         min_ver, max_ver = self.ARMCC_RANGE
         match = self.ARMCC_VERSION_RE.search(stdout)
-        found_version = LooseVersion(match.group(0)) if match else None
-        min_ver, max_ver = self.ARM_RANGE
+        found_version = LooseVersion(match.group(1)) if match else None
+        min_ver, max_ver = self.ARMCC_RANGE
         if found_version and (found_version < min_ver or found_version >= max_ver):
             msg = ("Compiler version mismatch: Have {}; "
                    "expected version >= {} and < {}"

@@ -18,6 +18,25 @@ from tools.notifier.mock import MockNotifier
 
 ALPHABET = [char for char in printable if char not in [u'.', u'/', u'\\']]
 
+@patch('tools.toolchains.arm.run_cmd')
+def test_arm_version_check(_run_cmd):
+    _run_cmd.return_value = ("""
+    Product: ARM Compiler 5.06
+    Component: ARM Compiler 5.06 update 5 (build 528)
+    Tool: armcc [4d3621]
+    """, "", 0)
+    notifier = MockNotifier()
+    toolchain = TOOLCHAIN_CLASSES["ARM"](TARGET_MAP["K64F"], notify=notifier)
+    toolchain.version_check()
+    assert notifier.messages == []
+    _run_cmd.return_value = ("""
+    Product: ARM Compiler
+    Component: ARM Compiler
+    Tool: armcc [4d3621]
+    """, "", 0)
+    toolchain.version_check()
+    assert len(notifier.messages) == 1
+
 @given(fixed_dictionaries({
     'common': lists(text()),
     'c': lists(text()),
