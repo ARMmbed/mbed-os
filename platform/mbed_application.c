@@ -23,9 +23,31 @@
 
 #if defined(__CORTEX_A9)
 
+static void powerdown_gic(void);
+
 void mbed_start_application(uintptr_t address)
 {
+    __disable_irq();
+    powerdown_gic();
+    __enable_irq();
     ((void(*)())address)();
+}
+
+static void powerdown_gic()
+{
+    int i;
+    int j;
+
+    for (i = 0; i < 32; i++) {
+        GICDistributor->ICENABLER[i] = 0xFFFFFFFF;
+        GICDistributor->ICPENDR[i] = 0xFFFFFFFF;
+        if (i < 4) {
+            GICDistributor->CPENDSGIR[i] = 0xFFFFFFFF;
+        }
+        for (j = 0; j < 8; j++) {
+            GICDistributor->IPRIORITYR[i*8+j] = 0x00000000;
+        }
+    }
 }
 
 #else
