@@ -30,7 +30,7 @@
 const char* GREENTEA_TEST_ENV_END = "end";
 const char* GREENTEA_TEST_ENV_EXIT = "__exit";
 const char* GREENTEA_TEST_ENV_SYNC = "__sync";
-const char* GREENTEA_TEST_HOST_ACK = "hostAck";
+const char* GREENTEA_TEST_HOST_ACK = "__hstAk";
 const char* GREENTEA_TEST_ENV_TIMEOUT = "__timeout";
 const char* GREENTEA_TEST_ENV_HOST_TEST_NAME = "__host_test_name";
 const char* GREENTEA_TEST_ENV_HOST_TEST_VERSION = "__version";
@@ -89,6 +89,7 @@ void _GREENTEA_SETUP_COMMON(const int timeout, const char *host_test_name, char 
           *  is to take care of issues when we encounter old keys in buffer and assume them to be right ones.
           */
         if (strcmp(_key, GREENTEA_TEST_HOST_ACK) == 0) {
+            greentea_send_kv(_key, buffer);
             runTests = true;
         }
     }
