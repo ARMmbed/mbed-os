@@ -11,8 +11,8 @@ TARGET_CONFIGS = json_file_to_dict(join(CONFIG_DIR, "target_configs.json"))
 def get_valid_configs(target_name):
     if target_name in TARGET_CONFIGS:
         target_config = TARGET_CONFIGS[target_name]
-    elif (target_name in TARGET_MAP and 'EMAC' in TARGET_MAP[target_name].device_has):
-        target_config = { "default_test_configuration": "ETHERNET", "test_configurations": ["ETHERNET"] }
+    elif (target_name in TARGET_MAP and 'NET' in TARGET_MAP[target_name].device_has):
+        target_config = { "default_test_configuration": "DEFAULT_NET", "test_configurations": ["DEFAULT_NET"] }
     else:
         return {}
 
@@ -37,7 +37,7 @@ def get_default_config(source_dir, target_name):
         return join(CONFIG_DIR, CONFIG_MAP[config_name])
     elif Config.find_app_config(source_dir):
         return None
-    elif (target_name in TARGET_MAP and 'EMAC' in TARGET_MAP[target_name].device_has):
-        return join(CONFIG_DIR, CONFIG_MAP["ETHERNET"])
+    elif (target_name in TARGET_MAP and 'NET' in TARGET_MAP[target_name].device_has):
+        return join(CONFIG_DIR, CONFIG_MAP["DEFAULT_NET"])
     else:
         return None

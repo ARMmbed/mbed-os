@@ -2,10 +2,10 @@
     "config": {
         "header-file": {
             "help" : "String for including your driver header file",
-            "value" : "\"EthernetInterface.h\""
+            "value" : "\"NetworkInterface.h\""
         },
         "object-construction" : {
-            "value" : "new EthernetInterface()"
+            "value" : "NetworkInterface::get_default_instance()"
         },
         "connect-statement" : {
             "help" : "Must use 'net' variable name",
@@ -31,6 +31,7 @@
     },
     "target_overrides": {
         "*": {
+            "target.network-default-interface-type": "ETHERNET",
             "target.features_add": ["LWIP"],
             "nsapi.default-stack": "LWIP"
         }
