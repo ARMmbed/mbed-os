@@ -73,7 +73,7 @@ extern "C" {
 #define NRF_SECTION_START_ADDR(section_name)       &CONCAT_2(__start_, section_name)
 
 #elif defined(__ICCARM__)
-#define NRF_SECTION_START_ADDR(section_name)       __section_begin(STRINGIFY(section_name))
+#define NRF_SECTION_START_ADDR(section_name)       __section_begin(NRF_STRINGIFY(section_name))
 #endif
 
 
@@ -89,7 +89,7 @@ extern "C" {
 #define NRF_SECTION_END_ADDR(section_name)         &CONCAT_2(__stop_, section_name)
 
 #elif defined(__ICCARM__)
-#define NRF_SECTION_END_ADDR(section_name)         __section_end(STRINGIFY(section_name))
+#define NRF_SECTION_END_ADDR(section_name)         __section_end(NRF_STRINGIFY(section_name))
 #endif
 
 
@@ -123,7 +123,7 @@ extern "C" {
 
 #elif defined(__ICCARM__)
 #define NRF_SECTION_DEF(section_name, data_type)                \
-    _Pragma(STRINGIFY(section = STRINGIFY(section_name)));
+    _Pragma(NRF_STRINGIFY(section = NRF_STRINGIFY(section_name)));
 
 #endif
 
@@ -142,15 +142,15 @@ extern "C" {
  */
 #if defined(__CC_ARM)
 #define NRF_SECTION_ITEM_REGISTER(section_name, section_var) \
-    section_var __attribute__ ((section(STRINGIFY(section_name)))) __attribute__((used))
+    section_var __attribute__ ((section(NRF_STRINGIFY(section_name)))) __attribute__((used))
 
 #elif defined(__GNUC__)
 #define NRF_SECTION_ITEM_REGISTER(section_name, section_var) \
-    section_var __attribute__ ((section("." STRINGIFY(section_name)))) __attribute__((used))
+    section_var __attribute__ ((section("." NRF_STRINGIFY(section_name)))) __attribute__((used))
 
 #elif defined(__ICCARM__)
 #define NRF_SECTION_ITEM_REGISTER(section_name, section_var) \
-    __root section_var @ STRINGIFY(section_name)
+    __root section_var @ NRF_STRINGIFY(section_name)
 #endif
 
 
