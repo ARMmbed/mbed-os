@@ -88,14 +88,10 @@ void LoRaPHY::setup_public_network_mode(bool set)
     _radio->unlock();
 }
 
-void LoRaPHY::setup_rx_window(bool rx_continuous, uint32_t max_rx_window)
+void LoRaPHY::handle_receive(void)
 {
     _radio->lock();
-    if (!rx_continuous) {
-        _radio->receive(max_rx_window);
-    } else {
-        _radio->receive(0); // Continuous mode
-    }
+    _radio->receive();
     _radio->unlock();
 }
 

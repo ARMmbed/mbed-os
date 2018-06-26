@@ -68,15 +68,9 @@ public:
 
     /** Puts radio in receive mode.
      *
-     * Requests the radio driver to enter receive mode for a given time or to
-     * enter continuous reception mode.
-     *
-     * @param is_rx_continuous    if true, sets the radio to enter continuous
-     *                            reception mode.
-     *
-     * @param max_rx_window       duration of receive window
+     * Requests the radio driver to enter receive mode.
      */
-    void setup_rx_window(bool is_rx_continuous, uint32_t max_rx_window);
+    void handle_receive(void);
 
     /** Delegates MAC layer request to transmit packet.
      *
