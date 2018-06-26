@@ -25,7 +25,7 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
 
 uint32_t HAL_GetTick()
 {
-    return ticker_read_us(get_us_ticker_data()) / 1000; // 1 ms tick is required for ST HAL_Delay function
+    return 0;
 }
 
 void HAL_SuspendTick(void)

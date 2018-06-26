@@ -20,6 +20,8 @@
 
 TIM_HandleTypeDef TimMasterHandle;
 
+bool us_ticker_initialized = false;
+
 const ticker_info_t *us_ticker_get_info()
 {
     static const ticker_info_t info = {
@@ -53,7 +55,7 @@ void timer_oc_irq_handler(void)
     if (__HAL_TIM_GET_FLAG(&TimMasterHandle, TIM_FLAG_CC1) == SET) {
         if (__HAL_TIM_GET_IT_SOURCE(&TimMasterHandle, TIM_IT_CC1) == SET) {
             __HAL_TIM_CLEAR_IT(&TimMasterHandle, TIM_IT_CC1);
-                   us_ticker_irq_handler();
+            us_ticker_irq_handler();
         }
     }
 }
@@ -76,6 +78,11 @@ void timer_irq_handler(void)
 
 void us_ticker_init(void)
 {
+    if (us_ticker_initialized) {
+        __HAL_TIM_DISABLE_IT(&TimMasterHandle, TIM_IT_CC1);
+        __HAL_TIM_CLEAR_FLAG(&TimMasterHandle, TIM_FLAG_CC1);
+        return;
+    }
 
 // ************************************ 16-bit timer ************************************
 #if TIM_MST_BIT_WIDTH == 16
@@ -194,6 +201,8 @@ void us_ticker_init(void)
     __HAL_TIM_DISABLE_IT(&TimMasterHandle, TIM_IT_CC1);
 
 #endif // 16-bit/32-bit timer
+
+    us_ticker_initialized = true;
 
 }
 
