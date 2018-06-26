@@ -109,8 +109,8 @@ matrix:
     - env:
         - NAME=astyle
       install:
-      - wget https://downloads.sourceforge.net/project/astyle/astyle/astyle%203.1/astyle_3.1_linux.tar.gz;
-        mkdir -p BUILD && tar xf astyle_3.1_linux.tar.gz -C BUILD;
+      - curl -L0 http://mbed-os.s3-eu-west-1.amazonaws.com/builds/deps/astyle_3.1_linux.tar.gz --output astyle.tar.gz;
+        mkdir -p BUILD && tar xf astyle.tar.gz -C BUILD;
         pushd BUILD/astyle/build/gcc;
         make;
         export PATH=$PWD/bin:$PATH;
