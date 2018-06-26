@@ -60,6 +60,37 @@ def test_iar_version_check(_run_cmd):
     assert len(notifier.messages) == 2
 
 
+@patch('tools.toolchains.gcc.run_cmd')
+def test_gcc_version_check(_run_cmd):
+    _run_cmd.return_value = ("""
+    arm-none-eabi-gcc (Arch Repository) 6.4.4
+    Copyright (C) 2018 Free Software Foundation, Inc.
+    This is free software; see the source for copying conditions.  There is NO
+    warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+    """, "", 0)
+    notifier = MockNotifier()
+    toolchain = TOOLCHAIN_CLASSES["GCC_ARM"](
+        TARGET_MAP["K64F"], notify=notifier)
+    toolchain.version_check()
+    assert notifier.messages == []
+    _run_cmd.return_value = ("""
+    arm-none-eabi-gcc (Arch Repository) 8.1.0
+    Copyright (C) 2018 Free Software Foundation, Inc.
+    This is free software; see the source for copying conditions.  There is NO
+    warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+    """, "", 0)
+    toolchain.version_check()
+    assert len(notifier.messages) == 1
+    _run_cmd.return_value = ("""
+    arm-none-eabi-gcc (Arch Repository)
+    Copyright (C) 2018 Free Software Foundation, Inc.
+    This is free software; see the source for copying conditions.  There is NO
+    warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+    """, "", 0)
+    toolchain.version_check()
+    assert len(notifier.messages) == 2
+
+
 @given(fixed_dictionaries({
     'common': lists(text()),
     'c': lists(text()),

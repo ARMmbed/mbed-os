@@ -31,7 +31,7 @@ class GCC(mbedToolchain):
     DIAGNOSTIC_PATTERN = re.compile('((?P<file>[^:]+):(?P<line>\d+):)(?P<col>\d+):? (?P<severity>warning|[eE]rror|fatal error): (?P<message>.+)')
 
     GCC_RANGE = (LooseVersion("6.0.0"), LooseVersion("7.0.0"))
-    GCC_VERSION_RE = re.compile("[0-9]*\.[0-9]*\.[0-9]*")
+    GCC_VERSION_RE = re.compile("\d+\.\d+\.\d+")
 
     def __init__(self, target,  notify=None, macros=None, build_profile=None,
                  build_dir=None):
@@ -122,7 +122,7 @@ class GCC(mbedToolchain):
             msg = ("Compiler version mismatch: Have {}; "
                    "expected version >= {} and < {}"
                    .format(found_version, min_ver, max_ver))
-        elif not match or len(match.groups()) != 1:
+        elif not match:
             msg = ("Compiler version mismatch: Could not detect version; "
                    "expected version >= {} and < {}"
                    .format(min_ver, max_ver))
