@@ -175,9 +175,9 @@
       "minor_policy": "RELAXED"
     },
     {
-      "name": "PART2_READ_EXCESE_INVEC",
+      "name": "PART2_READ_EXCESS_INVEC",
       "identifier": "0x00001A20",
-      "signal": "PART2_READ_EXCESE_INVEC_MSK",
+      "signal": "PART2_READ_EXCESS_INVEC_MSK",
       "non_secure_clients": true,
       "minor_version": 5,
       "minor_policy": "RELAXED"
@@ -191,9 +191,25 @@
       "minor_policy": "RELAXED"
     },
     {
-      "name": "PART2_WRITE_EXCESE_OUTVEC",
+      "name": "PART2_WRITE_EXCESS_OUTVEC",
       "identifier": "0x00001A22",
-      "signal": "PART2_WRITE_EXCESE_OUTVEC_MSK",
+      "signal": "PART2_WRITE_EXCESS_OUTVEC_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "RELAXED"
+    },
+    {
+      "name": "PART2_WRITE_SIZE_OVERFLOW",
+      "identifier": "0x00001A23",
+      "signal": "PART2_WRITE_SIZE_OVERFLOW_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "RELAXED"
+    },
+    {
+      "name": "PART2_READ_NULL_BUFFER",
+      "identifier": "0x00001A24",
+      "signal": "PART2_READ_NULL_BUFFER_MSK",
       "non_secure_clients": true,
       "minor_version": 5,
       "minor_policy": "RELAXED"

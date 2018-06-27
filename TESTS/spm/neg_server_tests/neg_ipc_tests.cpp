@@ -24,6 +24,7 @@
 #include "utest.h"
 #include "rtos.h"
 #include "spm_client.h"
+#include "psa_neg_server_part1_ifs.h"
 #include "psa_neg_server_part2_ifs.h"
 #include "neg_tests.h"
 
@@ -124,10 +125,9 @@ void server_get_signum_twice()
 //Testing server read handle does not exist on the platform
 void server_read_invalid_handle()
 {
-    psa_handle_t handle = 0;
     uint32_t data = 52;
     psa_invec_t data_vec = {&data, sizeof(data)};
-    handle = negative_server_ipc_tests_connect(PART2_READ_INVALID_HANDLE, MINOR_VER);
+    psa_handle_t handle = negative_server_ipc_tests_connect(PART2_READ_INVALID_HANDLE, MINOR_VER);
 
     negative_server_ipc_tests_call(handle, &data_vec, 1, NULL, 0);
 
@@ -137,22 +137,31 @@ void server_read_invalid_handle()
 //Testing server read handle is null (PSA_NULL_HANDLE)
 void server_read_null_handle()
 {
-    psa_handle_t handle = 0;
     uint32_t data = 52;
     psa_invec_t data_vec = {&data, sizeof(data)};
-    handle = negative_server_ipc_tests_connect(PART2_READ_NULL_HANDLE, MINOR_VER);
+    psa_handle_t handle = negative_server_ipc_tests_connect(PART2_READ_NULL_HANDLE, MINOR_VER);
 
     negative_server_ipc_tests_call(handle, &data_vec, 1, NULL, 0);
 
     TEST_FAIL_MESSAGE("server_read_null_handle negative test failed at client side");
 }
 
+//Testing server read buffer is null
+void server_read_null_buffer()
+{
+    uint32_t data = 52;
+    psa_invec_t data_vec = {&data, sizeof(data)};
+    psa_handle_t handle = negative_server_ipc_tests_connect(PART2_READ_NULL_BUFFER, MINOR_VER);
+
+    negative_server_ipc_tests_call(handle, &data_vec, 1, NULL, 0);
+
+    TEST_FAIL_MESSAGE("server_read_null_buffer negative test failed at client side");
+}
+
 //Testing server write buffer is null
 void server_write_null_buffer()
 {
-    psa_handle_t handle = 0;
-
-    handle = negative_server_ipc_tests_connect(PART2_WRITE_BUFFER_NULL, MINOR_VER);
+    psa_handle_t handle = negative_server_ipc_tests_connect(PART2_WRITE_BUFFER_NULL, MINOR_VER);
 
     uint8_t data[2] = {1, 0};
     psa_invec_t iovec_temp[PSA_MAX_IOVEC - 1] = {
@@ -170,9 +179,7 @@ void server_write_null_buffer()
 //Testing server write rx_buff is null
 void server_write_rx_buff_null()
 {
-    psa_handle_t handle = 0;
-
-    handle = negative_server_ipc_tests_connect(PART2_WRITE_RX_BUFF_NULL, MINOR_VER);
+    psa_handle_t handle = negative_server_ipc_tests_connect(PART2_WRITE_RX_BUFF_NULL, MINOR_VER);
 
     uint8_t data[2] = {1, 0};
     psa_invec_t iovec_temp[PSA_MAX_IOVEC] = {
@@ -190,9 +197,7 @@ void server_write_rx_buff_null()
 //Testing server write handle does not exist on the platform
 void server_write_invalid_handle()
 {
-    psa_handle_t handle = 0;
-
-    handle = negative_server_ipc_tests_connect(PART2_WRITE_INVALID_HANDLE, MINOR_VER);
+    psa_handle_t handle = negative_server_ipc_tests_connect(PART2_WRITE_INVALID_HANDLE, MINOR_VER);
 
     uint8_t data[2] = {1, 0};
     psa_invec_t iovec_temp[PSA_MAX_IOVEC - 1] = {
@@ -210,9 +215,7 @@ void server_write_invalid_handle()
 //Testing server write handle is null (PSA_NULL_HANDLE)
 void server_write_null_handle()
 {
-    psa_handle_t handle = 0;
-
-    handle = negative_server_ipc_tests_connect(PART2_WRITE_NULL_HANDLE, MINOR_VER);
+    psa_handle_t handle = negative_server_ipc_tests_connect(PART2_WRITE_NULL_HANDLE, MINOR_VER);
 
     uint8_t data[2] = {1, 0};
     psa_invec_t iovec_temp[PSA_MAX_IOVEC - 1] = {
@@ -235,12 +238,28 @@ void server_end_invalid_handle()
     TEST_FAIL_MESSAGE("server_end_invalid_handle negative test failed at client side");
 }
 
+//Testing server end invalid retval for connect
+void server_end_invalid_retval_connect()
+{
+    psa_connect(PART1_END_INVALID_RETVAL_CONNECT, MINOR_VER);
+   
+    TEST_FAIL_MESSAGE("server_end_invalid_retval_connect negative test failed at client side");
+}
+
+//Testing server end invalid retval for call
+void server_end_invalid_retval_call()
+{
+    psa_handle_t handle = negative_server_ipc_tests_connect(PART1_END_INVALID_RETVAL_CALL, MINOR_VER);
+
+    psa_call(handle, NULL, 0, NULL, 0);
+
+    TEST_FAIL_MESSAGE("server_end_invalid_retval_call negative test failed at client side");
+}
+
 //Testing server end rhandle is not NULL and msg type is disconnect
 void server_set_rhandle_during_disconnect()
 {
-    psa_handle_t handle = 0;
-
-    handle = negative_server_ipc_tests_connect(PART2_SET_RHANDLE_DURING_DISCONNECT, MINOR_VER);
+    psa_handle_t handle = negative_server_ipc_tests_connect(PART2_SET_RHANDLE_DURING_DISCONNECT, MINOR_VER);
 
     psa_close(handle);
     // Wait for psa_close to finish on server side
@@ -281,11 +300,11 @@ void server_set_rhandle_invalid_handle()
 }
 
 //Testing server psa_set_rhandle handle is null (PSA_NULL_HANDLE)
-void server_set_rhandle_part_id_invalid()
+void server_set_rhandle_null_handle()
 {
     psa_connect(PART2_SET_RHANDLE_NULL_HANDLE, MINOR_VER);
 
-    TEST_FAIL_MESSAGE("server_set_rhandle_part_id_invalid negative test failed at client side");
+    TEST_FAIL_MESSAGE("server_set_rhandle_null_handle negative test failed at client side");
 }
 
 void server_read_on_wraparound_msg_ptr()
@@ -296,12 +315,12 @@ void server_read_on_wraparound_msg_ptr()
     TEST_FAIL_MESSAGE("server_read_on_wraparound_msg_ptr negative test failed at client side");
 }
 
-void server_read_from_excese_invec()
+void server_read_from_excess_invec()
 {
-    psa_handle_t handle = negative_server_ipc_tests_connect(PART2_READ_EXCESE_INVEC, MINOR_VER);
+    psa_handle_t handle = negative_server_ipc_tests_connect(PART2_READ_EXCESS_INVEC, MINOR_VER);
     psa_call(handle, NULL, 0, NULL, 0);
 
-    TEST_FAIL_MESSAGE("server_read_from_excese_invec negative test failed at client side");
+    TEST_FAIL_MESSAGE("server_read_from_excess_invec negative test failed at client side");
 }
 
 void server_write_on_wraparound_msg_ptr()
@@ -312,12 +331,28 @@ void server_write_on_wraparound_msg_ptr()
     TEST_FAIL_MESSAGE("server_write_on_wraparound_msg_ptr negative test failed at client side");
 }
 
-void server_write_from_excese_outvec()
+void server_write_from_excess_outvec()
 {
-    psa_handle_t handle = negative_server_ipc_tests_connect(PART2_WRITE_EXCESE_OUTVEC, MINOR_VER);
+    psa_handle_t handle = negative_server_ipc_tests_connect(PART2_WRITE_EXCESS_OUTVEC, MINOR_VER);
     psa_call(handle, NULL, 0, NULL, 0);
 
-    TEST_FAIL_MESSAGE("server_write_from_excese_outvec negative test failed at client side");
+    TEST_FAIL_MESSAGE("server_write_from_excess_outvec negative test failed at client side");
+}
+
+void server_write_with_size_overflow()
+{
+    psa_handle_t handle = negative_server_ipc_tests_connect(PART2_WRITE_SIZE_OVERFLOW, MINOR_VER);
+    psa_outvec_t resp = { response_buf, CLIENT_RSP_BUF_SIZE };
+    psa_call(handle, NULL, 0, &resp, 1);
+    TEST_FAIL_MESSAGE("server_write_with_size_overflow negative test failed at client side");
+}
+
+// Testing server psa_clear() when doorbell signal is not currently asserted
+void server_clear_no_doorbell()
+{
+    psa_connect(PART1_CLEAR_NO_DOORBELL, MINOR_VER);
+
+    TEST_FAIL_MESSAGE("server_clear_no_doorbell negative test failed at client side");
 }
 
 PSA_NEG_TEST(server_interrupt_mask_invalid)
@@ -328,21 +363,26 @@ PSA_NEG_TEST(server_get_signum_not_active)
 PSA_NEG_TEST(server_get_signum_twice)
 PSA_NEG_TEST(server_read_invalid_handle)
 PSA_NEG_TEST(server_read_null_handle)
+PSA_NEG_TEST(server_read_null_buffer)
 PSA_NEG_TEST(server_write_null_buffer)
 PSA_NEG_TEST(server_write_rx_buff_null)
 PSA_NEG_TEST(server_write_invalid_handle)
 PSA_NEG_TEST(server_write_null_handle)
 PSA_NEG_TEST(server_end_invalid_handle)
+PSA_NEG_TEST(server_end_invalid_retval_connect)
+PSA_NEG_TEST(server_end_invalid_retval_call)
 PSA_NEG_TEST(server_set_rhandle_during_disconnect)
 PSA_NEG_TEST(server_notify_part_id_invalid)
 PSA_NEG_TEST(server_psa_identity_invalid_handle)
 PSA_NEG_TEST(server_psa_identity_null_handle)
 PSA_NEG_TEST(server_set_rhandle_invalid_handle)
-PSA_NEG_TEST(server_set_rhandle_part_id_invalid)
+PSA_NEG_TEST(server_set_rhandle_null_handle)
 PSA_NEG_TEST(server_read_on_wraparound_msg_ptr)
-PSA_NEG_TEST(server_read_from_excese_invec)
+PSA_NEG_TEST(server_read_from_excess_invec)
 PSA_NEG_TEST(server_write_on_wraparound_msg_ptr)
-PSA_NEG_TEST(server_write_from_excese_outvec)
+PSA_NEG_TEST(server_write_with_size_overflow)
+PSA_NEG_TEST(server_write_from_excess_outvec)
+PSA_NEG_TEST(server_clear_no_doorbell)
 
 utest::v1::status_t spm_case_setup(const Case *const source, const size_t index_of_case)
 {
@@ -369,21 +409,26 @@ Case cases[] = {
     SPM_UTEST_CASE("Testing server get signum twice", server_get_signum_twice),
     SPM_UTEST_CASE("Testing server read handle does not exist on the platform", server_read_invalid_handle),
     SPM_UTEST_CASE("Testing server read handle is PSA_NULL_HANDLE", server_read_null_handle),
+    SPM_UTEST_CASE("Testing server read buffer is NULL", server_read_null_buffer),
     SPM_UTEST_CASE("Testing server write buffer is NULL", server_write_null_buffer),
     SPM_UTEST_CASE("Testing server write rx_buff is null", server_write_rx_buff_null),
     SPM_UTEST_CASE("Testing server write handle does not exist on the platform", server_write_invalid_handle),
     SPM_UTEST_CASE("Testing server write handle is PSA_NULL_HANDLE", server_write_null_handle),
     SPM_UTEST_CASE("Testing server end handle does not exist on the platform", server_end_invalid_handle),
+    SPM_UTEST_CASE("Testing server end invalid retval for connect", server_end_invalid_retval_connect),
+    SPM_UTEST_CASE("Testing server end invalid retval for call", server_end_invalid_retval_call),
     SPM_UTEST_CASE("Testing server set rhandle during disconnect", server_set_rhandle_during_disconnect),
     SPM_UTEST_CASE("Testing server notify partition id doesnt exist", server_notify_part_id_invalid),
     SPM_UTEST_CASE("Testing server identify handle does not exist on the platform", server_psa_identity_invalid_handle),
     SPM_UTEST_CASE("Testing server identify handle is PSA_NULL_HANDLE", server_psa_identity_null_handle),
     SPM_UTEST_CASE("Testing server set_rhandle handle does not exist on the platform", server_set_rhandle_invalid_handle),
-    SPM_UTEST_CASE("Testing server set_rhandle handle is PSA_NULL_HANDLE", server_set_rhandle_part_id_invalid),
+    SPM_UTEST_CASE("Testing server set_rhandle handle is PSA_NULL_HANDLE", server_set_rhandle_null_handle),
     SPM_UTEST_CASE("Testing server read on wrap around pointer", server_read_on_wraparound_msg_ptr),
-    SPM_UTEST_CASE("Testing server read on excese invec index", server_read_from_excese_invec),
+    SPM_UTEST_CASE("Testing server read on excess invec index", server_read_from_excess_invec),
     SPM_UTEST_CASE("Testing server write on wrap around pointer", server_write_on_wraparound_msg_ptr),
-    SPM_UTEST_CASE("Testing server write on excese invec index", server_write_from_excese_outvec)
+    SPM_UTEST_CASE("Testing server write on excess invec index", server_write_from_excess_outvec),
+    SPM_UTEST_CASE("Testing server write with size overflow", server_write_with_size_overflow),
+    SPM_UTEST_CASE("Testing server clear when doorbell signal is not asserted", server_clear_no_doorbell)
 };
 
 utest::v1::status_t spm_setup(const size_t number_of_cases)

@@ -33,7 +33,7 @@
 #define OFFSET_POS              1
 #define INVALID_SID             (NEG_CLIENT_PART1_ROT_SRV1 + 30)
 #define INVALID_MINOR           (MINOR_VER + 10)
-#define INVALID_TX_LEN          (PSA_MAX_IOVEC)
+#define INVALID_TX_LEN          (PSA_MAX_IOVEC + 1)
 
 
 using namespace utest::v1;
@@ -104,14 +104,24 @@ void client_connect_invalid_pol_ver_RELAXED()
     TEST_FAIL_MESSAGE("client_connect_invalid_pol_ver_RELAXED negative test failed");
 }
 
-//Testing client connect version policy is STRICT and minor version is different than the minimum version
-void client_connect_invalid_pol_ver_STRICT()
+//Testing client connect version policy is STRICT and requeted version is higher than the minimum version
+void client_connect_invalid_high_pol_ver_STRICT()
 {
     psa_connect( NEG_CLIENT_PART1_ROT_SRV2,           //NEG_CLIENT_PART1_ROT_SRV2 should have STRICT policy
                  INVALID_MINOR
                );
 
-    TEST_FAIL_MESSAGE("client_connect_invalid_pol_ver_STRICT negative test failed");
+    TEST_FAIL_MESSAGE("client_connect_invalid_high_pol_ver_STRICT negative test failed");
+}
+
+//Testing client connect version policy is STRICT and requeted version equales the minimum version
+void client_connect_invalid_equal_pol_ver_STRICT()
+{
+    psa_connect( NEG_CLIENT_PART1_ROT_SRV2,           //NEG_CLIENT_PART1_ROT_SRV2 should have STRICT policy
+                 MINOR_VER
+               );
+
+    TEST_FAIL_MESSAGE("client_connect_invalid_equal_pol_ver_STRICT negative test failed");
 }
 
 //Testing client call num of iovecs (tx_len + rx_len) is bigger than max value allowed
@@ -123,14 +133,19 @@ void client_call_invalid_iovecs_len()
 
     uint8_t data[2] = {1, 0};
 
-    psa_invec_t iovec_temp[INVALID_TX_LEN] = {
+    psa_invec_t invec_temp[PSA_MAX_IOVEC] = {
         {data, sizeof(data)},
         {data, sizeof(data)},
         {data, sizeof(data)},
         {data, sizeof(data)}
     };
 
-    negative_client_ipc_tests_call(handle, iovec_temp, INVALID_TX_LEN, CLIENT_RSP_BUF_SIZE);
+    psa_outvec_t outvec_temp[1] = {
+        {data, sizeof(data)}
+    };
+    
+    // PSA_MAX_IOVEC invecs + 1 outvec
+    psa_call(handle, invec_temp, PSA_MAX_IOVEC, outvec_temp, 1);
 
     TEST_FAIL_MESSAGE("client_call_invalid_iovecs_len negative test failed");
 }
@@ -167,7 +182,7 @@ void client_call_iovecs_null_tx_len_not_zero()
     TEST_FAIL_MESSAGE("client_call_iovecs_null_tx_len_not_zero negative test failed");
 }
 
-//Testing client call iovec base
+//Testing client call iovec base pointer is NULL and iovec size is not 0
 void client_call_iovec_base_null_len_not_zero()
 {
     negative_client_ipc_tests_connect(NEG_CLIENT_PART1_ROT_SRV1, MINOR_VER);
@@ -285,7 +300,8 @@ void client_call_excese_outvec()
 
 PSA_NEG_TEST(client_connect_invalid_sid)
 PSA_NEG_TEST(client_connect_invalid_pol_ver_RELAXED)
-PSA_NEG_TEST(client_connect_invalid_pol_ver_STRICT)
+PSA_NEG_TEST(client_connect_invalid_high_pol_ver_STRICT)
+PSA_NEG_TEST(client_connect_invalid_equal_pol_ver_STRICT)
 PSA_NEG_TEST(client_call_invalid_iovecs_len)
 PSA_NEG_TEST(client_call_rx_buff_null_rx_len_not_zero)
 PSA_NEG_TEST(client_call_iovecs_null_tx_len_not_zero)
@@ -310,7 +326,8 @@ utest::v1::status_t spm_case_teardown(const Case *const source, const size_t pas
 Case cases[] = {
     SPM_UTEST_CASE("Testing client connect invalid sid", client_connect_invalid_sid),
     SPM_UTEST_CASE("Testing client connect version policy RELAXED invalid minor", client_connect_invalid_pol_ver_RELAXED),
-    SPM_UTEST_CASE("Testing client connect version policy STRICT invalid minor", client_connect_invalid_pol_ver_STRICT),
+    SPM_UTEST_CASE("Testing client connect version policy STRICT high minor", client_connect_invalid_high_pol_ver_STRICT),
+    SPM_UTEST_CASE("Testing client connect version policy STRICT equal minor", client_connect_invalid_equal_pol_ver_STRICT),
     SPM_UTEST_CASE("Testing client call invalid num of iovecs (tx_len + rx_len)", client_call_invalid_iovecs_len),
     SPM_UTEST_CASE("Testing client call rx_buff is NULL rx_len is not 0", client_call_rx_buff_null_rx_len_not_zero),
     SPM_UTEST_CASE("Testing client call iovecs is NULL tx_len is not 0", client_call_iovecs_null_tx_len_not_zero),

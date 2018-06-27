@@ -41,7 +41,7 @@ void server_main2(void *ptr)
                     psa_end(msg.handle, PSA_SUCCESS);
                     break;
                 default:
-                SPM_PANIC("Invalid msg type");
+                    SPM_PANIC("Invalid msg type");
             }
         }
         else if (signals & PART2_CALL_INSIDE_PARTITION_MSK) {
