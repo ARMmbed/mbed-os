@@ -84,165 +84,163 @@ typedef void (*CThunkEntry)(void);
  * @note Synchronization level: Not protected
  */
 template<class T>
-class CThunk
-{
-    public:
-        typedef void (T::*CCallbackSimple)(void);
-        typedef void (T::*CCallback)(void* context);
+class CThunk {
+public:
+    typedef void (T::*CCallbackSimple)(void);
+    typedef void (T::*CCallback)(void *context);
 
-        inline CThunk(T *instance)
-        {
-            init(instance, NULL, NULL);
-        }
+    inline CThunk(T *instance)
+    {
+        init(instance, NULL, NULL);
+    }
 
-        inline CThunk(T *instance, CCallback callback)
-        {
-            init(instance, callback, NULL);
-        }
+    inline CThunk(T *instance, CCallback callback)
+    {
+        init(instance, callback, NULL);
+    }
 
-        ~CThunk() {
+    ~CThunk()
+    {
 
-        }
+    }
 
-        inline CThunk(T *instance, CCallbackSimple callback)
-        {
-            init(instance, (CCallback)callback, NULL);
-        }
+    inline CThunk(T *instance, CCallbackSimple callback)
+    {
+        init(instance, (CCallback)callback, NULL);
+    }
 
-        inline CThunk(T &instance, CCallback callback)
-        {
-            init(instance, callback, NULL);
-        }
+    inline CThunk(T &instance, CCallback callback)
+    {
+        init(instance, callback, NULL);
+    }
 
-        inline CThunk(T &instance, CCallbackSimple callback)
-        {
-            init(instance, (CCallback)callback, NULL);
-        }
+    inline CThunk(T &instance, CCallbackSimple callback)
+    {
+        init(instance, (CCallback)callback, NULL);
+    }
 
-        inline CThunk(T &instance, CCallback callback, void* context)
-        {
-            init(instance, callback, context);
-        }
+    inline CThunk(T &instance, CCallback callback, void *context)
+    {
+        init(instance, callback, context);
+    }
 
-        inline void callback(CCallback callback)
-        {
-            m_callback = callback;
-        }
+    inline void callback(CCallback callback)
+    {
+        m_callback = callback;
+    }
 
-        inline void callback(CCallbackSimple callback)
-        {
-            m_callback = (CCallback)callback;
-        }
+    inline void callback(CCallbackSimple callback)
+    {
+        m_callback = (CCallback)callback;
+    }
 
-        inline void context(void* context)
-        {
-            m_thunk.context = (uint32_t)context;
-        }
+    inline void context(void *context)
+    {
+        m_thunk.context = (uint32_t)context;
+    }
 
-        inline void context(uint32_t context)
-        {
-            m_thunk.context = context;
-        }
-        
-        inline uint32_t entry(void)
-        {
-            return (((uint32_t)&m_thunk)|CTHUNK_ADDRESS);
-        }
+    inline void context(uint32_t context)
+    {
+        m_thunk.context = context;
+    }
 
-        /* get thunk entry point for connecting rhunk to an IRQ table */
-        inline operator CThunkEntry(void)
-        {
-            return (CThunkEntry)entry();
-        }
+    inline uint32_t entry(void)
+    {
+        return (((uint32_t)&m_thunk) | CTHUNK_ADDRESS);
+    }
 
-        /* get thunk entry point for connecting rhunk to an IRQ table */
-        inline operator uint32_t(void)
-        {
-            return entry();
-        }
+    /* get thunk entry point for connecting rhunk to an IRQ table */
+    inline operator CThunkEntry(void)
+    {
+        return (CThunkEntry)entry();
+    }
 
-        /* simple test function */
-        inline void call(void)
-        {
-            (((CThunkEntry)(entry()))());
-        }
+    /* get thunk entry point for connecting rhunk to an IRQ table */
+    inline operator uint32_t(void)
+    {
+        return entry();
+    }
 
-    private:
-        T* m_instance;
-        volatile CCallback m_callback;
+    /* simple test function */
+    inline void call(void)
+    {
+        (((CThunkEntry)(entry()))());
+    }
+
+private:
+    T *m_instance;
+    volatile CCallback m_callback;
 
 // TODO: this needs proper fix, to refactor toolchain header file and all its use
 // PACKED there is not defined properly for IAR
 #if defined (__ICCARM__)
-        typedef __packed struct
-        {
-            CTHUNK_VARIABLES;
-            volatile uint32_t instance;
-            volatile uint32_t context;
-            volatile uint32_t callback;
-            volatile uint32_t trampoline;
-        }  CThunkTrampoline;
+    typedef __packed struct {
+        CTHUNK_VARIABLES;
+        volatile uint32_t instance;
+        volatile uint32_t context;
+        volatile uint32_t callback;
+        volatile uint32_t trampoline;
+    }  CThunkTrampoline;
 #else
-        typedef struct
-        {
-            CTHUNK_VARIABLES;
-            volatile uint32_t instance;
-            volatile uint32_t context;
-            volatile uint32_t callback;
-            volatile uint32_t trampoline;
-        } __attribute__((__packed__)) CThunkTrampoline;
+    typedef struct {
+        CTHUNK_VARIABLES;
+        volatile uint32_t instance;
+        volatile uint32_t context;
+        volatile uint32_t callback;
+        volatile uint32_t trampoline;
+    } __attribute__((__packed__)) CThunkTrampoline;
 #endif
 
-        static void trampoline(T* instance, void* context, CCallback* callback)
-        {
-            if(instance && *callback) {
-                (static_cast<T*>(instance)->**callback)(context);
-            }
+    static void trampoline(T *instance, void *context, CCallback *callback)
+    {
+        if (instance && *callback) {
+            (static_cast<T *>(instance)->**callback)(context);
         }
+    }
 
-        volatile CThunkTrampoline m_thunk;
+    volatile CThunkTrampoline m_thunk;
 
-        inline void init(T *instance, CCallback callback, void* context)
-        {
-            /* remember callback - need to add this level of redirection
-               as pointer size for member functions differs between platforms */
-            m_callback = callback;
+    inline void init(T *instance, CCallback callback, void *context)
+    {
+        /* remember callback - need to add this level of redirection
+           as pointer size for member functions differs between platforms */
+        m_callback = callback;
 
-            /* populate thunking trampoline */
-            CTHUNK_ASSIGMENT;
-            m_thunk.context = (uint32_t)context;
-            m_thunk.instance = (uint32_t)instance;
-            m_thunk.callback = (uint32_t)&m_callback;
-            m_thunk.trampoline = (uint32_t)&trampoline;
+        /* populate thunking trampoline */
+        CTHUNK_ASSIGMENT;
+        m_thunk.context = (uint32_t)context;
+        m_thunk.instance = (uint32_t)instance;
+        m_thunk.callback = (uint32_t)&m_callback;
+        m_thunk.trampoline = (uint32_t)&trampoline;
 
 #if defined(__CORTEX_A9)
-            /* Data cache clean */
-            /* Cache control */
-            {
-                uint32_t start_addr = (uint32_t)&m_thunk & 0xFFFFFFE0;
-                uint32_t end_addr   = (uint32_t)&m_thunk + sizeof(m_thunk);
-                uint32_t addr;
+        /* Data cache clean */
+        /* Cache control */
+        {
+            uint32_t start_addr = (uint32_t)&m_thunk & 0xFFFFFFE0;
+            uint32_t end_addr   = (uint32_t)&m_thunk + sizeof(m_thunk);
+            uint32_t addr;
 
-                /* Data cache clean and invalid */
-                for (addr = start_addr; addr < end_addr; addr += 0x20) {
-                    L1C_CleanInvalidateDCacheMVA((void *)addr);
-                }
-                /* Instruction cache invalid */
-                L1C_InvalidateICacheAll();
-                MMU_InvalidateTLB();
-                L1C_InvalidateBTAC();
+            /* Data cache clean and invalid */
+            for (addr = start_addr; addr < end_addr; addr += 0x20) {
+                L1C_CleanInvalidateDCacheMVA((void *)addr);
             }
+            /* Instruction cache invalid */
+            L1C_InvalidateICacheAll();
+            MMU_InvalidateTLB();
+            L1C_InvalidateBTAC();
+        }
 #endif
 #if defined(__CORTEX_M7)
-            /* Data cache clean and invalid */
-            SCB_CleanInvalidateDCache();
+        /* Data cache clean and invalid */
+        SCB_CleanInvalidateDCache();
 
-            /* Instruction cache invalid */
-            SCB_InvalidateICache();
+        /* Instruction cache invalid */
+        SCB_InvalidateICache();
 #endif
-            __ISB();
-            __DSB();
-        }
+        __ISB();
+        __DSB();
+    }
 };
 
 /**@}*/

@@ -44,7 +44,8 @@
 #define USR_DISABLEDEBUG (RESERVED_FOR_USER_APPLICATIONS + 5)
 
 #if DEVICE_LOCALFILESYSTEM
-FILEHANDLE semihost_open(const char* name, int openmode) {
+FILEHANDLE semihost_open(const char *name, int openmode)
+{
     uint32_t args[3];
     args[0] = (uint32_t)name;
     args[1] = (uint32_t)openmode;
@@ -52,12 +53,16 @@ FILEHANDLE semihost_open(const char* name, int openmode) {
     return __semihost(SYS_OPEN, args);
 }
 
-int semihost_close(FILEHANDLE fh) {
+int semihost_close(FILEHANDLE fh)
+{
     return __semihost(SYS_CLOSE, &fh);
 }
 
-int semihost_write(FILEHANDLE fh, const unsigned char* buffer, unsigned int length, int mode) {
-    if (length == 0) return 0;
+int semihost_write(FILEHANDLE fh, const unsigned char *buffer, unsigned int length, int mode)
+{
+    if (length == 0) {
+        return 0;
+    }
 
     uint32_t args[3];
     args[0] = (uint32_t)fh;
@@ -66,7 +71,8 @@ int semihost_write(FILEHANDLE fh, const unsigned char* buffer, unsigned int leng
     return __semihost(SYS_WRITE, args);
 }
 
-int semihost_read(FILEHANDLE fh, unsigned char* buffer, unsigned int length, int mode) {
+int semihost_read(FILEHANDLE fh, unsigned char *buffer, unsigned int length, int mode)
+{
     uint32_t args[3];
     args[0] = (uint32_t)fh;
     args[1] = (uint32_t)buffer;
@@ -74,33 +80,39 @@ int semihost_read(FILEHANDLE fh, unsigned char* buffer, unsigned int length, int
     return __semihost(SYS_READ, args);
 }
 
-int semihost_istty(FILEHANDLE fh) {
+int semihost_istty(FILEHANDLE fh)
+{
     return __semihost(SYS_ISTTY, &fh);
 }
 
-int semihost_seek(FILEHANDLE fh, long position) {
+int semihost_seek(FILEHANDLE fh, long position)
+{
     uint32_t args[2];
     args[0] = (uint32_t)fh;
     args[1] = (uint32_t)position;
     return __semihost(SYS_SEEK, args);
 }
 
-int semihost_ensure(FILEHANDLE fh) {
+int semihost_ensure(FILEHANDLE fh)
+{
     return __semihost(SYS_ENSURE, &fh);
 }
 
-long semihost_flen(FILEHANDLE fh) {
+long semihost_flen(FILEHANDLE fh)
+{
     return __semihost(SYS_FLEN, &fh);
 }
 
-int semihost_remove(const char *name) {
+int semihost_remove(const char *name)
+{
     uint32_t args[2];
     args[0] = (uint32_t)name;
     args[1] = (uint32_t)strlen(name);
     return __semihost(SYS_REMOVE, args);
 }
 
-int semihost_rename(const char *old_name, const char *new_name) {
+int semihost_rename(const char *old_name, const char *new_name)
+{
     uint32_t args[4];
     args[0] = (uint32_t)old_name;
     args[1] = (uint32_t)strlen(old_name);
@@ -110,35 +122,41 @@ int semihost_rename(const char *old_name, const char *new_name) {
 }
 #endif
 
-int semihost_exit(void) {
+int semihost_exit(void)
+{
     uint32_t args[4];
     return __semihost(SYS_EXIT, args);
 }
 
-int semihost_uid(char *uid) {
+int semihost_uid(char *uid)
+{
     uint32_t args[2];
     args[0] = (uint32_t)uid;
     args[1] = DEVICE_ID_LENGTH + 1;
     return __semihost(USR_UID, &args);
 }
 
-int semihost_reset(void) {
+int semihost_reset(void)
+{
     // Does not normally return, however if used with older firmware versions
     // that do not support this call it will return -1.
     return __semihost(USR_RESET, NULL);
 }
 
-int semihost_vbus(void) {
+int semihost_vbus(void)
+{
     return __semihost(USR_VBUS, NULL);
 }
 
-int semihost_powerdown(void) {
+int semihost_powerdown(void)
+{
     return __semihost(USR_POWERDOWN, NULL);
 }
 
 #if DEVICE_DEBUG_AWARENESS
 
-int semihost_connected(void) {
+int semihost_connected(void)
+{
     return (CoreDebug->DHCSR & CoreDebug_DHCSR_C_DEBUGEN_Msk) ? 1 : 0;
 }
 
@@ -146,12 +164,14 @@ int semihost_connected(void) {
 // These processors cannot know if the interface is connect, assume so:
 static int is_debugger_attached = 1;
 
-int semihost_connected(void) {
+int semihost_connected(void)
+{
     return is_debugger_attached;
 }
 #endif
 
-int semihost_disabledebug(void) {
+int semihost_disabledebug(void)
+{
     uint32_t args[1];
 #if !(DEVICE_DEBUG_AWARENESS)
     is_debugger_attached = 0;

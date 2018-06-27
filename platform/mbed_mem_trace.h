@@ -63,7 +63,7 @@ enum {
  * - for calloc: cb(MBED_MEM_TRACE_CALLOC, res, caller, nmemb, size).
  * - for free: cb(MBED_MEM_TRACE_FREE, NULL, caller, ptr).
  */
-typedef void (*mbed_mem_trace_cb_t)(uint8_t op, void *res, void* caller, ...);
+typedef void (*mbed_mem_trace_cb_t)(uint8_t op, void *res, void *caller, ...);
 
 /**
  * Set the callback used by the memory tracer (use NULL for disable tracing).

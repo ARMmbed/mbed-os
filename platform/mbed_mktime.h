@@ -90,7 +90,7 @@ bool _rtc_is_leap_year(int year, rtc_leap_year_support_t leap_year_support);
  * @note Full and partial leap years support.
  * @note For use by the HAL only
  */
-bool _rtc_maketime(const struct tm* time, time_t * seconds, rtc_leap_year_support_t leap_year_support);
+bool _rtc_maketime(const struct tm *time, time_t *seconds, rtc_leap_year_support_t leap_year_support);
 
 /* Convert a given time in seconds since epoch into calendar time.
  *
@@ -118,7 +118,7 @@ bool _rtc_maketime(const struct tm* time, time_t * seconds, rtc_leap_year_suppor
  * @note For use by the HAL only.
  * @note Full and partial leap years support.
  */
-bool _rtc_localtime(time_t timestamp, struct tm* time_info, rtc_leap_year_support_t leap_year_support);
+bool _rtc_localtime(time_t timestamp, struct tm *time_info, rtc_leap_year_support_t leap_year_support);
 
 /** @}*/
 
