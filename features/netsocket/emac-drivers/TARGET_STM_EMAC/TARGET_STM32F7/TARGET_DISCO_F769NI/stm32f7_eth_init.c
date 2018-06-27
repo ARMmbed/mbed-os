@@ -33,7 +33,7 @@
 /**
  * Override HAL Eth Init function
  */
-void HAL_ETH_MspInit(ETH_HandleTypeDef* heth)
+void HAL_ETH_MspInit(ETH_HandleTypeDef *heth)
 {
     GPIO_InitTypeDef GPIO_InitStructure;
     if (heth->Instance == ETH) {
@@ -61,7 +61,7 @@ void HAL_ETH_MspInit(ETH_HandleTypeDef* heth)
         /* Configure PA1, PA2 and PA7 */
         GPIO_InitStructure.Speed = GPIO_SPEED_HIGH;
         GPIO_InitStructure.Mode = GPIO_MODE_AF_PP;
-        GPIO_InitStructure.Pull = GPIO_NOPULL; 
+        GPIO_InitStructure.Pull = GPIO_NOPULL;
         GPIO_InitStructure.Alternate = GPIO_AF11_ETH;
         GPIO_InitStructure.Pin = GPIO_PIN_1 | GPIO_PIN_2 | GPIO_PIN_7;
         HAL_GPIO_Init(GPIOA, &GPIO_InitStructure);
@@ -81,7 +81,7 @@ void HAL_ETH_MspInit(ETH_HandleTypeDef* heth)
         /* Enable the Ethernet global Interrupt */
         HAL_NVIC_SetPriority(ETH_IRQn, 0x7, 0);
         HAL_NVIC_EnableIRQ(ETH_IRQn);
-        
+
         /* Enable ETHERNET clock  */
         __HAL_RCC_ETH_CLK_ENABLE();
     }
@@ -90,7 +90,7 @@ void HAL_ETH_MspInit(ETH_HandleTypeDef* heth)
 /**
  * Override HAL Eth DeInit function
  */
-void HAL_ETH_MspDeInit(ETH_HandleTypeDef* heth)
+void HAL_ETH_MspDeInit(ETH_HandleTypeDef *heth)
 {
     if (heth->Instance == ETH) {
         /* Peripheral clock disable */

@@ -155,8 +155,8 @@ private:
     bool low_level_init_successful();
     void packet_rx();
     int low_level_input(emac_mem_buf_t **buf);
-    static void thread_function(void* pvParameters);
-    static void rmii_watchdog_thread_function(void* pvParameters);
+    static void thread_function(void *pvParameters);
+    static void rmii_watchdog_thread_function(void *pvParameters);
     void phy_task();
     void enable_interrupts();
     void disable_interrupts();
