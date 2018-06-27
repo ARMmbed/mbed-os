@@ -1073,7 +1073,7 @@ def build_mbed_libs(target, toolchain_name, clean=False, macros=None,
         #   - mbed_overrides.o: this contains platform overrides of various
         #                       weak SDK functions
         #   - mbed_main.o: this contains main redirection
-        separate_names, separate_objects = ['mbed_retarget.o', 'mbed_board.o',
+        separate_names, separate_objects = ['PeripheralPins.o', 'mbed_retarget.o', 'mbed_board.o',
                                             'mbed_overrides.o', 'mbed_main.o', 'mbed_sdk_boot.o'], []
 
         for obj in objects:
