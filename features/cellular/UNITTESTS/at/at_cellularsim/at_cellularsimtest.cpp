@@ -16,6 +16,7 @@
  */
 #include "CppUTest/TestHarness.h"
 #include "test_at_cellularsim.h"
+#include "ATHandler_stub.h"
 
 TEST_GROUP(AT_CellularSIM)
 {
@@ -24,6 +25,7 @@ TEST_GROUP(AT_CellularSIM)
     void setup()
     {
         unit = new Test_AT_CellularSIM();
+        ATHandler_stub::read_string_index = kRead_string_table_size;
     }
 
     void teardown()
@@ -67,3 +69,7 @@ TEST(AT_CellularSIM, test_AT_CellularSIM_get_imsi)
     unit->test_AT_CellularSIM_get_imsi();
 }
 
+TEST(AT_CellularSIM, test_AT_CellularSIM_get_iccid)
+{
+    unit->test_AT_CellularSIM_get_iccid();
+}
