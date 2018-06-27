@@ -169,7 +169,7 @@ typedef enum {
     SWCLK      = PA_14,
 
     I2C1_SCL    = PB_8,
-    I2C1_SDA    = PB_9,     
+    I2C1_SDA    = PB_9,
     I2C3_SCL    = PA_8,
     I2C3_SDA    = PC_9,
 
