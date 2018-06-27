@@ -36,7 +36,7 @@ static void press_power_button(int time_ms)
 void onboard_modem_init()
 {
     gpio_t gpio;
-    // start with modem disabled 
+    // start with modem disabled
     gpio_init_out_ex(&gpio, RESET_MODULE, 0);
     gpio_init_in_ex(&gpio, MDMSTAT, PullUp);
     gpio_init_out_ex(&gpio, MDMDTR,       0);

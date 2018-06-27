@@ -67,19 +67,19 @@ typedef enum {
     PB_1  = 0x11,
     PB_2  = 0x12,
     PB_3  = 0x13,
-    PB_3_ALT0 = PB_3|ALT0,
+    PB_3_ALT0 = PB_3 | ALT0,
     PB_4  = 0x14,
     PB_5  = 0x15,
     PB_6  = 0x16,
     PB_7  = 0x17,
     PB_8  = 0x18,
     PB_9  = 0x19,
-    PB_9_ALT0 = PB_9|ALT0,
-    PB_9_ALT1 = PB_9|ALT1,
+    PB_9_ALT0 = PB_9 | ALT0,
+    PB_9_ALT1 = PB_9 | ALT1,
     PB_10 = 0x1A,
-    PB_10_ALT0 = PB_10|ALT0,
+    PB_10_ALT0 = PB_10 | ALT0,
     PB_11 = 0x1B,
-    PB_11_ALT0 = PB_11|ALT0,
+    PB_11_ALT0 = PB_11 | ALT0,
     PB_12 = 0x1C,
     PB_13 = 0x1D,
     PB_14 = 0x1E,
@@ -169,13 +169,13 @@ typedef enum {
     SPI_CS      = PB_12,
     PWM_OUT     = PA_7,
 
-/**** OSCILLATOR pins ****/
+    /**** OSCILLATOR pins ****/
     RCC_OSC32_IN = PC_14,
     RCC_OSC32_OUT = PC_15,
     RCC_OSC_IN = PH_0,
     RCC_OSC_OUT = PH_1,
 
-/**** DEBUG pins ****/
+    /**** DEBUG pins ****/
     SYS_JTCK_SWCLK = PA_14,
     SYS_JTDI = PA_15,
     SYS_JTDO_SWO = PB_3,
