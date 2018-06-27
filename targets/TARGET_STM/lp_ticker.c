@@ -40,7 +40,7 @@
 
 LPTIM_HandleTypeDef LptimHandle;
 
-const ticker_info_t* lp_ticker_get_info()
+const ticker_info_t *lp_ticker_get_info()
 {
     static const ticker_info_t info = {
 #if MBED_CONF_TARGET_LSE_AVAILABLE
@@ -241,10 +241,10 @@ void lp_ticker_clear_interrupt(void)
 
 #include "rtc_api_hal.h"
 
-const ticker_info_t* lp_ticker_get_info()
+const ticker_info_t *lp_ticker_get_info()
 {
     static const ticker_info_t info = {
-        RTC_CLOCK/4, // RTC_WAKEUPCLOCK_RTCCLK_DIV4
+        RTC_CLOCK / 4, // RTC_WAKEUPCLOCK_RTCCLK_DIV4
         32
     };
     return &info;

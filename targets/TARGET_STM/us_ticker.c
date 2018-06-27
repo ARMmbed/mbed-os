@@ -26,7 +26,7 @@
 
 TIM_HandleTypeDef TimMasterHandle;
 
-const ticker_info_t* us_ticker_get_info()
+const ticker_info_t *us_ticker_get_info()
 {
     static const ticker_info_t info = {
         1000000,

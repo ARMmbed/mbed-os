@@ -45,7 +45,7 @@ void can_init(can_t *obj, PinName rd, PinName td)
     can_init_freq(obj, rd, td, 100000);
 }
 
-void can_init_freq (can_t *obj, PinName rd, PinName td, int hz)
+void can_init_freq(can_t *obj, PinName rd, PinName td, int hz)
 {
     CANName can_rd = (CANName)pinmap_peripheral(rd, PinMap_CAN_RD);
     CANName can_td = (CANName)pinmap_peripheral(td, PinMap_CAN_TD);
@@ -278,14 +278,14 @@ int can_write(can_t *obj, CAN_Message msg, int cc)
     } else if ((can->TSR & CAN_TSR_TME2) == CAN_TSR_TME2) {
         transmitmailbox = 2;
     } else {
-      return 0;
+        return 0;
     }
 
     can->sTxMailBox[transmitmailbox].TIR &= CAN_TI0R_TXRQ;
     if (!(msg.format)) {
-      can->sTxMailBox[transmitmailbox].TIR |= ((msg.id << 21) | (msg.type << 1));
+        can->sTxMailBox[transmitmailbox].TIR |= ((msg.id << 21) | (msg.type << 1));
     } else {
-      can->sTxMailBox[transmitmailbox].TIR |= ((msg.id << 3) | CAN_ID_EXT | (msg.type << 1));
+        can->sTxMailBox[transmitmailbox].TIR |= ((msg.id << 3) | CAN_ID_EXT | (msg.type << 1));
     }
 
     /* Set up the DLC */
@@ -294,13 +294,13 @@ int can_write(can_t *obj, CAN_Message msg, int cc)
 
     /* Set up the data field */
     can->sTxMailBox[transmitmailbox].TDLR = (((uint32_t)msg.data[3] << 24) |
-                                            ((uint32_t)msg.data[2] << 16) |
-                                            ((uint32_t)msg.data[1] << 8) |
-                                            ((uint32_t)msg.data[0]));
+                                             ((uint32_t)msg.data[2] << 16) |
+                                             ((uint32_t)msg.data[1] << 8) |
+                                             ((uint32_t)msg.data[0]));
     can->sTxMailBox[transmitmailbox].TDHR = (((uint32_t)msg.data[7] << 24) |
-                                            ((uint32_t)msg.data[6] << 16) |
-                                            ((uint32_t)msg.data[5] << 8) |
-                                                ((uint32_t)msg.data[4]));
+                                             ((uint32_t)msg.data[6] << 16) |
+                                             ((uint32_t)msg.data[5] << 8) |
+                                             ((uint32_t)msg.data[4]));
     /* Request transmission */
     can->sTxMailBox[transmitmailbox].TIR |= CAN_TI0R_TXRQ;
 
@@ -382,7 +382,7 @@ void can_monitor(can_t *obj, int silent)
 {
     CanMode mode = MODE_NORMAL;
     /*  Update current state w/ or w/o silent */
-    if(silent) {
+    if (silent) {
         switch (obj->CanHandle.Init.Mode) {
             case CAN_MODE_LOOPBACK:
             case CAN_MODE_SILENT_LOOPBACK:
