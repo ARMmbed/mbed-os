@@ -552,6 +552,7 @@ def build_project(src_paths, build_path, target, toolchain_name,
         src_paths, build_path, target, toolchain_name, macros=macros,
         clean=clean, jobs=jobs, notify=notify, config=config,
         app_config=app_config, build_profile=build_profile, ignore=ignore)
+    toolchain.version_check()
 
     # The first path will give the name to the library
     name = (name or toolchain.config.name or

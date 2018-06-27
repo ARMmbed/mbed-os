@@ -17,9 +17,11 @@ limitations under the License.
 import re
 from os import remove
 from os.path import join, splitext, exists
+from distutils.version import LooseVersion
 
 from tools.toolchains import mbedToolchain, TOOLCHAIN_PATHS
 from tools.hooks import hook_tool
+from tools.utils import run_cmd, NotSupportedException
 
 class IAR(mbedToolchain):
     LIBRARY_EXT = '.a'
@@ -28,6 +30,8 @@ class IAR(mbedToolchain):
 
     DIAGNOSTIC_PATTERN = re.compile('"(?P<file>[^"]+)",(?P<line>[\d]+)\s+(?P<severity>Warning|Error|Fatal error)(?P<message>.+)')
     INDEX_PATTERN  = re.compile('(?P<col>\s*)\^')
+    IAR_VERSION_RE = re.compile("IAR ANSI C/C\+\+ Compiler V(\d+\.\d+)")
+    IAR_VERSION = LooseVersion("7.80")
 
     @staticmethod
     def check_executable():
@@ -90,6 +94,27 @@ class IAR(mbedToolchain):
         self.ld   = [join(IAR_BIN, "ilinkarm")] + self.flags['ld']
         self.ar = join(IAR_BIN, "iarchive")
         self.elf2bin = join(IAR_BIN, "ielftool")
+
+    def version_check(self):
+        stdout, _, retcode = run_cmd([self.cc[0], "--version"], redirect=True)
+        msg = None
+        match = self.IAR_VERSION_RE.search(stdout)
+        found_version = match.group(1) if match else None
+        if found_version and LooseVersion(found_version) != self.IAR_VERSION:
+            msg = "Compiler version mismatch: Have {}; expected {}".format(
+                found_version, self.IAR_VERSION)
+        elif not match or len(match.groups()) != 1:
+            msg = ("Compiler version mismatch: Could Not detect compiler "
+                   "version; expected {}".format(self.IAR_VERSION))
+        if msg:
+            self.notify.cc_info({
+                "message": msg,
+                "file": "",
+                "line": "",
+                "col": "",
+                "severity": "ERROR",
+            })
+
 
     def parse_dependencies(self, dep_path):
         return [(self.CHROOT if self.CHROOT else '')+path.strip() for path in open(dep_path).readlines()

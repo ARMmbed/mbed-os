@@ -23,10 +23,11 @@ from os.path import join, dirname, splitext, basename, exists, relpath, isfile
 from os import makedirs, write, curdir, remove
 from tempfile import mkstemp
 from shutil import rmtree
+from distutils.version import LooseVersion
 
 from tools.toolchains import mbedToolchain, TOOLCHAIN_PATHS
 from tools.hooks import hook_tool
-from tools.utils import mkdir, NotSupportedException
+from tools.utils import mkdir, NotSupportedException, run_cmd
 
 class ARM(mbedToolchain):
     LINKER_EXT = '.sct'
@@ -39,6 +40,8 @@ class ARM(mbedToolchain):
     SHEBANG = "#! armcc -E"
     SUPPORTED_CORES = ["Cortex-M0", "Cortex-M0+", "Cortex-M3", "Cortex-M4",
                        "Cortex-M4F", "Cortex-M7", "Cortex-M7F", "Cortex-M7FD", "Cortex-A9"]
+    ARMCC_RANGE = (LooseVersion("5.06"), LooseVersion("5.07"))
+    ARMCC_VERSION_RE = re.compile("Product: ARM Compiler (\d+\.\d+)")
 
     @staticmethod
     def check_executable():
@@ -90,6 +93,31 @@ class ARM(mbedToolchain):
         self.elf2bin = join(ARM_BIN, "fromelf")
 
         self.SHEBANG += " --cpu=%s" % cpu
+
+    def version_check(self):
+        stdout, _, retcode = run_cmd([self.cc[0], "--vsn"], redirect=True)
+        msg = None
+        min_ver, max_ver = self.ARMCC_RANGE
+        match = self.ARMCC_VERSION_RE.search(stdout)
+        found_version = LooseVersion(match.group(1)) if match else None
+        min_ver, max_ver = self.ARMCC_RANGE
+        if found_version and (found_version < min_ver or found_version >= max_ver):
+            msg = ("Compiler version mismatch: Have {}; "
+                   "expected version >= {} and < {}"
+                   .format(found_version, min_ver, max_ver))
+        elif not match or len(match.groups()) != 1:
+            msg = ("Compiler version mismatch: Could not detect version; "
+                   "expected version >= {} and < {}"
+                   .format(min_ver, max_ver))
+
+        if msg:
+            self.notify.cc_info({
+                "message": msg,
+                "file": "",
+                "line": "",
+                "col": "",
+                "severity": "ERROR",
+            })
 
     def _get_toolchain_labels(self):
         if getattr(self.target, "default_lib", "std") == "small":
@@ -324,6 +352,8 @@ class ARMC6(ARM_STD):
                        "Cortex-M4F", "Cortex-M7", "Cortex-M7F", "Cortex-M7FD",
                        "Cortex-M23", "Cortex-M23-NS", "Cortex-M33",
                        "CortexM33-NS", "Cortex-A9"]
+    ARMCC_RANGE = (LooseVersion("6.10"), LooseVersion("7.0"))
+
     @staticmethod
     def check_executable():
         return mbedToolchain.generic_check_executable("ARMC6", "armclang", 1)
