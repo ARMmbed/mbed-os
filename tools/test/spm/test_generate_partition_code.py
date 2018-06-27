@@ -136,7 +136,7 @@ modified_json_params = {
     'missing_irqs_and_sids': {
         'partition': {k: manifests[0][k] for k in manifests[0] if
                       k not in ['services', 'irqs']},
-        'assert': AssertionError
+        'assert': jexcep.ValidationError
     },
     'empty_source_files': {
         'partition': dict(manifests[0], source_files=[]),
@@ -199,6 +199,10 @@ modified_json_params = {
     'duplicates_extern_sids': {
         'partition': dict(manifests[0], extern_sids=['SID66', 'SID66']),
         'assert': jexcep.ValidationError
+    },
+    'exceeding_services': {
+        'partition': dict(manifests[1], services=exceeding_services),
+        'assert': AssertionError
     }
 }
 

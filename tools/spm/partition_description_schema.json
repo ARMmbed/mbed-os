@@ -3,6 +3,10 @@
   "description": "schema for a partition description.",
   "type": "object",
   "required": ["name", "type", "priority", "id", "entry_point", "stack_size", "heap_size", "source_files"],
+  "anyOf": [
+    {"required" : ["services"]},
+    {"required" : ["irqs"]}
+  ],
   "properties": {
     "name": {
       "description": "Alphanumeric C macro for referring to a partition. (all capital)",

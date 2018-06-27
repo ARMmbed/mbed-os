@@ -267,8 +267,6 @@ manifests_for_circular_call_dependency_checks = [
     }
 ]
 
-
-
 invalid_minor_version_policy_rot_srv = [
     {
         'name': 'SID1',
@@ -379,7 +377,8 @@ missing_minor_version_policy_rot_srv = [
 ]
 
 missing_minor_completley_rot_srv = [
-    {'name': 'SID2', 'identifier': '0x00000002', 'signal': 'SID2', 'non_secure_clients': True}
+    {'name': 'SID2', 'identifier': '0x00000002', 'signal': 'SID2',
+     'non_secure_clients': True}
 ]
 
 duplicate_signal_irqs = [
@@ -493,3 +492,225 @@ test_partition_template = '''{
     ]
 }
 '''
+
+exceeding_services = [
+    {
+        "name": "XSID1",
+        "signal": "XSID1",
+        "non_secure_clients": True,
+        "minor_version": 5,
+        "minor_policy": "RELAXED",
+        "identifier": "0x00000009"
+    },
+    {
+        "name": "XSID2",
+        "signal": "XSID2",
+        "non_secure_clients": True,
+        "minor_version": 5,
+        "minor_policy": "RELAXED",
+        "identifier": "0x0000000a"
+    }, {
+        "name": "XSID3",
+        "signal": "XSID3",
+        "non_secure_clients": True,
+        "minor_version": 5,
+        "minor_policy": "RELAXED",
+        "identifier": "0x0000000b"
+    }, {
+        "name": "XSID4",
+        "signal": "XSID4",
+        "non_secure_clients": True,
+        "minor_version": 5,
+        "minor_policy": "RELAXED",
+        "identifier": "0x0000000c"
+    }, {
+        "name": "XSID5",
+        "signal": "XSID5",
+        "non_secure_clients": True,
+        "minor_version": 5,
+        "minor_policy": "RELAXED",
+        "identifier": "0x0000000d"
+    }, {
+        "name": "XSID6",
+        "signal": "XSID6",
+        "non_secure_clients": True,
+        "minor_version": 5,
+        "minor_policy": "RELAXED",
+        "identifier": "0x0000000e"
+    }, {
+        "name": "XSID7",
+        "signal": "XSID7",
+        "non_secure_clients": True,
+        "minor_version": 5,
+        "minor_policy": "RELAXED",
+        "identifier": "0x0000000f"
+    }, {
+        "name": "XSID8",
+        "signal": "XSID8",
+        "non_secure_clients": True,
+        "minor_version": 5,
+        "minor_policy": "RELAXED",
+        "identifier": "0x00000010"
+    }, {
+        "name": "XSID9",
+        "signal": "XSID9",
+        "non_secure_clients": True,
+        "minor_version": 5,
+        "minor_policy": "RELAXED",
+        "identifier": "0x00000011"
+    }, {
+        "name": "XSID10",
+        "signal": "XSID10",
+        "non_secure_clients": True,
+        "minor_version": 5,
+        "minor_policy": "RELAXED",
+        "identifier": "0x00000012"
+    }, {
+        "name": "XSID11",
+        "signal": "XSID11",
+        "non_secure_clients": True,
+        "minor_version": 5,
+        "minor_policy": "RELAXED",
+        "identifier": "0x00000013"
+    }, {
+        "name": "XSID12",
+        "signal": "XSID12",
+        "non_secure_clients": True,
+        "minor_version": 5,
+        "minor_policy": "RELAXED",
+        "identifier": "0x00000014"
+    }, {
+        "name": "XSID13",
+        "signal": "XSID13",
+        "non_secure_clients": True,
+        "minor_version": 5,
+        "minor_policy": "RELAXED",
+        "identifier": "0x00000015"
+    }, {
+        "name": "XSID14",
+        "signal": "XSID14",
+        "non_secure_clients": True,
+        "minor_version": 5,
+        "minor_policy": "RELAXED",
+        "identifier": "0x00000016"
+    }, {
+        "name": "XSID15",
+        "signal": "XSID15",
+        "non_secure_clients": True,
+        "minor_version": 5,
+        "minor_policy": "RELAXED",
+        "identifier": "0x00000017"
+    }, {
+        "name": "XSID16",
+        "signal": "XSID16",
+        "non_secure_clients": True,
+        "minor_version": 5,
+        "minor_policy": "RELAXED",
+        "identifier": "0x00000018"
+    }, {
+        "name": "XSID17",
+        "signal": "XSID17",
+        "non_secure_clients": True,
+        "minor_version": 5,
+        "minor_policy": "RELAXED",
+        "identifier": "0x00000019"
+    }, {
+        "name": "XSID18",
+        "signal": "XSID18",
+        "non_secure_clients": True,
+        "minor_version": 5,
+        "minor_policy": "RELAXED",
+        "identifier": "0x0000001a"
+    }, {
+        "name": "XSID19",
+        "signal": "XSID19",
+        "non_secure_clients": True,
+        "minor_version": 5,
+        "minor_policy": "RELAXED",
+        "identifier": "0x0000001b"
+    }, {
+        "name": "XSID20",
+        "signal": "XSID20",
+        "non_secure_clients": True,
+        "minor_version": 5,
+        "minor_policy": "RELAXED",
+        "identifier": "0x0000001c"
+    }, {
+        "name": "XSID21",
+        "signal": "XSID21",
+        "non_secure_clients": True,
+        "minor_version": 5,
+        "minor_policy": "RELAXED",
+        "identifier": "0x0000001d"
+    }, {
+        "name": "XSID22",
+        "signal": "XSID22",
+        "non_secure_clients": True,
+        "minor_version": 5,
+        "minor_policy": "RELAXED",
+        "identifier": "0x0000001e"
+    }, {
+        "name": "XSID23",
+        "signal": "XSID23",
+        "non_secure_clients": True,
+        "minor_version": 5,
+        "minor_policy": "RELAXED",
+        "identifier": "0x0000001f"
+    }, {
+        "name": "XSID24",
+        "signal": "XSID24",
+        "non_secure_clients": True,
+        "minor_version": 5,
+        "minor_policy": "RELAXED",
+        "identifier": "0x00000020"
+    }, {
+        "name": "XSID25",
+        "signal": "XSID25",
+        "non_secure_clients": True,
+        "minor_version": 5,
+        "minor_policy": "RELAXED",
+        "identifier": "0x00000021"
+    }, {
+        "name": "XSID26",
+        "signal": "XSID26",
+        "non_secure_clients": True,
+        "minor_version": 5,
+        "minor_policy": "RELAXED",
+        "identifier": "0x00000022"
+    }, {
+        "name": "XSID27",
+        "signal": "XSID27",
+        "non_secure_clients": True,
+        "minor_version": 5,
+        "minor_policy": "RELAXED",
+        "identifier": "0x00000023"
+    }, {
+        "name": "XSID28",
+        "signal": "XSID28",
+        "non_secure_clients": True,
+        "minor_version": 5,
+        "minor_policy": "RELAXED",
+        "identifier": "0x00000024"
+    }, {
+        "name": "XSID29",
+        "signal": "XSID29",
+        "non_secure_clients": True,
+        "minor_version": 5,
+        "minor_policy": "RELAXED",
+        "identifier": "0x00000025"
+    }, {
+        "name": "XSID30",
+        "signal": "XSID30",
+        "non_secure_clients": True,
+        "minor_version": 5,
+        "minor_policy": "RELAXED",
+        "identifier": "0x00000026"
+    }, {
+        "name": "XSID31",
+        "signal": "XSID31",
+        "non_secure_clients": True,
+        "minor_version": 5,
+        "minor_policy": "RELAXED",
+        "identifier": "0x00000027"
+    }
+]

@@ -85,12 +85,12 @@ class RotService(object):
 
     def __eq__(self, other):
         return (
-            (self.name == other.name) and
-            (self.id == other.id) and
-            (self.signal == other.signal) and
-            (self.nspe_callable == other.nspe_callable) and
-            (self.minor_version == other.minor_version) and
-            (self.minor_policy == other.minor_policy)
+                (self.name == other.name) and
+                (self.id == other.id) and
+                (self.signal == other.signal) and
+                (self.nspe_callable == other.nspe_callable) and
+                (self.minor_version == other.minor_version) and
+                (self.minor_policy == other.minor_policy)
         )
 
 
@@ -131,9 +131,9 @@ class MmioRegion(object):
 
     def __eq__(self, other):
         return (
-            (self.base == other.base) and
-            (self.size == other.size) and
-            (self.permission == other.permission)
+                (self.base == other.base) and
+                (self.size == other.size) and
+                (self.permission == other.permission)
         )
 
 
@@ -161,6 +161,11 @@ class Manifest(object):
         'HIGH': 'osPriorityHigh'
     }
     PARTITION_TYPES = ['APPLICATION-ROT', 'PSA-ROT']
+    # The following signal bits cannot be used:
+    # bit[0-2] | Reserved
+    # bit[3]   | PSA Doorbell
+    # bit[31]  | RTX error bit
+    RESERVED_SIGNALS = 5
 
     def __init__(
             self,
@@ -257,26 +262,28 @@ class Manifest(object):
         for irq in self.irqs:
             assert isinstance(irq, Irq)
 
-        assert len(self.rot_services) + len(self.irqs) > 0,\
-            'Manifest {} - {} does not contain at least 1 IRQ or ROT_SRV'.format(
-                self.name, self.file
+        total_signals = len(self.rot_services) + len(self.irqs)
+        assert total_signals <= 32 - self.RESERVED_SIGNALS, \
+            'Manifest {} - {} exceeds limit of RoT services and IRQs allowed ' \
+            '({}).'.format(
+                self.name, self.file, 32 - self.RESERVED_SIGNALS
             )
 
     def __eq__(self, other):
         return (
-            (self.file == other.file) and
-            (self.name == other.name) and
-            (self.id == other.id) and
-            (self.type == other.type) and
-            (self.priority == other.priority) and
-            (self.heap_size == other.heap_size) and
-            (self.stack_size == other.stack_size) and
-            (self.entry_point == other.entry_point) and
-            (self.source_files == other.source_files) and
-            (self.mmio_regions == other.mmio_regions) and
-            (self.rot_services == other.rot_services) and
-            (self.extern_sids == other.extern_sids) and
-            (self.irqs == other.irqs)
+                (self.file == other.file) and
+                (self.name == other.name) and
+                (self.id == other.id) and
+                (self.type == other.type) and
+                (self.priority == other.priority) and
+                (self.heap_size == other.heap_size) and
+                (self.stack_size == other.stack_size) and
+                (self.entry_point == other.entry_point) and
+                (self.source_files == other.source_files) and
+                (self.mmio_regions == other.mmio_regions) and
+                (self.rot_services == other.rot_services) and
+                (self.extern_sids == other.extern_sids) and
+                (self.irqs == other.irqs)
         )
 
     @classmethod
@@ -429,7 +436,8 @@ def check_circular_call_dependencies(manifests):
     while len(call_graph) > 0:
         # Find all the nodes that aren't called by anyone and
         # therefore can be removed.
-        nodes_to_remove = filter(lambda x: len(call_graph[x]['called_by']) == 0, call_graph.keys())
+        nodes_to_remove = filter(lambda x: len(call_graph[x]['called_by']) == 0,
+                                 call_graph.keys())
 
         # If no node can be removed we have a circle.
         if not nodes_to_remove:
@@ -567,11 +575,13 @@ def validate_partition_manifests(manifests):
             )
 
     if check_circular_call_dependencies(manifests):
-        raise ValueError("Detected a circular call dependency between the partitions.")
+        raise ValueError(
+            "Detected a circular call dependency between the partitions.")
 
     for manifest in spe_contained_manifests:
         rot_services = set([service.name for service in manifest.rot_services])
-        if not rot_services.intersection(all_extern_sids) and len(manifest.irqs) == 0:
+        if not rot_services.intersection(all_extern_sids) and len(
+                manifest.irqs) == 0:
             raise ValueError(
                 'Partition {} (defined by {}) is not accessible from NSPE '
                 'and not referenced by any other partition.'.format(
