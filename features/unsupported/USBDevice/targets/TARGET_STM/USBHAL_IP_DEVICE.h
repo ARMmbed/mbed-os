@@ -42,8 +42,7 @@
 #error "FIFO dimensioning incorrect"
 #endif
 
-typedef struct
-{
+typedef struct {
     USBHAL *inst;
 
     void (USBHAL::*bus_reset)(void);
@@ -71,10 +70,10 @@ uint32_t HAL_PCDEx_GetTxFiFo(PCD_HandleTypeDef *hpcd, uint8_t fifo)
     return 1024;
 }
 
-void HAL_PCD_SOFCallback(PCD_HandleTypeDef *hpcd) 
+void HAL_PCD_SOFCallback(PCD_HandleTypeDef *hpcd)
 {
-    USBHAL_Private_t *priv=((USBHAL_Private_t *)(hpcd->pData));
-    USBHAL *obj= priv->inst;
+    USBHAL_Private_t *priv = ((USBHAL_Private_t *)(hpcd->pData));
+    USBHAL *obj = priv->inst;
     uint32_t sofnum = (hpcd->Instance->FNR) & USB_FNR_FN;
     void (USBHAL::*func)(int frame) = priv->sof;
     (obj->*func)(sofnum);
@@ -92,8 +91,9 @@ void HAL_PCDEx_SetConnectionState(PCD_HandleTypeDef *hpcd, uint8_t state)
 
 USBHAL *USBHAL::instance;
 
-USBHAL::USBHAL(void) {
-    USBHAL_Private_t *HALPriv = new(USBHAL_Private_t);
+USBHAL::USBHAL(void)
+{
+    USBHAL_Private_t *HALPriv = new (USBHAL_Private_t);
 
     hpcd.Instance = USB;
 
@@ -151,7 +151,7 @@ USBHAL::USBHAL(void) {
     __HAL_RCC_SYSCFG_CLK_ENABLE();
 
     // Configure PCD and FIFOs
-    hpcd.pData = (void*)HALPriv;
+    hpcd.pData = (void *)HALPriv;
     hpcd.State = HAL_PCD_STATE_RESET;
     HAL_PCD_Init(&hpcd);
 
