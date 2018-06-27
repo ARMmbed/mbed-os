@@ -315,7 +315,7 @@ bool core_util_atomic_cas_u32(volatile uint32_t *ptr, uint32_t *expectedCurrentV
  * always succeeds if the current value is expected, as per the pseudocode
  * above; it will not spuriously fail as "atomic_compare_exchange_weak" may.
  */
-bool core_util_atomic_cas_ptr(void * volatile *ptr, void **expectedCurrentValue, void *desiredValue);
+bool core_util_atomic_cas_ptr(void *volatile *ptr, void **expectedCurrentValue, void *desiredValue);
 
 /**
  * Atomic increment.
@@ -350,7 +350,7 @@ uint32_t core_util_atomic_incr_u32(volatile uint32_t *valuePtr, uint32_t delta);
  * @note The type of the pointer argument is not taken into account
  *       and the pointer is incremented by bytes.
  */
-void *core_util_atomic_incr_ptr(void * volatile *valuePtr, ptrdiff_t delta);
+void *core_util_atomic_incr_ptr(void *volatile *valuePtr, ptrdiff_t delta);
 
 /**
  * Atomic decrement.
@@ -385,7 +385,7 @@ uint32_t core_util_atomic_decr_u32(volatile uint32_t *valuePtr, uint32_t delta);
  * @note The type of the pointer argument is not taken into account
  *       and the pointer is decremented by bytes
  */
-void *core_util_atomic_decr_ptr(void * volatile *valuePtr, ptrdiff_t delta);
+void *core_util_atomic_decr_ptr(void *volatile *valuePtr, ptrdiff_t delta);
 
 #ifdef __cplusplus
 } // extern "C"

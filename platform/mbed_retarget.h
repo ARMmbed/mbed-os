@@ -108,7 +108,7 @@ class DirHandle;
  * @param fd file descriptor - STDIN_FILENO, STDOUT_FILENO or STDERR_FILENO
  * @return  pointer to FileHandle to override normal stream otherwise NULL
  */
-FileHandle* mbed_target_override_console(int fd);
+FileHandle *mbed_target_override_console(int fd);
 
 /** Applications may implement this to change stdin, stdout, stderr.
  *
@@ -130,7 +130,7 @@ FileHandle* mbed_target_override_console(int fd);
  * @param fd file descriptor - STDIN_FILENO, STDOUT_FILENO or STDERR_FILENO
  * @return  pointer to FileHandle to override normal stream otherwise NULL
  */
-FileHandle* mbed_override_console(int fd);
+FileHandle *mbed_override_console(int fd);
 
 }
 
@@ -483,7 +483,7 @@ struct statvfs {
  * consistency where structure may be different with different toolchains
  */
 struct dirent {
-    char d_name[NAME_MAX+1]; ///< Name of file
+    char d_name[NAME_MAX + 1]; ///< Name of file
     uint8_t d_type;          ///< Type of file
 };
 
@@ -515,9 +515,9 @@ extern "C" {
     int open(const char *path, int oflag, ...);
 #ifndef __IAR_SYSTEMS_ICC__ /* IAR provides fdopen itself */
 #if __cplusplus
-    std::FILE* fdopen(int fildes, const char *mode);
+    std::FILE *fdopen(int fildes, const char *mode);
 #else
-    FILE* fdopen(int fildes, const char *mode);
+    FILE *fdopen(int fildes, const char *mode);
 #endif
 #endif
     ssize_t write(int fildes, const void *buf, size_t nbyte);
@@ -531,12 +531,12 @@ extern "C" {
     int close(int fildes);
     int stat(const char *path, struct stat *st);
     int statvfs(const char *path, struct statvfs *buf);
-    DIR *opendir(const char*);
+    DIR *opendir(const char *);
     struct dirent *readdir(DIR *);
-    int closedir(DIR*);
-    void rewinddir(DIR*);
-    long telldir(DIR*);
-    void seekdir(DIR*, long);
+    int closedir(DIR *);
+    void rewinddir(DIR *);
+    long telldir(DIR *);
+    void seekdir(DIR *, long);
     int mkdir(const char *name, mode_t n);
 #if __cplusplus
 }; // extern "C"
@@ -556,7 +556,7 @@ namespace mbed {
  *
  *  @returns        a pointer to FILE
  */
-std::FILE* fdopen(mbed::FileHandle *fh, const char *mode);
+std::FILE *fdopen(mbed::FileHandle *fh, const char *mode);
 
 /** Bind an mbed FileHandle to a POSIX file descriptor
  *
