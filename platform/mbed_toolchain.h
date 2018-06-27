@@ -396,7 +396,7 @@
 #endif
 
 #ifndef FILEHANDLE
-    typedef int FILEHANDLE;
+typedef int FILEHANDLE;
 #endif
 
 // Backwards compatibility

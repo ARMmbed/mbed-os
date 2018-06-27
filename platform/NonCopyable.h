@@ -169,7 +169,7 @@ protected:
      * Copy of non copyable resources can lead to resource leak and random error.
      */
     MBED_DEPRECATED("Invalid copy construction of a NonCopyable resource.")
-    NonCopyable(const NonCopyable&)
+    NonCopyable(const NonCopyable &)
     {
         debug("Invalid copy construction of a NonCopyable resource: %s\r\n", MBED_PRETTY_FUNCTION);
     }
@@ -184,7 +184,7 @@ protected:
      * Copy of non copyable resources can lead to resource leak and random error.
      */
     MBED_DEPRECATED("Invalid copy assignment of a NonCopyable resource.")
-    NonCopyable& operator=(const NonCopyable&)
+    NonCopyable &operator=(const NonCopyable &)
     {
         debug("Invalid copy assignment of a NonCopyable resource: %s\r\n", MBED_PRETTY_FUNCTION);
         return *this;
@@ -196,13 +196,13 @@ private:
      * Declare copy constructor as private, any attempt to copy construct
      * a NonCopyable will fail at compile time.
      */
-    NonCopyable(const NonCopyable&);
+    NonCopyable(const NonCopyable &);
 
     /**
      * Declare copy assignment operator as private, any attempt to copy assign
      * a NonCopyable will fail at compile time.
      */
-    NonCopyable& operator=(const NonCopyable&);
+    NonCopyable &operator=(const NonCopyable &);
 #endif
 };
 

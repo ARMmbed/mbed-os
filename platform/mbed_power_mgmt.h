@@ -170,7 +170,7 @@ static inline void sleep(void)
 /** Send the microcontroller to deep sleep
  *
  * @deprecated
- * Do not use this function. Applications should use sleep() API which puts the system in deepsleep mode if supported. 
+ * Do not use this function. Applications should use sleep() API which puts the system in deepsleep mode if supported.
  *
  * @note This function can be a noop if not implemented by the platform.
  * @note This function will be a noop in debug mode (debug build profile when MBED_DEBUG is defined)
@@ -206,7 +206,7 @@ static inline void system_reset(void)
 {
     NVIC_SystemReset();
 }
- 
+
 /** Provides the time spent in sleep mode since boot.
  *
  *  @return  Time spent in sleep

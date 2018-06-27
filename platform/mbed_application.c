@@ -46,8 +46,8 @@ void mbed_start_application(uintptr_t address)
     powerdown_nvic();
     powerdown_scb(address);
 
-    sp = *((void**)address + 0);
-    pc = *((void**)address + 1);
+    sp = *((void **)address + 0);
+    pc = *((void **)address + 1);
     start_new_application(sp, pc);
 }
 
@@ -133,16 +133,16 @@ __asm static void start_new_application(void *sp, void *pc)
 
 void start_new_application(void *sp, void *pc)
 {
-    __asm volatile (
+    __asm volatile(
         "movw   r2, #0      \n" // Fail to compile "mov r2, #0" with ARMC6. Replace with MOVW.
-                                // We needn't "movt r2, #0" immediately following because MOVW
-                                // will zero-extend the 16-bit immediate.
+        // We needn't "movt r2, #0" immediately following because MOVW
+        // will zero-extend the 16-bit immediate.
         "msr    control, r2 \n" // Switch to main stack
         "mov    sp, %0      \n"
         "msr    primask, r2 \n" // Enable interrupts
         "bx     %1          \n"
         :
-        : "l" (sp), "l" (pc)
+        : "l"(sp), "l"(pc)
         : "r2", "cc", "memory"
     );
 }
