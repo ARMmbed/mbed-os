@@ -833,7 +833,7 @@ void SX1272_LoRaRadio::transmit(uint32_t timeout)
                                   RFLR_DIOMAPPING1_DIO0_MASK &
                                   RFLR_DIOMAPPING1_DIO2_MASK) |
                                   RFLR_DIOMAPPING1_DIO0_01 |
-                                  RFLR_DIOMAPPING1_DIO2_00);
+                                  RFLR_DIOMAPPING1_DIO2_01);
             } else {
                 write_to_register(REG_LR_IRQFLAGSMASK,
                                   RFLR_IRQFLAGS_RXTIMEOUT |
@@ -854,7 +854,8 @@ void SX1272_LoRaRadio::transmit(uint32_t timeout)
     }
 
     _rf_settings.state = RF_TX_RUNNING;
-    tx_timeout_timer.attach_us(callback(this, &SX1272_LoRaRadio::timeout_irq_isr), timeout*1e3);
+    tx_timeout_timer.attach_us(callback(this, &SX1272_LoRaRadio::timeout_irq_isr),
+                               timeout * 1000);
     set_operation_mode(RF_OPMODE_TRANSMITTER);
 }
 
@@ -2082,69 +2083,31 @@ void SX1272_LoRaRadio::handle_dio5_irq()
     }
 }
 
-
 void SX1272_LoRaRadio::handle_timeout_irq()
 {
-    switch(_rf_settings.state )
-     {
-     case RF_RX_RUNNING:
-         if( _rf_settings.modem == MODEM_FSK ) {
-             _rf_settings.fsk_packet_handler.preamble_detected = 0;
-             _rf_settings.fsk_packet_handler.sync_word_detected = 0;
-             _rf_settings.fsk_packet_handler.nb_bytes = 0;
-             _rf_settings.fsk_packet_handler.size = 0;
+    tx_timeout_timer.detach();
 
-             // Clear Irqs
-             write_to_register(REG_IRQFLAGS1, RF_IRQFLAGS1_RSSI |
-                                         RF_IRQFLAGS1_PREAMBLEDETECT |
-                                         RF_IRQFLAGS1_SYNCADDRESSMATCH);
-             write_to_register( REG_IRQFLAGS2, RF_IRQFLAGS2_FIFOOVERRUN);
+    if (_rf_settings.state == RF_TX_RUNNING) {
+        // Tx timeout shouldn't happen.
+        // But it has been observed that when it happens it is a result of a
+        // corrupted SPI transfer
+        // The workaround is to put the radio in a known state.
+        // Thus, we re-initialize it.
 
-             if( _rf_settings.fsk.rx_continuous == true )
-             {
-                 // Continuous mode restart Rx chain
-                 write_to_register( REG_RXCONFIG, read_register(REG_RXCONFIG) |
-                                    RF_RXCONFIG_RESTARTRXWITHOUTPLLLOCK);
-             }
-             else
-             {
-                 _rf_settings.state = RF_IDLE;
-             }
-         }
+        // Initialize radio default values
+        set_operation_mode(RF_OPMODE_SLEEP);
 
-         if((_radio_events != NULL) && (_radio_events->rx_timeout)) {
-             _radio_events->rx_timeout();
-         }
+        setup_registers();
 
-         break;
+        set_modem(MODEM_FSK);
 
-     case RF_TX_RUNNING:
-         // Tx timeout shouldn't happen.
-         // But it has been observed that when it happens it is a result of a
-         // corrupted SPI transfer
-         // The workaround is to put the radio in a known state.
-         // Thus, we re-initialize it.
+        // Restore previous network type setting.
+        set_public_network(_rf_settings.lora.public_network);
 
-         // Reset the radio
-         radio_reset( );
+        _rf_settings.state = RF_IDLE;
 
-         // Initialize radio default values
-         set_operation_mode( RF_OPMODE_SLEEP );
-
-         setup_registers();
-
-         set_modem(MODEM_FSK);
-
-         // Restore previous network type setting.
-         set_public_network(_rf_settings.lora.public_network);
-
-         _rf_settings.state = RF_IDLE;
-         if( ( _radio_events != NULL ) && ( _radio_events->tx_timeout ) )
-         {
-             _radio_events->tx_timeout( );
-         }
-         break;
-     default:
-         break;
-     }
+        if ((_radio_events != NULL) && (_radio_events->tx_timeout)) {
+            _radio_events->tx_timeout();
+        }
+    }
 }

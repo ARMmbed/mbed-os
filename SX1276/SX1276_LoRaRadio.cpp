@@ -1562,7 +1562,7 @@ void SX1276_LoRaRadio::transmit(uint32_t timeout)
                                   RFLR_DIOMAPPING1_DIO0_MASK &
                                   RFLR_DIOMAPPING1_DIO2_MASK) |
                                   RFLR_DIOMAPPING1_DIO0_01 |
-                                  RFLR_DIOMAPPING1_DIO2_00);
+                                  RFLR_DIOMAPPING1_DIO2_01);
             } else {
                 write_to_register(REG_LR_IRQFLAGSMASK,
                                   RFLR_IRQFLAGS_RXTIMEOUT |
@@ -1583,8 +1583,10 @@ void SX1276_LoRaRadio::transmit(uint32_t timeout)
     }
 
     _rf_settings.state = RF_TX_RUNNING;
+
     tx_timeout_timer.attach_us(callback(this,
                                &SX1276_LoRaRadio::timeout_irq_isr), timeout * 1000);
+
     set_operation_mode(RF_OPMODE_TRANSMITTER);
 }
 
@@ -2242,18 +2244,16 @@ void SX1276_LoRaRadio::handle_dio5_irq()
     }
 }
 
-
 void SX1276_LoRaRadio::handle_timeout_irq()
 {
+    tx_timeout_timer.detach();
+
     if (_rf_settings.state == RF_TX_RUNNING) {
         // Tx timeout shouldn't happen.
         // But it has been observed that when it happens it is a result of a
         // corrupted SPI transfer
         // The workaround is to put the radio in a known state.
         // Thus, we re-initialize it.
-
-        // Reset the radio
-        radio_reset();
 
         // Initialize radio default values
         set_operation_mode(RF_OPMODE_SLEEP);
@@ -2266,10 +2266,10 @@ void SX1276_LoRaRadio::handle_timeout_irq()
         set_public_network(_rf_settings.lora.public_network);
 
         _rf_settings.state = RF_IDLE;
+
         if ((_radio_events != NULL) && (_radio_events->tx_timeout)) {
             _radio_events->tx_timeout();
         }
-
     }
 }
 // EOF
