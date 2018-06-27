@@ -115,7 +115,7 @@ def parse_line_for_register(line):
 def main(crash_log, elfhelper):
     mmfar_val = 0
     bfar_val = 0
-    lines = iter(crash_log.readlines())
+    lines = iter(crash_log.read().splitlines())
     
     for eachline in lines:
         if "++ MbedOS Fault Handler ++" in eachline:
