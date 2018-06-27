@@ -170,8 +170,7 @@ uint16_t adc_read(analogin_t *obj)
             if ((ADCName)obj->handle.Instance == ADC_1) {
                 sConfig.Channel = ADC_CHANNEL_VOPAMP1;
                 sConfig.SamplingTime = ADC_SAMPLETIME_181CYCLES_5;
-            }
-            else {
+            } else {
                 sConfig.Channel = ADC_CHANNEL_15;
             }
             break;
@@ -179,8 +178,7 @@ uint16_t adc_read(analogin_t *obj)
             if ((ADCName)obj->handle.Instance == ADC_1) {
                 sConfig.Channel = ADC_CHANNEL_TEMPSENSOR;
                 sConfig.SamplingTime = ADC_SAMPLETIME_181CYCLES_5;
-            }
-            else {
+            } else {
                 sConfig.Channel = ADC_CHANNEL_16;
             }
             break;
