@@ -149,6 +149,7 @@ private:
     void urc_creg();
     void urc_cereg();
     void urc_cgreg();
+    void urc_cgev();
 
     nsapi_ip_stack_t string_to_stack_type(const char* pdp_type);
 

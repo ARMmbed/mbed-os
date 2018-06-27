@@ -61,6 +61,7 @@ AT_CellularNetwork::~AT_CellularNetwork()
     }
 
     _at.remove_urc_handler("NO CARRIER", callback(this, &AT_CellularNetwork::urc_no_carrier));
+    _at.remove_urc_handler("+CGEV:", callback(this, &AT_CellularNetwork::urc_cgev));
     free_credentials();
 }
 
@@ -103,6 +104,36 @@ void AT_CellularNetwork::urc_no_carrier()
 {
     tr_error("Data call failed: no carrier");
     call_network_cb(NSAPI_STATUS_DISCONNECTED);
+}
+
+void AT_CellularNetwork::urc_cgev()
+{
+    char buf[13];
+    if (_at.read_string(buf, 13) < 8) { // smallest string length we wan't to compare is 8
+        return;
+    }
+    tr_debug("urc_cgev: %s", buf);
+
+    bool call_cb = false;
+    // NOTE! If in future there will be 2 or more active contexts we might wan't to read context id also but not for now.
+
+    if (memcmp(buf, "NW DETACH", 9) == 0) { // The network has forced a PS detach
+        call_cb = true;
+    } else if (memcmp(buf, "ME DETACH", 9) == 0) {// The mobile termination has forced a PS detach.
+        call_cb = true;
+    } else if (memcmp(buf, "NW DEACT", 8) == 0) {// The network has forced a context deactivation
+        call_cb = true;
+    } else if (memcmp(buf, "ME DEACT", 8) == 0) {// The mobile termination has forced a context deactivation
+        call_cb = true;
+    } else if (memcmp(buf, "NW PDN DEACT", 12) == 0) {// The network has deactivated a context
+        call_cb = true;
+    } else if (memcmp(buf, "ME PDN DEACT", 12) == 0) {// The mobile termination has deactivated a context.
+        call_cb = true;
+    }
+
+    if (call_cb) {
+        call_network_cb(NSAPI_STATUS_DISCONNECTED);
+    }
 }
 
 void AT_CellularNetwork::read_reg_params_and_compare(RegistrationType type)
@@ -329,6 +360,17 @@ nsapi_error_t AT_CellularNetwork::connect()
         return err;
     }
 #else
+    // additional urc to get better disconnect info for application. Not critical so not returning an error in case of failure
+    err = _at.set_urc_handler("+CGEV:", callback(this, &AT_CellularNetwork::urc_cgev));
+    if (err == NSAPI_ERROR_OK) {
+        _at.lock();
+        _at.cmd_start("AT+CGEREP=1");
+        _at.cmd_stop();
+        _at.resp_start();
+        _at.resp_stop();
+        _at.unlock();
+    }
+
     call_network_cb(NSAPI_STATUS_GLOBAL_UP);
 #endif
 
@@ -386,6 +428,7 @@ nsapi_error_t AT_CellularNetwork::disconnect()
     _at.resp_stop();
     _at.restore_at_timeout();
 
+    _at.remove_urc_handler("+CGEV:", callback(this, &AT_CellularNetwork::urc_cgev));
     call_network_cb(NSAPI_STATUS_DISCONNECTED);
 
     return _at.unlock_return_error();
