@@ -340,7 +340,7 @@ uint16_t sn_coap_builder_calc_needed_packet_data_size_2(sn_coap_hdr_s *src_coap_
                 returned_byte_count += sn_coap_builder_options_build_add_uint_option(NULL, src_coap_msg_ptr->options_list_ptr->size2, COAP_OPTION_SIZE2, &tempInt);
             }
         }
-#if SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE
+#if SN_COAP_BLOCKWISE_ENABLED || SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE
         if ((src_coap_msg_ptr->payload_len > SN_COAP_MAX_NONBLOCKWISE_PAYLOAD_SIZE) &&
             (src_coap_msg_ptr->payload_len > blockwise_payload_size) &&
             (blockwise_payload_size > 0)) {
