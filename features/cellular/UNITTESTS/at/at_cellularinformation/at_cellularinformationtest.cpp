@@ -52,3 +52,7 @@ TEST(AT_CellularInformation, test_AT_CellularInformation_get_revision)
     unit->test_AT_CellularInformation_get_revision();
 }
 
+TEST(AT_CellularInformation, test_AT_CellularInformation_get_serial_number)
+{
+    unit->test_AT_CellularInformation_get_serial_number();
+}

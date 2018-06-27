@@ -73,6 +73,10 @@ SocketAddress::SocketAddress(const SocketAddress &addr)
 {
 }
 
+SocketAddress::~SocketAddress()
+{
+}
+
 bool SocketAddress::set_ip_address(const char *addr)
 {
     return false;
@@ -121,6 +125,13 @@ uint16_t SocketAddress::get_port() const
 SocketAddress::operator bool() const
 {
     return false;
+}
+
+SocketAddress &SocketAddress::operator=(const SocketAddress &addr)
+{
+    set_addr(addr.get_addr());
+    set_port(addr.get_port());
+    return *this;
 }
 
 bool operator==(const SocketAddress &a, const SocketAddress &b)
