@@ -68,9 +68,9 @@ static inline uint32_t get_i2c_timing(int hz)
     switch (hz) {
         case 100000:
             tim = 0x20602938; // Standard mode with Rise Time = 400ns and Fall Time = 100ns
-                break;
+            break;
         case 400000:
-             tim = 0x00B0122A; // Fast mode with Rise Time = 250ns and Fall Time = 100ns
+            tim = 0x00B0122A; // Fast mode with Rise Time = 250ns and Fall Time = 100ns
             break;
         case 1000000:
             tim = 0x0030040E; // Fast mode Plus with Rise Time = 60ns and Fall Time = 100ns

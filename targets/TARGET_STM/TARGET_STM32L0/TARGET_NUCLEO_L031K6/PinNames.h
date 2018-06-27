@@ -49,9 +49,9 @@ typedef enum {
     PA_0  = 0x00,
     PA_1  = 0x01,
     PA_2  = 0x02,
-    PA_2_ALT0 = PA_2|ALT0,
+    PA_2_ALT0 = PA_2 | ALT0,
     PA_3  = 0x03,
-    PA_3_ALT0 = PA_3|ALT0,
+    PA_3_ALT0 = PA_3 | ALT0,
     PA_4  = 0x04,
     PA_5  = 0x05,
     PA_6  = 0x06,
@@ -63,7 +63,7 @@ typedef enum {
     PA_12 = 0x0C,
     PA_13 = 0x0D,
     PA_14 = 0x0E,
-    PA_14_ALT0 = PA_14|ALT0,
+    PA_14_ALT0 = PA_14 | ALT0,
     PA_15 = 0x0F,
 
     PB_0  = 0x10,
@@ -135,11 +135,11 @@ typedef enum {
     SPI_CS      = PA_11,
     PWM_OUT     = PB_0,
 
-/**** OSCILLATOR pins ****/
+    /**** OSCILLATOR pins ****/
     RCC_OSC32_IN = PC_14,
     RCC_OSC32_OUT = PC_15,
 
-/**** DEBUG pins ****/
+    /**** DEBUG pins ****/
     SYS_PVD_IN = PB_7,
     SYS_SWCLK = PA_14,
     SYS_SWDIO = PA_13,
