@@ -80,7 +80,7 @@ struct serial_s {
     PinName pin_rts;
     PinName pin_cts;
 #endif
- };
+};
 
 struct i2c_s {
     /*  The 1st 2 members I2CName i2c

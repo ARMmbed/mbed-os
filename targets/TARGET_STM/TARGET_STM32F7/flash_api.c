@@ -49,14 +49,12 @@ int32_t flash_init(flash_t *obj)
     /* Allow Access to option bytes sector */
     HAL_FLASH_OB_Lock();
 #if MBED_CONF_TARGET_FLASH_DUAL_BANK
-    if ((OBInit.USERConfig & OB_NDBANK_SINGLE_BANK) == OB_NDBANK_SINGLE_BANK)
-    {
+    if ((OBInit.USERConfig & OB_NDBANK_SINGLE_BANK) == OB_NDBANK_SINGLE_BANK) {
         error("The Dual Bank mode option byte (nDBANK) must be enabled (box unchecked)\n");
         return -1;
     }
 #else // SINGLE BANK
-    if ((OBInit.USERConfig & OB_NDBANK_SINGLE_BANK) == OB_NDBANK_DUAL_BANK)
-    {
+    if ((OBInit.USERConfig & OB_NDBANK_SINGLE_BANK) == OB_NDBANK_DUAL_BANK) {
         error("The Dual Bank mode option byte (nDBANK) must be disabled (box checked)\n");
         return -1;
     }
@@ -111,10 +109,10 @@ int32_t flash_erase_sector(flash_t *obj, uint32_t address)
         return -1;
     }
 
-  /* Note: If an erase operation in Flash memory also concerns data in the data or instruction cache,
-     you have to make sure that these data are rewritten before they are accessed during code
-     execution. If this cannot be done safely, it is recommended to flush the caches by setting the
-     DCRST and ICRST bits in the FLASH_CR register. */
+    /* Note: If an erase operation in Flash memory also concerns data in the data or instruction cache,
+       you have to make sure that these data are rewritten before they are accessed during code
+       execution. If this cannot be done safely, it is recommended to flush the caches by setting the
+       DCRST and ICRST bits in the FLASH_CR register. */
     __HAL_FLASH_ART_DISABLE();
     __HAL_FLASH_ART_RESET();
     __HAL_FLASH_ART_ENABLE();
@@ -128,7 +126,7 @@ int32_t flash_erase_sector(flash_t *obj, uint32_t address)
     EraseInitStruct.Sector = SectorId;
     EraseInitStruct.NbSectors = 1;
 
-    if(HAL_FLASHEx_Erase(&EraseInitStruct, &SectorError) != HAL_OK){
+    if (HAL_FLASHEx_Erase(&EraseInitStruct, &SectorError) != HAL_OK) {
         status = -1;
     }
 
@@ -138,7 +136,7 @@ int32_t flash_erase_sector(flash_t *obj, uint32_t address)
 }
 
 int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data,
-        uint32_t size)
+                           uint32_t size)
 {
     int32_t status = 0;
 
@@ -150,17 +148,17 @@ int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data,
         return -1;
     }
 
-  /* Note: If an erase operation in Flash memory also concerns data in the data or instruction cache,
-     you have to make sure that these data are rewritten before they are accessed during code
-     execution. If this cannot be done safely, it is recommended to flush the caches by setting the
-     DCRST and ICRST bits in the FLASH_CR register. */
+    /* Note: If an erase operation in Flash memory also concerns data in the data or instruction cache,
+       you have to make sure that these data are rewritten before they are accessed during code
+       execution. If this cannot be done safely, it is recommended to flush the caches by setting the
+       DCRST and ICRST bits in the FLASH_CR register. */
     __HAL_FLASH_ART_DISABLE();
     __HAL_FLASH_ART_RESET();
     __HAL_FLASH_ART_ENABLE();
 
     while ((size > 0) && (status == 0)) {
         if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_BYTE,
-                    address, (uint64_t)*data) != HAL_OK) {
+                              address, (uint64_t)*data) != HAL_OK) {
             status = -1;
         } else {
             size--;
@@ -219,8 +217,7 @@ static uint32_t GetSector(uint32_t address)
         sector += 12 + (tmp >> 14);
     } else if (address < ADDR_FLASH_SECTOR_17) { // Sector 16
         sector += FLASH_SECTOR_16;
-    }
-    else { // Sectors 17 to 23
+    } else { // Sectors 17 to 23
         tmp = address - ADDR_FLASH_SECTOR_12;
         sector += 16 + (tmp >> 17);
     }
@@ -245,24 +242,24 @@ static uint32_t GetSectorSize(uint32_t Sector)
 {
     uint32_t sectorsize = 0x00;
 #if (MBED_CONF_TARGET_FLASH_DUAL_BANK) && defined(FLASH_OPTCR_nDBANK)
-    if ((Sector == FLASH_SECTOR_0) || (Sector == FLASH_SECTOR_1) ||\
-        (Sector == FLASH_SECTOR_2) || (Sector == FLASH_SECTOR_3) ||\
-        (Sector == FLASH_SECTOR_12) || (Sector == FLASH_SECTOR_13) ||\
-        (Sector == FLASH_SECTOR_14) || (Sector == FLASH_SECTOR_15)) {
-            sectorsize = 16 * 1024;
+    if ((Sector == FLASH_SECTOR_0) || (Sector == FLASH_SECTOR_1) || \
+            (Sector == FLASH_SECTOR_2) || (Sector == FLASH_SECTOR_3) || \
+            (Sector == FLASH_SECTOR_12) || (Sector == FLASH_SECTOR_13) || \
+            (Sector == FLASH_SECTOR_14) || (Sector == FLASH_SECTOR_15)) {
+        sectorsize = 16 * 1024;
     } else if ((Sector == FLASH_SECTOR_4) || (Sector == FLASH_SECTOR_16)) {
-            sectorsize = 64 * 1024;
+        sectorsize = 64 * 1024;
     } else {
-            sectorsize = 128 * 1024;
+        sectorsize = 128 * 1024;
     }
 #else // SINGLE BANK
-    if ((Sector == FLASH_SECTOR_0) || (Sector == FLASH_SECTOR_1) ||\
-        (Sector == FLASH_SECTOR_2) || (Sector == FLASH_SECTOR_3)) {
-            sectorsize = 32 * 1024;
+    if ((Sector == FLASH_SECTOR_0) || (Sector == FLASH_SECTOR_1) || \
+            (Sector == FLASH_SECTOR_2) || (Sector == FLASH_SECTOR_3)) {
+        sectorsize = 32 * 1024;
     } else if (Sector == FLASH_SECTOR_4) {
-            sectorsize = 128 * 1024;
+        sectorsize = 128 * 1024;
     } else {
-            sectorsize = 256 * 1024;
+        sectorsize = 256 * 1024;
     }
 #endif
     return sectorsize;
