@@ -31,8 +31,8 @@ void wait_ms(int ms) {
 
 void wait_us(int us) {
     const ticker_data_t *const ticker = get_us_ticker_data();
-    uint32_t start = ticker_read(ticker);
-    while ((ticker_read(ticker) - start) < (uint32_t)us);
+    us_timestamp_t start = ticker_read_us(ticker);
+    while ((ticker_read_us(ticker) - start) < (us_timestamp_t)us);
 }
 
 #endif // #ifndef MBED_CONF_RTOS_PRESENT

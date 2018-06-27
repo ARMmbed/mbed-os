@@ -35,7 +35,7 @@ void wait_ms(int ms) {
 void wait_us(int us) {
     const ticker_data_t *const ticker = get_us_ticker_data();
 
-    uint32_t start = ticker_read(ticker);
+    us_timestamp_t start = ticker_read_us(ticker);
     // Use the RTOS to wait for millisecond delays if possible
     int ms = us / 1000;
     if ((ms > 0) && core_util_are_interrupts_enabled()) {
@@ -45,7 +45,7 @@ void wait_us(int us) {
     }
     // Use busy waiting for sub-millisecond delays, or for the whole
     // interval if interrupts are not enabled
-    while ((ticker_read(ticker) - start) < (uint32_t)us);
+    while ((ticker_read_us(ticker) - start) < (us_timestamp_t)us);
 }
 
 #endif // #if MBED_CONF_RTOS_PRESENT
