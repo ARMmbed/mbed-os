@@ -27,6 +27,8 @@
  */
 #include "cmsis.h"
 
+int mbed_sdk_inited = 0;
+
 // This function is called after RAM initialization and before main.
 void mbed_sdk_init()
 {
@@ -51,4 +53,6 @@ void mbed_sdk_init()
        AHB/APBx prescalers and Flash settings */
     SetSysClock();
     SystemCoreClockUpdate();
+
+    mbed_sdk_inited = 1;
 }
