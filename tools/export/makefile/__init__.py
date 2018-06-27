@@ -240,7 +240,7 @@ class Arm(Makefile):
         if self.resources.linker_script:
             sct_file = self.resources.get_file_refs(FileType.LD_SCRIPT)[-1]
             new_script = self.toolchain.correct_scatter_shebang(
-                sct_file.path, dirname(sct_file.name))
+                sct_file.path, join("..", dirname(sct_file.name)))
             if new_script is not sct_file:
                 self.resources.add_files_to_type(
                     FileType.LD_SCRIPT, [new_script])
