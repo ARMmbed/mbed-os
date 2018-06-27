@@ -17,9 +17,19 @@
 
 // Overwrite default HAL functions defined as "weak"
 
+// This variable is set to 1 at the of mbed_sdk_init function.
+// The ticker_read_us function must not be called until the mbed_sdk_init is terminated.
+extern int mbed_sdk_inited;
+
 uint32_t HAL_GetTick()
 {
-    return ticker_read_us(get_us_ticker_data()) / 1000; // 1 ms tick is required for ST HAL
+    // 1 ms tick is required for ST HAL driver
+    if (mbed_sdk_inited) {
+        return (ticker_read_us(get_us_ticker_data()) / 1000);
+    }
+    else {
+        return (us_ticker_read() / 1000);
+    }
 }
 
 void HAL_SuspendTick(void)
