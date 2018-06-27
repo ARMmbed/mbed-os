@@ -151,7 +151,7 @@ typedef enum {
 
     I2C_SCL         = I2C1_SCL,
     I2C_SDA         = I2C1_SDA,
-    
+
     // LoRa
     LORA_RESET      = PA_1,
     LORA_MOSI       = PB_5,
