@@ -80,7 +80,7 @@ typedef enum {
     PB_13 = 0x1D,
     PB_14 = 0x1E,
     PB_15 = 0x1F,
-    
+
     PC_0  = 0x20,
     PC_1  = 0x21,
     PC_2  = 0x22,
@@ -122,7 +122,7 @@ typedef enum {
     LCD_A0      = PB_2,
     LCD_RESET   = PB_5,
     LCD_NCS     = PB_6,
-    
+
     LORA_SPI_MOSI   = PA_7,
     LORA_SPI_MISO   = PA_6,
     LORA_SPI_SCLK   = PB_3,

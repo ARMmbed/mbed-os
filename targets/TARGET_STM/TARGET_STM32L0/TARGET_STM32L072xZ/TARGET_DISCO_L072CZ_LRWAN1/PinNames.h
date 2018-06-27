@@ -49,15 +49,15 @@ typedef enum {
     PA_0  = 0x00,
     PA_1  = 0x01,
     PA_2  = 0x02,
-    PA_2_ALT0 = PA_2|ALT0,
+    PA_2_ALT0 = PA_2 | ALT0,
     PA_3  = 0x03,
-    PA_3_ALT0 = PA_3|ALT0,
+    PA_3_ALT0 = PA_3 | ALT0,
     PA_4  = 0x04,
     PA_5  = 0x05,
     PA_6  = 0x06,
-    PA_6_ALT0 = PA_6|ALT0,
+    PA_6_ALT0 = PA_6 | ALT0,
     PA_7  = 0x07,
-    PA_7_ALT0 = PA_7|ALT0,
+    PA_7_ALT0 = PA_7 | ALT0,
     PA_8  = 0x08,
     PA_9  = 0x09,
     PA_10 = 0x0A,
@@ -65,7 +65,7 @@ typedef enum {
     PA_12 = 0x0C,
     PA_13 = 0x0D,
     PA_14 = 0x0E,
-    PA_14_ALT0 = PA_14|ALT0,
+    PA_14_ALT0 = PA_14 | ALT0,
     PA_15 = 0x0F,
 
     PB_0  = 0x10,
@@ -73,9 +73,9 @@ typedef enum {
     PB_2  = 0x12,
     PB_3  = 0x13,
     PB_4  = 0x14,
-    PB_4_ALT0 = PB_4|ALT0,
+    PB_4_ALT0 = PB_4 | ALT0,
     PB_5  = 0x15,
-    PB_5_ALT0 = PB_5|ALT0,
+    PB_5_ALT0 = PB_5 | ALT0,
     PB_6  = 0x16,
     PB_7  = 0x17,
     PB_8  = 0x18,
@@ -156,18 +156,18 @@ typedef enum {
     SPI_CS      = D10,
     PWM_OUT     = D13,
 
-/**** USB pins ****/
+    /**** USB pins ****/
     USB_DM = PA_11,
     USB_DP = PA_12,
     USB_NOE = PA_13,
 
-/**** OSCILLATOR pins ****/
+    /**** OSCILLATOR pins ****/
     RCC_OSC32_IN = PC_14,
     RCC_OSC32_OUT = PC_15,
     RCC_OSC_IN = PH_0,
     RCC_OSC_OUT = PH_1,
 
-/**** DEBUG pins ****/
+    /**** DEBUG pins ****/
     SYS_PVD_IN = PB_7,
     SYS_SWCLK = PA_14,
     SYS_SWDIO = PA_13,
