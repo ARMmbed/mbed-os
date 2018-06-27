@@ -727,8 +727,6 @@ void LoRaMac::on_radio_tx_timeout(void)
     _mcps_confirmation.nb_retries = _params.ack_timeout_retry_counter;
     _mcps_confirmation.ack_received = false;
     _mcps_confirmation.tx_toa = 0;
-
-    post_process_mcps_req();
 }
 
 void LoRaMac::on_radio_rx_timeout(bool is_timeout)

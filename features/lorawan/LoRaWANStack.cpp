@@ -557,9 +557,14 @@ void LoRaWANStack::process_transmission_timeout()
     // this is a fatal error and should not happen
     tr_debug("TX Timeout");
     _loramac.on_radio_tx_timeout();
-    _ctrl_flags |= TX_ONGOING_FLAG;
+    _ctrl_flags &= ~TX_ONGOING_FLAG;
     _ctrl_flags &= ~TX_DONE_FLAG;
-    state_controller(DEVICE_STATE_STATUS_CHECK);
+    if (_device_current_state == DEVICE_STATE_JOINING) {
+        mlme_confirm_handler();
+    } else {
+        state_controller(DEVICE_STATE_STATUS_CHECK);
+    }
+
     state_machine_run_to_completion();
 }
 
@@ -888,21 +893,33 @@ void LoRaWANStack::mlme_confirm_handler()
                 }
             }
         }
-    } else if (_loramac.get_mlme_confirmation()->req_type == MLME_JOIN) {
-        if (_loramac.get_mlme_confirmation()->status == LORAMAC_EVENT_INFO_STATUS_OK) {
-            state_controller(DEVICE_STATE_CONNECTED);
-        } else {
-            tr_error("Joining error: %d", _loramac.get_mlme_confirmation()->status);
-            if (_loramac.get_mlme_confirmation()->status == LORAMAC_EVENT_INFO_STATUS_CRYPTO_FAIL) {
+    }
+
+    if (_loramac.get_mlme_confirmation()->req_type == MLME_JOIN) {
+
+        switch (_loramac.get_mlme_confirmation()->status) {
+            case LORAMAC_EVENT_INFO_STATUS_OK:
+                state_controller(DEVICE_STATE_CONNECTED);
+                break;
+
+            case LORAMAC_EVENT_INFO_STATUS_CRYPTO_FAIL:
                 // fatal error
                 _device_current_state = DEVICE_STATE_IDLE;
+                tr_error("Joining abandoned: CRYPTO_ERROR");
                 send_event_to_application(CRYPTO_ERROR);
-            } else {
+                break;
+
+            case LORAMAC_EVENT_INFO_STATUS_TX_TIMEOUT:
+                // fatal error
+                _device_current_state = DEVICE_STATE_IDLE;
+                tr_error("Joining abandoned: Radio failed to transmit");
+                send_event_to_application(TX_TIMEOUT);
+                break;
+
+            default:
                 // non-fatal, retry if possible
                 _device_current_state = DEVICE_STATE_AWAITING_JOIN_ACCEPT;
                 state_controller(DEVICE_STATE_JOINING);
-            }
-
         }
     }
 }
@@ -917,9 +934,8 @@ void LoRaWANStack::mcps_confirm_handler()
     }
 
     // failure case
-    tr_error("mcps_confirmation: Error code = %d", _loramac.get_mcps_confirmation()->status);
-
     if (_loramac.get_mcps_confirmation()->status == LORAMAC_EVENT_INFO_STATUS_TX_TIMEOUT) {
+        tr_error("Fatal Error, Radio failed to transmit");
         send_event_to_application(TX_TIMEOUT);
         return;
     }
