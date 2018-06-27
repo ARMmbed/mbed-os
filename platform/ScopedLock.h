@@ -65,7 +65,7 @@ public:
      * @param lockable reference to the instance of Lockable object
      * @note lockable object should outlive the ScopedLock object
      */
-    ScopedLock(Lockable& lockable): _lockable(lockable)
+    ScopedLock(Lockable &lockable): _lockable(lockable)
     {
         _lockable.lock();
     }
@@ -75,7 +75,7 @@ public:
         _lockable.unlock();
     }
 private:
-    Lockable& _lockable;
+    Lockable &_lockable;
 };
 
 /**@}*/
