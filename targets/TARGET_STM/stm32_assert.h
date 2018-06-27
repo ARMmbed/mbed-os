@@ -37,7 +37,7 @@
   *         If expr is true, it returns no value.
   * @retval None
   */
-  #include "mbed_assert.h"
-  #define assert_param(expr) MBED_ASSERT(expr)
+#include "mbed_assert.h"
+#define assert_param(expr) MBED_ASSERT(expr)
 
 #endif

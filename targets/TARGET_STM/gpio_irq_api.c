@@ -43,7 +43,7 @@
 typedef struct gpio_channel {
     uint32_t pin_mask;                   // bitmask representing which pins are configured for receiving interrupts
     uint32_t channel_ids[MAX_PIN_LINE];  // mbed "gpio_irq_t gpio_irq" field of instance
-    GPIO_TypeDef* channel_gpio[MAX_PIN_LINE]; // base address of gpio port group
+    GPIO_TypeDef *channel_gpio[MAX_PIN_LINE]; // base address of gpio port group
     uint32_t channel_pin[MAX_PIN_LINE];  // pin number in port group
 } gpio_channel_t;
 
@@ -168,7 +168,9 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     gpio_channel_t *gpio_channel;
     uint32_t gpio_idx;
 
-    if (pin == NC) return -1;
+    if (pin == NC) {
+        return -1;
+    }
 
     /* Enable SYSCFG Clock */
     __HAL_RCC_SYSCFG_CLK_ENABLE();

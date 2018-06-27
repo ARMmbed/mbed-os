@@ -57,8 +57,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 
     if ((tx == STDIO_UART_TX) || (rx == STDIO_UART_RX)) {
         stdio_config = 1;
-    }
-    else {
+    } else {
         if (uart_tx == pinmap_peripheral(STDIO_UART_TX, PinMap_UART_TX)) {
             error("Error: new serial object is using same UART as STDIO");
         }
@@ -206,8 +205,7 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
 #if MBED_CONF_PLATFORM_STDIO_BAUD_RATE
         obj_s->baudrate = MBED_CONF_PLATFORM_STDIO_BAUD_RATE; // baudrate takes value from platform/mbed_lib.json
 #endif /* MBED_CONF_PLATFORM_STDIO_BAUD_RATE */
-    }
-    else {
+    } else {
 #if MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE
         obj_s->baudrate = MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE; // baudrate takes value from platform/mbed_lib.json
 #endif /* MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE */
@@ -370,7 +368,7 @@ void serial_baud(serial_t *obj, int baudrate)
 
     obj_s->baudrate = baudrate;
 #if defined(LPUART1_BASE)
-        /* Note that LPUART clock source must be in the range [3 x baud rate, 4096 x baud rate], check Ref Manual */
+    /* Note that LPUART clock source must be in the range [3 x baud rate, 4096 x baud rate], check Ref Manual */
     if (obj_s->uart == LPUART_1) {
         /* If baudrate is lower than 9600 try to change to LSE */
         RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
@@ -384,7 +382,7 @@ void serial_baud(serial_t *obj, int baudrate)
             HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct);
         }
         if (init_uart(obj) == HAL_OK) {
-                return;
+            return;
         }
         /* Change LPUART clock source and try again */
         PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_LPUART1;
@@ -466,7 +464,7 @@ int serial_readable(serial_t *obj)
     /*  To avoid a target blocking case, let's check for
      *  possible OVERRUN error and discard it
      */
-    if(__HAL_UART_GET_FLAG(huart, UART_FLAG_ORE)) {
+    if (__HAL_UART_GET_FLAG(huart, UART_FLAG_ORE)) {
         __HAL_UART_CLEAR_OREFLAG(huart);
     }
     // Check if data is received

@@ -64,12 +64,12 @@ static void ForcePeriphOutofDeepSleep(void)
 
     // Select HSI ss system clock source as a first step
 #ifdef RCC_CLOCKTYPE_PCLK2
-    RCC_ClkInitStruct.ClockType      = (RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK 
-                            | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2);
+    RCC_ClkInitStruct.ClockType      = (RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK
+                                        | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2);
     RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 #else
-    RCC_ClkInitStruct.ClockType      = (RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK 
-                            | RCC_CLOCKTYPE_PCLK1);
+    RCC_ClkInitStruct.ClockType      = (RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK
+                                        | RCC_CLOCKTYPE_PCLK1);
 #endif
     RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_MSI;
     RCC_ClkInitStruct.AHBCLKDivider  = RCC_SYSCLK_DIV1;
@@ -84,12 +84,12 @@ static void ForcePeriphOutofDeepSleep(void)
     /**Initializes the CPU, AHB and APB busses clocks
     */
 #ifdef RCC_CLOCKTYPE_PCLK2
-    RCC_ClkInitStruct.ClockType = (RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
-                            |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2);
+    RCC_ClkInitStruct.ClockType = (RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK
+                                   | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2);
     RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 #else
-    RCC_ClkInitStruct.ClockType = (RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
-                            |RCC_CLOCKTYPE_PCLK1);
+    RCC_ClkInitStruct.ClockType = (RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK
+                                   | RCC_CLOCKTYPE_PCLK1);
 #endif
     RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI;
     RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
@@ -213,7 +213,7 @@ void hal_deepsleep(void)
     }
 #endif
     // Enable IRQs
-   core_util_critical_section_exit();
+    core_util_critical_section_exit();
 }
 
 #endif
