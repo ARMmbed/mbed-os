@@ -30,7 +30,7 @@
 const char* GREENTEA_TEST_ENV_END = "end";
 const char* GREENTEA_TEST_ENV_EXIT = "__exit";
 const char* GREENTEA_TEST_ENV_SYNC = "__sync";
-const char* GREENTEA_TEST_HOST_ACK = "__hstAk";
+const char* GREENTEA_TEST_HOST_ACK = "__host_ack";
 const char* GREENTEA_TEST_ENV_TIMEOUT = "__timeout";
 const char* GREENTEA_TEST_ENV_HOST_TEST_NAME = "__host_test_name";
 const char* GREENTEA_TEST_ENV_HOST_TEST_VERSION = "__version";
@@ -72,7 +72,7 @@ void _GREENTEA_SETUP_COMMON(const int timeout, const char *host_test_name, char 
     // Sync preamble: "{{__sync;0dad4a9d-59a3-4aec-810d-d5fb09d852c1}}"
     // Example value of sync_uuid == "0dad4a9d-59a3-4aec-810d-d5fb09d852c1"
 
-    char _key[8] = {0};
+    char _key[11] = {0};
     bool runTests = false;
 
     while (!runTests) {
