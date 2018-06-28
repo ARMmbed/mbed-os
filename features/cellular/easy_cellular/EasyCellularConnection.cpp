@@ -156,7 +156,7 @@ nsapi_error_t EasyCellularConnection::connect(const char *sim_pin, const char *a
     }
 
     if (sim_pin) {
-        _cellularConnectionFSM->set_sim_pin(sim_pin);
+        this->set_sim_pin(sim_pin);
     }
 
     return connect();
