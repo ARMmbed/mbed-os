@@ -19,6 +19,7 @@
 #include "spm_panic.h"
 
 extern spm_db_t g_spm;
+bool core_util_atomic_cas_u8(volatile uint8_t *ptr, uint8_t *expectedCurrentValue, uint8_t desiredValue);
 
 spm_partition_t *get_active_partition(void)
 {
@@ -49,5 +50,22 @@ inline void validate_iovec(
         )
     ) {
         SPM_PANIC("Failed iovec Validation invec=(0X%p) inlen=(%d) outvec=(0X%p) outlen=(%d)\n", in_vec, in_len, out_vec, out_len);
+    }
+}
+
+inline void channel_state_switch(uint8_t *current_state, uint8_t expected_state, uint8_t new_state)
+{
+    uint8_t backup_expected = expected_state;
+    if (!core_util_atomic_cas_u8(current_state, &expected_state, new_state)) {
+        SPM_PANIC("channel in incorrect processing state: %d while %d is expected!\n",
+            expected_state, backup_expected);
+    }
+}
+
+inline void channel_state_assert(uint8_t *current_state, uint8_t expected_state)
+{
+    if (*current_state != expected_state) {
+        SPM_PANIC("channel in incorrect processing state: %d while %d is expected!\n",
+            *current_state, expected_state);
     }
 }

@@ -37,6 +37,21 @@ extern "C" {
 #define PSA_RESERVED_ERROR_MIN (INT32_MIN + 1)
 #define PSA_RESERVED_ERROR_MAX (INT32_MIN + 127)
 
+#define SPM_CHANNEL_STATE_INVALID          (0x01)
+#define SPM_CHANNEL_STATE_CONNECTING       (0x02)
+#define SPM_CHANNEL_STATE_IDLE             (0x03)
+#define SPM_CHANNEL_STATE_PENDING          (0x04)
+#define SPM_CHANNEL_STATE_ACTIVE           (0x05)
+
+
+#ifndef TRUE
+#define TRUE (1)
+#endif
+
+#ifndef FALSE
+#define FALSE (0)
+#endif
+
 struct spm_partition;
 struct spm_ipc_channel;
 
@@ -50,22 +65,6 @@ typedef union spm_iovec {
  * The function will not return on invalid signal.
  */
 typedef IRQn_Type (*spm_signal_to_irq_mapper_t)(uint32_t);
-
-#define SPM_CHANNEL_STATE_UNINITIALIZED_MSK    (0x00) //Should not be used.
-#define SPM_CHANNEL_STATE_INVALID_MSK          (0x01)
-#define SPM_CHANNEL_STATE_CONNECTING_MSK       (0x02)
-#define SPM_CHANNEL_STATE_IDLE_MSK             (0x04)
-#define SPM_CHANNEL_STATE_PENDING_MSK          (0x08)
-#define SPM_CHANNEL_STATE_ACTIVE_MSK           (0x10)
-#define SPM_CHANNEL_STATE_DROPPED_MSK          (0x20)
-
-#define CHANNEL_STATE_ASSERT(current_state, expected_state)                                  \
-do {                                                                                         \
-    if ((current_state & (expected_state)) == 0) {                                           \
-        SPM_PANIC("channel in incorrect processing state: %d while %d is expected!\n",       \
-            current_state, expected_state);                                                  \
-    }                                                                                        \
-} while (0)
 
 // spm_pending_call_msg struct below is packed since in a dual processor solution
 // it is used in both processors
@@ -126,6 +125,7 @@ typedef struct spm_ipc_channel {
     struct spm_ipc_channel *next; /* Next channel in the chain  */
     uint8_t msg_type; /* The message type.*/
     uint8_t state; /* The current processing state of the channel.*/
+    uint8_t is_dropped;
 } spm_ipc_channel_t;
 
 /*
@@ -219,6 +219,9 @@ void validate_iovec(
     const void *out_vec,
     const uint32_t out_len
     );
+
+void channel_state_switch(uint8_t *current_state, uint8_t expected_state, uint8_t new_state);
+void channel_state_assert(uint8_t *current_state, uint8_t expected_state);
 
 #ifdef __cplusplus
 }

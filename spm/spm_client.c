@@ -137,13 +137,14 @@ void psa_connect_async(spm_pending_connect_msg_t *msg)
     msg->rc = (psa_error_t)create_channel_handle(channel, dst_rot_service->partition->partition_id);
 
     // NOTE: all struct fields must be initialized as the allocated memory is not zeroed.
-    channel->state = SPM_CHANNEL_STATE_CONNECTING_MSK;
+    channel->state = SPM_CHANNEL_STATE_CONNECTING;
     channel->src_partition = origin_partition;
     channel->dst_rot_service = dst_rot_service;
     channel->msg_ptr = msg;
     channel->msg_type = PSA_IPC_CONNECT;
     channel->rhandle = NULL;
     channel->next = NULL;
+    channel->is_dropped = FALSE;
 
     spm_rot_service_queue_enqueue(dst_rot_service, channel);
 }
@@ -190,7 +191,7 @@ void psa_call_async(spm_pending_call_msg_t *msg)
     SPM_ASSERT(msg != NULL);
     spm_ipc_channel_t *channel = get_channel_from_handle(msg->channel);
 
-    if (channel->state & SPM_CHANNEL_STATE_DROPPED_MSK) {
+    if (channel->is_dropped == TRUE) {
         msg->rc = PSA_DROP_CONNECTION;
 
         if (channel->src_partition == NULL) {
@@ -204,14 +205,14 @@ void psa_call_async(spm_pending_call_msg_t *msg)
         return;
     }
 
-    validate_iovec(msg->in_vec, msg->in_vec_size, msg->out_vec, msg->out_vec_size);
-    CHANNEL_STATE_ASSERT(channel->state, SPM_CHANNEL_STATE_IDLE_MSK);
-    spm_rot_service_t *dst_rot_service = channel->dst_rot_service;
-    channel->state = SPM_CHANNEL_STATE_PENDING_MSK;
+    channel_state_switch(&channel->state,
+        SPM_CHANNEL_STATE_IDLE, SPM_CHANNEL_STATE_PENDING);
+
     channel->msg_ptr = msg;
     channel->msg_type = PSA_IPC_CALL;
 
-    spm_rot_service_queue_enqueue(dst_rot_service, channel);
+    validate_iovec(msg->in_vec, msg->in_vec_size, msg->out_vec, msg->out_vec_size);
+    spm_rot_service_queue_enqueue(channel->dst_rot_service, channel);
 }
 
 psa_error_t psa_call(
@@ -268,10 +269,10 @@ void psa_close(psa_handle_t handle)
     }
 
     spm_ipc_channel_t *channel = get_channel_from_handle(handle);
-    CHANNEL_STATE_ASSERT(channel->state, SPM_CHANNEL_STATE_DROPPED_MSK | SPM_CHANNEL_STATE_IDLE_MSK);
+    channel_state_switch(&channel->state,
+        SPM_CHANNEL_STATE_IDLE, SPM_CHANNEL_STATE_INVALID);
 
     channel->msg_type = PSA_IPC_DISCONNECT;
-    channel->state = SPM_CHANNEL_STATE_INVALID_MSK;
     // Forward the handle as we return instantly.
     channel->msg_ptr = (void *)handle;
 

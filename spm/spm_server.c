@@ -271,19 +271,27 @@ void psa_get(psa_signal_t signum, psa_msg_t *msg)
 
     switch (curr_channel->msg_type) {
         case PSA_IPC_CONNECT:
-            CHANNEL_STATE_ASSERT(curr_channel->state, SPM_CHANNEL_STATE_CONNECTING_MSK);
-            curr_channel->state = SPM_CHANNEL_STATE_IDLE_MSK;
+            channel_state_assert(
+                &curr_channel->state,
+                SPM_CHANNEL_STATE_CONNECTING
+            );
             break;
 
         case PSA_IPC_CALL:
-            CHANNEL_STATE_ASSERT(curr_channel->state, SPM_CHANNEL_STATE_PENDING_MSK);
-            curr_channel->state = SPM_CHANNEL_STATE_ACTIVE_MSK;
+            channel_state_switch(
+                &curr_channel->state,
+                SPM_CHANNEL_STATE_PENDING,
+                SPM_CHANNEL_STATE_ACTIVE
+            );
             break;
 
         case PSA_IPC_DISCONNECT:
         {
-            CHANNEL_STATE_ASSERT(curr_channel->state, SPM_CHANNEL_STATE_INVALID_MSK);
-            curr_channel->state = SPM_CHANNEL_STATE_INVALID_MSK;
+            channel_state_assert(
+                &curr_channel->state,
+                SPM_CHANNEL_STATE_INVALID
+            );
+
             msg->handle = PSA_NULL_HANDLE;
             msg->type = PSA_IPC_DISCONNECT;
             msg->rhandle = curr_channel->rhandle;
@@ -315,7 +323,7 @@ static size_t read_or_skip(psa_handle_t msg_handle, uint32_t invec_idx, void *bu
 {
     spm_active_msg_t *active_msg = get_msg_from_handle(msg_handle);
 
-    CHANNEL_STATE_ASSERT(active_msg->channel->state, SPM_CHANNEL_STATE_ACTIVE_MSK);
+    channel_state_assert(&active_msg->channel->state, SPM_CHANNEL_STATE_ACTIVE);
 
     if (invec_idx >= PSA_MAX_IOVEC) {
         SPM_PANIC("Invalid invec_idx\n");
@@ -374,7 +382,7 @@ void psa_write(psa_handle_t msg_handle, uint32_t outvec_idx, const void *buffer,
 
     spm_active_msg_t *active_msg = get_msg_from_handle(msg_handle);
 
-    CHANNEL_STATE_ASSERT(active_msg->channel->state, SPM_CHANNEL_STATE_ACTIVE_MSK);
+    channel_state_assert(&active_msg->channel->state, SPM_CHANNEL_STATE_ACTIVE);
 
     outvec_idx += active_msg->out_index;
     if (outvec_idx >= PSA_MAX_IOVEC) {
@@ -421,16 +429,14 @@ void psa_end(psa_handle_t msg_handle, psa_error_t retval)
     switch(active_channel->msg_type) {
         case PSA_IPC_CONNECT:
         {
-            CHANNEL_STATE_ASSERT(active_channel->state, SPM_CHANNEL_STATE_IDLE_MSK);
             if ((retval != PSA_CONNECTION_ACCEPTED) && (retval != PSA_CONNECTION_REFUSED)) {
                 SPM_PANIC("retval (0X%08x) is not allowed for PSA_IPC_CONNECT", retval);
             }
 
-            active_channel->state = (retval < 0 ? SPM_CHANNEL_STATE_INVALID_MSK : SPM_CHANNEL_STATE_IDLE_MSK);
             spm_pending_connect_msg_t *connect_msg_data  = (spm_pending_connect_msg_t *)(active_channel->msg_ptr);
             completion_sem_id = connect_msg_data ->completion_sem_id;
-
-            if (retval != PSA_CONNECTION_ACCEPTED) {
+            if (retval == PSA_CONNECTION_REFUSED) {
+                channel_state_assert(&active_channel->state, SPM_CHANNEL_STATE_CONNECTING);
                 // !!!!!NOTE!!!!! handles must be destroyed before osMemoryPoolFree().
                 // Channel creation fails on resource exhaustion and handle will be created
                 // only after a successful memory allocation and is not expected to fail.
@@ -449,6 +455,9 @@ void psa_end(psa_handle_t msg_handle, psa_error_t retval)
                 // Replace the handle we created in the user's memory with the error code
                 connect_msg_data ->rc = retval;
                 active_channel = NULL;
+            } else {
+                channel_state_switch(&active_channel->state,
+                    SPM_CHANNEL_STATE_CONNECTING, SPM_CHANNEL_STATE_IDLE);
             }
             break;
         }
@@ -458,11 +467,11 @@ void psa_end(psa_handle_t msg_handle, psa_error_t retval)
                 SPM_PANIC("retval (0X%08x) is not allowed for PSA_IPC_CALL", retval);
             }
 
-            CHANNEL_STATE_ASSERT(active_channel->state, SPM_CHANNEL_STATE_ACTIVE_MSK);
+            channel_state_switch(&active_channel->state,
+                    SPM_CHANNEL_STATE_ACTIVE, SPM_CHANNEL_STATE_IDLE);
+
             if (retval == PSA_DROP_CONNECTION) {
-                active_channel->state = SPM_CHANNEL_STATE_DROPPED_MSK;
-            } else {
-                active_channel->state = SPM_CHANNEL_STATE_IDLE_MSK;
+                active_channel->is_dropped = TRUE;
             }
 
             spm_pending_call_msg_t *call_msg_data = (spm_pending_call_msg_t *)(active_channel->msg_ptr);
