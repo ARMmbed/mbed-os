@@ -25,6 +25,7 @@ ALPHABET = [char for char in printable if char not in [u'.', u'/', u'\\']]
 
 @patch('tools.toolchains.arm.run_cmd')
 def test_arm_version_check(_run_cmd):
+    set_targets_json_location()
     _run_cmd.return_value = ("""
     Product: ARM Compiler 5.06
     Component: ARM Compiler 5.06 update 5 (build 528)
@@ -52,6 +53,7 @@ def test_arm_version_check(_run_cmd):
 
 @patch('tools.toolchains.iar.run_cmd')
 def test_iar_version_check(_run_cmd):
+    set_targets_json_location()
     _run_cmd.return_value = ("""
     IAR ANSI C/C++ Compiler V7.80.1.28/LNX for ARM
     """, "", 0)
@@ -73,6 +75,7 @@ def test_iar_version_check(_run_cmd):
 
 @patch('tools.toolchains.gcc.run_cmd')
 def test_gcc_version_check(_run_cmd):
+    set_targets_json_location()
     _run_cmd.return_value = ("""
     arm-none-eabi-gcc (Arch Repository) 6.4.4
     Copyright (C) 2018 Free Software Foundation, Inc.
