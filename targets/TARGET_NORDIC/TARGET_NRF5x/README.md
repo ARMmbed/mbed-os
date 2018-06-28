@@ -108,15 +108,15 @@ All buffers can be resized to fit the application:
 ```
     "name": "nordic",
     "config": {
-        "uart-dma-size": {
+        "uart_dma_size": {
             "help": "UART DMA buffer. 2 buffers per instance. DMA buffer is filled by UARTE",
             "value": 8
         },
-        "uart-0-fifo-size": {
+        "uart_0_fifo_size": {
             "help": "UART0 FIFO buffer. FIFO buffer is filled from DMA buffer.",
             "value": 32
         },
-        "uart-1-fifo-size": {
+        "uart_1_fifo_size": {
             "help": "UART1 FIFO buffer. FIFO buffer is filled from DMA buffer.",
             "value": 32
         }
