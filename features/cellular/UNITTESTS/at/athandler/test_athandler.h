@@ -80,6 +80,8 @@ public:
 
     void test_ATHandler_read_string();
 
+    void test_ATHandler_read_hex_string();
+
     void test_ATHandler_read_int();
 
     void test_ATHandler_resp_start();
