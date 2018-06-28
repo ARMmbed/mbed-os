@@ -31,6 +31,13 @@ def test_arm_version_check(_run_cmd):
     toolchain.version_check()
     assert notifier.messages == []
     _run_cmd.return_value = ("""
+    Product: MDK Professional 5.22
+    Component: ARM Compiler 5.06 update 5 (build 528)
+    Tool: armcc [4d3621]
+    """, "", 0)
+    toolchain.version_check()
+    assert notifier.messages == []
+    _run_cmd.return_value = ("""
     Product: ARM Compiler
     Component: ARM Compiler
     Tool: armcc [4d3621]
