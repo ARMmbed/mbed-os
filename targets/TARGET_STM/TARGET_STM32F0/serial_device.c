@@ -550,7 +550,7 @@ uint8_t serial_tx_active(serial_t *obj)
     struct serial_s *obj_s = SERIAL_S(obj);
     UART_HandleTypeDef *huart = &uart_handlers[obj_s->index];
 
-    return ((HAL_UART_GetState(huart) == HAL_UART_STATE_BUSY_TX) ? 1 : 0);
+    return (((HAL_UART_GetState(huart) & HAL_UART_STATE_BUSY_TX) == HAL_UART_STATE_BUSY_TX) ? 1 : 0);
 }
 
 /**
@@ -566,7 +566,7 @@ uint8_t serial_rx_active(serial_t *obj)
     struct serial_s *obj_s = SERIAL_S(obj);
     UART_HandleTypeDef *huart = &uart_handlers[obj_s->index];
 
-    return ((HAL_UART_GetState(huart) == HAL_UART_STATE_BUSY_RX) ? 1 : 0);
+    return (((HAL_UART_GetState(huart) & HAL_UART_STATE_BUSY_RX) == HAL_UART_STATE_BUSY_RX) ? 1 : 0);
 }
 
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
