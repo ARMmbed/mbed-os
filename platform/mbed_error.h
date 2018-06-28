@@ -33,8 +33,8 @@ extern "C" {
  *  MBED_PLATFORM_CONF_ERROR_FILENAME_CAPTURE_ENABLED
  */   
 
-/** Define this macro to disable error logging, note that the first and last error capture will still be active by default.
- *  MBED_PLATFORM_CONF_ERROR_HIST_DISABLED  
+/** Define this macro to enable error history
+ *  MBED_PLATFORM_CONF_ERROR_HIST_ENABLED  
  */
     
 #ifndef MBED_CONF_PLATFORM_MAX_ERROR_FILENAME_LEN
