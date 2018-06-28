@@ -182,8 +182,12 @@ static spm_ipc_channel_t * spm_rot_service_queue_dequeue(spm_rot_service_t *rot_
 
     if (rot_service->queue.head == NULL) {
         rot_service->queue.tail = NULL;
-        int32_t flags = (int32_t)osThreadFlagsClear(rot_service->mask);
-        SPM_ASSERT(flags >= 0);
+
+        uint32_t flags = osThreadFlagsClear(rot_service->mask);
+
+        // osThreadFlagsClear() sets the msb on failure
+        SPM_ASSERT((flags & 0x80000000) == 0);
+        SPM_ASSERT(flags & rot_service->mask);
         PSA_UNUSED(flags);
     }
 
@@ -509,8 +513,11 @@ void psa_notify(int32_t partition_id)
         );
     }
 
-    int32_t flags = (int32_t)osThreadFlagsSet(target_partition->thread_id, PSA_DOORBELL);
-    SPM_ASSERT(flags >= 0);
+    uint32_t flags = osThreadFlagsSet(target_partition->thread_id, PSA_DOORBELL);
+    // osThreadFlagsSet() sets the msb on failure
+    // flags is allowed to be 0 since by the time osThreadFlagsSet() returns
+    // the flag could have been cleared by another thread
+    SPM_ASSERT((flags & 0x80000000) == 0);
     PSA_UNUSED(flags);
 }
 
@@ -518,8 +525,8 @@ void psa_clear(void)
 {
     uint32_t flags = osThreadFlagsClear(PSA_DOORBELL);
 
-    // osThreadFlagsClear() asserts the msb on failure
-    SPM_ASSERT((flags & 0x80000000) != 0x80000000);
+    // osThreadFlagsClear() sets the msb on failure
+    SPM_ASSERT((flags & 0x80000000) == 0);
 
     // psa_clear() must not be called when doorbell signal is not currently asserted
     if ((flags & PSA_DOORBELL) != PSA_DOORBELL) {
@@ -562,9 +569,14 @@ void psa_eoi(uint32_t irq_signal)
     }
 
     IRQn_Type irq_line = curr_partition->irq_mapper(irq_signal);
-    NVIC_EnableIRQ(irq_line);
+    uint32_t flags = osThreadFlagsClear(irq_signal);
+    // osThreadFlagsClear() sets the msb on failure
+    SPM_ASSERT((flags & 0x80000000) == 0);
 
-    int32_t flags = (int32_t)osThreadFlagsClear(irq_signal);
-    SPM_ASSERT(flags >= 0);
-    PSA_UNUSED(flags);
+    // psa_eoi() must not be called with an unasserted flag.
+    if ((flags & irq_signal) != irq_signal) {
+        SPM_PANIC("psa_eoi() called without signaled IRQ\n");
+    }
+
+    NVIC_EnableIRQ(irq_line);
 }

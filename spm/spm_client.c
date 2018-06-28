@@ -92,8 +92,12 @@ static void spm_rot_service_queue_enqueue(spm_rot_service_t *rot_service, spm_ip
 
     rot_service->queue.tail = item;
 
-    int32_t flags = (int32_t)osThreadFlagsSet(rot_service->partition->thread_id, rot_service->mask);
-    SPM_ASSERT(flags >= 0);
+    uint32_t flags = osThreadFlagsSet(rot_service->partition->thread_id, rot_service->mask);
+    // osThreadFlagsSet() sets the msb on failure.
+    // flags is not allowed to be 0 since only dequeue operation can clear the flags,
+    // and both operations (enqueue and dequeue) are mutex protected.
+    SPM_ASSERT((flags & 0x80000000) == 0);
+    SPM_ASSERT(flags & rot_service->mask);
     PSA_UNUSED(flags);
 
     os_status = osMutexRelease(rot_service->partition->mutex);
