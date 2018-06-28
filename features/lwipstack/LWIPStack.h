@@ -141,20 +141,20 @@ public:
             void *hw; /**< alternative implementation pointer - used for PPP */
         };
 
-        os_semaphore_t linked_sem;
+        mbed_rtos_storage_semaphore_t linked_sem;
         osSemaphoreId_t linked;
-        os_semaphore_t unlinked_sem;
+        mbed_rtos_storage_semaphore_t unlinked_sem;
         osSemaphoreId_t unlinked;
-        os_semaphore_t has_any_addr_sem;
+        mbed_rtos_storage_semaphore_t has_any_addr_sem;
         osSemaphoreId_t has_any_addr;
     #define HAS_ANY_ADDR 1
     #if PREF_ADDR_TIMEOUT
-        os_semaphore_t has_pref_addr_sem;
+        mbed_rtos_storage_semaphore_t has_pref_addr_sem;
         osSemaphoreId_t has_pref_addr;
     #define HAS_PREF_ADDR 2
     #endif
     #if BOTH_ADDR_TIMEOUT
-        os_semaphore_t has_both_addr_sem;
+        mbed_rtos_storage_semaphore_t has_both_addr_sem;
         osSemaphoreId_t has_both_addr;
     #define HAS_BOTH_ADDR 4
     #endif

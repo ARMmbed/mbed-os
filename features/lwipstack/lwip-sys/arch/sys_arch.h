@@ -21,6 +21,8 @@
 #include "lwip/opt.h"
 #include "mbed_rtos_storage.h"
 
+#include <stdbool.h>
+
 extern u8_t lwip_ram_heap[];
 
 #if NO_SYS == 0
