@@ -287,7 +287,9 @@ class Resources(object):
             parents.add(".")
         else:
             parents = set()
-        return list(parents) + [key(f) for f in self.get_file_refs(file_type)]
+        return sorted(
+            list(parents) + [key(f) for f in self.get_file_refs(file_type)]
+        )
 
 
     def get_file_names(self, file_type):
