@@ -302,7 +302,7 @@ public:
      *  Stops on delimiter or stop tag.
      *
      *  @param str output buffer for the read
-     *  @param size maximum number of chars to output
+     *  @param size maximum number of chars to output including NULL
      *  @param read_even_stop_tag if true then try to read even if the stop tag was found previously
      *  @return length of output string or -1 in case of read timeout before delimiter or stop tag is found
      */
@@ -511,8 +511,6 @@ private:
 
     // check is urc is already added
     bool find_urc_handler(const char *prefix, mbed::Callback<void()> callback);
-
-    ssize_t read(char *buf, size_t size, bool read_even_stop_tag, bool hex);
 
     // print contents of a buffer to trace log
     void debug_print(char *p, int len);
