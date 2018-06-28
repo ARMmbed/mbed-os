@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
- #if DEVICE_FLASH
+#if DEVICE_FLASH
 
 #include "flash_api.h"
 #include "flash_data.h"
@@ -99,10 +99,10 @@ int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data, 
         return -1;
     }
 
-  /* Note: If an erase operation in Flash memory also concerns data in the data or instruction cache,
-     you have to make sure that these data are rewritten before they are accessed during code
-     execution. If this cannot be done safely, it is recommended to flush the caches by setting the
-     DCRST and ICRST bits in the FLASH_CR register. */
+    /* Note: If an erase operation in Flash memory also concerns data in the data or instruction cache,
+       you have to make sure that these data are rewritten before they are accessed during code
+       execution. If this cannot be done safely, it is recommended to flush the caches by setting the
+       DCRST and ICRST bits in the FLASH_CR register. */
     __HAL_FLASH_DATA_CACHE_DISABLE();
     __HAL_FLASH_INSTRUCTION_CACHE_DISABLE();
 
@@ -171,13 +171,13 @@ static uint32_t GetSector(uint32_t address)
     }
 #endif
     if (address < ADDR_FLASH_SECTOR_4) { // 16k sectorsize
-        sector += tmp >>14;
+        sector += tmp >> 14;
     }
 #if defined(ADDR_FLASH_SECTOR_5)
     else if (address < ADDR_FLASH_SECTOR_5) { //64k sector size
         sector += FLASH_SECTOR_4;
     } else {
-        sector += 4 + (tmp >>17);
+        sector += 4 + (tmp >> 17);
     }
 #else
     // In case ADDR_FLASH_SECTOR_5 is not defined, sector 4 is the last one.
@@ -197,16 +197,16 @@ static uint32_t GetSectorSize(uint32_t Sector)
 {
     uint32_t sectorsize = 0x00;
 #if defined(FLASH_SECTOR_16)
-    if((Sector == FLASH_SECTOR_0) || (Sector == FLASH_SECTOR_1) || (Sector == FLASH_SECTOR_2) ||\
-       (Sector == FLASH_SECTOR_3) || (Sector == FLASH_SECTOR_12) || (Sector == FLASH_SECTOR_13) ||\
-       (Sector == FLASH_SECTOR_14) || (Sector == FLASH_SECTOR_15)) {
-           sectorsize = 16 * 1024;
-       } else if((Sector == FLASH_SECTOR_4) || (Sector == FLASH_SECTOR_16)) {
+    if ((Sector == FLASH_SECTOR_0) || (Sector == FLASH_SECTOR_1) || (Sector == FLASH_SECTOR_2) || \
+            (Sector == FLASH_SECTOR_3) || (Sector == FLASH_SECTOR_12) || (Sector == FLASH_SECTOR_13) || \
+            (Sector == FLASH_SECTOR_14) || (Sector == FLASH_SECTOR_15)) {
+        sectorsize = 16 * 1024;
+    } else if ((Sector == FLASH_SECTOR_4) || (Sector == FLASH_SECTOR_16)) {
 #else
-if((Sector == FLASH_SECTOR_0) || (Sector == FLASH_SECTOR_1) || (Sector == FLASH_SECTOR_2) ||\
-   (Sector == FLASH_SECTOR_3)) {
-       sectorsize = 16 * 1024;
-   } else if(Sector == FLASH_SECTOR_4) {
+    if ((Sector == FLASH_SECTOR_0) || (Sector == FLASH_SECTOR_1) || (Sector == FLASH_SECTOR_2) || \
+            (Sector == FLASH_SECTOR_3)) {
+        sectorsize = 16 * 1024;
+    } else if (Sector == FLASH_SECTOR_4) {
 #endif
         sectorsize = 64 * 1024;
     } else {

@@ -234,7 +234,7 @@ typedef enum {
 
     I2C_SCL         = I2C0_SCL,
     I2C_SDA         = I2C0_SDA,
-   
+
 } PinName;
 
 #ifdef __cplusplus

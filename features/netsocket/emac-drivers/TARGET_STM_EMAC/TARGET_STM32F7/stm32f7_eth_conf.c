@@ -18,8 +18,7 @@
 
 void _eth_config_mac(ETH_HandleTypeDef *heth)
 {
-    ETH_MACInitTypeDef macconf =
-        {
+    ETH_MACInitTypeDef macconf = {
         .Watchdog = ETH_WATCHDOG_ENABLE,
         .Jabber = ETH_JABBER_ENABLE,
         .InterFrameGap = ETH_INTERFRAMEGAP_96BIT,
@@ -49,7 +48,7 @@ void _eth_config_mac(ETH_HandleTypeDef *heth)
         .TransmitFlowControl = ETH_TRANSMITFLOWCONTROL_DISABLE,
         .VLANTagComparison = ETH_VLANTAGCOMPARISON_16BIT,
         .VLANTagIdentifier = 0x0
-        };
+    };
 
     if (heth->Init.ChecksumMode == ETH_CHECKSUM_BY_HARDWARE) {
         macconf.ChecksumOffload = ETH_CHECKSUMOFFLAOD_ENABLE;

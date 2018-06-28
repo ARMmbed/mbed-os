@@ -71,35 +71,35 @@
 
 __STATIC_INLINE void LL_GPIO_SetAFPin_0_7(GPIO_TypeDef *GPIOx, uint32_t Pin, uint32_t Alternate)
 {
-  MODIFY_REG(GPIOx->AFR[0], (GPIO_AFRL_AFSEL0 << (POSITION_VAL(Pin) * 4U)),
-             (Alternate << (POSITION_VAL(Pin) * 4U)));
+    MODIFY_REG(GPIOx->AFR[0], (GPIO_AFRL_AFSEL0 << (POSITION_VAL(Pin) * 4U)),
+               (Alternate << (POSITION_VAL(Pin) * 4U)));
 }
 
 __STATIC_INLINE void LL_GPIO_SetAFPin_8_15(GPIO_TypeDef *GPIOx, uint32_t Pin, uint32_t Alternate)
 {
-  MODIFY_REG(GPIOx->AFR[1], (GPIO_AFRH_AFSEL8 << (POSITION_VAL(Pin >> 8U) * 4U)),
-             (Alternate << (POSITION_VAL(Pin >> 8U) * 4U)));
+    MODIFY_REG(GPIOx->AFR[1], (GPIO_AFRH_AFSEL8 << (POSITION_VAL(Pin >> 8U) * 4U)),
+               (Alternate << (POSITION_VAL(Pin >> 8U) * 4U)));
 }
 __STATIC_INLINE void LL_GPIO_SetPinMode(GPIO_TypeDef *GPIOx, uint32_t Pin, uint32_t Mode)
 {
-  MODIFY_REG(GPIOx->MODER, (GPIO_MODER_MODE0 << (POSITION_VAL(Pin) * 2U)), (Mode << (POSITION_VAL(Pin) * 2U)));
+    MODIFY_REG(GPIOx->MODER, (GPIO_MODER_MODE0 << (POSITION_VAL(Pin) * 2U)), (Mode << (POSITION_VAL(Pin) * 2U)));
 }
 __STATIC_INLINE uint32_t LL_GPIO_GetPinMode(GPIO_TypeDef *GPIOx, uint32_t Pin)
 {
-  return (uint32_t)(READ_BIT(GPIOx->MODER, ((Pin * Pin) * GPIO_MODER_MODER0)) / (Pin * Pin));
+    return (uint32_t)(READ_BIT(GPIOx->MODER, ((Pin * Pin) * GPIO_MODER_MODER0)) / (Pin * Pin));
 }
 __STATIC_INLINE void LL_GPIO_SetPinPull(GPIO_TypeDef *GPIOx, uint32_t Pin, uint32_t Pull)
 {
-  MODIFY_REG(GPIOx->PUPDR, (GPIO_PUPDR_PUPD0 << (POSITION_VAL(Pin) * 2U)), (Pull << (POSITION_VAL(Pin) * 2U)));
+    MODIFY_REG(GPIOx->PUPDR, (GPIO_PUPDR_PUPD0 << (POSITION_VAL(Pin) * 2U)), (Pull << (POSITION_VAL(Pin) * 2U)));
 }
 __STATIC_INLINE void LL_GPIO_SetPinOutputType(GPIO_TypeDef *GPIOx, uint32_t PinMask, uint32_t OutputType)
 {
-  MODIFY_REG(GPIOx->OTYPER, PinMask, (PinMask * OutputType));
+    MODIFY_REG(GPIOx->OTYPER, PinMask, (PinMask * OutputType));
 }
 __STATIC_INLINE void LL_GPIO_SetPinSpeed(GPIO_TypeDef *GPIOx, uint32_t Pin, uint32_t  Speed)
 {
-  MODIFY_REG(GPIOx->OSPEEDR, (GPIO_OSPEEDER_OSPEEDR0 << (POSITION_VAL(Pin) * 2U)),
-             (Speed << (POSITION_VAL(Pin) * 2U)));
+    MODIFY_REG(GPIOx->OSPEEDR, (GPIO_OSPEEDER_OSPEEDR0 << (POSITION_VAL(Pin) * 2U)),
+               (Speed << (POSITION_VAL(Pin) * 2U)));
 }
 // Above lines shall be defined in LL when available
 
@@ -126,14 +126,15 @@ static inline void stm_pin_PullConfig(GPIO_TypeDef *gpio, uint32_t ll_pin, uint3
     }
 }
 
-static inline void stm_pin_SetAFPin( GPIO_TypeDef *gpio, PinName pin, uint32_t afnum)
+static inline void stm_pin_SetAFPin(GPIO_TypeDef *gpio, PinName pin, uint32_t afnum)
 {
     uint32_t ll_pin  = ll_pin_defines[STM_PIN(pin)];
 
-    if (STM_PIN(pin) > 7)
+    if (STM_PIN(pin) > 7) {
         LL_GPIO_SetAFPin_8_15(gpio, ll_pin, afnum);
-    else
+    } else {
         LL_GPIO_SetAFPin_0_7(gpio, ll_pin, afnum);
+    }
 }
 
 #endif

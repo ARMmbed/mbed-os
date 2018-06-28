@@ -21,16 +21,16 @@ extern "C" {
 #endif
 
 #if defined(__ICCARM__)
-    #pragma section=".intvec"
-    #define NVIC_FLASH_VECTOR_ADDRESS   ((uint32_t)__section_begin(".intvec"))
+#pragma section=".intvec"
+#define NVIC_FLASH_VECTOR_ADDRESS   ((uint32_t)__section_begin(".intvec"))
 #elif defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
-    extern uint32_t Load$$LR$$LR_IROM1$$Base[];
-    #define NVIC_FLASH_VECTOR_ADDRESS   ((uint32_t)Load$$LR$$LR_IROM1$$Base)
+extern uint32_t Load$$LR$$LR_IROM1$$Base[];
+#define NVIC_FLASH_VECTOR_ADDRESS   ((uint32_t)Load$$LR$$LR_IROM1$$Base)
 #elif defined(__GNUC__)
-    extern uint32_t g_pfnVectors[];
-    #define NVIC_FLASH_VECTOR_ADDRESS   ((uint32_t)g_pfnVectors)
+extern uint32_t g_pfnVectors[];
+#define NVIC_FLASH_VECTOR_ADDRESS   ((uint32_t)g_pfnVectors)
 #else
-    #error "Flash vector address not set for this toolchain"
+#error "Flash vector address not set for this toolchain"
 #endif
 
 #ifdef __cplusplus

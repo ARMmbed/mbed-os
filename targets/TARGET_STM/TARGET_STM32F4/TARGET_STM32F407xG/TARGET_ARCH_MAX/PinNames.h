@@ -239,9 +239,9 @@ typedef enum {
     LED2        = PD_8,
     LED3        = PD_9,
     LED4        = PD_10,
-    USBTX       = STDIO_UART_TX,	/* USART6 */
+    USBTX       = STDIO_UART_TX,    /* USART6 */
     USBRX       = STDIO_UART_RX,
-    I2C_SCL     = PB_8,	/* I2C1 */
+    I2C_SCL     = PB_8, /* I2C1 */
     I2C_SDA     = PB_9,
     SPI_MOSI    = PC_3,
     SPI_MISO    = PC_2,

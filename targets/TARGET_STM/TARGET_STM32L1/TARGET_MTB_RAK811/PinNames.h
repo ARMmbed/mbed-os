@@ -94,7 +94,7 @@ typedef enum {
     SPI_RF_MISO = PA_6,
     SPI_RF_SCK  = PA_5,
     SPI_RF_CS   = PB_0,
-    SPI_RF_RESET= PB_13,
+    SPI_RF_RESET = PB_13,
 
     DIO0        = PA_11,
     DIO1        = PB_1,

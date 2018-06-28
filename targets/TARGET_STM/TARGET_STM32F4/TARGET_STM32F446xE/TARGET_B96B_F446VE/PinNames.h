@@ -121,7 +121,7 @@ typedef enum {
     PE_13 = 0x4D,
     PE_14 = 0x4E,
     PE_15 = 0x4F,
-    
+
     PH_0  = 0x70,
     PH_1  = 0x71,
 

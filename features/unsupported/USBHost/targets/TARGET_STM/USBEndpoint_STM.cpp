@@ -19,13 +19,13 @@
 #include "USBEndpoint.h"
 extern uint32_t HAL_HCD_HC_GetMaxPacket(HCD_HandleTypeDef *hhcd, uint8_t chn_num);
 extern uint32_t HAL_HCD_HC_GetType(HCD_HandleTypeDef *hhcd, uint8_t chn_num);
-extern void HAL_HCD_DisableInt(HCD_HandleTypeDef* hhcd, uint8_t chn_num);
-extern void HAL_HCD_EnableInt(HCD_HandleTypeDef* hhcd, uint8_t chn_num);
+extern void HAL_HCD_DisableInt(HCD_HandleTypeDef *hhcd, uint8_t chn_num);
+extern void HAL_HCD_EnableInt(HCD_HandleTypeDef *hhcd, uint8_t chn_num);
 
 
 
 
-void USBEndpoint::init(HCED * hced_, ENDPOINT_TYPE type_, ENDPOINT_DIRECTION dir_, uint32_t size, uint8_t ep_number, HCTD* td_list_[2])
+void USBEndpoint::init(HCED *hced_, ENDPOINT_TYPE type_, ENDPOINT_DIRECTION dir_, uint32_t size, uint8_t ep_number, HCTD *td_list_[2])
 {
     HCD_HandleTypeDef *hhcd;
     uint32_t *addr;
@@ -36,7 +36,7 @@ void USBEndpoint::init(HCED * hced_, ENDPOINT_TYPE type_, ENDPOINT_DIRECTION dir
     setup = (type == CONTROL_ENDPOINT) ? true : false;
 
     //TDs have been allocated by the host
-    memcpy((HCTD**)td_list, td_list_, sizeof(HCTD*)*2); //TODO: Maybe should add a param for td_list size... at least a define
+    memcpy((HCTD **)td_list, td_list_, sizeof(HCTD *) * 2); //TODO: Maybe should add a param for td_list size... at least a define
     memset(td_list_[0], 0, sizeof(HCTD));
     memset(td_list_[1], 0, sizeof(HCTD));
 
@@ -56,11 +56,11 @@ void USBEndpoint::init(HCED * hced_, ENDPOINT_TYPE type_, ENDPOINT_DIRECTION dir
     /*  remove potential post pending from previous endpoint */
     ep_queue.get(0);
     intf_nb = 0;
-    hhcd = (HCD_HandleTypeDef*)hced->hhcd;
+    hhcd = (HCD_HandleTypeDef *)hced->hhcd;
     addr = &((uint32_t *)hhcd->pData)[hced->ch_num];
     *addr = 0;
     state = USB_TYPE_IDLE;
-    speed =false;
+    speed = false;
 }
 void USBEndpoint::setSize(uint32_t size)
 {
@@ -77,7 +77,7 @@ void USBEndpoint::setDeviceAddress(uint8_t addr)
     if (this->speed) {
         USB_WARN("small speed device on hub not supported");
     }
-    MBED_ASSERT(HAL_HCD_HC_Init((HCD_HandleTypeDef*)hced->hhcd,hced->ch_num, address, addr, hcd_speed,  type, size)!=HAL_BUSY);
+    MBED_ASSERT(HAL_HCD_HC_Init((HCD_HandleTypeDef *)hced->hhcd, hced->ch_num, address, addr, hcd_speed,  type, size) != HAL_BUSY);
     this->device_address = addr;
 
 }
@@ -98,26 +98,26 @@ void USBEndpoint::setState(USB_TYPE st)
 
     state = st;
     if (st == USB_TYPE_FREE) {
-        HCD_HandleTypeDef *hhcd = (HCD_HandleTypeDef*)hced->hhcd;
+        HCD_HandleTypeDef *hhcd = (HCD_HandleTypeDef *)hced->hhcd;
         uint32_t *addr = &((uint32_t *)hhcd->pData)[hced->ch_num];
         if ((*addr) && (type != INTERRUPT_ENDPOINT)) {
-            this->ep_queue.put((uint8_t*)1);
+            this->ep_queue.put((uint8_t *)1);
         }
-        MBED_ASSERT(HAL_HCD_HC_Halt((HCD_HandleTypeDef*)hced->hhcd, hced->ch_num)!=HAL_BUSY);
-        HAL_HCD_DisableInt((HCD_HandleTypeDef*)hced->hhcd, hced->ch_num);
+        MBED_ASSERT(HAL_HCD_HC_Halt((HCD_HandleTypeDef *)hced->hhcd, hced->ch_num) != HAL_BUSY);
+        HAL_HCD_DisableInt((HCD_HandleTypeDef *)hced->hhcd, hced->ch_num);
         *addr = 0;
 
     }
     if (st == USB_TYPE_ERROR) {
-        MBED_ASSERT(HAL_HCD_HC_Halt((HCD_HandleTypeDef*)hced->hhcd, hced->ch_num)!=HAL_BUSY);
-        HAL_HCD_DisableInt((HCD_HandleTypeDef*)hced->hhcd, hced->ch_num);
+        MBED_ASSERT(HAL_HCD_HC_Halt((HCD_HandleTypeDef *)hced->hhcd, hced->ch_num) != HAL_BUSY);
+        HAL_HCD_DisableInt((HCD_HandleTypeDef *)hced->hhcd, hced->ch_num);
 
     }
     if (st == USB_TYPE_ERROR) {
         uint8_t hcd_speed = HCD_SPEED_FULL;
         /* small speed device with hub not supported
            if (this->speed) hcd_speed = HCD_SPEED_LOW;*/
-        MBED_ASSERT(HAL_HCD_HC_Init((HCD_HandleTypeDef*)hced->hhcd,hced->ch_num, address, 0, hcd_speed,  type, size)!=HAL_BUSY);
+        MBED_ASSERT(HAL_HCD_HC_Init((HCD_HandleTypeDef *)hced->hhcd, hced->ch_num, address, 0, hcd_speed,  type, size) != HAL_BUSY);
     }
 }
 
@@ -128,7 +128,7 @@ extern uint32_t HAL_HCD_HC_GetType(HCD_HandleTypeDef *hhcd, uint8_t chn_num);
 
 USB_TYPE USBEndpoint::queueTransfer()
 {
-    HCD_HandleTypeDef *hhcd = (HCD_HandleTypeDef*)hced->hhcd;
+    HCD_HandleTypeDef *hhcd = (HCD_HandleTypeDef *)hced->hhcd;
     uint32_t *addr = &((uint32_t *)hhcd->pData)[hced->ch_num];
     uint32_t type = HAL_HCD_HC_GetType(hhcd, hced->ch_num);
     uint32_t max_size =  HAL_HCD_HC_GetMaxPacket(hhcd, hced->ch_num);
@@ -138,14 +138,14 @@ USB_TYPE USBEndpoint::queueTransfer()
         return USB_TYPE_FREE;
     }
     ep_queue.get(0);
-    MBED_ASSERT(*addr ==0);
+    MBED_ASSERT(*addr == 0);
     transfer_len =   td_current->size <= max_size ? td_current->size : max_size;
     buf_start = (uint8_t *)td_current->currBufPtr;
 
     //Now add this free TD at this end of the queue
     state = USB_TYPE_PROCESSING;
     /*  one request */
-    td_current->nextTD = (hcTd*)0;
+    td_current->nextTD = (hcTd *)0;
 #if defined(MAX_NYET_RETRY)
     td_current->retry = 0;
 #endif
@@ -154,28 +154,28 @@ USB_TYPE USBEndpoint::queueTransfer()
     /*  dir /setup is inverted for ST */
     /* token is useful only ctrl endpoint */
     /*  last parameter is ping ? */
-    MBED_ASSERT(HAL_HCD_HC_SubmitRequest((HCD_HandleTypeDef*)hced->hhcd, hced->ch_num, dir-1, type,!setup,(uint8_t*) td_current->currBufPtr, transfer_len, 0)==HAL_OK);
-    HAL_HCD_EnableInt((HCD_HandleTypeDef*)hced->hhcd, hced->ch_num);
+    MBED_ASSERT(HAL_HCD_HC_SubmitRequest((HCD_HandleTypeDef *)hced->hhcd, hced->ch_num, dir - 1, type, !setup, (uint8_t *) td_current->currBufPtr, transfer_len, 0) == HAL_OK);
+    HAL_HCD_EnableInt((HCD_HandleTypeDef *)hced->hhcd, hced->ch_num);
 
     return USB_TYPE_PROCESSING;
 }
 
-void USBEndpoint::unqueueTransfer(volatile HCTD * td)
+void USBEndpoint::unqueueTransfer(volatile HCTD *td)
 {
-    if (state==USB_TYPE_FREE) {
+    if (state == USB_TYPE_FREE) {
         return;
     }
-    uint32_t *addr = &((uint32_t *)((HCD_HandleTypeDef*)hced->hhcd)->pData)[hced->ch_num];
-    td->state=0;
-    td->currBufPtr=0;
-    td->size=0;
-    td->nextTD=0;
+    uint32_t *addr = &((uint32_t *)((HCD_HandleTypeDef *)hced->hhcd)->pData)[hced->ch_num];
+    td->state = 0;
+    td->currBufPtr = 0;
+    td->size = 0;
+    td->nextTD = 0;
     *addr = 0;
     td_current = td_next;
     td_next = td;
 }
 
-void USBEndpoint::queueEndpoint(USBEndpoint * ed)
+void USBEndpoint::queueEndpoint(USBEndpoint *ed)
 {
     nextEp = ed;
 }
