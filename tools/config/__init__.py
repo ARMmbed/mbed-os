@@ -585,7 +585,7 @@ class Config(object):
         raise ConfigException("No sector info available")
 
     def _get_cmsis_part(self):
-        if not self.target.bootloader_supported:
+        if not getattr(self.target, "bootloader_supported", False):
             raise ConfigException("Bootloader not supported on this target.")
         if not hasattr(self.target, "device_name"):
             raise ConfigException("Bootloader not supported on this target: "
