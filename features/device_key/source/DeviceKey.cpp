@@ -22,6 +22,8 @@
 #include "mbed_wait_api.h"
 #include "stdlib.h"
 
+#include <string.h>
+
 #if !defined(MBEDTLS_CMAC_C)
 #error [NOT_SUPPORTED] MBEDTLS_CMAC_C needs to be enabled for this driver
 #else
