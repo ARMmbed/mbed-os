@@ -1026,22 +1026,28 @@ def halt_ep_test(dev, ep_out, ep_in, ep_to_halt, log):
     delayed_halt.start()
     # Keep transferring data to and from the device until one of the endpoints
     # is halted.
-    while delayed_halt.is_alive():
-        if ctrl_error.is_set():
-            raise_unconditionally(lineno(), 'Halting endpoint {0.bEndpointAddress:#04x} failed'
-                                  .format(ep_to_halt))
-        try:
-            loopback_ep_test(ep_out, ep_in, ep_out.wMaxPacketSize)
-        except usb.core.USBError as err:
+    try:
+        while delayed_halt.is_alive():
+            if ctrl_error.is_set():
+                raise_unconditionally(lineno(), 'Halting endpoint {0.bEndpointAddress:#04x} failed'
+                                      .format(ep_to_halt))
             try:
-                ep_status = usb.control.get_status(dev, ep_to_halt)
+                loopback_ep_test(ep_out, ep_in, ep_out.wMaxPacketSize)
             except usb.core.USBError as err:
-                raise_unconditionally(lineno(), 'Unable to get endpoint status ({!r}).'.format(err))
-            if ep_status == 1:
-                # OK, got USBError because of endpoint halt
-                return
-            else:
-                raise_unconditionally(lineno(), 'Unexpected error ({!r}).'.format(err))
+                try:
+                    ep_status = usb.control.get_status(dev, ep_to_halt)
+                except usb.core.USBError as err:
+                    raise_unconditionally(lineno(), 'Unable to get endpoint status ({!r}).'.format(err))
+                if ep_status == 1:
+                    # OK, got USBError because of endpoint halt
+                    return
+                else:
+                    raise_unconditionally(lineno(), 'Unexpected error ({!r}).'.format(err))
+    except:
+        raise
+    finally:
+        # Always wait for the Timer thread created above.
+        delayed_halt.join()
     raise_unconditionally(lineno(), 'Halting endpoint {0.bEndpointAddress:#04x}'
                           ' during transmission did not raise USBError.'
                           .format(ep_to_halt))
