@@ -124,7 +124,7 @@ nsapi_size_or_error_t UDPSocket::recvfrom(SocketAddress *address, void *buffer, 
         nsapi_size_or_error_t recv = _stack->socket_recvfrom(_socket, address, buffer, size);
 
         // Filter incomming packets using connected peer address
-        if (recv >= 0 && _remote_peer && _remote_peer == *address) {
+        if (recv >= 0 && _remote_peer && _remote_peer != *address) {
             continue;
         }
 
