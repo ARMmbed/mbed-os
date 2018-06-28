@@ -41,7 +41,7 @@ class ARM(mbedToolchain):
     SUPPORTED_CORES = ["Cortex-M0", "Cortex-M0+", "Cortex-M3", "Cortex-M4",
                        "Cortex-M4F", "Cortex-M7", "Cortex-M7F", "Cortex-M7FD", "Cortex-A9"]
     ARMCC_RANGE = (LooseVersion("5.06"), LooseVersion("5.07"))
-    ARMCC_VERSION_RE = re.compile("Product: ARM Compiler (\d+\.\d+)")
+    ARMCC_VERSION_RE = re.compile("Component: ARM Compiler (\d+\.\d+)")
 
     @staticmethod
     def check_executable():
