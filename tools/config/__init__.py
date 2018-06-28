@@ -559,10 +559,8 @@ class Config(object):
             return sectors
         raise ConfigException("No sector info available")
 
-    @property
-    def regions(self):
-        """Generate a list of regions from the config"""
-        if not self.target.bootloader_supported:
+    def _get_cmsis_part(self):
+        if not getattr(self.target, "bootloader_supported", False):
             raise ConfigException("Bootloader not supported on this target.")
         if not hasattr(self.target, "device_name"):
             raise ConfigException("Bootloader not supported on this target: "
@@ -685,7 +683,7 @@ class Config(object):
         if start > rom_start + rom_size:
             raise ConfigException("Not enough memory on device to fit all "
                                   "application regions")
-    
+
     @staticmethod
     def _find_sector(address, sectors):
         target_size = -1
@@ -698,13 +696,13 @@ class Config(object):
         if (target_size < 0):
             raise ConfigException("No valid sector found")
         return target_start, target_size
-        
+
     @staticmethod
     def _align_floor(address, sectors):
         target_start, target_size = Config._find_sector(address, sectors)
         sector_num = (address - target_start) // target_size
         return target_start + (sector_num * target_size)
-    
+
     @staticmethod
     def _align_ceiling(address, sectors):
         target_start, target_size = Config._find_sector(address, sectors)
