@@ -36,10 +36,13 @@ public:
     virtual ssize_t read(void *buffer, size_t size){
         if (filehandle_stub_table) {
             ssize_t ret = strlen(filehandle_stub_table) - filehandle_stub_table_pos;
-            if (size < ret) {
+            if (ret >= 0 && size < ret) {
                 ret = size;
             }
-            memcpy(buffer, filehandle_stub_table, ret);
+            if (ret >= 0) {
+                memcpy(buffer, filehandle_stub_table, ret);
+            }
+
             filehandle_stub_table_pos += ret;
             return ret;
         }

@@ -177,6 +177,11 @@ TEST(ATHandler, test_ATHandler_read_string)
     unit->test_ATHandler_read_string();
 }
 
+TEST(ATHandler, test_ATHandler_read_hex_string)
+{
+    unit->test_ATHandler_read_hex_string();
+}
+
 TEST(ATHandler, test_ATHandler_read_int)
 {
     unit->test_ATHandler_read_int();
