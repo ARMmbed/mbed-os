@@ -49,7 +49,19 @@
 #define TEST_SIZE_EP_INT_3      (16)
 #define TEST_SIZE_EP_INT_4      TEST_SIZE_EP_INT_MIN
 
-#define TEST_SIZE_EP_ISO_MAX    (1023)
+
+/* According to USB spec, the wMaxPacketSize for FS isochronous endpoints
+ * is 1023 B. There are a couple of reasons this value is not used in tests:
+ * - some of the boards supported by Mbed OS have too little RAM dedicated
+ *   for USB, making EndpointResolve::valid() fail when all the endpoints (2x
+ *   bulk, 2x interrupt, 2x isochronous, 2x control) are configured to use
+ *   the max value of wMaxPacketSize
+ *   (e.g. NUCLEO_F207ZG has 1.25K of endpoint RAM),
+ * - given a test host with other USB devices on the bus, it is unlikely
+ *   for the test device to be able to reserve the bandwidth associated with
+ *   high wMaxPacketSize for iso endpoints.
+ */
+#define TEST_SIZE_EP_ISO_MAX    (256)
 #define TEST_SIZE_EP_ISO_MIN    (1)
 #define TEST_SIZE_EP_ISO_0      (0)
 #define TEST_SIZE_EP_ISO_1      (0)
