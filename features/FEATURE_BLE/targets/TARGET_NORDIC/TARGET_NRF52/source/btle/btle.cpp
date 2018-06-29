@@ -335,16 +335,18 @@ void btle_handler(const ble_evt_t *p_ble_evt)
 #ifndef S140
         // Handle PHY upgrade request
         case BLE_GAP_EVT_PHY_UPDATE_REQUEST:
-        {
-            ble_gap_phys_t const phys =
-            {
-                /* rx_phys */ BLE_GAP_PHY_AUTO,
-                /* tx_phys */ BLE_GAP_PHY_AUTO,
-            };
-            ASSERT_STATUS_RET_VOID( sd_ble_gap_phy_update(p_ble_evt->evt.gap_evt.conn_handle, &phys) );
+            gap.on_phy_update_request(
+                p_ble_evt->evt.gap_evt.conn_handle,
+                p_ble_evt->evt.gap_evt.params.phy_update_request
+            );
             break;
-        }
 #endif
+        case BLE_GAP_EVT_PHY_UPDATE:
+            gap.on_phy_update(
+                p_ble_evt->evt.gap_evt.conn_handle,
+                p_ble_evt->evt.gap_evt.params.phy_update
+            );
+            break;
 
         	// Handle Data length negotiation request
         case BLE_GAP_EVT_DATA_LENGTH_UPDATE_REQUEST:
