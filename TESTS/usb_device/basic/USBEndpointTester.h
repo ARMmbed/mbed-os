@@ -104,6 +104,7 @@ protected:
 private:
     const char *get_desc_string(const uint8_t *desc);
     bool _request_read_start(const setup_packet_t *setup);
+    bool _request_abort_buff_check(const setup_packet_t *setup);
 };
 
 #endif
