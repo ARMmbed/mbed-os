@@ -56,6 +56,7 @@ VENDOR_TEST_CTRL_OUT_STATUS_DELAY = 8
 VENDOR_TEST_CTRL_IN_SIZES = 9
 VENDOR_TEST_CTRL_OUT_SIZES = 10
 VENDOR_TEST_READ_START = 11
+VENDOR_TEST_ABORT_BUFF_CHECK = 12
 VENDOR_TEST_UNSUPPORTED_REQUEST = 32
 
 REQUEST_GET_STATUS = 0
@@ -1062,6 +1063,16 @@ def request_endpoint_read_start(dev, ep):
     dev.ctrl_transfer(**ctrl_kwargs)
 
 
+def request_abort_buff_check(dev, ep):
+    ctrl_kwargs = {
+        'bmRequestType': build_request_type(CTRL_IN, CTRL_TYPE_VENDOR, CTRL_RECIPIENT_ENDPOINT),
+        'bRequest': VENDOR_TEST_ABORT_BUFF_CHECK,
+        'wValue': 0,
+        'wIndex': ep.bEndpointAddress,
+        'data_or_wLength': 1}
+    return bool(dev.ctrl_transfer(**ctrl_kwargs)[0])
+
+
 USB_ERROR_FMT = str('Got {0!r} while testing endpoints '
                     '{1.bEndpointAddress:#04x}({1.wMaxPacketSize:02}) and '
                     '{2.bEndpointAddress:#04x}({2.wMaxPacketSize:02}) with '
@@ -1304,9 +1315,16 @@ def ep_test_abort(dev, log, verbose=False):
     Given a USB device with multiple OUT/IN endpoint pairs
     When a device aborts an in progress data transfer
     Then no more data is transmitted
+        and endpoint buffer is correctly released on the device end
     """
     NUM_PACKETS_UNTIL_ABORT = 2
     NUM_PACKETS_AFTER_ABORT = 8
+
+    # If the host ever receives a payload with any byte set to this value,
+    # the device does not handle abort operation correctly. The buffer
+    # passed to aborted operation must not be used after call to abort().
+    FORBIDDEN_PAYLOAD_VALUE = NUM_PACKETS_AFTER_ABORT + 1
+
     cfg = dev.get_active_configuration()
     for intf in cfg:
         log('interface {}, alt {} -- '.format(intf.bInterfaceNumber, intf.bAlternateSetting), end='')
@@ -1336,6 +1354,11 @@ def ep_test_abort(dev, log, verbose=False):
                     payload_in.extend(packet)
                 except usb.core.USBError as err:
                     break
+            if FORBIDDEN_PAYLOAD_VALUE in payload_in:
+                raise_unconditionally(
+                    lineno(), 'Endpoint buffer not released when aborting the '
+                    'write operation on endpoint {0.bEndpointAddress:#04x}.'
+                    .format(ep_in))
             if verbose:
                 log('The size of data successfully received from endpoint {0.bEndpointAddress:#04x}: {1} B.'
                     .format(ep_in, len(payload_in)))
@@ -1353,13 +1376,24 @@ def ep_test_abort(dev, log, verbose=False):
             log('Testing aborting an in progress transfer for OUT endpoints.')
         for ep_out in (bulk_out, interrupt_out):
             payload_size = (NUM_PACKETS_UNTIL_ABORT + NUM_PACKETS_AFTER_ABORT) * ep_out.wMaxPacketSize
-            payload_out = array.array('B', (0x01 for _ in range(ep_out.wMaxPacketSize)))
             num_bytes_written = 0
             while num_bytes_written < payload_size:
+                payload_out = array.array('B', (num_bytes_written/ep_out.wMaxPacketSize
+                                                for _ in range(ep_out.wMaxPacketSize)))
                 try:
                     num_bytes_written += ep_out.write(payload_out)
                 except usb.core.USBError:
                     break
+            try:
+                ep_buff_correct = request_abort_buff_check(dev, ep_out)
+            except (usb.core.USBError, IndexError, TypeError) as err:
+                raise_unconditionally(
+                    lineno(), 'Unable to verify endpoint buffer content ({!r}).'.format(err))
+            if not ep_buff_correct:
+                raise_unconditionally(
+                    lineno(), 'Endpoint buffer not released when aborting the '
+                    'read operation on endpoint {0.bEndpointAddress:#04x}.'
+                    .format(ep_out))
             if verbose:
                 log('The size of data successfully sent to endpoint {0.bEndpointAddress:#04x}: {1} B.'
                     .format(ep_out, num_bytes_written))
