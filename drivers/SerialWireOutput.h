@@ -33,12 +33,8 @@ public:
 
     virtual ssize_t write(const void *buffer, size_t size)
     {
-        const unsigned char *buf = static_cast<const unsigned char *>(buffer);
+        mbed_itm_send_block(ITM_PORT_SWO, buffer, size);
 
-        /* Send buffer one character at a time over the ITM SWO port */
-        for (size_t i = 0; i < size; i++) {
-            mbed_itm_send(ITM_PORT_SWO, buf[i]);
-        }
         return size;
     }
 
