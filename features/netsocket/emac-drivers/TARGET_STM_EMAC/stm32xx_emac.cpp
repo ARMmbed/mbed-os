@@ -89,14 +89,14 @@ STM32_EMAC::STM32_EMAC()
 {
 }
 
-static osThreadId_t create_new_thread(const char *threadName, void (*thread)(void *arg), void *arg, int stacksize, osPriority_t priority, os_thread_t *thread_cb)
+static osThreadId_t create_new_thread(const char *threadName, void (*thread)(void *arg), void *arg, int stacksize, osPriority_t priority, mbed_rtos_storage_thread_t *thread_cb)
 {
     osThreadAttr_t attr = {0};
     attr.name = threadName;
     attr.stack_mem  = malloc(stacksize);
     attr.cb_mem  = thread_cb;
     attr.stack_size = stacksize;
-    attr.cb_size = sizeof(os_thread_t);
+    attr.cb_size = sizeof(mbed_rtos_storage_thread_t);
     attr.priority = priority;
     return osThreadNew(thread, arg, &attr);
 }

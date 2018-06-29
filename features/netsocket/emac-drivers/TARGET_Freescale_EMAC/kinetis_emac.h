@@ -149,7 +149,7 @@ private:
     void phy_task();
     static void ethernet_callback(ENET_Type *base, enet_handle_t *handle, enet_event_t event, void *param);
 
-    os_thread_t thread_cb;
+    mbed_rtos_storage_thread_t thread_cb;
     osThreadId_t thread; /**< Processing thread */
     rtos::Mutex TXLockMutex;/**< TX critical section mutex */
     rtos::Semaphore xTXDCountSem; /**< TX free buffer counting semaphore */
