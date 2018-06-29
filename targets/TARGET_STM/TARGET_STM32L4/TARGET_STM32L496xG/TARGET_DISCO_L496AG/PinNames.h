@@ -285,8 +285,8 @@ typedef enum {
 #endif
 
     // Generic signals
-    LED1        = PB_13, // Green LD2 on board
-    LED2        = LED1,
+    LED1        = PA_5,  // Green LD3 on board
+    LED2        = PB_13, // Green LD2 on board --> Warning: the state is reverted (1=OFF and 0=ON)
     LED3        = LED1,
     LED4        = LED1,
     USER_BUTTON = PC_13, // Joystick Center
