@@ -21,7 +21,13 @@
 #include "hal/us_ticker_api.h"
 #include "hal/lp_ticker_api.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 #include "os_tick.h"
+#ifdef __cplusplus
+}
+#endif // __cplusplus
 
 #if !DEVICE_USTICKER
 #error [NOT_SUPPORTED] test not supported
