@@ -21,6 +21,8 @@
 #include "hal/us_ticker_api.h"
 #include "hal/lp_ticker_api.h"
 
+#include "os_tick.h"
+
 #if !DEVICE_USTICKER
 #error [NOT_SUPPORTED] test not supported
 #endif
@@ -117,7 +119,7 @@ void ticker_event_handler_stub(const ticker_data_t * const ticker)
     }
 
     /* Indicate that ISR has been executed in interrupt context. */
-    if (IsIrqMode()) {
+    if (core_util_is_isr_active()) {
         intFlag++;
     }
 }
