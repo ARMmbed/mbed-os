@@ -4251,14 +4251,5 @@
         "release_versions": ["5"],
         "device_name": "M2351KIAAEES",
         "bootloader_supported": true
-    },
-    "NUMAKER_PFM_M2351_S": {
-        "core": "Cortex-M23",
-        "inherits": ["NUMAKER_PFM_M2351"],
-        "device_has_remove": ["TRNG"]
-    },
-    "NUMAKER_PFM_M2351_NS": {
-        "core": "Cortex-M23-NS",
-        "inherits": ["NUMAKER_PFM_M2351"]
     }
 }
