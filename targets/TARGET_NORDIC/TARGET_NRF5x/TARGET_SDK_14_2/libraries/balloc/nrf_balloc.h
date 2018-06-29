@@ -157,7 +157,7 @@ typedef struct
 #endif // NRF_BALLOC_CONFIG_DEBUG_ENABLED
 
 #if NRF_BALLOC_CONFIG_DEBUG_ENABLED
-#define __NRF_BALLOC_ASSIGN_POOL_NAME(_name)            .p_name = STRINGIFY(_name),
+#define __NRF_BALLOC_ASSIGN_POOL_NAME(_name)            .p_name = NRF_STRINGIFY(_name),
 #define __NRF_BALLOC_ASSIGN_DEBUG_FLAGS(_debug_flags)   .debug_flags = (_debug_flags),
 #else
 #define __NRF_BALLOC_ASSIGN_DEBUG_FLAGS(_debug_flags)

@@ -132,10 +132,10 @@ extern "C" {
 /** Auxiliary macro used by @ref CONCAT_3 */
 #define CONCAT_3_(p1, p2, p3) p1##p2##p3
 
-#define STRINGIFY_(val) #val
+#define NRF_STRINGIFY_(val) #val
 /** Converts a macro argument into a character constant.
  */
-#define STRINGIFY(val)  STRINGIFY_(val)
+#define NRF_STRINGIFY(val)  NRF_STRINGIFY_(val)
 
 /** Counts number of elements inside the array
  */

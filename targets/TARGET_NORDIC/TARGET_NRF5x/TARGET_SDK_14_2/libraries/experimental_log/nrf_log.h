@@ -214,7 +214,7 @@ uint32_t nrf_log_push(char * const p_str);
 #define NRF_LOG_MODULE_REGISTER()                                                             \
     NRF_SECTION_ITEM_REGISTER(NRF_LOG_CONST_SECTION_NAME(NRF_LOG_MODULE_NAME),                \
                             _CONST nrf_log_module_const_data_t NRF_LOG_MODULE_DATA_CONST) = { \
-            .p_module_name = STRINGIFY(NRF_LOG_MODULE_NAME),                                  \
+            .p_module_name = NRF_STRINGIFY(NRF_LOG_MODULE_NAME),                              \
             .info_color_id = NRF_LOG_INFO_COLOR,                                              \
             .debug_color_id = NRF_LOG_DEBUG_COLOR,                                            \
             .compiled_lvl   = COMPILED_LOG_LEVEL,                                             \
