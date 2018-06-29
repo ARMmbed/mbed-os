@@ -35,7 +35,6 @@
 #include "mbed_critical.h"
 #include "mbed_error.h"
 
-extern void rtc_synchronize(void);
 extern void save_timer_ctx(void);
 extern void restore_timer_ctx(void);
 
@@ -202,17 +201,6 @@ void hal_deepsleep(void)
     wait_loop(500);
 
     restore_timer_ctx();
-
-#if DEVICE_RTC
-    /* Wait for RTC RSF bit synchro if RTC is configured */
-#if (TARGET_STM32F2) || (TARGET_STM32F4) || (TARGET_STM32F7)
-    if (READ_BIT(RCC->BDCR, RCC_BDCR_RTCSEL)) {
-#else /* (TARGET_STM32F2) || (TARGET_STM32F4) || (TARGET_STM32F7) */
-    if (__HAL_RCC_GET_RTC_SOURCE()) {
-#endif  /* (TARGET_STM32F2) || (TARGET_STM32F4) || (TARGET_STM32F7) */
-        rtc_synchronize();
-    }
-#endif
 
     // Enable IRQs
     core_util_critical_section_exit();
