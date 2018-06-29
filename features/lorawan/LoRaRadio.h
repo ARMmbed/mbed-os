@@ -300,16 +300,11 @@ public:
     virtual void send(uint8_t *buffer, uint8_t size) = 0;
 
     /**
-     *  Sets the radio in reception mode for a given time.
+     *  Sets the radio in reception mode.
      *
-     *  If the timeout is set to 0, it essentially puts the receiver in continuous mode and it should
-     *  be treated as if in continuous mode. However, an appropriate way to set the receiver in continuous mode is
-     *  to use the `set_rx_config()` API.
-     *
-     *  @param timeout       Reception timeout [ms].
-     *
+     *  For configuration of the receiver use the `set_rx_config()` API.
      */
-    virtual void receive(uint32_t timeout) = 0;
+    virtual void receive(void) = 0;
 
     /**
      *  Sets the carrier frequency
