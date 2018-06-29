@@ -22,6 +22,7 @@
 #if defined(DEVICE_ITM)
 
 #include <stdint.h>
+#include <stddef.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -68,11 +69,25 @@ void mbed_itm_init(void);
  * @brief      Send data over ITM stimulus port.
  *
  * @param[in]  port  The stimulus port to send data over.
- * @param[in]  data  The data to send.
+ * @param[in]  data  The 32-bit data to send.
+ *
+ * The data is written as a single 32-bit write to the port.
  *
  * @return     value of data sent.
  */
 uint32_t mbed_itm_send(uint32_t port, uint32_t data);
+
+/**
+ * @brief      Send a block of data over ITM stimulus port.
+ *
+ * @param[in]  port  The stimulus port to send data over.
+ * @param[in]  data  The block of data to send.
+ * @param[in]  len   The number of bytes of data to send.
+ *
+ * The data is written using multiple appropriately-sized port accesses for
+ * efficient transfer.
+ */
+void mbed_itm_send_block(uint32_t port, const void *data, size_t len);
 
 /**@}*/
 

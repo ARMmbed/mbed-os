@@ -21,6 +21,10 @@
 
 #include <stdbool.h>
 
+#ifndef ITM_STIM_FIFOREADY_Msk
+#define ITM_STIM_FIFOREADY_Msk 1
+#endif
+
 #define ITM_ENABLE_WRITE 0xC5ACCE55
 
 #define SWO_NRZ 0x02
@@ -66,21 +70,64 @@ void mbed_itm_init(void)
     }
 }
 
+static void itm_out8(uint32_t port, uint8_t data)
+{
+    /* Wait until port is available */
+    while ((ITM->PORT[port].u32 & ITM_STIM_FIFOREADY_Msk) == 0) {
+        __NOP();
+    }
+
+    /* write data to port */
+    ITM->PORT[port].u8 = data;
+}
+
+static void itm_out32(uint32_t port, uint32_t data)
+{
+    /* Wait until port is available */
+    while ((ITM->PORT[port].u32 & ITM_STIM_FIFOREADY_Msk) == 0) {
+        __NOP();
+    }
+
+    /* write data to port */
+    ITM->PORT[port].u32 = data;
+}
+
 uint32_t mbed_itm_send(uint32_t port, uint32_t data)
 {
     /* Check if ITM and port is enabled */
     if (((ITM->TCR & ITM_TCR_ITMENA_Msk) != 0UL) &&      /* ITM enabled */
-            ((ITM->TER & (1UL << port)) != 0UL)) {           /* ITM Port enabled */
-        /* write data to port */
-        ITM->PORT[port].u32 = data;
-
-        /* Wait until data has been clocked out */
-        while (ITM->PORT[port].u32 == 0UL) {
-            __NOP();
-        }
+            ((ITM->TER & (1UL << port)) != 0UL)) {       /* ITM Port enabled */
+        itm_out32(port, data);
     }
 
     return data;
 }
 
+void mbed_itm_send_block(uint32_t port, const void *data, size_t len)
+{
+    const char *ptr = data;
+
+    /* Check if ITM and port is enabled */
+    if (((ITM->TCR & ITM_TCR_ITMENA_Msk) != 0UL) &&      /* ITM enabled */
+            ((ITM->TER & (1UL << port)) != 0UL)) {       /* ITM Port enabled */
+        /* Output single byte at a time until data is aligned */
+        while ((((uintptr_t) ptr) & 3) && len != 0) {
+            itm_out8(port, *ptr++);
+            len--;
+        }
+
+        /* Output bulk of data one word at a time */
+        while (len >= 4) {
+            itm_out32(port, *(const uint32_t *) ptr);
+            ptr += 4;
+            len -= 4;
+        }
+
+        /* Output any trailing bytes */
+        while (len != 0) {
+            itm_out8(port, *ptr++);
+            len--;
+        }
+    }
+}
 #endif // defined(DEVICE_ITM)
