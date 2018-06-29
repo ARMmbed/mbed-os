@@ -355,6 +355,7 @@ void ep_test_parallel_transfers_ctrl()
  * Given a USB device with multiple OUT/IN endpoint pairs
  * When a device aborts an in progress data transfer
  * Then no more data is transmitted
+ *     and endpoint buffer is correctly released on the device end
  */
 void ep_test_abort()
 {
