@@ -77,7 +77,7 @@ void us_ticker_init(void)
 
     nrf_timer_frequency_set(NRF_TIMER1, NRF_TIMER_FREQ_1MHz);
 
-#ifdef NRF52
+#ifdef TARGET_NRF52
     nrf_timer_bit_width_set(NRF_TIMER1, NRF_TIMER_BIT_WIDTH_32);
 #else
     nrf_timer_bit_width_set(NRF_TIMER1, NRF_TIMER_BIT_WIDTH_16);
