@@ -302,7 +302,7 @@ public:
      *                          MSG_MULTICAST_FLAG = 0x04
      *                          MSG_PROPRIETARY_FLAG = 0x08
      *
-     *                          All flags are mutually exclusive and MSG_MULTICAST_FLAG
+     *                          All flags are mutually exclusive, and MSG_MULTICAST_FLAG
      *                          cannot be set.
      *
      *
@@ -334,7 +334,7 @@ public:
      *                          MSG_PROPRIETARY_FLAG = 0x08
      *
      *                          All flags can be used in conjunction with
-     *                          each other depending on the intended use case or reception
+     *                          one another depending on the intended use case or reception
      *                          expectation.
      *
      *                          e.g., MSG_CONFIRMED_FLAG and MSG_UNCONFIRMED_FLAG are
