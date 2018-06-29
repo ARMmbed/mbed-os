@@ -92,6 +92,9 @@ static void test_sim_interface()
     CellularSIM *sim = cellular.get_sim();
     TEST_ASSERT(sim != NULL);
 
+    // set SIM at time out to 3000
+    cellular.get_device()->set_timeout(3000);
+    wait(4); // we need to wait for some time so that SIM interface is working in all modules.
     // 1. test set_pin
     nsapi_error_t err = sim->set_pin(MBED_CONF_APP_CELLULAR_SIM_PIN);
     MBED_ASSERT(err == NSAPI_ERROR_OK);
@@ -105,23 +108,31 @@ static void test_sim_interface()
     };
 
     // change pin and change it back
+    wait(1);
     err = sim->change_pin(MBED_CONF_APP_CELLULAR_SIM_PIN, pin);
     TEST_ASSERT(err == NSAPI_ERROR_OK);
+
+    wait(1);
     err = sim->change_pin(pin, MBED_CONF_APP_CELLULAR_SIM_PIN);
     TEST_ASSERT(err == NSAPI_ERROR_OK);
 
     // 3. test set_pin_query
+    wait(1);
     err = sim->set_pin_query(MBED_CONF_APP_CELLULAR_SIM_PIN, false);
     TEST_ASSERT(err == NSAPI_ERROR_OK);
+
+    wait(1);
     err = sim->set_pin_query(MBED_CONF_APP_CELLULAR_SIM_PIN, true);
     TEST_ASSERT(err == NSAPI_ERROR_OK);
 
+    wait(1);
     // 4. test get_sim_state
     CellularSIM::SimState state;
     err = sim->get_sim_state(state);
     TEST_ASSERT(err == NSAPI_ERROR_OK);
     TEST_ASSERT(state == CellularSIM::SimStateReady);
 
+    wait(1);
     // 5. test get_imsi
     char imsi[16] = {0};
     err = sim->get_imsi(imsi);
