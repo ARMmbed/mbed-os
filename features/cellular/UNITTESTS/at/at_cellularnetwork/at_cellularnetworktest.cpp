@@ -16,6 +16,7 @@
  */
 #include "CppUTest/TestHarness.h"
 #include "test_at_cellularnetwork.h"
+#include "ATHandler_stub.h"
 
 TEST_GROUP(AT_CellularNetwork)
 {
@@ -24,6 +25,9 @@ TEST_GROUP(AT_CellularNetwork)
     void setup()
     {
         unit = new Test_AT_CellularNetwork();
+        ATHandler_stub::int_count = kRead_int_table_size;
+        ATHandler_stub::read_string_index = kRead_string_table_size;
+        ATHandler_stub::resp_stop_success_count = kResp_stop_count_default;
     }
 
     void teardown()
@@ -42,9 +46,19 @@ TEST(AT_CellularNetwork, test_AT_CellularNetwork_constructor)
     unit->test_AT_CellularNetwork_constructor();
 }
 
+TEST(AT_CellularNetwork, test_AT_CellularNetwork_init)
+{
+    unit->test_AT_CellularNetwork_init();
+}
+
 TEST(AT_CellularNetwork, test_AT_CellularNetwork_set_credentials)
 {
     unit->test_AT_CellularNetwork_set_credentials();
+}
+
+TEST(AT_CellularNetwork, test_AT_CellularNetwork_activate_context)
+{
+    unit->test_AT_CellularNetwork_activate_context();
 }
 
 TEST(AT_CellularNetwork, test_AT_CellularNetwork_connect)
@@ -70,6 +84,16 @@ TEST(AT_CellularNetwork, test_AT_CellularNetwork_set_registration)
 TEST(AT_CellularNetwork, test_AT_CellularNetwork_get_registration_status)
 {
     unit->test_AT_CellularNetwork_get_registration_status();
+}
+
+TEST(AT_CellularNetwork, test_AT_CellularNetwork_get_network_registering_mode)
+{
+    unit->test_AT_CellularNetwork_get_network_registering_mode();
+}
+
+TEST(AT_CellularNetwork, test_AT_CellularNetwork_set_registration_urc)
+{
+    unit->test_AT_CellularNetwork_set_registration_urc();
 }
 
 TEST(AT_CellularNetwork, test_AT_CellularNetwork_set_attach)
@@ -105,6 +129,11 @@ TEST(AT_CellularNetwork, test_AT_CellularNetwork_get_ip_address)
 TEST(AT_CellularNetwork, test_AT_CellularNetwork_set_access_technology)
 {
     unit->test_AT_CellularNetwork_set_access_technology();
+}
+
+TEST(AT_CellularNetwork, test_AT_CellularNetwork_get_access_technology)
+{
+    unit->test_AT_CellularNetwork_get_access_technology();
 }
 
 TEST(AT_CellularNetwork, test_AT_CellularNetwork_scan_plmn)
@@ -166,3 +195,19 @@ TEST(AT_CellularNetwork, test_AT_CellularNetwork_get_operator_names)
 {
     unit->test_AT_CellularNetwork_get_operator_names();
 }
+
+TEST(AT_CellularNetwork, test_AT_CellularNetwork_attach)
+{
+    unit->test_AT_CellularNetwork_attach();
+}
+
+TEST(AT_CellularNetwork, test_get_connection_status)
+{
+    unit->test_get_connection_status();
+}
+
+TEST(AT_CellularNetwork, test_set_blocking)
+{
+    unit->test_set_blocking();
+}
+

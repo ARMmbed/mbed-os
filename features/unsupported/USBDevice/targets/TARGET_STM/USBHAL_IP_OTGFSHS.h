@@ -44,8 +44,7 @@
 #error "FIFO dimensioning incorrect"
 #endif
 
-typedef struct
-{
+typedef struct {
     USBHAL *inst;
 
     void (USBHAL::*bus_reset)(void);
@@ -71,17 +70,16 @@ uint32_t HAL_PCDEx_GetTxFiFo(PCD_HandleTypeDef *hpcd, uint8_t fifo)
     uint32_t len;
     if (fifo == 0) {
         len = hpcd->Instance->DIEPTXF0_HNPTXFSIZ >> 16;
-    }
-    else {
+    } else {
         len =  hpcd->Instance->DIEPTXF[fifo - 1] >> 16;
     }
     return len * 4;
 }
 
-void HAL_PCD_SOFCallback(PCD_HandleTypeDef *hpcd) 
+void HAL_PCD_SOFCallback(PCD_HandleTypeDef *hpcd)
 {
-    USBHAL_Private_t *priv=((USBHAL_Private_t *)(hpcd->pData));
-    USBHAL *obj= priv->inst;
+    USBHAL_Private_t *priv = ((USBHAL_Private_t *)(hpcd->pData));
+    USBHAL *obj = priv->inst;
     USB_OTG_GlobalTypeDef *USBx = hpcd->Instance;
     uint32_t sofnum = (USBx_DEVICE->DSTS & USB_OTG_DSTS_FNSOF) >> 8;
     void (USBHAL::*func)(int frame) = priv->sof;
@@ -90,8 +88,9 @@ void HAL_PCD_SOFCallback(PCD_HandleTypeDef *hpcd)
 
 USBHAL *USBHAL::instance;
 
-USBHAL::USBHAL(void) {
-    USBHAL_Private_t *HALPriv = new(USBHAL_Private_t);
+USBHAL::USBHAL(void)
+{
+    USBHAL_Private_t *HALPriv = new (USBHAL_Private_t);
 
     memset(&hpcd.Init, 0, sizeof(hpcd.Init));
 
@@ -215,7 +214,7 @@ USBHAL::USBHAL(void) {
     __HAL_RCC_SYSCFG_CLK_ENABLE();
 
     // Configure PCD and FIFOs
-    hpcd.pData = (void*)HALPriv;
+    hpcd.pData = (void *)HALPriv;
     hpcd.State = HAL_PCD_STATE_RESET;
     HAL_PCD_Init(&hpcd);
 

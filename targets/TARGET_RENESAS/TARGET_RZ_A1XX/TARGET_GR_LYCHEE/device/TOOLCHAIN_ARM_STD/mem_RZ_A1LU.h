@@ -42,15 +42,11 @@
 //   <o1> ROM Size (in Bytes) <0x0-0xFFFFFFFF:8>
 // </h>
  *----------------------------------------------------------------------------*/
-#define __ROM_BASE       0x18000000
-#define __ROM_SIZE       0x08000000
-
-#define __VECTOR_BASE    0x18004000
 
 /*--------------------- RAM Configuration -----------------------------------
  *----------------------------------------------------------------------------*/
 #define __RAM_BASE       0x20000000
-#define __RAM_SIZE       0x00200000
+#define __RAM_SIZE       0x00300000
 #define __NC_RAM_SIZE    0x00100000
 #define __NM_RAM_SIZE    (__RAM_SIZE - __NC_RAM_SIZE)
 #define __DATA_NC_BASE   (__RAM_BASE + __NM_RAM_SIZE + 0x40000000)

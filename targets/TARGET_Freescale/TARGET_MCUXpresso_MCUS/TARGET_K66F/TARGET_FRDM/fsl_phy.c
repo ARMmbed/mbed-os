@@ -64,7 +64,6 @@ extern clock_ip_name_t s_enetClock[FSL_FEATURE_SOC_ENET_COUNT];
 
 status_t PHY_Init(ENET_Type *base, uint32_t phyAddr, uint32_t srcClock_Hz)
 {
-    uint32_t bssReg;
     uint32_t counter = PHY_TIMEOUT_COUNT;
     uint32_t idReg = 0;
     status_t result = kStatus_Success;
@@ -89,36 +88,42 @@ status_t PHY_Init(ENET_Type *base, uint32_t phyAddr, uint32_t srcClock_Hz)
     }
 
     /* Reset PHY. */
-    counter = PHY_TIMEOUT_COUNT;
     result = PHY_Write(base, phyAddr, PHY_BASICCONTROL_REG, PHY_BCTL_RESET_MASK);
+
+    return result;
+}
+
+status_t PHY_AutoNegotiation(ENET_Type *base, uint32_t phyAddr)
+{
+    status_t result = kStatus_Success;
+    uint32_t bssReg;
+    uint32_t counter = PHY_TIMEOUT_COUNT;
+
+    /* Set the negotiation. */
+    result = PHY_Write(base, phyAddr, PHY_AUTONEG_ADVERTISE_REG,
+                       (PHY_100BASETX_FULLDUPLEX_MASK | PHY_100BASETX_HALFDUPLEX_MASK |
+                        PHY_10BASETX_FULLDUPLEX_MASK | PHY_10BASETX_HALFDUPLEX_MASK | 0x1U));
     if (result == kStatus_Success)
     {
-        /* Set the negotiation. */
-        result = PHY_Write(base, phyAddr, PHY_AUTONEG_ADVERTISE_REG,
-                           (PHY_100BASETX_FULLDUPLEX_MASK | PHY_100BASETX_HALFDUPLEX_MASK |
-                            PHY_10BASETX_FULLDUPLEX_MASK | PHY_10BASETX_HALFDUPLEX_MASK | 0x1U));
+        result = PHY_Write(base, phyAddr, PHY_BASICCONTROL_REG,
+                           (PHY_BCTL_AUTONEG_MASK | PHY_BCTL_RESTART_AUTONEG_MASK));
         if (result == kStatus_Success)
         {
-            result = PHY_Write(base, phyAddr, PHY_BASICCONTROL_REG,
-                               (PHY_BCTL_AUTONEG_MASK | PHY_BCTL_RESTART_AUTONEG_MASK));
-            if (result == kStatus_Success)
+            /* Check auto negotiation complete. */
+            while (counter --)
             {
-                /* Check auto negotiation complete. */
-                while (counter --)
+                result = PHY_Read(base, phyAddr, PHY_BASICSTATUS_REG, &bssReg);
+                if ( result == kStatus_Success)
                 {
-                    result = PHY_Read(base, phyAddr, PHY_BASICSTATUS_REG, &bssReg);
-                    if ( result == kStatus_Success)
+                    if ((bssReg & PHY_BSTATUS_AUTONEGCOMP_MASK) != 0)
                     {
-                        if ((bssReg & PHY_BSTATUS_AUTONEGCOMP_MASK) != 0)
-                        {
-                            break;
-                        }
+                        break;
                     }
+                }
 
-                    if (!counter)
-                    {
-                        return kStatus_PHY_AutoNegotiateFail;
-                    }
+                if (!counter)
+                {
+                    return kStatus_PHY_AutoNegotiateFail;
                 }
             }
         }

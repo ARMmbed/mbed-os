@@ -32,6 +32,9 @@ namespace
     static const int WAIT2RECV_TIMEOUT = 1000; //[ms]
     static const int RETRIES = 2;
 
+    static const double EXPECTED_LOSS_RATIO = 0.0;
+    static const double TOLERATED_LOSS_RATIO = 0.3;
+
     UDPSocket sock;
     Semaphore tx_sem(0, 1);
 
@@ -61,6 +64,8 @@ void UDPSOCKET_ECHOTEST()
     int recvd;
     int sent;
     int s_idx = 0;
+    int packets_sent = 0;
+    int packets_recv = 0;
     for (int pkt_s = pkt_sizes[s_idx]; s_idx < PKTS; pkt_s = ++s_idx) {
         pkt_s = pkt_sizes[s_idx];
 
@@ -69,6 +74,9 @@ void UDPSOCKET_ECHOTEST()
         for (int retry_cnt = 0; retry_cnt <= 2; retry_cnt++) {
             memset(rx_buffer, 0, BUFF_SIZE);
             sent = sock.sendto(udp_addr, tx_buffer, pkt_s);
+            if (sent > 0) {
+                packets_sent++;
+            }
             if (sent != pkt_s) {
                 printf("[Round#%02d - Sender] error, returned %d\n", s_idx, sent);
                 continue;
@@ -78,7 +86,15 @@ void UDPSOCKET_ECHOTEST()
                 break;
             }
         }
-        TEST_ASSERT_EQUAL(0, memcmp(tx_buffer, rx_buffer, pkt_s));
+        if (memcmp(tx_buffer, rx_buffer, pkt_s) == 0) {
+            packets_recv++;
+        }
+    }
+    // Packet loss up to 30% tolerated
+    if (packets_sent > 0) {
+        double loss_ratio = 1 - ((double)packets_recv / (double)packets_sent);
+        printf("Packets sent: %d, packets received %d, loss ratio %.2lf\r\n", packets_sent, packets_recv, loss_ratio);
+        TEST_ASSERT_DOUBLE_WITHIN(TOLERATED_LOSS_RATIO, EXPECTED_LOSS_RATIO, loss_ratio);
     }
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
 }
@@ -98,7 +114,6 @@ void udpsocket_echotest_nonblock_receiver(void *receive_bytes)
         }
     }
 
-    TEST_ASSERT_EQUAL(0, memcmp(tx_buffer, rx_buffer, expt2recv));
     drop_bad_packets(sock, -1); // timeout equivalent to set_blocking(false)
 
     tx_sem.release();
@@ -116,6 +131,8 @@ void UDPSOCKET_ECHOTEST_NONBLOCK()
 
     int sent;
     int s_idx = 0;
+    int packets_sent = 0;
+    int packets_recv = 0;
     Thread *thread;
     unsigned char *stack_mem = (unsigned char *)malloc(OS_STACK_SIZE);
     TEST_ASSERT_NOT_NULL(stack_mem);
@@ -133,6 +150,9 @@ void UDPSOCKET_ECHOTEST_NONBLOCK()
             fill_tx_buffer_ascii(tx_buffer, pkt_s);
 
             sent = sock.sendto(udp_addr, tx_buffer, pkt_s);
+            if (sent > 0) {
+                packets_sent++;
+            }
             if (sent == NSAPI_ERROR_WOULD_BLOCK) {
                 if (osSignalWait(SIGNAL_SIGIO, SIGIO_TIMEOUT).status == osEventTimeout) {
                     continue;
@@ -149,7 +169,16 @@ void UDPSOCKET_ECHOTEST_NONBLOCK()
         }
         thread->join();
         delete thread;
+        if (memcmp(tx_buffer, rx_buffer, pkt_s) == 0) {
+            packets_recv++;
+        }
     }
     free(stack_mem);
+    // Packet loss up to 30% tolerated
+    if (packets_sent > 0) {
+        double loss_ratio = 1 - ((double)packets_recv / (double)packets_sent);
+        printf("Packets sent: %d, packets received %d, loss ratio %.2lf\r\n", packets_sent, packets_recv, loss_ratio);
+        TEST_ASSERT_DOUBLE_WITHIN(TOLERATED_LOSS_RATIO, EXPECTED_LOSS_RATIO, loss_ratio);
+    }
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
 }

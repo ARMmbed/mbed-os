@@ -36,7 +36,7 @@
  *
  */
 
-#if DEVICE_FLASH
+#if (defined(DEVICE_FLASH) && defined(DEVICE_LPTICKER))
 
 #include "hal/flash_api.h"
 #include "hal/lp_ticker_api.h"
@@ -84,8 +84,6 @@ int32_t flash_init(flash_t *obj)
         result = nrf_fstorage_init(&nordic_fstorage, &nrf_fstorage_nvmc, NULL);
 #endif
 
-        /* Initialize low power ticker for timeouts. */
-        lp_ticker_init();
     }
 
     /* Convert Nordic SDK error code to mbed HAL. */

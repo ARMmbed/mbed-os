@@ -61,6 +61,7 @@ AT_CellularNetwork::~AT_CellularNetwork()
     }
 
     _at.remove_urc_handler("NO CARRIER", callback(this, &AT_CellularNetwork::urc_no_carrier));
+    _at.remove_urc_handler("+CGEV:", callback(this, &AT_CellularNetwork::urc_cgev));
     free_credentials();
 }
 
@@ -85,23 +86,53 @@ void AT_CellularNetwork::free_credentials()
 {
     if (_uname) {
         free(_uname);
+        _uname = NULL;
     }
 
     if (_pwd) {
         free(_pwd);
+        _pwd = NULL;
     }
 
     if (_apn) {
         free(_apn);
+        _apn = NULL;
     }
 }
 
 void AT_CellularNetwork::urc_no_carrier()
 {
     tr_error("Data call failed: no carrier");
-    _connect_status = NSAPI_STATUS_DISCONNECTED;
-    if (_connection_status_cb) {
-        _connection_status_cb(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_STATUS_DISCONNECTED);
+    call_network_cb(NSAPI_STATUS_DISCONNECTED);
+}
+
+void AT_CellularNetwork::urc_cgev()
+{
+    char buf[13];
+    if (_at.read_string(buf, 13) < 8) { // smallest string length we wan't to compare is 8
+        return;
+    }
+    tr_debug("urc_cgev: %s", buf);
+
+    bool call_cb = false;
+    // NOTE! If in future there will be 2 or more active contexts we might wan't to read context id also but not for now.
+
+    if (memcmp(buf, "NW DETACH", 9) == 0) { // The network has forced a PS detach
+        call_cb = true;
+    } else if (memcmp(buf, "ME DETACH", 9) == 0) {// The mobile termination has forced a PS detach.
+        call_cb = true;
+    } else if (memcmp(buf, "NW DEACT", 8) == 0) {// The network has forced a context deactivation
+        call_cb = true;
+    } else if (memcmp(buf, "ME DEACT", 8) == 0) {// The mobile termination has forced a context deactivation
+        call_cb = true;
+    } else if (memcmp(buf, "NW PDN DEACT", 12) == 0) {// The network has deactivated a context
+        call_cb = true;
+    } else if (memcmp(buf, "ME PDN DEACT", 12) == 0) {// The mobile termination has deactivated a context.
+        call_cb = true;
+    }
+
+    if (call_cb) {
+        call_network_cb(NSAPI_STATUS_DISCONNECTED);
     }
 }
 
@@ -166,6 +197,8 @@ void AT_CellularNetwork::urc_cgreg()
 nsapi_error_t AT_CellularNetwork::set_credentials(const char *apn,
         const char *username, const char *password)
 {
+    free_credentials();
+
     size_t len;
     if (apn && (len = strlen(apn)) > 0) {
         _apn = (char *)malloc(len * sizeof(char) + 1);
@@ -246,7 +279,7 @@ nsapi_error_t AT_CellularNetwork::activate_context()
     nsapi_error_t err = NSAPI_ERROR_OK;
 
     // try to find or create context with suitable stack
-    if(get_context()) {
+    if (get_context()) {
         // try to authenticate user before activating or modifying context
         err = do_user_authentication();
     } else {
@@ -256,11 +289,7 @@ nsapi_error_t AT_CellularNetwork::activate_context()
     if (err != NSAPI_ERROR_OK) {
         _at.unlock();
         tr_error("Failed to activate network context! (%d)", err);
-
-        _connect_status = NSAPI_STATUS_DISCONNECTED;
-        if (_connection_status_cb) {
-            _connection_status_cb(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_STATUS_DISCONNECTED);
-        }
+        call_network_cb(NSAPI_STATUS_DISCONNECTED);
 
         return err;
     }
@@ -310,21 +339,14 @@ nsapi_error_t AT_CellularNetwork::activate_context()
 
 nsapi_error_t AT_CellularNetwork::connect()
 {
-    _connect_status = NSAPI_STATUS_CONNECTING;
-    if (_connection_status_cb) {
-        _connection_status_cb(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_STATUS_CONNECTING);
-    }
+    call_network_cb(NSAPI_STATUS_CONNECTING);
 
     nsapi_error_t err = NSAPI_ERROR_OK;
     if (!_is_context_active) {
         err = activate_context();
     }
     if (err) {
-        _connect_status = NSAPI_STATUS_DISCONNECTED;
-        if (_connection_status_cb) {
-            _connection_status_cb(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_STATUS_DISCONNECTED);
-        }
-
+        call_network_cb(NSAPI_STATUS_DISCONNECTED);
         return err;
     }
 
@@ -334,17 +356,22 @@ nsapi_error_t AT_CellularNetwork::connect()
     _at.unlock();
     if (err != NSAPI_ERROR_OK) {
         tr_error("Failed to open data channel!");
-        _connect_status = NSAPI_STATUS_DISCONNECTED;
-        if (_connection_status_cb) {
-            _connection_status_cb(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_STATUS_DISCONNECTED);
-        }
+        call_network_cb(NSAPI_STATUS_DISCONNECTED);
         return err;
     }
 #else
-    _connect_status = NSAPI_STATUS_GLOBAL_UP;
-    if (_connection_status_cb) {
-        _connection_status_cb(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_STATUS_GLOBAL_UP);
+    // additional urc to get better disconnect info for application. Not critical so not returning an error in case of failure
+    err = _at.set_urc_handler("+CGEV:", callback(this, &AT_CellularNetwork::urc_cgev));
+    if (err == NSAPI_ERROR_OK) {
+        _at.lock();
+        _at.cmd_start("AT+CGEREP=1");
+        _at.cmd_stop();
+        _at.resp_start();
+        _at.resp_stop();
+        _at.unlock();
     }
+
+    call_network_cb(NSAPI_STATUS_GLOBAL_UP);
 #endif
 
     return NSAPI_ERROR_OK;
@@ -401,13 +428,21 @@ nsapi_error_t AT_CellularNetwork::disconnect()
     _at.resp_stop();
     _at.restore_at_timeout();
 
-    _connect_status = NSAPI_STATUS_DISCONNECTED;
-    if (_connection_status_cb) {
-        _connection_status_cb(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_STATUS_DISCONNECTED);
-    }
+    _at.remove_urc_handler("+CGEV:", callback(this, &AT_CellularNetwork::urc_cgev));
+    call_network_cb(NSAPI_STATUS_DISCONNECTED);
 
     return _at.unlock_return_error();
 #endif
+}
+
+void AT_CellularNetwork::call_network_cb(nsapi_connection_status_t status)
+{
+    if (_connect_status != status) {
+        _connect_status = status;
+        if (_connection_status_cb) {
+            _connection_status_cb(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, _connect_status);
+        }
+    }
 }
 
 void AT_CellularNetwork::attach(Callback<void(nsapi_event_t, intptr_t)> status_cb)
@@ -575,6 +610,7 @@ bool AT_CellularNetwork::get_context()
                             break;
                         }
                     } else {
+                        // requested dual stack or stack is not specified
                         // If dual PDP need to check for IPV4 or IPV6 modem support. Prefer IPv6.
                         if (pdp_stack == IPV4V6_STACK) {
                             if (modem_supports_ipv6) {
@@ -829,6 +865,8 @@ nsapi_error_t AT_CellularNetwork::detach()
     _at.resp_start();
     _at.resp_stop();
 
+    call_network_cb(NSAPI_STATUS_DISCONNECTED);
+
     return _at.unlock_return_error();
 }
 
@@ -1048,10 +1086,8 @@ nsapi_error_t AT_CellularNetwork::get_rate_control(
         }
     }
     _at.resp_stop();
-    nsapi_error_t ret = _at.get_last_error();
-    _at.unlock();
 
-    return (ret == NSAPI_ERROR_OK) ? NSAPI_ERROR_OK : NSAPI_ERROR_PARAMETER;
+    return _at.unlock_return_error();
 }
 
 nsapi_error_t AT_CellularNetwork::get_pdpcontext_params(pdpContextList_t &params_list)

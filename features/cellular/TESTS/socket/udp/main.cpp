@@ -42,7 +42,7 @@
 #include "APN_db.h"
 #endif //MBED_CONF_CELLULAR_USE_APN_LOOKUP || MBED_CONF_PPP_CELL_IFACE_APN_LOOKUP
 
-#include "CellularLog.h"
+#include "../../cellular_tests_common.h"
 
 #define NETWORK_TIMEOUT (180*1000)
 #define SOCKET_TIMEOUT (30*1000)
@@ -55,51 +55,7 @@ static UARTSerial cellular_serial(MDMTXD, MDMRXD, MBED_CONF_PLATFORM_DEFAULT_SER
 static rtos::Semaphore network_semaphore(0);
 static CellularConnectionFSM cellular;
 
-#if MBED_CONF_MBED_TRACE_ENABLE
-
-static rtos::Mutex trace_mutex;
-
-void trace_wait()
-{
-    trace_mutex.lock();
-}
-
-void trace_release()
-{
-    trace_mutex.unlock();
-}
-
-static char time_st[sizeof("[12345678]") + 1];
-
-static char *trace_time(size_t ss)
-{
-    snprintf(time_st, sizeof("[12345678]"), "[%08llu]", rtos::Kernel::get_ms_count());
-    return time_st;
-}
-
-static void trace_open()
-{
-    mbed_trace_init();
-    mbed_trace_prefix_function_set(&trace_time);
-    mbed_trace_mutex_wait_function_set(trace_wait);
-    mbed_trace_mutex_release_function_set(trace_release);
-
-    mbed_cellular_trace::mutex_wait_function_set(trace_wait);
-    mbed_cellular_trace::mutex_release_function_set(trace_release);
-}
-
-static void trace_close()
-{
-    mbed_cellular_trace::mutex_wait_function_set(NULL);
-    mbed_cellular_trace::mutex_release_function_set(NULL);
-
-    mbed_trace_free();
-}
-
-#endif // MBED_CONF_MBED_TRACE_ENABLE
-
 static SocketAddress echo_server_addr;
-
 static rtos::EventFlags eventFlags;
 
 class EchoSocket : public UDPSocket {
@@ -189,7 +145,7 @@ static void network_callback(nsapi_event_t ev, intptr_t ptr)
 {
     if (ev == NSAPI_EVENT_CONNECTION_STATUS_CHANGE) {
         if (ptr == NSAPI_STATUS_GLOBAL_UP) {
-            MBED_ASSERT(network_semaphore.release() == osOK);
+            TEST_ASSERT(network_semaphore.release() == osOK);
         }
     }
 }

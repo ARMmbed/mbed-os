@@ -24,22 +24,22 @@
 #define STM_ETH_IF_NAME         "st"
 
 #if defined (__ICCARM__)   /*!< IAR Compiler */
-  #pragma data_alignment=4
+#pragma data_alignment=4
 #endif
 __ALIGN_BEGIN ETH_DMADescTypeDef DMARxDscrTab[ETH_RXBUFNB] __ALIGN_END; /* Ethernet Rx DMA Descriptor */
 
 #if defined (__ICCARM__)   /*!< IAR Compiler */
-  #pragma data_alignment=4
+#pragma data_alignment=4
 #endif
 __ALIGN_BEGIN ETH_DMADescTypeDef DMATxDscrTab[ETH_TXBUFNB] __ALIGN_END; /* Ethernet Tx DMA Descriptor */
 
 #if defined (__ICCARM__)   /*!< IAR Compiler */
-  #pragma data_alignment=4
+#pragma data_alignment=4
 #endif
 __ALIGN_BEGIN uint8_t Rx_Buff[ETH_RXBUFNB][ETH_RX_BUF_SIZE] __ALIGN_END; /* Ethernet Receive Buffer */
 
 #if defined (__ICCARM__)   /*!< IAR Compiler */
-  #pragma data_alignment=4
+#pragma data_alignment=4
 #endif
 __ALIGN_BEGIN uint8_t Tx_Buff[ETH_TXBUFNB][ETH_TX_BUF_SIZE] __ALIGN_END; /* Ethernet Transmit Buffer */
 
@@ -125,7 +125,7 @@ bool STM32_EMAC::low_level_init_successful()
 #endif
     EthHandle.Init.MACAddr = &MACAddr[0];
     EthHandle.Init.RxMode = ETH_RXINTERRUPT_MODE;
-    EthHandle.Init.ChecksumMode = ETH_CHECKSUM_BY_HARDWARE;
+    EthHandle.Init.ChecksumMode = ETH_CHECKSUM_BY_SOFTWARE;
     EthHandle.Init.MediaInterface = ETH_MEDIA_INTERFACE_RMII;
     HAL_ETH_Init(&EthHandle);
 
@@ -326,16 +326,16 @@ int STM32_EMAC::low_level_input(emac_mem_buf_t **buf)
  */
 void STM32_EMAC::packet_rx()
 {
-  /* move received packet into a new buf */
-  while (1) {
-      emac_mem_buf_t *p = NULL;
-      if (low_level_input(&p) < 0) {
-          break;
-      }
-      if (p) {
-          emac_link_input_cb(p);
-      }
-  }
+    /* move received packet into a new buf */
+    while (1) {
+        emac_mem_buf_t *p = NULL;
+        if (low_level_input(&p) < 0) {
+            break;
+        }
+        if (p) {
+            emac_link_input_cb(p);
+        }
+    }
 }
 
 /** \brief  Worker thread.
@@ -344,7 +344,7 @@ void STM32_EMAC::packet_rx()
  *
  *  \param[in] pvParameters pointer to the interface data
  */
-void STM32_EMAC::thread_function(void* pvParameters)
+void STM32_EMAC::thread_function(void *pvParameters)
 {
     static struct STM32_EMAC *stm32_enet = static_cast<STM32_EMAC *>(pvParameters);
 
@@ -391,16 +391,16 @@ void STM32_EMAC::phy_task()
  *
  *  \param[in] pvParameters pointer to the interface data
  */
-void STM32_EMAC::rmii_watchdog_thread_function(void* pvParameters)
+void STM32_EMAC::rmii_watchdog_thread_function(void *pvParameters)
 {
     struct STM32_EMAC *stm32_enet = static_cast<STM32_EMAC *>(pvParameters);
 
-    while(1) {
+    while (1) {
         /* some good packets are received */
         if (stm32_enet->EthHandle.Instance->MMCRGUFCR > 0) {
             /* RMII Init is OK - would need service to terminate or suspend
              * the thread */
-            while(1) {
+            while (1) {
                 /*  don't do anything anymore */
                 osDelay(0xFFFFFFFF);
             }
@@ -432,7 +432,8 @@ void STM32_EMAC::disable_interrupts(void)
 *  @param mac A 6-byte array to write the MAC address
 */
 
-void mbed_mac_address(char *mac) {
+void mbed_mac_address(char *mac)
+{
     if (mbed_otp_mac_address(mac)) {
         return;
     } else {
@@ -441,11 +442,13 @@ void mbed_mac_address(char *mac) {
     return;
 }
 
-__weak uint8_t mbed_otp_mac_address(char *mac) {
+__weak uint8_t mbed_otp_mac_address(char *mac)
+{
     return 0;
 }
 
-void mbed_default_mac_address(char *mac) {
+void mbed_default_mac_address(char *mac)
+{
     unsigned char ST_mac_addr[3] = {0x00, 0x80, 0xe1}; // default STMicro mac address
 
     // Read unic id
@@ -456,7 +459,7 @@ void mbed_default_mac_address(char *mac) {
 #elif defined (TARGET_STM32F7)
     uint32_t word0 = *(uint32_t *)0x1FF0F420;
 #else
-    #error MAC address can not be derived from target unique Id
+#error MAC address can not be derived from target unique Id
 #endif
 
     mac[0] = ST_mac_addr[0];
@@ -522,37 +525,37 @@ bool STM32_EMAC::get_hwaddr(uint8_t *addr) const
 
 void STM32_EMAC::set_hwaddr(const uint8_t *addr)
 {
-  /* No-op at this stage */
+    /* No-op at this stage */
 }
 
 void STM32_EMAC::set_link_input_cb(emac_link_input_cb_t input_cb)
 {
-  emac_link_input_cb = input_cb;
+    emac_link_input_cb = input_cb;
 }
 
 void STM32_EMAC::set_link_state_cb(emac_link_state_change_cb_t state_cb)
 {
-  emac_link_state_cb = state_cb;
+    emac_link_state_cb = state_cb;
 }
 
 void STM32_EMAC::add_multicast_group(const uint8_t *addr)
 {
-  /* No-op at this stage */
+    /* No-op at this stage */
 }
 
 void STM32_EMAC::remove_multicast_group(const uint8_t *addr)
 {
-  /* No-op at this stage */
+    /* No-op at this stage */
 }
 
 void STM32_EMAC::set_all_multicast(bool all)
 {
-  /* No-op at this stage */
+    /* No-op at this stage */
 }
 
 void STM32_EMAC::power_down()
 {
-  /* No-op at this stage */
+    /* No-op at this stage */
 }
 
 void STM32_EMAC::set_memory_manager(EMACMemoryManager &mem_mngr)
@@ -560,12 +563,14 @@ void STM32_EMAC::set_memory_manager(EMACMemoryManager &mem_mngr)
     memory_manager = &mem_mngr;
 }
 
-STM32_EMAC &STM32_EMAC::get_instance() {
+STM32_EMAC &STM32_EMAC::get_instance()
+{
     static STM32_EMAC emac;
     return emac;
 }
 
 // Weak so a module can override
-MBED_WEAK EMAC &EMAC::get_default_instance() {
+MBED_WEAK EMAC &EMAC::get_default_instance()
+{
     return STM32_EMAC::get_instance();
 }

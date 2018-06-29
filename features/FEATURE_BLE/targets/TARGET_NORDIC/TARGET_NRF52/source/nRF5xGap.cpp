@@ -133,7 +133,8 @@ nRF5xGap::nRF5xGap() : Gap(),
     _privacy_enabled(false),
     _peripheral_privacy_configuration(default_peripheral_privacy_configuration),
     _central_privacy_configuration(default_central_privacy_configuration),
-    _non_private_address_type(LegacyAddressType::RANDOM_STATIC)
+    _non_private_address_type(LegacyAddressType::RANDOM_STATIC),
+    _connections_role()
 {
         m_connectionHandle = BLE_CONN_HANDLE_INVALID;
 }
@@ -243,7 +244,7 @@ ble_error_t nRF5xGap::startAdvertising(const GapAdvertisingParams &params)
 {
     uint32_t             err;
     ble_gap_adv_params_t adv_para = {0};
-    
+
     /* Make sure we support the advertising type */
     if (params.getAdvertisingType() == GapAdvertisingParams::ADV_CONNECTABLE_DIRECTED) {
         /* ToDo: This requires a propery security implementation, etc. */
@@ -295,7 +296,7 @@ ble_error_t nRF5xGap::startAdvertising(const GapAdvertisingParams &params)
             return error;
         }
     }
-    
+
     if (_privacy_enabled) {
         if (_peripheral_privacy_configuration.resolution_strategy != PeripheralPrivacyConfiguration_t::DO_NOT_RESOLVE) {
             ArrayView<resolving_list_entry_t> entries = get_sm().get_resolving_list();
@@ -335,7 +336,7 @@ ble_error_t nRF5xGap::startAdvertising(const GapAdvertisingParams &params)
     }
 #endif
     /* For NRF_SD_BLE_API_VERSION >= 3 nRF5xGap::setWhitelist setups the whitelist. */
-    
+
     /* Start Advertising */
 
 
@@ -344,7 +345,7 @@ ble_error_t nRF5xGap::startAdvertising(const GapAdvertisingParams &params)
     adv_para.fp          = advertisingPolicyMode;
     adv_para.interval    = params.getIntervalInADVUnits(); // advertising interval (in units of 0.625 ms)
     adv_para.timeout     = params.getTimeout();
-    
+
 #if  (NRF_SD_BLE_API_VERSION >= 5)
     err = sd_ble_gap_adv_start(&adv_para, NRF_CONNECTION_TAG);
 #else
@@ -364,9 +365,9 @@ ble_error_t nRF5xGap::startAdvertising(const GapAdvertisingParams &params)
 #if !defined(TARGET_MCU_NRF51_16K_S110) && !defined(TARGET_MCU_NRF51_32K_S110)
 ble_error_t nRF5xGap::startRadioScan(const GapScanningParams &scanningParams)
 {
-    
+
     ble_gap_scan_params_t scanParams;
-    
+
 #if  (NRF_SD_BLE_API_VERSION <= 2)
     /* Allocate the stack's whitelist statically */
     ble_gap_whitelist_t  whitelist;
@@ -385,17 +386,17 @@ ble_error_t nRF5xGap::startRadioScan(const GapScanningParams &scanningParams)
             return error;
         }
     }
-    
+
     // FIXME: fill the irk list once addresses are resolved by the softdevice.
     scanParams.selective   = scanningPolicyMode;    /**< If 1, ignore unknown devices (non whitelisted). */
     scanParams.p_whitelist = &whitelist; /**< Pointer to whitelist, NULL if none is given. */
 #else
     /* For NRF_SD_BLE_API_VERSION >= 3 nRF5xGap::setWhitelist setups the whitelist. */
-    
+
     scanParams.use_whitelist  = scanningPolicyMode;
     scanParams.adv_dir_report = 0;
 #endif
-    
+
     scanParams.active      = scanningParams.getActiveScanning(); /**< If 1, perform active scanning (scan requests). */
 
     scanParams.interval    = scanningParams.getInterval();  /**< Scan interval between 0x0004 and 0x4000 in 0.625ms units (2.5ms to 10.24s). */
@@ -544,7 +545,7 @@ ble_error_t nRF5xGap::connect(
     }
 
     ble_gap_scan_params_t scanParams ={0};
-    
+
 #if  (NRF_SD_BLE_API_VERSION <= 2)
     /* Allocate the stack's whitelist statically */
     ble_gap_whitelist_t  whitelist;
@@ -563,7 +564,7 @@ ble_error_t nRF5xGap::connect(
             return error;
         }
     }
-    
+
     scanParams.selective   = scanningPolicyMode;    /**< If 1, ignore unknown devices (non whitelisted). */
     scanParams.p_whitelist = &whitelist; /**< Pointer to whitelist, NULL if none is given. */
     if (_privacy_enabled) {
@@ -596,7 +597,7 @@ ble_error_t nRF5xGap::connect(
     }
 #else
     /* For NRF_SD_BLE_API_VERSION >= 3 nRF5xGap::setWhitelist setups the whitelist. */
-    
+
     scanParams.use_whitelist = (whitelistAddressesSize) ? 1 : 0;
 
     if (_privacy_enabled) {
@@ -743,6 +744,9 @@ ble_error_t nRF5xGap::reset(void)
     /* Clear the internal whitelist */
     whitelistAddressesSize = 0;
 
+    /* Reset existing mapping between a connection and its role */
+    release_all_connections_role();
+
     return BLE_ERROR_NONE;
 }
 
@@ -793,7 +797,7 @@ ble_error_t nRF5xGap::setAddress(LegacyAddressType_t type, const Address_t addre
     if (_privacy_enabled) {
         return BLE_ERROR_INVALID_STATE;
     }
-    
+
     ble_gap_addr_t dev_addr;
     memcpy(dev_addr.addr, address, ADDR_LEN);
     if (type == LegacyAddressType::PUBLIC) {
@@ -1278,6 +1282,8 @@ void nRF5xGap::processDisconnectionEvent(
     Handle_t handle,
     DisconnectionReason_t reason
 ) {
+    release_connection_role(handle);
+
     if (_connection_event_handler) {
         _connection_event_handler->on_disconnected(
             handle,
@@ -1325,6 +1331,9 @@ ble_error_t nRF5xGap::update_identities_list(bool resolution_enabled)
 void nRF5xGap::on_connection(Gap::Handle_t handle, const ble_gap_evt_connected_t& evt) {
     // set the new connection handle as the _default_ handle in gap
     setConnectionHandle(handle);
+
+    // add the connection and the role of the device in the local table
+    allocate_connection_role(handle, static_cast<Role_t>(evt.role));
 
     // deal with own address
     LegacyAddressType_t own_addr_type;
@@ -1456,4 +1465,48 @@ void nRF5xGap::on_advertising_packet(const ble_gap_evt_adv_report_t &evt) {
         peer_addr_type
     );
 }
+
+ble_error_t nRF5xGap::get_role(ble::connection_handle_t connection, Role_t& role) {
+    for (size_t i = 0; i < max_connections_count; ++i) {
+        connection_role_t& c = _connections_role[i];
+        if (c.is_allocated && c.connection == connection) {
+            role = c.is_peripheral ? PERIPHERAL : CENTRAL;
+            return BLE_ERROR_NONE;
+        }
+    }
+
+    return BLE_ERROR_INVALID_PARAM;
+}
+
+void nRF5xGap::allocate_connection_role(
+    ble::connection_handle_t connection,
+    Role_t role
+) {
+    for (size_t i = 0; i < max_connections_count; ++i) {
+        connection_role_t& c = _connections_role[i];
+        if (c.is_allocated == false) {
+            c.connection = connection;
+            c.is_peripheral = (role == Gap::PERIPHERAL);
+            c.is_allocated = true;
+            return;
+        }
+    }
+}
+void nRF5xGap::release_connection_role(ble::connection_handle_t connection) {
+    for (size_t i = 0; i < max_connections_count; ++i) {
+        connection_role_t& c = _connections_role[i];
+        if (c.is_allocated && c.connection == connection) {
+            c.is_allocated = false;
+            return;
+        }
+    }
+}
+
+void nRF5xGap::release_all_connections_role() {
+    for (size_t i = 0; i < max_connections_count; ++i) {
+        _connections_role[i].is_allocated = false;
+    }
+}
+
+
 

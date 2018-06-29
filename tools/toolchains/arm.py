@@ -23,10 +23,11 @@ from os.path import join, dirname, splitext, basename, exists, relpath, isfile
 from os import makedirs, write, curdir, remove
 from tempfile import mkstemp
 from shutil import rmtree
+from distutils.version import LooseVersion
 
 from tools.toolchains import mbedToolchain, TOOLCHAIN_PATHS
 from tools.hooks import hook_tool
-from tools.utils import mkdir, NotSupportedException
+from tools.utils import mkdir, NotSupportedException, run_cmd
 
 class ARM(mbedToolchain):
     LINKER_EXT = '.sct'
@@ -39,6 +40,8 @@ class ARM(mbedToolchain):
     SHEBANG = "#! armcc -E"
     SUPPORTED_CORES = ["Cortex-M0", "Cortex-M0+", "Cortex-M3", "Cortex-M4",
                        "Cortex-M4F", "Cortex-M7", "Cortex-M7F", "Cortex-M7FD", "Cortex-A9"]
+    ARMCC_RANGE = (LooseVersion("5.06"), LooseVersion("5.07"))
+    ARMCC_VERSION_RE = re.compile("Product: ARM Compiler (\d+\.\d+)")
 
     @staticmethod
     def check_executable():
@@ -55,6 +58,12 @@ class ARM(mbedToolchain):
         if target.core not in self.SUPPORTED_CORES:
             raise NotSupportedException(
                 "this compiler does not support the core %s" % target.core)
+
+        if getattr(target, "default_lib", "std") == "small":
+            if "-DMBED_RTOS_SINGLE_THREAD" not in self.flags['common']:
+                self.flags['common'].append("-DMBED_RTOS_SINGLE_THREAD")
+            if "--library_type=microlib" not in self.flags['ld']:
+                self.flags['ld'].append("--library_type=microlib")
 
         if target.core == "Cortex-M0+":
             cpu = "Cortex-M0"
@@ -84,6 +93,37 @@ class ARM(mbedToolchain):
         self.elf2bin = join(ARM_BIN, "fromelf")
 
         self.SHEBANG += " --cpu=%s" % cpu
+
+    def version_check(self):
+        stdout, _, retcode = run_cmd([self.cc[0], "--vsn"], redirect=True)
+        msg = None
+        min_ver, max_ver = self.ARMCC_RANGE
+        match = self.ARMCC_VERSION_RE.search(stdout)
+        found_version = LooseVersion(match.group(1)) if match else None
+        min_ver, max_ver = self.ARMCC_RANGE
+        if found_version and (found_version < min_ver or found_version >= max_ver):
+            msg = ("Compiler version mismatch: Have {}; "
+                   "expected version >= {} and < {}"
+                   .format(found_version, min_ver, max_ver))
+        elif not match or len(match.groups()) != 1:
+            msg = ("Compiler version mismatch: Could not detect version; "
+                   "expected version >= {} and < {}"
+                   .format(min_ver, max_ver))
+
+        if msg:
+            self.notify.cc_info({
+                "message": msg,
+                "file": "",
+                "line": "",
+                "col": "",
+                "severity": "ERROR",
+            })
+
+    def _get_toolchain_labels(self):
+        if getattr(self.target, "default_lib", "std") == "small":
+            return ["ARM", "ARM_MICRO"]
+        else:
+            return ["ARM", "ARM_STD"]
 
     def parse_dependencies(self, dep_path):
         dependencies = []
@@ -291,8 +331,8 @@ class ARM_STD(ARM):
                  build_profile=None, build_dir=None):
         ARM.__init__(self, target, notify, macros, build_dir=build_dir,
                      build_profile=build_profile)
-        if "ARM" not in target.supported_toolchains:
-            raise NotSupportedException("ARM compiler support is required for ARM build")
+        if not set(("ARM", "uARM")).intersection(set(target.supported_toolchains)):
+            raise NotSupportedException("ARM/uARM compiler support is required for ARM build")
 
 
 class ARM_MICRO(ARM):
@@ -300,6 +340,7 @@ class ARM_MICRO(ARM):
     def __init__(self, target, notify=None, macros=None,
                  silent=False, extra_verbose=False, build_profile=None,
                  build_dir=None):
+        target.default_lib = "small"
         ARM.__init__(self, target, notify, macros, build_dir=build_dir,
                      build_profile=build_profile)
         if not set(("ARM", "uARM")).intersection(set(target.supported_toolchains)):
@@ -311,6 +352,8 @@ class ARMC6(ARM_STD):
                        "Cortex-M4F", "Cortex-M7", "Cortex-M7F", "Cortex-M7FD",
                        "Cortex-M23", "Cortex-M23-NS", "Cortex-M33",
                        "CortexM33-NS", "Cortex-A9"]
+    ARMCC_RANGE = (LooseVersion("6.10"), LooseVersion("7.0"))
+
     @staticmethod
     def check_executable():
         return mbedToolchain.generic_check_executable("ARMC6", "armclang", 1)
@@ -387,6 +430,9 @@ class ARMC6(ARM_STD):
         self.ld = [join(TOOLCHAIN_PATHS["ARMC6"], "armlink")] + self.flags['ld']
         self.ar = [join(TOOLCHAIN_PATHS["ARMC6"], "armar")]
         self.elf2bin = join(TOOLCHAIN_PATHS["ARMC6"], "fromelf")
+
+    def _get_toolchain_labels(self):
+        return ["ARM", "ARM_STD", "ARMC6"]
 
     def parse_dependencies(self, dep_path):
         return mbedToolchain.parse_dependencies(self, dep_path)

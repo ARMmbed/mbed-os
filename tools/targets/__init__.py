@@ -513,11 +513,13 @@ class MCU_NRF51Code(object):
             t_self.notify.debug("Merge SoftDevice file %s"
                                 % softdevice_and_offset_entry['name'])
             sdh = IntelHex(sdf)
+            sdh.start_addr = None
             binh.merge(sdh)
 
         if t_self.target.MERGE_BOOTLOADER is True and blf is not None:
             t_self.notify.debug("Merge BootLoader file %s" % blf)
             blh = IntelHex(blf)
+            blh.start_addr = None
             binh.merge(blh)
 
         with open(binf.replace(".bin", ".hex"), "w") as fileout:

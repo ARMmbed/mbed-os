@@ -54,7 +54,7 @@ public:
      *        always needed in a BLE application. Therefore it is allocated
      *        statically.
      */
-    virtual Gap &getGap() {
+    virtual nRF5xGap &getGap() {
         return gapInstance;
     };
 
@@ -133,7 +133,7 @@ public:
     virtual void processEvents();
 
 public:
-    static nRF5xn& Instance(BLE::InstanceID_t instanceId);
+    static nRF5xn& Instance(BLE::InstanceID_t instanceId = BLE::DEFAULT_INSTANCE);
 
 private:
     bool              initialized;

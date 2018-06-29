@@ -142,12 +142,14 @@ protected:
      */
     virtual nsapi_error_t set_access_technology_impl(RadioAccessTechnology op_rat);
 
+    virtual nsapi_error_t do_user_authentication();
 private:
     //  "NO CARRIER" urc
     void urc_no_carrier();
     void urc_creg();
     void urc_cereg();
     void urc_cgreg();
+    void urc_cgev();
 
     nsapi_ip_stack_t string_to_stack_type(const char* pdp_type);
 
@@ -161,7 +163,8 @@ private:
 
     void read_reg_params_and_compare(RegistrationType type);
     void read_reg_params(RegistrationType type, RegistrationStatus &reg_status, int &lac, int &cell_id, int &act);
-
+    // calls network callback only if status was changed, updates local connection status
+    void call_network_cb(nsapi_connection_status_t status);
 #if NSAPI_PPP_AVAILABLE
     void ppp_status_cb(nsapi_event_t, intptr_t);
 #endif
@@ -179,7 +182,6 @@ protected:
     AuthenticationType _authentication_type;
     int _cell_id;
     nsapi_connection_status_t _connect_status;
-    virtual nsapi_error_t do_user_authentication();
     bool _new_context_set;
     bool _is_context_active;
     RegistrationStatus _reg_status;

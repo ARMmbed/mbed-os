@@ -268,6 +268,15 @@ extern void sn_coap_protocol_clear_sent_blockwise_messages(struct coap_s *handle
  */
 extern void sn_coap_protocol_send_rst(struct coap_s *handle, uint16_t msg_id, sn_nsdl_addr_s *addr_ptr, void *param);
 
+/**
+ * \fn uint16_t sn_coap_protocol_get_configured_blockwise_size(struct coap_s *handle)
+ *
+ * \brief Get configured CoAP payload blockwise size
+ *
+ * \param *handle Pointer to CoAP library handle
+ */
+extern uint16_t sn_coap_protocol_get_configured_blockwise_size(struct coap_s *handle);
+
 #endif /* SN_COAP_PROTOCOL_H_ */
 
 #ifdef __cplusplus

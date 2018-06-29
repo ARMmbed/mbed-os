@@ -1,14 +1,33 @@
 /* Linker script for mbed RZ_A1H */
 
 /* Linker script to configure memory regions. */
+
+#if !defined(MBED_APP_START)
+  #define MBED_APP_START 0x18000000
+#endif
+
+#if !defined(MBED_APP_SIZE)
+  #define MBED_APP_SIZE 0x800000
+#endif
+
+#define BOOT_LOADER_ADDR    (MBED_APP_START)
+#if (MBED_APP_START == 0x18000000)
+  #define BOOT_LOADER_SIZE  (0x00004000)
+#else
+  #define BOOT_LOADER_SIZE  (0x00000000)
+#endif
+
+#define SFLASH_ADDR         (MBED_APP_START + BOOT_LOADER_SIZE)
+#define SFLASH_SIZE         (MBED_APP_SIZE - BOOT_LOADER_SIZE)
+
 MEMORY
 {
-  ROM   (rx)  : ORIGIN = 0x00000000, LENGTH = 0x02000000
-  BOOT_LOADER (rx) : ORIGIN = 0x18000000, LENGTH = 0x00004000 
-  SFLASH (rx) : ORIGIN = 0x18004000, LENGTH = 0x07FFC000 
-  L_TTB (rw)  : ORIGIN = 0x20000000, LENGTH = 0x00004000 
-  RAM (rwx) : ORIGIN = 0x20020000, LENGTH = 0x008E0000
-  RAM_NC (rwx) : ORIGIN = 0x20900000, LENGTH = 0x00100000
+  ROM   (rx)       : ORIGIN = 0x00000000,       LENGTH = 0x02000000
+  BOOT_LOADER (rx) : ORIGIN = BOOT_LOADER_ADDR, LENGTH = BOOT_LOADER_SIZE 
+  SFLASH (rx)      : ORIGIN = SFLASH_ADDR,      LENGTH = SFLASH_SIZE 
+  L_TTB (rw)       : ORIGIN = 0x20000000,       LENGTH = 0x00004000 
+  RAM (rwx)        : ORIGIN = 0x20020000,       LENGTH = 0x008E0000
+  RAM_NC (rwx)     : ORIGIN = 0x20900000,       LENGTH = 0x00100000
 }
 
 /* Linker script to place sections and symbol values. Should be used together
@@ -41,17 +60,18 @@ ENTRY(Reset_Handler)
 
 SECTIONS
 {
+#if (MBED_APP_START == 0x18000000)
     .boot :
     {
         KEEP(*(.boot_loader)) 
     } > BOOT_LOADER 
+#endif
 
     .text :
     {
 
         Image$$VECTORS$$Base = .;
         * (RESET)
-        . += 0x00000400;
 
         KEEP(*(.isr_vector))
         *(SVC_TABLE)
@@ -105,6 +125,9 @@ SECTIONS
         LONG (__etext2)
         LONG (__nc_data_start)
         LONG (__nc_data_end - __nc_data_start)
+        LONG (LOADADDR(.ram_code))
+        LONG (ADDR(.ram_code))
+        LONG (SIZEOF(.ram_code))
         __copy_table_end__ = .;
     } > SFLASH
 
@@ -119,14 +142,30 @@ SECTIONS
         __zero_table_end__ = .;
     } > SFLASH
 
-    __etext = .;
-        
+    .ram_code : ALIGN( 0x4 ) {
+        __ram_code_load  = .;
+        __ram_code_start = LOADADDR(.ram_code) + ( __ram_code_load - ADDR(.ram_code) );
+
+        *(RAM_CODE)
+
+        *(RAM_CONST)
+
+        . = ALIGN( 0x4 );
+        __ram_code_end = LOADADDR(.ram_code) + ( . - ADDR(.ram_code) );
+    } > RAM AT > SFLASH
+
+    Load$$SEC_RAM_CODE$$Base    = LOADADDR(.ram_code);
+    Image$$SEC_RAM_CODE$$Base   = ADDR(.ram_code);
+    Load$$SEC_RAM_CODE$$Length  = SIZEOF(.ram_code);
+
     .ttb :
     {
         Image$$TTB$$ZI$$Base = .;
         . += 0x00004000;
         Image$$TTB$$ZI$$Limit = .;
     } > L_TTB
+
+    __etext = Load$$SEC_RAM_CODE$$Base + SIZEOF(.ram_code);
 
     .data : AT (__etext)
     {

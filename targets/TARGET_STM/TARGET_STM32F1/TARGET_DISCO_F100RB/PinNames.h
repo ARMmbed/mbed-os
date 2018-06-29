@@ -174,13 +174,13 @@ typedef enum {
     SPI_CS      = PB_12,
     PWM_OUT     = PB_8,
 
-/**** OSCILLATOR pins ****/
+    /**** OSCILLATOR pins ****/
     RCC_OSC32_IN = PC_14,
     RCC_OSC32_OUT = PC_15,
     RCC_OSC_IN = PD_0,
     RCC_OSC_OUT = PD_1,
 
-/**** DEBUG pins ****/
+    /**** DEBUG pins ****/
     SYS_JTCK_SWCLK = PA_14,
     SYS_JTDI = PA_15,
     SYS_JTDO_TRACESWO = PB_3,

@@ -104,7 +104,8 @@ nRF5xGap::nRF5xGap() : Gap(),
     _privacy_enabled(false),
     _peripheral_privacy_configuration(default_peripheral_privacy_configuration),
     _central_privacy_configuration(default_central_privacy_configuration),
-    _non_private_address_type(LegacyAddressType::RANDOM_STATIC)
+    _non_private_address_type(LegacyAddressType::RANDOM_STATIC),
+    _connections_role()
 {
         m_connectionHandle = BLE_CONN_HANDLE_INVALID;
 }
@@ -682,6 +683,8 @@ ble_error_t nRF5xGap::reset(void)
     /* Clear the internal whitelist */
     whitelistAddressesSize = 0;
 
+    /* Reset existing mapping between a connection and its role */
+    release_all_connections_role();
 
     return BLE_ERROR_NONE;
 }
@@ -1195,6 +1198,8 @@ void nRF5xGap::processDisconnectionEvent(
     Handle_t handle,
     DisconnectionReason_t reason
 ) {
+    release_connection_role(handle);
+
     if (_connection_event_handler) {
         _connection_event_handler->on_disconnected(
             handle,
@@ -1213,6 +1218,9 @@ void nRF5xGap::on_connection(Gap::Handle_t handle, const ble_gap_evt_connected_t
 
     // set the new connection handle as the _default_ handle in gap
     setConnectionHandle(handle);
+
+    // add the connection and the role of the device in the local table
+    allocate_connection_role(handle, static_cast<Role_t>(evt.role));
 
     // deal with own address
     LegacyAddressType_t own_addr_type;
@@ -1375,5 +1383,45 @@ void nRF5xGap::on_advertising_packet(const ble_gap_evt_adv_report_t &evt) {
     );
 }
 
+ble_error_t nRF5xGap::get_role(ble::connection_handle_t connection, Role_t& role) {
+    for (size_t i = 0; i < max_connections_count; ++i) {
+        connection_role_t& c = _connections_role[i];
+        if (c.is_allocated && c.connection == connection) {
+            role = c.is_peripheral ? PERIPHERAL : CENTRAL;
+            return BLE_ERROR_NONE;
+        }
+    }
 
+    return BLE_ERROR_INVALID_PARAM;
+}
+
+void nRF5xGap::allocate_connection_role(
+    ble::connection_handle_t connection,
+    Role_t role
+) {
+    for (size_t i = 0; i < max_connections_count; ++i) {
+        connection_role_t& c = _connections_role[i];
+        if (c.is_allocated == false) {
+            c.connection = connection;
+            c.is_peripheral = (role == Gap::PERIPHERAL);
+            c.is_allocated = true;
+            return;
+        }
+    }
+}
+void nRF5xGap::release_connection_role(ble::connection_handle_t connection) {
+    for (size_t i = 0; i < max_connections_count; ++i) {
+        connection_role_t& c = _connections_role[i];
+        if (c.is_allocated && c.connection == connection) {
+            c.is_allocated = false;
+            return;
+        }
+    }
+}
+
+void nRF5xGap::release_all_connections_role() {
+    for (size_t i = 0; i < max_connections_count; ++i) {
+        _connections_role[i].is_allocated = false;
+    }
+}
 

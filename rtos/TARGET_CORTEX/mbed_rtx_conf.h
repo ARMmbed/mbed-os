@@ -70,4 +70,12 @@
 #define OS_IDLE_THREAD_TZ_MOD_ID     1
 #define OS_TIMER_THREAD_TZ_MOD_ID    1
 
+
+// Don't adopt default multi-thread support for ARM/ARMC6 toolchains from RTX code base.
+// Provide Mbed-specific instead.
+#define RTX_NO_MULTITHREAD_CLIB
+
+#define OS_IDLE_THREAD_NAME         "idle_thread"
+#define OS_TIMER_THREAD_NAME        "timer_thread"
+
 #endif /* MBED_RTX_CONF_H */

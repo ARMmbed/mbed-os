@@ -28,6 +28,22 @@
 
 #define US_PER_S 1000000
 
+/* Flush serial buffer before deep sleep
+ *
+ * Since deepsleep() may shut down the UART peripheral, we wait for some time
+ * to allow for hardware serial buffers to completely flush.
+ *
+ * Take NUMAKER_PFM_NUC472 as an example:
+ * Its UART peripheral has 16-byte Tx FIFO. With baud rate set to 9600, flush
+ * Tx FIFO would take: 16 * 8 * 1000 / 9600 = 13.3 (ms). So set wait time to
+ * 20ms here for safe.
+ *
+ * This should be replaced with a better function that checks if the
+ * hardware buffers are empty. However, such an API does not exist now,
+ * so we'll use the wait_ms() function for now.
+ */
+#define SERIAL_FLUSH_TIME_MS    20
+
 using namespace utest::v1;
 
 /* The following ticker frequencies are possible:
@@ -167,7 +183,7 @@ void deepsleep_lpticker_test()
     /* Give some time Green Tea to finish UART transmission before entering
      * deep-sleep mode.
      */
-    wait_ms(10);
+    wait_ms(SERIAL_FLUSH_TIME_MS);
 
     TEST_ASSERT_TRUE_MESSAGE(sleep_manager_can_deep_sleep(), "deep sleep should not be locked");
 
@@ -202,7 +218,7 @@ void deepsleep_high_speed_clocks_turned_off_test()
     /* Give some time Green Tea to finish UART transmission before entering
      * deep-sleep mode.
      */
-    wait_ms(10);
+    wait_ms(SERIAL_FLUSH_TIME_MS);
 
     TEST_ASSERT_TRUE_MESSAGE(sleep_manager_can_deep_sleep(), "deep sleep should not be locked");
 

@@ -30,6 +30,8 @@ before_install:
   # Setup ppa to make sure arm-none-eabi-gcc is correct version
   - sudo add-apt-repository -y ppa:team-gcc-arm-embedded/ppa
   - sudo add-apt-repository -y ppa:deadsnakes/ppa
+  # Fix for "The following signatures were invalid: KEYEXPIRED 1515625755" failed". See https://github.com/travis-ci/travis-ci/issues/9037
+  - sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 0C49F3730359A14518585931BC711F9BA15703C6
   # Loop until update succeeds (timeouts can occur)
   - travis_retry $(! sudo apt-get update 2>&1 |grep Failed)
 
@@ -107,8 +109,8 @@ matrix:
     - env:
         - NAME=astyle
       install:
-      - wget https://downloads.sourceforge.net/project/astyle/astyle/astyle%203.1/astyle_3.1_linux.tar.gz;
-        mkdir -p BUILD && tar xf astyle_3.1_linux.tar.gz -C BUILD;
+      - curl -L0 http://mbed-os.s3-eu-west-1.amazonaws.com/builds/deps/astyle_3.1_linux.tar.gz --output astyle.tar.gz;
+        mkdir -p BUILD && tar xf astyle.tar.gz -C BUILD;
         pushd BUILD/astyle/build/gcc;
         make;
         export PATH=$PWD/bin:$PATH;

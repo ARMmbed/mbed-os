@@ -18,7 +18,7 @@ public:
     friend Nanostack;
     friend class ::ThreadInterface;
 private:
-    ThreadInterface(NanostackRfPhy &phy) : MeshInterface(phy), user_eui64_set(false) { }
+    ThreadInterface(NanostackRfPhy &phy) : MeshInterface(phy), eui64_set(false) { }
 
     /*
      * \brief Initialization of the interface.
@@ -53,6 +53,11 @@ private:
     void device_eui64_set(const uint8_t *eui64);
 
     /**
+     * \brief Reads the eui64 from the device configuration.
+     * */
+    void device_eui64_get(uint8_t *eui64);
+
+    /**
      * \brief sets the PSKd for the device configuration.
      * The default value is overwritten, which is defined in the mbed_lib.json file in the mesh-api
      * The value must be set before calling the connect function.
@@ -63,7 +68,7 @@ private:
 
     mesh_error_t device_pskd_set(const char *pskd);
 
-    bool user_eui64_set;
+    bool eui64_set;
 };
 
 Nanostack::ThreadInterface *ThreadInterface::get_interface() const
@@ -161,11 +166,7 @@ mesh_error_t Nanostack::ThreadInterface::init()
 {
     thread_tasklet_init();
     __mesh_handler_set_callback(this);
-    if (!user_eui64_set) {
-        uint8_t eui64[8];
-        get_phy().get_mac_address(eui64);
-        thread_tasklet_device_eui64_set(eui64);
-    }
+    device_eui64_get(NULL); // Ensure we've selected the EUI-64 - this does it
     interface_id = thread_tasklet_network_init(_device_id);
 
     if (interface_id == -2) {
@@ -216,10 +217,28 @@ void ThreadInterface::device_eui64_set(const uint8_t *eui64)
     get_interface()->device_eui64_set(eui64);
 }
 
+void ThreadInterface::device_eui64_get(uint8_t *eui64)
+{
+    get_interface()->device_eui64_get(eui64);
+}
+
 void Nanostack::ThreadInterface::device_eui64_set(const uint8_t *eui64)
 {
-    user_eui64_set = true;
+    eui64_set = true;
     thread_tasklet_device_eui64_set(eui64);
+}
+
+void Nanostack::ThreadInterface::device_eui64_get(uint8_t *eui64)
+{
+    if (!eui64_set) {
+        uint8_t eui64_buf[8];
+        get_phy().get_mac_address(eui64_buf);
+        device_eui64_set(eui64_buf);
+    }
+
+    if (eui64) {
+        thread_tasklet_device_eui64_get(eui64);
+    }
 }
 
 mesh_error_t ThreadInterface::device_pskd_set(const char *pskd)

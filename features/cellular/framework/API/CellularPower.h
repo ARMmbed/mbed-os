@@ -86,12 +86,13 @@ public:
      *  2   disable (turn off) MT transmit RF circuits only
      *  3   disable (turn off) MT receive RF circuits only
      *  4   disable (turn off) both MT transmit and receive RF circuits
+     *  @param do_reset     0 for do not reset, 1 for reset the device when changing the functionality
      *
      *  @remark See 3GPP TS 27.007 CFUN for more details
      *
      *  @return zero on success
      */
-    virtual nsapi_error_t set_power_level(int func_level) = 0;
+    virtual nsapi_error_t set_power_level(int func_level, int do_reset = 0) = 0;
 
     /** Reset and wake-up cellular device.
      *

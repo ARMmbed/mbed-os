@@ -215,6 +215,15 @@ void btle_handler(ble_evt_t *p_ble_evt)
             break;
         }
 
+        case BLE_GAP_EVT_CONN_PARAM_UPDATE_REQUEST: {
+            Gap::Handle_t connection = p_ble_evt->evt.gap_evt.conn_handle;
+            const ble_gap_evt_conn_param_update_request_t *update_request =
+                &p_ble_evt->evt.gap_evt.params.conn_param_update_request;
+
+            sd_ble_gap_conn_param_update(connection, &update_request->conn_params);
+            break;
+        }
+
         case BLE_GAP_EVT_TIMEOUT:
             gap.processTimeoutEvent(static_cast<Gap::TimeoutSource_t>(p_ble_evt->evt.gap_evt.params.timeout.src));
             break;

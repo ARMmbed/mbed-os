@@ -39,7 +39,8 @@
 static int pa4_used = 0;
 static int pa5_used = 0;
 
-void analogout_init(dac_t *obj, PinName pin) {
+void analogout_init(dac_t *obj, PinName pin)
+{
     DAC_ChannelConfTypeDef sConfig = {0};
 
     // Get the peripheral name (DAC_1, ...) from the pin and assign it to the object
@@ -70,7 +71,7 @@ void analogout_init(dac_t *obj, PinName pin) {
     obj->handle.Instance = DAC;
     obj->handle.State = HAL_DAC_STATE_RESET;
 
-    if (HAL_DAC_Init(&obj->handle) != HAL_OK ) {
+    if (HAL_DAC_Init(&obj->handle) != HAL_OK) {
         error("HAL_DAC_Init failed");
     }
 
@@ -94,10 +95,15 @@ void analogout_init(dac_t *obj, PinName pin) {
     analogout_write_u16(obj, 0);
 }
 
-void analogout_free(dac_t *obj) {
+void analogout_free(dac_t *obj)
+{
     // Reset DAC and disable clock
-    if (obj->pin == PA_4) pa4_used = 0;
-    if (obj->pin == PA_5) pa5_used = 0;
+    if (obj->pin == PA_4) {
+        pa4_used = 0;
+    }
+    if (obj->pin == PA_5) {
+        pa5_used = 0;
+    }
     if ((pa4_used == 0) && (pa5_used == 0)) {
         __DAC_FORCE_RESET();
         __DAC_RELEASE_RESET();

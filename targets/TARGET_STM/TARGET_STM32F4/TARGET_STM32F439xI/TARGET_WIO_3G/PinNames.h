@@ -200,11 +200,11 @@ typedef enum {
     MDMDTR  = PC_5,
     M_POWR  = PE_9,
 
-/*
-    MDMDCD = NC, // Data Carrier Detect
-    MDMDSR = NC, // Data Set Ready
-    MDMRI  = NC, // Ring Indicator
-*/
+    /*
+        MDMDCD = NC, // Data Carrier Detect
+        MDMDSR = NC, // Data Set Ready
+        MDMRI  = NC, // Ring Indicator
+    */
 
     // Internal control signals
     RGB_POWR     = PE_8,

@@ -36,6 +36,9 @@ namespace
     static const int PKG_SIZES[BURST_PKTS] = {100, 200, 300, 120, 500};
     static const int RECV_TOTAL = 1220;
 
+    static const double EXPECTED_LOSS_RATIO = 0.0;
+    static const double TOLERATED_LOSS_RATIO = 0.3;
+
     typedef struct pkg {
         int len;
         char *payload;
@@ -132,10 +135,13 @@ void UDPSOCKET_ECHOTEST_BURST()
 
     free_tx_buffers();
 
-    // Packet loss up to 1/4 tolerated
-    TEST_ASSERT_INT_WITHIN((BURST_CNT*BURST_PKTS/4), BURST_CNT*BURST_PKTS, BURST_CNT*BURST_PKTS-pkg_fail);
-    // 3/4 of the bursts need to be successful
-    TEST_ASSERT_INT_WITHIN((BURST_CNT/4), BURST_CNT, ok_bursts);
+    double loss_ratio = 1 - ((double)(BURST_CNT*BURST_PKTS-pkg_fail) / (double)(BURST_CNT*BURST_PKTS));
+    printf("Packets sent: %d, packets received %d, loss ratio %.2lf\r\n",
+        BURST_CNT*BURST_PKTS, BURST_CNT*BURST_PKTS-pkg_fail, loss_ratio);
+    // Packet loss up to 30% tolerated
+    TEST_ASSERT_DOUBLE_WITHIN(TOLERATED_LOSS_RATIO, EXPECTED_LOSS_RATIO, loss_ratio);
+    // 70% of the bursts need to be successful
+    TEST_ASSERT_INT_WITHIN(3*(BURST_CNT/10), BURST_CNT, ok_bursts);
 
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
 }
@@ -207,10 +213,13 @@ PKT_OK:
 
     free_tx_buffers();
 
-    // Packet loss up to 10% tolerated
-    TEST_ASSERT_INT_WITHIN((BURST_CNT*BURST_PKTS/10), BURST_CNT*BURST_PKTS, BURST_CNT*BURST_PKTS-pkg_fail);
-    // 90% of the bursts need to be successful
-    TEST_ASSERT_INT_WITHIN((BURST_CNT/10), BURST_CNT, ok_bursts);
+    double loss_ratio = 1 - ((double)(BURST_CNT*BURST_PKTS-pkg_fail) / (double)(BURST_CNT*BURST_PKTS));
+    printf("Packets sent: %d, packets received %d, loss ratio %.2lf\r\n",
+        BURST_CNT*BURST_PKTS, BURST_CNT*BURST_PKTS-pkg_fail, loss_ratio);
+    // Packet loss up to 30% tolerated
+    TEST_ASSERT_DOUBLE_WITHIN(TOLERATED_LOSS_RATIO, EXPECTED_LOSS_RATIO, loss_ratio);
+    // 70% of the bursts need to be successful
+    TEST_ASSERT_INT_WITHIN(3*(BURST_CNT/10), BURST_CNT, ok_bursts);
 
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
 }

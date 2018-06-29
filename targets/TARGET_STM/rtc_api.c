@@ -46,7 +46,7 @@ void rtc_init(void)
     HAL_PWR_EnableBkUpAccess();
 
 #if DEVICE_LPTICKER
-    if ( (rtc_isenabled()) && ((RTC->PRER & RTC_PRER_PREDIV_S) == PREDIV_S_VALUE) ) {
+    if ((rtc_isenabled()) && ((RTC->PRER & RTC_PRER_PREDIV_S) == PREDIV_S_VALUE)) {
 #else /* DEVICE_LPTICKER */
     if (rtc_isenabled()) {
 #endif /* DEVICE_LPTICKER */
@@ -259,7 +259,7 @@ void rtc_write(time_t t)
 int rtc_isenabled(void)
 {
 #if !(TARGET_STM32F1)
-    return ( ((RTC->ISR & RTC_ISR_INITS) ==  RTC_ISR_INITS) && ((RTC->ISR & RTC_ISR_RSF) ==  RTC_ISR_RSF) );
+    return (((RTC->ISR & RTC_ISR_INITS) ==  RTC_ISR_INITS) && ((RTC->ISR & RTC_ISR_RSF) ==  RTC_ISR_RSF));
 #else /* TARGET_STM32F1 */
     return ((RTC->CRL & RTC_CRL_RSF) ==  RTC_CRL_RSF);
 #endif /* TARGET_STM32F1 */
@@ -286,9 +286,9 @@ static void RTC_IRQHandler(void)
 {
     /*  Update HAL state */
     RtcHandle.Instance = RTC;
-    if(__HAL_RTC_WAKEUPTIMER_GET_IT(&RtcHandle, RTC_IT_WUT)) {
+    if (__HAL_RTC_WAKEUPTIMER_GET_IT(&RtcHandle, RTC_IT_WUT)) {
         /* Get the status of the Interrupt */
-        if((uint32_t)(RTC->CR & RTC_IT_WUT) != (uint32_t)RESET) {
+        if ((uint32_t)(RTC->CR & RTC_IT_WUT) != (uint32_t)RESET) {
             /* Clear the WAKEUPTIMER interrupt pending bit */
             __HAL_RTC_WAKEUPTIMER_CLEAR_FLAG(&RtcHandle, RTC_FLAG_WUTF);
 

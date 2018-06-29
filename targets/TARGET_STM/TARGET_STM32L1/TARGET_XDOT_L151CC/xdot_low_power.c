@@ -37,15 +37,18 @@ static uint32_t portB[6];
 static uint32_t portC[6];
 static uint32_t portH[6];
 
-void xdot_disable_systick_int() {
+void xdot_disable_systick_int()
+{
     SysTick->CTRL &= ~SysTick_CTRL_TICKINT_Msk;
 }
 
-void xdot_enable_systick_int() {
+void xdot_enable_systick_int()
+{
     SysTick->CTRL |= SysTick_CTRL_TICKINT_Msk;
 }
 
-void xdot_save_gpio_state() {
+void xdot_save_gpio_state()
+{
     portA[0] = GPIOA->MODER;
     portA[1] = GPIOA->OTYPER;
     portA[2] = GPIOA->OSPEEDR;
@@ -75,7 +78,8 @@ void xdot_save_gpio_state() {
     portH[5] = GPIOH->AFR[1];
 }
 
-void xdot_restore_gpio_state() {
+void xdot_restore_gpio_state()
+{
     GPIOA->MODER = portA[0];
     GPIOA->OTYPER = portA[1];
     GPIOA->OSPEEDR = portA[2];
@@ -105,7 +109,8 @@ void xdot_restore_gpio_state() {
     GPIOH->AFR[1] = portH[5];
 }
 
-void xdot_enter_stop_mode() {
+void xdot_enter_stop_mode()
+{
     GPIO_InitTypeDef GPIO_InitStruct;
 
     // disable ADC and DAC - they can consume power in stop mode
@@ -224,8 +229,8 @@ void xdot_enter_stop_mode() {
     HSERCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE | RCC_OSCILLATORTYPE_HSI;
     HSERCC_OscInitStruct.HSEState = RCC_HSE_ON; /* External 24 MHz xtal on OSC_IN/OSC_OUT */
     HSERCC_OscInitStruct.HSIState = RCC_HSI_OFF;
-  // SYSCLK = 32 MHz ((24 MHz * 4) / 3)
-  // USBCLK = 48 MHz ((24 MHz * 4) / 2) --> USB OK
+    // SYSCLK = 32 MHz ((24 MHz * 4) / 3)
+    // USBCLK = 48 MHz ((24 MHz * 4) / 2) --> USB OK
     HSERCC_OscInitStruct.PLL.PLLState        = RCC_PLL_ON;
     HSERCC_OscInitStruct.PLL.PLLSource       = RCC_PLLSOURCE_HSE;
     HSERCC_OscInitStruct.PLL.PLLMUL          = RCC_PLL_MUL4;
@@ -249,12 +254,12 @@ void xdot_enter_stop_mode() {
     /* Enable the HSI for ADC peripherals */
     RCC_OscInitTypeDef HSIRCC_OscInitStruct;
     HAL_RCC_GetOscConfig(&HSIRCC_OscInitStruct);
-    if ( HSIRCC_OscInitStruct.HSIState != RCC_HSI_ON ) {
+    if (HSIRCC_OscInitStruct.HSIState != RCC_HSI_ON) {
         HSIRCC_OscInitStruct.HSIState = RCC_HSI_ON;
         HSIRCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
         HSIRCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
         HAL_StatusTypeDef ret = HAL_RCC_OscConfig(&HSIRCC_OscInitStruct);
-        if ( ret != HAL_OK ) {
+        if (ret != HAL_OK) {
             debug("HSI initialization failed - ADC will not function properly\r\n");
         }
     }
@@ -271,18 +276,22 @@ void xdot_enter_stop_mode() {
     DAC->CR |= DAC_CR_EN2;
 }
 
-void xdot_enter_standby_mode() {
+void xdot_enter_standby_mode()
+{
     // enable ULP and enable fast wakeup
     HAL_PWREx_EnableUltraLowPower();
     HAL_PWREx_EnableFastWakeUp();
 
     // disable HSI, MSI, and LSI if they are running
-    if (RCC->CR & RCC_CR_HSION)
+    if (RCC->CR & RCC_CR_HSION) {
         RCC->CR &= ~RCC_CR_HSION;
-    if (RCC->CR & RCC_CR_MSION)
+    }
+    if (RCC->CR & RCC_CR_MSION) {
         RCC->CR &= ~RCC_CR_MSION;
-    if (RCC->CSR & RCC_CSR_LSION)
+    }
+    if (RCC->CSR & RCC_CSR_LSION) {
         RCC->CSR &= ~RCC_CSR_LSION;
+    }
 
 
     // make sure wakeup and standby flags are cleared
@@ -293,11 +302,13 @@ void xdot_enter_standby_mode() {
     HAL_PWR_EnterSTANDBYMode();
 }
 
-void xdot_enable_standby_wake_pin() {
+void xdot_enable_standby_wake_pin()
+{
     HAL_PWR_EnableWakeUpPin(PWR_WAKEUP_PIN1);
 }
 
-void xdot_disable_standby_wake_pin() {
+void xdot_disable_standby_wake_pin()
+{
     HAL_PWR_DisableWakeUpPin(PWR_WAKEUP_PIN1);
 }
 

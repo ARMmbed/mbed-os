@@ -30,15 +30,20 @@ AT_CellularInformation::~AT_CellularInformation()
 
 nsapi_error_t AT_CellularInformation::get_manufacturer(char *buf, size_t buf_size)
 {
-    return 0;
+    return NSAPI_ERROR_OK;
 }
 
 nsapi_error_t AT_CellularInformation::get_model(char *buf, size_t buf_size)
 {
-    return 0;
+    return NSAPI_ERROR_OK;
 }
 
 nsapi_error_t AT_CellularInformation::get_revision(char *buf, size_t buf_size)
 {
-    return 0;
+    return NSAPI_ERROR_OK;
+}
+
+nsapi_error_t AT_CellularInformation::get_serial_number(char *buf, size_t buf_size, SerialNumberType type)
+{
+    return NSAPI_ERROR_OK;
 }

@@ -41,8 +41,7 @@ extern "C" {
  *           ST_MD5_BLOCK_SIZE bytes per ST_MD5_BLOCK_SIZE bytes
  *           If MD5_finish is called and sbuf_len>0, the remaining bytes are accumulated prior to the call to HAL_HASH_MD5_Finish
  */
-typedef struct
-{
+typedef struct {
     HASH_HandleTypeDef hhash_md5;/*!< ST HAL HASH struct */
     unsigned char sbuf[ST_MD5_BLOCK_SIZE]; /*!< MBEDTLS_MD5_BLOCK_SIZE buffer to store values so that algorithm is caled once the buffer is filled */
     unsigned char sbuf_len; /*!< number of bytes to be processed in sbuf */
@@ -57,14 +56,14 @@ mbedtls_md5_context;
  *
  * \param ctx      MD5 context to be initialized
  */
-void mbedtls_md5_init( mbedtls_md5_context *ctx );
+void mbedtls_md5_init(mbedtls_md5_context *ctx);
 
 /**
  * \brief          Clear MD5 context
  *
  * \param ctx      MD5 context to be cleared
  */
-void mbedtls_md5_free( mbedtls_md5_context *ctx );
+void mbedtls_md5_free(mbedtls_md5_context *ctx);
 
 /**
  * \brief          Clone (the state of) an MD5 context
@@ -72,8 +71,8 @@ void mbedtls_md5_free( mbedtls_md5_context *ctx );
  * \param dst      The destination context
  * \param src      The context to be cloned
  */
-void mbedtls_md5_clone( mbedtls_md5_context *dst,
-                        const mbedtls_md5_context *src );
+void mbedtls_md5_clone(mbedtls_md5_context *dst,
+                       const mbedtls_md5_context *src);
 
 /**
  * \brief          MD5 context setup
@@ -82,7 +81,7 @@ void mbedtls_md5_clone( mbedtls_md5_context *dst,
  *
  * \returns        error code
  */
-int mbedtls_md5_starts_ret( mbedtls_md5_context *ctx );
+int mbedtls_md5_starts_ret(mbedtls_md5_context *ctx);
 
 /**
  * \brief          MD5 process buffer
@@ -93,7 +92,7 @@ int mbedtls_md5_starts_ret( mbedtls_md5_context *ctx );
  *
  * \returns        error code
  */
-int mbedtls_md5_update_ret( mbedtls_md5_context *ctx, const unsigned char *input, size_t ilen );
+int mbedtls_md5_update_ret(mbedtls_md5_context *ctx, const unsigned char *input, size_t ilen);
 
 /**
  * \brief          MD5 final digest
@@ -103,10 +102,10 @@ int mbedtls_md5_update_ret( mbedtls_md5_context *ctx, const unsigned char *input
  *
  * \returns        error code
  */
-int mbedtls_md5_finish_ret( mbedtls_md5_context *ctx, unsigned char output[16] );
+int mbedtls_md5_finish_ret(mbedtls_md5_context *ctx, unsigned char output[16]);
 
 /* Internal use */
-int mbedtls_internal_md5_process( mbedtls_md5_context *ctx, const unsigned char data[ST_MD5_BLOCK_SIZE] );
+int mbedtls_internal_md5_process(mbedtls_md5_context *ctx, const unsigned char data[ST_MD5_BLOCK_SIZE]);
 
 #if !defined(MBEDTLS_DEPRECATED_REMOVED)
 #if defined(MBEDTLS_DEPRECATED_WARNING)
@@ -126,7 +125,7 @@ int mbedtls_internal_md5_process( mbedtls_md5_context *ctx, const unsigned char 
  *                 stronger message digests instead.
  *
  */
-MBEDTLS_DEPRECATED void mbedtls_md5_starts( mbedtls_md5_context *ctx );
+MBEDTLS_DEPRECATED void mbedtls_md5_starts(mbedtls_md5_context *ctx);
 
 /**
  * \brief          MD5 process buffer
@@ -142,9 +141,9 @@ MBEDTLS_DEPRECATED void mbedtls_md5_starts( mbedtls_md5_context *ctx );
  *                 stronger message digests instead.
  *
  */
-MBEDTLS_DEPRECATED void mbedtls_md5_update( mbedtls_md5_context *ctx,
-                                            const unsigned char *input,
-                                            size_t ilen );
+MBEDTLS_DEPRECATED void mbedtls_md5_update(mbedtls_md5_context *ctx,
+                                           const unsigned char *input,
+                                           size_t ilen);
 
 /**
  * \brief          MD5 final digest
@@ -159,8 +158,8 @@ MBEDTLS_DEPRECATED void mbedtls_md5_update( mbedtls_md5_context *ctx,
  *                 stronger message digests instead.
  *
  */
-MBEDTLS_DEPRECATED void mbedtls_md5_finish( mbedtls_md5_context *ctx,
-                                            unsigned char output[16] );
+MBEDTLS_DEPRECATED void mbedtls_md5_finish(mbedtls_md5_context *ctx,
+                                           unsigned char output[16]);
 
 /**
  * \brief          MD5 process data block (internal use only)
@@ -175,8 +174,8 @@ MBEDTLS_DEPRECATED void mbedtls_md5_finish( mbedtls_md5_context *ctx,
  *                 stronger message digests instead.
  *
  */
-MBEDTLS_DEPRECATED void mbedtls_md5_process( mbedtls_md5_context *ctx,
-                                             const unsigned char data[64] );
+MBEDTLS_DEPRECATED void mbedtls_md5_process(mbedtls_md5_context *ctx,
+                                            const unsigned char data[64]);
 
 #undef MBEDTLS_DEPRECATED
 #endif /* !MBEDTLS_DEPRECATED_REMOVED */

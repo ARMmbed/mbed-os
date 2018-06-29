@@ -53,11 +53,11 @@ typedef enum {
     PA_4  = 0x04,
     PA_5  = 0x05,
     PA_6  = 0x06,
-    PA_6_ALT0 = PA_6|ALT0,
+    PA_6_ALT0 = PA_6 | ALT0,
     PA_7  = 0x07,
-    PA_7_ALT0 = PA_7|ALT0,
-    PA_7_ALT1 = PA_7|ALT1,
-    PA_7_ALT2 = PA_7|ALT2,
+    PA_7_ALT0 = PA_7 | ALT0,
+    PA_7_ALT1 = PA_7 | ALT1,
+    PA_7_ALT2 = PA_7 | ALT2,
     PA_8  = 0x08,
     PA_9  = 0x09,
     PA_10 = 0x0A,
@@ -69,8 +69,8 @@ typedef enum {
 
     PB_0  = 0x10,
     PB_1  = 0x11,
-    PB_1_ALT0 = PB_1|ALT0,
-    PB_1_ALT1 = PB_1|ALT1,
+    PB_1_ALT0 = PB_1 | ALT0,
+    PB_1_ALT1 = PB_1 | ALT1,
     PB_2  = 0x12,
     PB_3  = 0x13,
     PB_4  = 0x14,
@@ -85,8 +85,8 @@ typedef enum {
     PB_13 = 0x1D,
     PB_14 = 0x1E,
     PB_15 = 0x1F,
-    PB_15_ALT0 = PB_15|ALT0,
-    PB_15_ALT1 = PB_15|ALT1,
+    PB_15_ALT0 = PB_15 | ALT0,
+    PB_15_ALT1 = PB_15 | ALT1,
 
     PC_0  = 0x20,
     PC_1  = 0x21,
@@ -175,13 +175,13 @@ typedef enum {
     SPI_CS      = PB_6,
     PWM_OUT     = PC_7,
 
-/**** OSCILLATOR pins ****/
+    /**** OSCILLATOR pins ****/
     RCC_OSC32_IN = PC_14,
     RCC_OSC32_OUT = PC_15,
     RCC_OSC_IN = PF_0,
     RCC_OSC_OUT = PF_1,
 
-/**** DEBUG pins ****/
+    /**** DEBUG pins ****/
     SYS_SWCLK = PA_14,
     SYS_SWDIO = PA_13,
     SYS_WKUP1 = PA_0,

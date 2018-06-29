@@ -100,7 +100,7 @@ const PinMap PinMap_UART_RTS[] = {
     {UART_RTS, UART_3, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART3)},
     {NC,    NC,     0}
 };
- 
+
 const PinMap PinMap_UART_CTS[] = {
     {UART_CTS, UART_3, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, GPIO_AF7_USART3)},
     {NC,    NC,     0}

@@ -25,7 +25,8 @@ volatile uint32_t PreviousVal = 0;
 void us_ticker_irq_handler(void);
 
 #if defined(TARGET_STM32F0)
-void timer_update_irq_handler(void) {
+void timer_update_irq_handler(void)
+{
 #else
 void timer_irq_handler(void)
 {
@@ -34,7 +35,8 @@ void timer_irq_handler(void)
 
 #if defined(TARGET_STM32F0)
 } // end timer_update_irq_handler function
-// Used for mbed timeout (channel 1) and HAL tick (channel 2)
+
+// Channel 1 used for mbed timeout
 void timer_oc_irq_handler(void)
 {
     TimMasterHandle.Instance = TIM_MST;
@@ -44,12 +46,17 @@ void timer_oc_irq_handler(void)
     if (__HAL_TIM_GET_FLAG(&TimMasterHandle, TIM_FLAG_CC1) == SET) {
         if (__HAL_TIM_GET_IT_SOURCE(&TimMasterHandle, TIM_IT_CC1) == SET) {
             __HAL_TIM_CLEAR_IT(&TimMasterHandle, TIM_IT_CC1);
-                   us_ticker_irq_handler();
+            us_ticker_irq_handler();
         }
     }
 }
 
-// Reconfigure the HAL tick using a standard timer instead of systick.
+// Overwrite the default ST HAL function (defined as "weak") in order to configure an HW timer
+// used for mbed timeouts only (not used for the Systick configuration).
+// Additional notes:
+// - The default ST HAL_InitTick function initializes the Systick to 1 ms and this is not correct for mbed
+//   as the mbed Systick as to be configured to 1 us instead.
+// - Furthermore the Systick is configured by mbed RTOS directly.
 HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
 {
     // Enable timer clock

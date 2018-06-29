@@ -74,7 +74,7 @@ LR_IROM1 MBED_APP_START MBED_APP_SIZE {
         .ANY (+RW +ZI)
     }
 
-    ADUCM_IRAM3 0x20040000 0x8000 { ; non-retainable memory region
+    ADUCM_IRAM3 0x20040000 0x7000 { ; non-retainable memory region
          .ANY (+RW +ZI)
     }
 }

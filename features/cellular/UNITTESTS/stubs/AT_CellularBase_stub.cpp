@@ -25,6 +25,7 @@ using namespace mbed;
 ATHandler *AT_CellularBase_stub::handler_value = NULL;
 ATHandler *AT_CellularBase_stub::handler_at_constructor_value = NULL;
 device_err_t AT_CellularBase_stub::device_err_value;
+bool AT_CellularBase_stub::supported_bool = true;
 
 AT_CellularBase::AT_CellularBase(ATHandler& at) : _at(at)
 {
@@ -41,3 +42,7 @@ device_err_t AT_CellularBase::get_device_error() const
     return AT_CellularBase_stub::device_err_value;
 }
 
+bool AT_CellularBase::is_supported(SupportedFeature feature)
+{
+    return AT_CellularBase_stub::supported_bool;
+}

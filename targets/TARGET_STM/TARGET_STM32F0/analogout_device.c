@@ -35,7 +35,8 @@
 #include "mbed_error.h"
 #include "PeripheralPins.h"
 
-void analogout_init(dac_t *obj, PinName pin) {
+void analogout_init(dac_t *obj, PinName pin)
+{
     DAC_ChannelConfTypeDef sConfig = {0};
 
     // Get the peripheral name from the pin and assign it to the object
@@ -73,7 +74,7 @@ void analogout_init(dac_t *obj, PinName pin) {
     obj->handle.Instance = (DAC_TypeDef *)(obj->dac);
     obj->handle.State = HAL_DAC_STATE_RESET;
 
-    if (HAL_DAC_Init(&obj->handle) != HAL_OK ) {
+    if (HAL_DAC_Init(&obj->handle) != HAL_OK) {
         error("HAL_DAC_Init failed");
     }
 
@@ -87,7 +88,8 @@ void analogout_init(dac_t *obj, PinName pin) {
     analogout_write_u16(obj, 0);
 }
 
-void analogout_free(dac_t *obj) {
+void analogout_free(dac_t *obj)
+{
     // Reset DAC and disable clock
     __HAL_RCC_DAC1_FORCE_RESET();
     __HAL_RCC_DAC1_RELEASE_RESET();

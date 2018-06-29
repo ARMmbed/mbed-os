@@ -56,7 +56,7 @@ public:
      */
     virtual nsapi_error_t set_pin(const char *sim_pin) = 0;
 
-    /**Change sim pin code.
+    /** Change sim pin code.
      *
      *  @param sim_pin  Current PIN for sim
      *  @param new_pin  New PIN for sim
@@ -80,6 +80,7 @@ public:
     virtual nsapi_error_t get_sim_state(SimState &state) = 0;
 
     /** Get IMSI from the sim card
+     *  @remark         Given imsi buffer length must be 16 or more as imsi max length is 15!
      *
      *  @param imsi     preallocated char* which after successful request contains imsi
      *  @return         zero on success

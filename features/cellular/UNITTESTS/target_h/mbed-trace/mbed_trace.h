@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, Arm Limited and affiliates.
+ * Copyright (c) 2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,11 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef MBED_OS_FEATURES_CELLULAR_MBED_TRACE_H_
-#define MBED_OS_FEATURES_CELLULAR_MBED_TRACE_H_
+#ifndef CELLULAR_UNITTESTS_MBED_TRACE_H_
+#define CELLULAR_UNITTESTS_MBED_TRACE_H_
 
-
-//usage macros:
 #define tr_debug(...)
 #define tr_info(...)
 #define tr_warning(...)
@@ -26,5 +24,4 @@
 #define tr_error(...)
 #define tr_err(...)
 
-
-#endif /* MBED_OS_FEATURES_CELLULAR_MBED_TRACE_H_ */
+#endif /* CELLULAR_UNITTESTS_MBED_TRACE_H_ */

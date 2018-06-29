@@ -113,6 +113,10 @@ struct sn_coap_hdr_;
 #define SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE MBED_CONF_MBED_CLIENT_SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE
 #endif
 
+#ifndef SN_COAP_BLOCKWISE_ENABLED
+#define SN_COAP_BLOCKWISE_ENABLED                   0  /**< Enable blockwise */
+#endif
+
 #ifndef SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE
 #define SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE          0  /**< Must be 2^x and x is at least 4. Suitable values: 0, 16, 32, 64, 128, 256, 512 and 1024 */
 #endif
@@ -145,9 +149,7 @@ struct sn_coap_hdr_;
 #define COAP_OPTION_BLOCK_NONE                      (-1) /**< Internal value to represent no Block1/2 option */
 
 
-#if SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE /* If Message blockwising is not used at all, this part of code will not be compiled */
 int8_t prepare_blockwise_message(struct coap_s *handle, struct sn_coap_hdr_ *coap_hdr_ptr);
-#endif
 
 /* Structure which is stored to Linked list for message sending purposes */
 typedef struct coap_send_msg_ {
@@ -201,6 +203,8 @@ typedef struct coap_blockwise_payload_ {
     uint8_t             *addr_ptr;
     uint16_t            port;
     uint32_t            block_number;
+    uint8_t             *token_ptr;
+    uint8_t             token_len;
 
     uint16_t            payload_len;
     uint8_t             *payload_ptr;
@@ -228,7 +232,7 @@ struct coap_s {
         uint16_t                      count_duplication_msgs;
     #endif
 
-    #if SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE /* If Message blockwise is not used at all, this part of code will not be compiled */
+    #if SN_COAP_BLOCKWISE_ENABLED || SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE /* If Message blockwise is not enabled, this part of code will not be compiled */
         coap_blockwise_msg_list_t     linked_list_blockwise_sent_msgs; /* Blockwise message to to be sent is stored to this Linked list */
         coap_blockwise_payload_list_t linked_list_blockwise_received_payloads; /* Blockwise payload to to be received is stored to this Linked list */
     #endif

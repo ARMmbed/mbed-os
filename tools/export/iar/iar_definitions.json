@@ -4,7 +4,7 @@
     },
     "STM32L433RC": {
         "OGChipSelectEditMenu": "STM32L433RC\tST STM32L433RC"
-    },      
+    },
     "STM32L496AG": {
         "OGChipSelectEditMenu": "STM32L496AG\tST STM32L496AG"
     },
@@ -85,9 +85,6 @@
     },
     "MKW41Z512xxx4": {
         "OGChipSelectEditMenu": "MKW41Z512xxx4\tNXP MKW41Z512xxx4"
-    },
-    "MIMXRT1052xxx6A": {
-        "OGChipSelectEditMenu": "MIMXRT1052xxx6A\tNXP MIMXRT1052xxx6A"
     },
     "LPC54114J256BD64": {
         "OGChipSelectEditMenu": "LPC54114J256_M4\tNXP LPC54114J256_M4"
@@ -212,7 +209,7 @@
     "STM32F091RC": {
         "OGChipSelectEditMenu": "STM32F091RC\tST STM32F091RC"
     },
-    "RZ_A1H": {
+    "R7S72100": {
         "OGChipSelectEditMenu": "R7S721001\tRenesas R7S721001",
         "CoreVariant": 37,
         "GFPUCoreSlave": 37,
@@ -226,7 +223,7 @@
         "GBECoreSlave": 37,
         "NEON":1
     },
-    "GR_LYCHEE": {
+    "R7S72103": {
         "OGChipSelectEditMenu": "R7S721030\tRenesas R7S721030",
         "CoreVariant": 37,
         "GFPUCoreSlave": 37,

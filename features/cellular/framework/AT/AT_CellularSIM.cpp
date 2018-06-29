@@ -136,6 +136,9 @@ nsapi_error_t AT_CellularSIM::set_pin_query(const char *sim_pin, bool query_pin)
 
 nsapi_error_t AT_CellularSIM::get_imsi(char *imsi)
 {
+    if (imsi == NULL) {
+        return NSAPI_ERROR_PARAMETER;
+    }
     _at.lock();
     _at.cmd_start("AT+CIMI");
     _at.cmd_stop();

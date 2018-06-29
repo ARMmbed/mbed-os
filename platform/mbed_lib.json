@@ -39,6 +39,31 @@
         "poll-use-lowpower-timer": {
             "help": "Enable use of low power timer class for poll(). May cause missing events.",
             "value": false
+        },
+        
+        "error-hist-enabled": {
+            "help": "Enable for error history tracking.",
+            "value": false
+        },
+        
+        "error-hist-size": {
+            "help": "Set the number of most recent errors the system keeps in its history, needs error-hist-enabled set to true for this to work.",
+            "value": 4
+        },
+        
+        "error-filename-capture-enabled": {
+            "help": "Enables capture of filename and line number as part of error context capture, this works only for debug and develop builds. On release builds, filename capture is always disabled",
+            "value": false
+        },
+        
+        "error-all-threads-info": {
+            "help": "Reports all the threads in the system as part of error report.",
+            "value": false
+        },
+        
+        "max-error-filename-len": {
+            "help": "Sets the maximum length of buffer used for capturing the filename in error context. This needs error-filename-capture-enabled feature.",
+            "value": 16
         }
     },
     "target_overrides": {
