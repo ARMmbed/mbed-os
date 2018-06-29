@@ -399,7 +399,7 @@ void serial_baud(serial_t *obj, int baudrate)
             PeriphClkInitStruct.Lpuart1ClockSelection = RCC_LPUART1CLKSOURCE_HSI;
             HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct);
             if (init_uart(obj) == HAL_OK) {
-            return;
+                return;
             }
         }
 #endif
