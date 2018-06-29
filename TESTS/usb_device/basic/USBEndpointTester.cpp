@@ -24,12 +24,20 @@
 
 #define NUM_PACKETS_UNTIL_ABORT     2
 #define NUM_PACKETS_AFTER_ABORT     8
+#define EP_ABORT_BUFF_VALUE         0xff
 
-#define VENDOR_TEST_CTRL_IN         1
-#define VENDOR_TEST_CTRL_OUT        2
-#define VENDOR_TEST_CTRL_IN_SIZES   9
-#define VENDOR_TEST_CTRL_OUT_SIZES  10
-#define VENDOR_TEST_READ_START      11
+/* If the host ever receives a payload with any byte set to this value,
+ * the device does not handle abort operation correctly. The buffer
+ * passed to aborted operation must not be used after call to abort().
+ */
+#define FORBIDDEN_PAYLOAD_VALUE     (NUM_PACKETS_AFTER_ABORT + 1)
+
+#define VENDOR_TEST_CTRL_IN             1
+#define VENDOR_TEST_CTRL_OUT            2
+#define VENDOR_TEST_CTRL_IN_SIZES       9
+#define VENDOR_TEST_CTRL_OUT_SIZES      10
+#define VENDOR_TEST_READ_START          11
+#define VENDOR_TEST_ABORT_BUFF_CHECK    12
 
 #define EVENT_READY (1 << 0)
 
@@ -236,6 +244,12 @@ void USBEndpointTester::callback_request(const setup_packet_t *setup)
             case VENDOR_TEST_READ_START:
                 result = (_request_read_start(setup)) ? Success : Failure;
                 break;
+            case VENDOR_TEST_ABORT_BUFF_CHECK:
+                result = Send;
+                ctrl_buf[0] = _request_abort_buff_check(setup);
+                data = ctrl_buf;
+                size = 1;
+                break;
             default:
                 result = PassThrough;
                 break;
@@ -273,18 +287,48 @@ bool USBEndpointTester::_request_read_start(const setup_packet_t *setup)
     if (setup->bmRequestType.Recipient != ENDPOINT_RECIPIENT) {
         return false;
     }
-    size_t ep_index = NUM_ENDPOINTS + 1;
+    size_t ep_index = NUM_ENDPOINTS;
     for (size_t i = 0; i < NUM_ENDPOINTS; i++) {
         if (_endpoints[i] == setup->wIndex) {
             ep_index = i;
             break;
         }
     }
-    if (ep_index > NUM_ENDPOINTS) {
+    if (ep_index == NUM_ENDPOINTS) {
+        return false;
+    }
+    if (_endpoint_buffs[ep_index] == NULL) {
         return false;
     }
     endpoint_abort(_endpoints[ep_index]);
     return read_start(_endpoints[ep_index], _endpoint_buffs[ep_index], (*_endpoint_configs)[ep_index].max_packet);
+}
+
+bool USBEndpointTester::_request_abort_buff_check(const setup_packet_t *setup)
+{
+    assert_locked();
+    if (setup->bmRequestType.Recipient != ENDPOINT_RECIPIENT) {
+        return false;
+    }
+    size_t ep_index = NUM_ENDPOINTS;
+    for (size_t i = 0; i < NUM_ENDPOINTS; i++) {
+        if (_endpoints[i] == setup->wIndex) {
+            ep_index = i;
+            break;
+        }
+    }
+    if (ep_index == NUM_ENDPOINTS) {
+        return false;
+    }
+    if (_endpoint_buffs[ep_index] == NULL) {
+        return false;
+    }
+    for (size_t i = 0; i < (*_endpoint_configs)[ep_index].max_packet; i++) {
+        if (_endpoint_buffs[ep_index][i] != EP_ABORT_BUFF_VALUE) {
+            return false;
+        }
+    }
+    return true;
 }
 
 void USBEndpointTester::callback_request_xfer_done(const setup_packet_t *setup, bool aborted)
@@ -307,6 +351,9 @@ void USBEndpointTester::callback_request_xfer_done(const setup_packet_t *setup, 
                 result = true;
                 break;
             case VENDOR_TEST_CTRL_IN_SIZES:
+                result = true;
+                break;
+            case VENDOR_TEST_ABORT_BUFF_CHECK:
                 result = true;
                 break;
             default:
@@ -723,7 +770,6 @@ void USBEndpointTester::_cb_bulk_out()
 {
     _cnt_cb_bulk_out++;
     uint32_t rx_size = read_finish(_endpoints[EP_BULK_OUT]);
-
     if (_abort_transfer_test == false) {
         // Send data back to host using the IN endpoint.
         memset(_endpoint_buffs[EP_BULK_IN], 0, (*_endpoint_configs)[EP_BULK_IN].max_packet);
@@ -732,6 +778,10 @@ void USBEndpointTester::_cb_bulk_out()
     } else {
         // Abort the transfer if enough data was received.
         _num_packets_bulk_out_abort++;
+        if (_num_packets_bulk_out_abort == NUM_PACKETS_UNTIL_ABORT) {
+            // Set every byte of the buffer to a known value.
+            memset(_endpoint_buffs[EP_BULK_OUT], EP_ABORT_BUFF_VALUE, (*_endpoint_configs)[EP_BULK_OUT].max_packet);
+        }
         read_start(_endpoints[EP_BULK_OUT], _endpoint_buffs[EP_BULK_OUT], (*_endpoint_configs)[EP_BULK_OUT].max_packet);
         if (_num_packets_bulk_out_abort == NUM_PACKETS_UNTIL_ABORT) {
             endpoint_abort(_endpoints[EP_BULK_OUT]);
@@ -743,7 +793,6 @@ void USBEndpointTester::_cb_bulk_in()
 {
     _cnt_cb_bulk_in++;
     write_finish(_endpoints[EP_BULK_IN]);
-
     if (_abort_transfer_test == false) {
         // Receive more data from the host using the OUT endpoint.
         read_start(_endpoints[EP_BULK_OUT], _endpoint_buffs[EP_BULK_OUT], (*_endpoint_configs)[EP_BULK_OUT].max_packet);
@@ -757,6 +806,10 @@ void USBEndpointTester::_cb_bulk_in()
         write_start(_endpoints[EP_BULK_IN], _endpoint_buffs[EP_BULK_IN], (*_endpoint_configs)[EP_BULK_IN].max_packet);
         if (_num_packets_bulk_in_abort == NUM_PACKETS_UNTIL_ABORT) {
             endpoint_abort(_endpoints[EP_BULK_IN]);
+            // Verify that buffer given in write_start is not used after the
+            // call to endpoint_abort(), by changing the buffer contents.
+            // The test will fail if the host receives new buffer content.
+            memset(_endpoint_buffs[EP_BULK_IN], FORBIDDEN_PAYLOAD_VALUE, (*_endpoint_configs)[EP_BULK_IN].max_packet);
         }
     }
 }
@@ -773,6 +826,10 @@ void USBEndpointTester::_cb_int_out()
     } else {
         // Abort the transfer if enough data was received.
         _num_packets_int_out_abort++;
+        if (_num_packets_int_out_abort == NUM_PACKETS_UNTIL_ABORT) {
+            // Set every byte of the buffer to a known value.
+            memset(_endpoint_buffs[EP_INT_OUT], EP_ABORT_BUFF_VALUE, (*_endpoint_configs)[EP_INT_OUT].max_packet);
+        }
         read_start(_endpoints[EP_INT_OUT], _endpoint_buffs[EP_INT_OUT], (*_endpoint_configs)[EP_INT_OUT].max_packet);
         if (_num_packets_int_out_abort == NUM_PACKETS_UNTIL_ABORT) {
             endpoint_abort(_endpoints[EP_INT_OUT]);
@@ -797,6 +854,10 @@ void USBEndpointTester::_cb_int_in()
         write_start(_endpoints[EP_INT_IN], _endpoint_buffs[EP_INT_IN], (*_endpoint_configs)[EP_INT_IN].max_packet);
         if (_num_packets_int_in_abort == NUM_PACKETS_UNTIL_ABORT) {
             endpoint_abort(_endpoints[EP_INT_IN]);
+            // Verify that buffer given in write_start is not used after the
+            // call to endpoint_abort(), by changing the buffer contents.
+            // The test will fail if the host receives new buffer content.
+            memset(_endpoint_buffs[EP_INT_IN], FORBIDDEN_PAYLOAD_VALUE, (*_endpoint_configs)[EP_INT_IN].max_packet);
         }
     }
 }
