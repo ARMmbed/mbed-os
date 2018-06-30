@@ -730,6 +730,10 @@
                 "help": "Define if a Low Speed External xtal (LSE) is available on the board (0 = No, 1 = Yes). If Yes, the LSE will be used to clock the RTC, LPUART, ... otherwise the Low Speed Internal clock (LSI) will be used",
                 "value": "1"
             },
+            "lpuart_clock_source": {
+                "help": "Define the LPUART clock source. Mask values: USE_LPUART_CLK_LSE, USE_LPUART_CLK_PCLK1, USE_LPUART_CLK_HSI",
+                "value": "USE_LPUART_CLK_LSE|USE_LPUART_CLK_PCLK1"
+            },
             "stdio_uart_tx": {
                 "help": "default TX STDIO pins is defined in PinNames.h file, but it can be overridden"
             },
