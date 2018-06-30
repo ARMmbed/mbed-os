@@ -2,14 +2,14 @@
     "config": {
         "header-file": {
             "help" : "String for including your driver header file",
-            "value" : "\"OdinWiFiInterface.h\""
+            "value" : "\"NetworkInterface.h\""
         },
         "object-construction" : {
-            "value" : "new OdinWiFiInterface()"
+            "value" : "NetworkInterface::get_default_instance()"
         },
         "connect-statement" : {
             "help" : "Must use 'net' variable name",
-            "value" : "net->wifiInterface()->connect(WIFI_SSID, WIFI_PASSWORD)"
+            "value" : "net->connect()"
         },
         "echo-server-addr" : {
             "help" : "IP address of echo server",
@@ -31,6 +31,9 @@
     },
     "target_overrides": {
         "*": {
+            "nsapi.default-wifi-ssid": WIFI_SSID,
+            "nsapi.default-wifi-password": WIFI_PASSWORD,
+            "nsapi.default-wifi-security": WIFI_SECURITY,
             "target.features_add": ["LWIP"],
             "nsapi.default-stack": "LWIP"
         }

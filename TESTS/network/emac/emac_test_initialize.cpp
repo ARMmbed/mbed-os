@@ -25,27 +25,11 @@
 #if MBED_CONF_APP_TEST_WIFI || MBED_CONF_APP_TEST_ETHERNET
 
 #include "EthernetInterface.h"
+#include "WiFiInterface.h"
 #include "EMAC.h"
 #include "EMACMemoryManager.h"
 #include "emac_TestMemoryManager.h"
 #include "emac_TestNetworkStack.h"
-
-#if MBED_CONF_APP_TEST_WIFI
-
-#if defined(TARGET_UBLOX_EVK_ODIN_W2) || defined(TARGET_MTB_UBLOX_ODIN_W2)
-#include "OdinWiFiInterface.h"
-#endif
-#ifdef TARGET_REALTEK_RTL8195AM
-#include "RTWInterface.h"
-#endif
-#if defined(TARGET_MTB_ADV_WISE_1530)   || \
-    defined(TARGET_MTB_USI_WM_BN_BM_22) || \
-    defined(TARGET_MTB_MXCHIP_EMW3166)
-#include "WicedInterface.h"
-#endif
-
-#endif
-
 #include "emac_initialize.h"
 #include "emac_tests.h"
 #include "emac_util.h"
@@ -61,22 +45,14 @@ void test_emac_initialize()
 
 #if MBED_CONF_APP_TEST_ETHERNET
 
-    static EthernetInterface *network_interface = new EthernetInterface;
+    static EthernetInterface *network_interface = EthInterface::get_default_instance();
+    TEST_ASSERT_MESSAGE(network_interface, "Ethernet interface not found!");
 
 #elif MBED_CONF_APP_TEST_WIFI
 
     // Add wifi classes here
-#if defined(TARGET_UBLOX_EVK_ODIN_W2) || defined(TARGET_MTB_UBLOX_ODIN_W2)
-    static WiFiInterface *network_interface = new OdinWiFiInterface;
-#elif defined(TARGET_REALTEK_RTL8195AM)
-    static WiFiInterface *network_interface = new RTWInterface;
-#elif defined(TARGET_MTB_ADV_WISE_1530)   || \
-      defined(TARGET_MTB_USI_WM_BN_BM_22) || \
-      defined(TARGET_MTB_MXCHIP_EMW3166)
-    static WiFiInterface *network_interface = new WicedInterface;
-#else
-    static WiFiInterface *network_interface = new WiFiInterface;
-#endif
+    static WiFiInterface *network_interface = WiFiInterface::get_default_instance();
+    TEST_ASSERT_MESSAGE(network_interface, "WiFi interface not found!");
 
 #if MBED_CONF_APP_WIFI_SCAN
     WiFiAccessPoint ap[30];
