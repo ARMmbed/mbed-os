@@ -18,6 +18,7 @@ from __future__ import print_function, division, absolute_import
 
 import re
 import sys
+import json
 from os import stat, walk, getcwd, sep, remove
 from copy import copy
 from time import time, sleep
@@ -1299,11 +1300,17 @@ class mbedToolchain:
         """Dump the current build profile and macros into the `.profile` file
         in the build directory"""
         for key in ["cxx", "c", "asm", "ld"]:
-            to_dump = (str(self.flags[key]) + str(sorted(self.macros)))
+            to_dump = {
+                "flags": sorted(self.flags[key]),
+                "macros": sorted(self.macros),
+                "symbols": sorted(self.get_symbols(for_asm=(key == "asm"))),
+            }
             if key in ["cxx", "c"]:
-                to_dump += str(self.flags['common'])
+                to_dump["symbols"].remove('MBED_BUILD_TIMESTAMP=%s' % self.timestamp)
+                to_dump["flags"].extend(sorted(self.flags['common']))
             where = join(self.build_dir, self.PROFILE_FILE_NAME + "-" + key)
-            self._overwrite_when_not_equal(where, to_dump)
+            self._overwrite_when_not_equal(where, json.dumps(
+                to_dump, sort_keys=True, indent=4))
 
     @staticmethod
     def _overwrite_when_not_equal(filename, content):
