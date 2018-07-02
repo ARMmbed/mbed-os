@@ -42,17 +42,42 @@ static const struct nu_modinit_s timer1_modinit = {TIMER_1, TMR1_MODULE, CLK_CLK
 
 #define TIMER_MODINIT      timer1_modinit
 
-static int ticker_inited = 0;
+/* Timer interrupt enable/disable
+ * 
+ * Because Timer interrupt enable/disable (TIMER_EnableInt/TIMER_DisableInt) needs wait for lp_ticker,
+ * we call NVIC_DisableIRQ/NVIC_EnableIRQ instead.
+ */
+
+/* Track ticker status */
+static volatile uint16_t ticker_inited = 0;
 
 #define TMR_CMP_MIN         2
 #define TMR_CMP_MAX         0xFFFFFFu
 
-/* NOTE: When system clock is higher than timer clock, we need to add 3 engine clock
- *       (recommended by designer) delay to wait for above timer control to take effect. */
+/* Synchronization issue with LXT/LIRC-clocked Timer
+ *
+ * PCLK                 : typical HCLK/2
+ * ECLK (engine clock)  : LXT/LIRC for Timer used to implement lp_ticker
+ *
+ * When system clock is higher than Timer clock (LXT/LIRC), we need to add delay for ECLK
+ * domain to take effect:
+ * 1. Write                 : typical 1PCLK + 2ECLK
+ *    Read-check doesn't work because it just checks PCLK domain and doesn't check into
+ *    ECLK domain.
+ * 2. Clear interrupt flag  : typical 2PCLK
+ *    It is very rare that we would meet dummy interrupt and get stuck in ISR until
+ *    'clear interrupt flag' takes effect. The issue is ignorable because the pending
+ *    time is very short (at most 1 dummy interrupt). We won't take special handling for it.
+ */
 
 void lp_ticker_init(void)
 {
     if (ticker_inited) {
+        /* By HAL spec, ticker_init allows the ticker to keep counting and disables the
+         * ticker interrupt. */
+        lp_ticker_disable_interrupt();
+        lp_ticker_clear_interrupt();
+        NVIC_ClearPendingIRQ(TIMER_MODINIT.irq_n);
         return;
     }
     ticker_inited = 1;
@@ -85,7 +110,7 @@ void lp_ticker_init(void)
     // Set vector
     NVIC_SetVector(TIMER_MODINIT.irq_n, (uint32_t) TIMER_MODINIT.var);
 
-    NVIC_EnableIRQ(TIMER_MODINIT.irq_n);
+    NVIC_DisableIRQ(TIMER_MODINIT.irq_n);
 
     TIMER_EnableInt(timer_base);
     wait_us((NU_US_PER_SEC / NU_TMRCLK_PER_SEC) * 3);
@@ -98,6 +123,33 @@ void lp_ticker_init(void)
 
     /* Wait for timer to start counting and raise active flag */
     while(! (timer_base->CTL & TIMER_CTL_ACTSTS_Msk));
+}
+
+void lp_ticker_free(void)
+{
+    TIMER_T *timer_base = (TIMER_T *) NU_MODBASE(TIMER_MODINIT.modname);
+
+    /* Stop counting */
+    TIMER_Stop(timer_base);
+    wait_us((NU_US_PER_SEC / NU_TMRCLK_PER_SEC) * 3);
+
+    /* Wait for timer to stop counting and unset active flag */
+    while((timer_base->CTL & TIMER_CTL_ACTSTS_Msk));
+
+    /* Disable wakeup */
+    TIMER_DisableWakeup(timer_base);
+    wait_us((NU_US_PER_SEC / NU_TMRCLK_PER_SEC) * 3);
+
+    /* Disable interrupt */
+    TIMER_DisableInt(timer_base);
+    wait_us((NU_US_PER_SEC / NU_TMRCLK_PER_SEC) * 3);
+
+    NVIC_DisableIRQ(TIMER_MODINIT.irq_n);
+
+    /* Disable IP clock */
+    CLK_DisableModuleClock(TIMER_MODINIT.clkidx);
+
+    ticker_inited = 0;
 }
 
 timestamp_t lp_ticker_read()
@@ -128,20 +180,29 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
     uint32_t cmp_timer = timestamp * NU_TMRCLK_PER_TICK;
     cmp_timer = NU_CLAMP(cmp_timer, TMR_CMP_MIN, TMR_CMP_MAX);
 
+    /* NOTE: Rely on LPTICKER_DELAY_TICKS to be non-blocking. */
     timer_base->CMP = cmp_timer;
-    wait_us((NU_US_PER_SEC / NU_TMRCLK_PER_SEC) * 3);
+
+    /* We can call ticker_irq_handler now. */
+    NVIC_EnableIRQ(TIMER_MODINIT.irq_n);
 }
 
 void lp_ticker_disable_interrupt(void)
 {
-    TIMER_DisableInt((TIMER_T *) NU_MODBASE(TIMER_MODINIT.modname));
-    wait_us((NU_US_PER_SEC / NU_TMRCLK_PER_SEC) * 3);
+    /* We cannot call ticker_irq_handler now. */
+    NVIC_DisableIRQ(TIMER_MODINIT.irq_n);
 }
 
 void lp_ticker_clear_interrupt(void)
 {
-    TIMER_ClearIntFlag((TIMER_T *) NU_MODBASE(TIMER_MODINIT.modname));
-    wait_us((NU_US_PER_SEC / NU_TMRCLK_PER_SEC) * 3);
+    /* To avoid sync issue, we clear TIF/TWKF simultaneously rather than call separate 
+     * driver API:
+     *
+     * TIMER_ClearIntFlag((TIMER_T *) NU_MODBASE(TIMER_MODINIT.modname));
+     * TIMER_ClearWakeupFlag((TIMER_T *) NU_MODBASE(TIMER_MODINIT.modname));
+     */
+    TIMER_T *timer_base = (TIMER_T *) NU_MODBASE(TIMER_MODINIT.modname);
+    timer_base->INTSTS = TIMER_INTSTS_TIF_Msk | TIMER_INTSTS_TWKF_Msk;
 }
 
 void lp_ticker_fire_interrupt(void)
@@ -149,6 +210,9 @@ void lp_ticker_fire_interrupt(void)
     // NOTE: This event was in the past. Set the interrupt as pending, but don't process it here.
     //       This prevents a recursive loop under heavy load which can lead to a stack overflow.
     NVIC_SetPendingIRQ(TIMER_MODINIT.irq_n);
+
+    /* We can call ticker_irq_handler now. */
+    NVIC_EnableIRQ(TIMER_MODINIT.irq_n);
 }
 
 const ticker_info_t* lp_ticker_get_info()
@@ -162,11 +226,7 @@ const ticker_info_t* lp_ticker_get_info()
 
 static void tmr1_vec(void)
 {
-    TIMER_ClearIntFlag((TIMER_T *) NU_MODBASE(TIMER_MODINIT.modname));
-    wait_us((NU_US_PER_SEC / NU_TMRCLK_PER_SEC) * 3);
-
-    TIMER_ClearWakeupFlag((TIMER_T *) NU_MODBASE(TIMER_MODINIT.modname));
-    wait_us((NU_US_PER_SEC / NU_TMRCLK_PER_SEC) * 3);
+    lp_ticker_clear_interrupt();
 
     // NOTE: lp_ticker_set_interrupt() may get called in lp_ticker_irq_handler();
     lp_ticker_irq_handler();
