@@ -78,7 +78,9 @@ WEAK void error(const char *format, ...)
 
     //Call handle_error/print_error_report permanently setting error_in_progress flag
     handle_error(MBED_ERROR_UNKNOWN, 0, NULL, 0);
+#ifndef NDEBUG
     print_error_report(&last_error_ctx, "Fatal Run-time error");
+#endif    
     error_in_progress = 1;
 
 #ifndef NDEBUG
@@ -199,8 +201,10 @@ WEAK mbed_error_status_t mbed_error(mbed_error_status_t error_status, const char
         return MBED_ERROR_FAILED_OPERATION;
     }
 
+#ifndef NDEBUG    
     //On fatal errors print the error context/report
     print_error_report(&last_error_ctx, error_msg);
+#endif    
     mbed_halt_system();
 
     return MBED_ERROR_FAILED_OPERATION;
