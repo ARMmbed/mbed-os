@@ -3681,12 +3681,12 @@
             "SERIAL",
             "SERIAL_ASYNCH",
             "SERIAL_FC",
+            "SLEEP",
             "SPI",
             "SPI_ASYNCH",
             "STCLK_OFF_DURING_SLEEP",
             "TRNG",
-            "USTICKER",
-            "SLEEP"
+            "USTICKER"
         ],
         "extra_labels": [
             "NORDIC",
@@ -3777,7 +3777,6 @@
             "PORTINOUT",
             "PORTOUT",
             "PWMOUT",
-            "RTC",
             "SERIAL",
             "SERIAL_ASYNCH",
             "SERIAL_FC",
