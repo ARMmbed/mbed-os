@@ -301,14 +301,9 @@ public:
      *                          MSG_CONFIRMED_FLAG = 0x02
      *                          MSG_MULTICAST_FLAG = 0x04
      *                          MSG_PROPRIETARY_FLAG = 0x08
-     *                          MSG_MULTICAST_FLAG and MSG_PROPRIETARY_FLAG can be
-     *                          used in conjunction with MSG_UNCONFIRMED_FLAG and
-     *                          MSG_CONFIRMED_FLAG depending on the intended use.
      *
-     *                          MSG_PROPRIETARY_FLAG|MSG_CONFIRMED_FLAG mask will set
-     *                          a confirmed message flag for a proprietary message.
-     *                          MSG_CONFIRMED_FLAG and MSG_UNCONFIRMED_FLAG are
-     *                          mutually exclusive.
+     *                          All flags are mutually exclusive, and MSG_MULTICAST_FLAG
+     *                          cannot be set.
      *
      *
      * @return                  The number of bytes sent, or
@@ -338,14 +333,11 @@ public:
      *                          MSG_MULTICAST_FLAG = 0x04,
      *                          MSG_PROPRIETARY_FLAG = 0x08
      *
-     *                          MSG_MULTICAST_FLAG and MSG_PROPRIETARY_FLAG can be
-     *                          used in conjunction with MSG_UNCONFIRMED_FLAG and
-     *                          MSG_CONFIRMED_FLAG depending on the intended use.
+     *                          All flags can be used in conjunction with
+     *                          one another depending on the intended use case or reception
+     *                          expectation.
      *
-     *                          MSG_PROPRIETARY_FLAG|MSG_CONFIRMED_FLAG mask will set
-     *                          a confirmed message flag for a proprietary message.
-     *
-     *                          MSG_CONFIRMED_FLAG and MSG_UNCONFIRMED_FLAG are
+     *                          e.g., MSG_CONFIRMED_FLAG and MSG_UNCONFIRMED_FLAG are
      *                          not mutually exclusive, i.e., the user can subscribe to
      *                          receive both CONFIRMED AND UNCONFIRMED messages at
      *                          the same time.
