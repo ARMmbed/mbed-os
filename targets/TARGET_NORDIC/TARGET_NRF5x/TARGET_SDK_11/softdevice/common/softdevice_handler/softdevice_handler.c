@@ -62,12 +62,7 @@
     #include "nrf_ble.h"
 #endif
 
-
-#if defined(NRF_LOG_USES_RTT) && NRF_LOG_USES_RTT == 1
 #define SD_HANDLER_LOG(...) NRF_LOG_PRINTF(__VA_ARGS__)
-#else
-#define SD_HANDLER_LOG(...)
-#endif
 
 #if defined(NRF_LOG_USES_RTT) && NRF_LOG_USES_RTT == 1
 #define SD_HANDLER_LOG_INIT() NRF_LOG_INIT()
@@ -410,7 +405,8 @@ uint32_t softdevice_enable_get_default_config(uint8_t central_links_count,
 }
 
 
-#if defined(NRF_LOG_USES_RTT) && NRF_LOG_USES_RTT == 1
+#if (defined(NRF_LOG_USES_RTT) && NRF_LOG_USES_RTT == 1) || \
+    (defined(NRF_LOG_USES_UART) && NRF_LOG_USES_UART == 1)
 static inline uint32_t ram_total_size_get(void)
 {
 #ifdef NRF51
@@ -453,7 +449,6 @@ uint32_t sd_check_ram_start(uint32_t sd_req_ram_start)
 #endif//__CC_ARM
     if (ram_start != sd_req_ram_start)
     {
-#if defined(NRF_LOG_USES_RTT) && NRF_LOG_USES_RTT == 1
         uint32_t app_ram_size= ram_end_address_get();
         SD_HANDLER_LOG("RAM START ADDR 0x%x should be adjusted to 0x%x\r\n",
                   ram_start,
@@ -461,7 +456,6 @@ uint32_t sd_check_ram_start(uint32_t sd_req_ram_start)
         app_ram_size -= sd_req_ram_start;
         SD_HANDLER_LOG("RAM SIZE should be adjusted to 0x%x \r\n",
                   app_ram_size);
-#endif //NRF_LOG_USES_RTT
         return NRF_SUCCESS;
     }
 #endif//defined(S130) || defined(S132) || defined(S332)
@@ -490,22 +484,18 @@ uint32_t softdevice_enable(ble_enable_params_t * p_ble_enable_params)
                     app_ram_base);
     err_code = sd_ble_enable(p_ble_enable_params, &app_ram_base);
 
-#if defined(NRF_LOG_USES_RTT) && NRF_LOG_USES_RTT == 1
+    // MODIFIED the rest of this function to match logging implementation in SDK13
     if (app_ram_base != ram_start)
     {
-        uint32_t app_ram_size= ram_end_address_get();
-        SD_HANDLER_LOG("sd_ble_enable: app_ram_base should be adjusted to 0x%x\r\n",
-                  app_ram_base);
-        app_ram_size -= app_ram_base;
-        SD_HANDLER_LOG("ram size should be adjusted to 0x%x \r\n",
-                  app_ram_size);
+        SD_HANDLER_LOG("sd_ble_enable: RAM start should be adjusted to 0x%x\r\n",
+                app_ram_base);
+        SD_HANDLER_LOG("RAM size should be adjusted to 0x%x \r\n",
+                ram_end_address_get() - app_ram_base);
     }
     else if (err_code != NRF_SUCCESS)
     {
         SD_HANDLER_LOG("sd_ble_enable: error 0x%x\r\n", err_code);
-        while(1);
     }
-#endif   // NRF_LOG_USES_RTT
     return err_code;
 #else
     return NRF_SUCCESS;

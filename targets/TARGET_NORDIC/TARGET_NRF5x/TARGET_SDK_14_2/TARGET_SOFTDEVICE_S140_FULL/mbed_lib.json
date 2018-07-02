@@ -1,5 +1,12 @@
 {
     "name": "softdevice",
+    "config": {
+        "nrf_enable_logging": {
+            "help": "When '1' NRF_LOG_* outputs will be sent to stdout.",
+            "value": "0",
+            "macro_name": "NRF_LOG_ENABLED"
+        }
+    },
     "macros": [
         "SOFTDEVICE_PRESENT=1",
         "S140",
@@ -28,7 +35,8 @@
         "NRF_SDH_BLE_STACK_OBSERVER_PRIO=0",
         "NRF_SDH_SOC_STACK_OBSERVER_PRIO=0",
         "FDS_BACKEND=2",
-        "SWI_DISABLE1=1"
+        "SWI_DISABLE1=1",
+        "NRF_STRERROR_ENABLED=1"
     ],
     "target_overrides": {
         "*": {

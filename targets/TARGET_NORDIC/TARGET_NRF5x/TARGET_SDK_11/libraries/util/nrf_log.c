@@ -182,9 +182,9 @@ uint32_t log_uart_init()
                          UART_TX_BUF_SIZE,
                          uart_error_cb,
 #ifdef NRF51
-                         APP_IRQ_PRIORITY_LOW
+                         APP_IRQ_PRIORITY_LOW,
 #elif defined(NRF52)
-                         APP_IRQ_PRIORITY_LOWEST
+                         APP_IRQ_PRIORITY_LOWEST,
 #endif
                          err_code);
 
