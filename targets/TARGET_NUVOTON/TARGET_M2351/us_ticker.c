@@ -216,7 +216,6 @@ static void tmr2_vec(void)
 #endif
 {
     us_ticker_clear_interrupt();
-    us_ticker_disable_interrupt();
 
     // NOTE: us_ticker_set_interrupt() may get called in us_ticker_irq_handler();
     us_ticker_irq_handler();
