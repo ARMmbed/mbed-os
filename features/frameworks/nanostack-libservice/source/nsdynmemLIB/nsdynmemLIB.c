@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2015 ARM Limited. All rights reserved.
+ * Copyright (c) 2014-2018 ARM Limited. All rights reserved.
  * SPDX-License-Identifier: Apache-2.0
  * Licensed under the Apache License, Version 2.0 (the License); you may
  * not use this file except in compliance with the License.
@@ -41,12 +41,15 @@ struct ns_mem_book {
     void (*heap_failure_callback)(heap_fail_t);
     NS_LIST_HEAD(hole_t, link) holes_list;
     ns_mem_heap_size_t heap_size;
+    ns_mem_heap_size_t temporary_alloc_heap_limit;   /* Amount of reserved heap temporary alloc can't exceed */
 };
 
 static ns_mem_book_t *default_book; // heap pointer for original "ns_" API use
 
 // size of a hole_t in our word units
 #define HOLE_T_SIZE ((ns_mem_word_size_t) ((sizeof(hole_t) + sizeof(ns_mem_word_size_t) - 1) / sizeof(ns_mem_word_size_t)))
+
+#define TEMPORARY_ALLOC_FREE_HEAP_THRESHOLD 5  /* temporary allocations must leave 5% of the heap free */
 
 static NS_INLINE hole_t *hole_from_block_start(ns_mem_word_size_t *start)
 {
@@ -124,6 +127,7 @@ ns_mem_book_t *ns_mem_init(void *heap, ns_mem_heap_size_t h_size,
         memset(book->mem_stat_info_ptr, 0, sizeof(mem_stat_t));
         book->mem_stat_info_ptr->heap_sector_size = book->heap_size;
     }
+    book->temporary_alloc_heap_limit = book->heap_size/100 * (100-TEMPORARY_ALLOC_FREE_HEAP_THRESHOLD);
 #endif
     //There really is no support to standard malloc in this library anymore
     book->heap_failure_callback = passed_fptr;
@@ -138,6 +142,47 @@ const mem_stat_t *ns_mem_get_mem_stat(ns_mem_book_t *heap)
 #else
     return NULL;
 #endif
+}
+
+int ns_mem_set_temporary_alloc_free_heap_threshold(ns_mem_book_t *book, uint8_t free_heap_percentage, ns_mem_heap_size_t free_heap_amount)
+{
+#ifndef STANDARD_MALLOC
+    ns_mem_heap_size_t heap_limit = 0;
+
+    if (!book || !book->mem_stat_info_ptr) {
+        // no book or mem_stats
+        return -1;
+    }
+
+    if (free_heap_amount && free_heap_amount < book->heap_size/2) {
+        heap_limit = book->heap_size - free_heap_amount;
+    }
+
+    if (!free_heap_amount && free_heap_percentage && free_heap_percentage < 50) {
+        heap_limit = book->heap_size/100 * (100 - free_heap_percentage);
+    }
+
+    if (free_heap_amount == 0 && free_heap_percentage == 0) {
+        // feature disabled, allow whole heap to be reserved by temporary allo
+        heap_limit = book->heap_size;
+    }
+
+    if (heap_limit == 0) {
+        // illegal heap parameters
+        return -2;
+    }
+
+    book->temporary_alloc_heap_limit = heap_limit;
+
+    return 0;
+#else
+    return -3;
+#endif
+}
+
+extern int ns_dyn_mem_set_temporary_alloc_free_heap_threshold(uint8_t free_heap_percentage, ns_mem_heap_size_t free_heap_amount)
+{
+    return ns_mem_set_temporary_alloc_free_heap_threshold(default_book, free_heap_percentage, free_heap_amount);
 }
 
 #ifndef STANDARD_MALLOC
@@ -179,8 +224,7 @@ static ns_mem_word_size_t convert_allocation_size(ns_mem_book_t *book, ns_mem_bl
 // Checks that block length indicators are valid
 // Block has format: Size of data area [1 word] | data area [abs(size) words]| Size of data area [1 word]
 // If Size is negative it means area is unallocated
-// For direction, use 1 for direction up and -1 for down
-static int8_t ns_mem_block_validate(ns_mem_word_size_t *block_start, int direction)
+static int8_t ns_mem_block_validate(ns_mem_word_size_t *block_start)
 {
     int8_t ret_val = -1;
     ns_mem_word_size_t *end = block_start;
@@ -203,6 +247,14 @@ static void *ns_mem_internal_alloc(ns_mem_book_t *book, const ns_mem_block_size_
         return NULL;
     }
 
+    if (book->mem_stat_info_ptr && direction == 1) {
+        if (book->mem_stat_info_ptr->heap_sector_allocated_bytes > book->temporary_alloc_heap_limit) {
+            /* Not enough heap for temporary memory allocation */
+            dev_stat_update(book->mem_stat_info_ptr, DEV_HEAP_ALLOC_FAIL, 0);
+            return NULL;
+        }
+    }
+
     ns_mem_word_size_t *block_ptr = NULL;
 
     platform_enter_critical();
@@ -220,7 +272,7 @@ static void *ns_mem_internal_alloc(ns_mem_book_t *book, const ns_mem_block_size_
                                   : ns_list_get_previous(&book->holes_list, cur_hole)
         ) {
         ns_mem_word_size_t *p = block_start_from_hole(cur_hole);
-        if (ns_mem_block_validate(p, direction) != 0 || *p >= 0) {
+        if (ns_mem_block_validate(p) != 0 || *p >= 0) {
             //Validation failed, or this supposed hole has positive (allocated) size
             heap_failure(book, NS_DYN_MEM_HEAP_SECTOR_CORRUPTED);
             break;
@@ -236,7 +288,9 @@ static void *ns_mem_internal_alloc(ns_mem_book_t *book, const ns_mem_block_size_
         goto done;
     }
 
-    ns_mem_word_size_t block_data_size = -*block_ptr;
+    // Separate declaration from initialization to keep IAR happy as the gotos skip this block.
+    ns_mem_word_size_t block_data_size;
+    block_data_size = -*block_ptr;
     if (block_data_size >= (data_size + 2 + HOLE_T_SIZE)) {
         ns_mem_word_size_t hole_size = block_data_size - data_size - 2;
         ns_mem_word_size_t *hole_ptr;
@@ -277,7 +331,7 @@ static void *ns_mem_internal_alloc(ns_mem_book_t *book, const ns_mem_block_size_
             dev_stat_update(book->mem_stat_info_ptr, DEV_HEAP_ALLOC_OK, (data_size + 2) * sizeof(ns_mem_word_size_t));
 
         } else {
-            //Update Allocate Fail, second parameter is not used for stats
+            //Update Allocate Fail, second parameter is used for stats
             dev_stat_update(book->mem_stat_info_ptr, DEV_HEAP_ALLOC_FAIL, 0);
         }
     }
@@ -425,7 +479,7 @@ void ns_mem_free(ns_mem_book_t *book, void *block)
     } else if (size < 0) {
         heap_failure(book, NS_DYN_MEM_DOUBLE_FREE);
     } else {
-        if (ns_mem_block_validate(ptr, 1) != 0) {
+        if (ns_mem_block_validate(ptr) != 0) {
             heap_failure(book, NS_DYN_MEM_HEAP_SECTOR_CORRUPTED);
         } else {
             ns_mem_free_and_merge_with_adjacent_blocks(book, ptr, size);
