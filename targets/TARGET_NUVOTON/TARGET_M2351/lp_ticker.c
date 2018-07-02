@@ -79,8 +79,21 @@ static volatile uint16_t ticker_inited = 0;
 #define TMR_CMP_MIN         2
 #define TMR_CMP_MAX         0xFFFFFFu
 
-/* NOTE: When system clock is higher than timer clock, we need to add 3 engine clock
- *       (recommended by designer) delay to wait for above timer control to take effect. */
+/* Synchronization issue with LXT/LIRC-clocked Timer
+ *
+ * PCLK                 : typical HCLK/2
+ * ECLK (engine clock)  : LXT/LIRC for Timer used to implement lp_ticker
+ *
+ * When system clock is higher than Timer clock (LXT/LIRC), we need to add delay for ECLK
+ * domain to take effect:
+ * 1. Write                 : typical 1PCLK + 2ECLK
+ *    Read-check doesn't work because it just checks PCLK domain and doesn't check into
+ *    ECLK domain.
+ * 2. Clear interrupt flag  : typical 2PCLK
+ *    It is very rare that we would meet dummy interrupt and get stuck in ISR until
+ *    'clear interrupt flag' takes effect. The issue is ignorable because the pending
+ *    time is very short (at most 1 dummy interrupt). We won't take special handling for it.
+ */
 
 void lp_ticker_init(void)
 {
@@ -255,25 +268,7 @@ static void tmr1_vec(void)
 static void tmr3_vec(void)
 #endif
 {
-    /* NOTE: Avoid blocking in ISR due to wait for "clear interrupt flag"
-     *
-     * "clear interrupt flag" needs wait to take effect which isn't added here to avoid
-     * blocking in ISR.
-     *
-     * Continuing above, we will get stuck in ISR due to dummy interrupt until
-     * "clear interrupt flag" takes effect. To avoid it, we disable interrupt here and enable
-     * interrupt in lp_ticker_fire_interrupt/lp_ticker_set_interrupt. There is another risk
-     * that we may get stuck in a loop of ISR and lp_ticker_fire_interrupt/
-     * lp_ticker_set_interrupt (called by lp_ticker_irq_handler), but actually we don't:
-     * 1. When lp_ticker_fire_interrupt gets called, it means there is a past event and so this
-     *    interrupt isn't dummy.
-     * 2. With LPTICKER_DELAY_TICKS enabled, it is lp_ticker_set_interrupt_wrapper rather than
-     *    lp_ticker_set_interrupt that gets straight called. lp_ticker_set_interrupt_wrapper
-     *    guarantees that lp_ticker_set_interrupt won't get re-called in LPTICKER_DELAY_TICKS ticks
-     *    which is just enough for  "clear interrupt flag" to take effect.
-     */
     lp_ticker_clear_interrupt();
-    lp_ticker_disable_interrupt();
 
     // NOTE: lp_ticker_set_interrupt() may get called in lp_ticker_irq_handler();
     lp_ticker_irq_handler();
