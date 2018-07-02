@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2016 ARM Limited. All rights reserved.
+ * Copyright (c) 2014-2018 ARM Limited. All rights reserved.
  * SPDX-License-Identifier: Apache-2.0
  * Licensed under the Apache License, Version 2.0 (the License); you may
  * not use this file except in compliance with the License.
@@ -32,10 +32,10 @@ extern "C" {
 #include "ns_types.h"
 
 // Added to maintain backward compatibility with older implementation of ns_dyn_mem APIs
-#define NSDYNMEMLIB_API_VERSION 2
+#define NSDYNMEMLIB_API_VERSION 3
 
-typedef uint16_t ns_mem_block_size_t; //external interface unsigned heap block size type
-typedef uint16_t ns_mem_heap_size_t; //total heap size type.
+typedef size_t ns_mem_block_size_t; //external interface unsigned heap block size type
+typedef size_t ns_mem_heap_size_t; //total heap size type.
 
 /*!
  * \enum heap_fail_t
@@ -123,6 +123,20 @@ extern void *ns_dyn_mem_alloc(ns_mem_block_size_t alloc_size);
 extern const mem_stat_t *ns_dyn_mem_get_mem_stat(void);
 
 /**
+  * \brief Set amount of free heap that must be available for temporary memory allocation to succeed.
+  *
+  * Temporary memory allocation will fail if system does not have defined amount of heap free.
+  *
+  * Note: the caller must set mem_stat_t structure in initialization.
+  *
+  * \param free_heap_percentage percentage of total heap that must be free for temporary memory allocation. Set free_heap_amount to 0 when this percentage value.
+  * \param free_heap_amount Amount of free heap that must be free for temporary memory allocation. This value takes preference over percentage parameter value.
+  *
+  * \return 0 on success, <0 otherwise
+  */
+extern int ns_dyn_mem_set_temporary_alloc_free_heap_threshold(uint8_t free_heap_percentage, ns_mem_heap_size_t free_heap_amount);
+
+/**
   * \brief Init and set Dynamical heap pointer and length.
   *
   * \param heap_ptr Pointer to dynamically heap buffer
@@ -181,8 +195,24 @@ extern void *ns_mem_alloc(ns_mem_book_t *book, ns_mem_block_size_t alloc_size);
   */
 extern const mem_stat_t *ns_mem_get_mem_stat(ns_mem_book_t *book);
 
+/**
+  * \brief Set amount of free heap that must be available for temporary memory allocation to succeed.
+  *
+  * Temporary memory allocation will fail if system does not have defined amount of heap free.
+  *
+  * Note: the caller must set mem_stat_t structure in initialization.
+  *
+  * \param book Address of book keeping structure
+  * \param free_heap_percentage percentage of total heap that must be free for temporary memory allocation. Set free_heap_amount to 0 when using percentage value.
+  * \param free_heap_amount Amount of free heap that must be free for temporary memory allocation. This value takes preference over the percentage parameter value.
+  *
+  * \return 0 on success, <0 otherwise
+  */
+extern int ns_mem_set_temporary_alloc_free_heap_threshold(ns_mem_book_t *book, uint8_t free_heap_percentage, ns_mem_heap_size_t free_heap_amount);
+
 #ifdef __cplusplus
 }
 #endif
 #endif /* NSDYNMEMLIB_H_ */
+
 
