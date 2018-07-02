@@ -190,7 +190,8 @@ if __name__ == '__main__':
     # Only prints matrix of supported toolchains
     if options.supported_toolchains:
         if options.supported_toolchains == "matrix":
-            print(mcu_toolchain_matrix(platform_filter=options.general_filter_regex))
+            print(mcu_toolchain_matrix(platform_filter=options.general_filter_regex,
+                                       release_version=None))
         elif options.supported_toolchains == "toolchains":
             toolchain_list = mcu_toolchain_list()
             # Only print the lines that matter
