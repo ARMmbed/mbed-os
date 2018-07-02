@@ -65,13 +65,13 @@ const PinMap PinMap_I2C_SCL[] = {
 /************UART***************/
 const PinMap PinMap_UART_TX[] = {
     {P0_30, UART_0, 1},
-    {P3_27, UART_1, 1},
+    {P3_27, UART_1, 3},
     {NC   ,  NC   , 0}
 };
 
 const PinMap PinMap_UART_RX[] = {
     {P0_29, UART_0, 1},
-    {P3_26, UART_1, 1},
+    {P3_26, UART_1, 3},
     {NC   ,  NC   , 0}
 };
 
