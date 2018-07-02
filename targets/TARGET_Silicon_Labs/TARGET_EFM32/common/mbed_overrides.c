@@ -29,6 +29,7 @@
 #include "device.h"
 #include "em_usart.h"
 #include "gpio_api.h"
+#include "clocking.h"
 
 gpio_t bc_enable;
 
