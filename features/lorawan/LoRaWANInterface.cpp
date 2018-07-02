@@ -20,16 +20,28 @@
  */
 
 #include "LoRaWANInterface.h"
+#include "lorastack/phy/loraphy_target.h"
 
 using namespace events;
 
 LoRaWANInterface::LoRaWANInterface(LoRaRadio &radio)
+    : _default_phy(NULL)
 {
-    _lw_stack.bind_radio_driver(radio);
+    _default_phy = new LoRaPHY_region;
+    MBED_ASSERT(_default_phy);
+    _lw_stack.bind_phy_and_radio_driver(radio, *_default_phy);
+}
+
+LoRaWANInterface::LoRaWANInterface(LoRaRadio &radio, LoRaPHY &phy)
+    : _default_phy(NULL)
+{
+    _lw_stack.bind_phy_and_radio_driver(radio, phy);
 }
 
 LoRaWANInterface::~LoRaWANInterface()
 {
+    delete _default_phy;
+    _default_phy = NULL;
 }
 
 lorawan_status_t LoRaWANInterface::initialize(EventQueue *queue)

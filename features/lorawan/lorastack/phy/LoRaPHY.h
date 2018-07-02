@@ -60,7 +60,7 @@ public:
      *
      * @param radio    a reference to radio driver object
      */
-    void set_radio_instance(LoRaRadio& radio);
+    void set_radio_instance(LoRaRadio &radio);
 
     /** Puts radio in sleep mode.
      *

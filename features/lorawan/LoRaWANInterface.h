@@ -24,6 +24,8 @@
 #include "LoRaRadio.h"
 #include "LoRaWANBase.h"
 
+class LoRaPHY;
+
 class LoRaWANInterface: public LoRaWANBase {
 
 public:
@@ -33,8 +35,18 @@ public:
      * Currently, LoRaWANStack is a singleton and you should only
      * construct a single instance of LoRaWANInterface.
      *
+     * LoRaWANInterface will construct PHY based on "lora.phy" setting in mbed_app.json.
+     *
+     * @param radio A reference to radio object
      */
     LoRaWANInterface(LoRaRadio &radio);
+
+    /** Constructs a LoRaWANInterface using the user provided PHY object.
+
+     * @param radio A reference to radio object
+     * @param phy   A reference to PHY object
+     */
+    LoRaWANInterface(LoRaRadio &radio, LoRaPHY &phy);
 
     virtual ~LoRaWANInterface();
 
@@ -508,6 +520,13 @@ private:
     typedef mbed::ScopedLock<LoRaWANInterface> Lock;
 
     LoRaWANStack _lw_stack;
+
+    /** PHY object if created by LoRaWANInterface
+     *
+     * PHY object if LoRaWANInterface has created it.
+     * If PHY object is provided by the application, this pointer is NULL.
+     */
+    LoRaPHY *_default_phy;
 };
 
 #endif /* LORAWANINTERFACE_H_ */
