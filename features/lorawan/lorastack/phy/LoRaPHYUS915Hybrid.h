@@ -51,7 +51,7 @@ class LoRaPHYUS915Hybrid : public LoRaPHY {
 
 public:
 
-    LoRaPHYUS915Hybrid(LoRaWANTimeHandler &lora_time);
+    LoRaPHYUS915Hybrid();
     virtual ~LoRaPHYUS915Hybrid();
 
     virtual void restore_default_channels();

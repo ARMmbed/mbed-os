@@ -256,8 +256,7 @@ static const uint8_t max_payloads_EU868[] = {51, 51, 51, 115, 242, 242, 242, 242
  */
 static const uint8_t max_payloads_repeater_EU868[] = {51, 51, 51, 115, 222, 222, 222, 222};
 
-LoRaPHYEU868::LoRaPHYEU868(LoRaWANTimeHandler &lora_time)
-    : LoRaPHY(lora_time)
+LoRaPHYEU868::LoRaPHYEU868()
 {
     bands[0] = EU868_BAND0;
     bands[1] = EU868_BAND1;

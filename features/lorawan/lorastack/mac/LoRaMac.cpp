@@ -73,7 +73,7 @@ using namespace mbed;
 
 LoRaMac::LoRaMac()
     : _lora_time(),
-      _lora_phy(_lora_time),
+      _lora_phy(),
       _mac_commands(),
       _channel_plan(),
       _lora_crypto(),
@@ -1687,6 +1687,7 @@ void LoRaMac::set_tx_continuous_wave(uint8_t channel, int8_t datarate, int8_t tx
 lorawan_status_t LoRaMac::initialize(EventQueue *queue)
 {
     _lora_time.activate_timer_subsystem(queue);
+    _lora_phy.initialize(&_lora_time);
 
     _ev_queue = queue;
 

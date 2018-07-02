@@ -241,8 +241,7 @@ static const uint32_t bandwidths_AS923[] = {125000, 125000, 125000, 125000, 1250
  */
 static const int8_t rx1_dr_offset_AS923[] = {0, 1, 2, 3, 4, 5, -1, -2};
 
-LoRaPHYAS923::LoRaPHYAS923(LoRaWANTimeHandler &lora_time)
-    : LoRaPHY(lora_time)
+LoRaPHYAS923::LoRaPHYAS923()
 {
     bands[0] = AS923_BAND0;
 
@@ -352,7 +351,7 @@ lorawan_status_t LoRaPHYAS923::set_next_channel(channel_selection_params_t* next
         channel_mask[0] |= LC(1) + LC(2);
     }
 
-    if (next_channel_prams->aggregate_timeoff <= _lora_time.get_elapsed_time(next_channel_prams->last_aggregate_tx_time)) {
+    if (next_channel_prams->aggregate_timeoff <= _lora_time->get_elapsed_time(next_channel_prams->last_aggregate_tx_time)) {
         // Reset Aggregated time off
         *aggregate_timeoff = 0;
 
@@ -368,7 +367,7 @@ lorawan_status_t LoRaPHYAS923::set_next_channel(channel_selection_params_t* next
                                                     enabled_channels, &delay_tx);
     }  else {
         delay_tx++;
-        next_tx_delay = next_channel_prams->aggregate_timeoff - _lora_time.get_elapsed_time(next_channel_prams->last_aggregate_tx_time);
+        next_tx_delay = next_channel_prams->aggregate_timeoff - _lora_time->get_elapsed_time(next_channel_prams->last_aggregate_tx_time);
     }
 
     if (nb_enabled_channels > 0) {

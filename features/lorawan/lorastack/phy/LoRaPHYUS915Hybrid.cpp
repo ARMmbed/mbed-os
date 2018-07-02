@@ -210,8 +210,7 @@ static const uint8_t max_payloads_US915_HYBRID[] = { 11, 53, 125, 242, 242, 0, 0
  */
 static const uint8_t max_payloads_with_repeater_US915_HYBRID[] = { 11, 53, 125, 242, 242, 0, 0, 0, 33, 109, 222, 222, 222, 222, 0, 0 };
 
-LoRaPHYUS915Hybrid::LoRaPHYUS915Hybrid(LoRaWANTimeHandler &lora_time)
-    : LoRaPHY(lora_time)
+LoRaPHYUS915Hybrid::LoRaPHYUS915Hybrid()
 {
     bands[0] = US915_HYBRID_BAND0;
 
@@ -622,7 +621,7 @@ lorawan_status_t LoRaPHYUS915Hybrid::set_next_channel(channel_selection_params_t
         }
     }
 
-    if (params->aggregate_timeoff <= _lora_time.get_elapsed_time( params->last_aggregate_tx_time)) {
+    if (params->aggregate_timeoff <= _lora_time->get_elapsed_time( params->last_aggregate_tx_time)) {
         // Reset Aggregated time off
         *aggregate_timeOff = 0;
 
@@ -638,7 +637,7 @@ lorawan_status_t LoRaPHYUS915Hybrid::set_next_channel(channel_selection_params_t
                                                     enabled_channels, &delay_tx);
     } else {
         delay_tx++;
-        next_tx_delay = params->aggregate_timeoff - _lora_time.get_elapsed_time(params->last_aggregate_tx_time);
+        next_tx_delay = params->aggregate_timeoff - _lora_time->get_elapsed_time(params->last_aggregate_tx_time);
     }
 
     if (nb_enabled_channels > 0) {

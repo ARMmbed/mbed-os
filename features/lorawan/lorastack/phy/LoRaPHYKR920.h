@@ -51,7 +51,7 @@ class LoRaPHYKR920 : public LoRaPHY {
 
 public:
 
-    LoRaPHYKR920(LoRaWANTimeHandler &lora_time);
+    LoRaPHYKR920();
     virtual ~LoRaPHYKR920();
 
     virtual bool verify_frequency_for_band(uint32_t freq, uint8_t band) const;
