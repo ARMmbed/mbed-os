@@ -869,8 +869,8 @@ void LoRaMac::open_rx1_window(void)
     _mcps_indication.rx_datarate = _params.rx_window1_config.datarate;
     _lora_phy.rx_config(&_params.rx_window1_config);
 
-    _lora_phy.setup_rx_window(_params.rx_window1_config.is_rx_continuous,
-                              _params.sys_params.max_rx_win_time);
+    _lora_phy.rx_config(&_params.rx_window1_config);
+    _lora_phy.handle_receive();
 
     tr_debug("Opening RX1 Window");
 }
@@ -885,8 +885,6 @@ void LoRaMac::open_rx2_window()
     _params.rx_window2_config.frequency = _params.sys_params.rx2_channel.frequency;
     _params.rx_window2_config.dl_dwell_time = _params.sys_params.downlink_dwell_time;
     _params.rx_window2_config.is_repeater_supported = _params.is_repeater_supported;
-    _params.rx_window2_config.rx_slot = _params.rx_window2_config.is_rx_continuous ?
-                                        RX_SLOT_WIN_CLASS_C : RX_SLOT_WIN_2;
 
     if (get_device_class() == CLASS_C) {
         _params.rx_window2_config.is_rx_continuous = true;
@@ -894,15 +892,14 @@ void LoRaMac::open_rx2_window()
         _params.rx_window2_config.is_rx_continuous = false;
     }
 
+    _params.rx_window2_config.rx_slot = _params.rx_window2_config.is_rx_continuous ?
+                                        RX_SLOT_WIN_CLASS_C : RX_SLOT_WIN_2;
+
     _mcps_indication.rx_datarate = _params.rx_window2_config.datarate;
 
-    if (_lora_phy.rx_config(&_params.rx_window2_config)) {
-
-        _lora_phy.setup_rx_window(_params.rx_window2_config.is_rx_continuous,
-                                  _params.sys_params.max_rx_win_time);
-
-        _params.rx_slot = _params.rx_window2_config.rx_slot;
-    }
+    _lora_phy.rx_config(&_params.rx_window2_config);
+    _lora_phy.handle_receive();
+    _params.rx_slot = _params.rx_window2_config.rx_slot;
 
     tr_debug("Opening RX2 Window, Frequency = %u", _params.rx_window2_config.frequency);
 }

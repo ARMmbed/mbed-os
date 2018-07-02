@@ -817,15 +817,6 @@ bool LoRaPHY::rx_config(rx_config_params_t *rx_conf)
     uint8_t phy_dr = 0;
     uint32_t frequency = rx_conf->frequency;
 
-    _radio->lock();
-
-    if (_radio->get_status() != RF_IDLE) {
-        _radio->unlock();
-        return false;
-    }
-
-    _radio->unlock();
-
     if (rx_conf->rx_slot == RX_SLOT_WIN_1) {
         // Apply window 1 frequency
         frequency = phy_params.channels.channel_list[rx_conf->channel].frequency;
