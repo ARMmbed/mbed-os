@@ -38,7 +38,8 @@ class CANMessage : public CAN_Message {
 public:
     /** Creates empty CAN message.
      */
-    CANMessage() : CAN_Message() {
+    CANMessage() : CAN_Message()
+    {
         len    = 8;
         type   = CANData;
         format = CANStandard;
@@ -54,12 +55,13 @@ public:
      *  @param _type    Type of Data: Use enum CANType for valid parameter values
      *  @param _format  Data Format: Use enum CANFormat for valid parameter values
      */
-    CANMessage(int _id, const char *_data, char _len = 8, CANType _type = CANData, CANFormat _format = CANStandard) {
-      len    = _len & 0xF;
-      type   = _type;
-      format = _format;
-      id     = _id;
-      memcpy(data, _data, _len);
+    CANMessage(int _id, const char *_data, char _len = 8, CANType _type = CANData, CANFormat _format = CANStandard)
+    {
+        len    = _len & 0xF;
+        type   = _type;
+        format = _format;
+        id     = _id;
+        memcpy(data, _data, _len);
     }
 
     /** Creates CAN remote message.
@@ -67,12 +69,13 @@ public:
      *  @param _id      Message ID
      *  @param _format  Data Format: Use enum CANType for valid parameter values
      */
-    CANMessage(int _id, CANFormat _format = CANStandard) {
-      len    = 0;
-      type   = CANRemote;
-      format = _format;
-      id     = _id;
-      memset(data, 0, 8);
+    CANMessage(int _id, CANFormat _format = CANStandard)
+    {
+        len    = 0;
+        type   = CANRemote;
+        format = _format;
+        id     = _id;
+        memset(data, 0, 8);
     }
 };
 
@@ -235,48 +238,50 @@ public:
 
     /** Attach a function to call whenever a CAN frame received interrupt is
      *  generated.
-     *  
+     *
      *  This function locks the deep sleep while a callback is attached
-     *  
+     *
      *  @param func A pointer to a void function, or 0 to set as none
      *  @param type Which CAN interrupt to attach the member function to (CAN::RxIrq for message received, CAN::TxIrq for transmitted or aborted, CAN::EwIrq for error warning, CAN::DoIrq for data overrun, CAN::WuIrq for wake-up, CAN::EpIrq for error passive, CAN::AlIrq for arbitration lost, CAN::BeIrq for bus error)
      */
-    void attach(Callback<void()> func, IrqType type=RxIrq);
+    void attach(Callback<void()> func, IrqType type = RxIrq);
 
-   /** Attach a member function to call whenever a CAN frame received interrupt
-    *  is generated.
-    *
-    *  @param obj pointer to the object to call the member function on
-    *  @param method pointer to the member function to be called
-    *  @param type Which CAN interrupt to attach the member function to (CAN::RxIrq for message received, TxIrq for transmitted or aborted, EwIrq for error warning, DoIrq for data overrun, WuIrq for wake-up, EpIrq for error passive, AlIrq for arbitration lost, BeIrq for bus error)
-    *  @deprecated
-    *      The attach function does not support cv-qualifiers. Replaced by
-    *      attach(callback(obj, method), type).
-    */
+    /** Attach a member function to call whenever a CAN frame received interrupt
+     *  is generated.
+     *
+     *  @param obj pointer to the object to call the member function on
+     *  @param method pointer to the member function to be called
+     *  @param type Which CAN interrupt to attach the member function to (CAN::RxIrq for message received, TxIrq for transmitted or aborted, EwIrq for error warning, DoIrq for data overrun, WuIrq for wake-up, EpIrq for error passive, AlIrq for arbitration lost, BeIrq for bus error)
+     *  @deprecated
+     *      The attach function does not support cv-qualifiers. Replaced by
+     *      attach(callback(obj, method), type).
+     */
     template<typename T>
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
-        "The attach function does not support cv-qualifiers. Replaced by "
-        "attach(callback(obj, method), type).")
-    void attach(T* obj, void (T::*method)(), IrqType type=RxIrq) {
+                          "The attach function does not support cv-qualifiers. Replaced by "
+                          "attach(callback(obj, method), type).")
+    void attach(T *obj, void (T::*method)(), IrqType type = RxIrq)
+    {
         // Underlying call thread safe
         attach(callback(obj, method), type);
     }
 
-   /** Attach a member function to call whenever a CAN frame received interrupt
-    *  is generated.
-    *
-    *  @param obj pointer to the object to call the member function on
-    *  @param method pointer to the member function to be called
-    *  @param type Which CAN interrupt to attach the member function to (CAN::RxIrq for message received, TxIrq for transmitted or aborted, EwIrq for error warning, DoIrq for data overrun, WuIrq for wake-up, EpIrq for error passive, AlIrq for arbitration lost, BeIrq for bus error)
-    *  @deprecated
-    *      The attach function does not support cv-qualifiers. Replaced by
-    *      attach(callback(obj, method), type).
-    */
+    /** Attach a member function to call whenever a CAN frame received interrupt
+     *  is generated.
+     *
+     *  @param obj pointer to the object to call the member function on
+     *  @param method pointer to the member function to be called
+     *  @param type Which CAN interrupt to attach the member function to (CAN::RxIrq for message received, TxIrq for transmitted or aborted, EwIrq for error warning, DoIrq for data overrun, WuIrq for wake-up, EpIrq for error passive, AlIrq for arbitration lost, BeIrq for bus error)
+     *  @deprecated
+     *      The attach function does not support cv-qualifiers. Replaced by
+     *      attach(callback(obj, method), type).
+     */
     template<typename T>
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
-        "The attach function does not support cv-qualifiers. Replaced by "
-        "attach(callback(obj, method), type).")
-    void attach(T* obj, void (*method)(T*), IrqType type=RxIrq) {
+                          "The attach function does not support cv-qualifiers. Replaced by "
+                          "attach(callback(obj, method), type).")
+    void attach(T *obj, void (*method)(T *), IrqType type = RxIrq)
+    {
         // Underlying call thread safe
         attach(callback(obj, method), type);
     }

@@ -42,7 +42,7 @@ static const ticker_data_t lp_data = {
     .queue = &events,
 };
 
-const ticker_data_t* get_lp_ticker_data(void)
+const ticker_data_t *get_lp_ticker_data(void)
 {
     return &lp_data;
 }

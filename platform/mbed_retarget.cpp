@@ -111,10 +111,11 @@ static SingletonPtr<PlatformMutex> filehandle_mutex;
 namespace mbed {
 void mbed_set_unbuffered_stream(std::FILE *_file);
 
-void remove_filehandle(FileHandle *file) {
+void remove_filehandle(FileHandle *file)
+{
     filehandle_mutex->lock();
     /* Remove all open filehandles for this */
-    for (unsigned int fh_i = 0; fh_i < sizeof(filehandles)/sizeof(*filehandles); fh_i++) {
+    for (unsigned int fh_i = 0; fh_i < sizeof(filehandles) / sizeof(*filehandles); fh_i++) {
         if (filehandles[fh_i] == file) {
             filehandles[fh_i] = NULL;
         }
@@ -137,23 +138,30 @@ public:
     DirectSerial(PinName tx, PinName rx, int baud);
     virtual ssize_t write(const void *buffer, size_t size);
     virtual ssize_t read(void *buffer, size_t size);
-    virtual off_t seek(off_t offset, int whence = SEEK_SET) {
+    virtual off_t seek(off_t offset, int whence = SEEK_SET)
+    {
         return -ESPIPE;
     }
-    virtual off_t size() {
+    virtual off_t size()
+    {
         return -EINVAL;
     }
-    virtual int isatty() {
+    virtual int isatty()
+    {
         return true;
     }
-    virtual int close() {
+    virtual int close()
+    {
         return 0;
     }
     virtual short poll(short events) const;
 };
 
-DirectSerial::DirectSerial(PinName tx, PinName rx, int baud) {
-    if (stdio_uart_inited) return;
+DirectSerial::DirectSerial(PinName tx, PinName rx, int baud)
+{
+    if (stdio_uart_inited) {
+        return;
+    }
     serial_init(&stdio_uart, tx, rx);
     serial_baud(&stdio_uart, baud);
 #if   CONSOLE_FLOWCONTROL == CONSOLE_FLOWCONTROL_RTS
@@ -165,7 +173,8 @@ DirectSerial::DirectSerial(PinName tx, PinName rx, int baud) {
 #endif
 }
 
-ssize_t DirectSerial::write(const void *buffer, size_t size) {
+ssize_t DirectSerial::write(const void *buffer, size_t size)
+{
     const unsigned char *buf = static_cast<const unsigned char *>(buffer);
     for (size_t i = 0; i < size; i++) {
         serial_putc(&stdio_uart, buf[i]);
@@ -173,7 +182,8 @@ ssize_t DirectSerial::write(const void *buffer, size_t size) {
     return size;
 }
 
-ssize_t DirectSerial::read(void *buffer, size_t size) {
+ssize_t DirectSerial::read(void *buffer, size_t size)
+{
     unsigned char *buf = static_cast<unsigned char *>(buffer);
     if (size == 0) {
         return 0;
@@ -182,7 +192,8 @@ ssize_t DirectSerial::read(void *buffer, size_t size) {
     return 1;
 }
 
-short DirectSerial::poll(short events) const {
+short DirectSerial::poll(short events) const
+{
     short revents = 0;
     if ((events & POLLIN) && serial_readable(&stdio_uart)) {
         revents |= POLLIN;
@@ -198,18 +209,32 @@ class Sink : public FileHandle {
 public:
     virtual ssize_t write(const void *buffer, size_t size);
     virtual ssize_t read(void *buffer, size_t size);
-    virtual off_t seek(off_t offset, int whence = SEEK_SET) { return ESPIPE; }
-    virtual off_t size() { return -EINVAL; }
-    virtual int isatty() { return true; }
-    virtual int close() { return 0; }
+    virtual off_t seek(off_t offset, int whence = SEEK_SET)
+    {
+        return ESPIPE;
+    }
+    virtual off_t size()
+    {
+        return -EINVAL;
+    }
+    virtual int isatty()
+    {
+        return true;
+    }
+    virtual int close()
+    {
+        return 0;
+    }
 };
 
-ssize_t Sink::write(const void *buffer, size_t size) {
+ssize_t Sink::write(const void *buffer, size_t size)
+{
     // Just swallow the data - this is historical non-DEVICE_SERIAL behaviour
     return size;
 }
 
-ssize_t Sink::read(void *buffer, size_t size) {
+ssize_t Sink::read(void *buffer, size_t size)
+{
     // Produce 1 zero byte - historical behaviour returned 1 without touching
     // the buffer
     unsigned char *buf = static_cast<unsigned char *>(buffer);
@@ -218,27 +243,27 @@ ssize_t Sink::read(void *buffer, size_t size) {
 }
 
 
-MBED_WEAK FileHandle* mbed::mbed_target_override_console(int fd)
+MBED_WEAK FileHandle *mbed::mbed_target_override_console(int fd)
 {
     return NULL;
 }
 
-MBED_WEAK FileHandle* mbed::mbed_override_console(int fd)
+MBED_WEAK FileHandle *mbed::mbed_override_console(int fd)
 {
     return NULL;
 }
 
-static FileHandle* default_console()
+static FileHandle *default_console()
 {
 #if DEVICE_SERIAL
 #  if MBED_CONF_PLATFORM_STDIO_BUFFERED_SERIAL
     static UARTSerial console(STDIO_UART_TX, STDIO_UART_RX, MBED_CONF_PLATFORM_STDIO_BAUD_RATE);
 #   if   CONSOLE_FLOWCONTROL == CONSOLE_FLOWCONTROL_RTS
-        console.set_flow_control(SerialBase::RTS, STDIO_UART_RTS, NC);
+    console.set_flow_control(SerialBase::RTS, STDIO_UART_RTS, NC);
 #   elif CONSOLE_FLOWCONTROL == CONSOLE_FLOWCONTROL_CTS
-        console.set_flow_control(SerialBase::CTS, NC, STDIO_UART_CTS);
+    console.set_flow_control(SerialBase::CTS, NC, STDIO_UART_CTS);
 #   elif CONSOLE_FLOWCONTROL == CONSOLE_FLOWCONTROL_RTSCTS
-        console.set_flow_control(SerialBase::RTSCTS, STDIO_UART_RTS, STDIO_UART_CTS);
+    console.set_flow_control(SerialBase::RTSCTS, STDIO_UART_RTS, STDIO_UART_CTS);
 #   endif
 #  else
     static DirectSerial console(STDIO_UART_TX, STDIO_UART_RX, MBED_CONF_PLATFORM_STDIO_BAUD_RATE);
@@ -250,7 +275,8 @@ static FileHandle* default_console()
 }
 
 /* Locate the default console for stdout, stdin, stderr */
-static FileHandle* get_console(int fd) {
+static FileHandle *get_console(int fd)
+{
     FileHandle *fh = mbed_override_console(fd);
     if (fh) {
         return fh;
@@ -263,7 +289,8 @@ static FileHandle* get_console(int fd) {
 }
 
 /* Deal with the fact C library may not _open descriptors 0, 1, 2 - auto bind */
-static FileHandle* get_fhc(int fd) {
+static FileHandle *get_fhc(int fd)
+{
     if (fd >= OPEN_MAX) {
         return NULL;
     }
@@ -281,27 +308,29 @@ static FileHandle* get_fhc(int fd) {
  * @param error is a negative error code returned from an mbed function and
  *              will be negated to store a positive error code in errno
  */
-static int handle_open_errors(int error, unsigned filehandle_idx) {
+static int handle_open_errors(int error, unsigned filehandle_idx)
+{
     errno = -error;
     // Free file handle
     filehandles[filehandle_idx] = NULL;
     return -1;
 }
 
-static inline int openflags_to_posix(int openflags) {
+static inline int openflags_to_posix(int openflags)
+{
     int posix = openflags;
 #ifdef __ARMCC_VERSION
     if (openflags & OPEN_PLUS) {
         posix = O_RDWR;
-    } else if(openflags & OPEN_W) {
+    } else if (openflags & OPEN_W) {
         posix = O_WRONLY;
-    } else if(openflags & OPEN_A) {
-        posix = O_WRONLY|O_APPEND;
+    } else if (openflags & OPEN_A) {
+        posix = O_WRONLY | O_APPEND;
     } else {
         posix = O_RDONLY;
     }
     /* a, w, a+, w+ all create if file does not already exist */
-    if (openflags & (OPEN_A|OPEN_W)) {
+    if (openflags & (OPEN_A | OPEN_W)) {
         posix |= O_CREAT;
     }
     /* w and w+ truncate */
@@ -310,26 +339,41 @@ static inline int openflags_to_posix(int openflags) {
     }
 #elif defined(__ICCARM__)
     switch (openflags & _LLIO_RDWRMASK) {
-        case _LLIO_RDONLY: posix = O_RDONLY; break;
-        case _LLIO_WRONLY: posix = O_WRONLY; break;
-        case _LLIO_RDWR  : posix = O_RDWR  ; break;
+        case _LLIO_RDONLY:
+            posix = O_RDONLY;
+            break;
+        case _LLIO_WRONLY:
+            posix = O_WRONLY;
+            break;
+        case _LLIO_RDWR  :
+            posix = O_RDWR  ;
+            break;
     }
-    if (openflags & _LLIO_CREAT ) posix |= O_CREAT;
-    if (openflags & _LLIO_APPEND) posix |= O_APPEND;
-    if (openflags & _LLIO_TRUNC ) posix |= O_TRUNC;
+    if (openflags & _LLIO_CREAT) {
+        posix |= O_CREAT;
+    }
+    if (openflags & _LLIO_APPEND) {
+        posix |= O_APPEND;
+    }
+    if (openflags & _LLIO_TRUNC) {
+        posix |= O_TRUNC;
+    }
 #elif defined(TOOLCHAIN_GCC)
     posix &= ~O_BINARY;
 #endif
     return posix;
 }
 
-static int reserve_filehandle() {
+static int reserve_filehandle()
+{
     // find the first empty slot in filehandles, after the slots reserved for stdin/stdout/stderr
     filehandle_mutex->lock();
     int fh_i;
     for (fh_i = 3; fh_i < OPEN_MAX; fh_i++) {
         /* Take a next free filehandle slot available. */
-        if (filehandles[fh_i] == NULL) break;
+        if (filehandles[fh_i] == NULL) {
+            break;
+        }
     }
     if (fh_i >= OPEN_MAX) {
         /* Too many file handles have been opened */
@@ -343,7 +387,8 @@ static int reserve_filehandle() {
     return fh_i;
 }
 
-int mbed::bind_to_fd(FileHandle *fh) {
+int mbed::bind_to_fd(FileHandle *fh)
+{
     int fildes = reserve_filehandle();
     if (fildes < 0) {
         return fildes;
@@ -356,7 +401,8 @@ int mbed::bind_to_fd(FileHandle *fh) {
     return fildes;
 }
 
-static int unbind_from_fd(int fd, FileHandle *fh) {
+static int unbind_from_fd(int fd, FileHandle *fh)
+{
     if (filehandles[fd] == fh) {
         filehandles[fd] = NULL;
         return 0;
@@ -368,7 +414,7 @@ static int unbind_from_fd(int fd, FileHandle *fh) {
 
 #ifndef __IAR_SYSTEMS_ICC__
 /* IAR provides fdopen itself */
-extern "C" std::FILE* fdopen(int fildes, const char *mode)
+extern "C" std::FILE *fdopen(int fildes, const char *mode)
 {
     // This is to avoid scanf and the bloat it brings.
     char buf[1 + sizeof fildes]; /* @(integer) */
@@ -405,18 +451,19 @@ std::FILE *fdopen(FileHandle *fh, const char *mode)
 }
 }
 
-/* @brief 	standard c library fopen() retargeting function.
+/* @brief   standard c library fopen() retargeting function.
  *
  * This function is invoked by the standard c library retargeting to handle fopen()
  *
  * @return
  *  On success, a valid FILEHANDLE is returned.
  *  On failure, -1 is returned and errno is set to an appropriate value e.g.
- *   ENOENT	    file not found (default errno setting)
- *	 EMFILE		the maximum number of open files was exceeded.
+ *   ENOENT     file not found (default errno setting)
+ *   EMFILE     the maximum number of open files was exceeded.
  *
  * */
-extern "C" FILEHANDLE PREFIX(_open)(const char *name, int openflags) {
+extern "C" FILEHANDLE PREFIX(_open)(const char *name, int openflags)
+{
 #if defined(__MICROLIB) && (__ARMCC_VERSION>5030000)
 #if !defined(MBED_CONF_RTOS_PRESENT)
     // valid only for mbed 2
@@ -463,7 +510,8 @@ extern "C" FILEHANDLE PREFIX(_open)(const char *name, int openflags) {
     return open(name, openflags_to_posix(openflags));
 }
 
-extern "C" int open(const char *name, int oflag, ...) {
+extern "C" int open(const char *name, int oflag, ...)
+{
     int fildes = reserve_filehandle();
     if (fildes < 0) {
         return fildes;
@@ -499,12 +547,14 @@ extern "C" int open(const char *name, int oflag, ...) {
     return fildes;
 }
 
-extern "C" int PREFIX(_close)(FILEHANDLE fh) {
+extern "C" int PREFIX(_close)(FILEHANDLE fh)
+{
     return close(fh);
 }
 
-extern "C" int close(int fildes) {
-    FileHandle* fhc = get_fhc(fildes);
+extern "C" int close(int fildes)
+{
+    FileHandle *fhc = get_fhc(fildes);
     filehandles[fildes] = NULL;
     if (fhc == NULL) {
         errno = EBADF;
@@ -520,7 +570,8 @@ extern "C" int close(int fildes) {
     }
 }
 
-static bool convert_crlf(int fd) {
+static bool convert_crlf(int fd)
+{
 #if MBED_CONF_PLATFORM_STDIO_CONVERT_TTY_NEWLINES
     return isatty(fd);
 #elif MBED_CONF_PLATFORM_STDIO_CONVERT_NEWLINES
@@ -531,9 +582,11 @@ static bool convert_crlf(int fd) {
 }
 
 #if defined(__ICCARM__)
-extern "C" size_t    __write (int        fh, const unsigned char *buffer, size_t length) {
+extern "C" size_t    __write(int        fh, const unsigned char *buffer, size_t length)
+{
 #else
-extern "C" int PREFIX(_write)(FILEHANDLE fh, const unsigned char *buffer, unsigned int length, int mode) {
+extern "C" int PREFIX(_write)(FILEHANDLE fh, const unsigned char *buffer, unsigned int length, int mode)
+{
 #endif
 
 #if defined(MBED_TRAP_ERRORS_ENABLED) && MBED_TRAP_ERRORS_ENABLED && defined(MBED_CONF_RTOS_PRESENT)
@@ -610,9 +663,10 @@ finish:
 #endif
 }
 
-extern "C" ssize_t write(int fildes, const void *buf, size_t length) {
+extern "C" ssize_t write(int fildes, const void *buf, size_t length)
+{
 
-    FileHandle* fhc = get_fhc(fildes);
+    FileHandle *fhc = get_fhc(fildes);
     if (fhc == NULL) {
         errno = EBADF;
         return -1;
@@ -628,20 +682,24 @@ extern "C" ssize_t write(int fildes, const void *buf, size_t length) {
 }
 
 #if defined (__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
-extern "C" void PREFIX(_exit)(int return_code) {
-    while(1) {}
+extern "C" void PREFIX(_exit)(int return_code)
+{
+    while (1) {}
 }
 
-extern "C" void _ttywrch(int ch) {
+extern "C" void _ttywrch(int ch)
+{
     char c = ch;
     write(STDOUT_FILENO, &c, 1);
 }
 #endif
 
 #if defined(__ICCARM__)
-extern "C" size_t    __read (int        fh, unsigned char *buffer, size_t       length) {
+extern "C" size_t    __read(int        fh, unsigned char *buffer, size_t       length)
+{
 #else
-extern "C" int PREFIX(_read)(FILEHANDLE fh, unsigned char *buffer, unsigned int length, int mode) {
+extern "C" int PREFIX(_read)(FILEHANDLE fh, unsigned char *buffer, unsigned int length, int mode)
+{
 #endif
 
 #if defined(MBED_TRAP_ERRORS_ENABLED) && MBED_TRAP_ERRORS_ENABLED && defined(MBED_CONF_RTOS_PRESENT)
@@ -668,7 +726,7 @@ extern "C" int PREFIX(_read)(FILEHANDLE fh, unsigned char *buffer, unsigned int 
                 return bytes_read;
             }
             if ((c == '\r' && stdio_in_prev[fh] != '\n') ||
-                (c == '\n' && stdio_in_prev[fh] != '\r')) {
+                    (c == '\n' && stdio_in_prev[fh] != '\r')) {
                 stdio_in_prev[fh] = c;
                 *buffer = '\n';
                 break;
@@ -700,9 +758,10 @@ extern "C" int PREFIX(_read)(FILEHANDLE fh, unsigned char *buffer, unsigned int 
 #endif
 }
 
-extern "C" ssize_t read(int fildes, void *buf, size_t length) {
+extern "C" ssize_t read(int fildes, void *buf, size_t length)
+{
 
-    FileHandle* fhc = get_fhc(fildes);
+    FileHandle *fhc = get_fhc(fildes);
     if (fhc == NULL) {
         errno = EBADF;
         return -1;
@@ -727,8 +786,9 @@ extern "C" int _isatty(FILEHANDLE fh)
     return isatty(fh);
 }
 
-extern "C" int isatty(int fildes) {
-    FileHandle* fhc = get_fhc(fildes);
+extern "C" int isatty(int fildes)
+{
+    FileHandle *fhc = get_fhc(fildes);
     if (fhc == NULL) {
         errno = EBADF;
         return 0;
@@ -765,8 +825,9 @@ int _lseek(FILEHANDLE fh, int offset, int whence)
     return off;
 }
 
-extern "C" off_t lseek(int fildes, off_t offset, int whence) {
-    FileHandle* fhc = get_fhc(fildes);
+extern "C" off_t lseek(int fildes, off_t offset, int whence)
+{
+    FileHandle *fhc = get_fhc(fildes);
     if (fhc == NULL) {
         errno = EBADF;
         return -1;
@@ -781,13 +842,15 @@ extern "C" off_t lseek(int fildes, off_t offset, int whence) {
 }
 
 #ifdef __ARMCC_VERSION
-extern "C" int PREFIX(_ensure)(FILEHANDLE fh) {
+extern "C" int PREFIX(_ensure)(FILEHANDLE fh)
+{
     return fsync(fh);
 }
 #endif
 
-extern "C" int fsync(int fildes) {
-    FileHandle* fhc = get_fhc(fildes);
+extern "C" int fsync(int fildes)
+{
+    FileHandle *fhc = get_fhc(fildes);
     if (fhc == NULL) {
         errno = EBADF;
         return -1;
@@ -803,8 +866,9 @@ extern "C" int fsync(int fildes) {
 }
 
 #ifdef __ARMCC_VERSION
-extern "C" long PREFIX(_flen)(FILEHANDLE fh) {
-    FileHandle* fhc = get_fhc(fh);
+extern "C" long PREFIX(_flen)(FILEHANDLE fh)
+{
+    FileHandle *fhc = get_fhc(fh);
     if (fhc == NULL) {
         errno = EBADF;
         return -1;
@@ -837,7 +901,8 @@ extern "C" MBED_WEAK __value_in_regs struct __initial_stackheap _mbed_user_setup
     return r;
 }
 
-extern "C" __value_in_regs struct __initial_stackheap __user_setup_stackheap(uint32_t R0, uint32_t R1, uint32_t R2, uint32_t R3) {
+extern "C" __value_in_regs struct __initial_stackheap __user_setup_stackheap(uint32_t R0, uint32_t R1, uint32_t R2, uint32_t R3)
+{
     return _mbed_user_setup_stackheap(R0, R1, R2, R3);
 }
 
@@ -845,13 +910,15 @@ extern "C" __value_in_regs struct __initial_stackheap __user_setup_stackheap(uin
 
 
 #if !defined(__ARMCC_VERSION) && !defined(__ICCARM__)
-extern "C" int _fstat(int fh, struct stat *st) {
+extern "C" int _fstat(int fh, struct stat *st)
+{
     return fstat(fh, st);
 }
 #endif
 
-extern "C" int fstat(int fildes, struct stat *st) {
-    FileHandle* fhc = get_fhc(fildes);
+extern "C" int fstat(int fildes, struct stat *st)
+{
+    FileHandle *fhc = get_fhc(fildes);
     if (fhc == NULL) {
         errno = EBADF;
         return -1;
@@ -862,7 +929,8 @@ extern "C" int fstat(int fildes, struct stat *st) {
     return 0;
 }
 
-extern "C" int fcntl(int fildes, int cmd, ...) {
+extern "C" int fcntl(int fildes, int cmd, ...)
+{
     FileHandle *fhc = get_fhc(fildes);
     if (fhc == NULL) {
         errno = EBADF;
@@ -919,7 +987,8 @@ extern "C" int poll(struct pollfd fds[], nfds_t nfds, int timeout)
 }
 
 namespace std {
-extern "C" int remove(const char *path) {
+extern "C" int remove(const char *path)
+{
     FilePath fp(path);
     FileSystemHandle *fs = fp.fileSystem();
     if (fs == NULL) {
@@ -936,7 +1005,8 @@ extern "C" int remove(const char *path) {
     }
 }
 
-extern "C" int rename(const char *oldname, const char *newname) {
+extern "C" int rename(const char *oldname, const char *newname)
+{
     FilePath fpOld(oldname);
     FilePath fpNew(newname);
     FileSystemHandle *fsOld = fpOld.fileSystem();
@@ -962,26 +1032,30 @@ extern "C" int rename(const char *oldname, const char *newname) {
     }
 }
 
-extern "C" char *tmpnam(char *s) {
+extern "C" char *tmpnam(char *s)
+{
     errno = EBADF;
     return NULL;
 }
 
-extern "C" FILE *tmpfile() {
+extern "C" FILE *tmpfile()
+{
     errno = EBADF;
     return NULL;
 }
 } // namespace std
 
 #ifdef __ARMCC_VERSION
-extern "C" char *_sys_command_string(char *cmd, int len) {
+extern "C" char *_sys_command_string(char *cmd, int len)
+{
     return NULL;
 }
 #endif
 
-extern "C" DIR *opendir(const char *path) {
+extern "C" DIR *opendir(const char *path)
+{
     FilePath fp(path);
-    FileSystemHandle* fs = fp.fileSystem();
+    FileSystemHandle *fs = fp.fileSystem();
     if (fs == NULL) {
         errno = ENODEV;
         return NULL;
@@ -997,7 +1071,8 @@ extern "C" DIR *opendir(const char *path) {
     return dir;
 }
 
-extern "C" struct dirent *readdir(DIR *dir) {
+extern "C" struct dirent *readdir(DIR *dir)
+{
     static struct dirent ent;
     int err = dir->read(&ent);
     if (err < 1) {
@@ -1010,7 +1085,8 @@ extern "C" struct dirent *readdir(DIR *dir) {
     return &ent;
 }
 
-extern "C" int closedir(DIR *dir) {
+extern "C" int closedir(DIR *dir)
+{
     int err = dir->close();
     if (err < 0) {
         errno = -err;
@@ -1020,19 +1096,23 @@ extern "C" int closedir(DIR *dir) {
     }
 }
 
-extern "C" void rewinddir(DIR *dir) {
+extern "C" void rewinddir(DIR *dir)
+{
     dir->rewind();
 }
 
-extern "C" off_t telldir(DIR *dir) {
+extern "C" off_t telldir(DIR *dir)
+{
     return dir->tell();
 }
 
-extern "C" void seekdir(DIR *dir, off_t off) {
+extern "C" void seekdir(DIR *dir, off_t off)
+{
     dir->seek(off);
 }
 
-extern "C" int mkdir(const char *path, mode_t mode) {
+extern "C" int mkdir(const char *path, mode_t mode)
+{
     FilePath fp(path);
     FileSystemHandle *fs = fp.fileSystem();
     if (fs == NULL) {
@@ -1049,7 +1129,8 @@ extern "C" int mkdir(const char *path, mode_t mode) {
     }
 }
 
-extern "C" int stat(const char *path, struct stat *st) {
+extern "C" int stat(const char *path, struct stat *st)
+{
     FilePath fp(path);
     FileSystemHandle *fs = fp.fileSystem();
     if (fs == NULL) {
@@ -1066,7 +1147,8 @@ extern "C" int stat(const char *path, struct stat *st) {
     }
 }
 
-extern "C" int statvfs(const char *path, struct statvfs *buf) {
+extern "C" int statvfs(const char *path, struct statvfs *buf)
+{
     FilePath fp(path);
     FileSystemHandle *fs = fp.fileSystem();
     if (fs == NULL) {
@@ -1087,12 +1169,14 @@ extern "C" int statvfs(const char *path, struct statvfs *buf) {
 /* prevents the exception handling name demangling code getting pulled in */
 #include "mbed_error.h"
 namespace __gnu_cxx {
-    void __verbose_terminate_handler() {
-        MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_CLIB_EXCEPTION),"Exception", 0);
-    }
+void __verbose_terminate_handler()
+{
+    MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_CLIB_EXCEPTION), "Exception", 0);
+}
 }
 extern "C" WEAK void __cxa_pure_virtual(void);
-extern "C" WEAK void __cxa_pure_virtual(void) {
+extern "C" WEAK void __cxa_pure_virtual(void)
+{
     exit(1);
 }
 
@@ -1120,31 +1204,33 @@ extern "C" int errno;
 // TARGET_NUMAKER_PFM_M453      targets/TARGET_NUVOTON/TARGET_M451/TARGET_NUMAKER_PFM_M453/TOOLCHAIN_GCC_ARM/m451_retarget.c
 // TARGET_STM32L4               targets/TARGET_STM/TARGET_STM32L4/TARGET_STM32L4/l4_retarget.c
 extern "C" void *__wrap__sbrk(int incr);
-extern "C" caddr_t _sbrk(int incr) {
+extern "C" caddr_t _sbrk(int incr)
+{
     return (caddr_t) __wrap__sbrk(incr);
 }
 #else
 // Linker defined symbol used by _sbrk to indicate where heap should start.
 extern "C" uint32_t __end__;
 // Weak attribute allows user to override, e.g. to use external RAM for dynamic memory.
-extern "C" WEAK caddr_t _sbrk(int incr) {
-    static unsigned char* heap = (unsigned char*)&__end__;
-    unsigned char*        prev_heap = heap;
-    unsigned char*        new_heap = heap + incr;
+extern "C" WEAK caddr_t _sbrk(int incr)
+{
+    static unsigned char *heap = (unsigned char *)&__end__;
+    unsigned char        *prev_heap = heap;
+    unsigned char        *new_heap = heap + incr;
 
 #if defined(TARGET_CORTEX_A)
-    if (new_heap >= (unsigned char*)&__HeapLimit) {     /* __HeapLimit is end of heap section */
+    if (new_heap >= (unsigned char *)&__HeapLimit) {    /* __HeapLimit is end of heap section */
 #else
-    if (new_heap >= (unsigned char*)__get_MSP()) {
+    if (new_heap >= (unsigned char *)__get_MSP()) {
 #endif
         errno = ENOMEM;
-        return (caddr_t)-1;
+        return (caddr_t) -1;
     }
 
     // Additional heap checking if set
     if (mbed_heap_size && (new_heap >= mbed_heap_start + mbed_heap_size)) {
         errno = ENOMEM;
-        return (caddr_t)-1;
+        return (caddr_t) -1;
     }
 
     heap = new_heap;
@@ -1154,10 +1240,12 @@ extern "C" WEAK caddr_t _sbrk(int incr) {
 #endif
 
 #if defined(TOOLCHAIN_GCC_ARM) || defined(TOOLCHAIN_GCC_CR)
-extern "C" void _exit(int return_code) {
+extern "C" void _exit(int return_code)
+{
 #else
 namespace std {
-extern "C" void exit(int return_code) {
+extern "C" void exit(int return_code)
+{
 #endif
 
 #if DEVICE_STDIO_MESSAGES
@@ -1191,16 +1279,19 @@ extern "C" void exit(int return_code) {
 // More informations about this topic for ARMCC here:
 // http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.faqs/6449.html
 extern "C" {
-int __aeabi_atexit(void *object, void (*dtor)(void* /*this*/), void *handle) {
-    return 1;
-}
+    int __aeabi_atexit(void *object, void (*dtor)(void * /*this*/), void *handle)
+    {
+        return 1;
+    }
 
-int __cxa_atexit(void (*dtor)(void* /*this*/), void *object, void *handle) {
-    return 1;
-}
+    int __cxa_atexit(void (*dtor)(void * /*this*/), void *object, void *handle)
+    {
+        return 1;
+    }
 
-void __cxa_finalize(void *handle) {
-}
+    void __cxa_finalize(void *handle)
+    {
+    }
 
 } // end of extern "C"
 
@@ -1216,25 +1307,27 @@ void __cxa_finalize(void *handle) {
  *
  * To overcome this limitation, exit and atexit are overriden here.
  */
-extern "C"{
+extern "C" {
 
-/**
- * @brief Retarget of exit for GCC.
- * @details Unlike the standard version, this function doesn't call any function
- * registered with atexit before calling _exit.
- */
-void __wrap_exit(int return_code) {
-    _exit(return_code);
-}
+    /**
+     * @brief Retarget of exit for GCC.
+     * @details Unlike the standard version, this function doesn't call any function
+     * registered with atexit before calling _exit.
+     */
+    void __wrap_exit(int return_code)
+    {
+        _exit(return_code);
+    }
 
-/**
- * @brief Retarget atexit from GCC.
- * @details This function will always fail and never register any handler to be
- * called at exit.
- */
-int __wrap_atexit(void (*func)()) {
-    return 1;
-}
+    /**
+     * @brief Retarget atexit from GCC.
+     * @details This function will always fail and never register any handler to be
+     * called at exit.
+     */
+    int __wrap_atexit(void (*func)())
+    {
+        return 1;
+    }
 
 }
 
@@ -1244,20 +1337,22 @@ int __wrap_atexit(void (*func)()) {
 
 namespace mbed {
 
-void mbed_set_unbuffered_stream(std::FILE *_file) {
+void mbed_set_unbuffered_stream(std::FILE *_file)
+{
 #if defined (__ICCARM__)
     char buf[2];
-    std::setvbuf(_file,buf,_IONBF,NULL);
+    std::setvbuf(_file, buf, _IONBF, NULL);
 #else
     setbuf(_file, NULL);
 #endif
 }
 
-int mbed_getc(std::FILE *_file){
+int mbed_getc(std::FILE *_file)
+{
 #if defined(__IAR_SYSTEMS_ICC__ ) && (__VER__ < 8000000)
     /*This is only valid for unbuffered streams*/
     int res = std::fgetc(_file);
-    if (res>=0){
+    if (res >= 0) {
         _file->_Mode = (unsigned short)(_file->_Mode & ~ 0x1000);/* Unset read mode */
         _file->_Rend = _file->_Wend;
         _file->_Next = _file->_Wend;
@@ -1268,18 +1363,19 @@ int mbed_getc(std::FILE *_file){
 #endif
 }
 
-char* mbed_gets(char*s, int size, std::FILE *_file){
+char *mbed_gets(char *s, int size, std::FILE *_file)
+{
 #if defined(__IAR_SYSTEMS_ICC__ ) && (__VER__ < 8000000)
     /*This is only valid for unbuffered streams*/
-    char *str = fgets(s,size,_file);
-    if (str!=NULL){
+    char *str = fgets(s, size, _file);
+    if (str != NULL) {
         _file->_Mode = (unsigned short)(_file->_Mode & ~ 0x1000);/* Unset read mode */
         _file->_Rend = _file->_Wend;
         _file->_Next = _file->_Wend;
     }
     return str;
 #else
-    return std::fgets(s,size,_file);
+    return std::fgets(s, size, _file);
 #endif
 }
 
@@ -1297,9 +1393,10 @@ extern "C" WEAK void __iar_file_Mtxlock(__iar_Rmtx *mutex) {}
 extern "C" WEAK void __iar_file_Mtxunlock(__iar_Rmtx *mutex) {}
 #if defined(__IAR_SYSTEMS_ICC__ ) && (__VER__ >= 8000000)
 #pragma section="__iar_tls$$DATA"
-extern "C" WEAK void *__aeabi_read_tp (void) {
-  // Thread Local storage is not supported, using main thread memory for errno
-  return __section_begin("__iar_tls$$DATA");
+extern "C" WEAK void *__aeabi_read_tp(void)
+{
+    // Thread Local storage is not supported, using main thread memory for errno
+    return __section_begin("__iar_tls$$DATA");
 }
 #endif
 #elif defined(__CC_ARM)
@@ -1307,27 +1404,27 @@ extern "C" WEAK void *__aeabi_read_tp (void) {
 #elif defined (__GNUC__)
 struct _reent;
 // Stub out locks when an rtos is not present
-extern "C" WEAK void __rtos_malloc_lock( struct _reent *_r ) {}
-extern "C" WEAK void __rtos_malloc_unlock( struct _reent *_r ) {}
-extern "C" WEAK void __rtos_env_lock( struct _reent *_r ) {}
-extern "C" WEAK void __rtos_env_unlock( struct _reent *_r ) {}
+extern "C" WEAK void __rtos_malloc_lock(struct _reent *_r) {}
+extern "C" WEAK void __rtos_malloc_unlock(struct _reent *_r) {}
+extern "C" WEAK void __rtos_env_lock(struct _reent *_r) {}
+extern "C" WEAK void __rtos_env_unlock(struct _reent *_r) {}
 
-extern "C" void __malloc_lock( struct _reent *_r )
+extern "C" void __malloc_lock(struct _reent *_r)
 {
     __rtos_malloc_lock(_r);
 }
 
-extern "C" void __malloc_unlock( struct _reent *_r )
+extern "C" void __malloc_unlock(struct _reent *_r)
 {
     __rtos_malloc_unlock(_r);
 }
 
-extern "C" void __env_lock( struct _reent *_r )
+extern "C" void __env_lock(struct _reent *_r)
 {
     __rtos_env_lock(_r);
 }
 
-extern "C" void __env_unlock( struct _reent *_r )
+extern "C" void __env_unlock(struct _reent *_r)
 {
     __rtos_env_unlock(_r);
 }
@@ -1380,10 +1477,10 @@ extern "C" void __cxa_guard_abort(int *guard_object_p)
 // provide the implementation for these. Note: this needs to use the wrappers
 // instead of malloc()/free() as the caller address would point to wrappers,
 // not the caller of "new" or "delete".
-extern "C" void* malloc_wrapper(size_t size, const void* caller);
-extern "C" void free_wrapper(void *ptr, const void* caller);
-    
-void *operator new(std::size_t count)
+extern "C" void *malloc_wrapper(size_t size, const void *caller);
+extern "C" void free_wrapper(void *ptr, const void *caller);
+
+void *operator new (std::size_t count)
 {
     void *buffer = malloc_wrapper(count, MBED_CALLER_ADDR());
     if (NULL == buffer) {
@@ -1401,17 +1498,17 @@ void *operator new[](std::size_t count)
     return buffer;
 }
 
-void *operator new(std::size_t count, const std::nothrow_t& tag)
+void *operator new (std::size_t count, const std::nothrow_t &tag)
 {
     return malloc_wrapper(count, MBED_CALLER_ADDR());
 }
 
-void *operator new[](std::size_t count, const std::nothrow_t& tag)
+void *operator new[](std::size_t count, const std::nothrow_t &tag)
 {
     return malloc_wrapper(count, MBED_CALLER_ADDR());
 }
 
-void operator delete(void *ptr)
+void operator delete (void *ptr)
 {
     free_wrapper(ptr, MBED_CALLER_ADDR());
 }
@@ -1424,10 +1521,10 @@ void operator delete[](void *ptr)
 
 #include <reent.h>
 
-extern "C" void* malloc_wrapper(struct _reent * r, size_t size, void * caller);
-extern "C" void free_wrapper(struct _reent * r, void * ptr, void * caller);
+extern "C" void *malloc_wrapper(struct _reent *r, size_t size, void *caller);
+extern "C" void free_wrapper(struct _reent *r, void *ptr, void *caller);
 
-void *operator new(std::size_t count)
+void *operator new (std::size_t count)
 {
     void *buffer = malloc_wrapper(_REENT, count, MBED_CALLER_ADDR());
     if (NULL == buffer) {
@@ -1445,17 +1542,17 @@ void *operator new[](std::size_t count)
     return buffer;
 }
 
-void *operator new(std::size_t count, const std::nothrow_t& tag)
+void *operator new (std::size_t count, const std::nothrow_t &tag)
 {
     return malloc_wrapper(_REENT, count, MBED_CALLER_ADDR());
 }
 
-void *operator new[](std::size_t count, const std::nothrow_t& tag)
+void *operator new[](std::size_t count, const std::nothrow_t &tag)
 {
     return malloc_wrapper(_REENT, count, MBED_CALLER_ADDR());
 }
 
-void operator delete(void *ptr)
+void operator delete (void *ptr)
 {
     free_wrapper(_REENT, ptr, MBED_CALLER_ADDR());
 }
@@ -1467,7 +1564,7 @@ void operator delete[](void *ptr)
 
 #else
 
-void *operator new(std::size_t count)
+void *operator new (std::size_t count)
 {
     void *buffer = malloc(count);
     if (NULL == buffer) {
@@ -1485,17 +1582,17 @@ void *operator new[](std::size_t count)
     return buffer;
 }
 
-void *operator new(std::size_t count, const std::nothrow_t& tag)
+void *operator new (std::size_t count, const std::nothrow_t &tag)
 {
     return malloc(count);
 }
 
-void *operator new[](std::size_t count, const std::nothrow_t& tag)
+void *operator new[](std::size_t count, const std::nothrow_t &tag)
 {
     return malloc(count);
 }
 
-void operator delete(void *ptr)
+void operator delete (void *ptr)
 {
     free(ptr);
 }
@@ -1526,7 +1623,7 @@ extern "C" clock_t clock()
 }
 
 // temporary - Default to 1MHz at 32 bits if target does not have us_ticker_get_info
-MBED_WEAK const ticker_info_t* us_ticker_get_info()
+MBED_WEAK const ticker_info_t *us_ticker_get_info()
 {
     static const ticker_info_t info = {
         1000000,
@@ -1536,7 +1633,7 @@ MBED_WEAK const ticker_info_t* us_ticker_get_info()
 }
 
 // temporary - Default to 1MHz at 32 bits if target does not have lp_ticker_get_info
-MBED_WEAK const ticker_info_t* lp_ticker_get_info()
+MBED_WEAK const ticker_info_t *lp_ticker_get_info()
 {
     static const ticker_info_t info = {
         1000000,

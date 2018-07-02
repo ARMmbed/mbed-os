@@ -24,15 +24,18 @@
 #include "platform/mbed_critical.h"
 #include "platform/mbed_power_mgmt.h"
 
-void wait(float s) {
+void wait(float s)
+{
     wait_us(s * 1000000.0f);
 }
 
-void wait_ms(int ms) {
+void wait_ms(int ms)
+{
     wait_us(ms * 1000);
 }
 
-void wait_us(int us) {
+void wait_us(int us)
+{
     const ticker_data_t *const ticker = get_us_ticker_data();
 
     uint32_t start = ticker_read(ticker);

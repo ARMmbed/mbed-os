@@ -57,7 +57,8 @@ public:
      *
      * @param pin AnalogIn pin to connect to
      */
-    AnalogIn(PinName pin) {
+    AnalogIn(PinName pin)
+    {
         lock();
         analogin_init(&_adc, pin);
         unlock();
@@ -67,7 +68,8 @@ public:
      *
      * @returns A floating-point value representing the current input voltage, measured as a percentage
      */
-    float read() {
+    float read()
+    {
         lock();
         float ret = analogin_read(&_adc);
         unlock();
@@ -79,7 +81,8 @@ public:
      * @returns
      *   16-bit unsigned short representing the current input voltage, normalised to a 16-bit value
      */
-    unsigned short read_u16() {
+    unsigned short read_u16()
+    {
         lock();
         unsigned short ret = analogin_read_u16(&_adc);
         unlock();
@@ -99,22 +102,26 @@ public:
      * if(volume > 0.25) { ... }
      * @endcode
      */
-    operator float() {
+    operator float()
+    {
         // Underlying call is thread safe
         return read();
     }
 
-    virtual ~AnalogIn() {
+    virtual ~AnalogIn()
+    {
         // Do nothing
     }
 
 protected:
 
-    virtual void lock() {
+    virtual void lock()
+    {
         _mutex->lock();
     }
 
-    virtual void unlock() {
+    virtual void unlock()
+    {
         _mutex->unlock();
     }
 
