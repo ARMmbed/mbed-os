@@ -720,6 +720,37 @@ off_t FATFileSystem::file_size(fs_file_t file)
     return res;
 }
 
+int FATFileSystem::file_truncate(fs_file_t file, off_t length)
+{
+    FIL *fh = static_cast<FIL*>(file);
+
+    lock();
+    // save current position
+    FSIZE_t oldoff = f_tell(fh);
+
+    // seek to new file size and truncate
+    FRESULT res = f_lseek(fh, length);
+    if (res) {
+        unlock();
+        return fat_error_remap(res);
+    }
+
+    res = f_truncate(fh);
+    if (res) {
+        unlock();
+        return fat_error_remap(res);
+    }
+
+    // restore old position
+    res = f_lseek(fh, oldoff);
+    if (res) {
+        unlock();
+        return fat_error_remap(res);
+    }
+
+    return 0;
+}
+
 
 ////// Dir operations //////
 int FATFileSystem::dir_open(fs_dir_t *dir, const char *path)
