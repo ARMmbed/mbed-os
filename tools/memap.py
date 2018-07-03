@@ -502,7 +502,7 @@ class MemapParser(object):
                 if split_name[0] == '':
                     split_name = split_name[1:]
                 new_name = join(*split_name[:depth])
-                self.short_modules.setdefault(new_name, {})
+                self.short_modules.setdefault(new_name, defaultdict(int))
                 for section_idx, value in v.items():
                     self.short_modules[new_name].setdefault(section_idx, 0)
                     self.short_modules[new_name][section_idx] += self.modules[module_name][section_idx]
