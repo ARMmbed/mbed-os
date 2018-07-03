@@ -28,6 +28,19 @@ from tools.utils import NotSupportedException
 from tools.options import extract_profile, list_profiles, extract_mcus
 from tools.notifier.term import TerminalNotifier
 
+EXPORTER_ALIASES = {
+    u'gcc_arm': u'make_gcc_arm',
+    u'uvision': u'uvision5',
+}
+
+
+def resolve_exporter_alias(ide):
+    if ide in EXPORTER_ALIASES:
+        return EXPORTER_ALIASES[ide]
+    else:
+        return ide
+
+
 def setup_project(ide, target, program=None, source_dir=None, build=None, export_path=None):
     """Generate a name, if not provided, and find dependencies
 
@@ -109,7 +122,7 @@ def main():
 
     targetnames = TARGET_NAMES
     targetnames.sort()
-    toolchainlist = list(EXPORTERS.keys())
+    toolchainlist = list(EXPORTERS.keys() + EXPORTER_ALIASES.keys())
     toolchainlist.sort()
 
     parser.add_argument("-m", "--mcu",
@@ -256,10 +269,11 @@ def main():
 
     if (options.program is None) and (not options.source_dir):
         args_error(parser, "one of -p, -n, or --source is required")
-    exporter, toolchain_name = get_exporter_toolchain(options.ide)
+    ide = resolve_exporter_alias(options.ide)
+    exporter, toolchain_name = get_exporter_toolchain(ide)
     mcu = extract_mcus(parser, options)[0]
     if not exporter.is_target_supported(mcu):
-        args_error(parser, "%s not supported by %s"%(mcu,options.ide))
+        args_error(parser, "%s not supported by %s" % (mcu, ide))
     profile = extract_profile(parser, options, toolchain_name, fallback="debug")
     if options.clean:
         for cls in EXPORTERS.values():
@@ -273,7 +287,7 @@ def main():
             except (IOError, OSError):
                 pass
     try:
-        export(mcu, options.ide, build=options.build,
+        export(mcu, ide, build=options.build,
                src=options.source_dir, macros=options.macros,
                project_id=options.program, zip_proj=zip_proj,
                build_profile=profile, app_config=options.app_config,
