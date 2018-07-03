@@ -19,7 +19,7 @@
 #include "pinmap.h"
 #include "PortNames.h"
 #include "mbed_error.h"
-#include "partition_m2351.h"
+#include "partition_M2351.h"
 
 /**
  * Configure pin multi-function
