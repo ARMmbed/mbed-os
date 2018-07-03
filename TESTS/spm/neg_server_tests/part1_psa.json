@@ -29,6 +29,14 @@
       "non_secure_clients": true,
       "minor_version": 5,
       "minor_policy": "RELAXED"
+    },
+    {
+      "name": "PART1_WRITE_OUTVEC_IX_SIZE_0",
+      "identifier": "0x00001A28",
+      "signal": "PART1_WRITE_OUTVEC_IX_SIZE_0_MSK",
+      "non_secure_clients": true,
+      "minor_version": 5,
+      "minor_policy": "RELAXED"
     }
   ],
   "source_files": [

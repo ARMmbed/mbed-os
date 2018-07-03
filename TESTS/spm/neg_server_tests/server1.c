@@ -68,6 +68,23 @@ void server_main1(void *ptr)
                 }
             }
         }
+        else if (signals & PART1_WRITE_OUTVEC_IX_SIZE_0_MSK) {
+            psa_get(PART1_WRITE_OUTVEC_IX_SIZE_0_MSK, &msg);
+            switch (msg.type) {
+                case PSA_IPC_CONNECT: {
+                    psa_end(msg.handle, PSA_CONNECTION_ACCEPTED);
+                    break;
+                }
+                case PSA_IPC_CALL: {
+                    uint32_t val = 0;
+                    psa_write(msg.handle, 1, &val, sizeof(val));
+                    TEST_FAIL_MESSAGE("server_write_from_outvec_index_size_0 negative test failed");
+                }
+                default: {
+                    TEST_FAIL_MESSAGE("server_write_from_outvec_index_size_0msg type failure");
+                }
+            }
+        }
         else {
             SPM_ASSERT(false);
         }

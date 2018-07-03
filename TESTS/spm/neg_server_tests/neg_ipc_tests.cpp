@@ -339,6 +339,19 @@ void server_write_from_excess_outvec()
     TEST_FAIL_MESSAGE("server_write_from_excess_outvec negative test failed at client side");
 }
 
+void server_write_from_outvec_index_size_0()
+{
+    psa_handle_t handle = negative_server_ipc_tests_connect(PART1_WRITE_OUTVEC_IX_SIZE_0, MINOR_VER);
+
+    psa_outvec_t resp[2] = { {response_buf, CLIENT_RSP_BUF_SIZE},
+                             {response_buf, 0}
+                           };
+
+    psa_call(handle, NULL, 0, resp, 2);
+
+    TEST_FAIL_MESSAGE("server_write_from_outvec_index_size_0 negative test failed at client side");
+}
+
 void server_write_with_size_overflow()
 {
     psa_handle_t handle = negative_server_ipc_tests_connect(PART2_WRITE_SIZE_OVERFLOW, MINOR_VER);
@@ -382,6 +395,7 @@ PSA_NEG_TEST(server_read_from_excess_invec)
 PSA_NEG_TEST(server_write_on_wraparound_msg_ptr)
 PSA_NEG_TEST(server_write_with_size_overflow)
 PSA_NEG_TEST(server_write_from_excess_outvec)
+PSA_NEG_TEST(server_write_from_outvec_index_size_0)
 PSA_NEG_TEST(server_clear_no_doorbell)
 
 utest::v1::status_t spm_case_setup(const Case *const source, const size_t index_of_case)
@@ -418,7 +432,7 @@ Case cases[] = {
     SPM_UTEST_CASE("Testing server end invalid retval for connect", server_end_invalid_retval_connect),
     SPM_UTEST_CASE("Testing server end invalid retval for call", server_end_invalid_retval_call),
     SPM_UTEST_CASE("Testing server set rhandle during disconnect", server_set_rhandle_during_disconnect),
-    SPM_UTEST_CASE("Testing server notify partition id doesnt exist", server_notify_part_id_invalid),
+    SPM_UTEST_CASE("Testing server notify partition id does not exist", server_notify_part_id_invalid),
     SPM_UTEST_CASE("Testing server identify handle does not exist on the platform", server_psa_identity_invalid_handle),
     SPM_UTEST_CASE("Testing server identify handle is PSA_NULL_HANDLE", server_psa_identity_null_handle),
     SPM_UTEST_CASE("Testing server set_rhandle handle does not exist on the platform", server_set_rhandle_invalid_handle),
@@ -426,7 +440,8 @@ Case cases[] = {
     SPM_UTEST_CASE("Testing server read on wrap around pointer", server_read_on_wraparound_msg_ptr),
     SPM_UTEST_CASE("Testing server read on excess invec index", server_read_from_excess_invec),
     SPM_UTEST_CASE("Testing server write on wrap around pointer", server_write_on_wraparound_msg_ptr),
-    SPM_UTEST_CASE("Testing server write on excess invec index", server_write_from_excess_outvec),
+    SPM_UTEST_CASE("Testing server write on excess out_vec index", server_write_from_excess_outvec),
+    SPM_UTEST_CASE("Testing server write on out_vec index with size 0", server_write_from_outvec_index_size_0),
     SPM_UTEST_CASE("Testing server write with size overflow", server_write_with_size_overflow),
     SPM_UTEST_CASE("Testing server clear when doorbell signal is not asserted", server_clear_no_doorbell)
 };
