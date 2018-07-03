@@ -133,7 +133,7 @@ static mbed_error_status_t handle_error(mbed_error_status_t error_status, unsign
 
 #endif //MBED_CONF_RTOS_PRESENT
 
-#ifdef MBED_CONF_PLATFORM_ERROR_FILENAME_CAPTURE_ENABLED
+#if MBED_CONF_PLATFORM_ERROR_FILENAME_CAPTURE_ENABLED
     //Capture filename/linenumber if provided
     //Index for tracking error_filename
     memset(&current_error_ctx.error_filename, 0, MBED_CONF_PLATFORM_MAX_ERROR_FILENAME_LEN);
