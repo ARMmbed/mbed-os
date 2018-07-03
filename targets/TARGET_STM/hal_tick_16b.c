@@ -19,6 +19,8 @@
 #if TIM_MST_16BIT
 
 extern TIM_HandleTypeDef TimMasterHandle;
+extern uint32_t prev_time;
+extern uint32_t elapsed_time;
 
 volatile uint32_t PreviousVal = 0;
 
@@ -107,6 +109,10 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
 #if !defined(NDEBUG) && defined(FREEZE_TIMER_ON_DEBUG) && defined(TIM_MST_DBGMCU_FREEZE)
     TIM_MST_DBGMCU_FREEZE;
 #endif
+
+    // Used by HAL_GetTick()
+    prev_time = 0;
+    elapsed_time = 0;
 
     return HAL_OK;
 }
