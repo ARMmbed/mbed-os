@@ -78,3 +78,20 @@ void us_ticker_clear_interrupt(void)
     __HAL_TIM_CLEAR_FLAG(&TimMasterHandle, TIM_FLAG_CC1);
 }
 
+uint32_t timer_cnt_reg;
+uint32_t timer_ccr1_reg;
+uint32_t timer_dier_reg;
+
+void save_timer_ctx(void)
+{
+    timer_cnt_reg = __HAL_TIM_GET_COUNTER(&TimMasterHandle);
+    timer_ccr1_reg = __HAL_TIM_GET_COMPARE(&TimMasterHandle, TIM_CHANNEL_1);
+    timer_dier_reg = TIM_MST->DIER;
+}
+
+void restore_timer_ctx(void)
+{
+    __HAL_TIM_SET_COUNTER(&TimMasterHandle, timer_cnt_reg);
+    __HAL_TIM_SET_COMPARE(&TimMasterHandle, TIM_CHANNEL_1, timer_ccr1_reg);
+    TIM_MST->DIER = timer_dier_reg;
+}
