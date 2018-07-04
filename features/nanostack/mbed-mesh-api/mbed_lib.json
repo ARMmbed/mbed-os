@@ -9,6 +9,14 @@
             "help": "Use `malloc()` for reserving the Nanostack's internal heap.",
             "value": false
         },
+        "heap-stat-info": {
+            "help": "Pointer to heap statistics `mem_stat_t` storage.",
+            "value": "NULL"
+        },
+        "heap-stat-info-definition": {
+            "help": "Definition of heap statistics `mem_stat_t` storage.",
+            "value": null
+        },
         "6lowpan-nd-channel-mask": {
             "help": "Channel mask, bit-mask of channels to use. [0-0x07fff800]",
             "value": "0x7fff800"
