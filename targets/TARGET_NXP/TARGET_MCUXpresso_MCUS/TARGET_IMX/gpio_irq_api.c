@@ -156,7 +156,7 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
             break;
     }
 
-    int_index = 2 * obj->port;;
+    int_index = 2 * obj->port;
     if (obj->pin > 15) {
         int_index -= 1;
     }
