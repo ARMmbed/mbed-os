@@ -21,6 +21,6 @@
 // TODO: remove when fixed
 // when perform 4IO write, when memory indicates write finish (changing WIP bit in status register)
 // but actually write is still in progress and we have to wait a bit more before reading
-#define STM_DISCO_L475VG_IOT01A_WRITE_4IO_BUG_WORKAROUND
+#define STM_WRITE_4IO_BUG_WORKAROUND
 
 #endif // MBED_QSPI_FLASH_CONFIG_H

@@ -21,6 +21,13 @@
 
 #define QSPI_NONE (-1)
 
+enum QspiStatus {
+    sOK,
+    sError,
+    sTimeout,
+    sUnknown
+};
+
 struct QspiCommand {
 
     void configure(qspi_bus_width_t inst_width, qspi_bus_width_t addr_width, qspi_bus_width_t data_width,
@@ -47,6 +54,9 @@ struct Qspi {
 #define MODE_1_4_4      QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_QUAD,   QSPI_CFG_BUS_QUAD,   QSPI_CFG_BUS_QUAD
 
 #define WRITE_1_1_1     MODE_1_1_1, QSPI_CMD_WRITE_1IO
+#ifdef QSPI_CMD_WRITE_2IO
+#define WRITE_1_2_2     MODE_1_2_2, QSPI_CMD_WRITE_2IO
+#endif
 #ifdef QSPI_CMD_WRITE_4IO
 #define WRITE_1_4_4     MODE_1_4_4, QSPI_CMD_WRITE_4IO
 #endif
@@ -70,8 +80,15 @@ struct Qspi {
 #define ALT_SIZE_32 QSPI_CFG_ALT_SIZE_32
 
 #define STATUS_REG      QSPI_CMD_RDSR
-#define CONFIG_REG      QSPI_CMD_RDCR
+#define CONFIG_REG0      QSPI_CMD_RDCR0
+#ifdef QSPI_CMD_RDCR1
+#define CONFIG_REG1      QSPI_CMD_RDCR1
+#endif
 #define SECURITY_REG    QSPI_CMD_RDSCUR
+
+#ifndef QSPI_CONFIG_REG_1_SIZE
+#define QSPI_CONFIG_REG_1_SIZE 0
+#endif
 
 
 #define SECTOR_ERASE  QSPI_CMD_ERASE_SECTOR
@@ -89,13 +106,15 @@ struct Qspi {
 
 qspi_status_t read_register(uint32_t cmd, uint8_t *buf, uint32_t size, Qspi &q);
 
-bool flash_wait_for(uint32_t time_us, Qspi &qspi);
+QspiStatus flash_wait_for(uint32_t time_us, Qspi &qspi);
 
 void flash_init(Qspi &qspi);
 
 qspi_status_t write_enable(Qspi &qspi);
 
 qspi_status_t write_disable(Qspi &qspi);
+
+void log_register(uint32_t cmd, uint32_t reg_size, Qspi &qspi);
 
 qspi_status_t dual_enable(Qspi &qspi);
 
@@ -109,9 +128,11 @@ qspi_status_t fast_mode_enable(Qspi &qspi);
 
 qspi_status_t erase(uint32_t erase_cmd, uint32_t flash_addr, Qspi &qspi);
 
-#define  WAIT_FOR(timeout, q) \
-    if(!flash_wait_for(timeout, q)) { \
-        TEST_ASSERT_MESSAGE(false, "flash_wait_for failed!!!"); \
-    }
+bool is_dual_cmd(qspi_bus_width_t inst_width, qspi_bus_width_t addr_width, qspi_bus_width_t data_width);
+
+bool is_quad_cmd(qspi_bus_width_t inst_width, qspi_bus_width_t addr_width, qspi_bus_width_t data_width);
+
+#define  WAIT_FOR(timeout, q)   TEST_ASSERT_EQUAL_MESSAGE(sOK, flash_wait_for(timeout, q), "flash_wait_for failed!!!")
+
 
 #endif // MBED_QSPI_TEST_UTILS_H

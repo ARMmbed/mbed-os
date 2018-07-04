@@ -92,7 +92,7 @@ static void _qspi_write_read_test(Qspi &qspi, qspi_bus_width_t write_inst_width,
     qspi_status_t ret = QSPI_STATUS_OK;
 
     Timer timer;
-    int erase_time, write_time, read_time;
+    int erase_time = 0, write_time = 0, read_time = 0;
     size_t buf_len = data_size;
 
     for (uint32_t tc = 0; tc < test_count; tc++)
@@ -123,7 +123,6 @@ static void _qspi_write_read_test(Qspi &qspi, qspi_bus_width_t write_inst_width,
         }
 
         const uint32_t write_size = data_size / write_count;
-        qspi.cmd.configure(write_inst_width, write_addr_width, write_data_width, write_alt_width, write_addr_size, write_alt_size);
         for (uint32_t wc = 0, write_start = flash_addr; wc < write_count; wc++, write_start += write_size)
         {
             ret = write_enable(qspi);
@@ -133,15 +132,18 @@ static void _qspi_write_read_test(Qspi &qspi, qspi_bus_width_t write_inst_width,
             timer.start();
 
             buf_len = write_size;
+            qspi.cmd.configure(write_inst_width, write_addr_width, write_data_width, write_alt_width, write_addr_size, write_alt_size);
             qspi.cmd.build(write_cmd, write_start);
             ret = qspi_write(&qspi.handle, qspi.cmd.get(), tx_buf + wc * write_size, &buf_len);
             TEST_ASSERT_EQUAL(QSPI_STATUS_OK, ret);
             TEST_ASSERT_EQUAL(write_size, buf_len);
+
+            qspi.cmd.configure(MODE_1_1_1, ADDR_SIZE_24, ALT_SIZE_8);
             WAIT_FOR(PAGE_PROG_MAX_TIME, qspi);
 
             timer.stop();
             write_time = timer.read_us();
-#ifdef STM_DISCO_L475VG_IOT01A_WRITE_4IO_BUG_WORKAROUND
+#ifdef STM_WRITE_4IO_BUG_WORKAROUND
             if (write_cmd == QSPI_CMD_WRITE_4IO) {
                 wait_us(2000);
             }
@@ -224,19 +226,25 @@ void qspi_write_read_test(void)
     qspi.cmd.configure(MODE_1_1_1, ADDR_SIZE_24, ALT_SIZE_8);
     flash_init(qspi);
 
-    ret = write_enable(qspi);
-    TEST_ASSERT_EQUAL(QSPI_STATUS_OK, ret);
-    WAIT_FOR(WRSR_MAX_TIME, qspi);
-    ret = dual_enable(qspi);
-    TEST_ASSERT_EQUAL(QSPI_STATUS_OK, ret);
-    WAIT_FOR(WRSR_MAX_TIME, qspi);
+    if (is_dual_cmd(write_inst_width, write_addr_width, write_data_width) ||
+        is_dual_cmd(read_inst_width, read_addr_width, read_data_width)) {
+        ret = write_enable(qspi);
+        TEST_ASSERT_EQUAL(QSPI_STATUS_OK, ret);
+        WAIT_FOR(WRSR_MAX_TIME, qspi);
+        ret = dual_enable(qspi);
+        TEST_ASSERT_EQUAL(QSPI_STATUS_OK, ret);
+        WAIT_FOR(WRSR_MAX_TIME, qspi);
+    }
 
-    ret = write_enable(qspi);
-    TEST_ASSERT_EQUAL(QSPI_STATUS_OK, ret);
-    WAIT_FOR(WRSR_MAX_TIME, qspi);
-    ret = quad_enable(qspi);
-    TEST_ASSERT_EQUAL(QSPI_STATUS_OK, ret);
-    WAIT_FOR(WRSR_MAX_TIME, qspi);
+    if (is_quad_cmd(write_inst_width, write_addr_width, write_data_width) ||
+        is_quad_cmd(read_inst_width, read_addr_width, read_data_width)) {
+        ret = write_enable(qspi);
+        TEST_ASSERT_EQUAL(QSPI_STATUS_OK, ret);
+        WAIT_FOR(WRSR_MAX_TIME, qspi);
+        ret = quad_enable(qspi);
+        TEST_ASSERT_EQUAL(QSPI_STATUS_OK, ret);
+        WAIT_FOR(WRSR_MAX_TIME, qspi);
+    }
 
     ret = write_enable(qspi);
     TEST_ASSERT_EQUAL(QSPI_STATUS_OK, ret);
@@ -246,8 +254,11 @@ void qspi_write_read_test(void)
     WAIT_FOR(WRSR_MAX_TIME, qspi);
 
 #ifdef QSPI_TEST_LOG_FLASH_STATUS
-    log_status_register(qspi);
-    log_config_register(qspi);
+    printf("Status ");   log_register(STATUS_REG, QSPI_STATUS_REG_SIZE, qspi);
+    printf("Config 0 "); log_register(CONFIG_REG0, QSPI_CONFIG_REG_0_SIZE, qspi);
+#ifdef CONFIG_REG1
+    printf("Config 1 "); log_register(CONFIG_REG1, QSPI_CONFIG_REG_1_SIZE, qspi);
+#endif
 #endif
 
     _qspi_write_read_test(qspi, write_inst_width, write_addr_width, write_data_width, write_alt_width, write_cmd,
@@ -255,6 +266,28 @@ void qspi_write_read_test(void)
                           read_addr_width, read_data_width, read_alt_width, read_cmd, read_dummy_cycles,
                           read_addr_size, read_alt_size, read_frequency, read_count, test_count,
                           data_size, flash_addr);
+
+    qspi.cmd.configure(MODE_1_1_1, ADDR_SIZE_24, ALT_SIZE_8);
+
+    if (is_dual_cmd(write_inst_width, write_addr_width, write_data_width) ||
+        is_dual_cmd(read_inst_width, read_addr_width, read_data_width)) {
+        ret = write_enable(qspi);
+        TEST_ASSERT_EQUAL(QSPI_STATUS_OK, ret);
+        WAIT_FOR(WRSR_MAX_TIME, qspi);
+        ret = dual_disable(qspi);
+        TEST_ASSERT_EQUAL(QSPI_STATUS_OK, ret);
+        WAIT_FOR(WRSR_MAX_TIME, qspi);
+    }
+
+    if (is_quad_cmd(write_inst_width, write_addr_width, write_data_width) ||
+        is_quad_cmd(read_inst_width, read_addr_width, read_data_width)) {
+        ret = write_enable(qspi);
+        TEST_ASSERT_EQUAL(QSPI_STATUS_OK, ret);
+        WAIT_FOR(WRSR_MAX_TIME, qspi);
+        ret = quad_disable(qspi);
+        TEST_ASSERT_EQUAL(QSPI_STATUS_OK, ret);
+        WAIT_FOR(WRSR_MAX_TIME, qspi);
+    }
 
     qspi_free(&qspi.handle);
 }
@@ -292,6 +325,15 @@ void qspi_init_free_test(void)
     // check if the memory is working properly
     qspi.cmd.configure(MODE_1_1_1, ADDR_SIZE_24, ALT_SIZE_8);
     flash_init(qspi);
+
+#ifdef QSPI_TEST_LOG_FLASH_STATUS
+    printf("Status ");   log_register(STATUS_REG, QSPI_STATUS_REG_SIZE, qspi);
+    printf("Config 0 "); log_register(CONFIG_REG0, QSPI_CONFIG_REG_0_SIZE, qspi);
+#ifdef CONFIG_REG1
+    printf("Config 1 "); log_register(CONFIG_REG1, QSPI_CONFIG_REG_1_SIZE, qspi);
+#endif
+#endif
+
     _qspi_write_read_test(qspi, WRITE_1_1_1, ADDR_SIZE_24, ALT_SIZE_8, QSPI_COMMON_MAX_FREQUENCY, WRITE_SINGLE, READ_1_1_1, ADDR_SIZE_24, ALT_SIZE_8, QSPI_COMMON_MAX_FREQUENCY, READ_SINGLE, TEST_REPEAT_SINGLE, DATA_SIZE_256, TEST_FLASH_ADDRESS);
     qspi_free(&qspi.handle);
 }
@@ -370,6 +412,28 @@ Case cases[] = {
     Case("qspi write(1-1-1)/x4  read(1-4-4)/x1  repeat/x1  test", qspi_write_read_test<WRITE_1_1_1, ADDR_SIZE_24, ALT_SIZE_8, QSPI_COMMON_MAX_FREQUENCY, WRITE_MULTIPLE, READ_1_4_4, ADDR_SIZE_24, ALT_SIZE_8, QSPI_COMMON_MAX_FREQUENCY, READ_SINGLE,   TEST_REPEAT_SINGLE,   DATA_SIZE_1024, TEST_FLASH_ADDRESS>),
     Case("qspi write(1-1-1)/x1  read(1-4-4)/x4  repeat/x1  test", qspi_write_read_test<WRITE_1_1_1, ADDR_SIZE_24, ALT_SIZE_8, QSPI_COMMON_MAX_FREQUENCY, WRITE_SINGLE,   READ_1_4_4, ADDR_SIZE_24, ALT_SIZE_8, QSPI_COMMON_MAX_FREQUENCY, READ_MULTIPLE, TEST_REPEAT_SINGLE,   DATA_SIZE_256,  TEST_FLASH_ADDRESS>),
     Case("qspi write(1-1-1)/x1  read(1-4-4)/x1  repeat/x16 test", qspi_write_read_test<WRITE_1_1_1, ADDR_SIZE_24, ALT_SIZE_8, QSPI_COMMON_MAX_FREQUENCY, WRITE_SINGLE,   READ_1_4_4, ADDR_SIZE_24, ALT_SIZE_8, QSPI_COMMON_MAX_FREQUENCY, READ_SINGLE,   TEST_REPEAT_MULTIPLE, DATA_SIZE_256,  TEST_FLASH_ADDRESS>),
+#ifdef QSPI_CMD_WRITE_2IO
+    Case("qspi write(1-2-2)/x1  read(1-1-1)/x1  repeat/x1  test", qspi_write_read_test<WRITE_1_2_2, ADDR_SIZE_24, ALT_SIZE_8, QSPI_COMMON_MAX_FREQUENCY, WRITE_SINGLE,   READ_1_1_1, ADDR_SIZE_24, ALT_SIZE_8, QSPI_COMMON_MAX_FREQUENCY, READ_SINGLE,   TEST_REPEAT_SINGLE,   DATA_SIZE_256,  TEST_FLASH_ADDRESS>),
+    Case("qspi write(1-2-2)/x4  read(1-1-1)/x1  repeat/x1  test", qspi_write_read_test<WRITE_1_2_2, ADDR_SIZE_24, ALT_SIZE_8, QSPI_COMMON_MAX_FREQUENCY, WRITE_MULTIPLE, READ_1_1_1, ADDR_SIZE_24, ALT_SIZE_8, QSPI_COMMON_MAX_FREQUENCY, READ_SINGLE,   TEST_REPEAT_SINGLE,   DATA_SIZE_1024, TEST_FLASH_ADDRESS>),
+    Case("qspi write(1-2-2)/x1  read(1-1-1)/x4  repeat/x1  test", qspi_write_read_test<WRITE_1_2_2, ADDR_SIZE_24, ALT_SIZE_8, QSPI_COMMON_MAX_FREQUENCY, WRITE_SINGLE,   READ_1_1_1, ADDR_SIZE_24, ALT_SIZE_8, QSPI_COMMON_MAX_FREQUENCY, READ_MULTIPLE, TEST_REPEAT_SINGLE,   DATA_SIZE_256,  TEST_FLASH_ADDRESS>),
+    Case("qspi write(1-2-2)/x1  read(1-1-1)/x1  repeat/x16 test", qspi_write_read_test<WRITE_1_2_2, ADDR_SIZE_24, ALT_SIZE_8, QSPI_COMMON_MAX_FREQUENCY, WRITE_SINGLE,   READ_1_1_1, ADDR_SIZE_24, ALT_SIZE_8, QSPI_COMMON_MAX_FREQUENCY, READ_SINGLE,   TEST_REPEAT_MULTIPLE, DATA_SIZE_256,  TEST_FLASH_ADDRESS>),
+    Case("qspi write(1-2-2)/x1  read(1-1-2)/x1  repeat/x1  test", qspi_write_read_test<WRITE_1_2_2, ADDR_SIZE_24, ALT_SIZE_8, QSPI_COMMON_MAX_FREQUENCY, WRITE_SINGLE,   READ_1_1_2, ADDR_SIZE_24, ALT_SIZE_8, QSPI_COMMON_MAX_FREQUENCY, READ_SINGLE,   TEST_REPEAT_SINGLE,   DATA_SIZE_256,  TEST_FLASH_ADDRESS>),
+    Case("qspi write(1-2-2)/x4  read(1-1-2)/x1  repeat/x1  test", qspi_write_read_test<WRITE_1_2_2, ADDR_SIZE_24, ALT_SIZE_8, QSPI_COMMON_MAX_FREQUENCY, WRITE_MULTIPLE, READ_1_1_2, ADDR_SIZE_24, ALT_SIZE_8, QSPI_COMMON_MAX_FREQUENCY, READ_SINGLE,   TEST_REPEAT_SINGLE,   DATA_SIZE_1024, TEST_FLASH_ADDRESS>),
+    Case("qspi write(1-2-2)/x1  read(1-1-2)/x4  repeat/x1  test", qspi_write_read_test<WRITE_1_2_2, ADDR_SIZE_24, ALT_SIZE_8, QSPI_COMMON_MAX_FREQUENCY, WRITE_SINGLE,   READ_1_1_2, ADDR_SIZE_24, ALT_SIZE_8, QSPI_COMMON_MAX_FREQUENCY, READ_MULTIPLE, TEST_REPEAT_SINGLE,   DATA_SIZE_256,  TEST_FLASH_ADDRESS>),
+    Case("qspi write(1-2-2)/x1  read(1-1-2)/x1  repeat/x16 test", qspi_write_read_test<WRITE_1_2_2, ADDR_SIZE_24, ALT_SIZE_8, QSPI_COMMON_MAX_FREQUENCY, WRITE_SINGLE,   READ_1_1_2, ADDR_SIZE_24, ALT_SIZE_8, QSPI_COMMON_MAX_FREQUENCY, READ_SINGLE,   TEST_REPEAT_MULTIPLE, DATA_SIZE_256,  TEST_FLASH_ADDRESS>),
+    Case("qspi write(1-2-2)/x1  read(1-2-2)/x1  repeat/x1  test", qspi_write_read_test<WRITE_1_2_2, ADDR_SIZE_24, ALT_SIZE_8, QSPI_COMMON_MAX_FREQUENCY, WRITE_SINGLE,   READ_1_2_2, ADDR_SIZE_24, ALT_SIZE_8, QSPI_COMMON_MAX_FREQUENCY, READ_SINGLE,   TEST_REPEAT_SINGLE,   DATA_SIZE_256,  TEST_FLASH_ADDRESS>),
+    Case("qspi write(1-2-2)/x4  read(1-2-2)/x1  repeat/x1  test", qspi_write_read_test<WRITE_1_2_2, ADDR_SIZE_24, ALT_SIZE_8, QSPI_COMMON_MAX_FREQUENCY, WRITE_MULTIPLE, READ_1_2_2, ADDR_SIZE_24, ALT_SIZE_8, QSPI_COMMON_MAX_FREQUENCY, READ_SINGLE,   TEST_REPEAT_SINGLE,   DATA_SIZE_1024, TEST_FLASH_ADDRESS>),
+    Case("qspi write(1-2-2)/x1  read(1-2-2)/x4  repeat/x1  test", qspi_write_read_test<WRITE_1_2_2, ADDR_SIZE_24, ALT_SIZE_8, QSPI_COMMON_MAX_FREQUENCY, WRITE_SINGLE,   READ_1_2_2, ADDR_SIZE_24, ALT_SIZE_8, QSPI_COMMON_MAX_FREQUENCY, READ_MULTIPLE, TEST_REPEAT_SINGLE,   DATA_SIZE_256,  TEST_FLASH_ADDRESS>),
+    Case("qspi write(1-2-2)/x1  read(1-2-2)/x1  repeat/x16 test", qspi_write_read_test<WRITE_1_2_2, ADDR_SIZE_24, ALT_SIZE_8, QSPI_COMMON_MAX_FREQUENCY, WRITE_SINGLE,   READ_1_2_2, ADDR_SIZE_24, ALT_SIZE_8, QSPI_COMMON_MAX_FREQUENCY, READ_SINGLE,   TEST_REPEAT_MULTIPLE, DATA_SIZE_256,  TEST_FLASH_ADDRESS>),
+    Case("qspi write(1-2-2)/x1  read(1-1-4)/x1  repeat/x1  test", qspi_write_read_test<WRITE_1_2_2, ADDR_SIZE_24, ALT_SIZE_8, QSPI_COMMON_MAX_FREQUENCY, WRITE_SINGLE,   READ_1_1_4, ADDR_SIZE_24, ALT_SIZE_8, QSPI_COMMON_MAX_FREQUENCY, READ_SINGLE,   TEST_REPEAT_SINGLE,   DATA_SIZE_256,  TEST_FLASH_ADDRESS>),
+    Case("qspi write(1-2-2)/x4  read(1-1-4)/x1  repeat/x1  test", qspi_write_read_test<WRITE_1_2_2, ADDR_SIZE_24, ALT_SIZE_8, QSPI_COMMON_MAX_FREQUENCY, WRITE_MULTIPLE, READ_1_1_4, ADDR_SIZE_24, ALT_SIZE_8, QSPI_COMMON_MAX_FREQUENCY, READ_SINGLE,   TEST_REPEAT_SINGLE,   DATA_SIZE_1024, TEST_FLASH_ADDRESS>),
+    Case("qspi write(1-2-2)/x1  read(1-1-4)/x4  repeat/x1  test", qspi_write_read_test<WRITE_1_2_2, ADDR_SIZE_24, ALT_SIZE_8, QSPI_COMMON_MAX_FREQUENCY, WRITE_SINGLE,   READ_1_1_4, ADDR_SIZE_24, ALT_SIZE_8, QSPI_COMMON_MAX_FREQUENCY, READ_MULTIPLE, TEST_REPEAT_SINGLE,   DATA_SIZE_256,  TEST_FLASH_ADDRESS>),
+    Case("qspi write(1-2-2)/x1  read(1-1-4)/x1  repeat/x16 test", qspi_write_read_test<WRITE_1_2_2, ADDR_SIZE_24, ALT_SIZE_8, QSPI_COMMON_MAX_FREQUENCY, WRITE_SINGLE,   READ_1_1_4, ADDR_SIZE_24, ALT_SIZE_8, QSPI_COMMON_MAX_FREQUENCY, READ_SINGLE,   TEST_REPEAT_MULTIPLE, DATA_SIZE_256,  TEST_FLASH_ADDRESS>),
+    Case("qspi write(1-2-2)/x1  read(1-4-4)/x1  repeat/x1  test", qspi_write_read_test<WRITE_1_2_2, ADDR_SIZE_24, ALT_SIZE_8, QSPI_COMMON_MAX_FREQUENCY, WRITE_SINGLE,   READ_1_4_4, ADDR_SIZE_24, ALT_SIZE_8, QSPI_COMMON_MAX_FREQUENCY, READ_SINGLE,   TEST_REPEAT_SINGLE,   DATA_SIZE_256,  TEST_FLASH_ADDRESS>),
+    Case("qspi write(1-2-2)/x4  read(1-4-4)/x1  repeat/x1  test", qspi_write_read_test<WRITE_1_2_2, ADDR_SIZE_24, ALT_SIZE_8, QSPI_COMMON_MAX_FREQUENCY, WRITE_MULTIPLE, READ_1_4_4, ADDR_SIZE_24, ALT_SIZE_8, QSPI_COMMON_MAX_FREQUENCY, READ_SINGLE,   TEST_REPEAT_SINGLE,   DATA_SIZE_1024, TEST_FLASH_ADDRESS>),
+    Case("qspi write(1-2-2)/x1  read(1-4-4)/x4  repeat/x1  test", qspi_write_read_test<WRITE_1_2_2, ADDR_SIZE_24, ALT_SIZE_8, QSPI_COMMON_MAX_FREQUENCY, WRITE_SINGLE,   READ_1_4_4, ADDR_SIZE_24, ALT_SIZE_8, QSPI_COMMON_MAX_FREQUENCY, READ_MULTIPLE, TEST_REPEAT_SINGLE,   DATA_SIZE_256,  TEST_FLASH_ADDRESS>),
+    Case("qspi write(1-2-2)/x1  read(1-4-4)/x1  repeat/x16 test", qspi_write_read_test<WRITE_1_2_2, ADDR_SIZE_24, ALT_SIZE_8, QSPI_COMMON_MAX_FREQUENCY, WRITE_SINGLE,   READ_1_4_4, ADDR_SIZE_24, ALT_SIZE_8, QSPI_COMMON_MAX_FREQUENCY, READ_SINGLE,   TEST_REPEAT_MULTIPLE, DATA_SIZE_256,  TEST_FLASH_ADDRESS>),
+#endif
 #ifdef QSPI_CMD_WRITE_4IO
     Case("qspi write(1-4-4)/x1  read(1-1-1)/x1  repeat/x1  test", qspi_write_read_test<WRITE_1_4_4, ADDR_SIZE_24, ALT_SIZE_8, QSPI_COMMON_MAX_FREQUENCY, WRITE_SINGLE,   READ_1_1_1, ADDR_SIZE_24, ALT_SIZE_8, QSPI_COMMON_MAX_FREQUENCY, READ_SINGLE,   TEST_REPEAT_SINGLE,   DATA_SIZE_256,  TEST_FLASH_ADDRESS>),
     Case("qspi write(1-4-4)/x4  read(1-1-1)/x1  repeat/x1  test", qspi_write_read_test<WRITE_1_4_4, ADDR_SIZE_24, ALT_SIZE_8, QSPI_COMMON_MAX_FREQUENCY, WRITE_MULTIPLE, READ_1_1_1, ADDR_SIZE_24, ALT_SIZE_8, QSPI_COMMON_MAX_FREQUENCY, READ_SINGLE,   TEST_REPEAT_SINGLE,   DATA_SIZE_1024, TEST_FLASH_ADDRESS>),
@@ -396,7 +460,7 @@ Case cases[] = {
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
 {
-    GREENTEA_SETUP(120, "default_auto");
+    GREENTEA_SETUP(180, "default_auto");
     return greentea_test_setup_handler(number_of_cases);
 }
 

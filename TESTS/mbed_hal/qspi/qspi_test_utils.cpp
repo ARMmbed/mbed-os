@@ -23,12 +23,7 @@
 #include <string.h> // for memset
 
 #include "flash_configs/flash_configs.h"
-#include "mbed.h" // for WEAK
-
-//====================================================================================
-// all WEAK functions can be overridden, to fit board or memory chip specific features
-// override in flash_configs/vendor/target/qspi_test_utils_specific.cpp
-//====================================================================================
+#include "mbed.h"
 
 
 void QspiCommand::configure(qspi_bus_width_t inst_width, qspi_bus_width_t addr_width,
@@ -79,32 +74,39 @@ qspi_status_t read_register(uint32_t cmd, uint8_t *buf, uint32_t size, Qspi &q)
 }
 
 
-bool flash_wait_for(uint32_t time_us, Qspi &qspi)
+QspiStatus flash_wait_for(uint32_t time_us, Qspi &qspi)
 {
-    uint8_t reg[QSPI_STATUS_REGISTER_SIZE];
+    uint8_t reg[QSPI_STATUS_REG_SIZE];
     qspi_status_t ret;
-    reg[0] = STATUS_BIT_WIP;
+    uint32_t curr_time;
 
     const ticker_data_t *const ticker = get_us_ticker_data();
     const uint32_t start = ticker_read(ticker);
 
+    memset(reg, 255, QSPI_STATUS_REG_SIZE);
     do {
-        ret = read_register(STATUS_REG, reg, QSPI_STATUS_REGISTER_SIZE, qspi);
-    } while (((reg[0] & STATUS_BIT_WIP) != 0) && ((ticker_read(ticker) - start) < (uint32_t)time_us));
+        ret = read_register(STATUS_REG, reg, QSPI_STATUS_REG_SIZE, qspi);
+        curr_time = ticker_read(ticker);
+    } while (((reg[0] & STATUS_BIT_WIP) != 0) && ((curr_time - start) < time_us));
 
-    return (((reg[0] & STATUS_BIT_WIP) == 0) && (ret == QSPI_STATUS_OK));
+    if (((reg[0] & STATUS_BIT_WIP) == 0) && (ret == QSPI_STATUS_OK)) {
+        return sOK;
+    } else if (ret != QSPI_STATUS_OK) {
+        return sError;
+    } else if ((curr_time - start) >= time_us) {
+        return sTimeout;
+    }
+    return sUnknown;
 }
 
 void flash_init(Qspi &qspi)
 {
-    uint8_t status[2] = { 0 };
+    uint8_t status[QSPI_STATUS_REG_SIZE];
     qspi_status_t ret;
 
     qspi.cmd.build(QSPI_CMD_RDSR);
-    ret = qspi_command_transfer(&qspi.handle, qspi.cmd.get(), NULL, 0, status, 1);
+    ret = qspi_command_transfer(&qspi.handle, qspi.cmd.get(), NULL, 0, status, QSPI_STATUS_REG_SIZE);
     TEST_ASSERT_EQUAL(QSPI_STATUS_OK, ret);
-
-    WAIT_FOR(WRSR_MAX_TIME, qspi);
 
     qspi.cmd.build(QSPI_CMD_RSTEN);
     ret = qspi_command_transfer(&qspi.handle, qspi.cmd.get(), NULL, 0, NULL, 0);
@@ -122,7 +124,7 @@ void flash_init(Qspi &qspi)
 
 qspi_status_t write_enable(Qspi &qspi)
 {
-    uint8_t reg[QSPI_STATUS_REGISTER_SIZE];
+    uint8_t reg[QSPI_STATUS_REG_SIZE];
     qspi.cmd.build(QSPI_CMD_WREN);
 
     if (qspi_command_transfer(&qspi.handle, qspi.cmd.get(), NULL, 0, NULL, 0) != QSPI_STATUS_OK) {
@@ -130,8 +132,8 @@ qspi_status_t write_enable(Qspi &qspi)
     }
     WAIT_FOR(WRSR_MAX_TIME, qspi);
 
-    memset(reg, 0, QSPI_STATUS_REGISTER_SIZE);
-    if (read_register(STATUS_REG, reg, QSPI_STATUS_REGISTER_SIZE, qspi) != QSPI_STATUS_OK) {
+    memset(reg, 0, QSPI_STATUS_REG_SIZE);
+    if (read_register(STATUS_REG, reg, QSPI_STATUS_REG_SIZE, qspi) != QSPI_STATUS_OK) {
         return QSPI_STATUS_ERROR;
     }
 
@@ -140,7 +142,7 @@ qspi_status_t write_enable(Qspi &qspi)
 
 qspi_status_t write_disable(Qspi &qspi)
 {
-    uint8_t reg[QSPI_STATUS_REGISTER_SIZE];
+    uint8_t reg[QSPI_STATUS_REG_SIZE];
     qspi.cmd.build(QSPI_CMD_WRDI);
 
     if (qspi_command_transfer(&qspi.handle, qspi.cmd.get(), NULL, 0, NULL, 0) != QSPI_STATUS_OK) {
@@ -148,85 +150,77 @@ qspi_status_t write_disable(Qspi &qspi)
     }
     WAIT_FOR(WRSR_MAX_TIME, qspi);
 
-    memset(reg, 0, QSPI_STATUS_REGISTER_SIZE);
-    if (read_register(STATUS_REG, reg, QSPI_STATUS_REGISTER_SIZE, qspi) != QSPI_STATUS_OK) {
+    memset(reg, 0, QSPI_STATUS_REG_SIZE);
+    if (read_register(STATUS_REG, reg, QSPI_STATUS_REG_SIZE, qspi) != QSPI_STATUS_OK) {
         return QSPI_STATUS_ERROR;
     }
 
     return ((reg[0] & STATUS_BIT_WEL) == 0 ? QSPI_STATUS_OK : QSPI_STATUS_ERROR);
 }
 
-WEAK qspi_status_t dual_enable(Qspi &qspi)
-{
-    return QSPI_STATUS_OK;
-}
-
-WEAK qspi_status_t dual_disable(Qspi &qspi)
-{
-    return QSPI_STATUS_OK;
-}
-
-WEAK qspi_status_t quad_enable(Qspi &qspi)
-{
-    uint8_t reg_data[QSPI_STATUS_REGISTER_SIZE];
-
-    reg_data[0] = STATUS_BIT_QE;
-    qspi.cmd.build(QSPI_CMD_WRSR);
-
-    if (qspi_command_transfer(&qspi.handle, qspi.cmd.get(), reg_data, QSPI_STATUS_REGISTER_SIZE, NULL, 0) != QSPI_STATUS_OK) {
-        return QSPI_STATUS_ERROR;
-    }
-    WAIT_FOR(WRSR_MAX_TIME, qspi);
-
-    memset(reg_data, 0, QSPI_STATUS_REGISTER_SIZE);
-    if (read_register(STATUS_REG, reg_data, QSPI_STATUS_REGISTER_SIZE, qspi) != QSPI_STATUS_OK) {
-        return QSPI_STATUS_ERROR;
-    }
-
-    return ((reg_data[0] & STATUS_BIT_QE) != 0 ? QSPI_STATUS_OK : QSPI_STATUS_ERROR);
-}
-
-WEAK qspi_status_t quad_disable(Qspi &qspi)
-{
-    uint8_t reg_data[QSPI_STATUS_REGISTER_SIZE];
-
-    reg_data[0] = 0;
-    qspi.cmd.build(QSPI_CMD_WRSR);
-
-    if (qspi_command_transfer(&qspi.handle, qspi.cmd.get(), reg_data, QSPI_STATUS_REGISTER_SIZE, NULL, 0) != QSPI_STATUS_OK) {
-        return QSPI_STATUS_ERROR;
-    }
-    WAIT_FOR(WRSR_MAX_TIME, qspi);
-
-    reg_data[0] = 0;
-    if (read_register(STATUS_REG, reg_data, QSPI_STATUS_REGISTER_SIZE, qspi) != QSPI_STATUS_OK) {
-        return QSPI_STATUS_ERROR;
-    }
-
-    return ((reg_data[0] & STATUS_BIT_QE) == 0 ? QSPI_STATUS_OK : QSPI_STATUS_ERROR);
-}
-
-WEAK qspi_status_t fast_mode_enable(Qspi &qspi)
+void log_register(uint32_t cmd, uint32_t reg_size, Qspi &qspi)
 {
     qspi_status_t ret;
-    const int32_t reg_size = QSPI_STATUS_REGISTER_SIZE + QSPI_CONFIGURATION_REGISTER_SIZE;
-    uint8_t reg_data[reg_size];
+    static uint8_t reg[QSPI_MAX_REG_SIZE];
 
-    if (read_register(STATUS_REG, reg_data, QSPI_STATUS_REGISTER_SIZE, qspi) != QSPI_STATUS_OK) {
-        return QSPI_STATUS_ERROR;
+    ret = read_register(cmd, reg, reg_size, qspi);
+    TEST_ASSERT_EQUAL(QSPI_STATUS_OK, ret);
+
+    for (int j = 0; j < reg_size; j++) {
+        printf("register byte %d data: ", j);
+        for(int i = 0; i < 8; i++) {
+            printf("%s ", ((reg[j] & (1 << i)) & 0xFF) == 0 ? "0" : "1");
+        }
+        printf("\r\n");
     }
-    if (read_register(CONFIG_REG, reg_data + QSPI_STATUS_REGISTER_SIZE, QSPI_CONFIGURATION_REGISTER_SIZE, qspi) != QSPI_STATUS_OK) {
-        return QSPI_STATUS_ERROR;
-    }
-
-    reg_data[2] |= CONFIG1_BIT_LH;
-    qspi.cmd.build(QSPI_CMD_WRSR);
-
-    return qspi_command_transfer(&qspi.handle, qspi.cmd.get(), reg_data, reg_size, NULL, 0);
 }
 
 qspi_status_t erase(uint32_t erase_cmd, uint32_t flash_addr, Qspi &qspi)
 {
     qspi.cmd.build(erase_cmd, flash_addr);
     return qspi_command_transfer(&qspi.handle, qspi.cmd.get(), NULL, 0, NULL, 0);
+}
+
+qspi_status_t dual_enable(Qspi &qspi)
+{
+#ifdef DUAL_ENABLE_IMPLEMENTATION
+    DUAL_ENABLE_IMPLEMENTATION();
+#else
+    QUAD_ENABLE_IMPLEMENTATION();
+#endif
+}
+
+qspi_status_t dual_disable(Qspi &qspi)
+{
+#ifdef DUAL_DISABLE_IMPLEMENTATION
+    DUAL_DISABLE_IMPLEMENTATION();
+#else
+    QUAD_DISABLE_IMPLEMENTATION();
+#endif
+
+}
+
+qspi_status_t quad_enable(Qspi &qspi)
+{
+    QUAD_ENABLE_IMPLEMENTATION();
+}
+
+qspi_status_t quad_disable(Qspi &qspi)
+{
+    QUAD_DISABLE_IMPLEMENTATION();
+}
+
+qspi_status_t fast_mode_enable(Qspi &qspi)
+{
+    FAST_MODE_ENABLE_IMPLEMENTATION();
+}
+
+bool is_dual_cmd(qspi_bus_width_t inst_width, qspi_bus_width_t addr_width, qspi_bus_width_t data_width)
+{
+    return (inst_width == QSPI_CFG_BUS_DUAL) || (addr_width == QSPI_CFG_BUS_DUAL) || (data_width == QSPI_CFG_BUS_DUAL);
+}
+
+bool is_quad_cmd(qspi_bus_width_t inst_width, qspi_bus_width_t addr_width, qspi_bus_width_t data_width)
+{
+    return (inst_width == QSPI_CFG_BUS_QUAD) || (addr_width == QSPI_CFG_BUS_QUAD) || (data_width == QSPI_CFG_BUS_QUAD);
 }
