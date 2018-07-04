@@ -489,6 +489,26 @@ ble::vendor::cordio::CordioHCIDriver& ble_cordio_get_hci_driver() {
 }
 ```
 
+### Tests
+
+Greentea tests are bundled with the cordio port of BLE API to ensure that the transport driver works as expected as well as validate the cordio stack initialization. You can run them with the following command:
+
+```
+mbed test -t <toolchain> -m <target> -n mbed-os-features-feature_ble-targets-target_cordio-tests-cordio_hci-driver,mbed-os-features-feature_ble-targets-target_cordio-tests-cordio_hci-transport
+```
+
+* mbed-os-features-feature_ble-targets-target_cordio-tests-cordio_hci-transport: Ensure that the transport is able to send an HCI reset command and receive the corresponding HCI status event.
+* mbed-os-features-feature_ble-targets-target_cordio-tests-cordio_hci-driver: Runs the whole initialization process then ensure the cordio stack has been properly initialized by the HCI driver.
+
+
+### Tools
+
+The application [mbed-os-cordio-hci-passthrough](https://github.com/ARMmbed/mbed-os-cordio-hci-passthrough) can be used to _proxify_ a Bluetooth controller connected to an mbed board.
+
+Bytes sent by the host over the board serial are forwarded to the controller with the help of the `HCITransportDriver` while bytes sent by the controller are sent back to the host through the board serial.
+
+This application can be used to validate the transport driver and debug the initialization process on a PC host.
+
 
 
 
