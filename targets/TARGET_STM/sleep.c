@@ -161,6 +161,7 @@ void hal_deepsleep(void)
     // Disable IRQs
     core_util_critical_section_enter();
 
+    // Save the timer counter value in order to reprogram it after deepsleep
     uint32_t EnterTimeUS = us_ticker_read();
 
     // Request to enter STOP mode with regulator in low power mode
@@ -198,9 +199,12 @@ void hal_deepsleep(void)
      *  deep sleep */
     wait_loop(500);
 
+    // Reprogram the timer counter value saved before the deepsleep
     TIM_HandleTypeDef TimMasterHandle;
     TimMasterHandle.Instance = TIM_MST;
     __HAL_TIM_SET_COUNTER(&TimMasterHandle, EnterTimeUS);
+    __HAL_TIM_CLEAR_FLAG(&TimMasterHandle, TIM_FLAG_CC1);
+    __HAL_TIM_ENABLE_IT(&TimMasterHandle, TIM_IT_CC1);
 
 #if DEVICE_RTC
     /* Wait for RTC RSF bit synchro if RTC is configured */
