@@ -33,11 +33,11 @@ void gpio_init(gpio_t *obj, PinName pin)
 {
     clock_ip_name_t gpio_clocks[] = GPIO_CLOCKS;
 
-    CLOCK_EnableClock(gpio_clocks[pin >> GPIO_PORT_SHIFT]);
-
     obj->pin = pin;
     if (pin == (PinName)NC)
         return;
+
+    CLOCK_EnableClock(gpio_clocks[pin >> GPIO_PORT_SHIFT]);
 
     pin_function(pin, GPIO_MUX_PORT);
 }
