@@ -13,6 +13,7 @@ import csv
 import json
 from argparse import ArgumentParser
 from copy import deepcopy
+from collections import defaultdict
 from prettytable import PrettyTable
 from jinja2 import FileSystemLoader, StrictUndefined
 from jinja2.environment import Environment
@@ -57,7 +58,8 @@ class _Parser(object):
                 contents[section] += size
                 return
 
-        new_module = {section: size}
+        new_module = defaultdict(int)
+        new_module[section] = size
         self.modules[object_name] = new_module
 
     def module_replace(self, old_object, new_object):
@@ -506,7 +508,7 @@ class MemapParser(object):
                 if split_name[0] == '':
                     split_name = split_name[1:]
                 new_name = join(*split_name[:depth])
-                self.short_modules.setdefault(new_name, {})
+                self.short_modules.setdefault(new_name, defaultdict(int))
                 for section_idx, value in v.items():
                     self.short_modules[new_name].setdefault(section_idx, 0)
                     self.short_modules[new_name][section_idx] += self.modules[module_name][section_idx]
@@ -525,7 +527,8 @@ class MemapParser(object):
 
         Returns: generated string for the 'table' format, otherwise None
         """
-        self.reduce_depth(depth)
+        if depth is None or depth > 0:
+            self.reduce_depth(depth)
         self.compute_report()
         try:
             if file_output:
@@ -706,10 +709,9 @@ class MemapParser(object):
         for k in self.sections:
             self.subtotal[k] = 0
 
-        for i in self.short_modules:
+        for mod in self.modules.values():
             for k in self.sections:
-                self.short_modules[i].setdefault(k, 0)
-                self.subtotal[k] += self.short_modules[i][k]
+                self.subtotal[k] += mod[k]
 
         self.mem_summary = {
             'static_ram': (self.subtotal['.data'] + self.subtotal['.bss']),
@@ -717,13 +719,14 @@ class MemapParser(object):
         }
 
         self.mem_report = []
-        for i in sorted(self.short_modules):
-            self.mem_report.append({
-                "module":i,
-                "size":{
-                    k: self.short_modules[i][k] for k in self.print_sections
-                }
-            })
+        if self.short_modules:
+            for name, sizes in sorted(self.short_modules.items()):
+                self.mem_report.append({
+                    "module": name,
+                    "size":{
+                        k: sizes.get(k, 0) for k in self.print_sections
+                    }
+                })
 
         self.mem_report.append({
             'summary': self.mem_summary
