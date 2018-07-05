@@ -23,8 +23,12 @@ const PinMap PinMap_RTC[] = {
 
 /************ADC***************/
 const PinMap PinMap_ADC[] = {
-    {GPIO_AD_B1_11, ADC1_0, 0},
-    {GPIO_AD_B1_04, ADC1_9, 0},
+    {GPIO_AD_B1_10, ADC1_15, 5},
+    {GPIO_AD_B1_11, ADC2_0,  5},
+    {GPIO_AD_B1_04, ADC1_9,  5},
+    {GPIO_AD_B1_05, ADC1_10, 5},
+    {GPIO_AD_B1_01, ADC1_6,  5},
+    {GPIO_AD_B1_00, ADC1_5,  5},
     {NC   , NC       , 0}
 };
 
