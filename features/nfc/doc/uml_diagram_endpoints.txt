@@ -1,0 +1,76 @@
+@startuml
+
+abstract class NFCEndpoint {
+  +void is_lost()
+  +nfc_rf_protocols_bitmask_t rf_protocols() const
+}
+
+abstract class NFCEndpointDelegate {
+  +void on_lost()
+}
+
+abstract class NFCTarget {
+  +void write_ndef_message(const NDEFMessage& message)
+  +void erase_ndef_message()
+  +void read_ndef_message()
+}
+
+abstract class NFCTargetDelegate {
+  +void on_ndef_message_written(nfc_err_t result)
+  +void on_ndef_message_erased(nfc_err_t result)
+  +void on_ndef_message_read(nfc_err_t result, NDEFMessage* message)
+}
+
+class NFCEEPROM {
+  +void set_delegate(NFCEEPROMDelegate* delegate)
+}
+
+abstract class NFCEEPROMDelegate {
+
+}
+
+NFCTarget <-- NFCEEPROM
+NFCTargetDelegate <-- NFCEEPROMDelegate
+NFCEEPROM o-- NFCEEPROMDelegate
+
+class NFCRemoteInitiator {
+  +void set_delegate(NFCRemoteInitiatorDelegate* delegate)
+  
+  +bool is_iso7816_supported()
+  +void add_iso7816_application(ISO7816App* app);
+  
+  +size_t nfc_tag_type()
+  +bool is_ndef_supported()
+  
+  +nfc_err_t set_ndef_message(const NDEFMessage& message)
+  +nfc_err_t clear_ndef_message()
+  +nfc_err_t get_ndef_message(NDEFMessage* message)
+}
+
+abstract class NFCRemoteInitiatorDelegate {
+  +void on_selected()
+  +void on_deselected()
+  +void on_before_ndef_read()
+  +void on_after_ndef_write()
+}
+
+NFCEndpoint <-- NFCRemoteInitiator
+NFCEndpointDelegate <-- NFCRemoteInitiatorDelegate
+NFCRemoteInitiator o-- NFCRemoteInitiatorDelegate
+
+class NFCRemoteTarget {
+  +void set_delegate(NFCRemoteTargetDelegate* delegate)
+
+}
+
+abstract class NFCRemoteTargetDelegate {
+
+}
+
+NFCEndpoint <-- NFCRemoteTarget
+NFCTarget <-- NFCRemoteTarget
+NFCEndpointDelegate <-- NFCRemoteTargetDelegate
+NFCTargetDelegate <-- NFCRemoteTargetDelegate
+NFCRemoteTarget o-- NFCRemoteTargetDelegate
+
+@enduml

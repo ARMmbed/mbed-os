@@ -1,0 +1,17 @@
+@startuml
+class NFCController {
+  +void set_delegate(NFCControllerDelegate* delegate)
+  +nfc_rf_protocols_bitmask_t get_supported_rf_protocols() const
+  +nfc_err_t configure_rf_protocols(nfc_rf_protocols_bitmask_t rf_protocols)
+  +nfc_err_t start_discovery()
+  +nfc_err_t cancel_discovery()
+}
+
+abstract class NFCControllerDelegate {
+  +void on_discovery_terminated(nfc_discovery_terminated_reason_t reason)
+  +void on_nfc_target_discovered(const mbed::SharedPtr<NFCRemoteTarget>& target)
+  +void on_nfc_initiator_discovered(const mbed::SharedPtr<NFCRemoteInitiator>& initiator)
+}
+
+NFCController o-- NFCControllerDelegate
+@enduml

@@ -1,0 +1,86 @@
+@startuml
+
+class NDEFMessage {
+  +NDEFMessage()
+  +bool parse(const uint8_t* buffer, size_t sz)
+  +size_t count()
+  +NDEFRecord operator[](size_t n)
+}
+
+class NDEFMessageBuilder {
+  +NDEFMessageBuilder(uint8_t* buffer, size_t max_sz)
+  +bool add_record(const NDEFRecord& record)
+  +NDEFMessage build() 
+}
+
+class NDEFRecord {
+    +bool parse(const uint8_t* buffer, size_t max_sz)
+    +ssize_t build(const uint8_t* buffer, size_t max_sz)
+
+    +uint8_t tnf()
+    +void set_tnf(uint8_t tnf)
+
+    +const uint8_t* type() const
+    +size_t type_size() const
+    +void set_type(const uint8_t* type, size_t type_size)
+
+    +const uint8_t* id() const
+    +size_t id_size() const
+    +void set_id(const uint8_t* id, size_t id_size)
+
+    +const uint8_t* value() const
+    +size_t value_size() const
+    +void set_value(const uint8_t* type, size_t type_size)
+}
+
+NDEFMessage *-- NDEFRecord
+NDEFMessageBuilder *-- NDEFRecord
+
+class URIRecord {
+    {static} +bool is_uri_record(const NDEFRecord& record)
+    {static} +URIRecord as_uri_record(const NDEFRecord& record)
+
+    +uri_prefix_t uri_prefix() const
+    +void set_uri_prefix(uri_prefix_t prefix)
+
+    +bool get_uri(char* uri, size_t max_sz) const
+    +size_t uri_size() const
+    +void set_uri(const char* uri)
+
+    +bool get_full_uri(char* uri, size_t max_sz) const
+    +size_t full_uri_size() const
+    +void set_full_uri(const char* uri)
+}
+
+NDEFRecord <-- URIRecord
+
+class TextRecord {
+    {static} +bool is_text_record(const NDEFRecord& record)
+    {static} +TextRecord as_text_record(const NDEFRecord& record)
+
+    +text_encoding_t encoding() const
+    +void set_encoding(text_encoding_t encoding)
+
+    +bool get_text(char* text, size_t max_sz) const
+    +size_t text_size() const
+    +void set_text(const char* text)
+}
+
+NDEFRecord <-- TextRecord
+
+class MIMERecord {
+    {static} +bool is_mime_record(const NDEFRecord& record)
+    {static} +MIMERecord as_mime_record(const NDEFRecord& record)
+
+    +const char* mime_type() const
+    +size_t mime_type_size() const
+    +void set_mime_type(const char* text)
+
+    +const uint8_t* mime_data() const
+    +size_t mime_data_size() const
+    +void set_mime_data(const uint8_t* type, size_t type_size)
+}
+
+NDEFRecord <-- MIMERecord
+
+@enduml
