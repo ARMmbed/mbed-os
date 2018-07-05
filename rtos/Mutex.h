@@ -78,7 +78,18 @@ public:
     */
     Mutex(const char *name);
 
-    /** Wait until a Mutex becomes available.
+    /**
+      Wait until a Mutex becomes available.
+
+      @note You cannot call this function from ISR context.
+     */
+    void lock(void);
+
+    /**
+      For backwards compatibility.
+      @deprecated Do not use this function. This function has been replaced with trylock_for and lock(void) functions.
+
+      Wait until a Mutex becomes available.
       @param   millisec  timeout value or 0 in case of no time-out. (default: osWaitForever)
       @return  status code that indicates the execution status of the function:
                @a osOK the mutex has been obtained.
@@ -89,6 +100,7 @@ public:
 
       @note You cannot call this function from ISR context.
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.10.0", "Replaced with trylock_for and lock(void) functions")
     osStatus lock(uint32_t millisec=osWaitForever);
 
     /** Try to lock the mutex, and return immediately

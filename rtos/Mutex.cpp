@@ -50,11 +50,25 @@ void Mutex::constructor(const char *name)
     MBED_ASSERT(_id);
 }
 
+void Mutex::lock(void) {
+    osStatus status = osMutexAcquire(_id, osWaitForever);
+    if (osOK == status) {
+        _count++;
+    }
+
+    MBED_ASSERT(status == osOK);
+}
+
 osStatus Mutex::lock(uint32_t millisec) {
     osStatus status = osMutexAcquire(_id, millisec);
     if (osOK == status) {
         _count++;
     }
+
+    MBED_ASSERT(status == osOK ||
+                (status == osErrorResource && millisec == 0) ||
+                (status == osErrorTimeout && millisec != osWaitForever));
+
     return status;
 }
 
@@ -63,12 +77,14 @@ bool Mutex::trylock() {
 }
 
 bool Mutex::trylock_for(uint32_t millisec) {
-    osStatus status = lock(millisec);
+    osStatus status = osMutexAcquire(_id, millisec);
     if (status == osOK) {
         return true;
     }
 
-    MBED_ASSERT(status == osErrorTimeout || status == osErrorResource);
+    MBED_ASSERT(status == osOK ||
+                (status == osErrorResource && millisec == 0) ||
+                (status == osErrorTimeout && millisec != osWaitForever));
 
     return false;
 }
