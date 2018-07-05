@@ -27,6 +27,7 @@ static const ticker_interface_t us_interface = {
     .set_interrupt = us_ticker_set_interrupt,
     .fire_interrupt = us_ticker_fire_interrupt,
     .get_info = us_ticker_get_info,
+    .free = us_ticker_free,
 };
 
 static const ticker_data_t us_data = {
