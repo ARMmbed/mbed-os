@@ -785,6 +785,12 @@ extern const char UnityStrErr64[];
 #define UNITY_TEST_ASSERT_DOUBLE_IS_NOT_DETERMINATE(actual, line, message)                       UnityAssertDoubleSpecial((_UD)(actual), (message), (UNITY_LINE_TYPE)(line), UNITY_FLOAT_IS_NOT_DET)
 #endif
 
+/*-------------------------------------------------------
+ * Test Ignore conditions
+ *-------------------------------------------------------*/
+
+#define UNITY_TEST_IGNORE_UNLESS(condition, line, message)                                       if (condition) {} else {UNITY_TEST_IGNORE((UNITY_LINE_TYPE)(line), (message));}
+
 /* End of UNITY_INTERNALS_H */
 #endif
 

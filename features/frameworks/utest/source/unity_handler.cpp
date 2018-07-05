@@ -30,7 +30,7 @@ void utest_unity_assert_failure(void)
 void utest_unity_ignore_failure(void)
 {
     UTEST_LOG_FUNCTION();
-    utest::v1::Harness::raise_failure(utest::v1::failure_reason_t(utest::v1::REASON_ASSERTION | utest::v1::REASON_IGNORE));
+    utest::v1::Harness::raise_failure(utest::v1::REASON_IGNORE);
 }
 
 void utest_safe_putc(int chr)
