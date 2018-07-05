@@ -20,6 +20,7 @@
 #include "mbed.h"
 #include "EthernetInterface.h"
 #include "netsocket/OnboardNetworkStack.h"
+#include "wiced_emac.h"
 
 
 /** WicedInterface class
@@ -30,7 +31,7 @@ class WicedInterface : public WiFiInterface, public EMACInterface
 public:
 
     WicedInterface(
-            EMAC &emac = EMAC::get_default_instance(),
+            EMAC &emac = WICED_EMAC::get_instance(),
             OnboardNetworkStack &stack = OnboardNetworkStack::get_default_instance());
 
     /** Start the interface
