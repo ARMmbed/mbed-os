@@ -42,7 +42,7 @@ from .paths import (MBED_CMSIS_PATH, MBED_TARGETS_PATH, MBED_LIBRARIES,
                     MBED_CONFIG_FILE, MBED_LIBRARIES_DRIVERS,
                     MBED_LIBRARIES_PLATFORM, MBED_LIBRARIES_HAL,
                     BUILD_DIR)
-from .resources import Resources, FileType
+from .resources import Resources, FileType, FileRef
 from .notifier.mock import MockNotifier
 from .targets import TARGET_NAMES, TARGET_MAP
 from .libraries import Library
