@@ -395,7 +395,11 @@ This API will be defined in phase 2.
 # Testing strategy
 ## NFC Forum Compliance
 
-A dongle supported by [PyNFC](https://nfcpy.readthedocs.io/en/latest/index.html) will be u
+A dongle driven by [PyNFC](https://nfcpy.readthedocs.io/en/latest/index.html) will be used to run GreenTea-based tests to ensure that the implementation behaves correctly for a range of system tests.
+
+Unit tests will cover all internal logic and NFC endpoints can be mocked/emulated where possible.
+
+In the future we could run NFC Forum test suites using approved testing equipment.
 
 ## Interoperability
 
