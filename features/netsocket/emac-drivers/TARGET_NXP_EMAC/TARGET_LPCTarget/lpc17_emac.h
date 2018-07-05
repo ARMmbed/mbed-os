@@ -151,7 +151,7 @@ public:
     void update_link_status(bool up);
 
     osThreadId_t RxThread;
-    os_thread_t RxThread_cb;
+    mbed_rtos_storage_thread_t RxThread_cb;
     rtos::Semaphore TxCleanSem;
 
 private:
@@ -176,9 +176,9 @@ private:
     uint8_t hwaddr[6];
 
     osThreadId_t TxCleanThread;
-    os_thread_t TxCleanThread_cb;
+    mbed_rtos_storage_thread_t TxCleanThread_cb;
     osThreadId_t PhyThread;
-    os_thread_t PhyThread_cb;
+    mbed_rtos_storage_thread_t PhyThread_cb;
     rtos::Mutex TXLockMutex;
     rtos::Semaphore xTXDCountSem;
 

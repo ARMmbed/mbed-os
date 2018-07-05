@@ -74,6 +74,8 @@
 // Don't adopt default multi-thread support for ARM/ARMC6 toolchains from RTX code base.
 // Provide Mbed-specific instead.
 #define RTX_NO_MULTITHREAD_CLIB
+// LIBSPACE default value set for ARMCC
+#define OS_THREAD_LIBSPACE_NUM      4
 
 #define OS_IDLE_THREAD_NAME         "idle_thread"
 #define OS_TIMER_THREAD_NAME        "timer_thread"

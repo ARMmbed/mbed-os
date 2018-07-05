@@ -274,7 +274,7 @@ uint32_t Thread::free_stack() {
 
 #if defined(MBED_OS_BACKEND_RTX5)
     if (_tid != NULL) {
-        os_thread_t *thread = (os_thread_t *)_tid;
+        mbed_rtos_storage_thread_t *thread = (mbed_rtos_storage_thread_t *)_tid;
         size = (uint32_t)thread->sp - (uint32_t)thread->stack_mem;
     }
 #endif
@@ -289,7 +289,7 @@ uint32_t Thread::used_stack() {
 
 #if defined(MBED_OS_BACKEND_RTX5)
     if (_tid != NULL) {
-        os_thread_t *thread = (os_thread_t *)_tid;
+        mbed_rtos_storage_thread_t *thread = (mbed_rtos_storage_thread_t *)_tid;
         size = ((uint32_t)thread->stack_mem + thread->stack_size) - thread->sp;
     }
 #endif
@@ -304,7 +304,7 @@ uint32_t Thread::max_stack() {
 
     if (_tid != NULL) {
 #if defined(MBED_OS_BACKEND_RTX5)
-        os_thread_t *thread = (os_thread_t *)_tid;
+        mbed_rtos_storage_thread_t *thread = (mbed_rtos_storage_thread_t *)_tid;
         uint32_t high_mark = 0;
         while (((uint32_t *)(thread->stack_mem))[high_mark] == 0xE25A2EA5)
             high_mark++;
