@@ -137,27 +137,7 @@ def get_config(src_paths, target, toolchain_name, app_config=None):
                                   app_config=app_config)
 
     # Scan src_path for config files
-    resources = toolchain.scan_resources(src_paths[0])
-    for path in src_paths[1:]:
-        resources.add(toolchain.scan_resources(path))
-
-    # Update configuration files until added features creates no changes
-    prev_features = set()
-    while True:
-        # Update the configuration with any .json files found while scanning
-        toolchain.config.add_config_files(resources.json_files)
-
-        # Add features while we find new ones
-        features = set(toolchain.config.get_features())
-        if features == prev_features:
-            break
-
-        for feature in features:
-            if feature in resources.features:
-                resources += resources.features[feature]
-
-        prev_features = features
-    toolchain.config.validate_config()
+    scan_resources(src_paths, toolchain)
     if toolchain.config.has_regions:
         _ = list(toolchain.config.regions)
 
