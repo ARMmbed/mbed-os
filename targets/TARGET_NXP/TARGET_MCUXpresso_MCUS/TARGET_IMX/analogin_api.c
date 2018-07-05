@@ -20,6 +20,7 @@
 
 #include "cmsis.h"
 #include "pinmap.h"
+#include "gpio_api.h"
 #include "PeripheralNames.h"
 #include "fsl_adc.h"
 #include "PeripheralPins.h"
@@ -34,6 +35,7 @@ void analogin_init(analogin_t *obj, PinName pin)
 
     uint32_t instance = obj->adc >> ADC_INSTANCE_SHIFT;
     adc_config_t adc_config;
+    gpio_t gpio;
 
     ADC_GetDefaultConfig(&adc_config);
     ADC_Init(adc_addrs[instance], &adc_config);
@@ -41,6 +43,10 @@ void analogin_init(analogin_t *obj, PinName pin)
     ADC_EnableHardwareTrigger(adc_addrs[instance], false);
 #endif
     ADC_DoAutoCalibration(adc_addrs[instance]);
+
+    /* Need to ensure the pin is in input mode */
+    gpio_init(&gpio, pin);
+    gpio_dir(&gpio, PIN_INPUT);
 }
 
 uint16_t analogin_read_u16(analogin_t *obj)
