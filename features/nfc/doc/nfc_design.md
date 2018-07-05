@@ -7,9 +7,26 @@ NFC offers three modes;
 2. NFC reader/writer
 3. NFC peer to peer
 
-To support the commissioning of NFC enabled IoT endpoints, Mbed OS should support the NFC card emulation mode. This will allow for commissioning of the device via an NFC-enabled smartphone.
+To support new use cases such as commissioning, BLE pairing and identification/authentication of NFC enabled IoT endpoints, Mbed OS should support the card emulation mode. 
 
 However the architecture should be future-proofed and should also be extendable to support other NFC modes in the future.
+
+## Use cases
+### Commissioning
+
+NFC is a great medium to support commissioning requirements.
+
+####	Identification
+
+An NDEF message can be used to carry a device's unique identifier to ease identification before handing over to another transport medium such as BLE.
+
+####	Transport
+
+If the NFC controller can emulate a smartcard, no handover is necessary and the full commissioning flow can happen over NFC.
+
+###	BLE Pairing
+
+A specifically crafted NDEF message can be used to facilitate out-of-band pairing wth man-in-the-middle protection as specified in the [Bluetooth® Secure Simple Pairing Using NFC](https://members.nfc-forum.org/apps/group_public/download.php/18688/NFCForum-AD-BTSSP_1_1.pdf) document.
 
 #   System Architecture and High-Level Design
 
@@ -374,23 +391,6 @@ void on_backend_has_erased_bytes(bool success)
 ### NCI Driver APIs
 
 This API will be defined in phase 2.
-
-# Usage Scenarios and Examples
-## Commissioning
-
-NFC is a great medium to support commissioning requirements.
-
-###	Identification
-
-An NDEF message can be used to carry a device's unique identifier to ease identification before handing over to another transport medium such as BLE.
-
-###	Transport
-
-If the NFC controller can emulate a smartcard, no handover is necessary and the full commissioning flow can happen over NFC.
-
-##	BLE Pairing
-
-A specifically crafted NDEF message can be used to facilitate out-of-band pairing wth man-in-the-middle protection as specified in the [Bluetooth® Secure Simple Pairing Using NFC](https://members.nfc-forum.org/apps/group_public/download.php/18688/NFCForum-AD-BTSSP_1_1.pdf) document.
 
 # Testing strategy
 ## NFC Forum Compliance
