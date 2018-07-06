@@ -13,11 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-#if !DEVICE_QSPI
-#error [NOT_SUPPORTED] test not supported
-#endif
-
 #include "utest/utest.h"
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"
@@ -27,6 +22,10 @@
 #include "mbed.h"
 #include "qspi_api.h"
 
+
+#if !DEVICE_QSPI || !defined(QSPI_FLASH_CHIP_STRING)
+#error [NOT_SUPPORTED] QSPI not supported for this target
+#endif
 
 using namespace utest::v1;
 
