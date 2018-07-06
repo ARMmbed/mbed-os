@@ -142,15 +142,27 @@ def export(target, ide, build=None, src=None, macros=None, project_id=None,
         libraries_paths=lib,
         zip_proj=zip_name,
         build_profile=build_profile,
-        notify=notify,
+        notify=TerminalNotifier(),
         app_config=app_config,
         ignore=ignore
     )
 
+def clean(source_dir):
+    if exists(EXPORT_DIR):
+        rmtree(EXPORT_DIR)
+    for cls in EXPORTERS.values():
+        try:
+            cls.clean(basename(abspath(source_dir[0])))
+        except (NotImplementedError, IOError, OSError):
+            pass
+    for f in list(EXPORTERS.values())[0].CLEAN_FILES:
+        try:
+            remove(f)
+        except (IOError, OSError):
+            pass
 
-def main():
-    """Entry point"""
-    # Parse Options
+
+def get_args(argv):
     parser = ArgumentParser()
 
     targetnames = TARGET_NAMES
@@ -221,6 +233,13 @@ def main():
         help="displays supported matrix of MCUs and IDEs"
     )
 
+    group.add_argument(
+        "--update-packs",
+        dest="update_packs",
+        action="store_true",
+        default=False
+    )
+
     parser.add_argument(
         "-E",
         action="store_true",
@@ -265,13 +284,6 @@ def main():
     )
 
     parser.add_argument(
-        "--update-packs",
-        dest="update_packs",
-        action="store_true",
-        default=False
-    )
-
-    parser.add_argument(
         "--app-config",
         dest="app_config",
         default=None
@@ -286,92 +298,70 @@ def main():
               "(eg. ./main.cpp)")
     )
 
-    options = parser.parse_args()
+    return parser.parse_args(argv), parser
+
+
+def main():
+    """Entry point"""
+    # Parse Options
+    options, parser = get_args(sys.argv)
 
     # Print available tests in order and exit
-    if options.list_tests is True:
+    if options.list_tests:
         print('\n'.join(str(test) for test in sorted(TEST_MAP.values())))
-        sys.exit()
-
-    # Only prints matrix of supported IDEs
-    if options.supported_ides:
+    elif options.supported_ides:
         if options.supported_ides == "matrix":
             print_large_string(mcu_ide_matrix())
         elif options.supported_ides == "ides":
             print(mcu_ide_list())
-        exit(0)
-
-    # Only prints matrix of supported IDEs
-    if options.supported_ides_html:
+    elif options.supported_ides_html:
         html = mcu_ide_matrix(verbose_html=True)
         with open("./export/README.md", "w") as readme:
             readme.write("Exporter IDE/Platform Support\n")
             readme.write("-----------------------------------\n")
             readme.write("\n")
             readme.write(html)
-        exit(0)
-
-    if options.update_packs:
+    elif options.update_packs:
         from tools.arm_pack_manager import Cache
         cache = Cache(True, True)
         cache.cache_everything()
+    else:
+        # Check required arguments
+        if not options.mcu:
+            args_error(parser, "argument -m/--mcu is required")
+        if not options.ide:
+            args_error(parser, "argument -i is required")
+        if (options.program is None) and (not options.source_dir):
+            args_error(parser, "one of -p, -n, or --source is required")
 
-    # Target
-    if not options.mcu:
-        args_error(parser, "argument -m/--mcu is required")
+        if options.clean:
+            clean(options.source_dir)
 
-    # Toolchain
-    if not options.ide:
-        args_error(parser, "argument -i is required")
+        ide = resolve_exporter_alias(options.ide)
+        exporter, toolchain_name = get_exporter_toolchain(ide)
+        profile = extract_profile(parser, options, toolchain_name, fallback="debug")
+        mcu = extract_mcus(parser, options)[0]
+        if not exporter.is_target_supported(mcu):
+            args_error(parser, "%s not supported by %s" % (mcu, ide))
 
-    # Clean Export Directory
-    if options.clean:
-        if exists(EXPORT_DIR):
-            rmtree(EXPORT_DIR)
-
-    zip_proj = not bool(options.source_dir)
-
-    notify = TerminalNotifier()
-
-    ide = resolve_exporter_alias(options.ide)
-    exporter, toolchain_name = get_exporter_toolchain(ide)
-    profile = extract_profile(parser, options, toolchain_name, fallback="debug")
-    mcu = extract_mcus(parser, options)[0]
-
-    if not exporter.is_target_supported(mcu):
-        args_error(parser, "%s not supported by %s" % (mcu, ide))
-
-    if (options.program is None) and (not options.source_dir):
-        args_error(parser, "one of -p, -n, or --source is required")
-
-    if options.clean:
-        for cls in EXPORTERS.values():
-            try:
-                cls.clean(basename(abspath(options.source_dir[0])))
-            except (NotImplementedError, IOError, OSError):
-                pass
-        for f in list(EXPORTERS.values())[0].CLEAN_FILES:
-            try:
-                remove(f)
-            except (IOError, OSError):
-                pass
-    try:
-        export(
-            mcu,
-            ide,
-            build=options.build,
-            src=options.source_dir,
-            macros=options.macros,
-            project_id=options.program,
-            zip_proj=zip_proj,
-            build_profile=profile,
-            app_config=options.app_config,
-            export_path=options.build_dir,
-            notify=notify,
-            ignore=options.ignore
-        )
-    except NotSupportedException as exc:
-        print("[Not Supported] %s" % str(exc))
+        try:
+            export(
+                mcu,
+                ide,
+                build=options.build,
+                src=options.source_dir,
+                macros=options.macros,
+                project_id=options.program,
+                zip_proj=not bool(options.source_dir),
+                build_profile=profile,
+                app_config=options.app_config,
+                export_path=options.build_dir,
+                ignore=options.ignore
+            )
+        except NotSupportedException as exc:
+            args_error(parser, "%s not supported by %s" % (mcu, ide))
+            print("[Not Supported] %s" % str(exc))
+    exit(0)
 
 if __name__ == "__main__":
     main()
