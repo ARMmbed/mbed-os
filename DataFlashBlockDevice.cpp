@@ -446,6 +446,13 @@ bd_size_t DataFlashBlockDevice::get_erase_size() const
     return _block_size;
 }
 
+bd_size_t DataFlashBlockDevice::get_erase_size(bd_addr_t addr) const
+{
+    DEBUG_PRINTF("erase size: %" PRIX16 "\r\n", _block_size);
+
+    return _block_size;
+}
+
 bd_size_t DataFlashBlockDevice::size() const
 {
     DEBUG_PRINTF("device size: %" PRIX32 "\r\n", _device_size);
