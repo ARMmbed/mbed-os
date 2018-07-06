@@ -17,7 +17,7 @@
 #define MBED_QSPI_FLASH_MX25R6435F_H
 
 
-#define QSPI_FLASH_CHIP_STRING "MX25R6435F"
+#define QSPI_FLASH_CHIP_STRING "macronix MX25R6435F"
 
 // Command for reading status register
 #define QSPI_CMD_RDSR                           0x05
