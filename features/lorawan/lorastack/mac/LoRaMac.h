@@ -415,9 +415,7 @@ public:
     }
     void unlock(void)
     {
-        osStatus status = _mutex.unlock();
-        MBED_ASSERT(status == osOK);
-        (void) status;
+        _mutex.unlock();
     }
 #else
     void lock(void) { }
