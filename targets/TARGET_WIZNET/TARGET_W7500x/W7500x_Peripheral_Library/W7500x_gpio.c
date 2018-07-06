@@ -12,14 +12,10 @@ void HAL_GPIO_DeInit(GPIO_TypeDef* GPIOx)
 
     /* DeInit GPIOx Registers */
     GPIOx->DATA = 0x0000;        
-    GPIOx->DATAOUT = 0x0000;     
-    //GPIOx->OUTENSET = 0x0000;    
-    GPIOx->OUTENCLR = 0xFFFF;    
-    //GPIOx->INTENSET = 0x0000;    
+    GPIOx->DATAOUT = 0x0000;       
+    GPIOx->OUTENCLR = 0xFFFF;      
     GPIOx->INTENCLR = 0xFFFF;    
-    GPIOx->INTTYPESET = 0x0000;  
-    //GPIOx->INTTYPECLR = 0xFFFF;  
-    //GPIOx->intpolset = 0x0000;   
+    GPIOx->INTTYPESET = 0x0000;    
     GPIOx->INTPOLCLR = 0xFFFF;   
 
 
@@ -68,7 +64,7 @@ void HAL_GPIO_Init(GPIO_TypeDef* GPIOx, GPIO_InitTypeDef* GPIO_InitStruct)
 	//A170223 becky
     assert_param(IS_GPIO_PIN(GPIO_InitStruct->GPIO_Mode));
 	////////////////////////////////////////////////////////////
-	  assert_param(IS_GPIO_PUPD(GPIO_InitStruct->GPIO_PuPd));
+    assert_param(IS_GPIO_PUPD(GPIO_InitStruct->GPIO_PuPd));
 
     if      (GPIOx == GPIOA)        px_pcr  = PA_PCR;
     else if (GPIOx == GPIOB)        px_pcr  = PB_PCR;
@@ -117,16 +113,6 @@ void HAL_GPIO_Init(GPIO_TypeDef* GPIOx, GPIO_InitTypeDef* GPIO_InitStruct)
             {
                 px_pcr->Port[pinpos] &= ~(Px_PCR_DS_HIGH);
             }
-
-            // Configure Open Drain selections bit
-            //if(GPIO_InitStruct->GPIO_Pad & Px_PCR_OD)
-            //{
-            //    px_pcr->Port[pinpos] |= Px_PCR_OD;
-            //}
-            //else
-            //{
-            //    px_pcr->Port[pinpos] &= ~(Px_PCR_OD);
-            //}
 
             // Configure Input buffer enable selection bit 
             if(GPIO_InitStruct->GPIO_Pad & Px_PCR_IE)
