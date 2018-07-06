@@ -68,8 +68,8 @@ bool manipulate_protected_zone(const int thread_delay)
     changing_counter = false;
     core_util_critical_section_exit();
 
-    stat = stdio_mutex.unlock();
-    TEST_ASSERT_EQUAL(osOK, stat);
+    stdio_mutex.unlock();
+
     return result;
 }
 
@@ -121,8 +121,7 @@ void test_dual_thread_nolock_lock_thread(Mutex *mutex)
     osStatus stat;
     mutex->lock();
 
-    stat = mutex->unlock();
-    TEST_ASSERT_EQUAL(osOK, stat);
+    mutex->unlock();
 }
 
 void test_dual_thread_nolock_trylock_thread(Mutex *mutex)
@@ -130,8 +129,7 @@ void test_dual_thread_nolock_trylock_thread(Mutex *mutex)
     bool stat_b = mutex->trylock();
     TEST_ASSERT_EQUAL(true, stat_b);
 
-    osStatus stat = mutex->unlock();
-    TEST_ASSERT_EQUAL(osOK, stat);
+    mutex->unlock();
 }
 
 /** Test dual thread no-lock
@@ -140,13 +138,13 @@ void test_dual_thread_nolock_trylock_thread(Mutex *mutex)
     Given two threads A & B and a mutex
     When thread A creates a mutex and starts thread B
         and thread B calls @a lock and @a unlock
-    Then returned statuses are osOK
+    Then @a lock and @a unlock operations are successfully performed.
 
     Test dual thread second thread trylock
     Given two threads A & B and a mutex
     When thread A creates a mutex and starts thread B
         and thread B calls @a trylock and @a unlock
-    Then returned statuses are true and osOK
+    Then @a trylock and @a unlock operations are successfully performed.
 */
 template <void (*F)(Mutex *)>
 void test_dual_thread_nolock(void)
@@ -183,8 +181,7 @@ void test_dual_thread_lock_unlock(void)
 
     thread.start(callback(test_dual_thread_lock_unlock_thread, &mutex));
 
-    stat = mutex.unlock();
-    TEST_ASSERT_EQUAL(osOK, stat);
+    mutex.unlock();
 
     wait_ms(TEST_DELAY);
 }
@@ -232,15 +229,14 @@ void test_dual_thread_lock(void)
 
     wait_ms(TEST_LONG_DELAY);
 
-    stat = mutex.unlock();
-    TEST_ASSERT_EQUAL(osOK, stat);
+    mutex.unlock();
 }
 
 /** Test single thread lock recursive
 
     Given a mutex and a single running thread
     When thread calls @a lock twice and @a unlock twice on the mutex
-    Then the returned statuses are osOK
+    Then @a lock and @a unlock operations are successfully performed.
 */
 void test_single_thread_lock_recursive(void)
 {
@@ -251,18 +247,16 @@ void test_single_thread_lock_recursive(void)
 
     mutex.lock();
 
-    stat = mutex.unlock();
-    TEST_ASSERT_EQUAL(osOK, stat);
+    mutex.unlock();
 
-    stat = mutex.unlock();
-    TEST_ASSERT_EQUAL(osOK, stat);
+    mutex.unlock();
 }
 
 /** Test single thread trylock
 
     Given a mutex and a single running thread
     When thread calls @a trylock and @a unlock on the mutex
-    Then the returned statuses are osOK
+    Then @a trylock and @a unlock operations are successfully performed.
 */
 void test_single_thread_trylock(void)
 {
@@ -271,15 +265,14 @@ void test_single_thread_trylock(void)
     bool stat_b = mutex.trylock();
     TEST_ASSERT_EQUAL(true, stat_b);
 
-    osStatus stat = mutex.unlock();
-    TEST_ASSERT_EQUAL(osOK, stat);
+    mutex.unlock();
 }
 
 /** Test single thread lock
 
     Given a mutex and a single running thread
     When thread calls @a lock and @a unlock on the mutex
-    Then the returned statuses are osOK
+    Then @a lock and @a unlock operations are successfully performed.
 */
 void test_single_thread_lock(void)
 {
@@ -288,8 +281,7 @@ void test_single_thread_lock(void)
 
     mutex.lock();
 
-    stat = mutex.unlock();
-    TEST_ASSERT_EQUAL(osOK, stat);
+    mutex.unlock();
 }
 
 utest::v1::status_t test_setup(const size_t number_of_cases)
