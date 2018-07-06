@@ -411,9 +411,7 @@ public:
 #if MBED_CONF_RTOS_PRESENT
     void lock(void)
     {
-        osStatus status = _mutex.lock();
-        MBED_ASSERT(status == osOK);
-        (void) status;
+        _mutex.lock();
     }
     void unlock(void)
     {
