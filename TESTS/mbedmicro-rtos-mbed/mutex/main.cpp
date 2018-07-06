@@ -48,9 +48,9 @@ volatile bool mutex_defect = false;
 bool manipulate_protected_zone(const int thread_delay)
 {
     bool result = true;
+    osStatus stat;
 
-    osStatus stat = stdio_mutex.lock();
-    TEST_ASSERT_EQUAL(osOK, stat);
+    stdio_mutex.lock();
 
     core_util_critical_section_enter();
     if (changing_counter == true) {
@@ -118,8 +118,8 @@ void test_multiple_threads(void)
 
 void test_dual_thread_nolock_lock_thread(Mutex *mutex)
 {
-    osStatus stat = mutex->lock(osWaitForever);
-    TEST_ASSERT_EQUAL(osOK, stat);
+    osStatus stat;
+    mutex->lock();
 
     stat = mutex->unlock();
     TEST_ASSERT_EQUAL(osOK, stat);
@@ -161,8 +161,7 @@ void test_dual_thread_nolock(void)
 
 void test_dual_thread_lock_unlock_thread(Mutex *mutex)
 {
-    osStatus stat = mutex->lock(osWaitForever);
-    TEST_ASSERT_EQUAL(osOK, stat);
+    mutex->lock();
 }
 
 /** Test dual thread lock unlock
@@ -180,8 +179,7 @@ void test_dual_thread_lock_unlock(void)
     osStatus stat;
     Thread thread(osPriorityNormal, TEST_STACK_SIZE);
 
-    stat = mutex.lock();
-    TEST_ASSERT_EQUAL(osOK, stat);
+    mutex.lock();
 
     thread.start(callback(test_dual_thread_lock_unlock_thread, &mutex));
 
@@ -202,9 +200,9 @@ void test_dual_thread_lock_lock_thread(Mutex *mutex)
     Timer timer;
     timer.start();
 
-    osStatus stat = mutex->lock(TEST_DELAY);
-    TEST_ASSERT_EQUAL(osErrorTimeout, stat);
-    TEST_ASSERT_UINT32_WITHIN(5000, TEST_DELAY * 1000, timer.read_us());
+    bool stat = mutex->trylock_for(TEST_DELAY);
+    TEST_ASSERT_EQUAL(false, stat);
+    TEST_ASSERT_UINT32_WITHIN(5000, TEST_DELAY*1000, timer.read_us());
 }
 
 /** Test dual thread lock
@@ -228,8 +226,7 @@ void test_dual_thread_lock(void)
     osStatus stat;
     Thread thread(osPriorityNormal, TEST_STACK_SIZE);
 
-    stat = mutex.lock();
-    TEST_ASSERT_EQUAL(osOK, stat);
+    mutex.lock();
 
     thread.start(callback(F, &mutex));
 
@@ -250,11 +247,9 @@ void test_single_thread_lock_recursive(void)
     Mutex mutex;
     osStatus stat;
 
-    stat = mutex.lock();
-    TEST_ASSERT_EQUAL(osOK, stat);
+    mutex.lock();
 
-    stat = mutex.lock();
-    TEST_ASSERT_EQUAL(osOK, stat);
+    mutex.lock();
 
     stat = mutex.unlock();
     TEST_ASSERT_EQUAL(osOK, stat);
@@ -291,8 +286,7 @@ void test_single_thread_lock(void)
     Mutex mutex;
     osStatus stat;
 
-    stat = mutex.lock();
-    TEST_ASSERT_EQUAL(osOK, stat);
+    mutex.lock();
 
     stat = mutex.unlock();
     TEST_ASSERT_EQUAL(osOK, stat);
