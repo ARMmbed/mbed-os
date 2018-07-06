@@ -155,6 +155,10 @@ lorawan_status_t LoRaWANStack::connect()
         return LORAWAN_STATUS_NOT_INITIALIZED;
     }
 
+    if (_loramac.nwk_joined()) {
+        return LORAWAN_STATUS_ALREADY_CONNECTED;
+    }
+
     lorawan_status_t status = _loramac.prepare_join(NULL, MBED_CONF_LORA_OVER_THE_AIR_ACTIVATION);
 
     if (LORAWAN_STATUS_OK != status) {
@@ -168,6 +172,10 @@ lorawan_status_t LoRaWANStack::connect(const lorawan_connect_t &connect)
 {
     if (DEVICE_STATE_NOT_INITIALIZED == _device_current_state) {
         return LORAWAN_STATUS_NOT_INITIALIZED;
+    }
+
+    if (_loramac.nwk_joined()) {
+        return LORAWAN_STATUS_ALREADY_CONNECTED;
     }
 
     if (!(connect.connect_type == LORAWAN_CONNECTION_OTAA)
@@ -1170,7 +1178,7 @@ void LoRaWANStack::process_connecting_state(lorawan_status_t &op_status)
 
     if (_ctrl_flags & CONNECTED_FLAG) {
         tr_debug("Already connected");
-        op_status = LORAWAN_STATUS_OK;
+        op_status = LORAWAN_STATUS_ALREADY_CONNECTED;
         return;
     }
 
