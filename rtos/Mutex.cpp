@@ -108,10 +108,13 @@ bool Mutex::trylock_until(uint64_t millisec)
     }
 }
 
-osStatus Mutex::unlock()
+void Mutex::unlock()
 {
     _count--;
-    return osMutexRelease(_id);
+
+    osStatus status = osMutexRelease(_id);
+
+    MBED_ASSERT(status == osOK);
 }
 
 osThreadId Mutex::get_owner()
