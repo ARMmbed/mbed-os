@@ -151,6 +151,15 @@ bd_size_t FlashIAPBlockDevice::get_erase_size() const
     return erase_size;
 }
 
+bd_size_t FlashIAPBlockDevice::get_erase_size(bd_addr_t addr) const
+{
+    uint32_t erase_size = _flash.get_sector_size(_base + addr);
+
+    DEBUG_PRINTF("get_erase_size: %" PRIX32 "\r\n", erase_size);
+
+    return erase_size;
+}
+
 bd_size_t FlashIAPBlockDevice::size() const
 {
     DEBUG_PRINTF("size: %" PRIX64 "\r\n", _size);
