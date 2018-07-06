@@ -304,7 +304,7 @@ def get_args(argv):
 def main():
     """Entry point"""
     # Parse Options
-    options, parser = get_args(sys.argv)
+    options, parser = get_args(sys.argv[1:])
 
     # Print available tests in order and exit
     if options.list_tests:
