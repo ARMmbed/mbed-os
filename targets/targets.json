@@ -3952,6 +3952,11 @@
             "gpio-irq-debounce-sample-rate": {
                 "help": "Select GPIO IRQ debounce sample rate: GPIO_DBCLKSEL_1, GPIO_DBCLKSEL_2, GPIO_DBCLKSEL_4, ..., or GPIO_DBCLKSEL_32768",
                 "value": "GPIO_DBCLKSEL_16"
+            },
+            "clock-pll": {
+                "help": "Choose clock source to clock PLL: NU_HXT_PLL or NU_HIRC_PLL",
+                "macro_name": "NU_CLOCK_PLL",
+                "value": "NU_HIRC_PLL"
             }
         },
         "inherits": ["Target"],

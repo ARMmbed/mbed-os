@@ -52,8 +52,36 @@ void mbed_sdk_init(void)
     /* Set HCLK source form HXT and HCLK source divide 1  */
     CLK_SetHCLK(CLK_CLKSEL0_HCLK_S_HXT, CLK_HCLK_CLK_DIVIDER(1));
 
-    /*  Set HCLK frequency 42MHz */
-    CLK_SetCoreClock(42000000);
+    /* Select HXT/HIRC to clock PLL
+     *
+     * Comparison between HXT/HIRC-clocked PLL:
+     * 1. Spare HXT on board if only HIRC is used.
+     * 2. HIRC has shorter stable time.
+     * 3. HXT has better accuracy. USBD requires HXT-clocked PLL.
+     * 4. HIRC has shorter wake-up time from power-down mode. 
+     *    Per test, wake-up time from power-down mode would take:
+     *    T1. 1~13 ms (proportional to deep sleep time) with HXT-clocked PLL as HCLK clock source
+     *    T2. <1 ms with HIRC-clocked PLL as HCLK clock source
+     *    T1 will fail Greentea test which requires max 10 ms wake-up time.
+     *
+     *    If we just call CLK_SetCoreClock(FREQ_42MHZ) to configure HCLK to 42 MHz,
+     *    it will go T1 with HXT already enabled in front. So we manually configure
+     *    it to choose HXT/HIRC-clocked PLL.
+     */
+#define NU_HXT_PLL      1
+#define NU_HIRC_PLL     2
+
+#ifndef NU_CLOCK_PLL
+#define NU_CLOCK_PLL    NU_HIRC_PLL
+#endif
+
+#if (NU_CLOCK_PLL == NU_HXT_PLL)
+    CLK_EnablePLL(CLK_PLLCTL_PLL_SRC_HXT, FREQ_42MHZ*2);
+    CLK_SetHCLK(CLK_CLKSEL0_HCLK_S_PLL, CLK_HCLK_CLK_DIVIDER(2));
+#elif (NU_CLOCK_PLL == NU_HIRC_PLL)
+    CLK_EnablePLL(CLK_PLLCTL_PLL_SRC_HIRC, FREQ_42MHZ*2);
+    CLK_SetHCLK(CLK_CLKSEL0_HCLK_S_PLL, CLK_HCLK_CLK_DIVIDER(2));
+#endif
 
     /* Update System Core Clock */
     /* User can use SystemCoreClockUpdate() to calculate SystemCoreClock. */
