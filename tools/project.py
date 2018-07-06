@@ -245,7 +245,7 @@ def get_args(argv):
         action="store_true",
         dest="supported_ides_html",
         default=False,
-        help="writes tools/export/README.md"
+        help="Generate a markdown version of the results of -S in README.md"
     )
 
     parser.add_argument(
@@ -316,7 +316,7 @@ def main():
             print(mcu_ide_list())
     elif options.supported_ides_html:
         html = mcu_ide_matrix(verbose_html=True)
-        with open("./export/README.md", "w") as readme:
+        with open("README.md", "w") as readme:
             readme.write("Exporter IDE/Platform Support\n")
             readme.write("-----------------------------------\n")
             readme.write("\n")
