@@ -90,7 +90,7 @@ public:
       @deprecated Do not use this function. This function has been replaced with trylock_for and lock(void) functions.
 
       Wait until a Mutex becomes available.
-      @param   millisec  timeout value or 0 in case of no time-out. (default: osWaitForever)
+      @param   millisec  timeout value or 0 in case of no time-out.
       @return  status code that indicates the execution status of the function:
                @a osOK the mutex has been obtained.
                @a osErrorTimeout the mutex could not be obtained in the given time.
@@ -101,7 +101,7 @@ public:
       @note You cannot call this function from ISR context.
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.10.0", "Replaced with trylock_for and lock(void) functions")
-    osStatus lock(uint32_t millisec=osWaitForever);
+    osStatus lock(uint32_t millisec);
 
     /** Try to lock the mutex, and return immediately
       @return true if the mutex was acquired, false otherwise.
