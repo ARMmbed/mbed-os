@@ -294,6 +294,13 @@ void tearDown(void);
 #define TEST_ASSERT_DOUBLE_IS_NOT_NAN_MESSAGE(actual, message)                                     UNITY_TEST_ASSERT_DOUBLE_IS_NOT_NAN((actual), __LINE__, (message))
 #define TEST_ASSERT_DOUBLE_IS_NOT_DETERMINATE_MESSAGE(actual, message)                             UNITY_TEST_ASSERT_DOUBLE_IS_NOT_DETERMINATE((actual), __LINE__, (message))
 
+/*-------------------------------------------------------
+ * Test Ignore conditions
+ *-------------------------------------------------------*/
+
+#define TEST_IGNORE_UNLESS(condition)                                                              UNITY_TEST_IGNORE_UNLESS(       (condition), __LINE__, "Test ignored")
+#define TEST_IGNORE_UNLESS_MESSAGE(condition, message)                                             UNITY_TEST_IGNORE_UNLESS(       (condition), __LINE__, message)
+
 /* end of UNITY_FRAMEWORK_H */
 #ifdef __cplusplus
 }

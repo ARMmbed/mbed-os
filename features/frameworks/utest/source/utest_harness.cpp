@@ -172,6 +172,7 @@ void Harness::raise_failure(const failure_reason_t reason)
     utest::v1::status_t fail_status = STATUS_ABORT;
     if (handlers->test_failure) handlers->test_failure(failure_t(reason, location));
     if (handlers->case_failure) fail_status = handlers->case_failure(case_current, failure_t(reason, location));
+    if (reason == REASON_IGNORE) fail_status = STATUS_IGNORE;
 
     {
         UTEST_ENTER_CRITICAL_SECTION;
