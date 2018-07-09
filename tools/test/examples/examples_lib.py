@@ -17,10 +17,12 @@ sys.path.insert(0, ROOT)
 from tools.build_api import get_mbed_official_release
 from tools.targets import TARGET_MAP
 from tools.export import EXPORTERS
+from tools.project import EXPORTER_ALIASES
 from tools.toolchains import TOOLCHAINS
 
 SUPPORTED_TOOLCHAINS = list(TOOLCHAINS - set(u'uARM'))
-SUPPORTED_IDES = [exp for exp in EXPORTERS.keys() if exp != "cmsis" and exp != "zip"]
+SUPPORTED_IDES = [exp for exp in EXPORTERS.keys() + EXPORTER_ALIASES.keys()
+                  if exp != "cmsis" and exp != "zip"]
 
 
 def print_list(lst):
