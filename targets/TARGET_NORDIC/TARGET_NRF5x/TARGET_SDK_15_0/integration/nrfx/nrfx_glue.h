@@ -55,7 +55,7 @@ extern "C" {
  */
 
 // RF - remove the legacy layer... this is preventing driver instances from being generated
-//#include <legacy/apply_old_config.h>
+#include <legacy/apply_old_config.h>
 
 #include <soc/nrfx_irqs.h>
 
