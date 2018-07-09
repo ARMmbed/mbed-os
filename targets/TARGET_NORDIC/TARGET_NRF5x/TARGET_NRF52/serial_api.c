@@ -122,14 +122,6 @@
  */
 #define RTC_FREQUENCY   32768
 
-/**
- * SWI IRQ numbers
- */
-#define UARTE0_SWI_TX_IRQ       SWI2_EGU2_IRQn
-#define UARTE0_SWI_RX_IRQ       SWI3_EGU3_IRQn
-#define UARTE1_SWI_TX_IRQ       SWI4_EGU4_IRQn
-#define UARTE1_SWI_RX_IRQ       SWI5_EGU5_IRQn
-
 /***
  *      _______                   _       __
  *     |__   __|                 | |     / _|
@@ -237,6 +229,14 @@ NRF_ATFIFO_DEF(nordic_nrf5_uart_fifo_0, uint8_t, UART0_FIFO_BUFFER_SIZE);
 #if UART1_ENABLED
 NRF_ATFIFO_DEF(nordic_nrf5_uart_fifo_1, uint8_t, UART1_FIFO_BUFFER_SIZE);
 #endif
+
+/**
+ * SWI IRQ mask.
+ */
+static uint8_t nordic_nrf5_uart_swi_mask_tx_0 = 0;
+static uint8_t nordic_nrf5_uart_swi_mask_rx_0 = 0;
+static uint8_t nordic_nrf5_uart_swi_mask_tx_1 = 0;
+static uint8_t nordic_nrf5_uart_swi_mask_rx_1 = 0;
 
 /**
  * Global variables expected by mbed_retarget.cpp for STDOUT.
@@ -411,16 +411,6 @@ static void nordic_nrf5_uart_callback_handler(uint32_t instance)
     }
 }
 
-static void nordic_nrf5_uart_swi_rx_0(void)
-{
-    nordic_nrf5_uart_callback_handler(0);
-}
-
-static void nordic_nrf5_uart_swi_rx_1(void)
-{
-    nordic_nrf5_uart_callback_handler(1);
-}
-
 /**
  * @brief      SWI interrupt handler for when the Tx buffer has been transmitted.
  *
@@ -477,33 +467,55 @@ static void nordic_nrf5_uart_event_handler_endtx_asynch(int instance)
 }
 #endif
 
-static void nordic_nrf5_uart_swi_tx_0(void)
+static void nordic_nrf5_uart_swi0(void)
 {
-#if DEVICE_SERIAL_ASYNCH
-    if (nordic_nrf5_uart_state[0].tx_asynch) {
+    if (nordic_nrf5_uart_swi_mask_tx_0) {
 
-        nordic_nrf5_uart_event_handler_endtx_asynch(0);
-    } else
+        nordic_nrf5_uart_swi_mask_tx_0 = 0;
+
+#if DEVICE_SERIAL_ASYNCH
+        if (nordic_nrf5_uart_state[0].tx_asynch) {
+
+            nordic_nrf5_uart_event_handler_endtx_asynch(0);
+        } else
 #endif
-    {
-        nordic_nrf5_uart_event_handler_endtx(0);
+        {
+            nordic_nrf5_uart_event_handler_endtx(0);
+        }
     }
-}
+
+    if (nordic_nrf5_uart_swi_mask_rx_0) {
+
+        nordic_nrf5_uart_swi_mask_rx_0 = 0;
+
+        nordic_nrf5_uart_callback_handler(0);
+    }
+
 
 #if UART1_ENABLED
-static void nordic_nrf5_uart_swi_tx_1(void)
-{
-#if DEVICE_SERIAL_ASYNCH
-    if (nordic_nrf5_uart_state[1].tx_asynch) {
+    if (nordic_nrf5_uart_swi_mask_tx_1) {
 
-        nordic_nrf5_uart_event_handler_endtx_asynch(1);
-    } else
+        nordic_nrf5_uart_swi_mask_tx_1 = 0;
+
+#if DEVICE_SERIAL_ASYNCH
+        if (nordic_nrf5_uart_state[1].tx_asynch) {
+
+            nordic_nrf5_uart_event_handler_endtx_asynch(1);
+        } else
 #endif
-    {
-        nordic_nrf5_uart_event_handler_endtx(1);
+        {
+            nordic_nrf5_uart_event_handler_endtx(1);
+        }
     }
-}
+
+    if (nordic_nrf5_uart_swi_mask_rx_1) {
+
+        nordic_nrf5_uart_swi_mask_rx_1 = 0;
+
+        nordic_nrf5_uart_callback_handler(1);
+    }
 #endif
+}
 
 /**
  * @brief      Trigger Tx SWI.
@@ -514,12 +526,14 @@ static void nordic_swi_tx_trigger(int instance)
 {
     if (instance == 0) {
 
-        NVIC_SetPendingIRQ(UARTE0_SWI_TX_IRQ);
+        nordic_nrf5_uart_swi_mask_tx_0 = 1;
+        NVIC_SetPendingIRQ(SWI0_EGU0_IRQn);
     }
 #if UART1_ENABLED
     else if (instance == 1) {
 
-        NVIC_SetPendingIRQ(UARTE1_SWI_TX_IRQ);
+        nordic_nrf5_uart_swi_mask_tx_1 = 1;
+        NVIC_SetPendingIRQ(SWI0_EGU0_IRQn);
     }
 #endif
 }
@@ -533,12 +547,16 @@ static void nordic_swi_rx_trigger(int instance)
 {
     if (instance == 0) {
 
-        NVIC_SetPendingIRQ(UARTE0_SWI_RX_IRQ);
+        nordic_nrf5_uart_swi_mask_rx_0 = 1;
+        NVIC_SetPendingIRQ(SWI0_EGU0_IRQn);
     }
+#if UART1_ENABLED
     else if (instance == 1) {
 
-        NVIC_SetPendingIRQ(UARTE1_SWI_RX_IRQ);
+        nordic_nrf5_uart_swi_mask_rx_1 = 1;
+        NVIC_SetPendingIRQ(SWI0_EGU0_IRQn);
     }
+#endif
 }
 
 /***
@@ -990,17 +1008,8 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         nrf_rtc_task_trigger(NRF_RTC2, NRF_RTC_TASK_START);
 
         /* Enable interrupts for SWI. */
-        NVIC_SetVector(UARTE0_SWI_TX_IRQ, (uint32_t) nordic_nrf5_uart_swi_tx_0);
-        NVIC_SetVector(UARTE0_SWI_RX_IRQ, (uint32_t) nordic_nrf5_uart_swi_rx_0);
-        nrf_drv_common_irq_enable(UARTE0_SWI_TX_IRQ, APP_IRQ_PRIORITY_LOWEST);
-        nrf_drv_common_irq_enable(UARTE0_SWI_RX_IRQ, APP_IRQ_PRIORITY_LOWEST);
-
-#if UART1_ENABLED
-        NVIC_SetVector(UARTE1_SWI_TX_IRQ, (uint32_t) nordic_nrf5_uart_swi_tx_1);
-        NVIC_SetVector(UARTE1_SWI_RX_IRQ, (uint32_t) nordic_nrf5_uart_swi_rx_1);
-        nrf_drv_common_irq_enable(UARTE1_SWI_TX_IRQ, APP_IRQ_PRIORITY_LOWEST);
-        nrf_drv_common_irq_enable(UARTE1_SWI_RX_IRQ, APP_IRQ_PRIORITY_LOWEST);
-#endif
+        NVIC_SetVector(SWI0_EGU0_IRQn, (uint32_t) nordic_nrf5_uart_swi0);
+        nrf_drv_common_irq_enable(SWI0_EGU0_IRQn, APP_IRQ_PRIORITY_LOWEST);
 
         /* Initialize FIFO buffer for UARTE0. */
         NRF_ATFIFO_INIT(nordic_nrf5_uart_fifo_0);
