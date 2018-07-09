@@ -38,6 +38,7 @@ from tools.options import extract_mcus
 from tools.build_api import build_library, build_mbed_libs, build_lib
 from tools.build_api import mcu_toolchain_matrix
 from tools.build_api import print_build_results
+from tools.config import Config
 from tools.settings import CPPCHECK_CMD, CPPCHECK_MSG_FORMAT
 from tools.settings import CPPCHECK_CMD, CPPCHECK_MSG_FORMAT, CLI_COLOR_MAP
 from tools.notifier.term import TerminalNotifier
@@ -94,6 +95,13 @@ if __name__ == '__main__':
                       action="append",
                       dest="macros",
                       help="Add a macro definition")
+
+    parser.add_argument(
+        "-C",
+        action="append",
+        dest="cli_config",
+        help="override a configuration value on the command line",
+    )
 
     parser.add_argument("-S", "--supported-toolchains",
                       action="store_true",
@@ -188,6 +196,13 @@ if __name__ == '__main__':
                     mcu = TARGET_MAP[target]
                     profile = extract_profile(parser, options, toolchain)
                     if options.source_dir:
+                        config = Config(
+                            mcu,
+                            app_config=Config.find_app_config(
+                                options.source_dir
+                            ),
+                            symbols=options.cli_config,
+                        )
                         lib_build_res = build_library(
                             options.source_dir, options.build_dir, mcu, toolchain,
                             jobs=options.jobs,
@@ -197,7 +212,8 @@ if __name__ == '__main__':
                             name=options.artifact_name,
                             build_profile=profile,
                             ignore=options.ignore,
-                            notify = notifier,
+                            notify=notifier,
+                            config=config,
                         )
                     else:
                         lib_build_res = build_mbed_libs(

@@ -283,6 +283,9 @@ def target_supports_toolchain(target, toolchain_name):
         return toolchain_name in target.supported_toolchains
 
 
+IS_CONFIG_PARAM = re.compile("\w+\.\w+=.*")
+
+
 def prepare_toolchain(src_paths, build_dir, target, toolchain_name,
                       macros=None, clean=False, jobs=1,
                       notify=None, config=None, app_config=None,
@@ -616,7 +619,7 @@ def build_library(src_paths, build_path, target, toolchain_name,
                   dependencies_paths=None, name=None, clean=False,
                   archive=True, notify=None, macros=None, inc_dirs=None, jobs=1,
                   report=None, properties=None, project_id=None,
-                  remove_config_header_file=False, app_config=None,
+                  remove_config_header_file=False, config=None,
                   build_profile=None, ignore=None):
     """ Build a library
 
@@ -666,7 +669,7 @@ def build_library(src_paths, build_path, target, toolchain_name,
     # Pass all params to the unified prepare_toolchain()
     toolchain = prepare_toolchain(
         src_paths, build_path, target, toolchain_name, macros=macros,
-        clean=clean, jobs=jobs, notify=notify, app_config=app_config,
+        clean=clean, jobs=jobs, notify=notify, config=config,
         build_profile=build_profile, ignore=ignore)
 
     # The first path will give the name to the library

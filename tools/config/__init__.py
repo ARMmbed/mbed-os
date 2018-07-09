@@ -427,7 +427,7 @@ class Config(object):
                 path, ".".join(p for p in error.absolute_path),
                 error.message.replace('u\'','\''))
 
-    def __init__(self, tgt, top_level_dirs=None, app_config=None):
+    def __init__(self, tgt, top_level_dirs=None, app_config=None, symbols=None):
         """Construct a mbed configuration
 
         Positional arguments:
@@ -499,6 +499,20 @@ class Config(object):
 
         self.cumulative_overrides = {key: ConfigCumulativeOverride(key)
                                      for key in CUMULATIVE_ATTRIBUTES}
+
+        if symbols:
+            if not self.app_config_location:
+                self.app_config_location = "."
+            self.app_config_data.setdefault("target_overrides", {})
+            self.app_config_data["target_overrides"].setdefault(
+                self.target.name, {})
+            overrides = self.app_config_data["target_overrides"][self.target.name]
+            for symbol in symbols:
+                try:
+                    name, value = symbol.split("=")
+                    overrides[name] = value
+                except ValueError:
+                    pass
 
         self._process_config_and_overrides(self.app_config_data, {}, "app",
                                            "application")

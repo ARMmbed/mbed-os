@@ -31,6 +31,7 @@ from json import load, dump
 ROOT = abspath(join(dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
 
+from tools.config import Config
 from tools.utils import args_error
 from tools.utils import NotSupportedException
 from tools.paths import BUILD_DIR
@@ -98,6 +99,13 @@ if __name__ == '__main__':
         action="append",
         dest="macros",
         help="Add a macro definition")
+
+    parser.add_argument(
+        "-C",
+        action="append",
+        dest="cli_config",
+        help="override a configuration value on the command line",
+    )
 
     group.add_argument(
         "-S", "--supported-toolchains",
@@ -273,6 +281,12 @@ if __name__ == '__main__':
             build_dir = options.build_dir
 
         try:
+            config = Config(
+                mcu,
+                app_config=(options.app_config or
+                            Config.find_app_config(test.source_dir)),
+                symbols=options.cli_config,
+            )
             bin_file, update_file = build_project(
                 test.source_dir,
                 build_dir,
@@ -286,7 +300,7 @@ if __name__ == '__main__':
                 macros=options.macros,
                 jobs=options.jobs,
                 name=options.artifact_name,
-                app_config=options.app_config,
+                config=config,
                 inc_dirs=[dirname(MBED_LIBRARIES)],
                 build_profile=extract_profile(parser, options, toolchain),
                 stats_depth=options.stats_depth,
