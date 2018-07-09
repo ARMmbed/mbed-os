@@ -188,7 +188,7 @@ void test_directory_failures() {
         res = fs.mkdir("potato", 0777);
         TEST_ASSERT_EQUAL(-EEXIST, res);
         res = dir[0].open(&fs, "tomato");
-        TEST_ASSERT_EQUAL(-ENOTDIR, res);
+        TEST_ASSERT_EQUAL(-ENOENT, res);
         res = dir[0].open(&fs, "burito");
         TEST_ASSERT_NOT_EQUAL(0, res);
         res = file[0].open(&fs, "tomato", O_RDONLY);
