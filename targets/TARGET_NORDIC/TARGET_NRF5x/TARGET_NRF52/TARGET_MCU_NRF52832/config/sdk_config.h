@@ -1795,7 +1795,7 @@
 
 
 #ifndef EGU_ENABLED
-#define EGU_ENABLED 0
+#define EGU_ENABLED 1
 #endif
 
 // <e> GPIOTE_ENABLED - nrf_drv_gpiote - GPIOTE peripheral driver

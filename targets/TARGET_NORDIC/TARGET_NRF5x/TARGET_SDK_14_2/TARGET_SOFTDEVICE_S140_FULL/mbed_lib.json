@@ -28,7 +28,11 @@
         "NRF_SDH_BLE_STACK_OBSERVER_PRIO=0",
         "NRF_SDH_SOC_STACK_OBSERVER_PRIO=0",
         "FDS_BACKEND=2",
-        "SWI_DISABLE1=1"
+        "SWI_DISABLE1",
+        "SWI_DISABLE2",
+        "SWI_DISABLE3",
+        "SWI_DISABLE4",
+        "SWI_DISABLE5"
     ],
     "target_overrides": {
         "*": {
