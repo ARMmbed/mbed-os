@@ -1200,6 +1200,9 @@
         }
     },
     "MTB_USI_WM_BN_BM_22": {
+        "overrides": {
+            "lse_available": 0
+        },
         "inherits": ["USI_WM_BN_BM_22"]
     },
     "MTB_ADV_WISE_1530": {
