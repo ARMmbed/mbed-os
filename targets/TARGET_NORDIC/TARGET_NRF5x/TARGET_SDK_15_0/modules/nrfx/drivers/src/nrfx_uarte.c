@@ -1,6 +1,6 @@
 /**
  * Copyright (c) 2015 - 2018, Nordic Semiconductor ASA
- * 
+ *
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without modification,
@@ -566,7 +566,7 @@ static void uarte_irq_handler(NRF_UARTE_Type *        p_uarte,
     }
 }
 
-#if NRFX_CHECK(NRFX_UARTE0_ENABLED)
+#if ( NRFX_CHECK(NRFX_UARTE0_ENABLED) && !(NRFX_CHECK(NRFX_UART0_ENABLED)))
 void nrfx_uarte_0_irq_handler(void)
 {
     uarte_irq_handler(NRF_UARTE0, &m_cb[NRFX_UARTE0_INST_IDX]);
