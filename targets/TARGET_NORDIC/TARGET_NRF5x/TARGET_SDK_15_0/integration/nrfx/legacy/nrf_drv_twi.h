@@ -135,8 +135,8 @@ typedef struct
  * @brief Macro for creating a TWI master driver instance.
  */
 // Mbed - need these
-#define NRF_TWIM0_ENABLED 1
-#define NRF_TWIM1_ENABLED 1
+//#define NRF_TWIM0_ENABLED 1
+//#define NRF_TWIM1_ENABLED 1
 
 #define NRF_DRV_TWI_INSTANCE(id)    NRF_DRV_TWI_INSTANCE_(id)
 #define NRF_DRV_TWI_INSTANCE_(id)   NRF_DRV_TWI_INSTANCE_ ## id
