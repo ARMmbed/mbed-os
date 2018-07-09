@@ -84,78 +84,29 @@ public:
 
     /** Connect OTAA or ABP using Mbed-OS config system
      *
-     * Connect by Over The Air Activation or Activation By Personalization.
-     * You need to configure the connection properly via the Mbed OS configuration
-     * system.
+     * @return         For ABP:  If everything goes well, LORAWAN_STATUS_OK is returned for first call followed by
+     *                           a 'CONNECTED' event. Otherwise a negative error code.
+     *                           Any subsequent call will return LORAWAN_STATUS_ALREADY_CONNECTED and no event follows.
      *
-     * When connecting via OTAA, the return code for success (LORAWAN_STATUS_CONNECT_IN_PROGRESS) is negative.
-     * However, this is not a real error. It tells you that the connection is in progress and you will
-     * be notified of the completion via an event. By default, after the Join Accept message
-     * is received, base stations may provide the node with a CF-List that replaces
-     * all user-configured channels except the Join/Default channels. A CF-List can
-     * configure a maximum of five channels other than the default channels.
-     *
-     * In case of ABP, the CONNECTED event is posted before the call to `connect()` returns.
-     * To configure more channels, we recommend that you use the `set_channel_plan()` API after the connection.
-     * By default, the PHY layers configure only the mandatory Join channels. The retransmission back-off restrictions
-     * on these channels are severe and you may experience long delays or even failures in the confirmed traffic.
-     * If you add more channels, the aggregated duty cycle becomes much more relaxed as compared to the Join (default) channels only.
-     *
-     * **NOTES ON RECONNECTION:**
-     * Currently, the Mbed OS LoRaWAN implementation does not support non-volatile
-     * memory storage. Therefore, the state and frame counters cannot be restored after
-     * a power cycle. However, if you use the `disconnect()` API to shut down the LoRaWAN
-     * protocol, the state and frame counters are saved. Connecting again would try to
-     * restore the previous session. According to the LoRaWAN 1.0.2 specification, the frame counters are always reset
-     * to zero for OTAA and a new Join request lets the network server know
-     * that the counters need a reset. The same is said about the ABP but there
-     * is no way to convey this information to the network server. For a network
-     * server, an ABP device is always connected. That's why storing the frame counters
-     * is important, at least for ABP. That's why we try to restore frame counters from
-     * session information after a disconnection.
-     *
-     * @return         LORAWAN_STATUS_OK or LORAWAN_STATUS_CONNECT_IN_PROGRESS
-     *                 on success, or a negative error code on failure.
+     *                 For OTAA: When a JoinRequest is sent, LORAWAN_STATUS_CONNECT_IN_PROGRESS is returned followed by
+     *                           a 'CONNECTED' event when the JoinAccept is received. Otherwise a negative error code
+     *                           is returned. Any subsequent call will return LORAWAN_STATUS_ALREADY_CONNECTED and no
+     *                           event follows.
      */
     lorawan_status_t connect();
 
     /** Connect OTAA or ABP with parameters
      *
-     * All connection parameters are chosen by the user and provided in the
-     * data structure passed down.
-     *
-     * When connecting via OTAA, the return code for success (LORAWAN_STATUS_CONNECT_IN_PROGRESS) is negative.
-     * However, this is not a real error. It tells you that connection is in progress and you will
-     * be notified of completion via an event. By default, after Join Accept message
-     * is received, base stations may provide the node with a CF-List which replaces
-     * all user-configured channels except the Join/Default channels. A CF-List can
-     * configure a maximum of five channels other than the default channels.
-     *
-     * In case of ABP, the CONNECTED event is posted before the call to `connect()` returns.
-     * To configure more channels, we recommend that you use the `set_channel_plan()` API after the connection.
-     * By default, the PHY layers configure only the mandatory Join
-     * channels. The retransmission back-off restrictions on these channels
-     * are severe and you may experience long delays or even
-     * failures in the confirmed traffic. If you add more channels, the aggregated duty
-     * cycle becomes much more relaxed as compared to the Join (default) channels only.
-     *
-     * **NOTES ON RECONNECTION:**
-     * Currently, the Mbed OS LoRaWAN implementation does not support non-volatile
-     * memory storage. Therefore, the state and frame counters cannot be restored after
-     * a power cycle. However, if you use the `disconnect()` API to shut down the LoRaWAN
-     * protocol, the state and frame counters are saved. Connecting again would try to
-     * restore the previous session. According to the LoRaWAN 1.0.2 specification, the frame counters are always reset
-     * to zero for OTAA and a new Join request lets the network server know
-     * that the counters need a reset. The same is said about the ABP but there
-     * is no way to convey this information to the network server. For a network
-     * server, an ABP device is always connected. That's why storing the frame counters
-     * is important, at least for ABP. That's why we try to restore frame counters from
-     * session information after a disconnection.
-     *
      * @param connect  Options for an end device connection to the gateway.
      *
-     * @return        LORAWAN_STATUS_OK or LORAWAN_STATUS_CONNECT_IN_PROGRESS,
-     *                a negative error code on failure.
+     * @return         For ABP:  If everything goes well, LORAWAN_STATUS_OK is returned for first call followed by
+     *                           a 'CONNECTED' event. Otherwise a negative error code.
+     *                           Any subsequent call will return LORAWAN_STATUS_ALREADY_CONNECTED and no event follows.
+     *
+     *                 For OTAA: When a JoinRequest is sent, LORAWAN_STATUS_CONNECT_IN_PROGRESS is returned followed by
+     *                           a 'CONNECTED' event when the JoinAccept is received. Otherwise a negative error code
+     *                           is returned. Any subsequent call will return LORAWAN_STATUS_ALREADY_CONNECTED and no
+     *                           event follows.
      */
     lorawan_status_t connect(const lorawan_connect_t &connect);
 
