@@ -17,7 +17,7 @@
 /*
 * The test is based on the assumption that trng will generate random data, random so
 * there will not be any similar patterns in it, that kind of data will be impossible to
-* compress, if compression will acuur the test will result in failure.
+* compress, if compression will occur the test will result in failure.
 *
 * The test is composed out of three parts:
 * the first, generate a trng buffer and try to compress it, at the end of first part
@@ -119,7 +119,7 @@ static void compress_and_compare(char *key, char *value)
         /*Using base64 to decode data sent from host*/
         uint32_t lengthWritten = 0;
         uint32_t charsProcessed = 0;
-        result = esfs_DecodeNBase64((const char *)value, MSG_VALUE_LEN, buffer, BUFFER_LEN, &lengthWritten, &charsProcessed);
+        result = trng_DecodeNBase64((const char *)value, MSG_VALUE_LEN, buffer, BUFFER_LEN, &lengthWritten, &charsProcessed);
         TEST_ASSERT_EQUAL(0, result);
 #endif
         memcpy(input_buf, buffer, BUFFER_LEN);
@@ -181,7 +181,7 @@ static void compress_and_compare(char *key, char *value)
         TEST_ASSERT_EQUAL(NVSTORE_SUCCESS, result);
 #else
         /*Using base64 to encode data sending from host*/
-        result = esfs_EncodeBase64(buffer, BUFFER_LEN, (char *)out_comp_buf, sizeof(out_comp_buf));
+        result = trng_EncodeBase64(buffer, BUFFER_LEN, (char *)out_comp_buf, sizeof(out_comp_buf));
         TEST_ASSERT_EQUAL(NVSTORE_SUCCESS, result);
         greentea_send_kv(MSG_TRNG_BUFFER, (const char *)out_comp_buf);
 #endif

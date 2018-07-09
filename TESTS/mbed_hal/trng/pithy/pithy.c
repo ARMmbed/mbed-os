@@ -128,7 +128,6 @@ PITHY_STATIC_INLINE char       *pithy_EmitCopy(char *op, size_t offset, size_t l
 #else
 #define PITHY_32BIT_MOVE64
 PITHY_STATIC_INLINE uint64_t pithy_Load64(const void *p)        { uint64_t t; memcpy(&t, p, sizeof(t)); return (t); }
-PITHY_STATIC_INLINE void     pithy_Store64(void *p, uint64_t v) { memcpy(p, &v, sizeof(v)); }
 #endif
 
 #else  // not __arm__
