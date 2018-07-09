@@ -510,9 +510,13 @@ class Config(object):
             for symbol in symbols:
                 try:
                     name, value = symbol.split("=")
-                    overrides[name] = value
+                except ValueError:
+                    continue
+                try:
+                    value = json.loads(value)
                 except ValueError:
                     pass
+                overrides[name] = value
 
         self._process_config_and_overrides(self.app_config_data, {}, "app",
                                            "application")
