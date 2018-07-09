@@ -2225,7 +2225,11 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
     execution_directory = "."
     base_path = norm_relative_path(build_path, execution_directory)
 
-    target_name = target.name if isinstance(target, Target) else target
+    if isinstance(target, Target):
+        target_name
+    else:
+        target_name = target
+        target = TARGET_MAP[target_name]
     cfg, _, _ = get_config(base_source_paths, target_name, toolchain_name, app_config=app_config)
 
     baud_rate = 9600
@@ -2255,7 +2259,7 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
         bin_file = None
         test_case_folder_name = os.path.basename(test_paths[0])
 
-        args = (src_paths, test_build_path, target, toolchain_name)
+        args = (src_paths, test_build_path, deepcopy(target), toolchain_name)
         kwargs = {
             'jobs': 1,
             'clean': clean,
