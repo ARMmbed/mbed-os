@@ -41,8 +41,14 @@ public:
      * Connect by Over The Air Activation or Activation By Personalization.
      * The connection type is selected at the setup.
      *
-     * @return         LORAWAN_STATUS_OK on success, a negative error code on
-     *                 failure.
+     * @return         For ABP:  If everything goes well, LORAWAN_STATUS_OK is returned for first call followed by
+     *                           a 'CONNECTED' event. Otherwise a negative error code.
+     *                           Any subsequent call will return LORAWAN_STATUS_ALREADY_CONNECTED and no event follows.
+     *
+     *                 For OTAA: When a JoinRequest is sent, LORAWAN_STATUS_CONNECT_IN_PROGRESS is returned followed by
+     *                           a 'CONNECTED' event when the JoinAccept is received. Otherwise a negative error code
+     *                           is returned. Any subsequent call will return LORAWAN_STATUS_ALREADY_CONNECTED and no
+     *                           event follows.
      */
     virtual lorawan_status_t connect() = 0;
 
@@ -53,8 +59,15 @@ public:
      * You need to define the parameters in the main application.
      *
      * @param connect       Options how end-device will connect to gateway
-     * @return              LORAWAN_STATUS_OK on success, negative error code
-     *                      on failure
+     *
+     * @return         For ABP:  If everything goes well, LORAWAN_STATUS_OK is returned for first call followed by
+     *                           a 'CONNECTED' event. Otherwise a negative error code.
+     *                           Any subsequent call will return LORAWAN_STATUS_ALREADY_CONNECTED and no event follows.
+     *
+     *                 For OTAA: When a JoinRequest is sent, LORAWAN_STATUS_CONNECT_IN_PROGRESS is returned followed by
+     *                           a 'CONNECTED' event when the JoinAccept is received. Otherwise a negative error code
+     *                           is returned. Any subsequent call will return LORAWAN_STATUS_ALREADY_CONNECTED and no
+     *                           event follows.
      */
     virtual lorawan_status_t connect(const lorawan_connect_t &connect) = 0;
 
