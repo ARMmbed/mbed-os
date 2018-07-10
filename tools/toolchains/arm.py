@@ -41,7 +41,7 @@ class ARM(mbedToolchain):
     SUPPORTED_CORES = ["Cortex-M0", "Cortex-M0+", "Cortex-M3", "Cortex-M4",
                        "Cortex-M4F", "Cortex-M7", "Cortex-M7F", "Cortex-M7FD", "Cortex-A9"]
     ARMCC_RANGE = (LooseVersion("5.06"), LooseVersion("5.07"))
-    ARMCC_VERSION_RE = re.compile("Component: ARM Compiler (\d+\.\d+)")
+    ARMCC_VERSION_RE = re.compile(b"Component: ARM Compiler (\d+\.\d+)")
 
     @staticmethod
     def check_executable():
@@ -99,7 +99,7 @@ class ARM(mbedToolchain):
         msg = None
         min_ver, max_ver = self.ARMCC_RANGE
         match = self.ARMCC_VERSION_RE.search(stdout)
-        found_version = LooseVersion(match.group(1)) if match else None
+        found_version = LooseVersion(match.group(1).decode("utf-8")) if match else None
         min_ver, max_ver = self.ARMCC_RANGE
         if found_version and (found_version < min_ver or found_version >= max_ver):
             msg = ("Compiler version mismatch: Have {}; "
