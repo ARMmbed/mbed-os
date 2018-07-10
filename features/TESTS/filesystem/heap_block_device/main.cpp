@@ -46,6 +46,10 @@ const struct {
 
 // Simple test that read/writes random set of blocks
 void test_read_write() {
+    uint8_t *dummy = new (std::nothrow) uint8_t[TEST_BLOCK_DEVICE_SIZE];
+    TEST_SKIP_UNLESS_MESSAGE(dummy, "Not enough memory for test");
+    delete[] dummy;
+
     HeapBlockDevice bd(TEST_BLOCK_DEVICE_SIZE, TEST_BLOCK_SIZE);
 
     int err = bd.init();
@@ -63,11 +67,17 @@ void test_read_write() {
         }
     }
 
-    bd_size_t block_size = bd.get_erase_size();
-    uint8_t *write_block = new uint8_t[block_size];
-    uint8_t *read_block = new uint8_t[block_size];
-    uint8_t *error_mask = new uint8_t[TEST_ERROR_MASK];
     unsigned addrwidth = ceil(log(float(bd.size()-1)) / log(float(16)))+1;
+
+    bd_size_t block_size = bd.get_erase_size();
+    uint8_t *write_block = new (std::nothrow) uint8_t[block_size];
+    uint8_t *read_block = new (std::nothrow) uint8_t[block_size];
+    uint8_t *error_mask = new (std::nothrow) uint8_t[TEST_ERROR_MASK];
+    if (!write_block || !read_block || !error_mask) {
+        printf("Not enough memory for test");
+        goto end;
+    }
+
 
     for (int b = 0; b < TEST_BLOCK_COUNT; b++) {
         // Find a random block
@@ -135,6 +145,12 @@ void test_read_write() {
     
     err = bd.deinit();
     TEST_ASSERT_EQUAL(0, err);
+
+end:
+    delete[] write_block;
+    delete[] read_block;
+    delete[] error_mask;
+
 }
 
 
