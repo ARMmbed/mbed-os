@@ -168,23 +168,16 @@ if __name__ == '__main__':
                 toolchains = toolchainSet.intersection(set((options.toolchains).split(',')))
 
             for toolchain in toolchains:
-                id = "%s::%s" % (target_name, toolchain)
+                built_mbed_lib = build_mbed_libs(
+                    TARGET_MAP[target_name],
+                    toolchain,
+                    notify=TerminalNotifier(options.verbose),
+                    jobs=options.jobs,
+                    report=build_report,
+                    properties=build_properties,
+                    build_profile=extract_profile(parser, options, toolchain),
+                )
 
-                profile = extract_profile(parser, options, toolchain)
-                notify = TerminalNotifier(options.verbose)
-
-                try:
-                    built_mbed_lib = build_mbed_libs(TARGET_MAP[target_name],
-                                                     toolchain,
-                                                     notify=notify,
-                                                     jobs=options.jobs,
-                                                     report=build_report,
-                                                     properties=build_properties,
-                                                     build_profile=profile)
-
-                except Exception, e:
-                    print str(e)
-                    status = False
 
     # copy targets.json file as part of the release
     copy(join(dirname(abspath(__file__)), '..', 'targets', 'targets.json'), MBED_LIBRARIES)
