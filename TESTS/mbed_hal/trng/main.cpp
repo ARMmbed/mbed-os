@@ -55,7 +55,7 @@
 #define MSG_VALUE_LEN                   64
 #define MSG_KEY_LEN                     32
 
-#define BUFFER_LEN                      (MSG_VALUE_LEN/2)           //size of first step data, and half of the second step data
+#define BUFFER_LEN                      (MSG_VALUE_LEN/2)
 
 #define MSG_TRNG_READY                  "ready"
 #define MSG_TRNG_BUFFER                 "buffer"
@@ -64,10 +64,10 @@
 #define MSG_TRNG_TEST_STEP2             "check_step2"
 #define MSG_TRNG_TEST_SUITE_ENDED       "Test_suite_ended"
 
-#define NVKEY                           1                           //NVstore key for storing and loading data
+#define NVKEY                           1                  //NVstore key for storing and loading data
 
 /*there are some issues with nvstore and greentea reset, so for now nvstore is disabled,
- *When  solved delete current define and replace all NVSTORE_RESET with NVSTORE_ENABLED*/
+ *When solved delete current define and replace all NVSTORE_RESET with NVSTORE_ENABLED*/
 #define NVSTORE_RESET                   (NVSTORE_ENABLED & 0)
 
 using namespace utest::v1;
@@ -100,8 +100,8 @@ static int fill_buffer_trng(uint8_t *buffer, trng_t *trng_obj, size_t trng_len)
 static void compress_and_compare(char *key, char *value)
 {
     trng_t trng_obj;
-    uint8_t out_comp_buf[BUFFER_LEN * 4] = {0}, buffer[BUFFER_LEN] = {0};
-    uint8_t input_buf[BUFFER_LEN * 2] = {0}, temp_buff[BUFFER_LEN * 2] = {0};
+    uint8_t out_comp_buf[(BUFFER_LEN * 8) + 32] = {0}, buffer[BUFFER_LEN] = {0};
+    uint8_t input_buf[BUFFER_LEN * 4] = {0}, temp_buf[BUFFER_LEN * 2] = {0};
     size_t comp_sz = 0;
     unsigned int result = 0;
 
@@ -119,10 +119,14 @@ static void compress_and_compare(char *key, char *value)
         /*Using base64 to decode data sent from host*/
         uint32_t lengthWritten = 0;
         uint32_t charsProcessed = 0;
-        result = trng_DecodeNBase64((const char *)value, MSG_VALUE_LEN, buffer, BUFFER_LEN, &lengthWritten, &charsProcessed);
+        result = trng_DecodeNBase64((const char *)value,
+                                    MSG_VALUE_LEN, buffer,
+                                    BUFFER_LEN,
+                                    &lengthWritten,
+                                    &charsProcessed);
         TEST_ASSERT_EQUAL(0, result);
 #endif
-        memcpy(input_buf, buffer, BUFFER_LEN);
+        memcpy(input_buf, buffer, sizeof(buffer));
     }
 
     /*Fill buffer with trng values*/
@@ -131,46 +135,41 @@ static void compress_and_compare(char *key, char *value)
 
     /*pithy_Compress will try to compress the random data, if it succeeded it means the data is not really random*/
     if (strcmp(key, MSG_TRNG_TEST_STEP1) == 0) {
-        printf("\n******TRNG_TEST_STEP1*****\n");
 
-        comp_sz = pithy_Compress((char *)buffer, sizeof(buffer), (char *)out_comp_buf, sizeof(out_comp_buf), 9);
+        printf("\n***TRNG_TEST_STEP1***\n trng_get_bytes for buffer size %d\n", sizeof(buffer));
 
-        if (comp_sz >= BUFFER_LEN) {
-            printf("trng_get_bytes for buffer size %d was successful", sizeof(buffer));
-        } else {
-            printf("trng_get_bytes for buffer size %d was unsuccessful", sizeof(buffer));
-            TEST_ASSERT(false);
-        }
-        printf("\n******FINISHED_TRNG_TEST_STEP1*****\n\n");
+        comp_sz = pithy_Compress((char *)buffer,
+                                 sizeof(buffer),
+                                 (char *)out_comp_buf,
+                                 sizeof(out_comp_buf),
+                                 9);
+        TEST_ASSERT(comp_sz > sizeof(buffer));
 
     } else if (strcmp(key, MSG_TRNG_TEST_STEP2) == 0) {
+
         /*pithy_Compress will try to compress the random data with a different buffer sizem*/
-        printf("\n******TRNG_TEST_STEP2*****\n");
-        result = fill_buffer_trng(temp_buff, &trng_obj, sizeof(temp_buff));
+        result = fill_buffer_trng(temp_buf, &trng_obj, sizeof(temp_buf));
         TEST_ASSERT_EQUAL(0, result);
 
-        comp_sz = pithy_Compress((char *)temp_buff, sizeof(temp_buff), (char *)out_comp_buf, sizeof(out_comp_buf), 9);
+        printf("\n***TRNG_TEST_STEP2***\n trng_get_bytes for buffer size %d\n", sizeof(temp_buf));
 
-        if (comp_sz >= BUFFER_LEN) {
-            printf("trng_get_bytes for buffer size %d was successful", sizeof(temp_buff));
-        } else {
-            printf("trng_get_bytes for buffer size %d was unsuccessful", sizeof(temp_buff));
-            TEST_ASSERT(false);
-        }
-        printf("\n******FINISHED_TRNG_TEST_STEP2*****\n\n");
+        comp_sz = pithy_Compress((char *)temp_buf,
+                                 sizeof(temp_buf),
+                                 (char *)out_comp_buf,
+                                 sizeof(out_comp_buf),
+                                 9);
+        TEST_ASSERT(comp_sz > sizeof(temp_buf));
 
-        printf("******TRNG_TEST_STEP3*****\n");
+        printf("\n***TRNG_TEST_STEP3***\n compression of concatenated buffer after reset\n");
+        memcpy(input_buf + sizeof(buffer), temp_buf, sizeof(temp_buf));
 
         /*pithy_Compress will try to compress the random data from before reset concatenated with new random data*/
-        comp_sz = pithy_Compress((char *)input_buf, sizeof(input_buf), (char *)out_comp_buf, sizeof(out_comp_buf), 9);
-
-        if (comp_sz >= BUFFER_LEN) {
-            printf("compression for concatenated buffer after reset was successful");
-        } else {
-            printf("compression for concatenated buffer after reset was unsuccessful");
-            TEST_ASSERT(false);
-        }
-        printf("\n******FINISHED_TRNG_TEST_STEP3*****\n\n");
+        comp_sz = pithy_Compress((char *)input_buf,
+                                 sizeof(temp_buf) + sizeof(buffer),
+                                 (char *)out_comp_buf,
+                                 sizeof(out_comp_buf),
+                                 9);
+        TEST_ASSERT(comp_sz > sizeof(temp_buf) + sizeof(buffer));
     }
 
     /*At the end of step 1 store trng buffer and reset the device*/
