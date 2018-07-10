@@ -1010,18 +1010,21 @@ def build_mbed_libs(target, toolchain_name, clean=False, macros=None,
         hal_objects = toolchain.compile_sources(hal_res, incdirs + [tmp_path])
 
         # Copy everything into the build directory
-        to_copy = [FileRef(basename(p), p) for p in sum([
-            hal_res.headers,
-            hal_res.hex_files,
-            hal_res.bin_files,
-            hal_res.libraries,
-            cmsis_res.headers,
-            cmsis_res.bin_files,
-            [cmsis_res.linker_script, hal_res.linker_script, MBED_CONFIG_FILE],
+        to_copy_paths = [
+            hal_res.get_file_paths(FileType.HEADER),
+            hal_res.get_file_paths(FileType.HEX),
+            hal_res.get_file_paths(FileType.BIN),
+            hal_res.get_file_paths(FileType.LIB),
+            cmsis_res.get_file_paths(FileType.HEADER),
+            cmsis_res.get_file_paths(FileType.BIN),
+            cmsis_res.get_file_paths(FileType.LD_SCRIPT),
+            hal_res.get_file_paths(FileType.LD_SCRIPT),
+            [MBED_CONFIG_FILE],
             cmsis_objects,
             hal_objects,
             separate_objects,
-        ], [])]
+        ]
+        to_copy = [FileRef(basename(p), p) for p in sum(to_copy_paths, [])]
         toolchain.copy_files(to_copy, build_toolchain)
 
         if report is not None:
