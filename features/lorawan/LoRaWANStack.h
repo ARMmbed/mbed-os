@@ -84,14 +84,14 @@ public:
 
     /** Connect OTAA or ABP using Mbed-OS config system
      *
-     * @return         For ABP:  If everything goes well, LORAWAN_STATUS_OK is returned for first call followed by
-     *                           a 'CONNECTED' event. Otherwise a negative error code.
-     *                           Any subsequent call will return LORAWAN_STATUS_ALREADY_CONNECTED and no event follows.
+     * @return    For ABP:  If everything goes well, LORAWAN_STATUS_OK is returned for first call followed by
+     *                      a 'CONNECTED' event. Otherwise a negative error code is returned.
+     *                      Any subsequent call will return LORAWAN_STATUS_ALREADY_CONNECTED and no event follows.
      *
-     *                 For OTAA: When a JoinRequest is sent, LORAWAN_STATUS_CONNECT_IN_PROGRESS is returned followed by
-     *                           a 'CONNECTED' event when the JoinAccept is received. Otherwise a negative error code
-     *                           is returned. Any subsequent call will return LORAWAN_STATUS_ALREADY_CONNECTED and no
-     *                           event follows.
+     *            For OTAA: When a JoinRequest is sent, LORAWAN_STATUS_CONNECT_IN_PROGRESS is returned for the first call.
+     *                      Any subsequent call will return either LORAWAN_STATUS_BUSY (if the previous request for connection
+     *                      is still underway) or LORAWAN_STATUS_ALREADY_CONNECTED (if a network was already joined successfully).
+     *                      A 'CONNECTED' event is sent to the application when the JoinAccept is received.
      */
     lorawan_status_t connect();
 
@@ -99,14 +99,14 @@ public:
      *
      * @param connect  Options for an end device connection to the gateway.
      *
-     * @return         For ABP:  If everything goes well, LORAWAN_STATUS_OK is returned for first call followed by
-     *                           a 'CONNECTED' event. Otherwise a negative error code.
-     *                           Any subsequent call will return LORAWAN_STATUS_ALREADY_CONNECTED and no event follows.
+     * @return    For ABP:  If everything goes well, LORAWAN_STATUS_OK is returned for first call followed by
+     *                      a 'CONNECTED' event. Otherwise a negative error code is returned.
+     *                      Any subsequent call will return LORAWAN_STATUS_ALREADY_CONNECTED and no event follows.
      *
-     *                 For OTAA: When a JoinRequest is sent, LORAWAN_STATUS_CONNECT_IN_PROGRESS is returned followed by
-     *                           a 'CONNECTED' event when the JoinAccept is received. Otherwise a negative error code
-     *                           is returned. Any subsequent call will return LORAWAN_STATUS_ALREADY_CONNECTED and no
-     *                           event follows.
+     *            For OTAA: When a JoinRequest is sent, LORAWAN_STATUS_CONNECT_IN_PROGRESS is returned for the first call.
+     *                      Any subsequent call will return either LORAWAN_STATUS_BUSY (if the previous request for connection
+     *                      is still underway) or LORAWAN_STATUS_ALREADY_CONNECTED (if a network was already joined successfully).
+     *                      A 'CONNECTED' event is sent to the application when the JoinAccept is received.
      */
     lorawan_status_t connect(const lorawan_connect_t &connect);
 
