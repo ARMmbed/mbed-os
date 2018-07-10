@@ -3634,6 +3634,12 @@
         },
         "device_has": ["ANALOGIN", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"]
     },
+    "MCU_NRF51_16K_UNIFIED_S130": {
+        "inherits": ["MCU_NRF51_UNIFIED"],
+        "extra_labels_add": ["MCU_NORDIC_16K", "MCU_NRF51_16K_S130", "MCU_NRF51_16K"],
+        "macros_add": ["TARGET_MCU_NORDIC_16K", "TARGET_MCU_NRF51_16K_S130", "TARGET_MCU_NRF51_16K"],
+        "public": false
+    },
     "MCU_NRF51_32K_UNIFIED": {
         "inherits": ["MCU_NRF51_UNIFIED"],
         "extra_labels_add": ["MCU_NORDIC_32K", "MCU_NRF51_32K"],
