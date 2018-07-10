@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2016 ARM Limited
+ * Copyright (c) 2006-2018 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,9 @@
 
 TIM_HandleTypeDef TimMasterHandle;
 
-bool us_ticker_initialized = false;
+uint32_t timer_cnt_reg;
+uint32_t timer_ccr1_reg;
+uint32_t timer_dier_reg;
 
 const ticker_info_t *us_ticker_get_info()
 {
@@ -35,6 +37,9 @@ void us_ticker_irq_handler(void);
 
 // ************************************ 16-bit timer ************************************
 #if TIM_MST_BIT_WIDTH == 16
+
+extern uint32_t prev_time;
+extern uint32_t elapsed_time;
 
 #if defined(TARGET_STM32F0)
 void timer_update_irq_handler(void)
@@ -60,32 +65,8 @@ void timer_oc_irq_handler(void)
     }
 }
 
-// ************************************ 32-bit timer ************************************
-#else
-
-void timer_irq_handler(void)
+void init_16bit_timer(void)
 {
-    TimMasterHandle.Instance = TIM_MST;
-    if (__HAL_TIM_GET_FLAG(&TimMasterHandle, TIM_FLAG_CC1) == SET) {
-        if (__HAL_TIM_GET_IT_SOURCE(&TimMasterHandle, TIM_IT_CC1) == SET) {
-            __HAL_TIM_CLEAR_IT(&TimMasterHandle, TIM_IT_CC1);
-            us_ticker_irq_handler();
-        }
-    }
-}
-
-#endif // 16-bit/32-bit timer
-
-void us_ticker_init(void)
-{
-    if (us_ticker_initialized) {
-        __HAL_TIM_DISABLE_IT(&TimMasterHandle, TIM_IT_CC1);
-        __HAL_TIM_CLEAR_FLAG(&TimMasterHandle, TIM_FLAG_CC1);
-        return;
-    }
-
-// ************************************ 16-bit timer ************************************
-#if TIM_MST_BIT_WIDTH == 16
     // Enable timer clock
     TIM_MST_RCC;
 
@@ -137,9 +118,27 @@ void us_ticker_init(void)
 
     __HAL_TIM_DISABLE_IT(&TimMasterHandle, TIM_IT_CC1);
 
+    // Used by HAL_GetTick()
+    prev_time = 0;
+    elapsed_time = 0;
+}
+
 // ************************************ 32-bit timer ************************************
 #else
 
+void timer_irq_handler(void)
+{
+    TimMasterHandle.Instance = TIM_MST;
+    if (__HAL_TIM_GET_FLAG(&TimMasterHandle, TIM_FLAG_CC1) == SET) {
+        if (__HAL_TIM_GET_IT_SOURCE(&TimMasterHandle, TIM_IT_CC1) == SET) {
+            __HAL_TIM_CLEAR_IT(&TimMasterHandle, TIM_IT_CC1);
+            us_ticker_irq_handler();
+        }
+    }
+}
+
+void init_32bit_timer(void)
+{
     RCC_ClkInitTypeDef RCC_ClkInitStruct;
     uint32_t PclkFreq;
 
@@ -162,8 +161,8 @@ void us_ticker_init(void)
     TIM_MST_RESET_OFF;
 
     // Configure time base
-    TimMasterHandle.Instance = TIM_MST;
-    TimMasterHandle.Init.Period          = 0xFFFFFFFF;
+    TimMasterHandle.Instance    = TIM_MST;
+    TimMasterHandle.Init.Period = 0xFFFFFFFF;
 
     // TIMxCLK = PCLKx when the APB prescaler = 1 else TIMxCLK = 2 * PCLKx
 #if TIM_MST_PCLK == 1
@@ -199,11 +198,14 @@ void us_ticker_init(void)
 #endif
 
     __HAL_TIM_DISABLE_IT(&TimMasterHandle, TIM_IT_CC1);
+}
 
 #endif // 16-bit/32-bit timer
 
-    us_ticker_initialized = true;
-
+void us_ticker_init(void)
+{
+    // Timer is already initialized in HAL_InitTick()
+    __HAL_TIM_DISABLE_IT(&TimMasterHandle, TIM_IT_CC1);
 }
 
 uint32_t us_ticker_read()
@@ -240,10 +242,6 @@ void us_ticker_clear_interrupt(void)
 {
     __HAL_TIM_CLEAR_FLAG(&TimMasterHandle, TIM_FLAG_CC1);
 }
-
-uint32_t timer_cnt_reg;
-uint32_t timer_ccr1_reg;
-uint32_t timer_dier_reg;
 
 void save_timer_ctx(void)
 {
