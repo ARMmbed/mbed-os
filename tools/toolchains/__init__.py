@@ -724,10 +724,10 @@ class mbedToolchain:
         elif ext == '.c':
             resources.c_sources.append(file_path)
 
-        elif ext == '.cpp':
+        elif ext == '.cpp' or ext == '.cc':
             resources.cpp_sources.append(file_path)
 
-        elif ext == '.h' or ext == '.hpp':
+        elif ext == '.h' or ext == '.hpp' or ext == '.hh':
             resources.headers.append(file_path)
 
         elif ext == '.o':
@@ -996,7 +996,7 @@ class mbedToolchain:
 
         source = abspath(source) if PRINT_COMPILER_OUTPUT_AS_LINK else source
 
-        if ext == '.c' or  ext == '.cpp':
+        if ext == '.c' or  ext == '.cpp' or ext == '.cc':
             base, _ = splitext(object)
             dep_path = base + '.d'
             try:
@@ -1006,12 +1006,12 @@ class mbedToolchain:
             config_file = ([self.config.app_config_location]
                            if self.config.app_config_location else [])
             deps.extend(config_file)
-            if ext == '.cpp' or self.COMPILE_C_AS_CPP:
+            if ext != '.c' or self.COMPILE_C_AS_CPP:
                 deps.append(join(self.build_dir, self.PROFILE_FILE_NAME + "-cxx"))
             else:
                 deps.append(join(self.build_dir, self.PROFILE_FILE_NAME + "-c"))
             if len(deps) == 0 or self.need_update(object, deps):
-                if ext == '.cpp' or self.COMPILE_C_AS_CPP:
+                if ext != '.c' or self.COMPILE_C_AS_CPP:
                     return self.compile_cpp(source, object, includes)
                 else:
                     return self.compile_c(source, object, includes)
