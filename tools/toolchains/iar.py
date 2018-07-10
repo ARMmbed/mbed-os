@@ -30,7 +30,7 @@ class IAR(mbedToolchain):
 
     DIAGNOSTIC_PATTERN = re.compile('"(?P<file>[^"]+)",(?P<line>[\d]+)\s+(?P<severity>Warning|Error|Fatal error)(?P<message>.+)')
     INDEX_PATTERN  = re.compile('(?P<col>\s*)\^')
-    IAR_VERSION_RE = re.compile("IAR ANSI C/C\+\+ Compiler V(\d+\.\d+)")
+    IAR_VERSION_RE = re.compile(b"IAR ANSI C/C\+\+ Compiler V(\d+\.\d+)")
     IAR_VERSION = LooseVersion("7.80")
 
     @staticmethod
@@ -99,7 +99,7 @@ class IAR(mbedToolchain):
         stdout, _, retcode = run_cmd([self.cc[0], "--version"], redirect=True)
         msg = None
         match = self.IAR_VERSION_RE.search(stdout)
-        found_version = match.group(1) if match else None
+        found_version = match.group(1).decode("utf-8") if match else None
         if found_version and LooseVersion(found_version) != self.IAR_VERSION:
             msg = "Compiler version mismatch: Have {}; expected {}".format(
                 found_version, self.IAR_VERSION)
