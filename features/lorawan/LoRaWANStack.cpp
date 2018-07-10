@@ -44,6 +44,7 @@ SPDX-License-Identifier: BSD-3-Clause
 #define CONNECTED_FLAG              0x00000004
 #define USING_OTAA_FLAG             0x00000008
 #define TX_DONE_FLAG                0x00000010
+#define CONN_IN_PROGRESS_FLAG       0x00000020
 
 using namespace mbed;
 using namespace events;
@@ -155,7 +156,11 @@ lorawan_status_t LoRaWANStack::connect()
         return LORAWAN_STATUS_NOT_INITIALIZED;
     }
 
-    if (_loramac.nwk_joined()) {
+    if (_ctrl_flags & CONN_IN_PROGRESS_FLAG) {
+        return LORAWAN_STATUS_BUSY;
+    }
+
+    if (_ctrl_flags & CONNECTED_FLAG) {
         return LORAWAN_STATUS_ALREADY_CONNECTED;
     }
 
@@ -174,7 +179,11 @@ lorawan_status_t LoRaWANStack::connect(const lorawan_connect_t &connect)
         return LORAWAN_STATUS_NOT_INITIALIZED;
     }
 
-    if (_loramac.nwk_joined()) {
+    if (_ctrl_flags & CONN_IN_PROGRESS_FLAG) {
+        return LORAWAN_STATUS_BUSY;
+    }
+
+    if (_ctrl_flags & CONNECTED_FLAG) {
         return LORAWAN_STATUS_ALREADY_CONNECTED;
     }
 
@@ -832,6 +841,8 @@ int LoRaWANStack::convert_to_msg_flag(const mcps_type_t type)
 
 lorawan_status_t LoRaWANStack::handle_connect(bool is_otaa)
 {
+    _ctrl_flags |= CONN_IN_PROGRESS_FLAG;
+
     if (is_otaa) {
         tr_debug("Initiating OTAA");
 
@@ -1157,30 +1168,23 @@ void LoRaWANStack::process_joining_state(lorawan_status_t &op_status)
 
 void LoRaWANStack::process_connected_state()
 {
+    _ctrl_flags |= CONNECTED_FLAG;
+    _ctrl_flags &= ~CONN_IN_PROGRESS_FLAG;
+
     if (_ctrl_flags & USING_OTAA_FLAG) {
         tr_debug("OTAA Connection OK!");
     }
 
     _lw_session.active = true;
     send_event_to_application(CONNECTED);
-    _ctrl_flags |= CONNECTED_FLAG;
 
     _device_current_state = DEVICE_STATE_IDLE;
 }
 
 void LoRaWANStack::process_connecting_state(lorawan_status_t &op_status)
 {
-    if (_device_current_state != DEVICE_STATE_IDLE
-            && _device_current_state != DEVICE_STATE_SHUTDOWN) {
-        op_status = LORAWAN_STATUS_BUSY;
-        return;
-    }
-
-    if (_ctrl_flags & CONNECTED_FLAG) {
-        tr_debug("Already connected");
-        op_status = LORAWAN_STATUS_ALREADY_CONNECTED;
-        return;
-    }
+    MBED_ASSERT(_device_current_state == DEVICE_STATE_IDLE ||
+                _device_current_state == DEVICE_STATE_SHUTDOWN);
 
     _device_current_state = DEVICE_STATE_CONNECTING;
 
