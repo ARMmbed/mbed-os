@@ -134,33 +134,28 @@ static void compress_and_compare(char *key, char *value)
     TEST_ASSERT_EQUAL(0, result);
 
     /*pithy_Compress will try to compress the random data, if it succeeded it means the data is not really random*/
-    if (strcmp(key, MSG_TRNG_TEST_STEP1) == 0) {
-
-        printf("\n***TRNG_TEST_STEP1***\n trng_get_bytes for buffer size %d\n", sizeof(buffer));
+    if (strcmp(key, MSG_TRNG_TEST_STEP2) == 0) {
 
         comp_sz = pithy_Compress((char *)buffer,
                                  sizeof(buffer),
                                  (char *)out_comp_buf,
                                  sizeof(out_comp_buf),
                                  9);
-        TEST_ASSERT(comp_sz > sizeof(buffer));
-
-    } else if (strcmp(key, MSG_TRNG_TEST_STEP2) == 0) {
+        TEST_ASSERT_MESSAGE(comp_sz > sizeof(buffer),
+                        "TRNG_TEST_STEP1: trng_get_bytes was able to compressed thus not random");
 
         /*pithy_Compress will try to compress the random data with a different buffer sizem*/
         result = fill_buffer_trng(temp_buf, &trng_obj, sizeof(temp_buf));
         TEST_ASSERT_EQUAL(0, result);
-
-        printf("\n***TRNG_TEST_STEP2***\n trng_get_bytes for buffer size %d\n", sizeof(temp_buf));
 
         comp_sz = pithy_Compress((char *)temp_buf,
                                  sizeof(temp_buf),
                                  (char *)out_comp_buf,
                                  sizeof(out_comp_buf),
                                  9);
-        TEST_ASSERT(comp_sz > sizeof(temp_buf));
+        TEST_ASSERT_MESSAGE(comp_sz > sizeof(temp_buf),
+                        "TRNG_TEST_STEP2: trng_get_bytes was able to compressed thus not random");
 
-        printf("\n***TRNG_TEST_STEP3***\n compression of concatenated buffer after reset\n");
         memcpy(input_buf + sizeof(buffer), temp_buf, sizeof(temp_buf));
 
         /*pithy_Compress will try to compress the random data from before reset concatenated with new random data*/
@@ -169,7 +164,8 @@ static void compress_and_compare(char *key, char *value)
                                  (char *)out_comp_buf,
                                  sizeof(out_comp_buf),
                                  9);
-        TEST_ASSERT(comp_sz > sizeof(temp_buf) + sizeof(buffer));
+        TEST_ASSERT_MESSAGE(comp_sz > sizeof(temp_buf) + sizeof(buffer),
+                        "TRNG_TEST_STEP3: concatenated buffer after reset was able to compressed thus not random");
     }
 
     /*At the end of step 1 store trng buffer and reset the device*/
