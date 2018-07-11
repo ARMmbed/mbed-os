@@ -167,7 +167,7 @@ def get_args(argv):
 
     targetnames = TARGET_NAMES
     targetnames.sort()
-    toolchainlist = list(EXPORTERS.keys() + EXPORTER_ALIASES.keys())
+    toolchainlist = list(EXPORTERS.keys()) + list(EXPORTER_ALIASES.keys())
     toolchainlist.sort()
 
     parser.add_argument(
