@@ -211,8 +211,7 @@ static const uint8_t max_payloads_US915[] = { 11, 53, 125, 242, 242, 0, 0, 0, 53
  */
 static const uint8_t max_payloads_with_repeater_US915[] = {11, 53, 125, 242, 242, 0, 0, 0, 33, 109, 222, 222, 222, 222, 0, 0};
 
-LoRaPHYUS915::LoRaPHYUS915(LoRaWANTimeHandler &lora_time)
-        : LoRaPHY(lora_time)
+LoRaPHYUS915::LoRaPHYUS915()
 {
     bands[0] = US915_BAND0;
 
@@ -624,7 +623,7 @@ lorawan_status_t LoRaPHYUS915::set_next_channel(channel_selection_params_t* para
         }
     }
 
-    if (params->aggregate_timeoff <= _lora_time.get_elapsed_time(params->last_aggregate_tx_time)) {
+    if (params->aggregate_timeoff <= _lora_time->get_elapsed_time(params->last_aggregate_tx_time)) {
         // Reset Aggregated time off
         *aggregate_timeOff = 0;
 
@@ -638,7 +637,7 @@ lorawan_status_t LoRaPHYUS915::set_next_channel(channel_selection_params_t* para
                                                     enabled_channels, &delay_tx);
     } else {
         delay_tx++;
-        next_tx_delay = params->aggregate_timeoff - _lora_time.get_elapsed_time(params->last_aggregate_tx_time);
+        next_tx_delay = params->aggregate_timeoff - _lora_time->get_elapsed_time(params->last_aggregate_tx_time);
     }
 
     if (nb_enabled_channels > 0) {

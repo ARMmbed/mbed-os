@@ -42,7 +42,6 @@
 
 #include "events/EventQueue.h"
 
-#include "lorastack/phy/loraphy_target.h"
 #include "lorastack/phy/LoRaPHY.h"
 
 #include "system/LoRaWANTimer.h"
@@ -210,18 +209,11 @@ public:
      */
     lorawan_status_t multicast_channel_unlink(multicast_params_t *channel_param);
 
-    /** Binds radio driver to PHY layer.
+    /** Binds phy layer to MAC.
      *
-     * MAC layer is totally detached from the PHY layer so the stack layer
-     * needs to play the role of an arbitrator. This API gets a radio driver
-     * object from the application (via LoRaWANInterface), binds it to the PHY
-     * layer and initialises radio callback handles which the radio driver will
-     * use in order to report events.
-     *
-     * @param radio            LoRaRadio object, i.e., the radio driver
-     *
+     * @param phy   LoRaPHY object
      */
-    void bind_radio_driver(LoRaRadio &radio);
+    void bind_phy(LoRaPHY &phy);
 
     /**
      * @brief Configures the events to trigger an MLME-Indication with
@@ -635,7 +627,7 @@ private:
     /**
      * LoRa PHY layer object storage
      */
-    LoRaPHY_region _lora_phy;
+    LoRaPHY *_lora_phy;
 
     /**
      * MAC command handle

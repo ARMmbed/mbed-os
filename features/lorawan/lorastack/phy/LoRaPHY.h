@@ -45,6 +45,14 @@ class LoRaPHY : private mbed::NonCopyable<LoRaPHY> {
 public:
     virtual ~LoRaPHY();
 
+    /** Initialize LoRaPHY
+     *
+     *  LoRaMac calls this to initialize LoRaPHY.
+     *
+     * @param lora_time a pointer to LoRaWANTimeHandler object
+     */
+    void initialize(LoRaWANTimeHandler *lora_time);
+
     /** Stores a reference to Radio object.
      *
      * Application is responsible for constructing a 'LoRaRadio' object
@@ -52,7 +60,7 @@ public:
      *
      * @param radio    a reference to radio driver object
      */
-    void set_radio_instance(LoRaRadio& radio);
+    void set_radio_instance(LoRaRadio &radio);
 
     /** Puts radio in sleep mode.
      *
@@ -517,7 +525,7 @@ public: //Verifiers
     bool verify_nb_join_trials(uint8_t nb_join_trials);
 
 protected:
-    LoRaPHY(LoRaWANTimeHandler &lora_time);
+    LoRaPHY();
 
     /**
      * Looks up corresponding band for a frequency. Returns -1 if not in any band.
@@ -624,7 +632,7 @@ protected:
 
 protected:
     LoRaRadio *_radio;
-    LoRaWANTimeHandler &_lora_time;
+    LoRaWANTimeHandler *_lora_time;
     loraphy_params_t phy_params;
 };
 

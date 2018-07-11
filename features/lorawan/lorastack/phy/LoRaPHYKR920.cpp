@@ -241,8 +241,7 @@ static const uint8_t max_payloads_KR920[] = { 51, 51, 51, 115, 242, 242 };
  */
 static const uint8_t max_payloads_with_repeater_KR920[] = { 51, 51, 51, 115, 222, 222 };
 
-LoRaPHYKR920::LoRaPHYKR920(LoRaWANTimeHandler &lora_time)
-    : LoRaPHY(lora_time)
+LoRaPHYKR920::LoRaPHYKR920()
 {
     bands[0] = KR920_BAND0;
 
@@ -422,7 +421,7 @@ lorawan_status_t LoRaPHYKR920::set_next_channel(channel_selection_params_t* para
         channel_mask[0] |= LC(1) + LC(2) + LC(3);
     }
 
-    if (params->aggregate_timeoff <= _lora_time.get_elapsed_time(params->last_aggregate_tx_time)) {
+    if (params->aggregate_timeoff <= _lora_time->get_elapsed_time(params->last_aggregate_tx_time)) {
         // Reset Aggregated time off
         *aggregate_timeoff = 0;
 
@@ -436,7 +435,7 @@ lorawan_status_t LoRaPHYKR920::set_next_channel(channel_selection_params_t* para
                                                      enabled_channels, &delay_tx);
     } else {
         delay_tx++;
-        nextTxDelay = params->aggregate_timeoff - _lora_time.get_elapsed_time(params->last_aggregate_tx_time);
+        nextTxDelay = params->aggregate_timeoff - _lora_time->get_elapsed_time(params->last_aggregate_tx_time);
     }
 
     if (nb_enabled_channels > 0) {

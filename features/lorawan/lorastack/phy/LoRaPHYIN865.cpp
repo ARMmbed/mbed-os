@@ -232,8 +232,7 @@ static const uint8_t max_payloads_with_repeater[] = { 51, 51, 51, 115, 222, 222,
  */
 static const int8_t rx1_dr_offset_IN865[] = { 0, 1, 2, 3, 4, 5, -1, -2 };
 
-LoRaPHYIN865::LoRaPHYIN865(LoRaWANTimeHandler &lora_time)
-        : LoRaPHY(lora_time)
+LoRaPHYIN865::LoRaPHYIN865()
 {
     bands[0] = IN865_BAND0;
 

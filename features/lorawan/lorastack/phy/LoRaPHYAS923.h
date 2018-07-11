@@ -50,7 +50,7 @@
 class LoRaPHYAS923 : public LoRaPHY {
 
 public:
-    LoRaPHYAS923(LoRaWANTimeHandler &lora_time);
+    LoRaPHYAS923();
     virtual ~LoRaPHYAS923();
 
     virtual int8_t get_alternate_DR(uint8_t nb_trials);

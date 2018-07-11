@@ -98,7 +98,7 @@ LoRaWANStack::LoRaWANStack()
 /*****************************************************************************
  * Public Methods                                                            *
  ****************************************************************************/
-void LoRaWANStack::bind_radio_driver(LoRaRadio &radio)
+void LoRaWANStack::bind_phy_and_radio_driver(LoRaRadio &radio, LoRaPHY &phy)
 {
     radio_events.tx_done = mbed::callback(this, &LoRaWANStack::tx_interrupt_handler);
     radio_events.rx_done = mbed::callback(this, &LoRaWANStack::rx_interrupt_handler);
@@ -106,7 +106,8 @@ void LoRaWANStack::bind_radio_driver(LoRaRadio &radio)
     radio_events.tx_timeout = mbed::callback(this, &LoRaWANStack::tx_timeout_interrupt_handler);
     radio_events.rx_timeout = mbed::callback(this, &LoRaWANStack::rx_timeout_interrupt_handler);
 
-    _loramac.bind_radio_driver(radio);
+    phy.set_radio_instance(radio);
+    _loramac.bind_phy(phy);
 
     radio.lock();
     radio.init_radio(&radio_events);

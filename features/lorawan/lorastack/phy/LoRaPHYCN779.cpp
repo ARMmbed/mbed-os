@@ -230,8 +230,7 @@ static const uint8_t max_payloads_CN779[] = {51, 51, 51, 115, 242, 242, 242, 242
 static const uint8_t max_payloads_with_repeater_CN779[] = {51, 51, 51, 115, 222, 222, 222, 222};
 
 
-LoRaPHYCN779::LoRaPHYCN779(LoRaWANTimeHandler &lora_time)
-        : LoRaPHY(lora_time)
+LoRaPHYCN779::LoRaPHYCN779()
 {
     bands[0] = CN779_BAND0;
 
