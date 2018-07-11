@@ -42,7 +42,7 @@ SPDX-License-Identifier: BSD-3-Clause
 #ifdef MBED_CONF_SX1276_LORA_DRIVER_BUFFER_SIZE
 #define MAX_DATA_BUFFER_SIZE_SX1276                        MBED_CONF_SX1276_LORA_DRIVER_BUFFER_SIZE
 #else
-#define MAX_DATA_BUFFER_SIZE_SX1276                        256
+#define MAX_DATA_BUFFER_SIZE_SX1276                        255
 #endif
 
 /**
@@ -188,7 +188,7 @@ public:
      *  @param iq_inverted   Inverts IQ signals ( LoRa only )
      *                          FSK : N/A ( set to 0 )
      *                          LoRa: [0: not inverted, 1: inverted]
-     *  @param timeout       Transmission timeout [us]
+     *  @param timeout       Transmission timeout [ms]
      */
     virtual void set_tx_config(radio_modems_t modem, int8_t power, uint32_t fdev,
                               uint32_t bandwidth, uint32_t datarate,

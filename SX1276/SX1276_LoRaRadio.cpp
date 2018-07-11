@@ -581,11 +581,8 @@ void SX1276_LoRaRadio::set_tx_config(radio_modems_t modem, int8_t power,
 
         case MODEM_LORA:
             _rf_settings.lora.power = power;
-            if (bandwidth > 2) {
-                // Fatal error: When using LoRa modem only bandwidths 125, 250 and 500 kHz are supported
-                while (1)
-                    ;
-            }
+            // Fatal error: When using LoRa modem only bandwidths 125, 250 and 500 kHz are supported
+            MBED_ASSERT(bandwidth <= 2);
             bandwidth += 7;
             _rf_settings.lora.bandwidth = bandwidth;
             _rf_settings.lora.datarate = datarate;
@@ -1127,7 +1124,7 @@ void SX1276_LoRaRadio::set_tx_continuous_wave(uint32_t freq, int8_t power,
     uint8_t reg_val;
 
     set_channel(freq);
-    set_tx_config(MODEM_FSK, power, 0, 0, 4800, 0, 5, false, false, 0, 0, 0, time);
+    set_tx_config(MODEM_FSK, power, 0, 0, 4800, 0, 5, false, false, 0, 0, 0, time * 1000);
     reg_val = read_register(REG_PACKETCONFIG2);
 
     write_to_register( REG_PACKETCONFIG2, (reg_val & RF_PACKETCONFIG2_DATAMODE_MASK ) );
@@ -1136,7 +1133,7 @@ void SX1276_LoRaRadio::set_tx_continuous_wave(uint32_t freq, int8_t power,
     write_to_register( REG_DIOMAPPING2, RF_DIOMAPPING2_DIO4_10 | RF_DIOMAPPING2_DIO5_10 );
 
     _rf_settings.state = RF_TX_RUNNING;
-    tx_timeout_timer.attach_us(callback(this, &SX1276_LoRaRadio::timeout_irq_isr), time * 1000);
+    tx_timeout_timer.attach_us(callback(this, &SX1276_LoRaRadio::timeout_irq_isr), time * 1000000);
     set_operation_mode(RF_OPMODE_TRANSMITTER);
 }
 
