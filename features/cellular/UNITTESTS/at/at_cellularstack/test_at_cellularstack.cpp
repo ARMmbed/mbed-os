@@ -239,7 +239,7 @@ void Test_AT_CellularStack::test_AT_CellularStack_socket_send()
     nsapi_socket_t sock = &st.socket;
     st.socket_open(&sock, NSAPI_TCP);
     st.socket_connect(sock, addr);
-    CHECK(NSAPI_ERROR_DEVICE_ERROR == st.socket_send(sock, "addr", 4));
+    CHECK(NSAPI_ERROR_OK == st.socket_send(sock, "addr", 4));
 }
 
 void Test_AT_CellularStack::test_AT_CellularStack_socket_sendto()
