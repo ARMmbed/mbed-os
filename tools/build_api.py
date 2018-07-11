@@ -179,22 +179,22 @@ def is_official_target(target_name, version):
 
         elif version == '5':
             # For version 5, ARM, GCC_ARM, and IAR toolchain support is required
-            required_toolchains = set(['ARM', 'GCC_ARM', 'IAR'])
-            required_toolchains_sorted = list(required_toolchains)
-            required_toolchains_sorted.sort()
+            required_toolchains = [
+                set(['ARM', 'GCC_ARM', 'IAR']),
+                set(['ARMC6', 'GCC_ARM', 'IAR'])
+            ]
             supported_toolchains = set(target.supported_toolchains)
-            supported_toolchains_sorted = list(supported_toolchains)
-            supported_toolchains_sorted.sort()
 
-            if not required_toolchains.issubset(supported_toolchains):
+            if not any(r.issubset(supported_toolchains)
+                       for r in required_toolchains):
                 result = False
                 reason = ("Target '%s' must support " % target.name) + \
                     ("ALL of the folowing toolchains to be included in the") + \
                     ((" mbed OS 5.0 official release: %s" + linesep) %
-                     ", ".join(required_toolchains_sorted)) + \
+                     ", ".join(sorted(required_toolchains[0]))) + \
                     ("Currently it is only configured to support the ") + \
                     ("following toolchains: %s" %
-                     ", ".join(supported_toolchains_sorted))
+                     ", ".join(sorted(supported_toolchains)))
 
             elif not target.default_lib == 'std':
                 result = False
