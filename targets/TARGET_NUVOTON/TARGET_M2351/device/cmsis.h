@@ -18,7 +18,7 @@
 #define MBED_CMSIS_H
 
 #include "M2351.h"
-#include "m2351_stddriver_sup.h"
+#include "stddriver_secure.h"
 #include "cmsis_nvic.h"
 #include "partition_M2351.h"
 

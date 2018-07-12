@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef M2351_STDDRIVER_SUP_H
-#define M2351_STDDRIVER_SUP_H
+#ifndef STDDRIVER_SECURE_H
+#define STDDRIVER_SECURE_H
 
 #include "cmsis.h"
 
@@ -28,6 +28,7 @@ extern "C" {
  * Guard access to secure module from non-secure domain before SYS_ResetModule.
  * Its synopsis is the same as SYS_ResetModule.
  */
+__NONSECURE_ENTRY
 void SYS_ResetModule_S(uint32_t u32ModuleIndex);
 
 /* Secure CLK_SetModuleClock
@@ -35,6 +36,7 @@ void SYS_ResetModule_S(uint32_t u32ModuleIndex);
  * Guard access to secure module from non-secure domain before CLK_SetModuleClock.
  * Its synopsis is the same as CLK_SetModuleClock.
  */
+__NONSECURE_ENTRY
 void CLK_SetModuleClock_S(uint32_t u32ModuleIndex, uint32_t u32ClkSrc, uint32_t u32ClkDiv);
 
 /* Secure CLK_EnableModuleClock
@@ -42,6 +44,7 @@ void CLK_SetModuleClock_S(uint32_t u32ModuleIndex, uint32_t u32ClkSrc, uint32_t 
  * Guard access to secure module from non-secure domain before CLK_EnableModuleClock.
  * Its synopsis is the same as CLK_EnableModuleClock.
  */
+__NONSECURE_ENTRY
 void CLK_EnableModuleClock_S(uint32_t u32ModuleIndex);
 
 /* Secure CLK_DisableModuleClock
@@ -49,6 +52,7 @@ void CLK_EnableModuleClock_S(uint32_t u32ModuleIndex);
  * Guard access to secure module from non-secure domain before CLK_DisableModuleClock.
  * Its synopsis is the same as CLK_DisableModuleClock.
  */
+__NONSECURE_ENTRY
 void CLK_DisableModuleClock_S(uint32_t u32ModuleIndex);
 
 /* Secure SYS_LockReg
@@ -56,6 +60,7 @@ void CLK_DisableModuleClock_S(uint32_t u32ModuleIndex);
  * Guard access to secure module from non-secure domain before SYS_LockReg.
  * Its synopsis is the same as SYS_LockReg.
  */
+__NONSECURE_ENTRY
 void SYS_LockReg_S(void);
 
 /* Secure SYS_UnlockReg
@@ -63,6 +68,7 @@ void SYS_LockReg_S(void);
  * Guard access to secure module from non-secure domain before SYS_UnlockReg.
  * Its synopsis is the same as SYS_UnlockReg.
  */
+__NONSECURE_ENTRY
 void SYS_UnlockReg_S(void);
 
 #ifdef __cplusplus

@@ -24,6 +24,7 @@
 #include "nu_miscutil.h"
 #include "mbed_mktime.h"
 #include "partition_M2351.h"
+#include "hal_secure.h"
 
 /* NOTE: BSP RTC driver judges secure/non-secure RTC by PC. This implementation cannot support non-secure RTC
  *       controlled by secure executable. A better way would be that secure/non-secure RTC base is passed
@@ -33,21 +34,32 @@
 #error("Limited by BSP/RTC, we can only support secure RTC.")
 #endif
 
-#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+void rtc_init(void)
+{
+    rtc_init_s();
+}
 
-/* As of ARM Compiler 6.9, we meet some NSC functions are missing in secure gateway
- * import library (cmse_lib.o) in secure build. Per test, we could get around it by
- * adding declaration for NSC functions. */
-__NONSECURE_ENTRY
-void rtc_init(void);
-__NONSECURE_ENTRY
-void rtc_free(void);
-__NONSECURE_ENTRY
-int rtc_isenabled(void);
-__NONSECURE_ENTRY
-time_t rtc_read(void);
-__NONSECURE_ENTRY
-void rtc_write(time_t t);
+void rtc_free(void)
+{
+    rtc_free_s();
+}
+
+int rtc_isenabled(void)
+{
+    return rtc_isenabled_s();
+}
+
+time_t rtc_read(void)
+{
+    return rtc_read_s();
+}
+
+void rtc_write(time_t t)
+{
+    rtc_write_s(t);
+}
+
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
 
 /* Micro seconds per second */
 #define NU_US_PER_SEC               1000000
@@ -112,7 +124,7 @@ static void rtc_convert_datetime_hwrtc_to_tm(struct tm *datetime_tm, const S_RTC
 static const struct nu_modinit_s rtc_modinit = {RTC_0, RTC_MODULE, 0, 0, 0, RTC_IRQn, NULL};
 
 __NONSECURE_ENTRY
-void rtc_init(void)
+void rtc_init_s(void)
 {
     if (rtc_isenabled()) {
         return;
@@ -125,13 +137,13 @@ void rtc_init(void)
 }
 
 __NONSECURE_ENTRY
-void rtc_free(void)
+void rtc_free_s(void)
 {
     CLK_DisableModuleClock_S(rtc_modinit.clkidx);
 }
 
 __NONSECURE_ENTRY
-int rtc_isenabled(void)
+int32_t rtc_isenabled_s(void)
 {
     // NOTE: To access (RTC) registers, clock must be enabled first.
     if (! (CLK->APBCLK0 & CLK_APBCLK0_RTCCKEN_Msk)) {
@@ -146,7 +158,7 @@ int rtc_isenabled(void)
 }
 
 __NONSECURE_ENTRY
-time_t rtc_read(void)
+int64_t rtc_read_s(void)
 {
     /* NOTE: After boot, RTC time registers are not synced immediately, about 1 sec latency.
      *       RTC time got (through RTC_GetDateAndTime()) in this sec would be last-synced and incorrect.
@@ -195,7 +207,7 @@ time_t rtc_read(void)
 }
 
 __NONSECURE_ENTRY
-void rtc_write(time_t t)
+void rtc_write_s(int64_t t)
 {
     if (! rtc_isenabled()) {
         rtc_init();
