@@ -4010,7 +4010,7 @@
         },
         "inherits": ["Target"],
         "macros_add": ["MBEDTLS_CONFIG_HW_SUPPORT", "LPTICKER_DELAY_TICKS=3"],
-        "device_has": ["USTICKER", "LPTICKER", "RTC", "ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "TRNG", "CAN", "FLASH", "EMAC"],
+        "device_has": ["USTICKER", "LPTICKER", "RTC", "ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "TRNG", "CAN", "FLASH", "EMAC", "RESET_REASON"],
         "release_versions": ["5"],
         "device_name": "NUC472HI8AE",
         "bootloader_supported": true,
@@ -4082,7 +4082,7 @@
         "inherits": ["Target"],
         "macros_add": ["LPTICKER_DELAY_TICKS=3"],
         "progen": {"target": "numaker-pfm-m453"},
-        "device_has": ["USTICKER", "LPTICKER", "RTC", "ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "CAN", "FLASH"],
+
         "release_versions": ["2", "5"],
         "device_name": "M453VG6AE",
         "bootloader_supported": true
@@ -4117,8 +4117,7 @@
             }
         },
         "inherits": ["Target"],
-        "macros": ["CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\"","MBED_FAULT_HANDLER_DISABLED", "LPTICKER_DELAY_TICKS=3"],
-        "device_has": ["USTICKER", "LPTICKER", "RTC", "ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH"],
+
         "release_versions": ["5"],
         "device_name": "NANO130KE3BN"
     },
@@ -4312,8 +4311,7 @@
             }
         },
         "inherits": ["Target"],
-        "macros_add": ["MBEDTLS_CONFIG_HW_SUPPORT", "LPTICKER_DELAY_TICKS=3"],
-        "device_has": ["USTICKER", "LPTICKER", "RTC", "ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "TRNG", "FLASH", "CAN", "EMAC"],
+
         "release_versions": ["5"],
         "bootloader_supported": true,
         "overrides": {
