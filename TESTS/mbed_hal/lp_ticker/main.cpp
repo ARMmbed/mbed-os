@@ -29,12 +29,37 @@ using namespace utest::v1;
 
 volatile int intFlag = 0;
 
+#define US_PER_MS 1000
+
 #define TICKER_GLITCH_TEST_TICKS 1000
 
 #define TICKER_INT_VAL 500
 #define TICKER_DELTA 10
 
 #define LP_TICKER_OV_LIMIT 4000
+
+/* Flush serial buffer before deep sleep
+ *
+ * Since deepsleep() may shut down the UART peripheral, we wait for some time
+ * to allow for hardware serial buffers to completely flush.
+ *
+ * Take NUMAKER_PFM_NUC472 as an example:
+ * Its UART peripheral has 16-byte Tx FIFO. With baud rate set to 9600, flush
+ * Tx FIFO would take: 16 * 8 * 1000 / 9600 = 13.3 (ms). So set wait time to
+ * 20ms here for safe.
+ *
+ * This should be replaced with a better function that checks if the
+ * hardware buffers are empty. However, such an API does not exist now,
+ * so we'll use the busy_wait_ms() function for now.
+ */
+#define SERIAL_FLUSH_TIME_MS    20
+
+void busy_wait_ms(int ms)
+{
+    const ticker_data_t *const ticker = get_us_ticker_data();
+    uint32_t start = ticker_read(ticker);
+    while ((ticker_read(ticker) - start) < (uint32_t)(ms * US_PER_MS));
+}
 
 /* Since according to the ticker requirements min acceptable counter size is
  * - 12 bits for low power timer - max count = 4095,
@@ -72,11 +97,6 @@ void ticker_event_handler_stub(const ticker_data_t * const ticker)
     lp_ticker_disable_interrupt();
 }
 
-void wait_cycles(volatile unsigned int cycles)
-{
-    while (cycles--);
-}
-
 /* Test that the ticker has the correct frequency and number of bits. */
 void lp_ticker_info_test()
 {
@@ -97,8 +117,10 @@ void lp_ticker_deepsleep_test()
 
     lp_ticker_init();
 
-    /* Wait for green tea UART transmission before entering deep-sleep mode. */
-    wait_cycles(400000);
+    /* Give some time Green Tea to finish UART transmission before entering
+     * deep-sleep mode.
+     */
+    busy_wait_ms(SERIAL_FLUSH_TIME_MS);
 
     overflow_protect();
 
