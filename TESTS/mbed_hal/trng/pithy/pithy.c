@@ -81,7 +81,7 @@ enum {
 #define PITHY_PREFETCH(ptr)
 #endif // defined (__GNUC__) && (__GNUC__ >= 3) 
 
-#define PITHY_STATIC_INLINE    static __inline__ PITHY_ATTRIBUTES(always_inline)
+#define PITHY_STATIC_INLINE        static inline PITHY_ATTRIBUTES(always_inline)
 #define PITHY_ALIGNED(x)                         PITHY_ATTRIBUTES(aligned(x))
 
 #if defined(NS_BLOCK_ASSERTIONS) && !defined(NDEBUG)
@@ -244,7 +244,7 @@ PITHY_STATIC_INLINE int pithy_Log2Floor(uint32_t n)
 
 PITHY_STATIC_INLINE int pithy_FindLSBSetNonZero32(uint32_t n)
 {
-    int i = 0, rc = 31;
+    int i = 0, rc = 31, shift = 0;
     for (i = 4, shift = 1 << 4; i >= 0; --i) {
         const uint32_t x = n << shift;
         if (x != 0u) {
