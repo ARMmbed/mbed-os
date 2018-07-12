@@ -74,7 +74,7 @@ static inline spm_rot_service_t *get_rot_service(spm_partition_t *prt, psa_signa
  * * channel->msg_ptr potentially allocated from nonsecure memory
  * * user_msg allocated from secure partition memory - not trusted by SPM Core
 */
-static psa_handle_t copy_message_to_spm(spm_ipc_channel_t *channel, int32_t current_partition_id, psa_msg_t *user_msg)
+static psa_handle_t copy_message_to_spm(spm_ipc_channel_t *channel, psa_msg_t *user_msg)
 {
     // Memory allocated from MemoryPool isn't zeroed - thus a temporary variable will make sure we will start from a clear state.
     spm_active_msg_t temp_active_message = {
@@ -157,7 +157,7 @@ static psa_handle_t copy_message_to_spm(spm_ipc_channel_t *channel, int32_t curr
     // Copy struct
     *active_msg = temp_active_message;
 
-    psa_handle_t handle = create_msg_handle(active_msg, current_partition_id);
+    psa_handle_t handle = create_msg_handle(active_msg, PSA_HANDLE_MGR_INVALID_FRIEND_OWNER);
 
     user_msg->type = channel->msg_type;
     user_msg->rhandle = channel->rhandle;
@@ -320,7 +320,7 @@ void psa_get(psa_signal_t signum, psa_msg_t *msg)
             break;
     }
 
-    copy_message_to_spm(curr_channel, curr_partition->partition_id, msg);
+    copy_message_to_spm(curr_channel, msg);
 }
 
 static size_t read_or_skip(psa_handle_t msg_handle, uint32_t invec_idx, void *buf, size_t num_bytes)

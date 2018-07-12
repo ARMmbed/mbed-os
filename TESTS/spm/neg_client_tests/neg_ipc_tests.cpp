@@ -280,7 +280,7 @@ void client_connect_not_allowed_from_nspe()
     TEST_FAIL_MESSAGE("client_connect_not_allowed_from_nspe negative test failed");
 }
 
-void client_call_excese_outvec()
+void client_call_excess_outvec()
 {
     psa_handle_t handle = 0;
     uint8_t data[2] = {1, 0};
@@ -295,7 +295,7 @@ void client_call_excese_outvec()
     handle = negative_client_ipc_tests_connect(NEG_CLIENT_PART1_ROT_SRV1, MINOR_VER);
     psa_call(handle, NULL, 0, iovec_temp, PSA_MAX_IOVEC + 1);
 
-    TEST_FAIL_MESSAGE("client_call_excese_outvec negative test failed");
+    TEST_FAIL_MESSAGE("client_call_excess_outvec negative test failed");
 }
 
 PSA_NEG_TEST(client_connect_invalid_sid)
@@ -311,7 +311,7 @@ PSA_NEG_TEST(client_call_handle_is_null)
 PSA_NEG_TEST(client_close_invalid_handle)
 PSA_NEG_TEST(client_call_buffer_wrap_around)
 PSA_NEG_TEST(client_connect_not_allowed_from_nspe)
-PSA_NEG_TEST(client_call_excese_outvec)
+PSA_NEG_TEST(client_call_excess_outvec)
 
 utest::v1::status_t spm_case_teardown(const Case *const source, const size_t passed, const size_t failed, const failure_t reason)
 {
@@ -337,7 +337,7 @@ Case cases[] = {
     SPM_UTEST_CASE("Testing client close handle does not exist", client_close_invalid_handle),
     SPM_UTEST_CASE("Testing client call with buffer wrap-around", client_call_buffer_wrap_around),
     SPM_UTEST_CASE("Testing client connect to non-NSPE ROT_SRV", client_connect_not_allowed_from_nspe),
-    SPM_UTEST_CASE("Testing client call with too much outvec's", client_call_excese_outvec)
+    SPM_UTEST_CASE("Testing client call with too much outvec's", client_call_excess_outvec)
 };
 
 utest::v1::status_t spm_setup(const size_t number_of_cases)
