@@ -1708,10 +1708,11 @@
         "config": {
             "clock_source": {
                 "help": "Mask value : USE_PLL_HSE_EXTC (need HW patch) | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI | USE_PLL_MSI",
-                "value": "USE_PLL_HSE_XTAL",
+                "value": "USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
             }
         },
+        "overrides": {"lpuart_clock_source": "USE_LPUART_CLK_HSI"},
         "detect_code": ["0460"],
         "macros_add": ["MBEDTLS_CONFIG_HW_SUPPORT", "WISE_1570", "TWO_RAM_REGIONS"],
         "device_has_add": ["ANALOGOUT", "CRC", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
