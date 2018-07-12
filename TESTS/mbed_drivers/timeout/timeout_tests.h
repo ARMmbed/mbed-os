@@ -263,7 +263,7 @@ void test_sleep(void)
     timer.start();
     timeout.attach_callback(mbed::callback(sem_callback, &sem), delay_us);
 
-    bool deep_sleep_allowed = sleep_manager_can_deep_sleep();
+    bool deep_sleep_allowed = sleep_manager_can_deep_sleep_test_check();
     TEST_ASSERT_FALSE_MESSAGE(deep_sleep_allowed, "Deep sleep should be disallowed");
     while (sem.wait(0) != 1) {
         sleep();
@@ -322,7 +322,7 @@ void test_deepsleep(void)
     timer.start();
     timeout.attach_callback(mbed::callback(sem_callback, &sem), delay_us);
 
-    bool deep_sleep_allowed = sleep_manager_can_deep_sleep();
+    bool deep_sleep_allowed = sleep_manager_can_deep_sleep_test_check();
     TEST_ASSERT_TRUE_MESSAGE(deep_sleep_allowed, "Deep sleep should be allowed");
     while (sem.wait(0) != 1) {
         sleep();

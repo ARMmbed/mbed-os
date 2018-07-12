@@ -29,90 +29,90 @@ using namespace utest::v1;
 
 void deep_sleep_lock_lock_test()
 {
-    TEST_ASSERT_EQUAL(true, sleep_manager_can_deep_sleep());
+    TEST_ASSERT_EQUAL(true, sleep_manager_can_deep_sleep_test_check());
     {
         // Check basic usage works
         DeepSleepLock lock;
-        TEST_ASSERT_EQUAL(false, sleep_manager_can_deep_sleep());
+        TEST_ASSERT_EQUAL(false, sleep_manager_can_deep_sleep_test_check());
     }
 
-    TEST_ASSERT_EQUAL(true, sleep_manager_can_deep_sleep());
+    TEST_ASSERT_EQUAL(true, sleep_manager_can_deep_sleep_test_check());
     {
         // Check that unlock and lock change can deep sleep as expected
         DeepSleepLock lock;
-        TEST_ASSERT_EQUAL(false, sleep_manager_can_deep_sleep());
+        TEST_ASSERT_EQUAL(false, sleep_manager_can_deep_sleep_test_check());
         lock.unlock();
-        TEST_ASSERT_EQUAL(true, sleep_manager_can_deep_sleep());
+        TEST_ASSERT_EQUAL(true, sleep_manager_can_deep_sleep_test_check());
         lock.lock();
-        TEST_ASSERT_EQUAL(false, sleep_manager_can_deep_sleep());
+        TEST_ASSERT_EQUAL(false, sleep_manager_can_deep_sleep_test_check());
     }
 
-    TEST_ASSERT_EQUAL(true, sleep_manager_can_deep_sleep());
+    TEST_ASSERT_EQUAL(true, sleep_manager_can_deep_sleep_test_check());
     {
         // Check that unlock releases sleep based on count
         DeepSleepLock lock;
         lock.lock();
         lock.lock();
         lock.unlock();
-        TEST_ASSERT_EQUAL(false, sleep_manager_can_deep_sleep());
+        TEST_ASSERT_EQUAL(false, sleep_manager_can_deep_sleep_test_check());
     }
 
-    TEST_ASSERT_EQUAL(true, sleep_manager_can_deep_sleep());
+    TEST_ASSERT_EQUAL(true, sleep_manager_can_deep_sleep_test_check());
     {
         // Check that unbalanced locks do not leave deep sleep locked
         DeepSleepLock lock;
         lock.lock();
-        TEST_ASSERT_EQUAL(false, sleep_manager_can_deep_sleep());
+        TEST_ASSERT_EQUAL(false, sleep_manager_can_deep_sleep_test_check());
     }
-    TEST_ASSERT_EQUAL(true, sleep_manager_can_deep_sleep());
+    TEST_ASSERT_EQUAL(true, sleep_manager_can_deep_sleep_test_check());
 
 }
 
 void timer_lock_test()
 {
-    TEST_ASSERT_EQUAL(true, sleep_manager_can_deep_sleep());
+    TEST_ASSERT_EQUAL(true, sleep_manager_can_deep_sleep_test_check());
     {
         // Just creating a timer object does not lock sleep
         Timer timer;
-        TEST_ASSERT_EQUAL(true, sleep_manager_can_deep_sleep());
+        TEST_ASSERT_EQUAL(true, sleep_manager_can_deep_sleep_test_check());
     }
 
-    TEST_ASSERT_EQUAL(true, sleep_manager_can_deep_sleep());
+    TEST_ASSERT_EQUAL(true, sleep_manager_can_deep_sleep_test_check());
     {
         // Starting a timer does lock sleep
         Timer timer;
         timer.start();
-        TEST_ASSERT_EQUAL(false, sleep_manager_can_deep_sleep());
+        TEST_ASSERT_EQUAL(false, sleep_manager_can_deep_sleep_test_check());
     }
 
-    TEST_ASSERT_EQUAL(true, sleep_manager_can_deep_sleep());
+    TEST_ASSERT_EQUAL(true, sleep_manager_can_deep_sleep_test_check());
     {
         // Stopping a timer after starting it allows sleep
         Timer timer;
         timer.start();
         timer.stop();
-        TEST_ASSERT_EQUAL(true, sleep_manager_can_deep_sleep());
+        TEST_ASSERT_EQUAL(true, sleep_manager_can_deep_sleep_test_check());
     }
 
-    TEST_ASSERT_EQUAL(true, sleep_manager_can_deep_sleep());
+    TEST_ASSERT_EQUAL(true, sleep_manager_can_deep_sleep_test_check());
     {
         // Starting a timer multiple times still lets you sleep
         Timer timer;
         timer.start();
         timer.start();
     }
-    TEST_ASSERT_EQUAL(true, sleep_manager_can_deep_sleep());
+    TEST_ASSERT_EQUAL(true, sleep_manager_can_deep_sleep_test_check());
 
-    TEST_ASSERT_EQUAL(true, sleep_manager_can_deep_sleep());
+    TEST_ASSERT_EQUAL(true, sleep_manager_can_deep_sleep_test_check());
     {
         // Stopping a timer multiple times still lets you sleep
         Timer timer;
         timer.start();
         timer.stop();
         timer.stop();
-        TEST_ASSERT_EQUAL(true, sleep_manager_can_deep_sleep());
+        TEST_ASSERT_EQUAL(true, sleep_manager_can_deep_sleep_test_check());
     }
-    TEST_ASSERT_EQUAL(true, sleep_manager_can_deep_sleep());
+    TEST_ASSERT_EQUAL(true, sleep_manager_can_deep_sleep_test_check());
 }
 
 Case cases[] = {

@@ -21,6 +21,7 @@
 #include "mbed_error.h"
 #include "mbed_debug.h"
 #include "mbed_stats.h"
+#include "us_ticker_api.h"
 #include "lp_ticker_api.h"
 #include <limits.h>
 #include <stdio.h>
@@ -181,6 +182,19 @@ void sleep_manager_unlock_deep_sleep_internal(void)
 bool sleep_manager_can_deep_sleep(void)
 {
     return deep_sleep_lock == 0 ? true : false;
+}
+
+bool sleep_manager_can_deep_sleep_test_check()
+{
+    const uint32_t check_time_us = 2000;
+    const ticker_data_t *const ticker = get_us_ticker_data();
+    uint32_t start = ticker_read(ticker);
+    while ((ticker_read(ticker) - start) < check_time_us) {
+        if (sleep_manager_can_deep_sleep()) {
+            return true;
+        }
+    }
+    return false;
 }
 
 void sleep_manager_sleep_auto(void)

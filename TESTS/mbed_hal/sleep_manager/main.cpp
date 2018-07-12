@@ -25,15 +25,15 @@ using namespace utest::v1;
 
 void sleep_manager_deepsleep_counter_test()
 {
-    bool deep_sleep_allowed = sleep_manager_can_deep_sleep();
+    bool deep_sleep_allowed = sleep_manager_can_deep_sleep_test_check();
     TEST_ASSERT_TRUE(deep_sleep_allowed);
 
     sleep_manager_lock_deep_sleep();
-    deep_sleep_allowed = sleep_manager_can_deep_sleep();
+    deep_sleep_allowed = sleep_manager_can_deep_sleep_test_check();
     TEST_ASSERT_FALSE(deep_sleep_allowed);
 
     sleep_manager_unlock_deep_sleep();
-    deep_sleep_allowed = sleep_manager_can_deep_sleep();
+    deep_sleep_allowed = sleep_manager_can_deep_sleep_test_check();
     TEST_ASSERT_TRUE(deep_sleep_allowed);
 }
 

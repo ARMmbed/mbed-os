@@ -313,7 +313,7 @@ void test_deepsleep(void)
 
     lptimer.start();
     st.schedule_tick(TEST_TICKS);
-    TEST_ASSERT_TRUE_MESSAGE(sleep_manager_can_deep_sleep(), "Deep sleep should be allowed");
+    TEST_ASSERT_TRUE_MESSAGE(sleep_manager_can_deep_sleep_test_check(), "Deep sleep should be allowed");
     while (st.sem_wait(0) != 1) {
         sleep();
     }

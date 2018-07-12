@@ -130,7 +130,7 @@ void lp_ticker_deepsleep_test()
      * tick_count + TICKER_INT_VAL. */
     lp_ticker_set_interrupt(tick_count + TICKER_INT_VAL);
 
-    TEST_ASSERT_TRUE(sleep_manager_can_deep_sleep());
+    TEST_ASSERT_TRUE(sleep_manager_can_deep_sleep_test_check());
 
     while (!intFlag) {
         sleep();
