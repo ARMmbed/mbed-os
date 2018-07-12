@@ -23,6 +23,7 @@
 #include "utest/utest.h"
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"
+#include "mbed_lp_ticker_wrapper.h"
 
 #include "sleep_api_tests.h"
 
@@ -40,7 +41,7 @@
  *
  * This should be replaced with a better function that checks if the
  * hardware buffers are empty. However, such an API does not exist now,
- * so we'll use the wait_ms() function for now.
+ * so we'll use the busy_wait_ms() function for now.
  */
 #define SERIAL_FLUSH_TIME_MS    20
 
@@ -103,6 +104,20 @@ bool compare_timestamps(unsigned int delta_ticks, unsigned int ticker_width, uns
     }
 }
 
+void busy_wait_ms(int ms)
+{
+    const ticker_info_t *info = us_ticker_get_info();
+    uint32_t mask = (1 << info->bits) - 1;
+    int delay = (int)((uint64_t)ms * info->frequency / 1000);
+
+    uint32_t prev = us_ticker_read();
+    while (delay > 0) {
+        uint32_t next = us_ticker_read();
+        delay -= (next - prev) & mask;
+        prev = next;
+    }
+}
+
 void us_ticker_isr(const ticker_data_t *const ticker_data)
 {
     us_ticker_clear_interrupt();
@@ -124,17 +139,6 @@ void sleep_usticker_test()
     const unsigned int ticker_width = ticker->interface->get_info()->bits;
 
     const ticker_irq_handler_type us_ticker_irq_handler_org = set_us_ticker_irq_handler(us_ticker_isr);
-
-    // call ticker_read_us to initialize ticker upper layer
-    // prevents subsequent scheduling of max_delta interrupt during ticker initialization while test execution
-    // (e.g when ticker_read_us is called)
-    ticker_read_us(ticker);
-#ifdef DEVICE_LPTICKER
-    // call ticker_read_us to initialize lp_ticker
-    // prevents scheduling interrupt during ticker initialization (in lp_ticker_init) while test execution
-    // (e.g when ticker_read_us is called for lp_ticker, see MBED_CPU_STATS_ENABLED)
-    ticker_read_us(get_lp_ticker_data());
-#endif
 
     /* Test only sleep functionality. */
     sleep_manager_lock_deep_sleep();
@@ -173,17 +177,12 @@ void deepsleep_lpticker_test()
     const unsigned int ticker_freq = ticker->interface->get_info()->frequency;
     const unsigned int ticker_width = ticker->interface->get_info()->bits;
 
-    // call ticker_read_us to initialize ticker upper layer
-    // prevents subsequent scheduling of max_delta interrupt during ticker initialization while test execution
-    // (e.g when ticker_read_us is called)
-    ticker_read_us(ticker);
-
     const ticker_irq_handler_type lp_ticker_irq_handler_org = set_lp_ticker_irq_handler(lp_ticker_isr);
 
     /* Give some time Green Tea to finish UART transmission before entering
      * deep-sleep mode.
      */
-    wait_ms(SERIAL_FLUSH_TIME_MS);
+    busy_wait_ms(SERIAL_FLUSH_TIME_MS);
 
     TEST_ASSERT_TRUE_MESSAGE(sleep_manager_can_deep_sleep(), "deep sleep should not be locked");
 
@@ -218,7 +217,7 @@ void deepsleep_high_speed_clocks_turned_off_test()
     /* Give some time Green Tea to finish UART transmission before entering
      * deep-sleep mode.
      */
-    wait_ms(SERIAL_FLUSH_TIME_MS);
+    busy_wait_ms(SERIAL_FLUSH_TIME_MS);
 
     TEST_ASSERT_TRUE_MESSAGE(sleep_manager_can_deep_sleep(), "deep sleep should not be locked");
 
@@ -256,13 +255,36 @@ utest::v1::status_t greentea_failure_handler(const Case *const source, const fai
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
 {
     GREENTEA_SETUP(60, "default_auto");
+    /* Suspend RTOS Kernel to enable sleep modes. */
+    osKernelSuspend();
+#if DEVICE_LPTICKER
+    ticker_suspend(get_lp_ticker_data());
+#if DEVICE_LPTICKER && (LPTICKER_DELAY_TICKS > 0)
+    lp_ticker_wrapper_suspend();
+#endif
+#endif
+    ticker_suspend(get_us_ticker_data());
+
     us_ticker_init();
 #if DEVICE_LPTICKER
     lp_ticker_init();
 #endif
-    /* Suspend RTOS Kernel to enable sleep modes. */
-    osKernelSuspend();
+
     return greentea_test_setup_handler(number_of_cases);
+}
+
+void greentea_test_teardown(const size_t passed, const size_t failed, const failure_t failure)
+{
+    ticker_resume(get_us_ticker_data());
+#if DEVICE_LPTICKER
+#if DEVICE_LPTICKER && (LPTICKER_DELAY_TICKS > 0)
+    lp_ticker_wrapper_resume();
+#endif
+    ticker_resume(get_lp_ticker_data());
+#endif
+    osKernelResume(0);
+
+    greentea_test_teardown_handler(passed, failed, failure);
 }
 
 Case cases[] = {
@@ -273,7 +295,7 @@ Case cases[] = {
 #endif
 };
 
-Specification specification(greentea_test_setup, cases, greentea_test_teardown_handler);
+Specification specification(greentea_test_setup, cases, greentea_test_teardown);
 
 int main()
 {

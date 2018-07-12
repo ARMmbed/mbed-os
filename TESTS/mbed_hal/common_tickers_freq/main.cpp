@@ -28,6 +28,7 @@
 #include "ticker_api_test_freq.h"
 #include "hal/us_ticker_api.h"
 #include "hal/lp_ticker_api.h"
+#include "hal/mbed_lp_ticker_wrapper.h"
 
 #if !DEVICE_USTICKER
 #error [NOT_SUPPORTED] test not supported
@@ -38,6 +39,7 @@
 using namespace utest::v1;
 
 const ticker_interface_t *intf;
+ticker_irq_handler_type prev_handler;
 
 static volatile unsigned int overflowCounter;
 
@@ -106,43 +108,74 @@ void ticker_frequency_test()
 
 utest::v1::status_t us_ticker_case_setup_handler_t(const Case *const source, const size_t index_of_case)
 {
+#if DEVICE_LPTICKER && (LPTICKER_DELAY_TICKS > 0)
+    /* Suspend the lp ticker wrapper since it makes use of the us ticker */
+    ticker_suspend(get_lp_ticker_data());
+    lp_ticker_wrapper_suspend();
+#endif
+    ticker_suspend(get_us_ticker_data());
     intf = get_us_ticker_data()->interface;
-    set_us_ticker_irq_handler(ticker_event_handler_stub);
+    prev_handler = set_us_ticker_irq_handler(ticker_event_handler_stub);
     return greentea_case_setup_handler(source, index_of_case);
+}
+
+utest::v1::status_t us_ticker_case_teardown_handler_t(const Case *const source, const size_t passed, const size_t failed,
+                                                      const failure_t reason)
+{
+    set_us_ticker_irq_handler(prev_handler);
+    ticker_resume(get_us_ticker_data());
+#if DEVICE_LPTICKER && (LPTICKER_DELAY_TICKS > 0)
+    lp_ticker_wrapper_resume();
+    ticker_resume(get_lp_ticker_data());
+#endif
+    return greentea_case_teardown_handler(source, passed, failed, reason);
 }
 
 #if DEVICE_LPTICKER
 utest::v1::status_t lp_ticker_case_setup_handler_t(const Case *const source, const size_t index_of_case)
 {
+    ticker_suspend(get_lp_ticker_data());
     intf = get_lp_ticker_data()->interface;
-    set_lp_ticker_irq_handler(ticker_event_handler_stub);
+    prev_handler = set_lp_ticker_irq_handler(ticker_event_handler_stub);
     return greentea_case_setup_handler(source, index_of_case);
 }
-#endif
 
-utest::v1::status_t ticker_case_teardown_handler_t(const Case *const source, const size_t passed, const size_t failed,
-                                                   const failure_t reason)
+utest::v1::status_t lp_ticker_case_teardown_handler_t(const Case *const source, const size_t passed, const size_t failed,
+                                                      const failure_t reason)
 {
+    set_lp_ticker_irq_handler(prev_handler);
+    ticker_resume(get_lp_ticker_data());
     return greentea_case_teardown_handler(source, passed, failed, reason);
 }
+#endif
 
 // Test cases
 Case cases[] = {
     Case("Microsecond ticker frequency test", us_ticker_case_setup_handler_t, ticker_frequency_test,
-         ticker_case_teardown_handler_t),
+         us_ticker_case_teardown_handler_t),
 #if DEVICE_LPTICKER
     Case("Low power ticker frequency test", lp_ticker_case_setup_handler_t, ticker_frequency_test,
-         ticker_case_teardown_handler_t),
+         lp_ticker_case_teardown_handler_t),
 #endif
 };
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
 {
+    /* Suspend RTOS Kernel so the timers are not in use. */
+    osKernelSuspend();
+
     GREENTEA_SETUP(120, "timing_drift_auto");
     return greentea_test_setup_handler(number_of_cases);
 }
 
-Specification specification(greentea_test_setup, cases, greentea_test_teardown_handler);
+void greentea_test_teardown(const size_t passed, const size_t failed, const failure_t failure)
+{
+    osKernelResume(0);
+
+    greentea_test_teardown_handler(passed, failed, failure);
+}
+
+Specification specification(greentea_test_setup, cases, greentea_test_teardown);
 
 int main()
 {
