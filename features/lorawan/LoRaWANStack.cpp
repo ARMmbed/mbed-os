@@ -332,7 +332,7 @@ int16_t LoRaWANStack::handle_tx(const uint8_t port, const uint8_t *data,
         return status;
     }
 
-    // All the flags mutually exclusive. In addition to that MSG_MULTICAST_FLAG cannot be
+    // All the flags are mutually exclusive. In addition to that MSG_MULTICAST_FLAG cannot be
     // used for uplink.
     switch (flags & MSG_FLAG_MASK) {
         case MSG_UNCONFIRMED_FLAG:
@@ -629,6 +629,13 @@ void LoRaWANStack::handle_ack_expiry_for_class_c(void)
     _ctrl_flags |= TX_ONGOING_FLAG;
     tr_error("Retries exhausted for Class C device");
     state_controller(DEVICE_STATE_STATUS_CHECK);
+}
+
+void LoRaWANStack::handle_scheduling_failure(void)
+{
+    tr_error("Failed to schedule transmission");
+    state_controller(DEVICE_STATE_STATUS_CHECK);
+    state_machine_run_to_completion();
 }
 
 void LoRaWANStack::process_reception(const uint8_t *const payload, uint16_t size,
@@ -948,22 +955,26 @@ void LoRaWANStack::mlme_confirm_handler()
 
 void LoRaWANStack::mcps_confirm_handler()
 {
-    // success case
-    if (_loramac.get_mcps_confirmation()->status == LORAMAC_EVENT_INFO_STATUS_OK) {
-        _lw_session.uplink_counter = _loramac.get_mcps_confirmation()->ul_frame_counter;
-        send_event_to_application(TX_DONE);
-        return;
-    }
+    switch (_loramac.get_mcps_confirmation()->status) {
 
-    // failure case
-    if (_loramac.get_mcps_confirmation()->status == LORAMAC_EVENT_INFO_STATUS_TX_TIMEOUT) {
-        tr_error("Fatal Error, Radio failed to transmit");
-        send_event_to_application(TX_TIMEOUT);
-        return;
-    }
+        case LORAMAC_EVENT_INFO_STATUS_OK:
+            _lw_session.uplink_counter = _loramac.get_mcps_confirmation()->ul_frame_counter;
+            send_event_to_application(TX_DONE);
+            break;
 
-    // if no ack was received, send TX_ERROR
-    send_event_to_application(TX_ERROR);
+        case LORAMAC_EVENT_INFO_STATUS_TX_TIMEOUT:
+            tr_error("Fatal Error, Radio failed to transmit");
+            send_event_to_application(TX_TIMEOUT);
+            break;
+
+        case LORAMAC_EVENT_INFO_STATUS_TX_DR_PAYLOAD_SIZE_ERROR:
+            send_event_to_application(TX_SCHEDULING_ERROR);
+            break;
+
+        default:
+            // if no ack was received after enough retries, send TX_ERROR
+            send_event_to_application(TX_ERROR);
+    }
 }
 
 void LoRaWANStack::mcps_indication_handler()
@@ -1089,11 +1100,13 @@ void LoRaWANStack::process_status_check_state()
 {
     if (_device_current_state == DEVICE_STATE_SENDING ||
             _device_current_state == DEVICE_STATE_AWAITING_ACK) {
-        // this happens after RX2 slot is exhausted
-        // we may or may not have a successful UNCONFIRMED transmission
+        // If there was a successful transmission, this block gets a kick after
+        // RX2 slot is exhausted. We may or may not have a successful UNCONFIRMED transmission
         // here. In CONFIRMED case this block is invoked only
         // when the MAX number of retries are exhausted, i.e., only error
         // case will fall here. Moreover, it will happen for Class A only.
+        // Another possibility is the case when the stack fails to schedule a
+        // deferred transmission and a scheduling failure handler is invoked.
         _ctrl_flags &= ~TX_DONE_FLAG;
         _ctrl_flags &= ~TX_ONGOING_FLAG;
         _loramac.set_tx_ongoing(false);
@@ -1215,7 +1228,8 @@ void LoRaWANStack::process_idle_state(lorawan_status_t &op_status)
 
 void LoRaWANStack::process_uninitialized_state(lorawan_status_t &op_status)
 {
-    op_status = _loramac.initialize(_queue);
+    op_status = _loramac.initialize(_queue, mbed::callback(this,
+                                                           &LoRaWANStack::handle_scheduling_failure));
 
     if (op_status == LORAWAN_STATUS_OK) {
         _device_current_state = DEVICE_STATE_IDLE;
