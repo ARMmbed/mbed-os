@@ -64,6 +64,8 @@
 #define MSG_TRNG_TEST_STEP2             "check_step2"
 #define MSG_TRNG_TEST_SUITE_ENDED       "Test_suite_ended"
 
+#define RESULT_SUCCESS                  0
+
 #define NVKEY                           1                  //NVstore key for storing and loading data
 
 /*there are some issues with nvstore and greentea reset, so for now nvstore is disabled,
@@ -114,7 +116,7 @@ static void compress_and_compare(char *key, char *value)
 #if NVSTORE_RESET
         uint16_t actual = 0;
         result = nvstore.get(NVKEY, sizeof(buffer), buffer, actual);
-        TEST_ASSERT_EQUAL(NVSTORE_SUCCESS, result);
+        TEST_ASSERT_EQUAL(RESULT_SUCCESS, result);
 #else
         /*Using base64 to decode data sent from host*/
         uint32_t lengthWritten = 0;
@@ -173,11 +175,11 @@ static void compress_and_compare(char *key, char *value)
         int result = 0;
 #if NVSTORE_RESET
         result = nvstore.set(NVKEY, sizeof(buffer), buffer);
-        TEST_ASSERT_EQUAL(NVSTORE_SUCCESS, result);
+        TEST_ASSERT_EQUAL(RESULT_SUCCESS, result);
 #else
         /*Using base64 to encode data sending from host*/
         result = trng_EncodeBase64(buffer, BUFFER_LEN, (char *)out_comp_buf, sizeof(out_comp_buf));
-        TEST_ASSERT_EQUAL(NVSTORE_SUCCESS, result);
+        TEST_ASSERT_EQUAL(RESULT_SUCCESS, result);
         greentea_send_kv(MSG_TRNG_BUFFER, (const char *)out_comp_buf);
 #endif
         system_reset();
