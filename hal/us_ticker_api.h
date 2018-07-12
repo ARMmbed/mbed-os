@@ -73,6 +73,8 @@ extern "C" {
  * Verified by ::ticker_fire_now_test
  * * The ticker operations ticker_read, ticker_clear_interrupt, ticker_set_interrupt and ticker_fire_interrupt
  * take less than 20us to complete - Verified by ::ticker_speed_test
+ * * The function ticker_free disables the ticker interrupt - ::ticker_free_interrupt_test
+ * * The function ticker_init re-initializes ticker after has been disabled by means of ticker_free - Verified by ::ticker_init_free_test
  *
  * # Undefined behavior
  * * Calling any function other than ticker_init before the initialization of the ticker
@@ -170,6 +172,25 @@ void us_ticker_init(void);
  * except us_ticker_init(), calling any function other than init is undefined.
  *
  * @note This function stops the ticker from counting.
+ *
+ * Pseudo Code:
+ * @code
+ * uint32_t us_ticker_free()
+ * {
+ *     // Disable timer
+ *     TIMER_CTRL &= ~TIMER_CTRL_ENABLE_Msk;
+ *
+ *     // Disable the compare interrupt
+ *     TIMER_CTRL &= ~TIMER_CTRL_COMPARE_ENABLE_Msk;
+ *
+ *     // Disable timer interrupt
+ *     NVIC_DisableIRQ(TIMER_IRQn);
+ *
+ *     // Disable clock gate so processor cannot read TIMER registers
+ *     POWER_CTRL &= ~POWER_CTRL_TIMER_Msk;
+ * }
+ * @endcode
+ *
  */
 void us_ticker_free(void);
 
