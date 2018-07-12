@@ -379,11 +379,22 @@ void serial_baud(serial_t *obj, int baudrate)
         RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
         PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_LPUART1;
 #if ((MBED_CONF_TARGET_LPUART_CLOCK_SOURCE) & USE_LPUART_CLK_LSE)
-        if (baudrate <= 9600 && __HAL_RCC_GET_FLAG(RCC_FLAG_LSERDY)) {
-            PeriphClkInitStruct.Lpuart1ClockSelection = RCC_LPUART1CLKSOURCE_LSE;
-            HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct);
-            if (init_uart(obj) == HAL_OK) {
-                return;
+        if (baudrate <= 9600) {
+            // Enable LSE in case it is not already done
+            if (!__HAL_RCC_GET_FLAG(RCC_FLAG_LSERDY)) {
+                RCC_OscInitTypeDef RCC_OscInitStruct = {0};
+                RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSE;
+                RCC_OscInitStruct.HSIState       = RCC_LSE_ON;
+                RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_OFF;
+                HAL_RCC_OscConfig(&RCC_OscInitStruct);
+            }
+            // Keep it to verify if HAL_RCC_OscConfig didn't exit with a timeout
+            if (__HAL_RCC_GET_FLAG(RCC_FLAG_LSERDY)) {
+                PeriphClkInitStruct.Lpuart1ClockSelection = RCC_LPUART1CLKSOURCE_LSE;
+                HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct);
+                if (init_uart(obj) == HAL_OK) {
+                    return;
+                }
             }
         }
 #endif
@@ -395,6 +406,16 @@ void serial_baud(serial_t *obj, int baudrate)
         }
 #endif
 #if ((MBED_CONF_TARGET_LPUART_CLOCK_SOURCE) & USE_LPUART_CLK_HSI)
+        // Enable HSI in case it is not already done
+        if (!__HAL_RCC_GET_FLAG(RCC_FLAG_HSIRDY)) {
+            RCC_OscInitTypeDef RCC_OscInitStruct = {0};
+            RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_HSI;
+            RCC_OscInitStruct.HSIState            = RCC_HSI_ON;
+            RCC_OscInitStruct.PLL.PLLState        = RCC_PLL_OFF;
+            RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
+            HAL_RCC_OscConfig(&RCC_OscInitStruct);
+        }
+        // Keep it to verify if HAL_RCC_OscConfig didn't exit with a timeout
         if (__HAL_RCC_GET_FLAG(RCC_FLAG_HSIRDY)) {
             PeriphClkInitStruct.Lpuart1ClockSelection = RCC_LPUART1CLKSOURCE_HSI;
             HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct);
