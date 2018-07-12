@@ -585,7 +585,7 @@ size_t pithy_Compress(const char *uncompressed,
                 do {
                     if (compressionLevel > 2) {
                         DCHECK((uncompressedPtr + 5ul) <= uncompressedEnd);
-                        uncompressedBytes64 = pithy_Load64(uncompressedPtr + 1ul);
+                        uncompressedBytes64 = pithy_Load64((uint64_t*)uncompressedPtr + 1ul);
                         hashTable[pithy_HashBytes(pithy_GetUint32AtOffset(uncompressedBytes64, 0u), shift)] =
                             uncompressedPtr + 1ul;
                         if (compressionLevel > 4) {
@@ -618,7 +618,7 @@ size_t pithy_Compress(const char *uncompressed,
 
                     DCHECK(((uncompressedPtr - 3ul) >= uncompressed) && (uncompressedPtr <= uncompressedEnd));
 
-                    uncompressedBytes64 = pithy_Load64(uncompressedPtr - 3ul);
+                    uncompressedBytes64 = pithy_Load64((uint64_t*)uncompressedPtr - 3ul);
 
                     if (compressionLevel > 0) {
                         if (compressionLevel > 8) {
