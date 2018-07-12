@@ -60,18 +60,11 @@ static void (*irq_handler)(void);
 
 void lp_ticker_init(void)
 {
-    NVIC_DisableIRQ(LPTIM1_IRQn);
-
     /* Check if LPTIM is already configured */
-#if (TARGET_STM32L0)
-    if (READ_BIT(RCC->APB1ENR, RCC_APB1ENR_LPTIM1EN) != RESET) {
-        return;
-    }
-#else
     if (__HAL_RCC_LPTIM1_IS_CLK_ENABLED()) {
+        lp_ticker_disable_interrupt();
         return;
     }
-#endif
 
     RCC_PeriphCLKInitTypeDef RCC_PeriphCLKInitStruct = {0};
     RCC_OscInitTypeDef RCC_OscInitStruct = {0};
@@ -153,6 +146,7 @@ void lp_ticker_init(void)
     __HAL_LPTIM_ENABLE_IT(&LptimHandle, LPTIM_IT_CMPM);
     HAL_LPTIM_Counter_Start(&LptimHandle, 0xFFFF);
 
+    /* Need to write a compare value in order to get LPTIM_FLAG_CMPOK in set_interrupt */
     __HAL_LPTIM_COMPARE_SET(&LptimHandle, 0);
 }
 
@@ -201,7 +195,7 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
     irq_handler = (void (*)(void))lp_ticker_irq_handler;
 
     /* CMPOK is set by hardware to inform application that the APB bus write operation to the LPTIM_CMP register has been successfully completed */
-    /* Any successive write before respectively the ARROK flag or the CMPOK flag be set, will lead to unpredictable results */
+    /* Any successive write before the CMPOK flag be set, will lead to unpredictable results */
     while (__HAL_LPTIM_GET_FLAG(&LptimHandle, LPTIM_FLAG_CMPOK) == RESET) {
     }
 
@@ -221,8 +215,11 @@ void lp_ticker_fire_interrupt(void)
 
 void lp_ticker_disable_interrupt(void)
 {
-    LptimHandle.Instance = LPTIM1;
     NVIC_DisableIRQ(LPTIM1_IRQn);
+    LptimHandle.Instance = LPTIM1;
+    /* Waiting last write operation completion */
+    while (__HAL_LPTIM_GET_FLAG(&LptimHandle, LPTIM_FLAG_CMPOK) == RESET) {
+    }
 }
 
 void lp_ticker_clear_interrupt(void)
