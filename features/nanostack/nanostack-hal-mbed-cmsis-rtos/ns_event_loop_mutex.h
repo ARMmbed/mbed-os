@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2018 ARM Limited. All rights reserved.
+ * Copyright (c) 2018 ARM Limited. All rights reserved.
  * SPDX-License-Identifier: Apache-2.0
  * Licensed under the Apache License, Version 2.0 (the License); you may
  * not use this file except in compliance with the License.
@@ -14,9 +14,18 @@
  * limitations under the License.
  */
 
-#ifndef ARM_HAL_INTERRUPT_PRIVATE_H_
-#define ARM_HAL_INTERRUPT_PRIVATE_H_
-
-void platform_critical_init(void);
-
+#ifdef __cplusplus
+extern "C" {
 #endif
+
+/** \internal  Initialise the scheduler mutex
+ *
+ * Initialises the mutex used by the implementation of
+ * eventOS_scheduler_mutex_wait(). Must be called before scheduler is used.
+ */
+void ns_event_loop_mutex_init(void);
+
+#ifdef __cplusplus
+}
+#endif
+
