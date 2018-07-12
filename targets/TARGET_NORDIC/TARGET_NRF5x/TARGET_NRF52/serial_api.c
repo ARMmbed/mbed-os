@@ -789,9 +789,16 @@ static void nordic_nrf5_uart_configure_object(serial_t *obj)
 #endif
 
     /* Configure Tx and Rx pins. */
-    nrf_gpio_pin_set(uart_object->tx);
-    nrf_gpio_cfg_output(uart_object->tx);
-    nrf_gpio_cfg_input(uart_object->rx, NRF_GPIO_PIN_NOPULL);
+    if (uart_object->tx != NRF_UART_PSEL_DISCONNECTED) {
+
+        nrf_gpio_pin_set(uart_object->tx);
+        nrf_gpio_cfg_output(uart_object->tx);
+    }
+
+    if (uart_object->rx != NRF_UART_PSEL_DISCONNECTED) {
+
+        nrf_gpio_cfg_input(uart_object->rx, NRF_GPIO_PIN_NOPULL);
+    }
 
     nrf_uarte_txrx_pins_set(nordic_nrf5_uart_register[uart_object->instance],
                             uart_object->tx,
