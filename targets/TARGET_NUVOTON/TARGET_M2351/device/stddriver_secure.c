@@ -18,7 +18,7 @@
 #include <stdbool.h>
 #include "cmsis.h"
 #include "partition_M2351.h"
-#include "m2351_stddriver_sup.h"
+#include "stddriver_secure.h"
 #include "mbed_error.h"
 
 #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)

@@ -20,32 +20,15 @@
 #include "PortNames.h"
 #include "mbed_error.h"
 #include "partition_M2351.h"
+#include "hal_secure.h"
 
 /**
  * Configure pin multi-function
  */
-
-#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
-__NONSECURE_ENTRY
 void pin_function(PinName pin, int data)
 {
-    MBED_ASSERT(pin != (PinName)NC);
-    uint32_t pin_index = NU_PINNAME_TO_PIN(pin);
-    uint32_t port_index = NU_PINNAME_TO_PORT(pin);
-    
-    /* Guard access to secure GPIO from non-secure domain */
-    if (cmse_nonsecure_caller() && 
-        (! (SCU_INIT_IONSSET_VAL & (1 << (port_index + 0))))) {
-        error("Non-secure domain tries to control secure or undefined GPIO.");
-    }
-
-    __IO uint32_t *GPx_MFPx = ((__IO uint32_t *) &SYS->GPA_MFPL) + port_index * 2 + (pin_index / 8);
-    uint32_t MFP_Msk = NU_MFP_MSK(pin_index);
-    
-    // E.g.: SYS->GPA_MFPL  = (SYS->GPA_MFPL & (~SYS_GPA_MFPL_PA0MFP_Msk) ) | SYS_GPA_MFPL_PA0MFP_SC0_CD  ;
-    *GPx_MFPx  = (*GPx_MFPx & (~MFP_Msk)) | data;
+    pin_function_s(pin, data);
 }
-#endif
 
 /**
  * Configure pin pull-up/pull-down
@@ -84,3 +67,25 @@ void pin_mode(PinName pin, PinMode mode)
     
     GPIO_SetMode(gpio_base, 1 << pin_index, mode_intern);
 }
+
+#if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+__NONSECURE_ENTRY
+void pin_function_s(int32_t pin, int32_t data)
+{
+    MBED_ASSERT(pin != (PinName)NC);
+    uint32_t pin_index = NU_PINNAME_TO_PIN(pin);
+    uint32_t port_index = NU_PINNAME_TO_PORT(pin);
+    
+    /* Guard access to secure GPIO from non-secure domain */
+    if (cmse_nonsecure_caller() && 
+        (! (SCU_INIT_IONSSET_VAL & (1 << (port_index + 0))))) {
+        error("Non-secure domain tries to control secure or undefined GPIO.");
+    }
+
+    __IO uint32_t *GPx_MFPx = ((__IO uint32_t *) &SYS->GPA_MFPL) + port_index * 2 + (pin_index / 8);
+    uint32_t MFP_Msk = NU_MFP_MSK(pin_index);
+    
+    // E.g.: SYS->GPA_MFPL  = (SYS->GPA_MFPL & (~SYS_GPA_MFPL_PA0MFP_Msk) ) | SYS_GPA_MFPL_PA0MFP_SC0_CD  ;
+    *GPx_MFPx  = (*GPx_MFPx & (~MFP_Msk)) | data;
+}
+#endif
