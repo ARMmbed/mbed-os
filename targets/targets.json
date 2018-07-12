@@ -6539,8 +6539,10 @@
             "TRNG",
             "CAN",
             "FLASH",
-            "EMAC"
+            "EMAC",
+            "RESET_REASON"
         ],
+        "features": ["LWIP"],
         "release_versions": ["5"],
         "device_name": "NUC472HI8AE",
         "bootloader_supported": true,
@@ -6663,7 +6665,8 @@
             "SPISLAVE",
             "SPI_ASYNCH",
             "CAN",
-            "FLASH"
+            "FLASH",
+            "RESET_REASON"
         ],
         "release_versions": ["2", "5"],
         "device_name": "M453VG6AE",
@@ -6725,7 +6728,8 @@
             "SLEEP",
             "SPI",
             "SPISLAVE",
-            "SPI_ASYNCH"
+            "SPI_ASYNCH",
+            "RESET_REASON"
         ],
         "release_versions": ["5"],
         "device_name": "NANO130KE3BN"
@@ -7023,8 +7027,10 @@
             "TRNG",
             "FLASH",
             "CAN",
-            "EMAC"
+            "EMAC",
+            "RESET_REASON"
         ],
+        "features": ["LWIP"],
         "release_versions": ["5"],
         "bootloader_supported": true,
         "overrides": {
