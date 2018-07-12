@@ -31,7 +31,7 @@
 
 #include "sleep_api.h"
 #include "us_ticker_api.h"
-#include "hal_tick.h"
+#include "us_ticker_data.h"
 #include "mbed_critical.h"
 #include "mbed_error.h"
 
