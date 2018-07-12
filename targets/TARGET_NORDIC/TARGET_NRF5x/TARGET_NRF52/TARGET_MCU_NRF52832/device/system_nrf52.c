@@ -62,15 +62,15 @@ void SystemInit(void)
 {
     /* Enable SWO trace functionality. If ENABLE_SWO is not defined, SWO pin will be used as GPIO (see Product
        Specification to see which one). */
-    #if defined (ENABLE_SWO)
+#if defined (ENABLE_SWO)
         CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
         NRF_CLOCK->TRACECONFIG |= CLOCK_TRACECONFIG_TRACEMUX_Serial << CLOCK_TRACECONFIG_TRACEMUX_Pos;
         NRF_P0->PIN_CNF[18] = (GPIO_PIN_CNF_DRIVE_H0H1 << GPIO_PIN_CNF_DRIVE_Pos) | (GPIO_PIN_CNF_INPUT_Connect << GPIO_PIN_CNF_INPUT_Pos) | (GPIO_PIN_CNF_DIR_Output << GPIO_PIN_CNF_DIR_Pos);
-    #endif
+#endif
 
     /* Enable Trace functionality. If ENABLE_TRACE is not defined, TRACE pins will be used as GPIOs (see Product
        Specification to see which ones). */
-    #if defined (ENABLE_TRACE)
+#if defined (ENABLE_TRACE)
         CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
         NRF_CLOCK->TRACECONFIG |= CLOCK_TRACECONFIG_TRACEMUX_Parallel << CLOCK_TRACECONFIG_TRACEMUX_Pos;
         NRF_P0->PIN_CNF[14] = (GPIO_PIN_CNF_DRIVE_H0H1 << GPIO_PIN_CNF_DRIVE_Pos) | (GPIO_PIN_CNF_INPUT_Connect << GPIO_PIN_CNF_INPUT_Pos) | (GPIO_PIN_CNF_DIR_Output << GPIO_PIN_CNF_DIR_Pos);
@@ -78,14 +78,14 @@ void SystemInit(void)
         NRF_P0->PIN_CNF[16] = (GPIO_PIN_CNF_DRIVE_H0H1 << GPIO_PIN_CNF_DRIVE_Pos) | (GPIO_PIN_CNF_INPUT_Connect << GPIO_PIN_CNF_INPUT_Pos) | (GPIO_PIN_CNF_DIR_Output << GPIO_PIN_CNF_DIR_Pos);
         NRF_P0->PIN_CNF[18] = (GPIO_PIN_CNF_DRIVE_H0H1 << GPIO_PIN_CNF_DRIVE_Pos) | (GPIO_PIN_CNF_INPUT_Connect << GPIO_PIN_CNF_INPUT_Pos) | (GPIO_PIN_CNF_DIR_Output << GPIO_PIN_CNF_DIR_Pos);
         NRF_P0->PIN_CNF[20] = (GPIO_PIN_CNF_DRIVE_H0H1 << GPIO_PIN_CNF_DRIVE_Pos) | (GPIO_PIN_CNF_INPUT_Connect << GPIO_PIN_CNF_INPUT_Pos) | (GPIO_PIN_CNF_DIR_Output << GPIO_PIN_CNF_DIR_Pos);
-    #endif
-
+#endif
+    
     /* Workaround for Errata 12 "COMP: Reference ladder not correctly calibrated" found at the Errata document
        for your device located at https://infocenter.nordicsemi.com/ */
     if (errata_12()){
         *(volatile uint32_t *)0x40013540 = (*(uint32_t *)0x10000324 & 0x00001F00) >> 8;
     }
-
+    
     /* Workaround for Errata 16 "System: RAM may be corrupt on wakeup from CPU IDLE" found at the Errata document
        for your device located at https://infocenter.nordicsemi.com/ */
     if (errata_16()){
@@ -154,7 +154,7 @@ void SystemInit(void)
     if (errata_108()){
         *(volatile uint32_t *)0x40000EE4 = *(volatile uint32_t *)0x10000258 & 0x0000004F;
     }
-
+    
     /* Workaround for Errata 136 "System: Bits in RESETREAS are set when they should not be" found at the Errata document
        for your device located at https://infocenter.nordicsemi.com/  */
     if (errata_136()){
@@ -162,20 +162,20 @@ void SystemInit(void)
             NRF_POWER->RESETREAS =  ~POWER_RESETREAS_RESETPIN_Msk;
         }
     }
-
+    
     /* Enable the FPU if the compiler used floating point unit instructions. __FPU_USED is a MACRO defined by the
      * compiler. Since the FPU consumes energy, remember to disable FPU use in the compiler if floating point unit
      * operations are not used in your code. */
-    #if (__FPU_USED == 1)
+#if (__FPU_USED == 1)
         SCB->CPACR |= (3UL << 20) | (3UL << 22);
         __DSB();
         __ISB();
-    #endif
+#endif
 
     /* Configure NFCT pins as GPIOs if NFCT is not to be used in your code. If CONFIG_NFCT_PINS_AS_GPIOS is not defined,
        two GPIOs (see Product Specification to see which ones) will be reserved for NFC and will not be available as
        normal GPIOs. */
-    #if defined (CONFIG_NFCT_PINS_AS_GPIOS)
+#if defined (CONFIG_NFCT_PINS_AS_GPIOS)
         if ((NRF_UICR->NFCPINS & UICR_NFCPINS_PROTECT_Msk) == (UICR_NFCPINS_PROTECT_NFC << UICR_NFCPINS_PROTECT_Pos)){
             NRF_NVMC->CONFIG = NVMC_CONFIG_WEN_Wen << NVMC_CONFIG_WEN_Pos;
             while (NRF_NVMC->READY == NVMC_READY_READY_Busy){}
@@ -185,12 +185,12 @@ void SystemInit(void)
             while (NRF_NVMC->READY == NVMC_READY_READY_Busy){}
             NVIC_SystemReset();
         }
-    #endif
+#endif
 
     /* Configure GPIO pads as pPin Reset pin if Pin Reset capabilities desired. If CONFIG_GPIO_AS_PINRESET is not
       defined, pin reset will not be available. One GPIO (see Product Specification to see which one) will then be
       reserved for PinReset and not available as normal GPIO. */
-    #if defined (CONFIG_GPIO_AS_PINRESET)
+#if defined (CONFIG_GPIO_AS_PINRESET)
         if (((NRF_UICR->PSELRESET[0] & UICR_PSELRESET_CONNECT_Msk) != (UICR_PSELRESET_CONNECT_Connected << UICR_PSELRESET_CONNECT_Pos)) ||
             ((NRF_UICR->PSELRESET[1] & UICR_PSELRESET_CONNECT_Msk) != (UICR_PSELRESET_CONNECT_Connected << UICR_PSELRESET_CONNECT_Pos))){
             NRF_NVMC->CONFIG = NVMC_CONFIG_WEN_Wen << NVMC_CONFIG_WEN_Pos;
@@ -203,7 +203,7 @@ void SystemInit(void)
             while (NRF_NVMC->READY == NVMC_READY_READY_Busy){}
             NVIC_SystemReset();
         }
-    #endif
+#endif
 
     SystemCoreClockUpdate();
 
@@ -222,7 +222,7 @@ void SystemInit(void)
      *
      * The ITM has to be initialized before the SoftDevice which weren't guaranteed using the normal API.
      */
-    #if defined (DEVICE_ITM)
+#if defined (DEVICE_ITM)
         /* Enable SWO trace functionality */
         CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
         NRF_CLOCK->TRACECONFIG |= CLOCK_TRACECONFIG_TRACEMUX_Serial << CLOCK_TRACECONFIG_TRACEMUX_Pos;
@@ -238,7 +238,7 @@ void SystemInit(void)
 
         /* set prescaler */
         TPI->ACPR = 0;
-    #endif
+#endif
 }
 
 
