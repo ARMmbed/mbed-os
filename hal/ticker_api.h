@@ -82,6 +82,7 @@ typedef struct {
     us_timestamp_t present_time;        /**< Store the timestamp used for present time */
     bool initialized;                   /**< Indicate if the instance is initialized */
     bool dispatching;                   /**< The function ticker_irq_handler is dispatching */
+    bool suspended;                     /**< Indicate if the instance is suspended */
     uint8_t frequency_shifts;           /**< If frequency is a value of 2^n, this is n, otherwise 0 */
 } ticker_event_queue_t;
 
@@ -183,6 +184,27 @@ us_timestamp_t ticker_read_us(const ticker_data_t *const ticker);
  * @return 1 if timestamp is pending event, 0 if there's no event pending
  */
 int ticker_get_next_timestamp(const ticker_data_t *const ticker, timestamp_t *timestamp);
+
+/** Suspend this ticker
+ *
+ * When suspended reads will always return the same time and no
+ * events will be dispatched. When suspended the common layer
+ * will only ever call the interface function clear_interrupt()
+ * and that is only if ticker_irq_handler is called.
+ *
+ *
+ * @param ticker        The ticker object.
+ */
+void ticker_suspend(const ticker_data_t *const ticker);
+
+/** Resume this ticker
+ *
+ * When resumed the ticker will ignore any time that has passed
+ * and continue counting up where it left off.
+ *
+ * @param ticker        The ticker object.
+ */
+void ticker_resume(const ticker_data_t *const ticker);
 
 /* Private functions
  *
