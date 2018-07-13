@@ -281,7 +281,7 @@ public:
      *  @param iq_inverted   Inverts IQ signals (LoRa only)
      *                          FSK : N/A (set to 0).
      *                          LoRa: [0: not inverted, 1: inverted]
-     *  @param timeout       The transmission timeout [us].
+     *  @param timeout       The transmission timeout [ms].
      */
     virtual void set_tx_config(radio_modems_t modem, int8_t power, uint32_t fdev,
                               uint32_t bandwidth, uint32_t datarate,
