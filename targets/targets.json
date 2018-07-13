@@ -4221,12 +4221,12 @@
     },
     "NUMAKER_PFM_M2351": {
         "core": "Cortex-M23-NS",
-        "default_toolchain": "GCC_ARM",
+        "default_toolchain": "ARMC6",
         "extra_labels": ["NUVOTON", "M2351", "M2351KIAAEES", "FLASH_CMSIS_ALGO"],
         "OUTPUT_EXT": "hex",
         "macros": ["MBED_FAULT_HANDLER_DISABLED", "MBED_TZ_DEFAULT_ACCESS=1", "LPTICKER_DELAY_TICKS=3"],
         "is_disk_virtual": true,
-        "supported_toolchains": ["GCC_ARM", "IAR", "ARMC6"],
+        "supported_toolchains": ["ARMC6"],
         "config": {
             "gpio-irq-debounce-enable": {
                 "help": "Enable GPIO IRQ debounce",
