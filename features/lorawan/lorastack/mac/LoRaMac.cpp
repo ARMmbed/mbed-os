@@ -814,9 +814,11 @@ lorawan_status_t LoRaMac::send_join_request()
     status = prepare_frame(&mac_hdr, &fctrl, 0, NULL, 0);
 
     if (status == LORAWAN_STATUS_OK) {
-        status = schedule_tx();
+        if (schedule_tx() == LORAWAN_STATUS_OK) {
+            status = LORAWAN_STATUS_CONNECT_IN_PROGRESS;
+        }
     } else {
-        tr_error("Retransmission: error %d", status);
+        tr_error("Couldn't send a JoinRequest: error %d", status);
     }
 
     return status;

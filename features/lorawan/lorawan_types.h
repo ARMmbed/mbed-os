@@ -98,10 +98,11 @@ typedef enum lorawan_status {
 #if defined(LORAWAN_COMPLIANCE_TEST)
     LORAWAN_STATUS_COMPLIANCE_TEST_ON = -1019,     /**< Compliance test - is on-going */
 #endif
-    LORAWAN_STATUS_DUTYCYCLE_RESTRICTED = -1020,
-    LORAWAN_STATUS_NO_CHANNEL_FOUND = -1021,
-    LORAWAN_STATUS_NO_FREE_CHANNEL_FOUND = -1022,
-    LORAWAN_STATUS_METADATA_NOT_AVAILABLE = -1023
+    LORAWAN_STATUS_DUTYCYCLE_RESTRICTED = -1020,   /**< Transmission will continue after duty cycle backoff*/
+    LORAWAN_STATUS_NO_CHANNEL_FOUND = -1021,       /**< None of the channels is enabled at the moment*/
+    LORAWAN_STATUS_NO_FREE_CHANNEL_FOUND = -1022,  /**< None of the enabled channels is ready for another TX (duty cycle limited)*/
+    LORAWAN_STATUS_METADATA_NOT_AVAILABLE = -1023, /**< Meta-data after an RX or TX is stale*/
+    LORAWAN_STATUS_ALREADY_CONNECTED = -1024              /**< The device has already joined a network*/
 } lorawan_status_t;
 
 /** The lorawan_connect_otaa structure.
