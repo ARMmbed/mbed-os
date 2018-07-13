@@ -9,6 +9,7 @@ from jinja2.environment import Environment
 import copy
 
 from tools.targets import TARGET_MAP
+from tools.utils import mkdir
 
 
 class TargetNotSupportedException(Exception):
@@ -139,6 +140,7 @@ class Exporter(object):
         """Generates a project file from a template using jinja"""
         target_text = self._gen_file_inner(template_file, data, target_file, **kwargs)
         target_path = self.gen_file_dest(target_file)
+        mkdir(dirname(target_path))
         logging.debug("Generating: %s", target_path)
         open(target_path, "w").write(target_text)
         self.generated_files += [target_path]
