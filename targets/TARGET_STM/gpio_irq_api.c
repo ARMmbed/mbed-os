@@ -94,12 +94,30 @@ static void handle_interrupt_in(uint32_t irq_index, uint32_t max_num_pin_line)
                     continue;
                 }
 
-                // Check which edge has generated the irq
-                if ((gpio->IDR & pin) == 0) {
-                    irq_handler(gpio_channel->channel_ids[gpio_idx], IRQ_FALL);
+                // Trying to discern which edge caused the IRQ
+                gpio_irq_event event = IRQ_NONE;
+                if (LL_EXTI_IsEnabledFallingTrig_0_31(pin) && !LL_EXTI_IsEnabledRisingTrig_0_31(pin)) {
+                    // Only the fall handler is active, so this must be a falling edge
+                    event = IRQ_FALL;
+                } else if (LL_EXTI_IsEnabledRisingTrig_0_31(pin) && !LL_EXTI_IsEnabledFallingTrig_0_31(pin)) {
+                    // Only the rise handler is active, so this must be a rising edge
+                    event = IRQ_RISE;
                 } else {
-                    irq_handler(gpio_channel->channel_ids[gpio_idx], IRQ_RISE);
+                    // Ambiguous as to which edge caused the IRQ
+                    //
+                    // The state of the pin could/should indicate which edge
+                    // has occurred but this can go wrong if the IRQ caused a
+                    // transition from a low power mode. In some circumstances
+                    // only the trailing edge callback will be called.
+                    if ((gpio->IDR & pin) == 0) {
+                        event = IRQ_FALL;
+                    } else {
+                        event = IRQ_RISE;
+                    }
                 }
+
+                irq_handler(gpio_channel->channel_ids[gpio_idx], event);
+
                 return;
             }
         }
