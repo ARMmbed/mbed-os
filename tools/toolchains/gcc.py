@@ -91,6 +91,10 @@ class GCC(mbedToolchain):
              target.core.startswith("Cortex-M33")) and
             not target.core.endswith("-NS")):
             self.cpu.append("-mcmse")
+            self.flags["ld"].extend([
+                "-Wl,--cmse-implib",
+                "-Wl,--out-implib=%s" % join(build_dir, "cmse_lib.o")
+            ])
         elif target.core == "Cortex-M23-NS" or target.core == "Cortex-M33-NS":
              self.flags["ld"].append("-D__DOMAIN_NS=1")
 
@@ -233,11 +237,6 @@ class GCC(mbedToolchain):
         # Build linker command
         map_file = splitext(output)[0] + ".map"
         cmd = self.ld + ["-o", output, "-Wl,-Map=%s" % map_file] + objects + ["-Wl,--start-group"] + libs + ["-Wl,--end-group"]
-        # Create Secure library
-        if self.target.core == "Cortex-M23" or self.target.core == "Cortex-M33":
-            secure_file = join(dirname(output), "cmse_lib.o")
-            cmd.extend(["-Wl,--cmse-implib"])
-            cmd.extend(["-Wl,--out-implib=%s" % secure_file])
 
         if mem_map:
             cmd.extend(['-T', mem_map])
