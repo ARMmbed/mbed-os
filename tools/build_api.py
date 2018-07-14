@@ -1122,19 +1122,18 @@ def get_unique_supported_toolchains(release_targets=None):
 
     return unique_supported_toolchains
 
+
+def _lowercase_release_version(release_version):
+    try:
+        return release_version.lower()
+    except AttributeError:
+        return 'all'
+
 def mcu_toolchain_list(release_version='5'):
     """  Shows list of toolchains
 
     """
-
-    if isinstance(release_version, basestring):
-        # Force release_version to lowercase if it is a string
-        release_version = release_version.lower()
-    else:
-        # Otherwise default to printing all known targets and toolchains
-        release_version = 'all'
-
-
+    release_version = _lowercase_release_version(release_version)
     version_release_targets = {}
     version_release_target_names = {}
 
@@ -1159,15 +1158,7 @@ def mcu_target_list(release_version='5'):
     """  Shows target list
 
     """
-
-    if isinstance(release_version, basestring):
-        # Force release_version to lowercase if it is a string
-        release_version = release_version.lower()
-    else:
-        # Otherwise default to printing all known targets and toolchains
-        release_version = 'all'
-
-
+    release_version = _lowercase_release_version(release_version)
     version_release_targets = {}
     version_release_target_names = {}
 
@@ -1203,15 +1194,7 @@ def mcu_toolchain_matrix(verbose_html=False, platform_filter=None,
     """
     # Only use it in this function so building works without extra modules
     from prettytable import PrettyTable
-
-    if isinstance(release_version, basestring):
-        # Force release_version to lowercase if it is a string
-        release_version = release_version.lower()
-    else:
-        # Otherwise default to printing all known targets and toolchains
-        release_version = 'all'
-
-
+    release_version = _lowercase_release_version(release_version)
     version_release_targets = {}
     version_release_target_names = {}
 
