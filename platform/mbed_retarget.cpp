@@ -1484,7 +1484,7 @@ void *operator new (std::size_t count)
 {
     void *buffer = malloc_wrapper(count, MBED_CALLER_ADDR());
     if (NULL == buffer) {
-        MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_OUT_OF_MEMORY), "Operator new out of memory\r\n", count);
+        MBED_WARNING1(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_OUT_OF_MEMORY), "Operator new out of memory\r\n", count);
     }
     return buffer;
 }
@@ -1493,7 +1493,7 @@ void *operator new[](std::size_t count)
 {
     void *buffer = malloc_wrapper(count, MBED_CALLER_ADDR());
     if (NULL == buffer) {
-        error("Operator new[] out of memory\r\n");
+        MBED_WARNING1(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_OUT_OF_MEMORY), "Operator new[] out of memory\r\n", count);
     }
     return buffer;
 }
@@ -1528,7 +1528,7 @@ void *operator new (std::size_t count)
 {
     void *buffer = malloc_wrapper(_REENT, count, MBED_CALLER_ADDR());
     if (NULL == buffer) {
-        MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_OUT_OF_MEMORY), "Operator new out of memory\r\n", count);
+        MBED_WARNING1(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_OUT_OF_MEMORY), "Operator new out of memory\r\n", count);
     }
     return buffer;
 }
@@ -1537,7 +1537,7 @@ void *operator new[](std::size_t count)
 {
     void *buffer = malloc_wrapper(_REENT, count, MBED_CALLER_ADDR());
     if (NULL == buffer) {
-        MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_OUT_OF_MEMORY), "Operator new out of memory\r\n", count);
+        MBED_WARNING1(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_OUT_OF_MEMORY), "Operator new[] out of memory\r\n", count);
     }
     return buffer;
 }
@@ -1568,7 +1568,7 @@ void *operator new (std::size_t count)
 {
     void *buffer = malloc(count);
     if (NULL == buffer) {
-        MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_OUT_OF_MEMORY), "Operator new out of memory\r\n", count);
+        MBED_WARNING1(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_OUT_OF_MEMORY), "Operator new out of memory\r\n", count);
     }
     return buffer;
 }
@@ -1577,7 +1577,7 @@ void *operator new[](std::size_t count)
 {
     void *buffer = malloc(count);
     if (NULL == buffer) {
-        MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_OUT_OF_MEMORY), "Operator new[] out of memory\r\n", count);
+        MBED_WARNING1(MBED_MAKE_ERROR(MBED_MODULE_PLATFORM, MBED_ERROR_CODE_OUT_OF_MEMORY), "Operator new[] out of memory\r\n", count);
     }
     return buffer;
 }
