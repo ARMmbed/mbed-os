@@ -92,9 +92,8 @@ namespace mbed {
  * @ingroup drivers
  */
 
-template <uint32_t polynomial=POLY_32BIT_ANSI, uint8_t width=32>
-class MbedCRC
-{
+template <uint32_t polynomial = POLY_32BIT_ANSI, uint8_t width = 32>
+class MbedCRC {
 public:
     enum CrcMode { HARDWARE = 0, TABLE, BITWISE };
 
@@ -107,7 +106,7 @@ public:
      *  @param  final_xor  Final Xor value
      *  @param  reflect_data
      *  @param  reflect_remainder
-*  @note   Default constructor without any arguments is valid only for supported CRC polynomials. :: crc_polynomial_t
+    *  @note   Default constructor without any arguments is valid only for supported CRC polynomials. :: crc_polynomial_t
      *          MbedCRC <POLY_7BIT_SD, 7> ct; --- Valid POLY_7BIT_SD
      *          MbedCRC <0x1021, 16> ct; --- Valid POLY_16BIT_CCITT
      *          MbedCRC <POLY_16BIT_CCITT, 32> ct; --- Invalid, compilation error
@@ -117,8 +116,8 @@ public:
      *
      */
     MbedCRC(uint32_t initial_xor, uint32_t final_xor, bool reflect_data, bool reflect_remainder) :
-                    _initial_value(initial_xor), _final_xor(final_xor), _reflect_data(reflect_data),
-                    _reflect_remainder(reflect_remainder), _crc_table(NULL)
+        _initial_value(initial_xor), _final_xor(final_xor), _reflect_data(reflect_data),
+        _reflect_remainder(reflect_remainder), _crc_table(NULL)
     {
         mbed_crc_ctor();
     }
@@ -170,8 +169,7 @@ public:
      */
     int32_t compute_partial(void *buffer, crc_data_size_t size, uint32_t *crc)
     {
-        switch (_mode)
-        {
+        switch (_mode) {
             case HARDWARE:
 #ifdef DEVICE_CRC
                 hal_crc_compute_partial((uint8_t *)buffer, size);
@@ -332,7 +330,7 @@ private:
      */
     uint32_t reflect_bytes(uint32_t data) const
     {
-        if(_reflect_data) {
+        if (_reflect_data) {
             uint32_t reflection = 0x0;
 
             for (uint8_t bit = 0; bit < 8; ++bit) {
@@ -368,7 +366,7 @@ private:
                 data_byte = reflect_bytes(data[byte]);
                 for (uint8_t bit = 8; bit > 0; --bit) {
                     p_crc <<= 1;
-                    if (( data_byte ^ p_crc) & get_top_bit()) {
+                    if ((data_byte ^ p_crc) & get_top_bit()) {
                         p_crc ^= polynomial;
                     }
                     data_byte <<= 1;
@@ -392,13 +390,13 @@ private:
         return 0;
     }
 
-     /** CRC computation using ROM tables
-     *
-     * @param  buffer  data buffer
-     * @param  size  size of the data
-     * @param  crc  CRC value is filled in, but the value is not the final
-     * @return  0  on success or a negative error code on failure
-     */
+    /** CRC computation using ROM tables
+    *
+    * @param  buffer  data buffer
+    * @param  size  size of the data
+    * @param  crc  CRC value is filled in, but the value is not the final
+    * @return  0  on success or a negative error code on failure
+    */
     int32_t table_compute_partial(const void *buffer, crc_data_size_t size, uint32_t *crc) const
     {
         MBED_ASSERT(crc != NULL);

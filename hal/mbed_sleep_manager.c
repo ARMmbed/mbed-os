@@ -82,7 +82,7 @@ typedef struct sleep_statistic {
 
 static sleep_statistic_t sleep_stats[STATISTIC_COUNT];
 
-static sleep_statistic_t* sleep_tracker_find(const char *const filename)
+static sleep_statistic_t *sleep_tracker_find(const char *const filename)
 {
     for (int i = 0; i < STATISTIC_COUNT; ++i) {
         if (sleep_stats[i].identifier == filename) {
@@ -93,7 +93,7 @@ static sleep_statistic_t* sleep_tracker_find(const char *const filename)
     return NULL;
 }
 
-static sleep_statistic_t* sleep_tracker_add(const char* const filename)
+static sleep_statistic_t *sleep_tracker_add(const char *const filename)
 {
     for (int i = 0; i < STATISTIC_COUNT; ++i) {
         if (sleep_stats[i].identifier == NULL) {
@@ -121,7 +121,7 @@ static void sleep_tracker_print_stats(void)
         }
 
         debug("[id: %s, count: %u]\r\n", sleep_stats[i].identifier,
-                                         sleep_stats[i].count);
+              sleep_stats[i].count);
     }
 }
 
@@ -139,7 +139,7 @@ void sleep_tracker_lock(const char *const filename, int line)
     debug("LOCK: %s, ln: %i, lock count: %u\r\n", filename, line, deep_sleep_lock);
 }
 
-void sleep_tracker_unlock(const char* const filename, int line)
+void sleep_tracker_unlock(const char *const filename, int line)
 {
     sleep_statistic_t *stat = sleep_tracker_find(filename);
 

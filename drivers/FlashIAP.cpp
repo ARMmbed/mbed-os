@@ -99,7 +99,7 @@ int FlashIAP::program(const void *buffer, uint32_t addr, uint32_t size)
 
     // addr should be aligned to page size
     if (!is_aligned(addr, page_size) || (!buffer) ||
-        ((addr + size) > (flash_start_addr + flash_size))) {
+            ((addr + size) > (flash_start_addr + flash_size))) {
         return -1;
     }
 
@@ -143,7 +143,7 @@ bool FlashIAP::is_aligned_to_sector(uint32_t addr, uint32_t size)
 {
     uint32_t current_sector_size = flash_get_sector_size(&_flash, addr);
     if (!is_aligned(size, current_sector_size) ||
-        !is_aligned(addr, current_sector_size)) {
+            !is_aligned(addr, current_sector_size)) {
         return false;
     } else {
         return true;
@@ -160,7 +160,7 @@ int FlashIAP::erase(uint32_t addr, uint32_t size)
 
     if (erase_end_addr > flash_end_addr) {
         return -1;
-    } else if (erase_end_addr < flash_end_addr){
+    } else if (erase_end_addr < flash_end_addr) {
         uint32_t following_sector_size = flash_get_sector_size(&_flash, erase_end_addr);
         if (!is_aligned(erase_end_addr, following_sector_size)) {
             return -1;

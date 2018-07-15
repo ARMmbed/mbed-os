@@ -30,7 +30,7 @@ LR_IROM1 MBED_APP_START MBED_APP_SIZE {
    .ANY (+RO)
   }
   RW_IRAM0 MBED_RAM0_START UNINIT MBED_RAM0_SIZE { ;no init section
-        *(*noinit)
+        *(*nvictable)
   }
   RW_IRAM1 MBED_RAM1_START MBED_RAM1_SIZE {
    .ANY (+RW +ZI)

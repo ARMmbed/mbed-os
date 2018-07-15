@@ -111,11 +111,6 @@
 #define NUMBER_OF_BANKS         2
 
 /**
- * Default timer delay for callbacks.
- */
-#define CALLBACK_DELAY_US       100
-
-/**
  * Use RTC2 for idle timeouts.
  * Each channel is dedicated to one particular task.
  */
@@ -126,14 +121,6 @@
  * RTC frequency.
  */
 #define RTC_FREQUENCY   32768
-
-/**
- * SWI IRQ numbers
- */
-#define UARTE0_SWI_TX_0_IRQ     SWI2_EGU2_IRQn
-#define UARTE0_SWI_RX_0_IRQ     SWI3_EGU3_IRQn
-#define UARTE1_SWI_TX_0_IRQ     SWI4_EGU4_IRQn
-#define UARTE1_SWI_RX_0_IRQ     SWI5_EGU5_IRQn
 
 /***
  *      _______                   _       __
@@ -242,6 +229,14 @@ NRF_ATFIFO_DEF(nordic_nrf5_uart_fifo_0, uint8_t, UART0_FIFO_BUFFER_SIZE);
 #if UART1_ENABLED
 NRF_ATFIFO_DEF(nordic_nrf5_uart_fifo_1, uint8_t, UART1_FIFO_BUFFER_SIZE);
 #endif
+
+/**
+ * SWI IRQ mask.
+ */
+static uint8_t nordic_nrf5_uart_swi_mask_tx_0 = 0;
+static uint8_t nordic_nrf5_uart_swi_mask_rx_0 = 0;
+static uint8_t nordic_nrf5_uart_swi_mask_tx_1 = 0;
+static uint8_t nordic_nrf5_uart_swi_mask_rx_1 = 0;
 
 /**
  * Global variables expected by mbed_retarget.cpp for STDOUT.
@@ -416,16 +411,6 @@ static void nordic_nrf5_uart_callback_handler(uint32_t instance)
     }
 }
 
-static void nordic_nrf5_uart_swi_rx_0(void)
-{
-    nordic_nrf5_uart_callback_handler(0);
-}
-
-static void nordic_nrf5_uart_swi_rx_1(void)
-{
-    nordic_nrf5_uart_callback_handler(1);
-}
-
 /**
  * @brief      SWI interrupt handler for when the Tx buffer has been transmitted.
  *
@@ -433,8 +418,8 @@ static void nordic_nrf5_uart_swi_rx_1(void)
  */
 static void nordic_nrf5_uart_event_handler_endtx(int instance)
 {
-    /* Disable TXDRDY event again. */
-    nordic_nrf5_uart_register[instance]->INTEN &= ~NRF_UARTE_INT_TXDRDY_MASK;
+    /* Disable ENDTX event again. */
+    nrf_uarte_int_disable(nordic_nrf5_uart_register[instance], NRF_UARTE_INT_ENDTX_MASK);
 
     /* Release mutex. As the owner this call is safe. */
     nordic_nrf5_uart_state[instance].tx_in_progress = 0;
@@ -460,7 +445,7 @@ static void nordic_nrf5_uart_event_handler_endtx(int instance)
 static void nordic_nrf5_uart_event_handler_endtx_asynch(int instance)
 {
     /* Disable ENDTX interrupt. */
-    nordic_nrf5_uart_register[instance]->INTEN &= ~NRF_UARTE_INT_ENDTX_MASK;
+    nrf_uarte_int_disable(nordic_nrf5_uart_register[instance], NRF_UARTE_INT_ENDTX_MASK);
 
     /* Set Tx done and reset Tx mode to be not asynchronous. */
     nordic_nrf5_uart_state[instance].tx_in_progress = 0;
@@ -482,33 +467,55 @@ static void nordic_nrf5_uart_event_handler_endtx_asynch(int instance)
 }
 #endif
 
-static void nordic_nrf5_uart_swi_tx_0(void)
+static void nordic_nrf5_uart_swi0(void)
 {
-#if DEVICE_SERIAL_ASYNCH
-    if (nordic_nrf5_uart_state[0].tx_asynch) {
+    if (nordic_nrf5_uart_swi_mask_tx_0) {
 
-        nordic_nrf5_uart_event_handler_endtx_asynch(0);
-    } else
+        nordic_nrf5_uart_swi_mask_tx_0 = 0;
+
+#if DEVICE_SERIAL_ASYNCH
+        if (nordic_nrf5_uart_state[0].tx_asynch) {
+
+            nordic_nrf5_uart_event_handler_endtx_asynch(0);
+        } else
 #endif
-    {
-        nordic_nrf5_uart_event_handler_endtx(0);
+        {
+            nordic_nrf5_uart_event_handler_endtx(0);
+        }
     }
-}
+
+    if (nordic_nrf5_uart_swi_mask_rx_0) {
+
+        nordic_nrf5_uart_swi_mask_rx_0 = 0;
+
+        nordic_nrf5_uart_callback_handler(0);
+    }
+
 
 #if UART1_ENABLED
-static void nordic_nrf5_uart_swi_tx_1(void)
-{
-#if DEVICE_SERIAL_ASYNCH
-    if (nordic_nrf5_uart_state[1].tx_asynch) {
+    if (nordic_nrf5_uart_swi_mask_tx_1) {
 
-        nordic_nrf5_uart_event_handler_endtx_asynch(1);
-    } else
+        nordic_nrf5_uart_swi_mask_tx_1 = 0;
+
+#if DEVICE_SERIAL_ASYNCH
+        if (nordic_nrf5_uart_state[1].tx_asynch) {
+
+            nordic_nrf5_uart_event_handler_endtx_asynch(1);
+        } else
 #endif
-    {
-        nordic_nrf5_uart_event_handler_endtx(1);
+        {
+            nordic_nrf5_uart_event_handler_endtx(1);
+        }
     }
-}
+
+    if (nordic_nrf5_uart_swi_mask_rx_1) {
+
+        nordic_nrf5_uart_swi_mask_rx_1 = 0;
+
+        nordic_nrf5_uart_callback_handler(1);
+    }
 #endif
+}
 
 /**
  * @brief      Trigger Tx SWI.
@@ -519,12 +526,14 @@ static void nordic_swi_tx_trigger(int instance)
 {
     if (instance == 0) {
 
-        NVIC_SetPendingIRQ(UARTE0_SWI_TX_0_IRQ);
+        nordic_nrf5_uart_swi_mask_tx_0 = 1;
+        NVIC_SetPendingIRQ(SWI0_EGU0_IRQn);
     }
 #if UART1_ENABLED
     else if (instance == 1) {
 
-        NVIC_SetPendingIRQ(UARTE1_SWI_TX_0_IRQ);
+        nordic_nrf5_uart_swi_mask_tx_1 = 1;
+        NVIC_SetPendingIRQ(SWI0_EGU0_IRQn);
     }
 #endif
 }
@@ -538,12 +547,16 @@ static void nordic_swi_rx_trigger(int instance)
 {
     if (instance == 0) {
 
-        NVIC_SetPendingIRQ(UARTE0_SWI_RX_0_IRQ);
+        nordic_nrf5_uart_swi_mask_rx_0 = 1;
+        NVIC_SetPendingIRQ(SWI0_EGU0_IRQn);
     }
+#if UART1_ENABLED
     else if (instance == 1) {
 
-        NVIC_SetPendingIRQ(UARTE1_SWI_RX_0_IRQ);
+        nordic_nrf5_uart_swi_mask_rx_1 = 1;
+        NVIC_SetPendingIRQ(SWI0_EGU0_IRQn);
     }
+#endif
 }
 
 /***
@@ -716,33 +729,14 @@ static void nordic_nrf5_uart_event_handler(int instance)
         nordic_nrf5_uart_event_handler_rxdrdy(instance);
     }
 
-    /* Tx single character has been sent. */
-    if (nrf_uarte_event_check(nordic_nrf5_uart_register[instance], NRF_UARTE_EVENT_TXDRDY)) {
-
-        nrf_uarte_event_clear(nordic_nrf5_uart_register[instance], NRF_UARTE_EVENT_TXDRDY);
-
-        /* In non-async transfers this will generate an interrupt if callback and mask is set. */
-        if (!nordic_nrf5_uart_state[instance].tx_asynch) {
-
-            /* Use SWI to de-prioritize callback. */
-            nordic_swi_tx_trigger(instance);
-        }
-    }
-
-#if DEVICE_SERIAL_ASYNCH
     /* Tx DMA buffer has been sent. */
     if (nrf_uarte_event_check(nordic_nrf5_uart_register[instance], NRF_UARTE_EVENT_ENDTX))
     {
         nrf_uarte_event_clear(nordic_nrf5_uart_register[instance], NRF_UARTE_EVENT_ENDTX);
 
-        /* Call async event handler in async mode. */
-        if (nordic_nrf5_uart_state[instance].tx_asynch) {
-
-            /* Use SWI to de-prioritize callback. */
-            nordic_swi_tx_trigger(instance);
-        }
+        /* Use SWI to de-prioritize callback. */
+        nordic_swi_tx_trigger(instance);
     }
-#endif
 }
 
 /**
@@ -778,29 +772,6 @@ static void nordic_nrf5_uart1_handler(void)
  */
 
 /**
- * @brief      Enable UARTE interrupts.
- *
- *             Translates instance to UARTE register.
- *             Set IRQ priority to highest to avoid Rx overflow.
- *
- * @param[in]  instance  The instance
- */
-static void nordic_nrf5_uart_irq_enable(int instance)
-{
-    if (instance == 0) {
-
-        nrf_drv_common_irq_enable(UARTE0_UART0_IRQn, APP_IRQ_PRIORITY_HIGHEST);
-    }
-
-#if UART1_ENABLED
-    else if (instance == 1) {
-
-        nrf_drv_common_irq_enable(UARTE1_IRQn, APP_IRQ_PRIORITY_HIGHEST);
-    }
-#endif
-}
-
-/**
  * @brief      Configure UARTE based on serial object settings.
  *
  *             Common for both Rx and Tx.
@@ -818,9 +789,16 @@ static void nordic_nrf5_uart_configure_object(serial_t *obj)
 #endif
 
     /* Configure Tx and Rx pins. */
-    nrf_gpio_pin_set(uart_object->tx);
-    nrf_gpio_cfg_output(uart_object->tx);
-    nrf_gpio_cfg_input(uart_object->rx, NRF_GPIO_PIN_NOPULL);
+    if (uart_object->tx != NRF_UART_PSEL_DISCONNECTED) {
+
+        nrf_gpio_pin_set(uart_object->tx);
+        nrf_gpio_cfg_output(uart_object->tx);
+    }
+
+    if (uart_object->rx != NRF_UART_PSEL_DISCONNECTED) {
+
+        nrf_gpio_cfg_input(uart_object->rx, NRF_GPIO_PIN_NOPULL);
+    }
 
     nrf_uarte_txrx_pins_set(nordic_nrf5_uart_register[uart_object->instance],
                             uart_object->tx,
@@ -864,9 +842,9 @@ static void nordic_nrf5_uart_configure_object(serial_t *obj)
 static void nordic_nrf5_uart_configure_rx(int instance)
 {
     /* Disable interrupts during confiration. */
-    nordic_nrf5_uart_register[instance]->INTEN &= ~(NRF_UARTE_INT_RXSTARTED_MASK |
-                                                    NRF_UARTE_INT_ENDRX_MASK     |
-                                                    NRF_UARTE_INT_RXDRDY_MASK);
+    nrf_uarte_int_disable(nordic_nrf5_uart_register[instance], NRF_UARTE_INT_RXSTARTED_MASK |
+                                                               NRF_UARTE_INT_ENDRX_MASK     |
+                                                               NRF_UARTE_INT_RXDRDY_MASK);
 
     /* Clear FIFO buffer. */
     nrf_atfifo_clear(nordic_nrf5_uart_state[instance].fifo);
@@ -891,9 +869,9 @@ static void nordic_nrf5_uart_configure_rx(int instance)
     nordic_nrf5_uart_state[instance].rx_asynch = false;
 
     /* Enable interrupts again. */
-    nordic_nrf5_uart_register[instance]->INTEN |= (NRF_UARTE_INT_RXSTARTED_MASK |
-                                                   NRF_UARTE_INT_ENDRX_MASK     |
-                                                   NRF_UARTE_INT_RXDRDY_MASK);
+    nrf_uarte_int_enable(nordic_nrf5_uart_register[instance], NRF_UARTE_INT_RXSTARTED_MASK |
+                                                              NRF_UARTE_INT_ENDRX_MASK     |
+                                                              NRF_UARTE_INT_RXDRDY_MASK);
 }
 
 #if DEVICE_SERIAL_ASYNCH
@@ -905,9 +883,9 @@ static void nordic_nrf5_uart_configure_rx(int instance)
 static void nordic_nrf5_uart_configure_rx_asynch(int instance)
 {
     /* Disable Rx related interrupts. */
-    nordic_nrf5_uart_register[instance]->INTEN &= ~(NRF_UARTE_INT_RXSTARTED_MASK |
-                                                    NRF_UARTE_INT_ENDRX_MASK     |
-                                                    NRF_UARTE_INT_RXDRDY_MASK);
+    nrf_uarte_int_disable(nordic_nrf5_uart_register[instance], NRF_UARTE_INT_RXSTARTED_MASK |
+                                                               NRF_UARTE_INT_ENDRX_MASK     |
+                                                               NRF_UARTE_INT_RXDRDY_MASK);
 
     /* Clear Rx related events. */
     nrf_uarte_event_clear(nordic_nrf5_uart_register[instance], NRF_UARTE_EVENT_RXSTARTED);
@@ -921,7 +899,7 @@ static void nordic_nrf5_uart_configure_rx_asynch(int instance)
     nordic_nrf5_uart_state[instance].rx_asynch = true;
 
     /* Enable Rx interrupt. */
-    nordic_nrf5_uart_register[instance]->INTEN |= NRF_UARTE_INT_ENDRX_MASK;
+    nrf_uarte_int_enable(nordic_nrf5_uart_register[instance], NRF_UARTE_INT_ENDRX_MASK);
 }
 #endif
 
@@ -1028,8 +1006,8 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
                              NRF_RTC_INT_COMPARE0_MASK |
                              NRF_RTC_INT_COMPARE1_MASK);
 
-        /* Enable RTC2 IRQ. Priority is set to lowest so that the UARTE ISR can interrupt it. */
-        nrf_drv_common_irq_enable(RTC2_IRQn, APP_IRQ_PRIORITY_LOWEST);
+        /* Enable RTC2 IRQ. Priority is set to highest so that the UARTE ISR can't interrupt it. */
+        nrf_drv_common_irq_enable(RTC2_IRQn, APP_IRQ_PRIORITY_HIGHEST);
 
         /* Start RTC2. According to the datasheet the added power consumption is neglible so
          * the RTC2 will run forever.
@@ -1037,17 +1015,8 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         nrf_rtc_task_trigger(NRF_RTC2, NRF_RTC_TASK_START);
 
         /* Enable interrupts for SWI. */
-        NVIC_SetVector(UARTE0_SWI_TX_0_IRQ, (uint32_t) nordic_nrf5_uart_swi_tx_0);
-        NVIC_SetVector(UARTE0_SWI_RX_0_IRQ, (uint32_t) nordic_nrf5_uart_swi_rx_0);
-        nrf_drv_common_irq_enable(UARTE0_SWI_TX_0_IRQ, APP_IRQ_PRIORITY_LOWEST);
-        nrf_drv_common_irq_enable(UARTE0_SWI_RX_0_IRQ, APP_IRQ_PRIORITY_LOWEST);
-
-#if UART1_ENABLED
-        NVIC_SetVector(UARTE1_SWI_TX_0_IRQ, (uint32_t) nordic_nrf5_uart_swi_tx_1);
-        NVIC_SetVector(UARTE1_SWI_RX_0_IRQ, (uint32_t) nordic_nrf5_uart_swi_rx_1);
-        nrf_drv_common_irq_enable(UARTE1_SWI_TX_0_IRQ, APP_IRQ_PRIORITY_LOWEST);
-        nrf_drv_common_irq_enable(UARTE1_SWI_RX_0_IRQ, APP_IRQ_PRIORITY_LOWEST);
-#endif
+        NVIC_SetVector(SWI0_EGU0_IRQn, (uint32_t) nordic_nrf5_uart_swi0);
+        nrf_drv_common_irq_enable(SWI0_EGU0_IRQn, APP_IRQ_PRIORITY_LOWEST);
 
         /* Initialize FIFO buffer for UARTE0. */
         NRF_ATFIFO_INIT(nordic_nrf5_uart_fifo_0);
@@ -1056,9 +1025,13 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         /* Initialize owner to NULL. */
         nordic_nrf5_uart_state[0].owner = NULL;
 
-        /* Enable interrupts for UARTE0. */
+        /* Clear any old events and enable interrupts for UARTE0. */
+        nrf_uarte_int_disable(nordic_nrf5_uart_register[0], NRF_UARTE_INT_RXSTARTED_MASK |
+                                                            NRF_UARTE_INT_ENDRX_MASK     |
+                                                            NRF_UARTE_INT_RXDRDY_MASK);
+
         NVIC_SetVector(UARTE0_UART0_IRQn, (uint32_t) nordic_nrf5_uart0_handler);
-        nordic_nrf5_uart_irq_enable(0);
+        nrf_drv_common_irq_enable(UARTE0_UART0_IRQn, APP_IRQ_PRIORITY_HIGHEST);
 
 #if UART1_ENABLED
         /* Initialize FIFO buffer for UARTE1. */
@@ -1068,9 +1041,13 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         /* Initialize owner to NULL. */
         nordic_nrf5_uart_state[1].owner = NULL;
 
-        /* Enable interrupts for UARTE1. */
+        /* Clear any old events and enable interrupts for UARTE1. */
+        nrf_uarte_int_disable(nordic_nrf5_uart_register[1], NRF_UARTE_INT_RXSTARTED_MASK |
+                                                            NRF_UARTE_INT_ENDRX_MASK     |
+                                                            NRF_UARTE_INT_RXDRDY_MASK);
+
         NVIC_SetVector(UARTE1_IRQn, (uint32_t) nordic_nrf5_uart1_handler);
-        nordic_nrf5_uart_irq_enable(1);
+        nrf_drv_common_irq_enable(UARTE1_IRQn, APP_IRQ_PRIORITY_HIGHEST);
 #endif
     }
 
@@ -1411,21 +1388,6 @@ void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable)
 
         uart_object->mask &= ~type;
     }
-
-    /* Enable TXDRDY event. */
-    if ((type == NORDIC_TX_IRQ) && enable) {
-
-        /* Clear Tx ready event and enable Tx ready interrupts. */
-        nrf_uarte_event_clear(nordic_nrf5_uart_register[uart_object->instance], NRF_UARTE_EVENT_TXDRDY);
-        nordic_nrf5_uart_register[uart_object->instance]->INTEN |= NRF_UARTE_INT_TXDRDY_MASK;
-
-    /* Disable TXDRDY event. */
-    } else if ((type == NORDIC_TX_IRQ) && !enable) {
-
-        /* Disable Tx ready interrupts and clear Tx ready event. */
-        nordic_nrf5_uart_register[uart_object->instance]->INTEN &= ~NRF_UARTE_INT_TXDRDY_MASK;
-        nrf_uarte_event_clear(nordic_nrf5_uart_register[uart_object->instance], NRF_UARTE_EVENT_TXDRDY);
-    }
 }
 
 /** Get character. This is a blocking call, waiting for a character
@@ -1503,26 +1465,15 @@ void serial_putc(serial_t *obj, int character)
     /* Take ownership and configure UART if necessary. */
     nordic_nrf5_serial_configure(obj);
 
-    /**
-     * The UARTE module can generate two different Tx events: TXDRDY when each character has
-     * been transmitted and ENDTX when the entire buffer has been sent.
-     *
-     * For the blocking serial_putc, TXDRDY interrupts are enabled and only used for the
-     * single character TX IRQ callback handler.
-     */
-
     /* Arm Tx DMA buffer. */
     nordic_nrf5_uart_state[instance].tx_data = character;
     nrf_uarte_tx_buffer_set(nordic_nrf5_uart_register[instance],
                             &nordic_nrf5_uart_state[instance].tx_data,
                             1);
 
-    /* Clear TXDRDY event and enable TXDRDY interrupts. */
-    nrf_uarte_event_clear(nordic_nrf5_uart_register[instance], NRF_UARTE_EVENT_TXDRDY);
-    nordic_nrf5_uart_register[instance]->INTEN |= NRF_UARTE_INT_TXDRDY_MASK;
-
-    /* Clear ENDTX event. */
+    /* Clear ENDTX event and enable interrupts. */
     nrf_uarte_event_clear(nordic_nrf5_uart_register[instance], NRF_UARTE_EVENT_ENDTX);
+    nrf_uarte_int_enable(nordic_nrf5_uart_register[instance], NRF_UARTE_INT_ENDTX_MASK);
 
     /* Trigger DMA transfer. */
     nrf_uarte_task_trigger(nordic_nrf5_uart_register[instance],
@@ -1680,19 +1631,9 @@ int serial_tx_asynch(serial_t *obj, const void *tx, size_t tx_length, uint8_t tx
         nordic_nrf5_uart_state[instance].tx_asynch = true;
         nordic_nrf5_serial_configure(obj);
 
-        /**
-         * The UARTE module can generate two different Tx events: TXDRDY when each
-         * character has been transmitted and ENDTX when the entire buffer has been sent.
-         *
-         * For the async serial_tx_async, TXDRDY interrupts are disabled completely. ENDTX
-         * interrupts are enabled and used to signal the completion of the async transfer.
-         *
-         * The ENDTX interrupt is diabled immediately after it is fired in the ISR.
-         */
-
         /* Clear Tx event and enable Tx interrupts. */
         nrf_uarte_event_clear(nordic_nrf5_uart_register[instance], NRF_UARTE_EVENT_ENDTX);
-        nordic_nrf5_uart_register[instance]->INTEN |= NRF_UARTE_INT_ENDTX_MASK;
+        nrf_uarte_int_enable(nordic_nrf5_uart_register[instance], NRF_UARTE_INT_ENDTX_MASK);
 
         /* Set Tx DMA buffer. */
         nrf_uarte_tx_buffer_set(nordic_nrf5_uart_register[obj->serial.instance],
@@ -1831,7 +1772,7 @@ void serial_tx_abort_asynch(serial_t *obj)
     int instance = obj->serial.instance;
 
     /* Disable ENDTX interrupts. */
-    nordic_nrf5_uart_register[instance]->INTEN &= ~NRF_UARTE_INT_ENDTX_MASK;
+    nrf_uarte_int_disable(nordic_nrf5_uart_register[instance], NRF_UARTE_INT_ENDTX_MASK);
 
     /* Clear ENDTX event. */
     nrf_uarte_event_clear(nordic_nrf5_uart_register[instance], NRF_UARTE_EVENT_ENDTX);

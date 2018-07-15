@@ -814,9 +814,11 @@ lorawan_status_t LoRaMac::send_join_request()
     status = prepare_frame(&mac_hdr, &fctrl, 0, NULL, 0);
 
     if (status == LORAWAN_STATUS_OK) {
-        status = schedule_tx();
+        if (schedule_tx() == LORAWAN_STATUS_OK) {
+            status = LORAWAN_STATUS_CONNECT_IN_PROGRESS;
+        }
     } else {
-        tr_error("Retransmission: error %d", status);
+        tr_error("Couldn't send a JoinRequest: error %d", status);
     }
 
     return status;
@@ -869,8 +871,8 @@ void LoRaMac::open_rx1_window(void)
     _mcps_indication.rx_datarate = _params.rx_window1_config.datarate;
     _lora_phy.rx_config(&_params.rx_window1_config);
 
-    _lora_phy.setup_rx_window(_params.rx_window1_config.is_rx_continuous,
-                              _params.sys_params.max_rx_win_time);
+    _lora_phy.rx_config(&_params.rx_window1_config);
+    _lora_phy.handle_receive();
 
     tr_debug("Opening RX1 Window");
 }
@@ -885,8 +887,6 @@ void LoRaMac::open_rx2_window()
     _params.rx_window2_config.frequency = _params.sys_params.rx2_channel.frequency;
     _params.rx_window2_config.dl_dwell_time = _params.sys_params.downlink_dwell_time;
     _params.rx_window2_config.is_repeater_supported = _params.is_repeater_supported;
-    _params.rx_window2_config.rx_slot = _params.rx_window2_config.is_rx_continuous ?
-                                        RX_SLOT_WIN_CLASS_C : RX_SLOT_WIN_2;
 
     if (get_device_class() == CLASS_C) {
         _params.rx_window2_config.is_rx_continuous = true;
@@ -894,15 +894,14 @@ void LoRaMac::open_rx2_window()
         _params.rx_window2_config.is_rx_continuous = false;
     }
 
+    _params.rx_window2_config.rx_slot = _params.rx_window2_config.is_rx_continuous ?
+                                        RX_SLOT_WIN_CLASS_C : RX_SLOT_WIN_2;
+
     _mcps_indication.rx_datarate = _params.rx_window2_config.datarate;
 
-    if (_lora_phy.rx_config(&_params.rx_window2_config)) {
-
-        _lora_phy.setup_rx_window(_params.rx_window2_config.is_rx_continuous,
-                                  _params.sys_params.max_rx_win_time);
-
-        _params.rx_slot = _params.rx_window2_config.rx_slot;
-    }
+    _lora_phy.rx_config(&_params.rx_window2_config);
+    _lora_phy.handle_receive();
+    _params.rx_slot = _params.rx_window2_config.rx_slot;
 
     tr_debug("Opening RX2 Window, Frequency = %u", _params.rx_window2_config.frequency);
 }
@@ -1037,6 +1036,7 @@ lorawan_status_t LoRaMac::schedule_tx()
 {
     channel_selection_params_t next_channel;
     lorawan_time_t backoff_time = 0;
+    uint8_t fopts_len = 0;
 
     if (_params.sys_params.max_duty_cycle == 255) {
         return LORAWAN_STATUS_DEVICE_OFF;
@@ -1094,9 +1094,25 @@ lorawan_status_t LoRaMac::schedule_tx()
         _params.rx_window2_delay = _params.sys_params.join_accept_delay2
                                    + _params.rx_window2_config.window_offset;
     } else {
-        if (validate_payload_length(_params.tx_buffer_len,
+
+        // if the outgoing message is a proprietary message, it doesn't include any
+        // standard message formatting except port and MHDR.
+        if (_ongoing_tx_msg.type == MCPS_PROPRIETARY) {
+            fopts_len = 0;
+        } else {
+            fopts_len = _mac_commands.get_mac_cmd_length() + _mac_commands.get_repeat_commands_length();
+        }
+
+        // A check was performed for validity of FRMPayload in ::prepare_ongoing_tx() API.
+        // However, owing to the asynch nature of the send() API, we should check the
+        // validity again, as datarate may have changed since we last attempted to transmit.
+        if (validate_payload_length(_ongoing_tx_msg.f_buffer_size,
                                     _params.sys_params.channel_data_rate,
-                                    _mac_commands.get_mac_cmd_length()) == false) {
+                                    fopts_len) == false) {
+            tr_error("Allowed FRMPayload = %d, FRMPayload = %d, MAC commands pending = %d",
+                     _lora_phy->get_max_payload(_params.sys_params.channel_data_rate,
+                                               _params.is_repeater_supported),
+                                               _ongoing_tx_msg.f_buffer_size, fopts_len);
             return LORAWAN_STATUS_LENGTH_ERROR;
         }
         _params.rx_window1_delay = _params.sys_params.recv_delay1
@@ -1219,27 +1235,9 @@ int16_t LoRaMac::prepare_ongoing_tx(const uint8_t port,
                                     uint8_t num_retries)
 {
     _ongoing_tx_msg.port = port;
-
-    uint8_t max_possible_size = get_max_possible_tx_size(length);
-
-    if (max_possible_size > MBED_CONF_LORA_TX_MAX_SIZE) {
-        max_possible_size = MBED_CONF_LORA_TX_MAX_SIZE;
-    }
-
-    if (max_possible_size < length) {
-        tr_info("Cannot transmit %d bytes. Possible TX Size is %d bytes",
-                length, max_possible_size);
-
-        _ongoing_tx_msg.pending_size = length - max_possible_size;
-        _ongoing_tx_msg.f_buffer_size = max_possible_size;
-        memcpy(_ongoing_tx_msg.f_buffer, data, _ongoing_tx_msg.f_buffer_size);
-    } else {
-        _ongoing_tx_msg.f_buffer_size = length;
-        _ongoing_tx_msg.pending_size = 0;
-        if (length > 0) {
-            memcpy(_ongoing_tx_msg.f_buffer, data, length);
-        }
-    }
+    uint8_t max_possible_size = 0;
+    uint8_t fopts_len = _mac_commands.get_mac_cmd_length()
+            + _mac_commands.get_repeat_commands_length();
 
     // Handles unconfirmed messages
     if (flags & MSG_UNCONFIRMED_FLAG) {
@@ -1260,6 +1258,30 @@ int16_t LoRaMac::prepare_ongoing_tx(const uint8_t port,
         _ongoing_tx_msg.type = MCPS_PROPRIETARY;
         _ongoing_tx_msg.fport = port;
         _ongoing_tx_msg.nb_trials = 1;
+        // a proprietary frame only includes an MHDR field which contains MTYPE field.
+        // Everything else is at the discretion of the implementer
+        fopts_len = 0;
+    }
+
+    max_possible_size = get_max_possible_tx_size(fopts_len);
+
+    if (max_possible_size > MBED_CONF_LORA_TX_MAX_SIZE) {
+        max_possible_size = MBED_CONF_LORA_TX_MAX_SIZE;
+    }
+
+    if (max_possible_size < length) {
+        tr_info("Cannot transmit %d bytes. Possible TX Size is %d bytes",
+                length, max_possible_size);
+
+        _ongoing_tx_msg.pending_size = length - max_possible_size;
+        _ongoing_tx_msg.f_buffer_size = max_possible_size;
+        memcpy(_ongoing_tx_msg.f_buffer, data, _ongoing_tx_msg.f_buffer_size);
+    } else {
+        _ongoing_tx_msg.f_buffer_size = length;
+        _ongoing_tx_msg.pending_size = 0;
+        if (length > 0) {
+            memcpy(_ongoing_tx_msg.f_buffer, data, length);
+        }
     }
 
     tr_info("RTS = %u bytes, PEND = %u, Port: %u",
@@ -1570,8 +1592,10 @@ lorawan_status_t LoRaMac::prepare_frame(loramac_mhdr_t *machdr,
 
             _mac_commands.parse_mac_commands_to_repeat();
 
+            // We always add Port Field. Spec leaves it optional.
+            _params.tx_buffer[pkt_header_len++] = frame_port;
+
             if ((payload != NULL) && (_params.tx_buffer_len > 0)) {
-                _params.tx_buffer[pkt_header_len++] = frame_port;
 
                 uint8_t *key = _params.keys.app_skey;
                 uint32_t key_length = sizeof(_params.keys.app_skey) * 8;
@@ -1762,12 +1786,10 @@ void LoRaMac::disconnect()
     reset_mcps_indication();
 }
 
-uint8_t LoRaMac::get_max_possible_tx_size(uint8_t size)
+uint8_t LoRaMac::get_max_possible_tx_size(uint8_t fopts_len)
 {
     uint8_t max_possible_payload_size = 0;
-    uint8_t current_payload_size = 0;
-    uint8_t fopt_len = _mac_commands.get_mac_cmd_length()
-                       + _mac_commands.get_repeat_commands_length();
+    uint8_t allowed_frm_payload_size = 0;
 
     if (_params.sys_params.adr_on) {
         _lora_phy.get_next_ADR(false, _params.sys_params.channel_data_rate,
@@ -1775,22 +1797,19 @@ uint8_t LoRaMac::get_max_possible_tx_size(uint8_t size)
                                _params.adr_ack_counter);
     }
 
-    current_payload_size = _lora_phy.get_max_payload(_params.sys_params.channel_data_rate, _params.is_repeater_supported);
+    allowed_frm_payload_size = _lora_phy->get_max_payload(_params.sys_params.channel_data_rate,
+                                                          _params.is_repeater_supported);
 
-    if (current_payload_size >= fopt_len) {
-        max_possible_payload_size = current_payload_size - fopt_len;
+    if (allowed_frm_payload_size >= fopts_len) {
+        max_possible_payload_size = allowed_frm_payload_size - fopts_len;
     } else {
-        max_possible_payload_size = current_payload_size;
-        fopt_len = 0;
+        max_possible_payload_size = allowed_frm_payload_size;
+        fopts_len = 0;
         _mac_commands.clear_command_buffer();
         _mac_commands.clear_repeat_buffer();
     }
 
-    if (validate_payload_length(size, _params.sys_params.channel_data_rate,
-                                fopt_len) == false) {
-        return max_possible_payload_size;
-    }
-    return current_payload_size;
+    return max_possible_payload_size;
 }
 
 bool LoRaMac::nwk_joined()

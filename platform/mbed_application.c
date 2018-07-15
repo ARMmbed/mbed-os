@@ -23,9 +23,31 @@
 
 #if defined(__CORTEX_A9)
 
+static void powerdown_gic(void);
+
 void mbed_start_application(uintptr_t address)
 {
+    __disable_irq();
+    powerdown_gic();
+    __enable_irq();
     ((void(*)())address)();
+}
+
+static void powerdown_gic()
+{
+    int i;
+    int j;
+
+    for (i = 0; i < 32; i++) {
+        GICDistributor->ICENABLER[i] = 0xFFFFFFFF;
+        GICDistributor->ICPENDR[i] = 0xFFFFFFFF;
+        if (i < 4) {
+            GICDistributor->CPENDSGIR[i] = 0xFFFFFFFF;
+        }
+        for (j = 0; j < 8; j++) {
+            GICDistributor->IPRIORITYR[i*8+j] = 0x00000000;
+        }
+    }
 }
 
 #else
@@ -46,8 +68,8 @@ void mbed_start_application(uintptr_t address)
     powerdown_nvic();
     powerdown_scb(address);
 
-    sp = *((void**)address + 0);
-    pc = *((void**)address + 1);
+    sp = *((void **)address + 0);
+    pc = *((void **)address + 1);
     start_new_application(sp, pc);
 }
 
@@ -133,16 +155,16 @@ __asm static void start_new_application(void *sp, void *pc)
 
 void start_new_application(void *sp, void *pc)
 {
-    __asm volatile (
+    __asm volatile(
         "movw   r2, #0      \n" // Fail to compile "mov r2, #0" with ARMC6. Replace with MOVW.
-                                // We needn't "movt r2, #0" immediately following because MOVW
-                                // will zero-extend the 16-bit immediate.
+        // We needn't "movt r2, #0" immediately following because MOVW
+        // will zero-extend the 16-bit immediate.
         "msr    control, r2 \n" // Switch to main stack
         "mov    sp, %0      \n"
         "msr    primask, r2 \n" // Enable interrupts
         "bx     %1          \n"
         :
-        : "l" (sp), "l" (pc)
+        : "l"(sp), "l"(pc)
         : "r2", "cc", "memory"
     );
 }

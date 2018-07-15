@@ -34,8 +34,6 @@ from . import (lpcxpresso, ds5_5, iar, makefile, embitz, coide, kds, simplicity,
 
 EXPORTERS = {
     u'uvision5': uvision.Uvision,
-    u'uvision': uvision.Uvision,
-    u'gcc_arm': makefile.GccArm,
     u'make_gcc_arm': makefile.GccArm,
     u'make_armc5': makefile.Armc5,
     u'make_armc6': makefile.Armc6,

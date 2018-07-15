@@ -35,7 +35,8 @@ namespace mbed {
 class LowPowerTimeout : public LowPowerTicker, private NonCopyable<LowPowerTimeout> {
 
 private:
-    virtual void handler(void) {
+    virtual void handler(void)
+    {
         _function.call();
     }
 };

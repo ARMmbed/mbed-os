@@ -137,27 +137,7 @@ def get_config(src_paths, target, toolchain_name, app_config=None):
                                   app_config=app_config)
 
     # Scan src_path for config files
-    resources = toolchain.scan_resources(src_paths[0])
-    for path in src_paths[1:]:
-        resources.add(toolchain.scan_resources(path))
-
-    # Update configuration files until added features creates no changes
-    prev_features = set()
-    while True:
-        # Update the configuration with any .json files found while scanning
-        toolchain.config.add_config_files(resources.json_files)
-
-        # Add features while we find new ones
-        features = set(toolchain.config.get_features())
-        if features == prev_features:
-            break
-
-        for feature in features:
-            if feature in resources.features:
-                resources += resources.features[feature]
-
-        prev_features = features
-    toolchain.config.validate_config()
+    scan_resources(src_paths, toolchain)
     if toolchain.config.has_regions:
         _ = list(toolchain.config.regions)
 
@@ -1073,6 +1053,7 @@ def build_mbed_libs(target, toolchain_name, clean=False, macros=None,
         #   - mbed_overrides.o: this contains platform overrides of various
         #                       weak SDK functions
         #   - mbed_main.o: this contains main redirection
+        #   - PeripheralPins.o: PinMap can be weak
         separate_names, separate_objects = ['PeripheralPins.o', 'mbed_retarget.o', 'mbed_board.o',
                                             'mbed_overrides.o', 'mbed_main.o', 'mbed_sdk_boot.o'], []
 
@@ -1138,19 +1119,18 @@ def get_unique_supported_toolchains(release_targets=None):
 
     return unique_supported_toolchains
 
+
+def _lowercase_release_version(release_version):
+    try:
+        return release_version.lower()
+    except AttributeError:
+        return 'all'
+
 def mcu_toolchain_list(release_version='5'):
     """  Shows list of toolchains
 
     """
-
-    if isinstance(release_version, basestring):
-        # Force release_version to lowercase if it is a string
-        release_version = release_version.lower()
-    else:
-        # Otherwise default to printing all known targets and toolchains
-        release_version = 'all'
-
-
+    release_version = _lowercase_release_version(release_version)
     version_release_targets = {}
     version_release_target_names = {}
 
@@ -1175,15 +1155,7 @@ def mcu_target_list(release_version='5'):
     """  Shows target list
 
     """
-
-    if isinstance(release_version, basestring):
-        # Force release_version to lowercase if it is a string
-        release_version = release_version.lower()
-    else:
-        # Otherwise default to printing all known targets and toolchains
-        release_version = 'all'
-
-
+    release_version = _lowercase_release_version(release_version)
     version_release_targets = {}
     version_release_target_names = {}
 
@@ -1219,15 +1191,7 @@ def mcu_toolchain_matrix(verbose_html=False, platform_filter=None,
     """
     # Only use it in this function so building works without extra modules
     from prettytable import PrettyTable
-
-    if isinstance(release_version, basestring):
-        # Force release_version to lowercase if it is a string
-        release_version = release_version.lower()
-    else:
-        # Otherwise default to printing all known targets and toolchains
-        release_version = 'all'
-
-
+    release_version = _lowercase_release_version(release_version)
     version_release_targets = {}
     version_release_target_names = {}
 

@@ -12095,7 +12095,7 @@ typedef struct {
 #define GPIO_BASE_PTRS                           { (GPIO_Type *)0u, GPIO1, GPIO2, GPIO3, GPIO4, GPIO5 }
 /** Interrupt vectors for the GPIO peripheral type */
 #define GPIO_IRQS                                { NotAvail_IRQn, GPIO1_INT0_IRQn, GPIO1_INT1_IRQn, GPIO1_INT2_IRQn, GPIO1_INT3_IRQn, GPIO1_INT4_IRQn, GPIO1_INT5_IRQn, GPIO1_INT6_IRQn, GPIO1_INT7_IRQn, NotAvail_IRQn, NotAvail_IRQn, NotAvail_IRQn, NotAvail_IRQn }
-#define GPIO_COMBINED_IRQS                       { NotAvail_IRQn, GPIO1_Combined_16_31_IRQn, GPIO2_Combined_16_31_IRQn, GPIO2_Combined_0_15_IRQn, GPIO3_Combined_16_31_IRQn, GPIO3_Combined_0_15_IRQn, GPIO4_Combined_16_31_IRQn, GPIO4_Combined_0_15_IRQn, GPIO5_Combined_16_31_IRQn, GPIO5_Combined_0_15_IRQn }
+#define GPIO_COMBINED_IRQS                       { NotAvail_IRQn, GPIO1_Combined_16_31_IRQn, GPIO1_Combined_0_15_IRQn, GPIO2_Combined_16_31_IRQn, GPIO2_Combined_0_15_IRQn, GPIO3_Combined_16_31_IRQn, GPIO3_Combined_0_15_IRQn, GPIO4_Combined_16_31_IRQn, GPIO4_Combined_0_15_IRQn, GPIO5_Combined_16_31_IRQn, GPIO5_Combined_0_15_IRQn }
 
 /*!
  * @}

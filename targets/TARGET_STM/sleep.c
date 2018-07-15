@@ -31,11 +31,12 @@
 
 #include "sleep_api.h"
 #include "us_ticker_api.h"
-#include "hal_tick.h"
+#include "us_ticker_data.h"
 #include "mbed_critical.h"
 #include "mbed_error.h"
 
-extern void rtc_synchronize(void);
+extern void save_timer_ctx(void);
+extern void restore_timer_ctx(void);
 
 /*  Wait loop - assuming tick is 1 us */
 static void wait_loop(uint32_t timeout)
@@ -161,7 +162,7 @@ void hal_deepsleep(void)
     // Disable IRQs
     core_util_critical_section_enter();
 
-    uint32_t EnterTimeUS = us_ticker_read();
+    save_timer_ctx();
 
     // Request to enter STOP mode with regulator in low power mode
 #if TARGET_STM32L4
@@ -186,6 +187,7 @@ void hal_deepsleep(void)
 #else /* TARGET_STM32L4 */
     HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
 #endif /* TARGET_STM32L4 */
+
     // Verify Clock Out of Deep Sleep
     ForceClockOutofDeepSleep();
 
@@ -198,20 +200,8 @@ void hal_deepsleep(void)
      *  deep sleep */
     wait_loop(500);
 
-    TIM_HandleTypeDef TimMasterHandle;
-    TimMasterHandle.Instance = TIM_MST;
-    __HAL_TIM_SET_COUNTER(&TimMasterHandle, EnterTimeUS);
+    restore_timer_ctx();
 
-#if DEVICE_RTC
-    /* Wait for RTC RSF bit synchro if RTC is configured */
-#if (TARGET_STM32F2) || (TARGET_STM32F4) || (TARGET_STM32F7)
-    if (READ_BIT(RCC->BDCR, RCC_BDCR_RTCSEL)) {
-#else /* (TARGET_STM32F2) || (TARGET_STM32F4) || (TARGET_STM32F7) */
-    if (__HAL_RCC_GET_RTC_SOURCE()) {
-#endif  /* (TARGET_STM32F2) || (TARGET_STM32F4) || (TARGET_STM32F7) */
-        rtc_synchronize();
-    }
-#endif
     // Enable IRQs
     core_util_critical_section_exit();
 }

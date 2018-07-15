@@ -41,8 +41,14 @@ public:
      * Connect by Over The Air Activation or Activation By Personalization.
      * The connection type is selected at the setup.
      *
-     * @return         LORAWAN_STATUS_OK on success, a negative error code on
-     *                 failure.
+     * @return    For ABP:  If everything goes well, LORAWAN_STATUS_OK is returned for first call followed by
+     *                      a 'CONNECTED' event. Otherwise a negative error code is returned.
+     *                      Any subsequent call will return LORAWAN_STATUS_ALREADY_CONNECTED and no event follows.
+     *
+     *            For OTAA: When a JoinRequest is sent, LORAWAN_STATUS_CONNECT_IN_PROGRESS is returned for the first call.
+     *                      Any subsequent call will return either LORAWAN_STATUS_BUSY (if the previous request for connection
+     *                      is still underway) or LORAWAN_STATUS_ALREADY_CONNECTED (if a network was already joined successfully).
+     *                      A 'CONNECTED' event is sent to the application when the JoinAccept is received.
      */
     virtual lorawan_status_t connect() = 0;
 
@@ -53,8 +59,15 @@ public:
      * You need to define the parameters in the main application.
      *
      * @param connect       Options how end-device will connect to gateway
-     * @return              LORAWAN_STATUS_OK on success, negative error code
-     *                      on failure
+     *
+     * @return    For ABP:  If everything goes well, LORAWAN_STATUS_OK is returned for first call followed by
+     *                      a 'CONNECTED' event. Otherwise a negative error code is returned.
+     *                      Any subsequent call will return LORAWAN_STATUS_ALREADY_CONNECTED and no event follows.
+     *
+     *            For OTAA: When a JoinRequest is sent, LORAWAN_STATUS_CONNECT_IN_PROGRESS is returned for the first call.
+     *                      Any subsequent call will return either LORAWAN_STATUS_BUSY (if the previous request for connection
+     *                      is still underway) or LORAWAN_STATUS_ALREADY_CONNECTED (if a network was already joined successfully).
+     *                      A 'CONNECTED' event is sent to the application when the JoinAccept is received.
      */
     virtual lorawan_status_t connect(const lorawan_connect_t &connect) = 0;
 
@@ -203,15 +216,9 @@ public:
      *                          MSG_CONFIRMED_FLAG = 0x02
      *                          MSG_MULTICAST_FLAG = 0x04
      *                          MSG_PROPRIETARY_FLAG = 0x08
-     *                          MSG_MULTICAST_FLAG and MSG_PROPRIETARY_FLAG can be
-     *                          used in conjunction with MSG_UNCONFIRMED_FLAG and
-     *                          MSG_CONFIRMED_FLAG depending on the intended use.
      *
-     *                          MSG_PROPRIETARY_FLAG|MSG_CONFIRMED_FLAG mask will set
-     *                          a confirmed message flag for a proprietary message.
-     *                          MSG_CONFIRMED_FLAG and MSG_UNCONFIRMED_FLAG are
-     *                          mutually exclusive.
-     *
+     *                          All flags are mutually exclusive, and MSG_MULTICAST_FLAG
+     *                          cannot be set.
      *
      * @return                  The number of bytes sent, or
      *                          LORAWAN_STATUS_WOULD_BLOCK if another TX is
@@ -240,14 +247,11 @@ public:
      *                          MSG_MULTICAST_FLAG = 0x04,
      *                          MSG_PROPRIETARY_FLAG = 0x08
      *
-     *                          MSG_MULTICAST_FLAG and MSG_PROPRIETARY_FLAG can be
-     *                          used in conjunction with MSG_UNCONFIRMED_FLAG and
-     *                          MSG_CONFIRMED_FLAG depending on the intended use.
+     *                          All flags can be used in conjunction with
+     *                          one another depending on the intended use case or reception
+     *                          expectation.
      *
-     *                          MSG_PROPRIETARY_FLAG|MSG_CONFIRMED_FLAG mask will set
-     *                          a confirmed message flag for a proprietary message.
-     *
-     *                          MSG_CONFIRMED_FLAG and MSG_UNCONFIRMED_FLAG are
+     *                          e.g., MSG_CONFIRMED_FLAG and MSG_UNCONFIRMED_FLAG are
      *                          not mutually exclusive, i.e., the user can subscribe to
      *                          receive both CONFIRMED AND UNCONFIRMED messages at
      *                          the same time.
