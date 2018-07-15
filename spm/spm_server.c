@@ -165,7 +165,7 @@ static psa_handle_t copy_message_to_spm(spm_ipc_channel_t *channel, psa_msg_t *u
     return handle;
 }
 
-static spm_ipc_channel_t * spm_rot_service_queue_dequeue(spm_rot_service_t *rot_service)
+static spm_ipc_channel_t *spm_rot_service_queue_dequeue(spm_rot_service_t *rot_service)
 {
     osStatus_t os_status = osMutexAcquire(rot_service->partition->mutex, osWaitForever);
     SPM_ASSERT(osOK == os_status);
@@ -430,7 +430,7 @@ void psa_end(psa_handle_t msg_handle, psa_error_t retval)
 
     osSemaphoreId_t completion_sem_id = NULL;
     bool nspe_call = (active_channel->src_partition == NULL);
-    switch(active_channel->msg_type) {
+    switch (active_channel->msg_type) {
         case PSA_IPC_CONNECT:
         {
             if ((retval != PSA_CONNECTION_ACCEPTED) && (retval != PSA_CONNECTION_REFUSED)) {
@@ -438,7 +438,7 @@ void psa_end(psa_handle_t msg_handle, psa_error_t retval)
             }
 
             spm_pending_connect_msg_t *connect_msg_data  = (spm_pending_connect_msg_t *)(active_channel->msg_ptr);
-            completion_sem_id = connect_msg_data ->completion_sem_id;
+            completion_sem_id = connect_msg_data->completion_sem_id;
             if (retval == PSA_CONNECTION_REFUSED) {
                 channel_state_assert(&active_channel->state, SPM_CHANNEL_STATE_CONNECTING);
                 // !!!!!NOTE!!!!! handles must be destroyed before osMemoryPoolFree().
@@ -449,7 +449,7 @@ void psa_end(psa_handle_t msg_handle, psa_error_t retval)
                     // the connection was established.
                     // Channel state machine and ACL will prevent attacker from
                     // doing bad stuff before we overwrite it with a negative return code.
-                    destroy_channel_handle((psa_handle_t)connect_msg_data ->rc);
+                    destroy_channel_handle((psa_handle_t)connect_msg_data->rc);
 
                     memset(active_channel, 0, sizeof(*active_channel));
                     osStatus_t os_status = osMemoryPoolFree(g_spm.channel_mem_pool, active_channel);
@@ -457,7 +457,7 @@ void psa_end(psa_handle_t msg_handle, psa_error_t retval)
                     PSA_UNUSED(os_status);
                 }
                 // Replace the handle we created in the user's memory with the error code
-                connect_msg_data ->rc = retval;
+                connect_msg_data->rc = retval;
                 active_channel = NULL;
             } else {
                 channel_state_switch(&active_channel->state,

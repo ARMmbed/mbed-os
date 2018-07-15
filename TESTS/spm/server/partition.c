@@ -58,7 +58,7 @@ void part1_main(void *ptr)
                 SPM_PANIC("could not read the entire test payload structure\n");
             }
 
-            switch(action) {
+            switch (action) {
                 case START_TEST:
                     if ((test_idx >= num_of_tests) || (test_list[test_idx] == NULL)) {
                         SPM_PANIC("Invalid test ID was sent!\n");
