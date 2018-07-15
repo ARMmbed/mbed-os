@@ -100,9 +100,10 @@ psa_handle_t psa_hndl_mgr_handle_create(psa_handle_manager_t *handle_mgr, void *
     // Generate a new handle identifier
     uint32_t tmp_handle = core_util_atomic_incr_u32(&(handle_mgr->handle_generator), 1);
     uint32_t new_handle = PSA_HANDLE_MGR_INVALID_HANDLE;
+    uint32_t pool_ix    = 0;
 
     // Look for a vacant space in handles pool for the generated handle
-    for(uint32_t pool_ix = 0; pool_ix < handle_mgr->pool_size; pool_ix++) {
+    for(pool_ix = 0; pool_ix < handle_mgr->pool_size; pool_ix++) {
 
         expected = PSA_HANDLE_MGR_INVALID_HANDLE;
 
@@ -128,10 +129,10 @@ psa_handle_t psa_hndl_mgr_handle_create(psa_handle_manager_t *handle_mgr, void *
         // Occupied index in handles pool - continue looping
     }
     
-    if (PSA_HANDLE_MGR_INVALID_HANDLE == new_handle) {
-        // Handle creation should only occure after a successful
+    if (pool_ix == handle_mgr->pool_size) {
+        // Handle creation should only occur after a successful
         // memory allocation and is not expected to fail.
-        SPM_PANIC("[ERROR] no vacant handles left - unexpected behaviour\n");
+        SPM_PANIC("[ERROR] No vacant handles left - unexpected behaviour\n");
     }
     
     return new_handle;
@@ -220,8 +221,8 @@ void *psa_hndl_mgr_handle_get_mem(psa_handle_manager_t *handle_mgr, psa_handle_t
         SPM_PANIC("[ERROR] Request for handle memory is not allowed for this partition! \n");
     }
 
-    /* If a valid handle is "coupled" with a NULL handle memory then
-     * it is an internal module error or memory was overwritten --> Assert */
+    // If a valid handle is "coupled" with a NULL handle memory then
+    // it is an internal module error or memory was overwritten --> Assert
     SPM_ASSERT(handle_mgr->handles_pool[pool_ix].handle_mem != NULL);
 
     return handle_mgr->handles_pool[pool_ix].handle_mem;
