@@ -104,13 +104,13 @@ static void spm_rot_service_queue_enqueue(spm_rot_service_t *rot_service, spm_ip
     SPM_ASSERT(osOK == os_status);
 }
 
-void psa_connect_async(spm_pending_connect_msg_t *msg)
+void psa_connect_async(uint32_t sid, spm_pending_connect_msg_t *msg)
 {
     SPM_ASSERT(msg != NULL);
 
-    spm_rot_service_t *dst_rot_service = rot_service_get(msg->sid);
+    spm_rot_service_t *dst_rot_service = rot_service_get(sid);
     if (NULL == dst_rot_service) {
-        SPM_PANIC("SID 0x%x is invalid!\n", msg->sid);
+        SPM_PANIC("SID 0x%x is invalid!\n", sid);
     }
 
     if (((dst_rot_service->min_version_policy == PSA_MINOR_VERSION_POLICY_RELAXED) && (msg->min_version > dst_rot_service->min_version)) ||
@@ -164,7 +164,6 @@ psa_handle_t psa_connect(uint32_t sid, uint32_t minor_version)
     };
 
     spm_pending_connect_msg_t msg = {
-        .sid = sid,
         .min_version = minor_version,
         .rc = PSA_NULL_HANDLE,
         .completion_sem_id = osSemaphoreNew(
@@ -177,7 +176,7 @@ psa_handle_t psa_connect(uint32_t sid, uint32_t minor_version)
         SPM_PANIC("could not create a semaphore for connect message");
     }
 
-    psa_connect_async(&msg);
+    psa_connect_async(sid, &msg);
 
     osStatus_t os_status = osSemaphoreAcquire(msg.completion_sem_id, osWaitForever);
     SPM_ASSERT(osOK == os_status);
@@ -190,10 +189,10 @@ psa_handle_t psa_connect(uint32_t sid, uint32_t minor_version)
     return (psa_handle_t)msg.rc;
 }
 
-void psa_call_async(spm_pending_call_msg_t *msg)
+void psa_call_async(psa_handle_t handle, spm_pending_call_msg_t *msg)
 {
     SPM_ASSERT(msg != NULL);
-    spm_ipc_channel_t *channel = get_channel_from_handle(msg->channel);
+    spm_ipc_channel_t *channel = get_channel_from_handle(handle);
 
     if (channel->is_dropped == TRUE) {
         msg->rc = PSA_DROP_CONNECTION;
@@ -236,7 +235,6 @@ psa_error_t psa_call(
     };
 
     spm_pending_call_msg_t msg = {
-        .channel = handle,
         .in_vec = in_vec,
         .in_vec_size = in_len,
         .out_vec = out_vec,
@@ -252,7 +250,7 @@ psa_error_t psa_call(
         SPM_PANIC("could not create a semaphore for connect message");
     }
 
-    psa_call_async(&msg);
+    psa_call_async(handle, &msg);
 
     osStatus_t os_status = osSemaphoreAcquire(msg.completion_sem_id, osWaitForever);
     SPM_ASSERT(osOK == os_status);

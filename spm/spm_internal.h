@@ -72,7 +72,6 @@ typedef IRQn_Type (*spm_signal_to_irq_mapper_t)(uint32_t);
  * Structure containing data sent from NSPE for ROT_SRV call.
  */
 typedef __PACKED_STRUCT spm_pending_call_msg {
-    psa_handle_t channel; /* Handle pointing to the channel */
     const psa_invec_t *in_vec; /* Invecs sent.*/
     uint32_t in_vec_size; /* Number of Invecs sent.*/
     const psa_outvec_t *out_vec; /* Outvecs for response.*/
@@ -87,7 +86,6 @@ typedef __PACKED_STRUCT spm_pending_call_msg {
  * Structure containing data sent from NSPE for connection.
  */
 typedef __PACKED_STRUCT spm_pending_connect_msg {
-    uint32_t sid; /* The Root of Trust Service ID to be called*/
     uint32_t min_version; /* Minor version of the Root of Trust Service interface.*/
     psa_error_t rc; /* Return code to be filled by the Root of Trust Service.*/
     osSemaphoreId_t completion_sem_id; /* Semaphore to be released at the end of execution */
@@ -193,16 +191,18 @@ void nspe_done(osSemaphoreId_t completion_sem_id);
 /*
  * Validates parameters sent from caller and queues a connect message on the correct ROT_SRV.
  *
+ * @param[in] sid - desired RoT service ID
  * @param[in] msg - pointer to connect message struct
  */
-void psa_connect_async(spm_pending_connect_msg_t *msg);
+void psa_connect_async(uint32_t sid, spm_pending_connect_msg_t *msg);
 
 /*
  * Validates parameters sent from caller and queues a call message on the correct ROT_SRV.
  *
+ * @param[in] handle - channel handle for the connection
  * @param[in] msg - pointer to call message struct
  */
-void psa_call_async(spm_pending_call_msg_t *msg);
+void psa_call_async(psa_handle_t handle, spm_pending_call_msg_t *msg);
 
 
 /*
