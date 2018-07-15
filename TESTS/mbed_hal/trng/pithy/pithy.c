@@ -53,10 +53,6 @@
 // The maximum size that can be compressed while still allowing for the worst case compression expansion.
 #define PITHY_UNCOMPRESSED_MAX_LENGTH 0xdb6db6bfu // 0xdb6db6bf == 3681400511, or 3510.857 Mbytes.
 
-#if defined(__i386__) || defined(__x86_64__) || defined(__powerpc__) || defined(__arm__)
-#define PITHY_UNALIGNED_LOADS_AND_STORES
-#endif
-
 typedef const char *pithy_hashOffset_t;
 
 enum {
@@ -100,7 +96,6 @@ enum {
   } while(0)
 #endif
 
-
 PITHY_STATIC_INLINE const char *pithy_Parse32WithLimit(const char *p, const char *l, size_t *OUTPUT);
 PITHY_STATIC_INLINE char       *pithy_Encode32(char *ptr, uint32_t v);
 
@@ -112,31 +107,6 @@ PITHY_STATIC_INLINE char       *pithy_EmitCopyGreaterThan63(char *op, size_t off
 PITHY_STATIC_INLINE char       *pithy_EmitCopyLessThan63(char *op, size_t offset, size_t len);
 PITHY_STATIC_INLINE char       *pithy_EmitCopy(char *op, size_t offset, size_t len);
 
-
-#ifdef PITHY_UNALIGNED_LOADS_AND_STORES
-
-#define pithy_Load16(_p)        (*((uint16_t *)(_p)))
-#define pithy_Load32(_p)        (*((uint32_t *)(_p)))
-#define pithy_Store16(_p, _val) (*((uint16_t *)(_p)) = (_val))
-#define pithy_Store32(_p, _val) (*((uint32_t *)(_p)) = (_val))
-
-#if defined(__arm__)
-
-#if defined(__ARM_NEON__)
-#define pithy_Load64(_p)         ((uint64_t)vld1_u64(_p))
-#define pithy_Store64(_p, _val) vst1_u64(_p, (uint64x1_t)_val)
-#else
-#define PITHY_32BIT_MOVE64
-PITHY_STATIC_INLINE uint64_t pithy_Load64(const void *p)        { uint64_t t; memcpy(&t, p, sizeof(t)); return (t); }
-#endif
-
-#else  // not __arm__
-#define pithy_Load64(_p)        (*((uint64_t *)(_p)))
-#define pithy_Store64(_p, _val) (*((uint64_t *)(_p)) = (_val))
-#endif // __arm__
-
-#else
-
 PITHY_STATIC_INLINE uint16_t pithy_Load16(const void *p)        { uint16_t t; memcpy(&t, p, sizeof(t)); return (t); }
 PITHY_STATIC_INLINE uint32_t pithy_Load32(const void *p)        { uint32_t t; memcpy(&t, p, sizeof(t)); return (t); }
 PITHY_STATIC_INLINE uint64_t pithy_Load64(const void *p)        { uint64_t t; memcpy(&t, p, sizeof(t)); return (t); }
@@ -144,24 +114,8 @@ PITHY_STATIC_INLINE void     pithy_Store16(void *p, uint16_t v) { memcpy(p, &v, 
 PITHY_STATIC_INLINE void     pithy_Store32(void *p, uint32_t v) { memcpy(p, &v, sizeof(v)); }
 PITHY_STATIC_INLINE void     pithy_Store64(void *p, uint64_t v) { memcpy(p, &v, sizeof(v)); }
 
-#endif
-
-
-#ifdef PITHY_32BIT_MOVE64
-#define pithy_Move64(dst,src)  pithy_Store32(dst, pithy_Load32(src)); \
-        pithy_Store32(dst + 4ul, pithy_Load32(src + 4ul));
-#else
 #define pithy_Move64(dst,src)  pithy_Store64(dst, pithy_Load64(src));
-#endif
-
-
-#if defined(__arm__) && defined(__ARM_NEON__) && defined(PITHY_UNALIGNED_LOADS_AND_STORES)
-#define pithy_Move128(_dst,_src) ({                                   \
-    asm ("vld1.64 {d0-d1}, [%[src]]\n\tvst1.64 {d0-d1}, [%[dst]]" : : \
-    [src]"r"(_src), [dst]"r"(_dst) : "d0", "d1", "memory"); })
-#else
 #define pithy_Move128(dst,src) pithy_Move64(dst, src); pithy_Move64(dst + 8ul, src + 8ul);
-#endif
 
 #ifdef __BIG_ENDIAN__
 
