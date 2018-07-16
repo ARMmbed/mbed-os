@@ -129,11 +129,9 @@ psa_handle_t psa_hndl_mgr_handle_create(psa_handle_manager_t *handle_mgr, void *
         // Occupied index in handles pool - continue looping
     }
     
-    if (pool_ix == handle_mgr->pool_size) {
-        // Handle creation should only occur after a successful
-        // memory allocation and is not expected to fail.
-        SPM_PANIC("[ERROR] No vacant handles left - unexpected behaviour\n");
-    }
+    // Handle creation should only occur after a successful memory allocation
+    // and is not expected to fail.
+    SPM_ASSERT(pool_ix != handle_mgr->pool_size);
     
     return new_handle;
 }

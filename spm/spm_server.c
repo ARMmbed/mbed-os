@@ -269,7 +269,7 @@ void psa_get(psa_signal_t signum, psa_msg_t *msg)
 
     spm_rot_service_t *curr_rot_service = get_rot_service(curr_partition, signum);
     if (curr_rot_service == NULL) {
-        SPM_PANIC("Recieved signal (0x%08x) that does not match any root of trust service", signum);
+        SPM_PANIC("Received signal (0x%08x) that does not match any root of trust service", signum);
     }
     spm_ipc_channel_t *curr_channel = spm_rot_service_queue_dequeue(curr_rot_service);
 

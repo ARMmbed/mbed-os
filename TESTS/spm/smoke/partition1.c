@@ -30,7 +30,7 @@ void part1_main(void *ptr)
 
         signals = psa_wait_any(PSA_BLOCK);
         if ((signals & ROT_SRV1_MSK) != ROT_SRV1_MSK) {
-            SPM_PANIC("Recieved unknown signal (0x%08x)\n", signals);
+            SPM_PANIC("Received unknown signal (0x%08x)\n", signals);
         }
 
         osDelay(500);
