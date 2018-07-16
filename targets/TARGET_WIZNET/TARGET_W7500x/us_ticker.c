@@ -51,11 +51,8 @@ extern "C"{
 
 void DUALTIMER0_Handler(void)
 {
-   if(DUALTIMER_GetIntStatus(DUALTIMER0_0))
-    {
-        DUALTIMER_IntClear(DUALTIMER0_0);
-        us_ticker_irq_handler();
-    }
+    DUALTIMER_IntClear(DUALTIMER0_0);
+    us_ticker_irq_handler();
 }
 
 #ifdef __cplusplus
