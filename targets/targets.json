@@ -735,6 +735,10 @@
                 "help": "Define if a Low Speed External xtal (LSE) is available on the board (0 = No, 1 = Yes). If Yes, the LSE will be used to clock the RTC, LPUART, ... otherwise the Low Speed Internal clock (LSI) will be used",
                 "value": "1"
             },
+            "lpuart_clock_source": {
+                "help": "Define the LPUART clock source. Mask values: USE_LPUART_CLK_LSE, USE_LPUART_CLK_PCLK1, USE_LPUART_CLK_HSI",
+                "value": "USE_LPUART_CLK_LSE|USE_LPUART_CLK_PCLK1"
+            },
             "stdio_uart_tx": {
                 "help": "default TX STDIO pins is defined in PinNames.h file, but it can be overridden"
             },
@@ -1196,6 +1200,9 @@
         }
     },
     "MTB_USI_WM_BN_BM_22": {
+        "overrides": {
+            "lse_available": 0
+        },
         "inherits": ["USI_WM_BN_BM_22"]
     },
     "MTB_ADV_WISE_1530": {
@@ -1716,10 +1723,11 @@
         "config": {
             "clock_source": {
                 "help": "Mask value : USE_PLL_HSE_EXTC (need HW patch) | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI | USE_PLL_MSI",
-                "value": "USE_PLL_HSE_XTAL",
+                "value": "USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
             }
         },
+        "overrides": {"lpuart_clock_source": "USE_LPUART_CLK_HSI"},
         "detect_code": ["0460"],
         "macros_add": ["MBEDTLS_CONFIG_HW_SUPPORT", "WISE_1570", "TWO_RAM_REGIONS"],
         "device_has_add": ["ANALOGOUT", "CRC", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
@@ -2024,7 +2032,7 @@
         },
         "supported_form_factors": ["ARDUINO"],
         "detect_code": ["0764"],
-        "macros_add": ["USBHOST_OTHER"],
+        "macros_add": ["USBHOST_OTHER", "TWO_RAM_REGIONS"],
         "device_has_add": ["ANALOGOUT", "CAN", "SERIAL_FC", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "STM32L475VG",
@@ -2046,7 +2054,7 @@
             }
         },
         "detect_code": ["0820"],
-        "macros_add": ["USBHOST_OTHER"],
+        "macros_add": ["USBHOST_OTHER", "TWO_RAM_REGIONS"],
         "device_has_add": ["ANALOGOUT", "CAN", "SERIAL_FC", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "STM32L476VG",
@@ -2819,7 +2827,7 @@
         "extra_labels": ["ARM_SSG", "CM3DS_MPS2"],
         "OUTPUT_EXT": "elf",
         "macros": ["CMSDK_CM3DS"],
-        "device_has": ["ANALOGIN", "ETHERNET", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "SERIAL", "SPI", "TRNG"],
+        "device_has": ["ANALOGIN", "ETHERNET", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "SERIAL", "SPI", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
         "copy_method": "mps2",
         "reset_method": "reboot.txt"
@@ -3626,6 +3634,12 @@
         },
         "device_has": ["ANALOGIN", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"]
     },
+    "MCU_NRF51_16K_UNIFIED_S130": {
+        "inherits": ["MCU_NRF51_UNIFIED"],
+        "extra_labels_add": ["MCU_NORDIC_16K", "MCU_NRF51_16K_S130", "MCU_NRF51_16K"],
+        "macros_add": ["TARGET_MCU_NORDIC_16K", "TARGET_MCU_NRF51_16K_S130", "TARGET_MCU_NRF51_16K"],
+        "public": false
+    },
     "MCU_NRF51_32K_UNIFIED": {
         "inherits": ["MCU_NRF51_UNIFIED"],
         "extra_labels_add": ["MCU_NORDIC_32K", "MCU_NRF51_32K"],
@@ -3677,12 +3691,12 @@
             "SERIAL",
             "SERIAL_ASYNCH",
             "SERIAL_FC",
+            "SLEEP",
             "SPI",
             "SPI_ASYNCH",
             "STCLK_OFF_DURING_SLEEP",
             "TRNG",
-            "USTICKER",
-            "SLEEP"
+            "USTICKER"
         ],
         "extra_labels": [
             "NORDIC",
@@ -3773,7 +3787,6 @@
             "PORTINOUT",
             "PORTOUT",
             "PWMOUT",
-            "RTC",
             "SERIAL",
             "SERIAL_ASYNCH",
             "SERIAL_FC",
@@ -3855,9 +3868,9 @@
             }
         },
         "inherits": ["Target"],
-        "macros_add": ["MBEDTLS_CONFIG_HW_SUPPORT"],
-        "device_has": ["RTC", "ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "TRNG", "CAN", "FLASH", "EMAC"],
         "features": ["LWIP"],
+        "macros_add": ["MBEDTLS_CONFIG_HW_SUPPORT", "LPTICKER_DELAY_TICKS=3"],
+        "device_has": ["USTICKER", "LPTICKER", "RTC", "ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "TRNG", "CAN", "FLASH", "EMAC"],
         "release_versions": ["5"],
         "device_name": "NUC472HI8AE",
         "bootloader_supported": true,
@@ -3927,8 +3940,9 @@
             }
         },
         "inherits": ["Target"],
+        "macros_add": ["LPTICKER_DELAY_TICKS=3"],
         "progen": {"target": "numaker-pfm-m453"},
-        "device_has": ["RTC", "ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "CAN", "FLASH"],
+        "device_has": ["USTICKER", "LPTICKER", "RTC", "ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "CAN", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "M453VG6AE",
         "bootloader_supported": true
@@ -3955,11 +3969,16 @@
             "gpio-irq-debounce-sample-rate": {
                 "help": "Select GPIO IRQ debounce sample rate: GPIO_DBCLKSEL_1, GPIO_DBCLKSEL_2, GPIO_DBCLKSEL_4, ..., or GPIO_DBCLKSEL_32768",
                 "value": "GPIO_DBCLKSEL_16"
+            },
+            "clock-pll": {
+                "help": "Choose clock source to clock PLL: NU_HXT_PLL or NU_HIRC_PLL",
+                "macro_name": "NU_CLOCK_PLL",
+                "value": "NU_HIRC_PLL"
             }
         },
         "inherits": ["Target"],
-        "macros": ["CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\"","MBED_FAULT_HANDLER_DISABLED"],
-        "device_has": ["RTC", "ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH"],
+        "macros": ["CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\"","MBED_FAULT_HANDLER_DISABLED", "LPTICKER_DELAY_TICKS=3"],
+        "device_has": ["USTICKER", "LPTICKER", "RTC", "ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH"],
         "release_versions": ["5"],
         "device_name": "NANO130KE3BN"
     },
@@ -4126,9 +4145,9 @@
             }
         },
         "inherits": ["Target"],
-        "macros_add": ["MBEDTLS_CONFIG_HW_SUPPORT"],
-        "device_has": ["RTC", "ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "TRNG", "FLASH", "CAN", "EMAC"],
         "features": ["LWIP"],
+        "macros_add": ["MBEDTLS_CONFIG_HW_SUPPORT", "LPTICKER_DELAY_TICKS=3"],
+        "device_has": ["USTICKER", "LPTICKER", "RTC", "ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "TRNG", "FLASH", "CAN", "EMAC"],
         "release_versions": ["5"],
         "device_name": "M487JIDAE",
         "bootloader_supported": true,

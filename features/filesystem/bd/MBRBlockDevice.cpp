@@ -242,6 +242,7 @@ int MBRBlockDevice::init()
 
     // Check that block addresses are valid
     if (!_bd->is_valid_erase(_offset, _size)) {
+        delete[] buffer;
         return BD_ERROR_INVALID_PARTITION;
     }
 

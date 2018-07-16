@@ -32,6 +32,11 @@
 
 #include "serial_api_hal.h"
 
+// Possible choices of the LPUART_CLOCK_SOURCE configuration set in json file
+#define USE_LPUART_CLK_LSE    0x01
+#define USE_LPUART_CLK_PCLK1  0x02
+#define USE_LPUART_CLK_HSI    0x04
+
 int stdio_uart_inited = 0; // used in platform/mbed_board.c and platform/mbed_retarget.cpp
 serial_t stdio_uart;
 
@@ -367,29 +372,64 @@ void serial_baud(serial_t *obj, int baudrate)
     struct serial_s *obj_s = SERIAL_S(obj);
 
     obj_s->baudrate = baudrate;
+
 #if defined(LPUART1_BASE)
     /* Note that LPUART clock source must be in the range [3 x baud rate, 4096 x baud rate], check Ref Manual */
     if (obj_s->uart == LPUART_1) {
-        /* If baudrate is lower than 9600 try to change to LSE */
         RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = {0};
-        if (baudrate <= 9600 && __HAL_RCC_GET_FLAG(RCC_FLAG_LSERDY)) {
-            PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_LPUART1;
-            PeriphClkInitStruct.Lpuart1ClockSelection = RCC_LPUART1CLKSOURCE_LSE;
-            HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct);
-        } else {
-            PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_LPUART1;
-            PeriphClkInitStruct.Lpuart1ClockSelection = RCC_LPUART1CLKSOURCE_PCLK1;
-            HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct);
+        PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_LPUART1;
+#if ((MBED_CONF_TARGET_LPUART_CLOCK_SOURCE) & USE_LPUART_CLK_LSE)
+        if (baudrate <= 9600) {
+            // Enable LSE in case it is not already done
+            if (!__HAL_RCC_GET_FLAG(RCC_FLAG_LSERDY)) {
+                RCC_OscInitTypeDef RCC_OscInitStruct = {0};
+                RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSE;
+                RCC_OscInitStruct.HSIState       = RCC_LSE_ON;
+                RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_OFF;
+                HAL_RCC_OscConfig(&RCC_OscInitStruct);
+            }
+            // Keep it to verify if HAL_RCC_OscConfig didn't exit with a timeout
+            if (__HAL_RCC_GET_FLAG(RCC_FLAG_LSERDY)) {
+                PeriphClkInitStruct.Lpuart1ClockSelection = RCC_LPUART1CLKSOURCE_LSE;
+                HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct);
+                if (init_uart(obj) == HAL_OK) {
+                    return;
+                }
+            }
         }
+#endif
+#if ((MBED_CONF_TARGET_LPUART_CLOCK_SOURCE) & USE_LPUART_CLK_PCLK1)
+        PeriphClkInitStruct.Lpuart1ClockSelection = RCC_LPUART1CLKSOURCE_PCLK1;
+        HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct);
         if (init_uart(obj) == HAL_OK) {
             return;
         }
-        /* Change LPUART clock source and try again */
-        PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_LPUART1;
+#endif
+#if ((MBED_CONF_TARGET_LPUART_CLOCK_SOURCE) & USE_LPUART_CLK_HSI)
+        // Enable HSI in case it is not already done
+        if (!__HAL_RCC_GET_FLAG(RCC_FLAG_HSIRDY)) {
+            RCC_OscInitTypeDef RCC_OscInitStruct = {0};
+            RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_HSI;
+            RCC_OscInitStruct.HSIState            = RCC_HSI_ON;
+            RCC_OscInitStruct.PLL.PLLState        = RCC_PLL_OFF;
+            RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
+            HAL_RCC_OscConfig(&RCC_OscInitStruct);
+        }
+        // Keep it to verify if HAL_RCC_OscConfig didn't exit with a timeout
+        if (__HAL_RCC_GET_FLAG(RCC_FLAG_HSIRDY)) {
+            PeriphClkInitStruct.Lpuart1ClockSelection = RCC_LPUART1CLKSOURCE_HSI;
+            HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct);
+            if (init_uart(obj) == HAL_OK) {
+                return;
+            }
+        }
+#endif
+        // Last chance using SYSCLK
         PeriphClkInitStruct.Lpuart1ClockSelection = RCC_LPUART1CLKSOURCE_SYSCLK;
         HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct);
     }
 #endif /* LPUART1_BASE */
+
     if (init_uart(obj) != HAL_OK) {
         debug("Cannot initialize UART with baud rate %u\n", baudrate);
     }

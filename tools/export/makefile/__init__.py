@@ -87,17 +87,14 @@ class Makefile(Exporter):
                       if (basename(dirname(dirname(self.export_dir)))
                           == "projectfiles")
                       else [".."]),
-            'cc_cmd': " ".join(["\'" + part + "\'" for part
-                                in ([basename(self.toolchain.cc[0])] +
-                                    self.toolchain.cc[1:])]),
-            'cppc_cmd': " ".join(["\'" + part + "\'" for part
-                                  in ([basename(self.toolchain.cppc[0])] +
-                                      self.toolchain.cppc[1:])]),
-            'asm_cmd': " ".join(["\'" + part + "\'" for part
-                                in ([basename(self.toolchain.asm[0])] +
-                                    self.toolchain.asm[1:])]),
-            'ld_cmd': "\'" + basename(self.toolchain.ld[0]) + "\'",
-            'elf2bin_cmd': "\'" + basename(self.toolchain.elf2bin) + "\'",
+            'cc_cmd': " ".join([basename(self.toolchain.cc[0])] +
+                               self.toolchain.cc[1:]),
+            'cppc_cmd': " ".join([basename(self.toolchain.cppc[0])] +
+                                 self.toolchain.cppc[1:]),
+            'asm_cmd': " ".join([basename(self.toolchain.asm[0])] +
+                                self.toolchain.asm[1:]),
+            'ld_cmd': basename(self.toolchain.ld[0]),
+            'elf2bin_cmd': basename(self.toolchain.elf2bin),
             'link_script_ext': self.toolchain.LINKER_EXT,
             'link_script_option': self.LINK_SCRIPT_OPTION,
             'user_library_flag': self.USER_LIBRARY_FLAG,
@@ -105,10 +102,11 @@ class Makefile(Exporter):
         }
 
         if hasattr(self.toolchain, "preproc"):
-            ctx['pp_cmd'] = " ".join(["\'" + part + "\'" for part
-                                      in ([basename(self.toolchain.preproc[0])] +
-                                          self.toolchain.preproc[1:] + 
-                                          self.toolchain.ld[1:])])
+            ctx['pp_cmd'] = " ".join(
+                [basename(self.toolchain.preproc[0])] +
+                self.toolchain.preproc[1:] +
+                self.toolchain.ld[1:]
+            )
         else:
             ctx['pp_cmd'] = None
 

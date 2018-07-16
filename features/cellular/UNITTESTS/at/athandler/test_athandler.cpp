@@ -469,97 +469,314 @@ void Test_ATHandler::test_ATHandler_read_bytes()
 {
     EventQueue que;
     FileHandle_stub fh1;
+    filehandle_stub_table = NULL;
+    filehandle_stub_table_pos = 0;
 
     ATHandler at(&fh1, que, 0, ",");
     uint8_t buf[5];
-    CHECK(-1 == at.read_bytes(buf, 25));
 
-    CHECK(-1 == at.read_bytes(buf, 5));
+    // TEST EMPTY BUFFER
+    // Shouldn't read any byte since buffer is empty
+    CHECK(-1 == at.read_bytes(buf, 1));
+    CHECK(NSAPI_ERROR_DEVICE_ERROR == at.get_last_error());
+    // Return error due to error set to at handler by the above call on empty buffer
+    CHECK(-1 == at.read_bytes(buf, 1));
 
-    char table[] = "ssssssssssssssssssssssssssssOK\r\n\0";
-    filehandle_stub_table = table;
+    // TEST DATA IN BUFFER
+    at.clear_error();
+    char table1[] = "1234512345678OK\r\n\0";
+    filehandle_stub_table = table1;
     filehandle_stub_table_pos = 0;
     mbed_poll_stub::revents_value = POLLIN;
-    mbed_poll_stub::int_value = strlen(table);
+    mbed_poll_stub::int_value = 1;;
 
-
-    at.clear_error();
+    // Read 5 bytes
     CHECK(5 == at.read_bytes(buf, 5));
+    CHECK(!memcmp(buf, table1, 5));
+    // get_char triggered above should have filled in the whole reading buffer(fill_buffer())
+    CHECK(filehandle_stub_table_pos == (strlen(table1) - 1));
+    // Read another 8 bytes
+    CHECK(8 == at.read_bytes(buf, 8) && !memcmp(buf, table1 + 5, 8));
+    // Reading more than the 4 bytes left -> ERROR
+    CHECK(-1 == at.read_bytes(buf, 5));
+    CHECK(NSAPI_ERROR_DEVICE_ERROR == at.get_last_error());
 }
 
 void Test_ATHandler::test_ATHandler_read_string()
 {
     EventQueue que;
     FileHandle_stub fh1;
+    filehandle_stub_table = NULL;
+    filehandle_stub_table_pos = 0;
 
     ATHandler at(&fh1, que, 0, ",");
 
+    // *** EMPTY ***
     at.clear_error();
-    char table[] = "\"s,\"OK\r\n\0";
-    filehandle_stub_table = table;
+    char table1[] = "";
+    at.flush();
+    filehandle_stub_table = table1;
     filehandle_stub_table_pos = 0;
     mbed_poll_stub::revents_value = POLLIN;
-    mbed_poll_stub::int_value = strlen(table);
-
-    char buf[5];
-    uint8_t buf2[5];
-    at.resp_start();
-    at.read_bytes(buf2, 5);
-    CHECK(-1 == at.read_string(buf, 15));
-    at.flush();
+    mbed_poll_stub::int_value = 1;
+    char buf1[1];
+    // No _stop_tag set without resp_start
+    CHECK(-1 == at.read_string(buf1, 1));
     at.clear_error();
-
-    filehandle_stub_table = table;
-    filehandle_stub_table_pos = 0;
-
+    // Set _stop_tag to resp_stop(OKCRLF)
     at.resp_start();
-    at.read_bytes(buf2, 1);
-    CHECK(1 == at.read_string(buf, 5, true));
-    at.flush();
+    // Device error because buffer is empty
+    CHECK(NSAPI_ERROR_DEVICE_ERROR == at.get_last_error());
     at.clear_error();
+    // Device error because empty buffer and attempt to fill_buffer by consume_char('\"')
+    CHECK(-1 == at.read_string(buf1, 1));
 
-    char table2[] = "\"s\"OK\r\n\0";
+    // *** 1 BYTE ***
+    at.clear_error();
+    char table2[] = "s\0";
+    at.flush();
     filehandle_stub_table = table2;
     filehandle_stub_table_pos = 0;
     mbed_poll_stub::revents_value = POLLIN;
-    mbed_poll_stub::int_value = strlen(table2);
-
+    mbed_poll_stub::int_value = 1;
+    char buf2[1];
+    // Set _stop_tag to resp_stop(OKCRLF)
     at.resp_start();
-    at.read_bytes(buf2, 1);
-    CHECK(1 == at.read_string(buf, 5, true));
-    at.flush();
+    // Device error because no CRLF and no more data to read
+    CHECK(NSAPI_ERROR_DEVICE_ERROR == at.get_last_error());
     at.clear_error();
+    CHECK(0 == at.read_string(buf2, 1));
 
-    char table3[] = "sss\rsss\0";
+    // *** CRLF ***
+    at.clear_error();
+    char table3[] = "\r\ns\r\n\0";
+    at.flush();
     filehandle_stub_table = table3;
     filehandle_stub_table_pos = 0;
     mbed_poll_stub::revents_value = POLLIN;
-    mbed_poll_stub::int_value = strlen(table);
+    mbed_poll_stub::int_value = 1;
+    char buf3[1];
+    // Set _stop_tag to resp_stop(OKCRLF)
+    at.resp_start();
+    // OK because after CRLF matched there is more data to read ending in CRLF
+    CHECK(NSAPI_ERROR_OK == at.get_last_error());
+    // To read 0 bytes from: s\r\n
+    CHECK(0 == at.read_string(buf3, 0 + 1/*for NULL*/));
+     // To read 1 byte from: s\r\n -> read s
+    CHECK(1 == at.read_string(buf3, 1 + 1/*for NULL*/));
 
-    at.resp_start("s");
-    at.read_string(buf, 5, true);
-    at.flush();
+    // *** Reading more than available in buffer ***
     at.clear_error();
-
-    char table4[] = "\"s\"\0";
+    char table4[] = "\"s,\"OK\r\n\0";
+    at.flush();
     filehandle_stub_table = table4;
     filehandle_stub_table_pos = 0;
     mbed_poll_stub::revents_value = POLLIN;
-    mbed_poll_stub::int_value = strlen(table);
+    mbed_poll_stub::int_value = 1;
+    char buf4[7];
+    uint8_t buf5[5];
+    // NO prefix, NO OK, NO ERROR and NO URC match, CRLF found -> return so buffer could be read
+    at.resp_start();
+    // TO read 5 bytes from: "s,"OK\r\n -> read "s,"O
+    at.read_bytes(buf5, 5);
+    // K\r\n left to be read -> reading more than 3 + 1(for NULL) -> ERROR
+    CHECK(-1 == at.read_string(buf4, 4 + 1/*for NULL*/));
+    CHECK(NSAPI_ERROR_DEVICE_ERROR == at.get_last_error());
 
+    // *** Encountering delimiter after reading 1 byte ***
+    at.clear_error();
+    at.flush();
+    filehandle_stub_table = table4;
+    filehandle_stub_table_pos = 0;
+    // NO prefix, NO OK, NO ERROR and NO URC match, CRLF found -> return so buffer could be read
+    at.resp_start();
+    // TO read 1 byte from: "s,"OK\r\n -> read "
+    at.read_bytes(buf5, 1);
+    // TO read max 4 from: s,"OK\r\n -> read s and stop on ,
+    CHECK(1 == at.read_string(buf4, 4 + 1/*for NULL*/));
+
+    // *** Encountering delimiter as first char in buffer  ***
+    at.clear_error();
+    at.flush();
+    filehandle_stub_table = table4;
+    filehandle_stub_table_pos = 0;
+    // NO prefix, NO OK, NO ERROR and NO URC match, CRLF found -> return so buffer could be read
+    at.resp_start();
+    // TO read 2 bytes from: "s,"OK\r\n -> read "s
+    at.read_bytes(buf5, 2);
+    // TO read max 4 bytes from: ,"OK\r\n -> stop on ,
+    CHECK(0 == at.read_string(buf4, 4 + 1/*for NULL*/));
+
+    // *** Read as much as buffer size is without encountering any delimiter " or OKCRLF  ***
+    at.clear_error();
+    char table5[] = "\"s\"OK\r\nabcd\0";
+    at.flush();
+    filehandle_stub_table = table5;
+    filehandle_stub_table_pos = 0;
+    mbed_poll_stub::revents_value = POLLIN;
+    mbed_poll_stub::int_value = 1;
+    // NO prefix, NO OK, NO ERROR and NO URC match, CRLF found -> return so buffer could be read
+    at.resp_start();
+    // TO read 1 byte from: "s"OK\r\n -> read "
+    at.read_bytes(buf5, 1);
+    // TO read max 1 byte from: s"OK\r\n -> read s
+    CHECK(1 == at.read_string(buf4, 1 + 1/*for NULL*/));
+
+    // *** Consume " and run into OKCRLF  ***
+    // TO read max 1 byte from: "OK\r\n -> consume " and find stop tag OKCRLF
+    CHECK(0 == at.read_string(buf4, 1 + 1/*for NULL*/));
+
+    // *** Try to read after stop tag was found  ***
+    // stop tag found do not read further
+    CHECK(-1 == at.read_string(buf4, 1 + 1/*for NULL*/));
+
+    // *** Try to read after stop tag was found when parameter allows it  ***
+    // stop tag found but flag indicates to read despite stop_tag found
+    CHECK(4 == at.read_string(buf4, 4 + 1/*for NULL*/, true));
+
+    // *** Read as much as buffer size is without encountering any delimiter " or OKCRLF  ***
+    at.clear_error();
+    char table6[] = "sss\rsss\0";
+    at.flush();
+    filehandle_stub_table = table6;
+    filehandle_stub_table_pos = 0;
+    mbed_poll_stub::revents_value = POLLIN;
+    mbed_poll_stub::int_value = 1;
     at.resp_start("s");
-    at.read_string(buf, 5, true);
+    // TO read from: ss\rsss -> read all 6 chars ss\rsss
+    CHECK(6 == at.read_string(buf4, 6 + 1/*for NULL*/));
 
+    // *** Reading when buffer only has "  ***
+    at.clear_error();
+    char table7[] = "s\"\0";
+    at.flush();
+    filehandle_stub_table = table7;
+    filehandle_stub_table_pos = 0;
+    mbed_poll_stub::revents_value = POLLIN;
+    mbed_poll_stub::int_value = 1;
+    at.resp_start("s");
+    // TO read from buffer having only " -> consume " -> trying to read when nothing in buffer
+    CHECK(-1 == at.read_string(buf4, 5));
+    CHECK(NSAPI_ERROR_DEVICE_ERROR == at.get_last_error());
+
+    // *** Reading through partially matching stop tag  ***
+    at.clear_error();
+    char table8[] = "\"s\"OK\rabcd\r\n\0";
+    at.flush();
+    filehandle_stub_table = table8;
+    filehandle_stub_table_pos = 0;
+    mbed_poll_stub::revents_value = POLLIN;
+    mbed_poll_stub::int_value = 1;
+    char buf8[9];
+    // NO prefix, NO OK, NO ERROR and NO URC match, CRLF found -> return so buffer could be read
+    at.resp_start();
+    // TO read from
+    CHECK(8 == at.read_string(buf8, 8 + 1/*for NULL*/));
+
+    // *** Reading through partially matching stop tag  ***
+    at.clear_error();
+    char table9[] = "\"s\"Oabcd\r\n\0";
+    at.flush();
+    filehandle_stub_table = table9;
+    filehandle_stub_table_pos = 0;
+    mbed_poll_stub::revents_value = POLLIN;
+    mbed_poll_stub::int_value = 1;
+    char buf9[5];
+
+    // NO prefix, NO OK, NO ERROR and NO URC match, CRLF found -> return so buffer could be read
+    at.resp_start();
+    // TO read from
+    CHECK(6 == at.read_string(buf9, 6 + 1/*for NULL*/));
+
+    // *** CRLF part of the string ***
+    at.clear_error();
+    char table10[] = "\"s\"\r\nOK\r\n\0";
+    at.flush();
+    filehandle_stub_table = table10;
+    filehandle_stub_table_pos = 0;
+    mbed_poll_stub::revents_value = POLLIN;
+    mbed_poll_stub::int_value = 1;
+    char buf10[10];
+
+    // NO prefix, NO OK, NO ERROR and NO URC match, CRLF found -> return so buffer could be read
+    at.resp_start();
+    // TO read from
+    CHECK(3 == at.read_string(buf10, 9 + 1/*for NULL*/));
+}
+
+void Test_ATHandler::test_ATHandler_read_hex_string()
+{
+    EventQueue que;
+    FileHandle_stub fh1;
     filehandle_stub_table = NULL;
     filehandle_stub_table_pos = 0;
-    mbed_poll_stub::revents_value = POLLOUT;
-    mbed_poll_stub::int_value = 0;
+
+    ATHandler at(&fh1, que, 0, ",");
+
+    // *** Read up to delimiter, even length ***
+    at.clear_error();
+    char table1[] = "68656C6C6F,";
+    at.flush();
+    filehandle_stub_table = table1;
+    filehandle_stub_table_pos = 0;
+    mbed_poll_stub::revents_value = POLLIN;
+    mbed_poll_stub::int_value = 1;
+    char buf1[10];
+    // Set _stop_tag to resp_stop(OKCRLF)
+    at.resp_start();
+    CHECK(5 == at.read_hex_string(buf1, 5));
+    CHECK(!strncmp(buf1, "hello", 5));
+
+    // *** Read up to delimiter, odd length ***
+    at.clear_error();
+    char table2[] = "68656C6C6F7,";
+    at.flush();
+    filehandle_stub_table = table2;
+    filehandle_stub_table_pos = 0;
+    mbed_poll_stub::revents_value = POLLIN;
+    mbed_poll_stub::int_value = 1;
+    char buf2[10];
+    // Set _stop_tag to resp_stop(OKCRLF)
+    at.resp_start();
+    CHECK(5 == at.read_hex_string(buf2, 6));
+    CHECK(!strncmp(buf2, "hello", 5));
+
+    // *** Read with stop tag, even length ***
+    at.clear_error();
+    char table3[] = "6865OK\r\n";
+    at.flush();
+    filehandle_stub_table = table3;
+    filehandle_stub_table_pos = 0;
+    mbed_poll_stub::revents_value = POLLIN;
+    mbed_poll_stub::int_value = 1;
+    char buf3[6];
+    // Set _stop_tag to resp_stop(OKCRLF)
+    at.resp_start();
+    CHECK(2 == at.read_hex_string(buf3, 2 + 1/*get to stop tag match*/));
+    CHECK(!strncmp(buf3, "he", 2));
+    at.resp_stop();
+
+    // *** Read with stop tag, odd length ***
+    at.clear_error();
+    char table4[] = "686OK\r\n";
+    at.flush();
+    filehandle_stub_table = table4;
+    filehandle_stub_table_pos = 0;
+    mbed_poll_stub::revents_value = POLLIN;
+    mbed_poll_stub::int_value = 1;
+    char buf4[6];
+    // Set _stop_tag to resp_stop(OKCRLF)
+    at.resp_start();
+    CHECK(1 == at.read_hex_string(buf4, 2 + 1/*get to stop tag match*/));
+    CHECK(!strncmp(buf4, "h", 1));
 }
 
 void Test_ATHandler::test_ATHandler_read_int()
 {
     EventQueue que;
     FileHandle_stub fh1;
+    filehandle_stub_table = NULL;
+    filehandle_stub_table_pos = 0;
 
     ATHandler at(&fh1, que, 0, ",");
 

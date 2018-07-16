@@ -31,7 +31,7 @@ class GCC(mbedToolchain):
     DIAGNOSTIC_PATTERN = re.compile('((?P<file>[^:]+):(?P<line>\d+):)(?P<col>\d+):? (?P<severity>warning|[eE]rror|fatal error): (?P<message>.+)')
 
     GCC_RANGE = (LooseVersion("6.0.0"), LooseVersion("7.0.0"))
-    GCC_VERSION_RE = re.compile("\d+\.\d+\.\d+")
+    GCC_VERSION_RE = re.compile(b"\d+\.\d+\.\d+")
 
     def __init__(self, target,  notify=None, macros=None, build_profile=None,
                  build_dir=None):
@@ -91,6 +91,10 @@ class GCC(mbedToolchain):
              target.core.startswith("Cortex-M33")) and
             not target.core.endswith("-NS")):
             self.cpu.append("-mcmse")
+            self.flags["ld"].extend([
+                "-Wl,--cmse-implib",
+                "-Wl,--out-implib=%s" % join(build_dir, "cmse_lib.o")
+            ])
         elif target.core == "Cortex-M23-NS" or target.core == "Cortex-M33-NS":
              self.flags["ld"].append("-D__DOMAIN_NS=1")
 
@@ -116,7 +120,7 @@ class GCC(mbedToolchain):
         stdout, _, retcode = run_cmd([self.cc[0], "--version"], redirect=True)
         msg = None
         match = self.GCC_VERSION_RE.search(stdout)
-        found_version = LooseVersion(match.group(0)) if match else None
+        found_version = LooseVersion(match.group(0).decode('utf-8')) if match else None
         min_ver, max_ver = self.GCC_RANGE
         if found_version and (found_version < min_ver or found_version >= max_ver):
             msg = ("Compiler version mismatch: Have {}; "
@@ -233,11 +237,6 @@ class GCC(mbedToolchain):
         # Build linker command
         map_file = splitext(output)[0] + ".map"
         cmd = self.ld + ["-o", output, "-Wl,-Map=%s" % map_file] + objects + ["-Wl,--start-group"] + libs + ["-Wl,--end-group"]
-        # Create Secure library
-        if self.target.core == "Cortex-M23" or self.target.core == "Cortex-M33":
-            secure_file = join(dirname(output), "cmse_lib.o")
-            cmd.extend(["-Wl,--cmse-implib"])
-            cmd.extend(["-Wl,--out-implib=%s" % secure_file])
 
         if mem_map:
             cmd.extend(['-T', mem_map])

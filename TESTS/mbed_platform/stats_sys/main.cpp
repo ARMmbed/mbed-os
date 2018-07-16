@@ -32,6 +32,7 @@ void test_sys_info()
     mbed_stats_sys_t stats;
     mbed_stats_sys_get(&stats);
 
+    TEST_ASSERT_NOT_EQUAL(0, stats.os_version);
 #if defined(__CORTEX_M)
     TEST_ASSERT_NOT_EQUAL(0, stats.cpu_id);
 #endif

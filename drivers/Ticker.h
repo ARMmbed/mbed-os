@@ -66,11 +66,13 @@ namespace mbed {
 class Ticker : public TimerEvent, private NonCopyable<Ticker> {
 
 public:
-    Ticker() : TimerEvent(), _function(0), _lock_deepsleep(true) {
+    Ticker() : TimerEvent(), _function(0), _lock_deepsleep(true)
+    {
     }
 
     // When low power ticker is in use, then do not disable deep-sleep.
-    Ticker(const ticker_data_t *data) : TimerEvent(data), _function(0), _lock_deepsleep(true)  {
+    Ticker(const ticker_data_t *data) : TimerEvent(data), _function(0), _lock_deepsleep(true)
+    {
 #if DEVICE_LPTICKER
         _lock_deepsleep = (data != get_lp_ticker_data());
 #endif
@@ -81,7 +83,8 @@ public:
      *  @param func pointer to the function to be called
      *  @param t the time between calls in seconds
      */
-    void attach(Callback<void()> func, float t) {
+    void attach(Callback<void()> func, float t)
+    {
         attach_us(func, t * 1000000.0f);
     }
 
@@ -96,9 +99,10 @@ public:
      */
     template<typename T, typename M>
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
-        "The attach function does not support cv-qualifiers. Replaced by "
-        "attach(callback(obj, method), t).")
-    void attach(T *obj, M method, float t) {
+                          "The attach function does not support cv-qualifiers. Replaced by "
+                          "attach(callback(obj, method), t).")
+    void attach(T *obj, M method, float t)
+    {
         attach(callback(obj, method), t);
     }
 
@@ -112,10 +116,11 @@ public:
      *  for threads scheduling.
      *
      */
-    void attach_us(Callback<void()> func, us_timestamp_t t) {
+    void attach_us(Callback<void()> func, us_timestamp_t t)
+    {
         core_util_critical_section_enter();
         // lock only for the initial callback setup and this is not low power ticker
-        if(!_function && _lock_deepsleep) {
+        if (!_function && _lock_deepsleep) {
             sleep_manager_lock_deep_sleep();
         }
         _function = func;
@@ -134,13 +139,15 @@ public:
      */
     template<typename T, typename M>
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
-        "The attach_us function does not support cv-qualifiers. Replaced by "
-        "attach_us(callback(obj, method), t).")
-    void attach_us(T *obj, M method, us_timestamp_t t) {
+                          "The attach_us function does not support cv-qualifiers. Replaced by "
+                          "attach_us(callback(obj, method), t).")
+    void attach_us(T *obj, M method, us_timestamp_t t)
+    {
         attach_us(Callback<void()>(obj, method), t);
     }
 
-    virtual ~Ticker() {
+    virtual ~Ticker()
+    {
         detach();
     }
 

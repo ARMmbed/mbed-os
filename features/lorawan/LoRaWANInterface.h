@@ -61,7 +61,6 @@ public:
      * all user-configured channels except the Join/Default channels. A CF-List can
      * configure a maximum of five channels other than the default channels.
      *
-     * In case of ABP, the CONNECTED event is posted before the call to `connect()` returns.
      * To configure more channels, we recommend that you use the `set_channel_plan()` API after the connection.
      * By default, the PHY layers configure only the mandatory Join channels. The retransmission back-off restrictions
      * on these channels are severe and you may experience long delays or even failures in the confirmed traffic.
@@ -80,8 +79,14 @@ public:
      * is important, at least for ABP. That's why we try to restore frame counters from
      * session information after a disconnection.
      *
-     * @return         LORAWAN_STATUS_OK or LORAWAN_STATUS_CONNECT_IN_PROGRESS
-     *                 on success, or a negative error code on failure.
+     * @return    For ABP:  If everything goes well, LORAWAN_STATUS_OK is returned for first call followed by
+     *                      a 'CONNECTED' event. Otherwise a negative error code is returned.
+     *                      Any subsequent call will return LORAWAN_STATUS_ALREADY_CONNECTED and no event follows.
+     *
+     *            For OTAA: When a JoinRequest is sent, LORAWAN_STATUS_CONNECT_IN_PROGRESS is returned for the first call.
+     *                      Any subsequent call will return either LORAWAN_STATUS_BUSY (if the previous request for connection
+     *                      is still underway) or LORAWAN_STATUS_ALREADY_CONNECTED (if a network was already joined successfully).
+     *                      A 'CONNECTED' event is sent to the application when the JoinAccept is received.
      */
     virtual lorawan_status_t connect();
 
@@ -97,7 +102,6 @@ public:
      * all user-configured channels except the Join/Default channels. A CF-List can
      * configure a maximum of five channels other than the default channels.
      *
-     * In case of ABP, the CONNECTED event is posted before the call to `connect()` returns.
      * To configure more channels, we recommend that you use the `set_channel_plan()` API after the connection.
      * By default, the PHY layers configure only the mandatory Join
      * channels. The retransmission back-off restrictions on these channels
@@ -120,8 +124,14 @@ public:
      *
      * @param connect  Options for an end device connection to the gateway.
      *
-     * @return        LORAWAN_STATUS_OK or LORAWAN_STATUS_CONNECT_IN_PROGRESS,
-     *                a negative error code on failure.
+     * @return    For ABP:  If everything goes well, LORAWAN_STATUS_OK is returned for first call followed by
+     *                      a 'CONNECTED' event. Otherwise a negative error code is returned.
+     *                      Any subsequent call will return LORAWAN_STATUS_ALREADY_CONNECTED and no event follows.
+     *
+     *            For OTAA: When a JoinRequest is sent, LORAWAN_STATUS_CONNECT_IN_PROGRESS is returned for the first call.
+     *                      Any subsequent call will return either LORAWAN_STATUS_BUSY (if the previous request for connection
+     *                      is still underway) or LORAWAN_STATUS_ALREADY_CONNECTED (if a network was already joined successfully).
+     *                      A 'CONNECTED' event is sent to the application when the JoinAccept is received.
      */
     virtual lorawan_status_t connect(const lorawan_connect_t &connect);
 
@@ -301,14 +311,9 @@ public:
      *                          MSG_CONFIRMED_FLAG = 0x02
      *                          MSG_MULTICAST_FLAG = 0x04
      *                          MSG_PROPRIETARY_FLAG = 0x08
-     *                          MSG_MULTICAST_FLAG and MSG_PROPRIETARY_FLAG can be
-     *                          used in conjunction with MSG_UNCONFIRMED_FLAG and
-     *                          MSG_CONFIRMED_FLAG depending on the intended use.
      *
-     *                          MSG_PROPRIETARY_FLAG|MSG_CONFIRMED_FLAG mask will set
-     *                          a confirmed message flag for a proprietary message.
-     *                          MSG_CONFIRMED_FLAG and MSG_UNCONFIRMED_FLAG are
-     *                          mutually exclusive.
+     *                          All flags are mutually exclusive, and MSG_MULTICAST_FLAG
+     *                          cannot be set.
      *
      *
      * @return                  The number of bytes sent, or
@@ -338,14 +343,11 @@ public:
      *                          MSG_MULTICAST_FLAG = 0x04,
      *                          MSG_PROPRIETARY_FLAG = 0x08
      *
-     *                          MSG_MULTICAST_FLAG and MSG_PROPRIETARY_FLAG can be
-     *                          used in conjunction with MSG_UNCONFIRMED_FLAG and
-     *                          MSG_CONFIRMED_FLAG depending on the intended use.
+     *                          All flags can be used in conjunction with
+     *                          one another depending on the intended use case or reception
+     *                          expectation.
      *
-     *                          MSG_PROPRIETARY_FLAG|MSG_CONFIRMED_FLAG mask will set
-     *                          a confirmed message flag for a proprietary message.
-     *
-     *                          MSG_CONFIRMED_FLAG and MSG_UNCONFIRMED_FLAG are
+     *                          e.g., MSG_CONFIRMED_FLAG and MSG_UNCONFIRMED_FLAG are
      *                          not mutually exclusive, i.e., the user can subscribe to
      *                          receive both CONFIRMED AND UNCONFIRMED messages at
      *                          the same time.

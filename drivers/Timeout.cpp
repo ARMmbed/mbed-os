@@ -17,7 +17,8 @@
 
 namespace mbed {
 
-void Timeout::handler() {
+void Timeout::handler()
+{
     Callback<void()> local = _function;
     detach();
     local.call();
