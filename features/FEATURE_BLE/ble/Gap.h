@@ -534,6 +534,21 @@ public:
     typedef ble::peer_address_type_t PeerAddressType_t;
 
     /**
+     * Enumeration of BLE PHY
+     */
+    typedef ble::phy_t Phy_t;
+
+    /**
+     * Set of BLE PHYs
+     */
+    typedef ble::phys_t Phys_t;
+
+    /**
+     * Enumeration of type of symbols that can be used with LE coded PHY.
+     */
+    typedef ble::coded_symbol_per_bit_t CodedSymbolPerBit_t;
+
+    /**
      * Parameters of a BLE connection.
      */
     typedef struct {
@@ -1071,6 +1086,68 @@ public:
     typedef CallChainOfFunctionPointersWithContext<const Gap *>
         GapShutdownCallbackChain_t;
 
+
+    /**
+     * Definition of the general handler of Gap related events.
+     */
+    struct EventHandler {
+        /**
+         * Function invoked when the current transmitter and receiver PHY have
+         * been read for a given connection.
+         *
+         * @param status Status of the operation: BLE_ERROR_NONE in case of
+         * success or an appropriate error code.
+         *
+         * @param connectionHandle: The handle of the connection for which the
+         * PHYs have been read.
+         *
+         * @param txPhy PHY used by the transmitter.
+         *
+         * @param rxPhy PHY used by the receiver.
+         */
+        virtual void onPhyRead(
+            ble_error_t status,
+            Handle_t connectionHandle,
+            ble::phy_t txPhy,
+            ble::phy_t rxPhy
+        ) = 0;
+
+        /**
+         * Function invoked when the update process of the PHY has been completed.
+         *
+         * The process can be initiated by a call to the function setPhy, the
+         * local bluetooth subsystem or the peer.
+         *
+         * @param status Status of the operation: BLE_ERROR_NONE in case of
+         * success or an appropriate error code.
+         *
+         * @param connectionHandle: The handle of the connection on which the
+         * operation was made.
+         *
+         * @param txPhy PHY used by the transmitter.
+         *
+         * @param rxPhy PHY used by the receiver.
+         *
+         * @note Success doesn't mean the PHY has been updated it means both
+         * ends have negociated the best phy according to their configuration and
+         * capabilities. The PHY currently used are present in the txPhy and
+         * rxPhy parameters.
+         */
+        virtual void onPhyUpdateComplete(
+            ble_error_t status,
+            Handle_t connectionHandle,
+            ble::phy_t txPhy,
+            ble::phy_t rxPhy
+        ) = 0;
+
+    protected:
+        /**
+         * Prevent polymorphic deletion and avoid uncessery virtual destructor
+         * as the Gap class will never delete the instance it contains.
+         */
+        ~EventHandler() { }
+    };
+
     /*
      * The following functions are meant to be overridden in the platform-specific subclass.
      */
@@ -1330,6 +1407,72 @@ public:
         const ConnectionParams_t *connectionParams,
         const GapScanningParams *scanParams
     );
+
+    /**
+     * Read the PHY used by the transmitter and the receiver on a connection.
+     *
+     * Once the PHY has been read, it is reported back via the function onPhyRead
+     * of the event handler registered by the application.
+     *
+     * @param connection Handle of the connection for which the PHY being used is
+     * queried.
+     *
+     * @return BLE_ERROR_NONE if the read PHY procedure has been started or an
+     * appropriate error code.
+     */
+    virtual ble_error_t readPhy(Handle_t connection) {
+        return BLE_ERROR_NOT_IMPLEMENTED;
+    }
+
+    /**
+     * Set the prefered PHYs to use in a connection.
+     *
+     * @param txPhy: Set of PHYs prefered for tx operations. If NULL then no
+     * prefered PHYs are set and the default value of the subsytem is used.
+     *
+     * @param rxPhy: Set of PHYs prefered for rx operations. If NULL then no
+     * prefered PHYs are set and the default value of the subsytem is used.
+     *
+     * @return BLE_ERROR_NONE if the preferences have been set or an appropriate
+     * error code.
+     */
+    virtual ble_error_t setPreferedPhys(
+        const Phys_t* txPhys,
+        const Phys_t* rxPhys
+    ) {
+        return BLE_ERROR_NOT_IMPLEMENTED;
+    }
+
+    /**
+     * Update the PHY used by a connection.
+     *
+     * Once the update process has been completed, it is reported back to the
+     * application via the function onPhyUpdateComplete of the event handler
+     * registered by the application.
+     *
+     * @param connection Handle of the connection to update.
+     *
+     * @param txPhys Set of PHYs prefered for tx operations. If NULL then the
+     * choice is up to the Bluetooth subsystem.
+     *
+     * @param rxPhys Set of PHYs prefered for rx operations. If NULL then the
+     * choice is up to the Bluetooth subsystem.
+     *
+     * @param codedSymbol Number of symbols used to code a bit when le coded is
+     * used. If the value is UNDEFINED then the choice is up to the Bluetooth
+     * subsystem.
+     *
+     * @return BLE_ERROR_NONE if the update PHY procedure has been successfully
+     * started or an error code.
+     */
+    virtual ble_error_t setPhy(
+        Handle_t connection,
+        const Phys_t* txPhys,
+        const Phys_t* rxPhys,
+        CodedSymbolPerBit_t codedSymbol
+    ) {
+        return BLE_ERROR_NONE;
+    }
 
     /**
      * Initiate a disconnection procedure.
@@ -2446,6 +2589,17 @@ public:
 
     /* Event handlers. */
 public:
+
+    /**
+     * Assign the event handler implementation that will be used by the gap
+     * module to signal events back to the application.
+     *
+     * @param handler Application implementation of an Eventhandler.
+     */
+    void setEventHandler(EventHandler* handler) {
+        _eventHandler = handler;
+    }
+
     /**
      * Register a callback handling timeout events.
      *
@@ -2674,6 +2828,7 @@ public:
         disconnectionCallChain.clear();
         radioNotificationCallback = NULL;
         onAdvertisementReport     = NULL;
+        _eventHandler = NULL;
 
         return BLE_ERROR_NONE;
     }
@@ -2694,7 +2849,8 @@ protected:
         radioNotificationCallback(),
         onAdvertisementReport(),
         connectionCallChain(),
-        disconnectionCallChain() {
+        disconnectionCallChain(),
+        _eventHandler(NULL) {
         _advPayload.clear();
         _scanResponse.clear();
     }
@@ -2937,6 +3093,11 @@ protected:
      * events.
      */
     DisconnectionEventCallbackChain_t disconnectionCallChain;
+
+    /**
+     * Event handler provided by the application.
+     */
+    EventHandler* _eventHandler;
 
 private:
     /**
