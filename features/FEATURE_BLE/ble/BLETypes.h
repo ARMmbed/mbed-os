@@ -628,23 +628,98 @@ struct phy_t : SafeEnum<phy_t, uint8_t> {
 };
 
 /**
- * Type that describe a set of PHY(sical) transports.
+ * Type that describe a set of PHY(sical) transports. This is used to
+ * indicate preference for the PHY transports set within it.
  */
-struct phys_t {
-    /**
-     * If equal to 1 then the set includes phy_t::LE_1M.
-     */
-    uint8_t le_1m:1;
+class phy_set_t {
+public:
+    enum PhysFlags_t {
+        PHY_SET_1M    = 0x01,
+        PHY_SET_2M    = 0x02,
+        PHY_SET_CODED = 0x04
+    };
+
+    phy_set_t() : _value(0) { }
+    phy_set_t(uint8_t value) : _value(value) { }
+    phy_set_t(
+        bool phy_1m,
+        bool phy_2m,
+        bool phy_coded
+    ) {
+        set_1m(phy_1m);
+        set_2m(phy_2m);
+        set_coded(phy_coded);
+    }
 
     /**
-     * If equal to 1 then the set includes phy_t::LE_2M.
+     * Create an ALL_PHYS parameter used in LE Set PHY Command
+     * and LE Set Default PHY Command.
+     * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 2, Part E - 7.8.49
      */
-    uint8_t le_2m:1;
+    static uint8_t all_phys_value(
+        const phy_set_t& tx_phys,
+        const phy_set_t& rx_phys
+    ) {
+        /* if phy set is empty set corresponding all_phys bit to 1 */
+        uint8_t all_phys = 0;
+        if (tx_phys.value() == 0) {
+            all_phys |= 0x01;
+        }
+        if (rx_phys.value() == 0) {
+            all_phys |= 0x02;
+        }
+        return all_phys;
+    }
 
-    /**
-     * If equal to 1 then the set includes phy_t::LE_CODED.
-     */
-    uint8_t le_coded:1;
+    /** Prefer 1M PHY. */
+    void set_1m(bool enabled = true) {
+        if (enabled) {
+            _value |= PHY_SET_1M;
+        } else {
+            _value &= ~PHY_SET_1M;
+        }
+    }
+
+    /** Prefer 2M PHY. */
+    void set_2m(bool enabled = true) {
+        if (enabled) {
+            _value |= PHY_SET_2M;
+        } else {
+            _value &= ~PHY_SET_2M;
+        }
+    }
+
+    /** Prefer coded PHY. */
+    void set_coded(bool enabled = true) {
+        if (enabled) {
+            _value |= PHY_SET_CODED;
+        } else {
+            _value &= ~PHY_SET_CODED;
+        }
+    }
+
+    bool get_1m() {
+        return (_value & PHY_SET_1M);
+    }
+
+    bool get_2m() {
+        return (_value & PHY_SET_2M);
+    }
+
+    bool get_coded() {
+        return (_value & PHY_SET_CODED);
+    }
+
+    operator uint8_t() {
+        return _value;
+    }
+
+    uint8_t value() const {
+        return _value;
+    }
+
+private:
+    uint8_t _value;
 };
 
 /**

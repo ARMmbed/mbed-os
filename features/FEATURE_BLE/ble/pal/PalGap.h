@@ -18,8 +18,9 @@
 #define BLE_PAL_GAP_H_
 
 #include "platform/Callback.h"
-#include "GapTypes.h"
+#include "ble/pal/GapTypes.h"
 #include "GapEvents.h"
+#include "blecommon.h"
 
 namespace ble {
 namespace pal {
@@ -57,6 +58,28 @@ struct Gap {
          * Construct a new instance of ControllerSupportedFeatures_t.
          */
         ControllerSupportedFeatures_t(type value) : SafeEnum<ControllerSupportedFeatures_t, uint8_t>(value) { }
+    };
+
+    struct EventHandler {
+        /**
+         * @copydoc Gap::EventHandler::onReadPhy
+         */
+        virtual void on_read_phy(
+            pal::hci_error_code_t status,
+            connection_handle_t connectionHandle,
+            ble::phy_t tx_phy,
+            ble::phy_t rx_phy
+        ) = 0;
+
+        /**
+         * @copydoc Gap::EventHandler::onPhyUpdateComplete
+         */
+        virtual void on_phy_update_complete(
+            pal::hci_error_code_t status,
+            connection_handle_t connection_handle,
+            ble::phy_t tx_phy,
+            ble::phy_t rx_phy
+        ) = 0;
     };
 
     /**
@@ -706,6 +729,29 @@ struct Gap {
     virtual bool is_feature_supported(
         ControllerSupportedFeatures_t feature
     ) = 0;
+     
+    /**
+    * @see Gap::readPhy
+    */
+    virtual ble_error_t read_phy(connection_handle_t connection) = 0;
+
+    /**
+    * @see Gap::setPreferedPhys
+    */
+    virtual ble_error_t set_prefered_phys(
+       const phy_set_t& tx_phys,
+       const phy_set_t& rx_phys
+    ) = 0;
+
+    /**
+    * @see Gap::setPhy
+    */
+    virtual ble_error_t set_phy(
+       connection_handle_t connection,
+       const phy_set_t& tx_phys,
+       const phy_set_t& rx_phys,
+       coded_symbol_per_bit_t coded_symbol
+    ) = 0;
 
     /**
      * Register a callback which will handle Gap events.
@@ -719,8 +765,27 @@ struct Gap {
         _gap_event_cb = cb;
     }
 
+public:
+    /**
+    * Sets the event handler that us called by the PAL porters to notify the stack of events
+    * which will in turn be passed onto the user application when appropriate.
+    *
+    * @param[in] event_handler the new event handler interface implementation. Memory
+    * owned by caller who is responsible for updating this pointer if interface changes.
+    */
+    void set_event_handler(EventHandler *event_handler) {
+        _pal_event_handler = event_handler;
+    }
+
+    EventHandler* get_event_handler() {
+        return _pal_event_handler;
+    }
+
 protected:
-    Gap() { }
+    EventHandler *_pal_event_handler;
+
+protected:
+    Gap() : _pal_event_handler(NULL) { }
 
     virtual ~Gap() { }
 
@@ -743,6 +808,7 @@ private:
      */
     mbed::Callback<void(const GapEvent&)> _gap_event_cb;
 
+private:
     // Disallow copy construction and copy assignment.
     Gap(const Gap&);
     Gap& operator=(const Gap&);

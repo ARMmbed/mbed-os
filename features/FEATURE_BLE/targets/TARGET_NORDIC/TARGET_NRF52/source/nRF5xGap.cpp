@@ -120,28 +120,6 @@ peer_address_type_t convert_identity_address(advertising_peer_address_type_t add
 #define BLE_GAP_PHY_AUTO 0
 #endif
 
-uint8_t to_nordic_phy_set(const ble::phys_t* phys) {
-    if (!phys) {
-        return BLE_GAP_PHY_AUTO;
-    }
-
-    uint8_t nordic_phys = 0;
-
-    if (phys->le_1m) {
-        nordic_phys |= BLE_GAP_PHY_1MBPS;
-    }
-
-    if (phys->le_2m) {
-        nordic_phys |= BLE_GAP_PHY_2MBPS;
-    }
-
-    if (phys->le_coded) {
-        nordic_phys |= BLE_GAP_PHY_CODED;
-    }
-
-    return nordic_phys;
-}
-
 } // namespace
 
 void radioNotificationStaticCallback(bool param) {
@@ -165,7 +143,7 @@ nRF5xGap::nRF5xGap() : Gap(),
     _prefered_rx_phys(BLE_GAP_PHY_AUTO),
     _connections_role()
 {
-        m_connectionHandle = BLE_CONN_HANDLE_INVALID;
+    m_connectionHandle = BLE_CONN_HANDLE_INVALID;
 }
 /**************************************************************************/
 /*!
@@ -694,11 +672,11 @@ ble_error_t nRF5xGap::readPhy(Handle_t connection) {
 }
 
 ble_error_t nRF5xGap::setPreferedPhys(
-    const Phys_t* txPhys,
-    const Phys_t* rxPhys
+    const ble::phy_set_t* txPhys,
+    const ble::phy_set_t* rxPhys
 ) {
-    uint8_t prefered_tx_phys = to_nordic_phy_set(txPhys);
-    uint8_t prefered_rx_phys = to_nordic_phy_set(rxPhys);
+    uint8_t prefered_tx_phys = txPhys? txPhys->value() : 0;
+    uint8_t prefered_rx_phys = rxPhys? rxPhys->value() : 0;
 
 #ifdef S140
     ble_opt_t opt = { 0 };
@@ -732,8 +710,8 @@ ble_error_t nRF5xGap::setPreferedPhys(
 
 ble_error_t nRF5xGap::setPhy(
     Handle_t connection,
-    const Phys_t* txPhys,
-    const Phys_t* rxPhys,
+    const ble::phy_set_t* txPhys,
+    const ble::phy_set_t* rxPhys,
     CodedSymbolPerBit_t codedSymbol
 ) {
 #ifdef S140
@@ -741,8 +719,8 @@ ble_error_t nRF5xGap::setPhy(
 #else
     // TODO handle coded symbol once supported by the softdevice.
     ble_gap_phys_t gap_phys = {
-        to_nordic_phy_set(txPhys),
-        to_nordic_phy_set(rxPhys)
+        txPhys? txPhys->value() : 0,
+        rxPhys? rxPhys->value() : 0
     };
 
     uint32_t err = sd_ble_gap_phy_update(connection, &gap_phys);

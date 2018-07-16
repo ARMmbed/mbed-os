@@ -92,13 +92,13 @@ public:
 
     virtual ble_error_t readPhy(Handle_t connection);
     virtual ble_error_t setPreferedPhys(
-        const Phys_t* txPhys,
-        const Phys_t* rxPhys
+        const ble::phy_set_t* txPhys,
+        const ble::phy_set_t* rxPhys
     );
     virtual ble_error_t setPhy(
         Handle_t connection,
-        const Phys_t* txPhys,
-        const Phys_t* rxPhys,
+        const ble::phy_set_t* txPhys,
+        const ble::phy_set_t* rxPhys,
         CodedSymbolPerBit_t codedSymbol
     );
 

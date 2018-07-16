@@ -555,7 +555,7 @@ public:
     /**
      * Set of BLE PHYs
      */
-    typedef ble::phys_t Phys_t;
+    typedef ble::phy_set_t PhySet_t;
 
     /**
      * Enumeration of type of symbols that can be used with LE coded PHY.
@@ -1451,8 +1451,8 @@ public:
      * error code.
      */
     virtual ble_error_t setPreferedPhys(
-        const Phys_t* txPhys,
-        const Phys_t* rxPhys
+        const PhySet_t* txPhys,
+        const PhySet_t* rxPhys
     ) {
         return BLE_ERROR_NOT_IMPLEMENTED;
     }
@@ -1481,8 +1481,8 @@ public:
      */
     virtual ble_error_t setPhy(
         Handle_t connection,
-        const Phys_t* txPhys,
-        const Phys_t* rxPhys,
+        const PhySet_t* txPhys,
+        const PhySet_t* rxPhys,
         CodedSymbolPerBit_t codedSymbol
     ) {
         return BLE_ERROR_NOT_IMPLEMENTED;

@@ -425,6 +425,8 @@ GenericGap::GenericGap(
 
     // Recover static random identity
     _random_static_identity_address = _pal_gap.get_random_address();
+
+    _pal_gap.set_event_handler(this);
 }
 
 GenericGap::~GenericGap()
@@ -585,6 +587,63 @@ ble_error_t GenericGap::connect(
         connectionParams,
         scanParams
     );
+}
+
+ble_error_t GenericGap::readPhy(Handle_t connection) {
+    return _pal_gap.read_phy(connection);
+}
+
+ble_error_t GenericGap::setPreferedPhys(
+    const phy_set_t* txPhys,
+    const phy_set_t* rxPhys
+) {
+    phy_set_t tx_phys(txPhys? txPhys->value() : 0);
+    phy_set_t rx_phys(rxPhys? rxPhys->value() : 0);
+    return _pal_gap.set_prefered_phys(tx_phys, rx_phys);
+}
+
+ble_error_t GenericGap::setPhy(
+    Handle_t connection,
+    const phy_set_t* txPhys,
+    const phy_set_t* rxPhys,
+    CodedSymbolPerBit_t codedSymbol
+) {
+    phy_set_t tx_phys(txPhys? txPhys->value() : 0);
+    phy_set_t rx_phys(rxPhys? rxPhys->value() : 0);
+    return _pal_gap.set_phy(connection, tx_phys, rx_phys, codedSymbol);
+}
+
+
+void GenericGap::on_read_phy(
+    pal::hci_error_code_t hci_status,
+    Handle_t connection_handle,
+    ble::phy_t tx_phy,
+    ble::phy_t rx_phy
+) {
+    ble_error_t status = BLE_ERROR_NONE;
+    if (pal::hci_error_code_t::SUCCESS != hci_status) {
+        status = BLE_ERROR_UNSPECIFIED;
+    }
+
+    if (_eventHandler) {
+        _eventHandler->onPhyUpdateComplete(status, connection_handle, tx_phy, rx_phy);
+    }
+}
+
+void GenericGap::on_phy_update_complete(
+    pal::hci_error_code_t hci_status,
+    Handle_t connection_handle,
+    ble::phy_t tx_phy,
+    ble::phy_t rx_phy
+) {
+    ble_error_t status = BLE_ERROR_NONE;
+    if (pal::hci_error_code_t::SUCCESS != hci_status) {
+        status = BLE_ERROR_UNSPECIFIED;
+    }
+
+    if (_eventHandler) {
+        _eventHandler->onPhyUpdateComplete(status, connection_handle, tx_phy, rx_phy);
+    }
 }
 
 ble_error_t GenericGap::disconnect(Handle_t connectionHandle, DisconnectionReason_t reason)
