@@ -294,6 +294,17 @@ void tearDown(void);
 #define TEST_ASSERT_DOUBLE_IS_NOT_NAN_MESSAGE(actual, message)                                     UNITY_TEST_ASSERT_DOUBLE_IS_NOT_NAN((actual), __LINE__, (message))
 #define TEST_ASSERT_DOUBLE_IS_NOT_DETERMINATE_MESSAGE(actual, message)                             UNITY_TEST_ASSERT_DOUBLE_IS_NOT_DETERMINATE((actual), __LINE__, (message))
 
+/*-------------------------------------------------------
+ * Test skipping
+ *-------------------------------------------------------*/
+
+// Use these to skip the test case (marking it successful).
+// Use only in test case function itself, and only if it returns nothing (void).
+#define TEST_SKIP_MESSAGE(message)                                                                 UNITY_TEST_SKIP(__LINE__, (message))
+#define TEST_SKIP()                                                                                UNITY_TEST_SKIP(__LINE__, NULL)
+#define TEST_SKIP_UNLESS(condition)                                                                UNITY_TEST_SKIP_UNLESS((condition), __LINE__, NULL)
+#define TEST_SKIP_UNLESS_MESSAGE(condition, message)                                               UNITY_TEST_SKIP_UNLESS((condition), __LINE__, (message))
+
 /* end of UNITY_FRAMEWORK_H */
 #ifdef __cplusplus
 }
