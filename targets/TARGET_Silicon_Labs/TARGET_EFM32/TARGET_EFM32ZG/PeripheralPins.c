@@ -24,7 +24,7 @@
 #include "PeripheralPins.h"
 
 /************ADC***************/
-const PinMap __attribute__((weak)) PinMap_ADC[] = {
+const PinMap MBED_WEAK PinMap_ADC[] = {
 #ifdef ADC0_BASE
     {PD4, ADC_0, ADC_SINGLECTRL_INPUTSEL_CH4},
     {PD5, ADC_0, ADC_SINGLECTRL_INPUTSEL_CH5},
@@ -35,7 +35,7 @@ const PinMap __attribute__((weak)) PinMap_ADC[] = {
 };
 
 /************I2C SCL***********/
-const PinMap __attribute__((weak)) PinMap_I2C_SCL[] = {
+const PinMap MBED_WEAK PinMap_I2C_SCL[] = {
 #ifdef I2C0_BASE
     /* I2C0 */
     {PA1,  I2C_0, 0},
@@ -49,7 +49,7 @@ const PinMap __attribute__((weak)) PinMap_I2C_SCL[] = {
 };
 
 /************I2C SDA***********/
-const PinMap __attribute__((weak)) PinMap_I2C_SDA[] = {
+const PinMap MBED_WEAK PinMap_I2C_SDA[] = {
 #ifdef I2C0_BASE
     /* I2C0 */
     {PA0,  I2C_0, 0},
@@ -62,7 +62,7 @@ const PinMap __attribute__((weak)) PinMap_I2C_SDA[] = {
     {NC  , NC   , NC}
 };
 /************PWM***************/
-const PinMap __attribute__((weak)) PinMap_PWM[] = {
+const PinMap MBED_WEAK PinMap_PWM[] = {
 #if defined(TIMER_ROUTE_CC0PEN) || defined(TIMER_ROUTEPEN_CC0PEN)
     /* PWM0 */
     {PA0, PWM_CH0, 0},
@@ -79,7 +79,7 @@ const PinMap __attribute__((weak)) PinMap_PWM[] = {
 };
 
 /*************SPI**************/
-const PinMap __attribute__((weak)) PinMap_SPI_MOSI[] = {
+const PinMap MBED_WEAK PinMap_SPI_MOSI[] = {
 #ifdef USART1_BASE
     /* USART1 */
     {PC0, SPI_1, 0},
@@ -89,7 +89,7 @@ const PinMap __attribute__((weak)) PinMap_SPI_MOSI[] = {
     {NC  , NC   , NC}
 };
 
-const PinMap __attribute__((weak)) PinMap_SPI_MISO[] = {
+const PinMap MBED_WEAK PinMap_SPI_MISO[] = {
 #ifdef USART1_BASE
     /* USART1 */
     {PC1, SPI_1, 0},
@@ -99,7 +99,7 @@ const PinMap __attribute__((weak)) PinMap_SPI_MISO[] = {
     {NC  , NC   , NC}
 };
 
-const PinMap __attribute__((weak)) PinMap_SPI_CLK[] = {
+const PinMap MBED_WEAK PinMap_SPI_CLK[] = {
 #ifdef USART1_BASE
     /* USART1 */
     {PB7, SPI_1, 0},
@@ -109,7 +109,7 @@ const PinMap __attribute__((weak)) PinMap_SPI_CLK[] = {
     {NC  , NC   , NC}
 };
 
-const PinMap __attribute__((weak)) PinMap_SPI_CS[] = {
+const PinMap MBED_WEAK PinMap_SPI_CS[] = {
 #ifdef USART1_BASE
     /* USART1 */
     {PB8, SPI_1, 0},
@@ -120,7 +120,7 @@ const PinMap __attribute__((weak)) PinMap_SPI_CS[] = {
 };
 
 /************UART**************/
-const PinMap __attribute__((weak)) PinMap_UART_TX[] = {
+const PinMap MBED_WEAK PinMap_UART_TX[] = {
 #ifdef USART1_BASE
     /* USART1 */
     {PC0, USART_1, 0},
@@ -137,7 +137,7 @@ const PinMap __attribute__((weak)) PinMap_UART_TX[] = {
     {NC  , NC   , NC}
 };
 
-const PinMap __attribute__((weak)) PinMap_UART_RX[] = {
+const PinMap MBED_WEAK PinMap_UART_RX[] = {
 #ifdef USART1_BASE
     /* USART1 */
     {PC1, USART_1, 0},

@@ -26,7 +26,7 @@
 /************ADC***************/
 /* The third "function" value is used to select the correct ADC channel */
 #if DEVICE_ANALOGIN
-const PinMap __attribute__((weak)) PinMap_ADC[] = {
+const PinMap MBED_WEAK PinMap_ADC[] = {
 #if ADC0_BASE
     {PA0,  ADC_0, adcPosSelAPORT3XCH8},
     {PA1,  ADC_0, adcPosSelAPORT4XCH9},
@@ -70,7 +70,7 @@ const PinMap __attribute__((weak)) PinMap_ADC[] = {
 
 /************I2C SCL***********/
 #if DEVICE_I2C
-const PinMap __attribute__((weak)) PinMap_I2C_SCL[] = {
+const PinMap MBED_WEAK PinMap_I2C_SCL[] = {
     /* I2C0 */
 #ifdef I2C0_BASE
     {PA1,  I2C_0, 0},
@@ -106,7 +106,7 @@ const PinMap __attribute__((weak)) PinMap_I2C_SCL[] = {
 };
 
 /************I2C SDA***********/
-const PinMap __attribute__((weak)) PinMap_I2C_SDA[] = {
+const PinMap MBED_WEAK PinMap_I2C_SDA[] = {
     /* I2C0 */
 #ifdef I2C0_BASE
     {PA0,  I2C_0, 0},
@@ -146,7 +146,7 @@ const PinMap __attribute__((weak)) PinMap_I2C_SDA[] = {
 
 /************PWM***************/
 #if DEVICE_PWMOUT
-const PinMap __attribute__((weak)) PinMap_PWM[] = {
+const PinMap MBED_WEAK PinMap_PWM[] = {
     {PC13, PWM_CH0, 0},
     {PE10, PWM_CH0, 1},
     {PB0,  PWM_CH0, 2},
@@ -189,7 +189,7 @@ const PinMap __attribute__((weak)) PinMap_PWM[] = {
 
 /*************SPI**************/
 #if DEVICE_SPI
-const PinMap __attribute__((weak)) PinMap_SPI_MOSI[] = {
+const PinMap MBED_WEAK PinMap_SPI_MOSI[] = {
 #ifdef USART0_BASE
     {PE10, SPI_0, 0},
     {PE7,  SPI_0, 1},
@@ -245,7 +245,7 @@ const PinMap __attribute__((weak)) PinMap_SPI_MOSI[] = {
     {NC  , NC   , NC}
 };
 
-const PinMap __attribute__((weak)) PinMap_SPI_MISO[] = {
+const PinMap MBED_WEAK PinMap_SPI_MISO[] = {
 #ifdef USART0_BASE
     {PE11, SPI_0,  0},
     {PE6,  SPI_0,  1},
@@ -301,7 +301,7 @@ const PinMap __attribute__((weak)) PinMap_SPI_MISO[] = {
     {NC  , NC   , NC}
 };
 
-const PinMap __attribute__((weak)) PinMap_SPI_CLK[] = {
+const PinMap MBED_WEAK PinMap_SPI_CLK[] = {
 #ifdef USART0_BASE
     /* USART0 */
     {PE12, SPI_0,  0},
@@ -358,7 +358,7 @@ const PinMap __attribute__((weak)) PinMap_SPI_CLK[] = {
     {NC  , NC   , NC}
 };
 
-const PinMap __attribute__((weak)) PinMap_SPI_CS[] = {
+const PinMap MBED_WEAK PinMap_SPI_CS[] = {
 #ifdef USART0_BASE
     /* USART0 */
     {PE13, SPI_0,  0},
@@ -416,7 +416,7 @@ const PinMap __attribute__((weak)) PinMap_SPI_CS[] = {
 };
 
 /************UART**************/
-const PinMap __attribute__((weak)) PinMap_UART_TX[] = {
+const PinMap MBED_WEAK PinMap_UART_TX[] = {
 #ifdef USART0_BASE
     {PE10, USART_0, 0},
     {PE7,  USART_0, 1},
@@ -474,7 +474,7 @@ const PinMap __attribute__((weak)) PinMap_UART_TX[] = {
 #endif
 
 #if DEVICE_SERIAL
-const PinMap __attribute__((weak)) PinMap_UART_RX[] = {
+const PinMap MBED_WEAK PinMap_UART_RX[] = {
 #ifdef USART0_BASE
     {PE11, USART_0,  0},
     {PE6,  USART_0,  1},
@@ -532,7 +532,7 @@ const PinMap __attribute__((weak)) PinMap_UART_RX[] = {
 #endif
 
 #if DEVICE_CAN
-const PinMap __attribute__((weak)) PinMap_CAN_TX[] = {
+const PinMap MBED_WEAK PinMap_CAN_TX[] = {
 #ifdef CAN0_BASE
     {PC1,  CAN_0, 0},
     {PF2,  CAN_0, 1},
@@ -555,7 +555,7 @@ const PinMap __attribute__((weak)) PinMap_CAN_TX[] = {
 #endif
 };
 
-const PinMap __attribute__((weak)) PinMap_CAN_RX[] = {
+const PinMap MBED_WEAK PinMap_CAN_RX[] = {
 #ifdef CAN0_BASE
     {PC0,  CAN_0, 0},
     {PF0,  CAN_0, 1},
