@@ -35,4 +35,5 @@ void mbed_sdk_init()
 {
     // Update the SystemCoreClock variable.
     SystemInit();
+    SysTick_Config((GetSystemClock()/1000));
 }
