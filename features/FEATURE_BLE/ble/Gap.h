@@ -276,6 +276,20 @@ class GapAdvertisingData;
  * gap.startScan(handle_advertising_packet);
  * @endcode
  *
+ * @par Changing the PHYsical transport of a connection
+ *
+ * Once a connection has been established, it is possible to change the physical
+ * transport used between the local and the distant device. Changing the transport
+ * can either increase the bandwidth or increase the communication range.
+ * An increased bandwidth equals a better power consumption but also a loss in
+ * sensibility and therefore a degraded range.
+ * Symmetrically an increased range means a lowered bandwith and a degraded power
+ * consumption.
+ *
+ * Applications can change the PHY used by calling the function setPhy. Once the
+ * update has been made the result is forwarded to the application by calling the
+ * function onPhyUpdateComplete of the event handler registered.
+ *
  * @par disconnection
  *
  * The application code initiates a disconnection when it calls the
@@ -1105,7 +1119,7 @@ public:
          *
          * @param rxPhy PHY used by the receiver.
          */
-        virtual void onPhyRead(
+        virtual void onReadPhy(
             ble_error_t status,
             Handle_t connectionHandle,
             ble::phy_t txPhy,
@@ -1471,7 +1485,7 @@ public:
         const Phys_t* rxPhys,
         CodedSymbolPerBit_t codedSymbol
     ) {
-        return BLE_ERROR_NONE;
+        return BLE_ERROR_NOT_IMPLEMENTED;
     }
 
     /**
