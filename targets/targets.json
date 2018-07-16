@@ -7214,7 +7214,8 @@
             "CAN",
             "FLASH",
             "EMAC",
-            "MPU"
+            "MPU",
+            "WATCHDOG"
         ],
         "release_versions": ["5"],
         "device_name": "NUC472HI8AE",
@@ -7316,6 +7317,7 @@
         },
         "inherits": ["Target"],
         "macros_add": ["LPTICKER_DELAY_TICKS=3"],
+<<<<<<< HEAD
         "progen": { "target": "numaker-pfm-m453" },
         "device_has": [
             "USTICKER",
@@ -7343,6 +7345,10 @@
             "FLASH",
             "MPU"
         ],
+=======
+        "progen": {"target": "numaker-pfm-m453"},
+        "device_has": ["USTICKER", "LPTICKER", "RTC", "ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "CAN", "FLASH", "RESET_REASON", "WATCHDOG"],
+>>>>>>> [Nuvoton] Support watchdog timer
         "release_versions": ["2", "5"],
         "device_name": "M453VG6AE",
         "bootloader_supported": true,
@@ -7380,6 +7386,7 @@
             }
         },
         "inherits": ["Target"],
+<<<<<<< HEAD
         "macros": [
             "CMSIS_VECTAB_VIRTUAL",
             "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\"",
@@ -7409,6 +7416,10 @@
             "SPISLAVE",
             "SPI_ASYNCH"
         ],
+=======
+        "macros": ["CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\"","MBED_FAULT_HANDLER_DISABLED", "LPTICKER_DELAY_TICKS=3"],
+        "device_has": ["USTICKER", "LPTICKER", "RTC", "ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "RESET_REASON", "WATCHDOG"],
+>>>>>>> [Nuvoton] Support watchdog timer
         "release_versions": ["5"],
         "device_name": "NANO130KE3BN",
         "overrides": {
@@ -7734,6 +7745,10 @@
             "EMAC",
             "MPU"
         ],
+=======
+        "device_has": ["USTICKER", "LPTICKER", "RTC", "ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "TRNG", "FLASH", "CAN", "EMAC", "RESET_REASON", "WATCHDOG"],
+        "features": ["LWIP"],
+>>>>>>> [Nuvoton] Support watchdog timer
         "release_versions": ["5"],
         "bootloader_supported": true,
         "overrides": {
