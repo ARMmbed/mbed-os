@@ -4,7 +4,7 @@
   "priority": "NORMAL",
   "id": "0x00000008",
   "entry_point": "server_main2",
-  "stack_size": "0x400",
+  "stack_size": "0x280",
   "heap_size": "0x400",
   "services": [{
       "name": "PART2_INT_MASK",

@@ -4,7 +4,7 @@
   "priority": "NORMAL",
   "id": "0x00000004",
   "entry_point": "part1_main",
-  "stack_size": "0x400",
+  "stack_size": "0x200",
   "heap_size": "0x400",
   "services": [{
       "name": "ROT_SRV1",

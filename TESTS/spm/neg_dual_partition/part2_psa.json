@@ -4,7 +4,7 @@
   "priority": "NORMAL",
   "id": "0x00000007",
   "entry_point": "server_main2",
-  "stack_size": "0x400",
+  "stack_size": "0x200",
   "heap_size": "0x400",
   "services": [{
       "name": "DUMMY",
