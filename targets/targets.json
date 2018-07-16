@@ -7443,7 +7443,8 @@
             "CAN",
             "FLASH",
             "EMAC",
-            "MPU"
+            "MPU",
+            "WATCHDOG"
         ],
         "release_versions": ["5"],
         "device_name": "NUC472HI8AE",
@@ -7571,7 +7572,8 @@
             "SPI_ASYNCH",
             "CAN",
             "FLASH",
-            "MPU"
+            "MPU",
+            "WATCHDOG"
         ],
         "components_add": ["FLASHIAP"],
         "release_versions": ["2", "5"],
@@ -7638,7 +7640,8 @@
             "SLEEP",
             "SPI",
             "SPISLAVE",
-            "SPI_ASYNCH"
+            "SPI_ASYNCH",
+            "WATCHDOG"
         ],
         "release_versions": ["5"],
         "device_name": "NANO130KE3BN",
@@ -7996,7 +7999,8 @@
             "FLASH",
             "CAN",
             "EMAC",
-            "MPU"
+            "MPU",
+            "WATCHDOG"
         ],
         "release_versions": ["5"],
         "bootloader_supported": true,
