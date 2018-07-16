@@ -22,6 +22,7 @@
  ******************************************************************************/
 
 #include "PeripheralPins.h"
+#include "mbed_toolchain.h"
 
 /************ADC***************/
 const PinMap MBED_WEAK PinMap_ADC[] = {
