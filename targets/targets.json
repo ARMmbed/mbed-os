@@ -7186,6 +7186,7 @@
             "CAN",
             "FLASH",
             "MPU",
+            "RESET_REASON",
             "WATCHDOG"
         ],
         "release_versions": ["2", "5"],
@@ -7250,6 +7251,7 @@
             "SPI",
             "SPISLAVE",
             "SPI_ASYNCH",
+            "RESET_REASON",
             "WATCHDOG"
         ],
         "release_versions": ["5"],
@@ -7570,6 +7572,7 @@
             "CAN",
             "EMAC",
             "MPU",
+            "RESET_REASON",
             "WATCHDOG"
         ],
         "release_versions": ["5"],
