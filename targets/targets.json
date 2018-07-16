@@ -6540,7 +6540,8 @@
             "CAN",
             "FLASH",
             "EMAC",
-            "RESET_REASON"
+            "RESET_REASON",
+            "WATCHDOG"
         ],
         "features": ["LWIP"],
         "release_versions": ["5"],
@@ -6666,7 +6667,8 @@
             "SPI_ASYNCH",
             "CAN",
             "FLASH",
-            "RESET_REASON"
+            "RESET_REASON",
+            "WATCHDOG"
         ],
         "release_versions": ["2", "5"],
         "device_name": "M453VG6AE",
@@ -6729,7 +6731,8 @@
             "SPI",
             "SPISLAVE",
             "SPI_ASYNCH",
-            "RESET_REASON"
+            "RESET_REASON",
+            "WATCHDOG"
         ],
         "release_versions": ["5"],
         "device_name": "NANO130KE3BN"
@@ -7028,7 +7031,8 @@
             "FLASH",
             "CAN",
             "EMAC",
-            "RESET_REASON"
+            "RESET_REASON",
+            "WATCHDOG"
         ],
         "features": ["LWIP"],
         "release_versions": ["5"],
