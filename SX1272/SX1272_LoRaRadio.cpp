@@ -1466,7 +1466,7 @@ void SX1272_LoRaRadio::set_sx1272_variant_type()
         _ant_switch.output();
         wait_ms(1);
     } else {
-        radio_variant = SX1272UNDEFINED;
+        radio_variant = MBED_CONF_SX1272_LORA_DRIVER_RADIO_VARIANT;
     }
 }
 

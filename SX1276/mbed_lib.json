@@ -8,6 +8,10 @@
         "buffer-size": {
         	"help": "Max. buffer size the radio can handle, Default: 255 B",
         	"value": 255
+        },
+        "radio-variant": {
+            "help": "Use to set the radio variant if the antenna switch input is not connected.",
+            "value": "SX1276UNDEFINED"
         }
     }
 }
