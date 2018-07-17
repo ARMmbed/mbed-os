@@ -1,0 +1,9 @@
+{
+    "name": "secure partition",
+    "target_overrides": {
+        "NUMAKER_PFM_M2351": {
+            "target.secure_partition": "NuMaker-mbed-TZ-secure-example.hex",
+            "target.app_offset": "0x40000"
+        }
+    }
+}
