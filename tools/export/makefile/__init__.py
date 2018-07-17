@@ -256,6 +256,17 @@ class Armc6(Arm):
     NAME = 'Make-ARMc6'
     TOOLCHAIN = "ARMC6"
 
+    @classmethod
+    def is_target_supported(cls, target_name):
+        target = TARGET_MAP[target_name]
+        if target.core in (
+                "Cortex-M23", "Cortex-M23-NS",
+                "Cortex-M33", "Cortex-M33-NS"
+        ):
+            return False
+        return apply_supported_whitelist(
+            cls.TOOLCHAIN, cls.POST_BINARY_WHITELIST, target)
+
 
 class IAR(Makefile):
     """IAR specific makefile target"""
