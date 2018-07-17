@@ -1,11 +1,6 @@
 {
   "name": "fat",
   "config": {
-    "reentrant": {
-        "macro_name": "MBED_FAT_FS_REENTRANT",
-        "value": 0,
-        "help": "Turn on the reentrancy feature of the FAT Filesystem. This allows concurrent writes to the SD card in threaded applications"
-    },
     "tiny": {
         "macro_name": "MBED_FAT_FS_TINY",
         "value": 1,
