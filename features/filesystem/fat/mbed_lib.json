@@ -1,0 +1,20 @@
+{
+  "name": "fat",
+  "config": {
+    "reentrant": {
+        "macro_name": "MBED_FAT_FS_REENTRANT",
+        "value": 0,
+        "help": "Turn on the reentrancy feature of the FAT Filesystem. This allows concurrent writes to the SD card in threaded applications"
+    },
+    "tiny": {
+        "macro_name": "MBED_FAT_FS_TINY",
+        "value": 1,
+        "help": "Set the _FS_TINY option of the FAT Filesystem. If this is true, the size of the FIL objects used by FFChan will be reduced"
+    },
+    "use_heap_buffers": {
+        "macro_name": "MBED_FAT_FS_HEAPBUF",
+        "value": 1,
+        "help": "Allow the FAT Filesystem to use the heap for allocating buffers. Turn this off and define your own memory to prevent any dynamic memory allocation by the library"
+    }
+  }
+}

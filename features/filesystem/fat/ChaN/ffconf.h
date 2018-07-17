@@ -219,7 +219,7 @@
 / System Configurations
 /---------------------------------------------------------------------------*/
 
-#define FF_FS_TINY		1
+#define FF_FS_TINY		MBED_FAT_FS_TINY
 /* This option switches tiny buffer configuration. (0:Normal or 1:Tiny)
 /  At the tiny configuration, size of file object (FIL) is shrinked FF_MAX_SS bytes.
 /  Instead of private sector buffer eliminated from the file object, common sector
@@ -232,7 +232,7 @@
 /  Note that enabling exFAT discards ANSI C (C89) compatibility. */
 
 
-#define FF_FS_HEAPBUF   1
+#define FF_FS_HEAPBUF   MBED_FAT_FS_HEAPBUF
 /* This option enables the use of the heap for allocating buffers. Otherwise
 /  _MAX_SS sized buffers are allocated statically in relevant structures (in
 /  FATFS if _FS_TINY, otherwise in FATFS and FIL)
@@ -265,8 +265,7 @@
 /      can be opened simultaneously under file lock control. Note that the file
 /      lock control is independent of re-entrancy. */
 
-
-#define FF_FS_REENTRANT	0
+#define FF_FS_REENTRANT	MBED_FAT_FS_REENTRANT
 #define FF_FS_TIMEOUT	1000
 #define FF_SYNC_t		HANDLE
 /* The option FF_FS_REENTRANT switches the re-entrancy (thread safe) of the FatFs
