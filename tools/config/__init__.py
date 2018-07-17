@@ -626,6 +626,8 @@ class Config(object):
         )
         rom_start = int(getattr(self.target, "mbed_rom_start", False) or rom_start, 0)
         rom_size = int(getattr(self.target, "mbed_rom_size", False) or rom_size, 0)
+        if self.target.core.endswith("-NS"):
+            rom_start ^= int(getattr(self.target,"non_secure_mask", "0"), 0)
         return (rom_start, rom_size)
 
     @property
@@ -644,6 +646,8 @@ class Config(object):
         # 2. Supports TrustZone and user needs to change its flash partition
         ram_start = getattr(self.target, "mbed_ram_start", False) or ram_start
         ram_size = getattr(self.target, "mbed_ram_size", False) or ram_size
+        if self.target.core.endswith("-NS"):
+            ram_start ^= int(getattr(self.target,"non_secure_mask", "0"), 0)
         return [RamRegion("application_ram", int(ram_start, 0), int(ram_size, 0), True)]
 
     @property
@@ -707,7 +711,9 @@ class Config(object):
             if not exists(filename):
                 raise ConfigException("Bootloader %s not found" % filename)
             part = intelhex_offset(filename, offset=rom_start)
-            if part.minaddr() != rom_start:
+            actual_minaddr =(part.minaddr() ^
+                             int(getattr(self.target, "non_secure_mask"), 0))
+            if (actual_minaddr != rom_start):
                 raise ConfigException("bootloader executable does not "
                                       "start at 0x%x" % rom_start)
             part_size = (part.maxaddr() - part.minaddr()) + 1
