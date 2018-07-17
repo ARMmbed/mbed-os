@@ -2326,14 +2326,14 @@
     },
     "MOTE_L152RC": {
         "inherits": ["FAMILY_STM32"],
+        "supported_form_factors": ["ARDUINO"],
         "core": "Cortex-M3",
-        "default_toolchain": "uARM",
+        "default_toolchain": "ARM",
+        "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "extra_labels_add": ["STM32L1", "STM32L152RC"],
-        "overrides": {"lse_available": 0},
         "detect_code": ["4100"],
-        "device_has_add": ["ANALOGOUT"],
-        "default_lib": "small",
-        "release_versions": ["2"],
+        "device_has_add": ["ANALOGOUT", "SERIAL_ASYNCH", "FLASH"],
+        "release_versions": ["2", "5"],
         "device_name": "STM32L152RC"
     },
     "DISCO_F401VC": {
