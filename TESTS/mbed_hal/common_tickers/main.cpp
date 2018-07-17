@@ -206,17 +206,17 @@ void ticker_interrupt_test(void)
          * tick_count + ticker_timeout[i]. */
         intf->set_interrupt(tick_count + ticker_timeout[i]);
 
-        /* Wait until ticker count reach value: tick_count + ticker_timeout[i] - TICKER_DELTA.
+        /* Wait until ticker count reach value: tick_count + ticker_timeout[i].
          * Interrupt should not be fired. */
-        while (intf->read() < (tick_count + ticker_timeout[i] - TICKER_DELTA)) {
-            /* Indicate failure if interrupt has fired earlier. */
-            TEST_ASSERT_EQUAL_INT_MESSAGE(0, intFlag, "Interrupt fired too early");
-        }
+        uint32_t last_flag = intFlag;
+        uint32_t last_read = intf->read();
+        while (last_read < (tick_count + ticker_timeout[i])) {
 
-        /* Wait until ticker count reach value: tick_count + ticker_timeout[i] + TICKER_DELTA.
-         * Interrupt should be fired after this time. */
-        while (intf->read() < (tick_count + ticker_timeout[i] + TICKER_DELTA)) {
-            /* Just wait. */
+            /* Indicate failure if interrupt has fired earlier. */
+            TEST_ASSERT_EQUAL_INT_MESSAGE(0, last_flag, "Interrupt fired too early");
+
+            last_flag = intFlag;
+            last_read = intf->read();
         }
 
         TEST_ASSERT_EQUAL(1, intFlag);
@@ -342,7 +342,7 @@ void ticker_overflow_test(void)
     intf->set_interrupt(tick_count + TICKER_INT_VAL);
 
     /* Wait for the interrupt. */
-    while (intf->read() < (tick_count + TICKER_INT_VAL + TICKER_DELTA)) {
+    while (intf->read() < (tick_count + TICKER_INT_VAL)) {
         /* Just wait. */
     }
 
