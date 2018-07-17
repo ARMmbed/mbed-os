@@ -27,7 +27,7 @@
 /************ADC***************/
 /* The third "function" value is used to select the correct ADC channel */
 #if DEVICE_ANALOGIN
-const PinMap MBED_WEAK PinMap_ADC[] = {
+MBED_WEAK const PinMap PinMap_ADC[] = {
 #if ADC0_BASE
     {PA0,  ADC_0, adcPosSelAPORT3XCH8},
     {PA1,  ADC_0, adcPosSelAPORT4XCH9},
@@ -71,7 +71,7 @@ const PinMap MBED_WEAK PinMap_ADC[] = {
 
 /************I2C SCL***********/
 #if DEVICE_I2C
-const PinMap MBED_WEAK PinMap_I2C_SCL[] = {
+MBED_WEAK const PinMap PinMap_I2C_SCL[] = {
     /* I2C0 */
 #ifdef I2C0_BASE
     {PA1,  I2C_0, 0},
@@ -107,7 +107,7 @@ const PinMap MBED_WEAK PinMap_I2C_SCL[] = {
 };
 
 /************I2C SDA***********/
-const PinMap MBED_WEAK PinMap_I2C_SDA[] = {
+MBED_WEAK const PinMap PinMap_I2C_SDA[] = {
     /* I2C0 */
 #ifdef I2C0_BASE
     {PA0,  I2C_0, 0},
@@ -147,7 +147,7 @@ const PinMap MBED_WEAK PinMap_I2C_SDA[] = {
 
 /************PWM***************/
 #if DEVICE_PWMOUT
-const PinMap MBED_WEAK PinMap_PWM[] = {
+MBED_WEAK const PinMap PinMap_PWM[] = {
     {PC13, PWM_CH0, 0},
     {PE10, PWM_CH0, 1},
     {PB0,  PWM_CH0, 2},
@@ -190,7 +190,7 @@ const PinMap MBED_WEAK PinMap_PWM[] = {
 
 /*************SPI**************/
 #if DEVICE_SPI
-const PinMap MBED_WEAK PinMap_SPI_MOSI[] = {
+MBED_WEAK const PinMap PinMap_SPI_MOSI[] = {
 #ifdef USART0_BASE
     {PE10, SPI_0, 0},
     {PE7,  SPI_0, 1},
@@ -246,7 +246,7 @@ const PinMap MBED_WEAK PinMap_SPI_MOSI[] = {
     {NC  , NC   , NC}
 };
 
-const PinMap MBED_WEAK PinMap_SPI_MISO[] = {
+MBED_WEAK const PinMap PinMap_SPI_MISO[] = {
 #ifdef USART0_BASE
     {PE11, SPI_0,  0},
     {PE6,  SPI_0,  1},
@@ -302,7 +302,7 @@ const PinMap MBED_WEAK PinMap_SPI_MISO[] = {
     {NC  , NC   , NC}
 };
 
-const PinMap MBED_WEAK PinMap_SPI_CLK[] = {
+MBED_WEAK const PinMap PinMap_SPI_CLK[] = {
 #ifdef USART0_BASE
     /* USART0 */
     {PE12, SPI_0,  0},
@@ -359,7 +359,7 @@ const PinMap MBED_WEAK PinMap_SPI_CLK[] = {
     {NC  , NC   , NC}
 };
 
-const PinMap MBED_WEAK PinMap_SPI_CS[] = {
+MBED_WEAK const PinMap PinMap_SPI_CS[] = {
 #ifdef USART0_BASE
     /* USART0 */
     {PE13, SPI_0,  0},
@@ -417,7 +417,7 @@ const PinMap MBED_WEAK PinMap_SPI_CS[] = {
 };
 
 /************UART**************/
-const PinMap MBED_WEAK PinMap_UART_TX[] = {
+MBED_WEAK const PinMap PinMap_UART_TX[] = {
 #ifdef USART0_BASE
     {PE10, USART_0, 0},
     {PE7,  USART_0, 1},
@@ -475,7 +475,7 @@ const PinMap MBED_WEAK PinMap_UART_TX[] = {
 #endif
 
 #if DEVICE_SERIAL
-const PinMap MBED_WEAK PinMap_UART_RX[] = {
+MBED_WEAK const PinMap PinMap_UART_RX[] = {
 #ifdef USART0_BASE
     {PE11, USART_0,  0},
     {PE6,  USART_0,  1},
@@ -533,7 +533,7 @@ const PinMap MBED_WEAK PinMap_UART_RX[] = {
 #endif
 
 #if DEVICE_CAN
-const PinMap MBED_WEAK PinMap_CAN_TX[] = {
+MBED_WEAK const PinMap PinMap_CAN_TX[] = {
 #ifdef CAN0_BASE
     {PC1,  CAN_0, 0},
     {PF2,  CAN_0, 1},
@@ -556,7 +556,7 @@ const PinMap MBED_WEAK PinMap_CAN_TX[] = {
 #endif
 };
 
-const PinMap MBED_WEAK PinMap_CAN_RX[] = {
+MBED_WEAK const PinMap PinMap_CAN_RX[] = {
 #ifdef CAN0_BASE
     {PC0,  CAN_0, 0},
     {PF0,  CAN_0, 1},
