@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#if !MBED_TICKLESS
+#ifndef MBED_TICKLESS
 #error [NOT_SUPPORTED] Tickless mode not supported for this target.
 #endif
 
