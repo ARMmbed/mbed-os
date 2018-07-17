@@ -93,9 +93,7 @@ typedef struct {
 	WORD	id;				/* Volume mount ID */
 	WORD	n_rootdir;		/* Number of root directory entries (FAT12/16) */
 	WORD	csize;			/* Cluster size [sectors] */
-#if FF_MAX_SS != FF_MIN_SS
 	WORD	ssize;			/* Sector size (512, 1024, 2048 or 4096) */
-#endif
 #if FF_USE_LFN
 	WCHAR*	lfnbuf;			/* LFN working buffer */
 #endif

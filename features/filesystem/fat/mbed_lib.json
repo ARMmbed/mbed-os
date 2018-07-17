@@ -15,6 +15,17 @@
         "macro_name": "MBED_FAT_FS_LFN_HANDLING",
         "value": 3,
         "help": "Set how the FAT Filesystem manages memory used for handling long file names.\n0: No long file name support\n1:BSS allocated long file name buffer memory (not thread safe)\n2:Stack based long file name memory buffer\n3:Heap based long file name buffer"
+    },
+    "minimum_sector_size": {
+        "macro_name": "MBED_FAT_FS_MIN_SS",
+        "value": 512,
+        "help": "Set the minimum sector size to be supported by the FAT filesystem. This has an effect on the memory footprint of an allocated file handle if TINY_FS is set to false."
+    },
+    "maximum_sector_size": {
+        "macro_name": "MBED_FAT_FS_MAX_SS",
+        "value": 4096,
+        "help": "Set the maximum sector size to be supported by the FAT filesystem. This has an effect on the memory footprint of an allocated file handle if TINY_FS is set to false."
     }
+
   }
 }
