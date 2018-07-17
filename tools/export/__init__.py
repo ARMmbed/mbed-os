@@ -18,15 +18,16 @@
 from __future__ import print_function, division, absolute_import
 
 import sys
-from os.path import join, abspath, dirname, exists
+from os.path import join, abspath, dirname, exists, isfile
 from os.path import basename, relpath, normpath, splitext
 from os import makedirs, walk
 import copy
 from shutil import rmtree, copyfile
 import zipfile
 
-from ..build_api import prepare_toolchain, scan_resources
-from ..toolchains import Resources
+from ..resources import Resources, FileType, FileRef
+from ..config import ALLOWED_FEATURES
+from ..build_api import prepare_toolchain
 from ..targets import TARGET_NAMES
 from . import (lpcxpresso, ds5_5, iar, makefile, embitz, coide, kds, simplicity,
                atmelstudio, mcuxpresso, sw4stm32, e2studio, zip, cmsis, uvision,
@@ -161,22 +162,23 @@ def generate_project_files(resources, export_path, target, name, toolchain, ide,
     return files, exporter
 
 
-def _inner_zip_export(resources, inc_repos):
-    for loc, res in resources.items():
-        to_zip = (
-            res.headers + res.s_sources + res.c_sources +\
-            res.cpp_sources + res.libraries + res.hex_files + \
-            [res.linker_script] + res.bin_files + res.objects + \
-            res.json_files + res.lib_refs + res.lib_builds)
-        if inc_repos:
-            for directory in res.repo_dirs:
-                for root, _, files in walk(directory):
-                    for repo_file in files:
-                        source = join(root, repo_file)
-                        to_zip.append(source)
-                        res.file_basepath[source] = res.base_path
-            to_zip += res.repo_files
-        yield loc, to_zip
+def _inner_zip_export(resources, prj_files, inc_repos):
+    to_zip = sum((resources.get_file_refs(ftype) for ftype
+                  in Resources.ALL_FILE_TYPES),
+                 [])
+    to_zip.extend(FileRef(basename(pfile), pfile) for pfile in prj_files)
+    for dest, source in resources.get_file_refs(FileType.BLD_REF):
+        target_dir, _ = splitext(dest)
+        dest = join(target_dir, ".bld", "bldrc")
+        to_zip.append(FileRef(dest, source))
+    if inc_repos:
+        for dest, source in resources.get_file_refs(FileType.REPO_DIRS):
+            for root, _, files in walk(source):
+                for repo_file in files:
+                    file_source = join(root, repo_file)
+                    file_dest = join(dest, relpath(file_source, source))
+                    to_zip.append(FileRef(file_dest, file_source))
+    return to_zip
 
 def zip_export(file_name, prefix, resources, project_files, inc_repos, notify):
     """Create a zip file from an exported project.
@@ -188,32 +190,19 @@ def zip_export(file_name, prefix, resources, project_files, inc_repos, notify):
     project_files - a list of extra files to be added to the root of the prefix
       directory
     """
-    to_zip_list = list(_inner_zip_export(resources, inc_repos))
-    total_files = sum(len(to_zip) for _, to_zip in to_zip_list)
-    total_files += len(project_files)
+    to_zip_list = sorted(set(_inner_zip_export(
+        resources, project_files, inc_repos)))
+    total_files = len(to_zip_list)
     zipped = 0
     with zipfile.ZipFile(file_name, "w") as zip_file:
-        for prj_file in project_files:
-            zip_file.write(prj_file, join(prefix, basename(prj_file)))
-        for loc, to_zip in to_zip_list:
-            res = resources[loc]
-            for source in to_zip:
-                if source:
-                    zip_file.write(
-                        source,
-                        join(prefix, loc,
-                             relpath(source, res.file_basepath[source])))
-                    notify.progress("Zipping", source,
-                                    100 * (zipped / total_files))
-                    zipped += 1
-        for lib, res in resources.items():
-            for source in res.lib_builds:
-                target_dir, _ = splitext(source)
-                dest = join(prefix, loc,
-                            relpath(target_dir, res.file_basepath[source]),
-                            ".bld", "bldrc")
-                zip_file.write(source, dest)
-
+        for dest, source in to_zip_list:
+            if source and isfile(source):
+                zip_file.write(source, join(prefix, dest))
+                zipped += 1
+                notify.progress("Zipping", source,
+                                100 * (zipped / total_files))
+            else:
+                zipped += 1
 
 
 def export_project(src_paths, export_path, target, ide, libraries_paths=None,
@@ -275,23 +264,16 @@ def export_project(src_paths, export_path, target, ide, libraries_paths=None,
     if name is None:
         name = basename(normpath(abspath(src_paths[0])))
 
-    resource_dict = {loc: sum((toolchain.scan_resources(p, collect_ignores=True)
-                               for p in path),
-                              Resources())
-                     for loc, path in src_paths.items()}
-    resources = Resources()
-
-    for loc, res in resource_dict.items():
-        temp = copy.deepcopy(res)
-        temp.subtract_basepath(".", loc)
-        resources.add(temp)
-
+    resources = Resources(notify, collect_ignores=True)
+    resources.add_toolchain_labels(toolchain)
+    for loc, path in src_paths.items():
+        for p in path:
+            resources.add_directory(p, into_path=loc)
     toolchain.build_dir = export_path
     toolchain.config.load_resources(resources)
     toolchain.set_config_data(toolchain.config.get_config_data())
     config_header = toolchain.get_config_header()
-    resources.headers.append(config_header)
-    resources.file_basepath[config_header] = dirname(config_header)
+    resources.add_file_ref(FileType.HEADER, basename(config_header), config_header)
 
     # Change linker script if specified
     if linker_script is not None:
@@ -300,16 +282,13 @@ def export_project(src_paths, export_path, target, ide, libraries_paths=None,
     files, exporter = generate_project_files(resources, export_path,
                                              target, name, toolchain, ide,
                                              macros=macros)
-    files.append(config_header)
     if zip_proj:
-        for resource in resource_dict.values():
-            for label, res in resource.features.items():
-                resource.add(res)
+        resources.add_features(ALLOWED_FEATURES)
         if isinstance(zip_proj, basestring):
-            zip_export(join(export_path, zip_proj), name, resource_dict,
+            zip_export(join(export_path, zip_proj), name, resources,
                        files + list(exporter.static_files), inc_repos, notify)
         else:
-            zip_export(zip_proj, name, resource_dict,
+            zip_export(zip_proj, name, resources,
                        files + list(exporter.static_files), inc_repos, notify)
     else:
         for static_file in exporter.static_files:

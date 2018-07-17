@@ -69,13 +69,11 @@ class CCES(Exporter):
 
         Skip macros because headless tools handles them separately
         """
-        config_header = self.toolchain.get_config_header()
         flags = {key + "_flags": copy.deepcopy(value) for key, value \
                     in self.toolchain.flags.iteritems()}
+        config_header = self.config_header_ref
         if config_header:
-            config_header = os.path.relpath(config_header, \
-                                self.resources.file_basepath[config_header])
-            config_header = "\\\"" + self.format_inc_path(config_header) \
+            config_header = "\\\"" + self.format_inc_path(config_header.name) \
                                 + "\\\""
             header_options = self.toolchain.get_config_option(config_header)
             flags['c_flags'] += header_options
@@ -320,7 +318,7 @@ class CCES(Exporter):
         cxx_flags = self.flags['cxx_flags'] + self.flags['common_flags']
 
         libs = []
-        for libpath in self.resources.libraries:
+        for libpath in self.libraries:
             lib = os.path.splitext(os.path.basename(libpath))[0]
             libs.append(lib[3:]) # skip 'lib' prefix
 

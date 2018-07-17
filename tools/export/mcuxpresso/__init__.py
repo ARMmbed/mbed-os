@@ -76,12 +76,13 @@ class MCUXpresso(GNUARMEclipse):
 
         # TODO: use some logger to display additional info if verbose
 
-        self.libraries = []
+        libraries = []
         # print 'libraries'
         # print self.resources.libraries
-        for lib in self.resources.libraries:
+        for lib in self.libraries:
             l, _ = splitext(basename(lib))
-            self.libraries.append(l[3:])
+            libraries.append(l[3:])
+        self.libraries = libraries
 
         self.system_libraries = [
             'stdc++', 'supc++', 'm', 'c', 'gcc', 'nosys'

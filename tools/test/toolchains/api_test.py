@@ -11,9 +11,13 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..",
                                     ".."))
 sys.path.insert(0, ROOT)
 
-from tools.toolchains import TOOLCHAIN_CLASSES, LEGACY_TOOLCHAIN_NAMES,\
-    Resources, TOOLCHAIN_PATHS, mbedToolchain
-from tools.targets import TARGET_MAP
+from tools.toolchains import (
+    TOOLCHAIN_CLASSES,
+    TOOLCHAIN_PATHS,
+    mbedToolchain,
+)
+from tools.resources import LEGACY_TOOLCHAIN_NAMES, Resources, FileType
+from tools.targets import TARGET_MAP, set_targets_json_location
 from tools.notifier.mock import MockNotifier
 
 ALPHABET = [char for char in printable if char not in [u'.', u'/', u'\\']]
@@ -21,6 +25,7 @@ ALPHABET = [char for char in printable if char not in [u'.', u'/', u'\\']]
 
 @patch('tools.toolchains.arm.run_cmd')
 def test_arm_version_check(_run_cmd):
+    set_targets_json_location()
     _run_cmd.return_value = ("""
     Product: ARM Compiler 5.06
     Component: ARM Compiler 5.06 update 5 (build 528)
@@ -48,6 +53,7 @@ def test_arm_version_check(_run_cmd):
 
 @patch('tools.toolchains.iar.run_cmd')
 def test_iar_version_check(_run_cmd):
+    set_targets_json_location()
     _run_cmd.return_value = ("""
     IAR ANSI C/C++ Compiler V7.80.1.28/LNX for ARM
     """, "", 0)
@@ -69,6 +75,7 @@ def test_iar_version_check(_run_cmd):
 
 @patch('tools.toolchains.gcc.run_cmd')
 def test_gcc_version_check(_run_cmd):
+    set_targets_json_location()
     _run_cmd.return_value = ("""
     arm-none-eabi-gcc (Arch Repository) 6.4.4
     Copyright (C) 2018 Free Software Foundation, Inc.
@@ -111,6 +118,7 @@ def test_toolchain_profile_c(profile, source_file):
     filename = deepcopy(source_file)
     filename[-1] += ".c"
     to_compile = os.path.join(*filename)
+    set_targets_json_location()
     with patch('os.mkdir') as _mkdir:
         for _, tc_class in TOOLCHAIN_CLASSES.items():
             toolchain = tc_class(TARGET_MAP["K64F"], build_profile=profile,
@@ -241,12 +249,11 @@ def test_detect_duplicates(filenames):
     s_sources = [os.path.join(name, "dupe.s") for name in filenames]
     cpp_sources = [os.path.join(name, "dupe.cpp") for name in filenames]
     notify = MockNotifier()
-    toolchain = TOOLCHAIN_CLASSES["ARM"](TARGET_MAP["K64F"], notify=notify)
-    res = Resources()
-    res.c_sources = c_sources
-    res.s_sources = s_sources
-    res.cpp_sources = cpp_sources
-    assert res.detect_duplicates(toolchain) == 1,\
+    res = Resources(notify)
+    res.add_files_to_type(FileType.C_SRC, c_sources)
+    res.add_files_to_type(FileType.ASM_SRC, s_sources)
+    res.add_files_to_type(FileType.CPP_SRC, cpp_sources)
+    assert res.detect_duplicates() == 1,\
         "Not Enough duplicates found"
 
     notification = notify.messages[0]

@@ -10,6 +10,7 @@ import copy
 
 from tools.targets import TARGET_MAP
 from tools.utils import mkdir
+from tools.resources import FileType
 
 
 class TargetNotSupportedException(Exception):
@@ -87,12 +88,8 @@ class Exporter(object):
         return self.TOOLCHAIN
 
     def add_config(self):
-        """Add the containgin directory of mbed_config.h to include dirs"""
-        config = self.toolchain.get_config_header()
-        if config:
-            self.resources.inc_dirs.append(
-                dirname(relpath(config,
-                                self.resources.file_basepath[config])))
+        """Add the containing directory of mbed_config.h to include dirs"""
+        pass
 
     @property
     def flags(self):
@@ -104,9 +101,7 @@ class Exporter(object):
         asm_flags    - assembler flags
         common_flags - common options
         """
-        config_header = self.toolchain.get_config_header()
-        flags = {key + "_flags": copy.deepcopy(value) for key, value
-                 in self.toolchain.flags.items()}
+        flags = self.toolchain_flags(self.toolchain)
         asm_defines = self.toolchain.get_compile_options(
             self.toolchain.get_symbols(for_asm=True),
             filter(None, self.resources.inc_dirs),
@@ -115,13 +110,51 @@ class Exporter(object):
         flags['asm_flags'] += asm_defines
         flags['c_flags'] += c_defines
         flags['cxx_flags'] += c_defines
+        config_header = self.config_header_ref
         if config_header:
-            config_header = relpath(config_header,
-                                    self.resources.file_basepath[config_header])
-            flags['c_flags'] += self.toolchain.get_config_option(config_header)
+            flags['c_flags'] += self.toolchain.get_config_option(
+                config_header.name)
             flags['cxx_flags'] += self.toolchain.get_config_option(
-                config_header)
+                config_header.name)
         return flags
+
+    @property
+    def libraries(self):
+        return [l for l in self.resources.get_file_names(FileType.LIB)
+                if l.endswith(self.toolchain.LIBRARY_EXT)]
+
+    def toolchain_flags(self, toolchain):
+        """Returns a dictionary of toolchain flags.
+        Keys of the dictionary are:
+        cxx_flags    - c++ flags
+        c_flags      - c flags
+        ld_flags     - linker flags
+        asm_flags    - assembler flags
+        common_flags - common options
+
+        The difference from the above is that it takes a parameter.
+        """
+        flags = {key + "_flags": copy.deepcopy(value) for key, value
+                 in toolchain.flags.items()}
+        config_header = self.config_header_ref
+        if config_header:
+            header_options = self.toolchain.get_config_option(
+                config_header.name)
+            flags['c_flags'] += header_options
+            flags['cxx_flags'] += header_options
+        return flags
+
+    @property
+    def config_header_ref(self):
+        config_header = self.toolchain.get_config_header()
+        if config_header:
+            def is_config_header(f):
+                return f.path == config_header
+            return filter(
+                is_config_header, self.resources.get_file_refs(FileType.HEADER)
+            )[0]
+        else:
+            return None
 
     def get_source_paths(self):
         """Returns a list of the directories where source files are contained"""
@@ -181,8 +214,7 @@ class Exporter(object):
         Positional Arguments:
         src - the src's location
         """
-        rel_path = relpath(src, self.resources.file_basepath[src])
-        path_list = os.path.normpath(rel_path).split(os.sep)
+        path_list = os.path.normpath(src).split(os.sep)
         assert len(path_list) >= 1
         if len(path_list) == 1:
             key = self.project_name

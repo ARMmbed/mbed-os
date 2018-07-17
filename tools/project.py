@@ -55,10 +55,11 @@ def resolve_exporter_alias(ide):
 def setup_project(
         ide,
         target,
-        program=None,
-        source_dir=None,
-        build=None,
-        export_path=None
+        zip,
+        program,
+        source_dir,
+        build,
+        export_path,
 ):
     """Generate a name, if not provided, and find dependencies
 
@@ -82,7 +83,10 @@ def setup_project(
             project_name = TESTS[program]
         else:
             project_name = basename(normpath(realpath(source_dir[0])))
-        src_paths = {relpath(path, project_dir): [path] for path in source_dir}
+        if zip:
+            src_paths = {path.strip(".\\/"): [path] for path in source_dir}
+        else:
+            src_paths = {relpath(path, project_dir): [path] for path in source_dir}
         lib_paths = None
     else:
         test = Test(program)
@@ -124,6 +128,7 @@ def export(target, ide, build=None, src=None, macros=None, project_id=None,
     project_dir, name, src, lib = setup_project(
         ide,
         target,
+        bool(zip_proj),
         program=project_id,
         source_dir=src,
         build=build,
@@ -290,6 +295,13 @@ def get_args(argv):
     )
 
     parser.add_argument(
+        "-z",
+        action="store_true",
+        default=None,
+        dest="zip",
+    )
+
+    parser.add_argument(
         "--ignore",
         dest="ignore",
         type=argparse_many(str),
@@ -352,7 +364,7 @@ def main():
                 src=options.source_dir,
                 macros=options.macros,
                 project_id=options.program,
-                zip_proj=not bool(options.source_dir),
+                zip_proj=not bool(options.source_dir) or options.zip,
                 build_profile=profile,
                 app_config=options.app_config,
                 export_path=options.build_dir,
