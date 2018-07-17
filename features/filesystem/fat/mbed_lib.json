@@ -15,6 +15,11 @@
         "macro_name": "MBED_FAT_FS_HEAPBUF",
         "value": 1,
         "help": "Allow the FAT Filesystem to use the heap for allocating buffers. Turn this off and define your own memory to prevent any dynamic memory allocation by the library"
+    },
+    "long_file_name_handling": {
+        "macro_name": "MBED_FAT_FS_LFN_HANDLING",
+        "value": 3,
+        "help": "Set how the FAT Filesystem manages memory used for handling long file names.\n0: No long file name support\n1:BSS allocated long file name buffer memory (not thread safe)\n2:Stack based long file name memory buffer\n3:Heap based long file name buffer"
     }
   }
 }
