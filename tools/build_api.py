@@ -953,8 +953,25 @@ def build_lib(lib_id, target, toolchain_name, clean=False, macros=None,
         # Let Exception propagate
         raise
 
-# We do have unique legacy conventions about how we build and package the mbed
-# library
+# A number of compiled files need to be copied as objects as the linker
+# will not search for weak symbol overrides in archives. These are:
+#   - mbed_retarget.o: to make sure that the C standard lib symbols get
+#                      overridden
+#   - mbed_board.o: `mbed_die` is weak
+#   - mbed_overrides.o: this contains platform overrides of various
+#                       weak SDK functions
+#   - mbed_main.o: this contains main redirection
+#   - mbed_sdk_boot.o: this contains the main boot code in
+#   - PeripheralPins.o: PinMap can be weak
+SEPARATE_NAMES = [
+    'PeripheralPins.o',
+    'mbed_retarget.o',
+    'mbed_board.o',
+    'mbed_overrides.o',
+    'mbed_main.o',
+    'mbed_sdk_boot.o',
+]
+
 def build_mbed_libs(target, toolchain_name, clean=False, macros=None,
                     notify=None, jobs=1, report=None, properties=None,
                     build_profile=None, ignore=None):
@@ -1133,9 +1150,6 @@ def get_unique_supported_toolchains(release_targets=None):
             for toolchain in target[1]:
                 if toolchain not in unique_supported_toolchains:
                     unique_supported_toolchains.append(toolchain)
-
-    if "ARM" in unique_supported_toolchains:
-        unique_supported_toolchains.append("ARMC6")
 
     return unique_supported_toolchains
 
