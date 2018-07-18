@@ -300,20 +300,25 @@ class GapAdvertisingData;
  * set up an handler taking care of disconnection events by calling
  * onDisconnection().
  *
- * * @par Modulation Schemes
+ * @par Modulation Schemes
  *
- * When supported by the host and controller you can select modulation schemes
- * from available ones
- * (@see BLUETOOTH SPECIFICATION Version 5.0 | Vol 1, Part A - 1.2). You may set
- * preferred PHY, separately for RX and TX using setPreferredPhys(). You may also
- * set the currently used PHY on a selected connection using setPhy(). Both of these
- * are however only advisory and the controller is allowed to make its own decision
- * on the best PHY to use based on your request, the peer's supported features and
- * physical conditions. You may query the currently used PHY using readPhy() which
- * will return the result through a call to the registered Gap::EventHandler.
- * You may register the event handler with setEventHandler(). The events inform
- * about the currently used PHY and of any changes to PHY which may be triggered
- * autonomously byt the controller or by the peer.
+ * When supported by the host and controller you can select different modulation
+ * schemes (@see BLUETOOTH SPECIFICATION Version 5.0 | Vol 1, Part A - 1.2):
+ * - LE 1M PHY
+ * - LE 2M PHY
+ * - LE coded PHY
+ *
+ * You may set preferred PHYs (separately for RX and TX) using setPreferredPhys().
+ * You may also set the currently used PHYs on a selected connection using setPhy().
+ * Both of these settings are only advisory and the controller is allowed to make
+ * its own decision on the best PHY to use based on your request, the peer's
+ * supported features and the connection's physical conditions.
+ *
+ * You may query the currently used PHY using readPhy() which will return the
+ * result through a call to the registered event handler. You may register the
+ * handler with setEventHandler(). The events inform about the currently used
+ * PHY and of any changes to PHYs which may be triggered autonomously by the
+ * controller or by the peer.
  */
 class Gap {
     /*
