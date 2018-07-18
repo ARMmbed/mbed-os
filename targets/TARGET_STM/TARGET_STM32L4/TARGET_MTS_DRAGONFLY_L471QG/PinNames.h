@@ -168,9 +168,9 @@ typedef enum {
 
 	// Arduino connector namings
 	A0  = PC_2,
-	A1  = PC_0,     //rev b PC_0; rev c PC_13
+	A1  = PC_13,     //rev b PC_0; rev c PC_13
 	A2  = PC_4,
-	A3  = PB_1,     //reb b PB_1; rev c PE_6
+	A3  = PE_6,     //reb b PB_1; rev c PE_6
 	A4  = PA_6,
 	A5  = PG_8,
 	D0  = PA_3,
