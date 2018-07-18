@@ -334,7 +334,7 @@ ble_error_t Gap::set_address_resolution(
 }
 
 ble_error_t Gap::read_phy(connection_handle_t connection) {
-    HciLeReadPhyCmd(connection);
+    DmReadPhy(connection);
     return BLE_ERROR_NONE;
 }
 
@@ -342,7 +342,7 @@ ble_error_t Gap::set_prefered_phys(
     const phy_set_t& tx_phys,
     const phy_set_t& rx_phys
 ) {
-    HciLeSetDefaultPhyCmd(
+    DmSetDefaultPhy(
         phy_set_t::all_phys_value(tx_phys, rx_phys),
         tx_phys.value(),
         rx_phys.value()
@@ -366,7 +366,7 @@ ble_error_t Gap::set_phy(
         all_phys |= 0x02;
     }
 
-    HciLeSetPhyCmd(
+    DmSetPhy(
         connection,
         phy_set_t::all_phys_value(tx_phys, rx_phys),
         tx_phys.value(),
