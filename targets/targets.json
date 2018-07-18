@@ -4266,5 +4266,42 @@
         "inherits": ["FVP_MPS2"],
         "core": "Cortex-M7",
         "macros": ["CMSDK_CM7"]
+    },
+    "NUMAKER_PFM_M2351": {
+        "core": "Cortex-M23-NS",
+        "default_toolchain": "ARMC6",
+        "extra_labels": ["NUVOTON", "M2351", "M2351KIAAEES", "FLASH_CMSIS_ALGO"],
+        "OUTPUT_EXT": "hex",
+        "macros": ["MBED_FAULT_HANDLER_DISABLED", "MBED_TZ_DEFAULT_ACCESS=1", "LPTICKER_DELAY_TICKS=3"],
+        "is_disk_virtual": true,
+        "supported_toolchains": ["ARMC6"],
+        "config": {
+            "gpio-irq-debounce-enable": {
+                "help": "Enable GPIO IRQ debounce",
+                "value": 0
+            },
+            "gpio-irq-debounce-enable-list": {
+                "help": "Comma separated pin list to enable GPIO IRQ debounce",
+                "value": "NC"
+            },
+            "gpio-irq-debounce-clock-source": {
+                "help": "Select GPIO IRQ debounce clock source: GPIO_DBCTL_DBCLKSRC_HCLK or GPIO_DBCTL_DBCLKSRC_LIRC",
+                "value": "GPIO_DBCTL_DBCLKSRC_LIRC"
+            },
+            "gpio-irq-debounce-sample-rate": {
+                "help": "Select GPIO IRQ debounce sample rate: GPIO_DBCTL_DBCLKSEL_1, GPIO_DBCTL_DBCLKSEL_2, GPIO_DBCTL_DBCLKSEL_4, ..., or GPIO_DBCTL_DBCLKSEL_32768",
+                "value": "GPIO_DBCTL_DBCLKSEL_16"
+            }
+        },
+        "mbed_rom_start":   "0x10040000",
+        "mbed_rom_size":    "0x40000",
+        "mbed_ram_start":   "0x30008000",
+        "mbed_ram_size":    "0x10000", 
+        "inherits": ["Target"],
+        "device_has": ["USTICKER", "LPTICKER", "RTC", "ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "TRNG", "FLASH"],
+        "detect_code": ["1305"],
+        "release_versions": ["5"],
+        "device_name": "M2351KIAAEES",
+        "bootloader_supported": true
     }
 }
