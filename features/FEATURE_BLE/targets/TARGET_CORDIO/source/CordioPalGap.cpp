@@ -338,7 +338,7 @@ ble_error_t Gap::read_phy(connection_handle_t connection) {
     return BLE_ERROR_NONE;
 }
 
-ble_error_t Gap::set_prefered_phys(
+ble_error_t Gap::set_preferred_phys(
     const phy_set_t& tx_phys,
     const phy_set_t& rx_phys
 ) {

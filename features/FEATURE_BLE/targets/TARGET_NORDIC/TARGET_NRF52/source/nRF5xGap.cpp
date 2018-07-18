@@ -139,8 +139,8 @@ nRF5xGap::nRF5xGap() : Gap(),
     _peripheral_privacy_configuration(default_peripheral_privacy_configuration),
     _central_privacy_configuration(default_central_privacy_configuration),
     _non_private_address_type(LegacyAddressType::RANDOM_STATIC),
-    _prefered_tx_phys(BLE_GAP_PHY_AUTO),
-    _prefered_rx_phys(BLE_GAP_PHY_AUTO),
+    _preferred_tx_phys(BLE_GAP_PHY_AUTO),
+    _preferred_rx_phys(BLE_GAP_PHY_AUTO),
     _connections_role()
 {
     m_connectionHandle = BLE_CONN_HANDLE_INVALID;
@@ -671,17 +671,17 @@ ble_error_t nRF5xGap::readPhy(Handle_t connection) {
     return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
-ble_error_t nRF5xGap::setPreferedPhys(
+ble_error_t nRF5xGap::setPreferredPhys(
     const ble::phy_set_t* txPhys,
     const ble::phy_set_t* rxPhys
 ) {
-    uint8_t prefered_tx_phys = txPhys? txPhys->value() : 0;
-    uint8_t prefered_rx_phys = rxPhys? rxPhys->value() : 0;
+    uint8_t preferred_tx_phys = txPhys? txPhys->value() : 0;
+    uint8_t preferred_rx_phys = rxPhys? rxPhys->value() : 0;
 
 #ifdef S140
     ble_opt_t opt = { 0 };
-    opt.gap_opt.preferred_phys.tx_phys = prefered_tx_phys;
-    opt.gap_opt.preferred_phys.rx_phys = prefered_rx_phys;
+    opt.gap_opt.preferred_phys.tx_phys = preferred_tx_phys;
+    opt.gap_opt.preferred_phys.rx_phys = preferred_rx_phys;
 
     uint32_t err = sd_ble_opt_set(BLE_GAP_OPT_PREFERRED_PHYS_SET, &opt);
 
@@ -702,8 +702,8 @@ ble_error_t nRF5xGap::setPreferedPhys(
 
 #endif
 
-    _prefered_tx_phys = prefered_tx_phys;
-    _prefered_rx_phys = prefered_rx_phys;
+    _preferred_tx_phys = preferred_tx_phys;
+    _preferred_rx_phys = preferred_rx_phys;
 
     return BLE_ERROR_NONE;
 }
@@ -1641,8 +1641,8 @@ void nRF5xGap::on_phy_update_request(
     const ble_gap_evt_phy_update_request_t& evt
 ) {
     ble_gap_phys_t phys = {
-        _prefered_tx_phys & evt.peer_preferred_phys.tx_phys,
-        _prefered_rx_phys & evt.peer_preferred_phys.rx_phys
+        _preferred_tx_phys & evt.peer_preferred_phys.tx_phys,
+        _preferred_rx_phys & evt.peer_preferred_phys.rx_phys
     };
 
     if (!phys.tx_phys) {

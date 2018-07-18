@@ -91,7 +91,7 @@ public:
             ble_error_t connect(const Address_t, BLEProtocol::AddressType_t peerAddrType, const ConnectionParams_t *connectionParams, const GapScanningParams *scanParams, bool identity);
 
     virtual ble_error_t readPhy(Handle_t connection);
-    virtual ble_error_t setPreferedPhys(
+    virtual ble_error_t setPreferredPhys(
         const ble::phy_set_t* txPhys,
         const ble::phy_set_t* rxPhys
     );
@@ -314,8 +314,8 @@ private:
     CentralPrivacyConfiguration_t _central_privacy_configuration;
     AddressType_t _non_private_address_type;
     Address_t _non_private_address;
-    uint8_t _prefered_tx_phys;
-    uint8_t _prefered_rx_phys;
+    uint8_t _preferred_tx_phys;
+    uint8_t _preferred_rx_phys;
 
     struct connection_role_t {
         connection_role_t() :

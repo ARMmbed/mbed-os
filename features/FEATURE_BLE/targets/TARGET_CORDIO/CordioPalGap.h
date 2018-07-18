@@ -133,7 +133,7 @@ public:
 
     virtual ble_error_t read_phy(connection_handle_t connection);
 
-    virtual ble_error_t set_prefered_phys(
+    virtual ble_error_t set_preferred_phys(
         const phy_set_t& tx_phys,
         const phy_set_t& rx_phys
     );

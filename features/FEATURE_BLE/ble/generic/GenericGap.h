@@ -140,9 +140,9 @@ public:
     virtual ble_error_t readPhy(Handle_t connection);
 
     /**
-    * @see Gap::setPreferedPhys
+    * @see Gap::setPreferredPhys
     */
-    virtual ble_error_t setPreferedPhys(
+    virtual ble_error_t setPreferredPhys(
        const phy_set_t* txPhys,
        const phy_set_t* rxPhys
     );

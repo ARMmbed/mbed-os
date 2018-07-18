@@ -593,13 +593,13 @@ ble_error_t GenericGap::readPhy(Handle_t connection) {
     return _pal_gap.read_phy(connection);
 }
 
-ble_error_t GenericGap::setPreferedPhys(
+ble_error_t GenericGap::setPreferredPhys(
     const phy_set_t* txPhys,
     const phy_set_t* rxPhys
 ) {
     phy_set_t tx_phys(txPhys? txPhys->value() : 0);
     phy_set_t rx_phys(rxPhys? rxPhys->value() : 0);
-    return _pal_gap.set_prefered_phys(tx_phys, rx_phys);
+    return _pal_gap.set_preferred_phys(tx_phys, rx_phys);
 }
 
 ble_error_t GenericGap::setPhy(

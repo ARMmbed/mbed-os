@@ -1454,18 +1454,18 @@ public:
     }
 
     /**
-     * Set the prefered PHYs to use in a connection.
+     * Set the preferred PHYs to use in a connection.
      *
-     * @param txPhy: Set of PHYs prefered for tx operations. If NULL then no
-     * prefered PHYs are set and the default value of the subsytem is used.
+     * @param txPhy: Set of PHYs preferred for tx operations. If NULL then no
+     * preferred PHYs are set and the default value of the subsytem is used.
      *
-     * @param rxPhy: Set of PHYs prefered for rx operations. If NULL then no
-     * prefered PHYs are set and the default value of the subsytem is used.
+     * @param rxPhy: Set of PHYs preferred for rx operations. If NULL then no
+     * preferred PHYs are set and the default value of the subsytem is used.
      *
      * @return BLE_ERROR_NONE if the preferences have been set or an appropriate
      * error code.
      */
-    virtual ble_error_t setPreferedPhys(
+    virtual ble_error_t setPreferredPhys(
         const PhySet_t* txPhys,
         const PhySet_t* rxPhys
     ) {
@@ -1481,10 +1481,10 @@ public:
      *
      * @param connection Handle of the connection to update.
      *
-     * @param txPhys Set of PHYs prefered for tx operations. If NULL then the
+     * @param txPhys Set of PHYs preferred for tx operations. If NULL then the
      * choice is up to the Bluetooth subsystem.
      *
-     * @param rxPhys Set of PHYs prefered for rx operations. If NULL then the
+     * @param rxPhys Set of PHYs preferred for rx operations. If NULL then the
      * choice is up to the Bluetooth subsystem.
      *
      * @param codedSymbol Number of symbols used to code a bit when le coded is
