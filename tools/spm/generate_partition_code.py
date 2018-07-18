@@ -125,9 +125,13 @@ class MmioRegion(object):
             self.base = kwargs['base']
             self.size = assert_int(kwargs['size'])
 
+        assert 'partition_id' in kwargs
+        self.partition_id = assert_int(kwargs['partition_id'])
+
         assert hasattr(self, 'base')
         assert hasattr(self, 'size')
         assert hasattr(self, 'permission')
+        assert hasattr(self, 'partition_id')
 
     def __eq__(self, other):
         return (
@@ -318,7 +322,7 @@ class Manifest(object):
 
         mmio_regions = []
         for mmio_region in manifest.get('mmio_regions', []):
-            mmio_regions.append(MmioRegion(**mmio_region))
+            mmio_regions.append(MmioRegion(partition_id=manifest['id'], **mmio_region))
 
         rot_services = []
         for rot_srv in manifest.get('services', []):
@@ -765,6 +769,7 @@ Process all the given manifest files and generate C code from them
 
     render_args = {
         'partitions': manifests,
+        'regions': region_list,
         'region_pair_list': list(itertools.combinations(region_list, 2))
     }
 

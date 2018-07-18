@@ -69,3 +69,32 @@ inline void channel_state_assert(uint8_t *current_state, uint8_t expected_state)
             *current_state, expected_state);
     }
 }
+
+extern const mem_region_t *mem_regions;
+extern const uint32_t mem_region_count;
+
+const mem_region_t *get_mem_regions(int32_t partition_id, uint32_t *region_count)
+{
+    uint32_t i;
+
+    SPM_ASSERT(NULL != region_count);
+    *region_count = 0;
+
+    if (partition_id == MEM_PARTITIONS_ALL) {
+        *region_count = mem_region_count;
+        return mem_regions;
+    }
+
+    // The entries in the array of memory regions are grouped by partition id.
+    // This is ensured by the way this array is automatically generated from the manifest files.
+    for (i = 0; i < mem_region_count && mem_regions[i].partition_id != partition_id; i++);
+
+    if (i == mem_region_count) {
+        return NULL;
+    }
+
+    const mem_region_t *regions = &mem_regions[i];
+    for (; i < mem_region_count && mem_regions[i].partition_id == partition_id; i++, (*region_count)++);
+
+    return regions;
+}

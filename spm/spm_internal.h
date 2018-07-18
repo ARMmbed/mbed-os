@@ -43,6 +43,7 @@ extern "C" {
 #define SPM_CHANNEL_STATE_PENDING          (0x04)
 #define SPM_CHANNEL_STATE_ACTIVE           (0x05)
 
+#define MEM_PARTITIONS_ALL (0) /* A constant to use to retrieve the memory regions for all the partitions at once. */
 
 #ifndef TRUE
 #define TRUE (1)
@@ -54,6 +55,16 @@ extern "C" {
 
 struct spm_partition;
 struct spm_ipc_channel;
+
+/*
+ * Structure to describe MMIO region along with owning partition.
+ */
+typedef struct mem_region {
+    const uint32_t base;
+    const uint32_t size;
+    const uint32_t permission;
+    const int32_t partition_id;
+} mem_region_t;
 
 typedef union spm_iovec {
     psa_invec_t in;
@@ -168,6 +179,14 @@ typedef struct spm_db {
  */
 spm_partition_t *get_active_partition(void);
 
+/*
+ * Return an array of memory regions used by a given partition.
+ *
+ * @param[in] partition_id - a partition ID to find memory regions for, if MEM_PARTITIONS_ALL then
+ *                           memory regions for all the partitions are returned
+ * @param[out] region_count - will be set to the number of memory regions returned
+ */
+const mem_region_t *get_mem_regions(int32_t partition_id, uint32_t *region_count);
 
 // Platform dependent APIs
 

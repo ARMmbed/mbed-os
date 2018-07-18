@@ -73,13 +73,26 @@ spm_partition_t g_partitions[{{partitions|count}}] = {
 spm_partition_t *g_partitions = NULL;
 {% endif %}
 
-/* Check all the defined MMIO regions for overlapping. */
+/* Check all the defined memory regions for overlapping. */
 {% for region_pair in region_pair_list %}
-static_assert(
+MBED_STATIC_ASSERT(
     ((uintptr_t)({{region_pair[0].base}}) + {{region_pair[0].size}} - 1 < (uintptr_t)({{region_pair[1].base}})) ||
     ((uintptr_t)({{region_pair[1].base}}) + {{region_pair[1].size}} - 1 < (uintptr_t)({{region_pair[0].base}})),
     "The region with base {{region_pair[0].base}} and size {{region_pair[0].size}} overlaps with the region with base {{region_pair[1].base}} and size {{region_pair[1].size}}!");
 {% endfor %}
+
+/* A list of all the memory regions. */
+{% if regions|count > 0 %}
+const mem_region_t mem_regions[] = {
+{% for region in regions %}
+    { (uint32_t)({{region.base}}), {{region.size}}, {{region.permission}}, {{region.partition_id}} },
+{% endfor %}
+};
+{% else %}
+const mem_region_t *mem_regions = NULL;
+{% endif %}
+
+const uint32_t mem_region_count = {{regions|count}};
 
 // forward declaration of partition initializers
 {% for partition in partitions %}
