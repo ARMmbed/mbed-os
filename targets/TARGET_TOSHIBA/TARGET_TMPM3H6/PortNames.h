@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * (C)Copyright TOSHIBA ELECTRONIC DEVICES & STORAGE CORPORATION 2017 All rights reserved
+ * (C)Copyright TOSHIBA ELECTRONIC DEVICES & STORAGE CORPORATION 2018 All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,32 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifndef MBED_PORTNAMES_H
+#define MBED_PORTNAMES_H
 
-#ifndef MBED_MBED_RTX_H
-#define MBED_MBED_RTX_H
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-#if defined(TARGET_TMPM066)
+typedef enum {
+    PortA = 0,
+    PortB,
+    PortC,
+    PortD,
+    PortE,
+    PortF,
+    PortG,
+    PortH,
+    PortJ,
+    PortK,
+    PortL,
+    PortM,
+    PortN,
+    PortP,
+    PortR,
+} PortName;
 
-#ifndef INITIAL_SP
-#define INITIAL_SP                        (0x20004000UL)
+#define IS_GPIO_PORT(param)             ((param) <= PortR)  // parameter checking for port number
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif
-
-#if defined(TARGET_TMPM46B)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP                        (0x20080000UL)
-#endif
-
-#endif
-
-#if defined(TARGET_TMPM3H6)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP                        (0x20004000UL)
-#endif
-
-#endif
-
-#endif  // MBED_MBED_RTX_H
