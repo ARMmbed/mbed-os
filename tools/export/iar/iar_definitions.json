@@ -278,5 +278,10 @@
         "OGChipSelectEditMenu": "TMPM46BF10FG\tToshiba TMPM46BF10FG",
         "GFPUCoreSlave": 21,
         "GBECoreSlave": 21
+    },
+    "TMPM3H6FWFG":{
+        "OGChipSelectEditMenu": "TMPM3H6FWFG\tToshiba TMPM3H6FWFG",
+        "GFPUCoreSlave": 24,
+        "GBECoreSlave": 24
     }
 }

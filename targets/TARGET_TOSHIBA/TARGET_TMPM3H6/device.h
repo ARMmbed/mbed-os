@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * (C)Copyright TOSHIBA ELECTRONIC DEVICES & STORAGE CORPORATION 2017 All rights reserved
+ * (C)Copyright TOSHIBA ELECTRONIC DEVICES & STORAGE CORPORATION 2018 All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,32 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifndef MBED_DEVICE_H
+#define MBED_DEVICE_H
 
-#ifndef MBED_MBED_RTX_H
-#define MBED_MBED_RTX_H
+#define DEVICE_ID_LENGTH       32
 
-#if defined(TARGET_TMPM066)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP                        (0x20004000UL)
-#endif
+#include "objects.h"
 
 #endif
-
-#if defined(TARGET_TMPM46B)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP                        (0x20080000UL)
-#endif
-
-#endif
-
-#if defined(TARGET_TMPM3H6)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP                        (0x20004000UL)
-#endif
-
-#endif
-
-#endif  // MBED_MBED_RTX_H
