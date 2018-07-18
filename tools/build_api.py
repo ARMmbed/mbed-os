@@ -885,7 +885,7 @@ SEPARATE_NAMES = [
     'mbed_main.o',
     'mbed_sdk_boot.o',
 ]
- 
+
 
 def build_mbed_libs(target, toolchain_name, clean=False, macros=None,
                     notify=None, jobs=1, report=None, properties=None,
@@ -1067,9 +1067,6 @@ def get_unique_supported_toolchains(release_targets=None):
             for toolchain in target[1]:
                 if toolchain not in unique_supported_toolchains:
                     unique_supported_toolchains.append(toolchain)
-
-    if "ARM" in unique_supported_toolchains:
-        unique_supported_toolchains.append("ARMC6")
 
     return unique_supported_toolchains
 
