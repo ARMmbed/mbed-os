@@ -668,26 +668,6 @@ public:
         set_coded(phy_coded);
     }
 
-    /**
-     * Create an ALL_PHYS parameter used in LE Set PHY Command
-     * and LE Set Default PHY Command.
-     * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 2, Part E - 7.8.49
-     */
-    static uint8_t all_phys_value(
-        const phy_set_t& tx_phys,
-        const phy_set_t& rx_phys
-    ) {
-        /* if phy set is empty set corresponding all_phys bit to 1 */
-        uint8_t all_phys = 0;
-        if (tx_phys.value() == 0) {
-            all_phys |= 0x01;
-        }
-        if (rx_phys.value() == 0) {
-            all_phys |= 0x02;
-        }
-        return all_phys;
-    }
-
     /** Prefer 1M PHY. */
     void set_1m(bool enabled = true) {
         if (enabled) {

@@ -343,7 +343,7 @@ ble_error_t Gap::set_preferred_phys(
     const phy_set_t& rx_phys
 ) {
     DmSetDefaultPhy(
-        phy_set_t::all_phys_value(tx_phys, rx_phys),
+        create_all_phys_value(tx_phys, rx_phys),
         tx_phys.value(),
         rx_phys.value()
     );
@@ -368,7 +368,7 @@ ble_error_t Gap::set_phy(
 
     DmSetPhy(
         connection,
-        phy_set_t::all_phys_value(tx_phys, rx_phys),
+        create_all_phys_value(tx_phys, rx_phys),
         tx_phys.value(),
         rx_phys.value(),
         coded_symbol.value()
