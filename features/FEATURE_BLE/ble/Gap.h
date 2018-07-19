@@ -1142,9 +1142,14 @@ public:
         virtual void onReadPhy(
             ble_error_t status,
             Handle_t connectionHandle,
-            ble::phy_t txPhy,
-            ble::phy_t rxPhy
-        ) = 0;
+            Phy_t txPhy,
+            Phy_t rxPhy
+        ) {
+            (void)status;
+            (void)connectionHandle;
+            (void)txPhy;
+            (void)rxPhy;
+        }
 
         /**
          * Function invoked when the update process of the PHY has been completed.
@@ -1170,9 +1175,14 @@ public:
         virtual void onPhyUpdateComplete(
             ble_error_t status,
             Handle_t connectionHandle,
-            ble::phy_t txPhy,
-            ble::phy_t rxPhy
-        ) = 0;
+            Phy_t txPhy,
+            Phy_t rxPhy
+        ) {
+            (void)status;
+            (void)connectionHandle;
+            (void)txPhy;
+            (void)rxPhy;
+        }
 
     protected:
         /**
