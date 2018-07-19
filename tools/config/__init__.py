@@ -57,6 +57,7 @@ ROM_OVERRIDES = set([
 RAM_OVERRIDES = set([
     # both
     "target.mbed_ram_start", "target.mbed_ram_size",
+    "target.reserve_ram",
 ])
 
 BOOTLOADER_OVERRIDES = ROM_OVERRIDES | RAM_OVERRIDES
@@ -646,9 +647,21 @@ class Config(object):
         # 2. Supports TrustZone and user needs to change its flash partition
         ram_start = getattr(self.target, "mbed_ram_start", False) or ram_start
         ram_size = getattr(self.target, "mbed_ram_size", False) or ram_size
+        ram_start = int(ram_start, 0)
+        ram_size = int(ram_size, 0)
         if self.target.core.endswith("-NS"):
             ram_start ^= int(getattr(self.target,"non_secure_mask", "0"), 0)
-        return [RamRegion("application_ram", int(ram_start, 0), int(ram_size, 0), True)]
+        if self.target.reserve_ram:
+            reserved = int(self.target.reserve_ram, 0)
+            yield RamRegion("reserved", ram_start, reserved, False)
+            ram_start += reserved
+            ram_size -= reserved
+            if ram_size <= 0:
+                raise ConfigException(
+                    "target.reserve_ram reserved so much ram, that there is "
+                    "none left for the application."
+                )
+        yield RamRegion("application_ram", ram_start, ram_size, True)
 
     @property
     def regions(self):
