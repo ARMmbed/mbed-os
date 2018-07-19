@@ -21,6 +21,7 @@
 #include "iodefine.h"
 #include "gpio_addrdefine.h"
 #include "mbed_drv_cfg.h"
+#include "mtu2.h"
 
 #define MTU2_PWM_OFFSET         0x20
 
@@ -208,7 +209,7 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
         int tmp_pwm;
         
         // power on
-        CPGSTBCR3 &= ~(CPG_STBCR3_BIT_MSTP33);
+        mtu2_init();
         
         obj->pwm = pwm;
         tmp_pwm = (int)(obj->pwm - MTU2_PWM_OFFSET);
@@ -274,6 +275,7 @@ void pwmout_init(pwmout_t* obj, PinName pin) {
 
 void pwmout_free(pwmout_t* obj) {
     pwmout_write(obj, 0);
+    mtu2_free();
 }
 
 void pwmout_write(pwmout_t* obj, float value) {
