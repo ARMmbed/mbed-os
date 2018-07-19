@@ -316,6 +316,10 @@ def prepare_toolchain(src_paths, build_dir, target, toolchain_name,
         raise NotSupportedException(
             "Target {} is not supported by toolchain {}".format(
                 target.name, toolchain_name))
+    if (toolchain_name == "ARM" and
+        target.core in ("Cortex-M23", "Cortex-M23-NS",
+                        "Cortex-M33", "Cortex-M33-NS")):
+        toolchain_name = "ARMC6"
 
     try:
         cur_tc = TOOLCHAIN_CLASSES[toolchain_name]
