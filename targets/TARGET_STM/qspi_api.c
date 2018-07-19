@@ -173,13 +173,19 @@ qspi_status_t qspi_init(qspi_t *obj, PinName io0, PinName io1, PinName io2, PinN
     // tested all combinations, take first
     obj->handle.Instance = (QUADSPI_TypeDef *)qspi_data_first;
 
-    // TODO pinmap here for pins (enable clock)
+    // pinmap for pins (enable clock)
+    obj->io0 = io0;
     pinmap_pinout(io0, PinMap_QSPI_DATA);
+    obj->io1 = io1;
     pinmap_pinout(io1, PinMap_QSPI_DATA);
+    obj->io2 = io2;
     pinmap_pinout(io2, PinMap_QSPI_DATA);
+    obj->io3 = io3;
     pinmap_pinout(io3, PinMap_QSPI_DATA);
 
+    obj->sclk = sclk;
     pinmap_pinout(sclk, PinMap_QSPI_SCLK);
+    obj->ssel = ssel;
     pinmap_pinout(ssel, PinMap_QSPI_SSEL);
 
     if (HAL_QSPI_Init(&obj->handle) != HAL_OK) {
@@ -191,8 +197,26 @@ qspi_status_t qspi_init(qspi_t *obj, PinName io0, PinName io1, PinName io2, PinN
 
 qspi_status_t qspi_free(qspi_t *obj)
 {
-    // TODO
-    //return QSPI_STATUS_ERROR;
+    if(HAL_QSPI_DeInit(&obj->handle) != HAL_OK) {
+        return QSPI_STATUS_ERROR;
+    }
+
+    // Reset QSPI
+    __HAL_RCC_QSPI_FORCE_RESET();
+    __HAL_RCC_QSPI_RELEASE_RESET();
+
+    // Disable interface clock for QSPI
+    __HAL_RCC_QSPI_CLK_DISABLE();
+
+    // Configure GPIOs
+    pin_function(obj->io0, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
+    pin_function(obj->io1, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
+    pin_function(obj->io2, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
+    pin_function(obj->io3, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
+    pin_function(obj->sclk, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
+    pin_function(obj->ssel, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, 0));
+
+    (void)(obj);
     return QSPI_STATUS_OK;
 }
 
