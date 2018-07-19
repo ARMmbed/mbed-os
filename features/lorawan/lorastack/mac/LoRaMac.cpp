@@ -772,7 +772,7 @@ bool LoRaMac::continue_joining_process()
     }
 
     // Schedule a retry
-    if (handle_retransmission() != LORAWAN_STATUS_OK) {
+    if (handle_retransmission() != LORAWAN_STATUS_CONNECT_IN_PROGRESS) {
         return false;
     }
 
