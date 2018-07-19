@@ -719,19 +719,19 @@ public:
         return (_value & PHY_SET_1M);
     }
 
-    bool get_2m() const  {
+    bool get_2m() const {
         return (_value & PHY_SET_2M);
     }
 
-    bool get_coded() const  {
+    bool get_coded() const {
         return (_value & PHY_SET_CODED);
     }
 
-    operator uint8_t() const  {
+    operator uint8_t() const {
         return _value;
     }
 
-    uint8_t value() const const  {
+    uint8_t value() const {
         return _value;
     }
 
