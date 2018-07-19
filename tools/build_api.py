@@ -42,7 +42,9 @@ from .paths import (MBED_CMSIS_PATH, MBED_TARGETS_PATH, MBED_LIBRARIES,
                     MBED_CONFIG_FILE, MBED_LIBRARIES_DRIVERS,
                     MBED_LIBRARIES_PLATFORM, MBED_LIBRARIES_HAL,
                     BUILD_DIR)
-from .targets import TARGET_NAMES, TARGET_MAP, set_targets_json_location
+from .resources import Resources, FileType, FileRef
+from .notifier.mock import MockNotifier
+from .targets import TARGET_NAMES, TARGET_MAP, CORE_ARCH, set_targets_json_location
 from .libraries import Library
 from .toolchains import TOOLCHAIN_CLASSES, mbedToolchain
 from .config import Config
@@ -332,9 +334,7 @@ def prepare_toolchain(src_paths, build_dir, target, toolchain_name,
         raise NotSupportedException(
             "Target {} is not supported by toolchain {}".format(
                 target.name, toolchain_name))
-    if (toolchain_name == "ARM" and
-        target.core in ("Cortex-M23", "Cortex-M23-NS",
-                        "Cortex-M33", "Cortex-M33-NS")):
+    if (toolchain_name == "ARM" and CORE_ARCH[target.core] == 8):
         toolchain_name = "ARMC6"
 
     try:
