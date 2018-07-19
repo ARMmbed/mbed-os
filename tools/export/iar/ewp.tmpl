@@ -265,9 +265,9 @@
 				</option>
 				<option>
 					<name>IExtraOptions</name>
-					{% for flag in c_flags %}
+					{% for flag in c_flags -%}
 					<state>{{flag}}</state>
-					{% endfor %}
+					{% endfor -%}
 				</option>
 				<option>
 					<name>CCLangConformance</name>
@@ -315,9 +315,9 @@
 				</option>
 				<option>
 					<name>CCIncludePath2</name>
-					{% for file in include_paths %}
+					{% for file in include_paths -%}
 					<state>{{file}}</state>
-					{% endfor %}
+					{% endfor -%}
 				</option>
 				<option>
 					<name>CCStdIncCheck</name>
@@ -583,9 +583,9 @@
 				</option>
 				<option>
 					<name>AExtraOptionsV2</name>
-					{% for flag in asm_flags %}
-					<state>{{flag}}</state>
-					{% endfor %}
+					{% for flag in asm_flags -%}
+					<state>{{flag|escape}}</state>
+					{% endfor -%}
 				</option>
 				<option>
 					<name>AsmNoLiteralPool</name>
@@ -765,9 +765,9 @@
 				</option>
 				<option>
 					<name>IlinkExtraOptions</name>
-					{% for flag in ld_flags %}
+					{% for flag in ld_flags -%}
 					<state>{{flag}}</state>
-					{% endfor %}
+					{% endfor -%}
 				</option>
 				<option>
 					<name>IlinkLowLevelInterfaceSlave</name>
@@ -963,14 +963,12 @@
 			<data></data>
 		</settings>
 	</configuration>
-	{% for group in groups %}
+	{% for group in groups -%}
 	<group>
 	    <name>{{group.name}}</name>
-	    {% for file in group.files %}
-	    <file>
-	        <name>{{file}}</name>
-	    </file>
-	    {% endfor %}
+	    {% for file in group.files -%}
+	    <file> <name>{{file}}</name> </file>
+	    {% endfor -%}
 	</group>
-	{% endfor %}
+	{% endfor -%}
 </project>
