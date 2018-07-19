@@ -639,8 +639,25 @@ public:
         PHY_SET_CODED = 0x04
     };
 
+    /**
+     * Create set that indicates no preference.
+     */
     phy_set_t() : _value(0) { }
+
+    /**
+     * Create a set based on the mask specified in the Bluetooth spec.
+     *
+     * @param value Octet containing the set of preferred PHYs
+     */
     phy_set_t(uint8_t value) : _value(value) { }
+
+    /**
+     * Create a set based on individual settings.
+     *
+     * @param phy_1m Prefer LE 1M
+     * @param phy_2m Prefer LE 2M if avaiable
+     * @param phy_coded Prefer coded modulation if avaiable
+     */
     phy_set_t(
         bool phy_1m,
         bool phy_2m,
@@ -698,23 +715,23 @@ public:
         }
     }
 
-    bool get_1m() {
+    bool get_1m() const {
         return (_value & PHY_SET_1M);
     }
 
-    bool get_2m() {
+    bool get_2m() const  {
         return (_value & PHY_SET_2M);
     }
 
-    bool get_coded() {
+    bool get_coded() const  {
         return (_value & PHY_SET_CODED);
     }
 
-    operator uint8_t() {
+    operator uint8_t() const  {
         return _value;
     }
 
-    uint8_t value() const {
+    uint8_t value() const const  {
         return _value;
     }
 
