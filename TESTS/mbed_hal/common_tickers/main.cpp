@@ -29,8 +29,10 @@
 #define TICKER_INT_VAL 500
 #define TICKER_DELTA 10
 
-#define LP_TICKER_OVERFLOW_DELTA 0 // this will allow to detect that ticker counter rollovers to 0
-#define US_TICKER_OVERFLOW_DELTA 50
+#define LP_TICKER_OVERFLOW_DELTA1   0   // this will allow to detect that ticker counter rollovers to 0
+#define LP_TICKER_OVERFLOW_DELTA2   0
+#define US_TICKER_OVERFLOW_DELTA1   50
+#define US_TICKER_OVERFLOW_DELTA2   60
 
 #define TICKER_100_TICKS 100
 
@@ -48,7 +50,18 @@ using namespace utest::v1;
 volatile int intFlag = 0;
 const ticker_interface_t* intf;
 ticker_irq_handler_type prev_irq_handler;
-unsigned int ticker_overflow_delta;
+/* Some targets might fail overflow test uncertainly due to getting trapped in busy
+ * intf->read() loop. In the loop, some ticker values wouldn't get caught in time
+ * because of:
+ * 1. Lower CPU clock
+ * 2. Compiled code with worse performance
+ * 3. Interrupt at that time
+ * 
+ * We fix it by checking small ticker value range rather than one exact ticker point
+ * in near overflow check.
+ */
+unsigned int ticker_overflow_delta1;
+unsigned int ticker_overflow_delta2;
 
 /* Auxiliary function to count ticker ticks elapsed during execution of N cycles of empty while loop.
  * Parameter <step> is used to disable compiler optimisation. */
@@ -293,12 +306,13 @@ void ticker_overflow_test(void)
     intFlag = 0;
 
     /* Wait for max count. */
-    while (intf->read() != (max_count - ticker_overflow_delta)) {
+    while (intf->read() >= (max_count - ticker_overflow_delta2) &&
+        intf->read() <= (max_count - ticker_overflow_delta1)) {
         /* Just wait. */
     }
 
     /* Now we are near/at the overflow point. Detect rollover. */
-    while (intf->read() > ticker_overflow_delta);
+    while (intf->read() > ticker_overflow_delta1);
 
     const uint32_t after_overflow = intf->read();
 
@@ -310,7 +324,7 @@ void ticker_overflow_test(void)
     const uint32_t next_after_overflow = intf->read();
 
     /* Check that after the overflow ticker continue count. */
-    TEST_ASSERT(after_overflow <= ticker_overflow_delta);
+    TEST_ASSERT(after_overflow <= ticker_overflow_delta1);
     TEST_ASSERT(next_after_overflow >= TICKER_100_TICKS);
     TEST_ASSERT_EQUAL(0, intFlag);
 
@@ -465,7 +479,8 @@ utest::v1::status_t us_ticker_setup(const Case *const source, const size_t index
 
     prev_irq_handler = set_us_ticker_irq_handler(ticker_event_handler_stub);
 
-    ticker_overflow_delta = US_TICKER_OVERFLOW_DELTA;
+    ticker_overflow_delta1 = US_TICKER_OVERFLOW_DELTA1;
+    ticker_overflow_delta2 = US_TICKER_OVERFLOW_DELTA2;
 
     return greentea_case_setup_handler(source, index_of_case);
 }
@@ -493,7 +508,8 @@ utest::v1::status_t lp_ticker_setup(const Case *const source, const size_t index
 
     prev_irq_handler = set_lp_ticker_irq_handler(ticker_event_handler_stub);
 
-    ticker_overflow_delta = LP_TICKER_OVERFLOW_DELTA;
+    ticker_overflow_delta1 = LP_TICKER_OVERFLOW_DELTA1;
+    ticker_overflow_delta2 = LP_TICKER_OVERFLOW_DELTA2;
 
     return greentea_case_setup_handler(source, index_of_case);
 }
