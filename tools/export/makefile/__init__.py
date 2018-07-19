@@ -88,12 +88,9 @@ class Makefile(Exporter):
                       if (basename(dirname(dirname(self.export_dir)))
                           == "projectfiles")
                       else [".."]),
-            'cc_cmd': " ".join([basename(self.toolchain.cc[0])] +
-                               self.toolchain.cc[1:]),
-            'cppc_cmd': " ".join([basename(self.toolchain.cppc[0])] +
-                                 self.toolchain.cppc[1:]),
-            'asm_cmd': " ".join([basename(self.toolchain.asm[0])] +
-                                self.toolchain.asm[1:]),
+            'cc_cmd': basename(self.toolchain.cc[0]),
+            'cppc_cmd': basename(self.toolchain.cppc[0]),
+            'asm_cmd': basename(self.toolchain.asm[0]),
             'ld_cmd': basename(self.toolchain.ld[0]),
             'elf2bin_cmd': basename(self.toolchain.elf2bin),
             'link_script_ext': self.toolchain.LINKER_EXT,
@@ -123,6 +120,9 @@ class Makefile(Exporter):
                     'to_be_compiled']:
             ctx[key] = sorted(ctx[key])
         ctx.update(self.format_flags())
+        ctx['asm_flags'].extend(self.toolchain.asm[1:])
+        ctx['c_flags'].extend(self.toolchain.cc[1:])
+        ctx['cxx_flags'].extend(self.toolchain.cppc[1:])
 
         # Add the virtual path the the include option in the ASM flags
         new_asm_flags = []
