@@ -4072,6 +4072,7 @@
         "macros": ["__RTL8195A__","CONFIG_PLATFORM_8195A","CONFIG_MBED_ENABLED","PLATFORM_CMSIS_RTOS","MBED_FAULT_HANDLER_DISABLED"],
         "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
         "features": ["LWIP"],
+        "device_has": ["ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SPI", "TRNG", "FLASH"],
         "post_binary_hook": {
             "function": "RTL8195ACode.binary_hook",
             "toolchains": ["ARM_STD", "GCC_ARM", "IAR"]
