@@ -222,7 +222,7 @@ bool NUMAKER_EMAC::link_out(emac_mem_buf_t *buf)
 {
     bool result;
     emac_mem_buf_t *q;
-    uint8_t *buffer = numaker_eth_get_tx_buf();
+    uint8_t *buffer = NULL;
     uint32_t framelength = 0;
     uint32_t bufferoffset = 0;
     uint32_t byteslefttocopy = 0;
@@ -230,7 +230,9 @@ bool NUMAKER_EMAC::link_out(emac_mem_buf_t *buf)
 
     /* Get exclusive access */
     TXLockMutex.lock();
+    buffer = numaker_eth_get_tx_buf();
     NU_DEBUGF(("%s ... buffer=0x%x\r\n",__FUNCTION__, buffer));
+    if( buffer == NULL ) goto error;
     /* copy frame from buf to driver buffers */
     for (q = buf; q != NULL; q = memory_manager->get_next(q)) {
 
