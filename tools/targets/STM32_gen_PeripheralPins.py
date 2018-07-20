@@ -26,10 +26,10 @@ import textwrap
 from xml.dom.minidom import parse, Node
 from argparse import RawTextHelpFormatter
 
-GENPINMAP_VERSION = "1.2"
+GENPINMAP_VERSION = "1.3"
 
 ADD_DEVICE_IFDEF = 0
-ADD_QSPI_FEATURE = 0
+ADD_QSPI_FEATURE = 1
 
 mcu_file=""
 mcu_list = []       #'name'
@@ -779,7 +779,6 @@ def print_can(l):
         out_c_file.write( "#endif\n" )
 
 def print_qspi(l):
-    prev_s = ''
     for p in l:
         result = get_gpio_af_num(p[1], p[2])
         if result != 'NOTFOUND':
@@ -789,21 +788,12 @@ def print_qspi(l):
                     CommentedLine = "//"
                 if "RCC_OSC" in PinLabel[p[1]]:
                     CommentedLine = "//"
-            s1 = "%-17s" % (CommentedLine + "    {" + p[0] + ',')
+            s1 = "%-16s" % (CommentedLine + "  {" + p[0] + ',')
             # p[2] : QUADSPI_BK1_IO3 / QUADSPI_CLK / QUADSPI_NCS
-            instance = p[2].split('_')[1].replace("BK", "")
-            instance = instance.replace("CLK", "1")
-            instance = instance.replace("NCS", "1")
-            s1 += "%-7s" % ('QSPI_' + instance + ',')
+            s1 += "%-8s" % ('QSPI_1,')
+            result = result.replace("GPIO_AF10_OTG_FS", "GPIO_AF10_QSPI")
             s1 += 'STM_PIN_DATA(STM_MODE_AF_PP, GPIO_PULLUP, ' + result +')},'
-            #check duplicated lines, only signal differs
-            if (prev_s == s1):
-                s1 = '|' + p[2]
-            else:
-                if len(prev_s)>0:
-                    out_c_file.write('\n')
-                prev_s = s1
-                s1 += '  // ' + p[2]
+            s1 += '  // ' + p[2]
             if p[1] in PinLabel.keys():
                 s1 += ' // Connected to ' + PinLabel[p[1]]
             s1 += '\n'
@@ -980,6 +970,7 @@ def parse_BoardFile(fileName):
             PinLabel[EachPin] = PinData[EachPin]["GPIO_Label"]
 
             if "STLK_RX" in PinLabel[EachPin] or "STLK_TX" in PinLabel[EachPin]:
+                # Patch waiting for CubeMX correction
                 if "RX" in PinData[EachPin]["Signal"]:
                     PinLabel[EachPin] = "STDIO_UART_RX"
                 else:
@@ -1001,6 +992,7 @@ def parse_BoardFile(fileName):
             elif "USART2_TX" in PinLabel[EachPin]:
                 PinLabel[EachPin] = "STDIO_UART_TX"
             elif "STLINK_RX" in PinLabel[EachPin] or "STLINK_TX" in PinLabel[EachPin]:
+                # Patch waiting for CubeMX correction
                 if "RX" in PinData[EachPin]["Signal"]:
                     PinLabel[EachPin] = "STDIO_UART_RX"
                 else:

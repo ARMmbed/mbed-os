@@ -83,6 +83,10 @@ typedef enum {
     CAN_1 = (int)CAN1_BASE
 } CANName;
 
+typedef enum {
+    QSPI_1 = (int)QSPI_BASE
+} QSPIName;
+
 #ifdef __cplusplus
 }
 #endif
