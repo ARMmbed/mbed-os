@@ -736,6 +736,15 @@ class mbedToolchain:
             )
         except ConfigException:
             pass
+        try:
+            ram_start, ram_size = self.config.ram_regions
+            Region = namedtuple("RamRegion", "name start size")
+            self._add_defines_from_region(
+                Region("MBED_RAM", ram_start, ram_size),
+                suffixes=["_START", "_SIZE"]
+            )
+        except ConfigException:
+            pass
 
     # Set the configuration data
     def set_config_data(self, config_data):

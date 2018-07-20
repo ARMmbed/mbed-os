@@ -633,7 +633,7 @@ class Config(object):
         """Generate a list of ram regions from the config"""
         cmsis_part = self._get_cmsis_part()
         ram_start, ram_size = self._get_mem_specs(
-            ["IRAM1", "SRAM0"],
+            ["IRAM1", "SRAM", "SRAM_LOWER", "SRAM_ITC"],
             cmsis_part,
             "Not enough information in CMSIS packs to build a ram sharing project"
         )
@@ -642,9 +642,9 @@ class Config(object):
         # This is usually done for a target which:
         # 1. Doesn't support CMSIS pack, or
         # 2. Supports TrustZone and user needs to change its flash partition
-        ram_start = getattr(self.target, "mbed_ram_start", False) or ram_start
-        ram_size = getattr(self.target, "mbed_ram_size", False) or ram_size
-        return [RamRegion("application_ram", int(ram_start, 0), int(ram_size, 0), True)]
+        ram_start = int(getattr(self.target, "mbed_ram_start", False) or ram_start, 0)
+        ram_size = int(getattr(self.target, "mbed_ram_size", False) or ram_size, 0)
+        return (ram_start, ram_size)
 
     @property
     def regions(self):
