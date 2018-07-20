@@ -4303,5 +4303,17 @@
         "release_versions": ["5"],
         "device_name": "M2351KIAAEES",
         "bootloader_supported": true
+    },
+    "TMPM3H6": {
+        "inherits": ["Target"],
+        "core": "Cortex-M3",
+        "is_disk_virtual": true,
+        "extra_labels": ["TOSHIBA"],
+        "macros": ["__TMPM3H6__"],
+        "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
+        "device_has": ["USTICKER", "ANALOGIN", "ANALOGOUT", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "I2C", "I2CSLAVE", "STDIO_MESSAGES"],
+        "device_name": "TMPM3H6FWFG",
+        "detect_code": ["7012"],
+        "release_versions": ["5"]
     }
 }
