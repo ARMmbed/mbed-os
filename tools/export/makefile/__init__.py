@@ -125,8 +125,15 @@ class Makefile(Exporter):
         ctx.update(self.format_flags())
 
         # Add the virtual path the the include option in the ASM flags
-        ctx['asm_flags'] = map(lambda item: "-I" + ctx['vpath'][0] + "/" + item[2:]
-                               if item.startswith('-I') else item, ctx['asm_flags'])
+        new_asm_flags = []
+        for flag in ctx['asm_flags']:
+            if flag.startswith('-I'):
+                new_asm_flags.append("-I{}/{}".format(ctx['vpath'][0], flag[2:]))
+            elif flag.startswith('--preinclude='):
+                new_asm_flags.append("--preinclude={}/{}".format(ctx['vpath'][0], flag[13:]))
+            else:
+                new_asm_flags.append(flag)
+        ctx['asm_flags'] = new_asm_flags
 
         for templatefile in \
             ['makefile/%s_%s.tmpl' % (self.TEMPLATE,
@@ -147,7 +154,7 @@ class Makefile(Exporter):
         """Format toolchain flags for Makefile"""
         flags = {}
         for k, v in self.flags.items():
-            if k in ['asm_flags', 'c_flags', 'cxx_flags']:
+            if k in ['c_flags', 'cxx_flags']:
                 flags[k] = map(lambda x: x.replace('"', '\\"'), v)
             else:
                 flags[k] = v

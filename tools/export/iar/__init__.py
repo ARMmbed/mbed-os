@@ -112,8 +112,8 @@ class IAR(Exporter):
                self.resources.objects + self.libraries
         flags = self.flags
         c_flags = list(set(flags['common_flags']
-                                    + flags['c_flags']
-                                    + flags['cxx_flags']))
+                           + flags['c_flags']
+                           + flags['cxx_flags']))
         # Flags set in template to be set by user in IDE
         template = ["--vla", "--no_static_destruction"]
         # Flag invalid if set in template
@@ -133,7 +133,7 @@ class IAR(Exporter):
             'include_paths': [self.format_file(src) for src in self.resources.inc_dirs],
             'device': self.iar_device(),
             'ewp': sep+self.project_name + ".ewp",
-            'debugger': debugger
+            'debugger': debugger,
         }
         ctx.update(flags)
 
@@ -200,5 +200,3 @@ class IAR(Exporter):
             return -1
         else:
             return 0
-
-

@@ -165,17 +165,26 @@ class IAR(mbedToolchain):
 
     def get_compile_options(self, defines, includes, for_asm=False):
         opts = ['-D%s' % d for d in defines]
-        if for_asm :
+        if for_asm:
+            config_macros = self.config.get_config_data_macros()
+            macros_cmd = ['"-D%s"' % d.replace('"', '') for d in config_macros]
+            if self.RESPONSE_FILES:
+                via_file = self.make_option_file(
+                    macros_cmd, "asm_macros_{}.xcl")
+                opts += ['-f', via_file]
+            else:
+                opts += macros_cmd
             return opts
-        if self.RESPONSE_FILES:
-            opts += ['-f', self.get_inc_file(includes)]
         else:
-            opts += ["-I%s" % i for i in includes]
+            if self.RESPONSE_FILES:
+                opts += ['-f', self.get_inc_file(includes)]
+            else:
+                opts += ["-I%s" % i for i in includes]
+            config_header = self.get_config_header()
+            if config_header is not None:
+                opts = opts + self.get_config_option(config_header)
 
-        config_header = self.get_config_header()
-        if config_header is not None:
-            opts = opts + self.get_config_option(config_header)
-        return opts
+            return opts
 
     @hook_tool
     def assemble(self, source, object, includes):

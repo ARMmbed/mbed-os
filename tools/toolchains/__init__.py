@@ -308,50 +308,42 @@ class mbedToolchain:
             mkdir(obj_dir)
         return join(obj_dir, name + '.o')
 
-    # Generate response file for all includes.
-    # ARM, GCC, IAR cross compatible
+    def make_option_file(self, options, naming=".options_{}.txt"):
+        """ Generate a via file for a pile of defines
+        ARM, GCC, IAR cross compatible
+        """
+        option_md5 = md5(' '.join(options).encode('utf-8')).hexdigest()
+        via_file = join(self.build_dir, naming.format(option_md5))
+        if not exists(via_file):
+            with open(via_file, "w") as fd:
+                string = " ".join(options)
+                fd.write(string)
+        return via_file
+
     def get_inc_file(self, includes):
-        include_file = join(self.build_dir, ".includes_%s.txt" % self.inc_md5)
-        if not exists(include_file):
-            with open(include_file, "w") as f:
-                cmd_list = []
-                for c in includes:
-                    if c:
-                        c = c.replace("\\", "/")
-                        if self.CHROOT:
-                            c = c.replace(self.CHROOT, '')
-                        cmd_list.append('"-I%s"' % c)
-                string = " ".join(cmd_list)
-                f.write(string)
-        return include_file
+        """Generate a via file for all includes.
+        ARM, GCC, IAR cross compatible
+        """
+        cmd_list = ("-I{}".format(c.replace("\\", "/")) for c in includes if c)
+        if self.CHROOT:
+            cmd_list = (c.replace(self.CHROOT, '') for c in cmd_list)
+        return self.make_option_file(list(cmd_list), naming=".includes_{}.txt")
 
-    # Generate response file for all objects when linking.
-    # ARM, GCC, IAR cross compatible
     def get_link_file(self, cmd):
-        link_file = join(self.build_dir, ".link_files.txt")
-        with open(link_file, "w") as f:
-            cmd_list = []
-            for c in cmd:
-                if c:
-                    c = c.replace("\\", "/")
-                    if self.CHROOT:
-                        c = c.replace(self.CHROOT, '')
-                    cmd_list.append(('"%s"' % c) if not c.startswith('-') else c)
-            string = " ".join(cmd_list)
-            f.write(string)
-        return link_file
+        """Generate a via file for all objects when linking.
+        ARM, GCC, IAR cross compatible
+        """
+        cmd_list = (c.replace("\\", "/") for c in cmd if c)
+        if self.CHROOT:
+            cmd_list = (c.replace(self.CHROOT, '') for c in cmd_list)
+        return self.make_option_file(list(cmd_list), naming=".link_options.txt")
 
-    # Generate response file for all objects when archiving.
-    # ARM, GCC, IAR cross compatible
     def get_arch_file(self, objects):
-        archive_file = join(self.build_dir, ".archive_files.txt")
-        with open(archive_file, "w") as f:
-            o_list = []
-            for o in objects:
-                o_list.append('"%s"' % o)
-            string = " ".join(o_list).replace("\\", "/")
-            f.write(string)
-        return archive_file
+        """ Generate a via file for all objects when archiving.
+        ARM, GCC, IAR cross compatible
+        """
+        cmd_list = (c.replace("\\", "/") for c in objects if c)
+        return self.make_option_file(list(cmd_list), ".archive_files.txt")
 
     # THIS METHOD IS BEING CALLED BY THE MBED ONLINE BUILD SYSTEM
     # ANY CHANGE OF PARAMETERS OR RETURN VALUES WILL BREAK COMPATIBILITY
