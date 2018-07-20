@@ -80,5 +80,8 @@ void us_ticker_clear_interrupt(void) {
 
 void us_ticker_free(void)
 {
+    US_TICKER_TIMER->TCR = 0;
 
+    US_TICKER_TIMER->MCR &= ~1;
+    NVIC_DisableIRQ(US_TICKER_TIMER_IRQn);
 }

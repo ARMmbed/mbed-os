@@ -122,5 +122,5 @@ void us_ticker_clear_interrupt(void)
 
 void us_ticker_free(void)
 {
-
+    HalTimerOp.HalTimerDis((u32)TimerAdapter.TimerId);
 }

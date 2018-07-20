@@ -69,6 +69,7 @@ void lp_ticker_init(void)
         lp_ticker_inited = true;
     } else {
         LPTMR_DisableInterrupts(LPTMR0, kLPTMR_TimerInterruptEnable);
+        NVIC_EnableIRQ(LPTMR0_IRQn);
     }
 }
 
@@ -119,7 +120,8 @@ void lp_ticker_clear_interrupt(void)
 
 void lp_ticker_free(void)
 {
-
+    LPTMR_DisableInterrupts(LPTMR0, kLPTMR_TimerInterruptEnable);
+    NVIC_DisableIRQ(LPTMR0_IRQn);
 }
 
 #endif /* DEVICE_LPTICKER */

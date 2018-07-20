@@ -100,5 +100,8 @@ void us_ticker_fire_interrupt(void)
 
 void us_ticker_free(void)
 {
-
+    CTIMER_StopTimer(CTIMER1);
+    CTIMER1->MCR &= ~1;
+    NVIC_DisableIRQ(CTIMER1_IRQn);
+    us_ticker_inited = false;
 }

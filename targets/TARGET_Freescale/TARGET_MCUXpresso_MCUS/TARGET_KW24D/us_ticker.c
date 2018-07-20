@@ -139,5 +139,13 @@ void us_ticker_fire_interrupt(void)
 
 void us_ticker_free(void)
 {
+    PIT_StopTimer(PIT, kPIT_Chnl_3);
+    PIT_StopTimer(PIT, kPIT_Chnl_2);
+    PIT_StopTimer(PIT, kPIT_Chnl_1);
+    PIT_StopTimer(PIT, kPIT_Chnl_0);
 
+    PIT_DisableInterrupts(PIT, kPIT_Chnl_3, kPIT_TimerInterruptEnable);
+    NVIC_DisableIRQ(PIT3_IRQn);
+
+    us_ticker_inited = false;
 }

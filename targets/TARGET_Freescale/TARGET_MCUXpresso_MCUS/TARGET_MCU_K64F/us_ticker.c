@@ -70,6 +70,7 @@ void us_ticker_init(void)
     PIT_StopTimer(PIT, kPIT_Chnl_2);
     PIT_SetTimerPeriod(PIT, kPIT_Chnl_2, busClock / 1000000 - 1);
     PIT_SetTimerChainMode(PIT, kPIT_Chnl_3, true);
+    PIT_ClearStatusFlags(PIT, kPIT_Chnl_3, PIT_TFLG_TIF_MASK);
     NVIC_SetVector(PIT3_IRQn, (uint32_t) pit_isr);
     NVIC_EnableIRQ(PIT3_IRQn);
     PIT_DisableInterrupts(PIT, kPIT_Chnl_3, kPIT_TimerInterruptEnable);
@@ -139,5 +140,13 @@ void us_ticker_fire_interrupt(void)
 
 void us_ticker_free(void)
 {
+    PIT_StartTimer(PIT, kPIT_Chnl_3);
+    PIT_StartTimer(PIT, kPIT_Chnl_2);
+    PIT_StartTimer(PIT, kPIT_Chnl_1);
+    PIT_StartTimer(PIT, kPIT_Chnl_0);
 
+    PIT_DisableInterrupts(PIT, kPIT_Chnl_3, kPIT_TimerInterruptEnable);
+    NVIC_DisableIRQ(PIT3_IRQn);
+
+    us_ticker_inited = false;
 }
