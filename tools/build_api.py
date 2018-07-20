@@ -399,7 +399,13 @@ def _fill_header(region_list, current_region):
         start += Config.header_member_size(member)
     return header
 
-def merge_region_list(region_list, destination, notify, padding=b'\xFF'):
+def merge_region_list(
+        region_list,
+        destination,
+        notify,
+        padding=b'\xFF',
+        non_secure_mask=0
+):
     """Merge the region_list into a single image
 
     Positional Arguments:
@@ -538,7 +544,16 @@ def build_project(src_paths, build_path, target, toolchain_name,
                            for r in region_list]
             res = "%s.%s" % (join(build_path, name),
                              getattr(toolchain.target, "OUTPUT_EXT", "bin"))
-            merge_region_list(region_list, res, notify)
+            merge_region_list(
+                region_list,
+                res,
+                notify,
+                non_secure_mask=int(getattr(
+                    toolchain.target,
+                    "non_secure_mask",
+                    "0"
+                ), 0)
+            )
         else:
             res, _ = toolchain.link_program(resources, build_path, name)
 

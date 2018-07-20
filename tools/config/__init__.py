@@ -41,12 +41,12 @@ try:
     unicode
 except NameError:
     unicode = str
-PATH_OVERRIDES = set(["target.bootloader_img"])
+PATH_OVERRIDES = set(["target.bootloader_img", "target.secure_partition"])
 ROM_OVERRIDES = set([
     # managed BL
     "target.bootloader_img", "target.restrict_size",
     "target.header_format", "target.header_offset",
-    "target.app_offset",
+    "target.app_offset", "target.secure_partition",
 
     # unmanaged BL
     "target.mbed_app_start", "target.mbed_app_size",
@@ -57,6 +57,7 @@ ROM_OVERRIDES = set([
 RAM_OVERRIDES = set([
     # both
     "target.mbed_ram_start", "target.mbed_ram_size",
+    "target.reserve_ram",
 ])
 
 BOOTLOADER_OVERRIDES = ROM_OVERRIDES | RAM_OVERRIDES
@@ -626,6 +627,8 @@ class Config(object):
         )
         rom_start = int(getattr(self.target, "mbed_rom_start", False) or rom_start, 0)
         rom_size = int(getattr(self.target, "mbed_rom_size", False) or rom_size, 0)
+        if self.target.core.endswith("-NS"):
+            rom_start ^= int(getattr(self.target,"non_secure_mask", "0"), 0)
         return (rom_start, rom_size)
 
     @property
@@ -644,18 +647,32 @@ class Config(object):
         # 2. Supports TrustZone and user needs to change its flash partition
         ram_start = getattr(self.target, "mbed_ram_start", False) or ram_start
         ram_size = getattr(self.target, "mbed_ram_size", False) or ram_size
-        return [RamRegion("application_ram", int(ram_start, 0), int(ram_size, 0), True)]
+        ram_start = int(ram_start, 0)
+        ram_size = int(ram_size, 0)
+        if self.target.core.endswith("-NS"):
+            ram_start ^= int(getattr(self.target,"non_secure_mask", "0"), 0)
+        if self.target.reserve_ram:
+            reserved = int(self.target.reserve_ram, 0)
+            yield RamRegion("reserved", ram_start, reserved, False)
+            ram_start += reserved
+            ram_size -= reserved
+            if ram_size <= 0:
+                raise ConfigException(
+                    "target.reserve_ram reserved so much ram, that there is "
+                    "none left for the application."
+                )
+        yield RamRegion("application_ram", ram_start, ram_size, True)
 
     @property
     def regions(self):
         """Generate a list of regions from the config"""
-        if  ((self.target.bootloader_img or self.target.restrict_size) and
+        if  ((self.target.bootloader_img or self.target.secure_partition or self.target.restrict_size) and
              (self.target.mbed_app_start or self.target.mbed_app_size)):
             raise ConfigException(
                 "target.bootloader_img and target.restirct_size are "
                 "incompatible with target.mbed_app_start and "
                 "target.mbed_app_size")
-        if self.target.bootloader_img or self.target.restrict_size:
+        if self.target.bootloader_img or self.target.restrict_size or self.target.secure_partition:
             return self._generate_bootloader_build(*self.rom)
         else:
             return self._generate_linker_overrides(*self.rom)
@@ -698,22 +715,25 @@ class Config(object):
     def _generate_bootloader_build(self, rom_start, rom_size):
         start = rom_start
         rom_end = rom_start + rom_size
-        if self.target.bootloader_img:
-            if isabs(self.target.bootloader_img):
-                filename = self.target.bootloader_img
+        bl_path = self.target.bootloader_img or self.target.secure_partition
+        if bl_path:
+            if isabs(bl_path):
+                filename = bl_path
             else:
                 basedir = abspath(dirname(self.app_config_location))
-                filename = join(basedir, self.target.bootloader_img)
+                filename = join(basedir, bl_path)
             if not exists(filename):
                 raise ConfigException("Bootloader %s not found" % filename)
             part = intelhex_offset(filename, offset=rom_start)
-            if part.minaddr() != rom_start:
+            actual_minaddr =(part.minaddr() ^
+                             int(getattr(self.target, "non_secure_mask"), 0))
+            if (actual_minaddr != rom_start):
                 raise ConfigException("bootloader executable does not "
                                       "start at 0x%x" % rom_start)
             part_size = (part.maxaddr() - part.minaddr()) + 1
             part_size = Config._align_ceiling(rom_start + part_size, self.sectors) - rom_start
-            yield Region("bootloader", rom_start, part_size, False,
-                         filename)
+            region_name = "bootloader" if self.target.bootloader_img else "secure_partition"
+            yield Region(region_name, rom_start, part_size, False, filename)
             start = rom_start + part_size
             if self.target.header_format:
                 if self.target.header_offset:
