@@ -3,6 +3,7 @@ This document defines the software design process for Mbed-OS. Anyone developing
 
 ## Design documents location and organization
 * It's suggested to write one design document per change, which could be a new feature, defect fixes, tools changes etc. Do not try to address multiple changes in the same document.
+* It's up to the judgement of developer to decide whether a change warrant a design document to go with it. For example, minor changes/small localized defect fixes may not need a design document.
 * The design document will follow the format represented in [Design Document Template](https://github.com/ARMmbed/mbed-os/blob/master/docs/design-documents/design_template.md)
 
 * For each design submission, create a folder under *https://github.com/ARMmbed/mbed-os/docs/design-documents/{AREA OR COMPONENT}*. The area/component would be Drivers, Platform, Connectivity, Security, Peripherals etc. 
@@ -30,6 +31,9 @@ If your implementation changes in future, corresponsding design documents may be
 It's possible that a new implementation may require changes to some previous implementations. In that case, capture
 the new changes in the original design document as well. Also create references to other(or older) design documents in the
 References section for the new design document.
+
+## General guidelines for creating design documents
+Its up to the developer to make a judgement on whether a design docucment is required for a change. It may not be required for minor fixes and small localized changes. But for changes with lot of code turmoil across multiple components or if its new feature or functionality being added its best to have a backing design document. Its also ok for developers to gather initial feedback on some idea before they decide to implement. Its also not absolutely necessary that implementation should be started only after design document review. The caveat here is if the proposed design is changed significantly in the process of review it will impact your implementation as well. Thus for large features where lot of design feedbacks are expected it's advisable to start your implementation once major feedbacks are captured. For example, API designs can invite lot of feedbacks. In such cases, its best to capture those feedbacks before starting the implementation cycle. But for very localized implementations not impacting other parts of the system/APIs it may be ok to provide an initial implementation(in the same PR) as a reference along with design document.
 
 ## Reference documents
 [Design Document Template](https://github.com/ARMmbed/mbed-os/blob/master/docs/design-documents/design_template.md)
