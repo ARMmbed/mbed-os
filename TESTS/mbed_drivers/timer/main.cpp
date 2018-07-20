@@ -103,6 +103,12 @@ static void stub_fire_interrupt(void)
     /* do nothing. */
 }
 
+/* User ticker interface function. */
+static void stub_free(void)
+{
+    /* do nothing. */
+}
+
 ticker_info_t info =
 { TICKER_FREQ_1MHZ, TICKER_BITS };
 
@@ -122,6 +128,7 @@ static const ticker_interface_t us_interface = {
     .clear_interrupt = stub_clear_interrupt,
     .set_interrupt = stub_set_interrupt,
     .fire_interrupt = stub_fire_interrupt,
+    .free = stub_free,
     .get_info = stub_get_info,
 };
 
