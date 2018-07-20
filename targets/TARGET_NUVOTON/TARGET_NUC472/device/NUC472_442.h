@@ -24427,8 +24427,11 @@ typedef struct {
 #define SYS_IPRST0_USBHRST_Pos           (4)                                               /*!< SYS IPRST0: USBHRST Position           */
 #define SYS_IPRST0_USBHRST_Msk           (0x1ul << SYS_IPRST0_USBHRST_Pos)                 /*!< SYS IPRST0: USBHRST Mask               */
 
-#define SYS_IPRST0_SDHRST_Pos            (5)                                               /*!< SYS IPRST0: SDHRST Position            */
-#define SYS_IPRST0_SDHRST_Msk            (0x1ul << SYS_IPRST0_SDHRST_Pos)                  /*!< SYS IPRST0: SDHRST Mask                */
+#define SYS_IPRST0_EMACRST_Pos           (5)                                               /*!< SYS_T::IPRST0: EMACRST Position            */
+#define SYS_IPRST0_EMACRST_Msk           (0x1ul << SYS_IPRST0_EMACRST_Pos)                 /*!< SYS_T::IPRST0: EMACRST Mask                */
+
+#define SYS_IPRST0_SDHRST_Pos            (6)                                               /*!< SYS_T::IPRST0: SDHRST Position        */
+#define SYS_IPRST0_SDHRST_Msk            (0x1ul << SYS_IPRST0_SDHRST_Pos)                  /*!< SYS_T::IPRST0: SDHRST Mask            */
 
 #define SYS_IPRST0_SDHOST_RST_Pos        (6)                                               /*!< SYS IPRST0: SDHOST_RST Position        */
 #define SYS_IPRST0_SDHOST_RST_Msk        (0x1ul << SYS_IPRST0_SDHOST_RST_Pos)              /*!< SYS IPRST0: SDHOST_RST Mask            */
