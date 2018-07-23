@@ -49,6 +49,22 @@
 #define MSG_KEY_RESET_REASON "reason"
 #define MSG_KEY_DEVICE_RESET "reset"
 
+/* Flush serial buffer before deep sleep/reset
+ *
+ * Since deepsleep()/reset would shut down the UART peripheral, we wait for some time
+ * to allow for hardware serial buffers to completely flush.
+ *
+ * Take NUMAKER_PFM_NUC472 as an example:
+ * Its UART peripheral has 16-byte Tx FIFO. With baud rate set to 9600, flush
+ * Tx FIFO would take: 16 * 8 * 1000 / 9600 = 13.3 (ms). So set wait time to
+ * 20ms here for safe.
+ *
+ * This should be replaced with a better function that checks if the
+ * hardware buffers are empty. However, such an API does not exist now,
+ * so we'll use the wait_ms() function for now.
+ */
+#define SERIAL_FLUSH_TIME_MS    20
+
 typedef enum {
     CMD_STATUS_CONTINUE,
     CMD_STATUS_ERROR
@@ -85,7 +101,7 @@ static cmd_status_t handle_command(const char *key, const char *value)
 
     if (strcmp(key, MSG_KEY_DEVICE_RESET) == 0 && strcmp(value, MSG_VALUE_DEVICE_RESET_NVIC) == 0) {
         greentea_send_kv(MSG_KEY_DEVICE_RESET, MSG_VALUE_DEVICE_RESET_ACK);
-        wait_ms(10); // Wait for the serial buffers to flush.
+        wait_ms(SERIAL_FLUSH_TIME_MS); // Wait for the serial buffers to flush.
         NVIC_SystemReset();
         TEST_ASSERT_MESSAGE(0, "NVIC_SystemReset did not reset the device as expected.");
         return CMD_STATUS_ERROR;
@@ -94,7 +110,7 @@ static cmd_status_t handle_command(const char *key, const char *value)
 #if DEVICE_WATCHDOG
     if (strcmp(key, MSG_KEY_DEVICE_RESET) == 0 && strcmp(value, MSG_VALUE_DEVICE_RESET_WATCHDOG) == 0) {
         greentea_send_kv(MSG_KEY_DEVICE_RESET, MSG_VALUE_DEVICE_RESET_ACK);
-        wait_ms(10); // Wait for the serial buffers to flush.
+        wait_ms(SERIAL_FLUSH_TIME_MS); // Wait for the serial buffers to flush.
         watchdog_config_t config = { .timeout_ms = WDG_TIMEOUT_MS };
         if (hal_watchdog_init(&config) != WATCHDOG_STATUS_OK) {
             TEST_ASSERT_MESSAGE(0, "hal_watchdog_init() error.");
