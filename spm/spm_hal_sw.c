@@ -40,3 +40,8 @@ void nspe_done(osSemaphoreId_t completion_sem_id)
     SPM_ASSERT(osOK == os_status);
     PSA_UNUSED(os_status);
 }
+
+void memory_protection_init(const mem_region_t *regions, uint32_t region_count)
+{
+    // Currently this function is a stub.
+}

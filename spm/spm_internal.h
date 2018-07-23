@@ -189,6 +189,13 @@ spm_partition_t *get_active_partition(void);
 const mem_region_t *get_mem_regions(int32_t partition_id, uint32_t *region_count);
 
 // Platform dependent APIs
+/**
+ * Configure memory protection for a given list of memory regions.
+ *
+ * @param[in] regions - an array of memory regions to protect
+ * @param[in] region_count - a number of the entries in the array
+ */
+void memory_protection_init(const mem_region_t *regions, uint32_t region_count);
 
 /**
  * Validates a memory block is accessable from a specific partition

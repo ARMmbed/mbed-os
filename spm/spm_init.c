@@ -72,6 +72,10 @@ uint32_t init_partitions(spm_partition_t **partitions);
 
 void psa_spm_init(void)
 {
+    uint32_t region_count = 0;
+    const mem_region_t *regions = get_mem_regions(MEM_PARTITIONS_ALL, &region_count);
+    memory_protection_init(regions, region_count);
+
     g_spm.channel_mem_pool = osMemoryPoolNew(
         MBED_CONF_SPM_IPC_MAX_NUM_OF_CHANNELS,
         sizeof(spm_ipc_channel_t),
