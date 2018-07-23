@@ -32,6 +32,7 @@ using namespace utest::v1;
 namespace
 {
     NetworkInterface* net;
+    Timer tc_bucket; // Timer to limit a test cases run time
 }
 
 char tcp_global::rx_buffer[RX_BUFF_SIZE];
@@ -66,24 +67,32 @@ static void _ifdown() {
     printf("MBED: ifdown\n");
 }
 
-void tcpsocket_connect_to_echo_srv(TCPSocket& sock) {
+nsapi_error_t tcpsocket_connect_to_echo_srv(TCPSocket& sock) {
     SocketAddress tcp_addr;
 
     get_interface()->gethostbyname(MBED_CONF_APP_ECHO_SERVER_ADDR, &tcp_addr);
     tcp_addr.set_port(MBED_CONF_APP_ECHO_SERVER_PORT);
 
-    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.open(get_interface()));
-    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.connect(tcp_addr));
+    nsapi_error_t err = sock.open(get_interface());
+    if (err != NSAPI_ERROR_OK) {
+        return err;
+    }
+
+    return sock.connect(tcp_addr);
 }
 
-void tcpsocket_connect_to_discard_srv(TCPSocket& sock) {
+nsapi_error_t tcpsocket_connect_to_discard_srv(TCPSocket& sock) {
     SocketAddress tcp_addr;
 
     get_interface()->gethostbyname(MBED_CONF_APP_ECHO_SERVER_ADDR, &tcp_addr);
     tcp_addr.set_port(9);
 
-    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.open(get_interface()));
-    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.connect(tcp_addr));
+    nsapi_error_t err = sock.open(get_interface());
+    if (err != NSAPI_ERROR_OK) {
+        return err;
+    }
+
+    return sock.connect(tcp_addr);
 }
 
 void fill_tx_buffer_ascii(char *buff, size_t len)
@@ -93,16 +102,23 @@ void fill_tx_buffer_ascii(char *buff, size_t len)
     }
 }
 
+int split2half_rmng_tcp_test_time()
+{
+    return (tcp_global::TESTS_TIMEOUT-tc_bucket.read())/2;
+}
+
 // Test setup
 utest::v1::status_t greentea_setup(const size_t number_of_cases)
 {
-    GREENTEA_SETUP(480, "default_auto");
+    GREENTEA_SETUP(tcp_global::TESTS_TIMEOUT, "default_auto");
     _ifup();
+    tc_bucket.start();
     return greentea_test_setup_handler(number_of_cases);
 }
 
 void greentea_teardown(const size_t passed, const size_t failed, const failure_t failure)
 {
+    tc_bucket.stop();
     _ifdown();
     return greentea_test_teardown_handler(passed, failed, failure);
 }
