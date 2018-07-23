@@ -31,14 +31,19 @@ namespace
     static const int SIGIO_TIMEOUT = 20000; //[ms]
 }
 
-static void _tcpsocket_connect_to_chargen_srv(TCPSocket& sock) {
+static nsapi_error_t _tcpsocket_connect_to_chargen_srv(TCPSocket& sock)
+{
     SocketAddress tcp_addr;
 
     get_interface()->gethostbyname(MBED_CONF_APP_ECHO_SERVER_ADDR, &tcp_addr);
     tcp_addr.set_port(19);
 
-    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.open(get_interface()));
-    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.connect(tcp_addr));
+    nsapi_error_t err = sock.open(get_interface());
+    if (err != NSAPI_ERROR_OK) {
+        return err;
+    }
+
+    return sock.connect(tcp_addr);
 }
 
 /** Generate RFC 864 example pattern.
@@ -86,35 +91,46 @@ void rcv_n_chk_against_rfc864_pattern(TCPSocket& sock) {
     uint8_t buff[buff_size];
     size_t recvd_size = 0;
 
+    Timer timer;
+    timer.start();
+
     // Verify received data
     while (recvd_size < total_size) {
         int rd = sock.recv(buff, buff_size);
         TEST_ASSERT(rd > 0);
+        if (rd < 0) {
+            break;
+        }
         check_RFC_864_pattern(buff, rd, recvd_size);
         recvd_size += rd;
     }
+    timer.stop();
+    printf("MBED: Time taken: %fs\n", timer.read());
 }
 
 void TCPSOCKET_RECV_100K()
 {
     TCPSocket sock;
-    _tcpsocket_connect_to_chargen_srv(sock);
+    if (_tcpsocket_connect_to_chargen_srv(sock) != NSAPI_ERROR_OK) {
+        TEST_FAIL();
+        return;
+    }
 
-    Timer timer;
-    timer.start();
     rcv_n_chk_against_rfc864_pattern(sock);
-    timer.stop();
 
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
-
-    printf("MBED: Time taken: %fs\n", timer.read());
 }
 
-void rcv_n_chk_against_rfc864_pattern_nonblock(TCPSocket& sock) {
+void rcv_n_chk_against_rfc864_pattern_nonblock(TCPSocket& sock)
+{
     static const size_t total_size = 1024 * 100;
     static const size_t buff_size = 1220;
     uint8_t buff[buff_size];
     size_t recvd_size = 0;
+    int time_allotted = split2half_rmng_tcp_test_time(); // [s]
+
+    Timer timer;
+    timer.start();
 
     // Verify received data
     while (recvd_size < total_size) {
@@ -124,9 +140,18 @@ void rcv_n_chk_against_rfc864_pattern_nonblock(TCPSocket& sock) {
             check_RFC_864_pattern(buff, rd, recvd_size);
             recvd_size += rd;
         } else if (rd == NSAPI_ERROR_WOULD_BLOCK) {
+            if (timer.read() >= time_allotted) {
+                TEST_FAIL();
+                break;
+            }
             TEST_ASSERT_NOT_EQUAL(osEventTimeout, osSignalWait(SIGNAL_SIGIO, SIGIO_TIMEOUT).status);
+        } else {
+            TEST_FAIL();
+            break;
         }
     }
+    timer.stop();
+    printf("MBED: Time taken: %fs\n", timer.read());
 }
 
 static void _sigio_handler(osThreadId id) {
@@ -135,17 +160,18 @@ static void _sigio_handler(osThreadId id) {
 
 void TCPSOCKET_RECV_100K_NONBLOCK()
 {
-    TCPSocket sock;
-    _tcpsocket_connect_to_chargen_srv(sock);
+    TCPSocket     sock;
+    nsapi_error_t err = _tcpsocket_connect_to_chargen_srv(sock);
+
+    if (err != NSAPI_ERROR_OK) {
+        TEST_FAIL();
+        return;
+    }
+
     sock.set_blocking(false);
     sock.sigio(callback(_sigio_handler, Thread::gettid()));
 
-    Timer timer;
-    timer.start();
     rcv_n_chk_against_rfc864_pattern_nonblock(sock);
-    timer.stop();
 
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
-
-    printf("MBED: Time taken: %fs\n", timer.read());
 }
