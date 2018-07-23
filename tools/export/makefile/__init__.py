@@ -113,6 +113,7 @@ class Makefile(Exporter):
             'user_library_flag': self.USER_LIBRARY_FLAG,
             'needs_asm_preproc': self.PREPROCESS_ASM,
             'shell_escape': shell_escape,
+            'response_option': self.RESPONSE_OPTION,
         }
 
         if hasattr(self.toolchain, "preproc"):
@@ -233,6 +234,7 @@ class GccArm(Makefile):
     TOOLCHAIN = "GCC_ARM"
     LINK_SCRIPT_OPTION = "-T"
     USER_LIBRARY_FLAG = "-L"
+    RESPONSE_OPTION = "@"
 
     @staticmethod
     def prepare_lib(libname):
@@ -250,6 +252,7 @@ class Arm(Makefile):
     LINK_SCRIPT_OPTION = "--scatter"
     USER_LIBRARY_FLAG = "--userlibpath "
     TEMPLATE = 'make-arm'
+    RESPONSE_OPTION = "--via "
 
     @staticmethod
     def prepare_lib(libname):
@@ -289,6 +292,7 @@ class IAR(Makefile):
     TOOLCHAIN = "IAR"
     LINK_SCRIPT_OPTION = "--config"
     USER_LIBRARY_FLAG = "-L"
+    RESPONSE_OPTION = "-f "
 
     @staticmethod
     def prepare_lib(libname):
