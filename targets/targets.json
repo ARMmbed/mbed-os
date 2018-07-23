@@ -4343,7 +4343,8 @@
         "detect_code": ["0776"],
         "device_has_add": ["ANALOGOUT", "CAN", "CRC", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
-        "device_name": "STM32L4R5ZI"
+        "device_name": "STM32L4R5ZI",
+        "bootloader_supported": true
     },
     "VBLUNO52": {
         "supported_form_factors": ["ARDUINO"],
