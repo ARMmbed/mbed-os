@@ -30,12 +30,15 @@ void TCPSOCKET_SEND_REPEAT()
     TCPSocket sock;
     tcpsocket_connect_to_discard_srv(sock);
 
-    int err;
+    int snd;
     Timer timer;
     static const char tx_buffer[] = {'h','e','l','l','o'};
     for (int i = 0; i < 1000; i++) {
-        err = sock.send(tx_buffer, sizeof(tx_buffer));
-        TEST_ASSERT_EQUAL(sizeof(tx_buffer), err);
+        snd = sock.send(tx_buffer, sizeof(tx_buffer));
+        if (snd != sizeof(tx_buffer)) {
+            TEST_FAIL();
+            break;
+        }
     }
 
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());

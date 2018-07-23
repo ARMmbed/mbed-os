@@ -57,11 +57,13 @@ void TCPSOCKET_ECHOTEST_BURST()
             if (sent == NSAPI_ERROR_WOULD_BLOCK) {
                 if(osSignalWait(SIGNAL_SIGIO, SIGIO_TIMEOUT).status == osEventTimeout) {
                     TEST_FAIL();
+                    goto END;
                 }
                 continue;
             } else if (sent < 0) {
                 printf("[%02d] network error %d\n", i, sent);
                 TEST_FAIL();
+                goto END;
             }
             bt_left -= sent;
         }
@@ -79,10 +81,12 @@ void TCPSOCKET_ECHOTEST_BURST()
         if (bt_left != 0) {
             drop_bad_packets(sock, 0);
             TEST_FAIL();
+            goto END;
         }
 
         TEST_ASSERT_EQUAL(0, memcmp(tcp_global::tx_buffer, tcp_global::rx_buffer, BURST_SIZE));
     }
+END:
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
 }
 
@@ -106,15 +110,20 @@ void TCPSOCKET_ECHOTEST_BURST_NONBLOCK()
             if (sent == NSAPI_ERROR_WOULD_BLOCK) {
                 if(osSignalWait(SIGNAL_SIGIO, SIGIO_TIMEOUT).status == osEventTimeout) {
                     TEST_FAIL();
+                    goto END;
                 }
                 continue;
             } else if (sent < 0) {
                 printf("[%02d] network error %d\n", i, sent);
                 TEST_FAIL();
+                goto END;
             }
             bt_left -= sent;
         }
-        TEST_ASSERT_EQUAL(0, bt_left);
+		if (bt_left != 0) {
+            TEST_FAIL();
+            goto END;
+         }
 
         bt_left = BURST_SIZE;
         while (bt_left > 0) {
@@ -136,9 +145,11 @@ void TCPSOCKET_ECHOTEST_BURST_NONBLOCK()
             printf("network error %d, missing %d bytes from a burst\n", recvd, bt_left);
             drop_bad_packets(sock, -1);
             TEST_FAIL();
+            goto END;
         }
 
         TEST_ASSERT_EQUAL(0, memcmp(tcp_global::tx_buffer, tcp_global::rx_buffer, BURST_SIZE));
     }
+END:
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
 }
