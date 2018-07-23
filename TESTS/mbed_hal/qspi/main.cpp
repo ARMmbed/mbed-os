@@ -142,11 +142,6 @@ static void _qspi_write_read_test(Qspi &qspi, qspi_bus_width_t write_inst_width,
 
             timer.stop();
             write_time = timer.read_us();
-#ifdef STM_WRITE_4IO_BUG_WORKAROUND
-            if (write_cmd == QSPI_CMD_WRITE_4IO) {
-                wait_us(2000);
-            }
-#endif
         }
 
         if (read_frequency != QSPI_NONE) {
