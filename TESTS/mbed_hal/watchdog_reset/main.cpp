@@ -38,6 +38,22 @@
 #define MSG_KEY_START_CASE "start_case"
 #define MSG_KEY_DEVICE_RESET "dev_reset"
 
+/* Flush serial buffer before deep sleep/reset
+ *
+ * Since deepsleep()/reset would shut down the UART peripheral, we wait for some time
+ * to allow for hardware serial buffers to completely flush.
+ *
+ * Take NUMAKER_PFM_NUC472 as an example:
+ * Its UART peripheral has 16-byte Tx FIFO. With baud rate set to 9600, flush
+ * Tx FIFO would take: 16 * 8 * 1000 / 9600 = 13.3 (ms). So set wait time to
+ * 20ms here for safe.
+ *
+ * This should be replaced with a better function that checks if the
+ * hardware buffers are empty. However, such an API does not exist now,
+ * so we'll use the wait_ms() function for now.
+ */
+#define SERIAL_FLUSH_TIME_MS    20
+
 using utest::v1::Case;
 using utest::v1::Specification;
 using utest::v1::Harness;
@@ -149,7 +165,7 @@ void test_deepsleep_reset()
     }
     TEST_ASSERT_EQUAL(WATCHDOG_STATUS_OK, hal_watchdog_init(&config));
     lp_timeout.attach_us(mbed::callback(release_sem, &sem), 1000ULL * (TIMEOUT_MS + TIMEOUT_DELTA_MS));
-    wait_ms(10); // Wait for the serial buffers to flush.
+    wait_ms(SERIAL_FLUSH_TIME_MS); // Wait for the serial buffers to flush.
     if (!sleep_manager_can_deep_sleep()) {
         TEST_ASSERT_MESSAGE(0, "Deepsleep should be allowed.");
     }
