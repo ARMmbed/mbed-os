@@ -41,6 +41,22 @@
 #define MSG_KEY_START_CASE "start_case"
 #define MSG_KEY_DEVICE_RESET "reset_on_case_teardown"
 
+/* Flush serial buffer before deep sleep/reset
+ *
+ * Since deepsleep()/reset would shut down the UART peripheral, we wait for some time
+ * to allow for hardware serial buffers to completely flush.
+ *
+ * Take NUMAKER_PFM_NUC472 as an example:
+ * Its UART peripheral has 16-byte Tx FIFO. With baud rate set to 9600, flush
+ * Tx FIFO would take: 16 * 8 * 1000 / 9600 = 13.3 (ms). So set wait time to
+ * 20ms here for safe.
+ *
+ * This should be replaced with a better function that checks if the
+ * hardware buffers are empty. However, such an API does not exist now,
+ * so we'll use the wait_ms() function for now.
+ */
+#define SERIAL_FLUSH_TIME_MS    20
+
 int CASE_INDEX_START;
 int CASE_INDEX_CURRENT;
 
@@ -128,7 +144,7 @@ utest::v1::status_t case_teardown_sync_on_reset(const Case * const source, const
     }
     greentea_send_kv(MSG_KEY_DEVICE_RESET, CASE_INDEX_START + CASE_INDEX_CURRENT);
     utest_printf("The device will now restart.\n");
-    wait_ms(10); // Wait for the serial buffers to flush.
+    wait_ms(SERIAL_FLUSH_TIME_MS); // Wait for the serial buffers to flush.
     NVIC_SystemReset();
     return status; // Reset is instant so this line won't be reached.
 }
