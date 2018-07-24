@@ -678,6 +678,14 @@ class MemapParser(object):
         file_desc.write('\n')
         return None
 
+    RAM_FORMAT_STR = (
+        "Total Static RAM memory (data + bss): {}({:+}) bytes\n"
+    )
+
+    ROM_FORMAT_STR = (
+        "Total Flash memory (text + data): {}({:+}) bytes\n"
+    )
+
     def generate_csv(self, file_desc):
         """Generate a CSV file from a memoy map
 
@@ -732,17 +740,22 @@ class MemapParser(object):
 
         subtotal_row = ['Subtotals']
         for k in self.print_sections:
-            subtotal_row.append(self.subtotal[k])
+            subtotal_row.append("{}({:+})".format(
+                self.subtotal[k], self.subtotal[k + '-delta']))
 
         table.add_row(subtotal_row)
 
         output = table.get_string()
         output += '\n'
 
-        output += "Total Static RAM memory (data + bss): %s bytes\n" % \
-                        str(self.mem_summary['static_ram'])
-        output += "Total Flash memory (text + data): %s bytes\n" % \
-                        str(self.mem_summary['total_flash'])
+        output += self.RAM_FORMAT_STR.format(
+            self.mem_summary['static_ram'],
+            self.mem_summary['static_ram_delta']
+        )
+        output += self.ROM_FORMAT_STR.format(
+            self.mem_summary['total_flash'],
+            self.mem_summary['total_flash_delta']
+        )
 
         return output
 
@@ -751,16 +764,24 @@ class MemapParser(object):
     def compute_report(self):
         """ Generates summary of memory usage for main areas
         """
-        for k in self.sections:
-            self.subtotal[k] = 0
+        self.subtotal = defaultdict(int)
 
         for mod in self.modules.values():
             for k in self.sections:
                 self.subtotal[k] += mod[k]
+                self.subtotal[k + '-delta'] += mod[k]
+        if self.old_modules:
+            for mod in self.old_modules.values():
+                for k in self.sections:
+                    self.subtotal[k + '-delta'] -= mod[k]
 
         self.mem_summary = {
-            'static_ram': (self.subtotal['.data'] + self.subtotal['.bss']),
+            'static_ram': self.subtotal['.data'] + self.subtotal['.bss'],
+            'static_ram_delta':
+            self.subtotal['.data-delta'] + self.subtotal['.bss-delta'],
             'total_flash': (self.subtotal['.text'] + self.subtotal['.data']),
+            'total_flash_delta':
+            self.subtotal['.text-delta'] + self.subtotal['.data-delta'],
         }
 
         self.mem_report = []
