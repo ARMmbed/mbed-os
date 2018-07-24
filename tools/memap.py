@@ -610,32 +610,33 @@ class MemapParser(object):
                 cur_text = self._move_up_tree(cur_text, next_module)
                 cur_data = self._move_up_tree(cur_data, next_module)
                 cur_bss = self._move_up_tree(cur_bss, next_module)
-        for name, dct in self.old_modules.items():
-            cur_text = tree_text
-            cur_bss = tree_bss
-            cur_data = tree_data
-            modules = name.split(sep)
-            while True:
-                try:
-                    cur_text["delta"] -= dct['.text']
-                except KeyError:
-                    pass
-                try:
-                    cur_bss["delta"] -= dct['.bss']
-                except KeyError:
-                    pass
-                try:
-                    cur_data["delta"] -= dct['.data']
-                except KeyError:
-                    pass
-                if not modules:
-                    break
-                next_module = modules.pop(0)
-                if not any(cld['name'] == next_module for cld in cur_text['children']):
-                    break
-                cur_text = self._move_up_tree(cur_text, next_module)
-                cur_data = self._move_up_tree(cur_data, next_module)
-                cur_bss = self._move_up_tree(cur_bss, next_module)
+        if self.old_modules:
+            for name, dct in self.old_modules.items():
+                cur_text = tree_text
+                cur_bss = tree_bss
+                cur_data = tree_data
+                modules = name.split(sep)
+                while True:
+                    try:
+                        cur_text["delta"] -= dct['.text']
+                    except KeyError:
+                        pass
+                    try:
+                        cur_bss["delta"] -= dct['.bss']
+                    except KeyError:
+                        pass
+                    try:
+                        cur_data["delta"] -= dct['.data']
+                    except KeyError:
+                        pass
+                    if not modules:
+                        break
+                    next_module = modules.pop(0)
+                    if not any(cld['name'] == next_module for cld in cur_text['children']):
+                        break
+                    cur_text = self._move_up_tree(cur_text, next_module)
+                    cur_data = self._move_up_tree(cur_data, next_module)
+                    cur_bss = self._move_up_tree(cur_bss, next_module)
 
         tree_rom = {
             "name": "ROM",
