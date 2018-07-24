@@ -6,6 +6,11 @@
             "macro_name": "ENABLE_SPM",
             "value": 0
         },
+        "psa_separation_level": {
+            "help": "Defines PSA partition separation level",
+            "macro_name": "SPM_LEVEL",
+            "value": 0
+        },
         "ipc_max_num_of_channels": {
             "help": "maximum number of PSA channels that can be opened at the same time",
             "value": 10
