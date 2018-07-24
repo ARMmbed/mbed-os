@@ -16,8 +16,7 @@
 #include "psa_defs.h"
 #include "spm_internal.h"
 
-
-// These implementations are meant to be used only for SPM level 0.
+#if SPM_LEVEL == 0
 
 bool is_buffer_accessible(const void *ptr, size_t size, spm_partition_t * accessing_partition)
 {
@@ -43,5 +42,8 @@ void nspe_done(osSemaphoreId_t completion_sem_id)
 
 void memory_protection_init(const mem_region_t *regions, uint32_t region_count)
 {
-    // Currently this function is a stub.
+    PSA_UNUSED(regions);
+    PSA_UNUSED(region_count);
 }
+
+#endif // SPM_LEVEL == 0
