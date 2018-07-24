@@ -514,17 +514,16 @@ class MemapParser(object):
                 self.short_modules.setdefault(new_name, defaultdict(int))
                 for section_idx, value in v.items():
                     self.short_modules[new_name][section_idx] += self.modules[module_name][section_idx]
-                    try:
-                        new_size = self.modules[module_name][section_idx]
-                        try:
-                            old_size = self.old_modules[module_name][section_idx]
-                        except KeyError:
-                            old_size = 0
-                        self.short_modules[new_name][section_idx + '-delta'] += (
-                            new_size - old_size
-                        )
-                    except TypeError:
-                        self.short_modules[new_name][section_idx + '-delta'] += 0
+                    self.short_modules[new_name][section_idx + '-delta'] += self.modules[module_name][section_idx]
+            if self.old_modules:
+                for module_name, v in self.old_modules.items():
+                    split_name = module_name.split(sep)
+                    if split_name[0] == '':
+                        split_name = split_name[1:]
+                    new_name = join(*split_name[:depth])
+                    self.short_modules.setdefault(new_name, defaultdict(int))
+                    for section_idx, value in v.items():
+                        self.short_modules[new_name][section_idx + '-delta'] -= self.old_modules[module_name][section_idx]
 
     export_formats = ["json", "csv-ci", "html", "table"]
 
