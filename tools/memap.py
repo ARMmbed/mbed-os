@@ -455,6 +455,7 @@ class MemapParser(object):
     """
 
     print_sections = ('.text', '.data', '.bss')
+    delta_sections = ('.text-delta', '.data-delta', '.bss-delta')
 
 
     # sections to print info (generic for all toolchains)
@@ -466,6 +467,7 @@ class MemapParser(object):
         # list of all modules and their sections
         # full list - doesn't change with depth
         self.modules = dict()
+        self.old_modules = None
         # short version with specific depth
         self.short_modules = dict()
 
@@ -510,8 +512,18 @@ class MemapParser(object):
                 new_name = join(*split_name[:depth])
                 self.short_modules.setdefault(new_name, defaultdict(int))
                 for section_idx, value in v.items():
-                    self.short_modules[new_name].setdefault(section_idx, 0)
                     self.short_modules[new_name][section_idx] += self.modules[module_name][section_idx]
+                    try:
+                        new_size = self.modules[module_name][section_idx]
+                        try:
+                            old_size = self.old_modules[module_name][section_idx]
+                        except KeyError:
+                            old_size = 0
+                        self.short_modules[new_name][section_idx + '-delta'] += (
+                            new_size - old_size
+                        )
+                    except TypeError:
+                        self.short_modules[new_name][section_idx + '-delta'] += 0
 
     export_formats = ["json", "csv-ci", "html", "table"]
 
@@ -557,7 +569,7 @@ class MemapParser(object):
             if child["name"] == next_module:
                 return child
         else:
-            new_module = {"name": next_module, "value": 0}
+            new_module = {"name": next_module, "value": 0, "delta": 0}
             tree["children"].append(new_module)
             return new_module
 
@@ -567,9 +579,9 @@ class MemapParser(object):
         Positional arguments:
         file_desc - the file to write out the final report to
         """
-        tree_text = {"name": ".text", "value": 0}
-        tree_bss = {"name": ".bss", "value": 0}
-        tree_data = {"name": ".data", "value": 0}
+        tree_text = {"name": ".text", "value": 0, "delta": 0}
+        tree_bss = {"name": ".bss", "value": 0, "delta": 0}
+        tree_data = {"name": ".data", "value": 0, "delta": 0}
         for name, dct in self.modules.items():
             cur_text = tree_text
             cur_bss = tree_bss
@@ -578,14 +590,17 @@ class MemapParser(object):
             while True:
                 try:
                     cur_text["value"] += dct['.text']
+                    cur_text["delta"] += dct['.text']
                 except KeyError:
                     pass
                 try:
                     cur_bss["value"] += dct['.bss']
+                    cur_bss["delta"] += dct['.bss']
                 except KeyError:
                     pass
                 try:
                     cur_data["value"] += dct['.data']
+                    cur_data["delta"] += dct['.data']
                 except KeyError:
                     pass
                 if not modules:
@@ -594,15 +609,43 @@ class MemapParser(object):
                 cur_text = self._move_up_tree(cur_text, next_module)
                 cur_data = self._move_up_tree(cur_data, next_module)
                 cur_bss = self._move_up_tree(cur_bss, next_module)
+        for name, dct in self.old_modules.items():
+            cur_text = tree_text
+            cur_bss = tree_bss
+            cur_data = tree_data
+            modules = name.split(sep)
+            while True:
+                try:
+                    cur_text["delta"] -= dct['.text']
+                except KeyError:
+                    pass
+                try:
+                    cur_bss["delta"] -= dct['.bss']
+                except KeyError:
+                    pass
+                try:
+                    cur_data["delta"] -= dct['.data']
+                except KeyError:
+                    pass
+                if not modules:
+                    break
+                next_module = modules.pop(0)
+                if not any(cld['name'] == next_module for cld in cur_text['children']):
+                    break
+                cur_text = self._move_up_tree(cur_text, next_module)
+                cur_data = self._move_up_tree(cur_data, next_module)
+                cur_bss = self._move_up_tree(cur_bss, next_module)
 
         tree_rom = {
             "name": "ROM",
             "value": tree_text["value"] + tree_data["value"],
+            "delta": tree_text["delta"] + tree_data["delta"],
             "children": [tree_text, tree_data]
         }
         tree_ram = {
             "name": "RAM",
             "value": tree_bss["value"] + tree_data["value"],
+            "delta": tree_bss["delta"] + tree_data["delta"],
             "children": [tree_bss, tree_data]
         }
 
@@ -646,7 +689,7 @@ class MemapParser(object):
         module_section = []
         sizes = []
         for i in sorted(self.short_modules):
-            for k in self.print_sections:
+            for k in self.print_sections + self.delta_sections:
                 module_section.append((i + k))
                 sizes += [self.short_modules[i][k]]
 
@@ -681,7 +724,8 @@ class MemapParser(object):
             row = [i]
 
             for k in self.print_sections:
-                row.append(self.short_modules[i][k])
+                row.append("{}({:+})".format(self.short_modules[i][k],
+                                             self.short_modules[i][k + "-delta"]))
 
             table.add_row(row)
 
@@ -724,7 +768,8 @@ class MemapParser(object):
                 self.mem_report.append({
                     "module": name,
                     "size":{
-                        k: sizes.get(k, 0) for k in self.print_sections
+                        k: sizes.get(k, 0) for k in (self.print_sections + 
+                                                     self.delta_sections)
                     }
                 })
 
@@ -741,16 +786,21 @@ class MemapParser(object):
         """
         self.tc_name = toolchain.title()
         if toolchain in ("ARM", "ARM_STD", "ARM_MICRO", "ARMC6"):
-            parser = _ArmccParser()
+            parser = _ArmccParser
         elif toolchain == "GCC_ARM" or toolchain == "GCC_CR":
-            parser = _GccParser()
+            parser = _GccParser
         elif toolchain == "IAR":
-            parser = _IarParser()
+            parser = _IarParser
         else:
             return False
         try:
             with open(mapfile, 'r') as file_input:
-                self.modules = parser.parse_mapfile(file_input)
+                self.modules = parser().parse_mapfile(file_input)
+            try:
+                with open("%s.old" % mapfile, 'r') as old_input:
+                    self.old_modules = parser().parse_mapfile(old_input)
+            except IOError:
+                self.old_modules = None
             return True
 
         except IOError as error:
