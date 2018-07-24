@@ -140,6 +140,10 @@ qspi_status_t qspi_init(qspi_t *obj, PinName io0, PinName io1, PinName io2, PinN
     __HAL_RCC_QSPI_FORCE_RESET();
     __HAL_RCC_QSPI_RELEASE_RESET();
 
+    // Reset handle internal state
+    obj->handle.State = HAL_QSPI_STATE_RESET;
+    obj->handle.Lock = HAL_UNLOCKED;
+
     // Set default QSPI handle values
     obj->handle.Init.ClockPrescaler = 1;
     obj->handle.Init.FifoThreshold = 1;
