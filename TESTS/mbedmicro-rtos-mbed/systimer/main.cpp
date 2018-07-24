@@ -99,6 +99,10 @@ void mock_ticker_fire_interrupt()
 {
 }
 
+void mock_ticker_free()
+{
+}
+
 const ticker_info_t *mock_ticker_get_info()
 {
     static const ticker_info_t mock_ticker_info = {
@@ -115,6 +119,7 @@ ticker_interface_t mock_ticker_interface = {
     .clear_interrupt = mock_ticker_clear_interrupt,
     .set_interrupt = mock_ticker_set_interrupt,
     .fire_interrupt = mock_ticker_fire_interrupt,
+    .free = mock_ticker_free,
     .get_info = mock_ticker_get_info,
 };
 
