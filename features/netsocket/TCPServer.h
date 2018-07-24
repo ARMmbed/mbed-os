@@ -56,17 +56,9 @@ public:
      */
     virtual ~TCPServer();
 
-    /** Listen for connections on a TCP socket
-     *
-     *  Marks the socket as a passive socket that can be used to accept
-     *  incoming connections.
-     *
-     *  @param backlog  Number of pending connections that can be queued
-     *                  simultaneously, defaults to 1
-     *  @return         0 on success, negative error code on failure
-     */
-    nsapi_error_t listen(int backlog = 1);
-    
+    // Allow legacy TCPServer::accept() to override inherited Socket::accept()
+    using TCPSocket::accept;
+
     /** Accepts a connection on a TCP socket
      *
      *  The server socket must be bound and set to listen for connections.
