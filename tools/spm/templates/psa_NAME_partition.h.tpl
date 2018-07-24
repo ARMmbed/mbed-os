@@ -22,6 +22,8 @@
 #ifndef PSA_{{partition.name|upper}}_PARTITION_H
 #define PSA_{{partition.name|upper}}_PARTITION_H
 
+#define {{partition.name|upper}}_ID {{partition.id}}
+
 {% if partition.rot_services|count > 0 %}
 #define {{partition.name|upper}}_ROT_SRV_COUNT ({{partition.rot_services|count}}UL)
 {% endif %}

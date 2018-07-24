@@ -37,7 +37,7 @@ extern const uint32_t {{partition.name|lower}}_external_sids[{{partition.extern_
 spm_partition_t g_partitions[{{partitions|count}}] = {
 {% for partition in partitions %}
     {
-        .partition_id = {{partition.id}},
+        .partition_id = {{partition.name|upper}}_ID,
         .thread_id = 0,
     {% if partition.rot_services|count > 0 %}
         .flags_rot_srv = {{partition.name|upper}}_WAIT_ANY_SID_MSK,
