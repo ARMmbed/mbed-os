@@ -18,22 +18,7 @@
 #include "spm_internal.h"
 #include "spm_panic.h"
 
-extern spm_db_t g_spm;
 bool core_util_atomic_cas_u8(volatile uint8_t *ptr, uint8_t *expectedCurrentValue, uint8_t desiredValue);
-
-spm_partition_t *get_active_partition(void)
-{
-    osThreadId_t active_thread_id = osThreadGetId();
-    SPM_ASSERT(NULL != active_thread_id);
-
-    for (uint32_t i = 0; i < g_spm.partition_count; ++i) {
-        if (g_spm.partitions[i].thread_id == active_thread_id) {
-            return &(g_spm.partitions[i]);
-        }
-    }
-
-    return NULL; // Valid in case of NSPE
-}
 
 inline void validate_iovec(
     const void *in_vec,

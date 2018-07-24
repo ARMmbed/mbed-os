@@ -175,7 +175,7 @@ typedef struct spm_db {
 } spm_db_t;
 
 /*
- * Returns a pointer to the secure partition struct of the active thread, or NULL for NSPE threads
+ * Returns a pointer to the currently active secure partition or NULL in case called from NSPE.
  */
 spm_partition_t *get_active_partition(void);
 
