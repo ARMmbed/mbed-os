@@ -59,6 +59,9 @@ public:
      */
     virtual ~TCPServer();
 
+    // Allow legacy TCPServer::accept() to override inherited Socket::accept()
+    using TCPSocket::accept;
+
     /** Accepts a connection on a TCP socket
      *
      *  The server socket must be bound and set to listen for connections.
