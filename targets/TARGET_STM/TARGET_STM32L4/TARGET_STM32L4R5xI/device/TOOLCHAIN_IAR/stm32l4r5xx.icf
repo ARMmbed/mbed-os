@@ -20,7 +20,7 @@ define region ROM_region = mem:[from __region_ROM_start__ to __region_ROM_end__]
 define region SRAM1_region = mem:[from __region_SRAM1_start__ to __region_SRAM1_end__];
 
 /* Stack and Heap */
-define symbol __size_cstack__ =  0x8000; /*  32KB */
+define symbol __size_cstack__ = 0x400; /* 1KB */
 define symbol __size_heap__   = 0x20000; /* 128KB */
 define block CSTACK    with alignment = 8, size = __size_cstack__   { };
 define block HEAP      with alignment = 8, size = __size_heap__     { };
