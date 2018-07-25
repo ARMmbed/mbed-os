@@ -1198,9 +1198,13 @@ def mcu_toolchain_matrix(verbose_html=False, platform_filter=None,
             row.append(text)
 
         for unique_toolchain in unique_supported_toolchains:
-            if (unique_toolchain in TARGET_MAP[target].supported_toolchains or
+            tgt_obj = TARGET_MAP[target]
+            if (unique_toolchain in tgt_obj.supported_toolchains or
                 (unique_toolchain == "ARMC6" and
-                 "ARM" in TARGET_MAP[target].supported_toolchains)):
+                 "ARM" in tgt_obj.supported_toolchains) or
+                (unique_toolchain == "ARM" and
+                 "ARMC6" in tgt_obj.supported_toolchains and
+                 CORE_ARCH[tgt_obj.core] == 8)):
                 text = "Supported"
                 perm_counter += 1
             else:
