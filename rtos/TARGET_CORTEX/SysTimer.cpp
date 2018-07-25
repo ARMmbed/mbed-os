@@ -178,6 +178,7 @@ void SysTimer::handler()
     } else {
         _set_irq_pending();
         _increment_tick();
+        schedule_tick();
     }
 
     core_util_critical_section_exit();
