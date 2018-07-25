@@ -355,6 +355,10 @@ void us_ticker_fire_interrupt(void)
     event_timer();                             // enable the timer and interrupt
 }
 
+void us_ticker_free(void)
+{
+
+}
 
 /*
 ** EOF

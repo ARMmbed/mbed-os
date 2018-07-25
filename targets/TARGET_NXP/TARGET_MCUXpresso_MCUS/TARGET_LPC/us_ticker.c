@@ -97,3 +97,8 @@ void us_ticker_fire_interrupt(void)
 {
     NVIC_SetPendingIRQ(CTIMER1_IRQn);
 }
+
+void us_ticker_free(void)
+{
+
+}

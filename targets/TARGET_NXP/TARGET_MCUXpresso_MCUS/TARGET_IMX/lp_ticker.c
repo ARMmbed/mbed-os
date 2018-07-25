@@ -112,4 +112,9 @@ void lp_ticker_clear_interrupt(void)
     GPT_ClearStatusFlags(GPT2, kGPT_OutputCompare1Flag);
 }
 
+void lp_ticker_free(void)
+{
+
+}
+
 #endif /* DEVICE_LPTICKER */

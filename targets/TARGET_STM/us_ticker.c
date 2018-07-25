@@ -256,3 +256,9 @@ void restore_timer_ctx(void)
     __HAL_TIM_SET_COMPARE(&TimMasterHandle, TIM_CHANNEL_1, timer_ccr1_reg);
     TIM_MST->DIER = timer_dier_reg;
 }
+
+void us_ticker_free(void)
+{
+
+}
+

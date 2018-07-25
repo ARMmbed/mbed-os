@@ -83,3 +83,8 @@ void us_ticker_clear_interrupt(void)
     TSB_T32A0->STC = T32A_INT_MASK;
     NVIC_ClearPendingIRQ(INTT32A00C_IRQn);
 }
+
+void us_ticker_free(void)
+{
+
+}

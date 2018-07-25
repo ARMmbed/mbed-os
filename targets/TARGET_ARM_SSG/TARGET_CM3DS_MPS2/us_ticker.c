@@ -112,6 +112,11 @@ void us_ticker_fire_interrupt(void)
     cmsdk_ticker_fire_interrupt(&timer_data);
 }
 
+void us_ticker_free(void)
+{
+
+}
+
 void TIMER0_IRQHandler(void)
 {
     cmsdk_ticker_irq_handler(&timer_data);

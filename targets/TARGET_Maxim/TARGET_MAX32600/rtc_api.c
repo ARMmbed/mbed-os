@@ -255,3 +255,8 @@ uint32_t lp_ticker_read(void)
 {
     return rtc_read64();
 }
+
+void lp_ticker_free(void)
+{
+
+}

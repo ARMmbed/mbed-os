@@ -223,3 +223,8 @@ void us_ticker_fire_interrupt(void)
 
 #endif
 }
+
+void us_ticker_free(void)
+{
+
+}

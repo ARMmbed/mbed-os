@@ -117,4 +117,9 @@ void lp_ticker_clear_interrupt(void)
     LPTMR_ClearStatusFlags(LPTMR0, kLPTMR_TimerCompareFlag);
 }
 
+void lp_ticker_free(void)
+{
+
+}
+
 #endif /* DEVICE_LPTICKER */

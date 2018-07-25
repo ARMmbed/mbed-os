@@ -229,7 +229,10 @@ void lp_ticker_clear_interrupt(void)
     NVIC_ClearPendingIRQ(LPTIM1_IRQn);
 }
 
+void lp_ticker_free(void)
+{
 
+}
 
 /*****************************************************************/
 /* lpticker_lptim config is 0 or not defined in json config file */
@@ -276,6 +279,11 @@ void lp_ticker_disable_interrupt(void)
 void lp_ticker_clear_interrupt(void)
 {
     NVIC_DisableIRQ(RTC_WKUP_IRQn);
+}
+
+void lp_ticker_free(void)
+{
+
 }
 
 #endif /* MBED_CONF_TARGET_LPTICKER_LPTIM */
