@@ -25,6 +25,7 @@
 #include <algorithm>
 #include "FlashIAP.h"
 #include "mbed_assert.h"
+#include "mbed.h"
 
 
 #ifdef DEVICE_FLASH
@@ -35,11 +36,8 @@ SingletonPtr<PlatformMutex> FlashIAP::_mutex;
 
 static inline bool is_aligned(uint32_t number, uint32_t alignment)
 {
-    if ((number % alignment) != 0) {
-        return false;
-    } else {
-        return true;
-    }
+	MBED_VALIDATE_EXP(((number % alignment) != 0), 1, return false);
+    return true;
 }
 
 FlashIAP::FlashIAP()
@@ -56,9 +54,8 @@ int FlashIAP::init()
 {
     int ret = 0;
     _mutex->lock();
-    if (flash_init(&_flash)) {
-        ret = -1;
-    }
+    MBED_VALIDATE_EXP(flash_init(&_flash), 1 , ret = -1);
+
     uint32_t page_size = get_page_size();
     _page_buf = new uint8_t[page_size];
 
@@ -70,9 +67,8 @@ int FlashIAP::deinit()
 {
     int ret = 0;
     _mutex->lock();
-    if (flash_free(&_flash)) {
-        ret = -1;
-    }
+    MBED_VALIDATE_EXP(flash_free(&_flash), 1 , ret = -1);
+
     delete[] _page_buf;
     _mutex->unlock();
     return ret;
@@ -98,10 +94,8 @@ int FlashIAP::program(const void *buffer, uint32_t addr, uint32_t size)
     const uint8_t *prog_buf;
 
     // addr should be aligned to page size
-    if (!is_aligned(addr, page_size) || (!buffer) ||
-            ((addr + size) > (flash_start_addr + flash_size))) {
-        return -1;
-    }
+    MBED_VALIDATE_EXP(!is_aligned(addr, page_size) || (!buffer) ||
+            ((addr + size) > (flash_start_addr + flash_size)) , 1 , return -1);
 
     int ret = 0;
     _mutex->lock();
@@ -126,10 +120,8 @@ int FlashIAP::program(const void *buffer, uint32_t addr, uint32_t size)
             prog_buf = buf;
             prog_size = chunk;
         }
-        if (flash_program_page(&_flash, addr, prog_buf, prog_size)) {
-            ret = -1;
-            break;
-        }
+        MBED_VALIDATE_EXP(flash_program_page(&_flash, addr, prog_buf, prog_size), 1, ret = -1; break; );
+
         size -= chunk;
         addr += chunk;
         buf += chunk;
@@ -142,12 +134,9 @@ int FlashIAP::program(const void *buffer, uint32_t addr, uint32_t size)
 bool FlashIAP::is_aligned_to_sector(uint32_t addr, uint32_t size)
 {
     uint32_t current_sector_size = flash_get_sector_size(&_flash, addr);
-    if (!is_aligned(size, current_sector_size) ||
-            !is_aligned(addr, current_sector_size)) {
-        return false;
-    } else {
-        return true;
-    }
+    MBED_VALIDATE_EXP(!is_aligned(size, current_sector_size) || !is_aligned(addr, current_sector_size), 1, return false);
+    return true;
+
 }
 
 int FlashIAP::erase(uint32_t addr, uint32_t size)
@@ -157,14 +146,10 @@ int FlashIAP::erase(uint32_t addr, uint32_t size)
     uint32_t flash_start_addr = flash_get_start_address(&_flash);
     uint32_t flash_end_addr = flash_start_addr + flash_size;
     uint32_t erase_end_addr = addr + size;
-
-    if (erase_end_addr > flash_end_addr) {
-        return -1;
-    } else if (erase_end_addr < flash_end_addr) {
+    MBED_VALIDATE_EXP(erase_end_addr > flash_end_addr, 1, return -1);
+    if (erase_end_addr < flash_end_addr) {
         uint32_t following_sector_size = flash_get_sector_size(&_flash, erase_end_addr);
-        if (!is_aligned(erase_end_addr, following_sector_size)) {
-            return -1;
-        }
+        MBED_VALIDATE_EXP(!is_aligned(erase_end_addr, following_sector_size), 1, return -1);
     }
 
     int32_t ret = 0;
