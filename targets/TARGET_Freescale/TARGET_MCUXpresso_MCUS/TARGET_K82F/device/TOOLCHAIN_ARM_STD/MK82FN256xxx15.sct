@@ -1,4 +1,5 @@
 #! armcc -E
+#include "mbed_config.h"
 /*
 ** ###################################################################
 **     Processors:          MK82FN256CAx15
@@ -81,7 +82,11 @@
 #if (defined(__stack_size__))
   #define Stack_Size                   __stack_size__
 #else
-  #define Stack_Size                   0x0400
+  #if (defined(MBED_CONF_RTOS_PRESENT))
+    #define Stack_Size                   0x0400
+  #else
+    #define Stack_Size                   0x1000
+  #endif
 #endif
 
 #if (defined(__heap_size__))
@@ -119,5 +124,7 @@ LR_IROM1 m_interrupts_start m_text_start+m_text_size-m_interrupts_start { ; load
     .ANY (+RW +ZI)
   }
   RW_IRAM1 ImageLimit(RW_m_data_2) { ; Heap region growing up
+  }
+  ARM_LIB_STACK m_data_2_start+m_data_2_size EMPTY -Stack_Size { ; Stack region growing down
   }
 }

@@ -242,15 +242,16 @@ SECTIONS
     __end__ = .;
     PROVIDE(end = .);
     __HeapBase = .;
-    . += HEAP_SIZE;
+    . = ORIGIN(m_data) + LENGTH(m_data) - Stack_Size;
     __HeapLimit = .;
     __heap_limit = .; /* Add for _sbrk */
   } > m_data
 
-  .stack :
+  .stack_dummy (NOLOAD):
   {
     . = ALIGN(8);
-    . += STACK_SIZE;
+    *(.stack*)
+    . += Stack_Size;
   } > m_data
 
   m_usb_bdt USB_RAM_START (NOLOAD) :
@@ -266,7 +267,7 @@ SECTIONS
 
   /* Initializes stack on the end of block */
   __StackTop   = ORIGIN(m_data) + LENGTH(m_data);
-  __StackLimit = __StackTop - STACK_SIZE;
+  __StackLimit = __StackTop - Stack_Size;
   PROVIDE(__stack = __StackTop);
 
   .ARM.attributes 0 : { *(.ARM.attributes) }

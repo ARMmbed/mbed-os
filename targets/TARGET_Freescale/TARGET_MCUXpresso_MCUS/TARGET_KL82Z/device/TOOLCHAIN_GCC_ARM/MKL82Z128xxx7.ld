@@ -53,14 +53,6 @@ ENTRY(Reset_Handler)
 
 __ram_vector_table__ = 1;
 
-/* With the RTOS in use, this does not affect the main stack size. The size of
- * the stack where main runs is determined via the RTOS. */
-__stack_size__ = 0x400;
-
-__heap_size__ = 0x6000;
-
-HEAP_SIZE  = DEFINED(__heap_size__)  ? __heap_size__  : 0x0400;
-STACK_SIZE = DEFINED(__stack_size__) ? __stack_size__ : 0x0400;
 M_VECTOR_RAM_SIZE = DEFINED(__ram_vector_table__) ? 0x0140 : 0x0;
 
 /* Specify the memory areas */
@@ -254,15 +246,16 @@ SECTIONS
     __end__ = .;
     PROVIDE(end = .);
     __HeapBase = .;
-    . += HEAP_SIZE;
+    . = ORIGIN(m_data) + LENGTH(m_data) - Stack_Size;
     __HeapLimit = .;
     __heap_limit = .; /* Add for _sbrk */
   } > m_data
 
-  .stack :
+  .stack_dummy (NOLOAD):
   {
     . = ALIGN(8);
-    . += STACK_SIZE;
+    *(.stack*)
+    . += Stack_Size;
   } > m_data
 
   USB_RAM_START = DEFINED(__usb_use_usbram__) ? ORIGIN(m_usb_sram) : USB_RAM_START;
@@ -279,7 +272,7 @@ SECTIONS
 
   /* Initializes stack on the end of block */
   __StackTop   = ORIGIN(m_data) + LENGTH(m_data);
-  __StackLimit = __StackTop - STACK_SIZE;
+  __StackLimit = __StackTop - Stack_Size;
   PROVIDE(__stack = __StackTop);
 
   .ARM.attributes 0 : { *(.ARM.attributes) }

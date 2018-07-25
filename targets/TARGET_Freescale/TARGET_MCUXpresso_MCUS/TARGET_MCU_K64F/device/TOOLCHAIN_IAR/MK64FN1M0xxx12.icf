@@ -49,8 +49,7 @@
 */
 define symbol __ram_vector_table__ = 1;
 
-/* Heap 1/4 of ram and stack 1/8 */
-define symbol __stack_size__=0x8000;
+define symbol __stack_size__=0x400;
 define symbol __heap_size__=0x10000;
 
 if (!isdefinedsymbol(MBED_APP_START)) {
@@ -124,4 +123,3 @@ place in DATA_region                        { block ZI };
 place in DATA_region                        { last block HEAP };
 place in CSTACK_region                      { block CSTACK };
 place in m_interrupts_ram_region            { section m_interrupts_ram };
-
