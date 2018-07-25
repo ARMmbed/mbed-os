@@ -23,7 +23,7 @@ I2CEEBlockDevice::I2CEEBlockDevice(
         bd_size_t size, bd_size_t block, int freq)
     : _i2c_addr(addr), _size(size), _block(block)
 {
-    _i2c = new I2C(sda, scl);
+    _i2c = new (_i2c_buffer) I2C(sda, scl);
     _i2c->frequency(freq);
 }
 
@@ -36,7 +36,9 @@ I2CEEBlockDevice::I2CEEBlockDevice(
 }
 I2CEEBlockDevice::~I2CEEBlockDevice()
 {
-    _i2c->~I2C();
+    if (_i2c == (I2C*)_i2c_buffer) {
+        _i2c->~I2C();
+    }
 }
 
 int I2CEEBlockDevice::init()

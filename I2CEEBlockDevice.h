@@ -159,6 +159,7 @@ public:
     
 private:
     I2C * _i2c;
+    uint32_t _i2c_buffer[sizeof(I2C) / sizeof(uint32_t)];
     uint8_t _i2c_addr;
     uint32_t _size;
     uint32_t _block;
