@@ -24,6 +24,8 @@
 
 #include "platform/mbed_retarget.h"
 #include "platform/mbed_toolchain.h"
+#include "platform/mbed_interface.h"
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -194,6 +196,49 @@ typedef int mbed_error_status_t;
 #define MBED_ERROR( error_status, error_msg )                     mbed_error( error_status, (const char *)error_msg, (uint32_t)0          , NULL, 0 )
 #endif
 #endif
+
+
+
+/**
+ * Macros for setting a system warning. These macros will log the error, Its a wrapper for calling mbed_warning API.
+ * There are 2 versions of this macro. MBED_WARNING takes status and message. MBED_WARNING1 takes an additional context specific argument
+ * @param  error_status     mbed_error_status_t status to be set(See mbed_error_status_t enum above for available error status values).
+ * @param  error_msg        The error message to be printed out to STDIO/Serial.
+ * @param  error_value      Value associated with the error status. This would depend on error code/error scenario.
+ *
+ * @code
+ *
+ * MBED_VALIDATE_EXP( ERROR_INVALID_SIZE, "MyDriver: Invalid size in read" )
+ * MBED_VALIDATE_EXP( ERROR_INVALID_SIZE, "MyDriver: Invalid size in read", size_val )
+ *
+ * @endcode
+ * @note The macro calls mbed_warning API with filename and line number info without caller explicitly passing them.
+ *        Since this macro is a wrapper for mbed_warning API callers should process the return value from this macro which is the return value from calling mbed_error API.
+ *
+ */
+#ifdef NDEBUG
+
+	#define MBED_VALIDATE_EXP( expression , perform_action, action ) ((void)0)
+
+#else //NDEBUG
+
+	inline void mbed_validate_fail(char* file, int line)
+	{
+		mbed_error_printf("mbed validation failed:  file: %s, line %d \n", file, line);
+	}
+
+	#define MBED_VALIDATE_EXP( expression , perform_action, action ) \
+	{ \
+		if (expression) \
+		{\
+			mbed_validate_fail(__FILE__, __LINE__); \
+			if (perform_action) \
+			action; \
+		}\
+	}
+
+#endif
+
 
 //Error Type definition
 /** mbed_error_type_t definition
