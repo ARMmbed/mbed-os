@@ -132,7 +132,6 @@
  * IAR Default Memory layout notes:
  * -Heap defined by "HEAP" region in .icf file
  * -Interrupt stack defined by "CSTACK" region in .icf file
- * -Value INITIAL_SP is ignored
  *
  * IAR Custom Memory layout notes:
  * -There is no custom layout available for IAR - everything must be defined in
@@ -140,9 +139,8 @@
  *
  *
  * GCC Default Memory layout notes:
- * -Block of memory from symbol __end__ to define INITIAL_SP used to setup interrupt
+ * -Block of memory from symbol __end__ to define ISR_STACK_START used to setup interrupt
  *      stack and heap in the function set_stack_heap()
- * -ISR_STACK_SIZE can be overridden to be larger or smaller
  *
  * GCC Custom Memory layout notes:
  * -Heap can be explicitly placed by defining both HEAP_START and HEAP_SIZE
@@ -150,9 +148,8 @@
  *
  *
  * ARM Memory layout
- * -Block of memory from end of region "RW_IRAM1" to define INITIAL_SP used to setup interrupt
+ * -Block of memory from end of region "RW_IRAM1" to define ISR_STACK_START used to setup interrupt
  *      stack and heap in the function set_stack_heap()
- * -ISR_STACK_SIZE can be overridden to be larger or smaller
  *
  * ARM Custom Memory layout notes:
  * -Heap can be explicitly placed by defining both HEAP_START and HEAP_SIZE
@@ -213,12 +210,6 @@ osMutexAttr_t             singleton_mutex_attr;
     #error "HEAP_START must be defined if HEAP_SIZE is defined"
 #endif
 
-/* IAR - INITIAL_SP and HEAP_START ignored as described in Memory layout notes above
- */
-#if !defined(__ICCARM__) && !defined(INITIAL_SP) && !defined(HEAP_START)
-    #error "no target defined"
-#endif
-
 /* Interrupt stack and heap always defined for IAR
  * Main thread defined here
  */
@@ -231,6 +222,22 @@ osMutexAttr_t             singleton_mutex_attr;
     #define ISR_STACK_SIZE      ((uint32_t)__section_size("CSTACK"))
 #endif
 
+/* Define ISR stack region if it has not been defined already */
+#if !defined(ISR_STACK_START)
+    #if (defined(__GNUC__) && !defined(__CC_ARM) && !defined(__ARMCC_VERSION))
+        extern uint32_t               __StackLimit;
+        extern uint32_t               __StackTop;
+        #define ISR_STACK_START       ((unsigned char*)&__StackLimit)
+        #define ISR_STACK_SIZE        ((uint32_t)((uint32_t)&__StackTop - (uint32_t)&__StackLimit))
+    #elif (defined(__CC_ARM))
+        extern uint32_t               Image$$ARM_LIB_STACK$$ZI$$Base[];
+        extern uint32_t               Image$$ARM_LIB_STACK$$ZI$$Length[];
+        #define ISR_STACK_START       ((unsigned char*)Image$$ARM_LIB_STACK$$ZI$$Base)
+        #define ISR_STACK_SIZE        ((uint32_t)Image$$ARM_LIB_STACK$$ZI$$Length)
+    #endif
+#endif
+
+
 /* Define heap region if it has not been defined already */
 #if !defined(HEAP_START)
     #if defined(__ICCARM__)
@@ -238,12 +245,18 @@ osMutexAttr_t             singleton_mutex_attr;
     #elif defined(__CC_ARM) || (defined (__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
         extern uint32_t          Image$$RW_IRAM1$$ZI$$Limit[];
         #define HEAP_START      ((unsigned char*)Image$$RW_IRAM1$$ZI$$Limit)
-        #define HEAP_SIZE       ((uint32_t)((uint32_t)INITIAL_SP - (uint32_t)HEAP_START))
+        #define HEAP_SIZE       ((uint32_t)((uint32_t)ISR_STACK_START - (uint32_t)HEAP_START))
     #elif defined(__GNUC__)
         extern uint32_t         __end__[];
         #define HEAP_START      ((unsigned char*)__end__)
-        #define HEAP_SIZE       ((uint32_t)((uint32_t)INITIAL_SP - (uint32_t)HEAP_START))
+        #define HEAP_SIZE       ((uint32_t)((uint32_t)ISR_STACK_START - (uint32_t)HEAP_START))
     #endif
+#endif
+
+/* IAR - ISR_STACK_START and HEAP_START ignored as described in Memory layout notes above
+ */
+#if !defined(__ICCARM__) && !defined(ISR_STACK_START) && !defined(HEAP_START)
+    #error "no target defined"
 #endif
 
 /* Define stack sizes if they haven't been set already */
