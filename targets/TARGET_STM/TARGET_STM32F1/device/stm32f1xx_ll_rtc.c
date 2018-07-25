@@ -1,9 +1,7 @@
 /**
   ******************************************************************************
   * @file    stm32f1xx_ll_rtc.c
-  * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    14-April-2017                                                                                          
+  * @author  MCD Application Team                                                                                          
   * @brief   RTC LL module driver.
   ******************************************************************************
   * @attention
