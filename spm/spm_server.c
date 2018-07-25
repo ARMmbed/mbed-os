@@ -186,7 +186,7 @@ static spm_ipc_channel_t *spm_rot_service_queue_dequeue(spm_rot_service_t *rot_s
         uint32_t flags = osThreadFlagsClear(rot_service->mask);
 
         // osThreadFlagsClear() sets the msb on failure
-        SPM_ASSERT((flags & 0x80000000) == 0);
+        SPM_ASSERT((flags & SPM_CMSIS_RTOS_ERROR_BIT_MSK) == 0);
         SPM_ASSERT(flags & rot_service->mask);
         PSA_UNUSED(flags);
     }
@@ -517,7 +517,7 @@ void psa_notify(int32_t partition_id)
     // osThreadFlagsSet() sets the msb on failure
     // flags is allowed to be 0 since by the time osThreadFlagsSet() returns
     // the flag could have been cleared by another thread
-    SPM_ASSERT((flags & 0x80000000) == 0);
+    SPM_ASSERT((flags & SPM_CMSIS_RTOS_ERROR_BIT_MSK) == 0);
     PSA_UNUSED(flags);
 }
 
@@ -526,7 +526,7 @@ void psa_clear(void)
     uint32_t flags = osThreadFlagsClear(PSA_DOORBELL);
 
     // osThreadFlagsClear() sets the msb on failure
-    SPM_ASSERT((flags & 0x80000000) == 0);
+    SPM_ASSERT((flags & SPM_CMSIS_RTOS_ERROR_BIT_MSK) == 0);
 
     // psa_clear() must not be called when doorbell signal is not currently asserted
     if ((flags & PSA_DOORBELL) != PSA_DOORBELL) {
@@ -571,7 +571,7 @@ void psa_eoi(uint32_t irq_signal)
     IRQn_Type irq_line = curr_partition->irq_mapper(irq_signal);
     uint32_t flags = osThreadFlagsClear(irq_signal);
     // osThreadFlagsClear() sets the msb on failure
-    SPM_ASSERT((flags & 0x80000000) == 0);
+    SPM_ASSERT((flags & SPM_CMSIS_RTOS_ERROR_BIT_MSK) == 0);
 
     // psa_eoi() must not be called with an unasserted flag.
     if ((flags & irq_signal) != irq_signal) {

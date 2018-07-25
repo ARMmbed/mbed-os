@@ -39,7 +39,7 @@ void part1_main(void *ptr)
         if (msg.handle != PSA_NULL_HANDLE) {
             client_id = psa_identity(msg.handle);
             if (client_id != PSA_NSPE_IDENTIFIER) {
-                SPM_PANIC("Recieved message from unexpected source (0x%08x)\n", client_id);
+                SPM_PANIC("Received message from unexpected source (0x%08x)\n", client_id);
             }
         }
 
@@ -50,7 +50,7 @@ void part1_main(void *ptr)
                     ((msg.in_size[0] + msg.in_size[1] + msg.in_size[2] + msg.in_size[3]) != ACTUAL_MSG_SIZE) ||
                     (msg.out_size[0] != SERVER_RSP_BUF_SIZE)
                 ) {
-                    SPM_PANIC("Recieved message does not comply with message convention");
+                    SPM_PANIC("Received message does not comply with message convention");
                 }
 
 

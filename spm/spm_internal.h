@@ -45,6 +45,8 @@ extern "C" {
 
 #define MEM_PARTITIONS_ALL (0) /* A constant to use to retrieve the memory regions for all the partitions at once. */
 
+#define SPM_CMSIS_RTOS_ERROR_BIT_MSK (0x80000000)
+
 #ifndef TRUE
 #define TRUE (1)
 #endif

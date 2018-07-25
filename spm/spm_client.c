@@ -96,7 +96,7 @@ static void spm_rot_service_queue_enqueue(spm_rot_service_t *rot_service, spm_ip
     // osThreadFlagsSet() sets the msb on failure.
     // flags is not allowed to be 0 since only dequeue operation can clear the flags,
     // and both operations (enqueue and dequeue) are mutex protected.
-    SPM_ASSERT((flags & 0x80000000) == 0);
+    SPM_ASSERT((flags & SPM_CMSIS_RTOS_ERROR_BIT_MSK) == 0);
     SPM_ASSERT(flags & rot_service->mask);
     PSA_UNUSED(flags);
 
