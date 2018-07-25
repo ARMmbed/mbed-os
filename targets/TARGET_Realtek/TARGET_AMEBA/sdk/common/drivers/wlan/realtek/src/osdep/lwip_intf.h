@@ -28,7 +28,7 @@ struct netif;
 //----- ------------------------------------------------------------------
 // Ethernet Buffer
 //----- ------------------------------------------------------------------
-#if DEVICE_EMAC
+#if defined(CONFIG_MBED_ENABLED)
 struct eth_drv_sg {
     unsigned int buf;
     unsigned int len;
@@ -66,7 +66,7 @@ void netif_rx(int idx, unsigned int len);
 void netif_post_sleep_processing(void);
 void netif_pre_sleep_processing(void);
 #if (CONFIG_LWIP_LAYER == 1)
-#if !DEVICE_EMAC
+#if !defined(CONFIG_MBED_ENABLED)
 extern void ethernetif_recv(struct netif *netif, int total_len);
 #endif
 extern void lwip_PRE_SLEEP_PROCESSING(void);
