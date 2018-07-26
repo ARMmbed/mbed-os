@@ -6939,6 +6939,7 @@
             "PORTINOUT",
             "PORTOUT",
             "PWMOUT",
+            "RTC",
             "SERIAL",
             "SERIAL_ASYNCH",
             "SERIAL_FC",
