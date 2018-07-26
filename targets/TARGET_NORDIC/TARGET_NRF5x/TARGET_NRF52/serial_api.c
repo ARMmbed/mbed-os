@@ -46,8 +46,7 @@
 #include "nrf_atfifo.h"
 #include "app_util_platform.h"
 #include "pinmap_ex.h"
-#include "nrf_drv_ppi.h"
-#include "nrf_drv_gpiote.h"
+#include "nrfx_glue.h"
 
 #include "platform/mbed_critical.h"
 
@@ -848,9 +847,32 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
             nrf_drv_gpiote_init();
         }
 
+        /* Register RTC2 ISR. */
+        NVIC_SetVector(RTC2_IRQn, (uint32_t) nordic_nrf5_rtc2_handler);
+
+        /* Clear RTC2 channel events. */
+        nrf_rtc_event_clear(NRF_RTC2, NRF_RTC_EVENT_COMPARE_0);
+        nrf_rtc_event_clear(NRF_RTC2, NRF_RTC_EVENT_COMPARE_1);
+
+        /* Enable interrupts for all four RTC2 channels. */
+        nrf_rtc_event_enable(NRF_RTC2,
+                             NRF_RTC_INT_COMPARE0_MASK |
+                             NRF_RTC_INT_COMPARE1_MASK);
+
+        /* Enable RTC2 IRQ. Priority is set to highest so that the UARTE ISR can't interrupt it. */
+        NRFX_IRQ_PRIORITY_SET(nrfx_get_irq_number((void const*)RTC2_IRQn), APP_IRQ_PRIORITY_HIGHEST);
+        NRFX_IRQ_ENABLE(nrfx_get_irq_number((void const*)RTC2_IRQn));
+
+
+        /* Start RTC2. According to the datasheet the added power consumption is neglible so
+         * the RTC2 will run forever.
+         */
+        nrf_rtc_task_trigger(NRF_RTC2, NRF_RTC_TASK_START);
+
         /* Enable interrupts for SWI. */
         NVIC_SetVector(SWI0_EGU0_IRQn, (uint32_t) nordic_nrf5_uart_swi0);
-        nrf_drv_common_irq_enable(SWI0_EGU0_IRQn, APP_IRQ_PRIORITY_LOWEST);
+        NRFX_IRQ_PRIORITY_SET(nrfx_get_irq_number((void const*)SWI0_EGU0_IRQn), APP_IRQ_PRIORITY_LOWEST);
+        NRFX_IRQ_ENABLE(nrfx_get_irq_number((void const*)SWI0_EGU0_IRQn));
 
         /* Initialize FIFO buffer for UARTE0. */
         NRF_ATFIFO_INIT(nordic_nrf5_uart_fifo_0);
@@ -870,7 +892,8 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         nrf_uarte_int_disable(nordic_nrf5_uart_register[0], 0xFFFFFFFF);
 
         NVIC_SetVector(UARTE0_UART0_IRQn, (uint32_t) nordic_nrf5_uart0_handler);
-        nrf_drv_common_irq_enable(UARTE0_UART0_IRQn, APP_IRQ_PRIORITY_HIGHEST);
+        NRFX_IRQ_PRIORITY_SET(nrfx_get_irq_number((void const*)UARTE0_UART0_IRQn), APP_IRQ_PRIORITY_HIGHEST);
+        NRFX_IRQ_ENABLE(nrfx_get_irq_number((void const*)UARTE0_UART0_IRQn));
 
 #if UART1_ENABLED
         /* Initialize FIFO buffer for UARTE1. */
@@ -891,7 +914,8 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         nrf_uarte_int_disable(nordic_nrf5_uart_register[1], 0xFFFFFFFF);
 
         NVIC_SetVector(UARTE1_IRQn, (uint32_t) nordic_nrf5_uart1_handler);
-        nrf_drv_common_irq_enable(UARTE1_IRQn, APP_IRQ_PRIORITY_HIGHEST);
+        NRFX_IRQ_PRIORITY_SET(nrfx_get_irq_number(UARTE1_IRQn), APP_IRQ_PRIORITY_HIGHEST);
+        NRFX_IRQ_ENABLE(nrfx_get_irq_number(UARTE1_IRQn));
 #endif
     }
 

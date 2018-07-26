@@ -54,9 +54,7 @@ extern "C" {
  *        the needs of the host environment into which @em nrfx is integrated.
  */
 
-// RF - remove the legacy layer... this is preventing driver instances from being generated
 #include <legacy/apply_old_config.h>
-
 #include <soc/nrfx_irqs.h>
 
 //------------------------------------------------------------------------------

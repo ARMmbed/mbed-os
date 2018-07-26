@@ -231,8 +231,10 @@ void i2c_configure_twi_instance(i2c_t *obj)
         /* Force resource release. This is necessary because mbed drivers don't
          * deinitialize on object destruction.
          */
-        nrf_drv_common_irq_disable(nrf_drv_get_IRQn((void *) nordic_nrf5_twi_register[instance]));
-        nrf_drv_common_per_res_release(nordic_nrf5_twi_register[instance]);
+        NRFX_IRQ_DISABLE((nrfx_get_irq_number((void const*)nordic_nrf5_twi_register[instance])));
+//        RF - there doesn't appear to be a replacement for nrf_drv_common_per_res_release() !
+//        futher investigation required
+//        nrf_drv_common_per_res_release(nordic_nrf5_twi_register[instance]);
 
         /* Reset shorts register. */
         nrf_twi_shorts_set(nordic_nrf5_twi_register[instance], 0);
@@ -564,8 +566,9 @@ static void i2c_configure_driver_instance(i2c_t *obj)
         /* Force resource release. This is necessary because mbed drivers don't
          * deinitialize on object destruction.
          */
-        nrf_drv_common_irq_disable(nrf_drv_get_IRQn((void *) nordic_nrf5_twi_register[instance]));
-        nrf_drv_common_per_res_release(nordic_nrf5_twi_register[instance]);
+        NRFX_IRQ_DISABLE((nrfx_get_irq_number((void const*)nordic_nrf5_twi_register[instance])));
+//        RF - there doesn't appear to be a replacement for nrf_drv_common_per_res_release() !
+//        nrf_drv_common_per_res_release(nordic_nrf5_twi_register[instance]);
 
         /* Configure driver with new settings. */
         nrf_drv_twi_config_t twi_config = {

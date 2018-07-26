@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (c) 2013 Nordic Semiconductor ASA
  * All rights reserved.
  * 
@@ -21,7 +21,7 @@
  *      Nordic Semiconductor ASA integrated circuit.
  *
  *   5. Any software provided in binary or object form under this license must not be reverse 
- *      engineered, decompiled, modified and/or disassembled. 
+ *      engineered, decompiled, modified and/or disassembled.
  * 
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
@@ -41,7 +41,7 @@
 #if DEVICE_RTC
 
 #include "common_rtc.h"
-#include "nrf_drv_clock.h"
+#include "nrf_rtc.h"
 #include "app_util_platform.h"
 
 static time_t m_time_base;
