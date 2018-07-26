@@ -98,6 +98,7 @@ protected:
         bool started; // socket has been opened on modem stack
         bool tx_ready; // socket is ready for sending on modem stack
         bool rx_avail; // socket has data for reading on modem stack
+        volatile nsapi_size_t pending_bytes; // The number of received bytes pending
     };
 
     /**

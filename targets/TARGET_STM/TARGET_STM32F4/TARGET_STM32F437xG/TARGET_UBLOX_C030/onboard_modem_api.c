@@ -75,8 +75,10 @@ void onboard_modem_power_down()
     press_power_button(1500000);
 #else
 	/* keep the power line low for 1 seconds */
-    press_power_button(1000000);
+    press_power_button(1500000);
 #endif
+    /* wait for modem to power off properly*/
+    wait(10);
 }
 
 #endif //MODEM_ON_BOARD
