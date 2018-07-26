@@ -1755,9 +1755,7 @@ lorawan_status_t LoRaMac::initialize(EventQueue *queue)
     _params.timers.mac_init_time = _lora_time.get_current_time();
 
     _params.sys_params.adr_on = MBED_CONF_LORA_ADR_ON;
-
-    _params.is_nwk_public = MBED_CONF_LORA_PUBLIC_NETWORK;
-    _lora_phy->setup_public_network_mode(MBED_CONF_LORA_PUBLIC_NETWORK);
+    _params.sys_params.channel_data_rate = _lora_phy->get_default_max_tx_datarate();
 
     return LORAWAN_STATUS_OK;
 }

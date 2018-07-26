@@ -514,13 +514,16 @@ void LoRaPHY::reset_to_default_values(loramac_protocol_params *params, bool init
 
     params->sys_params.channel_tx_power = get_default_tx_power();
 
-    params->sys_params.channel_data_rate = get_default_tx_datarate();
+    // We shall always start with highest achievable data rate.
+    // Subsequent decrease in data rate will mean increase in range henceforth.
+    params->sys_params.channel_data_rate = get_default_max_tx_datarate();
 
     params->sys_params.rx1_dr_offset = phy_params.default_rx1_dr_offset;
 
     params->sys_params.rx2_channel.frequency = get_default_rx2_frequency();
 
-    params->sys_params.rx2_channel.datarate = get_default_rx2_datarate();
+    // RX2 data rate should also start from the maximum
+    params->sys_params.rx2_channel.datarate = get_default_max_tx_datarate();
 
     params->sys_params.uplink_dwell_time = phy_params.ul_dwell_time_setting;
 
@@ -558,6 +561,11 @@ uint8_t LoRaPHY::get_minimum_tx_datarate()
 uint8_t LoRaPHY::get_default_tx_datarate()
 {
     return phy_params.default_datarate;
+}
+
+uint8_t  LoRaPHY::get_default_max_tx_datarate()
+{
+    return phy_params.default_max_datarate;
 }
 
 uint8_t LoRaPHY::get_default_tx_power()
