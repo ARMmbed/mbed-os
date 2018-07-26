@@ -276,7 +276,8 @@ class Resources(object):
     def _all_parents(self, files):
         for name in files:
             components = name.split(self._sep)
-            for n in range(1, len(components)):
+            start_at = 2 if components[0] == '' else 1
+            for n in range(start_at, len(components)):
                 parent = self._sep.join(components[:n])
                 yield parent
 
