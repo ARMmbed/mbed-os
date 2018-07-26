@@ -273,23 +273,28 @@ if __name__ == '__main__':
             build_dir = options.build_dir
 
         try:
-            bin_file = build_project(test.source_dir, build_dir, mcu, toolchain,
-                                     set(test.dependencies),
-                                     linker_script=options.linker_script,
-                                     clean=options.clean,
-                                     notify=notify,
-                                     report=build_data_blob,
-                                     macros=options.macros,
-                                     jobs=options.jobs,
-                                     name=options.artifact_name,
-                                     app_config=options.app_config,
-                                     inc_dirs=[dirname(MBED_LIBRARIES)],
-                                     build_profile=extract_profile(parser,
-                                                                   options,
-                                                                   toolchain),
-                                     stats_depth=options.stats_depth,
-                                     ignore=options.ignore)
-            print('Image: %s'% bin_file)
+            bin_file, update_file = build_project(
+                test.source_dir,
+                build_dir,
+                mcu,
+                toolchain,
+                set(test.dependencies),
+                linker_script=options.linker_script,
+                clean=options.clean,
+                notify=notify,
+                report=build_data_blob,
+                macros=options.macros,
+                jobs=options.jobs,
+                name=options.artifact_name,
+                app_config=options.app_config,
+                inc_dirs=[dirname(MBED_LIBRARIES)],
+                build_profile=extract_profile(parser, options, toolchain),
+                stats_depth=options.stats_depth,
+                ignore=options.ignore
+            )
+            if update_file:
+                print('Update Image: %s' % update_file)
+            print('Image: %s' % bin_file)
 
             if options.disk:
                 # Simple copy to the mbed disk

@@ -448,6 +448,12 @@ def merge_region_list(region_list, destination, notify, padding=b'\xFF'):
     merged.tofile(destination, format=format.strip("."))
 
 
+UPDATE_WHITELIST = (
+    "application",
+    "header",
+)
+
+
 def build_project(src_paths, build_path, target, toolchain_name,
                   libraries_paths=None, linker_script=None, clean=False,
                   notify=None, name=None, macros=None, inc_dirs=None, jobs=1,
@@ -534,15 +540,28 @@ def build_project(src_paths, build_path, target, toolchain_name,
 
         # Link Program
         if toolchain.config.has_regions:
-            res, _ = toolchain.link_program(resources, build_path, name + "_application")
+            binary, _ = toolchain.link_program(resources, build_path, name + "_application")
             region_list = list(toolchain.config.regions)
-            region_list = [r._replace(filename=res) if r.active else r
+            region_list = [r._replace(filename=binary) if r.active else r
                            for r in region_list]
             res = "%s.%s" % (join(build_path, name),
                              getattr(toolchain.target, "OUTPUT_EXT", "bin"))
             merge_region_list(region_list, res, notify)
+            update_regions = [
+                r for r in region_list if r.name in UPDATE_WHITELIST
+            ]
+            if update_regions:
+                update_res = "%s_update.%s" % (
+                    join(build_path, name),
+                    getattr(toolchain.target, "OUTPUT_EXT", "bin")
+                )
+                merge_region_list(update_regions, update_res, notify)
+                res = (res, update_res)
+            else:
+                res = (res, None)
         else:
             res, _ = toolchain.link_program(resources, build_path, name)
+            res = (res, None)
 
         memap_instance = getattr(toolchain, 'memap_instance', None)
         memap_table = ''
@@ -570,8 +589,8 @@ def build_project(src_paths, build_path, target, toolchain_name,
             cur_result["result"] = "OK"
             cur_result["memory_usage"] = (memap_instance.mem_report
                                           if memap_instance is not None else None)
-            cur_result["bin"] = res
-            cur_result["elf"] = splitext(res)[0] + ".elf"
+            cur_result["bin"] = res[0]
+            cur_result["elf"] = splitext(res[0])[0] + ".elf"
             cur_result.update(toolchain.report)
 
             add_result_to_report(report, cur_result)

@@ -2174,7 +2174,7 @@ def build_test_worker(*args, **kwargs):
     del kwargs['toolchain_paths']
 
     try:
-        bin_file = build_project(*args, **kwargs)
+        bin_file, _ = build_project(*args, **kwargs)
         ret['result'] = True
         ret['bin_file'] = bin_file
         ret['kwargs'] = kwargs
