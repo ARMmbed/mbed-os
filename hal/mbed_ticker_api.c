@@ -164,9 +164,9 @@ static void update_present_time(const ticker_data_t *const ticker)
 }
 
 /**
- * Given the absolute timestamp compute the hal tick timestamp.
+ * Given the absolute timestamp compute the hal tick timestamp rounded up.
  */
-static timestamp_t compute_tick(const ticker_data_t *const ticker, us_timestamp_t timestamp)
+static timestamp_t compute_tick_round_up(const ticker_data_t *const ticker, us_timestamp_t timestamp)
 {
     ticker_event_queue_t *queue = ticker->queue;
     us_timestamp_t delta_us = timestamp - queue->present_time;
@@ -185,14 +185,14 @@ static timestamp_t compute_tick(const ticker_data_t *const ticker, us_timestamp_
         } else if (0 != queue->frequency_shifts) {
             // Optimized frequencies divisible by 2
 
-            delta = (delta_us << ticker->queue->frequency_shifts) / 1000000;
+            delta = ((delta_us << ticker->queue->frequency_shifts) + 1000000 - 1) / 1000000;
             if (delta > ticker->queue->max_delta) {
                 delta = ticker->queue->max_delta;
             }
         } else {
             // General case
 
-            delta = delta_us * queue->frequency / 1000000;
+            delta = (delta_us * queue->frequency + 1000000 - 1) / 1000000;
             if (delta > ticker->queue->max_delta) {
                 delta = ticker->queue->max_delta;
             }
@@ -242,14 +242,11 @@ static void schedule_interrupt(const ticker_data_t *const ticker)
             return;
         }
 
-        timestamp_t match_tick = compute_tick(ticker, match_time);
-        // The time has been checked to be future, but it could still round
-        // to the last tick as a result of us to ticks conversion
-        if (match_tick == queue->tick_last_read) {
-            // Match time has already expired so fire immediately
-            ticker->interface->fire_interrupt();
-            return;
-        }
+        timestamp_t match_tick = compute_tick_round_up(ticker, match_time);
+
+        // The same tick should never occur since match_tick is rounded up.
+        // If the same tick is returned scheduling will not work correctly.
+        MBED_ASSERT(match_tick != queue->tick_last_read);
 
         ticker->interface->set_interrupt(match_tick);
         timestamp_t cur_tick = ticker->interface->read();
