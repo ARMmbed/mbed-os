@@ -805,8 +805,12 @@ void LoRaWANStack::send_event_to_application(const lorawan_event_t event) const
 
 void LoRaWANStack::send_automatic_uplink_message(const uint8_t port)
 {
+    // we will silently ignore the automatic uplink event if the user is already
+    // sending something
     const int16_t ret = handle_tx(port, NULL, 0, MSG_CONFIRMED_FLAG, true, true);
-    if (ret < 0) {
+    if (ret == LORAWAN_STATUS_WOULD_BLOCK) {
+        _automatic_uplink_ongoing = false;
+    } else if (ret < 0) {
         tr_debug("Failed to generate AUTOMATIC UPLINK, error code = %d", ret);
         send_event_to_application(AUTOMATIC_UPLINK_ERROR);
     }
