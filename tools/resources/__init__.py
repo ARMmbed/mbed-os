@@ -137,8 +137,8 @@ class Resources(object):
         self._label_paths = []
         self._labels = {"TARGET": [], "TOOLCHAIN": [], "FEATURE": []}
 
-        # Should we convert all paths to unix-style?
-        self._win_to_unix = False
+        # Path seperator style (defaults to OS-specific seperator)
+        self._sep = sep
 
         # Ignore patterns from .mbedignore files and add_ignore_patters
         self._ignore_patterns = []
@@ -181,11 +181,12 @@ class Resources(object):
         return count
 
     def win_to_unix(self):
-        self._win_to_unix = True
-        for file_type in self.ALL_FILE_TYPES:
-            v = [f._replace(name=f.name.replace('\\', '/')) for
-                 f in self.get_file_refs(file_type)]
-            self._file_refs[file_type] = v
+        self._sep = "/"
+        if self._sep != sep:
+            for file_type in self.ALL_FILE_TYPES:
+                v = [f._replace(name=f.name.replace(sep, self._sep)) for
+                     f in self.get_file_refs(file_type)]
+                self._file_refs[file_type] = v
 
     def __str__(self):
         s = []
@@ -262,8 +263,8 @@ class Resources(object):
                 dirname[len(label_type) + 1:] not in self._labels[label_type])
 
     def add_file_ref(self, file_type, file_name, file_path):
-        if self._win_to_unix:
-            ref = FileRef(file_name.replace("\\", "/"), file_path)
+        if sep != self._sep:
+            ref = FileRef(file_name.replace(sep, self._sep), file_path)
         else:
             ref = FileRef(file_name, file_path)
         self._file_refs[file_type].add(ref)
@@ -272,12 +273,12 @@ class Resources(object):
         """Return a list of FileRef for every file of the given type"""
         return list(self._file_refs[file_type])
 
-    @staticmethod
-    def _all_parents(files):
+    def _all_parents(self, files):
         for name in files:
-            components = name.split(sep)
-            for n in range(1, len(components)):
-                parent = join(*components[:n])
+            components = name.split(self._sep)
+            start_at = 2 if components[0] == '' else 1
+            for n in range(start_at, len(components)):
+                parent = self._sep.join(components[:n])
                 yield parent
 
     def _get_from_refs(self, file_type, key):
