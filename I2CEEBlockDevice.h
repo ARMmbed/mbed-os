@@ -70,7 +70,24 @@ public:
     I2CEEBlockDevice(
             PinName sda, PinName scl, uint8_t address,
             bd_size_t size, bd_size_t block=32,
-            int bus_speed=400000);
+            int bus_speed=400000);  
+
+     /** Constructor to create an I2CEEBlockDevice on I2C pins
+     *
+     *  @param i2c      The I2C instance pointer
+     *  @param addr     The 8bit I2C address of the chip, common range 0xa0 - 0xae.
+     *  @param size     The size of the device in bytes
+     *  @param block    The page size of the device in bytes, defaults to 32bytes
+     *  @param freq     The frequency of the I2C bus, defaults to 400K.
+     */
+    I2CEEBlockDevice(
+            I2C * i2c_obj, uint8_t address,
+            bd_size_t size, bd_size_t block=32);
+
+    /** Destructor of I2CEEBlockDevice
+     */
+
+    virtual ~I2CEEBlockDevice();
 
     /** Initialize a block device
      *
@@ -141,7 +158,8 @@ public:
     virtual bd_size_t size() const;
     
 private:
-    I2C _i2c;
+    I2C * _i2c;
+    uint32_t _i2c_buffer[sizeof(I2C) / sizeof(uint32_t)];
     uint8_t _i2c_addr;
     uint32_t _size;
     uint32_t _block;
