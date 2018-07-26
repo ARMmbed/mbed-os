@@ -170,6 +170,8 @@ void LoRaMac::post_process_mcps_req()
             if (_params.is_ul_frame_counter_fixed == false) {
                 _params.ul_frame_counter++;
             }
+        } else {
+            _mcps_confirmation.status = LORAMAC_EVENT_INFO_STATUS_ERROR;
         }
     } else {
         //UNCONFIRMED or PROPRIETARY
