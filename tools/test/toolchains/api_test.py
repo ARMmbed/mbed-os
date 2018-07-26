@@ -184,7 +184,7 @@ def test_toolchain_profile_asm(profile, source_file):
     with patch('os.mkdir') as _mkdir:
         for _, tc_class in TOOLCHAIN_CLASSES.items():
             toolchain = tc_class(TARGET_MAP["K64F"], build_profile=profile,
-                                 notify=MockNotifier)
+                                 notify=MockNotifier())
             toolchain.inc_md5 = ""
             toolchain.build_dir = ""
             toolchain.config = MagicMock()
