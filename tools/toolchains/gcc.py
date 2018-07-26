@@ -110,7 +110,7 @@ class GCC(mbedToolchain):
 
         self.flags['ld'] += self.cpu
         self.ld = [join(tool_path, "arm-none-eabi-gcc")] + self.flags['ld']
-        self.sys_libs = ["stdc++", "supc++", "m", "c", "gcc", "nosys"]
+        self.sys_libs = ["stdc++_nano", "supc++_nano", "m", "c_nano", "gcc", "nosys"]
         self.preproc = [join(tool_path, "arm-none-eabi-cpp"), "-E", "-P"]
 
         self.ar = join(tool_path, "arm-none-eabi-ar")
