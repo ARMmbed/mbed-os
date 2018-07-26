@@ -35,14 +35,18 @@ static void _sigio_handler(osThreadId id) {
     osSignalSet(id, SIGNAL_SIGIO);
 }
 
-static void _tcpsocket_connect_to_daytime_srv(TCPSocket& sock) {
+static nsapi_error_t _tcpsocket_connect_to_daytime_srv(TCPSocket& sock) {
     SocketAddress tcp_addr;
 
     get_interface()->gethostbyname(MBED_CONF_APP_ECHO_SERVER_ADDR, &tcp_addr);
     tcp_addr.set_port(13);
 
-    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.open(get_interface()));
-    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.connect(tcp_addr));
+    nsapi_error_t err = sock.open(get_interface());
+    if (err != NSAPI_ERROR_OK) {
+        return err;
+    }
+
+    return sock.connect(tcp_addr);
 }
 
 
@@ -50,9 +54,15 @@ void TCPSOCKET_ENDPOINT_CLOSE()
 {
     static const int MORE_THAN_AVAILABLE = 30;
     char buff[MORE_THAN_AVAILABLE];
+    int time_allotted = split2half_rmng_tcp_test_time(); // [s]
+    Timer tc_exec_time;
+    tc_exec_time.start();
 
     TCPSocket sock;
-    _tcpsocket_connect_to_daytime_srv(sock);
+    if (_tcpsocket_connect_to_daytime_srv(sock) != NSAPI_ERROR_OK) {
+        TEST_FAIL();
+        return;
+    }
     sock.sigio(callback(_sigio_handler, Thread::gettid()));
 
     int recvd = 0;
@@ -61,16 +71,20 @@ void TCPSOCKET_ENDPOINT_CLOSE()
          recvd = sock.recv(&(buff[recvd_total]), MORE_THAN_AVAILABLE);
          if (recvd_total > 0 && recvd == 0) {
              break; // Endpoint closed socket, success
-         } else if (recvd == 0) {
+         } else if (recvd <= 0) {
             TEST_FAIL();
+            break;
          } else if (recvd == NSAPI_ERROR_WOULD_BLOCK) {
-             if(osSignalWait(SIGNAL_SIGIO, SIGIO_TIMEOUT).status == osEventTimeout) {
+             if(tc_exec_time.read() >= time_allotted ||
+                osSignalWait(SIGNAL_SIGIO, SIGIO_TIMEOUT).status == osEventTimeout) {
                  TEST_FAIL();
+                 break;
              }
              continue;
          }
          recvd_total += recvd;
          TEST_ASSERT(recvd_total < MORE_THAN_AVAILABLE);
     }
+    tc_exec_time.stop();
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
 }
