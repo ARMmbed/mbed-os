@@ -18,18 +18,20 @@ extern uint32_t __mbed_krbs_start;
 
 #define NU_HEAP_ALIGN       32
 
-/**
- * The default implementation of _sbrk() (in common/retarget.cpp) for GCC_ARM requires one-region model (heap and stack share one region), which doesn't
- * fit two-region model (heap and stack are two distinct regions), for example, NUMAKER-PFM-NUC472 locates heap on external SRAM. Define __wrap__sbrk() to
- * override the default _sbrk(). It is expected to get called through gcc hooking mechanism ('-Wl,--wrap,_sbrk') or in _sbrk().
+/* Support heap with two-region model
+ *
+ * The default implementation of _sbrk() (in mbed_retarget.cpp) for GCC_ARM requires one-region
+ * model (heap and stack share one region), which doesn't fit two-region model (heap and stack
+ * are two distinct regions), e.g., stack in internal SRAM/heap in external SRAM on NUMAKER_PFM_NUC472.
+ * Hence, override _sbrk() here to support heap with two-region model.
  */
-void *__wrap__sbrk(int incr)
+void *_sbrk(int incr)
 {
     static uint32_t heap_ind = (uint32_t) &__mbed_sbrk_start;
     uint32_t heap_ind_old = NU_ALIGN_UP(heap_ind, NU_HEAP_ALIGN);
     uint32_t heap_ind_new = NU_ALIGN_UP(heap_ind_old + incr, NU_HEAP_ALIGN);
     
-    if (heap_ind_new > &__mbed_krbs_start) {
+    if (heap_ind_new > (uint32_t) &__mbed_krbs_start) {
         errno = ENOMEM;
         return (void *) -1;
     } 
