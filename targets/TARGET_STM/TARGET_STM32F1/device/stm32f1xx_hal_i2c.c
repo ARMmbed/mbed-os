@@ -4014,34 +4014,37 @@ static HAL_StatusTypeDef I2C_MasterReceive_RXNE(I2C_HandleTypeDef *hi2c)
     }
     else if((tmp == 2U) || (tmp == 3U))
     {
-      if(hi2c->XferOptions != I2C_NEXT_FRAME)
-      {
+      // MBED patch if(hi2c->XferOptions != I2C_NEXT_FRAME)
+      // MBED patch {
       /* Disable Acknowledge */
       hi2c->Instance->CR1 &= ~I2C_CR1_ACK;
 
       /* Enable Pos */
       hi2c->Instance->CR1 |= I2C_CR1_POS;
-      }
-      else
-      {
-        /* Enable Acknowledge */
-        hi2c->Instance->CR1 |= I2C_CR1_ACK;
-      }
+      // MBED patch }
+      // MBED patch else
+      // MBED patch {
+      // MBED patch   /* Enable Acknowledge */
+      // MBED patch   hi2c->Instance->CR1 |= I2C_CR1_ACK;
+      // MBED patch }
 
       /* Disable BUF interrupt */
       __HAL_I2C_DISABLE_IT(hi2c, I2C_IT_BUF);
     }
     else
     {
-      if(hi2c->XferOptions != I2C_NEXT_FRAME)
-      {
+      // MBED patch if(hi2c->XferOptions != I2C_NEXT_FRAME)
+      // MBED patch {
       /* Disable Acknowledge */
       hi2c->Instance->CR1 &= ~I2C_CR1_ACK;
-      }
-      else
+      // MBED patch }
+      // MBED patch else
+      if(hi2c->XferOptions == I2C_NEXT_FRAME) // MBED patch
       {
-        /* Enable Acknowledge */
-        hi2c->Instance->CR1 |= I2C_CR1_ACK;
+        // MBED patch /* Enable Acknowledge */
+        // MBED patch hi2c->Instance->CR1 |= I2C_CR1_ACK;
+        /* Enable Pos */
+        hi2c->Instance->CR1 |= I2C_CR1_POS;
       }
 
       /* Disable EVT, BUF and ERR interrupt */
@@ -4097,24 +4100,27 @@ static HAL_StatusTypeDef I2C_MasterReceive_BTF(I2C_HandleTypeDef *hi2c)
     /* Prepare next transfer or stop current transfer */
     if((CurrentXferOptions != I2C_FIRST_AND_LAST_FRAME) && (CurrentXferOptions != I2C_LAST_FRAME) && (CurrentXferOptions != I2C_NO_OPTION_FRAME))
     {
-      if(CurrentXferOptions != I2C_NEXT_FRAME)
-      {
+      // MBED patch if(CurrentXferOptions != I2C_NEXT_FRAME)
+      // MBED patch {
       /* Disable Acknowledge */
       hi2c->Instance->CR1 &= ~I2C_CR1_ACK;
-      }
-      else
+      // MBED patch }
+      // MBED patch else
+      if((CurrentXferOptions == I2C_NEXT_FRAME) || (CurrentXferOptions == I2C_FIRST_FRAME)) // MBED patch
       {
-        /* Enable Acknowledge */
-        hi2c->Instance->CR1 |= I2C_CR1_ACK;
+        // MBED patch /* Enable Acknowledge */
+        // MBED patch hi2c->Instance->CR1 |= I2C_CR1_ACK;
+        /* Generate ReStart */ // MBED patch
+        hi2c->Instance->CR1 |= I2C_CR1_START; // MBED patch 
       }
 
       /* Disable EVT and ERR interrupt */
-      __HAL_I2C_DISABLE_IT(hi2c, I2C_IT_EVT | I2C_IT_ERR);
+      // MBED patch __HAL_I2C_DISABLE_IT(hi2c, I2C_IT_EVT | I2C_IT_ERR);
     }
     else
     {
       /* Disable EVT and ERR interrupt */
-      __HAL_I2C_DISABLE_IT(hi2c, I2C_IT_EVT | I2C_IT_ERR);
+      // MBED patch __HAL_I2C_DISABLE_IT(hi2c, I2C_IT_EVT | I2C_IT_ERR);
       
       /* Generate Stop */
       hi2c->Instance->CR1 |= I2C_CR1_STOP;
@@ -4127,6 +4133,9 @@ static HAL_StatusTypeDef I2C_MasterReceive_BTF(I2C_HandleTypeDef *hi2c)
     /* Read data from DR */
     (*hi2c->pBuffPtr++) = hi2c->Instance->DR;
     hi2c->XferCount--;
+
+    /* Disable EVT and ERR interrupt */ // MBED patch
+    __HAL_I2C_DISABLE_IT(hi2c, I2C_IT_EVT | I2C_IT_ERR); // MBED patch
 
     hi2c->State = HAL_I2C_STATE_READY;
     hi2c->PreviousState = I2C_STATE_NONE;
