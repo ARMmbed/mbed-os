@@ -42,6 +42,7 @@
 #include "nrf_drv_common.h"
 #include "lp_ticker_api.h"
 #include "mbed_critical.h"
+#include "nrfx_glue.h"
 
 #if defined(NRF52_PAN_20)
 /* Macro for testing if the SoftDevice is active, regardless of whether the
@@ -173,7 +174,8 @@ void common_rtc_init(void)
     nrf_rtc_int_disable(COMMON_RTC_INSTANCE, LP_TICKER_INT_MASK);
 #endif
 
-    nrf_drv_common_irq_enable(nrf_drv_get_IRQn(COMMON_RTC_INSTANCE), APP_IRQ_PRIORITY_HIGH);
+    NRFX_IRQ_PRIORITY_SET(nrfx_get_irq_number(COMMON_RTC_INSTANCE), APP_IRQ_PRIORITY_HIGH);
+    NRFX_IRQ_ENABLE(nrfx_get_irq_number(COMMON_RTC_INSTANCE));
 
     nrf_rtc_task_trigger(COMMON_RTC_INSTANCE, NRF_RTC_TASK_START);
 
