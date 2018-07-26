@@ -59,6 +59,7 @@
 
 #define MSG_TRNG_READY                  "ready"
 #define MSG_TRNG_BUFFER                 "buffer"
+#define MSG_TRNG_EXIT                   "exit"
 
 #define MSG_TRNG_TEST_STEP1             "check_step1"
 #define MSG_TRNG_TEST_STEP2             "check_step2"
@@ -102,10 +103,18 @@ static int fill_buffer_trng(uint8_t *buffer, trng_t *trng_obj, size_t trng_len)
 static void compress_and_compare(char *key, char *value)
 {
     trng_t trng_obj;
-    uint8_t out_comp_buf[(BUFFER_LEN * 5) + 32] = {0}, buffer[BUFFER_LEN] = {0};
-    uint8_t input_buf[BUFFER_LEN * 4] = {0}, temp_buf[BUFFER_LEN * 2] = {0};
+    uint8_t *out_comp_buf, *buffer;
+    uint8_t *input_buf, *temp_buf;
     size_t comp_sz = 0;
     unsigned int result = 0;
+
+#define OUT_COMP_BUF_SIZE ((BUFFER_LEN * 5) + 32)
+#define TEMP_BUF_SIZE (BUFFER_LEN * 2)
+
+    out_comp_buf = new uint8_t[OUT_COMP_BUF_SIZE];
+    buffer = new uint8_t[BUFFER_LEN];
+    input_buf = new uint8_t[BUFFER_LEN * 4];
+    temp_buf = new uint8_t[BUFFER_LEN * 2];
 
 #if NVSTORE_RESET
     NVStore& nvstore = NVStore::get_instance();
@@ -115,7 +124,7 @@ static void compress_and_compare(char *key, char *value)
     if (strcmp(key, MSG_TRNG_TEST_STEP2) == 0) {
 #if NVSTORE_RESET
         uint16_t actual = 0;
-        result = nvstore.get(NVKEY, sizeof(buffer), buffer, actual);
+        result = nvstore.get(NVKEY, BUFFER_LEN, buffer, actual);
         TEST_ASSERT_EQUAL(RESULT_SUCCESS, result);
 #else
         /*Using base64 to decode data sent from host*/
@@ -130,70 +139,72 @@ static void compress_and_compare(char *key, char *value)
                                     &charsProcessed);
         TEST_ASSERT_EQUAL(0, result);
 #endif
-        memcpy(input_buf, buffer, sizeof(buffer));
+        memcpy(input_buf, buffer, BUFFER_LEN);
     }
 
     if (strcmp(key, MSG_TRNG_TEST_STEP1) == 0) {
         /*Fill buffer with trng values*/
-        result = fill_buffer_trng(buffer, &trng_obj, sizeof(buffer));
+        result = fill_buffer_trng(buffer, &trng_obj, BUFFER_LEN);
         TEST_ASSERT_EQUAL(0, result);
-        memcpy(input_buf, buffer, sizeof(buffer));
+        memcpy(input_buf, buffer, BUFFER_LEN);
     }
     /*pithy_Compress will try to compress the random data, if it succeeded it means the data is not really random*/
     else if (strcmp(key, MSG_TRNG_TEST_STEP2) == 0) {
 
         comp_sz = pithy_Compress((char *)buffer,
-                                 sizeof(buffer),
+                                 BUFFER_LEN,
                                  (char *)out_comp_buf,
-                                 sizeof(out_comp_buf),
+                                 OUT_COMP_BUF_SIZE,
                                  9);
-        TEST_ASSERT_MESSAGE(comp_sz > sizeof(buffer),
+        TEST_ASSERT_MESSAGE(comp_sz > BUFFER_LEN,
                         "TRNG_TEST_STEP1: trng_get_bytes was able to compress thus not random");
 
         /*pithy_Compress will try to compress the random data with a different buffer sizem*/
-        result = fill_buffer_trng(temp_buf, &trng_obj, sizeof(temp_buf));
+        result = fill_buffer_trng(temp_buf, &trng_obj, TEMP_BUF_SIZE);
         TEST_ASSERT_EQUAL(0, result);
 
         comp_sz = pithy_Compress((char *)temp_buf,
-                                 sizeof(temp_buf),
+                                 TEMP_BUF_SIZE,
                                  (char *)out_comp_buf,
-                                 sizeof(out_comp_buf),
+                                 OUT_COMP_BUF_SIZE,
                                  9);
-        TEST_ASSERT_MESSAGE(comp_sz > sizeof(temp_buf),
+        TEST_ASSERT_MESSAGE(comp_sz > TEMP_BUF_SIZE,
                         "TRNG_TEST_STEP2: trng_get_bytes was able to compress thus not random");
 
-        memcpy(input_buf + sizeof(buffer), temp_buf, sizeof(temp_buf));
+        memcpy(input_buf + BUFFER_LEN, temp_buf, TEMP_BUF_SIZE);
         /*pithy_Compress will try to compress the random data from before reset concatenated with new random data*/
         comp_sz = pithy_Compress((char *)input_buf,
-                                 sizeof(temp_buf) + sizeof(buffer),
+                                 TEMP_BUF_SIZE + BUFFER_LEN,
                                  (char *)out_comp_buf,
-                                 sizeof(out_comp_buf),
+                                 OUT_COMP_BUF_SIZE,
                                  9);
-        TEST_ASSERT_MESSAGE(comp_sz > sizeof(temp_buf) + sizeof(buffer),
+        TEST_ASSERT_MESSAGE(comp_sz > TEMP_BUF_SIZE + BUFFER_LEN,
                         "TRNG_TEST_STEP3: concatenated buffer after reset was able to compress thus not random");
+        greentea_send_kv(MSG_TRNG_TEST_SUITE_ENDED, MSG_VALUE_DUMMY);
     }
 
     /*At the end of step 1 store trng buffer and reset the device*/
     if (strcmp(key, MSG_TRNG_TEST_STEP1) == 0) {
         int result = 0;
 #if NVSTORE_RESET
-        result = nvstore.set(NVKEY, sizeof(buffer), buffer);
+        result = nvstore.set(NVKEY, BUFFER_LEN, buffer);
         TEST_ASSERT_EQUAL(RESULT_SUCCESS, result);
 #else
         /*Using base64 to encode data sending from host*/
         result = trng_EncodeBase64(buffer, 
                                    BUFFER_LEN, 
                                    (char *)out_comp_buf, 
-                                   sizeof(out_comp_buf));
+                                   OUT_COMP_BUF_SIZE);
         TEST_ASSERT_EQUAL(RESULT_SUCCESS, result);
 
         greentea_send_kv(MSG_TRNG_BUFFER, (const char *)out_comp_buf);
 #endif
-        system_reset();
-        TEST_ASSERT_MESSAGE(false, "system_reset() did not reset the device as expected.");
     }
 
-    return;
+    delete[] out_comp_buf;
+    delete[] buffer;
+    delete[] input_buf;
+    delete[] temp_buf;
 }
 
 /*This method call first and second steps, it directs by the key received from the host*/
@@ -201,34 +212,31 @@ void trng_test()
 {
     greentea_send_kv(MSG_TRNG_READY, MSG_VALUE_DUMMY);
 
-    static char key[MSG_KEY_LEN + 1] = { };
-    static char value[MSG_VALUE_LEN + 1] = { };
-    memset(key, 0, MSG_KEY_LEN + 1);
-    memset(value, 0, MSG_VALUE_LEN + 1);
+    char key[MSG_KEY_LEN + 1] = { };
+    char *value = new char[MSG_VALUE_LEN + 1];
+    do {
+        memset(key, 0, MSG_KEY_LEN + 1);
+        memset(value, 0, MSG_VALUE_LEN + 1);
 
-    greentea_parse_kv(key, value, MSG_KEY_LEN, MSG_VALUE_LEN);
+        greentea_parse_kv(key, value, MSG_KEY_LEN, MSG_VALUE_LEN);
 
-    if (strcmp(key, MSG_TRNG_TEST_STEP1) == 0) {
-        /*create trng data buffer and try to compress it, store it for later checks*/
-        compress_and_compare(key, value);
-        return trng_test();
-    }
+        if (strcmp(key, MSG_TRNG_TEST_STEP1) == 0) {
+            /*create trng data buffer and try to compress it, store it for later checks*/
+            compress_and_compare(key, value);
+        }
 
-    if (strcmp(key, MSG_TRNG_TEST_STEP2) == 0) {
-        /*create another trng data buffer and concatenate it to the stored trng data buffer
-        try to compress them both*/
-        compress_and_compare(key, value);
-    }
-}
+        if (strcmp(key, MSG_TRNG_TEST_STEP2) == 0) {
+            /*create another trng data buffer and concatenate it to the stored trng data buffer
+            try to compress them both*/
+            compress_and_compare(key, value);
+        }
+    } while (strcmp(key, MSG_TRNG_EXIT) != 0);
 
-utest::v1::status_t greentea_failure_handler(const Case *const source, const failure_t reason)
-{
-    greentea_case_failure_abort_handler(source, reason);
-    return STATUS_CONTINUE;
+    delete[] value;
 }
 
 Case cases[] = {
-    Case("TRNG: trng_test", trng_test, greentea_failure_handler),
+    Case("TRNG: trng_test", trng_test),
 };
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
@@ -242,7 +250,6 @@ Specification specification(greentea_test_setup, cases, greentea_test_teardown_h
 int main()
 {
     bool ret = !Harness::run(specification);
-    greentea_send_kv(MSG_TRNG_TEST_SUITE_ENDED, MSG_VALUE_DUMMY);
 
     return ret;
 }
