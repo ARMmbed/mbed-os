@@ -1080,13 +1080,13 @@ lorawan_status_t LoRaMac::schedule_tx()
     uint8_t dr_offset = _lora_phy->apply_DR_offset(_params.sys_params.channel_data_rate,
                                                   _params.sys_params.rx1_dr_offset);
 
-    _lora_phy->compute_rx_win_params(dr_offset, _params.sys_params.min_rx_symb,
-                                    _params.sys_params.max_sys_rx_error,
+    _lora_phy->compute_rx_win_params(dr_offset, MBED_CONF_LORA_DOWNLINK_PREAMBLE_LENGTH,
+                                    MBED_CONF_LORA_MAX_SYS_RX_ERROR,
                                     &_params.rx_window1_config);
 
     _lora_phy->compute_rx_win_params(_params.sys_params.rx2_channel.datarate,
-                                    _params.sys_params.min_rx_symb,
-                                    _params.sys_params.max_sys_rx_error,
+                                    MBED_CONF_LORA_DOWNLINK_PREAMBLE_LENGTH,
+                                    MBED_CONF_LORA_MAX_SYS_RX_ERROR,
                                     &_params.rx_window2_config);
 
     if (!_is_nwk_joined) {
@@ -1355,8 +1355,8 @@ void LoRaMac::set_device_class(const device_class_t &device_class,
         _params.is_node_ack_requested = false;
         _lora_phy->put_radio_to_sleep();
         _lora_phy->compute_rx_win_params(_params.sys_params.rx2_channel.datarate,
-                                        _params.sys_params.min_rx_symb,
-                                        _params.sys_params.max_sys_rx_error,
+                                        MBED_CONF_LORA_DOWNLINK_PREAMBLE_LENGTH,
+                                        MBED_CONF_LORA_MAX_SYS_RX_ERROR,
                                         &_params.rx_window2_config);
     }
 
@@ -1732,9 +1732,6 @@ lorawan_status_t LoRaMac::initialize(EventQueue *queue)
     _params.timers.aggregated_timeoff = 0;
 
     _lora_phy->reset_to_default_values(&_params, true);
-
-    _params.sys_params.max_sys_rx_error = 10;
-    _params.sys_params.min_rx_symb = 6;
     _params.sys_params.retry_num = 1;
 
     reset_mac_parameters();

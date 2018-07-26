@@ -853,7 +853,8 @@ bool LoRaPHY::rx_config(rx_config_params_t *rx_conf)
                               false, rx_conf->is_rx_continuous);
     } else {
         modem = MODEM_LORA;
-        _radio->set_rx_config(modem, rx_conf->bandwidth, phy_dr, 1, 0, 8,
+        _radio->set_rx_config(modem, rx_conf->bandwidth, phy_dr, 1, 0,
+                              MBED_CONF_LORA_DOWNLINK_PREAMBLE_LENGTH,
                               rx_conf->window_timeout, false, 0, false, 0, 0,
                               true, rx_conf->is_rx_continuous);
     }
@@ -903,7 +904,8 @@ bool LoRaPHY::tx_config(tx_config_params_t *tx_conf, int8_t *tx_power,
                               3000);
     } else {
         modem = MODEM_LORA;
-        _radio->set_tx_config(modem, phy_tx_power, 0, bandwidth, phy_dr, 1, 8,
+        _radio->set_tx_config(modem, phy_tx_power, 0, bandwidth, phy_dr, 1,
+                              MBED_CONF_LORA_UPLINK_PREAMBLE_LENGTH,
                               false, true, 0, 0, false, 3000);
     }
 

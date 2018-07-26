@@ -167,17 +167,6 @@ typedef struct {
      */
     int8_t channel_data_rate;
     /*!
-     * The system overall timing error in milliseconds.
-     * [-SystemMaxRxError : +SystemMaxRxError]
-     * Default: +/-10 ms
-     */
-    uint32_t max_sys_rx_error;
-    /*!
-     * The minimum number of symbols required to detect an RX frame.
-     * Default: 6 symbols
-     */
-    uint8_t min_rx_symb;
-    /*!
      * LoRaMac maximum time a reception window stays open.
      */
     uint32_t max_rx_win_time;
