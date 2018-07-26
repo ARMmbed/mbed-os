@@ -24,6 +24,8 @@
 
 #include "platform/mbed_retarget.h"
 #include "platform/mbed_toolchain.h"
+#include "platform/mbed_interface.h"
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -194,6 +196,47 @@ typedef int mbed_error_status_t;
 #define MBED_ERROR( error_status, error_msg )                     mbed_error( error_status, (const char *)error_msg, (uint32_t)0          , NULL, 0 )
 #endif
 #endif
+
+
+
+/**
+ * Macros for Validating expressions for error handling. this is to save space in release mode only.
+ * This will may cause hard faults in release when in debug it will just create an error.
+ * @param  expression       The expression needs validation
+ * @param  perform_action   if needs to perform an action, this need to be set to 1
+ * @param  action           Action to perform if perform_action is set
+ *
+ * @code
+ *
+ * MBED_VALIDATE_EXP( (x == 7 ), 1, return -1 ) // if x is equal to 7 returns -1 in debug
+ * MBED_VALIDATE_EXP( (ptr == NULL) , 0 , xxx) //  if ptr == NULL just print an error in debug
+ *
+ * @endcode
+ *
+ */
+#ifdef NDEBUG
+
+	#define MBED_VALIDATE_EXP( expression , perform_action, action ) ((void)0)
+
+#else //NDEBUG
+
+	inline void mbed_validate_fail(char* file, int line)
+	{
+		mbed_error_printf("mbed validation failed:  file: %s, line %d \n", file, line);
+	}
+
+	#define MBED_VALIDATE_EXP( expression , perform_action, action ) \
+	{ \
+		if (expression) \
+		{\
+			mbed_validate_fail(__FILE__, __LINE__); \
+			if (perform_action) \
+				action; \
+		}\
+	}
+
+#endif
+
 
 //Error Type definition
 /** mbed_error_type_t definition

@@ -15,7 +15,7 @@
  */
 #include "drivers/SPI.h"
 #include "platform/mbed_critical.h"
-
+#include "platform/mbed_error.h"
 #if DEVICE_SPI_ASYNCH
 #include "platform/mbed_power_mgmt.h"
 #endif
@@ -173,9 +173,7 @@ void SPI::abort_all_transfers()
 
 int SPI::set_dma_usage(DMAUsage usage)
 {
-    if (spi_active(&_spi)) {
-        return -1;
-    }
+	MBED_VALIDATE_EXP(spi_active(&_spi), 1, return -1);
     _usage = usage;
     return  0;
 }
