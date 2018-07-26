@@ -17,7 +17,7 @@
 #include "gpio_api.h"
 #include "gpio_irq_api.h"
 #include "pinmap.h"
-#include "nrf_drv_gpiote.h"
+#include "nrfx_gpiote.h"
 
 
 #if defined(TARGET_MCU_NRF51822)
@@ -58,7 +58,7 @@ static uint32_t m_channel_ids[GPIO_PIN_COUNT] = {0};
 static gpio_mask_t m_gpio_irq_enabled;
 
 
-static void gpiote_irq_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action)
+static void gpiote_irq_handler(nrfx_gpiote_pin_t pin, nrf_gpiote_polarity_t action)
 {
     nrf_gpio_pin_sense_t sense =  nrf_gpio_pin_sense_get(pin);
     gpio_irq_event event = (sense == NRF_GPIO_PIN_SENSE_LOW) ? IRQ_RISE : IRQ_FALL;
@@ -83,7 +83,7 @@ void gpio_init(gpio_t *obj, PinName pin)
 
     NVIC_SetVector(GPIOTE_IRQn, (uint32_t) GPIOTE_IRQHandler);
 
-    (void) nrf_drv_gpiote_init();
+    (void) nrfx_gpiote_init();
 
     m_gpio_cfg[obj->pin].used_as_gpio = true;
 }
@@ -110,9 +110,9 @@ static void gpiote_pin_uninit(uint8_t pin)
 {
     if (m_gpio_initialized & ((gpio_mask_t)1UL << pin)) {
         if ((m_gpio_cfg[pin].direction == PIN_OUTPUT) && (!m_gpio_cfg[pin].used_as_irq)) {
-            nrf_drv_gpiote_out_uninit(pin);
+            nrfx_gpiote_out_uninit(pin);
         } else if (m_gpio_cfg[pin].used_as_irq) {
-            nrf_drv_gpiote_in_uninit(pin);
+            nrfx_gpiote_in_uninit(pin);
         }
     }
 }
@@ -123,7 +123,7 @@ static void gpio_apply_config(uint8_t pin)
         if ((m_gpio_cfg[pin].direction == PIN_INPUT)
                 || (m_gpio_cfg[pin].used_as_irq)) {
             //Configure as input.
-            nrf_drv_gpiote_in_config_t cfg;
+            nrfx_gpiote_in_config_t cfg;
 
             cfg.hi_accuracy = false;
             cfg.is_watcher = false;
@@ -140,18 +140,18 @@ static void gpio_apply_config(uint8_t pin)
                     break;
             }
             if (m_gpio_cfg[pin].used_as_irq) {
-                nrf_drv_gpiote_in_init(pin, &cfg, gpiote_irq_handler);
+                nrfx_gpiote_in_init(pin, &cfg, gpiote_irq_handler);
                 if ((m_gpio_irq_enabled & ((gpio_mask_t)1 << pin))
                         && (m_gpio_cfg[pin].irq_rise || m_gpio_cfg[pin].irq_fall)) {
-                    nrf_drv_gpiote_in_event_enable(pin, true);
+                    nrfx_gpiote_in_event_enable(pin, true);
                 }
             } else {
                 nrf_gpio_cfg_input(pin, cfg.pull);
             }
         } else {
             // Configure as output.
-            nrf_drv_gpiote_out_config_t cfg = GPIOTE_CONFIG_OUT_SIMPLE(nrf_gpio_pin_out_read(pin));
-            nrf_drv_gpiote_out_init(pin, &cfg);
+            nrfx_gpiote_out_config_t cfg = NRFX_GPIOTE_CONFIG_OUT_SIMPLE(nrf_gpio_pin_out_read(pin));
+            nrfx_gpiote_out_init(pin, &cfg);
         }
         m_gpio_initialized |= ((gpio_mask_t)1UL << pin);
     } else {
@@ -192,7 +192,7 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
         return -1;
     }
     MBED_ASSERT((uint32_t)pin < GPIO_PIN_COUNT);
-    (void) nrf_drv_gpiote_init();
+    (void) nrfx_gpiote_init();
 
     gpiote_pin_uninit(pin); // try to uninitialize gpio before a change.
 
@@ -210,7 +210,7 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
 
 void gpio_irq_free(gpio_irq_t *obj)
 {
-    nrf_drv_gpiote_in_uninit(obj->ch);
+    nrfx_gpiote_in_uninit(obj->ch);
     m_gpio_cfg[obj->ch].used_as_irq = false;
     m_channel_ids[obj->ch] = 0;
 
@@ -247,7 +247,7 @@ void gpio_irq_enable(gpio_irq_t *obj)
 {
     m_gpio_irq_enabled |= ((gpio_mask_t)1 << obj->ch);
     if (m_gpio_cfg[obj->ch].irq_rise || m_gpio_cfg[obj->ch].irq_fall) {
-        nrf_drv_gpiote_in_event_enable(obj->ch, true);
+        nrfx_gpiote_in_event_enable(obj->ch, true);
     }
 }
 
@@ -255,5 +255,5 @@ void gpio_irq_enable(gpio_irq_t *obj)
 void gpio_irq_disable(gpio_irq_t *obj)
 {
     m_gpio_irq_enabled &= ~((gpio_mask_t)1 << obj->ch);
-    nrf_drv_gpiote_in_event_disable(obj->ch);
+    nrfx_gpiote_in_event_disable(obj->ch);
 }
