@@ -24,7 +24,6 @@
  */
 
 #include "rtx_lib.h"
-#include "rt_OsEventObserver.h"
 
 //  OS Runtime Object Memory Usage
 #if ((defined(OS_OBJ_MEM_USAGE) && (OS_OBJ_MEM_USAGE != 0)))
@@ -426,17 +425,6 @@ void osRtxThreadSwitch (os_thread_t *thread) {
   osRtxInfo.thread.run.next = thread;
   osRtxThreadStackCheck();
   EvrRtxThreadSwitched(thread);
-
-  if (osEventObs && osEventObs->thread_switch) {
-    osEventObs->thread_switch(thread->context);
-  }
-}
-
-/// Notify the OS event observer of an imminent thread switch.
-void thread_switch_helper(void) {
-  if (osEventObs && osEventObs->thread_switch) {
-    osEventObs->thread_switch(osRtxInfo.thread.run.next->context);
-  }
 }
 
 /// Dispatch specified Thread or Ready Thread with Highest Priority.
@@ -808,13 +796,6 @@ osThreadId_t svcRtxThreadNew (osThreadFunc_t func, void *argument, const osThrea
     EvrRtxThreadCreated(thread, thread->thread_addr);
   } else {
     EvrRtxThreadError(NULL, (int32_t)osErrorNoMemory);
-  }
-
-  /* Notify the OS event observer of a new thread. */
-  if (osEventObs && osEventObs->thread_create) {
-    thread->context = osEventObs->thread_create((int)thread, context);
-  } else {
-    thread->context = context;
   }
 
   if (thread != NULL) {
@@ -1324,10 +1305,6 @@ static osStatus_t svcRtxThreadTerminate (osThreadId_t thread_id) {
       EvrRtxThreadError(thread, (int32_t)osErrorResource);
       status = osErrorResource;
       break;
-  }
-
-  if (osEventObs && osEventObs->thread_destroy) {
-    osEventObs->thread_destroy(thread->context);
   }
 
   if (status == osOK) {
