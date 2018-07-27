@@ -136,6 +136,7 @@ class Resources(object):
         # Incremental scan related
         self._label_paths = []
         self._labels = {"TARGET": [], "TOOLCHAIN": [], "FEATURE": []}
+        self._prefixed_labels = set()
 
         # Path seperator style (defaults to OS-specific seperator)
         self._sep = sep
@@ -217,12 +218,12 @@ class Resources(object):
 
     def _add_labels(self, prefix, labels):
         self._labels[prefix].extend(labels)
-        prefixed_labels = set("%s_%s" % (prefix, label) for label in labels)
+        self._prefixed_labels |= set("%s_%s" % (prefix, label) for label in labels)
         for path, base_path, into_path in self._label_paths:
-            if basename(path) in prefixed_labels:
+            if basename(path) in self._prefixed_labels:
                 self.add_directory(path, base_path, into_path)
         self._label_paths = [(p, b, i) for p, b, i in self._label_paths
-                             if basename(p) not in prefixed_labels]
+                             if basename(p) not in self._prefixed_labels]
 
     def add_target_labels(self, target):
         self._add_labels("TARGET", target.labels)
@@ -276,7 +277,11 @@ class Resources(object):
     def _all_parents(self, files):
         for name in files:
             components = name.split(self._sep)
-            start_at = 2 if components[0] == '' else 1
+            start_at = 2 if components[0] in set(['', '.']) else 1
+            for index, directory in reversed(list(enumerate(components))[start_at:]):
+                if directory in self._prefixed_labels:
+                    start_at = index + 1
+                    break
             for n in range(start_at, len(components)):
                 parent = self._sep.join(components[:n])
                 yield parent
