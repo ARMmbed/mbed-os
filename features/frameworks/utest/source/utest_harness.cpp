@@ -16,6 +16,7 @@
  ****************************************************************************
  */
 
+#ifdef MBED_TEST
 #include "utest/utest_harness.h"
 #include "utest/utest_stack_trace.h"
 #include "utest/utest_serial.h"
@@ -373,3 +374,5 @@ void Harness::run_next_case()
         exit(test_failed);
     }
 }
+
+#endif

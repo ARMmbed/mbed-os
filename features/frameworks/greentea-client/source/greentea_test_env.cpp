@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+#ifdef MBED_TEST
 #include <ctype.h>
 #include <cstdio>
 #include <string.h>
@@ -779,3 +780,5 @@ static int HandleKV(char *out_key,
     getNextToken(0, 0);
     return 0;
 }
+
+#endif

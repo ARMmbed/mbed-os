@@ -19,6 +19,7 @@
 #include "mbed_critical.h"
 #include "utest/utest.h"
 
+#ifdef MBED_TEST
 using namespace utest::v1;
 
 void utest_v1_enter_critical_section(void)
@@ -30,3 +31,4 @@ void utest_v1_leave_critical_section(void)
 {
     core_util_critical_section_exit();
 }
+#endif

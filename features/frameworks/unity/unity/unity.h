@@ -9,6 +9,7 @@
 
 #ifndef UNITY_FRAMEWORK_H
 #define UNITY_FRAMEWORK_H
+#ifdef MBED_TEST
 #define UNITY
 
 #ifdef __cplusplus
@@ -310,5 +311,5 @@ void tearDown(void);
 }
 #endif
 #endif
-
+#endif
 /** @}*/

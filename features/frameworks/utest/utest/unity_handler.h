@@ -22,6 +22,8 @@
 #ifndef UTEST_UNITY_ASSERT_FAILURE_H
 #define UTEST_UNITY_ASSERT_FAILURE_H
 
+#ifdef MBED_TEST
+
 #include <stdint.h>
 
 #ifdef __cplusplus
@@ -40,6 +42,7 @@ void utest_safe_putc(int chr);
 }
 #endif
 
+#endif // MBED_TEST
 #endif // UTEST_UNITY_ASSERT_FAILURE_H
 
 /** @}*/

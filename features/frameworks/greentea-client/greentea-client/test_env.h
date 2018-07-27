@@ -21,6 +21,7 @@
 #ifndef GREENTEA_CLIENT_TEST_ENV_H_
 #define GREENTEA_CLIENT_TEST_ENV_H_
 
+#ifdef MBED_TEST
 #ifdef __cplusplus
 #ifdef YOTTA_GREENTEA_CLIENT_VERSION_STRING
 #define MBED_GREENTEA_CLIENT_VERSION_STRING YOTTA_GREENTEA_CLIENT_VERSION_STRING
@@ -122,6 +123,7 @@ int greentea_getc();
 }
 #endif
 
+#endif  // MBED_TEST
 #endif  // GREENTEA_CLIENT_TEST_ENV_H_
 
 /** @}*/

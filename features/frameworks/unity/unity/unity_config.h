@@ -22,6 +22,8 @@
 #ifndef UNITY_CONFIG_H
 #define UNITY_CONFIG_H
 
+#ifdef MBED_TEST
+
 /* When using unity with the mbed RTOS printing to the serial port using the stdlib is not 
    allowed as it causes a hardfault. Unity has the following define to control how failure
    messages are written:
@@ -37,7 +39,8 @@
 #ifndef UNITY_OUTPUT_CHAR
 #define UNITY_OUTPUT_CHAR(a) utest_safe_putc(a)
 #endif //UNITY_OUTPUT_CHAR
-    
+
+#endif // MBED_TEST
 #endif // UNITY_CONFIG_H
 
 /** @}*/

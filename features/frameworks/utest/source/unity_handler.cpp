@@ -16,6 +16,7 @@
  ****************************************************************************
  */
 
+#ifdef MBED_TEST
 #include "utest/utest_harness.h"
 #include "utest/utest_stack_trace.h"
 #include "utest/unity_handler.h"
@@ -38,4 +39,4 @@ void utest_safe_putc(int chr)
     greentea_serial->putc(chr);
 }    
 
-
+#endif

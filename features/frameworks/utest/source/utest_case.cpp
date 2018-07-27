@@ -16,8 +16,9 @@
  ****************************************************************************
  */
 
- #include "utest/utest_case.h"
- #include "utest/utest_serial.h"
+#ifdef MBED_TEST
+#include "utest/utest_case.h"
+#include "utest/utest_serial.h"
 
 using namespace utest::v1;
 
@@ -193,3 +194,5 @@ bool
 Case::is_empty() const {
     return !(handler || control_handler || repeat_count_handler || setup_handler || teardown_handler);
 }
+
+#endif
