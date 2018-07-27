@@ -845,6 +845,7 @@ lorawan_status_t LoRaMac::handle_retransmission()
 void LoRaMac::on_backoff_timer_expiry(void)
 {
     Lock lock(*this);
+    _lora_time.stop(_params.timers.backoff_timer);
     lorawan_status_t status = schedule_tx();
     MBED_ASSERT(status == LORAWAN_STATUS_OK);
     (void) status;
@@ -1018,7 +1019,13 @@ int LoRaMac::get_backoff_timer_event_id(void)
 lorawan_status_t LoRaMac::clear_tx_pipe(void)
 {
     // check if the event is not already queued
-    if (_ev_queue->time_left(get_backoff_timer_event_id()) > 0) {
+    const int id = get_backoff_timer_event_id();
+    if (id == 0) {
+        // No queued send request
+        return LORAWAN_STATUS_OK;
+    }
+
+    if (_ev_queue->time_left(id) > 0) {
         _lora_time.stop(_params.timers.backoff_timer);
         _lora_time.stop(_params.timers.ack_timeout_timer);
         memset(_params.tx_buffer, 0, sizeof _params.tx_buffer);
@@ -1026,9 +1033,10 @@ lorawan_status_t LoRaMac::clear_tx_pipe(void)
         reset_ongoing_tx(true);
         tr_debug("Sending Cancelled");
         return LORAWAN_STATUS_OK;
+    } else {
+        // Event is already being dispatched so it cannot be cancelled
+        return LORAWAN_STATUS_BUSY;
     }
-
-    return LORAWAN_STATUS_BUSY;
 }
 
 lorawan_status_t LoRaMac::schedule_tx()
