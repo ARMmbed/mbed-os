@@ -44,14 +44,14 @@
 #define NETWORK_TIMEOUT (180*1000)
 
 static UARTSerial cellular_serial(MDMTXD, MDMRXD, MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE);
-static CELLULAR_DEVICE* cellular_device;
+static CELLULAR_DEVICE *cellular_device;
 static EventQueue queue(2 * EVENTS_EVENT_SIZE);
 
 static void urc_callback()
 {
 }
 
-static void wait_for_power(CellularPower* pwr)
+static void wait_for_power(CellularPower *pwr)
 {
     nsapi_error_t err = pwr->set_device_ready_urc_cb(&urc_callback);
     TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_UNSUPPORTED);
@@ -72,13 +72,13 @@ static void wait_for_power(CellularPower* pwr)
 static void test_power_interface()
 {
     cellular_device = new CELLULAR_DEVICE(queue);
-    CellularPower* pwr = cellular_device->open_power(&cellular_serial);
+    CellularPower *pwr = cellular_device->open_power(&cellular_serial);
 
     nsapi_error_t err = pwr->on();
     TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_UNSUPPORTED);
     wait_for_power(pwr);
 
-    TEST_ASSERT(pwr->set_power_level(1,0) == NSAPI_ERROR_OK);
+    TEST_ASSERT(pwr->set_power_level(1, 0) == NSAPI_ERROR_OK);
 
     err = pwr->reset();
     TEST_ASSERT(err == NSAPI_ERROR_OK);
@@ -102,7 +102,7 @@ static Case cases[] = {
 
 static utest::v1::status_t test_setup(const size_t number_of_cases)
 {
-    GREENTEA_SETUP(10*60, "default_auto");
+    GREENTEA_SETUP(10 * 60, "default_auto");
     return verbose_test_setup_handler(number_of_cases);
 }
 

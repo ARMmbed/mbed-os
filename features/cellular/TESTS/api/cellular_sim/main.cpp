@@ -56,7 +56,7 @@ static char *get_rand_string(char *str, size_t size)
     if (size) {
         --size;
         for (size_t n = 0; n < size; n++) {
-            int key = rand() % (int) (sizeof charset - 1);
+            int key = rand() % (int)(sizeof charset - 1);
             str[n] = charset[key];
         }
         str[size] = '\0';
@@ -144,7 +144,7 @@ static Case cases[] = {
 
 static utest::v1::status_t test_setup(const size_t number_of_cases)
 {
-    GREENTEA_SETUP(10*60, "default_auto");
+    GREENTEA_SETUP(10 * 60, "default_auto");
     return verbose_test_setup_handler(number_of_cases);
 }
 

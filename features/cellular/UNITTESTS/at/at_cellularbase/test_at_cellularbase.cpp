@@ -27,9 +27,11 @@ using namespace events;
 
 class my_base : public AT_CellularBase {
 public:
-    my_base(ATHandler &at) : AT_CellularBase(at) {
+    my_base(ATHandler &at) : AT_CellularBase(at)
+    {
     }
-    bool check_not_supported() {
+    bool check_not_supported()
+    {
         static const AT_CellularBase::SupportedFeature unsupported_features[] =  {
             AT_CellularBase::AT_CGSN_WITH_TYPE,
             AT_CellularBase::SUPPORTED_FEATURE_END_MARK
@@ -38,12 +40,14 @@ public:
         return is_supported(AT_CGSN_WITH_TYPE);
     }
 
-    bool check_supported() {
+    bool check_supported()
+    {
         set_unsupported_features(NULL);
         return is_supported(AT_CGSN_WITH_TYPE);
     }
 
-    bool check_supported_not_found() {
+    bool check_supported_not_found()
+    {
         static const AT_CellularBase::SupportedFeature unsupported_features[] =  {
             AT_CellularBase::AT_CGSN_WITH_TYPE,
             AT_CellularBase::SUPPORTED_FEATURE_END_MARK

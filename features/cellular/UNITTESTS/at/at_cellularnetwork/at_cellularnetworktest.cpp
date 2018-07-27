@@ -20,18 +20,16 @@
 
 TEST_GROUP(AT_CellularNetwork)
 {
-    Test_AT_CellularNetwork* unit;
+    Test_AT_CellularNetwork *unit;
 
-    void setup()
-    {
+    void setup() {
         unit = new Test_AT_CellularNetwork();
         ATHandler_stub::int_count = kRead_int_table_size;
         ATHandler_stub::read_string_index = kRead_string_table_size;
         ATHandler_stub::resp_stop_success_count = kResp_stop_count_default;
     }
 
-    void teardown()
-    {
+    void teardown() {
         delete unit;
     }
 };

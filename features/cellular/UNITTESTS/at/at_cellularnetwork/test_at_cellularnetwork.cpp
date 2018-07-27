@@ -29,38 +29,66 @@
 using namespace mbed;
 using namespace events;
 
-class my_stack :public AT_CellularStack {
+class my_stack : public AT_CellularStack {
 public:
     my_stack(ATHandler &atHandler) : AT_CellularStack(atHandler, 1, IPV4_STACK) {}
-    virtual int get_max_socket_count() { return 1;}
-    virtual int get_max_packet_size() {return 200;}
-    virtual bool is_protocol_supported(nsapi_protocol_t protocol) {return true;}
-    virtual nsapi_error_t socket_close_impl(int sock_id) {return NSAPI_ERROR_OK;}
-    virtual nsapi_error_t create_socket_impl(CellularSocket *socket) {return NSAPI_ERROR_OK;}
+    virtual int get_max_socket_count()
+    {
+        return 1;
+    }
+    virtual int get_max_packet_size()
+    {
+        return 200;
+    }
+    virtual bool is_protocol_supported(nsapi_protocol_t protocol)
+    {
+        return true;
+    }
+    virtual nsapi_error_t socket_close_impl(int sock_id)
+    {
+        return NSAPI_ERROR_OK;
+    }
+    virtual nsapi_error_t create_socket_impl(CellularSocket *socket)
+    {
+        return NSAPI_ERROR_OK;
+    }
     virtual nsapi_size_or_error_t socket_sendto_impl(CellularSocket *socket, const SocketAddress &address,
-            const void *data, nsapi_size_t size) {return 100;}
+                                                     const void *data, nsapi_size_t size)
+    {
+        return 100;
+    }
     virtual nsapi_size_or_error_t socket_recvfrom_impl(CellularSocket *socket, SocketAddress *address,
-            void *buffer, nsapi_size_t size) {return 100;}
+                                                       void *buffer, nsapi_size_t size)
+    {
+        return 100;
+    }
 };
 
 class my_AT_CN : public AT_CellularNetwork {
 public:
     my_AT_CN(ATHandler &atHandler) : AT_CellularNetwork(atHandler) {}
     virtual ~my_AT_CN() {}
-    NetworkStack *get_stack() {
+    NetworkStack *get_stack()
+    {
         if (!_stack) {
             return new my_stack(get_at_handler());
         } else {
             return _stack;
-        }}
-    virtual bool has_registration(RegistrationType reg_type) {
+        }
+    }
+    virtual bool has_registration(RegistrationType reg_type)
+    {
         if (reg_type == C_GREG) {
             return false;
         }
         return true;
     }
-    virtual nsapi_error_t set_access_technology_impl(RadioAccessTechnology op_rat) { return NSAPI_ERROR_OK;}
-    virtual bool get_modem_stack_type(nsapi_ip_stack_t requested_stack) {
+    virtual nsapi_error_t set_access_technology_impl(RadioAccessTechnology op_rat)
+    {
+        return NSAPI_ERROR_OK;
+    }
+    virtual bool get_modem_stack_type(nsapi_ip_stack_t requested_stack)
+    {
         if (requested_stack == IPV4_STACK || requested_stack == DEFAULT_STACK) {
             return true;
         }
@@ -72,20 +100,27 @@ class my_AT_CNipv6 : public AT_CellularNetwork {
 public:
     my_AT_CNipv6(ATHandler &atHandler) : AT_CellularNetwork(atHandler) {}
     virtual ~my_AT_CNipv6() {}
-    NetworkStack *get_stack() {
+    NetworkStack *get_stack()
+    {
         if (!_stack) {
             return new my_stack(get_at_handler());
         } else {
             return _stack;
-        }}
-    virtual bool has_registration(RegistrationType reg_type) {
+        }
+    }
+    virtual bool has_registration(RegistrationType reg_type)
+    {
         if (reg_type == C_GREG) {
             return false;
         }
         return true;
     }
-    virtual nsapi_error_t set_access_technology_impl(RadioAccessTechnology op_rat) { return NSAPI_ERROR_OK;}
-    virtual bool get_modem_stack_type(nsapi_ip_stack_t requested_stack) {
+    virtual nsapi_error_t set_access_technology_impl(RadioAccessTechnology op_rat)
+    {
+        return NSAPI_ERROR_OK;
+    }
+    virtual bool get_modem_stack_type(nsapi_ip_stack_t requested_stack)
+    {
         if (requested_stack == IPV6_STACK || requested_stack == DEFAULT_STACK) {
             return true;
         }
@@ -194,7 +229,7 @@ void Test_AT_CellularNetwork::test_AT_CellularNetwork_activate_context()
     CHECK(NSAPI_ERROR_OK == my_cn.set_credentials("apn", CellularNetwork::CHAP, "user", "passwd"));
     CHECK(NSAPI_ERROR_OK == my_cn.activate_context());
 
-     // get_context return true and new context created, test delete context
+    // get_context return true and new context created, test delete context
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
     ATHandler_stub::bool_value = false;
     ATHandler_stub::resp_stop_success_count = kResp_stop_count_default;
@@ -264,7 +299,7 @@ void Test_AT_CellularNetwork::test_AT_CellularNetwork_activate_context()
     ATHandler_stub::read_string_table[0] = "internet";
     ATHandler_stub::read_string_table[1] = "IPV4V6";
     ATHandler_stub::int_value = 1;
-    CHECK(NSAPI_ERROR_OK ==my_cn.set_stack_type(DEFAULT_STACK));
+    CHECK(NSAPI_ERROR_OK == my_cn.set_stack_type(DEFAULT_STACK));
     CHECK(NSAPI_ERROR_OK == my_cn.set_credentials("internet"));
     CHECK(NSAPI_ERROR_OK == my_cn.activate_context());
 
@@ -276,7 +311,7 @@ void Test_AT_CellularNetwork::test_AT_CellularNetwork_activate_context()
     ATHandler_stub::read_string_table[0] = "internet";
     ATHandler_stub::read_string_table[1] = "IPV4V6";
     ATHandler_stub::int_value = 1;
-    CHECK(NSAPI_ERROR_OK ==my_cnipv6.set_stack_type(DEFAULT_STACK));
+    CHECK(NSAPI_ERROR_OK == my_cnipv6.set_stack_type(DEFAULT_STACK));
     CHECK(NSAPI_ERROR_OK == my_cnipv6.set_credentials("internet"));
     CHECK(NSAPI_ERROR_OK == my_cnipv6.activate_context());
 
@@ -288,7 +323,7 @@ void Test_AT_CellularNetwork::test_AT_CellularNetwork_activate_context()
     ATHandler_stub::read_string_table[0] = "internet";
     ATHandler_stub::read_string_table[1] = "IPV6";
     ATHandler_stub::int_value = 1;
-    CHECK(NSAPI_ERROR_OK ==my_cnipv6.set_stack_type(DEFAULT_STACK));
+    CHECK(NSAPI_ERROR_OK == my_cnipv6.set_stack_type(DEFAULT_STACK));
     CHECK(NSAPI_ERROR_OK == my_cnipv6.set_credentials("internet"));
     CHECK(NSAPI_ERROR_OK == my_cnipv6.activate_context());
 
@@ -300,7 +335,7 @@ void Test_AT_CellularNetwork::test_AT_CellularNetwork_activate_context()
     ATHandler_stub::read_string_table[0] = "internet";
     ATHandler_stub::read_string_table[1] = "IP";
     ATHandler_stub::int_value = 1;
-    CHECK(NSAPI_ERROR_OK ==my_cn.set_stack_type(DEFAULT_STACK));
+    CHECK(NSAPI_ERROR_OK == my_cn.set_stack_type(DEFAULT_STACK));
     CHECK(NSAPI_ERROR_OK == my_cn.set_credentials("internet"));
     CHECK(NSAPI_ERROR_OK == my_cn.activate_context());
 
@@ -366,7 +401,7 @@ void Test_AT_CellularNetwork::test_AT_CellularNetwork_get_stack()
     ATHandler at(&fh1, que, 0, ",");
 
     my_AT_CN my_cn(at);
-    my_stack* mystack = (my_stack*)my_cn.get_stack();
+    my_stack *mystack = (my_stack *)my_cn.get_stack();
     CHECK(mystack);
     delete mystack;
 }
@@ -763,7 +798,7 @@ void Test_AT_CellularNetwork::test_AT_CellularNetwork_scan_plmn()
     CHECK(NSAPI_ERROR_OK == cn.scan_plmn(ops, c));
     CHECK(c == 1);
     CHECK(ops.get_head() != NULL);
-    CellularNetwork::operator_t* op = ops.get_head();
+    CellularNetwork::operator_t *op = ops.get_head();
     CHECK(op->op_status == CellularNetwork::operator_t::Available);
     CHECK(strcmp(op->op_long, "12345") == 0);
     CHECK(strcmp(op->op_short, "33333") == 0);
@@ -921,12 +956,12 @@ void Test_AT_CellularNetwork::test_AT_CellularNetwork_get_extended_signal_qualit
     AT_CellularNetwork cn(at);
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_DEVICE_ERROR;
     int rx = -1, be = -1, rs = -1, ec = -1, rsrq = -1, rsrp = -1;
-    CHECK(NSAPI_ERROR_DEVICE_ERROR == cn.get_extended_signal_quality(rx, be,rs,ec,rsrq, rsrp));
+    CHECK(NSAPI_ERROR_DEVICE_ERROR == cn.get_extended_signal_quality(rx, be, rs, ec, rsrq, rsrp));
     CHECK(rx == -1 && be == -1 && rs == -1 && ec == -1 && rsrq == -1 && rsrp == -1);
 
     ATHandler_stub::int_value = 5;
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
-    CHECK(NSAPI_ERROR_OK == cn.get_extended_signal_quality(rx, be,rs,ec,rsrq, rsrp));
+    CHECK(NSAPI_ERROR_OK == cn.get_extended_signal_quality(rx, be, rs, ec, rsrq, rsrp));
     CHECK(rx == 5 && be == 5 && rs == 5 && ec == 5 && rsrq == 5 && rsrp == 5);
 }
 
@@ -939,12 +974,12 @@ void Test_AT_CellularNetwork::test_AT_CellularNetwork_get_signal_quality()
     AT_CellularNetwork cn(at);
     int rs = -1, ber = -1;
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_DEVICE_ERROR;
-    CHECK(NSAPI_ERROR_DEVICE_ERROR == cn.get_signal_quality(rs,ber));
+    CHECK(NSAPI_ERROR_DEVICE_ERROR == cn.get_signal_quality(rs, ber));
     CHECK(rs == -1 && ber == -1);
 
     ATHandler_stub::int_value = 1;
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
-    CHECK(NSAPI_ERROR_OK == cn.get_signal_quality(rs,ber));
+    CHECK(NSAPI_ERROR_OK == cn.get_signal_quality(rs, ber));
     CHECK(rs == 1 && ber == 1);
 }
 

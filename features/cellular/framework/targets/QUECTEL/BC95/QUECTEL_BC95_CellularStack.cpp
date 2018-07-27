@@ -43,7 +43,7 @@ nsapi_error_t QUECTEL_BC95_CellularStack::socket_accept(void *server, void **soc
 
 void QUECTEL_BC95_CellularStack::urc_nsonmi()
 {
-    int sock_id =_at.read_int();
+    int sock_id = _at.read_int();
 
     for (int i = 0; i < get_max_socket_count(); i++) {
         CellularSocket *sock = _socket[i];
@@ -137,12 +137,12 @@ nsapi_error_t QUECTEL_BC95_CellularStack::create_socket_impl(CellularSocket *soc
 }
 
 nsapi_size_or_error_t QUECTEL_BC95_CellularStack::socket_sendto_impl(CellularSocket *socket, const SocketAddress &address,
-        const void *data, nsapi_size_t size)
+                                                                     const void *data, nsapi_size_t size)
 {
     int sent_len = 0;
 
-    char *hexstr = new char[size*2+1];
-    int hexlen = char_str_to_hex_str((const char*)data, size, hexstr);
+    char *hexstr = new char[size * 2 + 1];
+    int hexlen = char_str_to_hex_str((const char *)data, size, hexstr);
     // NULL terminated for write_string
     hexstr[hexlen] = 0;
     _at.cmd_start("AT+NSOST=");
@@ -168,9 +168,9 @@ nsapi_size_or_error_t QUECTEL_BC95_CellularStack::socket_sendto_impl(CellularSoc
 }
 
 nsapi_size_or_error_t QUECTEL_BC95_CellularStack::socket_recvfrom_impl(CellularSocket *socket, SocketAddress *address,
-        void *buffer, nsapi_size_t size)
+                                                                       void *buffer, nsapi_size_t size)
 {
-    nsapi_size_or_error_t recv_len=0;
+    nsapi_size_or_error_t recv_len = 0;
     int port;
     char ip_address[NSAPI_IP_SIZE];
 
@@ -184,7 +184,7 @@ nsapi_size_or_error_t QUECTEL_BC95_CellularStack::socket_recvfrom_impl(CellularS
     _at.read_string(ip_address, sizeof(ip_address));
     port = _at.read_int();
     recv_len = _at.read_int();
-    int hexlen = _at.read_hex_string((char*)buffer, size);
+    int hexlen = _at.read_hex_string((char *)buffer, size);
     // remaining length
     _at.skip_param();
     _at.resp_stop();

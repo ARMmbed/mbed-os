@@ -17,8 +17,7 @@
 #ifndef TEST_AT_CELLULARBASE_H
 #define TEST_AT_CELLULARBASE_H
 
-class Test_AT_CellularBase
-{
+class Test_AT_CellularBase {
 public:
     Test_AT_CellularBase();
 

@@ -19,15 +19,13 @@
 
 TEST_GROUP(AT_CellularSMS)
 {
-    Test_AT_CellularSMS* unit;
+    Test_AT_CellularSMS *unit;
 
-    void setup()
-    {
+    void setup() {
         unit = new Test_AT_CellularSMS();
     }
 
-    void teardown()
-    {
+    void teardown() {
         delete unit;
     }
 };

@@ -22,8 +22,7 @@
 
 namespace mbed {
 
-class UBLOX_PPP_CellularNetwork : public AT_CellularNetwork
-{
+class UBLOX_PPP_CellularNetwork : public AT_CellularNetwork {
 public:
     UBLOX_PPP_CellularNetwork(ATHandler &atHandler);
     virtual ~UBLOX_PPP_CellularNetwork();
@@ -37,8 +36,7 @@ protected:
 };
 
 MBED_DEPRECATED_SINCE("mbed-os-5.9", "This API will be deprecated, Use UBLOX_PPP_CellularNetwork instead of UBLOX_LISA_U_CellularNetwork.")
-class UBLOX_LISA_U_CellularNetwork : public UBLOX_PPP_CellularNetwork
-{
+class UBLOX_LISA_U_CellularNetwork : public UBLOX_PPP_CellularNetwork {
 };
 
 } // namespace mbed

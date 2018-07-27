@@ -20,11 +20,9 @@
 
 #include "AT_CellularPower.h"
 
-namespace mbed
-{
+namespace mbed {
 
-class QUECTEL_BG96_CellularPower : public AT_CellularPower
-{
+class QUECTEL_BG96_CellularPower : public AT_CellularPower {
 public:
     QUECTEL_BG96_CellularPower(ATHandler &atHandler);
 

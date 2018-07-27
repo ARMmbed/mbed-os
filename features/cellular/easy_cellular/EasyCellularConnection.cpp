@@ -63,9 +63,9 @@ void EasyCellularConnection::network_callback(nsapi_event_t ev, intptr_t ptr)
 }
 
 EasyCellularConnection::EasyCellularConnection(bool debug) :
-        _is_connected(false), _is_initialized(false), _target_state(CellularConnectionFSM::STATE_POWER_ON), _cellularSerial(
-                MDMTXD, MDMRXD, MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE), _cellularSemaphore(0), _cellularConnectionFSM(0), _credentials_err(
-                NSAPI_ERROR_OK), _status_cb(0)
+    _is_connected(false), _is_initialized(false), _target_state(CellularConnectionFSM::STATE_POWER_ON), _cellularSerial(
+        MDMTXD, MDMRXD, MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE), _cellularSemaphore(0), _cellularConnectionFSM(0), _credentials_err(
+            NSAPI_ERROR_OK), _status_cb(0)
 {
     tr_info("EasyCellularConnection()");
 #if USE_APN_LOOKUP
@@ -203,9 +203,9 @@ nsapi_error_t EasyCellularConnection::connect()
                 if (err == NSAPI_ERROR_OK) {
                     const char *apn_config = apnconfig(imsi);
                     if (apn_config) {
-                        const char* apn = _APN_GET(apn_config);
-                        const char* uname = _APN_GET(apn_config);
-                        const char* pwd = _APN_GET(apn_config);
+                        const char *apn = _APN_GET(apn_config);
+                        const char *uname = _APN_GET(apn_config);
+                        const char *pwd = _APN_GET(apn_config);
                         tr_info("Looked up APN %s", apn);
                         err = _cellularConnectionFSM->get_network()->set_credentials(apn, uname, pwd);
                     }

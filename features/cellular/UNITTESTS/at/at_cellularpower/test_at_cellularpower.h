@@ -17,8 +17,7 @@
 #ifndef TEST_AT_CELLULARPOWER_H
 #define TEST_AT_CELLULARPOWER_H
 
-class Test_AT_CellularPower
-{
+class Test_AT_CellularPower {
 public:
     Test_AT_CellularPower();
 

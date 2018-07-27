@@ -19,15 +19,13 @@
 
 TEST_GROUP(AT_CellularStack)
 {
-    Test_AT_CellularStack* unit;
+    Test_AT_CellularStack *unit;
 
-    void setup()
-    {
+    void setup() {
         unit = new Test_AT_CellularStack();
     }
 
-    void teardown()
-    {
+    void teardown() {
         delete unit;
     }
 };

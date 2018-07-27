@@ -21,13 +21,12 @@
 #include <cstdarg>
 #include "FileHandle.h"
 
-class ATCmdParser
-{
+class ATCmdParser {
 public:
     ATCmdParser(mbed::FileHandle *fh, const char *output_delimiter = "\r",
-                 int buffer_size = 256, int timeout = 8000, bool debug = false){}
+                int buffer_size = 256, int timeout = 8000, bool debug = false) {}
 
-    ~ATCmdParser(){}
+    ~ATCmdParser() {}
 };
 
 #endif //__AT_CMD_PARSER_H__
