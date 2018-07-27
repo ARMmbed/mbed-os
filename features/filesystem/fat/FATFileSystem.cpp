@@ -464,7 +464,6 @@ int FATFileSystem::remove(const char *path)
     if (res != FR_OK) {
         debug_if(FFS_DBG, "f_unlink() failed: %d\n", res);
         if (res == FR_DENIED) {
-            printf("hi %d -> %d\n", FR_DENIED, -ENOTEMPTY);
             return -ENOTEMPTY;
         }
     }
