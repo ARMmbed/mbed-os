@@ -126,6 +126,12 @@ if __name__ == '__main__':
         all_tests = {}
         tests = {}
 
+        # Add the test macro, when compiling all test
+        if options.macros is None:
+           options.macros = ['MBED_TEST']
+        else:
+            options.macros.append(['MBED_TEST'])
+
         # Target
         if options.mcu is None :
             args_error(parser, "argument -m/--mcu is required")
