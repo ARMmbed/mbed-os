@@ -28,7 +28,7 @@
 
 namespace mbed_cellular_util {
 
-void convert_ipv6(char* ip)
+void convert_ipv6(char *ip)
 {
     if (!ip) {
         return;
@@ -56,21 +56,21 @@ void convert_ipv6(char* ip)
         bool set_colon = false;
         for (i = 0; i < len; i++) {
             if (ip[i] == '.') {
-                b = (char)strtol (ip+ip_pos, NULL, 10); // convert to char to int so we can change it to hex string
-                pos += char_str_to_hex_str(&b, 1, ip+pos, !set_colon); // omit leading zeroes with using set_colon flag
+                b = (char)strtol(ip + ip_pos, NULL, 10); // convert to char to int so we can change it to hex string
+                pos += char_str_to_hex_str(&b, 1, ip + pos, !set_colon); // omit leading zeroes with using set_colon flag
                 if (set_colon) {
                     ip[pos++] = ':';
                     set_colon = false;
                 } else {
                     set_colon = true;
                 }
-                ip_pos = i+1; // skip the '.'
+                ip_pos = i + 1; // skip the '.'
             }
 
             // handle the last part which does not end with '.' but '\0'
-            if (i == len -1) {
-                b = (char)strtol(ip+ip_pos, NULL, 10);
-                pos += char_str_to_hex_str(&b, 1, ip+pos, !set_colon);
+            if (i == len - 1) {
+                b = (char)strtol(ip + ip_pos, NULL, 10);
+                pos += char_str_to_hex_str(&b, 1, ip + pos, !set_colon);
                 ip[pos] = '\0';
             }
         }
@@ -78,7 +78,7 @@ void convert_ipv6(char* ip)
 }
 
 // For example "32.1.13.184.0.0.205.48.0.0.0.0.0.0.0.0"
-void separate_ip4like_addresses(char* orig, char* ip, size_t ip_size, char* ip2, size_t ip2_size)
+void separate_ip4like_addresses(char *orig, char *ip, size_t ip_size, char *ip2, size_t ip2_size)
 {
     // ipv4-like notation
     int len = strlen(orig);
@@ -108,9 +108,9 @@ void separate_ip4like_addresses(char* orig, char* ip, size_t ip_size, char* ip2,
         }
     } else if (count == 7) { // ipv4 and subnet mask. Need to separate those.
         temp = &orig[pos];
-        if ((uint8_t)ip_size > temp-orig) {
-            memcpy(ip, orig, temp-orig);
-            ip[temp-orig] = '\0';
+        if ((uint8_t)ip_size > temp - orig) {
+            memcpy(ip, orig, temp - orig);
+            ip[temp - orig] = '\0';
         }
         temp++; // skip the '.'
         if (ip2 && (ip2_size > strlen(temp))) {
@@ -128,11 +128,11 @@ void separate_ip4like_addresses(char* orig, char* ip, size_t ip_size, char* ip2,
         if (ip2) {
             ip2[0] = '\0';
         }
-    } else if (count == 31){ // ipv6 + ipv6subnet mask in ipv4-like notation separated by dot '.'
+    } else if (count == 31) { // ipv6 + ipv6subnet mask in ipv4-like notation separated by dot '.'
         temp = &orig[pos];
-        if ((uint8_t)ip_size > temp-orig) {
-            memcpy(ip, orig, temp-orig);
-            ip[temp-orig] = '\0';
+        if ((uint8_t)ip_size > temp - orig) {
+            memcpy(ip, orig, temp - orig);
+            ip[temp - orig] = '\0';
             convert_ipv6(ip);
         }
         temp++; // skip the '.'
@@ -144,7 +144,7 @@ void separate_ip4like_addresses(char* orig, char* ip, size_t ip_size, char* ip2,
     }
 }
 
-void separate_ip_addresses(char* orig, char* ip, size_t ip_size, char* ip2, size_t ip2_size)
+void separate_ip_addresses(char *orig, char *ip, size_t ip_size, char *ip2, size_t ip2_size)
 {
     // orig can include ipv4, ipv6, both or two ip4/ipv6 addresses.
     // also format depends on possible AT+CGPIAF
@@ -166,9 +166,9 @@ void separate_ip_addresses(char* orig, char* ip, size_t ip_size, char* ip2, size
         temp = strstr(orig, " ");
         // found space as separator and it wasn't in beginning --> contains 2 ip addresses
         if (temp && temp != orig) {
-            if ((uint8_t)ip_size > temp-orig) {
-                memcpy(ip, orig, temp-orig);
-                ip[temp-orig] = '\0';
+            if ((uint8_t)ip_size > temp - orig) {
+                memcpy(ip, orig, temp - orig);
+                ip[temp - orig] = '\0';
             } else {
                 ip[0] = '\0';
             }
@@ -201,17 +201,16 @@ void separate_ip_addresses(char* orig, char* ip, size_t ip_size, char* ip2, size
         // found space as separator and it wasn't in beginning --> contains 2 ip addresses
         if (temp && temp != orig) {
             separate_ip4like_addresses(temp++, ip2, ip2_size, NULL, 0);
-            orig[temp-orig-1] = '\0';
+            orig[temp - orig - 1] = '\0';
             separate_ip4like_addresses(orig, ip, ip_size, NULL, 0);
-            orig[temp-orig-1] = ' '; // put space back to keep orig as original
-        }
-        else {
+            orig[temp - orig - 1] = ' '; // put space back to keep orig as original
+        } else {
             separate_ip4like_addresses(orig, ip, ip_size, ip2, ip2_size);
         }
     }
 }
 
-void prefer_ipv6(char* ip, size_t ip_size, char* ip2, size_t ip2_size)
+void prefer_ipv6(char *ip, size_t ip_size, char *ip2, size_t ip2_size)
 {
     if (!ip || !ip2) {
         return;
@@ -242,7 +241,7 @@ void prefer_ipv6(char* ip, size_t ip_size, char* ip2, size_t ip2_size)
     }
 }
 
-void int_to_hex_str(uint8_t num, char* buf)
+void int_to_hex_str(uint8_t num, char *buf)
 {
     char charNum = num;
     char_str_to_hex_str(&charNum, 1, buf);
@@ -253,7 +252,7 @@ int hex_str_to_int(const char *hex_string, int hex_string_length)
     const int base = 16;
     int character_as_integer, integer_output = 0;
 
-    for (int i=0;i<hex_string_length && hex_string[i] != '\0';i++) {
+    for (int i = 0; i < hex_string_length && hex_string[i] != '\0'; i++) {
         if (hex_string[i] >= '0' && hex_string[i] <= '9') {
             character_as_integer = hex_string[i] - '0';
         } else if (hex_string[i] >= 'A' && hex_string[i] <= 'F') {
@@ -268,20 +267,20 @@ int hex_str_to_int(const char *hex_string, int hex_string_length)
     return integer_output;
 }
 
-int hex_str_to_char_str(const char* str, uint16_t len, char *buf)
+int hex_str_to_char_str(const char *str, uint16_t len, char *buf)
 {
     int strcount = 0;
-    for (int i = 0; i+1 < len; i += 2) {
-        int upper = hex_str_to_int(str+i, 1);
-        int lower = hex_str_to_int(str+i+1, 1);
-        buf[strcount] = ((upper<<4) & 0xF0) | (lower & 0x0F);
+    for (int i = 0; i + 1 < len; i += 2) {
+        int upper = hex_str_to_int(str + i, 1);
+        int lower = hex_str_to_int(str + i + 1, 1);
+        buf[strcount] = ((upper << 4) & 0xF0) | (lower & 0x0F);
         strcount++;
     }
 
     return strcount;
 }
 
-void uint_to_binary_str(uint32_t num, char* str, int str_size, int bit_cnt)
+void uint_to_binary_str(uint32_t num, char *str, int str_size, int bit_cnt)
 {
     if (!str || str_size < bit_cnt) {
         return;
@@ -291,7 +290,7 @@ void uint_to_binary_str(uint32_t num, char* str, int str_size, int bit_cnt)
     for (int i = 31; i >= 0; i--) {
         tmp = num >> i;
         if (i < bit_cnt) {
-            if (tmp&1) {
+            if (tmp & 1) {
                 str[pos] = 1 + '0';
             } else {
                 str[pos] = 0 + '0';
@@ -301,24 +300,24 @@ void uint_to_binary_str(uint32_t num, char* str, int str_size, int bit_cnt)
     }
 }
 
-int char_str_to_hex_str(const char* str, uint16_t len, char *buf, bool omit_leading_zero)
+int char_str_to_hex_str(const char *str, uint16_t len, char *buf, bool omit_leading_zero)
 {
     if (!str || !buf) {
         return 0;
     }
 
     char *ptr = buf;
-    int i=0;
+    int i = 0;
     while (i < len) {
-        if (omit_leading_zero == true && i == 0 && !(str[i]>>4 & 0x0F)) {
+        if (omit_leading_zero == true && i == 0 && !(str[i] >> 4 & 0x0F)) {
             *ptr++ = hex_values[(str[i]) & 0x0F];
         } else {
-            *ptr++ = hex_values[((str[i])>>4) & 0x0F];
+            *ptr++ = hex_values[((str[i]) >> 4) & 0x0F];
             *ptr++ = hex_values[(str[i]) & 0x0F];
         }
         i++;
     }
-    return ptr-buf;
+    return ptr - buf;
 }
 
 uint16_t get_dynamic_ip_port()

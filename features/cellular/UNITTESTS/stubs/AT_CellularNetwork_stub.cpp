@@ -39,19 +39,19 @@ nsapi_error_t AT_CellularNetwork::init()
 }
 
 nsapi_error_t AT_CellularNetwork::set_credentials(const char *apn,
-        const char *username, const char *password)
+                                                  const char *username, const char *password)
 {
     return NSAPI_ERROR_OK;
 }
 
 nsapi_error_t AT_CellularNetwork::set_credentials(const char *apn,
-     AuthenticationType type, const char *username, const char *password)
+                                                  AuthenticationType type, const char *username, const char *password)
 {
     return NSAPI_ERROR_OK;
 }
 
 nsapi_error_t AT_CellularNetwork::connect(const char *apn,
-        const char *username, const char *password)
+                                          const char *username, const char *password)
 {
     return connect();
 }
@@ -90,7 +90,7 @@ nsapi_error_t AT_CellularNetwork::set_blocking(bool blocking)
     return NSAPI_ERROR_OK;;
 }
 
-nsapi_ip_stack_t AT_CellularNetwork::string_to_stack_type(const char* pdp_type)
+nsapi_ip_stack_t AT_CellularNetwork::string_to_stack_type(const char *pdp_type)
 {
     return IPV4_STACK;
 }
@@ -100,7 +100,7 @@ nsapi_error_t AT_CellularNetwork::set_registration_urc(RegistrationType type, bo
     return NSAPI_ERROR_OK;
 }
 
-nsapi_error_t AT_CellularNetwork::get_network_registering_mode(NWRegisteringMode& mode)
+nsapi_error_t AT_CellularNetwork::get_network_registering_mode(NWRegisteringMode &mode)
 {
     mode = NWModeAutomatic;
     return NSAPI_ERROR_OK;
@@ -186,7 +186,7 @@ nsapi_error_t AT_CellularNetwork::set_access_technology(RadioAccessTechnology op
     return NSAPI_ERROR_OK;
 }
 
-nsapi_error_t AT_CellularNetwork::get_access_technology(RadioAccessTechnology& rat)
+nsapi_error_t AT_CellularNetwork::get_access_technology(RadioAccessTechnology &rat)
 {
     rat = RAT_CATM1;
     return NSAPI_ERROR_OK;
@@ -203,21 +203,21 @@ nsapi_error_t AT_CellularNetwork::set_ciot_optimization_config(Supported_UE_Opt 
     return NSAPI_ERROR_OK;
 }
 
-nsapi_error_t AT_CellularNetwork::get_ciot_optimization_config(Supported_UE_Opt& supported_opt,
-                                                               Preferred_UE_Opt& preferred_opt)
+nsapi_error_t AT_CellularNetwork::get_ciot_optimization_config(Supported_UE_Opt &supported_opt,
+                                                               Preferred_UE_Opt &preferred_opt)
 {
     return NSAPI_ERROR_OK;
 }
 
 nsapi_error_t AT_CellularNetwork::get_rate_control(
-        CellularNetwork::RateControlExceptionReports &reports,
-        CellularNetwork::RateControlUplinkTimeUnit &timeUnit, int &uplinkRate)
+    CellularNetwork::RateControlExceptionReports &reports,
+    CellularNetwork::RateControlUplinkTimeUnit &timeUnit, int &uplinkRate)
 {
     return NSAPI_ERROR_OK;
 }
 
 
-nsapi_error_t AT_CellularNetwork::get_pdpcontext_params(pdpContextList_t& params_list)
+nsapi_error_t AT_CellularNetwork::get_pdpcontext_params(pdpContextList_t &params_list)
 {
     return NSAPI_ERROR_OK;
 }

@@ -28,8 +28,7 @@
 
 #include "ATHandler.h"
 
-namespace mbed
-{
+namespace mbed {
 
 /**
  *  Class AT_CellularDevice
@@ -37,8 +36,7 @@ namespace mbed
  *  A class defines opening and closing of cellular interfaces.
  *  Deleting/Closing of opened interfaces can be done only through this class.
  */
-class AT_CellularDevice : public CellularDevice
-{
+class AT_CellularDevice : public CellularDevice {
 public:
     AT_CellularDevice(events::EventQueue &queue);
     virtual ~AT_CellularDevice();
@@ -52,7 +50,7 @@ protected:
      *
      *  @param at_handler
      */
-    void release_at_handler(ATHandler* at_handler);
+    void release_at_handler(ATHandler *at_handler);
 
 public: // CellularDevice
     virtual CellularNetwork *open_network(FileHandle *fh);
@@ -87,8 +85,8 @@ protected:
     AT_CellularNetwork *_network;
     AT_CellularSMS *_sms;
     AT_CellularSIM *_sim;
-    AT_CellularPower* _power;
-    AT_CellularInformation* _information;
+    AT_CellularPower *_power;
+    AT_CellularInformation *_information;
 
 protected:
     events::EventQueue &_queue;

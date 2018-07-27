@@ -36,7 +36,7 @@ int ATHandler_stub::timeout = 0;
 bool ATHandler_stub::default_timeout = 0;
 bool ATHandler_stub::debug_on = 0;
 ssize_t ATHandler_stub::ssize_value = 0;
-char* ATHandler_stub::read_string_value = NULL;
+char *ATHandler_stub::read_string_value = NULL;
 size_t ATHandler_stub::size_value = 0;
 size_t ATHandler_stub::return_given_size = false;
 bool ATHandler_stub::bool_value = false;
@@ -50,7 +50,7 @@ int ATHandler_stub::int_valid_count_table[kRead_int_table_size];
 int ATHandler_stub::int_count = kRead_int_table_size;
 
 int ATHandler_stub::read_string_index = kRead_string_table_size;
-char* ATHandler_stub::read_string_table[kRead_string_table_size];
+char *ATHandler_stub::read_string_table[kRead_string_table_size];
 int ATHandler_stub::resp_stop_success_count = kResp_stop_count_default;
 
 ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, int timeout, const char *output_delimiter, uint16_t send_delay) :
@@ -146,7 +146,8 @@ void ATHandler::clear_error()
     ATHandler_stub::nsapi_error_ok_counter++;
 }
 
-void ATHandler::skip_param(uint32_t count) {
+void ATHandler::skip_param(uint32_t count)
+{
 
 }
 
@@ -164,16 +165,16 @@ ssize_t ATHandler::read_string(char *buf, size_t size, bool read_even_stop_tag)
 
     if (ATHandler_stub::read_string_index == kRead_string_table_size) {
         if (ATHandler_stub::read_string_value && ATHandler_stub::ssize_value >= 0) {
-            memcpy(buf, ATHandler_stub::read_string_value, ATHandler_stub::ssize_value+1);
+            memcpy(buf, ATHandler_stub::read_string_value, ATHandler_stub::ssize_value + 1);
         }
         return ATHandler_stub::ssize_value;
     }
 
     ATHandler_stub::read_string_index--;
     if (ATHandler_stub::read_string_index >= 0) {
-        char* tmp = ATHandler_stub::read_string_table[ATHandler_stub::read_string_index];
+        char *tmp = ATHandler_stub::read_string_table[ATHandler_stub::read_string_index];
         ssize_t len = strlen(tmp);
-        memcpy(buf, tmp, len+1);
+        memcpy(buf, tmp, len + 1);
         return len;
     }
 
@@ -254,7 +255,7 @@ void ATHandler::resp_stop()
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_DEVICE_ERROR;
 }
 
-void ATHandler::cmd_start(const char* cmd)
+void ATHandler::cmd_start(const char *cmd)
 {
 }
 
@@ -262,11 +263,11 @@ void ATHandler::write_int(int32_t param)
 {
 }
 
-void ATHandler::write_string(const char* param, bool useQuotations)
+void ATHandler::write_string(const char *param, bool useQuotations)
 {
 }
 
-size_t ATHandler::write_bytes(const uint8_t* param, size_t len)
+size_t ATHandler::write_bytes(const uint8_t *param, size_t len)
 {
     if (ATHandler_stub::return_given_size) {
         return len;

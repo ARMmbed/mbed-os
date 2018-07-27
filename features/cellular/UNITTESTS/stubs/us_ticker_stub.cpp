@@ -19,7 +19,7 @@
 #include "stdlib.h"
 #include "us_ticker_api.h"
 
-const ticker_data_t* get_us_ticker_data(void)
+const ticker_data_t *get_us_ticker_data(void)
 {
     return NULL;
 }

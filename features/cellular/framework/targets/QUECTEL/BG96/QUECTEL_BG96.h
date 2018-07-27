@@ -20,11 +20,9 @@
 
 #include "AT_CellularDevice.h"
 
-namespace mbed
-{
+namespace mbed {
 
-class QUECTEL_BG96 : public AT_CellularDevice
-{
+class QUECTEL_BG96 : public AT_CellularDevice {
 public:
 
     QUECTEL_BG96(events::EventQueue &queue);

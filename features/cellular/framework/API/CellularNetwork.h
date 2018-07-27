@@ -35,8 +35,7 @@ const int MAX_OPERATOR_NAME_SHORT = 8;
  *
  *  An abstract interface for connecting to a network and getting information from it.
  */
-class CellularNetwork : public NetworkInterface
-{
+class CellularNetwork : public NetworkInterface {
 protected:
     // friend of CellularDevice so that it's the only way to close/delete this class.
     friend class CellularDevice;
@@ -117,18 +116,18 @@ public:
     };
 
     enum RadioAccessTechnology {
-            RAT_GSM,
-            RAT_GSM_COMPACT,
-            RAT_UTRAN,
-            RAT_EGPRS,
-            RAT_HSDPA,
-            RAT_HSUPA,
-            RAT_HSDPA_HSUPA,
-            RAT_E_UTRAN,
-            RAT_CATM1,
-            RAT_NB1,
-            RAT_UNKNOWN
-        };
+        RAT_GSM,
+        RAT_GSM_COMPACT,
+        RAT_UTRAN,
+        RAT_EGPRS,
+        RAT_HSDPA,
+        RAT_HSUPA,
+        RAT_HSDPA_HSUPA,
+        RAT_E_UTRAN,
+        RAT_CATM1,
+        RAT_NB1,
+        RAT_UNKNOWN
+    };
 
     // 3GPP TS 27.007 - 7.3 PLMN selection +COPS
     struct operator_t {
@@ -140,13 +139,14 @@ public:
         };
 
         Status op_status;
-        char op_long[MAX_OPERATOR_NAME_LONG+1];
-        char op_short[MAX_OPERATOR_NAME_SHORT+1];
-        char op_num[MAX_OPERATOR_NAME_SHORT+1];
+        char op_long[MAX_OPERATOR_NAME_LONG + 1];
+        char op_short[MAX_OPERATOR_NAME_SHORT + 1];
+        char op_num[MAX_OPERATOR_NAME_SHORT + 1];
         RadioAccessTechnology op_rat;
         operator_t *next;
 
-        operator_t() {
+        operator_t()
+        {
             op_status = Unknown;
             op_rat = RAT_UNKNOWN;
             next = NULL;
@@ -157,14 +157,14 @@ public:
 
     /* PDP Context information */
     struct pdpcontext_params_t {
-        char apn[MAX_ACCESSPOINT_NAME_LENGTH+1];
-        char local_addr[MAX_IPV6_ADDR_IN_IPV4LIKE_DOTTED_FORMAT+1];
-        char local_subnet_mask[MAX_IPV6_ADDR_IN_IPV4LIKE_DOTTED_FORMAT+1];
-        char gateway_addr[MAX_IPV6_ADDR_IN_IPV4LIKE_DOTTED_FORMAT+1];
-        char dns_primary_addr[MAX_IPV6_ADDR_IN_IPV4LIKE_DOTTED_FORMAT+1];
-        char dns_secondary_addr[MAX_IPV6_ADDR_IN_IPV4LIKE_DOTTED_FORMAT+1];
-        char p_cscf_prim_addr[MAX_IPV6_ADDR_IN_IPV4LIKE_DOTTED_FORMAT+1];
-        char p_cscf_sec_addr[MAX_IPV6_ADDR_IN_IPV4LIKE_DOTTED_FORMAT+1];
+        char apn[MAX_ACCESSPOINT_NAME_LENGTH + 1];
+        char local_addr[MAX_IPV6_ADDR_IN_IPV4LIKE_DOTTED_FORMAT + 1];
+        char local_subnet_mask[MAX_IPV6_ADDR_IN_IPV4LIKE_DOTTED_FORMAT + 1];
+        char gateway_addr[MAX_IPV6_ADDR_IN_IPV4LIKE_DOTTED_FORMAT + 1];
+        char dns_primary_addr[MAX_IPV6_ADDR_IN_IPV4LIKE_DOTTED_FORMAT + 1];
+        char dns_secondary_addr[MAX_IPV6_ADDR_IN_IPV4LIKE_DOTTED_FORMAT + 1];
+        char p_cscf_prim_addr[MAX_IPV6_ADDR_IN_IPV4LIKE_DOTTED_FORMAT + 1];
+        char p_cscf_sec_addr[MAX_IPV6_ADDR_IN_IPV4LIKE_DOTTED_FORMAT + 1];
         int cid;
         int bearer_id;
         int im_signalling_flag;
@@ -174,9 +174,10 @@ public:
         int local_addr_ind;
         int non_ip_mtu;
         int serving_plmn_rate_control_value;
-        pdpcontext_params_t* next;
+        pdpcontext_params_t *next;
 
-        pdpcontext_params_t() {
+        pdpcontext_params_t()
+        {
             apn[0] = '\0';
             local_addr[0] = '\0';
             local_subnet_mask[0] = '\0';
@@ -200,10 +201,11 @@ public:
     typedef CellularList<pdpcontext_params_t> pdpContextList_t;
 
     struct operator_names_t {
-        char numeric[MAX_OPERATOR_NAME_SHORT+1];
-        char alpha[MAX_OPERATOR_NAME_LONG+1];
-        operator_names_t* next;
-        operator_names_t() {
+        char numeric[MAX_OPERATOR_NAME_SHORT + 1];
+        char alpha[MAX_OPERATOR_NAME_LONG + 1];
+        operator_names_t *next;
+        operator_names_t()
+        {
             numeric[0] = '\0';
             alpha[0] = '\0';
             next = NULL;
@@ -240,7 +242,7 @@ public:
      *  @param mode on successful return contains the current network registering mode
      *  @return     zero on success
      */
-    virtual nsapi_error_t get_network_registering_mode(NWRegisteringMode& mode) = 0;
+    virtual nsapi_error_t get_network_registering_mode(NWRegisteringMode &mode) = 0;
 
     /** Activate/deactivate listening of network events for the given RegistrationType.
      *  This should be called after network class is created and ready to receive AT commands.
@@ -280,7 +282,7 @@ public:
      *  @return         0 on success, negative error code on failure
      */
     virtual nsapi_error_t set_credentials(const char *apn, AuthenticationType type,
-                const char *username = 0, const char *password = 0) = 0;
+                                          const char *username = 0, const char *password = 0) = 0;
 
     /** Request attach to network.
      *
@@ -289,7 +291,7 @@ public:
      *  @return        zero on success
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.9", "Parameter timeout will be deprecated. Use mbed-os/features/cellular/framework/API/CellularDevice.h set_timeout instead.")
-    virtual nsapi_error_t set_attach(int timeout = 10*1000) = 0;
+    virtual nsapi_error_t set_attach(int timeout = 10 * 1000) = 0;
 
     /** Request attach status from network.
      *
@@ -313,7 +315,7 @@ public:
      *  @return              zero on success
      */
     virtual nsapi_error_t get_rate_control(CellularNetwork::RateControlExceptionReports &reports,
-        CellularNetwork::RateControlUplinkTimeUnit &time_unit, int &uplink_rate) = 0;
+                                           CellularNetwork::RateControlUplinkTimeUnit &time_unit, int &uplink_rate) = 0;
 
     /** Get backoff timer value
      *
@@ -334,7 +336,7 @@ public:
      *  @param rat  Radio access technology
      *  @return     zero on success
      */
-    virtual nsapi_error_t get_access_technology(RadioAccessTechnology& rat) = 0;
+    virtual nsapi_error_t get_access_technology(RadioAccessTechnology &rat) = 0;
 
     /** Scans for operators module can reach.
      *
@@ -359,8 +361,8 @@ public:
      *  @param preferred_opt Preferred CIoT EPS optimizations.
      *  @return zero on success
      */
-    virtual nsapi_error_t get_ciot_optimization_config(Supported_UE_Opt& supported_opt,
-                                                       Preferred_UE_Opt& preferred_opt) = 0;
+    virtual nsapi_error_t get_ciot_optimization_config(Supported_UE_Opt &supported_opt,
+                                                       Preferred_UE_Opt &preferred_opt) = 0;
 
     /** Start the interface. Attempts to connect to a cellular network.
      *
@@ -407,7 +409,7 @@ public:
      *  @param params_list  reference to linked list which is filled on successful call
      *  @return             0 on success, negative error code on failure
      */
-    virtual nsapi_error_t get_pdpcontext_params(pdpContextList_t& params_list) = 0;
+    virtual nsapi_error_t get_pdpcontext_params(pdpContextList_t &params_list) = 0;
 
     /** Get extended signal quality parameters.
      *

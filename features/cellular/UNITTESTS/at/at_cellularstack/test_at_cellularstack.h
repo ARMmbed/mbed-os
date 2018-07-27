@@ -17,8 +17,7 @@
 #ifndef TEST_AT_CELLULARSTACK_H
 #define TEST_AT_CELLULARSTACK_H
 
-class Test_AT_CellularStack
-{
+class Test_AT_CellularStack {
 public:
     Test_AT_CellularStack();
 

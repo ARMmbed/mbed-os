@@ -20,16 +20,14 @@
 
 TEST_GROUP(AT_CellularSIM)
 {
-    Test_AT_CellularSIM* unit;
+    Test_AT_CellularSIM *unit;
 
-    void setup()
-    {
+    void setup() {
         unit = new Test_AT_CellularSIM();
         ATHandler_stub::read_string_index = kRead_string_table_size;
     }
 
-    void teardown()
-    {
+    void teardown() {
         delete unit;
     }
 };

@@ -19,15 +19,13 @@
 
 TEST_GROUP(util)
 {
-    Test_util* unit;
+    Test_util *unit;
 
-    void setup()
-    {
+    void setup() {
         unit = new Test_util();
     }
 
-    void teardown()
-    {
+    void teardown() {
         delete unit;
     }
 };

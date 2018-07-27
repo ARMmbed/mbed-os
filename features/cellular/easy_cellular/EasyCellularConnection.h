@@ -25,15 +25,13 @@
 
 #define USE_APN_LOOKUP (MBED_CONF_CELLULAR_USE_APN_LOOKUP || (NSAPI_PPP_AVAILABLE && MBED_CONF_PPP_CELL_IFACE_APN_LOOKUP))
 
-namespace mbed
-{
+namespace mbed {
 
 /** EasyCellularConnection class
  *
  *  Simplified adapter for cellular connection
  */
-class EasyCellularConnection: public CellularBase
-{
+class EasyCellularConnection: public CellularBase {
 
 public:
     EasyCellularConnection(bool debug = false);
@@ -136,7 +134,7 @@ public:
      *
      *  @param plmn operator in numeric format. See more from 3GPP TS 27.007 chapter 7.3.
      */
-    void set_plmn(const char* plmn);
+    void set_plmn(const char *plmn);
 protected:
 
     /** Provide access to the NetworkStack object

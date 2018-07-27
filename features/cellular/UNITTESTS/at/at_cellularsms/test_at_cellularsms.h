@@ -17,8 +17,7 @@
 #ifndef TEST_AT_CELLULARSMS_H
 #define TEST_AT_CELLULARSMS_H
 
-class Test_AT_CellularSMS
-{
+class Test_AT_CellularSMS {
 public:
     Test_AT_CellularSMS();
 

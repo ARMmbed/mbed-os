@@ -22,8 +22,7 @@
 
 namespace mbed {
 
-class UBLOX_PPP : public AT_CellularDevice
-{
+class UBLOX_PPP : public AT_CellularDevice {
 
 public:
     UBLOX_PPP(events::EventQueue &queue);
@@ -35,8 +34,7 @@ public: // CellularDevice
 };
 
 MBED_DEPRECATED_SINCE("mbed-os-5.9", "This API will be deprecated, Use UBLOX_PPP instead of UBLOX_LISA_U.")
-class UBLOX_LISA_U : public UBLOX_PPP
-{
+class UBLOX_LISA_U : public UBLOX_PPP {
 };
 
 } // namespace mbed

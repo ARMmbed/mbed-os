@@ -55,25 +55,25 @@ static void open_close_interfaces()
     nw = device->open_network(NULL);
     TEST_ASSERT(nw == NULL);
 
-    CellularSIM* sim = device->open_sim(&cellular_serial);
+    CellularSIM *sim = device->open_sim(&cellular_serial);
     TEST_ASSERT(sim != NULL);
     device->close_sim();
     sim = device->open_sim(NULL);
     TEST_ASSERT(sim == NULL);
 
-    CellularInformation* info = device->open_information(&cellular_serial);
+    CellularInformation *info = device->open_information(&cellular_serial);
     TEST_ASSERT(info != NULL);
     device->close_information();
     info = device->open_information(NULL);
     TEST_ASSERT(info == NULL);
 
-    CellularPower* power = device->open_power(&cellular_serial);
+    CellularPower *power = device->open_power(&cellular_serial);
     TEST_ASSERT(power != NULL);
     device->close_power();
     power = device->open_power(NULL);
     TEST_ASSERT(power == NULL);
 
-    CellularSMS* sms = device->open_sms(&cellular_serial);
+    CellularSMS *sms = device->open_sms(&cellular_serial);
     TEST_ASSERT(sms != NULL);
     device->close_sms();
     sms = device->open_sms(NULL);
@@ -86,7 +86,7 @@ static void other_methods()
     device->set_timeout(5000);
     device->modem_debug_on(true);
     device->modem_debug_on(false);
-    NetworkStack* stack = device->get_stack();
+    NetworkStack *stack = device->get_stack();
     TEST_ASSERT(stack == NULL);
 
     CellularNetwork *nw = device->open_network(&cellular_serial);
@@ -124,7 +124,7 @@ static Case cases[] = {
 
 static utest::v1::status_t test_setup(const size_t number_of_cases)
 {
-    GREENTEA_SETUP(10*60, "default_auto");
+    GREENTEA_SETUP(10 * 60, "default_auto");
     return verbose_test_setup_handler(number_of_cases);
 }
 
