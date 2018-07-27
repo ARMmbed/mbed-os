@@ -38,7 +38,7 @@ void critical_section_raii_recursive(Timeout &timeout)
     depth++;
     TEST_ASSERT_TRUE(core_util_in_critical_section());
 
-    if(depth < N) {
+    if (depth < N) {
         critical_section_raii_recursive<N>(timeout);
     } else {
         // max depth reached - do the test
@@ -87,7 +87,7 @@ void test_C_API(void)
     wait_us(wait_time_us);
     TEST_ASSERT_TRUE(callback_called);
 
-    for(int i = 0; i < N; i++) {
+    for (int i = 0; i < N; i++) {
         core_util_critical_section_enter();
         TEST_ASSERT_TRUE(core_util_in_critical_section());
     }
@@ -98,7 +98,7 @@ void test_C_API(void)
     TEST_ASSERT_FALSE(callback_called);
     TEST_ASSERT_TRUE(core_util_in_critical_section());
 
-    for(int i = 0; i < N - 1; i++) {
+    for (int i = 0; i < N - 1; i++) {
         core_util_critical_section_exit();
         TEST_ASSERT_TRUE(core_util_in_critical_section());
         TEST_ASSERT_FALSE(callback_called);
@@ -184,7 +184,7 @@ void test_CPP_API_enable_disable(void)
     wait_us(wait_time_us);
     TEST_ASSERT_TRUE(callback_called);
 
-    for(int i = 0; i < N; i++) {
+    for (int i = 0; i < N; i++) {
         CriticalSectionLock::enable();
         TEST_ASSERT_TRUE(core_util_in_critical_section());
     }
@@ -195,7 +195,7 @@ void test_CPP_API_enable_disable(void)
     TEST_ASSERT_FALSE(callback_called);
     TEST_ASSERT_TRUE(core_util_in_critical_section());
 
-    for(int i = 0; i < N - 1; i++) {
+    for (int i = 0; i < N - 1; i++) {
         CriticalSectionLock::disable();
         TEST_ASSERT_TRUE(core_util_in_critical_section());
         TEST_ASSERT_FALSE(callback_called);

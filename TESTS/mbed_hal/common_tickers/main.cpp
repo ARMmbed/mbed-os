@@ -59,7 +59,7 @@ extern "C" {
 using namespace utest::v1;
 
 volatile int intFlag = 0;
-const ticker_interface_t* intf;
+const ticker_interface_t *intf;
 ticker_irq_handler_type prev_irq_handler;
 /* Some targets might fail overflow test uncertainly due to getting trapped in busy
  * intf->read() loop. In the loop, some ticker values wouldn't get caught in time
@@ -67,7 +67,7 @@ ticker_irq_handler_type prev_irq_handler;
  * 1. Lower CPU clock
  * 2. Compiled code with worse performance
  * 3. Interrupt at that time
- * 
+ *
  * We fix it by checking small ticker value range rather than one exact ticker point
  * in near overflow check.
  */
@@ -81,7 +81,7 @@ uint32_t count_ticks(uint32_t cycles, uint32_t step)
 {
     register uint32_t reg_cycles = cycles;
 
-    const ticker_info_t* p_ticker_info = intf->get_info();
+    const ticker_info_t *p_ticker_info = intf->get_info();
     const uint32_t max_count = ((1 << p_ticker_info->bits) - 1);
 
     core_util_critical_section_enter();
@@ -120,7 +120,7 @@ void overflow_protect()
     }
 
     const uint32_t ticks_now = intf->read();
-    const ticker_info_t* p_ticker_info = intf->get_info();
+    const ticker_info_t *p_ticker_info = intf->get_info();
 
     const uint32_t max_count = ((1 << p_ticker_info->bits) - 1);
 
@@ -131,7 +131,7 @@ void overflow_protect()
     while (intf->read() > ticks_now);
 }
 
-void ticker_event_handler_stub(const ticker_data_t * const ticker)
+void ticker_event_handler_stub(const ticker_data_t *const ticker)
 {
     if (ticker == get_us_ticker_data()) {
         us_ticker_clear_interrupt();
@@ -156,13 +156,13 @@ void wait_cycles(volatile unsigned int cycles)
  * This function returns number of us between <start_ticks> and <stop_ticks>
  * taking into account counter roll-over, counter size and frequency.
  */
-uint32_t diff_us(uint32_t start_ticks, uint32_t stop_ticks, const ticker_info_t * info)
+uint32_t diff_us(uint32_t start_ticks, uint32_t stop_ticks, const ticker_info_t *info)
 {
     uint32_t counter_mask = ((1 << info->bits) - 1);
 
     uint32_t diff_ticks = ((stop_ticks - start_ticks) & counter_mask);
 
-    return (uint32_t) ((uint64_t) diff_ticks * US_PER_S / info->frequency);
+    return (uint32_t)((uint64_t) diff_ticks * US_PER_S / info->frequency);
 }
 
 /* Test that ticker_init can be called multiple times and
@@ -201,7 +201,7 @@ void ticker_init_test()
 /* Test that ticker frequency is non-zero and counter is at least 8 bits */
 void ticker_info_test(void)
 {
-    const ticker_info_t* p_ticker_info = intf->get_info();
+    const ticker_info_t *p_ticker_info = intf->get_info();
 
     TEST_ASSERT(p_ticker_info->frequency != 0);
     TEST_ASSERT(p_ticker_info->bits >= 8);
@@ -313,7 +313,7 @@ void ticker_fire_now_test(void)
 /* Test that the ticker correctly handles overflow. */
 void ticker_overflow_test(void)
 {
-    const ticker_info_t* p_ticker_info = intf->get_info();
+    const ticker_info_t *p_ticker_info = intf->get_info();
 
     /* We need to check how long it will take to overflow.
      * We will perform this test only if this time is no longer than 30 sec.
@@ -331,7 +331,7 @@ void ticker_overflow_test(void)
 
     /* Wait for max count. */
     while (intf->read() >= (max_count - ticker_overflow_delta2) &&
-        intf->read() <= (max_count - ticker_overflow_delta1)) {
+            intf->read() <= (max_count - ticker_overflow_delta1)) {
         /* Just wait. */
     }
 
@@ -368,7 +368,7 @@ void ticker_overflow_test(void)
 /* Test that the ticker increments by one on each tick. */
 void ticker_increment_test(void)
 {
-    const ticker_info_t* p_ticker_info = intf->get_info();
+    const ticker_info_t *p_ticker_info = intf->get_info();
 
     /* Perform test based on ticker speed. */
     if (p_ticker_info->frequency <= 250000) {    // low frequency tickers
@@ -408,7 +408,7 @@ void ticker_increment_test(void)
             } else {
                 /* Check if we got 1 tick diff. */
                 if (next_tick_count - base_tick_count == 1 ||
-                    base_tick_count - next_tick_count == 1) {
+                        base_tick_count - next_tick_count == 1) {
                     break;
                 }
 
@@ -439,13 +439,13 @@ void ticker_speed_test(void)
     uint32_t start;
     uint32_t stop;
 
-    const ticker_info_t * us_ticker_info = get_us_ticker_data()->interface->get_info();
+    const ticker_info_t *us_ticker_info = get_us_ticker_data()->interface->get_info();
 
     /* Free function will disable the ticker. For time measurement
      * we need to use other one if available.
      */
 #if DEVICE_LPTICKER
-    const ticker_info_t * lp_ticker_info = get_lp_ticker_data()->interface->get_info();
+    const ticker_info_t *lp_ticker_info = get_lp_ticker_data()->interface->get_info();
     bool us_ticker_test = (intf == get_us_ticker_data()->interface);
 #endif
 
@@ -522,7 +522,7 @@ void ticker_free_interrupt_test(void)
     uint32_t cycles_500_ticks = 50;
     uint32_t reference_ticks_count = 0;
 
-    while(reference_ticks_count < TICKER_500_TICKS) {
+    while (reference_ticks_count < TICKER_500_TICKS) {
         cycles_500_ticks *= 2;
         const uint32_t start = intf->read();
         wait_cycles(cycles_500_ticks);
@@ -579,8 +579,8 @@ utest::v1::status_t us_ticker_setup(const Case *const source, const size_t index
     return greentea_case_setup_handler(source, index_of_case);
 }
 
-utest::v1::status_t us_ticker_teardown(const Case * const source, const size_t passed, const size_t failed,
-        const failure_t reason)
+utest::v1::status_t us_ticker_teardown(const Case *const source, const size_t passed, const size_t failed,
+                                       const failure_t reason)
 {
     set_us_ticker_irq_handler(prev_irq_handler);
 
@@ -608,8 +608,8 @@ utest::v1::status_t lp_ticker_setup(const Case *const source, const size_t index
     return greentea_case_setup_handler(source, index_of_case);
 }
 
-utest::v1::status_t lp_ticker_teardown(const Case * const source, const size_t passed, const size_t failed,
-        const failure_t reason)
+utest::v1::status_t lp_ticker_teardown(const Case *const source, const size_t passed, const size_t failed,
+                                       const failure_t reason)
 {
     set_lp_ticker_irq_handler(prev_irq_handler);
 

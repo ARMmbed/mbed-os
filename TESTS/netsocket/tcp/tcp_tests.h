@@ -18,19 +18,18 @@
 #ifndef TCP_TESTS_H
 #define TCP_TESTS_H
 
-NetworkInterface* get_interface();
-void drop_bad_packets(TCPSocket& sock, int orig_timeout);
+NetworkInterface *get_interface();
+void drop_bad_packets(TCPSocket &sock, int orig_timeout);
 void fill_tx_buffer_ascii(char *buff, size_t len);
-nsapi_error_t tcpsocket_connect_to_echo_srv(TCPSocket& sock);
-nsapi_error_t tcpsocket_connect_to_discard_srv(TCPSocket& sock);
+nsapi_error_t tcpsocket_connect_to_echo_srv(TCPSocket &sock);
+nsapi_error_t tcpsocket_connect_to_discard_srv(TCPSocket &sock);
 
 /**
  * Single testcase might take only half of the remaining execution time
  */
 int split2half_rmng_tcp_test_time(); // [s]
 
-namespace tcp_global
-{
+namespace tcp_global {
 static const int TESTS_TIMEOUT = 480;
 static const int TCP_OS_STACK_SIZE = 1024;
 

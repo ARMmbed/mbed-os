@@ -56,7 +56,7 @@ public:
                                       const char *netmask, const char *gw,
                                       nsapi_ip_stack_t stack = DEFAULT_STACK,
                                       bool blocking = true
-                                      );
+                                     );
 
         /** Disconnect interface from the network
          *
@@ -148,7 +148,7 @@ public:
      *  @return         0 on success, negative error code on failure
      */
     virtual nsapi_error_t gethostbyname(const char *host,
-            SocketAddress *address, nsapi_version_t version = NSAPI_UNSPEC);
+                                        SocketAddress *address, nsapi_version_t version = NSAPI_UNSPEC);
 
     /** Add a domain name server to list of servers to query
      *
@@ -236,7 +236,7 @@ protected:
      *  @return         0 on success, negative error code on failure
      */
     virtual nsapi_error_t socket_accept(nsapi_socket_t server,
-                                        nsapi_socket_t *handle, SocketAddress *address=0);
+                                        nsapi_socket_t *handle, SocketAddress *address = 0);
 
     /** Send data over a TCP socket
      *

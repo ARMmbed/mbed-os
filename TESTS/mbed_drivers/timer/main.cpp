@@ -23,7 +23,7 @@
 #include "hal/us_ticker_api.h"
 
 #if !DEVICE_USTICKER
-  #error [NOT_SUPPORTED] test not supported
+#error [NOT_SUPPORTED] test not supported
 #endif
 
 using namespace utest::v1;
@@ -34,17 +34,17 @@ extern uint32_t SystemCoreClock;
 #define US_PER_MSEC      1000
 #define MSEC_PER_SEC     1000
 
- /*
- * Define tolerance as follows:
- * tolerance = 500 us + 2% of measured time
- *
- * e.g.
- * 1 ms delay: tolerance = 520 us
- * 10 ms delay: tolerance = 700 us
- * 100 ms delay: tolerance = 2500 us
- * 1000 ms delay: tolerance = 20500 us
- *
- *  */
+/*
+* Define tolerance as follows:
+* tolerance = 500 us + 2% of measured time
+*
+* e.g.
+* 1 ms delay: tolerance = 520 us
+* 10 ms delay: tolerance = 700 us
+* 100 ms delay: tolerance = 2500 us
+* 1000 ms delay: tolerance = 20500 us
+*
+*  */
 #ifdef NO_SYSTICK
 #define TOLERANCE 5
 #else
@@ -112,7 +112,7 @@ static void stub_free(void)
 ticker_info_t info =
 { TICKER_FREQ_1MHZ, TICKER_BITS };
 
-const ticker_info_t * stub_get_info(void)
+const ticker_info_t *stub_get_info(void)
 {
     return &info;
 }
@@ -139,7 +139,7 @@ static const ticker_data_t us_data = {
 };
 
 /* Function which returns user ticker data. */
-const ticker_data_t* get_user_ticker_data(void)
+const ticker_data_t *get_user_ticker_data(void)
 {
     return &us_data;
 }
@@ -740,7 +740,8 @@ void test_timer_time_measurement()
     TEST_ASSERT_UINT64_WITHIN(DELTA_US(wait_val_us / US_PER_MSEC), wait_val_us, p_timer->read_high_resolution_us());
 }
 
-utest::v1::status_t test_setup(const size_t number_of_cases) {
+utest::v1::status_t test_setup(const size_t number_of_cases)
+{
     GREENTEA_SETUP(15, "default_auto");
     return verbose_test_setup_handler(number_of_cases);
 }
@@ -769,7 +770,8 @@ Case cases[] = {
 
 Specification specification(test_setup, cases);
 
-int main() {
+int main()
+{
     return !Harness::run(specification);
 }
 

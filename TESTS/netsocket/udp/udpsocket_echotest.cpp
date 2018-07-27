@@ -25,30 +25,31 @@
 
 using namespace utest::v1;
 
-namespace
-{
-    static const int SIGNAL_SIGIO = 0x1;
-    static const int SIGIO_TIMEOUT = 5000; //[ms]
-    static const int WAIT2RECV_TIMEOUT = 1000; //[ms]
-    static const int RETRIES = 2;
+namespace {
+static const int SIGNAL_SIGIO = 0x1;
+static const int SIGIO_TIMEOUT = 5000; //[ms]
+static const int WAIT2RECV_TIMEOUT = 1000; //[ms]
+static const int RETRIES = 2;
 
-    static const double EXPECTED_LOSS_RATIO = 0.0;
-    static const double TOLERATED_LOSS_RATIO = 0.3;
+static const double EXPECTED_LOSS_RATIO = 0.0;
+static const double TOLERATED_LOSS_RATIO = 0.3;
 
-    UDPSocket sock;
-    Semaphore tx_sem(0, 1);
+UDPSocket sock;
+Semaphore tx_sem(0, 1);
 
-    static const int BUFF_SIZE = 1200;
-    char rx_buffer[BUFF_SIZE] = {0};
-    char tx_buffer[BUFF_SIZE] = {0};
+static const int BUFF_SIZE = 1200;
+char rx_buffer[BUFF_SIZE] = {0};
+char tx_buffer[BUFF_SIZE] = {0};
 
-    static const int PKTS = 22;
-    static const int pkt_sizes[PKTS] = {1,2,3,4,5,6,7,8,9,10, \
-                                        100,200,300,400,500,600,700,800,900,1000,\
-                                        1100,1200};
+static const int PKTS = 22;
+static const int pkt_sizes[PKTS] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, \
+                                    100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, \
+                                    1100, 1200
+                                   };
 }
 
-static void _sigio_handler(osThreadId id) {
+static void _sigio_handler(osThreadId id)
+{
     osSignalSet(id, SIGNAL_SIGIO);
 }
 
@@ -101,7 +102,7 @@ void UDPSOCKET_ECHOTEST()
 
 void udpsocket_echotest_nonblock_receiver(void *receive_bytes)
 {
-    int expt2recv = *(int*)receive_bytes;
+    int expt2recv = *(int *)receive_bytes;
     int recvd;
     for (int retry_cnt = 0; retry_cnt <= RETRIES; retry_cnt++) {
         recvd = sock.recvfrom(NULL, rx_buffer, expt2recv);
@@ -162,7 +163,7 @@ void UDPSOCKET_ECHOTEST_NONBLOCK()
                 printf("[Round#%02d - Sender] error, returned %d\n", s_idx, sent);
                 continue;
             }
-            if (tx_sem.wait(WAIT2RECV_TIMEOUT*2) == 0) { // RX might wait up to WAIT2RECV_TIMEOUT before recvfrom
+            if (tx_sem.wait(WAIT2RECV_TIMEOUT * 2) == 0) { // RX might wait up to WAIT2RECV_TIMEOUT before recvfrom
                 continue;
             }
             break;

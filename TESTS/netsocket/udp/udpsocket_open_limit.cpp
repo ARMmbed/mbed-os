@@ -25,12 +25,11 @@
 
 using namespace utest::v1;
 
-namespace
-{
-    typedef struct UDPSocketItem {
-        UDPSocket *sock;
-        UDPSocketItem *next;
-    } SocketItem;
+namespace {
+typedef struct UDPSocketItem {
+    UDPSocket *sock;
+    UDPSocketItem *next;
+} SocketItem;
 }
 
 void UDPSOCKET_OPEN_LIMIT()
@@ -73,7 +72,7 @@ void UDPSOCKET_OPEN_LIMIT()
         }
 
         UDPSocketItem *tmp;
-        for(UDPSocketItem *it = socket_list_head; it;) {
+        for (UDPSocketItem *it = socket_list_head; it;) {
             ++open_sockets[i];
             tmp = it;
             it = it->next;

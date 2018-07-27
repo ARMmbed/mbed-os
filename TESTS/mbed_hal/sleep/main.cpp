@@ -66,12 +66,12 @@ static const uint32_t deepsleep_mode_delta_us = (10000 + 125 + 5);
 
 unsigned int ticks_to_us(unsigned int ticks, unsigned int freq)
 {
-    return (unsigned int) ((unsigned long long) ticks * US_PER_S / freq);
+    return (unsigned int)((unsigned long long) ticks * US_PER_S / freq);
 }
 
 unsigned int us_to_ticks(unsigned int us, unsigned int freq)
 {
-    return (unsigned int) ((unsigned long long) us * freq / US_PER_S);
+    return (unsigned int)((unsigned long long) us * freq / US_PER_S);
 }
 
 unsigned int overflow_protect(unsigned int timestamp, unsigned int ticker_width)
@@ -103,7 +103,7 @@ bool compare_timestamps(unsigned int delta_ticks, unsigned int ticker_width, uns
     }
 }
 
-void us_ticker_isr(const ticker_data_t * const ticker_data)
+void us_ticker_isr(const ticker_data_t *const ticker_data)
 {
     us_ticker_clear_interrupt();
 }
@@ -119,7 +119,7 @@ void lp_ticker_isr(const ticker_data_t *const ticker_data)
  * high frequency ticker interrupt can wake-up target from sleep. */
 void sleep_usticker_test()
 {
-    const ticker_data_t * ticker = get_us_ticker_data();
+    const ticker_data_t *ticker = get_us_ticker_data();
     const unsigned int ticker_freq = ticker->interface->get_info()->frequency;
     const unsigned int ticker_width = ticker->interface->get_info()->bits;
 
@@ -144,7 +144,7 @@ void sleep_usticker_test()
     for (timestamp_t i = 100; i < 1000; i += 100) {
         /* note: us_ticker_read() operates on ticks. */
         const timestamp_t next_match_timestamp = overflow_protect(us_ticker_read() + us_to_ticks(i, ticker_freq),
-                ticker_width);
+                                                                  ticker_width);
 
         us_ticker_set_interrupt(next_match_timestamp);
 
@@ -153,8 +153,8 @@ void sleep_usticker_test()
         const unsigned int wakeup_timestamp = us_ticker_read();
 
         TEST_ASSERT(
-                compare_timestamps(us_to_ticks(sleep_mode_delta_us, ticker_freq), ticker_width, next_match_timestamp,
-                        wakeup_timestamp));
+            compare_timestamps(us_to_ticks(sleep_mode_delta_us, ticker_freq), ticker_width, next_match_timestamp,
+                               wakeup_timestamp));
     }
 
     set_us_ticker_irq_handler(us_ticker_irq_handler_org);
@@ -169,7 +169,7 @@ void sleep_usticker_test()
  * low power ticker interrupt can wake-up target from sleep. */
 void deepsleep_lpticker_test()
 {
-    const ticker_data_t * ticker = get_lp_ticker_data();
+    const ticker_data_t *ticker = get_lp_ticker_data();
     const unsigned int ticker_freq = ticker->interface->get_info()->frequency;
     const unsigned int ticker_width = ticker->interface->get_info()->bits;
 
@@ -207,8 +207,8 @@ void deepsleep_lpticker_test()
 
 void deepsleep_high_speed_clocks_turned_off_test()
 {
-    const ticker_data_t * us_ticker = get_us_ticker_data();
-    const ticker_data_t * lp_ticker = get_lp_ticker_data();
+    const ticker_data_t *us_ticker = get_us_ticker_data();
+    const ticker_data_t *lp_ticker = get_lp_ticker_data();
     const unsigned int us_ticker_freq = us_ticker->interface->get_info()->frequency;
     const unsigned int lp_ticker_freq = lp_ticker->interface->get_info()->frequency;
     const unsigned int us_ticker_width = us_ticker->interface->get_info()->bits;
@@ -247,7 +247,7 @@ void deepsleep_high_speed_clocks_turned_off_test()
 
 #endif
 
-utest::v1::status_t greentea_failure_handler(const Case * const source, const failure_t reason)
+utest::v1::status_t greentea_failure_handler(const Case *const source, const failure_t reason)
 {
     greentea_case_failure_abort_handler(source, reason);
     return STATUS_CONTINUE;
@@ -265,13 +265,13 @@ utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
     return greentea_test_setup_handler(number_of_cases);
 }
 
-Case cases[] =
-        { Case("sleep - source of wake-up - us ticker", sleep_usticker_test, greentea_failure_handler),
+Case cases[] = {
+    Case("sleep - source of wake-up - us ticker", sleep_usticker_test, greentea_failure_handler),
 #if DEVICE_LPTICKER
-        Case("deep-sleep - source of wake-up - lp ticker",deepsleep_lpticker_test, greentea_failure_handler),
-        Case("deep-sleep - high-speed clocks are turned off",deepsleep_high_speed_clocks_turned_off_test, greentea_failure_handler),
+    Case("deep-sleep - source of wake-up - lp ticker", deepsleep_lpticker_test, greentea_failure_handler),
+    Case("deep-sleep - high-speed clocks are turned off", deepsleep_high_speed_clocks_turned_off_test, greentea_failure_handler),
 #endif
-        };
+};
 
 Specification specification(greentea_test_setup, cases, greentea_test_teardown_handler);
 

@@ -16,11 +16,11 @@
  */
 
 #if defined(TARGET_CORTEX_A)
-  #error [NOT_SUPPORTED] This function not supported for this target
+#error [NOT_SUPPORTED] This function not supported for this target
 #endif
 
 #if !DEVICE_USTICKER
-  #error [NOT_SUPPORTED] test not supported
+#error [NOT_SUPPORTED] test not supported
 #endif
 
 #include <stdio.h>
@@ -50,7 +50,7 @@ extern uint32_t mbed_stack_isr_size;
 
 
 struct linked_list {
-    linked_list * next;
+    linked_list *next;
     uint8_t data[MALLOC_TEST_SIZE];
 };
 
@@ -90,7 +90,7 @@ static bool rangeinrange(uint32_t addr, uint32_t size, uint32_t start, uint32_t 
 /*
  * Return true if the region is filled only with the specified value
  */
-static bool valid_fill(uint8_t * data, uint32_t size, uint8_t fill)
+static bool valid_fill(uint8_t *data, uint32_t size, uint8_t fill)
 {
     for (uint32_t i = 0; i < size; i++) {
         if (data[i] != fill) {
@@ -104,18 +104,18 @@ static void allocate_and_fill_heap(linked_list *&head)
 {
     linked_list *current;
 
-    current = (linked_list*) malloc(sizeof(linked_list));
+    current = (linked_list *) malloc(sizeof(linked_list));
     TEST_ASSERT_NOT_NULL(current);
 
     current->next = NULL;
-    memset((void*) current->data, MALLOC_FILL, sizeof(current->data));
+    memset((void *) current->data, MALLOC_FILL, sizeof(current->data));
 
     // Allocate until malloc returns NULL
     head = current;
     while (true) {
 
         // Allocate
-        linked_list *temp = (linked_list*) malloc(sizeof(linked_list));
+        linked_list *temp = (linked_list *) malloc(sizeof(linked_list));
 
         if (NULL == temp) {
             break;
@@ -126,7 +126,7 @@ static void allocate_and_fill_heap(linked_list *&head)
 
         // Init
         temp->next = NULL;
-        memset((void*) temp->data, MALLOC_FILL, sizeof(current->data));
+        memset((void *) temp->data, MALLOC_FILL, sizeof(current->data));
 
         // Add to list
         current->next = temp;
@@ -137,7 +137,7 @@ static void allocate_and_fill_heap(linked_list *&head)
 static void check_and_free_heap(linked_list *head, uint32_t &max_allocation_size)
 {
     uint32_t total_size = 0;
-    linked_list * current = head;
+    linked_list *current = head;
 
     while (current != NULL) {
         total_size += sizeof(linked_list);
@@ -145,7 +145,7 @@ static void check_and_free_heap(linked_list *head, uint32_t &max_allocation_size
 
         TEST_ASSERT_TRUE_MESSAGE(result, "Memory fill check failed");
 
-        linked_list * next = current->next;
+        linked_list *next = current->next;
         free(current);
         current = next;
     }
@@ -165,7 +165,7 @@ void test_heap_in_range(void)
     char *initial_heap;
 
     // Sanity check malloc
-    initial_heap = (char*) malloc(1);
+    initial_heap = (char *) malloc(1);
     TEST_ASSERT_NOT_NULL(initial_heap);
 
     bool result = inrange((uint32_t) initial_heap, mbed_heap_start, mbed_heap_size);
@@ -185,7 +185,7 @@ void test_main_stack_in_range(void)
     mbed_rtos_storage_thread_t *thread = (mbed_rtos_storage_thread_t *) osThreadGetId();
 
     uint32_t psp = __get_PSP();
-    uint8_t *stack_mem = (uint8_t*) thread->stack_mem;
+    uint8_t *stack_mem = (uint8_t *) thread->stack_mem;
     uint32_t stack_size = thread->stack_size;
 
     // PSP stack should be somewhere in the middle

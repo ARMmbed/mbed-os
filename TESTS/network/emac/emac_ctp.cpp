@@ -90,7 +90,7 @@ ctp_function emac_if_ctp_header_handle(unsigned char *eth_input_frame, unsigned 
         // Copy own address to origin
         memcpy(&eth_output_frame[6], origin_addr, 6);
         return CTP_FORWARD;
-    // reply
+        // reply
     } else if (function == 0x0001) {
         *receipt_number = ethernet_ptr[1] << 8 | ethernet_ptr[0];
         return CTP_REPLY;

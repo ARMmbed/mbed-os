@@ -53,7 +53,8 @@
 using namespace utest::v1;
 
 // Test setup
-utest::v1::status_t test_setup(const size_t number_of_cases) {
+utest::v1::status_t test_setup(const size_t number_of_cases)
+{
 #if !MBED_CONF_APP_ECHO_SERVER
     GREENTEA_SETUP(600, "default_auto");
 #endif

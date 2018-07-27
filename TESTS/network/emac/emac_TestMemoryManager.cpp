@@ -203,7 +203,7 @@ emac_mem_buf_t *EmacTestMemoryManager::alloc_pool(uint32_t size, uint32_t align,
         if (size_left > pool_buffer_max_size) {
             size_left = size_left - pool_buffer_max_size;
             alloc_size = pool_buffer_max_size;
-        // New smaller than alloc size buffer needed
+            // New smaller than alloc size buffer needed
         } else {
             alloc_size = size_left;
             size_left = 0;
@@ -550,7 +550,8 @@ void EmacTestMemoryManager::validate_list() const
     m_mem_mutex.unlock();
 }
 
-EmacTestMemoryManager &EmacTestMemoryManager::get_instance() {
+EmacTestMemoryManager &EmacTestMemoryManager::get_instance()
+{
     static EmacTestMemoryManager test_memory_manager;
     return test_memory_manager;
 }

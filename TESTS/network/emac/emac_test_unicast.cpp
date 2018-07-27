@@ -58,8 +58,8 @@ void test_emac_unicast_cb(int opt)
         if (++test_step == 3) {
             END_TEST_LOOP;
         } else {
-           retries = 0;
-           send_request = true;
+            retries = 0;
+            send_request = true;
         }
     }
 }

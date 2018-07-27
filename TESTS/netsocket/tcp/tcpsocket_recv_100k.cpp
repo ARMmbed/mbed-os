@@ -25,13 +25,12 @@
 
 using namespace utest::v1;
 
-namespace
-{
-    static const int SIGNAL_SIGIO = 0x1;
-    static const int SIGIO_TIMEOUT = 20000; //[ms]
+namespace {
+static const int SIGNAL_SIGIO = 0x1;
+static const int SIGIO_TIMEOUT = 20000; //[ms]
 }
 
-static nsapi_error_t _tcpsocket_connect_to_chargen_srv(TCPSocket& sock)
+static nsapi_error_t _tcpsocket_connect_to_chargen_srv(TCPSocket &sock)
 {
     SocketAddress tcp_addr;
 
@@ -63,12 +62,13 @@ static nsapi_error_t _tcpsocket_connect_to_chargen_srv(TCPSocket& sock)
 static void generate_RFC_864_pattern(size_t offset, uint8_t *buf,  size_t len)
 {
     while (len--) {
-        if (offset % 74 == 72)
+        if (offset % 74 == 72) {
             *buf++ = '\r';
-        else if (offset % 74 == 73)
+        } else if (offset % 74 == 73) {
             *buf++ = '\n';
-        else
-            *buf++ = ' ' + (offset%74 + offset/74) % 95 ;
+        } else {
+            *buf++ = ' ' + (offset % 74 + offset / 74) % 95 ;
+        }
         offset++;
     }
 }
@@ -78,14 +78,15 @@ static void check_RFC_864_pattern(void *rx_buff, const size_t len, const size_t 
     void *ref_buff = malloc(len);
     TEST_ASSERT_NOT_NULL(ref_buff);
 
-    generate_RFC_864_pattern(offset, (uint8_t*)ref_buff, len);
+    generate_RFC_864_pattern(offset, (uint8_t *)ref_buff, len);
     bool match = memcmp(ref_buff, rx_buff, len) == 0;
 
     free(ref_buff);
     TEST_ASSERT(match);
 }
 
-void rcv_n_chk_against_rfc864_pattern(TCPSocket& sock) {
+void rcv_n_chk_against_rfc864_pattern(TCPSocket &sock)
+{
     static const size_t total_size = 1024 * 100;
     static const size_t buff_size = 1220;
     uint8_t buff[buff_size];
@@ -121,7 +122,7 @@ void TCPSOCKET_RECV_100K()
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
 }
 
-void rcv_n_chk_against_rfc864_pattern_nonblock(TCPSocket& sock)
+void rcv_n_chk_against_rfc864_pattern_nonblock(TCPSocket &sock)
 {
     static const size_t total_size = 1024 * 100;
     static const size_t buff_size = 1220;
@@ -154,7 +155,8 @@ void rcv_n_chk_against_rfc864_pattern_nonblock(TCPSocket& sock)
     printf("MBED: Time taken: %fs\n", timer.read());
 }
 
-static void _sigio_handler(osThreadId id) {
+static void _sigio_handler(osThreadId id)
+{
     osSignalSet(id, SIGNAL_SIGIO);
 }
 

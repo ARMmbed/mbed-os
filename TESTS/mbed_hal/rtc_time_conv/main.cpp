@@ -51,8 +51,8 @@ bool is_leap_year(int year)
 
 struct tm make_time_info(int year, int month, int day, int hours, int minutes, int seconds)
 {
-    struct tm timeinfo =
-    { seconds,    // tm_sec
+    struct tm timeinfo = {
+        seconds,    // tm_sec
         minutes,    // tm_min
         hours,      // tm_hour
         day,        // tm_mday
@@ -61,7 +61,7 @@ struct tm make_time_info(int year, int month, int day, int hours, int minutes, i
         0,          // tm_wday
         0,          // tm_yday
         0,          // tm_isdst
-            };
+    };
     return timeinfo;
 }
 
@@ -79,9 +79,9 @@ struct tm make_time_info(int year, int month, int day, int hours, int minutes, i
 void test_case_mktime_localtime()
 {
     char _key[11] =
-    { };
+        { };
     char _value[128] =
-    { };
+        { };
 
     size_t years[] = {70, 71, 100, 196, 200, 205};
 
@@ -89,7 +89,7 @@ void test_case_mktime_localtime()
     greentea_send_kv("leap_year_setup",  rtc_leap_year_support);
 
     /* Check the first and last last day of each month. */
-    for (size_t year_id = 0; year_id < (sizeof(years) /sizeof(size_t)) ; ++year_id) {
+    for (size_t year_id = 0; year_id < (sizeof(years) / sizeof(size_t)) ; ++year_id) {
         for (size_t month = 0; month < 12; ++month) {
             for (size_t dayid = 0; dayid < 2; ++dayid) {
 
@@ -100,8 +100,7 @@ void test_case_mktime_localtime()
                  * day 0 - first,
                  * day 1 - last
                  * */
-                switch (dayid)
-                {
+                switch (dayid) {
                     case 0:
                         day = 1;
                         break;
@@ -122,7 +121,7 @@ void test_case_mktime_localtime()
                         }
 
                         /* Additional conditions for RTCs with partial leap year support. */
-                        if(month == 1 && year == 200 && rtc_leap_year_support == RTC_4_YEAR_LEAP_YEAR_SUPPORT) {
+                        if (month == 1 && year == 200 && rtc_leap_year_support == RTC_4_YEAR_LEAP_YEAR_SUPPORT) {
                             day = 29;
                         }
 
@@ -172,30 +171,30 @@ void test_case_mktime_localtime()
     }
 }
 
-utest::v1::status_t full_leap_year_case_setup_handler_t(const Case * const source, const size_t index_of_case)
+utest::v1::status_t full_leap_year_case_setup_handler_t(const Case *const source, const size_t index_of_case)
 {
     rtc_leap_year_support = RTC_FULL_LEAP_YEAR_SUPPORT;
 
     return greentea_case_setup_handler(source, index_of_case);
 }
 
-utest::v1::status_t partial_leap_year_case_setup_handler_t(const Case * const source, const size_t index_of_case)
+utest::v1::status_t partial_leap_year_case_setup_handler_t(const Case *const source, const size_t index_of_case)
 {
     rtc_leap_year_support = RTC_4_YEAR_LEAP_YEAR_SUPPORT;
 
     return greentea_case_setup_handler(source, index_of_case);
 }
 
-utest::v1::status_t teardown_handler_t(const Case * const source, const size_t passed, const size_t failed,
-        const failure_t reason)
+utest::v1::status_t teardown_handler_t(const Case *const source, const size_t passed, const size_t failed,
+                                       const failure_t reason)
 {
     return greentea_case_teardown_handler(source, passed, failed, reason);
 }
 
 // Test cases
-Case cases[] ={
-   Case("test make time and local time - RTC leap years full support", full_leap_year_case_setup_handler_t, test_case_mktime_localtime, teardown_handler_t),
-   Case("test make time and local time - RTC leap years partial support", partial_leap_year_case_setup_handler_t, test_case_mktime_localtime, teardown_handler_t),
+Case cases[] = {
+    Case("test make time and local time - RTC leap years full support", full_leap_year_case_setup_handler_t, test_case_mktime_localtime, teardown_handler_t),
+    Case("test make time and local time - RTC leap years partial support", partial_leap_year_case_setup_handler_t, test_case_mktime_localtime, teardown_handler_t),
 };
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)

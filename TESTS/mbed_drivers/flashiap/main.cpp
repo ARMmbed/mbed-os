@@ -16,7 +16,7 @@
  */
 
 #if !DEVICE_FLASH
-    #error [NOT_SUPPORTED] Flash API not supported for this target
+#error [NOT_SUPPORTED] Flash API not supported for this target
 #endif
 
 #include "utest/utest.h"
@@ -239,7 +239,7 @@ void flashiap_timing_test()
         delete[] buf;
         avg_write_time /= num_writes;
         utest_printf("Write size %6u bytes: avg %10u, min %10u, max %10u (usec)\n",
-                write_size, avg_write_time, min_write_time, max_write_time);
+                     write_size, avg_write_time, min_write_time, max_write_time);
         byte_usec_ratio = write_size / avg_write_time;
         TEST_ASSERT(byte_usec_ratio < max_byte_usec_ratio);
         write_size *= 4;
@@ -248,7 +248,7 @@ void flashiap_timing_test()
     if (num_write_sizes) {
         avg_erase_time /= num_write_sizes;
         utest_printf("\nErase size %6u bytes: avg %10u, min %10u, max %10u (usec)\n\n",
-                sector_size, avg_erase_time, min_erase_time, max_erase_time);
+                     sector_size, avg_erase_time, min_erase_time, max_erase_time);
         byte_usec_ratio = sector_size / avg_erase_time;
         TEST_ASSERT(byte_usec_ratio < max_byte_usec_ratio);
     }
@@ -266,13 +266,15 @@ Case cases[] = {
     Case("FlashIAP - timing", flashiap_timing_test),
 };
 
-utest::v1::status_t greentea_test_setup(const size_t number_of_cases) {
+utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
+{
     GREENTEA_SETUP(120, "default_auto");
     return greentea_test_setup_handler(number_of_cases);
 }
 
 Specification specification(greentea_test_setup, cases, greentea_test_teardown_handler);
 
-int main() {
+int main()
+{
     Harness::run(specification);
 }

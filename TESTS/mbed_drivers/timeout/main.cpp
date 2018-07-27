@@ -25,7 +25,7 @@
 
 using namespace utest::v1;
 
-utest::v1::status_t greentea_failure_handler(const Case * const source, const failure_t reason)
+utest::v1::status_t greentea_failure_handler(const Case *const source, const failure_t reason)
 {
     greentea_case_failure_abort_handler(source, reason);
     return STATUS_CONTINUE;
@@ -48,25 +48,25 @@ Case cases[] = {
     Case("Zero delay (attach_us)", test_no_wait<AttachUSTester<Timeout> >),
 
     Case("10 ms delay accuracy (attach)", test_delay_accuracy<AttachTester<Timeout>, 10000, SHORT_DELTA_US>,
-            greentea_failure_handler),
+         greentea_failure_handler),
     Case("10 ms delay accuracy (attach_us)", test_delay_accuracy<AttachUSTester<Timeout>, 10000, SHORT_DELTA_US>,
-            greentea_failure_handler),
+         greentea_failure_handler),
 
     Case("1 s delay accuracy (attach)", test_delay_accuracy<AttachTester<Timeout>, 1000000, LONG_DELTA_US>,
-            greentea_failure_handler),
+         greentea_failure_handler),
     Case("1 s delay accuracy (attach_us)", test_delay_accuracy<AttachUSTester<Timeout>, 1000000, LONG_DELTA_US>,
-            greentea_failure_handler),
+         greentea_failure_handler),
 
     Case("5 s delay accuracy (attach)", test_delay_accuracy<AttachTester<Timeout>, 5000000, LONG_DELTA_US>,
-            greentea_failure_handler),
+         greentea_failure_handler),
     Case("5 s delay accuracy (attach_us)", test_delay_accuracy<AttachUSTester<Timeout>, 5000000, LONG_DELTA_US>,
-            greentea_failure_handler),
+         greentea_failure_handler),
 
 #if DEVICE_SLEEP
     Case("1 s delay during sleep (attach)", test_sleep<AttachTester<Timeout>, 1000000, LONG_DELTA_US>,
-            greentea_failure_handler),
+         greentea_failure_handler),
     Case("1 s delay during sleep (attach_us)", test_sleep<AttachUSTester<Timeout>, 1000000, LONG_DELTA_US>,
-            greentea_failure_handler),
+         greentea_failure_handler),
 #endif
 
     Case("Timing drift (attach)", test_drift<AttachTester<Timeout> >),

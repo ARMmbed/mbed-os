@@ -9,12 +9,15 @@ MBED_PACKED(struct) TestAttrPackedStruct1 {
     int x;
 };
 
-typedef MBED_PACKED(struct) {
+typedef MBED_PACKED(struct)
+{
     char a;
     int x;
-} TestAttrPackedStruct2;
+}
+TestAttrPackedStruct2;
 
-int testPacked() {
+int testPacked()
+{
     int failed = 0;
 
     if (sizeof(struct TestAttrPackedStruct1) != sizeof(int) + sizeof(char)) {
@@ -35,22 +38,23 @@ MBED_ALIGN(16) char c;
 MBED_ALIGN(8)  char d;
 MBED_ALIGN(16) char e;
 
-int testAlign() {
+int testAlign()
+{
     int failed = 0;
 
-    if(((uintptr_t)&a) & 0x7){
+    if (((uintptr_t)&a) & 0x7) {
         failed++;
     }
-    if(((uintptr_t)&b) & 0x7){
+    if (((uintptr_t)&b) & 0x7) {
         failed++;
     }
-    if(((uintptr_t)&c) & 0xf){
+    if (((uintptr_t)&c) & 0xf) {
         failed++;
     }
-    if(((uintptr_t)&d) & 0x7){
+    if (((uintptr_t)&d) & 0x7) {
         failed++;
     }
-    if(((uintptr_t)&e) & 0xf){
+    if (((uintptr_t)&e) & 0xf) {
         failed++;
     }
 
@@ -58,11 +62,13 @@ int testAlign() {
 }
 
 
-int testUnused1(MBED_UNUSED int arg) {
+int testUnused1(MBED_UNUSED int arg)
+{
     return 0;
 }
 
-int testUnused() {
+int testUnused()
+{
     return testUnused1(0);
 }
 
@@ -70,42 +76,51 @@ int testUnused() {
 int testWeak1();
 int testWeak2();
 
-MBED_WEAK int testWeak1() {
+MBED_WEAK int testWeak1()
+{
     return 1;
 }
 
-int testWeak2() {
+int testWeak2()
+{
     return 0;
 }
 
-int testWeak() {
+int testWeak()
+{
     return testWeak1() | testWeak2();
 }
 
 
-MBED_PURE int testPure1() {
+MBED_PURE int testPure1()
+{
     return 0;
 }
 
-int testPure() {
+int testPure()
+{
     return testPure1();
 }
 
 
-MBED_FORCEINLINE int testForceInline1() {
+MBED_FORCEINLINE int testForceInline1()
+{
     return 0;
 }
 
-int testForceInline() {
+int testForceInline()
+{
     return testForceInline1();
 }
 
 
-MBED_NORETURN int testNoReturn1() {
+MBED_NORETURN int testNoReturn1()
+{
     while (1) {}
 }
 
-int testNoReturn() {
+int testNoReturn()
+{
     if (0) {
         testNoReturn1();
     }
@@ -113,7 +128,8 @@ int testNoReturn() {
 }
 
 
-int testUnreachable1(int i) {
+int testUnreachable1(int i)
+{
     switch (i) {
         case 0:
             return 0;
@@ -122,18 +138,20 @@ int testUnreachable1(int i) {
     MBED_UNREACHABLE;
 }
 
-int testUnreachable() {
+int testUnreachable()
+{
     return testUnreachable1(0);
 }
 
 
 MBED_DEPRECATED("this message should not be displayed")
-void testDeprecatedUnused(); 
+void testDeprecatedUnused();
 void testDeprecatedUnused() { }
 
 MBED_DEPRECATED("this message should be displayed")
 int testDeprecatedUsed();
-int testDeprecatedUsed() {
+int testDeprecatedUsed()
+{
     return 0;
 }
 
@@ -143,11 +161,13 @@ void testDeprecatedSinceUnused() { }
 
 MBED_DEPRECATED_SINCE("mbed-os-3.14", "this message should be displayed")
 int testDeprecatedSinceUsed();
-int testDeprecatedSinceUsed() {
+int testDeprecatedSinceUsed()
+{
     return 0;
 }
 
-int testDeprecated() {
+int testDeprecated()
+{
     return testDeprecatedUsed() + testDeprecatedSinceUsed();
 }
 

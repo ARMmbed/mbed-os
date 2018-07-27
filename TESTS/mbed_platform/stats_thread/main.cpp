@@ -101,7 +101,7 @@ void test_case_multi_threads_blocked()
             TEST_ASSERT_EQUAL(TEST_STACK_SIZE, stats[i].stack_size);
             TEST_ASSERT_EQUAL(osPriorityNormal1, stats[i].priority);
             TEST_ASSERT_EQUAL(osThreadBlocked, stats[i].state);
-        } else if (0 == strcmp (stats[i].name, "Th1")) {
+        } else if (0 == strcmp(stats[i].name, "Th1")) {
             TEST_ASSERT_EQUAL(TEST_STACK_SIZE, stats[i].stack_size);
             TEST_ASSERT_EQUAL(osPriorityNormal, stats[i].priority);
         }

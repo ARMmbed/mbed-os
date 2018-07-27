@@ -22,11 +22,11 @@
 #include "LockGuard.h"
 
 #if defined(MBED_RTOS_SINGLE_THREAD)
-  #error [NOT_SUPPORTED] test not supported
+#error [NOT_SUPPORTED] test not supported
 #endif
 
 #if !DEVICE_USTICKER
-  #error [NOT_SUPPORTED] test not supported
+#error [NOT_SUPPORTED] test not supported
 #endif
 
 #define THREAD_STACK_SIZE 512
@@ -52,28 +52,33 @@ public:
 };
 
 // Tasks with different functions to test on threads
-void increment(counter_t* counter) {
+void increment(counter_t *counter)
+{
     (*counter)++;
 }
 
-void increment_with_yield(counter_t* counter) {
+void increment_with_yield(counter_t *counter)
+{
     Thread::yield();
     (*counter)++;
 }
 
-void increment_with_wait(counter_t* counter) {
+void increment_with_wait(counter_t *counter)
+{
     Thread::wait(100);
     (*counter)++;
 }
 
-void increment_with_child(counter_t* counter) {
+void increment_with_child(counter_t *counter)
+{
     Thread *child = new Thread(osPriorityNormal, CHILD_THREAD_STACK_SIZE);
     child->start(callback(increment, counter));
     child->join();
     delete child;
 }
 
-void increment_with_murder(counter_t* counter) {
+void increment_with_murder(counter_t *counter)
+{
     {
         // take ownership of the counter mutex so it prevent the child to
         // modify counter.
@@ -87,7 +92,8 @@ void increment_with_murder(counter_t* counter) {
     (*counter)++;
 }
 
-void self_terminate(Thread *self) {
+void self_terminate(Thread *self)
+{
     self->terminate();
     // Code should not get here
     TEST_ASSERT(0);
@@ -126,7 +132,8 @@ void self_terminate(Thread *self) {
     then the final value of the counter is equal to 1
 */
 template <void (*F)(counter_t *)>
-void test_single_thread() {
+void test_single_thread()
+{
     counter_t counter(0);
     Thread thread(osPriorityNormal, THREAD_STACK_SIZE);
     thread.start(callback(F, &counter));
@@ -165,7 +172,8 @@ void test_single_thread() {
     then the final value of the counter is equal to number of parallel threads
 */
 template <int N, void (*F)(counter_t *)>
-void test_parallel_threads() {
+void test_parallel_threads()
+{
     counter_t counter(0);
     ParallelThread<osPriorityNormal, PARALLEL_THREAD_STACK_SIZE> threads[N];
 
@@ -211,7 +219,8 @@ void test_parallel_threads() {
     then the final value of the counter is equal to number of serial threads
 */
 template <int N, void (*F)(counter_t *)>
-void test_serial_threads() {
+void test_serial_threads()
+{
     counter_t counter(0);
 
     for (int i = 0; i < N; i++) {
@@ -229,7 +238,8 @@ void test_serial_threads() {
     when the thread calls @a terminate on its self
     then the thread terminates execution cleanly
  */
-void test_self_terminate() {
+void test_self_terminate()
+{
     Thread *thread = new Thread(osPriorityNormal, THREAD_STACK_SIZE);
     thread->start(callback(self_terminate, thread));
     thread->join();
@@ -336,11 +346,13 @@ void test_thread_signal_clr()
     t_wait.join();
 }
 
-void thread_wait_signal() {
+void thread_wait_signal()
+{
     Thread::signal_wait(0x1);
 }
 
-void stack_info() {
+void stack_info()
+{
     Thread::signal_wait(0x1);
 
     thread_wait_signal();
@@ -360,7 +372,8 @@ void stack_info() {
         and the reported stack size is as requested in the constructor
         and the sum of free and used stack sizes is equal to the total stack size
  */
-void test_thread_stack_info() {
+void test_thread_stack_info()
+{
     Thread t(osPriorityNormal, THREAD_STACK_SIZE);
     t.start(callback(stack_info));
 
@@ -394,7 +407,8 @@ void test_thread_stack_info() {
     when the @a wait function is called
     then the thread sleeps for given amount of time
  */
-void test_thread_wait() {
+void test_thread_wait()
+{
     Timer timer;
     timer.start();
 
@@ -409,7 +423,8 @@ void test_thread_wait() {
     when the name is queried using @a get_name
     then the returned name is as set
 */
-void test_thread_name() {
+void test_thread_name()
+{
     const char tname[] = "Amazing thread";
     Thread t(osPriorityNormal, THREAD_STACK_SIZE, NULL, tname);
     t.start(callback(thread_wait_signal));
@@ -627,7 +642,8 @@ void test_msg_put()
 }
 
 /** Utility function that places some date on the stack */
-void use_some_stack () {
+void use_some_stack()
+{
     volatile uint32_t stack_filler[10] = {0xDEADBEEF};
 }
 
@@ -637,18 +653,20 @@ void use_some_stack () {
     when the thread executes
     then the supplies buffer is used as a stack
  */
-void test_thread_ext_stack() {
+void test_thread_ext_stack()
+{
     char stack[512];
-    Thread t(osPriorityNormal, sizeof(stack), (unsigned char*)stack);
+    Thread t(osPriorityNormal, sizeof(stack), (unsigned char *)stack);
 
     memset(&stack, 0, sizeof(stack));
     t.start(callback(use_some_stack));
     t.join();
 
     /* If buffer was used as a stack it was cleared with pattern and some data were placed in it */
-    for(unsigned i = 0; i < sizeof(stack); i++) {
-        if (stack[i] != 0)
+    for (unsigned i = 0; i < sizeof(stack); i++) {
+        if (stack[i] != 0) {
             return;
+        }
     }
 
     TEST_FAIL_MESSAGE("External stack was not used.");
@@ -660,7 +678,8 @@ void test_thread_ext_stack() {
     when new priority is set using @a set_priority
     then priority is changed and can be retrieved using @a get_priority
  */
-void test_thread_prio() {
+void test_thread_prio()
+{
     Thread t(osPriorityNormal, THREAD_STACK_SIZE);
     t.start(callback(thread_wait_signal));
 
@@ -674,7 +693,8 @@ void test_thread_prio() {
     t.join();
 }
 
-utest::v1::status_t test_setup(const size_t number_of_cases) {
+utest::v1::status_t test_setup(const size_t number_of_cases)
+{
     GREENTEA_SETUP(20, "default_auto");
     return verbose_test_setup_handler(number_of_cases);
 }
@@ -685,8 +705,8 @@ utest::v1::status_t test_setup(const size_t number_of_cases) {
 // macros don't play nicely with the templates (extra comma).
 static const case_t cases[] = {
     {"Testing single thread", test_single_thread<increment>, DEFAULT_HANDLERS},
-    {"Testing parallel threads", test_parallel_threads<3, increment> , DEFAULT_HANDLERS},
-    {"Testing serial threads", test_serial_threads<10, increment> , DEFAULT_HANDLERS},
+    {"Testing parallel threads", test_parallel_threads<3, increment>, DEFAULT_HANDLERS},
+    {"Testing serial threads", test_serial_threads<10, increment>, DEFAULT_HANDLERS},
 
     {"Testing single thread with yield", test_single_thread<increment_with_yield>, DEFAULT_HANDLERS},
     {"Testing parallel threads with yield", test_parallel_threads<3, increment_with_yield>, DEFAULT_HANDLERS},
@@ -733,6 +753,7 @@ static const case_t cases[] = {
 
 Specification specification(test_setup, cases);
 
-int main() {
+int main()
+{
     return !Harness::run(specification);
 }

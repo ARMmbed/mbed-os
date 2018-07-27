@@ -53,12 +53,12 @@ private:
 
 public:
     SysTimerTest() :
-            SysTimer(), _sem(0, 1)
+        SysTimer(), _sem(0, 1)
     {
     }
 
     SysTimerTest(const ticker_data_t *data) :
-            SysTimer(data), _sem(0, 1)
+        SysTimer(data), _sem(0, 1)
     {
     }
 

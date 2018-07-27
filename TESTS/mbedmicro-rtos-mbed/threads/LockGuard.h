@@ -31,21 +31,23 @@ public:
      * Construct a LockGuard instance and ackire ownership of mutex in input.
      * @param mutex The mutex to ackire ownership of.
      */
-    LockGuard(rtos::Mutex& mutex) : _mutex(mutex) {
+    LockGuard(rtos::Mutex &mutex) : _mutex(mutex)
+    {
         _mutex.lock();
     }
 
     /**
      * Destruct the lock and release the inner mutex.
      */
-    ~LockGuard() {
+    ~LockGuard()
+    {
         _mutex.unlock();
     }
 
 private:
-    LockGuard(const LockGuard&);
-    LockGuard& operator=(const LockGuard&);
-    rtos::Mutex& _mutex;
+    LockGuard(const LockGuard &);
+    LockGuard &operator=(const LockGuard &);
+    rtos::Mutex &_mutex;
 };
 
 #endif /* MBEDMICRO_RTOS_MBED_THREADS_LOCK_GUARD */

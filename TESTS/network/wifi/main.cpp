@@ -16,7 +16,7 @@
  */
 
 #ifndef MBED_CONF_APP_OBJECT_CONSTRUCTION
-    #error [NOT_SUPPORTED] No network interface found for this target.
+#error [NOT_SUPPORTED] No network interface found for this target.
 #endif
 
 #include "mbed.h"
@@ -48,7 +48,8 @@
 
 using namespace utest::v1;
 
-utest::v1::status_t test_setup(const size_t number_of_cases) {
+utest::v1::status_t test_setup(const size_t number_of_cases)
+{
     GREENTEA_SETUP(240, "default_auto");
     return verbose_test_setup_handler(number_of_cases);
 }
@@ -90,6 +91,7 @@ Case cases[] = {
 Specification specification(test_setup, cases);
 
 // Entry point into the tests
-int main() {
+int main()
+{
     return !Harness::run(specification);
 }
