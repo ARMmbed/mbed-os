@@ -55,6 +55,9 @@ typedef enum {
 #ifdef I2C1_BASE
     I2C_1 = I2C1_BASE,
 #endif
+#ifdef I2C2_BASE
+    I2C_2 = I2C2_BASE,
+#endif
 } I2CName;
 #endif
 
@@ -89,6 +92,12 @@ typedef enum {
 #ifdef USART3_BASE
     SPI_3 = USART3_BASE,
 #endif
+#ifdef USART4_BASE
+    SPI_4 = USART4_BASE,
+#endif
+#ifdef USART5_BASE
+    SPI_5 = USART5_BASE,
+#endif
 } SPIName;
 #endif
 
@@ -105,6 +114,12 @@ typedef enum {
 #endif
 #ifdef USART3_BASE
     USART_3 = USART3_BASE,
+#endif
+#ifdef USART4_BASE
+    USART_4 = USART4_BASE,
+#endif
+#ifdef USART5_BASE
+    USART_5 = USART5_BASE,
 #endif
 #ifdef UART0_BASE
     UART_0 = UART0_BASE,

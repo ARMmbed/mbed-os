@@ -2,7 +2,7 @@ from __future__ import print_function, absolute_import
 from builtins import str
 
 import os
-from os.path import sep, normpath, join, exists
+from os.path import sep, normpath, join, exists, dirname
 import ntpath
 import copy
 from collections import namedtuple
@@ -10,6 +10,7 @@ import shutil
 from subprocess import Popen, PIPE
 import re
 
+from tools.resources import FileType
 from tools.arm_pack_manager import Cache
 from tools.targets import TARGET_MAP
 from tools.export.exporters import Exporter, apply_supported_whitelist
@@ -133,7 +134,8 @@ class Uvision(Exporter):
     @classmethod
     def is_target_supported(cls, target_name):
         target = TARGET_MAP[target_name]
-        if not (set(target.supported_toolchains) and set(["ARM", "uARM"])):
+        if not (set(target.supported_toolchains).intersection(
+                set(["ARM", "uARM"]))):
             return False
         if not DeviceCMSIS.check_supported(target_name):
             return False
@@ -217,7 +219,7 @@ class Uvision(Exporter):
 
         srcs = self.resources.headers + self.resources.s_sources + \
                self.resources.c_sources + self.resources.cpp_sources + \
-               self.resources.objects + self.resources.libraries
+               self.resources.objects + self.libraries
         ctx = {
             'name': self.project_name,
             # project_files => dict of generators - file group to generator of
@@ -228,10 +230,10 @@ class Uvision(Exporter):
                                       self.resources.inc_dirs).encode('utf-8'),
             'device': DeviceUvision(self.target),
         }
-        sct_file = self.resources.linker_script
+        sct_name, sct_path = self.resources.get_file_refs(FileType.LD_SCRIPT)[0]
         ctx['linker_script'] = self.toolchain.correct_scatter_shebang(
-            sct_file, self.resources.file_basepath[sct_file])
-        if ctx['linker_script'] != sct_file:
+            sct_path, dirname(sct_name))
+        if ctx['linker_script'] != sct_path:
             self.generated_files.append(ctx['linker_script'])
         core = ctx['device'].core
         ctx['cputype'] = core.rstrip("FD")

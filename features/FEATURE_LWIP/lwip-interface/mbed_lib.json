@@ -124,6 +124,15 @@
         },      
         "LPC546XX": {
             "mem-size": 36496
+        },
+        "EFM32GG11-STK3701": {
+            "mem-size": 36560
+        },
+        "RZ_A1_EMAC": {
+            "tcpip-thread-stacksize": 1328,
+            "default-thread-stacksize": 640,
+            "ppp-thread-stacksize": 896,
+            "mem-size": 51200
         }
     }
 }

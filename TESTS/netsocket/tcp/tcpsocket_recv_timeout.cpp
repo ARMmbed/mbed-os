@@ -39,6 +39,9 @@ void TCPSOCKET_RECV_TIMEOUT()
 {
     static const int DATA_LEN = 100;
     char buff[DATA_LEN] = {0};
+    int time_allotted = split2half_rmng_tcp_test_time(); // [s]
+    Timer tc_exec_time;
+    tc_exec_time.start();
 
     TCPSocket sock;
     tcpsocket_connect_to_echo_srv(sock);
@@ -59,8 +62,10 @@ void TCPSOCKET_RECV_TIMEOUT()
             timer.stop();
 
             if (recvd == NSAPI_ERROR_WOULD_BLOCK) {
-                if(osSignalWait(SIGNAL_SIGIO, SIGIO_TIMEOUT).status == osEventTimeout) {
+                if (tc_exec_time.read() >= time_allotted ||
+                    (osSignalWait(SIGNAL_SIGIO, SIGIO_TIMEOUT).status == osEventTimeout)) {
                     TEST_FAIL();
+                    goto CLEANUP;
                 }
                 printf("MBED: recv() took: %dms\n", timer.read_ms());
                 TEST_ASSERT_INT_WITHIN(50, 150, timer.read_ms());
@@ -68,9 +73,13 @@ void TCPSOCKET_RECV_TIMEOUT()
             } else if (recvd < 0) {
                 printf("[pkt#%02d] network error %d\n", i, recvd);
                 TEST_FAIL();
+                goto CLEANUP;
             }
             pkt_unrecvd -= recvd;
         }
     }
+
+CLEANUP:
+    tc_exec_time.stop();
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
 }

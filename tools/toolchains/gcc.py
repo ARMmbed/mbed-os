@@ -180,10 +180,9 @@ class GCC(mbedToolchain):
         else:
             opts += ["-I%s" % i for i in includes]
 
-        if not for_asm:
-            config_header = self.get_config_header()
-            if config_header is not None:
-                opts = opts + self.get_config_option(config_header)
+        config_header = self.get_config_header()
+        if config_header is not None:
+            opts = opts + self.get_config_option(config_header)
         return opts
 
     @hook_tool

@@ -66,7 +66,7 @@ void mbed_fault_handler (uint32_t fault_type, void *mbed_fault_context_in, void 
     mbed_error_printf("\n\n-- MbedOS Fault Handler --\n\n");
     
     //Now call mbed_error, to log the error and halt the system
-    mbed_error( faultStatus, "Unrecoverable fault excaption.", mbed_fault_context.PC_reg, NULL, 0 );
+    mbed_error( faultStatus, "Fault exception", mbed_fault_context.PC_reg, NULL, 0 );
     
 }
 

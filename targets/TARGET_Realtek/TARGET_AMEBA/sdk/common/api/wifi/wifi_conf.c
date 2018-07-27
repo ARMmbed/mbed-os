@@ -66,7 +66,7 @@ extern int inic_stop(void);
 /******************************************************
  *               Variables Declarations
  ******************************************************/
-#if !DEVICE_EMAC
+#if !defined(CONFIG_MBED_ENABLED)
 extern struct netif xnetif[NET_IF_NUM];
 #endif
 /******************************************************
@@ -975,10 +975,10 @@ int wifi_on(rtw_mode_t mode)
 	}
 
 	#if CONFIG_LWIP_LAYER
-	#if !DEVICE_EMAC
+	#if !defined(CONFIG_MBED_ENABLED)
 	netif_set_up(&xnetif[0]);
 	if(mode == RTW_MODE_STA_AP) {
-		netif_set_up(&xnetif[1]);		
+		netif_set_up(&xnetif[1]);
 	}
 	#endif
 	#endif
@@ -1001,8 +1001,10 @@ int wifi_off(void)
 		return 0;
 	}
 #if CONFIG_LWIP_LAYER
-	dhcps_deinit();
-#if !DEVICE_EMAC
+#ifndef CONFIG_MBED_ENABLED
+    dhcps_deinit();
+#endif
+#if !defined(CONFIG_MBED_ENABLED)
 	LwIP_DHCP(0, DHCP_STOP);
 	netif_set_down(&xnetif[0]);
 	netif_set_down(&xnetif[1]);
@@ -1043,8 +1045,10 @@ int wifi_off(void)
 int wifi_off_fastly(void)
 {
 #if CONFIG_LWIP_LAYER
-	dhcps_deinit();
-#if !DEVICE_EMAC
+#ifndef CONFIG_MBED_ENABLED
+    dhcps_deinit();
+#endif
+#if !defined(CONFIG_MBED_ENABLED)
 	LwIP_DHCP(0, DHCP_STOP);
 #endif
 #endif	
@@ -1672,7 +1676,7 @@ int wifi_restart_ap(
 	int					channel)
 {
 	unsigned char idx = 0;
-#if !DEVICE_EMAC
+#if !defined(CONFIG_MBED_ENABLED)
 	ip_addr_t ipaddr;
 	ip_addr_t netmask;
 	ip_addr_t gw;
@@ -1700,7 +1704,7 @@ int wifi_restart_ap(
 	else
 #endif
 	{
-#if !DEVICE_EMAC
+#if !defined(CONFIG_MBED_ENABLED)
 		IP4_ADDR(&ipaddr, GW_ADDR0, GW_ADDR1, GW_ADDR2, GW_ADDR3);
 		IP4_ADDR(&netmask, NETMASK_ADDR0, NETMASK_ADDR1 , NETMASK_ADDR2, NETMASK_ADDR3);
 		IP4_ADDR(&gw, GW_ADDR0, GW_ADDR1, GW_ADDR2, GW_ADDR3);
@@ -1750,7 +1754,7 @@ int wifi_restart_ap(
 #if (INCLUDE_uxTaskGetStackHighWaterMark == 1)
 	printf("\r\nWebServer Thread: High Water Mark is %ld\n", uxTaskGetStackHighWaterMark(NULL));
 #endif
-#if !DEVICE_EMAC
+#if !defined(CONFIG_MBED_ENABLED)
 	// start dhcp server
 	dhcps_init(&xnetif[idx]);
 #endif
@@ -1773,12 +1777,12 @@ struct wifi_autoreconnect_param {
 
 static void wifi_autoreconnect_thread(void *param)
 {
-#if !DEVICE_EMAC && CONFIG_LWIP_LAYER
+#if !defined(CONFIG_MBED_ENABLED) && CONFIG_LWIP_LAYER
 	int ret = RTW_ERROR;
 #endif
 	struct wifi_autoreconnect_param *reconnect_param = (struct wifi_autoreconnect_param *) param;
 	WIFI_CONF_MSG("\n\rauto reconnect ...\n");
-#if !DEVICE_EMAC && CONFIG_LWIP_LAYER
+#if !defined(CONFIG_MBED_ENABLED) && CONFIG_LWIP_LAYER
 	ret =
 #endif
         wifi_connect(reconnect_param->ssid,
@@ -1788,7 +1792,7 @@ static void wifi_autoreconnect_thread(void *param)
                      reconnect_param->password_len,
                      reconnect_param->key_id,
                      NULL);
-#if !DEVICE_EMAC && CONFIG_LWIP_LAYER
+#if !defined(CONFIG_MBED_ENABLED) && CONFIG_LWIP_LAYER
 	if(ret == RTW_SUCCESS) {
 #if ATCMD_VER == ATVER_2
 		if (dhcp_mode_sta == 2){

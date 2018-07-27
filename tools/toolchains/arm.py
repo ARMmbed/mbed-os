@@ -175,6 +175,9 @@ class ARM(mbedToolchain):
 
     def get_compile_options(self, defines, includes, for_asm=False):
         opts = ['-D%s' % d for d in defines]
+        config_header = self.get_config_header()
+        if config_header is not None:
+            opts = opts + self.get_config_option(config_header)
         if for_asm:
             return opts
         if self.RESPONSE_FILES:
@@ -182,9 +185,6 @@ class ARM(mbedToolchain):
         else:
             opts += ["-I%s" % i for i in includes]
 
-        config_header = self.get_config_header()
-        if config_header is not None:
-            opts = opts + self.get_config_option(config_header)
         return opts
 
     @hook_tool
@@ -230,11 +230,15 @@ class ARM(mbedToolchain):
     def compile_cpp(self, source, object, includes):
         return self.compile(self.cppc, source, object, includes)
 
-    def correct_scatter_shebang(self, scatter_file, base_path=curdir):
+    def correct_scatter_shebang(self, scatter_file, cur_dir_name=None):
         """Correct the shebang at the top of a scatter file.
 
         Positional arguments:
         scatter_file -- the scatter file to correct
+
+        Keyword arguments:
+        cur_dir_name -- the name (not path) of the directory containing the
+                        scatter file
 
         Return:
         The location of the correct scatter file
@@ -249,8 +253,9 @@ class ARM(mbedToolchain):
                 return scatter_file
             else:
                 new_scatter = join(self.build_dir, ".link_script.sct")
-                self.SHEBANG += " -I %s" % relpath(dirname(scatter_file),
-                                                   base_path)
+                if cur_dir_name is None:
+                    cur_dir_name = dirname(scatter_file)
+                self.SHEBANG += " -I %s" % cur_dir_name
                 if self.need_update(new_scatter, [scatter_file]):
                     with open(new_scatter, "w") as out:
                         out.write(self.SHEBANG)

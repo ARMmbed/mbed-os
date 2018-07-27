@@ -24,6 +24,7 @@ import sys
 from subprocess import check_output, CalledProcessError, Popen, PIPE
 import shutil
 from jinja2.exceptions import TemplateNotFound
+from tools.resources import FileType
 from tools.export.exporters import Exporter, apply_supported_whitelist
 from tools.utils import NotSupportedException
 from tools.targets import TARGET_MAP
@@ -69,7 +70,7 @@ class Makefile(Exporter):
                           self.resources.cpp_sources]
 
         libraries = [self.prepare_lib(basename(lib)) for lib
-                     in self.resources.libraries]
+                     in self.libraries]
         sys_libs = [self.prepare_sys_lib(lib) for lib
                     in self.toolchain.sys_libs]
 
@@ -124,8 +125,15 @@ class Makefile(Exporter):
         ctx.update(self.format_flags())
 
         # Add the virtual path the the include option in the ASM flags
-        ctx['asm_flags'] = map(lambda item: "-I" + ctx['vpath'][0] + "/" + item[2:]
-                               if item.startswith('-I') else item, ctx['asm_flags'])
+        new_asm_flags = []
+        for flag in ctx['asm_flags']:
+            if flag.startswith('-I'):
+                new_asm_flags.append("-I{}/{}".format(ctx['vpath'][0], flag[2:]))
+            elif flag.startswith('--preinclude='):
+                new_asm_flags.append("--preinclude={}/{}".format(ctx['vpath'][0], flag[13:]))
+            else:
+                new_asm_flags.append(flag)
+        ctx['asm_flags'] = new_asm_flags
 
         for templatefile in \
             ['makefile/%s_%s.tmpl' % (self.TEMPLATE,
@@ -146,7 +154,7 @@ class Makefile(Exporter):
         """Format toolchain flags for Makefile"""
         flags = {}
         for k, v in self.flags.items():
-            if k in ['asm_flags', 'c_flags', 'cxx_flags']:
+            if k in ['c_flags', 'cxx_flags']:
                 flags[k] = map(lambda x: x.replace('"', '\\"'), v)
             else:
                 flags[k] = v
@@ -237,11 +245,12 @@ class Arm(Makefile):
 
     def generate(self):
         if self.resources.linker_script:
-            sct_file = self.resources.linker_script
+            sct_file = self.resources.get_file_refs(FileType.LD_SCRIPT)[-1]
             new_script = self.toolchain.correct_scatter_shebang(
-                sct_file, join(self.resources.file_basepath[sct_file], "BUILD"))
+                sct_file.path, join("..", dirname(sct_file.name)))
             if new_script is not sct_file:
-                self.resources.linker_script = new_script
+                self.resources.add_files_to_type(
+                    FileType.LD_SCRIPT, [new_script])
                 self.generated_files.append(new_script)
         return super(Arm, self).generate()
 
@@ -255,6 +264,17 @@ class Armc6(Arm):
     """ARM Compiler 6 (armclang) specific generic makefile target"""
     NAME = 'Make-ARMc6'
     TOOLCHAIN = "ARMC6"
+
+    @classmethod
+    def is_target_supported(cls, target_name):
+        target = TARGET_MAP[target_name]
+        if target.core in (
+                "Cortex-M23", "Cortex-M23-NS",
+                "Cortex-M33", "Cortex-M33-NS"
+        ):
+            return False
+        return apply_supported_whitelist(
+            cls.TOOLCHAIN, cls.POST_BINARY_WHITELIST, target)
 
 
 class IAR(Makefile):

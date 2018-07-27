@@ -73,6 +73,11 @@ struct analogin_s {
     __IO uint32_t address;
 };
 
+/* This structure is not used by the HAL implementation. */
+struct flash_s {
+    uint8_t not_used;
+};
+
 #include "gpio_object.h"
 
 #ifdef __cplusplus

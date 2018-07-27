@@ -36,31 +36,6 @@ class GNUARMNetbeans(Exporter):
     def prepare_sys_lib(libname):
         return "-l" + libname
 
-    def toolchain_flags(self, toolchain):
-        """Returns a dictionary of toolchain flags.
-        Keys of the dictionary are:
-        cxx_flags    - c++ flags
-        c_flags      - c flags
-        ld_flags     - linker flags
-        asm_flags    - assembler flags
-        common_flags - common options
-
-        The difference from the above is that it takes a parameter.
-        """
-
-        # Note: use the config options from the currently selected toolchain.
-        config_header = self.toolchain.get_config_header()
-
-        flags = {key + "_flags": copy.deepcopy(value) for key, value
-                 in toolchain.flags.items()}
-        if config_header:
-            config_header = relpath(config_header,
-                                    self.resources.file_basepath[config_header])
-            header_options = self.toolchain.get_config_option(config_header)
-            flags['c_flags'] += header_options
-            flags['cxx_flags'] += header_options
-        return flags
-
     @staticmethod
     def get_defines_and_remove_from_flags(flags_in, str_key):
         defines = []

@@ -53,16 +53,15 @@ if __name__ == '__main__':
         args_error(parser, "argument -m/--mcu is required")
     target = extract_mcus(parser, options)[0]
 
-    # Toolchain
-    if options.tool is None:
-        args_error(parser, "argument -t/--toolchain is required")
-    toolchain = options.tool[0]
-
     options.prefix = options.prefix or [""]
 
     try:
         params, macros, features = get_config(
-            options.source_dir, target, toolchain, app_config=options.app_config)
+            options.source_dir,
+            target,
+            options.tool[0] if options.tool else None,
+            app_config=options.app_config
+        )
         if not params and not macros:
             print("No configuration data available.")
             sys.exit(0)

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#if DEVICE_EMAC
+#if defined(CONFIG_MBED_ENABLED)
 
 #include <stdio.h>
 #include "mbed_assert.h"

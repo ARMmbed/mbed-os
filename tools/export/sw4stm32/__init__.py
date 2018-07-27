@@ -433,12 +433,8 @@ class Sw4STM32(GNUARMEclipse):
 
         self.resources.win_to_unix()
 
-        config_header = self.toolchain.get_config_header()
-        if config_header:
-            config_header = relpath(config_header, self.resources.file_basepath[config_header])
-
         libraries = []
-        for lib in self.resources.libraries:
+        for lib in self.libraries:
             library, _ = splitext(basename(lib))
             libraries.append(library[3:])
 
@@ -531,7 +527,7 @@ class Sw4STM32(GNUARMEclipse):
             'name': self.project_name,
             'platform': platform,
             'include_paths': self.include_path,
-            'config_header': config_header,
+            'config_header': self.config_header_ref.name,
             'exclude_paths': '|'.join(self.excluded_folders),
             'ld_script': ld_script,
             'library_paths': lib_dirs,
