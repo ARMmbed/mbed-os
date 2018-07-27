@@ -5,9 +5,9 @@ from __future__ import print_function, division, absolute_import
 
 from abc import abstractmethod, ABCMeta
 from sys import stdout, exit, argv
-from os import sep, rename
+from os import sep, rename, remove
 from os.path import (basename, dirname, join, relpath, abspath, commonprefix,
-                     splitext)
+                     splitext, exists)
 import re
 import csv
 import json
@@ -824,7 +824,10 @@ class MemapParser(object):
             except IOError:
                 self.old_modules = None
             if not COMPARE_FIXED:
-                rename(mapfile, "%s.old" % mapfile)
+                old_mapfile = "%s.old" % mapfile
+                if exists(old_mapfile):
+                    remove(old_mapfile)
+                rename(mapfile, old_mapfile)
             return True
 
         except IOError as error:
