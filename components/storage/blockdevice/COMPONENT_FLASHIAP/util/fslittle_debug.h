@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-/** @file fsfat_debug.h
+/** @file fslittle_debug.h
  *
  * component debug header file.
  */
 
 
-#ifndef __FSFAT_DEBUG
-#define __FSFAT_DEBUG
+#ifndef __FSLITTLE_DEBUG
+#define __FSLITTLE_DEBUG
 
 #include <stdint.h>
 #include <assert.h>
@@ -30,59 +30,59 @@
 
 /* Debug Support */
 
-#define FSFAT_LOG_NONE        0
-#define FSFAT_LOG_ERR         1
-#define FSFAT_LOG_WARN        2
-#define FSFAT_LOG_NOTICE      3
-#define FSFAT_LOG_INFO        4
-#define FSFAT_LOG_DEBUG       5
-#define FSFAT_LOG_FENTRY      6
+#define FSLITTLE_LOG_NONE        0
+#define FSLITTLE_LOG_ERR         1
+#define FSLITTLE_LOG_WARN        2
+#define FSLITTLE_LOG_NOTICE      3
+#define FSLITTLE_LOG_INFO        4
+#define FSLITTLE_LOG_DEBUG       5
+#define FSLITTLE_LOG_FENTRY      6
 
-#define FSFAT_LOG(_fmt, ...)                          \
+#define FSLITTLE_LOG(_fmt, ...)                          \
   do                                                    \
   {                                                     \
         printf(_fmt, __VA_ARGS__);                      \
   }while(0);
 
-#define noFSFAT_DEBUG
-#ifdef FSFAT_DEBUG
+#define noFSLITTLE_DEBUG
+#ifdef FSLITTLE_DEBUG
 
-extern uint32_t fsfat_optDebug_g;
-extern uint32_t fsfat_optLogLevel_g;
+extern uint32_t fslittle_optDebug_g;
+extern uint32_t fslittle_optLogLevel_g;
 
 
 /* uncomment for asserts to work */
 /* #undef NDEBUG */
 // todo: port to mbedOSV3++ #include <core-util/assert.h>
 
-#define FSFAT_INLINE
-// todo: port to mbedOSV3++ #define FSFAT_ASSERT  CORE_UTIL_ASSERT
-#define FSFAT_ASSERT(...)
+#define FSLITTLE_INLINE
+// todo: port to mbedOSV3++ #define FSLITTLE_ASSERT  CORE_UTIL_ASSERT
+#define FSLITTLE_ASSERT(...)
 
-#define FSFAT_DBGLOG(_fmt, ...)                       \
+#define FSLITTLE_DBGLOG(_fmt, ...)                       \
   do                                                    \
   {                                                     \
-    if(fsfat_optDebug_g && (fsfat_optLogLevel_g >= FSFAT_LOG_DEBUG))  \
+    if(fslittle_optDebug_g && (fslittle_optLogLevel_g >= FSLITTLE_LOG_DEBUG))  \
     {                                                   \
         printf(_fmt, __VA_ARGS__);                      \
     }                                                   \
   }while(0);
 
 
-#define FSFAT_ERRLOG(_fmt, ...)                       \
+#define FSLITTLE_ERRLOG(_fmt, ...)                       \
   do                                                    \
   {                                                     \
-    if(fsfat_optDebug_g && (fsfat_optLogLevel_g >= FSFAT_LOG_ERR))  \
+    if(fslittle_optDebug_g && (fslittle_optLogLevel_g >= FSLITTLE_LOG_ERR))  \
     {                                                   \
         printf(_fmt, __VA_ARGS__);                      \
     }                                                   \
   }while(0);
 
 
-#define FSFAT_FENTRYLOG(_fmt, ...)                       \
+#define FSLITTLE_FENTRYLOG(_fmt, ...)                       \
   do                                                    \
   {                                                     \
-    if(fsfat_optDebug_g && (fsfat_optLogLevel_g >= FSFAT_LOG_FENTRY))  \
+    if(fslittle_optDebug_g && (fslittle_optLogLevel_g >= FSLITTLE_LOG_FENTRY))  \
     {                                                   \
         printf(_fmt, __VA_ARGS__);                      \
     }                                                   \
@@ -93,12 +93,12 @@ extern uint32_t fsfat_optLogLevel_g;
 
 
 #else
-#define FSFAT_ASSERT(_x)                   do { } while(0)
-#define FSFAT_INLINE                       inline
-#define FSFAT_DBGLOG(_fmt, ...)            do { } while(0)
-#define FSFAT_ERRLOG(_fmt, ...)            do { } while(0)
-#define FSFAT_FENTRYLOG(_fmt, ...)         do { } while(0)
-#endif /* FSFAT_DEBUG */
+#define FSLITTLE_ASSERT(_x)                   do { } while(0)
+#define FSLITTLE_INLINE                       inline
+#define FSLITTLE_DBGLOG(_fmt, ...)            do { } while(0)
+#define FSLITTLE_ERRLOG(_fmt, ...)            do { } while(0)
+#define FSLITTLE_FENTRYLOG(_fmt, ...)         do { } while(0)
+#endif /* FSLITTLE_DEBUG */
 
 
-#endif /*__FSFAT_DEBUG*/
+#endif /*__FSLITTLE_DEBUG*/

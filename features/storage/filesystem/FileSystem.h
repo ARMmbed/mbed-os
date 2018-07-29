@@ -48,12 +48,28 @@ class File;
  */
 class FileSystem : public FileSystemLike {
 public:
+
     /** FileSystem lifetime
      *
      *  @param name       Name to add filesystem to tree as
      */
     FileSystem(const char *name = NULL);
     virtual ~FileSystem() {}
+
+    /** Return the default filesystem
+     *
+     * Returns the default FileSystem base on the default BlockDevice configuration.
+     * Use the components in target.json or application config to change
+     * the default block device and affect the default filesystem.
+     * SD block device => FAT filesystem
+     * SPIF block device => LITTLE filesystem
+     * DATAFLASH block device => LITTLE filesystem
+     *
+     * An application can override all target settings by implementing
+     * FileSystem::get_default_instance() themselves - the default
+     * definition is weak, and calls get_target_default_instance().
+     */
+    static FileSystem *get_default_instance();
 
     /** Mounts a filesystem to a block device
      *

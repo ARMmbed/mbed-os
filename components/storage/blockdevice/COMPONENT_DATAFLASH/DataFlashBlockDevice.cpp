@@ -131,11 +131,11 @@ enum dummy {
 };
 
 DataFlashBlockDevice::DataFlashBlockDevice(PinName mosi,
-                                     PinName miso,
-                                     PinName sclk,
-                                     PinName cs,
-                                     int freq,
-                                     PinName nwp)
+        PinName miso,
+        PinName sclk,
+        PinName cs,
+        int freq,
+        PinName nwp)
     :   _spi(mosi, miso, sclk),
         _cs(cs, 1),
         _nwp(nwp),
@@ -244,7 +244,7 @@ int DataFlashBlockDevice::init()
 
                     /* adjust device size */
                     _device_size = (_device_size / DATAFLASH_PAGE_SIZE_256) *
-                                    DATAFLASH_PAGE_SIZE_264;
+                                   DATAFLASH_PAGE_SIZE_264;
                 }
                 break;
             case DATAFLASH_ID_DENSITY_16_MBIT:
@@ -258,7 +258,7 @@ int DataFlashBlockDevice::init()
 
                     /* adjust device size */
                     _device_size = (_device_size / DATAFLASH_PAGE_SIZE_512) *
-                                    DATAFLASH_PAGE_SIZE_528;
+                                   DATAFLASH_PAGE_SIZE_528;
                 }
                 break;
             default:
@@ -361,7 +361,7 @@ int DataFlashBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t 
     /* check parameters are valid and the write is within bounds */
     if (is_valid_program(addr, size) && buffer) {
 
-        const uint8_t * external_buffer = static_cast<const uint8_t*>(buffer);
+        const uint8_t *external_buffer = static_cast<const uint8_t *>(buffer);
 
         /* Each write command can only cover one page at a time.
            Find page and current page offset for handling unaligned writes.
@@ -577,7 +577,7 @@ void DataFlashBlockDevice::_write_enable(bool enable)
 
     /* enable writing, disable write protection */
     if (enable) {
-    /* if not-write-protected pin is connected, select it */
+        /* if not-write-protected pin is connected, select it */
         if (_nwp.is_connected()) {
             _nwp = 1;
         }
@@ -612,8 +612,8 @@ int DataFlashBlockDevice::_sync(void)
        The polling interval is based on the typical page program time.
      */
     for (uint32_t timeout = 0;
-         timeout < DATAFLASH_TIMEOUT;
-         timeout += DATAFLASH_TIMING_ERASE_PROGRAM_PAGE) {
+            timeout < DATAFLASH_TIMEOUT;
+            timeout += DATAFLASH_TIMING_ERASE_PROGRAM_PAGE) {
 
         /* get status register */
         uint16_t status = _get_register(DATAFLASH_OP_STATUS);
@@ -622,12 +622,12 @@ int DataFlashBlockDevice::_sync(void)
         if (status & DATAFLASH_BIT_ERASE_PROGRAM_ERROR) {
             DEBUG_PRINTF("DATAFLASH_BIT_ERASE_PROGRAM_ERROR\r\n");
             break;
-        /* device ready, set OK code set */
+            /* device ready, set OK code set */
         } else if (status & DATAFLASH_BIT_READY) {
             DEBUG_PRINTF("DATAFLASH_BIT_READY\r\n");
             result = BD_ERROR_OK;
             break;
-        /* wait the typical write period before trying again */
+            /* wait the typical write period before trying again */
         } else {
             DEBUG_PRINTF("wait_ms: %d\r\n", DATAFLASH_TIMING_ERASE_PROGRAM_PAGE);
             wait_ms(DATAFLASH_TIMING_ERASE_PROGRAM_PAGE);
@@ -647,9 +647,9 @@ int DataFlashBlockDevice::_sync(void)
  * @return BlockDevice error code.
  */
 int DataFlashBlockDevice::_write_page(const uint8_t *buffer,
-                                   uint32_t page,
-                                   uint32_t offset,
-                                   uint32_t size)
+                                      uint32_t page,
+                                      uint32_t offset,
+                                      uint32_t size)
 {
     DEBUG_PRINTF("_write_page: %p %" PRIX32 " %" PRIX32 "\r\n", buffer, page, size);
 

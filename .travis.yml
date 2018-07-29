@@ -187,12 +187,11 @@ matrix:
 
     - env:
         - NAME=littlefs
-        - LITTLEFS=features/filesystem/littlefs
+        - LITTLEFS=features/storage/filesystem/littlefs
       install:
         # Install dependencies
         - sudo apt-get install gcc-arm-embedded fuse libfuse-dev
         - pip install -r requirements.txt
-        - git clone https://github.com/armmbed/spiflash-driver.git
         # Print versions
         - arm-none-eabi-gcc --version
         - gcc --version

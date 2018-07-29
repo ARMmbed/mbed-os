@@ -333,17 +333,18 @@ int SPIFBlockDevice::erase(bd_addr_t addr, bd_size_t in_size)
     }
 
     int type = 0;
+    uint32_t offset = 0;
     uint32_t chunk = 4096;
     int cur_erase_inst = _erase_instruction;
     int size = (int)in_size;
     bool erase_failed = false;
     int status = SPIF_BD_ERROR_OK;
-    // Find region of erased address
+   // Find region of erased address
     int region = _utils_find_addr_region(addr);
     // Erase Types of selected region
     uint8_t bitfield = _region_erase_types_bitfield[region];
 
-    tr_debug("DEBUG: erase - addr: %llu, in_size: %llu", addr, in_size);
+    tr_error("DEBUG: erase - addr: %llu, in_size: %llu", addr, in_size);
 
     // For each iteration erase the largest section supported by current region
     while (size > 0) {
@@ -352,11 +353,13 @@ int SPIFBlockDevice::erase(bd_addr_t addr, bd_size_t in_size)
         // find the matching instruction and erase size chunk for that type.
         type = _utils_iterate_next_largest_erase_type(bitfield, size, (unsigned int)addr, _region_high_boundary[region]);
         cur_erase_inst = _erase_type_inst_arr[type];
-        chunk = _erase_type_size_arr[type];
+        //chunk = _erase_type_size_arr[type];
+        offset = addr % _erase_type_size_arr[type];
+        chunk = ( (offset + size) < _erase_type_size_arr[type]) ? size : (_erase_type_size_arr[type] - offset);
 
-        tr_debug("DEBUG: erase - addr: %llu, size:%d, Inst: 0x%xh, chunk: %lu , ",
+        tr_error("DEBUG: erase - addr: %llu, size:%d, Inst: 0x%xh, chunk: %lu , ",
                  addr, size, cur_erase_inst, chunk);
-        tr_debug("DEBUG: erase - Region: %d, Type:%d",
+        tr_error("DEBUG: erase - Region: %d, Type:%d",
                  region, type);
 
         _mutex->lock();

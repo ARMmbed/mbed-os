@@ -71,11 +71,11 @@ public:
      *  @param freq     Clock speed of the SPI bus (defaults to 40MHz)
      */
     DataFlashBlockDevice(PinName mosi,
-                      PinName miso,
-                      PinName sclk,
-                      PinName csel,
-                      int freq = 40000000,
-                      PinName nowp = NC);
+                         PinName miso,
+                         PinName sclk,
+                         PinName csel,
+                         int freq = 40000000,
+                         PinName nowp = NC);
 
     /** Initialize a block device
      *

@@ -134,6 +134,11 @@ typedef enum {
     A4 = PTC2,
     A5 = PTC1,
 
+    SPI_MOSI    = PTD6,
+    SPI_MISO    = PTD7,
+    SPI_SCK     = PTD5,
+    SPI_PERSISTENT_MEM_CS = PTD4,
+
     // Not connected
     NC = (int)0xFFFFFFFF
 } PinName;

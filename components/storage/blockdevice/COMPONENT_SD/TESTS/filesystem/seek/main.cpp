@@ -1,3 +1,19 @@
+/* mbed Microcontroller Library
+ * Copyright (c) 2016 ARM Limited
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include "mbed.h"
 #include "greentea-client/test_env.h"
 #include "unity.h"
@@ -67,7 +83,8 @@ uint8_t wbuffer[MBED_TEST_BUFFER];
 
 // tests
 
-void test_seek_tests() {
+void test_seek_tests()
+{
     int res = bd.init();
     TEST_ASSERT_EQUAL(0, res);
 
@@ -79,11 +96,11 @@ void test_seek_tests() {
         res = fs.mkdir("hello", 0777);
         TEST_ASSERT_EQUAL(0, res);
         for (int i = 0; i < 132; i++) {
-            sprintf((char*)buffer, "hello/kitty%d", i);
-            res = file[0].open(&fs, (char*)buffer,
-                    O_WRONLY | O_CREAT | O_APPEND);
+            sprintf((char *)buffer, "hello/kitty%d", i);
+            res = file[0].open(&fs, (char *)buffer,
+                               O_WRONLY | O_CREAT | O_APPEND);
             TEST_ASSERT_EQUAL(0, res);
-    
+
             size = strlen("kittycatcat");
             memcpy(buffer, "kittycatcat", size);
             for (int j = 0; j < 132; j++) {
@@ -100,7 +117,8 @@ void test_seek_tests() {
     TEST_ASSERT_EQUAL(0, res);
 }
 
-void test_simple_dir_seek() {
+void test_simple_dir_seek()
+{
     int res = bd.init();
     TEST_ASSERT_EQUAL(0, res);
 
@@ -123,25 +141,25 @@ void test_simple_dir_seek() {
         off_t pos;
         int i;
         for (i = 0; i < 4; i++) {
-            sprintf((char*)buffer, "kitty%d", i);
+            sprintf((char *)buffer, "kitty%d", i);
             res = dir[0].read(&ent);
             TEST_ASSERT_EQUAL(1, res);
-            res = strcmp(ent.d_name, (char*)buffer);
+            res = strcmp(ent.d_name, (char *)buffer);
             TEST_ASSERT_EQUAL(0, res);
             pos = dir[0].tell();
         }
         res = pos >= 0;
         TEST_ASSERT_EQUAL(1, res);
-    
+
         dir[0].seek(pos);
-        sprintf((char*)buffer, "kitty%d", i);
+        sprintf((char *)buffer, "kitty%d", i);
         res = dir[0].read(&ent);
         TEST_ASSERT_EQUAL(1, res);
-        res = strcmp(ent.d_name, (char*)buffer);
+        res = strcmp(ent.d_name, (char *)buffer);
         TEST_ASSERT_EQUAL(0, res);
-    
+
         dir[0].rewind();
-        sprintf((char*)buffer, "kitty%d", 0);
+        sprintf((char *)buffer, "kitty%d", 0);
 #if (MBED_TEST_FILESYSTEM != FATFileSystem)
         res = dir[0].read(&ent);
         TEST_ASSERT_EQUAL(1, res);
@@ -154,14 +172,14 @@ void test_simple_dir_seek() {
 #endif
         res = dir[0].read(&ent);
         TEST_ASSERT_EQUAL(1, res);
-        res = strcmp(ent.d_name, (char*)buffer);
+        res = strcmp(ent.d_name, (char *)buffer);
         TEST_ASSERT_EQUAL(0, res);
-    
+
         dir[0].seek(pos);
-        sprintf((char*)buffer, "kitty%d", i);
+        sprintf((char *)buffer, "kitty%d", i);
         res = dir[0].read(&ent);
         TEST_ASSERT_EQUAL(1, res);
-        res = strcmp(ent.d_name, (char*)buffer);
+        res = strcmp(ent.d_name, (char *)buffer);
         TEST_ASSERT_EQUAL(0, res);
         res = dir[0].close();
         TEST_ASSERT_EQUAL(0, res);
@@ -173,7 +191,8 @@ void test_simple_dir_seek() {
     TEST_ASSERT_EQUAL(0, res);
 }
 
-void test_large_dir_seek() {
+void test_large_dir_seek()
+{
     int res = bd.init();
     TEST_ASSERT_EQUAL(0, res);
 
@@ -196,25 +215,25 @@ void test_large_dir_seek() {
         off_t pos;
         int i;
         for (i = 0; i < 128; i++) {
-            sprintf((char*)buffer, "kitty%d", i);
+            sprintf((char *)buffer, "kitty%d", i);
             res = dir[0].read(&ent);
             TEST_ASSERT_EQUAL(1, res);
-            res = strcmp(ent.d_name, (char*)buffer);
+            res = strcmp(ent.d_name, (char *)buffer);
             TEST_ASSERT_EQUAL(0, res);
             pos = dir[0].tell();
         }
         res = pos >= 0;
         TEST_ASSERT_EQUAL(1, res);
-    
+
         dir[0].seek(pos);
-        sprintf((char*)buffer, "kitty%d", i);
+        sprintf((char *)buffer, "kitty%d", i);
         res = dir[0].read(&ent);
         TEST_ASSERT_EQUAL(1, res);
-        res = strcmp(ent.d_name, (char*)buffer);
+        res = strcmp(ent.d_name, (char *)buffer);
         TEST_ASSERT_EQUAL(0, res);
-    
+
         dir[0].rewind();
-        sprintf((char*)buffer, "kitty%d", 0);
+        sprintf((char *)buffer, "kitty%d", 0);
 #if (MBED_TEST_FILESYSTEM != FATFileSystem)
         res = dir[0].read(&ent);
         TEST_ASSERT_EQUAL(1, res);
@@ -227,14 +246,14 @@ void test_large_dir_seek() {
 #endif
         res = dir[0].read(&ent);
         TEST_ASSERT_EQUAL(1, res);
-        res = strcmp(ent.d_name, (char*)buffer);
+        res = strcmp(ent.d_name, (char *)buffer);
         TEST_ASSERT_EQUAL(0, res);
-    
+
         dir[0].seek(pos);
-        sprintf((char*)buffer, "kitty%d", i);
+        sprintf((char *)buffer, "kitty%d", i);
         res = dir[0].read(&ent);
         TEST_ASSERT_EQUAL(1, res);
-        res = strcmp(ent.d_name, (char*)buffer);
+        res = strcmp(ent.d_name, (char *)buffer);
         TEST_ASSERT_EQUAL(0, res);
         res = dir[0].close();
         TEST_ASSERT_EQUAL(0, res);
@@ -246,7 +265,8 @@ void test_large_dir_seek() {
     TEST_ASSERT_EQUAL(0, res);
 }
 
-void test_simple_file_seek() {
+void test_simple_file_seek()
+{
     int res = bd.init();
     TEST_ASSERT_EQUAL(0, res);
 
@@ -255,7 +275,7 @@ void test_simple_file_seek() {
         TEST_ASSERT_EQUAL(0, res);
         res = file[0].open(&fs, "hello/kitty42", O_RDONLY);
         TEST_ASSERT_EQUAL(0, res);
-    
+
         off_t pos;
         size = strlen("kittycatcat");
         for (int i = 0; i < 4; i++) {
@@ -273,7 +293,7 @@ void test_simple_file_seek() {
         TEST_ASSERT_EQUAL(size, res);
         res = memcmp(buffer, "kittycatcat", size);
         TEST_ASSERT_EQUAL(0, res);
-    
+
         file[0].rewind();
         res = file[0].read(buffer, size);
         TEST_ASSERT_EQUAL(size, res);
@@ -297,7 +317,7 @@ void test_simple_file_seek() {
         TEST_ASSERT_EQUAL(size, res);
         res = memcmp(buffer, "kittycatcat", size);
         TEST_ASSERT_EQUAL(0, res);
-    
+
         size_t size = file[0].size();
         res = file[0].seek(0, SEEK_CUR);
         TEST_ASSERT_EQUAL(size, res);
@@ -311,7 +331,8 @@ void test_simple_file_seek() {
     TEST_ASSERT_EQUAL(0, res);
 }
 
-void test_large_file_seek() {
+void test_large_file_seek()
+{
     int res = bd.init();
     TEST_ASSERT_EQUAL(0, res);
 
@@ -320,7 +341,7 @@ void test_large_file_seek() {
         TEST_ASSERT_EQUAL(0, res);
         res = file[0].open(&fs, "hello/kitty42", O_RDONLY);
         TEST_ASSERT_EQUAL(0, res);
-    
+
         off_t pos;
         size = strlen("kittycatcat");
         for (int i = 0; i < 128; i++) {
@@ -338,7 +359,7 @@ void test_large_file_seek() {
         TEST_ASSERT_EQUAL(size, res);
         res = memcmp(buffer, "kittycatcat", size);
         TEST_ASSERT_EQUAL(0, res);
-    
+
         file[0].rewind();
         res = file[0].read(buffer, size);
         TEST_ASSERT_EQUAL(size, res);
@@ -362,7 +383,7 @@ void test_large_file_seek() {
         TEST_ASSERT_EQUAL(size, res);
         res = memcmp(buffer, "kittycatcat", size);
         TEST_ASSERT_EQUAL(0, res);
-    
+
         size_t size = file[0].size();
         res = file[0].seek(0, SEEK_CUR);
         TEST_ASSERT_EQUAL(size, res);
@@ -376,7 +397,8 @@ void test_large_file_seek() {
     TEST_ASSERT_EQUAL(0, res);
 }
 
-void test_simple_file_seek_and_write() {
+void test_simple_file_seek_and_write()
+{
     int res = bd.init();
     TEST_ASSERT_EQUAL(0, res);
 
@@ -385,7 +407,7 @@ void test_simple_file_seek_and_write() {
         TEST_ASSERT_EQUAL(0, res);
         res = file[0].open(&fs, "hello/kitty42", O_RDWR);
         TEST_ASSERT_EQUAL(0, res);
-    
+
         off_t pos;
         size = strlen("kittycatcat");
         for (int i = 0; i < 4; i++) {
@@ -397,7 +419,7 @@ void test_simple_file_seek_and_write() {
         }
         res = pos >= 0;
         TEST_ASSERT_EQUAL(1, res);
-    
+
         memcpy(buffer, "doggodogdog", size);
         res = file[0].seek(pos, SEEK_SET);
         TEST_ASSERT_EQUAL(pos, res);
@@ -409,7 +431,7 @@ void test_simple_file_seek_and_write() {
         TEST_ASSERT_EQUAL(size, res);
         res = memcmp(buffer, "doggodogdog", size);
         TEST_ASSERT_EQUAL(0, res);
-    
+
         file[0].rewind();
         res = file[0].read(buffer, size);
         TEST_ASSERT_EQUAL(size, res);
@@ -427,7 +449,7 @@ void test_simple_file_seek_and_write() {
         TEST_ASSERT_EQUAL(size, res);
         res = memcmp(buffer, "kittycatcat", size);
         TEST_ASSERT_EQUAL(0, res);
-    
+
         size_t size = file[0].size();
         res = file[0].seek(0, SEEK_CUR);
         TEST_ASSERT_EQUAL(size, res);
@@ -441,7 +463,8 @@ void test_simple_file_seek_and_write() {
     TEST_ASSERT_EQUAL(0, res);
 }
 
-void test_large_file_seek_and_write() {
+void test_large_file_seek_and_write()
+{
     int res = bd.init();
     TEST_ASSERT_EQUAL(0, res);
 
@@ -450,7 +473,7 @@ void test_large_file_seek_and_write() {
         TEST_ASSERT_EQUAL(0, res);
         res = file[0].open(&fs, "hello/kitty42", O_RDWR);
         TEST_ASSERT_EQUAL(0, res);
-    
+
         off_t pos;
         size = strlen("kittycatcat");
         for (int i = 0; i < 128; i++) {
@@ -464,7 +487,7 @@ void test_large_file_seek_and_write() {
         }
         res = pos >= 0;
         TEST_ASSERT_EQUAL(1, res);
-    
+
         memcpy(buffer, "doggodogdog", size);
         res = file[0].seek(pos, SEEK_SET);
         TEST_ASSERT_EQUAL(pos, res);
@@ -476,7 +499,7 @@ void test_large_file_seek_and_write() {
         TEST_ASSERT_EQUAL(size, res);
         res = memcmp(buffer, "doggodogdog", size);
         TEST_ASSERT_EQUAL(0, res);
-    
+
         file[0].rewind();
         res = file[0].read(buffer, size);
         TEST_ASSERT_EQUAL(size, res);
@@ -494,7 +517,7 @@ void test_large_file_seek_and_write() {
         TEST_ASSERT_EQUAL(size, res);
         res = memcmp(buffer, "kittycatcat", size);
         TEST_ASSERT_EQUAL(0, res);
-    
+
         size_t size = file[0].size();
         res = file[0].seek(0, SEEK_CUR);
         TEST_ASSERT_EQUAL(size, res);
@@ -508,7 +531,8 @@ void test_large_file_seek_and_write() {
     TEST_ASSERT_EQUAL(0, res);
 }
 
-void test_boundary_seek_and_write() {
+void test_boundary_seek_and_write()
+{
     int res = bd.init();
     TEST_ASSERT_EQUAL(0, res);
 
@@ -517,10 +541,10 @@ void test_boundary_seek_and_write() {
         TEST_ASSERT_EQUAL(0, res);
         res = file[0].open(&fs, "hello/kitty42", O_RDWR);
         TEST_ASSERT_EQUAL(0, res);
-    
+
         size = strlen("hedgehoghog");
         const off_t offsets[] = {512, 1020, 513, 1021, 511, 1019};
-    
+
         for (int i = 0; i < sizeof(offsets) / sizeof(offsets[0]); i++) {
             off_t off = offsets[i];
             memcpy(buffer, "hedgehoghog", size);
@@ -553,7 +577,8 @@ void test_boundary_seek_and_write() {
     TEST_ASSERT_EQUAL(0, res);
 }
 
-void test_out_of_bounds_seek() {
+void test_out_of_bounds_seek()
+{
     int res = bd.init();
     TEST_ASSERT_EQUAL(0, res);
 
@@ -562,29 +587,29 @@ void test_out_of_bounds_seek() {
         TEST_ASSERT_EQUAL(0, res);
         res = file[0].open(&fs, "hello/kitty42", O_RDWR);
         TEST_ASSERT_EQUAL(0, res);
-    
+
         size = strlen("kittycatcat");
         res = file[0].size();
-        TEST_ASSERT_EQUAL(132*size, res);
-        res = file[0].seek((132+4)*size,
-                SEEK_SET);
-        TEST_ASSERT_EQUAL((132+4)*size, res);
+        TEST_ASSERT_EQUAL(132 * size, res);
+        res = file[0].seek((132 + 4) * size,
+                           SEEK_SET);
+        TEST_ASSERT_EQUAL((132 + 4)*size, res);
         res = file[0].read(buffer, size);
         TEST_ASSERT_EQUAL(0, res);
-    
+
         memcpy(buffer, "porcupineee", size);
         res = file[0].write(buffer, size);
         TEST_ASSERT_EQUAL(size, res);
-        res = file[0].seek((132+4)*size,
-                SEEK_SET);
-        TEST_ASSERT_EQUAL((132+4)*size, res);
+        res = file[0].seek((132 + 4) * size,
+                           SEEK_SET);
+        TEST_ASSERT_EQUAL((132 + 4)*size, res);
         res = file[0].read(buffer, size);
         TEST_ASSERT_EQUAL(size, res);
         res = memcmp(buffer, "porcupineee", size);
         TEST_ASSERT_EQUAL(0, res);
-        res = file[0].seek(132*size,
-                SEEK_SET);
-        TEST_ASSERT_EQUAL(132*size, res);
+        res = file[0].seek(132 * size,
+                           SEEK_SET);
+        TEST_ASSERT_EQUAL(132 * size, res);
         res = file[0].read(buffer, size);
         TEST_ASSERT_EQUAL(size, res);
 #if (MBED_TEST_FILESYSTEM != FATFileSystem)
@@ -605,7 +630,8 @@ void test_out_of_bounds_seek() {
 
 
 // test setup
-utest::v1::status_t test_setup(const size_t number_of_cases) {
+utest::v1::status_t test_setup(const size_t number_of_cases)
+{
     GREENTEA_SETUP(MBED_TEST_TIMEOUT, "default_auto");
     return verbose_test_setup_handler(number_of_cases);
 }
@@ -624,6 +650,7 @@ Case cases[] = {
 
 Specification specification(test_setup, cases);
 
-int main() {
+int main()
+{
     return !Harness::run(specification);
 }

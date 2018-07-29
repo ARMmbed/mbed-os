@@ -74,7 +74,13 @@ typedef enum {
 
     /* Board Controller */
     STDIO_UART_TX = USBTX,
-    STDIO_UART_RX = USBRX
+    STDIO_UART_RX = USBRX,
+    
+    SPI_MOSI   = PC6,
+    SPI_MISO   = PC7,
+    SPI_SCK    = PC8,
+    SPI_PERSISTENT_MEM_CS = PC9
+    
 } PinName;
 
 #ifdef __cplusplus

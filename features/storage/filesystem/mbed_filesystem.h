@@ -28,11 +28,11 @@
 #include "filesystem/Dir.h"
 
 // BlockDevice classes
-#include "bd/BlockDevice.h"
-#include "bd/BlockDevice.h"
-#include "bd/ChainingBlockDevice.h"
-#include "bd/SlicingBlockDevice.h"
-#include "bd/HeapBlockDevice.h"
+#include "BlockDevice.h"
+#include "BlockDevice.h"
+#include "ChainingBlockDevice.h"
+#include "SlicingBlockDevice.h"
+#include "HeapBlockDevice.h"
 
 
 /** @}*/

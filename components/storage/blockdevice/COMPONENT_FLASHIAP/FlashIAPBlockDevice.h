@@ -19,14 +19,11 @@
 
 #ifdef DEVICE_FLASH
 
+#include "FlashIAP.h"
 #include "BlockDevice.h"
-#include <mbed.h>
+#include "platform/mbed_toolchain.h"
 
 /** BlockDevice using the FlashIAP API
- *
- *  @code
- *  #include "mbed.h"
- *  #include "FlashIAPBlockDevice.h"
  *
  */
 class FlashIAPBlockDevice : public BlockDevice {
@@ -117,7 +114,7 @@ public:
 
 private:
     // Device configuration
-    FlashIAP _flash;
+    mbed::FlashIAP _flash;
     bd_addr_t _base;
     bd_size_t _size;
     bool _is_initialized;

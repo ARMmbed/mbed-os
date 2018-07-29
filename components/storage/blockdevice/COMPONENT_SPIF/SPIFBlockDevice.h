@@ -22,7 +22,7 @@
 
 /** Enum spif standard error codes
  *
- *  @enum qpif_bd_error
+ *  @enum spif_bd_error
  */
 enum spif_bd_error {
     SPIF_BD_ERROR_OK                 = 0,     /*!< no error */

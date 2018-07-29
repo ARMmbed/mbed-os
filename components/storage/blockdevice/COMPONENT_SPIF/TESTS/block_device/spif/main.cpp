@@ -164,7 +164,7 @@ void test_spif_unaligned_program()
     }
 
     {
-        bd_addr_t block = (rand() * block_size) % blockD.size() + 15;
+        bd_addr_t block = (rand() * block_size) % blockD.size() + 1;
 
         // Use next random number as temporary seed to keep
         // the address progressing in the pseudorandom sequence
@@ -182,6 +182,9 @@ void test_spif_unaligned_program()
         err = blockD.erase(block, block_size);
         TEST_ASSERT_EQUAL(0, err);
 
+        //err = blockD.erase(block+4096, block_size);
+        //TEST_ASSERT_EQUAL(0, err);
+
         err = blockD.program(write_block, block, block_size);
         TEST_ASSERT_EQUAL(0, err);
 
@@ -191,6 +194,7 @@ void test_spif_unaligned_program()
         // Check that the data was unmodified
         srand(seed);
         for (bd_size_t i_ind = 0; i_ind < block_size; i_ind++) {
+            //printf("index %d\n", i_ind);
             TEST_ASSERT_EQUAL(0xff & rand(), read_block[i_ind]);
         }
 

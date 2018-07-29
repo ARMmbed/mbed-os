@@ -1,4 +1,4 @@
-/* @file fsfat_test.c
+/* @file fslittle_test.c
  *
  * mbed Microcontroller Library
  * Copyright (c) 2006-2016 ARM Limited
@@ -18,8 +18,8 @@
  * test support code implementation file.
  */
 
-#include "fsfat_debug.h"
-#include "fsfat_test.h"
+#include "fslittle_debug.h"
+#include "fslittle_test.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -29,9 +29,9 @@
 #include <ctype.h>
 
 
-#ifdef FSFAT_DEBUG
-uint32_t fsfat_optDebug_g = 1;
-uint32_t fsfat_optLogLevel_g = FSFAT_LOG_NONE; /*FSFAT_LOG_NONE|FSFAT_LOG_ERR|FSFAT_LOG_DEBUG|FSFAT_LOG_FENTRY; */
+#ifdef FSLITTLE_DEBUG
+uint32_t fslittle_optDebug_g = 1;
+uint32_t fslittle_optLogLevel_g = FSLITTLE_LOG_NONE; /*FSLITTLE_LOG_NONE|FSLITTLE_LOG_ERR|FSLITTLE_LOG_DEBUG|FSLITTLE_LOG_FENTRY; */
 #endif
 
 /* ruler for measuring text strings */
@@ -39,7 +39,7 @@ uint32_t fsfat_optLogLevel_g = FSFAT_LOG_NONE; /*FSFAT_LOG_NONE|FSFAT_LOG_ERR|FS
 /* 0        1         2         3         4         5         6         7         8         9         0         1         2         3         4         5         6         7         8         9         0         1         2 */
 /* 1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890 */
 
-const uint8_t fsfat_test_byte_data_table[FSFAT_TEST_BYTE_DATA_TABLE_SIZE] = {
+const uint8_t fslittle_test_byte_data_table[FSLITTLE_TEST_BYTE_DATA_TABLE_SIZE] = {
     0x2d, 0xf3, 0x31, 0x4c, 0x11, 0x4f, 0xde, 0x0d, 0xbd, 0xbc, 0xa6, 0x78, 0x36, 0x5c, 0x1d, 0x28,
     0x5f, 0xa9, 0x10, 0x65, 0x54, 0x45, 0x21, 0x1a, 0x88, 0xfe, 0x76, 0x45, 0xb9, 0xac, 0x65, 0x9a,
     0x34, 0x9d, 0x73, 0x10, 0xb4, 0xa9, 0x2e, 0x90, 0x95, 0x68, 0xac, 0xfe, 0xc5, 0x2d, 0x15, 0x03,
@@ -61,9 +61,9 @@ const uint8_t fsfat_test_byte_data_table[FSFAT_TEST_BYTE_DATA_TABLE_SIZE] = {
 
 /* @brief  test utility function to delete the file identified by filename
  */
-int32_t fsfat_test_delete(const char* filename)
+int32_t fslittle_test_delete(const char* filename)
 {
-    FSFAT_FENTRYLOG("%s:entered.\r\n", __func__);
+    FSLITTLE_FENTRYLOG("%s:entered.\r\n", __func__);
     return remove(filename);
 }
 
@@ -74,12 +74,12 @@ int32_t fsfat_test_delete(const char* filename)
  * @param   data        data to store in file
  * @param   len         number of bytes of data present in the data buffer.
  */
-int32_t fsfat_test_create(const char* filename, const char* data, size_t len)
+int32_t fslittle_test_create(const char* filename, const char* data, size_t len)
 {
     int32_t ret = -1;
     FILE *fp = NULL;
 
-    FSFAT_FENTRYLOG("%s:entered (filename=%s, len=%d).\n", __func__, filename, (int) len);
+    FSLITTLE_FENTRYLOG("%s:entered (filename=%s, len=%d).\n", __func__, filename, (int) len);
     fp = fopen(filename, "w+");
     if(fp == NULL){
         return ret;
@@ -99,14 +99,14 @@ int32_t fsfat_test_create(const char* filename, const char* data, size_t len)
  * @param   len     length of kv name to generate
  *
  */
-int32_t fsfat_test_filename_gen(char* name, const size_t len)
+int32_t fslittle_test_filename_gen(char* name, const size_t len)
 {
     size_t i;
     uint32_t pos = 0;
 
     const char* buf = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!$-_@";
     const int buf_len = strlen(buf);
-    FSFAT_FENTRYLOG("%s:entered\n", __func__);
+    FSLITTLE_FENTRYLOG("%s:entered\n", __func__);
     for(i = 0; i < len; i++)
     {
         pos = rand() % (buf_len);
