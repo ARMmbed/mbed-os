@@ -142,7 +142,7 @@ void port_mode(port_t *obj, PinMode mode)
             break;
         }
         if (obj->mask & (1 << i)) { // If the pin is used
-            pin_mode(obj->pin_def[i], mode);
+            pin_mode((PinName)obj->pin_def[i], mode);
         }
     }
 }

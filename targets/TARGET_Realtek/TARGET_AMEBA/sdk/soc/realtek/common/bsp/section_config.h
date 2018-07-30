@@ -1,21 +1,17 @@
-/*******************************************************************************
- *Copyright (c) 2013-2016 Realtek Semiconductor Corp, All Rights Reserved
- * SPDX-License-Identifier: LicenseRef-PBL
- * 
- * Licensed under the Permissive Binary License, Version 1.0 (the "License"); 
- * you may not use this file except in compliance with the License.
- * 
- * You may obtain a copy of the License at https://www.mbed.com/licenses/PBL-1.0
- * 
- * See the License for the specific language governing permissions and limitations under the License.
- *******************************************************************************
+/*
+ *  Routines to access hardware
+ *
+ *  Copyright (c) 2013 Realtek Semiconductor Corp.
+ *
+ *  This module is a confidential and proprietary property of RealTek and
+ *  possession or use of this module requires written permission of RealTek.
  */
 
 #ifndef _SECTION_CONFIG_H_
 #define _SECTION_CONFIG_H_
 
-#include "platform_autoconf.h"
 #include "basic_types.h"
+#include "platform_autoconf.h"
 
 #define RAM_DEDECATED_VECTOR_TABLE_SECTION          \
         SECTION(".ram_dedecated_vector_table")
@@ -131,16 +127,20 @@
 #define E_CUT_ROM_DATA_SECTION                         \
         SECTION(".cute.ram.data")
 
-//#define FWUROM_DATA_SECTION                    SECTION(".fwurom.data")
-    
-//#define FWUROM_RODATA_SECTION                  SECTION(".fwurom.rodata")
- 
+/*
+#define FWUROM_DATA_SECTION                    \
+        SECTION(".fwurom.data")
+
+#define FWUROM_RODATA_SECTION                    \
+        SECTION(".fwurom.rodata")
+*/
+
 #define FWUROM_TEXT_SECTION                    \
         SECTION(".fwurom.text")
-    
+
 #define XMPORT_ROM_TEXT_SECTION                    \
         SECTION(".xmportrom.text")
-    
+
 #define XDMROM_TEXT_SECTION                    \
         SECTION(".xmodemrom.text")
 
@@ -149,7 +149,6 @@
 #if defined (__CC_ARM)
 #define IMAGE1_VALID_PATTEN_SECTION                   \
         SECTION(".image1.validate.rodata") __attribute__((used))
-
 #define IMAGE2_VALID_PATTEN_SECTION                   \
         SECTION(".image2.validate.rodata") __attribute__((used))
 #else
@@ -230,7 +229,6 @@
 #define SRAM_BF_DATA_SECTION                        \
         SECTION(".bfsram.data")
 
-    
 #define START_RAM_FUN_SECTION                         \
         SECTION(".start.ram.data")
 
@@ -288,10 +286,10 @@
 
 #if defined (__CC_ARM)
 #define IMAGE2_START_RAM_FUN_SECTION                     \
-            SECTION(".image2.ram.data") __attribute__((used))
+        SECTION(".image2.ram.data") __attribute__((used))
 #else
 #define IMAGE2_START_RAM_FUN_SECTION                     \
-            SECTION(".image2.ram.data")
+        SECTION(".image2.ram.data")
 #endif
 
 #define SDRAM_DATA_SECTION                        \

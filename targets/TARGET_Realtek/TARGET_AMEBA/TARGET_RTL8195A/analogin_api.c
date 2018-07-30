@@ -41,8 +41,11 @@ void analogin_init (analogin_t *obj, PinName pin)
     HAL_ADC_INIT_DAT        HalADCInitDataTmp;
     PHAL_ADC_INIT_DAT       pHalADCInitDataTmp = &HalADCInitDataTmp;
     /* To backup user config first */
-    
+
+#if defined(CONFIG_MBED_ENABLED)
     _memset(&(obj->HalADCInitData), 0, sizeof(HAL_ADC_INIT_DAT));
+#endif
+
     _memcpy(pHalADCInitDataTmp, &(obj->HalADCInitData), sizeof(HAL_ADC_INIT_DAT));
     _memset(obj, 0x00, sizeof(analogin_t));
     
@@ -92,17 +95,13 @@ void analogin_init (analogin_t *obj, PinName pin)
     pSalADCHND->pUserCB     = pSalADCMngtAdpt->pUserCB;
 
     /*To assign user callback pointers*/
-    pSalADCMngtAdpt->pUserCB->pTXCB     = pSalADCUserCBAdpt;
-    pSalADCMngtAdpt->pUserCB->pTXCCB    = (pSalADCUserCBAdpt+1);
-    pSalADCMngtAdpt->pUserCB->pRXCB     = (pSalADCUserCBAdpt+2);
-    pSalADCMngtAdpt->pUserCB->pRXCCB    = (pSalADCUserCBAdpt+3);
-    pSalADCMngtAdpt->pUserCB->pRDREQCB  = (pSalADCUserCBAdpt+4);
-    pSalADCMngtAdpt->pUserCB->pERRCB    = (pSalADCUserCBAdpt+5);
-    pSalADCMngtAdpt->pUserCB->pDMATXCB  = (pSalADCUserCBAdpt+6);
-    pSalADCMngtAdpt->pUserCB->pDMATXCCB = (pSalADCUserCBAdpt+7);
-    pSalADCMngtAdpt->pUserCB->pDMARXCB  = (pSalADCUserCBAdpt+8);
-    pSalADCMngtAdpt->pUserCB->pDMARXCCB = (pSalADCUserCBAdpt+9);
-        
+
+    pSalADCMngtAdpt->pUserCB->pRXCB     = pSalADCUserCBAdpt;
+    pSalADCMngtAdpt->pUserCB->pRXCCB    = (pSalADCUserCBAdpt+1);
+    pSalADCMngtAdpt->pUserCB->pERRCB    = (pSalADCUserCBAdpt+2);
+    pSalADCMngtAdpt->pUserCB->pIDMARXCCB= (pSalADCUserCBAdpt+3);
+    pSalADCMngtAdpt->pUserCB->pDMARXCB  = (pSalADCUserCBAdpt+4);
+    pSalADCMngtAdpt->pUserCB->pDMARXCCB = (pSalADCUserCBAdpt+5);
     /* Set ADC Device Number */
     pSalADCHND->DevNum = adc_idx;
 
@@ -136,9 +135,13 @@ float analogin_read(analogin_t *obj)
     uint8_t  AnaloginIdx         = 0;
     uint32_t AnalogDat           = 0;
 
+#if defined(CONFIG_MBED_ENABLED)
     //no auto-calibration implemented yet, uses hard coded calibrate
     uint32_t Offset        = 0x2980;
     uint32_t AnalogDatFull = 0xAA00;
+#else
+    uint32_t AnalogDatFull = 0;
+#endif
 
     PSAL_ADC_MNGT_ADPT      pSalADCMngtAdpt     = NULL;
     PSAL_ADC_HND            pSalADCHND          = NULL;
@@ -152,7 +155,12 @@ float analogin_read(analogin_t *obj)
     AnalogDat = AnaloginTmp[(AnaloginIdx/2)];
     AnalogDat = (AnalogDat & AnaloginDatMsk);    
     AnalogDat = (AnalogDat>>((u32)(16*(AnaloginIdx&0x01))));
+
+#if defined(CONFIG_MBED_ENABLED)
     AnalogDat -= Offset;
+#else
+    AnalogDatFull   = 0xCE80;
+#endif
 
     value = (float)(AnalogDat) / (float)(AnalogDatFull);
     return (float)value;

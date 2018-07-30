@@ -26,11 +26,9 @@
 #include <string.h>
 #include "wireless.h"
 #include <skbuff.h>
-#ifdef PLATFORM_FREERTOS
-#include "freertos_service.h"
-#elif defined(PLATFORM_CMSIS_RTOS)
-#include "rtx_service.h"
-#endif
+
+#include "osdep_service.h"
+
 #ifndef __LIST_H
 #warning "DLIST_NOT_DEFINE!!!!!!"
 //----- ------------------------------------------------------------------
