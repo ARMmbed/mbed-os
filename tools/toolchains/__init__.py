@@ -312,12 +312,17 @@ class mbedToolchain:
         """ Generate a via file for a pile of defines
         ARM, GCC, IAR cross compatible
         """
-        option_md5 = md5(' '.join(options).encode('utf-8')).hexdigest()
-        via_file = join(self.build_dir, naming.format(option_md5))
-        if not exists(via_file):
+        to_write = " ".join(options).encode('utf-8')
+        new_md5 = md5(to_write).hexdigest()
+        via_file = join(self.build_dir, naming.format(new_md5))
+        try:
+            with open(via_file, "r") as fd:
+                old_md5 = md5(fd.read().encode('utf-8')).hexdigest()
+        except IOError:
+            old_md5 = None
+        if old_md5 != new_md5:
             with open(via_file, "w") as fd:
-                string = " ".join(options)
-                fd.write(string)
+                fd.write(to_write)
         return via_file
 
     def get_inc_file(self, includes):
