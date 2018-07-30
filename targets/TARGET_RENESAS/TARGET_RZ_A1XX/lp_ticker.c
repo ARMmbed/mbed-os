@@ -79,6 +79,7 @@ void lp_ticker_free(void)
     GIC_ClearPendingIRQ(LP_TICKER_TIMER_IRQn);
 
     MTU2TIER  &= ~MTU2_TIER_n_TGIEA;
+    lp_ticker_inited = 0;
     mtu2_free();
 }
 
