@@ -154,9 +154,6 @@
         "FPU2": 7,
         "NrRegs": 1
     },
-    "MKL43Z256xxx4": {
-        "OGChipSelectEditMenu": "MKL43Z256xxx4\tFreescale MKL43Z256xxx4"
-    },
     "LPC812M101JDH20": {
         "OGChipSelectEditMenu": "LPC812M101\tNXP LPC812M101"
     },
@@ -184,9 +181,6 @@
     },
     "STM32F446ZE": {
         "OGChipSelectEditMenu": "STM32F446ZE\tST STM32F446ZE"
-    },
-    "MK22DN512xxx5": {
-        "OGChipSelectEditMenu": "MK22FN512xxx12\tFreescale MK22FN512xxx12"
     },
     "STM32F303K8": {
         "OGChipSelectEditMenu": "STM32F303x8\tST STM32F303x8"
