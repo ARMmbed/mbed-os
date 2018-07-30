@@ -224,6 +224,7 @@ class mbedToolchain:
             self.labels = {
                 'TARGET': self.target.labels,
                 'FEATURE': self.target.features,
+                'COMPONENT': self.target.components,
                 'TOOLCHAIN': toolchain_labels
             }
 

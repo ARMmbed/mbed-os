@@ -91,7 +91,7 @@ def cached(func):
 
 # Cumulative attributes can have values appended to them, so they
 # need to be computed differently than regular attributes
-CUMULATIVE_ATTRIBUTES = ['extra_labels', 'macros', 'device_has', 'features']
+CUMULATIVE_ATTRIBUTES = ['extra_labels', 'macros', 'device_has', 'features', 'components']
 
 
 def get_resolution_order(json_data, target_name, order, level=0):

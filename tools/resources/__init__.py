@@ -135,7 +135,9 @@ class Resources(object):
 
         # Incremental scan related
         self._label_paths = []
-        self._labels = {"TARGET": [], "TOOLCHAIN": [], "FEATURE": []}
+        self._labels = {
+            "TARGET": [], "TOOLCHAIN": [], "FEATURE": [], "COMPONENT": []
+        }
         self._prefixed_labels = set()
 
         # Path seperator style (defaults to OS-specific seperator)
