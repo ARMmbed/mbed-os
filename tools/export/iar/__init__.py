@@ -20,7 +20,7 @@ from multiprocessing import cpu_count
 def _supported(mcu, iar_targets):
     if "IAR" not in mcu.supported_toolchains:
         return False
-    if hasattr(mcu, 'device_name') and mcu.device_name in iar_targets:
+    if hasattr(mcu, 'device_name') and mcu.device_name[0] in iar_targets:
         return True
     if mcu.name in iar_targets:
         return True
@@ -70,7 +70,7 @@ class IAR(Exporter):
     def iar_device(self):
         """Retrieve info from iar_definitions.json"""
         tgt = TARGET_MAP[self.target]
-        device_name = (tgt.device_name if hasattr(tgt, "device_name") else
+        device_name = (tgt.device_name[0] if hasattr(tgt, "device_name") else
                        tgt.name)
         device_info = _GUI_OPTIONS[device_name]
         iar_defaults ={
