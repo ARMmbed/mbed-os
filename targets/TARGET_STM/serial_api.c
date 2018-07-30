@@ -71,120 +71,90 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
     // Reset and enable clock
 #if defined(USART1_BASE)
     if (obj_s->uart == UART_1) {
-        __HAL_RCC_USART1_FORCE_RESET();
-        __HAL_RCC_USART1_RELEASE_RESET();
         __HAL_RCC_USART1_CLK_ENABLE();
     }
 #endif
 
 #if defined (USART2_BASE)
     if (obj_s->uart == UART_2) {
-        __HAL_RCC_USART2_FORCE_RESET();
-        __HAL_RCC_USART2_RELEASE_RESET();
         __HAL_RCC_USART2_CLK_ENABLE();
     }
 #endif
 
 #if defined(USART3_BASE)
     if (obj_s->uart == UART_3) {
-        __HAL_RCC_USART3_FORCE_RESET();
-        __HAL_RCC_USART3_RELEASE_RESET();
         __HAL_RCC_USART3_CLK_ENABLE();
     }
 #endif
 
 #if defined(UART4_BASE)
     if (obj_s->uart == UART_4) {
-        __HAL_RCC_UART4_FORCE_RESET();
-        __HAL_RCC_UART4_RELEASE_RESET();
         __HAL_RCC_UART4_CLK_ENABLE();
     }
 #endif
 
 #if defined(USART4_BASE)
     if (obj_s->uart == UART_4) {
-        __HAL_RCC_USART4_FORCE_RESET();
-        __HAL_RCC_USART4_RELEASE_RESET();
         __HAL_RCC_USART4_CLK_ENABLE();
     }
 #endif
 
 #if defined(UART5_BASE)
     if (obj_s->uart == UART_5) {
-        __HAL_RCC_UART5_FORCE_RESET();
-        __HAL_RCC_UART5_RELEASE_RESET();
         __HAL_RCC_UART5_CLK_ENABLE();
     }
 #endif
 
 #if defined(USART5_BASE)
     if (obj_s->uart == UART_5) {
-        __HAL_RCC_USART5_FORCE_RESET();
-        __HAL_RCC_USART5_RELEASE_RESET();
         __HAL_RCC_USART5_CLK_ENABLE();
     }
 #endif
 
 #if defined(USART6_BASE)
     if (obj_s->uart == UART_6) {
-        __HAL_RCC_USART6_FORCE_RESET();
-        __HAL_RCC_USART6_RELEASE_RESET();
         __HAL_RCC_USART6_CLK_ENABLE();
     }
 #endif
 
 #if defined(UART7_BASE)
     if (obj_s->uart == UART_7) {
-        __HAL_RCC_UART7_FORCE_RESET();
-        __HAL_RCC_UART7_RELEASE_RESET();
         __HAL_RCC_UART7_CLK_ENABLE();
     }
 #endif
 
 #if defined(USART7_BASE)
     if (obj_s->uart == UART_7) {
-        __HAL_RCC_USART7_FORCE_RESET();
-        __HAL_RCC_USART7_RELEASE_RESET();
         __HAL_RCC_USART7_CLK_ENABLE();
     }
 #endif
 
 #if defined(UART8_BASE)
     if (obj_s->uart == UART_8) {
-        __HAL_RCC_UART8_FORCE_RESET();
-        __HAL_RCC_UART8_RELEASE_RESET();
         __HAL_RCC_UART8_CLK_ENABLE();
     }
 #endif
 
 #if defined(USART8_BASE)
     if (obj_s->uart == UART_8) {
-        __HAL_RCC_USART8_FORCE_RESET();
-        __HAL_RCC_USART8_RELEASE_RESET();
         __HAL_RCC_USART8_CLK_ENABLE();
     }
 #endif
 
 #if defined(UART9_BASE)
     if (obj_s->uart == UART_9) {
-        __HAL_RCC_UART9_FORCE_RESET();
-        __HAL_RCC_UART9_RELEASE_RESET();
         __HAL_RCC_UART9_CLK_ENABLE();
     }
 #endif
 
 #if defined(UART10_BASE)
     if (obj_s->uart == UART_10) {
-        __HAL_RCC_UART10_FORCE_RESET();
-        __HAL_RCC_UART10_RELEASE_RESET();
         __HAL_RCC_UART10_CLK_ENABLE();
     }
 #endif
 
 #if defined(LPUART1_BASE)
     if (obj_s->uart == LPUART_1) {
-        __HAL_RCC_LPUART1_FORCE_RESET();
-        __HAL_RCC_LPUART1_RELEASE_RESET();
         __HAL_RCC_LPUART1_CLK_ENABLE();
     }
 #endif
