@@ -7,7 +7,7 @@ NFC offers three modes;
 2. NFC reader/writer
 3. NFC peer to peer
 
-To support new use cases such as commissioning, BLE pairing and identification/authentication of NFC enabled IoT endpoints, Mbed OS should support the card emulation mode. 
+To support new use cases such as commissioning, BLE pairing and identification/authentication of NFC enabled IoT endpoints, Mbed OS should support the card emulation mode.
 
 However the architecture should be future-proofed and should also be extendable to support other NFC modes in the future.
 
@@ -114,7 +114,7 @@ nfc_rf_protocols_bitmask_t get_supported_rf_protocols() const;
 Retrieve the list of supported RF protocols.
 These are mapped against NFC Forum-defined protocols.
 
-* T1T is based on ISO/IEC 14443A-3 and commonly known as Topaz (Innovision). 
+* T1T is based on ISO/IEC 14443A-3 and commonly known as Topaz (Innovision).
 * T2T is based on ISO/IEC 14443A-3 and commonly known as Mifare Ultralight/NTAG (NXP).
 * T3T is based on JIS X6319-4, also known as Felica (Sony).
 * ISO-DEP is based on ISO/IEC 14443-4 and is the common interface for contactless smartcards. The underlying radio protocol can either be ISO/IEC 14443A or ISO/IEC 14443B.
@@ -261,72 +261,13 @@ The `NFCRemoteTarget` class derives from `NFCTarget` and additionally from `NFCE
 
 ## NDEF API
 
-![ndef_diagram]
-
 The NDEF API is constructed with these requirements in mind:
 * Minimizing memory allocation/copies
 * NFC Forum compliance
 * Ease of use
+* Extensibility
 
-#### NDEF Message
-
-A NDEF Message is made of multiple NDEF Records which is reflected by the API:
-
-```cpp
-bool parse(const uint8_t* buffer, size_t sz)
-size_t count()
-NDEFRecord operator[](size_t n)
-```
-
-The message can be mapped with a byte array and individual records are decoded/populated on the fly.
-
-#### NDEF Message builder
-
-We're using a builder pattern to encode an NDEF message over a byte array.
-
-```cpp
-NDEFMessageBuilder(uint8_t* buffer, size_t max_sz)
-bool add_record(const NDEFRecord& record)
-NDEFMessage build()
-```
-
-A reference to the array is provided in the constructor and records can be appended by the user (within memory limits).
-
-Once done a NDEFMessage instance mapped to a subset of the byte array can be generated.
-
-#### NDEF Record
-
-The NDEF Record class is closely mapped with the NFC NDEF specification.
-
-Each record holds:
-* A Type Name Format indicator - indicates which namespace the type field belongs to ('Well-known NDEF types', MIME, Absolute URI, etc.)
-* A type field
-* An optional ID field
-* The record's value
-
-All arrays are passed by reference (no copy made).
-
-```cpp
-static bool parse(const uint8_t* buffer, size_t max_sz)
-ssize_t build(const uint8_t* buffer, size_t max_sz)
-
-uint8_t tnf()
-void set_tnf(uint8_t tnf)
-
-const uint8_t* type() const
-size_t type_size() const
-void set_type(const uint8_t* type, size_t type_size)
-
-const uint8_t* id() const
-size_t id_size() const
-void set_id(const uint8_t* id, size_t id_size)
-
-const uint8_t* value() const
-size_t value_size() const
-void set_value(const uint8_t* type, size_t type_size)
-```
-
-**Helpers**
+### Common objects
 
 We will provide multiple helpers to make it easy to create/parse common record types:
 * URI
@@ -334,11 +275,8 @@ We will provide multiple helpers to make it easy to create/parse common record t
 * Smart Poster
 * MIME data
 
-For instance, the `URIRecord`'s class API is as follows:
+For instance, the `URI`'s class API is as follows:
 ```cpp
-static bool is_uri_record(const NDEFRecord& record)
-static URIRecord as_uri_record(const NDEFRecord& record)
-
 uri_prefix_t uri_prefix() const
 void set_uri_prefix(uri_prefix_t prefix)
 
@@ -351,9 +289,154 @@ size_t full_uri_size() const
 void set_full_uri(const char* uri)
 ```
 
-This includes some helper classes to check whether a record is an URI record, and if so to construct an `URIRecord` instance from a `NDEFRecord`.
+**Note:** These types can be replaced by user defined ones if parsing and serialization logic is provided.
 
-In this case buffers are copied to account for the NULL-terminator character that is not present in the underlying byte buffer.
+### Parsing
+
+#### ndef::MessageParser
+
+![ndef_message_parser_diagram]
+
+Messages incoming from the peer are parsed by a `MessageParser` which produce
+`Record` instances to its client. The parsing operation is event-driven: a
+message parser client register a delegate inside the message parser. This delegate
+get notified whenever an interesting event happen during the parsing.
+
+```cpp
+void set_delegate(Delegate* delegate);
+void parse(const ac_buffer_t& data_buffer);
+```
+
+It is important to note that the data_buffer in entry of the parse function must
+contain the entire NDEF message.
+
+##### ndef::MessageParser::Delegate
+
+```cpp
+virtual void on_parsing_started() { }
+virtual void on_record_parsed(const Record& record) { }
+virtual void on_parsing_terminated() { }
+virtual void on_parsing_error(error_t error) { }
+```
+
+The delegate is notified by the parser when the parsing start or end; when an error
+is encountered or when an ndef `Record` has been parsed.
+
+To reduce memory consumption `Record` instances generated by the parser are short
+lived. They are only valid during the callback invocation. If a client is interested
+by the content of a message parsed and wants to use it after the parsing callback
+then it must make a copy of the record object.
+
+#### NDEF Record parsing
+
+![ndef_record_parser_diagram]
+
+NDEF records can contain any type of content. Therefore parsing of records is
+specific to the application. To help the developer; an optional ndef record
+parsing framework is included. It follows the _chain-of-responsibility_ design
+pattern that facilitate the integration of record parsers defined by client code.
+
+##### ndef::RecordParser
+
+Is is the base building block of the record parsing frame working. It parses a
+record then return true if the record has been parsed or false otherwise.
+
+```cpp
+virtual bool parse(const Record&);
+```
+
+##### ndef::RecordParserChain
+
+It aggregate `RecordParser` instances and defer parsing to the instances it contains.
+
+```cpp
+bool parse(const Record& record);
+void set_next_parser(RecordParser* parser);
+```
+
+##### ndef::GenericRecordParser<ParserImplementation, ParsingResult>
+
+This is a partial implementation of the `RecordParser` interface. It exposes a
+delegate type that can be implemented and registered by clients of this parser.
+This delegate expects objects of the parsing result type.
+
+```cpp
+bool parse(const Record&)
+void set_delegate(Delegate* delegate)
+```
+
+Implementation of this class must expose the following non virtual function:
+
+```c++
+bool do_parse(const Record& record, ParsingResult& parsing_result);
+```
+
+If the parsing is successful then it should return true and fill `parsing_result`
+otherwise it should return false and leave `parsing_result` untouched.
+
+**Note:** The Curiously recurring template pattern (CRTP) is used to implement
+the delegation mechanism in a type-safe fashion. This is not achievable with
+_regular_ polymorphism.
+
+###### ndef::GenericRecordParser<ParserImplementation, ParsingResult>::Delegate
+
+This delegate must be implemented by clients of this class. It receives the objects
+parsed.
+
+```cpp
+virtual void on_record_parsed(const ParsingResult& record, const RecordID* id);
+```
+
+**Note:** Usually clients are client of an implementation of an
+ndef::GenericRecordParser<ParserImplementation, ParsingResult> . They can refer
+to the delegate as `ImplementationName::Delegate`.
+
+#### Common parsers
+
+![ndef_common_parsers_diagram]
+
+Parsers for each common record type exists. They inherit from the
+`GenericRecordParser` to exposes a common delegate interface:
+
+```cpp
+virtual void on_record_parsed(const <ParsedType>& result, const ndef::RecordID* id)
+```
+
+#### Simple parser
+
+The API provide a class named `SimpleMessageParser` that glues together a
+`MessageParser` and a chain `RecordParser`'s containing the parsers for the common
+types.
+
+![ndef_simple_parser_diagram]
+
+Clients of the class can register a delegate, parse a message or add a new
+`RecordParser` in the parsing chain.
+
+```cpp
+void set_delegate(Delegate* delegate);
+void parse(const ac_buffer_t& data_buffer);
+void add_record_parser(ndef::RecordParser* parser);
+```
+
+##### Delegate
+
+This delegate must be implemented by clients of this class. It receives events
+from the parsing process:
+
+```cpp
+virtual void on_parsing_error(ndef::MessageParser::error_t error);
+virtual void on_parsing_started();
+virtual void on_text_parsed(const Text& text, const ndef::RecordID* id);
+virtual void on_mime_parsed(const Mime& text, const ndef::RecordID* id);
+virtual void on_uri_parsed(const URI& uri, const ndef::RecordID* id);
+virtual void on_unknown_record_parsed(const ndef::Record& record);
+virtual void on_parsing_terminated();
+```
+
+### Serialization
+
+**TBD**
 
 ## HAL APIs
 
@@ -363,7 +446,7 @@ The one HAL API that will have to be implemented by vendors to make use of the `
 
 From the upper layer's point of view, the EEPROM is a byte array that can be read from/written to. Long operations (reads, writes, erasures) must happen asynchronously. Booleans indicate whether a particular operation was succesful. Encoding is handled by the upper layer.
 
-Address 0 means the start of the NDEF buffer (not necessarily at address 0 in the EEPROM). 
+Address 0 means the start of the NDEF buffer (not necessarily at address 0 in the EEPROM).
 
 When a buffer is passed to the backend, the reference remains valid till the corresponding event is called.
 
@@ -376,7 +459,7 @@ void backend_read_bytes(uint32_t address, size_t count)
 void backend_write_bytes(uint32_t address, const uint8_t* bytes, size_t count)
 void backend_set_size(size_t count)
 void backend_get_size()
-void backend_erase_bytes(uint32_t address, size_t size) 
+void backend_erase_bytes(uint32_t address, size_t size)
 ```
 
 The following events must be called to signal completion of long operations:
@@ -415,10 +498,14 @@ GreenTea tests will be provided to partners to ensure compliance with the NFC EE
 * Event Queue
 
 There are currently at least four event queues (Plaftorm, BLE, USB, IP) in mbed OS and NFC will also require an event queing mechanism. We should aim at reusing one of these existing queues with the long term goal of unifying these code bases.
-					
+
 [phase_1_architecture]: phase_1_architecture.png
 [phase_2_architecture]: phase_2_architecture.png
 [nfc_controller_diagram]: uml_diagram_controller.png
 [nfc_endpoints_diagram]: uml_diagram_endpoints.png
 [ndef_diagram]: uml_diagram_ndef.png
 [interop_test_rig]: interop_test_rig.png
+[ndef_message_parser_diagram]: uml_diagram_ndef_message_parser.png
+[ndef_record_parser_diagram]: uml_diagram_ndef_record_parser.png
+[ndef_common_parsers_diagram]: uml_diagram_ndef_common_parsers.png
+[ndef_simple_parser_diagram]: uml_diagram_ndef_simple_parser.png
