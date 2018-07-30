@@ -15,6 +15,7 @@
  */
 
 #include "MBRBlockDevice.h"
+#include "mbed_critical.h"
 #include <algorithm>
 
 
@@ -194,13 +195,19 @@ int MBRBlockDevice::partition(BlockDevice *bd, int part, uint8_t type,
 }
 
 MBRBlockDevice::MBRBlockDevice(BlockDevice *bd, int part)
-    : _bd(bd), _part(part)
+    : _bd(bd), _part(part), _init_ref_count(0)
 {
     MBED_ASSERT(_part >= 1 && _part <= 4);
 }
 
 int MBRBlockDevice::init()
 {
+    uint32_t val = core_util_atomic_incr_u32(&_init_ref_count, 1);
+
+    if (val != 1) {
+        return BD_ERROR_OK;
+    }
+
     int err = _bd->init();
     if (err) {
         return err;
@@ -252,6 +259,12 @@ int MBRBlockDevice::init()
 
 int MBRBlockDevice::deinit()
 {
+    uint32_t val = core_util_atomic_decr_u32(&_init_ref_count, 1);
+
+    if (val) {
+        return BD_ERROR_OK;
+    }
+
     return _bd->deinit();
 }
 

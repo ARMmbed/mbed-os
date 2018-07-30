@@ -153,6 +153,7 @@ protected:
     bd_size_t _curr_aligned_addr;
     bool _flushed;
     uint8_t *_cache;
+    uint32_t _init_ref_count;
 
     /** Flush data in cache
      *

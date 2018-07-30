@@ -64,7 +64,7 @@ public:
     template <size_t Size>
     ChainingBlockDevice(BlockDevice *(&bds)[Size])
         : _bds(bds), _bd_count(sizeof(bds) / sizeof(bds[0]))
-        , _read_size(0), _program_size(0), _erase_size(0), _size(0)
+        , _read_size(0), _program_size(0), _erase_size(0), _size(0),  _init_ref_count(0)
     {
     }
 
@@ -175,6 +175,7 @@ protected:
     bd_size_t _erase_size;
     bd_size_t _size;
     int _erase_value;
+    uint32_t _init_ref_count;
 };
 
 
