@@ -28,6 +28,14 @@ extern "C" {
 
 /* number of central links used by the application. 
  * When changing this number remember to adjust the RAM settings */
+#ifdef S112
+  #if defined(NRF_SDH_BLE_CENTRAL_LINK_COUNT) && (NRF_SDH_BLE_CENTRAL_LINK_COUNT > 0)
+    #warning When using S112, config nordic-ble.central_link_count should be set to 0.
+    #undef NRF_SDH_BLE_CENTRAL_LINK_COUNT
+  #endif
+  #define NRF_SDH_BLE_CENTRAL_LINK_COUNT 0
+#endif
+
 #ifndef NRF_SDH_BLE_CENTRAL_LINK_COUNT
     #define CENTRAL_LINK_COUNT    3  
 #else

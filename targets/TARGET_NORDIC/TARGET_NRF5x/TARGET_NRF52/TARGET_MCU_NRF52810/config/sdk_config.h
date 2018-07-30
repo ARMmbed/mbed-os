@@ -48,6 +48,12 @@
 #endif
 // <h> Board Support 
 
+#if defined(NRF_SDH_BLE_CENTRAL_LINK_COUNT) && (NRF_SDH_BLE_CENTRAL_LINK_COUNT > 0)
+#warning When using S112, config nordic-ble.central_link_count should be set to 0.
+#undef NRF_SDH_BLE_CENTRAL_LINK_COUNT
+#endif
+#define NRF_SDH_BLE_CENTRAL_LINK_COUNT 0
+
 //==========================================================
 // <q> BSP_BTN_BLE_ENABLED  - bsp_btn_ble - Button Control for BLE
  
