@@ -673,7 +673,7 @@ void LoRaMac::on_radio_rx_done(const uint8_t *const payload, uint16_t size,
 {
     if (_device_class == CLASS_C && !_continuous_rx2_window_open) {
         open_rx2_window();
-    } else {
+    } else if (_device_class != CLASS_C){
         _lora_time.stop(_params.timers.rx_window1_timer);
         _lora_phy->put_radio_to_sleep();
     }

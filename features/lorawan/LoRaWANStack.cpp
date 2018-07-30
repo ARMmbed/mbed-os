@@ -603,17 +603,14 @@ void LoRaWANStack::process_transmission(void)
             _ctrl_flags &= ~TX_DONE_FLAG;
             tr_debug("Awaiting ACK");
             _device_current_state = DEVICE_STATE_AWAITING_ACK;
-            return;
-        }
-
-        // Class A unconfirmed message sent, TX_DONE event will be sent to
-        // application when RX2 windows is elapsed, i.e., in process_reception_timeout()
-        _ctrl_flags &= ~TX_ONGOING_FLAG;
-        _ctrl_flags |= TX_DONE_FLAG;
-
-        // In Class C, reception timeout never happens, so we handle the state
-        // progression for TX_DONE in UNCONFIRMED case here
-        if (_loramac.get_device_class() == CLASS_C) {
+        } else if (_loramac.get_device_class() == CLASS_A) {
+            // Class A unconfirmed message sent, TX_DONE event will be sent to
+            // application when RX2 windows is elapsed, i.e., in process_reception_timeout()
+            _ctrl_flags &= ~TX_ONGOING_FLAG;
+            _ctrl_flags |= TX_DONE_FLAG;
+        } else if (_loramac.get_device_class() == CLASS_C) {
+            // In Class C, reception timeout never happens, so we handle the state
+             // progression for TX_DONE in UNCONFIRMED case here
             _loramac.post_process_mcps_req();
             state_controller(DEVICE_STATE_STATUS_CHECK);
             state_machine_run_to_completion();
@@ -669,9 +666,10 @@ void LoRaWANStack::process_reception(const uint8_t *const payload, uint16_t size
                 state_controller(DEVICE_STATE_STATUS_CHECK);
             }
         }
-    } else {
+    } else if (_loramac.get_device_class() == CLASS_A) {
         // handle UNCONFIRMED case here, RX slots were turned off due to
-        // valid packet reception
+        // valid packet reception. For Class C, an outgoing UNCONFIRMED message
+        // gets its handling in process_transmission.
         _loramac.post_process_mcps_req();
         _ctrl_flags |= TX_DONE_FLAG;
         state_controller(DEVICE_STATE_STATUS_CHECK);
