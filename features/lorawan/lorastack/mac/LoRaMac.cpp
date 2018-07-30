@@ -65,12 +65,6 @@ using namespace mbed;
  */
 #define DOWN_LINK                                   1
 
-/**
- * A mask for the network ID.
- */
-#define LORAWAN_NETWORK_ID_MASK                     ( uint32_t )0xFE000000
-
-
 LoRaMac::LoRaMac()
     : _lora_time(),
       _lora_phy(NULL),
@@ -1434,7 +1428,7 @@ lorawan_status_t LoRaMac::prepare_join(const lorawan_connect_t *params, bool is_
         const static uint8_t nwk_skey[] = MBED_CONF_LORA_NWKSKEY;
         const static uint8_t app_skey[] = MBED_CONF_LORA_APPSKEY;
 
-        _params.net_id = (MBED_CONF_LORA_DEVICE_ADDRESS & LORAWAN_NETWORK_ID_MASK);
+        _params.net_id = (MBED_CONF_LORA_DEVICE_ADDRESS & LORAWAN_NETWORK_ID_MASK) >> 25;
         _params.dev_addr = MBED_CONF_LORA_DEVICE_ADDRESS;
 
         memcpy(_params.keys.nwk_skey, nwk_skey, sizeof(_params.keys.nwk_skey));
