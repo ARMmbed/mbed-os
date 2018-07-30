@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, Arm Limited and affiliates.
+ * Copyright (c) 2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -167,8 +167,8 @@ nsapi_error_t UBLOX_AT_CellularNetwork::open_data_channel()
 }
 
 bool UBLOX_AT_CellularNetwork::activate_profile(const char* apn,
-                                                const char* username,
-                                                const char* password)
+        const char* username,
+        const char* password)
 {
     bool activated = false;
     bool success = false;
@@ -224,7 +224,7 @@ bool UBLOX_AT_CellularNetwork::activate_profile(const char* apn,
         // 1 = PAP (Password Authentication Protocol)
         // 2 = CHAP (Challenge Handshake Authentication Protocol)
         for (int protocol = nsapi_security_to_modem_security(NSAPI_SECURITY_NONE);
-             success && (protocol <= nsapi_security_to_modem_security(NSAPI_SECURITY_CHAP)); protocol++) {
+                success && (protocol <= nsapi_security_to_modem_security(NSAPI_SECURITY_CHAP)); protocol++) {
             if ((_auth == NSAPI_SECURITY_UNKNOWN) || (nsapi_security_to_modem_security(_auth) == protocol)) {
                 _at.cmd_start("AT+UPSD=0,6,");
                 _at.write_int(protocol);
@@ -257,8 +257,7 @@ int UBLOX_AT_CellularNetwork::nsapi_security_to_modem_security(nsapi_security_t 
 {
     int modem_security = 3;
 
-    switch (nsapi_security)
-    {
+    switch (nsapi_security) {
         case NSAPI_SECURITY_NONE:
             modem_security = 0;
             break;
@@ -330,15 +329,17 @@ const char *UBLOX_AT_CellularNetwork::get_gateway()
 
 nsapi_error_t UBLOX_AT_CellularNetwork::detach()
 {
+    nsapi_error_t err;
+
     _at.lock();
     _at.cmd_start("AT+CGATT=0");
     _at.cmd_stop();
     _at.resp_start();
     _at.resp_stop();
-    _at.unlock();
+    err =  _at.unlock_return_error();
 
     // wait added to process CGREG and UUPSDD URC, which comes after detach.
     wait_ms(50);
 
-    return _at.get_last_error();
+    return err;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, Arm Limited and affiliates.
+ * Copyright (c) 2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,7 +21,8 @@
 #include "AT_CellularNetwork.h"
 #include "APN_db.h"
 
-namespace mbed {
+namespace mbed
+{
 
 class UBLOX_AT_CellularNetwork : public AT_CellularNetwork
 {
@@ -45,13 +46,9 @@ protected:
 
 private:
 
-    /** The profile to use (on board the modem).
-     */
-    #define PROFILE "0"
-
     /** Length of IMSI buffer.
      */
-    #define MAX_IMSI_LENGTH 15
+    static const int MAX_IMSI_LENGTH = 15;
 
     /** The type of authentication to use.
      */

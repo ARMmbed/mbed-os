@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, Arm Limited and affiliates.
+ * Copyright (c) 2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,7 +23,8 @@
 #include "drivers/Timer.h"
 
 
-namespace mbed {
+namespace mbed
+{
 
 class UBLOX_AT_CellularStack : public AT_CellularStack
 {
@@ -34,7 +35,7 @@ public:
     virtual const char *get_ip_address();
 
     virtual nsapi_error_t gethostbyname(const char *host,
-            SocketAddress *address, nsapi_version_t version = NSAPI_UNSPEC);
+                                        SocketAddress *address, nsapi_version_t version = NSAPI_UNSPEC);
 
 protected:
     virtual nsapi_error_t socket_listen(nsapi_socket_t handle, int backlog);
@@ -44,33 +45,31 @@ protected:
 
 protected: // AT_CellularStack
 
-    /** Socket "unused" value.
-     */
-    #define SOCKET_UNUSED -1
-
     /** The profile to use (on board the modem).
      */
-    #define PROFILE "0"
+#define PROFILE "0"
+
+    /** Socket "unused" value.
+     */
+    static const int SOCKET_UNUSED = -1;
 
     /** Socket timeout value in milliseconds.
      * Note: the sockets layer above will retry the
      * call to the functions here when they return NSAPI_ERROR_WOULD_BLOCK
      * and the user has set a larger timeout or full blocking.
      */
-    #define SOCKET_TIMEOUT 5000
+    static const int SOCKET_TIMEOUT = 1000;
 
     /** Maximum allowed sockets.
      */
-    #define UBLOX_MAX_SOCKET 7
+    static const int UBLOX_MAX_SOCKET = 7;
 
     /** The maximum number of bytes in a packet that can be write/read from
      * the AT interface in one go.
      */
-    #define UBLOX_MAX_PACKET_SIZE 1024
+    static const int UBLOX_MAX_PACKET_SIZE = 1024;
 
     virtual int get_max_socket_count();
-
-    virtual int get_max_packet_size();
 
     virtual bool is_protocol_supported(nsapi_protocol_t protocol);
 
@@ -85,9 +84,6 @@ protected: // AT_CellularStack
 
     virtual nsapi_size_or_error_t socket_recvfrom_impl(CellularSocket *socket, SocketAddress *address,
             void *buffer, nsapi_size_t size);
-
-    virtual nsapi_size_or_error_t socket_sendto(nsapi_socket_t handle, const SocketAddress &address,
-            const void *data, nsapi_size_t size);
 
     virtual nsapi_error_t socket_close_impl(int sock_id);
 

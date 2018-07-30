@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, Arm Limited and affiliates.
+ * Copyright (c) 2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -107,15 +107,9 @@ void UBLOX_AT_CellularStack::UUPSDD_URC()
     clear_socket(socket);
 }
 
-
 int UBLOX_AT_CellularStack::get_max_socket_count()
 {
     return UBLOX_MAX_SOCKET;
-}
-
-int UBLOX_AT_CellularStack::get_max_packet_size()
-{
-    return UBLOX_MAX_PACKET_SIZE;
 }
 
 bool UBLOX_AT_CellularStack::is_protocol_supported(nsapi_protocol_t protocol)
@@ -225,7 +219,7 @@ nsapi_error_t UBLOX_AT_CellularStack::socket_connect(nsapi_socket_t handle, cons
     _at.lock();
     _at.cmd_start("AT+USOCO=");
     _at.write_int(socket->id);
-    _at.write_string(addr.get_ip_address(), true);
+    _at.write_string(addr.get_ip_address());
     _at.write_int(addr.get_port());
     _at.cmd_stop();
     _at.resp_start();
@@ -245,22 +239,22 @@ nsapi_size_or_error_t UBLOX_AT_CellularStack::socket_sendto_impl(CellularSocket 
         const void *data, nsapi_size_t size)
 {
     int sent_len = 0;
-    uint8_t ch = 0;
+    uint8_t ch = 0, cont = 50;
 
-    _at.lock();
     if (socket->proto == NSAPI_UDP) {
-        if (size > (nsapi_size_t) get_max_packet_size()) {
+        if (size > UBLOX_MAX_PACKET_SIZE) {
             return NSAPI_ERROR_PARAMETER;
         }
         _at.cmd_start("AT+USOST=");
         _at.write_int(socket->id);
-        _at.write_string(address.get_ip_address(), true);
+        _at.write_string(address.get_ip_address());
         _at.write_int(address.get_port());
         _at.write_int(size);
         _at.cmd_stop();
         wait_ms(50);
-        while (ch != '@') {
+        while (ch != '@' && cont > 0) {
             _at.read_bytes(&ch, 1);
+            cont--;
         }
         _at.write_bytes((uint8_t *)data, size);
 
@@ -271,8 +265,6 @@ nsapi_size_or_error_t UBLOX_AT_CellularStack::socket_sendto_impl(CellularSocket 
 
         if ((_at.get_last_error() == NSAPI_ERROR_OK)) {
             return sent_len;
-        } else {
-            socket->rx_avail = false;
         }
     } else if (socket->proto == NSAPI_TCP) {
         bool success = true;
@@ -289,8 +281,9 @@ nsapi_size_or_error_t UBLOX_AT_CellularStack::socket_sendto_impl(CellularSocket 
             _at.write_int(blk);
             _at.cmd_stop();
             wait_ms(50);
-            while (ch != '@') {
+            while (ch != '@' && cont > 0) {
                 _at.read_bytes(&ch, 1);
+                cont--;
             }
             _at.write_bytes((uint8_t *)buf, blk);
 
@@ -300,7 +293,7 @@ nsapi_size_or_error_t UBLOX_AT_CellularStack::socket_sendto_impl(CellularSocket 
             _at.resp_stop();
 
             if ((sent_len >= (int) blk) &&
-                (_at.get_last_error() == NSAPI_ERROR_OK)) {
+                    (_at.get_last_error() == NSAPI_ERROR_OK)) {
             } else {
                 success = false;
             }
@@ -314,7 +307,6 @@ nsapi_size_or_error_t UBLOX_AT_CellularStack::socket_sendto_impl(CellularSocket 
             return size - count;
         }
     }
-    _at.unlock();
 
     return _at.get_last_error();
 }
@@ -332,7 +324,6 @@ nsapi_size_or_error_t UBLOX_AT_CellularStack::socket_recvfrom_impl(CellularSocke
     int port = 0;
     Timer timer;
 
-    _at.lock();
     timer.start();
     if (socket->proto == NSAPI_UDP) {
         while (success && (size > 0)) {
@@ -363,7 +354,7 @@ nsapi_size_or_error_t UBLOX_AT_CellularStack::socket_recvfrom_impl(CellularSocke
                     usorf_sz = size;
                 }
                 _at.read_bytes(&ch, 1);
-                _at.read_bytes((uint8_t *)buffer + count , usorf_sz);
+                _at.read_bytes((uint8_t *)buffer + count, usorf_sz);
                 _at.resp_stop();
 
                 if (usorf_sz > 0) {
@@ -412,7 +403,7 @@ nsapi_size_or_error_t UBLOX_AT_CellularStack::socket_recvfrom_impl(CellularSocke
                     usorf_sz = size;
                 }
                 _at.read_bytes(&ch, 1);
-                _at.read_bytes((uint8_t *)buffer + count , usorf_sz);
+                _at.read_bytes((uint8_t *)buffer + count, usorf_sz);
                 _at.resp_stop();
 
                 if (usorf_sz > 0) {
@@ -435,8 +426,6 @@ nsapi_size_or_error_t UBLOX_AT_CellularStack::socket_recvfrom_impl(CellularSocke
         }
     }
     timer.stop();
-    _at.unlock();
-
 
     if (!count || (_at.get_last_error() != NSAPI_ERROR_OK)) {
         return NSAPI_ERROR_WOULD_BLOCK;
@@ -453,29 +442,6 @@ nsapi_size_or_error_t UBLOX_AT_CellularStack::socket_recvfrom_impl(CellularSocke
     return nsapi_error_size;
 }
 
-nsapi_size_or_error_t UBLOX_AT_CellularStack::socket_sendto(nsapi_socket_t handle, const SocketAddress &addr, const void *data, unsigned size)
-{
-    CellularSocket *socket = (CellularSocket *)handle;
-    if (!socket || !socket->created) {
-        return NSAPI_ERROR_DEVICE_ERROR;
-    }
-
-    nsapi_size_or_error_t ret_val = NSAPI_ERROR_OK;
-
-    /* Check parameters */
-    if (addr.get_ip_version() == NSAPI_UNSPEC) {
-        return NSAPI_ERROR_DEVICE_ERROR;
-    }
-
-    _at.lock();
-
-    ret_val = socket_sendto_impl(socket, addr, data, size);
-
-    _at.unlock();
-
-    return ret_val;
-}
-
 nsapi_error_t UBLOX_AT_CellularStack::socket_close_impl(int sock_id)
 {
     _at.lock();
@@ -484,9 +450,8 @@ nsapi_error_t UBLOX_AT_CellularStack::socket_close_impl(int sock_id)
     _at.cmd_stop();
     _at.resp_start();
     _at.resp_stop();
-    _at.unlock();
 
-    return _at.get_last_error();
+    return _at.unlock_return_error();
 }
 
 // Find or create a socket from the list.
@@ -561,19 +526,19 @@ nsapi_error_t UBLOX_AT_CellularStack::gethostbyname(const char *host, SocketAddr
     } else {
         // This interrogation can sometimes take longer than the usual 8 seconds
         _at.cmd_start("AT+UDNSRN=0,");
-        _at.write_string(host, true);
+        _at.write_string(host);
         _at.cmd_stop();
 
         _at.set_at_timeout(60000);
         _at.resp_start("+UDNSRN:");
         if (_at.info_resp()) {
             _at.read_string(ipAddress, sizeof(ipAddress));
-            _at.resp_stop();
 
             if (address->set_ip_address(ipAddress)) {
                 err = NSAPI_ERROR_OK;
             }
         }
+        _at.resp_stop();
         _at.restore_at_timeout();
     }
     _at.unlock();
