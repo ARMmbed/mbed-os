@@ -227,12 +227,13 @@ typedef enum {
     A4 = p30,
     A5 = p31,
 
-    QSPI_FLASH_IO0 = P0_20,
-    QSPI_FLASH_IO1 = P0_21,
-    QSPI_FLASH_IO2 = P0_22,
-    QSPI_FLASH_IO3 = P0_23,
-    QSPI_FLASH_SCK = P0_19,
-    QSPI_FLASH_CSN = P0_17,
+    /**** QSPI FLASH pins ****/
+    QSPI_FLASH1_IO0 = P0_20,
+    QSPI_FLASH1_IO1 = P0_21,
+    QSPI_FLASH1_IO2 = P0_22,
+    QSPI_FLASH1_IO3 = P0_23,
+    QSPI_FLASH1_SCK = P0_19,
+    QSPI_FLASH1_CSN = P0_17,
 
     // Not connected
     NC = (int)0xFFFFFFFF

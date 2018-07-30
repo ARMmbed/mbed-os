@@ -240,14 +240,14 @@ typedef enum {
     SPI_SCK     = D13,
     SPI_CS      = D10,
     PWM_OUT     = D9,
-#ifdef DEVICE_QSPI
-    QSPI_PIN_IO0 = PE_12,
-    QSPI_PIN_IO1 = PE_13,
-    QSPI_PIN_IO2 = PE_14,
-    QSPI_PIN_IO3 = PE_15,
-    QSPI_PIN_SCK = PE_10,
-    QSPI_PIN_CSN = PE_11,
-#endif
+
+    /**** QSPI FLASH pins ****/
+    QSPI_FLASH1_IO0 = PE_12,
+    QSPI_FLASH1_IO1 = PE_13,
+    QSPI_FLASH1_IO2 = PE_14,
+    QSPI_FLASH1_IO3 = PE_15,
+    QSPI_FLASH1_SCK = PE_10,
+    QSPI_FLASH1_CSN = PE_11,
 
     /**** USB pins ****/
     USB_OTG_FS_DM = PA_11,
