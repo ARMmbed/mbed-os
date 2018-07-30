@@ -13,6 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#if !DEVICE_QSPI
+#error [NOT_SUPPORTED] QSPI not supported for this target
+#endif
+
 #include "utest/utest.h"
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"
@@ -22,9 +27,8 @@
 #include "mbed.h"
 #include "qspi_api.h"
 
-
-#if !DEVICE_QSPI || !defined(QSPI_FLASH_CHIP_STRING)
-#error [NOT_SUPPORTED] QSPI not supported for this target
+#if !defined(QSPI_FLASH_CHIP_STRING)
+#error [NOT_SUPPORTED] QSPI test not supported for this target
 #endif
 
 using namespace utest::v1;
@@ -61,12 +65,12 @@ uint8_t rx_buf[DATA_SIZE_1024];
 
 
 // some target defines QSPI pins as integers thus conversion needed
-#define QPIN_0 static_cast<PinName>(QSPI_PIN_IO0)
-#define QPIN_1 static_cast<PinName>(QSPI_PIN_IO1)
-#define QPIN_2 static_cast<PinName>(QSPI_PIN_IO2)
-#define QPIN_3 static_cast<PinName>(QSPI_PIN_IO3)
-#define QSCK   static_cast<PinName>(QSPI_PIN_SCK)
-#define QCSN   static_cast<PinName>(QSPI_PIN_CSN)
+#define QPIN_0 static_cast<PinName>(QSPI_FLASH1_IO0)
+#define QPIN_1 static_cast<PinName>(QSPI_FLASH1_IO1)
+#define QPIN_2 static_cast<PinName>(QSPI_FLASH1_IO2)
+#define QPIN_3 static_cast<PinName>(QSPI_FLASH1_IO3)
+#define QSCK   static_cast<PinName>(QSPI_FLASH1_SCK)
+#define QCSN   static_cast<PinName>(QSPI_FLASH1_CSN)
 
 
 static void log_data(const char *str, uint8_t *data, uint32_t size)
