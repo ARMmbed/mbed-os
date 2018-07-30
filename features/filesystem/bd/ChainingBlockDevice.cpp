@@ -15,12 +15,13 @@
  */
 
 #include "ChainingBlockDevice.h"
+#include "mbed_critical.h"
 
 
 ChainingBlockDevice::ChainingBlockDevice(BlockDevice **bds, size_t bd_count)
     : _bds(bds), _bd_count(bd_count)
     , _read_size(0), _program_size(0), _erase_size(0), _size(0)
-    , _erase_value(-1)
+    , _erase_value(-1), _init_ref_count(0)
 {
 }
 
@@ -31,6 +32,12 @@ static bool is_aligned(uint64_t x, uint64_t alignment)
 
 int ChainingBlockDevice::init()
 {
+    uint32_t val = core_util_atomic_incr_u32(&_init_ref_count, 1);
+
+    if (val != 1) {
+        return BD_ERROR_OK;
+    }
+
     _read_size = 0;
     _program_size = 0;
     _erase_size = 0;
@@ -83,6 +90,12 @@ int ChainingBlockDevice::init()
 
 int ChainingBlockDevice::deinit()
 {
+    uint32_t val = core_util_atomic_decr_u32(&_init_ref_count, 1);
+
+    if (val) {
+        return BD_ERROR_OK;
+    }
+
     for (size_t i = 0; i < _bd_count; i++) {
         int err = _bds[i]->deinit();
         if (err) {

@@ -252,6 +252,7 @@ protected:
     bd_size_t _size;
     uint8_t _type;
     uint8_t _part;
+    uint32_t _init_ref_count;
 };
 
 

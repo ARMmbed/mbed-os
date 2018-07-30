@@ -16,10 +16,11 @@
 
 #include "ExhaustibleBlockDevice.h"
 #include "mbed.h"
+#include "mbed_critical.h"
 
 
 ExhaustibleBlockDevice::ExhaustibleBlockDevice(BlockDevice *bd, uint32_t erase_cycles)
-    : _bd(bd), _erase_array(NULL), _erase_cycles(erase_cycles)
+    : _bd(bd), _erase_array(NULL), _erase_cycles(erase_cycles), _init_ref_count(0)
 {
 }
 
@@ -30,6 +31,12 @@ ExhaustibleBlockDevice::~ExhaustibleBlockDevice()
 
 int ExhaustibleBlockDevice::init()
 {
+    uint32_t val = core_util_atomic_incr_u32(&_init_ref_count, 1);
+
+    if (val != 1) {
+        return BD_ERROR_OK;
+    }
+
     int err = _bd->init();
     if (err) {
         return err;
@@ -48,6 +55,12 @@ int ExhaustibleBlockDevice::init()
 
 int ExhaustibleBlockDevice::deinit()
 {
+    core_util_atomic_decr_u32(&_init_ref_count, 1);
+
+    if (_init_ref_count) {
+        return BD_ERROR_OK;
+    }
+
     // _erase_array is lazily cleaned up in destructor to allow
     // data to live across de/reinitialization
     return _bd->deinit();

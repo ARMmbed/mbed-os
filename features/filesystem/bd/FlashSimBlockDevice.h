@@ -135,6 +135,7 @@ private:
     bd_size_t _blank_buf_size;
     uint8_t *_blank_buf;
     BlockDevice *_bd;
+    uint32_t _init_ref_count;
 };
 
 #endif
