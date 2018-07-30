@@ -26,6 +26,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <algorithm>
+#include "mbed_stats.h"
 
 #if !NVSTORE_ENABLED
 #error [NOT_SUPPORTED] NVSTORE needs to be enabled for this test
@@ -42,19 +43,19 @@ static const int thr_test_num_secs = 5;
 static const int thr_test_max_data_size = 32;
 static const int thr_test_num_threads = 3;
 
-#ifdef TARGET_NRF52
-static const int thr_test_stack_size = 1024;
+#if defined(__CORTEX_M23) || defined(__CORTEX_M33)
+static const int thr_test_min_stack_size = 1280;
+static const int thr_test_max_stack_size = 1280;
 #else
-static const int thr_test_stack_size = 768;
+static const int thr_test_min_stack_size = 768;
+static const int thr_test_max_stack_size = 1024;
 #endif
 
 typedef struct {
     uint8_t *buffs[max_test_keys][thr_test_num_buffs];
     uint16_t sizes[max_test_keys][thr_test_num_buffs];
-    int inds[max_test_keys];
     uint16_t max_keys;
-    uint16_t last_key;
-    int last_ind;
+    bool stop_threads;
 } thread_test_data_t;
 
 static thread_test_data_t *thr_test_data;
@@ -62,6 +63,8 @@ static thread_test_data_t *thr_test_data;
 static const int race_test_num_threads = 4;
 static const int race_test_key = 1;
 static const int race_test_data_size = 128;
+static const int race_test_min_stack_size = 768;
+static const int race_test_max_stack_size = 1024;
 
 static void gen_random(uint8_t *s, int len)
 {
@@ -378,6 +381,41 @@ static void nvstore_basic_functionality_test()
     delete[] nvstore_testing_buf_get;
 }
 
+// This function calculates the stack size that needs to be allocated per thread in
+// the multi-thread tests. Given minimal and maximal stack sizes, and based on the heap
+// stats (automatically enabled in CI), the function checks whether each thread has at least
+// the minimal stack size, otherwise it reduces the number of threads (something that may happen
+// on low memory boards).
+static void calc_thread_stack_size(int &num_threads, uint32_t min_size, uint32_t max_size,
+                                   uint32_t &stack_size)
+{
+    mbed_stats_heap_t heap_stats;
+    mbed_stats_heap_get(&heap_stats);
+
+    // reserved size (along with all other fields in heap stats) will be zero if
+    // app is compiled without heap stats (typically local builds)
+    if (!heap_stats.reserved_size) {
+        stack_size = max_size;
+        printf("Heap stats disabled in this build, so test may fail due to insufficient heap size\n");
+        printf("If this happens, please build the test with heap stats enabled (-DMBED_HEAP_STATS_ENABLED=1)\n");
+        return;
+    }
+
+    NVStore &nvstore = NVStore::get_instance();
+    int page_size = nvstore.size() / nvstore.get_max_possible_keys();
+    // Check if we can allocate enough stack size (per thread) for the current number of threads
+    while (num_threads) {
+        stack_size = (heap_stats.reserved_size - heap_stats.current_size) / num_threads - sizeof(rtos::Thread) - page_size;
+
+        stack_size = std::min(stack_size, max_size);
+        if (stack_size >= min_size) {
+            return;
+        }
+
+        // Got here - stack not sufficient per thread. Reduce number of threads
+        num_threads--;
+    }
+}
 
 static void thread_test_check_key(uint16_t key)
 {
@@ -386,7 +424,7 @@ static void thread_test_check_key(uint16_t key)
     uint16_t actual_len_bytes;
     NVStore &nvstore = NVStore::get_instance();
 
-    ret = nvstore.get(key, basic_func_max_data_size, get_buff, actual_len_bytes);
+    ret = nvstore.get(key, thr_test_max_data_size, get_buff, actual_len_bytes);
     TEST_ASSERT_EQUAL(NVSTORE_SUCCESS, ret);
     TEST_ASSERT_NOT_EQUAL(0, actual_len_bytes);
 
@@ -396,13 +434,6 @@ static void thread_test_check_key(uint16_t key)
         }
 
         if (!memcmp(thr_test_data->buffs[key][i], get_buff, actual_len_bytes)) {
-            return;
-        }
-    }
-
-    if (key == thr_test_data->last_key) {
-        if ((thr_test_data->sizes[key][thr_test_data->last_ind] == actual_len_bytes) &&
-            (!memcmp(thr_test_data->buffs[key][thr_test_data->last_ind], get_buff, actual_len_bytes))) {
             return;
         }
     }
@@ -420,17 +451,13 @@ static void thread_test_worker()
     uint16_t key;
     NVStore &nvstore = NVStore::get_instance();
 
-    for (;;) {
+    while (!thr_test_data->stop_threads) {
         key = rand() % thr_test_data->max_keys;
         is_set = rand() % 10;
-
         if (is_set) {
             buf_num = rand() % thr_test_num_buffs;
-            thr_test_data->last_key = key;
-            thr_test_data->last_ind = buf_num;
             ret = nvstore.set(key, thr_test_data->sizes[key][buf_num], thr_test_data->buffs[key][buf_num]);
             TEST_ASSERT_EQUAL(NVSTORE_SUCCESS, ret);
-            thr_test_data->inds[key] = buf_num;
         } else {
             thread_test_check_key(key);
         }
@@ -445,6 +472,7 @@ static void nvstore_multi_thread_test()
 #ifdef MBED_CONF_RTOS_PRESENT
     int i;
     int num_threads = thr_test_num_threads;
+    uint32_t stack_size;
     uint16_t size;
     uint16_t key;
     int ret;
@@ -458,43 +486,51 @@ static void nvstore_multi_thread_test()
 
     thr_test_data = new thread_test_data_t;
     thr_test_data->max_keys = max_test_keys / 2;
+    thr_test_data->stop_threads = false;
     for (key = 0; key < thr_test_data->max_keys; key++) {
         for (i = 0; i < thr_test_num_buffs; i++) {
             size = 1 + rand() % thr_test_max_data_size;
             thr_test_data->sizes[key][i] = size;
             thr_test_data->buffs[key][i] = new uint8_t[size + 1];
-            thr_test_data->inds[key] = 0;
             gen_random(thr_test_data->buffs[key][i], size);
         }
         ret = nvstore.set(key, thr_test_data->sizes[key][0], thr_test_data->buffs[key][0]);
         TEST_ASSERT_EQUAL(NVSTORE_SUCCESS, ret);
     }
 
+    calc_thread_stack_size(num_threads, thr_test_min_stack_size, thr_test_max_stack_size, stack_size);
+    if (!num_threads) {
+        printf("Not enough heap space to run test. Test skipped\n");
+        goto end;
+    }
+
     for (i = 0; i < num_threads; i++) {
-        threads[i] = new rtos::Thread((osPriority_t)((int)osPriorityBelowNormal-num_threads+i), thr_test_stack_size);
+        threads[i] = new rtos::Thread((osPriority_t)((int)osPriorityBelowNormal - num_threads + i), stack_size);
         threads[i]->start(callback(thread_test_worker));
     }
 
     wait_ms(thr_test_num_secs * 1000);
+    thr_test_data->stop_threads = true;
+
+    wait_ms(1000);
 
     for (i = 0; i < num_threads; i++) {
-        threads[i]->terminate();
         delete threads[i];
     }
 
     delete[] threads;
 
-    wait_ms(1000);
+    ret = nvstore.deinit();
+    TEST_ASSERT_EQUAL(NVSTORE_SUCCESS, ret);
 
-    nvstore.deinit();
-
-    nvstore.init();
+    ret = nvstore.init();
+    TEST_ASSERT_EQUAL(NVSTORE_SUCCESS, ret);
 
     for (key = 0; key < thr_test_data->max_keys; key++) {
         thread_test_check_key(key);
-        TEST_ASSERT_EQUAL(NVSTORE_SUCCESS, ret);
     }
 
+end:
     for (key = 0; key < thr_test_data->max_keys; key++) {
         for (i = 0; i < thr_test_num_buffs; i++) {
             delete[] thr_test_data->buffs[key][i];
@@ -503,8 +539,11 @@ static void nvstore_multi_thread_test()
 
     delete thr_test_data;
 
+    nvstore.reset();
+
 #endif
 }
+
 
 static void race_test_worker(void *buf)
 {
@@ -519,10 +558,12 @@ static void nvstore_race_test()
 {
 #ifdef MBED_CONF_RTOS_PRESENT
     int i;
+    uint32_t stack_size;
     uint16_t initial_buf_size;
     int ret;
     rtos::Thread *threads[race_test_num_threads];
     uint8_t *get_buff, *buffs[race_test_num_threads];
+    int num_threads = race_test_num_threads;
     uint16_t actual_len_bytes;
 
     NVStore &nvstore = NVStore::get_instance();
@@ -530,7 +571,7 @@ static void nvstore_race_test()
     ret = nvstore.reset();
     TEST_ASSERT_EQUAL(NVSTORE_SUCCESS, ret);
 
-    initial_buf_size = std::min((nvstore.size() - race_test_data_size) / 2, (size_t) 256);
+    initial_buf_size = std::min((nvstore.size() - race_test_data_size) / 2, (size_t) race_test_data_size);
     uint8_t *initial_buf = new uint8_t[initial_buf_size];
     int num_sets = (nvstore.size() - race_test_data_size) / initial_buf_size;
     for (i = 0; i < num_sets; i++) {
@@ -539,33 +580,42 @@ static void nvstore_race_test()
     }
     delete[] initial_buf;
 
-    for (i = 0; i < race_test_num_threads; i++) {
+    get_buff = new uint8_t[race_test_data_size];
+
+    calc_thread_stack_size(num_threads, race_test_min_stack_size, race_test_max_stack_size, stack_size);
+    if (!num_threads) {
+        printf("Not enough heap space to run test. Test skipped\n");
+        goto end;
+    }
+
+    for (i = 0; i < num_threads; i++) {
         buffs[i] = new uint8_t[race_test_data_size];
         gen_random(buffs[i], race_test_data_size);
     }
 
-    for (i = 0; i < race_test_num_threads; i++) {
-        threads[i] = new rtos::Thread((osPriority_t)((int)osPriorityBelowNormal - race_test_num_threads + i), thr_test_stack_size);
+    for (i = 0; i < num_threads; i++) {
+        threads[i] = new rtos::Thread((osPriority_t)((int)osPriorityBelowNormal - num_threads + i), stack_size);
         threads[i]->start(callback(race_test_worker, (void *) buffs[i]));
         threads[i]->join();
     }
 
-    get_buff = new uint8_t[race_test_data_size];
     ret = nvstore.get(race_test_key, race_test_data_size, get_buff, actual_len_bytes);
     TEST_ASSERT_EQUAL(NVSTORE_SUCCESS, ret);
     TEST_ASSERT_EQUAL(race_test_data_size, actual_len_bytes);
 
-    for (i = 0; i < race_test_num_threads; i++) {
+    for (i = 0; i < num_threads; i++) {
         if (!memcmp(buffs[i], get_buff, actual_len_bytes)) {
             break;
         }
     }
-    TEST_ASSERT_NOT_EQUAL(race_test_num_threads, i);
+    TEST_ASSERT_NOT_EQUAL(num_threads, i);
 
-    for (i = 0; i < race_test_num_threads; i++) {
+    for (i = 0; i < num_threads; i++) {
         delete threads[i];
         delete[] buffs[i];
     }
+
+end:
     delete[] get_buff;
 #endif
 }

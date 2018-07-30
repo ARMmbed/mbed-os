@@ -18,27 +18,11 @@
 
 #include "hal/itm_api.h"
 
-#include "nrf.h"
-#include "nrf5x_lf_clk_helper.h"
-
-/* SWO frequency: 4000 kHz */
 void itm_init(void)
 {
-    /* Enable SWO trace functionality */
-    CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
-    NRF_CLOCK->TRACECONFIG |= CLOCK_TRACECONFIG_TRACEMUX_Serial << CLOCK_TRACECONFIG_TRACEMUX_Pos;
-
-    /* set SWO clock speed to 4 MHz */
-    NRF_CLOCK->TRACECONFIG = (NRF_CLOCK->TRACECONFIG & ~CLOCK_TRACECONFIG_TRACEPORTSPEED_Msk) | 
-                             (CLOCK_TRACECONFIG_TRACEPORTSPEED_4MHz << CLOCK_TRACECONFIG_TRACEPORTSPEED_Pos);
-
-    /* set SWO pin */
-    NRF_P0->PIN_CNF[18] = (GPIO_PIN_CNF_DRIVE_H0H1 << GPIO_PIN_CNF_DRIVE_Pos) | 
-                          (GPIO_PIN_CNF_INPUT_Connect << GPIO_PIN_CNF_INPUT_Pos) | 
-                          (GPIO_PIN_CNF_DIR_Output << GPIO_PIN_CNF_DIR_Pos);
-
-    /* set prescaler */
-    TPI->ACPR = 0;
+    /**
+     * Initialization moved to system_nrf52840.c due to SoftDevice incompatibility.
+     */
 }
 
 #endif

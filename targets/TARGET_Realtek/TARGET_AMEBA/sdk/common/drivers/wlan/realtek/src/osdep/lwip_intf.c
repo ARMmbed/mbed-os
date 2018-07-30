@@ -20,7 +20,7 @@
 #include <lwip_intf.h>
 #include <lwip/netif.h>
 
-#if !DEVICE_EMAC
+#if !defined(CONFIG_MBED_ENABLED)
 #include <lwip_netconf.h>
 #include <ethernetif.h>
 #endif
@@ -32,7 +32,7 @@
 // External Reference
 //----- ------------------------------------------------------------------
 #if (CONFIG_LWIP_LAYER == 1)
-#if DEVICE_EMAC
+#if defined(CONFIG_MBED_ENABLED)
     extern struct netif *xnetif[];
 #else
     extern struct netif xnetif[];			//LWIP netif
@@ -52,7 +52,7 @@
 void rltk_wlan_set_netif_info(int idx_wlan, void * dev, unsigned char * dev_addr)
 {
 #if (CONFIG_LWIP_LAYER == 1)
-#if DEVICE_EMAC
+#if defined(CONFIG_MBED_ENABLED)
     //rtw_memcpy(xnetif[idx_wlan]->hwaddr, dev_addr, 6);
     //set netif hwaddr later
 #else
@@ -156,7 +156,7 @@ void rltk_wlan_recv(int idx, struct eth_drv_sg *sg_list, int sg_len)
 int netif_is_valid_IP(int idx, unsigned char *ip_dest)
 {
 #if CONFIG_LWIP_LAYER == 1
-#if DEVICE_EMAC
+#if defined(CONFIG_MBED_ENABLED)
     return 1;
 #else
     struct netif *pnetif = &xnetif[idx];
@@ -188,7 +188,7 @@ int netif_is_valid_IP(int idx, unsigned char *ip_dest)
     }
 
     DBG_TRACE("invalid IP: %d.%d.%d.%d ",ip_dest[0],ip_dest[1],ip_dest[2],ip_dest[3]);
-#endif	
+#endif
 #ifdef CONFIG_DONT_CARE_TP
     if (pnetif->flags & NETIF_FLAG_IPSWITCH) {
         return 1;
@@ -199,7 +199,7 @@ int netif_is_valid_IP(int idx, unsigned char *ip_dest)
 #endif
 }
 
-#if DEVICE_EMAC
+#if defined(CONFIG_MBED_ENABLED)
 
 #else
 int netif_get_idx(struct netif *pnetif)
@@ -240,7 +240,7 @@ void set_callback_func(emac_callback p, void *data) {
 void netif_rx(int idx, unsigned int len)
 {
 #if (CONFIG_LWIP_LAYER == 1)
-#if DEVICE_EMAC
+#if defined(CONFIG_MBED_ENABLED)
     emac_callback_func(emac_callback_data, NULL, len);
 #else
     ethernetif_recv(&xnetif[idx], len);
@@ -255,7 +255,7 @@ void netif_rx(int idx, unsigned int len)
 void netif_post_sleep_processing(void)
 {
 #if (CONFIG_LWIP_LAYER == 1)
-#if DEVICE_EMAC
+#if defined(CONFIG_MBED_ENABLED)
 #else
     lwip_POST_SLEEP_PROCESSING();	//For FreeRTOS tickless to enable Lwip ARP timer when leaving IPS - Alex Fang
 #endif
@@ -265,7 +265,7 @@ void netif_post_sleep_processing(void)
 void netif_pre_sleep_processing(void)
 {
 #if (CONFIG_LWIP_LAYER == 1)
-#if DEVICE_EMAC
+#if defined(CONFIG_MBED_ENABLED)
 #else
     lwip_PRE_SLEEP_PROCESSING();
 #endif

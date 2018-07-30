@@ -62,6 +62,12 @@
 #define INITIAL_SP              (0x20040000UL)
 #endif
 
+#elif defined(TARGET_EFM32GG11)
+
+#ifndef INITIAL_SP
+#define INITIAL_SP              (0x20080000UL)
+#endif
+
 #endif
 
 #endif  // MBED_MBED_RTX_H

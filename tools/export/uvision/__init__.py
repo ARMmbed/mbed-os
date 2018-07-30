@@ -133,7 +133,8 @@ class Uvision(Exporter):
     @classmethod
     def is_target_supported(cls, target_name):
         target = TARGET_MAP[target_name]
-        if not (set(target.supported_toolchains) and set(["ARM", "uARM"])):
+        if not (set(target.supported_toolchains).intersection(
+                set(["ARM", "uARM"]))):
             return False
         if not DeviceCMSIS.check_supported(target_name):
             return False
