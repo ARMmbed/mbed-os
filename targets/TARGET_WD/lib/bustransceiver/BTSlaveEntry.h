@@ -28,7 +28,7 @@ public:
 	BTSlaveEntry(uint64_t slaveId) {
 		_id = slaveId;
 		_errorCount = 0;
-		_lastMsgTimestamp = 0;
+		_lastMsgTimestamp = time(NULL);
 	};
 	~BTSlaveEntry(){};
 	

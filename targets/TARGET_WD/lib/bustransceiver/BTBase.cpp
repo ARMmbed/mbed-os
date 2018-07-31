@@ -122,10 +122,6 @@ void BTBase::_on_rx_frame_received(dma_frame_meta_t * frame_meta) {
 		
 	}
 	
-	// valid frame
-	wd_log_info("BTBase::_on_rx_frame_received() -> received valid frame (length: %d, first byte: %x).", rxSize, rxBuffer[0]);
-	wd_log_heap_stats("received valid frame");
-	
 	// exclude crc for next layer
 	_frame_received_internal(rxBuffer, rxSize-4);
 	

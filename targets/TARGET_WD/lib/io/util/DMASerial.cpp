@@ -33,7 +33,6 @@ void DMASerial::popFrame(char * buffer, int * length, uint32_t timeout) {
 	if (evt.status == osEventMail) {
 
 		dma_frame_meta_t * frame_meta = (dma_frame_meta_t *) evt.value.p;
-		wd_log_info("RX-Get %d", frame_meta->frame_size);
 
 		getFrame(frame_meta, buffer, length);
 		
@@ -120,12 +119,8 @@ void DMASerial::_dma_rx_capture(int evt) {
 			if (_dma_rx_frame_queue.put(frame_meta) != osOK) {
 				wd_log_error("DMASerial: Unable to enqueue frame!");
 			}
-			wd_log_info("RX-Put to DMASerial executed with %d executed", frame_meta->frame_size);
-
-
 		} else {
 			wd_log_error("DMASerial: Error allocating memory for frame queue!");
-			//wd_log_heap_stats_special("DMASerial");
 
 			// TODO: 
 			// Inspect why the queue is full
@@ -164,17 +159,10 @@ void DMASerial::_rx_queue_process_loop(void) {
 		if (evt.status == osEventMail) {
 			
 			dma_frame_meta_t * frame_meta = (dma_frame_meta_t *) evt.value.p;
-			wd_log_info("RX-Get %d", frame_meta->frame_size);
 			if (_rx_cb)	{
-				wd_log_info("RX-Get before %d", frame_meta->frame_size);
 				this->_rx_cb.call(frame_meta);
-				wd_log_info("RX-Get after %d", frame_meta->frame_size);
 			}
 			_dma_rx_frame_queue.free(frame_meta);
-			//wd_log_error("_dma_rx_frame_queue.free()");
-		}
-		else{
-			wd_log_info("RX-Get not mail");
 		}
 		
 	}

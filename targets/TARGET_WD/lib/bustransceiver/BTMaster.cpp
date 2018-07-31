@@ -175,7 +175,6 @@ void BTMaster::_on_tx_queue_lock_timeout(void) {
 	
 	if(_lastAddressedSlave != 0) {
 		wd_log_warn("BTMaster -> ACK timeout for slave %.8X%.8X detected!", (uint32_t)(_lastAddressedSlave >> 32), (uint32_t)(_lastAddressedSlave));
-		wd_log_heap_stats("BTMaster -> ACK timeout for slave");
 		_slaveCollection.reportErroneousCommunication(_lastAddressedSlave);
 	}
 	_tx_release();
@@ -248,13 +247,11 @@ void BTMaster::_send_select_slave(uint64_t id) {
 void BTMaster::_tx_release(void) {
 //	wd_log_error("_release_tx_queue_processing");
 	_mainLoopThread.signal_set(BT_SIG_TX_PROCESSING_RELEASE);
-	wd_log_info("set BT_SIG_TX_PROCESSING_RELEASE");
 }
 
 void BTMaster::_tx_lock(unsigned int timeout) {
 //	wd_log_error("_lock_tx_queue_processing");
 	_mainLoopThread.signal_clr(BT_SIG_TX_PROCESSING_RELEASE);
-	wd_log_info("clear BT_SIG_TX_PROCESSING_RELEASE");
 	_txQueueLockTimeout->reset(timeout);
 }
 

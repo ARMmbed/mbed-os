@@ -25,6 +25,10 @@
 #define WD_DEBUG_LEVEL_CURRENT	WD_DEBUG_LEVEL_INFO
 #endif
 
+#ifndef WD_DEBUG_ENABLE_MEMORY_STATS
+#define WD_DEBUG_ENABLE_MEMORY_STATS	0
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -47,7 +51,7 @@ void wd_log_always(const char *format, ...);
 
 void wd_log_heap_stats(const char *issue);
 
-void wd_log_heap_stats_special(const char *issue);
+void wd_log_heap_stats_internal(const char *issue);
 
 #ifdef __cplusplus
 }

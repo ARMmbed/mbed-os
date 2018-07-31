@@ -62,12 +62,14 @@ void wd_log_error(const char *format, ...) {
 
 void wd_log_heap_stats(const char *issue){
 
-	return;
-	wd_log_heap_stats_special(issue);
+	if(!WD_DEBUG_ENABLE_MEMORY_STATS){
+		return;
+	}
+	wd_log_heap_stats_internal(issue);
 	
 }
 
-void wd_log_heap_stats_special(const char *issue){
+void wd_log_heap_stats_internal(const char *issue){
 
 	osKernelLock();
 
