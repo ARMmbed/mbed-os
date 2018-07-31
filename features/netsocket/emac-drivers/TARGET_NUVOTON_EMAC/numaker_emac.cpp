@@ -220,7 +220,7 @@ void NUMAKER_EMAC::packet_rx()
  */
 bool NUMAKER_EMAC::link_out(emac_mem_buf_t *buf)
 {
-    bool result;
+    bool result = false;
     emac_mem_buf_t *q;
     uint8_t *buffer = NULL;
     uint32_t framelength = 0;
