@@ -105,7 +105,7 @@ osStatus Thread::start(Callback<void()> task) {
 
     //Fill the stack with a magic word for maximum usage checking
     for (uint32_t i = 0; i < (_attr.stack_size / sizeof(uint32_t)); i++) {
-        ((uint32_t *)_attr.stack_mem)[i] = 0xE25A2EA5;
+        ((uint32_t *)_attr.stack_mem)[i] = osRtxStackMagicWord;
     }
 
     memset(&_obj_mem, 0, sizeof(_obj_mem));
@@ -306,7 +306,7 @@ uint32_t Thread::max_stack() {
 #if defined(MBED_OS_BACKEND_RTX5)
         mbed_rtos_storage_thread_t *thread = (mbed_rtos_storage_thread_t *)_tid;
         uint32_t high_mark = 0;
-        while (((uint32_t *)(thread->stack_mem))[high_mark] == 0xE25A2EA5)
+        while ((((uint32_t *)(thread->stack_mem))[high_mark] == osRtxStackMagicWord) || (((uint32_t *)(thread->stack_mem))[high_mark] == osRtxStackFillPattern))
             high_mark++;
         size = thread->stack_size - (high_mark * sizeof(uint32_t));
 #else
