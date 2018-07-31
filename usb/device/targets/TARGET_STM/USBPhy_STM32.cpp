@@ -525,10 +525,4 @@ void USBPhyHw::_usbisr(void) {
     instance->events->start_process();
 }
 
-//TODO - remove this hack which allows HAL_Delay to work when interrupts are disabled
-extern "C" uint32_t HAL_GetTick()
-{
-    return ticker_read_us(get_us_ticker_data()) / 1000;
-}
-
 #endif
