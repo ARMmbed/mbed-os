@@ -436,7 +436,15 @@ virtual void on_parsing_terminated();
 
 ### Serialization
 
-**TBD**
+The class `MessageBuilder` is used to map a record into an NDEF message. It
+includes a data buffer that contains the _raw_ message. Client code use the
+functions `append_record` to append a new record into the message being built.
+
+![ndef_message_builder_diagram]
+
+For convenience, serialization functions for common types are provided as well as
+a specialized `MessageBuilder` named `SimpleMessageBuilder` that exposes them
+in an object oriented fashion.
 
 ## HAL APIs
 
@@ -509,3 +517,4 @@ There are currently at least four event queues (Plaftorm, BLE, USB, IP) in mbed 
 [ndef_record_parser_diagram]: uml_diagram_ndef_record_parser.png
 [ndef_common_parsers_diagram]: uml_diagram_ndef_common_parsers.png
 [ndef_simple_parser_diagram]: uml_diagram_ndef_simple_parser.png
+[ndef_message_builder_diagram]: uml_diagram_ndef_message_builder_diagram.png

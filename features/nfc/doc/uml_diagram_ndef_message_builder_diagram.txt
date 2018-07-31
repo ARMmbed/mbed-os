@@ -1,0 +1,64 @@
+@startuml
+
+package ndef {
+
+class MessageBuilder { 
+    +MessageBuilder(uint8_t* buffer, size_t capacity)
+    +~MessageBuilder()
+    +bool append_record(const RecordType& type, const RecordPayload* payload, bool is_last_record = false)
+    +bool append_record(const Record& record)
+    +const uint8_t* get_data() const;
+    +size_t get_data_size() const;
+}
+
+class Record { 
+}
+
+class RecordType{ 
+}
+
+class RecordPayload{ 
+}
+
+class RecordID{
+}
+
+Record *-- RecordType
+Record *-- "0..1" RecordPayload
+Record *-- "0..1" RecordID
+
+Record - MessageBuilder: insert >
+
+}
+
+package common { 
+
+class SimpleMessageBuilder { 
+    +SimpleMessageBuilder(uint8_t* buffer, size_t capacity)
+    +~SimpleMessageBuilder()
+    +bool append_uri(const URI&)
+    +bool append_text(const Text&)
+    +bool append_mime(const Mime&)
+} 
+
+class URI { 
++friend bool append_record(ndef::MessageBuilder&, const URI&)
+}
+
+class Text { 
++friend bool append_record(ndef::MessageBuilder&, const Text&)
+}
+
+class Mime { 
++friend bool append_record(ndef::MessageBuilder&, const Mime&)
+}
+
+SimpleMessageBuilder --|> MessageBuilder
+
+URI -- SimpleMessageBuilder: wrap >
+Text -- SimpleMessageBuilder: wrap >
+Mime -- SimpleMessageBuilder: wrap >
+
+}
+
+@enduml
