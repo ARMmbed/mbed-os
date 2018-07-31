@@ -117,55 +117,6 @@ bool UBLOX_AT_CellularStack::is_protocol_supported(nsapi_protocol_t protocol)
     return (protocol == NSAPI_UDP || protocol == NSAPI_TCP);
 }
 
-nsapi_error_t UBLOX_AT_CellularStack::socket_open(nsapi_socket_t *handle, nsapi_protocol_t proto)
-{
-    if (!is_protocol_supported(proto) || !handle) {
-        return NSAPI_ERROR_UNSUPPORTED;
-    }
-
-    int max_socket_count = get_max_socket_count();
-
-    if (!_socket) {
-        _socket = new CellularSocket*[max_socket_count];
-        if (!_socket) {
-            return NSAPI_ERROR_NO_SOCKET;
-        }
-        _socket_count = max_socket_count;
-        for (int i = 0; i < max_socket_count; i++) {
-            _socket[i] = 0;
-        }
-    }
-
-    int index = -1;
-    for (int i = 0; i < max_socket_count; i++) {
-        if (!_socket[i]) {
-            index = i;
-            break;
-        }
-    }
-
-    if (index == -1) {
-        return NSAPI_ERROR_NO_SOCKET;
-    }
-
-    // create local socket structure, socket on modem is created when app calls sendto/recvfrom
-    _socket[index] = new CellularSocket;
-    CellularSocket *psock;
-    psock = _socket[index];
-    memset(psock, 0, sizeof(CellularSocket));
-    SocketAddress addr(0, get_dynamic_ip_port());
-    psock->id = index;
-    psock->localAddress = addr;
-    psock->proto = proto;
-    nsapi_error_t err = create_socket_impl(psock);
-
-    if (err == NSAPI_ERROR_OK) {
-        *handle = psock;
-    }
-
-    return err;
-}
-
 nsapi_error_t UBLOX_AT_CellularStack::create_socket_impl(CellularSocket *socket)
 {
     int sock_id = 0;
@@ -212,8 +163,8 @@ nsapi_error_t UBLOX_AT_CellularStack::socket_connect(nsapi_socket_t handle, cons
 {
     CellularSocket *socket = (CellularSocket *)handle;
 
-    if (!socket) {
-        return NSAPI_ERROR_DEVICE_ERROR;
+    if (!socket->created) {
+        create_socket_impl(socket);
     }
 
     _at.lock();

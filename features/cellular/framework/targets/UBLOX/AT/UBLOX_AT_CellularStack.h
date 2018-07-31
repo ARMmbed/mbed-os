@@ -73,8 +73,6 @@ protected: // AT_CellularStack
 
     virtual bool is_protocol_supported(nsapi_protocol_t protocol);
 
-    virtual nsapi_error_t socket_open(nsapi_socket_t *handle, nsapi_protocol_t proto);
-
     virtual nsapi_error_t create_socket_impl(CellularSocket *socket);
 
     virtual nsapi_error_t socket_connect(nsapi_socket_t handle, const SocketAddress &address);
