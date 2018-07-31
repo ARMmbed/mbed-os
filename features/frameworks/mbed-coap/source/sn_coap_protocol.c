@@ -1723,7 +1723,7 @@ static coap_blockwise_msg_s *sn_coap_stored_blockwise_msg_get(struct coap_s *han
         }
     }
 
-    return NULL;
+    return ns_list_get_first(&handle->linked_list_blockwise_sent_msgs);
 }
 
 /**************************************************************************//**
