@@ -22,7 +22,7 @@
 #define WD_DEBUG_LEVEL_DEBUG	4
 
 #ifndef WD_DEBUG_LEVEL_CURRENT
-#define WD_DEBUG_LEVEL_CURRENT	WD_DEBUG_LEVEL_WARN
+#define WD_DEBUG_LEVEL_CURRENT	WD_DEBUG_LEVEL_INFO
 #endif
 
 #ifdef __cplusplus
@@ -44,6 +44,10 @@ void wd_log_warn(const char *format, ...);
 void wd_log_error(const char *format, ...);
 
 void wd_log_always(const char *format, ...);
+
+void wd_log_heap_stats(const char *issue);
+
+void wd_log_heap_stats_special(const char *issue);
 
 #ifdef __cplusplus
 }
