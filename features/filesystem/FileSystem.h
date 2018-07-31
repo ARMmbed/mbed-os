@@ -23,7 +23,7 @@
 #include "platform/FileHandle.h"
 #include "platform/DirHandle.h"
 #include "platform/FileSystemLike.h"
-#include "BlockDevice.h"
+#include "bd/BlockDevice.h"
 
 namespace mbed {
 /** \addtogroup filesystem */

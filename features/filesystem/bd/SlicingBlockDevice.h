@@ -23,7 +23,10 @@
 #define MBED_SLICING_BLOCK_DEVICE_H
 
 #include "BlockDevice.h"
-#include "mbed.h"
+
+namespace mbed {
+/** \addtogroup filesystem */
+/** @{*/
 
 
 /** Block device for mapping to a slice of another block device
@@ -167,5 +170,7 @@ protected:
     bd_size_t _stop;
 };
 
+/** @}*/
+} // namespace mbed
 
 #endif

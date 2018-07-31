@@ -29,7 +29,6 @@
 #include <stdint.h>
 #include "PlatformMutex.h"
 
-
 /**
  * FATFileSystem based on ChaN's Fat Filesystem library v0.8
  */
@@ -40,7 +39,7 @@ public:
      *  @param name     Name to add filesystem to tree as
      *  @param bd       BlockDevice to mount, may be passed instead to mount call
      */
-    FATFileSystem(const char *name = NULL, BlockDevice *bd = NULL);
+    FATFileSystem(const char *name = NULL, mbed::BlockDevice *bd = NULL);
     virtual ~FATFileSystem();
 
     /** Formats a logical drive, FDISK partitioning rule.
@@ -59,14 +58,14 @@ public:
      *
      *  @return         0 on success, negative error code on failure
      */
-    static int format(BlockDevice *bd, bd_size_t cluster_size = 0);
+    static int format(mbed::BlockDevice *bd, mbed::bd_size_t cluster_size = 0);
 
     /** Mounts a filesystem to a block device
      *
      *  @param bd       BlockDevice to mount to
      *  @return         0 on success, negative error code on failure
      */
-    virtual int mount(BlockDevice *bd);
+    virtual int mount(mbed::BlockDevice *bd);
 
     /** Unmounts a filesystem from the underlying block device
      *
@@ -91,7 +90,7 @@ public:
      *
      *  @return         0 on success, negative error code on failure
      */
-    virtual int reformat(BlockDevice *bd, int allocation_unit);
+    virtual int reformat(mbed::BlockDevice *bd, int allocation_unit);
 
     /** Reformats a filesystem, results in an empty and mounted filesystem
      *
@@ -101,7 +100,7 @@ public:
      *                  Default: NULL
      *  @return         0 on success, negative error code on failure
      */
-    virtual int reformat(BlockDevice *bd = NULL)
+    virtual int reformat(mbed::BlockDevice *bd = NULL)
     {
         // required for virtual inheritance shenanigans
         return reformat(bd, 0);
@@ -267,7 +266,7 @@ private:
 protected:
     virtual void lock();
     virtual void unlock();
-    virtual int mount(BlockDevice *bd, bool mount);
+    virtual int mount(mbed::BlockDevice *bd, bool mount);
 };
 
 #endif

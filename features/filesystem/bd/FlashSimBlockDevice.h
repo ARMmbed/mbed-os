@@ -24,6 +24,10 @@
 
 #include "BlockDevice.h"
 
+namespace mbed {
+/** \addtogroup filesystem */
+/** @{*/
+
 enum {
     BD_ERROR_NOT_ERASED       = -3201,
 };
@@ -137,5 +141,8 @@ private:
     BlockDevice *_bd;
     uint32_t _init_ref_count;
 };
+
+/** @}*/
+} // namespace mbed
 
 #endif

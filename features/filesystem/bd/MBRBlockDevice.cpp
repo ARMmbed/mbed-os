@@ -15,9 +15,11 @@
  */
 
 #include "MBRBlockDevice.h"
-#include "mbed_critical.h"
+#include "platform/mbed_critical.h"
+#include "platform/mbed_assert.h"
 #include <algorithm>
 
+namespace mbed {
 
 // On disk structures, all entries are little endian
 MBED_PACKED(struct) mbr_entry {
@@ -340,3 +342,5 @@ int MBRBlockDevice::get_partition_number() const
 {
     return _part;
 }
+
+} // namespace mbed
