@@ -17,6 +17,8 @@
 #include "CppUTest/TestHarness.h"
 #include "test_at_cellularpower.h"
 
+// AStyle ignored as the definition is not clear due to preprocessor usage
+// *INDENT-OFF*
 TEST_GROUP(AT_CellularPower)
 {
     Test_AT_CellularPower *unit;
@@ -29,6 +31,7 @@ TEST_GROUP(AT_CellularPower)
         delete unit;
     }
 };
+// *INDENT-ON*
 
 TEST(AT_CellularPower, Create)
 {
