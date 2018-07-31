@@ -35,7 +35,7 @@ namespace rtos {
 /** \addtogroup rtos */
 /** @{*/
 /**
- * \defgroup rtos_EventFlags EventFlags class
+ * \defgroup rtos_Queue Queue class
  * @{
  */
  
