@@ -15,9 +15,9 @@
  */
 
 #include "Dir.h"
-#include "mbed.h"
 #include <errno.h>
 
+namespace mbed {
 
 Dir::Dir()
     : _fs(0), _dir(0)
@@ -92,3 +92,5 @@ size_t Dir::size()
     MBED_ASSERT(_fs);
     return _fs->dir_size(_dir);
 }
+
+} // namespace mbed

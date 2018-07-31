@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#include "mbed.h"
 #include "filesystem/Dir.h"
 #include "filesystem/File.h"
 #include "filesystem/FileSystem.h"
 #include <errno.h>
 
+namespace mbed {
 
 FileSystem::FileSystem(const char *name)
     : FileSystemLike(name)
@@ -170,3 +170,5 @@ int FileSystem::open(DirHandle **dir, const char *path) {
     *dir = d;
     return 0;
 }
+
+} // namespace mbed
