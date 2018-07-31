@@ -423,7 +423,7 @@ class Resources(object):
                     self.add_file_ref(FileType.REPO_DIR, fake_path, dir_path)
 
                 if (any(self._not_current_label(d, t) for t
-                        in ['TARGET', 'TOOLCHAIN', 'FEATURE'])):
+                        in self._labels.keys())):
                     self._label_paths.append((dir_path, base_path, into_path))
                     self.ignore_dir(dir_path)
                     dirs.remove(d)
