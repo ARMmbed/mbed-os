@@ -75,7 +75,7 @@ public:
      *  @param send_delay       the minimum delay in ms between the end of last response and the beginning of a new command
      */
     ATHandler(FileHandle *fh, events::EventQueue &queue, int timeout, const char *output_delimiter, uint16_t send_delay = 0);
-    ~ATHandler();
+    virtual ~ATHandler();
 
     /** Return used file handle.
      *
