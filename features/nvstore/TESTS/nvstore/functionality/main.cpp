@@ -95,13 +95,17 @@ static void nvstore_basic_functionality_test()
 
     gen_random(nvstore_testing_buf_set, basic_func_max_data_size);
 
+    uint16_t max_possible_keys = nvstore.get_max_possible_keys();
+    TEST_SKIP_UNLESS_MESSAGE(max_test_keys < max_possible_keys,
+                             "Not enough possible keys for test. Test skipped.");
+
     nvstore.set_max_keys(max_test_keys);
     TEST_ASSERT_EQUAL(max_test_keys, nvstore.get_max_keys());
 
     result = nvstore.reset();
     TEST_ASSERT_EQUAL(NVSTORE_SUCCESS, result);
 
-    printf("Max keys %d (out of %d possible ones)\n", nvstore.get_max_keys(), nvstore.get_max_possible_keys());
+    printf("Max keys %d (out of %d possible ones)\n", nvstore.get_max_keys(), max_possible_keys);
 
     result = nvstore.set(5, 18, nvstore_testing_buf_set);
     TEST_ASSERT_EQUAL(NVSTORE_SUCCESS, result);
@@ -486,6 +490,10 @@ static void nvstore_multi_thread_test()
 
     thr_test_data = new thread_test_data_t;
     thr_test_data->max_keys = max_test_keys / 2;
+    uint16_t max_possible_keys = nvstore.get_max_possible_keys();
+    TEST_SKIP_UNLESS_MESSAGE(thr_test_data->max_keys < max_possible_keys,
+                             "Not enough possible keys for test. Test skipped.");
+
     thr_test_data->stop_threads = false;
     for (key = 0; key < thr_test_data->max_keys; key++) {
         for (i = 0; i < thr_test_num_buffs; i++) {
