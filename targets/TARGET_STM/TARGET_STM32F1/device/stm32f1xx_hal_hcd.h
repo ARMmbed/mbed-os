@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32f1xx_hal_hcd.h
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    14-April-2017
   * @brief   Header file of HCD HAL module.
   ******************************************************************************
   * @attention
