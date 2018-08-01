@@ -1,0 +1,71 @@
+; Realtek Semiconductor Corp.
+;
+; RTL8195A ARMCC Scatter File
+;
+; MEMORY
+; {
+;   SROM (rx)    : ORIGIN = 0x10000000, LENGTH = 0x00007000
+;   SRAM (rwx)   : ORIGIN = 0x10007000, LENGTH = 0x00070000 - 0x00007000
+;   TCM  (rwx)   : ORIGIN = 0x1FFF0000, LENGTH = 0x00010000
+;   DRAM (rwx)   : ORIGIN = 0x30000000, LENGTH = 2M
+; }
+
+LR_IRAM 0x10007000 (0x70000 - 0x7000) {
+
+  IMAGE2_TABLE 0x10007000 FIXED {
+    *rtl8195a_init*.o(.image2.ram.data*, +FIRST)
+    *rtl8195a_init*.o(.image2.validate.rodata*)
+  }
+
+  ER_IRAM +0 FIXED {
+    *(.ARM.exidx)
+    *(.init_array)
+    *rtl8195a_crypto*.o (+RO)
+    *(i.mbedtls*)
+    *libc.a (+RO)
+    *rtx_*.o (+RO)
+    *main*.o (+RO)
+    *lib_peripheral_mbed_arm.ar (+RO)
+    *_api*.o (+RO)
+  }
+
+  RW_IRAM1 +0 UNINIT FIXED {
+    *rtl8195a_crypto*.o(+RW)
+    *libc.a (+RW)
+    *main*.o (+RW)
+    *lib_peripheral_mbed_arm.ar (+RW)
+    *_api*.o (+RW)
+    *rtl8195a_crypto*.o(+ZI)
+    *libc.a (+ZI)
+    *main*.o (+ZI)
+    *lib_peripheral_mbed_arm.ar (+ZI)
+    *_api*.o (+ZI)
+    *mbed_boot*.o (+ZI)
+  }
+
+  ARM_LIB_STACK (0x10070000 - 0x1000) EMPTY 0x1000 {
+  }
+}
+
+LR_TCM 0x1FFF0000 0x10000 {
+    TCM_OVERLAY 0x1FFF0000 0x10000 {
+        *lwip_mem*.o(+ZI)
+        *lwip_memp*.o(+ZI)
+        *.o(.tcm.heap*)
+    }
+}
+
+LR_DRAM 0x30000000 0x200000 {
+
+  ER_DRAM +0 FIXED {
+    .ANY (+RO)
+  }
+
+  RW_DRAM1 +0 UNINIT FIXED {
+   .ANY (+RW)
+  }
+
+  RW_DRAM2 +0 UNINIT FIXED {
+   .ANY (+ZI)
+  }
+}
