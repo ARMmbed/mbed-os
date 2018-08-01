@@ -226,6 +226,7 @@ private:
     bool _is_initialized;
     bool _dbg;
     bool _crc_on;
+    uint32_t _init_ref_count;
 
     MbedCRC<POLY_7BIT_SD, 7> _crc7;
     MbedCRC<POLY_16BIT_CCITT, 16> _crc16;
