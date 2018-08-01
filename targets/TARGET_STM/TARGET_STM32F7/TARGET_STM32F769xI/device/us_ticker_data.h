@@ -36,9 +36,6 @@
 
 #define TIM_MST_PCLK  1 // Select the peripheral clock number (1 or 2)
 
-
-HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority);
-
 #ifdef __cplusplus
 }
 #endif
