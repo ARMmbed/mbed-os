@@ -34,6 +34,8 @@
 
 #define RENESAS_RZ_A1_P0_CLK   CM1_RENESAS_RZ_A1_P0_CLK
 
+#define LP_TICKER_MTU2_CH      3
+
 /* flash (W25Q64JV) */
 #define FLASH_BASE                 (0x18000000UL) /**< Flash Base Address */
 #define FLASH_SIZE                 (0x00800000UL) /**< Available Flash Memory */
