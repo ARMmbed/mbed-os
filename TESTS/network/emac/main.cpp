@@ -43,10 +43,6 @@
 #endif
 #endif
 
-#ifndef DEVICE_EMAC
-#error [NOT_SUPPORTED] Device EMAC has to be enabled for the target
-#endif
-
 #include "greentea-client/test_env.h"
 #include "unity.h"
 #include "utest.h"
