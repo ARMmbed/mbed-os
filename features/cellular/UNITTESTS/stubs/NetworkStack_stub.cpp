@@ -68,16 +68,16 @@ NetworkStack *nsapi_create_stack(NetworkStack *stack)
     return NULL;
 }
 
- nsapi_value_or_error_t NetworkStack::gethostbyname_async(const char *host, hostbyname_cb_t callback,
-            nsapi_version_t version)
- {
-     return NSAPI_ERROR_UNSUPPORTED;
- }
+nsapi_value_or_error_t NetworkStack::gethostbyname_async(const char *host, hostbyname_cb_t callback,
+                                                         nsapi_version_t version)
+{
+    return NSAPI_ERROR_UNSUPPORTED;
+}
 
- nsapi_error_t NetworkStack::gethostbyname_async_cancel(int id)
- {
-     return NSAPI_ERROR_UNSUPPORTED;
- }
+nsapi_error_t NetworkStack::gethostbyname_async_cancel(int id)
+{
+    return NSAPI_ERROR_UNSUPPORTED;
+}
 
 call_in_callback_cb_t NetworkStack::get_call_in_callback()
 {

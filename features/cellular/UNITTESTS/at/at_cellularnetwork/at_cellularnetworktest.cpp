@@ -18,11 +18,13 @@
 #include "test_at_cellularnetwork.h"
 #include "ATHandler_stub.h"
 
+// AStyle ignored as the definition is not clear due to preprocessor usage
+// *INDENT-OFF*
 TEST_GROUP(AT_CellularNetwork)
 {
-    Test_AT_CellularNetwork* unit;
+    Test_AT_CellularNetwork *unit;
 
-    void setup()
+    void setup() 
     {
         unit = new Test_AT_CellularNetwork();
         ATHandler_stub::int_count = kRead_int_table_size;
@@ -30,11 +32,12 @@ TEST_GROUP(AT_CellularNetwork)
         ATHandler_stub::resp_stop_success_count = kResp_stop_count_default;
     }
 
-    void teardown()
+    void teardown() 
     {
         delete unit;
     }
 };
+// *INDENT-ON*
 
 TEST(AT_CellularNetwork, Create)
 {

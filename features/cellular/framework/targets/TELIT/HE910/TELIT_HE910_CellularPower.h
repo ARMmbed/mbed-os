@@ -22,8 +22,7 @@
 
 namespace mbed {
 
-class TELIT_HE910_CellularPower : public AT_CellularPower
-{
+class TELIT_HE910_CellularPower : public AT_CellularPower {
 public:
     TELIT_HE910_CellularPower(ATHandler &atHandler);
     virtual ~TELIT_HE910_CellularPower();

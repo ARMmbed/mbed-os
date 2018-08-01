@@ -37,13 +37,12 @@
 
 #define RETRY_COUNT_DEFAULT 3
 
-namespace mbed
-{
+namespace mbed {
 
 CellularConnectionFSM::CellularConnectionFSM() :
-        _serial(0), _state(STATE_INIT), _next_state(_state), _status_callback(0), _event_status_cb(0), _network(0), _power(0), _sim(0),
-        _queue(8 * EVENTS_EVENT_SIZE), _queue_thread(0), _cellularDevice(0), _retry_count(0), _event_timeout(-1),
-        _at_queue(8 * EVENTS_EVENT_SIZE), _event_id(0), _plmn(0), _command_success(false), _plmn_network_found(false)
+    _serial(0), _state(STATE_INIT), _next_state(_state), _status_callback(0), _event_status_cb(0), _network(0), _power(0), _sim(0),
+    _queue(8 * EVENTS_EVENT_SIZE), _queue_thread(0), _cellularDevice(0), _retry_count(0), _event_timeout(-1),
+    _at_queue(8 * EVENTS_EVENT_SIZE), _event_id(0), _plmn(0), _command_success(false), _plmn_network_found(false)
 {
     memset(_sim_pin, 0, sizeof(_sim_pin));
 #if MBED_CONF_CELLULAR_RANDOM_MAX_START_DELAY == 0
@@ -147,7 +146,7 @@ bool CellularConnectionFSM::power_on()
 void CellularConnectionFSM::set_sim_pin(const char *sim_pin)
 {
     strncpy(_sim_pin, sim_pin, sizeof(_sim_pin));
-    _sim_pin[sizeof(_sim_pin)-1] = '\0';
+    _sim_pin[sizeof(_sim_pin) - 1] = '\0';
 }
 
 void CellularConnectionFSM::set_plmn(const char *plmn)
@@ -202,7 +201,7 @@ bool CellularConnectionFSM::is_registered()
 }
 
 bool CellularConnectionFSM::get_network_registration(CellularNetwork::RegistrationType type,
-        CellularNetwork::RegistrationStatus &status, bool &is_registered)
+                                                     CellularNetwork::RegistrationStatus &status, bool &is_registered)
 {
     is_registered = false;
     bool is_roaming = false;
@@ -581,7 +580,7 @@ void CellularConnectionFSM::event()
         if (_event_timeout == -1) {
             _event_timeout = 0;
         }
-        _event_id = _queue.call_in(_event_timeout*1000, callback(this, &CellularConnectionFSM::event));
+        _event_id = _queue.call_in(_event_timeout * 1000, callback(this, &CellularConnectionFSM::event));
         if (!_event_id) {
             report_failure("Cellular event failure!");
             return;

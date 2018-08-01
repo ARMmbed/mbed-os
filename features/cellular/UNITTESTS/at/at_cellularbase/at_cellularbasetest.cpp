@@ -18,20 +18,23 @@
 #include "test_at_cellularbase.h"
 #include "AT_CellularBase.h"
 
+// AStyle ignored as the definition is not clear due to preprocessor usage
+// *INDENT-OFF*
 TEST_GROUP(AT_CellularBase)
 {
-    Test_AT_CellularBase* unit;
+    Test_AT_CellularBase *unit;
 
-    void setup()
+    void setup() 
     {
         unit = new Test_AT_CellularBase();
     }
 
-    void teardown()
+    void teardown() 
     {
         delete unit;
     }
 };
+// *INDENT-ON*
 
 TEST(AT_CellularBase, Create)
 {

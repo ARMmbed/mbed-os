@@ -22,8 +22,7 @@
 
 namespace mbed {
 
-class QUECTEL_BC95 : public AT_CellularDevice
-{
+class QUECTEL_BC95 : public AT_CellularDevice {
 public:
 
     QUECTEL_BC95(events::EventQueue &queue);

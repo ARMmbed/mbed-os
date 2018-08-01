@@ -90,8 +90,8 @@ void Test_AT_CellularPower::test_AT_CellularPower_set_power_level()
     AT_CellularPower pow(at);
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
     CHECK(NSAPI_ERROR_OK == pow.set_power_level(6));
-    CHECK(NSAPI_ERROR_OK == pow.set_power_level(1,1));
-    CHECK(NSAPI_ERROR_OK == pow.set_power_level(1,0));
+    CHECK(NSAPI_ERROR_OK == pow.set_power_level(1, 1));
+    CHECK(NSAPI_ERROR_OK == pow.set_power_level(1, 0));
 
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_DEVICE_ERROR;
     CHECK(NSAPI_ERROR_DEVICE_ERROR == pow.set_power_level(6));
@@ -119,24 +119,24 @@ void Test_AT_CellularPower::test_AT_CellularPower_opt_power_save_mode()
 
     AT_CellularPower pow(at);
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
-    CHECK(NSAPI_ERROR_OK == pow.opt_power_save_mode(0,0));
+    CHECK(NSAPI_ERROR_OK == pow.opt_power_save_mode(0, 0));
 
-    CHECK(NSAPI_ERROR_OK == pow.opt_power_save_mode(10,0));
+    CHECK(NSAPI_ERROR_OK == pow.opt_power_save_mode(10, 0));
 
-    CHECK(NSAPI_ERROR_OK == pow.opt_power_save_mode(912,0));
+    CHECK(NSAPI_ERROR_OK == pow.opt_power_save_mode(912, 0));
 
-    CHECK(NSAPI_ERROR_OK == pow.opt_power_save_mode(1834,1834));
+    CHECK(NSAPI_ERROR_OK == pow.opt_power_save_mode(1834, 1834));
 
-    CHECK(NSAPI_ERROR_OK == pow.opt_power_save_mode(18345,18345));
+    CHECK(NSAPI_ERROR_OK == pow.opt_power_save_mode(18345, 18345));
 
-    CHECK(NSAPI_ERROR_OK == pow.opt_power_save_mode(101234,101234));
+    CHECK(NSAPI_ERROR_OK == pow.opt_power_save_mode(101234, 101234));
 
-    CHECK(NSAPI_ERROR_OK == pow.opt_power_save_mode(1012345,1012345));
+    CHECK(NSAPI_ERROR_OK == pow.opt_power_save_mode(1012345, 1012345));
 
-    CHECK(NSAPI_ERROR_OK == pow.opt_power_save_mode(39612345,39612345));
+    CHECK(NSAPI_ERROR_OK == pow.opt_power_save_mode(39612345, 39612345));
 
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_DEVICE_ERROR;
-    CHECK(NSAPI_ERROR_DEVICE_ERROR == pow.opt_power_save_mode(0,0));
+    CHECK(NSAPI_ERROR_DEVICE_ERROR == pow.opt_power_save_mode(0, 0));
 }
 
 void Test_AT_CellularPower::test_AT_CellularPower_opt_receive_period()

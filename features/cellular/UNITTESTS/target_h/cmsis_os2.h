@@ -29,15 +29,15 @@ typedef int32_t                  osStatus;
 typedef void *osSemaphoreId_t;
 
 typedef struct {
-  const char                   *name;   ///< name of the semaphore
-  uint32_t                 attr_bits;   ///< attribute bits
-  void                      *cb_mem;    ///< memory for control block
-  uint32_t                   cb_size;   ///< size of provided memory for control block
+    const char                   *name;   ///< name of the semaphore
+    uint32_t                 attr_bits;   ///< attribute bits
+    void                      *cb_mem;    ///< memory for control block
+    uint32_t                   cb_size;   ///< size of provided memory for control block
 } osSemaphoreAttr_t;
 
 //Thread
 typedef enum {
-  osPriorityNormal        = 24       ///< Priority: normal
+    osPriorityNormal        = 24       ///< Priority: normal
 } osPriority_t;
 
 typedef void *osThreadId_t;

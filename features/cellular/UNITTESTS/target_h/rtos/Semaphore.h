@@ -15,4 +15,4 @@
  * limitations under the License.
  */
 
-typedef void* Semaphore;
+typedef void *Semaphore;

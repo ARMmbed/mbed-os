@@ -17,20 +17,23 @@
 #include "CppUTest/TestHarness.h"
 #include "test_util.h"
 
+// AStyle ignored as the definition is not clear due to preprocessor usage
+// *INDENT-OFF*
 TEST_GROUP(util)
 {
-    Test_util* unit;
+    Test_util *unit;
 
-    void setup()
+    void setup() 
     {
         unit = new Test_util();
     }
 
-    void teardown()
+    void teardown() 
     {
         delete unit;
     }
 };
+// *INDENT-ON*
 
 TEST(util, Create)
 {

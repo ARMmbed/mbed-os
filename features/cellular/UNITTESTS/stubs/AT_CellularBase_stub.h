@@ -18,8 +18,8 @@
 #include "ATHandler.h"
 
 namespace AT_CellularBase_stub {
-    extern mbed::ATHandler *handler_value;
-    extern mbed::ATHandler *handler_at_constructor_value;
-    extern mbed::device_err_t device_err_value;
-    extern bool supported_bool;
+extern mbed::ATHandler *handler_value;
+extern mbed::ATHandler *handler_at_constructor_value;
+extern mbed::device_err_t device_err_value;
+extern bool supported_bool;
 }
