@@ -1,14 +1,16 @@
 {
     "name": "softdevice",
     "config": {
+        "develop_in_nrf52832": {
+            "help": "Run NRF52810 code on NRF52832",
+            "macro_name": "DEVELOP_IN_NRF52832",
+            "value": "0"
+        }        
     },    
     "macros": [
         "SOFTDEVICE_PRESENT=1",
         "S112", 
         "BLE_STACK_SUPPORT_REQD",           
-        "NRF_SDH_CLOCK_LF_SRC=1",
-        "NRF_SDH_CLOCK_LF_RC_CTIV=0",
-        "NRF_SDH_CLOCK_LF_RC_TEMP_CTIV=0",
         "NRF_SDH_CLOCK_LF_XTAL_ACCURACY=7",
         "NRF_SD_BLE_API_VERSION=5",
         "NRF_SDH_ENABLED=1",

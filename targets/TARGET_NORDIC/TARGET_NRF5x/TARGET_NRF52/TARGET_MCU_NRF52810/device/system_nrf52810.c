@@ -27,6 +27,11 @@ NOTICE: This file has been modified by Nordic Semiconductor ASA.
 #include <stdbool.h>
 #include "nrf.h"
 #include "system_nrf52810.h"
+#include "nrf5x_lf_clk_helper.h"
+
+#if defined(DEVELOP_IN_NRF52832) && (DEVELOP_IN_NRF52832 == 0)
+#undef DEVELOP_IN_NRF52832
+#endif
 
 /*lint ++flb "Enter library region" */
 
