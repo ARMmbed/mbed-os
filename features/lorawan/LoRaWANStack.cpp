@@ -277,14 +277,16 @@ lorawan_status_t LoRaWANStack::enable_adaptive_datarate(bool adr_enabled)
 
 lorawan_status_t LoRaWANStack::stop_sending(void)
 {
+    if (_device_current_state == DEVICE_STATE_NOT_INITIALIZED) {
+        return LORAWAN_STATUS_NOT_INITIALIZED;
+    }
+
     if (_loramac.clear_tx_pipe() == LORAWAN_STATUS_OK) {
-        if (_device_current_state == DEVICE_STATE_SENDING) {
-            _ctrl_flags &= ~TX_DONE_FLAG;
-            _ctrl_flags &= ~TX_ONGOING_FLAG;
-            _loramac.set_tx_ongoing(false);
-            _device_current_state = DEVICE_STATE_IDLE;
-            return LORAWAN_STATUS_OK;
-        }
+        _ctrl_flags &= ~TX_DONE_FLAG;
+        _ctrl_flags &= ~TX_ONGOING_FLAG;
+        _loramac.set_tx_ongoing(false);
+        _device_current_state = DEVICE_STATE_IDLE;
+        return LORAWAN_STATUS_OK;
     }
 
     return LORAWAN_STATUS_BUSY;
