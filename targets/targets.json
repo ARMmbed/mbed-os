@@ -3719,6 +3719,13 @@
         "release_versions": ["2", "5"],
         "device_name": "nRF51822_xxAA"
     },
+    "SDT51822B": {
+        "inherits": ["MCU_NRF51_32K_UNIFIED"],
+        "device_has": ["USTICKER", "LPTICKER", "ANALOGIN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE"],
+        "detect_code": ["3103"],
+        "release_versions": ["2", "5"],
+        "device_name": "nRF51822_xxAA"
+    },
     "NRF51_DONGLE": {
         "inherits": ["MCU_NRF51_32K_UNIFIED"],
         "progen": {"target": "nrf51-dongle"},
