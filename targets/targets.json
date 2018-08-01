@@ -635,6 +635,23 @@
             "network-default-interface-type": "ETHERNET"
         }
     },
+    "SDT64B": {
+        "core": "Cortex-M4F",
+        "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
+        "extra_labels": ["Freescale", "MCUXpresso_MCUS", "KSDK2_MCUS", "SDT64B", "K64F", "KPSDK_MCUS", "KPSDK_CODE", "MCU_K64F", "Freescale_EMAC"],
+        "is_disk_virtual": true,
+        "macros": ["CPU_MK64FN1M0VMD12", "FSL_RTOS_MBED"],
+        "inherits": ["Target"],
+        "detect_code": ["3105"],
+        "device_has": ["USTICKER", "LPTICKER", "RTC", "CRC", "ANALOGIN", "ANALOGOUT", "EMAC", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_FC", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE", "STDIO_MESSAGES", "STORAGE", "TRNG", "FLASH"],
+        "features": ["LWIP", "STORAGE"],
+        "release_versions": ["2", "5"],
+        "device_name": "MK64FN1M0xxx12",
+        "bootloader_supported": true,
+        "overrides": {
+            "network-default-interface-type": "ETHERNET"
+        }
+    },
     "EV_COG_AD4050LZ": {
         "inherits": ["Target"],
         "core": "Cortex-M4F",
@@ -2902,6 +2919,16 @@
         "device_has": ["ANALOGIN", "I2C", "INTERRUPTIN", "LPTICKER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "STDIO_MESSAGES", "USTICKER"],
         "release_versions": ["2", "5"]
     },
+    "SDT32620B": {
+        "inherits": ["Target"],
+        "core": "Cortex-M4F",
+        "macros": ["__SYSTEM_HFX=96000000","TARGET=MAX32620","TARGET_REV=0x4332","OPEN_DRAIN_LEDS"],
+        "detect_code": ["3101"],
+        "extra_labels": ["Maxim", "MAX32620C"],
+        "supported_toolchains": ["GCC_ARM", "IAR", "ARM"],
+        "device_has": ["ANALOGIN", "I2C", "INTERRUPTIN", "LPTICKER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "STDIO_MESSAGES", "USTICKER"],
+        "release_versions": ["2", "5"]
+    },
     "MAX32625_BASE": {
         "inherits": ["Target"],
         "core": "Cortex-M4F",
@@ -2923,6 +2950,10 @@
         "public": false
     },
     "MAX32625MBED": {
+        "inherits": ["MAX32625_NO_BOOT"]
+    },
+    "SDT32625B": {
+        "detect_code": ["3102"],
         "inherits": ["MAX32625_NO_BOOT"]
     },
     "MAX32625PICO": {
@@ -3688,6 +3719,13 @@
         "release_versions": ["2", "5"],
         "device_name": "nRF51822_xxAA"
     },
+    "SDT51822B": {
+        "inherits": ["MCU_NRF51_32K_UNIFIED"],
+        "device_has": ["USTICKER", "LPTICKER", "ANALOGIN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE"],
+        "detect_code": ["3103"],
+        "release_versions": ["2", "5"],
+        "device_name": "nRF51822_xxAA"
+    },
     "NRF51_DONGLE": {
         "inherits": ["MCU_NRF51_32K_UNIFIED"],
         "progen": {"target": "nrf51-dongle"},
@@ -3768,6 +3806,12 @@
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF52832"],
         "release_versions": ["5"],
+        "device_name": "nRF52832_xxAA"
+    },
+    "SDT52832B": {
+        "inherits": ["MCU_NRF52832"],
+        "release_versions": ["5"],
+        "detect_code": ["3104"],
         "device_name": "nRF52832_xxAA"
     },
     "UBLOX_EVA_NINA": {
@@ -4052,6 +4096,25 @@
         "macros": ["__RTL8195A__","CONFIG_PLATFORM_8195A","CONFIG_MBED_ENABLED","PLATFORM_CMSIS_RTOS","MBED_FAULT_HANDLER_DISABLED"],
         "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SPI", "TRNG", "FLASH"],
+        "post_binary_hook": {
+            "function": "RTL8195ACode.binary_hook",
+            "toolchains": ["ARM_STD", "GCC_ARM", "IAR"]
+        },
+        "release_versions": ["5"],
+        "overrides": {
+            "network-default-interface-type": "WIFI"
+        }
+    },
+    "SDT8195B": {
+        "core": "Cortex-M3",
+        "default_toolchain": "GCC_ARM",
+        "inherits": ["Target"],
+        "detect_code": ["3106"],
+        "extra_labels": ["Realtek", "AMEBA", "SDT8195B", "RTW_EMAC"],
+        "macros": ["__RTL8195A__","CONFIG_PLATFORM_8195A","CONFIG_MBED_ENABLED","PLATFORM_CMSIS_RTOS","MBED_FAULT_HANDLER_DISABLED"],
+        "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
+        "device_has": ["ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SPI", "TRNG", "FLASH", "EMAC"],
+        "features": ["LWIP"],
         "post_binary_hook": {
             "function": "RTL8195ACode.binary_hook",
             "toolchains": ["ARM_STD", "GCC_ARM", "IAR"]
