@@ -3808,6 +3808,12 @@
         "release_versions": ["5"],
         "device_name": "nRF52832_xxAA"
     },
+    "SDT52832B": {
+        "inherits": ["MCU_NRF52832"],
+        "release_versions": ["5"],
+        "detect_code": ["3104"],
+        "device_name": "nRF52832_xxAA"
+    },
     "UBLOX_EVA_NINA": {
         "inherits": ["MCU_NRF52832"],
         "release_versions": ["5"],
