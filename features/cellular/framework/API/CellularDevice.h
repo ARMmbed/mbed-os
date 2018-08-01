@@ -114,6 +114,16 @@ public:
      *  @return network stack
      */
     virtual NetworkStack *get_stack() = 0;
+
+    /** Initialize cellular module must be called right after module is ready.
+     *  For example, when multiple modules are supported in a single AT driver this function detects
+     *  and adapts to an actual module at runtime.
+     *
+     *  @param fh    file handle used in communication to modem.
+     *
+     *  @return 0 on success
+     */
+    virtual nsapi_error_t init_module(FileHandle *fh) = 0;
 };
 
 } // namespace mbed

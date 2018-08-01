@@ -81,6 +81,8 @@ public: // CellularDevice
 
     virtual NetworkStack *get_stack();
 
+    virtual nsapi_error_t init_module(FileHandle *fh);
+
 protected:
     AT_CellularNetwork *_network;
     AT_CellularSMS *_sms;
