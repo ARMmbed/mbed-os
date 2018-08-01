@@ -4,10 +4,15 @@
 from __future__ import print_function, division, absolute_import
 
 from abc import abstractmethod, ABCMeta
-from sys import stdout, exit, argv
+from sys import stdout, exit, argv, path
 from os import sep, rename, remove
 from os.path import (basename, dirname, join, relpath, abspath, commonprefix,
                      splitext, exists)
+
+# Be sure that the tools directory is in the search path
+ROOT = abspath(join(dirname(__file__), ".."))
+path.insert(0, ROOT)
+
 import re
 import csv
 import json
@@ -18,9 +23,9 @@ from prettytable import PrettyTable
 from jinja2 import FileSystemLoader, StrictUndefined
 from jinja2.environment import Environment
 
-from .utils import (argparse_filestring_type, argparse_lowercase_hyphen_type,
-                    argparse_uppercase_type)
-from .settings import COMPARE_FIXED
+from tools.utils import (argparse_filestring_type, argparse_lowercase_hyphen_type,
+                         argparse_uppercase_type)
+from tools.settings import COMPARE_FIXED
 
 
 class _Parser(object):
@@ -93,7 +98,7 @@ class _GccParser(_Parser):
                    _Parser.MISC_FLASH_SECTIONS + ('unknown', 'OUTPUT')
 
     def check_new_section(self, line):
-        """ Check whether a new section in a map file has been detected 
+        """ Check whether a new section in a map file has been detected
 
         Positional arguments:
         line - the line to check for a new section
@@ -790,7 +795,7 @@ class MemapParser(object):
                 self.mem_report.append({
                     "module": name,
                     "size":{
-                        k: sizes.get(k, 0) for k in (self.print_sections + 
+                        k: sizes.get(k, 0) for k in (self.print_sections +
                                                      self.delta_sections)
                     }
                 })
