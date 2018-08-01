@@ -89,6 +89,12 @@
 #define INITIAL_SP              (0x20030000UL)
 #endif
 
+#elif defined(TARGET_SDT64B)
+
+#ifndef INITIAL_SP
+#define INITIAL_SP              (0x20030000UL)
+#endif
+
 #elif defined(TARGET_KW24D)
 
 #ifndef INITIAL_SP
