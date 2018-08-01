@@ -37,6 +37,10 @@ HeapBlockDevice bd(BLOCK_COUNT*BLOCK_SIZE, BLOCK_SIZE);
 // Testing formatting of master boot record
 void test_mbr_format()
 {
+    uint8_t *dummy = new (std::nothrow) uint8_t[BLOCK_COUNT * BLOCK_SIZE];
+    TEST_SKIP_UNLESS_MESSAGE(dummy, "Not enough memory for test");
+    delete[] dummy;
+
     // Create two partitions splitting device in ~half
     int err = MBRBlockDevice::partition(&bd, 1, 0x83, 0, (BLOCK_COUNT/2)*BLOCK_SIZE);
     TEST_ASSERT_EQUAL(0, err);
@@ -68,6 +72,10 @@ void test_mbr_format()
 // Testing mbr attributes
 void test_mbr_attr()
 {
+    uint8_t *dummy = new (std::nothrow) uint8_t[BLOCK_COUNT * BLOCK_SIZE];
+    TEST_SKIP_UNLESS_MESSAGE(dummy, "Not enough memory for test");
+    delete[] dummy;
+
     // Load partitions
     MBRBlockDevice part1(&bd, 1);
     int err = part1.init();
@@ -123,9 +131,15 @@ void test_mbr_attr()
 // Testing mbr read write
 void test_mbr_read_write()
 {
+    uint8_t *dummy = new (std::nothrow) uint8_t[BLOCK_COUNT * BLOCK_SIZE];
+    TEST_SKIP_UNLESS_MESSAGE(dummy, "Not enough memory for test");
+    delete[] dummy;
+
+    int err;
+
     // Load partitions
     MBRBlockDevice part1(&bd, 1);
-    int err = part1.init();
+    err = part1.init();
     TEST_ASSERT_EQUAL(0, err);
 
     MBRBlockDevice part2(&bd, 2);
@@ -133,8 +147,12 @@ void test_mbr_read_write()
     TEST_ASSERT_EQUAL(0, err);
 
     // Test reading/writing the partitions
-    uint8_t *write_block = new uint8_t[BLOCK_SIZE];
-    uint8_t *read_block = new uint8_t[BLOCK_SIZE];
+    uint8_t *write_block = new (std::nothrow) uint8_t[BLOCK_SIZE];
+    uint8_t *read_block = new (std::nothrow) uint8_t[BLOCK_SIZE];
+    if (!write_block || !read_block) {
+        printf("Not enough memory for test");
+        goto end;
+    }
 
     // Fill with random sequence
     srand(1);
@@ -200,15 +218,16 @@ void test_mbr_read_write()
         TEST_ASSERT_EQUAL(0xff & rand(), read_block[i]);
     }
 
-    // Clean up
-    delete[] write_block;
-    delete[] read_block;
-
     err = part1.deinit();
     TEST_ASSERT_EQUAL(0, err);
 
     err = part2.deinit();
     TEST_ASSERT_EQUAL(0, err);
+
+end:
+    // Clean up
+    delete[] write_block;
+    delete[] read_block;
 }
 
 

@@ -199,6 +199,7 @@ void test_error_logging()
 }
 
 #define NUM_TEST_THREADS 5
+#define THREAD_STACK_SIZE 512
 
 //Error logger threads
 void err_thread_func(mbed_error_status_t *error_status)
@@ -211,16 +212,20 @@ void err_thread_func(mbed_error_status_t *error_status)
  */
 void test_error_logging_multithread()
 {
+    uint8_t *dummy = new (std::nothrow) uint8_t[NUM_TEST_THREADS * THREAD_STACK_SIZE];
+    TEST_SKIP_UNLESS_MESSAGE(dummy, "Not enough memory for test");
+    delete[] dummy;
+
     mbed_error_ctx error_ctx = {0};
-    int i=0;
+    int i;
     Thread *errThread[NUM_TEST_THREADS];
     mbed_error_status_t error_status[NUM_TEST_THREADS] = { 
                                         MBED_ERROR_INVALID_ARGUMENT, MBED_ERROR_INVALID_DATA_DETECTED, MBED_ERROR_INVALID_FORMAT, MBED_ERROR_INVALID_SIZE, MBED_ERROR_INVALID_OPERATION
     };
     
         
-    for(; i<NUM_TEST_THREADS; i++) {
-        errThread[i] = new Thread(osPriorityNormal1, 512, NULL, NULL);
+    for(i=0; i<NUM_TEST_THREADS; i++) {
+        errThread[i] = new Thread(osPriorityNormal1, THREAD_STACK_SIZE, NULL, NULL);
         errThread[i]->start(callback(err_thread_func, &error_status[i]));
     }
     wait(2.0);
