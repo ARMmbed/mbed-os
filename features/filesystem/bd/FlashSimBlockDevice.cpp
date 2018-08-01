@@ -16,6 +16,7 @@
 
 #include "FlashSimBlockDevice.h"
 #include "mbed_assert.h"
+#include "mbed_critical.h"
 #include <algorithm>
 #include <stdlib.h>
 #include <string.h>
@@ -29,7 +30,7 @@ static inline uint32_t align_up(bd_size_t val, bd_size_t size)
 
 FlashSimBlockDevice::FlashSimBlockDevice(BlockDevice *bd, uint8_t erase_value) :
     _erase_value(erase_value), _blank_buf_size(0),
-    _blank_buf(0), _bd(bd)
+    _blank_buf(0), _bd(bd), _init_ref_count(0)
 {
 }
 
@@ -41,6 +42,12 @@ FlashSimBlockDevice::~FlashSimBlockDevice()
 
 int FlashSimBlockDevice::init()
 {
+    uint32_t val = core_util_atomic_incr_u32(&_init_ref_count, 1);
+
+    if (val != 1) {
+        return BD_ERROR_OK;
+    }
+
     int ret = _bd->init();
     if (ret) {
         return ret;
@@ -55,6 +62,12 @@ int FlashSimBlockDevice::init()
 
 int FlashSimBlockDevice::deinit()
 {
+    uint32_t val = core_util_atomic_decr_u32(&_init_ref_count, 1);
+
+    if (val) {
+        return BD_ERROR_OK;
+    }
+
     return _bd->deinit();
 }
 

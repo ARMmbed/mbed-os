@@ -154,6 +154,7 @@ private:
     BlockDevice *_bd;
     uint32_t *_erase_array;
     uint32_t _erase_cycles;
+    uint32_t _init_ref_count;
 };
 
 

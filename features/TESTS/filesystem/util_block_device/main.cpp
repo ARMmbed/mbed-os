@@ -92,10 +92,6 @@ void test_slicing() {
         TEST_ASSERT_EQUAL(0xff & rand(), read_block[i]);
     }
 
-    err = slice1.deinit();
-    TEST_ASSERT_EQUAL(0, err);
-
-
     // Test with second slice of block device
     err = slice2.init();
     TEST_ASSERT_EQUAL(0, err);
@@ -108,6 +104,10 @@ void test_slicing() {
     for (int i = 0; i < BLOCK_SIZE; i++) {
         write_block[i] = 0xff & rand();
     }
+
+    // Deinitialize slice1 here, to check whether init reference count works
+    err = slice1.deinit();
+    TEST_ASSERT_EQUAL(0, err);
 
     // Write, sync, and read the block
     err = slice2.program(write_block, 0, BLOCK_SIZE);

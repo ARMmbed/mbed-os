@@ -15,18 +15,19 @@
  */
 
 #include "HeapBlockDevice.h"
+#include "mbed_critical.h"
 
 
 HeapBlockDevice::HeapBlockDevice(bd_size_t size, bd_size_t block)
     : _read_size(block), _program_size(block), _erase_size(block)
-    , _count(size / block), _blocks(0)
+    , _count(size / block), _blocks(0), _init_ref_count(0)
 {
     MBED_ASSERT(_count * _erase_size == size);
 }
 
 HeapBlockDevice::HeapBlockDevice(bd_size_t size, bd_size_t read, bd_size_t program, bd_size_t erase)
     : _read_size(read), _program_size(program), _erase_size(erase)
-    , _count(size / erase), _blocks(0)
+    , _count(size / erase), _blocks(0), _init_ref_count(0)
 {
     MBED_ASSERT(_count * _erase_size == size);
 }
@@ -45,6 +46,12 @@ HeapBlockDevice::~HeapBlockDevice()
 
 int HeapBlockDevice::init()
 {
+    uint32_t val = core_util_atomic_incr_u32(&_init_ref_count, 1);
+
+    if (val != 1) {
+        return BD_ERROR_OK;
+    }
+
     if (!_blocks) {
         _blocks = new uint8_t*[_count];
         for (size_t i = 0; i < _count; i++) {
@@ -57,6 +64,12 @@ int HeapBlockDevice::init()
 
 int HeapBlockDevice::deinit()
 {
+    uint32_t val = core_util_atomic_decr_u32(&_init_ref_count, 1);
+
+    if (val) {
+        return BD_ERROR_OK;
+    }
+
     MBED_ASSERT(_blocks != NULL);
     // Memory is lazily cleaned up in destructor to allow
     // data to live across de/reinitialization
