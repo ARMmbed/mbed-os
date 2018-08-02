@@ -299,8 +299,8 @@ void set_full_uri(const char* uri)
 
 Messages incoming from the peer are parsed by a `MessageParser` which produce
 `Record` instances to its client. The parsing operation is event-driven: a
-message parser client register a delegate inside the message parser. This delegate
-get notified whenever an interesting event happen during the parsing.
+message parser client registers a delegate inside the message parser. This delegate
+gets notified whenever an interesting event happens during the parsing.
 
 ```cpp
 void set_delegate(Delegate* delegate);
@@ -511,7 +511,6 @@ There are currently at least four event queues (Plaftorm, BLE, USB, IP) in mbed 
 [phase_2_architecture]: phase_2_architecture.png
 [nfc_controller_diagram]: uml_diagram_controller.png
 [nfc_endpoints_diagram]: uml_diagram_endpoints.png
-[ndef_diagram]: uml_diagram_ndef.png
 [interop_test_rig]: interop_test_rig.png
 [ndef_message_parser_diagram]: uml_diagram_ndef_message_parser.png
 [ndef_record_parser_diagram]: uml_diagram_ndef_record_parser.png
