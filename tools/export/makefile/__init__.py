@@ -29,6 +29,15 @@ from tools.export.exporters import Exporter, apply_supported_whitelist
 from tools.utils import NotSupportedException
 from tools.targets import TARGET_MAP
 
+SHELL_ESCAPE_TABLE = {
+    "(": "\(",
+    ")": "\)",
+}
+
+
+def shell_escape(string):
+    return "".join(SHELL_ESCAPE_TABLE.get(char, char) for char in string)
+
 
 class Makefile(Exporter):
     """Generic Makefile template that mimics the behavior of the python build
@@ -97,6 +106,7 @@ class Makefile(Exporter):
             'link_script_option': self.LINK_SCRIPT_OPTION,
             'user_library_flag': self.USER_LIBRARY_FLAG,
             'needs_asm_preproc': self.PREPROCESS_ASM,
+            'shell_escape': shell_escape,
         }
 
         if hasattr(self.toolchain, "preproc"):
