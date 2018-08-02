@@ -250,7 +250,7 @@
 
 SDBlockDevice::SDBlockDevice(PinName mosi, PinName miso, PinName sclk, PinName cs, uint64_t hz, bool crc_on)
     : _sectors(0), _spi(mosi, miso, sclk), _cs(cs), _is_initialized(0), 
-      _crc_on(crc_on), _crc16(0, 0, false, false)
+      _crc_on(crc_on), _init_ref_count(0), _crc16(0, 0, false, false)
 {
     _cs = 1;
     _card_type = SDCARD_NONE;
@@ -363,9 +363,21 @@ int SDBlockDevice::_initialise_card()
 
 int SDBlockDevice::init()
 {
+    int err;
+
     lock();
 
-    int err = _initialise_card();
+    if (!_is_initialized) {
+        _init_ref_count = 0;
+    }
+
+    _init_ref_count++;
+
+    if (_init_ref_count != 1) {
+        goto end;
+    }
+
+    err = _initialise_card();
     _is_initialized = (err == BD_ERROR_OK);
     if (!_is_initialized) {
         debug_if(SD_DBG, "Fail to initialize card\n");
@@ -393,6 +405,8 @@ int SDBlockDevice::init()
         unlock();
         return err;
     }
+
+end:
     unlock();
     return BD_ERROR_OK;
 }
@@ -400,10 +414,24 @@ int SDBlockDevice::init()
 int SDBlockDevice::deinit()
 {
     lock();
+
+    if (!_is_initialized) {
+        _init_ref_count = 0;
+        goto end;
+    }
+
+    _init_ref_count--;
+
+    if (_init_ref_count) {
+        goto end;
+    }
+
     _is_initialized = false;
     _sectors = 0;
+
+end:
     unlock();
-    return 0;
+    return BD_ERROR_OK;
 }
 
 
