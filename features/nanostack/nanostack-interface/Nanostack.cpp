@@ -552,8 +552,8 @@ nsapi_error_t Nanostack::socket_open(void **handle, nsapi_protocol_t protocol)
     }
     if (!socket->open()) {
         delete socket;
-        tr_debug("socket_open() ret=%i", NSAPI_ERROR_DEVICE_ERROR);
-        return NSAPI_ERROR_DEVICE_ERROR;
+        tr_debug("socket_open() ret=%i", NSAPI_ERROR_NO_MEMORY);
+        return NSAPI_ERROR_NO_MEMORY;
     }
     *handle = (void*)socket;
 
