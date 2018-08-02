@@ -484,6 +484,7 @@ private:
     void make_rx_metadata_available(void);
 
     void handle_ack_expiry_for_class_c(void);
+    void handle_scheduling_failure(void);
 
 private:
     LoRaMac _loramac;

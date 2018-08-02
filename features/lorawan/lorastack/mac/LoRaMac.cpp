@@ -839,10 +839,12 @@ lorawan_status_t LoRaMac::handle_retransmission()
 void LoRaMac::on_backoff_timer_expiry(void)
 {
     Lock lock(*this);
+
     _lora_time.stop(_params.timers.backoff_timer);
-    lorawan_status_t status = schedule_tx();
-    MBED_ASSERT(status == LORAWAN_STATUS_OK);
-    (void) status;
+
+    if ((schedule_tx() != LORAWAN_STATUS_OK) && nwk_joined()) {
+        _scheduling_failure_handler.call();
+    }
 }
 
 void LoRaMac::open_rx1_window(void)
@@ -927,8 +929,12 @@ void LoRaMac::on_ack_timeout_timer_event(void)
 
     _mcps_confirmation.nb_retries = _params.ack_timeout_retry_counter;
 
+
     // Schedule a retry
-    if (handle_retransmission() != LORAWAN_STATUS_OK) {
+    lorawan_status_t status = handle_retransmission();
+
+    if (status == LORAWAN_STATUS_NO_CHANNEL_FOUND ||
+            status == LORAWAN_STATUS_NO_FREE_CHANNEL_FOUND) {
         // In a case when enabled channels are not found, PHY layer
         // resorts to default channels. Next attempt should go forward as the
         // default channels are always available if there is a base station in the
@@ -939,10 +945,24 @@ void LoRaMac::on_ack_timeout_timer_event(void)
         _mcps_confirmation.ack_received = false;
         _mcps_confirmation.nb_retries = _params.ack_timeout_retry_counter;
 
-        // now that is a critical failure
-        lorawan_status_t status = handle_retransmission();
+        // For the next attempt we need to make sure that we do not incur length error
+        // which would mean that the datarate changed during retransmissions and
+        // the original packet doesn't fit into allowed payload buffer anymore.
+        status = handle_retransmission();
+
+        if (status == LORAWAN_STATUS_LENGTH_ERROR) {
+            _scheduling_failure_handler.call();
+            return;
+        }
+
+        // if we did not incur a length error and still the status is not OK,
+        // it is a critical failure
+        status = handle_retransmission();
         MBED_ASSERT(status == LORAWAN_STATUS_OK);
         (void) status;
+    } else if (status != LORAWAN_STATUS_OK) {
+        _scheduling_failure_handler.call();
+        return;
     }
 
     _params.ack_timeout_retry_counter++;
@@ -1064,6 +1084,7 @@ lorawan_status_t LoRaMac::schedule_tx()
     switch (status) {
         case LORAWAN_STATUS_NO_CHANNEL_FOUND:
         case LORAWAN_STATUS_NO_FREE_CHANNEL_FOUND:
+            _mcps_confirmation.status = LORAMAC_EVENT_INFO_STATUS_ERROR;
             return status;
         case LORAWAN_STATUS_DUTYCYCLE_RESTRICTED:
             if (backoff_time != 0) {
@@ -1713,12 +1734,14 @@ void LoRaMac::set_tx_continuous_wave(uint8_t channel, int8_t datarate, int8_t tx
     _lora_phy->set_tx_cont_mode(&continuous_wave);
 }
 
-lorawan_status_t LoRaMac::initialize(EventQueue *queue)
+lorawan_status_t LoRaMac::initialize(EventQueue *queue,
+                                     mbed::Callback<void(void)>scheduling_failure_handler)
 {
     _lora_time.activate_timer_subsystem(queue);
     _lora_phy->initialize(&_lora_time);
 
     _ev_queue = queue;
+    _scheduling_failure_handler = scheduling_failure_handler;
 
     _channel_plan.activate_channelplan_subsystem(_lora_phy);
 

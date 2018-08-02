@@ -78,11 +78,15 @@ public:
      *
      * @param   queue [in]        A pointer to the application provided EventQueue.
      *
+     * @param   scheduling_failure_handler    A callback to inform upper layer if a deferred
+     *                                        transmission (after backoff or retry) fails to schedule.
+     *
      * @return  `lorawan_status_t` The status of the operation. The possible values are:
      *          \ref LORAWAN_STATUS_OK
      *          \ref LORAWAN_STATUS_PARAMETER_INVALID
      */
-    lorawan_status_t initialize(events::EventQueue *queue);
+    lorawan_status_t initialize(events::EventQueue *queue,
+                                mbed::Callback<void(void)>scheduling_failure_handler);
 
     /**
      * @brief   Disconnect LoRaMac layer
@@ -665,6 +669,14 @@ private:
      * system cannot do more retries.
      */
     mbed::Callback<void(void)> _ack_expiry_handler_for_class_c;
+
+    /**
+     * Transmission is async, i.e., a call to schedule_tx() may be deferred to
+     * a time after a certain back off. We use this callback to inform the
+     * controller layer that a specific TX transaction failed to schedule after
+     * backoff or retry.
+     */
+    mbed::Callback<void(void)> _scheduling_failure_handler;
 
     /**
      * Structure to hold MCPS indication data.
