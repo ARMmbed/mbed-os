@@ -1082,6 +1082,7 @@ void LoRaWANStack::process_shutdown_state(lorawan_status_t &op_status)
     _device_current_state = DEVICE_STATE_SHUTDOWN;
     op_status = LORAWAN_STATUS_DEVICE_OFF;
     _ctrl_flags &= ~CONNECTED_FLAG;
+    _ctrl_flags &= ~CONN_IN_PROGRESS_FLAG;
     send_event_to_application(DISCONNECTED);
 }
 
@@ -1162,6 +1163,7 @@ void LoRaWANStack::process_joining_state(lorawan_status_t &op_status)
         bool can_continue = _loramac.continue_joining_process();
 
         if (!can_continue) {
+            _ctrl_flags &= ~CONN_IN_PROGRESS_FLAG;
             send_event_to_application(JOIN_FAILURE);
             _device_current_state = DEVICE_STATE_IDLE;
             return;
