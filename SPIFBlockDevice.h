@@ -163,6 +163,9 @@ private:
     // Device configuration discovered through sfdp
     bd_size_t _size;
 
+    bool _is_initialized;
+    uint32_t _init_ref_count;
+
     // Internal functions
     int _wren();
     int _sync();

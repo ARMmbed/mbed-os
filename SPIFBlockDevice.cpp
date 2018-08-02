@@ -15,7 +15,7 @@
  */
 
 #include "SPIFBlockDevice.h"
-
+#include "mbed_critical.h"
 
 // Read/write/erase sizes
 #define SPIF_READ_SIZE  1
@@ -49,7 +49,7 @@ enum ops {
  
 SPIFBlockDevice::SPIFBlockDevice(
     PinName mosi, PinName miso, PinName sclk, PinName cs, int freq)
-    : _spi(mosi, miso, sclk), _cs(cs), _size(0)
+    : _spi(mosi, miso, sclk), _cs(cs), _size(0), _is_initialized(false), _init_ref_count(0)
 {
     _cs = 1;
     _spi.frequency(freq);
@@ -57,6 +57,16 @@ SPIFBlockDevice::SPIFBlockDevice(
 
 int SPIFBlockDevice::init()
 {
+    if (!_is_initialized) {
+        _init_ref_count = 0;
+    }
+
+    uint32_t val = core_util_atomic_incr_u32(&_init_ref_count, 1);
+
+    if (val != 1) {
+        return BD_ERROR_OK;
+    }
+
     // Check for vendor specific hacks, these should move into more general
     // handling when possible. RDID is not used to verify a device is attached.
     uint8_t id[3];
@@ -125,15 +135,28 @@ int SPIFBlockDevice::init()
         (table[4] << 0 ));
     _size = (density/8) + 1;
 
+    _is_initialized = true;
     return 0;
 }
 
 int SPIFBlockDevice::deinit()
 {
+    if (!_is_initialized) {
+        _init_ref_count = 0;
+        return 0;
+    }
+
+    uint32_t val = core_util_atomic_decr_u32(&_init_ref_count, 1);
+
+    if (val) {
+        return 0;
+    }
+
     // Latch write disable just to keep noise
     // from changing the device
     _cmdwrite(SPIF_WRDI, 0, 0, 0x0, NULL);
 
+    _is_initialized = false;
     return 0;
 }
 
@@ -249,6 +272,10 @@ int SPIFBlockDevice::_wren()
 
 int SPIFBlockDevice::read(void *buffer, bd_addr_t addr, bd_size_t size)
 {
+    if (!_is_initialized) {
+        return BD_ERROR_DEVICE_ERROR;
+    }
+
     // Check the address and size fit onto the chip.
     MBED_ASSERT(is_valid_read(addr, size));
 
@@ -260,6 +287,10 @@ int SPIFBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t size)
 {
     // Check the address and size fit onto the chip.
     MBED_ASSERT(is_valid_program(addr, size));
+
+    if (!_is_initialized) {
+        return BD_ERROR_DEVICE_ERROR;
+    }
 
     while (size > 0) {
         int err = _wren();
@@ -291,6 +322,10 @@ int SPIFBlockDevice::erase(bd_addr_t addr, bd_size_t size)
 {
     // Check the address and size fit onto the chip.
     MBED_ASSERT(is_valid_erase(addr, size));
+
+    if (!_is_initialized) {
+        return BD_ERROR_DEVICE_ERROR;
+    }
 
     while (size > 0) {
         int err = _wren();
@@ -336,6 +371,10 @@ bd_size_t SPIFBlockDevice::get_erase_size(bd_addr_t addr) const
 
 bd_size_t SPIFBlockDevice::size() const
 {
+    if (!_is_initialized) {
+        return BD_ERROR_DEVICE_ERROR;
+    }
+
     return _size;
 }
 
