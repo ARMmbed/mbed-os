@@ -33,6 +33,8 @@ extern "C" {
 #error [NOT_SUPPORTED] test not supported
 #endif
 
+#define US_PER_S 1000000
+
 #define FORCE_OVERFLOW_TEST (false)
 #define TICKER_INT_VAL 500
 #define TICKER_DELTA 10
@@ -47,7 +49,7 @@ extern "C" {
 
 #define MAX_FUNC_EXEC_TIME_US 20
 #define DELTA_FUNC_EXEC_TIME_US 5
-#define NUM_OF_CALLS 1000
+#define NUM_OF_CALLS 100
 
 #define NUM_OF_CYCLES 100000
 
@@ -148,6 +150,19 @@ void ticker_event_handler_stub(const ticker_data_t * const ticker)
 void wait_cycles(volatile unsigned int cycles)
 {
     while (cycles--);
+}
+
+/* Auxiliary function to determine how long ticker function are executed.
+ * This function returns number of us between <start_ticks> and <stop_ticks>
+ * taking into account counter roll-over, counter size and frequency.
+ */
+uint32_t diff_us(uint32_t start_ticks, uint32_t stop_ticks, const ticker_info_t * info)
+{
+    uint32_t counter_mask = ((1 << info->bits) - 1);
+
+    uint32_t diff_ticks = ((stop_ticks - start_ticks) & counter_mask);
+
+    return (uint32_t) ((uint64_t) diff_ticks * US_PER_S / info->frequency);
 }
 
 /* Test that ticker_init can be called multiple times and
@@ -420,85 +435,82 @@ void ticker_increment_test(void)
 /* Test that common ticker functions complete with the required amount of time. */
 void ticker_speed_test(void)
 {
-    Timer timer;
-#if DEVICE_LPTICKER
-    LowPowerTimer lptimer;
-#endif
     int counter = NUM_OF_CALLS;
+    uint32_t start;
+    uint32_t stop;
+
+    const ticker_info_t * us_ticker_info = get_us_ticker_data()->interface->get_info();
 
     /* Free function will disable the ticker. For time measurement
-     * we need to use other one.
+     * we need to use other one if available.
      */
 #if DEVICE_LPTICKER
+    const ticker_info_t * lp_ticker_info = get_lp_ticker_data()->interface->get_info();
     bool us_ticker_test = (intf == get_us_ticker_data()->interface);
-    Timer * free_timer = us_ticker_test ? &lptimer : &timer;
 #endif
 
     /* ---- Test ticker_read function. ---- */
-    timer.reset();
-    timer.start();
+    start = us_ticker_read();
     while (counter--) {
         intf->read();
     }
-    timer.stop();
+    stop = us_ticker_read();
 
-    TEST_ASSERT(timer.read_us() < (NUM_OF_CALLS * (MAX_FUNC_EXEC_TIME_US + DELTA_FUNC_EXEC_TIME_US)));
+    TEST_ASSERT(diff_us(start, stop, us_ticker_info) < (NUM_OF_CALLS * (MAX_FUNC_EXEC_TIME_US + DELTA_FUNC_EXEC_TIME_US)));
 
     /* ---- Test ticker_clear_interrupt function. ---- */
     counter = NUM_OF_CALLS;
-    timer.reset();
-    timer.start();
+    start = us_ticker_read();
     while (counter--) {
         intf->clear_interrupt();
     }
-    timer.stop();
+    stop = us_ticker_read();
 
-    TEST_ASSERT(timer.read_us() < (NUM_OF_CALLS * (MAX_FUNC_EXEC_TIME_US + DELTA_FUNC_EXEC_TIME_US)));
+    TEST_ASSERT(diff_us(start, stop, us_ticker_info) < (NUM_OF_CALLS * (MAX_FUNC_EXEC_TIME_US + DELTA_FUNC_EXEC_TIME_US)));
 
     /* ---- Test ticker_set_interrupt function. ---- */
     counter = NUM_OF_CALLS;
-    timer.reset();
-    timer.start();
+    start = us_ticker_read();
     while (counter--) {
         intf->set_interrupt(0);
     }
-    timer.stop();
+    stop = us_ticker_read();
 
-    TEST_ASSERT(timer.read_us() < (NUM_OF_CALLS * (MAX_FUNC_EXEC_TIME_US + DELTA_FUNC_EXEC_TIME_US)));
+    TEST_ASSERT(diff_us(start, stop, us_ticker_info) < (NUM_OF_CALLS * (MAX_FUNC_EXEC_TIME_US + DELTA_FUNC_EXEC_TIME_US)));
 
     /* ---- Test fire_interrupt function. ---- */
     counter = NUM_OF_CALLS;
-    timer.reset();
-    timer.start();
+    start = us_ticker_read();
     while (counter--) {
         intf->fire_interrupt();
     }
-    timer.stop();
+    stop = us_ticker_read();
 
-    TEST_ASSERT(timer.read_us() < (NUM_OF_CALLS * (MAX_FUNC_EXEC_TIME_US + DELTA_FUNC_EXEC_TIME_US)));
+    TEST_ASSERT(diff_us(start, stop, us_ticker_info) < (NUM_OF_CALLS * (MAX_FUNC_EXEC_TIME_US + DELTA_FUNC_EXEC_TIME_US)));
 
     /* ---- Test disable_interrupt function. ---- */
     counter = NUM_OF_CALLS;
-    timer.reset();
-    timer.start();
+    start = us_ticker_read();
     while (counter--) {
         intf->disable_interrupt();
     }
-    timer.stop();
+    stop = us_ticker_read();
 
-    TEST_ASSERT(timer.read_us() < (NUM_OF_CALLS * (MAX_FUNC_EXEC_TIME_US + DELTA_FUNC_EXEC_TIME_US)));
+    TEST_ASSERT(diff_us(start, stop, us_ticker_info) < (NUM_OF_CALLS * (MAX_FUNC_EXEC_TIME_US + DELTA_FUNC_EXEC_TIME_US)));
 
     /* ---- Test free function. ---- */
 #if DEVICE_LPTICKER
     counter = NUM_OF_CALLS;
-    free_timer->reset();
-    free_timer->start();
+    if (us_ticker_test) {
+        lp_ticker_init();
+    }
+    start = us_ticker_test ? lp_ticker_read() : us_ticker_read();
     while (counter--) {
         intf->free();
     }
-    free_timer->stop();
+    stop = us_ticker_test ? lp_ticker_read() : us_ticker_read();
 
-    TEST_ASSERT(free_timer->read_us() < (NUM_OF_CALLS * (MAX_FUNC_EXEC_TIME_US + DELTA_FUNC_EXEC_TIME_US)));
+    TEST_ASSERT(diff_us(start, stop, us_ticker_info) < (NUM_OF_CALLS * (MAX_FUNC_EXEC_TIME_US + DELTA_FUNC_EXEC_TIME_US)));
 #endif
 }
 
