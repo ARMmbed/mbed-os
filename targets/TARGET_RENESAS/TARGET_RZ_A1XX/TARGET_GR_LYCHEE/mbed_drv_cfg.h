@@ -40,6 +40,7 @@
 #define FLASH_BASE                 (0x18000000UL) /**< Flash Base Address */
 #define FLASH_SIZE                 (0x00800000UL) /**< Available Flash Memory */
 #define FLASH_PAGE_SIZE            256            /**< Flash Memory page size (interleaving off) */
+                                                  /**< Maximum size per one writing is 256 byte and minimum size per one writing is 1 byte */
 #define FLASH_SECTOR_SIZE          4096           /**< Flash Memory sector size (interleaving off) */
 
 #endif

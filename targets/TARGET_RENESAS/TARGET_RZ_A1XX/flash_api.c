@@ -167,7 +167,7 @@ uint32_t flash_get_sector_size(const flash_t *obj, uint32_t address)
 
 uint32_t flash_get_page_size(const flash_t *obj)
 {
-    return FLASH_PAGE_SIZE;
+    return 1;
 }
 
 uint32_t flash_get_start_address(const flash_t *obj)
@@ -222,48 +222,71 @@ int32_t _sector_erase(uint32_t addr)
 int32_t _page_program(uint32_t addr, const uint8_t * buf, int32_t size)
 {
     int32_t ret;
+    int32_t program_size;
+    int32_t remainder;
+    int32_t idx = 0;
 
     spi_mode();
 
-    /* ---- Write enable   ---- */
-    ret = write_enable();      /* WREN Command */
-    if (ret != 0) {
-        ex_mode();
-        return ret;
+    while (size > 0) {
+        if (size > FLASH_PAGE_SIZE) {
+            program_size = FLASH_PAGE_SIZE;
+        } else {
+            program_size = size;
+        }
+        remainder = FLASH_PAGE_SIZE - (addr % FLASH_PAGE_SIZE);
+        if ((remainder != 0) && (program_size > remainder)) {
+            program_size = remainder;
+        }
+
+        /* ---- Write enable   ---- */
+        ret = write_enable();      /* WREN Command */
+        if (ret != 0) {
+            ex_mode();
+            return ret;
+        }
+
+        /* ----------- 1. Command, Address ---------------*/
+        /* ---- spimd_reg init ---- */
+        clear_spimd_reg(&spimd_reg);
+
+        /* ---- command ---- */
+        spimd_reg.cde    = SPIBSC_OUTPUT_ENABLE;
+        spimd_reg.cdb    = SPIBSC_1BIT;
+        spimd_reg.cmd    = SFLASHCMD_PAGE_PROGRAM;
+
+        /* ---- address ---- */
+        spimd_reg.ade    = SPIBSC_OUTPUT_ADDR_24;
+        spimd_reg.addre  = SPIBSC_SDR_TRANS;       /* SDR */
+        spimd_reg.adb    = SPIBSC_1BIT;
+        spimd_reg.addr   = addr;
+
+        /* ---- Others ---- */
+        spimd_reg.sslkp  = SPIBSC_SPISSL_KEEP;     /* SPBSSL level */
+
+        ret = spibsc_transfer(&spimd_reg);         /* Command,Address */
+        if (ret != 0) {
+            ex_mode();
+            return ret;
+        }
+
+        /* ----------- 2. Data ---------------*/
+        ret = data_send(SPIBSC_1BIT, SPIBSC_SPISSL_NEGATE, &buf[idx], program_size);
+        if (ret != 0) {
+            ex_mode();
+            return ret;
+        }
+
+        ret = busy_wait();
+        if (ret != 0) {
+            ex_mode();
+            return ret;
+        }
+
+        addr += program_size;
+        idx  += program_size;
+        size -= program_size;
     }
-
-    /* ----------- 1. Command, Address ---------------*/
-    /* ---- spimd_reg init ---- */
-    clear_spimd_reg(&spimd_reg);
-
-    /* ---- command ---- */
-    spimd_reg.cde    = SPIBSC_OUTPUT_ENABLE;
-    spimd_reg.cdb    = SPIBSC_1BIT;
-    spimd_reg.cmd    = SFLASHCMD_PAGE_PROGRAM;
-
-    /* ---- address ---- */
-    spimd_reg.ade    = SPIBSC_OUTPUT_ADDR_24;
-    spimd_reg.addre  = SPIBSC_SDR_TRANS;       /* SDR */
-    spimd_reg.adb    = SPIBSC_1BIT;
-    spimd_reg.addr   = addr;
-
-    /* ---- Others ---- */
-    spimd_reg.sslkp  = SPIBSC_SPISSL_KEEP;     /* SPBSSL level */
-
-    ret = spibsc_transfer(&spimd_reg);         /* Command,Address */
-    if (ret != 0) {
-        ex_mode();
-        return ret;
-    }
-
-    /* ----------- 2. Data ---------------*/
-    ret = data_send(SPIBSC_1BIT, SPIBSC_SPISSL_NEGATE, buf, size);
-    if (ret != 0) {
-        ex_mode();
-        return ret;
-    }
-
-    ret = busy_wait();
 
     ex_mode();
     return ret;
