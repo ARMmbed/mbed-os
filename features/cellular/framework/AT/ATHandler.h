@@ -75,7 +75,7 @@ public:
      *  @param send_delay       the minimum delay in ms between the end of last response and the beginning of a new command
      */
     ATHandler(FileHandle *fh, events::EventQueue &queue, int timeout, const char *output_delimiter, uint16_t send_delay = 0);
-    ~ATHandler();
+    virtual ~ATHandler();
 
     /** Return used file handle.
      *
@@ -226,7 +226,7 @@ public:
      *
      *  @param cmd  AT command to be written to modem
      */
-    void cmd_start(const char *cmd);
+    virtual void cmd_start(const char *cmd);
 
     /** Writes integer type AT command subparameter. Starts with the delimiter if not the first param after cmd_start.
      *  In case of failure when writing, the last error is set to NSAPI_ERROR_DEVICE_ERROR.
