@@ -26,7 +26,7 @@
 namespace mbed {
 namespace nfc {
 
-    class NFCTarget : public NFCEndpoint, public NFCNDEFCapable {
+    class NFCTarget : public NFCNDEFCapable {
     public:
         NFCTarget();
         virtual ~NFCTarget();
