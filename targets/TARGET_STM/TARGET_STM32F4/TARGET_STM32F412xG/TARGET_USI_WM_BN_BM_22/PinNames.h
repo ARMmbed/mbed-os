@@ -241,12 +241,24 @@ typedef enum {
 
 
     // Generic signals namings
+#ifdef MBED_CONF_TARGET_LED1
+    LED1        = MBED_CONF_TARGET_LED1,
+#else
     LED1        = PA_7,
+#endif
+#ifdef MBED_CONF_TARGET_LED2
+    LED2        = MBED_CONF_TARGET_LED2,
+#else
     LED2        = PC_4,
+#endif
+#ifdef MBED_CONF_TARGET_LED3
+    LED3        = MBED_CONF_TARGET_LED3,
+#else
     LED3        = PC_11,
+#endif
     LED_RED     = LED1,
     LED_BLUE    = LED2,
-    LED_GREEN    = LED3,
+    LED_GREEN   = LED3,
     USER_BUTTON = PB_14,
 
     // Standardized button names
