@@ -154,6 +154,9 @@
         "FPU2": 7,
         "NrRegs": 1
     },
+    "MKL43Z256xxx4": {
+        "OGChipSelectEditMenu": "MKL43Z256xxx4\tFreescale MKL43Z256xxx4"
+    },
     "LPC812M101JDH20": {
         "OGChipSelectEditMenu": "LPC812M101\tNXP LPC812M101"
     },
