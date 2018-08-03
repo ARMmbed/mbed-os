@@ -84,10 +84,17 @@ struct Qspi {
 #ifdef QSPI_CMD_RDCR1
 #define CONFIG_REG1      QSPI_CMD_RDCR1
 #endif
+#ifdef QSPI_CMD_RDCR2
+#define CONFIG_REG2      QSPI_CMD_RDCR2
+#endif
 #define SECURITY_REG    QSPI_CMD_RDSCUR
 
 #ifndef QSPI_CONFIG_REG_1_SIZE
 #define QSPI_CONFIG_REG_1_SIZE 0
+#endif
+
+#ifndef QSPI_CONFIG_REG_2_SIZE
+#define QSPI_CONFIG_REG_2_SIZE 0
 #endif
 
 
@@ -105,6 +112,7 @@ struct Qspi {
 
 
 qspi_status_t read_register(uint32_t cmd, uint8_t *buf, uint32_t size, Qspi &q);
+qspi_status_t write_register(uint32_t cmd, uint8_t *buf, uint32_t size, Qspi &q);
 
 QspiStatus flash_wait_for(uint32_t time_us, Qspi &qspi);
 
