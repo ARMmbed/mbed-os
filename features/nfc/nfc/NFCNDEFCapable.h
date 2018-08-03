@@ -36,11 +36,11 @@ namespace nfc {
     protected:
         void set_ndef_support(bool supported);
 
-        bool are_remote_ndef_reads_enabled();
-        bool are_remote_ndef_writes_enabled();
+        bool are_remote_ndef_reads_enabled() const;
+        bool are_remote_ndef_writes_enabled() const;
 
-        ndef::MessageParser* ndef_message_parser() const;
-        ndef::MessageBuilder* ndef_message_builder() const;
+        ndef::MessageParser* ndef_message_parser();
+        ndef::MessageBuilder* ndef_message_builder();
 
     private:
         ndef::MessageParser* _message_parser;
