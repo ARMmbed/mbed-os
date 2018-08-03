@@ -88,6 +88,7 @@ Class Diagram:
 The `NFCController` class is the entrypoint into NFC for the user.
 
 When NCI integration is complete (phase 2), this class will have to be provided with a `NCIDriver` instance.
+For now, the one controller we support is the PN512 which implements the `NFCControllerDriver` class which is specific to the current MicroNFC release.
 
 It offers the following methods:
 
