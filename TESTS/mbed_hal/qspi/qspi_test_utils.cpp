@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "utest/utest.h"
 
 #include "hal/qspi_api.h"
 #include "qspi_test_utils.h"
@@ -166,12 +167,12 @@ void log_register(uint32_t cmd, uint32_t reg_size, Qspi &qspi)
     ret = read_register(cmd, reg, reg_size, qspi);
     TEST_ASSERT_EQUAL(QSPI_STATUS_OK, ret);
 
-    for (int j = 0; j < reg_size; j++) {
-        printf("register byte %d data: ", j);
+    for (uint32_t j = 0; j < reg_size; j++) {
+        utest_printf("register byte %u data: ", j);
         for(int i = 0; i < 8; i++) {
-            printf("%s ", ((reg[j] & (1 << i)) & 0xFF) == 0 ? "0" : "1");
+            utest_printf("%s ", ((reg[j] & (1 << i)) & 0xFF) == 0 ? "0" : "1");
         }
-        printf("\r\n");
+        utest_printf("\r\n");
     }
 }
 
@@ -183,36 +184,36 @@ qspi_status_t erase(uint32_t erase_cmd, uint32_t flash_addr, Qspi &qspi)
 
 qspi_status_t dual_enable(Qspi &qspi)
 {
-#ifdef DUAL_ENABLE_IMPLEMENTATION
-    DUAL_ENABLE_IMPLEMENTATION();
+#ifdef DUAL_ENABLE
+    DUAL_ENABLE();
 #else
-    QUAD_ENABLE_IMPLEMENTATION();
+    QUAD_ENABLE();
 #endif
 }
 
 qspi_status_t dual_disable(Qspi &qspi)
 {
-#ifdef DUAL_DISABLE_IMPLEMENTATION
-    DUAL_DISABLE_IMPLEMENTATION();
+#ifdef DUAL_DISABLE
+    DUAL_DISABLE();
 #else
-    QUAD_DISABLE_IMPLEMENTATION();
+    QUAD_DISABLE();
 #endif
 
 }
 
 qspi_status_t quad_enable(Qspi &qspi)
 {
-    QUAD_ENABLE_IMPLEMENTATION();
+    QUAD_ENABLE();
 }
 
 qspi_status_t quad_disable(Qspi &qspi)
 {
-    QUAD_DISABLE_IMPLEMENTATION();
+    QUAD_DISABLE();
 }
 
 qspi_status_t fast_mode_enable(Qspi &qspi)
 {
-    FAST_MODE_ENABLE_IMPLEMENTATION();
+    FAST_MODE_ENABLE();
 }
 
 bool is_dual_cmd(qspi_bus_width_t inst_width, qspi_bus_width_t addr_width, qspi_bus_width_t data_width)

@@ -108,9 +108,14 @@
 
 
 // single quad enable flag for both dual and quad mode
-#define QUAD_ENABLE_IMPLEMENTATION()                                        \
+#define QUAD_ENABLE()                                                       \
                                                                             \
     uint8_t reg_data[QSPI_STATUS_REG_SIZE];                                 \
+                                                                            \
+    if (write_enable(qspi) != QSPI_STATUS_OK) {                             \
+        return QSPI_STATUS_ERROR;                                           \
+    }                                                                       \
+    WAIT_FOR(WRSR_MAX_TIME, qspi);                                          \
                                                                             \
     reg_data[0] = STATUS_BIT_QE;                                            \
     qspi.cmd.build(QSPI_CMD_WRSR);                                          \
@@ -132,9 +137,14 @@
 
 
 
-#define QUAD_DISABLE_IMPLEMENTATION()                                       \
+#define QUAD_DISABLE()                                                      \
                                                                             \
     uint8_t reg_data[QSPI_STATUS_REG_SIZE];                                 \
+                                                                            \
+    if (write_enable(qspi) != QSPI_STATUS_OK) {                             \
+        return QSPI_STATUS_ERROR;                                           \
+    }                                                                       \
+    WAIT_FOR(WRSR_MAX_TIME, qspi);                                          \
                                                                             \
     reg_data[0] = 0;                                                        \
     qspi.cmd.build(QSPI_CMD_WRSR);                                          \
@@ -156,7 +166,7 @@
 
 
 
-#define FAST_MODE_ENABLE_IMPLEMENTATION()                                   \
+#define FAST_MODE_ENABLE()                                                  \
                                                                             \
     qspi_status_t ret;                                                      \
     const int32_t reg_size = QSPI_STATUS_REG_SIZE + QSPI_CONFIG_REG_0_SIZE; \

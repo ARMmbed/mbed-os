@@ -71,11 +71,11 @@ uint8_t rx_buf[DATA_SIZE_1024];
 
 static void log_data(const char *str, uint8_t *data, uint32_t size)
 {
-    printf("%s: ", str);
+    utest_printf("%s: ", str);
     for (uint32_t j = 0; j < size; j++) {
-            printf("%02X ", data[j]);
+        utest_printf("%02X ", data[j]);
     }
-    printf("\r\n");
+    utest_printf("\r\n");
 }
 
 
@@ -171,19 +171,19 @@ static void _qspi_write_read_test(Qspi &qspi, qspi_bus_width_t write_inst_width,
             if (tx_buf[i] != rx_buf[i]) {
                 log_data("tx data", tx_buf, data_size);
                 log_data("rx data", rx_buf, data_size);
-                printf("erase/write/read time: %d/%d/%d [us]\r\n", erase_time, write_time, read_time);
+                utest_printf("erase/write/read time: %d/%d/%d [us]\r\n", erase_time, write_time, read_time);
                 TEST_ASSERT_EQUAL(tx_buf[i], rx_buf[i]);
             }
         }
 
 #ifdef QSPI_TEST_LOG_FLASH_TIME
-        printf("erase/write/read time: %d/%d/%d [us]\r\n", erase_time, write_time, read_time);
+        utest_printf("erase/write/read time: %d/%d/%d [us]\r\n", erase_time, write_time, read_time);
 #endif
 
 #ifdef QSPI_TEST_LOG_DATA
         log_data("tx data", tx_buf, data_size);
         log_data("rx data", rx_buf, data_size);
-        printf("rx/tx data match\r\n");
+        utest_printf("rx/tx data match\r\n");
 #endif
     }
 }
@@ -222,9 +222,6 @@ void qspi_write_read_test(void)
 
     if (is_dual_cmd(write_inst_width, write_addr_width, write_data_width) ||
         is_dual_cmd(read_inst_width, read_addr_width, read_data_width)) {
-        ret = write_enable(qspi);
-        TEST_ASSERT_EQUAL(QSPI_STATUS_OK, ret);
-        WAIT_FOR(WRSR_MAX_TIME, qspi);
         ret = dual_enable(qspi);
         TEST_ASSERT_EQUAL(QSPI_STATUS_OK, ret);
         WAIT_FOR(WRSR_MAX_TIME, qspi);
@@ -232,9 +229,6 @@ void qspi_write_read_test(void)
 
     if (is_quad_cmd(write_inst_width, write_addr_width, write_data_width) ||
         is_quad_cmd(read_inst_width, read_addr_width, read_data_width)) {
-        ret = write_enable(qspi);
-        TEST_ASSERT_EQUAL(QSPI_STATUS_OK, ret);
-        WAIT_FOR(WRSR_MAX_TIME, qspi);
         ret = quad_enable(qspi);
         TEST_ASSERT_EQUAL(QSPI_STATUS_OK, ret);
         WAIT_FOR(WRSR_MAX_TIME, qspi);
@@ -248,10 +242,13 @@ void qspi_write_read_test(void)
     WAIT_FOR(WRSR_MAX_TIME, qspi);
 
 #ifdef QSPI_TEST_LOG_FLASH_STATUS
-    printf("Status ");   log_register(STATUS_REG, QSPI_STATUS_REG_SIZE, qspi);
-    printf("Config 0 "); log_register(CONFIG_REG0, QSPI_CONFIG_REG_0_SIZE, qspi);
+    utest_printf("Status\r\n");   log_register(STATUS_REG, QSPI_STATUS_REG_SIZE, qspi);
+    utest_printf("Config 0\r\n"); log_register(CONFIG_REG0, QSPI_CONFIG_REG_0_SIZE, qspi);
 #ifdef CONFIG_REG1
-    printf("Config 1 "); log_register(CONFIG_REG1, QSPI_CONFIG_REG_1_SIZE, qspi);
+    utest_printf("Config 1\r\n"); log_register(CONFIG_REG1, QSPI_CONFIG_REG_1_SIZE, qspi);
+#endif
+#ifdef CONFIG_REG2
+    utest_printf("Config 2\r\n"); log_register(CONFIG_REG2, QSPI_CONFIG_REG_2_SIZE, qspi);
 #endif
 #endif
 
@@ -265,9 +262,6 @@ void qspi_write_read_test(void)
 
     if (is_dual_cmd(write_inst_width, write_addr_width, write_data_width) ||
         is_dual_cmd(read_inst_width, read_addr_width, read_data_width)) {
-        ret = write_enable(qspi);
-        TEST_ASSERT_EQUAL(QSPI_STATUS_OK, ret);
-        WAIT_FOR(WRSR_MAX_TIME, qspi);
         ret = dual_disable(qspi);
         TEST_ASSERT_EQUAL(QSPI_STATUS_OK, ret);
         WAIT_FOR(WRSR_MAX_TIME, qspi);
@@ -275,9 +269,6 @@ void qspi_write_read_test(void)
 
     if (is_quad_cmd(write_inst_width, write_addr_width, write_data_width) ||
         is_quad_cmd(read_inst_width, read_addr_width, read_data_width)) {
-        ret = write_enable(qspi);
-        TEST_ASSERT_EQUAL(QSPI_STATUS_OK, ret);
-        WAIT_FOR(WRSR_MAX_TIME, qspi);
         ret = quad_disable(qspi);
         TEST_ASSERT_EQUAL(QSPI_STATUS_OK, ret);
         WAIT_FOR(WRSR_MAX_TIME, qspi);
@@ -321,10 +312,13 @@ void qspi_init_free_test(void)
     flash_init(qspi);
 
 #ifdef QSPI_TEST_LOG_FLASH_STATUS
-    printf("Status ");   log_register(STATUS_REG, QSPI_STATUS_REG_SIZE, qspi);
-    printf("Config 0 "); log_register(CONFIG_REG0, QSPI_CONFIG_REG_0_SIZE, qspi);
+    utest_printf("Status\r\n");   log_register(STATUS_REG, QSPI_STATUS_REG_SIZE, qspi);
+    utest_printf("Config 0\r\n"); log_register(CONFIG_REG0, QSPI_CONFIG_REG_0_SIZE, qspi);
 #ifdef CONFIG_REG1
-    printf("Config 1 "); log_register(CONFIG_REG1, QSPI_CONFIG_REG_1_SIZE, qspi);
+    utest_printf("Config 1\r\n"); log_register(CONFIG_REG1, QSPI_CONFIG_REG_1_SIZE, qspi);
+#endif
+#ifdef CONFIG_REG2
+    utest_printf("Config 2\r\n"); log_register(CONFIG_REG2, QSPI_CONFIG_REG_2_SIZE, qspi);
 #endif
 #endif
 
@@ -375,7 +369,7 @@ void qspi_frequency_test(void)
 
 void qspi_memory_id_test()
 {
-    printf("*** %s memory config loaded ***\r\n", QSPI_FLASH_CHIP_STRING);
+    utest_printf("*** %s memory config loaded ***\r\n", QSPI_FLASH_CHIP_STRING);
 }
 
 
