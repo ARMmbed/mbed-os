@@ -42,7 +42,7 @@ namespace nfc {
 
         virtual void reset() = 0;
         virtual size_t get_max_size() = 0;
-        virtual void start_session() = 0; // This could lock the chip i
+        virtual void start_session() = 0; // This could lock the chip's RF interface
         virtual void end_session() = 0;
         virtual void read_bytes(uint32_t address, size_t count) = 0;
         virtual void write_bytes(uint32_t address, const uint8_t* bytes, size_t count) = 0;
