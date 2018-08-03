@@ -41,6 +41,15 @@ namespace nfc {
         uint8_t target_t5t : 1;
     };
 
+    enum nfc_tag_type_t {
+        nfc_tag_type_1,
+        nfc_tag_type_2,
+        nfc_tag_type_3,
+        nfc_tag_type_4a,
+        nfc_tag_type_4b,
+        nfc_tag_type_5
+    };
+
 } // namespace nfc
 } // namespace mbed
 

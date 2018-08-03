@@ -40,15 +40,6 @@ namespace nfc {
 
         void set_delegate(Delegate* delegate);
 
-        enum nfc_tag_type_t {
-            nfc_tag_type_1,
-            nfc_tag_type_2,
-            nfc_tag_type_3,
-            nfc_tag_type_4a,
-            nfc_tag_type_4b,
-            nfc_tag_type_5
-        };
-
         nfc_tag_type_t nfc_tag_type() const;
         bool is_iso7816_supported() const;
         void add_iso7816_application(ISO7816App* application);
