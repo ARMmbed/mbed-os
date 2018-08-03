@@ -61,11 +61,11 @@ nsapi_error_t EMACInterface::connect()
     }
 
     return _interface->bringup(_dhcp,
-            _ip_address[0] ? _ip_address : 0,
-            _netmask[0] ? _netmask : 0,
-            _gateway[0] ? _gateway : 0,
-            DEFAULT_STACK,
-            _blocking);
+                               _ip_address[0] ? _ip_address : 0,
+                               _netmask[0] ? _netmask : 0,
+                               _gateway[0] ? _gateway : 0,
+                               DEFAULT_STACK,
+                               _blocking);
 }
 
 nsapi_error_t EMACInterface::disconnect()

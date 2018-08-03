@@ -35,7 +35,7 @@ public:
      *  @return         0 on success, negative error code on failure
      */
     virtual nsapi_error_t gethostbyname(const char *host,
-            SocketAddress *address, nsapi_version_t version = NSAPI_UNSPEC) = 0;
+                                        SocketAddress *address, nsapi_version_t version = NSAPI_UNSPEC) = 0;
 
     /** Hostname translation callback (asynchronous)
      *
@@ -75,7 +75,7 @@ public:
      *                  and can be passed to cancel
      */
     virtual nsapi_value_or_error_t gethostbyname_async(const char *host, hostbyname_cb_t callback,
-            nsapi_version_t version = NSAPI_UNSPEC) = 0;
+                                                       nsapi_version_t version = NSAPI_UNSPEC) = 0;
 
     /** Cancels asynchronous hostname translation
      *

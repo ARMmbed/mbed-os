@@ -25,8 +25,7 @@
 /** EthernetInterface class
  *  Implementation of the NetworkStack for an EMAC-based Ethernet driver
  */
-class EthernetInterface : public EMACInterface, public EthInterface
-{
+class EthernetInterface : public EMACInterface, public EthInterface {
 public:
     /** Create an EMAC-based ethernet interface.
      *
@@ -41,9 +40,8 @@ public:
      * @param emac  Reference to EMAC to use
      * @param stack Reference to onboard-network stack to use
      */
-    EthernetInterface(
-            EMAC &emac = EMAC::get_default_instance(),
-            OnboardNetworkStack &stack = OnboardNetworkStack::get_default_instance()) : EMACInterface(emac, stack) { }
+    EthernetInterface(EMAC &emac = EMAC::get_default_instance(),
+                      OnboardNetworkStack &stack = OnboardNetworkStack::get_default_instance()) : EMACInterface(emac, stack) { }
 };
 
 #endif

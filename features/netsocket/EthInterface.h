@@ -27,11 +27,11 @@
  *
  *  Common interface that is shared between ethernet hardware.
  */
-class EthInterface : public virtual NetworkInterface
-{
+class EthInterface : public virtual NetworkInterface {
 public:
 
-    virtual EthInterface *ethInterface() {
+    virtual EthInterface *ethInterface()
+    {
         return this;
     }
 

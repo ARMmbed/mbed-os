@@ -27,8 +27,7 @@
  *  Common interface that is shared between WiFi devices
  *  @addtogroup netsocket
  */
-class WiFiInterface: public virtual NetworkInterface
-{
+class WiFiInterface: public virtual NetworkInterface {
 public:
     /** Get the default WiFi interface.
      *
@@ -49,7 +48,7 @@ public:
      *  @return          0 on success, or error code on failure
      */
     virtual nsapi_error_t set_credentials(const char *ssid, const char *pass,
-            nsapi_security_t security = NSAPI_SECURITY_NONE) = 0;
+                                          nsapi_security_t security = NSAPI_SECURITY_NONE) = 0;
 
     /** Set the WiFi network channel
      *
@@ -76,7 +75,7 @@ public:
      *  @return          0 on success, or error code on failure
      */
     virtual nsapi_error_t connect(const char *ssid, const char *pass,
-            nsapi_security_t security = NSAPI_SECURITY_NONE, uint8_t channel = 0) = 0;
+                                  nsapi_security_t security = NSAPI_SECURITY_NONE, uint8_t channel = 0) = 0;
 
     /** Start the interface
      *
@@ -106,7 +105,8 @@ public:
      */
     virtual nsapi_size_or_error_t scan(WiFiAccessPoint *res, nsapi_size_t count) = 0;
 
-    virtual WiFiInterface *wifiInterface() {
+    virtual WiFiInterface *wifiInterface()
+    {
         return this;
     }
 

@@ -112,7 +112,8 @@ public:
      */
     virtual const char *get_gateway() = 0;
 
-    virtual CellularBase *cellularBase() {
+    virtual CellularBase *cellularBase()
+    {
         return this;
     }
 
