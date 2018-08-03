@@ -201,6 +201,7 @@ typedef enum {
     // Generic signals namings
     LED1        = PB_2,
     LED2        = PB_10,
+    LED3        = NC,
     LED_RED     = LED1,
     LED_BLUE    = LED2,
     USER_BUTTON = PC_13,
