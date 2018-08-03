@@ -31,6 +31,7 @@ namespace nfc {
         NFCEEPROMDriver();
         
         struct Delegate {
+            virtual void has_started_session(bool success) = 0;
             virtual void has_read_bytes(bool success, const uint8_t* bytes) = 0;
             virtual void has_written_bytes(bool success) = 0;
             virtual void has_set_size(bool success) = 0;
