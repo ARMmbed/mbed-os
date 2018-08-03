@@ -293,6 +293,7 @@ void on_ndef_message_read(nfc_err_t result);
 #### NFC EEPROM
 
 The `NFCEEPROM` class derives from `NFCTarget` and shares the same API.
+A pointer to a `NFCEEPROMDriver` instance (see below) must be passed in the constructor.
 
 #### NFC Remote Target
 
@@ -491,7 +492,7 @@ in an object oriented fashion.
 
 ### NFC EEPROM API
 
-The one HAL API that will have to be implemented by vendors to make use of the `NFCEEPROM` class are the following virtual methods.
+The one HAL API that will have to be implemented by vendors to implement a `NFCEEPROMDriver` driver are the following virtual methods.
 
 From the upper layer's point of view, the EEPROM is a byte array that can be read from/written to. Long operations (reads, writes, erasures) must happen asynchronously. Booleans indicate whether a particular operation was succesful. Encoding is handled by the upper layer.
 
@@ -499,25 +500,30 @@ Address 0 means the start of the NDEF buffer (not necessarily at address 0 in th
 
 When a buffer is passed to the backend, the reference remains valid till the corresponding event is called.
 
-The `backend_set_size()` command is called to change the size of the buffer (within the limits set by `backend_get_max_size()`). Inversely that buffer size can be read by `backend_get_size()`.
+The `set_size()` command is called to change the size of the buffer (within the limits set by `get_max_size()`). Inversely that buffer size can be read using `get_size()`.
+
+`start_session()` and `end_session()` are used before a series of memory operations to allow the driver to lock/un-lock the RF interface during these operations to avoid having concurrent access to the memory.
 
 ```cpp
-void backend_reset()
-size_t backend_get_max_size() const
-void backend_read_bytes(uint32_t address, size_t count)
-void backend_write_bytes(uint32_t address, const uint8_t* bytes, size_t count)
-void backend_set_size(size_t count)
-void backend_get_size()
-void backend_erase_bytes(uint32_t address, size_t size)
+void reset()
+size_t get_max_size()
+void start_session()
+void end_session()
+void read_bytes(uint32_t address, size_t count)
+void write_bytes(uint32_t address, const uint8_t* bytes, size_t count)
+void set_size(size_t count)
+void get_size()
+void erase_bytes(uint32_t address, size_t size)
 ```
 
 The following events must be called to signal completion of long operations:
 ```cpp
-void on_backend_has_read_bytes(bool success, const uint8_t* bytes)
-void on_backend_has_written_bytes(bool success)
-void on_backend_has_set_size(bool success)
-void on_backend_has_gotten_size(bool success, size_t size)
-void on_backend_has_erased_bytes(bool success)
+void has_started_session(bool success);
+void has_read_bytes(bool success, const uint8_t* bytes);
+void has_written_bytes(bool success);
+void has_set_size(bool success);
+void has_gotten_size(bool success, size_t size);
+void has_erased_bytes(bool success);
 ```
 
 ### NCI Driver APIs
