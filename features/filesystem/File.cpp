@@ -15,9 +15,9 @@
  */
 
 #include "File.h"
-#include "mbed.h"
 #include <errno.h>
 
+namespace mbed {
 
 File::File()
     : _fs(0), _file(0)
@@ -110,3 +110,4 @@ off_t File::size()
     return _fs->file_size(_file);
 }
 
+} // namespace mbed
