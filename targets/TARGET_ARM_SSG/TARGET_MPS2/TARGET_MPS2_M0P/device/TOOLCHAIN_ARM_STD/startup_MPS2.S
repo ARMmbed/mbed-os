@@ -1,6 +1,6 @@
 ; MPS2 CMSIS Library
 ;
-; Copyright (c) 2006-2016 ARM Limited
+; Copyright (c) 2006-2018 ARM Limited
 ; All rights reserved.
 ;
 ; Redistribution and use in source and binary forms, with or without
@@ -38,18 +38,6 @@
 ;-------- <<< Use Configuration Wizard in Context Menu >>> ------------------
 ;
 
-
-; <h> Stack Configuration
-;   <o> Stack Size (in Bytes) <0x0-0xFFFFFFFF:8>
-; </h>
-
-Stack_Size      EQU     0x00004000
-
-                AREA    STACK, NOINIT, READWRITE, ALIGN=3
-Stack_Mem       SPACE   Stack_Size
-__initial_sp
-
-
 ; <h> Heap Configuration
 ;   <o>  Heap Size (in Bytes) <0x0-0xFFFFFFFF:8>
 ; </h>
@@ -60,6 +48,17 @@ Heap_Size       EQU     0x00001000
 __heap_base
 Heap_Mem        SPACE   Heap_Size
 __heap_limit
+
+; <h> Stack Configuration
+;   <o> Stack Size (in Bytes) <0x0-0xFFFFFFFF:8>
+; </h>
+
+Stack_Size      EQU     0x00000400
+
+                AREA    STACK, NOINIT, READWRITE, ALIGN=3
+Stack_Mem       SPACE   Stack_Size
+
+__initial_sp    EQU     0x20400000
 
 
                 PRESERVE8
