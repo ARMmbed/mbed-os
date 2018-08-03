@@ -188,13 +188,34 @@ virtual void on_lost();
 
 This is called when this endpoint has been lost and the reference to the shared pointer is about to be released by the controller instance.
 
+#### NFC NDEF Capable
+
+This class is inherited by all endpoints that have the capability of handling NDEF data.
+
+User-facing API:
+```cpp
+bool is_ndef_supported() const;
+
+void set_ndef_message_parser(ndef::MessageParser* parser) const;
+void set_ndef_message_builder(ndef::MessageBuilder* builder) const;
+```
+
+The user can select which parser/builder (see below) should be used to handle read/write requests.
+
+API used by descendant classes:
+```cpp
+void set_ndef_support(bool supported);
+
+ndef::MessageParser* ndef_message_parser();
+ndef::MessageBuilder* ndef_message_builder();
+```
+
 #### NFC Remote Initiator
 
-This class derives from the base `NFCEndpoint` class.
+This class derives from the base `NFCEndpoint` and `NFCNDEFCapable` classes.
 
 ```cpp
 bool is_ndef_supported();
-size_t nfc_tag_type();
 
 void set_ndef_message(const NDEFMessage& message);
 void clear_ndef_message();
@@ -202,11 +223,27 @@ NDEFMessage get_ndef_message();
 ```
 These methods provide access to the NDEF message that we are exposing to the remote initiator.
 
+
+```cpp
+enum nfc_tag_type_t {
+    nfc_tag_type_1,
+    nfc_tag_type_2,
+    nfc_tag_type_3,
+    nfc_tag_type_4a,
+    nfc_tag_type_4b,
+    nfc_tag_type_5
+};
+```
+
+```cpp
+nfc_tag_type_t nfc_tag_type();
+```
+
 Additionally the type of NFC tag (1 to 5) which is being emulated can be recovered.
 
 ```cpp
 bool is_iso7816_supported();
-void add_iso7816_application(const ISO7816App& app);
+void add_iso7816_application(ISO7816App* app);
 ```
 
 If supported by the underlying technology (ISO-DEP), a contactless smartcard can be emulated and ISO7816-4 applications can be registered using this API.
@@ -235,18 +272,22 @@ This is the base class for NFC targets that can be of two types:
 
 Apart from the actual transport (Wired or NFC), the usage is very similar which explains why these methods are shared across these devices types.
 
+This class derives from `NFCNDEFCapable`.
+
 ```cpp
-void write_ndef_message(const NDEFMessage& message)
-void erase_ndef_message()
-void read_ndef_message()
+void write_ndef_message();
+void erase_ndef_message();
+void read_ndef_message();
 ```
+
+Calling these functions will trigger the appropriate NDEF parsing/building process if handlers are registered in the `NFCNDEFCapable` instance.
 
 **Delegate**
 
 ```cpp
-void on_ndef_message_written(nfc_err_t result)
-void on_ndef_message_erased(nfc_err_t result)
-void on_ndef_message_read(nfc_err_t result, NDEFMessage* message)
+void on_ndef_message_erased(nfc_err_t result);
+void on_ndef_message_written(nfc_err_t result);
+void on_ndef_message_read(nfc_err_t result);
 ```
 
 #### NFC EEPROM
