@@ -16,10 +16,12 @@
 _LONG_CALL_ROM_ extern VOID HalEFUSEPowerSwitch8195AROM(IN u8 bWrite, IN u8 PwrState, IN u8 L25OutVoltage);
 extern u32 HALEFUSEOneByteReadRAM(IN	u32 CtrlSetting, IN	u16 Addr, OUT u8 *Data, IN u8 L25OutVoltage);
 extern u32 HALEFUSEOneByteWriteRAM(IN	u32 CtrlSetting, IN	u16 Addr, IN u8 Data, IN u8 L25OutVoltage);
+u32 HALOneByteWriteRAM(IN	u32 CtrlSetting,IN	u16 Addr,IN	u8 Data,IN u8 L25OutVoltage);
 
 #define EFUSERead8     HALEFUSEOneByteReadRAM
 #define EFUSEWrite8    HALEFUSEOneByteWriteRAM
 
 #define L25EOUTVOLTAGE	7
+#define DISABLE 0
 #endif
 

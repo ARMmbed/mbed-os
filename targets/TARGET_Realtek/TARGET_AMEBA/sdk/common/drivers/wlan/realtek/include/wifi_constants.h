@@ -23,6 +23,12 @@
 #ifndef _WIFI_CONSTANTS_H
 #define _WIFI_CONSTANTS_H
 
+/** @addtogroup nic NIC
+ *  @ingroup    wlan
+ *  @brief      NIC functions
+ *  @{
+ */
+
 #ifdef	__cplusplus
 extern "C" {
 #endif
@@ -181,6 +187,7 @@ enum {
 	RTW_COUNTRY_FCC2,	// 0x2A
 	RTW_COUNTRY_WORLD2,	// 0x47
 	RTW_COUNTRY_MKK2,	// 0x58
+	RTW_COUNTRY_GLOBAL,	// 0x41
 
 	/* SPECIAL */
 	RTW_COUNTRY_WORLD,	// WORLD1
@@ -402,6 +409,15 @@ enum {
 typedef unsigned long rtw_scan_mode_t;
 
 /**
+  * @brief  The enumeration lists the supported autoreconnect mode by WIFI driver.
+  */
+typedef enum{
+    RTW_AUTORECONNECT_DISABLE,
+    RTW_AUTORECONNECT_FINITE,
+    RTW_AUTORECONNECT_INFINITE
+} rtw_autoreconnect_mode_t;
+
+/**
   * @brief  The enumeration lists the status to describe the connection link.
   */
 enum {
@@ -449,7 +465,8 @@ enum {
 	RTW_WPS_TYPE_REKEY 			        = 0x0003,
 	RTW_WPS_TYPE_PUSHBUTTON 		    = 0x0004,
 	RTW_WPS_TYPE_REGISTRAR_SPECIFIED 	= 0x0005,
-    RTW_WPS_TYPE_NONE                   = 0x0006 
+    RTW_WPS_TYPE_NONE                   = 0x0006,
+    RTW_WPS_TYPE_WSC                    = 0x0007
 };
 typedef unsigned long rtw_wps_type_t;
 
@@ -490,9 +507,20 @@ enum {
 	RTW_PROMISC_ENABLE_1 = 2, /**< Fetch only B/M packets */
 	RTW_PROMISC_ENABLE_2 = 3, /**< Fetch all 802.11 packets*/
 	RTW_PROMISC_ENABLE_3 = 4, /**< Fetch only B/M 802.11 packets*/
+	RTW_PROMISC_ENABLE_4 = 5, /**< Fetch all 802.11 packets & MIMO PLCP headers. Please note that the PLCP header would be struct rtw_rx_info_t defined in wifi_structures.h*/
 };
 typedef unsigned long rtw_rcr_level_t;
 
+/**
+  * @brief  The enumeration lists the promisc rx type.
+  */
+#if CONFIG_UNSUPPORT_PLCPHDR_RPT
+enum {
+	RTW_RX_NORMAL = 0,  /**< The supported 802.11 packet*/
+	RTW_RX_UNSUPPORT = 1,  /**<  Unsupported 802.11 packet info */
+};
+typedef unsigned long rtw_rx_type_t;
+#endif
 /**
   * @brief  The enumeration lists the disconnect reasons.
   */
@@ -501,7 +529,8 @@ enum{
 	RTW_NONE_NETWORK = 1,
 	RTW_CONNECT_FAIL = 2,
 	RTW_WRONG_PASSWORD = 3 ,
-	RTW_DHCP_FAIL = 4,
+	RTW_4WAY_HANDSHAKE_TIMEOUT = 4,
+	RTW_DHCP_FAIL = 5,
 	RTW_UNKNOWN,
 };
 typedef unsigned long rtw_connect_error_flag_t;
@@ -535,10 +564,16 @@ enum _WIFI_EVENT_INDICATE{
 	WIFI_EVENT_EAPOL_RECVD = 13,
 	WIFI_EVENT_NO_NETWORK = 14,
 	WIFI_EVENT_BEACON_AFTER_DHCP = 15,
+	WIFI_EVENT_IP_CHANGED = 16,
+	WIFI_EVENT_ICV_ERROR = 17,
+	WIFI_EVENT_CHALLENGE_FAIL = 18,
 	WIFI_EVENT_MAX,
 };
 typedef unsigned long rtw_event_indicate_t;
 #ifdef	__cplusplus
 }
 #endif
+
+/*\@}*/
+
 #endif /* _WIFI_CONSTANTS_H */

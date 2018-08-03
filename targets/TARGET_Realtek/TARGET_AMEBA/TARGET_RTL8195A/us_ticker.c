@@ -20,7 +20,7 @@
 #include "PeripheralNames.h"
 
 #define SYS_TIM_ID          1   // the G-Timer ID for System
-#define APP_TIM_ID          2   // the G-Timer ID for Application
+#define APP_TIM_ID          4   // the G-Timer ID for Application
 
 /*
  * For RTL8195AM, clock source is 32k
@@ -97,7 +97,7 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
 
     HalTimerOp.HalTimerDis((u32)TimerAdapter.TimerId);
     HalTimerOpExt.HalTimerReLoad((u32)TimerAdapter.TimerId, TimerAdapter.TimerLoadValueUs);
-    HalTimerOpExt.HalTimerSync(SYS_TIM_ID);
+    //HalTimerOpExt.HalTimerSync(SYS_TIM_ID);
     HalTimerOp.HalTimerEn((u32)TimerAdapter.TimerId);
 }
 
@@ -107,7 +107,7 @@ void us_ticker_fire_interrupt(void)
 
     HalTimerOp.HalTimerDis((u32)TimerAdapter.TimerId);
     HalTimerOpExt.HalTimerReLoad((u32)TimerAdapter.TimerId, TimerAdapter.TimerLoadValueUs);
-    HalTimerOpExt.HalTimerSync(SYS_TIM_ID);
+    //HalTimerOpExt.HalTimerSync(SYS_TIM_ID);
     HalTimerOp.HalTimerEn((u32)TimerAdapter.TimerId);
 }
 

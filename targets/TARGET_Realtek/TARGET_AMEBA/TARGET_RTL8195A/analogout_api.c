@@ -26,6 +26,8 @@
 #define DAC_POSITIVE_FULL_SCALE  0x7E0
 #define DAC_NEGATIVE_FULL_SCALE  0x820
 
+extern void HalDACPinMuxInit(void *Data);
+extern void HalDACPinMuxDeInit(void *Data);
 
 /** \brief analogout_init:\n
  *          to initialize DAC

@@ -12,26 +12,31 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************
- * @file    wifi_conf.h
- * @author
- * @version
- * @brief   This file provides user interface for Wi-Fi station and AP mode configuration 
- *             base on the functionalities provided by Realtek Wi-Fi driver.
- ******************************************************************************
  */
+
+/**
+  ******************************************************************************
+  * @file    wifi_conf.h
+  * @author
+  * @version
+  * @brief   This file provides user interface for Wi-Fi station and AP mode configuration 
+  *             base on the functionalities provided by Realtek Wi-Fi driver.
+  ******************************************************************************
+  */
 #ifndef __WIFI_API_H
 #define __WIFI_API_H
 
-#include "osdep_service.h"
-#include "wifi_constants.h"   
-#include "wifi_structures.h"  
-#include "wifi_util.h"    
-#include "wifi_ind.h"    
-#ifndef CONFIG_MBED_ENABLED  
+/** @addtogroup nic NIC
+ *  @ingroup    wlan
+ *  @brief      NIC functions
+ *  @{
+ */
+
+#include "wifi_constants.h"
+#include "wifi_structures.h"
+#include "wifi_util.h"
+#include "wifi_ind.h"
 #include <platform/platform_stdlib.h>
-#endif
 
 #ifdef __cplusplus
   extern "C" {
@@ -44,7 +49,15 @@
 #define RTW_ENABLE_API_INFO
 
 #ifdef RTW_ENABLE_API_INFO
-    #define RTW_API_INFO(args) do {printf args;} while(0)
+#if defined(CONFIG_MBED_ENABLED)
+    extern __u32 GlobalDebugEnable;
+    #define RTW_API_INFO(...)     do {\
+        if (GlobalDebugEnable) \
+            printf(__VA_ARGS__);\
+    }while(0)
+#else
+    #define RTW_API_INFO printf
+#endif
 #else
     #define RTW_API_INFO(args)
 #endif
@@ -225,18 +238,6 @@ int wifi_is_up(rtw_interface_t interface);
  *  				RTW_STA_INTERFACE, RTW_AP_INTERFACE
  * @return    RTW_SUCCESS  : if the interface is ready to 
  *  		  transceive ethernet packets
- * @return    RTW_NOTFOUND : no AP with a matching SSID was 
- *  		  found
- * @return    RTW_NOT_AUTHENTICATED: a matching AP was found but
- *  								   it won't let you
- *  								   authenticate. This can
- *  								   occur if this device is
- *  								   in the block list on the
- *  								   AP.
- * @return    RTW_NOT_KEYED: the device has authenticated and 
- *  						   associated but has not completed
- *  						   the key exchange. This can occur
- *  						   if the passphrase is incorrect.
  * @return    RTW_ERROR    : if the interface is not ready to 
  *  		  transceive ethernet packets
  */
@@ -298,6 +299,14 @@ int wifi_set_txpower(int poweridx);
 int wifi_get_associated_client_list(void * client_list_buffer, unsigned short buffer_length);
 
 /**
+ * @brief Get connected AP's BSSID
+ * @param[out] bssid : the location where the AP BSSID will be stored
+ * @return RTW_SUCCESS : if result was successfully get
+ * @return RTW_ERROR : if result was not successfully get
+ */
+int wifi_get_ap_bssid(unsigned char *bssid);
+
+/**
  * @brief  Get the SoftAP information.
  * @param[out]  ap_info: The location where the AP info will be stored.
  * @param[out]  security: The security type.
@@ -313,6 +322,15 @@ int wifi_get_ap_info(rtw_bss_info_t * ap_info, rtw_security_t* security);
  * @return  RTW_ERROR: If result is not successfully set.
  */
 int wifi_set_country(rtw_country_code_t country_code);
+
+/**
+ * @brief  retrieved sta mode MAX data rate.
+ * @param[out]  inidata_rate: MAX data rate.
+ * @return  RTW_SUCCESS: If the INIDATA_RATE is successfully retrieved.
+ * @return  RTW_ERROR: If the INIDATA_RATE is not retrieved.
+ * note: inidata_rate = 2 * (data rate), you need inidata_rate/2.0 to get the real rate
+ */
+int wifi_get_sta_max_data_rate(__u8 * inidata_rate);
 
 /**
  * @brief  Retrieve the latest RSSI value.
@@ -362,11 +380,21 @@ int wifi_register_multicast_address(rtw_mac_t *mac);
 int wifi_unregister_multicast_address(rtw_mac_t *mac);
 
 /**
- * @brief  Disable the adaptivity mode.
+ * @brief  Setup the adaptivity mode.
+ * 		You can replace this weak function by the same name funcation to setup adaptivity mode you want.
  * @param  None
  * @return  If the function succeeds, the return value is 0.
  */
-void wifi_set_mib(void);
+_WEAK void wifi_set_mib(void);
+
+/**
+ * @brief  Setup country code.
+  * 		You can replace this weak function by the same name funcation to setup country code you want.
+ * @param  None
+ * @return  If the function succeeds, the return value is 0.
+ */
+//----------------------------------------------------------------------------//
+_WEAK void wifi_set_country_code(void);
 
 /**
  * @brief  Enable Wi-Fi RF.
@@ -621,18 +649,30 @@ Set the network mode according to the data rate its supported.
 int wifi_set_network_mode(rtw_network_mode_t mode);
 
 /**
+ * @brief	Get the network mode. 
+ *			Driver works in BGN mode in default after driver initialization. This function is used to
+ *			get the current wireless network mode for station mode.
+ * @param[in]  pmode: Network mode to get.
+ * @return  RTW_SUCCESS or RTW_ERROR.
+ */
+int wifi_get_network_mode(rtw_network_mode_t *pmode);
+
+/**
  * @brief  Set the chip to start or stop the promiscuous mode.
- * @param[in]  enabled: enabled can be set 0, 1 and 2. if enabled is zero, disable the promisc, else enable the promisc.
+ * @param[in]  enabled: enabled can be set 0, 1, 2, 3 and 4. if enabled is zero, disable the promisc, else enable the promisc.
  *                    - 0 means disable the promisc.
- *                    - 1 means enable the promisc.
- *                    - 2 means enable the promisc special for length is used.
+ *                    - 1 means enable the promisc special for all ethernet frames.
+ *                    - 2 means enable the promisc special for Broadcast/Multicast ethernet frames.
+ *                    - 3 means enable the promisc special for all 802.11 frames.
+ *                    - 4 means enable the promisc special for Broadcast/Multicast 802.11 frames.
  * @param[in]  callback: the callback function which will 
  *  			  receive and process the netowork data.
- * @param[in]  len_used: specify if the the promisc length is used.
- *				If len_used set to 1, packet length will be saved and transferred to callback function.
+ * @param[in]  len_used: specify if the the promisc data length is used.
+ *				If len_used set to 1, packet(frame data) length will be saved and transferred to callback function.
  *
  * @return  RTW_SUCCESS or RTW_ERROR
  * @note  This function can be used to implement vendor specified simple configure.
+ * @note  To fetch Ethernet frames, the len_used should be set to 1
  */
 int wifi_set_promisc(rtw_rcr_level_t enabled, void (*callback)(unsigned char*, unsigned int, void*), unsigned char len_used);
 
@@ -742,7 +782,7 @@ enum CUSTOM_IE_TYPE{
 	PROBE_RSP = BIT(1),
 	BEACON	  = BIT(2),
 };
-typedef uint32_t rtw_custom_ie_type_t;
+typedef __u32 rtw_custom_ie_type_t;
 #endif /* _CUSTOM_IE_TYPE_ */
 
 /* ie format
@@ -837,11 +877,79 @@ int wifi_disable_packet_filter(unsigned char filter_id);
 int wifi_remove_packet_filter(unsigned char filter_id);
 #endif
 
+/**
+  * @brief  Get antenna infomation.
+  * @param[in]  antenna: Points to store the antenna value gotten from driver, 0: main, 1: aux.
+  * @return  0 if success, otherwise return -1.
+  */
+#ifdef CONFIG_ANTENNA_DIVERSITY
+int wifi_get_antenna_info(unsigned char *antenna);
+#endif // #ifdef CONFIG_ANTENNA_DIVERSITY
+
 void wifi_set_indicate_mgnt(int enable);
 
+
+/**
+ * @brief  Get the information of MP driver
+ * @param[out]  ability : 0x1 stand for mp driver, and 0x0 stand for normal driver
+ * @return  RTW_SUCCESS
+ */
+int wifi_get_drv_ability(uint32_t *ability);
+
+/**
+ * @brief  Set channel plan into flash/efuse, must reboot after setting channel plan
+ * @param[in]  channel_plan : the value of channel plan, define in wifi_constants.h
+ * @return  RTW_SUCCESS or RTW_ERROR
+ */
+int wifi_set_channel_plan(uint8_t channel_plan);
+
+/**
+ * @brief  Get channel plan from calibration section
+ * @param[out]  channel_plan : point to the value of channel plan, define in wifi_constants.h
+ * @return  RTW_SUCCESS or RTW_ERROR
+ */
+int wifi_get_channel_plan(uint8_t *channel_plan);
+
+#ifdef CONFIG_AP_MODE
+/**
+ * @brief  Enable packets forwarding in ap mode
+ * @return  RTW_SUCCESS
+ */
+int wifi_enable_forwarding(void);
+
+/**
+ * @brief  Disable packets forwarding in ap mode
+ * @return  RTW_SUCCESS
+ */
+int wifi_disable_forwarding(void);
+#endif
+
+#ifdef CONFIG_CONCURRENT_MODE
+/**
+ * @brief  Set flag for concurrent mode wlan1 issue_deauth when channel switched by wlan0
+ *          usage: wifi_set_ch_deauth(0) -> wlan0 wifi_connect -> wifi_set_ch_deauth(1)
+ * @param[in]  enable : 0 for disable and 1 for enable
+ * @return  RTW_SUCCESS
+ */
+int wifi_set_ch_deauth(__u8 enable);
+#endif
+
+///@name Ameba1 Only 
+///@{
+/**
+ * @brief enable AP sending QoS Null0 Data to poll Sta be alive
+ * @param[in]  enabled: enabled can be set to 0,1.
+ *			- 0	means enable.
+ *			- 1	means disable.									
+ * @return  None
+ */
+void wifi_set_ap_polling_sta(__u8 enabled);
+///@}
 #ifdef __cplusplus
   }
 #endif
+
+/*\@}*/
 
 #endif // __WIFI_API_H
 

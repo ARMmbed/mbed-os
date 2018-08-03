@@ -308,25 +308,26 @@ enum _I2C_ERR_TYPE_ {
     I2C_ERR_TX_ABRT     =   0x08,           //I2C TX terminated
     I2C_ERR_SLV_TX_NACK =   0x10,           //I2C slave transmission terminated by master NACK, 
                                             //but there are data in slave TX FIFO
-    I2C_ERR_MST_A_NACK  =   0x12,
-    I2C_ERR_MST_D_NACK  =   0x13,
-    I2C_ERR_USER_REG_TO =   0x20,
+    I2C_ERR_MST_A_NACK  =   0x20,
+    I2C_ERR_MST_D_NACK  =   0x40,
+    I2C_ERR_USER_REG_TO =   0x80,
 
-    I2C_ERR_RX_CMD_TO   =   0x21,
-    I2C_ERR_RX_FF_TO    =   0x22,
-    I2C_ERR_TX_CMD_TO   =   0x23,
-    I2C_ERR_TX_FF_TO    =   0x24,
+    I2C_ERR_RX_CMD_TO   =   0x100,
+    I2C_ERR_RX_FF_TO    =   0x200,
+    I2C_ERR_TX_CMD_TO   =   0x400,
+    I2C_ERR_TX_FF_TO    =   0x800,
 
-    I2C_ERR_TX_ADD_TO   =   0x25,
-    I2C_ERR_RX_ADD_TO   =   0x26,
+    I2C_ERR_TX_ADD_TO   =   0x1000,
+    I2C_ERR_RX_ADD_TO   =   0x2000,
 };
 typedef uint32_t I2C_ERR_TYPE;
 typedef uint32_t *PI2C_ERR_TYPE;
 
 // I2C Time Out type
-#define I2C_TIMEOOUT_DISABLE    0x00
-#define I2C_TIMEOOUT_ENDLESS    0xFFFFFFFF
-
+enum _I2C_TIMEOUT_TYPE_ {
+    I2C_TIMEOUT_DISABLE    =   0x00,           
+    I2C_TIMEOUT_ENDLESS    =   0xFFFFFFFF,
+};
 typedef uint32_t I2C_TIMEOUT_TYPE;
 typedef uint32_t *PI2C_TIMEOUT_TYPE;
 
