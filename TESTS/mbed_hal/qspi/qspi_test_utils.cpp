@@ -74,6 +74,12 @@ qspi_status_t read_register(uint32_t cmd, uint8_t *buf, uint32_t size, Qspi &q)
     return qspi_command_transfer(&q.handle, q.cmd.get(), NULL, 0, buf, size);
 }
 
+qspi_status_t write_register(uint32_t cmd, uint8_t *buf, uint32_t size, Qspi &q)
+{
+    q.cmd.build(cmd);
+    return qspi_command_transfer(&q.handle, q.cmd.get(), buf, size, NULL, 0);
+}
+
 
 QspiStatus flash_wait_for(uint32_t time_us, Qspi &qspi)
 {

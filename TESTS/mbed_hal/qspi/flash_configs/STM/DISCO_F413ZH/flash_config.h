@@ -13,16 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifndef MBED_QSPI_FLASH_CONFIG_H
+#define MBED_QSPI_FLASH_CONFIG_H
 
-#ifndef MBED_FLASH_CONFIGS_H
-#define MBED_FLASH_CONFIGS_H
+#include "../../N25Q128A_config.h"
 
-#if defined(TARGET_DISCO_L475VG_IOT01A)
-#include "STM/DISCO_L475VG_IOT01A/flash_config.h"
-#elif defined(TARGET_NRF52840)
-#include "NORDIC/NRF52840_DK/flash_config.h"
-#elif defined(TARGET_DISCO_F413ZH)
-#include "STM/DISCO_F413ZH/flash_config.h"
-#endif
 
-#endif // MBED_FLASH_CONFIGS_H
+#endif // MBED_QSPI_FLASH_CONFIG_H
