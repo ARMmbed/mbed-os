@@ -27,22 +27,17 @@ namespace nfc {
     public:
         bool is_ndef_supported() const;
 
-        void set_enable_remote_ndef_reads(bool enable);
-        void set_enable_remote_ndef_writes(bool enable);
-
         void set_ndef_message_parser(ndef::MessageParser* parser) const;
         void set_ndef_message_builder(ndef::MessageBuilder* builder) const;
 
     protected:
         void set_ndef_support(bool supported);
 
-        bool are_remote_ndef_reads_enabled() const;
-        bool are_remote_ndef_writes_enabled() const;
-
         ndef::MessageParser* ndef_message_parser();
         ndef::MessageBuilder* ndef_message_builder();
 
     private:
+        bool _ndef_support;
         ndef::MessageParser* _message_parser;
         ndef::MessageBuilder* _message_builder;
     };
