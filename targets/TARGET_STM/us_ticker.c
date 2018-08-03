@@ -206,6 +206,7 @@ void us_ticker_init(void)
 {
     // Timer is already initialized in HAL_InitTick()
     __HAL_TIM_DISABLE_IT(&TimMasterHandle, TIM_IT_CC1);
+    HAL_TIM_OC_Start(&TimMasterHandle, TIM_CHANNEL_1);
 }
 
 uint32_t us_ticker_read()
@@ -256,3 +257,10 @@ void restore_timer_ctx(void)
     __HAL_TIM_SET_COMPARE(&TimMasterHandle, TIM_CHANNEL_1, timer_ccr1_reg);
     TIM_MST->DIER = timer_dier_reg;
 }
+
+void us_ticker_free(void)
+{
+    HAL_TIM_OC_Stop(&TimMasterHandle, TIM_CHANNEL_1);
+    us_ticker_disable_interrupt();
+}
+

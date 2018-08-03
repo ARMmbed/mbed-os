@@ -136,3 +136,8 @@ void us_ticker_clear_interrupt() {
         ticker_expired_count_us += ticker_fullcount_us;
     }
 }
+
+void us_ticker_free(void)
+{
+
+}

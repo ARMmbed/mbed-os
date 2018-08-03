@@ -64,6 +64,7 @@ typedef struct {
     void (*clear_interrupt)(void);                /**< Clear interrupt function */
     void (*set_interrupt)(timestamp_t timestamp); /**< Set interrupt function */
     void (*fire_interrupt)(void);                 /**< Fire interrupt right-away */
+    void (*free)(void);                           /**< Disable function */
     const ticker_info_t *(*get_info)(void);       /**< Return info about this ticker's implementation */
 } ticker_interface_t;
 

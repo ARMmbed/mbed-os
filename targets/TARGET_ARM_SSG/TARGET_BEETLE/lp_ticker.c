@@ -152,4 +152,9 @@ void lp_ticker_clear_interrupt(void)
     DualTimer_ClearInterrupt(DUALTIMER0);
 }
 
+void lp_ticker_free(void)
+{
+
+}
+
 #endif

@@ -180,6 +180,15 @@ void common_rtc_init(void)
     m_common_rtc_enabled = true;
 }
 
+void common_rtc_free()
+{
+    nrf_rtc_task_trigger(COMMON_RTC_INSTANCE, NRF_RTC_TASK_STOP);
+    nrf_rtc_int_disable(COMMON_RTC_INSTANCE, LP_TICKER_INT_MASK);
+    NVIC_DisableIRQ(nrf_drv_get_IRQn(COMMON_RTC_INSTANCE));
+
+    m_common_rtc_enabled = false;
+}
+
 void common_rtc_set_interrupt(uint32_t ticks_count, uint32_t cc_channel,
                               uint32_t int_mask)
 {

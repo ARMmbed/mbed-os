@@ -268,3 +268,8 @@ void us_ticker_set(timestamp_t timestamp)
         NVIC_SetPendingIRQ(US_TIMER_IRQn);
     }
 }
+
+void us_ticker_free(void)
+{
+
+}

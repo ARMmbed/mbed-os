@@ -107,3 +107,8 @@ void us_ticker_clear_interrupt(void)
 {
     //no flags to clear
 }
+
+void us_ticker_free(void)
+{
+
+}

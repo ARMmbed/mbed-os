@@ -130,3 +130,8 @@ void us_ticker_clear_interrupt(void)
 {
     DUALTIMER_IntClear(TIMER_0);
 }
+
+void us_ticker_free(void)
+{
+
+}

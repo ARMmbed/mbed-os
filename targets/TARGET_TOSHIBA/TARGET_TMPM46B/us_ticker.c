@@ -131,3 +131,8 @@ void us_ticker_clear_interrupt(void)
 {
     // No flag to clear
 }
+
+void us_ticker_free(void)
+{
+
+}

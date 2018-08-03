@@ -86,3 +86,8 @@ void us_ticker_clear_interrupt(void) {
     // Clear SCT3 event 0 interrupt flag
     LPC_SCT3->EVFLAG = (1 << 0);
 }
+
+void us_ticker_free(void)
+{
+
+}

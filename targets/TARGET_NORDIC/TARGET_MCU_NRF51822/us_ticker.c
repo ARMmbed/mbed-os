@@ -318,6 +318,11 @@ void us_ticker_clear_interrupt(void)
     NRF_RTC1->EVENTS_COMPARE[0] = 0;
 }
 
+void us_ticker_free(void)
+{
+
+}
+
 
 #if defined (__CC_ARM)         /* ARMCC Compiler */
 
