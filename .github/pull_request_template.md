@@ -18,7 +18,7 @@
 -->
     [ ] Fix
     [ ] Refactor
-    [ ] New target
+    [ ] Target update
     [ ] Feature
     [ ] Breaking change
 
