@@ -22,6 +22,8 @@
 #include "nfc/NFCControllerDriver.h"
 
 namespace mbed {
+namespace nfc {
+
     struct PN512TransportDriver;
     class PN512Driver : NFCControllerDriver {
     public:
@@ -33,6 +35,8 @@ namespace mbed {
 
         pn512_t _pn512;
     };
+
+} // namespace nfc
 } // namespace mbed
 
 #endif
