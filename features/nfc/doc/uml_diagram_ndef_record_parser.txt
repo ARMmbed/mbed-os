@@ -1,0 +1,73 @@
+@startuml
+
+package ndef {
+
+class Record { 
+}
+class RecordType { 
+}
+class RecordPayload { 
+}
+class RecordID { 
+}
+
+Record *-- RecordType
+Record *-- "0..1" RecordPayload
+Record *-- "0..1" RecordID
+
+abstract RecordParser { 
+   +RecordParser()
+   +{abstract} bool parse(const Record&)
+   #~RecordParser()
+}
+
+abstract GenericRecordParser<ParserImplementation, ParsingResult> { 
+   +GenericRecordParser()
+   +bool parse(const Record&)
+   +void set_delegate(Delegate* delegate)
+   #~GenericRecordParser()
+}
+
+interface GenericRecordParserConcept<ParsingResult> { 
+   +bool do_parse(const Record& record, ParsingResult& parsing_result)
+}
+
+interface GenericRecordParser::Delegate<ParsingResult> { 
+   +{abstract} void on_record_parsed(const ParsingResult& record, const RecordID* id)
+   #~Delegate()
+}
+
+RecordParser    <|-- GenericRecordParser
+GenericRecordParser     <|-- GenericRecordParserConcept
+GenericRecordParser     +-- "0..1" GenericRecordParser::Delegate
+
+note as N1 
+    GenericRecordParserConcept model the concept that must
+    be implemented by GenericRecordParser childs. 
+    It doesn't exist in the hierarchy.
+end note
+
+N1 - GenericRecordParser
+N1 - GenericRecordParserConcept
+
+note bottom of "GenericRecordParser::Delegate"
+Implemented by the client of the parsing operation.
+end note
+
+class RecordParserChain { 
+    +RecordParserChain()
+    +~RecordParserChain()
+    +bool parse(const Record& record)
+    +void set_next_parser(RecordParser* parser)
+}
+
+note bottom of "RecordParserChain"
+Chain of responsibility pattern.
+end note
+
+Record - RecordParserChain: Parse >
+RecordParserChain o- "*" RecordParser
+
+}
+
+@enduml

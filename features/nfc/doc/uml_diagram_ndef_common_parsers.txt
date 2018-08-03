@@ -1,0 +1,58 @@
+@startuml
+
+package ndef {
+
+abstract RecordParser { 
+   +RecordParser()
+   +{abstract} bool parse(const Record&)
+   #~RecordParser()
+}
+
+abstract GenericRecordParser<ParserImplementation, ParsingResult> { 
+   +GenericRecordParser()
+   +bool parse(const Record&)
+   +void set_delegate(Delegate* delegate)
+   #~GenericRecordParser()
+}
+
+interface GenericRecordParser::Delegate<ParsingResult> { 
+   +{abstract} void on_record_parsed(const ParsingResult& result, const RecordID* id)
+   #~Delegate()
+}
+
+RecordParser    <|- GenericRecordParser
+GenericRecordParser     +- "0..1" GenericRecordParser::Delegate
+
+}
+
+package common { 
+class URI { 
+}
+class Mime { 
+}
+class Text { 
+}
+
+class URIParser { 
+    bool do_parse(const ndef::Record& record, URI& uri)
+}
+
+class TextParser { 
+    bool do_parse(const ndef::Record& record, Text& text)
+}
+
+class MimeParser { 
+    bool do_parse(const ndef::Record& record, Mime& mime)
+}
+
+URI -- URIParser: Produce <
+Text -- TextParser: Produce <
+Mime -- MimeParser: Produce <
+
+URIParser --|> GenericRecordParser
+TextParser --|> GenericRecordParser
+MimeParser --|> GenericRecordParser
+}
+
+
+@enduml
