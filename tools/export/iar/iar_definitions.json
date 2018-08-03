@@ -66,6 +66,9 @@
     "MK64FN1M0xxx12": {
         "OGChipSelectEditMenu": "MK64FN1M0xxx12\tNXP MK64FN1M0xxx12"
     },
+    "RAPIDIOT_K64F": {
+        "OGChipSelectEditMenu": "MK64FN1M0xxx12\tNXP MK64FN1M0xxx12"
+    },
     "MK66FN2M0xxx18": {
         "OGChipSelectEditMenu": "MK66FN2M0xxx18\tNXP MK66FN2M0xxx18"
     },
