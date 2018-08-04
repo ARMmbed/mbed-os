@@ -4038,7 +4038,7 @@
         "default_toolchain": "GCC_ARM",
         "extra_labels_add": ["STM32F1", "STM32F103C8"],
         "supported_toolchains": ["GCC_ARM"],
-        "device_has_add": [],
+        "device_has_add": ["CAN", "SERIAL_FC", "SERIAL_ASYNCH", "FLASH"],
         "device_has_remove": ["STDIO_MESSAGES", "LPTICKER"]
     },
     "NUMAKER_PFM_NUC472": {
