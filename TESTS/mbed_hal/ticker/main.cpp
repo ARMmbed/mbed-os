@@ -2268,6 +2268,82 @@ static void test_match_interval_passed_table()
     }
 }
 
+/**
+ * Check that suspend and resume work as expected
+ *
+ * Check the following
+ * -time does not change while suspended
+ * -restricted interface functions are not called
+ * -scheduling resumes correctly
+ */
+static void test_suspend_resume()
+{
+    ticker_set_handler(&ticker_stub, NULL);
+
+    interface_stub.timestamp = 1000;
+    us_timestamp_t start = ticker_read_us(&ticker_stub);
+    TEST_ASSERT_EQUAL(1000, start);
+
+    /* Reset call count */
+    interface_stub.init_call = 0;
+    interface_stub.read_call = 0;
+    interface_stub.set_interrupt_call = 0;
+
+    /* Suspend the ticker */
+    ticker_suspend(&ticker_stub);
+    const timestamp_t suspend_time = queue_stub.present_time;
+
+
+    /* Simulate time passing */
+    interface_stub.timestamp = 1500;
+    us_timestamp_t next = ticker_read_us(&ticker_stub);
+
+    /* Time should not have passed and no calls to interface should have been made */
+    TEST_ASSERT_EQUAL(start, next);
+    TEST_ASSERT_EQUAL(0, interface_stub.init_call);
+    TEST_ASSERT_EQUAL(0, interface_stub.read_call);
+    TEST_ASSERT_EQUAL(0, interface_stub.disable_interrupt_call);
+    TEST_ASSERT_EQUAL(0, interface_stub.clear_interrupt_call);
+    TEST_ASSERT_EQUAL(0, interface_stub.set_interrupt_call);
+    TEST_ASSERT_EQUAL(0, interface_stub.fire_interrupt_call);
+
+
+    /* Simulate a reinit (time reset to 0) */
+    interface_stub.timestamp = 0;
+    next = ticker_read_us(&ticker_stub);
+
+    /* Time should not have passed and no calls to interface should have been made */
+    TEST_ASSERT_EQUAL(start, next);
+    TEST_ASSERT_EQUAL(0, interface_stub.init_call);
+    TEST_ASSERT_EQUAL(0, interface_stub.read_call);
+    TEST_ASSERT_EQUAL(0, interface_stub.disable_interrupt_call);
+    TEST_ASSERT_EQUAL(0, interface_stub.clear_interrupt_call);
+    TEST_ASSERT_EQUAL(0, interface_stub.set_interrupt_call);
+    TEST_ASSERT_EQUAL(0, interface_stub.fire_interrupt_call);
+
+
+    /* Insert an event in the past and future */
+    ticker_event_t event_past = { 0 };
+    const timestamp_t event_past_timestamp = suspend_time - 10;
+    ticker_insert_event_us(&ticker_stub, &event_past, event_past_timestamp, 0);
+
+    ticker_event_t event_future = { 0 };
+    const timestamp_t event_future_timestamp = suspend_time + 10;
+    ticker_insert_event_us(&ticker_stub, &event_future, event_future_timestamp, 0);
+
+    TEST_ASSERT_EQUAL(0, interface_stub.init_call);
+    TEST_ASSERT_EQUAL(0, interface_stub.read_call);
+    TEST_ASSERT_EQUAL(0, interface_stub.disable_interrupt_call);
+    TEST_ASSERT_EQUAL(0, interface_stub.clear_interrupt_call);
+    TEST_ASSERT_EQUAL(0, interface_stub.set_interrupt_call);
+    TEST_ASSERT_EQUAL(0, interface_stub.fire_interrupt_call);
+
+    /* Resume and verify everything starts again */
+    ticker_resume(&ticker_stub);
+    TEST_ASSERT_EQUAL(suspend_time, queue_stub.present_time);
+    TEST_ASSERT_EQUAL(1, interface_stub.fire_interrupt_call);
+}
+
 static const case_t cases[] = {
     MAKE_TEST_CASE("ticker initialization", test_ticker_initialization),
     MAKE_TEST_CASE(
@@ -2376,6 +2452,10 @@ static const case_t cases[] = {
     MAKE_TEST_CASE(
         "test_match_interval_passed_table",
         test_match_interval_passed_table
+    ),
+    MAKE_TEST_CASE(
+        "test_suspend_resume",
+        test_suspend_resume
     )
 };
 
