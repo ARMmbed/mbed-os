@@ -84,7 +84,7 @@ static int fill_buffer_trng(uint8_t *buffer, trng_t *trng_obj, size_t trng_len)
     memset(buffer, 0, BUFFER_LEN);
 
     while (true) {
-        trng_res = trng_get_bytes(trng_obj, temp_in_buf, trng_len, &output_length);
+        trng_res = trng_get_bytes(trng_obj, temp_in_buf, trng_len - temp_size, &output_length);
         TEST_ASSERT_EQUAL_INT_MESSAGE(0, trng_res, "trng_get_bytes error!");
         temp_size += output_length;
         temp_in_buf += output_length;
@@ -102,7 +102,7 @@ static int fill_buffer_trng(uint8_t *buffer, trng_t *trng_obj, size_t trng_len)
 static void compress_and_compare(char *key, char *value)
 {
     trng_t trng_obj;
-    uint8_t out_comp_buf[(BUFFER_LEN * 8) + 32] = {0}, buffer[BUFFER_LEN] = {0};
+    uint8_t out_comp_buf[(BUFFER_LEN * 5) + 32] = {0}, buffer[BUFFER_LEN] = {0};
     uint8_t input_buf[BUFFER_LEN * 4] = {0}, temp_buf[BUFFER_LEN * 2] = {0};
     size_t comp_sz = 0;
     unsigned int result = 0;
@@ -119,10 +119,12 @@ static void compress_and_compare(char *key, char *value)
         TEST_ASSERT_EQUAL(RESULT_SUCCESS, result);
 #else
         /*Using base64 to decode data sent from host*/
+        
         uint32_t lengthWritten = 0;
         uint32_t charsProcessed = 0;
         result = trng_DecodeNBase64((const char *)value,
-                                    MSG_VALUE_LEN, buffer,
+                                    MSG_VALUE_LEN, 
+                                    buffer,
                                     BUFFER_LEN,
                                     &lengthWritten,
                                     &charsProcessed);
@@ -131,12 +133,14 @@ static void compress_and_compare(char *key, char *value)
         memcpy(input_buf, buffer, sizeof(buffer));
     }
 
-    /*Fill buffer with trng values*/
-    result = fill_buffer_trng(buffer, &trng_obj, sizeof(buffer));
-    TEST_ASSERT_EQUAL(0, result);
-
+    if (strcmp(key, MSG_TRNG_TEST_STEP1) == 0) {
+        /*Fill buffer with trng values*/
+        result = fill_buffer_trng(buffer, &trng_obj, sizeof(buffer));
+        TEST_ASSERT_EQUAL(0, result);
+        memcpy(input_buf, buffer, sizeof(buffer));
+    }
     /*pithy_Compress will try to compress the random data, if it succeeded it means the data is not really random*/
-    if (strcmp(key, MSG_TRNG_TEST_STEP2) == 0) {
+    else if (strcmp(key, MSG_TRNG_TEST_STEP2) == 0) {
 
         comp_sz = pithy_Compress((char *)buffer,
                                  sizeof(buffer),
@@ -144,7 +148,7 @@ static void compress_and_compare(char *key, char *value)
                                  sizeof(out_comp_buf),
                                  9);
         TEST_ASSERT_MESSAGE(comp_sz > sizeof(buffer),
-                        "TRNG_TEST_STEP1: trng_get_bytes was able to compressed thus not random");
+                        "TRNG_TEST_STEP1: trng_get_bytes was able to compress thus not random");
 
         /*pithy_Compress will try to compress the random data with a different buffer sizem*/
         result = fill_buffer_trng(temp_buf, &trng_obj, sizeof(temp_buf));
@@ -156,10 +160,9 @@ static void compress_and_compare(char *key, char *value)
                                  sizeof(out_comp_buf),
                                  9);
         TEST_ASSERT_MESSAGE(comp_sz > sizeof(temp_buf),
-                        "TRNG_TEST_STEP2: trng_get_bytes was able to compressed thus not random");
+                        "TRNG_TEST_STEP2: trng_get_bytes was able to compress thus not random");
 
         memcpy(input_buf + sizeof(buffer), temp_buf, sizeof(temp_buf));
-
         /*pithy_Compress will try to compress the random data from before reset concatenated with new random data*/
         comp_sz = pithy_Compress((char *)input_buf,
                                  sizeof(temp_buf) + sizeof(buffer),
@@ -167,7 +170,7 @@ static void compress_and_compare(char *key, char *value)
                                  sizeof(out_comp_buf),
                                  9);
         TEST_ASSERT_MESSAGE(comp_sz > sizeof(temp_buf) + sizeof(buffer),
-                        "TRNG_TEST_STEP3: concatenated buffer after reset was able to compressed thus not random");
+                        "TRNG_TEST_STEP3: concatenated buffer after reset was able to compress thus not random");
     }
 
     /*At the end of step 1 store trng buffer and reset the device*/
@@ -178,8 +181,12 @@ static void compress_and_compare(char *key, char *value)
         TEST_ASSERT_EQUAL(RESULT_SUCCESS, result);
 #else
         /*Using base64 to encode data sending from host*/
-        result = trng_EncodeBase64(buffer, BUFFER_LEN, (char *)out_comp_buf, sizeof(out_comp_buf));
+        result = trng_EncodeBase64(buffer, 
+                                   BUFFER_LEN, 
+                                   (char *)out_comp_buf, 
+                                   sizeof(out_comp_buf));
         TEST_ASSERT_EQUAL(RESULT_SUCCESS, result);
+
         greentea_send_kv(MSG_TRNG_BUFFER, (const char *)out_comp_buf);
 #endif
         system_reset();
