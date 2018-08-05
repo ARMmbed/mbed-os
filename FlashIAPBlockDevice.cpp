@@ -17,6 +17,7 @@
 #ifdef DEVICE_FLASH
 
 #include "FlashIAPBlockDevice.h"
+#include "mbed_critical.h"
 
 #include "mbed.h"
 
@@ -35,22 +36,66 @@
 #define DEBUG_PRINTF(...)
 #endif
 
-FlashIAPBlockDevice::FlashIAPBlockDevice(uint32_t address, uint32_t size)
-    : _flash(), _base(address), _size(size)
+FlashIAPBlockDevice::FlashIAPBlockDevice()
+    : _flash(), _base(0), _size(0), _is_initialized(false), _init_ref_count(0)
 {
     DEBUG_PRINTF("FlashIAPBlockDevice: %" PRIX32 " %" PRIX32 "\r\n", address, size);
+}
+
+FlashIAPBlockDevice::FlashIAPBlockDevice(uint32_t address, uint32_t)
+    : _flash(), _base(0), _size(0), _is_initialized(false), _init_ref_count(0)
+{
+
+}
+
+FlashIAPBlockDevice::~FlashIAPBlockDevice()
+{
+    deinit();
 }
 
 int FlashIAPBlockDevice::init()
 {
     DEBUG_PRINTF("init\r\n");
 
-    return _flash.init();
+    if (!_is_initialized) {
+        _init_ref_count = 0;
+    }
+
+    uint32_t val = core_util_atomic_incr_u32(&_init_ref_count, 1);
+
+    if (val != 1) {
+        return BD_ERROR_OK;
+    }
+
+    int ret = _flash.init();
+
+    if (ret) {
+        return ret;
+    }
+
+    _base = _flash.get_flash_start();
+    _size = _flash.get_flash_size();
+
+    _is_initialized = true;
+    return ret;
 }
 
 int FlashIAPBlockDevice::deinit()
 {
     DEBUG_PRINTF("deinit\r\n");
+
+    if (!_is_initialized) {
+        _init_ref_count = 0;
+        return 0;
+    }
+
+    uint32_t val = core_util_atomic_decr_u32(&_init_ref_count, 1);
+
+    if (val) {
+        return 0;
+    }
+
+    _is_initialized = false;
 
     return _flash.deinit();
 }
@@ -65,7 +110,7 @@ int FlashIAPBlockDevice::read(void *buffer,
     int result = BD_ERROR_DEVICE_ERROR;
 
     /* Check that the address and size are properly aligned and fit. */
-    if (is_valid_read(virtual_address, size)) {
+    if (_is_initialized && is_valid_read(virtual_address, size)) {
 
         /* Convert virtual address to the physical address for the device. */
         bd_addr_t physical_address = _base + virtual_address;
@@ -89,7 +134,7 @@ int FlashIAPBlockDevice::program(const void *buffer,
     int result = BD_ERROR_DEVICE_ERROR;
 
     /* Check that the address and size are properly aligned and fit. */
-    if (is_valid_program(virtual_address, size)) {
+    if (_is_initialized && is_valid_program(virtual_address, size)) {
 
         /* Convert virtual address to the physical address for the device. */
         bd_addr_t physical_address = _base + virtual_address;
@@ -114,7 +159,7 @@ int FlashIAPBlockDevice::erase(bd_addr_t virtual_address,
     int result = BD_ERROR_DEVICE_ERROR;
 
     /* Check that the address and size are properly aligned and fit. */
-    if (is_valid_erase(virtual_address, size)) {
+    if (_is_initialized && is_valid_erase(virtual_address, size)) {
 
         /* Convert virtual address to the physical address for the device. */
         bd_addr_t physical_address = _base + virtual_address;
@@ -135,6 +180,10 @@ bd_size_t FlashIAPBlockDevice::get_read_size() const
 
 bd_size_t FlashIAPBlockDevice::get_program_size() const
 {
+    if (!_is_initialized) {
+        return 0;
+    }
+
     uint32_t page_size = _flash.get_page_size();
 
     DEBUG_PRINTF("get_program_size: %" PRIX32 "\r\n", page_size);
@@ -144,6 +193,10 @@ bd_size_t FlashIAPBlockDevice::get_program_size() const
 
 bd_size_t FlashIAPBlockDevice::get_erase_size() const
 {
+    if (!_is_initialized) {
+        return 0;
+    }
+
     uint32_t erase_size = _flash.get_sector_size(_base);
 
     DEBUG_PRINTF("get_erase_size: %" PRIX32 "\r\n", erase_size);
@@ -153,6 +206,10 @@ bd_size_t FlashIAPBlockDevice::get_erase_size() const
 
 bd_size_t FlashIAPBlockDevice::get_erase_size(bd_addr_t addr) const
 {
+    if (!_is_initialized) {
+        return 0;
+    }
+
     uint32_t erase_size = _flash.get_sector_size(_base + addr);
 
     DEBUG_PRINTF("get_erase_size: %" PRIX32 "\r\n", erase_size);
