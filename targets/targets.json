@@ -4245,7 +4245,7 @@
     "FVP_MPS2_M0": {
         "inherits": ["FVP_MPS2"],
         "core": "Cortex-M0",
-        "macros": ["CMSDK_CM0","CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""]
+        "macros": ["CMSDK_CM0"]
     },
     "FVP_MPS2_M0P": {
         "inherits": ["FVP_MPS2"],

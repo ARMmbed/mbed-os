@@ -16,12 +16,14 @@
 
 #ifndef MBED_MBED_RTX_H
 #define MBED_MBED_RTX_H
+#include "memory_zones.h"
 
 #if defined(TARGET_FVP_MPS2)
 
 #ifndef INITIAL_SP
-#define INITIAL_SP              (0x20020000UL)
+#define INITIAL_SP   (ZBT_SRAM2_START + ZBT_SRAM2_SIZE)
 #endif
+
 
 #endif /* defined(TARGET_...) */
 
