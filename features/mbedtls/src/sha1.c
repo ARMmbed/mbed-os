@@ -106,7 +106,6 @@ int mbedtls_sha1_starts_ret( mbedtls_sha1_context *ctx )
 
     return( 0 );
 }
-#endif
 
 #if !defined(MBEDTLS_DEPRECATED_REMOVED)
 void mbedtls_sha1_starts( mbedtls_sha1_context *ctx )
@@ -377,7 +376,6 @@ int mbedtls_sha1_finish_ret( mbedtls_sha1_context *ctx,
 
     return( 0 );
 }
-#endif
 
 #if !defined(MBEDTLS_DEPRECATED_REMOVED)
 void mbedtls_sha1_finish( mbedtls_sha1_context *ctx,
@@ -425,7 +423,6 @@ exit:
 
     return( ret );
 }
-#endif
 
 #if !defined(MBEDTLS_DEPRECATED_REMOVED)
 void mbedtls_sha1( const unsigned char *input,

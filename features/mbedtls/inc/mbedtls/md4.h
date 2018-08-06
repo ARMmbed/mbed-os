@@ -48,7 +48,6 @@
 extern "C" {
 #endif
 
-#if !defined(MBEDTLS_MD4_ALT)
 // Regular implementation
 //
 
@@ -67,10 +66,6 @@ typedef struct
     unsigned char buffer[64];   /*!< data block being processed */
 }
 mbedtls_md4_context;
-
-#else  /* MBEDTLS_MD4_ALT */
-#include "md4_alt.h"
-#endif /* MBEDTLS_MD4_ALT */
 
 /**
  * \brief          Initialize MD4 context
@@ -243,9 +238,6 @@ MBEDTLS_DEPRECATED void mbedtls_md4_finish( mbedtls_md4_context *ctx,
 MBEDTLS_DEPRECATED void mbedtls_md4_process( mbedtls_md4_context *ctx,
                                              const unsigned char data[64] );
 
-#undef MBEDTLS_DEPRECATED
-#endif /* !MBEDTLS_DEPRECATED_REMOVED */
-
 /**
  * \brief          MD4 process data block (internal use only)
  *
@@ -262,12 +254,6 @@ MBEDTLS_DEPRECATED void mbedtls_md4_process( mbedtls_md4_context *ctx,
 int mbedtls_internal_md4_process( mbedtls_md4_context *ctx,
                                   const unsigned char data[64] );
 
-#if !defined(MBEDTLS_DEPRECATED_REMOVED)
-#if defined(MBEDTLS_DEPRECATED_WARNING)
-#define MBEDTLS_DEPRECATED      __attribute__((deprecated))
-#else
-#define MBEDTLS_DEPRECATED
-#endif
 /**
  * \brief          MD4 context setup
  *
@@ -332,9 +318,6 @@ MBEDTLS_DEPRECATED void mbedtls_md4_finish( mbedtls_md4_context *ctx,
 MBEDTLS_DEPRECATED void mbedtls_md4_process( mbedtls_md4_context *ctx,
                                              const unsigned char data[64] );
 
-#undef MBEDTLS_DEPRECATED
-#endif /* !MBEDTLS_DEPRECATED_REMOVED */
-
 /**
  * \brief          Output = MD4( input buffer )
  *
@@ -353,12 +336,6 @@ int mbedtls_md4_ret( const unsigned char *input,
                      size_t ilen,
                      unsigned char output[16] );
 
-#if !defined(MBEDTLS_DEPRECATED_REMOVED)
-#if defined(MBEDTLS_DEPRECATED_WARNING)
-#define MBEDTLS_DEPRECATED      __attribute__((deprecated))
-#else
-#define MBEDTLS_DEPRECATED
-#endif
 /**
  * \brief          Output = MD4( input buffer )
  *
@@ -395,5 +372,9 @@ int mbedtls_md4_self_test( int verbose );
 #ifdef __cplusplus
 }
 #endif
+
+#else  /* MBEDTLS_MD4_ALT */
+#include "md4_alt.h"
+#endif /* MBEDTLS_MD4_ALT */
 
 #endif /* mbedtls_md4.h */

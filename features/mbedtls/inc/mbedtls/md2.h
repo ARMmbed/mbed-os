@@ -47,7 +47,6 @@
 extern "C" {
 #endif
 
-#if !defined(MBEDTLS_MD2_ALT)
 // Regular implementation
 //
 
@@ -67,10 +66,6 @@ typedef struct
     size_t left;                /*!< amount of data in buffer   */
 }
 mbedtls_md2_context;
-
-#else  /* MBEDTLS_MD2_ALT */
-#include "md2_alt.h"
-#endif /* MBEDTLS_MD2_ALT */
 
 /**
  * \brief          Initialize MD2 context
@@ -240,9 +235,6 @@ MBEDTLS_DEPRECATED void mbedtls_md2_finish( mbedtls_md2_context *ctx,
  */
 MBEDTLS_DEPRECATED void mbedtls_md2_process( mbedtls_md2_context *ctx );
 
-#undef MBEDTLS_DEPRECATED
-#endif /* !MBEDTLS_DEPRECATED_REMOVED */
-
 /**
  * \brief          MD2 process data block (internal use only)
  *
@@ -257,12 +249,6 @@ MBEDTLS_DEPRECATED void mbedtls_md2_process( mbedtls_md2_context *ctx );
  */
 int mbedtls_internal_md2_process( mbedtls_md2_context *ctx );
 
-#if !defined(MBEDTLS_DEPRECATED_REMOVED)
-#if defined(MBEDTLS_DEPRECATED_WARNING)
-#define MBEDTLS_DEPRECATED      __attribute__((deprecated))
-#else
-#define MBEDTLS_DEPRECATED
-#endif
 /**
  * \brief          MD2 context setup
  *
@@ -325,9 +311,6 @@ MBEDTLS_DEPRECATED void mbedtls_md2_finish( mbedtls_md2_context *ctx,
  */
 MBEDTLS_DEPRECATED void mbedtls_md2_process( mbedtls_md2_context *ctx );
 
-#undef MBEDTLS_DEPRECATED
-#endif /* !MBEDTLS_DEPRECATED_REMOVED */
-
 /**
  * \brief          Output = MD2( input buffer )
  *
@@ -344,12 +327,6 @@ int mbedtls_md2_ret( const unsigned char *input,
                      size_t ilen,
                      unsigned char output[16] );
 
-#if !defined(MBEDTLS_DEPRECATED_REMOVED)
-#if defined(MBEDTLS_DEPRECATED_WARNING)
-#define MBEDTLS_DEPRECATED      __attribute__((deprecated))
-#else
-#define MBEDTLS_DEPRECATED
-#endif
 /**
  * \brief          Output = MD2( input buffer )
  *
@@ -386,5 +363,9 @@ int mbedtls_md2_self_test( int verbose );
 #ifdef __cplusplus
 }
 #endif
+
+#else  /* MBEDTLS_MD2_ALT */
+#include "md2_alt.h"
+#endif /* MBEDTLS_MD2_ALT */
 
 #endif /* mbedtls_md2.h */

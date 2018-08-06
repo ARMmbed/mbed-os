@@ -47,7 +47,6 @@
 extern "C" {
 #endif
 
-#if !defined(MBEDTLS_MD5_ALT)
 // Regular implementation
 //
 
@@ -66,10 +65,6 @@ typedef struct
     unsigned char buffer[64];   /*!< data block being processed */
 }
 mbedtls_md5_context;
-
-#else  /* MBEDTLS_MD5_ALT */
-#include "md5_alt.h"
-#endif /* MBEDTLS_MD5_ALT */
 
 /**
  * \brief          Initialize MD5 context
@@ -243,15 +238,6 @@ MBEDTLS_DEPRECATED void mbedtls_md5_finish( mbedtls_md5_context *ctx,
 MBEDTLS_DEPRECATED void mbedtls_md5_process( mbedtls_md5_context *ctx,
                                              const unsigned char data[64] );
 
-#undef MBEDTLS_DEPRECATED
-#endif /* !MBEDTLS_DEPRECATED_REMOVED */
-
-#if !defined(MBEDTLS_DEPRECATED_REMOVED)
-#if defined(MBEDTLS_DEPRECATED_WARNING)
-#define MBEDTLS_DEPRECATED      __attribute__((deprecated))
-#else
-#define MBEDTLS_DEPRECATED
-#endif
 /**
  * \brief          MD5 context setup
  *
@@ -316,8 +302,6 @@ MBEDTLS_DEPRECATED void mbedtls_md5_finish( mbedtls_md5_context *ctx,
 MBEDTLS_DEPRECATED void mbedtls_md5_process( mbedtls_md5_context *ctx,
                                              const unsigned char data[64] );
 
-#undef MBEDTLS_DEPRECATED
-#endif /* !MBEDTLS_DEPRECATED_REMOVED */
 
 /**
  * \brief          Output = MD5( input buffer )
@@ -337,12 +321,6 @@ int mbedtls_md5_ret( const unsigned char *input,
                      size_t ilen,
                      unsigned char output[16] );
 
-#if !defined(MBEDTLS_DEPRECATED_REMOVED)
-#if defined(MBEDTLS_DEPRECATED_WARNING)
-#define MBEDTLS_DEPRECATED      __attribute__((deprecated))
-#else
-#define MBEDTLS_DEPRECATED
-#endif
 /**
  * \brief          Output = MD5( input buffer )
  *
@@ -361,12 +339,6 @@ int mbedtls_md5_ret( const unsigned char *input,
                      size_t ilen,
                      unsigned char output[16] );
 
-#if !defined(MBEDTLS_DEPRECATED_REMOVED)
-#if defined(MBEDTLS_DEPRECATED_WARNING)
-#define MBEDTLS_DEPRECATED      __attribute__((deprecated))
-#else
-#define MBEDTLS_DEPRECATED
-#endif
 /**
  * \brief          Output = MD5( input buffer )
  *
@@ -403,5 +375,9 @@ int mbedtls_md5_self_test( int verbose );
 #ifdef __cplusplus
 }
 #endif
+
+#else  /* MBEDTLS_MD5_ALT */
+#include "md5_alt.h"
+#endif /* MBEDTLS_MD5_ALT */
 
 #endif /* mbedtls_md5.h */

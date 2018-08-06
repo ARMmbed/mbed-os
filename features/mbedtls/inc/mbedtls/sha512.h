@@ -44,7 +44,6 @@
 extern "C" {
 #endif
 
-#if !defined(MBEDTLS_SHA512_ALT)
 // Regular implementation
 //
 
@@ -65,10 +64,6 @@ typedef struct
                                  *   <li>1: Use SHA-384.</li></ul> */
 }
 mbedtls_sha512_context;
-
-#else  /* MBEDTLS_SHA512_ALT */
-#include "sha512_alt.h"
-#endif /* MBEDTLS_SHA512_ALT */
 
 /**
  * \brief          This function initializes a SHA-512 context.
@@ -346,5 +341,9 @@ int mbedtls_sha512_self_test( int verbose );
 #ifdef __cplusplus
 }
 #endif
+
+#else  /* MBEDTLS_SHA512_ALT */
+#include "sha512_alt.h"
+#endif /* MBEDTLS_SHA512_ALT */
 
 #endif /* mbedtls_sha512.h */

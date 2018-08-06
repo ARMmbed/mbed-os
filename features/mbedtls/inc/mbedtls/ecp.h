@@ -117,7 +117,6 @@ typedef struct
 }
 mbedtls_ecp_point;
 
-#if !defined(MBEDTLS_ECP_ALT)
 /*
  * default mbed TLS elliptic curve arithmetic implementation
  *
@@ -236,10 +235,6 @@ mbedtls_ecp_group;
 #endif /* MBEDTLS_ECP_FIXED_POINT_OPTIM */
 
 /* \} name SECTION: Module settings */
-
-#else  /* MBEDTLS_ECP_ALT */
-#include "ecp_alt.h"
-#endif /* MBEDTLS_ECP_ALT */
 
 /**
  * \brief    The ECP key-pair structure.
@@ -811,5 +806,9 @@ int mbedtls_ecp_self_test( int verbose );
 #ifdef __cplusplus
 }
 #endif
+
+#else  /* MBEDTLS_ECP_ALT */
+#include "ecp_alt.h"
+#endif /* MBEDTLS_ECP_ALT */
 
 #endif /* ecp.h */

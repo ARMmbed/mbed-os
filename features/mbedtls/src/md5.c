@@ -105,7 +105,6 @@ int mbedtls_md5_starts_ret( mbedtls_md5_context *ctx )
 
     return( 0 );
 }
-#endif
 
 #if !defined(MBEDTLS_DEPRECATED_REMOVED)
 void mbedtls_md5_starts( mbedtls_md5_context *ctx )

@@ -275,7 +275,6 @@ int mbedtls_md4_update_ret( mbedtls_md4_context *ctx,
 
     return( 0 );
 }
-#endif
 
 #if !defined(MBEDTLS_DEPRECATED_REMOVED)
 void mbedtls_md4_update( mbedtls_md4_context *ctx,
@@ -377,7 +376,6 @@ exit:
 
     return( ret );
 }
-#endif
 
 #if !defined(MBEDTLS_DEPRECATED_REMOVED)
 void mbedtls_md4( const unsigned char *input,

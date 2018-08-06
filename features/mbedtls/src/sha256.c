@@ -130,7 +130,6 @@ int mbedtls_sha256_starts_ret( mbedtls_sha256_context *ctx, int is224 )
 
     return( 0 );
 }
-#endif
 
 #if !defined(MBEDTLS_DEPRECATED_REMOVED)
 void mbedtls_sha256_starts( mbedtls_sha256_context *ctx,

@@ -110,7 +110,6 @@ int mbedtls_md2_starts_ret( mbedtls_md2_context *ctx )
 
     return( 0 );
 }
-#endif
 
 #if !defined(MBEDTLS_DEPRECATED_REMOVED)
 void mbedtls_md2_starts( mbedtls_md2_context *ctx )
@@ -190,7 +189,6 @@ int mbedtls_md2_update_ret( mbedtls_md2_context *ctx,
 
     return( 0 );
 }
-#endif
 
 #if !defined(MBEDTLS_DEPRECATED_REMOVED)
 void mbedtls_md2_update( mbedtls_md2_context *ctx,
@@ -227,7 +225,6 @@ int mbedtls_md2_finish_ret( mbedtls_md2_context *ctx,
 
     return( 0 );
 }
-#endif
 
 #if !defined(MBEDTLS_DEPRECATED_REMOVED)
 void mbedtls_md2_finish( mbedtls_md2_context *ctx,

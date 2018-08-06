@@ -47,7 +47,6 @@
 extern "C" {
 #endif
 
-#if !defined(MBEDTLS_SHA1_ALT)
 // Regular implementation
 //
 
@@ -66,10 +65,6 @@ typedef struct
     unsigned char buffer[64];   /*!< The data block being processed. */
 }
 mbedtls_sha1_context;
-
-#else  /* MBEDTLS_SHA1_ALT */
-#include "sha1_alt.h"
-#endif /* MBEDTLS_SHA1_ALT */
 
 /**
  * \brief          This function initializes a SHA-1 context.
@@ -258,15 +253,6 @@ MBEDTLS_DEPRECATED void mbedtls_sha1_finish( mbedtls_sha1_context *ctx,
 MBEDTLS_DEPRECATED void mbedtls_sha1_process( mbedtls_sha1_context *ctx,
                                               const unsigned char data[64] );
 
-#undef MBEDTLS_DEPRECATED
-#endif /* !MBEDTLS_DEPRECATED_REMOVED */
-
-#if !defined(MBEDTLS_DEPRECATED_REMOVED)
-#if defined(MBEDTLS_DEPRECATED_WARNING)
-#define MBEDTLS_DEPRECATED      __attribute__((deprecated))
-#else
-#define MBEDTLS_DEPRECATED
-#endif
 /**
  * \brief          This function starts a SHA-1 checksum calculation.
  *
@@ -333,8 +319,6 @@ MBEDTLS_DEPRECATED void mbedtls_sha1_finish( mbedtls_sha1_context *ctx,
 MBEDTLS_DEPRECATED void mbedtls_sha1_process( mbedtls_sha1_context *ctx,
                                               const unsigned char data[64] );
 
-#undef MBEDTLS_DEPRECATED
-#endif /* !MBEDTLS_DEPRECATED_REMOVED */
 
 /**
  * \brief          This function calculates the SHA-1 checksum of a buffer.
@@ -360,12 +344,6 @@ int mbedtls_sha1_ret( const unsigned char *input,
                       size_t ilen,
                       unsigned char output[20] );
 
-#if !defined(MBEDTLS_DEPRECATED_REMOVED)
-#if defined(MBEDTLS_DEPRECATED_WARNING)
-#define MBEDTLS_DEPRECATED      __attribute__((deprecated))
-#else
-#define MBEDTLS_DEPRECATED
-#endif
 /**
  * \brief          This function calculates the SHA-1 checksum of a buffer.
  *
@@ -390,12 +368,6 @@ int mbedtls_sha1_ret( const unsigned char *input,
                       size_t ilen,
                       unsigned char output[20] );
 
-#if !defined(MBEDTLS_DEPRECATED_REMOVED)
-#if defined(MBEDTLS_DEPRECATED_WARNING)
-#define MBEDTLS_DEPRECATED      __attribute__((deprecated))
-#else
-#define MBEDTLS_DEPRECATED
-#endif
 /**
  * \brief          Output = SHA-1( input buffer )
  *
@@ -432,5 +404,9 @@ int mbedtls_sha1_self_test( int verbose );
 #ifdef __cplusplus
 }
 #endif
+
+#else  /* MBEDTLS_SHA1_ALT */
+#include "sha1_alt.h"
+#endif /* MBEDTLS_SHA1_ALT */
 
 #endif /* mbedtls_sha1.h */

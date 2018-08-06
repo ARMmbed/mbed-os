@@ -43,7 +43,6 @@
 extern "C" {
 #endif
 
-#if !defined(MBEDTLS_SHA256_ALT)
 // Regular implementation
 //
 
@@ -64,10 +63,6 @@ typedef struct
                                      <li>1: Use SHA-224.</li></ul> */
 }
 mbedtls_sha256_context;
-
-#else  /* MBEDTLS_SHA256_ALT */
-#include "sha256_alt.h"
-#endif /* MBEDTLS_SHA256_ALT */
 
 /**
  * \brief          This function initializes a SHA-256 context.
@@ -202,11 +197,6 @@ MBEDTLS_DEPRECATED void mbedtls_sha256_finish( mbedtls_sha256_context *ctx,
 MBEDTLS_DEPRECATED void mbedtls_sha256_process( mbedtls_sha256_context *ctx,
                                                 const unsigned char data[64] );
 
-#undef MBEDTLS_DEPRECATED
-#endif /* !MBEDTLS_DEPRECATED_REMOVED */
-#ifdef __cplusplus
-}
-#endif
 /**
  * \brief          This function starts a SHA-224 or SHA-256 checksum
  *                 calculation.
@@ -260,9 +250,6 @@ MBEDTLS_DEPRECATED void mbedtls_sha256_finish( mbedtls_sha256_context *ctx,
 MBEDTLS_DEPRECATED void mbedtls_sha256_process( mbedtls_sha256_context *ctx,
                                                 const unsigned char data[64] );
 
-#undef MBEDTLS_DEPRECATED
-#endif /* !MBEDTLS_DEPRECATED_REMOVED */
-
 /**
  * \brief          This function calculates the SHA-224 or SHA-256
  *                 checksum of a buffer.
@@ -283,13 +270,6 @@ int mbedtls_sha256_ret( const unsigned char *input,
                         size_t ilen,
                         unsigned char output[32],
                         int is224 );
-
-#if !defined(MBEDTLS_DEPRECATED_REMOVED)
-#if defined(MBEDTLS_DEPRECATED_WARNING)
-#define MBEDTLS_DEPRECATED      __attribute__((deprecated))
-#else
-#define MBEDTLS_DEPRECATED
-#endif
 
 /**
  * \brief          This function calculates the SHA-224 or SHA-256
@@ -312,13 +292,6 @@ int mbedtls_sha256_ret( const unsigned char *input,
                         size_t ilen,
                         unsigned char output[32],
                         int is224 );
-
-#if !defined(MBEDTLS_DEPRECATED_REMOVED)
-#if defined(MBEDTLS_DEPRECATED_WARNING)
-#define MBEDTLS_DEPRECATED      __attribute__((deprecated))
-#else
-#define MBEDTLS_DEPRECATED
-#endif
 
 /**
  * \brief          This function calculates the SHA-224 or SHA-256 checksum
@@ -357,5 +330,9 @@ int mbedtls_sha256_self_test( int verbose );
 #ifdef __cplusplus
 }
 #endif
+
+#else  /* MBEDTLS_SHA256_ALT */
+#include "sha256_alt.h"
+#endif /* MBEDTLS_SHA256_ALT */
 
 #endif /* mbedtls_sha256.h */

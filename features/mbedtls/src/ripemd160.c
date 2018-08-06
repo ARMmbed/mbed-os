@@ -107,7 +107,6 @@ int mbedtls_ripemd160_starts_ret( mbedtls_ripemd160_context *ctx )
 
     return( 0 );
 }
-#endif
 
 #if !defined(MBEDTLS_DEPRECATED_REMOVED)
 void mbedtls_ripemd160_starts( mbedtls_ripemd160_context *ctx )

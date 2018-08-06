@@ -387,7 +387,6 @@ int mbedtls_sha512_finish_ret( mbedtls_sha512_context *ctx,
 
     return( 0 );
 }
-#endif
 
 #if !defined(MBEDTLS_DEPRECATED_REMOVED)
 void mbedtls_sha512_finish( mbedtls_sha512_context *ctx,
@@ -436,7 +435,6 @@ exit:
 
     return( ret );
 }
-#endif
 
 #if !defined(MBEDTLS_DEPRECATED_REMOVED)
 void mbedtls_sha512( const unsigned char *input,
