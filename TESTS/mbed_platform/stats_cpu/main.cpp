@@ -38,7 +38,7 @@ static int32_t wait_time = 5000;
 static void busy_thread()
 {
     volatile uint64_t i = ~0;
-    
+
     while (i--) {
         led1 = !led1;
         wait_us(wait_time);

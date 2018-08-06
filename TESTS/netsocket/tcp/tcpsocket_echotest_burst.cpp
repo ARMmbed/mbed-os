@@ -25,16 +25,16 @@
 
 using namespace utest::v1;
 
-namespace
-{
-    static const int SIGNAL_SIGIO = 0x1;
-    static const int SIGIO_TIMEOUT = 5000; //[ms]
+namespace {
+static const int SIGNAL_SIGIO = 0x1;
+static const int SIGIO_TIMEOUT = 5000; //[ms]
 
-    static const int BURST_CNT = 100;
-    static const int BURST_SIZE = 1220;
+static const int BURST_CNT = 100;
+static const int BURST_SIZE = 1220;
 }
 
-static void _sigio_handler(osThreadId id) {
+static void _sigio_handler(osThreadId id)
+{
     osSignalSet(id, SIGNAL_SIGIO);
 }
 
@@ -53,9 +53,9 @@ void TCPSOCKET_ECHOTEST_BURST()
     for (int i = 0; i < BURST_CNT; i++) {
         bt_left = BURST_SIZE;
         while (bt_left > 0) {
-            sent = sock.send(&(tcp_global::tx_buffer[BURST_SIZE-bt_left]), bt_left);
+            sent = sock.send(&(tcp_global::tx_buffer[BURST_SIZE - bt_left]), bt_left);
             if (sent == NSAPI_ERROR_WOULD_BLOCK) {
-                if(osSignalWait(SIGNAL_SIGIO, SIGIO_TIMEOUT).status == osEventTimeout) {
+                if (osSignalWait(SIGNAL_SIGIO, SIGIO_TIMEOUT).status == osEventTimeout) {
                     TEST_FAIL();
                     goto END;
                 }
@@ -70,7 +70,7 @@ void TCPSOCKET_ECHOTEST_BURST()
 
         bt_left = BURST_SIZE;
         while (bt_left > 0) {
-            recvd = sock.recv(&(tcp_global::rx_buffer[BURST_SIZE-bt_left]), BURST_SIZE);
+            recvd = sock.recv(&(tcp_global::rx_buffer[BURST_SIZE - bt_left]), BURST_SIZE);
             if (recvd < 0) {
                 printf("[%02d] network error %d\n", i, recvd);
                 break;
@@ -106,9 +106,9 @@ void TCPSOCKET_ECHOTEST_BURST_NONBLOCK()
     for (int i = 0; i < BURST_CNT; i++) {
         bt_left = BURST_SIZE;
         while (bt_left > 0) {
-            sent = sock.send(&(tcp_global::tx_buffer[BURST_SIZE-bt_left]), bt_left);
+            sent = sock.send(&(tcp_global::tx_buffer[BURST_SIZE - bt_left]), bt_left);
             if (sent == NSAPI_ERROR_WOULD_BLOCK) {
-                if(osSignalWait(SIGNAL_SIGIO, SIGIO_TIMEOUT).status == osEventTimeout) {
+                if (osSignalWait(SIGNAL_SIGIO, SIGIO_TIMEOUT).status == osEventTimeout) {
                     TEST_FAIL();
                     goto END;
                 }
@@ -120,16 +120,16 @@ void TCPSOCKET_ECHOTEST_BURST_NONBLOCK()
             }
             bt_left -= sent;
         }
-		if (bt_left != 0) {
+        if (bt_left != 0) {
             TEST_FAIL();
             goto END;
-         }
+        }
 
         bt_left = BURST_SIZE;
         while (bt_left > 0) {
-            recvd = sock.recv(&(tcp_global::rx_buffer[BURST_SIZE-bt_left]), BURST_SIZE);
+            recvd = sock.recv(&(tcp_global::rx_buffer[BURST_SIZE - bt_left]), BURST_SIZE);
             if (recvd == NSAPI_ERROR_WOULD_BLOCK) {
-                if(osSignalWait(SIGNAL_SIGIO, SIGIO_TIMEOUT).status == osEventTimeout) {
+                if (osSignalWait(SIGNAL_SIGIO, SIGIO_TIMEOUT).status == osEventTimeout) {
                     printf("[bt#%02d] packet timeout...", i);
                     break;
                 }

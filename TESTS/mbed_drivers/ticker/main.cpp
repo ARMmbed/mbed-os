@@ -19,7 +19,7 @@
 #include "unity/unity.h"
 
 #if !DEVICE_USTICKER
-  #error [NOT_SUPPORTED] test not supported
+#error [NOT_SUPPORTED] test not supported
 #endif
 
 using utest::v1::Case;
@@ -48,7 +48,7 @@ volatile int ticker_count = 0;
 void switch_led1_state(void)
 {
     // blink 3 times per second
-    if((callback_trigger_count % 333) == 0) {
+    if ((callback_trigger_count % 333) == 0) {
         led1 = !led1;
     }
 }
@@ -57,7 +57,7 @@ void switch_led2_state(void)
 {
     // blink 3 times per second
     // make led2 blink at the same callback_trigger_count value as led1
-    if(((callback_trigger_count - 1) % 333) == 0) {
+    if (((callback_trigger_count - 1) % 333) == 0) {
         led2 = !led2;
     }
 }
@@ -84,12 +84,12 @@ void sem_release(Semaphore *sem)
 void stop_gtimer_set_flag(void)
 {
     gtimer.stop();
-    core_util_atomic_incr_u32((uint32_t*)&ticker_callback_flag, 1);
+    core_util_atomic_incr_u32((uint32_t *)&ticker_callback_flag, 1);
 }
 
 void increment_multi_counter(void)
 {
-    core_util_atomic_incr_u32((uint32_t*)&multi_counter, 1);
+    core_util_atomic_incr_u32((uint32_t *)&multi_counter, 1);
 }
 
 
@@ -130,7 +130,7 @@ void test_case_1x_ticker()
     //get the results from host
     greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
 
-    TEST_ASSERT_EQUAL_STRING_MESSAGE("pass", _key,"Host side script reported a fail...");
+    TEST_ASSERT_EQUAL_STRING_MESSAGE("pass", _key, "Host side script reported a fail...");
 }
 
 /* Tests is to measure the accuracy of Ticker over a period of time
@@ -174,7 +174,7 @@ void test_case_2x_ticker()
     //get the results from host
     greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
 
-    TEST_ASSERT_EQUAL_STRING_MESSAGE("pass", _key,"Host side script reported a fail...");
+    TEST_ASSERT_EQUAL_STRING_MESSAGE("pass", _key, "Host side script reported a fail...");
 }
 
 /** Test many tickers run one after the other
@@ -199,7 +199,7 @@ void test_multi_ticker(void)
     TEST_ASSERT_EQUAL(TICKER_COUNT, multi_counter);
 
     for (int i = 0; i < TICKER_COUNT; i++) {
-            ticker[i].detach();
+        ticker[i].detach();
     }
     // Because detach calls schedule_interrupt in some circumstances
     // (e.g. when head event is removed), it's good to check if
@@ -241,7 +241,7 @@ void test_multi_call_time(void)
 
         gtimer.start();
         ticker.attach_us(callback(stop_gtimer_set_flag), MULTI_TICKER_TIME_MS * 1000);
-        while(!ticker_callback_flag);
+        while (!ticker_callback_flag);
         time_diff = gtimer.read_us();
 
         TEST_ASSERT_UINT32_WITHIN(TOLERANCE_US, MULTI_TICKER_TIME_MS * 1000, time_diff);
@@ -290,7 +290,7 @@ void test_attach_time(void)
     gtimer.reset();
     gtimer.start();
     ticker.attach(callback(stop_gtimer_set_flag), ((float)DELAY_US) / 1000000.0f);
-    while(!ticker_callback_flag);
+    while (!ticker_callback_flag);
     ticker.detach();
     const int time_diff = gtimer.read_us();
 
@@ -312,7 +312,7 @@ void test_attach_us_time(void)
     gtimer.reset();
     gtimer.start();
     ticker.attach_us(callback(stop_gtimer_set_flag), DELAY_US);
-    while(!ticker_callback_flag);
+    while (!ticker_callback_flag);
     ticker.detach();
     const int time_diff = gtimer.read_us();
 

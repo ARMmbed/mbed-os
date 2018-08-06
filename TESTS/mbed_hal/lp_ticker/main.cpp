@@ -22,7 +22,7 @@
 #include "hal/lp_ticker_api.h"
 
 #if !DEVICE_LPTICKER
-    #error [NOT_SUPPORTED] Low power timer not supported for this target
+#error [NOT_SUPPORTED] Low power timer not supported for this target
 #endif
 
 using namespace utest::v1;
@@ -74,7 +74,7 @@ void overflow_protect()
     time_window = LP_TICKER_OV_LIMIT;
 
     const uint32_t ticks_now = lp_ticker_read();
-    const ticker_info_t* p_ticker_info = lp_ticker_get_info();
+    const ticker_info_t *p_ticker_info = lp_ticker_get_info();
 
     const uint32_t max_count = ((1 << p_ticker_info->bits) - 1);
 
@@ -85,7 +85,7 @@ void overflow_protect()
     while (lp_ticker_read() > ticks_now);
 }
 
-void ticker_event_handler_stub(const ticker_data_t * const ticker)
+void ticker_event_handler_stub(const ticker_data_t *const ticker)
 {
     /* Indicate that ISR has been executed in interrupt context. */
     if (core_util_is_isr_active()) {
@@ -100,7 +100,7 @@ void ticker_event_handler_stub(const ticker_data_t * const ticker)
 /* Test that the ticker has the correct frequency and number of bits. */
 void lp_ticker_info_test()
 {
-    const ticker_info_t* p_ticker_info = lp_ticker_get_info();
+    const ticker_info_t *p_ticker_info = lp_ticker_get_info();
 
     TEST_ASSERT(p_ticker_info->frequency >= 4000);
     TEST_ASSERT(p_ticker_info->frequency <= 64000);

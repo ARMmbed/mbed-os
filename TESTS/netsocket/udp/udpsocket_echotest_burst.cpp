@@ -25,45 +25,47 @@
 
 using namespace utest::v1;
 
-namespace
-{
-    static const int SIGNAL_SIGIO = 0x1;
-    static const int SIGIO_TIMEOUT = 5000; //[ms]
-    static const int RECV_TIMEOUT = 1; //[s]
+namespace {
+static const int SIGNAL_SIGIO = 0x1;
+static const int SIGIO_TIMEOUT = 5000; //[ms]
+static const int RECV_TIMEOUT = 1; //[s]
 
-    static const int BURST_CNT = 100;
-    static const int BURST_PKTS = 5;
-    static const int PKG_SIZES[BURST_PKTS] = {100, 200, 300, 120, 500};
-    static const int RECV_TOTAL = 1220;
+static const int BURST_CNT = 100;
+static const int BURST_PKTS = 5;
+static const int PKG_SIZES[BURST_PKTS] = {100, 200, 300, 120, 500};
+static const int RECV_TOTAL = 1220;
 
-    static const double EXPECTED_LOSS_RATIO = 0.0;
-    static const double TOLERATED_LOSS_RATIO = 0.3;
+static const double EXPECTED_LOSS_RATIO = 0.0;
+static const double TOLERATED_LOSS_RATIO = 0.3;
 
-    typedef struct pkg {
-        int len;
-        char *payload;
-    } pkg_t;
-    pkg_t tx_buffers[BURST_PKTS];
-    char rx_buffer[500] = {0};
+typedef struct pkg {
+    int len;
+    char *payload;
+} pkg_t;
+pkg_t tx_buffers[BURST_PKTS];
+char rx_buffer[500] = {0};
 }
 
-void prepare_tx_buffers() {
+void prepare_tx_buffers()
+{
     // TX buffers to be preserved for comparison
     for (int x = 0; x < BURST_PKTS; x++) {
         tx_buffers[x].len = PKG_SIZES[x];
-        tx_buffers[x].payload = (char*) (malloc(PKG_SIZES[x]));
+        tx_buffers[x].payload = (char *)(malloc(PKG_SIZES[x]));
         TEST_ASSERT_NOT_NULL(tx_buffers[x].payload);
         fill_tx_buffer_ascii(tx_buffers[x].payload, tx_buffers[x].len);
     }
 }
 
-void free_tx_buffers() {
+void free_tx_buffers()
+{
     for (int x = 0; x < BURST_PKTS; x++) {
         free(tx_buffers[x].payload);
     }
 }
 
-static void _sigio_handler(osThreadId id) {
+static void _sigio_handler(osThreadId id)
+{
     osSignalSet(id, SIGNAL_SIGIO);
 }
 
@@ -98,12 +100,12 @@ void UDPSOCKET_ECHOTEST_BURST()
         for (int j = 0; j < BURST_PKTS; j++) {
             recvd = sock.recvfrom(&temp_addr, rx_buffer, 500);
             if (recvd == NSAPI_ERROR_WOULD_BLOCK) {
-                if(osSignalWait(SIGNAL_SIGIO, SIGIO_TIMEOUT).status == osEventTimeout) {
-                    pkg_fail += BURST_PKTS-j;
+                if (osSignalWait(SIGNAL_SIGIO, SIGIO_TIMEOUT).status == osEventTimeout) {
+                    pkg_fail += BURST_PKTS - j;
                     break;
                 }
             } else if (recvd < 0) {
-                pkg_fail += BURST_PKTS-j; // Assume all the following packets of the burst to be lost
+                pkg_fail += BURST_PKTS - j; // Assume all the following packets of the burst to be lost
                 printf("[%02d] network error %d\n", i, recvd);
                 wait(recv_timeout);
                 recv_timeout *= 2; // Back off,
@@ -114,12 +116,12 @@ void UDPSOCKET_ECHOTEST_BURST()
                 continue;
             }
 
-            recv_timeout = recv_timeout > RECV_TIMEOUT ? recv_timeout/2 : RECV_TIMEOUT;
+            recv_timeout = recv_timeout > RECV_TIMEOUT ? recv_timeout / 2 : RECV_TIMEOUT;
 
             // Packets might arrive unordered
             for (int k = 0; k < BURST_PKTS; k++) {
                 if (tx_buffers[k].len == recvd &&
-                    (memcmp(tx_buffers[k].payload, rx_buffer, recvd) == 0)) {
+                        (memcmp(tx_buffers[k].payload, rx_buffer, recvd) == 0)) {
                     bt_total += recvd;
                 }
             }
@@ -135,13 +137,13 @@ void UDPSOCKET_ECHOTEST_BURST()
 
     free_tx_buffers();
 
-    double loss_ratio = 1 - ((double)(BURST_CNT*BURST_PKTS-pkg_fail) / (double)(BURST_CNT*BURST_PKTS));
+    double loss_ratio = 1 - ((double)(BURST_CNT * BURST_PKTS - pkg_fail) / (double)(BURST_CNT * BURST_PKTS));
     printf("Packets sent: %d, packets received %d, loss ratio %.2lf\r\n",
-        BURST_CNT*BURST_PKTS, BURST_CNT*BURST_PKTS-pkg_fail, loss_ratio);
+           BURST_CNT * BURST_PKTS, BURST_CNT * BURST_PKTS - pkg_fail, loss_ratio);
     // Packet loss up to 30% tolerated
     TEST_ASSERT_DOUBLE_WITHIN(TOLERATED_LOSS_RATIO, EXPECTED_LOSS_RATIO, loss_ratio);
     // 70% of the bursts need to be successful
-    TEST_ASSERT_INT_WITHIN(3*(BURST_CNT/10), BURST_CNT, ok_bursts);
+    TEST_ASSERT_INT_WITHIN(3 * (BURST_CNT / 10), BURST_CNT, ok_bursts);
 
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
 }
@@ -175,8 +177,8 @@ void UDPSOCKET_ECHOTEST_BURST_NONBLOCK()
         for (int j = 0; j < BURST_PKTS; j++) {
             recvd = sock.recvfrom(&temp_addr, rx_buffer, 500);
             if (recvd == NSAPI_ERROR_WOULD_BLOCK) {
-                if(osSignalWait(SIGNAL_SIGIO, SIGIO_TIMEOUT).status == osEventTimeout) {
-                    pkg_fail += BURST_PKTS-j;
+                if (osSignalWait(SIGNAL_SIGIO, SIGIO_TIMEOUT).status == osEventTimeout) {
+                    pkg_fail += BURST_PKTS - j;
                     break;
                 }
                 --j;
@@ -191,7 +193,7 @@ void UDPSOCKET_ECHOTEST_BURST_NONBLOCK()
             // Packets might arrive unordered
             for (int k = 0; k < BURST_PKTS; k++) {
                 if (tx_buffers[k].len == recvd &&
-                    (memcmp(tx_buffers[k].payload, rx_buffer, recvd) == 0)) {
+                        (memcmp(tx_buffers[k].payload, rx_buffer, recvd) == 0)) {
                     bt_total += recvd;
                     goto PKT_OK;
                 }
@@ -213,13 +215,13 @@ PKT_OK:
 
     free_tx_buffers();
 
-    double loss_ratio = 1 - ((double)(BURST_CNT*BURST_PKTS-pkg_fail) / (double)(BURST_CNT*BURST_PKTS));
+    double loss_ratio = 1 - ((double)(BURST_CNT * BURST_PKTS - pkg_fail) / (double)(BURST_CNT * BURST_PKTS));
     printf("Packets sent: %d, packets received %d, loss ratio %.2lf\r\n",
-        BURST_CNT*BURST_PKTS, BURST_CNT*BURST_PKTS-pkg_fail, loss_ratio);
+           BURST_CNT * BURST_PKTS, BURST_CNT * BURST_PKTS - pkg_fail, loss_ratio);
     // Packet loss up to 30% tolerated
     TEST_ASSERT_DOUBLE_WITHIN(TOLERATED_LOSS_RATIO, EXPECTED_LOSS_RATIO, loss_ratio);
     // 70% of the bursts need to be successful
-    TEST_ASSERT_INT_WITHIN(3*(BURST_CNT/10), BURST_CNT, ok_bursts);
+    TEST_ASSERT_INT_WITHIN(3 * (BURST_CNT / 10), BURST_CNT, ok_bursts);
 
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());
 }

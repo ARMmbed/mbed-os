@@ -16,11 +16,11 @@
  */
 
 #ifndef MBED_CONF_APP_OBJECT_CONSTRUCTION
-    #error [NOT_SUPPORTED] No network interface found for this target.
+#error [NOT_SUPPORTED] No network interface found for this target.
 #endif
 
 #if !defined(MBED_CONF_APP_WIFI_SECURE_SSID) && !defined(MBED_CONF_APP_WIFI_UNSECURE_SSID)
-    #error [NOT_SUPPORTED] Requires parameters from mbed_app.json
+#error [NOT_SUPPORTED] Requires parameters from mbed_app.json
 #endif
 
 #include "mbed.h"

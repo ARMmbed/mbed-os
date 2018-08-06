@@ -29,7 +29,7 @@ using namespace utest::v1;
 /* Test that the ticker has the correct frequency and number of bits. */
 void us_ticker_info_test()
 {
-    const ticker_info_t* p_ticker_info = us_ticker_get_info();
+    const ticker_info_t *p_ticker_info = us_ticker_get_info();
 
     TEST_ASSERT(p_ticker_info->frequency >= 250000);
     TEST_ASSERT(p_ticker_info->frequency <= 8000000);

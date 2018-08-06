@@ -84,19 +84,20 @@ Case cases[] = {
 #endif /* MBEDTLS_SELF_TEST */
 };
 
-utest::v1::status_t test_setup(const size_t num_cases) {
+utest::v1::status_t test_setup(const size_t num_cases)
+{
     GREENTEA_SETUP(120, "default_auto");
     return verbose_test_setup_handler(num_cases);
 }
 
 Specification specification(test_setup, cases);
 
-int main() {
+int main()
+{
     int ret = 0;
 #if defined(MBEDTLS_PLATFORM_C)
     mbedtls_platform_context platform_ctx;
-    if((ret = mbedtls_platform_setup(&platform_ctx))!= 0)
-    {
+    if ((ret = mbedtls_platform_setup(&platform_ctx)) != 0) {
         mbedtls_printf("Mbed TLS selftest failed! mbedtls_platform_setup returned %d\n", ret);
         return 1;
     }

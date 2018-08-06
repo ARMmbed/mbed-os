@@ -15,7 +15,7 @@
  */
 
 #if !DEVICE_RTC
-    #error [NOT_SUPPORTED] RTC API not supported for this target
+#error [NOT_SUPPORTED] RTC API not supported for this target
 #endif
 
 #include "utest/utest.h"

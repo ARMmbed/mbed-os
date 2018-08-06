@@ -39,16 +39,17 @@ using namespace utest::v1;
 namespace {
 
 template <class T, class F>
-void BubbleSort(T& _array, size_t array_size, F functor) {
+void BubbleSort(T &_array, size_t array_size, F functor)
+{
     bool flag = true;
     size_t numLength = array_size;
-    for(size_t i = 1; (i <= numLength) && flag; i++) {
+    for (size_t i = 1; (i <= numLength) && flag; i++) {
         flag = false;
         for (size_t j = 0; j < (numLength - 1); j++) {
-            if (functor(_array[j+1], _array[j])) {
+            if (functor(_array[j + 1], _array[j])) {
                 int temp = _array[j];
                 _array[j] = _array[j + 1];
-                _array[j+1] = temp;
+                _array[j + 1] = temp;
                 flag = true;
             }
         }
@@ -56,27 +57,33 @@ void BubbleSort(T& _array, size_t array_size, F functor) {
 }
 
 struct greaterAbs {
-    bool operator()(int a, int b) { return abs(a) > abs(b); }
+    bool operator()(int a, int b)
+    {
+        return abs(a) > abs(b);
+    }
 };
 
 }   // namespace
 
-void test_case_stl_equal() {
+void test_case_stl_equal()
+{
     const int n_integers[] = {NEGATIVE_INTEGERS};
     std::vector<int> v_pints(n_integers, n_integers + TABLE_SIZE(n_integers));
     TEST_ASSERT_TRUE(std::equal(v_pints.begin(), v_pints.end(), n_integers));
 }
 
-void test_case_stl_transform() {
+void test_case_stl_transform()
+{
     const float floats[] = {FLOATS};
-    const char* floats_str[] = {FLOATS_STR};
+    const char *floats_str[] = {FLOATS_STR};
     float floats_transform[TABLE_SIZE(floats_str)] = {0.0};
     std::transform(floats_str, floats_str + TABLE_SIZE(floats_str), floats_transform, atof);
 
     TEST_ASSERT_TRUE(std::equal(floats_transform, floats_transform + TABLE_SIZE(floats_transform), floats));
 }
 
-void test_case_stl_sort_greater() {
+void test_case_stl_sort_greater()
+{
     int n_integers[] = {NEGATIVE_INTEGERS};
     int n_integers2[] = {NEGATIVE_INTEGERS};
 
@@ -87,7 +94,8 @@ void test_case_stl_sort_greater() {
 }
 
 
-void test_case_stl_sort_abs() {
+void test_case_stl_sort_abs()
+{
     int n_integers[] = {NEGATIVE_INTEGERS};
     int n_integers2[] = {NEGATIVE_INTEGERS};
 
@@ -98,7 +106,8 @@ void test_case_stl_sort_abs() {
 }
 
 
-utest::v1::status_t greentea_failure_handler(const Case *const source, const failure_t reason) {
+utest::v1::status_t greentea_failure_handler(const Case *const source, const failure_t reason)
+{
     greentea_case_failure_abort_handler(source, reason);
     return STATUS_CONTINUE;
 }
@@ -110,13 +119,15 @@ Case cases[] = {
     Case("STL std::sort abs", test_case_stl_sort_abs, greentea_failure_handler)
 };
 
-utest::v1::status_t greentea_test_setup(const size_t number_of_cases) {
+utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
+{
     GREENTEA_SETUP(5, "default_auto");
     return greentea_test_setup_handler(number_of_cases);
 }
 
 Specification specification(greentea_test_setup, cases, greentea_test_teardown_handler);
 
-int main() {
+int main()
+{
     Harness::run(specification);
 }

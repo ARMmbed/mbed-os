@@ -22,11 +22,11 @@
 using namespace utest::v1;
 
 #if defined(MBED_RTOS_SINGLE_THREAD)
-  #error [NOT_SUPPORTED] test not supported
+#error [NOT_SUPPORTED] test not supported
 #endif
 
 #if !DEVICE_USTICKER
-  #error [NOT_SUPPORTED] test not supported
+#error [NOT_SUPPORTED] test not supported
 #endif
 
 #define THREAD_DELAY     30
@@ -204,7 +204,7 @@ void test_multiple_tokens_wait()
 {
     Semaphore sem(5);
 
-    for(int i = 5; i >= 0; i--) {
+    for (int i = 5; i >= 0; i--) {
         int32_t cnt = sem.wait(0);
         TEST_ASSERT_EQUAL(i, cnt);
     }
@@ -220,7 +220,7 @@ void test_multiple_tokens_release()
 {
     Semaphore sem(0, 5);
 
-    for(int i = 5; i > 0; i--) {
+    for (int i = 5; i > 0; i--) {
         osStatus stat = sem.release();
         TEST_ASSERT_EQUAL(osOK, stat);
     }

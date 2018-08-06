@@ -15,7 +15,7 @@
  */
 
 #if !DEVICE_FLASH
-    #error [NOT_SUPPORTED] Flash API not supported for this target
+#error [NOT_SUPPORTED] Flash API not supported for this target
 #endif
 
 #include "utest/utest.h"
@@ -57,40 +57,43 @@ static void erase_range(flash_t *flash, uint32_t addr, uint32_t size)
 MBED_NOINLINE
 __asm static void delay_loop(uint32_t count)
 {
+// AStyle should not format inline assembly
+// *INDENT-OFF*
 1
   SUBS a1, a1, #1
   BCS  %BT1
   BX   lr
+// *INDENT-ON*
 }
 #elif defined (__ICCARM__)
 MBED_NOINLINE
 static void delay_loop(uint32_t count)
 {
-  __asm volatile(
-    "loop: \n"
-    " SUBS %0, %0, #1 \n"
-    " BCS.n  loop\n"
-    : "+r" (count)
-    :
-    : "cc"
-  );
+    __asm volatile(
+        "loop: \n"
+        " SUBS %0, %0, #1 \n"
+        " BCS.n  loop\n"
+        : "+r"(count)
+        :
+        : "cc"
+    );
 }
 #elif  defined ( __GNUC__ ) ||  (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
 MBED_NOINLINE
 static void delay_loop(uint32_t count)
 {
-  __asm__ volatile (
-    "%=:\n\t"
+    __asm__ volatile(
+        "%=:\n\t"
 #if defined(__thumb__) && !defined(__thumb2__) && !defined(__ARMCC_VERSION)
-    "SUB  %0, #1\n\t"
+        "SUB  %0, #1\n\t"
 #else
-    "SUBS %0, %0, #1\n\t"
+        "SUBS %0, %0, #1\n\t"
 #endif
-    "BCS  %=b\n\t"
-    : "+l" (count)
-    :
-    : "cc"
-  );
+        "BCS  %=b\n\t"
+        : "+l"(count)
+        :
+        : "cc"
+    );
 }
 #endif
 
@@ -193,7 +196,7 @@ void flash_program_page_test()
     }
 
     // the one before the last page in the system
-    uint32_t address = flash_get_start_address(&test_flash) + flash_get_size(&test_flash) - (2*test_size);
+    uint32_t address = flash_get_start_address(&test_flash) + flash_get_size(&test_flash) - (2 * test_size);
 
     // sector size might not be same as page size
     uint32_t erase_sector_boundary = ALIGN_DOWN(address, flash_get_sector_size(&test_flash, address));
@@ -246,13 +249,15 @@ Case cases[] = {
     Case("Flash - clock and cache test", flash_clock_and_cache_test),
 };
 
-utest::v1::status_t greentea_test_setup(const size_t number_of_cases) {
+utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
+{
     GREENTEA_SETUP(20, "default_auto");
     return greentea_test_setup_handler(number_of_cases);
 }
 
 Specification specification(greentea_test_setup, cases, greentea_test_teardown_handler);
 
-int main() {
+int main()
+{
     Harness::run(specification);
 }

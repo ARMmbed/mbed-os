@@ -28,7 +28,7 @@
 using namespace utest::v1;
 
 #if !DEVICE_USTICKER
-  #error [NOT_SUPPORTED] test not supported
+#error [NOT_SUPPORTED] test not supported
 #endif
 
 #define TEST_DELAY_US 50000ULL
@@ -37,22 +37,26 @@ using namespace utest::v1;
 class TestTimerEvent: public TimerEvent {
 private:
     Semaphore sem;
-    virtual void handler() {
+    virtual void handler()
+    {
         sem.release();
     }
 
 public:
     TestTimerEvent() :
-            TimerEvent(), sem(0, 1) {
+        TimerEvent(), sem(0, 1)
+    {
 
         sleep_manager_lock_deep_sleep();
     }
 
     TestTimerEvent(const ticker_data_t *data) :
-            TimerEvent(data), sem(0, 1) {
+        TimerEvent(data), sem(0, 1)
+    {
     }
 
-    virtual ~TestTimerEvent() {
+    virtual ~TestTimerEvent()
+    {
         sleep_manager_unlock_deep_sleep();
     }
 
@@ -61,7 +65,8 @@ public:
     using TimerEvent::insert_absolute;
     using TimerEvent::remove;
 
-    int32_t sem_wait(uint32_t millisec) {
+    int32_t sem_wait(uint32_t millisec)
+    {
         return sem.wait(millisec);
     }
 };
@@ -70,19 +75,23 @@ class TestTimerEventRelative: public TestTimerEvent {
 public:
     static const int32_t SEM_SLOTS_AFTER_PAST_TS_INSERTED = 0;
     TestTimerEventRelative() :
-            TestTimerEvent() {
+        TestTimerEvent()
+    {
     }
 
     TestTimerEventRelative(const ticker_data_t *data) :
-            TestTimerEvent(data) {
+        TestTimerEvent(data)
+    {
     }
 
     // Set relative timestamp of internal event to present_time + ts
-    void set_future_timestamp(timestamp_t ts) {
+    void set_future_timestamp(timestamp_t ts)
+    {
         insert(::ticker_read(_ticker_data) + ts);
     }
 
-    void set_past_timestamp(void) {
+    void set_past_timestamp(void)
+    {
         insert(::ticker_read(_ticker_data) - 1UL);
     }
 };
@@ -91,19 +100,23 @@ class TestTimerEventAbsolute: public TestTimerEvent {
 public:
     static const int32_t SEM_SLOTS_AFTER_PAST_TS_INSERTED = 1;
     TestTimerEventAbsolute() :
-            TestTimerEvent() {
+        TestTimerEvent()
+    {
     }
 
     TestTimerEventAbsolute(const ticker_data_t *data) :
-            TestTimerEvent(data) {
+        TestTimerEvent(data)
+    {
     }
 
     // Set absolute timestamp of internal event to present_time + ts
-    void set_future_timestamp(us_timestamp_t ts) {
+    void set_future_timestamp(us_timestamp_t ts)
+    {
         insert_absolute(::ticker_read_us(_ticker_data) + ts);
     }
 
-    void set_past_timestamp(void) {
+    void set_past_timestamp(void)
+    {
         insert_absolute(::ticker_read_us(_ticker_data) - 1ULL);
     }
 };
@@ -123,7 +136,8 @@ public:
  * Then an event handler is called
  */
 template<typename T>
-void test_insert(void) {
+void test_insert(void)
+{
     T tte;
 
     tte.set_future_timestamp(TEST_DELAY_US);
@@ -151,7 +165,8 @@ void test_insert(void) {
  * Then the event handler is never called
  */
 template<typename T>
-void test_remove(void) {
+void test_remove(void)
+{
     T tte;
 
     tte.set_future_timestamp(TEST_DELAY_US * 2);
@@ -168,7 +183,8 @@ void test_remove(void) {
  * When a timestamp of 0 us is set with @a insert_absolute()
  * Then an event handler is called instantly
  */
-void test_insert_zero(void) {
+void test_insert_zero(void)
+{
     TestTimerEvent tte;
 
     tte.insert_absolute(0ULL);
@@ -194,7 +210,8 @@ void test_insert_zero(void) {
  * Then an event handler is called instantly
  */
 template<typename T>
-void test_insert_past(void) {
+void test_insert_past(void)
+{
     T tte;
 
     tte.set_past_timestamp();
@@ -205,7 +222,7 @@ void test_insert_past(void) {
 }
 
 utest::v1::status_t test_setup(const size_t number_of_cases)
-        {
+{
     GREENTEA_SETUP(5, "default_auto");
     return verbose_test_setup_handler(number_of_cases);
 }

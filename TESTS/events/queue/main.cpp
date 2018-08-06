@@ -21,7 +21,7 @@
 #include "utest.h"
 
 #if !DEVICE_USTICKER
-  #error [NOT_SUPPORTED] test not supported
+#error [NOT_SUPPORTED] test not supported
 #endif
 
 using namespace utest::v1;
@@ -38,32 +38,38 @@ using namespace utest::v1;
 volatile bool touched = false;
 
 // static functions
-void func5(int a0, int a1, int a2, int a3, int a4) { 
+void func5(int a0, int a1, int a2, int a3, int a4)
+{
     touched = true;
     TEST_ASSERT_EQUAL(a0 | a1 | a2 | a3 | a4, 0x1f);
 }
 
-void func4(int a0, int a1, int a2, int a3) {
+void func4(int a0, int a1, int a2, int a3)
+{
     touched = true;
-    TEST_ASSERT_EQUAL(a0 | a1 | a2 | a3, 0xf); 
+    TEST_ASSERT_EQUAL(a0 | a1 | a2 | a3, 0xf);
 }
 
-void func3(int a0, int a1, int a2) {
+void func3(int a0, int a1, int a2)
+{
     touched = true;
     TEST_ASSERT_EQUAL(a0 | a1 | a2, 0x7);
 }
 
-void func2(int a0, int a1) {
+void func2(int a0, int a1)
+{
     touched = true;
     TEST_ASSERT_EQUAL(a0 | a1, 0x3);
 }
 
-void func1(int a0) {
+void func1(int a0)
+{
     touched = true;
     TEST_ASSERT_EQUAL(a0, 0x1);
 }
 
-void func0() {
+void func0()
+{
     touched = true;
 }
 
@@ -95,40 +101,44 @@ SIMPLE_POSTS_TEST(1, 0x01)
 SIMPLE_POSTS_TEST(0)
 
 
-void time_func(Timer *t, int ms) {
+void time_func(Timer *t, int ms)
+{
     TEST_ASSERT_INT_WITHIN(DELTA(ms), ms, t->read_ms());
     t->reset();
 }
 
 template <int N>
-void call_in_test() {
+void call_in_test()
+{
     Timer tickers[N];
 
     EventQueue queue(TEST_EQUEUE_SIZE);
 
     for (int i = 0; i < N; i++) {
         tickers[i].start();
-        queue.call_in((i+1)*100, time_func, &tickers[i], (i+1)*100);
+        queue.call_in((i + 1) * 100, time_func, &tickers[i], (i + 1) * 100);
     }
 
-    queue.dispatch(N*100);
+    queue.dispatch(N * 100);
 }
 
 template <int N>
-void call_every_test() {
+void call_every_test()
+{
     Timer tickers[N];
 
     EventQueue queue(TEST_EQUEUE_SIZE);
 
     for (int i = 0; i < N; i++) {
         tickers[i].start();
-        queue.call_every((i+1)*100, time_func, &tickers[i], (i+1)*100);
+        queue.call_every((i + 1) * 100, time_func, &tickers[i], (i + 1) * 100);
     }
 
-    queue.dispatch(N*100);
+    queue.dispatch(N * 100);
 }
 
-void allocate_failure_test() {
+void allocate_failure_test()
+{
     EventQueue queue(TEST_EQUEUE_SIZE);
     int id;
 
@@ -139,12 +149,14 @@ void allocate_failure_test() {
     TEST_ASSERT(!id);
 }
 
-void no() {
+void no()
+{
     TEST_ASSERT(false);
 }
 
 template <int N>
-void cancel_test1() {
+void cancel_test1()
+{
     EventQueue queue(TEST_EQUEUE_SIZE);
 
     int ids[N];
@@ -153,7 +165,7 @@ void cancel_test1() {
         ids[i] = queue.call_in(1000, no);
     }
 
-    for (int i = N-1; i >= 0; i--) {
+    for (int i = N - 1; i >= 0; i--) {
         queue.cancel(ids[i]);
     }
 
@@ -164,31 +176,38 @@ void cancel_test1() {
 // Testing the dynamic arguments to the event class
 unsigned counter = 0;
 
-void count5(unsigned a0, unsigned a1, unsigned a2, unsigned a3, unsigned a5) {
+void count5(unsigned a0, unsigned a1, unsigned a2, unsigned a3, unsigned a5)
+{
     counter += a0 + a1 + a2 + a3 + a5;
 }
 
-void count4(unsigned a0, unsigned a1, unsigned a2, unsigned a3) {
+void count4(unsigned a0, unsigned a1, unsigned a2, unsigned a3)
+{
     counter += a0 + a1 + a2 + a3;
 }
 
-void count3(unsigned a0, unsigned a1, unsigned a2) {
+void count3(unsigned a0, unsigned a1, unsigned a2)
+{
     counter += a0 + a1 + a2;
 }
 
-void count2(unsigned a0, unsigned a1) {
+void count2(unsigned a0, unsigned a1)
+{
     counter += a0 + a1;
 }
 
-void count1(unsigned a0) {
+void count1(unsigned a0)
+{
     counter += a0;
 }
 
-void count0() {
+void count0()
+{
     counter += 0;
 }
 
-void event_class_test() {
+void event_class_test()
+{
     counter = 0;
     EventQueue queue(TEST_EQUEUE_SIZE);
 
@@ -211,7 +230,8 @@ void event_class_test() {
     TEST_ASSERT_EQUAL(counter, 30);
 }
 
-void event_class_helper_test() {
+void event_class_helper_test()
+{
     counter = 0;
     EventQueue queue(TEST_EQUEUE_SIZE);
 
@@ -234,7 +254,8 @@ void event_class_helper_test() {
     TEST_ASSERT_EQUAL(counter, 15);
 }
 
-void event_inference_test() {
+void event_inference_test()
+{
     counter = 0;
     EventQueue queue(TEST_EQUEUE_SIZE);
 
@@ -259,23 +280,26 @@ void event_inference_test() {
 
 int timeleft_events[2];
 
-void check_time_left(EventQueue* queue, int index, int expected) {
+void check_time_left(EventQueue *queue, int index, int expected)
+{
     const int event_id = timeleft_events[index];
     TEST_ASSERT_INT_WITHIN(2, expected, queue->time_left(event_id));
     touched = true;
 }
 
-void time_left(EventQueue* queue, int index) {
+void time_left(EventQueue *queue, int index)
+{
     const int event_id = timeleft_events[index];
     TEST_ASSERT_EQUAL(0, queue->time_left(event_id));
 }
 
-void time_left_test() {
+void time_left_test()
+{
     EventQueue queue(TEST_EQUEUE_SIZE);
 
     // Enque check events
-    TEST_ASSERT(queue.call_in(50, check_time_left, &queue, 0, 100-50));
-    TEST_ASSERT(queue.call_in(200, check_time_left, &queue, 1, 200-200));
+    TEST_ASSERT(queue.call_in(50, check_time_left, &queue, 0, 100 - 50));
+    TEST_ASSERT(queue.call_in(200, check_time_left, &queue, 1, 200 - 200));
 
     // Enque events to be checked
     timeleft_events[0] = queue.call_in(100, time_left, &queue, 0);
@@ -299,7 +323,8 @@ void time_left_test() {
 }
 
 // Test setup
-utest::v1::status_t test_setup(const size_t number_of_cases) {
+utest::v1::status_t test_setup(const size_t number_of_cases)
+{
     GREENTEA_SETUP(20, "default_auto");
     return verbose_test_setup_handler(number_of_cases);
 }
@@ -327,7 +352,8 @@ const Case cases[] = {
 
 Specification specification(test_setup, cases);
 
-int main() {
+int main()
+{
     return !Harness::run(specification);
 }
 

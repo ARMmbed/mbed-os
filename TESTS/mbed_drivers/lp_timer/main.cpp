@@ -35,17 +35,17 @@ extern uint32_t SystemCoreClock;
  * timer we need to adjust delta.
  */
 
- /*
- * Define tolerance as follows:
- * tolerance = 500 us + 5% of measured time
- *
- * e.g.
- * 1 ms delay: tolerance = 550 us
- * 10 ms delay: tolerance = 1000 us
- * 100 ms delay: tolerance = 5500 us
- * 1000 ms delay: tolerance = 50500 us
- *
- *  */
+/*
+* Define tolerance as follows:
+* tolerance = 500 us + 5% of measured time
+*
+* e.g.
+* 1 ms delay: tolerance = 550 us
+* 10 ms delay: tolerance = 1000 us
+* 100 ms delay: tolerance = 5500 us
+* 1000 ms delay: tolerance = 50500 us
+*
+*  */
 
 #define US_PER_SEC       1000000
 #define US_PER_MSEC      1000
@@ -292,7 +292,7 @@ void test_lptimer_float_operator()
     lp_timer.stop();
 
     /* Check result - 10 ms elapsed. */
-    TEST_ASSERT_FLOAT_WITHIN(DELTA_S(10), 0.010f, (float )(lp_timer));
+    TEST_ASSERT_FLOAT_WITHIN(DELTA_S(10), 0.010f, (float)(lp_timer));
 }
 
 /* This test verifies if time counted by the low power timer is
@@ -320,7 +320,7 @@ void test_lptimer_time_measurement()
     lp_timer.stop();
 
     /* Check results - wait_val_us us have elapsed. */
-    TEST_ASSERT_FLOAT_WITHIN(DELTA_S(delta_ms), (float )wait_val_us / 1000000, lp_timer.read());
+    TEST_ASSERT_FLOAT_WITHIN(DELTA_S(delta_ms), (float)wait_val_us / 1000000, lp_timer.read());
     TEST_ASSERT_INT32_WITHIN(DELTA_MS(delta_ms), wait_val_us / 1000, lp_timer.read_ms());
     TEST_ASSERT_INT32_WITHIN(DELTA_US(delta_ms), wait_val_us, lp_timer.read_us());
     TEST_ASSERT_UINT64_WITHIN(DELTA_US(delta_ms), wait_val_us, lp_timer.read_high_resolution_us());

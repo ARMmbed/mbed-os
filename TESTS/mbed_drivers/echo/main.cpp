@@ -26,7 +26,8 @@
 using namespace utest::v1;
 
 // Fill a buffer with a slice of the ASCII alphabet.
-void fill_buffer(char* buffer, unsigned int length, unsigned int index) {
+void fill_buffer(char *buffer, unsigned int length, unsigned int index)
+{
     unsigned int start = length * index;
     for (int i = 0; i < length - 1; i++) {
         buffer[i] = 'a' + ((start + i) % 26);
@@ -36,7 +37,8 @@ void fill_buffer(char* buffer, unsigned int length, unsigned int index) {
 
 // Echo server (echo payload to host)
 template<int N>
-void test_case_echo_server_x() {
+void test_case_echo_server_x()
+{
     char _key[11] = {};
     char _tx_value[PAYLOAD_LENGTH + 1] = {};
     char _rx_value[PAYLOAD_LENGTH + 1] = {};
@@ -55,7 +57,7 @@ void test_case_echo_server_x() {
     } while (expected_key);
     TEST_ASSERT_EQUAL_INT(echo_count, atoi(_rx_value));
 
-    for (int i=0; i < echo_count; ++i) {
+    for (int i = 0; i < echo_count; ++i) {
         fill_buffer(_tx_value, PAYLOAD_LENGTH, i);
         greentea_send_kv(_echo_key_const, _tx_value);
         do {
@@ -67,7 +69,8 @@ void test_case_echo_server_x() {
     }
 }
 
-utest::v1::status_t greentea_failure_handler(const Case *const source, const failure_t reason) {
+utest::v1::status_t greentea_failure_handler(const Case *const source, const failure_t reason)
+{
     greentea_case_failure_abort_handler(source, reason);
     return STATUS_CONTINUE;
 }
@@ -76,13 +79,15 @@ Case cases[] = {
     Case("Echo server: x16", test_case_echo_server_x<16>, greentea_failure_handler),
 };
 
-utest::v1::status_t greentea_test_setup(const size_t number_of_cases) {
+utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
+{
     GREENTEA_SETUP(30, "device_echo");
     return greentea_test_setup_handler(number_of_cases);
 }
 
 Specification specification(greentea_test_setup, cases, greentea_test_teardown_handler);
 
-int main() {
+int main()
+{
     Harness::run(specification);
 }

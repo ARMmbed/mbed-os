@@ -20,7 +20,7 @@
 #include "rtos.h"
 
 #if defined(MBED_RTOS_SINGLE_THREAD)
-  #error [NOT_SUPPORTED] test not supported
+#error [NOT_SUPPORTED] test not supported
 #endif
 
 #if !DEVICE_USTICKER
@@ -38,7 +38,7 @@ template <uint32_t ms>
 void thread_put_uint_msg(Queue<uint32_t, 1> *q)
 {
     Thread::wait(ms);
-    osStatus stat = q->put((uint32_t*) TEST_UINT_MSG);
+    osStatus stat = q->put((uint32_t *) TEST_UINT_MSG);
     TEST_ASSERT_EQUAL(osOK, stat);
 }
 
@@ -61,7 +61,7 @@ void thread_get_uint_msg(Queue<uint32_t, 1> *q)
 void test_pass_uint()
 {
     Queue<uint32_t, 1> q;
-    osStatus stat = q.put((uint32_t*)TEST_UINT_MSG);
+    osStatus stat = q.put((uint32_t *)TEST_UINT_MSG);
     TEST_ASSERT_EQUAL(osOK, stat);
 
     osEvent evt = q.get();
@@ -81,14 +81,14 @@ void test_pass_uint()
 void test_pass_uint_twice()
 {
     Queue<uint32_t, 1> q;
-    osStatus stat = q.put((uint32_t*)TEST_UINT_MSG);
+    osStatus stat = q.put((uint32_t *)TEST_UINT_MSG);
     TEST_ASSERT_EQUAL(osOK, stat);
 
     osEvent evt = q.get();
     TEST_ASSERT_EQUAL(osEventMessage, evt.status);
     TEST_ASSERT_EQUAL(TEST_UINT_MSG, evt.value.v);
 
-    stat = q.put((uint32_t*)TEST_UINT_MSG2);
+    stat = q.put((uint32_t *)TEST_UINT_MSG2);
     TEST_ASSERT_EQUAL(osOK, stat);
 
     evt = q.get();
@@ -181,10 +181,10 @@ void test_put_full_no_timeout()
 {
     Queue<uint32_t, 1> q;
 
-    osStatus stat = q.put((uint32_t*) TEST_UINT_MSG);
+    osStatus stat = q.put((uint32_t *) TEST_UINT_MSG);
     TEST_ASSERT_EQUAL(osOK, stat);
 
-    stat = q.put((uint32_t*) TEST_UINT_MSG);
+    stat = q.put((uint32_t *) TEST_UINT_MSG);
     TEST_ASSERT_EQUAL(osErrorResource, stat);
 }
 
@@ -198,13 +198,13 @@ void test_put_full_timeout()
 {
     Queue<uint32_t, 1> q;
 
-    osStatus stat = q.put((uint32_t*) TEST_UINT_MSG, TEST_TIMEOUT);
+    osStatus stat = q.put((uint32_t *) TEST_UINT_MSG, TEST_TIMEOUT);
     TEST_ASSERT_EQUAL(osOK, stat);
 
     Timer timer;
     timer.start();
 
-    stat = q.put((uint32_t*) TEST_UINT_MSG, TEST_TIMEOUT);
+    stat = q.put((uint32_t *) TEST_UINT_MSG, TEST_TIMEOUT);
     TEST_ASSERT_EQUAL(osErrorTimeout, stat);
     TEST_ASSERT_UINT32_WITHIN(TEST_TIMEOUT * 100, TEST_TIMEOUT * 1000, timer.read_us());
 }
@@ -224,12 +224,12 @@ void test_put_full_waitforever()
 
     t.start(callback(thread_get_uint_msg<TEST_TIMEOUT, TEST_UINT_MSG>, &q));
 
-    osStatus stat = q.put((uint32_t*) TEST_UINT_MSG);
+    osStatus stat = q.put((uint32_t *) TEST_UINT_MSG);
     TEST_ASSERT_EQUAL(osOK, stat);
 
     Timer timer;
     timer.start();
-    stat = q.put((uint32_t*) TEST_UINT_MSG, osWaitForever);
+    stat = q.put((uint32_t *) TEST_UINT_MSG, osWaitForever);
     TEST_ASSERT_EQUAL(osOK, stat);
     TEST_ASSERT_UINT32_WITHIN(TEST_TIMEOUT * 100, TEST_TIMEOUT * 1000, timer.read_us());
 
@@ -246,10 +246,10 @@ void test_msg_order()
 {
     Queue<uint32_t, 2> q;
 
-    osStatus stat = q.put((uint32_t*) TEST_UINT_MSG, TEST_TIMEOUT);
+    osStatus stat = q.put((uint32_t *) TEST_UINT_MSG, TEST_TIMEOUT);
     TEST_ASSERT_EQUAL(osOK, stat);
 
-    stat = q.put((uint32_t*) TEST_UINT_MSG2, TEST_TIMEOUT);
+    stat = q.put((uint32_t *) TEST_UINT_MSG2, TEST_TIMEOUT);
     TEST_ASSERT_EQUAL(osOK, stat);
 
     osEvent evt = q.get();
@@ -271,10 +271,10 @@ void test_msg_prio()
 {
     Queue<uint32_t, 2> q;
 
-    osStatus stat = q.put((uint32_t*) TEST_UINT_MSG, TEST_TIMEOUT, 0);
+    osStatus stat = q.put((uint32_t *) TEST_UINT_MSG, TEST_TIMEOUT, 0);
     TEST_ASSERT_EQUAL(osOK, stat);
 
-    stat = q.put((uint32_t*) TEST_UINT_MSG2, TEST_TIMEOUT, 1);
+    stat = q.put((uint32_t *) TEST_UINT_MSG2, TEST_TIMEOUT, 1);
     TEST_ASSERT_EQUAL(osOK, stat);
 
     osEvent evt = q.get();
@@ -298,7 +298,7 @@ void test_queue_empty()
 
     TEST_ASSERT_EQUAL(true, q.empty());
 
-    q.put((uint32_t*) TEST_UINT_MSG, TEST_TIMEOUT, 1);
+    q.put((uint32_t *) TEST_UINT_MSG, TEST_TIMEOUT, 1);
 
     TEST_ASSERT_EQUAL(false, q.empty());
 }
@@ -315,7 +315,7 @@ void test_queue_full()
 
     TEST_ASSERT_EQUAL(false, q.full());
 
-    q.put((uint32_t*) TEST_UINT_MSG, TEST_TIMEOUT, 1);
+    q.put((uint32_t *) TEST_UINT_MSG, TEST_TIMEOUT, 1);
 
     TEST_ASSERT_EQUAL(true, q.full());
 }

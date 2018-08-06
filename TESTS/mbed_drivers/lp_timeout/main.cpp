@@ -15,7 +15,7 @@
  */
 
 #if !DEVICE_LPTICKER
-    #error [NOT_SUPPORTED] Low power timer not supported for this target
+#error [NOT_SUPPORTED] Low power timer not supported for this target
 #endif
 
 #include "mbed.h"
@@ -26,7 +26,7 @@
 
 using namespace utest::v1;
 
-utest::v1::status_t greentea_failure_handler(const Case * const source, const failure_t reason)
+utest::v1::status_t greentea_failure_handler(const Case *const source, const failure_t reason)
 {
     greentea_case_failure_abort_handler(source, reason);
     return STATUS_CONTINUE;
@@ -49,30 +49,30 @@ Case cases[] = {
     Case("Zero delay (attach_us)", test_no_wait<AttachUSTester<LowPowerTimeout> >),
 
     Case("10 ms delay accuracy (attach)", test_delay_accuracy<AttachTester<LowPowerTimeout>, 10000, SHORT_DELTA_US>,
-            greentea_failure_handler),
+         greentea_failure_handler),
     Case("10 ms delay accuracy (attach_us)", test_delay_accuracy<AttachUSTester<LowPowerTimeout>, 10000, SHORT_DELTA_US>,
-            greentea_failure_handler),
+         greentea_failure_handler),
 
     Case("1 s delay accuracy (attach)", test_delay_accuracy<AttachTester<LowPowerTimeout>, 1000000, LONG_DELTA_US>,
-            greentea_failure_handler),
+         greentea_failure_handler),
     Case("1 s delay accuracy (attach_us)", test_delay_accuracy<AttachUSTester<LowPowerTimeout>, 1000000, LONG_DELTA_US>,
-            greentea_failure_handler),
+         greentea_failure_handler),
 
     Case("5 s delay accuracy (attach)", test_delay_accuracy<AttachTester<LowPowerTimeout>, 5000000, LONG_DELTA_US>,
-            greentea_failure_handler),
+         greentea_failure_handler),
     Case("5 s delay accuracy (attach_us)", test_delay_accuracy<AttachUSTester<LowPowerTimeout>, 5000000, LONG_DELTA_US>,
-            greentea_failure_handler),
+         greentea_failure_handler),
 
 #if DEVICE_SLEEP
     Case("1 s delay during sleep (attach)", test_sleep<AttachTester<LowPowerTimeout>, 1000000, LONG_DELTA_US>,
-            greentea_failure_handler),
+         greentea_failure_handler),
     Case("1 s delay during sleep (attach_us)", test_sleep<AttachUSTester<LowPowerTimeout>, 1000000, LONG_DELTA_US>,
-            greentea_failure_handler),
+         greentea_failure_handler),
 
     Case("1 s delay during deepsleep (attach)", test_deepsleep<AttachTester<LowPowerTimeout>, 1000000, LONG_DELTA_US>,
-            greentea_failure_handler),
+         greentea_failure_handler),
     Case("1 s delay during deepsleep (attach_us)", test_deepsleep<AttachUSTester<LowPowerTimeout>, 1000000, LONG_DELTA_US>,
-            greentea_failure_handler),
+         greentea_failure_handler),
 #endif
 
     Case("Timing drift (attach)", test_drift<AttachTester<LowPowerTimeout> >),

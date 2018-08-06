@@ -340,7 +340,7 @@ template<typename TimeoutTesterType>
 class TimeoutDriftTester {
 public:
     TimeoutDriftTester(us_timestamp_t period = 1000) :
-            _callback_count(0), _period(period), _timeout()
+        _callback_count(0), _period(period), _timeout()
     {
     }
 

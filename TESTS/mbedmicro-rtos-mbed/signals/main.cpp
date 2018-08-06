@@ -21,11 +21,11 @@
 using utest::v1::Case;
 
 #if defined(MBED_RTOS_SINGLE_THREAD)
-  #error [NOT_SUPPORTED] test not supported
+#error [NOT_SUPPORTED] test not supported
 #endif
 
 #if !DEVICE_USTICKER
-  #error [NOT_SUPPORTED] test not supported
+#error [NOT_SUPPORTED] test not supported
 #endif
 
 #define TEST_STACK_SIZE   512
@@ -55,11 +55,12 @@ struct Sync {
  * which aborts test program.
  */
 #if defined(MBED_TRAP_ERRORS_ENABLED) && MBED_TRAP_ERRORS_ENABLED
-void error(const char* format, ...) {
+void error(const char *format, ...)
+{
     (void) format;
 }
 
-mbed_error_status_t mbed_error(mbed_error_status_t error_status, const char *error_msg, unsigned int error_value, const char *filename, int line_number) 
+mbed_error_status_t mbed_error(mbed_error_status_t error_status, const char *error_msg, unsigned int error_value, const char *filename, int line_number)
 {
     return MBED_SUCCESS;
 }
@@ -364,7 +365,7 @@ void test_set_double(void)
     Semaphore sem(0, 1);
 
     Thread t(osPriorityNormal, TEST_STACK_SIZE);
-    t.start(callback(run_release_signal_wait<SIGNAL1|SIGNAL2|SIGNAL3, osWaitForever, osEventSignal>, &sem));
+    t.start(callback(run_release_signal_wait < SIGNAL1 | SIGNAL2 | SIGNAL3, osWaitForever, osEventSignal >, &sem));
 
     sem.wait();
     TEST_ASSERT_EQUAL(Thread::WaitingThreadFlag, t.get_state());

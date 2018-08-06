@@ -73,8 +73,7 @@ void test_is_leap_year()
 }
 
 /* Structure to test border values for _rtc_maketime(). */
-typedef struct
-{
+typedef struct {
     struct tm timeinfo;
     time_t exp_seconds;  // if result is false then exp_seconds is irrelevant
     bool result;
@@ -85,7 +84,7 @@ typedef struct
  * Expected range: the 1st of January 1970 at 00:00:00 (seconds: 0) to the 7th of February 2106 at 06:28:15 (seconds: UINT_MAX).
  */
 test_mk_time_struct test_mk_time_arr_full[] = {
-    {{ 0, 0, 0, 1, 0, 70, 0, 0, 0 },      (time_t) 0, true},          // valid lower bound - the 1st of January 1970 at 00:00:00
+    {{ 0, 0, 0, 1, 0, 70, 0, 0, 0 }, (time_t) 0, true},               // valid lower bound - the 1st of January 1970 at 00:00:00
     {{ 59, 59, 23, 31, 11, 59, 0, 0, 0 }, (time_t) 0, false },        // invalid lower bound - the 31st of December 1969 at 23:59:59
 
     {{ 15, 28, 6, 7, 1, 206, 0, 0, 0 }, (time_t)(UINT_MAX), true },   // valid upper bound - the 7th of February 2106 at 06:28:15
@@ -98,7 +97,7 @@ test_mk_time_struct test_mk_time_arr_full[] = {
  * Expected range: the 1st of January 1970 at 00:00:00 (seconds: 0) to the 6th of February 2106 at 06:28:15 (seconds: UINT_MAX).
  */
 test_mk_time_struct test_mk_time_arr_partial[] = {
-    {{ 0, 0, 0, 1, 0, 70, 0, 0, 0 },      (time_t) 0, true},          // valid lower bound - the 1st of January 1970 at 00:00:00
+    {{ 0, 0, 0, 1, 0, 70, 0, 0, 0 }, (time_t) 0, true},               // valid lower bound - the 1st of January 1970 at 00:00:00
     {{ 59, 59, 23, 31, 11, 59, 0, 0, 0 }, (time_t) 0, false },        // invalid lower bound - the 31st of December 1969 at 23:59:59
 
     {{ 15, 28, 6, 6, 1, 206, 0, 0, 0 }, (time_t)(UINT_MAX), true },   // valid upper bound - the 6th of February 2106 at 06:28:15
@@ -152,10 +151,10 @@ void test_mk_time_invalid_param()
     time_t seconds;
     struct tm timeinfo;
 
-    TEST_ASSERT_EQUAL(false, _rtc_maketime(NULL, &seconds, RTC_FULL_LEAP_YEAR_SUPPORT ));
-    TEST_ASSERT_EQUAL(false, _rtc_maketime(NULL, &seconds, RTC_4_YEAR_LEAP_YEAR_SUPPORT ));
-    TEST_ASSERT_EQUAL(false, _rtc_maketime(&timeinfo, NULL, RTC_FULL_LEAP_YEAR_SUPPORT ));
-    TEST_ASSERT_EQUAL(false, _rtc_maketime(&timeinfo, NULL, RTC_4_YEAR_LEAP_YEAR_SUPPORT ));
+    TEST_ASSERT_EQUAL(false, _rtc_maketime(NULL, &seconds, RTC_FULL_LEAP_YEAR_SUPPORT));
+    TEST_ASSERT_EQUAL(false, _rtc_maketime(NULL, &seconds, RTC_4_YEAR_LEAP_YEAR_SUPPORT));
+    TEST_ASSERT_EQUAL(false, _rtc_maketime(&timeinfo, NULL, RTC_FULL_LEAP_YEAR_SUPPORT));
+    TEST_ASSERT_EQUAL(false, _rtc_maketime(&timeinfo, NULL, RTC_4_YEAR_LEAP_YEAR_SUPPORT));
 }
 
 /* Test _rtc_localtime() function - call with invalid parameters.
@@ -166,24 +165,24 @@ void test_mk_time_invalid_param()
  */
 void test_local_time_invalid_param()
 {
-    TEST_ASSERT_EQUAL(false, _rtc_localtime(1, NULL, RTC_FULL_LEAP_YEAR_SUPPORT ));
-    TEST_ASSERT_EQUAL(false, _rtc_localtime(1, NULL, RTC_4_YEAR_LEAP_YEAR_SUPPORT ));
+    TEST_ASSERT_EQUAL(false, _rtc_localtime(1, NULL, RTC_FULL_LEAP_YEAR_SUPPORT));
+    TEST_ASSERT_EQUAL(false, _rtc_localtime(1, NULL, RTC_4_YEAR_LEAP_YEAR_SUPPORT));
 }
 
-utest::v1::status_t teardown_handler_t(const Case * const source, const size_t passed, const size_t failed,
-        const failure_t reason)
+utest::v1::status_t teardown_handler_t(const Case *const source, const size_t passed, const size_t failed,
+                                       const failure_t reason)
 {
     return greentea_case_teardown_handler(source, passed, failed, reason);
 }
 
-utest::v1::status_t full_leap_year_case_setup_handler_t(const Case * const source, const size_t index_of_case)
+utest::v1::status_t full_leap_year_case_setup_handler_t(const Case *const source, const size_t index_of_case)
 {
     rtc_leap_year_support = RTC_FULL_LEAP_YEAR_SUPPORT;
 
     return greentea_case_setup_handler(source, index_of_case);
 }
 
-utest::v1::status_t partial_leap_year_case_setup_handler_t(const Case * const source, const size_t index_of_case)
+utest::v1::status_t partial_leap_year_case_setup_handler_t(const Case *const source, const size_t index_of_case)
 {
     rtc_leap_year_support = RTC_4_YEAR_LEAP_YEAR_SUPPORT;
 
@@ -191,12 +190,12 @@ utest::v1::status_t partial_leap_year_case_setup_handler_t(const Case * const so
 }
 
 Case cases[] = {
-  Case("test is leap year - RTC leap years full support", full_leap_year_case_setup_handler_t, test_is_leap_year, teardown_handler_t),
-  Case("test is leap year - RTC leap years partial support", partial_leap_year_case_setup_handler_t, test_is_leap_year, teardown_handler_t),
-  Case("test make time boundary values - RTC leap years full support", full_leap_year_case_setup_handler_t, test_mk_time_boundary, teardown_handler_t),
-  Case("test make time boundary values - RTC leap years partial support", partial_leap_year_case_setup_handler_t, test_mk_time_boundary, teardown_handler_t),
-  Case("test make time - invalid param", test_mk_time_invalid_param, teardown_handler_t),
-  Case("test local time - invalid param", test_local_time_invalid_param, teardown_handler_t),
+    Case("test is leap year - RTC leap years full support", full_leap_year_case_setup_handler_t, test_is_leap_year, teardown_handler_t),
+    Case("test is leap year - RTC leap years partial support", partial_leap_year_case_setup_handler_t, test_is_leap_year, teardown_handler_t),
+    Case("test make time boundary values - RTC leap years full support", full_leap_year_case_setup_handler_t, test_mk_time_boundary, teardown_handler_t),
+    Case("test make time boundary values - RTC leap years partial support", partial_leap_year_case_setup_handler_t, test_mk_time_boundary, teardown_handler_t),
+    Case("test make time - invalid param", test_mk_time_invalid_param, teardown_handler_t),
+    Case("test local time - invalid param", test_local_time_invalid_param, teardown_handler_t),
 };
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)

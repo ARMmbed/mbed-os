@@ -20,7 +20,7 @@
 
 
 #if !DEVICE_LPTICKER
-    #error [NOT_SUPPORTED] Low power ticker not supported for this target
+#error [NOT_SUPPORTED] Low power ticker not supported for this target
 #endif
 
 using utest::v1::Case;
@@ -53,12 +53,12 @@ void sem_release(Semaphore *sem)
 void stop_gtimer_set_flag(void)
 {
     gtimer.stop();
-    core_util_atomic_incr_u32((uint32_t*)&ticker_callback_flag, 1);
+    core_util_atomic_incr_u32((uint32_t *)&ticker_callback_flag, 1);
 }
 
 void increment_multi_counter(void)
 {
-    core_util_atomic_incr_u32((uint32_t*)&multi_counter, 1);;
+    core_util_atomic_incr_u32((uint32_t *)&multi_counter, 1);;
 }
 
 /** Test many tickers run one after the other
@@ -83,7 +83,7 @@ void test_multi_ticker(void)
     TEST_ASSERT_EQUAL(TICKER_COUNT, multi_counter);
 
     for (int i = 0; i < TICKER_COUNT; i++) {
-            ticker[i].detach();
+        ticker[i].detach();
     }
     // Because detach calls schedule_interrupt in some circumstances
     // (e.g. when head event is removed), it's good to check if
@@ -125,7 +125,7 @@ void test_multi_call_time(void)
 
         gtimer.start();
         ticker.attach_us(callback(stop_gtimer_set_flag), MULTI_TICKER_TIME_MS * 1000);
-        while(!ticker_callback_flag);
+        while (!ticker_callback_flag);
         time_diff = gtimer.read_us();
 
         TEST_ASSERT_UINT32_WITHIN(TOLERANCE_US(MULTI_TICKER_TIME_MS * 1000), MULTI_TICKER_TIME_MS * 1000, time_diff);
@@ -174,7 +174,7 @@ void test_attach_time(void)
     gtimer.reset();
     gtimer.start();
     ticker.attach(callback(stop_gtimer_set_flag), ((float)DELAY_US) / 1000000.0f);
-    while(!ticker_callback_flag);
+    while (!ticker_callback_flag);
     ticker.detach();
     const int time_diff = gtimer.read_us();
 
@@ -196,7 +196,7 @@ void test_attach_us_time(void)
     gtimer.reset();
     gtimer.start();
     ticker.attach_us(callback(stop_gtimer_set_flag), DELAY_US);
-    while(!ticker_callback_flag);
+    while (!ticker_callback_flag);
     ticker.detach();
     const int time_diff = gtimer.read_us();
 

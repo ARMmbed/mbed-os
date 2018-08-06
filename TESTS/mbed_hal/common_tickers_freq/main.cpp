@@ -37,7 +37,7 @@
 
 using namespace utest::v1;
 
-const ticker_interface_t* intf;
+const ticker_interface_t *intf;
 
 static volatile unsigned int overflowCounter;
 
@@ -46,7 +46,7 @@ uint32_t ticks_to_us(uint32_t ticks, uint32_t freq)
     return (uint32_t)((uint64_t)ticks * US_PER_S / freq);
 }
 
-void ticker_event_handler_stub(const ticker_data_t * const ticker)
+void ticker_event_handler_stub(const ticker_data_t *const ticker)
 {
     if (ticker == get_us_ticker_data()) {
         us_ticker_clear_interrupt();
@@ -99,12 +99,12 @@ void ticker_frequency_test()
     /* Get the results from host. */
     greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
 
-    TEST_ASSERT_EQUAL_STRING_MESSAGE("pass", _key,"Host side script reported a fail...");
+    TEST_ASSERT_EQUAL_STRING_MESSAGE("pass", _key, "Host side script reported a fail...");
 
     intf->disable_interrupt();
 }
 
-utest::v1::status_t us_ticker_case_setup_handler_t(const Case * const source, const size_t index_of_case)
+utest::v1::status_t us_ticker_case_setup_handler_t(const Case *const source, const size_t index_of_case)
 {
     intf = get_us_ticker_data()->interface;
     set_us_ticker_irq_handler(ticker_event_handler_stub);
@@ -112,7 +112,7 @@ utest::v1::status_t us_ticker_case_setup_handler_t(const Case * const source, co
 }
 
 #if DEVICE_LPTICKER
-utest::v1::status_t lp_ticker_case_setup_handler_t(const Case * const source, const size_t index_of_case)
+utest::v1::status_t lp_ticker_case_setup_handler_t(const Case *const source, const size_t index_of_case)
 {
     intf = get_lp_ticker_data()->interface;
     set_lp_ticker_irq_handler(ticker_event_handler_stub);
@@ -120,8 +120,8 @@ utest::v1::status_t lp_ticker_case_setup_handler_t(const Case * const source, co
 }
 #endif
 
-utest::v1::status_t ticker_case_teardown_handler_t(const Case * const source, const size_t passed, const size_t failed,
-        const failure_t reason)
+utest::v1::status_t ticker_case_teardown_handler_t(const Case *const source, const size_t passed, const size_t failed,
+                                                   const failure_t reason)
 {
     return greentea_case_teardown_handler(source, passed, failed, reason);
 }
@@ -129,12 +129,12 @@ utest::v1::status_t ticker_case_teardown_handler_t(const Case * const source, co
 // Test cases
 Case cases[] = {
     Case("Microsecond ticker frequency test", us_ticker_case_setup_handler_t, ticker_frequency_test,
-        ticker_case_teardown_handler_t),
+         ticker_case_teardown_handler_t),
 #if DEVICE_LPTICKER
     Case("Low power ticker frequency test", lp_ticker_case_setup_handler_t, ticker_frequency_test,
-            ticker_case_teardown_handler_t),
+         ticker_case_teardown_handler_t),
 #endif
-        };
+};
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
 {

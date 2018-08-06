@@ -31,7 +31,7 @@ using namespace utest::v1;
 #endif
 
 #if !DEVICE_USTICKER
-  #error [NOT_SUPPORTED] test not supported
+#error [NOT_SUPPORTED] test not supported
 #endif
 
 class Stopwatch: public Timer {
@@ -40,7 +40,7 @@ private:
 
 public:
     Stopwatch() :
-            Timer(), _sem(1)
+        Timer(), _sem(1)
     {
     }
 
@@ -85,12 +85,12 @@ void sem_callback(Semaphore *sem)
  * which aborts test program.
  */
 #if defined(MBED_TRAP_ERRORS_ENABLED) && MBED_TRAP_ERRORS_ENABLED
-void error(const char* format, ...)
+void error(const char *format, ...)
 {
     (void) format;
 }
 
-mbed_error_status_t mbed_error(mbed_error_status_t error_status, const char *error_msg, unsigned int error_value, const char *filename, int line_number) 
+mbed_error_status_t mbed_error(mbed_error_status_t error_status, const char *error_msg, unsigned int error_value, const char *filename, int line_number)
 {
     return MBED_SUCCESS;
 }

@@ -83,7 +83,7 @@ void test_emac_initialize()
 
     int size = network_interface->scan(ap, 30);
 
-    for (int i=0; i<size; i++) {
+    for (int i = 0; i < size; i++) {
         const char *ssid = ap[i].get_ssid();
         nsapi_security_t security = ap[i].get_security();
         int8_t rssi = ap[i].get_rssi();
@@ -142,7 +142,7 @@ bool emac_if_init(EMAC *emac)
     mbed_mac_address(reinterpret_cast<char *>(&eth_mac_addr[0]));
     emac->get_hwaddr(eth_mac_addr);
     emac->set_hwaddr(eth_mac_addr);
-    printf("emac hwaddr %x:%x:%x:%x:%x:%x\r\n\r\n", eth_mac_addr[0],eth_mac_addr[1],eth_mac_addr[2],eth_mac_addr[3],eth_mac_addr[4],eth_mac_addr[5]);
+    printf("emac hwaddr %x:%x:%x:%x:%x:%x\r\n\r\n", eth_mac_addr[0], eth_mac_addr[1], eth_mac_addr[2], eth_mac_addr[3], eth_mac_addr[4], eth_mac_addr[5]);
 
     int mtu_size = emac->get_mtu_size();
     printf("emac mtu %i\r\n\r\n", mtu_size);

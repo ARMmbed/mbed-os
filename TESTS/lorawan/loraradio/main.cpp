@@ -29,21 +29,20 @@
 #define SX1276   0xEE
 
 #if (MBED_CONF_APP_LORA_RADIO == SX1272)
-    #include "SX1272_LoRaRadio.h"
+#include "SX1272_LoRaRadio.h"
 #elif (MBED_CONF_APP_LORA_RADIO == SX1276)
-    #include "SX1276_LoRaRadio.h"
+#include "SX1276_LoRaRadio.h"
 #else
-    #error [NOT_SUPPORTED] Requires parameters from application config file.
+#error [NOT_SUPPORTED] Requires parameters from application config file.
 #endif
 
 
 using namespace utest::v1;
 
-static LoRaRadio* radio = NULL;
+static LoRaRadio *radio = NULL;
 rtos::Semaphore event_sem(0);
 
-enum event_t
-{
+enum event_t {
     EV_NONE,
     EV_TX_DONE,
     EV_TX_TIMEOUT,
@@ -94,8 +93,7 @@ static void rx_error()
     TEST_ASSERT_EQUAL(osOK, event_sem.release());
 }
 
-static radio_events radio_callbacks =
-{
+static radio_events radio_callbacks = {
     .tx_done    = tx_done,
     .tx_timeout = tx_timeout,
     .rx_done    = rx_done,
@@ -187,7 +185,8 @@ void test_check_rf_frequency()
 }
 
 // Test setup
-utest::v1::status_t test_setup(const size_t number_of_cases) {
+utest::v1::status_t test_setup(const size_t number_of_cases)
+{
     GREENTEA_SETUP(20, "default_auto");
 
     mbed_trace_init();
@@ -240,7 +239,7 @@ utest::v1::status_t case_setup_handler(const Case *const source, const size_t in
                                  MBED_CONF_APP_LORA_TCXO);
 
 #else
-    #error [NOT_SUPPORTED] Unknown LoRa radio specified (SX1272,SX1276 are valid)
+#error [NOT_SUPPORTED] Unknown LoRa radio specified (SX1272,SX1276 are valid)
 #endif
 
     TEST_ASSERT(radio);
@@ -255,11 +254,11 @@ utest::v1::status_t case_teardown_handler(const Case *const source, const size_t
     radio->sleep();
 
 #if (MBED_CONF_APP_LORA_RADIO == SX1272)
-    delete static_cast<SX1272_LoRaRadio*>(radio);
+    delete static_cast<SX1272_LoRaRadio *>(radio);
 #elif (MBED_CONF_APP_LORA_RADIO == SX1276)
-    delete static_cast<SX1276_LoRaRadio*>(radio);
+    delete static_cast<SX1276_LoRaRadio *>(radio);
 #else
-    #error [NOT_SUPPORTED] Unknown LoRa radio specified (SX1272,SX1276 are valid)
+#error [NOT_SUPPORTED] Unknown LoRa radio specified (SX1272,SX1276 are valid)
 #endif
     radio = NULL;
 
@@ -277,6 +276,7 @@ const Case cases[] = {
 
 Specification specification(test_setup, cases);
 
-int main() {
+int main()
+{
     return !Harness::run(specification);
 }

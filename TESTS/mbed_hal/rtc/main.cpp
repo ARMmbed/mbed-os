@@ -15,7 +15,7 @@
  */
 
 #if !DEVICE_RTC
-    #error [NOT_SUPPORTED] RTC API not supported for this target
+#error [NOT_SUPPORTED] RTC API not supported for this target
 #endif
 
 #include "utest/utest.h"
@@ -37,7 +37,7 @@ static const uint32_t WAIT_TOLERANCE = 1;
 static const uint32_t DELAY_4S = 4;
 static const uint32_t DELAY_10S = 10;
 static const uint32_t RTC_TOLERANCE = 1;
-static const uint32_t TOLERANCE_ACCURACY_US = (DELAY_10S * US_PER_SEC / ACCURACY_FACTOR);
+static const uint32_t TOLERANCE_ACCURACY_US = (DELAY_10S *US_PER_SEC / ACCURACY_FACTOR);
 
 #if DEVICE_LPTICKER
 volatile bool expired;
@@ -49,7 +49,7 @@ void callback(void)
 
 /* Auxiliary function to test if RTC continue counting in
  * sleep and deep-sleep modes. */
-void rtc_sleep_test_support (bool deepsleep_mode)
+void rtc_sleep_test_support(bool deepsleep_mode)
 {
     LowPowerTimeout timeout;
     const uint32_t start = 100;
@@ -66,7 +66,7 @@ void rtc_sleep_test_support (bool deepsleep_mode)
 
     rtc_init();
 
-    if(deepsleep_mode == false) {
+    if (deepsleep_mode == false) {
         sleep_manager_lock_deep_sleep();
     }
 
@@ -76,7 +76,9 @@ void rtc_sleep_test_support (bool deepsleep_mode)
 
     TEST_ASSERT(sleep_manager_can_deep_sleep() == deepsleep_mode);
 
-    while(!expired) sleep();
+    while (!expired) {
+        sleep();
+    }
 
     const uint32_t stop = rtc_read();
 
@@ -84,7 +86,7 @@ void rtc_sleep_test_support (bool deepsleep_mode)
 
     timeout.detach();
 
-    if(deepsleep_mode == false) {
+    if (deepsleep_mode == false) {
         sleep_manager_unlock_deep_sleep();
     }
 
@@ -155,10 +157,10 @@ void rtc_glitch_test()
 void rtc_range_test()
 {
     static const uint32_t starts[] = {
-            0x00000000,
-            0xEFFFFFFF,
-            0x00001000,
-            0x00010000,
+        0x00000000,
+        0xEFFFFFFF,
+        0x00001000,
+        0x00010000,
     };
 
     rtc_init();
@@ -182,7 +184,7 @@ void rtc_accuracy_test()
     rtc_write(start);
 
     timer1.start();
-    while(rtc_read() < (start + DELAY_10S)) {
+    while (rtc_read() < (start + DELAY_10S)) {
         /* Just wait. */
     }
     timer1.stop();
