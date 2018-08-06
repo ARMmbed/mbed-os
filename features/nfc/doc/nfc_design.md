@@ -256,11 +256,11 @@ virtual void on_selected();
 virtual void on_deselected();
 ```
 
-Some phones/readers 'park' a target and re-select it later - these events let the user know if the what state the local target is being put in.
+Some phones/readers 'park' a target and re-select it later - these events let the user know what state the local target is being put in.
 
 ```cpp
-virtual void on_before_ndef_read();
-virtual void on_after_ndef_write();
+virtual void on_before_ndef_message_read();
+virtual void on_after_ndef_message_write();
 ```
 
 When emulating a NFC tag, it can be useful to generate a NDEF message dynamically just before a read by the initiator. Conversly if the initiator updates the NDEF message, it can be processed immediately afterwards.
