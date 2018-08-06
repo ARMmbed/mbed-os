@@ -101,23 +101,17 @@ static void nsapi_dns_query_async_socket_callback_handle(NetworkStack *stack);
 static void nsapi_dns_query_async_response(void *ptr);
 static void nsapi_dns_query_async_initiate_next(void);
 
+// *INDENT-OFF*
 static nsapi_addr_t dns_servers[DNS_SERVERS_SIZE] = {
     {NSAPI_IPv4, {8, 8, 8, 8}},                             // Google
     {NSAPI_IPv4, {209, 244, 0, 3}},                         // Level 3
     {NSAPI_IPv4, {84, 200, 69, 80}},                        // DNS.WATCH
-    {
-        NSAPI_IPv6, {
-            0x20, 0x01, 0x48, 0x60, 0x48, 0x60, 0, 0, // Google
-            0, 0, 0, 0, 0, 0, 0x88, 0x88
-        }
-    },
-    {
-        NSAPI_IPv6, {
-            0x20, 0x01, 0x16, 0x08, 0, 0x10, 0, 0x25, // DNS.WATCH
-            0, 0, 0, 0, 0x1c, 0x04, 0xb1, 0x2f
-        }
-    },
+    {NSAPI_IPv6, {0x20,0x01, 0x48,0x60, 0x48,0x60, 0,0,     // Google
+                  0,0, 0,0, 0,0, 0x88,0x88}},
+    {NSAPI_IPv6, {0x20,0x01, 0x16,0x08, 0,0x10, 0,0x25,     // DNS.WATCH
+                  0,0, 0,0, 0x1c,0x04, 0xb1,0x2f}},
 };
+// *INDENT-ON*
 
 #if (MBED_CONF_NSAPI_DNS_CACHE_SIZE > 0)
 static DNS_CACHE *dns_cache[MBED_CONF_NSAPI_DNS_CACHE_SIZE];
