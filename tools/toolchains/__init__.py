@@ -205,6 +205,8 @@ class mbedToolchain:
                 self.cxx_symbols += ["DEVICE_" + data + "=1" for data in self.target.device_has]
                 # Add target's features
                 self.cxx_symbols += ["FEATURE_" + data + "=1" for data in self.target.features]
+                # Add target's components
+                self.cxx_symbols += ["COMPONENT_" + data + "=1" for data in self.target.components]
                 # Add extra symbols passed via 'macros' parameter
                 self.cxx_symbols += self.macros
 
