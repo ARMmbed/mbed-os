@@ -749,10 +749,10 @@
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "extra_labels": ["NXP", "MCUXpresso_MCUS", "EVK", "MIMXRT1050", "IMX"],
         "is_disk_virtual": true,
-        "macros": ["CPU_MIMXRT1052DVL6B", "FSL_RTOS_MBED", "XIP_BOOT_HEADER_ENABLE=1", "XIP_EXTERNAL_FLASH=1", "XIP_BOOT_HEADER_DCD_ENABLE=1"],
+        "macros": ["CPU_MIMXRT1052DVL6B", "FSL_RTOS_MBED", "XIP_BOOT_HEADER_ENABLE=1", "XIP_EXTERNAL_FLASH=1", "XIP_BOOT_HEADER_DCD_ENABLE=1", "SKIP_SYSCLK_INIT"],
         "inherits": ["Target"],
         "detect_code": ["0227"],
-        "device_has": ["USTICKER", "LPTICKER", "ANALOGIN", "I2C", "I2CSLAVE", "ERROR_RED", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
+        "device_has": ["SLEEP", "USTICKER", "LPTICKER", "ANALOGIN", "I2C", "I2CSLAVE", "ERROR_RED", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
         "release_versions": ["2", "5"],
         "device_name": "MIMXRT1052"
     },
