@@ -27,11 +27,15 @@
 /* The length of the VECTORS region is a bit larger than
  * is necessary based on the number of exception handlers.
  */
+
+#include "../memory_zones.h"
+#include "../cmsis_nvic.h"
+
 MEMORY
 {
-  VECTORS (rx)          : ORIGIN = 0x00000000, LENGTH = 0x00000400
-  FLASH (rx)            : ORIGIN = 0x00000400, LENGTH = 0x00040000 - 0x00000400
-  RAM (rwx)             : ORIGIN = 0x20000000, LENGTH = 0x00020000
+  VECTORS (rx)          : ORIGIN = MAPPABLE_START, LENGTH = MAPPABLE_SIZE
+  FLASH (rx)            : ORIGIN = ZBT_SRAM1_START, LENGTH = ZBT_SRAM1_SIZE
+  RAM (rwx)             : ORIGIN = ZBT_SRAM2_START, LENGTH = ZBT_SRAM2_SIZE
 }
 
 /* Linker script to place sections and symbol values. Should be used together
@@ -62,11 +66,10 @@ MEMORY
  */
 ENTRY(Reset_Handler)
 
-HEAP_SIZE  = 0x4000;
-STACK_SIZE = 0x1000;
+STACK_SIZE = 0x400;
 
 /* Size of the vector table in SRAM */
-M_VECTOR_RAM_SIZE = 0x140;
+M_VECTOR_RAM_SIZE = NVIC_VECTORS_SIZE;
 
 SECTIONS
 {
@@ -188,13 +191,13 @@ SECTIONS
 
     bss_size = __bss_end__ - __bss_start__;
 
-    .heap :
+    .heap (COPY):
     {
         . = ALIGN(8);
         __end__ = .;
         PROVIDE(end = .);
         __HeapBase = .;
-        . += HEAP_SIZE;
+        *(.heap*)
         __HeapLimit = .;
         __heap_limit = .; /* Add for _sbrk */
     } > RAM
