@@ -17,7 +17,9 @@
 #include "HeapBlockDevice.h"
 #include "platform/mbed_critical.h"
 #include "platform/mbed_assert.h"
+
 #include <stdlib.h>
+#include <string.h>
 
 namespace mbed {
 

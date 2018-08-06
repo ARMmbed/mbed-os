@@ -17,7 +17,10 @@
 #include "MBRBlockDevice.h"
 #include "platform/mbed_critical.h"
 #include "platform/mbed_assert.h"
+
 #include <algorithm>
+#include <stdlib.h>
+#include <string.h>
 
 namespace mbed {
 
