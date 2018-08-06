@@ -55,6 +55,7 @@ from tools.utils import NotSupportedException
 from tools.utils import construct_enum
 from tools.memap import MemapParser
 from tools.targets import TARGET_MAP, Target
+from tools.config import Config
 import tools.test_configs as TestConfig
 from tools.test_db import BaseDBAccess
 from tools.build_api import build_project, build_mbed_libs, build_lib
@@ -2082,9 +2083,11 @@ def find_tests(base_dir, target_name, toolchain_name, app_config=None):
     # List of common folders: (predicate function, path) tuple
     commons = []
 
+    config = Config(target_name, base_dir, app_config)
+
     # Scan the directory for paths to probe for 'TESTS' folders
     base_resources = Resources(MockNotifier(), collect_ignores=True)
-    base_resources.add_directory(base_dir)
+    base_resources.scan_with_config(base_dir, config)
 
     dirs = [d for d in base_resources.ignored_dirs if basename(d) == 'TESTS']
     for directory in dirs:

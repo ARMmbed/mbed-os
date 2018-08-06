@@ -229,6 +229,8 @@ class Resources(object):
 
     def add_target_labels(self, target):
         self._add_labels("TARGET", target.labels)
+        self._add_labels("COMPONENT", target.components)
+        self.add_features(target.features)
 
     def add_features(self, features):
         self._add_labels("FEATURE", features)
