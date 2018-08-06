@@ -77,6 +77,9 @@
 #define m_text_start                   0x60002400
 #define m_text_size                    0x03FFDC00
 
+#define m_text2_start                  0x00000000
+#define m_text2_size                   0x00020000
+
 #define m_data_start                   0x80000000
 #define m_data_size                    0x01E00000
 
@@ -138,6 +141,9 @@ LR_IROM1 m_flash_config_start m_text_start+m_text_size-m_flash_config_start {   
   RW_IRAM1 +0 EMPTY Heap_Size {    ; Heap region growing up
   }
   ARM_LIB_STACK m_data_start+m_data_size EMPTY -Stack_Size { ; Stack region growing down
+  }
+  RW_m_ram_text m_text2_start UNINIT m_text2_size { ; load address = execution address
+    * (RamFunction)
   }
   RW_m_ncache m_ncache_start m_ncache_size { ; ncache RW data
     * (NonCacheable.init)
