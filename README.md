@@ -115,10 +115,17 @@ All littlefs have the potential to return a negative error code. The errors
 can be either one of those found in the `enum lfs_error` in [lfs.h](lfs.h),
 or an error returned by the user's block device operations.
 
-It should also be noted that the current implementation of littlefs doesn't
-really do anything to ensure that the data written to disk is machine portable.
-This is fine as long as all of the involved machines share endianness
-(little-endian) and don't have strange padding requirements.
+In the configuration struct, the `prog` and `erase` function provided by the
+user may return a `LFS_ERR_CORRUPT` error if the implementation already can
+detect corrupt blocks. However, the wear leveling does not depend on the return
+code of these functions, instead all data is read back and checked for
+integrity.
+
+If your storage caches writes, make sure that the provided `sync` function
+flushes all the data to memory and ensures that the next read fetches the data
+from memory, otherwise data integrity can not be guaranteed. If the `write`
+function does not perform caching, and therefore each `read` or `write` call
+hits the memory, the `sync` function can simply return 0.
 
 ## Reference material
 
@@ -138,6 +145,19 @@ The tests assume a Linux environment and can be started with make:
 ``` bash
 make test
 ```
+
+## License
+
+The littlefs is provided under the [BSD-3-Clause](https://spdx.org/licenses/BSD-3-Clause.html)
+license. See [LICENSE.md](LICENSE.md) for more information. Contributions to
+this project are accepted under the same license.
+
+Individual files contain the following tag instead of the full license text.
+
+    SPDX-License-Identifier:    BSD-3-Clause
+
+This enables machine processing of license information based on the SPDX
+License Identifiers that are here available: http://spdx.org/licenses/
 
 ## Related projects
 
