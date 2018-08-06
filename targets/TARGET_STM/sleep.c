@@ -157,8 +157,20 @@ void hal_sleep(void)
     core_util_critical_section_exit();
 }
 
+extern int serial_IsTxOngoing(void);
+
 void hal_deepsleep(void)
 {
+    /*  WORKAROUND:
+     *  MBED serial driver does not handle deepsleep lock
+     *  to prevent entering deepsleep until HW serial FIFO is empty.
+     *  This is tracked in mbed issue 4408.
+     *  For now, we're checking all Serial HW FIFO. If any transfer is ongoing
+     *  we're not entering deep sleep and returning immediately. */
+    if(serial_IsTxOngoing()) {
+        return;
+    }
+
     // Disable IRQs
     core_util_critical_section_enter();
 

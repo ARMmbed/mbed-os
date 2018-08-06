@@ -690,4 +690,105 @@ int8_t get_uart_index(UARTName uart_name)
     return -1;
 }
 
+/*  Function to protect deep sleep while a seral Tx is ongoing on not complete
+ *  yet. Returns 1 if there is at least 1 serial instance with ongoing ransfer
+ *  0 otherwise.
+ */
+int serial_IsTxOngoing(void) {
+    int TxOngoing = 0;
+
+#if defined(USART1_BASE)
+    if (LL_USART_IsEnabled(USART1) && !LL_USART_IsActiveFlag_TC(USART1)) {
+        TxOngoing |= 1;
+    }
+#endif
+
+#if defined(USART2_BASE)
+    if (LL_USART_IsEnabled(USART2) && !LL_USART_IsActiveFlag_TC(USART2)) {
+        TxOngoing |= 1;
+    }
+#endif
+
+#if defined(USART3_BASE)
+    if (LL_USART_IsEnabled(USART3) && !LL_USART_IsActiveFlag_TC(USART3)) {
+        TxOngoing |= 1;
+    }
+#endif
+
+#if defined(UART4_BASE)
+    if (LL_USART_IsEnabled(UART4) && !LL_USART_IsActiveFlag_TC(UART4)) {
+        TxOngoing |= 1;
+    }
+#endif
+
+#if defined(USART4_BASE)
+    if (LL_USART_IsEnabled(USART4) && !LL_USART_IsActiveFlag_TC(USART4)) {
+        TxOngoing |= 1;
+    }
+#endif
+
+#if defined(UART5_BASE)
+    if (LL_USART_IsEnabled(UART5) && !LL_USART_IsActiveFlag_TC(UART5)) {
+        TxOngoing |= 1;
+    }
+#endif
+
+#if defined(USART5_BASE)
+    if (LL_USART_IsEnabled(USART5) && !LL_USART_IsActiveFlag_TC(USART5)) {
+        TxOngoing |= 1;
+    }
+#endif
+
+#if defined(USART6_BASE)
+    if (LL_USART_IsEnabled(USART6) && !LL_USART_IsActiveFlag_TC(USART6)) {
+        TxOngoing |= 1;
+    }
+#endif
+
+#if defined(UART7_BASE)
+    if (LL_USART_IsEnabled(UART7) && !LL_USART_IsActiveFlag_TC(UART7)) {
+        TxOngoing |= 1;
+    }
+#endif
+
+#if defined(USART7_BASE)
+    if (LL_USART_IsEnabled(USART7) && !LL_USART_IsActiveFlag_TC(USART7)) {
+        TxOngoing |= 1;
+    }
+#endif
+
+#if defined(UART8_BASE)
+    if (LL_USART_IsEnabled(UART8) && !LL_USART_IsActiveFlag_TC(UART8)) {
+        TxOngoing |= 1;
+    }
+#endif
+
+#if defined(USART8_BASE)
+    if (LL_USART_IsEnabled(USART8) && !LL_USART_IsActiveFlag_TC(USART8)) {
+        TxOngoing |= 1;
+    }
+#endif
+
+#if defined(UART9_BASE)
+    if (LL_USART_IsEnabled(UART9) && !LL_USART_IsActiveFlag_TC(UART9)) {
+        TxOngoing |= 1;
+    }
+#endif
+
+#if defined(UART10_BASE)
+    if (LL_USART_IsEnabled(UART10) && !LL_USART_IsActiveFlag_TC(UART10)) {
+        TxOngoing |= 1;
+    }
+#endif
+
+#if defined(LPUART1_BASE)
+    if (LL_USART_IsEnabled(LPUART1) && !LL_USART_IsActiveFlag_TC(LPUART1)) {
+        TxOngoing |= 1;
+    }
+#endif
+
+    /*  If Tx is ongoing, then transfer is */
+    return TxOngoing;
+}
+
 #endif /* DEVICE_SERIAL */
