@@ -30,11 +30,9 @@
 * together, if there are similar patterns the compression will succeed.
 *
 * We need to store and load the first part data before and after reset, the mechanism
-* we chose is NVstore, mainly because its simplicity and the fact it is not platform
-* dependent, in case a specific board does not support NVstore we will use the
-* mbed greentea platform for sending and receving the data from the device to the
-* host running the test and back, the problem with this mechanism is that it doesn't handle
-* well certain characters, especially non ASCII ones, so we used the base64 algorithm
+* we will use is the mbed greentea platform for sending and receving the data from the device
+* to the host running the test and back, the problem with this mechanism is that it doesn't
+* handle well certain characters, especially non ASCII ones, so we use the base64 algorithm
 * to ensure all characters will be transmitted correctly.
 */
 
@@ -43,7 +41,6 @@
 #include "utest/utest.h"
 #include "hal/trng_api.h"
 #include "base64b.h"
-#include "nvstore.h"
 #include "pithy.h"
 #include <stdio.h>
 
@@ -66,12 +63,6 @@
 #define MSG_TRNG_TEST_SUITE_ENDED       "Test_suite_ended"
 
 #define RESULT_SUCCESS                  0
-
-#define NVKEY                           1                  //NVstore key for storing and loading data
-
-/*there are some issues with nvstore and greentea reset, so for now nvstore is disabled,
- *When solved delete current define and replace all NVSTORE_RESET with NVSTORE_ENABLED*/
-#define NVSTORE_RESET                   (NVSTORE_ENABLED & 0)
 
 using namespace utest::v1;
 
@@ -116,19 +107,9 @@ static void compress_and_compare(char *key, char *value)
     input_buf = new uint8_t[BUFFER_LEN * 4];
     temp_buf = new uint8_t[BUFFER_LEN * 2];
 
-#if NVSTORE_RESET
-    NVStore& nvstore = NVStore::get_instance();
-#endif
-
     /*At the begining of step 2 load trng buffer from step 1*/
     if (strcmp(key, MSG_TRNG_TEST_STEP2) == 0) {
-#if NVSTORE_RESET
-        uint16_t actual = 0;
-        result = nvstore.get(NVKEY, BUFFER_LEN, buffer, actual);
-        TEST_ASSERT_EQUAL(RESULT_SUCCESS, result);
-#else
         /*Using base64 to decode data sent from host*/
-        
         uint32_t lengthWritten = 0;
         uint32_t charsProcessed = 0;
         result = trng_DecodeNBase64((const char *)value,
@@ -138,7 +119,6 @@ static void compress_and_compare(char *key, char *value)
                                     &lengthWritten,
                                     &charsProcessed);
         TEST_ASSERT_EQUAL(0, result);
-#endif
         memcpy(input_buf, buffer, BUFFER_LEN);
     }
 
@@ -186,10 +166,6 @@ static void compress_and_compare(char *key, char *value)
     /*At the end of step 1 store trng buffer and reset the device*/
     if (strcmp(key, MSG_TRNG_TEST_STEP1) == 0) {
         int result = 0;
-#if NVSTORE_RESET
-        result = nvstore.set(NVKEY, BUFFER_LEN, buffer);
-        TEST_ASSERT_EQUAL(RESULT_SUCCESS, result);
-#else
         /*Using base64 to encode data sending from host*/
         result = trng_EncodeBase64(buffer, 
                                    BUFFER_LEN, 
@@ -198,7 +174,6 @@ static void compress_and_compare(char *key, char *value)
         TEST_ASSERT_EQUAL(RESULT_SUCCESS, result);
 
         greentea_send_kv(MSG_TRNG_BUFFER, (const char *)out_comp_buf);
-#endif
     }
 
     delete[] out_comp_buf;
