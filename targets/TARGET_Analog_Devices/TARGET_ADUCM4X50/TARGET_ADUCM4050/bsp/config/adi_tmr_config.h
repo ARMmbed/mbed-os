@@ -2,7 +2,7 @@
  * @file    adi_tmr_config.h
  * @brief   GP and RGB timer device driver configuration
  -----------------------------------------------------------------------------
-Copyright (c) 2016 Analog Devices, Inc.
+Copyright (c) 2016-2018 Analog Devices, Inc.
 
 All rights reserved.
 
@@ -169,7 +169,13 @@ POSSIBILITY OF SUCH DAMAGE.
     a value of 0 - 39. Please refer hardware reference manual to know
     which events can be captured by a particular GP timer.
 */
+#if defined(__ADUCM3029__)
+#define TMR0_CFG_EVENT_CAPTURE                          (9u)
+#elif defined(__ADUCM4050__)
 #define TMR0_CFG_EVENT_CAPTURE                          (27u)
+#else
+#error TMR is not ported for this processor
+#endif
 
 /*************************************************************
                         GP Timer 0 PWM0 Configuration
@@ -295,8 +301,13 @@ POSSIBILITY OF SUCH DAMAGE.
     a value of 0 - 39. Please refer hardware reference manual to know
     which events can be captured by a particular GP timer.
 */
+#if defined(__ADUCM3029__)
+#define TMR1_CFG_EVENT_CAPTURE                          (15u)
+#elif defined(__ADUCM4050__)
 #define TMR1_CFG_EVENT_CAPTURE                          (28u)
-
+#else
+#error TMR is not ported for this processor
+#endif
 /*************************************************************
                         GP Timer 1 PWM0 Configuration
  *************************************************************/
@@ -419,8 +430,13 @@ POSSIBILITY OF SUCH DAMAGE.
     a value of 0 - 39. Please refer hardware reference manual to know
     which events can be captured by a particular GP timer.
 */
+#if defined(__ADUCM3029__)
+#define TMR2_CFG_EVENT_CAPTURE                          (6u)
+#elif defined(__ADUCM4050__)
 #define TMR2_CFG_EVENT_CAPTURE                          (27u)
-
+#else
+#error TMR is not ported for this processor
+#endif
 /*************************************************************
                         GP Timer 2 PWM0 Configuration
  *************************************************************/
@@ -451,7 +467,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 /*! @} */
 
-
+#if defined(__ADUCM4050__)
 /*************************************************************
                         RGB Timer Configuration
  *************************************************************/
@@ -629,7 +645,7 @@ POSSIBILITY OF SUCH DAMAGE.
     the PWM output remains idle. It can be any value from 0 to 65535.
 */
 #define TMR3_CFG_PWM2_MATCH_VALUE                       (0u)
-
+#endif
 /*! @} */
 
 /*************************************************************
@@ -676,8 +692,16 @@ POSSIBILITY OF SUCH DAMAGE.
 #error "Invalid configuration"
 #endif
 
+#if defined(__ADUCM3029__)
+#if TMR0_CFG_EVENT_CAPTURE > 15u
+#error "Invalid configuration"
+#endif
+#elif defined(__ADUCM4050__)
 #if TMR0_CFG_EVENT_CAPTURE > 39u
 #error "Invalid configuration"
+#endif
+#else
+#error TMR is not ported for this processor
 #endif
 
 #if TMR0_CFG_ENABLE_PWM0_MATCH_MODE > 1u
@@ -736,8 +760,16 @@ POSSIBILITY OF SUCH DAMAGE.
 #error "Invalid configuration"
 #endif
 
+#if defined(__ADUCM3029__)
+#if TMR1_CFG_EVENT_CAPTURE > 15u
+#error "Invalid configuration"
+#endif
+#elif defined(__ADUCM4050__)
 #if TMR1_CFG_EVENT_CAPTURE > 39u
 #error "Invalid configuration"
+#endif
+#else
+#error TMR is not ported for this processor
 #endif
 
 #if TMR1_CFG_ENABLE_PWM0_MATCH_MODE > 1u
@@ -796,8 +828,16 @@ POSSIBILITY OF SUCH DAMAGE.
 #error "Invalid configuration"
 #endif
 
+#if defined(__ADUCM3029__)
+#if TMR2_CFG_EVENT_CAPTURE > 15u
+#error "Invalid configuration"
+#endif
+#elif defined(__ADUCM4050__)
 #if TMR2_CFG_EVENT_CAPTURE > 39u
 #error "Invalid configuration"
+#endif
+#else
+#error TMR is not ported for this processor
 #endif
 
 #if TMR2_CFG_ENABLE_PWM0_MATCH_MODE > 1u
@@ -812,6 +852,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #error "Invalid configuration"
 #endif 
 
+#if defined(__ADUCM4050__)
 /*************************************************************
                         RGB Timer Macro Validation
 **************************************************************/
@@ -896,6 +937,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #error "Invalid configuration"
 #endif 
 
+#endif
 /*! @} */
 
 
