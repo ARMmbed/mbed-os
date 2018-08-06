@@ -956,7 +956,10 @@ bool nRF5xSecurityManager::sm_handler(const ble_evt_t *evt)
                         peer_dist = pairing_cb->initiator_dist;
                     }
 
-                    if (status.lesc) {
+                    uint8_t invalid_rand[BLE_GAP_SEC_RAND_LEN] = { 0 };
+                    if (pairing_cb->own_enc_key.master_id.ediv == 0 &&
+                        memcmp(pairing_cb->own_enc_key.master_id.rand, invalid_rand, sizeof(invalid_rand) == 0)
+                    ) {
                         handler->on_secure_connections_ltk_generated(
                             connection,
                             ltk_t(pairing_cb->own_enc_key.enc_info.ltk)
