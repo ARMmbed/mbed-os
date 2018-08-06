@@ -32,8 +32,8 @@ ATCAError ATCAKey::Verify( const unsigned char *hash, size_t hash_len,
                            const unsigned char *sig,
                            size_t sig_len )
 {
-    return (ATCAError)device.Verify(pk, ATCA_ECC_ECC_PK_LEN, hash, hash_len, sig,
-                         sig_len);
+    return (ATCAError)device.Verify(pk, ATCA_ECC_ECC_PK_LEN, sig, sig_len, hash,
+                         hash_len);
 }
 
 uint8_t * ATCAKey::GetPubKey()

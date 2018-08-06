@@ -355,7 +355,7 @@ int ATCADevice::Verify(uint8_t * pk, size_t pk_len, const uint8_t * sig,
     memcpy(cmd + 4 + 64, pk, 64);
 
     err = RunCommand(&cmd_info);
-    if (err != ATCA_SUCCESS)
+    if (err == ATCA_SUCCESS)
     {
         err = (ATCAError)cmd_info.resp()[0];
     }

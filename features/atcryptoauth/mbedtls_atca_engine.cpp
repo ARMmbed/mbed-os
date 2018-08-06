@@ -197,7 +197,7 @@ static int atca_verify_func( void *ctx, mbedtls_md_type_t md_alg,
         return ret;
     }
     /* Verify the signature */
-    ATCAError err = key->Verify( rs, sizeof(rs), hash, hash_len);
+    ATCAError err = key->Verify( hash, hash_len, rs, sizeof(rs) );
     if (err == ATCA_ERR_CHECK_MAC_OR_VERIFY_FAIL)
     {
         return MBEDTLS_ERR_PK_INVALID_SIGNATURE;
