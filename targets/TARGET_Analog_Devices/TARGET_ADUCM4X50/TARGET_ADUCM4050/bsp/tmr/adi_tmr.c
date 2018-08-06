@@ -2,7 +2,7 @@
  * @file    adi_tmr.c
  * @brief   GP and RGB timer device driver implementation
  -----------------------------------------------------------------------------
-Copyright (c) 2016 Analog Devices, Inc.
+Copyright (c) 2016-2018 Analog Devices, Inc.
 
 All rights reserved.
 
@@ -86,7 +86,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "adi_tmr_data.c"
 #endif
 
-
+#if defined(__ADUCM4050__)
 /* In adi_tmr_ConfigPwm, the bit positions for just PWM0 are used for PWM1 and PWM2 to simplify the code. Check here to make sure this is safe. */
 #if BITP_TMR_RGB_PWM0CTL_IDLESTATE != BITP_TMR_RGB_PWM1CTL_IDLESTATE
 #error "Bit positions for PWM0 and PWM1 do not match. Fix adi_tmr_ConfigPwm."
@@ -100,17 +100,36 @@ POSSIBILITY OF SUCH DAMAGE.
 #if BITP_TMR_RGB_PWM0CTL_MATCH != BITP_TMR_RGB_PWM2CTL_MATCH
 #error "Bit positions for PWM0 and PWM2 do not match. Fix adi_tmr_ConfigPwm."
 #endif
+#endif /*__ADUCM4050__*/
 
 /*! Number of events that can be captured */
+#if defined(__ADUCM3029__)
+#define ADI_TMR_NUM_EVENTS (16u)
+#elif defined(__ADUCM4050__)
 #define ADI_TMR_NUM_EVENTS (40u)
+#else
+#error TMR is not ported for this processor
+#endif
 
 /*! \cond PRIVATE */
 
 /* Since the RGB typedef is a superset of the GP typedef, treat the GP timers as RGB timers and restrict top register access */
+#if defined(__ADUCM3029__)
+static ADI_TMR_TypeDef * adi_tmr_registers[ADI_TMR_DEVICE_NUM] = {pADI_TMR0, pADI_TMR1, pADI_TMR2};
+#elif defined(__ADUCM4050__)
 static ADI_TMR_RGB_TypeDef * adi_tmr_registers[ADI_TMR_DEVICE_NUM] = {(ADI_TMR_RGB_TypeDef *) pADI_TMR0, (ADI_TMR_RGB_TypeDef *) pADI_TMR1, (ADI_TMR_RGB_TypeDef *) pADI_TMR2, pADI_TMR_RGB};
+#else
+#error TMR is not ported for this processor
+#endif
 
 /* Interrupt enums */
+#if defined(__ADUCM3029__)
+static const IRQn_Type adi_tmr_interrupt[ADI_TMR_DEVICE_NUM] = {TMR0_EVT_IRQn, TMR1_EVT_IRQn, TMR2_EVT_IRQn};
+#elif defined(__ADUCM4050__)
 static const IRQn_Type adi_tmr_interrupt[ADI_TMR_DEVICE_NUM] = {TMR0_EVT_IRQn, TMR1_EVT_IRQn, TMR2_EVT_IRQn, TMR_RGB_EVT_IRQn};
+#else
+#error TMR is not ported for this processor
+#endif
 
 /* Private data that the driver needs to retain between function calls */
 static ADI_CALLBACK adi_tmr_callbacks[ADI_TMR_DEVICE_NUM];
@@ -121,8 +140,9 @@ static void           CommonIntHandler   (ADI_TMR_DEVICE const eDevice);
        void           GP_Tmr0_Int_Handler(void);
        void           GP_Tmr1_Int_Handler(void);
        void           GP_Tmr2_Int_Handler(void);
+#if defined(__ADUCM4050__)
        void           RGB_Tmr_Int_Handler(void);
-
+#endif
 /*! \endcond */
 
 
@@ -181,10 +201,10 @@ ADI_TMR_RESULT adi_tmr_Init(ADI_TMR_DEVICE const eDevice, ADI_CALLBACK const pfC
     adi_tmr_registers[eDevice]->CTL           = aTimerCtlConfig     [eDevice];
     adi_tmr_registers[eDevice]->LOAD          = aTimerLoadConfig    [eDevice];
     adi_tmr_registers[eDevice]->ALOAD         = aTimerALoadConfig   [eDevice];
-    adi_tmr_registers[eDevice]->EVENTSELECT   = aTimerEventConfig   [eDevice];
     adi_tmr_registers[eDevice]->PWM0CTL       = aTimerPwmCtlConfig  [eDevice];
     adi_tmr_registers[eDevice]->PWM0MATCH     = aTimerPwmMatchConfig[eDevice];    
-
+#if defined(__ADUCM4050__)
+    adi_tmr_registers[eDevice]->EVENTSELECT   = aTimerEventConfig   [eDevice];
     /* IF(Initializing the RGB timer, there are 2 other PWM outputs to configure) */
     if (eDevice == ADI_TMR_DEVICE_RGB) { 
         /* The array is bumped by 1 to get to the 5th entry in the static config array, which contains RGB PWM1 */
@@ -194,6 +214,7 @@ ADI_TMR_RESULT adi_tmr_Init(ADI_TMR_DEVICE const eDevice, ADI_CALLBACK const pfC
         adi_tmr_registers[eDevice]->PWM2CTL   = aTimerPwmCtlConfig  [eDevice+2u];        
         adi_tmr_registers[eDevice]->PWM2MATCH = aTimerPwmMatchConfig[eDevice+2u];
     } /* ENDIF */
+#endif
 #endif
 
     return ADI_TMR_SUCCESS;
@@ -219,7 +240,7 @@ ADI_TMR_RESULT adi_tmr_Init(ADI_TMR_DEVICE const eDevice, ADI_CALLBACK const pfC
  *                - #ADI_TMR_SUCCESS                      Function call completed successfully
  *
  */
-ADI_TMR_RESULT adi_tmr_ConfigTimer(ADI_TMR_DEVICE const eDevice, ADI_TMR_CONFIG timerConfig) {
+ADI_TMR_RESULT adi_tmr_ConfigTimer(ADI_TMR_DEVICE const eDevice, ADI_TMR_CONFIG * timerConfig) {
     uint16_t nTemp;
 #ifdef ADI_DEBUG
     /* IF(Bad device input parameter) */
@@ -227,7 +248,7 @@ ADI_TMR_RESULT adi_tmr_ConfigTimer(ADI_TMR_DEVICE const eDevice, ADI_TMR_CONFIG 
         return ADI_TMR_BAD_DEVICE_NUM;
     } /* ENDIF */
     /* IF(Bad configuration, cannot enable reloading while in free running mode) */
-    if ((timerConfig.bPeriodic == false) && (timerConfig.bReloading == true)) {
+    if ((timerConfig->bPeriodic == false) && (timerConfig->bReloading == true)) {
         return ADI_TMR_BAD_RELOAD_CONFIGURATION;
     } /* ENDIF */
     /* IF(The timer is already running) */
@@ -236,8 +257,8 @@ ADI_TMR_RESULT adi_tmr_ConfigTimer(ADI_TMR_DEVICE const eDevice, ADI_TMR_CONFIG 
     } /* ENDIF */
 #endif
     /* Set the load registers */
-    adi_tmr_registers[eDevice]->LOAD  = timerConfig.nLoad;
-    adi_tmr_registers[eDevice]->ALOAD = timerConfig.nAsyncLoad;
+    adi_tmr_registers[eDevice]->LOAD  = timerConfig->nLoad;
+    adi_tmr_registers[eDevice]->ALOAD = timerConfig->nAsyncLoad;
 
     /* IF(Busy bit does not clear after waiting) */
     if (ADI_TMR_SUCCESS != WaitForStatusBit(eDevice, (uint16_t) BITM_TMR_RGB_STAT_BUSY)) {
@@ -249,26 +270,26 @@ ADI_TMR_RESULT adi_tmr_ConfigTimer(ADI_TMR_DEVICE const eDevice, ADI_TMR_CONFIG 
     nTemp &= (uint16_t) (BITM_TMR_RGB_CTL_EVTEN | BITM_TMR_RGB_CTL_RSTEN);
 
     /* Setup the prescaler and the clock source */
-    nTemp |=  (uint16_t)(((uint16_t) timerConfig.ePrescaler  ) << BITP_TMR_RGB_CTL_PRE);
-    nTemp |=  (uint16_t)(((uint16_t) timerConfig.eClockSource) << BITP_TMR_RGB_CTL_CLK);
+    nTemp |=  (uint16_t)(((uint16_t) timerConfig->ePrescaler  ) << BITP_TMR_RGB_CTL_PRE);
+    nTemp |=  (uint16_t)(((uint16_t) timerConfig->eClockSource) << BITP_TMR_RGB_CTL_CLK);
 
     /* IF(Periodic mode) */
-    if (timerConfig.bPeriodic == true) {
+    if (timerConfig->bPeriodic == true) {
         nTemp |= (1u << BITP_TMR_RGB_CTL_MODE);
     } /* ENDIF */    
     
     /* IF(Counting up) */
-    if (timerConfig.bCountingUp == true) {
+    if (timerConfig->bCountingUp == true) {
         nTemp |= (1u << BITP_TMR_RGB_CTL_UP);
     } /* ENDIF */
     
     /* IF(Reloading is enabled) */
-    if (timerConfig.bReloading == true) {
+    if (timerConfig->bReloading == true) {
         nTemp |= (1u << BITP_TMR_RGB_CTL_RLD);
     } /* ENDIF */
     
     /* IF(Sync bypass is enabled) */
-    if (timerConfig.bSyncBypass == true) {
+    if (timerConfig->bSyncBypass == true) {
         nTemp |= (1u << BITP_TMR_RGB_CTL_SYNCBYP);
     } /* ENDIF */
     
@@ -301,14 +322,14 @@ ADI_TMR_RESULT adi_tmr_ConfigTimer(ADI_TMR_DEVICE const eDevice, ADI_TMR_CONFIG 
  *                - #ADI_TMR_SUCCESS                   Function call completed successfully
  *
  */
-ADI_TMR_RESULT adi_tmr_ConfigEvent(ADI_TMR_DEVICE const eDevice, ADI_TMR_EVENT_CONFIG eventConfig) {
+ADI_TMR_RESULT adi_tmr_ConfigEvent(ADI_TMR_DEVICE const eDevice, ADI_TMR_EVENT_CONFIG * eventConfig) {
 #ifdef ADI_DEBUG
     /* IF(Bad device input parameter) */
     if (eDevice >= ADI_TMR_DEVICE_NUM) {
         return ADI_TMR_BAD_DEVICE_NUM;
     } /* ENDIF */
     /* IF(Bad event input parameter) */
-    if (eventConfig.nEventID >= ADI_TMR_NUM_EVENTS) {
+    if (eventConfig->nEventID >= ADI_TMR_NUM_EVENTS) {
         return ADI_TMR_BAD_EVENT_ID;
     } /* ENDIF */
     /* IF(The timer is already running) */
@@ -316,9 +337,10 @@ ADI_TMR_RESULT adi_tmr_ConfigEvent(ADI_TMR_DEVICE const eDevice, ADI_TMR_EVENT_C
         return ADI_TMR_OPERATION_NOT_ALLOWED;
     } /* ENDIF */        
 #endif
+#if defined(__ADUCM4050__)
     /* Set the event number */
-    adi_tmr_registers[eDevice]->EVENTSELECT = (uint16_t) eventConfig.nEventID;
-
+    adi_tmr_registers[eDevice]->EVENTSELECT = (uint16_t) eventConfig->nEventID;
+#endif
     /* IF(Busy bit does not clear after waiting) */
     if (ADI_TMR_SUCCESS != WaitForStatusBit(eDevice, (uint16_t) BITM_TMR_RGB_STAT_BUSY)) {
         return ADI_TMR_DEVICE_BUSY; 
@@ -328,14 +350,19 @@ ADI_TMR_RESULT adi_tmr_ConfigEvent(ADI_TMR_DEVICE const eDevice, ADI_TMR_EVENT_C
     adi_tmr_registers[eDevice]->CTL &= (uint16_t) ~(BITM_TMR_RGB_CTL_EVTEN | BITM_TMR_RGB_CTL_RSTEN);
 
     /* IF(Turning event capture on) */
-    if (eventConfig.bEnable == true) {
+    if (eventConfig->bEnable == true) {
         adi_tmr_registers[eDevice]->CTL |= (uint16_t) BITM_TMR_RGB_CTL_EVTEN;
     } /* ENDIF */
 
     /* IF(Enabling reset on event capture) */
-    if (eventConfig.bPrescaleReset == true) {
+    if (eventConfig->bPrescaleReset == true) {
         adi_tmr_registers[eDevice]->CTL |= (uint16_t) BITM_TMR_RGB_CTL_RSTEN;
     } /* ENDIF */
+
+#if defined(__ADUCM3029__)
+    /* Write the event index */
+    adi_tmr_registers[eDevice]->CTL |= (uint16_t) (((uint16_t) eventConfig->nEventID) << BITP_TMR_CTL_EVTRANGE);
+#endif
 
     return ADI_TMR_SUCCESS;
 }
@@ -364,7 +391,7 @@ ADI_TMR_RESULT adi_tmr_ConfigEvent(ADI_TMR_DEVICE const eDevice, ADI_TMR_EVENT_C
  *                - #ADI_TMR_SUCCESS                     Function call completed successfully
  *
  */
-ADI_TMR_RESULT adi_tmr_ConfigPwm(ADI_TMR_DEVICE const eDevice, ADI_TMR_PWM_CONFIG pwmConfig) {
+ADI_TMR_RESULT adi_tmr_ConfigPwm(ADI_TMR_DEVICE const eDevice, ADI_TMR_PWM_CONFIG * pwmConfig) {
     uint16_t nControl = 0u;
 #ifdef ADI_DEBUG
     /* IF(Bad device input parameter) */
@@ -375,35 +402,38 @@ ADI_TMR_RESULT adi_tmr_ConfigPwm(ADI_TMR_DEVICE const eDevice, ADI_TMR_PWM_CONFI
     if ((adi_tmr_registers[eDevice]->CTL & BITM_TMR_RGB_CTL_EN) == BITM_TMR_RGB_CTL_EN) {
         return ADI_TMR_OPERATION_NOT_ALLOWED;
     } /* ENDIF */
+#if defined(__ADUCM4050__)
     /* IF(Bad PWM output and device combo OR bad PWM output) */
-    if (((eDevice != ADI_TMR_DEVICE_RGB) && (pwmConfig.eOutput != ADI_TMR_PWM_OUTPUT_0)) || (pwmConfig.eOutput >= ADI_TMR_PWM_OUTPUT_NUM)) {
+    if (((eDevice != ADI_TMR_DEVICE_RGB) && (pwmConfig->eOutput != ADI_TMR_PWM_OUTPUT_0)) || (pwmConfig->eOutput >= ADI_TMR_PWM_OUTPUT_NUM)) {
         return ADI_TMR_BAD_PWM_NUM;
     } /* ENDIF */
 #endif
+#endif
     /* IF(Idle high is set) */
-    if (pwmConfig.bIdleHigh == true) {
+    if (pwmConfig->bIdleHigh == true) {
         nControl = (1u << ((uint16_t) BITP_TMR_RGB_PWM0CTL_IDLESTATE));
     } /* ENDIF */
  
     /* IF(Match mode is enabled) */
-    if (pwmConfig.bMatch == true) {
+    if (pwmConfig->bMatch == true) {
         nControl |= (1u << ((uint16_t) BITP_TMR_RGB_PWM0CTL_MATCH));
     } /* ENDIF */    
-    
+ 
     /* IF(PWM output 0) */
-    if (pwmConfig.eOutput == ADI_TMR_PWM_OUTPUT_0) {
+    if (pwmConfig->eOutput == ADI_TMR_PWM_OUTPUT_0) {
         adi_tmr_registers[eDevice]->PWM0CTL   = nControl;
-        adi_tmr_registers[eDevice]->PWM0MATCH = pwmConfig.nMatchValue; 
+        adi_tmr_registers[eDevice]->PWM0MATCH = pwmConfig->nMatchValue; 
+#if defined(__ADUCM4050__)
     /* IF(PWM output 1) */
-    } else if (pwmConfig.eOutput == ADI_TMR_PWM_OUTPUT_1) {
+    } else if (pwmConfig->eOutput == ADI_TMR_PWM_OUTPUT_1) {
         adi_tmr_registers[eDevice]->PWM1CTL   = nControl;
-        adi_tmr_registers[eDevice]->PWM1MATCH = pwmConfig.nMatchValue;     
+        adi_tmr_registers[eDevice]->PWM1MATCH = pwmConfig->nMatchValue;     
     /* ELSE(PWM output 2) */
     } else {
         adi_tmr_registers[eDevice]->PWM2CTL   = nControl;
-        adi_tmr_registers[eDevice]->PWM2MATCH = pwmConfig.nMatchValue;
+        adi_tmr_registers[eDevice]->PWM2MATCH = pwmConfig->nMatchValue;
+#endif
     } /* ENDIF */
-
     return ADI_TMR_SUCCESS;
 }
 
@@ -599,13 +629,13 @@ void GP_Tmr2_Int_Handler(void) {
     CommonIntHandler(ADI_TMR_DEVICE_GP2);
     ISR_EPILOG()
 }
-
+#if defined(__ADUCM4050__)
 void RGB_Tmr_Int_Handler(void) {
     ISR_PROLOG()
     CommonIntHandler(ADI_TMR_DEVICE_RGB);
     ISR_EPILOG()
 }
-
+#endif
 /*! \endcond */
 
 /*! @} */
