@@ -229,9 +229,19 @@ typedef enum {
     SWD_TGT_CTS = UART1_CTS,
     SWD_TGT_RTS = UART1_RTS,
 
+    // Generics
+    SERIAL_TX = UART1_TX,
+    SERIAL_RX = UART1_RX,
+    I2C_SCL = I2C0_SCL,
+    I2C_SDA = I2C0_SDA,
+    SPI_MOSI = SPI0_MOSI,
+    SPI_MISO = SPI0_MISO,
+    SPI_SCK = SPI0_SCK,
+    SPI_CS = SPI0_SS0,
+    PWM_OUT = PWM0,
+
     // Not connected
     NC = NOT_CONNECTED
-
 } PinName;
 
 typedef enum {
