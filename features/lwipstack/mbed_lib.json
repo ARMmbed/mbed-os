@@ -149,7 +149,7 @@
             "default-thread-stacksize": 640,
             "ppp-thread-stacksize": 896,
             "memp-num-tcp-seg": 32,
-            "tcp-mss": 1460,
+            "tcp-mss": 1440,
             "tcp-snd-buf": "(8 * TCP_MSS)",
             "tcp-wnd": "(TCP_MSS * 8)",
             "pbuf-pool-size": 16,
