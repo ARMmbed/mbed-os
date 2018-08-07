@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef MBED_NFC_ENDPOINT_H
-#define MBED_NFC_ENDPOINT_H
+#ifndef MBED_NFC_REMOTE_ENDPOINT_H
+#define MBED_NFC_REMOTE_ENDPOINT_H
 
 #include <stdint.h>
 
@@ -23,7 +23,7 @@
 
 namespace mbed {
 namespace nfc {
-    class NFCEndpoint {
+    class NFCRemoteEndpoint {
     public:
         struct Delegate {
             virtual void on_lost() {};           
