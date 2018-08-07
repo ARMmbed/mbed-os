@@ -23,16 +23,46 @@
 
 namespace mbed {
 namespace nfc {
+
+    /**
+     * @addtogroup nfc
+     * @{
+     */
+    
+    /**
+     * This is the base class for all remote endpoints (initiators and targets)
+     * addressable over the air interface.
+     */ 
     class NFCRemoteEndpoint {
     public:
+
+        /**
+         * The NFCRemoteEndpoint base delegate.
+         */
         struct Delegate {
+            /**
+             * This method is called when the endpoint is lost (air interface link disconnnected)
+             */
             virtual void on_lost() {};           
         };
 
+        /**
+         * Check if the endpoint is lost.
+         * @return whether the endpoint is lost
+         */ 
         bool is_lost() const;
 
+        /**
+         * Get the list of RF protocols supported and activated over the air interface.
+         * @return a bitmask of activated protocols
+         */ 
         nfc_rf_protocols_bitmask_t rf_protocols() const;
     };
+
+    /**
+     * @}
+     */
+
 } // namespace nfc
 } // namespace mbed
 
