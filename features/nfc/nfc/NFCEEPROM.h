@@ -42,7 +42,7 @@ namespace nfc {
      * by the NFC Forum, therefore encoding NDEF data in these EEPROMs will 
      * ensure that it is understandable by a NFC reader.
      */ 
-    class NFCEEPROM : public NFCTarget {
+    class NFCEEPROM : public NFCTarget, public NFCEEPROMDriver::Delegate {
     public:
         /** 
          * Construct a NFCEEPROM instance.
@@ -50,7 +50,7 @@ namespace nfc {
          * @param[in] driver a pointer to a NFCEEPROMDriver instance
          */  
         NFCEEPROM(NFCEEPROMDriver* driver);
-        
+
         virtual ~NFCTarget();
 
         /**
@@ -65,6 +65,15 @@ namespace nfc {
          * @oaram[in] delegate the delegate instance to use
          */ 
         void set_delegate(Delegate* delegate);
+
+    private:
+        // Implementation of NFCEEPROMDriver::Delegate
+        virtual void has_started_session(bool success);
+        virtual void has_read_bytes(bool success);
+        virtual void has_written_bytes(bool success);
+        virtual void has_set_size(bool success);
+        virtual void has_gotten_size(bool success, size_t size);
+        virtual void has_erased_bytes(bool success);
     };
 
     /**
