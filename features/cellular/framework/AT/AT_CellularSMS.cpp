@@ -1298,7 +1298,5 @@ uint16_t AT_CellularSMS::unpack_7_bit_gsm_to_str(const char *str, int len, char 
         decodedCount++;
     }
 
-    buf[--decodedCount] = '\0';
-
     return decodedCount;
 }
