@@ -25,14 +25,12 @@ namespace mbed {
 namespace nfc {
     class NFCNDEFCapable {
     public:
-        bool is_ndef_supported() const;
+        virtual bool is_ndef_supported() const { return false; }
 
         void set_ndef_message_parser(ndef::MessageParser* parser) const;
         void set_ndef_message_builder(ndef::MessageBuilder* builder) const;
 
     protected:
-        void set_ndef_support(bool supported);
-
         ndef::MessageParser* ndef_message_parser();
         ndef::MessageBuilder* ndef_message_builder();
 
