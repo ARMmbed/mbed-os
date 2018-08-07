@@ -28,6 +28,20 @@
 #include "platform/SingletonPtr.h"
 #include "platform/PlatformMutex.h"
 #include "platform/NonCopyable.h"
+#include <algorithm>
+
+// Export ROM end address
+#if defined(TOOLCHAIN_GCC_ARM)
+extern uint32_t __etext;
+#define FLASHIAP_ROM_END ((uint32_t) &__etext)
+#elif defined(TOOLCHAIN_ARM)
+extern uint32_t Load$$LR$$LR_IROM1$$Limit[];
+#define FLASHIAP_ROM_END ((uint32_t)Load$$LR$$LR_IROM1$$Limit)
+#elif defined(TOOLCHAIN_IAR)
+#pragma section=".rodata"
+#pragma section=".text"
+#define FLASHIAP_ROM_END (std::max((uint32_t) __section_end(".rodata"), (uint32_t) __section_end(".text")))
+#endif
 
 namespace mbed {
 
