@@ -605,17 +605,14 @@ void LoRaWANStack::process_transmission(void)
             _ctrl_flags &= ~TX_DONE_FLAG;
             tr_debug("Awaiting ACK");
             _device_current_state = DEVICE_STATE_AWAITING_ACK;
-            return;
-        }
-
-        // Class A unconfirmed message sent, TX_DONE event will be sent to
-        // application when RX2 windows is elapsed, i.e., in process_reception_timeout()
-        _ctrl_flags &= ~TX_ONGOING_FLAG;
-        _ctrl_flags |= TX_DONE_FLAG;
-
-        // In Class C, reception timeout never happens, so we handle the state
-        // progression for TX_DONE in UNCONFIRMED case here
-        if (_loramac.get_device_class() == CLASS_C) {
+        } else if (_loramac.get_device_class() == CLASS_A) {
+            // Class A unconfirmed message sent, TX_DONE event will be sent to
+            // application when RX2 windows is elapsed, i.e., in process_reception_timeout()
+            _ctrl_flags &= ~TX_ONGOING_FLAG;
+            _ctrl_flags |= TX_DONE_FLAG;
+        } else if (_loramac.get_device_class() == CLASS_C) {
+            // In Class C, reception timeout never happens, so we handle the state
+             // progression for TX_DONE in UNCONFIRMED case here
             _loramac.post_process_mcps_req();
             state_controller(DEVICE_STATE_STATUS_CHECK);
             state_machine_run_to_completion();
@@ -678,9 +675,10 @@ void LoRaWANStack::process_reception(const uint8_t *const payload, uint16_t size
                 state_controller(DEVICE_STATE_STATUS_CHECK);
             }
         }
-    } else {
+    } else if (_loramac.get_device_class() == CLASS_A) {
         // handle UNCONFIRMED case here, RX slots were turned off due to
-        // valid packet reception
+        // valid packet reception. For Class C, an outgoing UNCONFIRMED message
+        // gets its handling in process_transmission.
         _loramac.post_process_mcps_req();
         _ctrl_flags |= TX_DONE_FLAG;
         state_controller(DEVICE_STATE_STATUS_CHECK);
@@ -814,8 +812,12 @@ void LoRaWANStack::send_event_to_application(const lorawan_event_t event) const
 
 void LoRaWANStack::send_automatic_uplink_message(const uint8_t port)
 {
+    // we will silently ignore the automatic uplink event if the user is already
+    // sending something
     const int16_t ret = handle_tx(port, NULL, 0, MSG_CONFIRMED_FLAG, true, true);
-    if (ret < 0) {
+    if (ret == LORAWAN_STATUS_WOULD_BLOCK) {
+        _automatic_uplink_ongoing = false;
+    } else if (ret < 0) {
         tr_debug("Failed to generate AUTOMATIC UPLINK, error code = %d", ret);
         send_event_to_application(AUTOMATIC_UPLINK_ERROR);
     }

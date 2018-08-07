@@ -64,6 +64,18 @@
         "automatic-uplink-message": {
             "help": "Stack will automatically send an uplink message when lora server requires immediate response",
             "value": true
+        },
+        "max-sys-rx-error": {
+        	"help": "Maximum timing error of the receiver in ms. The receiver will turn on in [-RxError : + RxError]",
+        	"value": 10
+        },
+        "downlink-preamble-length": {
+        	"help": "Number of preamble symbols need to be captured (out of 8) for successful demodulation",
+        	"value": 5
+        },
+        "uplink-preamble-length": {
+        	"help": "Number of preamble symbols to transmit. Must be <= 8",
+        	"value": 8
         }
     }
 }

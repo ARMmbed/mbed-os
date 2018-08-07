@@ -424,6 +424,14 @@ public:
     uint8_t get_default_tx_datarate();
 
     /**
+     * @brief get_default_max_tx_datarate Gets the maximum achievable data rate for
+     *        LoRa modulation. This will always be the highest data rate achievable with
+     *        LoRa as defined in the regional specifications.
+     * @return Maximum achievable data rate with LoRa modulation.
+     */
+    uint8_t get_default_max_tx_datarate();
+
+    /**
      * @brief get_default_tx_power Gets the default TX power
      * @return Default TX power
      */

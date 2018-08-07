@@ -164,6 +164,8 @@ void LoRaMac::post_process_mcps_req()
             if (_params.is_ul_frame_counter_fixed == false) {
                 _params.ul_frame_counter++;
             }
+        } else {
+            _mcps_confirmation.status = LORAMAC_EVENT_INFO_STATUS_ERROR;
         }
     } else {
         //UNCONFIRMED or PROPRIETARY
@@ -665,7 +667,7 @@ void LoRaMac::on_radio_rx_done(const uint8_t *const payload, uint16_t size,
 {
     if (_device_class == CLASS_C && !_continuous_rx2_window_open) {
         open_rx2_window();
-    } else {
+    } else if (_device_class != CLASS_C){
         _lora_time.stop(_params.timers.rx_window1_timer);
         _lora_phy->put_radio_to_sleep();
     }
@@ -1101,13 +1103,13 @@ lorawan_status_t LoRaMac::schedule_tx()
     uint8_t dr_offset = _lora_phy->apply_DR_offset(_params.sys_params.channel_data_rate,
                                                   _params.sys_params.rx1_dr_offset);
 
-    _lora_phy->compute_rx_win_params(dr_offset, _params.sys_params.min_rx_symb,
-                                    _params.sys_params.max_sys_rx_error,
+    _lora_phy->compute_rx_win_params(dr_offset, MBED_CONF_LORA_DOWNLINK_PREAMBLE_LENGTH,
+                                    MBED_CONF_LORA_MAX_SYS_RX_ERROR,
                                     &_params.rx_window1_config);
 
     _lora_phy->compute_rx_win_params(_params.sys_params.rx2_channel.datarate,
-                                    _params.sys_params.min_rx_symb,
-                                    _params.sys_params.max_sys_rx_error,
+                                    MBED_CONF_LORA_DOWNLINK_PREAMBLE_LENGTH,
+                                    MBED_CONF_LORA_MAX_SYS_RX_ERROR,
                                     &_params.rx_window2_config);
 
     if (!_is_nwk_joined) {
@@ -1376,8 +1378,8 @@ void LoRaMac::set_device_class(const device_class_t &device_class,
         _params.is_node_ack_requested = false;
         _lora_phy->put_radio_to_sleep();
         _lora_phy->compute_rx_win_params(_params.sys_params.rx2_channel.datarate,
-                                        _params.sys_params.min_rx_symb,
-                                        _params.sys_params.max_sys_rx_error,
+                                        MBED_CONF_LORA_DOWNLINK_PREAMBLE_LENGTH,
+                                        MBED_CONF_LORA_MAX_SYS_RX_ERROR,
                                         &_params.rx_window2_config);
     }
 
@@ -1755,9 +1757,6 @@ lorawan_status_t LoRaMac::initialize(EventQueue *queue,
     _params.timers.aggregated_timeoff = 0;
 
     _lora_phy->reset_to_default_values(&_params, true);
-
-    _params.sys_params.max_sys_rx_error = 10;
-    _params.sys_params.min_rx_symb = 6;
     _params.sys_params.retry_num = 1;
 
     reset_mac_parameters();
@@ -1780,9 +1779,7 @@ lorawan_status_t LoRaMac::initialize(EventQueue *queue,
     _params.timers.mac_init_time = _lora_time.get_current_time();
 
     _params.sys_params.adr_on = MBED_CONF_LORA_ADR_ON;
-
-    _params.is_nwk_public = MBED_CONF_LORA_PUBLIC_NETWORK;
-    _lora_phy->setup_public_network_mode(MBED_CONF_LORA_PUBLIC_NETWORK);
+    _params.sys_params.channel_data_rate = _lora_phy->get_default_max_tx_datarate();
 
     return LORAWAN_STATUS_OK;
 }
