@@ -27,7 +27,7 @@
 #error [NOT_SUPPORTED] CELLULAR_DEVICE must be defined
 #endif
 
-#ifndef MBED_CONF_APP_SIM_PIN_CODE
+#ifndef MBED_CONF_APP_CELLULAR_SIM_PIN
 #error [NOT_SUPPORTED] SIM pin code is needed. Skipping this build.
 #endif
 
@@ -52,7 +52,6 @@ static EventQueue queue(8 * EVENTS_EVENT_SIZE);
 static rtos::Semaphore network_semaphore(0);
 static CellularConnectionFSM cellularConnectionFSM;
 static CellularConnectionFSM::CellularState cellular_target_state;
-static CELLULAR_DEVICE *device;
 static CellularSMS* sms;
 static char service_center_address[SMS_MAX_PHONE_NUMBER_SIZE];
 static int service_address_type;
@@ -93,7 +92,9 @@ static void init()
     TEST_ASSERT(cellularConnectionFSM.init() == NSAPI_ERROR_OK);
     TEST_ASSERT(cellularConnectionFSM.start_dispatch() == NSAPI_ERROR_OK);
 
-    device = new CELLULAR_DEVICE(queue);
+    
+    CellularDevice *device = cellularConnectionFSM.get_device();
+
     TEST_ASSERT(device != NULL);
     device->set_timeout(30000);
 
@@ -111,7 +112,7 @@ static void activate_context()
     TEST_ASSERT(network != NULL);
     TEST_ASSERT(network->set_credentials(MBED_CONF_APP_APN, NULL, NULL) == NSAPI_ERROR_OK);
 
-    cellularConnectionFSM.set_sim_pin(MBED_CONF_APP_SIM_PIN_CODE);
+    cellularConnectionFSM.set_sim_pin(MBED_CONF_APP_CELLULAR_SIM_PIN);
 
     cellular_target_state = CellularConnectionFSM::STATE_REGISTERING_NETWORK;
     TEST_ASSERT(cellularConnectionFSM.continue_to_state(cellular_target_state) == NSAPI_ERROR_OK);
@@ -171,7 +172,7 @@ static void test_set_cpms_sm()
 
 static void test_sms_send()
 {
-    const int msg_len = sizeof(TEST_MESSAGE);
+    const int msg_len = strlen(TEST_MESSAGE);
     TEST_ASSERT(sms->send_sms(MBED_CONF_APP_CELLULAR_PHONE_NUMBER, TEST_MESSAGE, msg_len) == msg_len);
 }
 
@@ -180,20 +181,18 @@ static void test_get_sms()
     uint16_t buf_len = sizeof(TEST_MESSAGE);
     char buf[buf_len];
 
-    const uint16_t phone_len = sizeof(MBED_CONF_APP_CELLULAR_PHONE_NUMBER);
-    char phone_num[phone_len];
+    char phone_num[SMS_MAX_PHONE_NUMBER_SIZE];
 
-    const uint16_t time_len = sizeof("yy/MM/dd,hh:mm:ss-zz");
-    char time_stamp[time_len];
+    char time_stamp[SMS_MAX_TIME_STAMP_SIZE];
 
     int buf_size = 0;
 
     wait(7);
-    TEST_ASSERT(sms->get_sms(buf, buf_len, phone_num, phone_len, time_stamp, time_len, &buf_size) == buf_len-1);
+
+    TEST_ASSERT(sms->get_sms(buf, buf_len, phone_num, SMS_MAX_PHONE_NUMBER_SIZE, time_stamp, SMS_MAX_TIME_STAMP_SIZE, &buf_size) == buf_len-1);
     TEST_ASSERT(strcmp(phone_num, MBED_CONF_APP_CELLULAR_PHONE_NUMBER) == 0);
     TEST_ASSERT(strcmp(buf, TEST_MESSAGE) == 0);
     TEST_ASSERT(buf_size == 0);
-
     TEST_ASSERT(callbacks_received > 0);
     callbacks_received = 0;
 
@@ -203,6 +202,7 @@ static void test_delete_all_messages()
 {
     //send a message so that there is something to delete
     test_sms_send();
+    wait(7);
     TEST_ASSERT(sms->delete_all_messages() == NSAPI_ERROR_OK);  
     callbacks_received = 0;
 }
@@ -222,6 +222,7 @@ static utest::v1::status_t greentea_failure_handler(const Case *const source, co
     greentea_case_failure_abort_handler(source, reason);
     return STATUS_ABORT;
 }
+
 
 static Case cases[] = {
     Case("CellularSMS init", init, greentea_failure_handler),
@@ -251,7 +252,7 @@ static Case cases[] = {
 
 static utest::v1::status_t test_setup(const size_t number_of_cases)
 {
-    GREENTEA_SETUP(10*60, "default_auto");
+    GREENTEA_SETUP(600, "default_auto");
     return verbose_test_setup_handler(number_of_cases);
 }
 
