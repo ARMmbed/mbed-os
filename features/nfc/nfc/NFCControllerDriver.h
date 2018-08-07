@@ -30,6 +30,7 @@ namespace nfc {
     struct NFCControllerDriver {
         virtual void initialize(scheduler_timer_t* pTimer) = 0;
         virtual transceiver_t* get_transceiver() const = 0;
+        virtual nfc_rf_protocols_bitmask_t get_supported_rf_protocols() const = 0;
     };
 
 } // namespace nfc
