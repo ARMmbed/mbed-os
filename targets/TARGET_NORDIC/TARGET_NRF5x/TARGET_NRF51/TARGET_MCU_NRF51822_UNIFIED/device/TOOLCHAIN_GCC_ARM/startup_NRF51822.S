@@ -50,7 +50,11 @@ expected to be copied into the application project folder prior to its use!
 #ifdef __STACK_SIZE
     .equ    Stack_Size, __STACK_SIZE
 #else
-    .equ    Stack_Size, 2048
+    #if defined(MBED_CONF_RTOS_PRESENT)
+      .equ    Stack_Size, 0x800
+    #else
+      .equ    Stack_Size, 0x1000
+    #endif
 #endif
     .globl    Stack_Size
     .globl    __StackTop

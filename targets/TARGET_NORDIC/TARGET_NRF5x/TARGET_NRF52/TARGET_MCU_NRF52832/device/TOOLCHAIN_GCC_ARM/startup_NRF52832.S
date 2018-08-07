@@ -45,6 +45,19 @@ expected to be copied into the application project folder prior to its use!
     .syntax unified
     .arch armv7e-m
 
+    .section .stack
+    .align 3
+#ifdef __STACK_SIZE
+    .equ    Stack_Size, __STACK_SIZE
+#else
+    #if defined(MBED_CONF_RTOS_PRESENT)
+      .equ    Stack_Size, 0x800
+    #else
+      .equ    Stack_Size, 0x1000
+    #endif
+#endif
+    .globl    Stack_Size
+
     .section .Vectors
     .align 2
     .globl __Vectors

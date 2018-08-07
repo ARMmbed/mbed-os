@@ -229,8 +229,8 @@ SECTIONS
         *(.heap*);
 
         /* Expand the heap to reach the stack boundary. */
-        ASSERT(. <= (ORIGIN(RAM) + LENGTH(RAM) - 0x800), "heap region overflowed into stack");
-        . += (ORIGIN(RAM) + LENGTH(RAM) - 0x800) - .;
+        ASSERT(. <= (ORIGIN(RAM) + LENGTH(RAM) - Stack_Size), "heap region overflowed into stack");
+        . = ORIGIN(RAM) + LENGTH(RAM) - Stack_Size;
     } > RAM
     PROVIDE(__heap_start = ADDR(.heap));
     PROVIDE(__heap_size = SIZEOF(.heap));
@@ -244,7 +244,7 @@ SECTIONS
     {
         __StackLimit = .;
         *(.stack*)
-        . += (ORIGIN(RAM) + LENGTH(RAM) - .);
+        . += Stack_Size;
     } > RAM
 
     /* Set the stack top to the end of RAM and move down the stack limit by

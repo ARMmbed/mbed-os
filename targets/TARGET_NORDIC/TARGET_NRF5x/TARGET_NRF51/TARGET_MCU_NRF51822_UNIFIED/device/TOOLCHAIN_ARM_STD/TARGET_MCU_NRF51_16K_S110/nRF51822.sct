@@ -1,3 +1,16 @@
+#! armcc -E
+#include "mbed_config.h"
+
+#if (defined(__stack_size__))
+  #define Stack_Size                   __stack_size__
+#else
+  #if (defined(MBED_CONF_RTOS_PRESENT))
+    #define Stack_Size                   0x0800
+  #else
+    #define Stack_Size                   0x1000
+  #endif
+#endif
+
 ;WITHOUT SOFTDEVICE:
 ;LR_IROM1 0x00000000 0x00040000  {
 ;  ER_IROM1 0x00000000 0x00040000  {
@@ -23,5 +36,7 @@ LR_IROM1 0x18000 0x0028000  {
   }
   RW_IRAM1 0x200020C0 0x00001F40  {
    .ANY (+RW +ZI)
+  }
+  ARM_LIB_STACK 0x200020C0+0x00001F40 EMPTY -Stack_Size { ; Stack region growing down
   }
 }
