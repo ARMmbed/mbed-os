@@ -127,18 +127,18 @@ void pwmout_period_us(pwmout_t* obj, int us)
     uint32_t pwm_base_clock;
     uint32_t clkdiv = 0;
     pwm_base_clock = CLOCK_GetFreq(kCLOCK_BusClk);
-    pwm_clock_mhz = (float)pwm_base_clock / 1000000.0f;
-    uint32_t mod = (pwm_clock_mhz*(float)us) - 1;
-    while(mod > 0xFFFF){
-    	++clkdiv;
-    	pwm_clock_mhz /= 2.0f;
-    	mod = (pwm_clock_mhz*(float)us) - 1;
-    	if(clkdiv==7){
-    		break;
-    	}
+    pwm_clock_mhz = (float) pwm_base_clock / 1000000.0f;
+    uint32_t mod = (pwm_clock_mhz * (float) us) - 1;
+    while (mod > 0xFFFF) {
+        ++clkdiv;
+        pwm_clock_mhz /= 2.0f;
+        mod = (pwm_clock_mhz * (float) us) - 1;
+        if (clkdiv == 7) {
+            break;
+        }
     }
     uint32_t SC = base->SC & ~FTM_SC_PS_MASK;
-    SC |= FTM_SC_PS((ftm_clock_prescale_t)clkdiv);
+    SC |= FTM_SC_PS((ftm_clock_prescale_t) clkdiv);
     base->SC = SC;
 
     //Stop FTM clock to ensure instant update of MOD register
