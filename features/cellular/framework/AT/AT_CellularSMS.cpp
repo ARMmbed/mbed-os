@@ -641,10 +641,10 @@ nsapi_size_or_error_t AT_CellularSMS::read_sms_from_index(int msg_index, char *b
                 _at.skip_param(); // <alpha>
                 if (time_stamp) {
                     int len = _at.read_string(time_stamp, SMS_MAX_TIME_STAMP_SIZE);
-                    if (len < SMS_MAX_TIME_STAMP_SIZE-2) {
+                    if (len < (SMS_MAX_TIME_STAMP_SIZE - 2)) {
                         time_stamp[len++] = ',';
                         _at.read_string(&time_stamp[len], SMS_MAX_TIME_STAMP_SIZE-len);
-                    }                    
+                    }
                 }
                 (void)_at.consume_to_stop_tag(); // consume until <CR><LF>
                 if (buf) {
@@ -804,10 +804,10 @@ nsapi_size_or_error_t AT_CellularSMS::get_data_from_pdu(const char *pdu, sms_inf
 
         index += 2; // we just read the high bits of first octet so move +2
         // originating address length
-        oaLength = hex_str_to_int(pdu+index, 2);
-        index +=2; // add  index over address length
-        int type = hex_str_to_int(pdu+index, 1);
-        index +=2; // add  index over type
+        oaLength = hex_str_to_int(pdu + index, 2);
+        index += 2; // add  index over address length
+        int type = hex_str_to_int(pdu + index, 1);
+        index += 2; // add  index over type
         if (phone_number) {
             // phone number as reverse nibble encoded
             int a = 0, field_length = oaLength;
@@ -818,13 +818,13 @@ nsapi_size_or_error_t AT_CellularSMS::get_data_from_pdu(const char *pdu, sms_inf
                 field_length++;
             }
 
-            for (; a < field_length; a +=2) {
-                if (a+1 == field_length) {
-                    phone_number[a] = pdu[index+1];
+            for (; a < field_length; a += 2) {
+                if ((a + 1) == field_length) {
+                    phone_number[a] = pdu[index + 1];
                     index++;
                 } else {
-                    phone_number[a] = pdu[index+1];
-                    phone_number[a+1] = pdu[index];
+                    phone_number[a] = pdu[index + 1];
+                    phone_number[a + 1] = pdu[index];
                     index += 2;
                 }
             }
@@ -834,7 +834,6 @@ nsapi_size_or_error_t AT_CellularSMS::get_data_from_pdu(const char *pdu, sms_inf
         }
 
 
-        index += oaLength;
         if (oaLength & 0x01) { // if phone number length is odd then it has padded F so skip that
             index++;
         }
