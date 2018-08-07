@@ -27,11 +27,11 @@
  *
  *  Common interface that is shared between mesh hardware
  */
-class MeshInterface : public virtual NetworkInterface
-{
+class MeshInterface : public virtual NetworkInterface {
 public:
 
-    virtual MeshInterface *meshInterface() {
+    virtual MeshInterface *meshInterface()
+    {
         return this;
     }
 

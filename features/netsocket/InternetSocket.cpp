@@ -186,7 +186,7 @@ nsapi_error_t InternetSocket::getsockopt(int level, int optname, void *optval, u
 }
 void InternetSocket::event()
 {
-    _event_flag.set(READ_FLAG|WRITE_FLAG);
+    _event_flag.set(READ_FLAG | WRITE_FLAG);
 
     _pending += 1;
     if (_callback && _pending == 1) {

@@ -62,9 +62,9 @@ public:
          * @return              NSAPI_ERROR_OK on success, or error code
          */
         virtual nsapi_error_t bringup(bool dhcp, const char *ip,
-                              const char *netmask, const char *gw,
-                              nsapi_ip_stack_t stack = DEFAULT_STACK,
-                              bool blocking = true) = 0;
+                                      const char *netmask, const char *gw,
+                                      nsapi_ip_stack_t stack = DEFAULT_STACK,
+                                      bool blocking = true) = 0;
 
         /** Disconnect interface from the network
          *

@@ -35,7 +35,7 @@ static bool ipv4_is_valid(const char *addr)
     }
 
     // Ending with '.' garuntees host
-    if (i > 0 && addr[i-1] == '.') {
+    if (i > 0 && addr[i - 1] == '.') {
         return false;
     }
 
@@ -49,9 +49,9 @@ static bool ipv6_is_valid(const char *addr)
     int colons = 0;
     for (int i = 0; addr[i]; i++) {
         if (!(addr[i] >= '0' && addr[i] <= '9') &&
-            !(addr[i] >= 'a' && addr[i] <= 'f') &&
-            !(addr[i] >= 'A' && addr[i] <= 'F') &&
-            addr[i] != ':') {
+                !(addr[i] >= 'a' && addr[i] <= 'f') &&
+                !(addr[i] >= 'A' && addr[i] <= 'F') &&
+                addr[i] != ':') {
             return false;
         }
         if (addr[i] == ':') {

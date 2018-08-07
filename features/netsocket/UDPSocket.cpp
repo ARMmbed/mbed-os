@@ -89,7 +89,7 @@ nsapi_size_or_error_t UDPSocket::sendto(const SocketAddress &address, const void
 
     _writers--;
     if (!_socket || !_writers) {
-         _event_flag.set(FINISHED_FLAG);
+        _event_flag.set(FINISHED_FLAG);
     }
     _lock.unlock();
     return ret;
@@ -97,8 +97,9 @@ nsapi_size_or_error_t UDPSocket::sendto(const SocketAddress &address, const void
 
 nsapi_size_or_error_t UDPSocket::send(const void *data, nsapi_size_t size)
 {
-    if (!_remote_peer)
+    if (!_remote_peer) {
         return NSAPI_ERROR_NO_ADDRESS;
+    }
     return sendto(_remote_peer, data, size);
 }
 
@@ -151,7 +152,7 @@ nsapi_size_or_error_t UDPSocket::recvfrom(SocketAddress *address, void *buffer, 
 
     _readers--;
     if (!_socket || !_readers) {
-         _event_flag.set(FINISHED_FLAG);
+        _event_flag.set(FINISHED_FLAG);
     }
 
     _lock.unlock();

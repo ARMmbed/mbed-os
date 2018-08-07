@@ -115,7 +115,7 @@ public:
      *                  code on failure
      */
     virtual nsapi_size_or_error_t sendto(const SocketAddress &address,
-            const void *data, nsapi_size_t size) = 0;
+                                         const void *data, nsapi_size_t size) = 0;
 
     /** Receive a data from a socket
      *
@@ -138,7 +138,7 @@ public:
      *                  code on failure
      */
     virtual nsapi_size_or_error_t recvfrom(SocketAddress *address,
-            void *data, nsapi_size_t size) = 0;
+                                           void *data, nsapi_size_t size) = 0;
 
     /** Bind a specific address to a socket.
      *

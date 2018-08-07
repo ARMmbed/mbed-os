@@ -73,7 +73,7 @@ public:
      *                  code on failure
      */
     virtual nsapi_size_or_error_t sendto(const char *host, uint16_t port,
-            const void *data, nsapi_size_t size);
+                                         const void *data, nsapi_size_t size);
 
     /** Send a packet over a UDP socket
      *
@@ -91,7 +91,7 @@ public:
      *                  code on failure
      */
     virtual nsapi_size_or_error_t sendto(const SocketAddress &address,
-            const void *data, nsapi_size_t size);
+                                         const void *data, nsapi_size_t size);
 
     /** Receive a datagram over a UDP socket
      *
@@ -115,7 +115,7 @@ public:
      *                  code on failure
      */
     virtual nsapi_size_or_error_t recvfrom(SocketAddress *address,
-            void *data, nsapi_size_t size);
+                                           void *data, nsapi_size_t size);
 
     /** Set remote peer address
      *

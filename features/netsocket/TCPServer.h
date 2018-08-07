@@ -35,7 +35,7 @@ public:
      *  Must call open to initialize the socket on a network stack.
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.10",
-        "TCPServer is deprecated, use TCPSocket")
+                          "TCPServer is deprecated, use TCPSocket")
     TCPServer();
 
     /** Create a socket on a network interface
@@ -47,7 +47,7 @@ public:
      */
     template <typename S>
     MBED_DEPRECATED_SINCE("mbed-os-5.10",
-        "TCPServer is deprecated, use TCPSocket")
+                          "TCPServer is deprecated, use TCPSocket")
     TCPServer(S *stack)
     {
         open(stack);
@@ -77,7 +77,7 @@ public:
      *  @return           0 on success, negative error code on failure
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.10",
-        "TCPServer::accept() is deprecated, use Socket *Socket::accept() instead")
+                          "TCPServer::accept() is deprecated, use Socket *Socket::accept() instead")
     nsapi_error_t accept(TCPSocket *connection, SocketAddress *address = NULL);
 };
 

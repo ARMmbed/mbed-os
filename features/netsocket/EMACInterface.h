@@ -36,8 +36,7 @@
  * the credentials have been set. This is necessary to support specialised
  * applications such as 6LoWPAN mesh border routers.
  */
-class EMACInterface : public virtual NetworkInterface
-{
+class EMACInterface : public virtual NetworkInterface {
 public:
     /** Create an EMAC-based network interface.
      *
@@ -52,9 +51,8 @@ public:
      * @param emac  Reference to EMAC to use
      * @param stack Reference to onboard-network stack to use
      */
-    EMACInterface(
-            EMAC &emac = EMAC::get_default_instance(),
-            OnboardNetworkStack &stack = OnboardNetworkStack::get_default_instance());
+    EMACInterface(EMAC &emac = EMAC::get_default_instance(),
+                  OnboardNetworkStack &stack = OnboardNetworkStack::get_default_instance());
 
     /** Set a static IP address
      *
@@ -67,8 +65,7 @@ public:
      *  @param gateway     Null-terminated representation of the local gateway
      *  @return            0 on success, negative error code on failure
      */
-    virtual nsapi_error_t set_network(
-            const char *ip_address, const char *netmask, const char *gateway);
+    virtual nsapi_error_t set_network(const char *ip_address, const char *netmask, const char *gateway);
 
     /** Enable or disable DHCP on the network
      *
@@ -94,7 +91,7 @@ public:
      *  Provided MAC address is intended for info or debug purposes and
      *  may not be provided if the underlying network interface does not
      *  provide a MAC address
-     *  
+     *
      *  @return         Null-terminated representation of the local MAC address
      *                  or null if no MAC address is available
      */
@@ -109,7 +106,7 @@ public:
 
     /** Get the local network mask
      *
-     *  @return         Null-terminated representation of the local network mask 
+     *  @return         Null-terminated representation of the local network mask
      *                  or null if no network mask has been recieved
      */
     virtual const char *get_netmask();
@@ -148,16 +145,20 @@ public:
      *
      * @return          Reference to the EMAC in use
      */
-    EMAC &get_emac() const { return _emac; }
+    EMAC &get_emac() const
+    {
+        return _emac;
+    }
 
-    virtual EMACInterface *emacInterface() {
+    virtual EMACInterface *emacInterface()
+    {
         return this;
     }
 
 protected:
     /** Provide access to the underlying stack
      *
-     *  @return The underlying network stack 
+     *  @return The underlying network stack
      */
     virtual NetworkStack *get_stack();
 

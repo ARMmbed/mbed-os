@@ -64,7 +64,7 @@ enum nsapi_error {
  *
  *  @enum nsapi_connection_status
  */
- typedef enum nsapi_connection_status {
+typedef enum nsapi_connection_status {
     NSAPI_STATUS_LOCAL_UP           = 0,        /*!< local IP address set */
     NSAPI_STATUS_GLOBAL_UP          = 1,        /*!< global IP address set */
     NSAPI_STATUS_DISCONNECTED       = 2,        /*!< no connection to network */
@@ -79,7 +79,7 @@ enum nsapi_error {
  *
  *  @enum nsapi_event
  */
- typedef enum nsapi_event {
+typedef enum nsapi_event {
     NSAPI_EVENT_CONNECTION_STATUS_CHANGE = 0, /*!< network connection status has changed, the parameter = new status (nsapi_connection_status_t) */
     NSAPI_EVENT_CELLULAR_STATUS_BASE     = 0x1000,  /*!< Cellular modem status has changed, See the enum values from enum cellular_connection_status_t in /features/cellular/framework/common/CellularCommon.h */
     NSAPI_EVENT_CELLULAR_STATUS_END      = 0x1FFF   /*!< cellular modem status has changed, See the enum values from enum cellular_connection_status_t in /features/cellular/framework/common/CellularCommon.h */
@@ -201,8 +201,8 @@ typedef void *nsapi_socket_t;
  *  @enum nsapi_protocol
  */
 typedef enum nsapi_protocol {
-   NSAPI_TCP, /*!< Socket is of TCP type */
-   NSAPI_UDP, /*!< Socket is of UDP type */
+    NSAPI_TCP, /*!< Socket is of TCP type */
+    NSAPI_UDP, /*!< Socket is of UDP type */
 } nsapi_protocol_t;
 
 /** Enum of standardized stack option levels
@@ -320,8 +320,7 @@ typedef struct nsapi_ip_mreq {
  *
  *  Unsupported operations can be left as null pointers.
  */
-typedef struct nsapi_stack_api
-{
+typedef struct nsapi_stack_api {
     /** Get the local IP address
      *
      *  @param stack    Stack handle
@@ -366,7 +365,7 @@ typedef struct nsapi_stack_api
      *  @return         0 on success, negative error code on failure
      */
     nsapi_error_t (*setstackopt)(nsapi_stack_t *stack, int level,
-            int optname, const void *optval, unsigned optlen);
+                                 int optname, const void *optval, unsigned optlen);
 
     /*  Get stack-specific stack options
      *
@@ -382,7 +381,7 @@ typedef struct nsapi_stack_api
      *  @return         0 on success, negative error code on failure
      */
     nsapi_error_t (*getstackopt)(nsapi_stack_t *stack, int level,
-            int optname, void *optval, unsigned *optlen);
+                                 int optname, void *optval, unsigned *optlen);
 
     /** Opens a socket
      *
@@ -398,7 +397,7 @@ typedef struct nsapi_stack_api
      *  @return         0 on success, negative error code on failure
      */
     nsapi_error_t (*socket_open)(nsapi_stack_t *stack, nsapi_socket_t *socket,
-            nsapi_protocol_t proto);
+                                 nsapi_protocol_t proto);
 
     /** Close the socket
      *
@@ -423,7 +422,7 @@ typedef struct nsapi_stack_api
      *  @return         0 on success, negative error code on failure.
      */
     nsapi_error_t (*socket_bind)(nsapi_stack_t *stack, nsapi_socket_t socket,
-            nsapi_addr_t addr, uint16_t port);
+                                 nsapi_addr_t addr, uint16_t port);
 
     /** Listen for connections on a TCP socket
      *
@@ -450,7 +449,7 @@ typedef struct nsapi_stack_api
      *  @return         0 on success, negative error code on failure
      */
     nsapi_error_t (*socket_connect)(nsapi_stack_t *stack, nsapi_socket_t socket,
-            nsapi_addr_t addr, uint16_t port);
+                                    nsapi_addr_t addr, uint16_t port);
 
     /** Accepts a connection on a TCP socket
      *
@@ -473,7 +472,7 @@ typedef struct nsapi_stack_api
      *  @return         0 on success, negative error code on failure
      */
     nsapi_error_t (*socket_accept)(nsapi_stack_t *stack, nsapi_socket_t server,
-            nsapi_socket_t *socket, nsapi_addr_t *addr, uint16_t *port);
+                                   nsapi_socket_t *socket, nsapi_addr_t *addr, uint16_t *port);
 
     /** Send data over a TCP socket
      *
@@ -491,7 +490,7 @@ typedef struct nsapi_stack_api
      *                  code on failure
      */
     nsapi_size_or_error_t (*socket_send)(nsapi_stack_t *stack, nsapi_socket_t socket,
-            const void *data, nsapi_size_t size);
+                                         const void *data, nsapi_size_t size);
 
     /** Receive data over a TCP socket
      *
@@ -509,7 +508,7 @@ typedef struct nsapi_stack_api
      *                  code on failure
      */
     nsapi_size_or_error_t (*socket_recv)(nsapi_stack_t *stack, nsapi_socket_t socket,
-            void *data, nsapi_size_t size);
+                                         void *data, nsapi_size_t size);
 
     /** Send a packet over a UDP socket
      *
@@ -529,7 +528,7 @@ typedef struct nsapi_stack_api
      *                  code on failure
      */
     nsapi_size_or_error_t (*socket_sendto)(nsapi_stack_t *stack, nsapi_socket_t socket,
-            nsapi_addr_t addr, uint16_t port, const void *data, nsapi_size_t size);
+                                           nsapi_addr_t addr, uint16_t port, const void *data, nsapi_size_t size);
 
     /** Receive a packet over a UDP socket
      *
@@ -549,7 +548,7 @@ typedef struct nsapi_stack_api
      *                  code on failure
      */
     nsapi_size_or_error_t (*socket_recvfrom)(nsapi_stack_t *stack, nsapi_socket_t socket,
-            nsapi_addr_t *addr, uint16_t *port, void *buffer, nsapi_size_t size);
+                                             nsapi_addr_t *addr, uint16_t *port, void *buffer, nsapi_size_t size);
 
     /** Register a callback on state change of the socket
      *
@@ -566,7 +565,7 @@ typedef struct nsapi_stack_api
      *  @param data     Argument to pass to callback
      */
     void (*socket_attach)(nsapi_stack_t *stack, nsapi_socket_t socket,
-            void (*callback)(void *), void *data);
+                          void (*callback)(void *), void *data);
 
     /*  Set stack-specific socket options
      *
@@ -583,7 +582,7 @@ typedef struct nsapi_stack_api
      *  @return         0 on success, negative error code on failure
      */
     nsapi_error_t (*setsockopt)(nsapi_stack_t *stack, nsapi_socket_t socket, int level,
-            int optname, const void *optval, unsigned optlen);
+                                int optname, const void *optval, unsigned optlen);
 
     /*  Get stack-specific socket options
      *
@@ -600,7 +599,7 @@ typedef struct nsapi_stack_api
      *  @return         0 on success, negative error code on failure
      */
     nsapi_error_t (*getsockopt)(nsapi_stack_t *stack, nsapi_socket_t socket, int level,
-            int optname, void *optval, unsigned *optlen);
+                                int optname, void *optval, unsigned *optlen);
 } nsapi_stack_api_t;
 
 

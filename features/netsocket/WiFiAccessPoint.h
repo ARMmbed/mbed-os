@@ -25,8 +25,7 @@
  *  Class that represents a WiFi Access Point
  *  Common interface that is shared between WiFi devices
  */
-class WiFiAccessPoint
-{
+class WiFiAccessPoint {
     /** WiFiAccessPoint lifetime
      */
 public:
