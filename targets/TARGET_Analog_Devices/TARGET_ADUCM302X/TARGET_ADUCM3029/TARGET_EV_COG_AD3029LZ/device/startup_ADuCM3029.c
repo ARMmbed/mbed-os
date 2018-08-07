@@ -145,6 +145,16 @@ const pFunc SECTION_PLACE(IVT_NAME[104],VECTOR_SECTION) =
     ADUCM3029_VECTORS
 };
 
+#ifdef __STACK_SIZE
+    unsigned int  Stack_Size = __STACK_SIZE;
+#else
+#if defined(MBED_CONF_RTOS_PRESENT)
+    unsigned int  Stack_Size = 0x400;
+#else
+    unsigned int  Stack_Size = 0x1000;
+#endif
+#endif
+
 /*----------------------------------------------------------------------------
 * Initialize .bss and .data for GNU
 *----------------------------------------------------------------------------*/

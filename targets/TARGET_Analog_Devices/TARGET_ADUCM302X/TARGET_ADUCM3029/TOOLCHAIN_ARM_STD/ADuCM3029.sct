@@ -1,4 +1,6 @@
 #! armcc -E
+#include "mbed_config.h"
+
 ;******************************************************************************
 ;  File: ADuCM3029.sct
 ;  Scatter loading file for Analog Devices ADuCM3029 processor
@@ -45,6 +47,16 @@
 
 #define ADUCM_VECTOR_SIZE 0x1A0
 
+#if (defined(__stack_size__))
+  #define Stack_Size                   __stack_size__
+#else
+  #if (defined(MBED_CONF_RTOS_PRESENT))
+    #define Stack_Size                   0x0400
+  #else
+    #define Stack_Size                   0x1000
+  #endif
+#endif
+
 LR_IROM1 MBED_APP_START MBED_APP_SIZE {
     FLASH0 MBED_APP_START ADUCM_VECTOR_SIZE {
         *(.vectors, +First)
@@ -63,11 +75,11 @@ LR_IROM1 MBED_APP_START MBED_APP_SIZE {
         .ANY (+RW)
     }
 
-    ADUCM_HEAP AlignExpr(+0, 16) EMPTY
-        (0x20003000 - AlignExpr(ImageLimit(RW_IRAM1), 16)) { ; heap
+    ARM_LIB_HEAP AlignExpr(+0, 16) EMPTY
+        (0x20003000 - AlignExpr(ImageLimit(RW_IRAM1), 16) - Stack_Size) { ; heap
     }
 
-    ADUCM_STACK AlignExpr(+0, 16) EMPTY 0x1000 { ; stack
+    ARM_LIB_STACK  AlignExpr(+0, 16) EMPTY Stack_Size { ; stack
     }
 
     ADUCM_IRAM2 0x20004000 0x4000 { ; bss section

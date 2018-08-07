@@ -33,15 +33,6 @@ MEMORY
 /* Library configurations */
 GROUP(libgcc.a libc.a libm.a libnosys.a)
 
-/* Custom stack and heap sizes */
-__stack_size__ = 0x2000;
-__heap_size__  = 0x6000;
-
-/* select custom or default sizes for stack and heap */
-STACK_SIZE = DEFINED(__stack_size__) ? __stack_size__ : 0x0400;
-HEAP_SIZE  = DEFINED(__heap_size__)  ? __heap_size__  : 0x0C00;
-
-
 /* Linker script to place sections and symbol values.
  * It references the following symbols, which must be defined in code:
  *   Reset_Handler : Entry of reset handler
@@ -207,10 +198,15 @@ SECTIONS
         __bss_end__ = .;
     } > DSRAM_B
 
+    .heap :
+    {
+        . = ALIGN(8);
+        __HeapBase = .;
+    } > DSRAM_B
+
     __StackTop = ORIGIN(DSRAM_B);
-    __StackLimit = __StackTop  - STACK_SIZE;
+    __StackLimit = __StackTop  - Stack_Size;
     __HeapLimit  = __StackLimit;
-    __HeapBase   = __HeapLimit - HEAP_SIZE;
     __end__      = __HeapBase;
     PROVIDE(end  = __end__);
     PROVIDE(__stack = __StackTop);

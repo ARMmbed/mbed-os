@@ -32,13 +32,6 @@ MEMORY
 
 /* Library configurations */
 GROUP(libgcc.a libc.a libm.a libnosys.a)
-/* Custom stack and heap sizes */
-__stack_size__ = 0x1000;
-__heap_size__ = 0x2000;
-
-/* select custom or default sizes for stack and heap */
-STACK_SIZE = DEFINED(__stack_size__) ? __stack_size__ : 0x0400;
-HEAP_SIZE  = DEFINED(__heap_size__)  ? __heap_size__  : 0x0C00;
 
 /* Linker script to place sections and symbol values.
  * It references the following symbols, which must be defined in code:
@@ -220,14 +213,14 @@ SECTIONS
         __HeapBase = .;
         __end__ = .;
         end = __end__;
-        . += HEAP_SIZE;
+        . = ORIGIN(DSRAM_A) + LENGTH(DSRAM_A) - Stack_Size;
         __HeapLimit = .;
     } > DSRAM_A
 
     /* Set stack top to end of DSRAM_A, and move stack limit down by
      * size of stack_dummy section */
     __StackTop = ORIGIN(DSRAM_C);
-    __StackLimit = __StackTop - STACK_SIZE;
+    __StackLimit = __StackTop - Stack_Size;
     PROVIDE(__stack = __StackTop);
 
     /* Check if data + heap + stack exceeds DSRAM_A limit when they are both in DSRAM_A
