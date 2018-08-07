@@ -23,22 +23,59 @@
 
 namespace mbed {
 namespace nfc {
+
+    /**
+     * @addtogroup nfc
+     * @{
+     */
+    
+    /**
+     * The base class for all endpoints that can support NDEF content.
+     */ 
     class NFCNDEFCapable {
     public:
+        /**
+         * Check if this instance actually supports NDEF content.
+         * @return whether NDEF content is supported
+         */ 
         virtual bool is_ndef_supported() const { return false; }
 
+        /**
+         * Set the instance of the parser which should handle incoming NDEF messages.
+         * If set to NULL, incoming NDEF messages will be rejected
+         * @param[in] parser a pointer to the parser to use, or NULL
+         */ 
         void set_ndef_message_parser(ndef::MessageParser* parser) const;
+
+        /**
+         * Set the instance of the build which should generate outgoing NDEF messages.
+         * If set to NULL, outgoing NDEF messages will not be produced
+         * @param[in] builder a pointer to the builder to use, or NULL
+         */
         void set_ndef_message_builder(ndef::MessageBuilder* builder) const;
 
     protected:
+        /**
+         * Get the NDEF message parser to use, or NULL.
+         * @return a pointer to a parser, or NULL
+         */ 
         ndef::MessageParser* ndef_message_parser();
+
+        /**
+         * Get the NDEF message builder to use, or NULL.
+         * @return a pointer to a builder, or NULL
+         */ 
         ndef::MessageBuilder* ndef_message_builder();
 
     private:
-        bool _ndef_support;
         ndef::MessageParser* _message_parser;
         ndef::MessageBuilder* _message_builder;
     };
+
+    /**
+     * @}
+     */
+
 } // namespace nfc
 } // namespace mbed
 
