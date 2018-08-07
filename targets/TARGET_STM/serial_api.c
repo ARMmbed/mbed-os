@@ -694,7 +694,7 @@ int8_t get_uart_index(UARTName uart_name)
  *  yet. Returns 1 if there is at least 1 serial instance with ongoing ransfer
  *  0 otherwise.
  */
-int serial_IsTxOngoing(void) {
+int serial_is_tx_ongoing(void) {
     int TxOngoing = 0;
 
 #if defined(USART1_BASE)
