@@ -26,13 +26,37 @@
 
 namespace mbed {
 namespace nfc {
+
+    /**
+     * @addtogroup nfc
+     * @{
+     */
     
+    /**
+     * The abstraction for a NFC controller driver.
+     * Implementers need to derive from this class and implement its methods.
+     */ 
     struct NFCControllerDriver {
-        virtual void initialize(scheduler_timer_t* pTimer) = 0;
-        virtual transceiver_t* get_transceiver() const = 0;
-        virtual nfc_rf_protocols_bitmask_t get_supported_rf_protocols() const = 0;
+        /**
+         * Initialize the driver and retrieve the interface to the controller.
+         * 
+         * @param[in] pTimer The MicroNFC timer instance for the scheduler to use
+         * @return an initialized MicroNFC transceiver_t instance
+         */ 
+        virtual transceiver_t* initialize(scheduler_timer_t* timer) = 0;
+
+        /**
+         * Retrieve list of technologies supported by the controller
+         * @param[out] initiator bitmask of technologies supported when the controller is in initiator mode
+         * @param[out] target bitmask of technologies supported when the controller is in target mode
+         */ 
+        virtual void get_supported_nfc_techs(nfc_tech_t* initiator, nfc_tech_t* target) const = 0;
     };
 
+    /**
+     * @}
+     */
+    
 } // namespace nfc
 } // namespace mbed
 
