@@ -202,12 +202,12 @@ static void event_timer()
 
         tmrConfig.nLoad        = cnt;
         tmrConfig.nAsyncLoad   = cnt;
-        adi_tmr_ConfigTimer(ADI_TMR_DEVICE_GP2, tmrConfig);
+        adi_tmr_ConfigTimer(ADI_TMR_DEVICE_GP2, &tmrConfig);
         adi_tmr_Enable(ADI_TMR_DEVICE_GP2, true);
     } else {
         tmrConfig.nLoad        = 65535u;
         tmrConfig.nAsyncLoad   = 65535u;
-        adi_tmr_ConfigTimer(ADI_TMR_DEVICE_GP2, tmrConfig);
+        adi_tmr_ConfigTimer(ADI_TMR_DEVICE_GP2, &tmrConfig);
         adi_tmr_Enable(ADI_TMR_DEVICE_GP2, true);
     }
 }
@@ -274,13 +274,13 @@ void us_ticker_init(void)
     tmrConfig.nAsyncLoad   = 0;
     tmrConfig.bReloading   = false;
     tmrConfig.bSyncBypass  = true;                    // Allow x1 prescale: requires PCLK as a clk
-    adi_tmr_ConfigTimer(ADI_TMR_DEVICE_GP0, tmrConfig);
+    adi_tmr_ConfigTimer(ADI_TMR_DEVICE_GP0, &tmrConfig);
 
     /* Configure GP1 to have a period 256 times longer than GP0 */
     tmrConfig.nLoad        = 0;
     tmrConfig.nAsyncLoad   = 0;
     tmrConfig.ePrescaler   = ADI_TMR_PRESCALER_256;    // TMR1 = 26MHz/256
-    adi_tmr_ConfigTimer(ADI_TMR_DEVICE_GP1, tmrConfig);
+    adi_tmr_ConfigTimer(ADI_TMR_DEVICE_GP1, &tmrConfig);
 
     /* Configure GP2 for doing event counts */
     tmrConfig.bCountingUp  = true;
@@ -291,7 +291,7 @@ void us_ticker_init(void)
     tmrConfig.nAsyncLoad   = 0;
     tmrConfig.bReloading   = false;
     tmrConfig.bSyncBypass  = true;                    // Allow x1 prescale
-    adi_tmr_ConfigTimer(ADI_TMR_DEVICE_GP2, tmrConfig);
+    adi_tmr_ConfigTimer(ADI_TMR_DEVICE_GP2, &tmrConfig);
 
 
     /*------------------------- GP TIMER ENABLE ------------------------------*/
