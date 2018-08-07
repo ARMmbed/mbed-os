@@ -55,7 +55,7 @@
 
 define symbol __ram_vector_table__ = 1;
 
-define symbol __stack_size__=0x8000;
+define symbol __stack_size__=0x400;
 define symbol __heap_size__=0x10000;
 
 define symbol __ram_vector_table_size__ =  isdefinedsymbol(__ram_vector_table__) ? 0x00000400 : 0;

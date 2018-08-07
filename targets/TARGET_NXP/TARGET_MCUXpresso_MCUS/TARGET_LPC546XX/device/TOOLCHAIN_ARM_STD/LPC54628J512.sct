@@ -1,4 +1,5 @@
 #! armcc -E
+#include "mbed_config.h"
 /*
 ** ###################################################################
 **     Processor:           LPC54628J512ET180
@@ -42,6 +43,7 @@
 **
 ** ###################################################################
 */
+
 #define __ram_vector_table__            1
 
 #if (defined(__ram_vector_table__))
@@ -68,10 +70,15 @@
 /* USB BDT size */
 #define usb_bdt_size                   0x0
 /* Sizes */
+
 #if (defined(__stack_size__))
   #define Stack_Size                   __stack_size__
 #else
-  #define Stack_Size                   0x0400
+  #if (defined(MBED_CONF_RTOS_PRESENT))
+    #define Stack_Size                   0x0400
+  #else
+    #define Stack_Size                   0x1000
+  #endif
 #endif
 
 #if (defined(__heap_size__))

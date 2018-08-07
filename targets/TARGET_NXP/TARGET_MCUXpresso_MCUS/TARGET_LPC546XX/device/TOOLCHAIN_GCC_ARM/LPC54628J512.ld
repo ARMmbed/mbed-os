@@ -48,11 +48,7 @@ ENTRY(Reset_Handler)
 
 __ram_vector_table__ = 1;
 
-__stack_size__ = 0x8000;
-__heap_size__ = 0xC000;
 
-HEAP_SIZE  = DEFINED(__heap_size__)  ? __heap_size__  : 0x0400;
-STACK_SIZE = DEFINED(__stack_size__) ? __stack_size__ : 0x0800;
 M_VECTOR_RAM_SIZE = DEFINED(__ram_vector_table__) ? 0x400 : 0x0;
 
 
@@ -219,15 +215,15 @@ SECTIONS
     __end__ = .;
     PROVIDE(end = .);
     __HeapBase = .;
-    . += HEAP_SIZE;
+    . = ORIGIN(m_data) + LENGTH(m_data) - Stack_Size;
     __HeapLimit = .;
     __heap_limit = .; /* Add for _sbrk */
   } > m_data
 
-  .stack :
+  .stack_dummy :
   {
-    . = ALIGN(8);
-    . += STACK_SIZE;
+    *(.stack)
+    . += Stack_Size;
   } > m_data
 
   m_usb_bdt (NOLOAD) :
@@ -243,7 +239,7 @@ SECTIONS
 
   /* Initializes stack on the end of block */
   __StackTop   = ORIGIN(m_data) + LENGTH(m_data);
-  __StackLimit = __StackTop - STACK_SIZE;
+  __StackLimit = __StackTop - Stack_Size;
   PROVIDE(__stack = __StackTop);
 
   .ARM.attributes 0 : { *(.ARM.attributes) }
