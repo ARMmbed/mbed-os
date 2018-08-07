@@ -157,7 +157,7 @@ void hal_sleep(void)
     core_util_critical_section_exit();
 }
 
-extern int serial_IsTxOngoing(void);
+extern int serial_is_tx_ongoing(void);
 
 void hal_deepsleep(void)
 {
@@ -167,7 +167,7 @@ void hal_deepsleep(void)
      *  This is tracked in mbed issue 4408.
      *  For now, we're checking all Serial HW FIFO. If any transfer is ongoing
      *  we're not entering deep sleep and returning immediately. */
-    if(serial_IsTxOngoing()) {
+    if(serial_is_tx_ongoing()) {
         return;
     }
 
