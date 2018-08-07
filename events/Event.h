@@ -1890,6 +1890,7 @@ private:
     }
 
 public:
+#if !defined(DOXYGEN_ONLY)
     /** Create an event
      *  @param q                Event queue to dispatch on
      *  @param f                Function to execute when the event is dispatched
@@ -3619,7 +3620,7 @@ template <typename R, typename B0, typename B1, typename B2, typename B3, typena
 Event<void(A0, A1, A2, A3, A4)> EventQueue::event(mbed::Callback<R(B0, B1, B2, B3, B4, A0, A1, A2, A3, A4)> cb, C0 c0, C1 c1, C2 c2, C3 c3, C4 c4) {
     return Event<void(A0, A1, A2, A3, A4)>(this, cb, c0, c1, c2, c3, c4);
 }
-
+#endif
 }
 
 #endif

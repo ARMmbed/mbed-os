@@ -84,7 +84,7 @@ public:
 
     /** Dispatch events without a timeout
      *
-     *  This is equivalent to EventQueue::dispatch with no arguments, but 
+     *  This is equivalent to EventQueue::dispatch with no arguments, but
      *  avoids overload ambiguities when passed as a callback.
      *
      *  @see EventQueue::dispatch
@@ -100,7 +100,7 @@ public:
 
     /** Millisecond counter
      *
-     *  Returns the underlying tick of the event queue represented as the 
+     *  Returns the underlying tick of the event queue represented as the
      *  number of milliseconds that have passed since an arbitrary point in
      *  time. Intentionally overflows to 0 after 2^32-1.
      *
@@ -180,6 +180,181 @@ public:
      */
     void chain(EventQueue *target);
 
+
+    #if defined(DOXYGEN_ONLY)
+    /** Calls an event on the queue
+     *
+     *  The specified callback will be executed in the context of the event
+     *  queue's dispatch loop.
+     *
+     *  The call function is irq safe and can act as a mechanism for moving
+     *  events out of irq contexts.
+     *
+     *  @param f        Function to execute in the context of the dispatch loop
+     *  @param args     Arguments to pass to the callback
+     *  @return         A unique id that represents the posted event and can
+     *                  be passed to cancel, or an id of 0 if there is not
+     *                  enough memory to allocate the event.
+     *                  Returned id will remain valid until event has finished
+     *                  executing.
+     */
+    template <typename F, typename ...Args>
+    int call(F f, Args ...args);
+
+    /** Calls an event on the queue
+     *
+     *  The specified callback will be executed in the context of the event
+     *  queue's dispatch loop.
+     *
+     *  The call function is irq safe and can act as a mechanism for moving
+     *  events out of irq contexts.
+     *
+     *  @param obj        Object to call with the member function
+     *  @param method     Member function to execute in the context of the dispatch loop
+     *  @param args       Arguments to pass to the callback
+     *  @return           A unique id that represents the posted event and can
+     *                    be passed to cancel, or an id of 0 if there is not
+     *                    enough memory to allocate the event.
+     *                    Returned id will remain valid until event has finished
+     *                    executing.
+     */
+    template <typename T, typename R, typename ...Args>
+    int call(T *obj, R (T::*method)(Args ...args), Args ...args);
+
+    /** Calls an event on the queue after a specified delay
+     *
+     *  The specified callback will be executed in the context of the event
+     *  queue's dispatch loop.
+     *
+     *  The call_in function is irq safe and can act as a mechanism for moving
+     *  events out of irq contexts.
+     *
+     *  @param ms       Time to delay in milliseconds
+     *  @param args     Arguments to pass to the callback
+     *  @return         A unique id that represents the posted event and can
+     *                  be passed to cancel, or an id of 0 if there is not
+     *                  enough memory to allocate the event.
+     */
+    template <typename F, typename ...Args>
+    int call_in(int ms, Args ...args);
+
+    /** Calls an event on the queue after a specified delay
+     *
+     *  The specified callback will be executed in the context of the event
+     *  queue's dispatch loop.
+     *
+     *  The call_in function is irq safe and can act as a mechanism for moving
+     *  events out of irq contexts.
+     *
+     *  @param ms       Time to delay in milliseconds
+     *  @param obj      Object to call with the member function
+     *  @param method   Member function to execute in the context of the dispatch loop
+     *  @param args     Arguments to pass to the callback
+     *  @return         A unique id that represents the posted event and can
+     *                  be passed to cancel, or an id of 0 if there is not
+     *                  enough memory to allocate the event.
+     */
+    template <typename T, typename R, typename ...Args>
+    int call_in(int ms, T *obj, R (T::*method)(Args ...args), Args ...args);
+
+    /** Calls an event on the queue periodically
+     *
+     *  @note The first call_every event occurs after the specified delay.
+     *  To create a periodic event that fires immediately, @see Event.
+     *
+     *  The specified callback will be executed in the context of the event
+     *  queue's dispatch loop.
+     *
+     *  The call_every function is irq safe and can act as a mechanism for
+     *  moving events out of irq contexts.
+     *
+     *  @param ms       Period of the event in milliseconds
+     *  @param f        Function to execute in the context of the dispatch loop
+     *  @param args     Arguments to pass to the callback
+     *  @return         A unique id that represents the posted event and can
+     *                  be passed to cancel, or an id of 0 if there is not
+     *                  enough memory to allocate the event.
+     */
+    template <typename F, typename ...Args>
+    int call_every(int ms, F f, Args ...args);
+
+    /** Calls an event on the queue periodically
+     *
+     *  @note The first call_every event occurs after the specified delay.
+     *  To create a periodic event that fires immediately, @see Event.
+     *
+     *  The specified callback will be executed in the context of the event
+     *  queue's dispatch loop.
+     *
+     *  The call_every function is irq safe and can act as a mechanism for
+     *  moving events out of irq contexts.
+     *
+     *  @param ms       Period of the event in milliseconds
+     *  @param obj      Object to call with the member function
+     *  @param method   Member function to execute in the context of the dispatch loop
+     *  @param args     Arguments to pass to the callback
+     */
+    template <typename T, typename R, typename ...Args>
+    int call_every(int ms, T *obj, R (T::*method)(Args ...args), Args ...args);
+
+    /** Creates an event bound to the event queue
+     *
+     *  Constructs an event bound to the specified event queue. The specified
+     *  callback acts as the target for the event and is executed in the
+     *  context of the event queue's dispatch loop once posted.
+     *
+     *  @tparam R           TODO
+     *  @tparam Args        TODO
+     *  @tparam BoundArgs   TODO
+     *  @param  func        Function to execute when the event is dispatched
+     *  @param  args        TODO
+     *  @return             Event that will dispatch on the specific queue
+     *
+     * @code
+     *     event(...TODO....);
+     * @endcode
+     */
+    template <typename R, typename ...BoundArgs, typename ...Args>
+    Event<void(Args...)> event(R (*func)(BoundArgs...), Args ...args);
+
+    /** Creates an event bound to the event queue
+     *
+     *  Constructs an event bound to the specified event queue. The specified
+     *  callback acts as the target for the event and is executed in the
+     *  context of the event queue's dispatch loop once posted.
+     *
+     *  @tparam T              TODO
+     *  @tparam R              TODO
+     *  @tparam BoundArgs      TODO
+     *  @tparam ContextArg     TODO
+     *  @tparam Args           TODO
+     *  @param obj             Object to call with the member function
+     *  @param method          Member function to execute in the context of the dispatch loop
+     *  @param context_args    TODO
+     *  @return                Event that will dispatch on the specific queue
+     */
+    template <typename T, typename R, typename ...BoundArgs, typename ...ContextArgs, typename ...Args>
+    Event<void(Args...)> event(T *obj, R (T::*method)(BoundArgs..., Args...), ContextArgs ...context_args);
+
+    /** Creates an event bound to the event queue
+     *
+     *  Constructs an event bound to the specified event queue. The specified
+     *  callback acts as the target for the event and is executed in the
+     *  context of the event queue's dispatch loop once posted.
+     *
+     *  @tparam templateArgs   TODO
+     *  @tparam R              TODO
+     *  @param  cb             TODO
+     *  @tparam Args           TODO
+     *  @tparam BoundArgs      TODO
+     *  @param  context_args   TODO
+     *  @return                Event that will dispatch on the specific queue
+     */
+    template <typename R, typename ...BoundArgs, typename ...ContextArgs, typename ...Args>
+    Event<void(Args...)> event(mbed::Callback<R(BoundArgs..., Args...)> cb, ContextArgs ...context_args);
+
+    #else
+
     /** Calls an event on the queue
      *
      *  The specified callback will be executed in the context of the event
@@ -206,6 +381,7 @@ public:
         equeue_event_dtor(e, &EventQueue::function_dtor<F>);
         return equeue_post(&_equeue, &EventQueue::function_call<F>, e);
     }
+
 
     /** Calls an event on the queue
      *  @see                    EventQueue::call
@@ -457,8 +633,8 @@ public:
      *  The call_in function is irq safe and can act as a mechanism for moving
      *  events out of irq contexts.
      *
-     *  @param f        Function to execute in the context of the dispatch loop
      *  @param ms       Time to delay in milliseconds
+     *  @param f        Function to execute in the context of the dispatch loop
      *  @return         A unique id that represents the posted event and can
      *                  be passed to cancel, or an id of 0 if there is not
      *                  enough memory to allocate the event.
@@ -2302,6 +2478,7 @@ public:
      */
     template <typename R, typename B0, typename B1, typename B2, typename B3, typename B4, typename C0, typename C1, typename C2, typename C3, typename C4, typename A0, typename A1, typename A2, typename A3, typename A4>
     Event<void(A0, A1, A2, A3, A4)> event(mbed::Callback<R(B0, B1, B2, B3, B4, A0, A1, A2, A3, A4)> cb, C0 c0, C1 c1, C2 c2, C3 c3, C4 c4);
+    #endif
 
 protected:
     template <typename F>
