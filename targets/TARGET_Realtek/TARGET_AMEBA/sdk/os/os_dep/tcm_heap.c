@@ -13,7 +13,7 @@
 
 #define ROUND_UP2(x, pad) (((x) + ((pad) - 1)) & ~((pad) - 1))
 
-#define TCM_HEAP_SIZE  (40*1024)
+#define TCM_HEAP_SIZE	(40*1024)
 
 static struct Heap g_tcm_heap;
 
@@ -27,9 +27,9 @@ HEAP_DEFINE_BUF(tcm_heap, TCM_HEAP_SIZE);
 
 static int g_heap_inited=0;
 static	_lock	tcm_lock;
-#ifdef PLATFORM_FREERTOS
+#if defined(PLATFORM_FREERTOS)
 extern void vPortSetExtFree( void (*free)( void *p ), uint32_t upper, uint32_t lower );
-#else
+#elif defined(PLATFORM_CMSIS_RTOS)
 extern void rtw_set_mfree_ext( void (*free)( void *p ), uint32_t upper, uint32_t lower );
 #endif
 void tcm_heap_init(void)
@@ -52,7 +52,7 @@ void tcm_heap_init(void)
 #if defined(PLATFORM_FREERTOS) 
 	// let RTOS know how to free memory if using as task stack
 	vPortSetExtFree(tcm_heap_free, 0x20000000, 0x1fff0000);
-#elif defined (PLATFORM_CMSIS_RTOS)	
+#elif defined(PLATFORM_CMSIS_RTOS)
 	rtw_set_mfree_ext(tcm_heap_free, 0x20000000, 0x1fff0000);
 #endif
 }
@@ -67,7 +67,7 @@ void tcm_heap_dump(void)
 		chunk;
 		prev = chunk, chunk = chunk->next)
 	{
-		printf(" prev %p, chunk %p, size %d \n\r", prev, chunk, chunk->size);
+		printf(" prev %x, chunk %x, size %d \n\r", prev, chunk, chunk->size);
 	}
 	printf("--------------\n\r");
 }
@@ -246,10 +246,20 @@ int tcm_heap_freeSpace(void)
  */
 void *tcm_heap_malloc(int size)
 {
+#if defined(PLATFORM_CMSIS_RTOS)
+	int64_t *mem;
+	// Make sure that block is 8-byte aligned
+	size = (size + 7U) & ~((uint32_t)7U);
+	size += sizeof(int64_t);
+	mem = (int64_t *)tcm_heap_allocmem(size);
+#else
 	int *mem;
-
 	size += sizeof(int);
-	if ((mem = (int*)tcm_heap_allocmem(size))){
+	mem = (int*)tcm_heap_allocmem(size);
+#endif
+
+
+	if (mem){
 		*mem++ = size;
 	}
 
@@ -262,8 +272,8 @@ void *tcm_heap_malloc(int size)
 void *tcm_heap_calloc(int size)
 {
 	void *mem;
-
-	if ((mem = tcm_heap_malloc(size)))
+	mem = tcm_heap_malloc(size);
+	if (mem)
 		memset(mem, 0, size);
 
 	return mem;
@@ -284,7 +294,11 @@ void *tcm_heap_calloc(int size)
  */
 void tcm_heap_free(void *mem)
 {
+#if defined(PLATFORM_CMSIS_RTOS)
+	int64_t *_mem = (int64_t *)mem;
+#else
 	int *_mem = (int *)mem;
+#endif
 
 	if (_mem)
 	{

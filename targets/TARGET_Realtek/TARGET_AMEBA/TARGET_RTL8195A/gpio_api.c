@@ -20,6 +20,8 @@
 
 #include "gpio_api.h"
 
+extern void HAL_GPIO_DeInit(HAL_GPIO_PIN  *GPIO_Pin);
+
 // convert Mbed pin mode to HAL Pin Mode
 const u8 GPIO_InPinMode[] = {
     DIN_PULL_NONE,      // PullNone

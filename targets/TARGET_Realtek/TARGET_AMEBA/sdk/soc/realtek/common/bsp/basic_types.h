@@ -1,19 +1,22 @@
 /******************************************************************************
- * Copyright (c) 2013-2016 Realtek Semiconductor Corp.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Copyright(c) 2007 - 2011 Realtek Corporation. All rights reserved.
+ *                                        
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of version 2 of the GNU General Public License as
+ * published by the Free Software Foundation.
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110, USA
+ *
+ *
  ******************************************************************************/
- 
 #ifndef __BASIC_TYPES_H__
 #define __BASIC_TYPES_H__
 
@@ -34,7 +37,7 @@
 #undef _FAIL
 #define _FAIL		0
 
-#ifndef FALSE		
+#ifndef FALSE
     #define FALSE   0
 #endif
 
@@ -63,6 +66,7 @@ typedef signed long long        __int64_t;
 typedef unsigned long long      __uint64_t;
 #endif
 
+#if defined(CONFIG_MBED_ENABLED)
 typedef int8_t s8;
 typedef uint8_t u8;
 typedef int16_t s16;
@@ -71,17 +75,17 @@ typedef int32_t s32;
 typedef uint32_t u32;
 typedef int64_t s64;
 typedef uint64_t u64;
-
-#ifdef CONFIG_MBED_ENABLED
-#ifndef BOOL
-typedef unsigned int		   BOOL;
-#endif
-#ifndef __cplusplus
-#ifndef bool
-typedef unsigned char			bool;
-#endif
-#endif
 #else
+#define s8                      int8_t
+#define u8                      uint8_t
+#define s16                     int16_t
+#define u16                     uint16_t
+#define s32                     int32_t
+#define u32                     uint32_t
+#define s64                     int64_t
+#define u64                     uint64_t
+#endif
+
 #ifndef BOOL
 typedef unsigned char           BOOL;
 #endif
@@ -90,14 +94,17 @@ typedef unsigned char           BOOL;
 typedef unsigned char           bool;
 #endif
 #endif
-#endif
 
 #define UCHAR                   uint8_t
 #define USHORT                  uint16_t
-//#define UINT                    uint32_t
-#define ULONG                   uint32_t	
 
-typedef struct { volatile int counter; } atomic_t;
+#if defined(CONFIG_MBED_ENABLED)
+typedef unsigned int            UINT;
+#else
+#define UINT                    uint32_t
+#endif
+
+#define ULONG                   uint32_t
 
 enum _RTK_STATUS_ {
     _EXIT_SUCCESS = 0,
@@ -198,13 +205,20 @@ typedef	    __kernel_ssize_t	SSIZE_T;
 #define _LONG_CALL_
 #define _LONG_CALL_ROM_  
 #define _WEAK          __weak
+#if (__VER__ >= 8000000)
+#define _USED __attribute__((used))
+#else
+#define _USED _Pragma("__root")
+#endif
+
 #elif defined(__CC_ARM)
 // defined in rtl8195a_compiler.h
 #define SECTION(_name)      __attribute__ ((section(_name)))
 #define _LONG_CALL_     	__attribute__ ((long_call))
 #define ALIGNMTO(_bound) 	__attribute__ ((aligned (_bound)))
-
 #define _LONG_CALL_ROM_     _LONG_CALL_
+#define _WEAK           __attribute__ ((weak))
+#define _USED __attribute__((used))
 
 #elif defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
 #define SECTION(_name) __attribute__ ((__section__(_name)))
@@ -222,6 +236,7 @@ typedef	    __kernel_ssize_t	SSIZE_T;
 #define _LONG_CALL_ROM_     _LONG_CALL_
 #endif
 #define _WEAK           __attribute__ ((weak))
+#define _USED __attribute__((used))
 
 #else
 #define SECTION(_name) __attribute__ ((__section__(_name)))
@@ -239,6 +254,7 @@ typedef	    __kernel_ssize_t	SSIZE_T;
 #define _LONG_CALL_ROM_     _LONG_CALL_
 #endif
 #define _WEAK           __attribute__ ((weak))
+#define _USED __attribute__((used))
 #endif
 
 
@@ -526,11 +542,9 @@ typedef unsigned char	BOOLEAN,*PBOOLEAN;
 #define	__restrict			/* Ignore */
 #endif
 
-/* in rtl8195a_trap.h
 typedef struct _RAM_START_FUNCTION_ {
     VOID (*RamStartFun) (VOID);
 }RAM_START_FUNCTION, *PRAM_START_FUNCTION;
-*/
 
 typedef struct _RAM_FUNCTION_START_TABLE_ {
     VOID (*RamStartFun) (VOID);

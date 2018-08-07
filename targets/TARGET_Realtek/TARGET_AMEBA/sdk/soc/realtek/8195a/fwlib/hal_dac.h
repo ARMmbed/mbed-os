@@ -228,14 +228,9 @@ typedef struct _SAL_DAC_USERCB_ADPT_ {
 typedef struct _SAL_DAC_USER_CB_ {
     PSAL_DAC_USERCB_ADPT    pTXCB;          //DAC Transmit Callback
     PSAL_DAC_USERCB_ADPT    pTXCCB;         //DAC Transmit Complete Callback
-    PSAL_DAC_USERCB_ADPT    pRXCB;          //DAC Receive Callback
-    PSAL_DAC_USERCB_ADPT    pRXCCB;         //DAC Receive Complete Callback
-    PSAL_DAC_USERCB_ADPT    pRDREQCB;       //DAC Read Request Callback
     PSAL_DAC_USERCB_ADPT    pERRCB;         //DAC Error Callback
     PSAL_DAC_USERCB_ADPT    pDMATXCB;       //DAC DMA Transmit Callback
     PSAL_DAC_USERCB_ADPT    pDMATXCCB;      //DAC DMA Transmit Complete Callback
-    PSAL_DAC_USERCB_ADPT    pDMARXCB;       //DAC DMA Receive Callback
-    PSAL_DAC_USERCB_ADPT    pDMARXCCB;      //DAC DMA Receive Complete Callback
 }SAL_DAC_USER_CB, *PSAL_DAC_USER_CB;
 
 // DAC Transmit Buffer
