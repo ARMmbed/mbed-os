@@ -57,8 +57,9 @@
         "OGChipSelectEditMenu": "STM32F070RB\tST STM32F070RB"
     },
     "MK22DN512xxx5": {
-        "OGChipSelectEditMenu": "MK22DN512xxx5\tNXP MK22DN512xxx5"
+        "OGChipSelectEditMenu": "MK22FN512xxx12\tFreescale MK22FN512xxx12"
     },
+
     "MK24FN1M0xxx12": {
         "OGChipSelectEditMenu": "MK24FN1M0xxx12\tNXP MK24FN1M0xxx12"
     },
