@@ -191,11 +191,12 @@ class Uvision(Exporter):
             return (
                 x not in in_template or
                 not x.startswith("-O") or
-                not x.startswith("-std")
+                not x.startswith("-std") or
+                not x.startswith("-D")
             )
 
         def is_define(s):
-            return s.startswith("-D")
+            return s.startswith("-D") and "(" not in s
 
         flags['c_flags'] = " ".join(f.replace('"', '\\"') for f in c_flags
                                     if (valid_flag(f) and not is_define(f)))
