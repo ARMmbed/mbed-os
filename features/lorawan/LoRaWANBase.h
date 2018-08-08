@@ -37,35 +37,35 @@ public:
      */
     virtual lorawan_status_t initialize(events::EventQueue *queue) = 0;
 
-    /** Connect OTAA or ABP using Mbed-OS config system
+    /** Connect OTAA or ABP using the Mbed OS config system
      *
      * Connect by Over The Air Activation or Activation By Personalization.
-     * You need to configure the connection properly via the Mbed OS configuration
+     * You need to configure the connection properly using the Mbed OS configuration
      * system.
      *
-     * When connecting via OTAA, the return code for success (LORAWAN_STATUS_CONNECT_IN_PROGRESS) is negative.
-     * However, this is not a real error. It tells you that the connection is in progress and you will
-     * be notified of the completion via an event. By default, after the Join Accept message
+     * When connecting through OTAA, the return code for success (LORAWAN_STATUS_CONNECT_IN_PROGRESS) is negative.
+     * However, this is not a real error. It tells you that the connection is in progress, and an event will
+     * notify you of the completion. By default, after the Join Accept message
      * is received, base stations may provide the node with a CF-List that replaces
      * all user-configured channels except the Join/Default channels. A CF-List can
      * configure a maximum of five channels other than the default channels.
      *
      * To configure more channels, we recommend that you use the `set_channel_plan()` API after the connection.
      * By default, the PHY layers configure only the mandatory Join channels. The retransmission back-off restrictions
-     * on these channels are severe and you may experience long delays or even failures in the confirmed traffic.
+     * on these channels are severe, and you may experience long delays or even failures in the confirmed traffic.
      * If you add more channels, the aggregated duty cycle becomes much more relaxed as compared to the Join (default) channels only.
      *
      * **NOTES ON RECONNECTION:**
      * Currently, the Mbed OS LoRaWAN implementation does not support non-volatile
      * memory storage. Therefore, the state and frame counters cannot be restored after
      * a power cycle. However, if you use the `disconnect()` API to shut down the LoRaWAN
-     * protocol, the state and frame counters are saved. Connecting again would try to
-     * restore the previous session. According to the LoRaWAN 1.0.2 specification, the frame counters are always reset
-     * to zero for OTAA and a new Join request lets the network server know
-     * that the counters need a reset. The same is said about the ABP but there
+     * protocol, the state and frame counters are saved. Connecting again 
+     * restores the previous session. According to the LoRaWAN 1.0.2 specification, the frame counters are always reset
+     * to 0 for OTAA, and a new Join request lets the network server know
+     * that the counters need a reset. The same is said about the ABP, but there
      * is no way to convey this information to the network server. For a network
      * server, an ABP device is always connected. That's why storing the frame counters
-     * is important, at least for ABP. That's why we try to restore frame counters from
+     * is important for ABP. That's why we restore frame counters from
      * session information after a disconnection.
      *
      * @return    Common:   LORAWAN_STATUS_NOT_INITIALIZED      if system is not initialized with initialize(),
@@ -87,17 +87,17 @@ public:
      * All connection parameters are chosen by the user and provided in the
      * data structure passed down.
      *
-     * When connecting via OTAA, the return code for success (LORAWAN_STATUS_CONNECT_IN_PROGRESS) is negative.
-     * However, this is not a real error. It tells you that connection is in progress and you will
-     * be notified of completion via an event. By default, after Join Accept message
-     * is received, base stations may provide the node with a CF-List which replaces
+     * When connecting using OTAA, the return code for success (LORAWAN_STATUS_CONNECT_IN_PROGRESS) is negative.
+     * However, this is not a real error. It tells you that connection is in progress, and an event will
+     * notify you of completion. By default, after Join Accept message
+     * is received, base stations may provide the node with a CF-List that replaces
      * all user-configured channels except the Join/Default channels. A CF-List can
      * configure a maximum of five channels other than the default channels.
      *
      * To configure more channels, we recommend that you use the `set_channel_plan()` API after the connection.
      * By default, the PHY layers configure only the mandatory Join
      * channels. The retransmission back-off restrictions on these channels
-     * are severe and you may experience long delays or even
+     * are severe, and you may experience long delays or even
      * failures in the confirmed traffic. If you add more channels, the aggregated duty
      * cycle becomes much more relaxed as compared to the Join (default) channels only.
      *
@@ -105,13 +105,13 @@ public:
      * Currently, the Mbed OS LoRaWAN implementation does not support non-volatile
      * memory storage. Therefore, the state and frame counters cannot be restored after
      * a power cycle. However, if you use the `disconnect()` API to shut down the LoRaWAN
-     * protocol, the state and frame counters are saved. Connecting again would try to
-     * restore the previous session. According to the LoRaWAN 1.0.2 specification, the frame counters are always reset
-     * to zero for OTAA and a new Join request lets the network server know
-     * that the counters need a reset. The same is said about the ABP but there
+     * protocol, the state and frame counters are saved. Connecting again 
+     * restores the previous session. According to the LoRaWAN 1.0.2 specification, the frame counters are always reset
+     * to zero for OTAA, and a new Join request lets the network server know
+     * that the counters need a reset. The same is said about the ABP, but there
      * is no way to convey this information to the network server. For a network
      * server, an ABP device is always connected. That's why storing the frame counters
-     * is important, at least for ABP. That's why we try to restore frame counters from
+     * is important for ABP. That's why we restore frame counters from
      * session information after a disconnection.
      *
      * @param connect  Options for an end device connection to the gateway.
@@ -146,15 +146,15 @@ public:
      * from the Network Server, user provided method is called.
      *
      * One way to use this API may be the validation of connectivity after a long
-     * deep sleep. Mbed LoRaWANStack piggy-backs the MAC commands with data
-     * frame payload so the application needs to try sending something and the Network
+     * deep sleep. Mbed LoRaWANStack follows the MAC commands with data
+     * frame payload, so the application needs send something, and the Network
      * Server may respond during the RX slots.
      *
      * This API is usable only when the 'link_check_resp' callback is set by
      * the application. See add_lora_app_callbacks API. If the above mentioned
      * callback is not set, a LORAWAN_STATUS_PARAMETER_INVALID error is thrown.
      *
-     * First parameter to callback function is the demodulation margin and
+     * The first parameter to callback function is the demodulation margin, and
      * the second parameter is the number of gateways that successfully received
      * the last request.
      *
@@ -172,7 +172,7 @@ public:
 
     /** Removes link check request sticky MAC command.
      *
-     * Any already queued request may still get entertained. However, no new
+     * Any already queued request may still be completed. However, no new
      * requests will be made.
      */
     virtual void remove_link_check_request() = 0;
@@ -185,14 +185,14 @@ public:
      * @return            LORAWAN_STATUS_OK if everything goes well, otherwise
      *                    a negative error code:
      *                    LORAWAN_STATUS_NOT_INITIALIZED   if system is not initialized with initialize(),
-     *                    LORAWAN_STATUS_PARAMETER_INVALID if ADR is enabled or invalid datarate is given
+     *                    LORAWAN_STATUS_PARAMETER_INVALID if ADR is enabled or invalid data rate is given
      */
     virtual lorawan_status_t set_datarate(uint8_t data_rate) = 0;
 
     /** Enables adaptive data rate (ADR)
      *
      * The underlying LoRaPHY and LoRaMac layers handle the data rate automatically
-     * for the user, based upon the radio conditions (network congestion).
+     * for the user, based on the radio conditions (network congestion).
      *
      * @return             LORAWAN_STATUS_OK on success, negative error code
      *                     on failure:
@@ -202,11 +202,11 @@ public:
 
     /** Disables adaptive data rate
      *
-     * When adaptive data rate (ADR) is disabled, you can either set a certain
-     * data rate or the MAC layer selects a default value.
+     * When adaptive data rate (ADR) is disabled, either you can set a certain
+     * data rate, or the MAC layer selects a default value.
      *
      * @return             LORAWAN_STATUS_OK on success, negative error code on failure:
-     *                     LORAWAN_STATUS_NOT_INITIALIZED   if system is not initialized with initialize()
+     *                     LORAWAN_STATUS_NOT_INITIALIZED if system is not initialized with initialize()
      */
     virtual lorawan_status_t disable_adaptive_datarate() = 0;
 
@@ -218,8 +218,8 @@ public:
      * receive an acknowledgment. The MAC performs a data rate adaptation as in
      * the LoRaWAN Specification V1.0.2, chapter 18.4, table on page 64.
      *
-     * Note, that if number of retries is set to 1 or 2, MAC will not decrease
-     * the datarate, if the LoRaMAC layer did not receive an acknowledgment.
+     * Note that if the number of retries is set to 1 or 2, MAC does not decrease
+     * the data rate, if the LoRaMAC layer did not receive an acknowledgment.
      *
      * @param count     The number of retries for confirmed messages.
      *
@@ -239,7 +239,7 @@ public:
      * is already active, the request is silently ignored. A negative error
      * code is returned if there is any problem with parameters.
      *
-     * Please note that this API can also be used to add a single channel to the
+     * Please note that you can also use this API to add a single channel to the
      * existing channel plan.
      *
      * There is no reverse mechanism in the 1.0.2 specification for a node to request
@@ -247,7 +247,7 @@ public:
      * You need to ensure that the corresponding base station supports the channel or channels being added.
      *
      * If your list includes a default channel (a channel where Join Requests
-     * are received) you cannot fully configure the channel parameters.
+     * are received), you cannot fully configure the channel parameters.
      * Either leave the channel settings to default or check your
      * corresponding PHY layer implementation. For example, LoRaPHYE868.
      *
@@ -256,9 +256,9 @@ public:
      * @return              LORAWAN_STATUS_OK on success, a negative error code on failure:
      *                      LORAWAN_STATUS_NOT_INITIALIZED   if system is not initialized with initialize(),
      *                      LORAWAN_STATUS_PARAMETER_INVALID if number of channels is exceeding the PHY limit,
-     *                      LORAWAN_STATUS_DATARATE_INVALID  if invalid datarate is given,
+     *                      LORAWAN_STATUS_DATARATE_INVALID  if invalid data rate is given,
      *                      LORAWAN_STATUS_FREQUENCY_INVALID if invalid frequency is given,
-     *                      LORAWAN_STATUS_FREQ_AND_DR_INVALID if invalid datarate and freqency are given,
+     *                      LORAWAN_STATUS_FREQ_AND_DR_INVALID if invalid data rate and freqency are given,
      *                      LORAWAN_STATUS_BUSY              if TX currently ongoing,
      *                      LORAWAN_STATUS_SERVICE_UNKNOWN   if custom channel plans are disabled in PHY
      */
@@ -362,8 +362,8 @@ public:
      *                      one another depending on the intended use case or reception
      *                      expectation.
      *
-     *                      e.g., MSG_CONFIRMED_FLAG and MSG_UNCONFIRMED_FLAG are
-     *                      not mutually exclusive, i.e., the user can subscribe to
+     *                      For example, MSG_CONFIRMED_FLAG and MSG_UNCONFIRMED_FLAG are
+     *                      not mutually exclusive. In other words, the user can subscribe to
      *                      receive both CONFIRMED AND UNCONFIRMED messages at
      *                      the same time.
      *
@@ -385,7 +385,7 @@ public:
      *
      * @param length        The size of data in bytes
      *
-     * @param port          Return the number of port to which message was received.
+     * @param port          Return the number of port from which message was received.
      *
      * @param flags         Return flags to determine what type of message was received.
      *                      MSG_UNCONFIRMED_FLAG = 0x01
@@ -518,13 +518,13 @@ public:
      * This API is used to cancel any outstanding transmission in the TX pipe.
      * If an event for transmission is not already queued at the end of backoff timer,
      * the system can cancel the outstanding outgoing packet. Otherwise, the system is
-     * busy sending and can't be held back. The system will not try to re-send if the
+     * busy sending and can't be held back. The system will not try to resend if the
      * outgoing message was a CONFIRMED message even if the ack is not received.
      *
-     * @return              LORAWAN_STATUS_OK if the sending is cancelled, otherwise
+     * @return              LORAWAN_STATUS_OK if the sending is canceled, otherwise
      *                      other negative error code if request failed:
      *                      LORAWAN_STATUS_NOT_INITIALIZED if system is not initialized with initialize(),
-     *                      LORAWAN_STATUS_BUSY if the send cannot be cancelled
+     *                      LORAWAN_STATUS_BUSY if the send cannot be canceled
      */
     virtual lorawan_status_t cancel_sending(void) = 0;
 };
