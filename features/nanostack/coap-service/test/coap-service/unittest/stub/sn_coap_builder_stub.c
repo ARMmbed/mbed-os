@@ -49,6 +49,11 @@ uint16_t sn_coap_builder_calc_needed_packet_data_size(sn_coap_hdr_s *src_coap_ms
     return sn_coap_builder_stub.expectedUint16;
 }
 
+uint16_t sn_coap_builder_calc_needed_packet_data_size_2(sn_coap_hdr_s *src_coap_msg_ptr, uint16_t blockwise_payload_size)
+{
+    return sn_coap_builder_stub.expectedUint16;
+}
+
 int16_t sn_coap_builder_options_build_add_zero_length_option(uint8_t **dst_packet_data_pptr, uint8_t option_length, uint8_t option_exist, sn_coap_option_numbers_e option_number)
 {
     return sn_coap_builder_stub.expectedInt16;
