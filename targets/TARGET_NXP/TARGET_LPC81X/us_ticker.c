@@ -139,5 +139,5 @@ void us_ticker_clear_interrupt() {
 
 void us_ticker_free(void)
 {
-
+    us_ticker_disable_interrupt();
 }
