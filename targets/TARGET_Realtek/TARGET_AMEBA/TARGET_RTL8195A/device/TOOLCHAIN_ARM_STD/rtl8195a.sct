@@ -1,3 +1,5 @@
+#! armcc -E
+#include "mbed_config.h"
 ; Realtek Semiconductor Corp.
 ;
 ; RTL8195A ARMCC Scatter File
@@ -9,6 +11,16 @@
 ;   TCM  (rwx)   : ORIGIN = 0x1FFF0000, LENGTH = 0x00010000
 ;   DRAM (rwx)   : ORIGIN = 0x30000000, LENGTH = 2M
 ; }
+
+#if (defined(__stack_size__))
+  #define Stack_Size                   __stack_size__
+#else
+  #if (defined(MBED_CONF_RTOS_PRESENT))
+    #define Stack_Size                   0x0400
+  #else
+    #define Stack_Size                   0x1000
+  #endif
+#endif
 
 LR_IRAM 0x10007000 (0x70000 - 0x7000) {
 
@@ -43,7 +55,7 @@ LR_IRAM 0x10007000 (0x70000 - 0x7000) {
     *mbed_boot*.o (+ZI)
   }
 
-  ARM_LIB_STACK (0x10070000 - 0x1000) EMPTY 0x1000 {
+  ARM_LIB_STACK (0x10070000 - Stack_Size) EMPTY Stack_Size {
   }
 }
 

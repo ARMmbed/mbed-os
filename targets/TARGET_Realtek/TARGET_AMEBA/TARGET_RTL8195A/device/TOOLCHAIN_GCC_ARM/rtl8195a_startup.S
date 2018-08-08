@@ -17,6 +17,19 @@
     .syntax unified
     .thumb
 
+    .section .stack
+    .align 3
+#ifdef __STACK_SIZE
+    .equ    Stack_Size, __STACK_SIZE
+#else
+    #if defined(MBED_CONF_RTOS_PRESENT)
+      .equ    Stack_Size, 0x400
+    #else
+      .equ    Stack_Size, 0x1000
+    #endif
+#endif
+
+    .global  Stack_Size
     .global  __StackTop
     .global  PLAT_Init
 

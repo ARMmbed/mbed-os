@@ -25,9 +25,6 @@ MEMORY
   SRAM2 (rwx)      : ORIGIN = 0x30000000, LENGTH = 2M
 }
 
-/* Stack sizes: */
-StackSize = 0x1000;
-
 /* Linker script to place sections and symbol values. Should be used together
  * with other linker script that defines memory regions FLASH and RAM.
  * It references following symbols, which must be defined in code:
@@ -195,7 +192,7 @@ SECTIONS
         __end__ = .;
         end = __end__;
         *(.heap*)
-    . = ORIGIN(SRAM1) + LENGTH(SRAM1) - StackSize;
+    . = ORIGIN(SRAM1) + LENGTH(SRAM1) - Stack_Size;
         __HeapLimit = .;
     } > SRAM1
     
@@ -215,13 +212,13 @@ SECTIONS
     {
         __StackLimit = .;
         *(.stack)
-    . += StackSize - (. - __StackLimit);
+    . += Stack_Size;
     } > SRAM1
 
     /* Set stack top to end of RAM, and stack limit move down by
      * size of stack_dummy section */
     __StackTop = ORIGIN(SRAM1) + LENGTH(SRAM1);
-    __StackLimit = __StackTop - SIZEOF(.stack_dummy);
+    __StackLimit = __StackTop - Stack_Size;
     PROVIDE(__stack = __StackTop);
 
     /* Check if data + heap + stack exceeds RAM limit */
