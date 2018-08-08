@@ -194,9 +194,9 @@ public:
 
 private:
     T _pool[BufferSize];
-    volatile CounterType _head;
-    volatile CounterType _tail;
-    volatile bool _full;
+    CounterType _head;
+    CounterType _tail;
+    bool _full;
 };
 
 /**@}*/
