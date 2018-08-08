@@ -178,8 +178,8 @@ class Uvision(Exporter):
             ",".join(filter(lambda f: f.startswith("-D"), flags['asm_flags'])))
         flags['asm_flags'] = asm_flag_string
 
-        config_option = self.toolchain.get_config_option(
-            self.toolchain.get_config_header())
+        config_header = self.config_header_ref
+        config_option = self.toolchain.get_config_option(config_header.name)
         c_flags = set(
             flags['c_flags'] + flags['cxx_flags'] + flags['common_flags']
         )
@@ -189,17 +189,18 @@ class Uvision(Exporter):
 
         def valid_flag(x):
             return (
-                x not in in_template or
-                not x.startswith("-O") or
-                not x.startswith("-std") or
+                x not in in_template and
+                not x.startswith("-O") and
+                not x.startswith("-std") and
                 not x.startswith("-D")
             )
 
         def is_define(s):
             return s.startswith("-D") and "(" not in s
 
-        flags['c_flags'] = " ".join(f.replace('"', '\\"') for f in c_flags
-                                    if (valid_flag(f) and not is_define(f)))
+        flags['c_flags'] = " ".join(
+            f.replace('"', '\\"') for f in c_flags if valid_flag(f)
+        )
         flags['c_flags'] += " "
         flags['c_flags'] += " ".join(config_option)
         flags['c_defines'] = " ".join(f[2:] for f in c_flags if is_define(f))
