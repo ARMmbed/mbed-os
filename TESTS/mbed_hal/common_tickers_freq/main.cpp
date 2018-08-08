@@ -39,26 +39,51 @@
 using namespace utest::v1;
 
 const ticker_interface_t *intf;
+uint32_t intf_mask;
+uint32_t intf_last_tick;
+uint32_t intf_elapsed_ticks;
 ticker_irq_handler_type prev_handler;
-
-static volatile unsigned int overflowCounter;
 
 uint32_t ticks_to_us(uint32_t ticks, uint32_t freq)
 {
     return (uint32_t)((uint64_t)ticks * US_PER_S / freq);
 }
 
+void elapsed_ticks_reset()
+{
+    core_util_critical_section_enter();
+
+    const uint32_t ticker_bits = intf->get_info()->bits;
+
+    intf_mask = (1 << ticker_bits) - 1;
+    intf_last_tick = intf->read();
+    intf_elapsed_ticks = 0;
+
+    core_util_critical_section_exit();
+}
+
+uint32_t elapsed_ticks_update()
+{
+    core_util_critical_section_enter();
+
+    const uint32_t current_tick = intf->read();
+    intf_elapsed_ticks += (current_tick - intf_last_tick) & intf_mask;
+    intf_last_tick = current_tick;
+
+    /* Schedule next interrupt half way to overflow */
+    uint32_t next = (current_tick + intf_mask / 2) & intf_mask;
+    intf->set_interrupt(next);
+
+    uint32_t elapsed = intf_elapsed_ticks;
+
+    core_util_critical_section_exit();
+    return elapsed;
+}
+
 void ticker_event_handler_stub(const ticker_data_t *const ticker)
 {
-    if (ticker == get_us_ticker_data()) {
-        us_ticker_clear_interrupt();
-    } else {
-#if DEVICE_LPTICKER
-        lp_ticker_clear_interrupt();
-#endif
-    }
-
-    overflowCounter++;
+    intf->clear_interrupt();
+    elapsed_ticks_update();
 }
 
 /* Test that the ticker is operating at the frequency it specifies. */
@@ -68,13 +93,13 @@ void ticker_frequency_test()
     char _value[128] = { };
     int expected_key = 1;
     const uint32_t ticker_freq = intf->get_info()->frequency;
-    const uint32_t ticker_bits = intf->get_info()->bits;
-    const uint32_t ticker_max = (1 << ticker_bits) - 1;
 
     intf->init();
 
+    elapsed_ticks_reset();
+
     /* Detect overflow for tickers with lower counters width. */
-    intf->set_interrupt(0);
+    elapsed_ticks_update();
 
     greentea_send_kv("timing_drift_check_start", 0);
 
@@ -84,9 +109,7 @@ void ticker_frequency_test()
         expected_key = strcmp(_key, "base_time");
     } while (expected_key);
 
-    overflowCounter = 0;
-
-    const uint32_t begin_ticks = intf->read();
+    const uint32_t begin_ticks = elapsed_ticks_update();
 
     /* Assume that there was no overflow at this point - we are just after init. */
     greentea_send_kv(_key, ticks_to_us(begin_ticks, ticker_freq));
@@ -94,9 +117,9 @@ void ticker_frequency_test()
     /* Wait for 2nd signal from host. */
     greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
 
-    const uint32_t end_ticks = intf->read();
+    const uint32_t end_ticks = elapsed_ticks_update();
 
-    greentea_send_kv(_key, ticks_to_us(end_ticks + overflowCounter * ticker_max, ticker_freq));
+    greentea_send_kv(_key, ticks_to_us(end_ticks, ticker_freq));
 
     /* Get the results from host. */
     greentea_parse_kv(_key, _value, sizeof(_key), sizeof(_value));
