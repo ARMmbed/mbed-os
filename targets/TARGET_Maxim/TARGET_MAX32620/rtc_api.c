@@ -309,5 +309,5 @@ inline uint32_t lp_ticker_read(void)
 
 void lp_ticker_free(void)
 {
-
+    lp_ticker_disable_interrupt();
 }

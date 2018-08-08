@@ -114,7 +114,7 @@ void us_ticker_fire_interrupt(void)
 
 void us_ticker_free(void)
 {
-
+    us_ticker_disable_interrupt();
 }
 
 void TIMER0_IRQHandler(void)

@@ -84,5 +84,5 @@ void us_ticker_clear_interrupt(void) {
 
 void us_ticker_free(void)
 {
-
+    us_ticker_disable_interrupt();
 }

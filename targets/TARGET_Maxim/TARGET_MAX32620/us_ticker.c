@@ -302,5 +302,5 @@ void us_ticker_set(timestamp_t timestamp)
 
 void us_ticker_free(void)
 {
-
+    us_ticker_disable_interrupt();
 }

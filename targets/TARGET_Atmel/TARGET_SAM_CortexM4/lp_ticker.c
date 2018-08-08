@@ -134,5 +134,5 @@ void lp_ticker_clear_interrupt(void)
 
 void lp_ticker_free(void)
 {
-
+    lp_ticker_disable_interrupt();
 }
