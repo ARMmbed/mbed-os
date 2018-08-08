@@ -17,23 +17,29 @@
 #include "cmsis.h"
 #include "fsl_clock.h"
 
-static void stop(void)
-{
-    SCB->SCR |= SCB_SCR_SLEEPDEEP_Msk;
-    __asm("WFI");
-}
+extern void vPortPRE_SLEEP_PROCESSING(clock_mode_t powermode);
+extern void vPortPOST_SLEEP_PROCESSING(clock_mode_t powermode);
+
 
 void hal_sleep(void)
 {
-    CLOCK_SetMode(kCLOCK_ModeWait);
+    vPortPRE_SLEEP_PROCESSING(kCLOCK_ModeWait);
 
-    stop();
+    __DSB();
+    __WFI();
+    __ISB();
+
+    vPortPOST_SLEEP_PROCESSING(kCLOCK_ModeWait);
 }
 
 void hal_deepsleep(void)
 {
-    CLOCK_SetMode(kCLOCK_ModeStop);
+    vPortPRE_SLEEP_PROCESSING(kCLOCK_ModeStop);
 
-    stop();
+    __DSB();
+    __WFI();
+    __ISB();
+
+    vPortPOST_SLEEP_PROCESSING(kCLOCK_ModeStop);
 }
 
