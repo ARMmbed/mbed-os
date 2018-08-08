@@ -60,9 +60,6 @@ MEMORY
  */
 ENTRY(Reset_Handler)
 
-HEAP_SIZE  = 0x4000;
-STACK_SIZE = 0x1000;
-
 /* Size of the vector table in SRAM */
 M_VECTOR_RAM_SIZE = NVIC_VECTORS_SIZE;
 
@@ -192,15 +189,21 @@ SECTIONS
         __end__ = .;
         PROVIDE(end = .);
         __HeapBase = .;
-        . += HEAP_SIZE;
+        . = ORIGIN(RAM) + LENGTH(RAM) - Stack_Size;
         __HeapLimit = .;
         __heap_limit = .; /* Add for _sbrk */
+    } > RAM
+
+    .stack_dummy :
+    {
+        *(.stack)
+        . += Stack_Size;
     } > RAM
 
     /* Set stack top to end of RAM, and stack limit move down by
      * size of stack_dummy section */
     __StackTop = ORIGIN(RAM) + LENGTH(RAM);
-    __StackLimit = __StackTop - STACK_SIZE;
+    __StackLimit = __StackTop - Stack_Size;
     PROVIDE(__stack = __StackTop);
 
     /* Check if data + heap + stack exceeds RAM limit */

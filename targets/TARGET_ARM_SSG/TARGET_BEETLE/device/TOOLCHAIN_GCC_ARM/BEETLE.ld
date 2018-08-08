@@ -59,10 +59,6 @@ MEMORY
  */
 ENTRY(Reset_Handler)
 
-/* Heap 1/4 of ram and stack 1/8 */
-__stack_size__ = 0x4000;
-__heap_size__ = 0x8000;
-
 HEAP_SIZE  = DEFINED(__heap_size__)  ? __heap_size__  : 0x0400;
 STACK_SIZE = DEFINED(__stack_size__) ? __stack_size__ : 0x0400;
 
@@ -202,9 +198,15 @@ SECTIONS
         __end__ = .;
         PROVIDE(end = .);
         __HeapBase = .;
-        . += HEAP_SIZE;
+        . = ORIGIN(RAM) + LENGTH(RAM) - Stack_Size;
         __HeapLimit = .;
         __heap_limit = .; /* Add for _sbrk */
+    } > RAM
+
+    .stack_dummy :
+    {
+        *(.stack)
+        . += Stack_Size;
     } > RAM
 
     /* Set stack top to end of RAM, and stack limit move down by
