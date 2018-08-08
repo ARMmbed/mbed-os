@@ -17,8 +17,12 @@
 #ifndef MBED_BLOCK_DEVICE_H
 #define MBED_BLOCK_DEVICE_H
 
+#include "platform/platform.h"
 #include <stdint.h>
 
+namespace mbed {
+/** \addtogroup filesystem */
+/** @{*/
 
 /** Enum of standard error codes
  *
@@ -219,5 +223,7 @@ public:
     }
 };
 
+/** @}*/
+} // namespace mbed
 
 #endif

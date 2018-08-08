@@ -21,6 +21,7 @@ extern "C" {
 #include "lfs_util.h"
 }
 
+using namespace mbed;
 
 ////// Conversion functions //////
 static int lfs_toerror(int err)

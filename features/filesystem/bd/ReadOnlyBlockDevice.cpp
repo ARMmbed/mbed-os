@@ -21,8 +21,9 @@
  */
 
 #include "ReadOnlyBlockDevice.h"
-#include "mbed_error.h"
+#include "platform/mbed_error.h"
 
+namespace mbed {
 
 ReadOnlyBlockDevice::ReadOnlyBlockDevice(BlockDevice *bd)
     : _bd(bd)
@@ -96,3 +97,5 @@ bd_size_t ReadOnlyBlockDevice::size() const
 {
     return _bd->size();
 }
+
+} // namespace mbed

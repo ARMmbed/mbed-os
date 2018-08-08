@@ -23,8 +23,10 @@
 #define MBED_PROFILING_BLOCK_DEVICE_H
 
 #include "BlockDevice.h"
-#include "mbed.h"
 
+namespace mbed {
+/** \addtogroup filesystem */
+/** @{*/
 
 /** Block device for measuring storage operations of another block device
  *
@@ -182,5 +184,7 @@ private:
     bd_size_t _erase_count;
 };
 
+/** @}*/
+} // namespace mbed
 
 #endif

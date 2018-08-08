@@ -23,8 +23,10 @@
 #define MBED_CHAINING_BLOCK_DEVICE_H
 
 #include "BlockDevice.h"
-#include "mbed.h"
 
+namespace mbed {
+/** \addtogroup filesystem */
+/** @{*/
 
 /** Block device for chaining multiple block devices
  *  with the similar block sizes at sequential addresses
@@ -178,5 +180,7 @@ protected:
     uint32_t _init_ref_count;
 };
 
+/** @}*/
+} // namespace mbed
 
 #endif

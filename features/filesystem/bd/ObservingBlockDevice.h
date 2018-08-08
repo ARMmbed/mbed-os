@@ -26,6 +26,9 @@
 #include "PlatformMutex.h"
 #include "Callback.h"
 
+namespace mbed {
+/** \addtogroup filesystem */
+/** @{*/
 
 class ObservingBlockDevice : public BlockDevice
 {
@@ -141,6 +144,7 @@ private:
     mbed::Callback<void(BlockDevice *)> _change;
 };
 
-
+/** @}*/
+} // namespace mbed
 
 #endif

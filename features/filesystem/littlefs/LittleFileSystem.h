@@ -51,7 +51,7 @@ public:
      *      The lookahead buffer requires only 1 bit per block so it can be quite
      *      large with little ram impact. Should be a multiple of 32.
      */
-    LittleFileSystem(const char *name=NULL, BlockDevice *bd=NULL,
+    LittleFileSystem(const char *name=NULL, mbed::BlockDevice *bd=NULL,
             lfs_size_t read_size=MBED_LFS_READ_SIZE,
             lfs_size_t prog_size=MBED_LFS_PROG_SIZE,
             lfs_size_t block_size=MBED_LFS_BLOCK_SIZE,
@@ -81,7 +81,7 @@ public:
      *      The lookahead buffer requires only 1 bit per block so it can be quite
      *      large with little ram impact. Should be a multiple of 32.
      */
-    static int format(BlockDevice *bd,
+    static int format(mbed::BlockDevice *bd,
         lfs_size_t read_size=MBED_LFS_READ_SIZE,
         lfs_size_t prog_size=MBED_LFS_PROG_SIZE,
         lfs_size_t block_size=MBED_LFS_BLOCK_SIZE,
@@ -92,7 +92,7 @@ public:
      *  @param bd       BlockDevice to mount to
      *  @return         0 on success, negative error code on failure
      */
-    virtual int mount(BlockDevice *bd);
+    virtual int mount(mbed::BlockDevice *bd);
 
     /** Unmounts a filesystem from the underlying block device
      *
@@ -110,7 +110,7 @@ public:
      *
      *  @return         0 on success, negative error code on failure
      */
-    virtual int reformat(BlockDevice *bd);
+    virtual int reformat(mbed::BlockDevice *bd);
 
     /** Remove a file from the filesystem.
      *
@@ -267,7 +267,7 @@ protected:
 private:
     lfs_t _lfs; // _the actual filesystem
     struct lfs_config _config;
-    BlockDevice *_bd; // the block device
+    mbed::BlockDevice *_bd; // the block device
 
     // default parameters
     const lfs_size_t _read_size;
