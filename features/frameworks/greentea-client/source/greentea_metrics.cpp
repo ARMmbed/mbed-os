@@ -87,7 +87,11 @@ MBED_UNUSED static void send_stack_info()
 
     // Print info for all other threads
     uint32_t thread_n = osThreadGetCount();
-    osThreadId_t *threads = new osThreadId_t[thread_n];
+    osThreadId_t *threads = new (std::nothrow) osThreadId_t[thread_n];
+    // Don't fail on lack of memory
+    if (!threads) {
+        goto end;
+    }
     thread_n = osThreadEnumerate(threads, thread_n);
 
     for(size_t i = 0; i < thread_n; i++) {
@@ -97,6 +101,7 @@ MBED_UNUSED static void send_stack_info()
 
     delete[] threads;
 
+end:
     mutex->unlock();
 }
 

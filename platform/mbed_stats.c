@@ -41,7 +41,10 @@ void mbed_stats_stack_get(mbed_stats_stack_t *stats)
     osThreadId_t *threads;
 
     threads = malloc(sizeof(osThreadId_t) * thread_n);
-    MBED_ASSERT(threads != NULL);
+    // Don't fail on lack of memory
+    if (!threads) {
+        return;
+    }
 
     osKernelLock();
     thread_n = osThreadEnumerate(threads, thread_n);
@@ -69,7 +72,10 @@ size_t mbed_stats_stack_get_each(mbed_stats_stack_t *stats, size_t count)
     osThreadId_t *threads;
 
     threads = malloc(sizeof(osThreadId_t) * count);
-    MBED_ASSERT(threads != NULL);
+    // Don't fail on lack of memory
+    if (!threads) {
+        return 0;
+    }
 
     osKernelLock();
     count = osThreadEnumerate(threads, count);
