@@ -519,7 +519,7 @@ int NVStore::copy_record(uint8_t from_area, uint32_t from_offset, uint32_t to_of
 
 int NVStore::garbage_collection(uint16_t key, uint16_t flags, uint8_t owner, uint16_t buf_size, const void *buf)
 {
-    uint32_t curr_offset, new_area_offset, next_offset;
+    uint32_t curr_offset, new_area_offset, next_offset, curr_owner;
     int ret;
     uint8_t curr_area;
 
@@ -534,7 +534,8 @@ int NVStore::garbage_collection(uint16_t key, uint16_t flags, uint8_t owner, uin
             return ret;
         }
         _offset_by_key[key] = new_area_offset | (1 - _active_area) << offs_by_key_area_bit_pos |
-                                (((flags & set_once_flag) != 0) << offs_by_key_set_once_bit_pos);
+                                (((flags & set_once_flag) != 0) << offs_by_key_set_once_bit_pos) |
+                                (owner << offs_by_key_owner_bit_pos);
         new_area_offset = next_offset;
     }
 
@@ -544,7 +545,8 @@ int NVStore::garbage_collection(uint16_t key, uint16_t flags, uint8_t owner, uin
         curr_offset = _offset_by_key[key];
         uint16_t save_flags = curr_offset & offs_by_key_flag_mask & ~offs_by_key_area_mask;
         curr_area = (uint8_t)(curr_offset >> offs_by_key_area_bit_pos) & 1;
-        curr_offset &= ~offs_by_key_flag_mask;
+        curr_owner = _offset_by_key[key] & offs_by_key_owner_mask;
+        curr_offset &= offs_by_key_offset_mask;
         if ((!curr_offset) || (curr_area != _active_area)) {
             continue;
         }
@@ -552,7 +554,7 @@ int NVStore::garbage_collection(uint16_t key, uint16_t flags, uint8_t owner, uin
         if (ret != NVSTORE_SUCCESS) {
             return ret;
         }
-        _offset_by_key[key] = new_area_offset | (1 - curr_area) << offs_by_key_area_bit_pos | save_flags;
+        _offset_by_key[key] = new_area_offset | (1 - curr_area) << offs_by_key_area_bit_pos | save_flags | curr_owner;
         new_area_offset = next_offset;
     }
 
