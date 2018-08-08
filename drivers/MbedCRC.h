@@ -95,7 +95,14 @@ namespace mbed {
 template <uint32_t polynomial = POLY_32BIT_ANSI, uint8_t width = 32>
 class MbedCRC {
 public:
-    enum CrcMode { HARDWARE = 0, TABLE, BITWISE };
+    enum CrcMode
+    {
+#ifdef DEVICE_CRC
+        HARDWARE = 0,
+#endif
+        TABLE = 1,
+        BITWISE
+    };
 
 public:
     typedef uint64_t crc_data_size_t;
@@ -170,12 +177,12 @@ public:
     int32_t compute_partial(void *buffer, crc_data_size_t size, uint32_t *crc)
     {
         switch (_mode) {
-            case HARDWARE:
 #ifdef DEVICE_CRC
+            case HARDWARE:
                 hal_crc_compute_partial((uint8_t *)buffer, size);
-#endif // DEVICE_CRC
                 *crc = 0;
                 return 0;
+#endif
             case TABLE:
                 return table_compute_partial(buffer, size, crc);
             case BITWISE:
@@ -229,15 +236,12 @@ public:
     {
         MBED_ASSERT(crc != NULL);
 
-        if (_mode == HARDWARE) {
 #ifdef DEVICE_CRC
+        if (_mode == HARDWARE) {
             *crc = hal_crc_get_result();
             return 0;
-#else
-            return -1;
-#endif
         }
-
+#endif
         uint32_t p_crc = *crc;
         if ((width < 8) && (NULL == _crc_table)) {
             p_crc = (uint32_t)(p_crc << (8 - width));
