@@ -1,3 +1,5 @@
+#! armcc -E
+#include "mbed_config.h"
 ;;  TMPM066FWUG scatter file
 
 ;;  Vector table starts at 0
@@ -13,6 +15,16 @@
 
 ;; Compatible with ISSM model
 
+#if (defined(__stack_size__))
+  #define Stack_Size                   __stack_size__
+#else
+  #if (defined(MBED_CONF_RTOS_PRESENT))
+    #define Stack_Size                   0x0400
+  #else
+    #define Stack_Size                   0x1000
+  #endif
+#endif
+
 LR_IROM1 0x00000000 0x20000
 {
   ER_IROM1 0x00000000 0x20000
@@ -25,8 +37,11 @@ LR_IROM1 0x00000000 0x20000
   }
 
   /* 8_byte_aligned(32 + 16 vect * 4 bytes) =  8_byte_aligned(0xC0) */
-  RW_IRAM1 0x200000C0 (0x4000 - 0xC0)
+  RW_IRAM1 0x200000C0 (0x4000 - 0xC0 - Stack_Size)
   {
     .ANY (+RW, +ZI)
+  }
+  
+  ARM_LIB_STACK 0x200000C0+0x4000 EMPTY -Stack_Size { ; Stack region growing down
   }
 }

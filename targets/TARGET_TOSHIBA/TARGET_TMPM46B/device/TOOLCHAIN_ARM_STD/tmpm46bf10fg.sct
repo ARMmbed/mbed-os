@@ -1,4 +1,5 @@
 #! armcc -E -I. --cpu Cortex-M4
+#include "mbed_config.h"
 ;;  TMPM46BF10 scatter file
 
 ;;  Vector table starts at 0
@@ -13,6 +14,16 @@
 ;;    Stack is positioned by ARM_LIB_STACK (library will use this to set SP - see above)
 
 ;; Compatible with ISSM model
+
+#if (defined(__stack_size__))
+  #define Stack_Size                   __stack_size__
+#else
+  #if (defined(MBED_CONF_RTOS_PRESENT))
+    #define Stack_Size                   0x0400
+  #else
+    #define Stack_Size                   0x1000
+  #endif
+#endif
 
 #if !defined(MBED_APP_START)
   #define MBED_APP_START 0x00000000
@@ -37,5 +48,8 @@ LR_IROM1 MBED_APP_START MBED_APP_SIZE ; load region size_region
   {
      tmpm46b_fc.o(+RO)
     .ANY (+RW, +ZI)
+  }
+  
+  ARM_LIB_STACK 0x200001E0+0x80000 EMPTY -Stack_Size { ; Stack region growing down
   }
 }
