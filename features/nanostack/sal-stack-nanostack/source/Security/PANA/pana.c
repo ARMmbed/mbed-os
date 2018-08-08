@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017, Arm Limited and affiliates.
+ * Copyright (c) 2013-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -750,24 +750,23 @@ int8_t pana_ccm_data_crypt(uint8_t *ptr, uint16_t len, uint8_t operation_type, u
 {
     uint8_t *explict_ptr;
     uint8_t *key_ptr = 0;
-    ccm_globals_t *ccm_ptr = 0;
+    ccm_globals_t ccm_ptr;
     key_ptr = suite->pana_session.pana_PAA_enc_key;
 
     //Here Comes AES Decrypt
-    ccm_ptr = ccm_sec_init(AES_SECURITY_LEVEL_ENC, key_ptr, operation_type , 3);
-    if (!ccm_ptr) {
+    if (!ccm_sec_init(&ccm_ptr, AES_SECURITY_LEVEL_ENC, key_ptr, operation_type , 3)) {
         return -1;
     }
 
-    explict_ptr = ccm_ptr->exp_nonce;
+    explict_ptr = ccm_ptr.exp_nonce;
     //Set IV
     explict_ptr = common_write_32_bit(suite->pana_session.pana_key_id, explict_ptr);
     //SET EXP 4 octest Session ID, 4 Octet Pana SQN number
     explict_ptr = common_write_32_bit(suite->pana_session.session_id, explict_ptr);
     explict_ptr = common_write_32_bit(message_seq, explict_ptr);
-    ccm_ptr->data_len = len;
-    ccm_ptr->data_ptr  = ptr;
-    return ccm_process_run(ccm_ptr);
+    ccm_ptr.data_len = len;
+    ccm_ptr.data_ptr  = ptr;
+    return ccm_process_run(&ccm_ptr);
 }
 
 buffer_t *pana_relay_parse(buffer_t *buf)

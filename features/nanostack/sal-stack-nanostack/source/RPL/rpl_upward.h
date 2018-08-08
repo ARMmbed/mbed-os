@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, Arm Limited and affiliates.
+ * Copyright (c) 2015-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -88,6 +88,7 @@ void rpl_instance_slow_timer(rpl_instance_t *instance, uint16_t seconds);
 rpl_dodag_t *rpl_lookup_dodag(const rpl_instance_t *instance, const uint8_t *dodagid);
 rpl_dodag_t *rpl_create_dodag(rpl_instance_t *instance, const uint8_t *dodagid, uint8_t g_mop_prf);
 void rpl_delete_dodag(rpl_dodag_t *dodag);
+void rpl_delete_dodag_root(rpl_dodag_t *dodag);
 uint8_t rpl_dodag_mop(const rpl_dodag_t *dodag);
 void rpl_dodag_set_root(rpl_dodag_t *dodag, bool root);
 #ifdef HAVE_RPL_ROOT

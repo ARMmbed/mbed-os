@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2017, Arm Limited and affiliates.
+ * Copyright (c) 2014-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,6 +26,7 @@
 #include "mac_filter.h"
 #include "mac_common_defines.h"
 
+#include "mac_mcps.h"
 #include "MAC/IEEE802_15_4/mac_mcps_sap.h"
 #include "MAC/IEEE802_15_4/mac_header_helper_functions.h"
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017, Arm Limited and affiliates.
+ * Copyright (c) 2016-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,7 +29,6 @@ struct protocol_interface_info_entry;
 struct ns_sockaddr;
 struct buffer;
 struct mac_api_s;
-struct mle_neigh_table_entry_t;
 
 
 void mac_create_scan_request(mac_scan_type_t type, struct channel_list_s *chanlist, uint8_t scan_duration, struct mlme_scan_s *request);
@@ -100,7 +99,7 @@ bool mac_helper_write_our_addr(struct protocol_interface_info_entry *interface, 
 
 int8_t mac_helper_mac64_set(struct protocol_interface_info_entry *interface, const uint8_t *mac64);
 
-uint_fast16_t mac_helper_max_payload_size(struct protocol_interface_info_entry *cur, uint_fast8_t frame_overhead);
+uint_fast16_t mac_helper_max_payload_size(struct protocol_interface_info_entry *cur, uint_fast16_t frame_overhead);
 
 uint_fast8_t mac_helper_frame_overhead(struct protocol_interface_info_entry *cur, const struct buffer *buf);
 
@@ -110,8 +109,9 @@ int8_t mac_helper_link_frame_counter_set(int8_t interface_id, uint32_t seq_ptr);
 
 void mac_helper_devicetable_remove(struct mac_api_s *mac_api, uint8_t attribute_index);
 
-void mac_helper_devicetable_set(struct mle_neigh_table_entry_t *entry_temp, struct protocol_interface_info_entry *cur, uint32_t frame_counter, uint8_t keyID, bool force_set);
+void mac_helper_device_description_write(struct protocol_interface_info_entry *cur, mlme_device_descriptor_t *device_desc, uint8_t *mac64, uint16_t mac16, uint32_t frame_counter, bool exempt);
 
+void mac_helper_devicetable_set(const mlme_device_descriptor_t *device_dec, struct protocol_interface_info_entry *cur, uint8_t attribute_index, uint8_t keyID, bool force_set);
 int8_t mac_helper_mac_mlme_max_retry_set(int8_t interface_id, uint8_t mac_retry_set);
 
 #endif // MAC_HELPER_H

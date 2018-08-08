@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2017, Arm Limited and affiliates.
+ * Copyright (c) 2014-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Redistribution and use in source and binary forms, with or without
@@ -778,8 +778,8 @@ static bool thread_joiner_application_validate_settings(thread_joiner_t *this)
         new_value_generated = 1;
         tr_info("Generating Random ML-EID");
     }
-    if (this->configuration_ptr->key_rotation < 3600) {
-        this->configuration_ptr->key_rotation = 3600;
+    if (this->configuration_ptr->key_rotation < 1) {
+        this->configuration_ptr->key_rotation = 1;
     }
     return new_value_generated;
 }
@@ -967,17 +967,12 @@ static int thread_joiner_application_nvm_link_config_read(thread_joiner_t *this)
     this->configuration_valid = true;
     link_configuration_trace(this->configuration_ptr);
 
-    //Add Security to MLE service
-    uint8_t key_material[32];
-    uint8_t key_index;
-    //Define KEY's
-
-    thread_key_get(this->configuration_ptr->master_key, key_material, this->configuration_ptr->key_sequence);
-    key_index = THREAD_KEY_INDEX(this->configuration_ptr->key_sequence);
-    //Set Keys
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(this->interface_id);
-    mac_helper_security_default_key_set(cur, &key_material[16], key_index, MAC_KEY_ID_MODE_IDX);
-    mle_service_security_set_security_key(this->interface_id, key_material, key_index, true);
+    //Add Security to MLE service
+    thread_security_prev_key_generate(cur,this->configuration_ptr->master_key,this->configuration_ptr->key_sequence);
+    thread_security_key_generate(cur,this->configuration_ptr->master_key,this->configuration_ptr->key_sequence);
+    thread_security_next_key_generate(cur,this->configuration_ptr->master_key,this->configuration_ptr->key_sequence);
+
     // update counters
     mle_service_security_set_frame_counter(this->interface_id, fast_data.mle_frame_counter);
     mac_helper_link_frame_counter_set(this->interface_id, fast_data.mac_frame_counter);

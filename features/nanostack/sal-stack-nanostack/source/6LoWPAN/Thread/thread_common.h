@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2017, Arm Limited and affiliates.
+ * Copyright (c) 2014-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,6 +40,8 @@
 #include "eventOS_event_timer.h"
 #include "MLE/mle_tlv.h"
 
+struct mac_neighbor_table_entry;
+
 #define MAX_MLE_CHALLENGE_LENGTH 32
 
 /*
@@ -55,8 +57,8 @@
 #define NETWORK_ID_TIMEOUT 120 //seconds
 
 // Values when adverticements are made faster when leader connection is restored
-#define NETWORK_ID_SPEEDUP 60 //seconds
-#define NETWORK_ID_SPEEDUP_MAX 100 //seconds
+#define NETWORK_ID_SPEEDUP 55 //seconds
+#define NETWORK_ID_SPEEDUP_MAX 80 //seconds
 
 #define DHCPV6_ENTERPRISE_THREAD 0x0000AFAA
 #define DHCPV6_OPTION_VENDOR_SPESIFIC_INFO_LEN 0x0011
@@ -91,6 +93,22 @@ typedef enum {
     THREAD_COMMISSIONER_REGISTRATION_OBSOLETE,
     THREAD_COMMISSIONER_REGISTERED
 } thread_commissioner_register_status_e;
+
+typedef struct thread_neigh_table_entry_s {
+    uint8_t         mlEid[8];
+    uint32_t        last_contact_time;  /*!< monotonic time - hard to define "contact"; used for Thread Leasequery replies */
+    uint16_t        link_margin;
+    bool secured_data_request:1;
+    bool request_full_data_set:1;
+} thread_neigh_table_entry_t ;
+
+/**
+ * Neighbor info data base
+ */
+typedef struct thread_neighbor_class_s {
+    thread_neigh_table_entry_t *neigh_info_list;          /*!< Allocated Neighbour info array*/
+    uint8_t list_size;                                    /*!< List size*/
+} thread_neighbor_class_t;
 
 typedef struct thread_mcast_child {
     uint8_t mac64[8];
@@ -261,6 +279,7 @@ typedef struct thread_previous_partition_info_s {
 
 typedef struct thread_info_s {
     thread_routing_info_t routing;
+    thread_neighbor_class_t neighbor_class;
     thread_master_secret_material_t masterSecretMaterial;
     thread_network_data_cache_entry_t networkDataStorage;
     thread_network_local_data_cache_entry_t localServerDataBase;
@@ -363,7 +382,7 @@ uint16_t thread_network_data_generate_stable_set(protocol_interface_info_entry_t
 
 void thread_set_active_router(protocol_interface_info_entry_t *cur, if_address_entry_t *address_entry, uint8_t *routerId);
 uint8_t thread_get_router_count_from_route_tlv(mle_tlv_info_t *routeTlv);
-void thread_reset_neighbour_info(protocol_interface_info_entry_t *cur, mle_neigh_table_entry_t *neighbour);
+void thread_reset_neighbour_info(protocol_interface_info_entry_t *cur, struct mac_neighbor_table_entry *neighbour);
 
 void thread_child_id_request_entry_clean(protocol_interface_info_entry_t *cur);
 thread_pending_child_id_req_t *thread_child_id_request_entry_get(protocol_interface_info_entry_t *cur, uint8_t *euid64);
@@ -413,15 +432,19 @@ uint8_t *thread_pending_operational_dataset_write(protocol_interface_info_entry_
 bool thread_pending_operational_dataset_process(protocol_interface_info_entry_t *cur, uint64_t mle_pending_timestamp, uint8_t *ptr, uint16_t len);
 /*Write optional thread leader data TLV if leader data is known*/
 uint8_t thread_pending_timestamp_tlv_size(protocol_interface_info_entry_t *cur);
-void thread_calculate_key_guard_timer(protocol_interface_info_entry_t *cur, link_configuration_s *linkConfiguration, bool is_init);
+void thread_key_guard_timer_calculate(protocol_interface_info_entry_t *cur, link_configuration_s *linkConfiguration, bool is_init);
+void thread_key_guard_timer_reset(protocol_interface_info_entry_t *cur);
 void thread_set_link_local_address(protocol_interface_info_entry_t *cur);
 void thread_mcast_group_change(struct protocol_interface_info_entry *interface, struct if_group_entry *group, bool group_added);
-void thread_old_partition_data_purge(protocol_interface_info_entry_t *cur);
-
+void thread_partition_data_purge(protocol_interface_info_entry_t *cur);
+bool thread_partition_match(protocol_interface_info_entry_t *cur, thread_leader_data_t *leaderData);
+void thread_partition_info_update(protocol_interface_info_entry_t *cur, thread_leader_data_t *leaderData);
+void thread_neighbor_communication_update(protocol_interface_info_entry_t *cur, uint8_t neighbor_attribute_index);
+bool thread_stable_context_check(protocol_interface_info_entry_t *cur, buffer_t *buf);
 #else // HAVE_THREAD
 
 NS_DUMMY_DEFINITIONS_OK
-
+#define thread_stable_context_check(cur, buf) (false)
 #define thread_info(cur) ((thread_info_t *) NULL)
 #define thread_am_router(cur) (false)
 #define thread_am_host(cur) (false)
@@ -438,6 +461,7 @@ NS_DUMMY_DEFINITIONS_OK
 #define thread_link_reject_send(interface, ll64) 0
 #define thread_addr_is_mesh_local_16(addr, cur) false
 #define thread_mcast_group_change(interface, group, group_added) ((void)0)
+#define thread_neighbor_communication_update(cur, neighbor_attribute_index) ((void)0)
 #endif // HAVE_THREAD
 
 #endif /* LOWPAN_THREAD_H_ */

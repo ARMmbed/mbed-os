@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, Arm Limited and affiliates.
+ * Copyright (c) 2017-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,9 +30,8 @@
 #define TRACE_GROUP "cryp"
 #define TLS_1_2_VER                 0x0303
 
-static ccm_globals_t * tls_ccm_init(const uint8_t *key_expansion, const uint8_t *nonce, bool server, uint8_t crypt_process)
+static bool tls_ccm_init(ccm_globals_t *ccm_ptr, const uint8_t *key_expansion, const uint8_t *nonce, bool server, uint8_t crypt_process)
 {
-    ccm_globals_t *ccm_ptr;
     const uint8_t *key, *iv_ptr;
     if (server) {
         key = key_expansion + SERVER_WRITE_KEY;
@@ -41,12 +40,14 @@ static ccm_globals_t * tls_ccm_init(const uint8_t *key_expansion, const uint8_t 
         key = key_expansion + CLIENT_WRITE_KEY;
         iv_ptr = key_expansion + CLIENT_IV;
     }
-    ccm_ptr = ccm_sec_init(AES_SECURITY_LEVEL_ENC_MIC64, key, crypt_process , 3);
-    if (ccm_ptr) {
-        memcpy(ccm_ptr->exp_nonce, iv_ptr, 4);
-        memcpy(&ccm_ptr->exp_nonce[4], nonce, 8);
+
+    if (!ccm_sec_init(ccm_ptr, AES_SECURITY_LEVEL_ENC_MIC64, key, crypt_process , 3) ) {
+        return false;
     }
-    return ccm_ptr;
+
+    memcpy(ccm_ptr->exp_nonce, iv_ptr, 4);
+    memcpy(&ccm_ptr->exp_nonce[4], nonce, 8);
+    return true;
 }
 
 
@@ -64,16 +65,16 @@ static void tls_set_adata(ccm_globals_t *ccm_ptr, uint8_t *a_data, const uint8_t
 
 int8_t tls_ccm_data_encrypt(uint8_t *data_ptr, uint16_t data_length, const uint8_t *key_expansion, const uint8_t *nonce, uint8_t type, bool server)
 {
-    ccm_globals_t * ccm_ptr = tls_ccm_init(key_expansion, nonce, server, AES_CCM_ENCRYPT);
-    if (!ccm_ptr) {
+    ccm_globals_t ccm_ptr;
+    if (!tls_ccm_init(&ccm_ptr, key_expansion, nonce, server, AES_CCM_ENCRYPT)) {
         return -1;
     }
     uint8_t adata[13];
-    ccm_ptr->data_len = data_length;
-    ccm_ptr->data_ptr  = data_ptr;
-    ccm_ptr->mic = (ccm_ptr->data_ptr + ccm_ptr->data_len);
-    tls_set_adata(ccm_ptr,adata, nonce, type);
-    return ccm_process_run(ccm_ptr);
+    ccm_ptr.data_len = data_length;
+    ccm_ptr.data_ptr  = data_ptr;
+    ccm_ptr.mic = (ccm_ptr.data_ptr + ccm_ptr.data_len);
+    tls_set_adata(&ccm_ptr,adata, nonce, type);
+    return ccm_process_run(&ccm_ptr);
 }
 
 int8_t tls_ccm_data_decrypt(uint8_t *data_ptr, uint16_t data_length, const uint8_t *key_expansion, uint8_t type, bool server)
@@ -82,18 +83,19 @@ int8_t tls_ccm_data_decrypt(uint8_t *data_ptr, uint16_t data_length, const uint8
     if (data_length <= 16) {
         return -1;
     }
-    ccm_globals_t *ccm_ptr = tls_ccm_init(key_expansion, data_ptr, server, AES_CCM_DECRYPT);
-    if (!ccm_ptr) {
+    ccm_globals_t ccm_ptr;
+
+    if (!tls_ccm_init(&ccm_ptr, key_expansion, data_ptr, server, AES_CCM_DECRYPT)) {
         return -1;
     }
 
     uint8_t adata[13];
-    ccm_ptr->data_len = data_length - 16;
+    ccm_ptr.data_len = data_length - 16;
 
-    tls_set_adata(ccm_ptr, adata, data_ptr, type);
-    ccm_ptr->data_ptr  = data_ptr + 8;
-    ccm_ptr->mic = (ccm_ptr->data_ptr + ccm_ptr->data_len);
+    tls_set_adata(&ccm_ptr, adata, data_ptr, type);
+    ccm_ptr.data_ptr  = data_ptr + 8;
+    ccm_ptr.mic = (ccm_ptr.data_ptr + ccm_ptr.data_len);
 
-    return ccm_process_run(ccm_ptr);
+    return ccm_process_run(&ccm_ptr);
 }
 #endif

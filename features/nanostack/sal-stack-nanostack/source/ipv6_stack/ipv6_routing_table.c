@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2017, Arm Limited and affiliates.
+ * Copyright (c) 2012-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -1088,8 +1088,10 @@ static const char *route_src_names[] = {
     [ROUTE_MPL]     = "MPL",
     [ROUTE_RIP]     = "RIP",
     [ROUTE_THREAD]  = "Thread",
-    [ROUTE_THREAD_BORDER_ROUTER] = "Thread BR",
+    [ROUTE_THREAD_BORDER_ROUTER] = "Thread Network data",
     [ROUTE_THREAD_PROXIED_HOST] = "Thread Proxy",
+    [ROUTE_THREAD_BBR] = "Thread BBR",
+    [ROUTE_THREAD_PROXIED_DUA_HOST] = "Thread DUA Proxy",
     [ROUTE_REDIRECT] = "Redirect",
 };
 
@@ -1199,6 +1201,9 @@ static void ipv6_route_entry_remove(ipv6_route_t *route)
 #ifdef FEA_TRACE_SUPPORT
     ipv6_route_print(route, trace_debug_print);
 #endif
+    if (route->info_autofree) {
+        ns_dyn_mem_free(route->info.info);
+    }
     if (protocol_core_buffers_in_event_queue > 0) {
         // Alert any buffers in the queue already routed by this source
         ipv6_route_source_invalidated[route->info.source] = true;
@@ -1548,6 +1553,7 @@ ipv6_route_t *ipv6_route_add_metric(const uint8_t *prefix, uint8_t prefix_len, i
         route->lifetime = lifetime;
         route->metric = metric;
         route->info.source = source;
+        route->info_autofree = false;
         route->info.info = info;
         route->info.source_id = source_id;
         route->info.interface_id = interface_id;

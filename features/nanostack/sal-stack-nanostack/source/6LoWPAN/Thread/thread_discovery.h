@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017, Arm Limited and affiliates.
+ * Copyright (c) 2016-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Redistribution and use in source and binary forms, with or without
@@ -122,7 +122,7 @@ int thread_discovery_responser_enable(int8_t interface_id, bool enable_service);
 /**
  * Start Thread network discovery
  */
-int thread_discovery_network_scan(int8_t interface_id, thread_discover_reques_t *scan_request, thread_discovery_ready_cb *ready_cb);
+int thread_discovery_network_scan(struct protocol_interface_info_entry *cur_interface, thread_discover_reques_t *scan_request, thread_discovery_ready_cb *ready_cb);
 
 /**
  * Start device orphan scan

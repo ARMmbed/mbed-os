@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2017, Arm Limited and affiliates.
+ * Copyright (c) 2014-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Redistribution and use in source and binary forms, with or without
@@ -54,6 +54,7 @@ typedef struct thread_border_router_info_t {
     bool                P_default_route: 1;   /**< This device provides the default route. */
     bool                P_on_mesh: 1;         /**< This prefix is considered to be on-mesh */
     bool                P_nd_dns: 1;          /**< this border router is able to provide DNS information */
+    bool                P_res1: 1;            /**< First reserved bit */
     bool                stableData: 1;        /**< This data is stable and expected to be available at least 48h. */
 } thread_border_router_info_t;
 

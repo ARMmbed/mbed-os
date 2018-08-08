@@ -395,7 +395,7 @@ mlme_key_descriptor_t * mac_sec_key_description_get(protocol_interface_rf_mac_se
         key_description++;
     }
 
-    tr_debug("LookuPdata search fail %s", trace_array(lookup_data, 9));
+    //tr_debug("LookuPdata search fail %s", trace_array(lookup_data, 9));
 
     return NULL;
 }

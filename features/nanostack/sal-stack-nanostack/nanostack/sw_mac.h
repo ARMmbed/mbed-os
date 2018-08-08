@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017, Arm Limited and affiliates.
+ * Copyright (c) 2016-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -65,6 +65,13 @@ extern int8_t ns_sw_mac_virtual_client_unregister(struct mac_api_s *api);
  * @return 0 on success, -1 on fail.
  */
 extern int ns_sw_mac_fhss_register(struct mac_api_s *mac_api, struct fhss_api *fhss_api);
+
+/**
+ * @brief Request registered FHSS API instance from software MAC instance.
+ * @param mac_api MAC instance.
+ * @return FHSS api.
+ */
+extern struct fhss_api *ns_sw_mac_get_fhss_api(struct mac_api_s *mac_api);
 
 /**
  * @brief Start collecting statistics from software MAC.

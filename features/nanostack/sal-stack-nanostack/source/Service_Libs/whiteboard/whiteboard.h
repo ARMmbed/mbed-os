@@ -37,7 +37,7 @@ extern uint16_t whiteboard_size_get(void);
 #define whiteboard_rm_entry(id, address)
 #define whiteboard_table_check_address(address) NULL
 #define whiteboard_table_update(address, eui64, status) NULL
-#define whiteboard_interface_unregister_all_address(nwk_id) -1
+#define whiteboard_interface_unregister_all_address(nwk_id)
 #define whiteboard_interface_address_cmp(address) false
 #endif
 

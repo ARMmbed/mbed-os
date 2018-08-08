@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2017, Arm Limited and affiliates.
+ * Copyright (c) 2014-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,6 +52,7 @@
 #include "6LoWPAN/Thread/thread_routing.h"
 #include "6LoWPAN/Thread/thread_leader_service.h"
 #include "6LoWPAN/MAC/mac_helper.h"
+#include "Service_Libs/mac_neighbor_table/mac_neighbor_table.h"
 
 #define TRACE_GROUP "trou"
 
@@ -183,7 +184,7 @@ static inline thread_link_quality_e thread_quality_combine(thread_link_quality_e
 /* Return the quality (worse of incoming and outgoing quality) for a neighbour router */
 static inline thread_link_quality_e thread_neighbour_router_quality(const thread_router_link_t *neighbour)
 {
-    return thread_quality_combine(neighbour->incoming_quality, neighbour->outgoing_quality);
+    return thread_quality_combine((thread_link_quality_e) neighbour->incoming_quality, (thread_link_quality_e) neighbour->outgoing_quality);
 }
 
 
@@ -265,8 +266,8 @@ static int_fast8_t thread_route_fn(
     uint16_t dest_router_addr = thread_router_addr_from_addr(dest);
     if (dest_router_addr == mac16) {
         /* We're this device's parent - transmit direct to it */
-        mle_neigh_table_entry_t *entry = mle_class_get_by_link_address(cur->id, dest_addr, ADDR_802_15_4_SHORT);
-        if (!entry || (entry->mode & MLE_DEV_MASK) == MLE_RFD_DEV) {
+        mac_neighbor_table_entry_t *entry = mac_neighbor_table_address_discover(mac_neighbor_info(cur), dest_addr, ADDR_802_15_4_SHORT);
+        if (!entry || !entry->ffd_device) {
             /* To cover some of draft-kelsey-thread-network-data-00, we send the
              * packet up to our own IP layer in the case where it's addressed to
              * an unrecognised child. The special IP forwarding rules can then
@@ -690,8 +691,8 @@ int_fast8_t thread_routing_add_link(protocol_interface_info_entry_t *cur,
         if (our_quality_to_other_neighbour < QUALITY_10dB) {
             continue;
         }
-        thread_link_quality_e neighbours_incoming_quality_to_other_neighbour = (byte & ROUTE_DATA_IN_MASK) >> ROUTE_DATA_IN_SHIFT;
-        thread_link_quality_e neighbours_outgoing_quality_to_other_neighbour = (byte & ROUTE_DATA_OUT_MASK) >> ROUTE_DATA_OUT_SHIFT;
+        thread_link_quality_e neighbours_incoming_quality_to_other_neighbour = (thread_link_quality_e) ((byte & ROUTE_DATA_IN_MASK) >> ROUTE_DATA_IN_SHIFT);
+        thread_link_quality_e neighbours_outgoing_quality_to_other_neighbour = (thread_link_quality_e) ((byte & ROUTE_DATA_OUT_MASK) >> ROUTE_DATA_OUT_SHIFT);
         thread_link_quality_e neighbours_quality_to_other_neighbour = thread_quality_combine(neighbours_incoming_quality_to_other_neighbour,
                                                                                              neighbours_outgoing_quality_to_other_neighbour);
         if (neighbours_quality_to_other_neighbour < our_quality_to_other_neighbour) {
@@ -972,6 +973,21 @@ static void thread_trickle_accelerate(trickle_t *t, const trickle_params_t *para
     if (t->now > t->t) {
         // if now is larger than t move t to trigger event again during this period
         t->t = t->now + randLIB_get_random_in_range(0, params->Imin/2);
+    }
+}
+
+void thread_routing_trickle_advance(thread_routing_info_t *routing, uint16_t ticks)
+{
+    trickle_t *t =&routing->mle_advert_timer;
+
+    if (!trickle_running(t, &thread_mle_advert_trickle_params)) {
+        return;
+    }
+
+    if ((t->t > t->now) && (t->t - t->now < ticks)) {
+        /* advance trickle elapsing time by number of ticks */
+        t->t = t->t + ticks - (t->t - t->now);
+        tr_debug("trickle advanced to %d, now %d ", t->t, t->now);
     }
 }
 

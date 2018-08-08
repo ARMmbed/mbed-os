@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, Arm Limited and affiliates.
+ * Copyright (c) 2017-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,10 +30,23 @@
 #ifndef THREAD_ADDRESS_REGISTRATION_CLIENT_H_
 #define THREAD_ADDRESS_REGISTRATION_CLIENT_H_
 
+
+#ifdef HAVE_THREAD_V2
+
+void thread_address_registration_init(void);
+void thread_address_registration_deinit(void);
+
+void thread_address_registration_timer_set(protocol_interface_info_entry_t *interface, uint16_t dua_delay_seconds, uint16_t mlr_refresh_seconds);
+void thread_address_registration_timer(protocol_interface_info_entry_t *interface, uint16_t seconds);
+#else
+
 #define thread_address_registration_init(void)
 #define thread_address_registration_deinit(void)
 
-#define thread_address_registration_timer_set(interface, seconds);
+#define thread_address_registration_timer_set(interface, dua_delay_seconds, mlr_refresh_seconds);
 #define thread_address_registration_timer(interface, seconds);
+
+#endif
+
 
 #endif /* THREAD_ADDRESS_REGISTRATION_CLIENT_H_ */

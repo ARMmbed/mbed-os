@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, Arm Limited and affiliates.
+ * Copyright (c) 2017-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -185,7 +185,7 @@ int_fast8_t multicast_mpl_set_default_parameters(int8_t interface_id,
                                                  uint8_t control_message_k,
                                                  uint8_t control_message_timer_expirations)
 {
-    protocol_interface_info_entry_t *interface = protocol_stack_interface_info_get(interface_id);
+    protocol_interface_info_entry_t *interface = protocol_stack_interface_info_get_by_id(interface_id);
     if (!interface) {
         return -1;
     }

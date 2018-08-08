@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2017, Arm Limited and affiliates.
+ * Copyright (c) 2014-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -106,14 +106,13 @@ int DHCPv6_server_respond_client(dhcpv6_gua_server_entry_s *serverBase, dhcpv6_r
             // coverity[returned_null] for ignoring protocol_stack_interface_info_get_by_id NULL return
             DHCPV6_server_service_remove_GUA_from_neighcache(protocol_stack_interface_info_get_by_id(serverBase->interfaceId), nonTemporalAddress.requestedAddress);
         }
-        if (thread_bbr_nd_entry_add(serverBase->interfaceId,dhcp_allocated_address->nonTemporalAddress, nonTemporalAddress.validLifeTime, serverBase->guaPrefix, NULL) == -1) {
+        if (thread_bbr_nd_entry_add(serverBase->interfaceId,dhcp_allocated_address->nonTemporalAddress, nonTemporalAddress.validLifeTime, serverBase->guaPrefix) == -1) {
             // No nanostack BBR present we will put entry for application implemented BBR
             ipv6_route_t *route = ipv6_route_add_with_info(dhcp_allocated_address->nonTemporalAddress, 128, serverBase->interfaceId, NULL, ROUTE_THREAD_PROXIED_HOST,serverBase->guaPrefix,0, nonTemporalAddress.validLifeTime, 0);
             if (!route) {
                 address_allocated = false;
                 libdhcpv6_address_rm_from_allocated_list(serverBase,dhcp_allocated_address->nonTemporalAddress);
             }
-
 
         }
     }

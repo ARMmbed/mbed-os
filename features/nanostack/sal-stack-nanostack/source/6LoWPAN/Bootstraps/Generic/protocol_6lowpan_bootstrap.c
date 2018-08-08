@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, Arm Limited and affiliates.
+ * Copyright (c) 2015-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -69,7 +69,9 @@
 #include "mac_api.h"
 #include "6LoWPAN/MAC/mac_data_poll.h"
 #include "libNET/src/net_load_balance_internal.h"
+#include "6LoWPAN/lowpan_adaptation_interface.h"
 #include "6LoWPAN/NVM/nwk_nvm.h"
+#include "Service_Libs/mac_neighbor_table/mac_neighbor_table.h"
 
 
 /* Fixed-point randomisation limits for randlib_randomise_base() - RFC 3315
@@ -90,15 +92,16 @@ static void protocol_6lowpan_bootstrap_rpl_callback(rpl_event_t event, void *han
 #endif
 
 static void protocol_6lowpan_mle_purge_neighbors(struct protocol_interface_info_entry *cur_interface, uint8_t entry_count, uint8_t force_priority);
-static uint8_t protocol_6lowpan_mle_order_last_entries(mle_neigh_table_list_t *mle_neigh_table, uint8_t entry_count);
+static uint8_t protocol_6lowpan_mle_order_last_entries(int8_t interface_id,mac_neighbor_table_list_t *mac_neigh_table, uint8_t entry_count);
 static uint8_t protocol_6lowpan_mle_data_allocate(void);
 static bool mle_accept_request_cb(int8_t interface_id, uint16_t msgId, bool usedAllRetries);
 static void lowpan_comm_status_indication_cb(int8_t if_id, const mlme_comm_status_t* status);
 
-static void protocol_6lowpan_priority_neighbor_remove(protocol_interface_info_entry_t *cur_interface, mle_neigh_table_entry_t *cur);
-static void protocol_6lowpan_neighbor_information_remove(int8_t interface_id, mle_neigh_table_entry_t *cur);
-static int8_t protocol_6lowpan_host_challenge(int8_t interface_id, const uint8_t *mac64);
-static int8_t protocol_6lowpan_router_challenge(int8_t interface_id, const uint8_t *mac64);
+static void protocol_6lowpan_priority_neighbor_remove(protocol_interface_info_entry_t *cur_interface, mac_neighbor_table_entry_t *cur);
+static void lowpan_neighbor_entry_remove_notify(mac_neighbor_table_entry_t *entry_ptr, void *user_data);
+static bool lowpan_neighbor_entry_nud_notify(mac_neighbor_table_entry_t *entry_ptr, void *user_data);
+static bool protocol_6lowpan_router_challenge(protocol_interface_info_entry_t *cur_interface, const uint8_t *mac64);
+static bool protocol_6lowpan_host_challenge(protocol_interface_info_entry_t *cur, const uint8_t *mac64);
 static void protocol_6lowpan_address_reg_ready(protocol_interface_info_entry_t *cur_interface);
 static void coordinator_black_list(protocol_interface_info_entry_t *cur);
 
@@ -158,9 +161,9 @@ uint8_t *mle_general_write_timeout(uint8_t *ptr, protocol_interface_info_entry_t
 
 }
 
-static void protocol_6lowpan_priority_neighbor_remove(protocol_interface_info_entry_t *cur_interface, mle_neigh_table_entry_t *cur)
+static void protocol_6lowpan_priority_neighbor_remove(protocol_interface_info_entry_t *cur_interface, mac_neighbor_table_entry_t *cur)
 {
-    if (!cur->priorityFlag ||
+    if (cur->link_role != PRIORITY_PARENT_NEIGHBOUR ||
         !(cur_interface->lowpan_info & INTERFACE_NWK_ACTIVE) ||
         cur_interface->bootsrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
         return;
@@ -176,9 +179,9 @@ static void protocol_6lowpan_priority_neighbor_remove(protocol_interface_info_en
         }
     } else {
         //Call Priority parent loose
-        if (cur->short_adr != 0xffff) {
+        if (cur->mac16 != 0xffff) {
             memcpy(mac64, ADDR_SHORT_ADR_SUFFIC, 6);
-            common_write_16_bit(cur->short_adr, &mac64[6]);
+            common_write_16_bit(cur->mac16, &mac64[6]);
         } else {
             memcpy(mac64,cur->mac64 , 8);
             mac64[0] ^= 2;
@@ -192,64 +195,42 @@ static void protocol_6lowpan_priority_neighbor_remove(protocol_interface_info_en
     }
 }
 
-static void protocol_6lowpan_neighbor_information_remove(int8_t interface_id, mle_neigh_table_entry_t *cur)
+static bool protocol_6lowpan_challenge_callback(int8_t interface_id, uint16_t msgId, bool usedAllRetries)
 {
     protocol_interface_info_entry_t *cur_interface = protocol_stack_interface_info_get_by_id(interface_id);
     if (!cur_interface) {
-        return;
+        return false;
     }
 
-    // Sleepy host
-    if (cur_interface->lowpan_info & INTERFACE_NWK_CONF_MAC_RX_OFF_IDLE) {
-        mac_data_poll_protocol_poll_mode_decrement(cur_interface);
-    }
-
-    protocol_6lowpan_priority_neighbor_remove(cur_interface, cur);
-
-    if (cur->mode & MLE_FFD_DEV) {
-        protocol_6lowpan_release_short_link_address_from_neighcache(cur_interface, cur->short_adr);
-        protocol_6lowpan_release_long_link_address_from_neighcache(cur_interface, cur->mac64);
-    }
-    mac_helper_devicetable_remove(cur_interface->mac_api, cur->attribute_index);
-}
-
-static bool protocol_6lowpan_challenge_callback(int8_t interface_id, uint16_t msgId, bool usedAllRetries)
-{
     uint8_t mac64[8];
     uint8_t *ll64_ptr = mle_service_get_msg_destination_address_pointer(msgId);
 
     memcpy(mac64, ll64_ptr + 8, 8);
     mac64[0] ^= 2;
 
-    mle_neigh_table_entry_t *neig_info = mle_class_get_by_link_address(interface_id, mac64, ADDR_802_15_4_LONG);
+    mac_neighbor_table_entry_t * neig_info = mac_neighbor_table_address_discover(mac_neighbor_info(cur_interface), mac64, ADDR_802_15_4_LONG);
 
     if (!neig_info) {
         return false;//Why entry is removed before timeout??
     }
 
 
-    if (neig_info->ttl > MLE_TABLE_CHALLENGE_TIMER) {
+    if (!neig_info->nud_active) {
         return false;
     }
 
 
     if (usedAllRetries) {
         //GET entry
-        mle_class_remove_entry(interface_id, neig_info);
+        mac_neighbor_table_neighbor_remove(mac_neighbor_info(cur_interface), neig_info);
         return false;
     }
 
     return true;
 }
 
-static int8_t protocol_6lowpan_host_challenge(int8_t interface_id, const uint8_t *mac64)
+static bool protocol_6lowpan_host_challenge(protocol_interface_info_entry_t *cur, const uint8_t *mac64)
 {
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (!cur) {
-        return false;
-    }
-
-
     uint16_t bufId;
     mle_message_timeout_params_t timeout;
     uint8_t ll64[16];
@@ -261,7 +242,7 @@ static int8_t protocol_6lowpan_host_challenge(int8_t interface_id, const uint8_t
     tr_debug("Link REQUEST");
     bufId = mle_service_msg_allocate(cur->id, 32, true,MLE_COMMAND_REQUEST);
     if (bufId == 0) {
-        return -1;
+        return false;
     }
 
     uint8_t *ptr = mle_service_get_data_pointer(bufId);
@@ -293,16 +274,11 @@ static int8_t protocol_6lowpan_host_challenge(int8_t interface_id, const uint8_t
     mle_service_set_msg_timeout_parameters(bufId, &timeout);
 
     mle_service_send_message(bufId);
-    return 0;
+    return true;
 }
 
-static int8_t protocol_6lowpan_router_challenge(int8_t interface_id, const uint8_t *mac64)
+static bool protocol_6lowpan_router_challenge(protocol_interface_info_entry_t *cur, const uint8_t *mac64)
 {
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (!cur) {
-        return false;
-    }
-
 
     uint16_t bufId;
     mle_message_timeout_params_t timeout;
@@ -315,7 +291,7 @@ static int8_t protocol_6lowpan_router_challenge(int8_t interface_id, const uint8
     tr_debug("Link REQUEST");
     bufId = mle_service_msg_allocate(cur->id, 32, true,MLE_COMMAND_REQUEST);
     if (bufId == 0) {
-        return -1;
+        return false;
     }
 
     uint8_t *ptr = mle_service_get_data_pointer(bufId);
@@ -342,16 +318,16 @@ static int8_t protocol_6lowpan_router_challenge(int8_t interface_id, const uint8
     mle_service_set_msg_timeout_parameters(bufId, &timeout);
 
     mle_service_send_message(bufId);
-    return 0;
+    return true;
 }
 
 
-static uint8_t mle_advert_neigh_cnt(int8_t interface_id, bool short_adr) {
+static uint8_t mle_advert_neigh_cnt(protocol_interface_info_entry_t *cur_interface, bool short_adr) {
 
     uint8_t advert_neigh_cnt;
     uint8_t neighb_max;
 
-    uint8_t mle_neigh_cnt = mle_class_active_neigh_counter(interface_id);
+    uint8_t mle_neigh_cnt = mle_class_active_neigh_counter(cur_interface);
 
     if (short_adr == true) {
         neighb_max = 16;
@@ -413,88 +389,94 @@ static uint8_t mle_link_quality_tlv_parse(uint8_t *mac64, uint16_t short_address
     return 0;
 }
 
-static uint8_t *mle_table_set_neighbours(int8_t interface_id, uint8_t *ptr)
+static bool neighbor_list_short_address_available(mac_neighbor_table_t *table_class)
+{
+    ns_list_foreach(mac_neighbor_table_entry_t, cur_entry, &table_class->neighbour_list) {
+        if (cur_entry->connected_device && cur_entry->mac16 == 0xffff) {
+            return false;
+        }
+    }
+    return true;
+}
+
+
+static uint8_t *mle_table_set_neighbours(protocol_interface_info_entry_t *cur, uint8_t *ptr)
 {
     uint8_t *len_ptr = 0;
-    uint8_t short_temp[2] = {0xff,0xff};
     uint8_t neigh_count = 0;
     uint8_t neigh_count_max = 0;
     uint8_t *link_flags_ptr;
-    mle_neigh_table_entry_t *first_entry_ptr = NULL;
-    bool loop_list = false;
+    mac_neighbor_table_entry_t *first_entry_ptr = NULL;
 
-    mle_neigh_table_list_t * neigh_list = mle_class_active_list_get(interface_id);
-    if (!neigh_list) {
-        return ptr;
-    }
+    mac_neighbor_table_list_t * neigh_list = &cur->mac_parameters->mac_neighbor_table->neighbour_list;
 
     *ptr++ = MLE_TYPE_LINK_QUALITY;
     len_ptr = ptr++;
     *len_ptr = 1;
-    // defaults: complete, 2 bytes long link-layer address
-    link_flags_ptr = ptr++;
-    *link_flags_ptr = 0x81;
 
-    if (mle_class_get_by_link_address(interface_id, short_temp,ADDR_802_15_4_SHORT)) {
-        *link_flags_ptr |= 0x07;
-        neigh_count_max = mle_advert_neigh_cnt(interface_id, false);
+    link_flags_ptr = ptr++;
+    //*link_flags_ptr = 0x81;
+    bool use_short_address_compression = neighbor_list_short_address_available(mac_neighbor_info(cur));
+    if (use_short_address_compression) {
+        //complete, 2 bytes long link-layer address
+        *link_flags_ptr = 0x81;
     } else {
-        neigh_count_max = mle_advert_neigh_cnt(interface_id, true);
+        //complete, 8 bytes long link-layer address
+        *link_flags_ptr = 0x87;
+
+    }
+    neigh_count_max = mle_advert_neigh_cnt(cur, use_short_address_compression);
+
+    bool clean_entries = false;
+    ns_list_foreach(mac_neighbor_table_entry_t, cur_entry, neigh_list)
+    {
+
+        if ((cur_entry->connected_device) && (cur_entry->advertisment == false)) {
+
+            // If looping list, stops adding entries when at first sent entry again
+            if (first_entry_ptr == cur_entry) {
+                break;
+            } else if (first_entry_ptr == NULL) {
+                first_entry_ptr = cur_entry;
+            }
+
+            // Limits the number of entries that are sent
+            if (++neigh_count > neigh_count_max) {
+                *link_flags_ptr &= 0x7f;
+                break;
+            }
+
+            if (cur_entry->link_role == PRIORITY_PARENT_NEIGHBOUR) {
+                *ptr++ = MLE_NEIGHBOR_PRIORITY_LINK | MLE_NEIGHBOR_INCOMING_LINK | MLE_NEIGHBOR_OUTGOING_LINK;
+            } else {
+                *ptr++ = MLE_NEIGHBOR_INCOMING_LINK | MLE_NEIGHBOR_OUTGOING_LINK;
+            }
+
+            *ptr++ = etx_local_incoming_idr_read(cur->id, cur_entry->index) >> 3;
+
+            if (use_short_address_compression) {
+                ptr = common_write_16_bit(cur_entry->mac16, ptr);
+                *len_ptr += 4;
+            } else {
+                memcpy(ptr, cur_entry->mac64, 8);
+                ptr += 8;
+                *len_ptr += 10;
+            }
+
+            // If end of the neighbor list, Mark a clean advertisment from the list
+            if (cur_entry->link.next == 0) {
+                clean_entries = true;
+            }
+            cur_entry->advertisment = true;
+        }
     }
 
-    do {
-        ns_list_foreach(mle_neigh_table_entry_t, cur, neigh_list)
-        {
-
-            loop_list = false;
-
-            if ((cur->handshakeReady) && (cur->link_q_adv_sent == false)) {
-
-                // If looping list, stops adding entries when at first sent entry again
-                if (first_entry_ptr == cur) {
-                    break;
-                } else if (first_entry_ptr == NULL) {
-                    first_entry_ptr = cur;
-                }
-
-                // Limits the number of entries that are sent
-                if (++neigh_count > neigh_count_max) {
-                    *link_flags_ptr &= 0x7f;
-                    break;
-                }
-
-                if (cur->priorityFlag) {
-                    *ptr++ = MLE_NEIGHBOR_PRIORITY_LINK | MLE_NEIGHBOR_INCOMING_LINK | MLE_NEIGHBOR_OUTGOING_LINK;
-                } else {
-                    *ptr++ = MLE_NEIGHBOR_INCOMING_LINK | MLE_NEIGHBOR_OUTGOING_LINK;
-                }
-
-                *ptr++ = etx_local_incoming_idr_read(interface_id, cur) >> 3;
-
-                if ((*link_flags_ptr & 0x07) == 1) {
-                    ptr = common_write_16_bit(cur->short_adr, ptr);
-                    *len_ptr += 4;
-                } else {
-                    memcpy(ptr, cur->mac64, 8);
-                    ptr += 8;
-                    *len_ptr += 10;
-                }
-
-                // If end of the neighbor list, start adding entries from start again
-                if (cur->link.next == 0) {
-                    loop_list = true;
-                    mle_neigh_table_list_t * neigh_temp = mle_class_active_list_get(interface_id);
-                    ns_list_foreach(mle_neigh_table_entry_t, temp, neigh_temp)
-                    {
-                        // Marks entries not sent
-                        temp->link_q_adv_sent = false;
-                    }
-                } else {
-                    cur->link_q_adv_sent = true;
-                }
-            }
+    if (clean_entries) {
+        ns_list_foreach(mac_neighbor_table_entry_t, temp, neigh_list) {
+            // Marks entries not sent
+            temp->advertisment = false;
         }
-    } while (loop_list);
+    }
 
     return ptr;
 }
@@ -515,10 +497,10 @@ static int protocol_6lowpan_mle_neigh_advertise(protocol_interface_info_entry_t 
         return 0;
     }
 
-    if (mle_class_get_by_link_address(cur->id, short_temp,ADDR_802_15_4_SHORT)) {
-        neig_cache_size += mle_advert_neigh_cnt(cur->id, false) * 10;
+    if (mac_neighbor_table_address_discover(mac_neighbor_info(cur), short_temp,ADDR_802_15_4_SHORT)) {
+        neig_cache_size += mle_advert_neigh_cnt(cur, false) * 10;
     } else {
-        neig_cache_size += mle_advert_neigh_cnt(cur->id, true) << 2;
+        neig_cache_size += mle_advert_neigh_cnt(cur, true) << 2;
     }
 
     uint16_t bufId = mle_service_msg_allocate(cur->id, neig_cache_size, false, MLE_COMMAND_ADVERTISEMENT);
@@ -539,7 +521,7 @@ static int protocol_6lowpan_mle_neigh_advertise(protocol_interface_info_entry_t 
     ptr = mle_service_get_data_pointer(bufId);
     ptr = mle_general_write_source_address(ptr, cur);
     ptr = mle_tlv_write_mode(ptr, lowpan_mode_get_by_interface_ptr(cur));
-    ptr = mle_table_set_neighbours(cur->id, ptr);
+    ptr = mle_table_set_neighbours(cur, ptr);
 
     if (mle_service_update_length_by_ptr(bufId,ptr)!= 0) {
         tr_debug("Buffer overflow at message write");
@@ -548,15 +530,6 @@ static int protocol_6lowpan_mle_neigh_advertise(protocol_interface_info_entry_t 
     return mle_service_send_message(bufId);
 }
 #endif
-
-static uint8_t compute_link_margin(int8_t rssi)
-{
-    if (rssi < -94) {
-        return 0;
-    }
-
-    return (rssi + 94);
-}
 
 static int mle_validate_6lowpan_link_request_message(uint8_t *ptr, uint16_t data_len, mle_tlv_info_t *tlv_info)
 {
@@ -571,8 +544,11 @@ static int mle_validate_6lowpan_link_request_message(uint8_t *ptr, uint16_t data
     return 0;
 }
 
-static void mle_neigh_time_and_mode_update(mle_neigh_table_entry_t *entry_temp, uint8_t *tlv_ptr, uint16_t tlv_length)
+static void mle_neigh_time_and_mode_update(mac_neighbor_table_entry_t *entry_temp, mle_message_t *mle_msg)
 {
+    uint8_t *tlv_ptr = mle_msg->data_ptr;
+    uint16_t tlv_length = mle_msg->data_length;
+
     mle_tlv_info_t mle_tlv_info;
     uint32_t timeout_tlv;
 
@@ -580,42 +556,44 @@ static void mle_neigh_time_and_mode_update(mle_neigh_table_entry_t *entry_temp, 
         return;
     }
 
+    protocol_interface_info_entry_t *cur = mle_msg->interface_ptr;
+
     if (mle_tlv_option_discover(tlv_ptr, tlv_length, MLE_TYPE_MODE, &mle_tlv_info) > 0) {
         uint8_t *t_ptr = mle_tlv_info.dataPtr;
-        entry_temp->mode = *t_ptr;
+        mle_mode_parse_to_mac_entry(entry_temp, *t_ptr);
     }
 
     if (mle_tlv_option_discover(tlv_ptr, tlv_length, MLE_TYPE_TIMEOUT, &mle_tlv_info) > 0) {
         timeout_tlv = common_read_32_bit(mle_tlv_info.dataPtr);
     } else {
-        if (entry_temp->mode & MLE_FFD_DEV) {
+        if (entry_temp->ffd_device) {
             timeout_tlv = mle_6lowpan_data->router_lifetime;
         } else {
             timeout_tlv = mle_6lowpan_data->host_lifetime;
         }
     }
-    mle_entry_timeout_update(entry_temp, timeout_tlv);
+    mac_neighbor_table_neighbor_refresh(mac_neighbor_info(cur), entry_temp, timeout_tlv);
 }
 
-static void mle_neigh_entry_update_by_mle_tlv_list(int8_t interface_id, mle_neigh_table_entry_t *entry_temp, uint8_t *tlv_ptr, uint16_t tlv_length, uint8_t *mac64, uint16_t short_address)
+static void mle_neigh_entry_update_by_mle_tlv_list(int8_t interface_id, mac_neighbor_table_entry_t *entry_temp, uint8_t *tlv_ptr, uint16_t tlv_length, uint8_t *mac64, uint16_t short_address)
 {
     mle_tlv_info_t mle_tlv_info;
 
     if (tlv_length) {
         if (mle_tlv_option_discover(tlv_ptr, tlv_length, MLE_TYPE_SRC_ADDRESS, &mle_tlv_info) > 0) {
-            entry_temp->short_adr = common_read_16_bit(mle_tlv_info.dataPtr);
+            entry_temp->mac16 = common_read_16_bit(mle_tlv_info.dataPtr);
         }
 
         if (mle_tlv_option_discover(tlv_ptr, tlv_length, MLE_TYPE_LINK_QUALITY, &mle_tlv_info) > 0) {
             uint8_t link_idr;
             uint8_t iop_flags;
             if (mle_link_quality_tlv_parse(mac64, short_address, mle_tlv_info.dataPtr, mle_tlv_info.tlvLen, &iop_flags, &link_idr)) {
-                etx_remote_incoming_idr_update(interface_id, link_idr, entry_temp);
+                etx_remote_incoming_idr_update(interface_id, link_idr, entry_temp->index);
 
                 if ((iop_flags & MLE_NEIGHBOR_PRIORITY_LINK) == MLE_NEIGHBOR_PRIORITY_LINK) {
-                    entry_temp->priority_child_flag = true;
-                } else {
-                    entry_temp->priority_child_flag = false;
+                    entry_temp->link_role = CHILD_NEIGHBOUR;
+                } else if (entry_temp->link_role == CHILD_NEIGHBOUR) {
+                    entry_temp->link_role = NORMAL_NEIGHBOUR;
                 }
             }
         }
@@ -758,10 +736,10 @@ static int mle_router_accept_request_build(protocol_interface_info_entry_t *cur,
 
 static void protocol_6lowpan_link_reject_handler(protocol_interface_info_entry_t *cur, uint8_t *ll64)
 {
-    mle_neigh_table_entry_t *entry_temp = mle_class_get_entry_by_ll64(cur->id, 0, ll64, false, NULL);
+    mac_neighbor_table_entry_t *mac_entry = mac_neighbor_entry_get_by_ll64(mac_neighbor_info(cur), ll64, false, NULL);
     tr_debug("MLE link reject");
-    if (entry_temp) {
-        mle_class_remove_entry(cur->id, entry_temp);
+    if (mac_entry) {
+        mac_neighbor_table_neighbor_remove(mac_neighbor_info(cur), mac_entry);
     }
 }
 
@@ -984,14 +962,16 @@ int protocol_6lowpan_router_synch_to_new_router(protocol_interface_info_entry_t 
 }
 
 
-static uint8_t mle_calculate_idr(int8_t interface_id, mle_message_t *mle_msg, mle_neigh_table_entry_t *entry_temp)
+static uint8_t mle_calculate_idr(int8_t interface_id, mle_message_t *mle_msg, mac_neighbor_table_entry_t *entry_temp)
 {
-
-    return etx_lqi_dbm_update(interface_id, mle_msg->lqi, mle_msg->dbm, entry_temp) >> 3;
+    if (!entry_temp) {
+        return etx_lqi_dbm_update(-2, mle_msg->lqi, mle_msg->dbm, 0) >> 3;
+    }
+    return etx_lqi_dbm_update(interface_id, mle_msg->lqi, mle_msg->dbm, entry_temp->index) >> 3;
 
 }
 
-static bool mle_6lowpan_neighbor_limit_check(int8_t interface_id, mle_message_t *mle_msg, uint8_t only_max_limit_chk)
+static bool mle_6lowpan_neighbor_limit_check(mle_message_t *mle_msg, uint8_t only_max_limit_chk)
 {
     uint16_t mle_neigh_cnt;
     bool link_quality = false;
@@ -1000,7 +980,7 @@ static bool mle_6lowpan_neighbor_limit_check(int8_t interface_id, mle_message_t 
         return true;
     }
 
-    mle_neigh_cnt = mle_class_active_neigh_counter(interface_id);
+    mle_neigh_cnt = mle_class_active_neigh_counter(mle_msg->interface_ptr);
 
     // Neighbor max limit
     if (mle_neigh_cnt >= mle_6lowpan_data->nbr_of_neigh_max) {
@@ -1048,17 +1028,11 @@ void mle_6lowpan_message_handler(int8_t interface_id, mle_message_t *mle_msg, ml
     uint8_t mode = 0x0a;
     mle_tlv_info_t mle_tlv_info;
     mle_tlv_info_t mle_challenge;
-    mle_neigh_table_entry_t *entry_temp;
-    uint8_t linkMargin;
+    mac_neighbor_table_entry_t *entry_temp;
     uint8_t incoming_idr;
     uint16_t responseId, own_mac16;
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (!cur) {
-        return;
-    }
+    protocol_interface_info_entry_t *cur = mle_msg->interface_ptr;
 
-    //Calculate link margin
-    linkMargin = compute_link_margin(mle_msg->dbm);
 
     own_mac16 = mac_helper_mac16_address_get(cur);
 
@@ -1081,13 +1055,13 @@ void mle_6lowpan_message_handler(int8_t interface_id, mle_message_t *mle_msg, ml
                 mle_6lowpan_data->link_req_token_bucket--;
             } else {
                 //Update only old information based on link request
-                entry_temp = mle_class_get_entry_by_ll64(interface_id, linkMargin, mle_msg->packet_src_address, false, NULL);
+                entry_temp = mac_neighbor_entry_get_by_ll64(mac_neighbor_info(cur), mle_msg->packet_src_address, false, NULL);
                 if (entry_temp) {
-                    mle_neigh_time_and_mode_update(entry_temp,mle_msg->data_ptr, mle_msg->data_length);
+                    mle_neigh_time_and_mode_update(entry_temp,mle_msg);
                     mle_neigh_entry_update_by_mle_tlv_list(interface_id, entry_temp, mle_msg->data_ptr, mle_msg->data_length, cur->mac, own_mac16);
                     mle_neigh_entry_frame_counter_update(entry_temp, mle_msg->data_ptr, mle_msg->data_length, cur, security_headers->KeyIndex);
                 } else {
-                    if (!mle_6lowpan_neighbor_limit_check(interface_id, mle_msg, false)) {
+                    if (!mle_6lowpan_neighbor_limit_check(mle_msg, false)) {
                         return;
                     }
                 }
@@ -1095,7 +1069,7 @@ void mle_6lowpan_message_handler(int8_t interface_id, mle_message_t *mle_msg, ml
 
             incoming_idr = mle_calculate_idr(interface_id, mle_msg, entry_temp);
 
-            if (entry_temp && entry_temp->handshakeReady) {
+            if (entry_temp && entry_temp->connected_device) {
                 response_type = MLE_COMMAND_ACCEPT;
             } else {
                 response_type = MLE_COMMAND_ACCEPT_AND_REQUEST;
@@ -1117,13 +1091,11 @@ void mle_6lowpan_message_handler(int8_t interface_id, mle_message_t *mle_msg, ml
             }
 
             tr_debug("Accept & Request");
-
-            entry_temp = mle_class_get_entry_by_ll64(interface_id, linkMargin, mle_msg->packet_src_address, false, NULL);
-
+            entry_temp = mac_neighbor_entry_get_by_ll64(mac_neighbor_info(cur), mle_msg->packet_src_address, false, NULL);
             if (!entry_temp) {
                 // If there is space for neighbors try to allocate new entry
-                if (mle_6lowpan_neighbor_limit_check(interface_id, mle_msg, true)) {
-                    entry_temp = mle_class_get_entry_by_ll64(interface_id, linkMargin, mle_msg->packet_src_address, true, NULL);
+                if (mle_6lowpan_neighbor_limit_check(mle_msg, true)) {
+                    entry_temp = mac_neighbor_entry_get_by_ll64(mac_neighbor_info(cur), mle_msg->packet_src_address, true, NULL);
                 }
             }
 
@@ -1137,23 +1109,22 @@ void mle_6lowpan_message_handler(int8_t interface_id, mle_message_t *mle_msg, ml
 
             //Response state set now timeout know positive state
             mle_service_set_msg_response_true(responseId);
-
-            entry_temp->threadNeighbor = false;
-            entry_temp->handshakeReady = 1;
+            entry_temp->connected_device = 1;
 
             mac_data_poll_protocol_poll_mode_decrement(cur);
 
             //Read Source address and Challenge
-            mle_neigh_time_and_mode_update(entry_temp,mle_msg->data_ptr, mle_msg->data_length);
+            mle_neigh_time_and_mode_update(entry_temp,mle_msg);
             if (mle_msg->message_type == MLE_COMMAND_ACCEPT_AND_REQUEST) {
                 // If no global address set priority (bootstrap ongoing)
                 if (!cur->global_address_available) {
-                    entry_temp->priorityFlag = true;
+                    entry_temp->link_role = PRIORITY_PARENT_NEIGHBOUR;
                 }
 
                 mle_neigh_entry_update_by_mle_tlv_list(cur->id, entry_temp, mle_msg->data_ptr, mle_msg->data_length, cur->mac, own_mac16);
                 incoming_idr = mle_calculate_idr(cur->id, mle_msg, entry_temp);
-                mle_router_accept_request_build(cur, mle_msg, mle_challenge.dataPtr, mle_challenge.tlvLen, MLE_COMMAND_ACCEPT, incoming_idr, entry_temp->priorityFlag);
+                uint8_t priority = (entry_temp->link_role == PRIORITY_PARENT_NEIGHBOUR);
+                mle_router_accept_request_build(cur, mle_msg, mle_challenge.dataPtr, mle_challenge.tlvLen, MLE_COMMAND_ACCEPT, incoming_idr, priority);
             } else {
                 mle_neigh_entry_update_by_mle_tlv_list(cur->id, entry_temp, mle_msg->data_ptr, mle_msg->data_length, cur->mac, own_mac16);
                 incoming_idr = mle_calculate_idr(cur->id, mle_msg, entry_temp);
@@ -1161,7 +1132,7 @@ void mle_6lowpan_message_handler(int8_t interface_id, mle_message_t *mle_msg, ml
             mle_neigh_entry_frame_counter_update(entry_temp, mle_msg->data_ptr, mle_msg->data_length, cur, security_headers->KeyIndex);
             // If MLE frame counter was invalid update its value since three way handshake is complete
             if (security_headers->invalid_frame_counter) {
-                entry_temp->mle_frame_counter = security_headers->frameCounter;
+                mle_service_frame_counter_entry_add(interface_id, entry_temp->index, security_headers->frameCounter);
             }
             break;
 
@@ -1184,12 +1155,11 @@ void mle_6lowpan_message_handler(int8_t interface_id, mle_message_t *mle_msg, ml
                     t_ptr = mle_tlv_info.dataPtr;
                     mode = *t_ptr;
                 }
-
-                entry_temp = mle_class_get_entry_by_ll64(interface_id, linkMargin, mle_msg->packet_src_address, false, NULL);
+                entry_temp = mac_neighbor_entry_get_by_ll64(mac_neighbor_info(cur), mle_msg->packet_src_address, false, NULL);
                 if (!entry_temp) {
                     if ((mode & MLE_DEV_MASK) == MLE_FFD_DEV) {
                         // If there is space for neighbors synchronizes to new router
-                        if (mle_6lowpan_neighbor_limit_check(interface_id, mle_msg, false)) {
+                        if (mle_6lowpan_neighbor_limit_check(mle_msg, false)) {
                             // Checks blacklist
                             if (blacklist_reject(mle_msg->packet_src_address)) {
                                 return;
@@ -1220,7 +1190,7 @@ void mle_6lowpan_message_handler(int8_t interface_id, mle_message_t *mle_msg, ml
                                 //Possible remove
                                 if ((mode & MLE_DEV_MASK) == MLE_RFD_DEV) {
                                     //Remove Entry
-                                    mle_class_remove_entry(cur->id, entry_temp);
+                                    mac_neighbor_table_neighbor_remove(mac_neighbor_info(cur), entry_temp);
                                     tr_error("MLE adv: Own address not found");
                                     return;
                                 }
@@ -1232,8 +1202,8 @@ void mle_6lowpan_message_handler(int8_t interface_id, mle_message_t *mle_msg, ml
                 //UPDATE
                 mle_neigh_entry_update_by_mle_tlv_list(cur->id,entry_temp, mle_msg->data_ptr, mle_msg->data_length, cur->mac, own_mac16);
                 mle_neigh_entry_frame_counter_update(entry_temp, mle_msg->data_ptr, mle_msg->data_length, cur, security_headers->KeyIndex);
-                if (entry_temp->handshakeReady) {
-                    mle_entry_timeout_refresh(entry_temp);
+                if (entry_temp->connected_device) {
+                    mac_neighbor_table_neighbor_refresh(mac_neighbor_info(cur), entry_temp, entry_temp->link_lifetime);
                 }
             }
             break;
@@ -1250,7 +1220,7 @@ int8_t arm_6lowpan_mle_service_ready_for_security_init(protocol_interface_info_e
         //validate MLE service
         if (!mle_service_interface_registeration_validate(cur->id)) {
             //Register
-            if (mle_service_interface_register(cur->id,mle_6lowpan_message_handler, cur->mac,8) != 0) {
+            if (mle_service_interface_register(cur->id,cur, mle_6lowpan_message_handler, cur->mac,8) != 0) {
                 tr_error("Mle Service init Fail");
                 return -1;
             }
@@ -1301,29 +1271,24 @@ mle_6lowpan_data_t *protocol_6lowpan_mle_data_get(void)
 
 static void protocol_6lowpan_mle_purge_neighbors(struct protocol_interface_info_entry *cur_interface, uint8_t entry_count, uint8_t force_priority)
 {
-    mle_neigh_table_list_t *mle_neigh_table;
+
     uint8_t count = 0;
     uint8_t ll64[16];
 
     if (!cur_interface) {
         return;
     }
+    mac_neighbor_table_list_t *mac_table_list = &cur_interface->mac_parameters->mac_neighbor_table->neighbour_list;
 
-    mle_neigh_table = mle_class_active_list_get(cur_interface->id);
+    entry_count = protocol_6lowpan_mle_order_last_entries(cur_interface->id, mac_table_list, entry_count);
 
-    if (!mle_neigh_table) {
-        return;
-    }
-
-    entry_count = protocol_6lowpan_mle_order_last_entries(mle_neigh_table, entry_count);
-
-    ns_list_foreach_reverse_safe(mle_neigh_table_entry_t, entry, mle_neigh_table) {
+    ns_list_foreach_reverse_safe(mac_neighbor_table_entry_t, entry, mac_table_list) {
         if (++count > entry_count) {
             break;
         }
 
         if (!force_priority) {
-            if (entry->priorityFlag || entry->priority_child_flag) {
+            if (entry->link_role ==  PRIORITY_PARENT_NEIGHBOUR || entry->link_role == CHILD_NEIGHBOUR) {
                 break;
             }
         }
@@ -1336,23 +1301,23 @@ static void protocol_6lowpan_mle_purge_neighbors(struct protocol_interface_info_
 
         // Sends REJECT
         mle_service_reject_message_build(cur_interface->id, ll64, false);
-        mle_class_remove_entry(cur_interface->id, entry);
+        mac_neighbor_table_neighbor_remove(mac_neighbor_info(cur_interface), entry);
 
         // Adds purged neighbor to blacklist so that it is not added right away back from advertisement
         blacklist_update(ll64, false);
     }
 }
 
-static uint8_t protocol_6lowpan_mle_order_last_entries(mle_neigh_table_list_t *mle_neigh_table, uint8_t entry_count)
+static uint8_t protocol_6lowpan_mle_order_last_entries(int8_t interface_id, mac_neighbor_table_list_t *mac_neigh_table, uint8_t entry_count)
 {
-    mle_neigh_table_entry_t *last;
-    mle_neigh_table_entry_t *first_ordered = NULL;
+    mac_neighbor_table_entry_t *last;
+    mac_neighbor_table_entry_t *first_ordered = NULL;
+    etx_storage_t * etx_last, *etx_cur;
     uint8_t count = 0;
-
     do {
         last = NULL;
 
-        ns_list_foreach(mle_neigh_table_entry_t, entry, mle_neigh_table) {
+        ns_list_foreach(mac_neighbor_table_entry_t, entry, mac_neigh_table) {
 
             if (entry == first_ordered) {
                 break;
@@ -1363,37 +1328,27 @@ static uint8_t protocol_6lowpan_mle_order_last_entries(mle_neigh_table_list_t *m
                 continue;
             }
 
-            // Primary parent (parent selected for bootstrap or RPL primary parent)
-            if (entry->priorityFlag && !last->priorityFlag) {
+            if (entry->link_role > last->link_role) { //Bigger link role is allways better
                 continue;
+            } else if (entry->link_role == last->link_role) {
+                // Compare ETX when Link role is same
+                etx_cur = etx_storage_entry_get(interface_id, entry->index);
+                etx_last = etx_storage_entry_get(interface_id, last->index);
+                if (etx_cur && etx_last && etx_cur->etx <= etx_last->etx) {
+                    continue;
+                }
             }
-
-            // Secondary parent (RPL secondary parent)
-            if (entry->second_priority_flag && !last->second_priority_flag) {
-                continue;
-            }
-
-            // Uses this node as parent
-            if (entry->priority_child_flag && !last->priority_child_flag) {
-                continue;
-            }
-
-            // Better ETX
-            if (entry->etx <= last->etx) {
-                continue;
-            }
-
             last = entry;
         }
 
         // Sets last to end of list
         if (last) {
-            ns_list_remove(mle_neigh_table, last);
+            ns_list_remove(mac_neigh_table, last);
 
             if (first_ordered) {
-                ns_list_add_before(mle_neigh_table, first_ordered, last);
+                ns_list_add_before(mac_neigh_table, first_ordered, last);
             } else {
-                ns_list_add_to_end(mle_neigh_table, last);
+                ns_list_add_to_end(mac_neigh_table, last);
             }
 
             first_ordered = last;
@@ -1431,10 +1386,11 @@ static int8_t arm_6lowpan_bootstrap_down(protocol_interface_info_entry_t *cur)
 
 static void lowpan_mle_receive_security_bypass_cb(int8_t interface_id, mle_message_t *mle_msg)
 {
+    (void) interface_id;
 #ifdef PANA
-    protocol_interface_info_entry_t *interface = protocol_stack_interface_info_get_by_id(interface_id);
+    protocol_interface_info_entry_t *interface = mle_msg->interface_ptr;
     //Accept Only Link Reject
-    if (interface && mle_msg->message_type == MLE_COMMAND_REJECT) {
+    if (mle_msg->message_type == MLE_COMMAND_REJECT) {
 
         if ((interface->lowpan_info & (INTERFACE_NWK_BOOTSRAP_ACTIVE | INTERFACE_NWK_BOOTSRAP_PANA_AUTHENTICATION)) != (INTERFACE_NWK_BOOTSRAP_ACTIVE | INTERFACE_NWK_BOOTSRAP_PANA_AUTHENTICATION)) {
                 return;
@@ -1508,7 +1464,7 @@ static int8_t arm_6lowpan_bootstrap_up(protocol_interface_info_entry_t *cur)
             if (!mle_service_interface_registeration_validate(cur->id)) {
                 //Register
 
-                if (mle_service_interface_register(cur->id,mle_6lowpan_message_handler, cur->mac,8) != 0) {
+                if (mle_service_interface_register(cur->id, cur, mle_6lowpan_message_handler, cur->mac,8) != 0) {
                     tr_error("Mle Service init Fail");
                     return -1;
                 }
@@ -1594,7 +1550,6 @@ int8_t arm_network_processor_up(protocol_interface_info_entry_t *cur)
     } else {
         protocol_6lowpan_register_handlers(cur);
         mac_helper_pib_boolean_set(cur, macRxOnWhenIdle, true);
-        mle_class_mode_set(cur->id, MLE_CLASS_ROUTER);
         mac_helper_default_security_level_set(cur, SEC_NONE);
 
         if (cur->bootsrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_RF_SNIFFER) {
@@ -1621,15 +1576,6 @@ int8_t arm_network_processor_up(protocol_interface_info_entry_t *cur)
     return ret_val;
 }
 
-static bool lowpan_interface_is_active(int8_t interface_id) {
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (!cur || !(cur->lowpan_info & INTERFACE_NWK_ACTIVE)) {
-        return false;
-    }
-
-    return true;
-}
-
 static void arm_6lowpan_security_key_update_cb(protocol_interface_info_entry_t *cur, const mlme_security_t *security_params)
 {
     if (cur->mac_parameters->mac_next_key_index && (security_params->KeyIndex == cur->mac_parameters->mac_next_key_index)) {
@@ -1641,6 +1587,66 @@ static void arm_6lowpan_security_key_update_cb(protocol_interface_info_entry_t *
         }
     }
 }
+
+static void lowpan_neighbor_entry_remove_notify(mac_neighbor_table_entry_t *entry_ptr, void *user_data)
+{
+
+    protocol_interface_info_entry_t *cur_interface = user_data;
+    lowpan_adaptation_remove_free_indirect_table(cur_interface, entry_ptr);
+    // Sleepy host
+    if (cur_interface->lowpan_info & INTERFACE_NWK_CONF_MAC_RX_OFF_IDLE) {
+        mac_data_poll_protocol_poll_mode_decrement(cur_interface);
+    }
+
+    protocol_6lowpan_priority_neighbor_remove(cur_interface, entry_ptr);
+
+    if (entry_ptr->ffd_device) {
+        protocol_6lowpan_release_short_link_address_from_neighcache(cur_interface, entry_ptr->mac16);
+        protocol_6lowpan_release_long_link_address_from_neighcache(cur_interface, entry_ptr->mac64);
+    }
+    mac_helper_devicetable_remove(cur_interface->mac_api, entry_ptr->index);
+    //Removes ETX neighbor
+    etx_neighbor_remove(cur_interface->id, entry_ptr->index);
+    //Remove MLE frame counter info
+    mle_service_frame_counter_entry_delete(cur_interface->id, entry_ptr->index);
+
+}
+
+
+static bool lowpan_neighbor_entry_nud_notify(mac_neighbor_table_entry_t *entry_ptr, void *user_data)
+{
+
+    // Sleepy host
+    protocol_interface_info_entry_t *cur_interface = user_data;
+
+    if (cur_interface->lowpan_info & INTERFACE_NWK_ROUTER_DEVICE) {
+        //Trig middle way challenge if Broadcast message  have been missed
+        if (!entry_ptr->ffd_device) {
+            return false; //End device must do this
+        }
+
+        if (entry_ptr->lifetime > (entry_ptr->link_lifetime / 2)) {
+            return false; //Trig only when midway is overed
+        }
+        return protocol_6lowpan_router_challenge(cur_interface, entry_ptr->mac64);
+    }
+
+    if (entry_ptr->link_role != PRIORITY_PARENT_NEIGHBOUR) {
+        return false; //Do not never challenge than priority parent
+    }
+
+    if (cur_interface->lowpan_info & INTERFACE_NWK_CONF_MAC_RX_OFF_IDLE) {
+        return false; //Sleepy end device should not never challenge
+    }
+
+    if (entry_ptr->lifetime  > MLE_TABLE_CHALLENGE_TIMER) {
+        return false;
+    }
+
+    return protocol_6lowpan_host_challenge(cur_interface, entry_ptr->mac64);
+}
+
+
 int8_t arm_6lowpan_bootstarp_bootstrap_set(int8_t interface_id, net_6lowpan_mode_e bootstrap_mode, net_6lowpan_mode_extension_e net_6lowpan_mode_extension)
 {
     int8_t ret_val = -1;
@@ -1665,20 +1671,29 @@ int8_t arm_6lowpan_bootstarp_bootstrap_set(int8_t interface_id, net_6lowpan_mode
     cur->mac_security_key_usage_update_cb = arm_6lowpan_security_key_update_cb;
     //Allocate MLE class here
     //Deallocate old here
+    mac_neighbor_table_delete(mac_neighbor_info(cur));
+    mac_description_storage_size_t buffer;
+    //Read MAC device table sizes
+    if (cur->mac_api->mac_storage_sizes_get(cur->mac_api, &buffer) != 0) {
+        return -1;
+    }
 
-    mle_class_deallocate(interface_id);
+    mac_neighbor_info(cur) = mac_neighbor_table_create(buffer.device_decription_table_size, lowpan_neighbor_entry_remove_notify
+                                                                        , lowpan_neighbor_entry_nud_notify, cur);
+    if (!mac_neighbor_info(cur)) {
+        return -1;
+    }
 
     if (enable_mle_protocol) {
+        if (mle_service_frame_counter_table_allocate(interface_id, buffer.device_decription_table_size)) {
+            return -1;
+        }
 
-        mac_description_storage_size_t buffer;
-        //Read MAC device table sizes
-        if (cur->mac_api->mac_storage_sizes_get(cur->mac_api, &buffer) != 0) {
+        if (!etx_storage_list_allocate(cur->id, buffer.device_decription_table_size)) {
             return -1;
         }
-        if (mle_class_init(interface_id, buffer.device_decription_table_size, &protocol_6lowpan_neighbor_information_remove, &protocol_6lowpan_host_challenge, &lowpan_interface_is_active) != 0) {
-            return -1;
-        }
-        mle_class_router_challenge(interface_id, protocol_6lowpan_router_challenge);
+
+        lowpan_adaptation_interface_etx_update_enable(cur->id);
     }
 
     mle_service_interface_unregister(cur->id);
@@ -1704,7 +1719,7 @@ int8_t arm_6lowpan_bootstarp_bootstrap_set(int8_t interface_id, net_6lowpan_mode
             return -2;
 #else
             cur->comm_status_ind_cb = lowpan_comm_status_indication_cb;
-            if (mle_service_interface_register(cur->id,mle_6lowpan_message_handler, cur->mac,8) != 0) {
+            if (mle_service_interface_register(cur->id, cur, mle_6lowpan_message_handler, cur->mac,8) != 0) {
                 tr_error("Mle Service init Fail");
                 return -1;
             }
@@ -1906,7 +1921,7 @@ void protocol_6lowpan_link_advertise_handle(nd_router_t *cur, protocol_interface
                     cur->mle_purge_timer -= 1;
                 } else {
                     if (mle_6lowpan_data && mle_6lowpan_data->nbr_of_neigh_max != 0) {
-                        uint16_t mle_neigh_cnt = mle_class_active_neigh_counter(cur_interface->id);
+                        uint16_t mle_neigh_cnt = mle_class_active_neigh_counter(cur_interface);
                         if (mle_neigh_cnt > (mle_6lowpan_data->nbr_of_neigh_max - MLE_NEIGHBOR_PURGE_NBR)) {
                             protocol_6lowpan_mle_purge_neighbors(cur_interface, MLE_NEIGHBOR_PURGE_NBR, true);
                         }
@@ -1946,15 +1961,15 @@ static void protocol_6lowpan_nd_ready(protocol_interface_info_entry_t *cur)
         if ((cur->lowpan_info & (INTERFACE_NWK_ROUTER_DEVICE | INTERFACE_NWK_CONF_MAC_RX_OFF_IDLE | INTERFACE_NWK_BOOTSRAP_MLE)) == INTERFACE_NWK_BOOTSRAP_MLE) {
             //TRIG Only Normal Host
 #ifndef NO_MLE
-            //GET Cordinaotor MLE Entry
+            //GET Cordinator MLE Entry
             addrtype_t addrType;
             uint8_t tempAddr[8];
             addrType = mac_helper_coordinator_address_get(cur, tempAddr);
+            mac_neighbor_table_entry_t * neig_info = mac_neighbor_table_address_discover(mac_neighbor_info(cur), tempAddr, addrType);
 
-            mle_neigh_table_entry_t *entry_t = mle_class_get_by_link_address(cur->id, tempAddr, addrType);
-            if (entry_t) {
-                if (entry_t->ttl > MLE_TABLE_CHALLENGE_TIMER) {
-                    entry_t->ttl = (MLE_TABLE_CHALLENGE_TIMER + 1);
+            if (neig_info) {
+                if (neig_info->lifetime > MLE_TABLE_CHALLENGE_TIMER) {
+                    neig_info->lifetime  = (MLE_TABLE_CHALLENGE_TIMER + 1);
                 }
             }
 #endif
@@ -2175,7 +2190,6 @@ void nwk_6lowpan_nd_address_registartion_ready(protocol_interface_info_entry_t *
             if (cur->bootsrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_SLEEPY_HOST) {
                 cur->lowpan_info |= INTERFACE_NWK_CONF_MAC_RX_OFF_IDLE;
                 tr_debug("Enable Poll state");
-                mle_class_mode_set(cur->id, MLE_CLASS_SLEEPY_END_DEVICE);
                 mac_helper_pib_boolean_set(cur, macRxOnWhenIdle, false);
                 mac_data_poll_init(cur);
                 mac_data_poll_init_protocol_poll(cur);
@@ -2753,11 +2767,12 @@ static void protocol_6lowpan_generate_link_reject(protocol_interface_info_entry_
 
 static void lowpan_comm_status_indication_cb(int8_t if_id, const mlme_comm_status_t* status)
 {
-#ifndef NO_MLE
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(if_id);
     if (!cur) {
         return;
     }
+
+    mac_neighbor_table_entry_t * entry_ptr;
 
     switch (status->status) {
         case MLME_UNSUPPORTED_SECURITY:
@@ -2775,29 +2790,33 @@ static void lowpan_comm_status_indication_cb(int8_t if_id, const mlme_comm_statu
 
             break;
         case MLME_DATA_POLL_NOTIFICATION:
-            mle_refresh_entry_timeout(if_id, status->SrcAddr, (addrtype_t)status->SrcAddrMode, false);
+            entry_ptr = mac_neighbor_table_address_discover(mac_neighbor_info(cur), status->SrcAddr, status->SrcAddrMode);
+            if (entry_ptr) {
+                // Refresh Timeout
+                mac_neighbor_table_neighbor_refresh(mac_neighbor_info(cur), entry_ptr, entry_ptr->link_lifetime);
+            }
             break;
         default:
             break;
     }
-#endif
 }
 
 bool lowpan_neighbour_data_clean(int8_t interface_id, const uint8_t *link_local_address)
 {
+
+    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+    if (!cur) {
+        return false;
+    }
     bool return_value = false;
-#ifndef NO_MLE
-    mle_neigh_table_entry_t * neigh_entry = mle_class_get_entry_by_ll64(interface_id, 0, link_local_address, false, NULL);
+    mac_neighbor_table_entry_t *neigh_entry = mac_neighbor_entry_get_by_ll64(mac_neighbor_info(cur), link_local_address, false, NULL);
     if (neigh_entry) {
         //Remove entry
-        if (neigh_entry->priorityFlag) {
-            return_value = true;
-        } else if (neigh_entry->second_priority_flag) {
+        if (neigh_entry->link_role == PRIORITY_PARENT_NEIGHBOUR || neigh_entry->link_role == SECONDARY_PARENT_NEIGHBOUR) {
             return_value = true;
         }
-        mle_class_remove_entry(interface_id, neigh_entry);
+        mac_neighbor_table_neighbor_remove(mac_neighbor_info(cur), neigh_entry);
     }
-#endif
     return return_value;
 }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2017, Arm Limited and affiliates.
+ * Copyright (c) 2014-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Redistribution and use in source and binary forms, with or without
@@ -187,6 +187,7 @@ void thread_routing_free(thread_routing_info_t *routing);
 void thread_routing_activate(thread_routing_info_t *routing);
 void thread_routing_deactivate(thread_routing_info_t *routing);
 bool thread_routing_timer(struct thread_info_s *thread, uint8_t ticks);
+void thread_routing_trickle_advance(thread_routing_info_t *routing, uint16_t ticks);
 void thread_routing_leader_connection_validate(struct thread_info_s *thread, uint16_t disconnect_period);
 void thread_routing_set_mesh_callbacks(protocol_interface_info_entry_t *cur);
 
@@ -233,6 +234,7 @@ int_fast8_t thread_routing_get_route_data(protocol_interface_info_entry_t *cur,
 #define thread_routing_activate(routing)
 #define thread_routing_deactivate(routing)
 #define thread_routing_timer(thread, ticks) false
+#define thread_routing_trickle_advance(routing, ticks)
 #define thread_routing_leader_connection_validate(thread, disconnect_period)
 #define thread_routing_set_mesh_callbacks(cur)
 #define thread_routing_cost_get_by_router_id(routing, routerId) (0)

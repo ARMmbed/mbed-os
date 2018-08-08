@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017, Arm Limited and affiliates.
+ * Copyright (c) 2016-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Redistribution and use in source and binary forms, with or without
@@ -818,7 +818,7 @@ static void thread_discovery_request_msg_handler(thread_discovery_class_t * disc
     tr_debug("Thread discovery request message RX");
 
     // Check if we have room for new neighbor
-    if (mle_class_free_entry_count_get(discovery_class->interface_id) < 1) {
+    if (mle_class_free_entry_count_get(discovery_class->interface) < 1) {
         tr_debug("MLE table full, skip request");
         return;
     }
@@ -1281,10 +1281,10 @@ static void thread_discovery_normal_receive_cb(int8_t interface_id, mle_message_
 /**
  * Start Thread network discovery
  */
-int thread_discovery_network_scan(int8_t interface_id, thread_discover_reques_t *scan_request, thread_discovery_ready_cb *ready_cb)
+int thread_discovery_network_scan(struct protocol_interface_info_entry *cur_interface, thread_discover_reques_t *scan_request, thread_discovery_ready_cb *ready_cb)
 {
 
-    thread_discovery_class_t * discovery_class = thread_discovery_class_get(interface_id);
+    thread_discovery_class_t * discovery_class = thread_discovery_class_get(cur_interface->id);
     if (!discovery_class || !ready_cb || !scan_request) {
         return -1;
     }
@@ -1304,12 +1304,12 @@ int thread_discovery_network_scan(int8_t interface_id, thread_discover_reques_t 
         return -3;
     }
 
-    if (mle_service_interface_register(interface_id, thread_discovery_normal_receive_cb, discovery_class->discovery_request->temporary_mac64,8) != 0) {
+    if (mle_service_interface_register(cur_interface->id, cur_interface, thread_discovery_normal_receive_cb, discovery_class->discovery_request->temporary_mac64,8) != 0) {
         thread_discovery_request_free(discovery_class);
         return -1;
     }
 
-    if (mle_service_interface_receiver_bypass_handler_update(interface_id, thread_discovery_message_receiver_cb) != 0) {
+    if (mle_service_interface_receiver_bypass_handler_update(cur_interface->id, thread_discovery_message_receiver_cb) != 0) {
         thread_discovery_request_free(discovery_class);
         return -1;
     }

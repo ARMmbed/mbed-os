@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2017, Arm Limited and affiliates.
+ * Copyright (c) 2014-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Redistribution and use in source and binary forms, with or without
@@ -146,6 +146,8 @@ void thread_management_client_init(int8_t interface_id)
 
     if (this) {
         this->network_data_set_cb_ptr = NULL;
+        this->router_id_release_cb_ptr = NULL;
+        this->neighbor_discovery_cb_ptr = NULL;
         this->router_id_cb_ptr = NULL;
         this->interface_id = interface_id;
         this->coap_asd_msg_id = 0;
@@ -331,6 +333,15 @@ static int thread_management_client_neighbor_discovery_data_cb(int8_t service_id
     }
 
     return 0;
+}
+
+int thread_management_client_get_interface_id_by_service_id(int8_t service_id)
+{
+    thread_management_t *this = thread_management_find_by_service(service_id);
+    if (!this) {
+        return -1;
+    }
+    return this->interface_id;
 }
 
 int thread_management_client_neighbor_discovery_data_request(int8_t interface_id, const uint8_t destination[16],  const uint8_t *options, uint8_t options_len, thread_management_client_network_data_set_cb *set_cb)

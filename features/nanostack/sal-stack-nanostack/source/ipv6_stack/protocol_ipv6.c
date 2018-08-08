@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2017, Arm Limited and affiliates.
+ * Copyright (c) 2012-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -954,7 +954,7 @@ static void ipv6_interface_address_cb(protocol_interface_info_entry_t *interface
     }
 }
 
-void ipv6_interface_slaac_handler(protocol_interface_info_entry_t *cur, uint8_t *slaacPrefix, uint8_t prefixLen, uint32_t validLifeTime, uint32_t preferredLifeTime)
+void ipv6_interface_slaac_handler(protocol_interface_info_entry_t *cur, const uint8_t *slaacPrefix, uint8_t prefixLen, uint32_t validLifeTime, uint32_t preferredLifeTime)
 {
     if_address_entry_t *address_entry = icmpv6_slaac_address_add(cur, slaacPrefix, prefixLen, validLifeTime, preferredLifeTime, false, SLAAC_IID_DEFAULT);
     if (address_entry) {

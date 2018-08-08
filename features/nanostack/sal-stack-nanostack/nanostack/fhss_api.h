@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017, Arm Limited and affiliates.
+ * Copyright (c) 2016-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -74,17 +74,16 @@ typedef bool fhss_use_broadcast_queue(const fhss_api_t *api, bool is_broadcast_a
  * @param is_broadcast_addr Destination address type of packet (true if broadcast address).
  * @param destination_address Destination MAC address.
  * @param frame_type Frame type of packet (Frames types are defined by FHSS api).
- * @param synch_info Pointer to where FHSS synchronization info is written (if synch frame).
  * @param frame_length MSDU length of the frame.
  * @param phy_header_length PHY header length.
  * @param phy_tail_length PHY tail length.
+ * @param tx_time TX time.
  * @return  0 Success.
  * @return -1 Transmission of the packet is currently not allowed, try again.
  * @return -2 Invalid api.
  * @return -3 Broadcast packet on Unicast channel (not allowed), push packet back to queue.
- * @return -4 Synchronization info missing.
  */
-typedef int fhss_tx_handle(const fhss_api_t *api, bool is_broadcast_addr, uint8_t *destination_address, int frame_type, uint8_t *synch_info, uint16_t frame_length, uint8_t phy_header_length, uint8_t phy_tail_length);
+typedef int fhss_tx_handle(const fhss_api_t *api, bool is_broadcast_addr, uint8_t *destination_address, int frame_type, uint16_t frame_length, uint8_t phy_header_length, uint8_t phy_tail_length, uint32_t tx_time);
 
 /**
  * @brief Check TX permission.
@@ -153,6 +152,17 @@ typedef uint32_t fhss_read_timestamp(const fhss_api_t *api);
 typedef uint16_t fhss_get_retry_period(const fhss_api_t *api, uint8_t *destination_address, uint16_t phy_mtu);
 
 /**
+ * @brief Write synchronization info to given pointer.
+ * @param api FHSS instance.
+ * @param ptr Pointer to data. Start of written data for Synch frame. Start of IE header for Data frame.
+ * @param length Length of IE header. Ignored when Synch frame.
+ * @param frame_type Frame type of packet (Frames types are defined by FHSS api).
+ * @param tx_time TX time must be referenced to the first symbol following the SFD of the transmitted frame.
+ * @return -1 on fail, write length otherwise.
+ */
+typedef int16_t fhss_write_synch_info(const fhss_api_t *api, uint8_t *ptr, uint8_t length, int frame_type, uint32_t tx_time);
+
+/**
  * @brief Initialize MAC functions.
  * @param api FHSS instance.
  * @param callbacks MAC functions to be called from FHSS.
@@ -177,6 +187,7 @@ struct fhss_api {
     fhss_synch_state_set *synch_state_set;              /**< Change synchronization state. */
     fhss_read_timestamp *read_timestamp;                /**< Read timestamp. */
     fhss_get_retry_period *get_retry_period;            /**< Get retransmission period. */
+    fhss_write_synch_info *write_synch_info;            /**< Write synchronization info to TX frame*/
     fhss_init_callbacks *init_callbacks;                /**< Initialize MAC functions. */
 };
 
@@ -257,6 +268,18 @@ typedef int mac_broadcast_notify(const fhss_api_t *fhss_api, uint32_t broadcast_
 typedef int mac_read_coordinator_mac_address(const fhss_api_t *fhss_api, uint8_t *mac_address);
 
 /**
+ * @brief Read synchronization info for a specific peer.
+ * @param fhss_api FHSS instance.
+ * @param info_ptr Pointer to info data.
+ * @param mac_address MAC address pointer.
+ * @param info_type Type of the read info (UTT-IE, BT-IE, US-IE, BS-IE).
+ * @param rx_timestamp Time of reception of the element.
+ * @return  >=0 Length of the info.
+ * @return -1 Fail.
+ */
+typedef int mac_read_synch_info(const fhss_api_t *fhss_api, uint8_t *info_ptr, uint8_t *mac_address, int info_type, uint32_t rx_timestamp);
+
+/**
  * \brief Struct fhss_callback defines functions that software MAC needs to implement.
  * Function pointers are passed to FHSS using fhss_init_callbacks function.
  */
@@ -270,6 +293,7 @@ struct fhss_callback {
     mac_tx_poll *tx_poll;                                       /**< Poll TX queue. */
     mac_broadcast_notify *broadcast_notify;                     /**< Broadcast channel notification from FHSS. */
     mac_read_coordinator_mac_address *read_coord_mac_address;   /**< Read coordinator MAC address. */
+    mac_read_synch_info *read_synch_info;                       /**< Read information element for a specific MAC address. */
 };
 
 #ifdef __cplusplus

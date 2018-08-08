@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, Arm Limited and affiliates.
+ * Copyright (c) 2015-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,11 +23,6 @@ extern "C" {
 #endif
 
 /**
- * Dump the channel list object data to ns_trace using given trace level and group.
- */
-void channel_list_print(uint8_t dlevel, const char* grp, const uint32_t* list);
-
-/**
  * Get channel number using channel index.
  *
  * @param list to scan
@@ -38,34 +33,6 @@ void channel_list_print(uint8_t dlevel, const char* grp, const uint32_t* list);
 uint8_t channel_list_get_channel(const uint32_t* list, int current_index);
 
 /**
- * Clear the channel mask bitmap, does not change channel page.
- *
- * @param list list which mask is to be cleared
- */
-void channel_list_clear_mask(uint32_t* list);
-
-/**
- * Get next enabled channel number from given list. Channels are now taken sequentially,
- * starting from the index given.
- *
- * @param list to scan
- * @param the currently used channel index, ie. the place where search for next channel
- * is started
- * @return channel number of next channel
- */
-int channel_list_get_next(const uint32_t* list, int current_index);
-
-int channel_list_get_next_broadcast(const uint32_t* list, int broadcast_channel_count, int current_index);
-
-/**
- * Get the first channel enabled in a list.
- *
- * @param list to scan
- * @return index of the first channel enabled
- */
-int channel_list_get_first(const uint32_t* list);
-
-/**
  * Count the amount of channels enabled in a list.
  *
  * @param list to scan
@@ -73,31 +40,6 @@ int channel_list_get_first(const uint32_t* list);
  */
 int channel_list_count_channels(const uint32_t* list);
 
-/**
- * Enable channel by given channel number. This is likely to be used
- * from the test/application configuration side.
- *
- * Note: the channel number validity is not (yet?) verified, so one
- * can enable invalid channels which should not be according to channel page.
- *
- * @param list to modify
- * @param channel number
- * @return 0 on success, negative on failure (out of bounds channel)
- */
-int channel_list_enable_channel(uint32_t* list, int channel_number);
-
-/**
- * Check, if given channel is enabled. This is likely to be used
- * from the test/application configuration side.
- *
- * Note: the channel number validity is not (yet?) verified, so one
- * can enable invalid channels which should not be according to channel page.
- *
- * @param list to test
- * @param channel number
- * @return true, if channel is enabled on mask, false if not
- */
-bool channel_list_is_channel_enabled(const uint32_t* list, int channel_number);
 
 #ifdef __cplusplus
 }

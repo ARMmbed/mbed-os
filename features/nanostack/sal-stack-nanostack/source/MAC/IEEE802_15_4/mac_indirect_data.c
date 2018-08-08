@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2017, Arm Limited and affiliates.
+ * Copyright (c) 2014-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -55,6 +55,7 @@ void mac_indirect_data_ttl_handle(protocol_interface_rf_mac_setup_s *cur, uint16
         if( dev_driver && dev_driver->extension ){
             dev_driver->extension(PHY_EXTENSION_CTRL_PENDING_BIT, &value);
         }
+        cur->mac_frame_pending = false;
         return;
     }
     mac_pre_build_frame_t *buf, *buf_prev = 0, *buf_temp = 0;
@@ -93,7 +94,13 @@ void mac_indirect_data_ttl_handle(protocol_interface_rf_mac_setup_s *cur, uint16
             confirm.status = MLME_TRANSACTION_EXPIRED;
 
             mcps_sap_prebuild_frame_buffer_free(buf_temp);
-            if( api->data_conf_cb ) {
+
+            if (cur->mac_extension_enabled) {
+                mcps_data_conf_payload_t data_conf;
+                memset(&data_conf, 0, sizeof(mcps_data_conf_payload_t));
+                //Check Payload Here
+                api->data_conf_ext_cb(api, &confirm, &data_conf);
+            } else {
                 api->data_conf_cb(api, &confirm);
             }
         }
@@ -216,6 +223,7 @@ void mac_indirect_queue_write(protocol_interface_rf_mac_setup_s *rf_mac_setup, m
         //Trig timer and set pending flag to radio
         eventOS_callback_timer_stop(rf_mac_setup->mac_mcps_timer);
         eventOS_callback_timer_start(rf_mac_setup->mac_mcps_timer, MAC_INDIRECT_TICK_IN_MS * 20);
+        rf_mac_setup->mac_frame_pending = true;
         if (rf_mac_setup->dev_driver->phy_driver->extension)
         {
             uint8_t value = 1;

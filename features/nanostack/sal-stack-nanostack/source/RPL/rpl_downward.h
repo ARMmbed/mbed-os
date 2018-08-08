@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, Arm Limited and affiliates.
+ * Copyright (c) 2015-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -40,6 +40,9 @@ struct rpl_dao_target *rpl_instance_match_dao_target(struct rpl_instance *instan
 void rpl_instance_dao_request(struct rpl_instance *instance, struct rpl_neighbour *neighbour);
 void rpl_instance_dao_trigger(struct rpl_instance *instance, uint16_t delay);
 void rpl_instance_dao_acked(struct rpl_instance *instance, const uint8_t src[16], int8_t interface_id, uint8_t dao_sequence, uint8_t status);
+
+void rpl_instance_send_address_registration(protocol_interface_info_entry_t *interface, rpl_instance_t *instance, if_address_entry_t *addr);
+bool rpl_instance_address_registration_done(protocol_interface_info_entry_t *interface, rpl_instance_t *instance, if_address_entry_t *addr, uint8_t status);
 
 #ifdef HAVE_RPL_DAO_HANDLING
 bool rpl_instance_dao_received(struct rpl_instance *instance, const uint8_t src[16], int8_t interface_id, bool multicast, const uint8_t *opts, uint16_t opts_len, uint8_t *status_out);

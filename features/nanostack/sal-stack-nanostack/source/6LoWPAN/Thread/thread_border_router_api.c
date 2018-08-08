@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2017, Arm Limited and affiliates.
+ * Copyright (c) 2014-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Redistribution and use in source and binary forms, with or without
@@ -297,19 +297,19 @@ static bool thread_border_router_local_network_data_prefix_match(thread_network_
     return true;
 }
 
-static void thread_border_router_child_network_data_clean(uint8_t interface_id, uint16_t child_id)
+static void thread_border_router_child_network_data_clean(protocol_interface_info_entry_t *cur, uint16_t child_id)
 {
     uint8_t addr16_buf[2];
 
     common_write_16_bit(child_id, addr16_buf);
-    if (mle_class_get_by_link_address(interface_id, addr16_buf, ADDR_802_15_4_SHORT)) {
+    if (mac_neighbor_table_address_discover(mac_neighbor_info(cur), addr16_buf, ADDR_802_15_4_SHORT)) {
         /* Child is available in mle, do nothing */
         return;
     }
 
     // Child is not our child => network data contains data from lost children, remove it
     tr_debug("Remove nwk data from lost child: %04x", child_id);
-    thread_management_client_network_data_unregister(interface_id, child_id);
+    thread_management_client_network_data_unregister(cur->id, child_id);
 }
 
 static void thread_border_router_lost_children_nwk_data_validate(protocol_interface_info_entry_t *cur, uint16_t router_short_addr)
@@ -326,7 +326,7 @@ static void thread_border_router_lost_children_nwk_data_validate(protocol_interf
         ns_list_foreach(thread_network_server_data_entry_t, curRoute, &curLP->routeList) {
             if (thread_addr_is_child(router_short_addr, curRoute->routerID)) {
                 // Router children found
-                thread_border_router_child_network_data_clean(cur->id, curRoute->routerID);
+                thread_border_router_child_network_data_clean(cur, curRoute->routerID);
             }
         }
 
@@ -334,7 +334,7 @@ static void thread_border_router_lost_children_nwk_data_validate(protocol_interf
         ns_list_foreach(thread_network_server_data_entry_t, curBR, &curLP->borderRouterList) {
             if (thread_addr_is_child(router_short_addr, curBR->routerID)) {
                 // Router children found
-                thread_border_router_child_network_data_clean(cur->id, curBR->routerID);
+                thread_border_router_child_network_data_clean(cur, curBR->routerID);
             }
         }
     }
@@ -344,7 +344,7 @@ static void thread_border_router_lost_children_nwk_data_validate(protocol_interf
         ns_list_foreach(thread_network_data_service_server_entry_t, server, &service->server_list) {
             if (thread_addr_is_child(router_short_addr, server->router_id)) {
                 // Router children found
-                thread_border_router_child_network_data_clean(cur->id, server->router_id);
+                thread_border_router_child_network_data_clean(cur, server->router_id);
             }
         }
     }
@@ -626,6 +626,7 @@ int thread_border_router_prefix_add(int8_t interface_id, uint8_t *prefix_ptr, ui
     service.stableData = prefix_info_ptr->stableData;
     service.P_on_mesh = prefix_info_ptr->P_on_mesh;
     service.P_nd_dns = prefix_info_ptr->P_nd_dns;
+    service.P_res1 = prefix_info_ptr->P_res1;
 
     return thread_local_server_list_add_on_mesh_server(&cur->thread_info->localServerDataBase, &prefixTlv, &service);
 #else

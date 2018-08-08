@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, Arm Limited and affiliates.
+ * Copyright (c) 2015-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,12 +56,14 @@
 #include "6LoWPAN/Thread/thread_joiner_application.h"
 #include "6LoWPAN/Thread/thread_management_client.h"
 #include "6LoWPAN/Thread/thread_network_synch.h"
+#include "6LoWPAN/Thread/thread_neighbor_class.h"
 #include "thread_management_if.h"
 #include "thread_config.h"
 #include "Common_Protocols/ipv6.h"
 #include "Common_Protocols/icmpv6.h"
 #include "Common_Protocols/icmpv6_radv.h"
 #include "MLE/mle.h"
+#include "Service_Libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "6LoWPAN/MAC/mac_helper.h"
 
 #define TRACE_GROUP "tsyn"
@@ -90,7 +92,7 @@ typedef struct thread_network_dynamic_data_entry {
 } thread_network_dynamic_data_entry_t;
 
 static thread_sync_child_info_t *thread_dynamic_storage_free_child_find(int8_t interface_id);
-static thread_sync_child_info_t *thread_dynamic_storage_child_info_find(int8_t interface_id, mle_neigh_table_entry_t *child);
+static thread_sync_child_info_t *thread_dynamic_storage_child_info_find(int8_t interface_id, mac_neighbor_table_entry_t *child);
 static NS_LIST_DEFINE(thread_network_dynamic_data_info, thread_network_dynamic_data_entry_t, link);
 
 thread_network_dynamic_data_entry_t *thread_network_synch_create(int8_t interfaceId)
@@ -155,54 +157,53 @@ int thread_network_synch_data_free(int8_t interface_id)
  * Dynamic network data storage.
  */
 
-void thread_dynamic_storage_child_info_store(int8_t interface_id, mle_neigh_table_entry_t *child)
+void thread_dynamic_storage_child_info_store(protocol_interface_info_entry_t *cur_interface, mac_neighbor_table_entry_t *child)
 {
-    thread_network_dynamic_data_entry_t *storeEntry = thread_network_synch_find(interface_id);
+    thread_network_dynamic_data_entry_t *storeEntry = thread_network_synch_find(cur_interface->id);
 
     if (!storeEntry) {
-        storeEntry = thread_network_synch_create(interface_id);
+        storeEntry = thread_network_synch_create(cur_interface->id);
     }
 
     if (!storeEntry) {
         return;
     }
 
-    thread_sync_child_info_t *child_info = thread_dynamic_storage_child_info_find(interface_id, child);
+    uint32_t mle_frame_counter = mle_service_neighbor_frame_counter_get(cur_interface->id, child->index);
+
+    thread_sync_child_info_t *child_info = thread_dynamic_storage_child_info_find(cur_interface->id, child);
+    if (!child_info) {
+        child_info = thread_dynamic_storage_free_child_find(cur_interface->id);
+    }
+
     if (child_info) {
-        child_info->mode = child->mode;
-        child_info->short_addr = child->short_adr;
-        child_info->mle_frame_counter = child->mle_frame_counter;
+        uint8_t mode = mle_mode_write_from_mac_entry(child);
+        mode |= thread_neighbor_class_mode_write_from_entry(&cur_interface->thread_info->neighbor_class, child->index);
+
+        child_info->mode = mode;
+        child_info->short_addr = child->mac16;
+        child_info->mle_frame_counter = mle_frame_counter;
         child_info->mac_frame_counter = 0;
         memcpy(child_info->long_addr, child->mac64, 8);
         return;
-    }
-
-    child_info = thread_dynamic_storage_free_child_find(interface_id);
-
-    if (child_info) {
-        child_info->mode = child->mode;
-        child_info->short_addr = child->short_adr;
-        child_info->mle_frame_counter = child->mle_frame_counter;
-        child_info->mac_frame_counter = 0;
-        memcpy(child_info->long_addr, child->mac64, 8);
     }
     return;
 }
 
-void thread_dynamic_storage_child_info_clear(int8_t interface_id, mle_neigh_table_entry_t *child)
+void thread_dynamic_storage_child_info_clear(int8_t interface_id, struct mac_neighbor_table_entry *child)
 {
     thread_sync_child_info_t *child_info = thread_dynamic_storage_child_info_find(interface_id, child);
 
     if (child_info){
         // Clear child information
         memset (child_info,0,sizeof(thread_sync_child_info_t));
-        tr_debug("Dynamic storage: cleared child; mac16=%04x", child->short_adr);
+        tr_debug("Dynamic storage: cleared child; mac16=%04x", child->mac16);
         return;
     }
     return;
 }
 
-static thread_sync_child_info_t *thread_dynamic_storage_child_info_find(int8_t interface_id, mle_neigh_table_entry_t *child)
+static thread_sync_child_info_t *thread_dynamic_storage_child_info_find(int8_t interface_id, mac_neighbor_table_entry_t *child)
 {
     thread_network_dynamic_data_entry_t *storeEntry = thread_network_synch_find(interface_id);
 
@@ -236,6 +237,10 @@ static thread_sync_child_info_t *thread_dynamic_storage_free_child_find(int8_t i
 void thread_dynamic_storage_build_mle_table(int8_t interface_id)
 {
     tr_debug("Dynamic storage: building MLE table.");
+    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+    if (!cur || !cur->mac_parameters) {
+        return;
+    }
 
     thread_network_dynamic_data_entry_t *storeEntry = thread_network_synch_find(interface_id);
     bool new_entry_created;
@@ -248,9 +253,9 @@ void thread_dynamic_storage_build_mle_table(int8_t interface_id)
         return;
     }
 
-    mle_neigh_table_list_t *neig_list = mle_class_active_list_get(interface_id);
+    mac_neighbor_table_list_t *mac_table_list = &mac_neighbor_info(cur)->neighbour_list;
 
-    if (!neig_list) {
+    if (!mac_table_list) {
         return;
     }
 
@@ -262,19 +267,21 @@ void thread_dynamic_storage_build_mle_table(int8_t interface_id)
         }
         uint8_t *mac64 = storeEntry->networ_dynamic_data_parameters.children[i].long_addr;
         tr_debug("Child: %04x, %s", storeEntry->networ_dynamic_data_parameters.children[i].short_addr, trace_array(mac64, 8));
-        mle_neigh_table_entry_t *entry = mle_class_get_entry_by_mac64(interface_id, 64, mac64, true, &new_entry_created);
-        if (entry) {
-            entry->short_adr = storeEntry->networ_dynamic_data_parameters.children[i].short_addr;
-            entry->mle_frame_counter = storeEntry->networ_dynamic_data_parameters.children[i].mle_frame_counter;
-            entry->mode = storeEntry->networ_dynamic_data_parameters.children[i].mode;
-            entry->threadNeighbor = true;
 
-            protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+        mac_neighbor_table_entry_t *mac_entry = mac_neighbor_entry_get_by_mac64(mac_neighbor_info(cur), mac64, true, &new_entry_created);
+        if (mac_entry) {
 
-            if (cur && cur->mac_parameters) {
-                // Set MAC layer frame counter for the child
-                mac_helper_devicetable_set(entry, cur, storeEntry->networ_dynamic_data_parameters.children[i].mac_frame_counter, cur->mac_parameters->mac_default_key_index, new_entry_created);
-            }
+            mac_entry->mac16 = storeEntry->networ_dynamic_data_parameters.children[i].short_addr;
+            mle_service_frame_counter_entry_add(interface_id, mac_entry->index, storeEntry->networ_dynamic_data_parameters.children[i].mle_frame_counter);
+            mle_mode_parse_to_mac_entry(mac_entry, storeEntry->networ_dynamic_data_parameters.children[i].mode);
+
+            // Set MAC layer frame counter for the child
+            mlme_device_descriptor_t device_desc;
+            thread_neighbor_class_update_link(&cur->thread_info->neighbor_class, mac_entry->index,64, new_entry_created);
+            thread_neighbor_class_mode_parse_to_entry(&cur->thread_info->neighbor_class, mac_entry->index,storeEntry->networ_dynamic_data_parameters.children[i].mode);
+            thread_neighbor_last_communication_time_update(&cur->thread_info->neighbor_class, mac_entry->index);
+            mac_helper_device_description_write(cur, &device_desc, mac_entry->mac64, mac_entry->mac16,storeEntry->networ_dynamic_data_parameters.children[i].mac_frame_counter, false);
+            mac_helper_devicetable_set(&device_desc, cur, mac_entry->index, cur->mac_parameters->mac_default_key_index, new_entry_created);
         }
     }
 }

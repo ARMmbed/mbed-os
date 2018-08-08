@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2017, Arm Limited and affiliates.
+ * Copyright (c) 2014-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Redistribution and use in source and binary forms, with or without
@@ -60,6 +60,7 @@
 #define THREAD_P_DEF_ROUTE_BIT_MOVE     9   /* R-bit */
 #define THREAD_P_ON_MESH_BIT_MOVE       8   /* O-bit */
 #define THREAD_P_ND_DNS_BIT_MOVE        7   /* N-bit */
+#define THREAD_P_ND_RES_BIT_MOVE        6   /* First reserved bit */
 
 /* Bit shift for HasRouteTLV preference bit */
 #define THREAD_HAS_ROUTE_PRF_BIT_MOVE   6   /* Prf-bits */

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2017, Arm Limited and affiliates.
+ * Copyright (c) 2014-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -36,19 +36,33 @@
 
 #include "ns_types.h"
 
+
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/* This API must be able to provide this many simultaneous contexts */
+#if 1 /* config option for 802.15.4-2015? */
+#define ARM_AES_MBEDTLS_CONTEXT_MIN 2 /**</ event loop and driver rx callback context */
+#else
+#define ARM_AES_MBEDTLS_CONTEXT_MIN 1 /**</ event loop use only */
+#endif
+
+typedef struct arm_aes_context arm_aes_context_t;
 
 /**
  * \brief Set the AES key
  *
  * This function sets the 128-bit AES key that will be used for future
  * calls to arm_aes_encrypt(). The key must be copied by the function.
+ * Function must return unique pointer for every started AES context.
  *
  * \param key pointer to 128-bit AES key
+ *
+ * \return Pointer to aes context
+ * \return NULL if aes context allocation fail
  */
-void arm_aes_start(const uint8_t key[__static 16]);
+arm_aes_context_t *arm_aes_start(const uint8_t key[__static 16]);
 
 /**
  * \brief This function performs dst=E[preset key,src] (Simple ECB block).
@@ -57,10 +71,12 @@ void arm_aes_start(const uint8_t key[__static 16]);
  * It is called between arm_aes_start() and arm_aes_finish().
  * Note that src and dst pointers may be equal.
  *
+ * \param aes_context Pointer for allocated
  * \param src pointer to 128-bit plaintext in
  * \param dst pointer for 128-bit ciphertext out
  */
 extern void arm_aes_encrypt(
+    arm_aes_context_t *aes_context,
     const uint8_t src[__static 16],
     uint8_t dst[__static 16]);
 
@@ -69,9 +85,9 @@ extern void arm_aes_encrypt(
  *
  * This function is called to terminate a series of AES operations.
  * It may be a no-op, or it may disable AES hardware. Use of the preset key is
- * no longer valid after this call.
+ * no longer valid after this call and aes context will be freed.
  */
-void arm_aes_finish(void);
+void arm_aes_finish(arm_aes_context_t *aes_context);
 
 #ifdef __cplusplus
 }

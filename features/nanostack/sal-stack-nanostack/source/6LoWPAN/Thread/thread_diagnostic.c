@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017, Arm Limited and affiliates.
+ * Copyright (c) 2016-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,6 +39,7 @@
 #include "thread_joiner_application.h"
 #include "thread_leader_service.h"
 #include "thread_router_bootstrap.h"
+#include "6LoWPAN/Thread/thread_neighbor_class.h"
 #include "MLE/mle.h"
 #include "6LoWPAN/Thread/thread_router_bootstrap.h"
 #include "thread_config.h"
@@ -47,6 +48,7 @@
 #include "thread_diagcop_lib.h"
 #include "common_functions.h"
 #include "6LoWPAN/MAC/mac_helper.h"
+#include "Service_Libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "mac_api.h"
 
 
@@ -93,31 +95,31 @@ static uint8_t *thread_diagnostic_child_table_tlv_build(uint8_t *data_ptr, proto
     uint8_t child_count = 0;
     uint8_t calculated_timeout;
 
-    mle_neigh_table_list_t *mle_table = mle_class_active_list_get(cur->id);
-    if (!mle_table) {
-        return data_ptr;
-    }
+    mac_neighbor_table_list_t *mac_table_list = &mac_neighbor_info(cur)->neighbour_list;
 
     child_count = thread_router_bootstrap_child_count_get(cur);
 
     *data_ptr++ = DIAGCOP_TLV_CHILD_TABLE;  // Type
     *data_ptr++ = (3 * child_count);        // Length
 
-    ns_list_foreach(mle_neigh_table_entry_t, cur_entry, mle_table) {
-        if (cur_entry->threadNeighbor && thread_router_addr_from_addr(cur_entry->short_adr) == mac_helper_mac16_address_get(cur)){
+    ns_list_foreach(mac_neighbor_table_entry_t, cur_entry, mac_table_list) {
+        if (thread_router_addr_from_addr(cur_entry->mac16) == mac_helper_mac16_address_get(cur)){
             /* |0|1|2|3|4|5|6|7|8|9|0|1|2|3|4|5|6|7|8|9|0|1|2|3| */
             /* |Timeout  |Rsv|  Child ID       |      Mode     | */
-            calculated_timeout = thread_log2_aprx((cur_entry->timeout_rx-1)*MLE_TIMER_TICKS_SECONDS) + 4;
-            tr_debug("Write child table TLV entry: %d - %d - %d", calculated_timeout, cur_entry->short_adr, cur_entry->mode);
+            calculated_timeout = thread_log2_aprx(cur_entry->link_lifetime - 1) + 4;
+            uint8_t mode = 0;
+            mode |= mle_mode_write_from_mac_entry(cur_entry);
+            mode |= thread_neighbor_class_mode_write_from_entry(&cur->thread_info->neighbor_class, cur_entry->index);
+            tr_debug("Write child table TLV entry: %d - %d - %d", calculated_timeout, cur_entry->mac16, mode);
             *data_ptr = 0x00; //reserved bytes to zero
             *data_ptr = calculated_timeout << 3;
 
-            if(cur_entry->short_adr & 0x0100){
+            if(cur_entry->mac16 & 0x0100){
                *data_ptr = *data_ptr | 0x01;
             }
             data_ptr++;
-            *data_ptr++ = (uint8_t)(cur_entry->short_adr & 0x00ff);
-            *data_ptr++ = cur_entry->mode;
+            *data_ptr++ = (uint8_t)(cur_entry->mac16 & 0x00ff);
+            *data_ptr++ = mode;
         }
     }
 

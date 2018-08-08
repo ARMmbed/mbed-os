@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, Arm Limited and affiliates.
+ * Copyright (c) 2015-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -37,6 +37,7 @@
 #include "6LoWPAN/Bootstraps/protocol_6lowpan_bootstrap.h"
 #include "Service_Libs/blacklist/blacklist.h"
 #include "6LoWPAN/MAC/mac_helper.h"
+#include "Service_Libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "mac_api.h"
 
 #ifdef HAVE_RPL
@@ -66,6 +67,7 @@
 #include "platform/arm_hal_interrupt.h"
 #include "common_functions.h"
 #include "mac_api.h"
+#include "6LoWPAN/MAC/mpx_api.h"
 #include "6LoWPAN/lowpan_adaptation_interface.h"
 #include "6LoWPAN/Fragmentation/cipv6_fragmenter.h"
 #include "libNET/src/net_load_balance_internal.h"
@@ -80,12 +82,14 @@ static int8_t set_6lowpan_nwk_down(protocol_interface_info_entry_t *cur)
         /* Change Active -> Idle */
         /* Disable Protocols Timers */
         if (!thread_info(cur)) {
-            if (cur->lowpan_info & INTERFACE_NWK_BOOTSRAP_MLE) {
+            mac_neighbor_table_neighbor_list_clean(mac_neighbor_info(cur));
 #ifndef NO_MLE
-                mle_class_list_clean(cur->id);
+            if (cur->lowpan_info & INTERFACE_NWK_BOOTSRAP_MLE) {
+
                 blacklist_clear();
-#endif
+
             }
+#endif
         }
         if (cur->lowpan_info & INTERFACE_NWK_BOOTSRAP_PANA_AUTHENTICATION) {
             pana_reset_values(cur->mac_parameters->pan_id);

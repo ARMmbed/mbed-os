@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017, Arm Limited and affiliates.
+ * Copyright (c) 2016-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,8 +19,8 @@
 #include "fhss_api.h"
 #include "fhss_config.h"
 #include "fhss.h"
+#include "fhss_common.h"
 #include "fhss_channel.h"
-#include "fhss_beacon.h"
 #include "channel_list.h"
 #include "randLIB.h"
 #include "ns_trace.h"
@@ -28,7 +28,7 @@
 #define TRACE_GROUP "fhss"
 
 // Enable this flag to use channel traces
-//#define FHSS_CHANNEL_DEBUG
+// #define FHSS_CHANNEL_DEBUG
 
 static uint8_t fhss_get_bc_index(const fhss_structure_t *fhss_structure);
 
@@ -90,10 +90,10 @@ uint8_t fhss_add_channel_list_counter(uint8_t index, uint16_t number_of_channels
 static void fhss_generate_broadcast_start_superframe(fhss_structure_t *fhss_structure)
 {
     // If the number of superframes is low, allow broadcast on any superframe
-    if (fhss_structure->synch_configuration.fhss_number_of_superframes < 8) {
-        fhss_structure->broadcast_start_superframe = 0;
+    if (fhss_structure->bs->synch_configuration.fhss_number_of_superframes < 8) {
+        fhss_structure->bs->broadcast_start_superframe = 0;
     } else {
-        fhss_structure->broadcast_start_superframe = randLIB_get_random_in_range(0, NUMBER_OF_BC_START_SUPERFRAMES - 1);
+        fhss_structure->bs->broadcast_start_superframe = randLIB_get_random_in_range(0, NUMBER_OF_BC_START_SUPERFRAMES - 1);
     }
 }
 
@@ -112,8 +112,8 @@ bool fhss_change_to_next_channel(fhss_structure_t *fhss_structure)
     bool broadcast_channel = false;
 
     uint16_t number_of_channels = fhss_structure->number_of_channels;
-    uint8_t number_of_broadcast_channels = fhss_structure->synch_configuration.fhss_number_of_bc_channels;
-    uint8_t unicast_channel_index = fhss_structure->uc_channel_index;
+    uint8_t number_of_broadcast_channels = fhss_structure->bs->synch_configuration.fhss_number_of_bc_channels;
+    uint8_t unicast_channel_index = fhss_structure->bs->uc_channel_index;
     uint8_t channel_index_tmp;
 
     /* Get the channel number using channel index. Latter (number_of_broadcast_channels) indexes in channel table are broadcast channels and
@@ -123,26 +123,20 @@ bool fhss_change_to_next_channel(fhss_structure_t *fhss_structure)
      */
     /* Get broadcast channel */
     if (fhss_is_current_channel_broadcast(fhss_structure) == true) {
-        channel_index_tmp = fhss_calc_channel_shuffle((number_of_channels - number_of_broadcast_channels) + fhss_get_bc_index(fhss_structure), fhss_structure->number_of_channels, fhss_structure->synch_configuration.fhss_number_of_bc_channels);
+        channel_index_tmp = fhss_calc_channel_shuffle((number_of_channels - number_of_broadcast_channels) + fhss_get_bc_index(fhss_structure), fhss_structure->number_of_channels, fhss_structure->bs->synch_configuration.fhss_number_of_bc_channels);
         fhss_generate_broadcast_start_superframe(fhss_structure);
         broadcast_channel = true;
     } else { /* Get unicast channel */
-        channel_index_tmp = fhss_calc_channel_shuffle(unicast_channel_index, fhss_structure->number_of_channels, fhss_structure->synch_configuration.fhss_number_of_bc_channels);
-        fhss_structure->uc_channel_index++;
-        if (fhss_structure->uc_channel_index >= number_of_channels - number_of_broadcast_channels) {
-            fhss_structure->uc_channel_index = 0;
+        channel_index_tmp = fhss_calc_channel_shuffle(unicast_channel_index, fhss_structure->number_of_channels, fhss_structure->bs->synch_configuration.fhss_number_of_bc_channels);
+        if (++fhss_structure->bs->uc_channel_index >= number_of_channels - number_of_broadcast_channels) {
+            fhss_structure->bs->uc_channel_index = 0;
         }
     }
     // Reset Beacon received flag when channel has changed
-    fhss_structure->beacon_received_on_this_bc_channel = false;
-    channel_index_tmp = fhss_add_channel_list_counter(channel_index_tmp, fhss_structure->number_of_channels, fhss_structure->channel_list_counter, fhss_structure->fhss_scramble_table);
-    next_channel = channel_list_get_channel(fhss_structure->fhss_configuration.channel_mask, channel_index_tmp);
+    fhss_structure->bs->beacon_received_on_this_bc_channel = false;
+    channel_index_tmp = fhss_add_channel_list_counter(channel_index_tmp, fhss_structure->number_of_channels, fhss_structure->bs->channel_list_counter, fhss_structure->bs->fhss_scramble_table);
+    next_channel = channel_list_get_channel(fhss_structure->bs->fhss_configuration.channel_mask, channel_index_tmp);
 
-#ifdef FHSS_MASSIVE_TRACE
-    tr_debug("%"PRIu32": update, frame: %"PRIu8", channel: %d",
-            fhss_structure->platform_functions.fhss_get_timestamp(fhss_structure->fhss_api), fhss_structure->current_superframe,
-            next_channel);
-#endif
     fhss_structure->rx_channel = next_channel;
 #ifdef FHSS_CHANNEL_DEBUG
     if (fhss_is_current_channel_broadcast(fhss_structure) == true) {
@@ -158,8 +152,8 @@ bool fhss_change_to_next_channel(fhss_structure_t *fhss_structure)
 static uint8_t fhss_get_bc_index(const fhss_structure_t *fhss_structure)
 {
     uint16_t number_of_channels = fhss_structure->number_of_channels;
-    uint8_t number_of_bc_channels = fhss_structure->synch_configuration.fhss_number_of_bc_channels;
-    uint8_t cur_channel_index = fhss_structure->current_channel_index;
+    uint8_t number_of_bc_channels = fhss_structure->bs->synch_configuration.fhss_number_of_bc_channels;
+    uint8_t cur_channel_index = fhss_structure->bs->current_channel_index;
 
     return cur_channel_index / (number_of_channels/number_of_bc_channels);
 }
@@ -169,7 +163,7 @@ uint8_t fhss_get_offset(fhss_structure_t *fhss_structure, const uint8_t *ptr)
     uint8_t i;
     uint8_t index = *ptr++;
 
-    if (fhss_structure->number_of_channels == fhss_structure->synch_configuration.fhss_number_of_bc_channels) {
+    if (fhss_structure->number_of_channels == fhss_structure->bs->synch_configuration.fhss_number_of_bc_channels) {
         // If all channels are defined as broadcast channels then return 0 to avoid division by 0.
         // This could happen e.g. in OTA case when fast download is needed.
         return 0;
@@ -181,7 +175,7 @@ uint8_t fhss_get_offset(fhss_structure_t *fhss_structure, const uint8_t *ptr)
         index ^= *ptr++;
     }
     // Offset must be < number of unicast channels
-    index %= (fhss_structure->number_of_channels - fhss_structure->synch_configuration.fhss_number_of_bc_channels);
+    index %= (fhss_structure->number_of_channels - fhss_structure->bs->synch_configuration.fhss_number_of_bc_channels);
 
     return index;
 }
@@ -194,13 +188,13 @@ bool fhss_is_current_channel_broadcast(fhss_structure_t *fhss_structure)
     }
 
     // Should always have broadcast channels with FHSS
-    if (!fhss_structure->synch_configuration.fhss_number_of_bc_channels) {
+    if (!fhss_structure->bs->synch_configuration.fhss_number_of_bc_channels) {
         return true;
     }
 
-    uint8_t channel_index = fhss_structure->current_channel_index;
+    uint8_t channel_index = fhss_structure->bs->current_channel_index;
     uint16_t number_of_channels = fhss_structure->number_of_channels;
-    uint8_t number_of_broadcast_channels = fhss_structure->synch_configuration.fhss_number_of_bc_channels;
+    uint8_t number_of_broadcast_channels = fhss_structure->bs->synch_configuration.fhss_number_of_bc_channels;
 
     if (!(channel_index % (number_of_channels / number_of_broadcast_channels))) {
         return true;
@@ -216,15 +210,15 @@ static uint8_t fhss_get_destination_channel(fhss_structure_t *fhss_structure, ui
     if (fhss_structure) {
         if (fhss_is_current_channel_broadcast(fhss_structure) == false) {
             destination_offset = fhss_get_offset(fhss_structure, destination_address);
-            uc_index = fhss_calculate_uc_index(fhss_structure->current_channel_index, fhss_structure->number_of_channels,
-                    fhss_structure->synch_configuration.fhss_number_of_bc_channels) + destination_offset;
-            if (uc_index >= (fhss_structure->number_of_channels - fhss_structure->synch_configuration.fhss_number_of_bc_channels)) {
-                uc_index -= (fhss_structure->number_of_channels - fhss_structure->synch_configuration.fhss_number_of_bc_channels);
+            uc_index = fhss_calculate_uc_index(fhss_structure->bs->current_channel_index, fhss_structure->number_of_channels,
+                    fhss_structure->bs->synch_configuration.fhss_number_of_bc_channels) + destination_offset;
+            if (uc_index >= (fhss_structure->number_of_channels - fhss_structure->bs->synch_configuration.fhss_number_of_bc_channels)) {
+                uc_index -= (fhss_structure->number_of_channels - fhss_structure->bs->synch_configuration.fhss_number_of_bc_channels);
             }
 
-            uc_index = fhss_calc_channel_shuffle(uc_index, fhss_structure->number_of_channels, fhss_structure->synch_configuration.fhss_number_of_bc_channels);
-            uc_index = fhss_add_channel_list_counter(uc_index, fhss_structure->number_of_channels, fhss_structure->channel_list_counter, fhss_structure->fhss_scramble_table);
-            return channel_list_get_channel(fhss_structure->fhss_configuration.channel_mask, uc_index);
+            uc_index = fhss_calc_channel_shuffle(uc_index, fhss_structure->number_of_channels, fhss_structure->bs->synch_configuration.fhss_number_of_bc_channels);
+            uc_index = fhss_add_channel_list_counter(uc_index, fhss_structure->number_of_channels, fhss_structure->bs->channel_list_counter, fhss_structure->bs->fhss_scramble_table);
+            return channel_list_get_channel(fhss_structure->bs->fhss_configuration.channel_mask, uc_index);
         }
         return fhss_structure->rx_channel;
     }
@@ -251,7 +245,7 @@ int fhss_change_to_parent_channel(fhss_structure_t *fhss_structure)
     uint8_t destination_channel;
     uint8_t destination_offset;
     if (fhss_structure) {
-        if (fhss_structure->number_of_channels != fhss_structure->synch_configuration.fhss_number_of_bc_channels) {
+        if (fhss_structure->number_of_channels != fhss_structure->bs->synch_configuration.fhss_number_of_bc_channels) {
             uint8_t parent_address[8];
             if (fhss_get_parent_address(fhss_structure, parent_address)) {
                 return -1;
@@ -259,14 +253,14 @@ int fhss_change_to_parent_channel(fhss_structure_t *fhss_structure)
 
             destination_offset = fhss_get_offset(fhss_structure, parent_address);
 
-            uc_index = fhss_calculate_uc_index(fhss_structure->current_channel_index, fhss_structure->number_of_channels,
-                    fhss_structure->synch_configuration.fhss_number_of_bc_channels) + destination_offset;
-            if (uc_index >= (fhss_structure->number_of_channels - fhss_structure->synch_configuration.fhss_number_of_bc_channels)) {
-                uc_index -= (fhss_structure->number_of_channels - fhss_structure->synch_configuration.fhss_number_of_bc_channels);
+            uc_index = fhss_calculate_uc_index(fhss_structure->bs->current_channel_index, fhss_structure->number_of_channels,
+                    fhss_structure->bs->synch_configuration.fhss_number_of_bc_channels) + destination_offset;
+            if (uc_index >= (fhss_structure->number_of_channels - fhss_structure->bs->synch_configuration.fhss_number_of_bc_channels)) {
+                uc_index -= (fhss_structure->number_of_channels - fhss_structure->bs->synch_configuration.fhss_number_of_bc_channels);
             }
-            uc_index = fhss_calc_channel_shuffle(uc_index, fhss_structure->number_of_channels, fhss_structure->synch_configuration.fhss_number_of_bc_channels);
-            uc_index = fhss_add_channel_list_counter(uc_index, fhss_structure->number_of_channels, fhss_structure->channel_list_counter, fhss_structure->fhss_scramble_table);
-            destination_channel = channel_list_get_channel(fhss_structure->fhss_configuration.channel_mask, uc_index);
+            uc_index = fhss_calc_channel_shuffle(uc_index, fhss_structure->number_of_channels, fhss_structure->bs->synch_configuration.fhss_number_of_bc_channels);
+            uc_index = fhss_add_channel_list_counter(uc_index, fhss_structure->number_of_channels, fhss_structure->bs->channel_list_counter, fhss_structure->bs->fhss_scramble_table);
+            destination_channel = channel_list_get_channel(fhss_structure->bs->fhss_configuration.channel_mask, uc_index);
             fhss_structure->callbacks.change_channel(fhss_structure->fhss_api, destination_channel);
 #ifdef FHSS_CHANNEL_DEBUG
             tr_info("Parent channel: %u", destination_channel);
