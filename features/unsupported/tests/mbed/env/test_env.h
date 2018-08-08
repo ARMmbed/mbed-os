@@ -4,8 +4,12 @@
 #include <stdio.h>
 #include "mbed.h"
 
+#ifndef NL
 #define NL "\n"
+#endif
+#ifndef RCNL
 #define RCNL "\r\n"
+#endif
 
 // Const strings used in test_end
 extern const char* TEST_ENV_START;
