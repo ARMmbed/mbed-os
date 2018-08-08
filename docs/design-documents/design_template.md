@@ -20,7 +20,7 @@ Write your feature title above, in this case its "Mbed-OS Design Document"
     - [Custom Headings Here](#custom-headings-here)
 
 ### Revision history
-1.0 - A brief description for this version, e.g. Initial revision - Author name - Date
+1.0 - A brief description for this version, e.g. Initial revision - Author name - Date. NOTE: You may also specify the Mbed OS version this revision of design-document applies to.
 1.1 - Added new section - Author name - Date
 
 # Introduction
@@ -45,8 +45,8 @@ for a communication peripheral/device then the high level design goals could be 
 * `Reading from and Writing to the device` - Read and Write interfaces should be implemented to support sending single/multiple bytes. 
 * `Resetting the device` - Functionality to reset the device should be provided.
 
-**NOTE: If you already have supporting architecture documentation in the form of technology documents or other existing documents
-feel free to link them here and use that, you don't have to replicate the same documentation here.**
+**NOTE: If you already have publicly available supporting architecture documentation in the form of technology documents or other existing documents
+feel free to link them here and use that, you don't have to replicate the same documentation here. **
 
 For each high level design goal, provide detailed software design under [Detailed Design](#detailed-design) section providing more details on implementation.
 
