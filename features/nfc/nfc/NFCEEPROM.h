@@ -51,7 +51,7 @@ namespace nfc {
          */  
         NFCEEPROM(NFCEEPROMDriver* driver);
 
-        virtual ~NFCTarget();
+        virtual ~NFCEEPROM();
 
         /**
          * The NFCEEPROM delegate. Users of the NFCEEPROM class need to implement this delegate's methods to receive events.
