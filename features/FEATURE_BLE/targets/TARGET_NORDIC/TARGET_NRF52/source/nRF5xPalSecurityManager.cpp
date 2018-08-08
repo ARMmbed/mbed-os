@@ -762,7 +762,7 @@ nRF5xSecurityManager& nRF5xSecurityManager::get_security_manager()
 
 bool is_rand_invalid(const uint8_t* rand)
 {
-    for (int i = 0; i < 8; ++i) {
+    for (int i = 0; i < BLE_GAP_SEC_RAND_LEN; ++i) {
         if (rand[i]) {
             return false;
         }
