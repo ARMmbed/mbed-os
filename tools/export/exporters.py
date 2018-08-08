@@ -150,9 +150,9 @@ class Exporter(object):
         if config_header:
             def is_config_header(f):
                 return f.path == config_header
-            return filter(
+            return list(filter(
                 is_config_header, self.resources.get_file_refs(FileType.HEADER)
-            )[0]
+            ))[0]
         else:
             return None
 
