@@ -760,6 +760,16 @@ nRF5xSecurityManager& nRF5xSecurityManager::get_security_manager()
     return _security_manager;
 }
 
+bool is_rand_invalid(const uint8_t* rand)
+{
+    for (int i = 0; i < 8; ++i) {
+        if (rand[i]) {
+            return false;
+        }
+    }
+    return true;
+}
+
 bool nRF5xSecurityManager::sm_handler(const ble_evt_t *evt)
 {
     nRF5xSecurityManager& self = nRF5xSecurityManager::get_security_manager();
@@ -846,9 +856,8 @@ bool nRF5xSecurityManager::sm_handler(const ble_evt_t *evt)
             const ble_gap_evt_sec_info_request_t& req =
                 gap_evt.params.sec_info_request;
 
-            uint8_t invalid_rand[BLE_GAP_SEC_RAND_LEN] = { 0 };
             if (req.master_id.ediv == 0 &&
-                memcmp(req.master_id.rand, invalid_rand, sizeof(invalid_rand) == 0)
+                is_rand_invalid(req.master_id.rand)
             ) {
                 // request ltk generated with secure connection
                 handler->on_ltk_request(connection);
@@ -956,9 +965,8 @@ bool nRF5xSecurityManager::sm_handler(const ble_evt_t *evt)
                         peer_dist = pairing_cb->initiator_dist;
                     }
 
-                    uint8_t invalid_rand[BLE_GAP_SEC_RAND_LEN] = { 0 };
                     if (pairing_cb->own_enc_key.master_id.ediv == 0 &&
-                        memcmp(pairing_cb->own_enc_key.master_id.rand, invalid_rand, sizeof(invalid_rand) == 0)
+                        is_rand_invalid(pairing_cb->own_enc_key.master_id.rand)
                     ) {
                         handler->on_secure_connections_ltk_generated(
                             connection,
