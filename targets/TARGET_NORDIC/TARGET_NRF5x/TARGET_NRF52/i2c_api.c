@@ -567,7 +567,8 @@ static void i2c_configure_driver_instance(i2c_t *obj)
          * deinitialize on object destruction.
          */
         NRFX_IRQ_DISABLE((nrfx_get_irq_number((void const*)nordic_nrf5_twi_register[instance])));
-//        RF - there doesn't appear to be a replacement for nrf_drv_common_per_res_release() !
+//        RF - there doesn't appear to be a replacement for nrf_drv_common_per_res_release()
+//        RF - check how this is now handled
 //        nrf_drv_common_per_res_release(nordic_nrf5_twi_register[instance]);
 
         /* Configure driver with new settings. */
@@ -585,24 +586,24 @@ static void i2c_configure_driver_instance(i2c_t *obj)
         if (config->handler) {
 
             /* Initialze driver in non-blocking mode. */
-            nrf_drv_twi_init(&nordic_nrf5_instance[instance],
-                             &twi_config,
-                             nordic_nrf5_twi_event_handler,
-                             obj);
+            nrfx_twi_init(&nordic_nrf5_instance[instance],
+                          &twi_config,
+                          nordic_nrf5_twi_event_handler,
+                          obj);
         } else {
 
             /* Initialze driver in blocking mode. */
-            nrf_drv_twi_init(&nordic_nrf5_instance[instance],
-                             &twi_config,
-                             NULL,
-                             NULL);
+            nrfx_twi_init(&nordic_nrf5_instance[instance],
+                          &twi_config,
+                          NULL,
+                          NULL);
         }
 #else
         /* Initialze driver in blocking mode. */
-        nrf_drv_twi_init(&nordic_nrf5_instance[instance],
-                         &twi_config,
-                         NULL,
-                         NULL);
+        nrfx_twi_init(&nordic_nrf5_instance[instance],
+                      &twi_config,
+                      NULL,
+                      NULL);
 #endif
 
         /* Enable peripheral. */

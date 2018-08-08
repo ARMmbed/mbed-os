@@ -664,11 +664,13 @@ void nrfx_spim_0_irq_handler(void)
 }
 #endif
 
+#if 0
 #if NRFX_CHECK(NRFX_SPIM1_ENABLED)
 void nrfx_spim_1_irq_handler(void)
 {
     irq_handler(NRF_SPIM1, &m_cb[NRFX_SPIM1_INST_IDX]);
 }
+#endif
 #endif
 
 #if NRFX_CHECK(NRFX_SPIM2_ENABLED)

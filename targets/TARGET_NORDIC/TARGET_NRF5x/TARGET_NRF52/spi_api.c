@@ -43,7 +43,7 @@
 #include "object_owners.h"
 #include "pinmap_ex.h"
 
-#include "nrf_drv_spi.h"
+#include "nrfx_spi.h"
 
 /* Pre-allocate instances and share them globally. */
 static const nrf_drv_spi_t nordic_nrf5_spi_instance[3] = {
@@ -104,13 +104,13 @@ static void spi_configure_driver_instance(spi_t *obj)
 #if DEVICE_SPI_ASYNCH
         /* Set callback handler in asynchronous mode. */
         if (spi_inst->handler) {
-            nrf_drv_spi_init(&nordic_nrf5_spi_instance[instance], &(spi_inst->config), nordic_nrf5_spi_event_handler, obj);
+            nrfx_spi_init(&nordic_nrf5_spi_instance[instance], &(spi_inst->config), nordic_nrf5_spi_event_handler, obj);
         } else {
-            nrf_drv_spi_init(&nordic_nrf5_spi_instance[instance], &(spi_inst->config), NULL, NULL);
+            nrfx_spi_init(&nordic_nrf5_spi_instance[instance], &(spi_inst->config), NULL, NULL);
         }
 #else
         /* Set callback handler to NULL in synchronous mode. */
-        nrf_drv_spi_init(&nordic_nrf5_spi_instance[instance], &(spi_inst->config), NULL, NULL);
+        nrfx_spi_init(&nordic_nrf5_spi_instance[instance], &(spi_inst->config), NULL, NULL);
 #endif
 
         /* Mark instance as initialized. */
