@@ -17,25 +17,4 @@
 #ifndef MBED_MBED_RTX_H
 #define MBED_MBED_RTX_H
 
-#if defined(TARGET_WIZWIKI_W7500)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x20004000UL)
-#endif
-
-#elif defined(TARGET_WIZWIKI_W7500P)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x20004000UL)
-#endif
-
-
-#elif defined(TARGET_WIZWIKI_W7500ECO)
-
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x20004000UL)
-#endif
-
-#endif //
-
 #endif // MBED_MBED_RTX_H
