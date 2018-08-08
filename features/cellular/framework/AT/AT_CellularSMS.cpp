@@ -640,7 +640,11 @@ nsapi_size_or_error_t AT_CellularSMS::read_sms_from_index(int msg_index, char *b
                 }
                 _at.skip_param(); // <alpha>
                 if (time_stamp) {
-                    _at.read_string(time_stamp, SMS_MAX_TIME_STAMP_SIZE);
+                    int len = _at.read_string(time_stamp, SMS_MAX_TIME_STAMP_SIZE);
+                    if (len < (SMS_MAX_TIME_STAMP_SIZE - 2)) {
+                        time_stamp[len++] = ',';
+                        _at.read_string(&time_stamp[len], SMS_MAX_TIME_STAMP_SIZE-len);
+                    }
                 }
                 (void)_at.consume_to_stop_tag(); // consume until <CR><LF>
                 if (buf) {
@@ -735,7 +739,7 @@ nsapi_size_or_error_t AT_CellularSMS::get_sms(char *buf, uint16_t len, char *pho
         sms_info_t *info = get_oldest_sms_index();
 
         if (info) {
-            if (info->msg_size + 1 > len) { // +1 for '\0'
+            if (info->msg_size > len) {
                 tr_warn("Given buf too small, len is: %d but is must be: %d", len, info->msg_size);
                 if (buf_size) {
                     *buf_size = info->msg_size;
@@ -802,22 +806,34 @@ nsapi_size_or_error_t AT_CellularSMS::get_data_from_pdu(const char *pdu, sms_inf
         // originating address length
         oaLength = hex_str_to_int(pdu + index, 2);
         index += 2; // add  index over address length
-        index += 2; // skip number type
+        int type = hex_str_to_int(pdu + index, 1);
+        index += 2; // add  index over type
         if (phone_number) {
             // phone number as reverse nibble encoded
-            int a = 0;
-            for (; a < oaLength; a += 2) {
-                if (a + 1 == oaLength) {
-                    phone_number[a] = pdu[index + a + 1];
+            int a = 0, field_length = oaLength;
+
+            if (type == 9) {
+                //add the plus sign in case of international number (23.040 chapter address fields)
+                phone_number[a++] = '+';
+                field_length++;
+            }
+
+            for (; a < field_length; a += 2) {
+                if ((a + 1) == field_length) {
+                    phone_number[a] = pdu[index + 1];
+                    index++;
                 } else {
-                    phone_number[a] = pdu[index + a + 1];
-                    phone_number[a + 1] = pdu[index + a];
+                    phone_number[a] = pdu[index + 1];
+                    phone_number[a + 1] = pdu[index];
+                    index += 2;
                 }
             }
-            phone_number[oaLength] = '\0';
+            phone_number[field_length] = '\0';
+        } else {
+            index += oaLength;
         }
 
-        index += oaLength;
+
         if (oaLength & 0x01) { // if phone number length is odd then it has padded F so skip that
             index++;
         }
