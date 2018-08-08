@@ -38,6 +38,7 @@
  * 
  */
 #include "ble_radio_notification.h"
+#include "nrf_nvic.h"
 #include <stdlib.h>
 
 

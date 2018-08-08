@@ -54,7 +54,7 @@ extern "C" {
  *        the needs of the host environment into which @em nrfx is integrated.
  */
 
-#include <legacy/apply_old_config.h>
+//#include <legacy/apply_old_config.h>
 #include <soc/nrfx_irqs.h>
 
 //------------------------------------------------------------------------------
