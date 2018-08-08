@@ -760,14 +760,22 @@ nRF5xSecurityManager& nRF5xSecurityManager::get_security_manager()
     return _security_manager;
 }
 
-bool is_rand_invalid(const uint8_t* rand)
+/**
+ * EDIV and Rand are invalid if both are zero
+ */
+bool is_ediv_rand_valid(const uint16_t ediv, const uint8_t* rand)
 {
     for (int i = 0; i < BLE_GAP_SEC_RAND_LEN; ++i) {
         if (rand[i]) {
-            return false;
+            return true;
         }
     }
-    return true;
+
+    if (ediv != 0) {
+        return true;
+    }
+
+    return false;
 }
 
 bool nRF5xSecurityManager::sm_handler(const ble_evt_t *evt)
@@ -856,17 +864,16 @@ bool nRF5xSecurityManager::sm_handler(const ble_evt_t *evt)
             const ble_gap_evt_sec_info_request_t& req =
                 gap_evt.params.sec_info_request;
 
-            if (req.master_id.ediv == 0 &&
-                is_rand_invalid(req.master_id.rand)
-            ) {
-                // request ltk generated with secure connection
-                handler->on_ltk_request(connection);
-            } else {
+            if (is_ediv_rand_valid(req.master_id.ediv, req.master_id.rand)) {
                 handler->on_ltk_request(
                     connection,
                     ediv_t((uint8_t*)(&req.master_id.ediv)),
                     rand_t(req.master_id.rand)
                 );
+            } else {
+                /* no valid EDIV and Rand
+                 * request ltk generated with secure connection */
+                handler->on_ltk_request(connection);
             }
 
             return true;
@@ -965,27 +972,24 @@ bool nRF5xSecurityManager::sm_handler(const ble_evt_t *evt)
                         peer_dist = pairing_cb->initiator_dist;
                     }
 
-                    if (pairing_cb->own_enc_key.master_id.ediv == 0 &&
-                        is_rand_invalid(pairing_cb->own_enc_key.master_id.rand)
+                    if (is_ediv_rand_valid(
+                            pairing_cb->own_enc_key.master_id.ediv,
+                            pairing_cb->own_enc_key.master_id.rand
+                        )
                     ) {
-                        handler->on_secure_connections_ltk_generated(
-                            connection,
-                            ltk_t(pairing_cb->own_enc_key.enc_info.ltk)
-                        );
-                    } else {
                         if (own_dist.get_encryption()) {
-                                handler->on_keys_distributed_local_ltk(
-                                    connection,
-                                    ltk_t(pairing_cb->own_enc_key.enc_info.ltk)
-                                );
+                            handler->on_keys_distributed_local_ltk(
+                                connection,
+                                ltk_t(pairing_cb->own_enc_key.enc_info.ltk)
+                            );
 
-                                handler->on_keys_distributed_local_ediv_rand(
-                                    connection,
-                                    ediv_t(reinterpret_cast<uint8_t*>(
-                                        &pairing_cb->own_enc_key.master_id.ediv
-                                    )),
-                                    pairing_cb->own_enc_key.master_id.rand
-                                );
+                            handler->on_keys_distributed_local_ediv_rand(
+                                connection,
+                                ediv_t(reinterpret_cast<uint8_t*>(
+                                    &pairing_cb->own_enc_key.master_id.ediv
+                                )),
+                                pairing_cb->own_enc_key.master_id.rand
+                            );
                         }
 
                         if (peer_dist.get_encryption()) {
@@ -1002,6 +1006,13 @@ bool nRF5xSecurityManager::sm_handler(const ble_evt_t *evt)
                                 pairing_cb->peer_enc_key.master_id.rand
                             );
                         }
+                    } else {
+                        /* no valid EDIV and Rand meaning this is a
+                         * Secure Connections key */
+                        handler->on_secure_connections_ltk_generated(
+                            connection,
+                            ltk_t(pairing_cb->own_enc_key.enc_info.ltk)
+                        );
                     }
 
                     if (peer_dist.get_identity()) {
