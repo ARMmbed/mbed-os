@@ -647,18 +647,22 @@ static void twim_irq_handler(NRF_TWIM_Type * p_twim, twim_control_block_t * p_cb
     p_cb->handler(&event, p_cb->p_context);
 }
 
+#if 0
 #if NRFX_CHECK(NRFX_TWIM0_ENABLED)
 void nrfx_twim_0_irq_handler(void)
 {
     twim_irq_handler(NRF_TWIM0, &m_cb[NRFX_TWIM0_INST_IDX]);
 }
 #endif
+#endif
 
+#if 0
 #if NRFX_CHECK(NRFX_TWIM1_ENABLED)
 void nrfx_twim_1_irq_handler(void)
 {
     twim_irq_handler(NRF_TWIM1, &m_cb[NRFX_TWIM1_INST_IDX]);
 }
+#endif
 #endif
 
 #endif // NRFX_CHECK(NRFX_TWIM_ENABLED)

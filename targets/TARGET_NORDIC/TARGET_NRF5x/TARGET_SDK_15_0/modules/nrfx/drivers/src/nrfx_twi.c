@@ -706,18 +706,22 @@ static void twi_irq_handler(NRF_TWI_Type * p_twi, twi_control_block_t * p_cb)
 
 }
 
+#if 0
 #if NRFX_CHECK(NRFX_TWI0_ENABLED)
 void nrfx_twi_0_irq_handler(void)
 {
     twi_irq_handler(NRF_TWI0, &m_cb[NRFX_TWI0_INST_IDX]);
 }
 #endif
+#endif
 
+#if 0
 #if NRFX_CHECK(NRFX_TWI1_ENABLED)
 void nrfx_twi_1_irq_handler(void)
 {
     twi_irq_handler(NRF_TWI1, &m_cb[NRFX_TWI1_INST_IDX]);
 }
+#endif
 #endif
 
 #endif // NRFX_CHECK(NRFX_TWI_ENABLED)
