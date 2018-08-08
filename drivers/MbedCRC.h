@@ -242,7 +242,12 @@ public:
         if ((width < 8) && (NULL == _crc_table)) {
             p_crc = (uint32_t)(p_crc << (8 - width));
         }
-        *crc = (reflect_remainder(p_crc) ^ _final_xor) & get_crc_mask();
+        // Optimized algorithm for 32BitANSI does not need additional reflect_remainder
+        if ((TABLE == _mode) && (POLY_32BIT_ANSI == polynomial)) {
+            *crc = (p_crc ^ _final_xor) & get_crc_mask();
+        } else {
+            *crc = (reflect_remainder(p_crc) ^ _final_xor) & get_crc_mask();
+        }
         return 0;
     }
 
@@ -420,9 +425,9 @@ private:
             }
         } else {
             uint32_t *crc_table = (uint32_t *)_crc_table;
-            for (crc_data_size_t byte = 0; byte < size; byte++) {
-                data_byte = reflect_bytes(data[byte]) ^ (p_crc >> (width - 8));
-                p_crc = crc_table[data_byte] ^ (p_crc << 8);
+            for (crc_data_size_t i = 0; i < size; i++) {
+                p_crc = (p_crc >> 4) ^ crc_table[(p_crc ^ (data[i] >> 0)) & 0xf];
+                p_crc = (p_crc >> 4) ^ crc_table[(p_crc ^ (data[i] >> 4)) & 0xf];
             }
         }
         *crc = p_crc & get_crc_mask();
