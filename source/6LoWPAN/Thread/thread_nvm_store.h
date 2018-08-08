@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, Arm Limited and affiliates.
+ * Copyright (c) 2017-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Redistribution and use in source and binary forms, with or without
@@ -84,6 +84,9 @@ int thread_nvm_store_fast_data_write(thread_nvm_fast_data_t* fast_data);
 int thread_nvm_store_frame_counters_check_and_write(uint32_t mac_frame_counter, uint32_t mle_frame_counter);
 /* stores the frame counter and seq counter to nvm only if any threshold is passed*/
 int thread_nvm_store_fast_data_check_and_write(uint32_t mac_frame_counter, uint32_t mle_frame_counter, uint32_t network_seq_counter);
+/*Store all fast data values unconditionally*/
+int thread_nvm_store_fast_data_write_all(uint32_t mac_frame_counter, uint32_t mle_frame_counter, uint32_t network_seq_counter);
+
 /* stores the value to nvm only if it has changed */
 
 int thread_nvm_store_seq_counter_write(uint32_t network_seq_counter);

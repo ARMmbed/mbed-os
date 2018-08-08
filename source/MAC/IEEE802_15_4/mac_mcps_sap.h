@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017, Arm Limited and affiliates.
+ * Copyright (c) 2016-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -32,6 +32,9 @@ struct protocol_interface_rf_mac_setup;
 struct mcps_data_req_s;
 struct arm_phy_sap_msg_s;
 struct mcps_purge_s;
+struct mcps_data_ie_list;
+struct mcps_data_req_ie_list;
+struct channel_list_s;
 
 /** Address types */
 typedef enum {
@@ -51,6 +54,7 @@ typedef enum {
 #define MAC_MCPS_INDIRECT_TIMER_CB 4
 #define MAC_MLME_SCAN_CONFIRM_HANDLER 5
 #define MAC_SAP_TRIG_TX 6
+#define MCPS_SAP_DATA_ACK_CNF_EVENT 7
 
 
 /**
@@ -71,6 +75,10 @@ typedef struct mac_fcf_sequence_s{
     bool framePending :1;
     bool ackRequested:1;
     bool intraPan:1;
+    bool sequenceNumberSuppress:1;
+    bool informationElementsPresets:1;
+    bool DstPanPresents:1;
+    bool SrcPanPresents:1;
     unsigned DstAddrMode:2; /*0x00 = no address 0x01 = reserved 0x02 = 16-bit short address 0x03 = 64-bit extended address */
     unsigned frameVersion:2;
     unsigned SrcAddrMode:2; /*0x00 = no address 0x01 = reserved 0x02 = 16-bit short address 0x03 = 64-bit extended address */
@@ -79,16 +87,23 @@ typedef struct mac_fcf_sequence_s{
 
 typedef struct mac_pre_parsed_frame_s{
     void *mac_class_ptr;
+    uint8_t *payloadsIePtr;
+    uint8_t *headerIePtr;
+    uint8_t *macPayloadPtr;
     mlme_device_descriptor_t *neigh_info;
     uint8_t LQI;
     int8_t dbm;
     mac_fcf_sequence_t fcf_dsn;
     uint16_t frameLength; //Encoded or open payload length
-    uint8_t mac_header_length;
+    uint16_t payloadsIeLength;
+    uint16_t headerIeLength;
+    uint16_t mac_header_length;
+    uint16_t header_ie_length;
     uint8_t security_aux_header_length;
     uint16_t mac_payload_length;
     uint32_t timestamp;
     bool ack_pendinfg_status;
+
     uint8_t buf[]; /*!< Trailing buffer data */
 } mac_pre_parsed_frame_t;
 
@@ -100,14 +115,22 @@ typedef struct mac_pre_build_frame{
     uint8_t SrcAddr[8];
     mac_aux_security_header_t aux_header;
     uint8_t mac_command_id; //For MLME
+    uint16_t payloadsIeLength;
+    uint16_t headerIeLength;
     uint16_t mac_payload_length;
+    uint16_t mac_header_length_with_security;
     uint8_t msduHandle;
     uint16_t buffer_ttl;
+    struct mcps_data_req_ie_list ie_elements;
+    struct channel_list_s asynch_channel_list;
     uint8_t *mac_payload;
     uint8_t status;
+    uint8_t asynch_channel;
+    uint32_t tx_time;
     bool upper_layer_request;
     bool mac_allocated_payload_ptr:1;
-    unsigned mac_header_length_with_security : 6; //Total max is 37
+    bool asynch_request:1;
+    bool message_builded:1;
     unsigned security_mic_len:5;    //Max possible lengths 0, 4, 8, 16 bytes
     unsigned priority:2;
     struct mac_pre_build_frame *next; //Pointer for queue purpose
@@ -159,9 +182,13 @@ int8_t mcps_sap_pd_ind(mac_pre_parsed_frame_t *buffer);
  */
 void mcps_sap_pd_confirm(void *mac_ptr);
 
+void mcps_sap_pd_ack(void *ack_ptr);
+
 int8_t mac_virtual_sap_data_cb(void *identifier, struct arm_phy_sap_msg_s *message);
 
 void mcps_sap_data_req_handler(struct protocol_interface_rf_mac_setup *rf_mac_setup , const struct mcps_data_req_s *data_req );
+
+void mcps_sap_data_req_handler_ext(struct protocol_interface_rf_mac_setup *rf_mac_setup , const struct mcps_data_req_s *data_req , const struct mcps_data_req_ie_list *ie_list, const channel_list_s *asynch_channel_list);
 
 void mac_mcps_trig_buffer_from_queue(struct protocol_interface_rf_mac_setup *rf_mac_setup);
 
@@ -174,5 +201,9 @@ int mac_convert_frame_type_to_fhss(uint8_t frame_type);
 void mcps_sap_trig_tx(void *mac_ptr);
 
 void mcps_sap_purge_reg_handler(struct protocol_interface_rf_mac_setup *rf_mac_setup, const struct mcps_purge_s *purge_req);
+
+int8_t mcps_pd_data_rebuild(struct protocol_interface_rf_mac_setup *rf_ptr, mac_pre_build_frame_t *buffer);
+
+int8_t mcps_generic_ack_build(struct protocol_interface_rf_mac_setup *rf_ptr, const mac_fcf_sequence_t *fcf, const uint8_t *data_ptr, const mcps_ack_data_payload_t *ack_payload, uint32_t rx_time);
 
 #endif /* MAC_IEEE802_15_4_MAC_MCPS_SAP_H_ */

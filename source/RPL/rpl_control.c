@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, Arm Limited and affiliates.
+ * Copyright (c) 2015-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -45,7 +45,7 @@
 #include "NWK_INTERFACE/Include/protocol_stats.h"
 #include "Common_Protocols/ipv6_constants.h"
 #include "Common_Protocols/icmpv6.h"
-
+#include "ipv6_stack/protocol_ipv6.h"
 #include "Service_Libs/etx/etx.h" /* slight ick */
 
 #include "net_rpl.h"
@@ -182,6 +182,51 @@ void rpl_control_unpublish_address(rpl_domain_t *domain, const uint8_t addr[16])
     }
 }
 
+static if_address_entry_t *rpl_instance_reg_addr_get(protocol_interface_info_entry_t *interface)
+{
+    ns_list_foreach(if_address_entry_t, address, &interface->ip_addresses) {
+        if (!address->addr_reg_done && !addr_is_ipv6_link_local(address->address)) {
+            return address;
+        }
+    }
+
+    return NULL;
+}
+
+/* Send address registration to either specified address, or to non-registered address */
+void rpl_control_register_address(protocol_interface_info_entry_t *interface, if_address_entry_t *addr)
+{
+    if_address_entry_t *reg_addr = addr;
+
+    if (!reg_addr) {
+        reg_addr = rpl_instance_reg_addr_get(interface);
+
+        if (!reg_addr) {
+            return;
+        }
+    }
+    ns_list_foreach(struct rpl_instance, instance, &interface->rpl_domain->instances) {
+        rpl_instance_send_address_registration(interface, instance, reg_addr);
+    }
+}
+
+void rpl_control_address_register_done(struct buffer *buf, uint8_t status)
+{
+    ns_list_foreach(if_address_entry_t, addr, &buf->interface->ip_addresses) {
+
+        /* Optimize, ll addresses are not registered anyway.. */
+        if (addr_is_ipv6_link_local(addr->address) || !addr->addr_reg_pend) {
+            continue;
+        }
+
+        ns_list_foreach(struct rpl_instance, instance, &buf->interface->rpl_domain->instances) {
+            if (rpl_instance_address_registration_done(buf->interface, instance, addr, status)) {
+                return;
+            }
+        }
+    }
+}
+
 /* Address changes need to trigger DAO target re-evaluation */
 static void rpl_control_addr_notifier(struct protocol_interface_info_entry *interface, const if_address_entry_t *addr, if_address_callback_t reason)
 {
@@ -209,11 +254,10 @@ static void rpl_control_addr_notifier(struct protocol_interface_info_entry *inte
     }
 }
 
-static void rpl_control_etx_change_callback(int8_t  nwk_id, uint16_t previous_etx, uint16_t current_etx, const uint8_t *mac64_addr_ptr, uint16_t mac16_addr)
+static void rpl_control_etx_change_callback(int8_t  nwk_id, uint16_t previous_etx, uint16_t current_etx, uint8_t attribute_index)
 {
     (void)previous_etx;
     (void)current_etx;
-    (void)mac16_addr;
 
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(nwk_id);
     if (!cur || !cur->rpl_domain) {
@@ -221,7 +265,7 @@ static void rpl_control_etx_change_callback(int8_t  nwk_id, uint16_t previous_et
     }
     rpl_domain_t *domain = cur->rpl_domain;
     uint16_t delay = rpl_policy_etx_change_parent_selection_delay(domain);
-    tr_debug("Triggering parent selection due to ETX change on %s", trace_array(mac64_addr_ptr, 8));
+    tr_debug("Triggering parent selection due to ETX change on neigh index %u, etx %u", attribute_index, current_etx);
 
     ns_list_foreach(rpl_instance_t, instance, &domain->instances) {
         rpl_instance_trigger_parent_selection(instance, delay);
@@ -411,7 +455,7 @@ void rpl_control_delete_dodag_root(rpl_domain_t *domain, rpl_dodag_t *dodag)
 {
     (void)domain;
 
-    rpl_delete_dodag(dodag);
+    rpl_delete_dodag_root(dodag);
 }
 
 void rpl_control_update_dodag_route(rpl_dodag_t *dodag, const uint8_t *prefix, uint8_t prefix_len, uint8_t flags, uint32_t lifetime, bool age)
@@ -628,15 +672,26 @@ static void rpl_control_process_prefix_options(protocol_interface_info_entry_t *
         }
         uint8_t prefix_len = ptr[2];
         uint8_t flags = ptr[3];
-        uint32_t preferred = common_read_32_bit(ptr + 4);
-        uint32_t valid = common_read_32_bit(ptr + 8);
+        uint32_t valid = common_read_32_bit(ptr + 4);
+        uint32_t preferred = common_read_32_bit(ptr + 8);
         const uint8_t *prefix = ptr + 16;
 
         if (!pref_parent || neighbour == pref_parent) {
-            /* XXX We don't yet locally handle A and L flags. Presumably should
-             * only locally process for DODAG's we're a member of? Should we
-             * process now, or later?
+            //Check is L Flag active
+            if (flags & PIO_L) {
+                //define ONLink Route Information
+                //tr_debug("Register On Link Prefix to routing table");
+                ipv6_route_add(prefix, prefix_len, cur->id, NULL, ROUTE_RADV, valid, 0);
+            }
+            /* Check if A-Flag.
+             * A RPL node may use this option for the purpose of Stateless Address Autoconfiguration (SLAAC)
+             * from a prefix advertised by a parent.
              */
+            if (pref_parent && (flags & PIO_A)) {
+                if (icmpv6_slaac_prefix_update(cur, prefix, prefix_len, valid, preferred) != 0) {
+                    ipv6_interface_slaac_handler(cur, prefix, prefix_len, valid, preferred);
+                }
+            }
 
             /* Store prefixes for possible forwarding */
             /* XXX if leaf - don't bother? Or do we want to remember them for
@@ -1601,6 +1656,12 @@ const uint8_t *rpl_control_preferred_parent_addr(const rpl_instance_t *instance,
         return rpl_neighbour_ll_address(parent);
     }
 }
+
+uint16_t rpl_control_current_rank(const struct rpl_instance *instance)
+{
+    return rpl_instance_current_rank(instance);
+}
+
 
 static void rpl_domain_print(const rpl_domain_t *domain, route_print_fn_t *print_fn)
 {

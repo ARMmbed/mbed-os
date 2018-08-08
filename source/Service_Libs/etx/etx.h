@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2017, Arm Limited and affiliates.
+ * Copyright (c) 2014-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,11 +26,19 @@
 
 #include "NWK_INTERFACE/Include/protocol_abstract.h"
 
-struct mle_neigh_table_entry_t;
 /* Fraction that is used when calculating moving average
    e.g. ETX = 7/8 * current ETX + 1/8 * new ETX sample
    Range for value can be from 1 to 11 */
 #define ETX_MOVING_AVERAGE_FRACTION      3     // n >> 3, 1/8
+
+typedef struct etx_storage_s {
+    uint16_t        etx;                       /*!< 12 bits fraction */
+    uint16_t        stored_diff_etx;           /*!< 12 bits fraction */
+    uint8_t         remote_incoming_idr;       /*!< 5 bits fraction */
+    unsigned        accumulated_failures: 5;
+    unsigned        tmp_etx: 1;
+    unsigned        linkIdr: 4;
+} etx_storage_t;
 
 /**
  * \brief A function to update ETX value based on transmission attempts
@@ -41,10 +49,9 @@ struct mle_neigh_table_entry_t;
  * \param interface_id Interface identifier
  * \param attempts number of attempts to send message
  * \param success was message sending successful
- * \param addr_type address type, ADDR_802_15_4_SHORT or ADDR_802_15_4_LONG
- * \param addr_ptr PAN ID with 802.15.4 address
+ * \param attribute_index Neighbour attribute index
  */
-void etx_transm_attempts_update(int8_t interface_id, uint8_t attempts, bool success, addrtype_t addr_type, const uint8_t *addr_ptr);
+void etx_transm_attempts_update(int8_t interface_id, uint8_t attempts, bool success, uint8_t attribute_index);
 
 /**
  * \brief A function to update ETX value based on remote incoming IDR
@@ -54,9 +61,9 @@ void etx_transm_attempts_update(int8_t interface_id, uint8_t attempts, bool succ
  *
  * \param interface_id Interface identifier
  * \param remote_incoming_idr Remote incoming IDR
- * \param mac64_addr_ptr long MAC address
+ * \param attribute_index Neighbour attribute index
  */
-void etx_remote_incoming_idr_update(int8_t interface_id, uint8_t remote_incoming_idr, struct mle_neigh_table_entry_t *neigh_table_ptr);
+void etx_remote_incoming_idr_update(int8_t interface_id, uint8_t remote_incoming_idr, uint8_t attribute_index);
 
 /**
  * \brief A function to read ETX value
@@ -77,14 +84,26 @@ uint16_t etx_read(int8_t interface_id, addrtype_t addr_type, const uint8_t *addr
 /**
  * \brief A function to read local incoming IDR value
  *
- *  Returns local incoming IDR value for an address
+ *  Returns local incoming IDR value for an neighbour
  *
- * \param mac64_addr_ptr long MAC address
+ * \param attribute_index Neighbour attribute index
  *
  * \return 0x0100 to 0xFFFF incoming IDR value (8 bit fraction)
  * \return 0x0000 address unknown
  */
-uint16_t etx_local_incoming_idr_read(int8_t interface_id, struct mle_neigh_table_entry_t *neigh_table_ptr);
+uint16_t etx_local_incoming_idr_read(int8_t interface_id, uint8_t attribute_index);
+
+/**
+ * \brief A function to read local ETXvalue
+ *
+ *  Returns local ETX value for an address
+ *
+ * \param mac64_addr_ptr long MAC address
+ *
+ * \return 0x0100 to 0xFFFF ETX value (8 bit fraction)
+ * \return 0x0000 address unknown
+ */
+uint16_t etx_local_etx_read(int8_t interface_id, uint8_t attribute_index);
 
 /**
  * \brief A function to update ETX value based on LQI and dBm
@@ -93,11 +112,11 @@ uint16_t etx_local_incoming_idr_read(int8_t interface_id, struct mle_neigh_table
  *
  * \param lqi link quality indicator
  * \param dbm measured dBm
- * \param mac64_addr_ptr long MAC address
+ * \param attribute_index Neighbour attribute index
  *
  * \return 0x0100 to 0xFFFF local incoming IDR value (8 bit fraction)
  */
-uint16_t etx_lqi_dbm_update(int8_t interface_id, uint8_t lqi, int8_t dbm, struct mle_neigh_table_entry_t *neigh_table_ptr);
+uint16_t etx_lqi_dbm_update(int8_t interface_id, uint8_t lqi, int8_t dbm, uint8_t attribute_index);
 
 /**
  * \brief A function callback that indicates ETX value change
@@ -108,11 +127,10 @@ uint16_t etx_lqi_dbm_update(int8_t interface_id, uint8_t lqi, int8_t dbm, struct
  * \param nwk_interface_id network interface id
  * \param previous_etx ETX value to what the current ETX was compared (8 bit fraction)
  * \param current_etx current ETX value (8 bit fraction)
- * \param mac64_addr_ptr long MAC address
- * \param mac16_addr short MAC address or 0xffff address is not set
+ * \param attribute_index Neighbour attribute index
  *
  */
-typedef void (etx_value_change_handler_t)(int8_t nwk_id, uint16_t previous_etx, uint16_t current_etx, const uint8_t *mac64_addr_ptr, uint16_t mac16_addr);
+typedef void (etx_value_change_handler_t)(int8_t nwk_id, uint16_t previous_etx, uint16_t current_etx, uint8_t attribute_index);
 
 /**
  * \brief A function callback that indicates the number of accumulated TX failures
@@ -121,10 +139,10 @@ typedef void (etx_value_change_handler_t)(int8_t nwk_id, uint16_t previous_etx, 
  *
  * \param interface_id interface ID
  * \param accumulated_failures number of accumulated failures
- * \param neigh_table_ptr the neighbor node in question
+ * \param attribute_index Neighbour attribute index
  *
  */
-typedef void (etx_accum_failures_handler_t)(int8_t interface_id, uint8_t accumulated_failures, struct mle_neigh_table_entry_t *neigh_table_ptr);
+typedef void (etx_accum_failures_handler_t)(int8_t interface_id, uint8_t accumulated_failures, uint8_t attribute_index);
 
 /**
  * \brief A function to register ETX value change callback
@@ -140,6 +158,29 @@ typedef void (etx_accum_failures_handler_t)(int8_t interface_id, uint8_t accumul
  * \return 1 success
  */
 uint8_t etx_value_change_callback_register(nwk_interface_id nwk_id,int8_t interface_id, uint16_t hysteresis, etx_value_change_handler_t *callback_ptr);
+
+/**
+ * \brief A function to allocte ETX storage list
+ *
+ * \param interface_id interface id
+ * \param etx_storage_size Size of storage. 0 will free allocate data
+ *
+ * \return false Allocate fail
+ * \return true Allocate OK
+ */
+bool etx_storage_list_allocate(int8_t interface_id, uint8_t etx_storage_size);
+
+/**
+ * \brief A function to read ETX storage for defined neighbour
+ *
+ * \param interface_id interface id
+ * \param attribute_index Neighbour attribute index
+ *
+ * \return Pointer to ETX storage
+ * \return NULL When unknow interface or attribute
+ */
+etx_storage_t *etx_storage_entry_get(int8_t interface_id, uint8_t attribute_index);
+
 
 /**
  * \brief A function to register accumulated failures callback
@@ -164,10 +205,10 @@ uint8_t etx_accum_failures_callback_register(nwk_interface_id nwk_id, int8_t int
  *  Notifies ETX module that neighbor has been removed. Calls ETX value change callback
  *  if that is set.
  *
- * \param mac64_addr_ptr long MAC address
+ * \param attribute_index Neighbour attribute index
  *
  */
-void etx_neighbor_remove(int8_t interface_id, struct mle_neigh_table_entry_t *neigh_table_ptr);
+void etx_neighbor_remove(int8_t interface_id, uint8_t attribute_index);
 
 /**
  * \brief A function to add ETX neighbor
@@ -175,9 +216,9 @@ void etx_neighbor_remove(int8_t interface_id, struct mle_neigh_table_entry_t *ne
  *  Notifies ETX module that neighbor has been added. Calls ETX value change callback
  *  if that is set.
  *
- * \param mac64_addr_ptr long MAC address
+ * \param attribute_index Neighbour attribute index
  *
  */
-void etx_neighbor_add(int8_t interface_id, struct mle_neigh_table_entry_t *neigh_table_ptr);
+void etx_neighbor_add(int8_t interface_id, uint8_t attribute_index);
 
 #endif /* ETX_H_ */

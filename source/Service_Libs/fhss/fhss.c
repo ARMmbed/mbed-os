@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, Arm Limited and affiliates.
+ * Copyright (c) 2015-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,133 +19,76 @@
 #include "fhss_api.h"
 #include "fhss_config.h"
 #include "fhss.h"
+#include "fhss_common.h"
 #include "fhss_channel.h"
 #include "channel_list.h"
 #include "nsdynmemLIB.h"
-#include "fhss_beacon.h"
 #include "fhss_statistics.h"
 #include "ns_trace.h"
 #include "eventOS_event.h"
 #include "eventOS_callback_timer.h"
+#include "platform/arm_hal_interrupt.h"
 #include "randLIB.h"
+#include "common_functions.h"
 #include <string.h>
 
 #define TRACE_GROUP "fhss"
-// Uncomment this to get timestamped output on superframe events.
-// Note: the result may be massive, as there will be dozens or hundreds of lines of trace per second.
-// #define FHSS_MASSIVE_TRACE
 
-// TODO: create linked list
-// FHSS object pointer
-fhss_structure_t *fhss_struct = 0;
-
-static bool fhss_check_remaining_tx_time(fhss_structure_t *fhss_structure, uint16_t tx_length, uint8_t phy_header_length, uint8_t phy_tail_length);
-static void fhss_event_timer_cb(int8_t timer_id, uint16_t slots);
-static fhss_structure_t *fhss_get_object_with_timer_id(const int8_t timer_id);
-static int fhss_generate_scramble_table(fhss_structure_t *fhss_structure);
-static bool fhss_is_there_common_divisor(uint16_t i, uint8_t j);
-static void fhss_update_channel(fhss_structure_t *fhss_structure);
-static int fhss_reset_synch_monitor(fhss_synch_monitor_s *synch_monitor, bool reset_compensation);
 static int fhss_reset(fhss_structure_t *fhss_structure);
-static void fhss_failed_list_free(fhss_structure_t *fhss_structure);
+static bool fhss_is_bc_sending_superframe(fhss_structure_t *fhss_structure);
+static bool fhss_check_remaining_tx_time(fhss_structure_t *fhss_structure, uint16_t tx_length, uint8_t phy_header_length, uint8_t phy_tail_length);
+static bool fhss_is_there_common_divisor(uint16_t i, uint8_t j);
+static void fhss_beacon_received(fhss_structure_t *fhss_structure, const uint8_t *synch_info, const uint32_t elapsed_time);
+static void fhss_superframe_handler(const fhss_api_t *fhss_api, uint16_t delay);
+static int8_t fhss_beacon_create_tasklet(fhss_structure_t *fhss_structure);
+static void fhss_beacon_tasklet_func(arm_event_s* event);
+static int fhss_beacon_periodic_start(fhss_structure_t *fhss_structure, uint32_t time_to_first_beacon);
+static void fhss_beacon_periodic_stop(fhss_structure_t *fhss_structure);
 
-
-int8_t fhss_enable(fhss_api_t *fhss_api, const fhss_configuration_t *fhss_configuration, const fhss_timer_t *fhss_timer, fhss_statistics_t *fhss_statistics)
+fhss_structure_t *fhss_enable(fhss_api_t *fhss_api, const fhss_configuration_t *fhss_configuration, const fhss_timer_t *fhss_timer, fhss_statistics_t *fhss_statistics)
 {
-    if (!fhss_api || !fhss_configuration || !fhss_timer || fhss_struct) {
+    if (!fhss_api || !fhss_configuration || !fhss_timer) {
         tr_err("Invalid FHSS enable configuration");
-        return -1;
+        return NULL;
     }
     int channel_count = channel_list_count_channels(fhss_configuration->channel_mask);
     if (channel_count <= 0) {
         // There must be at least one configured channel in channel list
-        return -2;
+        return NULL;
     }
-    fhss_struct = ns_dyn_mem_alloc(sizeof(fhss_structure_t));
+    fhss_structure_t *fhss_struct = fhss_allocate_instance(fhss_api, fhss_timer);
     if (!fhss_struct) {
-        return -3;
+        return NULL;
     }
-    fhss_struct->fhss_api = fhss_api;
-    fhss_struct->fhss_configuration = *fhss_configuration;
-    fhss_struct->platform_functions = *fhss_timer;
-    fhss_struct->fhss_stats_ptr = fhss_statistics;
+    fhss_struct->bs = ns_dyn_mem_alloc(sizeof(fhss_bs_t));
+    if (!fhss_struct->bs) {
+        fhss_free_instance(fhss_api);
+        return NULL;
+    }
+    memset(fhss_struct->bs, 0, sizeof(fhss_bs_t));
+
+    fhss_struct->bs->fhss_configuration = *fhss_configuration;
+    fhss_struct->bs->fhss_stats_ptr = fhss_statistics;
     fhss_struct->number_of_channels = channel_count;
 
     // set a invalid id to tasklet_id, so we know that one is not started yet
     fhss_struct->beacon_tasklet_id = -1;
 
-    if (!fhss_struct->platform_functions.fhss_resolution_divider) {
-        fhss_struct->platform_functions.fhss_resolution_divider = 1;
-    }
     // Default synch interval is 240 seconds
-    if (!fhss_struct->fhss_configuration.fhss_max_synch_interval) {
-        fhss_struct->fhss_configuration.fhss_max_synch_interval = 240;
+    if (!fhss_struct->bs->fhss_configuration.fhss_max_synch_interval) {
+        fhss_struct->bs->fhss_configuration.fhss_max_synch_interval = 240;
     }
     ns_list_init(&fhss_struct->fhss_failed_tx_list);
     fhss_struct->own_hop = 0xff;
     fhss_reset(fhss_struct);
-    fhss_reset_synch_monitor(&fhss_struct->synch_monitor, true);
-    fhss_struct->active_fhss_events = 0;
-    fhss_struct->fhss_beacon_info_store = NULL;
-    fhss_struct->fhss_event_timer = eventOS_callback_timer_register(fhss_event_timer_cb);
-
-    fhss_generate_scramble_table(fhss_struct);
 
     if (fhss_beacon_create_tasklet(fhss_struct) < 0) {
-        // XXX: should we free the fhss_structure here?
-        return -5;
-    }
-
-    return 0;
-}
-
-int8_t fhss_set_datarate(fhss_structure_t *fhss_structure, uint32_t datarate)
-{
-    if (!fhss_structure) {
-        return -1;
-    }
-    // If datarate is not set, use default 250kbit/s. Datarate is used as divider later.
-    if (!datarate) {
-        datarate = 250000;
-    }
-    fhss_structure->datarate = datarate;
-    return 0;
-}
-
-int8_t fhss_set_synch_configuration(fhss_structure_t *fhss_structure, const fhss_synch_configuration_t *fhss_synch_configuration)
-{
-    if (!fhss_structure) {
-        return -1;
-    }
-    if (!fhss_synch_configuration) {
-        return -2;
-    }
-    // None of the configurations can be set zero
-    if( fhss_synch_configuration->fhss_number_of_bc_channels == 0 || fhss_synch_configuration->fhss_number_of_tx_slots == 0
-            || fhss_synch_configuration->fhss_number_of_superframes == 0 || fhss_synch_configuration->fhss_superframe_length == 0) {
-        return -3;
-    }
-    // Number of channels must be divisible with the number of broadcast channels.
-    // Number of superframes must be divisible with the number of TX slots
-    if (((fhss_structure->number_of_channels % fhss_synch_configuration->fhss_number_of_bc_channels) != 0) ||
-            ((fhss_synch_configuration->fhss_number_of_superframes % fhss_synch_configuration->fhss_number_of_tx_slots) != 0) ||
-            (fhss_synch_configuration->fhss_number_of_superframes <= fhss_synch_configuration->fhss_number_of_tx_slots)) {
-        return -4;
-    }
-    fhss_structure->synch_configuration = *fhss_synch_configuration;
-    fhss_structure->own_hop = 0;
-    return 0;
-}
-
-fhss_structure_t *fhss_get_object_with_api(const fhss_api_t *fhss_api)
-{
-    if (!fhss_api || !fhss_struct) {
+        ns_dyn_mem_free(fhss_struct->bs);
+        fhss_free_instance(fhss_api);
         return NULL;
     }
-    if (fhss_struct->fhss_api == fhss_api) {
-        return fhss_struct;
-    }
-    return NULL;
+
+    return fhss_struct;
 }
 
 bool fhss_is_synch_root(fhss_structure_t *fhss_structure)
@@ -156,45 +99,16 @@ bool fhss_is_synch_root(fhss_structure_t *fhss_structure)
     return true;
 }
 
-void fhss_set_active_event(fhss_structure_t *fhss_structure, uint8_t event_type)
-{
-    fhss_structure->active_fhss_events |= (1 << event_type);
-}
-
-void fhss_clear_active_event(fhss_structure_t *fhss_structure, uint8_t event_type)
-{
-    fhss_structure->active_fhss_events &= ~(1 << event_type);
-}
-
-bool fhss_read_active_event(fhss_structure_t *fhss_structure, uint8_t event_type)
-{
-    if (fhss_structure->active_fhss_events & (1 << event_type)) {
-        return true;
-    }
-    return false;
-}
-
-static fhss_structure_t *fhss_get_object_with_timer_id(const int8_t timer_id)
-{
-    if (timer_id <0 || !fhss_struct) {
-        return NULL;
-    }
-    if (fhss_struct->fhss_event_timer == timer_id) {
-        return fhss_struct;
-    }
-    return NULL;
-}
-
 static bool fhss_is_bc_sending_superframe(fhss_structure_t *fhss_structure)
 {
-    if (fhss_structure->current_superframe >= fhss_structure->broadcast_start_superframe) {
+    if (fhss_structure->bs->current_superframe >= fhss_structure->bs->broadcast_start_superframe) {
         return true;
     }
 
     return false;
 }
 
-bool fhss_check_bad_channel(fhss_structure_t *fhss_structure, uint8_t handle)
+static bool fhss_check_bad_channel(fhss_structure_t *fhss_structure, uint8_t handle)
 {
     if (!fhss_structure) {
         return false;
@@ -209,7 +123,7 @@ bool fhss_check_bad_channel(fhss_structure_t *fhss_structure, uint8_t handle)
     return true;
 }
 
-bool fhss_check_channel_type(fhss_structure_t *fhss_structure, bool is_bc, int frame_type)
+static bool fhss_check_channel_type(fhss_structure_t *fhss_structure, bool is_bc, int frame_type)
 {
     if (!fhss_structure) {
         return false;
@@ -228,7 +142,7 @@ bool fhss_check_channel_type(fhss_structure_t *fhss_structure, bool is_bc, int f
             }
         } else if (fhss_is_current_channel_broadcast(fhss_structure) == true) {
             // Drop: If waiting synchronization Beacon and packet has unicast destination
-            if (fhss_structure->beacons_received_timer) {
+            if (fhss_structure->bs->beacons_received_timer) {
                 return false;
             }
         }
@@ -238,26 +152,26 @@ bool fhss_check_channel_type(fhss_structure_t *fhss_structure, bool is_bc, int f
     }
     if (frame_type == FHSS_SYNCH_REQUEST_FRAME) {
         // Drop: If we have unicast channels in our configuration and current channel is broadcast channel
-        if ((fhss_structure->number_of_channels > fhss_structure->synch_configuration.fhss_number_of_bc_channels) && (fhss_is_current_channel_broadcast(fhss_structure) == true)) {
+        if ((fhss_structure->number_of_channels > fhss_structure->bs->synch_configuration.fhss_number_of_bc_channels) && (fhss_is_current_channel_broadcast(fhss_structure) == true)) {
             return false;
         }
 
-        uint8_t current_superframe = fhss_structure->current_superframe;
-        uint8_t synch_attempt = fhss_structure->beacons_received_timer;
-        if (fhss_structure->synch_configuration.fhss_number_of_tx_slots > 1) {
+        uint8_t current_superframe = fhss_structure->bs->current_superframe;
+        uint8_t synch_attempt = fhss_structure->bs->beacons_received_timer;
+        if (fhss_structure->bs->synch_configuration.fhss_number_of_tx_slots > 1) {
             // Send synch request either before or after the middle of the channel depending on attempt number.
-            uint8_t middle_of_superframes = fhss_structure->synch_configuration.fhss_number_of_superframes / 2;
+            uint8_t middle_of_superframes = fhss_structure->bs->synch_configuration.fhss_number_of_superframes / 2;
 
             if (synch_attempt & 1) {
-                if (fhss_structure->current_superframe < middle_of_superframes) {
+                if (fhss_structure->bs->current_superframe < middle_of_superframes) {
                     return false;
                 }
             } else {
-                if (fhss_structure->current_superframe >= middle_of_superframes) {
+                if (fhss_structure->bs->current_superframe >= middle_of_superframes) {
                     return false;
                 }
             }
-        } else if ((current_superframe == 0) || (current_superframe == (fhss_structure->synch_configuration.fhss_number_of_superframes - 1))){
+        } else if ((current_superframe == 0) || (current_superframe == (fhss_structure->bs->synch_configuration.fhss_number_of_superframes - 1))){
             return false;
         }
     }
@@ -265,7 +179,7 @@ bool fhss_check_channel_type(fhss_structure_t *fhss_structure, bool is_bc, int f
 
 }
 
-bool fhss_check_tx_allowed(fhss_structure_t *fhss_structure, bool is_bc, uint16_t frame_length, int frame_type, uint8_t phy_header_length, uint8_t phy_tail_length)
+static bool fhss_check_tx_allowed(fhss_structure_t *fhss_structure, bool is_bc, uint16_t frame_length, int frame_type, uint8_t phy_header_length, uint8_t phy_tail_length)
 {
     if (!fhss_structure) {
         return false;
@@ -283,7 +197,7 @@ bool fhss_check_tx_allowed(fhss_structure_t *fhss_structure, bool is_bc, uint16_
         return true;
     }
     // Deny: If FHSS is not on TX slot
-    if (fhss_structure->tx_allowed == false) {
+    if (fhss_structure->bs->tx_allowed == false) {
         return false;
     }
     // Deny: If not enough time before TX slot end
@@ -293,205 +207,23 @@ bool fhss_check_tx_allowed(fhss_structure_t *fhss_structure, bool is_bc, uint16_
     return true;
 }
 
-static int fhss_reset_synch_monitor(fhss_synch_monitor_s *synch_monitor, bool reset_compensation)
+static int fhss_reset_synch_monitor(fhss_synch_monitor_s *synch_monitor)
 {
 	if (synch_monitor) {
 	    synch_monitor->avg_synch_fix = 0;
 	    // Initialize to -1 instead of 0 to drop the first beacon after network scan (from synch monitoring)
 	    synch_monitor->avg_synch_fix_counter = -1;
-	    if (reset_compensation == true) {
-	        synch_monitor->drift_compensation = 0;
-	    }
 	    synch_monitor->channel_counter = 0;
 		return 0;
 	}
 	return -1;
 }
 
-static int fhss_reset(fhss_structure_t *fhss_structure)
+static int fhss_update_txrx_slots(fhss_structure_t *fhss_structure)
 {
-    if (fhss_structure) {
-        fhss_structure->platform_functions.fhss_timer_stop(fhss_structure->fhss_api);
-        fhss_struct->synch_panid = 0xffff;
-        fhss_beacon_periodic_stop(fhss_structure);
-        fhss_struct->current_superframe = 0;
-        fhss_struct->current_channel_index = 0;
-        fhss_struct->channel_list_counter = 0;
-        if (fhss_is_synch_root(fhss_structure) == false) {
-            fhss_struct->own_hop = 0xff;
-        }
-        fhss_struct->tx_allowed = false;
-        fhss_struct->synch_interval = (uint32_t) (fhss_struct->fhss_configuration.fhss_max_synch_interval/BEACON_INTERVAL_INIT_DIVIDER) * 1000;
-        fhss_struct->rx_channel = 0;
-        fhss_struct->beacons_received_timer = 0;
-        memset(fhss_struct->synch_parent, 0xff, 8);
-        fhss_struct->send_synch_info_on_next_broadcast_channel = false;
-        memset(&fhss_struct->synch_configuration, 0, sizeof(fhss_synch_configuration_t));
-        fhss_struct->synch_infos_sent_counter = 0;
-        fhss_struct->broadcast_start_superframe = 0;
-        fhss_failed_list_free(fhss_structure);
-        fhss_struct->fhss_state = FHSS_UNSYNCHRONIZED;
-        return 0;
-    }
-    return -1;
-}
-
-int fhss_down(fhss_structure_t *fhss_structure)
-{
-    if (fhss_structure) {
-        fhss_reset(fhss_structure);
-        fhss_reset_synch_monitor(&fhss_struct->synch_monitor, false);
-        fhss_stats_update(fhss_structure, STATS_FHSS_DRIFT_COMP, fhss_structure->synch_monitor.drift_compensation);
-        fhss_stats_update(fhss_structure, STATS_FHSS_AVG_SYNCH_FIX, fhss_structure->synch_monitor.avg_synch_fix);
-        fhss_stats_update(fhss_structure, STATS_FHSS_SYNCH_INTERVAL, fhss_structure->synch_interval / 1000);
-        return 0;
-    }
-    return -1;
-}
-
-
-int8_t fhss_disable(fhss_structure_t *fhss_structure)
-{
-    if (!fhss_structure) {
-        return -1;
-    }
-    ns_dyn_mem_free(fhss_structure);
-    fhss_structure = 0;
-    fhss_struct = 0;
-    return 0;
-}
-
-void fhss_start_timer(fhss_structure_t *fhss_structure, uint32_t time, void (*callback)(const fhss_api_t *fhss_api, uint16_t))
-{
-    if (callback){
-        // Don't allow starting with zero slots
-        if (time < fhss_structure->platform_functions.fhss_resolution_divider) {
-            time = fhss_structure->platform_functions.fhss_resolution_divider;
-        }
-        fhss_structure->platform_functions.fhss_timer_start(time / fhss_structure->platform_functions.fhss_resolution_divider, callback, fhss_structure->fhss_api);
-    }
-}
-
-uint32_t fhss_get_remaining_time_to_next_superframe(const fhss_structure_t *fhss_structure)
-{
-    const uint32_t slots = fhss_structure->platform_functions.fhss_get_remaining_slots(fhss_structure->fhss_api);
-    const uint32_t time = slots * fhss_structure->platform_functions.fhss_resolution_divider;
-    return time;
-}
-
-void fhss_superframe_handler(const fhss_api_t *fhss_api, uint16_t delay)
-{
-    int compensation = 0;
-    fhss_structure_t *fhss_structure = fhss_get_object_with_api(fhss_api);
-    if (!fhss_structure) {
-        return;
-    }
-/* Drift compensation doesn't work with Linux platform */
-#ifndef __linux__
-    // Drift compensation on first superframe
-    if (fhss_structure->current_superframe == 0) {
-        /* Idea is to compensate number of drift_compensation (microseconds) on each channel.
-         * However, fhss_resolution_divider defines the minimum timer resolution.
-         * E.g. if fhss_resolution_divider = 64, compensate (drift_compensation * 64) on each 64th channel.
-         */
-        if (++fhss_structure->synch_monitor.channel_counter == fhss_structure->platform_functions.fhss_resolution_divider) {
-            compensation = fhss_structure->synch_monitor.drift_compensation;
-            fhss_structure->synch_monitor.channel_counter = 0;
-        }
-    }
-#endif //__linux__
-    // Restart timer asap to minimize the effect of dynamic execution time of
-    // the rest of function.
-    fhss_start_timer(fhss_structure, (fhss_structure->synch_configuration.fhss_superframe_length) - (delay * fhss_structure->platform_functions.fhss_resolution_divider) + (compensation * fhss_structure->platform_functions.fhss_resolution_divider), fhss_superframe_handler);
-
-    // check, if the current frame was the last one
-    if (fhss_structure->current_superframe >= (fhss_structure->synch_configuration.fhss_number_of_superframes - 1)) {
-
-        // last superframe has passed, change channel
-        fhss_structure->current_superframe = 0;
-        fhss_structure->current_channel_index++;
-        if (fhss_structure->current_channel_index >= fhss_structure->number_of_channels) {
-            fhss_structure->synch_infos_sent_counter = 0;
-            fhss_structure->current_channel_index = 0;
-            fhss_structure->channel_list_counter++;
-            // Repeated cycle is started from beginning, reset counter. Don't let the channel_list_counter overflow.
-            if (fhss_structure->channel_list_counter >= ((uint16_t) fhss_structure->number_of_channels * MAX_SCRAMBLE_TABLE_INDEXES)) {
-                fhss_structure->channel_list_counter = 0;
-            }
-            // Hop 0 don't have parent
-            if (fhss_is_synch_root(fhss_structure) == false) {
-                fhss_trig_event(fhss_structure, FHSS_COMPARE_SYNCH_PARENT);
-            }
-            fhss_trig_event(fhss_structure, FHSS_UPDATE_SYNCH_INFO_STORAGE);
-        }
-        fhss_update_channel(fhss_structure);
-    } else  {
-        // bump up the superframe counter
-        fhss_structure->current_superframe++;
-
-#ifdef FHSS_MASSIVE_TRACE
-        tr_debug("%"PRIu32": handler, super: %"PRIu8,
-                fhss_structure->fhss_api->read_timestamp(fhss_structure->fhss_api), fhss_structure->current_superframe);
-#endif
-    }
-    if ((fhss_structure->send_synch_info_on_next_broadcast_channel == true) && (fhss_is_current_channel_broadcast(fhss_structure) == true)) {
-        /* Randomize sending superframe of synchronization frame:
-         * on first superframe probability is 1/number of superframes
-         * on second superframe probability is 1/(number of superframes-1)
-         * on third superframe probability is 1/(number of superframes-2)
-         * on last superframe probability is 1/1
-         */
-        if (randLIB_get_random_in_range(1, fhss_structure->synch_configuration.fhss_number_of_superframes - fhss_structure->current_superframe) == 1) {
-            fhss_structure->send_synch_info_on_next_broadcast_channel = false;
-            fhss_structure->synch_infos_sent_counter++;
-            fhss_structure->callbacks.send_fhss_frame(fhss_structure->fhss_api, FHSS_SYNCH_FRAME);
-        }
-    }
-    fhss_update_txrx_slots(fhss_structure);
-    uint16_t queue_size = fhss_structure->callbacks.read_tx_queue_size(fhss_structure->fhss_api, false) + fhss_structure->callbacks.read_tx_queue_size(fhss_structure->fhss_api, true);
-    if ((fhss_structure->tx_allowed == true || fhss_is_current_channel_broadcast(fhss_structure) == true) && queue_size) {
-        /* Start timer with random timeout to trigger TX queue poll event.
-         * Max random is half of the superframe length. Event timer resolution is 50us.
-         * Divide Max random with TX queue size to transmit faster when TX queue is growing
-         */
-        uint16_t max_random = ((fhss_structure->synch_configuration.fhss_superframe_length / 2) / 50) / queue_size;
-        eventOS_callback_timer_start(fhss_structure->fhss_event_timer, randLIB_get_random_in_range(1, max_random));
-    }
-    if (fhss_structure->fhss_timeout) {
-        fhss_structure->fhss_timer += fhss_structure->synch_configuration.fhss_superframe_length;
-        if (fhss_structure->fhss_timer >= fhss_structure->fhss_timeout) {
-            fhss_trig_event(fhss_structure, FHSS_TIMER_EVENT);
-            fhss_structure->fhss_timeout = 0;
-            fhss_structure->fhss_timer = 0;
-        }
-    }
-}
-
-int fhss_timeout_start(fhss_structure_t *fhss_structure, uint32_t time)
-{
-    if (!fhss_structure) {
-        return -1;
-    }
-    fhss_structure->fhss_timeout = time;
-    fhss_structure->fhss_timer = 0;
-    return 0;
-}
-
-int fhss_timeout_stop(fhss_structure_t *fhss_structure)
-{
-    if (!fhss_structure) {
-        return -1;
-    }
-    fhss_structure->fhss_timeout = 0;
-    fhss_structure->fhss_timer = 0;
-    return 0;
-}
-
-int fhss_update_txrx_slots(fhss_structure_t *fhss_structure)
-{
-    uint8_t cur_superframe = fhss_structure->current_superframe;
-    uint8_t number_of_tx_slots = fhss_structure->synch_configuration.fhss_number_of_tx_slots;
-    uint8_t number_of_superframes = fhss_structure->synch_configuration.fhss_number_of_superframes;
+    uint8_t cur_superframe = fhss_structure->bs->current_superframe;
+    uint8_t number_of_tx_slots = fhss_structure->bs->synch_configuration.fhss_number_of_tx_slots;
+    uint8_t number_of_superframes = fhss_structure->bs->synch_configuration.fhss_number_of_superframes;
     uint8_t tx_slot_length = ((number_of_superframes / 2) / number_of_tx_slots);
     uint8_t tx_slot_up_limit = tx_slot_length;
     bool tx_allowed = false;
@@ -521,7 +253,7 @@ int fhss_update_txrx_slots(fhss_structure_t *fhss_structure)
             tx_slot_up_limit += (tx_slot_length * 2);
         }
     }
-    fhss_structure->tx_allowed = tx_allowed;
+    fhss_structure->bs->tx_allowed = tx_allowed;
     return 0;
 }
 
@@ -536,22 +268,22 @@ static int fhss_update_drift_compensation(fhss_structure_t *fhss_structure)
     if (!fhss_structure) {
         return 0;
     }
-    bc_density = (fhss_structure->number_of_channels / fhss_structure->synch_configuration.fhss_number_of_bc_channels);
-    channel_dwell_time = ((uint32_t)fhss_structure->synch_configuration.fhss_superframe_length * fhss_structure->synch_configuration.fhss_number_of_superframes) / 1000;
+    bc_density = (fhss_structure->number_of_channels / fhss_structure->bs->synch_configuration.fhss_number_of_bc_channels);
+    channel_dwell_time = ((uint32_t)fhss_structure->bs->synch_configuration.fhss_superframe_length * fhss_structure->bs->synch_configuration.fhss_number_of_superframes) / 1000;
     // Calculate last synchronisation period
-    if (fhss_structure->synch_interval != ((uint32_t)fhss_structure->fhss_configuration.fhss_max_synch_interval * 1000)) {
+    if (fhss_structure->bs->synch_interval != ((uint32_t)fhss_structure->bs->fhss_configuration.fhss_max_synch_interval * 1000)) {
         // Last period was half of the current started period and max random period is shorter
-        synch_period = (fhss_structure->synch_interval / 2) + (bc_density * channel_dwell_time) * (fhss_structure->synch_configuration.fhss_number_of_bc_channels / 2);
+        synch_period = (fhss_structure->bs->synch_interval / 2) + (bc_density * channel_dwell_time) * (fhss_structure->bs->synch_configuration.fhss_number_of_bc_channels / 2);
     } else {
-        synch_period = fhss_structure->synch_interval + (bc_density * channel_dwell_time) * fhss_structure->synch_configuration.fhss_number_of_bc_channels;
+        synch_period = fhss_structure->bs->synch_interval + (bc_density * channel_dwell_time) * fhss_structure->bs->synch_configuration.fhss_number_of_bc_channels;
     }
 
     // E.g. 240000ms / (50000us * 8) = 600 channels per fhss_beacon_send_interval
-    channels_per_synch_period = (synch_period * 1000) / ((uint32_t)fhss_structure->synch_configuration.fhss_superframe_length * fhss_structure->synch_configuration.fhss_number_of_superframes);
+    channels_per_synch_period = (synch_period * 1000) / ((uint32_t)fhss_structure->bs->synch_configuration.fhss_superframe_length * fhss_structure->bs->synch_configuration.fhss_number_of_superframes);
     // Calculate compensation value: how much to compensate on each channel. E.g. 6000us / 600channels = 10us/channel
-    fhss_structure->synch_monitor.drift_compensation += (fhss_structure->synch_monitor.avg_synch_fix / channels_per_synch_period);
-    fhss_stats_update(fhss_structure, STATS_FHSS_DRIFT_COMP, fhss_structure->synch_monitor.drift_compensation);
-    if ((fhss_structure->synch_monitor.avg_synch_fix > FHSS_SYNCH_DRIFT_TOO_HIGH_LIMIT) || (fhss_structure->synch_monitor.avg_synch_fix < -FHSS_SYNCH_DRIFT_TOO_HIGH_LIMIT)) {
+    fhss_structure->bs->synch_monitor.drift_compensation += (fhss_structure->bs->synch_monitor.avg_synch_fix / channels_per_synch_period);
+    fhss_stats_update(fhss_structure, STATS_FHSS_DRIFT_COMP, fhss_structure->bs->synch_monitor.drift_compensation);
+    if ((fhss_structure->bs->synch_monitor.avg_synch_fix > FHSS_SYNCH_DRIFT_TOO_HIGH_LIMIT) || (fhss_structure->bs->synch_monitor.avg_synch_fix < -FHSS_SYNCH_DRIFT_TOO_HIGH_LIMIT)) {
         // Indicates that more frequent synchronization is needed
         retval = -1;
     }
@@ -560,7 +292,7 @@ static int fhss_update_drift_compensation(fhss_structure_t *fhss_structure)
 
 static int fhss_update_synch_monitor(fhss_structure_t *fhss_structure, const fhss_synchronization_beacon_payload_s *payload, uint8_t superframe_own, int32_t remaining_time_own, const int32_t time_to_next_superframe)
 {
-    fhss_synch_configuration_t *configuration = &fhss_structure->synch_configuration;
+    fhss_synch_configuration_t *configuration = &fhss_structure->bs->synch_configuration;
     int super_frame_changed = payload->current_superframe - superframe_own;
     int retval = 0;
     if (((super_frame_changed < 0) && ((super_frame_changed * -1) < (payload->number_of_superframes_per_channel / 2))) || (super_frame_changed > payload->number_of_superframes_per_channel / 2)) {
@@ -591,22 +323,22 @@ static int fhss_update_synch_monitor(fhss_structure_t *fhss_structure, const fhs
 
         int32_t prev_synch_fix = (time_to_next_superframe - remaining_time_own);
         // After network scan counter was initialized to -1 to drop this fix from monitoring
-        if (fhss_structure->synch_monitor.avg_synch_fix_counter >= 0) {
-            fhss_structure->synch_monitor.avg_synch_fix += prev_synch_fix;
+        if (fhss_structure->bs->synch_monitor.avg_synch_fix_counter >= 0) {
+            fhss_structure->bs->synch_monitor.avg_synch_fix += prev_synch_fix;
         }
-        fhss_structure->synch_monitor.avg_synch_fix_counter++;
-        if (fhss_structure->synch_monitor.avg_synch_fix_counter == SYNCH_MONITOR_AVG_SAMPLES) {
-            fhss_structure->synch_monitor.avg_synch_fix /= SYNCH_MONITOR_AVG_SAMPLES;
-            fhss_stats_update(fhss_structure, STATS_FHSS_AVG_SYNCH_FIX, fhss_structure->synch_monitor.avg_synch_fix);
+        fhss_structure->bs->synch_monitor.avg_synch_fix_counter++;
+        if (fhss_structure->bs->synch_monitor.avg_synch_fix_counter == SYNCH_MONITOR_AVG_SAMPLES) {
+            fhss_structure->bs->synch_monitor.avg_synch_fix /= SYNCH_MONITOR_AVG_SAMPLES;
+            fhss_stats_update(fhss_structure, STATS_FHSS_AVG_SYNCH_FIX, fhss_structure->bs->synch_monitor.avg_synch_fix);
             retval = fhss_update_drift_compensation(fhss_structure);
-            fhss_structure->synch_monitor.avg_synch_fix_counter = 0;
-            fhss_structure->synch_monitor.avg_synch_fix = 0;
+            fhss_structure->bs->synch_monitor.avg_synch_fix_counter = 0;
+            fhss_structure->bs->synch_monitor.avg_synch_fix = 0;
         }
     }
     return retval;
 }
 
-int fhss_sync_with_beacon(fhss_structure_t *fhss_structure,
+static int fhss_sync_with_beacon(fhss_structure_t *fhss_structure,
         const fhss_synchronization_beacon_payload_s *payload)
 {
     int ret_val = -1;
@@ -615,19 +347,19 @@ int fhss_sync_with_beacon(fhss_structure_t *fhss_structure,
 
     if (fhss_structure) {
         // Do not allow synchronising devices above 253 hops.
-        if (payload->hop_count > 253) {
+        if (payload->hop_count > (FHSS_MAX_ALLOWED_HOPS-1)) {
             return 0;
         }
         // To make synchronization monitoring more effective, drop extra Beacons.
-        if (fhss_structure->fhss_state == FHSS_SYNCHRONIZED && (fhss_is_current_channel_broadcast(fhss_structure) == false || (fhss_structure->beacon_received_on_this_bc_channel == true))) {
+        if (fhss_structure->fhss_state == FHSS_SYNCHRONIZED && (fhss_is_current_channel_broadcast(fhss_structure) == false || (fhss_structure->bs->beacon_received_on_this_bc_channel == true))) {
             return 0;
         }
 
-        fhss_synch_configuration_t *configuration = &fhss_structure->synch_configuration;
-        fhss_structure->beacon_received_on_this_bc_channel = true;
+        fhss_synch_configuration_t *configuration = &fhss_structure->bs->synch_configuration;
+        fhss_structure->bs->beacon_received_on_this_bc_channel = true;
 
-        superframe_own = fhss_structure->current_superframe;
-        fhss_structure->current_superframe = payload->current_superframe;
+        superframe_own = fhss_structure->bs->current_superframe;
+        fhss_structure->bs->current_superframe = payload->current_superframe;
         // Clone the static config values from parent which has the authority.
         configuration->fhss_number_of_bc_channels = payload->number_of_broadcast_channels;
         configuration->fhss_number_of_tx_slots = payload->number_of_tx_slots;
@@ -641,36 +373,36 @@ int fhss_sync_with_beacon(fhss_structure_t *fhss_structure,
             fhss_structure->own_hop = payload->hop_count + 1;
         }
         fhss_stats_update(fhss_structure, STATS_FHSS_HOP_COUNT, fhss_structure->own_hop);
-        fhss_structure->channel_list_counter = payload->channel_list_counter;
-        fhss_structure->current_channel_index = payload->channel_index;
+        fhss_structure->bs->channel_list_counter = payload->channel_list_counter;
+        fhss_structure->bs->current_channel_index = payload->channel_index;
         uint8_t mac_address[8];
         fhss_structure->callbacks.read_mac_address(fhss_structure->fhss_api, mac_address);
 
-        fhss_structure->uc_channel_index = fhss_calculate_uc_index(fhss_structure->current_channel_index, fhss_structure->number_of_channels,
+        fhss_structure->bs->uc_channel_index = fhss_calculate_uc_index(fhss_structure->bs->current_channel_index, fhss_structure->number_of_channels,
                 payload->number_of_broadcast_channels) + fhss_get_offset(fhss_structure, mac_address);
 
         // If current channel is not broadcast, fhss_update_channel will increase UC channel index, otherwise do it here
         if (fhss_is_current_channel_broadcast(fhss_structure) == true || (fhss_structure->fhss_state == FHSS_SYNCHRONIZED)) {
-            fhss_structure->uc_channel_index += 1;
+            fhss_structure->bs->uc_channel_index += 1;
         }
-        if (fhss_structure->uc_channel_index >= (fhss_structure->number_of_channels - payload->number_of_broadcast_channels)) {
-            fhss_structure->uc_channel_index -= (fhss_structure->number_of_channels - payload->number_of_broadcast_channels);
+        if (fhss_structure->bs->uc_channel_index >= (fhss_structure->number_of_channels - payload->number_of_broadcast_channels)) {
+            fhss_structure->bs->uc_channel_index -= (fhss_structure->number_of_channels - payload->number_of_broadcast_channels);
         }
 
-        fhss_structure->platform_functions.fhss_timer_stop(fhss_structure->fhss_api);
+        fhss_structure->platform_functions.fhss_timer_stop(fhss_superframe_handler, fhss_structure->fhss_api);
         // start timer to elapse at approximately same time as the parent will.
         const int32_t time_to_next_superframe = payload->remaining_slots;
         remaining_time_own = fhss_get_remaining_time_to_next_superframe(fhss_structure);
         fhss_start_timer(fhss_structure, time_to_next_superframe, fhss_superframe_handler);
         // Reset beacon received timer when FHSS synchronization is updated
-        fhss_structure->beacons_received_timer = 0;
-        uint16_t bc_density = (fhss_structure->number_of_channels / fhss_structure->synch_configuration.fhss_number_of_bc_channels);
-        uint8_t fhss_number_of_bc_channels = fhss_structure->synch_configuration.fhss_number_of_bc_channels;
-        uint16_t channel_dwell_time = ((uint32_t)fhss_structure->synch_configuration.fhss_superframe_length * fhss_structure->synch_configuration.fhss_number_of_superframes) / 1000;
+        fhss_structure->bs->beacons_received_timer = 0;
+        uint16_t bc_density = (fhss_structure->number_of_channels / fhss_structure->bs->synch_configuration.fhss_number_of_bc_channels);
+        uint8_t fhss_number_of_bc_channels = fhss_structure->bs->synch_configuration.fhss_number_of_bc_channels;
+        uint16_t channel_dwell_time = ((uint32_t)fhss_structure->bs->synch_configuration.fhss_superframe_length * fhss_structure->bs->synch_configuration.fhss_number_of_superframes) / 1000;
 
         if (fhss_structure->fhss_state == FHSS_UNSYNCHRONIZED) {
             fhss_structure->fhss_state = FHSS_SYNCHRONIZED;
-            fhss_update_channel(fhss_structure);
+            fhss_change_to_next_channel(fhss_structure);
         }
         if (fhss_is_synch_root(fhss_structure) == false) {
             // Initially synch drift might be massive. Request first few Beacons more frequently until compensation starts fixing the error.
@@ -678,31 +410,25 @@ int fhss_sync_with_beacon(fhss_structure_t *fhss_structure,
 
             if (fhss_structure->fhss_state == FHSS_SYNCHRONIZED) {
                 if (fhss_update_synch_monitor(fhss_structure, payload, superframe_own, remaining_time_own, time_to_next_superframe)) {
-                    fhss_structure->synch_interval = (uint32_t) (fhss_structure->fhss_configuration.fhss_max_synch_interval/BEACON_INTERVAL_INIT_DIVIDER) * 1000;
+                    fhss_structure->bs->synch_interval = (uint32_t) (fhss_structure->bs->fhss_configuration.fhss_max_synch_interval/BEACON_INTERVAL_INIT_DIVIDER) * 1000;
                 }
             }
 
-            if (fhss_structure->synch_interval != ((uint32_t)fhss_structure->fhss_configuration.fhss_max_synch_interval * 1000)) {
-                fhss_structure->synch_interval *= 2;
-                if (fhss_structure->synch_interval > ((uint32_t)fhss_structure->fhss_configuration.fhss_max_synch_interval * 1000)) {
-                    fhss_structure->synch_interval = ((uint32_t)fhss_structure->fhss_configuration.fhss_max_synch_interval * 1000);
+            if (fhss_structure->bs->synch_interval != ((uint32_t)fhss_structure->bs->fhss_configuration.fhss_max_synch_interval * 1000)) {
+                fhss_structure->bs->synch_interval *= 2;
+                if (fhss_structure->bs->synch_interval > ((uint32_t)fhss_structure->bs->fhss_configuration.fhss_max_synch_interval * 1000)) {
+                    fhss_structure->bs->synch_interval = ((uint32_t)fhss_structure->bs->fhss_configuration.fhss_max_synch_interval * 1000);
                 }
                 beacon_interval_random = (bc_density * channel_dwell_time) * randLIB_get_random_in_range(0, fhss_number_of_bc_channels/2);
             } else {
                 beacon_interval_random = (bc_density * channel_dwell_time) * randLIB_get_random_in_range(0, fhss_number_of_bc_channels);
             }
-            fhss_stats_update(fhss_structure, STATS_FHSS_SYNCH_INTERVAL, fhss_structure->synch_interval / 1000);
-            fhss_beacon_periodic_start(fhss_structure, fhss_structure->synch_interval + beacon_interval_random);
-
-#ifdef FHSS_MASSIVE_TRACE
-            tr_debug("start timer, time now: %"PRIu32", sfr: %"PRIu8", ch-ind: %"PRIu8", time after: %"PRIu32,
-                    fhss_structure->fhss_api->read_timestamp(fhss_structure->fhss_api), fhss_structure->current_superframe,
-                    payload->channel_index, time_to_next_superframe);
-#endif
+            fhss_stats_update(fhss_structure, STATS_FHSS_SYNCH_INTERVAL, fhss_structure->bs->synch_interval / 1000);
+            fhss_beacon_periodic_start(fhss_structure, fhss_structure->bs->synch_interval + beacon_interval_random);
         }
         // Our hop has changed, needs to inform possible children by sending Beacon
         if ((own_hop_tmp != 0) && (own_hop_tmp != fhss_structure->own_hop)) {
-            fhss_structure->send_synch_info_on_next_broadcast_channel = true;
+            fhss_structure->bs->send_synch_info_on_next_broadcast_channel = true;
         }
         ret_val = 0;
     }
@@ -725,12 +451,12 @@ static uint32_t fhss_get_remaining_tx_time(fhss_structure_t *fhss_structure)
     uint32_t remaining_tx_time = 0;
 
     if (fhss_structure) {
-        uint8_t cur_superframe = fhss_structure->current_superframe;
-        uint8_t number_of_tx_slots = fhss_structure->synch_configuration.fhss_number_of_tx_slots;
-        uint8_t number_of_superframes = fhss_structure->synch_configuration.fhss_number_of_superframes;
+        uint8_t cur_superframe = fhss_structure->bs->current_superframe;
+        uint8_t number_of_tx_slots = fhss_structure->bs->synch_configuration.fhss_number_of_tx_slots;
+        uint8_t number_of_superframes = fhss_structure->bs->synch_configuration.fhss_number_of_superframes;
         uint8_t tx_slot_length = ((number_of_superframes / 2) / number_of_tx_slots);
         uint8_t tx_slot_up_limit = tx_slot_length;
-        uint16_t superframe_length = fhss_structure->synch_configuration.fhss_superframe_length;
+        uint16_t superframe_length = fhss_structure->bs->synch_configuration.fhss_superframe_length;
 
         if ((fhss_structure->own_hop % 2)) {
             tx_slot_up_limit += tx_slot_length;
@@ -746,11 +472,6 @@ static uint32_t fhss_get_remaining_tx_time(fhss_structure_t *fhss_structure)
         }
     }
     return remaining_tx_time;
-}
-
-uint32_t fhss_get_tx_time(fhss_structure_t *fhss_structure, uint16_t bytes_to_send, uint8_t phy_header_length, uint8_t phy_tail_length)
-{
-    return ((1000000 / (fhss_structure->datarate / 8)) * (bytes_to_send + phy_header_length + phy_tail_length));
 }
 
 // CCA adds extra 2ms with FHSS
@@ -774,8 +495,8 @@ static bool fhss_check_remaining_tx_time(fhss_structure_t *fhss_structure, uint1
     if (fhss_structure->fhss_state == FHSS_UNSYNCHRONIZED) {
         retval = true;
     } else {
-        tx_processing_delay = fhss_structure->fhss_configuration.fhss_tuning_parameters.tx_processing_delay;
-        ack_processing_delay = fhss_structure->fhss_configuration.fhss_tuning_parameters.ack_processing_delay;
+        tx_processing_delay = fhss_structure->bs->fhss_configuration.fhss_tuning_parameters.tx_processing_delay;
+        ack_processing_delay = fhss_structure->bs->fhss_configuration.fhss_tuning_parameters.ack_processing_delay;
         // Calculate needed TX time (us): CCA static period + TX processing delays + transmission time + Ack processing delays + Ack transmission time
         needed_tx_time = CCA_FHSS_PERIOD + tx_processing_delay + fhss_get_tx_time(fhss_structure, tx_length, phy_header_length, phy_tail_length)
                         + ack_processing_delay + fhss_get_tx_time(fhss_structure, ACK_LENGTH, phy_header_length, phy_tail_length);
@@ -785,81 +506,6 @@ static bool fhss_check_remaining_tx_time(fhss_structure_t *fhss_structure, uint1
         }
     }
     return retval;
-}
-
-int fhss_update_synch_parent_address(fhss_structure_t *fhss_structure)
-{
-    uint8_t parent_address[8];
-
-    if (!fhss_get_parent_address(fhss_structure, parent_address)) {
-        memcpy(fhss_structure->synch_parent, parent_address, 8);
-        return 0;
-    }
-    return -1;
-}
-
-void fhss_trig_event(fhss_structure_t *fhss_structure, uint8_t event_type)
-{
-    if (fhss_read_active_event(fhss_structure, event_type) == true) {
-        return;
-    }
-    arm_event_s event;
-    event.receiver = fhss_structure->beacon_tasklet_id;
-    event.sender = 0;
-    event.event_type = event_type;
-    event.event_id = 0;
-    event.data_ptr = fhss_structure;
-    event.priority = ARM_LIB_HIGH_PRIORITY_EVENT;
-    event.event_data = 0;
-    if (eventOS_event_send(&event) != 0) {
-        tr_error("Event trigger failed: eventOS_event_send() failed");
-    } else {
-        fhss_set_active_event(fhss_structure, event_type);
-    }
-}
-
-int fhss_get_parent_address(fhss_structure_t *fhss_structure, uint8_t *p_addr)
-{
-    int ret_val = -1;
-    if (!fhss_structure || !p_addr) {
-        return -1;
-    }
-
-    ret_val = fhss_structure->callbacks.read_coord_mac_address(fhss_structure->fhss_api, p_addr);
-
-    if (ret_val) {
-        // Use default synchronization parent when RPL parent not found
-        memcpy(p_addr, fhss_structure->synch_parent, 8);
-        ret_val = 0;
-    }
-    return ret_val;
-}
-
-int fhss_compare_with_synch_parent_address(fhss_structure_t *fhss_structure, const uint8_t *source_addr)
-{
-    int ret_val = -1;
-    if (!fhss_structure || !source_addr) {
-        return ret_val;
-    }
-    uint8_t parent_address[8];
-
-    if (fhss_is_synch_root(fhss_structure) == false) {
-        if (!fhss_get_parent_address(fhss_structure, parent_address)) {
-            ret_val = memcmp(source_addr, parent_address, 8);
-        }
-    }
-    return ret_val;
-}
-
-static void fhss_update_channel(fhss_structure_t *fhss_structure)
-{
-    // If channel is broadcast channel (true), send event
-    if (fhss_change_to_next_channel(fhss_structure) == true) {
-        // Only if device is border router
-        if (fhss_structure->own_hop == 0) {
-            fhss_trig_event(fhss_structure, FHSS_BROADCAST_CHANNEL);
-        }
-    }
 }
 
 static bool fhss_is_there_common_divisor(uint16_t i, uint8_t j)
@@ -884,7 +530,7 @@ static int fhss_generate_scramble_table(fhss_structure_t *fhss_structure)
     {
         // Common divisors are skipped
         if (fhss_is_there_common_divisor(fhss_structure->number_of_channels, j) == false) {
-            fhss_structure->fhss_scramble_table[i] = j;
+            fhss_structure->bs->fhss_scramble_table[i] = j;
             i++;
         }
         j++;
@@ -892,19 +538,10 @@ static int fhss_generate_scramble_table(fhss_structure_t *fhss_structure)
     return 0;
 }
 
-static void fhss_event_timer_cb(int8_t timer_id, uint16_t slots)
-{
-    (void) slots;
-    fhss_structure_t *fhss_structure = fhss_get_object_with_timer_id(timer_id);
-    if (fhss_structure) {
-        fhss_structure->callbacks.tx_poll(fhss_structure->fhss_api);
-    }
-}
-
-fhss_beacon_info_t *fhss_get_beacon_info(fhss_structure_t *fhss_structure, uint16_t pan_id)
+static fhss_beacon_info_t *fhss_get_beacon_info(fhss_structure_t *fhss_structure, uint16_t pan_id)
 {
     fhss_beacon_info_t *beacon_info;
-    beacon_info = fhss_structure->fhss_beacon_info_store;
+    beacon_info = fhss_structure->bs->fhss_beacon_info_store;
     while (beacon_info) {
         if (beacon_info->pan_id == pan_id) {
             break;
@@ -918,11 +555,11 @@ static void fhss_store_beacon_info(fhss_structure_t *fhss_structure, fhss_beacon
 {
     fhss_beacon_info_t *beacon_info_cur;
     beacon_info->next = NULL;
-    if (!fhss_structure->fhss_beacon_info_store) {
-        fhss_structure->fhss_beacon_info_store = beacon_info;
+    if (!fhss_structure->bs->fhss_beacon_info_store) {
+        fhss_structure->bs->fhss_beacon_info_store = beacon_info;
         return;
     }
-    beacon_info_cur = fhss_structure->fhss_beacon_info_store;
+    beacon_info_cur = fhss_structure->bs->fhss_beacon_info_store;
     while (beacon_info_cur->next != NULL) {
         beacon_info_cur = beacon_info_cur->next;
     }
@@ -949,19 +586,19 @@ static fhss_beacon_info_t *fhss_create_beacon_info(fhss_structure_t *fhss_struct
 
 static int fhss_remove_beacon_info(fhss_structure_t *fhss_structure, uint16_t pan_id)
 {
-    if (!fhss_structure || !fhss_structure->fhss_beacon_info_store) {
+    if (!fhss_structure || !fhss_structure->bs->fhss_beacon_info_store) {
         return -1;
     }
 
-    if (fhss_structure->fhss_beacon_info_store->pan_id == pan_id) {
-        fhss_beacon_info_t *next = fhss_structure->fhss_beacon_info_store->next;
-        ns_dyn_mem_free(fhss_structure->fhss_beacon_info_store);
-        fhss_structure->fhss_beacon_info_store = next;
+    if (fhss_structure->bs->fhss_beacon_info_store->pan_id == pan_id) {
+        fhss_beacon_info_t *next = fhss_structure->bs->fhss_beacon_info_store->next;
+        ns_dyn_mem_free(fhss_structure->bs->fhss_beacon_info_store);
+        fhss_structure->bs->fhss_beacon_info_store = next;
         return 0;
     }
 
-    fhss_beacon_info_t *removed_beacon_info = fhss_structure->fhss_beacon_info_store->next;
-    fhss_beacon_info_t *prev_beacon_info = fhss_structure->fhss_beacon_info_store;
+    fhss_beacon_info_t *removed_beacon_info = fhss_structure->bs->fhss_beacon_info_store->next;
+    fhss_beacon_info_t *prev_beacon_info = fhss_structure->bs->fhss_beacon_info_store;
 
     while (removed_beacon_info) {
         if (removed_beacon_info->pan_id == pan_id) {
@@ -976,22 +613,50 @@ static int fhss_remove_beacon_info(fhss_structure_t *fhss_structure, uint16_t pa
     return -1;
 }
 
-int fhss_flush_beacon_info_storage(fhss_structure_t *fhss_structure)
+static int fhss_flush_beacon_info_storage(fhss_structure_t *fhss_structure)
 {
     if (!fhss_structure) {
         return -1;
     }
-    fhss_beacon_info_t *beacon_info = fhss_structure->fhss_beacon_info_store;
+    fhss_beacon_info_t *beacon_info = fhss_structure->bs->fhss_beacon_info_store;
     while (beacon_info) {
         fhss_beacon_info_t *next = beacon_info->next;
         ns_dyn_mem_free(beacon_info);
         beacon_info = next;
     }
-    fhss_structure->fhss_beacon_info_store = NULL;
+    fhss_structure->bs->fhss_beacon_info_store = NULL;
     return 0;
 }
 
-int fhss_add_beacon_info(fhss_structure_t *fhss_structure, uint16_t pan_id, uint8_t *source_address, uint32_t timestamp, uint8_t *synch_info)
+static int fhss_reset(fhss_structure_t *fhss_structure)
+{
+    if (!fhss_structure) {
+        return -1;
+    }
+    fhss_structure->platform_functions.fhss_timer_stop(fhss_superframe_handler, fhss_structure->fhss_api);
+    fhss_structure->bs->synch_panid = 0xffff;
+    fhss_beacon_periodic_stop(fhss_structure);
+    fhss_structure->bs->current_superframe = 0;
+    fhss_structure->bs->current_channel_index = 0;
+    fhss_structure->bs->channel_list_counter = 0;
+    if (fhss_is_synch_root(fhss_structure) == false) {
+        fhss_structure->own_hop = 0xff;
+    }
+    fhss_structure->bs->tx_allowed = false;
+    fhss_structure->bs->synch_interval = (uint32_t) (fhss_structure->bs->fhss_configuration.fhss_max_synch_interval/BEACON_INTERVAL_INIT_DIVIDER) * 1000;
+    fhss_structure->rx_channel = 0;
+    fhss_structure->bs->beacons_received_timer = 0;
+    memset(fhss_structure->synch_parent, 0xff, 8);
+    fhss_structure->bs->send_synch_info_on_next_broadcast_channel = false;
+    memset(&fhss_structure->bs->synch_configuration, 0, sizeof(fhss_synch_configuration_t));
+    fhss_structure->bs->synch_infos_sent_counter = 0;
+    fhss_structure->bs->broadcast_start_superframe = 0;
+    fhss_failed_list_free(fhss_structure);
+    fhss_structure->fhss_state = FHSS_UNSYNCHRONIZED;
+    return 0;
+}
+
+static int fhss_add_beacon_info(fhss_structure_t *fhss_structure, uint16_t pan_id, uint8_t *source_address, uint32_t timestamp, uint8_t *synch_info)
 {
     if (!fhss_structure || !source_address || !synch_info) {
         return -1;
@@ -1008,10 +673,10 @@ int fhss_add_beacon_info(fhss_structure_t *fhss_structure, uint16_t pan_id, uint
     return 0;
 }
 
-void fhss_update_beacon_info_lifetimes(fhss_structure_t *fhss_structure, uint32_t timestamp)
+static void fhss_update_beacon_info_lifetimes(fhss_structure_t *fhss_structure, uint32_t timestamp)
 {
     fhss_beacon_info_t *beacon_info;
-    beacon_info = fhss_structure->fhss_beacon_info_store;
+    beacon_info = fhss_structure->bs->fhss_beacon_info_store;
     while (beacon_info) {
         uint32_t time_since_added = timestamp - beacon_info->timestamp;
         // timestamp is microseconds, lifetime is seconds
@@ -1024,43 +689,733 @@ void fhss_update_beacon_info_lifetimes(fhss_structure_t *fhss_structure, uint32_
     }
 }
 
-fhss_failed_tx_t *fhss_failed_handle_find(fhss_structure_t *fhss_structure, uint8_t handle)
+static void fhss_synch_state_set_callback(const fhss_api_t *api, fhss_states fhss_state, uint16_t pan_id)
 {
-    ns_list_foreach(fhss_failed_tx_t, cur, &fhss_structure->fhss_failed_tx_list) {
-        if (cur->handle == handle) {
-            return cur;
+    fhss_structure_t *fhss_structure = fhss_get_object_with_api(api);
+    if (!fhss_structure) {
+        return;
+    }
+    // State is already set
+    if (fhss_structure->fhss_state == fhss_state) {
+        tr_debug("Synch same state %u", fhss_state);
+        return;
+    }
+
+    if (fhss_state == FHSS_UNSYNCHRONIZED) {
+        tr_debug("FHSS down");
+        fhss_reset(fhss_structure);
+        fhss_reset_synch_monitor(&fhss_structure->bs->synch_monitor);
+        fhss_stats_update(fhss_structure, STATS_FHSS_DRIFT_COMP, fhss_structure->bs->synch_monitor.drift_compensation);
+        fhss_stats_update(fhss_structure, STATS_FHSS_AVG_SYNCH_FIX, fhss_structure->bs->synch_monitor.avg_synch_fix);
+        fhss_stats_update(fhss_structure, STATS_FHSS_SYNCH_INTERVAL, fhss_structure->bs->synch_interval / 1000);
+    } else {
+        // Do not synchronize to current pan
+        if (fhss_structure->bs->synch_panid == pan_id) {
+            tr_debug("Synch same panid %u", pan_id);
+            return;
+        }
+        fhss_generate_scramble_table(fhss_structure);
+
+        uint8_t mac_address[8];
+        fhss_structure->callbacks.read_mac_address(fhss_structure->fhss_api, mac_address);
+        fhss_structure->bs->uc_channel_index = fhss_get_offset(fhss_structure, mac_address);
+        // Get Beacon info from storage
+        fhss_beacon_info_t *beacon_info = fhss_get_beacon_info(fhss_structure, pan_id);
+        if (beacon_info) {
+            memcpy(fhss_structure->synch_parent, beacon_info->source_address, 8);
+            platform_enter_critical();
+            // Calculate time since the Beacon was received
+            uint32_t elapsed_time = fhss_structure->fhss_api->read_timestamp(fhss_structure->fhss_api) - beacon_info->timestamp;
+            // Synchronize to given PAN
+            fhss_beacon_received(fhss_structure, beacon_info->synch_info, elapsed_time);
+            platform_exit_critical();
+            // Delete stored Beacon infos
+            fhss_flush_beacon_info_storage(fhss_structure);
+            fhss_structure->bs->synch_panid = pan_id;
+        } else if (fhss_is_synch_root(fhss_structure) == true) {
+            // Synch root will start new network
+            fhss_start_timer(fhss_structure, fhss_structure->bs->synch_configuration.fhss_superframe_length, fhss_superframe_handler);
+        } else {
+            tr_error("Synch info not found");
+            return;
         }
     }
-    return NULL;
+    fhss_structure->fhss_state = fhss_state;
+    return;
 }
 
-int fhss_failed_handle_add(fhss_structure_t *fhss_structure, uint8_t handle)
+static void fhss_beacon_decode_raw(fhss_synchronization_beacon_payload_s* dest, const uint8_t* buffer)
 {
-    fhss_failed_tx_t *failed_tx = ns_dyn_mem_alloc(sizeof(fhss_failed_tx_t));
-    if (!failed_tx) {
-        return -2;
+    dest->data_start_delimeter = *buffer++;
+    dest->channel_index = *buffer++;
+    dest->sender_unicast_channel = *buffer++;
+    dest->current_superframe = common_read_16_bit(buffer);
+    buffer += BEACON_FIELD_SIZE(current_superframe);
+    dest->remaining_slots = common_read_16_bit(buffer);
+    buffer += BEACON_FIELD_SIZE(remaining_slots);
+    dest->channel_list_counter = common_read_16_bit(buffer);
+    buffer += BEACON_FIELD_SIZE(channel_list_counter);
+    dest->hop_count = *buffer++;
+    dest->number_of_broadcast_channels = *buffer++;
+    dest->number_of_tx_slots = *buffer++;
+    dest->time_since_last_beacon = common_read_32_bit(buffer);
+    buffer += BEACON_FIELD_SIZE(time_since_last_beacon);
+    dest->processing_delay += common_read_16_bit(buffer);
+    buffer += BEACON_FIELD_SIZE(processing_delay);
+    dest->superframe_length = common_read_16_bit(buffer);
+    buffer += BEACON_FIELD_SIZE(superframe_length);
+    dest->number_of_superframes_per_channel = *buffer;
+}
+
+static uint32_t fhss_get_time_to_next_channel_change(uint16_t remaining_slots_to_next_superframe, uint8_t number_of_superframes, uint8_t current_superframe, uint16_t superframe_length)
+{
+    return remaining_slots_to_next_superframe + ((uint32_t)((number_of_superframes - 1) - current_superframe) * superframe_length);
+}
+
+// Decode the given raw byte buffer into a struct into dest struct and calculate
+// the new values for elapsed_time, channel_index, current_superframe and remaining_slots
+// from current state and given data.
+static void fhss_beacon_decode(fhss_synchronization_beacon_payload_s* dest, const uint8_t* buffer, uint32_t elapsed_time, uint16_t number_of_channels)
+{
+    fhss_beacon_decode_raw(dest, buffer);
+
+    elapsed_time += dest->processing_delay;
+
+    /* To calculate channel index after beacon scan, following calculation is performed
+     *
+     *                           rem. slots to channel change(X)    Channel length (V)
+     *                              |---------------------|     |-----------------------------------------------|
+     *    |    RX'd channel index (Y)                     | ... |                      Y+n                      |
+     * ...|    sf1    |    sf2    |    sf3    |    sf4    | ... |    sf1    |    sf2    |    sf3    |    sf4    |...
+     *                              ^                                     ^
+     *                              |beacon received                      |beacon scan done
+     *                              |-------------------------------------|
+     *                               measured time after beacon RX'd(Z)
+     * V = superframe length * number of superframes
+     * X = remaining slots to superframe change + length of the remaining full superframes to channel change
+     *
+     * Y+n = Y + ((Z - X) / V) + 1
+     *
+     * Or if (Z < X)
+     *       Y+n = Y
+     */
+
+    uint32_t remaining_slots_to_next_channel = fhss_get_time_to_next_channel_change(dest->remaining_slots, dest->number_of_superframes_per_channel, dest->current_superframe, dest->superframe_length);
+    uint16_t temp_channel_index = dest->channel_index;
+    if (elapsed_time >= remaining_slots_to_next_channel) {
+        uint32_t channel_length = (uint32_t) dest->number_of_superframes_per_channel * dest->superframe_length;
+        temp_channel_index = dest->channel_index + ((elapsed_time - remaining_slots_to_next_channel) / channel_length) + 1;
     }
-    failed_tx->bad_channel = fhss_structure->rx_channel;
-    failed_tx->retries_done = 0;
-    failed_tx->handle = handle;
-    ns_list_add_to_end(&fhss_structure->fhss_failed_tx_list, failed_tx);
-    return 0;
+    while (temp_channel_index >= number_of_channels) {
+        temp_channel_index -= number_of_channels;
+        dest->channel_list_counter++;
+    }
+    dest->channel_index = temp_channel_index;
+    while (dest->channel_list_counter >= (number_of_channels * MAX_SCRAMBLE_TABLE_INDEXES)) {
+        dest->channel_list_counter -= (number_of_channels * MAX_SCRAMBLE_TABLE_INDEXES);
+    }
+
+    /* To calculate superframe after beacon scan, following calculation is performed
+     *
+     *           rem. slots(X)         sf. length(V)
+     *        |---------------|     |-----------------|
+     *...| RX'd superframe (Y)| ... |      Y+n        |      Y+n+1       |....
+     *        ^                                     ^
+     *        |beacon received                      |beacon scan done
+     *        |-------------------------------------|
+     *          measured time after beacon RX'd(Z)
+     *
+     * Y+n = Y + ((Z - X) / V) + 1
+     *
+     * Or if (Z < X)
+     *       Y+n = Y
+     */
+
+    if (elapsed_time >= dest->remaining_slots) {
+        dest->current_superframe = dest->current_superframe + ((elapsed_time - dest->remaining_slots) / dest->superframe_length) + 1;
+    }
+    while (dest->current_superframe >= dest->number_of_superframes_per_channel) {
+        dest->current_superframe -= dest->number_of_superframes_per_channel;
+    }
+
+    /* To get the remaining slots after beacon scan, following calculation is performed
+     *
+     *         rem. slots(Y)               sf. length(V)    new rem. slots(X)
+     *        |----------|               |---------------| |-------------|
+     *...| superframe 1  | superframe 2  | superframe 3  | superframe 4  |...
+     *        ^                                            ^
+     *        |beacon received                             |beacon scan done
+     *        |--------------------------------------------|
+     *          measured time after beacon RX'd(Z)
+     *
+     * X = V - ((Z - Y) % V)
+     *
+     * Or if (Z < Y)
+     *        X = Y - Z
+     */
+
+    if (elapsed_time < dest->remaining_slots) {
+        dest->remaining_slots = dest->remaining_slots - elapsed_time;
+    } else {
+        dest->remaining_slots = dest->superframe_length - ((elapsed_time - dest->remaining_slots) % dest->superframe_length);
+    }
 }
 
-int fhss_failed_handle_remove(fhss_structure_t *fhss_structure, uint8_t handle)
+static int fhss_synch_info_validate(fhss_synchronization_beacon_payload_s *payload)
 {
-    fhss_failed_tx_t *failed_tx = fhss_failed_handle_find(fhss_structure, handle);
-    if (!failed_tx) {
+    if (!payload) {
         return -1;
     }
-    ns_list_remove(&fhss_structure->fhss_failed_tx_list, failed_tx);
-    ns_dyn_mem_free(failed_tx); // Free entry
+    if (payload->data_start_delimeter != 0) {
+        return -1;
+    }
+    if (payload->current_superframe >= payload->number_of_superframes_per_channel) {
+        return -1;
+    }
+    if (payload->remaining_slots >= payload->superframe_length) {
+        return -1;
+    }
+    if (payload->hop_count > FHSS_MAX_ALLOWED_HOPS-1) {
+        return -1;
+    }
+    if (payload->number_of_broadcast_channels == 0) {
+        return -1;
+    }
+    if (payload->number_of_tx_slots == 0) {
+        return -1;
+    }
+    if (payload->number_of_superframes_per_channel == 0) {
+        return -1;
+    }
     return 0;
 }
 
-static void fhss_failed_list_free(fhss_structure_t *fhss_structure)
+static void fhss_beacon_received(fhss_structure_t *fhss_structure, const uint8_t *synch_info, const uint32_t elapsed_time)
 {
-    for (uint16_t i = 0; i<256; i++) {
-        fhss_failed_handle_remove(fhss_structure, i);
+
+    if (fhss_structure) {
+
+        if (synch_info) {
+            fhss_synchronization_beacon_payload_s temp_payload;
+            temp_payload.processing_delay = fhss_structure->bs->fhss_configuration.fhss_tuning_parameters.rx_processing_delay;
+            fhss_beacon_decode(&temp_payload, synch_info, elapsed_time, fhss_structure->number_of_channels);
+            if (!fhss_synch_info_validate(&temp_payload)) {
+                fhss_sync_with_beacon(fhss_structure, &temp_payload);
+            } else {
+                tr_err("Invalid synch info received");
+            }
+        }
+    }
+}
+
+static uint32_t fhss_get_sf_timeout_callback(fhss_structure_t *fhss_structure)
+{
+    uint32_t compensation = 0;
+    /* Drift compensation doesn't work with Linux platform */
+#ifndef __linux__
+    // Drift compensation on first superframe
+    if (fhss_structure->bs->current_superframe == 0) {
+        /* Idea is to compensate number of drift_compensation (microseconds) on each channel.
+         * However, fhss_resolution_divider defines the minimum timer resolution.
+         * E.g. if fhss_resolution_divider = 64, compensate (drift_compensation * 64) on each 64th channel.
+         */
+        if (++fhss_structure->bs->synch_monitor.channel_counter == fhss_structure->platform_functions.fhss_resolution_divider) {
+            compensation = fhss_structure->bs->synch_monitor.drift_compensation;
+            fhss_structure->bs->synch_monitor.channel_counter = 0;
+        }
+    }
+#else
+    (void) fhss_structure;
+#endif //__linux__
+    return (fhss_structure->bs->synch_configuration.fhss_superframe_length) + (compensation * fhss_structure->platform_functions.fhss_resolution_divider);
+}
+
+static void fhss_superframe_callback(fhss_structure_t *fhss_structure)
+{
+    if ((fhss_structure->bs->send_synch_info_on_next_broadcast_channel == true) && (fhss_is_current_channel_broadcast(fhss_structure) == true)) {
+        /* Randomize sending superframe of synchronization frame:
+         * on first superframe probability is 1/number of superframes
+         * on second superframe probability is 1/(number of superframes-1)
+         * on third superframe probability is 1/(number of superframes-2)
+         * on last superframe probability is 1/1
+         */
+        if (randLIB_get_random_in_range(1, fhss_structure->bs->synch_configuration.fhss_number_of_superframes - fhss_structure->bs->current_superframe) == 1) {
+            fhss_structure->bs->send_synch_info_on_next_broadcast_channel = false;
+            fhss_structure->bs->synch_infos_sent_counter++;
+            fhss_structure->callbacks.send_fhss_frame(fhss_structure->fhss_api, FHSS_SYNCH_FRAME);
+        }
+    }
+    fhss_update_txrx_slots(fhss_structure);
+    uint16_t queue_size = fhss_structure->callbacks.read_tx_queue_size(fhss_structure->fhss_api, false) + fhss_structure->callbacks.read_tx_queue_size(fhss_structure->fhss_api, true);
+    if ((fhss_structure->bs->tx_allowed == true || fhss_is_current_channel_broadcast(fhss_structure) == true) && queue_size) {
+        /* Start timer with random timeout to trigger TX queue poll event.
+         * Max random is half of the superframe length. Event timer resolution is 50us.
+         * Divide Max random with TX queue size to transmit faster when TX queue is growing
+         */
+        uint16_t max_random = ((fhss_structure->bs->synch_configuration.fhss_superframe_length / 2) / 50) / queue_size;
+        eventOS_callback_timer_start(fhss_structure->fhss_event_timer, randLIB_get_random_in_range(1, max_random));
+    }
+}
+
+static int fhss_tx_handle_callback(const fhss_api_t *api, bool is_broadcast_addr, uint8_t *destination_address, int frame_type, uint16_t frame_length, uint8_t phy_header_length, uint8_t phy_tail_length, uint32_t tx_time)
+{
+    (void) tx_time;
+    fhss_structure_t *fhss_structure = fhss_get_object_with_api(api);
+    if (!fhss_structure) {
+        return -2;
+    }
+    // TODO: needs some more logic to push buffer back to queue
+    if (frame_type == FHSS_DATA_FRAME) {
+        if (is_broadcast_addr == true) {
+            if (fhss_is_current_channel_broadcast(fhss_structure) == false) {
+                tr_info("Broadcast on UC channel -> Back to queue");
+                return -3;
+            }
+        }
+    }
+    if (fhss_check_tx_allowed(fhss_structure, is_broadcast_addr, frame_length, frame_type, phy_header_length, phy_tail_length) == false) {
+        return -1;
+    }
+    // If sending Beacon request on parents Unicast channel
+    if (frame_type == FHSS_SYNCH_REQUEST_FRAME && fhss_structure->fhss_state == FHSS_SYNCHRONIZED) {
+        fhss_change_to_parent_channel(fhss_structure);
+    } else if (frame_type == FHSS_DATA_FRAME) {
+        fhss_change_to_tx_channel(fhss_structure, destination_address);
+    }
+    return 0;
+}
+
+static bool fhss_check_tx_conditions_callback(const fhss_api_t *api, bool is_broadcast_addr, uint8_t handle, int frame_type, uint16_t frame_length, uint8_t phy_header_length, uint8_t phy_tail_length)
+{
+    fhss_structure_t *fhss_structure = fhss_get_object_with_api(api);
+    if (!fhss_structure) {
+        return true;
+    }
+    // This condition will check that message is not sent on bad channel
+    if (fhss_check_bad_channel(fhss_structure, handle) == false) {
+        return false;
+    }
+
+    // This condition will check that broadcast messages are sent only broadcast channels
+    if (fhss_check_channel_type(fhss_structure, is_broadcast_addr, frame_type) == false) {
+        return false;
+    }
+
+    // This condition will check that FHSS is on TX slot and there is enough time to transmit before channel or slot change
+    if (fhss_check_tx_allowed(fhss_structure, is_broadcast_addr, frame_length, frame_type, phy_header_length, phy_tail_length) == false) {
+        return false;
+    }
+
+    return true;
+}
+
+static void fhss_update_channel_callback(fhss_structure_t *fhss_structure)
+{
+    if (fhss_structure->bs->current_channel_index == 0) {
+        fhss_structure->bs->synch_infos_sent_counter = 0;
+        if (++fhss_structure->bs->channel_list_counter >= ((uint16_t) fhss_structure->number_of_channels * MAX_SCRAMBLE_TABLE_INDEXES)) {
+            fhss_structure->bs->channel_list_counter = 0;
+        }
+        if (fhss_is_synch_root(fhss_structure) == false) {
+            fhss_trig_event(fhss_structure, FHSS_COMPARE_SYNCH_PARENT);
+        }
+        fhss_trig_event(fhss_structure, FHSS_UPDATE_SYNCH_INFO_STORAGE);
+    }
+    // If channel is broadcast channel (true), send event
+    if (fhss_change_to_next_channel(fhss_structure) == true) {
+        // Only if device is border router
+        if (fhss_structure->own_hop == 0) {
+            fhss_trig_event(fhss_structure, FHSS_BROADCAST_CHANNEL);
+        }
+    }
+}
+
+static uint8_t* fhss_beacon_encode_raw(uint8_t* buffer, const fhss_synchronization_beacon_payload_s* source)
+{
+    *buffer++ = FHSS_DATA_START_DELIMETER;
+    *buffer++ = source->channel_index;
+    *buffer++ = source->sender_unicast_channel;
+    buffer = common_write_16_bit(source->current_superframe, buffer);
+    buffer = common_write_16_bit(source->remaining_slots, buffer);
+    buffer = common_write_16_bit(source->channel_list_counter, buffer);
+    *buffer++ = source->hop_count;
+    *buffer++ = source->number_of_broadcast_channels;
+    *buffer++ = source->number_of_tx_slots;
+    buffer = common_write_32_bit(source->time_since_last_beacon, buffer);
+    buffer = common_write_16_bit(source->processing_delay, buffer);
+    buffer = common_write_16_bit(source->superframe_length, buffer);
+    *buffer++ = source->number_of_superframes_per_channel;
+
+    return buffer;
+}
+
+static void fhss_beacon_build(fhss_structure_t *fhss_structure, uint8_t* dest)
+{
+    fhss_synchronization_beacon_payload_s temp_payload;
+    platform_enter_critical();
+    const fhss_synch_configuration_t *config = &fhss_structure->bs->synch_configuration;
+    temp_payload.channel_index = fhss_structure->bs->current_channel_index;
+    temp_payload.sender_unicast_channel = 0;
+    temp_payload.current_superframe = fhss_structure->bs->current_superframe;
+    // This assumes that the time is always in the range of 0..2**16, which
+    // should be the case as the superframe length field is also in that range.
+    temp_payload.remaining_slots = (uint16_t) fhss_get_remaining_time_to_next_superframe(fhss_structure);
+    temp_payload.channel_list_counter = fhss_structure->bs->channel_list_counter;
+    temp_payload.hop_count = fhss_structure->own_hop;
+    temp_payload.number_of_broadcast_channels = config->fhss_number_of_bc_channels;
+    temp_payload.number_of_tx_slots = config->fhss_number_of_tx_slots;
+    temp_payload.time_since_last_beacon = 0; // XXX not available yet
+    uint32_t tx_time = fhss_get_tx_time(fhss_structure, 71, 0, 0);
+    temp_payload.processing_delay = fhss_structure->bs->fhss_configuration.fhss_tuning_parameters.tx_processing_delay + tx_time;
+    temp_payload.superframe_length = config->fhss_superframe_length;
+    temp_payload.number_of_superframes_per_channel = config->fhss_number_of_superframes;
+    platform_exit_critical();
+    fhss_beacon_encode_raw(dest, &temp_payload);
+}
+
+static int16_t fhss_write_synch_info_callback(const fhss_api_t *api, uint8_t *ptr, uint8_t length, int frame_type, uint32_t tx_time)
+{
+    (void) length;
+    (void) tx_time;
+    fhss_structure_t *fhss_structure = fhss_get_object_with_api(api);
+    if (!fhss_structure || !ptr || (frame_type != FHSS_SYNCH_FRAME)) {
+        return -1;
+    }
+    fhss_beacon_build(fhss_structure, ptr);
+    return FHSS_SYNCH_INFO_LENGTH;
+}
+
+static void fhss_data_tx_done_callback(const fhss_api_t *api, bool waiting_ack, bool tx_completed, uint8_t handle)
+{
+    fhss_structure_t *fhss_structure = fhss_get_object_with_api(api);
+    if (!fhss_structure) {
+        return;
+    }
+    if (waiting_ack == false) {
+        fhss_change_to_rx_channel(fhss_structure);
+    }
+    // Buffer was successfully transmitted. Remove stored failure handle if exists.
+    if (tx_completed == true) {
+        fhss_failed_tx_t *fhss_failed_tx = fhss_failed_handle_find(fhss_structure, handle);
+        if (fhss_failed_tx) {
+            fhss_failed_handle_remove(fhss_structure, handle);
+        }
+    }
+}
+
+static bool fhss_data_tx_fail_callback(const fhss_api_t *api, uint8_t handle, int frame_type)
+{
+    fhss_structure_t *fhss_structure = fhss_get_object_with_api(api);
+    if (!fhss_structure) {
+        return false;
+    }
+    // Only use channel retries when device is synchronized
+    if (fhss_structure->fhss_state == FHSS_UNSYNCHRONIZED) {
+        return false;
+    }
+    // Channel retries are disabled -> return
+    if (fhss_structure->bs->fhss_configuration.fhss_number_of_channel_retries == 0) {
+        return false;
+    }
+    // Use channel retries only for data frames
+    if (FHSS_DATA_FRAME != frame_type) {
+        return false;
+    }
+
+    fhss_failed_tx_t *fhss_failed_tx = fhss_failed_handle_find(fhss_structure, handle);
+    if (fhss_failed_tx) {
+        fhss_failed_tx->retries_done++;
+        if (fhss_failed_tx->retries_done >= fhss_structure->bs->fhss_configuration.fhss_number_of_channel_retries) {
+            // No more retries. Return false to stop retransmitting.
+            fhss_failed_handle_remove(fhss_structure, handle);
+            return false;
+        }
+    } else {
+        // Create new failure handle and return true to retransmit
+        fhss_failed_handle_add(fhss_structure, handle, fhss_structure->rx_channel);
+    }
+    return true;
+}
+
+static void fhss_receive_frame_callback(const fhss_api_t *api, uint16_t pan_id, uint8_t *source_address, uint32_t timestamp, uint8_t *synch_info, int frame_type)
+{
+    fhss_structure_t *fhss_structure = fhss_get_object_with_api(api);
+    if (!fhss_structure) {
+        return;
+    }
+    if (FHSS_SYNCH_FRAME == frame_type) {
+        if ((fhss_structure->fhss_state == FHSS_UNSYNCHRONIZED) || fhss_structure->bs->synch_panid != pan_id) {
+            fhss_add_beacon_info(fhss_structure, pan_id, source_address, timestamp, synch_info);
+        } else {
+            if (!fhss_compare_with_synch_parent_address(fhss_structure, source_address)) {
+                // Synch parent address needs to be updated in case parent has changed
+                fhss_update_synch_parent_address(fhss_structure);
+                platform_enter_critical();
+                // Calculate time since the Beacon was received
+                uint32_t elapsed_time = api->read_timestamp(api) - timestamp;
+                // Synchronize to given PAN
+                fhss_beacon_received(fhss_structure, synch_info, elapsed_time);
+                platform_exit_critical();
+            }
+        }
+    } else if (FHSS_SYNCH_REQUEST_FRAME == frame_type) {
+        // If current channel is broadcast, we don't need to send another synch info on next broadcast channel.
+        // Only send number of MAX_SYNCH_INFOS_PER_CHANNEL_LIST synch infos per one channel list cycle
+        if ((fhss_structure->fhss_state == FHSS_SYNCHRONIZED) && (fhss_is_current_channel_broadcast(fhss_structure) == false)
+                && (fhss_structure->bs->synch_infos_sent_counter < MAX_SYNCH_INFOS_PER_CHANNEL_LIST)) {
+            fhss_structure->bs->send_synch_info_on_next_broadcast_channel = true;
+        }
+    }
+}
+
+static uint16_t fhss_get_retry_period_callback(const fhss_api_t *api, uint8_t *destination_address, uint16_t phy_mtu)
+{
+    uint16_t retry_period = 0;
+    uint16_t random_number = randLIB_get_16bit();
+    uint16_t rnd_mask;
+
+    /* Generate retry back-off period. FHSS is using the known synchronization parent info to delay retransmissions upstream.
+     *
+     */
+    if (phy_mtu < 128) {
+        // Max. random when PHY MTU below 128 is 6.4ms
+        rnd_mask = 0x7f;
+    } else if (phy_mtu < 256) {
+        // Max. random when PHY MTU below 256 is 12.8ms
+        rnd_mask = 0xff;
+    } else {
+        // Max. random when PHY MTU above 255 is 25.6ms
+        rnd_mask = 0x1ff;
+    }
+
+    fhss_structure_t *fhss_structure = fhss_get_object_with_api(api);
+    if (fhss_structure) {
+        uint32_t datarate = fhss_structure->callbacks.read_datarate(fhss_structure->fhss_api);
+        uint16_t max_tx_length;
+
+        if (datarate && phy_mtu) {
+            if (fhss_compare_with_synch_parent_address(fhss_structure, destination_address) == 0) {
+                // E.g. (1000000 / (250000bit/s / 8 bits)) * 255 bytes = 8160us
+                max_tx_length = ((1000000 / (datarate / 8)) * phy_mtu);
+                /* Retrying upstream: delay the transmission until assumed hidden node has retried downstream:
+                 * Static period: max random + max tx length
+                 * 50 comes from MAC timer resolution (50us)
+                 */
+                retry_period = (rnd_mask + (max_tx_length / 50));
+            }
+        }
+    }
+
+    // Add 1 to not to ever return zero value.
+    retry_period += ((random_number & rnd_mask) + 1);
+    return retry_period;
+}
+
+static bool fhss_is_broadcast_channel_callback(const fhss_api_t *api)
+{
+    fhss_structure_t *fhss_structure = fhss_get_object_with_api(api);
+    if (!fhss_structure) {
+        return true;
+    }
+    // FHSS is unsynchronized, broadcasts allowed
+    if (fhss_structure->fhss_state == FHSS_UNSYNCHRONIZED) {
+        return true;
+    }
+    return fhss_is_current_channel_broadcast(fhss_structure);
+}
+
+static bool fhss_use_broadcast_queue_cb(const fhss_api_t *api, bool is_broadcast_addr, int frame_type)
+{
+    fhss_structure_t *fhss_structure = fhss_get_object_with_api(api);
+    if (!fhss_structure) {
+        return false;
+    }
+    // Synch requests are always stored in unicast queue
+    if (frame_type == FHSS_SYNCH_REQUEST_FRAME) {
+        return false;
+    }
+    // Broadcast packets are stored in broadcast queue
+    return is_broadcast_addr;
+}
+
+static void fhss_superframe_handler(const fhss_api_t *fhss_api, uint16_t delay)
+{
+    uint32_t timeout = 0;
+    fhss_structure_t *fhss_structure = fhss_get_object_with_api(fhss_api);
+    if (!fhss_structure) {
+        return;
+    }
+
+    timeout = fhss_get_sf_timeout_callback(fhss_structure);
+
+    fhss_start_timer(fhss_structure, timeout - (delay * fhss_structure->platform_functions.fhss_resolution_divider), fhss_superframe_handler);
+
+    if (fhss_structure->bs->current_superframe++ >= (fhss_structure->bs->synch_configuration.fhss_number_of_superframes - 1)) {
+        fhss_structure->bs->current_superframe = 0;
+        if (++fhss_structure->bs->current_channel_index >= fhss_structure->number_of_channels) {
+            fhss_structure->bs->current_channel_index = 0;
+        }
+        fhss_update_channel_callback(fhss_structure);
+    }
+    fhss_superframe_callback(fhss_structure);
+
+    if (fhss_structure->fhss_timeout) {
+        fhss_structure->fhss_timer += fhss_structure->bs->synch_configuration.fhss_superframe_length;
+        if (fhss_structure->fhss_timer >= fhss_structure->fhss_timeout) {
+            fhss_trig_event(fhss_structure, FHSS_TIMER_EVENT);
+            fhss_structure->fhss_timeout = 0;
+            fhss_structure->fhss_timer = 0;
+        }
+    }
+}
+
+uint32_t fhss_get_remaining_time_to_next_superframe(const fhss_structure_t *fhss_structure)
+{
+    const uint32_t slots = fhss_structure->platform_functions.fhss_get_remaining_slots(fhss_superframe_handler, fhss_structure->fhss_api);
+    return (slots * fhss_structure->platform_functions.fhss_resolution_divider);
+}
+
+int8_t fhss_set_synch_configuration(fhss_structure_t *fhss_structure, const fhss_synch_configuration_t *fhss_synch_configuration)
+{
+    if (!fhss_structure) {
+        return -1;
+    }
+    if (!fhss_synch_configuration) {
+        return -2;
+    }
+    // None of the configurations can be set zero
+    if( fhss_synch_configuration->fhss_number_of_bc_channels == 0 || fhss_synch_configuration->fhss_number_of_tx_slots == 0
+            || fhss_synch_configuration->fhss_number_of_superframes == 0 || fhss_synch_configuration->fhss_superframe_length == 0) {
+        return -3;
+    }
+    // Number of channels must be divisible with the number of broadcast channels.
+    // Number of superframes must be divisible with the number of TX slots
+    if (((fhss_structure->number_of_channels % fhss_synch_configuration->fhss_number_of_bc_channels) != 0) ||
+            ((fhss_synch_configuration->fhss_number_of_superframes % fhss_synch_configuration->fhss_number_of_tx_slots) != 0) ||
+            (fhss_synch_configuration->fhss_number_of_superframes <= fhss_synch_configuration->fhss_number_of_tx_slots)) {
+        return -4;
+    }
+    fhss_structure->bs->synch_configuration = *fhss_synch_configuration;
+    fhss_structure->own_hop = 0;
+    return 0;
+}
+
+uint8_t fhss_calculate_uc_index(uint8_t channel_index, uint16_t number_of_channels, uint8_t number_of_broadcast_channels)
+{
+    // When channel index is 0, return last unicast index
+    if (channel_index == 0) {
+        return (number_of_channels - number_of_broadcast_channels - 1);
+    }
+    uint16_t bc_channel_density = (number_of_channels/number_of_broadcast_channels);
+    return channel_index - (channel_index/bc_channel_density) - 1;
+}
+
+int fhss_set_callbacks(fhss_structure_t *fhss_structure)
+{
+    // Set external API
+    fhss_structure->fhss_api->is_broadcast_channel = &fhss_is_broadcast_channel_callback;
+    fhss_structure->fhss_api->use_broadcast_queue = &fhss_use_broadcast_queue_cb;
+    fhss_structure->fhss_api->tx_handle = &fhss_tx_handle_callback;
+    fhss_structure->fhss_api->check_tx_conditions = &fhss_check_tx_conditions_callback;
+    fhss_structure->fhss_api->receive_frame = &fhss_receive_frame_callback;
+    fhss_structure->fhss_api->data_tx_done = &fhss_data_tx_done_callback;
+    fhss_structure->fhss_api->data_tx_fail = &fhss_data_tx_fail_callback;
+    fhss_structure->fhss_api->synch_state_set = &fhss_synch_state_set_callback;
+    fhss_structure->fhss_api->read_timestamp = &fhss_read_timestamp_cb;
+    fhss_structure->fhss_api->get_retry_period = &fhss_get_retry_period_callback;
+    fhss_structure->fhss_api->write_synch_info = &fhss_write_synch_info_callback;
+    fhss_structure->fhss_api->init_callbacks = &fhss_init_callbacks_cb;
+
+    return 0;
+}
+
+static int8_t fhss_beacon_create_tasklet(fhss_structure_t *fhss_structure)
+{
+    if (fhss_structure->beacon_tasklet_id < 0) {
+        fhss_structure->beacon_tasklet_id = eventOS_event_handler_create(fhss_beacon_tasklet_func, FHSS_TASKLET_INIT_EVENT);
+    }
+    return fhss_structure->beacon_tasklet_id;
+}
+
+static int fhss_beacon_periodic_start(fhss_structure_t *fhss_structure, uint32_t time_to_first_beacon)
+{
+    int ret_val = -1;
+
+    if (fhss_structure) {
+        fhss_beacon_periodic_stop(fhss_structure);
+        ret_val = fhss_timeout_start(fhss_structure, time_to_first_beacon * 1000);
+    }
+    return ret_val;
+}
+
+static void fhss_beacon_periodic_stop(fhss_structure_t *fhss_structure)
+{
+    if (fhss_structure) {
+        fhss_timeout_stop(fhss_structure);
+    }
+}
+
+static void fhss_beacon_tasklet_func(arm_event_s* event)
+{
+    fhss_structure_t *fhss_structure = (fhss_structure_t *)event->data_ptr;
+    if (!fhss_structure) {
+        return;
+    }
+    uint8_t parent_address[8];
+    fhss_clear_active_event(fhss_structure, event->event_type);
+    // skip the init event as there will be a timer event after
+    if (event->event_type == FHSS_TIMER_EVENT) {
+        // Stop network when lost number of FHSS_SYNCHRONIZATION_LOST synchronization beacons from parent in a row.
+        if (fhss_structure->bs->beacons_received_timer >= FHSS_SYNCHRONIZATION_LOST) {
+            fhss_structure->callbacks.synch_lost_notification(fhss_structure->fhss_api);
+            fhss_stats_update(fhss_structure, STATS_FHSS_SYNCH_LOST, 1);
+            tr_err("FHSS synchronization lost");
+        } else {
+            uint16_t bc_density = (fhss_structure->number_of_channels / fhss_structure->bs->synch_configuration.fhss_number_of_bc_channels);
+            uint16_t channel_dwell_time = ((uint32_t)fhss_structure->bs->synch_configuration.fhss_superframe_length * fhss_structure->bs->synch_configuration.fhss_number_of_superframes) / 1000;
+
+            fhss_beacon_periodic_start(fhss_structure, (bc_density * channel_dwell_time) * 2);
+            // Send synchronization request
+            fhss_structure->callbacks.send_fhss_frame(fhss_structure->fhss_api, FHSS_SYNCH_REQUEST_FRAME);
+            fhss_structure->bs->beacons_received_timer++;
+#ifdef FEA_TRACE_SUPPORT
+            if (!fhss_get_parent_address(fhss_structure, parent_address)) {
+                tr_debug("Update synch, attempt: %u, %s", fhss_structure->bs->beacons_received_timer, trace_array(parent_address, 8));
+            } else {
+                tr_err("No synch parent found");
+            }
+#endif /*FEA_TRACE_SUPPORT*/
+        }
+    }
+    // Compare if synchronization parent has changed and request beacon if needed
+    else if(event->event_type == FHSS_COMPARE_SYNCH_PARENT)
+    {
+        if (fhss_compare_with_synch_parent_address(fhss_structure, fhss_structure->synch_parent)) {
+            fhss_structure->bs->synch_monitor.avg_synch_fix = 0;
+            if(fhss_structure->bs->synch_monitor.avg_synch_fix_counter > 0) {
+                fhss_structure->bs->synch_monitor.avg_synch_fix_counter = 0;
+            }
+            // Send synchronization request
+            fhss_structure->callbacks.send_fhss_frame(fhss_structure->fhss_api, FHSS_SYNCH_REQUEST_FRAME);
+#ifdef FEA_TRACE_SUPPORT
+            if (!fhss_get_parent_address(fhss_structure, parent_address)) {
+                tr_debug("Synch parent changed, New: %s, Old: %s\n", trace_array(parent_address, 8), trace_array(fhss_structure->synch_parent, 8));
+            } else {
+                tr_err("Synch parent changed : No parent found");
+            }
+#endif /*FEA_TRACE_SUPPORT*/
+        }
+    }
+    else if(event->event_type == FHSS_BROADCAST_CHANNEL)
+    {
+        uint16_t superframe_length = fhss_structure->bs->synch_configuration.fhss_superframe_length;
+        uint8_t number_of_superframes = fhss_structure->bs->synch_configuration.fhss_number_of_superframes;
+        // Given broadcast time is channel length minus 1 superframe
+        fhss_structure->callbacks.broadcast_notify(fhss_structure->fhss_api, (uint32_t)superframe_length * (number_of_superframes - 1));
+    }
+    // Update Beacon info lifetimes
+    else if(event->event_type == FHSS_UPDATE_SYNCH_INFO_STORAGE)
+    {
+        fhss_update_beacon_info_lifetimes(fhss_structure, fhss_read_timestamp_cb(fhss_structure->fhss_api));
     }
 }

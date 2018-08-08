@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2017, Arm Limited and affiliates.
+ * Copyright (c) 2014-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -66,6 +66,7 @@
 #include "6LoWPAN/Thread/thread_routing.h"
 #include "6LoWPAN/Thread/thread_bootstrap.h"
 #include "6LoWPAN/Thread/thread_management_internal.h"
+#include "6LoWPAN/ws/ws_bootstrap.h"
 #include "BorderRouter/border_router.h"
 #include "Service_Libs/mle_service/mle_service_api.h"
 #include "6LoWPAN/MAC/mac_data_poll.h"
@@ -1071,6 +1072,8 @@ int8_t arm_nwk_interface_configure_6lowpan_bootstrap_set(int8_t interface_id, ne
 
         if (net_6lowpan_mode_extension == NET_6LOWPAN_THREAD) {
             ret_val = thread_node_bootstrap_init(interface_id,bootstrap_mode);
+        } else if (net_6lowpan_mode_extension == NET_6LOWPAN_WS) {
+                ret_val = ws_bootstrap_init(interface_id,bootstrap_mode);
         } else {
             ret_val = arm_6lowpan_bootstarp_bootstrap_set(interface_id,bootstrap_mode,net_6lowpan_mode_extension);
         }

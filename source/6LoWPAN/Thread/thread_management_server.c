@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2017, Arm Limited and affiliates.
+ * Copyright (c) 2014-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1159,7 +1159,6 @@ int thread_management_server_init(int8_t interface_id)
     }
 #endif
     thread_extension_init(interface_id, this->coap_service_id);
-
     // All thread devices
     coap_service_register_uri(this->coap_service_id, THREAD_URI_MANAGEMENT_GET, COAP_SERVICE_ACCESS_GET_ALLOWED, thread_management_server_get_command_cb);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, Arm Limited and affiliates.
+ * Copyright (c) 2015-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Redistribution and use in source and binary forms, with or without
@@ -147,6 +147,15 @@ int thread_management_client_network_data_unregister(int8_t interface_id, uint16
  *return 0 success other values failure
  */
 int thread_management_client_neighbor_discovery_data_request(int8_t interface_id, const uint8_t destination[16],  const uint8_t *options, uint8_t options_len, thread_management_client_network_data_set_cb *set_cb);
+
+/** Get interface_id of based on coap service_id
+ *
+ *
+ * /param service_id coap service id.
+ *
+ *return interface_id of thread instance if successful and -1 for failure
+ */
+int thread_management_client_get_interface_id_by_service_id(int8_t service_id);
 
 /** send active configuration dataset get for parent
  *

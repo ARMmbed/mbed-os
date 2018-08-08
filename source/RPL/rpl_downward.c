@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, Arm Limited and affiliates.
+ * Copyright (c) 2015-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -88,6 +88,7 @@
 #include "randLIB.h"
 #include "ip6string.h"
 
+#include "Common_Protocols/icmpv6.h"
 #include "NWK_INTERFACE/Include/protocol.h"
 #include "ipv6_stack/ipv6_routing_table.h"
 
@@ -579,6 +580,61 @@ static void rpl_downward_reset_assigning(rpl_instance_t *instance, uint8_t pcs_m
     }
 }
 
+
+void rpl_instance_send_address_registration(protocol_interface_info_entry_t *interface, rpl_instance_t *instance, if_address_entry_t *addr)
+{
+    aro_t aro;
+    buffer_t *buf;
+
+    aro.status = ARO_SUCCESS;
+    aro.present = true;
+    aro.lifetime = addr->preferred_lifetime;
+    memcpy(aro.eui64, interface->mac, 8);
+
+    // go through neighbour list, and send to all assigned parents.
+    ns_list_foreach(rpl_neighbour_t, neighbour, &instance->candidate_neighbours) {
+        if (neighbour->dao_path_control) {
+            tr_debug("Send ARO %s to %s", trace_ipv6(addr->address), trace_ipv6(neighbour->ll_address));
+            buf = icmpv6_build_ns(interface, neighbour->ll_address, addr->address, true, false, &aro);
+            addr->addr_reg_pend |= neighbour->dao_path_control;
+            protocol_push(buf);
+        } else {
+            tr_debug("Skip ARO to %s - no pc", trace_ipv6(neighbour->ll_address));
+        }
+    }
+}
+
+bool rpl_instance_address_registration_done(protocol_interface_info_entry_t *interface, rpl_instance_t *instance, if_address_entry_t *addr, uint8_t status)
+{
+    ns_list_foreach(rpl_neighbour_t, neighbour, &instance->candidate_neighbours) {
+        // Check path control mask
+        if (!(addr->addr_reg_pend & neighbour->dao_path_control)) {
+            continue;
+        }
+
+        tr_debug("Address %s register to %s", trace_ipv6(addr->address), trace_ipv6(neighbour->ll_address));
+
+        /* Clear pending flag */
+        addr->addr_reg_pend &= ~neighbour->dao_path_control;
+
+        if (status == SOCKET_TX_DONE) {
+            addr->addr_reg_done |= neighbour->dao_path_control;
+            /* State_timer is 1/10 s. Set renewal to 75-85% of lifetime */
+            addr->state_timer = (addr->preferred_lifetime * randLIB_get_random_in_range(75, 85) / 10);
+        } else {
+            tr_error("Address registration failed");
+        }
+
+        /* If that was last one to reply, send next one. */
+        if (!addr->addr_reg_pend) {
+            rpl_control_register_address(interface, NULL);
+        }
+
+        return true;
+    }
+
+    return false;
+}
 
 /* We are optimised for sending updates to existing targets to current parents;
  * we track the state of what information DAO parents have, and manage the

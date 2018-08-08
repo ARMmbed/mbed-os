@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2017, Arm Limited and affiliates.
+ * Copyright (c) 2012-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -506,9 +506,8 @@ void border_router_start(protocol_interface_info_entry_t *cur, bool warm_link_re
     if (warm_link_restart) {
         return;
     }
-
+    mac_neighbor_table_neighbor_list_clean(mac_neighbor_info(cur));
 #ifndef NO_MLE
-    mle_class_list_clean(cur->id);
     blacklist_clear();
 #endif
 
@@ -708,8 +707,8 @@ static int8_t arm_border_router_interface_down(protocol_interface_info_entry_t *
         cur->nwk_wpan_nvm_api->nvm_params_update_cb(cur->nwk_wpan_nvm_api, true);
     }
     cur->if_lowpan_security_params->mle_security_frame_counter = mle_service_security_get_frame_counter(cur->id);
+    mac_neighbor_table_neighbor_list_clean(mac_neighbor_info(cur));
 #ifndef NO_MLE
-    mle_class_list_clean(cur->id);
     blacklist_clear();
 #endif
     if (nd_nwk) {

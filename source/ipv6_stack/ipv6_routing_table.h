@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2014-2017, Arm Limited and affiliates.
+ * Copyright (c) 2012, 2014-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -82,6 +82,7 @@ typedef enum ipv6_route_src {
     ROUTE_THREAD,
     ROUTE_THREAD_BORDER_ROUTER,
     ROUTE_THREAD_PROXIED_HOST,
+    ROUTE_THREAD_PROXIED_DUA_HOST,
     ROUTE_THREAD_BBR,
     ROUTE_REDIRECT,     /* Only occurs in destination cache */
     ROUTE_MAX,
@@ -120,6 +121,8 @@ typedef struct ipv6_neighbour_cache {
     bool                                    send_nud_probes : 1;
     bool                                    recv_ns_aro : 1;
     bool                                    recv_na_aro : 1;
+    bool                                    use_eui64_as_slla_in_aro : 1;
+    bool                                    omit_aro_success : 1;
     int8_t                                  interface_id;
     uint8_t                                 max_ll_len;
     uint8_t                                 gc_timer;
@@ -215,6 +218,7 @@ void ipv6_destination_cache_timer(uint8_t ticks);
 #ifdef HAVE_IPV6_ND
 void ipv6_destination_redirect(const uint8_t *dest_addr, const uint8_t *sender_addr, const uint8_t *redirect_addr, int8_t interface_id, addrtype_t ll_type, const uint8_t *ll_address);
 #endif
+
 /* Combined Routing Table (RFC 4191) and Prefix List (RFC 4861) */
 /* On-link prefixes have the on_link flag set and next_hop is unset */
 typedef struct ipv6_route {
@@ -222,6 +226,7 @@ typedef struct ipv6_route {
     bool                on_link: 1;
     bool                search_skip: 1;
     bool                probe: 1;
+    bool                info_autofree:1;
     uint8_t             metric;             // 0x40 = RFC 4191 pref high, 0x80 = default, 0xC0 = RFC 4191 pref low
     ipv6_route_info_t   info;
     uint32_t            lifetime;           // (seconds); 0xFFFFFFFF means permanent

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2017, Arm Limited and affiliates.
+ * Copyright (c) 2014-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Redistribution and use in source and binary forms, with or without
@@ -59,6 +59,7 @@
 #include "6LoWPAN/Thread/thread_router_bootstrap.h"
 #include "6LoWPAN/Thread/thread_management_internal.h"
 #include "6LoWPAN/Thread/thread_management_server.h"
+#include "6LoWPAN/Thread/thread_neighbor_class.h"
 #include "6LoWPAN/Thread/thread_network_data_lib.h"
 #include "6LoWPAN/Thread/thread_network_synch.h"
 #include "6LoWPAN/Thread/thread_joiner_application.h"
@@ -90,9 +91,14 @@
 #include "thread_meshcop_lib.h"
 #include "multicast_api.h"
 #include "mlme.h"
+#include "Service_Libs/etx/etx.h"
 #include "Service_Libs/nd_proxy/nd_proxy.h"
 #include "Service_Libs/blacklist/blacklist.h"
+#include "Service_Libs/mle_service/mle_service_api.h"
 #include "6LoWPAN/MAC/mac_data_poll.h"
+#include "6LoWPAN/lowpan_adaptation_interface.h"
+#include "Service_Libs/mac_neighbor_table/mac_neighbor_table.h"
+#include "platform/topo_trace.h"
 
 #define TRACE_GROUP "thbs"
 
@@ -111,27 +117,46 @@ static void thread_bootstrap_generate_leader_and_link(protocol_interface_info_en
 static int thread_bootstrap_attach_start(int8_t interface_id, thread_bootsrap_state_type_e state);
 static void thread_bootsrap_network_discovery_failure(int8_t interface_id);
 
-static void thread_neighbor_remove(int8_t interface_id, mle_neigh_table_entry_t *cur);
+static void thread_neighbor_remove(mac_neighbor_table_entry_t *entry_ptr, void *user_data);
 static void thread_bootsrap_network_join_start(struct protocol_interface_info_entry *cur_interface, discovery_response_list_t *nwk_info);
 
 
 
-static bool thread_interface_is_active(int8_t interface_id) {
-    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (!cur || !(cur->lowpan_info & INTERFACE_NWK_ACTIVE)) {
+static void thread_neighbor_remove(mac_neighbor_table_entry_t *entry_ptr, void *user_data)
+{
+    protocol_interface_info_entry_t *cur = user_data;
+    lowpan_adaptation_remove_free_indirect_table(cur, entry_ptr);
+
+    thread_reset_neighbour_info(cur, entry_ptr);
+    //Removes ETX neighbor
+    etx_neighbor_remove(cur->id, entry_ptr->index);
+    //Remove MLE frame counter info
+    mle_service_frame_counter_entry_delete(cur->id, entry_ptr->index);
+}
+
+static bool thread_neighbor_entry_nud_notify(mac_neighbor_table_entry_t *entry_ptr, void *user_data)
+{
+
+    // Sleepy host
+    protocol_interface_info_entry_t *cur_interface = user_data;
+
+    if (thread_am_router(cur_interface)) {
+        return false; //Never do Keep alive with any one
+    }
+
+    if (entry_ptr->link_role != PRIORITY_PARENT_NEIGHBOUR) {
+        return false; //Do not never challenge than priority parent
+    }
+
+    if (cur_interface->lowpan_info & INTERFACE_NWK_CONF_MAC_RX_OFF_IDLE) {
+        return false; //Sleepy end device should not never challenge
+    }
+
+    if (entry_ptr->lifetime  > MLE_TABLE_CHALLENGE_TIMER) {
         return false;
     }
 
-    return true;
-}
-
-static void thread_neighbor_remove(int8_t interface_id, mle_neigh_table_entry_t *cur)
-{
-    protocol_interface_info_entry_t *cur_interface = protocol_stack_interface_info_get_by_id(interface_id);
-    if (!cur_interface) {
-        return;
-    }
-    thread_reset_neighbour_info(cur_interface, cur);
+    return thread_host_bootstrap_child_update(cur_interface, entry_ptr->mac64);
 }
 
 int8_t thread_mle_class_init(int8_t interface_id)
@@ -151,11 +176,29 @@ int8_t thread_mle_class_init(int8_t interface_id)
         return -1;
     }
 
-    if (mle_class_init(interface_id, buffer.device_decription_table_size - 1, &thread_neighbor_remove, &thread_host_bootstrap_child_update, &thread_interface_is_active) != 0) {
+    thread_neighbor_class_delete(&cur->thread_info->neighbor_class);
+
+    if (!thread_neighbor_class_create(&cur->thread_info->neighbor_class, buffer.device_decription_table_size - 1)) {
         return -1;
     }
 
-    mle_class_router_challenge(interface_id, NULL);
+    if (!mac_neighbor_info(cur) ) {
+        mac_neighbor_info(cur) = mac_neighbor_table_create(buffer.device_decription_table_size - 1, thread_neighbor_remove
+                                                                            , thread_neighbor_entry_nud_notify, cur);
+        if (!mac_neighbor_info(cur)) {
+            return -1;
+        }
+    }
+
+    if (mle_service_frame_counter_table_allocate(interface_id, buffer.device_decription_table_size - 1)) {
+        return -1;
+    }
+
+    if (!etx_storage_list_allocate(cur->id, buffer.device_decription_table_size - 1)) {
+        return -1;
+    }
+
+    lowpan_adaptation_interface_etx_update_enable(cur->id);
 
     //Defined well know neighbour for discovery
 
@@ -232,7 +275,7 @@ uint8_t thread_calculate_link_margin(int8_t dbm, uint8_t compLinkMarginFromParen
     return newLqi;
 }
 
-bool thread_check_is_this_my_parent(protocol_interface_info_entry_t *cur, mle_neigh_table_entry_t *entry_temp)
+bool thread_check_is_this_my_parent(protocol_interface_info_entry_t *cur, mac_neighbor_table_entry_t *entry_temp)
 {
     if (entry_temp && thread_info(cur)->thread_endnode_parent) {
         if(memcmp(entry_temp->mac64, thread_info(cur)->thread_endnode_parent->mac64, 8) == 0) {
@@ -245,43 +288,29 @@ bool thread_check_is_this_my_parent(protocol_interface_info_entry_t *cur, mle_ne
 bool thread_bootstrap_request_network_data(protocol_interface_info_entry_t *cur, thread_leader_data_t *leaderData, uint16_t short_address)
 {
     bool requestNetworkdata = false;
-    thread_leader_data_t *leadeInfo = thread_info(cur)->thread_leader_data;
+    thread_leader_data_t *leaderInfo = thread_info(cur)->thread_leader_data;
 
     if (thread_info(cur)->thread_endnode_parent->shortAddress != short_address) {
         return false;
     }
 
-    if (thread_info(cur)->thread_leader_data->partitionId != leaderData->partitionId) {
+    if (!thread_partition_match(cur, leaderData)) {
         tr_debug("Learn new Network Data");
         requestNetworkdata = true;
-        thread_info(cur)->thread_leader_data->dataVersion = leaderData->dataVersion - 1;
-        thread_info(cur)->thread_leader_data->stableDataVersion = leaderData->stableDataVersion - 1;
+        thread_partition_info_update(cur, leaderData);
     }
-    else if (common_serial_number_greater_8(leaderData->dataVersion, leadeInfo->dataVersion)) {
+    else if (common_serial_number_greater_8(leaderData->dataVersion, leaderInfo->dataVersion)) {
         requestNetworkdata = true;
 
-    } else if (common_serial_number_greater_8(leaderData->stableDataVersion, leadeInfo->stableDataVersion)) {
+    } else if (common_serial_number_greater_8(leaderData->stableDataVersion, leaderInfo->stableDataVersion)) {
         requestNetworkdata = true;
 
     }
 
-    // Version number is updated when new network data is learned to avoid synchronization problems
-    thread_info(cur)->thread_leader_data->leaderRouterId = leaderData->leaderRouterId;
-    thread_info(cur)->thread_leader_data->partitionId = leaderData->partitionId;
     if (requestNetworkdata) {
         thread_bootstrap_parent_network_data_request(cur, true);
     }
     return true;
-}
-
-bool thread_instance_id_matches(protocol_interface_info_entry_t *cur, thread_leader_data_t *leaderData)
-{
-    if (thread_info(cur)->thread_leader_data) {
-        if (thread_info(cur)->thread_leader_data->partitionId == leaderData->partitionId) {
-            return true;
-        }
-    }
-    return false;
 }
 
 static int thread_router_check_previous_partition_info(protocol_interface_info_entry_t *cur, thread_leader_data_t *leaderData, mle_tlv_info_t *routeTlv)
@@ -386,8 +415,7 @@ int thread_leader_data_validation(protocol_interface_info_entry_t *cur, thread_l
     if (!thread_info(cur)->thread_leader_data) {
         return -1;
     }
-    if ((thread_info(cur)->thread_leader_data->partitionId != leaderData->partitionId) ||
-        (thread_info(cur)->thread_leader_data->weighting != leaderData->weighting)) {
+    if (!thread_partition_match(cur, leaderData)) {
         uint8_t routers_in_route_tlv = thread_get_router_count_from_route_tlv(routeTlv);
         //partition checks
         return thread_bootstrap_partition_process(cur,routers_in_route_tlv,leaderData, routeTlv);
@@ -472,11 +500,9 @@ void thread_end_device_mode_set(protocol_interface_info_entry_t *cur, bool sleep
 {
     if (sleepy) {
         cur->lowpan_info |= INTERFACE_NWK_CONF_MAC_RX_OFF_IDLE;
-        mle_class_mode_set(cur->id, MLE_CLASS_SLEEPY_END_DEVICE);
         mac_helper_pib_boolean_set(cur, macRxOnWhenIdle, false);
     } else {
         cur->lowpan_info &= ~INTERFACE_NWK_CONF_MAC_RX_OFF_IDLE;
-        mle_class_mode_set(cur->id, MLE_CLASS_END_DEVICE);
         mac_helper_pib_boolean_set(cur, macRxOnWhenIdle, true);
     }
 }
@@ -537,9 +563,6 @@ void thread_set_link_local_address(protocol_interface_info_entry_t *cur)
 
 static int thread_configuration_security_activate(protocol_interface_info_entry_t *cur, link_configuration_s *linkConfiguration)
 {
-    uint8_t key_material[32];
-    uint8_t key_index;
-
     tr_debug("MAC SET Security Mode");
 
     if (!(cur->lowpan_info & INTERFACE_NWK_ACTIVE) || !(cur->configure_flags & INTERFACE_BOOTSTRAP_DEFINED)) {
@@ -554,16 +577,11 @@ static int thread_configuration_security_activate(protocol_interface_info_entry_
     cur->thread_info->masterSecretMaterial.historyKeyValid = false;
     cur->thread_info->masterSecretMaterial.valid_Info = true;
     // Update the guard timer value
-    thread_calculate_key_guard_timer(cur, linkConfiguration, true);
+    thread_key_guard_timer_calculate(cur, linkConfiguration, true);
     //Define KEY's
-    thread_key_get(linkConfiguration->master_key, key_material, linkConfiguration->key_sequence);
-    key_index = THREAD_KEY_INDEX(linkConfiguration->key_sequence);
-    //Set Keys
-    mac_helper_security_default_key_set(cur, &key_material[16], key_index, MAC_KEY_ID_MODE_IDX);
-    //Add Security to MLE service
-    mle_service_security_set_security_key(cur->id, key_material, key_index, true);
-    //Gen also Next Key
-    thread_security_next_key_generate(cur, linkConfiguration->master_key, linkConfiguration->key_sequence);
+    thread_security_prev_key_generate(cur,linkConfiguration->master_key,linkConfiguration->key_sequence);
+    thread_security_key_generate(cur,linkConfiguration->master_key,linkConfiguration->key_sequence);
+    thread_security_next_key_generate(cur,linkConfiguration->master_key,linkConfiguration->key_sequence);
     return 0;
 }
 
@@ -711,9 +729,9 @@ int thread_configuration_mle_disable(protocol_interface_info_entry_t *cur)
     return 0;
 }
 
-int thread_mle_service_register(int8_t interface_id, uint8_t *mac64 )
+static int thread_mle_service_register(protocol_interface_info_entry_t *cur, uint8_t *mac64 )
 {
-    if (mle_service_interface_register(interface_id,thread_mle_parent_discover_receive_cb, mac64,8) != 0) {
+    if (mle_service_interface_register(cur->id, cur, thread_mle_parent_discover_receive_cb, mac64,8) != 0) {
             tr_error("Mle Service init Fail");
             return -1;
     }
@@ -1052,7 +1070,7 @@ void thread_tasklet(arm_event_s *event)
         case THREAD_CHILD_UPDATE:
             tr_debug_extra("Thread SM THREAD_CHILD_UPDATE");
             if (thread_info(cur)->thread_endnode_parent) {
-                thread_host_bootstrap_child_update(cur->id, cur->thread_info->thread_endnode_parent->mac64);
+                thread_host_bootstrap_child_update(cur, cur->thread_info->thread_endnode_parent->mac64);
             }
             break;
         case THREAD_ANNOUNCE_ACTIVE: {
@@ -1166,12 +1184,12 @@ void thread_bootstrap_ready(protocol_interface_info_entry_t *cur)
 
 void thread_neighbor_list_clean(struct protocol_interface_info_entry *cur)
 {
-    mle_neigh_table_list_t *neig_list = mle_class_active_list_get(cur->id);
+    mac_neighbor_table_list_t *mac_table_list = &mac_neighbor_info(cur)->neighbour_list;
 
-    ns_list_foreach_safe(mle_neigh_table_entry_t, cur_entry, neig_list) {
-        if (!thread_addr_is_equal_or_child(cur->thread_info->routerShortAddress, cur_entry->short_adr)) {
-            tr_debug("Free ID %x", cur_entry->short_adr);
-            mle_class_remove_entry(cur->id, cur_entry);
+    ns_list_foreach_safe(mac_neighbor_table_entry_t, cur_entry, mac_table_list) {
+        if (!thread_addr_is_equal_or_child(cur->thread_info->routerShortAddress, cur_entry->mac16)) {
+            tr_debug("Free ID %x", cur_entry->mac16);
+            mac_neighbor_table_neighbor_remove(mac_neighbor_info(cur), cur_entry);
         }
     }
 }
@@ -1454,9 +1472,7 @@ int thread_bootstrap_reset(protocol_interface_info_entry_t *cur)
 
     neighbor_cache_flush(&cur->neigh_cache);
     thread_bootstrap_stop(cur);
-#ifndef NO_MLE
-    mle_class_list_clean(cur->id);
-#endif
+    mac_neighbor_table_neighbor_list_clean(mac_neighbor_info(cur));
     cur->bootsrap_state_machine_cnt = 0;
     mac_helper_free_scan_confirm(&cur->mac_parameters->nwk_scan_params);
     //tr_debug( "--> idle");
@@ -1600,6 +1616,7 @@ void thread_bootstrap_routing_activate(protocol_interface_info_entry_t *cur)
         // FEDs and routers (REEDs) perform their own address resolution
         thread_nd_service_activate(cur->id);
     } else {
+        thread_nd_client_service_activate(cur->id);
         thread_child_set_default_route(cur);
     }
 }
@@ -2177,7 +2194,7 @@ void thread_bootstrap_start_network_discovery(protocol_interface_info_entry_t *c
     scan_request.channel_mask = cur->mac_parameters->nwk_scan_params.stack_chan_list.channel_mask[0];
     scan_request.filter_tlv_data = NULL;
     scan_request.filter_tlv_length = 0;
-    if (thread_discovery_network_scan(cur->id, &scan_request, discover_ready) != 0 ) {
+    if (thread_discovery_network_scan(cur, &scan_request, discover_ready) != 0 ) {
         tr_error("Discovery scan start fail");
     }
 }
@@ -2198,7 +2215,7 @@ void thread_bootstrap_state_machine(protocol_interface_info_entry_t *cur)
 
             //SET Link by Static configuration
             tr_info("thread network attach start");
-            if (thread_mle_service_register(cur->id,thread_joiner_application_random_mac_get(cur->id)) != 0 ||
+            if (thread_mle_service_register(cur,thread_joiner_application_random_mac_get(cur->id)) != 0 ||
                 thread_link_configuration_activate(cur, linkConfiguration) != 0) {
                 tr_error("Network Bootsrap Start Fail");
                 bootsrap_next_state_kick(ER_BOOTSTRAP_SCAN_FAIL, cur);
@@ -2257,6 +2274,7 @@ void thread_bootstrap_stop(protocol_interface_info_entry_t *cur)
     ipv6_route_table_remove_info(cur->id, ROUTE_THREAD, NULL);
     ipv6_route_table_remove_info(cur->id, ROUTE_THREAD_BORDER_ROUTER, NULL);
     ipv6_route_table_remove_info(cur->id, ROUTE_THREAD_PROXIED_HOST, NULL);
+    ipv6_route_table_remove_info(cur->id, ROUTE_THREAD_PROXIED_DUA_HOST, NULL);
     thread_leader_service_leader_data_free(cur->thread_info);
     thread_bootstrap_all_nodes_multicast_unregister(cur);
     thread_data_base_init(cur->thread_info, cur->id);
@@ -2672,7 +2690,7 @@ int thread_bootstrap_network_data_activate(protocol_interface_info_entry_t *cur)
     thread_router_bootstrap_anycast_address_register(cur);
     // Update joiner router status
     thread_management_server_joiner_router_init(cur->id);
-    thread_extension_joiner_router_init(cur->id);
+    thread_extension_service_init(cur);
 
     // Update border router relay
     thread_bbr_commissioner_proxy_service_update(cur->id);
@@ -2870,8 +2888,7 @@ void thread_bootstrap_clear_neighbor_entries(protocol_interface_info_entry_t *cu
             ipv6_neighbour_entry_remove(&cur->ipv6_neighbour_cache, neighbour);
         }
     }
-
-    mle_class_list_clean(cur->id);
+    mac_neighbor_table_neighbor_list_clean(mac_neighbor_info(cur));
 }
 
 void thread_bootstrap_dynamic_configuration_save(protocol_interface_info_entry_t *cur)
@@ -2883,10 +2900,10 @@ void thread_bootstrap_dynamic_configuration_save(protocol_interface_info_entry_t
 
     if (thread_i_am_router(cur)) {
         /* Store information of our children to the dynamic storage */
-        mle_neigh_table_list_t *neig_list = mle_class_active_list_get(cur->id);
-        ns_list_foreach_safe(mle_neigh_table_entry_t, entry, neig_list) {
-            if (thread_addr_is_child(mac_helper_mac16_address_get(cur), entry->short_adr)) {
-                thread_dynamic_storage_child_info_store(cur->id, entry);
+        mac_neighbor_table_list_t *mac_table_list = &mac_neighbor_info(cur)->neighbour_list;
+        ns_list_foreach_safe(mac_neighbor_table_entry_t, entry, mac_table_list) {
+            if (thread_addr_is_child(mac_helper_mac16_address_get(cur), entry->mac16)) {
+                thread_dynamic_storage_child_info_store(cur, entry);
             }
         }
     }
@@ -2910,7 +2927,7 @@ bool thread_bootstrap_link_create_check(protocol_interface_info_entry_t *interfa
         return false;
     }
 
-    if(mle_class_free_entry_count_get(interface->id) < 1) {
+    if(mle_class_free_entry_count_get(interface) < 1) {
         // We dont have room for any new links
         tr_warn("Link ignore no room for addr:%x", short_address);
         return false;
@@ -2928,7 +2945,7 @@ bool thread_bootstrap_link_create_check(protocol_interface_info_entry_t *interfa
         return false;
     }
 
-    if (mle_class_active_neigh_counter(interface->id) < THREAD_REED_AND_END_DEVICE_NEIGHBOR_LINKS + 1) {
+    if (mle_class_active_neigh_counter(interface) < THREAD_REED_AND_END_DEVICE_NEIGHBOR_LINKS + 1) {
         return true;
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017, Arm Limited and affiliates.
+ * Copyright (c) 2013-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -41,6 +41,8 @@
 #include "BorderRouter/border_router.h"
 #include "Service_Libs/pan_blacklist/pan_blacklist_api.h"
 #include "6LoWPAN/MAC/mac_data_poll.h"
+#include "6LoWPAN/ws/ws_common.h"
+#include "Service_Libs/mac_neighbor_table/mac_neighbor_table.h"
 
 #define TRACE_GROUP "loND"
 
@@ -845,17 +847,18 @@ static void nd_update_registration(protocol_interface_info_entry_t *cur_interfac
         ipv6_neighbour_set_state(&cur_interface->ipv6_neighbour_cache, neigh, IP_NEIGHBOUR_STALE);
         /* Register with 2 seconds off the lifetime - don't want the NCE to expire before the route */
         ipv6_route_add(neigh->ip_address, 128, cur_interface->id, NULL, ROUTE_ARO, neigh->lifetime - 2, 0);
-#ifndef NO_MLE
+
         /* We need to know peer is a host before publishing - this needs MLE. Not yet established
          * what to do without MLE - might need special external/non-external prioritisation at root.
          * This "publish for RFD" rule comes from ZigBee IP.
          */
-        mle_neigh_table_entry_t *mle_entry = mle_class_get_by_link_address(cur_interface->id, ipv6_neighbour_eui64(&cur_interface->ipv6_neighbour_cache, neigh), ADDR_802_15_4_LONG);
-        if (mle_entry && ((mle_entry->mode & MLE_DEV_MASK) == MLE_RFD_DEV)) {
+        mac_neighbor_table_entry_t *entry = mac_neighbor_table_address_discover(mac_neighbor_info(cur_interface), ipv6_neighbour_eui64(&cur_interface->ipv6_neighbour_cache, neigh), ADDR_802_15_4_LONG);
+
+        if (entry && !entry->ffd_device) {
             rpl_control_publish_host_address(protocol_6lowpan_rpl_domain, neigh->ip_address, neigh->lifetime);
         }
         protocol_6lowpan_neighbor_address_state_synch(cur_interface, aro->eui64, neigh->ip_address + 8);
-#endif
+
     } else {
         /* Um, no - can't transmit response if we remove NCE now! */
         //ipv6_neighbour_entry_remove(&cur_interface->ipv6_neighbour_cache, neigh);
@@ -863,9 +866,7 @@ static void nd_update_registration(protocol_interface_info_entry_t *cur_interfac
         neigh->lifetime = 2;
         ipv6_neighbour_set_state(&cur_interface->ipv6_neighbour_cache, neigh, IP_NEIGHBOUR_STALE);
         ipv6_route_add(neigh->ip_address, 128, cur_interface->id, NULL, ROUTE_ARO, 4, 0);
-#ifndef NO_MLE
         rpl_control_unpublish_address(protocol_6lowpan_rpl_domain, neigh->ip_address);
-#endif
     }
 }
 
@@ -967,7 +968,13 @@ bool nd_ns_aro_handler(protocol_interface_info_entry_t *cur_interface, const uin
     /* Set the LL address, ensure it's marked STALE */
     ipv6_neighbour_entry_update_unsolicited(&cur_interface->ipv6_neighbour_cache, neigh, ll_addr.addr_type, ll_addr.address);
     ipv6_neighbour_set_state(&cur_interface->ipv6_neighbour_cache, neigh, IP_NEIGHBOUR_STALE);
-
+    if (ws_info(cur_interface)) {
+        aro_out->status = ARO_SUCCESS;
+        aro_out->present = true;
+        // Todo: this might not be needed...
+        nd_update_registration(cur_interface, neigh, aro_out);
+        return true;
+    }
     if (cur_interface->bootsrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER || nd_params.multihop_dad == false) {
         if (cur_interface->bootsrap_mode == ARM_NWK_BOOTSRAP_MODE_6LoWPAN_BORDER_ROUTER) {
             whiteboard_entry_t *wb;

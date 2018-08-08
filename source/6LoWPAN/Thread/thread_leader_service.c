@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017, Arm Limited and affiliates.
+ * Copyright (c) 2016-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Redistribution and use in source and binary forms, with or without
@@ -414,7 +414,7 @@ static int thread_leader_service_active_set_cb(int8_t service_id, uint8_t source
         }
     }
     if (3 <= thread_meshcop_tlv_find(request_ptr->payload_ptr, request_ptr->payload_len, MESHCOP_TLV_SECURITY_POLICY, &ptr)) {
-        if (common_read_16_bit(ptr) < 3600) {
+        if (common_read_16_bit(ptr) < 1) {
             tr_warn("invalid security policy");
             ret = -1;
             goto send_response;
@@ -1090,7 +1090,7 @@ static int thread_leader_service_petition_cb(int8_t service_id, uint8_t source_a
         ptr = thread_meshcop_tlv_data_write_uint8(ptr, MESHCOP_TLV_STATE, 0xff);
     }
 
-    tr_debug("Petition req recv id %s, RESP session id: %d ret %d", commissioner_id_ptr, session_id, ret);
+    tr_debug("Petition req recv id %s, RESP session id: %d ret %d", commissioner_id_ptr ? commissioner_id_ptr : "(none)", session_id, ret);
 
 send_error_response:
     coap_service_response_send(this->coap_service_id, COAP_REQUEST_OPTIONS_NONE, request_ptr, response_code, COAP_CT_OCTET_STREAM, payload, ptr - payload);
@@ -1346,7 +1346,7 @@ static void thread_leader_service_interface_setup_activate(protocol_interface_in
     thread_leader_service_private_routemask_init(private);
     //SET Router ID
     thread_leader_allocate_router_id_by_allocated_id(private, routerId, cur->mac);
-    thread_old_partition_data_purge(cur);
+    thread_partition_data_purge(cur);
     // remove any existing rloc mapping in nvm
     thread_nvm_store_mleid_rloc_map_remove();
     cur->lowpan_address_mode = NET_6LOWPAN_GP16_ADDRESS;
@@ -1526,7 +1526,7 @@ void thread_leader_service_timer(protocol_interface_info_entry_t *cur, uint32_t 
         cur->thread_info->leader_private_data->leader_id_seq_timer = ID_SEQUENCE_PERIOD;
 
         thread_leader_service_update_id_set(cur);
-        thread_network_data_context_re_use_timer_update(&cur->thread_info->networkDataStorage, 10, &cur->lowpan_contexts);
+        thread_network_data_context_re_use_timer_update(cur->id, &cur->thread_info->networkDataStorage, 10, &cur->lowpan_contexts);
         // Send update to network data if needed
         thread_leader_service_network_data_changed(cur, false, false);
     }
@@ -1621,7 +1621,6 @@ void thread_leader_service_thread_partitition_generate(int8_t interface_id, bool
     //memset(cur->thread_info->lastValidRouteMask, 0, (N_THREAD_ROUTERS+7)/8);
     //SET SHort Address & PAN-ID
     cur->lowpan_info &= ~INTERFACE_NWK_CONF_MAC_RX_OFF_IDLE;
-    mle_class_mode_set(cur->id, MLE_CLASS_ROUTER);
     mac_helper_pib_boolean_set(cur, macRxOnWhenIdle, true);
     cur->interface_mode = INTERFACE_UP;
     cur->nwk_mode = ARM_NWK_GP_IP_MODE;

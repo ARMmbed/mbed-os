@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2017, Arm Limited and affiliates.
+ * Copyright (c) 2014-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -166,6 +166,7 @@ typedef enum {
     NET_6LOWPAN_ND_WITHOUT_MLE,         /**< **UNSUPPORTED** */
     NET_6LOWPAN_ND_WITH_MLE,            /**< 6LoWPAN ND with MLE. */
     NET_6LOWPAN_THREAD,                 /**< 6LoWPAN Thread with MLE attached. */
+    NET_6LOWPAN_WS    ,                 /**< WS. */
     NET_6LOWPAN_ZIGBEE_IP               /**< **UNSUPPORTED** */
 } net_6lowpan_mode_extension_e;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, Arm Limited and affiliates.
+ * Copyright (c) 2015-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Redistribution and use in source and binary forms, with or without
@@ -43,13 +43,14 @@ struct protocol_interface_info_entry;
 struct thread_info_s;
 struct mle_security_header;
 struct buffer;
+struct mac_neighbor_table_entry;
 
 void thread_router_bootstrap_reed_advertisements_start(protocol_interface_info_entry_t *cur);
 void thread_router_bootstrap_reed_merge_advertisement(protocol_interface_info_entry_t *cur);
 int thread_router_bootstrap_mle_advertise(struct protocol_interface_info_entry *cur);
 
 void thread_router_bootstrap_child_information_clear(protocol_interface_info_entry_t *cur);
-int thread_router_bootstrap_reset_child_info(protocol_interface_info_entry_t *cur, mle_neigh_table_entry_t *child);
+int thread_router_bootstrap_reset_child_info(protocol_interface_info_entry_t *cur, struct mac_neighbor_table_entry *child);
 uint16_t thread_router_bootstrap_child_count_get(protocol_interface_info_entry_t *cur);
 void thread_router_bootstrap_child_id_handler(struct protocol_interface_info_entry *cur);
 void thread_router_bootstrap_child_id_reject(struct protocol_interface_info_entry *cur);
@@ -61,11 +62,11 @@ int thread_router_bootstrap_link_synch_start(struct protocol_interface_info_entr
 bool thread_router_bootstrap_router_downgrade(struct protocol_interface_info_entry *cur);
 bool thread_router_bootstrap_reed_upgrade(struct protocol_interface_info_entry *cur);
 void thread_router_bootstrap_active_router_attach(struct protocol_interface_info_entry *cur);
-int thread_router_bootstrap_route_tlv_push(protocol_interface_info_entry_t *cur, uint8_t *route_tlv, uint8_t route_len, uint8_t linkMargin, mle_neigh_table_entry_t *entry);
+int thread_router_bootstrap_route_tlv_push(protocol_interface_info_entry_t *cur, uint8_t *route_tlv, uint8_t route_len, uint8_t linkMargin, struct mac_neighbor_table_entry *entry);
 void thread_router_bootstrap_mle_receive_cb(int8_t interface_id, mle_message_t *mle_msg, struct mle_security_header *security_headers);
 void thread_router_bootstrap_timer(protocol_interface_info_entry_t *cur, uint32_t ticks);
-uint32_t thread_router_bootstrap_random_upgrade_jitter();
-void thread_router_bootstrap_advertiment_analyze(protocol_interface_info_entry_t *cur, uint8_t *src_address, mle_neigh_table_entry_t *entry_temp, uint16_t shortAddress);
+uint32_t thread_router_bootstrap_random_upgrade_jitter(void);
+void thread_router_bootstrap_advertiment_analyze(protocol_interface_info_entry_t *cur, uint8_t *src_address, struct mac_neighbor_table_entry *entry_temp, uint16_t shortAddress);
 
 void thread_router_bootstrap_multicast_forwarder_enable(protocol_interface_info_entry_t *cur, buffer_t *buf);
 void thread_router_bootstrap_anycast_address_register(protocol_interface_info_entry_t *cur);

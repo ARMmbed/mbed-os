@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017, Arm Limited and affiliates.
+ * Copyright (c) 2016-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,6 +36,8 @@
 
 #include "net_interface.h"
 #ifdef HAVE_THREAD_ROUTER
+struct ipv6_route;
+
 /**
  * \brief Initialize Thread Commissioner relay for BBR and Routers
  *
@@ -98,23 +100,39 @@ void thread_bbr_network_data_update_notify(protocol_interface_info_entry_t *cur)
 /**
  * \brief Add new nd entry to bbr
  *
- * \param interface_id addr_data_ptr lifetime info mleid_ptr
+ * \param interface_id addr_data_ptr lifetime info
  */
-int thread_bbr_nd_entry_add(int8_t interface_id, const uint8_t *addr_data_ptr,  uint32_t lifetime, void *info, const uint8_t *mleid_ptr);
+int thread_bbr_nd_entry_add(int8_t interface_id, const uint8_t *addr_data_ptr, uint32_t lifetime, void *info);
 
 /**
- * \brief Find if bbr has nd entry
+ * \brief Add new dua entry to bbr
+ *
+ * \param interface_id addr_data_ptr lifetime info mleid_ptr
+ */
+int thread_bbr_dua_entry_add (int8_t interface_id, const uint8_t *addr_data_ptr, uint32_t lifetime, const uint8_t *mleid_ptr);
+
+/**
+ * \brief Send na
+ *
+ * \param interface_id addr_data_ptr lifetime info mleid_ptr
+ */
+int thread_bbr_na_send(int8_t interface_id, const uint8_t target[static 16]);
+
+/**
+ * \brief Find if bbr has dua entry
  *
  * \param interface_id addr_data_ptr
  */
-int thread_bbr_nd_entry_find(int8_t interface_id, const uint8_t *addr_data_ptr);
+struct ipv6_route *thread_bbr_dua_entry_find(int8_t interface_id, const uint8_t *addr_data_ptr);
 
 #else
 #define thread_bbr_proxy_state_update(caller_interface_id , handler_interface_id, status) (NULL)
 #define thread_bbr_routing_enabled(cur) false
 #define thread_bbr_network_data_update_notify(cur)
-#define thread_bbr_nd_entry_add(interface_id, addr_data_ptr, lifetime, info, mleid_ptr) (0)
-#define thread_bbr_nd_entry_find(interface_id, addr_data_ptr) (0)
+#define thread_bbr_nd_entry_add(interface_id, addr_data_ptr, lifetime, info) (0)
+#define thread_bbr_dua_entry_add(interface_id, addr_data_ptr, lifetime, mleid_ptr) (0)
+#define thread_bbr_dua_entry_find(interface_id, addr_data_ptr) (NULL)
+#define thread_bbr_na_send(interface_id, target) (0)
 #endif //HAVE_THREAD_BORDER_ROUTER
 
 

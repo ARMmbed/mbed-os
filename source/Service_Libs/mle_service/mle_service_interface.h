@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, Arm Limited and affiliates.
+ * Copyright (c) 2015-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -31,6 +31,7 @@
 typedef struct {
     mle_service_receive_cb *recv_cb; /*!< Interface message handler */
     mle_service_receive_security_bypass_cb *recv_security_bypass_cb; /*!< Interface message security bypass handler */
+    void *interface_ptr;
     uint8_t mac64[8]; /*!< Interface MAC 64 used for Security nonce and LL64 address define */
     int8_t interface_id; /*!< Interface Id */
     uint8_t challenge_length; /*!< Define MLE challenge length */

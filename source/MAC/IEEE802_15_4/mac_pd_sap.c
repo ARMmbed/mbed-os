@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2017, Arm Limited and affiliates.
+ * Copyright (c) 2014-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,7 +18,6 @@
 #include "ns_types.h"
 #include "eventOS_event.h"
 #include "string.h"
-#include "ns_trace.h"
 #include "nsdynmemLIB.h"
 #include "randLIB.h"
 #include "ccmLIB.h"
@@ -36,16 +35,13 @@
 #include "MAC/IEEE802_15_4/mac_mcps_sap.h"
 #include "MAC/rf_driver_storage.h"
 
-
-#define TRACE_GROUP "mPDs"
-
 /* Define TX Timeot Period */
 // Hardcoded to 1200ms. Should be changed dynamic: (FHSS) channel retries needs longer timeout
 #define NWKTX_TIMEOUT_PERIOD (1200*20)
 
 static int8_t mac_data_interface_tx_done_cb(protocol_interface_rf_mac_setup_s *rf_ptr, phy_link_tx_status_e status, uint8_t cca_retry, uint8_t tx_retry);
 
-static void mac_csma_param_init(protocol_interface_rf_mac_setup_s *rf_mac_setup)
+void mac_csma_param_init(protocol_interface_rf_mac_setup_s *rf_mac_setup)
 {
     rf_mac_setup->macCurrentBE = rf_mac_setup->macMinBE;
 }
@@ -78,6 +74,25 @@ static void mac_csma_backoff_start(protocol_interface_rf_mac_setup_s *rf_mac_set
 
     timer_mac_start(rf_mac_setup, MAC_TIMER_CCA, backoff_slots);
 }
+
+
+uint32_t mac_csma_backoff_get(protocol_interface_rf_mac_setup_s *rf_mac_setup)
+{
+    uint8_t backoff = mac_csma_random_backoff_get(rf_mac_setup);
+    uint32_t backoff_in_us;
+    //Multiple aUnitBackoffPeriod symbol time
+    if (rf_mac_setup->rf_csma_extension_supported) {
+        backoff_in_us = backoff * rf_mac_setup->aUnitBackoffPeriod * rf_mac_setup->symbol_time_us;
+    } else {
+        backoff_in_us = backoff * rf_mac_setup->backoff_period_in_10us * 10;
+    }
+
+    if (backoff_in_us == 0) {
+        backoff_in_us = 1;
+    }
+    return backoff_in_us;
+}
+
 
 /*
  * \file mac_pd_sap.c
@@ -117,23 +132,23 @@ static void mac_data_interface_tx_to_cb(protocol_interface_rf_mac_setup_s *rf_pt
     mac_tx_done_state_set(rf_ptr, MAC_TX_TIMEOUT);
 }
 
-static int8_t mac_plme_cca_req(protocol_interface_rf_mac_setup_s *rf_ptr) {
-    dev_driver_tx_buffer_s *tx_buf = &rf_ptr->dev_driver_tx_buffer;
-    phy_device_driver_s *dev_driver = rf_ptr->dev_driver->phy_driver;
+int8_t mac_plme_cca_req(protocol_interface_rf_mac_setup_s *rf_mac_setup) {
+    dev_driver_tx_buffer_s *tx_buf = &rf_mac_setup->dev_driver_tx_buffer;
+    phy_device_driver_s *dev_driver = rf_mac_setup->dev_driver->phy_driver;
 
 
     if (dev_driver->arm_net_virtual_tx_cb) {
         if (dev_driver->tx(tx_buf->buf, tx_buf->len, 1, PHY_LAYER_PAYLOAD) == 0) {
-            rf_ptr->macRfRadioTxActive = true;
-            timer_mac_start(rf_ptr, MAC_TX_TIMEOUT, NWKTX_TIMEOUT_PERIOD);  /*Start Timeout timer for virtual packet loss*/
+            rf_mac_setup->macRfRadioTxActive = true;
+            timer_mac_start(rf_mac_setup, MAC_TX_TIMEOUT, NWKTX_TIMEOUT_PERIOD);  /*Start Timeout timer for virtual packet loss*/
         } else {
-            mac_data_interface_tx_to_cb(rf_ptr);
+            mac_data_interface_tx_to_cb(rf_mac_setup);
         }
         return 0;
     }
 
     if (dev_driver->tx(tx_buf->buf, tx_buf->len, 1, PHY_LAYER_PAYLOAD) == 0) {
-        rf_ptr->macRfRadioTxActive = true;
+        rf_mac_setup->macRfRadioTxActive = true;
         return 0;
     }
     return -1;
@@ -160,12 +175,47 @@ int8_t mac_pd_sap_req(protocol_interface_rf_mac_setup_s *rf_mac_setup)
     return 0;
 }
 
+
+/**
+ * Set PHY TX time.
+ *
+ * \param rf_mac_setup pointer to MAC.
+ * \param tx_time TX timestamp to be set.
+ *
+ */
+void mac_pd_sap_set_phy_tx_time(protocol_interface_rf_mac_setup_s *rf_mac_setup, uint32_t tx_time, bool cca_enabled)
+{
+    // With TX time set to zero, PHY sends immediately
+    if (!tx_time) {
+        tx_time++;
+    }
+    phy_csma_params_t csma_params;
+    csma_params.backoff_time = tx_time;
+    csma_params.cca_enabled = cca_enabled;
+    rf_mac_setup->dev_driver->phy_driver->extension(PHY_EXTENSION_SET_CSMA_PARAMETERS, (uint8_t*) &csma_params);
+}
+
+/**
+ * Get PHY RX time.
+ *
+ * \param rf_mac_setup pointer to MAC
+ * \return Timestamp of last PHY reception
+ *
+ */
+static uint32_t mac_pd_sap_get_phy_rx_time(protocol_interface_rf_mac_setup_s *rf_mac_setup)
+{
+    uint8_t rx_time_buffer[4];
+    rf_mac_setup->dev_driver->phy_driver->extension(PHY_EXTENSION_READ_RX_TIME, rx_time_buffer);
+    return common_read_32_bit(rx_time_buffer);
+}
+
 /**
  * Run Mac data interface state Machine for mac timer.
  *
  */
 void mac_pd_sap_state_machine(protocol_interface_rf_mac_setup_s *rf_mac_setup)
 {
+
     if (rf_mac_setup->macUpState && rf_mac_setup->macTxProcessActive) {
 
         if (rf_mac_setup->mac_tx_result == MAC_TIMER_CCA) {
@@ -175,16 +225,25 @@ void mac_pd_sap_state_machine(protocol_interface_rf_mac_setup_s *rf_mac_setup)
                 if (!active_buf) {
                     return;
                 }
+                bool cca_enabled;
+                if (active_buf->fcf_dsn.frametype == MAC_FRAME_ACK) {
+                    cca_enabled = false;
+                } else {
+                    cca_enabled = true;
+                }
+
+                mac_pd_sap_set_phy_tx_time(rf_mac_setup, active_buf->tx_time, cca_enabled);
                 if (active_buf->fcf_dsn.frametype == FC_BEACON_FRAME) {
                     // FHSS synchronization info is written in the end of transmitted (Beacon) buffer
                     dev_driver_tx_buffer_s *tx_buf = &rf_mac_setup->dev_driver_tx_buffer;
                     synch_info = tx_buf->buf + rf_mac_setup->dev_driver->phy_driver->phy_header_length + tx_buf->len - FHSS_SYNCH_INFO_LENGTH;
+                    rf_mac_setup->fhss_api->write_synch_info(rf_mac_setup->fhss_api, synch_info, 0, FHSS_SYNCH_FRAME, 0);
                 }
                 // Change to destination channel and write synchronization info to Beacon frames here
                 int tx_handle_retval = rf_mac_setup->fhss_api->tx_handle(rf_mac_setup->fhss_api, !mac_is_ack_request_set(active_buf),
                         active_buf->DstAddr, mac_convert_frame_type_to_fhss(active_buf->fcf_dsn.frametype),
-                        synch_info, active_buf->mac_payload_length, rf_mac_setup->dev_driver->phy_driver->phy_header_length,
-                        rf_mac_setup->dev_driver->phy_driver->phy_tail_length);
+                        active_buf->mac_payload_length, rf_mac_setup->dev_driver->phy_driver->phy_header_length,
+                        rf_mac_setup->dev_driver->phy_driver->phy_tail_length, active_buf->tx_time);
                 // When FHSS TX handle returns -1, transmission of the packet is currently not allowed -> restart CCA timer
                 if (tx_handle_retval == -1) {
                     timer_mac_start(rf_mac_setup, MAC_TIMER_CCA, randLIB_get_random_in_range(20, 400) + 1);
@@ -210,28 +269,30 @@ void mac_pd_sap_state_machine(protocol_interface_rf_mac_setup_s *rf_mac_setup)
 
 static void  mac_sap_cca_fail_cb(protocol_interface_rf_mac_setup_s *rf_ptr) {
     rf_ptr->macRfRadioTxActive = false;
-    if (rf_ptr->mac_cca_retry > rf_ptr->macMaxCSMABackoffs) {
+    if (rf_ptr->mac_cca_retry > rf_ptr->macMaxCSMABackoffs || (rf_ptr->active_pd_data_request && rf_ptr->active_pd_data_request->asynch_request)) {
         //Send MAC_CCA_FAIL
         mac_tx_done_state_set(rf_ptr, MAC_CCA_FAIL);
     } else {
         timer_mac_stop(rf_ptr);
         mac_csma_BE_update(rf_ptr);
-        mac_csma_backoff_start(rf_ptr);
+        if (mcps_pd_data_rebuild(rf_ptr, rf_ptr->active_pd_data_request) ) {
+            mac_tx_done_state_set(rf_ptr, MAC_CCA_FAIL);
+        }
     }
 }
 
-static uint16_t mac_get_retry_period(protocol_interface_rf_mac_setup_s *rf_ptr)
-{
-    if (rf_ptr->fhss_api) {
-        return rf_ptr->fhss_api->get_retry_period(rf_ptr->fhss_api, rf_ptr->active_pd_data_request->DstAddr, rf_ptr->dev_driver->phy_driver->phy_MTU);
-    }
-    uint8_t backoff_length = mac_csma_random_backoff_get(rf_ptr);
-    uint16_t backoff_slots = mac_csma_backoff_period_convert_to50us(backoff_length, rf_ptr->backoff_period_in_10us);
-    if (backoff_slots == 0) {
-        backoff_slots = 1;
-    }
-    return backoff_slots;
-}
+//static uint16_t mac_get_retry_period(protocol_interface_rf_mac_setup_s *rf_ptr)
+//{
+//    if (rf_ptr->fhss_api && rf_ptr->fhss_api->get_retry_period) {
+//        return rf_ptr->fhss_api->get_retry_period(rf_ptr->fhss_api, rf_ptr->active_pd_data_request->DstAddr, rf_ptr->dev_driver->phy_driver->phy_MTU);
+//    }
+//    uint8_t backoff_length = mac_csma_random_backoff_get(rf_ptr);
+//    uint16_t backoff_slots = mac_csma_backoff_period_convert_to50us(backoff_length, rf_ptr->backoff_period_in_10us);
+//    if (backoff_slots == 0) {
+//        backoff_slots = 1;
+//    }
+//    return backoff_slots;
+//}
 
 static void mac_sap_no_ack_cb(protocol_interface_rf_mac_setup_s *rf_ptr) {
     rf_ptr->macRfRadioTxActive = false;
@@ -241,12 +302,23 @@ static void mac_sap_no_ack_cb(protocol_interface_rf_mac_setup_s *rf_ptr) {
         mac_csma_param_init(rf_ptr);
         rf_ptr->mac_tx_status.retry++;
         /*Send retry using random interval*/
-        timer_mac_start(rf_ptr, MAC_TIMER_CCA, mac_get_retry_period(rf_ptr));
+        if (mcps_pd_data_rebuild(rf_ptr, rf_ptr->active_pd_data_request) ) {
+            mac_tx_done_state_set(rf_ptr, MAC_CCA_FAIL);
+        }
+      
     } else {
         //Send TX Fail event
         // rf_mac_setup->ip_tx_active->bad_channel = rf_mac_setup->mac_channel;
         mac_tx_done_state_set(rf_ptr, MAC_TX_FAIL);
     }
+}
+
+static bool mac_data_counter_too_small(uint32_t current_counter, uint32_t packet_counter)
+{
+   if((current_counter - packet_counter) >= 2) {
+       return true;
+   }
+   return false;
 }
 
 
@@ -256,21 +328,80 @@ static int8_t mac_data_interface_tx_done_cb(protocol_interface_rf_mac_setup_s *r
     if (!rf_ptr->macRfRadioTxActive) {
         return -1;
     }
-    bool waiting_ack = false;
-    // Do not update CCA count when Ack is received, it was already updated with PHY_LINK_TX_SUCCESS event
-    if ((status != PHY_LINK_TX_DONE) && (status != PHY_LINK_TX_DONE_PENDING)) {
-        /* For PHY_LINK_TX_SUCCESS and PHY_LINK_CCA_FAIL cca_retry must always be > 0.
-         * PHY_LINK_TX_FAIL either happened during transmission or when waiting Ack -> we must use the CCA count given by PHY.
-         */
-        if ((cca_retry == 0) && (status != PHY_LINK_TX_FAIL)) {
-            cca_retry = 1;
+
+    if (status == PHY_LINK_CCA_PREPARE) {
+        if (rf_ptr->fhss_api) {
+            if (rf_ptr->mac_ack_tx_active) {
+                return 0;
+            }
+            mac_pre_build_frame_t *active_buf = rf_ptr->active_pd_data_request;
+            if (!active_buf) {
+                return -1;
+            }
+
+            if (active_buf->fcf_dsn.frametype == FC_BEACON_FRAME) {
+                // FHSS synchronization info is written in the end of transmitted (Beacon) buffer
+                dev_driver_tx_buffer_s *tx_buf = &rf_ptr->dev_driver_tx_buffer;
+                uint8_t *synch_info = tx_buf->buf + rf_ptr->dev_driver->phy_driver->phy_header_length + tx_buf->len - FHSS_SYNCH_INFO_LENGTH;
+                rf_ptr->fhss_api->write_synch_info(rf_ptr->fhss_api, synch_info, 0, FHSS_SYNCH_FRAME, 0);
+            }
+            if (active_buf->asynch_request == false) {
+                // Change to destination channel and write synchronization info to Beacon frames here
+                int tx_handle_retval = rf_ptr->fhss_api->tx_handle(rf_ptr->fhss_api, !mac_is_ack_request_set(active_buf),
+                                                                     active_buf->DstAddr, mac_convert_frame_type_to_fhss(active_buf->fcf_dsn.frametype),
+                                                                     active_buf->mac_payload_length, rf_ptr->dev_driver->phy_driver->phy_header_length,
+                                                                     rf_ptr->dev_driver->phy_driver->phy_tail_length, active_buf->tx_time);
+                // When FHSS TX handle returns -1, transmission of the packet is currently not allowed -> restart CCA timer
+                if (tx_handle_retval == -1) {
+                    mac_sap_cca_fail_cb(rf_ptr);
+                    return -2;
+                }
+                // When FHSS TX handle returns -3, we are trying to transmit broadcast packet on unicast channel -> push back
+                // to queue by using CCA fail event
+                if (tx_handle_retval == -3) {
+                    mac_tx_done_state_set(rf_ptr, MAC_CCA_FAIL);
+                    return -3;
+                }
+            }
         }
-        rf_ptr->mac_tx_status.cca_cnt += cca_retry;
-        rf_ptr->mac_cca_retry += cca_retry;
+        return 0;
     }
-    rf_ptr->mac_tx_status.retry += tx_retry;
-    rf_ptr->mac_tx_retry += tx_retry;
-    timer_mac_stop(rf_ptr);
+
+    //
+    bool waiting_ack = false;
+
+
+    if (rf_ptr->mac_ack_tx_active) {
+        rf_ptr->mac_ack_tx_active = false;
+        if (rf_ptr->active_pd_data_request) {
+
+            if (rf_ptr->active_pd_data_request->fcf_dsn.securityEnabled) {
+                uint32_t current_counter = mac_mlme_framecounter_get(rf_ptr);
+                if (mac_data_counter_too_small(current_counter, rf_ptr->active_pd_data_request->aux_header.frameCounter)) {
+                    rf_ptr->active_pd_data_request->aux_header.frameCounter = current_counter;
+                    mac_mlme_framecounter_increment(rf_ptr);
+                }
+            }
+            //GEN TX failure
+            mac_sap_cca_fail_cb(rf_ptr);
+        }
+        return 0;
+    } else {
+        // Do not update CCA count when Ack is received, it was already updated with PHY_LINK_TX_SUCCESS event
+        if ((status != PHY_LINK_TX_DONE) && (status != PHY_LINK_TX_DONE_PENDING)) {
+            /* For PHY_LINK_TX_SUCCESS and PHY_LINK_CCA_FAIL cca_retry must always be > 0.
+             * PHY_LINK_TX_FAIL either happened during transmission or when waiting Ack -> we must use the CCA count given by PHY.
+             */
+            if ((cca_retry == 0) && (status != PHY_LINK_TX_FAIL)) {
+                cca_retry = 1;
+            }
+            rf_ptr->mac_tx_status.cca_cnt += cca_retry;
+            rf_ptr->mac_cca_retry += cca_retry;
+        }
+        rf_ptr->mac_tx_status.retry += tx_retry;
+        rf_ptr->mac_tx_retry += tx_retry;
+        timer_mac_stop(rf_ptr);
+    }
 
     switch (status) {
         case PHY_LINK_TX_SUCCESS:
@@ -298,7 +429,9 @@ static int8_t mac_data_interface_tx_done_cb(protocol_interface_rf_mac_setup_s *r
 
         case PHY_LINK_TX_DONE_PENDING:
             mac_tx_done_state_set(rf_ptr, MAC_TX_DONE_PENDING);
+            break;
 
+        default:
             break;
     }
     if (rf_ptr->fhss_api) {
@@ -306,14 +439,99 @@ static int8_t mac_data_interface_tx_done_cb(protocol_interface_rf_mac_setup_s *r
         if (rf_ptr->mac_tx_result == MAC_TX_DONE) {
             tx_is_done = true;
         }
-        rf_ptr->fhss_api->data_tx_done(rf_ptr->fhss_api, waiting_ack, tx_is_done, rf_ptr->active_pd_data_request->msduHandle);
+        if (rf_ptr->active_pd_data_request->asynch_request == false) {
+            rf_ptr->fhss_api->data_tx_done(rf_ptr->fhss_api, waiting_ack, tx_is_done, rf_ptr->active_pd_data_request->msduHandle);
+        }
     }
     return 0;
+}
+
+
+static int8_t mac_data_interface_tx_done_by_ack_cb(protocol_interface_rf_mac_setup_s *rf_ptr, mac_pre_parsed_frame_t *buf)
+{
+
+    if (!rf_ptr->macRfRadioTxActive) {
+        return -1;
+    }
+
+    timer_mac_stop(rf_ptr);
+    if (buf->fcf_dsn.framePending) {
+        rf_ptr->mac_tx_result = MAC_TX_DONE_PENDING;
+    } else {
+        rf_ptr->mac_tx_result = MAC_TX_DONE;
+    }
+    rf_ptr->macRfRadioTxActive = false;
+    rf_ptr->macTxProcessActive = false;
+    mcps_sap_pd_ack(buf);
+
+    if (rf_ptr->fhss_api) {
+        if (rf_ptr->active_pd_data_request->asynch_request == false) {
+            rf_ptr->fhss_api->data_tx_done(rf_ptr->fhss_api, false, true, rf_ptr->active_pd_data_request->msduHandle);
+        }
+    }
+    return 0;
+}
+
+static bool mac_pd_sap_ack_validation(protocol_interface_rf_mac_setup_s *rf_ptr, mac_fcf_sequence_t *fcf_dsn, const uint8_t *data_ptr)
+{
+    if (!rf_ptr->active_pd_data_request || !rf_ptr->active_pd_data_request->fcf_dsn.ackRequested) {
+        return false; //No active Data request anymore or no ACK request for current TX
+    }
+
+    if (fcf_dsn->frameVersion != rf_ptr->active_pd_data_request->fcf_dsn.frameVersion) {
+        return false;
+    }
+
+    if (fcf_dsn->frameVersion == MAC_FRAME_VERSION_2015) {
+
+        //Validate ACK SRC address mode and address to Active TX dst address
+        if (rf_ptr->active_pd_data_request->fcf_dsn.DstAddrMode != fcf_dsn->SrcAddrMode) {
+            return false;
+        }
+
+        if (fcf_dsn->SrcAddrMode) {
+            uint8_t srcAddress[8];
+            uint8_t address_length = mac_address_length(fcf_dsn->SrcAddrMode);
+            mac_header_get_src_address(fcf_dsn, data_ptr, srcAddress);
+            if (memcmp(srcAddress, rf_ptr->active_pd_data_request->DstAddr, address_length)) {
+                return false;
+            }
+        }
+
+        //Validate ACK DST address mode and address to Active TX src address
+        if (rf_ptr->active_pd_data_request->fcf_dsn.SrcAddrMode != fcf_dsn->DstAddrMode) {
+            return false;
+        }
+
+        if (fcf_dsn->DstAddrMode) {
+            uint8_t dstAddress[8];
+            uint8_t address_length = mac_address_length(fcf_dsn->DstAddrMode);
+            mac_header_get_dst_address(fcf_dsn, data_ptr, dstAddress);
+            if (memcmp(dstAddress, rf_ptr->active_pd_data_request->SrcAddr, address_length)) {
+                return false;
+            }
+        }
+
+        if (rf_ptr->active_pd_data_request->fcf_dsn.sequenceNumberSuppress != fcf_dsn->sequenceNumberSuppress) {
+            return false; //sequence number validation not correct
+        }
+
+        if (!fcf_dsn->sequenceNumberSuppress && (rf_ptr->active_pd_data_request->fcf_dsn.DSN != fcf_dsn->DSN)) {
+            return false;
+        }
+        return true;
+    }
+
+    if (rf_ptr->active_pd_data_request->fcf_dsn.DSN != fcf_dsn->DSN) {
+        return false;
+    }
+    return true;
 }
 
 int8_t mac_pd_sap_data_cb(void *identifier, arm_phy_sap_msg_t *message)
 {
     protocol_interface_rf_mac_setup_s *rf_ptr = (protocol_interface_rf_mac_setup_s*)identifier;
+    mac_pre_parsed_frame_t *buffer = NULL;
 
     if (!rf_ptr || !message ) {
         return -1;
@@ -325,7 +543,6 @@ int8_t mac_pd_sap_data_cb(void *identifier, arm_phy_sap_msg_t *message)
 
     if (message->id == MAC15_4_PD_SAP_DATA_IND) {
         const uint8_t *ptr;
-
         arm_pd_sap_generic_ind_t *pd_data_ind = &(message->message.generic_data_ind);
 
         if (pd_data_ind->data_len < 3 ) {
@@ -333,21 +550,86 @@ int8_t mac_pd_sap_data_cb(void *identifier, arm_phy_sap_msg_t *message)
         }
         ptr = pd_data_ind->data_ptr;
 
-        mac_pre_parsed_frame_t *buffer = mcps_sap_pre_parsed_frame_buffer_get(pd_data_ind->data_ptr, pd_data_ind->data_len);
+        uint32_t time_stamp = 0;
+        if (rf_ptr->rf_csma_extension_supported) {
+            time_stamp = mac_pd_sap_get_phy_rx_time(rf_ptr);
+        }
+        mac_fcf_sequence_t fcf_read;
+        ptr = mac_header_parse_fcf_dsn(&fcf_read, ptr);
+        //Check PanID presents at header
+        fcf_read.DstPanPresents = mac_dst_panid_present(&fcf_read);
+        fcf_read.SrcPanPresents = mac_src_panid_present(&fcf_read);
+        int16_t length = pd_data_ind->data_len;
+        if (!rf_ptr->macProminousMode) {
+
+            //Unsupported Frame
+            if (fcf_read.frametype > FC_CMD_FRAME || (fcf_read.frametype == FC_ACK_FRAME && fcf_read.frameVersion != MAC_FRAME_VERSION_2015)) {
+                goto ERROR_HANDLER;
+            }
+
+            switch (fcf_read.frametype) {
+                case FC_DATA_FRAME:
+                    if (fcf_read.SrcAddrMode == MAC_ADDR_MODE_NONE) {
+                        return -1;
+                    } else if (fcf_read.DstAddrMode == MAC_ADDR_MODE_NONE && fcf_read.frameVersion != MAC_FRAME_VERSION_2015) {
+                        return -1;
+                    }
+                    break;
+                case FC_BEACON_FRAME:
+                    if (fcf_read.SrcAddrMode == MAC_ADDR_MODE_NONE || fcf_read.DstAddrMode != MAC_ADDR_MODE_NONE) {
+                        return -1;
+                    }
+                    break;
+                case FC_ACK_FRAME:
+                    //Validate here that we are waiting ack
+                    if (fcf_read.ackRequested) {
+                        return -1;
+                    }
+
+                    //Validate ACK
+                    if (!mac_pd_sap_ack_validation(rf_ptr, &fcf_read, pd_data_ind->data_ptr)) {
+                        return -1;
+                    }
+                    break;
+
+                default:
+                    break;
+            }
+
+            //Generate ACK when Extension is enabled and ACK is requested
+            if (rf_ptr->mac_extension_enabled && fcf_read.ackRequested && fcf_read.frameVersion == MAC_FRAME_VERSION_2015) {
+                //SEND ACK here
+                if (rf_ptr->mac_ack_tx_active) {
+                    return -1;
+                }
+
+                mcps_ack_data_payload_t ack_payload;
+                mac_api_t *mac_api = get_sw_mac_api(rf_ptr);
+                mac_api->enhanced_ack_data_req_cb(mac_api, &ack_payload, pd_data_ind->dbm, pd_data_ind->link_quality);
+                //Calculate Delta time
+
+                if (mcps_generic_ack_build(rf_ptr, &fcf_read, pd_data_ind->data_ptr, &ack_payload, time_stamp) !=0) {
+                    return -1;
+                }
+
+                rf_ptr->mac_ack_tx_active = true;
+            }
+        }
+
+        buffer = mcps_sap_pre_parsed_frame_buffer_get(pd_data_ind->data_ptr, pd_data_ind->data_len);
 
         if (!buffer) {
-            tr_error("pd_ind buffer get fail %u", pd_data_ind->data_len);
             sw_mac_stats_update(rf_ptr, STAT_MAC_RX_DROP, 0);
             return -3;
         }
-        if (rf_ptr->fhss_api) {
-            buffer->timestamp = rf_ptr->fhss_api->read_timestamp(rf_ptr->fhss_api);
-        }
-        buffer->ack_pendinfg_status = mac_data_interface_read_last_ack_pending_status(rf_ptr);
-        mac_header_parse_fcf_dsn(&buffer->fcf_dsn, ptr);
 
-        int16_t length = pd_data_ind->data_len;
-        ptr += 3;
+        //Copy Pre Parsed values
+        buffer->fcf_dsn = fcf_read;
+        buffer->timestamp = time_stamp;
+
+        buffer->ack_pendinfg_status = mac_data_interface_read_last_ack_pending_status(rf_ptr);
+
+
         // Upward direction functions assume no headroom and are trusting that removed bytes are still valid.
         // see mac.c:655
 
@@ -355,41 +637,16 @@ int8_t mac_pd_sap_data_cb(void *identifier, arm_phy_sap_msg_t *message)
         buffer->dbm = pd_data_ind->dbm;
         buffer->LQI = pd_data_ind->link_quality;
         buffer->mac_class_ptr = rf_ptr;
-        buffer->mac_header_length = 3;
+        //Dnamic calculation for FCF + SEQ parse
+        buffer->mac_header_length = ptr - pd_data_ind->data_ptr;
 
         if (!rf_ptr->macProminousMode) {
 
-            if (buffer->fcf_dsn.frametype > FC_CMD_FRAME || buffer->fcf_dsn.frametype == FC_ACK_FRAME) {
+            if (buffer->fcf_dsn.frametype > FC_CMD_FRAME) {
                 goto ERROR_HANDLER;
             }
-            //Verify Length after address field
-            switch (buffer->fcf_dsn.DstAddrMode) {
-                case MAC_ADDR_MODE_64_BIT:
-                    buffer->mac_header_length += 10;
-                    break;
-                case MAC_ADDR_MODE_16_BIT:
-                    buffer->mac_header_length += 4;
-                    break;
-                case MAC_ADDR_MODE_NONE:
-                    break;
-            }
 
-            switch (buffer->fcf_dsn.SrcAddrMode) {
-                case MAC_ADDR_MODE_64_BIT:
-                    buffer->mac_header_length += 8;
-                    if (!buffer->fcf_dsn.intraPan) {
-                        buffer->mac_header_length += 2;
-                    }
-                    break;
-                case MAC_ADDR_MODE_16_BIT:
-                    buffer->mac_header_length += 2;
-                    if (!buffer->fcf_dsn.intraPan) {
-                        buffer->mac_header_length += 2;
-                    }
-                    break;
-                case MAC_ADDR_MODE_NONE:
-                    break;
-            }
+            buffer->mac_header_length += mac_header_address_length(&buffer->fcf_dsn);
 
             length -= buffer->mac_header_length;
 
@@ -406,6 +663,7 @@ int8_t mac_pd_sap_data_cb(void *identifier, arm_phy_sap_msg_t *message)
                 uint8_t auxBaseHeader = *security_ptr;
                 key_id_mode = (auxBaseHeader >> 3) & 3;
                 security_level = auxBaseHeader & 7;
+
                 switch (key_id_mode) {
                     case MAC_KEY_ID_MODE_IMPLICIT:
                         if (security_level) {
@@ -426,24 +684,7 @@ int8_t mac_pd_sap_data_cb(void *identifier, arm_phy_sap_msg_t *message)
                 }
 
                 length -= buffer->security_aux_header_length;
-
-                switch (security_level) {
-                    case 1:
-                    case 5:
-                        mic_len = 4;
-                        break;
-                    case 2:
-                    case 6:
-                        mic_len = 8;
-                        break;
-                    case 3:
-                    case 7:
-                        mic_len = 16;
-                        break;
-                    default:
-                        mic_len = 0;
-                        break;
-                }
+                mic_len = mac_security_mic_length_get(security_level);
 
                 length -= mic_len;
 
@@ -455,28 +696,29 @@ int8_t mac_pd_sap_data_cb(void *identifier, arm_phy_sap_msg_t *message)
                 buffer->mac_payload_length -= (buffer->security_aux_header_length + mic_len);
             }
 
-            switch (buffer->fcf_dsn.frametype) {
-                case FC_DATA_FRAME:
-                    if (buffer->fcf_dsn.SrcAddrMode == MAC_ADDR_MODE_NONE || buffer->fcf_dsn.DstAddrMode == MAC_ADDR_MODE_NONE) {
-                        goto ERROR_HANDLER;
-                    }
-                    break;
-                case FC_BEACON_FRAME:
-                    if (buffer->fcf_dsn.SrcAddrMode == MAC_ADDR_MODE_NONE || buffer->fcf_dsn.DstAddrMode != MAC_ADDR_MODE_NONE) {
-                        goto ERROR_HANDLER;
-                    }
-                    break;
-                default:
-                    if (length == 0) {
-                        goto ERROR_HANDLER;
-                    }
-                    break;
-            }
 
         }
+        //Do not accept commend frame with length 0
+        if (fcf_read.frametype == FC_CMD_FRAME && length == 0) {
+            return -1;
+        }
 
-        if (mcps_sap_pd_ind(buffer) == 0) {
+        //Parse IE Elements
+        if (!mac_header_information_elements_parse(buffer)) {
+            goto ERROR_HANDLER;
+        }
+
+        if (!rf_ptr->macProminousMode && buffer->fcf_dsn.frametype == FC_ACK_FRAME) {
+            if (mac_data_interface_tx_done_by_ack_cb(rf_ptr, buffer)) {
+                mcps_sap_pre_parsed_frame_buffer_free(buffer);
+            }
             return 0;
+
+        } else {
+
+            if (mcps_sap_pd_ind(buffer) == 0) {
+                return 0;
+            }
         }
         ERROR_HANDLER:
         mcps_sap_pre_parsed_frame_buffer_free(buffer);

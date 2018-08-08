@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, Arm Limited and affiliates.
+ * Copyright (c) 2017-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,6 +38,14 @@
 extern "C" {
 #endif
 
+/*
+ * Thread PBBR ML-EID map structure
+ */
+typedef struct thread_pbbr_dua_info {
+    uint8_t mleid_ptr[8];
+    uint32_t last_contact_time;
+} thread_pbbr_dua_info_t;
+
 #if defined(HAVE_THREAD_V2) && defined(HAVE_THREAD_BORDER_ROUTER)
 
 int8_t thread_extension_bbr_init(int8_t interface_id, int8_t backbone_interface_id);
@@ -47,6 +55,7 @@ void thread_extension_bbr_seconds_timer(int8_t interface_id, uint32_t seconds);
 int thread_extension_bbr_timeout_set(int8_t interface_id, uint32_t timeout_a, uint32_t timeout_b, uint32_t delay);
 int thread_extension_bbr_address_set(int8_t interface_id, const uint8_t *addr_ptr, uint16_t port);
 void thread_extension_bbr_route_update(protocol_interface_info_entry_t *cur);
+int thread_extension_bbr_prefix_set(int8_t interface_id, uint8_t *prefix);
 
 
 #else
@@ -58,6 +67,7 @@ void thread_extension_bbr_route_update(protocol_interface_info_entry_t *cur);
 #define thread_extension_bbr_timeout_set(interface_id, timeout_a, timeout_b, delay)
 #define thread_extension_bbr_address_set(interface_id, addr_ptr, port) (-1)
 #define thread_extension_bbr_route_update(cur)
+#define thread_extension_bbr_prefix_set(interface_id, prefix) 0
 #endif
 
 #ifdef __cplusplus

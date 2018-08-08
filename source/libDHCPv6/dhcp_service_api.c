@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017, Arm Limited and affiliates.
+ * Copyright (c) 2013-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -369,7 +369,7 @@ uint16_t dhcp_service_init(int8_t interface_id, dhcp_instance_type_e instance_ty
             break;
         }
     }
-    srv_ptr = ns_dyn_mem_temporary_alloc(sizeof(server_instance_t));
+    srv_ptr = ns_dyn_mem_alloc(sizeof(server_instance_t));
     if (id == MAX_SERVERS || srv_ptr == NULL) {
         tr_error("Out of server instances");
         ns_dyn_mem_free(srv_ptr);

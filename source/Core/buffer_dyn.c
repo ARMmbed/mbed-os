@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011-2017, Arm Limited and affiliates.
+ * Copyright (c) 2011-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -110,7 +110,7 @@ buffer_t *buffer_get_specific(uint16_t headroom, uint16_t size, uint16_t minspac
 #endif
         buf->size = total_size;
     } else {
-        tr_error("buffer_get failed: alloc(%zd)", sizeof(buffer_t) + total_size);
+        tr_error("buffer_get failed: alloc(%d)", (int) sizeof(buffer_t) + total_size);
     }
 
     protocol_stats_update(STATS_BUFFER_ALLOC, 1);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2017, Arm Limited and affiliates.
+ * Copyright (c) 2014-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -45,6 +45,7 @@
 #include "Service_Libs/Neighbor_cache/neighbor_table_definition.h"
 #include "Service_Libs/Trickle/trickle.h"
 #include "Service_Libs/pan_blacklist/pan_blacklist_api.h"
+#include "Service_Libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "net_polling_api.h"
 #include "ipv6_stack/ipv6_routing_table.h"
 
@@ -246,6 +247,7 @@ typedef struct arm_15_4_mac_parameters_t {
     beacon_compare_rx_cb *beacon_compare_rx_cb_ptr;
     beacon_join_priority_tx_cb *beacon_join_priority_tx_cb_ptr;
     uint8_t (*beacon_ind)(uint8_t *ptr, uint8_t len, protocol_interface_info_entry_t *cur);
+    mac_neighbor_table_t *mac_neighbor_table;
 }arm_15_4_mac_parameters_t;
 
 typedef void mac_poll_fail_cb(int8_t nwk_interface_id);
@@ -316,6 +318,7 @@ typedef struct {
 } ipv6_interface_info_t;
 
 struct thread_info_s;
+struct ws_info_s;
 struct mesh_callbacks_s;
 struct auth_info;
 struct rpl_domain;
@@ -337,7 +340,6 @@ typedef struct ipv6_ra_timing {
 typedef void scan_confirm_cb(int8_t if_id, const mlme_scan_conf_t* conf);
 typedef void beacon_indication_cb(int8_t if_id, const mlme_beacon_ind_t* conf);
 typedef void comm_status_indication_cb(int8_t if_id, const mlme_comm_status_t* status);
-
 
 
 struct protocol_interface_info_entry {
@@ -445,6 +447,9 @@ struct protocol_interface_info_entry {
 #ifdef HAVE_THREAD
     struct thread_info_s *thread_info;
 #endif
+#ifdef HAVE_WS
+    struct ws_info_s *ws_info;
+#endif
     struct rpl_domain *rpl_domain;
     struct mesh_callbacks_s *mesh_callbacks;
     if_6lowpan_security_info_t *if_lowpan_security_params; //Security Parameters
@@ -470,6 +475,7 @@ struct protocol_interface_info_entry {
     uint8_t (*if_llao_parse)(struct protocol_interface_info_entry *cur, const uint8_t *opt_in, sockaddr_t *ll_addr_out);
     uint8_t (*if_llao_write)(struct protocol_interface_info_entry *cur, uint8_t *opt_out, uint8_t opt_type, bool must, const uint8_t *ip_addr);
     void (*mac_security_key_usage_update_cb)(struct protocol_interface_info_entry *cur, const struct mlme_security_s *security_params);
+    uint16_t (*etx_read_override)(struct protocol_interface_info_entry *cur, addrtype_t addr_type, const uint8_t *addr_ptr);
 };
 
 typedef NS_LIST_HEAD(protocol_interface_info_entry_t, link) protocol_interface_list_t;

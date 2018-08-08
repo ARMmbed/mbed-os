@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, Arm Limited and affiliates.
+ * Copyright (c) 2015-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,6 +21,7 @@
 #include "ns_types.h"
 
 struct rpl_domain;
+struct fhss_api;
 
 /*!
  * \enum nwk_interface_id
@@ -43,5 +44,6 @@ extern int protocol_core_buffers_in_event_queue;
 protocol_interface_info_entry_t *protocol_stack_interface_info_get_by_id(int8_t nwk_id);
 protocol_interface_info_entry_t *protocol_stack_interface_info_get_by_bootstrap_id(int8_t id);
 protocol_interface_info_entry_t *protocol_stack_interface_info_get_by_rpl_domain(const struct rpl_domain *domain, int8_t last_id);
+protocol_interface_info_entry_t *protocol_stack_interface_info_get_by_fhss_api(const struct fhss_api *fhss_api);
 
 #endif /* NWK_INTERFACE_INCLUDE_PROTOCOL_ABSTRACT_H_ */

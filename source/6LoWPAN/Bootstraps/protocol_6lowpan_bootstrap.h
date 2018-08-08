@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, Arm Limited and affiliates.
+ * Copyright (c) 2015-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,7 +27,6 @@
 
 struct protocol_interface_info_entry;
 struct nd_router;
-struct mle_neigh_table_entry_t;
 
 #define MLE_NEIGHBOR_PURGE_NBR                3
 #define MLE_NEIGHBOR_PURGE_TIMER_TIMEOUT      4       // Times advertisement timeout

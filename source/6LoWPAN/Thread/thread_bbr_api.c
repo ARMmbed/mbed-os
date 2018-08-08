@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, Arm Limited and affiliates.
+ * Copyright (c) 2017-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Redistribution and use in source and binary forms, with or without
@@ -943,7 +943,7 @@ void thread_bbr_seconds_timer(int8_t interface_id, uint32_t seconds)
 #endif // HAVE_THREAD_ROUTER
 
 #ifdef HAVE_THREAD_BORDER_ROUTER
-static int thread_bbr_na_send(int8_t interface_id, const uint8_t target[static 16])
+int thread_bbr_na_send(int8_t interface_id, const uint8_t target[static 16])
 {
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (!cur) {
@@ -955,18 +955,18 @@ static int thread_bbr_na_send(int8_t interface_id, const uint8_t target[static 1
     return 0;
 
 }
-int thread_bbr_nd_entry_add (int8_t interface_id, const uint8_t *addr_data_ptr,  uint32_t lifetime, void *info, const uint8_t *mleid_ptr) {
-    (void) mleid_ptr;
+
+int thread_bbr_nd_entry_add (int8_t interface_id, const uint8_t *addr_data_ptr,  uint32_t lifetime, void *info)
+{
     thread_bbr_t *this = thread_bbr_find_by_interface(interface_id);
     if (!this || this->backbone_interface_id < 0) {
-        tr_err("bbr not ready");
         return -1;
     }
     ipv6_route_t *route = ipv6_route_add_with_info(addr_data_ptr, 128, interface_id, NULL, ROUTE_THREAD_PROXIED_HOST, info, 0, lifetime, 0);
     // We are using route info field to store sequence number
     if (!route) {
         // Direct route to host allows ND proxying to work
-        tr_err("out of resources");
+        tr_err("bbr out of resources");
         return -2;
     }
     // send NA
@@ -975,14 +975,44 @@ int thread_bbr_nd_entry_add (int8_t interface_id, const uint8_t *addr_data_ptr, 
     return 0;
 }
 
-int thread_bbr_nd_entry_find(int8_t interface_id, const uint8_t *addr_data_ptr) {
-    ipv6_route_t *route = ipv6_route_choose_next_hop(addr_data_ptr, interface_id, NULL);
-    if (!route || route->prefix_len < 128 || !route->on_link || route->info.source != ROUTE_THREAD_PROXIED_HOST ) {
-        //Not found
+int thread_bbr_dua_entry_add (int8_t interface_id, const uint8_t *addr_data_ptr,  uint32_t lifetime, const uint8_t *mleid_ptr)
+{
+    thread_bbr_t *this = thread_bbr_find_by_interface(interface_id);
+    if (!this || this->backbone_interface_id < 0) {
         return -1;
     }
-    //TODO get information to route to parameters eq mleid, timeout
+    thread_pbbr_dua_info_t *map = ns_dyn_mem_alloc(sizeof(thread_pbbr_dua_info_t));
+    if (!map) {
+        goto error;
+    }
+    memcpy(map->mleid_ptr, mleid_ptr, 8);
+    map->last_contact_time = protocol_core_monotonic_time;
+
+    // We are using route info field to store BBR MLEID map
+    ipv6_route_t *route = ipv6_route_add_with_info(addr_data_ptr, 128, interface_id, NULL, ROUTE_THREAD_PROXIED_DUA_HOST, map, 0, lifetime, 0);
+    if (!route) {
+        // Direct route to host allows ND proxying to work
+        ns_dyn_mem_free(map);
+        goto error;
+    }
+    // Route info autofreed
+    route->info_autofree = true;
+    // send NA
+    thread_bbr_na_send(this->backbone_interface_id, addr_data_ptr);
+
     return 0;
+error:
+    tr_err("out of resources");
+    return -2;
+}
+
+struct ipv6_route *thread_bbr_dua_entry_find(int8_t interface_id, const uint8_t *addr_data_ptr) {
+    ipv6_route_t *route = ipv6_route_choose_next_hop(addr_data_ptr, interface_id, NULL);
+    if (!route || route->prefix_len < 128 || !route->on_link || route->info.source != ROUTE_THREAD_PROXIED_DUA_HOST ) {
+        //Not found
+        return NULL;
+    }
+    return route;
 }
 
 int thread_bbr_proxy_state_update(int8_t caller_interface_id , int8_t handler_interface_id, bool status)
@@ -1085,6 +1115,17 @@ int thread_bbr_timeout_set(int8_t interface_id, uint32_t timeout_a, uint32_t tim
 #ifdef HAVE_THREAD_BORDER_ROUTER
     thread_extension_bbr_timeout_set(interface_id, timeout_a, timeout_b, delay);
 return 0;
+#else
+    return -1;
+#endif // HAVE_THREAD_BORDER_ROUTER
+}
+
+int thread_bbr_prefix_set(int8_t interface_id, uint8_t *prefix)
+{
+    (void) interface_id;
+    (void) prefix;
+#ifdef HAVE_THREAD_BORDER_ROUTER
+    return thread_extension_bbr_prefix_set(interface_id, prefix);
 #else
     return -1;
 #endif // HAVE_THREAD_BORDER_ROUTER

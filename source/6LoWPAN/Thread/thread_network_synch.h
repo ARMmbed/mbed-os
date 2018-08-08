@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, Arm Limited and affiliates.
+ * Copyright (c) 2015-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Redistribution and use in source and binary forms, with or without
@@ -35,6 +35,9 @@
 #ifndef THREAD_NETWORK_SYNCH_H_
 #define THREAD_NETWORK_SYNCH_H_
 
+struct protocol_interface_info_entry;
+struct mac_neighbor_table_entry;
+
 //Call This when clean synched networkdata
 int thread_network_synch_data_free(int8_t interface_id);
 //Call This when want synch last network setup
@@ -46,8 +49,8 @@ bool thread_dynamic_storage_pending_configuration_exists(int8_t interface_id);
 void thread_dynamic_storage_pending_configuration_read(int8_t interface_id, void *data, uint16_t size);
 void thread_dynamic_storage_pending_configuration_store(int8_t interface_id, void *data, uint16_t size);
 
-void thread_dynamic_storage_child_info_store(int8_t interface_id, mle_neigh_table_entry_t *child);
-void thread_dynamic_storage_child_info_clear(int8_t interface_id, mle_neigh_table_entry_t *child);
+void thread_dynamic_storage_child_info_store(struct protocol_interface_info_entry *cur_interface, struct mac_neighbor_table_entry *child);
+void thread_dynamic_storage_child_info_clear(int8_t interface_id, struct mac_neighbor_table_entry *child);
 void thread_dynamic_storage_build_mle_table(int8_t interface_id);
 void thread_dynamic_storage_frame_counter_store(int8_t interface_id, uint32_t mle_frame_counter, uint32_t mac_frame_counter);
 uint32_t thread_dynamic_storage_mle_frame_counter_get(int8_t interfaceId);

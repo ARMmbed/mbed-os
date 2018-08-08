@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, Arm Limited and affiliates.
+ * Copyright (c) 2017-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Redistribution and use in source and binary forms, with or without
@@ -84,7 +84,7 @@ static int thread_nvm_store_fast_data_save(thread_nvm_fast_data_t* fast_data_to_
 static int thread_nvm_store_all_counters_store(uint32_t mac_frame_counter, uint32_t mle_frame_counter, uint32_t seq_counter);
 static void thread_nvm_store_link_info_delayed_write(uint32_t seconds);
 
-#define MAX_ROOT_PATH_LEN 150
+#define MAX_ROOT_PATH_LEN 200
 
 #define FAST_DATA_STRING_LEN (strlen(FAST_DATA_FILE)+strlen(thread_nvm_store_get_root_path())+1)
 #define ACTIVE_CONF_STRING_LEN (strlen(THREAD_NVM_ACTIVE_CONF_FILE)+strlen(thread_nvm_store_get_root_path())+1)
@@ -330,6 +330,15 @@ int thread_nvm_store_fast_data_check_and_write(uint32_t mac_frame_counter, uint3
     return ret;
 }
 
+int thread_nvm_store_fast_data_write_all(uint32_t mac_frame_counter, uint32_t mle_frame_counter, uint32_t network_seq_counter)
+{
+    int ret;
+    ret = thread_nvm_store_all_counters_store(mac_frame_counter, mle_frame_counter, network_seq_counter);
+    cached_fast_data.mac_frame_counter = mac_frame_counter;
+    cached_fast_data.mle_frame_counter = mle_frame_counter;
+    cached_fast_data.seq_counter=network_seq_counter;
+    return ret;
+}
 
 int thread_nvm_store_frame_counters_check_and_write(uint32_t mac_frame_counter, uint32_t mle_frame_counter)
 {

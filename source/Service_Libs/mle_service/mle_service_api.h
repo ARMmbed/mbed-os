@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, Arm Limited and affiliates.
+ * Copyright (c) 2015-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -114,6 +114,7 @@ typedef struct {
     uint8_t *packet_src_address; /*!< Packet Source address */
     uint8_t *packet_dst_address; /*!< Packet Destination address */
     uint8_t *data_ptr; /*!< Data pointer */
+    void    *interface_ptr;
     uint16_t data_length; /*!< Data Length */
     uint16_t src_pan_id;  /*!< Link source Pan-id */
     uint16_t dst_pan_id; /*!< Link destination Pan-id */
@@ -131,6 +132,7 @@ uint16_t timeout_max; /*!< Define max timeout time */
 uint8_t retrans_max; /*!< Define max packet TX count */
 uint8_t delay; /*!< 100ms Ticks for random delay */
 } mle_message_timeout_params_t;
+
 
 /**
  *  MLE service message receiver handler call back function pointer
@@ -209,13 +211,14 @@ typedef bool (mle_service_filter_cb)(int8_t interface_id, mle_message_t *mle_msg
  * Creates and shares socket for other mle services.
  *
  * \param interface_id Registered services interface Id.
+ * \param interface_ptr Pointer tointerface
  * \param receive_cb Message RX handler.
  * \param mac64 Interface 64-bit MAC.
  * \param challengeLength challenge length
  * Return values
  * 0, Register OK.
  */
-int mle_service_interface_register(int8_t interface_id, mle_service_receive_cb *receive_cb, uint8_t *mac64, uint8_t challengeLength);
+int mle_service_interface_register(int8_t interface_id, void *interface_ptr, mle_service_receive_cb *receive_cb, uint8_t *mac64, uint8_t challengeLength);
 
 /*
 * Deletes server instance.
@@ -729,6 +732,69 @@ void mle_service_set_fragmented_msg_ll_security(bool value);
 *
 */
 void mle_service_set_accept_invalid_frame_counter(bool value);
+
+
+/**
+* Commands MLE service to allocate mle frame counter table for giving neighbor count.
+*
+* \param interface_id Interface ID
+* \param table_size Table size
+*
+* \return 0 Allocate OK
+* \return -1 Allocate Fail
+*
+*/
+int mle_service_frame_counter_table_allocate(int8_t interface_id, uint8_t table_size);
+
+/**
+* Commands MLE service to free mle frame counter table
+*
+* \param interface_id Interface ID
+*
+* \return 0 Free OK
+* \return -1 Free Fail
+*
+*/
+int mle_service_frame_counter_table_free(int8_t interface_id);
+
+/**
+* Commands MLE service to add / Update frame counter to neighbor
+*
+* \param interface_id Interface ID
+* \param attribute_index Attribute index for neighbor
+* \param frame_counter MLE frame counter
+*
+*/
+void mle_service_frame_counter_entry_add(int8_t interface_id, uint8_t attribute_index, uint32_t frame_counter);
+
+/**
+* Commands MLE service get mle frame counter for neighbor
+*
+* \param interface_id Interface ID
+* \param attribute_index Attribute index for neighbor
+*
+* \return Stored Frame Counter, may return 0 if unknow attribute
+*
+*/
+uint32_t mle_service_neighbor_frame_counter_get(int8_t interface_id, uint8_t attribute_index);
+
+/**
+* Commands MLE service frame counter new key pending state activate
+*
+* \param interface_id Interface ID
+* \param attribute_index Attribute index for neighbor
+*
+*/
+void mle_service_frame_counter_entry_new_key_pending_set(int8_t interface_id, uint8_t attribute_index);
+
+/**
+* Commands MLE service frame counter info delete
+*
+* \param interface_id Interface ID
+* \param attribute_index Attribute index for neighbor
+*
+*/
+void mle_service_frame_counter_entry_delete(int8_t interface_id, uint8_t attribute_index);
 
 #ifdef MLE_TEST
 /**

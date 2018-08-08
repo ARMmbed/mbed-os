@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, Arm Limited and affiliates.
+ * Copyright (c) 2015-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -143,6 +143,8 @@ void rpl_control_set_callback(rpl_domain_t *domain, rpl_domain_callback_t callba
 /* Target publishing */
 void rpl_control_publish_host_address(rpl_domain_t *domain, const uint8_t addr[16], uint32_t lifetime);
 void rpl_control_unpublish_address(rpl_domain_t *domain, const uint8_t addr[16]);
+void rpl_control_register_address(struct protocol_interface_info_entry *interface, if_address_entry_t *addr);
+void rpl_control_address_register_done(struct buffer *buf, uint8_t status);
 
 /* Configure and return the routing lookup predicate for a specified RPL instance ID */
 ipv6_route_predicate_fn_t *rpl_control_get_route_predicate(rpl_domain_t *domain, uint8_t instance_id, const uint8_t src[16], const uint8_t dst[16]);
@@ -156,12 +158,16 @@ bool rpl_control_get_instance_dao_target_count(rpl_domain_t *domain, uint8_t ins
 bool rpl_control_read_dodag_info(const struct rpl_instance *instance, struct rpl_dodag_info_t *dodag_info);
 const rpl_dodag_conf_t *rpl_control_get_dodag_config(const struct rpl_instance *instance);
 const uint8_t *rpl_control_preferred_parent_addr(const struct rpl_instance *instance, bool global);
+uint16_t rpl_control_current_rank(const struct rpl_instance *instance);
+
 
 #else /* HAVE_RPL */
 
 #define rpl_control_fast_timer(ticks) ((void) 0)
 #define rpl_control_slow_timer(seconds) ((void) 0)
 #define rpl_control_remove_domain_from_interface(cur) ((void) 0)
+#define rpl_control_register_address(interface, addr) ((void) 0)
+#define rpl_control_address_register_done NULL
 
 #endif /* HAVE_RPL */
 

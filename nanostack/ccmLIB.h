@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2017, Arm Limited and affiliates.
+ * Copyright (c) 2014-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,6 +18,7 @@
 #define CCMLIB_H_
 
 #include "ns_types.h"
+#include "platform/arm_hal_aes.h"
 
 /**
  *
@@ -25,11 +26,11 @@
  * \brief CCM Library API.
  *
  *  \section ccm-api CCM Library API:
- *  - ccm_sec_init(), A function to init CCM library.
+ *  - ccm_sec_init(), A function to init CCM context.
  *  - ccm_process_run(), A function to run configured CCM process.
  *
  *  \section ccm-instruction CCM process sequence:
- *  1. Init CCM library by, ccm key, ccm_sec_init()
+ *  1. Init CCM context by, ccm key, ccm_sec_init()
  *      - security level
  *      - 128-bit CCM key
  *      - mode: AES_CCM_ENCRYPT or AES_CCM_DECRYPT
@@ -41,11 +42,6 @@
  *      -If 0 Process ok
  *      -< 0 MIC fail or parameter fail
  *
- *  \section ccm-mutex CCM Mutex for Multi Thread System
- *  If you are running a multi thread system and the CCM library will be used for multiple thread, do the following:
- *  1. Add compiler flag to library build process CCM_USE_MUTEX.
- *  2. Define OS-specific mutex at the application.
- *  3. Implement arm_ccm_mutex_lock() arm_ccm_mutex_unlock() function for using the generated and initialized mutex.
  */
 #ifdef __cplusplus
 extern "C" {
@@ -63,41 +59,39 @@ extern "C" {
 #define AES_CCM_DECRYPT                 0x01    /**< Decryption mode */
 
 
-/**
- * \brief A function for locking CCM mutex if the OS is multi thread. If you are using single thread create an empty function.
- */
-extern void arm_ccm_mutex_lock(void);
-/**
- * \brief A function for unlocking CCM mutex if the OS is multi thread. If you are using single thread create an empty function
- */
-extern void arm_ccm_mutex_unlock(void);
-
 /*!
  * \struct ccm_globals_t
  * \brief CCM global structure.
  * The structure is used for configuring NONCE, adata and data before calling ccm_process_run().
  */
 typedef struct {
-    uint8_t exp_nonce[15];  /**< CCM NONCE buffer Nonce. */
-    uint8_t *data_ptr;      /**< Pointer to data IN. */
-    uint16_t data_len;      /**< Length of data IN. */
+    uint8_t exp_nonce[15];      /**< CCM NONCE buffer Nonce. */
+    uint8_t *data_ptr;          /**< Pointer to data IN. */
+    uint16_t data_len;          /**< Length of data IN. */
     const uint8_t *adata_ptr;   /**< Pointer to authentication data. */
-    uint16_t adata_len;     /**< Length of authentication data. */
-    uint8_t mic_len;        /**< ccm_sec_init() sets here the length of MIC. */
-    uint8_t *mic;           /**< Encrypt process writes MIC. Decrypt reads it and compares it with the MIC obtained from data. */
+    uint16_t adata_len;         /**< Length of authentication data. */
+    unsigned ccm_encode_mode:1; /**< Encryption modeAES_CCM_ENCRYPT or AES_CCM_DECRYPT. */
+    unsigned ccm_sec_level:3;   /**< Encryption operation security level 0-7. */
+    unsigned ccm_l_param:4;     /**< Can be 2 or 3. 2 when NONCE length is 13 and 3 when 12*/
+    uint8_t mic_len;            /**< ccm_sec_init() sets here the length of MIC. */
+    uint8_t *mic;               /**< Encrypt process writes MIC. Decrypt reads it and compares it with the MIC obtained from data. */
+    const uint8_t *key_ptr;     /**< Encyption key pointer to 128-bit key. */
+    arm_aes_context_t *aes_context; /**< Allocated AES context. */
 } ccm_globals_t;
 
+
 /**
- * \brief A function to initialize the CCM library.
+ * \brief A function to initialize the CCM context.
+ * \param ccm_context pointer to initialized XXM context
  * \param sec_level Used CCM security level (0-7).
  * \param ccm_key Pointer to 128-key.
  * \param mode AES_CCM_ENCRYPT or AES_CCM_DECRYPT.
  * \param ccm_l Can be 2 or 3. 2 when NONCE length is 13 and 3 when 12. (NONCE length = (15-ccm_l))
  *
- * \return Pointer to Global CCM parameter buffer.
- * \return 0 When parameter fails or CCM is busy.
+ * \return true when AES context allocation is OK and given parameters.
+ * \return false CCM parameters or AES context allocation fail.
  */
-extern ccm_globals_t *ccm_sec_init(uint8_t sec_level, const uint8_t *ccm_key, uint8_t mode, uint8_t ccm_l);
+extern bool ccm_sec_init(ccm_globals_t *ccm_context, uint8_t sec_level, const uint8_t *ccm_key, uint8_t mode, uint8_t ccm_l);
 
 /**
  * \brief A function to run the configured CCM process.
@@ -109,6 +103,14 @@ extern ccm_globals_t *ccm_sec_init(uint8_t sec_level, const uint8_t *ccm_key, ui
  * \return -2 Null pointer given to function.
  */
 extern int8_t ccm_process_run(ccm_globals_t *ccm_params);
+
+/**
+ * \brief A function to free aes context. Call only if ccm_process_run() is not called
+ * \param ccm_params CCM parameters
+ *
+ */
+extern void ccm_free(ccm_globals_t *ccm_params);
+
 #ifdef __cplusplus
 }
 #endif

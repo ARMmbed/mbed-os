@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2017, Arm Limited and affiliates.
+ * Copyright (c) 2014-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -39,6 +39,7 @@ struct mlme_scan_s;
 struct mlme_start_s;
 struct mlme_get_conf_s;
 struct mlme_set_s;
+struct channel_list_s;
 
 void mac_mlme_scan_confirmation_handle(struct protocol_interface_rf_mac_setup *rf_ptr);
 
@@ -63,6 +64,11 @@ int8_t mac_mlme_set_req(struct protocol_interface_rf_mac_setup *rf_mac_setup,con
 int8_t mac_mlme_get_req(struct protocol_interface_rf_mac_setup *rf_mac_setup, struct mlme_get_conf_s *get_req);
 
 void mac_extended_mac_set(struct protocol_interface_rf_mac_setup *rf_mac_setup, const uint8_t *mac64);
+
+uint32_t mac_mlme_framecounter_get(struct protocol_interface_rf_mac_setup *rf_mac_setup);
+
+void mac_mlme_framecounter_increment(struct protocol_interface_rf_mac_setup *rf_mac_setup);
+void mac_mlme_framecounter_decrement(struct protocol_interface_rf_mac_setup *rf_mac_setup);
 
 /**
  * MLME Poll Request
@@ -118,5 +124,7 @@ void mac_frame_src_address_set_from_interface(uint8_t SrcAddrMode,struct protoco
 int8_t mac_mlme_beacon_tx(struct protocol_interface_rf_mac_setup *rf_ptr);
 uint8_t mac_mlme_beacon_req_tx(struct protocol_interface_rf_mac_setup *rf_ptr);
 int8_t mac_mlme_virtual_confirmation_handle(int8_t driver_id, const uint8_t *data_ptr, uint16_t length);
+
+uint16_t mlme_scan_analyze_next_channel(struct channel_list_s *mac_channel_list);
 
 #endif /* MAC_MLME_H_ */

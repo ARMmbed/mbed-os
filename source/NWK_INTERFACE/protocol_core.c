@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2017, Arm Limited and affiliates.
+ * Copyright (c) 2014-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -64,6 +64,8 @@
 #include "6LoWPAN/Thread/thread_bootstrap.h"
 #include "6LoWPAN/Thread/thread_routing.h"
 #include "6LoWPAN/Thread/thread_management_internal.h"
+#include "6LoWPAN/ws/ws_bootstrap.h"
+#include "6LoWPAN/ws/ws_common.h"
 #include "ipv6_stack/protocol_ipv6.h"
 #include "Service_Libs/whiteboard/whiteboard.h"
 
@@ -242,8 +244,14 @@ void core_timer_event_handle(uint16_t ticksUpdate)
                 if (cur->lowpan_info & INTERFACE_NWK_ACTIVE) {
                     if (thread_info(cur)) {
                         thread_seconds_timer(cur, seconds);
+                    } else if (ws_info(cur)) {
+                        ws_common_seconds_timer(cur, seconds);
                     } else if (cur->lowpan_info & INTERFACE_NWK_ROUTER_DEVICE) {
                         beacon_join_priority_update(cur->id);
+                    }
+
+                    if (cur->mac_parameters) {
+                        mac_neighbor_table_neighbor_timeout_update(mac_neighbor_info(cur), seconds);
                     }
 
                     if (cur->nwk_wpan_nvm_api) {
@@ -304,6 +312,8 @@ void core_timer_event_handle(uint16_t ticksUpdate)
                 nd_object_timer(cur,ticksUpdate);
                 if (thread_info(cur)) {
                     thread_timer(cur, ticksUpdate);
+                } else if (ws_info(cur)) {
+                    ws_common_fast_timer(cur, ticksUpdate);
                 }
                 lowpan_context_timer(&cur->lowpan_contexts, ticksUpdate);
             }
@@ -383,6 +393,11 @@ void protocol_core_interface_info_reset(protocol_interface_info_entry_t *entry)
         ns_list_foreach_safe(if_address_entry_t, addr, &entry->ip_addresses) {
             addr_delete_entry(entry, addr);
         }
+#ifdef MULTICAST_FORWARDING
+        ns_list_foreach_safe(if_group_fwd_entry_t, group, &entry->ip_groups_fwd) {
+            addr_multicast_fwd_remove(entry, group->group);
+        }
+#endif
 #ifdef HAVE_RPL
         /* This is done after address deletion, so RPL can act on them */
         rpl_control_remove_domain_from_interface(entry);
@@ -759,6 +774,20 @@ protocol_interface_info_entry_t *protocol_stack_interface_info_get_by_rpl_domain
     return NULL;
 }
 
+protocol_interface_info_entry_t *protocol_stack_interface_info_get_by_fhss_api(const struct fhss_api *fhss_api)
+{
+#ifdef HAVE_WS
+    ns_list_foreach(protocol_interface_info_entry_t, cur, &protocol_interface_info_list) {
+        if (cur->ws_info->fhss_api == fhss_api) {
+            return cur;
+        }
+    }
+#else
+    (void)fhss_api;
+#endif //HAVE_WS
+    return NULL;
+}
+
 protocol_interface_info_entry_t *protocol_stack_interface_sleep_possibility(void)
 {
     ns_list_foreach(protocol_interface_info_entry_t, cur, &protocol_interface_info_list) {
@@ -1059,6 +1088,8 @@ void net_bootsrap_cb_run(uint8_t event)
             //eventOS_scheduler_set_active_tasklet(protocol_read_tasklet_id());
             if (thread_info(cur)) {
                 thread_bootstrap_state_machine(cur);
+            } else if (ws_info(cur)) {
+                ws_bootstrap_state_machine(cur);
             } else {
                 protocol_6lowpan_bootstrap(cur);
             }
