@@ -4045,7 +4045,7 @@
     "MCU_RTL8195A": {
         "core": "Cortex-M3",
         "default_toolchain": "GCC_ARM",
-        "macros": ["__RTL8195A__","CONFIG_PLATFORM_8195A","CONFIG_MBED_ENABLED","PLATFORM_CMSIS_RTOS" "MBED_FAULT_HANDLER_DISABLED"],
+        "macros": ["__RTL8195A__","CONFIG_PLATFORM_8195A","CONFIG_MBED_ENABLED","PLATFORM_CMSIS_RTOS","MBED_FAULT_HANDLER_DISABLED"],
         "inherits": ["Target"],
         "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
         "post_binary_hook": {
