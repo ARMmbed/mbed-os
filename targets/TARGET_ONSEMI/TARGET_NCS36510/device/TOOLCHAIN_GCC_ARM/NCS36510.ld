@@ -154,7 +154,7 @@ MEMORY {
         __end__ = .;
         end = __end__;
         *(.heap*);
-        . += 0x800;
+        . = ORIGIN(RAM) + LENGTH(RAM) - Stack_Size - .;
         __HeapLimit = .;
     } > RAM
     PROVIDE(__heap_size = SIZEOF(.heap));
@@ -169,12 +169,12 @@ MEMORY {
     {
         __StackLimit = .;
         *(.stack*);
-        . += 0x800 - (. - __StackLimit);
+        . += Stack_Size;
     } > RAM
 
     /* Set stack top to end of RAM */
     __StackTop = ORIGIN(RAM) + LENGTH(RAM);
-    __StackLimit = __StackTop - SIZEOF(.stack);
+    __StackLimit = __StackTop - Stack_Size;
     PROVIDE(__stack = __StackTop);
 
 }

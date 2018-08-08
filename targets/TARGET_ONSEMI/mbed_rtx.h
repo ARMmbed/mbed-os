@@ -19,10 +19,6 @@
 
 #if defined(TARGET_NCS36510)
 
-#ifndef INITIAL_SP
-#define INITIAL_SP              (0x40000000UL)
-#endif
-
 #endif
 
 #endif  // MBED_MBED_RTX_H

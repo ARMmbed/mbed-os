@@ -1,4 +1,5 @@
 #! armcc -E
+#include "mbed_config.h"
 
 LR_IROM1 0x00003000 0x0004F000  {    ; load region size_region
   ER_IROM1 0x00003000 0x0004F000  {  ; load address = execution address
@@ -8,8 +9,20 @@ LR_IROM1 0x00003000 0x0004F000  {    ; load region size_region
   }
 
 
+#if (defined(__stack_size__))
+  #define Stack_Size                   __stack_size__
+#else
+  #if (defined(MBED_CONF_RTOS_PRESENT))
+    #define Stack_Size                   0x0400
+  #else
+    #define Stack_Size                   0x1000
+  #endif
+#endif
+
   RW_IRAM1 0x3FFF4000 + 0x90 { ; 8_byte_aligned(35 vectors * 4 bytes each) = 0x90
     .ANY(+RW +ZI)
   }
-  ARM_LIB_HEAP AlignExpr(+0, 8) ALIGN 8 EMPTY (0x3FFF4000 + 0xC000 - AlignExpr(ImageLimit(RW_IRAM1),8) ) {}
+  ARM_LIB_HEAP AlignExpr(+0, 8) ALIGN 8 EMPTY (0x3FFF4000 + 0xC000 - AlignExpr(ImageLimit(RW_IRAM1),8) - Stack_Size ) {}
+  ARM_LIB_STACK 0x3FFF4000+0xC000 EMPTY -Stack_Size { ; Stack region growing down
+  }
 }
