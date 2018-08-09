@@ -25,6 +25,7 @@ import mbed_host_tests
 
 
 MSG_KEY_PORT_OPEN_WAIT = 'port_open_wait'
+MSG_KEY_PORT_OPEN_CLOSE = 'port_open_close'
 MSG_KEY_SEND_BYTES_SINGLE = 'send_single'
 MSG_KEY_SEND_BYTES_MULTIPLE = 'send_multiple'
 MSG_KEY_LOOPBACK = 'loopback'
@@ -109,6 +110,7 @@ class USBSerialTest(mbed_host_tests.BaseHostTest):
             return
 
     def port_open_close(self, usb_id_str):
+        """Open the serial and close it with a delay."""
         mbed_serial = serial.Serial(timeout=0.5, write_timeout=0.1)
         try:
             mbed_serial.port = retry_fun_call(
@@ -197,6 +199,7 @@ class USBSerialTest(mbed_host_tests.BaseHostTest):
 
     def setup(self):
         self.register_callback(MSG_KEY_PORT_OPEN_WAIT, self.cb_port_open_wait)
+        self.register_callback(MSG_KEY_PORT_OPEN_CLOSE, self.cb_port_open_close)
         self.register_callback(MSG_KEY_SEND_BYTES_SINGLE, self.cb_send_bytes_single)
         self.register_callback(MSG_KEY_SEND_BYTES_MULTIPLE, self.cb_send_bytes_multiple)
         self.register_callback(MSG_KEY_LOOPBACK, self.cb_loopback)
@@ -221,6 +224,12 @@ class USBSerialTest(mbed_host_tests.BaseHostTest):
         """Open the serial and wait until it's closed by the device."""
         self.start_bg_task(
             target=self.port_open_wait,
+            args=(value, ))
+
+    def cb_port_open_close(self, key, value, timestamp):
+        """Open the serial and close it with a delay."""
+        self.start_bg_task(
+            target=self.port_open_close,
             args=(value, ))
 
     def cb_send_bytes_single(self, key, value, timestamp):
