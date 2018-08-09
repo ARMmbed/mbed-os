@@ -14,31 +14,44 @@
  * limitations under the License.
  */
 
-#ifndef MBED_TYPE4_TAG_APP_H
-#define MBED_TYPE4_TAG_APP_H
+#ifndef MBED_TYPE4_REMOTE_INITIATOR_H
+#define MBED_TYPE4_REMOTE_INITIATOR_H
 
 #include <stdint.h>
 #include <stddef.h>
 
-#include "IOS7816App.h"
+#include "ISO7816App.h"
 #include "NFCNDEFCapable.h"
+#include "NFCRemoteInitiator.h"
 
 #include "acore/buffer.h"
 
 namespace mbed {
 namespace nfc {
+
+    /**
+     * @addtogroup nfc
+     * @{
+     */
     
-    class Type4TagApp : public ISO7816App, private ISO7816App::Delegate, public NFCNDEFCapable {
-    public:
-        struct Delegate {
-            virtual void on_selected() {}
+    /**
+     * This class is an implementation of the Type 4 tag application.
+     */
+    class Type4RemoteInitiator : public NFCRemoteInitiator, public ISO7816App, public NFCNDEFCapable {
+    private:
+        // NFCNDEFCapable implementation 
+        virtual bool is_ndef_supported() const;
 
-            virtual void on_deselected() {}
-
-            virtual void on_exchange(uint8_t cla, uint8_t ins, uint8_t p1, uint8_t p2, 
-                                    ac_buffer_t* command, size_t max_response_sz) {}
-        };
+        // ISO7816App implementation
+        virtual const ac_buffer_t* get_aid() const;
+        virtual void on_selected();
+        virtual void on_deselected();
+        virtual void on_exchange(Exchange* exchange);
     };
+
+    /**
+     * @}
+     */
 
 } // namespace nfc
 } // namespace mbed
