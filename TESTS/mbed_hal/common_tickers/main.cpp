@@ -441,14 +441,6 @@ void ticker_speed_test(void)
 
     const ticker_info_t *us_ticker_info = get_us_ticker_data()->interface->get_info();
 
-    /* Free function will disable the ticker. For time measurement
-     * we need to use other one if available.
-     */
-#if DEVICE_LPTICKER
-    const ticker_info_t *lp_ticker_info = get_lp_ticker_data()->interface->get_info();
-    bool us_ticker_test = (intf == get_us_ticker_data()->interface);
-#endif
-
     /* ---- Test ticker_read function. ---- */
     start = us_ticker_read();
     while (counter--) {
@@ -498,70 +490,7 @@ void ticker_speed_test(void)
 
     TEST_ASSERT(diff_us(start, stop, us_ticker_info) < (NUM_OF_CALLS * (MAX_FUNC_EXEC_TIME_US + DELTA_FUNC_EXEC_TIME_US)));
 
-    /* ---- Test free function. ---- */
-#if DEVICE_LPTICKER
-    counter = NUM_OF_CALLS;
-    if (us_ticker_test) {
-        lp_ticker_init();
-    }
-    start = us_ticker_test ? lp_ticker_read() : us_ticker_read();
-    while (counter--) {
-        intf->free();
-    }
-    stop = us_ticker_test ? lp_ticker_read() : us_ticker_read();
-
-    TEST_ASSERT(diff_us(start, stop, us_ticker_info) < (NUM_OF_CALLS * (MAX_FUNC_EXEC_TIME_US + DELTA_FUNC_EXEC_TIME_US)));
-#endif
 }
-
-/* Test that ticker_free disables ticker interrupt. */
-void ticker_free_interrupt_test(void)
-{
-    overflow_protect();
-
-    uint32_t cycles_500_ticks = 50;
-    uint32_t reference_ticks_count = 0;
-
-    while (reference_ticks_count < TICKER_500_TICKS) {
-        cycles_500_ticks *= 2;
-        const uint32_t start = intf->read();
-        wait_cycles(cycles_500_ticks);
-        reference_ticks_count = intf->read() - start;
-    }
-
-    intFlag = 0;
-
-    intf->set_interrupt(intf->read() + (TICKER_500_TICKS / 2));
-    intf->free();
-    wait_cycles(cycles_500_ticks);
-    intf->init();
-    TEST_ASSERT_EQUAL(0, intFlag);
-}
-
-/* Test that ticker can be successfully re-initialized after free(). */
-void ticker_init_free_test(void)
-{
-    intf->free();
-    intf->init();
-
-    overflow_protect();
-
-    intFlag = 0;
-
-    const uint32_t tick_count = intf->read();
-
-    intf->set_interrupt(intf->read() + TICKER_INT_VAL);
-
-    while (intf->read() < (tick_count + TICKER_INT_VAL - TICKER_DELTA)) {
-        TEST_ASSERT_EQUAL_INT_MESSAGE(0, intFlag, "Interrupt fired too early");
-    }
-
-    while (intf->read() < (tick_count + TICKER_INT_VAL + TICKER_DELTA)) {
-    }
-
-    TEST_ASSERT_EQUAL(1, intFlag);
-}
-
 
 utest::v1::status_t us_ticker_setup(const Case *const source, const size_t index_of_case)
 {
@@ -637,8 +566,6 @@ Case cases[] = {
     Case("Microsecond ticker overflow test", us_ticker_setup, ticker_overflow_test, us_ticker_teardown),
     Case("Microsecond ticker increment test", us_ticker_setup, ticker_increment_test, us_ticker_teardown),
     Case("Microsecond ticker speed test", us_ticker_setup, ticker_speed_test, us_ticker_teardown),
-    Case("Microsecond ticker free interrupt test", us_ticker_setup, ticker_free_interrupt_test, us_ticker_teardown),
-    Case("Microsecond re-init after free test", us_ticker_setup, ticker_init_free_test, us_ticker_teardown),
 #if DEVICE_LPTICKER
     Case("lp ticker init is safe to call repeatedly", lp_ticker_setup, ticker_init_test, lp_ticker_teardown),
     Case("lp ticker info test", lp_ticker_setup, ticker_info_test, lp_ticker_teardown),
@@ -649,8 +576,6 @@ Case cases[] = {
     Case("lp ticker overflow test", lp_ticker_setup, ticker_overflow_test, lp_ticker_teardown),
     Case("lp ticker increment test", lp_ticker_setup, ticker_increment_test, lp_ticker_teardown),
     Case("lp ticker speed test", lp_ticker_setup, ticker_speed_test, lp_ticker_teardown),
-    Case("lp ticker free interrupt test", lp_ticker_setup, ticker_free_interrupt_test, lp_ticker_teardown),
-    Case("lp ticker re-init after free test", lp_ticker_setup, ticker_init_free_test, lp_ticker_teardown),
 #endif
 };
 

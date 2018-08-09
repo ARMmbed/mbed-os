@@ -118,21 +118,6 @@ void ticker_speed_test(void);
  */
 void ticker_overflow_test(void);
 
-/** Test ticker_free disables ticker interrupt.
- *
- * Given ticker is available.
- * When ticker interrupt is set and then ticker_free is called.
- * Then ticker interrupt is not triggered.
- */
-void ticker_free_interrupt_test(void);
-
-/** Test that ticker can be successfully re-initialized after free().
- *
- * Given ticker is available.
- * When ticker has been  re-initialized after free().
- * Then ticker counts and generates interrupts.
- */
-void ticker_init_free_test(void);
 /**@}*/
 
 #ifdef __cplusplus
