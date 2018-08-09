@@ -80,7 +80,6 @@ static int fill_buffer_trng(uint8_t *buffer, trng_t *trng_obj, size_t trng_len)
         TEST_ASSERT_EQUAL_INT_MESSAGE(0, trng_res, "trng_get_bytes error!");
         temp_size += output_length;
         temp_in_buf += output_length;
-        trng_len -= output_length;
         if (temp_size >= trng_len) {
             break;
         }
