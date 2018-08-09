@@ -18,7 +18,7 @@ define symbol __ICFEDIT_region_RAM_end__     = (0x20000000+0x00040000-1);
 
 /*-Sizes-*/
 if ( !isdefinedsymbol( __ICFEDIT_size_cstack__ ) )
-{ define symbol __ICFEDIT_size_cstack__   = 0x1000; }
+{ define symbol __ICFEDIT_size_cstack__   = 0x400; }
 
 if ( !isdefinedsymbol( __ICFEDIT_size_heap__ ) )
 { define symbol __ICFEDIT_size_heap__     = 0x4000; }

@@ -9,12 +9,6 @@
 /* Version 4.2.0 */
 /*                                                                  */
 
-/* With the RTOS in use, this does not affect the main stack size. The size of
- * the stack where main runs is determined via the RTOS. */
-STACK_SIZE = 0x400;
-
-HEAP_SIZE = 0x6000;
-
 #if !defined(MBED_APP_START)
   #define MBED_APP_START 0x00000000
 #endif
@@ -220,13 +214,13 @@ SECTIONS
     __end__ = .;
     end = __end__;
     _end = __end__;
-    . += HEAP_SIZE;
+    . = ORIGIN(RAM) + LENGTH(RAM) - Stack_Size;
     __HeapLimit = .;
   } > RAM
 
   __StackTop = ORIGIN(RAM) + LENGTH(RAM);
   __stack = __StackTop;
-  __StackLimit = __StackTop - STACK_SIZE;
+  __StackLimit = __StackTop - Stack_Size;
 
   ASSERT(__StackLimit >= __HeapLimit, "Region RAM overflowed with stack and heap")
 
