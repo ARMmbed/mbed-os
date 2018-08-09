@@ -71,7 +71,16 @@ void increment_with_wait(counter_t *counter)
 
 void increment_with_child(counter_t *counter)
 {
-    Thread *child = new Thread(osPriorityNormal, CHILD_THREAD_STACK_SIZE);
+    Thread *child = new (std::nothrow) Thread(osPriorityNormal, CHILD_THREAD_STACK_SIZE);
+    char *dummy = new (std::nothrow) char[CHILD_THREAD_STACK_SIZE];
+    delete[] dummy;
+
+    // Don't fail test due to lack of memory. Call function directly instead
+    if (!child || !dummy) {
+        increment(counter);
+        delete child;
+        return;
+    }
     child->start(callback(increment, counter));
     child->join();
     delete child;
@@ -83,12 +92,21 @@ void increment_with_murder(counter_t *counter)
         // take ownership of the counter mutex so it prevent the child to
         // modify counter.
         LockGuard lock(counter->internal_mutex());
-        Thread *child = new Thread(osPriorityNormal, CHILD_THREAD_STACK_SIZE);
+        Thread *child = new (std::nothrow) Thread(osPriorityNormal, CHILD_THREAD_STACK_SIZE);
+        char *dummy = new (std::nothrow) char[CHILD_THREAD_STACK_SIZE];
+        delete[] dummy;
+
+        // Don't fail test due to lack of memory.
+        if (!child || !dummy) {
+            delete child;
+            goto end;
+        }
         child->start(callback(increment, counter));
         child->terminate();
         delete child;
     }
 
+end:
     (*counter)++;
 }
 
@@ -134,6 +152,10 @@ void self_terminate(Thread *self)
 template <void (*F)(counter_t *)>
 void test_single_thread()
 {
+    char *dummy = new (std::nothrow) char[THREAD_STACK_SIZE];
+    delete[] dummy;
+    TEST_SKIP_UNLESS_MESSAGE(dummy, "Not enough memory to run test");
+
     counter_t counter(0);
     Thread thread(osPriorityNormal, THREAD_STACK_SIZE);
     thread.start(callback(F, &counter));
@@ -174,6 +196,10 @@ void test_single_thread()
 template <int N, void (*F)(counter_t *)>
 void test_parallel_threads()
 {
+    char *dummy = new (std::nothrow) char[PARALLEL_THREAD_STACK_SIZE * N];
+    delete[] dummy;
+    TEST_SKIP_UNLESS_MESSAGE(dummy, "Not enough memory to run test");
+
     counter_t counter(0);
     ParallelThread<osPriorityNormal, PARALLEL_THREAD_STACK_SIZE> threads[N];
 
@@ -222,6 +248,9 @@ template <int N, void (*F)(counter_t *)>
 void test_serial_threads()
 {
     counter_t counter(0);
+    char *dummy = new (std::nothrow) char[THREAD_STACK_SIZE];
+    delete[] dummy;
+    TEST_SKIP_UNLESS_MESSAGE(dummy, "Not enough memory to run test");
 
     for (int i = 0; i < N; i++) {
         Thread thread(osPriorityNormal, THREAD_STACK_SIZE);
@@ -240,9 +269,18 @@ void test_serial_threads()
  */
 void test_self_terminate()
 {
-    Thread *thread = new Thread(osPriorityNormal, THREAD_STACK_SIZE);
+    Thread *thread = new (std::nothrow) Thread(osPriorityNormal, THREAD_STACK_SIZE);
+    char *dummy = new (std::nothrow) char[THREAD_STACK_SIZE];
+    delete[] dummy;
+
+    // Don't fail test due to lack of memory.
+    if (!thread || !dummy) {
+        goto end;
+    }
     thread->start(callback(self_terminate, thread));
     thread->join();
+
+end:
     delete thread;
 }
 
@@ -300,6 +338,10 @@ void signal_wait_multibit_tout()
 template <int S, void (*F)()>
 void test_thread_signal()
 {
+    char *dummy = new (std::nothrow) char[THREAD_STACK_SIZE];
+    delete[] dummy;
+    TEST_SKIP_UNLESS_MESSAGE(dummy, "Not enough memory to run test");
+
     Thread t_wait(osPriorityNormal, THREAD_STACK_SIZE);
 
     t_wait.start(callback(F));
@@ -336,6 +378,10 @@ void signal_clr()
  */
 void test_thread_signal_clr()
 {
+    char *dummy = new (std::nothrow) char[THREAD_STACK_SIZE];
+    delete[] dummy;
+    TEST_SKIP_UNLESS_MESSAGE(dummy, "Not enough memory to run test");
+
     Thread t_wait(osPriorityNormal, THREAD_STACK_SIZE);
 
     t_wait.start(callback(signal_clr));
@@ -374,6 +420,10 @@ void stack_info()
  */
 void test_thread_stack_info()
 {
+    char *dummy = new (std::nothrow) char[THREAD_STACK_SIZE];
+    delete[] dummy;
+    TEST_SKIP_UNLESS_MESSAGE(dummy, "Not enough memory to run test");
+
     Thread t(osPriorityNormal, THREAD_STACK_SIZE);
     t.start(callback(stack_info));
 
@@ -425,6 +475,10 @@ void test_thread_wait()
 */
 void test_thread_name()
 {
+    char *dummy = new (std::nothrow) char[THREAD_STACK_SIZE];
+    delete[] dummy;
+    TEST_SKIP_UNLESS_MESSAGE(dummy, "Not enough memory to run test");
+
     const char tname[] = "Amazing thread";
     Thread t(osPriorityNormal, THREAD_STACK_SIZE, NULL, tname);
     t.start(callback(thread_wait_signal));
@@ -446,6 +500,10 @@ void test_deleted_thread()
  */
 void test_deleted()
 {
+    char *dummy = new (std::nothrow) char[THREAD_STACK_SIZE];
+    delete[] dummy;
+    TEST_SKIP_UNLESS_MESSAGE(dummy, "Not enough memory to run test");
+
     Thread t(osPriorityNormal, THREAD_STACK_SIZE);
 
     TEST_ASSERT_EQUAL(Thread::Deleted, t.get_state());
@@ -469,6 +527,10 @@ void test_delay_thread()
  */
 void test_delay()
 {
+    char *dummy = new (std::nothrow) char[THREAD_STACK_SIZE];
+    delete[] dummy;
+    TEST_SKIP_UNLESS_MESSAGE(dummy, "Not enough memory to run test");
+
     Thread t(osPriorityNormal, THREAD_STACK_SIZE);
 
     t.start(callback(test_delay_thread));
@@ -494,6 +556,10 @@ void test_signal_thread()
  */
 void test_signal()
 {
+    char *dummy = new (std::nothrow) char[THREAD_STACK_SIZE];
+    delete[] dummy;
+    TEST_SKIP_UNLESS_MESSAGE(dummy, "Not enough memory to run test");
+
     Thread t(osPriorityNormal, THREAD_STACK_SIZE);
 
     t.start(callback(test_signal_thread));
@@ -518,6 +584,10 @@ void test_evt_flag_thread(osEventFlagsId_t evtflg)
  */
 void test_evt_flag()
 {
+    char *dummy = new (std::nothrow) char[THREAD_STACK_SIZE];
+    delete[] dummy;
+    TEST_SKIP_UNLESS_MESSAGE(dummy, "Not enough memory to run test");
+
     Thread t(osPriorityNormal, THREAD_STACK_SIZE);
     mbed_rtos_storage_event_flags_t evtflg_mem;
     osEventFlagsAttr_t evtflg_attr;
@@ -550,6 +620,10 @@ void test_mutex_thread(Mutex *mutex)
  */
 void test_mutex()
 {
+    char *dummy = new (std::nothrow) char[THREAD_STACK_SIZE];
+    delete[] dummy;
+    TEST_SKIP_UNLESS_MESSAGE(dummy, "Not enough memory to run test");
+
     Thread t(osPriorityNormal, THREAD_STACK_SIZE);
     Mutex mutex;
 
@@ -577,6 +651,10 @@ void test_semaphore_thread(Semaphore *sem)
  */
 void test_semaphore()
 {
+    char *dummy = new (std::nothrow) char[THREAD_STACK_SIZE];
+    delete[] dummy;
+    TEST_SKIP_UNLESS_MESSAGE(dummy, "Not enough memory to run test");
+
     Thread t(osPriorityNormal, THREAD_STACK_SIZE);
     Semaphore sem;
 
@@ -602,6 +680,10 @@ void test_msg_get_thread(Queue<int32_t, 1> *queue)
  */
 void test_msg_get()
 {
+    char *dummy = new (std::nothrow) char[THREAD_STACK_SIZE];
+    delete[] dummy;
+    TEST_SKIP_UNLESS_MESSAGE(dummy, "Not enough memory to run test");
+
     Thread t(osPriorityNormal, THREAD_STACK_SIZE);
     Queue<int32_t, 1> queue;
 
@@ -628,6 +710,10 @@ void test_msg_put_thread(Queue<int32_t, 1> *queue)
  */
 void test_msg_put()
 {
+    char *dummy = new (std::nothrow) char[THREAD_STACK_SIZE];
+    delete[] dummy;
+    TEST_SKIP_UNLESS_MESSAGE(dummy, "Not enough memory to run test");
+
     Thread t(osPriorityNormal, THREAD_STACK_SIZE);
     Queue<int32_t, 1> queue;
 
@@ -680,6 +766,10 @@ void test_thread_ext_stack()
  */
 void test_thread_prio()
 {
+    char *dummy = new (std::nothrow) char[THREAD_STACK_SIZE];
+    delete[] dummy;
+    TEST_SKIP_UNLESS_MESSAGE(dummy, "Not enough memory to run test");
+
     Thread t(osPriorityNormal, THREAD_STACK_SIZE);
     t.start(callback(thread_wait_signal));
 
