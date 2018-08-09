@@ -29,6 +29,7 @@
 
 #include "platform/NonCopyable.h"
 #include "platform/ScopedLock.h"
+#include "platform/mbed_toolchain.h"
 
 namespace rtos {
 /** \addtogroup rtos */
