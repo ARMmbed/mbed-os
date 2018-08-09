@@ -23,7 +23,7 @@ LOAD_TTB    __TTB_BASE __TTB_SIZE ; Page 0 of On-Chip Data Retention RAM
     { }                           ; Level-1 Translation Table for MMU
 }
 
-SFLASH MBED_APP_START MBED_APP_SIZE       ; load region size_region
+LR_IROM1 MBED_APP_START MBED_APP_SIZE       ; load region size_region
 {
 #if (MBED_APP_START == 0x18000000)
   BOOT_LOADER_BEGIN MBED_APP_START FIXED
