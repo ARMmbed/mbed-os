@@ -29,17 +29,19 @@
 #include <stdint.h>
 #include "PlatformMutex.h"
 
+namespace mbed {
+
 /**
  * FATFileSystem based on ChaN's Fat Filesystem library v0.8
  */
-class FATFileSystem : public mbed::FileSystem {
+class FATFileSystem : public FileSystem {
 public:
     /** Lifetime of the FATFileSystem
      *
      *  @param name     Name to add filesystem to tree as
      *  @param bd       BlockDevice to mount, may be passed instead to mount call
      */
-    FATFileSystem(const char *name = NULL, mbed::BlockDevice *bd = NULL);
+    FATFileSystem(const char *name = NULL, BlockDevice *bd = NULL);
     virtual ~FATFileSystem();
 
     /** Formats a logical drive, FDISK partitioning rule.
@@ -58,14 +60,14 @@ public:
      *
      *  @return         0 on success, negative error code on failure
      */
-    static int format(mbed::BlockDevice *bd, mbed::bd_size_t cluster_size = 0);
+    static int format(BlockDevice *bd, bd_size_t cluster_size = 0);
 
     /** Mounts a filesystem to a block device
      *
      *  @param bd       BlockDevice to mount to
      *  @return         0 on success, negative error code on failure
      */
-    virtual int mount(mbed::BlockDevice *bd);
+    virtual int mount(BlockDevice *bd);
 
     /** Unmounts a filesystem from the underlying block device
      *
@@ -90,7 +92,7 @@ public:
      *
      *  @return         0 on success, negative error code on failure
      */
-    virtual int reformat(mbed::BlockDevice *bd, int allocation_unit);
+    virtual int reformat(BlockDevice *bd, int allocation_unit);
 
     /** Reformats a filesystem, results in an empty and mounted filesystem
      *
@@ -100,7 +102,7 @@ public:
      *                  Default: NULL
      *  @return         0 on success, negative error code on failure
      */
-    virtual int reformat(mbed::BlockDevice *bd = NULL)
+    virtual int reformat(BlockDevice *bd = NULL)
     {
         // required for virtual inheritance shenanigans
         return reformat(bd, 0);
@@ -154,14 +156,14 @@ protected:
      *                  bitwise or'd with one of O_CREAT, O_TRUNC, O_APPEND
      *  @return         0 on success, negative error code on failure
      */
-    virtual int file_open(mbed::fs_file_t *file, const char *path, int flags);
+    virtual int file_open(fs_file_t *file, const char *path, int flags);
 
     /** Close a file
      *
      *  @param file     File handle
      *  @return         0 on success, negative error code on failure
      */
-    virtual int file_close(mbed::fs_file_t file);
+    virtual int file_close(fs_file_t file);
 
     /** Read the contents of a file into a buffer
      *
@@ -170,7 +172,7 @@ protected:
      *  @param len      The number of bytes to read
      *  @return         The number of bytes read, 0 at end of file, negative error on failure
      */
-    virtual ssize_t file_read(mbed::fs_file_t file, void *buffer, size_t len);
+    virtual ssize_t file_read(fs_file_t file, void *buffer, size_t len);
 
     /** Write the contents of a buffer to a file
      *
@@ -179,14 +181,14 @@ protected:
      *  @param len      The number of bytes to write
      *  @return         The number of bytes written, negative error on failure
      */
-    virtual ssize_t file_write(mbed::fs_file_t file, const void *buffer, size_t len);
+    virtual ssize_t file_write(fs_file_t file, const void *buffer, size_t len);
 
     /** Flush any buffers associated with the file
      *
      *  @param file     File handle
      *  @return         0 on success, negative error code on failure
      */
-    virtual int file_sync(mbed::fs_file_t file);
+    virtual int file_sync(fs_file_t file);
 
     /** Move the file position to a given offset from from a given location
      *
@@ -198,21 +200,21 @@ protected:
      *      SEEK_END to start from end of file
      *  @return         The new offset of the file
      */
-    virtual off_t file_seek(mbed::fs_file_t file, off_t offset, int whence);
+    virtual off_t file_seek(fs_file_t file, off_t offset, int whence);
 
     /** Get the file position of the file
      *
      *  @param file     File handle
      *  @return         The current offset in the file
      */
-    virtual off_t file_tell(mbed::fs_file_t file);
+    virtual off_t file_tell(fs_file_t file);
 
     /** Get the size of the file
      *
      *  @param file     File handle
      *  @return         Size of the file in bytes
      */
-    virtual off_t file_size(mbed::fs_file_t file);
+    virtual off_t file_size(fs_file_t file);
 
     /** Open a directory on the filesystem
      *
@@ -220,14 +222,14 @@ protected:
      *  @param path     Name of the directory to open
      *  @return         0 on success, negative error code on failure
      */
-    virtual int dir_open(mbed::fs_dir_t *dir, const char *path);
+    virtual int dir_open(fs_dir_t *dir, const char *path);
 
     /** Close a directory
      *
      *  @param dir      Dir handle
      *  @return         0 on success, negative error code on failure
      */
-    virtual int dir_close(mbed::fs_dir_t dir);
+    virtual int dir_close(fs_dir_t dir);
 
     /** Read the next directory entry
      *
@@ -235,7 +237,7 @@ protected:
      *  @param ent      The directory entry to fill out
      *  @return         1 on reading a filename, 0 at end of directory, negative error on failure
      */
-    virtual ssize_t dir_read(mbed::fs_dir_t dir, struct dirent *ent);
+    virtual ssize_t dir_read(fs_dir_t dir, struct dirent *ent);
 
     /** Set the current position of the directory
      *
@@ -243,20 +245,20 @@ protected:
      *  @param offset   Offset of the location to seek to,
      *                  must be a value returned from dir_tell
      */
-    virtual void dir_seek(mbed::fs_dir_t dir, off_t offset);
+    virtual void dir_seek(fs_dir_t dir, off_t offset);
 
     /** Get the current position of the directory
      *
      *  @param dir      Dir handle
      *  @return         Position of the directory that can be passed to dir_rewind
      */
-    virtual off_t dir_tell(mbed::fs_dir_t dir);
+    virtual off_t dir_tell(fs_dir_t dir);
 
     /** Rewind the current position to the beginning of the directory
      *
      *  @param dir      Dir handle
      */
-    virtual void dir_rewind(mbed::fs_dir_t dir);
+    virtual void dir_rewind(fs_dir_t dir);
 
 private:
     FATFS _fs; // Work area (file system object) for logical drive
@@ -266,7 +268,9 @@ private:
 protected:
     virtual void lock();
     virtual void unlock();
-    virtual int mount(mbed::BlockDevice *bd, bool mount);
+    virtual int mount(BlockDevice *bd, bool mount);
 };
+
+} // namespace mbed
 
 #endif

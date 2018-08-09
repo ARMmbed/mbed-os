@@ -21,7 +21,7 @@ extern "C" {
 #include "lfs_util.h"
 }
 
-using namespace mbed;
+namespace mbed {
 
 ////// Conversion functions //////
 static int lfs_toerror(int err)
@@ -540,3 +540,4 @@ void LittleFileSystem::dir_rewind(fs_dir_t dir)
     _mutex.unlock();
 }
 
+} // namespace mbed
