@@ -1711,7 +1711,7 @@
         "config": {
             "clock_source": {
                 "help": "Mask value : USE_PLL_HSE_EXTC (need HW patch) | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI | USE_PLL_MSI",
-                "value": "USE_PLL_HSI",
+                "value": "USE_PLL_HSE_XTAL",
                 "macro_name": "CLOCK_SOURCE"
             }
         },
