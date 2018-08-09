@@ -141,9 +141,9 @@ public:
      *
      * One way to use this API may be the validation of connectivity after a long deep sleep.
      * Mbed LoRaWANStack follows the MAC commands with data frame payload, so the application needs
-     * send something, and the Network Server may respond during the RX slots.
+     * to send something, and the Network Server may respond during the RX slots.
      *
-     * This API is usable only when the 'link_check_resp' callback is set by the application.
+     * This API is usable only when the application sets the 'link_check_resp' callback.
      * See add_lora_app_callbacks API. If the above mentioned callback is not set,
      * a LORAWAN_STATUS_PARAMETER_INVALID error is thrown.
      *
@@ -151,7 +151,7 @@ public:
      * is the number of gateways that successfully received the last request.
      *
      * A 'Link Check Request' MAC command remains set for every subsequent transmission, until/unless
-     * application explicitly turns it off using remove_link_check_request() API.
+     * the application explicitly turns it off using the remove_link_check_request() API.
      *
      * @return          LORAWAN_STATUS_OK on successfully queuing a request, or
      *                  a negative error code on failure:
@@ -170,7 +170,7 @@ public:
     /** Sets up a particular data rate
      *
      * @param data_rate   The intended data rate, for example DR_0 or DR_1.
-     *                    Please note, that the macro DR_* can mean different things in different regions.
+     *                    Please note that the macro DR_* can mean different things in different regions.
      * @return            LORAWAN_STATUS_OK if everything goes well, otherwise a negative error code:
      *                    LORAWAN_STATUS_NOT_INITIALIZED   if system is not initialized with initialize(),
      *                    LORAWAN_STATUS_PARAMETER_INVALID if ADR is enabled or invalid data rate is given
@@ -232,7 +232,7 @@ public:
      * You need to ensure that the corresponding base station supports the channel or channels being added.
      *
      * If your list includes a default channel (a channel where Join Requests are received),
-     * you cannot fully configure the channel parameters. Either leave the channel settings to default
+     * you cannot fully configure the channel parameters. Either leave the channel settings to default,
      * or check your corresponding PHY layer implementation. For example, LoRaPHYE868.
      *
      * @param channel_plan      The channel plan to set.
@@ -462,14 +462,14 @@ public:
     /** Get hold of backoff time
      *
      * In the TX path, because of automatic duty cycling, the transmission is delayed by a certain
-     * amount of time which is the backoff time. While the system schedules application data to be sent,
+     * amount of time, which is the backoff time. While the system schedules application data to be sent,
      * the application can inquire about how much time is left in the actual transmission to happen.
      *
      * The system will provide you with a backoff time only if the application data is in the TX pipe.
      * If however, the event is already queued for the transmission, this API returns a
      * LORAWAN_STATUS_METADATA_NOT_AVAILABLE error code.
      *
-     * @param    backoff    the inbound integer that will be carry the backoff time if it is available.
+     * @param    backoff    the inbound integer that will carry the backoff time if it is available.
      *
      * @return              LORAWAN_STATUS_OK if the meta-data is available,
      *                      otherwise other negative error code if request failed:
