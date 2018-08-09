@@ -16,7 +16,7 @@
 #ifndef MBED_SPIF_BLOCK_DEVICE_H
 #define MBED_SPIF_BLOCK_DEVICE_H
 
-#include <mbed.h>
+#include <SPI.h>
 #include "BlockDevice.h"
 
  
