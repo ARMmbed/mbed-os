@@ -53,10 +53,108 @@ SPIFBlockDevice::SPIFBlockDevice(
 {
     _cs = 1;
     _spi.frequency(freq);
+    _address_size = QSPI_CFG_ADDR_SIZE_24;
+    // Initial SFDP read tables are read with 8 dummy cycles
+    _read_dummy_and_mode_cycles = 8;
+    _dummy_and_mode_cycles = 8;
+
 }
 
 int SPIFBlockDevice::init()
 {
+
+    uint8_t vendor_device_ids[4];
+    size_t data_length = 3;
+    int status = SPIF_BD_ERROR_OK;
+    uint32_t basic_table_addr = NULL;
+    size_t basic_table_size = 0;
+    uint32_t sector_map_table_addr = NULL;
+    size_t sector_map_table_size = 0;
+    int qspi_status = QSPI_STATUS_OK;
+
+    _mutex.lock();
+    if (_is_initialized == true) {
+        goto exit_point;
+    }
+
+    // Soft Reset
+    /*
+    if ( -1 == _reset_flash_mem()) {
+        tr_error("ERROR: init - Unable to initialize flash memory, tests failed\n");
+        status = QSPIF_BD_ERROR_DEVICE_ERROR;
+        goto exit_point;
+    } else {
+        tr_info("INFO: Initialize flash memory OK\n");
+    }
+    */
+
+    /* Read Manufacturer ID (1byte), and Device ID (2bytes)*/
+    qspi_status = _qspi_send_read_command(QSPIF_RDID, (char *)vendor_device_ids, 0x0 /*address*/, data_length);
+    if (qspi_status != QSPI_STATUS_OK) {
+        tr_error("ERROR: init - Read Vendor ID Failed");
+        status = QSPIF_BD_ERROR_DEVICE_ERROR;
+        goto exit_point;
+    }
+
+    switch (vendor_device_ids[0]) {
+        case 0xbf:
+            // SST devices come preset with block protection
+            // enabled for some regions, issue write disable instruction to clear
+            _set_write_enable();
+            _qspi_send_general_command(QSPIF_WRDI, -1, NULL, 0, NULL, 0);
+            break;
+    }
+
+    //Synchronize Device
+    if ( false == _is_mem_ready()) {
+        tr_error("ERROR: init - _is_mem_ready Failed");
+        status = QSPIF_BD_ERROR_READY_FAILED;
+        goto exit_point;
+    }
+
+    /**************************** Parse SFDP Header ***********************************/
+    if ( 0 != _sfdp_parse_sfdp_headers(basic_table_addr, basic_table_size, sector_map_table_addr, sector_map_table_size)) {
+        tr_error("ERROR: init - Parse SFDP Headers Failed");
+        status = QSPIF_BD_ERROR_PARSING_FAILED;
+        goto exit_point;
+    }
+
+
+    /**************************** Parse Basic Parameters Table ***********************************/
+    if ( 0 != _sfdp_parse_basic_param_table(basic_table_addr, basic_table_size) ) {
+        tr_error("ERROR: init - Parse Basic Param Table Failed");
+        status = QSPIF_BD_ERROR_PARSING_FAILED;
+        goto exit_point;
+    }
+
+    /**************************** Parse Sector Map Table ***********************************/
+    _region_size_bytes[0] =
+        _device_size_bytes; // If there's no region map, we have a single region sized the entire device size
+    _region_high_boundary[0] = _device_size_bytes - 1;
+
+    if ( (sector_map_table_addr != NULL) && (0 != sector_map_table_size) ) {
+        tr_info("INFO: init - Parsing Sector Map Table - addr: 0x%xh, Size: %d", sector_map_table_addr,
+                sector_map_table_size);
+        if (0 != _sfdp_parse_sector_map_table(sector_map_table_addr, sector_map_table_size) ) {
+            tr_error("ERROR: init - Parse Sector Map Table Failed");
+            status = QSPIF_BD_ERROR_PARSING_FAILED;
+            goto exit_point;
+        }
+    }
+
+    // Configure  BUS Mode to 1_1_1 for all commands other than Read
+    _qspi_configure_format(QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_SINGLE, QSPI_CFG_ADDR_SIZE_24, QSPI_CFG_BUS_SINGLE,
+                           QSPI_CFG_ALT_SIZE_8, QSPI_CFG_BUS_SINGLE, 0);
+
+    _is_initialized = true;
+
+exit_point:
+    _mutex.unlock();
+
+    return status;
+
+
+/**************************************************************************************************************/
     if (!_is_initialized) {
         _init_ref_count = 0;
     }
@@ -66,6 +164,9 @@ int SPIFBlockDevice::init()
     if (val != 1) {
         return BD_ERROR_OK;
     }
+
+    // Initial SFDP read tables are read with 8 dummy cycles
+    _read_dummy_and_mode_cycles = 8;
 
     // Check for vendor specific hacks, these should move into more general
     // handling when possible. RDID is not used to verify a device is attached.
@@ -160,76 +261,64 @@ int SPIFBlockDevice::deinit()
     return 0;
 }
 
-void SPIFBlockDevice::_cmdread(
-        uint8_t op, uint32_t addrc, uint32_t retc,
-        uint32_t addr, uint8_t *rets)
+
+
+void SPIFBlockDevice::_cmdread(uint8_t inst, uint32_t addr, uint32_t data_size, uint8_t *data)
 {
     _cs = 0;
-    _spi.write(op);
+    uint32_t dummy_bytes = _dummy_and_mode_cycles / 8;
+    uint8_t dummy_byte = 0x00;
+    uint8_t *addr_byte_ptr = &addr;
+    addr_byte_ptr += (_address_size-1)
 
-    for (uint32_t i = 0; i < addrc; i++) {
-        _spi.write(0xff & (addr >> 8*(addrc-1 - i)));
+    // Write 1 byte Instruction
+    _spi.write(inst);
+
+    // Write Address (can be either 3 or 4 bytes long)
+    for (uint32_t i = 0; i < _address_size; i++) {
+        _spi.write(*addr_byte_ptr);
+        addr_byte_ptr--;
     }
 
-    for (uint32_t i = 0; i < retc; i++) {
-        rets[i] = _spi.write(0);
+    // Write Dummy Cycles Bytes
+    for (uint32_t i = 0; i < dummy_bytes; i++) {
+        _spi.write(dummy_byte);
+    }
+
+    // Read Data
+    for (uint32_t i = 0; i < data_size; i++) {
+    	data[i] = _spi.write(0);
     }
     _cs = 1;
-
-    if (SPIF_DEBUG) {
-        printf("spif <- %02x", op);
-        for (uint32_t i = 0; i < addrc; i++) {
-            if (i < addrc) {
-                printf("%02lx", 0xff & (addr >> 8*(addrc-1 - i)));
-            } else {
-                printf("  ");
-            }
-        }
-        printf(" ");
-        for (uint32_t i = 0; i < 16 && i < retc; i++) {
-            printf("%02x", rets[i]);
-        }
-        if (retc > 16) {
-            printf("...");
-        }
-        printf("\n");
-    }
 }
 
-void SPIFBlockDevice::_cmdwrite(
-        uint8_t op, uint32_t addrc, uint32_t argc,
-        uint32_t addr, const uint8_t *args)
+void SPIFBlockDevice::_cmdwrite(uint8_t inst, uint32_t addr, uint32_t data_size, const uint8_t *data)
 {
     _cs = 0;
-    _spi.write(op);
+    uint32_t dummy_bytes = _dummy_and_mode_cycles / 8;
+    uint8_t dummy_byte = 0x00;
+    uint8_t *addr_byte_ptr = &addr;
+    addr_byte_ptr += (_address_size-1)
 
-    for (uint32_t i = 0; i < addrc; i++) {
-        _spi.write(0xff & (addr >> 8*(addrc-1 - i)));
+    // Write 1 byte Instruction
+    _spi.write(inst);
+
+    // Write Address (can be either 3 or 4 bytes long)
+    for (uint32_t i = 0; i < _address_size; i++) {
+        _spi.write(*addr_byte_ptr);
+        addr_byte_ptr--;
     }
 
-    for (uint32_t i = 0; i < argc; i++) {
-        _spi.write(args[i]);
+    // Write Dummy Cycles Bytes
+    for (uint32_t i = 0; i < dummy_bytes; i++) {
+        _spi.write(dummy_byte);
+    }
+
+    // Write Data
+    for (uint32_t i = 0; i < data_size; i++) {
+        _spi.write(data[i]);
     }
     _cs = 1;
-
-    if (SPIF_DEBUG) {
-        printf("spif -> %02x", op);
-        for (uint32_t i = 0; i < addrc; i++) {
-            if (i < addrc) {
-                printf("%02lx", 0xff & (addr >> 8*(addrc-1 - i)));
-            } else {
-                printf("  ");
-            }
-        }
-        printf(" ");
-        for (uint32_t i = 0; i < 16 && i < argc; i++) {
-            printf("%02x", args[i]);
-        }
-        if (argc > 16) {
-            printf("...");
-        }
-        printf("\n");
-    }
 }
 
 int SPIFBlockDevice::_sync()
@@ -270,52 +359,179 @@ int SPIFBlockDevice::_wren()
     return BD_ERROR_DEVICE_ERROR;
 }
 
+
+void SPIFBlockDevice::_spi_send_read_command(uint8_t read_inst, void *buffer, bd_addr_t addr, bd_size_t size)
+{
+	uint32_t dummy_bytes = _dummy_and_mode_cycles / 8;
+	uint8_t dummy_byte = 0x00;
+	uint8_t *addr_byte_ptr = addr;
+	uint8_t *data = (uint8_t *)buffer;
+	addr_byte_ptr += (_address_size-1);
+
+	// Write 1 byte Instruction
+	_spi.write(read_inst);
+
+	// Write Address (can be either 3 or 4 bytes long)
+	for (uint32_t i = 0; i < _address_size; i++) {
+		_spi.write(*addr_byte_ptr);
+		addr_byte_ptr--;
+	}
+
+	// Write Dummy Cycles Bytes
+	for (uint32_t i = 0; i < dummy_bytes; i++) {
+		_spi.write(dummy_byte);
+	}
+
+	// Read Data
+	for (bd_size_t i = 0; i < size; i++) {
+		data[i] = _spi.write(0);
+	}
+
+	return;
+}
+
+void SPIFBlockDevice::_spi_send_program_command(unsigned int prog_inst, const void *buffer, bd_addr_t addr, bd_size_t size)
+{
+    // Send Program (write) command to device driver
+	uint32_t dummy_bytes = _dummy_and_mode_cycles / 8;
+	uint8_t dummy_byte = 0x00;
+	uint8_t *addr_byte_ptr = addr;
+	uint8_t *data = (uint8_t *)buffer;
+	addr_byte_ptr += (_address_size-1)
+
+	// Write 1 byte Instruction
+	_spi.write(prog_inst);
+
+	// Write Address (can be either 3 or 4 bytes long)
+	for (uint32_t i = 0; i < _address_size; i++) {
+		_spi.write(*addr_byte_ptr);
+		addr_byte_ptr--;
+	}
+
+	// Write Dummy Cycles Bytes
+	for (uint32_t i = 0; i < dummy_bytes; i++) {
+		_spi.write(dummy_byte);
+	}
+
+	// Write Data
+	for (bd_size_t i = 0; i < size; i++) {
+		_spi.write(data[i]);
+	}
+
+    return;
+}
+
+qspi_status_t SPIFBlockDevice::_spi_send_erase_command(unsigned int erase_inst, bd_addr_t addr, bd_size_t size)
+{
+	tr_info("INFO: Inst: 0x%xh, addr: %llu, size: %llu", erase_inst, addr, size);
+	_spi_send_general_command(erase_inst, addr)
+	return;
+}
+
+qspi_status_t SPIFBlockDevice::_spi_send_general_command(unsigned int instruction, bd_addr_t addr)
+{
+    // Send a general command Instruction to driver
+	uint32_t dummy_bytes = _dummy_and_mode_cycles / 8;
+	uint8_t dummy_byte = 0x00;
+	uint8_t *addr_byte_ptr = (((int)addr) & 0x00FFF000);
+	uint8_t *data = (uint8_t *)buffer;
+	addr_byte_ptr += (_address_size-1)
+
+	// Write 1 byte Instruction
+	_spi.write(instruction);
+
+	// Write Address (can be either 3 or 4 bytes long)
+	for (uint32_t i = 0; i < _address_size; i++) {
+		_spi.write(*addr_byte_ptr);
+		addr_byte_ptr--;
+	}
+
+	// Write Dummy Cycles Bytes
+	for (uint32_t i = 0; i < dummy_bytes; i++) {
+		_spi.write(dummy_byte);
+	}
+
+	return;
+}
+
+
+
 int SPIFBlockDevice::read(void *buffer, bd_addr_t addr, bd_size_t size)
 {
     if (!_is_initialized) {
         return BD_ERROR_DEVICE_ERROR;
     }
 
-    // Check the address and size fit onto the chip.
-    MBED_ASSERT(is_valid_read(addr, size));
+    int status = SPIF_BD_ERROR_OK;
 
-    _cmdread(SPIF_READ, 3, size, addr, static_cast<uint8_t *>(buffer));
-    return 0;
+    tr_info("INFO Inst: 0x%xh", _read_instruction);
+
+    _mutex.lock();
+
+    // Set Dummy Cycles for Specific Read Command Mode
+    _dummy_and_mode_cycles = _read_dummy_and_mode_cycles;
+
+    _spi_send_read_command(_read_instruction, buffer, addr, size);
+
+    // Set Dummy Cycles for all other command modes
+    _dummy_and_mode_cycles = 0;
+
+    _mutex.unlock();
+    return status;
+
 }
  
 int SPIFBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t size)
 {
-    // Check the address and size fit onto the chip.
-    MBED_ASSERT(is_valid_program(addr, size));
-
     if (!_is_initialized) {
         return BD_ERROR_DEVICE_ERROR;
     }
 
-    while (size > 0) {
-        int err = _wren();
-        if (err) {
-            return err;
-        }
+    qspi_status_t result = QSPI_STATUS_OK;
+	bool program_failed = false;
+	int status = SPIF_BD_ERROR_OK;
+	uint32_t offset = 0;
+	uint32_t chunk = 0;
 
-        // Write up to 256 bytes a page
-        // TODO handle unaligned programs
-        uint32_t off = addr % 256;
-        uint32_t chunk = (off + size < 256) ? size : (256-off);
-        _cmdwrite(SPIF_PROG, 3, chunk, addr, static_cast<const uint8_t *>(buffer));
-        buffer = static_cast<const uint8_t*>(buffer) + chunk;
-        addr += chunk;
-        size -= chunk;
+	tr_debug("DEBUG: program - Buff: 0x%x, addr: %llu, size: %llu", buffer, addr, size);
 
-        wait_ms(1);
+	while (size > 0) {
 
-        err = _sync();
-        if (err) {
-            return err;
-        }
+		// Write on _page_size_bytes boundaries (Default 256 bytes a page)
+		offset = addr % _page_size_bytes;
+		chunk = (offset + size < _page_size_bytes) ? size : (_page_size_bytes - offset);
+
+		_mutex.lock();
+
+		//Send WREN
+		if (_set_write_enable() != 0) {
+			tr_error("ERROR: Write Enabe failed\n");
+			program_failed = true;
+			status = QSPIF_BD_ERROR_WREN_FAILED;
+			goto exit_point;
+		}
+
+		_spi_send_program_command(_prog_instruction, buffer, addr, chunk);
+
+		buffer = static_cast<const uint8_t *>(buffer) + chunk;
+		addr += chunk;
+		size -= chunk;
+
+		if ( false == _is_mem_ready()) {
+			tr_error("ERROR: Device not ready after write, failed\n");
+			program_failed = true;
+			status = QSPIF_BD_ERROR_READY_FAILED;
+			goto exit_point;
+		}
+		_mutex.unlock();
+	}
+
+exit_point:
+    if (program_failed) {
+        _mutex.unlock();
     }
 
-    return 0;
+    return status;
 }
 
 int SPIFBlockDevice::erase(bd_addr_t addr, bd_size_t size)
@@ -327,26 +543,69 @@ int SPIFBlockDevice::erase(bd_addr_t addr, bd_size_t size)
         return BD_ERROR_DEVICE_ERROR;
     }
 
+    int type = 0;
+    uint32_t chunk = 4096;
+    unsigned int cur_erase_inst = _erase_instruction;
+    int size = (int)in_size;
+    bool erase_failed = false;
+    int status = QSPIF_BD_ERROR_OK;
+    // Find region of erased address
+    int region = _utils_find_addr_region(addr);
+    // Erase Types of selected region
+    uint8_t bitfield = _region_erase_types_bitfield[region];
+
+    tr_debug("DEBUG: erase - addr: %llu, in_size: %llu", addr, in_size);
+
+    // For each iteration erase the largest section supported by current region
     while (size > 0) {
-        int err = _wren();
-        if (err) {
-            return err;
+
+        // iterate to find next Largest erase type ( a. supported by region, b. smaller than size)
+        // find the matching instruction and erase size chunk for that type.
+        type = _utils_iterate_next_largest_erase_type(bitfield, size, (int)addr, _region_high_boundary[region]);
+        cur_erase_inst = _erase_type_inst_arr[type];
+        chunk = _erase_type_size_arr[type];
+
+        tr_debug("DEBUG: erase - addr: %llu, size:%d, Inst: 0x%xh, chunk: %d , ",
+                 addr, size, cur_erase_inst, chunk);
+        tr_debug("DEBUG: erase - Region: %d, Type:%d",
+                 region, type);
+
+        _mutex.lock();
+
+        if (_set_write_enable() != 0) {
+            tr_error("ERROR: QSPI Erase Device not ready - failed");
+            erase_failed = true;
+            status = QSPIF_BD_ERROR_READY_FAILED;
+            goto exit_point;
         }
-    
-        // Erase 4kbyte sectors
-        // TODO support other erase sizes?
-        uint32_t chunk = 4096;
-        _cmdwrite(SPIF_SE, 3, 0, addr, NULL);
+
+        _spi_send_erase_command(cur_erase_inst, addr, size);
+
         addr += chunk;
         size -= chunk;
 
-        err = _sync();
-        if (err) {
-            return err;
+        if ( (size > 0) && (addr > _region_high_boundary[region]) ) {
+            // erase crossed to next region
+            region++;
+            bitfield = _region_erase_types_bitfield[region];
         }
+
+        if ( false == _is_mem_ready()) {
+            tr_error("ERROR: QSPI After Erase Device not ready - failed\n");
+            erase_failed = true;
+            status = QSPIF_BD_ERROR_READY_FAILED;
+            goto exit_point;
+        }
+
+        _mutex.unlock();
     }
 
-    return 0;
+exit_point:
+    if (erase_failed) {
+        _mutex.unlock();
+    }
+
+    return status;
 }
 
 bd_size_t SPIFBlockDevice::get_read_size() const
@@ -364,10 +623,39 @@ bd_size_t SPIFBlockDevice::get_erase_size() const
     return SPIF_SE_SIZE;
 }
 
-bd_size_t SPIFBlockDevice::get_erase_size(bd_addr_t addr) const
+// Find minimal erase size supported by the region to which the address belongs to
+bd_size_t SPIFBlockDevice::get_erase_size(bd_addr_t addr)
 {
-    return SPIF_SE_SIZE;
+    // Find region of current address
+    int region = _utils_find_addr_region(addr);
+
+    int min_region_erase_size = _min_common_erase_size;
+    int8_t type_mask = ERASE_BITMASK_TYPE1;
+    int i_ind = 0;
+
+
+    if (region != -1) {
+        type_mask = 0x01;
+
+        for (i_ind = 0; i_ind < 4; i_ind++) {
+            // loop through erase types bitfield supported by region
+            if (_region_erase_types_bitfield[region] & type_mask) {
+
+                min_region_erase_size = _erase_type_size_arr[i_ind];
+                break;
+            }
+            type_mask = type_mask << 1;
+        }
+
+        if (i_ind == 4) {
+            tr_error("ERROR: no erase type was found for region addr");
+        }
+    }
+
+    return (bd_size_t)min_region_erase_size;
 }
+
+
 
 bd_size_t SPIFBlockDevice::size() const
 {
