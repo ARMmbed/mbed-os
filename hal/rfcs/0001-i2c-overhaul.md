@@ -1,0 +1,374 @@
+# I2C Design Document
+
+
+## Description
+
+This update to the I2C HAL API is the first stage in an initiative to standardise and gain consistency across existing and future HAL APIs and their implementations.
+
+## Motivation
+
+Many of the current HAL API interfaces, including the I2C API, do not provide a clear, concrete specification to develop implementations against. As a result, the existing implementations lack consistency and do not have uniform behaviour across all partner boards.
+
+The inconsistencies in the current implementations due to poorly defined specifications are listed below, these will be fixed as part of this overhaul.
+
+As well as fixing existing inconsistencies there are a few unimplemented features that have been requested from the API, or unused features that have been overlooked, these will be added and removed respectively.
+
+Additionally, since the original implementations were added for the API a large number of additional boards have been supported, the overhaul to the API allows partners the opportunity to consolidate the implementations for a family of boards into a single implementation, which will reduce the development overhead in future if any changes are made down the line.
+
+### Inconsistencies
+
+- The implementation for `i2c_reset` varies across all platforms.  
+
+  The purpose of this function is to add a method of resetting the i2c bus. Most platform implementations do not implement this function correctly, either the implementation acts as a NOP and does nothing, or it calls `i2c_stop` which already has a functional representation in the API and is designed to perform a different action.
+
+- The implementation of the `i2c_start` and `i2c_stop` functions are not well defined.
+
+  The return value of the function is not defined in the header file, the value has been left open to interpretation by the partner implementations, for example, some implementations return 0 on all conditions. Some implementations have added timeouts to the functionality of the function and return 1 on timeouts. This needs to be defined correctly to be uniform across all implementations.
+
+- The `i2c_slave_address` function has a parameter called `mask`, this parameter is listed as unused but some implementations use it to mask the `address` parameter.
+
+  This parameter should be removed as it is not required by the API. It can be assumed that the address will be masked to exclude the read/write bit from the address, the behaviour of this does not need to change.
+
+- The `i2c_slave_address` function has a parameter called `idx`, this parameter is listed as unused but is utilised in some API implementations.
+
+  This parameter is not required by the API, it should be removed to keep behaviour uniform across all platforms.
+
+- The implementation of the `i2c_byte_write` differs between platforms.
+
+  The API documentation indicates that the return value should be 0 on success, 1 on NAK, 2 on timeout. Not all platforms return a value or handle a timeout. Some platforms return a completely different set of status, the Atmel implementation returns an `I2C_ERROR ` which does not map to the documented return value.
+
+- The return value of the `i2c_start` and `i2c_stop` functions are not documented.
+
+  The function returns an integer but there is no documentation to suggest what the return value should be. Some implementations return 0 in all cases, and some use it to return error values, if this function is to return a value, the values should be standardised.
+
+- Some platforms overload the `i2c_slave_read`, `i2c_slave_write`, `i2c_read`, and `i2c_write` return values with statuses that aren't documented. 
+
+  These functions are documented to return the number of bytes written or read. Some implementations will return a non-zero value if the write/read fails, this is not documented anywhere and the behaviour is not common across all implementations.
+
+- Some platforms overload the `i2c_read` and `i2c_write` return values with statuses that aren't documented. 
+
+  The functions are documented to return the number of bytes written or read. Some implementations will return a non-zero value if the write/read fails, this is not documented anywhere and the behaviour is not common across all implementations.
+
+- `i2c_master_transfer` takes a `uint32_t` instead of a function pointer type for its `handler` argument. 
+
+- `i2c_slave_receive` should return an enumeration of the slave mode, currently it returns one of 4 integers depending on what mode the peripheral is in, this is much more suited to an enumeration.
+
+- The behaviour of the `stop` parameter in `i2c_write`  is not consistent across platforms.
+
+  The parameter is intended to issue the `STOP` command when a transfer has finished. Not all platforms use this bit, some platforms ignore the argument and either always issue a `STOP` command, or never. This parameter should be removed, there is already a means to call `STOP`. 
+
+## Use cases
+
+List of drivers and examples currently using the I2C interface:
+
+* [I2C EEPROM Driver](https://github.com/ARMmbed/i2cee-driver)
+
+### Other use cases
+
+- I2C Slave
+
+  In this use case the peripheral receives the clock instead of generating it and responds when addressed by the master.
+
+- I2C Async
+
+  These are basically the same the regular ones except that the function  call should return immediately and a callback should be triggered once  the operation is completed. 
+
+  
+
+## API changes
+
+### General changes
+
+- **Add** an `i2c_free` function to the API.
+
+  All new HAL APIs must provide a free function to act as a destructor so that the resources used by the i2c instance can be reused. This is useful for OOP functionality in the platform API, and potentially reducing power consumption through the freeing of resources.
+
+- **Add** an `i2c_get_capabilities` function to API return supported capabilities and constraints on the currently running platform.
+
+- **Remove** `i2c_reset` function from the API.  
+
+  Most target implementations do not implement this function correctly. Most implementations invoke the `stop` command, or directly call the `i2c_stop` from this function which already has a function associated with it in the API. This function is not implemented by the user facing platform API so this change does not affect users.
+
+- **Change** the `frequency` parameter of `i2c_frequency` from `int` to `uint32_t`.
+
+  Frequency should be unsigned as a signed value does not make sense in this context. `int` also does not have a guaranteed size.
+
+- **Change** the `stop` parameter for the transfer function from an `int` value to a `bool` value.
+
+  This function argument does not make sense as an `int` value other than for outdated compatibility reasons, the `bool` value expresses the intent more accurately.
+
+
+### Sync API changes
+
+The main changes involve the removal of the single byte read/write functions and rolling their functionality into the block read/write functions, removing unnecessary parameters from functions and amending their types.
+
+- **Remove** the `stop` parameter from `i2c_write` and `i2c_read` functions.
+
+  This parameter is not required, the STOP command should be sent manually by calling `i2c_stop` this reduces the amount of conditions that implementations have to meet.
+
+- **Remove** the `i2c_byte_read` and `i2c_byte_write` functions from the API and integrate the functionality into `i2c_read` and `i2c_write`.
+
+  The functionality of these calls can be implemented as part of the normal `i2c_read` and `i2c_write` functions. Sending individual bytes of data is inefficient and should be avoided where possible.
+
+- **Change** the `address` parameter in `i2c_write` and `i2c_read` functions from `int` to `uint16_t`.
+
+  The address parameter is up to a 9-bit value, specifying a type with correct sign and size is sensible.
+
+- **Change** the `length` parameter in `i2c_write` and `i2c_read` functions from `int` to `uint32_t`.
+
+  The length parameter cannot be signed.
+
+- **Change** the `data` parameter in `i2c_write` and `i2c_read` functions from `char*` to `void*`.
+
+### Slave API changes
+
+The main changes involve removing the slave specific read/write functions and rolling them into the normal read/write functions, removing most of the slave configuration which can be handled at construction by the `init` function.
+
+- **Remove** the `i2c_slave_mode` function, add an `is_slave` parameter to the `i2c_init` function.
+
+  The decision to initialise the peripheral in master or slave mode should be decided at construction time. This simplifies the API as it removes the need for two separate functions to initialise slave mode `i2c_slave_mode` and `i2c_slave_address` .
+
+- **Remove** the `i2c_slave_address` function, add an `address` parameter to the `i2c_init` function.
+
+  The decision to initialise the I2C peripheral in master or slave mode should be decided at construction time. Adding the `address` parameter removes the need to initialise the address separately. This parameter is ignored if the `is_slave` Boolean is not set.
+
+- **Remove** the I2C slave specific transfer functions: `i2c_slave_read`, `i2c_slave_write`.
+
+  These functions are superfluous and can be rolled into the existing `i2c_read` and `i2c_write` functions. The `transfer` function will execute the slave read/write based on the current configuration of the peripheral.
+
+- **Change** the return type of `i2c_slave_receive` from an integer to an enumeration.
+
+  The function returns which mode the peripheral is currently operating in as an integer, this is better expressed as an enumeration.
+
+### Async API changes
+
+- **Support** the `DMAUsage` argument for asynchronous transfers.
+
+  Currently the `DMAUsage` argument of the `i2c_transfer_asynch` function is unimplemented, the argument is unused by all `I2C` implementations. There are currently requests for it to be included in the specification here: [Expose DMAUsage in I2C API](https://github.com/ARMmbed/mbed-os/issues/6877) 
+
+- **Change** the `stop` parameter from the `i2c_transfer_async` from an `uint32_t` to a `bool`.
+
+  The stop parameter indicates whether or not the function should send a `STOP` command after the transfer has complete, there is no reason at all for this to be a `uint32_t`.
+
+- **Change** the return type of `i2c_transfer_asynch` to indicate whether or not a transfer has been scheduled or not.
+
+  The function now returns a `bool` indicate if a transfer was scheduled or not, which can occur if the peripheral is already busy.
+
+- **Remove** the `i2c_irq_handler_asynch` function from the API.
+
+  The event is now passed as an argument to the callback this method is no longer required.
+
+- **Remove** the `event` parameter from the `i2c_transfer_async` function.
+
+  The callback will now be invoked on any event with the event as an argument. 
+
+- **Remove** the `i2c_active` function from the API.
+
+  The the async callback is now always invoked on async operation  termination (unless cancelled), this status can be tracked from driver layer without any HAL request. 
+
+### The new API
+
+```c++
+typedef struct {
+    /** Minimum frequency supported must be set by target device and it will be assessed during
+     *  testing.
+     */
+    uint32_t    minimum_frequency;
+    /** Maximum frequency supported must be set by target device and it will be assessed during
+     *  testing.
+     */
+    uint32_t    maximum_frequency;
+	/**< If true, the device can handle I2C slave mode. */
+    bool        support_slave_mode; 
+    /**< Supports 10 bit addressing */
+    bool 		supported_10bit_addressing;
+} i2c_capabilities_t;
+
+/** Fills structure indicating supported features and frequencies on the current platform
+ *
+ * @param[out] capabilities  Capabilities structure filled with supported configurations.
+ */
+void i2c_get_capabilities(i2c_capabilities_t *capabilities);
+
+/** Initialize the I2C peripheral. It sets the default parameters for I2C
+ *  peripheral, and configures its pins.
+ *  
+ *  @param obj       The I2C object
+ *  @param sda       The sda pin
+ *  @param scl       The scl pin
+ *  @param is_slave  Choose whether the peripheral is initialised as master or slave.
+ *  @param address   Specify the address for the peripheral in slave mode.
+ *                   This parameter is ignored in master mode.
+ */
+void i2c_init(i2c_t *obj, PinName sda, PinName scl, bool is_slave, uint16_t address);
+
+/** Configure the frequency in Hz the I2C peripheral should operate at.
+ *
+ *  @param obj        The I2C object
+ *  @param frequency  Frequency in Hz
+ */
+void i2c_frequency(i2c_t *obj, uint32_t frequency);
+
+/** Send START command
+ *
+ *  @param obj The I2C object
+ *  @returns   True if slave responds with ACK, false otherwise.
+ */
+bool i2c_start(i2c_t *obj);
+
+/** Send STOP command
+ *
+ *  @param obj The I2C object
+ *  @returns   True if slave responds with ACK, false otherwise.
+ */
+bool i2c_stop(i2c_t *obj);
+
+/** Blocking sending data
+ *
+ *  @param obj     The I2C object
+ *  @param address 7-bit address (last bit is 0)
+ *  @param data    The buffer for sending
+ *  @param length  Number of bytes to write
+ *  @return 
+ *      zero or non-zero - Number of written bytes
+ *      negative - I2C_ERROR_XXX status
+ */
+int i2c_write(i2c_t *obj, uint16_t address, const void *data, uint32_t length);
+
+/** Blocking reading data
+ *
+ *  @param obj     The I2C object
+ *  @param address 7-bit address (last bit is 1)
+ *  @param data    The buffer for receiving
+ *  @param length  Number of bytes to read
+ *  @return 
+ *      zero or non-zero - Number of written bytes
+ *      negative - I2C_ERROR_XXX status
+ */
+int i2c_read(i2c_t *obj, uint16_t address, void *data, uint32_t length);
+
+typedef enum {
+    NO_ADDRESS = 0,
+    READ       = 1,
+    BROADCAST  = 2,
+    WRITE      = 3
+} i2c_slave_status;
+
+/** Check to see if the I2C slave has been addressed.
+ *  @param obj The I2C object
+ *  @return The status - i2c_slave_status indicating what mode the peripheral is configured in.
+ */
+i2c_slave_status i2c_slave_receive(i2c_t *obj);
+
+typedef void (*i2c_async_handler_f)(i2c_t *obj, void *ctx, i2c_async_event_t event);
+
+/** Start I2C asynchronous transfer
+ *
+ *  @param obj       The I2C object
+ *  @param tx        The transmit buffer
+ *  @param tx_length The number of bytes to transmit
+ *  @param rx        The receive buffer
+ *  @param rx_length The number of bytes to receive
+ *  @param address   The address to be set - 7bit or 9bit
+ *  @param stop      If true, stop will be generated after the transfer is done
+ *  @param handler   The I2C IRQ handler to be set
+ *  @param hint      DMA hint usage
+ */
+void i2c_transfer_async(i2c_t *obj, const void *tx, uint32_t tx_length, void *rx, uint32_t rx_length, uint16_t address, bool stop, i2c_async_handler_f handler, DMAUsage hint);
+
+/** Abort asynchronous transfer
+ *
+ *  This function does not perform any check - that should happen in upper layers.
+ *  @param obj The I2C object
+ */
+void i2c_abort_async(i2c_t *obj);
+```
+
+## Behaviours
+
+### Defined behaviours
+
+- `i2c_init()` initialises the pins.
+
+- `i2c_init()` ignores the address parameter if `is_slave` is false.
+
+- `i2c_get_capabilities()` fills the given `i2c_capabilities_t` instance 
+
+- `i2c_free()` resets the pins to their default states.
+
+- `i2c_free()` disables the peripheral clock.
+
+- `i2c_frequency()` sets the frequency to use during the following transfers.
+
+- `i2c_write()`
+
+  - Writes `tx_len` symbols to the bus.
+
+- `i2c_read()` 
+
+  - Reads `rx_len` symbols from the bus.
+  - If `rx` is `nullptr` then inputs are discarded.
+
+- `i2c_transfer_async` returns immediately with a `bool` indicating whether the transfer was successfully scheduled or not.
+
+- The callback given to `i2c_transfer_async` is invoked when the transfer completes (with a success or an error)
+
+- `i2c_abort_asynch` aborts an on-going async transfer.
+
+  
+
+### Undefined behaviours
+
+- Calling `i2c_init` multiple times without calling `i2c_free`.
+- Calling any i2c function before calling `i2c_init` or after calling `i2c_free`.
+- Passing an invalid pointer as `obj` to any function.
+- Passing invalid pins to `i2c_init`
+- Setting a frequency outside the supported range given by `i2c_get_capabilities`
+- Setting `address` to an invalid value when initialising the peripheral as a slave.
+- Specifying an invalid `address` when calling any `read` or `write` functions.
+- Passing an invalid pointer as `handler` to `i2c_transfer_async`.
+- Calling `i2c_transfer_abort` when no transfer is currently in progress.
+
+```
+TODO: List of undefined behaviours
+```
+
+
+
+## Impact on Partner implementations
+
+For each target implementation the existing API must be refactored or reimplemented to conform to the updated API. Given that many partners have a single implementation for each board family, generally only one target will need to be updated per partner.
+
+- STM32 - Impact: Low
+
+  There is only one implementation for I2C that functions for all of the partners boards, updating to the new API requires a rewrite of only this single implementation.
+
+- K64F - Impact: Medium - No implementations: 3
+
+  There are three implementations for I2C. One for `K20` family boards, one for `KL` family boards, and one for `MCUX` boards. All three implementations would require rewriting for the new API.
+
+- NORDIC - Impact: Low - No implementations: 2
+
+  There are two implementations one for `NRF5*` family boards, and one specifically for `NRF51822`. There doesn't seem to be an apparent reason why these couldn't be unified into a single implementation when the API is updated.
+
+- Atmel - Impact: Low - No implementations: 2
+
+  One implementation for `M0+` family boards, another implementation for `M4` boards.
+
+- Silicon Labs - Impact: Low - No implementations: 1
+
+  A single implementation for all boards, only a single update required.
+
+- Maxim - Impact: Medium - No implementation 6
+
+  There are 6 instances of the `i2c_api` driver, only 3 of these are unique and the rest are copies in different folders so realistically only 3 updates are required.
+
+  
+
+## Drawbacks
+
+These are breaking changes to the API. The changes will require each partner to reimplement their current I2C drivers to conform with the updated API.
+
+
+## FAQ
+
