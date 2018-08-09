@@ -38,8 +38,6 @@ typedef struct _wifi_scan_hdl {
 
 #define MAX_SCAN_TIMEOUT (15000)
 
-static bool _inited = false;
-
 static rtw_result_t scan_result_handler( rtw_scan_handler_result_t* malloced_scan_result )
 {
     wifi_scan_hdl *scan_handler = (wifi_scan_hdl *)malloced_scan_result->user_data;
@@ -88,14 +86,9 @@ static rtw_result_t scan_result_handler( rtw_scan_handler_result_t* malloced_sca
 }
 
 RTWInterface::RTWInterface(RTW_EMAC &get_rtw_emac, OnboardNetworkStack &get_rtw_obn_stack) :
+        EMACInterface(get_rtw_emac, get_rtw_obn_stack),
         rtw_emac(get_rtw_emac),
-        rtw_obn_stack(get_rtw_obn_stack),
-        rtw_interface(NULL),
-        _dhcp(true), 
-        _ip_address(), 
-        _netmask(), 
-        _gateway(),
-        _mac_address()
+        rtw_obn_stack(get_rtw_obn_stack)
 {
     rtw_emac.power_up();
 }
@@ -103,22 +96,7 @@ RTWInterface::RTWInterface(RTW_EMAC &get_rtw_emac, OnboardNetworkStack &get_rtw_
 RTWInterface::~RTWInterface()
 {
     rtw_emac.wlan_emac_link_change(false);
-    rtw_interface->bringdown();
-}
-
-nsapi_error_t RTWInterface::set_network(const char *ip_address, const char *netmask, const char *gateway)
-{
-    _dhcp = false;
-    strncpy(_ip_address, ip_address ? ip_address : "", sizeof(_ip_address));
-    strncpy(_netmask, netmask ? netmask : "", sizeof(_netmask));
-    strncpy(_gateway, gateway ? gateway : "", sizeof(_gateway));
-    return NSAPI_ERROR_OK;
-}
-
-nsapi_error_t RTWInterface::set_dhcp(bool dhcp)
-{
-    _dhcp = dhcp;
-    return NSAPI_ERROR_OK;
+    EMACInterface::disconnect();
 }
 
 /*
@@ -190,20 +168,10 @@ nsapi_error_t RTWInterface::connect()
     }
 
     rtw_emac.wlan_emac_link_change(true);
-    if (!rtw_interface) {
-        nsapi_error_t err = rtw_obn_stack.add_ethernet_interface(rtw_emac, true, &rtw_interface);
-        if (err != NSAPI_ERROR_OK) {
-            rtw_interface = NULL;
-            return err;
-        }
-    }
 
-    int rtw_if_bringup = rtw_interface->bringup(_dhcp,
-                           _ip_address[0] ? _ip_address : 0,
-                           _netmask[0] ? _netmask : 0,
-                           _gateway[0] ? _gateway : 0,
-                           DEFAULT_STACK);
-    return rtw_if_bringup;
+    ret = EMACInterface::connect();
+
+    return ret;
 }
 
 nsapi_error_t RTWInterface::scan(WiFiAccessPoint *res, unsigned count)
@@ -257,7 +225,9 @@ nsapi_error_t RTWInterface::disconnect()
     char essid[33];
 
     rtw_emac.wlan_emac_link_change(false);
-    rtw_interface->bringdown();
+
+    EMACInterface::disconnect();
+
     if (wifi_is_connected_to_ap() != RTW_SUCCESS) {
         return NSAPI_ERROR_NO_CONNECTION;
     }
@@ -275,38 +245,6 @@ nsapi_error_t RTWInterface::disconnect()
 int RTWInterface::is_connected()
 {
     return !wifi_is_connected_to_ap();
-}
-
-const char *RTWInterface::get_mac_address()
-{
-    if (rtw_interface->get_mac_address(_mac_address, sizeof _mac_address)) {
-        return _mac_address;
-    }
-    return 0;
-}
-
-const char *RTWInterface::get_ip_address()
-{
-    if (rtw_interface->get_ip_address(_ip_address, sizeof _ip_address)) {
-        return _ip_address;
-    }
-    return 0;
-}
-
-const char *RTWInterface::get_netmask()
-{
-    if (rtw_interface->get_netmask(_netmask, sizeof _netmask)) {
-        return _netmask;
-    }
-    return 0;
-}
-
-const char *RTWInterface::get_gateway()
-{
-    if (rtw_interface->get_gateway(_gateway, sizeof _gateway)) {
-        return _gateway;
-    }
-    return 0;
 }
 
 NetworkStack *RTWInterface::get_stack()
