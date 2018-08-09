@@ -81,10 +81,10 @@ void test_single_call(void)
     int32_t sem_slots = sem.wait(0);
     TEST_ASSERT_EQUAL(0, sem_slots);
 
-    sem_slots = sem.wait(TEST_DELAY_MS + 1);
+    sem_slots = sem.wait(TEST_DELAY_MS + 2);
     TEST_ASSERT_EQUAL(1, sem_slots);
 
-    sem_slots = sem.wait(TEST_DELAY_MS + 1);
+    sem_slots = sem.wait(TEST_DELAY_MS + 2);
     TEST_ASSERT_EQUAL(0, sem_slots);
 
     timeout.detach();
@@ -114,7 +114,7 @@ void test_cancel(void)
     TEST_ASSERT_EQUAL(0, sem_slots);
     timeout.detach();
 
-    sem_slots = sem.wait(TEST_DELAY_MS + 1);
+    sem_slots = sem.wait(TEST_DELAY_MS + 2);
     TEST_ASSERT_EQUAL(0, sem_slots);
 }
 
@@ -147,7 +147,7 @@ void test_override(void)
     TEST_ASSERT_EQUAL(0, sem_slots);
     timeout.attach_callback(mbed::callback(sem_callback, &sem2), 2.0f * TEST_DELAY_US);
 
-    sem_slots = sem2.wait(2 * TEST_DELAY_MS + 1);
+    sem_slots = sem2.wait(2 * TEST_DELAY_MS + 2);
     TEST_ASSERT_EQUAL(1, sem_slots);
     sem_slots = sem1.wait(0);
     TEST_ASSERT_EQUAL(0, sem_slots);
@@ -177,7 +177,7 @@ void test_multiple(void)
     for (size_t i = 0; i < NUM_TIMEOUTS; i++) {
         timeouts[i].attach_callback(mbed::callback(cnt_callback, &callback_count), TEST_DELAY_US);
     }
-    Thread::wait(TEST_DELAY_MS + 1);
+    Thread::wait(TEST_DELAY_MS + 2);
     TEST_ASSERT_EQUAL(NUM_TIMEOUTS, callback_count);
 }
 
