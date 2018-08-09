@@ -61,6 +61,7 @@ const char *AT_CellularStack::get_ip_address()
         int len = _at.read_string(_ip, NSAPI_IPv4_SIZE - 1);
         if (len == -1) {
             _ip[0] = '\0';
+            _at.resp_stop();
             _at.unlock();
             // no IPV4 address, return
             return NULL;
