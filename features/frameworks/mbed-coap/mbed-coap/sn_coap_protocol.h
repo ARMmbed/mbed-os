@@ -225,6 +225,18 @@ extern void sn_coap_protocol_remove_sent_blockwise_message(struct coap_s *handle
 extern int8_t sn_coap_protocol_delete_retransmission(struct coap_s *handle, uint16_t msg_id);
 
 /**
+ * \fn void sn_coap_protocol_delete_retransmission_by_token(struct coap_s *handle)
+ *
+ * \param *handle Pointer to CoAP library handle
+ * \token Token to be removed
+ * \token_len Length of the token
+ * \return returns 0 when success, -1 for invalid parameter, -2 if message was not found
+ *
+ * \brief If re-transmissions are enabled, this function removes message from retransmission buffer.
+ */
+extern int8_t sn_coap_protocol_delete_retransmission_by_token(struct coap_s *handle, uint8_t *token, uint8_t token_len);
+
+/**
  * \fn int8_t sn_coap_convert_block_size(uint16_t block_size)
  *
  * \brief Utility function to convert block size.

@@ -1,5 +1,11 @@
 # Change Log
 
+## [v4.6.0](https://github.com/ARMmbed/mbed-coap/releases/tag/v4.6.0) 
+**New feature:**
+-  Add new API which clears one item from the resend queue based on token
+
+-[Full Changelog](https://github.com/ARMmbed/mbed-coap/compare/v4.5.1...v4.6.0)
+
 ## [v4.5.1](https://github.com/ARMmbed/mbed-coap/releases/tag/v4.5.1) 
 **Closed issues:**
  - IOTCLT-2883 - Blockwise observations not completing
