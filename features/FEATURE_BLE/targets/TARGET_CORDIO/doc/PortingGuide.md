@@ -1,4 +1,4 @@
-# Porting guide
+## Porting guide
 
 There are two main steps to enable the Mbed BLE Cordio port:
 
@@ -6,7 +6,7 @@ There are two main steps to enable the Mbed BLE Cordio port:
 
 1. Implement the `CordioHCIDriver` class targeting the Bluetooth controller.
 
-## Configure the target
+### Configure the target
 
 1. Define all Mbed OS targets in the `targets/target.json` file:
 
@@ -33,17 +33,17 @@ Compile the BLE Cordio port sources:
     }
 ```
 
-## Implement CordioHCIDriver:
+### Implement CordioHCIDriver:
 
 Include an HCI driver for the BLE module used by the target, and a factory function that creates the BLE instance you use.
 
-### Create source folder
+#### Create source folder
 
 1. Navigate to the folder of the BLE API that hosts the target port `features/FEATURE_BLE/targets`.
 
 1. Create a folder containing the port code to isolate it from other code. Begin this folder's name with `TARGET_` and the rest of the name in capital letters.
 
-### Create the HCI driver
+#### Create the HCI driver
 
 The HCI driver is split in two entities. One handles HCI communication with the Bluetooth module. The other handles initialization, reset sequence, and memory dedicated to the Bluetooth controller.
 
@@ -182,31 +182,38 @@ Three functions handle the reset sequence process:
 
 * `handle_reset_sequence`: Entry point to the state machine handling the reset process. Every time an HCI packet is received during the reset sequence, this function is called with the HCI packet received. Its purpose is to prepare the Bluetooth controller and set the parameters the stack needs to operate properly. You can override this function if necessary.
 
-* `signal_reset_sequence_done`: Once the reset sequence is finished, you can call this function. You cannot override it.
+* `signal_reset_sequence_done`: Once the reset sequence is completed, you can call this function. You cannot override it.
 
 ###### Controller parameters to set
 
 This step tells the controller which events are relevant to the stack.
 
-The following parameters should be set in the controller (if supported):
+You should set the following parameters in the controller (if supported):
 
-* Event mask: Call `HciSetEventMaskCmd((uint8_t *) hciEventMask)`.
+* **Event mask:** Call `HciSetEventMaskCmd((uint8_t *) hciEventMask)`.
 
-* LE event mask: Call `HciLeSetEventMaskCmd((uint8_t *) hciLeEventMask)`.
+* **LE event mask:** Call `HciLeSetEventMaskCmd((uint8_t *) hciLeEventMask)`.
 
-* 2nd page of events mask: Call `HciSetEventMaskPage2Cmd((uint8_t *) hciEventMaskPage2)`.
+* **2nd page of events mask:** Call `HciSetEventMaskPage2Cmd((uint8_t *) hciEventMaskPage2)`.
 
 ###### Stack runtime parameters
 
 At runtime, you can get stack parameters from the controller:
 
-* Bluetooth address: Query this with `HciReadBdAddrCmd`. Copy the response into `hciCoreCb.bdAddr` with `BdaCpy`.
-* Buffer size of the controller: Query this with `HciLeReadBufSizeCmd`. The return parameter `HC_ACL_Data_Packet_Length` is copied to `hciCoreCb.bufSize`. Copy the response parameter `HC_Synchronous_Data_Packet_Length` into `hciCoreCb.numBufs`. The value of `hciCoreCb.availBufs` shall be initialized with `hciCoreCb.numBufs`.
-* Supported state: Query this with `HciLeReadSupStatesCmd`, and copy the response into `hciCoreCb.leStates`.
-* Whitelist size: Query this with `HciLeReadWhiteListSizeCmd`, and copy the response into `hciCoreCb.whiteListSize`.
-* LE features supported: Query this with `HciLeReadLocalSupFeatCmd`, and copy the response into `hciCoreCb.leSupFeat`.
-* Resolving list size: Query this with `hciCoreReadResolvingListSize`, and copy the response into `hciCoreCb.resListSize`.
-* Max data length: Query this with `hciCoreReadMaxDataLen`, and pass the response parameters `supportedMaxTxOctets` and `supportedMaxTxTime` to the function `HciLeWriteDefDataLen`.
+* **Bluetooth address:** Query this with `HciReadBdAddrCmd`. Copy the response into `hciCoreCb.bdAddr` with `BdaCpy`.
+
+* **Buffer size of the controller:** Query this with `HciLeReadBufSizeCmd`.
+  * The return parameter `HC_ACL_Data_Packet_Length` is copied to `hciCoreCb.bufSize`. Copy the response parameter `HC_Synchronous_Data_Packet_Length` into `hciCoreCb.numBufs`. `hciCoreCb.numBufs` initializes the value of `hciCoreCb.availBufs`.
+
+* **Supported state:** Query this with `HciLeReadSupStatesCmd`, and copy the response into `hciCoreCb.leStates`.
+
+* **Whitelist size:** Query this with `HciLeReadWhiteListSizeCmd`, and copy the response into `hciCoreCb.whiteListSize`.
+
+* **LE features supported:** Query this with `HciLeReadLocalSupFeatCmd`, and copy the response into `hciCoreCb.leSupFeat`.
+
+* **Resolving list size:** Query this with `hciCoreReadResolvingListSize`, and copy the response into `hciCoreCb.resListSize`.
+
+* **Max data length:** Query this with `hciCoreReadMaxDataLen`, and pass the response parameters `supportedMaxTxOctets` and `supportedMaxTxTime` to the function `HciLeWriteDefDataLen`.
 
 **Example:**
 
@@ -457,6 +464,6 @@ mbed test -t <toolchain> -m <target> -n mbed-os-features-feature_ble-targets-tar
 
 You can use the application [mbed-os-cordio-hci-passthrough](https://github.com/ARMmbed/mbed-os-cordio-hci-passthrough) to proxify a Bluetooth controller connected to an Mbed board.
 
-The host sent bytes over the board serial, which the `HCITransport Driver` then forwards. Bytes sent by the controller go back to the host through the board serial.
+The host sent bytes over the board serial, which the `HCITransport Driver` forwards. Bytes sent by the controller go back to the host through the board serial.
 
-This application can be used to validate the transport driver and debug the initialization process.
+You can use this application to validate the transport driver and debug the initialization process.
