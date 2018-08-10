@@ -35,7 +35,7 @@ Compile the BLE Cordio port sources:
 
 ## Implement CordioHCIDriver:
 
-Include an HCI driver for the BLE module used by the target, and a factory function which creates the BLE instance you use.
+Include an HCI driver for the BLE module used by the target, and a factory function that creates the BLE instance you use.
 
 ### Create source folder
 
@@ -45,7 +45,7 @@ Include an HCI driver for the BLE module used by the target, and a factory funct
 
 ### Create the HCI driver
 
-The HCI driver is split in two entities: one which handle HCI communication with the Bluetooth module and the other handling the initialization, reset sequence and memory dedicated for the Bluetooth controller.
+The HCI driver is split in two entities. One handles HCI communication with the Bluetooth module. The other handles initialization, reset sequence, and memory dedicated to the Bluetooth controller.
 
 More information about the architecture can be found in [HCI abstraction architecture](HCIAbstraction.md).
 
@@ -89,7 +89,7 @@ It inherits publicly from the base class `CordioHCITransportDriver`.
 
 * **Sending data**: The function `write` sends data in input to the Bluetooth controller and return the number of bytes in the `data` buffer sent. Depending on the type of transport you implement, you may need to send the packet `type` to the controller before the packet data.
 
-* **Receiving data**: Inject HCI data from the Bluetooth controller to the system by invoking the function `on_data_received`. This function is a static one and is provided by the base class.
+* **Receiving data**: Inject HCI data from the Bluetooth controller to the system by calling `on_data_received`. This is a static function provided by the base class.
 
 **Example:**
 
@@ -99,7 +99,7 @@ void on_data_received(uint8_t* data_received, uint16_t length_of_data_received);
 
 #### HCIDriver
 
-The template for the driver is:
+The HCIDriver template is:
 
 ```
 #include "CordioHCIDriver.h"
