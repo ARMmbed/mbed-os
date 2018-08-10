@@ -326,15 +326,18 @@
 									{% endfor %}
 								</option>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.libs.{{u.id}}" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.libs" valueType="libs">
-									{% for lib in opts['ld']['user_libraries'] %}
+									{% for lib in opts['ld']['system_libraries'] %}
 									<listOptionValue builtIn="false" value="{{lib}}"/>
 									{% endfor %}
-									{% for lib in opts['ld']['system_libraries'] %}
+									{% for lib in opts['ld']['user_libraries'] %}
 									<listOptionValue builtIn="false" value="{{lib}}"/>
 									{% endfor %}
 								</option>
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.otherobjs.{{u.id}}" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.cpp.linker.otherobjs" valueType="userObjs">
 									{% for path in opts['ld']['object_files'] %}
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/{{path}}&quot;"/>
+									{% endfor %}
+									{% for path in opts['ld']['user_library_files'] %}
 									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/{{path}}&quot;"/>
 									{% endfor %}
 								</option>
