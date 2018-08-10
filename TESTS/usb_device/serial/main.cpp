@@ -43,6 +43,10 @@
 #define SERIAL_LOOPBACK_REPS 100
 #define USB_RECONNECT_DELAY_MS 200
 
+// Additional delay necessary for Windows hosts
+// to handle the reconnect operation correctly.
+#define USB_DISCONNECT_DELAY_MS 1
+
 using utest::v1::Case;
 using utest::v1::Specification;
 using utest::v1::Harness;
@@ -92,6 +96,7 @@ void test_cdc_usb_reconnect()
     TEST_ASSERT_TRUE(usb_cdc.configured());
     TEST_ASSERT_TRUE(usb_cdc.ready());
 
+    wait_ms(USB_DISCONNECT_DELAY_MS);
     // Disconnect the USB device.
     usb_cdc.disconnect();
     TEST_ASSERT_FALSE(usb_cdc.configured());
@@ -116,6 +121,7 @@ void test_cdc_usb_reconnect()
     TEST_ASSERT_TRUE(usb_cdc.configured());
     TEST_ASSERT_TRUE(usb_cdc.ready());
 
+    wait_ms(USB_DISCONNECT_DELAY_MS);
     // Disconnect the USB device again.
     usb_cdc.disconnect();
     TEST_ASSERT_FALSE(usb_cdc.configured());
@@ -345,6 +351,7 @@ void test_serial_usb_reconnect()
     TEST_ASSERT_EQUAL_INT(0, usb_serial.readable());
 
     // Disconnect the USB device.
+    wait_ms(USB_DISCONNECT_DELAY_MS);
     usb_serial.disconnect();
     TEST_ASSERT_FALSE(usb_serial.configured());
     TEST_ASSERT_FALSE(usb_serial.connected());
@@ -374,6 +381,7 @@ void test_serial_usb_reconnect()
     TEST_ASSERT_EQUAL_INT(0, usb_serial.readable());
 
     // Disconnect the USB device again.
+    wait_ms(USB_DISCONNECT_DELAY_MS);
     usb_serial.disconnect();
     TEST_ASSERT_FALSE(usb_serial.configured());
     TEST_ASSERT_FALSE(usb_serial.connected());
