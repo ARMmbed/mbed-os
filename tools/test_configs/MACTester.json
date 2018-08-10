@@ -1,0 +1,48 @@
+{
+    "config": {
+        "radio-type":{
+            "help": "options are ATMEL, MCR20, OTHER",
+            "value": "ATMEL"
+        },
+        "header-file": {
+            "help" : "String for including your driver header file",
+            "value" : "\"EthernetInterface.h\""
+        },
+        "object-construction" : {
+            "value" : "new EthernetInterface()"
+        },
+        "connect-statement" : {
+            "help" : "Must use 'net' variable name",
+            "value" : "net->connect()"
+        },
+        "echo-server-addr" : {
+            "help" : "IP address of echo server",
+            "value" : "\"echo.mbedcloudtesting.com\""
+        },
+        "echo-server-port" : {
+            "help" : "Port of echo server",
+            "value" : "7"
+        },
+        "tcp-echo-prefix" : {
+            "help" : "Some servers send a prefix before echoed message",
+            "value" : null
+        },
+        "sim-blockdevice": {
+            "help": "Simulated block device, requires sufficient heap",
+            "macro_name": "MBED_TEST_SIM_BLOCKDEVICE",
+            "value": "HeapBlockDevice"
+        }
+    },
+    "macros": ["YOTTA_CFG_MBED_TRACE_LINE_LENGTH=200", "OS_TASKCNT=4", "OS_IDLESTKSIZE=32"],
+    "target_overrides": {
+        "*": {
+            "target.features_add": ["NANOSTACK", "LOWPAN_HOST", "COMMON_PAL", "LWIP"],
+            "platform.stdio-convert-newlines": true,
+            "platform.stdio-baud-rate": 115200,
+            "mbed-mesh-api.heap-size": 6000,
+            "nanostack-hal.event_loop_thread_stack_size": 2000,
+            "mbed-trace.enable": true,
+            "nsapi.default-stack": "LWIP"
+        }
+    }
+}
