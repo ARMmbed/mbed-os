@@ -8,11 +8,11 @@ There are two main steps to enable the Mbed BLE Cordio port:
 
 ## Configure the target
 
-Define all Mbed OS targets in the `targets/target.json` file:
+1. Define all Mbed OS targets in the `targets/target.json` file:
 
-* Add BLE support to the target:
+1. Add BLE support to the target:
 
- * Add the string `BLE` to the target's list of `features`. This adds the BLE API sources to the list of sources compiled for the target.
+  * Add the string `BLE` to the target's list of `features`. This adds the BLE API sources to the list of sources compiled for the target:
 
 ```
     "TARGET_NAME": {
@@ -24,7 +24,7 @@ Define all Mbed OS targets in the `targets/target.json` file:
 
 Compile the BLE Cordio port sources:
 
-* Add the string `CORDIO` to the `extra_labels` property of the JSON file.
+* Add the string `CORDIO` to the `extra_labels` property of the JSON file:
 
 ```
     "TARGET_NAME": {
@@ -39,7 +39,7 @@ Include an HCI driver for the BLE module used by the target, and a factory funct
 
 ### Create source folder
 
-1. Navigate to the folder of the BLE API that hosts target port `features/FEATURE_BLE/targets`.
+1. Navigate to the folder of the BLE API that hosts the target port `features/FEATURE_BLE/targets`.
 
 1. Create a folder containing the port code to isolate it from other code. Begin this folder's name with `TARGET_` and the rest of the name in capital letters.
 
@@ -47,7 +47,7 @@ Include an HCI driver for the BLE module used by the target, and a factory funct
 
 The HCI driver is split in two entities: one which handle HCI communication with the Bluetooth module and the other handling the initialization, reset sequence and memory dedicated for the Bluetooth controller.
 
-More information about the architecture can be found in the [HCI abstraction architecture](HCIAbstraction.md) document.
+More information about the architecture can be found in [HCI abstraction architecture](HCIAbstraction.md).
 
 #### HCITransport
 
@@ -89,7 +89,9 @@ It inherits publicly from the base class `CordioHCITransportDriver`.
 
 * **Sending data**: The function `write` sends data in input to the Bluetooth controller and return the number of bytes in the `data` buffer sent. Depending on the type of transport you implement, you may need to send the packet `type` to the controller before the packet data.
 
-* **Receiving data**: Inject HCI data from the Bluetooth controller to the system by invoking the function `on_data_received`. This function is a static one and is provided by the base class:
+* **Receiving data**: Inject HCI data from the Bluetooth controller to the system by invoking the function `on_data_received`. This function is a static one and is provided by the base class.
+
+**Example:**
 
 ```
 void on_data_received(uint8_t* data_received, uint16_t length_of_data_received);
@@ -137,11 +139,11 @@ private:
 
 The functions `do_initialize` and `do_terminate` handle initialization and termination processes. These functions manage the state of the Bluetooth controller.
 
-<span class="notes">**Note:** It is unnecessary to initialize or terminate the HCI transport in those function because it is handled by the base class. The HCI transport is initialized right before the call to `do_initialize` and is terminated right after the call to `do_terminate`.</span>
+<span class="notes">**Note:** It is unnecessary to initialize or terminate the HCI transport in these functions, because that is handled by the base class. The HCI transport is initialized right before the call to `do_initialize` and is terminated right after the call to `do_terminate`.</span>
 
 ##### Memory pool
 
-The function `get_buffer_pool_description` in the base class returns a buffer of 1040 bytes divided in different memory pools:
+The function `get_buffer_pool_description` in the base class returns a buffer of 1040 bytes divided into different memory pools:
 
 | Chunk size (bytes) | Number of chunks |
 |--------------------|------------------|
@@ -152,6 +154,8 @@ The function `get_buffer_pool_description` in the base class returns a buffer of
 | 272                | 1                |
 
 Porting overrides this function if the memory provided by the base class doesn't match what is required by the Bluetooth controller driver.
+
+**Example:**
 
 ```
 buf_pool_desc_t CordioHCIDriver::get_buffer_pool_description()  {
@@ -194,17 +198,17 @@ The following parameters should be set in the controller (if supported):
 
 ###### Stack runtime parameters
 
-At runtime, you can get some stack parameters from the controller:
+At runtime, you can get stack parameters from the controller:
 
 * Bluetooth address: Query this with `HciReadBdAddrCmd`. Copy the response into `hciCoreCb.bdAddr` with `BdaCpy`.
-
-* Buffer size of the controller: Can be obtained by `HciLeReadBufSizeCmd`. The return parameter `HC_ACL_Data_Packet_Length` is copied to `hciCoreCb.bufSize`, and the response parameter `HC_Synchronous_Data_Packet_Length` shall be copied into `hciCoreCb.numBufs`. The value of `hciCoreCb.availBufs` shall be initialized with `hciCoreCb.numBufs`.
-
+* Buffer size of the controller: Query this with `HciLeReadBufSizeCmd`. The return parameter `HC_ACL_Data_Packet_Length` is copied to `hciCoreCb.bufSize`. Copy the response parameter `HC_Synchronous_Data_Packet_Length` into `hciCoreCb.numBufs`. The value of `hciCoreCb.availBufs` shall be initialized with `hciCoreCb.numBufs`.
 * Supported state: Query this with `HciLeReadSupStatesCmd`, and copy the response into `hciCoreCb.leStates`.
 * Whitelist size: Query this with `HciLeReadWhiteListSizeCmd`, and copy the response into `hciCoreCb.whiteListSize`.
 * LE features supported: Query this with `HciLeReadLocalSupFeatCmd`, and copy the response into `hciCoreCb.leSupFeat`.
 * Resolving list size: Query this with `hciCoreReadResolvingListSize`, and copy the response into `hciCoreCb.resListSize`.
-* Max data length: Query this with `hciCoreReadMaxDataLen`, and pass the response parameters `supportedMaxTxOctets` and `supportedMaxTxTime` to the function `HciLeWriteDefDataLen`:
+* Max data length: Query this with `hciCoreReadMaxDataLen`, and pass the response parameters `supportedMaxTxOctets` and `supportedMaxTxTime` to the function `HciLeWriteDefDataLen`.
+
+**Example:**
 
 ```
 void HCIDriver::handle_reset_sequence(uint8_t *pMsg) {
@@ -228,90 +232,90 @@ void HCIDriver::handle_reset_sequence(uint8_t *pMsg) {
         case HCI_OPCODE_RESET:
             /* initialize rand command count */
             randCnt = 0;
-            // set the event mask to control which events are generated by the
-            // controller for the host
+            // Set the event mask to control which events are generated by the
+            // controller for the host.
             HciSetEventMaskCmd((uint8_t *) hciEventMask);
             break;
 
         case HCI_OPCODE_SET_EVENT_MASK:
-            // set the event mask to control which LE events are generated by
-            // the controller for the host
+            // Set the event mask to control which LE events are generated by
+            // the controller for the host.
             HciLeSetEventMaskCmd((uint8_t *) hciLeEventMask);
             break;
 
         case HCI_OPCODE_LE_SET_EVENT_MASK:
-            // set the event mask to control which events are generated by the
-            // controller for the host (2nd page of flags )
+            // Set the event mask to control which events are generated by the
+            // controller for the host (2nd page of flags).
             HciSetEventMaskPage2Cmd((uint8_t *) hciEventMaskPage2);
             break;
 
         case HCI_OPCODE_SET_EVENT_MASK_PAGE2:
-            // Ask the Bluetooth address of the controller
+            // Ask the Bluetooth address of the controller.
             HciReadBdAddrCmd();
             break;
 
         case HCI_OPCODE_READ_BD_ADDR:
-            // Store the Bluetooth address in the stack runtime parameter
+            // Store the Bluetooth address in the stack runtime parameter.
             BdaCpy(hciCoreCb.bdAddr, pMsg);
 
-            // Read the size of the buffer of the controller
+            // Read the size of the buffer of the controller.
             HciLeReadBufSizeCmd();
             break;
 
         case HCI_OPCODE_LE_READ_BUF_SIZE:
-            // Store the buffer parameters in the stack runtime parameters
+            // Store the buffer parameters in the stack runtime parameters.
             BSTREAM_TO_UINT16(hciCoreCb.bufSize, pMsg);
             BSTREAM_TO_UINT8(hciCoreCb.numBufs, pMsg);
 
             /* initialize ACL buffer accounting */
             hciCoreCb.availBufs = hciCoreCb.numBufs;
 
-            // read the states and state combinations supported by the link
-            // layer of the controller
+            // Read the states and state combinations supported by the link
+            // layer of the controller.
             HciLeReadSupStatesCmd();
             break;
 
         case HCI_OPCODE_LE_READ_SUP_STATES:
-            // store supported state and combination in the runtime parameters
-            // of the stack
+            // Store supported state and combination in the runtime parameters
+            // of the stack.
             memcpy(hciCoreCb.leStates, pMsg, HCI_LE_STATES_LEN);
 
-            // read the total of whitelist entries that can be stored in the
+            // Read the total of whitelist entries that can be stored in the
             // controller.
             HciLeReadWhiteListSizeCmd();
             break;
 
         case HCI_OPCODE_LE_READ_WHITE_LIST_SIZE:
-            // store the number of whitelist entries in the stack runtime
-            // parameters
+            // Store the number of whitelist entries in the stack runtime
+            // parameters.
             BSTREAM_TO_UINT8(hciCoreCb.whiteListSize, pMsg);
 
-            // Read the LE features supported by the controller
+            // Read the LE features supported by the controller.
             HciLeReadLocalSupFeatCmd();
             break;
 
         case HCI_OPCODE_LE_READ_LOCAL_SUP_FEAT:
-            // Store the set of LE features supported by the controller
+            // Store the set of LE features supported by the controller.
             BSTREAM_TO_UINT16(hciCoreCb.leSupFeat, pMsg);
 
-            // read the total number of address translation entries which can be
+            // Read the total number of address translation entries which can be
             // stored in the controller resolving list.
             hciCoreReadResolvingListSize();
             break;
 
         case HCI_OPCODE_LE_READ_RES_LIST_SIZE:
-            // store the number of address translation entries in the stack
-            // runtime parameter
+            // Store the number of address translation entries in the stack
+            // runtime parameter.
             BSTREAM_TO_UINT8(hciCoreCb.resListSize, pMsg);
 
-            // read the Controller’s maximum supported payload octets and packet
-            // duration times for transmission and reception
+            // Read the Controller’s maximum supported payload octets and packet
+            // duration times for transmission and reception.
             hciCoreReadMaxDataLen();
             break;
 
         case HCI_OPCODE_LE_READ_MAX_DATA_LEN:
             {
-                // store payload definition in the runtime stack parameters.
+                // Store payload definition in the runtime stack parameters.
                 uint16_t maxTxOctets;
                 uint16_t maxTxTime;
 
@@ -413,7 +417,7 @@ static void hciCoreReadResolvingListSize(void)
 
 The HCI driver is injected to the `CordioBLE` class at manufacture.
 
-Given that the CordioBLE class doesn't know what class constructs the driver nor how to construct it, the port provides a function returning a reference to the HCI driver.
+Given that the `CordioBLE` class doesn't know which class constructs the driver nor how to construct it, the port provides a function returning a reference to the HCI driver.
 
 This function is in the global namespace, and you can call it with:
 
@@ -453,6 +457,6 @@ mbed test -t <toolchain> -m <target> -n mbed-os-features-feature_ble-targets-tar
 
 You can use the application [mbed-os-cordio-hci-passthrough](https://github.com/ARMmbed/mbed-os-cordio-hci-passthrough) to proxify a Bluetooth controller connected to an Mbed board.
 
-Bytes sent by the host over the board serial are forwarded to the controller with the help of the `HCITransportDriver`, while bytes sent by the controller are sent back to the host through the board serial.
+The host sent bytes over the board serial, which the `HCITransport Driver` then forwards. Bytes sent by the controller go back to the host through the board serial.
 
-This application can be used to validate the transport driver and debug the initialization process on a PC host.
+This application can be used to validate the transport driver and debug the initialization process.
