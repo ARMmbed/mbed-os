@@ -23,6 +23,8 @@
 #include "objects.h"
 #include "PeripheralPins.h"
 
+uint8_t serial_can_deep_sleep();
+
 /**
  * Enter idle mode, in which just CPU is halted.
  */
@@ -38,6 +40,9 @@ void hal_sleep(void)
  */
 void hal_deepsleep(void)
 {
+    if (!serial_can_deep_sleep()) {
+        return;
+    }
     SYS_UnlockReg();
     CLK_PowerDown();
     SYS_LockReg();

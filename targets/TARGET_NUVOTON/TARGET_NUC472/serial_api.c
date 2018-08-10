@@ -178,6 +178,25 @@ static const struct nu_modinit_s uart_modinit_tab[] = {
 
 extern void mbed_sdk_init(void);
 
+uint8_t serial_can_deep_sleep()
+{
+    uint8_t sleep_allowed = 1;
+
+    const struct nu_modinit_s *module = uart_modinit_tab;
+    while (module->var != NULL) {
+        struct nu_uart_var *uart_var = (struct nu_uart_var *)module->var;
+        if (uart_var->ref_cnt > 0) {
+            if (!UART_IS_TX_EMPTY(((UART_T *) NU_MODBASE(module->modname)))) {
+                sleep_allowed = 0;
+                break;
+            }
+        }
+        module++;
+    }
+
+    return sleep_allowed;
+}
+
 void serial_init(serial_t *obj, PinName tx, PinName rx)
 {
     // NOTE: With armcc, serial_init() gets called from _sys_open() timing of which is before main()/mbed_sdk_init().

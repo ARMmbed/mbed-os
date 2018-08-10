@@ -139,6 +139,10 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
     cmp_timer = NU_CLAMP(cmp_timer, TMR_CMP_MIN, TMR_CMP_MAX);
     timer_base->CMP = cmp_timer;
 
+    /* Clear any previously pending interrupts */
+    TIMER_ClearIntFlag(timer_base);
+    NVIC_ClearPendingIRQ(TIMER_MODINIT.irq_n);
+
     /* We can call ticker_irq_handler now. */
     NVIC_EnableIRQ(TIMER_MODINIT.irq_n);
 }
