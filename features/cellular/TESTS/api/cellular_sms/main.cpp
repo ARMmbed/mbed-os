@@ -150,11 +150,9 @@ static void test_set_cscs()
 
 static void test_set_csca()
 {
-    TEST_ASSERT(sms->set_cscs("IRA") == NSAPI_ERROR_OK);
-    TEST_ASSERT(sms->set_cscs("8859-1") == NSAPI_ERROR_OK);
-    TEST_ASSERT(sms->set_cscs("PCCP437") == NSAPI_ERROR_OK);
-    TEST_ASSERT(sms->set_cscs("UCS2") == NSAPI_ERROR_OK);
-    TEST_ASSERT(sms->set_cscs("GSM") == NSAPI_ERROR_OK);
+    TEST_ASSERT(sms->set_csca("55555", 129) == NSAPI_ERROR_OK);
+    TEST_ASSERT(sms->set_csca("+35855555", 145) == NSAPI_ERROR_OK);
+    TEST_ASSERT(sms->set_csca(service_center_address, service_address_type) == NSAPI_ERROR_OK);
 }
 
 static void test_set_cpms_me()
