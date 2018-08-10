@@ -15,14 +15,11 @@
  */
 
 #include "FlashSimBlockDevice.h"
-#include "platform/mbed_critical.h"
-#include "platform/mbed_assert.h"
-
+#include "mbed_assert.h"
+#include "mbed_critical.h"
 #include <algorithm>
 #include <stdlib.h>
 #include <string.h>
-
-namespace mbed {
 
 static const bd_size_t min_blank_buf_size = 32;
 
@@ -163,5 +160,3 @@ int FlashSimBlockDevice::get_erase_value() const
 {
     return _erase_value;
 }
-
-} // namespace mbed

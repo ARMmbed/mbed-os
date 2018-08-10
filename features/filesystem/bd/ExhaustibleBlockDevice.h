@@ -24,9 +24,6 @@
 
 #include "BlockDevice.h"
 
-namespace mbed {
-/** \addtogroup filesystem */
-/** @{*/
 
 /** Heap backed block device which simulates failures
  *
@@ -160,7 +157,5 @@ private:
     uint32_t _init_ref_count;
 };
 
-/** @}*/
-} // namespace mbed
 
 #endif

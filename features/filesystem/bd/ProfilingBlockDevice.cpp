@@ -16,7 +16,6 @@
 
 #include "ProfilingBlockDevice.h"
 
-namespace mbed {
 
 ProfilingBlockDevice::ProfilingBlockDevice(BlockDevice *bd)
     : _bd(bd)
@@ -119,5 +118,3 @@ bd_size_t ProfilingBlockDevice::get_erase_count() const
 {
     return _erase_count;
 }
-
-} // namespace mbed
