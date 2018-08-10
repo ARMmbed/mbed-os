@@ -668,7 +668,8 @@ void LoRaWANStack::process_reception(const uint8_t *const payload, uint16_t size
             _ctrl_flags &= ~TX_ONGOING_FLAG;
             state_controller(DEVICE_STATE_STATUS_CHECK);
         } else {
-            if (!_loramac.continue_sending_process()) {
+            if (!_loramac.continue_sending_process() &&
+                _loramac.get_current_slot() != RX_SLOT_WIN_1) {
                 tr_error("Retries exhausted for Class A device");
                 _ctrl_flags &= ~TX_DONE_FLAG;
                 _ctrl_flags |= TX_ONGOING_FLAG;

@@ -780,6 +780,7 @@ bool LoRaMac::continue_sending_process()
     if (_params.ack_timeout_retry_counter > _params.max_ack_timeout_retries) {
         _mac_commands.clear_command_buffer();
         _params.adr_ack_counter++;
+        _lora_time.stop(_params.timers.ack_timeout_timer);
         return false;
     }
 
