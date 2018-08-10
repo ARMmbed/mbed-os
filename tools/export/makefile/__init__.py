@@ -29,6 +29,15 @@ from tools.export.exporters import Exporter, apply_supported_whitelist
 from tools.utils import NotSupportedException
 from tools.targets import TARGET_MAP
 
+SHELL_ESCAPE_TABLE = {
+    "(": "\(",
+    ")": "\)",
+}
+
+
+def shell_escape(string):
+    return "".join(SHELL_ESCAPE_TABLE.get(char, char) for char in string)
+
 
 class Makefile(Exporter):
     """Generic Makefile template that mimics the behavior of the python build
@@ -88,18 +97,16 @@ class Makefile(Exporter):
                       if (basename(dirname(dirname(self.export_dir)))
                           == "projectfiles")
                       else [".."]),
-            'cc_cmd': " ".join([basename(self.toolchain.cc[0])] +
-                               self.toolchain.cc[1:]),
-            'cppc_cmd': " ".join([basename(self.toolchain.cppc[0])] +
-                                 self.toolchain.cppc[1:]),
-            'asm_cmd': " ".join([basename(self.toolchain.asm[0])] +
-                                self.toolchain.asm[1:]),
+            'cc_cmd': basename(self.toolchain.cc[0]),
+            'cppc_cmd': basename(self.toolchain.cppc[0]),
+            'asm_cmd': basename(self.toolchain.asm[0]),
             'ld_cmd': basename(self.toolchain.ld[0]),
             'elf2bin_cmd': basename(self.toolchain.elf2bin),
             'link_script_ext': self.toolchain.LINKER_EXT,
             'link_script_option': self.LINK_SCRIPT_OPTION,
             'user_library_flag': self.USER_LIBRARY_FLAG,
             'needs_asm_preproc': self.PREPROCESS_ASM,
+            'shell_escape': shell_escape,
         }
 
         if hasattr(self.toolchain, "preproc"):
@@ -123,6 +130,9 @@ class Makefile(Exporter):
                     'to_be_compiled']:
             ctx[key] = sorted(ctx[key])
         ctx.update(self.format_flags())
+        ctx['asm_flags'].extend(self.toolchain.asm[1:])
+        ctx['c_flags'].extend(self.toolchain.cc[1:])
+        ctx['cxx_flags'].extend(self.toolchain.cppc[1:])
 
         # Add the virtual path the the include option in the ASM flags
         new_asm_flags = []
@@ -264,17 +274,6 @@ class Armc6(Arm):
     """ARM Compiler 6 (armclang) specific generic makefile target"""
     NAME = 'Make-ARMc6'
     TOOLCHAIN = "ARMC6"
-
-    @classmethod
-    def is_target_supported(cls, target_name):
-        target = TARGET_MAP[target_name]
-        if target.core in (
-                "Cortex-M23", "Cortex-M23-NS",
-                "Cortex-M33", "Cortex-M33-NS"
-        ):
-            return False
-        return apply_supported_whitelist(
-            cls.TOOLCHAIN, cls.POST_BINARY_WHITELIST, target)
 
 
 class IAR(Makefile):

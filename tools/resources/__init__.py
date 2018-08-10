@@ -352,7 +352,7 @@ class Resources(object):
     def linker_script(self):
         options = self.get_file_names(FileType.LD_SCRIPT)
         if options:
-            return options[-1]
+            return options[0]
         else:
             return None
 
