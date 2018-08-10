@@ -2909,33 +2909,21 @@
         "extra_labels": ["Maxim", "MAX32625"],
         "supported_toolchains": ["GCC_ARM", "IAR", "ARM"],
         "device_has": ["ANALOGIN", "I2C", "INTERRUPTIN", "LPTICKER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RTC", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "STDIO_MESSAGES", "USTICKER"],
+        "device_name": "MAX32625",
         "release_versions": ["2", "5"],
         "public": false
     },
-    "MAX32625_BOOT": {
-        "inherits": ["MAX32625_BASE"],
-        "extra_labels_add": ["MAX32625_BOOT"],
-        "public": false
-    },
-    "MAX32625_NO_BOOT": {
-        "inherits": ["MAX32625_BASE"],
-        "extra_labels_add": ["MAX32625_NO_BOOT"],
-        "public": false
-    },
     "MAX32625MBED": {
-        "inherits": ["MAX32625_NO_BOOT"]
+        "inherits": ["MAX32625_BASE"],
+        "extra_labels_add": ["MAX32625_NO_BOOT"]
     },
     "MAX32625PICO": {
-        "inherits": ["MAX32625_BOOT"],
-        "extra_labels_add": ["MAX32625PICO_BASE"]
-    },
-    "MAX32625PICO_NO_BOOT": {
-        "inherits": ["MAX32625_NO_BOOT"],
-        "extra_labels_add": ["MAX32625PICO_BASE"]
+        "inherits": ["MAX32625_BASE"],
+        "extra_labels_add": ["MAX32625_BOOT"],
+        "bootloader_supported": true
     },
     "MAX32625NEXPAQ": {
-        "inherits": ["MAX32625_BASE"],
-        "extra_labels_add": ["MAX32625NEXPAQ"]
+        "inherits": ["MAX32625_BASE"]
     },
     "MAX32630FTHR": {
         "inherits": ["Target"],
