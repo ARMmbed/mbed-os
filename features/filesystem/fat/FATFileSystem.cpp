@@ -29,8 +29,7 @@
 #include <errno.h>
 #include <stdlib.h>
 
-////// Error handling /////
-using namespace mbed;
+namespace mbed {
 
 static int fat_error_remap(FRESULT res)
 {
@@ -136,16 +135,14 @@ static Deferred<const char*> fat_path_prefix(int id, const char *path)
     return Deferred<const char*>(buffer, dodelete);
 }
 
-
 ////// Disk operations //////
 
 // Global access to block device from FAT driver
-static BlockDevice *_ffs[FF_VOLUMES] = {0};
+static mbed::BlockDevice *_ffs[FF_VOLUMES] = {0};
 static SingletonPtr<PlatformMutex> _ffs_mutex;
 
-
 // FAT driver functions
-DWORD get_fattime(void)
+extern "C" DWORD get_fattime(void)
 {
     time_t rawtime;
     time(&rawtime);
@@ -158,12 +155,12 @@ DWORD get_fattime(void)
            | (DWORD)(ptm->tm_sec/2    );
 }
 
-void *ff_memalloc(UINT size)
+extern "C" void *ff_memalloc(UINT size)
 {
     return malloc(size);
 }
 
-void ff_memfree(void *p)
+extern "C" void ff_memfree(void *p)
 {
     free(p);
 }
@@ -189,34 +186,34 @@ static DWORD disk_get_sector_count(BYTE pdrv)
     return scount;
 }
 
-DSTATUS disk_status(BYTE pdrv)
+extern "C" DSTATUS disk_status(BYTE pdrv)
 {
     debug_if(FFS_DBG, "disk_status on pdrv [%d]\n", pdrv);
     return RES_OK;
 }
 
-DSTATUS disk_initialize(BYTE pdrv)
+extern "C" DSTATUS disk_initialize(BYTE pdrv)
 {
     debug_if(FFS_DBG, "disk_initialize on pdrv [%d]\n", pdrv);
     return (DSTATUS)_ffs[pdrv]->init();
 }
 
-DRESULT disk_read(BYTE pdrv, BYTE *buff, DWORD sector, UINT count)
+extern "C" DRESULT disk_read(BYTE pdrv, BYTE *buff, DWORD sector, UINT count)
 {
     debug_if(FFS_DBG, "disk_read(sector %d, count %d) on pdrv [%d]\n", sector, count, pdrv);
     DWORD ssize = disk_get_sector_size(pdrv);
-    bd_addr_t addr = (bd_addr_t)sector*ssize;
-    bd_size_t size = (bd_size_t)count*ssize;
+    mbed::bd_addr_t addr = (mbed::bd_addr_t)sector*ssize;
+    mbed::bd_size_t size = (mbed::bd_size_t)count*ssize;
     int err = _ffs[pdrv]->read(buff, addr, size);
     return err ? RES_PARERR : RES_OK;
 }
 
-DRESULT disk_write(BYTE pdrv, const BYTE *buff, DWORD sector, UINT count)
+extern "C" DRESULT disk_write(BYTE pdrv, const BYTE *buff, DWORD sector, UINT count)
 {
     debug_if(FFS_DBG, "disk_write(sector %d, count %d) on pdrv [%d]\n", sector, count, pdrv);
     DWORD ssize = disk_get_sector_size(pdrv);
-    bd_addr_t addr = (bd_addr_t)sector*ssize;
-    bd_size_t size = (bd_size_t)count*ssize;
+    mbed::bd_addr_t addr = (mbed::bd_addr_t)sector*ssize;
+    mbed::bd_size_t size = (mbed::bd_size_t)count*ssize;
     int err = _ffs[pdrv]->erase(addr, size);
     if (err) {
         return RES_PARERR;
@@ -230,7 +227,7 @@ DRESULT disk_write(BYTE pdrv, const BYTE *buff, DWORD sector, UINT count)
     return RES_OK;
 }
 
-DRESULT disk_ioctl(BYTE pdrv, BYTE cmd, void *buff)
+extern "C" DRESULT disk_ioctl(BYTE pdrv, BYTE cmd, void *buff)
 {
     debug_if(FFS_DBG, "disk_ioctl(%d)\n", cmd);
     switch (cmd) {
@@ -263,8 +260,8 @@ DRESULT disk_ioctl(BYTE pdrv, BYTE cmd, void *buff)
             } else {
                 DWORD *sectors = (DWORD*)buff;
                 DWORD ssize = disk_get_sector_size(pdrv);
-                bd_addr_t addr = (bd_addr_t)sectors[0]*ssize;
-                bd_size_t size = (bd_size_t)(sectors[1]-sectors[0]+1)*ssize;
+                mbed::bd_addr_t addr = (mbed::bd_addr_t)sectors[0]*ssize;
+                mbed::bd_size_t size = (mbed::bd_size_t)(sectors[1]-sectors[0]+1)*ssize;
                 int err = _ffs[pdrv]->trim(addr, size);
                 return err ? RES_PARERR : RES_OK;
             }
@@ -272,7 +269,6 @@ DRESULT disk_ioctl(BYTE pdrv, BYTE cmd, void *buff)
 
     return RES_PARERR;
 }
-
 
 ////// Generic filesystem operations //////
 
@@ -825,3 +821,4 @@ void FATFileSystem::dir_rewind(fs_dir_t dir)
     unlock();
 }
 
+} // namespace mbed
