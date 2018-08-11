@@ -251,9 +251,14 @@ void LowPowerTickerWrapper::_schedule_match(timestamp_t current)
     if (!_set_interrupt_allowed) {
 
         // Can't use _intf->set_interrupt so use microsecond Timeout instead
-        uint32_t ticks = cycles_until_match < _min_count_until_match ? cycles_until_match : _min_count_until_match;
-        _timeout.attach_us(mbed::callback(this, &LowPowerTickerWrapper::_timeout_handler), _lp_ticks_to_us(ticks));
-        _pending_timeout = true;
+
+        // Speed optimization - if a timer has already been scheduled
+        // then don't schedule it again.
+        if (!_pending_timeout) {
+            uint32_t ticks = cycles_until_match < _min_count_until_match ? cycles_until_match : _min_count_until_match;
+            _timeout.attach_us(mbed::callback(this, &LowPowerTickerWrapper::_timeout_handler), _lp_ticks_to_us(ticks));
+            _pending_timeout = true;
+        }
         return;
     }
 
