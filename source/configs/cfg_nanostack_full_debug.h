@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016, Arm Limited and affiliates.
+ * Copyright (c) 2015-2016, 2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#include "nanostack_full.cfg"
+#include "cfg_nanostack_full.h"
 
 #define FEA_TRACE_SUPPORT
 #define EXTRA_CONSISTENCY_CHECKS

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017, Arm Limited and affiliates.
+ * Copyright (c) 2016-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,10 +15,7 @@
  * limitations under the License.
  */
 
-/* Thread test harness configuration, derived from thread_border_router to get all thread features */
-
-#include "thread_border_router.cfg"
-
-#define FEA_TRACE_SUPPORT
-#define THREAD_THCI_SUPPORT
-
+/* Config Flags for 6LoWPAN Host */
+#define HAVE_IPV6_ND
+#define HAVE_6LOWPAN_ND
+#define HAVE_MPL
