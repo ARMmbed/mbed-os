@@ -250,8 +250,8 @@ void rtc_write(time_t t)
     }
 
     // Fill RTC structures
-    if (timeinfo.tm_wday == 0) {
-        dateStruct.WeekDay    = 7;
+    if (timeinfo.tm_wday == 0) { /* Sunday specific case */
+        dateStruct.WeekDay    = RTC_WEEKDAY_SUNDAY;
     } else {
         dateStruct.WeekDay    = timeinfo.tm_wday;
     }
