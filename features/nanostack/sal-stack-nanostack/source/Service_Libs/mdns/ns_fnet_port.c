@@ -131,7 +131,7 @@ fnet_socket_t fnet_socket(fnet_address_family_t family, fnet_socket_type_t type,
 fnet_return_t fnet_socket_bind( fnet_socket_t s, const struct sockaddr *name, fnet_size_t namelen )
 {
     (void)namelen;
-    ns_address_t ns_source_addr = {0};
+    ns_address_t ns_source_addr;
     int8_t socket_id = (int8_t)(long)s;
     fnet_return_t fnet_ret_val = FNET_ERR;
     const struct sockaddr_in6 *namein6 = (const struct sockaddr_in6 *) name;

@@ -20,6 +20,7 @@
 #include "coap_service_api_internal.h"
 #include "coap_message_handler.h"
 #include "mbed-coap/sn_coap_protocol.h"
+#include "source/include/sn_coap_protocol_internal.h"
 #include "socket_api.h"
 #include "ns_types.h"
 #include "ns_list.h"
@@ -138,7 +139,6 @@ void transaction_delete(coap_transaction_t *this)
     if (!coap_message_handler_transaction_valid(this)) {
         return;
     }
-
     ns_list_remove(&request_list, this);
     transaction_free(this);
 
@@ -163,11 +163,14 @@ void transactions_delete_all(uint8_t *address_ptr, uint16_t port)
 static int8_t coap_rx_function(sn_coap_hdr_s *resp_ptr, sn_nsdl_addr_s *address_ptr, void *param)
 {
     coap_transaction_t *this = NULL;
-    (void)address_ptr;
     (void)param;
 
+    if (resp_ptr->coap_status == COAP_STATUS_BUILDER_BLOCK_SENDING_DONE) {
+        return 0;
+    }
+
     tr_warn("transaction was not handled %d", resp_ptr->msg_id);
-    if (!resp_ptr) {
+    if (!resp_ptr || !address_ptr) {
         return -1;
     }
     if(resp_ptr->token_ptr){
@@ -193,7 +196,7 @@ coap_msg_handler_t *coap_message_handler_init(void *(*used_malloc_func_ptr)(uint
     }
 
     coap_msg_handler_t *handle;
-    handle = used_malloc_func_ptr(sizeof(coap_msg_handler_t));
+    handle = ns_dyn_mem_alloc(sizeof(coap_msg_handler_t));
     if (handle == NULL) {
         return NULL;
     }
@@ -207,12 +210,15 @@ coap_msg_handler_t *coap_message_handler_init(void *(*used_malloc_func_ptr)(uint
 
     handle->coap = sn_coap_protocol_init(used_malloc_func_ptr, used_free_func_ptr, used_tx_callback_ptr, &coap_rx_function);
     if( !handle->coap ){
-        used_free_func_ptr(handle);
+        ns_dyn_mem_free(handle);
         return NULL;
     }
 
     /* Set default buffer size for CoAP duplicate message detection */
     sn_coap_protocol_set_duplicate_buffer_size(handle->coap, DUPLICATE_MESSAGE_BUFFER_SIZE);
+
+    /* Set default blockwise message size. */
+    sn_coap_protocol_set_block_size(handle->coap, DEFAULT_BLOCKWISE_DATA_SIZE);
 
     /* Set default CoAP retransmission paramters */
     sn_coap_protocol_set_retransmission_parameters(handle->coap, COAP_RESENDING_COUNT, COAP_RESENDING_INTERVAL);
@@ -263,6 +269,7 @@ int16_t coap_message_handler_coap_msg_process(coap_msg_handler_t *handle, int8_t
     sn_nsdl_addr_s src_addr;
     sn_coap_hdr_s *coap_message;
     int16_t ret_val = 0;
+    coap_transaction_t *this = NULL;
 
     if (!cb || !handle) {
         return -1;
@@ -273,8 +280,19 @@ int16_t coap_message_handler_coap_msg_process(coap_msg_handler_t *handle, int8_t
     src_addr.type  =  SN_NSDL_ADDRESS_TYPE_IPV6;
     src_addr.port  =  port;
 
-    coap_message = sn_coap_protocol_parse(handle->coap, &src_addr, data_len, data_ptr, NULL);
+    coap_transaction_t *transaction_ptr = transaction_create();
+    if (!transaction_ptr) {
+        return -1;
+    }
+    transaction_ptr->service_id = coap_service_id_find_by_socket(socket_id);
+    transaction_ptr->client_request = false;// this is server transaction
+    memcpy(transaction_ptr->local_address, *(dst_addr_ptr) == 0xFF ? ns_in6addr_any : dst_addr_ptr, 16);
+    memcpy(transaction_ptr->remote_address, source_addr_ptr, 16);
+    transaction_ptr->remote_port = port;
+
+    coap_message = sn_coap_protocol_parse(handle->coap, &src_addr, data_len, data_ptr, transaction_ptr);
     if (coap_message == NULL) {
+        transaction_delete(transaction_ptr);
         tr_err("CoAP Parsing failed");
         return -1;
     }
@@ -284,36 +302,26 @@ int16_t coap_message_handler_coap_msg_process(coap_msg_handler_t *handle, int8_t
     /* Check, if coap itself sends response, or block receiving is ongoing... */
     if (coap_message->coap_status != COAP_STATUS_OK && coap_message->coap_status != COAP_STATUS_PARSER_BLOCKWISE_MSG_RECEIVED) {
         tr_debug("CoAP library responds");
+        transaction_delete(transaction_ptr);
         ret_val = -1;
         goto exit;
     }
 
     /* Request received */
     if (coap_message->msg_code > 0 && coap_message->msg_code < 32) {
-        coap_transaction_t *transaction_ptr = transaction_create();
-        if (transaction_ptr) {
-            transaction_ptr->service_id = coap_service_id_find_by_socket(socket_id);
-            transaction_ptr->msg_id = coap_message->msg_id;
-            transaction_ptr->client_request = false;// this is server transaction
-            transaction_ptr->req_msg_type = coap_message->msg_type;
-            memcpy(transaction_ptr->local_address, *(dst_addr_ptr) == 0xFF ? ns_in6addr_any : dst_addr_ptr, 16);
-            memcpy(transaction_ptr->remote_address, source_addr_ptr, 16);
-            if (coap_message->token_len) {
-                memcpy(transaction_ptr->token, coap_message->token_ptr, coap_message->token_len);
-                transaction_ptr->token_len = coap_message->token_len;
-            }
-            transaction_ptr->remote_port = port;
-            if (cb(socket_id, coap_message, transaction_ptr) < 0) {
-                // negative return value = message ignored -> delete transaction
-                transaction_delete(transaction_ptr);
-            }
-            goto exit;
-        } else {
-            ret_val = -1;
+        transaction_ptr->msg_id = coap_message->msg_id;
+        transaction_ptr->req_msg_type = coap_message->msg_type;
+        if (coap_message->token_len) {
+            memcpy(transaction_ptr->token, coap_message->token_ptr, coap_message->token_len);
+            transaction_ptr->token_len = coap_message->token_len;
         }
+        if (cb(socket_id, coap_message, transaction_ptr) < 0) {
+            // negative return value = message ignored -> delete transaction
+           transaction_delete(transaction_ptr);
+        }
+        goto exit;
     /* Response received */
     } else {
-        coap_transaction_t *this = NULL;
         if (coap_message->token_ptr) {
             this = transaction_find_client_by_token(coap_message->token_ptr, coap_message->token_len, source_addr_ptr, port);
         }
@@ -331,6 +339,10 @@ int16_t coap_message_handler_coap_msg_process(coap_msg_handler_t *handle, int8_t
     }
 
 exit:
+    if (coap_message->coap_status == COAP_STATUS_PARSER_BLOCKWISE_MSG_RECEIVED) {
+        handle->sn_coap_service_free(coap_message->payload_ptr);
+    }
+
     sn_coap_parser_release_allocated_coap_msg_mem(handle->coap, coap_message);
 
     return ret_val;
@@ -350,7 +362,7 @@ uint16_t coap_message_handler_request_send(coap_msg_handler_t *handle, int8_t se
     tr_debug("Service %d, send CoAP request payload_len %d", service_id, payload_len);
     transaction_ptr = transaction_create();
 
-    if (!uri || !transaction_ptr) {
+    if (!uri || !transaction_ptr || !handle) {
         return 0;
     }
 
@@ -383,7 +395,10 @@ uint16_t coap_message_handler_request_send(coap_msg_handler_t *handle, int8_t se
 
     request.payload_len = payload_len;
     request.payload_ptr = (uint8_t *) payload_ptr;  // Cast away const and trust that nsdl doesn't modify...
-    data_len = sn_coap_builder_calc_needed_packet_data_size(&request);
+
+    prepare_blockwise_message(handle->coap, &request);
+
+    data_len = sn_coap_builder_calc_needed_packet_data_size_2(&request, sn_coap_protocol_get_configured_blockwise_size(handle->coap));
     data_ptr = own_alloc(data_len);
     if(data_len > 0 && !data_ptr){
         transaction_delete(transaction_ptr);
@@ -408,6 +423,10 @@ uint16_t coap_message_handler_request_send(coap_msg_handler_t *handle, int8_t se
 
     // Free allocated data
     own_free(data_ptr);
+    if(request.options_list_ptr) {
+        own_free(request.options_list_ptr);
+    }
+
     if(request_response_cb == NULL){
         //No response expected
         return 0;
@@ -426,8 +445,10 @@ static int8_t coap_message_handler_resp_build_and_send(coap_msg_handler_t *handl
     dst_addr.addr_len  =  16;
     dst_addr.type  =  SN_NSDL_ADDRESS_TYPE_IPV6;
     dst_addr.port  =  transaction_ptr->remote_port;
-
-    data_len = sn_coap_builder_calc_needed_packet_data_size(coap_msg_ptr);
+#if SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE
+    prepare_blockwise_message(handle->coap, coap_msg_ptr);
+#endif
+    data_len = sn_coap_builder_calc_needed_packet_data_size_2(coap_msg_ptr, sn_coap_protocol_get_configured_blockwise_size(handle->coap));
     data_ptr = own_alloc(data_len);
     if (data_len > 0 && !data_ptr) {
         return -1;

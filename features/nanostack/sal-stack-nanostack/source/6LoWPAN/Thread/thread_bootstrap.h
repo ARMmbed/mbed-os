@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2017, Arm Limited and affiliates.
+ * Copyright (c) 2014-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Redistribution and use in source and binary forms, with or without
@@ -52,7 +52,7 @@ struct thread_info_s;
 struct protocol_interface_info_entry;
 struct thread_leader_data_s;
 struct link_configuration;
-struct mle_neigh_table_entry_t;
+struct mac_neighbor_table_entry;
 struct mle_tlv_info_s;
 
 typedef enum {
@@ -103,12 +103,11 @@ uint8_t thread_mode_get_by_interface_ptr(struct protocol_interface_info_entry *c
 void thread_bootstrap_device_synch_finish(protocol_interface_info_entry_t *cur);
 int8_t thread_mle_class_init(int8_t interface_id);
 void thread_general_mle_receive_cb(int8_t interface_id, mle_message_t *mle_msg, mle_security_header_t *security_headers);
-int thread_bootstrap_reset_child_info(protocol_interface_info_entry_t *cur, struct mle_neigh_table_entry_t *child);
 void thread_bootstrap_ready(struct protocol_interface_info_entry *cur);
 int thread_bootstrap_reset(struct protocol_interface_info_entry *cur);
 void thread_neighbor_list_clean(struct protocol_interface_info_entry *cur);
 bool thread_bootstrap_request_network_data(struct protocol_interface_info_entry *cur, struct thread_leader_data_s *leaderData, uint16_t short_address);
-bool thread_check_is_this_my_parent(struct protocol_interface_info_entry *cur, struct mle_neigh_table_entry_t *entry_temp);
+bool thread_check_is_this_my_parent(struct protocol_interface_info_entry *cur, struct mac_neighbor_table_entry *entry_temp);
 void thread_clean_old_16_bit_address_based_addresses(struct protocol_interface_info_entry *cur);
 int8_t thread_bootsrap_event_trig(thread_bootsrap_event_type_e event_type, int8_t Id, arm_library_event_priority_e priority);
 void thread_interface_init(struct protocol_interface_info_entry *cur);
@@ -126,7 +125,6 @@ int thread_parent_discover_start(int8_t interface_id, uint8_t *mac64 );
 
 bool thread_device_synch_timeout(int8_t interface_id, uint16_t msgId, bool usedAllRetries);
 bool thread_link_request_timeout(int8_t interface_id, uint16_t msgId, bool usedAllRetries);
-bool thread_instance_id_matches(struct protocol_interface_info_entry *cur, struct thread_leader_data_s *leaderData);
 int thread_leader_data_validation(struct protocol_interface_info_entry *cur, struct thread_leader_data_s *leaderData, struct mle_tlv_info_s *routeTlv);
 uint8_t thread_calculate_link_margin(int8_t dbm, uint8_t compLinkMarginFromParent);
 uint8_t thread_compute_link_margin(int8_t rssi);

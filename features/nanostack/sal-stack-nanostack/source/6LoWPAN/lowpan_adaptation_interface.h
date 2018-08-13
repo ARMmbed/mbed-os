@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017, Arm Limited and affiliates.
+ * Copyright (c) 2016-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,12 +21,20 @@
 
 struct protocol_interface_info_entry;
 struct mcps_data_conf_s;
+struct mcps_data_ind_s;
 struct buffer;
+struct mpx_api_s;
+struct mac_neighbor_table_entry;
+
 int8_t lowpan_adaptation_interface_init(int8_t interface_id, uint16_t mac_mtu_size);
+
+void lowpan_adaptation_interface_etx_update_enable(int8_t interface_id);
 
 int8_t lowpan_adaptation_interface_free(int8_t interface_id);
 
 int8_t lowpan_adaptation_interface_reset(int8_t interface_id);
+
+int8_t lowpan_adaptation_interface_mpx_register(int8_t interface_id, struct mpx_api_s *mpx_api, uint16_t mpx_user_id);
 
 /**
  * \brief call this before normatl TX. This function prepare buffer link spesific metadata and verify packet destination
@@ -37,9 +45,13 @@ int8_t lowpan_adaptation_interface_tx(struct protocol_interface_info_entry *cur,
 
 int8_t lowpan_adaptation_interface_tx_confirm(struct protocol_interface_info_entry *cur, const struct mcps_data_conf_s *confirm);
 
+void lowpan_adaptation_interface_data_ind(struct protocol_interface_info_entry *cur, const struct mcps_data_ind_s *data_ind);
+
 struct buffer *lowpan_adaptation_reassembly(struct protocol_interface_info_entry *cur, struct buffer *buf);
 
 bool lowpan_adaptation_tx_active(int8_t interface_id);
+
+void lowpan_adaptation_remove_free_indirect_table(struct protocol_interface_info_entry *cur_interface, struct mac_neighbor_table_entry *entry_ptr);
 
 int8_t lowpan_adaptation_indirect_free_messages_from_queues_by_address(struct protocol_interface_info_entry *cur, uint8_t *address_ptr, addrtype_t adr_type);
 

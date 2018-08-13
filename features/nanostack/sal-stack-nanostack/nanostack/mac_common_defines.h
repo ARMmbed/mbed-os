@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017, Arm Limited and affiliates.
+ * Copyright (c) 2016-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,6 +30,7 @@
 
 #define MAC_FRAME_VERSION_2003         0        /**< FCF - IEEE 802.15.4-2003 compatible */
 #define MAC_FRAME_VERSION_2006         1        /**< FCF - IEEE 802.15.4-2006 (big payload or new security) */
+#define MAC_FRAME_VERSION_2015         2        /**< FCF - IEEE 802.15.4-2015 (IE element support) */
 
 //See IEEE standard 802.15.4-2006 (table 96) for more details about identifiers
 #define MAC_KEY_ID_MODE_IMPLICIT    0           /**< Key identifier mode implicit */
@@ -65,5 +66,37 @@ typedef struct mlme_security_s {
     uint8_t KeyIndex;           /**< Key index */
     uint8_t Keysource[8];       /**< Key source */
 } mlme_security_t;
+
+#define MAC_HEADER_VENDOR_SPESIFIC_IE_ID          0x00  /**< Vendor specific Header IE element */
+#define MAC_HEADER_ASSIGNED_EXTERNAL_ORG_IE_ID    0x2a  /**< External organisation defined Header IE element */
+#define MAC_HEADER_TERMINATION1_IE_ID             0x7e  /**< Header IE element termination when Payload element is following Header IE */
+#define MAC_HEADER_TERMINATION2_IE_ID             0x7f  /**< Header IE element termination when no Payload element is following Header IE but normal payload is */
+
+
+/**
+ * @brief struct mac_header_IE_t Mac Header information element structure for parsing or write operation
+ * This structure encapsulates security related variables,
+ */
+typedef struct mac_header_IE_s {
+    uint8_t *content_ptr;   /**< Content data */
+    unsigned length:7;      /**< Element length 0- 127 */
+    uint8_t id;             /**< Element ID */
+} mac_header_IE_t;
+
+#define MAC_PAYLOAD_IE_ESDU_GROUP_ID            0x00    /**< Encapsulated Service Data Unit (ESDU) Payload IE element's */
+#define MAC_PAYLOAD_MLME_IE_GROUP_ID            0x01    /**< MLME nested Payload IE element's */
+#define MAC_PAYLOAD_VENDOR_IE_GROUP_ID          0x02    /**< Vendor specific nested Payload IE element's */
+#define MAC_PAYLOAD_MPX_IE_GROUP_ID             0x03    /**< MPX Payload IE element, IEEE 802.15.9 defined */
+#define MAC_PAYLOAD_TERMINATION_IE_GROUP_ID     0x0f    /**< Payload IE element terminator. Mandatory when normal payload is coming after IE element part */
+
+/**
+ * @brief struct mac_header_IE_t Mac Payload information element structure for parsing or write operation
+ * This structure encapsulates security related variables,
+ */
+typedef struct mac_payload_IE_s {
+    uint8_t *content_ptr;   /**< Content data */
+    unsigned length:11;     /**< Element length 0- 2047 */
+    unsigned id:4;          /**< Group ID */
+} mac_payload_IE_t;
 
 #endif /* MAC_COMMON_DEFINES_H_ */

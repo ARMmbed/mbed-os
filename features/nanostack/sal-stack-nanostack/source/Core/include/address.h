@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2008, 2010-2017, Arm Limited and affiliates.
+ * Copyright (c) 2008, 2010-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -96,6 +96,8 @@ typedef struct if_address_entry {
     bool temporary:1;           // RFC 4941 temporary address
     bool tentative:1;           // Tentative address (Duplicate Address Detection running)
     bool group_added:1;         // Solicited-Node group added
+    uint8_t addr_reg_pend;      // Bitmask for pending address registrations. Based on RPL path control bits
+    uint8_t addr_reg_done;      // Bitmask for address registration done. Based on RPL path control bits
     if_address_source_t source; //
     if_address_callback_fn *cb; // Address protocol callback function
     void *data;                 // Address protocol data

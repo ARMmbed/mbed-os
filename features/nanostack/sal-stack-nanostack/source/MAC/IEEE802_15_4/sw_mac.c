@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017, Arm Limited and affiliates.
+ * Copyright (c) 2016-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -49,9 +49,11 @@ static mac_internal_t mac_store; //Hack only at this point, later put into linke
 static int8_t ns_sw_mac_initialize(mac_api_t *api, mcps_data_confirm *mcps_data_conf_cb,
                                    mcps_data_indication *mcps_data_ind_cb, mcps_purge_confirm *purge_conf_cb,
                                    mlme_confirm *mlme_conf_callback, mlme_indication *mlme_ind_callback, int8_t parent_id);
+static int8_t ns_sw_mac_api_enable_mcps_ext(mac_api_t *api, mcps_data_indication_ext *data_ind_cb, mcps_data_confirm_ext *data_cnf_cb, mcps_ack_data_req_ext *ack_data_req_cb);
 
 static void mlme_req(const mac_api_t* api, mlme_primitive id, const void *data);
 static void mcps_req(const mac_api_t* api, const mcps_data_req_t *data);
+static void mcps_req_ext(const mac_api_t* api, const mcps_data_req_t *data, const mcps_data_req_ie_list_t *ie_ext, const channel_list_s *asynch_channel_list);
 static void purge_req(const mac_api_t* api, const mcps_purge_t *data);
 static int8_t macext_mac64_address_set( const mac_api_t* api, const uint8_t *mac64);
 static int8_t macext_mac64_address_get( const mac_api_t* api, mac_extended_address_type type, uint8_t *mac64_buf);
@@ -105,8 +107,10 @@ mac_api_t *ns_sw_mac_create(int8_t rf_driver_id, mac_description_storage_size_t 
     arm_net_virtual_confirmation_rx_cb_set(driver->phy_driver, &mac_mlme_virtual_confirmation_handle);
 
     this->mac_initialize = &ns_sw_mac_initialize;
+    this->mac_mcps_extension_enable = &ns_sw_mac_api_enable_mcps_ext;
     this->mlme_req = &mlme_req;
     this->mcps_data_req = &mcps_req;
+    this->mcps_data_req_ext = &mcps_req_ext;
     this->mcps_purge_req = &purge_req;
     this->mac64_get = &macext_mac64_address_get;
     this->mac64_set = &macext_mac64_address_set;
@@ -161,6 +165,11 @@ int ns_sw_mac_fhss_register(mac_api_t *mac_api, fhss_api_t *fhss_api)
     if (!mac_setup) {
         return -2;
     }
+
+    if (!mac_setup->rf_csma_extension_supported) {
+        return -2;
+    }
+
     // Assign FHSS API
     mac_setup->fhss_api = fhss_api;
     // Pass MAC functions to FHSS
@@ -176,6 +185,18 @@ int ns_sw_mac_fhss_register(mac_api_t *mac_api, fhss_api_t *fhss_api)
     callbacks.read_coord_mac_address = &mac_get_coordinator_mac_address;
     mac_setup->fhss_api->init_callbacks(mac_setup->fhss_api, &callbacks);
     return 0;
+}
+
+struct fhss_api *ns_sw_mac_get_fhss_api(struct mac_api_s *mac_api)
+{
+    if (!mac_api) {
+        return NULL;
+    }
+    protocol_interface_rf_mac_setup_s *mac_setup = get_sw_mac_ptr_by_mac_api(mac_api);
+    if (!mac_setup) {
+        return NULL;
+    }
+    return mac_setup->fhss_api;
 }
 
 int ns_sw_mac_statistics_start(struct mac_api_s *mac_api, struct mac_statistics_s *mac_statistics)
@@ -210,6 +231,30 @@ static int8_t ns_sw_mac_initialize(mac_api_t *api, mcps_data_confirm *mcps_data_
 
     mac_store.setup->mac_interface_id = parent_id;
 
+    return 0;
+}
+
+static int8_t ns_sw_mac_api_enable_mcps_ext(mac_api_t *api, mcps_data_indication_ext *data_ind_cb, mcps_data_confirm_ext *data_cnf_cb, mcps_ack_data_req_ext *ack_data_req_cb)
+{
+    //TODO: Find from linked list instead
+    if(api != mac_store.mac_api ){
+        return -1;
+    }
+
+    mac_api_t *cur = mac_store.mac_api;
+
+    if (!mac_store.setup->rf_csma_extension_supported) {
+        return -1;
+    }
+
+    cur->data_conf_ext_cb = data_cnf_cb;
+    cur->data_ind_ext_cb = data_ind_cb;
+    cur->enhanced_ack_data_req_cb = ack_data_req_cb;
+    if (data_cnf_cb && data_ind_cb && ack_data_req_cb) {
+        mac_store.setup->mac_extension_enabled = true;
+    } else {
+        mac_store.setup->mac_extension_enabled = false;
+    }
     return 0;
 }
 
@@ -448,9 +493,21 @@ void mcps_req(const mac_api_t* api, const mcps_data_req_t *data)
 {
     //TODO: Populate linked list when present
     if (mac_store.mac_api == api) {
-        mcps_sap_data_req_handler(mac_store.setup , data );
+        /* Call direct new API but without IE extensions */
+        mcps_data_req_ie_list_t ie_list;
+        memset(&ie_list, 0 , sizeof(mcps_data_req_ie_list_t));
+        mcps_sap_data_req_handler_ext(mac_store.setup , data , &ie_list, NULL);
     }
 }
+
+void mcps_req_ext(const mac_api_t* api, const mcps_data_req_t *data, const mcps_data_req_ie_list_t *ie_ext, const channel_list_s *asynch_channel_list)
+{
+//TODO: Populate linked list when present
+    if (mac_store.mac_api == api) {
+        mcps_sap_data_req_handler_ext(mac_store.setup , data , ie_ext, asynch_channel_list);
+    }
+}
+
 
 static void purge_req(const mac_api_t* api, const mcps_purge_t *data)
 {

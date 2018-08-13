@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017, Arm Limited and affiliates.
+ * Copyright (c) 2016-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,7 +25,6 @@
 #include "net_nwk_scan.h"
 #include "ns_trace.h"
 #include "common_functions.h"
-#include "MLE/mle_tlv.h"
 #include "mac_api.h"
 
 #define TRACE_GROUP "MACh"
@@ -685,7 +684,7 @@ int8_t mac_helper_mac64_set(protocol_interface_info_entry_t *interface, const ui
  * Given a buffer, with address and security flags set, compute the maximum
  * MAC payload that could be put in that buffer.
  */
-uint_fast16_t mac_helper_max_payload_size(protocol_interface_info_entry_t *cur, uint_fast8_t frame_overhead)
+uint_fast16_t mac_helper_max_payload_size(protocol_interface_info_entry_t *cur, uint_fast16_t frame_overhead)
 {
     uint16_t max;
 
@@ -833,7 +832,17 @@ void mac_helper_devicetable_remove(mac_api_t *mac_api, uint8_t attribute_index)
     mac_api->mlme_req(mac_api,MLME_SET , &set_req);
 }
 
-void mac_helper_devicetable_set(mle_neigh_table_entry_t *entry_temp, protocol_interface_info_entry_t *cur, uint32_t frame_counter, uint8_t keyID, bool force_set)
+void mac_helper_device_description_write(protocol_interface_info_entry_t *cur, mlme_device_descriptor_t *device_desc, uint8_t *mac64, uint16_t mac16, uint32_t frame_counter, bool exempt)
+{
+    memcpy(device_desc->ExtAddress, mac64, 8);
+    device_desc->ShortAddress = mac16;
+    device_desc->PANId = mac_helper_panid_get(cur);
+    device_desc->Exempt = exempt;
+    device_desc->FrameCounter = frame_counter;
+}
+
+void mac_helper_devicetable_set(const mlme_device_descriptor_t *device_desc, protocol_interface_info_entry_t *cur, uint8_t attribute_index, uint8_t keyID, bool force_set)
+
 {
     if (!cur->mac_api) {
         return;
@@ -844,18 +853,10 @@ void mac_helper_devicetable_set(mle_neigh_table_entry_t *entry_temp, protocol_in
         return;
     }
 
-    mlme_device_descriptor_t device_desc;
     mlme_set_t set_req;
-    device_desc.FrameCounter = frame_counter;
-    device_desc.Exempt = false;
-    device_desc.ShortAddress = entry_temp->short_adr;
-    memcpy(device_desc.ExtAddress, entry_temp->mac64, 8);
-    device_desc.PANId = mac_helper_panid_get(cur);
-
-
     set_req.attr = macDeviceTable;
-    set_req.attr_index = entry_temp->attribute_index;
-    set_req.value_pointer = (void*)&device_desc;
+    set_req.attr_index = attribute_index;
+    set_req.value_pointer = (void*)device_desc;
     set_req.value_size = sizeof(mlme_device_descriptor_t);
     tr_debug("Register Device");
     cur->mac_api->mlme_req(cur->mac_api,MLME_SET , &set_req);

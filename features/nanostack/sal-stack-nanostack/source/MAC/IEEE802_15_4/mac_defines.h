@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2017, Arm Limited and affiliates.
+ * Copyright (c) 2014-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -139,6 +139,9 @@ typedef struct protocol_interface_rf_mac_setup {
     bool macUpState;
     bool shortAdressValid: 1;   //Define Dynamic src address to mac16 when it is true
     bool beaconSrcAddressModeLong: 1; //This force beacon src to mac64 otherwise shortAdressValid will define type
+    bool mac_extension_enabled:1;
+    bool mac_ack_tx_active:1;
+    bool mac_frame_pending:1;
     uint16_t mac_short_address;
     uint16_t pan_id;
     uint8_t mac64[8];
@@ -154,6 +157,8 @@ typedef struct protocol_interface_rf_mac_setup {
     bool macProminousMode:1;
     bool macGTSPermit:1;
     bool mac_security_enabled:1;
+    /* Let trough packet which is secured properly (MIC authenticated group key)  and src address is 64-bit*/
+    bool mac_security_bypass_unknow_device:1;
     /* Load balancing need this feature */
     bool macAcceptAnyBeacon:1;
 
@@ -169,6 +174,7 @@ typedef struct protocol_interface_rf_mac_setup {
     bool macRfRadioTxActive:1;
     bool macBroadcastDisabled:1;
     bool scan_active:1;
+    bool rf_csma_extension_supported:1;
     /* CSMA Params */
     unsigned macMinBE:4;
     unsigned macMaxBE:4;
@@ -201,6 +207,7 @@ typedef struct protocol_interface_rf_mac_setup {
     uint8_t mac_cca_retry;
     uint8_t mac_ack_wait_duration;
     uint8_t mac_mlme_retry_max;
+    uint8_t aUnitBackoffPeriod;
     /* Indirect queue parameters */
     struct mac_pre_build_frame *indirect_pd_data_request_queue;
     arm_event_t mac_mcps_timer_event;
@@ -217,6 +224,8 @@ typedef struct protocol_interface_rf_mac_setup {
     int8_t cca_timer_id;
     int8_t bc_timer_id;
     uint32_t mlme_tick_count;
+    uint32_t symbol_rate;
+    uint32_t symbol_time_us;
     uint8_t max_ED;
     uint16_t mlme_ED_counter;
     mac_tx_status_t mac_tx_status;
@@ -250,22 +259,26 @@ typedef struct protocol_interface_rf_mac_setup {
 } protocol_interface_rf_mac_setup_s;
 
 
-#define MAC_FCF_FRAME_TYPE_MASK         0x0007
-#define MAC_FCF_FRAME_TYPE_SHIFT        0
-#define MAC_FCF_SECURITY_BIT_MASK       0x0008
-#define MAC_FCF_SECURITY_BIT_SHIFT      3
-#define MAC_FCF_PENDING_BIT_MASK        0x0010
-#define MAC_FCF_PENDING_BIT_SHIFT       4
-#define MAC_FCF_ACK_REQ_BIT_MASK        0x0020
-#define MAC_FCF_ACK_REQ_BIT_SHIFT       5
-#define MAC_FCF_INTRA_PANID_MASK        0x0040
-#define MAC_FCF_INTRA_PANID_SHIFT       6
-#define MAC_FCF_DST_ADDR_MASK           0x0c00
-#define MAC_FCF_DST_ADDR_SHIFT          10
-#define MAC_FCF_VERSION_MASK            0x3000
-#define MAC_FCF_VERSION_SHIFT           12
-#define MAC_FCF_SRC_ADDR_MASK           0xc000
-#define MAC_FCF_SRC_ADDR_SHIFT          14
+#define MAC_FCF_FRAME_TYPE_MASK             0x0007
+#define MAC_FCF_FRAME_TYPE_SHIFT            0
+#define MAC_FCF_SECURITY_BIT_MASK           0x0008
+#define MAC_FCF_SECURITY_BIT_SHIFT          3
+#define MAC_FCF_PENDING_BIT_MASK            0x0010
+#define MAC_FCF_PENDING_BIT_SHIFT           4
+#define MAC_FCF_ACK_REQ_BIT_MASK            0x0020
+#define MAC_FCF_ACK_REQ_BIT_SHIFT           5
+#define MAC_FCF_INTRA_PANID_MASK            0x0040
+#define MAC_FCF_INTRA_PANID_SHIFT           6
+#define MAC_FCF_SEQ_NUM_SUPPRESS_MASK       0x0100
+#define MAC_FCF_SEQ_NUM_SUPPRESS_SHIFT      8
+#define MAC_FCF_IE_PRESENTS_MASK            0x0200
+#define MAC_FCF_IE_PRESENTS_SHIFT           9
+#define MAC_FCF_DST_ADDR_MASK               0x0c00
+#define MAC_FCF_DST_ADDR_SHIFT              10
+#define MAC_FCF_VERSION_MASK                0x3000
+#define MAC_FCF_VERSION_SHIFT               12
+#define MAC_FCF_SRC_ADDR_MASK               0xc000
+#define MAC_FCF_SRC_ADDR_SHIFT              14
 
 /* MAC supported frame types */
 #define FC_BEACON_FRAME         0x00

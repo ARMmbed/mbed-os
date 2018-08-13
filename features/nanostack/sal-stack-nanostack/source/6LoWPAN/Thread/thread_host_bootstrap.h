@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, Arm Limited and affiliates.
+ * Copyright (c) 2015-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Redistribution and use in source and binary forms, with or without
@@ -42,7 +42,7 @@ struct protocol_interface_info_entry;
 struct mle_security_header;
 
 void thread_network_attach_start(struct protocol_interface_info_entry *cur);
-int8_t thread_host_bootstrap_child_update(int8_t interface_id, const uint8_t *mac64);
+bool thread_host_bootstrap_child_update(struct protocol_interface_info_entry *cur, const uint8_t *mac64);
 int thread_host_bootstrap_child_update_negative_response(protocol_interface_info_entry_t *cur, uint8_t *dstAddress, mle_tlv_info_t *challenge);
 void thread_child_set_default_route(struct protocol_interface_info_entry *cur);
 

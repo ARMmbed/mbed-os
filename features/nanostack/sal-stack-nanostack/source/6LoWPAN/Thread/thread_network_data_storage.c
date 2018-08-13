@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2017, Arm Limited and affiliates.
+ * Copyright (c) 2014-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Redistribution and use in source and binary forms, with or without
@@ -328,9 +328,8 @@ thread_network_local_data_entry_t *thread_local_service_list_allocate(thread_pre
         newEntry->servicesPrefixLen = prefixTlv->PrefixLen;
         newEntry->domainId = prefixTlv->domainId;
         newEntry->dhcpv6ServerActive = false;
-        newEntry->dhcpv6ServerDataStable = false;
+        newEntry->brDataStable = false;
         newEntry->slaacServerActive = false;
-        newEntry->slaacServerDataStable = false;
         newEntry->slaacPreferred = false;
         newEntry->routeActive = false;
         newEntry->routeDataStable = false;
@@ -339,6 +338,8 @@ thread_network_local_data_entry_t *thread_local_service_list_allocate(thread_pre
         newEntry->defaultRoute = false;
         newEntry->onMesh = false;
         newEntry->ndDns = false;
+        newEntry->brActive = false;
+        newEntry->res1 = false;
     }
     return newEntry;
 }
@@ -373,6 +374,7 @@ thread_network_server_data_entry_t *thread_server_entry_allocate(thread_border_r
         newEntry->Prf = service->Prf;
         newEntry->P_on_mesh = service->P_on_mesh;
         newEntry->P_nd_dns = service->P_nd_dns;
+        newEntry->P_res1 = service->P_res1;
         newEntry->canDelete = false;
 
     }
@@ -868,7 +870,7 @@ static int thread_service_data_delete_mark_by_router_id(thread_network_data_serv
     return retVal;
 }
 
-static int thread_server_context_clean(thread_network_data_cache_entry_t *cachePtr, thread_data_context_list_t *listPtr, thread_network_data_prefix_cache_entry_t *prefixEntry, lowpan_context_list_t *context_list)
+static int thread_server_context_clean(int8_t id, thread_network_data_cache_entry_t *cachePtr, thread_data_context_list_t *listPtr, thread_network_data_prefix_cache_entry_t *prefixEntry, lowpan_context_list_t *context_list)
 {
     int retVal = -1;
     (void) prefixEntry;
@@ -879,7 +881,9 @@ static int thread_server_context_clean(thread_network_data_cache_entry_t *cacheP
                 cachePtr->stableUpdatePushed = true;
             }
             // Set context lifetime to 0 to delete
-            lowpan_context_update(context_list, cur->cid, 0, NULL, 0, true);
+            if (thread_extension_context_can_delete(id, prefixEntry->servicesPrefix, cur->contextPrefixLength)) {
+                lowpan_context_update(context_list, cur->cid, 0, NULL, 0, true);
+            }
             ns_list_remove(listPtr, cur);
             ns_dyn_mem_free(cur);
             retVal = 0;
@@ -1019,7 +1023,7 @@ bool thread_network_data_router_id_free(thread_network_data_cache_entry_t *cache
         }
         thread_server_data_clean_by_router_id(cachePtr, &cur->routeList, cur, true, curInterface);
         if (!is_leader) {
-            thread_server_context_clean(cachePtr, &cur->contextList, cur, &curInterface->lowpan_contexts);
+            thread_server_context_clean(curInterface->id, cachePtr, &cur->contextList, cur, &curInterface->lowpan_contexts);
         }
 
         if (ns_list_is_empty(&cur->borderRouterList)) {
@@ -1071,7 +1075,7 @@ bool thread_network_data_router_id_free(thread_network_data_cache_entry_t *cache
     return address_removed;
 }
 
-void thread_network_data_context_re_use_timer_update(thread_network_data_cache_entry_t *cachePtr, uint32_t ticks, lowpan_context_list_t *context_list)
+void thread_network_data_context_re_use_timer_update(int8_t id, thread_network_data_cache_entry_t *cachePtr, uint32_t ticks, lowpan_context_list_t *context_list)
 {
     ns_list_foreach_safe(thread_network_data_prefix_cache_entry_t, cur, &cachePtr->localPrefixList) {
         ns_list_foreach_safe(thread_network_data_context_entry_t, curContext, &cur->contextList) {
@@ -1086,7 +1090,9 @@ void thread_network_data_context_re_use_timer_update(thread_network_data_cache_e
                         cachePtr->temporaryUpdatePushed = true;
                     }
                     // Set context lifetime to 0 to delete
-                    lowpan_context_update(context_list, curContext->cid, 0, NULL, 0, true);
+                    if (thread_extension_context_can_delete(id, cur->servicesPrefix,curContext->contextPrefixLength)) {
+                        lowpan_context_update(context_list, curContext->cid, 0, NULL, 0, true);
+                    }
                     ns_dyn_mem_free(curContext);
                 }
             }
@@ -1708,21 +1714,21 @@ int thread_local_server_list_add_on_mesh_server(thread_network_local_data_cache_
     if (networkDataList) {
         thread_network_local_data_entry_t *prefix_entry = thread_local_prefix_entry_get(&networkDataList->prefix_list, prefixTlv);
         if (prefix_entry) {
+            prefix_entry->brDataStable = service->stableData;
             prefix_entry->preference = service->Prf;
             prefix_entry->configure = service->P_configure;
             prefix_entry->defaultRoute = service->P_default_route;
             prefix_entry->onMesh = service->P_on_mesh;
             prefix_entry->ndDns = service->P_nd_dns;
+            prefix_entry->res1 = service->P_res1;
+            prefix_entry->dhcpv6ServerActive = service->P_dhcp;
+            prefix_entry->slaacServerActive = service->P_slaac;
+            prefix_entry->slaacPreferred = service->P_preferred;
 
-            if (service->P_dhcp) {
-                prefix_entry->dhcpv6ServerActive = true;
-                prefix_entry->dhcpv6ServerDataStable = service->stableData;
-            }
-
-            if (service->P_slaac) {
-                prefix_entry->slaacServerActive = true;
-                prefix_entry->slaacServerDataStable = service->stableData;
-                prefix_entry->slaacPreferred = service->P_preferred;
+            if (service->P_dhcp ||
+                    service->P_slaac ||
+                    service->P_res1) {
+                prefix_entry->brActive = true;
             }
 
             if (prefixTlv->PrefixLen == 0) {
@@ -1891,9 +1897,7 @@ int thread_local_server_del_route(thread_network_local_data_cache_entry_t *netwo
     }
 
     prefix_entry->routeActive = false;
-    if (prefix_entry->dhcpv6ServerActive) {
-        return 0;
-    } else if (prefix_entry->slaacServerActive) {
+    if (prefix_entry->brActive) {
         return 0;
     }
 
@@ -2023,17 +2027,13 @@ uint8_t thread_server_prefix_length(thread_network_local_data_entry_t *cur)
 
 
     if (cur->routeActive) {
-        if (!((cur->slaacServerActive || cur->dhcpv6ServerActive) && cur->defaultRoute)) {
+        if (!(cur->brActive && cur->defaultRoute)) {
             // HasRoute is added if BorderRouter TLV does not have default route bit
             tempLength += 5;
         }
     }
 
-    if (cur->dhcpv6ServerActive) {
-        tempLength += 6;
-    }
-
-    if (cur->slaacServerActive) {
+    if (cur->brActive) {
         tempLength += 6;
     }
 
@@ -2091,14 +2091,9 @@ uint16_t thread_nd_own_service_list_data_size(thread_network_local_data_cache_en
 
 static bool thread_check_local_data_prefix_stable_boolean(thread_network_local_data_entry_t *dataList)
 {
-    if (dataList->dhcpv6ServerActive && dataList->dhcpv6ServerDataStable) {
+    if (dataList->brActive && dataList->brDataStable) {
         return true;
     }
-
-    if (dataList->slaacServerActive && dataList->slaacServerDataStable) {
-        return true;
-    }
-
     return false;
 }
 
@@ -2269,7 +2264,7 @@ uint8_t * thread_nd_own_service_list_data_write(thread_network_local_data_cache_
         if (servicesLen) {
             ptr = thread_nd_hosted_prefix_header_write(ptr,servicesLen, cur);
             if (cur->routeActive) {
-                if (!((cur->slaacServerActive || cur->dhcpv6ServerActive) && cur->defaultRoute)) {
+                if (!(cur->brActive && cur->defaultRoute)) {
                     // HasRoute is added if BorderRouter TLV does not have default route bit
                     uint8_t preference = 0;
                     tlvType = THREAD_NWK_DATA_TYPE_ROUTE;
@@ -2283,10 +2278,10 @@ uint8_t * thread_nd_own_service_list_data_write(thread_network_local_data_cache_
                 }
             }
 
-            if (cur->slaacServerActive || cur->dhcpv6ServerActive) {
+            if (cur->brActive) {
                 uint16_t flags = 0;
                 tlvType = THREAD_NWK_DATA_TYPE_BORDER_ROUTER;
-                if (cur->slaacServerDataStable || cur->dhcpv6ServerDataStable) {
+                if (cur->brDataStable) {
                     tlvType |= THREAD_NWK_STABLE_DATA;
                 }
                 if (cur->slaacServerActive) {
@@ -2312,6 +2307,9 @@ uint8_t * thread_nd_own_service_list_data_write(thread_network_local_data_cache_
                 }
                 if (cur->ndDns) {
                     flags |= 1 << THREAD_P_ND_DNS_BIT_MOVE;
+                }
+                if (cur->res1) {
+                    flags |= 1 << THREAD_P_ND_RES_BIT_MOVE;
                 }
                 ptr = thread_service_border_router_tlv_write(ptr, tlvType, routerID, flags);
             } // slaac or dhcp

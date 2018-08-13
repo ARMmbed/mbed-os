@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017, Arm Limited and affiliates.
+ * Copyright (c) 2016-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -138,7 +138,7 @@ static int8_t phy_rf_virtual_rx(const uint8_t *data_ptr, uint16_t data_len,int8_
                 return -1;
             }
             phy_msg.id = MACTUN_MLME_NAP_EXTENSION;
-            phy_msg.message.mlme_request.primitive = *data_ptr++;
+            phy_msg.message.mlme_request.primitive = (mlme_primitive) *data_ptr++;
             phy_msg.message.mlme_request.mlme_ptr = data_ptr;
             phy_msg.message.mlme_request.ptr_length = (data_len - 2);
 

@@ -175,6 +175,7 @@ static secure_session_t *secure_session_create(internal_socket_t *parent, const 
             }
         }
         if(!to_be_removed){
+            tr_err("max session count exceeded");
             return NULL;
         }
 
@@ -188,6 +189,7 @@ static secure_session_t *secure_session_create(internal_socket_t *parent, const 
         }
     }
     if(handshakes >= max_handshakes) {
+        tr_err("ongoing handshakes exceeded");
         return NULL;
     }
 
@@ -215,6 +217,7 @@ static secure_session_t *secure_session_create(internal_socket_t *parent, const 
     this->sec_handler = coap_security_create(parent->socket, this->timer.id, this, secure_mode,
                                                &secure_session_sendto, &secure_session_recvfrom, &start_timer, &timer_status);
     if( !this->sec_handler ){
+        tr_err("security create failed");
         ns_dyn_mem_free(this);
         return NULL;
     }
@@ -401,7 +404,6 @@ static int send_to_real_socket(int8_t socket_id, const ns_address_t *address, co
         ns_cmsghdr_t *cmsg;
         ns_in6_pktinfo_t *pktinfo;
 
-        tr_debug("send from source address %s", trace_array(source_address, 16));
         msghdr.msg_control = ancillary_databuffer;
         msghdr.msg_controllen = sizeof(ancillary_databuffer);
 
@@ -647,9 +649,11 @@ static void secure_recv_sckt_msg(void *cb_res)
             session->last_contact_time = coap_service_get_internal_timer_ticks();
             // Start handshake
             if (!coap_security_handler_is_started(session->sec_handler)) {
-                coap_security_handler_connect_non_blocking(session->sec_handler, true, DTLS, keys, sock->timeout_min, sock->timeout_max);
+                if(-1 == coap_security_handler_connect_non_blocking(session->sec_handler, true, DTLS, keys, sock->timeout_min, sock->timeout_max)) {
+                    tr_err("Connection start failed");
+                    secure_session_delete(session);
+                }
                 ns_dyn_mem_free(keys._key);
-
             }
         } else {
             //Continue handshake
@@ -742,11 +746,16 @@ int coap_connection_handler_virtual_recv(coap_conn_handler_t *handler, uint8_t a
             if (sock->parent->_get_password_cb && 0 == sock->parent->_get_password_cb(sock->socket, address, port, &keys)) {
                 session = secure_session_create(sock, address, port, keys.mode);
                 if (!session) {
-                    tr_err("coap_connection_handler_virtual_recv session creation failed - OOM");
+                    tr_err("coap_connection_handler_virtual_recv session creation failed");
                     ns_dyn_mem_free(keys._key);
                     return -1;
                 }
-                coap_security_handler_connect_non_blocking(session->sec_handler, true, DTLS, keys, handler->socket->timeout_min, handler->socket->timeout_max);
+                if (-1 == coap_security_handler_connect_non_blocking(session->sec_handler, true, DTLS, keys, handler->socket->timeout_min, handler->socket->timeout_max)) {
+                    tr_err("Connection start failed");
+                    ns_dyn_mem_free(keys._key);
+                    secure_session_delete(session);
+                    return -1;
+                }
                 ns_dyn_mem_free(keys._key);
                 return 0;
             } else {

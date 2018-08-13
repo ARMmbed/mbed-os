@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017, Arm Limited and affiliates.
+ * Copyright (c) 2016-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -31,6 +31,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+struct channel_list_s;
 
 typedef struct mac_api_s mac_api_t;
 
@@ -121,6 +123,17 @@ typedef void mlme_request(const mac_api_t* api, mlme_primitive id, const void *d
 typedef void mcps_data_request(const mac_api_t* api, const mcps_data_req_t *data);
 
 /**
+ * @brief mcps_request MCPS_DATA with IE extions request call
+ * @param api API to handle the request
+ * @param data MCPS-DATA.request specific values
+ * @param ie_ext Information element list to MCPS-DATA.request
+ * @param asynch_channel_list Optional channel list to asynch data request. Give NULL when normal data request.
+ *
+ * Asynch data request is mac standard extension. asynch_channel_list include channel mask which channel message is requested to send.
+ */
+typedef void mcps_data_request_ext(const mac_api_t* api, const mcps_data_req_t *data, const mcps_data_req_ie_list_t *ie_ext, const struct channel_list_s *asynch_channel_list);
+
+/**
  * @brief mcps_purge_request MCPS_PURGE request call
  * @param api API to handle the request
  * @param data MCPS-PURGE.request specific values
@@ -137,11 +150,37 @@ typedef void mcps_purge_request(const mac_api_t* api, const mcps_purge_t *data);
 typedef void mcps_data_confirm(const mac_api_t* api, const mcps_data_conf_t *data);
 
 /**
+ * @brief mcps_data_confirm_ext MCPS-DATA confirm with Enhanced ACK payload is called as a response to MCPS-DATA request
+ * @param api The API which handled the response
+ * @param data MCPS-DATA.confirm specific values
+ * @param conf_data Possible Confirmation Data
+ */
+typedef void mcps_data_confirm_ext(const mac_api_t* api, const mcps_data_conf_t *data, const mcps_data_conf_payload_t *conf_data);
+
+/**
  * @brief mcps_data_indication MCPS-DATA indication is called when MAC layer has received data
  * @param api The API which handled the response
  * @param data MCPS-DATA.indication specific values
  */
 typedef void mcps_data_indication(const mac_api_t* api, const mcps_data_ind_t *data);
+
+/**
+ * @brief mcps_data_indication MCPS-DATA indication is called when MAC layer has received data
+ * @param api The API which handled the response
+ * @param data MCPS-DATA.indication specific values
+ * @param ie_ext Information element list
+ */
+typedef void mcps_data_indication_ext(const mac_api_t* api, const mcps_data_ind_t *data, const mcps_data_ie_list_t *ie_ext);
+
+/**
+ * @brief mcps_ack_data_req_ext Callback for request IE elements and payload to enhanced ACK
+ * @param api The API which handled the response
+ * @param data Pointer where MAC user set Payload and IE element pointers and length
+ * @param rssi Signal strength for received packet
+ * @param lqi Link quality to neighbor
+ */
+typedef void mcps_ack_data_req_ext(const mac_api_t* api, mcps_ack_data_payload_t *data, int8_t rssi, uint8_t lqi);
+
 
 /**
  * @brief mcps_purge_confirm MCPS-PURGE confirm is called as a response to MCPS-PURGE request
@@ -202,6 +241,19 @@ typedef int8_t mac_api_initialize(mac_api_t *api, mcps_data_confirm *data_conf_c
                                   mlme_indication *mlme_ind_cb, int8_t parent_id);
 
 /**
+ * @brief mac_api_enable_mcps_ext Initialises MAC 2015 extension for MCPS layer into use, callbacks must be non-NULL.
+ * @param api mac_api_t pointer, which is created by application.
+ * @param data_ind_cb Upper layer function to handle MCPS indications
+ * @param data_cnf_cb Upper layer function to handle MCPS confirmation
+ * @param ack_data_req_cb Upper layer function for set Enhanced ACK payload
+ * @return -1 if error, -2 if OOM, 0 otherwise
+ */
+typedef int8_t mac_api_enable_mcps_ext(mac_api_t *api,
+                                       mcps_data_indication_ext *data_ind_cb,
+                                       mcps_data_confirm_ext *data_cnf_cb,
+                                       mcps_ack_data_req_ext *ack_data_req_cb);
+
+/**
  * \brief Struct mac_api_s defines functions for two-way communications between external MAC and Upper layer.
  * Application creates mac_api_t object by calling external MAC's creator function.
  * Then object is passed to Upper layer which then initializes it's own callback functions.
@@ -209,14 +261,19 @@ typedef int8_t mac_api_initialize(mac_api_t *api, mcps_data_confirm *data_conf_c
  */
 struct mac_api_s {
     mac_api_initialize          *mac_initialize;                /**< MAC initialize function to use */
+    mac_api_enable_mcps_ext     *mac_mcps_extension_enable;     /**< MAC MCPS IE extension enable function, optional feature */
     //External MAC callbacks
     mlme_request                *mlme_req;                      /**< MAC MLME request function to use */
     mcps_data_request           *mcps_data_req;                 /**< MAC MCPS data request function to use */
+    mcps_data_request_ext       *mcps_data_req_ext;             /**< MAC MCPS data request with Information element extension function to use */
     mcps_purge_request          *mcps_purge_req;                /**< MAC MCPS purge request function to use */
 
     //Upper layer callbacksMLME_ASSOCIATE
     mcps_data_confirm           *data_conf_cb;                  /**< MAC MCPS data confirm callback function */
+    mcps_data_confirm_ext       *data_conf_ext_cb;              /**< MAC MCPS data confirm with payload callback function */
     mcps_data_indication        *data_ind_cb;                   /**< MAC MCPS data indication callback function */
+    mcps_data_indication_ext    *data_ind_ext_cb;               /**< MAC MCPS data indication with IE extension's callback function */
+    mcps_ack_data_req_ext       *enhanced_ack_data_req_cb;      /**< Enhanced ACK IE element and payload request from MAC user */
     mcps_purge_confirm          *purge_conf_cb;                 /**< MAC MCPS purge confirm callback function */
     mlme_confirm                *mlme_conf_cb;                  /**< MAC MLME confirm callback function */
     mlme_indication             *mlme_ind_cb;                   /**< MAC MLME indication callback function */

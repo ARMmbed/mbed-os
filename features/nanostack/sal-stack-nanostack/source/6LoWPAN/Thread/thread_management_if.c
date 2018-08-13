@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2017, Arm Limited and affiliates.
+ * Copyright (c) 2014-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Redistribution and use in source and binary forms, with or without
@@ -62,6 +62,7 @@
 #include "6LoWPAN/Thread/thread_tmfcop_lib.h"
 #include "6LoWPAN/Thread/thread_constants.h"
 #include "6LoWPAN/Thread/thread_extension_bootstrap.h"
+#include "6LoWPAN/Thread/thread_extension.h"
 #include "6LoWPAN/Bootstraps/protocol_6lowpan.h"
 #include "RPL/rpl_control.h" // insanity - bootstraps shouldn't be doing each others' clean-up
 #include "MLE/mle.h"
@@ -77,7 +78,9 @@
 #include "Service_Libs/blacklist/blacklist.h"
 #include "6LoWPAN/MAC/mac_helper.h"
 #include "6LoWPAN/MAC/mac_pairwise_key.h"
+#include "6LoWPAN/MAC/mpx_api.h"
 #include "6LoWPAN/lowpan_adaptation_interface.h"
+#include "Service_Libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "mac_common_defines.h"
 #include "mlme.h"
 #include "mac_api.h"
@@ -308,68 +311,6 @@ void thread_key_get(uint8_t *key, uint8_t *key_material_buf,  uint32_t key_seque
 }
 
 /**
- * Increment Thread key sequence counter
- *
- * \param interface_id Network Interface
- *
- * return 0, ADD OK
- * return <0 Add Not OK
- */
-uint8_t *thread_management_key_request(int8_t interface_id, uint8_t keyId)
-{
-    protocol_interface_info_entry_t *cur;
-    uint8_t *keyPtr = NULL;
-    link_configuration_s *linkConfiguration;
-    linkConfiguration = thread_joiner_application_get_config(interface_id);
-    if (!linkConfiguration) {
-        return NULL;
-    }
-    cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (cur && cur->thread_info) {
-        if (cur->thread_info->masterSecretMaterial.valid_Info) {
-
-            if (cur->thread_info->masterSecretMaterial.historyKeyValid && (cur->thread_info->masterSecretMaterial.historyKeyId == keyId)) {
-
-                keyPtr = cur->thread_info->masterSecretMaterial.historyKey;
-
-            } else {
-                uint32_t thrSequenceCounter;
-                uint8_t compId = 0xff, keyIdDiff;
-                thrSequenceCounter = linkConfiguration->key_sequence + 1;
-                //Calculate Current Next key ID
-                compId = THREAD_KEY_INDEX(thrSequenceCounter);
-
-                if (keyId > compId) {
-                    keyIdDiff = (keyId - compId);
-                } else {
-                    keyIdDiff = (128 - (compId - keyId));
-                }
-
-                if (keyIdDiff > 64) {
-                    //Calc Temp Key
-                    thrSequenceCounter -= (128 - keyIdDiff);
-                    tr_debug("Gen temporary key id %"PRIu8" seq %"PRIu32, keyId, thrSequenceCounter);
-                    thread_key_get(linkConfiguration->master_key, cur->thread_info->masterSecretMaterial.historyKey, thrSequenceCounter);
-                    cur->thread_info->masterSecretMaterial.historyKeyId = keyId;
-                    cur->thread_info->masterSecretMaterial.historyKeyValid = true;
-                    keyPtr = cur->thread_info->masterSecretMaterial.historyKey;
-                } else {
-                    tr_debug("Gen new key id %"PRIu8" %"PRIu8" diff", keyId, keyIdDiff);
-                    thrSequenceCounter += keyIdDiff;
-                    //Generate
-                    tr_debug("Missed n key Update...generated missed key %"PRIu8" update by seq %"PRIu32, keyIdDiff, thrSequenceCounter);
-                    thread_management_key_sets_calc(cur, linkConfiguration, thrSequenceCounter);
-                    //Get Default key
-                    keyPtr =  mle_service_security_default_key_get(interface_id);
-                }
-                thread_nvm_store_seq_counter_write(linkConfiguration->key_sequence);
-            }
-        }
-    }
-    return keyPtr;
-}
-
-/**
  * Thread key sequence & key synch
  *
  */
@@ -381,22 +322,32 @@ void thread_management_key_synch_req(int8_t interface_id, uint32_t keySequnce)
     if (!linkConfiguration) {
         return;
     }
-
     cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (cur && cur->thread_info) {
-        if (cur->thread_info->masterSecretMaterial.valid_Info) {
-            if (keySequnce != linkConfiguration->key_sequence) {
-                if ((cur->thread_info->masterSecretMaterial.keySwitchGuardTimer == 0 && keySequnce > linkConfiguration->key_sequence)) {
-                    tr_debug("Sync key material by %"PRIu32, keySequnce);
-                    thread_management_key_sets_calc(cur, linkConfiguration, keySequnce);
-                    thread_calculate_key_guard_timer(cur, linkConfiguration, false);
-                }
-            }
-        }
+    if (!cur || !cur->thread_info) {
+        return;
     }
+    if (!cur->thread_info->masterSecretMaterial.valid_Info) {
+        return;
+    }
+    //tr_debug("Sync key material by %"PRIu32, keySequnce);
+
+    if (keySequnce <= linkConfiguration->key_sequence) {
+        // Smaller or equal request ignored
+        //tr_debug("Sync key material no change");
+        return;
+    }
+    if ((cur->thread_info->masterSecretMaterial.keySwitchGuardTimer > 0)) {
+        // Guard time prevent the change
+        //tr_debug("Sync key material guard blocked");
+        return;
+    }
+    // Calculate new keys
+    tr_debug("Sync key material by %"PRIu32, keySequnce);
+    thread_management_key_sets_calc(cur, linkConfiguration, keySequnce);
+    thread_key_guard_timer_calculate(cur, linkConfiguration, false);
 }
 
-void thread_history_key_material_push(thread_info_t *thread_info, uint8_t *mleKeyPtr, uint8_t keyId)
+static void thread_history_key_material_push(thread_info_t *thread_info, uint8_t *mleKeyPtr, uint8_t keyId)
 {
     thread_info->masterSecretMaterial.historyKeyValid = true;
     thread_info->masterSecretMaterial.historyKeyId = keyId;
@@ -424,7 +375,7 @@ void thread_security_update_from_mac(protocol_interface_info_entry_t *cur)
     linkConfiguration->key_sequence++;
     mac_helper_link_frame_counter_set(cur->id, 0);
     thread_security_next_key_generate(cur, linkConfiguration->master_key, linkConfiguration->key_sequence);
-    thread_calculate_key_guard_timer(cur, linkConfiguration, false);
+    thread_key_guard_timer_calculate(cur, linkConfiguration, false);
 }
 
 void thread_security_key_generate(protocol_interface_info_entry_t *cur, uint8_t *masterKey, uint32_t keySequence)
@@ -437,9 +388,31 @@ void thread_security_key_generate(protocol_interface_info_entry_t *cur, uint8_t 
     thread_key_get(masterKey, key_material, thrKeySequenceCounter);
     /* Update keys as primary keys */
     key_index = THREAD_KEY_INDEX(thrKeySequenceCounter);
-    tr_debug("Set key Id: %u", key_index);
+    tr_debug("Set current key Id: %u", key_index);
     mac_helper_security_default_key_set(cur, &key_material[16], key_index, MAC_KEY_ID_MODE_IDX);
     mle_service_security_set_security_key(cur->id, key_material, key_index, true);
+}
+
+
+void thread_security_prev_key_generate(protocol_interface_info_entry_t *cur, uint8_t *masterKey, uint32_t keySequence)
+{
+    uint8_t key_material[32];
+    uint8_t key_index;
+    uint32_t thrKeySequenceCounter;
+    if (keySequence == 0) {
+        // in initial value there is no prev available
+        return;
+    }
+    thrKeySequenceCounter = keySequence - 1;
+   /* Produced keys from Thread security material: MAC key | MLE key */
+    thread_key_get(masterKey, key_material, thrKeySequenceCounter);
+    /* Update keys as primary keys */
+    key_index = THREAD_KEY_INDEX(thrKeySequenceCounter);
+    tr_debug("Set previous key Id: %u", key_index);
+    mac_helper_security_prev_key_set(cur, &key_material[16], key_index, MAC_KEY_ID_MODE_IDX);
+    mle_service_security_set_security_key(cur->id, key_material, key_index, false);
+    //copy master secret material to history
+    thread_history_key_material_push(cur->thread_info, key_material, key_index);
 }
 
 void thread_security_next_key_generate(protocol_interface_info_entry_t *cur, uint8_t *masterKey, uint32_t keySequence)
@@ -471,31 +444,17 @@ int thread_management_key_sets_calc(protocol_interface_info_entry_t *cur, link_c
         ret_val = 0;
     } else {
         /* Generate new key set */
-        uint8_t key_material[32];
-        uint8_t key_index;
-        thread_nvm_fast_data_t fast_data;
-        //SET History key, Current Key & Next Key
-        //Generate History Key
         //Clean All Keys
         mac_helper_security_key_clean(cur);
-        thrKeySequenceCounter--;
-        /* Update keys as non-primary keys */
-        thread_key_get(linkConfiguration->master_key, key_material, thrKeySequenceCounter);
-        key_index = THREAD_KEY_INDEX(thrKeySequenceCounter);
-        //copy master secret material to history
-        memcpy(cur->thread_info->masterSecretMaterial.historyKey, key_material, 32);
-        cur->thread_info->masterSecretMaterial.historyKeyId = key_index;
-        cur->thread_info->masterSecretMaterial.historyKeyValid = true;
 
-        mac_helper_security_prev_key_set(cur, &key_material[16], key_index, MAC_KEY_ID_MODE_IDX);
-        //Set New Active Key
-        thrKeySequenceCounter++;
+        // Update key sequence
         linkConfiguration->key_sequence = thrKeySequenceCounter;
-        fast_data.seq_counter = thrKeySequenceCounter;
-        fast_data.mac_frame_counter = 0;
-        fast_data.mle_frame_counter = mle_service_security_get_frame_counter(cur->interface_mode);
-        thread_nvm_store_fast_data_write(&fast_data);
+        // Zero all frame counters. MLE does it automatically
         mac_helper_link_frame_counter_set(cur->id, 0);
+        // Store all frame counters as zero and update the sequence counter
+        thread_nvm_store_fast_data_write_all(0, 0, thrKeySequenceCounter);
+
+        thread_security_prev_key_generate(cur,linkConfiguration->master_key,linkConfiguration->key_sequence);
         thread_security_key_generate(cur,linkConfiguration->master_key,linkConfiguration->key_sequence);
         thread_security_next_key_generate(cur,linkConfiguration->master_key,linkConfiguration->key_sequence);
         ret_val = 0;
@@ -790,12 +749,23 @@ int thread_dhcpv6_server_delete(int8_t interface_id, uint8_t *prefix_ptr)
 }
 
 #ifdef HAVE_THREAD
+static mac_neighbor_table_entry_t *neighbor_data_poll_referesh(protocol_interface_info_entry_t *cur, const uint8_t *address, addrtype_t type)
+{
+    mac_neighbor_table_entry_t *entry = mac_neighbor_table_address_discover(mac_neighbor_info(cur), address, type);
+    if (!entry || !entry->connected_device) {
+        return NULL;
+    }
+
+    entry->lifetime = entry->link_lifetime;
+    return entry;
+}
 void thread_comm_status_indication_cb(int8_t if_id, const mlme_comm_status_t* status)
 {
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(if_id);
     if (!cur) {
         return;
     }
+    mac_neighbor_table_entry_t *entry;
 
     switch (status->status) {
 
@@ -808,7 +778,10 @@ void thread_comm_status_indication_cb(int8_t if_id, const mlme_comm_status_t* st
             break;
 
         case MLME_DATA_POLL_NOTIFICATION:
-            mle_refresh_entry_timeout(if_id, status->SrcAddr, (addrtype_t)status->SrcAddrMode, false);
+            entry = neighbor_data_poll_referesh(cur, status->SrcAddr, (addrtype_t)status->SrcAddrMode);
+            if (entry) {
+                thread_neighbor_communication_update(cur, entry->index);
+            }
             break;
         default:
             break;
@@ -908,7 +881,7 @@ int thread_management_node_init(
     scan_params->scan_duration = 5;
 
     cur->thread_info->masterSecretMaterial.valid_Info = false;
-    thread_calculate_key_guard_timer(cur, static_configuration, true);
+    thread_key_guard_timer_calculate(cur, static_configuration, true);
 
     cur->thread_info->maxChildCount = THREAD_MAX_CHILD_COUNT;
     cur->thread_info->rfc6775 = false;
@@ -1439,10 +1412,21 @@ int thread_management_partition_weighting_set(int8_t interface_id, uint8_t parti
         return 0;
     }
 
+    bool trig_network_scan = false;
+    if (cur->thread_info->thread_leader_data) {
+        if (cur->thread_info->thread_leader_data->weighting < partition_weighting) {
+            trig_network_scan = true;
+        }
+    }
+
     cur->thread_info->partition_weighting = partition_weighting;
+
     if (cur->lowpan_info & INTERFACE_NWK_ACTIVE) {
-        // bootstrap active and weighting has changed
-        thread_bootstrap_reset_restart(interface_id);
+        if (trig_network_scan && thread_extension_enabled(cur)) {
+            thread_nvm_store_link_info_clear();
+            // bootstrap active and weighting has changed
+            thread_bootstrap_reset_restart(interface_id);
+        }
     }
 
     return 0;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017, Arm Limited and affiliates.
+ * Copyright (c) 2013-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -77,12 +77,7 @@ buffer_t *lowpan_down(buffer_t *buf)
             return NULL;
         }
         if (thread_info(cur)) {
-            mle_neigh_table_entry_t *mle_entry;
-            mle_entry = mle_class_get_by_link_address(cur->id, buf->dst_sa.address + 2, buf->dst_sa.addr_type);
-            if (mle_entry && thread_addr_is_child(mac_helper_mac16_address_get(cur), mle_entry->short_adr)) {
-                /* Check if the child can handle only stable network data (e.g. sleepy device) */
-                stable_only = !(mle_entry->mode & MLE_THREAD_REQ_FULL_DATA_SET);
-            }
+            stable_only = thread_stable_context_check(cur, buf);
         }
     }
 
@@ -169,7 +164,7 @@ buffer_t *lowpan_down(buffer_t *buf)
     /* RFC 6282+4944 require that we limit compression to the first fragment.
      * This check is slightly conservative - always allow 4 for first-fragment header
      */
-    uint_fast8_t overhead = mac_helper_frame_overhead(cur, buf);
+    uint_fast16_t overhead = mac_helper_frame_overhead(cur, buf);
     uint_fast16_t max_iphc_size = mac_helper_max_payload_size(cur, overhead) - mesh_size - 4;
 
     buf = iphc_compress(&cur->lowpan_contexts, buf, max_iphc_size, stable_only);

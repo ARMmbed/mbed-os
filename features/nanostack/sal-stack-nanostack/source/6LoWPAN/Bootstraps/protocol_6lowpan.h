@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, Arm Limited and affiliates.
+ * Copyright (c) 2015-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -35,12 +35,10 @@ extern struct rpl_domain *protocol_6lowpan_rpl_domain;
 extern struct rpl_dodag *protocol_6lowpan_rpl_root_dodag;
 
 #ifdef HAVE_RPL
-#ifndef NO_MLE
 typedef enum {
     PRIORITY_1ST,
     PRIORITY_2ND,
 } neighbor_priority;
-#endif
 #endif
 
 void protocol_6lowpan_interface_common_init(struct protocol_interface_info_entry *cur);
@@ -53,11 +51,9 @@ int protocol_6lowpan_child_update(struct protocol_interface_info_entry *cur);
 void protocol_6lowpan_neighbor_priority_update(struct protocol_interface_info_entry *cur, uint8_t *removed_priority, uint8_t *updated_priority);
 
 #ifdef HAVE_RPL
-#ifndef NO_MLE
 uint16_t protocol_6lowpan_neighbor_priority_set(int8_t interface_id, addrtype_t addr_type, const uint8_t *addr_ptr);
 uint16_t protocol_6lowpan_neighbor_second_priority_set(int8_t interface_id, addrtype_t addr_type, const uint8_t *addr_ptr);
 void protocol_6lowpan_neighbor_priority_clear_all(int8_t interface_id, neighbor_priority priority);
-#endif
 #endif
 
 #else

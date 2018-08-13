@@ -353,6 +353,19 @@ extern int8_t coap_service_set_duplicate_message_buffer(int8_t service_id, uint8
  */
 
 extern int8_t coap_service_certificate_set(int8_t service_id, const unsigned char *cert, uint16_t cert_len, const unsigned char *priv_key, uint8_t priv_key_len);
+
+/**
+ * \brief Set CoAP blockwise payload size
+ *
+ * Set CoAP blockwise payload limit. If payload is bigger than configured limit, CoAP message will use blockwise option when sending.
+ *
+ * \param service_id       Id number of the current service.
+ * \param size             Blockwise size. Valid sizes are 16, 32, 64, 128, 256, 512 and 1024 bytes
+ *
+ * \return -1              For failure
+ *-         0              For success
+ */
+extern int8_t coap_service_blockwise_size_set(int8_t service_id, uint16_t size);
 #ifdef __cplusplus
 }
 #endif

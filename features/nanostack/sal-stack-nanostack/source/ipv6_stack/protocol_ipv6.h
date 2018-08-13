@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2017, Arm Limited and affiliates.
+ * Copyright (c) 2014-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -63,7 +63,7 @@ int ipv6_prefix_register(uint8_t *prefix_64, uint32_t lifetime, uint32_t prefer_
 int ipv6_prefix_router_flag_activate(uint8_t *ipv6_address);
 
 void ipv6_nd_ra_advert(struct protocol_interface_info_entry *cur, const uint8_t *dest);
-void ipv6_interface_slaac_handler(struct protocol_interface_info_entry *cur, uint8_t *slaacPrefix, uint8_t prefixLen, uint32_t validLifeTime, uint32_t preferredLifeTime);
+void ipv6_interface_slaac_handler(struct protocol_interface_info_entry *cur, const uint8_t *slaacPrefix, uint8_t prefixLen, uint32_t validLifeTime, uint32_t preferredLifeTime);
 void ipv6_stack_route_advert_update(uint8_t *address, uint8_t prefixLength, uint8_t routePrefer);
 void ipv6_stack_route_advert_remove(uint8_t *address, uint8_t prefixLength);
 void ipv6_prefix_on_link_update(uint8_t *address);

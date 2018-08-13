@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2017, Arm Limited and affiliates.
+ * Copyright (c) 2014-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,11 +49,13 @@
 #include "6LoWPAN/Thread/thread_discovery.h"
 #include "6LoWPAN/Thread/thread_nvm_store.h"
 #include "6LoWPAN/Thread/thread_extension_bootstrap.h"
+#include "6LoWPAN/Thread/thread_neighbor_class.h"
 #include "MLE/mle.h"
 #include "thread_meshcop_lib.h"
 #include "thread_diagcop_lib.h"
 #include "coap_service_api.h"
 #include "Service_Libs/mle_service/mle_service_api.h"
+#include "Service_Libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "6LoWPAN/MAC/mac_helper.h"
 
 #define TRACE_GROUP "tapi"
@@ -452,7 +454,7 @@ int thread_test_key_rotation_update(int8_t interface_id, uint32_t thrKeyRotation
         if (cur->lowpan_info & INTERFACE_NWK_ACTIVE) {
             if (cur->configure_flags & INTERFACE_BOOTSTRAP_DEFINED) {
                 linkConfiguration->key_rotation = thrKeyRotation;
-                thread_calculate_key_guard_timer(cur, linkConfiguration, false);
+                thread_key_guard_timer_calculate(cur, linkConfiguration, false);
                 ret_val = 0;
             }
         }
@@ -593,7 +595,7 @@ int thread_test_security_material_set(int8_t interface_id, bool enableSecurity, 
                     mle_service_security_set_security_key(cur->id, key_material, key_index, true);
                     //Gen also Next Key
                     thread_security_next_key_generate(cur, linkConfiguration->master_key, thrKeySequenceCounter);
-                    thread_calculate_key_guard_timer(cur, linkConfiguration, false);
+                    thread_key_guard_timer_calculate(cur, linkConfiguration, false);
                 }
             } else {
                 ret_val = 0;
@@ -625,7 +627,8 @@ int thread_test_version_set(int8_t interface_id, uint8_t version)
     thread_version = version;
     cur = protocol_stack_interface_info_get_by_id(interface_id);
     if (!cur) {
-        return -1;
+        /*We already stored the new Thread version above, so even if cur is NULL the version is updated.*/
+        return 0;
     }
     cur->thread_info->version = version;
     return 0;
@@ -1114,22 +1117,22 @@ int8_t thread_test_child_info_get(int8_t interface_id, uint8_t index, uint16_t *
     protocol_interface_info_entry_t *cur;
     uint8_t n= 0;
     cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (!cur || !cur->thread_info || cur->thread_info->thread_device_mode != THREAD_DEVICE_MODE_ROUTER) {
+    if (!cur || !cur->mac_parameters || !cur->thread_info || cur->thread_info->thread_device_mode != THREAD_DEVICE_MODE_ROUTER) {
         return -1;
     }
     uint16_t mac16 = mac_helper_mac16_address_get(cur);
-    mle_neigh_table_list_t *mle_table = mle_class_active_list_get(interface_id);
-    if (!mle_table) {
+    mac_neighbor_table_list_t *mac_table_list = &mac_neighbor_info(cur)->neighbour_list;
+    if (!mac_table_list) {
         return -1;
     }
 
-    ns_list_foreach(mle_neigh_table_entry_t, cur_entry, mle_table) {
-        if (cur_entry->threadNeighbor && thread_router_addr_from_addr(cur_entry->short_adr) == thread_router_addr_from_addr(mac16)) {
+    ns_list_foreach(mac_neighbor_table_entry_t, cur_entry, mac_table_list) {
+        if (thread_router_addr_from_addr(cur_entry->mac16) == thread_router_addr_from_addr(mac16)) {
             if (n == index) {
-                *short_addr = cur_entry->short_adr;
+                *short_addr = cur_entry->mac16;
                 memcpy(mac64,cur_entry->mac64, 8);
-                *sleepy = (cur_entry->mode & MLE_RX_ON_IDLE) != MLE_RX_ON_IDLE;
-                *margin = cur_entry->link_margin;
+                *sleepy = cur_entry->rx_on_idle != true;
+                *margin = thread_neighbor_entry_linkmargin_get(&cur->thread_info->neighbor_class, cur_entry->index);
                 return 0;
             }
          n++;
@@ -1156,17 +1159,17 @@ int8_t thread_test_neighbour_info_get(int8_t interface_id, uint8_t index, uint16
         return -1;
     }
     uint16_t mac16 = mac_helper_mac16_address_get(cur);
-    mle_neigh_table_list_t *mle_table = mle_class_active_list_get(interface_id);
-    if (!mle_table) {
+    mac_neighbor_table_list_t *mac_table_list = &mac_neighbor_info(cur)->neighbour_list;
+    if (!mac_table_list) {
         return -1;
     }
 
-    ns_list_foreach(mle_neigh_table_entry_t, cur_entry, mle_table) {
-        if (cur_entry->threadNeighbor && thread_router_addr_from_addr(cur_entry->short_adr) != thread_router_addr_from_addr(mac16)) {
+    ns_list_foreach(mac_neighbor_table_entry_t, cur_entry, mac_table_list) {
+        if (thread_router_addr_from_addr(cur_entry->mac16) != thread_router_addr_from_addr(mac16)) {
             if (n == index) {
-                *short_addr = cur_entry->short_adr;
+                *short_addr = cur_entry->mac16;
                 memcpy(mac64,cur_entry->mac64, 8);
-                *margin = cur_entry->link_margin;
+                *margin = thread_neighbor_entry_linkmargin_get(&cur->thread_info->neighbor_class, cur_entry->index);
                 return 0;
             }
             n++;

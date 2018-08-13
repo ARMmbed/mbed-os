@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2017, Arm Limited and affiliates.
+ * Copyright (c) 2014-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Redistribution and use in source and binary forms, with or without
@@ -96,7 +96,7 @@ typedef struct link_configuration {
 #define SECURITY_POLICY_EXTERNAL_COMMISSIONER_ALLOWED           0x10       /**< This indicates that external Commissioner authentication is allowed using PSKc. */
 #define SECURITY_POLICY_BEACON_PAYLOAD_ENABLED                  0x08       /**< Thread 1.x Beacons are enabled when this is set. */
 
-/*
+/**
  * Mandatory device information
  *
  * This information is required if commissioning is enabled for this device.

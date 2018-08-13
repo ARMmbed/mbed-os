@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017, Arm Limited and affiliates.
+ * Copyright (c) 2016-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,11 +22,11 @@
 #include "net_fhss.h"
 #include "nsdynmemLIB.h"
 #include "Service_Libs/fhss/fhss.h"
-#include "Service_Libs/fhss/fhss_mac_interface.h"
+#include "Service_Libs/fhss/fhss_common.h"
+#include "Service_Libs/fhss/fhss_ws.h"
 #include "ns_trace.h"
 
 #define TRACE_GROUP "fhss"
-
 
 fhss_api_t *ns_fhss_create(const fhss_configuration_t *fhss_configuration, const fhss_timer_t *fhss_timer, fhss_statistics_t *fhss_statistics)
 {
@@ -35,24 +35,49 @@ fhss_api_t *ns_fhss_create(const fhss_configuration_t *fhss_configuration, const
         return NULL;
     }
     // Create FHSS object
-    int8_t retval = fhss_enable(this, fhss_configuration, fhss_timer, fhss_statistics);
-    if (retval) {
-        tr_err("Failed to enable FHSS, return code: %i", retval);
+    fhss_structure_t *fhss_struct = fhss_enable(this, fhss_configuration, fhss_timer, fhss_statistics);
+    if (!fhss_struct) {
+        tr_err("Failed to enable FHSS");
         ns_dyn_mem_free(this);
         return NULL;
     }
-    this->is_broadcast_channel = &fhss_is_broadcast_channel_cb;
-    this->use_broadcast_queue = &fhss_use_broadcast_queue_cb;
-    this->tx_handle = &fhss_tx_handle_cb;
-    this->check_tx_conditions = &fhss_check_tx_conditions_cb;
-    this->receive_frame = &fhss_receive_frame_cb;
-    this->data_tx_done = &fhss_data_tx_done_cb;
-    this->data_tx_fail = &fhss_data_tx_fail_cb;
-    this->synch_state_set = &fhss_synch_state_set_cb;
-    this->read_timestamp = &fhss_read_timestamp_cb;
-    this->get_retry_period = &fhss_get_retry_period_cb;
-    this->init_callbacks = &fhss_init_callbacks_cb;
+    fhss_set_callbacks(fhss_struct);
     return this;
+}
+
+fhss_api_t *ns_fhss_ws_create(const fhss_ws_configuration_t *fhss_configuration, const fhss_timer_t *fhss_timer)
+{
+    fhss_api_t *this = ns_dyn_mem_alloc(sizeof(fhss_api_t));
+    if (!this) {
+        return NULL;
+    }
+    // Create FHSS object
+    fhss_structure_t *fhss_struct = fhss_ws_enable(this, fhss_configuration, fhss_timer);
+    if (!fhss_struct) {
+        tr_err("Failed to enable FHSS");
+        ns_dyn_mem_free(this);
+        return NULL;
+    }
+    fhss_ws_set_callbacks(fhss_struct);
+    return this;
+}
+
+int ns_fhss_ws_set_parent(const fhss_api_t *fhss_api, const uint8_t eui64[8], const broadcast_timing_info_t *bc_timing_info)
+{
+    fhss_structure_t *fhss_structure = fhss_get_object_with_api(fhss_api);
+    if (!fhss_structure || !eui64 || !bc_timing_info) {
+        return -1;
+    }
+    return fhss_ws_set_parent(fhss_structure, eui64, bc_timing_info);
+}
+
+int ns_fhss_ws_remove_parent(const fhss_api_t *fhss_api, const uint8_t eui64[8])
+{
+    fhss_structure_t *fhss_structure = fhss_get_object_with_api(fhss_api);
+    if (!fhss_structure || !eui64) {
+        return -1;
+    }
+    return fhss_ws_remove_parent(fhss_structure, eui64);
 }
 
 int ns_fhss_delete(fhss_api_t *fhss_api)
@@ -65,7 +90,6 @@ int ns_fhss_delete(fhss_api_t *fhss_api)
         return -1;
     }
     ns_dyn_mem_free(fhss_api);
-    fhss_api = NULL;
     return 0;
 }
 
@@ -76,4 +100,41 @@ int ns_fhss_configuration_set(fhss_api_t *fhss_api, const fhss_synch_configurati
         return -1;
     }
     return fhss_set_synch_configuration(fhss_structure, fhss_synch_configuration);
+}
+
+int ns_fhss_set_neighbor_info_fp(const fhss_api_t *fhss_api, fhss_get_neighbor_info *get_neighbor_info)
+{
+    fhss_structure_t *fhss_structure = fhss_get_object_with_api(fhss_api);
+    if (!fhss_structure || !fhss_structure->ws) {
+        return -1;
+    }
+    fhss_structure->ws->get_neighbor_info = get_neighbor_info;
+    return 0;
+}
+
+const fhss_ws_configuration_t *ns_fhss_ws_configuration_get(const fhss_api_t *fhss_api)
+{
+    fhss_structure_t *fhss_structure = fhss_get_object_with_api(fhss_api);
+    if (!fhss_structure || !fhss_structure->ws) {
+        return NULL;
+    }
+    return &fhss_structure->ws->fhss_configuration;
+}
+
+int ns_fhss_ws_configuration_set(const fhss_api_t *fhss_api, const fhss_ws_configuration_t *fhss_configuration)
+{
+    fhss_structure_t *fhss_structure = fhss_get_object_with_api(fhss_api);
+    if (!fhss_structure || !fhss_structure->ws) {
+        return -1;
+    }
+    return fhss_ws_configuration_set(fhss_structure, fhss_configuration);
+}
+
+int ns_fhss_ws_set_hop_count(const fhss_api_t *fhss_api, const uint8_t hop_count)
+{
+    fhss_structure_t *fhss_structure = fhss_get_object_with_api(fhss_api);
+    if (!fhss_structure || !fhss_structure->ws) {
+        return -1;
+    }
+    return fhss_ws_set_hop_count(fhss_structure, hop_count);
 }

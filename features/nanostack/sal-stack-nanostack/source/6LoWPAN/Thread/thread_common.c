@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2015, 2017, Arm Limited and affiliates.
+ * Copyright (c) 2014-2015, 2017-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Redistribution and use in source and binary forms, with or without
@@ -64,6 +64,7 @@
 #include "6LoWPAN/Thread/thread_address_registration_client.h"
 #include "6LoWPAN/Thread/thread_resolution_client.h"
 #include <6LoWPAN/Thread/thread_extension_bootstrap.h>
+#include "6LoWPAN/Thread/thread_neighbor_class.h"
 #include "MLE/mle.h"
 #include "Service_Libs/mle_service/mle_service_security.h"
 #include "Service_Libs/blacklist/blacklist.h"
@@ -79,6 +80,7 @@
 #include "MLE/mle_tlv.h"
 #include "Service_Libs/nd_proxy/nd_proxy.h"
 #include "Service_Libs/mle_service/mle_service_api.h"
+#include "Service_Libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "6LoWPAN/MAC/mac_helper.h"
 #include "6LoWPAN/MAC/mac_pairwise_key.h"
 #include "6LoWPAN/MAC/mac_data_poll.h"
@@ -104,7 +106,7 @@ thread_leader_data_t *thread_leader_data_generate(void);
 thread_parent_info_t *thread_parent_data_allocate(thread_info_t *info);
 static uint8_t * thread_joining_port_tlv_write(uint16_t port, uint8_t *ptr);
 static uint8_t * thread_commissioner_port_tlv_write(uint16_t port, uint8_t *ptr);
-static void thread_tx_failure_handler(int8_t nwk_id, uint8_t accumulated_failures, mle_neigh_table_entry_t *neighbor);
+static void thread_tx_failure_handler(int8_t nwk_id, uint8_t accumulated_failures, uint8_t attribute_index);
 static void thread_address_notification_cb(struct protocol_interface_info_entry *interface, const struct if_address_entry *addr, if_address_callback_t reason);
 
 /* Helper functions*/
@@ -152,33 +154,37 @@ uint8_t *thread_management_key_request_with_sequence(int8_t interface_id, uint8_
     if (!linkConfiguration) {
         return NULL;
     }
+    //tr_debug("MLE key request by sequence id %"PRIu8" seq %"PRIu32, keyId, keySequnce);
 
     cur = protocol_stack_interface_info_get_by_id(interface_id);
-    if (cur && cur->thread_info) {
-        if (cur->thread_info->masterSecretMaterial.valid_Info) {
-            if (keySequnce == linkConfiguration->key_sequence) {
-                if (mle_service_security_default_key_id_get(interface_id) == keyId) {
-                    keyPtr =  mle_service_security_default_key_get(interface_id);
-                }
-            } else if (keySequnce == (linkConfiguration->key_sequence + 1)) {
-                if (mle_service_security_next_key_id_get(interface_id) == keyId) {
-                    keyPtr =  mle_service_security_next_key_get(interface_id);
-                }
-            }
-
-            if (!keyPtr) {
-                tr_debug("Gen temporary key id %"PRIu8" seq %"PRIu32, keyId, keySequnce);
-                thread_key_get(linkConfiguration->master_key, cur->thread_info->masterSecretMaterial.historyKey, keySequnce);
-                cur->thread_info->masterSecretMaterial.historyKeyId = keyId;
-                cur->thread_info->masterSecretMaterial.historyKeyValid = false;
-                keyPtr = cur->thread_info->masterSecretMaterial.historyKey;
-            }
+    if (!cur || !cur->thread_info) {
+        return NULL;
+    }
+    if (!cur->thread_info->masterSecretMaterial.valid_Info) {
+        return NULL;
+    }
+    if (keySequnce == linkConfiguration->key_sequence) {
+        if (mle_service_security_default_key_id_get(interface_id) == keyId) {
+            keyPtr =  mle_service_security_default_key_get(interface_id);
         }
+    } else if (keySequnce == (linkConfiguration->key_sequence + 1)) {
+        if (mle_service_security_next_key_id_get(interface_id) == keyId) {
+            keyPtr =  mle_service_security_next_key_get(interface_id);
+        }
+    }
+
+    if (!keyPtr) {
+        tr_debug("Gen temporary key id %"PRIu8" seq %"PRIu32, keyId, keySequnce);
+        thread_key_get(linkConfiguration->master_key, cur->thread_info->masterSecretMaterial.historyKey, keySequnce);
+        cur->thread_info->masterSecretMaterial.historyKeyId = keyId;
+        cur->thread_info->masterSecretMaterial.historyKeyValid = false;
+        keyPtr = cur->thread_info->masterSecretMaterial.historyKey;
     }
     return keyPtr;
 }
 uint8_t * thread_mle_service_security_notify_cb(int8_t interface_id, mle_security_event_t event, uint8_t keyId)
 {
+    (void)keyId;
     protocol_interface_info_entry_t *interface = protocol_stack_interface_info_get_by_id(interface_id);
     if (!interface) {
         return NULL;
@@ -197,7 +203,7 @@ uint8_t * thread_mle_service_security_notify_cb(int8_t interface_id, mle_securit
             break;
 
         case MLE_SEC_UNKNOWN_KEY:
-            return thread_management_key_request(interface_id,keyId);
+            return NULL;
     }
     return NULL;
 }
@@ -360,23 +366,31 @@ bool thread_connectivity_tlv_parse(uint8_t *ptr, uint16_t dataLength, thread_con
     return false;
 }
 
-void thread_calculate_key_guard_timer(protocol_interface_info_entry_t *cur, link_configuration_s *linkConfiguration, bool is_init)
+void thread_key_guard_timer_calculate(protocol_interface_info_entry_t *cur, link_configuration_s *linkConfiguration, bool is_init)
 {
     uint32_t key_rotation = linkConfiguration ? linkConfiguration->key_rotation : 0;
 
-    if (is_init && key_rotation < 3600) {
+    if (is_init && key_rotation < 1) {
         tr_warn("Attempted to set key rotation time smaller than 1 hour.");
-        key_rotation = 3600;
+        key_rotation = 1;
     }
 
-    cur->thread_info->masterSecretMaterial.keyRotation = key_rotation;
-    cur->thread_info->masterSecretMaterial.keySwitchGuardTimer = is_init ? 0 : (key_rotation * 0.93);
+    cur->thread_info->masterSecretMaterial.keyRotation = key_rotation * 3600; // setting value is hours converting to seconds
+    cur->thread_info->masterSecretMaterial.keySwitchGuardTimer = is_init ? 0 : (key_rotation * 3600 * 0.93);
+}
+
+void thread_key_guard_timer_reset(protocol_interface_info_entry_t *cur)
+{
+    cur->thread_info->masterSecretMaterial.keySwitchGuardTimer = 0;
 }
 
 thread_leader_data_t *thread_leader_data_generate(void)
 {
     thread_leader_data_t *leader_data;
     leader_data = ns_dyn_mem_alloc(sizeof(thread_leader_data_t));
+    if (leader_data) {
+        memset(leader_data,0,sizeof(thread_leader_data_t));
+    }
     return leader_data;
 }
 
@@ -663,16 +677,27 @@ thread_mcast_child_t *thread_child_mcast_entry_find(thread_mcast_children_list_t
     return NULL;
 }
 
+bool thread_stable_context_check(protocol_interface_info_entry_t *cur, buffer_t *buf)
+{
+    mac_neighbor_table_entry_t *entry = mac_neighbor_table_address_discover(mac_neighbor_info(cur),buf->dst_sa.address + 2 , buf->dst_sa.addr_type);
+    if (entry && thread_addr_is_child(mac_helper_mac16_address_get(cur), entry->mac16)) {
+
+        /* Check if the child can handle only stable network data (e.g. sleepy device) */
+        return !(thread_neighbor_class_request_full_data_setup(&cur->thread_info->neighbor_class, entry->index));
+    }
+    return false;
+}
+
 thread_mcast_child_t *thread_child_mcast_entry_get(protocol_interface_info_entry_t *cur, const uint8_t *mcast_addr, const uint8_t *mac64)
 {
-    mle_neigh_table_entry_t *mle_entry = mle_class_get_by_link_address(cur->id, mac64, ADDR_802_15_4_LONG);
+    mac_neighbor_table_entry_t *entry = mac_neighbor_table_address_discover(mac_neighbor_info(cur), mac64, ADDR_802_15_4_LONG);
 
-    if (!mle_entry) {
+    if (!entry) {
         tr_error("No MLE entry.");
         return NULL;
     }
 
-    if (mle_entry->mode & MLE_RX_ON_IDLE) {
+    if (entry->rx_on_idle) {
         /* Not a sleepy child */
         tr_debug("Not a sleepy child");
         return NULL;
@@ -791,8 +816,6 @@ int thread_init(protocol_interface_info_entry_t *cur)
         return -1;
     }
 
-    mle_class_router_challenge(cur->id, NULL);
-
     if (etx_accum_failures_callback_register(cur->nwk_id, cur->id, 1, thread_tx_failure_handler) != 1) {
         return -1;
     }
@@ -803,7 +826,6 @@ int thread_init(protocol_interface_info_entry_t *cur)
     thread_data_base_init(cur->thread_info, cur->id);
     mac_helper_pib_boolean_set(cur,macThreadForceLongAddressForBeacon , true);
     mac_helper_mac16_address_set(cur, 0xffff);
-    mle_class_mode_set(cur->id, MLE_CLASS_END_DEVICE);
     return 0;
 }
 
@@ -817,7 +839,7 @@ int thread_attach_ready(protocol_interface_info_entry_t *cur)
         case THREAD_STATE_CONNECTED:
         case THREAD_STATE_CONNECTED_ROUTER:
             return 0;
-            break;
+            /* break; */
         default:
             break;
     }
@@ -919,7 +941,7 @@ static void thread_key_switch_timer(protocol_interface_info_entry_t *cur, uint16
 
         tr_debug("thrKeyRotation == 0: sync key material by %"PRIu32, linkConfiguration->key_sequence + 1);
         thread_management_key_sets_calc(cur, linkConfiguration, linkConfiguration->key_sequence + 1);
-        thread_calculate_key_guard_timer(cur, linkConfiguration, false);
+        thread_key_guard_timer_calculate(cur, linkConfiguration, false);
     }
 }
 
@@ -1019,14 +1041,15 @@ void thread_timer(protocol_interface_info_entry_t *cur, uint8_t ticks)
         return;
     }
 
-    if (thread_i_am_router(cur)) {
+    if (cur->nwk_bootstrap_state != ER_BOOTSRAP_DONE && cur->nwk_bootstrap_state != ER_MLE_ATTACH_READY) {
+        /* Own attach is ongoing, do not send advertisements */
+        return;
+    }
 
+    if (thread_i_am_router(cur)) {
         if (thread_routing_timer(thread_info, ticks)) {
             thread_router_bootstrap_mle_advertise(cur);
         }
-
-    } else {
-
     }
 }
 
@@ -1121,14 +1144,20 @@ uint8_t thread_beacon_indication(uint8_t *ptr, uint8_t len, protocol_interface_i
 
 static uint8_t *thread_linkquality_write(int8_t interface_id, uint8_t *buffer)
 {
+    protocol_interface_info_entry_t *interface_ptr = protocol_stack_interface_info_get_by_id(interface_id);
+    if (!interface_ptr && !interface_ptr->thread_info) {
+        return buffer;
+    }
+
     uint8_t lqi1 = 0, lqi2 = 0, lqi3 = 0;
     thread_link_quality_e thread_link_quality;
-    mle_neigh_table_list_t *neigh_list = mle_class_active_list_get(interface_id);
+    mac_neighbor_table_list_t *mac_table_list = &mac_neighbor_info(interface_ptr)->neighbour_list;
 
-    ns_list_foreach(mle_neigh_table_entry_t, cur, neigh_list) {
-        if (thread_is_router_addr(cur->short_adr)) {
+    ns_list_foreach(mac_neighbor_table_entry_t, cur, mac_table_list) {
+        if (thread_is_router_addr(cur->mac16)) {
             // Only count routers to link quality
-            thread_link_quality = thread_link_margin_to_quality(cur->link_margin);
+            uint16_t link_margin = thread_neighbor_entry_linkmargin_get(&interface_ptr->thread_info->neighbor_class, cur->index);
+            thread_link_quality = thread_link_margin_to_quality(link_margin);
             switch (thread_link_quality) {
                 case QUALITY_20dB:
                     lqi3++;
@@ -1193,14 +1222,14 @@ uint8_t *thread_connectivity_tlv_write(uint8_t *ptr, protocol_interface_info_ent
     *ptr++ = 10;
 
     // determine parent priority
-    if ((mode & MLE_DEV_MASK) == MLE_RFD_DEV && (3*mle_class_rfd_entry_count_get(cur->id) > 2*THREAD_MAX_MTD_CHILDREN)) {
+    if ((mode & MLE_DEV_MASK) == MLE_RFD_DEV && (3*mle_class_rfd_entry_count_get(cur) > 2*THREAD_MAX_MTD_CHILDREN)) {
         *ptr++ = CONNECTIVITY_PP_LOW;
-    } else if (!(mode & MLE_RX_ON_IDLE) && (3*mle_class_sleepy_entry_count_get(cur->id) > 2*THREAD_MAX_SED_CHILDREN)) {
+    } else if (!(mode & MLE_RX_ON_IDLE) && (3*mle_class_sleepy_entry_count_get(cur) > 2*THREAD_MAX_SED_CHILDREN)) {
         *ptr++ = CONNECTIVITY_PP_LOW;
     } else if (3*thread_router_bootstrap_child_count_get(cur) > 2*thread->maxChildCount) {
         // 1/3 of the child capacity remaining, PP=low
         *ptr++ = CONNECTIVITY_PP_LOW;
-    } else if (mle_class_free_entry_count_get(cur->id) < THREAD_FREE_MLE_ENTRY_THRESHOLD) {
+    } else if (mle_class_free_entry_count_get(cur) < THREAD_FREE_MLE_ENTRY_THRESHOLD) {
         // If only few entries available in the MLE table, change priority to low
         *ptr++ = CONNECTIVITY_PP_LOW;
     } else {
@@ -1829,7 +1858,7 @@ static uint8_t * thread_commissioner_port_tlv_write(uint16_t port, uint8_t *ptr)
     return common_write_16_bit(port, ptr);
 }
 
-static void thread_tx_failure_handler(int8_t nwk_id, uint8_t accumulated_failures, mle_neigh_table_entry_t *neighbor)
+static void thread_tx_failure_handler(int8_t nwk_id, uint8_t accumulated_failures, uint8_t attribute_index)
 {
     protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(nwk_id);
 
@@ -1839,27 +1868,33 @@ static void thread_tx_failure_handler(int8_t nwk_id, uint8_t accumulated_failure
         return;
     }
 
+    mac_neighbor_table_entry_t *neighbor = mac_neighbor_table_attribute_discover(mac_neighbor_info(cur), attribute_index);
+    if (!neighbor) {
+        return;
+    }
+
     if (accumulated_failures >= THREAD_MAC_TRANSMISSIONS*THREAD_FAILED_CHILD_TRANSMISSIONS) {
-        mle_class_remove_entry(cur->id, neighbor);
+        mac_neighbor_table_neighbor_remove(mac_neighbor_info(cur), neighbor);
     }
 }
 
 /* Called when MLE link to neighbour lost, or ETX callback says link is bad */
-void thread_reset_neighbour_info(protocol_interface_info_entry_t *cur, mle_neigh_table_entry_t *neighbour)
+void thread_reset_neighbour_info(protocol_interface_info_entry_t *cur, mac_neighbor_table_entry_t *neighbour)
 {
     thread_parent_info_t *thread_endnode_parent = thread_info(cur)->thread_endnode_parent;
 
-    if (!thread_i_am_router(cur) && thread_endnode_parent && thread_endnode_parent->shortAddress == neighbour->short_adr) {
+    if (!thread_i_am_router(cur) && thread_endnode_parent && thread_endnode_parent->shortAddress == neighbour->mac16) {
         if(cur->nwk_bootstrap_state != ER_CHILD_ID_REQ) {
             tr_warn("End device lost parent, reset!\n");
             thread_bootstrap_connection_error(cur->id, CON_PARENT_CONNECT_DOWN, NULL);
         }
     }
 
-    thread_routing_remove_link(cur, neighbour->short_adr);
+    thread_routing_remove_link(cur, neighbour->mac16);
     thread_router_bootstrap_reset_child_info(cur, neighbour);
     protocol_6lowpan_release_long_link_address_from_neighcache(cur, neighbour->mac64);
-    mac_helper_devicetable_remove(cur->mac_api, neighbour->attribute_index);
+    mac_helper_devicetable_remove(cur->mac_api, neighbour->index);
+    thread_neighbor_class_entry_remove(&cur->thread_info->neighbor_class, neighbour->index);
 }
 
 uint8_t thread_get_router_count_from_route_tlv(mle_tlv_info_t *routeTlv)
@@ -1894,7 +1929,7 @@ static void thread_address_notification_cb(struct protocol_interface_info_entry 
         } else {
             if (reason == ADDR_CALLBACK_DAD_COMPLETE) {
                 /* Send address notification (our parent doesn't do that for us) */
-                thread_extension_address_registration(interface, addr->address, NULL);
+                thread_extension_address_registration(interface, addr->address, NULL, false, false);
             }
         }
     }
@@ -1902,9 +1937,6 @@ static void thread_address_notification_cb(struct protocol_interface_info_entry 
 
 void thread_mcast_group_change(struct protocol_interface_info_entry *interface, if_group_entry_t *group, bool addr_added)
 {
-    (void) addr_added;
-
-    group->mld_timer = 0;
 
     if (thread_attach_ready(interface) != 0) {
         return;
@@ -1918,11 +1950,13 @@ void thread_mcast_group_change(struct protocol_interface_info_entry *interface, 
             interface->thread_info->childUpdateReqTimer = 1;
         }
     } else {
-        thread_extension_mcast_subscrition_change(interface, group, addr_added);
+        if (addr_added) {
+            thread_address_registration_timer_set(interface, 0, 1);
+        }
     }
 }
 
-void thread_old_partition_data_purge(protocol_interface_info_entry_t *cur)
+void thread_partition_data_purge(protocol_interface_info_entry_t *cur)
 {
     /* Partition has been changed. Wipe out data related to old partition */
     thread_management_client_pending_coap_request_kill(cur->id);
@@ -1933,6 +1967,34 @@ void thread_old_partition_data_purge(protocol_interface_info_entry_t *cur)
     /* Flush address cache */
     ipv6_neighbour_cache_flush(&cur->ipv6_neighbour_cache);
 
+}
+
+bool thread_partition_match(protocol_interface_info_entry_t *cur, thread_leader_data_t *leaderData)
+{
+    if (thread_info(cur)->thread_leader_data) {
+        if ((thread_info(cur)->thread_leader_data->partitionId == leaderData->partitionId) &&
+            (thread_info(cur)->thread_leader_data->weighting == leaderData->weighting)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void thread_partition_info_update(protocol_interface_info_entry_t *cur, thread_leader_data_t *leaderData)
+{
+    /* Force network data update later when processing network data TLV */
+    thread_info(cur)->thread_leader_data->dataVersion = leaderData->dataVersion - 1;
+    thread_info(cur)->thread_leader_data->stableDataVersion = leaderData->stableDataVersion - 1;
+    thread_info(cur)->thread_leader_data->leaderRouterId = leaderData->leaderRouterId;
+    thread_info(cur)->thread_leader_data->partitionId = leaderData->partitionId;
+    thread_info(cur)->thread_leader_data->weighting = leaderData->weighting;
+    /* New network data learned, get rid of old partition data */
+    thread_partition_data_purge(cur);
+}
+
+void thread_neighbor_communication_update(protocol_interface_info_entry_t *cur, uint8_t neighbor_attribute_index)
+{
+    thread_neighbor_last_communication_time_update(&cur->thread_info->neighbor_class, neighbor_attribute_index);
 }
 
 #endif

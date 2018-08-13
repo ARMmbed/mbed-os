@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, Arm Limited and affiliates.
+ * Copyright (c) 2015-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -542,6 +542,14 @@ void rpl_delete_dodag_version(rpl_dodag_version_t *version)
     rpl_dodag_t *dodag = version->dodag;
     rpl_instance_t *instance = dodag->instance;
 
+    if (instance->current_dodag_version == version) {
+        // Don't call rpl_instance_set_dodag_version(NULL) - that would pre-empt parent reselection,
+        // triggering poison immediately.
+        // Give parent selection a chance to select another version (but will it have any info on-hand?)
+        instance->current_dodag_version = NULL;
+        rpl_instance_trigger_parent_selection(instance, 5);
+    }
+
     ns_list_foreach_safe(rpl_neighbour_t, neighbour, &instance->candidate_neighbours) {
         if (neighbour->dodag_version == version) {
             rpl_delete_neighbour(instance, neighbour);
@@ -647,6 +655,21 @@ void rpl_delete_dodag(rpl_dodag_t *dodag)
     }
     ns_list_remove(&instance->dodags, dodag);
     rpl_free(dodag, sizeof(*dodag));
+}
+
+void rpl_delete_dodag_root(rpl_dodag_t *dodag)
+{
+    // This should trigger immediate poison
+    rpl_instance_set_dodag_version(dodag->instance, NULL, RPL_RANK_INFINITE);
+    // Deleting DODAG is not ideal - we will just pick up adverts from our
+    // former children, and recreate, possibly violating the MaxRankIncrease.
+    // Should retain DODAG version info and just unset root flag, which will
+    // limit what happens when we hear adverts.
+    // Problem is rpl_control_create_dodag_root which can't handle the
+    // case where DODAG already exists. This would always be a problem if
+    // we'd heard adverts in between delete and create, but would be an instant
+    // problem without this delete. Need to fix.
+    rpl_delete_dodag(dodag);
 }
 
 /* Convert RPL configuration to generic trickle parameters. Returns true if
@@ -1008,31 +1031,15 @@ rpl_instance_t *rpl_create_instance(rpl_domain_t *domain, uint8_t instance_id)
     if (!instance) {
         return NULL;
     }
+    memset(instance, 0, sizeof(rpl_instance_t));
     ns_list_init(&instance->dodags);
     ns_list_init(&instance->candidate_neighbours);
     ns_list_init(&instance->dao_targets);
     instance->dtsn = rpl_seq_init();
-    instance->srh_error_count = 0;
-    instance->poison_count = 0;
-    instance->repair_dis_timer = 0;
-    instance->repair_dis_count = 0;
     instance->last_dao_trigger_time = protocol_core_monotonic_time;
-    instance->root_paths_valid = false;
-    instance->root_topo_sort_valid = false;
     instance->dao_sequence = rpl_seq_init();
-    instance->dao_sequence_in_transit = 0;
-    instance->dao_in_transit = false;
-    instance->dao_retry_timer = 0;
-    instance->dao_attempt = 0;
-    instance->delay_dao_timer = 0;
-    instance->parent_selection_timer = 0;
-    instance->neighbours_changed = false;
-    instance->local_repair = false;
     instance->id = instance_id;
     instance->domain = domain;
-    instance->current_dodag_version = NULL;
-    instance->dio_not_consistent = false;
-    instance->of = NULL;
 
     ns_list_add_to_start(&domain->instances, instance);
     return instance;
@@ -1345,7 +1352,6 @@ void rpl_instance_run_parent_selection(rpl_instance_t *instance)
         protocol_stats_update(STATS_RPL_PARENT_CHANGE, 1);
     }
 
-#ifndef NO_MLE
     // Sets new preferred parent
     if (preferred_parent) {
         ipv6_map_ip_to_ll_and_call_ll_addr_handler(NULL, preferred_parent->interface_id, NULL, preferred_parent->ll_address,
@@ -1359,7 +1365,6 @@ void rpl_instance_run_parent_selection(rpl_instance_t *instance)
             protocol_6lowpan_neighbor_priority_clear_all(preferred_parent->interface_id, PRIORITY_2ND);
         }
     }
-#endif
 
     rpl_instance_set_local_repair(instance, preferred_parent == NULL);
 

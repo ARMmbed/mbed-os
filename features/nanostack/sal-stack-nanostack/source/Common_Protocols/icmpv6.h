@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017, Arm Limited and affiliates.
+ * Copyright (c) 2013-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -140,8 +140,8 @@ extern void icmpv6_recv_ra_routes(struct protocol_interface_info_entry *cur, boo
 extern void icmpv6_recv_ra_prefixes(struct protocol_interface_info_entry *cur, bool enable);
 
 extern void icmpv6_slaac_prefix_register_trig(struct protocol_interface_info_entry *cur, uint8_t *prefix_ptr, uint8_t prefix_len);
-extern int icmpv6_slaac_prefix_update(struct protocol_interface_info_entry *cur, uint8_t *prefix_ptr, uint8_t prefix_len, uint32_t valid_lifetime, uint32_t preferred_lifetime);
-extern struct if_address_entry *icmpv6_slaac_address_add(struct protocol_interface_info_entry *cur, uint8_t *prefix_ptr, uint8_t prefix_len, uint32_t valid_lifetime, uint32_t preferred_lifetime, bool skip_dad, slaac_src_e slaac_src);
+extern int icmpv6_slaac_prefix_update(struct protocol_interface_info_entry *cur, const uint8_t *prefix_ptr, uint8_t prefix_len, uint32_t valid_lifetime, uint32_t preferred_lifetime);
+extern struct if_address_entry *icmpv6_slaac_address_add(struct protocol_interface_info_entry *cur, const uint8_t *prefix_ptr, uint8_t prefix_len, uint32_t valid_lifetime, uint32_t preferred_lifetime, bool skip_dad, slaac_src_e slaac_src);
 
 
 /*

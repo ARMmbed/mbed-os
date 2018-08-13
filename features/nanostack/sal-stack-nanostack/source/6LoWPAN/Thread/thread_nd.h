@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2017, Arm Limited and affiliates.
+ * Copyright (c) 2014-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Redistribution and use in source and binary forms, with or without
@@ -55,7 +55,7 @@ int thread_nd_map_anycast_address(protocol_interface_info_entry_t *cur, uint16_t
 void thread_nd_address_remove(protocol_interface_info_entry_t *cur_interface, addrtype_t ll_type, const uint8_t *ll_address);
 void thread_nd_flush_neighbour_cache_for_short_addr(struct protocol_interface_info_entry *cur, uint16_t flushee, bool children);
 
-int thread_nd_address_registration(struct protocol_interface_info_entry *cur, const uint8_t *ipv6Address, uint16_t mac16, uint16_t panId, const uint8_t *mac64);
+int thread_nd_address_registration(struct protocol_interface_info_entry *cur, const uint8_t *ipv6Address, uint16_t mac16, uint16_t panId, const uint8_t *mac64, bool *new_neighbour_created);
 
 #else //HAVE_THREAD_NEIGHBOR_DISCOVERY
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2017, Arm Limited and affiliates.
+ * Copyright (c) 2014-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Redistribution and use in source and binary forms, with or without
@@ -77,15 +77,13 @@ int thread_management_increment_key_sequence_counter(int8_t interface_id);
 
 int thread_management_key_sets_calc(protocol_interface_info_entry_t *cur, link_configuration_s *linkConfiguration, uint32_t thrKeySequenceCounter);
 
-uint8_t *thread_management_key_request(int8_t interface_id, uint8_t keyId);
-
 void thread_management_key_synch_req(int8_t interface_id, uint32_t keySequnce);
 uint8_t *thread_management_key_request_with_sequence(int8_t interface_id, uint8_t keyId, uint32_t keySequnce);
 
 void thread_security_update_from_mac(struct protocol_interface_info_entry *cur);
 
-void thread_history_key_material_push(struct thread_info_s *thread_info, uint8_t *mleKeyPtr, uint8_t keyId);
-
+void thread_security_key_generate(struct protocol_interface_info_entry *cur, uint8_t *masterKey, uint32_t keySequence);
+void thread_security_prev_key_generate(struct protocol_interface_info_entry *cur, uint8_t *masterKey, uint32_t keySequence);
 void thread_security_next_key_generate(struct protocol_interface_info_entry *cur, uint8_t *masterKey, uint32_t keySequence);
 
 void thread_key_get(uint8_t *key, uint8_t *key_material_buf,  uint32_t key_sequence_counter);

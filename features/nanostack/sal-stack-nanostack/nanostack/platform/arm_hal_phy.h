@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2017, Arm Limited and affiliates.
+ * Copyright (c) 2014-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -45,6 +45,7 @@ typedef enum {
     PHY_LINK_TX_SUCCESS,        /**< MAC TX complete. MAC will a make decision to enter wait ACK or TX done state. */
     PHY_LINK_TX_FAIL,           /**< Link TX process fail. */
     PHY_LINK_CCA_FAIL,          /**< RF link CCA process fail. */
+    PHY_LINK_CCA_PREPARE,       /**< RX Tx timeout prepare operation like channel switch to Tx channel from Receive one If operation fail must return not zero*/
 } phy_link_tx_status_e;
 
 /** Extension types */
@@ -56,6 +57,13 @@ typedef enum {
     PHY_EXTENSION_READ_LINK_STATUS, /**< Net library could read link status. */
     PHY_EXTENSION_CONVERT_SIGNAL_INFO, /**< Convert signal info. */
     PHY_EXTENSION_ACCEPT_ANY_BEACON, /**< Set boolean true or false for accept beacon from other Pan-ID than configured. Default value should be false */
+    PHY_EXTENSION_SET_TX_TIME,  /**< Net library sets transmission time based on global time stamp. Max. 65ms from setting to TX. If TX time is set to zero, it should be ignored.*/
+    PHY_EXTENSION_READ_RX_TIME, /**< Read the time of last reception based on global micro seconds time stamp. */
+    PHY_EXTENSION_READ_TX_FINNISH_TIME, /**< Read the time of last finished TX micro seconds based on global time stamp. */
+    PHY_EXTENSION_DYNAMIC_RF_SUPPORTED, /**< Read status for support Radio driver support for set TX time, CCA and Timestamp read. Also PHY_LINK_CCA_PREPARE tx status must be supported also*/
+    PHY_EXTENSION_GET_TIMESTAMP, /**<  Read 32-bit constant monotonic time stamp in us */
+    PHY_EXTENSION_SET_CSMA_PARAMETERS, /**< CSMA parameter's are given by phy_csma_params_t structure remember type cast uint8_t pointer to structure type*/
+    PHY_EXTENSION_GET_SYMBOLS_PER_SECOND, /**<  Read Symbols per seconds which will help to convert symbol time to real time  */
 } phy_extension_type_e;
 
 /** Address types */
@@ -109,6 +117,12 @@ typedef struct phy_signal_info_s {
     int8_t dbm;                     /**< Strength passed to arm_net_phy_rx. */
     uint16_t result;                /**< Resulting signal information. */
 } phy_signal_info_s;
+
+/** CSMA-CA parameters */
+typedef struct phy_csma_params {
+    uint32_t backoff_time;           /**< CSMA Backoff us time before start CCA & TX. 0 should disable current backoff*/
+    bool cca_enabled;                /**< True will affect CCA check false start TX direct after backoff */
+} phy_csma_params_t;
 
 /** PHY modulation scheme */
 typedef enum phy_modulation_e

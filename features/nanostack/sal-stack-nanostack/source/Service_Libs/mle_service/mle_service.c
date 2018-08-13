@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, Arm Limited and affiliates.
+ * Copyright (c) 2015-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -35,6 +35,7 @@
 #include "Service_Libs/mle_service/mle_service_security.h"
 #include "Service_Libs/mle_service/mle_service_buffer.h"
 #include "Service_Libs/mle_service/mle_service_interface.h"
+#include "Service_Libs/mle_service/mle_service_frame_counter_table.h"
 #include "MLE/mle.h"
 #include "MLE/mle_tlv.h"
 #include "mac_common_defines.h"
@@ -413,39 +414,39 @@ static void mle_service_a_data_set(uint8_t *ptr, uint8_t *src_address, uint8_t *
 static buffer_t *mle_service_message_security_decode(buffer_t *buf, mle_security_header_t *securityHeader,
         uint8_t *security_key)
 {
-    ccm_globals_t *ccm_ptr;
+    ccm_globals_t ccm_ptr;
     uint16_t payload_len = buffer_data_length(buf);
 
-    ccm_ptr = ccm_sec_init(securityHeader->securityLevel, security_key, AES_CCM_DECRYPT, 2);
-    if (!ccm_ptr) {
+    if (!ccm_sec_init(&ccm_ptr, securityHeader->securityLevel, security_key, AES_CCM_DECRYPT, 2)) {
         return buffer_free(buf);
-    } else if (ccm_ptr->mic_len >= payload_len) {
+    } else if (ccm_ptr.mic_len >= payload_len) {
+        ccm_free(&ccm_ptr);
         return buffer_free(buf);
     }
 
     //SET Nonce
     buf->src_sa.address[8] ^= 2;
-    mle_security_aux_ccm_nonce_set(ccm_ptr->exp_nonce, &(buf->src_sa.address[8]),
+    mle_security_aux_ccm_nonce_set(ccm_ptr.exp_nonce, &(buf->src_sa.address[8]),
             securityHeader->frameCounter, securityHeader->securityLevel);
     buf->src_sa.address[8] ^= 2;
 
-    if (ccm_ptr->mic_len) {
-        payload_len -= ccm_ptr->mic_len;
-        buf->buf_end -= ccm_ptr->mic_len;
+    if (ccm_ptr.mic_len) {
+        payload_len -= ccm_ptr.mic_len;
+        buf->buf_end -= ccm_ptr.mic_len;
 
-        ccm_ptr->data_ptr = buffer_data_pointer(buf);
-        ccm_ptr->adata_ptr = mle_service->mle_adata;
-        ccm_ptr->data_len = payload_len;
-        ccm_ptr->adata_len = mle_service->mle_adata_length;
+        ccm_ptr.data_ptr = buffer_data_pointer(buf);
+        ccm_ptr.adata_ptr = mle_service->mle_adata;
+        ccm_ptr.data_len = payload_len;
+        ccm_ptr.adata_len = mle_service->mle_adata_length;
         //SET MIC
-        ccm_ptr->mic = ccm_ptr->data_ptr;
-        ccm_ptr->mic += payload_len;
+        ccm_ptr.mic = ccm_ptr.data_ptr;
+        ccm_ptr.mic += payload_len;
     } else {
-        ccm_ptr->data_len = payload_len;
-        ccm_ptr->data_ptr = buffer_data_pointer(buf);
+        ccm_ptr.data_len = payload_len;
+        ccm_ptr.data_ptr = buffer_data_pointer(buf);
     }
 
-    if (ccm_process_run(ccm_ptr) != 0) {
+    if (ccm_process_run(&ccm_ptr) != 0) {
         tr_error("MLE mic fail!");
         buf = buffer_free(buf);
     }
@@ -459,7 +460,7 @@ static buffer_t *mle_message_security_header_set(buffer_t *buf,service_instance_
     //Verify first security level
     if (security_header->securityLevel) {
         //Get Security keys
-        ccm_globals_t *ccm_ptr;
+        ccm_globals_t ccm_ptr;
         uint16_t header_size;
         uint16_t data_len;
         data_len = buffer_data_length(buf);
@@ -468,58 +469,58 @@ static buffer_t *mle_message_security_header_set(buffer_t *buf,service_instance_
             goto drop_buffer;
         }
         // Init
-        ccm_ptr = ccm_sec_init(security_header->securityLevel, ptr, AES_CCM_ENCRYPT, 2);
-        if (!ccm_ptr) {
+        if (!ccm_sec_init(&ccm_ptr, security_header->securityLevel, ptr, AES_CCM_ENCRYPT, 2)) {
             goto drop_buffer;
         }
-
         header_size = mle_security_aux_header_size(security_header->KeyIdMode);
 
         //SET Nonce
-        mle_security_aux_ccm_nonce_set(ccm_ptr->exp_nonce, srv_ptr->mac64, security_header->frameCounter, security_header->securityLevel);
-        if (ccm_ptr->mic_len) {
-            buf = buffer_headroom(buf, (ccm_ptr->mic_len + 32 + header_size));
+        mle_security_aux_ccm_nonce_set(ccm_ptr.exp_nonce, srv_ptr->mac64, security_header->frameCounter, security_header->securityLevel);
+        if (ccm_ptr.mic_len) {
+            buf = buffer_headroom(buf, (ccm_ptr.mic_len + 32 + header_size));
             if (buf) {
                 uint8_t *ptr2;
                 //Move current data to left by mic_len bytes
                 ptr = buffer_data_pointer(buf);
                 //Set new data pointer
                 ptr2 = ptr;
-                ptr2 -= ccm_ptr->mic_len;
+                ptr2 -= ccm_ptr.mic_len;
 
                 memmove(ptr2, ptr, data_len);
 
                 //Cut Mic len
-                buf->buf_end -= ccm_ptr->mic_len;
+                buf->buf_end -= ccm_ptr.mic_len;
 
-                ptr -= header_size + ccm_ptr->mic_len;
+                ptr -= header_size + ccm_ptr.mic_len;
                 ptr = mle_security_aux_header_write(ptr, security_header);
                 ptr -= header_size;
                 //Set pointer to Adata
                 ptr -= (32);
                 mle_service_a_data_set(ptr, buf->src_sa.address, buf->dst_sa.address);
                 //Create ADATA
-                ccm_ptr->adata_ptr = ptr;
-                ccm_ptr->adata_len = (32 + header_size);
+                ccm_ptr.adata_ptr = ptr;
+                ccm_ptr.adata_len = (32 + header_size);
 
                 //SET ptr to show to real payload
-                buf->buf_ptr -= ccm_ptr->mic_len;
+                buf->buf_ptr -= ccm_ptr.mic_len;
             } else {
                 tr_warn("Security header alloc fail");
+                ccm_free(&ccm_ptr);
                 buf = (buffer_t *) 0;
+                ccm_process_run(NULL);
                 return buf;
             }
         }
         ptr = buffer_data_pointer(buf);
-        ccm_ptr->data_ptr = ptr;
-        ccm_ptr->data_len = data_len;
+        ccm_ptr.data_ptr = ptr;
+        ccm_ptr.data_len = data_len;
 
-        ccm_ptr->mic = ptr;
-        ccm_ptr->mic += data_len;
-        ccm_process_run(ccm_ptr);
-        if (ccm_ptr->mic_len) {
+        ccm_ptr.mic = ptr;
+        ccm_ptr.mic += data_len;
+        ccm_process_run(&ccm_ptr);
+        if (ccm_ptr.mic_len) {
             //SET Calculated mic
-            buf->buf_end += ccm_ptr->mic_len;
+            buf->buf_end += ccm_ptr.mic_len;
         }
         buffer_data_reserve_header(buf, header_size);
     }
@@ -655,6 +656,15 @@ static int mle_service_build_packet_send(service_instance_t *srv_ptr, mle_securi
     return 0;
 }
 
+static mle_neighbor_security_counter_info_t *mle_service_get_neighbour_info(protocol_interface_info_entry_t *cur_interface, uint8_t *ll64)
+{
+    mac_neighbor_table_entry_t *neighbour = mac_neighbor_entry_get_by_ll64(mac_neighbor_info(cur_interface),ll64, false, NULL);
+    if (!neighbour) {
+        return NULL;
+    }
+    return mle_service_counter_info_get(cur_interface->id, neighbour->index);
+}
+
 static void mle_service_socket_callback(void *cb)
 {
     socket_buffer_callback_t *cb_buf = cb;
@@ -678,6 +688,7 @@ static void mle_service_socket_callback(void *cb)
         tr_warn("service handler not registerd");
         goto error_handler;
     }
+    mle_msg.interface_ptr = service_handler->interface_ptr;
 
     // MLE messages are only allowed to Link local address
     if (!addr_is_ipv6_link_local(buf->src_sa.address) ||
@@ -730,7 +741,7 @@ static void mle_service_socket_callback(void *cb)
 
 
         /* MLE neighbour table frame counter check */
-        mle_neigh_table_entry_t *neighbour = NULL;
+        mle_neighbor_security_counter_info_t *neighbour = NULL;
         uint32_t keySeq;
         if (securityHeader.KeyIdMode == MAC_KEY_ID_MODE_SRC4_IDX) {
             keySeq = common_read_32_bit(securityHeader.Keysource);
@@ -739,7 +750,7 @@ static void mle_service_socket_callback(void *cb)
         }
 
         if (mle_service->mle_frame_counter_check_enabled) {
-            neighbour = mle_class_discover_entry_by_ll64(service_handler->interface_id,buf->src_sa.address);
+            neighbour = mle_service_get_neighbour_info(service_handler->interface_ptr,buf->src_sa.address);
             if (neighbour){
                 //key pending is set - incoming frame counter will be reset when new sequence is heard or lower framecounter is heard
                 if (neighbour->new_key_pending) {
@@ -813,6 +824,7 @@ static void mle_service_socket_callback(void *cb)
         }
     }
 #endif
+
     if (security_bypass) {
         /* Security by pass message handler call */
         service_handler->recv_security_bypass_cb(service_handler->interface_id, &mle_msg);
@@ -871,13 +883,13 @@ static bool mle_service_instance_timeout_handler(uint16_t ticks, service_instanc
     }
 }
 
-int mle_service_interface_register(int8_t interface_id, mle_service_receive_cb *receive_cb, uint8_t *mac64, uint8_t challengeLength)
+int mle_service_interface_register(int8_t interface_id, void *interface_ptr,  mle_service_receive_cb *receive_cb, uint8_t *mac64, uint8_t challengeLength)
 {
     service_instance_t *srv_ptr;
 
     if (challengeLength < 4 || challengeLength > 32) {
         return -1;
-    } else if (!receive_cb) {
+    } else if (!receive_cb || !interface_ptr) {
         return -1;
     } else if (!mac64) {
         return -1;
@@ -899,6 +911,7 @@ int mle_service_interface_register(int8_t interface_id, mle_service_receive_cb *
 
     srv_ptr->recv_cb = receive_cb;
     srv_ptr->challenge_length = challengeLength;
+    srv_ptr->interface_ptr = interface_ptr;
     memcpy(srv_ptr->mac64, mac64, 8);
 
     if (mle_service->mle_socket < 0) {
@@ -990,8 +1003,12 @@ void mle_service_interface_unregister(int8_t interface_id)
 
 int mle_service_reset_frame_counters(int8_t interfaceId)
 {
+    service_instance_t *srv_ptr = mle_service_interface_find(interfaceId);
+    if (!srv_ptr) {
+        return -1;
+    }
     mle_service_security_set_frame_counter(interfaceId, 0);
-    mle_class_set_new_key_pending(interfaceId);
+    mle_class_set_new_key_pending(srv_ptr->interface_ptr);
     return 0;
 }
 
@@ -1412,8 +1429,7 @@ bool mle_service_security_key_trig(int8_t interfaceId, uint8_t keyId)
 
 bool mle_service_security_set_security_key(int8_t interfaceId, const uint8_t *security_key, uint8_t keyId, bool primary)
 {
-    bool master_key_changed = false;
-    master_key_changed = mle_service_security_key_set(mle_service_security_params_get(interfaceId), security_key, keyId, primary);
+    bool master_key_changed = mle_service_security_key_set(mle_service_security_params_get(interfaceId), security_key, keyId, primary);
     if (master_key_changed && primary) {
         mle_service_reset_frame_counters(interfaceId);
     }

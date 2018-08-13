@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2017, Arm Limited and affiliates.
+ * Copyright (c) 2014-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,6 +50,7 @@
 #include "ns_trace.h"
 #include "6LoWPAN/Thread/thread_common.h"
 #include "6LoWPAN/Thread/thread_routing.h"
+#include "6LoWPAN/Thread/thread_neighbor_class.h"
 #include "6LoWPAN/Thread/thread_nd.h"
 #include "6LoWPAN/Thread/thread_joiner_application.h"
 #include "6LoWPAN/Thread/thread_extension.h"
@@ -57,6 +58,7 @@
 #include "6LoWPAN/Thread/thread_resolution_server.h"
 #include "6LoWPAN/Thread/thread_bbr_api_internal.h"
 #include "6LoWPAN/Thread/thread_extension_bbr.h"
+#include "Service_Libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "6LoWPAN/MAC/mac_helper.h"
 #include "Common_Protocols/icmpv6.h"
 #include "MLE/mle.h"
@@ -196,14 +198,14 @@ bool thread_nd_ns_transmit(protocol_interface_info_entry_t *cur, ipv6_neighbour_
     }
 }
 
-static mle_neigh_table_entry_t *thread_nd_child_mleid_get(int8_t interface_id, uint8_t *childAddress, uint8_t *mlmeid_ptr)
+static mac_neighbor_table_entry_t *thread_nd_child_mleid_get(protocol_interface_info_entry_t *cur, uint8_t *childAddress, uint8_t *mlmeid_ptr)
 {
-    mle_neigh_table_entry_t *entry_temp;
-    entry_temp = mle_class_get_by_link_address(interface_id, childAddress, ADDR_802_15_4_SHORT);
-    if (entry_temp) {
-        if ((entry_temp->mode & MLE_DEV_MASK) == MLE_RFD_DEV) {
-            memcpy(mlmeid_ptr,entry_temp->mlEid,8);
-            return entry_temp;
+    mac_neighbor_table_entry_t *entry = mac_neighbor_table_address_discover(mac_neighbor_info(cur), childAddress, ADDR_802_15_4_SHORT);
+    if (entry && !entry->ffd_device) {
+        uint8_t *ptr = thread_neighbor_class_get_mleid(&cur->thread_info->neighbor_class, entry->index);
+        if (ptr) {
+            memcpy(mlmeid_ptr, ptr, 8);
+            return entry;
         }
     }
     return NULL;
@@ -228,12 +230,13 @@ static int thread_nd_address_query_lookup(int8_t interface_id, const uint8_t tar
     /* Scan IPv6 neighbour cache for registered entries of children */
     ns_list_foreach(ipv6_neighbour_t, n, &cur->ipv6_neighbour_cache.list) {
         if (n->type == IP_NEIGHBOUR_REGISTERED && addr_ipv6_equal(n->ip_address, target_addr)) {
-            mle_neigh_table_entry_t *mle_entry;
+            mac_neighbor_table_entry_t *mle_entry;
             *addr_out = mac16;
-            mle_entry = thread_nd_child_mleid_get(interface_id, &n->ll_address[2], mleid_ptr);
+            mle_entry = thread_nd_child_mleid_get(cur, &n->ll_address[2], mleid_ptr);
             if (mle_entry) {
                 //Get MLEID from Child
-                *last_transaction_time = (protocol_core_monotonic_time - mle_entry->last_contact_time) / 10;  /* Both variables are count of 100ms ticks. */
+                uint32_t last_contact = thread_neighbor_last_communication_time_get(&cur->thread_info->neighbor_class, mle_entry->index);
+                *last_transaction_time = (protocol_core_monotonic_time - last_contact) / 10;  /* Both variables are count of 100ms ticks. */
                 *proxy = true;
                 return 0;
             }
@@ -291,17 +294,18 @@ static void thread_nd_address_error(int8_t interface_id, const uint8_t ip_addr[1
     if_address_entry_t *addr_entry = addr_get_entry(cur, ip_addr);
     if (addr_entry && memcmp(ml_eid, cur->iid_slaac, 8)) {
         addr_duplicate_detected(cur, ip_addr);
+        thread_extension_address_generate(cur);
     }
 
     /* Scan IPv6 neighbour cache for registered entries of children */
     ns_list_foreach_safe(ipv6_neighbour_t, n, &cur->ipv6_neighbour_cache.list) {
         if (n->type == IP_NEIGHBOUR_REGISTERED && addr_ipv6_equal(n->ip_address, ip_addr)) {
             uint8_t child_mleid[8];
-            mle_neigh_table_entry_t *child = thread_nd_child_mleid_get(interface_id, &n->ll_address[2], child_mleid);
+            mac_neighbor_table_entry_t *child = thread_nd_child_mleid_get(cur, &n->ll_address[2], child_mleid);
             /* If this address belongs to an RFD child, with a different ML-EID, we must send it a duplicate message, and remove the EID */
             if (child && memcmp(child_mleid, ml_eid, 8)) {
                 uint8_t child_ml_addr[16];
-                thread_addr_write_mesh_local_16(child_ml_addr, child->short_adr, cur->thread_info);
+                thread_addr_write_mesh_local_16(child_ml_addr, child->mac16, cur->thread_info);
                 tr_warn("Forwarding address error to child %04x", common_read_16_bit(&n->ll_address[2]));
                 thread_resolution_client_address_error(interface_id, child_ml_addr, ip_addr, ml_eid);
                 ipv6_neighbour_entry_remove(&cur->ipv6_neighbour_cache, n);
@@ -367,7 +371,7 @@ buffer_t *thread_nd_snoop(protocol_interface_info_entry_t *cur, buffer_t *buf, c
         return buffer_free(buf);
     }
 
-    if (!mle_class_get_by_link_address(cur->id, &ll_dst->address[2], ADDR_802_15_4_SHORT)) {
+    if (!mac_neighbor_table_address_discover(mac_neighbor_info(cur), &ll_dst->address[2], ADDR_802_15_4_SHORT)) {
         /* We now know this was a packet for a non-existent child */
         goto bounce;
     }
@@ -433,7 +437,7 @@ buffer_t *thread_nd_special_forwarding(protocol_interface_info_entry_t *cur, buf
         return buf;
     }
 
-    mle_neigh_table_entry_t *entry = mle_class_get_by_link_address(cur->id, &ll_src->address[2], ADDR_802_15_4_SHORT);
+    mac_neighbor_table_entry_t *entry = mac_neighbor_table_address_discover(mac_neighbor_info(cur), &ll_src->address[2], ADDR_802_15_4_SHORT);
 
     /* Due to note 1 and 1b above, full-function children / neighbor routers
      * who did resolve to an RLOC16 may have optimised out the mesh header.
@@ -446,7 +450,7 @@ buffer_t *thread_nd_special_forwarding(protocol_interface_info_entry_t *cur, buf
      * is not in our neighbour cache, we need to send the child an error
      * to clear its cache.)
      */
-    if (!(buf->options.lowpan_mesh_rx || (entry && (entry->mode & MLE_DEV_MASK) == MLE_FFD_DEV))) {
+    if (!(buf->options.lowpan_mesh_rx || (entry && entry->ffd_device))) {
         return buf;
     }
 
@@ -530,10 +534,11 @@ buffer_t *thread_nd_icmp_handler(protocol_interface_info_entry_t *cur, buffer_t 
     return buf;
 }
 
-int thread_nd_address_registration(protocol_interface_info_entry_t *cur, const uint8_t *ipv6Address, uint16_t mac16, uint16_t panId, const uint8_t *mac64)
+int thread_nd_address_registration(protocol_interface_info_entry_t *cur, const uint8_t *ipv6Address, uint16_t mac16, uint16_t panId, const uint8_t *mac64, bool *new_neighbour_created)
 {
     ipv6_neighbour_t *neigh;
     uint8_t ll_address[4];
+    bool neighbor_created = false;
     common_write_16_bit(panId, ll_address + 0);
     common_write_16_bit(mac16, ll_address + 2);
     neigh = ipv6_neighbour_lookup_or_create(&cur->ipv6_neighbour_cache, ipv6Address);
@@ -542,21 +547,24 @@ int thread_nd_address_registration(protocol_interface_info_entry_t *cur, const u
     }
 
     uint8_t *nce_eui64 = ipv6_neighbour_eui64(&cur->ipv6_neighbour_cache, neigh);
-    /*if (neigh->state != IP_NEIGHBOUR_NEW)
-       {
-              // Worry about this later
-              // Compare mac64 to nce_eui64 to spot duplicates
-       }
-       else*/
+    if (neigh->state != IP_NEIGHBOUR_NEW && memcmp(nce_eui64, mac64, 8) != 0)
     {
-        /* New entry */
-        memcpy(nce_eui64, mac64, 8);
+        return -2;
     }
+
+    /* New entry */
+    if (neigh->state == IP_NEIGHBOUR_NEW) {
+        neighbor_created = true;
+    }
+    memcpy(nce_eui64, mac64, 8);
     /* Set the LL address, ensure it's marked STALE */
     ipv6_neighbour_entry_update_unsolicited(&cur->ipv6_neighbour_cache, neigh, ADDR_802_15_4_SHORT, ll_address);
     neigh->type = IP_NEIGHBOUR_REGISTERED;
     neigh->lifetime = 0xffffffff; //Set Infinite
     ipv6_neighbour_set_state(&cur->ipv6_neighbour_cache, neigh, IP_NEIGHBOUR_STALE);
+    if (new_neighbour_created) {
+        *new_neighbour_created = neighbor_created;
+    }
     return 0;
 }
 

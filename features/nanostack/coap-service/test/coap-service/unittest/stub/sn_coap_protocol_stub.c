@@ -110,3 +110,13 @@ int8_t sn_coap_protocol_delete_retransmission(struct coap_s *handle, uint16_t ms
 {
     return 0;
 }
+
+uint16_t sn_coap_protocol_get_configured_blockwise_size(struct coap_s *handle)
+{
+    return 0;
+}
+
+int8_t prepare_blockwise_message(struct coap_s *handle, sn_coap_hdr_s *src_coap_msg_ptr)
+{
+    return 0;
+}

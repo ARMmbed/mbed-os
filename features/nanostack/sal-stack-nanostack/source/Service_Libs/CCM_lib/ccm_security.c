@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2015, 2017, Arm Limited and affiliates.
+ * Copyright (c) 2014-2015, 2017-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -43,25 +43,12 @@
 #include "ccmLIB.h"
 #include "platform/arm_hal_aes.h"
 
-#ifndef CCM_USE_MUTEX
-#define arm_ccm_mutex_lock()
-#define arm_ccm_mutex_unlock()
-#endif
-
-static ccm_globals_t ccm_globals;
-
-/* CCM Library Parameters */
-static uint8_t CCM_L_PARAM = 2;
-static uint8_t ccm_sec_level;
-static uint8_t CCM_ENCODE_MODE;
-static const uint8_t *ccm_key_ptr;
-
-static void ccm_generate_A0(uint8_t *ptr);
-static void ccm_auth_generate_B0(uint8_t *ptr, uint16_t len);
-static void ccm_auth_calc_Xi(uint8_t X[static 16], uint8_t Blen, const uint8_t B[static Blen]);
+static void ccm_generate_A0(uint8_t *ptr, ccm_globals_t *ccm_pramters);
+static void ccm_auth_generate_B0(uint8_t *ptr, ccm_globals_t *ccm_params);
+static void ccm_auth_calc_Xi(void *aes_context, uint8_t X[static 16], uint8_t Blen, const uint8_t B[static Blen]);
 static uint8_t ccm_mic_len_calc(uint8_t sec_level);
-static void ccm_encode(uint16_t len , uint8_t *ptr);
-static int8_t ccm_calc_auth_MIC(const uint8_t *data_ptr, uint16_t data_len, const uint8_t *adata_ptr, uint16_t adata_len);
+static void ccm_encode(ccm_globals_t *ccm_params);
+static int8_t ccm_calc_auth_MIC(ccm_globals_t *ccm_params);
 
 /**
  * \brief A function to init CCM library.
@@ -73,24 +60,24 @@ static int8_t ccm_calc_auth_MIC(const uint8_t *data_ptr, uint16_t data_len, cons
  * \return Pointer to Global CCM paramameter buffer.
  * \return 0 When parameter fail or CCM is Busy.
  */
-ccm_globals_t   *ccm_sec_init(uint8_t sec_level, const uint8_t *ccm_key, uint8_t mode, uint8_t ccm_l)
+bool ccm_sec_init(ccm_globals_t *ccm_context, uint8_t sec_level, const uint8_t *ccm_key, uint8_t mode, uint8_t ccm_l)
 {
-    ccm_globals_t *ret_val = 0;
+    memset(ccm_context, 0, sizeof(ccm_globals_t));
+
     if ((ccm_l == 2 || ccm_l == 3) && (sec_level < 8)) {
-        arm_ccm_mutex_lock();
-        memset(&ccm_globals, 0, sizeof(ccm_globals_t));
-        CCM_ENCODE_MODE = mode;
-        ccm_sec_level = sec_level;
-        CCM_L_PARAM = ccm_l;
-        ccm_key_ptr = ccm_key;
-        arm_aes_start(ccm_key);
-        ccm_globals.mic_len = ccm_mic_len_calc(ccm_sec_level);
-        ccm_globals.mic = 0;
-        ret_val = &ccm_globals;
-    } else {
-        ccm_key_ptr = 0;
+        void *aes_context = arm_aes_start(ccm_key);
+        if (!aes_context) {
+            return false;
+        }
+        ccm_context->aes_context = aes_context;
+        ccm_context->ccm_encode_mode = mode;
+        ccm_context->ccm_sec_level = sec_level;
+        ccm_context->ccm_l_param = ccm_l;
+        ccm_context->key_ptr = ccm_key;
+        ccm_context->mic_len = ccm_mic_len_calc(sec_level);
+        return true;
     }
-    return ret_val;
+    return false;
 }
 
 /**
@@ -128,23 +115,23 @@ int8_t ccm_process_run(ccm_globals_t *ccm_params)
         goto END;
     }
 
-    if (CCM_ENCODE_MODE == AES_CCM_ENCRYPT) {
+    if (ccm_params->ccm_encode_mode == AES_CCM_ENCRYPT) {
         if (ccm_params->mic_len) {
             //Calc
-            if (ccm_calc_auth_MIC(ccm_params->data_ptr, ccm_params->data_len, ccm_params->adata_ptr, ccm_params->adata_len)) {
+            if (ccm_calc_auth_MIC(ccm_params)) {
                 goto END;
             }
         }
         if (ccm_params->data_len) {
-            ccm_encode(ccm_params->data_len, ccm_params->data_ptr);
+            ccm_encode(ccm_params);
         }
         ret_val = 0;
     } else {
         if (ccm_params->data_len) {
-            ccm_encode(ccm_params->data_len, ccm_params->data_ptr);
+            ccm_encode(ccm_params);
         }
         if (ccm_params->mic_len) {
-            if (ccm_calc_auth_MIC(ccm_params->data_ptr, ccm_params->data_len, ccm_params->adata_ptr, ccm_params->adata_len) == 0) {
+            if (ccm_calc_auth_MIC(ccm_params) == 0) {
                 ret_val = 0;
             }
         } else {
@@ -153,26 +140,32 @@ int8_t ccm_process_run(ccm_globals_t *ccm_params)
     }
 
 END:
-    ccm_key_ptr = 0;
-    arm_aes_finish();
-    arm_ccm_mutex_unlock();
+    ccm_free(ccm_params);
     return ret_val;
+}
+
+void ccm_free(ccm_globals_t *ccm_params)
+{
+    if (ccm_params && ccm_params->aes_context) {
+        arm_aes_finish(ccm_params->aes_context);
+    }
 }
 
 
 /* Counter-mode encryption/decryption
  *  Ci := E(Key, Ai) ^ Mi
  */
-static void ccm_encode(uint16_t len , uint8_t *ptr)
+static void ccm_encode(ccm_globals_t *ccm_params)
 {
-    if (!ccm_key_ptr || ccm_sec_level < AES_SECURITY_LEVEL_ENC) {
+    if (!ccm_params->key_ptr || ccm_params->ccm_sec_level < AES_SECURITY_LEVEL_ENC) {
         return;
     }
-
+    uint16_t len = ccm_params->data_len;
+    uint8_t *ptr = ccm_params->data_ptr;
     uint8_t Ai[16], Si[16];
 
     //first, generate A0
-    ccm_generate_A0(Ai);
+    ccm_generate_A0(Ai, ccm_params);
 
     while (len) {
         //increment counter in Ai - 16-bit increment enough; len is 16-bit
@@ -181,7 +174,7 @@ static void ccm_encode(uint16_t len , uint8_t *ptr)
         }
 
         // Si := E(Key, Ai)
-        arm_aes_encrypt(Ai, Si);
+        arm_aes_encrypt(ccm_params->aes_context, Ai, Si);
 
         // output := Si ^ input
         for (int_fast8_t i = 0; i < 16 && len; i++, len--) {
@@ -191,15 +184,19 @@ static void ccm_encode(uint16_t len , uint8_t *ptr)
 }
 
 
-static int8_t ccm_calc_auth_MIC(const uint8_t *data_ptr, uint16_t data_len, const uint8_t *adata_ptr, uint16_t adata_len)
+static int8_t ccm_calc_auth_MIC(ccm_globals_t *ccm_params)
 {
+    const uint8_t *data_ptr = ccm_params->data_ptr;
+    uint16_t data_len = ccm_params->data_len;
+    const uint8_t *adata_ptr = ccm_params->adata_ptr;
+    uint16_t adata_len = ccm_params->adata_len;
     uint8_t Xi[16];
 
     // As a convenience, treat "data" as "adata", reflecting that "Private
     // Payload" is part of "a data" not "m data" for unencrypted modes.
     // The distinction matters because there's an "align to block" between
     // "a" and "m", which we don't do when it's all in "a".
-    if (ccm_sec_level < AES_SECURITY_LEVEL_ENC && data_len != 0) {
+    if (ccm_params->ccm_sec_level < AES_SECURITY_LEVEL_ENC && data_len != 0) {
         // This trick only works if data follows adata
         if (data_ptr == adata_ptr + adata_len) {
             adata_len += data_len;
@@ -209,11 +206,11 @@ static int8_t ccm_calc_auth_MIC(const uint8_t *data_ptr, uint16_t data_len, cons
         }
     }
 
-    ccm_auth_generate_B0(Xi, data_len);  //Set B0
+    ccm_auth_generate_B0(Xi, ccm_params);  //Set B0
 
     // Calculate X1: E(key, B0)
     // [Could use ccm_auth_calc_Xi - it's formally X1 := E(key, B0 ^ X0), where X0 = 0]
-    arm_aes_encrypt(Xi, Xi);
+    arm_aes_encrypt(ccm_params->aes_context, Xi, Xi);
 
     //First authentication block has 2-byte length field concatenated
     if (adata_len) {
@@ -224,7 +221,7 @@ static int8_t ccm_calc_auth_MIC(const uint8_t *data_ptr, uint16_t data_len, cons
         B1[1] = adata_len;
         memcpy(&B1[2], adata_ptr, t_len);
 
-        ccm_auth_calc_Xi(Xi, 2 + t_len, B1);
+        ccm_auth_calc_Xi(ccm_params->aes_context, Xi, 2 + t_len, B1);
         adata_ptr += t_len;
         adata_len -= t_len;
     }
@@ -232,7 +229,7 @@ static int8_t ccm_calc_auth_MIC(const uint8_t *data_ptr, uint16_t data_len, cons
     while (adata_len) {
         uint_fast8_t t_len = adata_len > 16 ? 16 : adata_len;
 
-        ccm_auth_calc_Xi(Xi, t_len, adata_ptr);
+        ccm_auth_calc_Xi(ccm_params->aes_context, Xi, t_len, adata_ptr);
         adata_ptr += t_len;
         adata_len -= t_len;
     }
@@ -240,7 +237,7 @@ static int8_t ccm_calc_auth_MIC(const uint8_t *data_ptr, uint16_t data_len, cons
     while (data_len) {
         uint_fast8_t t_len = data_len > 16 ? 16 : data_len;
 
-        ccm_auth_calc_Xi(Xi, t_len, data_ptr);
+        ccm_auth_calc_Xi(ccm_params->aes_context, Xi, t_len, data_ptr);
         data_ptr += t_len;
         data_len -= t_len;
     }
@@ -249,17 +246,17 @@ static int8_t ccm_calc_auth_MIC(const uint8_t *data_ptr, uint16_t data_len, cons
 
     // Encryption block S0 is E(Key, A0)
     uint8_t S0[16];
-    ccm_generate_A0(S0);
-    arm_aes_encrypt(S0, S0);
+    ccm_generate_A0(S0, ccm_params);
+    arm_aes_encrypt(ccm_params->aes_context, S0, S0);
 
     // Encrypted authentication tag U is S0^T (leftmost M octets)
-    if (CCM_ENCODE_MODE == AES_CCM_ENCRYPT) {
-        for (uint_fast8_t i = 0; i < ccm_globals.mic_len; i++) {
-            ccm_globals.mic[i] = Xi[i] ^ S0[i];
+    if (ccm_params->ccm_encode_mode == AES_CCM_ENCRYPT) {
+        for (uint_fast8_t i = 0; i < ccm_params->mic_len; i++) {
+            ccm_params->mic[i] = Xi[i] ^ S0[i];
         }
     } else {
-        for (uint_fast8_t i = 0; i < ccm_globals.mic_len; i++)
-            if (ccm_globals.mic[i] != (Xi[i] ^ S0[i])) {
+        for (uint_fast8_t i = 0; i < ccm_params->mic_len; i++)
+            if (ccm_params->mic[i] != (Xi[i] ^ S0[i])) {
                 return -1;
             }
     }
@@ -273,27 +270,27 @@ static int8_t ccm_calc_auth_MIC(const uint8_t *data_ptr, uint16_t data_len, cons
  *
  * \return none.
  */
-static void ccm_generate_A0(uint8_t *ptr)
+static void ccm_generate_A0(uint8_t *ptr, ccm_globals_t *ccm_pramters)
 {
     uint8_t n_len, flags;
-    flags = CCM_L_PARAM - 1;
-    n_len = 15 - CCM_L_PARAM;
+    flags = ccm_pramters->ccm_l_param - 1;
+    n_len = 15 - ccm_pramters->ccm_l_param;
 
     //FLAGS = L' = L - 1;
     *ptr++ = flags;
-    memcpy(ptr, ccm_globals.exp_nonce, n_len);
+    memcpy(ptr, ccm_pramters->exp_nonce, n_len);
     ptr += n_len;
-    memset(ptr, 0, CCM_L_PARAM);
+    memset(ptr, 0, ccm_pramters->ccm_l_param);
 }
 
 /* Calculate X[i+1]: X[i+1] := E(Key, X[i] ^ B[i]) */
 /* Blen is <= 16; this handles zero-padding B when it is < 16 */
-static void ccm_auth_calc_Xi(uint8_t X[static 16], uint8_t Blen, const uint8_t B[static Blen])
+static void ccm_auth_calc_Xi(void *aes_context, uint8_t X[static 16], uint8_t Blen, const uint8_t B[static Blen])
 {
     for (uint_fast8_t i = 0; i < Blen; i++) {
         X[i] ^= B[i];
     }
-    arm_aes_encrypt(X, X);
+    arm_aes_encrypt(aes_context, X, X);
 }
 
 /* flags = reserved(1) || Adata(1) || M (3) || L (3)
@@ -301,27 +298,27 @@ static void ccm_auth_calc_Xi(uint8_t X[static 16], uint8_t Blen, const uint8_t B
  *               L = CCM_L_PARAM - 1
  */
 /* B0 := flags(1)|| Nonce(15-L) || length of message(L) */
-static void ccm_auth_generate_B0(uint8_t *ptr, uint16_t len)
+static void ccm_auth_generate_B0(uint8_t *ptr, ccm_globals_t *ccm_params)
 {
     uint8_t flags = 0;
     uint8_t n_len;
 
-    n_len = 15 - CCM_L_PARAM;
+    n_len = 15 - ccm_params->ccm_l_param;
 
-    if (ccm_globals.mic_len) {
-        flags = ccm_globals.mic_len - 2;
+    if (ccm_params->mic_len) {
+        flags = ccm_params->mic_len - 2;
         flags <<= 2;
     }
     flags |= 0x40;
-    flags |= (CCM_L_PARAM - 1);
+    flags |= (ccm_params->ccm_l_param - 1);
     *ptr++ = flags;
-    memcpy(ptr, ccm_globals.exp_nonce, n_len);
+    memcpy(ptr, ccm_params->exp_nonce, n_len);
     ptr += n_len;
-    if (CCM_L_PARAM == 3) {
+    if (ccm_params->ccm_l_param == 3) {
         *ptr++ = 0;
     }
-    *ptr++ = len >> 8;
-    *ptr = len;
+    *ptr++ = ccm_params->data_len >> 8;
+    *ptr = ccm_params->data_len;
 }
 
 
