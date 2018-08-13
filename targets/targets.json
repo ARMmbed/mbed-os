@@ -4100,8 +4100,11 @@
         "post_binary_hook": {"function": "NCS36510TargetCode.ncs36510_addfib"},
         "macros": ["CM3", "CPU_NCS36510", "TARGET_NCS36510", "LOAD_ADDRESS=0x3000"],
         "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
-        "device_has": ["ANALOGIN", "SERIAL", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "TRNG", "SPISLAVE"],
-        "release_versions": ["2", "5"]
+        "device_has": ["ANALOGIN", "SERIAL", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "TRNG", "SPISLAVE", "802_15_4_PHY"],
+        "release_versions": ["2", "5"],
+        "overrides": {
+            "network-default-interface-type": "MESH"
+        }
     },
     "NUMAKER_PFM_M453": {
         "core": "Cortex-M4F",
