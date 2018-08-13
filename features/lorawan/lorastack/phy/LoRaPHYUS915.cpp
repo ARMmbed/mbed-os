@@ -204,25 +204,27 @@ static const int8_t datarate_offsets_US915[5][4] =
 /*!
  * Maximum payload with respect to the datarate index. Cannot operate with repeater.
  */
-static const uint8_t max_payloads_US915[] = { 11, 53, 125, 242, 242, 0, 0, 0, 53, 129, 242, 242, 242, 242, 0, 0 };
+static const uint8_t max_payloads_US915[] = {11, 53, 125, 242, 242, 0, 0, 0, 53, 129, 242, 242, 242, 242, 0, 0};
 
 /*!
  * Maximum payload with respect to the datarate index. Can operate with repeater.
  */
 static const uint8_t max_payloads_with_repeater_US915[] = {11, 53, 125, 242, 242, 0, 0, 0, 33, 109, 222, 222, 222, 222, 0, 0};
 
+static const uint16_t fsb_mask[] = MBED_CONF_LORA_FSB_MASK;
+
 LoRaPHYUS915::LoRaPHYUS915()
 {
     bands[0] = US915_BAND0;
 
     // Channels
-    // 125 kHz channels
+    // 125 kHz channels - Upstream
     for (uint8_t i = 0; i < US915_MAX_NB_CHANNELS - 8; i++) {
         channels[i].frequency = 902300000 + i * 200000;
         channels[i].dr_range.value = ( DR_3 << 4) | DR_0;
         channels[i].band = 0;
     }
-    // 500 kHz channels
+    // 500 kHz channels - Upstream
     for (uint8_t i = US915_MAX_NB_CHANNELS - 8; i < US915_MAX_NB_CHANNELS; i++) {
         channels[i].frequency = 903000000 + (i - ( US915_MAX_NB_CHANNELS - 8)) * 1600000;
         channels[i].dr_range.value = ( DR_4 << 4) | DR_4;
@@ -230,11 +232,16 @@ LoRaPHYUS915::LoRaPHYUS915()
     }
 
     // ChannelsMask
-    default_channel_mask[0] = 0xFFFF;
-    default_channel_mask[1] = 0xFFFF;
-    default_channel_mask[2] = 0xFFFF;
-    default_channel_mask[3] = 0xFFFF;
-    default_channel_mask[4] = 0x00FF;
+    for (uint8_t i = 0; i < US915_MAX_NB_CHANNELS; i++) {
+        if (i == (US915_MAX_NB_CHANNELS - 1)) {
+            // 64 - 71, 500 kHz channels will get enabled
+            default_channel_mask[i] = 0x00FF & fsb_mask[i];
+            continue;
+        }
+
+        // 0 - 63 125 kHz channels will get enabled
+        default_channel_mask[i] = 0xFFFF & fsb_mask[i];
+    }
 
     memset(channel_mask, 0, sizeof(channel_mask));
     memset(current_channel_mask, 0, sizeof(current_channel_mask));
@@ -242,7 +249,7 @@ LoRaPHYUS915::LoRaPHYUS915()
     // Copy channels default mask
     copy_channel_mask(channel_mask, default_channel_mask, US915_CHANNEL_MASK_SIZE);
 
-    // current channel masks keep track what of the
+    // current channel masks keep track of the
     // channels previously used, i.e., which channels should be avoided in
     // next transmission
     copy_channel_mask(current_channel_mask, channel_mask, US915_CHANNEL_MASK_SIZE);
@@ -346,7 +353,7 @@ void LoRaPHYUS915::restore_default_channels()
     // Copy channels default mask
     copy_channel_mask(channel_mask, default_channel_mask, US915_CHANNEL_MASK_SIZE);
 
-    for ( uint8_t i = 0; i < US915_CHANNEL_MASK_SIZE; i++ ) {
+    for (uint8_t i = 0; i < US915_CHANNEL_MASK_SIZE; i++) {
         // Copy-And the channels mask
         current_channel_mask[i] &= channel_mask[i];
     }
@@ -384,10 +391,11 @@ bool LoRaPHYUS915::rx_config(rx_config_params_t* config)
 
     _radio->lock();
 
-    _radio->set_channel( frequency );
+    _radio->set_channel(frequency);
 
     // Radio configuration
-    _radio->set_rx_config(MODEM_LORA, config->bandwidth, phy_dr, 1, 0, 8,
+    _radio->set_rx_config(MODEM_LORA, config->bandwidth, phy_dr, 1, 0,
+                          MBED_CONF_LORA_DOWNLINK_PREAMBLE_LENGTH,
                           config->window_timeout, false, 0, false, 0, 0, true,
                           config->is_rx_continuous);
     _radio->unlock();
@@ -429,7 +437,8 @@ bool LoRaPHYUS915::tx_config(tx_config_params_t* config, int8_t* tx_power,
 
     _radio->set_channel(channels[config->channel].frequency);
 
-    _radio->set_tx_config(MODEM_LORA, phy_tx_power, 0, bandwidth, phy_dr, 1, 8,
+    _radio->set_tx_config(MODEM_LORA, phy_tx_power, 0, bandwidth, phy_dr, 1,
+                          MBED_CONF_LORA_UPLINK_PREAMBLE_LENGTH,
                           false, true, 0, 0, false, 3000);
 
     // Setup maximum payload lenght of the radio driver
@@ -478,20 +487,20 @@ uint8_t LoRaPHYUS915::link_ADR_request(adr_req_params_t* params,
         if (adr_settings.ch_mask_ctrl == 6) {
 
             // Enable all 125 kHz channels
-            temp_channel_masks[0] = 0xFFFF;
-            temp_channel_masks[1] = 0xFFFF;
-            temp_channel_masks[2] = 0xFFFF;
-            temp_channel_masks[3] = 0xFFFF;
+            for (uint8_t i = 0; i < US915_CHANNEL_MASK_SIZE - 1; i++) {
+                temp_channel_masks[i] = 0xFFFF;
+            }
+
             // Apply chMask to channels 64 to 71
             temp_channel_masks[4] = adr_settings.channel_mask;
 
         } else if (adr_settings.ch_mask_ctrl == 7) {
 
             // Disable all 125 kHz channels
-            temp_channel_masks[0] = 0x0000;
-            temp_channel_masks[1] = 0x0000;
-            temp_channel_masks[2] = 0x0000;
-            temp_channel_masks[3] = 0x0000;
+            for (uint8_t i = 0; i < US915_CHANNEL_MASK_SIZE - 1; i++) {
+                temp_channel_masks[i] = 0x0000;
+            }
+
             // Apply chMask to channels 64 to 71
             temp_channel_masks[4] = adr_settings.channel_mask;
 
@@ -531,11 +540,9 @@ uint8_t LoRaPHYUS915::link_ADR_request(adr_req_params_t* params,
         // Copy Mask
         copy_channel_mask(channel_mask, temp_channel_masks, US915_CHANNEL_MASK_SIZE);
 
-        current_channel_mask[0] &= channel_mask[0];
-        current_channel_mask[1] &= channel_mask[1];
-        current_channel_mask[2] &= channel_mask[2];
-        current_channel_mask[3] &= channel_mask[3];
-        current_channel_mask[4] = channel_mask[4];
+        for (uint8_t i = 0; i < US915_CHANNEL_MASK_SIZE; i++) {
+            current_channel_mask[i] &= channel_mask[i];
+        }
     }
 
     // Update status variables
@@ -553,7 +560,7 @@ uint8_t LoRaPHYUS915::accept_rx_param_setup_req(rx_param_setup_req_t* params)
     uint32_t freq = params->frequency;
 
     // Verify radio frequency
-    if ((_radio->check_rf_frequency( freq ) == false)
+    if ((_radio->check_rf_frequency(freq) == false)
             || (freq < US915_FIRST_RX1_CHANNEL)
             || (freq > US915_LAST_RX1_CHANNEL)
             || (((freq - (uint32_t) US915_FIRST_RX1_CHANNEL) % (uint32_t) US915_STEPWIDTH_RX1_CHANNEL) != 0)) {
@@ -588,9 +595,6 @@ int8_t LoRaPHYUS915::get_alternate_DR(uint8_t nb_trials)
 {
     int8_t datarate = 0;
 
-    // Re-enable 500 kHz default channels
-    channel_mask[4] = 0x00FF;
-
     if ((nb_trials & 0x01) == 0x01) {
         datarate = DR_4;
     } else {
@@ -616,11 +620,10 @@ lorawan_status_t LoRaPHYUS915::set_next_channel(channel_selection_params_t* para
         copy_channel_mask(current_channel_mask, channel_mask, 4);
     }
 
-    // Check other channels
-    if (params->current_datarate >= DR_4) {
-        if ((current_channel_mask[4] & 0x00FF ) == 0) {
-            current_channel_mask[4] = channel_mask[4];
-        }
+    // Update the 500 kHz channels in the running mask
+    if ((params->current_datarate >= DR_4)
+            && (current_channel_mask[4] & 0x00FF) == 0) {
+        current_channel_mask[4] = channel_mask[4];
     }
 
     if (params->aggregate_timeoff <= _lora_time->get_elapsed_time(params->last_aggregate_tx_time)) {
@@ -641,9 +644,9 @@ lorawan_status_t LoRaPHYUS915::set_next_channel(channel_selection_params_t* para
 
     if (nb_enabled_channels > 0) {
         // We found a valid channel
-        *channel = enabled_channels[get_random( 0, nb_enabled_channels - 1 )];
+        *channel = enabled_channels[get_random(0, nb_enabled_channels - 1)];
         // Disable the channel in the mask
-        disable_channel(current_channel_mask, *channel, US915_MAX_NB_CHANNELS - 8);
+        disable_channel(current_channel_mask, *channel, US915_MAX_NB_CHANNELS);
 
         *time = 0;
         return LORAWAN_STATUS_OK;
