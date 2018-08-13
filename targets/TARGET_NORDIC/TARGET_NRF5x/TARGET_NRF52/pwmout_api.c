@@ -98,9 +98,6 @@ static void nordic_pwm_init(pwmout_t *obj)
         .step_mode    = NRF_PWM_STEP_AUTO,
     };
 
-    /* Make sure PWM instance is not running before making changes. */
-    nrf_drv_pwm_uninit(&nordic_nrf5_pwm_instance[obj->instance]);
-
     /* Initialize instance with new configuration. */
     ret_code_t result = nrf_drv_pwm_init(&nordic_nrf5_pwm_instance[obj->instance],
                                          &config,
@@ -113,6 +110,9 @@ static void nordic_pwm_init(pwmout_t *obj)
 static void nordic_pwm_restart(pwmout_t *obj)
 {
     MBED_ASSERT(obj);
+
+    /* Uninitialize PWM instace */
+    nrf_drv_pwm_uninit(&nordic_nrf5_pwm_instance[obj->instance]);
 
     /* (Re)initialize PWM instance. */
     nordic_pwm_init(obj);
