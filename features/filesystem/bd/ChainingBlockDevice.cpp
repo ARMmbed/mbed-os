@@ -21,7 +21,7 @@
 ChainingBlockDevice::ChainingBlockDevice(BlockDevice **bds, size_t bd_count)
     : _bds(bds), _bd_count(bd_count)
     , _read_size(0), _program_size(0), _erase_size(0), _size(0)
-    , _erase_value(-1), _init_ref_count(0)
+    , _erase_value(-1), _init_ref_count(0), _is_initialized(false)
 {
 }
 
@@ -32,6 +32,7 @@ static bool is_aligned(uint64_t x, uint64_t alignment)
 
 int ChainingBlockDevice::init()
 {
+    int err;
     uint32_t val = core_util_atomic_incr_u32(&_init_ref_count, 1);
 
     if (val != 1) {
@@ -49,9 +50,9 @@ int ChainingBlockDevice::init()
     // the constructor since some block devices may need to be
     // initialized before they know their block size/count
     for (size_t i = 0; i < _bd_count; i++) {
-        int err = _bds[i]->init();
+        err = _bds[i]->init();
         if (err) {
-            return err;
+            goto fail;
         }
 
         bd_size_t read = _bds[i]->get_read_size();
@@ -85,11 +86,21 @@ int ChainingBlockDevice::init()
         _size += _bds[i]->size();
     }
 
-    return 0;
+    _is_initialized = true;
+    return BD_ERROR_OK;
+
+fail:
+    _is_initialized = false;
+    _init_ref_count = 0;
+    return err;
 }
 
 int ChainingBlockDevice::deinit()
 {
+    if (!_is_initialized) {
+        return BD_ERROR_OK;
+    }
+
     uint32_t val = core_util_atomic_decr_u32(&_init_ref_count, 1);
 
     if (val) {
@@ -103,11 +114,16 @@ int ChainingBlockDevice::deinit()
         }
     }
 
-    return 0;
+    _is_initialized = false;
+    return BD_ERROR_OK;
 }
 
 int ChainingBlockDevice::sync()
 {
+    if (!_is_initialized) {
+        return BD_ERROR_DEVICE_ERROR;
+    }
+
     for (size_t i = 0; i < _bd_count; i++) {
         int err = _bds[i]->sync();
         if (err) {
@@ -121,6 +137,10 @@ int ChainingBlockDevice::sync()
 int ChainingBlockDevice::read(void *b, bd_addr_t addr, bd_size_t size)
 {
     MBED_ASSERT(is_valid_read(addr, size));
+    if (!_is_initialized) {
+        return BD_ERROR_DEVICE_ERROR;
+    }
+
     uint8_t *buffer = static_cast<uint8_t*>(b);
 
     // Find block devices containing blocks, may span multiple block devices
@@ -152,6 +172,10 @@ int ChainingBlockDevice::read(void *b, bd_addr_t addr, bd_size_t size)
 int ChainingBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
 {
     MBED_ASSERT(is_valid_program(addr, size));
+    if (!_is_initialized) {
+        return BD_ERROR_DEVICE_ERROR;
+    }
+
     const uint8_t *buffer = static_cast<const uint8_t*>(b);
 
     // Find block devices containing blocks, may span multiple block devices
@@ -183,6 +207,9 @@ int ChainingBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
 int ChainingBlockDevice::erase(bd_addr_t addr, bd_size_t size)
 {
     MBED_ASSERT(is_valid_erase(addr, size));
+    if (!_is_initialized) {
+        return BD_ERROR_DEVICE_ERROR;
+    }
 
     // Find block devices containing blocks, may span multiple block devices
     for (size_t i = 0; i < _bd_count && size > 0; i++) {
@@ -226,6 +253,10 @@ bd_size_t ChainingBlockDevice::get_erase_size() const
 
 bd_size_t ChainingBlockDevice::get_erase_size(bd_addr_t addr) const
 {
+    if (!_is_initialized) {
+        return BD_ERROR_DEVICE_ERROR;
+    }
+
     bd_addr_t bd_start_addr = 0;
     for (size_t i = 0; i < _bd_count; i++) {
         bd_size_t bdsize = _bds[i]->size();

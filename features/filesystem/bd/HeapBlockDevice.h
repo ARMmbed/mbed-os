@@ -151,6 +151,7 @@ private:
     bd_size_t _count;
     uint8_t **_blocks;
     uint32_t _init_ref_count;
+    bool _is_initialized;
 };
 
 

@@ -30,7 +30,7 @@ static inline uint32_t align_up(bd_size_t val, bd_size_t size)
 
 FlashSimBlockDevice::FlashSimBlockDevice(BlockDevice *bd, uint8_t erase_value) :
     _erase_value(erase_value), _blank_buf_size(0),
-    _blank_buf(0), _bd(bd), _init_ref_count(0)
+    _blank_buf(0), _bd(bd), _init_ref_count(0), _is_initialized(false)
 {
 }
 
@@ -42,73 +42,118 @@ FlashSimBlockDevice::~FlashSimBlockDevice()
 
 int FlashSimBlockDevice::init()
 {
+    int err;
     uint32_t val = core_util_atomic_incr_u32(&_init_ref_count, 1);
 
     if (val != 1) {
         return BD_ERROR_OK;
     }
 
-    int ret = _bd->init();
-    if (ret) {
-        return ret;
+    err = _bd->init();
+    if (err) {
+        goto fail;
     }
     _blank_buf_size = align_up(min_blank_buf_size, _bd->get_program_size());
     if (!_blank_buf) {
         _blank_buf = new uint8_t[_blank_buf_size];
         MBED_ASSERT(_blank_buf);
     }
+
+    _is_initialized = true;
     return BD_ERROR_OK;
+
+fail:
+    _is_initialized = false;
+    _init_ref_count = 0;
+    return err;
 }
 
 int FlashSimBlockDevice::deinit()
 {
+    if (!_is_initialized) {
+        return BD_ERROR_OK;
+    }
+
     uint32_t val = core_util_atomic_decr_u32(&_init_ref_count, 1);
 
     if (val) {
         return BD_ERROR_OK;
     }
 
+    _is_initialized = false;
     return _bd->deinit();
 }
 
 int FlashSimBlockDevice::sync()
 {
+    if (!_is_initialized) {
+        return BD_ERROR_DEVICE_ERROR;
+    }
+
     return _bd->sync();
 }
 
 bd_size_t FlashSimBlockDevice::get_read_size() const
 {
+    if (!_is_initialized) {
+        return BD_ERROR_DEVICE_ERROR;
+    }
+
     return _bd->get_read_size();
 }
 
 bd_size_t FlashSimBlockDevice::get_program_size() const
 {
+    if (!_is_initialized) {
+        return BD_ERROR_DEVICE_ERROR;
+    }
+
     return _bd->get_program_size();
 }
 
 bd_size_t FlashSimBlockDevice::get_erase_size() const
 {
+    if (!_is_initialized) {
+        return BD_ERROR_DEVICE_ERROR;
+    }
+
     return _bd->get_erase_size();
 }
 
 bd_size_t FlashSimBlockDevice::get_erase_size(bd_addr_t addr) const
 {
+    if (!_is_initialized) {
+        return BD_ERROR_DEVICE_ERROR;
+    }
+
     return _bd->get_erase_size(addr);
 }
 
 bd_size_t FlashSimBlockDevice::size() const
 {
+    if (!_is_initialized) {
+        return BD_ERROR_DEVICE_ERROR;
+    }
+
     return _bd->size();
 }
 
 int FlashSimBlockDevice::read(void *b, bd_addr_t addr, bd_size_t size)
 {
+    if (!_is_initialized) {
+        return BD_ERROR_DEVICE_ERROR;
+    }
+
     return _bd->read(b, addr, size);
 }
 
 int FlashSimBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
 {
     MBED_ASSERT(is_valid_program(addr, size));
+    if (!_is_initialized) {
+        return BD_ERROR_DEVICE_ERROR;
+    }
+
     bd_addr_t curr_addr = addr;
     bd_size_t curr_size = size;
 
@@ -137,6 +182,10 @@ int FlashSimBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
 int FlashSimBlockDevice::erase(bd_addr_t addr, bd_size_t size)
 {
     MBED_ASSERT(is_valid_erase(addr, size));
+
+    if (!_is_initialized) {
+        return BD_ERROR_DEVICE_ERROR;
+    }
 
     bd_addr_t curr_addr = addr;
     bd_size_t curr_size = size;
