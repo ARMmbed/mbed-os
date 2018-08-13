@@ -17,6 +17,8 @@
 #include "nu_timer.h"
 #include "mbed_power_mgmt.h"
 #include "mbed_critical.h"
+#include "us_ticker_api.h"
+#include "mbed_assert.h"
 
 void nu_countdown_init(struct nu_countdown_ctx_s *ctx, us_timestamp_t interval_us)
 {
@@ -44,4 +46,22 @@ void nu_countdown_free(struct nu_countdown_ctx_s *ctx)
     core_util_critical_section_enter();
     sleep_manager_unlock_deep_sleep();
     core_util_critical_section_exit();
+}
+
+
+void nu_busy_wait_us(uint32_t us)
+{
+    const uint32_t bits = us_ticker_get_info()->bits;
+    const uint32_t mask = (1 << bits) - 1;
+    MBED_ASSERT(us_ticker_get_info()->frequency == 1000000);
+    uint32_t prev = us_ticker_read();
+    while (1) {
+        const uint32_t cur = us_ticker_read();
+        const uint32_t elapsed = (cur - prev) & mask;
+        if (elapsed > us) {
+            break;
+        }
+        us -= elapsed;
+        prev = cur;
+    }
 }

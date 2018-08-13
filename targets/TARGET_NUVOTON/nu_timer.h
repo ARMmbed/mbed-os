@@ -60,6 +60,20 @@ void nu_countdown_init(struct nu_countdown_ctx_s *ctx, us_timestamp_t interval_u
 bool nu_countdown_expired(struct nu_countdown_ctx_s *ctx);
 void nu_countdown_free(struct nu_countdown_ctx_s *ctx);
 
+
+/* Replacement for wait_us when intermediary us ticker layer is disabled
+ *
+ * Use of wait_us directly from the low power ticker causes the system to deadlock during
+ * the sleep test because the sleep test disables the intermediary us ticker layer during
+ * the test.
+ *
+ * To prevent this lockup, nu_busy_wait_us is created to replace wait_us, which uses the us ticker
+ * directly rather than go though the intermediary us ticker layer.
+ *
+ * During wait period through nu_busy_wait_us, CPU would be busy spinning. 
+ */
+void nu_busy_wait_us(uint32_t us);
+
 #ifdef __cplusplus
 }
 #endif
