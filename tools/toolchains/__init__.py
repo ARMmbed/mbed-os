@@ -321,7 +321,7 @@ class mbedToolchain:
         except IOError:
             old_md5 = None
         if old_md5 != new_md5:
-            with open(via_file, "w") as fd:
+            with open(via_file, "wb") as fd:
                 fd.write(to_write)
         return via_file
 
