@@ -200,6 +200,21 @@ public:
      *                  enough memory to allocate the event.
      *                  Returned id will remain valid until event has finished
      *                  executing.
+     *
+     * @code
+     *     int main() {
+     *         // creates a queue with the default size
+     *         EventQueue queue;
+     *     
+     *         // events are simple callbacks
+     *         queue.call(printf, "called immediately\n");
+     *         queue.call_in(2000, printf, "called in 2 seconds\n");
+     *         queue.call_every(1000, printf, "called every 1 seconds\n");
+     *     
+     *         // events are executed by the dispatch method
+     *         queue.dispatch();
+     *     }
+     * @endcode
      */
     template <typename F, typename ...Args>
     int call(F f, Args ...args);
@@ -220,6 +235,21 @@ public:
      *                    enough memory to allocate the event.
      *                    Returned id will remain valid until event has finished
      *                    executing.
+     *
+     * @code
+     *     int main() {
+     *         // creates a queue with the default size
+     *         EventQueue queue;
+     *     
+     *         // events are simple callbacks
+     *         queue.call(printf, "called immediately\n");
+     *         queue.call_in(2000, printf, "called in 2 seconds\n");
+     *         queue.call_every(1000, printf, "called every 1 seconds\n");
+     *     
+     *         // events are executed by the dispatch method
+     *         queue.dispatch();
+     *     }
+     * @endcode
      */
     template <typename T, typename R, typename ...Args>
     int call(T *obj, R (T::*method)(Args ...args), Args ...args);
@@ -237,6 +267,21 @@ public:
      *  @return         A unique id that represents the posted event and can
      *                  be passed to cancel, or an id of 0 if there is not
      *                  enough memory to allocate the event.
+     *
+     * @code
+     *     int main() {
+     *         // creates a queue with the default size
+     *         EventQueue queue;
+     *     
+     *         // events are simple callbacks
+     *         queue.call(printf, "called immediately\n");
+     *         queue.call_in(2000, printf, "called in 2 seconds\n");
+     *         queue.call_every(1000, printf, "called every 1 seconds\n");
+     *     
+     *         // events are executed by the dispatch method
+     *         queue.dispatch();
+     *     }
+     * @endcode
      */
     template <typename F, typename ...Args>
     int call_in(int ms, Args ...args);
@@ -256,6 +301,21 @@ public:
      *  @return         A unique id that represents the posted event and can
      *                  be passed to cancel, or an id of 0 if there is not
      *                  enough memory to allocate the event.
+     *
+     * @code
+     *     int main() {
+     *         // creates a queue with the default size
+     *         EventQueue queue;
+     *     
+     *         // events are simple callbacks
+     *         queue.call(printf, "called immediately\n");
+     *         queue.call_in(2000, printf, "called in 2 seconds\n");
+     *         queue.call_every(1000, printf, "called every 1 seconds\n");
+     *     
+     *         // events are executed by the dispatch method
+     *         queue.dispatch();
+     *     }
+     * @endcode
      */
     template <typename T, typename R, typename ...Args>
     int call_in(int ms, T *obj, R (T::*method)(Args ...args), Args ...args);
@@ -277,6 +337,21 @@ public:
      *  @return         A unique id that represents the posted event and can
      *                  be passed to cancel, or an id of 0 if there is not
      *                  enough memory to allocate the event.
+     *
+     * @code
+     *     int main() {
+     *         // creates a queue with the default size
+     *         EventQueue queue;
+     *     
+     *         // events are simple callbacks
+     *         queue.call(printf, "called immediately\n");
+     *         queue.call_in(2000, printf, "called in 2 seconds\n");
+     *         queue.call_every(1000, printf, "called every 1 seconds\n");
+     *     
+     *         // events are executed by the dispatch method
+     *         queue.dispatch();
+     *     }
+     * @endcode
      */
     template <typename F, typename ...Args>
     int call_every(int ms, F f, Args ...args);
@@ -296,6 +371,21 @@ public:
      *  @param obj      Object to call with the member function
      *  @param method   Member function to execute in the context of the dispatch loop
      *  @param args     Arguments to pass to the callback
+     *
+     * @code
+     *     int main() {
+     *         // creates a queue with the default size
+     *         EventQueue queue;
+     *     
+     *         // events are simple callbacks
+     *         queue.call(printf, "called immediately\n");
+     *         queue.call_in(2000, printf, "called in 2 seconds\n");
+     *         queue.call_every(1000, printf, "called every 1 seconds\n");
+     *     
+     *         // events are executed by the dispatch method
+     *         queue.dispatch();
+     *     }
+     * @endcode
      */
     template <typename T, typename R, typename ...Args>
     int call_every(int ms, T *obj, R (T::*method)(Args ...args), Args ...args);
@@ -314,7 +404,26 @@ public:
      *  @return             Event that will dispatch on the specific queue
      *
      * @code
-     *     event(...TODO....);
+     *     #include "mbed.h"
+     *
+     *     void handler(int c) {
+     *         printf("Param: %d\r\n", c);
+     *     }
+     *
+     *     EventQueue q;
+     *
+     *     int main()
+     *     {
+     *         // Create event with parameter
+     *         Event<void()>    e  = q.event(handler, 1);
+     *         e();
+     *
+     *         // Create event and post parameter later
+     *         Event<void(int)> e2 = q.event(handler);
+     *         e2.post(2);
+     *
+     *         q.dispatch();
+     *     }
      * @endcode
      */
     template <typename R, typename ...BoundArgs, typename ...Args>
@@ -335,6 +444,33 @@ public:
      *  @param method          Member function to execute in the context of the dispatch loop
      *  @param context_args    TODO
      *  @return                Event that will dispatch on the specific queue
+     *
+     * @code
+     *     #include "mbed.h"
+     *
+     *     class Test {
+     *         int _id;
+     *
+     *     public:
+     *         Test(int id) : _id(id) { }
+     *
+     *         void handler(int c) {
+     *             printf("ID: %d Param: %d\r\n", _id, c);
+     *         }
+     *     };
+     *
+     *     EventQueue q;
+     *
+     *     int main()
+     *     {
+     *         Test handler_cb(5);
+     *
+     *         // Create event on the eventqueue with a method callback
+     *         Event<void(int)> e = q.event(&handler_cb, &Test::handler);
+     *         e.post(1);
+     *         q.dispatch();
+     *     }
+     * @endcode
      */
     template <typename T, typename R, typename ...BoundArgs, typename ...ContextArgs, typename ...Args>
     Event<void(Args...)> event(T *obj, R (T::*method)(BoundArgs..., Args...), ContextArgs ...context_args);
@@ -372,6 +508,21 @@ public:
      *                  enough memory to allocate the event.
      *                  Returned id will remain valid until event has finished
      *                  executing.
+     *
+     * @code
+     *     #include "mbed.h"
+     *
+     *     EventQueue q;
+     *
+     *     int main()
+     *     {
+     *         Callback<void(int)> cb(handler);
+     *         // Create event on the eventqueue with a separate callback object
+     *         Event<void(int)> e = q.event(cb);
+     *         e.post(1);
+     *         q.dispatch();
+     *     }
+     * @endcode
      */
     template <typename F>
     int call(F f)
