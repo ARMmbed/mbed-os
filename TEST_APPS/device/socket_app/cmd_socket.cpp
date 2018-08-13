@@ -781,7 +781,14 @@ static int cmd_socket(int argc, char *argv[])
             return CMDLINE_RETCODE_FAIL;
         }
 
-        return handle_nsapi_error("Socket::open()", info->socket().open(interface));
+        switch(info->type()) {
+            case SInfo::TCP_CLIENT:
+                return handle_nsapi_error("Socket::open()", info->tcp_socket()->open(interface));
+            case SInfo::UDP:
+                return handle_nsapi_error("Socket::open()", info->udp_socket()->open(interface));
+            case SInfo::TCP_SERVER:
+                return handle_nsapi_error("Socket::open()", info->tcp_server()->open(interface));
+        }
 
     } else if (COMMAND_IS("close")) {
         return handle_nsapi_error("Socket::close()", info->socket().close());
@@ -799,10 +806,12 @@ static int cmd_socket(int argc, char *argv[])
             // Replace NULL-strings with NULL
             addr = strcmp(addr, "NULL") ? addr : NULL;
             cmd_printf("Socket::bind(%s, %" PRId32 ")\r\n", addr, port);
-            return handle_nsapi_error("Socket::bind(addr, port)", info->socket().bind(addr, port));
+            SocketAddress tmp(addr, port);
+            return handle_nsapi_error("Socket::bind(addr, port)", info->socket().bind(tmp));
         } else {
             cmd_printf("Socket::bind(%" PRId32 ")\r\n", port);
-            return handle_nsapi_error("Socket::bind(port)", info->socket().bind(port));
+            SocketAddress tmp(NULL, port);
+            return handle_nsapi_error("Socket::bind(port)", info->socket().bind(tmp));
         }
 
     } else if (COMMAND_IS("set_blocking")) {
