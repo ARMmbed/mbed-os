@@ -1200,6 +1200,11 @@
     },
     "MTB_ADV_WISE_1530": {
         "inherits": ["USI_WM_BN_BM_22"],
+        "config": {
+            "led1": "PA_4",
+            "led2": "PC_12",
+            "led3": "NC"
+            },
         "overrides": {
             "stdio_uart_tx": "PB_10",
             "stdio_uart_rx": "PC_11"
