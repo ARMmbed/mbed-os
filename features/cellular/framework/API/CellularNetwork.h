@@ -343,9 +343,9 @@ public:
      *
      *  @param rat           Radio access technology
      *  @return              NSAPI_ERROR_OK on success
-     *                       NSAPI_ERROR_UNSUPPORTED if the given opAct is RAT_UNKNOWN, inhering target class
-     *                                               has not implemented method set_access_technology_impl(...) or returns NSAPI_ERROR_UNSUPPORTED
-     *                       NSAPI_ERROR_DEVICE_ERROR on case of failure
+     *                       NSAPI_ERROR_UNSUPPORTED if the given rat is RAT_UNKNOWN or inheriting target class
+     *                                               has not implemented method set_access_technology_impl(...)
+     *                       OR return value of the inheriting target class set_access_technology_impl(...)
      */
     virtual nsapi_error_t set_access_technology(RadioAccessTechnology rat) = 0;
 
