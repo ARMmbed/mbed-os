@@ -35,7 +35,7 @@
 **/
 
 #include "stm32f4xx.h"
-#include "mbed_assert.h"
+#include "mbed_error.h"
 
 // clock source is selected with CLOCK_SOURCE in json config
 #define USE_PLL_HSE_EXTC 0x8 // Use external clock (ST Link MCO)
@@ -119,8 +119,8 @@ void SetSysClock(void)
             if (SetSysClock_PLL_HSI() == 0)
 #endif
             {
-                while (1) {
-                    MBED_ASSERT(1);
+                {
+                    error("SetSysClock failed\n");
                 }
             }
         }
