@@ -1414,4 +1414,4 @@ def merge_build_data(filename, toolchain_report, app_type):
                     if 'type' not in build[0]:
                         build[0]['type'] = app_type
                     build_data['builds'].append(build[0])
-    dump(build_data, open(filename, "wb"), indent=4, separators=(',', ': '))
+    dump(build_data, open(filename, "w"), indent=4, separators=(',', ': '))
