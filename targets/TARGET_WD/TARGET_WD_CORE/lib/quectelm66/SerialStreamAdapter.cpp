@@ -94,7 +94,7 @@ int SerialStreamAdapter::read(uint8_t* buf, size_t* pLength, size_t maxLength, u
 	}
 	
 	if (*pLength == 0) {
-		wd_log_debug("SerialStreamAdapter: Length of frame is 0!");
+		//wd_log_debug("SerialStreamAdapter: Length of frame is 0!");
 		return NET_UNKNOWN;
 	}
 	

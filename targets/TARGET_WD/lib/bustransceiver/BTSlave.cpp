@@ -215,6 +215,8 @@ void BTSlave::_tx_queue_process_loop(void) {
 		if (evt.status == osEventMail) {
 			
 			dma_frame_meta_t * frame_meta = (dma_frame_meta_t *) evt.value.p;
+
+			wd_log_debug("GET frame %d bytes", frame_meta->frame_size);
 			
 			size_t size;
 			this->_dmaSerial->getFrame(frame_meta, this->_tx_frame_buffer, &size);

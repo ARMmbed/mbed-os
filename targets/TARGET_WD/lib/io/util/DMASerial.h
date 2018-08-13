@@ -15,7 +15,7 @@
 #include "wd_logging.h"
 
 #define DMASERIAL_RX_BUFFER_SIZE	4096
-#define DMASERIAL_RX_QUEUE_SIZE		20	// huge amount of small rx due to addressing
+#define DMASERIAL_RX_QUEUE_SIZE		40	// huge amount of small rx due to addressing
 
 typedef struct {
 	uint8_t * buffer;

@@ -14,6 +14,9 @@
 
 #include "wd_logging.h"
 
+#include "cmsis_os.h"
+#include "platform/mbed_stats.h"
+
 void wd_log(int level, const char *format, va_list args) {
 	if (WD_DEBUG_LEVEL_CURRENT < level) {
 		return;
@@ -55,4 +58,45 @@ void wd_log_error(const char *format, ...) {
 	va_start(args, format);
 	wd_log(WD_DEBUG_LEVEL_ERROR, format, args);
 	va_end(args);
+}
+
+void wd_log_heap_stats(const char *issue){
+
+	if(!WD_DEBUG_ENABLE_MEMORY_STATS){
+		return;
+	}
+	wd_log_heap_stats_internal(issue);
+	
+}
+
+void wd_log_heap_stats_internal(const char *issue){
+
+	osKernelLock();
+
+	mbed_stats_heap_t heap_stats;
+    mbed_stats_heap_get(&heap_stats);
+    wd_log_info(
+        "heap (%s): current=%d, max=%d, reserved=%d, free=%d", 
+		issue,
+        heap_stats.current_size, 
+        heap_stats.max_size, 
+        heap_stats.reserved_size,
+        heap_stats.reserved_size - heap_stats.max_size
+    );
+	
+	int thread_count = osThreadGetCount();
+	mbed_stats_stack_t stacks_stats[thread_count];
+	mbed_stats_stack_get_each(stacks_stats, thread_count);
+    for(int i = 0; i < thread_count; i++){
+		wd_log_info(
+			"stack (%s): id=%d, max=%d, reserved=%d, free=%d", 
+			issue,
+			stacks_stats[i].thread_id,
+			stacks_stats[i].max_size, 
+			stacks_stats[i].reserved_size,
+			stacks_stats[i].reserved_size - stacks_stats[i].max_size
+		);
+    }
+
+    osKernelUnlock();
 }

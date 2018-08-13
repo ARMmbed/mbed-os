@@ -17,7 +17,9 @@ BTMaster::BTMaster(PinName Tx, PinName Rx, PinName Irq, PinName Led, int baud = 
 	_state = BT_STATE_INITIAL;
 			
 	// register interrupt handler for falling edge on bus interrupt
+	wd_log_heap_stats("BTmaster before eq");
 	events::EventQueue * eq = mbed_event_queue();
+	wd_log_heap_stats("BTmaster after eq");
 	_irq.fall(eq->event(callback(this, &BTMaster::_on_bus_irq)));
 	_txQueueLockTimeout = new ResettableTimeout(eq->event(callback(this, &BTMaster::_on_tx_queue_lock_timeout)), BT_MASTER_TX_ACK_TIMEOUT_US);
 	_txQueueLockTimeout->stop();
@@ -124,11 +126,14 @@ void BTMaster::_main_loop(void) {
 					// wait and check if a frame is in tx queue
 					osEvent evt = _dma_tx_frame_queue.get(BT_MASTER_TX_FRAME_QUEUE_TIMEOUT_MS);
 					if (evt.status == osEventMail) {
-						
+
 						wd_log_debug("BTMaster -> sending app data to slave, locking tx afterwards for slave response window");
 					
 						size_t size;	
 						dma_frame_meta_t * frame_meta = (dma_frame_meta_t *) evt.value.p;
+
+						wd_log_debug("GET frame %d bytes", frame_meta->frame_size);
+
 						_dmaSerial->getFrame(frame_meta, _tx_frame_buffer, &size);
 						_dma_tx_frame_queue.free(frame_meta);
 					

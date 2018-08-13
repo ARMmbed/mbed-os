@@ -25,19 +25,26 @@ BTBase::BTBase(PinName Tx, PinName Rx, PinName Irq, PinName Led, int baud = MBED
 	_send_queue_mutex(),
 	_activity_led(Led, 0) {
 	
+	wd_log_heap_stats("BTBase(1)");
 	this->_activity_led_timeout = new ResettableTimeout(callback(this, &BTBase::_on_activity_led_timeout), 40000);
 	this->_activity_led_timeout->stop();
 	
 	// init
+	wd_log_heap_stats("BTBase(2)");
 	this->_rx_buffer = new char[BT_BUFFER_SIZE]();
 	this->_tx_buffer = new char[BT_BUFFER_SIZE]();
 	this->_tx_frame_buffer = new char[BT_BUFFER_SIZE/2]();
-	
+	wd_log_heap_stats("BTBase(3)");
+
 	// configure DMA usage
 	this->_dmaSerial = new DMASerial(Tx, Rx, baud);
+	wd_log_heap_stats("BTBase(4)");
 	this->_dmaSerial->set_dma_usage_rx(DMA_USAGE_ALWAYS);
+	wd_log_heap_stats("BTBase(5)");
 	this->_dmaSerial->set_dma_usage_tx(DMA_USAGE_ALWAYS);
+	wd_log_heap_stats("BTBase(6)");
 	this->_dmaSerial->attachRxCallback(Callback<void(dma_frame_meta_t *)>(this, &BTBase::_on_rx_frame_received));
+	wd_log_heap_stats("BTBase(7)");
 	
 	bt_attach_discovery_finished_cb(donothing);
 		
@@ -115,9 +122,6 @@ void BTBase::_on_rx_frame_received(dma_frame_meta_t * frame_meta) {
 		
 	}
 	
-	// valid frame
-	wd_log_info("BTBase::_on_rx_frame_received() -> received valid frame (length: %d, first byte: %x).", rxSize, rxBuffer[0]);
-	
 	// exclude crc for next layer
 	_frame_received_internal(rxBuffer, rxSize-4);
 	
@@ -160,6 +164,7 @@ void BTBase::_tx_frame_queue_clear(void) {
 	for(;;) {
 		
 		osEvent evt = _dma_tx_frame_queue.get(1);
+		wd_log_debug("GET frame");
 		
 		if (evt.status == osEventMail) {
 			dma_frame_meta_t * frame_meta = (dma_frame_meta_t *) evt.value.p;
@@ -263,6 +268,8 @@ void BTBase::_send_enqueue(uint8_t messageType, uint64_t slaveId, const void * d
 		if (_dma_tx_frame_queue.put(frame_meta) != osOK) {
 			wd_log_error("BTBase::_send_enqueue() -> Unable to enqueue frame!");
 		}
+
+		wd_log_debug("PUT frame %d bytes", frame_meta->frame_size);
 		
 	} else {
 		wd_log_error("BTBase::_send_enqueue() -> Error allocating memory for frame queue!");

@@ -31,9 +31,9 @@ void DMASerial::popFrame(char * buffer, int * length, uint32_t timeout) {
 	osEvent evt = _dma_rx_frame_queue.get(timeout);
 	
 	if (evt.status == osEventMail) {
-		
+
 		dma_frame_meta_t * frame_meta = (dma_frame_meta_t *) evt.value.p;
-		
+
 		getFrame(frame_meta, buffer, length);
 		
 		_dma_rx_frame_queue.free(frame_meta);
@@ -163,7 +163,6 @@ void DMASerial::_rx_queue_process_loop(void) {
 				this->_rx_cb.call(frame_meta);
 			}
 			_dma_rx_frame_queue.free(frame_meta);
-			//wd_log_error("_dma_rx_frame_queue.free()");
 		}
 		
 	}

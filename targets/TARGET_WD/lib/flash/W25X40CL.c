@@ -249,7 +249,7 @@ MC_RES flash_read_device_id(uint8_t *buffer) {
 	MC_RETURN_ON_ERROR(write_bytes(instruction_data, sizeof(instruction_data)));
 	MC_RETURN_ON_ERROR(read_bytes(tmp, sizeof(tmp)));
 	deselect_chip();
-	*buffer = tmp[1];
+	memcpy(buffer, tmp, 2);
 	return MC_RES_OK;
 }
 
