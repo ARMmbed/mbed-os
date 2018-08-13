@@ -165,8 +165,8 @@ bool LoWPANNDInterface::getRouterIpAddress(char *address, int8_t len)
 #if MBED_CONF_NSAPI_DEFAULT_MESH_TYPE == LOWPAN && DEVICE_802_15_4_PHY
 MBED_WEAK MeshInterface *MeshInterface::get_default_instance()
 {
-    static LoWPANNDInterface lowpan(NanostackRfPhy::get_default_instance());
+    static LoWPANNDInterface lowpan(&NanostackRfPhy::get_default_instance());
 
-    return lowpan;
+    return &lowpan;
 }
 #endif
