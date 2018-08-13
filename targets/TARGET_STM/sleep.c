@@ -151,7 +151,34 @@ void hal_sleep(void)
     core_util_critical_section_enter();
 
     // Request to enter SLEEP mode
+#if TARGET_STM32L4
+    // State Transitions (see 5.3 Low-power modes, Fig. 13):
+    //  * (opt): Low Power Run (LPR) Mode -> Run Mode
+    //  * Run Mode -> Sleep
+    //  --- Wait for Interrupt --
+    //  * Sleep -> Run Mode
+    //  * (opt): Run Mode -> Low Power Run Mode
+
+    // [5.4.1 Power control register 1 (PWR_CR1)]
+    // 	LPR: When this bit is set, the regulator is switched from main mode (MR) to low-power mode (LPR).
+    int lowPowerMode = PWR->CR1 & PWR_CR1_LPR;
+
+    // LPR -> Run
+    if (lowPowerMode) {
+        HAL_PWREx_DisableLowPowerRunMode();
+    }
+
+    // Entering Sleep mode [5.3.4 Sleep mode]
+    CLEAR_BIT(SCB->SCR, ((uint32_t)SCB_SCR_SLEEPDEEP_Msk)); // SLEEPDEEP = 0
+    __WFI();
+
+    // Run -> LPR
+    if (lowPowerMode) {
+        HAL_PWREx_EnableLowPowerRunMode();
+    }
+#else
     HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
+#endif
 
     // Enable IRQs
     core_util_critical_section_exit();
