@@ -23,11 +23,7 @@
 #define MBED_MEM_BLOCK_DEVICE_H
 
 #include "BlockDevice.h"
-
-namespace mbed {
-/** \addtogroup filesystem */
-/** @{*/
-
+#include "mbed.h"
 
 
 /** Lazily allocated heap-backed block device
@@ -157,7 +153,5 @@ private:
     uint32_t _init_ref_count;
 };
 
-/** @}*/
-} // namespace mbed
 
 #endif

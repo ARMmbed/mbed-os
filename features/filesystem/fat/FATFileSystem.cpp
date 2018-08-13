@@ -27,10 +27,7 @@
 #include "FATFileSystem.h"
 
 #include <errno.h>
-#include <stdlib.h>
-
 ////// Error handling /////
-using namespace mbed;
 
 static int fat_error_remap(FRESULT res)
 {

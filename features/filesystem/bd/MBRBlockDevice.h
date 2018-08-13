@@ -23,10 +23,8 @@
 #define MBED_MBR_BLOCK_DEVICE_H
 
 #include "BlockDevice.h"
+#include "mbed.h"
 
-namespace mbed {
-/** \addtogroup filesystem */
-/** @{*/
 
 /** Additional error codes used for MBR records
  */
@@ -257,7 +255,5 @@ protected:
     uint32_t _init_ref_count;
 };
 
-/** @}*/
-} // namespace mbed
 
 #endif

@@ -25,9 +25,6 @@
 #include "BlockDevice.h"
 #include "PlatformMutex.h"
 
-namespace mbed {
-/** \addtogroup filesystem */
-/** @{*/
 
 class ReadOnlyBlockDevice : public BlockDevice
 {
@@ -136,7 +133,6 @@ private:
     BlockDevice *_bd;
 };
 
-/** @}*/
-} // namespace mbed
+
 
 #endif

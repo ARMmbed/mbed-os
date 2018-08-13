@@ -24,9 +24,6 @@
 
 #include "BlockDevice.h"
 
-namespace mbed {
-/** \addtogroup filesystem */
-/** @{*/
 
 /** Block device for allowing minimal read and program sizes (of 1) for the underlying BD,
  *  using a buffer on the heap.
@@ -166,7 +163,5 @@ protected:
 
 };
 
-/** @}*/
-} // namespace mbed
 
 #endif

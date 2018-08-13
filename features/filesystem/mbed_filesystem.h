@@ -29,6 +29,7 @@
 
 // BlockDevice classes
 #include "bd/BlockDevice.h"
+#include "bd/BlockDevice.h"
 #include "bd/ChainingBlockDevice.h"
 #include "bd/SlicingBlockDevice.h"
 #include "bd/HeapBlockDevice.h"
