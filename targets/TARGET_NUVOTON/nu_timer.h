@@ -20,8 +20,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "cmsis.h"
-#include "mbed_power_mgmt.h"
-#include "mbed_critical.h"
 #include "ticker_api.h"
 #include "us_ticker_api.h"
 
@@ -58,33 +56,9 @@ struct nu_countdown_ctx_s {
     bool                    _expired;           // Expired or not
 };
 
-__STATIC_INLINE void nu_countdown_init(struct nu_countdown_ctx_s *ctx, us_timestamp_t interval_us)
-{
-    core_util_critical_section_enter();
-    sleep_manager_lock_deep_sleep();
-    ctx->_ticker_data = get_us_ticker_data();
-    ctx->_interval_end_us = ticker_read_us(ctx->_ticker_data) + interval_us;
-    ctx->_expired = false;
-    core_util_critical_section_exit();
-}
-
-__STATIC_INLINE bool nu_countdown_expired(struct nu_countdown_ctx_s *ctx)
-{
-    core_util_critical_section_enter();
-    if (! ctx->_expired) {
-        ctx->_expired = ticker_read_us(ctx->_ticker_data) >= ctx->_interval_end_us;
-    }
-    core_util_critical_section_exit();
-    
-    return ctx->_expired;
-}
-
-__STATIC_INLINE void nu_countdown_free(struct nu_countdown_ctx_s *ctx)
-{
-    core_util_critical_section_enter();
-    sleep_manager_unlock_deep_sleep();
-    core_util_critical_section_exit();
-}
+void nu_countdown_init(struct nu_countdown_ctx_s *ctx, us_timestamp_t interval_us);
+bool nu_countdown_expired(struct nu_countdown_ctx_s *ctx);
+void nu_countdown_free(struct nu_countdown_ctx_s *ctx);
 
 #ifdef __cplusplus
 }
