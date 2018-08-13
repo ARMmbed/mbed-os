@@ -22,6 +22,8 @@ namespace mbed {
 /** \addtogroup drivers */
 /** @{*/
 
+SingletonPtr<PlatformMutex> mbed_crc_mutex;
+
 /* Default values for different types of polynomials
 */
 template<>
