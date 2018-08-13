@@ -60,7 +60,9 @@ public:
     /** Does all the necessary initializations needed for receiving and sending sms.
      *
      *  @param mode          enumeration for choosing the correct mode: text/pdu
-     *  @return              zero on success
+     *  @return              NSAPI_ERROR_OK on success
+     *                       NSAPI_ERROR_NO_MEMORY on case of memory failure
+     *                       NSAPI_ERROR_DEVICE_ERROR on case of other failures
      */
     virtual nsapi_error_t initialize(CellularSMSMmode mode) = 0;
 
@@ -69,7 +71,10 @@ public:
      *  @param phone_number  Phone number where to send sms
      *  @param message       SMS message content
      *  @param msg_len       Length of the message
-     *  @return              possible error code or length of the sent sms
+     *  @return              On success, length of the sent sms (positive value)
+     *                       NSAPI_ERROR_PARAMETER if invalid parameters
+     *                       NSAPI_ERROR_NO_MEMORY on case of memory failure
+     *                       NSAPI_ERROR_DEVICE_ERROR on case of other failures
      */
     virtual nsapi_size_or_error_t send_sms(const char *phone_number, const char *message, int msg_len) = 0;
 
@@ -84,8 +89,12 @@ public:
      *  @param time_len      length of allocated time_stamp buffer
      *  @param buf_size      if method return error NSAPI_ERROR_NO_MEMORY because the given buf was not big enough this will
      *                       hold the size which is enough. Otherwise zero.
-     *  @return              possible error code or size of buf. Will return SMS_ERROR_MULTIPART_ALL_PARTS_NOT_READ
-     *                       if sms was multipart but not all parts are present/failed to read.
+     *  @return              On success, length of the received sms, (length of the buf, positive value)
+     *                       NSAPI_ERROR_PARAMETER if invalid parameters
+     *                       NSAPI_ERROR_NO_MEMORY on case of memory failure
+     *                       SMS_ERROR_MULTIPART_ALL_PARTS_NOT_READ if sms was multipart but not all parts are present/failed to read.
+     *                       -1 if no sms was found
+     *                       NSAPI_ERROR_DEVICE_ERROR on case of other failures
      */
     virtual nsapi_size_or_error_t get_sms(char *buf, uint16_t buf_len, char *phone_num, uint16_t phone_len,
                                           char *time_stamp, uint16_t time_len, int *buf_size) = 0;
@@ -110,7 +119,8 @@ public:
      *                     "SM" - SIM SMS memory storage (default)
      *                     "ME" - NVM SMS storage
      *
-     * @return             1 for success, 0 for failure
+     *  @return            NSAPI_ERROR_OK on success
+     *                     NSAPI_ERROR_DEVICE_ERROR on case of failure
      */
     virtual nsapi_error_t set_cpms(const char *memr, const char *memw, const char *mems) = 0;
 
@@ -119,7 +129,8 @@ public:
      *  @param sca        Service Center Address to be used for mobile originated SMS transmissions.
      *  @param type       129 - national numbering scheme, 145 - international numbering scheme (contains the character "+")
      *
-     *  @return           1 for success, 0 for failure
+     *  @return           NSAPI_ERROR_OK on success
+     *                    NSAPI_ERROR_DEVICE_ERROR on case of failure
      */
     virtual nsapi_error_t set_csca(const char *sca, int type) = 0;
 
@@ -130,13 +141,15 @@ public:
      *  @param chr_set   preferred character set list (comma separated). Modem might not support the wanted character set
      *                   so chr_set list is looped from start until supported set is found. Used character set index is returned.
      *                   See more from 3GPP TS 27.005.
-     * @return           Used character set index from the given list in case of success. Otherwise negative errorcode.
+     * @return           Used character set index from the given list in case of success.
+     *                   NSAPI_ERROR_DEVICE_ERROR on case of failure
      */
     virtual nsapi_size_or_error_t set_cscs(const char *chr_set) = 0;
 
     /** Deletes all messages from the currently set memory/SIM
      *
-     *  @return possible error code
+     *  @return            NSAPI_ERROR_OK on success
+     *                     NSAPI_ERROR_DEVICE_ERROR on case of failure
      */
     virtual nsapi_error_t delete_all_messages() = 0;
 
