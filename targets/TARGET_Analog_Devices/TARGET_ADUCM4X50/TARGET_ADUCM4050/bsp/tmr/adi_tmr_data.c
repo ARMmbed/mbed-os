@@ -51,6 +51,34 @@ POSSIBILITY OF SUCH DAMAGE.
 #include <adi_tmr_config.h>
 #include <drivers/tmr/adi_tmr.h>
 
+/* Macro mapping from ADuCM4050 to ADuCM3029 */
+#if defined(__ADUCM3029__)
+#define BITM_TMR_RGB_CTL_EN             BITM_TMR_CTL_EN
+#define PWM0CTL                         PWMCTL
+#define PWM0MATCH                       PWMMATCH
+#define BITM_TMR_RGB_STAT_BUSY          BITM_TMR_STAT_BUSY  
+#define BITM_TMR_RGB_CTL_EVTEN          BITM_TMR_CTL_EVTEN
+#define BITM_TMR_RGB_CTL_RSTEN          BITM_TMR_CTL_RSTEN
+#define BITP_TMR_RGB_CTL_RSTEN          BITP_TMR_CTL_RSTEN
+#define BITP_TMR_RGB_CTL_EVTEN          BITP_TMR_CTL_EVTEN
+#define BITP_TMR_RGB_CTL_PRE            BITP_TMR_CTL_PRE
+#define BITP_TMR_RGB_CTL_CLK            BITP_TMR_CTL_CLK
+#define BITP_TMR_RGB_CTL_MODE           BITP_TMR_CTL_MODE
+#define BITP_TMR_RGB_CTL_UP             BITP_TMR_CTL_UP
+#define BITP_TMR_RGB_CTL_RLD            BITP_TMR_CTL_RLD
+#define BITP_TMR_RGB_CTL_SYNCBYP        BITP_TMR_CTL_SYNCBYP
+#define BITP_TMR_RGB_PWM0CTL_IDLESTATE  BITP_TMR_PWMCTL_IDLESTATE
+#define BITP_TMR_RGB_PWM0CTL_MATCH      BITP_TMR_PWMCTL_MATCH
+#define BITM_TMR_RGB_CLRINT_TIMEOUT     BITM_TMR_CLRINT_TIMEOUT
+#define BITM_TMR_RGB_STAT_PDOK          BITM_TMR_STAT_PDOK
+#define BITM_TMR_RGB_STAT_TIMEOUT       BITM_TMR_STAT_TIMEOUT
+#define BITM_TMR_RGB_STAT_CAPTURE       BITM_TMR_STAT_CAPTURE
+#define BITM_TMR_RGB_CLRINT_EVTCAPT     BITM_TMR_CLRINT_EVTCAPT
+#define BITM_TMR_RGB_CLRINT_TIMEOUT     BITM_TMR_CLRINT_TIMEOUT
+#define BITM_TMR_RGB_CTL_RLD            BITM_TMR_CTL_RLD
+#endif /*__ADUCM3029__*/
+
+#ifndef TARGET_Analog_Devices
 /* CTL register static configuration */
 static uint16_t aTimerCtlConfig[] =
 {
@@ -80,7 +108,7 @@ static uint16_t aTimerCtlConfig[] =
     (TMR2_CFG_ENABLE_SYNC_BYPASS    << BITP_TMR_RGB_CTL_SYNCBYP) |
     (TMR2_CFG_ENABLE_PRESCALE_RESET << BITP_TMR_RGB_CTL_RSTEN)   |
     (TMR2_CFG_ENABLE_EVENT_CAPTURE  << BITP_TMR_RGB_CTL_EVTEN),
-
+#if defined(__ADUCM4050__)
     (TMR3_CFG_COUNT_UP              << BITP_TMR_RGB_CTL_UP)      |
     (TMR3_CFG_MODE                  << BITP_TMR_RGB_CTL_MODE)    |
     (TMR3_CFG_PRESCALE_FACTOR       << BITP_TMR_RGB_CTL_PRE)     |
@@ -89,6 +117,7 @@ static uint16_t aTimerCtlConfig[] =
     (TMR3_CFG_ENABLE_SYNC_BYPASS    << BITP_TMR_RGB_CTL_SYNCBYP) |
     (TMR3_CFG_ENABLE_PRESCALE_RESET << BITP_TMR_RGB_CTL_RSTEN)   |
     (TMR3_CFG_ENABLE_EVENT_CAPTURE  << BITP_TMR_RGB_CTL_EVTEN),
+#endif
 };
 
 /* LOAD register static configuration */
@@ -97,7 +126,9 @@ static uint16_t aTimerLoadConfig[] =
     TMR0_CFG_LOAD_VALUE,
     TMR1_CFG_LOAD_VALUE,
     TMR2_CFG_LOAD_VALUE,
+#if defined(__ADUCM4050__)
     TMR3_CFG_LOAD_VALUE,
+#endif
 };
 
 /* Asynchronous LOAD static configuraton */
@@ -106,10 +137,13 @@ static uint16_t aTimerALoadConfig[] =
     TMR0_CFG_ASYNC_LOAD_VALUE,
     TMR1_CFG_ASYNC_LOAD_VALUE,
     TMR2_CFG_ASYNC_LOAD_VALUE,
+#if defined(__ADUCM4050__)
     TMR3_CFG_ASYNC_LOAD_VALUE,
+#endif
 };
 
 /* EVENTSELECT static configuration */
+#if defined(__ADUCM4050__)
 static uint16_t aTimerEventConfig[] =
 {
     TMR0_CFG_EVENT_CAPTURE,
@@ -117,6 +151,7 @@ static uint16_t aTimerEventConfig[] =
     TMR2_CFG_EVENT_CAPTURE,
     TMR3_CFG_EVENT_CAPTURE,
 };
+#endif
 
 /* PWM CTL static configuration */
 static uint16_t aTimerPwmCtlConfig[] =
@@ -129,7 +164,7 @@ static uint16_t aTimerPwmCtlConfig[] =
 
   (TMR2_CFG_PWM0_IDLE_STATE  << BITP_TMR_RGB_PWM0CTL_IDLESTATE) |
   (TMR2_CFG_PWM0_MATCH_VALUE << BITP_TMR_RGB_PWM0CTL_MATCH),
-
+#if defined(__ADUCM4050__)
   (TMR3_CFG_PWM0_IDLE_STATE  << BITP_TMR_RGB_PWM0CTL_IDLESTATE) |
   (TMR3_CFG_PWM0_MATCH_VALUE << BITP_TMR_RGB_PWM0CTL_MATCH),
 
@@ -138,6 +173,7 @@ static uint16_t aTimerPwmCtlConfig[] =
 
   (TMR3_CFG_PWM2_IDLE_STATE  << BITP_TMR_RGB_PWM2CTL_IDLESTATE) |
   (TMR3_CFG_PWM2_MATCH_VALUE << BITP_TMR_RGB_PWM2CTL_MATCH),
+#endif
 };
 
 /* PWM MATCH static configuration */
@@ -145,10 +181,12 @@ static uint16_t aTimerPwmMatchConfig[] = {
   TMR0_CFG_PWM0_MATCH_VALUE,
   TMR1_CFG_PWM0_MATCH_VALUE,
   TMR2_CFG_PWM0_MATCH_VALUE,
+#if defined(__ADUCM4050__)
   TMR3_CFG_PWM0_MATCH_VALUE,
   TMR3_CFG_PWM1_MATCH_VALUE,
   TMR3_CFG_PWM2_MATCH_VALUE
+#endif
 };
-
+#endif
 
 #endif /* ADI_TMR_DATA */

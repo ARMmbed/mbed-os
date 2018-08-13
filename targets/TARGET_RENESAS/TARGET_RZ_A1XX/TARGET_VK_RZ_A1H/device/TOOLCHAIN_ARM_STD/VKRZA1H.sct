@@ -16,7 +16,7 @@ LOAD_TTB    __TTB_BASE __TTB_SIZE ; Page 0 of On-Chip Data Retention RAM
     { }                           ; Level-1 Translation Table for MMU
 }
 
-SFLASH __ROM_BASE __ROM_SIZE       ; load region size_region
+LR_IROM1 __ROM_BASE __ROM_SIZE       ; load region size_region
 {
   VECTORS __VECTOR_BASE FIXED
   {

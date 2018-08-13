@@ -195,7 +195,7 @@ void AT_CellularNetwork::urc_cgreg()
 }
 
 nsapi_error_t AT_CellularNetwork::set_credentials(const char *apn,
-        const char *username, const char *password)
+                                                  const char *username, const char *password)
 {
     free_credentials();
 
@@ -231,7 +231,7 @@ nsapi_error_t AT_CellularNetwork::set_credentials(const char *apn,
 }
 
 nsapi_error_t AT_CellularNetwork::set_credentials(const char *apn,
-        AuthenticationType type, const char *username, const char *password)
+                                                  AuthenticationType type, const char *username, const char *password)
 {
     nsapi_error_t err = set_credentials(apn, username, password);
     if (err) {
@@ -244,7 +244,7 @@ nsapi_error_t AT_CellularNetwork::set_credentials(const char *apn,
 }
 
 nsapi_error_t AT_CellularNetwork::connect(const char *apn,
-        const char *username, const char *password)
+                                          const char *username, const char *password)
 {
     nsapi_error_t err = set_credentials(apn, username, password);
     if (err) {
@@ -1012,7 +1012,7 @@ nsapi_error_t AT_CellularNetwork::scan_plmn(operList_t &operators, int &opsCount
 }
 
 nsapi_error_t AT_CellularNetwork::set_ciot_optimization_config(Supported_UE_Opt supported_opt,
-        Preferred_UE_Opt preferred_opt)
+                                                               Preferred_UE_Opt preferred_opt)
 {
     _at.lock();
 
@@ -1029,7 +1029,7 @@ nsapi_error_t AT_CellularNetwork::set_ciot_optimization_config(Supported_UE_Opt 
 }
 
 nsapi_error_t AT_CellularNetwork::get_ciot_optimization_config(Supported_UE_Opt &supported_opt,
-        Preferred_UE_Opt &preferred_opt)
+                                                               Preferred_UE_Opt &preferred_opt)
 {
     _at.lock();
 

@@ -44,45 +44,67 @@
 #define NETWORK_TIMEOUT (180*1000)
 
 static UARTSerial cellular_serial(MDMTXD, MDMRXD, MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE);
-static CELLULAR_DEVICE* cellular_device;
+static CELLULAR_DEVICE *cellular_device;
 static EventQueue queue(2 * EVENTS_EVENT_SIZE);
 
 static void urc_callback()
 {
 }
 
-static void wait_for_power(CellularPower* pwr)
+static void wait_for_power(CellularPower *pwr)
 {
     nsapi_error_t err = pwr->set_device_ready_urc_cb(&urc_callback);
     TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_UNSUPPORTED);
 
     int sanity_count = 0;
-    while (pwr->is_device_ready() != NSAPI_ERROR_OK) {
+    err = pwr->set_at_mode();
+    while (err != NSAPI_ERROR_OK) {
         sanity_count++;
         wait(1);
-        TEST_ASSERT(sanity_count < 20);
+        TEST_ASSERT(sanity_count < 40);
+        err = pwr->set_at_mode();
     }
 
-    err = pwr->set_at_mode();
-    TEST_ASSERT(err == NSAPI_ERROR_OK);
+    TEST_ASSERT(pwr->is_device_ready() == NSAPI_ERROR_OK);
 
     pwr->remove_device_ready_urc_cb(&urc_callback);
 }
 
 static void test_power_interface()
 {
+    const char* devi = CELLULAR_STRINGIFY(CELLULAR_DEVICE);
     cellular_device = new CELLULAR_DEVICE(queue);
-    CellularPower* pwr = cellular_device->open_power(&cellular_serial);
+    cellular_device->set_timeout(5000);
+    CellularPower *pwr = cellular_device->open_power(&cellular_serial);
+    TEST_ASSERT(pwr != NULL);
 
     nsapi_error_t err = pwr->on();
     TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_UNSUPPORTED);
     wait_for_power(pwr);
 
-    TEST_ASSERT(pwr->set_power_level(1,0) == NSAPI_ERROR_OK);
+    TEST_ASSERT(pwr->set_power_level(1, 0) == NSAPI_ERROR_OK);
 
     err = pwr->reset();
     TEST_ASSERT(err == NSAPI_ERROR_OK);
     wait_for_power(pwr);
+
+    err = pwr->opt_power_save_mode(0,0);
+    TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_DEVICE_ERROR);
+    if (err == NSAPI_ERROR_DEVICE_ERROR) {
+        if (!(strcmp(devi, "TELIT_HE910") == 0 || strcmp(devi, "QUECTEL_BG96") == 0)) { // TELIT_HE910 and QUECTEL_BG96 just gives an error and no specific error number so we can't know is this real error or that modem/network does not support the command
+            TEST_ASSERT(((AT_CellularPower*)pwr)->get_device_error().errCode == 100 && // 100 == unknown command for modem
+                    ((AT_CellularPower*)pwr)->get_device_error().errType == 3); // 3 == CME error from the modem
+        }
+    }
+
+    err = pwr->opt_receive_period(0, CellularPower::EDRXEUTRAN_NB_S1_mode, 3);
+    TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_DEVICE_ERROR);
+    if (err == NSAPI_ERROR_DEVICE_ERROR) {
+        if (!(strcmp(devi, "TELIT_HE910") == 0 || strcmp(devi, "QUECTEL_BG96") == 0)) { // TELIT_HE910 and QUECTEL_BG96 just gives an error and no specific error number so we can't know is this real error or that modem/network does not support the command
+            TEST_ASSERT(((AT_CellularPower*)pwr)->get_device_error().errCode == 100 && // 100 == unknown command for modem
+                    ((AT_CellularPower*)pwr)->get_device_error().errType == 3); // 3 == CME error from the modem
+        }
+    }
 
     err = pwr->off();
     TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_UNSUPPORTED);
@@ -102,7 +124,7 @@ static Case cases[] = {
 
 static utest::v1::status_t test_setup(const size_t number_of_cases)
 {
-    GREENTEA_SETUP(10*60, "default_auto");
+    GREENTEA_SETUP(10 * 60, "default_auto");
     return verbose_test_setup_handler(number_of_cases);
 }
 

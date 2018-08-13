@@ -326,6 +326,9 @@ static void serial_irq_set_internal(serial_t *obj, SerialIrq irq, uint32_t enabl
 }
 
 void serial_irq_set(serial_t *obj, SerialIrq irq, uint32_t enable) {
+    if (RxIrq == irq) {
+        uart_data[obj->index].rx_irq_set_api = enable;
+    }
     serial_irq_set_internal(obj, irq, enable);
 }
 

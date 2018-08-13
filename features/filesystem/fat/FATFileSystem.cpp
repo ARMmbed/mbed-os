@@ -19,17 +19,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include "mbed.h"
-
 #include "diskio.h"
 #include "ffconf.h"
-#include "mbed_debug.h"
-#include "mbed_critical.h"
-#include <errno.h>
-
+#include "platform/mbed_debug.h"
+#include "platform/mbed_critical.h"
+#include "filesystem/mbed_filesystem.h"
 #include "FATFileSystem.h"
 
-
+#include <errno.h>
 ////// Error handling /////
 
 static int fat_error_remap(FRESULT res)
@@ -464,7 +461,6 @@ int FATFileSystem::remove(const char *path)
     if (res != FR_OK) {
         debug_if(FFS_DBG, "f_unlink() failed: %d\n", res);
         if (res == FR_DENIED) {
-            printf("hi %d -> %d\n", FR_DENIED, -ENOTEMPTY);
             return -ENOTEMPTY;
         }
     }

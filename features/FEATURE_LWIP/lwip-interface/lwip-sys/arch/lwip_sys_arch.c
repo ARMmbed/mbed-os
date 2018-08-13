@@ -123,7 +123,7 @@ u32_t sys_now(void) {
  *---------------------------------------------------------------------------*/
 err_t sys_mbox_new(sys_mbox_t *mbox, int queue_sz) {
     if (queue_sz > MB_SIZE)
-        error("sys_mbox_new size error\n");
+        MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_NETWORK_STACK, MBED_ERROR_CODE_INVALID_SIZE), "sys_mbox_new size error\n", queue_sz);
 
     memset(mbox, 0, sizeof(*mbox));
 
@@ -131,7 +131,7 @@ err_t sys_mbox_new(sys_mbox_t *mbox, int queue_sz) {
     mbox->attr.cb_size = sizeof(mbox->data);
     mbox->id = osEventFlagsNew(&mbox->attr);
     if (mbox->id == NULL)
-        error("sys_mbox_new create error\n");
+        MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_NETWORK_STACK, MBED_ERROR_CODE_FAILED_OPERATION), "sys_mbox_new create error\n", (u32_t)mbox);
 
     osEventFlagsSet(mbox->id, SYS_MBOX_POST_EVENT);
 
@@ -150,7 +150,7 @@ err_t sys_mbox_new(sys_mbox_t *mbox, int queue_sz) {
  *---------------------------------------------------------------------------*/
 void sys_mbox_free(sys_mbox_t *mbox) {
     if (mbox->post_idx != mbox->fetch_idx)
-        error("sys_mbox_free error\n");
+        MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_NETWORK_STACK, MBED_ERROR_CODE_INVALID_INDEX), "sys_mbox_free error\n", (u32_t)mbox->fetch_idx);
 }
 
 /*---------------------------------------------------------------------------*
@@ -194,8 +194,10 @@ void sys_mbox_post(sys_mbox_t *mbox, void *msg) {
 err_t sys_mbox_trypost(sys_mbox_t *mbox, void *msg) {
     uint32_t flags = osEventFlagsWait(mbox->id, SYS_MBOX_POST_EVENT,
             osFlagsWaitAny | osFlagsNoClear, 0);
-    if ((flags & osFlagsError) || !(flags & SYS_MBOX_POST_EVENT))
+    if ((flags & osFlagsError) || !(flags & SYS_MBOX_POST_EVENT)) {
+        MBED_WARNING1(MBED_MAKE_ERROR(MBED_MODULE_NETWORK_STACK, MBED_ERROR_CODE_FAILED_OPERATION), "sys_mbox_trypost error\n", flags);
         return ERR_MEM;
+    }
 
     int state = osKernelLock();
 
@@ -239,8 +241,10 @@ u32_t sys_arch_mbox_fetch(sys_mbox_t *mbox, void **msg, u32_t timeout) {
     uint32_t start = osKernelGetTickCount();
     uint32_t flags = osEventFlagsWait(mbox->id, SYS_MBOX_FETCH_EVENT,
             osFlagsWaitAny | osFlagsNoClear, (timeout ? timeout : osWaitForever));
-    if ((flags & osFlagsError) || !(flags & SYS_MBOX_FETCH_EVENT))
+    if ((flags & osFlagsError) || !(flags & SYS_MBOX_FETCH_EVENT)) {
+        MBED_WARNING1(MBED_MAKE_ERROR(MBED_MODULE_NETWORK_STACK, MBED_ERROR_CODE_TIME_OUT), "sys_arch_mbox_fetch time-out\n", flags);
         return SYS_ARCH_TIMEOUT;
+    }
 
     int state = osKernelLock();
 
@@ -273,8 +277,10 @@ u32_t sys_arch_mbox_fetch(sys_mbox_t *mbox, void **msg, u32_t timeout) {
 u32_t sys_arch_mbox_tryfetch(sys_mbox_t *mbox, void **msg) {
     uint32_t flags = osEventFlagsWait(mbox->id, SYS_MBOX_FETCH_EVENT,
             osFlagsWaitAny | osFlagsNoClear, 0);
-    if ((flags & osFlagsError) || !(flags & SYS_MBOX_FETCH_EVENT))
+    if ((flags & osFlagsError) || !(flags & SYS_MBOX_FETCH_EVENT)) {
+        MBED_WARNING1(MBED_MAKE_ERROR(MBED_MODULE_NETWORK_STACK, MBED_ERROR_CODE_FAILED_OPERATION), "sys_arch_mbox_tryfetch empty\n", flags);
         return SYS_MBOX_EMPTY;
+    }
 
     int state = osKernelLock();
 
@@ -309,7 +315,7 @@ err_t sys_sem_new(sys_sem_t *sem, u8_t count) {
     sem->attr.cb_size = sizeof(sem->data);
     sem->id = osSemaphoreNew(UINT16_MAX, count, &sem->attr);
     if (sem->id == NULL)
-        error("sys_sem_new create error\n");
+        MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_NETWORK_STACK, MBED_ERROR_CODE_FAILED_OPERATION), "sys_sem_new create error\n", (u32_t)sem);
     
     return ERR_OK;
 }
@@ -340,8 +346,10 @@ err_t sys_sem_new(sys_sem_t *sem, u8_t count) {
 u32_t sys_arch_sem_wait(sys_sem_t *sem, u32_t timeout) {
     u32_t start = osKernelGetTickCount();
     
-    if (osSemaphoreAcquire(sem->id, (timeout != 0)?(timeout):(osWaitForever)) != osOK)
+    if (osSemaphoreAcquire(sem->id, (timeout != 0)?(timeout):(osWaitForever)) != osOK) {
+        MBED_WARNING1(MBED_MAKE_ERROR(MBED_MODULE_NETWORK_STACK, MBED_ERROR_CODE_TIME_OUT), "sys_arch_sem_wait time out\n", (u32_t)sem);
         return SYS_ARCH_TIMEOUT;
+    }
     
     return osKernelGetTickCount() - start;
 }
@@ -356,7 +364,7 @@ u32_t sys_arch_sem_wait(sys_sem_t *sem, u32_t timeout) {
  *---------------------------------------------------------------------------*/
 void sys_sem_signal(sys_sem_t *data) {
     if (osSemaphoreRelease(data->id) != osOK)
-        mbed_die(); /* Can be called by ISR do not use printf */
+        MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_NETWORK_STACK, MBED_ERROR_CODE_SEMAPHORE_UNLOCK_FAILED), "sys_sem_signal error\n", (u32_t)data->id);
 }
 
 /*---------------------------------------------------------------------------*
@@ -378,8 +386,10 @@ err_t sys_mutex_new(sys_mutex_t *mutex) {
     mutex->attr.cb_mem = &mutex->data;
     mutex->attr.cb_size = sizeof(mutex->data);
     mutex->id = osMutexNew(&mutex->attr);
-    if (mutex->id == NULL)
+    if (mutex->id == NULL) {
+        MBED_WARNING1(MBED_MAKE_ERROR(MBED_MODULE_NETWORK_STACK, MBED_ERROR_CODE_FAILED_OPERATION), "sys_mutex_new error\n", (u32_t)mutex);
         return ERR_MEM;
+    }
     
     return ERR_OK;
 }
@@ -388,14 +398,14 @@ err_t sys_mutex_new(sys_mutex_t *mutex) {
  * @param mutex the mutex to lock */
 void sys_mutex_lock(sys_mutex_t *mutex) {
     if (osMutexAcquire(mutex->id, osWaitForever) != osOK)
-        error("sys_mutex_lock error\n");
+        MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_NETWORK_STACK, MBED_ERROR_CODE_MUTEX_LOCK_FAILED), "sys_mutex_lock error\n", (u32_t)mutex);
 }
 
 /** Unlock a mutex
  * @param mutex the mutex to unlock */
 void sys_mutex_unlock(sys_mutex_t *mutex) {
     if (osMutexRelease(mutex->id) != osOK)
-        error("sys_mutex_unlock error\n");
+        MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_NETWORK_STACK, MBED_ERROR_CODE_MUTEX_UNLOCK_FAILED), "sys_mutex_unlock error\n", (u32_t)mutex);
 }
 
 /** Delete a mutex
@@ -418,7 +428,7 @@ void sys_init(void) {
     lwip_sys_mutex_attr.cb_size = sizeof(lwip_sys_mutex_data);
     lwip_sys_mutex = osMutexNew(&lwip_sys_mutex_attr);
     if (lwip_sys_mutex == NULL)
-        error("sys_init error\n");
+        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_NETWORK_STACK, MBED_ERROR_CODE_INITIALIZATION_FAILED), "sys_init error, mutex initialization failed\n");
 }
 
 /*---------------------------------------------------------------------------*
@@ -452,7 +462,7 @@ u32_t sys_jiffies(void) {
  *---------------------------------------------------------------------------*/
 sys_prot_t sys_arch_protect(void) {
     if (osMutexAcquire(lwip_sys_mutex, osWaitForever) != osOK)
-        error("sys_arch_protect error\n");
+        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_NETWORK_STACK, MBED_ERROR_CODE_MUTEX_LOCK_FAILED), "sys_arch_protect error\n");
     return (sys_prot_t) 1;
 }
 
@@ -469,7 +479,7 @@ sys_prot_t sys_arch_protect(void) {
  *---------------------------------------------------------------------------*/
 void sys_arch_unprotect(sys_prot_t p) {
     if (osMutexRelease(lwip_sys_mutex) != osOK)
-        error("sys_arch_unprotect error\n");
+        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_NETWORK_STACK, MBED_ERROR_CODE_MUTEX_UNLOCK_FAILED), "sys_arch_unprotect error\n");
 }
 
 u32_t sys_now(void) {
@@ -524,7 +534,7 @@ static sys_thread_data_t thread_pool[SYS_THREAD_POOL_N];
     LWIP_DEBUGF(SYS_DEBUG, ("New Thread: %s\n", pcName));
 
     if (thread_pool_index >= SYS_THREAD_POOL_N)
-        error("sys_thread_new number error\n");
+        MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_NETWORK_STACK, MBED_ERROR_CODE_THREAD_CREATE_FAILED), "sys_thread_new number error\n", thread_pool_index);
     sys_thread_t t = (sys_thread_t)&thread_pool[thread_pool_index];
     thread_pool_index++;
 
@@ -537,11 +547,11 @@ static sys_thread_data_t thread_pool[SYS_THREAD_POOL_N];
     t->attr.stack_mem = malloc(stacksize);
     t->attr.tz_module = MBED_TZ_DEFAULT_ACCESS;
     if (t->attr.stack_mem == NULL) {
-      error("Error allocating the stack memory");
+      MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_NETWORK_STACK, MBED_ERROR_CODE_OUT_OF_MEMORY), "unable to allocate thread stack\n", stacksize);
     }
     t->id = osThreadNew((osThreadFunc_t)thread, arg, &t->attr);
     if (t->id == NULL)
-        error("sys_thread_new create error\n");
+        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_NETWORK_STACK, MBED_ERROR_CODE_THREAD_CREATE_FAILED), "sys_thread_new create error\n");
     
     return t;
 }

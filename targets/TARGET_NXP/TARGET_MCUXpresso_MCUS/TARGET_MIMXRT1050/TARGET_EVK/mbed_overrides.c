@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 #include "pinmap.h"
-
 #include "fsl_clock_config.h"
 #include "fsl_clock.h"
+#include "lpm.h"
 
 #define LPSPI_CLOCK_SOURCE_DIVIDER (7U)
 #define LPI2C_CLOCK_SOURCE_DIVIDER (5U)
@@ -124,11 +124,39 @@ void BOARD_ConfigMPU(void)
     SCB_EnableICache();
 }
 
+#if defined(TOOLCHAIN_GCC_ARM)
+extern uint32_t __ram_function_flash_start[];
+#define __RAM_FUNCTION_FLASH_START __ram_function_flash_start
+extern uint32_t __ram_function_ram_start[];
+#define __RAM_FUNCTION_RAM_START __ram_function_ram_start
+extern uint32_t __ram_function_size[];
+#define __RAM_FUNCTION_SIZE __ram_function_size
+void Board_CopyToRam()
+{
+    unsigned char *source;
+    unsigned char *destiny;
+    unsigned int size;
+
+    source = (unsigned char *)(__RAM_FUNCTION_FLASH_START);
+    destiny = (unsigned char *)(__RAM_FUNCTION_RAM_START);
+    size = (unsigned long)(__RAM_FUNCTION_SIZE);
+
+    while (size--)
+    {
+        *destiny++ = *source++;
+    }
+}
+#endif
+
 // called before main
 void mbed_sdk_init()
 {
     BOARD_ConfigMPU();
     BOARD_BootClockRUN();
+#if defined(TOOLCHAIN_GCC_ARM)
+    Board_CopyToRam();
+#endif
+    LPM_Init();
 }
 
 void spi_setup_clock()

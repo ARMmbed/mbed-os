@@ -17,20 +17,23 @@
 #include "CppUTest/TestHarness.h"
 #include "test_at_cellularsms.h"
 
+// AStyle ignored as the definition is not clear due to preprocessor usage
+// *INDENT-OFF*
 TEST_GROUP(AT_CellularSMS)
 {
-    Test_AT_CellularSMS* unit;
+    Test_AT_CellularSMS *unit;
 
-    void setup()
+    void setup() 
     {
         unit = new Test_AT_CellularSMS();
     }
 
-    void teardown()
+    void teardown() 
     {
         delete unit;
     }
 };
+// *INDENT-ON*
 
 TEST(AT_CellularSMS, Create)
 {

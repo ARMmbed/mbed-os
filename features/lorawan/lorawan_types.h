@@ -35,6 +35,11 @@
 #include "platform/Callback.h"
 
 /**
+ * A mask for the network ID.
+ */
+#define LORAWAN_NETWORK_ID_MASK                     (uint32_t) 0xFE000000
+
+/**
  * Option Flags for send(), receive() APIs
  *
  * Special Notes for UPLINK:

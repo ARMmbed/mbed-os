@@ -17,7 +17,7 @@ LR_IRAM 0x10007000 (0x70000 - 0x7000) {
     *rtl8195a_init*.o(.image2.validate.rodata*)
   }
 
-  ER_IRAM +0 FIXED {
+  LR_IROM1 +0 FIXED {
     *(.ARM.exidx)
     *(.init_array)
     *rtl8195a_crypto*.o (+RO)
@@ -55,7 +55,7 @@ LR_TCM 0x1FFF0000 0x10000 {
     }
 }
 
-LR_DRAM 0x30000000 0x200000 {
+LR_IROM1 0x30000000 0x200000 {
 
   ER_DRAM +0 FIXED {
     .ANY (+RO)

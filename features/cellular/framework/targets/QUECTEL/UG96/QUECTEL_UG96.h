@@ -30,8 +30,7 @@ namespace mbed {
 #define CELLULAR_SERIAL_RX PC_0
 #endif
 
-class QUECTEL_UG96 : public AT_CellularDevice
-{
+class QUECTEL_UG96 : public AT_CellularDevice {
 public:
 
     QUECTEL_UG96(events::EventQueue &queue);

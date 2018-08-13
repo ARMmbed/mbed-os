@@ -754,10 +754,10 @@
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "extra_labels": ["NXP", "MCUXpresso_MCUS", "EVK", "MIMXRT1050", "IMX"],
         "is_disk_virtual": true,
-        "macros": ["CPU_MIMXRT1052DVL6B", "FSL_RTOS_MBED", "XIP_BOOT_HEADER_ENABLE=1", "XIP_EXTERNAL_FLASH=1", "XIP_BOOT_HEADER_DCD_ENABLE=1"],
+        "macros": ["CPU_MIMXRT1052DVL6B", "FSL_RTOS_MBED", "XIP_BOOT_HEADER_ENABLE=1", "XIP_EXTERNAL_FLASH=1", "XIP_BOOT_HEADER_DCD_ENABLE=1", "SKIP_SYSCLK_INIT"],
         "inherits": ["Target"],
         "detect_code": ["0227"],
-        "device_has": ["USTICKER", "LPTICKER", "ANALOGIN", "I2C", "I2CSLAVE", "ERROR_RED", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
+        "device_has": ["SLEEP", "USTICKER", "LPTICKER", "ANALOGIN", "I2C", "I2CSLAVE", "ERROR_RED", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
         "release_versions": ["2", "5"],
         "device_name": "MIMXRT1052"
     },
@@ -1724,7 +1724,7 @@
         "config": {
             "clock_source": {
                 "help": "Mask value : USE_PLL_HSE_EXTC (need HW patch) | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI | USE_PLL_MSI",
-                "value": "USE_PLL_HSI",
+                "value": "USE_PLL_HSE_XTAL",
                 "macro_name": "CLOCK_SOURCE"
             }
         },
@@ -2860,7 +2860,7 @@
         "inherits": ["RZ_A1XX"],
         "supported_form_factors": ["ARDUINO"],
         "extra_labels_add": ["RZA1H", "MBRZA1H", "RZ_A1_EMAC"],
-        "device_has_add": ["EMAC", "FLASH"],
+        "device_has_add": ["EMAC", "FLASH", "LPTICKER"],
         "release_versions": ["2", "5"],
         "device_name": "R7S72100",
         "bootloader_supported": true
@@ -2875,7 +2875,7 @@
         "inherits": ["RZ_A1XX"],
         "supported_form_factors": ["ARDUINO"],
         "extra_labels_add": ["RZA1UL", "MBRZA1LU"],
-        "device_has_add": ["TRNG", "FLASH"],
+        "device_has_add": ["TRNG", "FLASH", "LPTICKER"],
         "device_has_remove": ["ETHERNET"],
         "features_remove": ["LWIP"],
         "release_versions": ["2", "5"],

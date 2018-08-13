@@ -19,15 +19,13 @@
 
 TEST_GROUP(AT_CellularDevice)
 {
-    Test_AT_CellularDevice* unit;
+    Test_AT_CellularDevice *unit;
 
-    void setup()
-    {
+    void setup() {
         unit = new Test_AT_CellularDevice();
     }
 
-    void teardown()
-    {
+    void teardown() {
         delete unit;
     }
 };
@@ -110,4 +108,9 @@ TEST(AT_CellularDevice, test_AT_CellularDevice_modem_debug_on)
 TEST(AT_CellularDevice, test_AT_CellularDevice_get_stack)
 {
     unit->test_AT_CellularDevice_get_stack();
+}
+
+TEST(AT_CellularDevice, test_AT_CellularDevice_get_send_delay)
+{
+    unit->test_AT_CellularDevice_get_send_delay();
 }

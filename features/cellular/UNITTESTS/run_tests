@@ -34,9 +34,9 @@ lcov -q -r app.info "/UNITTESTS/*" -o app.info $branch_cov
 lcov -q -r app.info "/UNITTESTS/stubs*" -o app.info $branch_cov
 lcov -q -r app.info "/UNITTESTS/target_h*" -o app.info $branch_cov
 lcov -q -r app.info "/mbed-client*" -o app.info $branch_cov
-lcov -q -r app.info "/mbed-os/events*" -o app.info $branch_cov
-lcov -q -r app.info "/mbed-os/features/netsocket*" -o app.info $branch_cov
-lcov -q -r app.info "/mbed-os/platform*" -o app.info $branch_cov
+lcov -q -r app.info "/events*" -o app.info $branch_cov
+lcov -q -r app.info "/features/netsocket*" -o app.info $branch_cov
+lcov -q -r app.info "/platform*" -o app.info $branch_cov
 genhtml $branch_data app.info
 cd ..
 echo

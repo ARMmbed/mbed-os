@@ -28,8 +28,7 @@ namespace mbed {
  *
  *  Class that provides power handling functions for modem/module.
  */
-class AT_CellularPower : public CellularPower, public AT_CellularBase
-{
+class AT_CellularPower : public CellularPower, public AT_CellularBase {
 public:
     AT_CellularPower(ATHandler &atHandler);
     virtual ~AT_CellularPower();

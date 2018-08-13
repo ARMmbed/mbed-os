@@ -51,7 +51,7 @@ static rtos::Semaphore network_semaphore(0);
 static CellularConnectionFSM cellular;
 static CellularConnectionFSM::CellularState cellular_target_state;
 static CELLULAR_DEVICE *device;
-static CellularNetwork* nw;
+static CellularNetwork *nw;
 
 
 static bool fsm_callback(int state, int next_state)
@@ -73,7 +73,7 @@ static void test_network_interface_fsm()
     device = new CELLULAR_DEVICE(queue);
     TEST_ASSERT(device != NULL);
 
-    CellularNetwork* nw = device->open_network(&cellular_serial);
+    CellularNetwork *nw = device->open_network(&cellular_serial);
     TEST_ASSERT(nw != NULL);
     TEST_ASSERT(nw->init() == NSAPI_ERROR_OK);
 
@@ -99,7 +99,7 @@ static void init_network_interface()
 
 
 static bool get_network_registration(CellularNetwork::RegistrationType type,
-        CellularNetwork::RegistrationStatus &status, bool &is_registered)
+                                     CellularNetwork::RegistrationStatus &status, bool &is_registered)
 {
     is_registered = false;
     nsapi_error_t err = nw->get_registration_status(type, status);
@@ -147,7 +147,7 @@ static void nw_callback(nsapi_event_t ev, intptr_t intptr)
 
 static void test_network_registration()
 {
-    cellular.get_device()->set_timeout(10*1000);
+    cellular.get_device()->set_timeout(10 * 1000);
     nw = cellular.get_network();
     TEST_ASSERT(nw != NULL);
 
@@ -213,6 +213,7 @@ static void test_credentials()
 
 static void test_other()
 {
+    const char* devi = CELLULAR_STRINGIFY(CELLULAR_DEVICE);
     TEST_ASSERT(nw->get_3gpp_error() == 0);
 
     CellularNetwork::RateControlExceptionReports reports;
@@ -220,23 +221,24 @@ static void test_other()
     int uplinkRate;
     // can't test values as they are optional
     nsapi_error_t err = nw->get_rate_control(reports, timeUnit, uplinkRate);
-    tr_error("get_rate_control: %d", err);
     TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_DEVICE_ERROR);
-#if CELLULAR_DEVICE != QUECTEL_BG96 // QUECTEL_BG96 does not give any specific reason for device error
-    if (err == NSAPI_ERROR_DEVICE_ERROR) {
-        TEST_ASSERT(((AT_CellularNetwork*)nw)->get_device_error().errCode == 100 && // 100 == unknown command for modem
-                ((AT_CellularNetwork*)nw)->get_device_error().errType == 3); // 3 == CME error from the modem
+    if (strcmp(devi, "QUECTEL_BG96") != 0 && strcmp(devi, "TELIT_HE910") != 0) { // QUECTEL_BG96 does not give any specific reason for device error
+        if (err == NSAPI_ERROR_DEVICE_ERROR) {
+            TEST_ASSERT(((AT_CellularNetwork *)nw)->get_device_error().errCode == 100 && // 100 == unknown command for modem
+                    	((AT_CellularNetwork *)nw)->get_device_error().errType == 3); // 3 == CME error from the modem
+        }
     }
-#endif
 
     uplinkRate = -1;
     err = nw->get_apn_backoff_timer(uplinkRate);
-    TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_DEVICE_ERROR);
+    TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_DEVICE_ERROR || err == NSAPI_ERROR_PARAMETER);
     if (err == NSAPI_ERROR_DEVICE_ERROR) {
-#if CELLULAR_DEVICE != QUECTEL_BG96 // QUECTEL_BG96 does not give any specific reason for device error
-            TEST_ASSERT(((AT_CellularNetwork*)nw)->get_device_error().errCode == 100 && // 100 == unknown command for modem
-                    ((AT_CellularNetwork*)nw)->get_device_error().errType == 3); // 3 == CME error from the modem
-#endif
+        if (strcmp(devi, "QUECTEL_BG96") != 0 && strcmp(devi, "TELIT_HE910") != 0) { // QUECTEL_BG96 does not give any specific reason for device error
+                    TEST_ASSERT(((AT_CellularNetwork *)nw)->get_device_error().errCode == 100 && // 100 == unknown command for modem
+                            	((AT_CellularNetwork *)nw)->get_device_error().errType == 3); // 3 == CME error from the modem
+        }
+    } else if (err == NSAPI_ERROR_PARAMETER) {
+        TEST_ASSERT(uplinkRate == -1);
     } else {
         TEST_ASSERT(uplinkRate >= 0);
     }
@@ -245,10 +247,10 @@ static void test_other()
     TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_UNSUPPORTED);
 
     // scanning of operators might take a long time
-    cellular.get_device()->set_timeout(240*1000);
+    cellular.get_device()->set_timeout(240 * 1000);
     CellularNetwork::operList_t operators;
     TEST_ASSERT(nw->scan_plmn(operators, uplinkRate) == NSAPI_ERROR_OK);
-    cellular.get_device()->set_timeout(10*1000);
+    cellular.get_device()->set_timeout(10 * 1000);
 
 
     // all current targets support IPV4
@@ -261,14 +263,13 @@ static void test_other()
 
     TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_DEVICE_ERROR);
     if (err == NSAPI_ERROR_DEVICE_ERROR) {
-#if CELLULAR_DEVICE != TELIT_HE910 // TELIT_HE910 just gives an error and no specific error number so we can't know is this real error or that modem/network does not support the command
-        TEST_ASSERT(((AT_CellularNetwork*)nw)->get_device_error().errCode == 100 && // 100 == unknown command for modem
-                ((AT_CellularNetwork*)nw)->get_device_error().errType == 3); // 3 == CME error from the modem
-#endif
+        if (strcmp(devi, "TELIT_HE910") != 0) { // TELIT_HE910 just gives an error and no specific error number so we can't know is this real error or that modem/network does not support the command
+            TEST_ASSERT(((AT_CellularNetwork *)nw)->get_device_error().errCode == 100 && // 100 == unknown command for modem
+                    	((AT_CellularNetwork *)nw)->get_device_error().errType == 3); // 3 == CME error from the modem
+        }
     } else {
         // should have some values, only not optional are apn and bearer id
-        CellularNetwork::pdpcontext_params_t* params = params_list.get_head();
-        TEST_ASSERT(strlen(params->apn) > 0);
+        CellularNetwork::pdpcontext_params_t *params = params_list.get_head();
         TEST_ASSERT(params->bearer_id >= 0)
     }
 
@@ -276,10 +277,10 @@ static void test_other()
     err = nw->get_extended_signal_quality(rxlev, ber, rscp, ecno, rsrq, rsrp);
     TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_DEVICE_ERROR);
     if (err == NSAPI_ERROR_DEVICE_ERROR) {
-#if CELLULAR_DEVICE != QUECTEL_BG96 // QUECTEL_BG96 does not give any specific reason for device error
-        TEST_ASSERT(((AT_CellularNetwork*)nw)->get_device_error().errCode == 100 && // 100 == unknown command for modem
-                ((AT_CellularNetwork*)nw)->get_device_error().errType == 3); // 3 == CME error from the modem
-#endif
+        if (strcmp(devi, "QUECTEL_BG96") != 0 && strcmp(devi, "TELIT_HE910") != 0) {// QUECTEL_BG96 does not give any specific reason for device error
+            TEST_ASSERT(((AT_CellularNetwork *)nw)->get_device_error().errCode == 100 && // 100 == unknown command for modem
+                	((AT_CellularNetwork *)nw)->get_device_error().errType == 3); // 3 == CME error from the modem
+        }
     } else {
         // we should have some values which are not optional
         TEST_ASSERT(rxlev >= 0 && ber >= 0 && rscp >= 0 && ecno >= 0 && rsrq >= 0 && rsrp >= 0);
@@ -290,8 +291,8 @@ static void test_other()
     err = nw->get_signal_quality(rssi, ber);
     TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_DEVICE_ERROR);
     if (err == NSAPI_ERROR_DEVICE_ERROR) {
-        TEST_ASSERT(((AT_CellularNetwork*)nw)->get_device_error().errCode == 100 && // 100 == unknown command for modem
-                ((AT_CellularNetwork*)nw)->get_device_error().errType == 3); // 3 == CME error from the modem
+        TEST_ASSERT(((AT_CellularNetwork *)nw)->get_device_error().errCode == 100 && // 100 == unknown command for modem
+                    ((AT_CellularNetwork *)nw)->get_device_error().errType == 3); // 3 == CME error from the modem
     } else {
         // test for values
         TEST_ASSERT(rssi >= 0);
@@ -305,53 +306,55 @@ static void test_other()
     int format = -1;
     CellularNetwork::operator_t operator_params;
     // all params are optional so can't test operator_params
-    TEST_ASSERT(nw->get_operator_params(format, operator_params) == NSAPI_ERROR_OK);
+    err = nw->get_operator_params(format, operator_params);
+    TEST_ASSERT(err == NSAPI_ERROR_OK);
 
     nsapi_connection_status_t st =  nw->get_connection_status();
     TEST_ASSERT(st == NSAPI_STATUS_DISCONNECTED);
 
     TEST_ASSERT(nw->set_blocking(true) == NSAPI_ERROR_OK);
 
-#if CELLULAR_DEVICE != QUECTEL_BG96
-    // QUECTEL_BG96 timeouts with this one, tested with 3 minute timeout
-    CellularNetwork::operator_names_list op_names;
-    err = nw->get_operator_names(op_names);
-    TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_DEVICE_ERROR);
-    if (err == NSAPI_ERROR_DEVICE_ERROR) {
-        // if device error then we must check was that really device error or that modem/network does not support the commands
-        TEST_ASSERT(((AT_CellularNetwork*)nw)->get_device_error().errCode == 4// 4 == NOT SUPPORTED BY THE MODEM
-                && ((AT_CellularNetwork*)nw)->get_device_error().errType == 3); // 3 == CME error from the modem
-    } else {
-        CellularNetwork::operator_names_t* opn = op_names.get_head();
-        TEST_ASSERT(strlen(opn->numeric) > 0);
-        TEST_ASSERT(strlen(opn->alpha > 0));
+    if (strcmp(devi, "QUECTEL_BG96") != 0) {
+        // QUECTEL_BG96 timeouts with this one, tested with 3 minute timeout
+        CellularNetwork::operator_names_list op_names;
+        err = nw->get_operator_names(op_names);
+        TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_DEVICE_ERROR);
+        if (err == NSAPI_ERROR_DEVICE_ERROR) {
+            // if device error then we must check was that really device error or that modem/network does not support the commands
+            TEST_ASSERT(((AT_CellularNetwork *)nw)->get_device_error().errCode == 4 // 4 == NOT SUPPORTED BY THE MODEM
+                    	&& ((AT_CellularNetwork *)nw)->get_device_error().errType == 3); // 3 == CME error from the modem
+        } else {
+            CellularNetwork::operator_names_t *opn = op_names.get_head();
+            TEST_ASSERT(strlen(opn->numeric) > 0);
+            TEST_ASSERT(strlen(opn->alpha) > 0);
+        }
     }
-#endif
 
-#if CELLULAR_DEVICE != TELIT_HE910
-    // TELIT_HE910 just gives an error and no specific error number so we can't know is this real error or that modem/network does not support the command
-    CellularNetwork::Supported_UE_Opt supported_opt = SUPPORTED_UE_OPT_MAX;
-    CellularNetwork::Preferred_UE_Opt preferred_opt = PREFERRED_UE_OPT_MAX;
+    // TELIT_HE910 and QUECTEL_BG96 just gives an error and no specific error number so we can't know is this real error or that modem/network does not support the command
+    CellularNetwork::Supported_UE_Opt supported_opt = CellularNetwork::SUPPORTED_UE_OPT_MAX;
+    CellularNetwork::Preferred_UE_Opt preferred_opt = CellularNetwork::PREFERRED_UE_OPT_MAX;
     err = nw->get_ciot_optimization_config(supported_opt, preferred_opt);
     TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_DEVICE_ERROR);
     if (err == NSAPI_ERROR_DEVICE_ERROR) {
         // if device error then we must check was that really device error or that modem/network does not support the commands
-        TEST_ASSERT(((AT_CellularNetwork*)nw)->get_device_error().errCode == 100 && // 100 == unknown command for modem
-                ((AT_CellularNetwork*)nw)->get_device_error().errType == 3); // 3 == CME error from the modem
+        if (!(strcmp(devi, "TELIT_HE910") == 0 || strcmp(devi, "QUECTEL_BG96") == 0)) {
+            TEST_ASSERT(((AT_CellularNetwork *)nw)->get_device_error().errCode == 100 && // 100 == unknown command for modem
+                	((AT_CellularNetwork *)nw)->get_device_error().errType == 3); // 3 == CME error from the modem
+        }
     } else {
-        TEST_ASSERT(supported_opt != SUPPORTED_UE_OPT_MAX);
-        TEST_ASSERT(preferred_opt != PREFERRED_UE_OPT_MAX);
+        TEST_ASSERT(supported_opt != CellularNetwork::SUPPORTED_UE_OPT_MAX);
+        TEST_ASSERT(preferred_opt != CellularNetwork::PREFERRED_UE_OPT_MAX);
     }
 
     err = nw->set_ciot_optimization_config(supported_opt, preferred_opt);
     TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_DEVICE_ERROR);
     if (err == NSAPI_ERROR_DEVICE_ERROR) {
         // if device error then we must check was that really device error or that modem/network does not support the commands
-        TEST_ASSERT(((AT_CellularNetwork*)nw)->get_device_error().errCode == 100 && // 100 == unknown command for modem
-                ((AT_CellularNetwork*)nw)->get_device_error().errType == 3); // 3 == CME error from the modem
+        if (!(strcmp(devi, "TELIT_HE910") == 0 || strcmp(devi, "QUECTEL_BG96") == 0)) {
+            TEST_ASSERT(((AT_CellularNetwork *)nw)->get_device_error().errCode == 100 && // 100 == unknown command for modem
+                	((AT_CellularNetwork *)nw)->get_device_error().errType == 3); // 3 == CME error from the modem
+        }
     }
-#endif
-
 }
 
 static void test_disconnect()
@@ -364,8 +367,8 @@ static void test_disconnect()
 static void test_detach()
 {
     // in PPP mode there is NO CARRIER waiting so flush it out
-    rtos::Thread::wait(6*1000);
-    ((AT_CellularNetwork*)nw)->get_at_handler().flush();
+    rtos::Thread::wait(6 * 1000);
+    ((AT_CellularNetwork *)nw)->get_at_handler().flush();
 
     nsapi_connection_status_t st =  nw->get_connection_status();
     TEST_ASSERT(st == NSAPI_STATUS_DISCONNECTED);
@@ -399,7 +402,7 @@ static Case cases[] = {
 
 static utest::v1::status_t test_setup(const size_t number_of_cases)
 {
-    GREENTEA_SETUP(10*60, "default_auto");
+    GREENTEA_SETUP(10 * 60, "default_auto");
     return verbose_test_setup_handler(number_of_cases);
 }
 

@@ -37,19 +37,31 @@ using namespace utest::v1;
 
 // Simple test which read/writes blocks on a sliced block device
 void test_slicing() {
+    uint8_t *dummy = new (std::nothrow) uint8_t[BLOCK_COUNT * BLOCK_SIZE];
+    TEST_SKIP_UNLESS_MESSAGE(dummy, "Not enough memory for test");
+    delete[] dummy;
+
+    int err;
+
     HeapBlockDevice bd(BLOCK_COUNT*BLOCK_SIZE, BLOCK_SIZE);
-    uint8_t *write_block = new uint8_t[BLOCK_SIZE];
-    uint8_t *read_block = new uint8_t[BLOCK_SIZE];
+
+    SlicingBlockDevice slice1(&bd, 0, (BLOCK_COUNT/2)*BLOCK_SIZE);
+    SlicingBlockDevice slice2(&bd, -(BLOCK_COUNT/2)*BLOCK_SIZE);
 
     // Test with first slice of block device
-    SlicingBlockDevice slice1(&bd, 0, (BLOCK_COUNT/2)*BLOCK_SIZE);
-
-    int err = slice1.init();
+    err = slice1.init();
     TEST_ASSERT_EQUAL(0, err);
 
     TEST_ASSERT_EQUAL(BLOCK_SIZE, slice1.get_program_size());
     TEST_ASSERT_EQUAL(BLOCK_SIZE, slice1.get_erase_size(BLOCK_SIZE));
     TEST_ASSERT_EQUAL((BLOCK_COUNT/2)*BLOCK_SIZE, slice1.size());
+
+    uint8_t *write_block = new (std::nothrow) uint8_t[BLOCK_SIZE];
+    uint8_t *read_block = new (std::nothrow) uint8_t[BLOCK_SIZE];
+    if (!write_block || !read_block) {
+        printf("Not enough memory for test");
+        goto end;
+    }
 
     // Fill with random sequence
     srand(1);
@@ -80,13 +92,7 @@ void test_slicing() {
         TEST_ASSERT_EQUAL(0xff & rand(), read_block[i]);
     }
 
-    err = slice1.deinit();
-    TEST_ASSERT_EQUAL(0, err);
-
-
     // Test with second slice of block device
-    SlicingBlockDevice slice2(&bd, -(BLOCK_COUNT/2)*BLOCK_SIZE);
-
     err = slice2.init();
     TEST_ASSERT_EQUAL(0, err);
 
@@ -98,6 +104,10 @@ void test_slicing() {
     for (int i = 0; i < BLOCK_SIZE; i++) {
         write_block[i] = 0xff & rand();
     }
+
+    // Deinitialize slice1 here, to check whether init reference count works
+    err = slice1.deinit();
+    TEST_ASSERT_EQUAL(0, err);
 
     // Write, sync, and read the block
     err = slice2.program(write_block, 0, BLOCK_SIZE);
@@ -122,24 +132,38 @@ void test_slicing() {
         TEST_ASSERT_EQUAL(0xff & rand(), read_block[i]);
     }
 
-    delete[] write_block;
-    delete[] read_block;
     err = slice2.deinit();
     TEST_ASSERT_EQUAL(0, err);
+
+end:
+    delete[] write_block;
+    delete[] read_block;
 }
 
 // Simple test which read/writes blocks on a chain of block devices
 void test_chaining() {
+    uint8_t *dummy = new (std::nothrow) uint8_t[BLOCK_COUNT * BLOCK_SIZE];
+    TEST_SKIP_UNLESS_MESSAGE(dummy, "Not enough memory for test");
+    delete[] dummy;
+
+    int err;
+
     HeapBlockDevice bd1((BLOCK_COUNT/2)*BLOCK_SIZE, BLOCK_SIZE);
     HeapBlockDevice bd2((BLOCK_COUNT/2)*BLOCK_SIZE, BLOCK_SIZE);
-    uint8_t *write_block = new uint8_t[BLOCK_SIZE];
-    uint8_t *read_block = new uint8_t[BLOCK_SIZE];
 
     // Test with chain of block device
     BlockDevice *bds[] = {&bd1, &bd2};
     ChainingBlockDevice chain(bds);
 
-    int err = chain.init();
+    uint8_t *write_block = new (std::nothrow) uint8_t[BLOCK_SIZE];
+    uint8_t *read_block = new (std::nothrow) uint8_t[BLOCK_SIZE];
+
+    if (!write_block || !read_block) {
+        printf("Not enough memory for test");
+        goto end;
+    }
+
+    err = chain.init();
     TEST_ASSERT_EQUAL(0, err);
 
     TEST_ASSERT_EQUAL(BLOCK_SIZE, chain.get_program_size());
@@ -178,26 +202,40 @@ void test_chaining() {
         TEST_ASSERT_EQUAL(0xff & rand(), read_block[i]);
     }
 
-    delete[] write_block;
-    delete[] read_block;
     err = chain.deinit();
     TEST_ASSERT_EQUAL(0, err);
+
+end:
+    delete[] write_block;
+    delete[] read_block;
 }
 
 // Simple test which read/writes blocks on a chain of block devices
 void test_profiling() {
-    HeapBlockDevice bd(BLOCK_COUNT*BLOCK_SIZE, BLOCK_SIZE);
-    uint8_t *write_block = new uint8_t[BLOCK_SIZE];
-    uint8_t *read_block = new uint8_t[BLOCK_SIZE];
+    uint8_t *dummy = new (std::nothrow) uint8_t[BLOCK_COUNT * BLOCK_SIZE];
+    TEST_SKIP_UNLESS_MESSAGE(dummy, "Not enough memory for test");
+    delete[] dummy;
 
+    int err;
+    bd_size_t read_count, program_count, erase_count;
+
+    HeapBlockDevice bd(BLOCK_COUNT*BLOCK_SIZE, BLOCK_SIZE);
     // Test under profiling
     ProfilingBlockDevice profiler(&bd);
 
-    int err = profiler.init();
+    err = profiler.init();
     TEST_ASSERT_EQUAL(0, err);
 
     TEST_ASSERT_EQUAL(BLOCK_SIZE, profiler.get_erase_size());
     TEST_ASSERT_EQUAL(BLOCK_COUNT*BLOCK_SIZE, profiler.size());
+
+    uint8_t *write_block = new (std::nothrow) uint8_t[BLOCK_SIZE];
+    uint8_t *read_block = new (std::nothrow) uint8_t[BLOCK_SIZE];
+
+    if (!write_block || !read_block) {
+        printf("Not enough memory for test");
+        goto end;
+    }
 
     // Fill with random sequence
     srand(1);
@@ -231,18 +269,20 @@ void test_profiling() {
         TEST_ASSERT_EQUAL(0xff & rand(), read_block[i]);
     }
 
-    delete[] write_block;
-    delete[] read_block;
     err = profiler.deinit();
     TEST_ASSERT_EQUAL(0, err);
 
     // Check that profiled operations match expectations
-    bd_size_t read_count = profiler.get_read_count();
+    read_count = profiler.get_read_count();
     TEST_ASSERT_EQUAL(BLOCK_SIZE, read_count);
-    bd_size_t program_count = profiler.get_program_count();
+    program_count = profiler.get_program_count();
     TEST_ASSERT_EQUAL(BLOCK_SIZE, program_count);
-    bd_size_t erase_count = profiler.get_erase_count();
+    erase_count = profiler.get_erase_count();
     TEST_ASSERT_EQUAL(BLOCK_SIZE, erase_count);
+
+end:
+    delete[] write_block;
+    delete[] read_block;
 }
 
 

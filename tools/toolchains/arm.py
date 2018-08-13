@@ -62,8 +62,12 @@ class ARM(mbedToolchain):
         if getattr(target, "default_lib", "std") == "small":
             if "-DMBED_RTOS_SINGLE_THREAD" not in self.flags['common']:
                 self.flags['common'].append("-DMBED_RTOS_SINGLE_THREAD")
+            if "-D__MICROLIB" not in self.flags['common']:
+                self.flags['common'].append("-D__MICROLIB")
             if "--library_type=microlib" not in self.flags['ld']:
                 self.flags['ld'].append("--library_type=microlib")
+            if "--library_type=microlib" not in self.flags['common']:
+                self.flags['common'].append("--library_type=microlib")
 
         if target.core == "Cortex-M0+":
             cpu = "Cortex-M0"

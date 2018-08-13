@@ -30,6 +30,10 @@ static const bd_size_t num_blocks = 4;
 
 void functionality_test()
 {
+    uint8_t *dummy = new (std::nothrow) uint8_t[num_blocks * heap_erase_size + heap_prog_size];
+    TEST_SKIP_UNLESS_MESSAGE(dummy, "Not enough memory for test");
+    delete[] dummy;
+
     HeapBlockDevice heap_bd(num_blocks * heap_erase_size, heap_read_size, heap_prog_size, heap_erase_size);
     BufferedBlockDevice bd(&heap_bd);
 
@@ -37,8 +41,10 @@ void functionality_test()
     TEST_ASSERT_EQUAL(0, err);
 
     uint8_t *read_buf, *write_buf;
-    read_buf = new uint8_t[heap_prog_size];
-    write_buf = new uint8_t[heap_prog_size];
+    read_buf = new (std::nothrow) uint8_t[heap_prog_size];
+    TEST_SKIP_UNLESS_MESSAGE(read_buf, "Not enough memory for test");
+    write_buf = new (std::nothrow) uint8_t[heap_prog_size];
+    TEST_SKIP_UNLESS_MESSAGE(write_buf, "Not enough memory for test");
 
     TEST_ASSERT_EQUAL(1, bd.get_read_size());
     TEST_ASSERT_EQUAL(1, bd.get_program_size());

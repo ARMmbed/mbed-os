@@ -112,34 +112,34 @@ nsapi_error_t AT_CellularPower::opt_power_save_mode(int periodic_time, int activ
             1 1 0 value is incremented in multiples of 320 hours (NOTE 1)
             1 1 1 value indicates that the timer is deactivated (NOTE 2).
          */
-        char pt[8+1];// timer value encoded as 3GPP IE
+        char pt[8 + 1]; // timer value encoded as 3GPP IE
         const int ie_value_max = 0x1f;
         uint32_t periodic_timer = 0;
-        if (periodic_time <= 2*ie_value_max) { // multiples of 2 seconds
-            periodic_timer = periodic_time/2;
+        if (periodic_time <= 2 * ie_value_max) { // multiples of 2 seconds
+            periodic_timer = periodic_time / 2;
             strcpy(pt, "01100000");
         } else {
-            if (periodic_time <= 30*ie_value_max) { // multiples of 30 seconds
-                periodic_timer = periodic_time/30;
+            if (periodic_time <= 30 * ie_value_max) { // multiples of 30 seconds
+                periodic_timer = periodic_time / 30;
                 strcpy(pt, "10000000");
             } else {
-                if (periodic_time <= 60*ie_value_max) { // multiples of 1 minute
-                    periodic_timer = periodic_time/60;
+                if (periodic_time <= 60 * ie_value_max) { // multiples of 1 minute
+                    periodic_timer = periodic_time / 60;
                     strcpy(pt, "10100000");
                 } else {
-                    if (periodic_time <= 10*60*ie_value_max) { // multiples of 10 minutes
-                        periodic_timer = periodic_time/(10*60);
+                    if (periodic_time <= 10 * 60 * ie_value_max) { // multiples of 10 minutes
+                        periodic_timer = periodic_time / (10 * 60);
                         strcpy(pt, "00000000");
                     } else {
-                        if (periodic_time <= 60*60*ie_value_max) { // multiples of 1 hour
-                            periodic_timer = periodic_time/(60*60);
+                        if (periodic_time <= 60 * 60 * ie_value_max) { // multiples of 1 hour
+                            periodic_timer = periodic_time / (60 * 60);
                             strcpy(pt, "00100000");
                         } else {
-                            if (periodic_time <= 10*60*60*ie_value_max) { // multiples of 10 hours
-                                periodic_timer = periodic_time/(10*60*60);
+                            if (periodic_time <= 10 * 60 * 60 * ie_value_max) { // multiples of 10 hours
+                                periodic_timer = periodic_time / (10 * 60 * 60);
                                 strcpy(pt, "01000000");
                             } else { // multiples of 320 hours
-                                int t = periodic_time / (320*60*60);
+                                int t = periodic_time / (320 * 60 * 60);
                                 if (t > ie_value_max) {
                                     t = ie_value_max;
                                 }
@@ -152,7 +152,7 @@ nsapi_error_t AT_CellularPower::opt_power_save_mode(int periodic_time, int activ
             }
         }
 
-        uint_to_binary_str(periodic_timer, &pt[3], sizeof(pt)-3, PSMTimerBits);
+        uint_to_binary_str(periodic_timer, &pt[3], sizeof(pt) - 3, PSMTimerBits);
         pt[8] = '\0';
 
         /**
@@ -170,17 +170,17 @@ nsapi_error_t AT_CellularPower::opt_power_save_mode(int periodic_time, int activ
 
             Other values shall be interpreted as multiples of 1 minute in this version of the protocol.
         */
-        char at[8+1];
+        char at[8 + 1];
         uint32_t active_timer; // timer value encoded as 3GPP IE
-        if (active_time <= 2*ie_value_max) { // multiples of 2 seconds
-            active_timer = active_time/2;
+        if (active_time <= 2 * ie_value_max) { // multiples of 2 seconds
+            active_timer = active_time / 2;
             strcpy(at, "00000000");
         } else {
-            if (active_time <= 60*ie_value_max) { // multiples of 1 minute
-                active_timer = (1<<5) | (active_time/60);
+            if (active_time <= 60 * ie_value_max) { // multiples of 1 minute
+                active_timer = (1 << 5) | (active_time / 60);
                 strcpy(at, "00100000");
             } else { // multiples of decihours
-                int t = active_time / (6*60);
+                int t = active_time / (6 * 60);
                 if (t > ie_value_max) {
                     t = ie_value_max;
                 }
@@ -189,7 +189,7 @@ nsapi_error_t AT_CellularPower::opt_power_save_mode(int periodic_time, int activ
             }
         }
 
-        uint_to_binary_str(active_timer, &at[3], sizeof(at)-3, PSMTimerBits);
+        uint_to_binary_str(active_timer, &at[3], sizeof(at) - 3, PSMTimerBits);
         pt[8] = '\0';
 
         // request for both GPRS and LTE

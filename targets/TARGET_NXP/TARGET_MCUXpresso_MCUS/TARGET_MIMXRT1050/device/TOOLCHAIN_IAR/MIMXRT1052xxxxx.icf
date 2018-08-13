@@ -67,6 +67,9 @@ define symbol m_interrupts_end         = 0x600023FF;
 define symbol m_text_start             = 0x60002400;
 define symbol m_text_end               = 0x63FFFFFF;
 
+define symbol m_text2_start            = 0x00000000;
+define symbol m_text2_end              = 0x0001FFFF;
+
 define symbol m_interrupts_ram_start   = 0x20000000;
 define symbol m_interrupts_ram_end     = 0x20000000 + __ram_vector_table_offset__;
 
@@ -108,6 +111,8 @@ define memory mem with size = 4G;
 define region TEXT_region = mem:[from m_interrupts_start to m_interrupts_end]
                           | mem:[from m_text_start to m_text_end];
 
+define region TEXT2_region = mem:[from m_text2_start to m_text2_end];
+
 define region DATA_region = mem:[from m_data_start to m_data_end];
 define region DATA2_region = mem:[from m_data2_start to m_data2_end];
 define region DATA3_region  = mem:[from m_data3_start to m_data3_end-__size_cstack__];
@@ -139,4 +144,5 @@ place in DATA3_region                        { block ZI };
 place in DATA3_region                        { last block HEAP };
 place in CSTACK_region                      { block CSTACK };
 place in NCACHE_region                      { block NCACHE_VAR };
+place in TEXT2_region                       { section .textrw};
 place in m_interrupts_ram_region            { section m_interrupts_ram };

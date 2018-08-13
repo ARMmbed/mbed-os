@@ -15,4 +15,4 @@
  * limitations under the License.
  */
 
-typedef void* Mutex;
+typedef void *Mutex;

@@ -22,8 +22,7 @@
 
 namespace mbed {
 
-class QUECTEL_UG96_CellularPower : public AT_CellularPower
-{
+class QUECTEL_UG96_CellularPower : public AT_CellularPower {
 public:
     QUECTEL_UG96_CellularPower(ATHandler &atHandler);
     virtual ~QUECTEL_UG96_CellularPower();

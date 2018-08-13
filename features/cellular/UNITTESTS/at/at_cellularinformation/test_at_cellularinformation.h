@@ -17,8 +17,7 @@
 #ifndef TEST_AT_CELLULARINFORMATION_H
 #define TEST_AT_CELLULARINFORMATION_H
 
-class Test_AT_CellularInformation
-{
+class Test_AT_CellularInformation {
 public:
     Test_AT_CellularInformation();
 

@@ -172,10 +172,10 @@ static const int gsm_to_ascii[] = {
     224     // 127
 };
 
-const int GSM_TO_ASCII_TABLE_SIZE = sizeof(gsm_to_ascii)/sizeof(gsm_to_ascii[0]);
+const int GSM_TO_ASCII_TABLE_SIZE = sizeof(gsm_to_ascii) / sizeof(gsm_to_ascii[0]);
 
 AT_CellularSMS::AT_CellularSMS(ATHandler &at) : AT_CellularBase(at), _cb(0), _mode(CellularSMSMmodeText),
-        _use_8bit_encoding(false), _sim_wait_time(0), _sms_message_ref_number(1), _sms_info(NULL)
+    _use_8bit_encoding(false), _sim_wait_time(0), _sms_message_ref_number(1), _sms_info(NULL)
 {
 }
 
@@ -281,14 +281,14 @@ void AT_CellularSMS::set_extra_sim_wait_time(int sim_wait_time)
     _sim_wait_time = sim_wait_time;
 }
 
-char* AT_CellularSMS::create_pdu(const char* phone_number, const char* message, uint8_t message_length, uint8_t msg_parts,
-        uint8_t msg_part_number, uint8_t& header_size)
+char *AT_CellularSMS::create_pdu(const char *phone_number, const char *message, uint8_t message_length, uint8_t msg_parts,
+                                 uint8_t msg_part_number, uint8_t &header_size)
 {
     int totalPDULength = 0;
     int number_len = strlen(phone_number);
 
     totalPDULength += number_len;
-    if (number_len&0x01) {// if phone number length is not even length we must pad it and so +1
+    if (number_len & 0x01) { // if phone number length is not even length we must pad it and so +1
         totalPDULength += 1;
     }
 
@@ -297,12 +297,12 @@ char* AT_CellularSMS::create_pdu(const char* phone_number, const char* message, 
         totalPDULength += 12;
     }
     // there might be need for padding so some more space
-    totalPDULength +=2;
+    totalPDULength += 2;
 
     // message 7-bit padded and it will be converted to hex so it will take twice as much space
-    totalPDULength += (message_length - (message_length/8))*2;
+    totalPDULength += (message_length - (message_length / 8)) * 2;
 
-    char* pdu = (char*)calloc(totalPDULength, sizeof(char));
+    char *pdu = (char *)calloc(totalPDULength, sizeof(char));
     if (!pdu) {
         return NULL;
     }
@@ -324,8 +324,8 @@ char* AT_CellularSMS::create_pdu(const char* phone_number, const char* message, 
     pdu[x++] = '0';
     pdu[x++] = '0';
     // [6] and [7] Length of the Destination Phone Number
-    int_to_hex_str(number_len, pdu+x);
-    x+=2;
+    int_to_hex_str(number_len, pdu + x);
+    x += 2;
     // Type of the Destination Phone Number
     pdu[x++] = '8';
     pdu[x++] = '1';
@@ -333,10 +333,10 @@ char* AT_CellularSMS::create_pdu(const char* phone_number, const char* message, 
     // phone number as reverse nibble encoded
     int i = 0;
     for (; i < number_len; i += 2) {
-        if (i+1 == number_len) {
+        if (i + 1 == number_len) {
             pdu[x++] = 'f';
         } else {
-            pdu[x++] = phone_number[i+1];
+            pdu[x++] = phone_number[i + 1];
         }
         pdu[x++] = phone_number[i];
     }
@@ -356,7 +356,7 @@ char* AT_CellularSMS::create_pdu(const char* phone_number, const char* message, 
     uint8_t udhlen = 0;
     // Length can be update after we have created PDU, store position for later use.
     int lengthPos = x;
-    x +=2;
+    x += 2;
 
     int paddingBits = 0;
     if (msg_parts > 1) { // concatenated, must use UDH
@@ -371,17 +371,17 @@ char* AT_CellularSMS::create_pdu(const char* phone_number, const char* message, 
         pdu[x++] = '0';
         pdu[x++] = '3';
         //  A reference number (must be the same for all parts of the same larger messages)
-        int_to_hex_str(_sms_message_ref_number&0xFF, pdu+x);
-        x +=2;
+        int_to_hex_str(_sms_message_ref_number & 0xFF, pdu + x);
+        x += 2;
         // How many parts does this message have?
-        int_to_hex_str(msg_parts, pdu+x);
-        x +=2;
+        int_to_hex_str(msg_parts, pdu + x);
+        x += 2;
         // this is a part number
-        int_to_hex_str(msg_part_number, pdu+x);
-        x +=2;
+        int_to_hex_str(msg_part_number, pdu + x);
+        x += 2;
 
         // if there is padding bits then udhlen is octet bigger as we need to keep septet boundary
-        paddingBits = (udhlen * 8 ) % 7;
+        paddingBits = (udhlen * 8) % 7;
         if (paddingBits) {
             paddingBits = 7 - paddingBits;
             udhlen += 1;
@@ -389,11 +389,11 @@ char* AT_CellularSMS::create_pdu(const char* phone_number, const char* message, 
     }
 
     if (_use_8bit_encoding) {
-        char_str_to_hex_str(message, message_length, pdu+x);
+        char_str_to_hex_str(message, message_length, pdu + x);
     } else {
         // we might need to send zero length sms
         if (message_length) {
-            if (pack_7_bit_gsm_and_hex(message, message_length, pdu+x, paddingBits) == 0) {
+            if (pack_7_bit_gsm_and_hex(message, message_length, pdu + x, paddingBits) == 0) {
                 free(pdu);
                 return NULL;
             }
@@ -401,16 +401,16 @@ char* AT_CellularSMS::create_pdu(const char* phone_number, const char* message, 
     }
 
     // now we know the correct length of the UDL (User Data Length)
-    int_to_hex_str(message_length + udhlen, pdu+lengthPos);
+    int_to_hex_str(message_length + udhlen, pdu + lengthPos);
     header_size = x;
 
     return pdu;
 }
 
-nsapi_size_or_error_t AT_CellularSMS::send_sms(const char* phone_number, const char* message, int msg_len)
+nsapi_size_or_error_t AT_CellularSMS::send_sms(const char *phone_number, const char *message, int msg_len)
 {
     int single_sms_max_length = _use_8bit_encoding ? SMS_MAX_SIZE_8BIT_SINGLE_SMS_SIZE :
-            SMS_MAX_SIZE_GSM7_SINGLE_SMS_SIZE;
+                                SMS_MAX_SIZE_GSM7_SINGLE_SMS_SIZE;
     if ((_mode == CellularSMSMmodeText && msg_len > single_sms_max_length) || !phone_number) {
         return NSAPI_ERROR_PARAMETER;
     }
@@ -424,14 +424,14 @@ nsapi_size_or_error_t AT_CellularSMS::send_sms(const char* phone_number, const c
 
     if (_mode == CellularSMSMmodeText) {
         _at.cmd_start("AT+CMGS=");
-        _at.write_string(phone_number+remove_plus_sign);
+        _at.write_string(phone_number + remove_plus_sign);
         _at.cmd_stop();
 
         wait_ms(_sim_wait_time);
         _at.resp_start("> ", true);
 
         if (_at.get_last_error() == NSAPI_ERROR_OK) {
-            write_size = _at.write_bytes((uint8_t*)message, msg_len);
+            write_size = _at.write_bytes((uint8_t *)message, msg_len);
             if (write_size < msg_len) {
                 // sending can be cancelled by giving <ESC> character (IRA 27).
                 _at.cmd_start(ESC);
@@ -450,15 +450,15 @@ nsapi_size_or_error_t AT_CellularSMS::send_sms(const char* phone_number, const c
         // GSM 7 bit default but support is done for 8 bit data.
         int sms_count;
         int concatenated_sms_length = _use_8bit_encoding ? SMS_MAX_8BIT_CONCATENATED_SINGLE_SMS_SIZE :
-                SMS_MAX_GSM7_CONCATENATED_SINGLE_SMS_SIZE;
+                                      SMS_MAX_GSM7_CONCATENATED_SINGLE_SMS_SIZE;
 
         if (msg_len <= single_sms_max_length) {
             // single message
             sms_count = 1;
         } else {
             // concatenated message
-            sms_count = msg_len/concatenated_sms_length;
-            if (msg_len%concatenated_sms_length != 0) {
+            sms_count = msg_len / concatenated_sms_length;
+            if (msg_len % concatenated_sms_length != 0) {
                 sms_count++;
             }
         }
@@ -477,8 +477,8 @@ nsapi_size_or_error_t AT_CellularSMS::send_sms(const char* phone_number, const c
                 pdu_len = remaining_len > concatenated_sms_length ? concatenated_sms_length : remaining_len;
             }
 
-            pdu_str = create_pdu(phone_number+remove_plus_sign, message + i*concatenated_sms_length, pdu_len,
-                    sms_count, i+1, header_len);
+            pdu_str = create_pdu(phone_number + remove_plus_sign, message + i * concatenated_sms_length, pdu_len,
+                                 sms_count, i + 1, header_len);
             if (!pdu_str) {
                 _at.unlock();
                 return NSAPI_ERROR_NO_MEMORY;
@@ -487,21 +487,21 @@ nsapi_size_or_error_t AT_CellularSMS::send_sms(const char* phone_number, const c
 
             // specification says that service center number should not be included so we subtract -2 from pdu_len as we use '00' for automatic service center number
             _at.cmd_start("AT+CMGS=");
-            _at.write_int((pdu_len-2)/2);
+            _at.write_int((pdu_len - 2) / 2);
             _at.cmd_stop();
 
             wait_ms(_sim_wait_time);
             _at.resp_start("> ", true);
 
             if (_at.get_last_error() == NSAPI_ERROR_OK) {
-                write_size = _at.write_bytes((uint8_t*)pdu_str, pdu_len);
+                write_size = _at.write_bytes((uint8_t *)pdu_str, pdu_len);
                 if (write_size < pdu_len) {
                     // calculate exact size of what we have send
                     if (write_size <= header_len) {
                         // managed only to write header or some of it so actual msg write size in this iteration is 0
                         write_size = 0;
                     } else {
-                        write_size = (write_size - header_len)/2; // as hex encoded so divide by two
+                        write_size = (write_size - header_len) / 2; // as hex encoded so divide by two
                     }
                     msg_write_len += write_size;
 
@@ -578,7 +578,7 @@ nsapi_size_or_error_t AT_CellularSMS::set_cscs(const char *chr_set)
     return _at.unlock_return_error();
 }
 
-nsapi_error_t AT_CellularSMS::delete_sms(sms_info_t* sms)
+nsapi_error_t AT_CellularSMS::delete_sms(sms_info_t *sms)
 {
     _at.lock();
     for (int i = 0; i < sms->parts; i++) {
@@ -607,8 +607,8 @@ nsapi_error_t AT_CellularSMS::delete_all_messages()
 }
 
 // read msg in text mode
-nsapi_size_or_error_t AT_CellularSMS::read_sms_from_index(int msg_index, char* buf, uint16_t len, char* phone_num,
-        char* time_stamp)
+nsapi_size_or_error_t AT_CellularSMS::read_sms_from_index(int msg_index, char *buf, uint16_t len, char *phone_num,
+                                                          char *time_stamp)
 {
     /*
      * +CMGR: <stat>,<oa>,<alpha>,<scts>[,<tooa>,<fo>,<pid>,<dcs>,<sca>,<tosca>,<length>]<CR><LF><data><CR><LF>OK<CR><LF>
@@ -635,13 +635,16 @@ nsapi_size_or_error_t AT_CellularSMS::read_sms_from_index(int msg_index, char* b
                 // Received message
                 if (phone_num) {
                     _at.read_string(phone_num, SMS_MAX_PHONE_NUMBER_SIZE);
-                }
-                else {
+                } else {
                     _at.skip_param(); // <oa>,<alpha>
                 }
                 _at.skip_param(); // <alpha>
                 if (time_stamp) {
-                    _at.read_string(time_stamp, SMS_MAX_TIME_STAMP_SIZE);
+                    int len = _at.read_string(time_stamp, SMS_MAX_TIME_STAMP_SIZE);
+                    if (len < (SMS_MAX_TIME_STAMP_SIZE - 2)) {
+                        time_stamp[len++] = ',';
+                        _at.read_string(&time_stamp[len], SMS_MAX_TIME_STAMP_SIZE-len);
+                    }
                 }
                 (void)_at.consume_to_stop_tag(); // consume until <CR><LF>
                 if (buf) {
@@ -657,7 +660,7 @@ nsapi_size_or_error_t AT_CellularSMS::read_sms_from_index(int msg_index, char* b
 }
 
 // read msg in PDU mode
-nsapi_size_or_error_t AT_CellularSMS::read_sms(sms_info_t* sms, char* buf, char* phone_num, char* time_stamp)
+nsapi_size_or_error_t AT_CellularSMS::read_sms(sms_info_t *sms, char *buf, char *phone_num, char *time_stamp)
 {
     // +CMGR: <stat>,[<alpha>],<length><CR><LF><pdu>
     int index;
@@ -681,15 +684,15 @@ nsapi_size_or_error_t AT_CellularSMS::read_sms(sms_info_t* sms, char* buf, char*
                 if ((_at.get_last_error() == NSAPI_ERROR_OK) && (status == 0 || status == 1)) {
                     msg_len = _at.read_int();
                     if (msg_len > 0) {
-                        pduSize = msg_len*2 + 20;// *2 as it's hex encoded and +20 as service center number is not included in size given by CMGR
-                        pdu = (char*)calloc(pduSize, sizeof(char));
+                        pduSize = msg_len * 2 + 20; // *2 as it's hex encoded and +20 as service center number is not included in size given by CMGR
+                        pdu = (char *)calloc(pduSize, sizeof(char));
                         if (!pdu) {
                             _at.resp_stop();
                             return NSAPI_ERROR_NO_MEMORY;
                         }
                         _at.read_string(pdu, pduSize, true);
                         if (_at.get_last_error() == NSAPI_ERROR_OK) {
-                            msg_len = get_data_from_pdu(pdu, NULL, NULL, phone_num, buf+index);
+                            msg_len = get_data_from_pdu(pdu, NULL, NULL, phone_num, buf + index);
                             if (msg_len >= 0) { // we need to allow zero length messages
                                 index += msg_len;
                             } else {
@@ -711,8 +714,7 @@ nsapi_size_or_error_t AT_CellularSMS::read_sms(sms_info_t* sms, char* buf, char*
             }
             buf[index] = '\0';
         }
-    }
-    else {
+    } else {
         tr_warn("NOT all concatenated parts were received...");
         index = SMS_ERROR_MULTIPART_ALL_PARTS_NOT_READ;
     }
@@ -720,8 +722,8 @@ nsapi_size_or_error_t AT_CellularSMS::read_sms(sms_info_t* sms, char* buf, char*
     return index;
 }
 
-nsapi_size_or_error_t AT_CellularSMS::get_sms(char* buf, uint16_t len, char* phone_num, uint16_t phone_len,
-        char* time_stamp, uint16_t time_len, int *buf_size)
+nsapi_size_or_error_t AT_CellularSMS::get_sms(char *buf, uint16_t len, char *phone_num, uint16_t phone_len,
+                                              char *time_stamp, uint16_t time_len, int *buf_size)
 {
     // validate buffer sizes already here to avoid any necessary function calls and locking of _at
     if ((phone_num && phone_len < SMS_MAX_PHONE_NUMBER_SIZE) || (time_stamp && time_len < SMS_MAX_TIME_STAMP_SIZE) ||
@@ -734,10 +736,10 @@ nsapi_size_or_error_t AT_CellularSMS::get_sms(char* buf, uint16_t len, char* pho
     nsapi_size_or_error_t err = list_messages();
     if (err == NSAPI_ERROR_OK) {
         // we return the oldest sms and delete it after successful read
-        sms_info_t* info = get_oldest_sms_index();
+        sms_info_t *info = get_oldest_sms_index();
 
         if (info) {
-            if (info->msg_size+1 > len) { // +1 for '\0'
+            if (info->msg_size > len) {
                 tr_warn("Given buf too small, len is: %d but is must be: %d", len, info->msg_size);
                 if (buf_size) {
                     *buf_size = info->msg_size;
@@ -776,8 +778,8 @@ nsapi_size_or_error_t AT_CellularSMS::get_sms(char* buf, uint16_t len, char* pho
     return err;
 }
 
- nsapi_size_or_error_t AT_CellularSMS::get_data_from_pdu(const char* pdu, sms_info_t *info, int *part_number,
-         char *phone_number, char *msg)
+nsapi_size_or_error_t AT_CellularSMS::get_data_from_pdu(const char *pdu, sms_info_t *info, int *part_number,
+                                                        char *phone_number, char *msg)
 {
     int index = 0;
     int tmp;
@@ -789,81 +791,93 @@ nsapi_size_or_error_t AT_CellularSMS::get_sms(char* buf, uint16_t len, char* pho
     // read Length of the SMSC information
     oaLength = hex_str_to_int(pdu, 2);
     index += 2; // length we just read
-    index += oaLength*2; // skip service center number
+    index += oaLength * 2; // skip service center number
 
     // read first the lower part of first octet as there is message type
     index++;
-    tmp = hex_str_to_int(pdu+index, 1);
+    tmp = hex_str_to_int(pdu + index, 1);
     //wait_ms(200);
     if ((tmp & 0x03) == 0) {// SMS-DELIVER type, last two bits should be zero
         // UDH present? Check from first octets higher part
         tmp = hex_str_to_int(pdu + (--index), 1);
         userDataHeader = ((tmp & 0x04) == 0) ? false : true;
 
-        index +=2; // we just read the high bits of first octet so move +2
+        index += 2; // we just read the high bits of first octet so move +2
         // originating address length
-        oaLength = hex_str_to_int(pdu+index, 2);
-        index +=2; // add  index over address length
-        index +=2; // skip number type
+        oaLength = hex_str_to_int(pdu + index, 2);
+        index += 2; // add  index over address length
+        int type = hex_str_to_int(pdu + index, 1);
+        index += 2; // add  index over type
         if (phone_number) {
             // phone number as reverse nibble encoded
-            int a = 0;
-            for (; a < oaLength; a +=2) {
-                if (a+1 == oaLength) {
-                    phone_number[a] = pdu[index+a+1];
+            int a = 0, field_length = oaLength;
+
+            if (type == 9) {
+                //add the plus sign in case of international number (23.040 chapter address fields)
+                phone_number[a++] = '+';
+                field_length++;
+            }
+
+            for (; a < field_length; a += 2) {
+                if ((a + 1) == field_length) {
+                    phone_number[a] = pdu[index + 1];
+                    index++;
                 } else {
-                    phone_number[a] = pdu[index+a+1];
-                    phone_number[a+1] = pdu[index+a];
+                    phone_number[a] = pdu[index + 1];
+                    phone_number[a + 1] = pdu[index];
+                    index += 2;
                 }
             }
-            phone_number[oaLength] = '\0';
+            phone_number[field_length] = '\0';
+        } else {
+            index += oaLength;
         }
 
-        index += oaLength;
-        if (oaLength&0x01) { // if phone number length is odd then it has padded F so skip that
+
+        if (oaLength & 0x01) { // if phone number length is odd then it has padded F so skip that
             index++;
         }
-        index +=2; // skip TP-Protocol identifier
+        index += 2; // skip TP-Protocol identifier
 
-        dataScheme = hex_str_to_int(pdu+index, 2);
-        index +=2; // skip TP-Data-Coding-Scheme
+        dataScheme = hex_str_to_int(pdu + index, 2);
+        index += 2; // skip TP-Data-Coding-Scheme
 
         // next one is date, it's length is 7 octets according to 3GPP TS 23.040
         // create time string
         if (info) {
             int i = 0;
             // year
-            info->date[i++] = pdu[index+1];
+            info->date[i++] = pdu[index + 1];
             info->date[i++] = pdu[index];
-            index+=2;
+            index += 2;
             info->date[i++] = '/';
             // month
-            info->date[i++] = pdu[index+1];
+            info->date[i++] = pdu[index + 1];
             info->date[i++] = pdu[index];
-            index+=2;
+            index += 2;
             info->date[i++] = '/';
             // Day
-            info->date[i++] = pdu[index+1];
+            info->date[i++] = pdu[index + 1];
             info->date[i++] = pdu[index];
-            index+=2;
+            index += 2;
             info->date[i++] = ',';
             // Hour
-            info->date[i++] = pdu[index+1];
+            info->date[i++] = pdu[index + 1];
             info->date[i++] = pdu[index];
-            index+=2;
+            index += 2;
             info->date[i++] = ':';
             // Minute
-            info->date[i++] = pdu[index+1];
+            info->date[i++] = pdu[index + 1];
             info->date[i++] = pdu[index];
-            index+=2;
+            index += 2;
             info->date[i++] = ':';
             // Second
-            info->date[i++] = pdu[index+1];
+            info->date[i++] = pdu[index + 1];
             info->date[i++] = pdu[index];
-            index+=2;
+            index += 2;
             // timezone related to GMT. pdu[index+1] most significant bit indicates the sign related to gmt
-            tmp = hex_str_to_int(pdu+index+1, 1);
-            if (tmp&0x08) {
+            tmp = hex_str_to_int(pdu + index + 1, 1);
+            if (tmp & 0x08) {
                 info->date[i++] = '-';
             } else {
                 info->date[i++] = '+';
@@ -874,19 +888,19 @@ nsapi_size_or_error_t AT_CellularSMS::get_sms(char* buf, uint16_t len, char* pho
             info->date[i++] = '0' + (tmp & 0x07);
             info->date[i++] = pdu[index];
             info->date[i] = '\0';
-            index+=2;
+            index += 2;
         } else {
-            index+=14;
+            index += 14;
         }
 
-        int udl =  hex_str_to_int(pdu+index, 2);
-        index +=2;
+        int udl =  hex_str_to_int(pdu + index, 2);
+        index += 2;
 
         int paddingBits = 0;
         int partnro = 1;
         if (userDataHeader) {
             // we need to read User Defined Header to know what part number this message is.
-            index += read_udh_from_pdu(pdu+index, info, partnro, paddingBits);
+            index += read_udh_from_pdu(pdu + index, info, partnro, paddingBits);
         }
 
         if (part_number) {
@@ -895,38 +909,37 @@ nsapi_size_or_error_t AT_CellularSMS::get_sms(char* buf, uint16_t len, char* pho
 
         if (msg) {
             // we are reading the message
-            err = read_pdu_payload(pdu+index, udl, dataScheme, msg, paddingBits);
-        }
-        else {
+            err = read_pdu_payload(pdu + index, udl, dataScheme, msg, paddingBits);
+        } else {
             if (dataScheme == 0x00) {
                 // when listing messages we need to calculated length. Other way would be unpacking the whole message.
-                err = strlen(pdu+index) >> 1;
+                err = strlen(pdu + index) >> 1;
                 err *= 8;
                 err /= 7;
             } else if (dataScheme == 0x04) {
-                err = strlen(pdu+index) >> 1;
+                err = strlen(pdu + index) >> 1;
             } else {
                 return NSAPI_ERROR_UNSUPPORTED;
             }
         }
 
         return err;
-    }
-    else {
+    } else {
         // message was not DELIVER so discard it
         return NSAPI_ERROR_UNSUPPORTED;
     }
 }
 
- // read params from User Defined Header
-int AT_CellularSMS::read_udh_from_pdu(const char* pdu, sms_info_t *info, int &part_number, int &padding_bits) {
+// read params from User Defined Header
+int AT_CellularSMS::read_udh_from_pdu(const char *pdu, sms_info_t *info, int &part_number, int &padding_bits)
+{
 
     int index = 0;
     int udhLength = hex_str_to_int(pdu, 2);
-    index +=2;
+    index += 2;
 
     // if there is padding bits then udhlen is octet bigger as we need to keep septet boundary
-    padding_bits = ((udhLength+1) * 8 ) % 7; // +1 is for udhLength itself
+    padding_bits = ((udhLength + 1) * 8) % 7; // +1 is for udhLength itself
 
     if (padding_bits) {
         padding_bits = 7 - padding_bits;
@@ -934,39 +947,39 @@ int AT_CellularSMS::read_udh_from_pdu(const char* pdu, sms_info_t *info, int &pa
         padding_bits = 0;
     }
 
-    int tmp = hex_str_to_int(pdu+index, 2);
-    index +=4;
+    int tmp = hex_str_to_int(pdu + index, 2);
+    index += 4;
 
     if (tmp == 0) { // 8-bit reference number
         if (info) {
-            info->msg_ref_number = (uint16_t)hex_str_to_int(pdu+index, 2);
+            info->msg_ref_number = (uint16_t)hex_str_to_int(pdu + index, 2);
         }
-        index +=2;
+        index += 2;
     } else {                  // 16-bit reference number
         if (info) {
-            info->msg_ref_number = (uint16_t)hex_str_to_int(pdu+index+2, 2);
-            tmp = hex_str_to_int(pdu+index, 2);
+            info->msg_ref_number = (uint16_t)hex_str_to_int(pdu + index + 2, 2);
+            tmp = hex_str_to_int(pdu + index, 2);
             info->msg_ref_number |= (tmp << 8);
         }
-        index +=4;
+        index += 4;
     }
 
     if (info) {
-        info->parts = hex_str_to_int(pdu+index, 2);
+        info->parts = hex_str_to_int(pdu + index, 2);
     }
-    index +=2;
+    index += 2;
 
-    part_number = hex_str_to_int(pdu+index, 2);
-    index +=2;
+    part_number = hex_str_to_int(pdu + index, 2);
+    index += 2;
 
-    return (udhLength*2 + 2); // udh in hex and udhl
+    return (udhLength * 2 + 2); // udh in hex and udhl
 }
 
-nsapi_size_or_error_t AT_CellularSMS::read_pdu_payload(const char* pdu, int msg_len, int scheme, char *msg, int padding_bits)
+nsapi_size_or_error_t AT_CellularSMS::read_pdu_payload(const char *pdu, int msg_len, int scheme, char *msg, int padding_bits)
 {
     if (scheme == 0x00) {
         // 7 bit gsm encoding, must do the conversions from hex to 7-bit encoding and to ascii
-        return unpack_7_bit_gsm_to_str(pdu, strlen(pdu)/2, msg, padding_bits, msg_len);
+        return unpack_7_bit_gsm_to_str(pdu, strlen(pdu) / 2, msg, padding_bits, msg_len);
     } else if (scheme == 0x04) {
         // 8bit scheme so just convert hexstring to charstring
         return hex_str_to_char_str(pdu, strlen(pdu), msg);
@@ -978,8 +991,8 @@ nsapi_size_or_error_t AT_CellularSMS::read_pdu_payload(const char* pdu, int msg_
 
 void AT_CellularSMS::free_linked_list()
 {
-    sms_info_t* info = _sms_info;
-    sms_info_t* old;
+    sms_info_t *info = _sms_info;
+    sms_info_t *old;
     while (info) {
         old = info;
         info = info->next_info;
@@ -988,17 +1001,18 @@ void AT_CellularSMS::free_linked_list()
     _sms_info = NULL;
 }
 
-void AT_CellularSMS::add_info(sms_info_t* info, int index, int part_number) {
+void AT_CellularSMS::add_info(sms_info_t *info, int index, int part_number)
+{
     // check for same message reference id. If found, update it and delete the given info.
     // if NOT found then add to the end of the list.
 
     if (!_sms_info) {
-        info->msg_index[part_number-1] = index; // part numbering starts from 1 so -1 to put to right index
+        info->msg_index[part_number - 1] = index; // part numbering starts from 1 so -1 to put to right index
         _sms_info = info;
         return;
     }
-    sms_info_t* current = _sms_info;
-    sms_info_t* prev;
+    sms_info_t *current = _sms_info;
+    sms_info_t *prev;
     bool found_msg = false;
     while (current) {
         prev = current;
@@ -1008,7 +1022,7 @@ void AT_CellularSMS::add_info(sms_info_t* info, int index, int part_number) {
                 info->parts > info->parts_added) {
             // multipart sms, update msg size and index
             current->msg_size += info->msg_size;
-            current->msg_index[part_number-1] = index; // part numbering starts from 1 so -1 to put to right index
+            current->msg_index[part_number - 1] = index; // part numbering starts from 1 so -1 to put to right index
             current->parts_added++;
             // update oldest part as date
             if (compare_time_strings(info->date, current->date) == -1) {
@@ -1025,7 +1039,7 @@ void AT_CellularSMS::add_info(sms_info_t* info, int index, int part_number) {
         delete info;
     } else {
         // message not found, add to linked list
-        info->msg_index[part_number-1] = index;
+        info->msg_index[part_number - 1] = index;
         prev->next_info = info;
     }
 }
@@ -1043,7 +1057,7 @@ nsapi_error_t AT_CellularSMS::list_messages()
     }
     _at.cmd_stop();
 
-    sms_info_t* info = NULL;
+    sms_info_t *info = NULL;
     // init for 1 so that in text mode we will add to the correct place without any additional logic in addInfo() in text mode
     int part_number = 1;
     int index = 0;
@@ -1065,8 +1079,8 @@ nsapi_error_t AT_CellularSMS::list_messages()
             index = _at.read_int();
             _at.skip_param(2); // <stat>,[<alpha>]
             length = _at.read_int();
-            length = length*2 + 20;// *2 as it's hex encoded and +20 as service center number is not included in size given by CMGL
-            pdu = (char*)calloc(length, sizeof(char));
+            length = length * 2 + 20; // *2 as it's hex encoded and +20 as service center number is not included in size given by CMGL
+            pdu = (char *)calloc(length, sizeof(char));
             if (!pdu) {
                 delete info;
                 _at.resp_stop();
@@ -1100,7 +1114,7 @@ nsapi_error_t AT_CellularSMS::list_messages()
     return _at.get_last_error();
 }
 
-AT_CellularSMS::sms_info_t* AT_CellularSMS::get_oldest_sms_index()
+AT_CellularSMS::sms_info_t *AT_CellularSMS::get_oldest_sms_index()
 {
     /*
      * Different scenarios when finding the oldest concatenated sms
@@ -1114,8 +1128,8 @@ AT_CellularSMS::sms_info_t* AT_CellularSMS::get_oldest_sms_index()
      */
 
     // if text mode we need to read sms with +CMGR because time stamp is optional while looping with +CMGL
-    sms_info_t* retVal = NULL;
-    sms_info_t* current = _sms_info;
+    sms_info_t *retVal = NULL;
+    sms_info_t *current = _sms_info;
     nsapi_size_or_error_t err = 0;
     while (current) {
         if (_mode == CellularSMSMmodeText) {
@@ -1139,7 +1153,7 @@ AT_CellularSMS::sms_info_t* AT_CellularSMS::get_oldest_sms_index()
 }
 
 // if time_string_1 is greater (more fresh date) then return 1, same 0, smaller -1. Error -2
-int AT_CellularSMS::compare_time_strings(const char* time_string_1, const char* time_string_2)
+int AT_CellularSMS::compare_time_strings(const char *time_string_1, const char *time_string_2)
 {
     time_t t1;
     time_t t2;
@@ -1162,7 +1176,7 @@ int AT_CellularSMS::compare_time_strings(const char* time_string_1, const char* 
     return retVal;
 }
 
-bool AT_CellularSMS::create_time(const char* time_string, time_t* time)
+bool AT_CellularSMS::create_time(const char *time_string, time_t *time)
 {
     const int kNumberOfElements = 8;
     tm time_struct = { 0 };
@@ -1186,8 +1200,8 @@ bool AT_CellularSMS::create_time(const char* time_string, time_t* time)
     return retVal;
 }
 
-uint16_t AT_CellularSMS::pack_7_bit_gsm_and_hex(const char* str, uint16_t len, char *buf,
-        int number_of_padding_bit)
+uint16_t AT_CellularSMS::pack_7_bit_gsm_and_hex(const char *str, uint16_t len, char *buf,
+                                                int number_of_padding_bit)
 {
     uint16_t strCnt = 0;
     uint16_t i = 0;
@@ -1198,12 +1212,12 @@ uint16_t AT_CellularSMS::pack_7_bit_gsm_and_hex(const char* str, uint16_t len, c
         return 0;
     }
     // convert to 7bit gsm first
-    char* gsm_str = (char*)malloc(len);
+    char *gsm_str = (char *)malloc(len);
     if (!gsm_str) {
         return 0;
     }
     for (uint16_t y = 0; y < len; y++) {
-        for (int x=0; x < GSM_TO_ASCII_TABLE_SIZE; x++) {
+        for (int x = 0; x < GSM_TO_ASCII_TABLE_SIZE; x++) {
             if (gsm_to_ascii[x] == str[y]) {
                 gsm_str[y] = x;
             }
@@ -1212,26 +1226,26 @@ uint16_t AT_CellularSMS::pack_7_bit_gsm_and_hex(const char* str, uint16_t len, c
 
     // then packing and converting to hex
     if (number_of_padding_bit) {
-        tmp = gsm_str[strCnt]<<number_of_padding_bit;
+        tmp = gsm_str[strCnt] << number_of_padding_bit;
         strCnt++;
-        char_str_to_hex_str(&tmp, 1, &buf[i*2]);
+        char_str_to_hex_str(&tmp, 1, &buf[i * 2]);
         i++;
     }
 
     while (strCnt < len) {
         if (number_of_padding_bit) {
-            shift = (i+number_of_padding_bit-2)%7;
+            shift = (i + number_of_padding_bit - 2) % 7;
         } else {
-            shift = i%7;
+            shift = i % 7;
         }
 
-        if (strCnt+1 == len) {
-            tmp = (gsm_str[strCnt]>>shift);
+        if (strCnt + 1 == len) {
+            tmp = (gsm_str[strCnt] >> shift);
         } else {
-            tmp = (gsm_str[strCnt]>>shift) | (gsm_str[strCnt+1] <<(7-shift));
+            tmp = (gsm_str[strCnt] >> shift) | (gsm_str[strCnt + 1] << (7 - shift));
         }
 
-        char_str_to_hex_str(&tmp, 1, buf+(i*2));
+        char_str_to_hex_str(&tmp, 1, buf + (i * 2));
 
         if (shift == 6) {
             strCnt++;
@@ -1245,8 +1259,8 @@ uint16_t AT_CellularSMS::pack_7_bit_gsm_and_hex(const char* str, uint16_t len, c
     return i;
 }
 
- uint16_t AT_CellularSMS::unpack_7_bit_gsm_to_str(const char* str, int len, char *buf, int padding_bits,
-                                            int msg_len)
+uint16_t AT_CellularSMS::unpack_7_bit_gsm_to_str(const char *str, int len, char *buf, int padding_bits,
+                                                 int msg_len)
 {
     int strCount = 0;
     uint16_t decodedCount = 0;
@@ -1256,27 +1270,27 @@ uint16_t AT_CellularSMS::pack_7_bit_gsm_and_hex(const char* str, uint16_t len, c
 
     if (padding_bits) {
         hex_str_to_char_str(str, 2, &tmp);
-        buf[decodedCount] = gsm_to_ascii[(tmp>>padding_bits) & 0x7F];
+        buf[decodedCount] = gsm_to_ascii[(tmp >> padding_bits) & 0x7F];
         strCount++;
         decodedCount++;
     }
 
     while (strCount < len) {
-        shift = (strCount-padding_bits)%7;
-        hex_str_to_char_str(str + strCount*2, 2, &tmp);
+        shift = (strCount - padding_bits) % 7;
+        hex_str_to_char_str(str + strCount * 2, 2, &tmp);
         if (shift == 0) {
             buf[decodedCount] = gsm_to_ascii[tmp & 0x7F];
         } else if (shift == 6) {
-            hex_str_to_char_str(str + (strCount-1)*2, 2, &tmp1);
-            buf[decodedCount] = gsm_to_ascii[(((tmp1>>2)) | (tmp << 6)) & 0x7F];
-            if (decodedCount+1 < msg_len) {
-                hex_str_to_char_str(str + strCount*2, 2, &tmp);
+            hex_str_to_char_str(str + (strCount - 1) * 2, 2, &tmp1);
+            buf[decodedCount] = gsm_to_ascii[(((tmp1 >> 2)) | (tmp << 6)) & 0x7F];
+            if (decodedCount + 1 < msg_len) {
+                hex_str_to_char_str(str + strCount * 2, 2, &tmp);
                 decodedCount++;
-                buf[decodedCount] = gsm_to_ascii[(tmp>>1) & 0x7F];
+                buf[decodedCount] = gsm_to_ascii[(tmp >> 1) & 0x7F];
             }
         } else {
-            hex_str_to_char_str(str + (strCount-1)*2, 2, &tmp1);
-            buf[decodedCount] = gsm_to_ascii[(((tmp1>>(8- shift))) | ((tmp << shift))) & 0x7F];
+            hex_str_to_char_str(str + (strCount - 1) * 2, 2, &tmp1);
+            buf[decodedCount] = gsm_to_ascii[(((tmp1 >> (8 - shift))) | ((tmp << shift))) & 0x7F];
         }
 
         strCount++;

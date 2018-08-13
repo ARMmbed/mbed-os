@@ -27,12 +27,12 @@ ATHandler *AT_CellularBase_stub::handler_at_constructor_value = NULL;
 device_err_t AT_CellularBase_stub::device_err_value;
 bool AT_CellularBase_stub::supported_bool = true;
 
-AT_CellularBase::AT_CellularBase(ATHandler& at) : _at(at)
+AT_CellularBase::AT_CellularBase(ATHandler &at) : _at(at)
 {
     AT_CellularBase_stub::handler_at_constructor_value = &_at;
 }
 
-ATHandler& AT_CellularBase::get_at_handler()
+ATHandler &AT_CellularBase::get_at_handler()
 {
     return *AT_CellularBase_stub::handler_value;
 }

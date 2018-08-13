@@ -16,6 +16,7 @@
 
 #include "BufferedBlockDevice.h"
 #include "mbed_assert.h"
+#include "mbed_critical.h"
 #include <algorithm>
 #include <string.h>
 
@@ -25,7 +26,7 @@ static inline uint32_t align_down(bd_size_t val, bd_size_t size)
 }
 
 BufferedBlockDevice::BufferedBlockDevice(BlockDevice *bd)
-    : _bd(bd), _bd_program_size(0), _curr_aligned_addr(0), _flushed(true), _cache(0)
+    : _bd(bd), _bd_program_size(0), _curr_aligned_addr(0), _flushed(true), _cache(0), _init_ref_count(0)
 {
 }
 
@@ -36,6 +37,12 @@ BufferedBlockDevice::~BufferedBlockDevice()
 
 int BufferedBlockDevice::init()
 {
+    uint32_t val = core_util_atomic_incr_u32(&_init_ref_count, 1);
+
+    if (val != 1) {
+        return BD_ERROR_OK;
+    }
+
     int err = _bd->init();
     if (err) {
         return err;
@@ -55,6 +62,12 @@ int BufferedBlockDevice::init()
 
 int BufferedBlockDevice::deinit()
 {
+    uint32_t val = core_util_atomic_decr_u32(&_init_ref_count, 1);
+
+    if (val) {
+        return BD_ERROR_OK;
+    }
+
     delete[] _cache;
     _cache = 0;
     return _bd->deinit();

@@ -1,5 +1,11 @@
 # Change Log
 
+## [v4.5.1](https://github.com/ARMmbed/mbed-coap/releases/tag/v4.5.1) 
+**Closed issues:**
+ - IOTCLT-2883 - Blockwise observations not completing
+
+-[Full Changelog](https://github.com/ARMmbed/mbed-coap/compare/v4.5.0...v4.5.1)
+
 ## [v4.5.0](https://github.com/ARMmbed/mbed-coap/releases/tag/v4.5.0) 
 **Closed issues:**
  - IIOTCLT-2769 - mbed-coap: extra response received after registration

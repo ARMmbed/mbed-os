@@ -17,8 +17,7 @@
 #ifndef TEST_AT_CELLULARSIM_H
 #define TEST_AT_CELLULARSIM_H
 
-class Test_AT_CellularSIM
-{
+class Test_AT_CellularSIM {
 public:
     Test_AT_CellularSIM();
 
@@ -35,6 +34,8 @@ public:
     void test_AT_CellularSIM_get_sim_state();
 
     void test_AT_CellularSIM_get_imsi();
+
+    void test_AT_CellularSIM_get_iccid();
 };
 
 #endif // TEST_AT_CELLULARSIM_H

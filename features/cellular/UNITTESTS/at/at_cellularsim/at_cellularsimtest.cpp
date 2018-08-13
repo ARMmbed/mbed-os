@@ -16,21 +16,26 @@
  */
 #include "CppUTest/TestHarness.h"
 #include "test_at_cellularsim.h"
+#include "ATHandler_stub.h"
 
+// AStyle ignored as the definition is not clear due to preprocessor usage
+// *INDENT-OFF*
 TEST_GROUP(AT_CellularSIM)
 {
-    Test_AT_CellularSIM* unit;
+    Test_AT_CellularSIM *unit;
 
-    void setup()
+    void setup() 
     {
         unit = new Test_AT_CellularSIM();
+        ATHandler_stub::read_string_index = kRead_string_table_size;
     }
 
-    void teardown()
+    void teardown() 
     {
         delete unit;
     }
 };
+// *INDENT-ON*
 
 TEST(AT_CellularSIM, Create)
 {
@@ -67,3 +72,7 @@ TEST(AT_CellularSIM, test_AT_CellularSIM_get_imsi)
     unit->test_AT_CellularSIM_get_imsi();
 }
 
+TEST(AT_CellularSIM, test_AT_CellularSIM_get_iccid)
+{
+    unit->test_AT_CellularSIM_get_iccid();
+}

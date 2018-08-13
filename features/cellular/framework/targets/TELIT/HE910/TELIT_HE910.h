@@ -25,8 +25,7 @@
 
 namespace mbed {
 
-class TELIT_HE910 : public AT_CellularDevice
-{
+class TELIT_HE910 : public AT_CellularDevice {
 
 public:
     TELIT_HE910(events::EventQueue &queue);

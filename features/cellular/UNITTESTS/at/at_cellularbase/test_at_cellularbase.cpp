@@ -25,6 +25,38 @@
 using namespace mbed;
 using namespace events;
 
+class my_base : public AT_CellularBase {
+public:
+    my_base(ATHandler &at) : AT_CellularBase(at)
+    {
+    }
+    bool check_not_supported()
+    {
+        static const AT_CellularBase::SupportedFeature unsupported_features[] =  {
+            AT_CellularBase::AT_CGSN_WITH_TYPE,
+            AT_CellularBase::SUPPORTED_FEATURE_END_MARK
+        };
+        set_unsupported_features(unsupported_features);
+        return is_supported(AT_CGSN_WITH_TYPE);
+    }
+
+    bool check_supported()
+    {
+        set_unsupported_features(NULL);
+        return is_supported(AT_CGSN_WITH_TYPE);
+    }
+
+    bool check_supported_not_found()
+    {
+        static const AT_CellularBase::SupportedFeature unsupported_features[] =  {
+            AT_CellularBase::AT_CGSN_WITH_TYPE,
+            AT_CellularBase::SUPPORTED_FEATURE_END_MARK
+        };
+        set_unsupported_features(unsupported_features);
+        return is_supported(SUPPORTED_FEATURE_END_MARK);
+    }
+};
+
 Test_AT_CellularBase::Test_AT_CellularBase()
 {
 
@@ -56,4 +88,32 @@ void Test_AT_CellularBase::test_AT_CellularBase_get_device_error()
     CHECK_EQUAL(8, at.get_device_error().errCode);
 
     ATHandler_stub::device_err_value.errCode = 0;
+}
+
+void Test_AT_CellularBase::test_AT_CellularBase_set_unsupported_features()
+{
+    EventQueue eq;
+    FileHandle_stub fh;
+    ATHandler ah(&fh, eq, 0, ",");
+    AT_CellularBase at(ah);
+
+    static const AT_CellularBase::SupportedFeature unsupported_features[] =  {
+        AT_CellularBase::AT_CGSN_WITH_TYPE,
+        AT_CellularBase::SUPPORTED_FEATURE_END_MARK
+    };
+
+    at.set_unsupported_features(unsupported_features);
+}
+
+void Test_AT_CellularBase::test_AT_CellularBase_is_supported()
+{
+    EventQueue eq;
+    FileHandle_stub fh;
+    ATHandler ah(&fh, eq, 0, ",");
+    my_base my_at(ah);
+
+    CHECK(true == my_at.check_supported());
+    CHECK(true == my_at.check_supported_not_found());
+    CHECK(false == my_at.check_not_supported());
+
 }

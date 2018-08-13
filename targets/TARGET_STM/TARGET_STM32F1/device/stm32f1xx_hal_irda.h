@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32f1xx_hal_irda.h
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    14-April-2017
   * @brief   Header file of IRDA HAL module.
   ******************************************************************************
   * @attention

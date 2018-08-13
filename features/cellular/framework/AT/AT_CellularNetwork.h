@@ -31,8 +31,7 @@ namespace mbed {
  *
  *  Class for connecting to a network and getting information from it.
  */
-class AT_CellularNetwork : public CellularNetwork, public AT_CellularBase
-{
+class AT_CellularNetwork : public CellularNetwork, public AT_CellularBase {
 
 public:
 
@@ -47,7 +46,7 @@ public: // NetworkInterface
                                           const char *username = 0, const char *password = 0);
 
     virtual nsapi_error_t set_credentials(const char *apn, AuthenticationType type,
-                const char *username = 0, const char *password = 0);
+                                          const char *username = 0, const char *password = 0);
 
     virtual nsapi_error_t connect(const char *apn,
                                   const char *username = 0, const char *password = 0);
@@ -66,18 +65,18 @@ public: // CellularNetwork
 
     virtual nsapi_error_t set_registration(const char *plmn = 0);
 
-    virtual nsapi_error_t get_network_registering_mode(NWRegisteringMode& mode);
+    virtual nsapi_error_t get_network_registering_mode(NWRegisteringMode &mode);
 
     virtual nsapi_error_t get_registration_status(RegistrationType type, RegistrationStatus &status);
 
-    virtual nsapi_error_t set_attach(int timeout = 10*1000);
+    virtual nsapi_error_t set_attach(int timeout = 10 * 1000);
 
     virtual nsapi_error_t get_attach(AttachStatus &status);
 
     virtual nsapi_error_t detach();
 
     virtual nsapi_error_t get_rate_control(CellularNetwork::RateControlExceptionReports &reports,
-        CellularNetwork::RateControlUplinkTimeUnit &time_unit, int &uplink_rate);
+                                           CellularNetwork::RateControlUplinkTimeUnit &time_unit, int &uplink_rate);
 
     virtual nsapi_error_t get_apn_backoff_timer(int &backoff_timer);
 
@@ -90,21 +89,21 @@ public: // CellularNetwork
     virtual const char *get_ip_address();
 
     virtual nsapi_error_t set_access_technology(RadioAccessTechnology rat);
-    virtual nsapi_error_t get_access_technology(RadioAccessTechnology& rat);
+    virtual nsapi_error_t get_access_technology(RadioAccessTechnology &rat);
 
     virtual nsapi_error_t scan_plmn(operList_t &operators, int &ops_count);
 
     virtual nsapi_error_t set_ciot_optimization_config(Supported_UE_Opt supported_opt,
                                                        Preferred_UE_Opt preferred_opt);
 
-    virtual nsapi_error_t get_ciot_optimization_config(Supported_UE_Opt& supported_opt,
-                                                       Preferred_UE_Opt& preferred_opt);
+    virtual nsapi_error_t get_ciot_optimization_config(Supported_UE_Opt &supported_opt,
+                                                       Preferred_UE_Opt &preferred_opt);
 
     virtual nsapi_error_t set_stack_type(nsapi_ip_stack_t stack_type);
 
     virtual nsapi_ip_stack_t get_stack_type();
 
-    virtual nsapi_error_t get_pdpcontext_params(pdpContextList_t& params_list);
+    virtual nsapi_error_t get_pdpcontext_params(pdpContextList_t &params_list);
 
     virtual nsapi_error_t get_extended_signal_quality(int &rxlev, int &ber, int &rscp, int &ecno, int &rsrq, int &rsrp);
 
@@ -151,7 +150,7 @@ private:
     void urc_cgreg();
     void urc_cgev();
 
-    nsapi_ip_stack_t string_to_stack_type(const char* pdp_type);
+    nsapi_ip_stack_t string_to_stack_type(const char *pdp_type);
 
     void free_credentials();
 

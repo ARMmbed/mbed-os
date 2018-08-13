@@ -26,14 +26,14 @@ AT_CellularDevice::~AT_CellularDevice()
 {
 }
 
-ATHandler* AT_CellularDevice::get_at_handler(FileHandle *fileHandle)
+ATHandler *AT_CellularDevice::get_at_handler(FileHandle *fileHandle)
 {
     return NULL;
 }
 
-void AT_CellularDevice::release_at_handler(ATHandler* at_handler)
+void AT_CellularDevice::release_at_handler(ATHandler *at_handler)
 {
-    
+
 }
 
 CellularNetwork *AT_CellularDevice::open_network(FileHandle *fh)

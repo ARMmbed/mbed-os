@@ -74,8 +74,11 @@ void Test_AT_CellularPower::test_AT_CellularPower_set_at_mode()
     ATHandler at(&fh1, que, 0, ",");
 
     AT_CellularPower pow(at);
-    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_AUTH_FAILURE;
-    CHECK(NSAPI_ERROR_AUTH_FAILURE == pow.set_at_mode());
+    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
+    CHECK(NSAPI_ERROR_OK == pow.set_at_mode());
+
+    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_DEVICE_ERROR;
+    CHECK(NSAPI_ERROR_DEVICE_ERROR == pow.set_at_mode());
 }
 
 void Test_AT_CellularPower::test_AT_CellularPower_set_power_level()
@@ -85,10 +88,13 @@ void Test_AT_CellularPower::test_AT_CellularPower_set_power_level()
     ATHandler at(&fh1, que, 0, ",");
 
     AT_CellularPower pow(at);
-    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_AUTH_FAILURE;
-    CHECK(NSAPI_ERROR_AUTH_FAILURE == pow.set_power_level(6));
-    CHECK(NSAPI_ERROR_AUTH_FAILURE == pow.set_power_level(1,1));
-    CHECK(NSAPI_ERROR_AUTH_FAILURE == pow.set_power_level(1,0));
+    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
+    CHECK(NSAPI_ERROR_OK == pow.set_power_level(6));
+    CHECK(NSAPI_ERROR_OK == pow.set_power_level(1, 1));
+    CHECK(NSAPI_ERROR_OK == pow.set_power_level(1, 0));
+
+    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_DEVICE_ERROR;
+    CHECK(NSAPI_ERROR_DEVICE_ERROR == pow.set_power_level(6));
 }
 
 void Test_AT_CellularPower::test_AT_CellularPower_reset()
@@ -98,8 +104,11 @@ void Test_AT_CellularPower::test_AT_CellularPower_reset()
     ATHandler at(&fh1, que, 0, ",");
 
     AT_CellularPower pow(at);
-    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_AUTH_FAILURE;
-    CHECK(NSAPI_ERROR_AUTH_FAILURE == pow.reset());
+    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
+    CHECK(NSAPI_ERROR_OK == pow.reset());
+
+    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_DEVICE_ERROR;
+    CHECK(NSAPI_ERROR_DEVICE_ERROR == pow.reset());
 }
 
 void Test_AT_CellularPower::test_AT_CellularPower_opt_power_save_mode()
@@ -109,23 +118,25 @@ void Test_AT_CellularPower::test_AT_CellularPower_opt_power_save_mode()
     ATHandler at(&fh1, que, 0, ",");
 
     AT_CellularPower pow(at);
-    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_AUTH_FAILURE;
-    CHECK(NSAPI_ERROR_AUTH_FAILURE == pow.opt_power_save_mode(0,0));
-
-    CHECK(NSAPI_ERROR_AUTH_FAILURE == pow.opt_power_save_mode(10,0));
-
-    CHECK(NSAPI_ERROR_AUTH_FAILURE == pow.opt_power_save_mode(912,0));
-
-    CHECK(NSAPI_ERROR_AUTH_FAILURE == pow.opt_power_save_mode(1834,1834));
-
-    CHECK(NSAPI_ERROR_AUTH_FAILURE == pow.opt_power_save_mode(18345,18345));
-
-    CHECK(NSAPI_ERROR_AUTH_FAILURE == pow.opt_power_save_mode(101234,101234));
-
-    CHECK(NSAPI_ERROR_AUTH_FAILURE == pow.opt_power_save_mode(1012345,1012345));
-
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
-    CHECK(NSAPI_ERROR_OK == pow.opt_power_save_mode(39612345,39612345));
+    CHECK(NSAPI_ERROR_OK == pow.opt_power_save_mode(0, 0));
+
+    CHECK(NSAPI_ERROR_OK == pow.opt_power_save_mode(10, 0));
+
+    CHECK(NSAPI_ERROR_OK == pow.opt_power_save_mode(912, 0));
+
+    CHECK(NSAPI_ERROR_OK == pow.opt_power_save_mode(1834, 1834));
+
+    CHECK(NSAPI_ERROR_OK == pow.opt_power_save_mode(18345, 18345));
+
+    CHECK(NSAPI_ERROR_OK == pow.opt_power_save_mode(101234, 101234));
+
+    CHECK(NSAPI_ERROR_OK == pow.opt_power_save_mode(1012345, 1012345));
+
+    CHECK(NSAPI_ERROR_OK == pow.opt_power_save_mode(39612345, 39612345));
+
+    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_DEVICE_ERROR;
+    CHECK(NSAPI_ERROR_DEVICE_ERROR == pow.opt_power_save_mode(0, 0));
 }
 
 void Test_AT_CellularPower::test_AT_CellularPower_opt_receive_period()
@@ -135,8 +146,11 @@ void Test_AT_CellularPower::test_AT_CellularPower_opt_receive_period()
     ATHandler at(&fh1, que, 0, ",");
 
     AT_CellularPower pow(at);
-    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_AUTH_FAILURE;
-    CHECK(NSAPI_ERROR_AUTH_FAILURE == pow.opt_receive_period(1, CellularPower::EDRXUTRAN_Iu_mode, 3));
+    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
+    CHECK(NSAPI_ERROR_OK == pow.opt_receive_period(1, CellularPower::EDRXUTRAN_Iu_mode, 3));
+
+    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_DEVICE_ERROR;
+    CHECK(NSAPI_ERROR_DEVICE_ERROR == pow.opt_receive_period(1, CellularPower::EDRXUTRAN_Iu_mode, 3));
 }
 
 void Test_AT_CellularPower::test_AT_CellularPower_is_device_ready()
@@ -162,6 +176,7 @@ void Test_AT_CellularPower::test_AT_CellularPower_set_device_ready_urc_cb()
 
     AT_CellularPower pow(at);
     CHECK(NSAPI_ERROR_UNSUPPORTED == pow.set_device_ready_urc_cb(&device_ready_cb));
+    CHECK(NSAPI_ERROR_UNSUPPORTED == pow.set_device_ready_urc_cb(NULL));
 }
 
 void Test_AT_CellularPower::test_AT_CellularPower_remove_device_ready_urc_cb()
