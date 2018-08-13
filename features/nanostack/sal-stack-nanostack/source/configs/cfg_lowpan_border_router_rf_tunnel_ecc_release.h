@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2016, Arm Limited and affiliates.
+ * Copyright (c) 2015-2016, 2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,11 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/*  This is for linux router which use RF tunnel interface */
+#include "base/cfg_lowpan_border_router.h"
+#include "base/cfg_ethernet.h"
+#include "base/cfg_local_socket.h"
+#include "base/cfg_rf_tunnel.h"
 
-/*
- * This is configuration file supporting
- * all features on mbedOS we can.
- */
-
-#include "generic.cfg"
-#undef ECC
+#define ECC
+#define HAVE_AES
+#define HAVE_DHCPV6
+#define HAVE_RF_AP
+#define PANA
+#define PANA_SERVER_API

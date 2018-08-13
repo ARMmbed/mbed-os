@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016, Arm Limited and affiliates.
+ * Copyright (c) 2016, 2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,8 +15,10 @@
  * limitations under the License.
  */
 
-#include "base/thread_router.cfg"
+#include "base/cfg_thread_end_device.h"
 
 /* Code optimization for Router advertisement */
 #define NO_RADV_TX
 
+/* Code optimization - removing TCP */
+#define NO_TCP
