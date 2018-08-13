@@ -18,13 +18,14 @@
 
 #if DEVICE_SERIAL
 
-#include <string.h>
 #include "cmsis.h"
 #include "mbed_error.h"
 #include "mbed_assert.h"
 #include "PeripheralPins.h"
 #include "nu_modutil.h"
 #include "nu_bitutil.h"
+#include <string.h>
+#include <stdbool.h>
 
 #if DEVICE_SERIAL_ASYNCH
 #include "dma_api.h"
@@ -75,6 +76,8 @@ static int serial_is_rx_complete(serial_t *obj);
 static void serial_check_dma_usage(DMAUsage *dma_usage, int *dma_ch);
 static int serial_is_irq_en(serial_t *obj, SerialIrq irq);
 #endif
+
+bool serial_can_deep_sleep(void);
 
 static struct nu_uart_var uart0_var = {
     .ref_cnt            =   0,
@@ -990,4 +993,23 @@ static int serial_is_irq_en(serial_t *obj, SerialIrq irq)
 }
 
 #endif  // #if DEVICE_SERIAL_ASYNCH
+
+bool serial_can_deep_sleep(void)
+{
+    bool sleep_allowed = 1;
+    const struct nu_modinit_s *modinit = uart_modinit_tab;
+    while (modinit->var != NULL) {
+        struct nu_uart_var *uart_var = (struct nu_uart_var *) modinit->var;
+        UART_T *uart_base = (UART_T *) NU_MODBASE(modinit->modname);
+        if (uart_var->ref_cnt > 0) {
+            if (!UART_IS_TX_EMPTY(uart_base)) {
+                sleep_allowed = 0;
+                break;
+            }
+        }
+        modinit++;
+    }
+    return sleep_allowed;
+}
+
 #endif  // #if DEVICE_SERIAL
