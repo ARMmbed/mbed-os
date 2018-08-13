@@ -22,8 +22,13 @@
 #include "device.h"
 #include "objects.h"
 #include "PeripheralPins.h"
+#include <stdbool.h>
 
 #if defined (__ARM_FEATURE_CMSE) && (__ARM_FEATURE_CMSE == 3U)
+
+#if DEVICE_SERIAL
+bool serial_can_deep_sleep(void);
+#endif
 
 /**
  * Enter idle mode, in which just CPU is halted.
@@ -42,6 +47,12 @@ void hal_sleep(void)
 __NONSECURE_ENTRY
 void hal_deepsleep(void)
 {
+#if DEVICE_SERIAL
+    if (!serial_can_deep_sleep()) {
+        return;
+    }
+#endif
+
     SYS_UnlockReg();
     CLK_PowerDown();
     SYS_LockReg();
