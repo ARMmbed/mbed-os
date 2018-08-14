@@ -128,7 +128,7 @@ public:
 
     virtual void start_reset_sequence();
 
-    virtual void handle_reset_sequence(uint8_t \*msg);
+    virtual void handle_reset_sequence(uint8_t *msg);
 private:
     // private driver declarations
 };
