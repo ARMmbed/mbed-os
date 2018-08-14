@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, Arm Limited and affiliates.
+ * Copyright (c) 2016-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,7 +15,8 @@
  * limitations under the License.
  */
 
-#include "base/thread_border_router.cfg"
-#include "base/ethernet.cfg"
+/* Config Flags for Ethernet Bootstrap */
 
-#define EXTRA_CONSISTENCY_CHECKS
+#define HAVE_ETHERNET
+
+#define HAVE_IPV6_ND

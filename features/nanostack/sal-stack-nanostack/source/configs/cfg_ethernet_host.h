@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, 2016-2017, Arm Limited and affiliates.
+ * Copyright (c) 2016, 2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,19 +15,7 @@
  * limitations under the License.
  */
 
-#include "base/thread_border_router.cfg"
-#include "base/ethernet.cfg"
-#include "base/lowpan_border_router.cfg"
-#include "base/local_socket.cfg"
-#include "base/rf_tunnel.cfg"
 
-#define FEA_TRACE_SUPPORT
-#define EXTRA_CONSISTENCY_CHECKS
-#define HAVE_AES
-#define ECC
-#define PANA
-#define PANA_SERVER_API
-#define HAVE_DHCPV6_SERVER
-#define TCP_TEST
-#define THREAD_THCI_SUPPORT
-#define MLE_TEST
+#include "base/cfg_ethernet.h"
+
+#define NO_RADV_TX
