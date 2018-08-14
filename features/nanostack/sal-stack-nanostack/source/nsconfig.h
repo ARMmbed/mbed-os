@@ -29,7 +29,7 @@
 #endif
 
 #define __ns_cfg_header(x) #x
-#define _ns_cfg_header(x) __ns_cfg_header(configs/x.cfg)
+#define _ns_cfg_header(x) __ns_cfg_header(configs/cfg_##x.h)
 #define ns_cfg_header(x) _ns_cfg_header(x)
 
 
