@@ -19,6 +19,7 @@
 
 #include <stdint.h>
 #include "events/EventQueue.h"
+#include "platform/SharedPtr.h"
 
 #include "NFCDefinitions.h"
 
@@ -71,13 +72,13 @@ namespace nfc {
              * A remote initiator was discovered (the local controller is in target mode).
              * @param[in] the NFCRemoteInitiator instance
              */
-            virtual void on_nfc_initiator_discovered(const NFCRemoteInitiator& nfc_initiator) {}
+            virtual void on_nfc_initiator_discovered(const SharedPtr<NFCRemoteInitiator>& nfc_initiator) {}
 
             /**
              * A remote target was discovered (the local controller is in initiator mode).
              * @param[in] the NFCRemoteTarget instance
              */
-            virtual void on_nfc_target_discovered(const NFCRemoteTarget& nfc_target) {}
+            virtual void on_nfc_target_discovered(const SharedPtr<NFCRemoteTarget>& nfc_target) {}
         };
 
         /** 

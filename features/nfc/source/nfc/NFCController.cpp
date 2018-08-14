@@ -16,6 +16,7 @@
 
 #include "NFCController.h"
 #include "NFCControllerDriver.h"
+#include "Type4RemoteInitiator.h"
 
 #include "stack/transceiver/transceiver.h"
 
@@ -118,12 +119,15 @@ void NFCController::polling_callback(nfc_err_t ret)
         if( !transceiver_is_initiator_mode(_transceiver) ) {        
             nfc_tech_t active_tech = transceiver_get_active_techs(_transceiver);
             if( active_tech.nfc_iso_dep_a || active_tech.nfc_iso_dep_b ) {
-                SharedPtr ptr =  
+                SharedPtr<Type4RemoteInitiator> type4_remote_initiator( new Type4RemoteInitiator(_transceiver) );
+                if( _delegate != NULL ) {
+                    _delegate->on_nfc_initiator_discovered(type4_remote_initiator);
+                }
             }
         }
     }
 
-    if(_delegate != NULL) {
+    if( _delegate != NULL ) {
         nfc_discovery_terminated_reason_t reason;
         
         // Map reason
