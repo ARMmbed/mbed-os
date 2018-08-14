@@ -25,7 +25,7 @@ class MultipleTestcase(Bench):
         }
 
         testcase_args.update(kwargs)
-        Bench.__init__(self, **testcase_args)
+        super(MultipleTestcase, self).__init__(self, **testcase_args)
 
     def setup(self):
         self.command("dut1", "ifup")

@@ -2,14 +2,13 @@
 # Copyright (c) 2018, Arm Limited and affiliates.
 #
 from icetea_lib.bench import Bench, TestStepFail
-from icetea_lib.tools import test_case
 import random
 import string
 
 
 class Testcase(Bench):
     def __init__(self):
-        Bench.__init__(self,
+        super(Testcase, self).__init__(self,
                        name="TCPSOCKET_ECHOTEST_BURST_SHORT",
                        title="TCPSOCKET_ECHOTEST_BURST_SHORT",
                        purpose="Verify that TCPSocket can send burst of packets to echo server and read incoming packets",

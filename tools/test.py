@@ -21,7 +21,6 @@ TEST BUILD
 from __future__ import print_function, division, absolute_import
 import sys
 import os
-import subprocess
 import fnmatch
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))

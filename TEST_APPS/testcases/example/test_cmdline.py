@@ -19,7 +19,7 @@ from icetea_lib.bench import Bench
 class Testcase(Bench):
     def __init__(self):
         self.device = None
-        Bench.__init__(self,
+        super(Testcase, self).__init__(self,
                        name="test_cmdline",
                        title="Smoke test for command line interface",
                        status="released",

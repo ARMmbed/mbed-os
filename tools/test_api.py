@@ -28,7 +28,6 @@ import pprint
 import random
 import argparse
 import datetime
-import errno
 import threading
 import ctypes
 import functools

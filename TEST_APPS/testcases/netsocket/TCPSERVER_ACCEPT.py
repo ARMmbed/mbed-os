@@ -3,13 +3,13 @@
 #
 from icetea_lib.bench import Bench
 from interface import interfaceUp, interfaceDown
-from icetea_lib.tools import test_case
 import threading
 import time
 
+
 class Testcase(Bench):
     def __init__(self):
-        Bench.__init__(self,
+        super(Testcase, self).__init__(self,
                        name="TCPSERVER_ACCEPT",
                        title = "TCPSERVER_ACCEPT",
                        purpose = "Test that TCPServer::bind(), TCPServer::listen() and TCPServer::accept() works",
