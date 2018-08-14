@@ -296,6 +296,10 @@ int16_t LoRaWANStack::handle_tx(const uint8_t port, const uint8_t *data,
                                 uint16_t length, uint8_t flags,
                                 bool null_allowed, bool allow_port_0)
 {
+    if (_device_current_state == DEVICE_STATE_NOT_INITIALIZED) {
+        return LORAWAN_STATUS_NOT_INITIALIZED;
+    }
+
     if (!null_allowed && !data) {
         return LORAWAN_STATUS_PARAMETER_INVALID;
     }
@@ -356,6 +360,10 @@ int16_t LoRaWANStack::handle_tx(const uint8_t port, const uint8_t *data,
 
 int16_t LoRaWANStack::handle_rx(uint8_t *data, uint16_t length, uint8_t &port, int &flags, bool validate_params)
 {
+    if (_device_current_state == DEVICE_STATE_NOT_INITIALIZED) {
+        return LORAWAN_STATUS_NOT_INITIALIZED;
+    }
+
     if (!_lw_session.active) {
         return LORAWAN_STATUS_NO_ACTIVE_SESSIONS;
     }

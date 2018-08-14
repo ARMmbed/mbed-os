@@ -310,6 +310,7 @@ public:
      *
      * @return              The number of bytes sent, or a negative error code on failure:
      *                      LORAWAN_STATUS_NOT_INITIALIZED   if system is not initialized with initialize(),
+     *                      LORAWAN_STATUS_NO_ACTIVE_SESSIONS if connection is not open,
      *                      LORAWAN_STATUS_WOULD_BLOCK       if another TX is ongoing,
      *                      LORAWAN_STATUS_PORT_INVALID      if trying to send to an invalid port (e.g. to 0)
      *                      LORAWAN_STATUS_PARAMETER_INVALID if NULL data pointer is given or flags are invalid.
@@ -345,6 +346,7 @@ public:
      *                       i)   0 if there is nothing else to read.
      *                       ii)  Number of bytes written to user buffer.
      *                       iii) A negative error code on failure:
+     *                       LORAWAN_STATUS_NOT_INITIALIZED   if system is not initialized with initialize(),
      *                       LORAWAN_STATUS_NO_ACTIVE_SESSIONS if connection is not open,
      *                       LORAWAN_STATUS_WOULD_BLOCK        if there is nothing available to read at the moment,
      *                       LORAWAN_STATUS_PARAMETER_INVALID  if NULL data or length is given,
@@ -370,6 +372,7 @@ public:
      *                       i)   0 if there is nothing else to read.
      *                       ii)  Number of bytes written to user buffer.
      *                       iii) A negative error code on failure:
+     *                       LORAWAN_STATUS_NOT_INITIALIZED   if system is not initialized with initialize(),
      *                       LORAWAN_STATUS_NO_ACTIVE_SESSIONS if connection is not open,
      *                       LORAWAN_STATUS_PARAMETER_INVALID if NULL data or length is given,
      *                       LORAWAN_STATUS_WOULD_BLOCK if there is nothing available to read at the moment.
