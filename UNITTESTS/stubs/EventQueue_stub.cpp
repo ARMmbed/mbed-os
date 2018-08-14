@@ -3,7 +3,8 @@
 
 using namespace mbed;
 
-namespace events {
+namespace events
+{
 
 EventQueue::EventQueue(unsigned event_size, unsigned char *event_pointer)
 {
@@ -38,4 +39,4 @@ void EventQueue::chain(EventQueue *target)
 {
 }
 
-}
+} // namespace events

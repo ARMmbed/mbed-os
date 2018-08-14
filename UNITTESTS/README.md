@@ -23,7 +23,9 @@ Unit testing takes place in a build environment where each C++ class or module i
 
 ## Required tools
 
-* GNU toolchains/MinGW(Windows) installed.
+* GNU toolchains installed.
+    * GCC 6 or later
+    * MinGW-W64 GCC-6.4.0 or MinGW-W64 GCC-7.3.0 (Windows)
 * CMake 3.0+ installed.
 * Python and pip installed.
 * gcovr and optionally virtualenv pip modules installed.
@@ -48,7 +50,7 @@ sudo easy_install pip
 3. Install [gcovr](#installing-covr).
 
 ### Installing dependencies on Windows
-1. Download [MinGW](https://sourceforge.net/projects/mingw-w64/) or other GNU toolchain for Windows.
+1. Download and install [MinGW-W64](http://mingw-w64.org/).
 2. Download CMake binaries from https://cmake.org/download/ and run the installer.
 3. Download Python2.7 or Python3 from https://www.python.org/getit/ and run the installer.
 4. Add MinGW, CMake and Python into PATH if not yet.
@@ -144,6 +146,19 @@ cmake -G "MinGW Makefiles" ..
 mingw32-make
 ```
 
+#### Custom CMake variables
+
+Usage: 
+`cmake [RELATIVE PATH TO UNITTESTS DIR] [OPTIONS]`
+
+Keyword variables (usage `cmake -D<VARIABLE>(:<TYPE>)=<value>`:
+
+| Variable | Type | Accepted values | Description |
+| -------- | ---- | --------------- | ----------- |
+| COVERAGE | STRING | merged<br>separate | Generate merged or individual reports |
+| COVERAGE_FTYPE | STRING | html<br>xml<br>both | Generate HTML, XML or both reports |
+| GCOV_PROGRAM | | N/A | Name of the gcov tool to use |
+
 ### Run in terminal:
 Unit tests can be run separately from each executable or by using ctest test runner. Run ctest with make program using target test. Options can be passed to ctest using ARGS argument. See [ctest manual](https://cmake.org/cmake/help/v3.0/manual/ctest.1.html) for more information.
 
@@ -232,12 +247,12 @@ Each class to be tested requires two files for unit testing:
 ```
 set(TEST_SUITE_NAME "rtos_Semaphore")
 
-set(unittest-sources ${unittest-sources}
+set(unittest-sources
 	stubs/mbed_assert.c
 	../rtos/Semaphore.cpp
 )
 
-set(unittest-test-sources ${unittest-test-sources}
+set(unittest-test-sources
 	rtos/Semaphore/test_Semaphore.cpp
 )
 ```
@@ -280,6 +295,15 @@ TEST_F(TestSemaphore, constructor)
     EXPECT_TRUE(sem);
 }
 ```
+
+#### Unit test suite CMake variables
+
+A suite definition file *unittest.cmake* requires variables to be set for a test to be configured.
+
+* **TEST_SUITE_NAME** - Identifier for the test suite. Use naming convention *PATH_TO_THE_TESTABLE_FILE* e.g. *features_netsocket_InternetSocket*
+* **unittest-includes** - Include paths for headers needed to build the tests in addition to the base include paths listed in [CMakeLists.txt](CMakeLists.txt). Optional.
+* **unittest-sources** - Mbed OS source files and stubs included for the build.
+* **unittest-test-sources** - Unit test source files.
 
 ## Troubleshooting
 

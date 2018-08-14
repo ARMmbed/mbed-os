@@ -36,8 +36,8 @@ COVERAGE_TYPES = ["html",
                   "both",
                   "both-merged"]
 
-MAC_CXX_COMPILERS = ["g++-8", "g++-7", "g++-6", "g++-5", "g++-4.9"]
+CXX_COMPILERS = ["g++-6", "g++-8", "g++-7", "g++-5", "g++-4.9", "g++"]
 
-MAC_C_COMPILERS = ["gcc-8", "gcc-7", "gcc-6", "gcc-5", "gcc-4.9"]
+C_COMPILERS = ["gcc-6", "gcc-8", "gcc-7", "gcc-5", "gcc-4.9", "gcc"]
 
-MAC_GCOV_PROGRAMS = ["gcov-8", "gcov-7", "gcov-6", "gcov-5", "gcov-4.9"]
+GCOV_PROGRAMS = ["gcov-6", "gcov-8", "gcov-7", "gcov-5", "gcov-4.9", "gcov"]

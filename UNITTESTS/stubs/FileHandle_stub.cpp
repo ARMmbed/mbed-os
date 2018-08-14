@@ -17,7 +17,8 @@
 
 #include "FileHandle_stub.h"
 
-namespace mbed {
+namespace mbed
+{
 
 off_t FileHandle::size()
 {
@@ -29,4 +30,4 @@ std::FILE *fdopen(FileHandle *fh, const char *mode)
     return NULL;
 }
 
-}
+} // namespace mbed

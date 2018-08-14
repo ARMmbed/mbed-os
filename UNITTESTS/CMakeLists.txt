@@ -6,18 +6,18 @@ set(LIB_NAME MbedOS)
 project(${PROJECT_NAME})
 
 # Setup c++ standard
-macro(use_cxx11)
+macro(use_cxx14)
     if (CMAKE_VERSION VERSION_LESS 3.1)
         if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11")
+            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++98")
         endif()
     else()
-        set(CMAKE_CXX_STANDARD 11)
+        set(CMAKE_CXX_STANDARD 98)
         set(CMAKE_CXX_STANDARD_REQUIRED ON)
     endif()
 endmacro()
 
-use_cxx11()
+use_cxx14()
 
 ####################
 # GTEST
@@ -48,16 +48,12 @@ add_subdirectory(${CMAKE_BINARY_DIR}/googletest-src
                  ${CMAKE_BINARY_DIR}/googletest-build
                  EXCLUDE_FROM_ALL)
 
-# The gtest/gtest_main targets carry header search path
+# The gtest/gtest_main/gmock/gmock_main targets carry header search path
 # dependencies automatically when using CMake 2.8.11 or
-# later. Otherwise we have to add them here ourselves.
-if (CMAKE_VERSION VERSION_LESS 2.8.11)
-    include_directories(BEFORE SYSTEM
-      "${gtest_SOURCE_DIR}/include")
-else()
-    target_include_directories(gmock_main SYSTEM BEFORE INTERFACE
-      "${gtest_SOURCE_DIR}/include")
-endif()
+# later.
+target_include_directories(gmock_main SYSTEM BEFORE INTERFACE
+  "${gtest_SOURCE_DIR}/include"
+  "${gmock_SOURCE_DIR}/include")
 
 ####################
 # TESTING
@@ -85,9 +81,13 @@ APPEND_COVERAGE_COMPILER_FLAGS()
   if (NOT DEFINED COVERAGE_EXCLUDES)
     set(COVERAGE_EXCLUDES
       "${gtest_SOURCE_DIR}/include/\\*"
+      "${gmock_SOURCE_DIR}/include/\\*"
       "${PROJECT_SOURCE_DIR}"
     )
   endif()
+
+# Create a list for coverage targets
+set(COVERAGE_TARGETS)
 
 endif(COVERAGE AND COVERAGE_FTYPE)
 
@@ -111,11 +111,8 @@ set(unittest-includes-base
   "${PROJECT_SOURCE_DIR}/../cmsis"
 )
 
-# Init variable for library source, test source files and test suites.
-set(unittest-sources)
-set(unittest-test-sources)
+# Create a list for test suites.
 set(TEST_SUITES)
-set(COVERAGE_TARGETS)
 
 # Get all matched tests.
 file(GLOB_RECURSE unittest-file-list
@@ -132,8 +129,10 @@ foreach(testfile ${unittest-file-list})
   # DEFINE TARGETS
   ####################
 
-  # Add base includes
-  set(unittest-includes ${unittest-includes-base})
+  # Init file lists.
+  set(unittest-includes)
+  set(unittest-sources)
+  set(unittest-test-sources)
 
   # Get source files
   include("${testfile}")
@@ -144,7 +143,7 @@ foreach(testfile ${unittest-file-list})
     message(FATAL_ERROR "No TEST_SUITE_NAME found in test file. Add it to ${testfile}.")
   endif()
 
-  set(LIBS_TO_BE_LINKED gtest_main)
+  set(LIBS_TO_BE_LINKED gmock_main)
 
   # Build directories list
   set(BUILD_DIRECTORIES)
@@ -152,7 +151,9 @@ foreach(testfile ${unittest-file-list})
   if (unittest-sources)
     # Create the testable static library.
     add_library("${TEST_SUITE_NAME}.${LIB_NAME}" STATIC ${unittest-sources})
-    target_include_directories("${TEST_SUITE_NAME}.${LIB_NAME}" PRIVATE ${unittest-includes})
+    target_include_directories("${TEST_SUITE_NAME}.${LIB_NAME}" PRIVATE
+      ${unittest-includes-base}
+      ${unittest-includes})
     set(LIBS_TO_BE_LINKED ${LIBS_TO_BE_LINKED} "${TEST_SUITE_NAME}.${LIB_NAME}")
 
     # Append lib build directory to list
@@ -162,7 +163,9 @@ foreach(testfile ${unittest-file-list})
   if (unittest-test-sources)
     # Create the executable.
     add_executable(${TEST_SUITE_NAME} ${unittest-test-sources})
-    target_include_directories(${TEST_SUITE_NAME} PRIVATE ${unittest-includes})
+    target_include_directories(${TEST_SUITE_NAME} PRIVATE
+      ${unittest-includes-base}  
+      ${unittest-includes})
 
     # Link the executable with the libraries.
     target_link_libraries(${TEST_SUITE_NAME} ${LIBS_TO_BE_LINKED})
@@ -212,6 +215,8 @@ if (COVERAGE AND COVERAGE STREQUAL "merged")
   set(COVERAGE_TARGETS ${COVERAGE_TARGETS} ${_name})
 endif(COVERAGE AND COVERAGE STREQUAL "merged")
 
-add_custom_target(coverage
-  DEPENDS ${COVERAGE_TARGETS}
-)
+if (COVERAGE)
+  add_custom_target(coverage
+    DEPENDS ${COVERAGE_TARGETS}
+  )
+endif(COVERAGE)

@@ -23,8 +23,8 @@
 #include "FileHandle_stub.h"
 #include "Callback.h"
 
-
-namespace ATHandler_stub {
+namespace ATHandler_stub
+{
 
 extern nsapi_error_t nsapi_error_value;
 extern uint8_t nsapi_error_ok_counter;
@@ -40,4 +40,4 @@ extern mbed::FileHandle_stub *fh_value;
 extern mbed::device_err_t device_err_value;
 extern mbed::Callback<void()> callback;
 
-}
+} // namespace ATHandler_stub

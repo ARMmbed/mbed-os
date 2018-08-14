@@ -1,7 +1,7 @@
 #include "rtos/EventFlags.h"
 
-rtos::EventFlags::EventFlags()                      {}
-rtos::EventFlags::~EventFlags()                     {}
+rtos::EventFlags::EventFlags() {}
+rtos::EventFlags::~EventFlags() {}
 uint32_t rtos::EventFlags::set(uint32_t flags)
 {
     return 0;

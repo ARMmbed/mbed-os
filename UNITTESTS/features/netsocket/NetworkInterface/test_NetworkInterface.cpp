@@ -12,7 +12,7 @@ class stubNetworkInterface : public NetworkInterface {
     };
     virtual NetworkStack *get_stack()
     {
-        return nullptr;
+        return NULL;
     };
 };
 

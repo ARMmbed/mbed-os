@@ -42,10 +42,9 @@ device_err_t ATHandler_stub::device_err_value;
 Callback<void()> ATHandler_stub::callback = NULL;
 uint8_t ATHandler_stub::resp_info_true_counter = false;
 
-ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, int timeout, const char *output_delimiter, uint16_t send_delay) :
-    _nextATHandler(0),
-    _fileHandle(fh),
-    _queue(queue)
+ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, int timeout, const char *output_delimiter, uint16_t send_delay) : _nextATHandler(0),
+                                                                                                                          _fileHandle(fh),
+                                                                                                                          _queue(queue)
 {
 }
 
@@ -87,7 +86,8 @@ void ATHandler::remove_urc_handler(const char *prefix, mbed::Callback<void()> ca
 
 nsapi_error_t ATHandler::get_last_error() const
 {
-    if (ATHandler_stub::nsapi_error_ok_counter) {
+    if (ATHandler_stub::nsapi_error_ok_counter)
+    {
         ATHandler_stub::nsapi_error_ok_counter--;
         return NSAPI_ERROR_OK;
     }
@@ -125,7 +125,6 @@ void ATHandler::clear_error()
 
 void ATHandler::skip_param(uint32_t count)
 {
-
 }
 
 void ATHandler::skip_param(ssize_t len, uint32_t count)
@@ -139,7 +138,8 @@ ssize_t ATHandler::read_bytes(uint8_t *buf, size_t len)
 
 ssize_t ATHandler::read_string(char *buf, size_t size, bool read_even_stop_tag)
 {
-    if (ATHandler_stub::read_string_value && ATHandler_stub::ssize_value >= 0) {
+    if (ATHandler_stub::read_string_value && ATHandler_stub::ssize_value >= 0)
+    {
         memcpy(buf, ATHandler_stub::read_string_value, ATHandler_stub::ssize_value);
     }
     return ATHandler_stub::ssize_value;
@@ -173,7 +173,8 @@ void ATHandler::resp_start(const char *prefix, bool stop)
 
 bool ATHandler::info_resp()
 {
-    if (ATHandler_stub::resp_info_true_counter) {
+    if (ATHandler_stub::resp_info_true_counter)
+    {
         ATHandler_stub::resp_info_true_counter--;
         return true;
     }
@@ -208,7 +209,8 @@ void ATHandler::write_string(const char *param, bool useQuotations)
 
 size_t ATHandler::write_bytes(const uint8_t *param, size_t len)
 {
-    if (ATHandler_stub::return_given_size) {
+    if (ATHandler_stub::return_given_size)
+    {
         return len;
     }
     return ATHandler_stub::size_value;
@@ -225,5 +227,4 @@ device_err_t ATHandler::get_last_device_error() const
 
 void ATHandler::flush()
 {
-
 }

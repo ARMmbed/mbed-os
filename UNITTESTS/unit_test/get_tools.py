@@ -22,9 +22,9 @@ import platform
 
 from .utils import is_tool
 from .settings import MAKE_PROGRAMS, \
-                      MAC_CXX_COMPILERS, \
-                      MAC_C_COMPILERS, \
-                      MAC_GCOV_PROGRAMS
+                      CXX_COMPILERS, \
+                      C_COMPILERS, \
+                      GCOV_PROGRAMS
 
 def get_make_tool():
     """
@@ -50,10 +50,9 @@ def get_cxx_tool():
     Get C++ compiler
     """
 
-    if platform.system() == "Darwin":
-        for cmd in MAC_CXX_COMPILERS:
-            if is_tool(cmd):
-                return cmd
+    for cmd in CXX_COMPILERS:
+        if is_tool(cmd):
+            return cmd
 
     return "g++"
 
@@ -62,10 +61,9 @@ def get_c_tool():
     Get C compiler
     """
 
-    if platform.system() == "Darwin":
-        for cmd in MAC_C_COMPILERS:
-            if is_tool(cmd):
-                return cmd
+    for cmd in C_COMPILERS:
+        if is_tool(cmd):
+            return cmd
 
     return "gcc"
 
@@ -74,9 +72,8 @@ def get_gcov_program():
     Get gcov program
     """
 
-    if platform.system() == "Darwin":
-        for cmd in MAC_GCOV_PROGRAMS:
-            if is_tool(cmd):
-                return cmd
+    for cmd in GCOV_PROGRAMS:
+        if is_tool(cmd):
+            return cmd
 
     return "gcov"

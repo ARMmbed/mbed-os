@@ -7,5 +7,6 @@
 #include <cstring>
 
 #include "platform/mbed_retarget.h"
+#include "nvic_wrapper.h"
 
 #endif
