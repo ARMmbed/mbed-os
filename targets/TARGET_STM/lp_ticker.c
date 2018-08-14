@@ -263,6 +263,7 @@ uint32_t lp_ticker_read(void)
 
 void lp_ticker_set_interrupt(timestamp_t timestamp)
 {
+    lp_ticker_disable_interrupt();
     rtc_set_wake_up_timer(timestamp);
 }
 
