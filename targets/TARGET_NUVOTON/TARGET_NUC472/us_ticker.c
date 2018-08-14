@@ -90,16 +90,7 @@ void us_ticker_init(void)
 
 void us_ticker_free(void)
 {
-    TIMER_T *timer_base = (TIMER_T *) NU_MODBASE(TIMER_MODINIT.modname);
-
-    /* Stop counting */
-    TIMER_Stop(timer_base);
-
-    /* Wait for timer to stop counting and unset active flag */
-    while((timer_base->CTL & TIMER_CTL_ACTSTS_Msk));
-
     /* Disable interrupt */
-    TIMER_DisableInt(timer_base);
     NVIC_DisableIRQ(TIMER_MODINIT.irq_n);
 
     /* Disable IP clock */
