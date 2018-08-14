@@ -39,6 +39,8 @@ namespace nfc {
      */
     class Type4RemoteInitiator : public NFCRemoteInitiator, public ISO7816App, public NFCNDEFCapable {
     private:
+        Type4RemoteInitiator(nfc_transceiver_t* transceiver);
+
         // NFCNDEFCapable implementation 
         virtual bool is_ndef_supported() const;
 
