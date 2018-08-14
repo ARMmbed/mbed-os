@@ -393,11 +393,7 @@ class ARMC6(ARM_STD):
             self.flags['common'].append("-mcpu=%s" % target.core.lower()[:-1])
             self.flags['ld'].append("--cpu=%s" % target.core.lower()[:-1])
             self.SHEBANG += " -mcpu=%s" % target.core.lower()[:-1]
-        elif target.core.lower().endswith("ns"):
-            self.flags['common'].append("-mcpu=%s" % target.core.lower()[:-3])
-            self.flags['ld'].append("--cpu=%s" % target.core.lower()[:-3])
-            self.SHEBANG += " -mcpu=%s" % target.core.lower()[:-3]
-        else:
+        elif not target.core.startswith("Cortex-M23") and not target.core.startswith("Cortex-M33"):
             self.flags['common'].append("-mcpu=%s" % target.core.lower())
             self.flags['ld'].append("--cpu=%s" % target.core.lower())
             self.SHEBANG += " -mcpu=%s" % target.core.lower()
