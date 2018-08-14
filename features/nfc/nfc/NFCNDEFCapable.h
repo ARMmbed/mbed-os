@@ -35,13 +35,18 @@ namespace nfc {
     class NFCNDEFCapable {
     public:
         /**
+         * Construct a NFCNDEFCapable instance.
+         */ 
+        NFCNDEFCapable();
+
+        /**
          * Check if this instance actually supports NDEF content.
          * 
          * @return whether NDEF content is supported
          */ 
         virtual bool is_ndef_supported() const { return false; }
 
-        struct NFCNDEFCapableDelegate {
+        struct Delegate {
             /**
              * Parse a NDEF message.
              * 
