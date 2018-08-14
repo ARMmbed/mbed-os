@@ -63,7 +63,6 @@ typedef struct __nfc_tech
   unsigned int nfc_nfc_dep_f_424 : 1;
 } nfc_tech_t;
 
-
 typedef struct __polling_options polling_options_t;
 struct __polling_options
 {
