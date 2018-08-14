@@ -124,7 +124,7 @@ public:
      */
     MbedCRC(uint32_t initial_xor, uint32_t final_xor, bool reflect_data, bool reflect_remainder) :
         _initial_value(initial_xor), _final_xor(final_xor), _reflect_data(reflect_data),
-        _reflect_remainder(reflect_remainder), _crc_table(NULL)
+        _reflect_remainder(reflect_remainder)
     {
         mbed_crc_ctor();
     }
@@ -445,8 +445,6 @@ private:
     {
         MBED_STATIC_ASSERT(width <= 32, "Max 32-bit CRC supported");
 
-        _mode = (_crc_table != NULL) ? TABLE : BITWISE;
-
 #ifdef DEVICE_CRC
         crc_mbed_config_t config;
         config.polynomial  = polynomial;
@@ -458,8 +456,30 @@ private:
 
         if (hal_crc_is_supported(&config)) {
             _mode = HARDWARE;
+            return;
         }
 #endif
+        switch (polynomial) {
+            case POLY_32BIT_ANSI:
+                _crc_table = (uint32_t *)Table_CRC_32bit_ANSI;
+                break;
+            case POLY_8BIT_CCITT:
+                _crc_table = (uint32_t *)Table_CRC_8bit_CCITT;
+                break;
+            case POLY_7BIT_SD:
+                _crc_table = (uint32_t *)Table_CRC_7Bit_SD;
+                break;
+            case POLY_16BIT_CCITT:
+                _crc_table = (uint32_t *)Table_CRC_16bit_CCITT;
+                break;
+            case POLY_16BIT_IBM:
+                _crc_table = (uint32_t *)Table_CRC_16bit_IBM;
+                break;
+            default:
+                _crc_table = NULL;
+                break;
+        }
+        _mode = (_crc_table != NULL) ? TABLE : BITWISE;
     }
 };
 
