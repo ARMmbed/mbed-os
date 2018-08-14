@@ -95,7 +95,14 @@ namespace mbed {
 template <uint32_t polynomial = POLY_32BIT_ANSI, uint8_t width = 32>
 class MbedCRC {
 public:
-    enum CrcMode { HARDWARE = 0, TABLE, BITWISE };
+    enum CrcMode
+    {
+#ifdef DEVICE_CRC
+        HARDWARE = 0,
+#endif
+        TABLE = 1,
+        BITWISE
+    };
 
 public:
     typedef uint64_t crc_data_size_t;
@@ -170,12 +177,12 @@ public:
     int32_t compute_partial(void *buffer, crc_data_size_t size, uint32_t *crc)
     {
         switch (_mode) {
-            case HARDWARE:
 #ifdef DEVICE_CRC
+            case HARDWARE:
                 hal_crc_compute_partial((uint8_t *)buffer, size);
-#endif // DEVICE_CRC
                 *crc = 0;
                 return 0;
+#endif
             case TABLE:
                 return table_compute_partial(buffer, size, crc);
             case BITWISE:
@@ -229,20 +236,22 @@ public:
     {
         MBED_ASSERT(crc != NULL);
 
-        if (_mode == HARDWARE) {
 #ifdef DEVICE_CRC
+        if (_mode == HARDWARE) {
             *crc = hal_crc_get_result();
             return 0;
-#else
-            return -1;
-#endif
         }
-
+#endif
         uint32_t p_crc = *crc;
         if ((width < 8) && (NULL == _crc_table)) {
             p_crc = (uint32_t)(p_crc << (8 - width));
         }
-        *crc = (reflect_remainder(p_crc) ^ _final_xor) & get_crc_mask();
+        // Optimized algorithm for 32BitANSI does not need additional reflect_remainder
+        if ((TABLE == _mode) && (POLY_32BIT_ANSI == polynomial)) {
+            *crc = (p_crc ^ _final_xor) & get_crc_mask();
+        } else {
+            *crc = (reflect_remainder(p_crc) ^ _final_xor) & get_crc_mask();
+        }
         return 0;
     }
 
@@ -420,9 +429,9 @@ private:
             }
         } else {
             uint32_t *crc_table = (uint32_t *)_crc_table;
-            for (crc_data_size_t byte = 0; byte < size; byte++) {
-                data_byte = reflect_bytes(data[byte]) ^ (p_crc >> (width - 8));
-                p_crc = crc_table[data_byte] ^ (p_crc << 8);
+            for (crc_data_size_t i = 0; i < size; i++) {
+                p_crc = (p_crc >> 4) ^ crc_table[(p_crc ^ (data[i] >> 0)) & 0xf];
+                p_crc = (p_crc >> 4) ^ crc_table[(p_crc ^ (data[i] >> 4)) & 0xf];
             }
         }
         *crc = p_crc & get_crc_mask();

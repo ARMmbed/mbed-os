@@ -23,13 +23,14 @@ namespace mbed {
 /** \addtogroup drivers */
 /** @{*/
 
-#define MBED_CRC_TABLE_SIZE     256
+#define MBED_CRC_TABLE_SIZE             256
+#define MBED_OPTIMIZED_CRC_TABLE_SIZE   16
 
 extern const uint8_t Table_CRC_7Bit_SD[MBED_CRC_TABLE_SIZE];
 extern const uint8_t Table_CRC_8bit_CCITT[MBED_CRC_TABLE_SIZE];
 extern const uint16_t Table_CRC_16bit_CCITT[MBED_CRC_TABLE_SIZE];
 extern const uint16_t Table_CRC_16bit_IBM[MBED_CRC_TABLE_SIZE];
-extern const uint32_t Table_CRC_32bit_ANSI[MBED_CRC_TABLE_SIZE];
+extern const uint32_t Table_CRC_32bit_ANSI[MBED_OPTIMIZED_CRC_TABLE_SIZE];
 
 /** @}*/
 } // namespace mbed
