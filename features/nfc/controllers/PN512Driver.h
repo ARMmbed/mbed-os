@@ -30,8 +30,8 @@ namespace nfc {
         PN512Driver(PN512TransportDriver* transport_driver);
 
     private:
-        virtual void initialize(scheduler_timer_t* pTimer) = 0;
-        virtual transceiver_t* get_transceiver() const;
+        virtual void initialize(nfc_scheduler_timer_t* pTimer) = 0;
+        virtual nfc_transceiver_t* get_transceiver() const;
 
         pn512_t _pn512;
     };

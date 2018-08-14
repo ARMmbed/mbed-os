@@ -41,9 +41,9 @@ namespace nfc {
          * Initialize the driver and retrieve the interface to the controller.
          * 
          * @param[in] pTimer The MicroNFC timer instance for the scheduler to use
-         * @return an initialized MicroNFC transceiver_t instance
+         * @return an initialized MicroNFC nfc_transceiver_t instance
          */ 
-        virtual transceiver_t* initialize(scheduler_timer_t* timer) = 0;
+        virtual nfc_transceiver_t* initialize(nfc_scheduler_timer_t* timer) = 0;
 
         /**
          * Retrieve list of technologies supported by the controller
