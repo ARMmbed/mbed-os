@@ -104,6 +104,10 @@ void increment_multi_counter(void)
  */
 void test_case_1x_ticker()
 {
+#if defined(__ARM_FM)
+    TEST_SKIP_MESSAGE("FastModels not support time drifting test")
+#endif
+
     char _key[11] = { };
     char _value[128] = { };
     int expected_key = 1;
@@ -145,6 +149,10 @@ void test_case_1x_ticker()
  */
 void test_case_2x_ticker()
 {
+#if defined(__ARM_FM)
+    TEST_SKIP_MESSAGE("FastModels not support time drifting test")
+#endif
+
     char _key[11] = { };
     char _value[128] = { };
     int expected_key =  1;

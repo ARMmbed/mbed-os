@@ -62,6 +62,10 @@ void ticker_event_handler_stub(const ticker_data_t *const ticker)
 /* Test that the ticker is operating at the frequency it specifies. */
 void ticker_frequency_test()
 {
+#if defined(__ARM_FM)
+    TEST_SKIP_MESSAGE("FastModels not support time drifting test")
+#endif
+
     char _key[11] = { };
     char _value[128] = { };
     int expected_key = 1;
