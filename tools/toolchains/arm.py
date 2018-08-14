@@ -361,7 +361,7 @@ class ARMC6(ARM_STD):
     SUPPORTED_CORES = ["Cortex-M0", "Cortex-M0+", "Cortex-M3", "Cortex-M4",
                        "Cortex-M4F", "Cortex-M7", "Cortex-M7F", "Cortex-M7FD",
                        "Cortex-M23", "Cortex-M23-NS", "Cortex-M33",
-                       "CortexM33-NS", "Cortex-A9"]
+                       "Cortex-M33-NS", "Cortex-A9"]
     ARMCC_RANGE = (LooseVersion("6.10"), LooseVersion("7.0"))
 
     @staticmethod

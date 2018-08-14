@@ -256,8 +256,6 @@ class GCC(mbedToolchain):
         # Exec command
         self.notify.cc_verbose("Link: %s" % ' '.join(cmd))
         self.default_cmd(cmd)
-        if self.target.core == "Cortex-M23" or self.target.core == "Cortex-M33":
-            self.notify.info("Secure Library Object %s" %secure_file)
 
     @hook_tool
     def archive(self, objects, lib_path):
