@@ -65,6 +65,20 @@ static Timer *p_timer = NULL;
  */
 static uint32_t curr_ticker_ticks_val;
 
+
+/* Replacement for generic wait functions to avoid invoking OS scheduling stuff. */
+void busy_wait_us(int us)
+{
+    const ticker_data_t *const ticker = get_us_ticker_data();
+    uint32_t start = ticker_read(ticker);
+    while ((ticker_read(ticker) - start) < (uint32_t)us);
+}
+
+void busy_wait_ms(int ms)
+{
+    busy_wait_us(ms * US_PER_MSEC);
+}
+
 /* User ticker interface function. */
 static void stub_interface_init()
 {
@@ -203,7 +217,7 @@ void test_timer_creation_os_ticker()
 
     /* Wait 10 ms.
      * After that operation timer read routines should still return 0. */
-    wait_ms(10);
+    busy_wait_ms(10);
 
     /* Check results. */
     TEST_ASSERT_EQUAL_FLOAT(0, p_timer->read());
@@ -413,7 +427,7 @@ void test_timer_time_accumulation_os_ticker()
     p_timer->start();
 
     /* Wait 10 ms. */
-    wait_ms(10);
+    busy_wait_ms(10);
 
     /* Stop the timer. */
     p_timer->stop();
@@ -427,7 +441,7 @@ void test_timer_time_accumulation_os_ticker()
     /* Wait 50 ms - this is done to show that time elapsed when
      * the timer is stopped does not have influence on the
      * timer counted time. */
-    wait_ms(50);
+    busy_wait_ms(50);
 
     /* ------ */
 
@@ -435,7 +449,7 @@ void test_timer_time_accumulation_os_ticker()
     p_timer->start();
 
     /* Wait 20 ms. */
-    wait_ms(20);
+    busy_wait_ms(20);
 
     /* Stop the timer. */
     p_timer->stop();
@@ -456,7 +470,7 @@ void test_timer_time_accumulation_os_ticker()
     p_timer->start();
 
     /* Wait 30 ms. */
-    wait_ms(30);
+    busy_wait_ms(30);
 
     /* Stop the timer. */
     p_timer->stop();
@@ -470,7 +484,7 @@ void test_timer_time_accumulation_os_ticker()
     /* Wait 50 ms - this is done to show that time elapsed when
      * the timer is stopped does not have influence on the
      * timer time. */
-    wait_ms(50);
+    busy_wait_ms(50);
 
     /* ------ */
 
@@ -478,7 +492,7 @@ void test_timer_time_accumulation_os_ticker()
     p_timer->start();
 
     /* Wait 1 sec. */
-    wait_ms(1000);
+    busy_wait_ms(1000);
 
     /* Stop the timer. */
     p_timer->stop();
@@ -507,7 +521,7 @@ void test_timer_reset_os_ticker()
     p_timer->start();
 
     /* Wait 10 ms. */
-    wait_ms(10);
+    busy_wait_ms(10);
 
     /* Stop the timer. */
     p_timer->stop();
@@ -525,7 +539,7 @@ void test_timer_reset_os_ticker()
     p_timer->start();
 
     /* Wait 20 ms. */
-    wait_ms(20);
+    busy_wait_ms(20);
 
     /* Stop the timer. */
     p_timer->stop();
@@ -603,13 +617,13 @@ void test_timer_start_started_timer_os_ticker()
     p_timer->start();
 
     /* Wait 10 ms. */
-    wait_ms(10);
+    busy_wait_ms(10);
 
     /* Now start timer again. */
     p_timer->start();
 
     /* Wait 20 ms. */
-    wait_ms(20);
+    busy_wait_ms(20);
 
     /* Stop the timer. */
     p_timer->stop();
@@ -673,7 +687,7 @@ void test_timer_float_operator_os_ticker()
     p_timer->start();
 
     /* Wait 10 ms. */
-    wait_ms(10);
+    busy_wait_ms(10);
 
     /* Stop the timer. */
     p_timer->stop();
@@ -728,7 +742,7 @@ void test_timer_time_measurement()
     p_timer->start();
 
     /* Wait <wait_val_us> us. */
-    wait_us(wait_val_us);
+    busy_wait_us(wait_val_us);
 
     /* Stop the timer. */
     p_timer->stop();
