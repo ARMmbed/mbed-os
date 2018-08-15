@@ -54,50 +54,6 @@
  *   cmd_exe( "dymmy;long" );
  * }
  * \endcode
- * \startuml {cli_usecase.png}
-   actor user
-   participant app
-   participant cli
-   participant mycmd
-
- == Initialization ==
- * app -> cli: cmd_init( &default_cmd_response_out )
- note right : This initialize command line library
- * mycmd -> cli: cmd_add( mycmd_command, "mycmd", NULL, NULL)
- note right : All commands have to be register \nto cmdline library with cmd_add() function
-
- == command input characters==
- * app -> cli: cmd_char_input("d")
- * app -> cli: cmd_char_input("u")
- * app -> cli: cmd_char_input("m")
- * app -> cli: cmd_char_input("m")
- * app -> cli: cmd_char_input("y")
- * app -> cli: cmd_char_input("\\n")
- note left : User write command to \nbe execute and press ENTER when \ncommand with all parameters are ready.\nCharacters can be come from serial port for example.
- == command execution==
- * mycmd <- cli: mycmd_command(argc, argv)
- * mycmd -> cli: cmd_printf("hello world!\\n")
-   note right : cmd_printf() should \nbe used when command prints \nsomething to the console
- * cli -> user: "hello world!\\n"
- * mycmd -> cli: <<retcode>>
- == finish command and goto forward ==
- * app <- cli: cmd_ready_cb()
- * app -> cli: cmd_next()
- note left : this way application can \ndecide when/how to go forward.\nWhen using event-loop, \nyou probably want create tasklet where \ncommands are actually executed.\nif there are some commands in queue cmd_next()\nstart directly next command execution.\n
- == command execution==
- * app -> cli: cmd_exe("long\\n")
- note left : input string can be \ngive also with cmd_exe() -function
- * mycmd <- cli: long_command(argc, argv)
- * mycmd -> cli: <<retcode>> = CMDLINE_RETCODE_EXECUTING_CONTINUE
- note right : When command continue in background, it should return\nCMDLINE_RETCODE_EXECUTING_CONTINUE.\nCommand interpreter not continue next command \nas long as cmd_ready() -function is not called.
- ... Some ~~long delay~~ ...
- * mycmd -> cli: cmd_ready( <<retcode>> )
- note right : When command is finally finished,\nit should call cmd_ready() function.
- == finish command and goto forward ==
- * app <- cli: cmd_ready_cb()
- * app -> cli: cmd_next()
- ... ...
- * \enduml
  */
 #ifndef _CMDLINE_H_
 #define _CMDLINE_H_
