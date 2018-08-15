@@ -80,16 +80,35 @@
       .direction("s")
       .offset([8, 0])
       .attr('class', 'd3-flame-graph-tip')
-      .html(function(d) { return "module: " + d.data.name + ", bytes: " + d.data.value; });
+      .html(function(d) { return "module: " + d.data.name + ", bytes: " + d.data.value + ", delta: " + d.data.delta; });
+    var colorizer = function (d) {
+        if (d.data.delta > 0) {
+            ratio = (d.data.value - d.data.delta) / d.data.value;
+            green = ("0" + (Number(ratio * 0xFF | 0).toString(16))).slice(-2).toUpperCase();
+            blue = ("0" + (Number(ratio * 0xEE | 0).toString(16))).slice(-2).toUpperCase();
+            console.log(d.data.name, green, blue);
+            return "#EE" + green + blue
+        } else if (d.data.delta < 0) {
+            ratio = (d.data.value + d.data.delta) / d.data.value;
+            green = ("0" + (Number(ratio * 0xFF | 0).toString(16))).slice(-2).toUpperCase();
+            red = ("0" + (Number(ratio * 0xFF | 0).toString(16))).slice(-2).toUpperCase();
+            console.log(d.data.name, red, green);
+            return "#" + red + green + "EE";
+        } else {
+            return "#FFFFEE";
+        }
+    }
     var flameGraph_rom = d3.flameGraph()
       .transitionDuration(250)
       .transitionEase(d3.easeCubic)
       .sort(true)
+      .color(colorizer)
       .tooltip(tip);
     var flameGraph_ram = d3.flameGraph()
       .transitionDuration(250)
       .transitionEase(d3.easeCubic)
       .sort(true)
+      .color(colorizer)
       .tooltip(tip);
     var rom_elem = d3.select("#chart-rom");
     flameGraph_rom.width(rom_elem.node().getBoundingClientRect().width);
