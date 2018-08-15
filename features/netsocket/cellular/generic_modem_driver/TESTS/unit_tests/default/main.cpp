@@ -27,14 +27,8 @@
 #include "OnboardCellularInterface.h"
 #include "UDPSocket.h"
 #include "TCPSocket.h"
-#if defined(FEATURE_COMMON_PAL)
 #include "mbed_trace.h"
 #define TRACE_GROUP "TEST"
-#else
-#define tr_debug(...) (void(0)) //dummies if feature common pal is not added
-#define tr_info(...)  (void(0)) //dummies if feature common pal is not added
-#define tr_error(...) (void(0)) //dummies if feature common pal is not added
-#endif //defined(FEATURE_COMMON_PAL)
 
 using namespace utest::v1;
 

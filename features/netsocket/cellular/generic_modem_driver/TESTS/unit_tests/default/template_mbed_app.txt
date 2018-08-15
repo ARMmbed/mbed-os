@@ -59,10 +59,9 @@
             "lwip.ethernet-enabled": false,
             "lwip.ppp-enabled": true,
             "lwip.tcp-enabled": true,
-            "target.features_add": ["LWIP", "COMMON_PAL"],
             "platform.stdio-convert-newlines": true,
             "platform.stdio-baud-rate": 115200,
-            "platform.default-serial-baud-rate": 115200, 
+            "platform.default-serial-baud-rate": 115200,
             "mbed-trace.enable": 1
         }
     }

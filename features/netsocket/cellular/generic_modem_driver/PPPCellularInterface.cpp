@@ -21,14 +21,8 @@
 #if MBED_CONF_PPP_CELL_IFACE_APN_LOOKUP
 #include "APN_db.h"
 #endif //MBED_CONF_PPP_CELL_IFACE_APN_LOOKUP
-#if defined(FEATURE_COMMON_PAL)
 #include "mbed_trace.h"
 #define TRACE_GROUP "UCID"
-#else
-#define tr_debug(...) (void(0)) //dummies if feature common pal is not added
-#define tr_info(...)  (void(0)) //dummies if feature common pal is not added
-#define tr_error(...) (void(0)) //dummies if feature common pal is not added
-#endif //defined(FEATURE_COMMON_PAL)
 
 /**
  * PDP (packet data profile) Context
