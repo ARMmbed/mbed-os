@@ -345,7 +345,6 @@ void nrf_drv_twi_uninit(nrf_drv_twi_t const * p_instance)
             nrf_drv_common_irq_disable(nrf_drv_get_IRQn((void *)p_instance->reg.p_twi));
         )
     }
-    nrf_drv_twi_disable(p_instance);
 
 #if NRF_MODULE_ENABLED(PERIPHERAL_RESOURCE_SHARING)
     nrf_drv_common_per_res_release(p_instance->reg.p_regs);
