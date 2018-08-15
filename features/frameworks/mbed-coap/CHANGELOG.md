@@ -1,5 +1,13 @@
 # Change Log
 
+## [v4.6.1](https://github.com/ARMmbed/mbed-coap/releases/tag/v4.6.1) 
+**Closed issues:**
+-  IOTCLT-2900 - Blockwise handling leaking memory in some error cases
+
+Fix unused parameter compiler warning when blockwise is not used.
+
+-[Full Changelog](https://github.com/ARMmbed/mbed-coap/compare/v4.6.0...v4.6.1)
+
 ## [v4.6.0](https://github.com/ARMmbed/mbed-coap/releases/tag/v4.6.0) 
 **New feature:**
 -  Add new API which clears one item from the resend queue based on token
