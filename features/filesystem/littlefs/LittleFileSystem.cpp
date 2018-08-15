@@ -16,10 +16,8 @@
 #include "filesystem/mbed_filesystem.h"
 #include "LittleFileSystem.h"
 #include "errno.h"
-extern "C" {
 #include "lfs.h"
 #include "lfs_util.h"
-}
 
 
 ////// Conversion functions //////

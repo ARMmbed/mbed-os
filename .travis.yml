@@ -200,7 +200,7 @@ matrix:
         - fusermount --version
       before_script:
         # Setup and patch littlefs-fuse
-        - git clone https://github.com/geky/littlefs-fuse littlefs_fuse
+        - git clone https://github.com/armmbed/littlefs-fuse littlefs_fuse
         - git -C littlefs_fuse checkout 3f1ed6e37799e49e3710830dc6abb926d5503cf2
         - echo '*' > littlefs_fuse/.mbedignore
         - rm -rf littlefs_fuse/littlefs/*
@@ -238,7 +238,7 @@ matrix:
         - make clean size
             CC='arm-none-eabi-gcc -mthumb'
             OBJ="$(ls lfs*.o | tr '\n' ' ')"
-            CFLAGS+="-DLFS_NO{ASSERT,DEBUG,WARN,ERROR}"
+            CFLAGS+="-DLFS_NO_ASSERT -DLFS_NO_DEBUG -DLFS_NO_WARN -DLFS_NO_ERROR"
             | tee sizes
       after_success:
         # update status if we succeeded, compare with master if possible

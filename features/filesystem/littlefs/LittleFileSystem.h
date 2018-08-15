@@ -19,9 +19,7 @@
 #include "FileSystem.h"
 #include "BlockDevice.h"
 #include "PlatformMutex.h"
-extern "C" {
 #include "lfs.h"
-}
 
 
 /**
