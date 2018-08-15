@@ -54,7 +54,7 @@
  *   cmd_exe( "dymmy;long" );
  * }
  * \endcode
- * \startuml{cli_usecase.png}
+ * \startuml {cli_usecase.png}
    actor user
    participant app
    participant cli
