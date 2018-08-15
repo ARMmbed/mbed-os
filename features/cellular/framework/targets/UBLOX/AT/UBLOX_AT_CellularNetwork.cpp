@@ -326,20 +326,3 @@ const char *UBLOX_AT_CellularNetwork::get_gateway()
 {
     return get_ip_address();
 }
-
-nsapi_error_t UBLOX_AT_CellularNetwork::detach()
-{
-    nsapi_error_t err;
-
-    _at.lock();
-    _at.cmd_start("AT+CGATT=0");
-    _at.cmd_stop();
-    _at.resp_start();
-    _at.resp_stop();
-    err =  _at.unlock_return_error();
-
-    // wait added to process CGREG and UUPSDD URC, which comes after detach.
-    wait_ms(50);
-
-    return err;
-}

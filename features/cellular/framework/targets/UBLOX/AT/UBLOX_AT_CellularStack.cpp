@@ -16,6 +16,7 @@
  */
 
 #include "UBLOX_AT_CellularStack.h"
+#include "mbed_poll.h"
 
 using namespace mbed;
 using namespace mbed_cellular_util;
@@ -192,6 +193,12 @@ nsapi_size_or_error_t UBLOX_AT_CellularStack::socket_sendto_impl(CellularSocket 
     int sent_len = 0;
     uint8_t ch = 0, cont = 50;
 
+    pollfh fhs;
+    fhs.fh = _at.get_file_handle();
+    fhs.events = POLLIN;
+    int pollCount;
+
+    socket->rx_avail = false;
     if (socket->proto == NSAPI_UDP) {
         if (size > UBLOX_MAX_PACKET_SIZE) {
             return NSAPI_ERROR_PARAMETER;
@@ -202,11 +209,7 @@ nsapi_size_or_error_t UBLOX_AT_CellularStack::socket_sendto_impl(CellularSocket 
         _at.write_int(address.get_port());
         _at.write_int(size);
         _at.cmd_stop();
-        wait_ms(50);
-        while (ch != '@' && cont > 0) {
-            _at.read_bytes(&ch, 1);
-            cont--;
-        }
+        pollCount = poll(&fhs, 1, 50);
         _at.write_bytes((uint8_t *)data, size);
 
         _at.resp_start("+USOST:");
@@ -231,11 +234,7 @@ nsapi_size_or_error_t UBLOX_AT_CellularStack::socket_sendto_impl(CellularSocket 
             _at.write_int(socket->id);
             _at.write_int(blk);
             _at.cmd_stop();
-            wait_ms(50);
-            while (ch != '@' && cont > 0) {
-                _at.read_bytes(&ch, 1);
-                cont--;
-            }
+            pollCount = poll(&fhs, 1, 50);
             _at.write_bytes((uint8_t *)buf, blk);
 
             _at.resp_start("+USOWR:");
@@ -254,7 +253,6 @@ nsapi_size_or_error_t UBLOX_AT_CellularStack::socket_sendto_impl(CellularSocket 
         }
 
         if (success && _at.get_last_error() == NSAPI_ERROR_OK) {
-            socket->rx_avail = false;
             return size - count;
         }
     }
@@ -274,6 +272,13 @@ nsapi_size_or_error_t UBLOX_AT_CellularStack::socket_recvfrom_impl(CellularSocke
     uint8_t ch = 0;
     int port = 0;
     Timer timer;
+
+    if (!socket->rx_avail) {
+        _at.process_oob();
+        if (!socket->rx_avail) {
+            return NSAPI_ERROR_WOULD_BLOCK;
+        }
+    }
 
     timer.start();
     if (socket->proto == NSAPI_UDP) {

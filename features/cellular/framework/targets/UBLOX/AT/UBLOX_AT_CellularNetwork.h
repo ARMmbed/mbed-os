@@ -34,7 +34,6 @@ public:
 
     virtual const char *get_gateway();
 
-    virtual nsapi_error_t detach();
 protected:
     virtual NetworkStack *get_stack();
 
