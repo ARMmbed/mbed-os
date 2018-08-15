@@ -20,12 +20,14 @@
 #include "acore/buffer_reader.h"
 #include "acore/buffer_builder.h"
 
+#include "ndef/ndef.h"
+
 using namespace mbed;
 using namespace mbed::nfc;
 
-NFCNDEFCapable::NFCNDEFCapable() : _delegate(NULL)
+NFCNDEFCapable::NFCNDEFCapable(uint8_t* buffer, size_t buffer_size) : _delegate(NULL)
 {
-
+    ndef_msg_init(&_ndef_message, s_encode_callback, s_decode_callback);
 }
 
 void NFCNDEFCapable::set_ndef_delegate(NFCNDEFCapable::Delegate* delegate)
@@ -48,4 +50,24 @@ void NFCNDEFCapable::build_ndef_message(ac_buffer_builder_t& buffer_builder)
         size_t count = _delegate->build_ndef_message( ac_buffer_builder_write_position(&buffer_builder), ac_buffer_builder_writable(&buffer_builder) );
         ac_buffer_builder_write_n_skip(&buffer_builder, count);
     }
+}
+
+nfc_err_t NFCNDEFCapable::s_ndef_encode(ndef_msg_t* pTag, buffer_builder_t* pBufferBldr, void* pUserData) {
+    NFCNDEFCapable* self = (NFCNDEFCapable*)pUserData;
+    self->ndef_encode(pBufferBldr);
+}
+
+nfc_err_t NFCNDEFCapable::s_ndef_decode(ndef_msg_t* pTag, buffer_t* pBuffer, void* pUserData) {
+    NFCNDEFCapable* self = (NFCNDEFCapable*)pUserData;
+    self->ndef_decode(pBuffer);
+}
+
+nfc_err_t NFCNDEFCapable::ndef_encode(buffer_builder_t* pBufferBldr) {
+    build_ndef_message(buffer_builder);
+    return NFC_OK;
+}
+
+nfc_err_t NFCNDEFCapable::ndef_decode(buffer_t* pBuffer) {
+    parse_ndef_message(pBuffer);
+    return NFC_OK;
 }
