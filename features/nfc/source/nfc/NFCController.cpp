@@ -109,6 +109,11 @@ nfc_err_t NFCController::cancel_discovery()
     transceiver_abort(_transceiver);
 }
 
+nfc_transceiver_t* NFCController::transceiver() const
+{
+    return _transceiver;
+}
+
 void NFCController::polling_callback(nfc_err_t ret)
 {
     // Polling has completed

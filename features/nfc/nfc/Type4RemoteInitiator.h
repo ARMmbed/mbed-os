@@ -37,18 +37,39 @@ namespace nfc {
     /**
      * This class is an implementation of the Type 4 tag application.
      */
-    class Type4RemoteInitiator : public NFCRemoteInitiator, public ISO7816App, public NFCNDEFCapable {
+    class Type4RemoteInitiator : public NFCRemoteInitiator, public NFCNDEFCapable {
     private:
-        Type4RemoteInitiator(nfc_transceiver_t* transceiver);
+        /**
+         * Create a Type4RemoteInitiator.
+         * 
+         * @param[in] controller pointer to the NFCController instance that created this object
+         */ 
+        Type4RemoteInitiator(NFCController* controller);
+
+        // NFCRemoteEndpoint implementation
+        virtual nfc_err_t connect();
+        virtual nfc_err_t disconnect();
+        virtual bool is_connected();
+        virtual bool is_disconnected();
+        virtual nfc_rf_protocols_bitmask_t rf_protocols();
+
+        // NFCRemoteInitiator implementation
+        virtual nfc_tag_type_t nfc_tag_type() const;
+        virtual bool is_iso7816_supported() const;
+        virtual void add_iso7816_application(ISO7816App* application);
 
         // NFCNDEFCapable implementation 
         virtual bool is_ndef_supported() const;
 
-        // ISO7816App implementation
-        virtual const ac_buffer_t* get_aid() const;
-        virtual void on_selected();
-        virtual void on_deselected();
-        virtual void on_exchange(Exchange* exchange);
+        // Callbacks from NFC stack
+        void disconnected_callback(bool deselected);
+        static void s_disconnected_callback(nfc_tech_iso7816_t* pIso7816, bool deselected, void* pUserData);
+
+        NFCController* _controller;
+        bool _is_connected;
+        bool _is_disconnected;
+        nfc_tech_iso7816_t _iso7816;
+        nfc_tech_type4_target_t _type4;
     };
 
     /**

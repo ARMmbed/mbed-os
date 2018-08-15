@@ -36,8 +36,10 @@ namespace nfc {
     public:
         /**
          * Construct a NFCNDEFCapable instance.
+         * @param[in] buffer a bytes array used to store NDEF messages
+         * @param[in] buffer_size the array size in bytes
          */ 
-        NFCNDEFCapable();
+        NFCNDEFCapable(uint8_t* buffer, size_t buffer_size);
 
         /**
          * Check if this instance actually supports NDEF content.
@@ -88,8 +90,22 @@ namespace nfc {
          */ 
         void build_ndef_message(ac_buffer_builder_t& buffer_builder);
 
+        /**
+         * Retrieve underlying NDEF message instance
+         * @return pointer to NDEF message instance
+         */ 
+        ndef_msg_t* ndef_message();
+
     private:
+        // Callbacks from NDEF stack
+        static nfc_err_t s_ndef_encode(ndef_msg_t* pTag, buffer_builder_t* pBufferBldr, void* pUserData);
+        static nfc_err_t s_ndef_decode(ndef_msg_t* pTag, buffer_t* pBuffer, void* pUserData);
+        nfc_err_t ndef_encode(buffer_builder_t* pBufferBldr);
+        nfc_err_t ndef_decode(buffer_t* pBuffer);
+
+
         Delegate* _delegate;
+        ndef_msg_t _ndef_message;
     };
 
     /**

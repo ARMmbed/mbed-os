@@ -30,6 +30,8 @@ namespace nfc {
      * @addtogroup nfc
      * @{
      */
+
+    class NFCController;
     
     /**
      * This class represents a remote NFC initiator (the local controller being in target mode).
@@ -40,6 +42,7 @@ namespace nfc {
     public:
         /**
          * Create a NFCRemoteInitiator.
+         * 
          */ 
         NFCRemoteInitiator();
         virtual ~NFCRemoteInitiator();
@@ -48,15 +51,7 @@ namespace nfc {
          * The NFCRemoteInitiator delegate. Users of the NFCRemoteInitiator class need to implement this delegate's methods to receive events.
          */
         struct Delegate : NFCEndpoint::Delegate, NFCNDEFCapable::Delegate {
-            /**
-             * The controller was selected by the initiator.
-             */ 
-            virtual void on_selected() {}
 
-            /**
-             * The controller was deselected by the initiator.
-             */ 
-            virtual void on_deselected() {}
         };
 
         /** 
@@ -64,28 +59,31 @@ namespace nfc {
          * 
          * @oaram[in] delegate the delegate instance to use
          */ 
-        void set_delegate(Delegate* delegate);
+        void set_remote_initiator_delegate(Delegate* delegate);
 
         /**
          * Retrieve the NFC tag type exposed by the controller to communicate with the initiator.
          * 
          * @return the relevant NFC tag type
          */ 
-        nfc_tag_type_t nfc_tag_type() const;
+        virtual nfc_tag_type_t nfc_tag_type() const = 0;
 
         /**
          * Retrieve whether ISO7816 applications are supported by the underlying technology.
          * 
          * @return whether ISO7816 applications are supported
          */ 
-        bool is_iso7816_supported() const;
+        virtual bool is_iso7816_supported() const = 0;
 
         /** 
          * Register an ISO7816 application to be used by the initiator.
          * 
          * @param[in] application a pointer to an ISO7816App instance
          */
-        void add_iso7816_application(ISO7816App* application);
+        virtual void add_iso7816_application(ISO7816App* application) = 0;
+
+    private:
+        Delegate* _delegate;
     };
 
     /**

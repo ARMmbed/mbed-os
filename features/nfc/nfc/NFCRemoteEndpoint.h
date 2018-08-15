@@ -28,6 +28,8 @@ namespace nfc {
      * @addtogroup nfc
      * @{
      */
+
+    class NFCController;
     
     /**
      * This is the base class for all remote endpoints (initiators and targets)
@@ -35,28 +37,65 @@ namespace nfc {
      */ 
     class NFCRemoteEndpoint {
     public:
+        NFCRemoteEndpoint();
 
         /**
          * The NFCRemoteEndpoint base delegate.
          */
         struct Delegate {
             /**
+             * This method is called when the endpoint is connected
+             */
+            virtual void on_connected() {};           
+
+            /**
              * This method is called when the endpoint is lost (air interface link disconnnected)
              */
-            virtual void on_lost() {};           
+            virtual void on_disconnected() {};           
         };
 
         /**
-         * Check if the endpoint is lost.
-         * @return whether the endpoint is lost
+         * Connect the remote endpoint
+         * 
+         * @return NFC_OK or an error code
+         */
+        virtual nfc_err_t connect() = 0;
+
+        /**
+         * Disconnect the remote endpoint
+         * 
+         * @return NFC_OK or an error code
+         */
+        virtual nfc_err_t disconnect() = 0;
+
+        /**
+         * Check if the endpoint is connected.
+         * @return whether the endpoint is connected
          */ 
-        bool is_lost() const;
+        virtual bool is_connected() const = 0;
+
+        /**
+         * Check if the endpoint is disconnected/lost.
+         * @return whether the endpoint has been disconnected
+         */ 
+        virtual bool is_disconnected() const = 0;
 
         /**
          * Get the list of RF protocols supported and activated over the air interface.
          * @return a bitmask of activated protocols
          */ 
-        nfc_rf_protocols_bitmask_t rf_protocols() const;
+        virtual nfc_rf_protocols_bitmask_t rf_protocols() = 0;
+
+    protected:
+        /**
+         * Mark endpoint as connected
+         */ 
+        void connected();
+
+        /**
+         * Mark endpoint as disconnected
+         */
+        void disconnected();
     };
 
     /**

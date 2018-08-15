@@ -29,6 +29,8 @@ namespace nfc {
      * @addtogroup nfc
      * @{
      */
+
+    class Type4RemoteInitiator;
     
     /**
      * This base class represents an ISO7816-4 application.
@@ -85,27 +87,34 @@ namespace nfc {
         private:
             CAPDU _command;
             RAPDU _response;
-            ISO7816App* _app;
+            ISO7816App* _iso7816_app;
         };
 
+        /** 
+         * Construct ISO7816 app instance
+         */ 
+        ISO7816App();
+
     private:
+        friend class Type4RemoteInitiator;
+
         /**
          * Retrieve the application's identifier (AID).
          * AIDs are composed of a RID (Registered Application Provider Identifier) that needs to be registered and a custom suffix.
          * 
          * @return a pointer to a const buffer containing the application's identifier (AID).
          */ 
-        virtual const ac_buffer_t* get_aid() const;
+        virtual const ac_buffer_t* get_aid() const = 0;
 
         /**
          * Called when the application is selected and before any exchange is performed.
          */ 
-        virtual void on_selected();
+        virtual void on_selected() = 0;
 
         /**
          * Called when the application is deselected (or link is lost).
          */ 
-        virtual void on_deselected();
+        virtual void on_deselected() = 0;
 
         /**
          * Called when an exchange is performed.
@@ -113,7 +122,9 @@ namespace nfc {
          * 
          * @param[in] exchange an instance of the Exchange class populated with the C-APDU which was received
          */ 
-        virtual void on_exchange(Exchange* exchange);
+        virtual void on_exchange(Exchange* exchange) = 0;
+
+        nfc_tech_iso7816_app_t iso7816_app;
     };
 
     /**

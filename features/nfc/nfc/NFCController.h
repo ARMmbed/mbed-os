@@ -138,6 +138,9 @@ namespace nfc {
         nfc_err_t cancel_discovery();
 
     private:
+        friend class NFCRemoteEndpoint;
+        friend class NFCRemoteInitiator;
+        nfc_transceiver_t* transceiver() const;
         void polling_callback(nfc_err_t ret);
                 
         // Callbacks from NFC stack
