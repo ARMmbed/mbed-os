@@ -175,7 +175,7 @@ void gpio_init(gpio_t *obj, PinName pin)
         /* MCC LEDs */
         obj->gpio_dev = NULL;
         obj->mps2_io_dev = &ARM_MPS2_IO_SCC_DEV;
-        obj->arm_mps2_io_write = NULL;
+        obj->arm_mps2_io_write = arm_mps2_io_write_leds;
         obj->pin_number = pin - LED1;
         obj->direction = PIN_OUTPUT;
         return;
