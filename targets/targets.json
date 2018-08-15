@@ -1014,6 +1014,7 @@
         "detect_code": ["0745"],
         "device_has_add": ["ANALOGOUT", "CAN", "CRC", "SERIAL_ASYNCH", "SERIAL_FC", "FLASH"],
         "release_versions": ["2", "5"],
+        "bootloader_supported": true,
         "device_name": "STM32F303RE"
     },
     "NUCLEO_F303ZE": {
