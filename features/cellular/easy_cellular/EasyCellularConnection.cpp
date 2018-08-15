@@ -336,6 +336,16 @@ NetworkStack *EasyCellularConnection::get_stack()
     }
 }
 
+CellularDevice *EasyCellularConnection::get_device()
+{
+    return _cellularConnectionFSM->get_device();
+}
+
+UARTSerial *EasyCellularConnection::get_serial()
+{
+    return &_cellularSerial;
+}
+
 } // namespace
 
 #endif // CELLULAR_DEVICE
