@@ -55,7 +55,6 @@ void UBLOX_AT_CellularStack::UUSORD_URC()
 
     socket = find_socket(a);
     if (socket != NULL) {
-        socket->rx_avail = true;
         socket->pending_bytes = b;
         // No debug prints here as they can affect timing
         // and cause data loss in UARTSerial
@@ -76,7 +75,6 @@ void UBLOX_AT_CellularStack::UUSORF_URC()
 
     socket = find_socket(a);
     if (socket != NULL) {
-        socket->rx_avail = true;
         socket->pending_bytes = b;
         // No debug prints here as they can affect timing
         // and cause data loss in UARTSerial
@@ -198,7 +196,6 @@ nsapi_size_or_error_t UBLOX_AT_CellularStack::socket_sendto_impl(CellularSocket 
     fhs.events = POLLIN;
     int pollCount;
 
-    socket->rx_avail = false;
     if (socket->proto == NSAPI_UDP) {
         if (size > UBLOX_MAX_PACKET_SIZE) {
             return NSAPI_ERROR_PARAMETER;
@@ -273,9 +270,9 @@ nsapi_size_or_error_t UBLOX_AT_CellularStack::socket_recvfrom_impl(CellularSocke
     int port = 0;
     Timer timer;
 
-    if (!socket->rx_avail) {
+    if (socket->pending_bytes == 0) {
         _at.process_oob();
-        if (!socket->rx_avail) {
+        if (socket->pending_bytes == 0) {
             return NSAPI_ERROR_WOULD_BLOCK;
         }
     }
@@ -383,6 +380,7 @@ nsapi_size_or_error_t UBLOX_AT_CellularStack::socket_recvfrom_impl(CellularSocke
     }
     timer.stop();
 
+    socket->pending_bytes = 0;
     if (!count || (_at.get_last_error() != NSAPI_ERROR_OK)) {
         return NSAPI_ERROR_WOULD_BLOCK;
     } else {
@@ -432,7 +430,7 @@ void UBLOX_AT_CellularStack::clear_socket(CellularSocket * socket)
 {
     if (socket != NULL) {
         socket->id       = SOCKET_UNUSED;
-        socket->rx_avail = 0;
+        socket->pending_bytes = 0;
         socket->_cb      = NULL;
         socket->_data    = NULL;
         socket->created  = false;
