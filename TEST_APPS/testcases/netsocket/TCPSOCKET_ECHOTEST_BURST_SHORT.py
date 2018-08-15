@@ -8,7 +8,7 @@ import string
 
 class Testcase(Bench):
     def __init__(self):
-        super(Testcase, self).__init__(self,
+        Bench.__init__(self,
                        name="TCPSOCKET_ECHOTEST_BURST_SHORT",
                        title="TCPSOCKET_ECHOTEST_BURST_SHORT",
                        purpose="Verify that TCPSocket can send burst of packets to echo server and read incoming packets",
