@@ -14,33 +14,21 @@
  * limitations under the License.
  */
 
-#ifndef MBED_PN512_DRIVER_H
-#define MBED_PN512_DRIVER_H
-
-#include <stdint.h>
-
-#include "nfc/NFCControllerDriver.h"
 #include "PN512TransportDriver.h"
 
-namespace mbed {
-namespace nfc {
+using namespace mbed;
+using namespace mbed::nfc;
 
-    struct PN512TransportDriver;
-    class PN512Driver : public NFCControllerDriver, private PN512TransportDriver::Delegate {
-    public:
-        PN512Driver(PN512TransportDriver* transport_driver);
+PN512TransportDriver::PN512TransportDriver() : _delegate() {
 
-        virtual void initialize(nfc_scheduler_timer_t* pTimer) = 0;
-        virtual nfc_transceiver_t* get_transceiver() const;
+}
 
-    private:
-        // PN512TransportDriver::Delegate implementation
-        void on_hw_interrupt();
+void PN512TransportDriver::set_delegate(Delegate* delegate) {
+    _delegate = delegate;
+}
 
-        pn512_t _pn512;
-    };
-
-} // namespace nfc
-} // namespace mbed
-
-#endif
+void PN512TransportDriver::hw_interrupt() {
+    if(_delegate != NULL) {
+        _delegate->on_hw_interrupt();
+    }
+}
