@@ -14,21 +14,22 @@
  * limitations under the License.
  */
 
-#ifndef MBED_PN512_TRANSPORT_DRIVER_H
-#define MBED_PN512_TRANSPORT_DRIVER_H
+#ifndef MBED_PN512_SPI_TRANSPORT_DRIVER_H
+#define MBED_PN512_SPI_TRANSPORT_DRIVER_H
 
 #include <stdint.h>
 
 #include "platform/platform.h"
+#include "platform/nfc_transport.h"
 #include "PN512TransportDriver.h"
 
 
 namespace mbed {
 namespace nfc {
     
-    class PN512SPITransportDriver {
+    class PN512SPITransportDriver : public PN512TransportDriver {
     public:
-        PN512SPITransportDriver(PinName mosi, PinName miso, PinName sclk, PinName ssel, PinName irq);
+        PN512SPITransportDriver(PinName mosi, PinName miso, PinName sclk, PinName ssel, PinName irq, PinName rst);
 
     private:
         virtual void initialize();
@@ -43,7 +44,9 @@ namespace nfc {
 
         nfc_transport_t _nfc_transport;
         SPI _spi;
+        DigitalOut _ssel;
         InterruptIn _irq;
+        DigitalOut _rst;
     };
     
 } // namespace nfc

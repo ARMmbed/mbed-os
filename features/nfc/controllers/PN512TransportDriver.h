@@ -23,10 +23,53 @@
 
 namespace mbed {
 namespace nfc {
-    
-    struct PN512TransportDriver {
+    /**
+     * The PN512 supports multiple transport mechanisms (SPI, I2C, UART): this class provides a unified API across these transports
+     */ 
+    class PN512TransportDriver {
+    public:
+        /**
+         * The PN512TransportDriver delegate
+         */ 
+        struct Delegate {
+            /**
+             * Called when the PN512 asserts the interrupt line
+             */ 
+            void on_hw_interrupt();
+        };
+
+        /**
+         * Create a PN512TransportDriver instance
+         */ 
+        PN512TransportDriver();
+
+        /**
+         * Initialize transport driver and perform a chip reset
+         */ 
         virtual void initialize() = 0;
+
+        /**
+         * Retrieve the nfc_transport_t struct for the stack to use
+         * 
+         * @return a pointer to a nfc_transport_t struct
+         */ 
         virtual nfc_transport_t* get_transport() const = 0;
+
+        /**
+         * Set this instance's delegate
+         * 
+         * @param[in] delegate the delegate instance to use
+         */ 
+        void set_delegate(Delegate* delegate);
+    protected:
+
+        /**
+         * An implementation must call this function (can be called from interrupt context) 
+         * when the PN512 asserts its interrupt line
+         */ 
+        void hw_interrupt();
+    private:
+        Delegate* _delegate;
     };
 
 } // namespace nfc
