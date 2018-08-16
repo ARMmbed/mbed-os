@@ -33,3 +33,20 @@ Frequency sub-bands in US915/AU915:
  
  Please note that for Certification requirements, you need to alternate between 125 kHz and 500 kHz channels and that's
  why before joining you should not set a mask that enables only 500 kHz or only 125 kHz channels.  
+ 
+ Frequency sub-bands in CN470 PHY:
+ 
+ There are 96 channels in total defined in LoRaPHYCN470 class as per LoRaWAN Regional Specification. These 96 channels
+ are 125 kHz wide each and can be subdivided into 6 sub-bands containing 16 channels each. 
+ "fsb-mask-china" is the parameter defined in lorawan/mbed_lib.json which can be used to enforce an FSB. It is defined
+ as a c-style array and the first element of the array corresponds to first 8 channels (0-7) and so on. By default all 
+ 96 channels are enabled but there may be base stations who do not support all 96 channels and hence network acquisition
+ can become cumbersome if the device hops on random channels. The probability of finding a correct channel for a base station 
+ who support 8 channels would be 1/12. 
+ 
+ For example, say your base station supports 16 channels (channels 0-15), you would set the "fsb-mask-china" as:
+  "fsb-mask-china" = "{0xFFFF, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000}" 
+ 
+ Yet another example, say your base station supports 8 channels (channels 0-7), you would set the "fsb-mask-china" as:
+  "fsb-mask-china" = "{0x00FF, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000}" 
+ 
