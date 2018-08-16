@@ -15,7 +15,9 @@
  * limitations under the License.
  */
 
-#ifndef MBED_CONF_APP_CONNECT_STATEMENT
+#define WIFI 2
+#if !defined(MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE) || \
+    (MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE == WIFI && !defined(MBED_CONF_NSAPI_DEFAULT_WIFI_SSID))
 #error [NOT_SUPPORTED] No network configuration found for this target.
 #endif
 
@@ -26,8 +28,6 @@
 #include "nsapi_dns.h"
 #include "EventQueue.h"
 #include "dns_tests.h"
-
-#include MBED_CONF_APP_HEADER_FILE
 
 using namespace utest::v1;
 
@@ -116,12 +116,10 @@ static void net_bringup()
 {
     MBED_ASSERT(MBED_CONF_APP_DNS_TEST_HOSTS_NUM >= MBED_CONF_NSAPI_DNS_CACHE_SIZE && MBED_CONF_APP_DNS_TEST_HOSTS_NUM >= MBED_CONF_APP_DNS_SIMULT_QUERIES + 1);
 
-    net = MBED_CONF_APP_OBJECT_CONSTRUCTION;
-    int err =  MBED_CONF_APP_CONNECT_STATEMENT;
-    TEST_ASSERT_EQUAL(0, err);
-
-    printf("MBED: Connected to network\n");
-    printf("MBED: IP Address: %s\n", net->get_ip_address());
+    net = NetworkInterface::get_default_instance();
+    nsapi_error_t err = net->connect();
+    TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, err);
+    printf("MBED: IP address is '%s'\n", net->get_ip_address());
 }
 
 // Test setup
