@@ -1,0 +1,4 @@
+#ifndef MBED_PERIPHERALNAMES_H
+#define MBED_PERIPHERALNAMES_H
+
+#endif

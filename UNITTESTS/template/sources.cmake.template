@@ -1,0 +1,12 @@
+
+####################
+# UNIT TESTS
+####################
+
+set(unittest-sources ${unittest-sources}
+  ../dirname/template.cpp
+)
+
+set(unittest-test-sources ${unittest-test-sources}
+  dirname/template/test_template.cpp
+)
