@@ -24,7 +24,7 @@ define region CCMRAM_region = mem:[from __region_CCMRAM_start__ to __region_CCMR
 /* Stack and Heap */
 /*Heap 1/4 of ram and stack 1/8*/
 define symbol __size_cstack__ = 0x2000;
-define symbol __size_heap__   = 0x4000;
+define symbol __size_heap__   = 0x5000;
 define block CSTACK    with alignment = 8, size = __size_cstack__   { };
 define block HEAP      with alignment = 8, size = __size_heap__     { };
 define block STACKHEAP with fixed order { block HEAP, block CSTACK };
