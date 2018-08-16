@@ -24,15 +24,26 @@ using namespace mbed;
 using namespace mbed::nfc;
 
 NFCController::NFCController(NFCControllerDriver* driver, events::EventQueue* queue) : 
-    _driver(driver), _queue(queue), _transceiver(NULL), _delegate(NULL), _discovery_running(false)
+    _driver(driver), _queue(queue), _transceiver(NULL), _scheduler(NULL), _delegate(NULL), _discovery_running(false)
 {
-
+    _driver->set_delegate(this);
 }
 
-void NFCController::initialize()
+nfc_err_t NFCController::initialize()
 {
     MBED_ASSERT(_transceiver == NULL); // Initialize should only be called once
-    _transceiver = _driver->initialize((nfc_scheduler_timer_t*)&_timer);
+    _transceiver = _driver->initialize((nfc_scheduler_timer_t*)&_timer); // See implementation below
+
+    if( _transceiver == NULL ) {
+        // Initialization error
+        return NFC_ERR_CONTROLLER; // Controller error
+    }
+
+    // Recover scheduler
+    _scheduler = transceiver_get_scheduler(_transceiver);
+
+    // Run scheduler for the first time
+    _queue->call(this, NFCController::scheduler_process, false);
 }
 
 void NFCController::set_delegate(Delegate* delegate)
@@ -153,8 +164,53 @@ void NFCController::polling_callback(nfc_err_t ret)
     }
 }
 
+void NFCController::scheduler_process(bool hw_interrupt) {
+    _timer.detach(); // Cancel timeout - if it triggers, it's ok as we'll have an "early" iteration which will likely be a no-op
+
+    // Process stack events
+    uint32_t timeout = nfc_scheduler_iteration(_scheduler, hw_interrupt?EVENT_HW_INTERRUPT:EVENT_NONE);
+
+    _timer.attach(callback(this, &NFCController::on_timeout));
+}
+
+void NFCController::on_hw_interrupt() {
+    // Run scheduler - this is called in interrupt context
+    _timer.detach(); // Cancel timeout - if it triggers anyways, it's ok
+    _queue->call(this, NFCController::scheduler_process, true);
+}
+
+void NFCController::on_timeout() {
+    // Run scheduler - this is called in interrupt context
+    _queue->call(this, NFCController::scheduler_process, false);
+}
+
 static void NFCController::s_polling_callback(nfc_transceiver_t* pTransceiver, nfc_err_t ret, void* pUserData)
 {
     NFCController* self = (NFCController*) pUserData;
     self->polling_callback(ret);
+}
+
+// Implementation nfc_scheduler_timer_t
+void nfc_scheduler_timer_init(nfc_scheduler_timer_t* timer) {
+    (void)timer; // This is a no-op
+}
+
+void nfc_scheduler_timer_start(nfc_scheduler_timer_t* timer) {
+    Timer* mbed_timer = (Timer*)timer;
+    mbed_timer->start();
+}
+
+uint32_t nfc_scheduler_timer_get(nfc_scheduler_timer_t* timer) {
+    Timer* mbed_timer = (Timer*)timer;
+    return (uint32_t)mbed_timer->read_ms();
+}
+
+void nfc_scheduler_timer_stop(nfc_scheduler_timer_t* timer) {
+    Timer* mbed_timer = (Timer*)timer;
+    mbed_timer->stop();
+}
+
+void nfc_scheduler_timer_reset(nfc_scheduler_timer_t* timer) {
+    Timer* mbed_timer = (Timer*)timer;
+    mbed_timer->reset();
 }
