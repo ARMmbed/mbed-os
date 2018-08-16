@@ -68,12 +68,14 @@ namespace nfc {
 
     private:
         // Implementation of NFCEEPROMDriver::Delegate
-        virtual void has_started_session(bool success);
-        virtual void has_read_bytes(bool success);
-        virtual void has_written_bytes(bool success);
-        virtual void has_set_size(bool success);
-        virtual void has_gotten_size(bool success, size_t size);
-        virtual void has_erased_bytes(bool success);
+        virtual void on_session_started(bool success);
+        virtual void on_session_ended(bool success);
+        virtual void on_bytes_read(size_t count);
+        virtual void on_bytes_written(size_t count);
+        virtual void on_size_set(bool success);
+        virtual void on_size_gotten(bool success, size_t size);
+        virtual void on_bytes_erased(size_t count);
+        virtual void on_event();
     };
 
     /**
