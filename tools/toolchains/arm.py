@@ -393,7 +393,9 @@ class ARMC6(ARM_STD):
             self.flags['common'].append("-mcpu=%s" % target.core.lower()[:-1])
             self.flags['ld'].append("--cpu=%s" % target.core.lower()[:-1])
             self.SHEBANG += " -mcpu=%s" % target.core.lower()[:-1]
-        elif not target.core.startswith("Cortex-M23") and not target.core.startswith("Cortex-M33"):
+        elif target.core.startswith("Cortex-M33"):
+            self.flags['ld'].append("--cpu=8-M.Main")
+        elif not target.core.startswith("Cortex-M23"):
             self.flags['common'].append("-mcpu=%s" % target.core.lower())
             self.flags['ld'].append("--cpu=%s" % target.core.lower())
             self.SHEBANG += " -mcpu=%s" % target.core.lower()
@@ -410,10 +412,12 @@ class ARMC6(ARM_STD):
         elif target.core.startswith("Cortex-M23"):
             self.flags['common'].append("-march=armv8-m.base")
         elif target.core.startswith("Cortex-M33"):
-            self.flags['common'].append("-march=armv8-m.main")
+            self.flags['c'].append("-march=armv8-m.main")
+            self.flags['cxx'].append("-march=armv8-m.main")
 
         if target.core == "Cortex-M23" or target.core == "Cortex-M33":
-            self.flags['common'].append("-mcmse")
+            self.flags['cxx'].append("-mcmse")
+            self.flags['c'].append("-mcmse")
 
         # Create Secure library
         if ((target.core == "Cortex-M23" or self.target.core == "Cortex-M33") and
@@ -434,7 +438,10 @@ class ARMC6(ARM_STD):
             "Cortex-M23-NS": "Cortex-M23",
             "Cortex-M33-NS": "Cortex-M33" }.get(target.core, target.core)
 
-        self.flags['asm'].append("--cpu=%s" % asm_cpu)
+        if target.core.startswith("Cortex-M33"):
+            self.flags['asm'].append("--cpu=8-M.Main")
+        else :
+            self.flags['asm'].append("--cpu=%s" % asm_cpu)
 
         self.cc = ([join(TOOLCHAIN_PATHS["ARMC6"], "armclang")] +
                    self.flags['common'] + self.flags['c'])
