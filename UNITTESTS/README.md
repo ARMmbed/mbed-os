@@ -19,7 +19,7 @@ Traditional software testing is defined into three main levels: unit testing, in
 ```
 Integration and system testing are performed in an environment with full Mbed OS included in the build.
 
-Unit testing takes place in a build environment where each C++ class or module is tested in isolation. This means test suites are built into separate test binaries and all access outside is stubbed to remove dependency of any specific hardware or software combination. This allows the testing to be done quickly using native compilers on the build machine.
+Unit testing takes place in a build environment where each C/C++ class or module is tested in isolation. This means test suites are built into separate test binaries and all access outside is stubbed to remove dependency of any specific hardware or software combination. This allows the testing to be done quickly using native compilers on the build machine.
 
 ## Required tools
 
@@ -64,7 +64,7 @@ Install gcovr code coverage tool with virtualenv or globally:
 
 #### virtualenv
 1. Install virtualenv if not installed with `pip install virtualenv`
-2. From the mbed-os root do:
+2. Install gcovr with:
 
 **[Debian/Linux/Mac OS]**
 ```
@@ -80,7 +80,7 @@ pip install 'gcovr>=4.1'
 ```
 
 #### globally
-From the mbed-os root do: `pip install 'gcovr>=4.1'`
+`pip install 'gcovr>=4.1'`
 
 ## Building and running unit tests
 
