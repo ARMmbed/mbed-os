@@ -52,35 +52,35 @@ namespace nfc {
              * 
              * @param[in] success whether this operation succeeded
              */  
-            virtual void has_started_session(bool success) = 0;
+            virtual void on_session_started(bool success) = 0;
 
             /**
              * Completion of session end operation.
              * 
              * @param[in] success whether this operation succeeded
              */  
-            virtual void has_ended_session(bool success) = 0;
+            virtual void on_session_ended(bool success) = 0;
 
             /**
              * Completion of read operation.
              * 
-             * @param[in] success whether this operation succeeded
+             * @param[in] count number of bytes actually read
              */  
-            virtual void has_read_bytes(bool success) = 0;
+            virtual void on_bytes_read(size_t count) = 0;
 
             /**
              * Completion of write operation.
              * 
-             * @param[in] success whether this operation succeeded
+             * @param[in] count number of bytes actually written
              */  
-            virtual void has_written_bytes(bool success) = 0;
+            virtual void on_bytes_written(size_t count) = 0;
 
             /**
              * Completion of size setting operation.
              * 
              * @param[in] success whether this operation succeeded
              */  
-            virtual void has_set_size(bool success) = 0;
+            virtual void on_size_set(bool success) = 0;
 
             /**
              * Completion of size retrieval operation.
@@ -88,14 +88,21 @@ namespace nfc {
              * @param[in] success whether this operation succeeded
              * @param[out] the current addressable memory size
              */  
-            virtual void has_gotten_size(bool success, size_t size) = 0;
+            virtual void on_size_gotten(bool success, size_t size) = 0;
 
             /**
              * Completion of erasing operation.
              * 
-             * @param[in] success whether this operation succeeded
+             * @param[in] count number of bytes actually erased
              */  
-            virtual void has_erased_bytes(bool success) = 0;
+            virtual void on_bytes_erased(size_t count) = 0;
+
+            /**
+             * Signal the user that the process_events() need to be called
+             * 
+             * @note this function can be called in interrupt context
+             */
+            virtual void on_event();
         };
 
         /** 
@@ -110,6 +117,11 @@ namespace nfc {
          * This method should complete synchronously.
          */ 
         virtual void reset() = 0;
+
+        /**
+         * Process events raised by the driver in interrupt context.
+         */ 
+        virtual void process_events();
 
         /**
          * Get the maximum memory size addressable by the EEPROM.
