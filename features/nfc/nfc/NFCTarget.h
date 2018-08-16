@@ -40,8 +40,11 @@ namespace nfc {
     public:
         /**
          * Create a NFCTarget.
+         * 
+         * @param[in] buffer a bytes array used to store NDEF messages
+         * @param[in] buffer_size the array size in bytes
          */ 
-        NFCTarget();
+        NFCTarget(uint8_t* buffer, size_t buffer_size);
         virtual ~NFCTarget();
 
         struct Delegate {
