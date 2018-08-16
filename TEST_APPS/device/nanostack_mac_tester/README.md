@@ -15,9 +15,7 @@ You can use this application to test the Nanostack RF driver implementations tha
 ## Prerequisites
 
 * [Mbed CLI](https://github.com/ARMmbed/mbed-cli).
-* Three supported boards with radio shields. For example, FRDM-K64F with FRDM-CR20A radio shield.
-    * https://os.mbed.com/platforms/FRDM-K64F/
-    * https://os.mbed.com/components/FRDM-CR20A/
+* Mbed OS target board with build in radio, OR RF shield with Mbed OS driver
 
 ## Setting up the application
 
@@ -37,24 +35,15 @@ To add your RF driver:
 mbed add https://www.github.com/me/my-rf-driver.git
 ```
 
-Set `radio-type` in `mbed_app.json` to `OTHER`:
+When using RF shield, you need to configure it to be a default RF driver and instruct Mbed OS that RF driver is present. For example, configuring Atmel RF driver to provide default driver:
 
 ```
-"config":{
-    "radio-type":{
-        "value": "ATMEL" --> "value": "OTHER"
-    }
-}
+    "target_overrides": {
+        "*": {
+            "target.device_has_add": ["802_15_4_RF_PHY"],
+            "atmel-rf.provide-default": true
 ```
 
-Replace the placeholders in `main.cpp` with your RF driver header file and interface definition:
-
-```
-#elif MBED_CONF_APP_RADIO_TYPE == OTHER
-#include "YOUR_DRIVER_HEADER.h"
-YourDriverInterface rf_phy(...);
-#endif
-```
 
 ### Compile your binary
 
