@@ -100,7 +100,7 @@ static unsigned int local_math_power(int base, int exp);
 //***********************
 SPIFBlockDevice::SPIFBlockDevice(
     PinName mosi, PinName miso, PinName sclk, PinName csel, int freq)
-    : _spi(mosi, miso, sclk), _cs(csel), _device_size_bytes(0), _is_initialized(false)
+    : _spi(mosi, miso, sclk), _cs(csel), _device_size_bytes(0), _is_initialized(false), _init_ref_count(0)
 {
     _address_size = SPIF_ADDR_SIZE_3_BYTES;
     // Initial SFDP read tables are read with 8 dummy cycles
@@ -117,7 +117,7 @@ SPIFBlockDevice::SPIFBlockDevice(
         tr_error("ERROR: SPI Set Frequency Failed");
     }
 
-	_cs = 1;
+    _cs = 1;
 }
 
 int SPIFBlockDevice::init()
@@ -132,7 +132,14 @@ int SPIFBlockDevice::init()
     spif_bd_error spi_status = SPIF_BD_ERROR_OK;
 
     _mutex->lock();
-    if (_is_initialized == true) {
+
+    if (!_is_initialized) {
+        _init_ref_count = 0;
+    }
+
+    _init_ref_count++;
+
+    if (_init_ref_count != 1) {
         goto exit_point;
     }
 
@@ -214,18 +221,29 @@ exit_point:
 
 int SPIFBlockDevice::deinit()
 {
+    spif_bd_error status = SPIF_BD_ERROR_OK;
+
     _mutex->lock();
-    if (_is_initialized == false) {
-        _mutex->unlock();
-        return SPIF_BD_ERROR_OK;
+
+    if (!_is_initialized) {
+        _init_ref_count = 0;
+        goto exit_point;
+    }
+
+    _init_ref_count--;
+
+    if (_init_ref_count) {
+        goto exit_point;
     }
 
     // Disable Device for Writing
-    spif_bd_error status = _spi_send_general_command(SPIF_WRDI, SPI_NO_ADDRESS_COMMAND, NULL, 0, NULL, 0);
+    status = _spi_send_general_command(SPIF_WRDI, SPI_NO_ADDRESS_COMMAND, NULL, 0, NULL, 0);
     if (status != SPIF_BD_ERROR_OK)  {
         tr_error("ERROR: Write Disable failed");
     }
     _is_initialized = false;
+
+exit_point:
     _mutex->unlock();
 
     return status;
@@ -251,52 +269,51 @@ int SPIFBlockDevice::read(void *buffer, bd_addr_t addr, bd_size_t size)
 
     _mutex->unlock();
     return status;
-
 }
- 
+
 int SPIFBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t size)
 {
     if (!_is_initialized) {
         return BD_ERROR_DEVICE_ERROR;
     }
 
-	bool program_failed = false;
-	int status = SPIF_BD_ERROR_OK;
-	uint32_t offset = 0;
-	uint32_t chunk = 0;
+    bool program_failed = false;
+    int status = SPIF_BD_ERROR_OK;
+    uint32_t offset = 0;
+    uint32_t chunk = 0;
 
-	tr_debug("DEBUG: program - Buff: 0x%x, addr: %llu, size: %llu", buffer, addr, size);
+    tr_debug("DEBUG: program - Buff: 0x%x, addr: %llu, size: %llu", buffer, addr, size);
 
-	while (size > 0) {
+    while (size > 0) {
 
-		// Write on _page_size_bytes boundaries (Default 256 bytes a page)
-		offset = addr % _page_size_bytes;
-		chunk = (offset + size < _page_size_bytes) ? size : (_page_size_bytes - offset);
+        // Write on _page_size_bytes boundaries (Default 256 bytes a page)
+        offset = addr % _page_size_bytes;
+        chunk = (offset + size < _page_size_bytes) ? size : (_page_size_bytes - offset);
 
-		_mutex->lock();
+        _mutex->lock();
 
-		//Send WREN
-		if (_set_write_enable() != 0) {
-			tr_error("ERROR: Write Enabe failed\n");
-			program_failed = true;
-			status = SPIF_BD_ERROR_WREN_FAILED;
-			goto exit_point;
-		}
+        //Send WREN
+        if (_set_write_enable() != 0) {
+            tr_error("ERROR: Write Enabe failed\n");
+            program_failed = true;
+            status = SPIF_BD_ERROR_WREN_FAILED;
+            goto exit_point;
+        }
 
-		_spi_send_program_command(_prog_instruction, buffer, addr, chunk);
+        _spi_send_program_command(_prog_instruction, buffer, addr, chunk);
 
-		buffer = static_cast<const uint8_t *>(buffer) + chunk;
-		addr += chunk;
-		size -= chunk;
+        buffer = static_cast<const uint8_t *>(buffer) + chunk;
+        addr += chunk;
+        size -= chunk;
 
-		if ( false == _is_mem_ready()) {
-			tr_error("ERROR: Device not ready after write, failed\n");
-			program_failed = true;
-			status = SPIF_BD_ERROR_READY_FAILED;
-			goto exit_point;
-		}
-		_mutex->unlock();
-	}
+        if ( false == _is_mem_ready()) {
+            tr_error("ERROR: Device not ready after write, failed\n");
+            program_failed = true;
+            status = SPIF_BD_ERROR_READY_FAILED;
+            goto exit_point;
+        }
+        _mutex->unlock();
+    }
 
 exit_point:
     if (program_failed) {
@@ -445,116 +462,117 @@ int SPIFBlockDevice::get_erase_value() const
 /***************************************************/
 spif_bd_error SPIFBlockDevice::_spi_set_frequency(int freq)
 {
-	_spi.frequency(freq);
+    _spi.frequency(freq);
     return SPIF_BD_ERROR_OK;
 }
 
 spif_bd_error SPIFBlockDevice::_spi_send_read_command(int read_inst, uint8_t *buffer, bd_addr_t addr, bd_size_t size)
 {
-	uint32_t dummy_bytes = _dummy_and_mode_cycles / 8;
-	int dummy_byte = 0;
+    uint32_t dummy_bytes = _dummy_and_mode_cycles / 8;
+    int dummy_byte = 0;
 
-	// csel must go low for the entire command (Inst, Address and Data)
-	_cs = 0;
+    // csel must go low for the entire command (Inst, Address and Data)
+    _cs = 0;
 
-	// Write 1 byte Instruction
-	_spi.write(read_inst);
+    // Write 1 byte Instruction
+    _spi.write(read_inst);
 
-	// Write Address (can be either 3 or 4 bytes long)
-	for (int address_shift = ((_address_size-1) * 8); address_shift >= 0; address_shift -= 8) {
-		_spi.write((addr >> address_shift) & 0xFF);
-	}
+    // Write Address (can be either 3 or 4 bytes long)
+    for (int address_shift = ((_address_size - 1) * 8); address_shift >= 0; address_shift -= 8) {
+        _spi.write((addr >> address_shift) & 0xFF);
+    }
 
-	// Write Dummy Cycles Bytes
-	for (uint32_t i = 0; i < dummy_bytes; i++) {
-		_spi.write(dummy_byte);
-	}
+    // Write Dummy Cycles Bytes
+    for (uint32_t i = 0; i < dummy_bytes; i++) {
+        _spi.write(dummy_byte);
+    }
 
-	// Read Data
-	for (bd_size_t i = 0; i < size; i++) {
-		buffer[i] = _spi.write(0);
-	}
+    // Read Data
+    for (bd_size_t i = 0; i < size; i++) {
+        buffer[i] = _spi.write(0);
+    }
 
-	// csel back to high
-	_cs = 1;
-	return SPIF_BD_ERROR_OK;
+    // csel back to high
+    _cs = 1;
+    return SPIF_BD_ERROR_OK;
 }
 
-spif_bd_error SPIFBlockDevice::_spi_send_program_command(int prog_inst, const void *buffer, bd_addr_t addr, bd_size_t size)
+spif_bd_error SPIFBlockDevice::_spi_send_program_command(int prog_inst, const void *buffer, bd_addr_t addr,
+        bd_size_t size)
 {
     // Send Program (write) command to device driver
-	uint32_t dummy_bytes = _dummy_and_mode_cycles / 8;
-	int dummy_byte = 0;
-	uint8_t *data = (uint8_t *)buffer;
+    uint32_t dummy_bytes = _dummy_and_mode_cycles / 8;
+    int dummy_byte = 0;
+    uint8_t *data = (uint8_t *)buffer;
 
-	// csel must go low for the entire command (Inst, Address and Data)
-	_cs = 0;
+    // csel must go low for the entire command (Inst, Address and Data)
+    _cs = 0;
 
-	// Write 1 byte Instruction
-	_spi.write(prog_inst);
+    // Write 1 byte Instruction
+    _spi.write(prog_inst);
 
-	// Write Address (can be either 3 or 4 bytes long)
-	for (int address_shift = ((_address_size-1) * 8); address_shift >= 0; address_shift -= 8) {
-		_spi.write((addr >> address_shift) & 0xFF);
-	}
+    // Write Address (can be either 3 or 4 bytes long)
+    for (int address_shift = ((_address_size - 1) * 8); address_shift >= 0; address_shift -= 8) {
+        _spi.write((addr >> address_shift) & 0xFF);
+    }
 
-	// Write Dummy Cycles Bytes
-	for (uint32_t i = 0; i < dummy_bytes; i++) {
-		_spi.write(dummy_byte);
-	}
+    // Write Dummy Cycles Bytes
+    for (uint32_t i = 0; i < dummy_bytes; i++) {
+        _spi.write(dummy_byte);
+    }
 
-	// Write Data
-	for (bd_size_t i = 0; i < size; i++) {
-		_spi.write(data[i]);
-	}
+    // Write Data
+    for (bd_size_t i = 0; i < size; i++) {
+        _spi.write(data[i]);
+    }
 
-	// csel back to high
-	_cs = 1;
+    // csel back to high
+    _cs = 1;
 
     return SPIF_BD_ERROR_OK;
 }
 
 spif_bd_error SPIFBlockDevice::_spi_send_erase_command(int erase_inst, bd_addr_t addr, bd_size_t size)
 {
-	tr_info("INFO: Erase Inst: 0x%xh, addr: %llu, size: %llu", erase_inst, addr, size);
-	addr = (((int)addr) & 0x00FFF000);
-	_spi_send_general_command(erase_inst, addr, NULL, 0, NULL, 0);
-	return SPIF_BD_ERROR_OK;
+    tr_info("INFO: Erase Inst: 0x%xh, addr: %llu, size: %llu", erase_inst, addr, size);
+    addr = (((int)addr) & 0x00FFF000);
+    _spi_send_general_command(erase_inst, addr, NULL, 0, NULL, 0);
+    return SPIF_BD_ERROR_OK;
 }
 
 spif_bd_error SPIFBlockDevice::_spi_send_general_command(int instruction, bd_addr_t addr, char *tx_buffer,
         size_t tx_length, char *rx_buffer, size_t rx_length)
 {
     // Send a general command Instruction to driver
-	uint32_t dummy_bytes = _dummy_and_mode_cycles / 8;
-	uint8_t dummy_byte = 0x00;
+    uint32_t dummy_bytes = _dummy_and_mode_cycles / 8;
+    uint8_t dummy_byte = 0x00;
 
-	// csel must go low for the entire command (Inst, Address and Data)
-	_cs = 0;
+    // csel must go low for the entire command (Inst, Address and Data)
+    _cs = 0;
 
-	// Write 1 byte Instruction
-	_spi.write(instruction);
+    // Write 1 byte Instruction
+    _spi.write(instruction);
 
-	// Reading SPI Bus registers does not require Flash Address
-	if (addr != SPI_NO_ADDRESS_COMMAND) {
-		// Write Address (can be either 3 or 4 bytes long)
-		for (int address_shift = ((_address_size-1) * 8); address_shift >= 0; address_shift -= 8) {
-			_spi.write((addr >> address_shift) & 0xFF);
-		}
+    // Reading SPI Bus registers does not require Flash Address
+    if (addr != SPI_NO_ADDRESS_COMMAND) {
+        // Write Address (can be either 3 or 4 bytes long)
+        for (int address_shift = ((_address_size - 1) * 8); address_shift >= 0; address_shift -= 8) {
+            _spi.write((addr >> address_shift) & 0xFF);
+        }
 
-		// Write Dummy Cycles Bytes
-		for (uint32_t i = 0; i < dummy_bytes; i++) {
-			_spi.write(dummy_byte);
-		}
-	}
+        // Write Dummy Cycles Bytes
+        for (uint32_t i = 0; i < dummy_bytes; i++) {
+            _spi.write(dummy_byte);
+        }
+    }
 
-	// Read/Write Data
-	_spi.write(tx_buffer, (int)tx_length, rx_buffer, (int)rx_length);
+    // Read/Write Data
+    _spi.write(tx_buffer, (int)tx_length, rx_buffer, (int)rx_length);
 
-	// csel back to high
-	_cs = 1;
+    // csel back to high
+    _cs = 1;
 
-	return SPIF_BD_ERROR_OK;
+    return SPIF_BD_ERROR_OK;
 }
 
 /*********************************************************/
@@ -654,7 +672,8 @@ int SPIFBlockDevice::_sfdp_parse_basic_param_table(uint32_t basic_table_addr, si
     _page_size_bytes = _sfdp_detect_page_size(param_table, basic_table_size);
 
     // Detect and Set Erase Types
-    _sfdp_detect_erase_types_inst_and_size(param_table, basic_table_size, _erase4k_inst, _erase_type_inst_arr, _erase_type_size_arr);
+    _sfdp_detect_erase_types_inst_and_size(param_table, basic_table_size, _erase4k_inst, _erase_type_inst_arr,
+                                           _erase_type_size_arr);
     _erase_instruction = _erase4k_inst;
 
     // Detect and Set fastest Bus mode (default 1-1-1)
@@ -673,8 +692,8 @@ int SPIFBlockDevice::_sfdp_parse_sfdp_headers(uint32_t& basic_table_addr, size_t
 
     // Set 1-1-1 bus mode for SFDP header parsing
     // Initial SFDP read tables are read with 8 dummy cycles
-     _read_dummy_and_mode_cycles = 8;
-     _dummy_and_mode_cycles = 8;
+    _read_dummy_and_mode_cycles = 8;
+    _dummy_and_mode_cycles = 8;
 
     spif_bd_error status = _spi_send_read_command(SPIF_SFDP, sfdp_header, addr /*address*/, data_length);
     if (status != SPIF_BD_ERROR_OK) {
@@ -737,21 +756,21 @@ int SPIFBlockDevice::_sfdp_parse_sfdp_headers(uint32_t& basic_table_addr, size_t
 
 unsigned int SPIFBlockDevice::_sfdp_detect_page_size(uint8_t *basic_param_table_ptr, int basic_param_table_size)
 {
-	unsigned int page_size = SPIF_DEFAULT_PAGE_SIZE;
+    unsigned int page_size = SPIF_DEFAULT_PAGE_SIZE;
 
-	if (basic_param_table_size > SPIF_BASIC_PARAM_TABLE_PAGE_SIZE_BYTE) {
-		// Page Size is specified by 4 Bits (N), calculated by 2^N
-		int page_to_power_size = ( (int)basic_param_table_ptr[SPIF_BASIC_PARAM_TABLE_PAGE_SIZE_BYTE]) >> 4;
-		page_size = local_math_power(2, page_to_power_size);
-		tr_debug("DEBUG: Detected Page Size: %d", page_size);
-	}
-	else {
-		tr_debug("DEBUG: Using Default Page Size: %d", page_size);
-	}
+    if (basic_param_table_size > SPIF_BASIC_PARAM_TABLE_PAGE_SIZE_BYTE) {
+        // Page Size is specified by 4 Bits (N), calculated by 2^N
+        int page_to_power_size = ( (int)basic_param_table_ptr[SPIF_BASIC_PARAM_TABLE_PAGE_SIZE_BYTE]) >> 4;
+        page_size = local_math_power(2, page_to_power_size);
+        tr_debug("DEBUG: Detected Page Size: %d", page_size);
+    } else {
+        tr_debug("DEBUG: Using Default Page Size: %d", page_size);
+    }
     return page_size;
 }
 
-int SPIFBlockDevice::_sfdp_detect_erase_types_inst_and_size(uint8_t *basic_param_table_ptr, int basic_param_table_size, int& erase4k_inst,
+int SPIFBlockDevice::_sfdp_detect_erase_types_inst_and_size(uint8_t *basic_param_table_ptr, int basic_param_table_size,
+        int& erase4k_inst,
         int *erase_type_inst_arr, unsigned int *erase_type_size_arr)
 {
     erase4k_inst = 0xff;
@@ -762,39 +781,39 @@ int SPIFBlockDevice::_sfdp_detect_erase_types_inst_and_size(uint8_t *basic_param
     erase4k_inst = basic_param_table_ptr[SPIF_BASIC_PARAM_4K_ERASE_TYPE_BYTE];
 
     if (basic_param_table_size > SPIF_BASIC_PARAM_ERASE_TYPE_1_SIZE_BYTE) {
-		// Loop Erase Types 1-4
-		for (int i_ind = 0; i_ind < 4; i_ind++) {
-			erase_type_inst_arr[i_ind] = 0xff; //0xFF default for unsupported type
-			erase_type_size_arr[i_ind] = local_math_power(2,
-										 basic_param_table_ptr[SPIF_BASIC_PARAM_ERASE_TYPE_1_SIZE_BYTE + 2 * i_ind]); // Size given as 2^N
-			tr_info("DEBUG: Erase Type(A) %d - Inst: 0x%xh, Size: %d", (i_ind + 1), erase_type_inst_arr[i_ind],
-					erase_type_size_arr[i_ind]);
-			if (erase_type_size_arr[i_ind] > 1) {
-				// if size==1 type is not supported
-				erase_type_inst_arr[i_ind] = basic_param_table_ptr[SPIF_BASIC_PARAM_ERASE_TYPE_1_BYTE + 2 * i_ind];
+        // Loop Erase Types 1-4
+        for (int i_ind = 0; i_ind < 4; i_ind++) {
+            erase_type_inst_arr[i_ind] = 0xff; //0xFF default for unsupported type
+            erase_type_size_arr[i_ind] = local_math_power(2,
+                                         basic_param_table_ptr[SPIF_BASIC_PARAM_ERASE_TYPE_1_SIZE_BYTE + 2 * i_ind]); // Size given as 2^N
+            tr_info("DEBUG: Erase Type(A) %d - Inst: 0x%xh, Size: %d", (i_ind + 1), erase_type_inst_arr[i_ind],
+                    erase_type_size_arr[i_ind]);
+            if (erase_type_size_arr[i_ind] > 1) {
+                // if size==1 type is not supported
+                erase_type_inst_arr[i_ind] = basic_param_table_ptr[SPIF_BASIC_PARAM_ERASE_TYPE_1_BYTE + 2 * i_ind];
 
-				if ((erase_type_size_arr[i_ind] < _min_common_erase_size) || (_min_common_erase_size == 0) ) {
-					//Set default minimal common erase for singal region
-					_min_common_erase_size = erase_type_size_arr[i_ind];
-				}
+                if ((erase_type_size_arr[i_ind] < _min_common_erase_size) || (_min_common_erase_size == 0) ) {
+                    //Set default minimal common erase for singal region
+                    _min_common_erase_size = erase_type_size_arr[i_ind];
+                }
 
-				// SFDP standard requires 4K Erase type to exist and its instruction to be identical to legacy field erase instruction
-				if (erase_type_size_arr[i_ind] == 4096) {
-					found_4Kerase_type = true;
-					if (erase4k_inst != erase_type_inst_arr[i_ind]) {
-						//Verify 4KErase Type is identical to Legacy 4K erase type specified in Byte 1 of Param Table
-						erase4k_inst = erase_type_inst_arr[i_ind];
-						tr_warning("WARNING: _detectEraseTypesInstAndSize - Default 4K erase Inst is different than erase type Inst for 4K");
+                // SFDP standard requires 4K Erase type to exist and its instruction to be identical to legacy field erase instruction
+                if (erase_type_size_arr[i_ind] == 4096) {
+                    found_4Kerase_type = true;
+                    if (erase4k_inst != erase_type_inst_arr[i_ind]) {
+                        //Verify 4KErase Type is identical to Legacy 4K erase type specified in Byte 1 of Param Table
+                        erase4k_inst = erase_type_inst_arr[i_ind];
+                        tr_warning("WARNING: _detectEraseTypesInstAndSize - Default 4K erase Inst is different than erase type Inst for 4K");
 
-					}
-				}
-				_region_erase_types_bitfield[0] |= bitfield; // If there's no region map, set region "0" types bitfield as defualt;
-			}
+                    }
+                }
+                _region_erase_types_bitfield[0] |= bitfield; // If there's no region map, set region "0" types bitfield as defualt;
+            }
 
-			tr_info("INFO: Erase Type %d - Inst: 0x%xh, Size: %d", (i_ind + 1), erase_type_inst_arr[i_ind],
-					erase_type_size_arr[i_ind]);
-			bitfield = bitfield << 1;
-		}
+            tr_info("INFO: Erase Type %d - Inst: 0x%xh, Size: %d", (i_ind + 1), erase_type_inst_arr[i_ind],
+                    erase_type_size_arr[i_ind]);
+            bitfield = bitfield << 1;
+        }
     }
 
     if (false == found_4Kerase_type) {
@@ -803,24 +822,25 @@ int SPIFBlockDevice::_sfdp_detect_erase_types_inst_and_size(uint8_t *basic_param
     return 0;
 }
 
-int SPIFBlockDevice::_sfdp_detect_best_bus_read_mode(uint8_t *basic_param_table_ptr, int basic_param_table_size, int& read_inst)
+int SPIFBlockDevice::_sfdp_detect_best_bus_read_mode(uint8_t *basic_param_table_ptr, int basic_param_table_size,
+        int& read_inst)
 {
     do {
 
-    	// TBD - SPIF Dual Read Modes Require SPI driver support
-    	/*
-    	uint8_t examined_byte;
+        // TBD - SPIF Dual Read Modes Require SPI driver support
+        /*
+        uint8_t examined_byte;
 
-    	if (basic_param_table_size > SPIF_BASIC_PARAM_TABLE_QPI_READ_SUPPORT_BYTE) {
-			examined_byte = basic_param_table_ptr[SPIF_BASIC_PARAM_TABLE_QPI_READ_SUPPORT_BYTE];
-			if (examined_byte & 0x01) {
-				//  Fast Read 2-2-2 Supported
-				read_inst = basic_param_table_ptr[SPIF_BASIC_PARAM_TABLE_222_READ_INST_BYTE];
-				_read_dummy_and_mode_cycles = (basic_param_table_ptr[SPIF_BASIC_PARAM_TABLE_222_READ_INST_BYTE - 1] >> 5)
-										 + (basic_param_table_ptr[SPIF_BASIC_PARAM_TABLE_222_READ_INST_BYTE - 1] & 0x1F);
-				tr_info("\nDEBUG: Read Bus Mode set to 2-2-2, Instruction: 0x%xh", read_inst);
-				break;
-			}
+        if (basic_param_table_size > SPIF_BASIC_PARAM_TABLE_QPI_READ_SUPPORT_BYTE) {
+        	examined_byte = basic_param_table_ptr[SPIF_BASIC_PARAM_TABLE_QPI_READ_SUPPORT_BYTE];
+        	if (examined_byte & 0x01) {
+        		//  Fast Read 2-2-2 Supported
+        		read_inst = basic_param_table_ptr[SPIF_BASIC_PARAM_TABLE_222_READ_INST_BYTE];
+        		_read_dummy_and_mode_cycles = (basic_param_table_ptr[SPIF_BASIC_PARAM_TABLE_222_READ_INST_BYTE - 1] >> 5)
+        								 + (basic_param_table_ptr[SPIF_BASIC_PARAM_TABLE_222_READ_INST_BYTE - 1] & 0x1F);
+        		tr_info("\nDEBUG: Read Bus Mode set to 2-2-2, Instruction: 0x%xh", read_inst);
+        		break;
+        	}
         }
         examined_byte = basic_param_table_ptr[SPIF_BASIC_PARAM_TABLE_FAST_READ_SUPPORT_BYTE];
         if (examined_byte & 0x20) {
@@ -839,8 +859,8 @@ int SPIFBlockDevice::_sfdp_detect_best_bus_read_mode(uint8_t *basic_param_table_
              tr_debug("\nDEBUG: Read Bus Mode set to 1-1-2, Instruction: 0x%xh", _read_instruction);
             break;
         }
-    	 */
-    	_read_dummy_and_mode_cycles = 0;
+         */
+        _read_dummy_and_mode_cycles = 0;
         tr_debug("\nDEBUG: Read Bus Mode set to 1-1-1, Instruction: 0x%xh", read_inst);
     } while (false);
 
@@ -855,7 +875,7 @@ int SPIFBlockDevice::_reset_flash_mem()
     tr_info("INFO: _reset_flash_mem:\n");
     //Read the Status Register from device
     if (SPIF_BD_ERROR_OK == _spi_send_general_command(SPIF_RDSR, SPI_NO_ADDRESS_COMMAND, NULL, 0, status_value, 1) ) {
-    	// store received values in status_value
+        // store received values in status_value
         tr_debug("DEBUG: Reading Status Register Success: value = 0x%x\n", (int)status_value[0]);
     } else {
         tr_debug("ERROR: Reading Status Register failed\n");
@@ -865,7 +885,7 @@ int SPIFBlockDevice::_reset_flash_mem()
     if (0 == status) {
         //Send Reset Enable
         if (SPIF_BD_ERROR_OK == _spi_send_general_command(SPIF_RSTEN, SPI_NO_ADDRESS_COMMAND, NULL, 0, NULL, 0) ) {
-        	// store received values in status_value
+            // store received values in status_value
             tr_debug("DEBUG: Sending RSTEN Success\n");
         } else {
             tr_error("ERROR: Sending RSTEN failed\n");
@@ -875,7 +895,7 @@ int SPIFBlockDevice::_reset_flash_mem()
         if (0 == status) {
             //Send Reset
             if (SPIF_BD_ERROR_OK == _spi_send_general_command(SPIF_RST, SPI_NO_ADDRESS_COMMAND, NULL, 0, NULL, 0)) {
-            	// store received values in status_value
+                // store received values in status_value
                 tr_debug("DEBUG: Sending RST Success\n");
             } else {
                 tr_error("ERROR: Sending RST failed\n");

@@ -37,37 +37,37 @@ enum spif_bd_error {
 
 #define SPIF_MAX_REGIONS	10
 #define MAX_NUM_OF_ERASE_TYPES 4
- 
+
 /** BlockDevice for SFDP based flash devices over SPI bus
  *
  *  @code
  *  // Here's an example using SPI flash device on K82F target
  *  #include "mbed.h"
  *  #include "SPIFBlockDevice.h"
- *  
+ *
  *  // Create flash device on SPI bus with PTE5 as chip select
  *  SPIFBlockDevice spif(PTE2, PTE4, PTE1, PTE5);
- *  
+ *
  *  int main() {
  *      printf("spif test\n");
- *  
+ *
  *      // Initialize the SPI flash device and print the memory layout
  *      spif.init();
  *      printf("spif size: %llu\n",         spif.size());
  *      printf("spif read size: %llu\n",    spif.get_read_size());
  *      printf("spif program size: %llu\n", spif.get_program_size());
  *      printf("spif erase size: %llu\n",   spif.get_erase_size());
- *  
+ *
  *      // Write "Hello World!" to the first block
  *      char *buffer = (char*)malloc(spif.get_erase_size());
  *      sprintf(buffer, "Hello World!\n");
  *      spif.erase(0, spif.get_erase_size());
  *      spif.program(buffer, 0, spif.get_erase_size());
- *  
+ *
  *      // Read back what was stored
  *      spif.read(buffer, 0, spif.get_erase_size());
  *      printf("%s", buffer);
- *  
+ *
  *      // Deinitialize the device
  *      spif.deinit();
  *  }
@@ -83,7 +83,7 @@ public:
      *  @param csel     SPI chip select pin
      *  @param freq     Clock speed of the SPI bus (defaults to 40MHz)
      */
-    SPIFBlockDevice(PinName mosi, PinName miso, PinName sclk, PinName csel, int freq=40000000);
+    SPIFBlockDevice(PinName mosi, PinName miso, PinName sclk, PinName csel, int freq = 40000000);
 
     /** Initialize a block device
      *
@@ -185,7 +185,7 @@ public:
      *  @return         Size of the underlying device in bytes
      */
     virtual bd_size_t size() const;
-    
+
 private:
 
     // Internal functions
@@ -210,7 +210,8 @@ private:
     unsigned int _sfdp_detect_page_size(uint8_t *basic_param_table_ptr, int basic_param_table_size);
 
     // Detect all supported erase types
-    int _sfdp_detect_erase_types_inst_and_size(uint8_t *basic_param_table_ptr, int basic_param_table_size, int& erase4k_inst,
+    int _sfdp_detect_erase_types_inst_and_size(uint8_t *basic_param_table_ptr, int basic_param_table_size,
+            int& erase4k_inst,
             int *erase_type_inst_arr, unsigned int *erase_type_size_arr);
 
     /***********************/
@@ -238,7 +239,7 @@ private:
 
     // Send Generic command_transfer command to Driver
     spif_bd_error _spi_send_general_command(int instruction, bd_addr_t addr, char *tx_buffer,
-            size_t tx_length, char *rx_buffer, size_t rx_length);
+                                            size_t tx_length, char *rx_buffer, size_t rx_length);
 
     // Send set_frequency command to Driver
     spif_bd_error _spi_set_frequency(int freq);
@@ -289,7 +290,7 @@ private:
     unsigned int _read_dummy_and_mode_cycles; // Number of Dummy and Mode Bits required by Read Bus Mode
     unsigned int _write_dummy_and_mode_cycles; // Number of Dummy and Mode Bits required by Write Bus Mode
     unsigned int _dummy_and_mode_cycles; // Number of Dummy and Mode Bits required by Current Bus Mode
-
+    uint32_t _init_ref_count;
     bool _is_initialized;
 };
 
