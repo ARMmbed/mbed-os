@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-#include "PN512TransportDriver.h"
+#include "NFCControllerDriver.h"
 
 using namespace mbed;
 using namespace mbed::nfc;
 
-PN512TransportDriver::PN512TransportDriver() : _delegate(NULL) {
+NFCControllerDriver::NFCControllerDriver() : _delegate(NULL) {
 
 }
 
-void PN512TransportDriver::set_delegate(Delegate* delegate) {
+void NFCControllerDriver::set_delegate(Delegate* delegate) {
     _delegate = delegate;
 }
 
-void PN512TransportDriver::hw_interrupt() {
+void NFCControllerDriver::hw_interrupt() {
     if(_delegate != NULL) {
         _delegate->on_hw_interrupt();
     }
