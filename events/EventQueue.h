@@ -202,12 +202,10 @@ public:
      *     int main() {
      *         // creates a queue with the default size
      *         EventQueue queue;
-     *     
+     *
      *         // events are simple callbacks
      *         queue.call(printf, "called immediately\n");
-     *         queue.call_in(2000, printf, "called in 2 seconds\n");
-     *         queue.call_every(1000, printf, "called every 1 seconds\n");
-     *     
+     *
      *         // events are executed by the dispatch method
      *         queue.dispatch();
      *     }
@@ -234,15 +232,27 @@ public:
      *                    executing.
      *
      * @code
+     *     class EventHandler {
+     *         int _id;
+     *     public:
+     *         EventHandler(int id) : _id(id) { }
+     *
+     *         void handler(int c) {
+     *             printf("ID: %d Param: %d\r\n", _id, c);
+     *         }
+     *     };
+     *
      *     int main() {
      *         // creates a queue with the default size
      *         EventQueue queue;
-     *     
-     *         // events are simple callbacks
-     *         queue.call(printf, "called immediately\n");
-     *         queue.call_in(2000, printf, "called in 2 seconds\n");
-     *         queue.call_every(1000, printf, "called every 1 seconds\n");
-     *     
+     *
+     *         // Create EventHandler object with state
+     *         EventHandler handler_cb(1);
+     *
+     *         // events are simple callbacks, call object method
+     *         // with provided parameter
+     *         queue.call(&handler_cb, &EventHandler::handler, 2);
+     *
      *         // events are executed by the dispatch method
      *         queue.dispatch();
      *     }
@@ -269,12 +279,10 @@ public:
      *     int main() {
      *         // creates a queue with the default size
      *         EventQueue queue;
-     *     
+     *
      *         // events are simple callbacks
-     *         queue.call(printf, "called immediately\n");
      *         queue.call_in(2000, printf, "called in 2 seconds\n");
-     *         queue.call_every(1000, printf, "called every 1 seconds\n");
-     *     
+     *
      *         // events are executed by the dispatch method
      *         queue.dispatch();
      *     }
@@ -300,15 +308,27 @@ public:
      *                  enough memory to allocate the event.
      *
      * @code
+     *     class EventHandler {
+     *         int _id;
+     *     public:
+     *         EventHandler(int id) : _id(id) { }
+     *
+     *         void handler(int c) {
+     *             printf("ID: %d Param: %d\r\n", _id, c);
+     *         }
+     *     };
+     *
      *     int main() {
      *         // creates a queue with the default size
      *         EventQueue queue;
-     *     
-     *         // events are simple callbacks
-     *         queue.call(printf, "called immediately\n");
-     *         queue.call_in(2000, printf, "called in 2 seconds\n");
-     *         queue.call_every(1000, printf, "called every 1 seconds\n");
-     *     
+     *
+     *         // Create EventHandler object with state
+     *         EventHandler handler_cb(3);
+     *
+     *         // events are simple callbacks, call object method in 2 seconds
+     *         // with provided parameter
+     *         queue.call_in(2000, &handler_cb, &EventHandler::handler, 4);
+     *
      *         // events are executed by the dispatch method
      *         queue.dispatch();
      *     }
@@ -336,15 +356,23 @@ public:
      *                  enough memory to allocate the event.
      *
      * @code
+     *     class EventHandler {
+     *         int _id;
+     *     public:
+     *         EventHandler(int id) : _id(id) { }
+     *
+     *         void handler(int c) {
+     *             printf("ID: %d Param: %d\r\n", _id, c);
+     *         }
+     *     };
+     *
      *     int main() {
      *         // creates a queue with the default size
      *         EventQueue queue;
-     *     
-     *         // events are simple callbacks
-     *         queue.call(printf, "called immediately\n");
-     *         queue.call_in(2000, printf, "called in 2 seconds\n");
-     *         queue.call_every(1000, printf, "called every 1 seconds\n");
-     *     
+     *
+     *         // events are simple callbacks, call every 2 seconds
+     *         queue.call_every(2000, printf, "Calling every 2 seconds\n");
+     *
      *         // events are executed by the dispatch method
      *         queue.dispatch();
      *     }
@@ -370,15 +398,27 @@ public:
      *  @param args     Arguments to pass to the callback
      *
      * @code
+     *     class EventHandler {
+     *         int _id;
+     *     public:
+     *         EventHandler(int id) : _id(id) { }
+     *
+     *         void handler(int c) {
+     *             printf("ID: %d Param: %d\r\n", _id, c);
+     *         }
+     *     };
+     *
      *     int main() {
      *         // creates a queue with the default size
      *         EventQueue queue;
-     *     
-     *         // events are simple callbacks
-     *         queue.call(printf, "called immediately\n");
-     *         queue.call_in(2000, printf, "called in 2 seconds\n");
-     *         queue.call_every(1000, printf, "called every 1 seconds\n");
-     *     
+     *
+     *         // Create EventHandler object with state
+     *         EventHandler handler_cb(5);
+     *
+     *         // events are simple callbacks, call object method every 2 seconds
+     *         // with provided parameter
+     *         queue.call_every(2000, &handler_cb, &EventHandler::handler, 6);
+     *
      *         // events are executed by the dispatch method
      *         queue.dispatch();
      *     }
@@ -407,19 +447,19 @@ public:
      *         printf("Param: %d\r\n", c);
      *     }
      *
-     *     EventQueue q;
-     *
      *     int main()
      *     {
+     *         EventQueue queue;
+     *
      *         // Create event with parameter
-     *         Event<void()>    e  = q.event(handler, 1);
+     *         Event<void()>    e  = queue.event(handler, 1);
      *         e();
      *
      *         // Create event and post parameter later
-     *         Event<void(int)> e2 = q.event(handler);
+     *         Event<void(int)> e2 = queue.event(handler);
      *         e2.post(2);
      *
-     *         q.dispatch();
+     *         queue.dispatch();
      *     }
      * @endcode
      */
@@ -445,27 +485,27 @@ public:
      * @code
      *     #include "mbed.h"
      *
-     *     class Test {
+     *     class EventHandler {
      *         int _id;
      *
      *     public:
-     *         Test(int id) : _id(id) { }
+     *         EventHandler(int id) : _id(id) { }
      *
      *         void handler(int c) {
      *             printf("ID: %d Param: %d\r\n", _id, c);
      *         }
      *     };
      *
-     *     EventQueue q;
-     *
      *     int main()
      *     {
-     *         Test handler_cb(5);
+     *         EventQueue queue;
+     *
+     *         EventHandler handler_cb(5);
      *
      *         // Create event on the eventqueue with a method callback
-     *         Event<void(int)> e = q.event(&handler_cb, &Test::handler);
+     *         Event<void(int)> e = queue.event(&handler_cb, &EventHandler::handler);
      *         e.post(1);
-     *         q.dispatch();
+     *         queue.dispatch();
      *     }
      * @endcode
      */
@@ -509,15 +549,16 @@ public:
      * @code
      *     #include "mbed.h"
      *
-     *     EventQueue q;
-     *
      *     int main()
      *     {
+     *         EventQueue queue;
+     *
      *         Callback<void(int)> cb(handler);
+     *
      *         // Create event on the eventqueue with a separate callback object
-     *         Event<void(int)> e = q.event(cb);
+     *         Event<void(int)> e = queue.event(cb);
      *         e.post(1);
-     *         q.dispatch();
+     *         queue.dispatch();
      *     }
      * @endcode
      */
