@@ -19,6 +19,6 @@
     [ ] Fix
     [ ] Refactor
     [ ] Target update
-    [ ] Feature
+    [ ] Functionality change
     [ ] Breaking change
 
