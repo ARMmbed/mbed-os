@@ -220,6 +220,7 @@ static const uint8_t max_payload_AU915[] = { 51, 51, 51, 115, 242, 242,
 static const uint8_t max_payload_with_repeater_AU915[] = { 51, 51, 51, 115,
     222, 222, 222, 0, 33, 109, 222, 222, 222, 222, 0, 0 };
 
+static const uint16_t fsb_mask[] = MBED_CONF_LORA_FSB_MASK;
 
 LoRaPHYAU915::LoRaPHYAU915()
 {
@@ -244,11 +245,17 @@ LoRaPHYAU915::LoRaPHYAU915()
     // All channels are default channels here
     // Join request needs to alternate between 125 KHz and 500 KHz channels
     // randomly.
-    default_channel_mask[0] = 0xFFFF;
-    default_channel_mask[1] = 0xFFFF;
-    default_channel_mask[2] = 0xFFFF;
-    default_channel_mask[3] = 0xFFFF;
-    default_channel_mask[4] = 0x00FF;
+    // ChannelsMask
+    for (uint8_t i = 0; i < AU915_MAX_NB_CHANNELS; i++) {
+        if (i == (AU915_MAX_NB_CHANNELS - 1)) {
+            // 64 - 71, 500 kHz channels will get enabled
+            default_channel_mask[i] = 0x00FF & fsb_mask[i];
+            continue;
+        }
+
+        // 0 - 63 125 kHz channels will get enabled
+        default_channel_mask[i] = 0xFFFF & fsb_mask[i];
+    }
 
     memset(channel_mask, 0, sizeof(channel_mask));
     memset(current_channel_mask, 0, sizeof(current_channel_mask));
@@ -445,18 +452,18 @@ uint8_t LoRaPHYAU915::link_ADR_request(adr_req_params_t* params,
 
         if (adr_settings.ch_mask_ctrl == 6) {
             // Enable all 125 kHz channels
-            temp_channel_masks[0] = 0xFFFF;
-            temp_channel_masks[1] = 0xFFFF;
-            temp_channel_masks[2] = 0xFFFF;
-            temp_channel_masks[3] = 0xFFFF;
+            for (uint8_t i = 0; i < AU915_CHANNEL_MASK_SIZE - 1; i++) {
+                temp_channel_masks[i] = 0xFFFF;
+            }
+
             // Apply chMask to channels 64 to 71
             temp_channel_masks[4] = adr_settings.channel_mask;
         } else if (adr_settings.ch_mask_ctrl == 7) {
             // Disable all 125 kHz channels
-            temp_channel_masks[0] = 0x0000;
-            temp_channel_masks[1] = 0x0000;
-            temp_channel_masks[2] = 0x0000;
-            temp_channel_masks[3] = 0x0000;
+            for (uint8_t i = 0; i < AU915_CHANNEL_MASK_SIZE - 1; i++) {
+                temp_channel_masks[i] = 0x0000;
+            }
+
             // Apply chMask to channels 64 to 71
             temp_channel_masks[4] = adr_settings.channel_mask;
         } else if (adr_settings.ch_mask_ctrl == 5) {
@@ -493,11 +500,9 @@ uint8_t LoRaPHYAU915::link_ADR_request(adr_req_params_t* params,
         // Copy Mask
         copy_channel_mask(channel_mask, temp_channel_masks, AU915_CHANNEL_MASK_SIZE);
 
-        current_channel_mask[0] &= channel_mask[0];
-        current_channel_mask[1] &= channel_mask[1];
-        current_channel_mask[2] &= channel_mask[2];
-        current_channel_mask[3] &= channel_mask[3];
-        current_channel_mask[4] = channel_mask[4];
+        for (uint8_t i = 0; i < AU915_CHANNEL_MASK_SIZE; i++) {
+            current_channel_mask[i] &= channel_mask[i];
+        }
     }
 
     // Update status variables
@@ -548,9 +553,6 @@ int8_t LoRaPHYAU915::get_alternate_DR(uint8_t nb_trials)
 {
     int8_t datarate = 0;
 
-    // Re-enable 500 kHz default channels
-    channel_mask[4] = 0x00FF;
-
     if ((nb_trials & 0x01) == 0x01) {
         datarate = DR_6;
     } else {
@@ -576,11 +578,10 @@ lorawan_status_t LoRaPHYAU915::set_next_channel(channel_selection_params_t* next
     }
 
     // Check other channels
-    if (next_chan_params->current_datarate >= DR_6) {
-        if ((current_channel_mask[4] & 0x00FF) == 0) {
-            // fall back to 500 kHz default channels
-            current_channel_mask[4] = channel_mask[4];
-        }
+    if ((next_chan_params->current_datarate >= DR_6)
+            && (current_channel_mask[4] & 0x00FF) == 0) {
+        // fall back to 500 kHz default channels
+        current_channel_mask[4] = channel_mask[4];
     }
 
     if (next_chan_params->aggregate_timeoff <= _lora_time->get_elapsed_time(next_chan_params->last_aggregate_tx_time)) {
@@ -605,8 +606,7 @@ lorawan_status_t LoRaPHYAU915::set_next_channel(channel_selection_params_t* next
         // We found a valid channel
         *channel = enabled_channels[get_random(0, nb_enabled_channels - 1)];
         // Disable the channel in the mask
-        disable_channel(current_channel_mask, *channel,
-        AU915_MAX_NB_CHANNELS - 8);
+        disable_channel(current_channel_mask, *channel, AU915_MAX_NB_CHANNELS);
 
         *time = 0;
         return LORAWAN_STATUS_OK;
