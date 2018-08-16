@@ -2942,8 +2942,9 @@
         "inherits": ["MAX32625_NO_BOOT"]
     },
     "SDT32625B": {
-        "detect_code": ["3102"],
-        "inherits": ["MAX32625_NO_BOOT"]
+        "inherits": ["MAX32625_BASE"],
+        "extra_labels_add": ["MAX32625_NO_BOOT"],
+        "detect_code": ["3102"]
     },
     "MAX32625PICO": {
         "inherits": ["MAX32625_BOOT"],
