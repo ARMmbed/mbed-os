@@ -15,8 +15,6 @@
  * limitations under the License.
  */
 
-#if MBED_CONF_APP_TEST_WIFI || MBED_CONF_APP_TEST_ETHERNET
-
 #ifndef EMAC_TEST_NETWORK_STACK_H
 #define EMAC_TEST_NETWORK_STACK_H
 
@@ -392,5 +390,3 @@ private:
 };
 
 #endif /* EMAC_TEST_NETWORK_STACK_H */
-
-#endif

@@ -15,24 +15,21 @@
  * limitations under the License.
  */
 
-#if !defined(MBED_CONF_APP_TEST_WIFI)         || \
-    !defined(MBED_CONF_APP_TEST_ETHERNET)     || \
-    !defined(MBED_CONF_APP_ECHO_SERVER)       || \
+#if !defined(MBED_CONF_APP_ECHO_SERVER)       || \
     !defined(MBED_CONF_APP_ECHO_SERVER_TRACE) || \
-    !defined(MBED_CONF_APP_WIFI_SCAN)         || \
-    !defined(MBED_CONF_APP_WIFI_SSID )        || \
-    !defined(MBED_CONF_APP_WIFI_SECURITY)     || \
-    !defined(MBED_CONF_APP_WIFI_PASSWORD)
+    !defined(MBED_CONF_APP_WIFI_SCAN)
 #error [NOT_SUPPORTED] Requires parameters from mbed_app.json
 #endif
 
-#if !MBED_CONF_APP_TEST_WIFI && !MBED_CONF_APP_TEST_ETHERNET
+#define ETHERNET 1
+#define WIFI 2
+
+#if MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE != ETHERNET && \
+    MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE != WIFI
 #error [NOT_SUPPORTED] Either wifi or ethernet testing need to be enabled
 #endif
-#if MBED_CONF_APP_TEST_WIFI && MBED_CONF_APP_TEST_ETHERNET
-#error [NOT_SUPPORTED] Both wifi and ethernet testing cannot be enabled
-#endif
-#if MBED_CONF_APP_TEST_WIFI
+
+#if MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE == WIFI
 #if !defined(TARGET_UBLOX_EVK_ODIN_W2)      && \
     !defined(TARGET_REALTEK_RTL8195AM)      && \
     !defined(TARGET_MTB_ADV_WISE_1530)      && \

@@ -15,8 +15,6 @@
  * limitations under the License.
  */
 
-#if MBED_CONF_APP_TEST_WIFI || MBED_CONF_APP_TEST_ETHERNET
-
 #ifndef EMAC_TEST_MEMORY_MANAGER_H
 #define EMAC_TEST_MEMORY_MANAGER_H
 
@@ -229,4 +227,3 @@ private:
 };
 
 #endif /* EMAC_TEST_MEMORY_MANAGER_H */
-#endif

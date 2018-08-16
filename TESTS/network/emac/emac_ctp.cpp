@@ -19,8 +19,6 @@
 #include "unity/unity.h"
 #include "utest.h"
 
-#if MBED_CONF_APP_TEST_WIFI || MBED_CONF_APP_TEST_ETHERNET
-
 #include "mbed.h"
 
 #include "EMAC.h"
@@ -152,5 +150,4 @@ void emac_if_ctp_msg_build(int eth_frame_len, const unsigned char *dest_addr, co
     emac_if_check_memory(false);
 }
 
-#endif
 
