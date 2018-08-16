@@ -2,7 +2,7 @@
     "name": "lora",
     "config": {
         "phy": {
-            "help": "LoRa PHY region: EU868, AS923, AU915, CN470, CN779, EU433, IN865, KR920, US915, US915_HYBRID",
+            "help": "LoRa PHY region: EU868, AS923, AU915, CN470, CN779, EU433, IN865, KR920, US915",
             "value": "EU868"
         },
         "over-the-air-activation": {
@@ -82,7 +82,7 @@
         	"value": 8
         },
         "fsb-mask": {
-        	"help": "FSB mask for upstream [Only for US915, US915_HYBRID & AU915] Check lorawan/FSB_Usage.txt for more details",
+        	"help": "FSB mask for upstream [Only for US915 & AU915] Check lorawan/FSB_Usage.txt for more details",
         	"value": "{0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0x00FF}"
         }
     }
