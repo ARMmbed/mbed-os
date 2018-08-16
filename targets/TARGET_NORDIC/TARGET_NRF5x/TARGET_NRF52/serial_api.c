@@ -1485,13 +1485,13 @@ int serial_tx_asynch(serial_t *obj, const void *tx, size_t tx_length, uint8_t tx
      */
     if (instance == 0) {
 
-        if (nrf_drv_is_in_RAM(tx) || (tx_length <= UART0_FIFO_BUFFER_SIZE)) {
+        if (nrfx_is_in_ram(tx) || (tx_length <= UART0_FIFO_BUFFER_SIZE)) {
             valid = true;
         }
     }
 #if UART1_ENABLED
     else {
-        if (nrf_drv_is_in_RAM(tx) || (tx_length <= UART1_FIFO_BUFFER_SIZE)) {
+        if (nrfx_is_in_ram(tx) || (tx_length <= UART1_FIFO_BUFFER_SIZE)) {
             valid = true;
         }
     }
@@ -1503,7 +1503,7 @@ int serial_tx_asynch(serial_t *obj, const void *tx, size_t tx_length, uint8_t tx
         uint8_t *buffer = NULL;
 
         /* Tx buffer is in RAM. */
-        if (nrf_drv_is_in_RAM(tx)) {
+        if (nrfx_is_in_ram(tx)) {
 
             buffer = (uint8_t *) tx;
         } else {
