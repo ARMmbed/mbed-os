@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2016 ARM Limited
+ * Copyright (c) 2018 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,20 +16,21 @@
 #ifndef MBED_SPIF_BLOCK_DEVICE_H
 #define MBED_SPIF_BLOCK_DEVICE_H
 
+#include <mbed.h>
 #include <SPI.h>
 #include "BlockDevice.h"
 
 namespace mbed {
 
-/** Enum qspif standard error codes
+/** Enum spif standard error codes
  *
- *  @enum qspif_bd_error
+ *  @enum qpif_bd_error
  */
-enum qspif_bd_error {
+enum spif_bd_error {
     SPIF_BD_ERROR_OK                 = 0,     /*!< no error */
     SPIF_BD_ERROR_DEVICE_ERROR       = BD_ERROR_DEVICE_ERROR, /*!< device specific error -4001 */
     SPIF_BD_ERROR_PARSING_FAILED     = -4002, /* SFDP Parsing failed */
-    SPIF_BD_ERROR_READY_FAILED		  = -4003, /* Wait for  Mem Ready failed */
+    SPIF_BD_ERROR_READY_FAILED		 = -4003, /* Wait for  Mem Ready failed */
     SPIF_BD_ERROR_WREN_FAILED        = -4004, /* Write Enable Failed */
 };
 
@@ -86,22 +87,30 @@ public:
 
     /** Initialize a block device
      *
-     *  @return         0 on success or a negative error code on failure
+     *  @return  	    SPIF_BD_ERROR_OK(0) - success
+     *                  SPIF_BD_ERROR_DEVICE_ERROR - device driver transaction failed
+     *                  SPIF_BD_ERROR_READY_FAILED - Waiting for Memory ready failed or timedout
+     *                  SPIF_BD_ERROR_PARSING_FAILED - unexpected format or values in one of the SFDP tables
      */
     virtual int init();
 
     /** Deinitialize a block device
      *
-     *  @return         0 on success or a negative error code on failure
+     *  @return         SPIF_BD_ERROR_OK(0) - success
      */
     virtual int deinit();
+
+    /** Desctruct SPIFBlockDevie
+      */
+    ~SPIFBlockDevice() {deinit();}
 
     /** Read blocks from a block device
      *
      *  @param buffer   Buffer to write blocks to
      *  @param addr     Address of block to begin reading from
      *  @param size     Size to read in bytes, must be a multiple of read block size
-     *  @return         0 on success, negative error code on failure
+     *  @return         SPIF_BD_ERROR_OK(0) - success
+     *                  SPIF_BD_ERROR_DEVICE_ERROR - device driver transaction failed
      */
     virtual int read(void *buffer, bd_addr_t addr, bd_size_t size);
 
@@ -112,7 +121,10 @@ public:
      *  @param buffer   Buffer of data to write to blocks
      *  @param addr     Address of block to begin writing to
      *  @param size     Size to write in bytes, must be a multiple of program block size
-     *  @return         0 on success, negative error code on failure
+     *  @return         SPIF_BD_ERROR_OK(0) - success
+     *                  SPIF_BD_ERROR_DEVICE_ERROR - device driver transaction failed
+     *                  SPIF_BD_ERROR_READY_FAILED - Waiting for Memory ready failed or timed out
+     *                  SPIF_BD_ERROR_WREN_FAILED - Write Enable failed
      */
     virtual int program(const void *buffer, bd_addr_t addr, bd_size_t size);
 
@@ -122,7 +134,10 @@ public:
      *
      *  @param addr     Address of block to begin erasing
      *  @param size     Size to erase in bytes, must be a multiple of erase block size
-     *  @return         0 on success, negative error code on failure
+     *  @return         SPIF_BD_ERROR_OK(0) - success
+     *                  SPIF_BD_ERROR_DEVICE_ERROR - device driver transaction failed
+     *                  SPIF_BD_ERROR_READY_FAILED - Waiting for Memory ready failed or timed out
+     *                  SPIF_BD_ERROR_WREN_FAILED - Write Enable failed
      */
     virtual int erase(bd_addr_t addr, bd_size_t size);
 
@@ -145,14 +160,6 @@ public:
      *  @note Must be a multiple of the program size
      */
     virtual bd_size_t get_erase_size() const;
-
-    /** Get the size of an erasable block given address
-     *
-     *  @param addr     Address within the erasable block
-     *  @return         Size of an erasable block in bytes
-     *  @note Must be a multiple of the program size
-     */
-    virtual bd_size_t get_erase_size(bd_addr_t addr) const;
 
     /** Get the size of minimal eraseable sector size of given address
      *
@@ -181,6 +188,9 @@ public:
     
 private:
 
+    // Internal functions
+
+    /****************************************/
     /* SFDP Detection and Parsing Functions */
     /****************************************/
     // Parse SFDP Headers and retrieve Basic Param and Sector Map Tables (if exist)
@@ -194,16 +204,16 @@ private:
     int _sfdp_parse_sector_map_table(uint32_t sector_map_table_addr, size_t sector_map_table_size);
 
     // Detect fastest read Bus mode supported by device
-    int _sfdp_detect_best_bus_read_mode(uint8_t *basic_param_table_ptr, bool& set_quad_enable, bool& is_qpi_mode,
-                                        unsigned int& read_inst);
+    int _sfdp_detect_best_bus_read_mode(uint8_t *basic_param_table_ptr, int basic_param_table_size, int& read_inst);
 
     // Set Page size for program
-    int _sfdp_detect_page_size(uint8_t *basic_param_table_ptr);
+    unsigned int _sfdp_detect_page_size(uint8_t *basic_param_table_ptr, int basic_param_table_size);
 
     // Detect all supported erase types
-    int _sfdp_detect_erase_types_inst_and_size(uint8_t *basic_param_table_ptr, unsigned int& erase4k_inst,
-            unsigned int *erase_type_inst_arr, unsigned int *erase_type_size_arr);
+    int _sfdp_detect_erase_types_inst_and_size(uint8_t *basic_param_table_ptr, int basic_param_table_size, int& erase4k_inst,
+            int *erase_type_inst_arr, unsigned int *erase_type_size_arr);
 
+    /***********************/
     /* Utilities Functions */
     /***********************/
     // Find the region to which the given offset belong to
@@ -213,62 +223,74 @@ private:
     // Iterates from highest type to lowest
     int _utils_iterate_next_largest_erase_type(uint8_t& bitfield, int size, int offset, int boundry);
 
-    // Internal functions
-    int _wren();
-    int _sync();
-    void _cmdread(uint8_t op, uint32_t addrc, uint32_t retc,
-            uint32_t addr, uint8_t *rets);
-    void _cmdwrite(uint8_t op, uint32_t addrc, uint32_t argc,
-            uint32_t addr, const uint8_t *args);
+    /********************************/
+    /*   Calls to SPI Driver APIs   */
+    /********************************/
+    // Send Program => Write command to Driver
+    spif_bd_error _spi_send_program_command(int prog_inst, const void *buffer, bd_addr_t addr, bd_size_t size);
+
+    // Send Read command to Driver
+    //spif_bd_error _spi_send_read_command(uint8_t read_inst, void *buffer, bd_addr_t addr, bd_size_t size);
+    spif_bd_error _spi_send_read_command(int read_inst, uint8_t *buffer, bd_addr_t addr, bd_size_t size);
+
+    // Send Erase Instruction using command_transfer command to Driver
+    spif_bd_error _spi_send_erase_command(int erase_inst, bd_addr_t addr, bd_size_t size);
+
+    // Send Generic command_transfer command to Driver
+    spif_bd_error _spi_send_general_command(int instruction, bd_addr_t addr, char *tx_buffer,
+            size_t tx_length, char *rx_buffer, size_t rx_length);
+
+    // Send set_frequency command to Driver
+    spif_bd_error _spi_set_frequency(int freq);
+    /********************************/
+
+    // Soft Reset Flash Memory
+    int _reset_flash_mem();
+
+    // Configure Write Enable in Status Register
+    int _set_write_enable();
+
+    // Wait on status register until write not-in-progress
+    bool _is_mem_ready();
 
 private:
     // Master side hardware
     SPI _spi;
+    // Enable CS control (low/high) for SPI driver operatios
     DigitalOut _cs;
 
-    // Device configuration discovered through sfdp
-    bd_size_t _size;
-
-    bool _is_initialized;
-    uint32_t _init_ref_count;
-
-    bool _is_initialized;
-
-    // Mutex is used to protect Flash device for some QSPI Driver commands that must be done sequentially with no other commands in between
+    // Mutex is used to protect Flash device for some SPI Driver commands that must be done sequentially with no other commands in between
     // e.g. (1)Set Write Enable, (2)Program, (3)Wait Memory Ready
-    PlatformMutex _mutex;
+    static SingletonPtr<PlatformMutex> _mutex;
 
     // Command Instructions
-    unsigned int _read_instruction;
-    unsigned int _prog_instruction;
-    unsigned int _erase_instruction;
-    unsigned int _erase4k_inst;  // Legacy 4K erase instruction (default 0x20h)
+    int _read_instruction;
+    int _prog_instruction;
+    int _erase_instruction;
+    int _erase4k_inst;  // Legacy 4K erase instruction (default 0x20h)
 
     // Up To 4 Erase Types are supported by SFDP (each with its own command Instruction and Size)
-    unsigned int _erase_type_inst_arr[MAX_NUM_OF_ERASE_TYPES];
+    int _erase_type_inst_arr[MAX_NUM_OF_ERASE_TYPES];
     unsigned int _erase_type_size_arr[MAX_NUM_OF_ERASE_TYPES];
 
     // Sector Regions Map
     int _regions_count; //number of regions
-    int _region_size_bytes[QSPIF_MAX_REGIONS]; //regions size in bytes
-    bd_size_t _region_high_boundary[QSPIF_MAX_REGIONS]; //region high address offset boundary
+    int _region_size_bytes[SPIF_MAX_REGIONS]; //regions size in bytes
+    bd_size_t _region_high_boundary[SPIF_MAX_REGIONS]; //region high address offset boundary
     //Each Region can support a bit combination of any of the 4 Erase Types
-    uint8_t _region_erase_types_bitfield[QSPIF_MAX_REGIONS];
-    int _min_common_erase_size; // minimal common erase size for all regions (0 if none exists)
+    uint8_t _region_erase_types_bitfield[SPIF_MAX_REGIONS];
+    unsigned int _min_common_erase_size; // minimal common erase size for all regions (0 if none exists)
 
-    int _page_size_bytes; // Page size - 256 Bytes default
+    unsigned int _page_size_bytes; // Page size - 256 Bytes default
     bd_size_t _device_size_bytes;
 
-    // Bus speed configuration
-    qspi_bus_width_t _inst_width; //Bus width for Instruction phase
-    qspi_bus_width_t _address_width; //Bus width for Address phase
-    qspi_address_size_t _address_size; // number of bytes for address
-    qspi_bus_width_t _data_width; //Bus width for Data phase
-    int _dummy_and_mode_cycles; // Number of Dummy and Mode Bits required by Current Bus Mode
+    // Bus configuration
+    unsigned int _address_size; // number of bytes for address
+    unsigned int _read_dummy_and_mode_cycles; // Number of Dummy and Mode Bits required by Read Bus Mode
+    unsigned int _write_dummy_and_mode_cycles; // Number of Dummy and Mode Bits required by Write Bus Mode
+    unsigned int _dummy_and_mode_cycles; // Number of Dummy and Mode Bits required by Current Bus Mode
 
-
-
-
+    bool _is_initialized;
 };
 
 } //namespace mbed
