@@ -1,16 +1,5 @@
 {
     "config": {
-        "header-file": {
-            "help" : "String for including your driver header file",
-            "value" : "\"EthernetInterface.h\""
-        },
-        "object-construction" : {
-            "value" : "new EthernetInterface()"
-        },
-        "connect-statement" : {
-            "help" : "Must use 'net' variable name",
-            "value" : "net->connect()"
-        },
         "echo-server-addr" : {
             "help" : "IP address of echo server",
             "value" : "\"echo.mbedcloudtesting.com\""
@@ -18,16 +7,11 @@
         "echo-server-port" : {
             "help" : "Port of echo server",
             "value" : "7"
-        },
-        "tcp-echo-prefix" : {
-            "help" : "Some servers send a prefix before echoed message",
-            "value" : null
         }
     },
     "target_overrides": {
         "*": {
-            "target.features_add": ["LWIP"],
-            "nsapi.default-stack": "LWIP"
+            "target.network-default-interface-type": "ETHERNET"
         }
     }
 }
