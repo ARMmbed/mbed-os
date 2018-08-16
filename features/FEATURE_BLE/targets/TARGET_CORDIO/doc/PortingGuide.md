@@ -419,7 +419,7 @@ The HCI driver is injected to the `CordioBLE` class at manufacture.
 
 Given that the `CordioBLE` class doesn't know which class constructs the driver nor how to construct it, the port provides a function returning a reference to the HCI driver.
 
-This function is in the global namespace, and you can call it with:
+This function is in the global namespace, and its signature is:
 
 ```
 ble::vendor::cordio::CordioHCIDriver& ble_cordio_get_hci_driver();
