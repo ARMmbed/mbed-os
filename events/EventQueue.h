@@ -181,6 +181,7 @@ public:
     void chain(EventQueue *target);
 
 
+
     #if defined(DOXYGEN_ONLY)
     /** Calls an event on the queue
      *
@@ -199,6 +200,8 @@ public:
      *                  executing.
      *
      * @code
+     *     #include "mbed.h"
+     *
      *     int main() {
      *         // creates a queue with the default size
      *         EventQueue queue;
@@ -232,6 +235,8 @@ public:
      *                    executing.
      *
      * @code
+     *     #include "mbed.h"
+     *
      *     class EventHandler {
      *         int _id;
      *     public:
@@ -276,6 +281,8 @@ public:
      *                  enough memory to allocate the event.
      *
      * @code
+     *     #include "mbed.h"
+     *
      *     int main() {
      *         // creates a queue with the default size
      *         EventQueue queue;
@@ -308,6 +315,8 @@ public:
      *                  enough memory to allocate the event.
      *
      * @code
+     *     #include "mbed.h"
+     *
      *     class EventHandler {
      *         int _id;
      *     public:
@@ -356,6 +365,8 @@ public:
      *                  enough memory to allocate the event.
      *
      * @code
+     *     #include "mbed.h"
+     *
      *     class EventHandler {
      *         int _id;
      *     public:
@@ -398,6 +409,8 @@ public:
      *  @param args     Arguments to pass to the callback
      *
      * @code
+     *     #include "mbed.h"
+     *
      *     class EventHandler {
      *         int _id;
      *     public:
@@ -433,11 +446,8 @@ public:
      *  callback acts as the target for the event and is executed in the
      *  context of the event queue's dispatch loop once posted.
      *
-     *  @tparam R           TODO
-     *  @tparam Args        TODO
-     *  @tparam BoundArgs   TODO
      *  @param  func        Function to execute when the event is dispatched
-     *  @param  args        TODO
+     *  @param  args        Arguments to pass to the callback
      *  @return             Event that will dispatch on the specific queue
      *
      * @code
@@ -457,6 +467,13 @@ public:
      *
      *         // Create event and post parameter later
      *         Event<void(int)> e2 = queue.event(handler);
+     *
+     *         // Post the event with paramter 8
+     *         e.post(8);
+     *
+     *         // Events are executed by the dispatch method
+     *         queue.dispatch();
+     *
      *         e2.post(2);
      *
      *         queue.dispatch();
@@ -472,14 +489,9 @@ public:
      *  callback acts as the target for the event and is executed in the
      *  context of the event queue's dispatch loop once posted.
      *
-     *  @tparam T              TODO
-     *  @tparam R              TODO
-     *  @tparam BoundArgs      TODO
-     *  @tparam ContextArg     TODO
-     *  @tparam Args           TODO
      *  @param obj             Object to call with the member function
      *  @param method          Member function to execute in the context of the dispatch loop
-     *  @param context_args    TODO
+     *  @param context_args    Arguments to pass to the callback
      *  @return                Event that will dispatch on the specific queue
      *
      * @code
@@ -500,11 +512,15 @@ public:
      *     {
      *         EventQueue queue;
      *
-     *         EventHandler handler_cb(5);
+     *         EventHandler handler_cb(10);
      *
      *         // Create event on the eventqueue with a method callback
      *         Event<void(int)> e = queue.event(&handler_cb, &EventHandler::handler);
-     *         e.post(1);
+     *
+     *         // Post the event with paramter 8
+     *         e.post(11);
+     *
+     *         // Events are executed by the dispatch method
      *         queue.dispatch();
      *     }
      * @endcode
@@ -518,13 +534,34 @@ public:
      *  callback acts as the target for the event and is executed in the
      *  context of the event queue's dispatch loop once posted.
      *
-     *  @tparam templateArgs   TODO
-     *  @tparam R              TODO
-     *  @param  cb             TODO
-     *  @tparam Args           TODO
-     *  @tparam BoundArgs      TODO
-     *  @param  context_args   TODO
+     *  @param  cb             Callback object
+     *  @param  context_args   Arguments to pass to the callback
      *  @return                Event that will dispatch on the specific queue
+     *
+     *  @code
+     *     #include "mbed.h"
+     *
+     *     void handler(int c) {
+     *         printf("Param: %d\r\n", c);
+     *     }
+     *
+     *     int main()
+     *     {
+     *         EventQueue queue;
+     *         // Create callback object acting as a function
+     *         // pointer to handler
+     *         Callback<void(int)> cb(handler);
+     *
+     *         // Pass the callback object to the eventqueue
+     *         Event<void(int)> e = queue.event(cb);
+     *
+     *         // Post the event with parameter 8
+     *         e.post(9);
+     *
+     *         // events are executed by the dispatch method
+     *         q.dispatch();
+     *     }
+     *  @endcode
      */
     template <typename R, typename ...BoundArgs, typename ...ContextArgs, typename ...Args>
     Event<void(Args...)> event(mbed::Callback<R(BoundArgs..., Args...)> cb, ContextArgs ...context_args);
