@@ -33,6 +33,7 @@ public:
         ModelUnknown = 0,
         ModelELS61,
         ModelBGS2,
+        ModelEMS31,
     };
     static nsapi_error_t detect_model(const char *model);
     static Model get_model();

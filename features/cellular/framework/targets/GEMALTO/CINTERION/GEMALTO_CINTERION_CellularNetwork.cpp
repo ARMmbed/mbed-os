@@ -49,6 +49,9 @@ bool GEMALTO_CINTERION_CellularNetwork::get_modem_stack_type(nsapi_ip_stack_t re
 
 bool GEMALTO_CINTERION_CellularNetwork::has_registration(RegistrationType reg_type)
 {
+    if (GEMALTO_CINTERION_Module::get_model() == GEMALTO_CINTERION_Module::ModelEMS31) {
+        return (reg_type == C_EREG);
+    }
     if (GEMALTO_CINTERION_Module::get_model() == GEMALTO_CINTERION_Module::ModelBGS2) {
         return (reg_type == C_REG || reg_type == C_GREG);
     }

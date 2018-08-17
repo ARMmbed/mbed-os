@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#include <stdlib.h>
+#include <cstdlib>
 #include "GEMALTO_CINTERION_CellularStack.h"
 #include "GEMALTO_CINTERION_Module.h"
 #include "CellularLog.h"
@@ -175,7 +175,6 @@ nsapi_error_t GEMALTO_CINTERION_CellularStack::socket_open_defer(CellularSocket 
     _at.cmd_stop();
     _at.resp_start();
     _at.resp_stop();
-
 
     _at.cmd_start("AT^SISO=");
     _at.write_int(socket->id);
@@ -483,6 +482,11 @@ nsapi_size_or_error_t GEMALTO_CINTERION_CellularStack::socket_recvfrom_impl(Cell
 // setup internet connection profile for sockets
 bool GEMALTO_CINTERION_CellularStack::create_connection_profile()
 {
+    if (GEMALTO_CINTERION_Module::get_model() == GEMALTO_CINTERION_Module::ModelEMS31) {
+        // EMS31 connection has only DNS settings and there is no need to modify those here for now
+        return true;
+    }
+
     char conParamType[12];
     std::sprintf(conParamType, "GPRS%d", (_stack_type == IPV4_STACK) ? 0 : 6);
     _at.cmd_start("AT^SICS?");

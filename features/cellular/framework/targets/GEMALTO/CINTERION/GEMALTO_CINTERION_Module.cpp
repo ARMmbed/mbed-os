@@ -29,9 +29,14 @@ static const AT_CellularBase::SupportedFeature unsupported_features_els61[] =  {
     AT_CellularBase::SUPPORTED_FEATURE_END_MARK
 };
 
-// unsupported features as per EMS31-US_ATC_V4.9.5
+// unsupported features as per BGS2-W_ATC_V00.100
 static const AT_CellularBase::SupportedFeature unsupported_features_bgs2[] =  {
     AT_CellularBase::AT_CGSN_WITH_TYPE,
+    AT_CellularBase::SUPPORTED_FEATURE_END_MARK
+};
+
+// unsupported features as per EMS31-US_ATC_V4.9.5
+static const AT_CellularBase::SupportedFeature unsupported_features_ems31[] =  {
     AT_CellularBase::SUPPORTED_FEATURE_END_MARK
 };
 
@@ -46,6 +51,9 @@ nsapi_error_t GEMALTO_CINTERION_Module::detect_model(const char *model)
     } else if (memcmp(model, "BGS2", sizeof("BGS2") - 1) == 0) {
         _model = ModelBGS2;
         unsupported_features = unsupported_features_bgs2;
+    } else if (memcmp(model, "EMS31", sizeof("EMS31") - 1) == 0) {
+        _model = ModelEMS31;
+        unsupported_features = unsupported_features_ems31;
     } else {
         tr_error("Cinterion model unsupported %s", model);
         return NSAPI_ERROR_UNSUPPORTED;
