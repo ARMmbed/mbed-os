@@ -40,9 +40,9 @@
   * // Increase reference count
   * SharedPtr<MyStruct> ptr2( ptr );
   * 
-  * ptr = 
-  *
-  * BLE& ble_interface = BLE::Instance();
+  * ptr = NULL; // Reference to the struct instance is still held by ptr2
+  * 
+  * ptr2 = NULL; // The raw pointer is freed
   * @endcode
   * 
   * 
@@ -73,10 +73,12 @@ public:
      * @brief Create new SharedPtr
      * @param ptr Pointer to take control over
      */
-    SharedPtr(T* ptr): _ptr(ptr) {
+    SharedPtr(T* ptr): _ptr(ptr), _counter(NULL) {
         // allocate counter on the heap so it can be shared
-        _counter = (uint32_t*) malloc(sizeof(uint32_t));
-        *_counter = 1;
+        if(_ptr != NULL) {
+            _counter = (uint32_t*) malloc(sizeof(uint32_t));
+            *_counter = 1;
+        }
     }
 
     /**
@@ -95,7 +97,7 @@ public:
      */
     SharedPtr(const SharedPtr& source): _ptr(source._ptr), _counter(source._counter) {
         // increment reference counter
-        if (_counter) {
+        if (_ptr != NULL) {
             core_util_critical_section_enter();
             (*_counter)++;
             core_util_critical_section_exit();
@@ -115,10 +117,10 @@ public:
 
             // assign new values
             _ptr = source.get();
-            _counter = source.getCounter();
+            _counter = source.get_counter();
 
             // increment new counter
-            if (_counter) {
+            if (_ptr != NULL) {
                 core_util_critical_section_enter();
                 (*_counter)++;
                 core_util_critical_section_exit();
@@ -126,6 +128,28 @@ public:
         }
 
         return *this;
+    }
+
+    /**
+     * @brief Replaces the managed pointer with a new unmanaged pointer.
+     * @param[in] ptr the new raw pointer to manage. 
+     */
+    void reset(T* ptr) {
+        // clean up by decrementing counter
+        decrement_counter();
+
+        if(ptr != NULL) {
+            // allocate counter on the heap so it can be shared
+            _counter = (uint32_t*) malloc(sizeof(uint32_t));
+            *_counter = 1;
+        }
+    }
+
+    /**
+     * @brief Replace the managed pointer with a NULL pointer.
+     */ 
+    void reset() {
+        reset(NULL);
     }
 
     /**
@@ -142,7 +166,7 @@ public:
      * @return Reference count.
      */
     uint32_t use_count() const {
-        if (_counter) {
+        if (_ptr != NULL) {
             core_util_critical_section_enter();
             return *_counter;
             core_util_critical_section_exit();
@@ -172,7 +196,7 @@ public:
      * @return Whether or not the pointer is NULL.
      */
     operator bool() const {
-        return (_ptr != 0);
+        return (_ptr != NULL);
     }
 
 private:
@@ -180,7 +204,7 @@ private:
      * @brief Get pointer to reference counter.
      * @return Pointer to reference counter.
      */
-    uint32_t* getCounter() const {
+    uint32_t* get_counter() const {
         return _counter;
     }
 
@@ -194,7 +218,9 @@ private:
             if (*_counter == 1) {
                 core_util_critical_section_exit();
                 free(_counter);
+                _counter = NULL;
                 delete _ptr;
+                _ptr = NULL;
             } else {
                 (*_counter)--;
                 core_util_critical_section_exit();
