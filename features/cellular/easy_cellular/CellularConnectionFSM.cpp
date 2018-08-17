@@ -394,8 +394,11 @@ void CellularConnectionFSM::state_power_on()
     }
 }
 
-void CellularConnectionFSM::device_ready()
+bool CellularConnectionFSM::device_ready()
 {
+    if (_cellularDevice->init_module(_serial) != NSAPI_ERROR_OK) {
+        return false;
+    }
     tr_info("Cellular device ready");
     if (_event_status_cb) {
         _event_status_cb((nsapi_event_t)CellularDeviceReady, 0);
@@ -403,14 +406,16 @@ void CellularConnectionFSM::device_ready()
     _power->remove_device_ready_urc_cb(mbed::callback(this, &CellularConnectionFSM::ready_urc_cb));
     _cellularDevice->close_power();
     _power = NULL;
+    return true;
 }
 
 void CellularConnectionFSM::state_device_ready()
 {
     _cellularDevice->set_timeout(TIMEOUT_POWER_ON);
     if (_power->set_at_mode() == NSAPI_ERROR_OK) {
-        device_ready();
-        enter_to_state(STATE_SIM_PIN);
+        if (device_ready()) {
+            enter_to_state(STATE_SIM_PIN);
+        }
     } else {
         if (_retry_count == 0) {
             (void)_power->set_device_ready_urc_cb(mbed::callback(this, &CellularConnectionFSM::ready_urc_cb));
@@ -658,9 +663,10 @@ void CellularConnectionFSM::ready_urc_cb()
     tr_debug("Device ready URC func called");
     if (_state == STATE_DEVICE_READY && _power->set_at_mode() == NSAPI_ERROR_OK) {
         tr_debug("State was STATE_DEVICE_READY and at mode ready, cancel state and move to next");
-        _queue.cancel(_event_id);
-        device_ready();
-        continue_from_state(STATE_SIM_PIN);
+        if (device_ready()) {
+            _queue.cancel(_event_id);
+            continue_from_state(STATE_SIM_PIN);
+        }
     }
 }
 

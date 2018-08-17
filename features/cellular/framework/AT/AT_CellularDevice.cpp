@@ -246,3 +246,8 @@ NetworkStack *AT_CellularDevice::get_stack()
     }
     return _network->get_stack();
 }
+
+nsapi_error_t AT_CellularDevice::init_module(FileHandle *fh)
+{
+    return NSAPI_ERROR_OK;
+}
