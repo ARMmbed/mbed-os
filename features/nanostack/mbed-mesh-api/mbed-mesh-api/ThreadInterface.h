@@ -62,10 +62,9 @@ public:
 
     mesh_error_t device_pskd_set(const char *pskd);
 
-    virtual int connect();
-    virtual int disconnect();
 protected:
     Nanostack::ThreadInterface *get_interface() const;
+    virtual nsapi_error_t do_initialize();
 };
 
 #endif // THREADINTERFACE_H

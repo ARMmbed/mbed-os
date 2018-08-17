@@ -27,7 +27,12 @@ private:
     mesh_error_t mesh_disconnect();
 };
 
-int LoWPANNDInterface::connect()
+Nanostack::LoWPANNDInterface *LoWPANNDInterface::get_interface() const
+{
+    return static_cast<Nanostack::LoWPANNDInterface*>(_interface);
+}
+
+nsapi_error_t LoWPANNDInterface::do_initialize()
 {
     if (!_interface) {
         _interface = new (nothrow) Nanostack::LoWPANNDInterface(*_phy);
@@ -36,9 +41,7 @@ int LoWPANNDInterface::connect()
         }
         _interface->attach(_connection_status_cb);
     }
-
-    return _interface->bringup(false, NULL, NULL, NULL, IPV6_STACK, _blocking);
-
+    return NSAPI_ERROR_OK;
 }
 
 nsapi_error_t Nanostack::LoWPANNDInterface::bringup(bool dhcp, const char *ip,
@@ -82,11 +85,6 @@ nsapi_error_t Nanostack::LoWPANNDInterface::bringup(bool dhcp, const char *ip,
     }
     return 0;
 
-}
-
-int LoWPANNDInterface::disconnect()
-{
-    return _interface->bringdown();
 }
 
 nsapi_error_t Nanostack::LoWPANNDInterface::bringdown()

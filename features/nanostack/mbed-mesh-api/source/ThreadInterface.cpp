@@ -76,7 +76,7 @@ Nanostack::ThreadInterface *ThreadInterface::get_interface() const
     return static_cast<Nanostack::ThreadInterface*>(_interface);
 }
 
-int ThreadInterface::connect()
+nsapi_error_t ThreadInterface::do_initialize()
 {
     if (!_interface) {
         _interface = new (nothrow) Nanostack::ThreadInterface(*_phy);
@@ -85,8 +85,7 @@ int ThreadInterface::connect()
         }
         _interface->attach(_connection_status_cb);
     }
-
-    return _interface->bringup(false, NULL, NULL, NULL, IPV6_STACK, _blocking);
+    return NSAPI_ERROR_OK;
 }
 
 nsapi_error_t Nanostack::ThreadInterface::bringup(bool dhcp, const char *ip,
@@ -144,11 +143,6 @@ nsapi_error_t Nanostack::ThreadInterface::bringup(bool dhcp, const char *ip,
         }
     }
     return 0;
-}
-
-int ThreadInterface::disconnect()
-{
-    return _interface->bringdown();
 }
 
 nsapi_error_t Nanostack::ThreadInterface::bringdown()

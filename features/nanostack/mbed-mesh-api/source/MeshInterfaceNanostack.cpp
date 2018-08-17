@@ -82,6 +82,24 @@ InterfaceNanostack::InterfaceNanostack()
     // Nothing to do
 }
 
+int InterfaceNanostack::connect()
+{
+    nsapi_error_t error = do_initialize();
+    if (error) {
+        return error;
+    }
+
+    return _interface->bringup(false, NULL, NULL, NULL, IPV6_STACK, _blocking);
+}
+
+int InterfaceNanostack::disconnect()
+{
+    if (!_interface) {
+        return NSAPI_ERROR_NO_CONNECTION;
+    }
+    return _interface->bringdown();
+}
+
 nsapi_error_t MeshInterfaceNanostack::initialize(NanostackRfPhy *phy)
 {
     if (_phy) {
