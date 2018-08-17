@@ -282,6 +282,14 @@ typedef enum {
     SYS_WKUP4 = PA_2,
     SYS_WKUP5 = PC_5,
 
+    /**** QSPI FLASH pins ****/
+    QSPI_FLASH1_IO0 = PE_12,
+    QSPI_FLASH1_IO1 = PE_13,
+    QSPI_FLASH1_IO2 = PE_14,
+    QSPI_FLASH1_IO3 = PE_15,
+    QSPI_FLASH1_SCK = PE_10,
+    QSPI_FLASH1_CSN = PE_11,
+
     // Not connected
     NC = (int)0xFFFFFFFF
 } PinName;
