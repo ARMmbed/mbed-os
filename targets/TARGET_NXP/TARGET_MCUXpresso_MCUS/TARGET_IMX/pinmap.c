@@ -54,7 +54,8 @@ void pin_function(PinName pin, int function)
     }
 
     /* Write to the mux register */
-    *((volatile uint32_t *)muxregister) = IOMUXC_SW_MUX_CTL_PAD_MUX_MODE(function);
+    *((volatile uint32_t *)muxregister) = IOMUXC_SW_MUX_CTL_PAD_MUX_MODE(function) |
+                                          IOMUXC_SW_MUX_CTL_PAD_SION((function >> SION_BIT_SHIFT) & 0x1);
 
     /* If required write to the input daisy register */
     daisyregister = (function >> DAISY_REG_SHIFT) & 0xFFF;

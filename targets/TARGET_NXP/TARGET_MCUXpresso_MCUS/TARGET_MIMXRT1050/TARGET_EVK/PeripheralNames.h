@@ -37,6 +37,7 @@ typedef enum {
 #define STDIO_UART_RX     USBRX
 #define STDIO_UART        UART_1
 
+#define SION_BIT_SHIFT        (3)
 #define DAISY_REG_SHIFT       (4)
 #define DAISY_REG_VALUE_SHIFT (16)
 
