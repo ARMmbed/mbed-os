@@ -94,6 +94,8 @@ namespace nfc {
 
         void handle_error(nfc_err_t ret);
         void continue_write();
+        void continue_read();
+        void continue_erase();
 
         enum class nfc_eeprom_operation_t {
             nfc_eeprom_idle,
@@ -106,7 +108,12 @@ namespace nfc {
             nfc_eeprom_write_start_session,
             nfc_eeprom_read_read_size,
             nfc_eeprom_read_read_bytes,
-            nfc_eeprom_read_end_session
+            nfc_eeprom_read_end_session,
+
+            nfc_eeprom_erase_start_session,
+            nfc_eeprom_erase_erase_bytes,
+            nfc_eeprom_erase_write_size,
+            nfc_eeprom_erase_end_session
         };
 
         NFCEEPROMDriver* _driver;
@@ -117,7 +124,9 @@ namespace nfc {
 
         nfc_eeprom_operation_t _current_op;
         buffer_t _ndef_buffer_reader;
+        size_t _ndef_buffer_read_sz;
         uint32_t _eeprom_address;
+        nfc_err_t _operation_result;
     };
 
     /**
