@@ -93,6 +93,11 @@ For now, the one controller we support is the PN512 which implements the `NFCCon
 It offers the following methods:
 
 ```cpp
+void set_delegate(Delegate* delegate);
+```
+Set the instance's delegate.
+
+```cpp
 struct nfc_rf_protocols_bitmask_t
 {
     uint8_t initiator_t1t : 1;
@@ -121,6 +126,11 @@ These are mapped against NFC Forum-defined protocols.
 * ISO-DEP is based on ISO/IEC 14443-4 and is the common interface for contactless smartcards. The underlying radio protocol can either be ISO/IEC 14443A or ISO/IEC 14443B.
 * NFC-DEP is based on ISO/IEC 18092 / FIXME and is the basis for NFC peer-to-peer communication.
 * T5T is also known as ISO/IEC 15963.
+
+```cpp
+nfc_err_t initialize();
+```
+Initialize the NFC controller.
 
 ```cpp
 nfc_err_t configure_rf_protocols(nfc_rf_protocols_bitmask_t rf_protocols);
@@ -214,16 +224,6 @@ ndef::MessageBuilder* ndef_message_builder();
 #### NFC Remote Initiator
 
 This class derives from the base `NFCEndpoint` and `NFCNDEFCapable` classes.
-
-```cpp
-bool is_ndef_supported();
-
-void set_ndef_message(const NDEFMessage& message);
-void clear_ndef_message();
-NDEFMessage get_ndef_message();
-```
-These methods provide access to the NDEF message that we are exposing to the remote initiator.
-
 
 ```cpp
 enum nfc_tag_type_t {
