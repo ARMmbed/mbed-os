@@ -1,0 +1,270 @@
+"""
+Copyright (c) 2018, Arm Limited
+SPDX-License-Identifier: Apache-2.0
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+
+UNIT TEST BUILD & RUN
+"""
+
+import os
+import logging
+import sys
+from shutil import copy
+
+from .utils import execute_program
+from .get_tools import get_make_tool, \
+                       get_cmake_tool, \
+                       get_cxx_tool, \
+                       get_c_tool, \
+                       get_gcov_program, \
+                       get_gcovr_program
+from .settings import DEFAULT_CMAKE_GENERATORS
+
+class UnitTestTool(object):
+    """
+    Unit test tool to:
+        - prepare build directory
+        - create makefiles
+        - build unit tests
+        - run unit tests
+        - generate code coverage reports
+    """
+
+    def __init__(self,
+                 make_program=None):
+        """
+        Constructor
+
+        Keyword arguments:
+        make_program - Make tool to use
+        """
+
+        self.make_program = make_program
+
+        if self.make_program is None:
+            self.make_program = get_make_tool()
+
+    def create_makefiles(self,
+                         path_to_src=None,
+                         generator=None,
+                         coverage_output_type=None,
+                         debug=False):
+        """
+        Create Makefiles and prepare targets with CMake.
+
+        Keyword arguments:
+        path_to_src - Path to source directory
+        generator - Type of Makefiles to generate
+        coverage_output_type - Generate HTML, XML or both reports
+        debug - Target debug or release build
+        """
+
+        if generator is None:
+            generator = DEFAULT_CMAKE_GENERATORS.get(self.make_program,
+                                                     "Unix Makefiles")
+
+        cmake = get_cmake_tool()
+
+        if cmake is None:
+            logging.error(
+                "No CMake found in Path. Install all the required tools.")
+            sys.exit(1)
+
+        args = [cmake,
+                "-G",
+                generator,
+                "-DCMAKE_MAKE_PROGRAM=%s" % self.make_program,
+                "-DCMAKE_CXX_COMPILER=%s" % get_cxx_tool(),
+                "-DCMAKE_C_COMPILER=%s" % get_c_tool()]
+
+        if debug:
+            args.append("-DCMAKE_BUILD_TYPE=Debug")
+
+        if coverage_output_type:
+            args.append("-DCOVERAGE:STRING=%s" % coverage_output_type)
+
+        if path_to_src is not None:
+            args.append(path_to_src)
+
+        execute_program(args,
+                        "CMake failed to run successfully. See error message.")
+
+    def build_tests(self):
+        """
+        Build unit tests and libraries to be tested.
+        """
+
+        args = [self.make_program]
+
+        if logging.getLogger().getEffectiveLevel() == logging.DEBUG:
+            args.append("VERBOSE=1")
+
+        execute_program(args,
+                        "Building unit tests failed.",
+                        "Unit tests built successfully.")
+
+    def _get_coverage_script(self, coverage_type, excludes):
+        args = [get_gcovr_program(),
+                "--gcov-executable",
+                get_gcov_program(),
+                "-r",
+                "../..",
+                "."]
+
+        if coverage_type == "html":
+            args.extend(["--html",
+                         "--html-detail",
+                         "-o",
+                         "./coverage/index.html"])
+        elif coverage_type == "xml":
+            args.extend(["-x",
+                         "-o",
+                         "./coverage.xml"])
+
+        for path in excludes:
+            args.extend(["-e", path])
+
+        if logging.getLogger().getEffectiveLevel() == logging.DEBUG:
+            args.append("-v")
+
+        return args
+
+    def generate_coverage_report(self,
+                                 coverage_output_type=None,
+                                 excludes=None,
+                                 build_path=None):
+        """
+        Run tests to generate coverage data, and generate coverage reports.
+        """
+
+        self.run_tests()
+
+        if get_gcovr_program() is None:
+            logging.error("No gcovr tool found in path. \
+            Cannot generate coverage report.")
+            return
+
+        if build_path is None:
+            build_path = os.getcwd()
+
+        if coverage_output_type is None:
+            logging.warning("No coverage output type give. \
+                            Cannot generate coverage reports.")
+            return
+
+        if excludes is None:
+            excludes = []
+
+        if coverage_output_type == "html" or coverage_output_type == "both":
+            # Create build directory if not exist.
+            coverage_path = os.path.join(build_path, "coverage")
+            if not os.path.exists(coverage_path):
+                os.mkdir(coverage_path)
+
+            args = self._get_coverage_script("html", excludes)
+
+            execute_program(args,
+                            "HTML code coverage report generation failed.",
+                            "HTML code coverage report created.")
+
+        if coverage_output_type == "xml" or coverage_output_type == "both":
+            args = self._get_coverage_script("xml", excludes)
+
+            execute_program(args,
+                            "XML code coverage report generation failed.",
+                            "XML code coverage report created.")
+
+    def run_tests(self, filter_regex=None):
+        """
+        Run unit tests.
+
+        Keyword arguments:
+        filter_regex - Regular expression to select which tests to run
+        """
+
+        args = [self.make_program, "test"]
+
+        if filter_regex:
+            args.append("ARGS=-R %s -V -D ExperimentalTest" % filter_regex)
+        else:
+            args.append("ARGS=-V -D ExperimentalTest")
+
+        if logging.getLogger().getEffectiveLevel() == logging.DEBUG:
+            args.append("VERBOSE=1")
+
+        execute_program(args, "Unit test run failed.")
+
+    def prepare_build_directory(self,
+                                path_to_src=None,
+                                build_path=None,
+                                clean=False):
+        """
+        Create build directory if not exist and
+        change current working directory to it
+
+        Keyword arguments:
+        path_to_src - Path to source directory
+        build_path - Path to build directory
+        clean - Clean build directory
+        """
+
+        if build_path is None:
+            build_path = os.getcwd()
+
+        # Clean CMake data if exists.
+        if clean:
+            self._clean_build(build_path)
+
+        # Create build directory if not exist.
+        if not os.path.exists(build_path):
+            os.makedirs(build_path)
+            filename = ".mbedignore"
+            inputfile = os.path.join(path_to_src, filename)
+            outputfile = os.path.join(build_path, filename)
+            copy(inputfile, outputfile)
+
+        # Change current working directory to build directory.
+        os.chdir(build_path)
+
+    def _clean_build(self, build_path=None):
+        """
+        Try clean build directory
+
+        Keyword arguments:
+        build_path - Path to build directory
+        """
+
+        logging.info("Cleaning build directory...")
+
+        if os.path.exists(os.path.join(build_path, "CMakeCache.txt")):
+            args = [self.make_program,
+                    "-C",
+                    build_path,
+                    "--no-print-directory",
+                    "clean"]
+
+            # Remove coverage files
+            for root, _, files in os.walk(build_path):
+                for current_file in files:
+                    if current_file.endswith((".gcno", ".gcda")):
+                        os.remove(os.path.join(root, current_file))
+
+            execute_program(args,
+                            "Clean step failed.",
+                            "Clean done.")
+
+        else:
+            logging.warning("%s does not exist or \
+            does not contain previous build data.", build_path)
