@@ -22,9 +22,32 @@
 #include <stdint.h>
 #include <stddef.h>
 
+#include "platform/mbed_critical.h"
+
 /** Shared pointer class.
   *
-  * Similar to std::shared_ptr in C++11.
+  * A shared pointer is a "smart" pointer that retains ownership of an object using
+  * reference counting accross all smart pointers referencing that object.
+  * 
+  * @code
+  * #include "platform/SharedPtr.h"
+  * 
+  * struct MyStruct { int a; };
+  * 
+  * // Create shared pointer
+  * SharedPtr<MyStruct> ptr( new MyStruct );
+  * 
+  * // Increase reference count
+  * SharedPtr<MyStruct> ptr2( ptr );
+  * 
+  * ptr = 
+  *
+  * BLE& ble_interface = BLE::Instance();
+  * @endcode
+  * 
+  * 
+  * It is similar to the std::shared_ptr class introduced in C++11, 
+  * however this is not a compatible implementation (no weak pointer, no make_shared, no custom deleters, etc.)
   *
   * Usage: SharedPtr<class> POINTER(new class())
   *
@@ -43,17 +66,17 @@ public:
      * @brief Create empty SharedPtr not pointing to anything.
      * @details Used for variable declaration.
      */
-    SharedPtr(): pointer(NULL), counter(NULL) {
+    SharedPtr(): _ptr(NULL), _counter(NULL) {
     }
 
     /**
      * @brief Create new SharedPtr
-     * @param _pointer Pointer to take control over
+     * @param ptr Pointer to take control over
      */
-    SharedPtr(T* _pointer): pointer(_pointer) {
+    SharedPtr(T* ptr): _ptr(ptr) {
         // allocate counter on the heap so it can be shared
-        counter = (uint32_t*) malloc(sizeof(uint32_t));
-        *counter = 1;
+        _counter = (uint32_t*) malloc(sizeof(uint32_t));
+        *_counter = 1;
     }
 
     /**
@@ -61,19 +84,21 @@ public:
      * @details Decrement reference counter and delete object if no longer pointed to.
      */
     ~SharedPtr() {
-        decrementCounter();
+        decrement_counter();
     }
 
     /**
      * @brief Copy constructor.
-     * @details Create new SharePointer from other SharedPtr by
+     * @details Create new SharedPtr from other SharedPtr by
      *          copying pointer to original object and pointer to counter.
      * @param source Object being copied from.
      */
-    SharedPtr(const SharedPtr& source): pointer(source.pointer), counter(source.counter) {
+    SharedPtr(const SharedPtr& source): _ptr(source._ptr), _counter(source._counter) {
         // increment reference counter
-        if (counter) {
-            (*counter)++;
+        if (_counter) {
+            core_util_critical_section_enter();
+            (*_counter)++;
+            core_util_critical_section_exit();
         }
     }
 
@@ -86,15 +111,17 @@ public:
     SharedPtr operator=(const SharedPtr& source) {
         if (this != &source) {
             // clean up by decrementing counter
-            decrementCounter();
+            decrement_counter();
 
             // assign new values
-            pointer = source.get();
-            counter = source.getCounter();
+            _ptr = source.get();
+            _counter = source.getCounter();
 
             // increment new counter
-            if (counter) {
-                (*counter)++;
+            if (_counter) {
+                core_util_critical_section_enter();
+                (*_counter)++;
+                core_util_critical_section_exit();
             }
         }
 
@@ -107,7 +134,7 @@ public:
      * @return Pointer.
      */
     T* get() const {
-        return pointer;
+        return _ptr;
     }
 
     /**
@@ -115,8 +142,10 @@ public:
      * @return Reference count.
      */
     uint32_t use_count() const {
-        if (counter) {
-            return *counter;
+        if (_counter) {
+            core_util_critical_section_enter();
+            return *_counter;
+            core_util_critical_section_exit();
         } else {
             return 0;
         }
@@ -127,7 +156,7 @@ public:
      * @details Override to return the object pointed to.
      */
     T& operator*() const {
-        return *pointer;
+        return *_ptr;
     }
 
     /**
@@ -135,7 +164,7 @@ public:
      * @details Override to return return member in object pointed to.
      */
     T* operator->() const {
-        return pointer;
+        return _ptr;
     }
 
     /**
@@ -143,7 +172,7 @@ public:
      * @return Whether or not the pointer is NULL.
      */
     operator bool() const {
-        return (pointer != 0);
+        return (_ptr != 0);
     }
 
 private:
@@ -152,30 +181,33 @@ private:
      * @return Pointer to reference counter.
      */
     uint32_t* getCounter() const {
-        return counter;
+        return _counter;
     }
 
     /**
      * @brief Decrement reference counter.
      * @details If count reaches zero, free counter and delete object pointed to.
      */
-    void decrementCounter() {
-        if (counter) {
-            if (*counter == 1) {
-                free(counter);
-                delete pointer;
+    void decrement_counter() {
+        if (_counter) {
+            core_util_critical_section_enter();
+            if (*_counter == 1) {
+                core_util_critical_section_exit();
+                free(_counter);
+                delete _ptr;
             } else {
-                (*counter)--;
+                (*_counter)--;
+                core_util_critical_section_exit();
             }
         }
     }
 
 private:
     // pointer to shared object
-    T* pointer;
+    T* _ptr;
 
     // pointer to shared reference counter
-    uint32_t* counter;
+    uint32_t* _counter;
 };
 
 /** Non-member relational operators.
