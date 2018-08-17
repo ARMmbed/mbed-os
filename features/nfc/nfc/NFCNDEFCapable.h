@@ -55,7 +55,7 @@ namespace nfc {
              * @param[in] buffer a buffer containing the message to parse
              * @param[in] size the buffer's size
              */
-            void parse_ndef_message(const uint8_t* buffer, size_t size) { }
+            virtual void parse_ndef_message(const uint8_t* buffer, size_t size) { }
 
             /**
              * Build a NDEF message.
@@ -64,7 +64,7 @@ namespace nfc {
              * @param[in] capacity the buffer's capacity
              * @return the number of bytes actually used
              */
-            size_t build_ndef_message(uint8_t* buffer, size_t capacity) { return 0; } 
+            virtual size_t build_ndef_message(uint8_t* buffer, size_t capacity) { return 0; } 
         };
 
         /** 
