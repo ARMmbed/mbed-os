@@ -49,7 +49,7 @@ namespace nfc {
             /**
              * Called when the controller asserts the interrupt line
              */ 
-            void on_hw_interrupt();
+            virtual void on_hw_interrupt() {}
         };
 
         /**
