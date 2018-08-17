@@ -635,6 +635,12 @@
             "network-default-interface-type": "ETHERNET"
         }
     },
+    "SDT64B": {
+        "inherits": ["K64F"],
+        "extra_labels_add": ["K64F"],
+        "extra_labels_remove": ["FRDM"],
+        "detect_code": ["3105"]
+    },
     "EV_COG_AD4050LZ": {
         "inherits": ["Target"],
         "core": "Cortex-M4F",
@@ -2907,6 +2913,16 @@
         "device_has": ["ANALOGIN", "I2C", "INTERRUPTIN", "LPTICKER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "STDIO_MESSAGES", "USTICKER"],
         "release_versions": ["2", "5"]
     },
+    "SDT32620B": {
+        "inherits": ["Target"],
+        "core": "Cortex-M4F",
+        "macros": ["__SYSTEM_HFX=96000000","TARGET=MAX32620","TARGET_REV=0x4332","OPEN_DRAIN_LEDS"],
+        "detect_code": ["3101"],
+        "extra_labels": ["Maxim", "MAX32620C"],
+        "supported_toolchains": ["GCC_ARM", "IAR", "ARM"],
+        "device_has": ["ANALOGIN", "I2C", "INTERRUPTIN", "LPTICKER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "STDIO_MESSAGES", "USTICKER"],
+        "release_versions": ["2", "5"]
+    },
     "MAX32625_BASE": {
         "inherits": ["Target"],
         "core": "Cortex-M4F",
@@ -2921,6 +2937,11 @@
     "MAX32625MBED": {
         "inherits": ["MAX32625_BASE"],
         "extra_labels_add": ["MAX32625_NO_BOOT"]
+    },
+    "SDT32625B": {
+        "inherits": ["MAX32625_BASE"],
+        "extra_labels_add": ["MAX32625_NO_BOOT"],
+        "detect_code": ["3102"]
     },
     "MAX32625PICO": {
         "inherits": ["MAX32625_BASE"],
@@ -3681,6 +3702,13 @@
         "release_versions": ["2", "5"],
         "device_name": "nRF51822_xxAA"
     },
+    "SDT51822B": {
+        "inherits": ["MCU_NRF51_32K_UNIFIED"],
+        "device_has": ["USTICKER", "LPTICKER", "ANALOGIN", "I2C", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "SLEEP", "SPI", "SPI_ASYNCH", "SPISLAVE"],
+        "detect_code": ["3103"],
+        "release_versions": ["2", "5"],
+        "device_name": "nRF51822_xxAA"
+    },
     "NRF51_DONGLE": {
         "inherits": ["MCU_NRF51_32K_UNIFIED"],
         "progen": {"target": "nrf51-dongle"},
@@ -3761,6 +3789,12 @@
         "supported_form_factors": ["ARDUINO"],
         "inherits": ["MCU_NRF52832"],
         "release_versions": ["5"],
+        "device_name": "nRF52832_xxAA"
+    },
+    "SDT52832B": {
+        "inherits": ["MCU_NRF52832"],
+        "release_versions": ["5"],
+        "detect_code": ["3104"],
         "device_name": "nRF52832_xxAA"
     },
     "UBLOX_EVA_NINA": {
