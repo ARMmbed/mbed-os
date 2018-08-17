@@ -32,31 +32,33 @@
   * @code
   * #include "platform/SharedPtr.h"
   * 
-  * struct MyStruct { int a; };
+  * void test() {
+  *     struct MyStruct { int a; };
   * 
-  * // Create shared pointer
-  * SharedPtr<MyStruct> ptr( new MyStruct );
+  *     // Create shared pointer
+  *     SharedPtr<MyStruct> ptr( new MyStruct );
   * 
-  * // Increase reference count
-  * SharedPtr<MyStruct> ptr2( ptr );
+  *     // Increase reference count
+  *     SharedPtr<MyStruct> ptr2( ptr );
   * 
-  * ptr = NULL; // Reference to the struct instance is still held by ptr2
+  *     ptr = NULL; // Reference to the struct instance is still held by ptr2
   * 
-  * ptr2 = NULL; // The raw pointer is freed
+  *     ptr2 = NULL; // The raw pointer is freed
+  * }
   * @endcode
   * 
   * 
   * It is similar to the std::shared_ptr class introduced in C++11, 
   * however this is not a compatible implementation (no weak pointer, no make_shared, no custom deleters, etc.)
   *
-  * Usage: SharedPtr<class> POINTER(new class())
+  * Usage: SharedPtr<Class> ptr(new Class())
   *
-  * When POINTER is passed around by value the copy constructor and
-  * destructor counts the number of references to the original object.
-  * If the counter reaches zero, delete is called on the object pointed to.
+  * When ptr is passed around by value the copy constructor and
+  * destructor manages the reference count of the raw pointer.
+  * If the counter reaches zero, delete is called on the raw pointer.
   *
   * To avoid loops, "weak" references should be used by calling the original
-  * pointer directly through POINTER.get().
+  * pointer directly through ptr.get().
   */
 
 template <class T>
