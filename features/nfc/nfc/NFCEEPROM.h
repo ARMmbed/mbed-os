@@ -119,8 +119,6 @@ namespace nfc {
         NFCEEPROMDriver* _driver;
         events::EventQueue* _queue;
         bool _initialized;
-        uint8_t* _ndef_buffer;
-        size_t _ndef_buffer_sz;
 
         nfc_eeprom_operation_t _current_op;
         buffer_t _ndef_buffer_reader;

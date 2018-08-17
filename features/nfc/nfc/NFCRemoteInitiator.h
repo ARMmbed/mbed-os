@@ -42,9 +42,10 @@ namespace nfc {
     public:
         /**
          * Create a NFCRemoteInitiator.
-         * 
+         * @param[in] buffer a bytes array used to store NDEF messages
+         * @param[in] buffer_size the array size in bytes
          */ 
-        NFCRemoteInitiator();
+        NFCRemoteInitiator(uint8_t* buffer, size_t buffer_size);
         virtual ~NFCRemoteInitiator();
 
         /**

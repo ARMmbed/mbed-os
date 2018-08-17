@@ -37,14 +37,16 @@ namespace nfc {
     /**
      * This class is an implementation of the Type 4 tag application.
      */
-    class Type4RemoteInitiator : public NFCRemoteInitiator, public NFCNDEFCapable {
+    class Type4RemoteInitiator : public NFCRemoteInitiator {
     private:
         /**
          * Create a Type4RemoteInitiator.
          * 
          * @param[in] controller pointer to the NFCController instance that created this object
+         * @param[in] buffer a bytes array used to store NDEF messages
+         * @param[in] buffer_size the array size in bytes
          */ 
-        Type4RemoteInitiator(NFCController* controller);
+        Type4RemoteInitiator(NFCController* controller, uint8_t* buffer, size_t buffer_size);
 
         // NFCRemoteEndpoint implementation
         virtual nfc_err_t connect();
