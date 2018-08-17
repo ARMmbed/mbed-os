@@ -213,6 +213,10 @@ void ThreadInterface::device_eui64_set(const uint8_t *eui64)
 
 void ThreadInterface::device_eui64_get(uint8_t *eui64)
 {
+    memset(eui64, 0, 8);
+    if (!get_interface()) {
+        return;
+    }
     get_interface()->device_eui64_get(eui64);
 }
 
@@ -226,6 +230,9 @@ void Nanostack::ThreadInterface::device_eui64_get(uint8_t *eui64)
 {
     if (!eui64_set) {
         uint8_t eui64_buf[8];
+        if (register_phy() < 0) {
+            return;
+        }
         get_phy().get_mac_address(eui64_buf);
         device_eui64_set(eui64_buf);
     }
