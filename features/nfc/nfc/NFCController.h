@@ -22,6 +22,7 @@
 #include "platform/SharedPtr.h"
 
 #include "NFCDefinitions.h"
+#include "NFCControllerDriver.h"
 
 namespace mbed {
 namespace nfc {
@@ -46,7 +47,7 @@ namespace nfc {
      * A NFCController instance needs to be initialized with a NFCControllerDriver instance which abstracts the specific controller being used.
      * A delegate needs to be set by the user to receive discovery events.
      */
-    class NFCController {
+    class NFCController : private NFCControllerDriver::Delegate {
     public:
 
         /**
