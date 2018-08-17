@@ -86,7 +86,8 @@ namespace nfc {
          *  
          * @param[in] driver a pointer to a NFCControllerDriver instance
          * @param[in] queue a pointer to the events queue to use
-         * @param[in] ndef_buffer_sz NDEF buffer size
+         * @param[in] ndef_buffer a bytes array used to store NDEF messages
+         * @param[in] ndef_buffer_sz the array size in bytes
          */
         NFCController(NFCControllerDriver* driver, events::EventQueue* queue, uint8_t* ndef_buffer, size_t ndef_buffer_sz);
 
@@ -167,6 +168,7 @@ namespace nfc {
         Timeout _timeout;
         Delegate* _delegate;
         bool _discovery_running;
+        uint8_t* _ndef_buffer;
         size_t _ndef_buffer_sz;
     };
 

@@ -14,23 +14,16 @@
  * limitations under the License.
  */
 
-#include "NFCRemoteInitiator.h"
+#include "NFCTarget.h"
 
 using namespace mbed;
 using namespace mbed::nfc;
 
-NFCRemoteInitiator::NFCRemoteInitiator(NFCController* controller, uint8_t* buffer, size_t buffer_size) : 
-    NFCRemoteEndpoint(controller), NFCNDEFCapable(buffer, buffer_size) {
+NFCTarget::NFCTarget(uint8_t* buffer, size_t buffer_size) : 
+    NFCNDEFCapable(buffer, buffer_size) {
 
 }
 
-NFCRemoteInitiator::~NFCRemoteInitiator() {
+NFCTarget::~NFCTarget() {
 
 }
-
-
-void NFCRemoteInitiator::set_remote_initiator_delegate(Delegate* delegate)
-{
-    _delegate = delegate;
-}
-
