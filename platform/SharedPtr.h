@@ -78,7 +78,7 @@ public:
     SharedPtr(T* ptr): _ptr(ptr), _counter(NULL) {
         // allocate counter on the heap so it can be shared
         if(_ptr != NULL) {
-            _counter = (uint32_t*) malloc(sizeof(uint32_t));
+            _counter = new uint32_t;
             *_counter = 1;
         }
     }
@@ -100,9 +100,7 @@ public:
     SharedPtr(const SharedPtr& source): _ptr(source._ptr), _counter(source._counter) {
         // increment reference counter
         if (_ptr != NULL) {
-            core_util_critical_section_enter();
-            (*_counter)++;
-            core_util_critical_section_exit();
+            core_util_atomic_incr_u32(_counter, 1);
         }
     }
 
@@ -123,9 +121,7 @@ public:
 
             // increment new counter
             if (_ptr != NULL) {
-                core_util_critical_section_enter();
-                (*_counter)++;
-                core_util_critical_section_exit();
+                core_util_atomic_incr_u32(_counter, 1);
             }
         }
 
@@ -142,7 +138,7 @@ public:
 
         if(ptr != NULL) {
             // allocate counter on the heap so it can be shared
-            _counter = (uint32_t*) malloc(sizeof(uint32_t));
+            _counter = new uint32_t;
             *_counter = 1;
         }
     }
@@ -215,17 +211,13 @@ private:
      * @details If count reaches zero, free counter and delete object pointed to.
      */
     void decrement_counter() {
-        if (_counter) {
-            core_util_critical_section_enter();
-            if (*_counter == 1) {
-                core_util_critical_section_exit();
-                free(_counter);
+        if (_ptr != NULL) {
+            uint32_t new_value = core_util_atomic_decr_u32(_counter, 1);
+            if (new_value == 0) {
+                delete _counter;
                 _counter = NULL;
                 delete _ptr;
                 _ptr = NULL;
-            } else {
-                (*_counter)--;
-                core_util_critical_section_exit();
             }
         }
     }
