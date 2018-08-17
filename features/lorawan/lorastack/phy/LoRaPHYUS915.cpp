@@ -631,8 +631,7 @@ lorawan_status_t LoRaPHYUS915::set_next_channel(channel_selection_params_t* para
         next_tx_delay = update_band_timeoff(params->joined, params->dc_enabled, bands, US915_MAX_NB_BANDS);
 
         // Search how many channels are enabled
-        nb_enabled_channels = enabled_channel_count(params->joined,
-                                                    params->current_datarate,
+        nb_enabled_channels = enabled_channel_count(params->current_datarate,
                                                     current_channel_mask,
                                                     enabled_channels, &delay_tx);
     } else {

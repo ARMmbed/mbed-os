@@ -593,10 +593,9 @@ lorawan_status_t LoRaPHYAU915::set_next_channel(channel_selection_params_t* next
                                             bands, AU915_MAX_NB_BANDS);
 
         // Search how many channels are enabled
-        nb_enabled_channels = enabled_channel_count(next_chan_params->joined,
-                                                     next_chan_params->current_datarate,
-                                                     current_channel_mask,
-                                                     enabled_channels, &delay_tx);
+        nb_enabled_channels = enabled_channel_count(next_chan_params->current_datarate,
+                                                    current_channel_mask,
+                                                    enabled_channels, &delay_tx);
     } else {
         delay_tx++;
         next_tx_delay = next_chan_params->aggregate_timeoff - _lora_time->get_elapsed_time(next_chan_params->last_aggregate_tx_time);

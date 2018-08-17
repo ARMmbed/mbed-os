@@ -1069,11 +1069,16 @@ lorawan_status_t LoRaMac::schedule_tx()
         _params.timers.aggregated_timeoff = 0;
     }
 
+    if (MBED_CONF_LORA_DUTY_CYCLE_ON && _lora_phy->verify_duty_cycle(true)) {
+        _params.is_dutycycle_on = true;
+    } else {
+        _params.is_dutycycle_on = false;
+    }
+
     calculate_backOff(_params.last_channel_idx);
 
     next_channel.aggregate_timeoff = _params.timers.aggregated_timeoff;
     next_channel.current_datarate = _params.sys_params.channel_data_rate;
-    _params.is_dutycycle_on = MBED_CONF_LORA_DUTY_CYCLE_ON;
     next_channel.dc_enabled = _params.is_dutycycle_on;
     next_channel.joined = _is_nwk_joined;
     next_channel.last_aggregate_tx_time = _params.timers.aggregated_last_tx_time;
@@ -1157,9 +1162,6 @@ lorawan_status_t LoRaMac::schedule_tx()
 void LoRaMac::calculate_backOff(uint8_t channel)
 {
     lorawan_time_t elapsed_time = _lora_time.get_elapsed_time(_params.timers.mac_init_time);
-
-    _params.is_dutycycle_on = MBED_CONF_LORA_DUTY_CYCLE_ON;
-
     _lora_phy->calculate_backoff(_is_nwk_joined, _params.is_last_tx_join_request, _params.is_dutycycle_on,
                                 channel, elapsed_time, _params.timers.tx_toa);
 

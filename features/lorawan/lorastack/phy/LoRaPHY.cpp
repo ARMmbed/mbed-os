@@ -270,8 +270,7 @@ lorawan_time_t LoRaPHY::update_band_timeoff(bool joined, bool duty_cycle,
 
     // Update bands Time OFF
     for (uint8_t i = 0; i < nb_bands; i++) {
-
-        if (joined == false) {
+        if (MBED_CONF_LORA_DUTY_CYCLE_ON_JOIN && joined == false) {
             uint32_t txDoneTime =  MAX(_lora_time->get_elapsed_time(bands[i].last_join_tx_time),
                                        (duty_cycle == true) ?
                                        _lora_time->get_elapsed_time(bands[i].last_tx_time) : 0);
@@ -283,7 +282,6 @@ lorawan_time_t LoRaPHY::update_band_timeoff(bool joined, bool duty_cycle,
             if (bands[i].off_time != 0) {
                 next_tx_delay = MIN(bands[i].off_time - txDoneTime, next_tx_delay);
             }
-
         } else {
             // if network has been joined
             if (duty_cycle == true) {
@@ -451,7 +449,7 @@ uint8_t LoRaPHY::get_bandwidth(uint8_t dr)
     }
 }
 
-uint8_t LoRaPHY::enabled_channel_count(bool joined, uint8_t datarate,
+uint8_t LoRaPHY::enabled_channel_count(uint8_t datarate,
                                        const uint16_t *channel_mask,
                                        uint8_t *channel_indices,
                                        uint8_t *delayTx)
@@ -1183,7 +1181,7 @@ void LoRaPHY::calculate_backoff(bool joined, bool last_tx_was_join_req, bool dc_
     // Reset time-off to initial value.
     band_table[band_idx].off_time = 0;
 
-    if (joined == false) {
+    if (MBED_CONF_LORA_DUTY_CYCLE_ON_JOIN && joined == false) {
         // Get the join duty cycle
         if (elapsed_time < 3600000) {
             join_duty_cycle = BACKOFF_DC_1_HOUR;
@@ -1246,7 +1244,7 @@ lorawan_status_t LoRaPHY::set_next_channel(channel_selection_params_t *params,
                                             band_table, phy_params.bands.size);
 
         // Search how many channels are enabled
-        channel_count = enabled_channel_count(params->joined, params->current_datarate,
+        channel_count = enabled_channel_count(params->current_datarate,
                                               phy_params.channels.mask,
                                               enabled_channels, &delay_tx);
     } else {
