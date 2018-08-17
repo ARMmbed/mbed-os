@@ -30,6 +30,8 @@ public:
 public: //from CellularSIM
     virtual nsapi_error_t get_sim_state(SimState &state);
     virtual nsapi_error_t get_iccid(char *buf, size_t buf_size);
+    virtual nsapi_error_t change_pin(const char *sim_pin, const char *new_pin);
+    virtual nsapi_error_t set_pin_query(const char *sim_pin, bool query_pin);
 };
 
 } // namespace mbed
