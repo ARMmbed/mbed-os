@@ -51,6 +51,7 @@ private:
     void urc_sisw();
     void urc_sisr();
     bool create_connection_profile();
+    nsapi_error_t socket_open_defer(CellularSocket *socket, const SocketAddress *address = NULL);
 
     const char *_apn;
 };

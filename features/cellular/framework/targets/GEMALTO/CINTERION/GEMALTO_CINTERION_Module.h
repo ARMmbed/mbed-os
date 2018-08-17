@@ -31,7 +31,8 @@ public:
      */
     enum Model {
         ModelUnknown = 0,
-        ModelELS61
+        ModelELS61,
+        ModelBGS2,
     };
     static nsapi_error_t detect_model(const char *model);
     static Model get_model();

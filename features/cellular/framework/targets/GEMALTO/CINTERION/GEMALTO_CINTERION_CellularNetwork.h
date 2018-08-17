@@ -28,7 +28,9 @@ public:
     virtual ~GEMALTO_CINTERION_CellularNetwork();
 
 protected:
+#if !NSAPI_PPP_AVAILABLE
     virtual NetworkStack *get_stack();
+#endif // NSAPI_PPP_AVAILABLE
 
     virtual bool has_registration(RegistrationType reg_type);
 

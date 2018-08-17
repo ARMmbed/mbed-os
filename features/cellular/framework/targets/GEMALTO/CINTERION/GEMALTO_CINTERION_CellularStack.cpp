@@ -17,9 +17,10 @@
 
 #include <stdlib.h>
 #include "GEMALTO_CINTERION_CellularStack.h"
+#include "GEMALTO_CINTERION_Module.h"
 #include "CellularLog.h"
 
-// defines as per ELS61-E2_ATC_V01.000
+// defines as per ELS61-E2_ATC_V01.000 and BGS2-W_ATC_V00.100
 #define SOCKET_MAX 10
 #define UDP_PACKET_SIZE 1460
 #define FAILURE_TIMEOUT (30*1000) // failure timeout in milliseconds on modem side
@@ -84,6 +85,9 @@ void GEMALTO_CINTERION_CellularStack::urc_sisw()
         if (urc_code == 1) { // ready
             if (sock->_cb) {
                 sock->tx_ready = true;
+                if (GEMALTO_CINTERION_Module::get_model() == GEMALTO_CINTERION_Module::ModelBGS2) {
+                    sock->started = true;
+                }
                 sock->_cb(sock->_data);
             }
         } else if (urc_code == 2) { // socket closed
@@ -133,6 +137,10 @@ bool GEMALTO_CINTERION_CellularStack::is_protocol_supported(nsapi_protocol_t pro
 
 nsapi_error_t GEMALTO_CINTERION_CellularStack::socket_close_impl(int sock_id)
 {
+    CellularSocket *socket = find_socket(sock_id);
+    if (!socket) {
+        return NSAPI_ERROR_NO_SOCKET;
+    }
     _at.set_at_timeout(FAILURE_TIMEOUT);
     _at.cmd_start("AT^SISC=");
     _at.write_int(sock_id);
@@ -140,7 +148,50 @@ nsapi_error_t GEMALTO_CINTERION_CellularStack::socket_close_impl(int sock_id)
     _at.resp_start();
     _at.resp_stop();
     _at.restore_at_timeout();
+
+    socket->started = false;
+    socket->created = false;
+    socket->tx_ready = false;
+    socket->rx_avail = false;
+
     tr_debug("Closed socket %d (err %d)", sock_id, _at.get_last_error());
+    return _at.get_last_error();
+}
+
+nsapi_error_t GEMALTO_CINTERION_CellularStack::socket_open_defer(CellularSocket *socket, const SocketAddress *address)
+{
+    // host address (IPv4) and local+remote port is needed only for BGS2 which does not support UDP server socket
+    char sock_addr[sizeof("sockudp://") - 1 + NSAPI_IPv4_SIZE + sizeof(":12345;port=12345") - 1 + 1];
+    if (GEMALTO_CINTERION_Module::get_model() != GEMALTO_CINTERION_Module::ModelBGS2) {
+        std::sprintf(sock_addr, "sockudp://%s:%u", address ? address->get_ip_address() : "", socket->localAddress.get_port());
+    } else {
+        std::sprintf(sock_addr, "sockudp://%s:%u;port=%u", address->get_ip_address(), address->get_port(), socket->localAddress.get_port());
+    }
+
+    _at.cmd_start("AT^SISS=");
+    _at.write_int(socket->id);
+    _at.write_string("address", false);
+    _at.write_string(sock_addr);
+    _at.cmd_stop();
+    _at.resp_start();
+    _at.resp_stop();
+
+
+    _at.cmd_start("AT^SISO=");
+    _at.write_int(socket->id);
+    _at.cmd_stop();
+    _at.resp_start();
+    _at.resp_stop();
+    if (_at.get_last_error()) {
+        tr_error("Socket %d open failed!", socket->id);
+        _at.clear_error();
+        socket_close_impl(socket->id); // socket may already be open on modem if app and modem are not in sync, as a recovery, try to close the socket so open succeeds the next time
+        return NSAPI_ERROR_NO_SOCKET;
+    }
+
+    socket->created = true;
+    tr_debug("Socket %d created (err %d)", socket->id, _at.get_last_error());
+
     return _at.get_last_error();
 }
 
@@ -224,32 +275,9 @@ nsapi_error_t GEMALTO_CINTERION_CellularStack::create_socket_impl(CellularSocket
 
     tr_debug("Internet service %d created (err %d)", internet_service_id, _at.get_last_error());
 
-    char sock_addr[sizeof("sockudp://") + sizeof(":") + sizeof("65535") + 1];
-    std::sprintf(sock_addr, "sockudp://:%u", socket->localAddress.get_port());
-    _at.cmd_start("AT^SISS=");
-    _at.write_int(socket->id);
-    _at.write_string("address", false);
-    _at.write_string(sock_addr);
-    _at.cmd_stop();
-    _at.resp_start();
-    _at.resp_stop();
-
-
-    _at.cmd_start("AT^SISO=");
-    _at.write_int(socket->id);
-    _at.cmd_stop();
-    _at.resp_start();
-    _at.resp_stop();
-    if (_at.get_last_error()) {
-        tr_error("Socket %d open failed!", socket->id);
-        _at.clear_error();
-        socket_close_impl(socket->id);
-        return NSAPI_ERROR_NO_SOCKET;
+    if (GEMALTO_CINTERION_Module::get_model() != GEMALTO_CINTERION_Module::ModelBGS2) {
+        return socket_open_defer(socket);
     }
-
-    socket->created = true;
-    tr_debug("Socket %d created (err %d)", socket->id, _at.get_last_error());
-
     return _at.get_last_error();
 }
 
@@ -264,9 +292,33 @@ nsapi_size_or_error_t GEMALTO_CINTERION_CellularStack::socket_sendto_impl(Cellul
         tr_warn("No IP route for %s", address.get_ip_address());
         return NSAPI_ERROR_NO_SOCKET;
     }
-
+    if (GEMALTO_CINTERION_Module::get_model() == GEMALTO_CINTERION_Module::ModelBGS2) {
+        tr_error("Send addr %s, prev addr %s", address.get_ip_address(), socket->remoteAddress.get_ip_address());
+        if (address != socket->remoteAddress) {
+            if (socket->started) {
+                socket_close_impl(socket->id);
+                _at.clear_error();
+            }
+//    socket->started = false;
+            if (socket_open_defer(socket, &address) != NSAPI_ERROR_OK) {
+                tr_error("Failed to open socket %d", socket->id);
+                return NSAPI_ERROR_NO_SOCKET;
+            }
+            socket->remoteAddress = address;
+//    return NSAPI_ERROR_WOULD_BLOCK;
+            _at.resp_start("^SISW:");
+            int sock_id = _at.read_int();
+            int urc_code = _at.read_int();
+            tr_debug("TX ready: socket=%d, urc=%d (err=%d)", sock_id, urc_code, _at.get_last_error());
+            (void)sock_id;
+            (void)urc_code;
+            socket->created = true;
+            socket->started = true;
+            socket->tx_ready = true;
+        }
+    }
     if (!socket->started || !socket->tx_ready) {
-        tr_debug("Socket %d would block", socket->id);
+        tr_debug("Socket %d would block (started %d, tx %d)", socket->id, socket->started, socket->tx_ready);
         return NSAPI_ERROR_WOULD_BLOCK;
     }
 
@@ -279,18 +331,19 @@ nsapi_size_or_error_t GEMALTO_CINTERION_CellularStack::socket_sendto_impl(Cellul
     _at.cmd_start("AT^SISW=");
     _at.write_int(socket->id);
     _at.write_int(size);
-    _at.write_int(0);
-    char ip_address[sizeof("[1111:2222:3333:4444:5555:6666:7777:8888]:12345") + 1];
-    if (address.get_ip_version() == NSAPI_IPv4) {
-        std::sprintf(ip_address, "%s", address.get_ip_address());
-    } else {
-        std::sprintf(ip_address, "[%s]", address.get_ip_address());
+    if (GEMALTO_CINTERION_Module::get_model() != GEMALTO_CINTERION_Module::ModelBGS2) {
+        _at.write_int(0);
+        char socket_address[NSAPI_IPv6_SIZE + sizeof("[]:12345") - 1 + 1];
+        if (address.get_ip_version() == NSAPI_IPv4) {
+            std::sprintf(socket_address, "%s:%u", address.get_ip_address(), address.get_port());
+        } else {
+            std::sprintf(socket_address, "[%s]:%u", address.get_ip_address(), address.get_port());
+        }
+        _at.write_string(socket_address);
     }
-    char socket_address[sizeof(ip_address) + sizeof(":") + sizeof("65535") + 1];
-    std::sprintf(socket_address, "%s:%u", ip_address, address.get_port());
-    _at.write_string(socket_address);
     _at.cmd_stop();
 
+sisw_retry:
     _at.resp_start("^SISW:");
     if (!_at.info_resp()) {
         tr_error("Socket %d send failure", socket->id);
@@ -311,6 +364,11 @@ nsapi_size_or_error_t GEMALTO_CINTERION_CellularStack::socket_sendto_impl(Cellul
     int unack_len = _at.read_int();
     if (unack_len != 0) {
         tr_warn("Socket %d unack_len %d", socket->id, unack_len);
+        if (GEMALTO_CINTERION_Module::get_model() != GEMALTO_CINTERION_Module::ModelBGS2) {
+            // assume that an URC was received when unackData is not received
+            _at.resp_stop();
+            goto sisw_retry;
+        }
     }
 
     _at.write_bytes((uint8_t *)data, accept_len);
@@ -375,36 +433,41 @@ nsapi_size_or_error_t GEMALTO_CINTERION_CellularStack::socket_recvfrom_impl(Cell
             socket->rx_avail = true;
         }
     }
-    char ip_address[sizeof("[1111:2222:3333:4444:5555:6666:7777:8888]:12345") + 1];
-    int ip_len = _at.read_string(ip_address, sizeof(ip_address));
-    tr_error("ip %s", ip_address);
-    if (ip_len <= 0) {
-        tr_error("Socket %d recvfrom addr!", socket->id);
-        return NSAPI_ERROR_DEVICE_ERROR;
-    }
-    if (address) {
-        char *ip_start = ip_address;
-        char *ip_stop;
-        char *port_start;
-        if (_stack_type == IPV6_STACK) {
-            ip_start++; // skip '['
-            ip_stop = strchr(ip_address, ']');
-            if (ip_stop) {
-                port_start = strchr(ip_stop, ':');
-            }
-        } else {
-            ip_stop = strchr(ip_address, ':');
-            port_start = ip_stop;
+    if (GEMALTO_CINTERION_Module::get_model() != GEMALTO_CINTERION_Module::ModelBGS2) {
+        char ip_address[NSAPI_IPv6_SIZE + sizeof("[]:12345") - 1 + 1];
+        int ip_len = _at.read_string(ip_address, sizeof(ip_address));
+        if (ip_len <= 0) {
+            tr_error("Socket %d recvfrom addr!", socket->id);
+            return NSAPI_ERROR_DEVICE_ERROR;
         }
-        if (ip_stop && port_start) {
-            char tmp_ch = *ip_stop;
-            *ip_stop = '\0'; // split IP and port
-            address->set_ip_address(ip_start);
-            port_start++; // skip ':'
-            int port = std::strtol(port_start, NULL, 10);
-            address->set_port(port);
-            tr_debug("IP address %s:%d", address->get_ip_address(), address->get_port());
-            *ip_stop = tmp_ch; // restore original IP string
+        if (address) {
+            char *ip_start = ip_address;
+            char *ip_stop;
+            char *port_start;
+            if (_stack_type == IPV6_STACK) {
+                ip_start++; // skip '['
+                ip_stop = strchr(ip_address, ']');
+                if (ip_stop) {
+                    port_start = strchr(ip_stop, ':');
+                }
+            } else {
+                ip_stop = strchr(ip_address, ':');
+                port_start = ip_stop;
+            }
+            if (ip_stop && port_start) {
+                char tmp_ch = *ip_stop;
+                *ip_stop = '\0'; // split IP and port
+                address->set_ip_address(ip_start);
+                port_start++; // skip ':'
+                int port = std::strtol(port_start, NULL, 10);
+                address->set_port(port);
+                tr_debug("IP address %s:%d", address->get_ip_address(), address->get_port());
+                *ip_stop = tmp_ch; // restore original IP string
+            }
+        }
+    } else {
+        if (address) {
+            *address = socket->remoteAddress;
         }
     }
 
@@ -412,7 +475,7 @@ nsapi_size_or_error_t GEMALTO_CINTERION_CellularStack::socket_recvfrom_impl(Cell
 
     _at.resp_stop();
 
-    tr_debug("Socket %d, recvfrom %s, %d bytes (err %d)", socket->id, ip_address, len, _at.get_last_error());
+    tr_debug("Socket %d, recvfrom %s, %d bytes (err %d)", socket->id, address, len, _at.get_last_error());
 
     return (_at.get_last_error() == NSAPI_ERROR_OK) ? recv_len : NSAPI_ERROR_DEVICE_ERROR;
 }

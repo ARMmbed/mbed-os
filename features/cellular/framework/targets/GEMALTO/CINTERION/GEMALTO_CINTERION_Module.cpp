@@ -23,8 +23,14 @@
 
 using namespace mbed;
 
-// supported features as per ELS61-E2_ATC_V01.000
+// unsupported features as per ELS61-E2_ATC_V01.000
 static const AT_CellularBase::SupportedFeature unsupported_features_els61[] =  {
+    AT_CellularBase::AT_CGSN_WITH_TYPE,
+    AT_CellularBase::SUPPORTED_FEATURE_END_MARK
+};
+
+// unsupported features as per EMS31-US_ATC_V4.9.5
+static const AT_CellularBase::SupportedFeature unsupported_features_bgs2[] =  {
     AT_CellularBase::AT_CGSN_WITH_TYPE,
     AT_CellularBase::SUPPORTED_FEATURE_END_MARK
 };
@@ -34,9 +40,12 @@ GEMALTO_CINTERION_Module::Model GEMALTO_CINTERION_Module::_model;
 nsapi_error_t GEMALTO_CINTERION_Module::detect_model(const char *model)
 {
     static const AT_CellularBase::SupportedFeature *unsupported_features;
-    if (strcmp(model, "ELS61") == 0) {
+    if (memcmp(model, "ELS61", sizeof("ELS61") - 1) == 0) {
         _model = ModelELS61;
         unsupported_features = unsupported_features_els61;
+    } else if (memcmp(model, "BGS2", sizeof("BGS2") - 1) == 0) {
+        _model = ModelBGS2;
+        unsupported_features = unsupported_features_bgs2;
     } else {
         tr_error("Cinterion model unsupported %s", model);
         return NSAPI_ERROR_UNSUPPORTED;
