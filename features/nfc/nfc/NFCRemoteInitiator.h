@@ -20,7 +20,7 @@
 #include <stdint.h>
 
 #include "NFCDefinitions.h"
-#include "NFCEndpoint.h"
+#include "NFCRemoteEndpoint.h"
 #include "NFCNDEFCapable.h"
 
 namespace mbed {
@@ -38,7 +38,7 @@ namespace nfc {
      * 
      * An initiator can be a NFC reader, a NFC-enabled phone or other NFC device capable of generating a RF field.
      */ 
-    class NFCRemoteInitiator : public NFCEndpoint, public NFCNDEFCapable {
+    class NFCRemoteInitiator : public NFCRemoteEndpoint, public NFCNDEFCapable {
     public:
         /**
          * Create a NFCRemoteInitiator.
