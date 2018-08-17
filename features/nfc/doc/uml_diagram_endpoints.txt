@@ -2,24 +2,32 @@
 
 abstract class NFCNDEFCapable {
   +{abstract} bool is_ndef_supported() const
-  +void set_ndef_message_parser(ndef::MessageParser* parser) const
-  +void set_ndef_message_builder(ndef::MessageBuilder* builder) const
+  +void set_ndef_delegate(Delegate* parser)
 
-  #ndef::MessageParser* ndef_message_parser()
-  #ndef::MessageBuilder* ndef_message_builder()
+  #void parse_ndef_message(const ac_buffer_t& buffer)
+  #void build_ndef_message(ac_buffer_builder_t& buffer_builder)
+  #ndef_msg_t* ndef_message()
+}
+
+abstract class NFCNDEFCapable::Delegate {
+  +{abstract} void parse_ndef_message(const uint8_t* buffer, size_t size)
+  +{abstract} size_t build_ndef_message(uint8_t* buffer, size_t capacity)
 }
 
 abstract class NFCRemoteEndpoint {
-  +void is_lost()
-  +nfc_rf_protocols_bitmask_t rf_protocols() const
+  +{abstract} bool is_connected() const
+  +{abstract} bool is_disconnected() const
+  +{abstract} nfc_rf_protocols_bitmask_t rf_protocols() const
+  +{abstract} nfc_err_t connect()
+  +{abstract} nfc_err_t disconnect()
 }
 
 abstract class NFCRemoteEndpoint::Delegate {
-  +{abstract} void on_lost()
+  +{abstract} void on_connected()
+  +{abstract} void on_disconnected()
 }
 
 abstract class NFCTarget {
-  +void set_delegate(NFCTarget::Delegate* delegate)
   +void write_ndef_message()
   +void erase_ndef_message()
   +void read_ndef_message()
@@ -43,72 +51,54 @@ abstract class NFCEEPROMDriver {
   +void set_delegate(Delegate* delegate)
 
   +{abstract} void reset()
+  +{abstract} void process_events()
   +{abstract} size_t get_max_size()
   +{abstract} void start_session()
   +{abstract} void end_session()
   +{abstract} void read_bytes(uint32_t address, size_t count)
   +{abstract} void write_bytes(uint32_t address, const uint8_t* bytes, size_t count)
-  +{abstract} void set_size(size_t count)
-  +{abstract} void get_size()
+  +{abstract} void write_size(size_t count)
+  +{abstract} void read_size()
   +{abstract} void erase_bytes(uint32_t address, size_t size)
 }
 
 abstract class NFCEEPROMDriver::Delegate {
-  +{abstract} void has_started_session(bool success)
-  +{abstract} void has_read_bytes(bool success, const uint8_t* bytes)
-  +{abstract} void has_written_bytes(bool success)
-  +{abstract} void has_set_size(bool success)
-  +{abstract} void has_gotten_size(bool success, size_t size)
-  +{abstract} void has_erased_bytes(bool success)
+  +{abstract} void on_session_started(bool success)
+  +{abstract} void on_session_ended(bool success)
+  +{abstract} void on_bytes_read(size_t count)
+  +{abstract} void on_bytes_written(size_t count)
+  +{abstract} void on_size_read(bool success, size_t size)
+  +{abstract} void on_size_written(bool success)
+  +{abstract} void on_bytes_erased(size_t count)
+  +{abstract} void on_event()
 }
-
 
 NFCNDEFCapable <-- NFCTarget
 NFCTarget <-- NFCEEPROM
 NFCTarget::Delegate <-- NFCEEPROM::Delegate
 NFCEEPROM o-- NFCEEPROM::Delegate
 NFCEEPROM o-- NFCEEPROMDriver
+NFCEEPROMDriver o-- NFCEEPROMDriver::Delegate
 NFCEEPROMDriver::Delegate <-- NFCEEPROM
 
 class NFCRemoteInitiator {
-  +void  set_delegate(NFCRemoteInitiator::Delegate* delegate)
+  +void set_remote_initiator_delegate(NFCRemoteInitiator::Delegate* delegate)
   
-  +bool is_iso7816_supported()
-  +void add_iso7816_application(ISO7816App* app);
+  +{abstract}bool is_iso7816_supported() const
+  +{abstract}void add_iso7816_application(ISO7816App* app)
   
-  +size_t nfc_tag_type()
-  +bool is_ndef_supported()
-  
-  +nfc_err_t set_ndef_message(const NDEFMessage& message)
-  +nfc_err_t clear_ndef_message()
-  +nfc_err_t get_ndef_message(NDEFMessage* message)
+  +{abstract} nfc_tag_type_t nfc_tag_type()
+  +{abstract} bool is_ndef_supported()
 }
 
 abstract class NFCRemoteInitiator::Delegate {
-  +void on_selected()
-  +void on_deselected()
-  +void on_before_ndef_message_read()
-  +void on_after_ndef_message_write()
+
 }
 
 NFCNDEFCapable <-- NFCRemoteInitiator
- NFCRemoteEndpoint <-- NFCRemoteInitiator
- NFCRemoteEndpoint::Delegate <-- NFCRemoteInitiator::Delegate
+NFCRemoteEndpoint <-- NFCRemoteInitiator
+NFCRemoteEndpoint::Delegate <-- NFCRemoteInitiator::Delegate
+NFCNDEFCapable::Delegate <-- NFCRemoteInitiator::Delegate
 NFCRemoteInitiator o-- NFCRemoteInitiator::Delegate
-
-class NFCRemoteTarget {
-  +void  set_delegate(NFCRemoteTarget::Delegate* delegate)
-
-}
-
-abstract class NFCRemoteTarget::Delegate {
-
-}
-
- NFCRemoteEndpoint <-- NFCRemoteTarget
-NFCTarget <-- NFCRemoteTarget
- NFCRemoteEndpoint::Delegate <-- NFCRemoteTarget::Delegate
-NFCTarget::Delegate <-- NFCRemoteTarget::Delegate
-NFCRemoteTarget o-- NFCRemoteTarget::Delegate
 
 @enduml

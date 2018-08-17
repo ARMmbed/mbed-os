@@ -175,12 +175,31 @@ Shared pointers are used so that the user does not have to maintain the lifetime
 
 ![nfc_endpoints_diagram]
 
-#### NFC Endpoint
+#### NFC Remote Endpoint
 
-An endpoint is a generic NFC-enabled device with which the controller is communicating over the air interface.
+A remote endpoint is a generic NFC-enabled device with which the controller is communicating over the air interface.
 
 ```cpp
-bool is_lost() const;
+nfc_err_t connect();
+```
+
+Establish a connection with the remote endpoint.
+
+```cpp
+nfc_err_t disconnect();
+```
+
+Drop the connection with the remote endpoint.
+
+
+```cpp
+bool is_connected() const;
+```
+
+Set to true when the connection to this endpoint has been activated and is currently selected by the controller.
+
+```cpp
+bool is_disconnected() const;
 ```
 
 Set to true when this endpoint has been lost and the reference to the shared pointer has been released by the controller instance.
@@ -194,7 +213,14 @@ List the RF protocols which have been activated to communicate with that endpoin
 **Delegate**
 
 ```cpp
-virtual void on_lost();
+virtual void on_connected();
+```
+
+This is called when a connection to this endpoint has been succesfully established.
+
+
+```cpp
+virtual void on_disconnected();
 ```
 
 This is called when this endpoint has been lost and the reference to the shared pointer is about to be released by the controller instance.
@@ -205,25 +231,40 @@ This class is inherited by all endpoints that have the capability of handling ND
 
 User-facing API:
 ```cpp
+NFCNDEFCapable(uint8_t* buffer, size_t buffer_size);
+```
+The instance needs to be constructed using a stratch buffer which will be used to encode and/or decode NDEF messages.
+
+```cpp
 bool is_ndef_supported() const;
 
-void set_ndef_message_parser(ndef::MessageParser* parser) const;
-void set_ndef_message_builder(ndef::MessageBuilder* builder) const;
+void set_ndef_delegate(Delegate* delegate);
 ```
-
-The user can select which parser/builder (see below) should be used to handle read/write requests.
 
 API used by descendant classes:
 ```cpp
-void set_ndef_support(bool supported);
-
-ndef::MessageParser* ndef_message_parser();
-ndef::MessageBuilder* ndef_message_builder();
+void parse_ndef_message(const ac_buffer_t& buffer);
+void build_ndef_message(ac_buffer_builder_t& buffer_builder);
+ndef_msg_t* ndef_message();
 ```
+
+**Delegate**
+
+The instance receives requests to encode and decode NDEF messages and the user can choose how to handle them using the relevant builders and parsers.
+
+```cpp
+void parse_ndef_message(const uint8_t* buffer, size_t size);
+```
+The encoded NDEF message is passed to the user for processing.
+
+```cpp
+size_t build_ndef_message(uint8_t* buffer, size_t capacity);
+```
+The user can encode a NDEF message in the buffer provided and return its size (or 0).
 
 #### NFC Remote Initiator
 
-This class derives from the base `NFCEndpoint` and `NFCNDEFCapable` classes.
+This class derives from the base `NFCRemoteEndpoint` and `NFCNDEFCapable` classes.
 
 ```cpp
 enum nfc_tag_type_t {
@@ -241,6 +282,7 @@ nfc_tag_type_t nfc_tag_type();
 ```
 
 Additionally the type of NFC tag (1 to 5) which is being emulated can be recovered.
+Type 4 can be implemented on top of two technologies, therefore it is separated into type 4a and type 4b.
 
 ```cpp
 bool is_iso7816_supported();
@@ -251,19 +293,7 @@ If supported by the underlying technology (ISO-DEP), a contactless smartcard can
 
 **Delegate**
 
-```cpp
-virtual void on_selected();
-virtual void on_deselected();
-```
-
-Some phones/readers 'park' a target and re-select it later - these events let the user know what state the local target is being put in.
-
-```cpp
-virtual void on_before_ndef_message_read();
-virtual void on_after_ndef_message_write();
-```
-
-When emulating a NFC tag, it can be useful to generate a NDEF message dynamically just before a read by the initiator. Conversly if the initiator updates the NDEF message, it can be processed immediately afterwards.
+The delegate derives from delegates of `NFCRemoteEndpoint` and `NFCNDEFCapable`.
 
 #### NFC Target
 
@@ -300,7 +330,7 @@ A pointer to a `NFCEEPROMDriver` instance (see below) must be passed in the cons
 
 *Note: This is initially out of scope for the initial release*
 
-The `NFCRemoteTarget` class derives from `NFCTarget` and additionally from `NFCEndpoint`.
+The `NFCRemoteTarget` class derives from `NFCTarget` and additionally from `NFCRemoteEndpoint`.
 
 ## NDEF API
 
@@ -506,25 +536,28 @@ The `set_size()` command is called to change the size of the buffer (within the 
 `start_session()` and `end_session()` are used before a series of memory operations to allow the driver to lock/un-lock the RF interface during these operations to avoid having concurrent access to the memory.
 
 ```cpp
-void reset()
-size_t get_max_size()
-void start_session()
-void end_session()
-void read_bytes(uint32_t address, size_t count)
-void write_bytes(uint32_t address, const uint8_t* bytes, size_t count)
-void set_size(size_t count)
-void get_size()
+void reset();
+void process_events();
+size_t get_max_size();
+void start_session();
+void end_session();
+void read_bytes(uint32_t address, size_t count);
+void write_bytes(uint32_t address, const uint8_t* bytes, size_t count);
+void read_size(size_t count);
+void write_size();
 void erase_bytes(uint32_t address, size_t size)
 ```
 
 The following events must be called to signal completion of long operations:
 ```cpp
-void has_started_session(bool success);
-void has_read_bytes(bool success, const uint8_t* bytes);
-void has_written_bytes(bool success);
-void has_set_size(bool success);
-void has_gotten_size(bool success, size_t size);
-void has_erased_bytes(bool success);
+void on_session_started(bool success);
+void on_session_ended(bool success);
+void on_bytes_read(size_t count);
+void on_bytes_written(size_t count);
+void on_size_read(bool success, size_t size);
+void on_size_written(bool success);
+void on_bytes_erased(size_t count);
+void on_event();
 ```
 
 ### NCI Driver APIs
