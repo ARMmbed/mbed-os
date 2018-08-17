@@ -102,7 +102,7 @@ namespace nfc {
              * 
              * @note this function can be called in interrupt context
              */
-            virtual void on_event();
+            virtual void on_event() = 0;
         };
 
         /** 
