@@ -778,8 +778,8 @@ typedef enum _mbed_error_code {
     MBED_DEFINE_SYSTEM_ERROR(BUSFAULT_EXCEPTION, 63),                   /* 319      BusFault exception */
     MBED_DEFINE_SYSTEM_ERROR(USAGEFAULT_EXCEPTION, 64),                 /* 320      UsageFault exception*/
     MBED_DEFINE_SYSTEM_ERROR(BLE_NO_FRAME_INITIALIZED, 65),             /* 321      BLE No frame initialized */
-    MBED_DEFINE_SYSTEM_ERROR(BLE_NOT_IMPLEMENTED, 66),                  /* 322      BLE Not implemented */
-    MBED_DEFINE_SYSTEM_ERROR(BLE_BAD_TRANSPORT_HANDLE, 67),             /* 323      BLE Bad transport handle */
+    MBED_DEFINE_SYSTEM_ERROR(BLE_BACKEND_CREATION_FAILED, 66),          /* 322      BLE Backend creation failed */
+    MBED_DEFINE_SYSTEM_ERROR(BLE_BACKEND_NOT_INITIALIZED, 67),          /* 323      BLE Backend not initialized */
 
     //Everytime you add a new system error code, you must update
     //Error documentation under Handbook to capture the info on
