@@ -24,7 +24,7 @@ using namespace utest::v1;
 
 #define TEST_BLOCK_COUNT 10
 #define TEST_ERROR_MASK 16
-#define QSPIF_TEST_NUM_OF_THREADS 5
+#define SPIF_TEST_NUM_OF_THREADS 5
 
 const struct {
     const char *name;
@@ -87,7 +87,7 @@ void basic_erase_program_read_test(SPIFBlockDevice& blockD, bd_size_t block_size
     _mutex->unlock();
 }
 
-void test_qspif_random_program_read_erase()
+void test_spif_random_program_read_erase()
 {
     utest_printf("\nTest Random Program Read Erase Starts..\n");
 
@@ -130,7 +130,7 @@ end:
     delete[] read_block;
 }
 
-void test_qspif_unaligned_program()
+void test_spif_unaligned_program()
 {
     utest_printf("\nTest Unaligned Program Starts..\n");
 
@@ -200,7 +200,7 @@ end:
     delete[] read_block;
 }
 
-static void test_qspif_thread_job(void *vBlockD/*, int thread_num*/)
+static void test_spif_thread_job(void *vBlockD/*, int thread_num*/)
 {
     static int thread_num = 0;
     thread_num++;
@@ -226,7 +226,7 @@ end:
     delete[] read_block;
 }
 
-void test_qspif_multi_threads()
+void test_spif_multi_threads()
 {
     utest_printf("\nTest Multi Threaded Erase/Program/Read Starts..\n");
 
@@ -247,20 +247,20 @@ void test_qspif_multi_threads()
         }
     }
 
-    rtos::Thread qspif_bd_thread[QSPIF_TEST_NUM_OF_THREADS];
+    rtos::Thread spif_bd_thread[SPIF_TEST_NUM_OF_THREADS];
 
     osStatus threadStatus;
     int i_ind;
 
-    for (i_ind = 0; i_ind < QSPIF_TEST_NUM_OF_THREADS; i_ind++) {
-        threadStatus = qspif_bd_thread[i_ind].start(test_qspif_thread_job, (void *)&blockD);
+    for (i_ind = 0; i_ind < SPIF_TEST_NUM_OF_THREADS; i_ind++) {
+        threadStatus = spif_bd_thread[i_ind].start(test_spif_thread_job, (void *)&blockD);
         if (threadStatus != 0) {
             utest_printf("\n Thread %d Start Failed!", i_ind + 1);
         }
     }
 
-    for (i_ind = 0; i_ind < QSPIF_TEST_NUM_OF_THREADS; i_ind++) {
-        qspif_bd_thread[i_ind].join();
+    for (i_ind = 0; i_ind < SPIF_TEST_NUM_OF_THREADS; i_ind++) {
+        spif_bd_thread[i_ind].join();
     }
 
     err = blockD.deinit();
@@ -275,9 +275,9 @@ utest::v1::status_t test_setup(const size_t number_of_cases)
 }
 
 Case cases[] = {
-    Case("Testing unaligned program blocks", test_qspif_unaligned_program),
-    Case("Testing read write random blocks", test_qspif_random_program_read_erase),
-    Case("Testing Multi Threads Erase Program Read", test_qspif_multi_threads)
+    Case("Testing unaligned program blocks", test_spif_unaligned_program),
+    Case("Testing read write random blocks", test_spif_random_program_read_erase),
+    Case("Testing Multi Threads Erase Program Read", test_spif_multi_threads)
 };
 
 Specification specification(test_setup, cases);
