@@ -163,8 +163,8 @@ qspi_status_t qspi_write(qspi_t *obj, const qspi_command_t *command, const void 
     QSPI_WriteConfig_TypeDef cfg = QSPI_WRITECONFIG_DEFAULT;
     uint32_t to_write = *length;
 
-    // Enforce word-aligned and word-sized access
-    if ((to_write & 0x3) != 0 || ((uint32_t)data & 0x3) != 0) {
+    // Enforce word-sized access
+    if ((to_write & 0x3) != 0) {
         return QSPI_STATUS_INVALID_PARAMETER;
     }
 
@@ -216,6 +216,8 @@ qspi_status_t qspi_write(qspi_t *obj, const qspi_command_t *command, const void 
         // Wait for the QSPI in case we're writing too fast
         while (((obj->instance->SRAMFILL & _QSPI_SRAMFILL_SRAMFILLINDACWRITE_MASK) >> _QSPI_SRAMFILL_SRAMFILLINDACWRITE_SHIFT) >= 126);
 
+        // Unaligned access is fine on CM3/CM4 provided we stick to LDR/STR
+        // With the line below, the compiler can't really do anything else anyways
         *((uint32_t*)QSPI0_MEM_BASE) = ((uint32_t*)data)[i/4];
     }
 
@@ -284,8 +286,8 @@ qspi_status_t qspi_read(qspi_t *obj, const qspi_command_t *command, void *data, 
     QSPI_ReadConfig_TypeDef cfg = QSPI_READCONFIG_DEFAULT;
     uint32_t to_read = *length;
 
-    // Enforce word-aligned and word-sized access
-    if ((to_read & 0x3) != 0 || ((uint32_t)data & 0x3) != 0) {
+    // Enforce word-sized access
+    if ((to_read & 0x3) != 0) {
         return QSPI_STATUS_INVALID_PARAMETER;
     }
 
@@ -353,6 +355,8 @@ qspi_status_t qspi_read(qspi_t *obj, const qspi_command_t *command, void *data, 
         // Wait for the FIFO in case we're reading too fast
         while ((obj->instance->SRAMFILL & _QSPI_SRAMFILL_SRAMFILLINDACREAD_MASK) >> _QSPI_SRAMFILL_SRAMFILLINDACREAD_SHIFT == 0);
 
+        // Unaligned access is fine on CM3/CM4 provided we stick to LDR/STR
+        // With the line below, the compiler can't really do anything else anyways
         ((uint32_t*)data)[i/4] = *((uint32_t*)QSPI0_MEM_BASE);
     }
 
