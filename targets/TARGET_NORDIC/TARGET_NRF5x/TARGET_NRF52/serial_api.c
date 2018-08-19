@@ -41,8 +41,7 @@
 #include "hal/serial_api.h"
 
 #include "nrf_uarte.h"
-#include "nrf_drv_uart.h"
-#include "nrf_drv_common.h"
+#include "nrfx_uart.h"
 #include "nrf_atfifo.h"
 #include "app_util_platform.h"
 #include "pinmap_ex.h"
@@ -164,12 +163,12 @@ typedef enum {
 /**
  * UARTE state. One for each instance.
  */
-static nordic_uart_state_t nordic_nrf5_uart_state[UART_ENABLED_COUNT] = { 0 };
+static nordic_uart_state_t nordic_nrf5_uart_state[NRFX_UART_ENABLED_COUNT] = { 0 };
 
 /**
  * Array with UARTE register pointers for easy access.
  */
-static NRF_UARTE_Type *nordic_nrf5_uart_register[UART_ENABLED_COUNT] = {
+static NRF_UARTE_Type *nordic_nrf5_uart_register[NRFX_UART_ENABLED_COUNT] = {
     NRF_UARTE0,
 #if UART1_ENABLED
     NRF_UARTE1,
