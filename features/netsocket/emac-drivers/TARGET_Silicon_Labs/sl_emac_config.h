@@ -34,7 +34,12 @@
 /** Timeout in milliseconds for polling the PHY link status */
 #define SL_ETH_LINK_POLL_PERIOD_MS    (500)
 /** Default Ethernet worker thread stack size in bytes */
+#include "mbed_trace.h"
+#if MBED_CONF_MBED_TRACE_ENABLE == 1
+#define SL_ETH_THREAD_STACKSIZE       (768)
+#else
 #define SL_ETH_THREAD_STACKSIZE       (512)
+#endif
 /** Default Ethernet worker thread stack priority */
 #define SL_ETH_THREAD_PRIORITY        (osPriorityHigh)
 /** Name of interface */
