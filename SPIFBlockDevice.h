@@ -16,8 +16,8 @@
 #ifndef MBED_SPIF_BLOCK_DEVICE_H
 #define MBED_SPIF_BLOCK_DEVICE_H
 
-#include <mbed.h>
-#include <SPI.h>
+#include "SPI.h"
+#include "DigitalOut.h"
 #include "BlockDevice.h"
 
 namespace mbed {
