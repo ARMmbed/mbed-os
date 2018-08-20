@@ -793,12 +793,15 @@ nsapi_error_t Nanostack::setsockopt(void *handle, int level, int optname, const 
                 break;
             }
             default:
-                return NSAPI_ERROR_PARAMETER;
+                return NSAPI_ERROR_UNSUPPORTED;
         }
     }
 
-    if (::socket_setsockopt(socket->socket_id, level, optname, optval, optlen) == 0) {
+    int retcode = ::socket_setsockopt(socket->socket_id, level, optname, optval, optlen);
+    if (retcode == 0) {
         return NSAPI_ERROR_OK;
+    } else if (retcode == -2) {
+        return NSAPI_ERROR_UNSUPPORTED;
     } else {
         return NSAPI_ERROR_PARAMETER;
     }
@@ -812,19 +815,19 @@ nsapi_error_t Nanostack::getsockopt(void *handle, int level, int optname, void *
         return NSAPI_ERROR_NO_SOCKET;
     }
 
-    nsapi_error_t ret;
-
     NanostackLockGuard lock;
 
     uint16_t optlen16 = *optlen;
-    if (::socket_getsockopt(socket->socket_id, level, optname, optval, &optlen16) == 0) {
-        ret = NSAPI_ERROR_OK;
-        *optlen = optlen16;
-    } else {
-        ret = NSAPI_ERROR_PARAMETER;
-    }
 
-    return ret;
+    int retcode = ::socket_getsockopt(socket->socket_id, level, optname, optval, &optlen16);
+    if (retcode == 0) {
+        *optlen = optlen16;
+        return NSAPI_ERROR_OK;
+    } else if (retcode == -2) {
+        return NSAPI_ERROR_UNSUPPORTED;
+    } else {
+        return NSAPI_ERROR_PARAMETER;
+    }
 }
 
 nsapi_error_t Nanostack::socket_listen(void *handle, int backlog)
