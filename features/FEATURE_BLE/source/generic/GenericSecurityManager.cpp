@@ -1464,6 +1464,7 @@ void GenericSecurityManager::on_secure_connections_ltk_generated(
     flags->secure_connections_paired = true;
 
     _db->set_entry_peer_ltk(cb->db_entry, ltk);
+    _db->set_entry_local_ltk(cb->db_entry, ltk);
 }
 
 void GenericSecurityManager::on_keys_distributed_ltk(
