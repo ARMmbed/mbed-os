@@ -181,7 +181,7 @@ struct Span {
      *
      * @return A new Span over the first @p Count elements.
      */
-    template<std::size_t Count>
+    template<std::ptrdiff_t Count>
     Span<T, Count> first() const {
         MBED_ASSERT(Count <= Size);
         return Span<T, Count>(_array);
@@ -194,7 +194,7 @@ struct Span {
      *
      * @return A new Span over the last @p count elements.
      */
-    Span<T> last(std::ptrdiff_t count) const {
+    Span<T> last(std::size_t count) const {
         MBED_ASSERT(count <= Size);
         return Span<T>(_array + (Size - count), count);
     }
@@ -339,7 +339,7 @@ struct Span<T, SPAN_DYNAMIC_SIZE> {
      *
      * @return A new Span over the first @p count elements.
      */
-    Span<T> first(std::ptrdiff_t count) const {
+    Span<T> first(std::size_t count) const {
         MBED_ASSERT(count <= _size);
         return Span<T>(_array, count);
     }
@@ -351,7 +351,7 @@ struct Span<T, SPAN_DYNAMIC_SIZE> {
      *
      * @return A new Span over the last @p count elements.
      */
-    Span<T> last(std::ptrdiff_t count) const {
+    Span<T> last(std::size_t count) const {
         MBED_ASSERT(count <= _size);
         return Span<T>(_array + (_size - count), count);
     }
