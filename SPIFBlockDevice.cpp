@@ -198,7 +198,7 @@ int SPIFBlockDevice::init()
     _region_high_boundary[0] = _device_size_bytes - 1;
 
     if ( (sector_map_table_addr != 0) && (0 != sector_map_table_size) ) {
-        tr_info("INFO: init - Parsing Sector Map Table - addr: 0x%xh, Size: %d", sector_map_table_addr,
+        tr_info("INFO: init - Parsing Sector Map Table - addr: 0x%lxh, Size: %d", sector_map_table_addr,
                 sector_map_table_size);
         if (0 != _sfdp_parse_sector_map_table(sector_map_table_addr, sector_map_table_size) ) {
             tr_error("ERROR: init - Parse Sector Map Table Failed");
@@ -282,7 +282,7 @@ int SPIFBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t size)
     uint32_t offset = 0;
     uint32_t chunk = 0;
 
-    tr_debug("DEBUG: program - Buff: 0x%x, addr: %llu, size: %llu", buffer, addr, size);
+    tr_debug("DEBUG: program - Buff: 0x%lxh, addr: %llu, size: %llu", (uint32_t)buffer, addr, size);
 
     while (size > 0) {
 
@@ -351,7 +351,7 @@ int SPIFBlockDevice::erase(bd_addr_t addr, bd_size_t in_size)
         cur_erase_inst = _erase_type_inst_arr[type];
         chunk = _erase_type_size_arr[type];
 
-        tr_debug("DEBUG: erase - addr: %llu, size:%d, Inst: 0x%xh, chunk: %d , ",
+        tr_debug("DEBUG: erase - addr: %llu, size:%d, Inst: 0x%xh, chunk: %lu , ",
                  addr, size, cur_erase_inst, chunk);
         tr_debug("DEBUG: erase - Region: %d, Type:%d",
                  region, type);
@@ -999,8 +999,8 @@ int SPIFBlockDevice::_utils_iterate_next_largest_erase_type(uint8_t& bitfield, i
     for (i_ind = 3; i_ind >= 0; i_ind--) {
         if (bitfield & type_mask) {
             largest_erase_type = i_ind;
-            if ( (size > _erase_type_size_arr[largest_erase_type]) &&
-                    ((boundry - offset) > _erase_type_size_arr[largest_erase_type]) ) {
+            if ( (size > (int)(_erase_type_size_arr[largest_erase_type])) &&
+                    ((boundry - offset) > (int)(_erase_type_size_arr[largest_erase_type])) ) {
                 break;
             } else {
                 bitfield &= ~type_mask;
