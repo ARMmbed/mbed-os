@@ -12,9 +12,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-from icetea_lib.bench import Bench, TestStepFail
 import random
 import string
+
+from icetea_lib.bench import Bench, TestStepFail
 
 
 class Testcase(Bench):
@@ -31,9 +32,9 @@ class Testcase(Bench):
                        requirements={
                            "duts": {
                                '*': {  # requirements for all nodes
-                                    "count": 1,
-                                    "type": "hardware",
-                                    "application": {"name": "TEST_APPS-device-socket_app"}
+                                   "count": 1,
+                                   "type": "hardware",
+                                   "application": {"name": "TEST_APPS-device-socket_app"}
                                },
                                "1": {"nick": "dut1"},
                            }

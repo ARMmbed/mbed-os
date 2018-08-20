@@ -13,15 +13,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 from icetea_lib.TestStepError import TestStepFail
+
 '''
 This interface script is intended to be a common library to be used in testcase scripts by testers.
 It delegates setUp and tearDown functions with different provided network interface types using setUp() and tearDown() methods.
 '''
 
+
 def interfaceUp(tc, duts):
     interfaces = {}
     for dut in duts:
-        interface = {dut:{"ipv4": None, "ipv6": None}}
+        interface = {dut: {"ipv4": None, "ipv6": None}}
 
         resp = tc.command("%s" % dut, "ifup")
 
@@ -34,6 +36,7 @@ def interfaceUp(tc, duts):
 
         interfaces.update(interface)
     return interfaces
+
 
 def interfaceDown(tc, duts):
     for dut in duts:
