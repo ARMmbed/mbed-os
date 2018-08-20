@@ -30,7 +30,7 @@ namespace mbed {
  * If the type use this value then the size of the array is stored in the object
  * at runtime.
  */
-#define SPAN_DYNAMIC_SIZE -1
+#define SPAN_DYNAMIC_EXTENT -1
 
 /**
  * View to an array.
@@ -55,7 +55,7 @@ namespace mbed {
  * SPAN_DYNAMIC_SIZE  is special as it allows construction of Span objects of
  * any size (set at runtime).
  */
-template<typename T, ptrdiff_t Size = SPAN_DYNAMIC_SIZE>
+template<typename T, ptrdiff_t Size = SPAN_DYNAMIC_EXTENT>
 struct Span {
 
     MBED_STATIC_ASSERT(Size >= 0, "Invalid size for an ArrayView");
@@ -220,7 +220,7 @@ private:
  * Span specialisation that handle dynamic array size.
  */
 template<typename T>
-struct Span<T, SPAN_DYNAMIC_SIZE> {
+struct Span<T, SPAN_DYNAMIC_EXTENT> {
 
     /**
      * Construct a view to an empty array.
