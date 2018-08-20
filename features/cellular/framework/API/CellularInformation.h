@@ -43,7 +43,7 @@ public:
      *  @param buf      manufacturer identification as zero terminated string
      *  @param buf_size max length of manufacturer identification is 2048 characters
      *  @return         NSAPI_ERROR_OK on success
-     *                  NSAPI_ERROR_DEVICE_ERROR on case of failure
+     *                  NSAPI_ERROR_DEVICE_ERROR on failure
      */
     virtual nsapi_error_t get_manufacturer(char *buf, size_t buf_size) = 0;
 
@@ -52,7 +52,7 @@ public:
      *  @param buf      model identification as zero terminated string
      *  @param buf_size max length of model identification is 2048 characters
      *  @return         NSAPI_ERROR_OK on success
-     *                  NSAPI_ERROR_DEVICE_ERROR on case of failure
+     *                  NSAPI_ERROR_DEVICE_ERROR on failure
      */
     virtual nsapi_error_t get_model(char *buf, size_t buf_size) = 0;
 
@@ -61,7 +61,7 @@ public:
      *  @param buf      revision identification as zero terminated string
      *  @param buf_size max length of revision identification is 2048 characters
      *  @return         NSAPI_ERROR_OK on success
-     *                  NSAPI_ERROR_DEVICE_ERROR on case of failure
+     *                  NSAPI_ERROR_DEVICE_ERROR on failure
      */
     virtual nsapi_error_t get_revision(char *buf, size_t buf_size) = 0;
 
@@ -71,8 +71,8 @@ public:
      *  @param buf_size max length of serial number is 2048 characters
      *  @param type     serial number type to read
      *  @return         NSAPI_ERROR_OK on success
-     *                  NSAPI_ERROR_UNSUPPORTED if SerialNumberType is not supported by the modem
-     *                  NSAPI_ERROR_DEVICE_ERROR on case of other failures
+     *                  NSAPI_ERROR_UNSUPPORTED if the modem does not support SerialNumberType
+     *                  NSAPI_ERROR_DEVICE_ERROR on other failures
      */
     enum SerialNumberType {
         SN = 0, // Serial Number
