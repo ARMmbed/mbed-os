@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016 ARM Limited. All rights reserved.
+ * Copyright (c) 2018 ARM Limited. All rights reserved.
  * SPDX-License-Identifier: Apache-2.0
  * Licensed under the Apache License, Version 2.0 (the License); you may
  * not use this file except in compliance with the License.
@@ -28,28 +28,30 @@
 #define mbed_console_concat(x) mbed_console_concat_(x)
 #define CONSOLE_FLOWCONTROL mbed_console_concat(MBED_CONF_TARGET_CONSOLE_UART_FLOW_CONTROL)
 
+#define SERIAL_CONSOLE_BAUD_RATE 115200
+
 void cmd_ready_cb(int retcode)
 {
     cmd_next(retcode);
 }
 
 void wrap_printf(const char *f, va_list a) {
-   vprintf(f, a);
+    vprintf(f, a);
 }
 
 int main()
 {
-	cmd_init(&wrap_printf);
+    cmd_init(&wrap_printf);
 
-	int c;
-	while((c = getchar()) != EOF) {
+    int c;
+    while((c = getchar()) != EOF) {
         cmd_char_input(c);
     }
-	return 0;
+    return 0;
 }
 
 FileHandle* mbed::mbed_override_console(int) {
-    static UARTSerial console(STDIO_UART_TX, STDIO_UART_RX, 115200);
+    static UARTSerial console(STDIO_UART_TX, STDIO_UART_RX, SERIAL_CONSOLE_BAUD_RATE);
 #if CONSOLE_FLOWCONTROL == CONSOLE_FLOWCONTROL_RTS
     console.set_flow_control(SerialBase::RTS, STDIO_UART_RTS, NC);
 #elif CONSOLE_FLOWCONTROL == CONSOLE_FLOWCONTROL_CTS
