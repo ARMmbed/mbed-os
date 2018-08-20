@@ -19,6 +19,8 @@
 #include "mbed-client-cli/ns_cmdline.h"
 #include "mbed-trace/mbed_trace.h"
 
+#include "ip4string.h"
+
  #ifndef MBED_CONF_APP_CONNECT_STATEMENT
      #error [NOT_SUPPORTED] No network configuration found for this target.
  #endif
@@ -42,26 +44,16 @@ int cmd_ifconfig(int argc, char *argv[]);
 const char* MAN_IFCONFIG = "  ifup      interface up\r\n"\
                      "  ifdown      interface down\r\n";
 
-static bool is_ipv4(const char *str)
-{
-    int dot_count = 0;
-    for (int i = 0; str[i]; i++) {
-        if (str[i] == '.' && ++dot_count == 3) {
-            return true;
-        }
-    }
-    return false;
-}
-
 static void ifconfig_print()
 {
-    if(!net)
+    if(!net) {
         cmd_printf("No interface configured\r\n");
         return;
+    }
     const char *str = net->get_ip_address();
-
     if (str) {
-        if (is_ipv4(str)) {
+        uint8_t buf[4];
+        if (stoip4(str, strlen(str), buf)) {
             cmd_printf("IPv4 if addr: %s\r\n", str);
         } else {
             cmd_printf("IPv6 if addr:\r\n [0]: %s\r\n", str);
