@@ -58,7 +58,7 @@ namespace mbed {
 template<typename T, ptrdiff_t Size = SPAN_DYNAMIC_EXTENT>
 struct Span {
 
-    MBED_STATIC_ASSERT(Size >= 0, "Invalid size for an ArrayView");
+    MBED_STATIC_ASSERT(Size >= 0, "Invalid size for a Span");
 
     /**
      * Construct a view to an empty array.
@@ -74,7 +74,7 @@ struct Span {
      * @param array_size Number of elements of T present in the array.
      *
      * @post a call to size() will return array_size and data() will return
-     * array_tpr.
+     * @p array_ptr.
      */
     Span(T* array_ptr, size_t array_size) :
         _array(array_ptr) {
@@ -236,7 +236,7 @@ struct Span<T, SPAN_DYNAMIC_EXTENT> {
      * @param array_size Number of elements of T present in the array.
      *
      * @post a call to size() will return array_size and data() will return
-     * array_tpr.
+     * @p array_ptr.
      */
     Span(T* array_ptr, size_t array_size) :
         _array(array_ptr), _size(array_size) { }
