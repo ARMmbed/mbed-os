@@ -72,7 +72,7 @@ public:
      *  @remark must be called after power on to prepare correct AT mode
      *
      *  @return         NSAPI_ERROR_OK on success
-     *                  NSAPI_ERROR_DEVICE_ERROR on case of failure
+     *                  NSAPI_ERROR_DEVICE_ERROR on failure
      */
     virtual nsapi_error_t set_at_mode() = 0;
 
@@ -91,18 +91,18 @@ public:
      *  @remark See 3GPP TS 27.007 CFUN for more details
      *
      *  @return         NSAPI_ERROR_OK on success
-     *                  NSAPI_ERROR_DEVICE_ERROR on case of failure
+     *                  NSAPI_ERROR_DEVICE_ERROR on failure
      */
     virtual nsapi_error_t set_power_level(int func_level, int do_reset = 0) = 0;
 
     /** Reset and wake-up cellular device.
      *
      *  @return         NSAPI_ERROR_OK on success
-     *                  NSAPI_ERROR_DEVICE_ERROR on case of failure
+     *                  NSAPI_ERROR_DEVICE_ERROR on failure
      */
     virtual nsapi_error_t reset() = 0;
 
-    /** Opt for power save setting on cellular device. If both parameters are zero then disables PSM.
+    /** Opt for power save setting on cellular device. If both parameters are zero, this disables PSM.
      *
      *  @remark See 3GPP TS 27.007 PSM for details
      *
@@ -110,7 +110,7 @@ public:
      *  @param active_time   Timeout in seconds IoT subsystem waits for response
      *
      *  @return              NSAPI_ERROR_OK on success
-     *                       NSAPI_ERROR_DEVICE_ERROR on case of failure
+     *                       NSAPI_ERROR_DEVICE_ERROR on failure
      */
     virtual nsapi_error_t opt_power_save_mode(int periodic_time, int active_time) = 0;
 
@@ -123,14 +123,14 @@ public:
      *  @param edrx_value    requested edxr value. Extended DRX parameters information element.
      *
      *  @return              NSAPI_ERROR_OK on success
-     *                       NSAPI_ERROR_DEVICE_ERROR on case of failure
+     *                       NSAPI_ERROR_DEVICE_ERROR on failure
      */
     virtual nsapi_error_t opt_receive_period(int mode, EDRXAccessTechnology act_type, uint8_t edrx_value) = 0;
 
     /** Check whether the device is ready to accept commands.
      *
      *  @return         NSAPI_ERROR_OK on success
-     *                  NSAPI_ERROR_DEVICE_ERROR on case of failure
+     *                  NSAPI_ERROR_DEVICE_ERROR on failure
      */
     virtual nsapi_error_t is_device_ready() = 0;
 
@@ -141,7 +141,7 @@ public:
      *  @param callback Callback function called when urc received
      *
      *  @return         NSAPI_ERROR_OK on success
-     *                  NSAPI_ERROR_NO_MEMORY on case of memory failure
+     *                  NSAPI_ERROR_NO_MEMORY on memory failure
      *                  NSAPI_ERROR_UNSUPPORTED if not overridden by the target modem
      */
     virtual nsapi_error_t set_device_ready_urc_cb(mbed::Callback<void()> callback) = 0;
