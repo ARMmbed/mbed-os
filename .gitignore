@@ -91,3 +91,6 @@ features/FEATURE_BLE/targets/TARGET_CORDIO/stack_backup/
 
 .pytest_cache
 log
+
+# Icetea related file
+test_suite.json
