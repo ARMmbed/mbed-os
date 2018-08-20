@@ -441,7 +441,7 @@ bool operator!=(const Span<T, LhsSize>& lhs, const Span<U, RhsSize>& rhs)
 template<typename T, ptrdiff_t LhsSize, ptrdiff_t RhsSize>
 bool operator!=(const Span<T, LhsSize>& lhs, T (&rhs)[RhsSize])
 {
-    return !(lhs == Span<T>(rhs));
+    return !(lhs == Span<T, RhsSize>(rhs));
 }
 
 /**
@@ -456,7 +456,7 @@ bool operator!=(const Span<T, LhsSize>& lhs, T (&rhs)[RhsSize])
 template<typename T, ptrdiff_t LhsSize, ptrdiff_t RhsSize>
 bool operator!=(T (& lhs)[LhsSize], const Span<T, RhsSize>& rhs)
 {
-    return !(Span<T>(lhs) == rhs);
+    return !(Span<T, LhsSize>(lhs) == rhs);
 }
 
 /**
