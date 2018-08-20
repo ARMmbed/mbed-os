@@ -209,7 +209,7 @@ public:
      *         // events are simple callbacks
      *         queue.call(printf, "called immediately\n");
      *
-     *         // events are executed by the dispatch method
+     *         // the dispatch method executes events
      *         queue.dispatch();
      *     }
      * @endcode
@@ -219,19 +219,19 @@ public:
 
     /** Calls an event on the queue
      *
-     *  The specified callback will be executed in the context of the event
+     *  The specified callback is executed in the context of the event
      *  queue's dispatch loop.
      *
-     *  The call function is irq safe and can act as a mechanism for moving
-     *  events out of irq contexts.
+     *  The call function is IRQ safe and can act as a mechanism for moving
+     *  events out of IRQ contexts.
      *
      *  @param obj        Object to call with the member function
      *  @param method     Member function to execute in the context of the dispatch loop
      *  @param args       Arguments to pass to the callback
-     *  @return           A unique id that represents the posted event and can
-     *                    be passed to cancel, or an id of 0 if there is not
+     *  @return           A unique ID that represents the posted event and can
+     *                    be passed to cancel, or an ID of 0 if there is not
      *                    enough memory to allocate the event.
-     *                    Returned id will remain valid until event has finished
+     *                    Returned ID remains valid until event has finished
      *                    executing.
      *
      * @code
@@ -258,7 +258,7 @@ public:
      *         // with provided parameter
      *         queue.call(&handler_cb, &EventHandler::handler, 2);
      *
-     *         // events are executed by the dispatch method
+     *         // the dispath method executes events
      *         queue.dispatch();
      *     }
      * @endcode
@@ -268,16 +268,16 @@ public:
 
     /** Calls an event on the queue after a specified delay
      *
-     *  The specified callback will be executed in the context of the event
+     *  The specified callback is executed in the context of the event
      *  queue's dispatch loop.
      *
-     *  The call_in function is irq safe and can act as a mechanism for moving
-     *  events out of irq contexts.
+     *  The call_in function is IRQ safe and can act as a mechanism for moving
+     *  events out of IRQ contexts.
      *
      *  @param ms       Time to delay in milliseconds
      *  @param args     Arguments to pass to the callback
-     *  @return         A unique id that represents the posted event and can
-     *                  be passed to cancel, or an id of 0 if there is not
+     *  @return         A unique ID that represents the posted event and can
+     *                  be passed to cancel, or an ID of 0 if there is not
      *                  enough memory to allocate the event.
      *
      * @code
@@ -290,7 +290,7 @@ public:
      *         // events are simple callbacks
      *         queue.call_in(2000, printf, "called in 2 seconds\n");
      *
-     *         // events are executed by the dispatch method
+     *         // the dispatch methods executes events
      *         queue.dispatch();
      *     }
      * @endcode
@@ -300,18 +300,18 @@ public:
 
     /** Calls an event on the queue after a specified delay
      *
-     *  The specified callback will be executed in the context of the event
+     *  The specified callback is executed in the context of the event
      *  queue's dispatch loop.
      *
-     *  The call_in function is irq safe and can act as a mechanism for moving
-     *  events out of irq contexts.
+     *  The call_in function is IRQ safe and can act as a mechanism for moving
+     *  events out of IRQ contexts.
      *
      *  @param ms       Time to delay in milliseconds
      *  @param obj      Object to call with the member function
      *  @param method   Member function to execute in the context of the dispatch loop
      *  @param args     Arguments to pass to the callback
-     *  @return         A unique id that represents the posted event and can
-     *                  be passed to cancel, or an id of 0 if there is not
+     *  @return         A unique ID that represents the posted event and can
+     *                  be passed to cancel, or an ID of 0 if there is not
      *                  enough memory to allocate the event.
      *
      * @code
@@ -338,7 +338,7 @@ public:
      *         // with provided parameter
      *         queue.call_in(2000, &handler_cb, &EventHandler::handler, 4);
      *
-     *         // events are executed by the dispatch method
+     *         // the dispatch method executes events
      *         queue.dispatch();
      *     }
      * @endcode
@@ -351,17 +351,17 @@ public:
      *  @note The first call_every event occurs after the specified delay.
      *  To create a periodic event that fires immediately, @see Event.
      *
-     *  The specified callback will be executed in the context of the event
+     *  The specified callback is executed in the context of the event
      *  queue's dispatch loop.
      *
-     *  The call_every function is irq safe and can act as a mechanism for
-     *  moving events out of irq contexts.
+     *  The call_every function is IRQ safe and can act as a mechanism for
+     *  moving events out of IRQ contexts.
      *
      *  @param ms       Period of the event in milliseconds
      *  @param f        Function to execute in the context of the dispatch loop
      *  @param args     Arguments to pass to the callback
-     *  @return         A unique id that represents the posted event and can
-     *                  be passed to cancel, or an id of 0 if there is not
+     *  @return         A unique ID that represents the posted event and can
+     *                  be passed to cancel, or an ID of 0 if there is not
      *                  enough memory to allocate the event.
      *
      * @code
@@ -384,7 +384,7 @@ public:
      *         // events are simple callbacks, call every 2 seconds
      *         queue.call_every(2000, printf, "Calling every 2 seconds\n");
      *
-     *         // events are executed by the dispatch method
+     *         // the dispatch method executes events
      *         queue.dispatch();
      *     }
      * @endcode
@@ -397,11 +397,11 @@ public:
      *  @note The first call_every event occurs after the specified delay.
      *  To create a periodic event that fires immediately, @see Event.
      *
-     *  The specified callback will be executed in the context of the event
+     *  The specified callback is executed in the context of the event
      *  queue's dispatch loop.
      *
-     *  The call_every function is irq safe and can act as a mechanism for
-     *  moving events out of irq contexts.
+     *  The call_every function is IRQ safe and can act as a mechanism for
+     *  moving events out of IRQ contexts.
      *
      *  @param ms       Period of the event in milliseconds
      *  @param obj      Object to call with the member function
@@ -432,7 +432,7 @@ public:
      *         // with provided parameter
      *         queue.call_every(2000, &handler_cb, &EventHandler::handler, 6);
      *
-     *         // events are executed by the dispatch method
+     *         // the dispatch method executes events
      *         queue.dispatch();
      *     }
      * @endcode
@@ -448,7 +448,7 @@ public:
      *
      *  @param  func        Function to execute when the event is dispatched
      *  @param  args        Arguments to pass to the callback
-     *  @return             Event that will dispatch on the specific queue
+     *  @return             Event that dispatches on the specific queue
      *
      * @code
      *     #include "mbed.h"
@@ -471,7 +471,7 @@ public:
      *         // Post the event with paramter 8
      *         e.post(8);
      *
-     *         // Events are executed by the dispatch method
+     *         // The dispatch method executes events
      *         queue.dispatch();
      *
      *         e2.post(2);
@@ -492,7 +492,7 @@ public:
      *  @param obj             Object to call with the member function
      *  @param method          Member function to execute in the context of the dispatch loop
      *  @param context_args    Arguments to pass to the callback
-     *  @return                Event that will dispatch on the specific queue
+     *  @return                Event that dispatches on the specific queue
      *
      * @code
      *     #include "mbed.h"
@@ -520,7 +520,7 @@ public:
      *         // Post the event with paramter 8
      *         e.post(11);
      *
-     *         // Events are executed by the dispatch method
+     *         // The dispatch method executes events
      *         queue.dispatch();
      *     }
      * @endcode
@@ -536,7 +536,7 @@ public:
      *
      *  @param  cb             Callback object
      *  @param  context_args   Arguments to pass to the callback
-     *  @return                Event that will dispatch on the specific queue
+     *  @return                Event that dispatches on the specific queue
      *
      *  @code
      *     #include "mbed.h"
@@ -558,7 +558,7 @@ public:
      *         // Post the event with parameter 8
      *         e.post(9);
      *
-     *         // events are executed by the dispatch method
+     *         // The dispatch method executes events
      *         q.dispatch();
      *     }
      *  @endcode
@@ -570,17 +570,17 @@ public:
 
     /** Calls an event on the queue
      *
-     *  The specified callback will be executed in the context of the event
+     *  The specified callback is executed in the context of the event
      *  queue's dispatch loop.
      *
-     *  The call function is irq safe and can act as a mechanism for moving
-     *  events out of irq contexts.
+     *  The call function is IRQ safe and can act as a mechanism for moving
+     *  events out of IRQ contexts.
      *
      *  @param f        Function to execute in the context of the dispatch loop
-     *  @return         A unique id that represents the posted event and can
-     *                  be passed to cancel, or an id of 0 if there is not
+     *  @return         A unique ID that represents the posted event and can
+     *                  be passed to cancel, or an ID of 0 if there is not
      *                  enough memory to allocate the event.
-     *                  Returned id will remain valid until event has finished
+     *                  Returned ID remains valid until event has finished
      *                  executing.
      *
      * @code
