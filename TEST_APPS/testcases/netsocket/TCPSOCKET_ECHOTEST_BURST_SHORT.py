@@ -34,7 +34,9 @@ class Testcase(Bench):
                                '*': {  # requirements for all nodes
                                    "count": 1,
                                    "type": "hardware",
-                                   "application": {"name": "TEST_APPS-device-socket_app"}
+                                   "application": {
+                                       "name": "TEST_APPS-device-socket_app"
+                                   }
                                },
                                "1": {"nick": "dut1"},
                            }

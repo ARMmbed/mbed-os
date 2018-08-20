@@ -18,7 +18,6 @@ from icetea_lib.bench import Bench
 
 class Testcase(Bench):
     def __init__(self):
-        self.device = None
         Bench.__init__(self,
                        name="test_cmdline",
                        title="Smoke test for command line interface",
@@ -34,17 +33,18 @@ class Testcase(Bench):
                                    "application": {
                                        "name": "TEST_APPS-device-exampleapp"
                                    }
-                               }
+                               },
+                               "1": {"nick": "dut1"},
                            }
                        }
                        )
 
     def setup(self):
-        self.device = self.get_node_endpoint(1)
+        pass
 
     def case(self):
-        self.command(1, "echo hello world", timeout=5)
-        self.device.command("help")
+        self.command("dut1", "echo hello world")
+        self.command("dut1", "help")
 
     def teardown(self):
         pass
