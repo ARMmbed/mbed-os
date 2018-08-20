@@ -20,7 +20,7 @@ class Testcase(Bench):
     def __init__(self):
         Bench.__init__(self,
                        name="test_K64F_only",
-                       title="Test a test case which have onely K64F support",
+                       title="Test a test case which have only K64F support",
                        status="released",
                        purpose="Just for testing scripts",
                        component=[],
