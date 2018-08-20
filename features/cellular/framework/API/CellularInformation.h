@@ -44,7 +44,7 @@ public:
      *  @param buf      manufacturer identification
      *  @param buf_size max length of manufacturer identification is 2048 characters
      *  @return         NSAPI_ERROR_OK on success
-     *                  NSAPI_ERROR_DEVICE_ERROR on case of failure
+     *                  NSAPI_ERROR_DEVICE_ERROR on failure
      */
     virtual nsapi_size_or_error_t get_manufacturer(char *buf, size_t buf_size) = 0;
 
@@ -53,7 +53,7 @@ public:
      *  @param buf      model identification
      *  @param buf_size max length of model identification is 2048 characters
      *  @return         NSAPI_ERROR_OK on success
-     *                  NSAPI_ERROR_DEVICE_ERROR on case of failure
+     *                  NSAPI_ERROR_DEVICE_ERROR on failure
      */
     virtual nsapi_size_or_error_t get_model(char *buf, size_t buf_size) = 0;
 
@@ -62,7 +62,7 @@ public:
      *  @param buf      revision identification
      *  @param buf_size max length of revision identification is 2048 characters
      *  @return         NSAPI_ERROR_OK on success
-     *                  NSAPI_ERROR_DEVICE_ERROR on case of failure
+     *                  NSAPI_ERROR_DEVICE_ERROR on failure
      */
     virtual nsapi_size_or_error_t get_revision(char *buf, size_t buf_size) = 0;
 };
