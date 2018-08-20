@@ -111,7 +111,7 @@ struct Span {
      */
     bool empty() const
     {
-        return size() ? false : true;
+        return size() == 0;
     }
 
     /**
@@ -281,7 +281,7 @@ struct Span<T, SPAN_DYNAMIC_EXTENT> {
      */
     bool empty() const
     {
-        return size() ? false : true;
+        return size() == 0;
     }
 
     /**
