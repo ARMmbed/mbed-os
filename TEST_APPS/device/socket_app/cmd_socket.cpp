@@ -314,9 +314,6 @@ static void sigio_handler(SInfo *info) {
 void cmd_socket_init(void)
 {
     cmd_add("socket", cmd_socket, "socket", MAN_SOCKET);
-    cmd_alias_add("socket help", "socket -h");
-    cmd_alias_add("socket --help", "socket -h");
-    cmd_alias_add("ping server start", "socket echo-server new start");
 }
 
 int handle_nsapi_error(const char *function, nsapi_error_t ret)
