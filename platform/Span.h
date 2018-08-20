@@ -73,7 +73,7 @@ struct Span {
      * @param array_ptr Pointer to the array data
      * @param array_size Number of elements of T present in the array.
      *
-     * @post a call to size() will return array_size and data() will return
+     * @post a call to size() will return Extent and data() will return
      * @p array_ptr.
      */
     Span(T *array_ptr, size_t array_size) :
