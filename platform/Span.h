@@ -76,7 +76,7 @@ struct Span {
      * @post a call to size() will return array_size and data() will return
      * @p array_ptr.
      */
-    Span(T* array_ptr, size_t array_size) :
+    Span(T *array_ptr, size_t array_size) :
         _array(array_ptr) {
         MBED_ASSERT(array_size >= (size_t) Size);
     }
@@ -123,7 +123,7 @@ struct Span {
      *
      * @pre index shall be less than size().
      */
-    T& operator[](size_t index)
+    T &operator[](size_t index)
     {
         return _array[index];
     }
@@ -137,7 +137,7 @@ struct Span {
      *
      * @pre index shall be less than size().
      */
-    const T& operator[](size_t index) const
+    const T &operator[](size_t index) const
     {
         return _array[index];
     }
@@ -147,7 +147,7 @@ struct Span {
      *
      * @return The raw pointer to the array.
      */
-    T* data()
+    T *data()
     {
         return _array;
     }
@@ -157,7 +157,7 @@ struct Span {
      *
      * @return The raw pointer to the array.
      */
-    const T* data() const
+    const T *data() const
     {
         return _array;
     }
@@ -213,7 +213,7 @@ struct Span {
     }
 
 private:
-    T* _array;
+    T *_array;
 };
 
 /**
@@ -238,7 +238,7 @@ struct Span<T, SPAN_DYNAMIC_EXTENT> {
      * @post a call to size() will return array_size and data() will return
      * @p array_ptr.
      */
-    Span(T* array_ptr, size_t array_size) :
+    Span(T *array_ptr, size_t array_size) :
         _array(array_ptr), _size(array_size) { }
 
     /**
@@ -262,7 +262,7 @@ struct Span<T, SPAN_DYNAMIC_EXTENT> {
      * @param other The Span object used to construct this.
      */
     template<size_t Size>
-    Span(const Span<T, Size>& other):
+    Span(const Span<T, Size> &other):
         _array(other.data()), _size(other.size()) { }
 
     /**
@@ -293,7 +293,7 @@ struct Span<T, SPAN_DYNAMIC_EXTENT> {
      *
      * @pre index shall be less than size().
      */
-    T& operator[](size_t index)
+    T &operator[](size_t index)
     {
         return _array[index];
     }
@@ -307,7 +307,7 @@ struct Span<T, SPAN_DYNAMIC_EXTENT> {
      *
      * @pre index shall be less than size().
      */
-    const T& operator[](size_t index) const
+    const T &operator[](size_t index) const
     {
         return _array[index];
     }
@@ -317,7 +317,7 @@ struct Span<T, SPAN_DYNAMIC_EXTENT> {
      *
      * @return The raw pointer to the array.
      */
-    T* data()
+    T *data()
     {
         return _array;
     }
@@ -327,7 +327,7 @@ struct Span<T, SPAN_DYNAMIC_EXTENT> {
      *
      * @return The raw pointer to the array.
      */
-    const T* data() const
+    const T *data() const
     {
         return _array;
     }
@@ -357,7 +357,7 @@ struct Span<T, SPAN_DYNAMIC_EXTENT> {
     }
 
 private:
-    T* _array;
+    T *_array;
     size_t _size;
 };
 
@@ -371,7 +371,7 @@ private:
  * and false otherwise.
  */
 template<typename T, typename U, ptrdiff_t LhsSize, ptrdiff_t RhsSize>
-bool operator==(const Span<T, LhsSize>& lhs, const Span<U, RhsSize>& rhs)
+bool operator==(const Span<T, LhsSize> &lhs, const Span<U, RhsSize> &rhs)
 {
     if (lhs.size() != rhs.size()) {
         return false;
@@ -394,7 +394,7 @@ bool operator==(const Span<T, LhsSize>& lhs, const Span<U, RhsSize>& rhs)
  * and false otherwise.
  */
 template<typename T, ptrdiff_t LhsSize, ptrdiff_t RhsSize>
-bool operator==(const Span<T, LhsSize>& lhs, T (&rhs)[RhsSize])
+bool operator==(const Span<T, LhsSize> &lhs, T (&rhs)[RhsSize])
 {
     return lhs == Span<T>(rhs);
 }
@@ -409,7 +409,7 @@ bool operator==(const Span<T, LhsSize>& lhs, T (&rhs)[RhsSize])
  * and false otherwise.
  */
 template<typename T, ptrdiff_t LhsSize, ptrdiff_t RhsSize>
-bool operator==(T (& lhs)[LhsSize], const Span<T, RhsSize>& rhs)
+bool operator==(T (&lhs)[LhsSize], const Span<T, RhsSize> &rhs)
 {
     return Span<T>(lhs) == rhs;
 }
@@ -424,7 +424,7 @@ bool operator==(T (& lhs)[LhsSize], const Span<T, RhsSize>& rhs)
  * content and false otherwise.
  */
 template<typename T, typename U, ptrdiff_t LhsSize, ptrdiff_t RhsSize>
-bool operator!=(const Span<T, LhsSize>& lhs, const Span<U, RhsSize>& rhs)
+bool operator!=(const Span<T, LhsSize> &lhs, const Span<U, RhsSize> &rhs)
 {
     return !(lhs == rhs);
 }
@@ -439,7 +439,7 @@ bool operator!=(const Span<T, LhsSize>& lhs, const Span<U, RhsSize>& rhs)
  * and false otherwise.
  */
 template<typename T, ptrdiff_t LhsSize, ptrdiff_t RhsSize>
-bool operator!=(const Span<T, LhsSize>& lhs, T (&rhs)[RhsSize])
+bool operator!=(const Span<T, LhsSize> &lhs, T (&rhs)[RhsSize])
 {
     return !(lhs == Span<T, RhsSize>(rhs));
 }
@@ -454,7 +454,7 @@ bool operator!=(const Span<T, LhsSize>& lhs, T (&rhs)[RhsSize])
  * and false otherwise.
  */
 template<typename T, ptrdiff_t LhsSize, ptrdiff_t RhsSize>
-bool operator!=(T (& lhs)[LhsSize], const Span<T, RhsSize>& rhs)
+bool operator!=(T (&lhs)[LhsSize], const Span<T, RhsSize> &rhs)
 {
     return !(Span<T, LhsSize>(lhs) == rhs);
 }
@@ -492,7 +492,7 @@ Span<T, Size> make_Span(T (&elements)[Size])
  * created 'inline'.
  */
 template<size_t Size, typename T>
-Span<T, Size> make_Span(T* elements)
+Span<T, Size> make_Span(T *elements)
 {
     return Span<T, Size>(elements, Size);
 }
@@ -511,7 +511,7 @@ Span<T, Size> make_Span(T* elements)
  * created 'inline'.
  */
 template<typename T>
-Span<T> make_Span(T* array_ptr, size_t array_size)
+Span<T> make_Span(T *array_ptr, size_t array_size)
 {
     return Span<T>(array_ptr, array_size);
 }
@@ -548,7 +548,7 @@ Span<const T, Size> make_const_Span(const T (&elements)[Size])
  * created 'inline'.
  */
 template<size_t Size, typename T>
-Span<const T, Size> make_const_Span(const T* elements)
+Span<const T, Size> make_const_Span(const T *elements)
 {
     return Span<const T, Size>(elements, Size);
 }
@@ -568,7 +568,7 @@ Span<const T, Size> make_const_Span(const T* elements)
  * created 'inline'.
  */
 template<typename T>
-Span<const T> make_const_Span(T* array_ptr, size_t array_size)
+Span<const T> make_const_Span(T *array_ptr, size_t array_size)
 {
     return Span<const T>(array_ptr, array_size);
 }
