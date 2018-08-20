@@ -28,8 +28,8 @@ enum QspiStatus {
     sUnknown
 };
 
-struct QspiCommand {
-
+class QspiCommand {
+public:
     void configure(qspi_bus_width_t inst_width, qspi_bus_width_t addr_width, qspi_bus_width_t data_width,
                    qspi_bus_width_t alt_width, qspi_address_size_t addr_size, qspi_alt_size_t alt_size,
                    int dummy_cycles = 0);
@@ -38,7 +38,8 @@ struct QspiCommand {
 
     qspi_command_t * get();
 
-    qspi_command_t cmd;
+private:
+    qspi_command_t _cmd;
 };
 
 struct Qspi {
@@ -122,7 +123,7 @@ qspi_status_t write_enable(Qspi &qspi);
 
 qspi_status_t write_disable(Qspi &qspi);
 
-void log_register(uint32_t cmd, uint32_t reg_size, Qspi &qspi);
+void log_register(uint32_t cmd, uint32_t reg_size, Qspi &qspi, const char *str = NULL);
 
 qspi_status_t dual_enable(Qspi &qspi);
 

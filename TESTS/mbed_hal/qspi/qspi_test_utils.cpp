@@ -32,39 +32,39 @@ void QspiCommand::configure(qspi_bus_width_t inst_width, qspi_bus_width_t addr_w
                             qspi_address_size_t addr_size, qspi_alt_size_t alt_size,
                             int dummy_cycles)
 {
-    memset(&cmd, 0,  sizeof(qspi_command_t) );
-    cmd.instruction.disabled = cmd.address.disabled = cmd.alt.disabled = true;
+    memset(&_cmd, 0,  sizeof(qspi_command_t) );
+    _cmd.instruction.disabled = _cmd.address.disabled = _cmd.alt.disabled = true;
 
-    cmd.instruction.bus_width = inst_width;
-    cmd.address.bus_width = addr_width;
-    cmd.address.size = addr_size;
-    cmd.alt.bus_width = alt_width;
-    cmd.alt.size = alt_size;
-    cmd.data.bus_width = data_width;
-    cmd.dummy_count = dummy_cycles;
+    _cmd.instruction.bus_width = inst_width;
+    _cmd.address.bus_width = addr_width;
+    _cmd.address.size = addr_size;
+    _cmd.alt.bus_width = alt_width;
+    _cmd.alt.size = alt_size;
+    _cmd.data.bus_width = data_width;
+    _cmd.dummy_count = dummy_cycles;
 }
 
 void QspiCommand::build(int instruction, int address, int alt)
 {
-    cmd.instruction.disabled = (instruction == QSPI_NONE);
-    if (!cmd.instruction.disabled) {
-        cmd.instruction.value = instruction;
+    _cmd.instruction.disabled = (instruction == QSPI_NONE);
+    if (!_cmd.instruction.disabled) {
+        _cmd.instruction.value = instruction;
     }
 
-    cmd.address.disabled = (address == QSPI_NONE);
-    if (!cmd.address.disabled) {
-        cmd.address.value = address;
+    _cmd.address.disabled = (address == QSPI_NONE);
+    if (!_cmd.address.disabled) {
+        _cmd.address.value = address;
     }
 
-    cmd.alt.disabled = (alt == QSPI_NONE);
-    if (!cmd.alt.disabled) {
-        cmd.alt.value = alt;
+    _cmd.alt.disabled = (alt == QSPI_NONE);
+    if (!_cmd.alt.disabled) {
+        _cmd.alt.value = alt;
     }
 }
 
 qspi_command_t* QspiCommand::get()
 {
-    return &cmd;
+    return &_cmd;
 }
 
 
@@ -165,7 +165,7 @@ qspi_status_t write_disable(Qspi &qspi)
     return ((reg[0] & STATUS_BIT_WEL) == 0 ? QSPI_STATUS_OK : QSPI_STATUS_ERROR);
 }
 
-void log_register(uint32_t cmd, uint32_t reg_size, Qspi &qspi)
+void log_register(uint32_t cmd, uint32_t reg_size, Qspi &qspi, const char *str)
 {
     qspi_status_t ret;
     static uint8_t reg[QSPI_MAX_REG_SIZE];
@@ -174,9 +174,9 @@ void log_register(uint32_t cmd, uint32_t reg_size, Qspi &qspi)
     TEST_ASSERT_EQUAL(QSPI_STATUS_OK, ret);
 
     for (uint32_t j = 0; j < reg_size; j++) {
-        utest_printf("register byte %u data: ", j);
+        utest_printf("%s byte %u (MSB first): ", str != NULL ? str : "", j);
         for(int i = 0; i < 8; i++) {
-            utest_printf("%s ", ((reg[j] & (1 << i)) & 0xFF) == 0 ? "0" : "1");
+            utest_printf("%s ", ((reg[j] & (1 << (7 - i))) & 0xFF) == 0 ? "0" : "1");
         }
         utest_printf("\r\n");
     }

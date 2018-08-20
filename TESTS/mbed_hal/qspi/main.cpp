@@ -247,13 +247,17 @@ void qspi_write_read_test(void)
     WAIT_FOR(WRSR_MAX_TIME, qspi);
 
 #ifdef QSPI_TEST_LOG_FLASH_STATUS
-    utest_printf("Status\r\n");   log_register(STATUS_REG, QSPI_STATUS_REG_SIZE, qspi);
-    utest_printf("Config 0\r\n"); log_register(CONFIG_REG0, QSPI_CONFIG_REG_0_SIZE, qspi);
+    //utest_printf("Status register:\r\n");
+    log_register(STATUS_REG, QSPI_STATUS_REG_SIZE, qspi, "Status register");
+    //utest_printf("Config register 0:\r\n");
+    log_register(CONFIG_REG0, QSPI_CONFIG_REG_0_SIZE, qspi, "Config register 0");
 #ifdef CONFIG_REG1
-    utest_printf("Config 1\r\n"); log_register(CONFIG_REG1, QSPI_CONFIG_REG_1_SIZE, qspi);
+    //utest_printf("Config register 1:\r\n");
+    log_register(CONFIG_REG1, QSPI_CONFIG_REG_1_SIZE, qspi, "Config register 1");
 #endif
 #ifdef CONFIG_REG2
-    utest_printf("Config 2\r\n"); log_register(CONFIG_REG2, QSPI_CONFIG_REG_2_SIZE, qspi);
+    //utest_printf("Config register 2:\r\n");
+    log_register(CONFIG_REG2, QSPI_CONFIG_REG_2_SIZE, qspi, "Config register 2");
 #endif
 #endif
 
@@ -314,13 +318,17 @@ void qspi_init_free_test(void)
     flash_init(qspi);
 
 #ifdef QSPI_TEST_LOG_FLASH_STATUS
-    utest_printf("Status\r\n");   log_register(STATUS_REG, QSPI_STATUS_REG_SIZE, qspi);
-    utest_printf("Config 0\r\n"); log_register(CONFIG_REG0, QSPI_CONFIG_REG_0_SIZE, qspi);
+    //utest_printf("Status register:\r\n");
+    log_register(STATUS_REG, QSPI_STATUS_REG_SIZE, qspi, "Status register");
+    //utest_printf("Config register 0:\r\n");
+    log_register(CONFIG_REG0, QSPI_CONFIG_REG_0_SIZE, qspi, "Config register 0");
 #ifdef CONFIG_REG1
-    utest_printf("Config 1\r\n"); log_register(CONFIG_REG1, QSPI_CONFIG_REG_1_SIZE, qspi);
+    //utest_printf("Config register 1:\r\n");
+    log_register(CONFIG_REG1, QSPI_CONFIG_REG_1_SIZE, qspi, "Config register 1");
 #endif
 #ifdef CONFIG_REG2
-    utest_printf("Config 2\r\n"); log_register(CONFIG_REG2, QSPI_CONFIG_REG_2_SIZE, qspi);
+    //utest_printf("Config register 2:\r\n");
+    log_register(CONFIG_REG2, QSPI_CONFIG_REG_2_SIZE, qspi, "Config register 2");
 #endif
 #endif
 
