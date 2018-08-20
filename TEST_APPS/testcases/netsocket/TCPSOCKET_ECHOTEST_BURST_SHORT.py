@@ -12,9 +12,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-import random
 import string
 
+from icetea_lib.Randomize.randomize import Randomize
 from icetea_lib.bench import Bench, TestStepFail
 
 
@@ -44,9 +44,6 @@ class Testcase(Bench):
     def setup(self):
         self.command("dut1", "ifup")
 
-    def randomString(self, length):
-        return ''.join(random.choice(string.ascii_uppercase) for i in range(length))
-
     def case(self):
         response = self.command("dut1", "socket new TCPSocket")
         socket_id = int(response.parsed['socket_id'])
@@ -57,7 +54,7 @@ class Testcase(Bench):
         for i in range(2):
             sentData = ""
             for size in (100, 200, 300, 120, 500):
-                packet = self.randomString(size)
+                packet = Randomize.random_string(max_len=size, min_len=size, chars=string.ascii_uppercase)
                 sentData += packet
                 response = self.command("dut1", "socket " + str(socket_id) + " send " + str(packet))
                 response.verify_trace("TCPSocket::send() returned: " + str(size))

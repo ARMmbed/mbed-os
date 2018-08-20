@@ -29,7 +29,7 @@ def interfaceUp(tc, duts):
 
         ip = interface[dut]["ip"] = interface[dut]["ipv4"] = resp.parsed["address"]["ipv4"]
         if not ip:
-            if resp.parsed["address"]["ipv6"] != []:
+            if resp.parsed["address"]["ipv6"]:
                 ip = interface[dut]["ip"] = interface[dut]["ipv6"] = resp.parsed["address"]["ipv6"][0]
         if not ip:
             raise TestStepFail("Failed to parse IP address")

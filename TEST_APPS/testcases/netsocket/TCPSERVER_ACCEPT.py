@@ -16,6 +16,7 @@ limitations under the License.
 import threading
 import time
 
+from icetea_lib.TestStepError import TestStepFail
 from icetea_lib.bench import Bench
 from interface import interfaceUp, interfaceDown
 
