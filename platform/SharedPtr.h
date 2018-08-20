@@ -48,16 +48,16 @@
   * @endcode
   *
   *
-  * It is similar to the std::shared_ptr class introduced in C++11,
-  * however this is not a compatible implementation (no weak pointer, no make_shared, no custom deleters, etc.)
+  * It is similar to the std::shared_ptr class introduced in C++11;
+  * however, this is not a compatible implementation (no weak pointer, no make_shared, no custom deleters and so on.)
   *
   * Usage: SharedPtr<Class> ptr(new Class())
   *
-  * When ptr is passed around by value the copy constructor and
+  * When ptr is passed around by value, the copy constructor and
   * destructor manages the reference count of the raw pointer.
   * If the counter reaches zero, delete is called on the raw pointer.
   *
-  * To avoid loops, "weak" references should be used by calling the original
+  * To avoid loops, use "weak" references by calling the original
   * pointer directly through ptr.get().
   */
 
@@ -78,7 +78,7 @@ public:
      */
     SharedPtr(T *ptr): _ptr(ptr), _counter(NULL)
     {
-        // allocate counter on the heap so it can be shared
+        // Allocate counter on the heap, so it can be shared
         if (_ptr != NULL) {
             _counter = new uint32_t;
             *_counter = 1;
@@ -87,7 +87,7 @@ public:
 
     /**
      * @brief Destructor.
-     * @details Decrement reference counter and delete object if no longer pointed to.
+     * @details Decrement reference counter, and delete object if no longer pointed to.
      */
     ~SharedPtr()
     {
@@ -102,7 +102,7 @@ public:
      */
     SharedPtr(const SharedPtr &source): _ptr(source._ptr), _counter(source._counter)
     {
-        // increment reference counter
+        // Increment reference counter
         if (_ptr != NULL) {
             core_util_atomic_incr_u32(_counter, 1);
         }
@@ -117,14 +117,14 @@ public:
     SharedPtr operator=(const SharedPtr &source)
     {
         if (this != &source) {
-            // clean up by decrementing counter
+            // Clean up by decrementing counter
             decrement_counter();
 
-            // assign new values
+            // Assign new values
             _ptr = source.get();
             _counter = source.get_counter();
 
-            // increment new counter
+            // Increment new counter
             if (_ptr != NULL) {
                 core_util_atomic_incr_u32(_counter, 1);
             }
@@ -139,11 +139,11 @@ public:
      */
     void reset(T *ptr)
     {
-        // clean up by decrementing counter
+        // Clean up by decrementing counter
         decrement_counter();
 
         if (ptr != NULL) {
-            // allocate counter on the heap so it can be shared
+            // Allocate counter on the heap, so it can be shared
             _counter = new uint32_t;
             *_counter = 1;
         }
@@ -237,10 +237,10 @@ private:
     }
 
 private:
-    // pointer to shared object
+    // Pointer to shared object
     T *_ptr;
 
-    // pointer to shared reference counter
+    // Pointer to shared reference counter
     uint32_t *_counter;
 };
 
