@@ -26,7 +26,7 @@
 namespace mbed {
 
 /**
- * Special value for the Size parameter of Span.
+ * Special value for the Extent parameter of Span.
  * If the type use this value then the size of the array is stored in the object
  * at runtime.
  */
@@ -47,18 +47,18 @@ namespace mbed {
  * @note You can create Span instances with the help of the function
  * template make_Span() and make_const_Span().
  *
- * @note Span<T, Size> objects can be implicitly converted to Span<T> objects
+ * @note Span<T, Extent> objects can be implicitly converted to Span<T> objects
  * where required.
  *
  * @tparam T type of objects held by the array.
- * @tparam Size The size of the array viewed. The default value
+ * @tparam Extent The size of the array viewed. The default value
  * SPAN_DYNAMIC_SIZE  is special as it allows construction of Span objects of
  * any size (set at runtime).
  */
-template<typename T, ptrdiff_t Size = SPAN_DYNAMIC_EXTENT>
+template<typename T, ptrdiff_t Extent = SPAN_DYNAMIC_EXTENT>
 struct Span {
 
-    MBED_STATIC_ASSERT(Size >= 0, "Invalid size for a Span");
+    MBED_STATIC_ASSERT(Extent >= 0, "Invalid extent for a Span");
 
     /**
      * Construct a view to an empty array.
@@ -78,7 +78,7 @@ struct Span {
      */
     Span(T *array_ptr, size_t array_size) :
         _array(array_ptr) {
-        MBED_ASSERT(array_size >= (size_t) Size);
+        MBED_ASSERT(array_size >= (size_t) Extent);
     }
 
     /**
@@ -86,12 +86,10 @@ struct Span {
      *
      * @param elements Reference to the array viewed.
      *
-     * @tparam Size Number of elements of T presents in the array.
-     *
-     * @post a call to size() will return Size, and data() will return
+     * @post a call to size() will return Extent, and data() will return
      * a pointer to elements.
      */
-    Span(T (&elements)[Size]):
+    Span(T (&elements)[Extent]):
         _array(elements) { }
 
     /**
@@ -101,7 +99,7 @@ struct Span {
      */
     size_t size() const
     {
-        return _array ? Size : 0;
+        return _array ? Extent : 0;
     }
 
     /**
@@ -170,7 +168,7 @@ struct Span {
      * @return A new Span over the first @p count elements.
      */
     Span<T> first(std::size_t count) const {
-        MBED_ASSERT(count <= Size);
+        MBED_ASSERT(count <= Extent);
         return Span<T>(_array, count);
     }
 
@@ -183,7 +181,7 @@ struct Span {
      */
     template<std::ptrdiff_t Count>
     Span<T, Count> first() const {
-        MBED_ASSERT(Count <= Size);
+        MBED_ASSERT(Count <= Extent);
         return Span<T, Count>(_array);
     }
 
@@ -195,8 +193,8 @@ struct Span {
      * @return A new Span over the last @p count elements.
      */
     Span<T> last(std::size_t count) const {
-        MBED_ASSERT(count <= Size);
-        return Span<T>(_array + (Size - count), count);
+        MBED_ASSERT(count <= Extent);
+        return Span<T>(_array + (Extent - count), count);
     }
 
     /**
@@ -208,8 +206,8 @@ struct Span {
      */
     template<std::ptrdiff_t Count>
     Span<T, Count> last() const {
-        MBED_ASSERT(Count <= Size);
-        return Span<T, Count>(_array + (Size - Count));
+        MBED_ASSERT(Count <= Extent);
+        return Span<T, Count>(_array + (Extent - Count));
     }
 
 private:
@@ -261,8 +259,8 @@ struct Span<T, SPAN_DYNAMIC_EXTENT> {
      * static size.
      * @param other The Span object used to construct this.
      */
-    template<size_t Size>
-    Span(const Span<T, Size> &other):
+    template<size_t Extent>
+    Span(const Span<T, Extent> &other):
         _array(other.data()), _size(other.size()) { }
 
     /**
@@ -370,8 +368,8 @@ private:
  * @return True if arrays in input have the same size and the same content
  * and false otherwise.
  */
-template<typename T, typename U, ptrdiff_t LhsSize, ptrdiff_t RhsSize>
-bool operator==(const Span<T, LhsSize> &lhs, const Span<U, RhsSize> &rhs)
+template<typename T, typename U, ptrdiff_t LhsExtent, ptrdiff_t RhsExtent>
+bool operator==(const Span<T, LhsExtent> &lhs, const Span<U, RhsExtent> &rhs)
 {
     if (lhs.size() != rhs.size()) {
         return false;
@@ -393,8 +391,8 @@ bool operator==(const Span<T, LhsSize> &lhs, const Span<U, RhsSize> &rhs)
  * @return True if arrays in input have the same size and the same content
  * and false otherwise.
  */
-template<typename T, ptrdiff_t LhsSize, ptrdiff_t RhsSize>
-bool operator==(const Span<T, LhsSize> &lhs, T (&rhs)[RhsSize])
+template<typename T, ptrdiff_t LhsExtent, ptrdiff_t RhsExtent>
+bool operator==(const Span<T, LhsExtent> &lhs, T (&rhs)[RhsExtent])
 {
     return lhs == Span<T>(rhs);
 }
@@ -408,8 +406,8 @@ bool operator==(const Span<T, LhsSize> &lhs, T (&rhs)[RhsSize])
  * @return True if arrays in input have the same size and the same content
  * and false otherwise.
  */
-template<typename T, ptrdiff_t LhsSize, ptrdiff_t RhsSize>
-bool operator==(T (&lhs)[LhsSize], const Span<T, RhsSize> &rhs)
+template<typename T, ptrdiff_t LhsExtent, ptrdiff_t RhsExtent>
+bool operator==(T (&lhs)[LhsExtent], const Span<T, RhsExtent> &rhs)
 {
     return Span<T>(lhs) == rhs;
 }
@@ -423,8 +421,8 @@ bool operator==(T (&lhs)[LhsSize], const Span<T, RhsSize> &rhs)
  * @return True if arrays in input do not have the same size or the same
  * content and false otherwise.
  */
-template<typename T, typename U, ptrdiff_t LhsSize, ptrdiff_t RhsSize>
-bool operator!=(const Span<T, LhsSize> &lhs, const Span<U, RhsSize> &rhs)
+template<typename T, typename U, ptrdiff_t LhsExtent, ptrdiff_t RhsExtent>
+bool operator!=(const Span<T, LhsExtent> &lhs, const Span<U, RhsExtent> &rhs)
 {
     return !(lhs == rhs);
 }
@@ -438,10 +436,10 @@ bool operator!=(const Span<T, LhsSize> &lhs, const Span<U, RhsSize> &rhs)
  * @return True if arrays in input have the same size and the same content
  * and false otherwise.
  */
-template<typename T, ptrdiff_t LhsSize, ptrdiff_t RhsSize>
-bool operator!=(const Span<T, LhsSize> &lhs, T (&rhs)[RhsSize])
+template<typename T, ptrdiff_t LhsExtent, ptrdiff_t RhsExtent>
+bool operator!=(const Span<T, LhsExtent> &lhs, T (&rhs)[RhsExtent])
 {
-    return !(lhs == Span<T, RhsSize>(rhs));
+    return !(lhs == Span<T, RhsExtent>(rhs));
 }
 
 /**
@@ -453,17 +451,17 @@ bool operator!=(const Span<T, LhsSize> &lhs, T (&rhs)[RhsSize])
  * @return True if arrays in input have the same size and the same content
  * and false otherwise.
  */
-template<typename T, ptrdiff_t LhsSize, ptrdiff_t RhsSize>
-bool operator!=(T (&lhs)[LhsSize], const Span<T, RhsSize> &rhs)
+template<typename T, ptrdiff_t LhsExtent, ptrdiff_t RhsExtent>
+bool operator!=(T (&lhs)[LhsExtent], const Span<T, RhsExtent> &rhs)
 {
-    return !(Span<T, LhsSize>(lhs) == rhs);
+    return !(Span<T, LhsExtent>(lhs) == rhs);
 }
 
 /**
  * Generate a Span from a reference to a C/C++ array.
  *
  * @tparam T Type of elements held in elements.
- * @tparam Size Number of items held in elements.
+ * @tparam Extent Number of items held in elements.
  *
  * @param elements The reference to the array viewed.
  *
@@ -472,16 +470,16 @@ bool operator!=(T (&lhs)[LhsSize], const Span<T, RhsSize> &rhs)
  * @note This helper avoids the typing of template parameter when Span is
  * created 'inline'.
  */
-template<typename T, size_t Size>
-Span<T, Size> make_Span(T (&elements)[Size])
+template<typename T, size_t Extent>
+Span<T, Extent> make_Span(T (&elements)[Extent])
 {
-    return Span<T, Size>(elements);
+    return Span<T, Extent>(elements);
 }
 
 /**
  * Generate a Span from a pointer to a C/C++ array.
  *
- * @tparam Size Number of items held in elements.
+ * @tparam Extent Number of items held in elements.
  * @tparam T Type of elements held in elements.
  *
  * @param elements The reference to the array viewed.
@@ -491,10 +489,10 @@ Span<T, Size> make_Span(T (&elements)[Size])
  * @note This helper avoids the typing of template parameter when Span is
  * created 'inline'.
  */
-template<size_t Size, typename T>
-Span<T, Size> make_Span(T *elements)
+template<size_t Extent, typename T>
+Span<T, Extent> make_Span(T *elements)
 {
-    return Span<T, Size>(elements, Size);
+    return Span<T, Extent>(elements, Extent);
 }
 
 /**
@@ -520,7 +518,7 @@ Span<T> make_Span(T *array_ptr, size_t array_size)
  * Generate a Span to a const content from a reference to a C/C++ array.
  *
  * @tparam T Type of elements held in elements.
- * @tparam Size Number of items held in elements.
+ * @tparam Extent Number of items held in elements.
  *
  * @param elements The array viewed.
  * @return The Span to elements.
@@ -528,16 +526,16 @@ Span<T> make_Span(T *array_ptr, size_t array_size)
  * @note This helper avoids the typing of template parameter when Span is
  * created 'inline'.
  */
-template<typename T, size_t Size>
-Span<const T, Size> make_const_Span(const T (&elements)[Size])
+template<typename T, size_t Extent>
+Span<const T, Extent> make_const_Span(const T (&elements)[Extent])
 {
-    return Span<const T, Size>(elements);
+    return Span<const T, Extent>(elements);
 }
 
 /**
  * Generate a Span to a const content from a pointer to a C/C++ array.
  *
- * @tparam Size Number of items held in elements.
+ * @tparam Extent Number of items held in elements.
  * @tparam T Type of elements held in elements.
  *
  * @param elements The reference to the array viewed.
@@ -547,10 +545,10 @@ Span<const T, Size> make_const_Span(const T (&elements)[Size])
  * @note This helper avoids the typing of template parameter when Span is
  * created 'inline'.
  */
-template<size_t Size, typename T>
-Span<const T, Size> make_const_Span(const T *elements)
+template<size_t Extent, typename T>
+Span<const T, Extent> make_const_Span(const T *elements)
 {
-    return Span<const T, Size>(elements, Size);
+    return Span<const T, Extent>(elements, Extent);
 }
 
 /**
