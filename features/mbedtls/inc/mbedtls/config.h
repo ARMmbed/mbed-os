@@ -451,7 +451,8 @@
  *
  * Enable Cipher Block Chaining mode (CBC) for symmetric ciphers.
  */
-#define MBEDTLS_CIPHER_MODE_CBC
+// WD-target uses TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384 (0xc02c)
+//#define MBEDTLS_CIPHER_MODE_CBC
 
 /**
  * \def MBEDTLS_CIPHER_MODE_CFB
@@ -542,7 +543,8 @@
  *
  * Uncomment this macro to remove RC4 ciphersuites by default.
  */
-#define MBEDTLS_REMOVE_ARC4_CIPHERSUITES
+// WD-target uses TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384 (0xc02c)
+// #define MBEDTLS_REMOVE_ARC4_CIPHERSUITES
 
 /**
  * \def MBEDTLS_ECP_DP_SECP192R1_ENABLED
@@ -610,7 +612,8 @@
  *      MBEDTLS_TLS_PSK_WITH_3DES_EDE_CBC_SHA
  *      MBEDTLS_TLS_PSK_WITH_RC4_128_SHA
  */
-#define MBEDTLS_KEY_EXCHANGE_PSK_ENABLED
+// WD-target uses TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384 (0xc02c)
+//#define MBEDTLS_KEY_EXCHANGE_PSK_ENABLED
 
 /**
  * \def MBEDTLS_KEY_EXCHANGE_DHE_PSK_ENABLED
@@ -654,7 +657,8 @@
  *      MBEDTLS_TLS_ECDHE_PSK_WITH_3DES_EDE_CBC_SHA
  *      MBEDTLS_TLS_ECDHE_PSK_WITH_RC4_128_SHA
  */
-#define MBEDTLS_KEY_EXCHANGE_ECDHE_PSK_ENABLED
+// WD-target uses TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384 (0xc02c)
+//#define MBEDTLS_KEY_EXCHANGE_ECDHE_PSK_ENABLED
 
 /**
  * \def MBEDTLS_KEY_EXCHANGE_RSA_PSK_ENABLED
@@ -679,6 +683,7 @@
  *      MBEDTLS_TLS_RSA_PSK_WITH_3DES_EDE_CBC_SHA
  *      MBEDTLS_TLS_RSA_PSK_WITH_RC4_128_SHA
  */
+// WD-target uses TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384 (0xc02c)
 //#define MBEDTLS_KEY_EXCHANGE_RSA_PSK_ENABLED
 
 /**
@@ -707,6 +712,7 @@
  *      MBEDTLS_TLS_RSA_WITH_RC4_128_SHA
  *      MBEDTLS_TLS_RSA_WITH_RC4_128_MD5
  */
+// WD-target uses TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384 (0xc02c)
 //#define MBEDTLS_KEY_EXCHANGE_RSA_ENABLED
 
 /**
@@ -758,7 +764,8 @@
  *      MBEDTLS_TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA
  *      MBEDTLS_TLS_ECDHE_RSA_WITH_RC4_128_SHA
  */
-#define MBEDTLS_KEY_EXCHANGE_ECDHE_RSA_ENABLED
+// WD-target uses TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384 (0xc02c)
+//#define MBEDTLS_KEY_EXCHANGE_ECDHE_RSA_ENABLED
 
 /**
  * \def MBEDTLS_KEY_EXCHANGE_ECDHE_ECDSA_ENABLED
@@ -996,7 +1003,8 @@
  *
  * Comment this macro to disable support for external private RSA keys.
  */
-#define MBEDTLS_PK_RSA_ALT_SUPPORT
+// WD-target uses TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384 (0xc02c)
+//#define MBEDTLS_PK_RSA_ALT_SUPPORT
 
 /**
  * \def MBEDTLS_PKCS1_V15
@@ -1099,7 +1107,8 @@
  *
  * Comment this macro to disable support for Encrypt-then-MAC
  */
-#define MBEDTLS_SSL_ENCRYPT_THEN_MAC
+// WD-target uses TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384 (0xc02c)
+//#define MBEDTLS_SSL_ENCRYPT_THEN_MAC
 
 /** \def MBEDTLS_SSL_EXTENDED_MASTER_SECRET
  *
@@ -1746,7 +1755,8 @@
  * This module enables the AES-CCM ciphersuites, if other requisites are
  * enabled as well.
  */
-#define MBEDTLS_CCM_C
+// WD-target uses TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384 (0xc02c)
+//#define MBEDTLS_CCM_C
 
 /**
  * \def MBEDTLS_CERTS_C
@@ -2287,7 +2297,8 @@
  *
  * Requires: MBEDTLS_BIGNUM_C, MBEDTLS_OID_C
  */
-#define MBEDTLS_RSA_C
+// WD-target uses TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384 (0xc02c)
+//#define MBEDTLS_RSA_C
 
 /**
  * \def MBEDTLS_SHA1_C
@@ -2681,7 +2692,8 @@
  *
  * The value below is only an example, not the default.
  */
-//#define MBEDTLS_SSL_CIPHERSUITES MBEDTLS_TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,MBEDTLS_TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
+// WD-target uses TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384 (0xc02c)
+#define MBEDTLS_SSL_CIPHERSUITES MBEDTLS_TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
 
 /* X509 options */
 //#define MBEDTLS_X509_MAX_INTERMEDIATE_CA   8   /**< Maximum number of intermediate CAs in a verification chain. */
@@ -2705,7 +2717,7 @@
  * of SHA-1 in handshake signatures, hence this option is turned on by default
  * for compatibility with existing peers.
  */
-#define MBEDTLS_TLS_DEFAULT_ALLOW_SHA1_IN_KEY_EXCHANGE
+// #define MBEDTLS_TLS_DEFAULT_ALLOW_SHA1_IN_KEY_EXCHANGE
 
 /* \} name SECTION: Customisation configuration options */
 
