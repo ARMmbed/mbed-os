@@ -154,7 +154,8 @@ int SPIFBlockDevice::init()
 
 
     /* Read Manufacturer ID (1byte), and Device ID (2bytes)*/
-    spi_status = _spi_send_read_command(SPIF_RDID, vendor_device_ids, 0x0 /*address*/, data_length);
+    spi_status = _spi_send_general_command(SPIF_RDID, SPI_NO_ADDRESS_COMMAND, NULL, 0, (char *)vendor_device_ids,
+                                           data_length);
     if (spi_status != SPIF_BD_ERROR_OK) {
         tr_error("ERROR: init - Read Vendor ID Failed");
         status = SPIF_BD_ERROR_DEVICE_ERROR;
