@@ -122,6 +122,17 @@ void sleep_manager_unlock_deep_sleep_internal(void);
  */
 bool sleep_manager_can_deep_sleep(void);
 
+/** Check if the target can deep sleep within a period of time
+ *
+ * This function in intended for use in testing. The amount
+ * of time this functions waits for deeps sleep to be available
+ * is currently 2ms. This may change in the future depending
+ * on testing requirements.
+ *
+ * @return true if a target can go to deepsleep, false otherwise
+ */
+bool sleep_manager_can_deep_sleep_test_check(void);
+
 /** Enter auto selected sleep mode. It chooses the sleep or deeepsleep modes based
  *  on the deepsleep locking counter
  *

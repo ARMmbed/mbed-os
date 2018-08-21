@@ -32,6 +32,9 @@ static void initialize(const ticker_data_t *ticker)
     if (ticker->queue->initialized) {
         return;
     }
+    if (ticker->queue->suspended) {
+        return;
+    }
 
     ticker->interface->init();
 
@@ -70,6 +73,7 @@ static void initialize(const ticker_data_t *ticker)
     ticker->queue->max_delta_us = max_delta_us;
     ticker->queue->present_time = 0;
     ticker->queue->dispatching = false;
+    ticker->queue->suspended = false;
     ticker->queue->initialized = true;
 
     update_present_time(ticker);
@@ -121,6 +125,9 @@ static us_timestamp_t convert_timestamp(us_timestamp_t ref, timestamp_t timestam
 static void update_present_time(const ticker_data_t *const ticker)
 {
     ticker_event_queue_t *queue = ticker->queue;
+    if (queue->suspended) {
+        return;
+    }
     uint32_t ticker_time = ticker->interface->read();
     if (ticker_time == ticker->queue->tick_last_read) {
         // No work to do
@@ -230,7 +237,7 @@ int _ticker_match_interval_passed(timestamp_t prev_tick, timestamp_t cur_tick, t
 static void schedule_interrupt(const ticker_data_t *const ticker)
 {
     ticker_event_queue_t *queue = ticker->queue;
-    if (ticker->queue->dispatching) {
+    if (queue->suspended || ticker->queue->dispatching) {
         // Don't schedule the next interrupt until dispatching is
         // finished. This prevents repeated calls to interface->set_interrupt
         return;
@@ -282,6 +289,10 @@ void ticker_irq_handler(const ticker_data_t *const ticker)
     core_util_critical_section_enter();
 
     ticker->interface->clear_interrupt();
+    if (ticker->queue->suspended) {
+        core_util_critical_section_exit();
+        return;
+    }
 
     /* Go through all the pending TimerEvents */
     ticker->queue->dispatching = true;
@@ -426,4 +437,30 @@ int ticker_get_next_timestamp(const ticker_data_t *const data, timestamp_t *time
     core_util_critical_section_exit();
 
     return ret;
+}
+
+void ticker_suspend(const ticker_data_t *const ticker)
+{
+    core_util_critical_section_enter();
+
+    ticker->queue->suspended = true;
+
+    core_util_critical_section_exit();
+}
+
+void ticker_resume(const ticker_data_t *const ticker)
+{
+    core_util_critical_section_enter();
+
+    ticker->queue->suspended = false;
+    if (ticker->queue->initialized) {
+        ticker->queue->tick_last_read = ticker->interface->read();
+
+        update_present_time(ticker);
+        schedule_interrupt(ticker);
+    } else {
+        initialize(ticker);
+    }
+
+    core_util_critical_section_exit();
 }

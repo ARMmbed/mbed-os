@@ -13,144 +13,115 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "hal/lp_ticker_api.h"
+#include "hal/mbed_lp_ticker_wrapper.h"
 
 #if DEVICE_LPTICKER && (LPTICKER_DELAY_TICKS > 0)
 
-#include "Timeout.h"
-#include "mbed_critical.h"
-
-static const timestamp_t min_delta = LPTICKER_DELAY_TICKS;
-
-static bool init = false;
-static bool pending = false;
-static bool timeout_pending = false;
-static timestamp_t last_set_interrupt = 0;
-static timestamp_t last_request = 0;
-static timestamp_t next = 0;
-
-static timestamp_t mask;
-static timestamp_t reschedule_us;
+#include "hal/LowPowerTickerWrapper.h"
+#include "platform/mbed_critical.h"
 
 // Do not use SingletonPtr since this must be initialized in a critical section
-static mbed::Timeout *timeout;
-static uint64_t timeout_data[sizeof(mbed::Timeout) / 8];
+static LowPowerTickerWrapper *ticker_wrapper;
+static uint64_t ticker_wrapper_data[(sizeof(LowPowerTickerWrapper) + 7) / 8];
+static bool init = false;
 
-/**
- * Initialize variables
- */
-static void init_local()
+static void lp_ticker_wrapper_init()
 {
-    MBED_ASSERT(core_util_in_critical_section());
-
-    const ticker_info_t *info = lp_ticker_get_info();
-    if (info->bits >= 32) {
-        mask = 0xffffffff;
-    } else {
-        mask = ((uint64_t)1 << info->bits) - 1;
-    }
-
-    // Round us_per_tick up
-    timestamp_t us_per_tick = (1000000 + info->frequency - 1) / info->frequency;
-
-    // Add 1 tick to the min delta for the case where the clock transitions after you read it
-    // Add 4 microseconds to round up the micro second ticker time (which has a frequency of at least 250KHz - 4us period)
-    reschedule_us = (min_delta + 1) * us_per_tick + 4;
-
-    timeout = new (timeout_data) mbed::Timeout();
+    ticker_wrapper->init();
 }
 
-/**
- * Call lp_ticker_set_interrupt with a value that is guaranteed to fire
- *
- * Assumptions
- * -Only one low power clock tick can pass from the last read (last_read)
- * -The closest an interrupt can fire is max_delta + 1
- *
- * @param last_read The last value read from lp_ticker_read
- * @param timestamp The timestamp to trigger the interrupt at
- */
-static void set_interrupt_safe(timestamp_t last_read, timestamp_t timestamp)
+static uint32_t lp_ticker_wrapper_read()
 {
-    MBED_ASSERT(core_util_in_critical_section());
-    uint32_t delta = (timestamp - last_read) & mask;
-    if (delta < min_delta + 2) {
-        timestamp = (last_read + min_delta + 2) & mask;
-    }
-    lp_ticker_set_interrupt(timestamp);
+    return ticker_wrapper->read();
 }
 
-/**
- * Set the low power ticker match time when hardware is ready
- *
- * This event is scheduled to set the lp timer after the previous write
- * has taken effect and it is safe to write a new value without blocking.
- * If the time has already passed then this function fires and interrupt
- * immediately.
- */
-static void set_interrupt_later()
+static void lp_ticker_wrapper_set_interrupt(timestamp_t timestamp)
 {
-    core_util_critical_section_enter();
-
-    timestamp_t current = lp_ticker_read();
-    if (_ticker_match_interval_passed(last_request, current, next)) {
-        lp_ticker_fire_interrupt();
-    } else {
-        set_interrupt_safe(current, next);
-        last_set_interrupt = lp_ticker_read();
-    }
-    timeout_pending = false;
-
-    core_util_critical_section_exit();
+    ticker_wrapper->set_interrupt(timestamp);
 }
 
-/**
- * Wrapper around lp_ticker_set_interrupt to prevent blocking
- *
- * Problems this function is solving:
- * 1. Interrupt may not fire if set earlier than LPTICKER_DELAY_TICKS low power clock cycles
- * 2. Setting the interrupt back-to-back will block
- *
- * This wrapper function prevents lp_ticker_set_interrupt from being called
- * back-to-back and blocking while the first write is in progress. This function
- * avoids that problem by scheduling a timeout event if the lp ticker is in the
- * middle of a write operation.
- *
- * @param timestamp Time to call ticker irq
- * @note this is a utility function and it's not required part of HAL implementation
- */
-extern "C" void lp_ticker_set_interrupt_wrapper(timestamp_t timestamp)
+static void lp_ticker_wrapper_disable_interrupt()
+{
+    ticker_wrapper->disable_interrupt();
+}
+
+static void lp_ticker_wrapper_clear_interrupt()
+{
+    ticker_wrapper->clear_interrupt();
+}
+
+static void lp_ticker_wrapper_fire_interrupt()
+{
+    ticker_wrapper->fire_interrupt();
+}
+
+static const ticker_info_t *lp_ticker_wrapper_get_info()
+{
+    return ticker_wrapper->get_info();
+}
+
+static void lp_ticker_wrapper_free()
+{
+    ticker_wrapper->free();
+}
+
+static const ticker_interface_t lp_interface = {
+    lp_ticker_wrapper_init,
+    lp_ticker_wrapper_read,
+    lp_ticker_wrapper_disable_interrupt,
+    lp_ticker_wrapper_clear_interrupt,
+    lp_ticker_wrapper_set_interrupt,
+    lp_ticker_wrapper_fire_interrupt,
+    lp_ticker_wrapper_free,
+    lp_ticker_wrapper_get_info
+};
+
+void lp_ticker_wrapper_irq_handler(ticker_irq_handler_type handler)
 {
     core_util_critical_section_enter();
 
     if (!init) {
-        init_local();
+        // Force ticker to initialize
+        get_lp_ticker_data();
+    }
+
+    ticker_wrapper->irq_handler(handler);
+
+    core_util_critical_section_exit();
+}
+
+const ticker_data_t *get_lp_ticker_wrapper_data(const ticker_data_t *data)
+{
+    core_util_critical_section_enter();
+
+    if (!init) {
+        ticker_wrapper = new (ticker_wrapper_data) LowPowerTickerWrapper(data, &lp_interface, LPTICKER_DELAY_TICKS, LPTICKER_DELAY_TICKS);
         init = true;
     }
 
-    timestamp_t current = lp_ticker_read();
-    if (pending) {
-        // Check if pending should be cleared
-        if (((current - last_set_interrupt) & mask) >= min_delta) {
-            pending = false;
-        }
-    }
-
-    if (pending || timeout_pending) {
-        next = timestamp;
-        last_request = current;
-        if (!timeout_pending) {
-            timeout->attach_us(set_interrupt_later, reschedule_us);
-            timeout_pending = true;
-        }
-    } else {
-        // Schedule immediately if nothing is pending
-        set_interrupt_safe(current, timestamp);
-        last_set_interrupt = lp_ticker_read();
-        pending = true;
-    }
-
     core_util_critical_section_exit();
+
+    return &ticker_wrapper->data;
+}
+
+void lp_ticker_wrapper_suspend()
+{
+    if (!init) {
+        // Force ticker to initialize
+        get_lp_ticker_data();
+    }
+
+    ticker_wrapper->suspend();
+}
+
+void lp_ticker_wrapper_resume()
+{
+    if (!init) {
+        // Force ticker to initialize
+        get_lp_ticker_data();
+    }
+
+    ticker_wrapper->resume();
 }
 
 #endif

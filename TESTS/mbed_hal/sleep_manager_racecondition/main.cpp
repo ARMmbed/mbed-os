@@ -55,7 +55,7 @@ void sleep_manager_multithread_test()
         t2.join();
     }
 
-    bool deep_sleep_allowed = sleep_manager_can_deep_sleep();
+    bool deep_sleep_allowed = sleep_manager_can_deep_sleep_test_check();
     TEST_ASSERT_TRUE_MESSAGE(deep_sleep_allowed, "Deep sleep should be allowed");
 }
 
@@ -83,7 +83,7 @@ void sleep_manager_irq_test()
         timer.stop();
     }
 
-    bool deep_sleep_allowed = sleep_manager_can_deep_sleep();
+    bool deep_sleep_allowed = sleep_manager_can_deep_sleep_test_check();
     TEST_ASSERT_TRUE_MESSAGE(deep_sleep_allowed, "Deep sleep should be allowed");
 }
 

@@ -20,6 +20,7 @@
 #include "ticker_api_tests.h"
 #include "hal/us_ticker_api.h"
 #include "hal/lp_ticker_api.h"
+#include "hal/mbed_lp_ticker_wrapper.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -496,7 +497,15 @@ utest::v1::status_t us_ticker_setup(const Case *const source, const size_t index
 {
     intf = get_us_ticker_data()->interface;
 
-    OS_Tick_Disable();
+    /* OS, common ticker and low power ticker wrapper
+     * may make use of us ticker so suspend them for this test */
+    osKernelSuspend();
+#if DEVICE_LPTICKER && (LPTICKER_DELAY_TICKS > 0)
+    /* Suspend the lp ticker wrapper since it makes use of the us ticker */
+    ticker_suspend(get_lp_ticker_data());
+    lp_ticker_wrapper_suspend();
+#endif
+    ticker_suspend(get_us_ticker_data());
 
     intf->init();
 
@@ -515,7 +524,12 @@ utest::v1::status_t us_ticker_teardown(const Case *const source, const size_t pa
 
     prev_irq_handler = NULL;
 
-    OS_Tick_Enable();
+    ticker_resume(get_us_ticker_data());
+#if DEVICE_LPTICKER && (LPTICKER_DELAY_TICKS > 0)
+    lp_ticker_wrapper_resume();
+    ticker_resume(get_lp_ticker_data());
+#endif
+    osKernelResume(0);
 
     return greentea_case_teardown_handler(source, passed, failed, reason);
 }
@@ -525,7 +539,9 @@ utest::v1::status_t lp_ticker_setup(const Case *const source, const size_t index
 {
     intf = get_lp_ticker_data()->interface;
 
-    OS_Tick_Disable();
+    /* OS and common ticker may make use of lp ticker so suspend them for this test */
+    osKernelSuspend();
+    ticker_suspend(get_lp_ticker_data());
 
     intf->init();
 
@@ -544,7 +560,8 @@ utest::v1::status_t lp_ticker_teardown(const Case *const source, const size_t pa
 
     prev_irq_handler = NULL;
 
-    OS_Tick_Enable();
+    ticker_resume(get_lp_ticker_data());
+    osKernelResume(0);
 
     return greentea_case_teardown_handler(source, passed, failed, reason);
 }
