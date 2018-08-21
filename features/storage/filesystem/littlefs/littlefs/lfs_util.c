@@ -6,11 +6,19 @@
  */
 #include "lfs_util.h"
 
+
 // Only compile if user does not provide custom config
 #ifndef LFS_CONFIG
 
+#ifdef __MBED__
+extern void mbed_lfs_crc(uint32_t *crc, const void *buffer, size_t size);
 
 // Software CRC implementation with small lookup table
+void lfs_crc(uint32_t *restrict crc, const void *buffer, size_t size) {
+    mbed_lfs_crc(crc, buffer, size);
+}
+
+#else
 void lfs_crc(uint32_t *restrict crc, const void *buffer, size_t size) {
     static const uint32_t rtable[16] = {
         0x00000000, 0x1db71064, 0x3b6e20c8, 0x26d930ac,
@@ -20,12 +28,11 @@ void lfs_crc(uint32_t *restrict crc, const void *buffer, size_t size) {
     };
 
     const uint8_t *data = buffer;
-
     for (size_t i = 0; i < size; i++) {
         *crc = (*crc >> 4) ^ rtable[(*crc ^ (data[i] >> 0)) & 0xf];
         *crc = (*crc >> 4) ^ rtable[(*crc ^ (data[i] >> 4)) & 0xf];
     }
 }
-
+#endif
 
 #endif
