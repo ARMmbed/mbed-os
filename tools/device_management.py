@@ -33,7 +33,7 @@ colorama.init()
 
 
 LOG = logging.getLogger(__name__)
-LOG_FORMAT='[%(levelname)s] %(asctime)s - %(name)s - %(message)s'
+LOG_FORMAT = '[%(levelname)s] %(asctime)s - %(name)s - %(message)s'
 
 # Be sure that the tools directory is in the search path
 ROOT = abspath(join(dirname(__file__), ".."))
@@ -42,12 +42,15 @@ sys.path.insert(0, ROOT)
 from tools.config import Config
 from tools.options import extract_mcus
 
+
 class MbedExtendedArgs(MainArgumentParser):
     def _addCreateArgs(self, parser, exclusions=[]):
         if 'payload' not in exclusions:
-            parser.add_argument('-p', '--payload',
+            parser.add_argument(
+                '-p', '--payload',
                 help='Supply a local copy of the payload file.'
-                     'This option overrides any payload file supplied in a `-i` argument.',
+                     'This option overrides any payload file supplied in a '
+                     '`-i` argument.',
                 metavar='FILE',
                 type=argparse.FileType('rb')
             )
@@ -61,10 +64,7 @@ class MbedExtendedArgs(MainArgumentParser):
 
 def wrap_payload(func):
     def inner(options):
-        if (not options.payload and
-            options.mcu and
-            options.build
-        ):
+        if not options.payload and options.mcu and options.build:
             mcus = extract_mcus(MbedExtendedArgs(), options)
             sources = options.source_dir or ['.']
             config = Config(mcus[0], sources)
@@ -146,7 +146,7 @@ def main():
         "verify": verify.main,
         "cert": cert.main,
         "init": wrap_init(init.main),
-        "update" : wrap_payload(update.main),
+        "update": wrap_payload(update.main),
     }[options.action](options) or 0
 
     sys.exit(rc)
