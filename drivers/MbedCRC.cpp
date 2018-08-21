@@ -35,6 +35,14 @@ MbedCRC<POLY_32BIT_ANSI, 32>::MbedCRC():
 }
 
 template<>
+MbedCRC<POLY_32BIT_REV_ANSI, 32>::MbedCRC():
+    _initial_value(~(0x0)), _final_xor(~(0x0)), _reflect_data(false), _reflect_remainder(false),
+    _crc_table((uint32_t *)Table_CRC_32bit_Rev_ANSI)
+{
+    mbed_crc_ctor();
+}
+
+template<>
 MbedCRC<POLY_16BIT_IBM, 16>::MbedCRC():
     _initial_value(0), _final_xor(0), _reflect_data(true), _reflect_remainder(true),
     _crc_table((uint32_t *)Table_CRC_16bit_IBM)
