@@ -30,7 +30,6 @@ NFCRemoteInitiator::~NFCRemoteInitiator()
 
 }
 
-
 void NFCRemoteInitiator::set_remote_initiator_delegate(Delegate *delegate)
 {
     _delegate = delegate;

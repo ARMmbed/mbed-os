@@ -48,11 +48,16 @@ private:
      */
     Type4RemoteInitiator(NFCController *controller, uint8_t *buffer, size_t buffer_size);
 
+    /**
+     * Type4RemoteInitiator destructor.
+     */
+    virtual ~Type4RemoteInitiator();
+
     // NFCRemoteEndpoint implementation
     virtual nfc_err_t connect();
     virtual nfc_err_t disconnect();
-    virtual bool is_connected();
-    virtual bool is_disconnected();
+    virtual bool is_connected() const;
+    virtual bool is_disconnected() const;
     virtual nfc_rf_protocols_bitmask_t rf_protocols();
 
     // NFCRemoteInitiator implementation

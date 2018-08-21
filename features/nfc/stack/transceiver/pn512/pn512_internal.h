@@ -27,7 +27,7 @@
 extern "C" {
 #endif
 
-#include "inc/nfc.h"
+#include "stack/nfc_errors.h"
 
 #include "transceiver/transceiver_internal.h"
 
@@ -41,8 +41,8 @@ void pn512_set_crc(nfc_transceiver_t *pTransceiver, bool crc_out, bool crc_in);
 void pn512_set_timeout(nfc_transceiver_t *pTransceiver, int timeout);
 void pn512_set_transceive_options(nfc_transceiver_t *pTransceiver, bool transmit, bool receive, bool repoll);
 void pn512_set_transceive_framing(nfc_transceiver_t *pTransceiver, nfc_framing_t framing);
-void pn512_set_write(nfc_transceiver_t *pTransceiver, buffer_t *pWriteBuf);
-buffer_t *pn512_get_read(nfc_transceiver_t *pTransceiver);
+void pn512_set_write(nfc_transceiver_t *pTransceiver, ac_buffer_t *pWriteBuf);
+ac_buffer_t *pn512_get_read(nfc_transceiver_t *pTransceiver);
 size_t pn512_get_last_byte_length(nfc_transceiver_t *pTransceiver);
 void pn512_set_last_byte_length(nfc_transceiver_t *pTransceiver, size_t lastByteLength);
 void pn512_set_first_byte_align(nfc_transceiver_t *pTransceiver, size_t firstByteAlign);

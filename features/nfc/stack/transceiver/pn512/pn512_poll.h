@@ -27,7 +27,7 @@
 extern "C" {
 #endif
 
-#include "inc/nfc.h"
+#include "stack/nfc_errors.h"
 
 
 void pn512_poll_setup(pn512_t *pPN512);

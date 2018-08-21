@@ -25,7 +25,7 @@
 #ifndef __MODULE__
 #define __MODULE__ "pn512.c"
 #endif
-#include "inc/nfc.h"
+#include "stack/nfc_errors.h"
 
 #include "stdlib.h"
 
@@ -141,7 +141,7 @@ nfc_err_t pn512_init(pn512_t *pPN512, nfc_transport_t *pTransport, nfc_scheduler
     pn512_cmd_wait_idle(pPN512, -1);
 
     const uint8_t null_array_buf[25] = {0}; //FIXME
-    buffer_t null_array;
+    ac_buffer_t null_array;
     buffer_init(&null_array, null_array_buf, 25);
 
     //Perform self test
@@ -159,7 +159,7 @@ nfc_err_t pn512_init(pn512_t *pPN512, nfc_transport_t *pTransport, nfc_scheduler
     DBGX_ENTER();
     NFC_DBG("Test result:");
     while (pn512_fifo_length(pPN512)) {
-        buffer_builder_t read_byte;
+        ac_buffer_builder_t read_byte;
         buffer_builder_init(&read_byte, null_array_buf, 1);
 
         pn512_fifo_read(pPN512, &read_byte);
@@ -171,7 +171,7 @@ nfc_err_t pn512_init(pn512_t *pPN512, nfc_transport_t *pTransport, nfc_scheduler
 
     r = pn512_register_read(pPN512, PN512_REG_VERSION);
 
-    DBG_BLOCK(
+    NFC_DBG_BLOCK(
         NFC_DBG("PN512 version %02x", r);
     )
 
@@ -274,7 +274,7 @@ void pn512_set_transceive_framing(nfc_transceiver_t *pTransceiver, nfc_framing_t
     }
 }
 
-void pn512_set_write(nfc_transceiver_t *pTransceiver, buffer_t *pWriteBuf)
+void pn512_set_write(nfc_transceiver_t *pTransceiver, ac_buffer_t *pWriteBuf)
 {
     pn512_t *pPN512 = (pn512_t *) pTransceiver;
     if (pWriteBuf == NULL) {
@@ -284,7 +284,7 @@ void pn512_set_write(nfc_transceiver_t *pTransceiver, buffer_t *pWriteBuf)
     buffer_dup(&pPN512->writeBuf, pWriteBuf);
 }
 
-buffer_t *pn512_get_read(nfc_transceiver_t *pTransceiver)
+ac_buffer_t *pn512_get_read(nfc_transceiver_t *pTransceiver)
 {
     pn512_t *pPN512 = (pn512_t *) pTransceiver;
     return buffer_builder_buffer(&pPN512->readBufBldr);

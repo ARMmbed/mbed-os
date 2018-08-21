@@ -27,9 +27,9 @@
 extern "C" {
 #endif
 
-#include "acore/fwk.h"
-#include "transceiver/protocols.h"
+#include "acore/stream.h"
 
+#include "transceiver/protocols.h"
 #include "tech/isodep/isodep_target.h"
 
 struct nfc_tech_iso7816_c_apdu {
@@ -37,12 +37,12 @@ struct nfc_tech_iso7816_c_apdu {
     uint8_t ins;
     uint8_t p1;
     uint8_t p2;
-    buffer_t dataIn;
+    ac_buffer_t dataIn;
     size_t maxRespLength;
 };
 
 struct nfc_tech_iso7816_r_apdu {
-    buffer_t dataOut;
+    ac_buffer_t dataOut;
     uint16_t sw;
 };
 
@@ -74,18 +74,18 @@ struct nfc_tech_iso7816 {
     nfc_tech_iso7816_disconnected_cb disconnectedCb;
     void *pUserData;
 
-    buffer_t hist; //Historical bytes
+    ac_buffer_t hist; //Historical bytes
 
     istream_t inputStream;
     ostream_t outputStream;
 
     //PDU buffer (tx)
     uint8_t txBuf[2];
-    buffer_builder_t txBldr;
+    ac_buffer_builder_t txBldr;
 
     //Receive buffer
     uint8_t rxBuf[ISO7816_RX_BUFFER_SIZE];
-    buffer_builder_t rxBldr;
+    ac_buffer_builder_t rxBldr;
 };
 
 void nfc_tech_iso7816_init(nfc_tech_iso7816_t *pIso7816, nfc_transceiver_t *pTransceiver, nfc_tech_iso7816_disconnected_cb disconnectedCb, void *pUserData);

@@ -24,6 +24,11 @@ PN512TransportDriver::PN512TransportDriver() : _delegate(NULL)
 
 }
 
+PN512TransportDriver::~PN512TransportDriver()
+{
+
+}
+
 void PN512TransportDriver::set_delegate(Delegate *delegate)
 {
     _delegate = delegate;

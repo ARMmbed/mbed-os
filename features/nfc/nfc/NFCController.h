@@ -80,6 +80,9 @@ public:
          * @param[in] the NFCRemoteTarget instance
          */
         virtual void on_nfc_target_discovered(const SharedPtr<NFCRemoteTarget> &nfc_target) {}
+
+    protected:
+        ~Delegate() { }
     };
 
     /**

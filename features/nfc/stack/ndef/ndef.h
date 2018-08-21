@@ -33,7 +33,8 @@
 extern "C" {
 #endif
 
-#include "inc/nfc.h"
+#include "acore/buffer.h"
+#include "acore/buffer_builder.h"
 
 //Generic interface for NDEF messages
 
@@ -43,18 +44,18 @@ typedef struct __ndef_msg ndef_msg_t;
  * \param pTag pointer to ndef_tag_t instance
  * \param type pMem buffer in which to store the generated content
  */
-typedef nfc_err_t (*ndef_encode_fn_t)(ndef_msg_t *pTag, buffer_builder_t *pBufferBldr, void *pUserData);
+typedef nfc_err_t (*ndef_encode_fn_t)(ndef_msg_t *pTag, ac_buffer_builder_t *pBufferBldr, void *pUserData);
 
 /** Function called to decode the tag's content on write (target mode) or read (reader mode)
  * \param pTag pointer to ndef_tag_t instance
  * \param type pMem buffer containing the tag's content
  */
-typedef nfc_err_t (*ndef_decode_fn_t)(ndef_msg_t *pTag, buffer_t *pBuffer, void *pUserData);
+typedef nfc_err_t (*ndef_decode_fn_t)(ndef_msg_t *pTag, ac_buffer_t *pBuffer, void *pUserData);
 
 typedef struct __ndef_msg {
     ndef_encode_fn_t encode;
     ndef_decode_fn_t decode;
-    buffer_builder_t bufferBldr;
+    ac_buffer_builder_t bufferBldr;
     void *pUserData;
 } ndef_msg_t;
 
@@ -76,7 +77,7 @@ static inline nfc_err_t ndef_msg_decode(ndef_msg_t *pNdef)
     return pNdef->decode(pNdef, buffer_builder_buffer(&pNdef->bufferBldr), pNdef->pUserData);
 }
 
-static inline buffer_builder_t *ndef_msg_buffer_builder(ndef_msg_t *pNdef)
+static inline ac_buffer_builder_t *ndef_msg_buffer_builder(ndef_msg_t *pNdef)
 {
     return &pNdef->bufferBldr;
 }

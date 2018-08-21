@@ -21,7 +21,7 @@
  * \details Format and execute PN512 frames
  */
 
-#include "inc/nfc.h"
+#include "stack/nfc_errors.h"
 
 #include "pn512_hw.h"
 

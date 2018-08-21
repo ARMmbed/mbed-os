@@ -22,7 +22,7 @@
 using namespace mbed;
 using namespace mbed::nfc;
 
-PN512SPITransportDriver::PN512SPITransportDriver(PinName mosi, PinName miso, PinName sclk, PinName ssel, PinName irq, PinName rst)) :
+PN512SPITransportDriver::PN512SPITransportDriver(PinName mosi, PinName miso, PinName sclk, PinName ssel, PinName irq, PinName rst) :
     _spi(mosi, miso, sclk),
     _ssel(ssel, 1),
     _irq(irq, PullNone),
@@ -70,7 +70,7 @@ void PN512SPITransportDriver::transport_write(uint8_t address, const uint8_t *ou
     address = (address << 1) | 0x00;
     _ssel = 0;
     _spi.write(address); // First write address byte
-    _spi.write(outBuf, outLen, NULL, 0); // Ignore read bytes
+    _spi.write((const char *) outBuf, outLen, (char *) NULL, 0); // Ignore read bytes
     _ssel = 1;
 }
 
@@ -93,7 +93,7 @@ void PN512SPITransportDriver::transport_read(uint8_t address, uint8_t *inBuf, si
 
     _ssel = 0;
     _spi.write(address); // First write address byte
-    _spi.write(inBuf, inLen, inBuf, inLen);
+    _spi.write((const char *) inBuf, inLen, (char *) inBuf, inLen);
     _ssel = 1;
 }
 

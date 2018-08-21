@@ -43,6 +43,11 @@ public:
     NFCEEPROMDriver();
 
     /**
+     * NFCEEPROM driver destructor.
+     */
+    virtual ~NFCEEPROMDriver();
+
+    /**
      * The NFCEEPROMDriver delegate.
      * Methods in this class are called by the driver on completion of long-running operations.
      */
@@ -96,6 +101,9 @@ public:
          * @param[in] count number of bytes actually erased
          */
         virtual void on_bytes_erased(size_t count) = 0;
+
+    protected:
+        ~Delegate() {}
     };
 
     /**

@@ -45,6 +45,8 @@ static inline void nfc_dbg_print(const char *type, const char *module, unsigned 
 #define NFC_ERR(...) nfc_dbg_print("ERR", __MODULE__, __LINE__, __VA_ARGS__)
 #endif
 
+#define NFC_DBG_BLOCK(x) x
+
 #else
 
 #if !defined(NFC_DBG)
@@ -58,6 +60,9 @@ static inline void nfc_dbg_print(const char *type, const char *module, unsigned 
 #if !defined(NFC_ERR)
 #define NFC_ERR(...)
 #endif
+
+#define NFC_DBG_BLOCK(x)
+
 #endif
 
 #endif

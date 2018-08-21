@@ -27,7 +27,7 @@
 extern "C" {
 #endif
 
-#include "inc/nfc.h"
+#include "stack/nfc_errors.h"
 
 #include "pn512.h"
 
@@ -59,7 +59,7 @@ static inline void pn512_hw_read(pn512_t *pPN512, uint8_t addr, uint8_t *buf, si
     nfc_transport_read(((nfc_transceiver_t *)pPN512)->pTransport, addr, buf, len);
 }
 
-static inline void pn512_hw_write_buffer(pn512_t *pPN512, uint8_t addr, buffer_t *pData, size_t len)
+static inline void pn512_hw_write_buffer(pn512_t *pPN512, uint8_t addr, ac_buffer_t *pData, size_t len)
 {
     while (len > 0) {
         if (buffer_reader_readable(pData) == 0) {
@@ -72,7 +72,7 @@ static inline void pn512_hw_write_buffer(pn512_t *pPN512, uint8_t addr, buffer_t
     }
 }
 
-static inline void pn512_hw_read_buffer(pn512_t *pPN512, uint8_t addr, buffer_builder_t *pData, size_t len)
+static inline void pn512_hw_read_buffer(pn512_t *pPN512, uint8_t addr, ac_buffer_builder_t *pData, size_t len)
 {
     while (len > 0) {
         if (buffer_builder_writeable(pData) == 0) {

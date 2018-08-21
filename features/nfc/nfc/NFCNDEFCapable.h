@@ -71,6 +71,9 @@ public:
         {
             return 0;
         }
+
+    protected:
+        ~Delegate() {}
     };
 
     /**
@@ -104,10 +107,10 @@ protected:
 
 private:
     // Callbacks from NDEF stack
-    static nfc_err_t s_ndef_encode(ndef_msg_t *pTag, buffer_builder_t *pBufferBldr, void *pUserData);
-    static nfc_err_t s_ndef_decode(ndef_msg_t *pTag, buffer_t *pBuffer, void *pUserData);
-    nfc_err_t ndef_encode(buffer_builder_t *pBufferBldr);
-    nfc_err_t ndef_decode(buffer_t *pBuffer);
+    static nfc_err_t s_ndef_encode(ndef_msg_t *pTag, ac_buffer_builder_t *pBufferBldr, void *pUserData);
+    static nfc_err_t s_ndef_decode(ndef_msg_t *pTag, ac_buffer_t *pBuffer, void *pUserData);
+    nfc_err_t ndef_encode(ac_buffer_builder_t *pBufferBldr);
+    nfc_err_t ndef_decode(ac_buffer_t *pBuffer);
 
 
     Delegate *_delegate;

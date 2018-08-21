@@ -25,7 +25,7 @@
 #define __MODULE__ "pn512_poll.c"
 #endif
 
-#include "inc/nfc.h"
+#include "stack/nfc_errors.h"
 
 #include "pn512.h"
 #include "pn512_poll.h"
@@ -111,7 +111,7 @@ void pn512_target_anticollision_complete(pn512_t *pPN512, nfc_err_t ret)
         pn512_register_write(pPN512, PN512_REG_MIFNFC, 0x62 | 0x04);
 
         //Copy buffer to peek
-        buffer_t readBufDup;
+        ac_buffer_t readBufDup;
         buffer_dup(&readBufDup, buffer_builder_buffer(&pPN512->readBufBldr));
 
         uint8_t b0 = buffer_read_nu8(&readBufDup);
@@ -203,7 +203,7 @@ void pn512_initiator_isoa_anticollision(pn512_t *pPN512, pn512_cb_t cb)
 
 void pn512_initiator_isoa_anticollision_reqa(pn512_t *pPN512)
 {
-    buffer_builder_t *pDataOutBldr = &pPN512->readBufBldr;
+    ac_buffer_builder_t *pDataOutBldr = &pPN512->readBufBldr;
     buffer_builder_reset(pDataOutBldr);
 
     pPN512->transceiver.remote_targets[pPN512->transceiver.remote_targets_count].nfcA.uidLength = 0;
@@ -229,7 +229,7 @@ void pn512_initiator_isoa_anticollision_atqa(pn512_t *pPN512, nfc_err_t ret)
         return;
     }
 
-    buffer_t *pResp = pn512_get_read((nfc_transceiver_t *)pPN512);
+    ac_buffer_t *pResp = pn512_get_read((nfc_transceiver_t *)pPN512);
 
     if (buffer_reader_readable(pResp) != 2) {
         NFC_WARN("Wrong length (%u bytes)", buffer_reader_readable(pResp));
@@ -238,7 +238,7 @@ void pn512_initiator_isoa_anticollision_atqa(pn512_t *pPN512, nfc_err_t ret)
     }
 
     NFC_DBG("Got ATQA:");
-    DBG_BLOCK(buffer_dump(pResp);)
+    NFC_DBG_BLOCK(buffer_dump(pResp);)
 
     // Ignore ATQA as there can be collisions
     buffer_read_n_bytes(pResp, pPN512->transceiver.remote_targets[pPN512->transceiver.remote_targets_count].nfcA.atqa, 2);
@@ -254,7 +254,7 @@ void pn512_initiator_isoa_anticollision_atqa(pn512_t *pPN512, nfc_err_t ret)
 
 void pn512_initiator_isoa_anticollision_cascade_1(pn512_t *pPN512)
 {
-    buffer_builder_t *pDataOutBldr = &pPN512->readBufBldr;
+    ac_buffer_builder_t *pDataOutBldr = &pPN512->readBufBldr;
     buffer_builder_reset(pDataOutBldr);
 
     //SEL
@@ -285,7 +285,7 @@ void pn512_initiator_isoa_anticollision_cascade_1(pn512_t *pPN512)
 
 void pn512_initiator_isoa_anticollision_cascade_2(pn512_t *pPN512, nfc_err_t ret)
 {
-    buffer_t *pResp = pn512_get_read((nfc_transceiver_t *)pPN512);
+    ac_buffer_t *pResp = pn512_get_read((nfc_transceiver_t *)pPN512);
 
     // Load & clear collisions register
     // FIXME PN512 Anomaly: pn512_register_write(pPN512, PN512_REG_COLL, 0x80); // Set MSB to 1, to treat collisions as errors
@@ -384,7 +384,7 @@ void pn512_initiator_isoa_anticollision_cascade_2(pn512_t *pPN512, nfc_err_t ret
         pPN512->transceiver.remote_targets[pPN512->transceiver.remote_targets_count].nfcA.uidLength += 4;
     }
 
-    buffer_builder_t *pDataOutBldr = &pPN512->readBufBldr;
+    ac_buffer_builder_t *pDataOutBldr = &pPN512->readBufBldr;
     buffer_builder_reset(pDataOutBldr);
 
     //Select and get SAK
@@ -404,7 +404,7 @@ void pn512_initiator_isoa_anticollision_cascade_2(pn512_t *pPN512, nfc_err_t ret
 
 static void pn512_initiator_isoa_anticollision_cascade_3(pn512_t *pPN512, nfc_err_t ret)
 {
-    buffer_t *pResp = pn512_get_read((nfc_transceiver_t *)pPN512);
+    ac_buffer_t *pResp = pn512_get_read((nfc_transceiver_t *)pPN512);
 
     if (ret) {
         NFC_WARN("Did not receive response: error %d", ret);
@@ -465,7 +465,7 @@ static void pn512_initiator_isoa_anticollision_cascade_3(pn512_t *pPN512, nfc_er
                 && pPN512->anticollision.iso_a.more_targets
                 && (pPN512->transceiver.remote_targets_count < MUNFC_MAX_REMOTE_TARGETS)) {
             // Halt target and continue with others
-            buffer_builder_t *pDataOutBldr = &pPN512->readBufBldr;
+            ac_buffer_builder_t *pDataOutBldr = &pPN512->readBufBldr;
             buffer_builder_reset(pDataOutBldr);
 
             //HALTA
@@ -527,7 +527,7 @@ void pn512_initiator_isob_anticollision(pn512_t *pPN512, pn512_cb_t cb)
 
 void pn512_initiator_isob_anticollision_reqb(pn512_t *pPN512)
 {
-    buffer_builder_t *pDataOutBldr = &pPN512->readBufBldr;
+    ac_buffer_builder_t *pDataOutBldr = &pPN512->readBufBldr;
     buffer_builder_reset(pDataOutBldr);
 
     if (pPN512->anticollision.iso_b.slot_number == 0) {
@@ -558,7 +558,7 @@ void pn512_initiator_isob_anticollision_atqb(pn512_t *pPN512, nfc_err_t ret)
     // - 1 response --> store response, halt PICC and check next slot number
     // - No response --> check next slot number
     // - Collision --> check next slot number but we will have to increment number of slots
-    buffer_t *pResp = pn512_get_read((nfc_transceiver_t *)pPN512);
+    ac_buffer_t *pResp = pn512_get_read((nfc_transceiver_t *)pPN512);
 
     if (ret && (ret != NFC_ERR_COLLISION) && (ret != NFC_ERR_WRONG_COMM) && (ret != NFC_ERR_TIMEOUT)) {
         NFC_WARN("Did not receive ATQB: error %u", ret);
@@ -582,7 +582,7 @@ void pn512_initiator_isob_anticollision_atqb(pn512_t *pPN512, nfc_err_t ret)
         }
 
         NFC_DBG("Got ATQB:");
-        DBG_BLOCK(buffer_dump(pResp);)
+        NFC_DBG_BLOCK(buffer_dump(pResp);)
 
         // Check first byte
         uint8_t atqb0 = buffer_read_nu8(pResp);
@@ -608,7 +608,7 @@ void pn512_initiator_isob_anticollision_atqb(pn512_t *pPN512, nfc_err_t ret)
                 && (pPN512->anticollision.iso_b.more_targets || (pPN512->anticollision.iso_b.slot_number < (1 << pPN512->anticollision.iso_b.slots_num_exponent)))
                 && (pPN512->transceiver.remote_targets_count < MUNFC_MAX_REMOTE_TARGETS)) {
             // Halt target and continue with others
-            buffer_builder_t *pDataOutBldr = &pPN512->readBufBldr;
+            ac_buffer_builder_t *pDataOutBldr = &pPN512->readBufBldr;
             buffer_builder_reset(pDataOutBldr);
 
             // Halt PICC and move on to the next slot
@@ -660,7 +660,7 @@ void pn512_initiator_isob_anticollision_haltb_resp(pn512_t *pPN512, nfc_err_t re
         return;
     }
 
-    buffer_t *pResp = pn512_get_read((nfc_transceiver_t *)pPN512);
+    ac_buffer_t *pResp = pn512_get_read((nfc_transceiver_t *)pPN512);
 
     if (buffer_reader_readable(pResp) != 1) {
         NFC_WARN("Wrong length (%u bytes)", buffer_reader_readable(pResp));
@@ -669,7 +669,7 @@ void pn512_initiator_isob_anticollision_haltb_resp(pn512_t *pPN512, nfc_err_t re
     }
 
     NFC_DBG("Got HALTB response:");
-    DBG_BLOCK(buffer_dump(pResp);)
+    NFC_DBG_BLOCK(buffer_dump(pResp);)
 
     // Check byte
     uint8_t haltbr = buffer_read_nu8(pResp);
@@ -712,7 +712,7 @@ void pn512_initiator_felica_anticollision(pn512_t *pPN512, pn512_cb_t cb)
 
 void pn512_initiator_felica_anticollision_reqc(pn512_t *pPN512)
 {
-    buffer_builder_t *pDataOutBldr = &pPN512->readBufBldr;
+    ac_buffer_builder_t *pDataOutBldr = &pPN512->readBufBldr;
     buffer_builder_reset(pDataOutBldr);
 
     buffer_builder_write_nu8(pDataOutBldr, 6); //Length
@@ -732,7 +732,7 @@ void pn512_initiator_felica_anticollision_reqc(pn512_t *pPN512)
 
 void pn512_initiator_felica_anticollision_atqc(pn512_t *pPN512, nfc_err_t ret)
 {
-    buffer_t *pResp = pn512_get_read((nfc_transceiver_t *)pPN512);
+    ac_buffer_t *pResp = pn512_get_read((nfc_transceiver_t *)pPN512);
 
     if (ret || (buffer_reader_readable(pResp) == 0)) {
         NFC_WARN("Did not receive ATQC: error %d", ret);
@@ -742,7 +742,7 @@ void pn512_initiator_felica_anticollision_atqc(pn512_t *pPN512, nfc_err_t ret)
 
     // We might have multiple responses
     NFC_DBG("Got ATQC:");
-    DBG_BLOCK(buffer_dump(pResp);)
+    NFC_DBG_BLOCK(buffer_dump(pResp);)
 
     while (buffer_reader_readable(pResp) > 0) {
         if (buffer_reader_readable(pResp) != 18 + 1) { // ATQC is 18 bytes, 1 byte for errors added by PN512
@@ -827,7 +827,7 @@ void pn512_poll_setup(pn512_t *pPN512)
         //Setup ATQA, SAK and Felica polling response
         pn512_fifo_clear(pPN512);
 
-        buffer_builder_t *pDataCfgBldr = &pPN512->readBufBldr;
+        ac_buffer_builder_t *pDataCfgBldr = &pPN512->readBufBldr;
         buffer_builder_reset(pDataCfgBldr);
 
         //Write ATQA

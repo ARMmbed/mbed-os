@@ -33,7 +33,7 @@
 extern "C" {
 #endif
 
-#include "inc/nfc.h"
+#include <stddef.h>
 
 /** Function called to write a register's value
  * \param address address of the register to write to

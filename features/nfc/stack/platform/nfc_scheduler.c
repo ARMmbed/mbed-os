@@ -20,6 +20,10 @@
  * \author Donatien Garnier
  */
 
+#include <stddef.h>
+#include <stdint.h>
+#include <stdbool.h>
+
 #define __DEBUG__ 0
 #ifndef __MODULE__
 #define __MODULE__ "nfc_scheduler.c"

@@ -27,7 +27,7 @@
 extern "C" {
 #endif
 
-#include "inc/nfc.h"
+#include "stack/nfc_errors.h"
 typedef struct __nfc_tech nfc_tech_t;
 typedef struct __transceiver nfc_transceiver_t;
 typedef struct __transceiver_impl transceiver_impl_t;
@@ -76,8 +76,8 @@ typedef void (*set_crc_fn_t)(nfc_transceiver_t *pTransceiver, bool crcOut, bool 
 typedef void (*set_timeout_fn_t)(nfc_transceiver_t *pTransceiver, int timeout);
 typedef void (*set_transceive_options_fn_t)(nfc_transceiver_t *pTransceiver, bool transmit, bool receive, bool repoll);
 typedef void (*set_transceive_framing_fn_t)(nfc_transceiver_t *pTransceiver, nfc_framing_t framing);
-typedef void (*set_write_fn_t)(nfc_transceiver_t *pTransceiver, buffer_t *pWriteBuf); //Set write buffer
-typedef buffer_t *(*get_read_fn_t)(nfc_transceiver_t *pTransceiver); //Get read buffer
+typedef void (*set_write_fn_t)(nfc_transceiver_t *pTransceiver, ac_buffer_t *pWriteBuf); //Set write buffer
+typedef ac_buffer_t *(*get_read_fn_t)(nfc_transceiver_t *pTransceiver); //Get read buffer
 typedef size_t (*get_last_byte_length_fn_t)(nfc_transceiver_t *pTransceiver);
 typedef void (*set_last_byte_length_fn_t)(nfc_transceiver_t *pTransceiver, size_t lastByteLength);
 typedef size_t (*get_first_byte_align_fn_t)(nfc_transceiver_t *pTransceiver);
@@ -188,12 +188,12 @@ static inline void transceiver_set_transceive_framing(nfc_transceiver_t *pTransc
     pTransceiver->fn->set_transceive_framing(pTransceiver, framing);
 }
 
-static inline void transceiver_set_write(nfc_transceiver_t *pTransceiver, buffer_t *pWriteBuf)
+static inline void transceiver_set_write(nfc_transceiver_t *pTransceiver, ac_buffer_t *pWriteBuf)
 {
     pTransceiver->fn->set_write(pTransceiver, pWriteBuf);
 }
 
-static inline buffer_t *transceiver_get_read(nfc_transceiver_t *pTransceiver)
+static inline ac_buffer_t *transceiver_get_read(nfc_transceiver_t *pTransceiver)
 {
     return pTransceiver->fn->get_read(pTransceiver);
 }

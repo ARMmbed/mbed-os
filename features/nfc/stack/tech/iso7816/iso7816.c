@@ -25,7 +25,7 @@
 #define __MODULE__ "iso7816.c"
 #endif
 
-#include "inc/nfc.h"
+#include "stack/nfc_errors.h"
 
 #include "iso7816.h"
 #include "iso7816_app.h"
@@ -45,8 +45,8 @@ static void iso_dep_received_cb(nfc_tech_isodep_t *pIsodep, nfc_err_t ret, void 
 static void iso_dep_transmitted_cb(nfc_tech_isodep_t *pIsodep, nfc_err_t ret, void *pUserData);
 static void iso_dep_disconnected_cb(nfc_tech_isodep_t *pIsodep, bool deselected, void *pUserData);
 
-static void iso_dep_stream_transmit_cb(buffer_t *ppDataIn, bool *pClose, size_t maxLength, void *pUserParam);
-static void iso_dep_stream_receive_cb(buffer_t *pDataOut, bool closed, void *pUserParam);
+static void iso_dep_stream_transmit_cb(ac_buffer_t *ppDataIn, bool *pClose, size_t maxLength, void *pUserParam);
+static void iso_dep_stream_receive_cb(ac_buffer_t *pDataOut, bool closed, void *pUserParam);
 
 void nfc_tech_iso7816_init(nfc_tech_iso7816_t *pIso7816, nfc_transceiver_t *pTransceiver, nfc_tech_iso7816_disconnected_cb disconnectedCb, void *pUserData)
 {
@@ -101,7 +101,7 @@ nfc_err_t nfc_tech_iso7816_reply(nfc_tech_iso7816_t *pIso7816)
     buffer_append(&pIso7816->rApdu.dataOut, buffer_builder_buffer(&pIso7816->txBldr));
 
     NFC_DBG("R-ADPU: (LE):%02X SW:%04X", buffer_reader_readable(&pIso7816->rApdu.dataOut), pIso7816->rApdu.sw);
-    DBG_BLOCK(buffer_dump(&pIso7816->rApdu.dataOut);)
+    NFC_DBG_BLOCK(buffer_dump(&pIso7816->rApdu.dataOut);)
 
     ret = iso7816_transmit(pIso7816);
     if (ret) {
@@ -128,7 +128,7 @@ nfc_err_t iso7816_parse(nfc_tech_iso7816_t *pIso7816)
     buffer_init(&pIso7816->rApdu.dataOut, NULL, 0);
     pIso7816->rApdu.sw = ISO7816_SW_OK;
 
-    DBG_BLOCK(buffer_dump(buffer_builder_buffer(&pIso7816->rxBldr));)
+    NFC_DBG_BLOCK(buffer_dump(buffer_builder_buffer(&pIso7816->rxBldr));)
 
     if (buffer_reader_readable(buffer_builder_buffer(&pIso7816->rxBldr)) < 4) {
         NFC_ERR("C-APDU is too small");
@@ -302,7 +302,7 @@ void iso_dep_disconnected_cb(nfc_tech_isodep_t *pIsodep, bool deselected, void *
     iso7816_disconnected(pIso7816, deselected);
 }
 
-void iso_dep_stream_transmit_cb(buffer_t *pDataIn, bool *pClose, size_t maxLength, void *pUserParam)
+void iso_dep_stream_transmit_cb(ac_buffer_t *pDataIn, bool *pClose, size_t maxLength, void *pUserParam)
 {
     nfc_tech_iso7816_t *pIso7816 = (nfc_tech_iso7816_t *) pUserParam;
 
@@ -319,7 +319,7 @@ void iso_dep_stream_transmit_cb(buffer_t *pDataIn, bool *pClose, size_t maxLengt
     buffer_split(pDataIn, &pIso7816->rApdu.dataOut, &pIso7816->rApdu.dataOut, maxLength);
 }
 
-void iso_dep_stream_receive_cb(buffer_t *pDataOut, bool closed, void *pUserParam)
+void iso_dep_stream_receive_cb(ac_buffer_t *pDataOut, bool closed, void *pUserParam)
 {
     nfc_tech_iso7816_t *pIso7816 = (nfc_tech_iso7816_t *) pUserParam;
 

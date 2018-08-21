@@ -27,7 +27,7 @@
 extern "C" {
 #endif
 
-#include "inc/nfc.h"
+#include "stack/nfc_errors.h"
 #include "pn512_callback.h"
 #include "pn512.h"
 #include "pn512_rf.h"
