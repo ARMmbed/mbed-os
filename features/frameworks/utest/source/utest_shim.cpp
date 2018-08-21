@@ -16,6 +16,7 @@
  ****************************************************************************
  */
 
+#ifdef MBED_TEST
 #include "utest/utest_shim.h"
 #include "utest/utest_stack_trace.h"
 
@@ -146,4 +147,6 @@ utest_v1_scheduler_t utest_v1_get_scheduler()
 // their functionality is implemented using the CriticalSectionLock class
 void utest_v1_enter_critical_section(void) {}
 void utest_v1_leave_critical_section(void) {}
+#endif
+
 #endif

@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+#ifdef MBED_TEST
 #include "mbed.h"
 #include "rtos.h"
 #include "mbed_stats.h"
@@ -211,4 +212,5 @@ static uint32_t print_dec(char *buf, uint32_t value)
     return pos;
 }
 
+#endif
 #endif

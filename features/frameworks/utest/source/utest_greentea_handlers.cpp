@@ -16,6 +16,7 @@
  ****************************************************************************
  */
 
+#ifdef MBED_TEST
 #include "utest/utest_default_handlers.h"
 #include "utest/utest_case.h"
 #include "greentea-client/test_env.h"
@@ -145,3 +146,4 @@ utest::v1::status_t utest::v1::greentea_case_failure_continue_handler(const Case
     UTEST_LOG_FUNCTION();
     return verbose_case_failure_handler(source, failure);
 }
+#endif

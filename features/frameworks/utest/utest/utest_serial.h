@@ -22,10 +22,12 @@
 #ifndef UTEST_SERIAL_H
 #define UTEST_SERIAL_H
 
+#ifdef MBED_TEST
 #include "greentea-client/greentea_serial.h"
 
 #define utest_printf(...) greentea_serial->printf(__VA_ARGS__)
 
+#endif // MBED_TEST
 #endif // UTEST_SERIAL_H
 
 /** @}*/

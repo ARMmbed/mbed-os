@@ -16,6 +16,7 @@
  ****************************************************************************
  */
 
+#ifdef MBED_TEST
 #include "utest/utest_default_handlers.h"
 #include "utest/utest_case.h"
 #include "utest/utest_stack_trace.h"
@@ -102,3 +103,5 @@ utest::v1::status_t utest::v1::verbose_case_failure_handler(const Case *const /*
     if (failure.reason & REASON_IGNORE) return STATUS_IGNORE;
     return STATUS_CONTINUE;
 }
+
+#endif

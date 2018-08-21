@@ -19,6 +19,8 @@
 #ifndef UTEST_DEFAULT_HANDLER_H
 #define UTEST_DEFAULT_HANDLER_H
 
+#ifdef MBED_TEST
+
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -200,6 +202,7 @@ namespace v1 {
 }   // namespace v1
 }   // namespace utest
 
+#endif // MBED_TEST
 #endif // UTEST_DEFAULT_HANDLER_H
 
 /** @}*/

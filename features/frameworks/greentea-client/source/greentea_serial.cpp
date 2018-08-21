@@ -1,3 +1,5 @@
+#ifdef MBED_TEST
+
 #include "greentea-client/greentea_serial.h"
 
 /**
@@ -21,3 +23,5 @@ GreenteaSerial::GreenteaSerial() : mbed::RawSerial(USBTX, USBRX, MBED_CONF_PLATF
     set_flow_control(SerialBase::RTSCTS, STDIO_UART_RTS, STDIO_UART_CTS);
 #endif
 }
+
+#endif

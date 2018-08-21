@@ -16,7 +16,8 @@
  ****************************************************************************
  */
 
- #include "utest/utest_types.h"
+#ifdef MBED_TEST
+#include "utest/utest_types.h"
 
 const char* utest::v1::stringify(utest::v1::failure_reason_t reason)
 {
@@ -133,3 +134,5 @@ const utest::v1::base_control_t utest::v1::CaseRepeat = { REPEAT_ALL, TIMEOUT_UN
 
 // equal to CaseRepeatHandler
 const utest::v1::base_control_t utest::v1::CaseRepeatHandlerOnly = { REPEAT_HANDLER, TIMEOUT_UNDECLR };
+
+#endif

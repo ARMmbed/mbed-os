@@ -10,6 +10,8 @@
 #ifndef UNITY_INTERNALS_H
 #define UNITY_INTERNALS_H
 
+#ifdef MBED_TEST
+
 #ifdef UNITY_INCLUDE_CONFIG_H
 #include "unity_config.h"
 #endif
@@ -794,6 +796,7 @@ extern const char UnityStrErr64[];
 #define UNITY_TEST_SKIP(line, message)                                                           { UnitySkipPrint( (message), (UNITY_LINE_TYPE)(line)); return; }
 #define UNITY_TEST_SKIP_UNLESS(condition, line, message)                                         if (!(condition)) UNITY_TEST_SKIP((line), (message))
 
+#endif // MBED_TEST
 /* End of UNITY_INTERNALS_H */
 #endif
 

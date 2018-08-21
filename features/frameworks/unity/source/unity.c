@@ -8,6 +8,7 @@
 #include "utest/unity_handler.h"
 #include <stddef.h>
 
+#ifdef MBED_TEST
 /* If omitted from header, declare overrideable prototypes here so they're ready for use */
 #ifdef UNITY_OMIT_OUTPUT_CHAR_HEADER_DECLARATION
 int UNITY_OUTPUT_CHAR(int);
@@ -1317,4 +1318,5 @@ int UnityEnd(void)
     return (int)(Unity.TestFailures);
 }
 
+#endif
 /*-----------------------------------------------*/

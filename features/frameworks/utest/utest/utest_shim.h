@@ -22,6 +22,8 @@
 #ifndef UTEST_SHIM_H
 #define UTEST_SHIM_H
 
+#ifdef MBED_TEST
+
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -87,6 +89,7 @@ utest_v1_scheduler_t utest_v1_get_scheduler(void);
 }
 #endif
 
+#endif // MBED_TEST
 #endif // UTEST_SHIM_H
 
 /** @}*/

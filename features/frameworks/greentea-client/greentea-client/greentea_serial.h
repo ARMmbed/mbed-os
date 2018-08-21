@@ -4,6 +4,8 @@
 #ifndef GREENTEA_SERIAL_H
 #define GREENTEA_SERIAL_H
 
+#ifdef MBED_TEST
+
 #include "RawSerial.h"
 #include "SingletonPtr.h"
 
@@ -13,6 +15,7 @@ public:
 };
 
 extern SingletonPtr<GreenteaSerial> greentea_serial;
+#endif
 #endif
 
 /** @}*/

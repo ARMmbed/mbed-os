@@ -22,6 +22,8 @@
 #ifndef UTEST_SCHEDULER_H
 #define UTEST_SCHEDULER_H
 
+#ifdef MBED_TEST
+
 #include "mbed.h"
 #include <stdint.h>
 #include <stdbool.h>
@@ -104,6 +106,7 @@ typedef struct {
 }
 #endif
 
+#endif // MBED_TEST
 #endif // UTEST_SCHEDULER_H
 
 /** @}*/

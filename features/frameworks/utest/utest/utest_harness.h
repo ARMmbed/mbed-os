@@ -19,6 +19,8 @@
 #ifndef UTEST_HARNESS_H
 #define UTEST_HARNESS_H
 
+#ifdef MBED_TEST
+
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -100,6 +102,7 @@ namespace v1 {
 }   // namespace v1
 }   // namespace utest
 
+#endif // MBED_TEST
 #endif // UTEST_HARNESS_H
 
 /** @}*/

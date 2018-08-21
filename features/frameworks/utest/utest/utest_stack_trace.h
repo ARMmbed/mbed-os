@@ -22,6 +22,8 @@
 #ifndef UTEST_STACK_TRACE_H
 #define UTEST_STACK_TRACE_H
 
+#ifdef MBED_TEST
+
 #ifdef UTEST_STACK_TRACE
 #include <string>
 
@@ -43,7 +45,7 @@ extern void utest_dump_trace();
 #define UTEST_DUMP_TRACE
 
 #endif // UTEST_STACK_TRACE
-
+#endif // MBED_TEST
 #endif // UTEST_STACK_TRACE_H
 
 /** @}*/
