@@ -99,12 +99,11 @@ static void _qspi_write_read_test(Qspi &qspi, qspi_bus_width_t write_inst_width,
     int erase_time = 0, write_time = 0, read_time = 0;
     size_t buf_len = data_size;
 
-    for (uint32_t tc = 0; tc < test_count; tc++)
-    {
+    for (uint32_t tc = 0; tc < test_count; tc++) {
         qspi.cmd.configure(MODE_1_1_1, ADDR_SIZE_24, ALT_SIZE_8);
 
-        srand (ticker_read(get_us_ticker_data()));
-        for(uint32_t i = 0; i < data_size; i++) {
+        srand(ticker_read(get_us_ticker_data()));
+        for (uint32_t i = 0; i < data_size; i++) {
             tx_buf[i] = (uint8_t)(rand() & 0xFF);
         }
 
@@ -127,8 +126,7 @@ static void _qspi_write_read_test(Qspi &qspi, qspi_bus_width_t write_inst_width,
         }
 
         const uint32_t write_size = data_size / write_count;
-        for (uint32_t wc = 0, write_start = flash_addr; wc < write_count; wc++, write_start += write_size)
-        {
+        for (uint32_t wc = 0, write_start = flash_addr; wc < write_count; wc++, write_start += write_size) {
             ret = write_enable(qspi);
             TEST_ASSERT_EQUAL(QSPI_STATUS_OK, ret);
 
@@ -157,8 +155,7 @@ static void _qspi_write_read_test(Qspi &qspi, qspi_bus_width_t write_inst_width,
         memset(rx_buf, 0, sizeof(rx_buf));
         const uint32_t read_size = data_size / read_count;
         qspi.cmd.configure(read_inst_width, read_addr_width, read_data_width, read_alt_width, read_addr_size, read_alt_size, read_dummy_cycles);
-        for (uint32_t rc = 0, read_start = flash_addr; rc < read_count; rc++, read_start += read_size)
-        {
+        for (uint32_t rc = 0, read_start = flash_addr; rc < read_count; rc++, read_start += read_size) {
             timer.reset();
             timer.start();
 
@@ -226,14 +223,14 @@ void qspi_write_read_test(void)
     flash_init(qspi);
 
     if (is_dual_cmd(write_inst_width, write_addr_width, write_data_width) ||
-        is_dual_cmd(read_inst_width, read_addr_width, read_data_width)) {
+            is_dual_cmd(read_inst_width, read_addr_width, read_data_width)) {
         ret = dual_enable(qspi);
         TEST_ASSERT_EQUAL(QSPI_STATUS_OK, ret);
         WAIT_FOR(WRSR_MAX_TIME, qspi);
     }
 
     if (is_quad_cmd(write_inst_width, write_addr_width, write_data_width) ||
-        is_quad_cmd(read_inst_width, read_addr_width, read_data_width)) {
+            is_quad_cmd(read_inst_width, read_addr_width, read_data_width)) {
         ret = quad_enable(qspi);
         TEST_ASSERT_EQUAL(QSPI_STATUS_OK, ret);
         WAIT_FOR(WRSR_MAX_TIME, qspi);
@@ -270,14 +267,14 @@ void qspi_write_read_test(void)
     qspi.cmd.configure(MODE_1_1_1, ADDR_SIZE_24, ALT_SIZE_8);
 
     if (is_dual_cmd(write_inst_width, write_addr_width, write_data_width) ||
-        is_dual_cmd(read_inst_width, read_addr_width, read_data_width)) {
+            is_dual_cmd(read_inst_width, read_addr_width, read_data_width)) {
         ret = dual_disable(qspi);
         TEST_ASSERT_EQUAL(QSPI_STATUS_OK, ret);
         WAIT_FOR(WRSR_MAX_TIME, qspi);
     }
 
     if (is_quad_cmd(write_inst_width, write_addr_width, write_data_width) ||
-        is_quad_cmd(read_inst_width, read_addr_width, read_data_width)) {
+            is_quad_cmd(read_inst_width, read_addr_width, read_data_width)) {
         ret = quad_disable(qspi);
         TEST_ASSERT_EQUAL(QSPI_STATUS_OK, ret);
         WAIT_FOR(WRSR_MAX_TIME, qspi);
@@ -352,21 +349,21 @@ void qspi_frequency_test(void)
     flash_init(qspi);
     _qspi_write_read_test(qspi, WRITE_1_1_1, ADDR_SIZE_24, ALT_SIZE_8, QSPI_NONE, WRITE_SINGLE, READ_1_1_1, ADDR_SIZE_24, ALT_SIZE_8, QSPI_NONE, READ_SINGLE, TEST_REPEAT_SINGLE, DATA_SIZE_256, TEST_FLASH_ADDRESS);
 
-    ret = qspi_frequency(&qspi.handle, QSPI_COMMON_MAX_FREQUENCY/2);
+    ret = qspi_frequency(&qspi.handle, QSPI_COMMON_MAX_FREQUENCY / 2);
     TEST_ASSERT_EQUAL(QSPI_STATUS_OK, ret);
     // check if the memory is working properly
     qspi.cmd.configure(MODE_1_1_1, ADDR_SIZE_24, ALT_SIZE_8);
     flash_init(qspi);
     _qspi_write_read_test(qspi, WRITE_1_1_1, ADDR_SIZE_24, ALT_SIZE_8, QSPI_NONE, WRITE_SINGLE, READ_1_1_1, ADDR_SIZE_24, ALT_SIZE_8, QSPI_NONE, READ_SINGLE, TEST_REPEAT_SINGLE, DATA_SIZE_256, TEST_FLASH_ADDRESS);
 
-    ret = qspi_frequency(&qspi.handle, QSPI_COMMON_MAX_FREQUENCY/4);
+    ret = qspi_frequency(&qspi.handle, QSPI_COMMON_MAX_FREQUENCY / 4);
     TEST_ASSERT_EQUAL(QSPI_STATUS_OK, ret);
     // check if the memory is working properly
     qspi.cmd.configure(MODE_1_1_1, ADDR_SIZE_24, ALT_SIZE_8);
     flash_init(qspi);
     _qspi_write_read_test(qspi, WRITE_1_1_1, ADDR_SIZE_24, ALT_SIZE_8, QSPI_NONE, WRITE_SINGLE, READ_1_1_1, ADDR_SIZE_24, ALT_SIZE_8, QSPI_NONE, READ_SINGLE, TEST_REPEAT_SINGLE, DATA_SIZE_256, TEST_FLASH_ADDRESS);
 
-    ret = qspi_frequency(&qspi.handle, QSPI_COMMON_MAX_FREQUENCY/8);
+    ret = qspi_frequency(&qspi.handle, QSPI_COMMON_MAX_FREQUENCY / 8);
     TEST_ASSERT_EQUAL(QSPI_STATUS_OK, ret);
     // check if the memory is working properly
     qspi.cmd.configure(MODE_1_1_1, ADDR_SIZE_24, ALT_SIZE_8);

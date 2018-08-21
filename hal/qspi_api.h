@@ -38,8 +38,8 @@ extern "C" {
 typedef struct qspi_s qspi_t;
 
 /** QSPI Bus width
- * 
- * Some parts of commands provide variable bus width 
+ *
+ * Some parts of commands provide variable bus width
  */
 typedef enum qspi_bus_width {
     QSPI_CFG_BUS_SINGLE,
@@ -101,10 +101,10 @@ typedef enum qspi_status {
     QSPI_STATUS_OK    =  0, /**< Function executed sucessfully  >*/
 } qspi_status_t;
 
-/** Initialize QSPI peripheral. 
+/** Initialize QSPI peripheral.
  *
  * It should initialize QSPI pins (io0-io3, sclk and ssel), set frequency, clock polarity and phase mode. The clock for the peripheral should be enabled
- * 
+ *
  * @param obj QSPI object
  * @param io0 Data pin 0
  * @param io1 Data pin 1
@@ -167,7 +167,7 @@ qspi_status_t qspi_write(qspi_t *obj, const qspi_command_t *command, const void 
            QSPI_STATUS_INVALID_PARAMETER if invalid parameter found
            QSPI_STATUS_ERROR otherwise
  */
-qspi_status_t qspi_command_transfer(qspi_t *obj, const qspi_command_t *command, const void *tx_data, size_t tx_size, void *rx_data, size_t rx_size); 
+qspi_status_t qspi_command_transfer(qspi_t *obj, const qspi_command_t *command, const void *tx_data, size_t tx_size, void *rx_data, size_t rx_size);
 
 /** Receive a command and block of data
  *

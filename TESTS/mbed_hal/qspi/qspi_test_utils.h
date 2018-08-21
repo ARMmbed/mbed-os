@@ -36,7 +36,7 @@ public:
 
     void build(int instruction, int address = QSPI_NONE, int alt = QSPI_NONE);
 
-    qspi_command_t * get();
+    qspi_command_t *get();
 
 private:
     qspi_command_t _cmd;

@@ -28,13 +28,13 @@
 #define ONE_MHZ     1000000
 
 namespace mbed {
-    
+
 /** \addtogroup drivers */
 
 /** A QSPI Driver, used for communicating with QSPI slave devices
  *
  * The default format is set to Quad-SPI(1-1-1), and a clock frequency of 1MHz
- * Most QSPI devices will also require Chip Select which is indicated by ssel. 
+ * Most QSPI devices will also require Chip Select which is indicated by ssel.
  *
  * @note Synchronization level: Thread safe
  *
@@ -49,10 +49,10 @@ namespace mbed {
  *
  *
  * int main() {
- *     char tx_buf[] = { 0x11, 0x22, 0x33, 0x44 };    
- *     char rx_buf[4];    
- *     int buf_len = sizeof(tx_buf); 
- *     
+ *     char tx_buf[] = { 0x11, 0x22, 0x33, 0x44 };
+ *     char rx_buf[4];
+ *     int buf_len = sizeof(tx_buf);
+ *
  *     int result = qspi_device.write( 0x12 , 0x100000 , 0 , tx_buf, &buf_len );
  *     if( !result ) printf("Write failed");
  *     int result = qspi_device.read( 0x13 , 0x100000 , 0 , rx_buf, &buf_len );
@@ -80,7 +80,7 @@ public:
      *         default value = 0
      *
      */
-    QSPI(PinName io0, PinName io1, PinName io2, PinName io3, PinName sclk, PinName ssel=NC, int mode=0);
+    QSPI(PinName io0, PinName io1, PinName io2, PinName io3, PinName sclk, PinName ssel = NC, int mode = 0);
 
     /** Configure the data transmission format
      *
@@ -93,13 +93,13 @@ public:
      *  @param dummy_cycles Number of dummy clock cycles to be used after alt phase
      *
      */
-    qspi_status_t configure_format(qspi_bus_width_t inst_width, 
-                   qspi_bus_width_t address_width, 
-                   qspi_address_size_t address_size,
-                   qspi_bus_width_t alt_width, 
-                   qspi_alt_size_t alt_size,   
-                   qspi_bus_width_t data_width,
-                   int dummy_cycles);
+    qspi_status_t configure_format(qspi_bus_width_t inst_width,
+                                   qspi_bus_width_t address_width,
+                                   qspi_address_size_t address_size,
+                                   qspi_bus_width_t alt_width,
+                                   qspi_alt_size_t alt_size,
+                                   qspi_bus_width_t data_width,
+                                   int dummy_cycles);
 
     /** Set the qspi bus clock frequency
      *
@@ -112,7 +112,7 @@ public:
     /** Read from QSPI peripheral with the preset read_instruction and alt_value
      *
      *  @param address Address to be accessed in QSPI peripheral
-     *  @param rx_buffer Buffer for data to be read from the peripheral                          
+     *  @param rx_buffer Buffer for data to be read from the peripheral
      *  @param rx_length Pointer to a variable containing the length of rx_buffer, and on return this variable will be updated with the actual number of bytes read
      *
      *  @returns
@@ -123,7 +123,7 @@ public:
     /** Write to QSPI peripheral using custom write instruction
      *
      *  @param address Address to be accessed in QSPI peripheral
-     *  @param tx_buffer Buffer containing data to be sent to peripheral                          
+     *  @param tx_buffer Buffer containing data to be sent to peripheral
      *  @param tx_length Pointer to a variable containing the length of data to be transmitted, and on return this variable will be updated with the actual number of bytes written
      *
      *  @returns
@@ -136,7 +136,7 @@ public:
      *  @param instruction Instruction value to be used in instruction phase
      *  @param alt Alt value to be used in instruction phase
      *  @param address Address to be accessed in QSPI peripheral
-     *  @param rx_buffer Buffer for data to be read from the peripheral                          
+     *  @param rx_buffer Buffer for data to be read from the peripheral
      *  @param rx_length Pointer to a variable containing the length of rx_buffer, and on return this variable will be updated with the actual number of bytes read
      *
      *  @returns
@@ -149,7 +149,7 @@ public:
      *  @param instruction Instruction value to be used in instruction phase
      *  @param alt Alt value to be used in instruction phase
      *  @param address Address to be accessed in QSPI peripheral
-     *  @param tx_buffer Buffer containing data to be sent to peripheral                          
+     *  @param tx_buffer Buffer containing data to be sent to peripheral
      *  @param tx_length Pointer to a variable containing the length of data to be transmitted, and on return this variable will be updated with the actual number of bytes written
      *
      *  @returns
@@ -161,9 +161,9 @@ public:
      *
      *  @param instruction Instruction value to be used in instruction phase
      *  @param address Some instruction might require address. Use -1 for ignoring the address value
-     *  @param tx_buffer Buffer containing data to be sent to peripheral                          
+     *  @param tx_buffer Buffer containing data to be sent to peripheral
      *  @param tx_length Pointer to a variable containing the length of data to be transmitted, and on return this variable will be updated with the actual number of bytes written
-     *  @param rx_buffer Buffer for data to be read from the peripheral                          
+     *  @param rx_buffer Buffer for data to be read from the peripheral
      *  @param rx_length Pointer to a variable containing the length of rx_buffer, and on return this variable will be updated with the actual number of bytes read
      *
      *  @returns
@@ -181,7 +181,8 @@ protected:
     virtual void unlock(void);
 
 public:
-    virtual ~QSPI() {
+    virtual ~QSPI()
+    {
     }
 
 protected:
@@ -210,7 +211,7 @@ private:
     bool _acquire(void);
     bool _initialize();
 
-    /* 
+    /*
      * This function builds the qspi command struct to be send to Hal
      */
     inline void _build_qspi_command(int instruction, int address, int alt);

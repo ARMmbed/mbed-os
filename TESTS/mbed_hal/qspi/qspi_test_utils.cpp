@@ -32,7 +32,7 @@ void QspiCommand::configure(qspi_bus_width_t inst_width, qspi_bus_width_t addr_w
                             qspi_address_size_t addr_size, qspi_alt_size_t alt_size,
                             int dummy_cycles)
 {
-    memset(&_cmd, 0,  sizeof(qspi_command_t) );
+    memset(&_cmd, 0,  sizeof(qspi_command_t));
     _cmd.instruction.disabled = _cmd.address.disabled = _cmd.alt.disabled = true;
 
     _cmd.instruction.bus_width = inst_width;
@@ -62,7 +62,7 @@ void QspiCommand::build(int instruction, int address, int alt)
     }
 }
 
-qspi_command_t* QspiCommand::get()
+qspi_command_t *QspiCommand::get()
 {
     return &_cmd;
 }
@@ -175,7 +175,7 @@ void log_register(uint32_t cmd, uint32_t reg_size, Qspi &qspi, const char *str)
 
     for (uint32_t j = 0; j < reg_size; j++) {
         utest_printf("%s byte %u (MSB first): ", str != NULL ? str : "", j);
-        for(int i = 0; i < 8; i++) {
+        for (int i = 0; i < 8; i++) {
             utest_printf("%s ", ((reg[j] & (1 << (7 - i))) & 0xFF) == 0 ? "0" : "1");
         }
         utest_printf("\r\n");
