@@ -37,7 +37,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
     uint32_t i2c_sda = pinmap_peripheral(sda, PinMap_I2C_SDA);
     uint32_t i2c_scl = pinmap_peripheral(scl, PinMap_I2C_SCL);
     obj->instance = pinmap_merge(i2c_sda, i2c_scl);
-    obj->next_repeated_start = 0;
+
     MBED_ASSERT((int)obj->instance != NC);
 
     lpi2c_master_config_t master_config;
@@ -49,6 +49,9 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
 
     pinmap_pinout(sda, PinMap_I2C_SDA);
     pinmap_pinout(scl, PinMap_I2C_SCL);
+
+    pin_mode(sda, PullUp_22K);
+    pin_mode(scl, PullUp_22K);
 
     pin_mode_opendrain(sda, true);
     pin_mode_opendrain(scl, true);
@@ -65,7 +68,6 @@ int i2c_start(i2c_t *obj)
 
 int i2c_stop(i2c_t *obj)
 {
-    obj->next_repeated_start = 0;
     if (LPI2C_MasterStop(i2c_addrs[obj->instance]) != kStatus_Success) {
         return 1;
     }
@@ -78,7 +80,7 @@ void i2c_frequency(i2c_t *obj, int hz)
     uint32_t busClock;
 
     busClock = i2c_get_clock();
-    LPI2C_MasterSetBaudRate(i2c_addrs[obj->instance], hz, busClock);
+    LPI2C_MasterSetBaudRate(i2c_addrs[obj->instance], busClock, hz);
 }
 
 int i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
@@ -92,13 +94,9 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
     master_xfer.direction = kLPI2C_Read;
     master_xfer.data = (uint8_t *)data;
     master_xfer.dataSize = length;
-    if (obj->next_repeated_start) {
-        master_xfer.flags |= kLPI2C_TransferRepeatedStartFlag;
-    }
     if (!stop) {
         master_xfer.flags |= kLPI2C_TransferNoStopFlag;
     }
-    obj->next_repeated_start = master_xfer.flags & kLPI2C_TransferNoStopFlag ? 1 : 0;
 
     /* The below function will issue a STOP signal at the end of the transfer.
      * This is required by the hardware in order to receive the last byte
@@ -120,11 +118,20 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop)
             return I2C_ERROR_NO_SLAVE;
         }
 
+        /* Wait till START has been flushed out of the FIFO */
+        while (!(base->MSR & kLPI2C_MasterBusBusyFlag)) {
+        }
+
+        /* Send the STOP signal */
+        base->MTDR = LPI2C_MTDR_CMD(0x2U);
+
+        /* Wait till STOP has been sent successfully */
+        while (!(base->MSR & kLPI2C_MasterStopDetectFlag)) {
+        }
+
         if (base->MSR & kLPI2C_MasterNackDetectFlag) {
-            i2c_stop(obj);
             return I2C_ERROR_NO_SLAVE;
         } else {
-            i2c_stop(obj);
             return length;
         }
     }
@@ -134,13 +141,9 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop)
     master_xfer.direction = kLPI2C_Write;
     master_xfer.data = (uint8_t *)data;
     master_xfer.dataSize = length;
-    if (obj->next_repeated_start) {
-        master_xfer.flags |= kLPI2C_TransferRepeatedStartFlag;
-    }
     if (!stop) {
         master_xfer.flags |= kLPI2C_TransferNoStopFlag;
     }
-    obj->next_repeated_start = master_xfer.flags & kLPI2C_TransferNoStopFlag ? 1 : 0;
 
     if (LPI2C_MasterTransferBlocking(base, &master_xfer) != kStatus_Success) {
         return I2C_ERROR_NO_SLAVE;
