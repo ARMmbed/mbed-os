@@ -26,29 +26,29 @@
 
 namespace mbed {
 namespace nfc {
-    
-    class PN512SPITransportDriver : public PN512TransportDriver {
-    public:
-        PN512SPITransportDriver(PinName mosi, PinName miso, PinName sclk, PinName ssel, PinName irq, PinName rst);
 
-    private:
-        virtual void initialize();
-        virtual nfc_transport_t* get_transport() const;
+class PN512SPITransportDriver : public PN512TransportDriver {
+public:
+    PN512SPITransportDriver(PinName mosi, PinName miso, PinName sclk, PinName ssel, PinName irq, PinName rst);
 
-        void transport_write( uint8_t address, const uint8_t* outBuf, size_t outLen );
-        void transport_read( uint8_t address, uint8_t* inBuf, size_t inLen );
+private:
+    virtual void initialize();
+    virtual nfc_transport_t *get_transport() const;
 
-        // Callbacks from munfc
-        static void s_transport_write( uint8_t address, const uint8_t* outBuf, size_t outLen, void* pUser );
-        static void s_transport_read( uint8_t address, uint8_t* inBuf, size_t inLen, void* pUser );
+    void transport_write(uint8_t address, const uint8_t *outBuf, size_t outLen);
+    void transport_read(uint8_t address, uint8_t *inBuf, size_t inLen);
 
-        nfc_transport_t _nfc_transport;
-        SPI _spi;
-        DigitalOut _ssel;
-        InterruptIn _irq;
-        DigitalOut _rst;
-    };
-    
+    // Callbacks from munfc
+    static void s_transport_write(uint8_t address, const uint8_t *outBuf, size_t outLen, void *pUser);
+    static void s_transport_read(uint8_t address, uint8_t *inBuf, size_t inLen, void *pUser);
+
+    nfc_transport_t _nfc_transport;
+    SPI _spi;
+    DigitalOut _ssel;
+    InterruptIn _irq;
+    DigitalOut _rst;
+};
+
 } // namespace nfc
 } // namespace mbed
 

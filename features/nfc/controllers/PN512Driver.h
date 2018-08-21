@@ -25,21 +25,21 @@
 namespace mbed {
 namespace nfc {
 
-    struct PN512TransportDriver;
-    class PN512Driver : public NFCControllerDriver, private PN512TransportDriver::Delegate {
-    public:
-        PN512Driver(PN512TransportDriver* transport_driver);
+struct PN512TransportDriver;
+class PN512Driver : public NFCControllerDriver, private PN512TransportDriver::Delegate {
+public:
+    PN512Driver(PN512TransportDriver *transport_driver);
 
-        virtual nfc_transceiver_t* initialize(nfc_scheduler_timer_t* scheduler_timer);
-        virtual void get_supported_nfc_techs(nfc_tech_t* initiator, nfc_tech_t* target) const;
+    virtual nfc_transceiver_t *initialize(nfc_scheduler_timer_t *scheduler_timer);
+    virtual void get_supported_nfc_techs(nfc_tech_t *initiator, nfc_tech_t *target) const;
 
-    private:
-        // PN512TransportDriver::Delegate implementation
-        void on_hw_interrupt();
+private:
+    // PN512TransportDriver::Delegate implementation
+    void on_hw_interrupt();
 
-        PN512TransportDriver* _transport_driver;
-        pn512_t _pn512;
-    };
+    PN512TransportDriver *_transport_driver;
+    pn512_t _pn512;
+};
 
 } // namespace nfc
 } // namespace mbed

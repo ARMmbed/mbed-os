@@ -29,9 +29,9 @@ extern "C" {
 
 #include "transceiver.h"
 
-static inline void transceiver_callback(nfc_transceiver_t* pTransceiver, nfc_err_t ret)
+static inline void transceiver_callback(nfc_transceiver_t *pTransceiver, nfc_err_t ret)
 {
-  pTransceiver->cb(pTransceiver, ret, pTransceiver->pUserData);
+    pTransceiver->cb(pTransceiver, ret, pTransceiver->pUserData);
 }
 
 #ifdef __cplusplus

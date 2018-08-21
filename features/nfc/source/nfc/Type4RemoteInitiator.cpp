@@ -28,22 +28,24 @@
 using namespace mbed;
 using namespace mbed::nfc;
 
-Type4RemoteInitiator::Type4RemoteInitiator(NFCController* controller, uint8_t* buffer, size_t buffer_size) : 
+Type4RemoteInitiator::Type4RemoteInitiator(NFCController *controller, uint8_t *buffer, size_t buffer_size) :
     NFCRemoteInitiator(ndef_buffer, ndef_buffer_sz),
-    _controller(controller), _is_connected(false) , _is_disconnected(false), _apps(NULL) {
+    _controller(controller), _is_connected(false), _is_disconnected(false), _apps(NULL)
+{
     // Init ISO7816
     nfc_tech_iso7816_init(&_iso7816, _controller->transceiver(), &Type4RemoteInitiator::s_disconnected_callback, this);
-    
+
     // Init Type 4 app
     nfc_tech_type4_target_init(&_type4, &_iso7816, ndef_message());
 }
 
-nfc_err_t Type4RemoteInitiator::connect() {
-    if(_is_connected) {
+nfc_err_t Type4RemoteInitiator::connect()
+{
+    if (_is_connected) {
         return NFC_BUSY;
     }
 
-    if(_is_disconnected) {
+    if (_is_disconnected) {
         return NFC_ERR_DISCONNECTED;
     }
 
@@ -54,12 +56,13 @@ nfc_err_t Type4RemoteInitiator::connect() {
     connected();
 }
 
-nfc_err_t Type4RemoteInitiator::disconnect() {
-    if(!_is_connected) {
+nfc_err_t Type4RemoteInitiator::disconnect()
+{
+    if (!_is_connected) {
         return NFC_OK;
     }
 
-    if(_is_disconnected) {
+    if (_is_disconnected) {
         return NFC_OK;
     }
 
@@ -67,19 +70,21 @@ nfc_err_t Type4RemoteInitiator::disconnect() {
     nfc_tech_iso7816_disconnect(&_iso7816);
 }
 
-bool Type4RemoteInitiator::is_connected() const {
+bool Type4RemoteInitiator::is_connected() const
+{
     return _is_connected;
 }
 
-bool Type4RemoteInitiator::is_disconnected() const {
+bool Type4RemoteInitiator::is_disconnected() const
+{
     return _is_disconnected;
 }
 
-nfc_rf_protocols_bitmask_t Type4RemoteInitiator::rf_protocols() {
+nfc_rf_protocols_bitmask_t Type4RemoteInitiator::rf_protocols()
+{
     nfc_rf_protocols_bitmask_t rf_protocols = {0};
     nfc_tech_t active_tech = transceiver_get_active_techs(_transceiver);
-    if(!transceiver_is_initiator_mode(_transceiver))
-    {
+    if (!transceiver_is_initiator_mode(_transceiver)) {
         // We only support ISO-DEP
         rf_protocols.target_iso_dep = active_tech.nfc_iso_dep_a || active_tech.nfc_iso_dep_b;
     }
@@ -87,24 +92,27 @@ nfc_rf_protocols_bitmask_t Type4RemoteInitiator::rf_protocols() {
     return rf_protocols;
 }
 
-virtual nfc_tag_type_t Type4RemoteInitiator::nfc_tag_type() const {
+virtual nfc_tag_type_t Type4RemoteInitiator::nfc_tag_type() const
+{
     nfc_tech_t active_tech = transceiver_get_active_techs(_transceiver);
-    if(active_tech.nfc_iso_dep_a) {
+    if (active_tech.nfc_iso_dep_a) {
         return nfc_tag_type_4a;
-    }
-    else { // if(active_tech.nfc_iso_dep_b)
+    } else { // if(active_tech.nfc_iso_dep_b)
         return nfc_tag_type_4b;
     }
 }
 
-virtual bool Type4RemoteInitiator::is_iso7816_supported() const {
+virtual bool Type4RemoteInitiator::is_iso7816_supported() const
+{
     return true;
 }
 
-virtual void Type4RemoteInitiator::add_iso7816_application(ISO7816App* application) {
+virtual void Type4RemoteInitiator::add_iso7816_application(ISO7816App *application)
+{
     nfc_tech_iso7816_add_app(&_iso7816, application->_iso7816_app);
 }
 
-virtual bool Type4RemoteInitiator::is_ndef_supported() const {
+virtual bool Type4RemoteInitiator::is_ndef_supported() const
+{
     return true;
 }

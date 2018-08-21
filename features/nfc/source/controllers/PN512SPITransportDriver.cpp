@@ -22,12 +22,13 @@
 using namespace mbed;
 using namespace mbed::nfc;
 
-PN512SPITransportDriver::PN512SPITransportDriver(PinName mosi, PinName miso, PinName sclk, PinName ssel, PinName irq, PinName rst)) : 
+PN512SPITransportDriver::PN512SPITransportDriver(PinName mosi, PinName miso, PinName sclk, PinName ssel, PinName irq, PinName rst)) :
     _spi(mosi, miso, sclk),
     _ssel(ssel, 1),
     _irq(irq, PullNone),
-    _rst(rst, 1) {
-    
+    _rst(rst, 1)
+{
+
     // Use SPI mode 0
     _spi.format(8, 0);
 
@@ -38,7 +39,8 @@ PN512SPITransportDriver::PN512SPITransportDriver(PinName mosi, PinName miso, Pin
     nfc_transport_init(&_nfc_transport, &PN512SPITransportDriver::s_transport_write, &PN512SPITransportDriver::s_transport_read, this);
 }
 
-void PN512SPITransportDriver::initialize() {
+void PN512SPITransportDriver::initialize()
+{
     // Deactivate IRQ
     _irq.rise(callback(NULL));
 
@@ -53,12 +55,14 @@ void PN512SPITransportDriver::initialize() {
     _irq.rise(callback(this, &PN512SPITransportDriver::hw_interrupt));
 }
 
-nfc_transport_t* PN512SPITransportDriver::get_transport() const {
+nfc_transport_t *PN512SPITransportDriver::get_transport() const
+{
     return &_nfc_transport;
 }
 
-void PN512SPITransportDriver::transport_write( uint8_t address, const uint8_t* outBuf, size_t outLen ) {
-    if( outLen == 0 ) {
+void PN512SPITransportDriver::transport_write(uint8_t address, const uint8_t *outBuf, size_t outLen)
+{
+    if (outLen == 0) {
         return;
     }
 
@@ -70,19 +74,20 @@ void PN512SPITransportDriver::transport_write( uint8_t address, const uint8_t* o
     _ssel = 1;
 }
 
-void PN512SPITransportDriver::transport_read( uint8_t address, uint8_t* inBuf, size_t inLen ) {
-    if( inLen == 0 ) {
+void PN512SPITransportDriver::transport_read(uint8_t address, uint8_t *inBuf, size_t inLen)
+{
+    if (inLen == 0) {
         return;
     }
 
     // Address byte is (address << 1) | 0x80 for a read
     // This should be repeated accross the transfer, except for the last byte which should be 0
     address = (address << 1) | 0x80;
-    
+
     // Set this byte across inBuf so that it's repeated accross the transfer
     // Bit cheeky, but will work
     memset(inBuf, address, inLen - 1);
-    
+
     // Also terminate with 0 so that it's a no-op
     inBuf[inLen - 1] = 0;
 
@@ -93,12 +98,14 @@ void PN512SPITransportDriver::transport_read( uint8_t address, uint8_t* inBuf, s
 }
 
 // Callbacks from munfc
-static void PN512SPITransportDriver::s_transport_write( uint8_t address, const uint8_t* outBuf, size_t outLen, void* pUser ) {
-    PN512SPITransportDriver* self = (PN512SPITransportDriver*)pUser;
+static void PN512SPITransportDriver::s_transport_write(uint8_t address, const uint8_t *outBuf, size_t outLen, void *pUser)
+{
+    PN512SPITransportDriver *self = (PN512SPITransportDriver *)pUser;
     self->transport_write(address, outBuf, outLen);
 }
 
-static void PN512SPITransportDriver::s_transport_read( uint8_t address, uint8_t* inBuf, size_t inLen, void* pUser ) {
-    PN512SPITransportDriver* self = (PN512SPITransportDriver*)pUser;
+static void PN512SPITransportDriver::s_transport_read(uint8_t address, uint8_t *inBuf, size_t inLen, void *pUser)
+{
+    PN512SPITransportDriver *self = (PN512SPITransportDriver *)pUser;
     self->transport_read(address, inBuf, inLen);
 }

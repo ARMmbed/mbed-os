@@ -25,19 +25,21 @@
 using namespace mbed;
 using namespace mbed::nfc;
 
-NFCRemoteEndpoint::NFCRemoteEndpoint(NFCController* controller) : _controller(controller), _is_lost(false) {
+NFCRemoteEndpoint::NFCRemoteEndpoint(NFCController *controller) : _controller(controller), _is_lost(false)
+{
 
 }
 
-bool NFCRemoteEndpoint::is_lost() const {
+bool NFCRemoteEndpoint::is_lost() const
+{
     return _is_lost;
 }
 
-nfc_rf_protocols_bitmask_t NFCRemoteEndpoint::rf_protocols() {
+nfc_rf_protocols_bitmask_t NFCRemoteEndpoint::rf_protocols()
+{
     nfc_rf_protocols_bitmask_t rf_protocols = {0};
     nfc_tech_t active_tech = transceiver_get_active_techs(_transceiver);
-    if(!transceiver_is_initiator_mode(_transceiver))
-    {
+    if (!transceiver_is_initiator_mode(_transceiver)) {
         // Note: We only support ISO-DEP for now
         rf_protocols.target_iso_dep = active_tech.nfc_iso_dep_a || active_tech.nfc_iso_dep_b;
     }
@@ -45,11 +47,13 @@ nfc_rf_protocols_bitmask_t NFCRemoteEndpoint::rf_protocols() {
     return rf_protocols;
 }
 
-void NFCRemoteEndpoint::set_lost() {
+void NFCRemoteEndpoint::set_lost()
+{
     _is_lost = true;
 }
 
-NFCController* NFCRemoteEndpoint::nfc_controller() const {
+NFCController *NFCRemoteEndpoint::nfc_controller() const
+{
     return _controller;
 }
 

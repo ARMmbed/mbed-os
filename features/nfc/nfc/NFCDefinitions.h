@@ -24,31 +24,30 @@
 
 namespace mbed {
 namespace nfc {
-    struct nfc_rf_protocols_bitmask_t
-    {
-        uint8_t initiator_t1t : 1;
-        uint8_t initiator_t2t : 1;
-        uint8_t initiator_t3t : 1;
-        uint8_t initiator_iso_dep : 1;
-        uint8_t initiator_nfc_dep : 1;
-        uint8_t initiator_t5t : 1;
+struct nfc_rf_protocols_bitmask_t {
+    uint8_t initiator_t1t : 1;
+    uint8_t initiator_t2t : 1;
+    uint8_t initiator_t3t : 1;
+    uint8_t initiator_iso_dep : 1;
+    uint8_t initiator_nfc_dep : 1;
+    uint8_t initiator_t5t : 1;
 
-        uint8_t target_t1t : 1;
-        uint8_t target_t2t : 1;
-        uint8_t target_t3t : 1;
-        uint8_t target_iso_dep : 1;
-        uint8_t target_nfc_dep : 1;
-        uint8_t target_t5t : 1;
-    };
+    uint8_t target_t1t : 1;
+    uint8_t target_t2t : 1;
+    uint8_t target_t3t : 1;
+    uint8_t target_iso_dep : 1;
+    uint8_t target_nfc_dep : 1;
+    uint8_t target_t5t : 1;
+};
 
-    enum nfc_tag_type_t {
-        nfc_tag_type_1,
-        nfc_tag_type_2,
-        nfc_tag_type_3,
-        nfc_tag_type_4a,
-        nfc_tag_type_4b,
-        nfc_tag_type_5
-    };
+enum nfc_tag_type_t {
+    nfc_tag_type_1,
+    nfc_tag_type_2,
+    nfc_tag_type_3,
+    nfc_tag_type_4a,
+    nfc_tag_type_4b,
+    nfc_tag_type_5
+};
 
 } // namespace nfc
 } // namespace mbed

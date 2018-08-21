@@ -24,27 +24,27 @@
 #include "acore/macros.h"
 
 //Called by supplier
-void ac_istream_init(ac_istream_t* pac_istream, ac_istream_fn fn, void* pUserParam)
+void ac_istream_init(ac_istream_t *pac_istream, ac_istream_fn fn, void *pUserParam)
 {
-  pac_istream->fn = fn;
-  pac_istream->pUserParam = pUserParam;
+    pac_istream->fn = fn;
+    pac_istream->pUserParam = pUserParam;
 }
 
 //Called by consumer
-void ac_istream_pull(ac_istream_t* pac_istream, ac_buffer_t* pDataIn, bool* pClose, size_t maxLength)
+void ac_istream_pull(ac_istream_t *pac_istream, ac_buffer_t *pDataIn, bool *pClose, size_t maxLength)
 {
-  pac_istream->fn(pDataIn, pClose, maxLength, pac_istream->pUserParam);
+    pac_istream->fn(pDataIn, pClose, maxLength, pac_istream->pUserParam);
 }
 
 //Called by consumer
-void ac_ostream_init(ac_ostream_t* pac_ostream, ac_ostream_fn fn, void* pUserParam)
+void ac_ostream_init(ac_ostream_t *pac_ostream, ac_ostream_fn fn, void *pUserParam)
 {
-  pac_ostream->fn = fn;
-  pac_ostream->pUserParam = pUserParam;
+    pac_ostream->fn = fn;
+    pac_ostream->pUserParam = pUserParam;
 }
 
 //Called by supplier
-void ac_ostream_push(ac_ostream_t* pac_ostream, ac_buffer_t* pDataOut, bool closed)
+void ac_ostream_push(ac_ostream_t *pac_ostream, ac_buffer_t *pDataOut, bool closed)
 {
-  pac_ostream->fn(pDataOut, closed, pac_ostream->pUserParam);
+    pac_ostream->fn(pDataOut, closed, pac_ostream->pUserParam);
 }

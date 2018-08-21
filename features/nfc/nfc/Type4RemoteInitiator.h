@@ -29,54 +29,54 @@
 namespace mbed {
 namespace nfc {
 
+/**
+ * @addtogroup nfc
+ * @{
+ */
+
+/**
+ * This class is an implementation of the Type 4 tag application.
+ */
+class Type4RemoteInitiator : public NFCRemoteInitiator {
+private:
     /**
-     * @addtogroup nfc
-     * @{
+     * Create a Type4RemoteInitiator.
+     *
+     * @param[in] controller pointer to the NFCController instance that created this object
+     * @param[in] buffer a bytes array used to store NDEF messages
+     * @param[in] buffer_size the array size in bytes
      */
-    
-    /**
-     * This class is an implementation of the Type 4 tag application.
-     */
-    class Type4RemoteInitiator : public NFCRemoteInitiator {
-    private:
-        /**
-         * Create a Type4RemoteInitiator.
-         * 
-         * @param[in] controller pointer to the NFCController instance that created this object
-         * @param[in] buffer a bytes array used to store NDEF messages
-         * @param[in] buffer_size the array size in bytes
-         */ 
-        Type4RemoteInitiator(NFCController* controller, uint8_t* buffer, size_t buffer_size);
+    Type4RemoteInitiator(NFCController *controller, uint8_t *buffer, size_t buffer_size);
 
-        // NFCRemoteEndpoint implementation
-        virtual nfc_err_t connect();
-        virtual nfc_err_t disconnect();
-        virtual bool is_connected();
-        virtual bool is_disconnected();
-        virtual nfc_rf_protocols_bitmask_t rf_protocols();
+    // NFCRemoteEndpoint implementation
+    virtual nfc_err_t connect();
+    virtual nfc_err_t disconnect();
+    virtual bool is_connected();
+    virtual bool is_disconnected();
+    virtual nfc_rf_protocols_bitmask_t rf_protocols();
 
-        // NFCRemoteInitiator implementation
-        virtual nfc_tag_type_t nfc_tag_type() const;
-        virtual bool is_iso7816_supported() const;
-        virtual void add_iso7816_application(ISO7816App* application);
+    // NFCRemoteInitiator implementation
+    virtual nfc_tag_type_t nfc_tag_type() const;
+    virtual bool is_iso7816_supported() const;
+    virtual void add_iso7816_application(ISO7816App *application);
 
-        // NFCNDEFCapable implementation 
-        virtual bool is_ndef_supported() const;
+    // NFCNDEFCapable implementation
+    virtual bool is_ndef_supported() const;
 
-        // Callbacks from NFC stack
-        void disconnected_callback(bool deselected);
-        static void s_disconnected_callback(nfc_tech_iso7816_t* pIso7816, bool deselected, void* pUserData);
+    // Callbacks from NFC stack
+    void disconnected_callback(bool deselected);
+    static void s_disconnected_callback(nfc_tech_iso7816_t *pIso7816, bool deselected, void *pUserData);
 
-        NFCController* _controller;
-        bool _is_connected;
-        bool _is_disconnected;
-        nfc_tech_iso7816_t _iso7816;
-        nfc_tech_type4_target_t _type4;
-    };
+    NFCController *_controller;
+    bool _is_connected;
+    bool _is_disconnected;
+    nfc_tech_iso7816_t _iso7816;
+    nfc_tech_type4_target_t _type4;
+};
 
-    /**
-     * @}
-     */
+/**
+ * @}
+ */
 
 } // namespace nfc
 } // namespace mbed

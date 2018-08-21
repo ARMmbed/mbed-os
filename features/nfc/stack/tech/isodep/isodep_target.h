@@ -35,81 +35,76 @@ struct nfc_tech_isodep_target;
 typedef struct nfc_tech_isodep_target nfc_tech_isodep_target_t;
 
 typedef struct nfc_tech_isodep_target nfc_tech_isodep_target_t;
-struct nfc_tech_isodep_target
-{
-  nfc_tech_isodep_t isodep;
-  nfc_transceiver_t* pTransceiver;
+struct nfc_tech_isodep_target {
+    nfc_tech_isodep_t isodep;
+    nfc_transceiver_t *pTransceiver;
 
-  struct
-  {
-    ostream_t* pReqStream;
-    istream_t* pResStream;
+    struct {
+        ostream_t *pReqStream;
+        istream_t *pResStream;
 
-    nfc_tech_isodep_cb_t reqCb;
-    void* pReqUserData;
+        nfc_tech_isodep_cb_t reqCb;
+        void *pReqUserData;
 
-    nfc_tech_isodep_cb_t resCb;
-    void* pResUserData;
+        nfc_tech_isodep_cb_t resCb;
+        void *pResUserData;
 
-    buffer_t res;
-    bool chaining;
+        buffer_t res;
+        bool chaining;
 
-    uint8_t blockNumber;
+        uint8_t blockNumber;
 
-    enum
-    {
-      ISO_DEP_TARGET_DEP_FRAME_IDLE,
-      ISO_DEP_TARGET_DEP_FRAME_WTX_RECEIVED,
-      ISO_DEP_TARGET_DEP_FRAME_WTX_SENT,
-      ISO_DEP_TARGET_DEP_FRAME_INFORMATION_RECEIVED,
-      ISO_DEP_TARGET_DEP_FRAME_INFORMATION_SENT,
-      ISO_DEP_TARGET_DEP_FRAME_NACK_RECEIVED,
-	    ISO_DEP_TARGET_DEP_FRAME_NACK_DIFF_BLOCK_NUMBER_RECEIVED,
-      ISO_DEP_TARGET_DEP_FRAME_NACK_SENT,
-      ISO_DEP_TARGET_DEP_FRAME_ACK_RECEIVED,
-      ISO_DEP_TARGET_DEP_FRAME_ACK_SENT,
-      ISO_DEP_TARGET_DEP_FRAME_DESELECT_RECEIVED,
-      ISO_DEP_TARGET_DEP_FRAME_DESELECT_SENT,
-    } frameState;
-  } dep;
-  struct
-  {
-    enum
-    {
-      ISO_DEP_TARGET_COMMANDS_DISCONNECTED,
+        enum {
+            ISO_DEP_TARGET_DEP_FRAME_IDLE,
+            ISO_DEP_TARGET_DEP_FRAME_WTX_RECEIVED,
+            ISO_DEP_TARGET_DEP_FRAME_WTX_SENT,
+            ISO_DEP_TARGET_DEP_FRAME_INFORMATION_RECEIVED,
+            ISO_DEP_TARGET_DEP_FRAME_INFORMATION_SENT,
+            ISO_DEP_TARGET_DEP_FRAME_NACK_RECEIVED,
+            ISO_DEP_TARGET_DEP_FRAME_NACK_DIFF_BLOCK_NUMBER_RECEIVED,
+            ISO_DEP_TARGET_DEP_FRAME_NACK_SENT,
+            ISO_DEP_TARGET_DEP_FRAME_ACK_RECEIVED,
+            ISO_DEP_TARGET_DEP_FRAME_ACK_SENT,
+            ISO_DEP_TARGET_DEP_FRAME_DESELECT_RECEIVED,
+            ISO_DEP_TARGET_DEP_FRAME_DESELECT_SENT,
+        } frameState;
+    } dep;
+    struct {
+        enum {
+            ISO_DEP_TARGET_COMMANDS_DISCONNECTED,
 
-      ISO_DEP_TARGET_COMMANDS_CONNECTING,
+            ISO_DEP_TARGET_COMMANDS_CONNECTING,
 
-      ISO_DEP_TARGET_COMMANDS_ATS_REQ_RECVD,
-      ISO_DEP_TARGET_COMMANDS_ATS_RES_SENT,
+            ISO_DEP_TARGET_COMMANDS_ATS_REQ_RECVD,
+            ISO_DEP_TARGET_COMMANDS_ATS_RES_SENT,
 
-      ISO_DEP_TARGET_COMMANDS_DEP_REQ_RECVD,
-      ISO_DEP_TARGET_COMMANDS_DEP_RES_SENT,
-    } state;
+            ISO_DEP_TARGET_COMMANDS_DEP_REQ_RECVD,
+            ISO_DEP_TARGET_COMMANDS_DEP_RES_SENT,
+        } state;
 
-    size_t inPayloadSize;
+        size_t inPayloadSize;
 
-    buffer_builder_t respBldr;
-    uint8_t respBuf[32];
+        buffer_builder_t respBldr;
+        uint8_t respBuf[32];
 
-    buffer_t* pReq;
-  } commands;
+        buffer_t *pReq;
+    } commands;
 
-  buffer_t* pHist;
+    buffer_t *pHist;
 
-  nfc_tech_isodep_disconnected_cb disconnectedCb;
-  void* pUserData;
+    nfc_tech_isodep_disconnected_cb disconnectedCb;
+    void *pUserData;
 };
 
 //High-level Target functions
-void nfc_tech_isodep_target_init(nfc_tech_isodep_target_t* pIsodepTarget, nfc_transceiver_t* pTransceiver,
-    buffer_t* pHist, nfc_tech_isodep_disconnected_cb disconnectedCb, void* pUserData);
+void nfc_tech_isodep_target_init(nfc_tech_isodep_target_t *pIsodepTarget, nfc_transceiver_t *pTransceiver,
+                                 buffer_t *pHist, nfc_tech_isodep_disconnected_cb disconnectedCb, void *pUserData);
 
-nfc_err_t nfc_tech_isodep_target_connect(nfc_tech_isodep_target_t* pIsodepTarget);
-void nfc_tech_isodep_target_disconnect(nfc_tech_isodep_target_t* pIsodepTarget);
+nfc_err_t nfc_tech_isodep_target_connect(nfc_tech_isodep_target_t *pIsodepTarget);
+void nfc_tech_isodep_target_disconnect(nfc_tech_isodep_target_t *pIsodepTarget);
 
-nfc_err_t nfc_tech_isodep_target_transmit(nfc_tech_isodep_target_t* pIsodepTarget, istream_t* pStream, nfc_tech_isodep_cb_t cb, void* pUserData);
-nfc_err_t nfc_tech_isodep_target_receive(nfc_tech_isodep_target_t* pIsodepTarget, ostream_t* pStream, nfc_tech_isodep_cb_t cb, void* pUserData);
+nfc_err_t nfc_tech_isodep_target_transmit(nfc_tech_isodep_target_t *pIsodepTarget, istream_t *pStream, nfc_tech_isodep_cb_t cb, void *pUserData);
+nfc_err_t nfc_tech_isodep_target_receive(nfc_tech_isodep_target_t *pIsodepTarget, ostream_t *pStream, nfc_tech_isodep_cb_t cb, void *pUserData);
 
 
 #ifdef __cplusplus

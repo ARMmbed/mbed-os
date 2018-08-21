@@ -34,44 +34,43 @@ struct nfc_tech_iso7816_app;
 typedef struct nfc_tech_iso7816 nfc_tech_iso7816_t;
 typedef struct nfc_tech_iso7816_app nfc_tech_iso7816_app_t;
 
-typedef void (*nfc_tech_iso7816_app_cb)( nfc_tech_iso7816_app_t* pIso7816App, void* pUserData );
+typedef void (*nfc_tech_iso7816_app_cb)(nfc_tech_iso7816_app_t *pIso7816App, void *pUserData);
 
-struct nfc_tech_iso7816_app
-{
-  nfc_tech_iso7816_t* pIso7816;
+struct nfc_tech_iso7816_app {
+    nfc_tech_iso7816_t *pIso7816;
 
-  const uint8_t* aid;
-  size_t aidSize;
+    const uint8_t *aid;
+    size_t aidSize;
 
-  nfc_tech_iso7816_app_cb selected;
-  nfc_tech_iso7816_app_cb deselected;
-  nfc_tech_iso7816_app_cb apdu;
+    nfc_tech_iso7816_app_cb selected;
+    nfc_tech_iso7816_app_cb deselected;
+    nfc_tech_iso7816_app_cb apdu;
 
-  void* pUserData;
+    void *pUserData;
 
-  nfc_tech_iso7816_app_t* pNext;
+    nfc_tech_iso7816_app_t *pNext;
 };
 
-void nfc_tech_iso7816_app_init(nfc_tech_iso7816_app_t* pIso7816App, nfc_tech_iso7816_t* pIso7816, const uint8_t* aid, size_t aidSize,
-    nfc_tech_iso7816_app_cb selected,
-    nfc_tech_iso7816_app_cb deselected,
-    nfc_tech_iso7816_app_cb apdu,
-    void* pUserData
-);
+void nfc_tech_iso7816_app_init(nfc_tech_iso7816_app_t *pIso7816App, nfc_tech_iso7816_t *pIso7816, const uint8_t *aid, size_t aidSize,
+                               nfc_tech_iso7816_app_cb selected,
+                               nfc_tech_iso7816_app_cb deselected,
+                               nfc_tech_iso7816_app_cb apdu,
+                               void *pUserData
+                              );
 
-inline static nfc_err_t nfc_tech_iso7816_app_reply(nfc_tech_iso7816_app_t* pIso7816App)
+inline static nfc_err_t nfc_tech_iso7816_app_reply(nfc_tech_iso7816_app_t *pIso7816App)
 {
-  return nfc_tech_iso7816_reply(pIso7816App->pIso7816);
+    return nfc_tech_iso7816_reply(pIso7816App->pIso7816);
 }
 
-inline static nfc_tech_iso7816_c_apdu_t* nfc_tech_iso7816_app_c_apdu(nfc_tech_iso7816_app_t* pIso7816App)
+inline static nfc_tech_iso7816_c_apdu_t *nfc_tech_iso7816_app_c_apdu(nfc_tech_iso7816_app_t *pIso7816App)
 {
-  return nfc_tech_iso7816_c_apdu(pIso7816App->pIso7816);
+    return nfc_tech_iso7816_c_apdu(pIso7816App->pIso7816);
 }
 
-inline static nfc_tech_iso7816_r_apdu_t* nfc_tech_iso7816_app_r_apdu(nfc_tech_iso7816_app_t* pIso7816App)
+inline static nfc_tech_iso7816_r_apdu_t *nfc_tech_iso7816_app_r_apdu(nfc_tech_iso7816_app_t *pIso7816App)
 {
-  return nfc_tech_iso7816_r_apdu(pIso7816App->pIso7816);
+    return nfc_tech_iso7816_r_apdu(pIso7816App->pIso7816);
 }
 
 #ifdef __cplusplus

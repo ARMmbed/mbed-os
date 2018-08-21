@@ -24,83 +24,83 @@
 namespace mbed {
 namespace nfc {
 
+/**
+ * @addtogroup nfc
+ * @{
+ */
+
+class NFCController;
+
+/**
+ * This is the base class for all remote endpoints (initiators and targets)
+ * addressable over the air interface.
+ */
+class NFCRemoteEndpoint {
+public:
+    NFCRemoteEndpoint();
+
     /**
-     * @addtogroup nfc
-     * @{
+     * The NFCRemoteEndpoint base delegate.
      */
-
-    class NFCController;
-    
-    /**
-     * This is the base class for all remote endpoints (initiators and targets)
-     * addressable over the air interface.
-     */ 
-    class NFCRemoteEndpoint {
-    public:
-        NFCRemoteEndpoint();
-
+    struct Delegate {
         /**
-         * The NFCRemoteEndpoint base delegate.
+         * This method is called when the endpoint is connected
          */
-        struct Delegate {
-            /**
-             * This method is called when the endpoint is connected
-             */
-            virtual void on_connected() {};           
-
-            /**
-             * This method is called when the endpoint is lost (air interface link disconnnected)
-             */
-            virtual void on_disconnected() {};           
-        };
+        virtual void on_connected() {};
 
         /**
-         * Connect the remote endpoint
-         * 
-         * @return NFC_OK or an error code
+         * This method is called when the endpoint is lost (air interface link disconnnected)
          */
-        virtual nfc_err_t connect() = 0;
-
-        /**
-         * Disconnect the remote endpoint
-         * 
-         * @return NFC_OK or an error code
-         */
-        virtual nfc_err_t disconnect() = 0;
-
-        /**
-         * Check if the endpoint is connected.
-         * @return whether the endpoint is connected
-         */ 
-        virtual bool is_connected() const = 0;
-
-        /**
-         * Check if the endpoint is disconnected/lost.
-         * @return whether the endpoint has been disconnected
-         */ 
-        virtual bool is_disconnected() const = 0;
-
-        /**
-         * Get the list of RF protocols supported and activated over the air interface.
-         * @return a bitmask of activated protocols
-         */ 
-        virtual nfc_rf_protocols_bitmask_t rf_protocols() = 0;
-
-    protected:
-        /**
-         * Mark endpoint as connected
-         */ 
-        void connected();
-
-        /**
-         * Mark endpoint as disconnected
-         */
-        void disconnected();
+        virtual void on_disconnected() {};
     };
 
     /**
-     * @}
+     * Connect the remote endpoint
+     *
+     * @return NFC_OK or an error code
      */
+    virtual nfc_err_t connect() = 0;
+
+    /**
+     * Disconnect the remote endpoint
+     *
+     * @return NFC_OK or an error code
+     */
+    virtual nfc_err_t disconnect() = 0;
+
+    /**
+     * Check if the endpoint is connected.
+     * @return whether the endpoint is connected
+     */
+    virtual bool is_connected() const = 0;
+
+    /**
+     * Check if the endpoint is disconnected/lost.
+     * @return whether the endpoint has been disconnected
+     */
+    virtual bool is_disconnected() const = 0;
+
+    /**
+     * Get the list of RF protocols supported and activated over the air interface.
+     * @return a bitmask of activated protocols
+     */
+    virtual nfc_rf_protocols_bitmask_t rf_protocols() = 0;
+
+protected:
+    /**
+     * Mark endpoint as connected
+     */
+    void connected();
+
+    /**
+     * Mark endpoint as disconnected
+     */
+    void disconnected();
+};
+
+/**
+ * @}
+ */
 
 } // namespace nfc
 } // namespace mbed

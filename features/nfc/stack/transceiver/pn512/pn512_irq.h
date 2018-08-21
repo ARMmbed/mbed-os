@@ -65,20 +65,20 @@ extern "C" {
  * \param pPN512 pointer to pn512_t structure
  * \param irqs MSB is DIVIEN value, LSB is COMIEN value
  */
-static inline void pn512_irq_set(pn512_t* pPN512, uint16_t irqs) //ORed
+static inline void pn512_irq_set(pn512_t *pPN512, uint16_t irqs) //ORed
 {
-  pn512_register_write(pPN512, PN512_REG_COMIEN, PN512_REG_COMIEN_VAL | (PN512_REG_COMIEN_MASK & (irqs & 0xFF)));
-  pn512_register_write(pPN512, PN512_REG_DIVIEN, PN512_REG_DIVIEN_VAL | (PN512_REG_DIVIEN_MASK & (irqs >> 8)));
-  pPN512->irqsEn = irqs;
+    pn512_register_write(pPN512, PN512_REG_COMIEN, PN512_REG_COMIEN_VAL | (PN512_REG_COMIEN_MASK & (irqs & 0xFF)));
+    pn512_register_write(pPN512, PN512_REG_DIVIEN, PN512_REG_DIVIEN_VAL | (PN512_REG_DIVIEN_MASK & (irqs >> 8)));
+    pPN512->irqsEn = irqs;
 }
 
 /** \internal Get IRQ enable registers
  * \param pPN512 pointer to pn512_t structure
  * \return MSB is DIVIEN value, LSB is COMIEN value
  */
-static inline uint16_t pn512_irq_enabled(pn512_t* pPN512) //ORed
+static inline uint16_t pn512_irq_enabled(pn512_t *pPN512) //ORed
 {
-  return pPN512->irqsEn /*(pn512_register_read(pPN512, PN512_REG_COMIEN_VAL) & PN512_REG_COMIEN_MASK)
+    return pPN512->irqsEn /*(pn512_register_read(pPN512, PN512_REG_COMIEN_VAL) & PN512_REG_COMIEN_MASK)
       | ((pn512_register_read(pPN512, PN512_REG_DIVIEN_VAL) & PN512_REG_DIVIEN_MASK) << 8)*/;
 }
 
@@ -86,20 +86,20 @@ static inline uint16_t pn512_irq_enabled(pn512_t* pPN512) //ORed
  * \param pPN512 pointer to pn512_t structure
  * \return MSB is DIVIRQ value, LSB is COMIRQ value
  */
-static inline uint16_t pn512_irq_get(pn512_t* pPN512) //ORed
+static inline uint16_t pn512_irq_get(pn512_t *pPN512) //ORed
 {
-  return ((pn512_register_read(pPN512, PN512_REG_COMIRQ) & PN512_REG_COMIEN_MASK)
-      | ((pn512_register_read(pPN512, PN512_REG_DIVIRQ) & PN512_REG_DIVIEN_MASK) << 8)) & pPN512->irqsEn;
+    return ((pn512_register_read(pPN512, PN512_REG_COMIRQ) & PN512_REG_COMIEN_MASK)
+            | ((pn512_register_read(pPN512, PN512_REG_DIVIRQ) & PN512_REG_DIVIEN_MASK) << 8)) & pPN512->irqsEn;
 }
 
 /** \internal Clear some interrupts
  * \param pPN512 pointer to pn512_t structure
  * \param irqs MSB is DIVIEN value, LSB is COMIEN value
  */
-static inline void pn512_irq_clear(pn512_t* pPN512, uint16_t irqs)
+static inline void pn512_irq_clear(pn512_t *pPN512, uint16_t irqs)
 {
-  pn512_register_write(pPN512, PN512_REG_COMIRQ, PN512_REG_COMIRQ_CLEAR | (PN512_REG_COMIRQ_MASK & (irqs & 0xFF)));
-  pn512_register_write(pPN512, PN512_REG_DIVIRQ, PN512_REG_DIVIRQ_CLEAR | (PN512_REG_DIVIRQ_MASK & (irqs >> 8)));
+    pn512_register_write(pPN512, PN512_REG_COMIRQ, PN512_REG_COMIRQ_CLEAR | (PN512_REG_COMIRQ_MASK & (irqs & 0xFF)));
+    pn512_register_write(pPN512, PN512_REG_DIVIRQ, PN512_REG_DIVIRQ_CLEAR | (PN512_REG_DIVIRQ_MASK & (irqs >> 8)));
 }
 
 #ifdef __cplusplus

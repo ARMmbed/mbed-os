@@ -99,13 +99,13 @@ extern "C" {
 #define PN512_REG_TESTADC 0x3B //Shows the actual value of ADC I and Q
 
 
-void pn512_registers_init(pn512_t* pPN512);
-void pn512_registers_reset(pn512_t* pPN512);
+void pn512_registers_init(pn512_t *pPN512);
+void pn512_registers_reset(pn512_t *pPN512);
 
-void pn512_register_write(pn512_t* pPN512, uint8_t address, uint8_t data);
-uint8_t pn512_register_read(pn512_t* pPN512, uint8_t address);
+void pn512_register_write(pn512_t *pPN512, uint8_t address, uint8_t data);
+uint8_t pn512_register_read(pn512_t *pPN512, uint8_t address);
 
-void pn512_register_switch_page(pn512_t* pPN512, uint8_t address);
+void pn512_register_switch_page(pn512_t *pPN512, uint8_t address);
 
 #ifdef __cplusplus
 }

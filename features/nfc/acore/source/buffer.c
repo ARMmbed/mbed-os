@@ -29,77 +29,70 @@
 
 #include "acore/debug.h"
 
-void ac_buffer_init(ac_buffer_t* pBuf, const uint8_t* data, size_t size)
+void ac_buffer_init(ac_buffer_t *pBuf, const uint8_t *data, size_t size)
 {
-  pBuf->data = data;
-  pBuf->size = size;
+    pBuf->data = data;
+    pBuf->size = size;
 
-  pBuf->pNext = NULL;
+    pBuf->pNext = NULL;
 }
 
-void ac_buffer_dup(ac_buffer_t* pBuf, const ac_buffer_t* pBufIn)
+void ac_buffer_dup(ac_buffer_t *pBuf, const ac_buffer_t *pBufIn)
 {
-  if(pBuf != pBufIn)
-  {
-    memcpy(pBuf, pBufIn, sizeof(ac_buffer_t));
-  }
+    if (pBuf != pBufIn) {
+        memcpy(pBuf, pBufIn, sizeof(ac_buffer_t));
+    }
 }
 
-void ac_buffer_append(ac_buffer_t* pBuf, ac_buffer_t* pAppBuf)
+void ac_buffer_append(ac_buffer_t *pBuf, ac_buffer_t *pAppBuf)
 {
-  while(pBuf->pNext != NULL)
-  {
-    pBuf = pBuf->pNext;
-  }
-  pBuf->pNext = pAppBuf;
+    while (pBuf->pNext != NULL) {
+        pBuf = pBuf->pNext;
+    }
+    pBuf->pNext = pAppBuf;
 }
 
-void ac_buffer_split(ac_buffer_t* pStartBuf, ac_buffer_t* pEndBuf, ac_buffer_t* pBuf, size_t length)
+void ac_buffer_split(ac_buffer_t *pStartBuf, ac_buffer_t *pEndBuf, ac_buffer_t *pBuf, size_t length)
 {
-  ac_buffer_dup(pStartBuf, pBuf);
-  ac_buffer_dup(pEndBuf, pBuf);
+    ac_buffer_dup(pStartBuf, pBuf);
+    ac_buffer_dup(pEndBuf, pBuf);
 
-  ac_buffer_read_n_skip(pEndBuf, length);
+    ac_buffer_read_n_skip(pEndBuf, length);
 
-  while( length > ac_buffer_size(pStartBuf) )
-  {
-    length -= pStartBuf->size;
-    pStartBuf = pStartBuf->pNext;
-  }
+    while (length > ac_buffer_size(pStartBuf)) {
+        length -= pStartBuf->size;
+        pStartBuf = pStartBuf->pNext;
+    }
 
-  pStartBuf->size = length;
-  pStartBuf->pNext = NULL;
+    pStartBuf->size = length;
+    pStartBuf->pNext = NULL;
 }
 
 /** Dump a ac_buffer's content to stdout (useful for debugging)
  * \param pBuf pointer to ac_buffer_t structure
  */
-void ac_buffer_dump(ac_buffer_t* pBuf)
+void ac_buffer_dump(ac_buffer_t *pBuf)
 {
 #if !defined(NDEBUG)
-  ACORE_STDIO_LOCK();
-  while(pBuf != NULL)
-  {
-    size_t r = ac_buffer_size(pBuf);
-    size_t i = 0;
-    size_t j = 0;
-    while(i < r)
-    {
-      for(j = i; j < MIN(i + 16, r); j++)
-      {
-        ACORE_STDIO_PRINT("%02x ", ac_buffer_data(pBuf)[j]);
-      }
-      ACORE_STDIO_PRINT("\r\n");
-      i = j;
+    ACORE_STDIO_LOCK();
+    while (pBuf != NULL) {
+        size_t r = ac_buffer_size(pBuf);
+        size_t i = 0;
+        size_t j = 0;
+        while (i < r) {
+            for (j = i; j < MIN(i + 16, r); j++) {
+                ACORE_STDIO_PRINT("%02x ", ac_buffer_data(pBuf)[j]);
+            }
+            ACORE_STDIO_PRINT("\r\n");
+            i = j;
+        }
+        pBuf = ac_buffer_next(pBuf);
+        if (pBuf != NULL) {
+            ACORE_STDIO_PRINT("->\r\n");
+        }
     }
-    pBuf = ac_buffer_next(pBuf);
-    if(pBuf != NULL)
-    {
-      ACORE_STDIO_PRINT("->\r\n");
-    }
-  }
-  ACORE_STDIO_UNLOCK();
+    ACORE_STDIO_UNLOCK();
 #else
-  (void)pBuf;
+    (void)pBuf;
 #endif
 }

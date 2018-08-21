@@ -36,11 +36,11 @@
  * \param read transport read function
  * \param pUser parameter that will be passed to any of the above functions
  */
-void nfc_transport_init( nfc_transport_t* pTransport, nfc_transport_write_fn_t write, nfc_transport_read_fn_t read, void* pUser )
+void nfc_transport_init(nfc_transport_t *pTransport, nfc_transport_write_fn_t write, nfc_transport_read_fn_t read, void *pUser)
 {
-  pTransport->write = write;
-  pTransport->read = read;
-  pTransport->pUser = pUser;
+    pTransport->write = write;
+    pTransport->read = read;
+    pTransport->pUser = pUser;
 }
 
 
