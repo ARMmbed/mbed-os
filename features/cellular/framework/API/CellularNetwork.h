@@ -226,21 +226,24 @@ public:
     /** Does all the needed initializations that can fail
      *
      *  @remark         must be called immediately after constructor.
-     *  @return         zero on success
+     *  @return         NSAPI_ERROR_OK on success
+     *                  NSAPI_ERROR_NO_MEMORY on memory failure
      */
     virtual nsapi_error_t init() = 0;
 
     /** Request registering to network.
      *
      *  @param plmn     format is in numeric format or 0 for automatic network registration
-     *  @return         zero on success
+     *  @return         NSAPI_ERROR_OK on success
+     *                  NSAPI_ERROR_DEVICE_ERROR on failure
      */
     virtual nsapi_error_t set_registration(const char *plmn = 0) = 0;
 
     /** Get the current network registering mode
      *
-     *  @param mode on successful return contains the current network registering mode
-     *  @return     zero on success
+     *  @param mode     on successful return contains the current network registering mode
+     *  @return         NSAPI_ERROR_OK on success
+     *                  NSAPI_ERROR_DEVICE_ERROR on failure
      */
     virtual nsapi_error_t get_network_registering_mode(NWRegisteringMode &mode) = 0;
 
@@ -249,17 +252,21 @@ public:
      *  After successful call network class starts to get information about network changes like
      *  registration statue, access technology, cell id...
      *
-     *  @param type RegistrationType to set urc on/off
-     *  @param on   Controls are urc' active or not
-     *  @return     zero on success
+     *  @param type     RegistrationType to set urc on/off
+     *  @param on       Controls are urc active or not
+     *  @return         NSAPI_ERROR_OK on success
+     *                  NSAPI_ERROR_UNSUPPORTED if the modem does not support RegistrationType
+     *                  NSAPI_ERROR_DEVICE_ERROR on failure
      */
     virtual nsapi_error_t set_registration_urc(RegistrationType type, bool on) = 0;
 
     /** Gets the network registration status.
      *
-     * @param type      see RegistrationType values
-     * @param status    see RegistrationStatus values
-     * @return zero on success
+     *  @param type     see RegistrationType values
+     *  @param status   see RegistrationStatus values
+     *  @return         NSAPI_ERROR_OK on success
+     *                  NSAPI_ERROR_UNSUPPORTED if the modem does not support RegistrationType
+     *                  NSAPI_ERROR_DEVICE_ERROR on failure
      */
     virtual nsapi_error_t get_registration_status(RegistrationType type, RegistrationStatus &status) = 0;
 
@@ -268,7 +275,8 @@ public:
      *  @param apn      Optional name of the network to connect to
      *  @param username Optional username for the APN
      *  @param password Optional password fot the APN
-     *  @return         0 on success, negative error code on failure
+     *  @return         NSAPI_ERROR_OK on success
+     *                  NSAPI_ERROR_NO_MEMORY on memory failure
      */
     virtual nsapi_error_t set_credentials(const char *apn,
                                           const char *username = 0, const char *password = 0) = 0;
@@ -279,7 +287,8 @@ public:
      *  @param type     Authentication type to use
      *  @param username Optional username for the APN
      *  @param password Optional password fot the APN
-     *  @return         0 on success, negative error code on failure
+     *  @return         NSAPI_ERROR_OK on success
+     *                  NSAPI_ERROR_NO_MEMORY on memory failure
      */
     virtual nsapi_error_t set_credentials(const char *apn, AuthenticationType type,
                                           const char *username = 0, const char *password = 0) = 0;
@@ -287,22 +296,25 @@ public:
     /** Request attach to network.
      *
      *  @deprecated Parameter timeout will be deprecated. Use mbed-os/features/cellular/framework/API/CellularDevice.h set_timeout instead.
-     *  @param timeout milliseconds to wait for attach response
-     *  @return        zero on success
+     *  @param timeout  milliseconds to wait for attach response
+     *  @return         NSAPI_ERROR_OK on success
+     *                  NSAPI_ERROR_DEVICE_ERROR on failure
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.9", "Parameter timeout will be deprecated. Use mbed-os/features/cellular/framework/API/CellularDevice.h set_timeout instead.")
     virtual nsapi_error_t set_attach(int timeout = 10 * 1000) = 0;
 
     /** Request attach status from network.
      *
-     *  @param status see AttachStatus values
-     *  @return       zero on success
+     *  @param status   see AttachStatus values
+     *  @return         NSAPI_ERROR_OK on success
+     *                  NSAPI_ERROR_DEVICE_ERROR on failure
      */
     virtual nsapi_error_t get_attach(AttachStatus &status) = 0;
 
     /** Request detach from a network.
      *
-     *  @return        zero on success
+     *  @return         NSAPI_ERROR_OK on success
+     *                  NSAPI_ERROR_DEVICE_ERROR on failure
      */
     virtual nsapi_error_t detach() = 0;
 
@@ -312,7 +324,8 @@ public:
      *  @param reports       Additional exception reports at maximum rate reached are allowed to be sent [optional]
      *  @param time_unit     Uplink time unit with values 0=unrestricted, 1=minute, 2=hour, 3=day, 4=week [optional]
      *  @param uplink_rate   Maximum number of messages per timeUnit [optional]
-     *  @return              zero on success
+     *  @return              NSAPI_ERROR_OK on success
+     *                       NSAPI_ERROR_DEVICE_ERROR on case of failure
      */
     virtual nsapi_error_t get_rate_control(CellularNetwork::RateControlExceptionReports &reports,
                                            CellularNetwork::RateControlUplinkTimeUnit &time_unit, int &uplink_rate) = 0;
@@ -320,29 +333,36 @@ public:
     /** Get backoff timer value
      *
      *  @param backoff_timer Backoff timer value associated with PDP APN in seconds
-     *  @return              zero on success
+     *  @return              NSAPI_ERROR_OK on success
+     *                       NSAPI_ERROR_PARAMETER if no access point is set or found when activating context
+     *                       NSAPI_ERROR_DEVICE_ERROR on failure
      */
     virtual nsapi_error_t get_apn_backoff_timer(int &backoff_timer) = 0;
 
     /** Sets radio access technology.
      *
-     *  @param rat  Radio access technology
-     *  @return     zero on success
+     *  @param rat           Radio access technology
+     *  @return              NSAPI_ERROR_OK on success
+     *                       NSAPI_ERROR_UNSUPPORTED if the given rat is RAT_UNKNOWN or inheriting target class
+     *                                               has not implemented method set_access_technology_impl(...)
+     *                       OR return value of the inheriting target class set_access_technology_impl(...)
      */
     virtual nsapi_error_t set_access_technology(RadioAccessTechnology rat) = 0;
 
     /** Get current radio access technology.
      *
-     *  @param rat  Radio access technology
-     *  @return     zero on success
+     *  @param rat           Radio access technology
+     *  @return              NSAPI_ERROR_OK
      */
     virtual nsapi_error_t get_access_technology(RadioAccessTechnology &rat) = 0;
 
     /** Scans for operators module can reach.
      *
-     *  @param operators Container of reachable operators and their access technologies
-     *  @param ops_count Number of found operators
-     *  @return          zero on success
+     *  @param operators     Container of reachable operators and their access technologies
+     *  @param ops_count     Number of found operators
+     *  @return              NSAPI_ERROR_OK on success
+     *                       NSAPI_ERROR_NO_MEMORY on memory failure
+     *                       NSAPI_ERROR_DEVICE_ERROR on other failures
      */
     virtual nsapi_error_t scan_plmn(operList_t &operators, int &ops_count) = 0;
 
@@ -350,7 +370,8 @@ public:
      *
      *  @param supported_opt Supported CIoT EPS optimizations.
      *  @param preferred_opt Preferred CIoT EPS optimizations.
-     *  @return zero on success
+     *  @return              NSAPI_ERROR_OK on success
+     *                       NSAPI_ERROR_DEVICE_ERROR on failure
      */
     virtual nsapi_error_t set_ciot_optimization_config(Supported_UE_Opt supported_opt,
                                                        Preferred_UE_Opt preferred_opt) = 0;
@@ -359,14 +380,20 @@ public:
      *
      *  @param supported_opt Supported CIoT EPS optimizations.
      *  @param preferred_opt Preferred CIoT EPS optimizations.
-     *  @return zero on success
+     *  @return              NSAPI_ERROR_OK on success
+     *                       NSAPI_ERROR_DEVICE_ERROR on failure
      */
     virtual nsapi_error_t get_ciot_optimization_config(Supported_UE_Opt &supported_opt,
                                                        Preferred_UE_Opt &preferred_opt) = 0;
 
     /** Start the interface. Attempts to connect to a cellular network.
      *
-     *  @return 0 on success, negative error code on failure
+     *  @return              NSAPI_ERROR_OK on success
+     *                       NSAPI_ERROR_NO_CONNECTION if fails to find suitable context to activate or activation failed (if not already activated)
+     *                       NSAPI_ERROR_UNSUPPORTED if NetworkStack was not found
+     *                       NSAPI_ERROR_AUTH_FAILURE if password and username were provided and authentication to network failed
+     *                       Also if PPP mode
+     *                       NSAPI_ERROR_DEVICE_ERROR on failure and check more error from nsapi_ppp_connect(...)
      */
     virtual nsapi_error_t connect() = 0;
 
@@ -375,7 +402,13 @@ public:
      *  @param apn      Optional name of the network to connect to
      *  @param username Optional username for your APN
      *  @param password Optional password for your APN
-     *  @return         0 on success, negative error code on failure
+     *  @return              NSAPI_ERROR_OK on success
+     *                       NSAPI_ERROR_NO_CONNECTION if fails to find suitable context to activate or activation failed (if not already activated)
+     *                       NSAPI_ERROR_UNSUPPORTED if NetworkStack was not found
+     *                       NSAPI_ERROR_AUTH_FAILURE if password and username were provided and authentication to network failed
+     *                       NSAPI_ERROR_NO_MEMORY on memory failure
+     *                       Also if PPP mode
+     *                       NSAPI_ERROR_DEVICE_ERROR on failure and check more error from nsapi_ppp_connect(...)
      */
     virtual nsapi_error_t connect(const char *apn,
                                   const char *username = 0, const char *password = 0) = 0;
@@ -383,7 +416,10 @@ public:
     /** Finds the correct PDP context and activates it. If correct PDP context is not found, one is created.
      *  Given APN (or not given) and stack type (IPv4/IPv6/dual) are influencing when finding the PDP context.
      *
-     *  @return zero on success
+     *  @return              NSAPI_ERROR_OK on success
+     *                       NSAPI_ERROR_NO_CONNECTION if fails to find suitable context to activate or activation failed (if not already activated)
+     *                       NSAPI_ERROR_UNSUPPORTED if NetworkStack was not found
+     *                       NSAPI_ERROR_AUTH_FAILURE if password and username were provided and authentication to network failed
      */
     virtual nsapi_error_t activate_context() = 0;
 
@@ -392,7 +428,8 @@ public:
      *
      * @param stack_type the stack type to be used.
      *
-     * @return NSAPI_ERROR_OK on success
+     * @return              NSAPI_ERROR_OK on success
+     *                      NSAPI_ERROR_PARAMETER if modem does not support the given stack_type
      */
     virtual nsapi_error_t set_stack_type(nsapi_ip_stack_t stack_type) = 0;
 
@@ -406,35 +443,39 @@ public:
     /** Get the relevant information for an active non secondary PDP context.
      *
      *  @remark optional params are not updated if not received from network.
-     *  @param params_list  reference to linked list which is filled on successful call
-     *  @return             0 on success, negative error code on failure
+     *  @param params_list   reference to linked list, which is filled on successful call
+     *  @return              NSAPI_ERROR_OK on success
+     *                       NSAPI_ERROR_NO_MEMORY on memory failure
+     *                       NSAPI_ERROR_DEVICE_ERROR on other failures
      */
     virtual nsapi_error_t get_pdpcontext_params(pdpContextList_t &params_list) = 0;
 
     /** Get extended signal quality parameters.
      *
-     *  @param rxlev signal strength level
-     *  @param ber bit error rate
-     *  @param rscp signal code power
-     *  @param ecno ratio of the received energy per PN chip to the total received power spectral density
-     *  @param rsrq signal received quality
-     *  @param rsrp signal received power
-     *  @return NSAPI_ERROR_OK on success, negative error code on failure
+     *  @param rxlev         signal strength level
+     *  @param ber           bit error rate
+     *  @param rscp          signal code power
+     *  @param ecno          ratio of the received energy per PN chip to the total received power spectral density
+     *  @param rsrq          signal received quality
+     *  @param rsrp          signal received power
+     *  @return              NSAPI_ERROR_OK on success
+     *                       NSAPI_ERROR_DEVICE_ERROR on other failures
      */
     virtual nsapi_error_t get_extended_signal_quality(int &rxlev, int &ber, int &rscp, int &ecno, int &rsrq, int &rsrp) = 0;
 
     /** Get signal quality parameters.
      *
-     *  @param rssi signal strength level
-     *  @param ber bit error rate
-     *  @return NSAPI_ERROR_OK on success, negative error code on failure
+     *  @param rssi          signal strength level
+     *  @param ber           bit error rate
+     *  @return              NSAPI_ERROR_OK on success
+     *                       NSAPI_ERROR_DEVICE_ERROR on other failures
      */
     virtual nsapi_error_t get_signal_quality(int &rssi, int &ber) = 0;
 
     /** Get cell id.
      *
-     *  @param cell_id cell id
-     *  @return NSAPI_ERROR_OK on success, negative error code on failure
+     *  @param cell_id  cell ID
+     *  @return         NSAPI_ERROR_OK
      */
     virtual nsapi_error_t get_cell_id(int &cell_id) = 0;
 
@@ -445,9 +486,10 @@ public:
 
     /** Get the operator parameters.
      *
-     *  @param format format of the operator field
-     *  @param operator_params applicable operator param fields filled
-     *  @return NSAPI_ERROR_OK on success, negative error code on failure
+     *  @param format           format of the operator field
+     *  @param operator_params  applicable operator param fields filled
+     *  @return                 NSAPI_ERROR_OK on success
+     *                          NSAPI_ERROR_DEVICE_ERROR on case of other failures
      */
     virtual nsapi_error_t get_operator_params(int &format, operator_t &operator_params) = 0;
 
@@ -470,14 +512,17 @@ public:
     /** Set blocking status of connect() which by default should be blocking
      *
      *  @param blocking true if connect is blocking
-     *  @return         0 on success, negative error code on failure
+     *  @return         NSAPI_ERROR_OK
+     *                  if PPP mode check errors from nsapi_ppp_set_blocking(...)
      */
     virtual nsapi_error_t set_blocking(bool blocking) = 0;
 
     /** Read operator names
      *
-     *  @param op_names     on successful return will contain linked list of operator names.
-     *  @return             zero on success
+     *  @param op_names      on successful return contains linked list of operator names.
+     *  @return              NSAPI_ERROR_OK on success
+     *                       NSAPI_ERROR_NO_MEMORY on memory failure
+     *                       NSAPI_ERROR_DEVICE_ERROR on other failures
      */
     virtual nsapi_error_t get_operator_names(operator_names_list &op_names) = 0;
 };
