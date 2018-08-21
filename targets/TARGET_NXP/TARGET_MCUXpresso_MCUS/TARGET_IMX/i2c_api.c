@@ -23,8 +23,6 @@
 #include "fsl_lpi2c.h"
 #include "PeripheralPins.h"
 
-/* 7 bit IIC addr - R/W flag not included */
-static int i2c_address = 0;
 /* Array of I2C peripheral base address. */
 static LPI2C_Type *const i2c_addrs[] = LPI2C_BASE_PTRS;
 
@@ -59,11 +57,24 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl)
 
 int i2c_start(i2c_t *obj)
 {
-    if (LPI2C_MasterStart(i2c_addrs[obj->instance], 0, kLPI2C_Write) != kStatus_Success) {
-        return 1;
-    }
+    LPI2C_Type *base = i2c_addrs[obj->instance];
+    int status = 0;
 
-    return 0;
+    obj->address_set = 0;
+
+    /* Clear all flags. */
+    LPI2C_MasterClearStatusFlags(base, kLPI2C_MasterEndOfPacketFlag |
+                                       kLPI2C_MasterStopDetectFlag |
+                                       kLPI2C_MasterNackDetectFlag |
+                                       kLPI2C_MasterArbitrationLostFlag |
+                                       kLPI2C_MasterFifoErrFlag |
+                                       kLPI2C_MasterPinLowTimeoutFlag |
+                                       kLPI2C_MasterDataMatchFlag);
+
+    /* Turn off auto-stop option. */
+    base->MCFGR1 &= ~LPI2C_MCFGR1_AUTOSTOP_MASK;
+
+    return status;
 }
 
 int i2c_stop(i2c_t *obj)
@@ -71,6 +82,8 @@ int i2c_stop(i2c_t *obj)
     if (LPI2C_MasterStop(i2c_addrs[obj->instance]) != kStatus_Success) {
         return 1;
     }
+
+    obj->address_set = 0;
 
     return 0;
 }
@@ -88,7 +101,6 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
     LPI2C_Type *base = i2c_addrs[obj->instance];
     lpi2c_master_transfer_t master_xfer;
 
-    i2c_address = address >> 1;
     memset(&master_xfer, 0, sizeof(master_xfer));
     master_xfer.slaveAddress = address >> 1;
     master_xfer.direction = kLPI2C_Read;
@@ -164,11 +176,10 @@ int i2c_byte_read(i2c_t *obj, int last)
     lpi2c_master_transfer_t master_xfer;
 
     memset(&master_xfer, 0, sizeof(master_xfer));
-    master_xfer.slaveAddress = i2c_address;
     master_xfer.direction = kLPI2C_Read;
     master_xfer.data = &data;
     master_xfer.dataSize = 1;
-    master_xfer.flags = kLPI2C_TransferNoStopFlag;
+    master_xfer.flags = kLPI2C_TransferNoStopFlag | kLPI2C_TransferNoStartFlag;
 
     if (LPI2C_MasterTransferBlocking(base, &master_xfer) != kStatus_Success) {
         return I2C_ERROR_NO_SLAVE;
@@ -179,21 +190,37 @@ int i2c_byte_read(i2c_t *obj, int last)
 int i2c_byte_write(i2c_t *obj, int data)
 {
     LPI2C_Type *base = i2c_addrs[obj->instance];
-    lpi2c_master_transfer_t master_xfer;
-    status_t ret_value;
+    uint32_t status;
+    size_t txCount;
+    size_t txFifoSize = FSL_FEATURE_LPI2C_FIFO_SIZEn(base);
 
-    memset(&master_xfer, 0, sizeof(master_xfer));
-    master_xfer.slaveAddress = i2c_address;
-    master_xfer.direction = kLPI2C_Write;
-    master_xfer.data = &data;
-    master_xfer.dataSize = 1;
-    master_xfer.flags = kLPI2C_TransferNoStopFlag;
+    /* Clear error flags. */
+    LPI2C_MasterClearStatusFlags(base, LPI2C_MasterGetStatusFlags(base));
 
-    ret_value = LPI2C_MasterTransferBlocking(base, &master_xfer);
+    /* Wait till there is room in the TX FIFO */
+    do {
+        /* Get the number of words in the tx fifo and compute empty slots. */
+        LPI2C_MasterGetFifoCounts(base, NULL, &txCount);
+        txCount = txFifoSize - txCount;
+    } while (!txCount);
 
-    if (ret_value == kStatus_Success) {
+    if (!obj->address_set) {
+        obj->address_set  = 1;
+        /* Issue start command. */
+        base->MTDR = LPI2C_MTDR_CMD(0x4U) | LPI2C_MTDR_DATA(data);
+    } else {
+        /* Write byte into LPI2C master data register. */
+        base->MTDR = data;
+    }
+
+    /* Wait till data is pushed out of the FIFO */
+    while (!(base->MSR & kLPI2C_MasterTxReadyFlag)) {
+    }
+
+    status = LPI2C_MasterCheckAndClearError(base, LPI2C_MasterGetStatusFlags(base));
+    if (status == kStatus_Success) {
         return 1;
-    } else if (ret_value == kStatus_LPI2C_Nak) {
+    } else if (status == kStatus_LPI2C_Nak) {
         return 0;
     } else {
         return 2;
