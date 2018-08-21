@@ -33,12 +33,6 @@
 #include "stm32f3xx.h"
 #include "mbed_error.h"
 
-/*!< Uncomment the following line if you need to relocate your vector Table in
-     Internal SRAM. */
-/* #define VECT_TAB_SRAM */
-#define VECT_TAB_OFFSET  0x0 /*!< Vector Table base offset field.
-                                  This value must be a multiple of 0x200. */
-
 // clock source is selected with CLOCK_SOURCE in json config
 #define USE_PLL_HSE_EXTC     0x8  // Use external clock (ST Link MCO)
 #define USE_PLL_HSE_XTAL     0x4  // Use external xtal (X3 on board - not provided by default)
@@ -89,13 +83,6 @@ void SystemInit(void)
 
     /* Disable all interrupts */
     RCC->CIR = 0x00000000U;
-
-#ifdef VECT_TAB_SRAM
-    SCB->VTOR = SRAM_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal SRAM */
-#else
-    SCB->VTOR = FLASH_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal FLASH */
-#endif
-
 }
 
 
