@@ -85,7 +85,7 @@ public:
      *
      *  @returns    Time passed in micro seconds
      */
-    int read_us();
+    us_timestamp_t read_us();
 
     /** An operator shorthand for read()
      */
