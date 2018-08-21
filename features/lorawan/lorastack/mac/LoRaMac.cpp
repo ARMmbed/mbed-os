@@ -1419,6 +1419,11 @@ lorawan_status_t LoRaMac::prepare_join(const lorawan_connect_t *params, bool is_
             }
             // Reset variable JoinRequestTrials
             _params.join_request_trial_counter = 0;
+
+            reset_mac_parameters();
+
+            _params.sys_params.channel_data_rate =
+                _lora_phy->get_alternate_DR(_params.join_request_trial_counter + 1);
         } else {
             if ((params->connection_u.abp.dev_addr == 0)
                     || (params->connection_u.abp.nwk_id == 0)
