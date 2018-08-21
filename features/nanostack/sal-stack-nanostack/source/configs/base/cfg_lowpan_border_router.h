@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, Arm Limited and affiliates.
+ * Copyright (c) 2016-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,7 +15,12 @@
  * limitations under the License.
  */
 
+/* Config Flags for 6LoWPAN Border router */
+#include "cfg_lowpan_router.h"
 
-#include "base/ethernet.cfg"
-
-#define NO_RADV_TX
+#define HAVE_RPL_ROOT
+#define HAVE_RPL_DAO_HANDLING
+#define HAVE_6LOWPAN_BORDER_ROUTER
+#define WHITEBOARD
+#define HAVE_ND_PROXY
+#define MULTICAST_FORWARDING

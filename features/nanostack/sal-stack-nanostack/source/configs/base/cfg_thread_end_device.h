@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016, Arm Limited and affiliates.
+ * Copyright (c) 2016-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,15 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/*  This is for linux router which use RF tunnel interface */
-#include "base/lowpan_border_router.cfg"
-#include "base/ethernet.cfg"
-#include "base/local_socket.cfg"
-#include "base/rf_tunnel.cfg"
 
-#define ECC
-#define HAVE_AES
-#define HAVE_DHCPV6
-#define HAVE_RF_AP
-#define PANA
-#define PANA_SERVER_API
+/* Thread feature is active with minimal functionality */
+#define HAVE_THREAD
+
+#define HAVE_MPL
