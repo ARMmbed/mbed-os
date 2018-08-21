@@ -23,6 +23,8 @@
 extern "C" {
 #endif
 
+extern void rtw_us_ticker_disable_read(void);
+
 /**
  * \defgroup hal_sleep sleep hal requirements
  * Low level interface to the sleep mode of a target.
@@ -71,40 +73,21 @@ extern "C" {
  * The wake-up time shall be less than 10 us.
  * 
  */
-
-static int rtw_if_ready_sleep = 999;
+static int if_ready_sleep = 0;
+static int if_ready_deepsleep = 0;
 
 void hal_sleep(void)
 {
-    /**
-      * @brief  To make the system entering the Clock Gated power saving.
-      *         This function just make the system to enter the clock gated 
-      *         power saving mode and pending on wake up event waitting.
-      *         The user application need to configure the peripheral to 
-      *         generate system wake up event, like GPIO interrupt
-      *         , G-Timer timeout, etc. befor entering power saving mode.
-      *
-      * @param  wakeup_event: A bit map of wake up event. Available event:
-      *                         SLEEP_WAKEUP_BY_STIMER
-      *                         SLEEP_WAKEUP_BY_GTIMER
-      *                         SLEEP_WAKEUP_BY_GPIO_INT
-      *                         SLEEP_WAKEUP_BY_WLAN
-      *                         SLEEP_WAKEUP_BY_NFC
-      *                         SLEEP_WAKEUP_BY_SDIO
-      *                         SLEEP_WAKEUP_BY_USB
-      *         sleep_duration: the system sleep duration in ms, only valid
-      *         for SLEEP_WAKEUP_BY_STIMER wake up event.
-      *         clk_sourec_enable: the option for SCLK on(1)/off(0)
-      *         sdr_enable: the option for turn off the SDR controller (1:off, 0:on)
-      *
-      * @retval None
-      */
-    rtw_if_ready_sleep = 0;
-    rtw_if_ready_sleep = cmsis_ready_to_sleep();
-    if (rtw_if_ready_sleep == 1) {
-        sleep_ex_selective(SLEEP_WAKEUP_BY_GTIMER |
-                           SLEEP_WAKEUP_BY_GPIO_INT, 0, 1, 0);
+    if (if_ready_deepsleep) {
+        if_ready_sleep = cmsis_ready_to_sleep();
+        if (if_ready_sleep) {
+            sleep_ex_selective(SLEEP_WAKEUP_BY_GTIMER |
+                               SLEEP_WAKEUP_BY_GPIO_INT, 0, 1, 0);
+        }
     }
+
+    if_ready_sleep = 0;
+    if_ready_deepsleep = 0;
 }
 
 /** Send the microcontroller to deep sleep
@@ -119,7 +102,8 @@ void hal_sleep(void)
  */
 void hal_deepsleep(void)
 {
-    //deepsleep_ex(DSLEEP_WAKEUP_BY_GPIO, 0);
+    if_ready_deepsleep = 1;
+    rtw_us_ticker_disable_read();
     hal_sleep();
 }
 /**@}*/
@@ -129,4 +113,3 @@ void hal_deepsleep(void)
 #endif
 
 #endif //sleep_api.c
-

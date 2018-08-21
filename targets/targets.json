@@ -4049,9 +4049,9 @@
         "inherits": ["Target"],
         "detect_code": ["4600"],
         "extra_labels": ["Realtek", "AMEBA", "RTL8195A", "RTW_EMAC"],
-        "macros": ["__RTL8195A__","CONFIG_PLATFORM_8195A","CONFIG_MBED_ENABLED","PLATFORM_CMSIS_RTOS","MBED_FAULT_HANDLER_DISABLED"],
+        "macros": ["__RTL8195A__","CONFIG_PLATFORM_8195A","CONFIG_MBED_ENABLED","PLATFORM_CMSIS_RTOS","MBED_FAULT_HANDLER_DISABLED", "MBED_TICKLESS"],
         "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
-        "device_has": ["ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SPI", "TRNG", "FLASH", "SLEEP", "STCLK_OFF_DURING_SLEEP"],
+        "device_has": ["ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SPI", "TRNG", "FLASH", "SLEEP", "STCLK_OFF_DURING_SLEEP", "USTICKER", "LPTICKER"],
         "post_binary_hook": {
             "function": "RTL8195ACode.binary_hook",
             "toolchains": ["ARM_STD", "GCC_ARM", "IAR"]
