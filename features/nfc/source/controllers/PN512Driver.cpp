@@ -16,17 +16,18 @@
 
 #include "PN512Driver.h"
 
-PN512Driver::PN512Driver(PN512TransportDriver* transport_driver) : NFCControllerDriver(), _transport_driver(transport_driver) {
+PN512Driver::PN512Driver(PN512TransportDriver *transport_driver) : NFCControllerDriver(), _transport_driver(transport_driver)
+{
     _transport_driver->set_delegate(this);
 }
 
-nfc_transceiver_t* PN512Driver::initialize(nfc_scheduler_timer_t* scheduler_timer) {
+nfc_transceiver_t *PN512Driver::initialize(nfc_scheduler_timer_t *scheduler_timer)
+{
     // Initialize transport
     _transport_driver->initialize();
 
     nfc_err_t ret = pn512_init(&pn512, _transport_driver->get_transport(), scheduler_timer);
-    if( ret != NFC_OK )
-    {
+    if (ret != NFC_OK) {
         NFC_ERR("PN512 init error (%d)", ret);
         return NULL;
     }
@@ -35,7 +36,8 @@ nfc_transceiver_t* PN512Driver::initialize(nfc_scheduler_timer_t* scheduler_time
     return pn512_get_transceiver(&pn512);
 }
 
-void PN512Driver::get_supported_nfc_techs(nfc_tech_t* initiator, nfc_tech_t* target) const {
+void PN512Driver::get_supported_nfc_techs(nfc_tech_t *initiator, nfc_tech_t *target) const
+{
     initiator->nfc_type1 = 0;
     initiator->nfc_type2 = 1;
     initiator->nfc_type3 = 1;
@@ -55,6 +57,7 @@ void PN512Driver::get_supported_nfc_techs(nfc_tech_t* initiator, nfc_tech_t* tar
     target->nfc_nfc_dep_f_424 = 1;
 }
 
-void PN512Driver::on_hw_interrupt() {
+void PN512Driver::on_hw_interrupt()
+{
     hw_interrupt(); // Propagate interrupt signal
 }

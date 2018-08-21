@@ -22,21 +22,21 @@
 
 #include "iso7816_app.h"
 
-void nfc_tech_iso7816_app_init(nfc_tech_iso7816_app_t* pIso7816App,
-    nfc_tech_iso7816_t* pIso7816,
-    const uint8_t* aid, size_t aidSize,
-    nfc_tech_iso7816_app_cb selected,
-    nfc_tech_iso7816_app_cb deselected,
-    nfc_tech_iso7816_app_cb apdu,
-    void* pUserData
-)
+void nfc_tech_iso7816_app_init(nfc_tech_iso7816_app_t *pIso7816App,
+                               nfc_tech_iso7816_t *pIso7816,
+                               const uint8_t *aid, size_t aidSize,
+                               nfc_tech_iso7816_app_cb selected,
+                               nfc_tech_iso7816_app_cb deselected,
+                               nfc_tech_iso7816_app_cb apdu,
+                               void *pUserData
+                              )
 {
-  pIso7816App->pIso7816 = pIso7816;
-  pIso7816App->aid = aid;
-  pIso7816App->aidSize = aidSize;
-  pIso7816App->selected = selected;
-  pIso7816App->deselected = deselected;
-  pIso7816App->apdu = apdu;
-  pIso7816App->pUserData = pUserData;
-  pIso7816App->pNext = NULL;
+    pIso7816App->pIso7816 = pIso7816;
+    pIso7816App->aid = aid;
+    pIso7816App->aidSize = aidSize;
+    pIso7816App->selected = selected;
+    pIso7816App->deselected = deselected;
+    pIso7816App->apdu = apdu;
+    pIso7816App->pUserData = pUserData;
+    pIso7816App->pNext = NULL;
 }

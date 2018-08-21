@@ -19,11 +19,13 @@
 using namespace mbed;
 using namespace mbed::nfc;
 
-NFCTarget::NFCTarget(uint8_t* buffer, size_t buffer_size) : 
-    NFCNDEFCapable(buffer, buffer_size) {
+NFCTarget::NFCTarget(uint8_t *buffer, size_t buffer_size) :
+    NFCNDEFCapable(buffer, buffer_size)
+{
 
 }
 
-NFCTarget::~NFCTarget() {
+NFCTarget::~NFCTarget()
+{
 
 }

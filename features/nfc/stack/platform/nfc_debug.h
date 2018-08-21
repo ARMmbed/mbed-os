@@ -21,7 +21,8 @@
 #if NFC_DEBUG && !defined(NDEBUG)
 #include "stdio.h"
 #include "stdarg.h"
-static inline void nfc_dbg_print(const char* type, const char* module, unsigned int line, const char* fmt, ...) {
+static inline void nfc_dbg_print(const char *type, const char *module, unsigned int line, const char *fmt, ...)
+{
 #if !defined(NDEBUG)
     printf("NFC [%s] %s:%u ", type, module, line);
     va_list args;

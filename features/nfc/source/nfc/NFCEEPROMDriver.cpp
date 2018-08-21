@@ -19,10 +19,12 @@
 using namespace mbed;
 using namespace mbed::nfc;
 
-NFCEEPROMDriver::NFCEEPROMDriver() : _delegate(NULL) {
+NFCEEPROMDriver::NFCEEPROMDriver() : _delegate(NULL)
+{
 
 }
 
-void NFCEEPROMDriver::set_delegate(Delegate* delegate) {
+void NFCEEPROMDriver::set_delegate(Delegate *delegate)
+{
     _delegate = delegate;
 }

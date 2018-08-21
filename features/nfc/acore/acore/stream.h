@@ -39,32 +39,30 @@ typedef struct __ac_ostream ac_ostream_t;
 
 #include "acore/buffer.h"
 
-typedef void (*ac_istream_fn)(ac_buffer_t* pDataIn, bool* pClose, size_t maxLength, void* pUserParam);
-typedef void (*ac_ostream_fn)(ac_buffer_t* pDataOut, bool closed, void* pUserParam);
+typedef void (*ac_istream_fn)(ac_buffer_t *pDataIn, bool *pClose, size_t maxLength, void *pUserParam);
+typedef void (*ac_ostream_fn)(ac_buffer_t *pDataOut, bool closed, void *pUserParam);
 
 //Input stream -- pulled by consumer
-struct __ac_istream
-{
-  ac_istream_fn fn;
-  void* pUserParam;
+struct __ac_istream {
+    ac_istream_fn fn;
+    void *pUserParam;
 };
 
 //Output stream -- pushed by supplier
-struct __ac_ostream
-{
-  ac_ostream_fn fn;
-  void* pUserParam;
+struct __ac_ostream {
+    ac_ostream_fn fn;
+    void *pUserParam;
 };
 
 //Called by supplier
-void ac_istream_init(ac_istream_t* pac_istream, ac_istream_fn fn, void* pUserParam);
+void ac_istream_init(ac_istream_t *pac_istream, ac_istream_fn fn, void *pUserParam);
 //Called by consumer
-void ac_istream_pull(ac_istream_t* pac_istream, ac_buffer_t* pDataIn, bool* pClose, size_t maxLength);
+void ac_istream_pull(ac_istream_t *pac_istream, ac_buffer_t *pDataIn, bool *pClose, size_t maxLength);
 
 //Called by consumer
-void ac_ostream_init(ac_ostream_t* pac_ostream, ac_ostream_fn fn, void* pUserParam);
+void ac_ostream_init(ac_ostream_t *pac_ostream, ac_ostream_fn fn, void *pUserParam);
 //Called by supplier
-void ac_ostream_push(ac_ostream_t* pac_ostream, ac_buffer_t* pDataOut, bool closed);
+void ac_ostream_push(ac_ostream_t *pac_ostream, ac_buffer_t *pDataOut, bool closed);
 
 #ifdef __cplusplus
 }

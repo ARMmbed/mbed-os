@@ -41,7 +41,7 @@ extern "C" {
  * \param outLen buffer's length
  * \param pUser parameter passed to the nfc_transport_init function
  */
-typedef void (*nfc_transport_write_fn_t)( uint8_t address, const uint8_t* outBuf, size_t outLen, void* pUser );
+typedef void (*nfc_transport_write_fn_t)(uint8_t address, const uint8_t *outBuf, size_t outLen, void *pUser);
 
 /** Function called to read a register's value
  * \param address address to read packet from
@@ -49,25 +49,24 @@ typedef void (*nfc_transport_write_fn_t)( uint8_t address, const uint8_t* outBuf
  * \param outLen buffer's length
  * \param pUser parameter passed to the nfc_transport_init function
  */
-typedef void (*nfc_transport_read_fn_t)( uint8_t address, uint8_t* inBuf, size_t inLen, void* pUser );
+typedef void (*nfc_transport_read_fn_t)(uint8_t address, uint8_t *inBuf, size_t inLen, void *pUser);
 
-typedef struct __transport
-{
-  nfc_transport_write_fn_t write;
-  nfc_transport_read_fn_t read;
-  void* pUser;
+typedef struct __transport {
+    nfc_transport_write_fn_t write;
+    nfc_transport_read_fn_t read;
+    void *pUser;
 } nfc_transport_t;
 
-void nfc_transport_init( nfc_transport_t* pTransport, nfc_transport_write_fn_t write, nfc_transport_read_fn_t read, void* pUser );
+void nfc_transport_init(nfc_transport_t *pTransport, nfc_transport_write_fn_t write, nfc_transport_read_fn_t read, void *pUser);
 
-static inline void nfc_transport_write( nfc_transport_t* pTransport, uint8_t address, const uint8_t* outBuf, size_t outLen )
+static inline void nfc_transport_write(nfc_transport_t *pTransport, uint8_t address, const uint8_t *outBuf, size_t outLen)
 {
-  pTransport->write( address, outBuf, outLen, pTransport->pUser );
+    pTransport->write(address, outBuf, outLen, pTransport->pUser);
 }
 
-static inline void nfc_transport_read( nfc_transport_t* pTransport, uint8_t address, uint8_t* inBuf, size_t inLen )
+static inline void nfc_transport_read(nfc_transport_t *pTransport, uint8_t address, uint8_t *inBuf, size_t inLen)
 {
-  pTransport->read( address, inBuf, inLen, pTransport->pUser );
+    pTransport->read(address, inBuf, inLen, pTransport->pUser);
 }
 
 #ifdef __cplusplus

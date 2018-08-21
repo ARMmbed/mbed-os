@@ -19,17 +19,19 @@
 using namespace mbed;
 using namespace mbed::nfc;
 
-NFCRemoteInitiator::NFCRemoteInitiator(NFCController* controller, uint8_t* buffer, size_t buffer_size) : 
-    NFCRemoteEndpoint(controller), NFCNDEFCapable(buffer, buffer_size) {
+NFCRemoteInitiator::NFCRemoteInitiator(NFCController *controller, uint8_t *buffer, size_t buffer_size) :
+    NFCRemoteEndpoint(controller), NFCNDEFCapable(buffer, buffer_size)
+{
 
 }
 
-NFCRemoteInitiator::~NFCRemoteInitiator() {
+NFCRemoteInitiator::~NFCRemoteInitiator()
+{
 
 }
 
 
-void NFCRemoteInitiator::set_remote_initiator_delegate(Delegate* delegate)
+void NFCRemoteInitiator::set_remote_initiator_delegate(Delegate *delegate)
 {
     _delegate = delegate;
 }

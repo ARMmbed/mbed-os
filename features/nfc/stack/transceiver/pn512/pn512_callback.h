@@ -28,7 +28,7 @@ extern "C" {
 #endif
 
 typedef struct __pn512 pn512_t;
-typedef void (*pn512_cb_t)(pn512_t* pPN512, nfc_err_t ret);
+typedef void (*pn512_cb_t)(pn512_t *pPN512, nfc_err_t ret);
 
 #ifdef __cplusplus
 }

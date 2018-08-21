@@ -30,8 +30,8 @@ extern "C" {
 #include "inc/nfc.h"
 
 
-void pn512_poll_setup(pn512_t* pPN512);
-void pn512_poll_hw(pn512_t* pPN512, pn512_cb_t cb);
+void pn512_poll_setup(pn512_t *pPN512);
+void pn512_poll_hw(pn512_t *pPN512, pn512_cb_t cb);
 
 
 #ifdef __cplusplus

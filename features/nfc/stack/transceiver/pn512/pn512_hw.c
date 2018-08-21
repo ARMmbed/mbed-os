@@ -40,10 +40,10 @@
 /** \internal Initialize underlying pn512_hw_t structure
  * \param pPN512 pointer to pn512_t structure
  */
-void pn512_hw_init(pn512_t* pPN512)
+void pn512_hw_init(pn512_t *pPN512)
 {
-  //Nothing to init in this implementation
-  (void) pPN512;
+    //Nothing to init in this implementation
+    (void) pPN512;
 }
 
 

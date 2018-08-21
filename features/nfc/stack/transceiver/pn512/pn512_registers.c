@@ -43,14 +43,14 @@
  *  @{
  */
 
-static void pn512_register_switch_page_intl(pn512_t* pPN512, uint8_t page);
+static void pn512_register_switch_page_intl(pn512_t *pPN512, uint8_t page);
 
 /** \internal Initialize underlying pn512_registers_t structure
  * \param pPN512 pointer to pn512_t structure
  */
-void pn512_registers_init(pn512_t* pPN512)
+void pn512_registers_init(pn512_t *pPN512)
 {
-  pPN512->registers.registers_page = 0;
+    pPN512->registers.registers_page = 0;
 }
 
 #define PN512_CFG_INIT_LEN 9
@@ -80,13 +80,12 @@ static const uint8_t PN512_CFG_INIT_VALS[] = {
 /** \internal Switch to known (0) registers page, reset registers state
  * \param pPN512 pointer to pn512_t structure
  */
-void pn512_registers_reset(pn512_t* pPN512)
+void pn512_registers_reset(pn512_t *pPN512)
 {
-  pn512_register_switch_page_intl(pPN512, 0);
-  for(int i = 0; i < PN512_CFG_INIT_LEN; i++)
-  {
-    pn512_register_write(pPN512, PN512_CFG_INIT_REGS[i], PN512_CFG_INIT_VALS[i]);
-  }
+    pn512_register_switch_page_intl(pPN512, 0);
+    for (int i = 0; i < PN512_CFG_INIT_LEN; i++) {
+        pn512_register_write(pPN512, PN512_CFG_INIT_REGS[i], PN512_CFG_INIT_VALS[i]);
+    }
 }
 
 /** \internal Write register
@@ -94,15 +93,14 @@ void pn512_registers_reset(pn512_t* pPN512)
  * \param address register address
  * \param data value to write in register
  */
-void pn512_register_write(pn512_t* pPN512, uint8_t address, uint8_t data)
+void pn512_register_write(pn512_t *pPN512, uint8_t address, uint8_t data)
 {
-  NFC_DBG("Write [%02x] << %02x", address, data);
-  if(REGISTER_PAGE(address) != pPN512->registers.registers_page)
-  {
-    pn512_register_switch_page_intl(pPN512, REGISTER_PAGE(address));
-  }
-  address=REGISTER_ADDR(address);
-  pn512_hw_write(pPN512, address, &data, 1);
+    NFC_DBG("Write [%02x] << %02x", address, data);
+    if (REGISTER_PAGE(address) != pPN512->registers.registers_page) {
+        pn512_register_switch_page_intl(pPN512, REGISTER_PAGE(address));
+    }
+    address = REGISTER_ADDR(address);
+    pn512_hw_write(pPN512, address, &data, 1);
 }
 
 /** \internal Read register
@@ -110,43 +108,41 @@ void pn512_register_write(pn512_t* pPN512, uint8_t address, uint8_t data)
  * \param address register address
  * \return data value read from register
  */
-uint8_t pn512_register_read(pn512_t* pPN512, uint8_t address)
+uint8_t pn512_register_read(pn512_t *pPN512, uint8_t address)
 {
-  uint8_t data;
-  DBG_BLOCK(
-  uint8_t __dbg_addr;
-  __dbg_addr = address; //FIXME
-  )
-  if(REGISTER_PAGE(address) != pPN512->registers.registers_page)
-  {
-    pn512_register_switch_page_intl(pPN512, REGISTER_PAGE(address));
-  }
-  address=REGISTER_ADDR(address);
-  pn512_hw_read(pPN512, address, &data, 1);
-  NFC_DBG("Read  [%02x] >> %02x", __dbg_addr, data);
-  return data;
+    uint8_t data;
+    DBG_BLOCK(
+        uint8_t __dbg_addr;
+        __dbg_addr = address; //FIXME
+    )
+    if (REGISTER_PAGE(address) != pPN512->registers.registers_page) {
+        pn512_register_switch_page_intl(pPN512, REGISTER_PAGE(address));
+    }
+    address = REGISTER_ADDR(address);
+    pn512_hw_read(pPN512, address, &data, 1);
+    NFC_DBG("Read  [%02x] >> %02x", __dbg_addr, data);
+    return data;
 }
 
-void pn512_register_switch_page(pn512_t* pPN512, uint8_t address)
+void pn512_register_switch_page(pn512_t *pPN512, uint8_t address)
 {
-  if(REGISTER_PAGE(address) != pPN512->registers.registers_page)
-  {
-    pn512_register_switch_page_intl(pPN512, REGISTER_PAGE(address));
-  }
+    if (REGISTER_PAGE(address) != pPN512->registers.registers_page) {
+        pn512_register_switch_page_intl(pPN512, REGISTER_PAGE(address));
+    }
 }
 
 /** \internal Switch registers page
  * \param pPN512 pointer to pn512_t structure
  * \param page registers page
  */
-void pn512_register_switch_page_intl(pn512_t* pPN512, uint8_t page)
+void pn512_register_switch_page_intl(pn512_t *pPN512, uint8_t page)
 {
-  uint8_t pageRegValue;
-  pageRegValue = (1 << 7) | page;
+    uint8_t pageRegValue;
+    pageRegValue = (1 << 7) | page;
 
-  pn512_hw_write(pPN512, PN512_REG_PAGE, &pageRegValue, 1);
+    pn512_hw_write(pPN512, PN512_REG_PAGE, &pageRegValue, 1);
 
-  pPN512->registers.registers_page = page;
+    pPN512->registers.registers_page = page;
 }
 
 

@@ -27,67 +27,67 @@
 namespace mbed {
 namespace nfc {
 
+/**
+ * @addtogroup nfc
+ * @{
+ */
+
+/**
+ * The abstraction for a NFC controller driver.
+ * Implementers need to derive from this class and implement its methods.
+ */
+class NFCControllerDriver {
     /**
-     * @addtogroup nfc
-     * @{
+     * Instantiate a NFCControllerDriver
      */
-    
+    NFCControllerDriver();
+
     /**
-     * The abstraction for a NFC controller driver.
-     * Implementers need to derive from this class and implement its methods.
-     */ 
-    class NFCControllerDriver {
+     * The NFCControllerDriver delegate
+     */
+    struct Delegate {
         /**
-         * Instantiate a NFCControllerDriver
-         */ 
-        NFCControllerDriver();
-
-        /**
-         * The NFCControllerDriver delegate
-         */ 
-        struct Delegate {
-            /**
-             * Called when the controller asserts the interrupt line
-             */ 
-            virtual void on_hw_interrupt() {}
-        };
-
-        /**
-         * Initialize the driver and retrieve the interface to the controller.
-         * 
-         * @param[in] scheduler_timer a timer to initialize the controller's scheduler instance with
-         * @return an initialized MicroNFC nfc_transceiver_t instance
-         */ 
-        virtual nfc_transceiver_t* initialize(nfc_scheduler_timer_t* scheduler_timer) = 0;
-
-        /**
-         * Retrieve list of technologies supported by the controller
-         * @param[out] initiator bitmask of technologies supported when the controller is in initiator mode
-         * @param[out] target bitmask of technologies supported when the controller is in target mode
-         */ 
-        virtual void get_supported_nfc_techs(nfc_tech_t* initiator, nfc_tech_t* target) const = 0;
-
-        /**
-         * Set this instance's delegate
-         * 
-         * @param[in] delegate the delegate instance to use
-         */ 
-        void set_delegate(Delegate* delegate);
-    protected:
-
-        /**
-         * An implementation must call this function (can be called from interrupt context) 
-         * when the controller asserts its interrupt line
-         */ 
-        void hw_interrupt();
-    private:
-        Delegate* _delegate;
+         * Called when the controller asserts the interrupt line
+         */
+        virtual void on_hw_interrupt() {}
     };
 
     /**
-     * @}
+     * Initialize the driver and retrieve the interface to the controller.
+     *
+     * @param[in] scheduler_timer a timer to initialize the controller's scheduler instance with
+     * @return an initialized MicroNFC nfc_transceiver_t instance
      */
-    
+    virtual nfc_transceiver_t *initialize(nfc_scheduler_timer_t *scheduler_timer) = 0;
+
+    /**
+     * Retrieve list of technologies supported by the controller
+     * @param[out] initiator bitmask of technologies supported when the controller is in initiator mode
+     * @param[out] target bitmask of technologies supported when the controller is in target mode
+     */
+    virtual void get_supported_nfc_techs(nfc_tech_t *initiator, nfc_tech_t *target) const = 0;
+
+    /**
+     * Set this instance's delegate
+     *
+     * @param[in] delegate the delegate instance to use
+     */
+    void set_delegate(Delegate *delegate);
+protected:
+
+    /**
+     * An implementation must call this function (can be called from interrupt context)
+     * when the controller asserts its interrupt line
+     */
+    void hw_interrupt();
+private:
+    Delegate *_delegate;
+};
+
+/**
+ * @}
+ */
+
 } // namespace nfc
 } // namespace mbed
 

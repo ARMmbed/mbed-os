@@ -47,28 +47,28 @@ extern "C" {
 
 #define PN512_CMD_REG_MASK    0x0F
 
-void pn512_cmd_init(pn512_t* pPN512);
+void pn512_cmd_init(pn512_t *pPN512);
 
 //Fifo read / write
 
-void pn512_fifo_write(pn512_t* pPN512, buffer_t* pData);
-void pn512_fifo_read(pn512_t* pPN512, buffer_builder_t* pData);
+void pn512_fifo_write(pn512_t *pPN512, buffer_t *pData);
+void pn512_fifo_read(pn512_t *pPN512, buffer_builder_t *pData);
 
 //Fifo clear
-void pn512_fifo_clear(pn512_t* pPN512);
+void pn512_fifo_clear(pn512_t *pPN512);
 
 //Fifo bytes read
-size_t pn512_fifo_space(pn512_t* pPN512);
-size_t pn512_fifo_length(pn512_t* pPN512);
+size_t pn512_fifo_space(pn512_t *pPN512);
+size_t pn512_fifo_length(pn512_t *pPN512);
 
 //Execute command
-void pn512_cmd_exec(pn512_t* pPN512, uint8_t cmd);
+void pn512_cmd_exec(pn512_t *pPN512, uint8_t cmd);
 
 //Wait for command completion
-nfc_err_t pn512_cmd_wait_idle(pn512_t* pPN512, int timeout);
+nfc_err_t pn512_cmd_wait_idle(pn512_t *pPN512, int timeout);
 
 //Read executed command
-uint8_t pn512_cmd_get(pn512_t* pPN512);
+uint8_t pn512_cmd_get(pn512_t *pPN512);
 
 
 #ifdef __cplusplus

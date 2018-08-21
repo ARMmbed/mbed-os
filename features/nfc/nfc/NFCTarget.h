@@ -26,75 +26,75 @@
 namespace mbed {
 namespace nfc {
 
+/**
+ * @addtogroup nfc
+ * @{
+ */
+
+/**
+ * This class represents a NFC target (either a remote target when the local controller in in initiator mode, or a target connected through a wired connection).
+ *
+ * A target can be a NFC tag/card, a NFC-enabled phone or other NFC device capable of modulating a RF field.
+ */
+class NFCTarget : public NFCNDEFCapable {
+public:
     /**
-     * @addtogroup nfc
-     * @{
+     * Create a NFCTarget.
+     *
+     * @param[in] buffer a bytes array used to store NDEF messages
+     * @param[in] buffer_size the array size in bytes
      */
-    
-    /**
-     * This class represents a NFC target (either a remote target when the local controller in in initiator mode, or a target connected through a wired connection).
-     * 
-     * A target can be a NFC tag/card, a NFC-enabled phone or other NFC device capable of modulating a RF field.
-     */ 
-    class NFCTarget : public NFCNDEFCapable {
-    public:
+    NFCTarget(uint8_t *buffer, size_t buffer_size);
+    virtual ~NFCTarget();
+
+    struct Delegate {
         /**
-         * Create a NFCTarget.
-         * 
-         * @param[in] buffer a bytes array used to store NDEF messages
-         * @param[in] buffer_size the array size in bytes
-         */ 
-        NFCTarget(uint8_t* buffer, size_t buffer_size);
-        virtual ~NFCTarget();
-
-        struct Delegate {
-            /**
-             * The NDEF message erasing request completed.
-             * 
-             * @param[in] result NFC_OK or an error code on failure
-             */ 
-            virtual void on_ndef_message_erased(nfc_err_t result) {}
-
-            /**
-             * The NDEF message writing request completed.
-             * 
-             * @param[in] result NFC_OK or an error code on failure
-             */ 
-            virtual void on_ndef_message_written(nfc_err_t result) {}
-
-            /**
-             * The NDEF message reading request completed.
-             * 
-             * @param[in] result NFC_OK or an error code on failure
-             */ 
-            virtual void on_ndef_message_read(nfc_err_t result) {}
-        };
+         * The NDEF message erasing request completed.
+         *
+         * @param[in] result NFC_OK or an error code on failure
+         */
+        virtual void on_ndef_message_erased(nfc_err_t result) {}
 
         /**
-         * Write a NDEF message to the target.
-         * 
-         * on_ndef_message_written() will be called on completion.
-         */ 
-        virtual void write_ndef_message() = 0;
+         * The NDEF message writing request completed.
+         *
+         * @param[in] result NFC_OK or an error code on failure
+         */
+        virtual void on_ndef_message_written(nfc_err_t result) {}
 
         /**
-         * Read a NDEF message from the target.
-         * 
-         * on_ndef_message_read() will be called on completion.
-         */ 
-        virtual void read_ndef_message() = 0;
-        
-        /**
-         * Erase the NDEF message in the target.
-         * 
-         * on_ndef_message_erased() will be called on completion.
-         */ 
-        virtual void erase_ndef_message() = 0;
+         * The NDEF message reading request completed.
+         *
+         * @param[in] result NFC_OK or an error code on failure
+         */
+        virtual void on_ndef_message_read(nfc_err_t result) {}
     };
 
     /**
-     * @}
+     * Write a NDEF message to the target.
+     *
+     * on_ndef_message_written() will be called on completion.
      */
+    virtual void write_ndef_message() = 0;
+
+    /**
+     * Read a NDEF message from the target.
+     *
+     * on_ndef_message_read() will be called on completion.
+     */
+    virtual void read_ndef_message() = 0;
+
+    /**
+     * Erase the NDEF message in the target.
+     *
+     * on_ndef_message_erased() will be called on completion.
+     */
+    virtual void erase_ndef_message() = 0;
+};
+
+/**
+ * @}
+ */
 
 } // namespace nfc
 } // namespace mbed

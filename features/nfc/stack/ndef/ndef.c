@@ -39,12 +39,12 @@
  * \param buffer_size size of the underlying buffer
  * \param pImpl pointer to actual implementation
  */
-void ndef_msg_init( ndef_msg_t* pNdef, ndef_encode_fn_t encode, ndef_decode_fn_t decode, uint8_t* data, size_t size, void* pUserData )
+void ndef_msg_init(ndef_msg_t *pNdef, ndef_encode_fn_t encode, ndef_decode_fn_t decode, uint8_t *data, size_t size, void *pUserData)
 {
-  pNdef->encode = encode;
-  pNdef->decode = decode;
-  buffer_builder_init(&pNdef->bufferBldr, data, size);
-  pNdef->pUserData = pUserData;
+    pNdef->encode = encode;
+    pNdef->decode = decode;
+    buffer_builder_init(&pNdef->bufferBldr, data, size);
+    pNdef->pUserData = pUserData;
 }
 
 /** Get NDEF tag implementation

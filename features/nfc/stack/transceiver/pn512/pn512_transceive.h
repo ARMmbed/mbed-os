@@ -29,13 +29,13 @@ extern "C" {
 
 #include "pn512.h"
 
-void pn512_transceive_hw(pn512_t* pPN512, pn512_transceive_mode_t mode, pn512_cb_t cb);
+void pn512_transceive_hw(pn512_t *pPN512, pn512_transceive_mode_t mode, pn512_cb_t cb);
 
-void pn512_transceive_hw_tx_task(uint32_t events, void* pUserData);
-void pn512_transceive_hw_tx_iteration(pn512_t* pPN512, bool start);
+void pn512_transceive_hw_tx_task(uint32_t events, void *pUserData);
+void pn512_transceive_hw_tx_iteration(pn512_t *pPN512, bool start);
 
-void pn512_transceive_hw_rx_start(pn512_t* pPN512);
-void pn512_transceive_hw_rx_task(uint32_t events, void* pUserData);
+void pn512_transceive_hw_rx_start(pn512_t *pPN512);
+void pn512_transceive_hw_rx_task(uint32_t events, void *pUserData);
 
 
 #ifdef __cplusplus

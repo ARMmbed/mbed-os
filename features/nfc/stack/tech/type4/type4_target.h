@@ -35,26 +35,25 @@ extern "C" {
 
 typedef struct nfc_tech_type4_target nfc_tech_type4_target_t;
 
-typedef void (*nfc_tech_type4_cb)(nfc_tech_type4_target_t* pType4Target, nfc_err_t ret, void* pUserData);
+typedef void (*nfc_tech_type4_cb)(nfc_tech_type4_target_t *pType4Target, nfc_err_t ret, void *pUserData);
 
-struct nfc_tech_type4_target
-{
-  nfc_tech_iso7816_app_t app;
+struct nfc_tech_type4_target {
+    nfc_tech_iso7816_app_t app;
 
-  ndef_msg_t* pNdef;
+    ndef_msg_t *pNdef;
 
-  uint8_t ccFileBuf[15];
-  buffer_builder_t ccFileBldr;
+    uint8_t ccFileBuf[15];
+    buffer_builder_t ccFileBldr;
 
-  uint8_t ndefFileBuf[2];
-  buffer_builder_t ndefFileBldr;
+    uint8_t ndefFileBuf[2];
+    buffer_builder_t ndefFileBldr;
 
-  uint16_t selFile;
+    uint16_t selFile;
 
-  bool written;
+    bool written;
 };
 
-void nfc_tech_type4_target_init(nfc_tech_type4_target_t* pType4Target, nfc_tech_iso7816_t* pIso7816, ndef_msg_t* pNdef);
+void nfc_tech_type4_target_init(nfc_tech_type4_target_t *pType4Target, nfc_tech_iso7816_t *pIso7816, ndef_msg_t *pNdef);
 
 #ifdef __cplusplus
 }

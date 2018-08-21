@@ -19,16 +19,19 @@
 using namespace mbed;
 using namespace mbed::nfc;
 
-NFCControllerDriver::NFCControllerDriver() : _delegate(NULL) {
+NFCControllerDriver::NFCControllerDriver() : _delegate(NULL)
+{
 
 }
 
-void NFCControllerDriver::set_delegate(Delegate* delegate) {
+void NFCControllerDriver::set_delegate(Delegate *delegate)
+{
     _delegate = delegate;
 }
 
-void NFCControllerDriver::hw_interrupt() {
-    if(_delegate != NULL) {
+void NFCControllerDriver::hw_interrupt()
+{
+    if (_delegate != NULL) {
         _delegate->on_hw_interrupt();
     }
 }
