@@ -222,6 +222,8 @@ static const uint8_t max_payload_with_repeater_AU915[] = { 51, 51, 51, 115,
 
 static const uint16_t fsb_mask[] = MBED_CONF_LORA_FSB_MASK;
 
+static const uint16_t full_channel_mask [] = {0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0x00FF};
+
 LoRaPHYAU915::LoRaPHYAU915()
 {
     bands[0] = AU915_BAND0;
@@ -244,18 +246,10 @@ LoRaPHYAU915::LoRaPHYAU915()
     // Initialize channels default mask
     // All channels are default channels here
     // Join request needs to alternate between 125 KHz and 500 KHz channels
-    // randomly.
-    // ChannelsMask
-    for (uint8_t i = 0; i < AU915_MAX_NB_CHANNELS; i++) {
-        if (i == (AU915_MAX_NB_CHANNELS - 1)) {
-            // 64 - 71, 500 kHz channels will get enabled
-            default_channel_mask[i] = 0x00FF & fsb_mask[i];
-            continue;
-        }
-
-        // 0 - 63 125 kHz channels will get enabled
-        default_channel_mask[i] = 0xFFFF & fsb_mask[i];
-    }
+    // randomly. Fill in the default channel mask depending upon the given
+    // fsb_mask
+    fill_channel_mask_with_fsb(full_channel_mask, fsb_mask,
+                               default_channel_mask, AU915_CHANNEL_MASK_SIZE);
 
     memset(channel_mask, 0, sizeof(channel_mask));
     memset(current_channel_mask, 0, sizeof(current_channel_mask));
@@ -452,17 +446,15 @@ uint8_t LoRaPHYAU915::link_ADR_request(adr_req_params_t* params,
 
         if (adr_settings.ch_mask_ctrl == 6) {
             // Enable all 125 kHz channels
-            for (uint8_t i = 0; i < AU915_CHANNEL_MASK_SIZE - 1; i++) {
-                temp_channel_masks[i] = 0xFFFF;
-            }
+            fill_channel_mask_with_value(temp_channel_masks, 0xFFFF,
+                                         AU915_CHANNEL_MASK_SIZE - 1);
 
             // Apply chMask to channels 64 to 71
             temp_channel_masks[4] = adr_settings.channel_mask;
         } else if (adr_settings.ch_mask_ctrl == 7) {
             // Disable all 125 kHz channels
-            for (uint8_t i = 0; i < AU915_CHANNEL_MASK_SIZE - 1; i++) {
-                temp_channel_masks[i] = 0x0000;
-            }
+            fill_channel_mask_with_value(temp_channel_masks, 0x0000,
+                                         AU915_CHANNEL_MASK_SIZE - 1);
 
             // Apply chMask to channels 64 to 71
             temp_channel_masks[4] = adr_settings.channel_mask;
@@ -500,9 +492,8 @@ uint8_t LoRaPHYAU915::link_ADR_request(adr_req_params_t* params,
         // Copy Mask
         copy_channel_mask(channel_mask, temp_channel_masks, AU915_CHANNEL_MASK_SIZE);
 
-        for (uint8_t i = 0; i < AU915_CHANNEL_MASK_SIZE; i++) {
-            current_channel_mask[i] &= channel_mask[i];
-        }
+        intersect_channel_mask(channel_mask, current_channel_mask,
+                               AU915_CHANNEL_MASK_SIZE);
     }
 
     // Update status variables
