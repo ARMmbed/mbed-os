@@ -120,8 +120,10 @@ void lp_ticker_clear_interrupt(void)
 
 void lp_ticker_free(void)
 {
+#ifndef  FEATURE_UVISOR
     LPTMR_DisableInterrupts(LPTMR0, kLPTMR_TimerInterruptEnable);
     NVIC_DisableIRQ(LPTMR0_IRQn);
+#endif
 }
 
 #endif /* DEVICE_LPTICKER */
