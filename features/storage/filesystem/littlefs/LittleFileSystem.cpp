@@ -20,7 +20,7 @@
 #include "lfs_util.h"
 #include "MbedCRC.h"
 
-extern "C" void mbed_lfs_crc(uint32_t *crc, const void *buffer, size_t size)
+extern "C" void lfs_crc(uint32_t *crc, const void *buffer, size_t size)
 {
     uint32_t initial_xor = *crc;    
     MbedCRC<POLY_32BIT_REV_ANSI, 32> ct(initial_xor, 0x0, true, false);
