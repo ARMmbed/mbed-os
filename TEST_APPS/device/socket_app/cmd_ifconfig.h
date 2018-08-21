@@ -26,9 +26,9 @@
  *
  *  @return         pointer to the network interface, or NULL if unrecognized or ambiguous
  */
-NetworkInterface* get_interface(void);
+NetworkInterface *get_interface(void);
 
 void cmd_ifconfig_init(void);
-const char* networkstack_error_to_str(int errorcode);
+const char *networkstack_error_to_str(int errorcode);
 
 #endif

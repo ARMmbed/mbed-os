@@ -88,71 +88,71 @@
 
 class SInfo;
 static Queue<SInfo, 10> event_queue;
-static int id_count=0;
+static int id_count = 0;
 
-class SInfo
-{
-  public:
+class SInfo {
+public:
     enum SocketType {
         TCP_CLIENT,
         TCP_SERVER,
         UDP
     };
-    SInfo(TCPSocket* sock):
-            _id(id_count++),
-            _sock(sock),
-            _type(SInfo::TCP_CLIENT),
-            _blocking(true),
-            _dataLen(0),
-            _maxRecvLen(0),
-            _repeatBufferFill(1),
-            _receivedTotal(0),
-            _receiverThread(NULL),
-            _receiveBuffer(NULL),
-            _senderThreadId(NULL),
-            _receiverThreadId(NULL),
-            _packetSizes(NULL),
-            _check_pattern(false)
+    SInfo(TCPSocket *sock):
+        _id(id_count++),
+        _sock(sock),
+        _type(SInfo::TCP_CLIENT),
+        _blocking(true),
+        _dataLen(0),
+        _maxRecvLen(0),
+        _repeatBufferFill(1),
+        _receivedTotal(0),
+        _receiverThread(NULL),
+        _receiveBuffer(NULL),
+        _senderThreadId(NULL),
+        _receiverThreadId(NULL),
+        _packetSizes(NULL),
+        _check_pattern(false)
     {
         assert(sock);
     }
-    SInfo(TCPServer* sock):
-            _id(id_count++),
-            _sock(sock),
-            _type(SInfo::TCP_SERVER),
-            _blocking(true),
-            _dataLen(0),
-            _maxRecvLen(0),
-            _repeatBufferFill(1),
-            _receivedTotal(0),
-            _receiverThread(NULL),
-            _receiveBuffer(NULL),
-            _senderThreadId(NULL),
-            _receiverThreadId(NULL),
-            _packetSizes(NULL),
-            _check_pattern(false)
+    SInfo(TCPServer *sock):
+        _id(id_count++),
+        _sock(sock),
+        _type(SInfo::TCP_SERVER),
+        _blocking(true),
+        _dataLen(0),
+        _maxRecvLen(0),
+        _repeatBufferFill(1),
+        _receivedTotal(0),
+        _receiverThread(NULL),
+        _receiveBuffer(NULL),
+        _senderThreadId(NULL),
+        _receiverThreadId(NULL),
+        _packetSizes(NULL),
+        _check_pattern(false)
     {
         assert(sock);
     }
-    SInfo(UDPSocket* sock):
-            _id(id_count++),
-            _sock(sock),
-            _type(SInfo::UDP),
-            _blocking(true),
-            _dataLen(0),
-            _maxRecvLen(0),
-            _repeatBufferFill(1),
-            _receivedTotal(0),
-            _receiverThread(NULL),
-            _receiveBuffer(NULL),
-            _senderThreadId(NULL),
-            _receiverThreadId(NULL),
-            _packetSizes(NULL),
-            _check_pattern(false)
+    SInfo(UDPSocket *sock):
+        _id(id_count++),
+        _sock(sock),
+        _type(SInfo::UDP),
+        _blocking(true),
+        _dataLen(0),
+        _maxRecvLen(0),
+        _repeatBufferFill(1),
+        _receivedTotal(0),
+        _receiverThread(NULL),
+        _receiveBuffer(NULL),
+        _senderThreadId(NULL),
+        _receiverThreadId(NULL),
+        _packetSizes(NULL),
+        _check_pattern(false)
     {
         assert(sock);
     }
-    ~SInfo() {
+    ~SInfo()
+    {
         this->_sock->sigio(Callback<void()>());
         if (this->_receiverThread) {
             this->_receiverThread->terminate();
@@ -163,35 +163,122 @@ class SInfo
         }
         delete this->_sock;
     }
-    int id() const { return this->_id; }
-    Socket& socket() { return *(this->_sock); }
-    Socket& socket() const { return *(this->_sock); }
-    TCPSocket *tcp_socket() { return this->_type == SInfo::TCP_CLIENT ? static_cast<TCPSocket *>(this->_sock) : NULL; }
-    TCPServer *tcp_server() { return this->_type == SInfo::TCP_SERVER ? static_cast<TCPServer *>(this->_sock) : NULL; }
-    UDPSocket *udp_socket() { return this->_type == SInfo::UDP        ? static_cast<UDPSocket *>(this->_sock) : NULL; }
-    SInfo::SocketType type() const { return this->_type; }
-    void setDataCount(int dataCount) { this->_dataLen = dataCount; }
-    int getDataCount() { return this->_dataLen; }
-    void setReceiverThread(Thread *receiverThread) { this->_receiverThread = receiverThread; }
-    Thread *getReceiverThread() { return this->_receiverThread; }
-    void setReceiveBuffer(uint8_t *receiveBuffer) { this->_receiveBuffer = receiveBuffer; }
-    uint8_t *getReceiveBuffer() { return this->_receiveBuffer; }
-    void setMaxRecvLen(int recvLen) { this->_maxRecvLen = recvLen; }
-    int getMaxRecvLen() { return this->_maxRecvLen; }
-    void setRepeatBufferFill(int n) { this->_repeatBufferFill = n; }
-    int getRepeatBufferFill() { return this->_repeatBufferFill; }
-    void setRecvTotal(int n) { this->_receivedTotal = n; }
-    int getRecvTotal() { return this->_receivedTotal; }
-    void setSenderThreadId(osThreadId threadID) { this->_senderThreadId = threadID; }
-    void setReceiverThreadId(osThreadId threadID) { this->_receiverThreadId = threadID; }
-    osThreadId getSenderThreadId() { return this->_senderThreadId; }
-    osThreadId getReceiverThreadId() { return this->_receiverThreadId; }
-    void setPacketSizeArray(int *ptr) { this->_packetSizes = ptr; }
-    int *getPacketSizeArray() { return this->_packetSizes; }
-    void setUnavailable() { this->_available = false;}
-    void setAvailable() {this->_available = true;}
-    bool available() { return this->_available; }
-    void set_pattern_check(bool enabled) { _check_pattern = enabled; };
+    int id() const
+    {
+        return this->_id;
+    }
+    Socket &socket()
+    {
+        return *(this->_sock);
+    }
+    Socket &socket() const
+    {
+        return *(this->_sock);
+    }
+    TCPSocket *tcp_socket()
+    {
+        return this->_type == SInfo::TCP_CLIENT ? static_cast<TCPSocket *>(this->_sock) : NULL;
+    }
+    TCPServer *tcp_server()
+    {
+        return this->_type == SInfo::TCP_SERVER ? static_cast<TCPServer *>(this->_sock) : NULL;
+    }
+    UDPSocket *udp_socket()
+    {
+        return this->_type == SInfo::UDP        ? static_cast<UDPSocket *>(this->_sock) : NULL;
+    }
+    SInfo::SocketType type() const
+    {
+        return this->_type;
+    }
+    void setDataCount(int dataCount)
+    {
+        this->_dataLen = dataCount;
+    }
+    int getDataCount()
+    {
+        return this->_dataLen;
+    }
+    void setReceiverThread(Thread *receiverThread)
+    {
+        this->_receiverThread = receiverThread;
+    }
+    Thread *getReceiverThread()
+    {
+        return this->_receiverThread;
+    }
+    void setReceiveBuffer(uint8_t *receiveBuffer)
+    {
+        this->_receiveBuffer = receiveBuffer;
+    }
+    uint8_t *getReceiveBuffer()
+    {
+        return this->_receiveBuffer;
+    }
+    void setMaxRecvLen(int recvLen)
+    {
+        this->_maxRecvLen = recvLen;
+    }
+    int getMaxRecvLen()
+    {
+        return this->_maxRecvLen;
+    }
+    void setRepeatBufferFill(int n)
+    {
+        this->_repeatBufferFill = n;
+    }
+    int getRepeatBufferFill()
+    {
+        return this->_repeatBufferFill;
+    }
+    void setRecvTotal(int n)
+    {
+        this->_receivedTotal = n;
+    }
+    int getRecvTotal()
+    {
+        return this->_receivedTotal;
+    }
+    void setSenderThreadId(osThreadId threadID)
+    {
+        this->_senderThreadId = threadID;
+    }
+    void setReceiverThreadId(osThreadId threadID)
+    {
+        this->_receiverThreadId = threadID;
+    }
+    osThreadId getSenderThreadId()
+    {
+        return this->_senderThreadId;
+    }
+    osThreadId getReceiverThreadId()
+    {
+        return this->_receiverThreadId;
+    }
+    void setPacketSizeArray(int *ptr)
+    {
+        this->_packetSizes = ptr;
+    }
+    int *getPacketSizeArray()
+    {
+        return this->_packetSizes;
+    }
+    void setUnavailable()
+    {
+        this->_available = false;
+    }
+    void setAvailable()
+    {
+        this->_available = true;
+    }
+    bool available()
+    {
+        return this->_available;
+    }
+    void set_pattern_check(bool enabled)
+    {
+        _check_pattern = enabled;
+    };
     bool check_pattern(void *buffer, size_t len);
 
     const char *type_str() const
@@ -213,19 +300,50 @@ class SInfo
         }
         return str;
     }
-    bool blocking() const { return this->_blocking; }
-    void set_blocking(bool blocking) { socket().set_blocking(blocking); this->_blocking = blocking; }
-    bool can_connect() { return (this->type() == SInfo::TCP_CLIENT); }
-    bool can_bind() { return (this->type() == SInfo::UDP || this->type() == SInfo::TCP_SERVER); }
-    bool can_send() { return (this->type() == SInfo::TCP_CLIENT); }
-    bool can_recv() { return (this->type() == SInfo::TCP_CLIENT); }
-    bool can_sendto() { return (this->type() == SInfo::UDP); }
-    bool can_recvfrom() { return (this->type() == SInfo::UDP); }
-    bool can_listen() { return (this->type() == SInfo::TCP_SERVER); }
-    bool can_accept() { return (this->type() == SInfo::TCP_SERVER); }
-  private:
+    bool blocking() const
+    {
+        return this->_blocking;
+    }
+    void set_blocking(bool blocking)
+    {
+        socket().set_blocking(blocking);
+        this->_blocking = blocking;
+    }
+    bool can_connect()
+    {
+        return (this->type() == SInfo::TCP_CLIENT);
+    }
+    bool can_bind()
+    {
+        return (this->type() == SInfo::UDP || this->type() == SInfo::TCP_SERVER);
+    }
+    bool can_send()
+    {
+        return (this->type() == SInfo::TCP_CLIENT);
+    }
+    bool can_recv()
+    {
+        return (this->type() == SInfo::TCP_CLIENT);
+    }
+    bool can_sendto()
+    {
+        return (this->type() == SInfo::UDP);
+    }
+    bool can_recvfrom()
+    {
+        return (this->type() == SInfo::UDP);
+    }
+    bool can_listen()
+    {
+        return (this->type() == SInfo::TCP_SERVER);
+    }
+    bool can_accept()
+    {
+        return (this->type() == SInfo::TCP_SERVER);
+    }
+private:
     const int _id;
-    Socket* _sock;
+    Socket *_sock;
     const SInfo::SocketType _type;
     bool _blocking;
     int _dataLen;
@@ -243,7 +361,7 @@ class SInfo
     SInfo();
 };
 
-static std::vector<SInfo*> m_sockets;
+static std::vector<SInfo *> m_sockets;
 
 static enum {
     PRINT_DISABLED,
@@ -274,12 +392,13 @@ static void print_data_as_hex(const uint8_t *buf, int len, int col_width);
 static void generate_RFC_864_pattern(size_t offset, uint8_t *buf,  size_t len)
 {
     while (len--) {
-        if (offset % 74 == 72)
+        if (offset % 74 == 72) {
             *buf++ = '\r';
-        else if (offset % 74 == 73)
+        } else if (offset % 74 == 73) {
             *buf++ = '\n';
-        else
-            *buf++ = ' ' + (offset%74 + offset/74) % 95 ;
+        } else {
+            *buf++ = ' ' + (offset % 74 + offset / 74) % 95 ;
+        }
         offset++;
     }
 }
@@ -290,19 +409,21 @@ bool SInfo::check_pattern(void *buffer, size_t len)
         return true;
     }
     void *buf = malloc(len);
-    if (!buf)
+    if (!buf) {
         return false;
+    }
     size_t offset = _receivedTotal;
-    generate_RFC_864_pattern(offset, (uint8_t*)buf, len);
+    generate_RFC_864_pattern(offset, (uint8_t *)buf, len);
     bool match = memcmp(buf, buffer, len) == 0;
     if (!match) {
-        cmd_printf("Pattern check failed\r\nWAS:%.*s\r\nREF:%.*s\r\n", len, (char*)buffer, len, (char*)buf);
+        cmd_printf("Pattern check failed\r\nWAS:%.*s\r\nREF:%.*s\r\n", len, (char *)buffer, len, (char *)buf);
     }
     free(buf);
     return match;
 }
 
-static void sigio_handler(SInfo *info) {
+static void sigio_handler(SInfo *info)
+{
     if (info->getReceiverThreadId()) {
         osSignalSet(info->getReceiverThreadId(), SIGNAL_SIGIO);
     }
@@ -335,19 +456,21 @@ int handle_nsapi_size_or_error(const char *function, nsapi_size_or_error_t ret)
     return CMDLINE_RETCODE_SUCCESS;
 }
 
-static SInfo *get_sinfo(int id) {
+static SInfo *get_sinfo(int id)
+{
 
-    for (std::vector<SInfo*>::iterator it = m_sockets.begin(); it != m_sockets.end(); it++) {
-        if( (*it)->id() == id) {
+    for (std::vector<SInfo *>::iterator it = m_sockets.begin(); it != m_sockets.end(); it++) {
+        if ((*it)->id() == id) {
             return *it;
         }
     }
     return NULL;
 }
 
-static int del_sinfo(SInfo *info) {
-    for (std::vector<SInfo*>::iterator it = m_sockets.begin(); it != m_sockets.end(); it++) {
-        if( (*it) == info) {
+static int del_sinfo(SInfo *info)
+{
+    for (std::vector<SInfo *>::iterator it = m_sockets.begin(); it != m_sockets.end(); it++) {
+        if ((*it) == info) {
             delete info;
             m_sockets.erase(it);
             return CMDLINE_RETCODE_SUCCESS;
@@ -397,14 +520,14 @@ static void udp_receiver_thread(SInfo *info)
 
     info->setReceiverThreadId(Thread::gettid());
 
-    while (i<n) {
-        ret = static_cast<UDPSocket&>(info->socket()).recvfrom(&addr, info->getReceiveBuffer() + received, info->getDataCount() - received);
+    while (i < n) {
+        ret = static_cast<UDPSocket &>(info->socket()).recvfrom(&addr, info->getReceiveBuffer() + received, info->getDataCount() - received);
         if (ret > 0) {
             if (!info->check_pattern(info->getReceiveBuffer() + received, ret)) {
                 return;
             }
             received += ret;
-            packetSizes[i%PACKET_SIZE_ARRAY_LEN] = ret;
+            packetSizes[i % PACKET_SIZE_ARRAY_LEN] = ret;
             i++;
             info->setRecvTotal(info->getRecvTotal() + ret);
         } else if (ret == NSAPI_ERROR_WOULD_BLOCK) {
@@ -431,7 +554,7 @@ static nsapi_size_or_error_t start_udp_receiver_thread(SInfo *info, int argc, ch
             return CMDLINE_RETCODE_INVALID_PARAMETERS;
         }
     }
-    uint8_t *dataIn = (uint8_t *)malloc(max_size+1);
+    uint8_t *dataIn = (uint8_t *)malloc(max_size + 1);
     if (!dataIn) {
         cmd_printf("malloc() failed\r\n");
         return CMDLINE_RETCODE_FAIL;
@@ -441,10 +564,10 @@ static nsapi_size_or_error_t start_udp_receiver_thread(SInfo *info, int argc, ch
         cmd_printf("Allocation failed\r\n");
         return CMDLINE_RETCODE_FAIL;
     }
-    for (int i=0; i<PACKET_SIZE_ARRAY_LEN; i++) {
+    for (int i = 0; i < PACKET_SIZE_ARRAY_LEN; i++) {
         packetSizes[i] = 0;
     }
-    memset(dataIn, 0x00, max_size+1);
+    memset(dataIn, 0x00, max_size + 1);
     info->setReceiveBuffer(dataIn);
     info->setDataCount(max_size);
     info->setRepeatBufferFill(n);
@@ -483,14 +606,13 @@ static nsapi_size_or_error_t udp_sendto_command_handler(SInfo *info, int argc, c
         if (strcmp(argv[5], "NULL") == 0) {
             data = NULL;
             len = 0;
-        }
-        else {
+        } else {
             data = argv[5];
             len = strlen(argv[5]);
         }
     }
 
-    nsapi_size_or_error_t ret = static_cast<UDPSocket&>(info->socket()).sendto(host, port, data, len);
+    nsapi_size_or_error_t ret = static_cast<UDPSocket &>(info->socket()).sendto(host, port, data, len);
     if (ret > 0) {
         cmd_printf("sent: %d bytes\r\n", ret);
     }
@@ -516,13 +638,14 @@ static nsapi_size_or_error_t udp_recvfrom_command_handler(SInfo *info, int argc,
         cmd_printf("malloc() failed\r\n");
         return CMDLINE_RETCODE_FAIL;
     }
-    nsapi_size_or_error_t ret = static_cast<UDPSocket&>(info->socket()).recvfrom(&addr, data, len);
+    nsapi_size_or_error_t ret = static_cast<UDPSocket &>(info->socket()).recvfrom(&addr, data, len);
     if (ret > 0) {
         cmd_printf("UDPSocket::recvfrom, addr=%s port=%d\r\n", addr.get_ip_address(), addr.get_port());
         cmd_printf("received: %d bytes\r\n", ret);
         print_data((const uint8_t *)data, len);
-        if(!info->check_pattern(data, len))
-            ret=-1;
+        if (!info->check_pattern(data, len)) {
+            ret = -1;
+        }
         info->setRecvTotal(info->getRecvTotal() + ret);
     }
     free(data);
@@ -539,16 +662,17 @@ static void tcp_receiver_thread(SInfo *info)
 
     info->setReceiverThreadId(Thread::gettid());
 
-    for (i=0; i<n; i++) {
+    for (i = 0; i < n; i++) {
         received = 0;
         while (received < bufferSize) {
-            ret = static_cast<TCPSocket&>(info->socket()).recv(info->getReceiveBuffer() + received, recv_len - received);
+            ret = static_cast<TCPSocket &>(info->socket()).recv(info->getReceiveBuffer() + received, recv_len - received);
             if (ret > 0) {
-                if(!info->check_pattern(info->getReceiveBuffer() + received, ret))
+                if (!info->check_pattern(info->getReceiveBuffer() + received, ret)) {
                     return;
+                }
                 received += ret;
                 info->setRecvTotal(info->getRecvTotal() + ret);
-            } else if (ret == NSAPI_ERROR_WOULD_BLOCK){
+            } else if (ret == NSAPI_ERROR_WOULD_BLOCK) {
                 Thread::signal_wait(SIGNAL_SIGIO);
             } else {
                 handle_nsapi_size_or_error("Thread: TCPSocket::recv()", ret);
@@ -584,7 +708,7 @@ static nsapi_size_or_error_t start_tcp_receiver_thread(SInfo *info, int argc, ch
         }
     }
 
-    uint8_t *dataIn = (uint8_t *)malloc(len+1);
+    uint8_t *dataIn = (uint8_t *)malloc(len + 1);
     if (!dataIn) {
         cmd_printf("malloc() failed\r\n");
         return CMDLINE_RETCODE_FAIL;
@@ -618,7 +742,7 @@ static nsapi_size_or_error_t tcp_send_command_handler(SInfo *info, int argc, cha
         len = strlen(argv[3]);
     }
 
-    ret = static_cast<TCPSocket&>(info->socket()).send(data, len);
+    ret = static_cast<TCPSocket &>(info->socket()).send(data, len);
 
     if (ret > 0) {
         cmd_printf("sent: %d bytes\r\n", ret);
@@ -644,12 +768,13 @@ static nsapi_size_or_error_t tcp_recv_command_handler(SInfo *info, int argc, cha
         return CMDLINE_RETCODE_FAIL;
     }
 
-    nsapi_size_or_error_t ret = static_cast<TCPSocket&>(info->socket()).recv(data, len);
+    nsapi_size_or_error_t ret = static_cast<TCPSocket &>(info->socket()).recv(data, len);
     if (ret > 0) {
         cmd_printf("received: %d bytes\r\n", ret);
         print_data((const uint8_t *)data, ret);
-        if(!info->check_pattern(data, ret))
-            ret=-1;
+        if (!info->check_pattern(data, ret)) {
+            ret = -1;
+        }
         info->setRecvTotal(info->getRecvTotal() + ret);
     }
     free(data);
@@ -681,21 +806,21 @@ static nsapi_size_or_error_t recv_all(char *const rbuffer, const int expt_len, S
 static void bg_traffic_thread(SInfo *info)
 {
     static const int data_len = 10;
-    char sbuffer[data_len+1] = "dummydata_";
-    char rbuffer[data_len+1];
+    char sbuffer[data_len + 1] = "dummydata_";
+    char rbuffer[data_len + 1];
     int scount, rtotal = 0;
     info->setSenderThreadId(Thread::gettid());
 
-    for(;;) {
+    for (;;) {
         if (!info->available()) {
             (void)handle_nsapi_size_or_error(__func__, rtotal);
             break;
         }
-        sbuffer[data_len-1] = 'A' + (rand() % 26);
+        sbuffer[data_len - 1] = 'A' + (rand() % 26);
         scount = info->tcp_socket()->send(sbuffer, data_len);
         rtotal = recv_all(rbuffer, data_len, info);
 
-        if(scount != rtotal || (strcmp(sbuffer, rbuffer) != 0)) {
+        if (scount != rtotal || (strcmp(sbuffer, rbuffer) != 0)) {
             info->setUnavailable();
 
             tr_err("Background received data does not match to sent data");
@@ -732,7 +857,7 @@ static void thread_clean_up(SInfo *info)
 
 static int cmd_socket(int argc, char *argv[])
 {
-    if(cmd_parameter_index(argc, argv, "new") == 1) {
+    if (cmd_parameter_index(argc, argv, "new") == 1) {
         return cmd_socket_new(argc, argv);
     } else if (cmd_parameter_index(argc, argv, "print-mode") > 0) {
         if (cmd_parameter_index(argc, argv, "--string") > 0) {
@@ -755,8 +880,9 @@ static int cmd_socket(int argc, char *argv[])
             printing_col_width = (int)parsed_col_width;
         }
         // Allow print-mode to be used as a parameter to other commands
-        if (cmd_parameter_index(argc, argv, "print-mode") == 1)
+        if (cmd_parameter_index(argc, argv, "print-mode") == 1) {
             return CMDLINE_RETCODE_SUCCESS;
+        }
     }
 
     // Rest of the commands require Socket
@@ -767,13 +893,13 @@ static int cmd_socket(int argc, char *argv[])
     }
 
     bool enable_pattern_check;
-    if(cmd_parameter_bool(argc, argv, "set_RFC_864_pattern_check", &enable_pattern_check)) {
+    if (cmd_parameter_bool(argc, argv, "set_RFC_864_pattern_check", &enable_pattern_check)) {
         info->set_pattern_check(enable_pattern_check);
         return CMDLINE_RETCODE_SUCCESS;
     }
 
     // Helper macro for checking the which command was given
-    #define COMMAND_IS(cmd) (cmd_parameter_index(argc, argv, cmd) == 2)
+#define COMMAND_IS(cmd) (cmd_parameter_index(argc, argv, cmd) == 2)
 
     /*
      * Generic Socket commands:
@@ -793,7 +919,7 @@ static int cmd_socket(int argc, char *argv[])
             return CMDLINE_RETCODE_FAIL;
         }
 
-        switch(info->type()) {
+        switch (info->type()) {
             case SInfo::TCP_CLIENT:
                 return handle_nsapi_error("Socket::open()", info->tcp_socket()->open(interface));
             case SInfo::UDP:
@@ -841,10 +967,11 @@ static int cmd_socket(int argc, char *argv[])
             cmd_printf("Need timeout value");
             return CMDLINE_RETCODE_INVALID_PARAMETERS;
         }
-        if (ms == -1)
+        if (ms == -1) {
             info->set_blocking(true);
-        else
+        } else {
             info->set_blocking(false);
+        }
 
         info->socket().set_timeout(ms);
         return CMDLINE_RETCODE_SUCCESS;
@@ -860,7 +987,7 @@ static int cmd_socket(int argc, char *argv[])
      * sendto, recvfrom
      */
     if ((COMMAND_IS("sendto") || COMMAND_IS("recvfrom") || COMMAND_IS("start_udp_receiver_thread")
-        || COMMAND_IS("last_data_received")) && info->type() != SInfo::UDP) {
+            || COMMAND_IS("last_data_received")) && info->type() != SInfo::UDP) {
         cmd_printf("Not UDPSocket\r\n");
         return CMDLINE_RETCODE_FAIL;
     }
@@ -876,7 +1003,7 @@ static int cmd_socket(int argc, char *argv[])
         if (info->getPacketSizeArray()) {
             int *packetSizes = info->getPacketSizeArray();
             cmd_printf("packet_sizes: ");
-            for (int i=0; i<PACKET_SIZE_ARRAY_LEN; i++) {
+            for (int i = 0; i < PACKET_SIZE_ARRAY_LEN; i++) {
                 cmd_printf("%d ", packetSizes[i]);
             }
             cmd_printf("\r\n");
@@ -894,10 +1021,10 @@ static int cmd_socket(int argc, char *argv[])
      * connect, send, recv
      */
     if ((COMMAND_IS("connect") || COMMAND_IS("recv")
-        || COMMAND_IS("start_tcp_receiver_thread") || COMMAND_IS("join_tcp_receiver_thread")
-        || COMMAND_IS("start_bg_traffic_thread") || COMMAND_IS("join_bg_traffic_thread")
-        || COMMAND_IS("setsockopt_keepalive") || COMMAND_IS("getsockopt_keepalive"))
-        && info->type() != SInfo::TCP_CLIENT) {
+            || COMMAND_IS("start_tcp_receiver_thread") || COMMAND_IS("join_tcp_receiver_thread")
+            || COMMAND_IS("start_bg_traffic_thread") || COMMAND_IS("join_bg_traffic_thread")
+            || COMMAND_IS("setsockopt_keepalive") || COMMAND_IS("getsockopt_keepalive"))
+            && info->type() != SInfo::TCP_CLIENT) {
         cmd_printf("Not TCPSocket\r\n");
         return CMDLINE_RETCODE_FAIL;
     }
@@ -919,7 +1046,7 @@ static int cmd_socket(int argc, char *argv[])
         }
 
         cmd_printf("Host name: %s port: %" PRId32 "\r\n", host, port);
-        return handle_nsapi_error("TCPSocket::connect()", static_cast<TCPSocket&>(info->socket()).connect(host, port));
+        return handle_nsapi_error("TCPSocket::connect()", static_cast<TCPSocket &>(info->socket()).connect(host, port));
 
     } else if (COMMAND_IS("send")) {
         return tcp_send_command_handler(info, argc, argv);
@@ -945,7 +1072,7 @@ static int cmd_socket(int argc, char *argv[])
     } else if (COMMAND_IS("join_bg_traffic_thread")) {
         int bg_thread_success = CMDLINE_RETCODE_SUCCESS;
 
-        if( !info->available()) { // Tells that background thread stumbled to an issue and stopped prematurely
+        if (!info->available()) { // Tells that background thread stumbled to an issue and stopped prematurely
             bg_thread_success = CMDLINE_RETCODE_FAIL;
         }
 
@@ -991,10 +1118,11 @@ static int cmd_socket(int argc, char *argv[])
     }
     if (COMMAND_IS("listen")) {
         int32_t backlog;
-        if (cmd_parameter_int(argc, argv, "listen", &backlog))
-            return handle_nsapi_error("TCPServer::listen()", static_cast<TCPServer&>(info->socket()).listen(backlog));
-        else
-            return handle_nsapi_error("TCPServer::listen()", static_cast<TCPServer&>(info->socket()).listen());
+        if (cmd_parameter_int(argc, argv, "listen", &backlog)) {
+            return handle_nsapi_error("TCPServer::listen()", static_cast<TCPServer &>(info->socket()).listen(backlog));
+        } else {
+            return handle_nsapi_error("TCPServer::listen()", static_cast<TCPServer &>(info->socket()).listen());
+        }
 
     } else if (COMMAND_IS("accept")) {
         SocketAddress addr;
@@ -1008,11 +1136,11 @@ static int cmd_socket(int argc, char *argv[])
             cmd_printf("Invalid socket id\r\n");
             return CMDLINE_RETCODE_FAIL;
         }
-        TCPSocket *new_sock = static_cast<TCPSocket*>(&new_info->socket());
-        nsapi_error_t ret = static_cast<TCPServer&>(info->socket()).accept(new_sock, &addr);
+        TCPSocket *new_sock = static_cast<TCPSocket *>(&new_info->socket());
+        nsapi_error_t ret = static_cast<TCPServer &>(info->socket()).accept(new_sock, &addr);
         if (ret == NSAPI_ERROR_OK) {
             cmd_printf("TCPServer::accept() new socket sid: %d connection from %s port %d\r\n",
-                new_info->id(), addr.get_ip_address(), addr.get_port());
+                       new_info->id(), addr.get_ip_address(), addr.get_port());
         }
         return handle_nsapi_error("TCPServer::accept()", ret);
     }

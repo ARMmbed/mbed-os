@@ -404,7 +404,7 @@ static int handle_security_args(int argc, char *argv[], mlme_security_t *key)
         }
     }
     if (cmd_parameter_val(argc, argv, "--key_source", &str)) {
-        if (strlen(str) == 2*8+7) {
+        if (strlen(str) == 2 * 8 + 7) {
             if (string_to_bytes(str, key->Keysource, 8) != 0) {
                 return CMDLINE_RETCODE_INVALID_PARAMETERS;
             }
@@ -423,9 +423,9 @@ static void add_beacon(const uint8_t *beacon, uint8_t len)
     }
     unsigned int cur_beacon = received_beacons.count;
     received_beacons.beacon_lengths[cur_beacon] = len;
-    received_beacons.beacons[cur_beacon] = (char*)ns_dyn_mem_temporary_alloc(len <= 75 ? 75:len);
+    received_beacons.beacons[cur_beacon] = (char *)ns_dyn_mem_temporary_alloc(len <= 75 ? 75 : len);
     if (len != 0) {
-    	std::memcpy(received_beacons.beacons[cur_beacon], beacon, len);
+        std::memcpy(received_beacons.beacons[cur_beacon], beacon, len);
     }
     ++received_beacons.count;
 }
@@ -501,7 +501,7 @@ void mac_data_indication_handler(const mac_api_t *api, const mcps_data_ind_t *da
         if (data->msduLength != expected_statuses.data_ind_len) {
             return;
         }
-        if (strncmp((const char*)data->msdu_ptr, (const char*)expected_statuses.data_ind, expected_statuses.data_ind_len) == 0) {
+        if (strncmp((const char *)data->msdu_ptr, (const char *)expected_statuses.data_ind, expected_statuses.data_ind_len) == 0) {
             ++data_count;
         } else {
             tr_warn("Received unexpected data!");
@@ -533,13 +533,13 @@ void mac_mlme_confirm_handler(const mac_api_t *api, mlme_primitive id, const voi
             break;
         }
         case MLME_GET: {
-            mlme_get_conf_t *get_data = (mlme_get_conf_t*)data;
+            mlme_get_conf_t *get_data = (mlme_get_conf_t *)data;
             cmd_printf("MLME-GET.confirm\n");
             if (!silent_mode) {
                 cmd_printf("status:         %hhu (%s)\n", get_data->status, mlme_status_string(get_data->status));
                 cmd_printf("attr:           %hhu\n", get_data->attr);
                 cmd_printf("attr_index:     %hhu\n", get_data->attr_index);
-                cmd_printf("value_pointer:  %s\n", mbed_trace_array((uint8_t*)get_data->value_pointer, get_data->value_size));
+                cmd_printf("value_pointer:  %s\n", mbed_trace_array((uint8_t *)get_data->value_pointer, get_data->value_size));
                 cmd_printf("value_size:     %hhu\n", get_data->value_size);
             }
             if (get_data->status == expected_statuses.get_conf) {
@@ -559,7 +559,7 @@ void mac_mlme_confirm_handler(const mac_api_t *api, mlme_primitive id, const voi
             break;
         }
         case MLME_SCAN: {
-            mlme_scan_conf_t *scan_data = (mlme_scan_conf_t*)data;
+            mlme_scan_conf_t *scan_data = (mlme_scan_conf_t *)data;
             cmd_printf("MLME-SCAN.confirm\n");
             if (!silent_mode) {
                 cmd_printf("status:             %hhu (%s)\n", scan_data->status, mlme_status_string(scan_data->status));
@@ -594,7 +594,7 @@ void mac_mlme_confirm_handler(const mac_api_t *api, mlme_primitive id, const voi
             break;
         }
         case MLME_POLL: {
-            mlme_poll_conf_t *poll_data = (mlme_poll_conf_t*)data;
+            mlme_poll_conf_t *poll_data = (mlme_poll_conf_t *)data;
             cmd_printf("MLME-POLL.confirm\n");
             if (!silent_mode) {
                 cmd_printf("status:     %hhu (%s)\n", poll_data->status, mlme_status_string(poll_data->status));
@@ -630,7 +630,7 @@ void mac_mlme_indication_handler(const mac_api_t *api, mlme_primitive id, const 
             break;
         }
         case MLME_BEACON_NOTIFY: {
-            const mlme_beacon_ind_t *beacon_ind = (mlme_beacon_ind_t*)data;
+            const mlme_beacon_ind_t *beacon_ind = (mlme_beacon_ind_t *)data;
             cmd_printf("MLME-BEACON-NOTIFY.indication\n");
             if (!silent_mode) {
                 cmd_printf("BSN:                                %hhu\n", beacon_ind->BSN);
@@ -638,7 +638,7 @@ void mac_mlme_indication_handler(const mac_api_t *api, mlme_primitive id, const 
                 cmd_printf("PendAddrSpec.short_address_count    %u\n", beacon_ind->PendAddrSpec.short_address_count);
                 cmd_printf("PendAddrSpec.extended_address_count %u\n", beacon_ind->PendAddrSpec.extended_address_count);
                 cmd_printf("AddrList                            %s\n", mbed_trace_array(beacon_ind->AddrList, beacon_ind->PendAddrSpec.short_address_count * 2 +
-                                                                                                              beacon_ind->PendAddrSpec.extended_address_count * 8));
+                                                                                        beacon_ind->PendAddrSpec.extended_address_count * 8));
                 cmd_printf("beacon_data_length                  %hu\n", beacon_ind->beacon_data_length);
                 cmd_printf("beacon_data                         %s\n", mbed_trace_array(beacon_ind->beacon_data, beacon_ind->beacon_data_length));
             }
@@ -653,7 +653,7 @@ void mac_mlme_indication_handler(const mac_api_t *api, mlme_primitive id, const 
         }
         case MLME_COMM_STATUS: {
             cmd_printf("MLME-COMM-STATUS.indication\n");
-            const mlme_comm_status_t *comm_status_ind_data = (mlme_comm_status_t*)data;
+            const mlme_comm_status_t *comm_status_ind_data = (mlme_comm_status_t *)data;
             if (!silent_mode) {
                 cmd_printf("PANId:          0x%04X\n", comm_status_ind_data->PANId);
                 cmd_printf("SrcAddrMode:    %u\n", comm_status_ind_data->SrcAddrMode);
@@ -820,7 +820,7 @@ int mac_data_command(int argc, char *argv[])
         if (strlen(str) != data_req.msduLength) {
             return CMDLINE_RETCODE_INVALID_PARAMETERS;
         }
-        data_req.msdu = (uint8_t*)ns_dyn_mem_temporary_alloc(data_req.msduLength);
+        data_req.msdu = (uint8_t *)ns_dyn_mem_temporary_alloc(data_req.msduLength);
         if (data_req.msdu == NULL) {
             tr_error("Failed to allocate memory for the msdu");
             return CMDLINE_RETCODE_FAIL;
@@ -877,7 +877,7 @@ int mac_poll_command(int argc, char *argv[])
         }
     }
     if (cmd_parameter_val(argc, argv, "--coord_address", &str)) {
-        int len = (poll_req.CoordAddrMode == 2 ? 2: 8);
+        int len = (poll_req.CoordAddrMode == 2 ? 2 : 8);
         if (string_to_bytes(str, poll_req.CoordAddress, len) != 0) {
             return CMDLINE_RETCODE_INVALID_PARAMETERS;
         }
@@ -913,7 +913,7 @@ int mac_set_command(int argc, char *argv[])
     uint16_t val_uint16 = 0;
     uint32_t val_uint32 = 0;
     uint8_t *val_ptr_array = NULL;
-    
+
     cmd_printf("MLME-SET.request\n");
     if (cmd_parameter_val(argc, argv, "--attr", &str)) {
         uint32_t attribute = strtoul(str, NULL, 16);
@@ -931,7 +931,7 @@ int mac_set_command(int argc, char *argv[])
         }
     }
     if (cmd_parameter_val(argc, argv, "--value_ascii", &str)) {
-        val_ptr_array = (uint8_t*)ns_dyn_mem_temporary_alloc(strlen(str));
+        val_ptr_array = (uint8_t *)ns_dyn_mem_temporary_alloc(strlen(str));
         if (val_ptr_array == NULL) {
             tr_error("Failed to allocate memory for MLME-SET.request");
             return CMDLINE_RETCODE_FAIL;
@@ -940,7 +940,7 @@ int mac_set_command(int argc, char *argv[])
         set_req.value_pointer = val_ptr_array;
     } else if (cmd_parameter_val(argc, argv, "--value_bytes", &str)) {
         size_t bytes = (strlen(str) + 1) / 3;
-        val_ptr_array = (uint8_t*)ns_dyn_mem_temporary_alloc(bytes);
+        val_ptr_array = (uint8_t *)ns_dyn_mem_temporary_alloc(bytes);
         if (val_ptr_array == NULL) {
             tr_error("Failed to allocate memory for MLME-SET.request");
             return CMDLINE_RETCODE_FAIL;
@@ -1072,7 +1072,7 @@ static int key_config_command(int argc, char *argv[])
     int lookup_index = 0, device_index = 0, usage_index = 0;
 
     if (cmd_parameter_val(argc, argv, "--key", &str)) {
-        if (strlen(str) == 2*16+15) {
+        if (strlen(str) == 2 * 16 + 15) {
             if (string_to_bytes(str, key_descriptor.Key, 16) != 0) {
                 return CMDLINE_RETCODE_INVALID_PARAMETERS;
             }
@@ -1109,7 +1109,7 @@ static int key_config_command(int argc, char *argv[])
         }
     }
     if (cmd_parameter_val(argc, argv, "--lookup_data", &str)) {
-        if (strlen(str) == 2*9+8) {
+        if (strlen(str) == 2 * 9 + 8) {
             if (string_to_bytes(str, key_descriptor.KeyIdLookupList[lookup_index].LookupData, 9) != 0) {
                 return CMDLINE_RETCODE_INVALID_PARAMETERS;
             }
@@ -1224,7 +1224,7 @@ int mac_add_neighbour_command(int argc, char *argv[])
         }
     }
     if (cmd_parameter_val(argc, argv, "--mac64", &str)) {
-        if (strlen(str) == 2*8+7) {
+        if (strlen(str) == 2 * 8 + 7) {
             if (string_to_bytes(str, neighbour.ExtAddress, 8) != 0) {
                 return CMDLINE_RETCODE_INVALID_PARAMETERS;
             }
@@ -1268,7 +1268,7 @@ static int filter_start(int argc, char *argv[])
         } else if (strcmp(str, "fixed") == 0) {
             int32_t lqi, dbm;
             if (cmd_parameter_int(argc, argv, "--lqi_m", &lqi) &&
-                cmd_parameter_int(argc, argv, "--dbm_m", &dbm)) {
+                    cmd_parameter_int(argc, argv, "--dbm_m", &dbm)) {
                 return mac_filter_start(mac_interface->parent_id, MAC_FILTER_FIXED(lqi, dbm)) < 0 ? CMDLINE_RETCODE_FAIL : CMDLINE_RETCODE_SUCCESS;
             }
         }
@@ -1284,9 +1284,9 @@ static int filter_add(int argc, char *argv[])
     int32_t lqi_m, lqi_add, dbm_m, dbm_add;
 
     if (cmd_parameter_int(argc, argv, "--lqi_m", &lqi_m) &&
-        cmd_parameter_int(argc, argv, "--lqi_add", &lqi_add) &&
-        cmd_parameter_int(argc, argv, "--dbm_m", &dbm_m) &&
-        cmd_parameter_int(argc, argv, "--dbm_add", &dbm_add)) {
+            cmd_parameter_int(argc, argv, "--lqi_add", &lqi_add) &&
+            cmd_parameter_int(argc, argv, "--dbm_m", &dbm_m) &&
+            cmd_parameter_int(argc, argv, "--dbm_add", &dbm_add)) {
     } else if (cmd_parameter_val(argc, argv, "--mode", &str)) {
         if (strcmp(str, "allow")) {
             lqi_m = dbm_m = 256;
@@ -1296,7 +1296,7 @@ static int filter_add(int argc, char *argv[])
         } else if (strcmp(str, "fixed")) {
             lqi_add = dbm_add = 0;
             if (cmd_parameter_int(argc, argv, "--lqi_m", &lqi_m) &&
-                cmd_parameter_int(argc, argv, "--dbm_m", &dbm_m)) {
+                    cmd_parameter_int(argc, argv, "--dbm_m", &dbm_m)) {
             } else {
                 return CMDLINE_RETCODE_INVALID_PARAMETERS;
             }
@@ -1422,7 +1422,7 @@ int mac_config_status_command(int argc, char *argv[])
     } else if (cmd_parameter_val(argc, argv, "--data_ind", &str)) {
         size_t len = strlen(str);
         ns_dyn_mem_free(expected_statuses.data_ind);
-        expected_statuses.data_ind = (uint8_t*)ns_dyn_mem_temporary_alloc(len);
+        expected_statuses.data_ind = (uint8_t *)ns_dyn_mem_temporary_alloc(len);
         expected_statuses.data_ind_len = len;
         std::memcpy(expected_statuses.data_ind, str, len);
     } else if (cmd_parameter_int(argc, argv, "--get", &val)) {
@@ -1539,7 +1539,7 @@ int mac_analyze_ed_command(int argc, char *argv[])
             return CMDLINE_RETCODE_INVALID_PARAMETERS;
         }
     } else {
-            return CMDLINE_RETCODE_INVALID_PARAMETERS;
+        return CMDLINE_RETCODE_INVALID_PARAMETERS;
     }
 
     if (cmd_parameter_int(argc, argv, "--above", &val)) {

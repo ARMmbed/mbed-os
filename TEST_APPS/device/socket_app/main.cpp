@@ -37,7 +37,8 @@ void cmd_ready_cb(int retcode)
     cmd_next(retcode);
 }
 
-void wrap_printf(const char *f, va_list a) {
+void wrap_printf(const char *f, va_list a)
+{
     vprintf(f, a);
 }
 
@@ -48,13 +49,14 @@ int main()
     cmd_socket_init();
 
     int c;
-    while((c = getchar()) != EOF) {
+    while ((c = getchar()) != EOF) {
         cmd_char_input(c);
     }
     return 0;
 }
 
-FileHandle* mbed::mbed_override_console(int) {
+FileHandle *mbed::mbed_override_console(int)
+{
     static UARTSerial console(STDIO_UART_TX, STDIO_UART_RX, SERIAL_CONSOLE_BAUD_RATE);
 #if CONSOLE_FLOWCONTROL == CONSOLE_FLOWCONTROL_RTS
     console.set_flow_control(SerialBase::RTS, STDIO_UART_RTS, NC);

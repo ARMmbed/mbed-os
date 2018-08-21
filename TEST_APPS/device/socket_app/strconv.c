@@ -47,11 +47,11 @@ int hexstr_to_bytes_inplace(char *str)
         return -1;
     }
     len = strlen(str);
-    if (len < 2 || (len+1)%3 != 0) {
+    if (len < 2 || (len + 1) % 3 != 0) {
         return -1;
     }
     for (i = 0, j = 0; i < len; i += 3, ++j) {
-        str[j] = (char)strtol(str+i, 0, 16);
+        str[j] = (char)strtol(str + i, 0, 16);
     }
     return j;
 }
