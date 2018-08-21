@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2013 ARM Limited
+ * Copyright (c) 2006-2018 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,8 @@ QSPI::QSPI(PinName io0, PinName io1, PinName io2, PinName io3, PinName sclk, Pin
     _initialized = false;
 
     //Go ahead init the device here with the default config
-    _initialize();
+    bool success = _initialize();
+    MBED_ASSERT(success);
 }
 
 qspi_status_t QSPI::configure_format(qspi_bus_width_t inst_width, qspi_bus_width_t address_width, qspi_address_size_t address_size, qspi_bus_width_t alt_width, qspi_alt_size_t alt_size, qspi_bus_width_t data_width, int dummy_cycles)
@@ -217,8 +218,10 @@ void QSPI::unlock()
 // Note: Private helper function to initialize qspi HAL
 bool QSPI::_initialize() 
 {
-    if (_mode != 0 && _mode != 1)
-        return QSPI_STATUS_INVALID_PARAMETER;
+    if (_mode != 0 && _mode != 1) {
+        _initialized = false;
+        return _initialized;
+    }
 
     qspi_status_t ret = qspi_init(&_qspi, _qspi_io0, _qspi_io1, _qspi_io2, _qspi_io3, _qspi_clk, _qspi_cs, _hz, _mode );
     if (QSPI_STATUS_OK == ret) {

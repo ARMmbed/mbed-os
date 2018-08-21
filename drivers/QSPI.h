@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2015 ARM Limited
+ * Copyright (c) 2006-2018 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ namespace mbed {
 
 /** A QSPI Driver, used for communicating with QSPI slave devices
  *
- * The default format is set to Quad-SPI(4-4-4), and a clock frequency of 1MHz
+ * The default format is set to Quad-SPI(1-1-1), and a clock frequency of 1MHz
  * Most QSPI devices will also require Chip Select which is indicated by ssel. 
  *
  * @note Synchronization level: Thread safe
@@ -45,7 +45,7 @@ namespace mbed {
  * #include "mbed.h"
  *
  * // hardware ssel (where applicable)
- * QSPI qspi_device(p5, p6, p7, p8, p9, p10); // io0, io1, io2, io3, sclk, ssel
+ * QSPI qspi_device(QSPI_PIN_IO0, QSPI_PIN_IO1, QSPI_PIN_IO2, QSPI_PIN_IO3, QSPI_PIN_SCK, QSPI_PIN_CSN); // io0, io1, io2, io3, sclk, ssel
  *
  *
  * int main() {
@@ -84,12 +84,12 @@ public:
 
     /** Configure the data transmission format
      *
-     *  @param inst_width Bus width used by instruction phase(Valid values are 1,2,4)
-     *  @param address_width Bus width used by address phase(Valid values are 1,2,4)
-     *  @param address_size Size in bits used by address phase(Valid values are 8,16,24,32)
-     *  @param alt_width Bus width used by alt phase(Valid values are 1,2,4)
-     *  @param alt_size Size in bits used by alt phase(Valid values are 8,16,24,32)
-     *  @param data_width Bus width used by data phase(Valid values are 1,2,4)
+     *  @param inst_width Bus width used by instruction phase(Valid values are QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_DUAL, QSPI_CFG_BUS_QUAD)
+     *  @param address_width Bus width used by address phase(Valid values are QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_DUAL, QSPI_CFG_BUS_QUAD)
+     *  @param address_size Size in bits used by address phase(Valid values are QSPI_CFG_ADDR_SIZE_8, QSPI_CFG_ADDR_SIZE_16, QSPI_CFG_ADDR_SIZE_24, QSPI_CFG_ADDR_SIZE_32)
+     *  @param alt_width Bus width used by alt phase(Valid values are QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_DUAL, QSPI_CFG_BUS_QUAD)
+     *  @param alt_size Size in bits used by alt phase(Valid values are QSPI_CFG_ADDR_SIZE_8, QSPI_CFG_ADDR_SIZE_16, QSPI_CFG_ADDR_SIZE_24, QSPI_CFG_ADDR_SIZE_32)
+     *  @param data_width Bus width used by data phase(Valid values are QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_DUAL, QSPI_CFG_BUS_QUAD)
      *  @param dummy_cycles Number of dummy clock cycles to be used after alt phase
      *
      */
@@ -171,6 +171,7 @@ public:
      */
     qspi_status_t command_transfer(unsigned int instruction, int address, const char *tx_buffer, size_t tx_length, const char *rx_buffer, size_t rx_length);
 
+protected:
     /** Acquire exclusive access to this SPI bus
      */
     virtual void lock(void);
