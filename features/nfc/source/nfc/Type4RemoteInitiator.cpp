@@ -42,7 +42,7 @@ Type4RemoteInitiator::Type4RemoteInitiator(NFCController *controller, uint8_t *b
 nfc_err_t Type4RemoteInitiator::connect()
 {
     if (_is_connected) {
-        return NFC_BUSY;
+        return NFC_ERR_BUSY;
     }
 
     if (_is_disconnected) {
@@ -54,6 +54,8 @@ nfc_err_t Type4RemoteInitiator::connect()
 
     // Call callback as it's a synchronous API
     connected();
+
+    return NFC_OK;
 }
 
 nfc_err_t Type4RemoteInitiator::disconnect()
@@ -68,6 +70,8 @@ nfc_err_t Type4RemoteInitiator::disconnect()
 
     // Disconnect ISO7816 stack
     nfc_tech_iso7816_disconnect(&_iso7816);
+
+    return NFC_OK;
 }
 
 bool Type4RemoteInitiator::is_connected() const

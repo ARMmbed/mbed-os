@@ -25,7 +25,7 @@
 #define __MODULE__ "pn512_rf.c"
 #endif
 
-#include "inc/nfc.h"
+#include "stack/nfc_errors.h"
 
 #include "pn512_callback.h"
 #include "pn512_rf.h"

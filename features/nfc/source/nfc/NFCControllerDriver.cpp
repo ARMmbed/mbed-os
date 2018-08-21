@@ -24,6 +24,11 @@ NFCControllerDriver::NFCControllerDriver() : _delegate(NULL)
 
 }
 
+NFCControllerDriver::~NFCControllerDriver()
+{
+
+}
+
 void NFCControllerDriver::set_delegate(Delegate *delegate)
 {
     _delegate = delegate;

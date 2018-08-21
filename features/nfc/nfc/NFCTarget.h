@@ -45,6 +45,10 @@ public:
      * @param[in] buffer_size the array size in bytes
      */
     NFCTarget(uint8_t *buffer, size_t buffer_size);
+
+    /**
+     * NFCTarget destructor
+     */
     virtual ~NFCTarget();
 
     struct Delegate {
@@ -68,6 +72,9 @@ public:
          * @param[in] result NFC_OK or an error code on failure
          */
         virtual void on_ndef_message_read(nfc_err_t result) {}
+
+    protected:
+        ~Delegate() {}
     };
 
     /**

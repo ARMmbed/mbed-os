@@ -25,7 +25,7 @@
 #define __MODULE__ "type4_target.c"
 #endif
 
-#include "inc/nfc.h"
+#include "stack/nfc_errors.h"
 
 #include "type4_target.h"
 #include "tech/iso7816/iso7816_defs.h"
@@ -45,8 +45,8 @@ static void app_selected(nfc_tech_iso7816_app_t *pIso7816App, void *pUserData);
 static void app_deselected(nfc_tech_iso7816_app_t *pIso7816App, void *pUserData);
 static void app_apdu(nfc_tech_iso7816_app_t *pIso7816App, void *pUserData);
 
-static nfc_err_t data_read(nfc_tech_type4_target_t *pType4Target, buffer_t *pBuf, uint16_t file, size_t off, size_t len);
-static nfc_err_t data_write(nfc_tech_type4_target_t *pType4Target, buffer_t *pBuf, uint16_t file, size_t off);
+static nfc_err_t data_read(nfc_tech_type4_target_t *pType4Target, ac_buffer_t *pBuf, uint16_t file, size_t off, size_t len);
+static nfc_err_t data_write(nfc_tech_type4_target_t *pType4Target, ac_buffer_t *pBuf, uint16_t file, size_t off);
 
 void nfc_tech_type4_target_init(nfc_tech_type4_target_t *pType4Target, nfc_tech_iso7816_t *pIso7816, ndef_msg_t *pNdef)
 {
@@ -187,7 +187,7 @@ void app_apdu(nfc_tech_iso7816_app_t *pIso7816App, void *pUserData)
             ret = data_read(pType4Target, &pRApdu->dataOut, pType4Target->selFile, (pCApdu->p1 << 8) | pCApdu->p2, pCApdu->maxRespLength);
             if (ret == NFC_OK) {
                 DBG("Read %d bytes", buffer_reader_readable(&pRApdu->dataOut));
-                DBG_BLOCK(buffer_dump(&pRApdu->dataOut);)
+                NFC_DBG_BLOCK(buffer_dump(&pRApdu->dataOut);)
                 pRApdu->sw = ISO7816_SW_OK;
             } else {
                 DBG("Failed with ret code %d", ret);
@@ -215,9 +215,9 @@ void app_apdu(nfc_tech_iso7816_app_t *pIso7816App, void *pUserData)
     nfc_tech_iso7816_app_reply(pIso7816App);
 }
 
-nfc_err_t data_read(nfc_tech_type4_target_t *pType4Target, buffer_t *pBuf, uint16_t file, size_t off, size_t len)
+nfc_err_t data_read(nfc_tech_type4_target_t *pType4Target, ac_buffer_t *pBuf, uint16_t file, size_t off, size_t len)
 {
-    buffer_t *pFile;
+    ac_buffer_t *pFile;
     switch (file) {
         case CC_FILE:
             pFile = buffer_builder_buffer(&pType4Target->ccFileBldr);
@@ -244,9 +244,9 @@ nfc_err_t data_read(nfc_tech_type4_target_t *pType4Target, buffer_t *pBuf, uint1
     return NFC_OK;
 }
 
-nfc_err_t data_write(nfc_tech_type4_target_t *pType4Target, buffer_t *pBuf, uint16_t file, size_t off)
+nfc_err_t data_write(nfc_tech_type4_target_t *pType4Target, ac_buffer_t *pBuf, uint16_t file, size_t off)
 {
-    buffer_t *pFile;
+    ac_buffer_t *pFile;
     switch (file) {
         case NDEF_FILE:
             pFile = buffer_builder_buffer(&pType4Target->ndefFileBldr);
@@ -270,7 +270,7 @@ nfc_err_t data_write(nfc_tech_type4_target_t *pType4Target, buffer_t *pBuf, uint
 
     while (len > 0) {
         size_t cpy;
-        buffer_builder_t builder;
+        ac_buffer_builder_t builder;
         buffer_dup(buffer_builder_buffer(&builder), pFile);
         buffer_builder_from_buffer(&builder);
         cpy = buffer_builder_writeable(&builder);

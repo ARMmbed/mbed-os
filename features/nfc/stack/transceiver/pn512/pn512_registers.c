@@ -27,7 +27,7 @@
 #ifndef __MODULE__
 #define __MODULE__ "pn512_registers.c"
 #endif
-#include "inc/nfc.h"
+#include "stack/nfc_errors.h"
 
 #include "pn512_registers.h"
 #include "pn512_hw.h"
@@ -111,7 +111,7 @@ void pn512_register_write(pn512_t *pPN512, uint8_t address, uint8_t data)
 uint8_t pn512_register_read(pn512_t *pPN512, uint8_t address)
 {
     uint8_t data;
-    DBG_BLOCK(
+    NFC_DBG_BLOCK(
         uint8_t __dbg_addr;
         __dbg_addr = address; //FIXME
     )

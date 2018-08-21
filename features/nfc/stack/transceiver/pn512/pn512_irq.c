@@ -25,7 +25,7 @@
 #ifndef __MODULE__
 #define __MODULE__ "pn512_irq.c"
 #endif
-#include "inc/nfc.h"
+#include "stack/nfc_errors.h"
 
 #include "pn512_irq.h"
 #include "pn512_registers.h"

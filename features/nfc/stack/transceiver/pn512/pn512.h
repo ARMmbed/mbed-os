@@ -75,8 +75,8 @@ typedef struct __pn512 {
     uint16_t irqsEn;
     uint8_t payload[256]; //Incoming buffer
 
-    buffer_builder_t readBufBldr;
-    buffer_t writeBuf;
+    ac_buffer_builder_t readBufBldr;
+    ac_buffer_t writeBuf;
 
     uint8_t readFirstByteAlign;
     uint8_t readLastByteLength;

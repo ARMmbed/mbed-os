@@ -27,7 +27,6 @@
 extern "C" {
 #endif
 
-#include "inc/nfc.h"
 #include "transceiver/transceiver.h"
 #include "isodep.h"
 
@@ -49,7 +48,7 @@ struct nfc_tech_isodep_target {
         nfc_tech_isodep_cb_t resCb;
         void *pResUserData;
 
-        buffer_t res;
+        ac_buffer_t res;
         bool chaining;
 
         uint8_t blockNumber;
@@ -84,13 +83,13 @@ struct nfc_tech_isodep_target {
 
         size_t inPayloadSize;
 
-        buffer_builder_t respBldr;
+        ac_buffer_builder_t respBldr;
         uint8_t respBuf[32];
 
-        buffer_t *pReq;
+        ac_buffer_t *pReq;
     } commands;
 
-    buffer_t *pHist;
+    ac_buffer_t *pHist;
 
     nfc_tech_isodep_disconnected_cb disconnectedCb;
     void *pUserData;
@@ -98,7 +97,7 @@ struct nfc_tech_isodep_target {
 
 //High-level Target functions
 void nfc_tech_isodep_target_init(nfc_tech_isodep_target_t *pIsodepTarget, nfc_transceiver_t *pTransceiver,
-                                 buffer_t *pHist, nfc_tech_isodep_disconnected_cb disconnectedCb, void *pUserData);
+                                 ac_buffer_t *pHist, nfc_tech_isodep_disconnected_cb disconnectedCb, void *pUserData);
 
 nfc_err_t nfc_tech_isodep_target_connect(nfc_tech_isodep_target_t *pIsodepTarget);
 void nfc_tech_isodep_target_disconnect(nfc_tech_isodep_target_t *pIsodepTarget);

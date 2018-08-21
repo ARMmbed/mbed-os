@@ -22,7 +22,7 @@
 
 #include "stack/nfc_errors.h"
 #include "stack/transceiver/transceiver.h"
-#include "stack/platform/scheduler.h"
+#include "stack/platform/nfc_scheduler.h"
 
 namespace mbed {
 namespace nfc {
@@ -37,10 +37,16 @@ namespace nfc {
  * Implementers need to derive from this class and implement its methods.
  */
 class NFCControllerDriver {
+public:
     /**
      * Instantiate a NFCControllerDriver
      */
     NFCControllerDriver();
+
+    /**
+     * NFCControllerDriver destructor
+     */
+    virtual ~NFCControllerDriver();
 
     /**
      * The NFCControllerDriver delegate
@@ -50,6 +56,9 @@ class NFCControllerDriver {
          * Called when the controller asserts the interrupt line
          */
         virtual void on_hw_interrupt() {}
+
+    protected:
+        virtual ~Delegate() {}
     };
 
     /**

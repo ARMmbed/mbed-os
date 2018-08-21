@@ -26,7 +26,6 @@
 extern "C" {
 #endif
 
-#include "inc/nfc.h"
 #include "iso7816.h"
 
 struct nfc_tech_iso7816;

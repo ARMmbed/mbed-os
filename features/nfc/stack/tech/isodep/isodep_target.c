@@ -25,9 +25,9 @@
 #define __MODULE__ "isodep_target.c"
 #endif
 
-#include "inc/nfc.h"
 #include "isodep_target.h"
 
+#include "stack/nfc_errors.h"
 #include "transceiver/transceiver.h"
 
 //Private defines
@@ -84,12 +84,12 @@ enum __dep_type {
 static void dep_init(nfc_tech_isodep_target_t *pIsodepTarget);
 static bool dep_ready(nfc_tech_isodep_target_t *pIsodepTarget);
 
-static void dep_req_information(nfc_tech_isodep_target_t *pIsodepTarget, buffer_t *pReq, bool moreInformation, uint8_t blockNumber);
+static void dep_req_information(nfc_tech_isodep_target_t *pIsodepTarget, ac_buffer_t *pReq, bool moreInformation, uint8_t blockNumber);
 static void dep_req_response(nfc_tech_isodep_target_t *pIsodepTarget, bool ack, uint8_t blockNumber);
 static void dep_req_supervisory(nfc_tech_isodep_target_t *pIsodepTarget, bool wtxNDeselect, uint8_t wtxm);
 
 static dep_type_t dep_res_type(nfc_tech_isodep_target_t *pIsodepTarget);
-static void dep_res_information(nfc_tech_isodep_target_t *pIsodepTarget, size_t maxLength, buffer_t **ppRes, bool *pMoreInformation, uint8_t *pBlockNumber);
+static void dep_res_information(nfc_tech_isodep_target_t *pIsodepTarget, size_t maxLength, ac_buffer_t **ppRes, bool *pMoreInformation, uint8_t *pBlockNumber);
 static void dep_res_response(nfc_tech_isodep_target_t *pIsodepTarget, bool *pAck, uint8_t *pBlockNumber);
 static void dep_res_supervisory(nfc_tech_isodep_target_t *pIsodepTarget, bool *pWtxNDeselect, uint8_t *pWtxm);
 
@@ -108,7 +108,7 @@ static void command_transceiver_cb(nfc_transceiver_t *pTransceiver, nfc_err_t re
 
 //High-level Target functions
 void nfc_tech_isodep_target_init(nfc_tech_isodep_target_t *pIsodepTarget, nfc_transceiver_t *pTransceiver,
-                                 buffer_t *pHist, nfc_tech_isodep_disconnected_cb disconnectedCb, void *pUserData)
+                                 ac_buffer_t *pHist, nfc_tech_isodep_disconnected_cb disconnectedCb, void *pUserData)
 {
     pIsodepTarget->pTransceiver = pTransceiver;
 
@@ -206,7 +206,7 @@ bool dep_ready(nfc_tech_isodep_target_t *pIsodepTarget)
     }
 }
 
-void dep_req_information(nfc_tech_isodep_target_t *pIsodepTarget, buffer_t *pReq, bool moreInformation, uint8_t blockNumber)
+void dep_req_information(nfc_tech_isodep_target_t *pIsodepTarget, ac_buffer_t *pReq, bool moreInformation, uint8_t blockNumber)
 {
     (void) blockNumber;
 
@@ -303,7 +303,7 @@ dep_type_t dep_res_type(nfc_tech_isodep_target_t *pIsodepTarget)
     return depType;
 }
 
-void dep_res_information(nfc_tech_isodep_target_t *pIsodepTarget, size_t maxLength, buffer_t **ppRes, bool *pMoreInformation, uint8_t *pBlockNumber)
+void dep_res_information(nfc_tech_isodep_target_t *pIsodepTarget, size_t maxLength, ac_buffer_t **ppRes, bool *pMoreInformation, uint8_t *pBlockNumber)
 {
     *pBlockNumber = pIsodepTarget->dep.blockNumber;
     if (pIsodepTarget->dep.frameState != ISO_DEP_TARGET_DEP_FRAME_NACK_RECEIVED) {
@@ -505,7 +505,7 @@ nfc_err_t command_dep_res(nfc_tech_isodep_target_t *pIsodepTarget)
       pcb |= PFB_DID;
     }*/
 
-    buffer_t *pDepBuf = NULL;
+    ac_buffer_t *pDepBuf = NULL;
     bool moreInformation = false;
     bool ack = false;
     bool wtxNDeselect = false;
@@ -588,7 +588,7 @@ void command_reply(nfc_tech_isodep_target_t *pIsodepTarget, bool depWait)
         transceiver_set_transceive_options(pIsodepTarget->pTransceiver, true, true, false);
     }
 
-    DBG_BLOCK(buffer_dump(buffer_builder_buffer(&pIsodepTarget->commands.respBldr));)
+    NFC_DBG_BLOCK(buffer_dump(buffer_builder_buffer(&pIsodepTarget->commands.respBldr));)
 
     //Send next frame
     transceiver_set_write(pIsodepTarget->pTransceiver, buffer_builder_buffer(&pIsodepTarget->commands.respBldr));
@@ -637,9 +637,9 @@ void command_transceiver_cb(nfc_transceiver_t *pTransceiver, nfc_err_t ret, void
     }
 
     NFC_DBG("Reading data from initiator");
-    buffer_t *pDataInitiator = transceiver_get_read(pTransceiver); //In buffer
+    ac_buffer_t *pDataInitiator = transceiver_get_read(pTransceiver); //In buffer
 
-    DBG_BLOCK(buffer_dump(pDataInitiator);)
+    NFC_DBG_BLOCK(buffer_dump(pDataInitiator);)
 
     //Framing is handled by transceiver
     if ((buffer_reader_readable(pDataInitiator) < 1)) {
@@ -653,7 +653,7 @@ void command_transceiver_cb(nfc_transceiver_t *pTransceiver, nfc_err_t ret, void
     pIsodepTarget->commands.pReq = pDataInitiator;
 
     //Duplicate to peek on req
-    buffer_t dataInitiatorDup;
+    ac_buffer_t dataInitiatorDup;
     buffer_dup(&dataInitiatorDup, pDataInitiator);
     uint8_t req = buffer_read_nu8(&dataInitiatorDup);
 

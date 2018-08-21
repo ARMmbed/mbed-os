@@ -18,6 +18,7 @@
 #define MBED_NFC_EEPROM_H
 
 #include <stdint.h>
+#include "events/EventQueue.h"
 
 #include "NFCDefinitions.h"
 #include "NFCTarget.h"
@@ -58,6 +59,29 @@ public:
      * The NFCEEPROM delegate. Users of the NFCEEPROM class need to implement this delegate's methods to receive events.
      */
     struct Delegate : NFCTarget::Delegate {
+        /**
+         * The NDEF message erasing request completed.
+         *
+         * @param[in] result NFC_OK or an error code on failure
+         */
+        virtual void on_ndef_message_erased(nfc_err_t result) {}
+
+        /**
+         * The NDEF message writing request completed.
+         *
+         * @param[in] result NFC_OK or an error code on failure
+         */
+        virtual void on_ndef_message_written(nfc_err_t result) {}
+
+        /**
+         * The NDEF message reading request completed.
+         *
+         * @param[in] result NFC_OK or an error code on failure
+         */
+        virtual void on_ndef_message_read(nfc_err_t result) {}
+
+    protected:
+        ~Delegate() {}
     };
 
     /**
@@ -96,7 +120,7 @@ private:
     void continue_read();
     void continue_erase();
 
-    enum class nfc_eeprom_operation_t {
+    enum nfc_eeprom_operation_t {
         nfc_eeprom_idle,
 
         nfc_eeprom_write_start_session,
@@ -104,7 +128,7 @@ private:
         nfc_eeprom_write_write_size,
         nfc_eeprom_write_end_session,
 
-        nfc_eeprom_write_start_session,
+        nfc_eeprom_read_start_session,
         nfc_eeprom_read_read_size,
         nfc_eeprom_read_read_bytes,
         nfc_eeprom_read_end_session,
@@ -119,7 +143,7 @@ private:
     bool _initialized;
 
     nfc_eeprom_operation_t _current_op;
-    buffer_t _ndef_buffer_reader;
+    ac_buffer_t _ndef_buffer_reader;
     size_t _ndef_buffer_read_sz;
     uint32_t _eeprom_address;
     nfc_err_t _operation_result;

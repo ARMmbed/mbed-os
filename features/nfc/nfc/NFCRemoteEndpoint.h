@@ -37,7 +37,13 @@ class NFCController;
  */
 class NFCRemoteEndpoint {
 public:
-    NFCRemoteEndpoint();
+    /**
+     * Create a NFCRemoteEndpointinstance
+     * @param[in] controller the NFCController instance that detected this endpoint
+     */
+    NFCRemoteEndpoint(NFCController *controller);
+
+    virtual ~NFCRemoteEndpoint();
 
     /**
      * The NFCRemoteEndpoint base delegate.
@@ -46,12 +52,15 @@ public:
         /**
          * This method is called when the endpoint is connected
          */
-        virtual void on_connected() {};
+        virtual void on_connected() {}
 
         /**
          * This method is called when the endpoint is lost (air interface link disconnnected)
          */
-        virtual void on_disconnected() {};
+        virtual void on_disconnected() {}
+
+    protected:
+        ~Delegate() {}
     };
 
     /**

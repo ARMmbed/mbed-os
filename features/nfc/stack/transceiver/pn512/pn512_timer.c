@@ -20,7 +20,7 @@
  * \author Donatien Garnier
  */
 
-#include "inc/nfc.h"
+#include "stack/nfc_errors.h"
 
 #include "pn512_timer.h"
 #include "pn512_registers.h"

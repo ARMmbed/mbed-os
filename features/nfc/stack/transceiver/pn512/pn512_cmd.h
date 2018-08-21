@@ -27,7 +27,7 @@
 extern "C" {
 #endif
 
-#include "inc/nfc.h"
+#include "stack/nfc_errors.h"
 
 
 #include "pn512.h"
@@ -51,8 +51,8 @@ void pn512_cmd_init(pn512_t *pPN512);
 
 //Fifo read / write
 
-void pn512_fifo_write(pn512_t *pPN512, buffer_t *pData);
-void pn512_fifo_read(pn512_t *pPN512, buffer_builder_t *pData);
+void pn512_fifo_write(pn512_t *pPN512, ac_buffer_t *pData);
+void pn512_fifo_read(pn512_t *pPN512, ac_buffer_builder_t *pData);
 
 //Fifo clear
 void pn512_fifo_clear(pn512_t *pPN512);

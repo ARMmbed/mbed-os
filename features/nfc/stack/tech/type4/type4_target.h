@@ -27,7 +27,7 @@
 extern "C" {
 #endif
 
-#include "inc/nfc.h"
+#include "stack/nfc_errors.h"
 
 #include "tech/iso7816/iso7816.h"
 #include "tech/iso7816/iso7816_app.h"
@@ -43,10 +43,10 @@ struct nfc_tech_type4_target {
     ndef_msg_t *pNdef;
 
     uint8_t ccFileBuf[15];
-    buffer_builder_t ccFileBldr;
+    ac_buffer_builder_t ccFileBldr;
 
     uint8_t ndefFileBuf[2];
-    buffer_builder_t ndefFileBldr;
+    ac_buffer_builder_t ndefFileBldr;
 
     uint16_t selFile;
 

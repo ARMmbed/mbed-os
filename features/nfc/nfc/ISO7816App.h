@@ -36,6 +36,7 @@ class Type4RemoteInitiator;
  * This base class represents an ISO7816-4 application.
  */
 class ISO7816App {
+public:
     /**
      * This class describes an ISO7816-4 exchange (Command/Response).
      */
@@ -91,7 +92,12 @@ class ISO7816App {
     /**
      * Construct ISO7816 app instance
      */
-    ISO7816App();
+    ISO7816App() {}
+
+    /**
+     * ISO7816App destructor
+     */
+    virtual ~ISO7816App();
 
 private:
     friend class Type4RemoteInitiator;

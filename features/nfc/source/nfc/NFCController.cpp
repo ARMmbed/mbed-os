@@ -24,7 +24,7 @@ using namespace mbed;
 using namespace mbed::nfc;
 
 NFCController::NFCController(NFCControllerDriver *driver, events::EventQueue *queue, uint8_t *ndef_buffer, size_t ndef_buffer_sz) :
-    _driver(driver), _queue(queue), _transceiver(NULL), _scheduler(NULL), _delegate(NULL), _discovery_running(false), _ndef_buffer_sz(ndef_buffer_sz)
+    _driver(driver), _queue(queue), _transceiver(NULL), _scheduler(NULL), _delegate(NULL), _discovery_running(false), _ndef_buffer(ndef_buffer), _ndef_buffer_sz(ndef_buffer_sz)
 {
     _driver->set_delegate(this);
 }
@@ -44,6 +44,8 @@ nfc_err_t NFCController::initialize()
 
     // Run scheduler for the first time
     _queue->call(this, NFCController::scheduler_process, false);
+
+    return NFC_OK;
 }
 
 void NFCController::set_delegate(Delegate *delegate)
@@ -99,6 +101,8 @@ nfc_err_t NFCController::configure_rf_protocols(nfc_rf_protocols_bitmask_t rf_pr
     polling_options_t options = {0};
 
     transceiver_set_protocols(_transceiver, initiator_tech, target_tech, options);
+
+    return NFC_OK;
 }
 
 nfc_err_t NFCController::start_discovery()
@@ -109,6 +113,8 @@ nfc_err_t NFCController::start_discovery()
     }
 
     transceiver_poll(_transceiver, &NFCController::s_polling_callback, this /* use this as callback argument */);
+
+    return NFC_OK;
 }
 
 nfc_err_t NFCController::cancel_discovery()
@@ -118,6 +124,8 @@ nfc_err_t NFCController::cancel_discovery()
     }
 
     transceiver_abort(_transceiver);
+
+    return NFC_OK;
 }
 
 nfc_transceiver_t *NFCController::transceiver() const
@@ -138,7 +146,7 @@ void NFCController::polling_callback(nfc_err_t ret)
                 Type4RemoteInitiator type4_remote_initiator_ptr = new (std::nothrow) Type4RemoteInitiator(_transceiver, _ndef_buffer, _ndef_buffer_sz);
                 if (type4_remote_initiator_ptr == NULL) {
                     // No memory :(
-                    SharedPtr<Type4RemoteInitiator> type4_remote_initiator(type4_remote_initiator_ptr);
+                    SharedPtr<NFCRemoteInitiator> type4_remote_initiator(type4_remote_initiator_ptr);
                     if (_delegate != NULL) {
                         _delegate->on_nfc_initiator_discovered(type4_remote_initiator);
                     }
@@ -148,7 +156,7 @@ void NFCController::polling_callback(nfc_err_t ret)
     }
 
     if (_delegate != NULL) {
-        nfc_discovery_terminated_reason_t reason;
+        NFCController::Delegate::nfc_discovery_terminated_reason_t reason;
 
         // Map reason
         switch (ret) {
@@ -170,18 +178,18 @@ void NFCController::polling_callback(nfc_err_t ret)
 
 void NFCController::scheduler_process(bool hw_interrupt)
 {
-    _timer.detach(); // Cancel timeout - if it triggers, it's ok as we'll have an "early" iteration which will likely be a no-op
+    _timeout.detach(); // Cancel timeout - if it triggers, it's ok as we'll have an "early" iteration which will likely be a no-op
 
     // Process stack events
     uint32_t timeout = nfc_scheduler_iteration(_scheduler, hw_interrupt ? EVENT_HW_INTERRUPT : EVENT_NONE);
 
-    _timer.attach(callback(this, &NFCController::on_timeout));
+    _timeout.attach(callback(this, &NFCController::on_timeout), timeout);
 }
 
 void NFCController::on_hw_interrupt()
 {
     // Run scheduler - this is called in interrupt context
-    _timer.detach(); // Cancel timeout - if it triggers anyways, it's ok
+    _timeout.detach(); // Cancel timeout - if it triggers anyways, it's ok
     _queue->call(this, NFCController::scheduler_process, true);
 }
 

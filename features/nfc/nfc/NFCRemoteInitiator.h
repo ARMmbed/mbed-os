@@ -42,17 +42,19 @@ class NFCRemoteInitiator : public NFCRemoteEndpoint, public NFCNDEFCapable {
 public:
     /**
      * Create a NFCRemoteInitiator.
+     * @param[in] controller the NFCController instance that detected this endpoint
      * @param[in] buffer a bytes array used to store NDEF messages
      * @param[in] buffer_size the array size in bytes
      */
-    NFCRemoteInitiator(uint8_t *buffer, size_t buffer_size);
+    NFCRemoteInitiator(NFCController *controller, uint8_t *buffer, size_t buffer_size);
     virtual ~NFCRemoteInitiator();
 
     /**
      * The NFCRemoteInitiator delegate. Users of the NFCRemoteInitiator class need to implement this delegate's methods to receive events.
      */
-    struct Delegate : NFCEndpoint::Delegate, NFCNDEFCapable::Delegate {
-
+    struct Delegate : NFCRemoteEndpoint::Delegate, NFCNDEFCapable::Delegate {
+    protected:
+        ~Delegate() {}
     };
 
     /**

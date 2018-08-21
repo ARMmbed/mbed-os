@@ -22,7 +22,6 @@
  */
 
 
-#include "inc/nfc.h"
 #include "ndef.h"
 
 /** \addtogroup NDEF

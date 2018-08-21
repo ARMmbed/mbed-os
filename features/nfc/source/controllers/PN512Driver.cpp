@@ -15,6 +15,10 @@
  */
 
 #include "PN512Driver.h"
+#include "nfc/stack/platform/nfc_debug.h"
+
+using namespace mbed;
+using namespace mbed::nfc;
 
 PN512Driver::PN512Driver(PN512TransportDriver *transport_driver) : NFCControllerDriver(), _transport_driver(transport_driver)
 {
@@ -26,14 +30,14 @@ nfc_transceiver_t *PN512Driver::initialize(nfc_scheduler_timer_t *scheduler_time
     // Initialize transport
     _transport_driver->initialize();
 
-    nfc_err_t ret = pn512_init(&pn512, _transport_driver->get_transport(), scheduler_timer);
+    nfc_err_t ret = pn512_init(&_pn512, _transport_driver->get_transport(), scheduler_timer);
     if (ret != NFC_OK) {
         NFC_ERR("PN512 init error (%d)", ret);
         return NULL;
     }
     NFC_DBG("PN512 Initialized");
 
-    return pn512_get_transceiver(&pn512);
+    return pn512_get_transceiver(&_pn512);
 }
 
 void PN512Driver::get_supported_nfc_techs(nfc_tech_t *initiator, nfc_tech_t *target) const

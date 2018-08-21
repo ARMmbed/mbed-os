@@ -35,13 +35,21 @@ public:
         /**
          * Called when the PN512 asserts the interrupt line
          */
-        void on_hw_interrupt();
+        virtual void on_hw_interrupt() {}
+
+    protected:
+        ~Delegate() {}
     };
 
     /**
      * Create a PN512TransportDriver instance
      */
     PN512TransportDriver();
+
+    /**
+    * PN512TransportDriver destructor.
+    */
+    virtual ~PN512TransportDriver();
 
     /**
      * Initialize transport driver and perform a chip reset

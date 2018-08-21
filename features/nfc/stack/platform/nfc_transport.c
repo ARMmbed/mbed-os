@@ -27,7 +27,7 @@
  *  @{
  */
 
-#include "inc/nfc.h"
+#include "stack/nfc_errors.h"
 #include "nfc_transport.h"
 
 /** Initialize transport with a specific implementation
