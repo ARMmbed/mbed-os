@@ -1,5 +1,5 @@
 {
-    "name": "spif-driver",
+    "name": "spif",
     "config": {
         "SPI_MOSI": "NC",
         "SPI_MISO": "NC",
@@ -9,10 +9,10 @@
     },
     "target_overrides": {
         "K82F": {
-             "SPI_MOSI": "PTE2",
-             "SPI_MISO": "PTE4",
-             "SPI_CLK":  "PTE1",
-             "SPI_CS":   "PTE5"
+            "SPI_MOSI": "PTE2",
+            "SPI_MISO": "PTE4",
+            "SPI_CLK":  "PTE1",
+            "SPI_CS":   "PTE5"
         },
         "LPC54114": {
             "SPI_MOSI": "P0_20",

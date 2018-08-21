@@ -1,23 +1,30 @@
-#include "mbed.h"
+/* mbed Microcontroller Library
+ * Copyright (c) 2018 ARM Limited
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 #include "greentea-client/test_env.h"
 #include "unity.h"
 #include "utest.h"
-
 #include "SPIFBlockDevice.h"
+#include "mbed_trace.h"
 #include <stdlib.h>
 
 using namespace utest::v1;
 
-#if defined(TARGET_K82F)
-#define TEST_PINS PTE2, PTE4, PTE1, PTE5
-#define TEST_FREQ 40000000
-#else
-#define TEST_PINS D11, D12, D13, D10
-#define TEST_FREQ 1000000
-#endif
-
 #define TEST_BLOCK_COUNT 10
 #define TEST_ERROR_MASK 16
+#define SPIF_TEST_NUM_OF_THREADS 5
 
 const struct {
     const char *name;
@@ -29,34 +36,133 @@ const struct {
     {"total size",   &BlockDevice::size},
 };
 
+static SingletonPtr<PlatformMutex> _mutex;
 
-void test_read_write() {
-    SPIFBlockDevice bd(TEST_PINS, TEST_FREQ);
+// Mutex is protecting rand() per srand for buffer writing and verification.
+// Mutex is also protecting printouts for clear logs.
+// Mutex is NOT protecting Block Device actions: erase/program/read - which is the purpose of the multithreaded test!
+void basic_erase_program_read_test(SPIFBlockDevice& blockD, bd_size_t block_size, uint8_t *write_block,
+                                   uint8_t *read_block, unsigned addrwidth)
+{
+    int err = 0;
+    _mutex->lock();
+    // Find a random block
+    bd_addr_t block = (rand() * block_size) % blockD.size();
 
-    int err = bd.init();
+    // Use next random number as temporary seed to keep
+    // the address progressing in the pseudorandom sequence
+    unsigned seed = rand();
+
+    // Fill with random sequence
+    srand(seed);
+    for (bd_size_t i_ind = 0; i_ind < block_size; i_ind++) {
+        write_block[i_ind] = 0xff & rand();
+    }
+    // Write, sync, and read the block
+    utest_printf("\ntest  %0*llx:%llu...", addrwidth, block, block_size);
+    _mutex->unlock();
+
+    err = blockD.erase(block, block_size);
     TEST_ASSERT_EQUAL(0, err);
 
-    for (unsigned a = 0; a < sizeof(ATTRS)/sizeof(ATTRS[0]); a++) {
+    err = blockD.program(write_block, block, block_size);
+    TEST_ASSERT_EQUAL(0, err);
+
+    err = blockD.read(read_block, block, block_size);
+    TEST_ASSERT_EQUAL(0, err);
+
+    _mutex->lock();
+    // Check that the data was unmodified
+    srand(seed);
+    int val_rand;
+    for (bd_size_t i_ind = 0; i_ind < block_size; i_ind++) {
+        val_rand = rand();
+        if ( (0xff & val_rand) != read_block[i_ind] ) {
+            utest_printf("\n Assert Failed Buf Read - block:size: %llx:%llu \n", block, block_size);
+            utest_printf("\n pos: %llu, exp: %02x, act: %02x, wrt: %02x \n", i_ind, (0xff & val_rand), read_block[i_ind],
+                         write_block[i_ind] );
+        }
+        TEST_ASSERT_EQUAL(0xff & val_rand, read_block[i_ind]);
+    }
+    _mutex->unlock();
+}
+
+void test_spif_random_program_read_erase()
+{
+    utest_printf("\nTest Random Program Read Erase Starts..\n");
+
+    SPIFBlockDevice blockD(MBED_CONF_SPIF_SPI_MOSI, MBED_CONF_SPIF_SPI_MISO, MBED_CONF_SPIF_SPI_CLK, MBED_CONF_SPIF_SPI_CS);
+
+    int err = blockD.init();
+    TEST_ASSERT_EQUAL(0, err);
+
+    for (unsigned atr = 0; atr < sizeof(ATTRS) / sizeof(ATTRS[0]); atr++) {
         static const char *prefixes[] = {"", "k", "M", "G"};
-        for (int i = 3; i >= 0; i--) {
-            bd_size_t size = (bd.*ATTRS[a].method)();
-            if (size >= (1ULL << 10*i)) {
-                printf("%s: %llu%sbytes (%llubytes)\n",
-                    ATTRS[a].name, size >> 10*i, prefixes[i], size);
+        for (int i_ind = 3; i_ind >= 0; i_ind--) {
+            bd_size_t size = (blockD.*ATTRS[atr].method)();
+            if (size >= (1ULL << 10 * i_ind)) {
+                utest_printf("%s: %llu%sbytes (%llubytes)\n",
+                             ATTRS[atr].name, size >> 10 * i_ind, prefixes[i_ind], size);
                 break;
             }
         }
     }
 
-    bd_size_t block_size = bd.get_erase_size();
-    uint8_t *write_block = new uint8_t[block_size];
-    uint8_t *read_block = new uint8_t[block_size];
-    uint8_t *error_mask = new uint8_t[TEST_ERROR_MASK];
-    unsigned addrwidth = ceil(log(float(bd.size()-1)) / log(float(16)))+1;
+    bd_size_t block_size = blockD.get_erase_size();
+    unsigned addrwidth = ceil(log(float(blockD.size() - 1)) / log(float(16))) + 1;
+
+    uint8_t *write_block = new (std::nothrow) uint8_t[block_size];
+    uint8_t *read_block = new (std::nothrow) uint8_t[block_size];
+    if (!write_block || !read_block) {
+        utest_printf("\n Not enough memory for test");
+        goto end;
+    }
 
     for (int b = 0; b < TEST_BLOCK_COUNT; b++) {
-        // Find a random block
-        bd_addr_t block = (rand()*block_size) % bd.size();
+        basic_erase_program_read_test(blockD, block_size, write_block, read_block, addrwidth);
+    }
+
+    err = blockD.deinit();
+    TEST_ASSERT_EQUAL(0, err);
+
+end:
+    delete[] write_block;
+    delete[] read_block;
+}
+
+void test_spif_unaligned_program()
+{
+    utest_printf("\nTest Unaligned Program Starts..\n");
+
+    SPIFBlockDevice blockD(MBED_CONF_SPIF_SPI_MOSI, MBED_CONF_SPIF_SPI_MISO, MBED_CONF_SPIF_SPI_CLK, MBED_CONF_SPIF_SPI_CS);
+
+    int err = blockD.init();
+    TEST_ASSERT_EQUAL(0, err);
+
+    for (unsigned atr = 0; atr < sizeof(ATTRS) / sizeof(ATTRS[0]); atr++) {
+        static const char *prefixes[] = {"", "k", "M", "G"};
+        for (int i_ind = 3; i_ind >= 0; i_ind--) {
+            bd_size_t size = (blockD.*ATTRS[atr].method)();
+            if (size >= (1ULL << 10 * i_ind)) {
+                utest_printf("%s: %llu%sbytes (%llubytes)\n",
+                             ATTRS[atr].name, size >> 10 * i_ind, prefixes[i_ind], size);
+                break;
+            }
+        }
+    }
+
+    bd_size_t block_size = blockD.get_erase_size();
+    unsigned addrwidth = ceil(log(float(blockD.size() - 1)) / log(float(16))) + 1;
+
+    uint8_t *write_block = new (std::nothrow) uint8_t[block_size];
+    uint8_t *read_block = new (std::nothrow) uint8_t[block_size];
+    if (!write_block || !read_block ) {
+        utest_printf("\n Not enough memory for test");
+        goto end;
+    }
+
+    {
+        bd_addr_t block = (rand() * block_size) % blockD.size() + 15;
 
         // Use next random number as temporary seed to keep
         // the address progressing in the pseudorandom sequence
@@ -64,77 +170,121 @@ void test_read_write() {
 
         // Fill with random sequence
         srand(seed);
-        for (bd_size_t i = 0; i < block_size; i++) {
-            write_block[i] = 0xff & rand();
+        for (bd_size_t i_ind = 0; i_ind < block_size; i_ind++) {
+            write_block[i_ind] = 0xff & rand();
         }
 
         // Write, sync, and read the block
-        printf("test  %0*llx:%llu...\n", addrwidth, block, block_size);
+        utest_printf("\ntest  %0*llx:%llu...", addrwidth, block, block_size);
 
-        err = bd.erase(block, block_size);
+        err = blockD.erase(block, block_size);
         TEST_ASSERT_EQUAL(0, err);
 
-        err = bd.program(write_block, block, block_size);
+        err = blockD.program(write_block, block, block_size);
         TEST_ASSERT_EQUAL(0, err);
 
-        printf("write %0*llx:%llu ", addrwidth, block, block_size);
-        for (int i = 0; i < 16; i++) {
-            printf("%02x", write_block[i]);
-        }
-        printf("...\n");
-
-        err = bd.read(read_block, block, block_size);
+        err = blockD.read(read_block, block, block_size);
         TEST_ASSERT_EQUAL(0, err);
-
-        printf("read  %0*llx:%llu ", addrwidth, block, block_size);
-        for (int i = 0; i < 16; i++) {
-            printf("%02x", read_block[i]);
-        }
-        printf("...\n");
-
-        // Find error mask for debugging
-        memset(error_mask, 0, TEST_ERROR_MASK);
-        bd_size_t error_scale = block_size / (TEST_ERROR_MASK*8);
-
-        srand(seed);
-        for (bd_size_t i = 0; i < TEST_ERROR_MASK*8; i++) {
-            for (bd_size_t j = 0; j < error_scale; j++) {
-                if ((0xff & rand()) != read_block[i*error_scale + j]) {
-                    error_mask[i/8] |= 1 << (i%8);
-                }
-            }
-        }
-
-        printf("error %0*llx:%llu ", addrwidth, block, block_size);
-        for (int i = 0; i < 16; i++) {
-            printf("%02x", error_mask[i]);
-        }
-        printf("\n");
 
         // Check that the data was unmodified
         srand(seed);
-        for (bd_size_t i = 0; i < block_size; i++) {
-            TEST_ASSERT_EQUAL(0xff & rand(), read_block[i]);
+        for (bd_size_t i_ind = 0; i_ind < block_size; i_ind++) {
+            TEST_ASSERT_EQUAL(0xff & rand(), read_block[i_ind]);
+        }
+
+        err = blockD.deinit();
+        TEST_ASSERT_EQUAL(0, err);
+    }
+end:
+    delete[] write_block;
+    delete[] read_block;
+}
+
+static void test_spif_thread_job(void *vBlockD/*, int thread_num*/)
+{
+    static int thread_num = 0;
+    thread_num++;
+    SPIFBlockDevice *blockD = (SPIFBlockDevice *)vBlockD;
+    utest_printf("\n Thread %d Started \n", thread_num);
+
+    bd_size_t block_size = blockD->get_erase_size();
+    unsigned addrwidth = ceil(log(float(blockD->size() - 1)) / log(float(16))) + 1;
+
+    uint8_t *write_block = new (std::nothrow) uint8_t[block_size];
+    uint8_t *read_block = new (std::nothrow) uint8_t[block_size];
+    if (!write_block || !read_block ) {
+        utest_printf("\n Not enough memory for test");
+        goto end;
+    }
+
+    for (int b = 0; b < TEST_BLOCK_COUNT; b++) {
+        basic_erase_program_read_test((*blockD), block_size, write_block, read_block, addrwidth);
+    }
+
+end:
+    delete[] write_block;
+    delete[] read_block;
+}
+
+void test_spif_multi_threads()
+{
+    utest_printf("\nTest Multi Threaded Erase/Program/Read Starts..\n");
+
+    SPIFBlockDevice blockD(MBED_CONF_SPIF_SPI_MOSI, MBED_CONF_SPIF_SPI_MISO, MBED_CONF_SPIF_SPI_CLK, MBED_CONF_SPIF_SPI_CS);
+
+    int err = blockD.init();
+    TEST_ASSERT_EQUAL(0, err);
+
+    for (unsigned atr = 0; atr < sizeof(ATTRS) / sizeof(ATTRS[0]); atr++) {
+        static const char *prefixes[] = {"", "k", "M", "G"};
+        for (int i_ind = 3; i_ind >= 0; i_ind--) {
+            bd_size_t size = (blockD.*ATTRS[atr].method)();
+            if (size >= (1ULL << 10 * i_ind)) {
+                utest_printf("%s: %llu%sbytes (%llubytes)\n",
+                             ATTRS[atr].name, size >> 10 * i_ind, prefixes[i_ind], size);
+                break;
+            }
         }
     }
-    
-    err = bd.deinit();
+
+    rtos::Thread spif_bd_thread[SPIF_TEST_NUM_OF_THREADS];
+
+    osStatus threadStatus;
+    int i_ind;
+
+    for (i_ind = 0; i_ind < SPIF_TEST_NUM_OF_THREADS; i_ind++) {
+        threadStatus = spif_bd_thread[i_ind].start(test_spif_thread_job, (void *)&blockD);
+        if (threadStatus != 0) {
+            utest_printf("\n Thread %d Start Failed!", i_ind + 1);
+        }
+    }
+
+    for (i_ind = 0; i_ind < SPIF_TEST_NUM_OF_THREADS; i_ind++) {
+        spif_bd_thread[i_ind].join();
+    }
+
+    err = blockD.deinit();
     TEST_ASSERT_EQUAL(0, err);
 }
 
-
 // Test setup
-utest::v1::status_t test_setup(const size_t number_of_cases) {
-    GREENTEA_SETUP(30, "default_auto");
+utest::v1::status_t test_setup(const size_t number_of_cases)
+{
+    GREENTEA_SETUP(60, "default_auto");
     return verbose_test_setup_handler(number_of_cases);
 }
 
 Case cases[] = {
-    Case("Testing read write random blocks", test_read_write),
+    Case("Testing unaligned program blocks", test_spif_unaligned_program),
+    Case("Testing read write random blocks", test_spif_random_program_read_erase),
+    Case("Testing Multi Threads Erase Program Read", test_spif_multi_threads)
 };
 
 Specification specification(test_setup, cases);
 
-int main() {
+int main()
+{
+    mbed_trace_init();
+    utest_printf("MAIN STARTS\n");
     return !Harness::run(specification);
 }
