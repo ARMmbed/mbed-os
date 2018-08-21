@@ -175,8 +175,9 @@ public:
     {
         if (_ptr != NULL) {
             core_util_critical_section_enter();
-            return *_counter;
+            uint32_t current_counter = *_counter;
             core_util_critical_section_exit();
+            return current_counter;
         } else {
             return 0;
         }
