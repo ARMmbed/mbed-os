@@ -207,7 +207,14 @@ void LowPowerTickerWrapper::_timeout_handler()
     _pending_timeout = false;
 
     timestamp_t current = _intf->read();
-    if (_ticker_match_interval_passed(_last_set_interrupt, current, _cur_match_time)) {
+    /* Add extra check for '_last_set_interrupt == _cur_match_time'
+     * 
+     * When '_last_set_interrupt == _cur_match_time', _ticker_match_interval_passed sees it as
+     * one-round interval rather than just-pass, so add extra check for it. In rare cases, we
+     * may trap in _timeout_handler/_schedule_match loop. This check can break it.
+     */
+    if ((_last_set_interrupt == _cur_match_time) ||
+        _ticker_match_interval_passed(_last_set_interrupt, current, _cur_match_time)) {
         _intf->fire_interrupt();
     } else {
         _schedule_match(current);
@@ -223,7 +230,9 @@ bool LowPowerTickerWrapper::_match_check(timestamp_t current)
     if (!_pending_match) {
         return false;
     }
-    return _ticker_match_interval_passed(_last_set_interrupt, current, _cur_match_time);
+    /* Add extra check for '_last_set_interrupt == _cur_match_time' as above */
+    return (_last_set_interrupt == _cur_match_time) ||
+        _ticker_match_interval_passed(_last_set_interrupt, current, _cur_match_time);
 }
 
 uint32_t LowPowerTickerWrapper::_lp_ticks_to_us(uint32_t ticks)
@@ -245,7 +254,7 @@ void LowPowerTickerWrapper::_schedule_match(timestamp_t current)
         }
     }
 
-    uint32_t cycles_until_match = (_cur_match_time - _last_set_interrupt) & _mask;
+    uint32_t cycles_until_match = (_cur_match_time - current) & _mask;
     bool too_close = cycles_until_match < _min_count_until_match;
 
     if (!_set_interrupt_allowed) {
