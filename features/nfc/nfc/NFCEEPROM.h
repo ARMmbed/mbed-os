@@ -90,7 +90,6 @@ private:
     virtual void on_size_written(bool success);
     virtual void on_size_read(bool success, size_t size);
     virtual void on_bytes_erased(size_t count);
-    virtual void on_event();
 
     void handle_error(nfc_err_t ret);
     void continue_write();
@@ -117,7 +116,6 @@ private:
     };
 
     NFCEEPROMDriver *_driver;
-    events::EventQueue *_queue;
     bool _initialized;
 
     nfc_eeprom_operation_t _current_op;

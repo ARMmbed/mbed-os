@@ -96,13 +96,6 @@ public:
          * @param[in] count number of bytes actually erased
          */
         virtual void on_bytes_erased(size_t count) = 0;
-
-        /**
-         * Signal the user that the process_events() need to be called
-         *
-         * @note this function can be called in interrupt context
-         */
-        virtual void on_event() = 0;
     };
 
     /**
@@ -113,15 +106,17 @@ public:
     void set_delegate(Delegate *delegate);
 
     /**
+     * Set the event queue that will be used to schedule event handling
+     *
+     * @param[in] queue the queue instance to use
+     */
+    void set_event_queue(EventQueue *queue);
+
+    /**
      * Reset and initialize the EEPROM.
      * This method should complete synchronously.
      */
     virtual void reset() = 0;
-
-    /**
-     * Process events raised by the driver in interrupt context.
-     */
-    virtual void process_events();
 
     /**
      * Get the maximum memory size addressable by the EEPROM.
@@ -185,9 +180,11 @@ public:
 
 protected:
     Delegate *delegate();
+    EventQueue *event_queue();
 
 private:
     Delegate *_delegate;
+    EventQueue *_event_queue;
 };
 
 /**

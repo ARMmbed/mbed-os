@@ -21,9 +21,10 @@ using namespace mbed;
 using namespace mbed::nfc;
 
 NFCEEPROM(NFCEEPROMDriver *driver, events::EventQueue *queue, uint8_t *ndef_buffer, size_t ndef_buffer_sz) : NFCTarget(ndef_buffer, ndef_buffer_sz)
-    _driver(driver), _queue(queue), _initialized(false), _current_op(nfc_eeprom_idle), _eeprom_address(0), _operation_result(NFC_ERR_UNKNOWN)
+    _driver(driver), _initialized(false), _current_op(nfc_eeprom_idle), _eeprom_address(0), _operation_result(NFC_ERR_UNKNOWN)
 {
     _driver->set_delegate(this);
+    _driver->set_event_queue(queue);
 }
 
 nfc_err_t NFCEEPROM::initialize()
@@ -347,12 +348,6 @@ void NFCEEPROM::on_bytes_erased(size_t count)
             handle_error(NFC_ERR_UNKNOWN);
             return;
     }
-}
-
-void NFCEEPROM::on_event()
-{
-    // Just schedule a task on event queue
-    _queue->call(_driver, NFCEEPROMDriver::process_events);
 }
 
 void NFCEEPROM::continue_write()
