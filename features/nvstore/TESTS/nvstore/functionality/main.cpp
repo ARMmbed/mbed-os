@@ -66,6 +66,8 @@ static const int race_test_data_size = 128;
 static const int race_test_min_stack_size = 768;
 static const int race_test_max_stack_size = 1024;
 
+static bool nvstore_overlaps_code = false;
+
 static void gen_random(uint8_t *s, int len)
 {
     for (int i = 0; i < len; ++i) {
@@ -91,6 +93,10 @@ static void nvstore_basic_functionality_test()
         size_t area_size;
         nvstore.get_area_params(area, area_address, area_size);
         printf("Area %d: address 0x%08lx, size %d (0x%x)\n", area, area_address, area_size, area_size);
+        if (area_address < FLASHIAP_ROM_END) {
+            nvstore_overlaps_code = true;
+        }
+        TEST_SKIP_UNLESS_MESSAGE(!nvstore_overlaps_code, "Test skipped. NVStore region overlaps code.");
     }
 
     gen_random(nvstore_testing_buf_set, basic_func_max_data_size);
@@ -485,6 +491,8 @@ static void nvstore_multi_thread_test()
 
     NVStore &nvstore = NVStore::get_instance();
 
+    TEST_SKIP_UNLESS_MESSAGE(!nvstore_overlaps_code, "Test skipped. NVStore region overlaps code.");
+
     ret = nvstore.reset();
     TEST_ASSERT_EQUAL(NVSTORE_SUCCESS, ret);
 
@@ -573,6 +581,8 @@ static void nvstore_race_test()
     uint8_t *get_buff, *buffs[race_test_num_threads];
     int num_threads = race_test_num_threads;
     uint16_t actual_len_bytes;
+
+    TEST_SKIP_UNLESS_MESSAGE(!nvstore_overlaps_code, "Test skipped. NVStore region overlaps code.");
 
     NVStore &nvstore = NVStore::get_instance();
 
