@@ -20,8 +20,6 @@
 #include "DigitalOut.h"
 #include "BlockDevice.h"
 
-namespace mbed {
-
 /** Enum spif standard error codes
  *
  *  @enum qpif_bd_error
@@ -256,9 +254,9 @@ private:
 
 private:
     // Master side hardware
-    SPI _spi;
+    mbed::SPI _spi;
     // Enable CS control (low/high) for SPI driver operatios
-    DigitalOut _cs;
+    mbed::DigitalOut _cs;
 
     // Mutex is used to protect Flash device for some SPI Driver commands that must be done sequentially with no other commands in between
     // e.g. (1)Set Write Enable, (2)Program, (3)Wait Memory Ready
@@ -293,7 +291,5 @@ private:
     uint32_t _init_ref_count;
     bool _is_initialized;
 };
-
-} //namespace mbed
 
 #endif  /* MBED_SPIF_BLOCK_DEVICE_H */

@@ -22,6 +22,7 @@
 
 #include "mbed_trace.h"
 #define TRACE_GROUP "SPIF"
+using namespace mbed;
 
 /* Default SPIF Parameters */
 /****************************/
@@ -70,8 +71,6 @@
 #define ERASE_BITMASK_ALL   0x0F
 
 #define IS_MEM_READY_MAX_RETRIES 10000
-
-namespace mbed {
 
 enum spif_default_instructions {
     SPIF_NOP = 0x00, // No operation
@@ -1030,7 +1029,5 @@ static unsigned int local_math_power(int base, int exp)
     }
     return result;
 }
-
-} //namespace mbed
 
 
