@@ -374,6 +374,8 @@ static void test_detach()
     TEST_ASSERT(st == NSAPI_STATUS_DISCONNECTED);
 
     TEST_ASSERT(nw->detach() == NSAPI_ERROR_OK);
+    // wait to process URC's, received after detach
+    rtos::Thread::wait(50);
     st =  nw->get_connection_status();
     TEST_ASSERT(st == NSAPI_STATUS_DISCONNECTED);
 }

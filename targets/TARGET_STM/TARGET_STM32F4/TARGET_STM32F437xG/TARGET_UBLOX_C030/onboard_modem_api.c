@@ -70,13 +70,8 @@ void onboard_modem_power_up()
 
 void onboard_modem_power_down()
 {
-#if defined(TARGET_UBLOX_C030_R410M)
 	/* keep the power line low for 1.5 seconds */
     press_power_button(1500000);
-#else
-	/* keep the power line low for 1 seconds */
-    press_power_button(1000000);
-#endif
 }
 
 #endif //MODEM_ON_BOARD
