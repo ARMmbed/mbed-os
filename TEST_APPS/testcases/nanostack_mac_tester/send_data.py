@@ -1,5 +1,5 @@
 """
-Copyright (c) 2017, Arm Limited and affiliates.
+Copyright (c) 2018, Arm Limited and affiliates.
 SPDX-License-Identifier: Apache-2.0
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,40 +15,41 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import os,sys
+import sys
 from icetea_lib.bench import Bench
+
 
 class Testcase(Bench):
     def __init__(self):
-        Bench.__init__(self, name = "send_data",
-                        title = "Simple data transmission test",
-                        status = "development",
-                        type = "smoke",
-                        subtype = "",
-                        execution = {
-                            "skip": {
-                                "value": False,
-                                "reason": ""
-                            }
-                        },
-                        author = "Valtteri Erkkila",
-                        purpose = "Tests that sending data works",
-                        feature = ["MCPS-DATA"],
-                        component = ["MAC"],
-                        requirements = {
-                            "duts": {
-                                '*': {
-                                    "count":2,
-                                    "type": "hardware",
-                                    "allowed_platforms": ["K64F", "K66F", "NUCLEO_F429ZI", "KW24D", "UBLOX_EVK_ODIN_W2"],
-                                    "application": {
+        Bench.__init__(self, name="send_data",
+                       title="Simple data transmission test",
+                       status="development",
+                       type="smoke",
+                       subtype="",
+                       execution={
+                           "skip": {
+                               "value": False,
+                               "reason": ""
+                           }
+                       },
+                       author="Valtteri Erkkila",
+                       purpose="Tests that sending data works",
+                       feature=["MCPS-DATA"],
+                       component=["MAC"],
+                       requirements={
+                           "duts": {
+                               '*': {
+                                   "count": 2,
+                                   "type": "hardware",
+                                   "allowed_platforms": ["K64F", "K66F", "NUCLEO_F429ZI", "KW24D", "UBLOX_EVK_ODIN_W2"],
+                                   "application": {
                                        "name": "TEST_APPS-device-nanostack_mac_tester"
-                                    }
-                                },
-                                "1":{"nick": "First"},
-                                "2":{"nick": "Second"}
-                        }}
-        )
+                                   }
+                               },
+                               "1": {"nick": "First"},
+                               "2": {"nick": "Second"}
+                           }}
+                       )
 
     def setUp(self):
         self.channel = 11
@@ -65,5 +66,6 @@ class Testcase(Bench):
     def tearDown(self):
         self.reset_dut()
 
-if __name__=='__main__':
-    sys.exit( Testcase().run() )
+
+if __name__ == '__main__':
+    sys.exit(Testcase().run())

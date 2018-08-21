@@ -16,41 +16,42 @@ limitations under the License.
 """
 
 import threading
-import os,sys
+import sys
 from icetea_lib.bench import Bench
+
 
 class Testcase(Bench):
     def __init__(self):
-        Bench.__init__(self, name = "ED_scan",
-                        title = "ED scan test",
-                        status = "development",
-                        type = "smoke",
-                        subtype = "",
-                        execution = {
-                            "skip": {
-                                "value": False,
-                                "reason": ""
-                            }
-                        },
-                        author = "Valtteri Erkkila",
-                        purpose = "Tests reading the ED values from channels 11-16",
-                        feature = ["MLME-SCAN (ED)"],
-                        component = ["MAC"],
-                        requirements = {
-                            "duts": {
-                                '*': {
-                                    "count":3,
-                                    "type": "hardware",
-                                    "allowed_platforms": ["K64F", "K66F", "NUCLEO_F429ZI", "KW24D", "UBLOX_EVK_ODIN_W2"],
-                                    "application": {
+        Bench.__init__(self, name="ED_scan",
+                       title="ED scan test",
+                       status="development",
+                       type="smoke",
+                       subtype="",
+                       execution={
+                           "skip": {
+                               "value": False,
+                               "reason": ""
+                           }
+                       },
+                       author="Valtteri Erkkila",
+                       purpose="Tests reading the ED values from channels 11-16",
+                       feature=["MLME-SCAN (ED)"],
+                       component=["MAC"],
+                       requirements={
+                           "duts": {
+                               '*': {
+                                   "count": 3,
+                                   "type": "hardware",
+                                   "allowed_platforms": ["K64F", "K66F", "NUCLEO_F429ZI", "KW24D", "UBLOX_EVK_ODIN_W2"],
+                                   "application": {
                                        "name": "TEST_APPS-device-nanostack_mac_tester"
-                                    }
-                                },
-                                "1":{"nick": "First"},
-                                "2":{"nick": "Second"},
-                                "3":{"nick": "Third"}
-                        }}
-        )
+                                   }
+                               },
+                               "1": {"nick": "First"},
+                               "2": {"nick": "Second"},
+                               "3": {"nick": "Third"}
+                           }}
+                       )
 
     def setUp(self):
         self.channel = 11
@@ -61,14 +62,18 @@ class Testcase(Bench):
     def spam_channel(self, event):
         while not event.wait(0.1):
             self.lock_th.acquire()
-            self.command("First", "data --dst_addr 01:02:03:00:00:00:00:03 --msdu {} --msdu_length {} --wait_for_confirm false".format(self.payload, len(self.payload)))
-            self.command("Third", "data --dst_addr 01:02:03:00:00:00:00:01 --msdu {} --msdu_length {} --wait_for_confirm false".format(self.payload, len(self.payload)))
+            self.command("First",
+                         "data --dst_addr 01:02:03:00:00:00:00:03 --msdu {} --msdu_length {} --wait_for_confirm false".format(
+                             self.payload, len(self.payload)))
+            self.command("Third",
+                         "data --dst_addr 01:02:03:00:00:00:00:01 --msdu {} --msdu_length {} --wait_for_confirm false".format(
+                             self.payload, len(self.payload)))
             self.lock_th.release()
 
     def mask_from_channel_list(self, channels):
         res = 0
         for ch in channels:
-            res = res | ( 1 << ch)
+            res = res | (1 << ch)
         return hex(res)
 
     def case(self):
@@ -79,7 +84,7 @@ class Testcase(Bench):
         self.command("Second", "start --pan_coordinator false --logical_channel {}".format(self.channel))
         self.command("Third", "start --pan_coordinator false --logical_channel {}".format(self.channel))
 
-        #No reason to print their spamming
+        # No reason to print their spamming
         self.command("First", "silent-mode on")
         self.command("Third", "silent-mode on")
 
@@ -87,7 +92,7 @@ class Testcase(Bench):
         self.th = threading.Thread(target=self.spam_channel, args=(self.stop_event,))
         self.th.start()
         self.stopped = True
-        channels = range(11,27)
+        channels = range(11, 27)
         for i in range(0, 3):
             self.lock_th.acquire()
             self.command("First", "mlme-reset")
@@ -95,7 +100,8 @@ class Testcase(Bench):
             self.command("Third", "mlme-reset")
             self.command("Third", "start --pan_coordinator false --logical_channel {}".format(self.channel))
             self.lock_th.release()
-            self.command("Second", "scan --scan_type 0 --scan_duration 7 --channel_mask {}".format(self.mask_from_channel_list(channels)))
+            self.command("Second", "scan --scan_type 0 --scan_duration 7 --channel_mask {}".format(
+                self.mask_from_channel_list(channels)))
             self.command("Second", "analyze-ed --channel {} --above 100".format(self.channel))
 
     def tearDown(self):
@@ -106,5 +112,6 @@ class Testcase(Bench):
         del self.th
         self.reset_dut()
 
-if __name__=='__main__':
-    sys.exit( Testcase().run() )
+
+if __name__ == '__main__':
+    sys.exit(Testcase().run())
