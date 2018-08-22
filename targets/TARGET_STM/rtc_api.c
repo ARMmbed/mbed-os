@@ -270,7 +270,7 @@ void rtc_write(time_t t)
 
 #if DEVICE_LPTICKER && !MBED_CONF_TARGET_LPTICKER_LPTIM
     /* Need to update LP_continuous_time value before new RTC time */
-    uint32_t current_lp_time = rtc_read_lp();
+    rtc_read_lp();
 
     /* LP_last_RTC_time value is updated with the new RTC time */
     LP_last_RTC_time = timeStruct.Seconds + timeStruct.Minutes * 60 + timeStruct.Hours * 60 * 60;
