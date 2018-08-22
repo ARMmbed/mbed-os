@@ -19,6 +19,12 @@
 #define MBED_NFC_DEBUG_H
 
 #if NFC_DEBUG && !defined(NDEBUG)
+#ifdef __MODULE__
+#define __NFC_MODULE__ __MODULE__
+#else
+#define __NFC_MODULE__ __FILE__
+#endif
+
 #include "stdio.h"
 #include "stdarg.h"
 static inline void nfc_dbg_print(const char *type, const char *module, unsigned int line, const char *fmt, ...)
@@ -34,15 +40,15 @@ static inline void nfc_dbg_print(const char *type, const char *module, unsigned 
 }
 
 #if !defined(NFC_DBG)
-#define NFC_DBG(...) nfc_dbg_print("DBG", __MODULE__, __LINE__, __VA_ARGS__)
+#define NFC_DBG(...) nfc_dbg_print("DBG", __NFC_MODULE__, __LINE__, __VA_ARGS__)
 #endif
 
 #if !defined(NFC_WARN)
-#define NFC_WARN(...) nfc_dbg_print("WARN", __MODULE__, __LINE__, __VA_ARGS__)
+#define NFC_WARN(...) nfc_dbg_print("WARN", __NFC_MODULE__, __LINE__, __VA_ARGS__)
 #endif
 
 #if !defined(NFC_ERR)
-#define NFC_ERR(...) nfc_dbg_print("ERR", __MODULE__, __LINE__, __VA_ARGS__)
+#define NFC_ERR(...) nfc_dbg_print("ERR", __NFC_MODULE__, __LINE__, __VA_ARGS__)
 #endif
 
 #define NFC_DBG_BLOCK(x) x

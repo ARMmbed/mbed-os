@@ -278,7 +278,7 @@ void pn512_transceive_hw_rx_task(uint32_t events, void *pUserData)
                     pn512_fifo_read(pPN512, &pPN512->readBufBldr);
 
                     NFC_DBG("Received");
-                    buffer_dump(ac_buffer_builder_buffer(&pPN512->readBufBldr));
+                    ac_buffer_dump(ac_buffer_builder_buffer(&pPN512->readBufBldr));
 
                     NFC_DBG("Computed CRC = %02X %02X", pn512_register_read(pPN512, PN512_REG_CRCRESULT_MSB), pn512_register_read(pPN512, PN512_REG_CRCRESULT_LSB));
 
@@ -333,7 +333,7 @@ void pn512_transceive_hw_rx_task(uint32_t events, void *pUserData)
             pn512_irq_clear(pPN512, PN512_IRQ_RX | PN512_IRQ_HIGH_ALERT);
 
             NFC_DBG("Received:");
-            NFC_DBG_BLOCK(buffer_dump(ac_buffer_builder_buffer(&pPN512->readBufBldr));)
+            NFC_DBG_BLOCK(ac_buffer_dump(ac_buffer_builder_buffer(&pPN512->readBufBldr));)
 
             if ((pPN512->transceive.mode == pn512_transceive_mode_target_autocoll) || (pPN512->transceive.mode == pn512_transceive_mode_transmit_and_target_autocoll)) {
                 //Check if target was activated
@@ -423,7 +423,7 @@ void pn512_transceive_hw(pn512_t *pPN512, pn512_transceive_mode_t mode, pn512_cb
         return;
     } else {
         NFC_DBG("Sending:");
-        NFC_DBG_BLOCK(buffer_dump(&pPN512->writeBuf);)
+        NFC_DBG_BLOCK(ac_buffer_dump(&pPN512->writeBuf);)
 
         //Transmit a frame to remote target/initiator
         irqs_en = PN512_IRQ_TX | PN512_IRQ_IDLE;

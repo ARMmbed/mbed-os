@@ -238,7 +238,7 @@ void pn512_initiator_isoa_anticollision_atqa(pn512_t *pPN512, nfc_err_t ret)
     }
 
     NFC_DBG("Got ATQA:");
-    NFC_DBG_BLOCK(buffer_dump(pResp);)
+    NFC_DBG_BLOCK(ac_buffer_dump(pResp);)
 
     // Ignore ATQA as there can be collisions
     ac_buffer_read_n_bytes(pResp, pPN512->transceiver.remote_targets[pPN512->transceiver.remote_targets_count].nfcA.atqa, 2);
@@ -582,7 +582,7 @@ void pn512_initiator_isob_anticollision_atqb(pn512_t *pPN512, nfc_err_t ret)
         }
 
         NFC_DBG("Got ATQB:");
-        NFC_DBG_BLOCK(buffer_dump(pResp);)
+        NFC_DBG_BLOCK(ac_buffer_dump(pResp);)
 
         // Check first byte
         uint8_t atqb0 = ac_buffer_read_nu8(pResp);
@@ -669,7 +669,7 @@ void pn512_initiator_isob_anticollision_haltb_resp(pn512_t *pPN512, nfc_err_t re
     }
 
     NFC_DBG("Got HALTB response:");
-    NFC_DBG_BLOCK(buffer_dump(pResp);)
+    NFC_DBG_BLOCK(ac_buffer_dump(pResp);)
 
     // Check byte
     uint8_t haltbr = ac_buffer_read_nu8(pResp);
@@ -742,7 +742,7 @@ void pn512_initiator_felica_anticollision_atqc(pn512_t *pPN512, nfc_err_t ret)
 
     // We might have multiple responses
     NFC_DBG("Got ATQC:");
-    NFC_DBG_BLOCK(buffer_dump(pResp);)
+    NFC_DBG_BLOCK(ac_buffer_dump(pResp);)
 
     while (ac_buffer_reader_readable(pResp) > 0) {
         if (ac_buffer_reader_readable(pResp) != 18 + 1) { // ATQC is 18 bytes, 1 byte for errors added by PN512

@@ -138,6 +138,8 @@ void NFCController::polling_callback(nfc_err_t ret)
     // Polling has completed
     _discovery_running = false;
 
+    NFC_DBG("Polling finished with result %u", ret);
+
     if (ret == NFC_OK) {
         // Check if a remote initiator was detected and if so, instantiate it
         if (!transceiver_is_initiator_mode(_transceiver)) {
