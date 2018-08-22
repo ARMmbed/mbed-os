@@ -58,7 +58,7 @@ typedef enum {
    WRITE_SIZE_2         = 0x0601,
    WRITE_SIZE_4         = 0x0602,
 
-   TERMINATE            = 0xFFFF
+   TERMINATE            = 0xFF00
 } TestCommand_t;
 
 /* We group the command based on their fist byte to simplify step checking.
@@ -318,38 +318,26 @@ public:
         }
 
         /* call next command */
-        switch(command) {
+        switch(command&TEST_COMMAND_GROUP_MASK) {
         case START_SESSION:
             _driver->start_session(true);
             break;
         case END_SESSION:
             _driver->end_session();
             break;
-        case READ_2_BYTES:
-        case READ_2_BYTES_OFFSET_FAIL:
-        case READ_4_BYTES:
-        case READ_4_BYTES_MIXED:
-        case READ_4_BYTES_ERASED:
-        case READ_4_BYTES_OFFSET:
-        case READ_4_BYTES_FAIL:
+        case READ_BYTES:
             _driver->read_bytes(_address, _buffer, _operation_size);
             break;
-        case WRITE_2_BYTES:
-        case WRITE_2_BYTES_OFFSET:
-        case WRITE_2_BYTES_OFFSET_FAIL:
-        case WRITE_4_BYTES:
-        case WRITE_4_BYTES_FAIL:
+        case WRITE_BYTES:
             _driver->write_bytes(_address, _operation_data, _operation_size);
             break;
-        case ERASE_4_BYTES:
+        case ERASE_BYTES:
             _driver->erase_bytes(_address, 4);
             break;
-        case READ_SIZE_2:
-        case READ_SIZE_4:
+        case READ_SIZE:
             _driver->read_size();
             break;
-        case WRITE_SIZE_2:
-        case WRITE_SIZE_4:
+        case WRITE_SIZE:
             _driver->write_size(_operation_size);
             break;
         case TERMINATE:
