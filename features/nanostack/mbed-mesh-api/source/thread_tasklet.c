@@ -84,6 +84,7 @@ typedef struct {
 
 /* Tasklet data */
 static thread_tasklet_data_str_t *thread_tasklet_data_ptr = NULL;
+static mac_api_t *mac_api = NULL;
 static device_configuration_s device_configuration;
 
 /* private function prototypes */
@@ -216,7 +217,8 @@ void thread_tasklet_parse_network_event(arm_event_s *event)
             break;
     }
 
-    if (thread_tasklet_data_ptr->tasklet_state != TASKLET_STATE_BOOTSTRAP_READY) {
+    if (thread_tasklet_data_ptr->tasklet_state != TASKLET_STATE_BOOTSTRAP_READY &&
+        thread_tasklet_data_ptr->nwk_if_id != INVALID_INTERFACE_ID) {
         // Set 5s timer for a new network scan
         eventOS_event_timer_request(TIMER_EVENT_START_BOOTSTRAP,
                                     ARM_LIB_SYSTEM_TIMER_EVENT,
@@ -465,8 +467,10 @@ int8_t thread_tasklet_network_init(int8_t device_id)
     storage_sizes.key_description_table_size = 6;
     storage_sizes.key_lookup_size = 1;
     storage_sizes.key_usage_size = 3;
-    mac_api_t *api = ns_sw_mac_create(device_id, &storage_sizes);
-    return arm_nwk_interface_lowpan_init(api, INTERFACE_NAME);
+    if (!mac_api) {
+        mac_api = ns_sw_mac_create(device_id, &storage_sizes);
+    }
+    return arm_nwk_interface_lowpan_init(mac_api, INTERFACE_NAME);
 }
 
 void thread_tasklet_device_eui64_set(const uint8_t *eui64)
