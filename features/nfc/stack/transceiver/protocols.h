@@ -34,6 +34,8 @@
 extern "C" {
 #endif
 
+#include "stack/nfc_common.h"
+
 typedef enum __RF_PROTOCOL {
     __RF_PROTOCOL_UNKNOWN = 0,
     //Reader

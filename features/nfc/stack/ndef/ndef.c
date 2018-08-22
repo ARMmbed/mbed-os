@@ -42,7 +42,7 @@ void ndef_msg_init(ndef_msg_t *pNdef, ndef_encode_fn_t encode, ndef_decode_fn_t 
 {
     pNdef->encode = encode;
     pNdef->decode = decode;
-    buffer_builder_init(&pNdef->bufferBldr, data, size);
+    ac_buffer_builder_init(&pNdef->bufferBldr, data, size);
     pNdef->pUserData = pUserData;
 }
 

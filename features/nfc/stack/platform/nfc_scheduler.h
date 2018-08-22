@@ -28,7 +28,7 @@
 #ifndef NFC_SCHEDULER_H_
 #define NFC_SCHEDULER_H_
 
-#include "core/fwk.h"
+#include "stack/nfc_common.h"
 
 #ifdef __cplusplus
 extern "C" {

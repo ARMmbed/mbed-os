@@ -27,6 +27,7 @@
 extern "C" {
 #endif
 
+#include "stack/nfc_common.h"
 #include "transceiver/transceiver.h"
 
 typedef struct __pn512 pn512_t;

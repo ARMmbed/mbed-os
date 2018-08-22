@@ -29,11 +29,12 @@
 #ifndef NFC_TRANSPORT_H_
 #define NFC_TRANSPORT_H_
 
+#include "stack/nfc_common.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include <stddef.h>
 
 /** Function called to write a register's value
  * \param address address of the register to write to

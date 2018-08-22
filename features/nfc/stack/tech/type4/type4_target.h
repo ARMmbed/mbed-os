@@ -23,15 +23,15 @@
 #ifndef TECH_TYPE4_TYPE4_TARGET_H_
 #define TECH_TYPE4_TYPE4_TARGET_H_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#include "stack/nfc_errors.h"
+#include "stack/nfc_common.h"
 
 #include "tech/iso7816/iso7816.h"
 #include "tech/iso7816/iso7816_app.h"
 #include "ndef/ndef.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef struct nfc_tech_type4_target nfc_tech_type4_target_t;
 

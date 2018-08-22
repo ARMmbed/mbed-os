@@ -44,7 +44,6 @@ void nfc_scheduler_init(nfc_scheduler_t *pScheduler, nfc_scheduler_timer_t *pTim
 
 uint32_t nfc_scheduler_iteration(nfc_scheduler_t *pScheduler, uint32_t events)
 {
-    bool triggered = false;
     while (true) {
         nfc_task_t *pPrioTask = NULL;
         nfc_task_t *pPrioTaskPrevious = NULL;
@@ -125,7 +124,6 @@ uint32_t nfc_scheduler_iteration(nfc_scheduler_t *pScheduler, uint32_t events)
         NFC_DBG("Calling task %p - events %02X", pPrioTask, prioTaskEvent);
         pPrioTask->fn(prioTaskEvent, pPrioTask->pUserData);
         events &= ~EVENT_HW_INTERRUPT; //Only one task gets triggered per event
-        triggered = true;
     }
     return MAX_TIMEOUT;
 }

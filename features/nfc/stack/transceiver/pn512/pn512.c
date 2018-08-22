@@ -98,7 +98,7 @@ nfc_err_t pn512_init(pn512_t *pPN512, nfc_transport_t *pTransport, nfc_scheduler
     transceiver_init((nfc_transceiver_t *)pPN512, pTransport, pTimer);
 
     //Init buffer
-    buffer_builder_init(&pPN512->readBufBldr, pPN512->payload, 256);
+    ac_buffer_builder_init(&pPN512->readBufBldr, pPN512->payload, 256);
 
     pPN512->readFirstByteAlign = 0;
     pPN512->readLastByteLength = 8;
@@ -142,7 +142,7 @@ nfc_err_t pn512_init(pn512_t *pPN512, nfc_transport_t *pTransport, nfc_scheduler
 
     const uint8_t null_array_buf[25] = {0}; //FIXME
     ac_buffer_t null_array;
-    buffer_init(&null_array, null_array_buf, 25);
+    ac_buffer_init(&null_array, null_array_buf, 25);
 
     //Perform self test
     pn512_fifo_write(pPN512, &null_array);
@@ -150,7 +150,7 @@ nfc_err_t pn512_init(pn512_t *pPN512, nfc_transport_t *pTransport, nfc_scheduler
     while (pn512_cmd_get(pPN512) != PN512_CMD_IDLE);
     pn512_register_write(pPN512, PN512_REG_AUTOTEST, 0x09);
 
-    buffer_init(&null_array, null_array_buf, 1);
+    ac_buffer_init(&null_array, null_array_buf, 1);
 
     pn512_fifo_write(pPN512, &null_array);
     pn512_cmd_exec(pPN512, PN512_CMD_CRC);
@@ -160,7 +160,7 @@ nfc_err_t pn512_init(pn512_t *pPN512, nfc_transport_t *pTransport, nfc_scheduler
     NFC_DBG("Test result:");
     while (pn512_fifo_length(pPN512)) {
         ac_buffer_builder_t read_byte;
-        buffer_builder_init(&read_byte, null_array_buf, 1);
+        ac_buffer_builder_init(&read_byte, null_array_buf, 1);
 
         pn512_fifo_read(pPN512, &read_byte);
         DBGX("%02x ", null_array_buf[0]);
@@ -278,16 +278,16 @@ void pn512_set_write(nfc_transceiver_t *pTransceiver, ac_buffer_t *pWriteBuf)
 {
     pn512_t *pPN512 = (pn512_t *) pTransceiver;
     if (pWriteBuf == NULL) {
-        buffer_init(&pPN512->writeBuf, NULL, 0);
+        ac_buffer_init(&pPN512->writeBuf, NULL, 0);
         return;
     }
-    buffer_dup(&pPN512->writeBuf, pWriteBuf);
+    ac_buffer_dup(&pPN512->writeBuf, pWriteBuf);
 }
 
 ac_buffer_t *pn512_get_read(nfc_transceiver_t *pTransceiver)
 {
     pn512_t *pPN512 = (pn512_t *) pTransceiver;
-    return buffer_builder_buffer(&pPN512->readBufBldr);
+    return ac_buffer_builder_buffer(&pPN512->readBufBldr);
 }
 
 void pn512_set_last_byte_length(nfc_transceiver_t *pTransceiver, size_t lastByteLength)
@@ -322,7 +322,7 @@ void pn512_transceive(nfc_transceiver_t *pTransceiver)
 void pn512_abort(nfc_transceiver_t *pTransceiver)
 {
     pn512_t *pPN512 = (pn512_t *) pTransceiver;
-    scheduler_dequeue_task(&pTransceiver->scheduler, true, &pPN512->transceiver.task);
+    nfc_scheduler_dequeue_task(&pTransceiver->scheduler, true, &pPN512->transceiver.task);
 }
 
 void pn512_close(nfc_transceiver_t *pTransceiver)

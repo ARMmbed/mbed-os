@@ -60,7 +60,7 @@ void pn512_cmd_init(pn512_t *pPN512)
 void pn512_fifo_write(pn512_t *pPN512, ac_buffer_t *pData)
 {
     uint8_t fifo_space = pn512_fifo_space(pPN512); //Do not call this fn twice
-    size_t len = buffer_reader_readable(pData);
+    size_t len = ac_buffer_reader_readable(pData);
     len = MIN(fifo_space, len);
 
     pn512_register_switch_page(pPN512, PN512_REG_FIFODATA);
@@ -74,7 +74,7 @@ void pn512_fifo_write(pn512_t *pPN512, ac_buffer_t *pData)
 void pn512_fifo_read(pn512_t *pPN512, ac_buffer_builder_t *pData)
 {
     uint8_t fifo_len = pn512_fifo_length(pPN512); //Do not call this fn twice
-    size_t len = buffer_builder_writeable(pData);
+    size_t len = ac_buffer_builder_writable(pData);
     len = MIN(fifo_len, len);
 
     pn512_register_switch_page(pPN512, PN512_REG_FIFODATA);

@@ -37,7 +37,7 @@
 void transceiver_init(nfc_transceiver_t *pTransceiver, nfc_transport_t *pTransport, nfc_scheduler_timer_t *pTimer)
 {
     pTransceiver->pTransport = pTransport;
-    scheduler_init(&pTransceiver->scheduler, pTimer);
+    nfc_scheduler_init(&pTransceiver->scheduler, pTimer);
 }
 
 

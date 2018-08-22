@@ -141,7 +141,7 @@ void nfc_tech_isodep_target_disconnect(nfc_tech_isodep_target_t *pIsodepTarget)
     dep_disconnected(pIsodepTarget, false);
 }
 
-nfc_err_t nfc_tech_isodep_target_transmit(nfc_tech_isodep_target_t *pIsodepTarget, istream_t *pStream, nfc_tech_isodep_cb_t cb, void *pUserData)
+nfc_err_t nfc_tech_isodep_target_transmit(nfc_tech_isodep_target_t *pIsodepTarget, ac_istream_t *pStream, nfc_tech_isodep_cb_t cb, void *pUserData)
 {
     if (pIsodepTarget->dep.pReqStream != NULL) {
         return NFC_ERR_BUSY;
@@ -159,7 +159,7 @@ nfc_err_t nfc_tech_isodep_target_transmit(nfc_tech_isodep_target_t *pIsodepTarge
     return NFC_OK;
 }
 
-nfc_err_t nfc_tech_isodep_target_receive(nfc_tech_isodep_target_t *pIsodepTarget, ostream_t *pStream, nfc_tech_isodep_cb_t cb, void *pUserData)
+nfc_err_t nfc_tech_isodep_target_receive(nfc_tech_isodep_target_t *pIsodepTarget, ac_ostream_t *pStream, nfc_tech_isodep_cb_t cb, void *pUserData)
 {
     if (pIsodepTarget->dep.pResStream != NULL) {
         return NFC_ERR_BUSY;
@@ -175,7 +175,7 @@ nfc_err_t nfc_tech_isodep_target_receive(nfc_tech_isodep_target_t *pIsodepTarget
 //DEP Layer
 void dep_init(nfc_tech_isodep_target_t *pIsodepTarget)
 {
-    //buffer_init(&pIsodepTarget->dep.res, NULL, 0);
+    //ac_buffer_init(&pIsodepTarget->dep.res, NULL, 0);
     pIsodepTarget->dep.pReqStream = NULL;
     pIsodepTarget->dep.pResStream = NULL;
 
@@ -225,7 +225,7 @@ void dep_req_information(nfc_tech_isodep_target_t *pIsodepTarget, ac_buffer_t *p
     }
     if (pIsodepTarget->dep.pReqStream != NULL) {
         // Pull more
-        ostream_push(pIsodepTarget->dep.pReqStream, pReq, !moreInformation);
+        ac_ostream_push(pIsodepTarget->dep.pReqStream, pReq, !moreInformation);
         if (!moreInformation) {
             //Got the full frame
             pIsodepTarget->dep.pReqStream = NULL;
@@ -309,7 +309,7 @@ void dep_res_information(nfc_tech_isodep_target_t *pIsodepTarget, size_t maxLeng
     if (pIsodepTarget->dep.frameState != ISO_DEP_TARGET_DEP_FRAME_NACK_RECEIVED) {
         if (pIsodepTarget->dep.pResStream != NULL) {
             bool lastFrame = true;
-            istream_pull(pIsodepTarget->dep.pResStream, &pIsodepTarget->dep.res, &lastFrame, maxLength);
+            ac_istream_pull(pIsodepTarget->dep.pResStream, &pIsodepTarget->dep.res, &lastFrame, maxLength);
             pIsodepTarget->dep.chaining = !lastFrame;
         }
     } else {
@@ -360,7 +360,7 @@ void dep_disconnected(nfc_tech_isodep_target_t *pIsodepTarget, bool deselected)
 //Commands Layer
 void command_init(nfc_tech_isodep_target_t *pIsodepTarget)
 {
-    buffer_builder_init(&pIsodepTarget->commands.respBldr, pIsodepTarget->commands.respBuf, sizeof(pIsodepTarget->commands.respBuf));
+    ac_buffer_builder_init(&pIsodepTarget->commands.respBldr, pIsodepTarget->commands.respBuf, sizeof(pIsodepTarget->commands.respBuf));
     pIsodepTarget->commands.pReq = NULL;
     // Update if/when we support DIDs
     //pIsodepTarget->commands.did = 0;
@@ -376,14 +376,14 @@ nfc_err_t command_ats_req(nfc_tech_isodep_target_t *pIsodepTarget)
         return NFC_ERR_PROTOCOL;
     }
 
-    if (buffer_reader_readable(pIsodepTarget->commands.pReq) < 2) {
+    if (ac_buffer_reader_readable(pIsodepTarget->commands.pReq) < 2) {
         NFC_ERR("Payload too short");
         return NFC_ERR_PROTOCOL;
     }
 
-    buffer_read_n_skip(pIsodepTarget->commands.pReq, 1);
+    ac_buffer_read_n_skip(pIsodepTarget->commands.pReq, 1);
 
-    uint8_t b = buffer_read_nu8(pIsodepTarget->commands.pReq);
+    uint8_t b = ac_buffer_read_nu8(pIsodepTarget->commands.pReq);
 
     //Save DID -- not supported for now
     //pIsodepTarget->commands.did = DID(b);
@@ -402,18 +402,18 @@ nfc_err_t command_dep_req(nfc_tech_isodep_target_t *pIsodepTarget)
         return NFC_ERR_PROTOCOL;
     }
 
-    if (buffer_reader_readable(pIsodepTarget->commands.pReq) < 1) {
+    if (ac_buffer_reader_readable(pIsodepTarget->commands.pReq) < 1) {
         NFC_ERR("Payload too short");
         return NFC_ERR_PROTOCOL;
     }
 
-    uint8_t pcb = buffer_read_nu8(pIsodepTarget->commands.pReq);
+    uint8_t pcb = ac_buffer_read_nu8(pIsodepTarget->commands.pReq);
 
     // Udpate if/when we support DIDs
     /*
       if( pfb & PFB_DID )
       {
-        uint8_t did = buffer_read_nu8(pIsodepTarget->commands.pReq);
+        uint8_t did = ac_buffer_read_nu8(pIsodepTarget->commands.pReq);
         if( pIsodepTarget->commands.did != did )
         {
           //Not for us
@@ -428,7 +428,7 @@ nfc_err_t command_dep_req(nfc_tech_isodep_target_t *pIsodepTarget)
 
       if( pfb & PFB_NAD )
       {
-        buffer_read_nu8(pIsodepTarget->commands.pReq); //Skip NAD
+        ac_buffer_read_nu8(pIsodepTarget->commands.pReq); //Skip NAD
       }
     */
 
@@ -442,11 +442,11 @@ nfc_err_t command_dep_req(nfc_tech_isodep_target_t *pIsodepTarget)
             break;
         case S_BLOCK_PCB:
             if (PCB_WTX(pcb)) {
-                if (buffer_reader_readable(pIsodepTarget->commands.pReq) < 1) {
+                if (ac_buffer_reader_readable(pIsodepTarget->commands.pReq) < 1) {
                     NFC_ERR("Payload too short");
                     return NFC_ERR_PROTOCOL;
                 }
-                wtxm = buffer_read_nu8(pIsodepTarget->commands.pReq);
+                wtxm = ac_buffer_read_nu8(pIsodepTarget->commands.pReq);
             }
             dep_req_supervisory(pIsodepTarget, PCB_WTX(pcb), wtxm);
             break;
@@ -463,29 +463,29 @@ nfc_err_t command_dep_req(nfc_tech_isodep_target_t *pIsodepTarget)
 nfc_err_t command_ats_res(nfc_tech_isodep_target_t *pIsodepTarget)
 {
     //Send ATS back
-    if (buffer_builder_writeable(&pIsodepTarget->commands.respBldr) < 5) {
+    if (ac_buffer_builder_writable(&pIsodepTarget->commands.respBldr) < 5) {
         return NFC_ERR_BUFFER_TOO_SMALL;
     }
 
-    buffer_builder_write_nu8(&pIsodepTarget->commands.respBldr, (5 + buffer_size(pIsodepTarget->pHist)) & 0xFF);
+    ac_buffer_builder_write_nu8(&pIsodepTarget->commands.respBldr, (5 + ac_buffer_size(pIsodepTarget->pHist)) & 0xFF);
 
     //T0
-    buffer_builder_write_nu8(&pIsodepTarget->commands.respBldr, (0x7 << 4) | FSC_TO_FSCI(FSC));   //TA(1), TB(1) and TC(1) are transmitted
+    ac_buffer_builder_write_nu8(&pIsodepTarget->commands.respBldr, (0x7 << 4) | FSC_TO_FSCI(FSC));   //TA(1), TB(1) and TC(1) are transmitted
 
     //TA(1)
     //For now only 106kbps supported
-    buffer_builder_write_nu8(&pIsodepTarget->commands.respBldr, (1 << 7) | (0x0 << 4) | 0x0);
+    ac_buffer_builder_write_nu8(&pIsodepTarget->commands.respBldr, (1 << 7) | (0x0 << 4) | 0x0);
 
     //TODO when supporting other bitrates
-    //buffer_builder_write_nu8(&pIsodepTarget->commands.respBldr, (0 << 7) | (0x3 << 4) | 0x3); //106, 212, 414 kbps bitrates
+    //ac_buffer_builder_write_nu8(&pIsodepTarget->commands.respBldr, (0 << 7) | (0x3 << 4) | 0x3); //106, 212, 414 kbps bitrates
 
     //TB(1)
-    buffer_builder_write_nu8(&pIsodepTarget->commands.respBldr, (FWI << 4) | SFGI); //Specify guard-time and time between frames
+    ac_buffer_builder_write_nu8(&pIsodepTarget->commands.respBldr, (FWI << 4) | SFGI); //Specify guard-time and time between frames
 
     //TC(1)
-    buffer_builder_write_nu8(&pIsodepTarget->commands.respBldr, (0 << 1) | 0); //DID not supported, NAD not supported
+    ac_buffer_builder_write_nu8(&pIsodepTarget->commands.respBldr, (0 << 1) | 0); //DID not supported, NAD not supported
 
-    buffer_set_next(buffer_builder_buffer(&pIsodepTarget->commands.respBldr), pIsodepTarget->pHist); //Queue general bytes
+    ac_buffer_set_next(ac_buffer_builder_buffer(&pIsodepTarget->commands.respBldr), pIsodepTarget->pHist); //Queue general bytes
 
     pIsodepTarget->commands.state = ISO_DEP_TARGET_COMMANDS_ATS_RES_SENT;
 
@@ -529,17 +529,17 @@ nfc_err_t command_dep_res(nfc_tech_isodep_target_t *pIsodepTarget)
             break;
     }
 
-    buffer_builder_write_nu8(&pIsodepTarget->commands.respBldr, pcb);
+    ac_buffer_builder_write_nu8(&pIsodepTarget->commands.respBldr, pcb);
     /*
       if( pIsodepTarget->commands.didUsed )
       {
-        buffer_builder_write_nu8(&pIsodepTarget->commands.respBldr, pIsodepTarget->commands.did);
+        ac_buffer_builder_write_nu8(&pIsodepTarget->commands.respBldr, pIsodepTarget->commands.did);
       }
     */
     if (pDepBuf != NULL) {
-        buffer_set_next(buffer_builder_buffer(&pIsodepTarget->commands.respBldr), pDepBuf);
+        ac_buffer_set_next(ac_buffer_builder_buffer(&pIsodepTarget->commands.respBldr), pDepBuf);
     } else if (wtxNDeselect) {
-        buffer_builder_write_nu8(&pIsodepTarget->commands.respBldr, wtxm);
+        ac_buffer_builder_write_nu8(&pIsodepTarget->commands.respBldr, wtxm);
     }
 
     pIsodepTarget->commands.state = ISO_DEP_TARGET_COMMANDS_DEP_RES_SENT;
@@ -557,7 +557,7 @@ void command_reply(nfc_tech_isodep_target_t *pIsodepTarget, bool depWait)
     }
 
     //Reply
-    buffer_builder_reset(&pIsodepTarget->commands.respBldr);
+    ac_buffer_builder_reset(&pIsodepTarget->commands.respBldr);
 
     switch (pIsodepTarget->commands.state) {
         case ISO_DEP_TARGET_COMMANDS_ATS_REQ_RECVD:
@@ -588,10 +588,10 @@ void command_reply(nfc_tech_isodep_target_t *pIsodepTarget, bool depWait)
         transceiver_set_transceive_options(pIsodepTarget->pTransceiver, true, true, false);
     }
 
-    NFC_DBG_BLOCK(buffer_dump(buffer_builder_buffer(&pIsodepTarget->commands.respBldr));)
+    NFC_DBG_BLOCK(ac_buffer_dump(ac_buffer_builder_buffer(&pIsodepTarget->commands.respBldr));)
 
     //Send next frame
-    transceiver_set_write(pIsodepTarget->pTransceiver, buffer_builder_buffer(&pIsodepTarget->commands.respBldr));
+    transceiver_set_write(pIsodepTarget->pTransceiver, ac_buffer_builder_buffer(&pIsodepTarget->commands.respBldr));
     nfc_transceiver_transceive(pIsodepTarget->pTransceiver, command_transceiver_cb, pIsodepTarget);
 
     NFC_DBG("Processed");
@@ -639,10 +639,10 @@ void command_transceiver_cb(nfc_transceiver_t *pTransceiver, nfc_err_t ret, void
     NFC_DBG("Reading data from initiator");
     ac_buffer_t *pDataInitiator = transceiver_get_read(pTransceiver); //In buffer
 
-    NFC_DBG_BLOCK(buffer_dump(pDataInitiator);)
+    NFC_DBG_BLOCK(ac_buffer_dump(pDataInitiator);)
 
     //Framing is handled by transceiver
-    if ((buffer_reader_readable(pDataInitiator) < 1)) {
+    if ((ac_buffer_reader_readable(pDataInitiator) < 1)) {
         NFC_ERR("Empty initiator message");
 
         //Go back to receive mode
@@ -654,8 +654,8 @@ void command_transceiver_cb(nfc_transceiver_t *pTransceiver, nfc_err_t ret, void
 
     //Duplicate to peek on req
     ac_buffer_t dataInitiatorDup;
-    buffer_dup(&dataInitiatorDup, pDataInitiator);
-    uint8_t req = buffer_read_nu8(&dataInitiatorDup);
+    ac_buffer_dup(&dataInitiatorDup, pDataInitiator);
+    uint8_t req = ac_buffer_read_nu8(&dataInitiatorDup);
 
     switch (req) {
         case RATS:

@@ -22,11 +22,12 @@
 #ifndef TECH_ISO7816_ISO7816_APP_H_
 #define TECH_ISO7816_ISO7816_APP_H_
 
+#include "stack/nfc_common.h"
+#include "iso7816.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include "iso7816.h"
 
 struct nfc_tech_iso7816;
 struct nfc_tech_iso7816_app;

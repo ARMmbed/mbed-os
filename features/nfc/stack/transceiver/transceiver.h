@@ -27,15 +27,16 @@
 extern "C" {
 #endif
 
-#include "stack/nfc_errors.h"
+#include "stack/nfc_common.h"
+
 typedef struct __nfc_tech nfc_tech_t;
 typedef struct __transceiver nfc_transceiver_t;
 typedef struct __transceiver_impl transceiver_impl_t;
 
 #include "protocols.h"
 #include "platform/nfc_transport.h"
+#include "platform/nfc_scheduler.h"
 
-typedef enum __nfc_framing nfc_framing_t;
 enum __nfc_framing {
     nfc_framing_unknown,
 
@@ -50,6 +51,7 @@ enum __nfc_framing {
     nfc_framing_initiator_f_212,
     nfc_framing_initiator_f_424,
 };
+typedef enum __nfc_framing nfc_framing_t;
 
 typedef struct __nfc_tech {
     unsigned int nfc_type1 : 1;

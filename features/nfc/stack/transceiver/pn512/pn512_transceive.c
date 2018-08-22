@@ -42,11 +42,11 @@ void pn512_transceive_hw_tx_iteration(pn512_t *pPN512, bool start)
 {
     uint16_t irqs_en = pn512_irq_enabled(pPN512);
 
-    if (buffer_reader_readable(&pPN512->writeBuf) > 0) {
+    if (ac_buffer_reader_readable(&pPN512->writeBuf) > 0) {
         //Fill FIFO
         pn512_fifo_write(pPN512, &pPN512->writeBuf);
 
-        if (buffer_reader_readable(&pPN512->writeBuf) > 0) { //Did not fit in FIFO
+        if (ac_buffer_reader_readable(&pPN512->writeBuf) > 0) { //Did not fit in FIFO
             pn512_irq_clear(pPN512, PN512_IRQ_LOW_ALERT);
             //Has low FIFO alert IRQ already been enabled?
             if (!(irqs_en & PN512_IRQ_LOW_ALERT)) {
@@ -85,7 +85,7 @@ void pn512_transceive_hw_tx_iteration(pn512_t *pPN512, bool start)
 
     //Queue task to process IRQ
     task_init(&pPN512->transceiver.task, EVENT_HW_INTERRUPT | EVENT_TIMEOUT, TIMEOUT, pn512_transceive_hw_tx_task, pPN512);
-    scheduler_queue_task(&pPN512->transceiver.scheduler, &pPN512->transceiver.task);
+    nfc_scheduler_queue_task(&pPN512->transceiver.scheduler, &pPN512->transceiver.task);
 }
 
 void pn512_transceive_hw_tx_task(uint32_t events, void *pUserData)
@@ -178,7 +178,7 @@ void pn512_transceive_hw_tx_task(uint32_t events, void *pUserData)
             return;
         }
     }
-    if ((irqs & PN512_IRQ_LOW_ALERT) && (buffer_reader_readable(&pPN512->writeBuf) > 0)) {
+    if ((irqs & PN512_IRQ_LOW_ALERT) && (ac_buffer_reader_readable(&pPN512->writeBuf) > 0)) {
         //Continue to fill FIFO
         pn512_irq_clear(pPN512, PN512_IRQ_LOW_ALERT);
 
@@ -214,13 +214,13 @@ void pn512_transceive_hw_rx_start(pn512_t *pPN512)
     pn512_irq_set(pPN512, irqs_en);
 
     //Reset buffer except if data should be appended to this -- TODO
-    buffer_builder_reset(&pPN512->readBufBldr);
+    ac_buffer_builder_reset(&pPN512->readBufBldr);
 
     //Queue task to process IRQ
     task_init(&pPN512->transceiver.task, EVENT_HW_INTERRUPT | EVENT_TIMEOUT,
               pPN512->timeout, pn512_transceive_hw_rx_task, pPN512);
-    scheduler_queue_task(&pPN512->transceiver.scheduler,
-                         &pPN512->transceiver.task);
+    nfc_scheduler_queue_task(&pPN512->transceiver.scheduler,
+                             &pPN512->transceiver.task);
 }
 
 void pn512_transceive_hw_rx_task(uint32_t events, void *pUserData)
@@ -278,7 +278,7 @@ void pn512_transceive_hw_rx_task(uint32_t events, void *pUserData)
                     pn512_fifo_read(pPN512, &pPN512->readBufBldr);
 
                     NFC_DBG("Received");
-                    buffer_dump(buffer_builder_buffer(&pPN512->readBufBldr));
+                    buffer_dump(ac_buffer_builder_buffer(&pPN512->readBufBldr));
 
                     NFC_DBG("Computed CRC = %02X %02X", pn512_register_read(pPN512, PN512_REG_CRCRESULT_MSB), pn512_register_read(pPN512, PN512_REG_CRCRESULT_LSB));
 
@@ -301,7 +301,7 @@ void pn512_transceive_hw_rx_task(uint32_t events, void *pUserData)
         //Empty FIFO into buffer
         pn512_fifo_read(pPN512, &pPN512->readBufBldr);
 
-        if ((buffer_builder_writeable(&pPN512->readBufBldr) == 0) && (pn512_fifo_length(pPN512) > 0)) {
+        if ((ac_buffer_builder_writable(&pPN512->readBufBldr) == 0) && (pn512_fifo_length(pPN512) > 0)) {
             //Stop command
             pn512_cmd_exec(pPN512, PN512_CMD_IDLE);
             pPN512->transceive.mode = pn512_transceive_mode_idle;
@@ -333,7 +333,7 @@ void pn512_transceive_hw_rx_task(uint32_t events, void *pUserData)
             pn512_irq_clear(pPN512, PN512_IRQ_RX | PN512_IRQ_HIGH_ALERT);
 
             NFC_DBG("Received:");
-            NFC_DBG_BLOCK(buffer_dump(buffer_builder_buffer(&pPN512->readBufBldr));)
+            NFC_DBG_BLOCK(buffer_dump(ac_buffer_builder_buffer(&pPN512->readBufBldr));)
 
             if ((pPN512->transceive.mode == pn512_transceive_mode_target_autocoll) || (pPN512->transceive.mode == pn512_transceive_mode_transmit_and_target_autocoll)) {
                 //Check if target was activated
@@ -378,8 +378,8 @@ void pn512_transceive_hw_rx_task(uint32_t events, void *pUserData)
     //Queue task to process IRQ
     task_init(&pPN512->transceiver.task, EVENT_HW_INTERRUPT | EVENT_TIMEOUT,
               pPN512->timeout, pn512_transceive_hw_rx_task, pPN512);
-    scheduler_queue_task(&pPN512->transceiver.scheduler,
-                         &pPN512->transceiver.task);
+    nfc_scheduler_queue_task(&pPN512->transceiver.scheduler,
+                             &pPN512->transceiver.task);
 }
 
 void pn512_transceive_hw(pn512_t *pPN512, pn512_transceive_mode_t mode, pn512_cb_t cb)

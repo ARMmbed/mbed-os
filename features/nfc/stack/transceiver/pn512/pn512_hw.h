@@ -27,8 +27,7 @@
 extern "C" {
 #endif
 
-#include "stack/nfc_errors.h"
-
+#include "stack/nfc_common.h"
 #include "pn512.h"
 
 //Utility for transport: SPI address read/write
@@ -62,12 +61,12 @@ static inline void pn512_hw_read(pn512_t *pPN512, uint8_t addr, uint8_t *buf, si
 static inline void pn512_hw_write_buffer(pn512_t *pPN512, uint8_t addr, ac_buffer_t *pData, size_t len)
 {
     while (len > 0) {
-        if (buffer_reader_readable(pData) == 0) {
+        if (ac_buffer_reader_readable(pData) == 0) {
             return;
         }
-        size_t cpyLen = MIN(len, buffer_reader_current_buffer_length(pData));
-        nfc_transport_write(((nfc_transceiver_t *)pPN512)->pTransport, addr, buffer_reader_current_buffer_pointer(pData), cpyLen);
-        buffer_read_n_skip(pData, cpyLen);
+        size_t cpyLen = MIN(len, ac_buffer_reader_current_buffer_length(pData));
+        nfc_transport_write(((nfc_transceiver_t *)pPN512)->pTransport, addr, ac_buffer_reader_current_buffer_pointer(pData), cpyLen);
+        ac_buffer_read_n_skip(pData, cpyLen);
         len -= cpyLen;
     }
 }
@@ -75,13 +74,13 @@ static inline void pn512_hw_write_buffer(pn512_t *pPN512, uint8_t addr, ac_buffe
 static inline void pn512_hw_read_buffer(pn512_t *pPN512, uint8_t addr, ac_buffer_builder_t *pData, size_t len)
 {
     while (len > 0) {
-        if (buffer_builder_writeable(pData) == 0) {
+        if (ac_buffer_builder_writable(pData) == 0) {
             return;
         }
         //Read payload
-        size_t cpyLen = MIN(len, buffer_builder_space(pData));
-        nfc_transport_read(((nfc_transceiver_t *)pPN512)->pTransport, addr, buffer_builder_write_position(pData), cpyLen);
-        buffer_builder_write_n_skip(pData, cpyLen);
+        size_t cpyLen = MIN(len, ac_buffer_builder_space(pData));
+        nfc_transport_read(((nfc_transceiver_t *)pPN512)->pTransport, addr, ac_buffer_builder_write_position(pData), cpyLen);
+        ac_buffer_builder_write_n_skip(pData, cpyLen);
         len -= cpyLen;
     }
 }

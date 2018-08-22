@@ -23,6 +23,8 @@
 #ifndef PN512_CALLBACK_H_
 #define PN512_CALLBACK_H_
 
+#include "stack/nfc_common.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

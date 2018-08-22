@@ -29,12 +29,11 @@
 #ifndef NDEF_H_
 #define NDEF_H_
 
+#include "stack/nfc_common.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include "acore/ac_buffer.h"
-#include "acore/ac_buffer_builder.h"
 
 //Generic interface for NDEF messages
 
@@ -74,7 +73,7 @@ static inline nfc_err_t ndef_msg_decode(ndef_msg_t *pNdef)
     if (pNdef->decode == NULL) {
         return NFC_OK;
     }
-    return pNdef->decode(pNdef, buffer_builder_buffer(&pNdef->bufferBldr), pNdef->pUserData);
+    return pNdef->decode(pNdef, ac_buffer_builder_buffer(&pNdef->bufferBldr), pNdef->pUserData);
 }
 
 static inline ac_buffer_builder_t *ndef_msg_buffer_builder(ndef_msg_t *pNdef)

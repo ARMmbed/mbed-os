@@ -263,7 +263,7 @@ void pn512_rf_field_nfcip1_rf_collision_avoidance(pn512_t *pPN512, pn512_cb_t cb
 
     //Queue task to process IRQ
     task_init(&pPN512->transceiver.task, EVENT_HW_INTERRUPT | EVENT_TIMEOUT, -1, pn512_rf_field_nfcip1_rf_collision_avoidance_complete, pPN512);
-    scheduler_queue_task(&pPN512->transceiver.scheduler, &pPN512->transceiver.task);
+    nfc_scheduler_queue_task(&pPN512->transceiver.scheduler, &pPN512->transceiver.task);
 }
 
 void pn512_rf_field_wait_for_external_complete_task(uint32_t events, void *pUserData)
@@ -318,7 +318,7 @@ void pn512_rf_field_wait_for_external(pn512_t *pPN512, int timeout, pn512_cb_t c
 
     //Queue task to process IRQ
     task_init(&pPN512->transceiver.task, EVENT_HW_INTERRUPT | EVENT_TIMEOUT, timeout, pn512_rf_field_wait_for_external_complete_task, pPN512);
-    scheduler_queue_task(&pPN512->transceiver.scheduler, &pPN512->transceiver.task);
+    nfc_scheduler_queue_task(&pPN512->transceiver.scheduler, &pPN512->transceiver.task);
 }
 
 

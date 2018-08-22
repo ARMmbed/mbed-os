@@ -27,6 +27,7 @@
 extern "C" {
 #endif
 
+#include "stack/nfc_common.h"
 #include "transceiver.h"
 
 static inline void transceiver_callback(nfc_transceiver_t *pTransceiver, nfc_err_t ret)

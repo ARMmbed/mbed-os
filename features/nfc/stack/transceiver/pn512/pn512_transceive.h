@@ -27,6 +27,7 @@
 extern "C" {
 #endif
 
+#include "stack/nfc_common.h"
 #include "pn512.h"
 
 void pn512_transceive_hw(pn512_t *pPN512, pn512_transceive_mode_t mode, pn512_cb_t cb);

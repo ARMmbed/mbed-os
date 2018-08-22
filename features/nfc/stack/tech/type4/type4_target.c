@@ -50,9 +50,9 @@ static nfc_err_t data_write(nfc_tech_type4_target_t *pType4Target, ac_buffer_t *
 
 void nfc_tech_type4_target_init(nfc_tech_type4_target_t *pType4Target, nfc_tech_iso7816_t *pIso7816, ndef_msg_t *pNdef)
 {
-    buffer_builder_init(&pType4Target->ccFileBldr, pType4Target->ccFileBuf, /*sizeof(pType4Target->ccFileBuf)*/15);
+    ac_buffer_builder_init(&pType4Target->ccFileBldr, pType4Target->ccFileBuf, /*sizeof(pType4Target->ccFileBuf)*/15);
 
-    buffer_builder_init(&pType4Target->ndefFileBldr, pType4Target->ndefFileBuf, /*sizeof(pType4Target->ndefFileBuf)*/2);
+    ac_buffer_builder_init(&pType4Target->ndefFileBldr, pType4Target->ndefFileBuf, /*sizeof(pType4Target->ndefFileBuf)*/2);
 
     pType4Target->selFile = DEFAULT_FILE;
     pType4Target->pNdef = pNdef;
@@ -66,40 +66,40 @@ void nfc_tech_type4_target_init(nfc_tech_type4_target_t *pType4Target, nfc_tech_
 void app_selected(nfc_tech_iso7816_app_t *pIso7816App, void *pUserData)
 {
     nfc_tech_type4_target_t *pType4Target = (nfc_tech_type4_target_t *) pUserData;
-    DBG("Selected");
+    NFC_DBG("Selected");
 
     (void) pIso7816App;
 
-    buffer_builder_reset(ndef_msg_buffer_builder(pType4Target->pNdef));
+    ac_buffer_builder_reset(ndef_msg_buffer_builder(pType4Target->pNdef));
 
     //Populate CC file
-    buffer_builder_reset(&pType4Target->ccFileBldr);
-    buffer_builder_write_nu16(&pType4Target->ccFileBldr, 15);   //CC file is 15 bytes long
+    ac_buffer_builder_reset(&pType4Target->ccFileBldr);
+    ac_buffer_builder_write_nu16(&pType4Target->ccFileBldr, 15);   //CC file is 15 bytes long
 #if TYPE4_NDEF_VERSION == 2
-    buffer_builder_write_nu8(&pType4Target->ccFileBldr, 0x20);   //NFC Forum Tag Type 4 V2.0 compliant
+    ac_buffer_builder_write_nu8(&pType4Target->ccFileBldr, 0x20);   //NFC Forum Tag Type 4 V2.0 compliant
 #else
-    buffer_builder_write_nu8(&pType4Target->ccFileBldr, 0x10);   //NFC Forum Tag Type 4 V1.0 compliant
+    ac_buffer_builder_write_nu8(&pType4Target->ccFileBldr, 0x10);   //NFC Forum Tag Type 4 V1.0 compliant
 #endif
-    buffer_builder_write_nu16(&pType4Target->ccFileBldr, 256 /* Max frame size */ - 2 /* SW */ - 3 /* ISO-DEP PFB + DID + NAD */);   //Max data size that can be read from the tag
-    buffer_builder_write_nu16(&pType4Target->ccFileBldr, 256 /* Max frame size */ - 6 /* CLA INS P1 P2 LC LE */ - 3 /* ISO-DEP PFB + DID + NAD */);   //Max data size that can be written to the tag
-    buffer_builder_write_nu8(&pType4Target->ccFileBldr, 0x04);   //NDEF File Control TLV - Type
-    buffer_builder_write_nu8(&pType4Target->ccFileBldr, 6);   //NDEF File Control TLV - Length
-    buffer_builder_write_nu16(&pType4Target->ccFileBldr, NDEF_FILE);   //NDEF file id
-    buffer_builder_write_nu16(&pType4Target->ccFileBldr, 2 /* length header */ + buffer_builder_writeable(ndef_msg_buffer_builder(pType4Target->pNdef)));     //Max size of NDEF data
-    buffer_builder_write_nu8(&pType4Target->ccFileBldr, 0x00);   //Open read access
-    buffer_builder_write_nu8(&pType4Target->ccFileBldr, 0x00);   //Open write access
+    ac_buffer_builder_write_nu16(&pType4Target->ccFileBldr, 256 /* Max frame size */ - 2 /* SW */ - 3 /* ISO-DEP PFB + DID + NAD */);   //Max data size that can be read from the tag
+    ac_buffer_builder_write_nu16(&pType4Target->ccFileBldr, 256 /* Max frame size */ - 6 /* CLA INS P1 P2 LC LE */ - 3 /* ISO-DEP PFB + DID + NAD */);   //Max data size that can be written to the tag
+    ac_buffer_builder_write_nu8(&pType4Target->ccFileBldr, 0x04);   //NDEF File Control TLV - Type
+    ac_buffer_builder_write_nu8(&pType4Target->ccFileBldr, 6);   //NDEF File Control TLV - Length
+    ac_buffer_builder_write_nu16(&pType4Target->ccFileBldr, NDEF_FILE);   //NDEF file id
+    ac_buffer_builder_write_nu16(&pType4Target->ccFileBldr, 2 /* length header */ + ac_buffer_builder_writable(ndef_msg_buffer_builder(pType4Target->pNdef)));     //Max size of NDEF data
+    ac_buffer_builder_write_nu8(&pType4Target->ccFileBldr, 0x00);   //Open read access
+    ac_buffer_builder_write_nu8(&pType4Target->ccFileBldr, 0x00);   //Open write access
 
     //Encode NDEF file
     ndef_msg_encode(pType4Target->pNdef);
 
     //Populate NDEF file
-    buffer_builder_init(&pType4Target->ndefFileBldr, pType4Target->ndefFileBuf, /*sizeof(pType4Target->ndefFileBuf)*/2);
+    ac_buffer_builder_init(&pType4Target->ndefFileBldr, pType4Target->ndefFileBuf, /*sizeof(pType4Target->ndefFileBuf)*/2);
 
-    buffer_builder_write_nu16(&pType4Target->ndefFileBldr, buffer_reader_readable(buffer_builder_buffer(ndef_msg_buffer_builder(pType4Target->pNdef))));
+    ac_buffer_builder_write_nu16(&pType4Target->ndefFileBldr, ac_buffer_reader_readable(ac_buffer_builder_buffer(ndef_msg_buffer_builder(pType4Target->pNdef))));
 
     //Pad NDEF file with 0s
-    while (buffer_builder_writeable(ndef_msg_buffer_builder(pType4Target->pNdef)) > 0) {
-        buffer_builder_write_nu8(ndef_msg_buffer_builder(pType4Target->pNdef), 0);
+    while (ac_buffer_builder_writable(ndef_msg_buffer_builder(pType4Target->pNdef)) > 0) {
+        ac_buffer_builder_write_nu8(ndef_msg_buffer_builder(pType4Target->pNdef), 0);
     }
 
     //No file selected
@@ -115,23 +115,23 @@ void app_deselected(nfc_tech_iso7816_app_t *pIso7816App, void *pUserData)
     (void) pIso7816App;
 
     //Reset buffers
-    buffer_builder_reset(&pType4Target->ccFileBldr);
-    buffer_builder_set_full(&pType4Target->ndefFileBldr); //To read length
-    buffer_builder_reset(ndef_msg_buffer_builder(pType4Target->pNdef));
+    ac_buffer_builder_reset(&pType4Target->ccFileBldr);
+    ac_buffer_builder_set_full(&pType4Target->ndefFileBldr); //To read length
+    ac_buffer_builder_reset(ndef_msg_buffer_builder(pType4Target->pNdef));
 
-    DBG("Deselected");
+    NFC_DBG("Deselected");
 
     if (pType4Target->written) {
-        DBG("New content has been written");
+        NFC_DBG("New content has been written");
         //Try to parse NDEF
         //Set buffer length based on file header
-        size_t length = buffer_read_nu16(buffer_builder_buffer(&pType4Target->ndefFileBldr));
-        DBG("Length is %lu", length);
-        if (length < buffer_builder_writeable(ndef_msg_buffer_builder(pType4Target->pNdef))) {
-            buffer_builder_set_write_offset(ndef_msg_buffer_builder(pType4Target->pNdef), length);
+        size_t length = ac_buffer_read_nu16(ac_buffer_builder_buffer(&pType4Target->ndefFileBldr));
+        NFC_DBG("Length is %lu", length);
+        if (length < ac_buffer_builder_writable(ndef_msg_buffer_builder(pType4Target->pNdef))) {
+            ac_buffer_builder_set_write_offset(ndef_msg_buffer_builder(pType4Target->pNdef), length);
             ndef_msg_decode(pType4Target->pNdef);
         } else {
-            ERR("Invalid length");
+            NFC_ERR("Invalid length");
         }
     }
 }
@@ -141,11 +141,11 @@ void app_apdu(nfc_tech_iso7816_app_t *pIso7816App, void *pUserData)
     nfc_tech_type4_target_t *pType4Target = (nfc_tech_type4_target_t *) pUserData;
 
     //Reset buffers
-    buffer_builder_set_full(&pType4Target->ccFileBldr);
-    buffer_builder_set_full(&pType4Target->ndefFileBldr);
-    buffer_builder_set_full(ndef_msg_buffer_builder(pType4Target->pNdef));   //Set offset to 0, size to max
+    ac_buffer_builder_set_full(&pType4Target->ccFileBldr);
+    ac_buffer_builder_set_full(&pType4Target->ndefFileBldr);
+    ac_buffer_builder_set_full(ndef_msg_buffer_builder(pType4Target->pNdef));   //Set offset to 0, size to max
 
-    buffer_set_next(buffer_builder_buffer(&pType4Target->ndefFileBldr), buffer_builder_buffer(ndef_msg_buffer_builder(pType4Target->pNdef)));
+    ac_buffer_set_next(ac_buffer_builder_buffer(&pType4Target->ndefFileBldr), ac_buffer_builder_buffer(ndef_msg_buffer_builder(pType4Target->pNdef)));
 
     //Recover PDU
     nfc_tech_iso7816_c_apdu_t *pCApdu = nfc_tech_iso7816_app_c_apdu(pIso7816App);
@@ -157,23 +157,23 @@ void app_apdu(nfc_tech_iso7816_app_t *pIso7816App, void *pUserData)
             switch (pCApdu->p1) {
                 case 0x00: //Selection by ID
                 case 0x02: //Selection by child ID
-                    if (buffer_reader_readable(&pCApdu->dataIn) != 2) {
+                    if (ac_buffer_reader_readable(&pCApdu->dataIn) != 2) {
                         pRApdu->sw = ISO7816_SW_NOT_FOUND;
                         break;
                     }
 
-                    uint16_t file = buffer_read_nu16(&pCApdu->dataIn);
+                    uint16_t file = ac_buffer_read_nu16(&pCApdu->dataIn);
                     if (file == NDEF_FILE) {
                         pType4Target->selFile = NDEF_FILE;
-                        DBG("NDEF File selected");
+                        NFC_DBG("NDEF File selected");
                         pRApdu->sw = ISO7816_SW_OK;
                     } else if (file == CC_FILE) {
                         pType4Target->selFile = CC_FILE;
-                        DBG("CC File selected");
+                        NFC_DBG("CC File selected");
                         pRApdu->sw = ISO7816_SW_OK;
                     } else {
                         //file = DEFAULT_FILE;
-                        DBG("Could not select file %04X", file);
+                        NFC_DBG("Could not select file %04X", file);
                         pRApdu->sw = ISO7816_SW_NOT_FOUND;
                     }
                     break;
@@ -183,26 +183,26 @@ void app_apdu(nfc_tech_iso7816_app_t *pIso7816App, void *pUserData)
             }
             break;
         case 0xB0: //Read binary
-            DBG("Trying to read %d bytes at offset %d from file %04x", pCApdu->maxRespLength, (pCApdu->p1 << 8) | pCApdu->p2, pType4Target->selFile);
+            NFC_DBG("Trying to read %d bytes at offset %d from file %04x", pCApdu->maxRespLength, (pCApdu->p1 << 8) | pCApdu->p2, pType4Target->selFile);
             ret = data_read(pType4Target, &pRApdu->dataOut, pType4Target->selFile, (pCApdu->p1 << 8) | pCApdu->p2, pCApdu->maxRespLength);
             if (ret == NFC_OK) {
-                DBG("Read %d bytes", buffer_reader_readable(&pRApdu->dataOut));
-                NFC_DBG_BLOCK(buffer_dump(&pRApdu->dataOut);)
+                NFC_DBG("Read %d bytes", ac_buffer_reader_readable(&pRApdu->dataOut));
+                NFC_DBG_BLOCK(ac_buffer_dump(&pRApdu->dataOut);)
                 pRApdu->sw = ISO7816_SW_OK;
             } else {
-                DBG("Failed with ret code %d", ret);
+                NFC_DBG("Failed with ret code %d", ret);
                 pRApdu->sw = ISO7816_SW_WRONG_LENGTH;
             }
             break;
         case 0xD6: //Update binary
-            DBG("Trying to write %d bytes at offset %d to file %04x", buffer_reader_readable(&pCApdu->dataIn), (pCApdu->p1 << 8) | pCApdu->p2, pType4Target->selFile);
+            NFC_DBG("Trying to write %d bytes at offset %d to file %04x", ac_buffer_reader_readable(&pCApdu->dataIn), (pCApdu->p1 << 8) | pCApdu->p2, pType4Target->selFile);
             ret = data_write(pType4Target, &pCApdu->dataIn, pType4Target->selFile, (pCApdu->p1 << 8) | pCApdu->p2);
             if (ret == NFC_OK) {
-                DBG("OK");
+                NFC_DBG("OK");
                 pRApdu->sw = ISO7816_SW_OK;
                 pType4Target->written = true;
             } else {
-                DBG("Failed with ret code %d", ret);
+                NFC_DBG("Failed with ret code %d", ret);
                 pRApdu->sw = ISO7816_SW_WRONG_LENGTH;
             }
             break;
@@ -220,26 +220,26 @@ nfc_err_t data_read(nfc_tech_type4_target_t *pType4Target, ac_buffer_t *pBuf, ui
     ac_buffer_t *pFile;
     switch (file) {
         case CC_FILE:
-            pFile = buffer_builder_buffer(&pType4Target->ccFileBldr);
+            pFile = ac_buffer_builder_buffer(&pType4Target->ccFileBldr);
             break;
         case NDEF_FILE:
-            pFile = buffer_builder_buffer(&pType4Target->ndefFileBldr);
+            pFile = ac_buffer_builder_buffer(&pType4Target->ndefFileBldr);
             break;
         default:
             return NFC_ERR_NOT_FOUND;
     }
 
-    if (off > buffer_reader_readable(pFile)) {
+    if (off > ac_buffer_reader_readable(pFile)) {
         return NFC_ERR_LENGTH;
     }
 
-    buffer_read_n_skip(pFile, off);
+    ac_buffer_read_n_skip(pFile, off);
 
-    if (len > buffer_reader_readable(pFile)) {
-        len = buffer_reader_readable(pFile);
+    if (len > ac_buffer_reader_readable(pFile)) {
+        len = ac_buffer_reader_readable(pFile);
     }
 
-    buffer_split(pBuf, pFile, pFile, len);
+    ac_buffer_split(pBuf, pFile, pFile, len);
 
     return NFC_OK;
 }
@@ -249,34 +249,34 @@ nfc_err_t data_write(nfc_tech_type4_target_t *pType4Target, ac_buffer_t *pBuf, u
     ac_buffer_t *pFile;
     switch (file) {
         case NDEF_FILE:
-            pFile = buffer_builder_buffer(&pType4Target->ndefFileBldr);
+            pFile = ac_buffer_builder_buffer(&pType4Target->ndefFileBldr);
             break;
         case CC_FILE: //Cannot write to CC file!
         default:
             return NFC_ERR_NOT_FOUND;
     }
 
-    size_t len = buffer_reader_readable(pBuf);
+    size_t len = ac_buffer_reader_readable(pBuf);
 
-    if (off > buffer_reader_readable(pFile)) {
+    if (off > ac_buffer_reader_readable(pFile)) {
         return NFC_ERR_LENGTH;
     }
 
-    buffer_read_n_skip(pFile, off);
+    ac_buffer_read_n_skip(pFile, off);
 
-    if (len > buffer_reader_readable(pFile)) {
-        len = buffer_reader_readable(pFile);
+    if (len > ac_buffer_reader_readable(pFile)) {
+        len = ac_buffer_reader_readable(pFile);
     }
 
     while (len > 0) {
         size_t cpy;
         ac_buffer_builder_t builder;
-        buffer_dup(buffer_builder_buffer(&builder), pFile);
-        buffer_builder_from_buffer(&builder);
-        cpy = buffer_builder_writeable(&builder);
+        ac_buffer_dup(ac_buffer_builder_buffer(&builder), pFile);
+        ac_buffer_builder_from_buffer(&builder);
+        cpy = ac_buffer_builder_writable(&builder);
         cpy = MIN(cpy, len);
-        buffer_builder_copy_n_bytes(&builder, pBuf, cpy);
-        pFile = buffer_next(pFile);
+        ac_buffer_builder_copy_n_bytes(&builder, pBuf, cpy);
+        pFile = ac_buffer_next(pFile);
         len -= cpy;
     }
 

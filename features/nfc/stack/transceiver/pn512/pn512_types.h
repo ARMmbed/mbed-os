@@ -27,6 +27,8 @@
 extern "C" {
 #endif
 
+#include "stack/nfc_common.h"
+
 typedef struct __pn512_registers {
     int8_t registers_page;
 } pn512_registers_t;

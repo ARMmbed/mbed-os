@@ -27,7 +27,7 @@
 extern "C" {
 #endif
 
-#include "stack/nfc_errors.h"
+#include "stack/nfc_common.h"
 
 typedef struct __pn512 pn512_t;
 

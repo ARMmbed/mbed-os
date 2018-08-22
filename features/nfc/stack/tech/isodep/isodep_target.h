@@ -23,12 +23,13 @@
 #ifndef ISODEP_TARGET_H_
 #define ISODEP_TARGET_H_
 
+#include "stack/nfc_common.h"
+#include "transceiver/transceiver.h"
+#include "isodep.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-#include "transceiver/transceiver.h"
-#include "isodep.h"
 
 struct nfc_tech_isodep_target;
 typedef struct nfc_tech_isodep_target nfc_tech_isodep_target_t;
@@ -39,8 +40,8 @@ struct nfc_tech_isodep_target {
     nfc_transceiver_t *pTransceiver;
 
     struct {
-        ostream_t *pReqStream;
-        istream_t *pResStream;
+        ac_ostream_t *pReqStream;
+        ac_istream_t *pResStream;
 
         nfc_tech_isodep_cb_t reqCb;
         void *pReqUserData;
@@ -102,8 +103,8 @@ void nfc_tech_isodep_target_init(nfc_tech_isodep_target_t *pIsodepTarget, nfc_tr
 nfc_err_t nfc_tech_isodep_target_connect(nfc_tech_isodep_target_t *pIsodepTarget);
 void nfc_tech_isodep_target_disconnect(nfc_tech_isodep_target_t *pIsodepTarget);
 
-nfc_err_t nfc_tech_isodep_target_transmit(nfc_tech_isodep_target_t *pIsodepTarget, istream_t *pStream, nfc_tech_isodep_cb_t cb, void *pUserData);
-nfc_err_t nfc_tech_isodep_target_receive(nfc_tech_isodep_target_t *pIsodepTarget, ostream_t *pStream, nfc_tech_isodep_cb_t cb, void *pUserData);
+nfc_err_t nfc_tech_isodep_target_transmit(nfc_tech_isodep_target_t *pIsodepTarget, ac_istream_t *pStream, nfc_tech_isodep_cb_t cb, void *pUserData);
+nfc_err_t nfc_tech_isodep_target_receive(nfc_tech_isodep_target_t *pIsodepTarget, ac_ostream_t *pStream, nfc_tech_isodep_cb_t cb, void *pUserData);
 
 
 #ifdef __cplusplus

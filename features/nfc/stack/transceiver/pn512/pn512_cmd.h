@@ -27,9 +27,7 @@
 extern "C" {
 #endif
 
-#include "stack/nfc_errors.h"
-
-
+#include "stack/nfc_common.h"
 #include "pn512.h"
 
 #define PN512_CMD_IDLE        0x00 //No action, cancels current command execution

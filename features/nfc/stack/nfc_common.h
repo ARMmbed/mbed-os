@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, ARM Limited, All Rights Reserved
+ * Copyright (c) 2018, ARM Limited, All Rights Reserved
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -15,34 +15,32 @@
  * limitations under the License.
  */
 /**
- * \file isodep.h
- * \copyright Copyright (c) ARM Ltd 2014
+ * \file nfc_common.h
+ * \copyright Copyright (c) ARM Ltd 2018
  * \author Donatien Garnier
+ * \details Common includes for NFC Stack
  */
 
-#ifndef ISODEP_H_
-#define ISODEP_H_
+#ifndef NFC_COMMON_H_
+#define NFC_COMMON_H_
 
-#include "stack/nfc_common.h"
-#include "transceiver/transceiver.h"
+#include "stddef.h"
+#include "stdint.h"
+#include "string.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#include "nfc_errors.h"
 
-struct nfc_tech_isodep;
-typedef struct nfc_tech_isodep nfc_tech_isodep_t;
+#include "platform/nfc_debug.h"
 
-typedef void (*nfc_tech_isodep_cb_t)(nfc_tech_isodep_t *pIsodep, nfc_err_t ret, void *pUserData);
-typedef void (*nfc_tech_isodep_disconnected_cb)(nfc_tech_isodep_t *pIsodep, bool deselected, void *pUserData);
+#include "acore/ac_macros.h"
+#include "acore/ac_buffer.h"
+#include "acore/ac_buffer_reader.h"
+#include "acore/ac_buffer_builder.h"
+#include "acore/ac_stream.h"
 
+#endif /* NFC_COMMON_H_ */
 
-struct nfc_tech_isodep {
-
-};
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* ISODEP_H_ */
+/**
+ * @}
+ * @}
+ * */

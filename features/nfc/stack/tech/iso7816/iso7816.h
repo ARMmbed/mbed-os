@@ -23,14 +23,14 @@
 #ifndef ISO7816_H_
 #define ISO7816_H_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#include "acore/ac_stream.h"
+#include "stack/nfc_common.h"
 
 #include "transceiver/protocols.h"
 #include "tech/isodep/isodep_target.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 struct nfc_tech_iso7816_c_apdu {
     uint8_t cla;
@@ -76,8 +76,8 @@ struct nfc_tech_iso7816 {
 
     ac_buffer_t hist; //Historical bytes
 
-    istream_t inputStream;
-    ostream_t outputStream;
+    ac_istream_t inputStream;
+    ac_ostream_t outputStream;
 
     //PDU buffer (tx)
     uint8_t txBuf[2];
