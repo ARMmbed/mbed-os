@@ -183,6 +183,9 @@ struct Span {
      */
     reference operator[](index_type index) const
     {
+#ifdef MBED_DEBUG
+        MBED_ASSERT(0 <= index && index < Extent);
+#endif
         return _data[index];
     }
 
@@ -454,6 +457,9 @@ struct Span<ElementType, SPAN_DYNAMIC_EXTENT> {
      */
     reference operator[](index_type index) const
     {
+#ifdef MBED_DEBUG
+        MBED_ASSERT(0 <= index && index < _size);
+#endif
         return _data[index];
     }
 
