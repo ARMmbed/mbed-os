@@ -33,19 +33,130 @@ namespace mbed {
 #define SPAN_DYNAMIC_EXTENT -1
 
 /**
- * View to an array.
+ * Non owning view to a sequence of contiguous elements.
  *
- * Spans encapsulate the pointer to an array and its size into a single object.
- * However, it does not manage the lifetime of the array viewed. You can use
- * instances of Span to replace the traditional pair of pointer and size
- * arguments in function calls.
+ * Spans encapsulate a pointer to a sequence of contiguous elements and its size
+ * into a single object. Span can replace the traditional pair of pointer and
+ * size arguments passed as array definition in function calls.
  *
- * You can use the size member function to query the number of elements present
- * in the array, and the subscript operator allow code using this object to
- * access the content of the array viewed.
+ * @paragraph Operations
  *
- * Subspans can be created with the help of the functions first(), last() and
- * subspan().
+ * Span objects can be copied and assigned like regular value types with the help
+ * of copy constructor and copy assignment (=) operator.
+ *
+ * Elements of the object can be retrieved with the subscript ([]) operator. The
+ * pointer to the first element of the sequence viewed can be accessed with data()
+ * while the function size() returns the number of elements in the sequence and
+ * empty() informs if the there is any element in the sequence.
+ *
+ * Span can be sliced from the beginning of the sequence (first()), from the end
+ * of the sequence (last()) or from an arbitrary point of the sequence (subspan()).
+ *
+ * @paragraph Size encoding
+ *
+ * The size of the sequence can be encoded in the type itself or in the value of
+ * the instance with the help of the template parameter Extent:
+ *
+ *   - Span<uint8_t, 6>: Span over a sequence of 6 element
+ *   - Span<uint8_t>: Span over an arbitrary long sequence.
+ *
+ * When the size is encoded in the type itself, it is guaranteed that the Span
+ * view a valid sequence (not empty() and not NULL). The type system also prevent
+ * automatic conversion from Span of different sizes. Finally, the size of the
+ * span object is a single pointer.
+ *
+ * When the size of the sequence viewed is encoded in the Span value, span
+ * instances can view invalid sequence (empty and NULL pointer). The function
+ * empty() helps client code to decide if valid content is being viewed or not.
+ *
+ * @paragraph Example
+ *
+ * - Encoding fixed size array: Array values in parameter decays automatically
+ * to pointer which leaves room for subtitle bugs:
+ *
+ * @code
+ * typedef uint8_t mac_address_t[6];
+ * void process_mac(mac_address_t);
+ *
+ * // compile just fine
+ * uint8_t* invalid_value = NULL;
+ * process_mac(invalid_value);
+ *
+ *
+ * // correct way
+ * typedef Span<uint8_t, 6> mac_address_t;
+ * void process_mac(mac_address_t);
+ *
+ * // compilation error
+ * uint8_t* invalid_value = NULL;
+ * process_mac(invalid_value);
+ *
+ * // compilation ok
+ * uint8_t valid_value[6];
+ * process_mac(valid_value);
+ * @endcode
+ *
+ * - Arbitrary buffer: When dealing with multiple buffers, it becomes painful to
+ * keep track of every buffer size and pointer.
+ *
+ * @code
+ * const uint8_t options_tag[OPTIONS_TAG_SIZE];
+ *
+ * struct parsed_value_t {
+ *    uint8_t* header;
+ *    uint8_t* options;
+ *    uint8_t* payload;
+ *    size_t payload_size;
+ * }
+ *
+ * parsed_value_t parse(uint8_t* buffer, size_t buffer_size) {
+ *    parsed_value_t parsed_value { 0 };
+ *
+ *    if (buffer != NULL && buffer_size <= MINIMAL_BUFFER_SIZE) {
+ *        return parsed_value;
+ *    }
+ *
+ *    parsed_value.header = buffer;
+ *    parsed_value.header_size = BUFFER_HEADER_SIZE;
+ *
+ *    if (memcmp(buffer + HEADER_OPTIONS_INDEX, options_tag, sizeof(options_tag)) == 0) {
+ *        options = buffer + BUFFER_HEADER_SIZE;
+ *        payload = buffer + BUFFER_HEADER_SIZE + OPTIONS_SIZE;
+ *        payload_size = buffer_size - BUFFER_HEADER_SIZE + OPTIONS_SIZE;
+ *    } else {
+ *        payload = buffer + BUFFER_HEADER_SIZE;
+ *        payload_size = buffer_size - BUFFER_HEADER_SIZE;
+ *    }
+ *
+ *    return parsed_value;
+ * }
+ *
+ *
+ * //with span
+ * struct parsed_value_t {
+ *    Span<uint8_t> header;
+ *    Span<uint8_t> options;
+ *    Span<uint8_t> payload;
+ * }
+ *
+ * parsed_value_t parse(Span<uint8_t> buffer) {
+ *    parsed_value_t parsed_value;
+ *
+ *    if (buffer.size() <= MINIMAL_BUFFER_SIZE) {
+ *        return parsed_value;
+ *    }
+ *
+ *    parsed_value.header = buffer.first(BUFFER_HEADER_SIZE);
+ *
+ *    if (buffer.subspan<HEADER_OPTIONS_INDEX, sizeof(options_tag)>() == option_tag) {
+ *        options = buffer.supspan(parsed_value.header.size(), OPTIONS_SIZE);
+ *    }
+ *
+ *    payload = buffer.subspan(parsed_value.header.size() + parsed_value.options.size());
+ *
+ *    return parsed_value;
+ * }
+ * @endcode
  *
  * @note You can create Span instances with the help of the function template
  * make_Span() and make_const_Span().
@@ -53,9 +164,9 @@ namespace mbed {
  * @note Span<T, Extent> objects can be implicitly converted to Span<T> objects
  * where required.
  *
- * @tparam ElementType type of objects held in the array viewed.
+ * @tparam ElementType type of objects viewed by the Span.
  *
- * @tparam Extent The size of the array viewed. The default value
+ * @tparam Extent The size of the contiguous sequence viewed. The default value
  * SPAN_DYNAMIC_SIZE  is special as it allows construction of Span objects of
  * any size (set at runtime).
  */
@@ -90,7 +201,7 @@ struct Span {
     MBED_STATIC_ASSERT(Extent >= 0, "Invalid extent for a Span");
 
     /**
-     * Construct an empty span.
+     * Construct an empty Span.
      *
      * @post a call to size() will return 0, and data() will return NULL.
      *
@@ -112,7 +223,7 @@ struct Span {
      * @param count Number of elements viewed.
      *
      * @pre [ptr, ptr + count) must be be a valid range.
-     * @pre count must be equal to extent.
+     * @pre count must be equal to Extent.
      *
      * @post a call to size() will return Extent and data() will return @p ptr.
      */
@@ -153,9 +264,9 @@ struct Span {
         _data(elements) { }
 
     /**
-     * Return the size of the array viewed.
+     * Return the size of the sequence viewed.
      *
-     * @return The number of elements present in the array viewed.
+     * @return The size of the sequence viewed.
      */
     index_type size() const
     {
@@ -163,9 +274,9 @@ struct Span {
     }
 
     /**
-     * Return if the array is empty or not.
+     * Return if the sequence is empty or not.
      *
-     * @return true if the array is empty and false otherwise
+     * @return true if the sequence is empty and false otherwise
      */
     bool empty() const
     {
@@ -190,10 +301,10 @@ struct Span {
     }
 
     /**
-     * Return a pointer to the first element of the sequence or NULL if the span
+     * Return a pointer to the first element of the sequence or NULL if the Span
      * is empty().
      *
-     * @return The pointer to the first element of the span.
+     * @return The pointer to the first element of the Span.
      */
     pointer data() const
     {
@@ -246,7 +357,7 @@ struct Span {
      * is equal to SPAN_DYNAMIC_EXTENT then a span starting at offset and
      * containing the rest of the elements is returned.
      *
-     * @return
+     * @return A subspan of this starting at Offset and Count long.
      */
     template<std::ptrdiff_t Offset, std::ptrdiff_t Count>
     Span<element_type, Count == SPAN_DYNAMIC_EXTENT ? Extent - Offset : Count>
@@ -324,7 +435,7 @@ private:
 };
 
 /**
- * Span specialisation that handle dynamic array size.
+ * Span specialisation that handle dynamic size.
  */
 template<typename ElementType>
 struct Span<ElementType, SPAN_DYNAMIC_EXTENT> {
@@ -355,7 +466,7 @@ struct Span<ElementType, SPAN_DYNAMIC_EXTENT> {
     static const index_type extent = SPAN_DYNAMIC_EXTENT;
 
     /**
-     * Construct an empty span.
+     * Construct an empty Span.
      *
      * @post a call to size() will return 0, and data() will return NULL.
      *
@@ -437,9 +548,9 @@ struct Span<ElementType, SPAN_DYNAMIC_EXTENT> {
     }
 
     /**
-     * Return if the array is empty or not.
+     * Return if the sequence viewed is empty or not.
      *
-     * @return true if the array is empty and false otherwise
+     * @return true if the sequence is empty and false otherwise
      */
     bool empty() const
     {
@@ -447,7 +558,7 @@ struct Span<ElementType, SPAN_DYNAMIC_EXTENT> {
     }
 
     /**
-     * Access to an element of the array.
+     * Access to an element of the sequence.
      *
      * @param index Element index to access.
      *
@@ -464,9 +575,9 @@ struct Span<ElementType, SPAN_DYNAMIC_EXTENT> {
     }
 
     /**
-     * Get the raw pointer to the array.
+     * Get the raw pointer to the sequence viewed.
      *
-     * @return The raw pointer to the array.
+     * @return The raw pointer to the first element viewed.
      */
     pointer data() const
     {
@@ -474,7 +585,7 @@ struct Span<ElementType, SPAN_DYNAMIC_EXTENT> {
     }
 
     /**
-     * Create a new span over the first @p Count elements of the existing view.
+     * Create a new Span over the first @p Count elements of the existing view.
      *
      * @tparam Count The number of element viewed by the new Span
      *
@@ -489,7 +600,7 @@ struct Span<ElementType, SPAN_DYNAMIC_EXTENT> {
     }
 
     /**
-     * Create a new span over the last @p Count elements of the existing view.
+     * Create a new Span over the last @p Count elements of the existing view.
      *
      * @tparam Count The number of element viewed by the new Span
      *
@@ -513,7 +624,7 @@ struct Span<ElementType, SPAN_DYNAMIC_EXTENT> {
      * is equal to SPAN_DYNAMIC_EXTENT then a span starting at offset and
      * containing the rest of the elements is returned.
      *
-     * @return
+     * @return A subspan of this starting at Offset and Count long.
      */
     template<std::ptrdiff_t Offset, std::ptrdiff_t Count>
     Span<element_type, Count == SPAN_DYNAMIC_EXTENT ? SPAN_DYNAMIC_EXTENT : Count>
@@ -542,7 +653,7 @@ struct Span<ElementType, SPAN_DYNAMIC_EXTENT> {
     }
 
     /**
-     * Create a new span over the last @p count elements of the existing view.
+     * Create a new Span over the last @p count elements of the existing view.
      *
      * @param count The number of element viewed by the new Span
      *
@@ -566,7 +677,7 @@ struct Span<ElementType, SPAN_DYNAMIC_EXTENT> {
      * is equal to SPAN_DYNAMIC_EXTENT then a span starting at offset and
      * containing the rest of the elements is returned.
      *
-     * @return
+     * @return A subspan of this starting at offset and count long.
      */
     Span<element_type, SPAN_DYNAMIC_EXTENT> subspan(
         index_type offset, index_type count = SPAN_DYNAMIC_EXTENT
@@ -593,8 +704,8 @@ private:
  * @param lhs Left hand side of the binary operation.
  * @param rhs Right hand side of the binary operation.
  *
- * @return True if arrays in input have the same size and the same content
- * and false otherwise.
+ * @return True if Spans in input have the same size and the same content and
+ * false otherwise.
  */
 template<typename T, typename U, ptrdiff_t LhsExtent, ptrdiff_t RhsExtent>
 bool operator==(const Span<T, LhsExtent> &lhs, const Span<U, RhsExtent> &rhs)
@@ -616,8 +727,8 @@ bool operator==(const Span<T, LhsExtent> &lhs, const Span<U, RhsExtent> &rhs)
  * @param lhs Left hand side of the binary operation.
  * @param rhs Right hand side of the binary operation.
  *
- * @return True if arrays in input have the same size and the same content
- * and false otherwise.
+ * @return True if elements in input have the same size and the same content and
+ * false otherwise.
  */
 template<typename T, ptrdiff_t LhsExtent, ptrdiff_t RhsExtent>
 bool operator==(const Span<T, LhsExtent> &lhs, T (&rhs)[RhsExtent])
@@ -626,12 +737,12 @@ bool operator==(const Span<T, LhsExtent> &lhs, T (&rhs)[RhsExtent])
 }
 
 /**
- * Equality operation between a span and a reference to a C++ array.
+ * Equality operation between a Span and a reference to a C++ array.
  *
  * @param lhs Left hand side of the binary operation.
  * @param rhs Right hand side of the binary operation.
  *
- * @return True if arrays in input have the same size and the same content
+ * @return True if elements in input have the same size and the same content
  * and false otherwise.
  */
 template<typename T, ptrdiff_t LhsExtent, ptrdiff_t RhsExtent>
@@ -646,8 +757,8 @@ bool operator==(T (&lhs)[LhsExtent], const Span<T, RhsExtent> &rhs)
  * @param lhs Left hand side of the binary operation.
  * @param rhs Right hand side of the binary operation.
  *
- * @return True if arrays in input do not have the same size or the same
- * content and false otherwise.
+ * @return True if arrays in input do not have the same size or the same content
+ * and false otherwise.
  */
 template<typename T, typename U, ptrdiff_t LhsExtent, ptrdiff_t RhsExtent>
 bool operator!=(const Span<T, LhsExtent> &lhs, const Span<U, RhsExtent> &rhs)
@@ -656,12 +767,12 @@ bool operator!=(const Span<T, LhsExtent> &lhs, const Span<U, RhsExtent> &rhs)
 }
 
 /**
- * Not Equal operation between a span and a reference to a C++ array.
+ * Not Equal operation between a Span and a reference to a C++ array.
  *
  * @param lhs Left hand side of the binary operation.
  * @param rhs Right hand side of the binary operation.
  *
- * @return True if arrays in input have the same size and the same content
+ * @return True if elements in input have the same size and the same content
  * and false otherwise.
  */
 template<typename T, ptrdiff_t LhsExtent, ptrdiff_t RhsExtent>
@@ -671,12 +782,12 @@ bool operator!=(const Span<T, LhsExtent> &lhs, T (&rhs)[RhsExtent])
 }
 
 /**
- * Not Equal operation between a span and a reference to a C++ array.
+ * Not Equal operation between a Span and a reference to a C++ array.
  *
  * @param lhs Left hand side of the binary operation.
  * @param rhs Right hand side of the binary operation.
  *
- * @return True if arrays in input have the same size and the same content
+ * @return True if elements in input have the same size and the same content
  * and false otherwise.
  */
 template<typename T, ptrdiff_t LhsExtent, ptrdiff_t RhsExtent>
@@ -728,7 +839,7 @@ Span<T, Extent> make_Span(T *elements)
  *
  * @tparam T Type of elements held in array_ptr.
  *
- * @param array_ptr The pointer to the array to viewed.
+ * @param array_ptr The pointer to the array viewed.
  * @param array_size The number of T elements in the array.
  *
  * @return The Span to array_ptr with a size of array_size.
