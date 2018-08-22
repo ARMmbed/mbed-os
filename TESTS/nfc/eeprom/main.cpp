@@ -340,6 +340,10 @@ public:
 
         _step++;
 
+        if (_step == MAX_STEP) {
+            TEST_FAIL_MESSAGE("internal test failure - too many steps");
+        }
+
         execute_next_step();
     }
 
