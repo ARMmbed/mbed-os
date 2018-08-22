@@ -34,17 +34,17 @@ void NFCEEPROMDriver::set_delegate(Delegate *delegate)
     _delegate = delegate;
 }
 
-void NFCEEPROMDriver::set_event_queue(EventQueue *queue)
+void NFCEEPROMDriver::set_event_queue(events::EventQueue *queue)
 {
     _event_queue = queue;
 }
 
-Delegate *NFCEEPROMDriver::delegate()
+NFCEEPROMDriver::Delegate *NFCEEPROMDriver::delegate()
 {
     return _delegate;
 }
 
-EventQueue *NFCEEPROMDriver::event_queue()
+events::EventQueue *NFCEEPROMDriver::event_queue()
 {
     return _event_queue;
 }

@@ -36,7 +36,7 @@ void ac_buffer_builder_init(ac_buffer_builder_t *pBuilder, uint8_t *data, size_t
     ac_buffer_init(&pBuilder->ac_buffer, data, 0);
 }
 
-void ac_buffer_builder_from_ac_buffer(ac_buffer_builder_t *pBuilder)
+void ac_buffer_builder_from_buffer(ac_buffer_builder_t *pBuilder)
 {
     pBuilder->data = (uint8_t *)pBuilder->ac_buffer.data;
     pBuilder->size = pBuilder->ac_buffer.size;

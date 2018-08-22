@@ -43,7 +43,7 @@ nfc_err_t NFCController::initialize()
     _scheduler = transceiver_get_scheduler(_transceiver);
 
     // Run scheduler for the first time
-    _queue->call(this, NFCController::scheduler_process, false);
+    _queue->call(this, &NFCController::scheduler_process, false);
 
     return NFC_OK;
 }
@@ -143,7 +143,7 @@ void NFCController::polling_callback(nfc_err_t ret)
         if (!transceiver_is_initiator_mode(_transceiver)) {
             nfc_tech_t active_tech = transceiver_get_active_techs(_transceiver);
             if (active_tech.nfc_iso_dep_a || active_tech.nfc_iso_dep_b) {
-                Type4RemoteInitiator type4_remote_initiator_ptr = new (std::nothrow) Type4RemoteInitiator(_transceiver, _ndef_buffer, _ndef_buffer_sz);
+                Type4RemoteInitiator *type4_remote_initiator_ptr = new (std::nothrow) Type4RemoteInitiator(this, _ndef_buffer, _ndef_buffer_sz);
                 if (type4_remote_initiator_ptr == NULL) {
                     // No memory :(
                     SharedPtr<NFCRemoteInitiator> type4_remote_initiator(type4_remote_initiator_ptr);
@@ -156,19 +156,19 @@ void NFCController::polling_callback(nfc_err_t ret)
     }
 
     if (_delegate != NULL) {
-        NFCController::Delegate::nfc_discovery_terminated_reason_t reason;
+        Delegate::nfc_discovery_terminated_reason_t reason;
 
         // Map reason
         switch (ret) {
             case NFC_OK:
-                reason = nfc_discovery_terminated_completed;
+                reason = Delegate::nfc_discovery_terminated_completed;
                 break;
             case NFC_ERR_ABORTED:
-                reason = nfc_discovery_terminated_canceled;
+                reason = Delegate::nfc_discovery_terminated_canceled;
                 break;
             default:
                 // Any other error code means there was an error during the discovery process
-                reason = nfc_discovery_terminated_rf_error;
+                reason = Delegate::nfc_discovery_terminated_rf_error;
                 break;
         }
 
@@ -190,16 +190,16 @@ void NFCController::on_hw_interrupt()
 {
     // Run scheduler - this is called in interrupt context
     _timeout.detach(); // Cancel timeout - if it triggers anyways, it's ok
-    _queue->call(this, NFCController::scheduler_process, true);
+    _queue->call(this, &NFCController::scheduler_process, true);
 }
 
 void NFCController::on_timeout()
 {
     // Run scheduler - this is called in interrupt context
-    _queue->call(this, NFCController::scheduler_process, false);
+    _queue->call(this, &NFCController::scheduler_process, false);
 }
 
-static void NFCController::s_polling_callback(nfc_transceiver_t *pTransceiver, nfc_err_t ret, void *pUserData)
+void NFCController::s_polling_callback(nfc_transceiver_t *pTransceiver, nfc_err_t ret, void *pUserData)
 {
     NFCController *self = (NFCController *) pUserData;
     self->polling_callback(ret);

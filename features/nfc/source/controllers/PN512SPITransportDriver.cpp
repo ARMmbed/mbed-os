@@ -33,7 +33,7 @@ PN512SPITransportDriver::PN512SPITransportDriver(PinName mosi, PinName miso, Pin
     _spi.format(8, 0);
 
     // The PN512 supports SPI clock frequencies up to 10MHz, so use this if we can
-    _spi.frequency(10E6UL);
+    _spi.frequency(10000000UL);
 
     // Initialize NFC transport
     nfc_transport_init(&_nfc_transport, &PN512SPITransportDriver::s_transport_write, &PN512SPITransportDriver::s_transport_read, this);
@@ -42,7 +42,7 @@ PN512SPITransportDriver::PN512SPITransportDriver(PinName mosi, PinName miso, Pin
 void PN512SPITransportDriver::initialize()
 {
     // Deactivate IRQ
-    _irq.rise(callback(NULL));
+    _irq.rise(callback<void>());
 
     // Assert reset pin
     // According to the datasheet, it needs to be asserted for at least 100ns
@@ -55,7 +55,7 @@ void PN512SPITransportDriver::initialize()
     _irq.rise(callback(this, &PN512SPITransportDriver::hw_interrupt));
 }
 
-nfc_transport_t *PN512SPITransportDriver::get_transport() const
+nfc_transport_t *PN512SPITransportDriver::get_transport()
 {
     return &_nfc_transport;
 }
@@ -98,13 +98,13 @@ void PN512SPITransportDriver::transport_read(uint8_t address, uint8_t *inBuf, si
 }
 
 // Callbacks from munfc
-static void PN512SPITransportDriver::s_transport_write(uint8_t address, const uint8_t *outBuf, size_t outLen, void *pUser)
+void PN512SPITransportDriver::s_transport_write(uint8_t address, const uint8_t *outBuf, size_t outLen, void *pUser)
 {
     PN512SPITransportDriver *self = (PN512SPITransportDriver *)pUser;
     self->transport_write(address, outBuf, outLen);
 }
 
-static void PN512SPITransportDriver::s_transport_read(uint8_t address, uint8_t *inBuf, size_t inLen, void *pUser)
+void PN512SPITransportDriver::s_transport_read(uint8_t address, uint8_t *inBuf, size_t inLen, void *pUser)
 {
     PN512SPITransportDriver *self = (PN512SPITransportDriver *)pUser;
     self->transport_read(address, inBuf, inLen);

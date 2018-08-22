@@ -24,7 +24,10 @@
 #include "NFCNDEFCapable.h"
 #include "NFCRemoteInitiator.h"
 
-#include "acore/ac_buffer.h"
+#include "nfc/acore/acore/ac_buffer.h"
+#include "nfc/acore/acore/ac_buffer_reader.h"
+#include "nfc/acore/acore/ac_buffer_builder.h"
+#include "nfc/stack/tech/type4/type4_target.h"
 
 namespace mbed {
 namespace nfc {
@@ -38,7 +41,7 @@ namespace nfc {
  * This class is an implementation of the Type 4 tag application.
  */
 class Type4RemoteInitiator : public NFCRemoteInitiator {
-private:
+public:
     /**
      * Create a Type4RemoteInitiator.
      *
@@ -72,7 +75,6 @@ private:
     void disconnected_callback(bool deselected);
     static void s_disconnected_callback(nfc_tech_iso7816_t *pIso7816, bool deselected, void *pUserData);
 
-    NFCController *_controller;
     bool _is_connected;
     bool _is_disconnected;
     nfc_tech_iso7816_t _iso7816;

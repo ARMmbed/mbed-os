@@ -20,8 +20,8 @@
 using namespace mbed;
 using namespace mbed::nfc;
 
-NFCEEPROM(NFCEEPROMDriver *driver, events::EventQueue *queue, uint8_t *ndef_buffer, size_t ndef_buffer_sz) : NFCTarget(ndef_buffer, ndef_buffer_sz)
-    _driver(driver), _initialized(false), _current_op(nfc_eeprom_idle), _ndef_buffer_read_sz(0), _eeprom_address(0), _operation_result(NFC_ERR_UNKNOWN)
+NFCEEPROM::NFCEEPROM(NFCEEPROMDriver *driver, events::EventQueue *queue, uint8_t *ndef_buffer, size_t ndef_buffer_sz) : NFCTarget(ndef_buffer, ndef_buffer_sz),
+    _delegate(NULL), _driver(driver), _initialized(false), _current_op(nfc_eeprom_idle), _ndef_buffer_read_sz(0), _eeprom_address(0), _operation_result(NFC_ERR_UNKNOWN)
 {
     _driver->set_delegate(this);
     _driver->set_event_queue(queue);
@@ -40,6 +40,7 @@ nfc_err_t NFCEEPROM::initialize()
 void NFCEEPROM::set_delegate(NFCEEPROM::Delegate *delegate)
 {
     _delegate = delegate;
+    set_ndef_delegate(delegate);
 }
 
 void NFCEEPROM::write_ndef_message()
@@ -58,24 +59,24 @@ void NFCEEPROM::write_ndef_message()
     _current_op = nfc_eeprom_write_start_session;
 
     // Retrieve reader
-    ac_buffer_dup(&_ndef_buffer_reader, ac_buffer_builder_buffer(ndef_msg_buffer_builder(ndef_message()));
+    ac_buffer_dup(&_ndef_buffer_reader, ac_buffer_builder_buffer(ndef_msg_buffer_builder(ndef_message())));
 
-                  // Check that NDEF message is not too big
+    // Check that NDEF message is not too big
     if (ac_buffer_reader_readable(&_ndef_buffer_reader) > _driver->get_max_size()) {
-    handle_error(NFC_ERR_BUFFER_TOO_SMALL);
+        handle_error(NFC_ERR_BUFFER_TOO_SMALL);
         return;
     }
 
     // Reset EEPROM address
     _eeprom_address = 0;
 
-                      // Go through the steps!
-                      _driver->start_session();
+    // Go through the steps!
+    _driver->start_session();
 
-                      // 1 - Start session
-                      // 2 - Write bytes (can be repeated)
-                      // 3 - Set NDEF message size
-                      // 4 - End session
+    // 1 - Start session
+    // 2 - Write bytes (can be repeated)
+    // 3 - Set NDEF message size
+    // 4 - End session
 }
 
 void NFCEEPROM::read_ndef_message()
@@ -155,7 +156,7 @@ void NFCEEPROM::on_session_started(bool success)
                 handle_error(NFC_ERR_CONTROLLER);
                 return;
             }
-            _current_op = nfc_eeprom_erase_bytes;
+            _current_op = nfc_eeprom_erase_erase_bytes;
             continue_erase();
             break;
 
@@ -176,7 +177,7 @@ void NFCEEPROM::on_session_ended(bool success)
             }
             _current_op = nfc_eeprom_idle;
             if (_delegate != NULL) {
-                _driver->on_ndef_message_written(_operation_result);
+                _delegate->on_ndef_message_written(_operation_result);
             }
             break;
 
@@ -191,7 +192,7 @@ void NFCEEPROM::on_session_ended(bool success)
             ndef_msg_decode(ndef_message());
 
             if (_delegate != NULL) {
-                _driver->on_ndef_message_read(_operation_result);
+                _delegate->on_ndef_message_read(_operation_result);
             }
             break;
 
@@ -202,7 +203,7 @@ void NFCEEPROM::on_session_ended(bool success)
             }
             _current_op = nfc_eeprom_idle;
             if (_delegate != NULL) {
-                _driver->on_ndef_message_erased(_operation_result);
+                _delegate->on_ndef_message_erased(_operation_result);
             }
             break;
 
@@ -216,7 +217,7 @@ void NFCEEPROM::on_session_ended(bool success)
 void NFCEEPROM::on_bytes_read(size_t count)
 {
     switch (_current_op) {
-        case nfc_eeprom_read_read_bytes:
+        case nfc_eeprom_read_read_bytes: {
             if (count == 0) {
                 handle_error(NFC_ERR_CONTROLLER);
                 return;
@@ -230,6 +231,7 @@ void NFCEEPROM::on_bytes_read(size_t count)
             // Continue reading
             continue_read();
             break;
+        }
         default:
             // Should not happen, state machine is broken or driver is doing something wrong
             handle_error(NFC_ERR_UNKNOWN);
@@ -295,7 +297,7 @@ void NFCEEPROM::on_size_written(bool success)
 void NFCEEPROM::on_size_read(bool success, size_t size)
 {
     switch (_current_op) {
-        case nfc_eeprom_read_read_size:
+        case nfc_eeprom_read_read_size: {
             if (!success) {
                 handle_error(NFC_ERR_CONTROLLER);
                 return;
@@ -322,6 +324,7 @@ void NFCEEPROM::on_size_read(bool success, size_t size)
             _current_op = nfc_eeprom_read_read_bytes;
             continue_read();
             break;
+        }
         default:
             // Should not happen, state machine is broken or driver is doing something wrong
             handle_error(NFC_ERR_UNKNOWN);

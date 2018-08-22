@@ -30,8 +30,22 @@ NFCRemoteInitiator::~NFCRemoteInitiator()
 
 }
 
-void NFCRemoteInitiator::set_remote_initiator_delegate(Delegate *delegate)
+void NFCRemoteInitiator::set_delegate(Delegate *delegate)
 {
     _delegate = delegate;
+    set_ndef_delegate(delegate);
 }
 
+void NFCRemoteInitiator::connected()
+{
+    if (_delegate != NULL) {
+        _delegate->on_connected();
+    }
+}
+
+void NFCRemoteInitiator::disconnected()
+{
+    if (_delegate != NULL) {
+        _delegate->on_disconnected();
+    }
+}

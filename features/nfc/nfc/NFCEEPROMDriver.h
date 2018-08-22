@@ -23,6 +23,8 @@
 #include "NFCTarget.h"
 #include "NFCEEPROMDriver.h"
 
+#include "events/EventQueue.h"
+
 namespace mbed {
 namespace nfc {
 
@@ -118,7 +120,7 @@ public:
      *
      * @param[in] queue the queue instance to use
      */
-    void set_event_queue(EventQueue *queue);
+    void set_event_queue(events::EventQueue *queue);
 
     /**
      * Reset and initialize the EEPROM.
@@ -188,11 +190,11 @@ public:
 
 protected:
     Delegate *delegate();
-    EventQueue *event_queue();
+    events::EventQueue *event_queue();
 
 private:
     Delegate *_delegate;
-    EventQueue *_event_queue;
+    events::EventQueue *_event_queue;
 };
 
 /**

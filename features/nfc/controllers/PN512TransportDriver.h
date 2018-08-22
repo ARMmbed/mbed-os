@@ -61,7 +61,7 @@ public:
      *
      * @return a pointer to a nfc_transport_t struct
      */
-    virtual nfc_transport_t *get_transport() const = 0;
+    virtual nfc_transport_t *get_transport() = 0;
 
     /**
      * Set this instance's delegate

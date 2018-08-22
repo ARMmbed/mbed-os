@@ -22,6 +22,11 @@
 
 #include "NFCDefinitions.h"
 
+#include "nfc/acore/acore/ac_buffer.h"
+#include "nfc/acore/acore/ac_buffer_reader.h"
+#include "nfc/acore/acore/ac_buffer_builder.h"
+#include "nfc/stack/tech/iso7816/iso7816_app.h"
+
 namespace mbed {
 namespace nfc {
 
@@ -128,7 +133,7 @@ private:
      */
     virtual void on_exchange(Exchange *exchange) = 0;
 
-    nfc_tech_iso7816_app_t iso7816_app;
+    nfc_tech_iso7816_app_t _iso7816_app;
 };
 
 /**

@@ -20,6 +20,8 @@
 #include <stdint.h>
 #include "events/EventQueue.h"
 #include "platform/SharedPtr.h"
+#include "drivers/Timer.h"
+#include "drivers/Timeout.h"
 
 #include "NFCDefinitions.h"
 #include "NFCControllerDriver.h"

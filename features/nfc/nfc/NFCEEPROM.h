@@ -139,6 +139,7 @@ private:
         nfc_eeprom_erase_end_session
     };
 
+    Delegate *_delegate;
     NFCEEPROMDriver *_driver;
     bool _initialized;
 

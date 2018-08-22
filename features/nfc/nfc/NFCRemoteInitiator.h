@@ -22,6 +22,7 @@
 #include "NFCDefinitions.h"
 #include "NFCRemoteEndpoint.h"
 #include "NFCNDEFCapable.h"
+#include "ISO7816App.h"
 
 namespace mbed {
 namespace nfc {
@@ -62,7 +63,7 @@ public:
      *
      * @oaram[in] delegate the delegate instance to use
      */
-    void set_remote_initiator_delegate(Delegate *delegate);
+    void set_delegate(Delegate *delegate);
 
     /**
      * Retrieve the NFC tag type exposed by the controller to communicate with the initiator.
@@ -84,6 +85,10 @@ public:
      * @param[in] application a pointer to an ISO7816App instance
      */
     virtual void add_iso7816_application(ISO7816App *application) = 0;
+
+protected:
+    virtual void connected();
+    virtual void disconnected();
 
 private:
     Delegate *_delegate;

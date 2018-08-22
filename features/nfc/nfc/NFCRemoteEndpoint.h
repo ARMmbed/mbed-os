@@ -99,12 +99,27 @@ protected:
     /**
      * Mark endpoint as connected
      */
-    void connected();
+    virtual void connected() = 0;
 
     /**
      * Mark endpoint as disconnected
      */
-    void disconnected();
+    virtual void disconnected() = 0;
+
+    /**
+     * Retrieve NFCController instance
+     * @return a pointer to the NFController instance that created this endpoint.
+     */
+    NFCController *nfc_controller();
+
+    /**
+     * Retrieve NFCController instance
+     * @return a pointer to the NFController instance that created this endpoint.
+     */
+    const NFCController *nfc_controller() const;
+
+private:
+    NFCController *_controller;
 };
 
 /**

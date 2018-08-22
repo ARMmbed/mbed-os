@@ -20,7 +20,6 @@
 #include <stdint.h>
 
 #include "NFCDefinitions.h"
-#include "NFCEndpoint.h"
 #include "NFCNDEFCapable.h"
 
 namespace mbed {
@@ -51,7 +50,7 @@ public:
      */
     virtual ~NFCTarget();
 
-    struct Delegate {
+    struct Delegate : NFCNDEFCapable::Delegate {
         /**
          * The NDEF message erasing request completed.
          *

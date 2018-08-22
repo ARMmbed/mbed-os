@@ -85,7 +85,7 @@ void ac_buffer_builder_init(ac_buffer_builder_t *pBuilder, uint8_t *data, size_t
 /** Initialize ac_buffer builder from underlying ac_buffer
  * \param pBuilder ac_buffer builder to init
  */
-void ac_buffer_builder_from_ac_buffer(ac_buffer_builder_t *pBuilder);
+void ac_buffer_builder_from_buffer(ac_buffer_builder_t *pBuilder);
 
 /** Reset ac_buffer builder
  * \param pBuilder ac_buffer builder to reset

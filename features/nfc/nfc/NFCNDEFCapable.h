@@ -21,6 +21,11 @@
 
 #include "NFCDefinitions.h"
 
+#include "nfc/stack/ndef/ndef.h"
+#include "nfc/acore/acore/ac_buffer.h"
+#include "nfc/acore/acore/ac_buffer_reader.h"
+#include "nfc/acore/acore/ac_buffer_builder.h"
+
 namespace mbed {
 namespace nfc {
 

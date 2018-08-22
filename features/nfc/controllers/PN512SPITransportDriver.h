@@ -23,6 +23,9 @@
 #include "platform/nfc_transport.h"
 #include "PN512TransportDriver.h"
 
+#include "drivers/SPI.h"
+#include "drivers/DigitalOut.h"
+#include "drivers/InterruptIn.h"
 
 namespace mbed {
 namespace nfc {
@@ -33,7 +36,7 @@ public:
 
 private:
     virtual void initialize();
-    virtual nfc_transport_t *get_transport() const;
+    virtual nfc_transport_t *get_transport();
 
     void transport_write(uint8_t address, const uint8_t *outBuf, size_t outLen);
     void transport_read(uint8_t address, uint8_t *inBuf, size_t inLen);
@@ -43,10 +46,10 @@ private:
     static void s_transport_read(uint8_t address, uint8_t *inBuf, size_t inLen, void *pUser);
 
     nfc_transport_t _nfc_transport;
-    SPI _spi;
-    DigitalOut _ssel;
-    InterruptIn _irq;
-    DigitalOut _rst;
+    mbed::SPI _spi;
+    mbed::DigitalOut _ssel;
+    mbed::InterruptIn _irq;
+    mbed::DigitalOut _rst;
 };
 
 } // namespace nfc
