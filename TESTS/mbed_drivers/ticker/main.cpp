@@ -104,10 +104,6 @@ void increment_multi_counter(void)
  */
 void test_case_1x_ticker()
 {
-#if defined(__ARM_FM)
-    TEST_SKIP_MESSAGE("FastModels not support time drifting test")
-#endif
-
     char _key[11] = { };
     char _value[128] = { };
     int expected_key = 1;
@@ -339,8 +335,10 @@ Case cases[] = {
     Case("Test detach", test_detach),
     Case("Test multi call and time measure", test_multi_call_time),
     Case("Test multi ticker", test_multi_ticker),
+#if !defined(__ARM_FM)  //FastModels not support time drifting test
     Case("Test timers: 1x ticker", test_case_1x_ticker),
     Case("Test timers: 2x ticker", test_case_2x_ticker)
+#endif
 };
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)

@@ -389,10 +389,6 @@ private:
 template<typename T>
 void test_drift(void)
 {
-#if defined(__ARM_FM)
-    TEST_SKIP_MESSAGE("FastModels not support time drifting test")
-#endif
-
     char _key[11] = { };
     char _value[128] = { };
     int expected_key = 1;
