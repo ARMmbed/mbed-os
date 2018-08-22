@@ -33,6 +33,11 @@ nsapi_error_t QUECTEL_BC95_CellularPower::set_at_mode()
 {
     _at.lock();
     _at.flush();
+    _at.cmd_start("AT");
+    _at.cmd_stop();
+    _at.resp_start();
+    _at.resp_stop();
+
     _at.cmd_start("AT+CMEE="); // verbose responses
     _at.write_int(1);
     _at.cmd_stop();
