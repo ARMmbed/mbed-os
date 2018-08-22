@@ -394,7 +394,9 @@ class ARMC6(ARM_STD):
             self.flags['ld'].append("--cpu=%s" % target.core.lower()[:-1])
             self.SHEBANG += " -mcpu=%s" % target.core.lower()[:-1]
         elif target.core.startswith("Cortex-M33"):
-            self.flags['ld'].append("--cpu=8-M.Main")
+            self.flags['common'].append("-mcpu=cortex-m33+nodsp")
+            self.flags['common'].append("-mfpu=none")
+            self.flags['ld'].append("--cpu=Cortex-M33.no_dsp.no_fp")
         elif not target.core.startswith("Cortex-M23"):
             self.flags['common'].append("-mcpu=%s" % target.core.lower())
             self.flags['ld'].append("--cpu=%s" % target.core.lower())
@@ -411,9 +413,6 @@ class ARMC6(ARM_STD):
             self.flags['common'].append("-mfloat-abi=softfp")
         elif target.core.startswith("Cortex-M23"):
             self.flags['common'].append("-march=armv8-m.base")
-        elif target.core.startswith("Cortex-M33"):
-            self.flags['c'].append("-march=armv8-m.main")
-            self.flags['cxx'].append("-march=armv8-m.main")
 
         if target.core == "Cortex-M23" or target.core == "Cortex-M33":
             self.flags['cxx'].append("-mcmse")
@@ -439,7 +438,7 @@ class ARMC6(ARM_STD):
             "Cortex-M33-NS": "Cortex-M33" }.get(target.core, target.core)
 
         if target.core.startswith("Cortex-M33"):
-            self.flags['asm'].append("--cpu=8-M.Main")
+            self.flags['asm'].append("--cpu=Cortex-M33.no_dsp.no_fp")
         else :
             self.flags['asm'].append("--cpu=%s" % asm_cpu)
 
