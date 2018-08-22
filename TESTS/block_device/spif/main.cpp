@@ -91,7 +91,8 @@ void test_spif_random_program_read_erase()
 {
     utest_printf("\nTest Random Program Read Erase Starts..\n");
 
-    SPIFBlockDevice blockD(MBED_CONF_SPIF_SPI_MOSI, MBED_CONF_SPIF_SPI_MISO, MBED_CONF_SPIF_SPI_CLK, MBED_CONF_SPIF_SPI_CS);
+    SPIFBlockDevice blockD(MBED_CONF_SPIF_DRIVER_SPI_MOSI, MBED_CONF_SPIF_DRIVER_SPI_MISO, MBED_CONF_SPIF_DRIVER_SPI_CLK,
+                           MBED_CONF_SPIF_DRIVER_SPI_CS);
 
     int err = blockD.init();
     TEST_ASSERT_EQUAL(0, err);
@@ -134,7 +135,8 @@ void test_spif_unaligned_program()
 {
     utest_printf("\nTest Unaligned Program Starts..\n");
 
-    SPIFBlockDevice blockD(MBED_CONF_SPIF_SPI_MOSI, MBED_CONF_SPIF_SPI_MISO, MBED_CONF_SPIF_SPI_CLK, MBED_CONF_SPIF_SPI_CS);
+    SPIFBlockDevice blockD(MBED_CONF_SPIF_DRIVER_SPI_MOSI, MBED_CONF_SPIF_DRIVER_SPI_MISO, MBED_CONF_SPIF_DRIVER_SPI_CLK,
+                           MBED_CONF_SPIF_DRIVER_SPI_CS);
 
     int err = blockD.init();
     TEST_ASSERT_EQUAL(0, err);
@@ -230,7 +232,8 @@ void test_spif_multi_threads()
 {
     utest_printf("\nTest Multi Threaded Erase/Program/Read Starts..\n");
 
-    SPIFBlockDevice blockD(MBED_CONF_SPIF_SPI_MOSI, MBED_CONF_SPIF_SPI_MISO, MBED_CONF_SPIF_SPI_CLK, MBED_CONF_SPIF_SPI_CS);
+    SPIFBlockDevice blockD(MBED_CONF_SPIF_DRIVER_SPI_MOSI, MBED_CONF_SPIF_DRIVER_SPI_MISO, MBED_CONF_SPIF_DRIVER_SPI_CLK,
+                           MBED_CONF_SPIF_DRIVER_SPI_CS);
 
     int err = blockD.init();
     TEST_ASSERT_EQUAL(0, err);

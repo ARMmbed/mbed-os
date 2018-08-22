@@ -1,5 +1,5 @@
 {
-    "name": "spif",
+    "name": "spif-driver",
     "config": {
         "SPI_MOSI": "NC",
         "SPI_MISO": "NC",
