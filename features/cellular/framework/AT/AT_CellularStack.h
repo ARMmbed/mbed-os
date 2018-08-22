@@ -165,6 +165,10 @@ protected:
 
     // stack type from PDP context
     nsapi_ip_stack_t _stack_type;
+
+private:
+    // mutex for write/read to a _socket array, needed when multiple threads may open sockets simultaneously
+    PlatformMutex _socket_mutex;
 };
 
 } // namespace mbed
