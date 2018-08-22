@@ -129,9 +129,14 @@ protected:
     /** Check if modem supports given registration type.
      *
      *  @param reg_type enum RegistrationType
-     *  @return         true if given registration type is supported by modem
+     *  @return         mode supported on given reg_type as per 3GPP TS 27.007, 0 when unsupported
      */
-    virtual bool has_registration(RegistrationType reg_type);
+    enum RegistrationMode {
+        RegistrationModeDisable = 0,
+        RegistrationModeEnable, // <stat>
+        RegistrationModeLAC, // <stat>[,<[lac>,]<[ci>],[<AcT>],[<rac>]]
+    };
+    virtual RegistrationMode has_registration(RegistrationType reg_type);
 
     /** Sets access technology to be scanned. Modem specific implementation.
      *

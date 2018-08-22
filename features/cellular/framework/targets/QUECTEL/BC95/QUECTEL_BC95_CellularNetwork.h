@@ -34,7 +34,7 @@ protected:
 
     virtual bool get_modem_stack_type(nsapi_ip_stack_t requested_stack);
 
-    virtual bool has_registration(RegistrationType reg_type);
+    virtual RegistrationMode has_registration(RegistrationType reg_type);
 };
 } // namespace mbed
 #endif // QUECTEL_BC95_CELLULAR_NETWORK_H_

@@ -76,12 +76,12 @@ public:
             return _stack;
         }
     }
-    virtual bool has_registration(RegistrationType reg_type)
+    virtual AT_CellularNetwork::RegistrationMode has_registration(RegistrationType reg_type)
     {
         if (reg_type == C_GREG) {
-            return false;
+            return RegistrationModeDisable;
         }
-        return true;
+        return RegistrationModeLAC;
     }
     virtual nsapi_error_t set_access_technology_impl(RadioAccessTechnology op_rat)
     {
@@ -108,12 +108,12 @@ public:
             return _stack;
         }
     }
-    virtual bool has_registration(RegistrationType reg_type)
+    virtual AT_CellularNetwork::RegistrationMode has_registration(RegistrationType reg_type)
     {
         if (reg_type == C_GREG) {
-            return false;
+            return RegistrationModeDisable;
         }
-        return true;
+        return RegistrationModeLAC;
     }
     virtual nsapi_error_t set_access_technology_impl(RadioAccessTechnology op_rat)
     {
