@@ -206,7 +206,7 @@ struct Span {
     template<ptrdiff_t Count>
     Span<element_type, Count> first() const {
         MBED_STATIC_ASSERT(
-            (Count >= 0) && (Count <= Extent),
+            (0 <= Count) && (Count <= Extent),
             "Invalid subspan extent"
         );
         return Span<element_type, Count>(_data, Count);
@@ -224,7 +224,7 @@ struct Span {
     template<ptrdiff_t Count>
     Span<element_type, Count> last() const {
         MBED_STATIC_ASSERT(
-            (Count >= 0) && (Count <= Extent),
+            (0 <= Count) && (Count <= Extent),
             "Invalid subspan extent"
         );
         return Span<element_type, Count>(_data + (Extent - Count), Count);
@@ -246,12 +246,12 @@ struct Span {
     Span<element_type, Count == SPAN_DYNAMIC_EXTENT ? Extent - Offset : Count>
     subspan() const {
         MBED_STATIC_ASSERT(
-            Offset == 0 || (Offset > 0 && Offset < Extent),
+            0 <= Offset && Offset <= Extent,
             "Invalid subspan offset"
         );
         MBED_STATIC_ASSERT(
             (Count == SPAN_DYNAMIC_EXTENT) ||
-            (Count >= 0 && Offset + Count <= Extent),
+            (0 <= Count && (Count + Offset) <= Extent),
             "Invalid subspan count"
         );
         return Span<element_type, Count == SPAN_DYNAMIC_EXTENT ? Extent - Offset : Count>(
@@ -305,7 +305,7 @@ struct Span {
         MBED_ASSERT(0 <= offset && offset <= Extent);
         MBED_ASSERT(
             (count == SPAN_DYNAMIC_EXTENT) ||
-            (count >= 0 && (offset + count <= Extent))
+            (0 <= count && (count + offset) <= Extent)
         );
         return Span<element_type, SPAN_DYNAMIC_EXTENT>(
             _data + offset,
@@ -490,7 +490,7 @@ struct Span<ElementType, SPAN_DYNAMIC_EXTENT> {
      */
     template<ptrdiff_t Count>
     Span<element_type, Count> last() const {
-        MBED_ASSERT((Count >= 0) && (Count <= _size));
+        MBED_ASSERT((0 <= Count) && (Count <= _size));
         return Span<element_type, Count>(_data + (_size - Count), Count);
     }
 
@@ -512,7 +512,7 @@ struct Span<ElementType, SPAN_DYNAMIC_EXTENT> {
         MBED_ASSERT(0 <= Offset && Offset <= _size);
         MBED_ASSERT(
             (Count == SPAN_DYNAMIC_EXTENT) ||
-            (Count >= 0 && Offset + Count <= _size)
+            (0 <= Count && (Count + Offset) <= _size)
         );
         return Span<element_type, Count == SPAN_DYNAMIC_EXTENT ? SPAN_DYNAMIC_EXTENT : Count>(
             _data + Offset,
@@ -565,7 +565,7 @@ struct Span<ElementType, SPAN_DYNAMIC_EXTENT> {
         MBED_ASSERT(0 <= offset && offset <= _size);
         MBED_ASSERT(
             (count == SPAN_DYNAMIC_EXTENT) ||
-            (count >= 0 && (offset + count <= _size))
+            (0 <= count && (count + offset) <= _size)
         );
         return Span<element_type, SPAN_DYNAMIC_EXTENT>(
             _data + offset,
