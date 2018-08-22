@@ -659,6 +659,7 @@ void LoRaWANStack::process_reception(const uint8_t *const payload, uint16_t size
     }
 
     if (!_loramac.nwk_joined()) {
+        _ready_for_rx = true;
         return;
     }
 
@@ -1181,7 +1182,8 @@ void LoRaWANStack::process_joining_state(lorawan_status_t &op_status)
         return;
     }
 
-    if (_device_current_state == DEVICE_STATE_AWAITING_JOIN_ACCEPT) {
+    if (_device_current_state == DEVICE_STATE_AWAITING_JOIN_ACCEPT &&
+        _loramac.get_current_slot() != RX_SLOT_WIN_1) {
         _device_current_state = DEVICE_STATE_JOINING;
         // retry join
         bool can_continue = _loramac.continue_joining_process();
