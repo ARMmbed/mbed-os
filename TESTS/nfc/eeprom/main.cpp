@@ -33,17 +33,19 @@ typedef enum {
 
    READ_BYTES           = 0x0200,
    READ_2_BYTES         = 0x0201,
-   READ_4_BYTES         = 0x0202,
-   READ_4_BYTES_MIXED   = 0x0203,
-   READ_4_BYTES_OFFSET  = 0x0204,
-   READ_4_BYTES_ERASED  = 0x0205,
-   READ_4_BYTES_FAIL    = 0x0206,
+   READ_2_BYTES_OFFSET_FAIL = 0x0202,
+   READ_4_BYTES         = 0x0203,
+   READ_4_BYTES_MIXED   = 0x0204,
+   READ_4_BYTES_OFFSET  = 0x0205,
+   READ_4_BYTES_ERASED  = 0x0206,
+   READ_4_BYTES_FAIL    = 0x0207,
 
    WRITE_BYTES          = 0x0300,
    WRITE_2_BYTES        = 0x0301,
    WRITE_2_BYTES_OFFSET = 0x0302,
-   WRITE_4_BYTES        = 0x0303,
-   WRITE_4_BYTES_FAIL   = 0x0304,
+   WRITE_2_BYTES_OFFSET_FAIL = 0x0303,
+   WRITE_4_BYTES        = 0x0304,
+   WRITE_4_BYTES_FAIL   = 0x0305,
 
    ERASE_BYTES          = 0x0400,
    ERASE_4_BYTES        = 0x0401,
@@ -73,6 +75,7 @@ typedef enum {
    TRUNCATE_TEST,
    WRITE_TRUNCATE_TEST,
    WRITE_WITH_OFFSET_TEST,
+   WRITE_BEYOND_SIZE_TEST,
    SEQUENCE_MAX
 } TestSequence_t;
 
@@ -109,7 +112,11 @@ static const TestCommand_t SEQUENCES[SEQUENCE_MAX][MAX_STEP] = {
 
     /* WRITE_WITH_OFFSET_TEST */
     { START_SESSION, WRITE_SIZE_4, READ_SIZE_4, WRITE_4_BYTES, READ_4_BYTES,
-      WRITE_2_BYTES_OFFSET, READ_4_BYTES_OFFSET, END_SESSION, TERMINATE }
+      WRITE_2_BYTES_OFFSET, READ_4_BYTES_OFFSET, END_SESSION, TERMINATE },
+
+    /* WRITE_BEYOND_SIZE_TEST */
+    { START_SESSION, WRITE_SIZE_2, READ_SIZE_2, WRITE_2_BYTES_OFFSET_FAIL, READ_2_BYTES_OFFSET_FAIL,
+      WRITE_2_BYTES, READ_2_BYTES, END_SESSION, TERMINATE }
 };
 
 static const uint8_t DATA_4_BYTES[] = { 0x01, 0x02, 0x03, 0x04 };
@@ -127,14 +134,15 @@ public:
       _sequence(SEQUENCE_MAX),
       _step(0),
       _result_size(0),
-      _address(0) { };
+      _address(0),
+      _success(true) { };
 
     virtual ~DriverTest() { };
 
     /* Delegate events */
 
     virtual void on_session_started(bool success) {
-        if (!success) {
+        if (success != _success) {
             TEST_FAIL_MESSAGE("failed to start session");
         }
 
@@ -142,7 +150,7 @@ public:
     };
 
     virtual void on_session_ended(bool success) {
-        if (!success) {
+        if (success != _success) {
             TEST_FAIL_MESSAGE("failed to end session");
         }
 
@@ -169,7 +177,7 @@ public:
     };
 
     virtual void on_size_written(bool success) {
-        if (!success) {
+        if (success != _success) {
             TEST_FAIL_MESSAGE("failed to write size");
         }
 
@@ -177,7 +185,7 @@ public:
     };
 
     virtual void on_size_read(bool success, size_t size) {
-        if (!success || size != _result_size) {
+        if (success != _success || size != _result_size) {
             TEST_FAIL_MESSAGE("failed to read size");
         }
 
@@ -214,8 +222,10 @@ public:
         /* setup data buffer */
         switch(command) {
         case READ_2_BYTES:
+        case READ_2_BYTES_OFFSET_FAIL:
         case WRITE_2_BYTES:
         case WRITE_2_BYTES_OFFSET:
+        case WRITE_2_BYTES_OFFSET_FAIL:
             _operation_data = DATA_2_BYTES;
             break;
         case READ_4_BYTES:
@@ -263,8 +273,10 @@ public:
         /* setup operation size */
         switch(command) {
         case READ_2_BYTES:
+        case READ_2_BYTES_OFFSET_FAIL:
         case WRITE_2_BYTES:
         case WRITE_2_BYTES_OFFSET:
+        case WRITE_2_BYTES_OFFSET_FAIL:
         case WRITE_SIZE_2:
             _operation_size = 2;
             break;
@@ -286,11 +298,23 @@ public:
 
         /* setup offset */
         switch(command) {
+        case READ_2_BYTES_OFFSET_FAIL:
         case WRITE_2_BYTES_OFFSET:
+        case WRITE_2_BYTES_OFFSET_FAIL:
             _address = 2;
-        break;
+            break;
         default:
             _address = 0;
+        }
+
+        /* setup command success */
+        switch(command) {
+        case READ_2_BYTES_OFFSET_FAIL:
+        case WRITE_2_BYTES_OFFSET_FAIL:
+            _success = false;
+            break;
+        default:
+            _success = true;
         }
 
         /* call next command */
@@ -302,6 +326,7 @@ public:
             _driver->end_session();
             break;
         case READ_2_BYTES:
+        case READ_2_BYTES_OFFSET_FAIL:
         case READ_4_BYTES:
         case READ_4_BYTES_MIXED:
         case READ_4_BYTES_ERASED:
@@ -311,6 +336,7 @@ public:
             break;
         case WRITE_2_BYTES:
         case WRITE_2_BYTES_OFFSET:
+        case WRITE_2_BYTES_OFFSET_FAIL:
         case WRITE_4_BYTES:
         case WRITE_4_BYTES_FAIL:
             _driver->write_bytes(_address, _operation_data, _operation_size);
@@ -358,6 +384,7 @@ private:
     size_t _result_size;
     size_t _operation_size;
     size_t _address;
+    bool _success;
 };
 
 /* test case running code */
@@ -407,6 +434,10 @@ void write_with_offset() {
     driver_test->run_sequence(WRITE_WITH_OFFSET_TEST);
 }
 
+void write_beyond_size() {
+    driver_test->run_sequence(WRITE_BEYOND_SIZE_TEST);
+}
+
 utest::v1::status_t test_tear_down(const Case *const source, const size_t passed,
                                    const size_t failed, const failure_t reason)
 {
@@ -431,7 +462,8 @@ Case cases[] = {
     Case("NFCEEPROM-WRITE-READ-SIZE", test_setup, write_read_size, test_tear_down),
     Case("NFCEEPROM-TRUNCATE-SIZE", test_setup, truncate_size, test_tear_down),
     Case("NFCEEPROM-WRITE-BYTES-TRUNCATED", test_setup, write_bytes_truncated, test_tear_down),
-    Case("NFCEEPROM-WRITE-WITH-OFFSET", test_setup, write_with_offset, test_tear_down)
+    Case("NFCEEPROM-WRITE-WITH-OFFSET", test_setup, write_with_offset, test_tear_down),
+    Case("NFCEEPROM-WRITE-BEYOND-SIZE", test_setup, write_beyond_size, test_tear_down)
 };
 
 Specification specification(test_init, cases);
