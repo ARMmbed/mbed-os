@@ -133,224 +133,224 @@ void NFCEEPROM::erase_ndef_message()
 void NFCEEPROM::on_session_started(bool success)
 {
     switch (_current_op) {
-        case nfc_eeprom_write_start_session:
-            if (!success) {
-                handle_error(NFC_ERR_CONTROLLER); // An EEPROM is not really a controller but close enough
-                return;
-            }
-            _current_op = nfc_eeprom_write_write_bytes;
-            continue_write();
-            break;
-
-        case nfc_eeprom_read_start_session:
-            if (!success) {
-                handle_error(NFC_ERR_CONTROLLER);
-                return;
-            }
-            _current_op = nfc_eeprom_read_read_size;
-            _driver->read_size();
-            break;
-
-        case nfc_eeprom_erase_start_session:
-            if (!success) {
-                handle_error(NFC_ERR_CONTROLLER);
-                return;
-            }
-            _current_op = nfc_eeprom_erase_erase_bytes;
-            continue_erase();
-            break;
-
-        default:
-            // Should not happen, state machine is broken or driver is doing something wrong
-            handle_error(NFC_ERR_UNKNOWN);
+    case nfc_eeprom_write_start_session:
+        if (!success) {
+            handle_error(NFC_ERR_CONTROLLER); // An EEPROM is not really a controller but close enough
             return;
+        }
+        _current_op = nfc_eeprom_write_write_bytes;
+        continue_write();
+        break;
+
+    case nfc_eeprom_read_start_session:
+        if (!success) {
+            handle_error(NFC_ERR_CONTROLLER);
+            return;
+        }
+        _current_op = nfc_eeprom_read_read_size;
+        _driver->read_size();
+        break;
+
+    case nfc_eeprom_erase_start_session:
+        if (!success) {
+            handle_error(NFC_ERR_CONTROLLER);
+            return;
+        }
+        _current_op = nfc_eeprom_erase_erase_bytes;
+        continue_erase();
+        break;
+
+    default:
+        // Should not happen, state machine is broken or driver is doing something wrong
+        handle_error(NFC_ERR_UNKNOWN);
+        return;
     }
 }
 
 void NFCEEPROM::on_session_ended(bool success)
 {
     switch (_current_op) {
-        case nfc_eeprom_write_end_session:
-            if (!success) {
-                handle_error(NFC_ERR_CONTROLLER);
-                return;
-            }
-            _current_op = nfc_eeprom_idle;
-            if (_delegate != NULL) {
-                _delegate->on_ndef_message_written(_operation_result);
-            }
-            break;
-
-        case nfc_eeprom_read_end_session:
-            if (!success) {
-                handle_error(NFC_ERR_CONTROLLER);
-                return;
-            }
-            _current_op = nfc_eeprom_idle;
-
-            // Try to parse the NDEF message
-            ndef_msg_decode(ndef_message());
-
-            if (_delegate != NULL) {
-                _delegate->on_ndef_message_read(_operation_result);
-            }
-            break;
-
-        case nfc_eeprom_erase_end_session:
-            if (!success) {
-                handle_error(NFC_ERR_CONTROLLER);
-                return;
-            }
-            _current_op = nfc_eeprom_idle;
-            if (_delegate != NULL) {
-                _delegate->on_ndef_message_erased(_operation_result);
-            }
-            break;
-
-        default:
-            // Should not happen, state machine is broken or driver is doing something wrong
-            handle_error(NFC_ERR_UNKNOWN);
+    case nfc_eeprom_write_end_session:
+        if (!success) {
+            handle_error(NFC_ERR_CONTROLLER);
             return;
+        }
+        _current_op = nfc_eeprom_idle;
+        if (_delegate != NULL) {
+            _delegate->on_ndef_message_written(_operation_result);
+        }
+        break;
+
+    case nfc_eeprom_read_end_session:
+        if (!success) {
+            handle_error(NFC_ERR_CONTROLLER);
+            return;
+        }
+        _current_op = nfc_eeprom_idle;
+
+        // Try to parse the NDEF message
+        ndef_msg_decode(ndef_message());
+
+        if (_delegate != NULL) {
+            _delegate->on_ndef_message_read(_operation_result);
+        }
+        break;
+
+    case nfc_eeprom_erase_end_session:
+        if (!success) {
+            handle_error(NFC_ERR_CONTROLLER);
+            return;
+        }
+        _current_op = nfc_eeprom_idle;
+        if (_delegate != NULL) {
+            _delegate->on_ndef_message_erased(_operation_result);
+        }
+        break;
+
+    default:
+        // Should not happen, state machine is broken or driver is doing something wrong
+        handle_error(NFC_ERR_UNKNOWN);
+        return;
     }
 }
 
 void NFCEEPROM::on_bytes_read(size_t count)
 {
     switch (_current_op) {
-        case nfc_eeprom_read_read_bytes: {
-            if (count == 0) {
-                handle_error(NFC_ERR_CONTROLLER);
-                return;
-            }
-
-            // Discard bytes that were actually read and update address
-            _eeprom_address += count;
-            ac_buffer_builder_t *buffer_builder = ndef_msg_buffer_builder(ndef_message());
-            ac_buffer_builder_write_n_skip(buffer_builder, count);
-
-            // Continue reading
-            continue_read();
-            break;
-        }
-        default:
-            // Should not happen, state machine is broken or driver is doing something wrong
-            handle_error(NFC_ERR_UNKNOWN);
+    case nfc_eeprom_read_read_bytes: {
+        if (count == 0) {
+            handle_error(NFC_ERR_CONTROLLER);
             return;
+        }
+
+        // Discard bytes that were actually read and update address
+        _eeprom_address += count;
+        ac_buffer_builder_t *buffer_builder = ndef_msg_buffer_builder(ndef_message());
+        ac_buffer_builder_write_n_skip(buffer_builder, count);
+
+        // Continue reading
+        continue_read();
+        break;
+    }
+    default:
+        // Should not happen, state machine is broken or driver is doing something wrong
+        handle_error(NFC_ERR_UNKNOWN);
+        return;
     }
 }
 
 void NFCEEPROM::on_bytes_written(size_t count)
 {
     switch (_current_op) {
-        case nfc_eeprom_write_write_bytes:
-            if (count == 0) {
-                handle_error(NFC_ERR_CONTROLLER);
-                return;
-            }
-
-            // Skip bytes that were actually written and update address
-            _eeprom_address += count;
-            ac_buffer_read_n_skip(&_ndef_buffer_reader, count);
-
-            // Continue writing
-            continue_write();
-            break;
-        default:
-            // Should not happen, state machine is broken or driver is doing something wrong
-            handle_error(NFC_ERR_UNKNOWN);
+    case nfc_eeprom_write_write_bytes:
+        if (count == 0) {
+            handle_error(NFC_ERR_CONTROLLER);
             return;
+        }
+
+        // Skip bytes that were actually written and update address
+        _eeprom_address += count;
+        ac_buffer_read_n_skip(&_ndef_buffer_reader, count);
+
+        // Continue writing
+        continue_write();
+        break;
+    default:
+        // Should not happen, state machine is broken or driver is doing something wrong
+        handle_error(NFC_ERR_UNKNOWN);
+        return;
     }
 }
 
 void NFCEEPROM::on_size_written(bool success)
 {
     switch (_current_op) {
-        case nfc_eeprom_write_write_size:
-            if (!success) {
-                handle_error(NFC_ERR_CONTROLLER);
-                return;
-            }
-
-            // End session
-            _current_op = nfc_eeprom_write_end_session;
-            _operation_result = NFC_OK;
-            _driver->end_session();
-            break;
-        case nfc_eeprom_erase_write_size:
-            if (!success) {
-                handle_error(NFC_ERR_CONTROLLER);
-                return;
-            }
-
-            // End session
-            _current_op = nfc_eeprom_erase_end_session;
-            _operation_result = NFC_OK;
-            _driver->end_session();
-            break;
-        default:
-            // Should not happen, state machine is broken or driver is doing something wrong
-            handle_error(NFC_ERR_UNKNOWN);
+    case nfc_eeprom_write_write_size:
+        if (!success) {
+            handle_error(NFC_ERR_CONTROLLER);
             return;
+        }
+
+        // End session
+        _current_op = nfc_eeprom_write_end_session;
+        _operation_result = NFC_OK;
+        _driver->end_session();
+        break;
+    case nfc_eeprom_erase_write_size:
+        if (!success) {
+            handle_error(NFC_ERR_CONTROLLER);
+            return;
+        }
+
+        // End session
+        _current_op = nfc_eeprom_erase_end_session;
+        _operation_result = NFC_OK;
+        _driver->end_session();
+        break;
+    default:
+        // Should not happen, state machine is broken or driver is doing something wrong
+        handle_error(NFC_ERR_UNKNOWN);
+        return;
     }
 }
 
 void NFCEEPROM::on_size_read(bool success, size_t size)
 {
     switch (_current_op) {
-        case nfc_eeprom_read_read_size: {
-            if (!success) {
-                handle_error(NFC_ERR_CONTROLLER);
-                return;
-            }
-
-            // Reset NDEF message buffer builder
-            ac_buffer_builder_t *buffer_builder = ndef_msg_buffer_builder(ndef_message());
-            ac_buffer_builder_reset(buffer_builder);
-
-            // Check that we have a big enough buffer to read the message
-            if (size > ac_buffer_builder_writable(buffer_builder)) {
-                // Not enough space, close session
-                _current_op = nfc_eeprom_read_end_session;
-                _operation_result = NFC_ERR_BUFFER_TOO_SMALL;
-                _driver->end_session();
-                return;
-            }
-
-            // Save size and reset address
-            _eeprom_address = 0;
-            _ndef_buffer_read_sz = size;
-
-            // Start reading bytes
-            _current_op = nfc_eeprom_read_read_bytes;
-            continue_read();
-            break;
-        }
-        default:
-            // Should not happen, state machine is broken or driver is doing something wrong
-            handle_error(NFC_ERR_UNKNOWN);
+    case nfc_eeprom_read_read_size: {
+        if (!success) {
+            handle_error(NFC_ERR_CONTROLLER);
             return;
+        }
+
+        // Reset NDEF message buffer builder
+        ac_buffer_builder_t *buffer_builder = ndef_msg_buffer_builder(ndef_message());
+        ac_buffer_builder_reset(buffer_builder);
+
+        // Check that we have a big enough buffer to read the message
+        if (size > ac_buffer_builder_writable(buffer_builder)) {
+            // Not enough space, close session
+            _current_op = nfc_eeprom_read_end_session;
+            _operation_result = NFC_ERR_BUFFER_TOO_SMALL;
+            _driver->end_session();
+            return;
+        }
+
+        // Save size and reset address
+        _eeprom_address = 0;
+        _ndef_buffer_read_sz = size;
+
+        // Start reading bytes
+        _current_op = nfc_eeprom_read_read_bytes;
+        continue_read();
+        break;
+    }
+    default:
+        // Should not happen, state machine is broken or driver is doing something wrong
+        handle_error(NFC_ERR_UNKNOWN);
+        return;
     }
 }
 
 void NFCEEPROM::on_bytes_erased(size_t count)
 {
     switch (_current_op) {
-        case nfc_eeprom_erase_erase_bytes:
-            if (count == 0) {
-                handle_error(NFC_ERR_CONTROLLER);
-                return;
-            }
-
-            // Update address
-            _eeprom_address += count;
-
-            // Continue erasing
-            continue_erase();
-            break;
-        default:
-            // Should not happen, state machine is broken or driver is doing something wrong
-            handle_error(NFC_ERR_UNKNOWN);
+    case nfc_eeprom_erase_erase_bytes:
+        if (count == 0) {
+            handle_error(NFC_ERR_CONTROLLER);
             return;
+        }
+
+        // Update address
+        _eeprom_address += count;
+
+        // Continue erasing
+        continue_erase();
+        break;
+    default:
+        // Should not happen, state machine is broken or driver is doing something wrong
+        handle_error(NFC_ERR_UNKNOWN);
+        return;
     }
 }
 

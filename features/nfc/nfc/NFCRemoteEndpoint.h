@@ -43,6 +43,9 @@ public:
      */
     NFCRemoteEndpoint(NFCController *controller);
 
+    /**
+     * Destructor
+     */ 
     virtual ~NFCRemoteEndpoint();
 
     /**

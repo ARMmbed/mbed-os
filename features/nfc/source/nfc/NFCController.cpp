@@ -160,16 +160,16 @@ void NFCController::polling_callback(nfc_err_t ret)
 
         // Map reason
         switch (ret) {
-            case NFC_OK:
-                reason = Delegate::nfc_discovery_terminated_completed;
-                break;
-            case NFC_ERR_ABORTED:
-                reason = Delegate::nfc_discovery_terminated_canceled;
-                break;
-            default:
-                // Any other error code means there was an error during the discovery process
-                reason = Delegate::nfc_discovery_terminated_rf_error;
-                break;
+        case NFC_OK:
+            reason = Delegate::nfc_discovery_terminated_completed;
+            break;
+        case NFC_ERR_ABORTED:
+            reason = Delegate::nfc_discovery_terminated_canceled;
+            break;
+        default:
+            // Any other error code means there was an error during the discovery process
+            reason = Delegate::nfc_discovery_terminated_rf_error;
+            break;
         }
 
         _delegate->on_discovery_terminated(reason);

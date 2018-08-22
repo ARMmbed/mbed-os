@@ -117,7 +117,6 @@ private:
     nfc_err_t ndef_encode(ac_buffer_builder_t *pBufferBldr);
     nfc_err_t ndef_decode(ac_buffer_t *pBuffer);
 
-
     Delegate *_delegate;
     ndef_msg_t _ndef_message;
 };

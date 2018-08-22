@@ -31,6 +31,11 @@ NFCRemoteEndpoint::NFCRemoteEndpoint(NFCController *controller) : _controller(co
 
 }
 
+NFCRemoteEndpoint::~NFCRemoteEndpoint()
+{
+
+}
+
 nfc_rf_protocols_bitmask_t NFCRemoteEndpoint::rf_protocols()
 {
     nfc_rf_protocols_bitmask_t rf_protocols = {0};

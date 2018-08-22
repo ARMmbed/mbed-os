@@ -40,6 +40,11 @@ Type4RemoteInitiator::Type4RemoteInitiator(NFCController *controller, uint8_t *b
     nfc_tech_type4_target_init(&_type4, &_iso7816, ndef_message());
 }
 
+Type4RemoteInitiator::~Type4RemoteInitiator()
+{
+
+}
+
 nfc_err_t Type4RemoteInitiator::connect()
 {
     if (_is_connected) {
@@ -120,4 +125,16 @@ void Type4RemoteInitiator::add_iso7816_application(ISO7816App *application)
 bool Type4RemoteInitiator::is_ndef_supported() const
 {
     return true;
+}
+
+void Type4RemoteInitiator::disconnected_callback(bool deselected)
+{
+    // Call disconnected callback
+    disconnected();
+}
+
+void Type4RemoteInitiator::s_disconnected_callback(nfc_tech_iso7816_t *pIso7816, bool deselected, void *pUserData)
+{
+    Type4RemoteInitiator* self = (Type4RemoteInitiator*) pUserData;
+    self->disconnected_callback(deselected);
 }

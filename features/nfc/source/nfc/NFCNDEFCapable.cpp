@@ -75,3 +75,8 @@ nfc_err_t NFCNDEFCapable::ndef_decode(ac_buffer_t *pBuffer)
     parse_ndef_message(*pBuffer);
     return NFC_OK;
 }
+
+ndef_msg_t *NFCNDEFCapable::ndef_message()
+{
+    return &_ndef_message;
+}
