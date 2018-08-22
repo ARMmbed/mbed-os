@@ -243,7 +243,8 @@ struct Span {
      * @return
      */
     template<std::ptrdiff_t Offset, std::ptrdiff_t Count>
-    Span<element_type, Count> subspan() const {
+    Span<element_type, Count == SPAN_DYNAMIC_EXTENT ? Extent - Offset : Count>
+    subspan() const {
         MBED_STATIC_ASSERT(
             Offset == 0 || (Offset > 0 && Offset < Extent),
             "Invalid subspan offset"
@@ -253,7 +254,7 @@ struct Span {
             (Count >= 0 && Offset + Count <= Extent),
             "Invalid subspan count"
         );
-        return Span<element_type, Count>(
+        return Span<element_type, Count == SPAN_DYNAMIC_EXTENT ? Extent - Offset : Count>(
             _data + Offset,
             Count == SPAN_DYNAMIC_EXTENT ? Extent - Offset : Count
         );
@@ -506,13 +507,14 @@ struct Span<ElementType, SPAN_DYNAMIC_EXTENT> {
      * @return
      */
     template<std::ptrdiff_t Offset, std::ptrdiff_t Count>
-    Span<element_type, Count> subspan() const {
-        MBED_ASSERT(Offset == 0 || (Offset > 0 && Offset < _size));
+    Span<element_type, Count == SPAN_DYNAMIC_EXTENT ? SPAN_DYNAMIC_EXTENT : Count>
+    subspan() const {
+        MBED_ASSERT(0 <= Offset && Offset <= _size);
         MBED_ASSERT(
             (Count == SPAN_DYNAMIC_EXTENT) ||
             (Count >= 0 && Offset + Count <= _size)
         );
-        return Span<element_type, Count>(
+        return Span<element_type, Count == SPAN_DYNAMIC_EXTENT ? SPAN_DYNAMIC_EXTENT : Count>(
             _data + Offset,
             Count == SPAN_DYNAMIC_EXTENT ? _size - Offset : Count
         );
