@@ -98,7 +98,10 @@ struct Span {
      * Extent != 0 .
      */
     Span() : _data(NULL) {
-        MBED_STATIC_ASSERT(Extent == 0, "Invalid extent for a Span");
+        MBED_STATIC_ASSERT(
+            Extent == 0,
+            "Cannot default construct a static-extent Span (unless Extent is 0)"
+        );
     }
 
     /**
