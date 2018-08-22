@@ -120,30 +120,17 @@ int8_t sn_coap_protocol_destroy(struct coap_s *handle)
     ns_list_foreach_safe(coap_blockwise_msg_s, tmp, &handle->linked_list_blockwise_sent_msgs) {
         if (tmp->coap == handle) {
             if (tmp->coap_msg_ptr) {
-                if (tmp->coap_msg_ptr->payload_ptr) {
-                    handle->sn_coap_protocol_free(tmp->coap_msg_ptr->payload_ptr);
-                    tmp->coap_msg_ptr->payload_ptr = 0;
-                }
+                handle->sn_coap_protocol_free(tmp->coap_msg_ptr->payload_ptr);
                 sn_coap_parser_release_allocated_coap_msg_mem(tmp->coap, tmp->coap_msg_ptr);
             }
             ns_list_remove(&handle->linked_list_blockwise_sent_msgs, tmp);
             handle->sn_coap_protocol_free(tmp);
-            tmp = 0;
         }
     }
+
     ns_list_foreach_safe(coap_blockwise_payload_s, tmp, &handle->linked_list_blockwise_received_payloads) {
         if (tmp->coap == handle) {
-            if (tmp->addr_ptr) {
-                handle->sn_coap_protocol_free(tmp->addr_ptr);
-                tmp->addr_ptr = 0;
-            }
-            if (tmp->payload_ptr) {
-                handle->sn_coap_protocol_free(tmp->payload_ptr);
-                tmp->payload_ptr = 0;
-            }
-            ns_list_remove(&handle->linked_list_blockwise_received_payloads, tmp);
-            handle->sn_coap_protocol_free(tmp);
-            tmp = 0;
+            sn_coap_protocol_linked_list_blockwise_payload_remove(handle, tmp);
         }
     }
 #endif
@@ -363,9 +350,42 @@ int8_t sn_coap_protocol_delete_retransmission(struct coap_s *handle, uint16_t ms
     return -2;
 }
 
+int8_t sn_coap_protocol_delete_retransmission_by_token(struct coap_s *handle, uint8_t *token, uint8_t token_len)
+{
+#if ENABLE_RESENDINGS /* If Message resending is not used at all, this part of code will not be compiled */
+    if (handle == NULL || token == NULL || token_len == 0) {
+        tr_error("sn_coap_protocol_delete_retransmission_by_token NULL");
+        return -1;
+    }
+
+    ns_list_foreach(coap_send_msg_s, stored_msg, &handle->linked_list_resent_msgs) {
+        uint8_t stored_token_len =  (stored_msg->send_msg_ptr->packet_ptr[0] & 0x0F);
+        if (stored_token_len == token_len) {
+            uint8_t stored_token[8];
+            memcpy(stored_token, &stored_msg->send_msg_ptr->packet_ptr[4], stored_token_len);
+            if (memcmp(stored_token, token, stored_token_len) == 0) {
+                uint16_t temp_msg_id = (stored_msg->send_msg_ptr->packet_ptr[2] << 8);
+                temp_msg_id += (uint16_t)stored_msg->send_msg_ptr->packet_ptr[3];
+                tr_debug("sn_coap_protocol_delete_retransmission_by_token - removed msg_id: %d", temp_msg_id);
+                ns_list_remove(&handle->linked_list_resent_msgs, stored_msg);
+                --handle->count_resent_msgs;
+
+                /* Free memory of stored message */
+                sn_coap_protocol_release_allocated_send_msg_mem(handle, stored_msg);
+                return 0;
+            }
+        }
+    }
+#endif
+    return -2;
+}
+
 
 int8_t prepare_blockwise_message(struct coap_s *handle, sn_coap_hdr_s *src_coap_msg_ptr)
 {
+    (void) handle;
+    (void) src_coap_msg_ptr;
+
 #if SN_COAP_BLOCKWISE_ENABLED || SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE /* If Message blockwising is not enabled, this part of code will not be compiled */
     if ((src_coap_msg_ptr->payload_len > SN_COAP_MAX_NONBLOCKWISE_PAYLOAD_SIZE) &&
         (src_coap_msg_ptr->payload_len > handle->sn_coap_block_data_size) &&
