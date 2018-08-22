@@ -23,6 +23,10 @@
 #include <events/mbed_events.h>
 #include "NFCEEPROMDriver.h"
 
+#if !NFCEEPROM
+#error [NOT_SUPPORTED] NFC EEPROM not supported for this target
+#endif
+
 using namespace utest::v1;
 
 /* individual steps that map to specific operations that include parameters */
