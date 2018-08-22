@@ -71,6 +71,16 @@ add_custom_command(TARGET {{name}} POST_BUILD
                    COMMAND ${CMAKE_COMMAND} -E echo "-- built: $<TARGET_FILE:{{name}}>.hex"
                   )
 
+{% if hex_files %}
+add_custom_command(TARGET {{name}} POST_BUILD
+                   COMMAND ${SREC_CAT}
+                        {% for f in hex_files %}${CMAKE_CURRENT_SOURCE_DIR}/{{f}} {% endfor %}
+                        -intel $<TARGET_FILE:{{name}}>.hex
+                        -intel -o $<TARGET_FILE:{{name}}>-combined.hex -intel --line-length=44
+                   COMMAND ${CMAKE_COMMAND} -E echo "-- built: $<TARGET_FILE:{{name}}>-combined.hex"
+                   )
+{% endif %}
+
 
 ##########################################################################
 # mbed-cli specific targets
