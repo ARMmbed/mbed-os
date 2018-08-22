@@ -450,7 +450,6 @@ def merge_region_list(region_list, destination, notify, padding=b'\xFF'):
 
 UPDATE_WHITELIST = (
     "application",
-    "header",
 )
 
 
