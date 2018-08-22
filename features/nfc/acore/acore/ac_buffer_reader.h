@@ -37,7 +37,7 @@ extern "C" {
 #include "stddef.h"
 #include "stdbool.h"
 
-#include "acore/buffer.h"
+#include "acore/ac_buffer.h"
 
 /** Read n-bytes in big-endian format from buffer reader and advance read posiion
  * \param pBuf the buffer to read from

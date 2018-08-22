@@ -37,7 +37,7 @@ typedef struct __ac_ostream ac_ostream_t;
 #include "stdbool.h"
 #include "stdint.h"
 
-#include "acore/buffer.h"
+#include "acore/ac_buffer.h"
 
 typedef void (*ac_istream_fn)(ac_buffer_t *pDataIn, bool *pClose, size_t maxLength, void *pUserParam);
 typedef void (*ac_ostream_fn)(ac_buffer_t *pDataOut, bool closed, void *pUserParam);

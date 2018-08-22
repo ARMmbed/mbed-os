@@ -27,7 +27,7 @@
 extern "C" {
 #endif
 
-#include "acore/stream.h"
+#include "acore/ac_stream.h"
 
 #include "transceiver/protocols.h"
 #include "tech/isodep/isodep_target.h"

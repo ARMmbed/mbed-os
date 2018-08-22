@@ -23,11 +23,11 @@
 
 #include "string.h"
 
-#include "acore/buffer.h"
-#include "acore/buffer_reader.h"
-#include "acore/macros.h"
+#include "acore/ac_buffer.h"
+#include "acore/ac_buffer_reader.h"
+#include "acore/ac_macros.h"
 
-#include "acore/debug.h"
+#include "acore/ac_debug.h"
 
 void ac_buffer_init(ac_buffer_t *pBuf, const uint8_t *data, size_t size)
 {

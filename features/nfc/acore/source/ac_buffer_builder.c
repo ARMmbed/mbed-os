@@ -20,9 +20,9 @@
  * \author Donatien Garnier
  */
 
-#include "acore/buffer_builder.h"
-#include "acore/buffer_reader.h"
-#include "acore/macros.h"
+#include "acore/ac_buffer_builder.h"
+#include "acore/ac_buffer_reader.h"
+#include "acore/ac_macros.h"
 
 #include "string.h"
 

@@ -37,7 +37,7 @@ extern "C" {
 #include "stddef.h"
 #include "stdbool.h"
 
-#include "acore/buffer.h"
+#include "acore/ac_buffer.h"
 
 typedef struct __ac_buffer_builder {
     ac_buffer_t ac_buffer;

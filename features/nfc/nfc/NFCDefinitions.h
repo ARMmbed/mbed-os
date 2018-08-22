@@ -20,7 +20,7 @@
 #include <stdint.h>
 #include "stack/nfc_errors.h"
 
-#include "acore/buffer.h"
+#include "acore/ac_buffer.h"
 
 namespace mbed {
 namespace nfc {

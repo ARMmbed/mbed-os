@@ -20,8 +20,8 @@
  * \author Donatien Garnier
  */
 
-#include "acore/stream.h"
-#include "acore/macros.h"
+#include "acore/ac_stream.h"
+#include "acore/ac_macros.h"
 
 //Called by supplier
 void ac_istream_init(ac_istream_t *pac_istream, ac_istream_fn fn, void *pUserParam)

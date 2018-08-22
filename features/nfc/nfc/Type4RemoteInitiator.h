@@ -24,7 +24,7 @@
 #include "NFCNDEFCapable.h"
 #include "NFCRemoteInitiator.h"
 
-#include "acore/buffer.h"
+#include "acore/ac_buffer.h"
 
 namespace mbed {
 namespace nfc {

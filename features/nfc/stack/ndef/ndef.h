@@ -33,8 +33,8 @@
 extern "C" {
 #endif
 
-#include "acore/buffer.h"
-#include "acore/buffer_builder.h"
+#include "acore/ac_buffer.h"
+#include "acore/ac_buffer_builder.h"
 
 //Generic interface for NDEF messages
 

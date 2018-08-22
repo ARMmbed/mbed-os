@@ -16,9 +16,9 @@
 
 #include "Type4RemoteInitiator.h"
 
-#include "acore/buffer.h"
-#include "acore/buffer_reader.h"
-#include "acore/buffer_builder.h"
+#include "acore/ac_buffer.h"
+#include "acore/ac_buffer_reader.h"
+#include "acore/ac_buffer_builder.h"
 
 #include "stack/transceiver/transceiver.h"
 #include "stack/tech/iso7816/iso7816.h"

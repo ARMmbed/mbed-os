@@ -29,7 +29,7 @@
 
 #include "stdlib.h"
 
-#include "acore/buffer.h"
+#include "acore/ac_buffer.h"
 
 #include "transceiver/transceiver.h"
 #include "transceiver/protocols.h"
