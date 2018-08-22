@@ -326,7 +326,7 @@ __WEAK void EvrRtxKernelInitialize (void) {
 }
 #endif
 
-#if (!defined(EVR_RTX_DISABLE) && (OS_EVR_KERNEL != 0) && !defined(EVR_RTX_KERNEL_INITIALIZE_COMPLETED_DISABLE))
+#if (!defined(EVR_RTX_DISABLE) && (OS_EVR_KERNEL != 0) && !defined(EVR_RTX_KERNEL_INITIALIZED_DISABLE))
 __WEAK void EvrRtxKernelInitialized (void) {
 #if defined(RTE_Compiler_EventRecorder)
   (void)EventRecord2(EvtRtxKernelInitialized, 0U, 0U);
