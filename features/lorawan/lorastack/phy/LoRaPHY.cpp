@@ -27,17 +27,24 @@ SPDX-License-Identifier: BSD-3-Clause
 #include <stdint.h>
 #include <math.h>
 
+#include "mbed_rtc_time.h"
 #include "LoRaPHY.h"
 
 #define BACKOFF_DC_1_HOUR       100
 #define BACKOFF_DC_10_HOURS     1000
 #define BACKOFF_DC_24_HOURS     10000
 
+#define GPS_EPOCH_DIFF_WITH_UTC 315964800
+
 #define CHANNELS_IN_MASK  16
 
 LoRaPHY::LoRaPHY()
     : _radio(NULL),
-      _lora_time(NULL)
+      _lora_time(NULL),
+      _server_adr_ack_limit(0),
+      _server_adr_ack_delay(0),
+      _rejoin_max_time(MBED_CONF_LORA_REJOIN_DEFAULT_MAX_TIME),
+      _rejoin_max_count(MBED_CONF_LORA_REJOIN_DEFAULT_MAX_COUNT)
 {
     memset(&phy_params, 0, sizeof(phy_params));
 }
@@ -628,6 +635,26 @@ bool LoRaPHY::is_custom_channel_plan_supported()
     return phy_params.custom_channelplans_supported;
 }
 
+void LoRaPHY::time_received(uint32_t secs, uint32_t milliseconds)
+{
+    time_t seconds = time(NULL) + GPS_EPOCH_DIFF_WITH_UTC + secs;
+    //Since RTC does not support milliseconds, we round millis to closest second
+    if (milliseconds > 499) {
+        seconds++;
+    }
+
+    set_time(seconds);
+    //TODO: Do we need/want to inform application about updated time??
+}
+
+uint8_t LoRaPHY::update_rejoin_params(uint32_t max_time, uint32_t max_count)
+{
+    //These will be taken into use at next rejoin "cycle"
+    _rejoin_max_time = max_time;
+    _rejoin_max_count = max_count;
+    return 1;
+}
+
 void LoRaPHY::restore_default_channels()
 {
     // Restore channels default mask
@@ -640,7 +667,6 @@ bool LoRaPHY::verify_rx_datarate(uint8_t datarate)
 {
     if (is_datarate_supported(datarate)) {
         if (phy_params.dl_dwell_time_setting == 0) {
-            //TODO: Check this! datarate must be same as minimum! Can be compared directly if OK
             return val_in_range(datarate,
                                 phy_params.min_rx_datarate,
                                 phy_params.max_rx_datarate);
@@ -691,6 +717,32 @@ bool LoRaPHY::verify_nb_join_trials(uint8_t nb_join_trials)
         return false;
     }
     return true;
+}
+
+uint16_t LoRaPHY::get_adr_ack_limit() const
+{
+    if (_server_adr_ack_limit != 0) {
+        return _server_adr_ack_limit;
+    }
+    return phy_params.adr_ack_limit;
+}
+
+void LoRaPHY::set_adr_ack_limit(const uint16_t& value)
+{
+    _server_adr_ack_limit = value;
+}
+
+uint16_t LoRaPHY::get_adr_ack_delay() const
+{
+    if (_server_adr_ack_delay != 0) {
+        return _server_adr_ack_delay;
+    }
+    return phy_params.adr_ack_delay;
+}
+
+void LoRaPHY::set_adr_ack_delay(const uint16_t& value)
+{
+    _server_adr_ack_delay = value;
 }
 
 void LoRaPHY::apply_cf_list(const uint8_t *payload, uint8_t size)
@@ -753,14 +805,14 @@ bool LoRaPHY::get_next_ADR(bool restore_channel_mask, int8_t &dr_out,
 {
     bool set_adr_ack_bit = false;
 
-    uint16_t ack_limit_plus_delay = phy_params.adr_ack_limit + phy_params.adr_ack_delay;
+    uint16_t ack_limit_plus_delay = get_adr_ack_limit() + get_adr_ack_delay();
 
     if (dr_out == phy_params.min_tx_datarate) {
         adr_ack_cnt = 0;
         return set_adr_ack_bit;
     }
 
-    if (adr_ack_cnt < phy_params.adr_ack_limit) {
+    if (adr_ack_cnt < get_adr_ack_limit()) {
         return set_adr_ack_bit;
     }
 
@@ -769,7 +821,7 @@ bool LoRaPHY::get_next_ADR(bool restore_channel_mask, int8_t &dr_out,
     tx_power_out = phy_params.max_tx_power;
 
     if (adr_ack_cnt >= ack_limit_plus_delay) {
-        if ((adr_ack_cnt % phy_params.adr_ack_delay) == 1) {
+        if ((adr_ack_cnt % get_adr_ack_delay()) == 1) {
             // Decrease the datarate
             dr_out = get_next_lower_tx_datarate(dr_out);
 

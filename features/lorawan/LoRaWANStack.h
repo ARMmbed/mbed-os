@@ -401,6 +401,27 @@ private:
      */
     lorawan_status_t state_controller(device_states_t new_state);
 
+
+    /**
+     * Send Reset indication (only in ABP & LW1.1)
+     * LoRaWAN 1.1 specification mandates ABP device to send
+     * ResetInd MAC command until ResetConf is received.
+     *
+     */
+    void set_reset_indication();
+
+    /**
+     * Send Rekey indication (only in OTAA & LW1.1)
+     *
+     */
+    void set_rekey_indication();
+
+    /**
+     * Send Device mode indication (only in OTAA & LW1.1)
+     *
+     */
+    void set_device_mode_indication();
+
     /**
      * Helpers for state controller
      */
@@ -422,7 +443,7 @@ private:
     /**
      * Handles an MLME confirmation
      */
-    void mlme_confirm_handler(void);
+    void mlme_confirm_handler(loramac_mlme_confirm_t& mlme_confirm);
 
     /**
      * Handles an MCPS confirmation
@@ -503,6 +524,12 @@ private:
     uint32_t _ctrl_flags;
     uint8_t _app_port;
     bool _link_check_requested;
+    bool _reset_ind_requested;
+    bool _rekey_ind_needed;
+    uint8_t _rekey_ind_counter;
+    bool _device_mode_ind_needed;
+    bool _device_mode_ind_ongoing;
+    uint8_t _new_class_type;
     bool _automatic_uplink_ongoing;
     volatile bool _ready_for_rx;
     uint8_t _rx_payload[LORAMAC_PHY_MAXPAYLOAD];

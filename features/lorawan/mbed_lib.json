@@ -1,6 +1,10 @@
 {
     "name": "lora",
     "config": {
+        "version": {
+            "help": "LoRaWAN Version: LW1.0.2 = 0, LW1.1 = 10",
+            "value": 0
+        },
         "phy": {
             "help": "LoRa PHY region: EU868, AS923, AU915, CN470, CN779, EU433, IN865, KR920, US915",
             "value": "EU868"
@@ -18,11 +22,15 @@
             "value": "{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}"
         },
         "application-eui": {
-            "help": "Application IEEE EUI",
+            "help": "Application IEEE EUI. In case of LW1.1 or greater this will be used as JoinEUI",
             "value": "{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}"
         },
         "application-key": {
             "help": "AES encryption/decryption cipher application key",
+            "value": "{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}"
+        },
+        "network-key": {
+            "help": "AES encryption/decryption cipher network key, in case of LW1.0.x not used",
             "value": "{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}"
         },
         "device-address": {
@@ -30,7 +38,15 @@
             "value": "0x00000000"
         },
         "nwkskey": {
-            "help": "AES encryption/decryption cipher network session key",
+            "help": "AES encryption/decryption cipher network session key. In case of LW1.1 or greater is used as FNwkSIntKey",
+            "value": "{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}"
+        },
+        "snwksintkey": {
+            "help": "Serving network session integrity key. For LW1.1 or greater",
+            "value": "{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}"
+        },
+        "nwksenckey": {
+            "help": "Network session encryption key. For LW1.1 or greater",
             "value": "{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}"
         },
         "appskey": {
@@ -88,6 +104,14 @@
         "fsb-mask-china": {
         	"help": "FSB mask for upstream [CN470 PHY] Check lorawan/FSB_Usage.txt for more details",
         	"value": "{0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF}"
+        },
+        "rejoin-default-max-time": {
+                "help": "LW1.1 only! Maximum time in seconds between Rejoin requests.",
+                "value": 3600
+        },
+        "rejoin-default-max-count": {
+                "help": "LW1.1 only! Maximum amount of messages which can be sent between Rejoin requests.",
+                "value": 1000
         }
     }
 }
