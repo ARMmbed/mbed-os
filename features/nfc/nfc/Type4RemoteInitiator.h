@@ -72,8 +72,8 @@ public:
     virtual bool is_ndef_supported() const;
 
     // Callbacks from NFC stack
-    void disconnected_callback(bool deselected);
-    static void s_disconnected_callback(nfc_tech_iso7816_t *pIso7816, bool deselected, void *pUserData);
+    void disconnected_callback();
+    static void s_disconnected_callback(nfc_tech_iso7816_t *pIso7816, void *pUserData);
 
     bool _is_connected;
     bool _is_disconnected;

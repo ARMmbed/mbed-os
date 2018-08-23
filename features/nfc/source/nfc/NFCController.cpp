@@ -99,6 +99,7 @@ nfc_err_t NFCController::configure_rf_protocols(nfc_rf_protocols_bitmask_t rf_pr
 
     // Configure polling options (no need to set bailing flags as we're only using target mode)
     polling_options_t options = {0};
+    options.listen_for = -1; // Listen forever
 
     transceiver_set_protocols(_transceiver, initiator_tech, target_tech, options);
 
@@ -146,8 +147,7 @@ void NFCController::polling_callback(nfc_err_t ret)
             nfc_tech_t active_tech = transceiver_get_active_techs(_transceiver);
             if (active_tech.nfc_iso_dep_a || active_tech.nfc_iso_dep_b) {
                 Type4RemoteInitiator *type4_remote_initiator_ptr = new (std::nothrow) Type4RemoteInitiator(this, _ndef_buffer, _ndef_buffer_sz);
-                if (type4_remote_initiator_ptr == NULL) {
-                    // No memory :(
+                if (type4_remote_initiator_ptr != NULL) {
                     SharedPtr<NFCRemoteInitiator> type4_remote_initiator(type4_remote_initiator_ptr);
                     if (_delegate != NULL) {
                         _delegate->on_nfc_initiator_discovered(type4_remote_initiator);
@@ -162,16 +162,16 @@ void NFCController::polling_callback(nfc_err_t ret)
 
         // Map reason
         switch (ret) {
-        case NFC_OK:
-            reason = Delegate::nfc_discovery_terminated_completed;
-            break;
-        case NFC_ERR_ABORTED:
-            reason = Delegate::nfc_discovery_terminated_canceled;
-            break;
-        default:
-            // Any other error code means there was an error during the discovery process
-            reason = Delegate::nfc_discovery_terminated_rf_error;
-            break;
+            case NFC_OK:
+                reason = Delegate::nfc_discovery_terminated_completed;
+                break;
+            case NFC_ERR_ABORTED:
+                reason = Delegate::nfc_discovery_terminated_canceled;
+                break;
+            default:
+                // Any other error code means there was an error during the discovery process
+                reason = Delegate::nfc_discovery_terminated_rf_error;
+                break;
         }
 
         _delegate->on_discovery_terminated(reason);

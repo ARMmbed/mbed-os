@@ -127,14 +127,14 @@ bool Type4RemoteInitiator::is_ndef_supported() const
     return true;
 }
 
-void Type4RemoteInitiator::disconnected_callback(bool deselected)
+void Type4RemoteInitiator::disconnected_callback()
 {
     // Call disconnected callback
     disconnected();
 }
 
-void Type4RemoteInitiator::s_disconnected_callback(nfc_tech_iso7816_t *pIso7816, bool deselected, void *pUserData)
+void Type4RemoteInitiator::s_disconnected_callback(nfc_tech_iso7816_t *pIso7816, void *pUserData)
 {
-    Type4RemoteInitiator* self = (Type4RemoteInitiator*) pUserData;
-    self->disconnected_callback(deselected);
+    Type4RemoteInitiator *self = (Type4RemoteInitiator *) pUserData;
+    self->disconnected_callback();
 }
