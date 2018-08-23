@@ -945,6 +945,11 @@ void pn512_poll_iteration(pn512_t *pPN512, nfc_err_t ret)
 
             pPN512->poll.state = pn512_polling_state_listen_wait_for_remote_field;
 
+            // Shortcut if target is halted (means RF field is still here)
+            if (pn512_register_read(pPN512, PN512_REG_MIFNFC) & 0x04) {
+                continue;
+            }
+
             // Fix for PN512 bug that sometimes detects its own RF field
             //  if(pPN512->rf_on)
             {

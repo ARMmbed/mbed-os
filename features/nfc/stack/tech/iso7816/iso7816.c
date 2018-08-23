@@ -120,7 +120,9 @@ void iso7816_disconnected(nfc_tech_iso7816_t *pIso7816, bool deselected)
         pIso7816->pSelectedApp->deselected(pIso7816->pSelectedApp, pIso7816->pSelectedApp->pUserData);
         pIso7816->pSelectedApp = NULL;
     }
-    pIso7816->disconnectedCb(pIso7816, deselected, pIso7816->pUserData);
+    if (!deselected) {
+        pIso7816->disconnectedCb(pIso7816, pIso7816->pUserData);
+    }
 }
 
 nfc_err_t iso7816_parse(nfc_tech_iso7816_t *pIso7816)
@@ -299,8 +301,13 @@ void iso_dep_disconnected_cb(nfc_tech_isodep_t *pIsodep, bool deselected, void *
 
     (void) pIsodep;
 
-    NFC_DBG("ISO DEP disconnected");
+    NFC_DBG("ISO DEP %s", deselected ? "deselected" : "disconnected");
     iso7816_disconnected(pIso7816, deselected);
+
+    if (deselected) {
+        // Re-connect immediately
+        nfc_tech_iso7816_connect(pIso7816);
+    }
 }
 
 void iso_dep_stream_transmit_cb(ac_buffer_t *pDataIn, bool *pClose, size_t maxLength, void *pUserParam)

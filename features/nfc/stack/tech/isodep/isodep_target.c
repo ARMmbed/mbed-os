@@ -607,6 +607,7 @@ void command_transceiver_cb(nfc_transceiver_t *pTransceiver, nfc_err_t ret, void
     }
 
     if (pIsodepTarget->dep.frameState == ISO_DEP_TARGET_DEP_FRAME_DESELECT_SENT) {
+        NFC_DBG("Deselect sent and re-polled: %u", ret);
         //We are now disconnected (deselected)
         //Reset status
         dep_init(pIsodepTarget);

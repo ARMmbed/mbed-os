@@ -53,7 +53,7 @@ typedef struct nfc_tech_iso7816_r_apdu nfc_tech_iso7816_r_apdu_t;
 
 typedef struct nfc_tech_iso7816 nfc_tech_iso7816_t;
 
-typedef void (*nfc_tech_iso7816_disconnected_cb)(nfc_tech_iso7816_t *pIso7816, bool deselected, void *pUserData);
+typedef void (*nfc_tech_iso7816_disconnected_cb)(nfc_tech_iso7816_t *pIso7816, void *pUserData);
 
 struct nfc_tech_iso7816_app;
 typedef struct nfc_tech_iso7816_app nfc_tech_iso7816_app_t;

@@ -18,7 +18,7 @@
 #ifndef MBED_NFC_DEBUG_H
 #define MBED_NFC_DEBUG_H
 
-#if NFC_DEBUG && !defined(NDEBUG)
+#if NFC_DEBUG && !defined(NDEBUG) && __DEBUG__
 #ifdef __MODULE__
 #define __NFC_MODULE__ __MODULE__
 #else
