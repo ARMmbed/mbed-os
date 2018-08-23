@@ -79,7 +79,7 @@ namespace mbed {
     void process_mac(mac_address_t);
 
     // compile just fine
-    uint8_t* invalid_value = NULL;
+    uint8_t *invalid_value = NULL;
     process_mac(invalid_value);
 
 
@@ -88,7 +88,7 @@ namespace mbed {
     void process_mac(mac_address_t);
 
     // compilation error
-    uint8_t* invalid_value = NULL;
+    uint8_t *invalid_value = NULL;
     process_mac(invalid_value);
 
     // compilation ok
@@ -103,13 +103,13 @@ namespace mbed {
     const uint8_t options_tag[OPTIONS_TAG_SIZE];
 
     struct parsed_value_t {
-       uint8_t* header;
-       uint8_t* options;
-       uint8_t* payload;
+       uint8_t *header;
+       uint8_t *options;
+       uint8_t *payload;
        size_t payload_size;
     }
 
-    parsed_value_t parse(uint8_t* buffer, size_t buffer_size) {
+    parsed_value_t parse(uint8_t *buffer, size_t buffer_size) {
        parsed_value_t parsed_value { 0 };
 
        if (buffer != NULL && buffer_size <= MINIMAL_BUFFER_SIZE) {
@@ -139,7 +139,7 @@ namespace mbed {
        Span<uint8_t> payload;
     }
 
-    parsed_value_t parse(Span<uint8_t> buffer) {
+    parsed_value_t parse(const Span<uint8_t> &buffer) {
        parsed_value_t parsed_value;
 
        if (buffer.size() <= MINIMAL_BUFFER_SIZE) {
