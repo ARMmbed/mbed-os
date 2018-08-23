@@ -632,7 +632,7 @@ protected:
      */
     uint8_t get_bandwidth(uint8_t dr_index);
 
-    uint8_t enabled_channel_count(bool joined, uint8_t datarate,
+    uint8_t enabled_channel_count(uint8_t datarate,
                                   const uint16_t *mask, uint8_t* enabledChannels,
                                   uint8_t* delayTx);
 

@@ -430,9 +430,9 @@ lorawan_status_t LoRaPHYKR920::set_next_channel(channel_selection_params_t* para
                                           bands, KR920_MAX_NB_BANDS);
 
         // Search how many channels are enabled
-        nb_enabled_channels = enabled_channel_count(params->joined, params->current_datarate,
-                                                     channel_mask,
-                                                     enabled_channels, &delay_tx);
+        nb_enabled_channels = enabled_channel_count(params->current_datarate,
+                                                    channel_mask,
+                                                    enabled_channels, &delay_tx);
     } else {
         delay_tx++;
         nextTxDelay = params->aggregate_timeoff - _lora_time->get_elapsed_time(params->last_aggregate_tx_time);

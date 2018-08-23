@@ -57,6 +57,10 @@
             "help": "Enables/disables duty cycling. NOTE: Disable only for testing. Mandatory in many regions.",
             "value": true
         },
+        "duty-cycle-on-join": {
+            "help": "Enables/disables duty cycling for JOIN requests (disabling requires duty-cycle-on to be disabled). NOTE: Disable only for testing!",
+            "value": true
+        },
         "lbt-on": {
             "help": "Enables/disables LBT. NOTE: [This feature is not yet integrated].",
             "value": false
