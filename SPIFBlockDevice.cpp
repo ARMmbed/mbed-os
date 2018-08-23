@@ -31,6 +31,9 @@ using namespace mbed;
 #define SPIF_DEFAULT_PAGE_SIZE  256
 #define SPIF_DEFAULT_SE_SIZE    4096
 #define SPI_MAX_STATUS_REGISTER_SIZE 2
+#ifndef UINT64_MAX
+#define UINT64_MAX -1
+#endif
 #define SPI_NO_ADDRESS_COMMAND UINT64_MAX
 // Status Register Bits
 #define SPIF_STATUS_BIT_WIP	0x1 //Write In Progress
