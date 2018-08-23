@@ -117,6 +117,14 @@
 #define UARTE0_RTC_TIMEOUT_CHANNEL  0
 #define UARTE1_RTC_TIMEOUT_CHANNEL  1
 
+#if defined(S112)
+#define UART_RTC NRF_RTC1
+#define UART_RTC_IRQn RTC1_IRQn
+#else
+#define UART_RTC NRF_RTC2
+#define UART_RTC_IRQn RTC2_IRQn
+#endif
+
 /**
  * RTC frequency.
  */
@@ -267,15 +275,15 @@ static void nordic_custom_ticker_set(uint32_t timeout, int channel)
     /**
      * Add timeout to current time and set as compare value for channel.
      */
-    uint32_t now = nrf_rtc_counter_get(NRF_RTC2);
+    uint32_t now = nrf_rtc_counter_get(UART_RTC);
     uint32_t ticksout = (timeout * RTC_FREQUENCY) / (1000 * 1000);
-    nrf_rtc_cc_set(NRF_RTC2, channel, ticksout + now);
+    nrf_rtc_cc_set(UART_RTC, channel, ticksout + now);
 
     /**
      * Enable interrupt for channel.
      */
-    uint32_t mask = nrf_rtc_int_get(NRF_RTC2);
-    nrf_rtc_int_enable(NRF_RTC2, mask | RTC_CHANNEL_INT_MASK(channel));
+    uint32_t mask = nrf_rtc_int_get(UART_RTC);
+    nrf_rtc_int_enable(UART_RTC, mask | RTC_CHANNEL_INT_MASK(channel));
 }
 
 /**
@@ -350,13 +358,13 @@ static void nordic_nrf5_uart_timeout_handler(uint32_t instance)
 static void nordic_nrf5_rtc2_handler(void)
 {
     /* Channel 0 */
-    if (nrf_rtc_event_pending(NRF_RTC2, NRF_RTC_EVENT_COMPARE_0)) {
+    if (nrf_rtc_event_pending(UART_RTC, NRF_RTC_EVENT_COMPARE_0)) {
 
         /* Clear event and disable interrupt for channel. */
-        nrf_rtc_event_clear(NRF_RTC2, NRF_RTC_EVENT_COMPARE_0);
+        nrf_rtc_event_clear(UART_RTC, NRF_RTC_EVENT_COMPARE_0);
 
-        uint32_t mask = nrf_rtc_int_get(NRF_RTC2);
-        nrf_rtc_int_enable(NRF_RTC2, mask & ~NRF_RTC_INT_COMPARE0_MASK);
+        uint32_t mask = nrf_rtc_int_get(UART_RTC);
+        nrf_rtc_int_enable(UART_RTC, mask & ~NRF_RTC_INT_COMPARE0_MASK);
 
         /* Call timeout handler with instance ID. */
         nordic_nrf5_uart_timeout_handler(0);
@@ -364,13 +372,13 @@ static void nordic_nrf5_rtc2_handler(void)
 
 #if UART1_ENABLED
     /* Channel 1 */
-    if (nrf_rtc_event_pending(NRF_RTC2, NRF_RTC_EVENT_COMPARE_1)) {
+    if (nrf_rtc_event_pending(UART_RTC, NRF_RTC_EVENT_COMPARE_1)) {
 
         /* Clear event and disable interrupt for channel. */
-        nrf_rtc_event_clear(NRF_RTC2, NRF_RTC_EVENT_COMPARE_1);
+        nrf_rtc_event_clear(UART_RTC, NRF_RTC_EVENT_COMPARE_1);
 
-        uint32_t mask = nrf_rtc_int_get(NRF_RTC2);
-        nrf_rtc_int_enable(NRF_RTC2, mask & ~NRF_RTC_INT_COMPARE1_MASK);
+        uint32_t mask = nrf_rtc_int_get(UART_RTC);
+        nrf_rtc_int_enable(UART_RTC, mask & ~NRF_RTC_INT_COMPARE1_MASK);
 
         /* Call timeout handler with instance ID. */
         nordic_nrf5_uart_timeout_handler(1);
@@ -995,24 +1003,24 @@ void serial_init(serial_t *obj, PinName tx, PinName rx)
         first_init = false;
 
         /* Register RTC2 ISR. */
-        NVIC_SetVector(RTC2_IRQn, (uint32_t) nordic_nrf5_rtc2_handler);
+        NVIC_SetVector(UART_RTC_IRQn, (uint32_t) nordic_nrf5_rtc2_handler);
 
         /* Clear RTC2 channel events. */
-        nrf_rtc_event_clear(NRF_RTC2, NRF_RTC_EVENT_COMPARE_0);
-        nrf_rtc_event_clear(NRF_RTC2, NRF_RTC_EVENT_COMPARE_1);
+        nrf_rtc_event_clear(UART_RTC, NRF_RTC_EVENT_COMPARE_0);
+        nrf_rtc_event_clear(UART_RTC, NRF_RTC_EVENT_COMPARE_1);
 
         /* Enable interrupts for all four RTC2 channels. */
-        nrf_rtc_event_enable(NRF_RTC2,
+        nrf_rtc_event_enable(UART_RTC,
                              NRF_RTC_INT_COMPARE0_MASK |
                              NRF_RTC_INT_COMPARE1_MASK);
 
         /* Enable RTC2 IRQ. Priority is set to highest so that the UARTE ISR can't interrupt it. */
-        nrf_drv_common_irq_enable(RTC2_IRQn, APP_IRQ_PRIORITY_HIGHEST);
+        nrf_drv_common_irq_enable(UART_RTC_IRQn, APP_IRQ_PRIORITY_HIGHEST);
 
         /* Start RTC2. According to the datasheet the added power consumption is neglible so
          * the RTC2 will run forever.
          */
-        nrf_rtc_task_trigger(NRF_RTC2, NRF_RTC_TASK_START);
+        nrf_rtc_task_trigger(UART_RTC, NRF_RTC_TASK_START);
 
         /* Enable interrupts for SWI. */
         NVIC_SetVector(SWI0_EGU0_IRQn, (uint32_t) nordic_nrf5_uart_swi0);

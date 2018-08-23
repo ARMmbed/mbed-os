@@ -4,7 +4,7 @@
         "develop_in_nrf52832": {
             "help": "Run NRF52810 code on NRF52832",
             "macro_name": "DEVELOP_IN_NRF52832",
-            "value": "0"
+            "value": "defined(NRF52810_ON_NRF52832)"
         }        
     },    
     "macros": [

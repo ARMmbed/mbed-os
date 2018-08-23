@@ -4006,6 +4006,14 @@
         "default_lib": "small",
         "device_name": "nRF52832_xxAA"
     },
+    "NRF52_DK_52810": {
+        "supported_form_factors": ["ARDUINO"],
+        "inherits": ["MCU_NRF52810"],
+        "release_versions": ["5"],
+        "default_lib": "small",
+        "device_name": "nRF52810_xxAA",
+        "macros_add": ["NRF52810_ON_NRF52832"]
+    },
     "SDT52832B": {
         "inherits": ["MCU_NRF52832"],
         "release_versions": ["5"],
