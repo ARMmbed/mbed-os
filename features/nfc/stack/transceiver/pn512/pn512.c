@@ -211,7 +211,7 @@ void pn512_poll(nfc_transceiver_t *pTransceiver)
 {
     pn512_t *pPN512 = (pn512_t *) pTransceiver;
     pPN512->nextFrameMode = pn512_transceive_mode_transceive;
-    return pn512_poll_hw(pPN512, pn512_transceiver_callback);
+    pn512_poll_hw(pPN512, pn512_transceiver_callback);
 }
 
 void pn512_set_crc(nfc_transceiver_t *pTransceiver, bool crc_out, bool crc_in)

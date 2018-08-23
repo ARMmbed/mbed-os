@@ -52,7 +52,7 @@ typedef enum __pn512_transceive_mode {
     pn512_transceive_mode_receive,
 } pn512_transceive_mode_t;
 
-typedef struct __pn512 {
+struct __pn512 {
     nfc_transceiver_t transceiver;
     //Impl specific
     pn512_registers_t registers;
@@ -142,7 +142,7 @@ typedef struct __pn512 {
         } anticollision;
     };
 
-} pn512_t;
+};
 
 nfc_err_t pn512_init(pn512_t *pPN512, nfc_transport_t *pTransport, nfc_scheduler_timer_t *pTimer);
 

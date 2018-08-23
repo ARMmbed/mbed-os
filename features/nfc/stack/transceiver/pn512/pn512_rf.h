@@ -30,7 +30,6 @@ extern "C" {
 #include "stack/nfc_common.h"
 #include "pn512_callback.h"
 #include "pn512.h"
-#include "pn512_rf.h"
 
 typedef struct __pn512 pn512_t;
 
