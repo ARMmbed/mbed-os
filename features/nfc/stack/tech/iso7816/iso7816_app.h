@@ -31,8 +31,6 @@ extern "C" {
 
 struct nfc_tech_iso7816;
 struct nfc_tech_iso7816_app;
-typedef struct nfc_tech_iso7816 nfc_tech_iso7816_t;
-typedef struct nfc_tech_iso7816_app nfc_tech_iso7816_app_t;
 
 typedef void (*nfc_tech_iso7816_app_cb)(nfc_tech_iso7816_app_t *pIso7816App, void *pUserData);
 

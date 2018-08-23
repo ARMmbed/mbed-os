@@ -33,10 +33,7 @@ extern "C" {
 
 struct nfc_tech_isodep_target;
 typedef struct nfc_tech_isodep_target nfc_tech_isodep_target_t;
-
-typedef struct nfc_tech_isodep_target nfc_tech_isodep_target_t;
 struct nfc_tech_isodep_target {
-    nfc_tech_isodep_t isodep;
     nfc_transceiver_t *pTransceiver;
 
     struct {

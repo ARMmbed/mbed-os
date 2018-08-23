@@ -36,11 +36,6 @@ typedef struct nfc_tech_isodep nfc_tech_isodep_t;
 typedef void (*nfc_tech_isodep_cb_t)(nfc_tech_isodep_t *pIsodep, nfc_err_t ret, void *pUserData);
 typedef void (*nfc_tech_isodep_disconnected_cb)(nfc_tech_isodep_t *pIsodep, bool deselected, void *pUserData);
 
-
-struct nfc_tech_isodep {
-
-};
-
 #ifdef __cplusplus
 }
 #endif

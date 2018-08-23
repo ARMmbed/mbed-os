@@ -36,7 +36,6 @@ extern "C" {
 #endif
 
 //Generic interface for NDEF messages
-
 typedef struct __ndef_msg ndef_msg_t;
 
 /** Function called to generate the tag's content on read (target mode)
@@ -51,12 +50,12 @@ typedef nfc_err_t (*ndef_encode_fn_t)(ndef_msg_t *pTag, ac_buffer_builder_t *pBu
  */
 typedef nfc_err_t (*ndef_decode_fn_t)(ndef_msg_t *pTag, ac_buffer_t *pBuffer, void *pUserData);
 
-typedef struct __ndef_msg {
+struct __ndef_msg {
     ndef_encode_fn_t encode;
     ndef_decode_fn_t decode;
     ac_buffer_builder_t bufferBldr;
     void *pUserData;
-} ndef_msg_t;
+};
 
 void ndef_msg_init(ndef_msg_t *pNdef, ndef_encode_fn_t encode, ndef_decode_fn_t decode, uint8_t *data, size_t size, void *pUserData);
 

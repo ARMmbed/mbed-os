@@ -53,7 +53,7 @@ enum __nfc_framing {
 };
 typedef enum __nfc_framing nfc_framing_t;
 
-typedef struct __nfc_tech {
+struct __nfc_tech {
     unsigned int nfc_type1 : 1;
     unsigned int nfc_type2 : 1;
     unsigned int nfc_type3 : 1;
@@ -62,7 +62,7 @@ typedef struct __nfc_tech {
     unsigned int nfc_nfc_dep_a : 1;
     unsigned int nfc_nfc_dep_f_212 : 1;
     unsigned int nfc_nfc_dep_f_424 : 1;
-} nfc_tech_t;
+};
 
 typedef struct __polling_options polling_options_t;
 struct __polling_options {
