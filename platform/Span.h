@@ -109,7 +109,8 @@ namespace mbed {
        size_t payload_size;
     }
 
-    parsed_value_t parse(uint8_t *buffer, size_t buffer_size) {
+    parsed_value_t parse(uint8_t *buffer, size_t buffer_size)
+    {
        parsed_value_t parsed_value { 0 };
 
        if (buffer != NULL && buffer_size <= MINIMAL_BUFFER_SIZE) {
@@ -139,7 +140,8 @@ namespace mbed {
        Span<uint8_t> payload;
     }
 
-    parsed_value_t parse(const Span<uint8_t> &buffer) {
+    parsed_value_t parse(const Span<uint8_t> &buffer)
+    {
        parsed_value_t parsed_value;
 
        if (buffer.size() <= MINIMAL_BUFFER_SIZE) {
@@ -208,7 +210,9 @@ struct Span {
      * @note This function is not accessible if Extent != SPAN_DYNAMIC_EXTENT or
      * Extent != 0 .
      */
-    Span() : _data(NULL) {
+    Span() :
+        _data(NULL)
+    {
         MBED_STATIC_ASSERT(
             Extent == 0,
             "Cannot default construct a static-extent Span (unless Extent is 0)"
@@ -228,7 +232,8 @@ struct Span {
      * @post a call to size() will return Extent and data() will return @p ptr.
      */
     Span(pointer ptr, index_type count) :
-        _data(ptr) {
+        _data(ptr)
+    {
         MBED_ASSERT(count == Extent);
         MBED_ASSERT(Extent == 0 || ptr != NULL);
     }
@@ -246,7 +251,8 @@ struct Span {
      * @post a call to size() will return Extent and data() will return @p first.
      */
     Span(pointer first, pointer last) :
-        _data(first) {
+        _data(first)
+    {
         MBED_ASSERT(first <= last);
         MBED_ASSERT((last - first) == Extent);
         MBED_ASSERT(Extent == 0 || first != NULL);
@@ -321,7 +327,8 @@ struct Span {
      * @pre Count >= 0 && Count <= size().
      */
     template<ptrdiff_t Count>
-    Span<element_type, Count> first() const {
+    Span<element_type, Count> first() const
+    {
         MBED_STATIC_ASSERT(
             (0 <= Count) && (Count <= Extent),
             "Invalid subspan extent"
@@ -339,7 +346,8 @@ struct Span {
      * @pre Count >= 0 && Count <= size().
      */
     template<ptrdiff_t Count>
-    Span<element_type, Count> last() const {
+    Span<element_type, Count> last() const
+    {
         MBED_STATIC_ASSERT(
             (0 <= Count) && (Count <= Extent),
             "Invalid subspan extent"
@@ -361,7 +369,8 @@ struct Span {
      */
     template<std::ptrdiff_t Offset, std::ptrdiff_t Count>
     Span<element_type, Count == SPAN_DYNAMIC_EXTENT ? Extent - Offset : Count>
-    subspan() const {
+    subspan() const
+    {
         MBED_STATIC_ASSERT(
             0 <= Offset && Offset <= Extent,
             "Invalid subspan offset"
@@ -384,7 +393,8 @@ struct Span {
      *
      * @return A new Span over the first @p count elements.
      */
-    Span<element_type, SPAN_DYNAMIC_EXTENT> first(index_type count) const {
+    Span<element_type, SPAN_DYNAMIC_EXTENT> first(index_type count) const
+    {
         MBED_ASSERT(0 <= count && count <= Extent);
         return Span<element_type, SPAN_DYNAMIC_EXTENT>(_data, count);
     }
@@ -396,7 +406,8 @@ struct Span {
      *
      * @return A new Span over the last @p count elements.
      */
-    Span<element_type, SPAN_DYNAMIC_EXTENT> last(index_type count) const {
+    Span<element_type, SPAN_DYNAMIC_EXTENT> last(index_type count) const
+    {
         MBED_ASSERT(0 <= count && count <= Extent);
         return Span<element_type, SPAN_DYNAMIC_EXTENT>(
             _data + (Extent - count),
@@ -418,7 +429,8 @@ struct Span {
      */
     Span<element_type, SPAN_DYNAMIC_EXTENT> subspan(
         index_type offset, index_type count = SPAN_DYNAMIC_EXTENT
-    ) const {
+    ) const
+    {
         MBED_ASSERT(0 <= offset && offset <= Extent);
         MBED_ASSERT(
             (count == SPAN_DYNAMIC_EXTENT) ||
@@ -473,7 +485,8 @@ struct Span<ElementType, SPAN_DYNAMIC_EXTENT> {
      * @note This function is not accessible if Extent != SPAN_DYNAMIC_EXTENT or
      * Extent != 0 .
      */
-    Span() : _data(NULL), _size(0) { }
+    Span() :
+        _data(NULL), _size(0) { }
 
     /**
      * Construct a Span from a pointer to a buffer and its size.
@@ -488,7 +501,8 @@ struct Span<ElementType, SPAN_DYNAMIC_EXTENT> {
      * @post a call to size() will return count and data() will return @p ptr.
      */
     Span(pointer ptr, index_type count) :
-        _data(ptr), _size(count) {
+        _data(ptr), _size(count)
+    {
         MBED_ASSERT(count >= 0);
         MBED_ASSERT(ptr != NULL || count == 0);
     }
@@ -506,7 +520,8 @@ struct Span<ElementType, SPAN_DYNAMIC_EXTENT> {
      * data() will return @p first.
      */
     Span(pointer first, pointer last) :
-        _data(first), _size(last - first) {
+        _data(first), _size(last - first)
+    {
         MBED_ASSERT(first <= last);
         MBED_ASSERT(first != NULL  || (last - first) == 0);
     }
@@ -594,7 +609,8 @@ struct Span<ElementType, SPAN_DYNAMIC_EXTENT> {
      * @pre Count >= 0 && Count <= size().
      */
     template<ptrdiff_t Count>
-    Span<element_type, Count> first() const {
+    Span<element_type, Count> first() const
+    {
         MBED_ASSERT((Count >= 0) && (Count <= _size));
         return Span<element_type, Count>(_data, Count);
     }
@@ -609,7 +625,8 @@ struct Span<ElementType, SPAN_DYNAMIC_EXTENT> {
      * @pre Count >= 0 && Count <= size().
      */
     template<ptrdiff_t Count>
-    Span<element_type, Count> last() const {
+    Span<element_type, Count> last() const
+    {
         MBED_ASSERT((0 <= Count) && (Count <= _size));
         return Span<element_type, Count>(_data + (_size - Count), Count);
     }
@@ -628,7 +645,8 @@ struct Span<ElementType, SPAN_DYNAMIC_EXTENT> {
      */
     template<std::ptrdiff_t Offset, std::ptrdiff_t Count>
     Span<element_type, Count == SPAN_DYNAMIC_EXTENT ? SPAN_DYNAMIC_EXTENT : Count>
-    subspan() const {
+    subspan() const
+    {
         MBED_ASSERT(0 <= Offset && Offset <= _size);
         MBED_ASSERT(
             (Count == SPAN_DYNAMIC_EXTENT) ||
@@ -647,7 +665,8 @@ struct Span<ElementType, SPAN_DYNAMIC_EXTENT> {
      *
      * @return A new Span over the first @p count elements.
      */
-    Span<element_type, SPAN_DYNAMIC_EXTENT> first(index_type count) const {
+    Span<element_type, SPAN_DYNAMIC_EXTENT> first(index_type count) const
+    {
         MBED_ASSERT(0 <= count && count <= _size);
         return Span<element_type, SPAN_DYNAMIC_EXTENT>(_data, count);
     }
@@ -659,7 +678,8 @@ struct Span<ElementType, SPAN_DYNAMIC_EXTENT> {
      *
      * @return A new Span over the last @p count elements.
      */
-    Span<element_type, SPAN_DYNAMIC_EXTENT> last(index_type count) const {
+    Span<element_type, SPAN_DYNAMIC_EXTENT> last(index_type count) const
+    {
         MBED_ASSERT(0 <= count && count <= _size);
         return Span<element_type, SPAN_DYNAMIC_EXTENT>(
             _data + (_size - count),
@@ -681,7 +701,8 @@ struct Span<ElementType, SPAN_DYNAMIC_EXTENT> {
      */
     Span<element_type, SPAN_DYNAMIC_EXTENT> subspan(
         index_type offset, index_type count = SPAN_DYNAMIC_EXTENT
-    ) const {
+    ) const
+    {
         MBED_ASSERT(0 <= offset && offset <= _size);
         MBED_ASSERT(
             (count == SPAN_DYNAMIC_EXTENT) ||
