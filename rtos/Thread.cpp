@@ -178,7 +178,7 @@ osStatus Thread::set_priority(osPriority priority)
     return ret;
 }
 
-osPriority Thread::get_priority()
+osPriority Thread::get_priority() const
 {
     osPriority_t ret;
     _mutex.lock();
@@ -201,7 +201,7 @@ int32_t Thread::signal_set(int32_t flags)
     return osThreadFlagsSet(_tid, flags);
 }
 
-Thread::State Thread::get_state()
+Thread::State Thread::get_state() const
 {
     uint8_t state = osThreadTerminated;
 
@@ -267,7 +267,7 @@ Thread::State Thread::get_state()
     return user_state;
 }
 
-uint32_t Thread::stack_size()
+uint32_t Thread::stack_size() const
 {
     uint32_t size = 0;
     _mutex.lock();
@@ -280,7 +280,7 @@ uint32_t Thread::stack_size()
     return size;
 }
 
-uint32_t Thread::free_stack()
+uint32_t Thread::free_stack() const
 {
     uint32_t size = 0;
     _mutex.lock();
@@ -296,7 +296,7 @@ uint32_t Thread::free_stack()
     return size;
 }
 
-uint32_t Thread::used_stack()
+uint32_t Thread::used_stack() const
 {
     uint32_t size = 0;
     _mutex.lock();
@@ -312,7 +312,7 @@ uint32_t Thread::used_stack()
     return size;
 }
 
-uint32_t Thread::max_stack()
+uint32_t Thread::max_stack() const
 {
     uint32_t size = 0;
     _mutex.lock();
@@ -334,7 +334,7 @@ uint32_t Thread::max_stack()
     return size;
 }
 
-const char *Thread::get_name()
+const char *Thread::get_name() const
 {
     return _attr.name;
 }
