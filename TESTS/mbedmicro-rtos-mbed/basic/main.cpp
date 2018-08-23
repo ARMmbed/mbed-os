@@ -27,11 +27,14 @@
 #error [NOT_SUPPORTED] test not supported
 #endif
 
+//FastModels not support time drifting test
+#if defined(__ARM_FM)
+#error [NOT_SUPPORTED] test not supported
+#endif
+
 using utest::v1::Case;
 
 #if defined(__CORTEX_M23) || defined(__CORTEX_M33)
-#define TEST_STACK_SIZE 512
-#elif defined(__ARM_FM)
 #define TEST_STACK_SIZE 512
 #else
 #define TEST_STACK_SIZE 256
@@ -67,10 +70,6 @@ void update_tick_thread(Mutex *mutex)
  */
 void test(void)
 {
-#if defined(__ARM_FM)
-    TEST_SKIP_MESSAGE("FastModels not support time drifting test")
-#endif
-
     char _key[11] = { };
     char _value[128] = { };
     int expected_key = 1;
