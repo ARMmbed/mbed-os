@@ -494,6 +494,22 @@ public:
      */
     bool is_custom_channel_plan_supported();
 
+    /**
+     * @brief time_received Function which is called in LW1.1 when time is received from network
+     * @param secs Seconds since GPS Epoch
+     * @param milliseconds Number of milliseconds
+     */
+    void time_received(uint32_t secs, uint32_t milliseconds);
+
+    /**
+     * @brief update_rejoin_params Update Rejoin parameters
+     * @param max_time Maximum time in seconds between Rejoin requests
+     * @param max_count Maximum amount of messages allowed to be sent between Rejoin requests
+     * @return 1 If device supports a time variable, 0 otherwise.
+     *         Currently we always support time!
+     */
+    uint8_t update_rejoin_params(uint32_t max_time, uint32_t max_count);
+
 public: //Verifiers
 
     /**
@@ -531,6 +547,30 @@ public: //Verifiers
      * @return True if valid, false otherwise
      */
     bool verify_nb_join_trials(uint8_t nb_join_trials);
+
+    /**
+     * @brief get_adr_ack_limit Gets the ADR ACK limit currently in use.
+     * @return ADR ACK limit used
+     */
+    uint16_t get_adr_ack_limit() const;
+
+    /**
+     * @brief set_adr_ack_limit Sets ADR ACK limit to be used.
+     * @param value New value for ack limit
+     */
+    void set_adr_ack_limit(const uint16_t& value);
+
+    /**
+     * @brief get_adr_ack_delay Gets the ADR ACK delay currently in use.
+     * @return ADR ACK delay used
+     */
+    uint16_t get_adr_ack_delay() const;
+
+    /**
+     * @brief set_adr_ack_delay Sets ADR ACK delay to be used.
+     * @param value New value for ack delay
+     */
+    void set_adr_ack_delay(const uint16_t& value);
 
 protected:
     LoRaPHY();
@@ -643,6 +683,13 @@ protected:
     LoRaRadio *_radio;
     LoRaWANTimeHandler *_lora_time;
     loraphy_params_t phy_params;
+
+private:
+    uint16_t _server_adr_ack_limit;
+    uint16_t _server_adr_ack_delay;
+
+    uint32_t _rejoin_max_time;
+    uint32_t _rejoin_max_count;
 };
 
 #endif /* MBED_OS_LORAPHY_BASE_ */

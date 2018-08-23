@@ -87,9 +87,12 @@ LoRaMac::LoRaMac()
     _params.keys.dev_eui = NULL;
     _params.keys.app_eui = NULL;
     _params.keys.app_key = NULL;
+    _params.keys.nwk_key = NULL;
 
     memset(_params.keys.nwk_skey, 0, sizeof(_params.keys.nwk_skey));
     memset(_params.keys.app_skey, 0, sizeof(_params.keys.app_skey));
+    memset(_params.keys.snwk_sintkey, 0, sizeof(_params.keys.snwk_sintkey));
+    memset(_params.keys.nwk_senckey, 0, sizeof(_params.keys.nwk_senckey));
     memset(&_ongoing_tx_msg, 0, sizeof(_ongoing_tx_msg));
     memset(&_params.sys_params, 0, sizeof(_params.sys_params));
 
@@ -100,6 +103,7 @@ LoRaMac::LoRaMac()
     _params.rx_buffer_len = 0;
     _params.ul_frame_counter = 0;
     _params.dl_frame_counter = 0;
+    _params.app_dl_frame_counter = 0;
     _params.is_rx_window_enabled = true;
     _params.adr_ack_counter = 0;
     _params.is_node_ack_requested = false;
@@ -117,8 +121,13 @@ LoRaMac::LoRaMac()
     _params.sys_params.adr_on = false;
     _params.sys_params.max_duty_cycle = 0;
 
+    _params.join_request_type = JOIN_REQUEST;
+
+    //TODO: RJcount1 must be stored to NVM!
+    _params.RJcount0 = 0;
+    _params.RJcount1 = 0;
+
     reset_mcps_confirmation();
-    reset_mlme_confirmation();
     reset_mcps_indication();
 }
 
@@ -148,11 +157,6 @@ const loramac_mlme_confirm_t *LoRaMac::get_mlme_confirmation() const
 const loramac_mlme_indication_t *LoRaMac::get_mlme_indication() const
 {
     return &_mlme_indication;
-}
-
-void LoRaMac::post_process_mlme_request()
-{
-    _mlme_confirmation.pending = false;
 }
 
 void LoRaMac::post_process_mcps_req()
@@ -204,61 +208,115 @@ rx_slot_t LoRaMac::get_current_slot(void)
 /**
  * This part handles incoming frames in response to Radio RX Interrupt
  */
-void LoRaMac::handle_join_accept_frame(const uint8_t *payload, uint16_t size)
+loramac_event_info_status_t LoRaMac::handle_join_accept_frame(const uint8_t *payload, uint16_t size)
 {
     uint32_t mic = 0;
     uint32_t mic_rx = 0;
+    server_type_t stype = LW1_0_2;
 
-    _mlme_confirmation.nb_retries = _params.join_request_trial_counter;
+    //Store server type to local so that invalid join accept of rejoin request won't affect the orig. type.
+    if ( (((_params.rx_buffer[11] >> 7) & 0x01) == 1) && MBED_CONF_LORA_VERSION == LORAWAN_VERSION_1_1) {
+        stype = LW1_1;
+    } else {
+        stype = LW1_0_2;
+        //Server does not support LW 1.1 so we need to unset JS keys
+        memcpy(_params.keys.js_intkey, _params.keys.nwk_key, sizeof(_params.keys.nwk_skey));
+        memcpy(_params.keys.js_enckey, _params.keys.nwk_key, sizeof(_params.keys.nwk_skey));
+    }
+
+    uint8_t *decrypt_key = NULL;
+    uint8_t *mic_key = _params.keys.js_intkey; //in case of LW1.0.2 js_intkey == nwk_key == app_key
+
+    if (_params.join_request_type == JOIN_REQUEST) {
+        decrypt_key = _params.keys.nwk_key;
+    } else {
+        decrypt_key = _params.keys.js_enckey;
+    }
+
+    //Store server type to local so that invalid join accept of rejoin request won't affect the orig. type.
+    if ( (((_params.rx_buffer[11] >> 7) & 0x01) == 1) && MBED_CONF_LORA_VERSION == LORAWAN_VERSION_1_1) {
+        stype = LW1_1;
+    } else {
+        stype = LW1_0_2;
+        //Server does not support LW 1.1 so we need to unset JS keys
+        memcpy(_params.keys.js_intkey, _params.keys.nwk_key, sizeof(_params.keys.nwk_skey));
+        memcpy(_params.keys.js_enckey, _params.keys.nwk_key, sizeof(_params.keys.nwk_skey));
+    }
 
     if (0 != _lora_crypto.decrypt_join_frame(payload + 1, size - 1,
-                                             _params.keys.app_key, APPKEY_KEY_LENGTH,
+                                             decrypt_key, APPKEY_KEY_LENGTH,
                                              _params.rx_buffer + 1)) {
-        _mlme_confirmation.status = LORAMAC_EVENT_INFO_STATUS_CRYPTO_FAIL;
-        return;
+        return LORAMAC_EVENT_INFO_STATUS_CRYPTO_FAIL;
     }
 
-    _params.rx_buffer[0] = payload[0];
+    uint8_t payload_start = 1;
+    uint8_t mic_start = 0;
+    uint8_t args_size = 0;
+    uint8_t args[16];
+    if (stype == LW1_0_2) {
+        _params.rx_buffer[0] = payload[0];
+        mic_start = size - LORAMAC_MFR_LEN;
+
+        memcpy(args, _params.rx_buffer + 1, 6);
+        memcpy(args + 6, (uint8_t *) &_params.dev_nonce, 2);
+        args_size = 8;
+    } else {
+        //MIC calculation needs more params, so we move the payload a bit
+        _params.rx_buffer[0] = (uint8_t)_params.join_request_type;
+        memcpy(_params.rx_buffer + 11, _params.rx_buffer, size - LORAMAC_MFR_LEN);
+        memcpy(_params.rx_buffer + 1, _params.keys.app_eui, 8);
+        memcpy(_params.rx_buffer + 9, (uint8_t *) &_params.dev_nonce, 2);
+        mic_start = size - LORAMAC_MFR_LEN + 11;
+        payload_start += 11;
+
+        memcpy(args, _params.rx_buffer + payload_start, 3);
+        memcpy(args + 3, _params.keys.app_eui, 8);
+        memcpy(args + 3 + 8, (uint8_t *) &_params.dev_nonce, 2);
+        args_size = 13;
+    }
 
     if (_lora_crypto.compute_join_frame_mic(_params.rx_buffer,
-                                            size - LORAMAC_MFR_LEN,
-                                            _params.keys.app_key,
+                                            mic_start,
+                                            mic_key,
                                             APPKEY_KEY_LENGTH,
                                             &mic) != 0) {
-        _mlme_confirmation.status = LORAMAC_EVENT_INFO_STATUS_CRYPTO_FAIL;
-        return;
+        return LORAMAC_EVENT_INFO_STATUS_CRYPTO_FAIL;
     }
 
-    mic_rx |= (uint32_t) _params.rx_buffer[size - LORAMAC_MFR_LEN];
-    mic_rx |= ((uint32_t) _params.rx_buffer[size - LORAMAC_MFR_LEN + 1] << 8);
-    mic_rx |= ((uint32_t) _params.rx_buffer[size - LORAMAC_MFR_LEN + 2] << 16);
-    mic_rx |= ((uint32_t) _params.rx_buffer[size - LORAMAC_MFR_LEN + 3] << 24);
+    mic_rx |= (uint32_t) _params.rx_buffer[mic_start];
+    mic_rx |= ((uint32_t) _params.rx_buffer[mic_start + 1] << 8);
+    mic_rx |= ((uint32_t) _params.rx_buffer[mic_start + 2] << 16);
+    mic_rx |= ((uint32_t) _params.rx_buffer[mic_start + 3] << 24);
 
     if (mic_rx == mic) {
         _lora_time.stop(_params.timers.rx_window2_timer);
-        if (_lora_crypto.compute_skeys_for_join_frame(_params.keys.app_key,
+        _params.server_type = stype;
+        if (_lora_crypto.compute_skeys_for_join_frame(_params.keys.nwk_key,
                                                       APPKEY_KEY_LENGTH,
-                                                      _params.rx_buffer + 1,
-                                                      _params.dev_nonce,
+                                                      _params.keys.app_key,
+                                                      APPKEY_KEY_LENGTH,
+                                                      args, args_size,
                                                       _params.keys.nwk_skey,
-                                                      _params.keys.app_skey) != 0) {
-            _mlme_confirmation.status = LORAMAC_EVENT_INFO_STATUS_CRYPTO_FAIL;
-            return;
+                                                      _params.keys.app_skey,
+                                                      _params.keys.snwk_sintkey,
+                                                      _params.keys.nwk_senckey,
+                                                      _params.server_type) != 0) {
+            return LORAMAC_EVENT_INFO_STATUS_CRYPTO_FAIL;
         }
 
-        _params.net_id = (uint32_t) _params.rx_buffer[4];
-        _params.net_id |= ((uint32_t) _params.rx_buffer[5] << 8);
-        _params.net_id |= ((uint32_t) _params.rx_buffer[6] << 16);
+        _params.net_id = (uint32_t) _params.rx_buffer[payload_start + 3];
+        _params.net_id |= ((uint32_t) _params.rx_buffer[payload_start + 4] << 8);
+        _params.net_id |= ((uint32_t) _params.rx_buffer[payload_start + 5] << 16);
 
-        _params.dev_addr = (uint32_t) _params.rx_buffer[7];
-        _params.dev_addr |= ((uint32_t) _params.rx_buffer[8] << 8);
-        _params.dev_addr |= ((uint32_t) _params.rx_buffer[9] << 16);
-        _params.dev_addr |= ((uint32_t) _params.rx_buffer[10] << 24);
+        _params.dev_addr = (uint32_t) _params.rx_buffer[payload_start + 6];
+        _params.dev_addr |= ((uint32_t) _params.rx_buffer[payload_start + 7] << 8);
+        _params.dev_addr |= ((uint32_t) _params.rx_buffer[payload_start + 8] << 16);
+        _params.dev_addr |= ((uint32_t) _params.rx_buffer[payload_start + 9] << 24);
 
-        _params.sys_params.rx1_dr_offset = (_params.rx_buffer[11] >> 4) & 0x07;
-        _params.sys_params.rx2_channel.datarate = _params.rx_buffer[11] & 0x0F;
+        _params.sys_params.rx1_dr_offset = (_params.rx_buffer[payload_start + 10] >> 4) & 0x07;
+        _params.sys_params.rx2_channel.datarate = _params.rx_buffer[payload_start + 10] & 0x0F;
 
-        _params.sys_params.recv_delay1 = (_params.rx_buffer[12] & 0x0F);
+        _params.sys_params.recv_delay1 = (_params.rx_buffer[payload_start + 11] & 0x0F);
 
         if (_params.sys_params.recv_delay1 == 0) {
             _params.sys_params.recv_delay1 = 1;
@@ -267,19 +325,22 @@ void LoRaMac::handle_join_accept_frame(const uint8_t *payload, uint16_t size)
         _params.sys_params.recv_delay1 *= 1000;
         _params.sys_params.recv_delay2 = _params.sys_params.recv_delay1 + 1000;
 
-        // Size of the regular payload is 12. Plus 1 byte MHDR and 4 bytes MIC
-        _lora_phy->apply_cf_list(&_params.rx_buffer[13], size - 17);
+        // Size of the regular payload is 12. Plus 1 byte MHDR and 4 bytes MIC (== 17)
+        //TODO: join request type is needed here also! See LW1.1 lines 1711 -> 1719 (Reset or not)
+        // LW1.1 CF_LIST's 16th byte is CFListType!
+        _lora_phy->apply_cf_list(&_params.rx_buffer[payload_start + 12], size - 17);
 
-        _mlme_confirmation.status = LORAMAC_EVENT_INFO_STATUS_OK;
         _is_nwk_joined = true;
         // Node joined successfully
         _params.ul_frame_counter = 0;
         _params.ul_nb_rep_counter = 0;
         _params.adr_ack_counter = 0;
 
+        _params.RJcount0 = 0;
     } else {
-        _mlme_confirmation.status = LORAMAC_EVENT_INFO_STATUS_JOIN_FAIL;
+        return LORAMAC_EVENT_INFO_STATUS_JOIN_FAIL;
     }
+    return LORAMAC_EVENT_INFO_STATUS_OK;
 }
 
 void LoRaMac::check_frame_size(uint16_t size)
@@ -295,13 +356,14 @@ void LoRaMac::check_frame_size(uint16_t size)
 
 bool LoRaMac::message_integrity_check(const uint8_t *const payload,
                                       const uint16_t size,
-                                      uint8_t *const ptr_pos,
+                                      uint8_t *const ptr_pos, uint16_t confFCnt,
                                       uint32_t address,
                                       uint32_t *downlink_counter,
                                       const uint8_t *nwk_skey)
 {
     uint32_t mic = 0;
     uint32_t mic_rx = 0;
+    uint32_t args = confFCnt;
 
     uint16_t sequence_counter = 0;
     uint16_t sequence_counter_prev = 0;
@@ -322,10 +384,9 @@ bool LoRaMac::message_integrity_check(const uint8_t *const payload,
         *downlink_counter += 0x10000;
     }
 
-    // sizeof nws_skey must be the same as _params.keys.nwk_skey,
+    // sizeof nwk_skey must be the same as _params.keys.nwk_skey,
     _lora_crypto.compute_mic(payload, size - LORAMAC_MFR_LEN,
-                             nwk_skey,
-                             sizeof(_params.keys.nwk_skey) * 8,
+                             nwk_skey, sizeof(_params.keys.nwk_skey) * 8, args,
                              address, DOWN_LINK, *downlink_counter, &mic);
 
     if (mic_rx != mic) {
@@ -350,7 +411,8 @@ void LoRaMac::extract_data_and_mac_commands(const uint8_t *payload,
                                             uint32_t address,
                                             uint32_t downlink_counter,
                                             int16_t rssi,
-                                            int8_t snr)
+                                            int8_t snr,
+                                            Callback<void(loramac_mlme_confirm_t&)> confirm_handler)
 {
     uint8_t frame_len = 0;
     uint8_t payload_start_index = 8 + fopts_len;
@@ -375,8 +437,8 @@ void LoRaMac::extract_data_and_mac_commands(const uint8_t *payload,
             }
 
             if (_mac_commands.process_mac_commands(_params.rx_buffer, 0, frame_len,
-                                                   snr, _mlme_confirmation,
-                                                   _params.sys_params, *_lora_phy)
+                                                   snr, _params.sys_params, *_lora_phy,
+                                                   confirm_handler)
                     != LORAWAN_STATUS_OK) {
                 _mcps_indication.status = LORAMAC_EVENT_INFO_STATUS_ERROR;
                 return;
@@ -397,23 +459,8 @@ void LoRaMac::extract_data_and_mac_commands(const uint8_t *payload,
         return;
     }
 
-    // normal unicast/multicast port handling
-    if (fopts_len > 0) {
-        // Decode Options field MAC commands. Omit the fPort.
-        if (_mac_commands.process_mac_commands(payload, 8,
-                                               payload_start_index - 1,
-                                               snr,
-                                               _mlme_confirmation,
-                                               _params.sys_params,
-                                               *_lora_phy) != LORAWAN_STATUS_OK) {
-            _mcps_indication.status = LORAMAC_EVENT_INFO_STATUS_ERROR;
-            return;
-        }
-
-        if (_mac_commands.has_sticky_mac_cmd()) {
-            set_mlme_schedule_ul_indication();
-            _mac_commands.clear_sticky_mac_cmd();
-        }
+    if(!extract_mac_commands_only(payload, snr, fopts_len, confirm_handler)) {
+        return;
     }
 
     // sizeof app_skey must be the same as _params.keys.app_skey
@@ -433,18 +480,34 @@ void LoRaMac::extract_data_and_mac_commands(const uint8_t *payload,
     }
 }
 
-void LoRaMac::extract_mac_commands_only(const uint8_t *payload,
+bool LoRaMac::extract_mac_commands_only(const uint8_t *payload,
                                         int8_t snr,
-                                        uint8_t fopts_len)
+                                        uint8_t fopts_len,
+                                        Callback<void(loramac_mlme_confirm_t&)> confirm_handler)
 {
-    uint8_t payload_start_index = 8 + fopts_len;
     if (fopts_len > 0) {
-        if (_mac_commands.process_mac_commands(payload, 8, payload_start_index,
-                                               snr, _mlme_confirmation,
-                                               _params.sys_params, *_lora_phy)
+        uint8_t buffer[15];
+
+        if (_params.server_type == LW1_1) {
+            if (0 != _lora_crypto.encrypt_payload(payload + 8, fopts_len,
+                                                  _params.keys.nwk_senckey, sizeof(_params.keys.nwk_senckey) * 8,
+                                                  _params.dev_addr, DOWN_LINK,
+                                                  _params.dl_frame_counter,
+                                                  buffer)) {
+                _mcps_indication.status = LORAMAC_EVENT_INFO_STATUS_CRYPTO_FAIL;
+                return false;
+            }
+        } else {
+            memcpy(buffer, payload + 8, fopts_len);
+        }
+
+        if (_mac_commands.process_mac_commands(buffer, 0, fopts_len,
+                                               snr, _params.sys_params,
+                                               *_lora_phy, confirm_handler)
+
                 != LORAWAN_STATUS_OK) {
             _mcps_indication.status = LORAMAC_EVENT_INFO_STATUS_ERROR;
-            return;
+            return false;
         }
 
         if (_mac_commands.has_sticky_mac_cmd()) {
@@ -452,6 +515,7 @@ void LoRaMac::extract_mac_commands_only(const uint8_t *payload,
             _mac_commands.clear_sticky_mac_cmd();
         }
     }
+    return true;
 }
 
 void LoRaMac::handle_data_frame(const uint8_t *const payload,
@@ -459,7 +523,8 @@ void LoRaMac::handle_data_frame(const uint8_t *const payload,
                                 uint8_t ptr_pos,
                                 uint8_t msg_type,
                                 int16_t rssi,
-                                int8_t snr)
+                                int8_t snr,
+                                Callback<void(loramac_mlme_confirm_t&)> confirm_handler)
 {
     check_frame_size(size);
 
@@ -470,12 +535,18 @@ void LoRaMac::handle_data_frame(const uint8_t *const payload,
     uint32_t downlink_counter = 0;
     uint8_t app_payload_start_index = 0;
     uint8_t *nwk_skey = _params.keys.nwk_skey;
+    uint8_t *mic_key  = _params.keys.nwk_skey;
     uint8_t *app_skey = _params.keys.app_skey;
+    uint16_t fport = 0;
+    uint16_t confFCnt = 0;
 
     address = payload[ptr_pos++];
     address |= ((uint32_t) payload[ptr_pos++] << 8);
     address |= ((uint32_t) payload[ptr_pos++] << 16);
     address |= ((uint32_t) payload[ptr_pos++] << 24);
+
+    fctrl.value = payload[ptr_pos++];
+    fport = payload[7 + fctrl.bits.fopts_len];
 
     if (address != _params.dev_addr) {
         // check if Multicast is destined for us
@@ -485,6 +556,7 @@ void LoRaMac::handle_data_frame(const uint8_t *const payload,
             if (address == cur_multicast_params->address) {
                 is_multicast = true;
                 nwk_skey = cur_multicast_params->nwk_skey;
+                mic_key = cur_multicast_params->nwk_skey;
                 app_skey = cur_multicast_params->app_skey;
                 downlink_counter = cur_multicast_params->dl_frame_counter;
                 break;
@@ -502,16 +574,29 @@ void LoRaMac::handle_data_frame(const uint8_t *const payload,
     } else {
         is_multicast = false;
         nwk_skey = _params.keys.nwk_skey;
+        mic_key = _params.keys.snwk_sintkey;
         app_skey = _params.keys.app_skey;
         downlink_counter = _params.dl_frame_counter;
     }
 
-    fctrl.value = payload[ptr_pos++];
     app_payload_start_index = 8 + fctrl.bits.fopts_len;
 
+    if (_params.server_type == LW1_1) {
+        if (_params.is_node_ack_requested && fctrl.bits.ack) {
+            confFCnt = _mcps_confirmation.ul_frame_counter;
+        }
+        if (!is_multicast) {
+            if (fport != 0) {
+                downlink_counter = _params.app_dl_frame_counter;
+            } else {
+                nwk_skey = _params.keys.nwk_senckey;
+            }
+        }
+    }
+
     //perform MIC check
-    if (!message_integrity_check(payload, size, &ptr_pos, address,
-                                 &downlink_counter, nwk_skey)) {
+    if (!message_integrity_check(payload, size, &ptr_pos, confFCnt, address,
+                                 &downlink_counter, mic_key)) {
         tr_error("MIC failed");
         _mcps_indication.status = LORAMAC_EVENT_INFO_STATUS_MIC_FAIL;
         _mcps_indication.pending = false;
@@ -555,6 +640,7 @@ void LoRaMac::handle_data_frame(const uint8_t *const payload,
     } else {
         if (msg_type == FRAME_TYPE_DATA_CONFIRMED_DOWN) {
             _params.is_srv_ack_requested = true;
+            _params.counterForAck = downlink_counter;
             _mcps_indication.type = MCPS_CONFIRMED;
 
             if ((_params.dl_frame_counter == downlink_counter)
@@ -609,9 +695,10 @@ void LoRaMac::handle_data_frame(const uint8_t *const payload,
     if (frame_len > 0) {
         extract_data_and_mac_commands(payload, size, fctrl.bits.fopts_len,
                                       nwk_skey, app_skey, address,
-                                      downlink_counter, rssi, snr);
+                                      downlink_counter, rssi, snr,
+                                      confirm_handler);
     } else {
-        extract_mac_commands_only(payload, snr, fctrl.bits.fopts_len);
+        extract_mac_commands_only(payload, snr, fctrl.bits.fopts_len, confirm_handler);
     }
 
     // Handle proprietary messages.
@@ -624,7 +711,7 @@ void LoRaMac::handle_data_frame(const uint8_t *const payload,
         _mcps_indication.buffer_size = size - ptr_pos;
     }
 
-    // only stop act timer, if the ack is actually recieved
+    // only stop ack timer, if the ack is actually received
     if (_mcps_confirmation.ack_received) {
         _lora_time.stop(_params.timers.ack_timeout_timer);
     }
@@ -690,7 +777,8 @@ void LoRaMac::on_radio_tx_done(lorawan_time_t timestamp)
 }
 
 void LoRaMac::on_radio_rx_done(const uint8_t *const payload, uint16_t size,
-                               int16_t rssi, int8_t snr)
+                               int16_t rssi, int8_t snr,
+                               Callback<void(loramac_mlme_confirm_t&)> confirm_handler)
 {
     _demod_ongoing = false;
     if (_device_class == CLASS_C && !_continuous_rx2_window_open) {
@@ -702,6 +790,7 @@ void LoRaMac::on_radio_rx_done(const uint8_t *const payload, uint16_t size,
     }
 
     loramac_mhdr_t mac_hdr;
+    loramac_mlme_confirm_t mlme;
     uint8_t pos = 0;
     mac_hdr.value = payload[pos++];
 
@@ -710,11 +799,14 @@ void LoRaMac::on_radio_rx_done(const uint8_t *const payload, uint16_t size,
         case FRAME_TYPE_JOIN_ACCEPT:
 
             if (nwk_joined()) {
-                _mlme_confirmation.pending = false;
+                //TODO: this might need more logic as with rejoin this will happen more often
+                _params.RJcount0 = 0;
                 return;
             } else {
-                handle_join_accept_frame(payload, size);
-                _mlme_confirmation.pending = true;
+                loramac_event_info_status_t ret = handle_join_accept_frame(payload, size);
+                mlme.type = MLME_JOIN_ACCEPT;
+                mlme.status = ret;
+                confirm_handler(mlme);
             }
 
             break;
@@ -723,7 +815,7 @@ void LoRaMac::on_radio_rx_done(const uint8_t *const payload, uint16_t size,
         case FRAME_TYPE_DATA_CONFIRMED_DOWN:
         case FRAME_TYPE_PROPRIETARY:
 
-            handle_data_frame(payload, size, pos, mac_hdr.bits.mtype, rssi, snr);
+            handle_data_frame(payload, size, pos, mac_hdr.bits.mtype, rssi, snr, confirm_handler);
 
             break;
 
@@ -831,15 +923,20 @@ lorawan_status_t LoRaMac::send_join_request()
         _lora_phy->get_alternate_DR(_params.join_request_trial_counter + 1);
 
     mac_hdr.value = 0;
-    mac_hdr.bits.mtype = FRAME_TYPE_JOIN_REQ;
+    if (_params.join_request_type == JOIN_REQUEST) {
+        mac_hdr.bits.mtype = FRAME_TYPE_JOIN_REQ;
+        _params.is_last_tx_join_request = true;
+    } else {
+        mac_hdr.bits.mtype = FRAME_TYPE_REJOIN_REQUEST;
+        _params.is_last_tx_join_request = false;
+    }
 
     fctrl.value = 0;
     fctrl.bits.adr = _params.sys_params.adr_on;
-    _params.is_last_tx_join_request = true;
 
     /* In case of join request retransmissions, the stack must prepare
      * the frame again, because the network server keeps track of the random
-     * LoRaMacDevNonce values to prevent reply attacks. */
+     * LoRaMacDevNonce values to prevent replay attacks. */
     status = prepare_frame(&mac_hdr, &fctrl, 0, NULL, 0);
 
     if (status == LORAWAN_STATUS_OK) {
@@ -859,7 +956,8 @@ lorawan_status_t LoRaMac::send_join_request()
  */
 lorawan_status_t LoRaMac::handle_retransmission()
 {
-    if (!nwk_joined() && (_mlme_confirmation.req_type == MLME_JOIN)) {
+    //TODO: Rejoin requests are not retransmitted (except in case of ForceRejoinReq), in most of the cases server won't respond
+    if (!nwk_joined() && _params.is_last_tx_join_request) {
         return send_join_request();
     }
 
@@ -968,7 +1066,7 @@ void LoRaMac::on_ack_timeout_timer_event(void)
     lorawan_status_t status = handle_retransmission();
 
     if (status == LORAWAN_STATUS_NO_CHANNEL_FOUND ||
-            status == LORAWAN_STATUS_NO_FREE_CHANNEL_FOUND) {
+        status == LORAWAN_STATUS_NO_FREE_CHANNEL_FOUND) {
         // In a case when enabled channels are not found, PHY layer
         // resorts to default channels. Next attempt should go forward as the
         // default channels are always available if there is a base station in the
@@ -1422,6 +1520,7 @@ void LoRaMac::set_device_class(const device_class_t &device_class,
         tr_debug("Changing device class to -> CLASS_A");
         _lora_phy->put_radio_to_sleep();
     } else if (CLASS_C == _device_class) {
+        tr_debug("Changing device class to -> CLASS_C");
         _params.is_node_ack_requested = false;
         _lora_phy->put_radio_to_sleep();
         _lora_phy->compute_rx_win_params(_params.sys_params.rx2_channel.datarate,
@@ -1438,11 +1537,22 @@ void LoRaMac::set_device_class(const device_class_t &device_class,
 
 void LoRaMac::setup_link_check_request()
 {
-    reset_mlme_confirmation();
-
-    _mlme_confirmation.req_type = MLME_LINK_CHECK;
-    _mlme_confirmation.pending = true;
     _mac_commands.add_link_check_req();
+}
+
+void LoRaMac::setup_reset_indication()
+{
+    _mac_commands.add_reset_ind(1);
+}
+
+void LoRaMac::setup_rekey_indication()
+{
+    _mac_commands.add_rekey_ind(1);
+}
+
+void LoRaMac::setup_device_mode_indication(uint8_t classType)
+{
+    _mac_commands.add_device_mode_indication(classType);
 }
 
 lorawan_status_t LoRaMac::prepare_join(const lorawan_connect_t *params, bool is_otaa)
@@ -1452,19 +1562,30 @@ lorawan_status_t LoRaMac::prepare_join(const lorawan_connect_t *params, bool is_
             if ((params->connection_u.otaa.dev_eui == NULL)
                     || (params->connection_u.otaa.app_eui == NULL)
                     || (params->connection_u.otaa.app_key == NULL)
+                    || (params->connection_u.otaa.nwk_key == NULL )
                     || (params->connection_u.otaa.nb_trials == 0)) {
                 return LORAWAN_STATUS_PARAMETER_INVALID;
             }
             _params.keys.dev_eui = params->connection_u.otaa.dev_eui;
             _params.keys.app_eui = params->connection_u.otaa.app_eui;
             _params.keys.app_key = params->connection_u.otaa.app_key;
+            _params.keys.nwk_key = params->connection_u.otaa.nwk_key;
+
+            if (MBED_CONF_LORA_VERSION == LORAWAN_VERSION_1_0_2) {
+                _params.keys.nwk_key = params->connection_u.otaa.app_key;
+            }
+
+            if (0 != _lora_crypto.compute_join_server_keys(_params.keys.nwk_key, APPKEY_KEY_LENGTH, _params.keys.dev_eui,
+                                                           _params.keys.js_intkey, _params.keys.js_enckey)) {
+                return LORAWAN_STATUS_CRYPTO_FAIL;
+            }
+
             _params.max_join_request_trials = params->connection_u.otaa.nb_trials;
 
             if (!_lora_phy->verify_nb_join_trials(params->connection_u.otaa.nb_trials)) {
-                // Value not supported, get default
                 _params.max_join_request_trials = MBED_CONF_LORA_NB_TRIALS;
             }
-            // Reset variable JoinRequestTrials
+
             _params.join_request_trial_counter = 0;
 
             reset_mac_parameters();
@@ -1479,6 +1600,12 @@ lorawan_status_t LoRaMac::prepare_join(const lorawan_connect_t *params, bool is_
                 return LORAWAN_STATUS_PARAMETER_INVALID;
             }
 
+            if (MBED_CONF_LORA_VERSION == LORAWAN_VERSION_1_1
+                && ((params->connection_u.abp.snwk_sintkey == NULL)
+                || (params->connection_u.abp.nwk_senckey == NULL))) {
+                return LORAWAN_STATUS_PARAMETER_INVALID;
+            }
+
             _params.net_id = params->connection_u.abp.nwk_id;
             _params.dev_addr = params->connection_u.abp.dev_addr;
 
@@ -1487,17 +1614,46 @@ lorawan_status_t LoRaMac::prepare_join(const lorawan_connect_t *params, bool is_
 
             memcpy(_params.keys.app_skey, params->connection_u.abp.app_skey,
                    sizeof(_params.keys.app_skey));
+
+            if (MBED_CONF_LORA_VERSION == LORAWAN_VERSION_1_1) {
+                memcpy(_params.keys.snwk_sintkey, params->connection_u.abp.snwk_sintkey,
+                       sizeof(_params.keys.snwk_sintkey));
+
+                memcpy(_params.keys.nwk_senckey, params->connection_u.abp.nwk_senckey,
+                       sizeof(_params.keys.nwk_senckey));
+
+                _params.server_type = LW1_1;
+            } else {
+                memcpy(_params.keys.snwk_sintkey, params->connection_u.abp.nwk_skey,
+                       sizeof(_params.keys.snwk_sintkey));
+
+                memcpy(_params.keys.nwk_senckey, params->connection_u.abp.nwk_skey,
+                       sizeof(_params.keys.nwk_senckey));
+
+                _params.server_type = LW1_0_2;
+            }
         }
     } else {
 #if MBED_CONF_LORA_OVER_THE_AIR_ACTIVATION
         const static uint8_t dev_eui[] = MBED_CONF_LORA_DEVICE_EUI;
         const static uint8_t app_eui[] = MBED_CONF_LORA_APPLICATION_EUI;
         const static uint8_t app_key[] = MBED_CONF_LORA_APPLICATION_KEY;
+        const static uint8_t nwk_key[] = MBED_CONF_LORA_NETWORK_KEY;
 
         _params.keys.app_eui = const_cast<uint8_t *>(app_eui);
         _params.keys.dev_eui = const_cast<uint8_t *>(dev_eui);
         _params.keys.app_key = const_cast<uint8_t *>(app_key);
+        _params.keys.nwk_key = const_cast<uint8_t *>(nwk_key);
         _params.max_join_request_trials = MBED_CONF_LORA_NB_TRIALS;
+
+        if( MBED_CONF_LORA_VERSION == LORAWAN_VERSION_1_0_2 ) {
+            _params.keys.nwk_key = _params.keys.app_key;
+        }
+
+        if (0 != _lora_crypto.compute_join_server_keys(_params.keys.nwk_key, APPKEY_KEY_LENGTH, _params.keys.dev_eui,
+                                                       _params.keys.js_intkey, _params.keys.js_enckey)) {
+            return LORAWAN_STATUS_CRYPTO_FAIL;
+        }
 
         // Reset variable JoinRequestTrials
         _params.join_request_trial_counter = 0;
@@ -1510,13 +1666,23 @@ lorawan_status_t LoRaMac::prepare_join(const lorawan_connect_t *params, bool is_
 #else
         const static uint8_t nwk_skey[] = MBED_CONF_LORA_NWKSKEY;
         const static uint8_t app_skey[] = MBED_CONF_LORA_APPSKEY;
+        const static uint8_t snwk_sintkey[] = MBED_CONF_LORA_SNWKSINTKEY;
+        const static uint8_t nwk_senckey[] = MBED_CONF_LORA_NWKSENCKEY;
 
         _params.net_id = (MBED_CONF_LORA_DEVICE_ADDRESS & LORAWAN_NETWORK_ID_MASK) >> 25;
         _params.dev_addr = MBED_CONF_LORA_DEVICE_ADDRESS;
 
         memcpy(_params.keys.nwk_skey, nwk_skey, sizeof(_params.keys.nwk_skey));
-
         memcpy(_params.keys.app_skey, app_skey, sizeof(_params.keys.app_skey));
+        if (MBED_CONF_LORA_VERSION == LORAWAN_VERSION_1_1) {
+            memcpy(_params.keys.snwk_sintkey, snwk_sintkey, sizeof(_params.keys.snwk_sintkey));
+            memcpy(_params.keys.nwk_senckey, nwk_senckey, sizeof(_params.keys.nwk_senckey));
+            _params.server_type = LW1_1;
+        } else {
+            memcpy(_params.keys.snwk_sintkey, nwk_skey, sizeof(_params.keys.snwk_sintkey));
+            memcpy(_params.keys.nwk_senckey, nwk_skey, sizeof(_params.keys.nwk_senckey));
+            _params.server_type = LW1_0_2;
+        }
 #endif
     }
 
@@ -1530,8 +1696,14 @@ lorawan_status_t LoRaMac::join(bool is_otaa)
         return LORAWAN_STATUS_OK;
     }
 
-    reset_mlme_confirmation();
-    _mlme_confirmation.req_type = MLME_JOIN;
+    _params.join_request_type = JOIN_REQUEST;
+
+    return send_join_request();
+}
+
+lorawan_status_t LoRaMac::rejoin(join_req_type_t rejoin_type)
+{
+    _params.join_request_type = rejoin_type;
 
     return send_join_request();
 }
@@ -1555,9 +1727,11 @@ lorawan_status_t LoRaMac::prepare_frame(loramac_mhdr_t *machdr,
     uint16_t i;
     uint8_t pkt_header_len = 0;
     uint32_t mic = 0;
+    uint32_t mic2 = 0;
     const void *payload = fbuffer;
     uint8_t frame_port = fport;
     lorawan_status_t status = LORAWAN_STATUS_OK;
+    uint32_t args = 0;
 
     _params.tx_buffer_len = 0;
 
@@ -1590,12 +1764,51 @@ lorawan_status_t LoRaMac::prepare_frame(loramac_mhdr_t *machdr,
 
             if (0 != _lora_crypto.compute_join_frame_mic(_params.tx_buffer,
                                                          _params.tx_buffer_len & 0xFF,
-                                                         _params.keys.app_key,
+                                                         _params.keys.nwk_key,
                                                          APPKEY_KEY_LENGTH,
                                                          &mic)) {
                 return LORAWAN_STATUS_CRYPTO_FAIL;
             }
 
+            _params.tx_buffer[_params.tx_buffer_len++] = mic & 0xFF;
+            _params.tx_buffer[_params.tx_buffer_len++] = (mic >> 8) & 0xFF;
+            _params.tx_buffer[_params.tx_buffer_len++] = (mic >> 16) & 0xFF;
+            _params.tx_buffer[_params.tx_buffer_len++] = (mic >> 24) & 0xFF;
+
+            break;
+        case FRAME_TYPE_REJOIN_REQUEST:
+            _params.tx_buffer_len = pkt_header_len;
+            _params.tx_buffer[_params.tx_buffer_len++] = (uint8_t)_params.join_request_type;
+
+            if (_params.join_request_type == REJOIN_REQUEST_TYPE0 || _params.join_request_type == REJOIN_REQUEST_TYPE2) {
+                _params.tx_buffer[_params.tx_buffer_len++] = _params.net_id & 0xFF;
+                _params.tx_buffer[_params.tx_buffer_len++] = (_params.net_id >> 8) & 0xFF;
+                _params.tx_buffer[_params.tx_buffer_len++] = (_params.net_id >> 16) & 0xFF;
+
+                memcpy_convert_endianess(_params.tx_buffer + _params.tx_buffer_len,
+                                         _params.keys.dev_eui, 8);
+                _params.tx_buffer_len += 8;
+
+                _params.tx_buffer[_params.tx_buffer_len++] = _params.RJcount0 & 0xFF;
+                _params.tx_buffer[_params.tx_buffer_len++] = (_params.RJcount0 >> 8) & 0xFF;
+            } else { //_params.join_request_type == REJOIN_REQUEST_TYPE1
+                memcpy_convert_endianess(_params.tx_buffer + _params.tx_buffer_len,
+                                         _params.keys.app_eui, 8);
+                _params.tx_buffer_len += 8;
+                memcpy_convert_endianess(_params.tx_buffer + _params.tx_buffer_len,
+                                         _params.keys.dev_eui, 8);
+                _params.tx_buffer_len += 8;
+
+                _params.tx_buffer[_params.tx_buffer_len++] = _params.RJcount1 & 0xFF;
+                _params.tx_buffer[_params.tx_buffer_len++] = (_params.RJcount1 >> 8) & 0xFF;
+            }
+            if (0 != _lora_crypto.compute_join_frame_mic(_params.tx_buffer,
+                                                         _params.tx_buffer_len & 0xFF,
+                                                         _params.keys.snwk_sintkey,
+                                                         APPKEY_KEY_LENGTH,
+                                                         &mic)) {
+                return LORAWAN_STATUS_CRYPTO_FAIL;
+            }
             _params.tx_buffer[_params.tx_buffer_len++] = mic & 0xFF;
             _params.tx_buffer[_params.tx_buffer_len++] = (mic >> 8) & 0xFF;
             _params.tx_buffer[_params.tx_buffer_len++] = (mic >> 16) & 0xFF;
@@ -1640,6 +1853,7 @@ lorawan_status_t LoRaMac::prepare_frame(loramac_mhdr_t *machdr,
             const uint8_t mac_commands_len = _mac_commands.get_mac_cmd_length();
 
             if ((payload != NULL) && (_params.tx_buffer_len > 0)) {
+
                 if (mac_commands_len <= LORA_MAC_COMMAND_MAX_FOPTS_LENGTH) {
                     fctrl->bits.fopts_len += mac_commands_len;
 
@@ -1647,8 +1861,20 @@ lorawan_status_t LoRaMac::prepare_frame(loramac_mhdr_t *machdr,
                     _params.tx_buffer[0x05] = fctrl->value;
 
                     const uint8_t *buffer = _mac_commands.get_mac_commands_buffer();
-                    for (i = 0; i < mac_commands_len; i++) {
-                        _params.tx_buffer[pkt_header_len++] = buffer[i];
+                    if (_params.server_type == LW1_1) {
+                        if (0 != _lora_crypto.encrypt_payload(buffer, mac_commands_len,
+                                                              _params.keys.nwk_senckey,
+                                                              sizeof(_params.keys.nwk_senckey) * 8,
+                                                              _params.dev_addr, UP_LINK,
+                                                              _params.ul_frame_counter,
+                                                              &_params.tx_buffer[pkt_header_len])) {
+                            status = LORAWAN_STATUS_CRYPTO_FAIL;
+                        }
+                        pkt_header_len += mac_commands_len;
+                    } else {
+                        for (i = 0; i < mac_commands_len; i++) {
+                            _params.tx_buffer[pkt_header_len++] = buffer[i];
+                        }
                     }
                 } else {
                     _params.tx_buffer_len = mac_commands_len;
@@ -1656,11 +1882,9 @@ lorawan_status_t LoRaMac::prepare_frame(loramac_mhdr_t *machdr,
                     frame_port = 0;
                 }
             } else {
-                if (mac_commands_len > 0) {
-                    _params.tx_buffer_len = mac_commands_len;
-                    payload = _mac_commands.get_mac_commands_buffer();
-                    frame_port = 0;
-                }
+                _params.tx_buffer_len = mac_commands_len;
+                payload = _mac_commands.get_mac_commands_buffer();
+                frame_port = 0;
             }
 
             _mac_commands.parse_mac_commands_to_repeat();
@@ -1673,10 +1897,11 @@ lorawan_status_t LoRaMac::prepare_frame(loramac_mhdr_t *machdr,
                 uint8_t *key = _params.keys.app_skey;
                 uint32_t key_length = sizeof(_params.keys.app_skey) * 8;
                 if (frame_port == 0) {
-                    key = _params.keys.nwk_skey;
-                    key_length = sizeof(_params.keys.nwk_skey) * 8;
+                    key = _params.keys.nwk_senckey;
+                    key_length = sizeof(_params.keys.nwk_senckey) * 8;
                 }
-                if (0 != _lora_crypto.encrypt_payload((uint8_t *) payload, _params.tx_buffer_len,
+                if (0 != _lora_crypto.encrypt_payload((uint8_t *) payload,
+                                                      _params.tx_buffer_len,
                                                       key, key_length,
                                                       _params.dev_addr, UP_LINK,
                                                       _params.ul_frame_counter,
@@ -1688,16 +1913,38 @@ lorawan_status_t LoRaMac::prepare_frame(loramac_mhdr_t *machdr,
             _params.tx_buffer_len = pkt_header_len + _params.tx_buffer_len;
 
             if (0 != _lora_crypto.compute_mic(_params.tx_buffer, _params.tx_buffer_len,
-                                              _params.keys.nwk_skey, sizeof(_params.keys.nwk_skey) * 8,
-                                              _params.dev_addr,
+                                              _params.keys.nwk_skey,
+                                              sizeof(_params.keys.nwk_skey) * 8,
+                                              args, _params.dev_addr,
                                               UP_LINK, _params.ul_frame_counter, &mic)) {
                 status = LORAWAN_STATUS_CRYPTO_FAIL;
             }
 
-            _params.tx_buffer[_params.tx_buffer_len + 0] = mic & 0xFF;
-            _params.tx_buffer[_params.tx_buffer_len + 1] = (mic >> 8) & 0xFF;
-            _params.tx_buffer[_params.tx_buffer_len + 2] = (mic >> 16) & 0xFF;
-            _params.tx_buffer[_params.tx_buffer_len + 3] = (mic >> 24) & 0xFF;
+            if (_params.server_type == LW1_1) {
+                if (_params.is_srv_ack_requested) {
+                    args = _params.counterForAck;
+                }
+                args |= _params.sys_params.channel_data_rate << 16;
+                args |= _params.channel << 24;
+
+                if (0 != _lora_crypto.compute_mic(_params.tx_buffer, _params.tx_buffer_len,
+                                                  _params.keys.snwk_sintkey,
+                                                  sizeof(_params.keys.snwk_sintkey) * 8,
+                                                  args, _params.dev_addr,
+                                                  UP_LINK, _params.ul_frame_counter, &mic2)) {
+                    status = LORAWAN_STATUS_CRYPTO_FAIL;
+                }
+
+                _params.tx_buffer[_params.tx_buffer_len + 0] = mic2 & 0xFF;
+                _params.tx_buffer[_params.tx_buffer_len + 1] = (mic2 >> 8) & 0xFF;
+                _params.tx_buffer[_params.tx_buffer_len + 2] = mic & 0xFF;
+                _params.tx_buffer[_params.tx_buffer_len + 3] = (mic >> 8) & 0xFF;
+            } else {
+                _params.tx_buffer[_params.tx_buffer_len + 0] = mic & 0xFF;
+                _params.tx_buffer[_params.tx_buffer_len + 1] = (mic >> 8) & 0xFF;
+                _params.tx_buffer[_params.tx_buffer_len + 2] = (mic >> 16) & 0xFF;
+                _params.tx_buffer[_params.tx_buffer_len + 3] = (mic >> 24) & 0xFF;
+            }
 
             _params.tx_buffer_len += LORAMAC_MFR_LEN;
         }
@@ -1740,7 +1987,6 @@ lorawan_status_t LoRaMac::send_frame_on_channel(uint8_t channel)
     _mcps_confirmation.channel = channel;
 
     _mcps_confirmation.tx_toa = _params.timers.tx_toa;
-    _mlme_confirmation.tx_toa = _params.timers.tx_toa;
 
     if (!_is_nwk_joined) {
         _params.join_request_trial_counter++;
@@ -1755,12 +2001,6 @@ void LoRaMac::reset_mcps_confirmation()
 {
     memset((uint8_t *) &_mcps_confirmation, 0, sizeof(_mcps_confirmation));
     _mcps_confirmation.status = LORAMAC_EVENT_INFO_STATUS_ERROR;
-}
-
-void LoRaMac::reset_mlme_confirmation()
-{
-    memset((uint8_t *) &_mlme_confirmation, 0, sizeof(_mlme_confirmation));
-    _mlme_confirmation.status = LORAMAC_EVENT_INFO_STATUS_ERROR;
 }
 
 void LoRaMac::reset_mcps_indication()
@@ -1838,7 +2078,6 @@ void LoRaMac::disconnect()
     _mac_commands.clear_repeat_buffer();
 
     reset_mcps_confirmation();
-    reset_mlme_confirmation();
     reset_mcps_indication();
 }
 
@@ -1986,3 +2225,12 @@ uint8_t LoRaMac::get_prev_QOS_level()
     return _prev_qos_level;
 }
 
+server_type_t LoRaMac::get_server_type()
+{
+    return _params.server_type;
+}
+
+uint8_t LoRaMac::get_current_adr_ack_limit()
+{
+    return _lora_phy->get_adr_ack_limit();
+}

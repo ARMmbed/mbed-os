@@ -116,9 +116,9 @@ public:
      */
     lorawan_status_t process_mac_commands(const uint8_t *payload, uint8_t mac_index,
                                           uint8_t commands_size, uint8_t snr,
-                                          loramac_mlme_confirm_t &mlme_conf,
-                                          lora_mac_system_params_t &mac_params,
-                                          LoRaPHY &lora_phy);
+                                          lora_mac_system_params_t& mac_params,
+                                          LoRaPHY& lora_phy,
+                                          mbed::Callback<void(loramac_mlme_confirm_t&)> confirm_handler);
 
     /**
      * @brief Adds a new LinkCheckReq MAC command to be sent.
@@ -127,6 +127,40 @@ public:
      *                                  LORAWAN_STATUS_LENGTH_ERROR: Buffer full
      */
     lorawan_status_t add_link_check_req();
+
+    /**
+     * @brief add_reset_ind Adds a ResetInd MAC command to be sent.
+     *
+     * @param version LoRaWAN version of the stack
+     * @return status  Function status: LORAWAN_STATUS_OK: OK,
+     *                                  LORAWAN_STATUS_LENGTH_ERROR: Buffer full
+     */
+    lorawan_status_t add_reset_ind(uint8_t version);
+
+    /**
+     * @brief add_rekey_ind Adds a RekeyInd MAC command to be sent.
+     *
+     * @param version LoRaWAN version of the stack
+     * @return status  Function status: LORAWAN_STATUS_OK: OK,
+     *                                  LORAWAN_STATUS_LENGTH_ERROR: Buffer full
+     */
+    lorawan_status_t add_rekey_ind(uint8_t version);
+
+    /**
+     * @brief add_device_mode_indication Adds a DeviceModeInd MAC command to be sent.
+     * @param classType Class type that is used from now on
+     * @return status  Function status: LORAWAN_STATUS_OK: OK,
+     *                                  LORAWAN_STATUS_LENGTH_ERROR: Buffer full
+     */
+    lorawan_status_t add_device_mode_indication(uint8_t classType);
+
+    /**
+     * @brief add_device_time_req Adds DeviceTimeReq MAC command to be sent.
+     *        Requests server's current time
+     * @return status  Function status: LORAWAN_STATUS_OK: OK,
+     *                                  LORAWAN_STATUS_LENGTH_ERROR: Buffer full
+     */
+    lorawan_status_t add_device_time_req();
 
     /**
      * @brief Set battery level query callback method
@@ -216,6 +250,21 @@ private:
      *                                  LORAWAN_STATUS_LENGTH_ERROR: Buffer full
      */
     lorawan_status_t add_dl_channel_ans(uint8_t status);
+
+    /**
+     * @brief Adds a new AdrParamSetupAns MAC command to be sent.
+     * @return status  Function status: LORAWAN_STATUS_OK: OK,
+     *                                  LORAWAN_STATUS_LENGTH_ERROR: Buffer full
+     */
+    lorawan_status_t add_adr_param_setup_ans();
+
+    /**
+     * @brief Adds a new RejoinParamSetupAns MAC command to be sent.
+     * @param status 1 if time limitation was accepted, 0 otherwise.
+     * @return status  Function status: LORAWAN_STATUS_OK: OK,
+     *                                  LORAWAN_STATUS_LENGTH_ERROR: Buffer full
+     */
+    lorawan_status_t add_rejoin_param_setup_ans(uint8_t status);
 
 private:
     /**
