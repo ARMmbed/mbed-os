@@ -62,17 +62,17 @@
 
 /* Allocate PWM instances. */
 static nrfx_pwm_t nordic_nrf5_pwm_instance[] = {
-#if PWM0_ENABLED
-    NRF_DRV_PWM_INSTANCE(0),
+#if NRFX_PWM0_ENABLED
+    NRFX_PWM_INSTANCE(0),
 #endif
-#if PWM1_ENABLED
-    NRF_DRV_PWM_INSTANCE(1),
+#if NRFX_PWM1_ENABLED
+    NRFX_PWM_INSTANCE(1),
 #endif
-#if PWM2_ENABLED
-    NRF_DRV_PWM_INSTANCE(2),
+#if NRFX_PWM2_ENABLED
+    NRFX_PWM_INSTANCE(2),
 #endif
-#if PWM3_ENABLED
-    NRF_DRV_PWM_INSTANCE(3),
+#if NRFX_PWM3_ENABLED
+    NRFX_PWM_INSTANCE(3),
 #endif
 };
 
@@ -101,8 +101,8 @@ static void nordic_pwm_init(pwmout_t *obj)
         .step_mode    = NRF_PWM_STEP_AUTO,
     };
 
-    /* Make sure PWM instance is not running before making changes. */
-    nrfx_pwm_uninit(&nordic_nrf5_pwm_instance[obj->instance]);
+    // RF - test slowest prescalar setting (125kHz)
+    config.base_clock = NRF_PWM_CLK_125kHz;
 
     /* Initialize instance with new configuration. */
     ret_code_t result = nrfx_pwm_init(&nordic_nrf5_pwm_instance[obj->instance],
@@ -117,8 +117,8 @@ static void nordic_pwm_restart(pwmout_t *obj)
 {
     MBED_ASSERT(obj);
 
-    /* Uninitialize PWM instace */
-    nrf_drv_pwm_uninit(&nordic_nrf5_pwm_instance[obj->instance]);
+    /* Uninitialize PWM instance */
+    nrfx_pwm_uninit(&nordic_nrf5_pwm_instance[obj->instance]);
 
     /* (Re)initialize PWM instance. */
     nordic_pwm_init(obj);
@@ -146,7 +146,7 @@ void pwmout_init(pwmout_t *obj, PinName pin)
     /* Get hardware instance from pinmap. */
     int instance = pin_instance_pwm(pin);
 
-    MBED_ASSERT(instance < (int)(sizeof(nordic_nrf5_pwm_instance) / sizeof(nrfx_pwm_t)));
+    MBED_ASSERT(instance < (int) (sizeof(nordic_nrf5_pwm_instance) / sizeof(nrfx_pwm_t)));
 
     /* Populate PWM object with default values. */
     obj->instance = instance;
@@ -351,4 +351,7 @@ void pwmout_pulsewidth_us(pwmout_t *obj, int pulse)
     nordic_pwm_restart(obj);
 }
 
+
+
 #endif // DEVICE_PWMOUT
+
