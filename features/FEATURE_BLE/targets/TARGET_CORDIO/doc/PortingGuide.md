@@ -4,7 +4,7 @@ There are two main steps to enable the Mbed BLE Cordio port:
 
 1. Configure your target to include Cordio BLE port and Cordio libraries during the build process.
 
-1. Implement the `CordioHCIDriver` class targeting the Bluetooth controller.
+2. Implement the `CordioHCIDriver` class targeting the Bluetooth controller.
 
 ### Configure the target
 
@@ -42,7 +42,8 @@ Include an HCI driver for the BLE module used by the target, and a factory funct
 1. Navigate to the folder of the BLE API that hosts the target port `features/FEATURE_BLE/targets`.
 
 1. Create a folder containing the port code to isolate it from other code.
-  * Begin this folder's name with `TARGET_` and the rest of the name in capital letters.
+  
+1. Begin this folder's name with `TARGET_` and the rest of the name in capital letters.
 
 #### Create the HCI driver
 
@@ -54,7 +55,9 @@ More information about the architecture can be found in [HCI abstraction archite
 
 <span class="notes">**Note:** If the Bluetooth controller uses an H4 communication interface and the host exposes serial flow control in Mbed, you can skip this step. Use the class `ble::vendor::cordio::H4TransportDriver` as the transport driver.</span>
 
-To code an empty transport driver:
+The transport driver shall inherit publicly from the base class `CordioHCITransportDriver`. 
+
+To code a basic transport driver:
 
 ```
 #include "CordioHCITransportDriver.h"
@@ -84,8 +87,6 @@ private:
 } // namespace ble
 ```
 
-It inherits publicly from the base class `CordioHCITransportDriver`.
-
 ##### Functions
 
 * **Initialization/termination**: The functions `initialize` and `terminate` are responsible for initializing and terminating the transport driver. It is not necessary to initialize the transport in the constructor.
@@ -102,7 +103,9 @@ void on_data_received(uint8_t* data_received, uint16_t length_of_data_received);
 
 #### HCIDriver
 
-The HCIDriver template is:
+The HCI Driver shall inherit publicly from the base class `CordioHCIDriver`.
+
+The driver template is:
 
 ```
 #include "CordioHCIDriver.h"
