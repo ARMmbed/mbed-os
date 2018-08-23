@@ -417,6 +417,8 @@ GenericGap::GenericGap(
     _scan_timeout(),
     _connection_event_handler(NULL)
 {
+    _pal_gap.initialize();
+
     _pal_gap.when_gap_event_received(
         mbed::callback(this, &GenericGap::on_gap_event_received)
     );

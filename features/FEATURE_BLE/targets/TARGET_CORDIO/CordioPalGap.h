@@ -13,8 +13,13 @@ namespace cordio {
  * Implementation of ble::pal::Gap for the Cordio stack.
  */
 class Gap : public ::ble::pal::Gap {
-
 public:
+    virtual bool is_feature_supported(
+        Gap::ControllerSupportedFeatures_t feature
+    ) {
+        return (HciGetLeSupFeat() & (1 << feature.value()));
+    }
+
     virtual ble_error_t initialize() {
         return BLE_ERROR_NONE;
     }
