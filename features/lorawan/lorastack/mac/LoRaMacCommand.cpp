@@ -28,6 +28,8 @@ SPDX-License-Identifier: BSD-3-Clause
 #include "mbed-trace/mbed_trace.h"
 #define TRACE_GROUP "LMACC"
 
+using namespace mbed;
+
 /**
  * LoRaMAC max EIRP (dBm) table.
  */
@@ -76,7 +78,6 @@ void LoRaMacCommand::parse_mac_commands_to_repeat()
                 mac_cmd_buffer_to_repeat[cmd_cnt++] = mac_cmd_buffer[i];
                 break;
             }
-
             // NON-STICKY
             case MOTE_MAC_DEV_STATUS_ANS: { // 2 bytes payload
                 i += 2;
@@ -129,9 +130,9 @@ bool LoRaMacCommand::has_sticky_mac_cmd() const
 
 lorawan_status_t LoRaMacCommand::process_mac_commands(const uint8_t *payload, uint8_t mac_index,
                                                       uint8_t commands_size, uint8_t snr,
-                                                      loramac_mlme_confirm_t &mlme_conf,
                                                       lora_mac_system_params_t &mac_sys_params,
-                                                      LoRaPHY &lora_phy)
+                                                      LoRaPHY &lora_phy,
+                                                      Callback<void(loramac_mlme_confirm_t&)> confirm_handler)
 {
     uint8_t status = 0;
     lorawan_status_t ret_value = LORAWAN_STATUS_OK;
@@ -139,10 +140,20 @@ lorawan_status_t LoRaMacCommand::process_mac_commands(const uint8_t *payload, ui
     while (mac_index < commands_size) {
         // Decode Frame MAC commands
         switch (payload[mac_index++]) {
-            case SRV_MAC_LINK_CHECK_ANS:
+            case SRV_MAC_RESET_CONF: {
+                loramac_mlme_confirm_t mlme_conf;
+                mlme_conf.status = LORAMAC_EVENT_INFO_STATUS_OK;
+                mlme_conf.version = payload[mac_index++] & 0x0F;
+                confirm_handler(mlme_conf);
+            }
+                break;
+            case SRV_MAC_LINK_CHECK_ANS: {
+                loramac_mlme_confirm_t mlme_conf;
                 mlme_conf.status = LORAMAC_EVENT_INFO_STATUS_OK;
                 mlme_conf.demod_margin = payload[mac_index++];
                 mlme_conf.nb_gateways = payload[mac_index++];
+                confirm_handler(mlme_conf);
+            }
                 break;
             case SRV_MAC_LINK_ADR_REQ: {
                 adr_req_params_t link_adr_req;
@@ -283,7 +294,75 @@ lorawan_status_t LoRaMacCommand::process_mac_commands(const uint8_t *payload, ui
 
                 ret_value = add_dl_channel_ans(status);
             }
-            break;
+                break;
+            case SRV_MAC_REKEY_CONF: {
+                loramac_mlme_confirm_t mlme_conf;
+                mlme_conf.status = LORAMAC_EVENT_INFO_STATUS_OK;
+                mlme_conf.version = payload[mac_index++] & 0x0F;
+                confirm_handler(mlme_conf);
+            }
+                break;
+            case SRV_MAC_ADR_PARAM_SETUP_REQ: {
+                uint16_t limit = 1;
+                uint16_t delay = 1;
+                uint8_t adrParam = payload[mac_index++];
+                delay = delay << (adrParam & 0x0f);
+                limit = limit << (adrParam >> 4 & 0x0f);
+                lora_phy.set_adr_ack_limit(limit);
+                lora_phy.set_adr_ack_delay(delay);
+                ret_value = add_adr_param_setup_ans();
+            }
+                break;
+            case SRV_MAC_DEVICE_TIME_ANS: {
+                uint32_t secs = (uint32_t) payload[mac_index++];
+                secs |= (uint32_t) payload[mac_index++] << 8;
+                secs |= (uint32_t) payload[mac_index++] << 16;
+                secs |= (uint32_t) payload[mac_index++] << 24;
+                uint32_t millis = ((uint32_t) payload[mac_index++] * 1000) >> 8;
+
+                lora_phy.time_received(secs, millis);
+            }
+                break;
+            case SRV_MAC_FORCE_REJOIN_REQ: {
+                loramac_mlme_confirm_t mlme_conf;
+                uint8_t data = payload[mac_index++];
+                uint8_t max_retries = data & 0x07;
+                uint8_t period = (data >> 3) & 0x07;
+                data = payload[mac_index++];
+                uint8_t datarate = data & 0x0F;
+                uint8_t rejoin_type = (data >> 4) & 0x07;
+
+                mlme_conf.status = LORAMAC_EVENT_INFO_STATUS_OK;
+                mlme_conf.type = MLME_FORCE_REJOIN;
+                mlme_conf.max_retries = max_retries;
+                mlme_conf.period = period;
+                mlme_conf.datarate = datarate;
+                mlme_conf.rejoin_type = rejoin_type;
+                confirm_handler(mlme_conf);
+
+            }
+                break;
+            case SRV_MAC_REJOIN_PARAM_SETUP_REQ: {
+                uint8_t data = payload[mac_index++];
+                uint8_t count = (data & 0x0F) + 4;
+                uint8_t time = ((data >> 4) & 0x0F) + 10;
+
+                uint32_t max_count = 1 << count;
+                uint32_t max_time = 1 << time;
+
+                uint8_t time_available = lora_phy.update_rejoin_params(max_time, max_count);
+                add_rejoin_param_setup_ans(time_available);
+            }
+                break;
+            case SRV_MAC_DEVICE_MODE_CONF: {
+                loramac_mlme_confirm_t mlme_conf;
+                uint8_t classType = payload[mac_index++];
+                mlme_conf.classType = classType;
+                mlme_conf.status = LORAMAC_EVENT_INFO_STATUS_OK;
+                mlme_conf.type = MLME_DEVICE_MODE;
+                confirm_handler(mlme_conf);
+            }
+                break;
             default:
                 // Unknown command. ABORT MAC commands processing
                 tr_error("Invalid MAC command (0x%X)!", payload[mac_index]);
@@ -311,6 +390,53 @@ lorawan_status_t LoRaMacCommand::add_link_check_req()
         mac_cmd_buffer[mac_cmd_buf_idx++] = MOTE_MAC_LINK_CHECK_REQ;
         // No payload for this command
         ret = LORAWAN_STATUS_OK;
+    }
+    return ret;
+}
+
+lorawan_status_t LoRaMacCommand::add_reset_ind(uint8_t version)
+{
+    lorawan_status_t ret = LORAWAN_STATUS_LENGTH_ERROR;
+    if (cmd_buffer_remaining() > 0) {
+        mac_cmd_buffer[mac_cmd_buf_idx++] = MOTE_MAC_RESET_IND;
+        mac_cmd_buffer[mac_cmd_buf_idx++] = version & 0x0F;
+        ret = LORAWAN_STATUS_OK;
+        mac_cmd_in_next_tx = true;
+    }
+    return ret;
+}
+
+lorawan_status_t LoRaMacCommand::add_rekey_ind(uint8_t version)
+{
+    lorawan_status_t ret = LORAWAN_STATUS_LENGTH_ERROR;
+    if (cmd_buffer_remaining() > 0) {
+        mac_cmd_buffer[mac_cmd_buf_idx++] = MOTE_MAC_REKEY_IND;
+        mac_cmd_buffer[mac_cmd_buf_idx++] = version & 0x0F;
+        ret = LORAWAN_STATUS_OK;
+        mac_cmd_in_next_tx = true;
+    }
+    return ret;
+}
+
+lorawan_status_t LoRaMacCommand::add_device_mode_indication(uint8_t classType)
+{
+    lorawan_status_t ret = LORAWAN_STATUS_LENGTH_ERROR;
+    if (cmd_buffer_remaining() > 0) {
+        mac_cmd_buffer[mac_cmd_buf_idx++] = MOTE_DEVICE_MODE_IND;
+        mac_cmd_buffer[mac_cmd_buf_idx++] = classType;
+        ret = LORAWAN_STATUS_OK;
+        mac_cmd_in_next_tx = true;
+    }
+    return ret;
+}
+
+lorawan_status_t LoRaMacCommand::add_device_time_req()
+{
+    lorawan_status_t ret = LORAWAN_STATUS_LENGTH_ERROR;
+    if (cmd_buffer_remaining() > 0) {
+        mac_cmd_buffer[mac_cmd_buf_idx++] = MOTE_MAC_DEVICE_TIME_REQ;
+        ret = LORAWAN_STATUS_OK;
+        mac_cmd_in_next_tx = true;
     }
     return ret;
 }
@@ -411,6 +537,25 @@ lorawan_status_t LoRaMacCommand::add_dl_channel_ans(uint8_t status)
         // This is a sticky MAC command answer. Setup indication
         sticky_mac_cmd = true;
         ret = LORAWAN_STATUS_OK;
+    }
+    return ret;
+}
+
+lorawan_status_t LoRaMacCommand::add_adr_param_setup_ans()
+{
+    lorawan_status_t ret = LORAWAN_STATUS_LENGTH_ERROR;
+    if (cmd_buffer_remaining() > 0) {
+        mac_cmd_buffer[mac_cmd_buf_idx++] = MOTE_MAC_ADR_PARAM_SETUP_ANS;
+    }
+    return ret;
+}
+
+lorawan_status_t LoRaMacCommand::add_rejoin_param_setup_ans(uint8_t status)
+{
+    lorawan_status_t ret = LORAWAN_STATUS_LENGTH_ERROR;
+    if (cmd_buffer_remaining() > 0) {
+        mac_cmd_buffer[mac_cmd_buf_idx++] = MOTE_MAC_REJOIN_PARAM_SETUP_ANS;
+        mac_cmd_buffer[mac_cmd_buf_idx++] = status & 0x01;
     }
     return ret;
 }

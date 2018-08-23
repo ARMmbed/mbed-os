@@ -308,6 +308,30 @@ public:
     void setup_link_check_request();
 
     /**
+     * @brief setup_reset_indication Adds reset indication command
+     * to be put on next uplink message
+     */
+    void setup_reset_indication();
+
+    /**
+     * @brief setup_rekey_indication Adds rekey indication command
+     * to be put on next uplink message
+     */
+    void setup_rekey_indication();
+
+    /**
+     * @brief setup_device_mode_indication Adds Device mode indication command
+     * to be put on next uplink message
+     */
+    void setup_device_mode_indication(uint8_t classType);
+
+    /**
+     * @brief get_server_type Gets the server's type (Supported LoRaWAN spec version)
+     * @return Server type
+     */
+    server_type_t get_server_type();
+
+    /**
      * @brief prepare_join prepares arguments to be ready for join() call.
      * @param params Join parameters to use, if NULL, the default will be used.
      * @param is_otaa True if joining is to be done using OTAA, false for ABP.
@@ -324,6 +348,13 @@ public:
     lorawan_status_t join(bool is_otaa);
 
     /**
+     * @brief rejoin Rejoins the network
+     * @param rejoin_type Rejoin type indicates the rejoin message payload
+     * @return LORAWAN_STATUS_OK or a negative error code on failure.
+     */
+    lorawan_status_t rejoin(join_req_type_t rejoin_type);
+
+    /**
      * MAC operations upon successful transmission
      */
     void on_radio_tx_done(lorawan_time_t timestamp);
@@ -332,7 +363,8 @@ public:
      * MAC operations upon reception
      */
     void on_radio_rx_done(const uint8_t *const payload, uint16_t size,
-                          int16_t rssi, int8_t snr);
+                          int16_t rssi, int8_t snr,
+                          mbed::Callback<void(loramac_mlme_confirm_t&)> confirm_handler);
 
     /**
      * MAC operations upon transmission timeout
@@ -376,7 +408,6 @@ public:
      */
     void post_process_mcps_req(void);
     void post_process_mcps_ind(void);
-    void post_process_mlme_request(void);
     void post_process_mlme_ind(void);
 
     /**
@@ -404,6 +435,8 @@ public:
      * Gets the current receive slot
      */
     rx_slot_t get_current_slot(void);
+
+    uint8_t get_current_adr_ack_limit();
 
     /**
      * Indicates what level of QOS is set by network server. QOS level is set
@@ -469,13 +502,14 @@ private:
     /**
      * Handles a Join Accept frame
      */
-    void handle_join_accept_frame(const uint8_t *payload, uint16_t size);
+    loramac_event_info_status_t handle_join_accept_frame(const uint8_t *payload, uint16_t size);
 
     /**
      * Handles data frames
      */
     void handle_data_frame(const uint8_t *payload,  uint16_t size, uint8_t ptr_pos,
-                           uint8_t msg_type, int16_t rssi, int8_t snr);
+                           uint8_t msg_type, int16_t rssi, int8_t snr,
+                           mbed::Callback<void(loramac_mlme_confirm_t&)> confirm_handler);
 
     /**
      * Send a Join Request
@@ -496,7 +530,7 @@ private:
      * Performs MIC
      */
     bool message_integrity_check(const uint8_t *payload, uint16_t size,
-                                 uint8_t *ptr_pos, uint32_t address,
+                                 uint8_t *ptr_pos, uint16_t confFCnt, uint32_t address,
                                  uint32_t *downlink_counter, const uint8_t *nwk_skey);
 
     /**
@@ -507,12 +541,15 @@ private:
                                        uint8_t fopts_len, uint8_t *nwk_skey,
                                        uint8_t *app_skey, uint32_t address,
                                        uint32_t downlink_frame_counter,
-                                       int16_t rssi, int8_t snr);
+                                       int16_t rssi, int8_t snr,
+                                       mbed::Callback<void(loramac_mlme_confirm_t&)> confirm_handler);
     /**
      * Decrypts and extracts MAC commands from the received encrypted
      * payload if there is no data
+     * @return True if successful, false otherwise
      */
-    void extract_mac_commands_only(const uint8_t *payload, int8_t snr, uint8_t fopts_len);
+    bool extract_mac_commands_only(const uint8_t *payload, int8_t snr, uint8_t fopts_len,
+                                   mbed::Callback<void(loramac_mlme_confirm_t&)> confirm_handler);
 
     /**
      * Callback function to be executed when the DC backoff timer expires

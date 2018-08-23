@@ -32,6 +32,7 @@ SPDX-License-Identifier: BSD-3-Clause
 
 #include "mbedtls/aes.h"
 #include "mbedtls/cmac.h"
+#include "system/lorawan_data_structures.h"
 
 
 class LoRaMacCrypto {
@@ -48,6 +49,7 @@ public:
      * @param [in]  size            - Data buffer size
      * @param [in]  key             - AES key to be used
      * @param [in]  key_length      - Length of the key (bits)
+     * @param [in]  args            - LW1.1 bytes 1-4 (ConfFCnt, TxDr, TxCh)
      * @param [in]  address         - Frame address
      * @param [in]  dir             - Frame direction [0: uplink, 1: downlink]
      * @param [in]  seq_counter     - Frame sequence counter
@@ -57,7 +59,8 @@ public:
      */
     int compute_mic(const uint8_t *buffer, uint16_t size,
                     const uint8_t *key, uint32_t key_length,
-                    uint32_t address, uint8_t dir, uint32_t seq_counter,
+                    uint32_t args, uint32_t address,
+                    uint8_t dir, uint32_t seq_counter,
                     uint32_t *mic);
 
     /**
@@ -132,18 +135,42 @@ public:
     /**
      * Computes the LoRaMAC join frame decryption
      *
-     * @param [in]  key              - AES key to be used
+     * @param [in]  key              - AES nwk key to be used
      * @param [in]  key_length       - Length of the key (bits)
-     * @param [in]  app_nonce        - Application nonce
-     * @param [in]  dev_nonce        - Device nonce
+     * @param [in]  app_key          - AES app key to be used
+     * @param [in]  app_key_length   - Length of the app key (bits)
+     * @param [in]  args             - Combined string of args needed for key derivation
+     * @param [in]  args_size        - Args size
      * @param [out] nwk_skey         - Network session key
      * @param [out] app_skey         - Application session key
+     * @param [out] snwk_sintkey     - Serving Network Session Integrity Key
+     * @param [out] nwk_senckey      - Network Session Encryption Key
+     * @param stype                  - Server type (LW1_0_2 or LW1_1) which defines
      *
      * @return                        0 if successful, or a cipher specific error code
      */
     int compute_skeys_for_join_frame(const uint8_t *key, uint32_t key_length,
-                                     const uint8_t *app_nonce, uint16_t dev_nonce,
-                                     uint8_t *nwk_skey, uint8_t *app_skey);
+                                     const uint8_t *app_key, uint32_t app_key_length,
+                                     const uint8_t *args, uint8_t args_size,
+                                     uint8_t *nwk_skey, uint8_t *app_skey,
+                                     uint8_t *snwk_sintkey, uint8_t *nwk_senckey,
+                                     server_type_t stype);
+
+    /**
+     * Computes the LoRaMAC join server keys
+     * In case of LoRaWAN 1.0.x key will be copied to outputs,
+     * so we can continue using same code for all versions
+     *
+     * @param [in]  key              - AES key to be used
+     * @param [in]  key_length       - Length of the key (bits)
+     * @param [in]  eui              - DevEUI
+     * @param [out] js_intkey        - Join server integrity key
+     * @param [out] js_enckey        - Join server encryption key
+     *
+     * @return                        0 if successful, or a cipher specific error code
+     */
+    int compute_join_server_keys(const uint8_t *key, uint32_t key_length, const uint8_t *eui,
+                                 uint8_t *js_intkey, uint8_t *js_enckey);
 
 private:
     /**
