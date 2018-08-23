@@ -16,6 +16,7 @@ limitations under the License.
 """
 import re
 from os.path import join, basename, splitext, dirname, exists
+from os import getenv
 from distutils.spawn import find_executable
 from distutils.version import LooseVersion
 
@@ -116,6 +117,9 @@ class GCC(mbedToolchain):
         self.ar = join(tool_path, "arm-none-eabi-ar")
         self.elf2bin = join(tool_path, "arm-none-eabi-objcopy")
 
+        self.use_distcc = (bool(getenv("DISTCC_POTENTIAL_HOSTS", False))
+                           and not getenv("MBED_DISABLE_DISTCC", False))
+
     def version_check(self):
         stdout, _, retcode = run_cmd([self.cc[0], "--version"], redirect=True)
         msg = None
@@ -207,6 +211,8 @@ class GCC(mbedToolchain):
 
         # Call cmdline hook
         cmd = self.hook.get_cmdline_compiler(cmd)
+        if self.use_distcc:
+            cmd = ["distcc"] + cmd
 
         return [cmd]
 
