@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 /**
- * \file buffer_builder.h
+ * \file ac_buffer_builder.h
  * \copyright Copyright (c) ARM Ltd 2017
  * \author Donatien Garnier
  */

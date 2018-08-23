@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 /**
- * \file stream.h
+ * \file ac_stream.h
  * \copyright Copyright (c) ARM Ltd 2015
  * \author Donatien Garnier
  */

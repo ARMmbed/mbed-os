@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 /**
- * \file buffer_reader.h
+ * \file ac_buffer_reader.h
  * \copyright Copyright (c) ARM Ltd 2015
  * \author Donatien Garnier
  */

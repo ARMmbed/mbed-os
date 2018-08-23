@@ -1,5 +1,5 @@
 /**
- * \file debug.h
+ * \file ac_debug.h
  * \copyright Copyright (c) ARM Ltd 2018
  * \author Donatien Garnier
  */
