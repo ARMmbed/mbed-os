@@ -39,7 +39,7 @@ namespace mbed {
  * into a single object. Span can replace the traditional pair of pointer and
  * size arguments passed as array definition in function calls.
  *
- * @paragraph Operations
+ * @par Operations
  *
  * Span objects can be copied and assigned like regular value types with the help
  * of copy constructor and copy assignment (=) operator.
@@ -52,7 +52,7 @@ namespace mbed {
  * Span can be sliced from the beginning of the sequence (first()), from the end
  * of the sequence (last()) or from an arbitrary point of the sequence (subspan()).
  *
- * @paragraph Size encoding
+ * @par Size encoding
  *
  * The size of the sequence can be encoded in the type itself or in the value of
  * the instance with the help of the template parameter Extent:
@@ -69,7 +69,7 @@ namespace mbed {
  * instances can view invalid sequence (empty and NULL pointer). The function
  * empty() helps client code to decide if valid content is being viewed or not.
  *
- * @paragraph Example
+ * @par Example
  *
  * - Encoding fixed size array: Array values in parameter decays automatically
  * to pointer which leaves room for subtitle bugs:
