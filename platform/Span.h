@@ -25,6 +25,36 @@
 
 namespace mbed {
 
+// Internal details of span
+// It is used construct span from span of convertible types (non const -> const)
+namespace span_detail {
+
+// If From type is convertible to To type then the compilation constant value is
+// true otherwise it is false.
+template<typename From, typename To>
+class is_convertible
+{
+    struct true_type { char x[512]; };
+    struct false_type { };
+
+    static const From& generator();
+    static true_type sink(const To &);
+    static false_type sink(...);
+
+public:
+    static const bool value = sizeof(true_type) == sizeof(sink(generator()));
+};
+
+template<bool Condition, typename ResultType = void>
+struct enable_if;
+
+template<typename ResultType>
+struct enable_if<true, ResultType> {
+    typedef ResultType type;
+};
+
+}
+
 /**
  * Special value for the Extent parameter of Span.
  * If the type use this value then the size of the array is stored in the object
@@ -268,6 +298,24 @@ struct Span {
      */
     Span(element_type (&elements)[Extent]):
         _data(elements) { }
+
+    /**
+     * Construct a Span object from another Span of the same size.
+     *
+     * @param other The Span object used to construct this.
+     *
+     * @note For span with a positive extent, this function is not accessible.
+     *
+     * @note OtherElementType(*)[] should be convertible to ElementType(*)[].
+     */
+    template<typename OtherElementType>
+    Span(
+        const Span<OtherElementType, Extent> &other,
+        typename span_detail::enable_if<
+            span_detail::is_convertible<OtherElementType (*)[], ElementType (*)[]>::value
+        >::type* = 0
+    ):
+        _data(other.data()) { }
 
     /**
      * Return the size of the sequence viewed.
@@ -540,16 +588,22 @@ struct Span<ElementType, SPAN_DYNAMIC_EXTENT> {
     Span(element_type (&elements)[Count]):
         _data(elements), _size(Count) { }
 
-
     /**
      * Construct a Span object from another Span.
      *
      * @param other The Span object used to construct this.
      *
      * @note For span with a positive extent, this function is not accessible.
+     *
+     * @note OtherElementType(*)[] should be convertible to ElementType(*)[].
      */
-    template<ptrdiff_t OtherExtent>
-    Span(const Span<element_type, OtherExtent> &other):
+    template<typename OtherElementType, ptrdiff_t OtherExtent>
+    Span(
+        const Span<OtherElementType, OtherExtent> &other,
+        typename span_detail::enable_if<
+            span_detail::is_convertible<OtherElementType (*)[], ElementType (*)[]>::value
+        >::type* = NULL
+    ):
         _data(other.data()), _size(other.size()) { }
 
     /**
