@@ -57,17 +57,17 @@ namespace mbed {
  * The size of the sequence can be encoded in the type itself or in the value of
  * the instance with the help of the template parameter Extent:
  *
- *   - Span<uint8_t, 6>: Span over a sequence of 6 element
+ *   - Span<uint8_t, 6>: Span over a sequence of 6 elements.
  *   - Span<uint8_t>: Span over an arbitrary long sequence.
  *
  * When the size is encoded in the type itself, it is guaranteed that the Span
- * view a valid sequence (not empty() and not NULL). The type system also prevent
- * automatic conversion from Span of different sizes. Finally, the size of the
- * span object is a single pointer.
+ * view a valid sequence (not empty() and not NULL) - unless Extent equals 0.
+ * The type system also prevents automatic conversion from Span of different
+ * sizes. Finally, the Span object is internally represented as a single pointer.
  *
- * When the size of the sequence viewed is encoded in the Span value, span
- * instances can view invalid sequence (empty and NULL pointer). The function
- * empty() helps client code to decide if valid content is being viewed or not.
+ * When the size of the sequence viewed is encoded in the Span value, Span
+ * instances can view an empty sequence. The function empty() helps client code
+ * to decide if valid content is being viewed or not.
  *
  * @par Example
  *
@@ -75,87 +75,87 @@ namespace mbed {
  * to pointer which leaves room for subtitle bugs:
  *
  * @code
- * typedef uint8_t mac_address_t[6];
- * void process_mac(mac_address_t);
- *
- * // compile just fine
- * uint8_t* invalid_value = NULL;
- * process_mac(invalid_value);
- *
- *
- * // correct way
- * typedef Span<uint8_t, 6> mac_address_t;
- * void process_mac(mac_address_t);
- *
- * // compilation error
- * uint8_t* invalid_value = NULL;
- * process_mac(invalid_value);
- *
- * // compilation ok
- * uint8_t valid_value[6];
- * process_mac(valid_value);
+    typedef uint8_t mac_address_t[6];
+    void process_mac(mac_address_t);
+
+    // compile just fine
+    uint8_t* invalid_value = NULL;
+    process_mac(invalid_value);
+
+
+    // correct way
+    typedef Span<uint8_t, 6> mac_address_t;
+    void process_mac(mac_address_t);
+
+    // compilation error
+    uint8_t* invalid_value = NULL;
+    process_mac(invalid_value);
+
+    // compilation ok
+    uint8_t valid_value[6];
+    process_mac(valid_value);
  * @endcode
  *
  * - Arbitrary buffer: When dealing with multiple buffers, it becomes painful to
  * keep track of every buffer size and pointer.
  *
  * @code
- * const uint8_t options_tag[OPTIONS_TAG_SIZE];
- *
- * struct parsed_value_t {
- *    uint8_t* header;
- *    uint8_t* options;
- *    uint8_t* payload;
- *    size_t payload_size;
- * }
- *
- * parsed_value_t parse(uint8_t* buffer, size_t buffer_size) {
- *    parsed_value_t parsed_value { 0 };
- *
- *    if (buffer != NULL && buffer_size <= MINIMAL_BUFFER_SIZE) {
- *        return parsed_value;
- *    }
- *
- *    parsed_value.header = buffer;
- *    parsed_value.header_size = BUFFER_HEADER_SIZE;
- *
- *    if (memcmp(buffer + HEADER_OPTIONS_INDEX, options_tag, sizeof(options_tag)) == 0) {
- *        options = buffer + BUFFER_HEADER_SIZE;
- *        payload = buffer + BUFFER_HEADER_SIZE + OPTIONS_SIZE;
- *        payload_size = buffer_size - BUFFER_HEADER_SIZE + OPTIONS_SIZE;
- *    } else {
- *        payload = buffer + BUFFER_HEADER_SIZE;
- *        payload_size = buffer_size - BUFFER_HEADER_SIZE;
- *    }
- *
- *    return parsed_value;
- * }
- *
- *
- * //with span
- * struct parsed_value_t {
- *    Span<uint8_t> header;
- *    Span<uint8_t> options;
- *    Span<uint8_t> payload;
- * }
- *
- * parsed_value_t parse(Span<uint8_t> buffer) {
- *    parsed_value_t parsed_value;
- *
- *    if (buffer.size() <= MINIMAL_BUFFER_SIZE) {
- *        return parsed_value;
- *    }
- *
- *    parsed_value.header = buffer.first(BUFFER_HEADER_SIZE);
- *
- *    if (buffer.subspan<HEADER_OPTIONS_INDEX, sizeof(options_tag)>() == option_tag) {
- *        options = buffer.supspan(parsed_value.header.size(), OPTIONS_SIZE);
- *    }
- *
- *    payload = buffer.subspan(parsed_value.header.size() + parsed_value.options.size());
- *
- *    return parsed_value;
- * }
+    const uint8_t options_tag[OPTIONS_TAG_SIZE];
+
+    struct parsed_value_t {
+       uint8_t* header;
+       uint8_t* options;
+       uint8_t* payload;
+       size_t payload_size;
+    }
+
+    parsed_value_t parse(uint8_t* buffer, size_t buffer_size) {
+       parsed_value_t parsed_value { 0 };
+
+       if (buffer != NULL && buffer_size <= MINIMAL_BUFFER_SIZE) {
+           return parsed_value;
+       }
+
+       parsed_value.header = buffer;
+       parsed_value.header_size = BUFFER_HEADER_SIZE;
+
+       if (memcmp(buffer + HEADER_OPTIONS_INDEX, options_tag, sizeof(options_tag)) == 0) {
+           options = buffer + BUFFER_HEADER_SIZE;
+           payload = buffer + BUFFER_HEADER_SIZE + OPTIONS_SIZE;
+           payload_size = buffer_size - BUFFER_HEADER_SIZE + OPTIONS_SIZE;
+       } else {
+           payload = buffer + BUFFER_HEADER_SIZE;
+           payload_size = buffer_size - BUFFER_HEADER_SIZE;
+       }
+
+       return parsed_value;
+    }
+
+
+    //with span
+    struct parsed_value_t {
+       Span<uint8_t> header;
+       Span<uint8_t> options;
+       Span<uint8_t> payload;
+    }
+
+    parsed_value_t parse(Span<uint8_t> buffer) {
+       parsed_value_t parsed_value;
+
+       if (buffer.size() <= MINIMAL_BUFFER_SIZE) {
+           return parsed_value;
+       }
+
+       parsed_value.header = buffer.first(BUFFER_HEADER_SIZE);
+
+       if (buffer.subspan<HEADER_OPTIONS_INDEX, sizeof(options_tag)>() == option_tag) {
+           options = buffer.supspan(parsed_value.header.size(), OPTIONS_SIZE);
+       }
+
+       payload = buffer.subspan(parsed_value.header.size() + parsed_value.options.size());
+
+       return parsed_value;
+    }
  * @endcode
  *
  * @note You can create Span instances with the help of the function template
