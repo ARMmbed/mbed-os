@@ -1,0 +1,10 @@
+{
+    "name": "bootloader_K66F",
+    "target_overrides": {
+        "*": {
+            "target.app_offset": "0xa400",
+            "target.header_offset": "0xa000",
+            "target.bootloader_img": "mbed-bootloader-k66f-block_device-sotp-v3_4_0.bin"
+        }
+    }
+}

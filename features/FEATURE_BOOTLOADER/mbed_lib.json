@@ -17,31 +17,6 @@
                 ["firmwareSignatureSize", "const", "32be", "0"],
                 ["headerCRC", "digest", "CRCITT32be", "header"]
             ]
-        },
-        "K64F": {
-            "target.app_offset": "0xa400",
-            "target.header_offset": "0xa000",
-            "target.bootloader_img": "mbed-bootloader-k64f-block_device-sotp-v3_4_0.bin"
-        },
-        "K66F": {
-            "target.app_offset": "0xa400",
-            "target.header_offset": "0xa000",
-            "target.bootloader_img": "mbed-bootloader-k66f-block_device-sotp-v3_4_0.bin"
-        },
-        "NUCLEO_F429ZI": {
-            "target.app_offset": "0x10400",
-            "target.header_offset": "0x10000",
-            "target.bootloader_img": "mbed-bootloader-nucleo_f429zi-block_device-sotp-v3_4_0.bin"
-        },
-        "NUCLEO_F411RE": {
-            "target.app_offset": "0x10400",
-            "target.header_offset": "0x10000",
-            "target.bootloader_img": "mbed-bootloader-nucleo_f411re-block_device-sotp-v3_4_0.bin"
-        },
-        "UBLOX_EVK_ODIN_W2": {
-            "target.app_offset": "0x10400",
-            "target.header_offset": "0x10000",
-            "target.bootloader_img": "mbed-bootloader-ublox_evk_odin_w2-block_device-sotp-v3_4_0.bin"
         }
     }
 }
