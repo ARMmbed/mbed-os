@@ -134,6 +134,7 @@ int LittleFileSystem::mount(BlockDevice *bd)
     _bd = bd;
     int err = _bd->init();
     if (err) {
+        _bd = NULL;
         LFS_INFO("mount -> %d", err);
         _mutex.unlock();
         return err;
@@ -164,36 +165,40 @@ int LittleFileSystem::mount(BlockDevice *bd)
     }
 
     err = lfs_mount(&_lfs, &_config);
-    LFS_INFO("mount -> %d", lfs_toerror(err));
+    if (err) {
+        _bd = NULL;
+        LFS_INFO("mount -> %d", lfs_toerror(err));
+        _mutex.unlock();
+        return lfs_toerror(err);
+    }
+
     _mutex.unlock();
-    return lfs_toerror(err);
+    LFS_INFO("mount -> %d", 0);
+    return 0;
 }
 
 int LittleFileSystem::unmount()
 {
     _mutex.lock();
     LFS_INFO("unmount(%s)", "");
+    int res = 0;
     if (_bd) {
         int err = lfs_unmount(&_lfs);
-        if (err) {
-            LFS_INFO("unmount -> %d", lfs_toerror(err));
-            _mutex.unlock();
-            return lfs_toerror(err);
+        if (err && !res) {
+            res = lfs_toerror(err);
         }
 
         err = _bd->deinit();
-        if (err) {
-            LFS_INFO("unmount -> %d", err);
-            _mutex.unlock();
-            return err;
+        if (err && !res) {
+            res = err;
         }
 
         _bd = NULL;
     }
     
-    LFS_INFO("unmount -> %d", 0);
+    LFS_INFO("unmount -> %d", res);
     _mutex.unlock();
-    return 0;
+    return res;
 }
 
 int LittleFileSystem::format(BlockDevice *bd,
