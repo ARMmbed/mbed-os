@@ -112,7 +112,7 @@ class IAR(mbedToolchain):
                 "file": "",
                 "line": "",
                 "col": "",
-                "severity": "ERROR",
+                "severity": "Warning",
             })
 
 

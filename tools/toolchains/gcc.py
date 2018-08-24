@@ -140,7 +140,7 @@ class GCC(mbedToolchain):
                 "file": "",
                 "line": "",
                 "col": "",
-                "severity": "ERROR",
+                "severity": "Warning",
             })
 
     def is_not_supported_error(self, output):
