@@ -1,157 +1,171 @@
-# Near-Field Communication in Mbed OS
+# Near-field communication in Mbed OS
 
-## Table of Contents
+## Table of contents
 
-- [Near-Field Communication in Mbed OS](#near-field-communication-in-mbed-os)
-    - [Table of Contents](#table-of-contents)
-    - [Revision history](#revision-history)
-- [Introduction](#introduction)
-    - [Overview and Background](#overview-and-background)
-    - [Use cases](#use-cases)
-        - [Commissioning](#commissioning)
-            - [Identification](#identification)
-            - [Transport](#transport)
-        - [BLE Pairing](#ble-pairing)
-- [System Architecture and High-Level Design](#system-architecture-and-high-level-design)
-    - [Compliance with NFC Forum Specifications](#compliance-with-nfc-forum-specifications)
-    - [User-facing API](#user-facing-api)
-    - [Phase 1: MicroNFC stack integration](#phase-1-micronfc-stack-integration)
-    - [Phase 2: NFC Host/Controller split, NCI and NFC HAL API](#phase-2-nfc-hostcontroller-split-nci-and-nfc-hal-api)
-- [Detailed Design](#detailed-design)
-    - [User-facing APIs](#user-facing-apis)
-        - [NFC Controller](#nfc-controller)
-        - [Endpoints](#endpoints)
-            - [NFC Remote Endpoint](#nfc-remote-endpoint)
-            - [NFC NDEF Capable](#nfc-ndef-capable)
-            - [NFC Remote Initiator](#nfc-remote-initiator)
-            - [NFC Target](#nfc-target)
-            - [NFC EEPROM](#nfc-eeprom)
-            - [NFC Remote Target](#nfc-remote-target)
-    - [NDEF API](#ndef-api)
-        - [Common objects](#common-objects)
-        - [Parsing](#parsing)
-            - [ndef::MessageParser](#ndefmessageparser)
-                - [ndef::MessageParser::Delegate](#ndefmessageparserdelegate)
-            - [NDEF Record parsing](#ndef-record-parsing)
-                - [ndef::RecordParser](#ndefrecordparser)
-                - [ndef::RecordParserChain](#ndefrecordparserchain)
-                - [ndef::GenericRecordParser<ParserImplementation, ParsingResult>](#ndefgenericrecordparserparserimplementation-parsingresult)
-                    - [ndef::GenericRecordParser<ParserImplementation, ParsingResult>::Delegate](#ndefgenericrecordparserparserimplementation-parsingresultdelegate)
-            - [Common parsers](#common-parsers)
-            - [Simple parser](#simple-parser)
-                - [Delegate](#delegate)
-        - [Serialization](#serialization)
-    - [HAL APIs](#hal-apis)
-        - [NFC EEPROM API](#nfc-eeprom-api)
-        - [NCI Driver APIs](#nci-driver-apis)
-- [Testing strategy](#testing-strategy)
-    - [NFC Forum Compliance](#nfc-forum-compliance)
-    - [Interoperability](#interoperability)
-    - [HAL testing](#hal-testing)
-- [Dependencies](#dependencies)
+1. [Near-field communication in Mbed OS](#near-field-communication-in-mbed-os).
+    1. [Table of contents](#table-of-contents).
+    1. [Revision history](#revision-history).
+1. [Introduction](#introduction).
+    1. [Overview and background](#overview-and-background).
+    1. [Use cases](#use-cases).
+        1. [Commissioning](#commissioning).
+            1. [Identification](#identification).
+            1. [Transport](#transport).
+        1. [BLE pairing](#ble-pairing).
+1. [System architecture and high-level design](#system-architecture-and-high-level-design).
+    1. [Compliance with NFC Forum specifications](#compliance-with-nfc-forum-specifications).
+    1. [User-facing API](#user-facing-api).
+    1. [Phase 1: MicroNFC stack integration](#phase-1-micronfc-stack-integration).
+    1. [Phase 2: NFC host/controller split, NCI and NFC HAL API](#phase-2-nfc-hostcontroller-split-nci-and-nfc-hal-api).
+1. [Detailed design](#detailed-design).
+    1. [User-facing APIs](#user-facing-apis).
+        1. [NFC controller](#nfc-controller).
+        1. [Endpoints](#endpoints).
+            1. [NFC Remote Endpoint](#nfc-remote-endpoint).
+            1. [NFC NDEF Capable](#nfc-ndef-capable).
+            1. [NFC Remote Initiator](#nfc-remote-initiator).
+            1. [NFC Target](#nfc-target).
+            1. [NFC EEPROM](#nfc-eeprom).
+            1. [NFC Remote Target](#nfc-remote-target).
+    1. [NDEF API](#ndef-api).
+        1. [Common objects](#common-objects).
+        1. [Parsing](#parsing).
+            1. [ndef::MessageParser](#ndefmessageparser).
+                1. [ndef::MessageParser::Delegate](#ndefmessageparserdelegate).
+            1. [NDEF record parsing](#ndef-record-parsing).
+                1. [ndef::RecordParser](#ndefrecordparser).
+                1. [ndef::RecordParserChain](#ndefrecordparserchain).
+                1. [ndef::GenericRecordParser<ParserImplementation, ParsingResult>](#ndefgenericrecordparserparserimplementation-parsingresult).
+                    1. [ndef::GenericRecordParser<ParserImplementation, ParsingResult>::Delegate](#ndefgenericrecordparserparserimplementation-parsingresultdelegate).
+            1. [Common parsers](#common-parsers).
+            1. [Simple parser](#simple-parser).
+                1. [Delegate](#delegate).
+        1. [Serialization](#serialization).
+    1. [HAL APIs](#hal-apis).
+        1. [NFC EEPROM API](#nfc-eeprom-api).
+        1. [NCI driver APIs](#nci-driver-apis).
+1. [Testing strategy](#testing-strategy).
+    1. [NFC Forum compliance](#nfc-forum-compliance).
+    1. [Interoperability](#interoperability).
+    1. [HAL testing](#hal-testing).
+1. [Dependencies](#dependencies).
   
 ## Revision history
-| Revision 	| Date           	| Authors                                                	| Mbed OS Version 	| Comments         	|
+
+| Revision 	| Date           	| Authors                                                	| Mbed OS version 	| Comments         	|
 |----------	|----------------	|--------------------------------------------------------	|-----------------	|------------------	|
 | 1.0      	| 24 August 2018 	| Donatien Garnier ([@donatieng](https://github.com/donatieng/)); Vincent Coubard ([@pan-](https://github.com/pan-/)) 	| 5.10+           	| Initial revision 	|
 
 #   Introduction
-##  Overview and Background
-NFC offers a simple and secure way of commissioning IoT devices in the field, and we are seeing increasing demand for this from prospective customers. We have a plan to introduce NFC into Mbed OS, this is the first phase to add a reference implementation of card emulation mode.
 
-NFC offers three modes;
-1. NFC card emulation
-2. NFC reader/writer
-3. NFC peer to peer
+##  Overview and background
 
-To support new use cases such as commissioning, BLE pairing and identification/authentication of NFC enabled IoT endpoints, Mbed OS should support the card emulation mode.
+NFC offers a straightforward and secure way of commissioning IoT devices in the field, and we are seeing increasing demand for this from prospective customers. We have a plan to introduce NFC into Mbed OS. This is the first phase to add a reference implementation of card emulation mode.
 
-However the architecture should be future-proofed and should also be extendable to support other NFC modes in the future.
+NFC offers three modes:
+
+1. NFC card emulation.
+2. NFC reader/writer.
+3. NFC peer to peer.
+
+To support new use cases, such as commissioning, BLE pairing and identification and authentication of NFC-enabled IoT endpoints, Mbed OS should support the card emulation mode.
+
+However, the architecture should be future-proofed and should also be extendable to support other NFC modes in the future.
 
 ## Use cases
+
 ### Commissioning
 
-NFC is a great medium to support commissioning requirements.
+NFC is a medium that can support commissioning requirements.
 
-####	Identification
+#### Identification
 
-An NDEF message can be used to carry a device's unique identifier to ease identification before handing over to another transport medium such as BLE.
+You can use an NDEF message to carry a device's unique identifier. This eases identification before handing over to another transport medium, such as BLE.
 
-####	Transport
+#### Transport
 
-If the NFC controller can emulate a smartcard, no handover is necessary and the full commissioning flow can happen over NFC.
+If the NFC controller can emulate a smartcard, no handover is necessary, and the full commissioning flow can happen over NFC.
 
-###	BLE Pairing
+### BLE pairing
 
-A specifically crafted NDEF message can be used to facilitate out-of-band pairing wth man-in-the-middle protection as specified in the [Bluetooth® Secure Simple Pairing Using NFC](https://members.nfc-forum.org/apps/group_public/download.php/18688/NFCForum-AD-BTSSP_1_1.pdf) document.
+You can use a specifically crafted NDEF message to facilitate out-of-band pairing wth man-in-the-middle protection as specified in the [Bluetooth® Secure Simple Pairing Using NFC](https://members.nfc-forum.org/apps/group_public/download.php/18688/NFCForum-AD-BTSSP_1_1.pdf) document.
 
-#   System Architecture and High-Level Design
+# System architecture and high-level design
 
-##  Compliance with NFC Forum Specifications
-The NFC Forum is one the bodies producing NFC standards. Most smartphones supporting NFC today are compliant with the NFC Forum's specifications. In that consideration the NFC component in mbed OS should map with the relevant standards from the NFC Forum, and NFC Forum terminology should be used where possible.
+##  Compliance with NFC forum specifications
 
-##	User-facing API
+The NFC Forum is one the bodies producing NFC standards. Most smartphones supporting NFC today are compliant with the NFC Forum's specifications. In that consideration, the NFC component in Mbed OS should map with the relevant standards from the NFC Forum, and NFC Forum terminology should be used where possible.
+
+## User-facing API
+
 The NFC API exposed to the user should provide high-level, object-oriented C++ APIs for the following:
-* Starting/Stopping a discovery loop
-* Listing wired targets (NFC EEPROMs)
-* Exchanging NDEF messages with an initiator or a wired target
-* Emulate ISO7816-4 applications if supported
+
+- Starting/Stopping a discovery loop.
+- Listing wired targets (NFC EEPROMs).
+- Exchanging NDEF messages with an initiator or a wired target.
+- Emulate ISO7816-4 applications if supported.
 
 ##  Phase 1: MicroNFC stack integration
-The first step towards integrating NFC in mbed OS is the integration of the MicroNFC stack which has drivers for the PN512 and derivatives.
+
+The first step toward integrating NFC in Mbed OS is the integration of the MicroNFC stack, which has drivers for the PN512 and derivatives.
 
 Architecture:
 
 ![phase_1_architecture]
 
-##	Phase 2: NFC Host/Controller split, NCI and NFC HAL API
-At the moment the MicroNFC stack is split into two components:
-* Applications protocols and upper stack
-* Transceiver-specific polling loop an drivers
+## Phase 2: NFC host/controller split, NCI and NFC HAL API
 
-In order to match more closely with the NFC Forum standard and add a well-defined way for partners to add support for their transceivers, we will amend that split to be compliant with the NFC Forum's NCI (NFC Communication Interface) protocol.
+At the moment, the MicroNFC stack is split into two components:
 
-The generic part of the controller stack will be clearly separated so that partners can make use of it if they wish (approach 1).
+- Applications protocols and upper stack.
+- Transceiver-specific polling loop and drivers.
 
-For NFC controllers natively supporting the NCI protocol, partners would only have to write a transport driver (approach 2).
+To more closely match with the NFC Forum standard and add a well-defined way for Partners to add support for their transceivers, we will amend that split to be compliant with the NFC Forum's NFC Communication Interface (NCI) protocol.
+
+The generic part of the controller stack will be clearly separated, so Partners can use it if they wish (approach 1).
+
+For NFC controllers natively supporting the NCI protocol, Partners would only have to write a transport driver (approach 2).
 
 ![phase_2_architecture]
 
 Examples of NCI-compliant controllers:
-* ST ST21NFC
-* NXP PN7120 & PN7150
 
-Examples of non NCI-compliant transceivers:
-* NXP PN512
-* NXP PN5180
-* AMS AS395x series
+- ST ST21NFC.
+- NXP PN7120 and PN7150.
 
-# Detailed Design
+Examples of NCI-compliant transceivers that are *not* NCI-compliant:
 
-##	User-facing APIs
+- NXP PN512.
+- NXP PN5180.
+- AMS AS395x series.
 
-The following APIs are designed with the following principles in mind:
-*   Abstracting the underlying complexities of NFC from the user
-*   Offering a high-level C++ object-oriented API to the user
-*   Ensuring compliance with the NFC Forum's standards and terminology
-*   Ensuring consistency with the mbed OS codebase
+# Detailed design
 
-Class Diagram:
+## User-facing APIs
 
-###  NFC Controller
+We designed the user-facing APIs with the following principles:
+
+- Abstracting the underlying complexities of NFC from the user.
+- Offering a high-level C++ object-oriented API to the user.
+- Ensuring compliance with the NFC Forum's standards and terminology.
+- Ensuring consistency with the Mbed OS codebase.
+
+Class diagram:
+
+###  NFC controller
 
 ![nfc_controller_diagram]
 
 The `NFCController` class is the entrypoint into NFC for the user.
 
-When NCI integration is complete (phase 2), this class will have to be provided with a `NCIDriver` instance.
-For now, the one controller we support is the PN512 which implements the `NFCControllerDriver` class which is specific to the current MicroNFC release.
+When NCI integration is complete (phase 2), this class has to be provided with an `NCIDriver` instance. For now, the one controller we support is the PN512, which implements the `NFCControllerDriver` class. This class is specific to the current MicroNFC release.
 
 It offers the following methods:
 
 ```cpp
 void set_delegate(Delegate* delegate);
 ```
+
 Set the instance's delegate.
 
 ```cpp
@@ -174,34 +188,38 @@ struct nfc_rf_protocols_bitmask_t
 
 nfc_rf_protocols_bitmask_t get_supported_rf_protocols() const;
 ```
-Retrieve the list of supported RF protocols.
-These are mapped against NFC Forum-defined protocols.
 
-* T1T is based on ISO/IEC 14443A-3 and commonly known as Topaz (Innovision).
-* T2T is based on ISO/IEC 14443A-3 and commonly known as Mifare Ultralight/NTAG (NXP).
-* T3T is based on JIS X6319-4, also known as Felica (Sony).
-* ISO-DEP is based on ISO/IEC 14443-4 and is the common interface for contactless smartcards. The underlying radio protocol can either be ISO/IEC 14443A or ISO/IEC 14443B.
-* NFC-DEP is based on ISO/IEC 18092 / FIXME and is the basis for NFC peer-to-peer communication.
-* T5T is also known as ISO/IEC 15963.
+Retrieve the list of supported RF protocols. These are mapped against NFC Forum-defined protocols.
+
+- T1T is based on ISO/IEC 14443A-3 and commonly known as Topaz (Innovision).
+- T2T is based on ISO/IEC 14443A-3 and commonly known as Mifare Ultralight/NTAG (NXP).
+- T3T is based on JIS X6319-4, also known as Felica (Sony).
+- ISO-DEP is based on ISO/IEC 14443-4 and is the common interface for contactless smartcards. The underlying radio protocol can either be ISO/IEC 14443A or ISO/IEC 14443B.
+- NFC-DEP is based on ISO/IEC 18092/FIXME and is the basis for NFC peer-to-peer communication.
+- T5T is also known as ISO/IEC 15963.
 
 ```cpp
 nfc_err_t initialize();
 ```
+
 Initialize the NFC controller.
 
 ```cpp
 nfc_err_t configure_rf_protocols(nfc_rf_protocols_bitmask_t rf_protocols);
 ```
+
 Configure which protocols should be enabled during the discovery process.
 
 ```cpp
 nfc_err_t start_discovery();
 ```
+
 Start the discovery process.
 
 ```cpp
 nfc_err_t cancel_discovery();
 ```
+
 Cancel the discovery process (if running).
 
 **Delegate**
@@ -217,24 +235,26 @@ enum nfc_discovery_terminated_reason_t {
 
 void on_discovery_terminated(nfc_discovery_terminated_reason_t reason);
 ```
-Let the user know when a discovery loop has been terminated (either because endpoints have been found, the user canceled it or an error occured).
+
+Let the user know when a discovery loop has been terminated (either because endpoints have been found, the user canceled it or an error occurred).
 
 ```cpp
 void on_nfc_initiator_discovered(const mbed::SharedPtr<NFCRemoteInitiator>& nfc_initiator);
 
 void on_nfc_target_discovered(const mbed::SharedPtr<NFCRemoteTarget>& nfc_target);
 ```
+
 These methods called when a remote initiator (the local controller is acting as a target) or a remote target (the local controller is acting as an initiator) is detected.
 
-Shared pointers are used so that the user does not have to maintain the lifetime of these objects. The `NFCController` instance will release its reference when the endpoint is lost (see below).
+Shared pointers are used, so the user does not have to maintain the lifetime of these objects. The `NFCController` instance releases its reference when the endpoint is lost (see below).
 
 ### Endpoints
 
 ![nfc_endpoints_diagram]
 
-#### NFC Remote Endpoint
+#### NFC remote endpoint
 
-A remote endpoint is a generic NFC-enabled device with which the controller is communicating over the air interface.
+A remote endpoint is a generic NFC-enabled device with which the controller is communicating over the air interface:
 
 ```cpp
 nfc_err_t connect();
@@ -248,7 +268,6 @@ nfc_err_t disconnect();
 
 Drop the connection with the remote endpoint.
 
-
 ```cpp
 bool is_connected() const;
 ```
@@ -259,13 +278,13 @@ Set to true when the connection to this endpoint has been activated and is curre
 bool is_disconnected() const;
 ```
 
-Set to true when this endpoint has been lost and the reference to the shared pointer has been released by the controller instance.
+Set to true when this endpoint has been lost and the controlled instance has released the reference to the shared pointer.
 
 ```cpp
 nfc_rf_protocols_bitmask_t rf_protocols() const;
 ```
 
-List the RF protocols which have been activated to communicate with that endpoint.
+List the RF protocols that have been activated to communicate with that endpoint.
 
 **Delegate**
 
@@ -275,22 +294,23 @@ virtual void on_connected();
 
 This is called when a connection to this endpoint has been succesfully established.
 
-
 ```cpp
 virtual void on_disconnected();
 ```
 
-This is called when this endpoint has been lost and the reference to the shared pointer is about to be released by the controller instance.
+This is called when this endpoint has been lost and the controller instance is about to release the reference to the shared pointer.
 
-#### NFC NDEF Capable
+#### NFC NDEF capable
 
 This class is inherited by all endpoints that have the capability of handling NDEF data.
 
 User-facing API:
+
 ```cpp
 NFCNDEFCapable(uint8_t* buffer, size_t buffer_size);
 ```
-The instance needs to be constructed using a stratch buffer which will be used to encode and/or decode NDEF messages.
+
+The instance needs to be constructed using a stratch buffer, which will be used to encode and/or decode NDEF messages.
 
 ```cpp
 bool is_ndef_supported() const;
@@ -299,6 +319,7 @@ void set_ndef_delegate(Delegate* delegate);
 ```
 
 API used by descendant classes:
+
 ```cpp
 void parse_ndef_message(const ac_buffer_t& buffer);
 void build_ndef_message(ac_buffer_builder_t& buffer_builder);
@@ -307,19 +328,21 @@ ndef_msg_t* ndef_message();
 
 **Delegate**
 
-The instance receives requests to encode and decode NDEF messages and the user can choose how to handle them using the relevant builders and parsers.
+The instance receives requests to encode and decode NDEF messages, and the user can choose how to handle them using the relevant builders and parsers.
 
 ```cpp
 void parse_ndef_message(const uint8_t* buffer, size_t size);
 ```
+
 The encoded NDEF message is passed to the user for processing.
 
 ```cpp
 size_t build_ndef_message(uint8_t* buffer, size_t capacity);
 ```
+
 The user can encode a NDEF message in the buffer provided and return its size (or 0).
 
-#### NFC Remote Initiator
+#### NFC remote initiator
 
 This class derives from the base `NFCRemoteEndpoint` and `NFCNDEFCapable` classes.
 
@@ -338,27 +361,27 @@ enum nfc_tag_type_t {
 nfc_tag_type_t nfc_tag_type();
 ```
 
-Additionally the type of NFC tag (1 to 5) which is being emulated can be recovered.
-Type 4 can be implemented on top of two technologies, therefore it is separated into type 4a and type 4b.
+Additionally, the type of NFC tag (1 to 5) being emulated can be recovered. Type 4 can be implemented on top of two technologies; therefore, it is separated into type 4a and type 4b.
 
 ```cpp
 bool is_iso7816_supported();
 void add_iso7816_application(ISO7816App* app);
 ```
 
-If supported by the underlying technology (ISO-DEP), a contactless smartcard can be emulated and ISO7816-4 applications can be registered using this API.
+If supported by the underlying technology (ISO-DEP), a contactless smartcard can be emulated, and ISO7816-4 applications can be registered using this API.
 
 **Delegate**
 
 The delegate derives from delegates of `NFCRemoteEndpoint` and `NFCNDEFCapable`.
 
-#### NFC Target
+#### NFC target
 
 This is the base class for NFC targets that can be of two types:
-* NFC EEPROMs (Dual-interface wired devices)
-* Remote NFC Targets (NFC devices over NFC RF interface)
 
-Apart from the actual transport (Wired or NFC), the usage is very similar which explains why these methods are shared across these devices types.
+- NFC EEPROMs (Dual-interface wired devices).
+- Remote NFC targets (NFC devices over NFC RF interface).
+
+Apart from the actual transport (wired or NFC), the use is similar, which explains why these methods are shared across these devices types.
 
 This class derives from `NFCNDEFCapable`.
 
@@ -368,7 +391,7 @@ void erase_ndef_message();
 void read_ndef_message();
 ```
 
-Calling these functions will trigger the appropriate NDEF parsing/building process if handlers are registered in the `NFCNDEFCapable` instance.
+Calling these functions triggers the appropriate NDEF parsing/building process if handlers are registered in the `NFCNDEFCapable` instance.
 
 **Delegate**
 
@@ -380,10 +403,9 @@ void on_ndef_message_read(nfc_err_t result);
 
 #### NFC EEPROM
 
-The `NFCEEPROM` class derives from `NFCTarget` and shares the same API.
-A pointer to a `NFCEEPROMDriver` instance (see below) must be passed in the constructor.
+The `NFCEEPROM` class derives from `NFCTarget` and shares the same API. A pointer to a `NFCEEPROMDriver` instance (see below) must be passed in the constructor.
 
-#### NFC Remote Target
+#### NFC remote target
 
 *Note: This is initially out of scope for the initial release*
 
@@ -391,21 +413,24 @@ The `NFCRemoteTarget` class derives from `NFCTarget` and additionally from `NFCR
 
 ## NDEF API
 
-The NDEF API is constructed with these requirements in mind:
-* Minimizing memory allocation/copies
-* NFC Forum compliance
-* Ease of use
-* Extensibility
+The NDEF API is constructed with these requirements:
+
+- Minimizing memory allocation and copies.
+- NFC Forum compliance.
+- Ease of use.
+- Extensibility.
 
 ### Common objects
 
-We will provide multiple helpers to make it easy to create/parse common record types:
-* URI
-* Text
-* Smart Poster
-* MIME data
+We will provide multiple helpers to make it easy to create and parse common record types:
 
-For instance, the `URI`'s class API is as follows:
+- URI.
+- Text.
+- Smart poster.
+- MIME data.
+
+For instance, the `URI`'s class API is:
+
 ```cpp
 uri_prefix_t uri_prefix() const
 void set_uri_prefix(uri_prefix_t prefix)
@@ -427,18 +452,14 @@ void set_full_uri(const char* uri)
 
 ![ndef_message_parser_diagram]
 
-Messages incoming from the peer are parsed by a `MessageParser` which produce
-`Record` instances to its client. The parsing operation is event-driven: a
-message parser client registers a delegate inside the message parser. This delegate
-gets notified whenever an interesting event happens during the parsing.
+A `MessageParser`, which produces `Record` instances to its client, parses messages incoming from the peer. The parsing operation is event-driven: A message parser client registers a delegate inside the message parser. This delegate is notified whenever an interesting event happens during the parsing.
 
 ```cpp
 void set_delegate(Delegate* delegate);
 void parse(const ac_buffer_t& data_buffer);
 ```
 
-It is important to note that the data_buffer in entry of the parse function must
-contain the entire NDEF message.
+It is important to note that the data_buffer in the entry of the parse function must contain the entire NDEF message.
 
 ##### ndef::MessageParser::Delegate
 
@@ -449,27 +470,19 @@ virtual void on_parsing_terminated() { }
 virtual void on_parsing_error(error_t error) { }
 ```
 
-The delegate is notified by the parser when the parsing start or end; when an error
-is encountered or when an ndef `Record` has been parsed.
+The delegate is notified by the parser when the parsing starts or ends, when an error is encountered or when an NDEF `Record` has been parsed.
 
-To reduce memory consumption `Record` instances generated by the parser are short
-lived. They are only valid during the callback invocation. If a client is interested
-by the content of a message parsed and wants to use it after the parsing callback
-then it must make a copy of the record object.
+To reduce memory consumption, `Record` instances generated by the parser are short lived. They are only valid during the callback invocation. If a client is interested in the content of a message parsed and wants to use it after the parsing callback, then it must make a copy of the record object.
 
-#### NDEF Record parsing
+#### NDEF record parsing
 
 ![ndef_record_parser_diagram]
 
-NDEF records can contain any type of content. Therefore parsing of records is
-specific to the application. To help the developer; an optional ndef record
-parsing framework is included. It follows the _chain-of-responsibility_ design
-pattern that facilitate the integration of record parsers defined by client code.
+NDEF records can contain any type of content. Therefore, parsing of records is specific to the application. To help the developer, an optional NDEF record parsing framework is included. It follows the _chain-of-responsibility_ design pattern that facilitates the integration of record parsers defined by client code.
 
 ##### ndef::RecordParser
 
-Is is the base building block of the record parsing frame working. It parses a
-record then return true if the record has been parsed or false otherwise.
+It is the base building block of the record parsing frame working. It parses a record then returns true if the record has been parsed or false otherwise.
 
 ```cpp
 virtual bool parse(const Record&);
@@ -477,7 +490,7 @@ virtual bool parse(const Record&);
 
 ##### ndef::RecordParserChain
 
-It aggregate `RecordParser` instances and defer parsing to the instances it contains.
+It aggregates `RecordParser` instances and defers parsing to the instances it contains.
 
 ```cpp
 bool parse(const Record& record);
@@ -486,47 +499,38 @@ void set_next_parser(RecordParser* parser);
 
 ##### ndef::GenericRecordParser<ParserImplementation, ParsingResult>
 
-This is a partial implementation of the `RecordParser` interface. It exposes a
-delegate type that can be implemented and registered by clients of this parser.
-This delegate expects objects of the parsing result type.
+This is a partial implementation of the `RecordParser` interface. It exposes a delegate type that clients of this parser can implement and register. This delegate expects objects of the parsing result type.
 
 ```cpp
 bool parse(const Record&)
 void set_delegate(Delegate* delegate)
 ```
 
-Implementation of this class must expose the following non virtual function:
+Implementation of this class must expose the following nonvirtual function:
 
 ```c++
 bool do_parse(const Record& record, ParsingResult& parsing_result);
 ```
 
-If the parsing is successful then it should return true and fill `parsing_result`
-otherwise it should return false and leave `parsing_result` untouched.
+If the parsing is successful, then it should return true and fill `parsing_result`; otherwise, it should return false and leave `parsing_result` untouched.
 
-**Note:** The Curiously recurring template pattern (CRTP) is used to implement
-the delegation mechanism in a type-safe fashion. This is not achievable with
-_regular_ polymorphism.
+**Note:** The Curiously recurring template pattern (CRTP) is used to implement the delegation mechanism in a type-safe fashion. This is not achievable with _regular_ polymorphism.
 
 ###### ndef::GenericRecordParser<ParserImplementation, ParsingResult>::Delegate
 
-This delegate must be implemented by clients of this class. It receives the objects
-parsed.
+Clients of this class must implement this delegate. It receives the objects parsed.
 
 ```cpp
 virtual void on_record_parsed(const ParsingResult& record, const RecordID* id);
 ```
 
-**Note:** Usually clients are client of an implementation of an
-ndef::GenericRecordParser<ParserImplementation, ParsingResult> . They can refer
-to the delegate as `ImplementationName::Delegate`.
+**Note:** Usually, clients are client of an implementation of an ndef::GenericRecordParser<ParserImplementation, ParsingResult> . They can refer to the delegate as `ImplementationName::Delegate`.
 
 #### Common parsers
 
 ![ndef_common_parsers_diagram]
 
-Parsers for each common record type exists. They inherit from the
-`GenericRecordParser` to exposes a common delegate interface:
+Parsers for each common record type exist. They inherit from the `GenericRecordParser` to exposes a common delegate interface:
 
 ```cpp
 virtual void on_record_parsed(const <ParsedType>& result, const ndef::RecordID* id)
@@ -534,14 +538,11 @@ virtual void on_record_parsed(const <ParsedType>& result, const ndef::RecordID* 
 
 #### Simple parser
 
-The API provide a class named `SimpleMessageParser` that glues together a
-`MessageParser` and a chain `RecordParser`'s containing the parsers for the common
-types.
+The APIs provide a class named `SimpleMessageParser` that glues together a `MessageParser` and a chain `RecordParser` containing the parsers for the common types.
 
 ![ndef_simple_parser_diagram]
 
-Clients of the class can register a delegate, parse a message or add a new
-`RecordParser` in the parsing chain.
+Clients of the class can register a delegate, parse a message or add a new `RecordParser` in the parsing chain.
 
 ```cpp
 void set_delegate(Delegate* delegate);
@@ -551,8 +552,7 @@ void add_record_parser(ndef::RecordParser* parser);
 
 ##### Delegate
 
-This delegate must be implemented by clients of this class. It receives events
-from the parsing process:
+Clients of this class must implement this delegate. It receives events from the parsing process:
 
 ```cpp
 virtual void on_parsing_error(ndef::MessageParser::error_t error);
@@ -566,31 +566,27 @@ virtual void on_parsing_terminated();
 
 ### Serialization
 
-The class `MessageBuilder` is used to map a record into an NDEF message. It
-includes a data buffer that contains the _raw_ message. Client code use the
-functions `append_record` to append a new record into the message being built.
+The class `MessageBuilder` is used to map a record into an NDEF message. It includes a data buffer that contains the _raw_ message. Client code uses the function `append_record` to append a new record into the message being built.
 
 ![ndef_message_builder_diagram]
 
-For convenience, serialization functions for common types are provided as well as
-a specialized `MessageBuilder` named `SimpleMessageBuilder` that exposes them
-in an object oriented fashion.
+For convenience, serialization functions for common types are provided, as well as a specialized `MessageBuilder` named `SimpleMessageBuilder` that exposes them in an object oriented fashion.
 
 ## HAL APIs
 
 ### NFC EEPROM API
 
-The one HAL API that will have to be implemented by vendors to implement a `NFCEEPROMDriver` driver are the following virtual methods.
+The one HAL API that vendors have to implement to implement a `NFCEEPROMDriver` driver are the following virtual methods.
 
-From the upper layer's point of view, the EEPROM is a byte array that can be read from/written to. Long operations (reads, writes, erasures) must happen asynchronously. Booleans indicate whether a particular operation was succesful. Encoding is handled by the upper layer.
+From the upper layer's point of view, the EEPROM is a byte array that can be read from or written to. Long operations (reads, writes, erasures) must happen asynchronously. Booleans indicate whether a particular operation was succesful. The upper layer is handled by encoding.
 
 Address 0 means the start of the NDEF buffer (not necessarily at address 0 in the EEPROM).
 
-When a buffer is passed to the backend, the reference remains valid till the corresponding event is called.
+When a buffer is passed to the backend, the reference remains valid until the corresponding event is called.
 
-The `set_size()` command is called to change the size of the buffer (within the limits set by `get_max_size()`). Inversely that buffer size can be read using `get_size()`.
+The `set_size()` command is called to change the size of the buffer (within the limits set by `get_max_size()`). Inversely, that buffer size can be read using `get_size()`.
 
-`start_session()` and `end_session()` are used before a series of memory operations to allow the driver to lock/un-lock the RF interface during these operations to avoid having concurrent access to the memory.
+`start_session()` and `end_session()` are used before a series of memory operations to allow the driver to lock or unlock the RF interface during these operations to avoid having concurrent access to the memory.
 
 ```cpp
 void reset();
@@ -605,6 +601,7 @@ void erase_bytes(uint32_t address, size_t size)
 ```
 
 The following events must be called to signal completion of long operations:
+
 ```cpp
 void on_session_started(bool success);
 void on_session_ended(bool success);
@@ -616,38 +613,41 @@ void on_bytes_erased(size_t count);
 ```
 
 The implementation also has access to an event queue in case asynchronous operations need to be run:
+
 ```cpp
 Delegate *delegate();
 events::EventQueue *event_queue();
 ```
 
-### NCI Driver APIs
+### NCI driver APIs
 
 This API will be defined in phase 2.
 
 # Testing strategy
-## NFC Forum Compliance
 
-A dongle driven by [PyNFC](https://nfcpy.readthedocs.io/en/latest/index.html) will be used to run GreenTea-based tests to ensure that the implementation behaves correctly for a range of system tests.
+## NFC forum compliance
+
+A dongle driven by [PyNFC](https://nfcpy.readthedocs.io/en/latest/index.html) will be used to run Greentea-based tests to ensure that the implementation behaves correctly for a range of system tests.
 
 Unit tests will cover all internal logic and NFC endpoints can be mocked/emulated where possible.
 
-In the future we could run NFC Forum test suites using approved testing equipment.
+In the future, we could run NFC Forum test suites using approved testing equipment.
 
 ## Interoperability
 
-Interoperability is important with a technology such as NFC. Therefore our testing rig will include a selection of smartphones and NFC tags that can be connected using analog switches to the relevant NFC-enabled platform running mbed OS.
+Interoperability is important with a technology such as NFC. Therefore, our testing rig will include a selection of smartphones and NFC tags that can be connected using analog switches to the relevant NFC-enabled platform running Mbed OS.
 
 ![interop_test_rig]
 
 ## HAL testing
 
-GreenTea tests will be provided to partners to ensure compliance with the NFC EEPROM backend API.
+Greentea tests will be provided to Partners to ensure compliance with the NFC EEPROM backend API.
 
 # Dependencies
-* Event Queue
 
-There are currently at least four event queues (Plaftorm, BLE, USB, IP) in mbed OS and NFC will also require an event queing mechanism. We should aim at reusing one of these existing queues with the long term goal of unifying these code bases.
+- Event Queue
+
+There are currently at least four event queues (Plaftorm, BLE, USB and IP) in Mbed OS, and NFC will also require an event queing mechanism. We should try to reuse one of these existing queues with the longterm goal of unifying these code bases.
 
 [phase_1_architecture]: phase_1_architecture.png
 [phase_2_architecture]: phase_2_architecture.png
