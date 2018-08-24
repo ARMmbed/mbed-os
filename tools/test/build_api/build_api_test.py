@@ -183,7 +183,7 @@ class BuildApiTests(unittest.TestCase):
     @patch('tools.build_api.prepare_toolchain')
     def test_build_library_app_config(self, mock_prepare_toolchain, mock_exists, _, __):
         """
-        Test that build_library uses app_config correctly
+        Test that build_library uses config correctly
 
         :param mock_prepare_toolchain: mock of function prepare_toolchain
         :param mock_exists: mock of function os.path.exists
@@ -192,16 +192,16 @@ class BuildApiTests(unittest.TestCase):
         :return:
         """
         notify = MockNotifier()
-        app_config = "app_config"
+        config = MagicMock()
         mock_exists.return_value = False
 
         build_library(self.src_paths, self.build_path, self.target,
-                      self.toolchain_name, app_config=app_config, notify=notify)
+                      self.toolchain_name, config=config, notify=notify)
 
         args = mock_prepare_toolchain.call_args
-        self.assertTrue('app_config' in args[1],
+        self.assertTrue('config' in args[1],
                         "prepare_toolchain was not called with app_config")
-        self.assertEqual(args[1]['app_config'], app_config,
+        self.assertEqual(args[1]['config'], config,
                          "prepare_toolchain was called with an incorrect app_config")
 
     @patch('tools.build_api.Resources')
@@ -210,7 +210,7 @@ class BuildApiTests(unittest.TestCase):
     @patch('tools.build_api.prepare_toolchain')
     def test_build_library_no_app_config(self, mock_prepare_toolchain, mock_exists, _, __):
         """
-        Test that build_library correctly deals with no app_config
+        Test that build_library correctly deals with no config
 
         :param mock_prepare_toolchain: mock of function prepare_toolchain
         :param mock_exists: mock of function os.path.exists
@@ -225,9 +225,9 @@ class BuildApiTests(unittest.TestCase):
                       self.toolchain_name, notify=notify)
 
         args = mock_prepare_toolchain.call_args
-        self.assertTrue('app_config' in args[1],
+        self.assertTrue('config' in args[1],
                         "prepare_toolchain was not called with app_config")
-        self.assertEqual(args[1]['app_config'], None,
+        self.assertEqual(args[1]['config'], None,
                          "prepare_toolchain was called with an incorrect app_config")
 
 if __name__ == '__main__':
