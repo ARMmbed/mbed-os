@@ -537,7 +537,6 @@ The `set_size()` command is called to change the size of the buffer (within the 
 
 ```cpp
 void reset();
-void process_events();
 size_t get_max_size();
 void start_session();
 void end_session();
@@ -557,7 +556,12 @@ void on_bytes_written(size_t count);
 void on_size_read(bool success, size_t size);
 void on_size_written(bool success);
 void on_bytes_erased(size_t count);
-void on_event();
+```
+
+The implementation also has access to an event queue in case asynchronous operations need to be run:
+```cpp
+Delegate *delegate();
+events::EventQueue *event_queue();
 ```
 
 ### NCI Driver APIs

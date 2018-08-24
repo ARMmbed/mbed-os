@@ -40,6 +40,7 @@ abstract class NFCTarget::Delegate {
 }
 
 class NFCEEPROM {
+  +nfc_err_t initialize()
   +void set_delegate(NFCEEPROM::Delegate* delegate)
 }
 
@@ -49,9 +50,9 @@ abstract class NFCEEPROM::Delegate {
 
 abstract class NFCEEPROMDriver {
   +void set_delegate(Delegate* delegate)
+  +void set_event_queue(events::EventQueue* queue)
 
   +{abstract} void reset()
-  +{abstract} void process_events()
   +{abstract} size_t get_max_size()
   +{abstract} void start_session()
   +{abstract} void end_session()
@@ -60,6 +61,8 @@ abstract class NFCEEPROMDriver {
   +{abstract} void write_size(size_t count)
   +{abstract} void read_size()
   +{abstract} void erase_bytes(uint32_t address, size_t size)
+  #Delegate *delegate()
+  #events::EventQueue *event_queue()
 }
 
 abstract class NFCEEPROMDriver::Delegate {
@@ -70,7 +73,6 @@ abstract class NFCEEPROMDriver::Delegate {
   +{abstract} void on_size_read(bool success, size_t size)
   +{abstract} void on_size_written(bool success)
   +{abstract} void on_bytes_erased(size_t count)
-  +{abstract} void on_event()
 }
 
 NFCNDEFCapable <-- NFCTarget
