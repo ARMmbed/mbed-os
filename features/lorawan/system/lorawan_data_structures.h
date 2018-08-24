@@ -557,14 +557,6 @@ typedef enum {
      */
     LORAMAC_EVENT_INFO_STATUS_TX_TIMEOUT,
     /*!
-     * An RX timeout occurred on receive window 1.
-     */
-    LORAMAC_EVENT_INFO_STATUS_RX1_TIMEOUT,
-    /*!
-     * An RX timeout occurred on receive window 2.
-     */
-    LORAMAC_EVENT_INFO_STATUS_RX2_TIMEOUT,
-    /*!
      * An RX error occurred on receive window 1.
      */
     LORAMAC_EVENT_INFO_STATUS_RX1_ERROR,
@@ -1435,6 +1427,15 @@ typedef struct {
      * Multicast channels linked list
      */
     multicast_params_t *multicast_channels;
+
+    /*!
+     * \brief rejoin_forced Boolean indicating if rejoin is forced. See ForceRejoinReq LW 1.1 spec ch 5.13
+     */
+    bool rejoin_forced;
+    /*!
+     * \brief forced_datarate See ForceRejoinReq LW 1.1 spec ch 5.13
+     */
+    uint8_t forced_datarate;
 
 } loramac_protocol_params;
 

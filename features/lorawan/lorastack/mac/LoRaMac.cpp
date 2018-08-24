@@ -65,6 +65,16 @@ using namespace mbed;
  */
 #define DOWN_LINK                                   1
 
+static void memcpy_convert_endianess(uint8_t *dst,
+                                     const uint8_t *src,
+                                     uint16_t size)
+{
+    dst = dst + (size - 1);
+    while (size--) {
+        *dst-- = *src++;
+    }
+}
+
 LoRaMac::LoRaMac()
     : _lora_time(),
       _lora_phy(NULL),
@@ -88,6 +98,9 @@ LoRaMac::LoRaMac()
     _params.keys.app_eui = NULL;
     _params.keys.app_key = NULL;
     _params.keys.nwk_key = NULL;
+
+    _params.rejoin_forced = false;
+    _params.forced_datarate = DR_0;
 
     memset(_params.keys.nwk_skey, 0, sizeof(_params.keys.nwk_skey));
     memset(_params.keys.app_skey, 0, sizeof(_params.keys.app_skey));
@@ -147,11 +160,6 @@ const loramac_mcps_confirm_t *LoRaMac::get_mcps_confirmation() const
 const loramac_mcps_indication_t *LoRaMac::get_mcps_indication() const
 {
     return &_mcps_indication;
-}
-
-const loramac_mlme_confirm_t *LoRaMac::get_mlme_confirmation() const
-{
-    return &_mlme_confirmation;
 }
 
 const loramac_mlme_indication_t *LoRaMac::get_mlme_indication() const
@@ -214,18 +222,7 @@ loramac_event_info_status_t LoRaMac::handle_join_accept_frame(const uint8_t *pay
     uint32_t mic_rx = 0;
     server_type_t stype = LW1_0_2;
 
-    //Store server type to local so that invalid join accept of rejoin request won't affect the orig. type.
-    if ( (((_params.rx_buffer[11] >> 7) & 0x01) == 1) && MBED_CONF_LORA_VERSION == LORAWAN_VERSION_1_1) {
-        stype = LW1_1;
-    } else {
-        stype = LW1_0_2;
-        //Server does not support LW 1.1 so we need to unset JS keys
-        memcpy(_params.keys.js_intkey, _params.keys.nwk_key, sizeof(_params.keys.nwk_skey));
-        memcpy(_params.keys.js_enckey, _params.keys.nwk_key, sizeof(_params.keys.nwk_skey));
-    }
-
     uint8_t *decrypt_key = NULL;
-    uint8_t *mic_key = _params.keys.js_intkey; //in case of LW1.0.2 js_intkey == nwk_key == app_key
 
     if (_params.join_request_type == JOIN_REQUEST) {
         decrypt_key = _params.keys.nwk_key;
@@ -233,6 +230,13 @@ loramac_event_info_status_t LoRaMac::handle_join_accept_frame(const uint8_t *pay
         decrypt_key = _params.keys.js_enckey;
     }
 
+    if (0 != _lora_crypto.decrypt_join_frame(payload + 1, size - 1,
+                                             decrypt_key, APPKEY_KEY_LENGTH,
+                                             _params.rx_buffer + 1)) {
+        return LORAMAC_EVENT_INFO_STATUS_CRYPTO_FAIL;
+    }
+    _params.rx_buffer[0] = payload[0];
+
     //Store server type to local so that invalid join accept of rejoin request won't affect the orig. type.
     if ( (((_params.rx_buffer[11] >> 7) & 0x01) == 1) && MBED_CONF_LORA_VERSION == LORAWAN_VERSION_1_1) {
         stype = LW1_1;
@@ -243,18 +247,14 @@ loramac_event_info_status_t LoRaMac::handle_join_accept_frame(const uint8_t *pay
         memcpy(_params.keys.js_enckey, _params.keys.nwk_key, sizeof(_params.keys.nwk_skey));
     }
 
-    if (0 != _lora_crypto.decrypt_join_frame(payload + 1, size - 1,
-                                             decrypt_key, APPKEY_KEY_LENGTH,
-                                             _params.rx_buffer + 1)) {
-        return LORAMAC_EVENT_INFO_STATUS_CRYPTO_FAIL;
-    }
-
     uint8_t payload_start = 1;
     uint8_t mic_start = 0;
     uint8_t args_size = 0;
     uint8_t args[16];
+
+    uint8_t *mic_key = _params.keys.js_intkey; //in case of LW1.0.2 js_intkey == nwk_key == app_key
+
     if (stype == LW1_0_2) {
-        _params.rx_buffer[0] = payload[0];
         mic_start = size - LORAMAC_MFR_LEN;
 
         memcpy(args, _params.rx_buffer + 1, 6);
@@ -262,16 +262,20 @@ loramac_event_info_status_t LoRaMac::handle_join_accept_frame(const uint8_t *pay
         args_size = 8;
     } else {
         //MIC calculation needs more params, so we move the payload a bit
-        _params.rx_buffer[0] = (uint8_t)_params.join_request_type;
-        memcpy(_params.rx_buffer + 11, _params.rx_buffer, size - LORAMAC_MFR_LEN);
-        memcpy(_params.rx_buffer + 1, _params.keys.app_eui, 8);
-        memcpy(_params.rx_buffer + 9, (uint8_t *) &_params.dev_nonce, 2);
-        mic_start = size - LORAMAC_MFR_LEN + 11;
+        memmove(_params.rx_buffer + 11, _params.rx_buffer, size);
+        _params.rx_buffer[0] = _params.join_request_type; // JoinReqType
+        memcpy_convert_endianess(_params.rx_buffer + 1,  _params.keys.app_eui, 8); // JoinEUI
+        _params.rx_buffer[9] = _params.dev_nonce & 0xFF; // DevNonce
+        _params.rx_buffer[10] = (_params.dev_nonce >> 8) & 0xFF;
+        size += 11;
+
+        mic_start = size - LORAMAC_MFR_LEN;
         payload_start += 11;
 
         memcpy(args, _params.rx_buffer + payload_start, 3);
-        memcpy(args + 3, _params.keys.app_eui, 8);
-        memcpy(args + 3 + 8, (uint8_t *) &_params.dev_nonce, 2);
+        memcpy_convert_endianess(args + 3, _params.keys.app_eui, 8);
+        args[3+8] = _params.dev_nonce & 0xFF;
+        args[3+9] = (_params.dev_nonce >> 8) & 0xFF;
         args_size = 13;
     }
 
@@ -764,7 +768,6 @@ void LoRaMac::on_radio_tx_done(lorawan_time_t timestamp)
         }
     } else {
         _mcps_confirmation.status = LORAMAC_EVENT_INFO_STATUS_OK;
-        _mlme_confirmation.status = LORAMAC_EVENT_INFO_STATUS_RX2_TIMEOUT;
     }
 
     _params.last_channel_idx = _params.channel;
@@ -838,7 +841,6 @@ void LoRaMac::on_radio_tx_timeout(void)
     }
 
     _mcps_confirmation.status = LORAMAC_EVENT_INFO_STATUS_TX_TIMEOUT;
-    _mlme_confirmation.status = LORAMAC_EVENT_INFO_STATUS_TX_TIMEOUT;
 
     _mac_commands.clear_command_buffer();
 
@@ -861,14 +863,8 @@ void LoRaMac::on_radio_rx_timeout(bool is_timeout)
 
     if (_params.rx_slot == RX_SLOT_WIN_1) {
         if (_params.is_node_ack_requested == true) {
-            _mcps_confirmation.status = is_timeout ?
-                                        LORAMAC_EVENT_INFO_STATUS_RX1_TIMEOUT :
-                                        LORAMAC_EVENT_INFO_STATUS_RX1_ERROR;
+            _mcps_confirmation.status = LORAMAC_EVENT_INFO_STATUS_RX1_ERROR;
         }
-        _mlme_confirmation.status = is_timeout ?
-                                    LORAMAC_EVENT_INFO_STATUS_RX1_TIMEOUT :
-                                    LORAMAC_EVENT_INFO_STATUS_RX1_ERROR;
-
         if (_device_class != CLASS_C) {
             if (_lora_time.get_elapsed_time(_params.timers.aggregated_last_tx_time) >= _params.rx_window2_delay) {
                 _lora_time.stop(_params.timers.rx_window2_timer);
@@ -876,14 +872,8 @@ void LoRaMac::on_radio_rx_timeout(bool is_timeout)
         }
     } else {
         if (_params.is_node_ack_requested == true) {
-            _mcps_confirmation.status = is_timeout ?
-                                        LORAMAC_EVENT_INFO_STATUS_RX2_TIMEOUT :
-                                        LORAMAC_EVENT_INFO_STATUS_RX2_ERROR;
+            _mcps_confirmation.status = LORAMAC_EVENT_INFO_STATUS_RX2_ERROR;
         }
-
-        _mlme_confirmation.status = is_timeout ?
-                                    LORAMAC_EVENT_INFO_STATUS_RX2_TIMEOUT :
-                                    LORAMAC_EVENT_INFO_STATUS_RX2_ERROR;
     }
 }
 
@@ -1575,7 +1565,10 @@ lorawan_status_t LoRaMac::prepare_join(const lorawan_connect_t *params, bool is_
                 _params.keys.nwk_key = params->connection_u.otaa.app_key;
             }
 
-            if (0 != _lora_crypto.compute_join_server_keys(_params.keys.nwk_key, APPKEY_KEY_LENGTH, _params.keys.dev_eui,
+            uint8_t converted_eui[8];
+            memcpy_convert_endianess(converted_eui, _params.keys.dev_eui, 8);
+
+            if (0 != _lora_crypto.compute_join_server_keys(_params.keys.nwk_key, APPKEY_KEY_LENGTH, converted_eui,
                                                            _params.keys.js_intkey, _params.keys.js_enckey)) {
                 return LORAWAN_STATUS_CRYPTO_FAIL;
             }
@@ -1650,7 +1643,10 @@ lorawan_status_t LoRaMac::prepare_join(const lorawan_connect_t *params, bool is_
             _params.keys.nwk_key = _params.keys.app_key;
         }
 
-        if (0 != _lora_crypto.compute_join_server_keys(_params.keys.nwk_key, APPKEY_KEY_LENGTH, _params.keys.dev_eui,
+        uint8_t converted_eui[8];
+        memcpy_convert_endianess(converted_eui, _params.keys.dev_eui, 8);
+
+        if (0 != _lora_crypto.compute_join_server_keys(_params.keys.nwk_key, APPKEY_KEY_LENGTH, converted_eui,
                                                        _params.keys.js_intkey, _params.keys.js_enckey)) {
             return LORAWAN_STATUS_CRYPTO_FAIL;
         }
@@ -1701,21 +1697,13 @@ lorawan_status_t LoRaMac::join(bool is_otaa)
     return send_join_request();
 }
 
-lorawan_status_t LoRaMac::rejoin(join_req_type_t rejoin_type)
+lorawan_status_t LoRaMac::rejoin(join_req_type_t rejoin_type, bool is_forced, uint8_t datarate)
 {
     _params.join_request_type = rejoin_type;
+    _params.rejoin_forced = is_forced;
+    _params.forced_datarate = datarate;
 
     return send_join_request();
-}
-
-static void memcpy_convert_endianess(uint8_t *dst,
-                                     const uint8_t *src,
-                                     uint16_t size)
-{
-    dst = dst + (size - 1);
-    while (size--) {
-        *dst-- = *src++;
-    }
 }
 
 lorawan_status_t LoRaMac::prepare_frame(loramac_mhdr_t *machdr,
@@ -1971,15 +1959,17 @@ lorawan_status_t LoRaMac::send_frame_on_channel(uint8_t channel)
     int8_t tx_power = 0;
 
     tx_config.channel = channel;
-    tx_config.datarate = _params.sys_params.channel_data_rate;
+    if (_params.rejoin_forced) {
+        tx_config.datarate = _params.forced_datarate;
+    } else {
+        tx_config.datarate = _params.sys_params.channel_data_rate;
+    }
     tx_config.tx_power = _params.sys_params.channel_tx_power;
     tx_config.max_eirp = _params.sys_params.max_eirp;
     tx_config.antenna_gain = _params.sys_params.antenna_gain;
     tx_config.pkt_len = _params.tx_buffer_len;
 
     _lora_phy->tx_config(&tx_config, &tx_power, &_params.timers.tx_toa);
-
-    _mlme_confirmation.status = LORAMAC_EVENT_INFO_STATUS_ERROR;
 
     _mcps_confirmation.status = LORAMAC_EVENT_INFO_STATUS_ERROR;
     _mcps_confirmation.data_rate = _params.sys_params.channel_data_rate;
@@ -2007,6 +1997,11 @@ void LoRaMac::reset_mcps_indication()
 {
     memset((uint8_t *) &_mcps_indication, 0, sizeof(_mcps_indication));
     _mcps_indication.status = LORAMAC_EVENT_INFO_STATUS_ERROR;
+}
+
+LoRaWANTimeHandler *LoRaMac::get_lora_time()
+{
+    return &_lora_time;
 }
 
 lorawan_status_t LoRaMac::initialize(EventQueue *queue,
@@ -2233,4 +2228,10 @@ server_type_t LoRaMac::get_server_type()
 uint8_t LoRaMac::get_current_adr_ack_limit()
 {
     return _lora_phy->get_adr_ack_limit();
+}
+
+void LoRaMac::get_rejoin_parameters(uint32_t& max_time, uint32_t& max_count)
+{
+    max_time = _lora_phy->get_rejoin_max_time();
+    max_count = _lora_phy->get_rejoin_max_count();
 }
