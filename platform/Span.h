@@ -64,14 +64,14 @@ public:
  * @par Operations
  *
  * Span objects can be copied and assigned like regular value types with the help
- * of copy constructor and copy assignment (=) operators.
+ * of the copy constructor or the copy assignment (=) operator.
  *
  * You can retrieve elements of the object with the subscript ([]) operator. You can access the
  * pointer to the first element of the sequence viewed with data().
  * The function size() returns the number of elements in the sequence, and
  * empty() informs whether there is any element in the sequence.
  *
- * You can splice Span from the beginning of the sequence (first()), from the end
+ * You can slice Span from the beginning of the sequence (first()), from the end
  * of the sequence (last()) or from an arbitrary point of the sequence (subspan()).
  *
  * @par Size encoding
@@ -298,7 +298,7 @@ struct Span {
      *
      * @note For Span with a positive extent, this function is not accessible.
      *
-     * @note OtherElementType(*)[] is convertible to ElementType(*)[].
+     * @note OtherElementType(*)[] must be convertible to ElementType(*)[].
      */
     template<typename OtherElementType>
     Span(const Span<OtherElementType, Extent> &other):
@@ -587,7 +587,7 @@ struct Span<ElementType, SPAN_DYNAMIC_EXTENT> {
      *
      * @note For Span with a positive extent, this function is not accessible.
      *
-     * @note OtherElementType(*)[] is convertible to ElementType(*)[].
+     * @note OtherElementType(*)[] must be convertible to ElementType(*)[].
      */
     template<typename OtherElementType, ptrdiff_t OtherExtent>
     Span(const Span<OtherElementType, OtherExtent> &other):
