@@ -66,12 +66,12 @@ uint8_t rx_buf[DATA_SIZE_1024];
 
 
 // some target defines QSPI pins as integers thus conversion needed
-#define QPIN_0 static_cast<PinName>(QSPI_PIN_IO0)
-#define QPIN_1 static_cast<PinName>(QSPI_PIN_IO1)
-#define QPIN_2 static_cast<PinName>(QSPI_PIN_IO2)
-#define QPIN_3 static_cast<PinName>(QSPI_PIN_IO3)
-#define QSCK   static_cast<PinName>(QSPI_PIN_SCK)
-#define QCSN   static_cast<PinName>(QSPI_PIN_CSN)
+#define QPIN_0 static_cast<PinName>(QSPI_FLASH1_IO0)
+#define QPIN_1 static_cast<PinName>(QSPI_FLASH1_IO1)
+#define QPIN_2 static_cast<PinName>(QSPI_FLASH1_IO2)
+#define QPIN_3 static_cast<PinName>(QSPI_FLASH1_IO3)
+#define QSCK   static_cast<PinName>(QSPI_FLASH1_SCK)
+#define QCSN   static_cast<PinName>(QSPI_FLASH1_CSN)
 
 
 static void log_data(const char *str, uint8_t *data, uint32_t size)
