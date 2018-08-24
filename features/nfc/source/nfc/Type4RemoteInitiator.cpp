@@ -117,9 +117,9 @@ bool Type4RemoteInitiator::is_iso7816_supported() const
     return true;
 }
 
-void Type4RemoteInitiator::add_iso7816_application(ISO7816App *application)
+void Type4RemoteInitiator::add_iso7816_application(nfc_tech_iso7816_app_t *application)
 {
-    nfc_tech_iso7816_add_app(&_iso7816, &application->_iso7816_app);
+    nfc_tech_iso7816_add_app(&_iso7816, application);
 }
 
 bool Type4RemoteInitiator::is_ndef_supported() const

@@ -20,7 +20,6 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#include "ISO7816App.h"
 #include "NFCNDEFCapable.h"
 #include "NFCRemoteInitiator.h"
 
@@ -66,7 +65,7 @@ public:
     // NFCRemoteInitiator implementation
     virtual nfc_tag_type_t nfc_tag_type() const;
     virtual bool is_iso7816_supported() const;
-    virtual void add_iso7816_application(ISO7816App *application);
+    virtual void add_iso7816_application(nfc_tech_iso7816_app_t *application);
 
     // NFCNDEFCapable implementation
     virtual bool is_ndef_supported() const;

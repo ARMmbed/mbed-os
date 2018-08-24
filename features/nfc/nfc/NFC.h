@@ -25,7 +25,7 @@
 // NFC EEPROM
 #include "NFCEEPROM.h"
 
-// ISO7816 App
-#include "ISO7816App.h"
+// Type 4 Remote Initiator
+#include "Type4RemoteInitiator.h"
 
 #endif

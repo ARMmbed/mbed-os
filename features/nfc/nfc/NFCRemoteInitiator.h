@@ -22,7 +22,7 @@
 #include "NFCDefinitions.h"
 #include "NFCRemoteEndpoint.h"
 #include "NFCNDEFCapable.h"
-#include "ISO7816App.h"
+#include "stack/tech/iso7816/iso7816_app.h"
 
 namespace mbed {
 namespace nfc {
@@ -82,9 +82,9 @@ public:
     /**
      * Register an ISO7816 application to be used by the initiator.
      *
-     * @param[in] application a pointer to an ISO7816App instance
+     * @param[in] application a pointer to an nfc_tech_iso7816_app_t instance as defined by the MuNFC stack
      */
-    virtual void add_iso7816_application(ISO7816App *application) = 0;
+    virtual void add_iso7816_application(nfc_tech_iso7816_app_t *application) = 0;
 
 protected:
     virtual void connected();
