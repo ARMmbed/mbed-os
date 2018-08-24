@@ -24,7 +24,6 @@
  */
 
 #include "rtx_lib.h"
-#include "rt_OsEventObserver.h"
 
 
 //  OS Runtime Information
@@ -71,7 +70,7 @@ static void KernelUnblock (void) {
 static osStatus_t svcRtxKernelInitialize (void) {
 
   if (osRtxInfo.kernel.state == osRtxKernelReady) {
-    EvrRtxKernelInitializeCompleted();
+    EvrRtxKernelInitialized();
     //lint -e{904} "Return statement before end of function" [MISRA Note 1]
     return osOK;
   }
@@ -198,7 +197,7 @@ static osStatus_t svcRtxKernelInitialize (void) {
 
   osRtxInfo.kernel.state = osRtxKernelReady;
 
-  EvrRtxKernelInitializeCompleted();
+  EvrRtxKernelInitialized();
 
   return osOK;
 }
@@ -293,7 +292,7 @@ static osStatus_t svcRtxKernelStart (void) {
 
 /// Lock the RTOS Kernel scheduler.
 /// \note API identical to osKernelLock
-int32_t svcRtxKernelLock (void) {
+static int32_t svcRtxKernelLock (void) {
   int32_t lock;
 
   switch (osRtxInfo.kernel.state) {
@@ -313,10 +312,10 @@ int32_t svcRtxKernelLock (void) {
   }
   return lock;
 }
-
+ 
 /// Unlock the RTOS Kernel scheduler.
 /// \note API identical to osKernelUnlock
-int32_t svcRtxKernelUnlock (void) {
+static int32_t svcRtxKernelUnlock (void) {
   int32_t lock;
 
   switch (osRtxInfo.kernel.state) {
@@ -431,7 +430,7 @@ static void svcRtxKernelResume (uint32_t sleep_ticks) {
       thread->delay = 1U;
       do {
         osRtxThreadDelayTick();
-        if (delay == 0U) {
+        if (delay == 0U) { 
           break;
         }
         delay--;
@@ -529,12 +528,23 @@ SVC0_0 (KernelGetSysTimerFreq,  uint32_t)
 //lint --flb "Library End"
 
 
+//  ==== Library functions ====
+
+/// RTOS Kernel Pre-Initialization Hook
+//lint -esym(759,osRtxKernelPreInit) "Prototype in header"
+//lint -esym(765,osRtxKernelPreInit) "Global scope (can be overridden)"
+//lint -esym(522,osRtxKernelPreInit) "Can be overridden (do not lack side-effects)"
+__WEAK void osRtxKernelPreInit (void) {
+}
+
+
 //  ==== Public API ====
 
 /// Initialize the RTOS Kernel.
 osStatus_t osKernelInitialize (void) {
   osStatus_t status;
 
+  osRtxKernelPreInit();
   EvrRtxKernelInitialize();
   if (IsIrqMode() || IsIrqMasked()) {
     EvrRtxKernelError((int32_t)osErrorISR);
@@ -550,7 +560,7 @@ osStatus_t osKernelGetInfo (osVersion_t *version, char *id_buf, uint32_t id_size
   osStatus_t status;
 
   EvrRtxKernelGetInfo(version, id_buf, id_size);
-  if (IsPrivileged() || IsIrqMode() || IsIrqMasked()) {
+  if (IsIrqMode() || IsIrqMasked() || IsPrivileged()) {
     status = svcRtxKernelGetInfo(version, id_buf, id_size);
   } else {
     status =  __svcKernelGetInfo(version, id_buf, id_size);
@@ -562,7 +572,7 @@ osStatus_t osKernelGetInfo (osVersion_t *version, char *id_buf, uint32_t id_size
 osKernelState_t osKernelGetState (void) {
   osKernelState_t state;
 
-  if (IsPrivileged() || IsIrqMode() || IsIrqMasked()) {
+  if (IsIrqMode() || IsIrqMasked() || IsPrivileged()) {
     state = svcRtxKernelGetState();
   } else {
     state =  __svcKernelGetState();
@@ -579,13 +589,6 @@ osStatus_t osKernelStart (void) {
     EvrRtxKernelError((int32_t)osErrorISR);
     status = osErrorISR;
   } else {
-    /* Call the pre-start event (from unprivileged mode) if the handler exists
-    * and the kernel is not running. */
-    /* FIXME osEventObs needs to be readable but not writable from unprivileged
-    * code. */
-    if (osKernelGetState() != osKernelRunning && osEventObs && osEventObs->pre_start) {
-      osEventObs->pre_start();
-    }
     status = __svcKernelStart();
   }
   return status;
@@ -604,7 +607,7 @@ int32_t osKernelLock (void) {
   }
   return lock;
 }
-
+ 
 /// Unlock the RTOS Kernel scheduler.
 int32_t osKernelUnlock (void) {
   int32_t lock;

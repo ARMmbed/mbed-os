@@ -20,18 +20,7 @@
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- * ----------------------------------------------------------------------------
- *
- * $Date:        15. October 2016
- * $Revision:    1.1.0
- *
- * Project:      TrustZone for ARMv8-M
- * Title:        Context Management for ARMv8-M TrustZone - Sample implementation
- *
- *---------------------------------------------------------------------------*/
- 
-#if defined (__ARM_FEATURE_CMSE) &&  (__ARM_FEATURE_CMSE == 3U)
+ */
 
 #include "RTE_Components.h"
 #include CMSIS_device_header
@@ -209,4 +198,3 @@ uint32_t TZ_StoreContext_S (TZ_MemoryId_t id) {
 
   return 1U;    // Success
 }
-#endif

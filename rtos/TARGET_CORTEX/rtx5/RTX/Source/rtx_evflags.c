@@ -143,11 +143,6 @@ static void osRtxEventFlagsPostProcess (os_event_flags_t *ef) {
   os_thread_t *thread_next;
   uint32_t     event_flags;
 
-  if (ef->state == osRtxObjectInactive) {
-    //lint -e{904} "Return statement before end of function" [MISRA Note 1]
-    return;
-  }
-
   // Check if Threads are waiting for Event Flags
   thread = ef->thread_list;
   while (thread != NULL) {
@@ -223,7 +218,6 @@ static osEventFlagsId_t svcRtxEventFlagsNew (const osEventFlagsAttr_t *attr) {
   if (ef != NULL) {
     // Initialize control block
     ef->id          = osRtxIdEventFlags;
-    ef->state       = osRtxObjectActive;
     ef->flags       = flags;
     ef->name        = name;
     ef->thread_list = NULL;
@@ -252,13 +246,6 @@ static const char *svcRtxEventFlagsGetName (osEventFlagsId_t ef_id) {
     return NULL;
   }
 
-  // Check object state
-  if (ef->state == osRtxObjectInactive) {
-    EvrRtxEventFlagsGetName(ef, NULL);
-    //lint -e{904} "Return statement before end of function" [MISRA Note 1]
-    return NULL;
-  }
-
   EvrRtxEventFlagsGetName(ef, ef->name);
 
   return ef->name;
@@ -279,13 +266,6 @@ static uint32_t svcRtxEventFlagsSet (osEventFlagsId_t ef_id, uint32_t flags) {
     EvrRtxEventFlagsError(ef, (int32_t)osErrorParameter);
     //lint -e{904} "Return statement before end of function" [MISRA Note 1]
     return ((uint32_t)osErrorParameter);
-  }
-
-  // Check object state
-  if (ef->state == osRtxObjectInactive) {
-    EvrRtxEventFlagsError(ef, (int32_t)osErrorResource);
-    //lint -e{904} "Return statement before end of function" [MISRA Note 1]
-    return ((uint32_t)osErrorResource);
   }
 
   // Set Event Flags
@@ -329,13 +309,6 @@ static uint32_t svcRtxEventFlagsClear (osEventFlagsId_t ef_id, uint32_t flags) {
     return ((uint32_t)osErrorParameter);
   }
 
-  // Check object state
-  if (ef->state == osRtxObjectInactive) {
-    EvrRtxEventFlagsError(ef, (int32_t)osErrorResource);
-    //lint -e{904} "Return statement before end of function" [MISRA Note 1]
-    return ((uint32_t)osErrorResource);
-  }
-
   // Clear Event Flags
   event_flags = EventFlagsClear(ef, flags);
 
@@ -351,13 +324,6 @@ static uint32_t svcRtxEventFlagsGet (osEventFlagsId_t ef_id) {
 
   // Check parameters
   if ((ef == NULL) || (ef->id != osRtxIdEventFlags)) {
-    EvrRtxEventFlagsGet(ef, 0U);
-    //lint -e{904} "Return statement before end of function" [MISRA Note 1]
-    return 0U;
-  }
-
-  // Check object state
-  if (ef->state == osRtxObjectInactive) {
     EvrRtxEventFlagsGet(ef, 0U);
     //lint -e{904} "Return statement before end of function" [MISRA Note 1]
     return 0U;
@@ -389,13 +355,6 @@ static uint32_t svcRtxEventFlagsWait (osEventFlagsId_t ef_id, uint32_t flags, ui
     EvrRtxEventFlagsError(ef, (int32_t)osErrorParameter);
     //lint -e{904} "Return statement before end of function" [MISRA Note 1]
     return ((uint32_t)osErrorParameter);
-  }
-
-  // Check object state
-  if (ef->state == osRtxObjectInactive) {
-    EvrRtxEventFlagsError(ef, (int32_t)osErrorResource);
-    //lint -e{904} "Return statement before end of function" [MISRA Note 1]
-    return ((uint32_t)osErrorResource);
   }
 
   // Check Event Flags
@@ -438,16 +397,6 @@ static osStatus_t svcRtxEventFlagsDelete (osEventFlagsId_t ef_id) {
     return osErrorParameter;
   }
 
-  // Check object state
-  if (ef->state == osRtxObjectInactive) {
-    EvrRtxEventFlagsError(ef, (int32_t)osErrorResource);
-    //lint -e{904} "Return statement before end of function" [MISRA Note 1]
-    return osErrorResource;
-  }
-
-  // Mark object as inactive
-  ef->state = osRtxObjectInactive;
-
   // Unblock waiting threads
   if (ef->thread_list != NULL) {
     do {
@@ -456,6 +405,9 @@ static osStatus_t svcRtxEventFlagsDelete (osEventFlagsId_t ef_id) {
     } while (ef->thread_list != NULL);
     osRtxThreadDispatch(NULL);
   }
+
+  // Mark object as invalid
+  ef->id = osRtxIdInvalid;
 
   // Free object memory
   if ((ef->flags & osRtxFlagSystemObject) != 0U) {
@@ -503,13 +455,6 @@ uint32_t isrRtxEventFlagsSet (osEventFlagsId_t ef_id, uint32_t flags) {
     return ((uint32_t)osErrorParameter);
   }
 
-  // Check object state
-  if (ef->state == osRtxObjectInactive) {
-    EvrRtxEventFlagsError(ef, (int32_t)osErrorResource);
-    //lint -e{904} "Return statement before end of function" [MISRA Note 1]
-    return ((uint32_t)osErrorResource);
-  }
-
   // Set Event Flags
   event_flags = EventFlagsSet(ef, flags);
 
@@ -534,13 +479,6 @@ uint32_t isrRtxEventFlagsWait (osEventFlagsId_t ef_id, uint32_t flags, uint32_t 
     EvrRtxEventFlagsError(ef, (int32_t)osErrorParameter);
     //lint -e{904} "Return statement before end of function" [MISRA Note 1]
     return ((uint32_t)osErrorParameter);
-  }
-
-  // Check object state
-  if (ef->state == osRtxObjectInactive) {
-    EvrRtxEventFlagsError(ef, (int32_t)osErrorResource);
-    //lint -e{904} "Return statement before end of function" [MISRA Note 1]
-    return ((uint32_t)osErrorResource);
   }
 
   // Check Event Flags

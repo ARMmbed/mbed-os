@@ -27,6 +27,12 @@
 #include "RTX_Config.h"
 #include "rtx_os.h"
 
+#ifdef    RTE_Compiler_EventRecorder
+#include "EventRecorder.h"
+#include "EventRecorderConf.h"
+#endif
+#include "rtx_evr.h"
+
 
 // System Configuration
 // ====================
@@ -106,8 +112,8 @@ __attribute__((section(".bss.os.thread.stack")));
 // Stack overrun checking
 #if (OS_STACK_CHECK == 0)
 // Override library function
-void osRtxThreadStackCheck (void);
-void osRtxThreadStackCheck (void) {}
+extern void osRtxThreadStackCheck (void);
+       void osRtxThreadStackCheck (void) {}
 #endif
 
 
@@ -219,7 +225,7 @@ static const osMessageQueueAttr_t os_timer_mq_attr = {
 #else
 
 extern void osRtxTimerThread (void *argument);
-       void osRtxTimerThread (void *argument) {}
+       void osRtxTimerThread (void *argument) { (void)argument; }
 
 #endif  // ((OS_TIMER_THREAD_STACK_SIZE != 0) && (OS_TIMER_CB_QUEUE != 0))
 
@@ -347,6 +353,55 @@ __attribute__((section(".bss.os.msgqueue.mem")));
 #endif  // (OS_MSGQUEUE_OBJ_MEM != 0)
 
 
+// Event Recorder Configuration
+// ============================
+
+#if (defined(OS_EVR_INIT) && (OS_EVR_INIT != 0))
+
+#if  defined(RTE_Compiler_EventRecorder)
+
+// Event Recorder Initialize
+__STATIC_INLINE void evr_initialize (void) {
+
+  (void)EventRecorderInitialize(OS_EVR_LEVEL, (uint32_t)OS_EVR_START);
+
+#if ((OS_EVR_MEMORY_FILTER    & 0x80U) != 0U)
+  (void)EventRecorderEnable(OS_EVR_MEMORY_FILTER    & 0x0FU, EvtRtxMemoryNo,       EvtRtxMemoryNo);
+#endif
+#if ((OS_EVR_KERNEL_FILTER    & 0x80U) != 0U)
+  (void)EventRecorderEnable(OS_EVR_KERNEL_FILTER    & 0x0FU, EvtRtxKernelNo,       EvtRtxKernelNo);
+#endif
+#if ((OS_EVR_THREAD_FILTER    & 0x80U) != 0U)
+  (void)EventRecorderEnable(OS_EVR_THREAD_FILTER    & 0x0FU, EvtRtxThreadNo,       EvtRtxThreadNo);
+#endif
+#if ((OS_EVR_TIMER_FILTER     & 0x80U) != 0U)
+  (void)EventRecorderEnable(OS_EVR_TIMER_FILTER     & 0x0FU, EvtRtxTimerNo,        EvtRtxTimerNo);
+#endif
+#if ((OS_EVR_EVFLAGS_FILTER   & 0x80U) != 0U)
+  (void)EventRecorderEnable(OS_EVR_EVFLAGS_FILTER   & 0x0FU, EvtRtxEventFlagsNo,   EvtRtxEventFlagsNo);
+#endif
+#if ((OS_EVR_MUTEX_FILTER     & 0x80U) != 0U)
+  (void)EventRecorderEnable(OS_EVR_MUTEX_FILTER     & 0x0FU, EvtRtxMutexNo,        EvtRtxMutexNo);
+#endif
+#if ((OS_EVR_SEMAPHORE_FILTER & 0x80U) != 0U)
+  (void)EventRecorderEnable(OS_EVR_SEMAPHORE_FILTER & 0x0FU, EvtRtxSemaphoreNo,    EvtRtxSemaphoreNo);
+#endif
+#if ((OS_EVR_MEMPOOL_FILTER   & 0x80U) != 0U)
+  (void)EventRecorderEnable(OS_EVR_MEMPOOL_FILTER   & 0x0FU, EvtRtxMemoryPoolNo,   EvtRtxMemoryPoolNo);
+#endif
+#if ((OS_EVR_MSGQUEUE_FILTER  & 0x80U) != 0U)
+  (void)EventRecorderEnable(OS_EVR_MSGQUEUE_FILTER  & 0x0FU, EvtRtxMessageQueueNo, EvtRtxMessageQueueNo);
+#endif
+}
+
+#else
+#warning "Event Recorder cannot be initialized (Event Recorder component is not selected)!"
+#define evr_initialize()
+#endif
+
+#endif  // (OS_EVR_INIT != 0)
+
+
 // OS Configuration
 // ================
 
@@ -374,7 +429,7 @@ __attribute__((section(".rodata"))) =
   0U,
 #endif
   { &os_isr_queue[0], (uint16_t)(sizeof(os_isr_queue)/sizeof(void *)), 0U },
-  {
+  { 
     // Memory Pools (Variable Block Size)
 #if ((OS_THREAD_OBJ_MEM != 0) && (OS_THREAD_USER_STACK_SIZE != 0))
     &os_thread_stack[0], sizeof(os_thread_stack),
@@ -407,7 +462,7 @@ __attribute__((section(".rodata"))) =
 #endif
     &os_mpi_thread,
 #else
-    NULL,
+    NULL, 
     NULL,
 #endif
 #if (OS_TIMER_OBJ_MEM != 0)
@@ -490,7 +545,7 @@ __asm void os_cb_sections_wrapper (void) {
                 EXTERN  ||.bss.os.mempool.cb$$Limit||   [WEAK]
                 EXTERN  ||.bss.os.msgqueue.cb$$Base||   [WEAK]
                 EXTERN  ||.bss.os.msgqueue.cb$$Limit||  [WEAK]
-
+  
                 AREA    ||.rodata||, DATA, READONLY
                 EXPORT  os_cb_sections
 os_cb_sections
@@ -607,6 +662,20 @@ __WEAK void software_init_hook (void) {
 #endif
 
 
+// OS Hooks
+// ========
+
+// RTOS Kernel Pre-Initialization Hook
+void osRtxKernelPreInit (void);
+void osRtxKernelPreInit (void) {
+#if (defined(OS_EVR_INIT) && (OS_EVR_INIT != 0))
+  if (osKernelGetState() == osKernelInactive) {
+    evr_initialize();
+  }
+#endif
+}
+
+
 // C/C++ Standard Library Multithreading Interface
 // ===============================================
 
@@ -676,12 +745,11 @@ typedef void *mutex;
 //lint -e818 "Pointer 'm' could be declared as pointing to const"
 
 // Initialize mutex
-#if !defined(__ARMCC_VERSION) || __ARMCC_VERSION < 6010050
 __USED
-#endif
 int _mutex_initialize(mutex *m);
-__WEAK int _mutex_initialize(mutex *m) {
+int _mutex_initialize(mutex *m) {
   int result;
+
   *m = osMutexNew(NULL);
   if (*m != NULL) {
     result = 1;
@@ -693,10 +761,8 @@ __WEAK int _mutex_initialize(mutex *m) {
 }
 
 // Acquire mutex
-#if !defined(__ARMCC_VERSION) || __ARMCC_VERSION < 6010050
 __USED
-#endif
-__WEAK void _mutex_acquire(mutex *m);
+void _mutex_acquire(mutex *m);
 void _mutex_acquire(mutex *m) {
   if (os_kernel_is_active() != 0U) {
     (void)osMutexAcquire(*m, osWaitForever);
@@ -704,10 +770,8 @@ void _mutex_acquire(mutex *m) {
 }
 
 // Release mutex
-#if !defined(__ARMCC_VERSION) || __ARMCC_VERSION < 6010050
 __USED
-#endif
-__WEAK void _mutex_release(mutex *m);
+void _mutex_release(mutex *m);
 void _mutex_release(mutex *m) {
   if (os_kernel_is_active() != 0U) {
     (void)osMutexRelease(*m);
@@ -715,10 +779,8 @@ void _mutex_release(mutex *m) {
 }
 
 // Free mutex
-#if !defined(__ARMCC_VERSION) || __ARMCC_VERSION < 6010050
 __USED
-#endif
-__WEAK void _mutex_free(mutex *m);
+void _mutex_free(mutex *m);
 void _mutex_free(mutex *m) {
   (void)osMutexDelete(*m);
 }
