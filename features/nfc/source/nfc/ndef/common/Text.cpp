@@ -29,6 +29,7 @@ static const uint8_t text_record_type_value[] = { 'T' };
 
 namespace mbed {
 namespace nfc {
+namespace ndef {
 namespace common {
 
 Text::Text() :
@@ -129,23 +130,23 @@ void Text::move_data(uint8_t *text, size_t size) {
 }
 
 bool Text::append_as_record(
-    ndef::MessageBuilder &message_builder,
+    MessageBuilder &message_builder,
     bool is_last_record
 ) {
     // Build the record type
-    ndef::RecordType type(
-        ndef::RecordType::well_known_type,
+    RecordType type(
+        RecordType::well_known_type,
         text_record_type_value
     );
 
     // build the record payload
-    ndef::RecordPayload payload(_text_record, _text_record_size);
+    RecordPayload payload(_text_record, _text_record_size);
     return message_builder.append_record(type, payload, is_last_record);
 }
 
-bool TextParser::do_parse(const ndef::Record &record, Text &text)
+bool TextParser::do_parse(const Record &record, Text &text)
 {
-    if (record.type.tnf != ndef::RecordType::well_known_type) {
+    if (record.type.tnf != RecordType::well_known_type) {
         return false;
     }
 
@@ -167,5 +168,6 @@ bool TextParser::do_parse(const ndef::Record &record, Text &text)
 }
 
 } // namespace common
+} // namespace ndef
 } // namespace nfc
 } // namespace mbed

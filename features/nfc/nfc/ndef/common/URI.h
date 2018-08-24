@@ -26,6 +26,7 @@
 
 namespace mbed {
 namespace nfc {
+namespace ndef {
 namespace common {
 
 /**
@@ -145,7 +146,7 @@ public:
      * Append into a message builder
      */
     bool append_as_record(
-        ndef::MessageBuilder &message_builder,
+        MessageBuilder &message_builder,
         bool is_last_record = false
     );
 
@@ -181,9 +182,9 @@ private:
 /**
  * Parser of a URI.
  */
-class URIParser : public ndef::GenericRecordParser<URIParser, URI> {
+class URIParser : public GenericRecordParser<URIParser, URI> {
 public:
-    bool do_parse(const ndef::Record &record, URI &uri);
+    bool do_parse(const Record &record, URI &uri);
 };
 
 /**
@@ -191,6 +192,7 @@ public:
  */
 
 } // namespace common
+} // namespace ndef
 } // namespace nfc
 } // namespace mbed
 

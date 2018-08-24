@@ -24,6 +24,7 @@
 
 namespace mbed {
 namespace nfc {
+namespace ndef {
 namespace common {
 
 /**
@@ -103,7 +104,7 @@ public:
      * Append into a message builder
      */
     bool append_as_record(
-        ndef::MessageBuilder &message_builder,
+        MessageBuilder &message_builder,
         bool is_last_record = false
     );
 
@@ -126,9 +127,9 @@ private:
 /**
  * Parse a Mime payload.
  */
-class MimeParser : public ndef::GenericRecordParser<MimeParser, Mime> {
+class MimeParser : public GenericRecordParser<MimeParser, Mime> {
 public:
-    bool do_parse(const ndef::Record &record, Mime &mime);
+    bool do_parse(const Record &record, Mime &mime);
 };
 
 /**
@@ -136,6 +137,7 @@ public:
  */
 
 } // namespace common
+} // namespace ndef
 } // namespace nfc
 } // namespace mbed
 

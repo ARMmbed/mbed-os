@@ -26,6 +26,7 @@
 
 namespace mbed {
 namespace nfc {
+namespace ndef {
 namespace common {
 
 /**
@@ -39,7 +40,7 @@ namespace common {
  * Custom parsers can be added at runtime as well.
  */
 class SimpleMessageParser :
-    ndef::MessageParser::Delegate,
+    MessageParser::Delegate,
     URIParser::Delegate,
     TextParser::Delegate,
     MimeParser::Delegate
@@ -53,7 +54,7 @@ public:
          * Invoked when an error is present in the message.
          * @param error The error present in the message.
          */
-        virtual void on_parsing_error(ndef::MessageParser::error_t error) { }
+        virtual void on_parsing_error(MessageParser::error_t error) { }
 
         /**
          * Invoked when parsing as started.
@@ -64,25 +65,25 @@ public:
          * Invoked when a text element has been parsed.
          * @param text The text parsed.
          */
-        virtual void on_text_parsed(const Text &text, const ndef::RecordID &id) { }
+        virtual void on_text_parsed(const Text &text, const RecordID &id) { }
 
         /**
          * Invoked when a text element has been parsed.
          * @param text The text parsed.
          */
-        virtual void on_uri_parsed(const URI &uri, const ndef::RecordID &id) { }
+        virtual void on_uri_parsed(const URI &uri, const RecordID &id) { }
 
         /**
          * Invoked when a mime element has been parsed.
          * @param mime The mime object parsed.
          */
-        virtual void on_mime_parsed(const Mime &mime, const ndef::RecordID &id) { }
+        virtual void on_mime_parsed(const Mime &mime, const RecordID &id) { }
 
         /**
          * Invoked when an unknown record has been parsed.
          * @param The record freshly parsed.
          */
-        virtual void on_unknown_record_parsed(const ndef::Record &record) { }
+        virtual void on_unknown_record_parsed(const Record &record) { }
 
         /**
          * Invoked when parsing is over.
@@ -118,49 +119,49 @@ public:
      * Insert a new parser in the parser chain.
      * @param parser The parser to add in the parsing chain.
      */
-    void add_record_parser(ndef::RecordParser *parser);
+    void add_record_parser(RecordParser *parser);
 
 private:
     ////////////////////////////////////////////////////////////////////////////
     /// Implementation of MessageParser::EventHandler
 
-    virtual void on_parsing_error(ndef::MessageParser::error_t error);
+    virtual void on_parsing_error(MessageParser::error_t error);
 
     virtual void on_parsing_started();
 
-    virtual void on_record_parsed(const ndef::Record &record);
+    virtual void on_record_parsed(const Record &record);
 
     virtual void on_parsing_terminated();
 
     ////////////////////////////////////////////////////////////////////////////
     /// Implementation of URIParser::EventHandler
 
-    virtual void on_record_parsed(const URI &uri, const ndef::RecordID &id);
+    virtual void on_record_parsed(const URI &uri, const RecordID &id);
 
     ////////////////////////////////////////////////////////////////////////////
     /// Implementation of TextParser::EventHandler
 
-    virtual void on_record_parsed(const Text &text, const ndef::RecordID &id);
+    virtual void on_record_parsed(const Text &text, const RecordID &id);
 
     ////////////////////////////////////////////////////////////////////////////
     /// Implementation of MimeParser::EventHandler
 
-    virtual void on_record_parsed(const Mime &mime, const ndef::RecordID &id);
+    virtual void on_record_parsed(const Mime &mime, const RecordID &id);
 
-    ndef::MessageParser _message_parser;
-    ndef::RecordParserChain _record_parser_chain;
+    MessageParser _message_parser;
+    RecordParserChain _record_parser_chain;
     URIParser _uri_parser;
     TextParser _text_parser;
     MimeParser _mime_parser;
     Delegate *_delegate;
 };
 
-
 /**
  * @}
  */
 
 } // namespace common
+} // namespace ndef
 } // namespace nfc
 } // namespace mbed
 

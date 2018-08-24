@@ -18,6 +18,7 @@
 
 namespace mbed {
 namespace nfc {
+namespace ndef {
 namespace common {
 
 SimpleMessageParser::SimpleMessageParser() :
@@ -50,12 +51,12 @@ void SimpleMessageParser::parse(const Span<const uint8_t> &data_buffer)
     _message_parser.parse(data_buffer);
 }
 
-void SimpleMessageParser::add_record_parser(ndef::RecordParser *parser)
+void SimpleMessageParser::add_record_parser(RecordParser *parser)
 {
     _record_parser_chain.set_next_parser(parser);
 }
 
-void SimpleMessageParser::on_parsing_error(ndef::MessageParser::error_t error)
+void SimpleMessageParser::on_parsing_error(MessageParser::error_t error)
 {
     if (_delegate) {
         _delegate->on_parsing_error(error);
@@ -69,7 +70,7 @@ void SimpleMessageParser::on_parsing_started()
     }
 }
 
-void SimpleMessageParser::on_record_parsed(const ndef::Record &record)
+void SimpleMessageParser::on_record_parsed(const Record &record)
 {
     bool parsed = _record_parser_chain.parse(record);
 
@@ -87,7 +88,7 @@ void SimpleMessageParser::on_parsing_terminated()
 
 void SimpleMessageParser::on_record_parsed(
     const URI &uri,
-    const ndef::RecordID &id
+    const RecordID &id
 ) {
     if (_delegate) {
         _delegate->on_uri_parsed(uri, id);
@@ -96,7 +97,7 @@ void SimpleMessageParser::on_record_parsed(
 
 void SimpleMessageParser::on_record_parsed(
     const Text &text,
-    const ndef::RecordID &id
+    const RecordID &id
 )  {
     if (_delegate) {
         _delegate->on_text_parsed(text, id);
@@ -105,7 +106,7 @@ void SimpleMessageParser::on_record_parsed(
 
 void SimpleMessageParser::on_record_parsed(
     const Mime &mime,
-    const ndef::RecordID &id
+    const RecordID &id
 )  {
     if (_delegate) {
         _delegate->on_mime_parsed(mime, id);
@@ -113,6 +114,7 @@ void SimpleMessageParser::on_record_parsed(
 }
 
 } // namespace common
+}  // namespace ndef
 } // namespace nfc
 } // namespace mbed
 

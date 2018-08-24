@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-#include "nfc/common/util.h"
+#include "nfc/ndef/common/util.h"
 
 #include <cstring>
 
 namespace mbed {
 namespace nfc {
+namespace ndef {
 namespace common {
 
 Span<const uint8_t> span_from_cstr(const char *cstr)
@@ -32,6 +33,7 @@ Span<const uint8_t> span_from_cstr(const char *cstr)
  */
 
 } // namespace common
+} // namespace ndef
 } // namespace nfc
 } // namespace mbed
 

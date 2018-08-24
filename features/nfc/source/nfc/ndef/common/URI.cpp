@@ -26,6 +26,7 @@ static const uint8_t uri_record_type_value[] = { 'U' } ;
 
 namespace mbed {
 namespace nfc {
+namespace ndef {
 namespace common {
 
 URI::URI() :
@@ -107,20 +108,20 @@ Span<const uint8_t> URI::get_uri_field() const
     );
 }
 
-bool URI::append_as_record(ndef::MessageBuilder &message_builder, bool is_last_record)
+bool URI::append_as_record(MessageBuilder &message_builder, bool is_last_record)
 {
     if (!_uri) {
         return false;
     }
 
     // Build the record type
-    ndef::RecordType type(
-        ndef::RecordType::well_known_type,
+    RecordType type(
+        RecordType::well_known_type,
         uri_record_type_value
     );
 
     // build the record payload
-    ndef::RecordPayload payload(_uri, _uri_size);
+    RecordPayload payload(_uri, _uri_size);
 
     return message_builder.append_record(type, payload, is_last_record);
 }
@@ -132,9 +133,9 @@ void URI::move_data(uint8_t *new_uri, size_t new_uri_size)
     _uri_size = new_uri_size;
 }
 
-bool URIParser::do_parse(const ndef::Record &record, URI &uri)
+bool URIParser::do_parse(const Record &record, URI &uri)
 {
-    if (record.type.tnf != ndef::RecordType::well_known_type) {
+    if (record.type.tnf != RecordType::well_known_type) {
         return false;
     }
 
@@ -156,6 +157,7 @@ bool URIParser::do_parse(const ndef::Record &record, URI &uri)
 }
 
 } // namespace common
+} // namespace ndef
 } // namespace nfc
 } // namespace mbed
 

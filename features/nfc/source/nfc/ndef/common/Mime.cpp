@@ -20,6 +20,7 @@
 
 namespace mbed {
 namespace nfc {
+namespace ndef {
 namespace common {
 
 Mime::Mime() :
@@ -92,12 +93,12 @@ Span<const uint8_t> Mime::get_mime_content() const
 }
 
 bool Mime::append_as_record(
-    ndef::MessageBuilder &message_builder,
+    MessageBuilder &message_builder,
     bool is_last_record
 ) {
     return message_builder.append_record(
-        ndef::RecordType(
-            ndef::RecordType::media_type,
+        RecordType(
+            RecordType::media_type,
             get_mime_type()
         ),
         get_mime_content(),
@@ -121,9 +122,9 @@ size_t Mime::mime_size() const
     return _type_size + _content_size;
 }
 
-bool MimeParser::do_parse(const ndef::Record &record, Mime &mime)
+bool MimeParser::do_parse(const Record &record, Mime &mime)
 {
-    if (record.type.tnf != ndef::RecordType::media_type) {
+    if (record.type.tnf != RecordType::media_type) {
         return false;
     }
 
@@ -149,5 +150,6 @@ bool MimeParser::do_parse(const ndef::Record &record, Mime &mime)
 }
 
 } // namespace common
+} // namespace ndef
 } // namespace nfc
 } // namespace mbed
