@@ -32,19 +32,19 @@
 
 /*
  * Code memory zones
- * Please note that MPS2 on Fast Models do not simulate persistent flash memory.
- * The FLASH memory zone is a 256 KiB SRAM block and named FLASH
+ * Please note that MPS2 on Fast Models do not implemented persistent flash memory.
+ * The FLASH memory can be simulated via 4MB ZBT_SRAM1 block
  * only to keep the same name than in the CMSDK RTL and Fast Models Reference
  * Guide.
  */
-#define FLASH_START      0x00000000
-#define FLASH_SIZE       0x00040000 /* 256 KiB */
-#define ZBT_SRAM1_START  0x00400000
-#define ZBT_SRAM1_SIZE   0x00400000 /* 4 MiB */
+#define MAPPABLE_START   0x00000000
+#define MAPPABLE_SIZE    0x00004000  /* 16 KiB */
+#define ZBT_SRAM1_START  (0x00000000 + 0x00004000)
+#define ZBT_SRAM1_SIZE   (0x00400000 - 0x00004000) /* 4 MiB - 16 KiB*/
 
 /* Data memory zones */
 #define ZBT_SRAM2_START  0x20000000
-#define ZBT_SRAM2_SIZE   0x00800000 /* 8 MiB */
+#define ZBT_SRAM2_SIZE   0x00400000 /* 4 MiB */
 
 #endif /* MEMORY_ZONES_H */
 

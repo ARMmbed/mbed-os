@@ -220,6 +220,9 @@ if __name__ == '__main__':
                 # NotSupportedException is handled by the build log
                 pass
             except Exception as e:
+                if options.verbose:
+                    import traceback
+                    traceback.print_exc()
                 # Some other exception occurred, print the error message
                 print(e)
 

@@ -125,7 +125,7 @@
         "LPC546XX": {
             "mem-size": 36496
         },
-        "EFM32GG11-STK3701": {
+        "EFM32GG11_STK3701": {
             "mem-size": 36560
         },
         "RZ_A1_EMAC": {

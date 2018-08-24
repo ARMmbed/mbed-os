@@ -23,9 +23,9 @@
  */
 
 #define FLASH_PAGE_SIZE   256
-#define FLASH_OFS_START   FLASH_START
+#define FLASH_OFS_START   ZBT_SRAM1_START
 #define FLASH_SECTOR_SIZE 0x1000
-#define FLASH_OFS_END     (FLASH_OFS_START + FLASH_SIZE)
+#define FLASH_OFS_END     (ZBT_SRAM1_START + ZBT_SRAM1_SIZE)
 
 int32_t flash_init(flash_t *obj)
 {
@@ -99,5 +99,5 @@ uint32_t flash_get_size(const flash_t *obj)
 {
     (void)obj;
 
-    return FLASH_SIZE;
+    return ZBT_SRAM1_SIZE;
 }

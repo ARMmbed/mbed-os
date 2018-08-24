@@ -812,8 +812,23 @@ class mbedToolchain:
             mkdir(obj_dir)
         return join(obj_dir, name + '.o')
 
-    # Generate response file for all includes.
-    # ARM, GCC, IAR cross compatible
+    def make_option_file(self, options, naming=".options_{}.txt"):
+        """ Generate a via file for a pile of defines
+        ARM, GCC, IAR cross compatible
+        """
+        to_write = " ".join(options).encode('utf-8')
+        new_md5 = md5(to_write).hexdigest()
+        via_file = join(self.build_dir, naming.format(new_md5))
+        try:
+            with open(via_file, "r") as fd:
+                old_md5 = md5(fd.read().encode('utf-8')).hexdigest()
+        except IOError:
+            old_md5 = None
+        if old_md5 != new_md5:
+            with open(via_file, "wb") as fd:
+                fd.write(to_write)
+        return via_file
+
     def get_inc_file(self, includes):
         include_file = join(self.build_dir, ".includes_%s.txt" % self.inc_md5)
         if not exists(include_file):

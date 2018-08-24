@@ -24,6 +24,7 @@
 #include "ns_hal_init.h"
 #include "include/mesh_system.h"
 #include "mbed_assert.h"
+#include "mbed_error.h"
 // For tracing we need to define flag, have include and define group
 #define HAVE_DEBUG 1
 #include "ns_trace.h"
@@ -43,19 +44,7 @@ static bool mesh_initialized = false;
  */
 static void mesh_system_heap_error_handler(heap_fail_t event)
 {
-    tr_error("Heap error, mesh_system_heap_error_handler() %d", event);
-    switch (event) {
-        case NS_DYN_MEM_NULL_FREE:
-        case NS_DYN_MEM_DOUBLE_FREE:
-        case NS_DYN_MEM_ALLOCATE_SIZE_NOT_VALID:
-        case NS_DYN_MEM_POINTER_NOT_VALID:
-        case NS_DYN_MEM_HEAP_SECTOR_CORRUPTED:
-        case NS_DYN_MEM_HEAP_SECTOR_UNITIALIZED:
-            break;
-        default:
-            break;
-    }
-    while (1);
+    MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_NETWORK_STACK, MBED_ERROR_CODE_OUT_OF_MEMORY), "Heap error, mesh_system_heap_error_handler()", event);
 }
 
 void mesh_system_init(void)

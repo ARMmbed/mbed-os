@@ -474,11 +474,13 @@ public:
     {
         osStatus status = _mutex.lock();
         MBED_ASSERT(status == osOK);
+        (void) status;
     }
     void unlock(void)
     {
         osStatus status = _mutex.unlock();
         MBED_ASSERT(status == osOK);
+        (void) status;
     }
 #else
     void lock(void) { }

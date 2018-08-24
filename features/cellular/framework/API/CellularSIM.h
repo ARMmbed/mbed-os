@@ -52,30 +52,34 @@ public:
     /** Open the SIM card by setting the pin code for SIM.
      *
      *  @param sim_pin  PIN for the SIM card
-     *  @return         zero on success
+     *  @return         NSAPI_ERROR_OK on success
+     *                  NSAPI_ERROR_DEVICE_ERROR on failure
      */
     virtual nsapi_error_t set_pin(const char *sim_pin) = 0;
 
-    /** Change sim pin code.
+    /** Change SIM pin code.
      *
-     *  @param sim_pin  Current PIN for sim
-     *  @param new_pin  New PIN for sim
-     *  @return         zero on success
+     *  @param sim_pin  Current PIN for SIM
+     *  @param new_pin  New PIN for SIM
+     *  @return         NSAPI_ERROR_OK on success
+     *                  NSAPI_ERROR_DEVICE_ERROR on failure
      */
     virtual nsapi_error_t change_pin(const char *sim_pin, const char *new_pin) = 0;
 
     /** Change is pin query needed after boot
      *
      *  @param sim_pin      Valid PIN for SIM card
-     *  @param query_pin    False is PIN query not needed, True if PIN query needed after boot.
-     *  @return             zero on success
+     *  @param query_pin    False if PIN query not needed, True if PIN query needed after boot.
+     *  @return         NSAPI_ERROR_OK on success
+     *                  NSAPI_ERROR_DEVICE_ERROR on failure
      */
     virtual nsapi_error_t set_pin_query(const char *sim_pin, bool query_pin) = 0;
 
-    /** Get sim card's state
+    /** Get SIM card's state
      *
      *  @param state    current state of SIM
-     *  @return         zero on success
+     *  @return         NSAPI_ERROR_OK on success
+     *                  NSAPI_ERROR_DEVICE_ERROR on failure
      */
     virtual nsapi_error_t get_sim_state(SimState &state) = 0;
 
@@ -83,9 +87,11 @@ public:
      *  @remark         Given imsi buffer length must be 16 or more as imsi max length is 15!
      *
      *  @param imsi     preallocated char* which after successful request contains imsi
-     *  @return         zero on success
+     *  @return         NSAPI_ERROR_OK on success
+     *                  NSAPI_ERROR_PARAMETER if imsi if null
+     *                  NSAPI_ERROR_DEVICE_ERROR on other failures
      */
-    virtual nsapi_error_t get_imsi(char* imsi) = 0;
+    virtual nsapi_error_t get_imsi(char *imsi) = 0;
 };
 
 } // namespace mbed

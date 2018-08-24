@@ -295,6 +295,10 @@ int16_t LoRaWANStack::handle_tx(const uint8_t port, const uint8_t *data,
                                 uint16_t length, uint8_t flags,
                                 bool null_allowed, bool allow_port_0)
 {
+    if (_device_current_state == DEVICE_STATE_NOT_INITIALIZED) {
+        return LORAWAN_STATUS_NOT_INITIALIZED;
+    }
+
     if (!null_allowed && !data) {
         return LORAWAN_STATUS_PARAMETER_INVALID;
     }
@@ -355,6 +359,10 @@ int16_t LoRaWANStack::handle_tx(const uint8_t port, const uint8_t *data,
 
 int16_t LoRaWANStack::handle_rx(uint8_t *data, uint16_t length, uint8_t &port, int &flags, bool validate_params)
 {
+    if (_device_current_state == DEVICE_STATE_NOT_INITIALIZED) {
+        return LORAWAN_STATUS_NOT_INITIALIZED;
+    }
+
     if (!_lw_session.active) {
         return LORAWAN_STATUS_NO_ACTIVE_SESSIONS;
     }
@@ -646,6 +654,7 @@ void LoRaWANStack::process_reception(const uint8_t *const payload, uint16_t size
     }
 
     if (!_loramac.nwk_joined()) {
+        _ready_for_rx = true;
         return;
     }
 
@@ -1156,7 +1165,8 @@ void LoRaWANStack::process_joining_state(lorawan_status_t &op_status)
         return;
     }
 
-    if (_device_current_state == DEVICE_STATE_AWAITING_JOIN_ACCEPT) {
+    if (_device_current_state == DEVICE_STATE_AWAITING_JOIN_ACCEPT &&
+        _loramac.get_current_slot() != RX_SLOT_WIN_1) {
         _device_current_state = DEVICE_STATE_JOINING;
         // retry join
         bool can_continue = _loramac.continue_joining_process();

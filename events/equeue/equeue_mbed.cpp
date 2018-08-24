@@ -154,7 +154,7 @@ bool equeue_sema_wait(equeue_sema_t *s, int ms) {
     if (ms == 0) {
         return false;
     } else if (ms > 0) {
-        timeout.attach_us(callback(equeue_sema_timeout, s), ms*1000);
+        timeout.attach_us(callback(equeue_sema_timeout, s), (us_timestamp_t)ms*1000);
     }
 
     core_util_critical_section_enter();

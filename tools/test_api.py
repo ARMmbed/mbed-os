@@ -2226,7 +2226,7 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
     base_path = norm_relative_path(build_path, execution_directory)
 
     if isinstance(target, Target):
-        target_name
+        target_name = target.name
     else:
         target_name = target
         target = TARGET_MAP[target_name]

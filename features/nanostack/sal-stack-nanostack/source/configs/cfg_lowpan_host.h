@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2017, Arm Limited and affiliates.
+ * Copyright (c) 2015-2016, 2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,8 +16,8 @@
  */
 
 
-#include "base/lowpan_router.cfg"
+#include "base/cfg_lowpan_host.h"
 
-#define ECC
-#define PANA
-#define NO_TCP
+#define HAVE_AES
+#define NO_RADV_TX
+

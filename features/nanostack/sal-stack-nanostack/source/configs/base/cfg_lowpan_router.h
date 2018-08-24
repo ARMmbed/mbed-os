@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2016, Arm Limited and affiliates.
+ * Copyright (c) 2016-2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,10 +15,8 @@
  * limitations under the License.
  */
 
+/* Config Flags for 6LoWPAN Router */
+#include "cfg_lowpan_host.h"
 
-#include "base/lowpan_router.cfg"
-
-#define HAVE_AES
-#define FEA_TRACE_SUPPORT
-#define EXTRA_CONSISTENCY_CHECKS
-
+#define HAVE_6LOWPAN_ROUTER
+#define HAVE_RPL

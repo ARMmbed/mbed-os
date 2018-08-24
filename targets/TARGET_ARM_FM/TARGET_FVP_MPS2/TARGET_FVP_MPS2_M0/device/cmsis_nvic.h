@@ -28,27 +28,20 @@
 * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 * POSSIBILITY OF SUCH DAMAGE.
-*******************************************************************************
-* CMSIS-style functionality to support dynamic vectors
 *******************************************************************************/
+
 
 #ifndef MBED_CMSIS_NVIC_H
 #define MBED_CMSIS_NVIC_H
 
-#include "cmsis.h"
+#include "memory_zones.h"
 
-#define NVIC_NUM_VECTORS      (16 + 48)
-#define NVIC_USER_IRQ_OFFSET  16
+#define NVIC_NUM_VECTORS        (16 + 48)
+#define NVIC_RAM_VECTOR_ADDRESS ZBT_SRAM2_START    // Location of vectors in RAM
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector);
-uint32_t NVIC_GetVector(IRQn_Type IRQn);
-
-#ifdef __cplusplus
-}
-#endif
+/*
+ * Size of the whole vector table in bytes. Each vector is on 32 bits.
+ */
+#define NVIC_VECTORS_SIZE       (NVIC_NUM_VECTORS * 4)
 
 #endif
