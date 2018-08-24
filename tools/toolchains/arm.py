@@ -121,7 +121,7 @@ class ARM(mbedToolchain):
                 "file": "",
                 "line": "",
                 "col": "",
-                "severity": "ERROR",
+                "severity": "WARNING",
             })
 
     def _get_toolchain_labels(self):
