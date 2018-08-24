@@ -86,20 +86,20 @@
             "value": true
         },
         "max-sys-rx-error": {
-        	"help": "Maximum timing error of the receiver in ms. The receiver will turn on in [-RxError : + RxError]",
-        	"value": 10
+            "help": "Maximum timing error of the receiver in ms. The receiver will turn on in [-RxError : + RxError]",
+            "value": 10
         },
         "downlink-preamble-length": {
-        	"help": "Number of preamble symbols need to be captured (out of 8) for successful demodulation",
-        	"value": 5
+            "help": "Number of preamble symbols need to be captured (out of 8) for successful demodulation",
+            "value": 5
         },
         "uplink-preamble-length": {
-        	"help": "Number of preamble symbols to transmit. Must be <= 8",
+            "help": "Number of preamble symbols to transmit. Must be <= 8",
         	"value": 8
         },
         "fsb-mask": {
-        	"help": "FSB mask for upstream [Only for US915 & AU915] Check lorawan/FSB_Usage.txt for more details",
-        	"value": "{0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0x00FF}"
+            "help": "FSB mask for upstream [Only for US915 & AU915] Check lorawan/FSB_Usage.txt for more details",
+            "value": "{0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0x00FF}"
         },
         "fsb-mask-china": {
         	"help": "FSB mask for upstream [CN470 PHY] Check lorawan/FSB_Usage.txt for more details",
@@ -112,6 +112,10 @@
         "rejoin-default-max-count": {
                 "help": "LW1.1 only! Maximum amount of messages which can be sent between Rejoin requests.",
                 "value": 1000
+        },
+        "rejoin-type1-send-period": {
+                "help": "Rejoin type 1 sending period. NOTE: Rejoin message will be sent when this period has expired. Default is 1 week",
+                "value": 604800
         }
     }
 }

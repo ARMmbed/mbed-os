@@ -572,6 +572,18 @@ public: //Verifiers
      */
     void set_adr_ack_delay(const uint16_t& value);
 
+    /**
+     * @brief getRejoin_max_time Getter for current rejoin max time
+     * @return Current rejoin max time in seconds
+     */
+    uint32_t get_rejoin_max_time() const;
+
+    /**
+     * @brief get_rejoin_max_count Getter for current rejoin max count
+     * @return Current rejoin max count
+     */
+    uint32_t get_rejoin_max_count() const;
+
 protected:
     LoRaPHY();
 

@@ -509,8 +509,17 @@ private:
     void post_process_tx_with_reception(void);
     void post_process_tx_no_reception(void);
 
+    void process_rejoin(join_req_type_t rejoin_type, bool is_forced);
+    void reset_forced_rejoin();
+
+    void forced_timer_expiry();
+    void process_rejoin_type0();
+
 private:
     LoRaMac _loramac;
+
+    LoRaWANTimeHandler _lora_time;
+
     radio_events_t radio_events;
     device_states_t _device_current_state;
     lorawan_app_callbacks_t _callbacks;
@@ -535,6 +544,17 @@ private:
     uint8_t _rx_payload[LORAMAC_PHY_MAXPAYLOAD];
     events::EventQueue *_queue;
     lorawan_time_t _tx_timestamp;
+    uint32_t _rejoin_type1_send_period;
+    uint32_t _rejoin_type1_stamp;
+    timer_event_t _rejoin_type0_timer;
+    uint32_t _rejoin_type0_counter;
+
+    uint8_t _forced_datarate;
+    uint32_t _forced_period;
+    uint8_t _forced_retry_count;
+    join_req_type_t _forced_rejoin_type;
+    uint8_t _forced_counter;
+    timer_event_t _forced_timer;
 };
 
 #endif /* LORAWANSTACK_H_ */
