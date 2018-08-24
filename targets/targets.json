@@ -1260,7 +1260,7 @@
         },
         "detect_code": ["0743"],
         "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
-        "device_has_add": ["ANALOGOUT", "CAN", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
+        "device_has_add": ["ANALOGOUT", "CAN", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH", "QSPI"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F413ZH"
     },
@@ -1987,7 +1987,7 @@
         },
         "detect_code": ["0788"],
         "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
-        "device_has_add": ["ANALOGOUT", "CAN", "SERIAL_FC", "TRNG", "FLASH"],
+        "device_has_add": ["ANALOGOUT", "CAN", "SERIAL_FC", "TRNG", "FLASH", "QSPI"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F469NI"
     },
@@ -2081,7 +2081,7 @@
         },
         "detect_code": ["0815"],
         "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
-        "device_has_add": ["ANALOGOUT", "CAN", "EMAC", "SERIAL_ASYNCH", "TRNG", "FLASH"],
+        "device_has_add": ["ANALOGOUT", "CAN", "EMAC", "SERIAL_ASYNCH", "TRNG", "FLASH", "QSPI"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F746NG",
         "overrides": {
@@ -2145,7 +2145,7 @@
         "supported_form_factors": ["ARDUINO"],
         "detect_code": ["0764"],
         "macros_add": ["USBHOST_OTHER", "TWO_RAM_REGIONS"],
-        "device_has_add": ["ANALOGOUT", "CAN", "SERIAL_FC", "TRNG", "FLASH"],
+        "device_has_add": ["ANALOGOUT", "CAN", "SERIAL_FC", "TRNG", "FLASH", "QSPI"],
         "release_versions": ["2", "5"],
         "device_name": "STM32L475VG",
         "bootloader_supported": true
@@ -2172,7 +2172,7 @@
         },
         "detect_code": ["0820"],
         "macros_add": ["USBHOST_OTHER", "TWO_RAM_REGIONS"],
-        "device_has_add": ["ANALOGOUT", "CAN", "SERIAL_FC", "TRNG", "FLASH"],
+        "device_has_add": ["ANALOGOUT", "CAN", "SERIAL_FC", "TRNG", "FLASH", "QSPI"],
         "release_versions": ["2", "5"],
         "device_name": "STM32L476VG",
         "bootloader_supported": true
@@ -3978,7 +3978,8 @@
             "SPI_ASYNCH",
             "STCLK_OFF_DURING_SLEEP",
             "TRNG",
-            "USTICKER"
+            "USTICKER",
+            "QSPI"
         ],
         "extra_labels": [
             "NORDIC",

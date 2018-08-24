@@ -142,6 +142,17 @@ struct flash_s {
     uint32_t placeholder;
 };
 
+#if DEVICE_QSPI
+
+#include "nrf_drv_qspi.h"
+
+struct qspi_s {
+    uint32_t placeholder;
+    //nrf_drv_qspi_config_t config;
+};
+
+#endif
+
 #include "gpio_object.h"
 
 #ifdef __cplusplus
