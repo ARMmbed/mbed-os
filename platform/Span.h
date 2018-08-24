@@ -45,14 +45,6 @@ public:
     static const bool value = sizeof(true_type) == sizeof(sink(generator()));
 };
 
-template<bool Condition, typename ResultType = void>
-struct enable_if;
-
-template<typename ResultType>
-struct enable_if<true, ResultType> {
-    typedef ResultType type;
-};
-
 }
 
 /**
@@ -309,13 +301,14 @@ struct Span {
      * @note OtherElementType(*)[] should be convertible to ElementType(*)[].
      */
     template<typename OtherElementType>
-    Span(
-        const Span<OtherElementType, Extent> &other,
-        typename span_detail::enable_if<
-            span_detail::is_convertible<OtherElementType (*)[], ElementType (*)[]>::value
-        >::type* = 0
-    ):
-        _data(other.data()) { }
+    Span(const Span<OtherElementType, Extent> &other):
+        _data(other.data())
+    {
+        MBED_STATIC_ASSERT(
+            (span_detail::is_convertible<OtherElementType (*)[], ElementType (*)[]>::value),
+            "OtherElementType(*)[] should be convertible to ElementType (*)[]"
+        );
+    }
 
     /**
      * Return the size of the sequence viewed.
@@ -499,7 +492,6 @@ private:
  */
 template<typename ElementType>
 struct Span<ElementType, SPAN_DYNAMIC_EXTENT> {
-
     /**
      * Type of the element contained
      */
@@ -598,13 +590,14 @@ struct Span<ElementType, SPAN_DYNAMIC_EXTENT> {
      * @note OtherElementType(*)[] should be convertible to ElementType(*)[].
      */
     template<typename OtherElementType, ptrdiff_t OtherExtent>
-    Span(
-        const Span<OtherElementType, OtherExtent> &other,
-        typename span_detail::enable_if<
-            span_detail::is_convertible<OtherElementType (*)[], ElementType (*)[]>::value
-        >::type* = NULL
-    ):
-        _data(other.data()), _size(other.size()) { }
+    Span(const Span<OtherElementType, OtherExtent> &other):
+        _data(other.data()), _size(other.size())
+    {
+        MBED_STATIC_ASSERT(
+            (span_detail::is_convertible<OtherElementType (*)[], ElementType (*)[]>::value),
+            "OtherElementType(*)[] should be convertible to ElementType (*)[]"
+        );
+    }
 
     /**
      * Return the size of the array viewed.
