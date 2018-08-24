@@ -53,7 +53,7 @@
 ## Revision history
 | Revision 	| Date           	| Authors                                                	| Mbed OS Version 	| Comments         	|
 |----------	|----------------	|--------------------------------------------------------	|-----------------	|------------------	|
-| 1.0      	| 24 August 2018 	| Donatien Garnier (@donatieng); Vincent Coubard (@pan-) 	| 5.10+           	| Initial revision 	|
+| 1.0      	| 24 August 2018 	| Donatien Garnier ([@donatieng](https://github.com/donatieng/)); Vincent Coubard ([@pan-](https://github.com/pan-/)) 	| 5.10+           	| Initial revision 	|
 
 #   Introduction
 ##  Overview and Background
