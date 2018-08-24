@@ -222,8 +222,7 @@ class Target(namedtuple("Target", "name json_data resolution_order resolution_or
                 def_idx = idx
                 break
         else:
-            raise AttributeError("Attribute '%s' not found in target '%s'"
-                                 % (attrname, self.name))
+            return []
         # Get the starting value of the attribute
         starting_value = (tdata[self.resolution_order[def_idx][0]][attrname]
                           or [])[:]
