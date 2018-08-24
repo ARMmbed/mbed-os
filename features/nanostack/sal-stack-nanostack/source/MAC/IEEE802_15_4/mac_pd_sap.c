@@ -700,7 +700,7 @@ int8_t mac_pd_sap_data_cb(void *identifier, arm_phy_sap_msg_t *message)
         }
         //Do not accept commend frame with length 0
         if (fcf_read.frametype == FC_CMD_FRAME && length == 0) {
-            return -1;
+            goto ERROR_HANDLER;
         }
 
         //Parse IE Elements
