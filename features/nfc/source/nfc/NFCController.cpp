@@ -23,8 +23,8 @@
 using namespace mbed;
 using namespace mbed::nfc;
 
-NFCController::NFCController(NFCControllerDriver *driver, events::EventQueue *queue, uint8_t *ndef_buffer, size_t ndef_buffer_sz) :
-    _driver(driver), _queue(queue), _transceiver(NULL), _scheduler(NULL), _delegate(NULL), _discovery_running(false), _ndef_buffer(ndef_buffer), _ndef_buffer_sz(ndef_buffer_sz)
+NFCController::NFCController(NFCControllerDriver *driver, events::EventQueue *queue, const Span<uint8_t> &ndef_buffer) :
+    _driver(driver), _queue(queue), _transceiver(NULL), _scheduler(NULL), _delegate(NULL), _discovery_running(false), _ndef_buffer(ndef_buffer)
 {
     _driver->set_delegate(this);
 }
@@ -146,7 +146,7 @@ void NFCController::polling_callback(nfc_err_t ret)
         if (!transceiver_is_initiator_mode(_transceiver)) {
             nfc_tech_t active_tech = transceiver_get_active_techs(_transceiver);
             if (active_tech.nfc_iso_dep_a || active_tech.nfc_iso_dep_b) {
-                Type4RemoteInitiator *type4_remote_initiator_ptr = new (std::nothrow) Type4RemoteInitiator(this, _ndef_buffer, _ndef_buffer_sz);
+                Type4RemoteInitiator *type4_remote_initiator_ptr = new (std::nothrow) Type4RemoteInitiator(this, _ndef_buffer);
                 if (type4_remote_initiator_ptr != NULL) {
                     SharedPtr<NFCRemoteInitiator> type4_remote_initiator(type4_remote_initiator_ptr);
                     if (_delegate != NULL) {

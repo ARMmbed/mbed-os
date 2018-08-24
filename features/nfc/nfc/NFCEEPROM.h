@@ -51,9 +51,8 @@ public:
      * @param[in] driver a pointer to a NFCEEPROMDriver instance
      * @param[in] queue a pointer to the events queue to use
      * @param[in] ndef_buffer a bytes array used to store NDEF messages
-     * @param[in] ndef_buffer_sz the array size in bytes
      */
-    NFCEEPROM(NFCEEPROMDriver *driver, events::EventQueue *queue, uint8_t *ndef_buffer, size_t ndef_buffer_sz);
+    NFCEEPROM(NFCEEPROMDriver *driver, events::EventQueue *queue, const Span<uint8_t> &ndef_buffer);
 
     /**
      * The NFCEEPROM delegate. Users of the NFCEEPROM class need to implement this delegate's methods to receive events.

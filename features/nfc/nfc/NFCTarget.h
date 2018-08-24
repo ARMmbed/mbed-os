@@ -22,6 +22,8 @@
 #include "NFCDefinitions.h"
 #include "NFCNDEFCapable.h"
 
+#include "platform/Span.h"
+
 namespace mbed {
 namespace nfc {
 
@@ -41,9 +43,8 @@ public:
      * Create a NFCTarget.
      *
      * @param[in] buffer a bytes array used to store NDEF messages
-     * @param[in] buffer_size the array size in bytes
      */
-    NFCTarget(uint8_t *buffer, size_t buffer_size);
+    NFCTarget(const Span<uint8_t> &buffer);
 
     /**
      * NFCTarget destructor

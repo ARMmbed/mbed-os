@@ -19,6 +19,8 @@
 
 #include <stdint.h>
 
+#include "platform/Span.h"
+
 #include "NFCDefinitions.h"
 
 #include "nfc/stack/ndef/ndef.h"
@@ -42,9 +44,8 @@ public:
     /**
      * Construct a NFCNDEFCapable instance.
      * @param[in] buffer a bytes array used to store NDEF messages
-     * @param[in] buffer_size the array size in bytes
      */
-    NFCNDEFCapable(uint8_t *buffer, size_t buffer_size);
+    NFCNDEFCapable(const Span<uint8_t>& buffer);
 
     /**
      * Check if this instance actually supports NDEF content.
@@ -61,18 +62,17 @@ public:
          * Parse a NDEF message.
          *
          * @param[in] buffer a buffer containing the message to parse
-         * @param[in] size the buffer's size
          */
-        virtual void parse_ndef_message(const uint8_t *buffer, size_t size) { }
+        virtual void parse_ndef_message(const Span<const uint8_t> &buffer) { }
 
         /**
          * Build a NDEF message.
          *
          * @param[in] buffer a mutable buffer in which the message should be stored
-         * @param[in] capacity the buffer's capacity
+         *
          * @return the number of bytes actually used
          */
-        virtual size_t build_ndef_message(uint8_t *buffer, size_t capacity)
+        virtual size_t build_ndef_message(const Span<uint8_t> &buffer)
         {
             return 0;
         }

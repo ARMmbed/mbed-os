@@ -28,6 +28,8 @@
 #include "nfc/acore/acore/ac_buffer_builder.h"
 #include "nfc/stack/tech/type4/type4_target.h"
 
+#include "platform/Span.h"
+
 namespace mbed {
 namespace nfc {
 
@@ -48,7 +50,7 @@ public:
      * @param[in] buffer a bytes array used to store NDEF messages
      * @param[in] buffer_size the array size in bytes
      */
-    Type4RemoteInitiator(NFCController *controller, uint8_t *buffer, size_t buffer_size);
+    Type4RemoteInitiator(NFCController *controller, const Span<uint8_t> &buffer);
 
     /**
      * Type4RemoteInitiator destructor.

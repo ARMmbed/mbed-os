@@ -24,6 +24,8 @@
 #include "NFCNDEFCapable.h"
 #include "stack/tech/iso7816/iso7816_app.h"
 
+#include "platform/Span.h"
+
 namespace mbed {
 namespace nfc {
 
@@ -47,7 +49,7 @@ public:
      * @param[in] buffer a bytes array used to store NDEF messages
      * @param[in] buffer_size the array size in bytes
      */
-    NFCRemoteInitiator(NFCController *controller, uint8_t *buffer, size_t buffer_size);
+    NFCRemoteInitiator(NFCController *controller, const Span<uint8_t>& buffer);
     virtual ~NFCRemoteInitiator();
 
     /**

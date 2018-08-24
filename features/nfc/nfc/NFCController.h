@@ -26,6 +26,8 @@
 #include "NFCDefinitions.h"
 #include "NFCControllerDriver.h"
 
+#include "platform/Span.h"
+
 namespace mbed {
 namespace nfc {
 
@@ -93,9 +95,8 @@ public:
      * @param[in] driver a pointer to a NFCControllerDriver instance
      * @param[in] queue a pointer to the events queue to use
      * @param[in] ndef_buffer a bytes array used to store NDEF messages
-     * @param[in] ndef_buffer_sz the array size in bytes
      */
-    NFCController(NFCControllerDriver *driver, events::EventQueue *queue, uint8_t *ndef_buffer, size_t ndef_buffer_sz);
+    NFCController(NFCControllerDriver *driver, events::EventQueue *queue, const Span<uint8_t> &ndef_buffer);
 
     /**
      * Initialize the NFC controller
@@ -174,8 +175,7 @@ private:
     Timeout _timeout;
     Delegate *_delegate;
     bool _discovery_running;
-    uint8_t *_ndef_buffer;
-    size_t _ndef_buffer_sz;
+    Span<uint8_t> _ndef_buffer;
 };
 
 /**

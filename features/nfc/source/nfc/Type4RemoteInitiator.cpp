@@ -29,8 +29,8 @@
 using namespace mbed;
 using namespace mbed::nfc;
 
-Type4RemoteInitiator::Type4RemoteInitiator(NFCController *controller, uint8_t *buffer, size_t buffer_size) :
-    NFCRemoteInitiator(controller, buffer, buffer_size),
+Type4RemoteInitiator::Type4RemoteInitiator(NFCController *controller, const Span<uint8_t> &buffer) :
+    NFCRemoteInitiator(controller, buffer),
     _is_connected(false), _is_disconnected(false)
 {
     // Init ISO7816
