@@ -21,8 +21,8 @@ using namespace mbed;
 
 InternetSocket::InternetSocket()
     : _stack(0), _socket(0), _timeout(osWaitForever),
-      _readers(0), _writers(0), _factory_allocated(false),
-      _pending(0)
+      _readers(0), _writers(0), _pending(0),
+      _factory_allocated(false)
 {
 }
 
