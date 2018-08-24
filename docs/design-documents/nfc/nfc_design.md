@@ -1,3 +1,60 @@
+# Near-Field Communication in Mbed OS
+
+## Table of Contents
+
+- [Near-Field Communication in Mbed OS](#near-field-communication-in-mbed-os)
+    - [Table of Contents](#table-of-contents)
+    - [Revision history](#revision-history)
+- [Introduction](#introduction)
+    - [Overview and Background](#overview-and-background)
+    - [Use cases](#use-cases)
+        - [Commissioning](#commissioning)
+            - [Identification](#identification)
+            - [Transport](#transport)
+        - [BLE Pairing](#ble-pairing)
+- [System Architecture and High-Level Design](#system-architecture-and-high-level-design)
+    - [Compliance with NFC Forum Specifications](#compliance-with-nfc-forum-specifications)
+    - [User-facing API](#user-facing-api)
+    - [Phase 1: MicroNFC stack integration](#phase-1-micronfc-stack-integration)
+    - [Phase 2: NFC Host/Controller split, NCI and NFC HAL API](#phase-2-nfc-hostcontroller-split-nci-and-nfc-hal-api)
+- [Detailed Design](#detailed-design)
+    - [User-facing APIs](#user-facing-apis)
+        - [NFC Controller](#nfc-controller)
+        - [Endpoints](#endpoints)
+            - [NFC Remote Endpoint](#nfc-remote-endpoint)
+            - [NFC NDEF Capable](#nfc-ndef-capable)
+            - [NFC Remote Initiator](#nfc-remote-initiator)
+            - [NFC Target](#nfc-target)
+            - [NFC EEPROM](#nfc-eeprom)
+            - [NFC Remote Target](#nfc-remote-target)
+    - [NDEF API](#ndef-api)
+        - [Common objects](#common-objects)
+        - [Parsing](#parsing)
+            - [ndef::MessageParser](#ndefmessageparser)
+                - [ndef::MessageParser::Delegate](#ndefmessageparserdelegate)
+            - [NDEF Record parsing](#ndef-record-parsing)
+                - [ndef::RecordParser](#ndefrecordparser)
+                - [ndef::RecordParserChain](#ndefrecordparserchain)
+                - [ndef::GenericRecordParser<ParserImplementation, ParsingResult>](#ndefgenericrecordparserparserimplementation-parsingresult)
+                    - [ndef::GenericRecordParser<ParserImplementation, ParsingResult>::Delegate](#ndefgenericrecordparserparserimplementation-parsingresultdelegate)
+            - [Common parsers](#common-parsers)
+            - [Simple parser](#simple-parser)
+                - [Delegate](#delegate)
+        - [Serialization](#serialization)
+    - [HAL APIs](#hal-apis)
+        - [NFC EEPROM API](#nfc-eeprom-api)
+        - [NCI Driver APIs](#nci-driver-apis)
+- [Testing strategy](#testing-strategy)
+    - [NFC Forum Compliance](#nfc-forum-compliance)
+    - [Interoperability](#interoperability)
+    - [HAL testing](#hal-testing)
+- [Dependencies](#dependencies)
+  
+## Revision history
+| Revision 	| Date           	| Authors                                                	| Mbed OS Version 	| Comments         	|
+|----------	|----------------	|--------------------------------------------------------	|-----------------	|------------------	|
+| 1.0      	| 24 August 2018 	| Donatien Garnier (@donatieng); Vincent Coubard (@pan-) 	| 5.10+           	| Initial revision 	|
+
 #   Introduction
 ##  Overview and Background
 NFC offers a simple and secure way of commissioning IoT devices in the field, and we are seeing increasing demand for this from prospective customers. We have a plan to introduce NFC into Mbed OS, this is the first phase to add a reference implementation of card emulation mode.
