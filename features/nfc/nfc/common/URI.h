@@ -87,9 +87,13 @@ public:
 
     /**
      * Construct a URI from an id and a uri field.
+     *
      * @param id The code of the URI prefix.
      * @param uri_field The URI itself.
      * @param uri_field_size The size of the URI.
+     *
+     * @note To remove the NULL terminator of the C-string of the uri_field
+     * parameter, you can use the utility function span_from_cstr.
      */
     URI(uri_identifier_code_t id, const Span<const uint8_t> &uri_field);
 
@@ -113,8 +117,12 @@ public:
 
     /**
      * Replace the value of the URI.
+     *
      * @param id The ID of the URI
      * @param uri_field A buffer containing the value of the URI field.
+     *
+     * @note To remove the NULL terminator of the C-string of the uri_field
+     * parameter, you can use the utility function span_from_cstr.
      */
     void set_uri(
         uri_identifier_code_t id,

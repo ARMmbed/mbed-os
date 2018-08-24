@@ -44,14 +44,16 @@ public:
     /**
      * Construct a mime object from its type and content
      *
-     * @param mime_type The mime type of the object
+     * @param mime_type The mime type of the object.
      * @param content The content of the object.
+     *
+     * @note To remove the NULL terminator of the C-string of the mime_type
+     * parameter, you can use the utility function span_from_cstr.
      */
     Mime(
         const Span<const uint8_t> &mime_type,
         const Span<const uint8_t> &content
     );
-
 
     /**
      * Copy construct a Mime object.
@@ -73,8 +75,12 @@ public:
 
     /**
      * Set all attributes of a mime object.
+     *
      * @param mime_type Type of the mime object.
      * @param content Content of the mime object.
+     *
+     * @note To remove the NULL terminator of the C-string of the mime_type
+     * parameter, you can use the utility function span_from_cstr.
      */
     void set_mime(
         const Span<const uint8_t> &mime_type,
@@ -88,7 +94,7 @@ public:
     Span<const uint8_t> get_mime_type() const;
 
     /**
-     * Return the content of thr mime object.
+     * Return the content of the mime object.
      * @return the content of the mime object.
      */
     Span<const uint8_t> get_mime_content() const;

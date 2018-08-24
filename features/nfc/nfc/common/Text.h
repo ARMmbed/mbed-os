@@ -51,9 +51,13 @@ public:
 
     /**
      * Construct a text element from a data buffer and an encoding.
+     *
      * @param text_encoding The encoding of the text.
      * @param language_code The string of the language code.
      * @param text The text buffer.
+     *
+     * @note To remove the NULL terminator of the C-string of the language_code
+     * and text parameters, you can use the utility function span_from_cstr.
      */
     Text(
         encoding_t text_encoding,
@@ -81,8 +85,12 @@ public:
 
     /**
      * Copy a text from an external buffer.
+     *
      * @param language_code The language code of the text.
      * @param text The text to copy.
+     *
+     * @note To remove the NULL terminator of the C-string of the language_code
+     * and text parameters, you can use the utility function span_from_cstr.
      */
     void set_text(
         encoding_t text_encoding,
