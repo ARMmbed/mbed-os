@@ -204,7 +204,8 @@ class Uvision(Exporter):
         )
         flags['c_flags'] += " "
         flags['c_flags'] += " ".join(config_option)
-        flags['c_defines'] = " ".join(f[2:] for f in c_flags if is_define(f))
+        flags['c_defines'] = " ".join(f[2:].replace('"', '\\"')
+                                      for f in c_flags if is_define(f))
         flags['ld_flags'] = " ".join(set(flags['ld_flags']))
         return flags
 
