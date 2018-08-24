@@ -95,7 +95,7 @@ bool core_util_in_critical_section(void);
  * The atomicity guarantees that the returned value was in the memory at the time the write occured.
  *
  * @param   ptr                 The target memory location.
- * @param[in] value             The new value.
+ * @param[in] desiredValue      The new value.
  *
  * @return The value contained in *ptr when the set occured.
  *
@@ -106,7 +106,7 @@ bool core_util_in_critical_section(void);
  *    return old
  * }
  */
-bool core_util_atomic_exchange_bool(volatile bool *ptr, bool value);
+bool core_util_atomic_exchange_bool(volatile bool *ptr, bool desiredValue);
 
 /**
  * Atomic compare and set. It compares the contents of a memory location to a
