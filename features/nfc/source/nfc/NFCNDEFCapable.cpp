@@ -25,7 +25,7 @@
 using namespace mbed;
 using namespace mbed::nfc;
 
-NFCNDEFCapable::NFCNDEFCapable(const Span<uint8_t>& buffer) : _delegate(NULL)
+NFCNDEFCapable::NFCNDEFCapable(const Span<uint8_t> &buffer) : _delegate(NULL)
 {
     ndef_msg_init(&_ndef_message, s_ndef_encode, s_ndef_decode, buffer.data(), buffer.size(), this);
 }

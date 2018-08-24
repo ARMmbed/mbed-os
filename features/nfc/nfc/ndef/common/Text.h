@@ -84,7 +84,7 @@ public:
      * @param to_copy The Text instance to copy
      * @return a reference to this object.
      */
-    Text& operator=(const Text &to_copy);
+    Text &operator=(const Text &to_copy);
 
     /**
      * Copy a text from an external buffer.

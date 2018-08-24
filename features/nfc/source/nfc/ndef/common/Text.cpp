@@ -59,7 +59,7 @@ Text::~Text()
     delete[] _text_record;
 }
 
-Text& Text::operator=(const Text &other)
+Text &Text::operator=(const Text &other)
 {
     if (this == &other) {
         return *this;
@@ -82,7 +82,8 @@ void Text::set_text(
     encoding_t text_encoding,
     const Span<const uint8_t> &language_code,
     const Span<const uint8_t> &text
-) {
+)
+{
     delete[] _text_record;
 
     _text_record_size = header_size + language_code.size() + text.size();
@@ -107,23 +108,26 @@ Text::encoding_t Text::get_encoding() const
     return (_text_record[header_index] & utf16_encoding_bit) ? UTF16 : UTF8;
 }
 
-Span<const uint8_t> Text::get_language_code() const {
+Span<const uint8_t> Text::get_language_code() const
+{
     return make_const_Span(
-        _text_record + language_code_index,
-        _text_record[header_index] & language_code_size_mask
-    );
+               _text_record + language_code_index,
+               _text_record[header_index] & language_code_size_mask
+           );
 }
 
-Span<const uint8_t> Text::get_text() const {
+Span<const uint8_t> Text::get_text() const
+{
     size_t language_code_size = get_language_code().size();
 
     return make_const_Span(
-        _text_record + header_size + language_code_size,
-        _text_record_size - header_size - language_code_size
-    );
+               _text_record + header_size + language_code_size,
+               _text_record_size - header_size - language_code_size
+           );
 }
 
-void Text::move_data(uint8_t *text, size_t size) {
+void Text::move_data(uint8_t *text, size_t size)
+{
     delete[] _text_record;
     _text_record = text;
     _text_record_size = size;
@@ -132,7 +136,8 @@ void Text::move_data(uint8_t *text, size_t size) {
 bool Text::append_as_record(
     MessageBuilder &message_builder,
     bool is_last_record
-) {
+)
+{
     // Build the record type
     RecordType type(
         RecordType::well_known_type,
@@ -152,8 +157,8 @@ bool TextParser::do_parse(const Record &record, Text &text)
 
     // the record type value should be equal to `T`
     if (record.type.value != make_const_Span(text_record_type_value) ||
-        record.payload.empty()
-    ) {
+            record.payload.empty()
+       ) {
         return false;
     }
 

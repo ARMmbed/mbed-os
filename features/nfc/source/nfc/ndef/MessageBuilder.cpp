@@ -31,10 +31,11 @@ MessageBuilder::MessageBuilder(const Span<uint8_t> &buffer) :
 { }
 
 bool MessageBuilder::append_record(
-   const RecordType &type,
-   const RecordPayload &payload,
-   bool is_last_record
-) {
+    const RecordType &type,
+    const RecordPayload &payload,
+    bool is_last_record
+)
+{
     Record record(
         type,
         payload,
@@ -93,10 +94,10 @@ bool MessageBuilder::append_record(const Record &record)
     }
 
     if (record.type.tnf == RecordType::well_known_type ||
-        record.type.tnf == RecordType::media_type ||
-        record.type.tnf == RecordType::absolute_uri ||
-        record.type.tnf == RecordType::external_type
-    ) {
+            record.type.tnf == RecordType::media_type ||
+            record.type.tnf == RecordType::absolute_uri ||
+            record.type.tnf == RecordType::external_type
+       ) {
         if (record.type.value.empty()) {
             return false;
         }

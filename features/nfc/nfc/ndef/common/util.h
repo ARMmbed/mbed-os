@@ -40,9 +40,9 @@ namespace common {
  * character.
  */
 template<size_t N>
-Span<const uint8_t, N-1> span_from_cstr(const char (&cstr)[N])
+Span < const uint8_t, N - 1 > span_from_cstr(const char (&cstr)[N])
 {
-    return Span<const uint8_t, N-1>((const uint8_t*)cstr, N-1);
+    return Span < const uint8_t, N - 1 > ((const uint8_t *)cstr, N - 1);
 }
 
 /**

@@ -115,7 +115,7 @@ public:
      * @param to_copy The URI to copy.
      * @return a reference to this object
      */
-    URI& operator=(const URI &to_copy);
+    URI &operator=(const URI &to_copy);
 
     /**
      * Replace the value of the URI.

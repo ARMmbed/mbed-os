@@ -97,7 +97,7 @@ struct GenericRecordParser : public RecordParser {
     virtual bool parse(const Record &record)
     {
         ParsingResult parsed_value;
-        if (static_cast<ParserImplementation*>(this)->do_parse(record, parsed_value)) {
+        if (static_cast<ParserImplementation *>(this)->do_parse(record, parsed_value)) {
             if (_delegate) {
                 _delegate->on_record_parsed(parsed_value, record.id);
             }

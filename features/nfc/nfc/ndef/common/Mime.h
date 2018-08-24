@@ -74,7 +74,7 @@ public:
      * @param to_copy The Mime object to copy.
      * @return a reference to this object
      */
-    Mime& operator=(const Mime &other);
+    Mime &operator=(const Mime &other);
 
     /**
      * Set all attributes of a mime object.

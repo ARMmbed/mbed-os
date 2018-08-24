@@ -89,7 +89,8 @@ void SimpleMessageParser::on_parsing_terminated()
 void SimpleMessageParser::on_record_parsed(
     const URI &uri,
     const RecordID &id
-) {
+)
+{
     if (_delegate) {
         _delegate->on_uri_parsed(uri, id);
     }
@@ -98,7 +99,8 @@ void SimpleMessageParser::on_record_parsed(
 void SimpleMessageParser::on_record_parsed(
     const Text &text,
     const RecordID &id
-)  {
+)
+{
     if (_delegate) {
         _delegate->on_text_parsed(text, id);
     }
@@ -107,7 +109,8 @@ void SimpleMessageParser::on_record_parsed(
 void SimpleMessageParser::on_record_parsed(
     const Mime &mime,
     const RecordID &id
-)  {
+)
+{
     if (_delegate) {
         _delegate->on_mime_parsed(mime, id);
     }

@@ -25,7 +25,7 @@ namespace common {
 
 Span<const uint8_t> span_from_cstr(const char *cstr)
 {
-    return Span<const uint8_t>((const uint8_t*)cstr, strlen(cstr));
+    return Span<const uint8_t>((const uint8_t *)cstr, strlen(cstr));
 }
 
 /**

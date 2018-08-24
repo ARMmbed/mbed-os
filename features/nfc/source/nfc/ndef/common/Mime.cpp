@@ -53,7 +53,7 @@ Mime::~Mime()
     delete[] _mime;
 }
 
-Mime& Mime::operator=(const Mime &to_copy)
+Mime &Mime::operator=(const Mime &to_copy)
 {
     if (this == &to_copy) {
         return * this;
@@ -72,7 +72,8 @@ Mime& Mime::operator=(const Mime &to_copy)
 void Mime::set_mime(
     const Span<const uint8_t> &mime_type,
     const Span<const uint8_t> &content
-) {
+)
+{
     delete[] _mime;
 
     _mime = new uint8_t[mime_type.size() + content.size()];
@@ -95,22 +96,24 @@ Span<const uint8_t> Mime::get_mime_content() const
 bool Mime::append_as_record(
     MessageBuilder &message_builder,
     bool is_last_record
-) {
+)
+{
     return message_builder.append_record(
-        RecordType(
-            RecordType::media_type,
-            get_mime_type()
-        ),
-        get_mime_content(),
-        is_last_record
-    );
+               RecordType(
+                   RecordType::media_type,
+                   get_mime_type()
+               ),
+               get_mime_content(),
+               is_last_record
+           );
 }
 
 void Mime::move_data(
     uint8_t *mime_record,
     size_t mime_type_size,
     size_t mime_content_size
-) {
+)
+{
     delete[] _mime;
     _mime = mime_record;
     _type_size = mime_type_size;

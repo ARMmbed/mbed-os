@@ -32,7 +32,8 @@ namespace common {
 
 URI::URI() :
     _uri(NULL),
-    _uri_size(0) {
+    _uri_size(0)
+{
 }
 
 URI::URI(uri_identifier_code_t id, const Span<const uint8_t> &uri_field) :
@@ -55,7 +56,7 @@ URI::~URI()
     delete[] _uri;
 }
 
-URI& URI::operator=(const URI &other)
+URI &URI::operator=(const URI &other)
 {
     delete[] _uri;
 
@@ -74,7 +75,8 @@ URI& URI::operator=(const URI &other)
 void URI::set_uri(
     uri_identifier_code_t id,
     const Span<const uint8_t> &uri_field
-) {
+)
+{
     delete[] _uri;
 
     if (uri_field.empty()) {
@@ -104,9 +106,9 @@ Span<const uint8_t> URI::get_uri_field() const
         return Span<const uint8_t>();
     }
     return make_const_Span(
-        _uri + uri_field_index,
-        _uri_size - uri_id_code_size
-    );
+               _uri + uri_field_index,
+               _uri_size - uri_id_code_size
+           );
 }
 
 bool URI::append_as_record(MessageBuilder &message_builder, bool is_last_record)
@@ -142,8 +144,8 @@ bool URIParser::do_parse(const Record &record, URI &uri)
 
     // the record type value should be equal to `U`
     if (record.type.value != make_const_Span(uri_record_type_value) ||
-        record.payload.empty()
-    ) {
+            record.payload.empty()
+       ) {
         return false;
     }
 

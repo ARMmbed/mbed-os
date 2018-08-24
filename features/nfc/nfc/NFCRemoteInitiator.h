@@ -49,7 +49,7 @@ public:
      * @param[in] buffer a bytes array used to store NDEF messages
      * @param[in] buffer_size the array size in bytes
      */
-    NFCRemoteInitiator(NFCController *controller, const Span<uint8_t>& buffer);
+    NFCRemoteInitiator(NFCController *controller, const Span<uint8_t> &buffer);
     virtual ~NFCRemoteInitiator();
 
     /**

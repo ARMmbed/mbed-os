@@ -45,7 +45,7 @@ public:
      * Construct a NFCNDEFCapable instance.
      * @param[in] buffer a bytes array used to store NDEF messages
      */
-    NFCNDEFCapable(const Span<uint8_t>& buffer);
+    NFCNDEFCapable(const Span<uint8_t> &buffer);
 
     /**
      * Check if this instance actually supports NDEF content.

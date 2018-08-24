@@ -193,12 +193,12 @@ struct Record {
     /**
      * If true, this record is a chunked record.
      */
-    bool chunk:1;
+    bool chunk: 1;
 
     /**
      * If true, this record is the last one of the payload containing it.
      */
-    bool last_record:1;
+    bool last_record: 1;
 };
 
 

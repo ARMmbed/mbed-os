@@ -62,9 +62,9 @@ public:
      * record inserted fit.
      */
     bool append_record(
-       const RecordType &type,
-       const RecordPayload &payload = RecordPayload(),
-       bool is_last_record = false
+        const RecordType &type,
+        const RecordPayload &payload = RecordPayload(),
+        bool is_last_record = false
     );
 
     /**
@@ -109,17 +109,17 @@ private:
     // append fields
     void append_header(const Record &record);
     void append_type_length(const Record &record);
-    void append_payload_length(const Record&);
-    void append_id_length(const Record&);
-    void append_type(const Record&);
-    void append_id(const Record&);
-    void append_payload(const Record&);
+    void append_payload_length(const Record &);
+    void append_id_length(const Record &);
+    void append_type(const Record &);
+    void append_id(const Record &);
+    void append_payload(const Record &);
 
     // helpers
     static size_t compute_record_size(const Record &record);
     static bool is_short_payload(const Record &record);
 
-   // builder state.
+    // builder state.
     Span<uint8_t> _message_buffer;
     size_t _position;
     bool _message_started;

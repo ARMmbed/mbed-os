@@ -44,8 +44,7 @@ class SimpleMessageParser :
     MessageParser::Delegate,
     URIParser::Delegate,
     TextParser::Delegate,
-    MimeParser::Delegate
-{
+    MimeParser::Delegate {
 public:
     /**
      * Delegate invoked when the parser raise an event.

@@ -161,7 +161,7 @@ private:
     void report_parsing_started();
     void report_record_parsed(const Record &record);
     void report_parsing_terminated();
-    void report_parsing_error(error_t error, parsing_state_t& parsing_state);
+    void report_parsing_error(error_t error, parsing_state_t &parsing_state);
 
     Delegate *_delegate;
 };

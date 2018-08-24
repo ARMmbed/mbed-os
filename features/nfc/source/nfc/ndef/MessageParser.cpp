@@ -102,9 +102,9 @@ struct MessageParser::parsing_state_t {
     { }
 
     buffer_iterator_t it;
-    bool first_record_parsed:1;
-    bool last_record_parsed:1;
-    bool error:1;
+    bool first_record_parsed: 1;
+    bool last_record_parsed: 1;
+    bool error: 1;
 };
 
 MessageParser::MessageParser() :
@@ -120,7 +120,7 @@ void MessageParser::parse(const Span<const uint8_t> &data_buffer)
 {
     parsing_state_t parsing_state(data_buffer);
     report_parsing_started();
-    while(parsing_state.it && parse_record(parsing_state));
+    while (parsing_state.it && parse_record(parsing_state));
     if (!parsing_state.error && !parsing_state.last_record_parsed) {
         report_parsing_error(MISSING_MESSAGE_END, parsing_state);
     }
@@ -251,8 +251,8 @@ bool MessageParser::parse_record(parsing_state_t &s)
 uint8_t MessageParser::compute_lengths_size(uint8_t header)
 {
     return 1 /* type_length size */ +
-        ((header & Header::short_record_bit) ? 1 : 4) /* payload length */ +
-        ((header & Header::id_length_bit) ? 1 : 0);
+           ((header & Header::short_record_bit) ? 1 : 4) /* payload length */ +
+           ((header & Header::id_length_bit) ? 1 : 0);
 }
 
 uint8_t MessageParser::extract_type_length(parsing_state_t &s)
@@ -267,7 +267,7 @@ uint32_t MessageParser::extract_payload_length(parsing_state_t &s, uint8_t heade
         payload_length = *s.it++;
     } else {
         s.it.read_be(
-            reinterpret_cast<uint8_t*>(&payload_length),
+            reinterpret_cast<uint8_t *>(&payload_length),
             sizeof(payload_length)
         );
     }
@@ -279,7 +279,8 @@ uint8_t MessageParser::extract_id_length(parsing_state_t &s, uint8_t header)
     return (header & Header::id_length_bit) ? *s.it++ : 0;
 }
 
-void MessageParser::report_parsing_started() {
+void MessageParser::report_parsing_started()
+{
     if (_delegate) {
         _delegate->on_parsing_started();
     }
