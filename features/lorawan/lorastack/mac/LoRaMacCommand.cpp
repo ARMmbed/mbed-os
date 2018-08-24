@@ -142,6 +142,7 @@ lorawan_status_t LoRaMacCommand::process_mac_commands(const uint8_t *payload, ui
         switch (payload[mac_index++]) {
             case SRV_MAC_RESET_CONF: {
                 loramac_mlme_confirm_t mlme_conf;
+                mlme_conf.type = MLME_RESET;
                 mlme_conf.status = LORAMAC_EVENT_INFO_STATUS_OK;
                 mlme_conf.version = payload[mac_index++] & 0x0F;
                 confirm_handler(mlme_conf);
@@ -149,6 +150,7 @@ lorawan_status_t LoRaMacCommand::process_mac_commands(const uint8_t *payload, ui
                 break;
             case SRV_MAC_LINK_CHECK_ANS: {
                 loramac_mlme_confirm_t mlme_conf;
+                mlme_conf.type = MLME_LINK_CHECK;
                 mlme_conf.status = LORAMAC_EVENT_INFO_STATUS_OK;
                 mlme_conf.demod_margin = payload[mac_index++];
                 mlme_conf.nb_gateways = payload[mac_index++];
@@ -297,6 +299,7 @@ lorawan_status_t LoRaMacCommand::process_mac_commands(const uint8_t *payload, ui
                 break;
             case SRV_MAC_REKEY_CONF: {
                 loramac_mlme_confirm_t mlme_conf;
+                mlme_conf.type = MLME_REKEY;
                 mlme_conf.status = LORAMAC_EVENT_INFO_STATUS_OK;
                 mlme_conf.version = payload[mac_index++] & 0x0F;
                 confirm_handler(mlme_conf);
