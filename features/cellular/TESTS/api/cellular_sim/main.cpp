@@ -110,20 +110,20 @@ static void test_sim_interface()
     // change pin and change it back
     wait(1);
     err = sim->change_pin(MBED_CONF_APP_CELLULAR_SIM_PIN, pin);
-    TEST_ASSERT(err == NSAPI_ERROR_OK);
+    TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_UNSUPPORTED);
 
     wait(1);
     err = sim->change_pin(pin, MBED_CONF_APP_CELLULAR_SIM_PIN);
-    TEST_ASSERT(err == NSAPI_ERROR_OK);
+    TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_UNSUPPORTED);
 
     // 3. test set_pin_query
     wait(1);
     err = sim->set_pin_query(MBED_CONF_APP_CELLULAR_SIM_PIN, false);
-    TEST_ASSERT(err == NSAPI_ERROR_OK);
+    TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_UNSUPPORTED);
 
     wait(1);
     err = sim->set_pin_query(MBED_CONF_APP_CELLULAR_SIM_PIN, true);
-    TEST_ASSERT(err == NSAPI_ERROR_OK);
+    TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_UNSUPPORTED);
 
     wait(1);
     // 4. test get_sim_state

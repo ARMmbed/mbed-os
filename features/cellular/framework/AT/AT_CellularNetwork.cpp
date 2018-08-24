@@ -421,11 +421,34 @@ nsapi_error_t AT_CellularNetwork::disconnect()
     return err;
 #else
     _at.lock();
-    _at.cmd_start("AT+CGACT=0,");
-    _at.write_int(_cid);
+
+    _is_context_active = false;
+    size_t active_contexts_count = 0;
+    _at.cmd_start("AT+CGACT?");
     _at.cmd_stop();
-    _at.resp_start();
+    _at.resp_start("+CGACT:");
+    while (_at.info_resp()) {
+        int context_id = _at.read_int();
+        int context_activation_state = _at.read_int();
+        if (context_activation_state == 1) {
+            active_contexts_count++;
+            if (context_id == _cid) {
+                _is_context_active = true;
+            }
+        }
+    }
     _at.resp_stop();
+
+    // 3GPP TS 27.007:
+    // For EPS, if an attempt is made to disconnect the last PDN connection, then the MT responds with ERROR
+    if (_is_context_active && (_current_act < RAT_E_UTRAN || active_contexts_count > 1)) {
+        _at.cmd_start("AT+CGACT=0,");
+        _at.write_int(_cid);
+        _at.cmd_stop();
+        _at.resp_start();
+        _at.resp_stop();
+    }
+
     _at.restore_at_timeout();
 
     _at.remove_urc_handler("+CGEV:", callback(this, &AT_CellularNetwork::urc_cgev));
