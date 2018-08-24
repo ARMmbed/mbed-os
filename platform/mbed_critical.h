@@ -90,6 +90,25 @@ void core_util_critical_section_exit(void);
 bool core_util_in_critical_section(void);
 
 /**
+ * Atomic exchange. It fetches the content of a memory location and modifies the content of that
+ * memory location to a given new value. This is done as a single atomic operation.
+ * The atomicity guarantees that the returned value was in the memory at the time the write occured.
+ *
+ * @param   ptr                 The target memory location.
+ * @param[in] value             The new value.
+ *
+ * @return The value contained in *ptr when the set occured.
+ *
+ * pseudocode:
+ * function exchange(p : pointer to bool, new : bool) returns bool {
+ *    old = *p
+ *    *p = new
+ *    return old
+ * }
+ */
+bool core_util_atomic_exchange_bool(volatile bool *ptr, bool value);
+
+/**
  * Atomic compare and set. It compares the contents of a memory location to a
  * given value and, only if they are the same, modifies the contents of that
  * memory location to a given new value. This is done as a single atomic
