@@ -39,6 +39,9 @@ SPDX-License-Identifier: BSD-3-Clause
 #define GPS_EPOCH_DIFF_WITH_UTC 315964800
 #define CHANNELS_IN_MASK  16
 
+#define DEVICE_DOES_NOT_SUPPORT_TIME 0
+#define DEVICE_SUPPORTS_TIME 1
+
 LoRaPHY::LoRaPHY()
     : _radio(NULL),
       _lora_time(NULL),
@@ -690,7 +693,7 @@ uint8_t LoRaPHY::update_rejoin_params(uint32_t max_time, uint32_t max_count)
     //These will be taken into use at next rejoin "cycle"
     _rejoin_max_time = max_time;
     _rejoin_max_count = max_count;
-    return 1;
+    return DEVICE_SUPPORTS_TIME;
 }
 
 void LoRaPHY::restore_default_channels()
@@ -1513,4 +1516,13 @@ uint8_t LoRaPHY::apply_DR_offset(int8_t dr, int8_t dr_offset)
     return datarate;
 }
 
+uint32_t LoRaPHY::get_rejoin_max_time() const
+{
+    return _rejoin_max_time;
+}
+
+uint32_t LoRaPHY::get_rejoin_max_count() const
+{
+    return _rejoin_max_count;
+}
 
