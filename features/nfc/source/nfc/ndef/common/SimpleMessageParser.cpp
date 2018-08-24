@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "SimpleMessageParser.h"
+#include "nfc/ndef/common/SimpleMessageParser.h"
 
 namespace mbed {
 namespace nfc {

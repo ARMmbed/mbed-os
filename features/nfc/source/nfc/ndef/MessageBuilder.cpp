@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-#include "MessageBuilder.h"
 #include <cstring>
+
+#include "nfc/ndef/MessageBuilder.h"
 
 namespace mbed {
 namespace nfc {

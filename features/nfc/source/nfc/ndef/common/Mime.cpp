@@ -16,7 +16,7 @@
 
 #include <cstring>
 
-#include "Mime.h"
+#include "nfc/ndef/common/Mime.h"
 
 namespace mbed {
 namespace nfc {

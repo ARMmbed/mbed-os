@@ -18,11 +18,12 @@
 #define NFC_COMMON_SIMPLEMESSAGEPARSER_H_
 
 #include "platform/Span.h"
+
 #include "nfc/ndef/MessageParser.h"
 #include "nfc/ndef/RecordParser.h"
-#include "URI.h"
-#include "Text.h"
-#include "Mime.h"
+#include "nfc/ndef/common/URI.h"
+#include "nfc/ndef/common/Text.h"
+#include "nfc/ndef/common/Mime.h"
 
 namespace mbed {
 namespace nfc {

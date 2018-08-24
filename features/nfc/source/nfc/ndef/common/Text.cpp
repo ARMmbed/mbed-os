@@ -16,7 +16,7 @@
 
 #include <cstring>
 
-#include "Text.h"
+#include "nfc/ndef/common/Text.h"
 
 namespace {
 static const uint8_t utf16_encoding_bit = (1 << 7);

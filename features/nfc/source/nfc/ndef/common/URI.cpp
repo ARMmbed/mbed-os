@@ -15,7 +15,8 @@
  */
 
 #include <cstring>
-#include "URI.h"
+
+#include "nfc/ndef/common/URI.h"
 
 namespace {
 static const uint8_t uri_id_code_size = 1;

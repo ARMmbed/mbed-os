@@ -17,10 +17,12 @@
 #ifndef NFC_COMMON_TEXT_H_
 #define NFC_COMMON_TEXT_H_
 
-#include "platform/Span.h"
-#include <nfc/ndef/RecordParser.h>
-#include <nfc/ndef/MessageBuilder.h>
 #include <stdint.h>
+
+#include "platform/Span.h"
+
+#include "nfc/ndef/RecordParser.h"
+#include "nfc/ndef/MessageBuilder.h"
 
 namespace mbed {
 namespace nfc {

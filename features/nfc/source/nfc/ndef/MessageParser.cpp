@@ -16,8 +16,8 @@
 
 #include <cstring>
 
-#include "MessageParser.h"
-#include "Record.h"
+#include "nfc/ndef/MessageParser.h"
+#include "nfc/ndef/Record.h"
 
 namespace {
 struct buffer_iterator_t {

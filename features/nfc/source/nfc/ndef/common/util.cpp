@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#include "nfc/ndef/common/util.h"
-
 #include <cstring>
+
+#include "nfc/ndef/common/util.h"
 
 namespace mbed {
 namespace nfc {

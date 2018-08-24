@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "RecordParser.h"
+#include "nfc/ndef/RecordParser.h"
 
 namespace mbed {
 namespace nfc {

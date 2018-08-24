@@ -18,7 +18,8 @@
 #define NFC_NDEF_RECORDPARSER_H_
 
 #include <stddef.h>
-#include "Record.h"
+
+#include "nfc/ndef/Record.h"
 
 namespace mbed {
 namespace nfc {

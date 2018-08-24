@@ -19,9 +19,9 @@
 
 #include <stdint.h>
 
-#include "Record.h"
-
 #include "platform/Span.h"
+
+#include "nfc/ndef/Record.h"
 
 namespace mbed {
 namespace nfc {
