@@ -102,7 +102,7 @@ void test_emac_initialize()
 #endif
 
     // Power up the interface and emac driver
-    network_interface->connect();
+    TEST_ASSERT_EQUAL_INT(NSAPI_ERROR_OK, network_interface->connect());
 
     worker_loop_link_up_wait();
 }
