@@ -150,7 +150,7 @@
 #endif
 
 #ifndef   __RESTRICT
-  #define __RESTRICT            __restrict
+  #define __RESTRICT            restrict
 #endif
 
 #ifndef   __STATIC_INLINE
