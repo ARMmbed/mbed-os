@@ -24,8 +24,6 @@
  */
 
 #include "rtx_lib.h"
-#include "rt_OsEventObserver.h"
-
 
 //  OS Runtime Information
 osRtxInfo_t osRtxInfo __attribute__((section(".data.os"))) =
@@ -579,13 +577,6 @@ osStatus_t osKernelStart (void) {
     EvrRtxKernelError((int32_t)osErrorISR);
     status = osErrorISR;
   } else {
-    /* Call the pre-start event (from unprivileged mode) if the handler exists
-    * and the kernel is not running. */
-    /* FIXME osEventObs needs to be readable but not writable from unprivileged
-    * code. */
-    if (osKernelGetState() != osKernelRunning && osEventObs && osEventObs->pre_start) {
-      osEventObs->pre_start();
-    }
     status = __svcKernelStart();
   }
   return status;

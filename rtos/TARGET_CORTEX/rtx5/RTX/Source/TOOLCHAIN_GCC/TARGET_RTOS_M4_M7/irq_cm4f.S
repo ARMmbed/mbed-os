@@ -97,15 +97,6 @@ SVC_ContextSwitch:
 #ifdef FEATURE_UVISOR
         CPSID I // The call to the thread switch helper and PSP loading must be atomic.
 #endif
-        /* The call to thread_switch_helper can clobber R2 and R3, but we don't
-         * want to clobber R2 or R3. We can't save R2 and R3 to the stack (as
-         * the stack we save them onto is likely to be inaccessible after the
-         * call to thread_switch_helper). So, we just re-obtain the values from
-         * osRtxInfo again. */
-        BL       thread_switch_helper
-        LDR      R3,=osRtxInfo+I_T_RUN_OFS // Load address of osRtxInfo.run
-        LDM      R3,{R1,R2}             // Load osRtxInfo.thread.run: curr & next
-
         STR      R2,[R3]                // osRtxInfo.thread.run: curr = next
 
 SVC_ContextRestore:
