@@ -163,6 +163,8 @@ private:
     uint32_t _device_size;
     uint16_t _page_size;
     uint16_t _block_size;
+    bool _is_initialized;
+    uint32_t _init_ref_count;
 
     // Internal functions
     uint16_t _get_register(uint8_t opcode);

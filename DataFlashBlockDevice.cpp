@@ -15,6 +15,7 @@
  */
 
 #include "DataFlashBlockDevice.h"
+#include "mbed_critical.h"
 
 #include <inttypes.h>
 
@@ -138,7 +139,11 @@ DataFlashBlockDevice::DataFlashBlockDevice(PinName mosi,
     :   _spi(mosi, miso, sclk),
         _cs(cs, 1),
         _nwp(nwp),
-        _device_size(0)
+        _device_size(0),
+        _page_size(0),
+        _block_size(0),
+        _is_initialized(0),
+        _init_ref_count(0)
 {
     /* check that frequency is within range */
     if (freq > DATAFLASH_LOW_FREQUENCY) {
@@ -160,6 +165,16 @@ DataFlashBlockDevice::DataFlashBlockDevice(PinName mosi,
 int DataFlashBlockDevice::init()
 {
     DEBUG_PRINTF("init\r\n");
+
+    if (!_is_initialized) {
+        _init_ref_count = 0;
+    }
+
+    uint32_t val = core_util_atomic_incr_u32(&_init_ref_count, 1);
+
+    if (val != 1) {
+        return BD_ERROR_OK;
+    }
 
     int result = BD_ERROR_DEVICE_ERROR;
 
@@ -262,6 +277,10 @@ int DataFlashBlockDevice::init()
     /* write protect device when idle */
     _write_enable(false);
 
+    if (result == BD_ERROR_OK) {
+        _is_initialized = true;
+    }
+
     return result;
 }
 
@@ -269,12 +288,28 @@ int DataFlashBlockDevice::deinit()
 {
     DEBUG_PRINTF("deinit\r\n");
 
+    if (!_is_initialized) {
+        _init_ref_count = 0;
+        return BD_ERROR_OK;
+    }
+
+    uint32_t val = core_util_atomic_decr_u32(&_init_ref_count, 1);
+
+    if (val) {
+        return BD_ERROR_OK;
+    }
+
+    _is_initialized = false;
     return BD_ERROR_OK;
 }
 
 int DataFlashBlockDevice::read(void *buffer, bd_addr_t addr, bd_size_t size)
 {
     DEBUG_PRINTF("read: %p %" PRIX64 " %" PRIX64 "\r\n", buffer, addr, size);
+
+    if (!_is_initialized) {
+        return BD_ERROR_DEVICE_ERROR;
+    }
 
     int result = BD_ERROR_DEVICE_ERROR;
 
@@ -316,6 +351,10 @@ int DataFlashBlockDevice::read(void *buffer, bd_addr_t addr, bd_size_t size)
 int DataFlashBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t size)
 {
     DEBUG_PRINTF("program: %p %" PRIX64 " %" PRIX64 "\r\n", buffer, addr, size);
+
+    if (!_is_initialized) {
+        return BD_ERROR_DEVICE_ERROR;
+    }
 
     int result = BD_ERROR_DEVICE_ERROR;
 
@@ -378,6 +417,10 @@ int DataFlashBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t 
 int DataFlashBlockDevice::erase(bd_addr_t addr, bd_size_t size)
 {
     DEBUG_PRINTF("erase: %" PRIX64 " %" PRIX64 "\r\n", addr, size);
+
+    if (!_is_initialized) {
+        return BD_ERROR_DEVICE_ERROR;
+    }
 
     int result = BD_ERROR_DEVICE_ERROR;
 
