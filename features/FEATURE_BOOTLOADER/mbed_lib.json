@@ -1,0 +1,22 @@
+{
+    "name": "bootloader",
+    "target_overrides": {
+        "*": {
+            "target.header_format": [
+                ["magic", "const", "32be", "0x5a51b3d4"],
+                ["version", "const", "32be", "2"],
+                ["firmwareVersion", "timestamp", "64be", null],
+                ["firmwareSize", "size", "64be", ["application"]],
+                ["firmwareHash", "digest", "SHA256", "application"],
+                ["hashpad", "const", "64be", "0"],
+                ["hashpad", "const", "64be", "0"],
+                ["hashpad", "const", "64be", "0"],
+                ["hashpad", "const", "64be", "0"],
+                ["campaign", "const", "64be", "0"],
+                ["campaign", "const", "64be", "0"],
+                ["firmwareSignatureSize", "const", "32be", "0"],
+                ["headerCRC", "digest", "CRCITT32be", "header"]
+            ]
+        }
+    }
+}
