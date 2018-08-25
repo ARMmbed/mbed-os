@@ -1,16 +1,5 @@
 {
     "config": {
-        "header-file": {
-            "help" : "String for including your driver header file",
-            "value" : "\"SpwfSAInterface.h\""
-        },
-        "object-construction" : {
-            "value" : "new SpwfSAInterface( D8, D2 )"
-        },
-        "connect-statement" : {
-            "help" : "Must use 'net' variable name, replace WIFI_SSID, WIFI_PASSWORD, WIFI_SECURITY with your WiFi settings",
-            "value" : "((SpwfSAInterface *)net)->connect(WIFI_SSID, WIFI_PASSWORD, WIFI_SECURITY)"
-        },
         "echo-server-addr" : {
             "help" : "IP address of echo server",
             "value" : "\"echo.mbedcloudtesting.com\""
@@ -19,9 +8,22 @@
             "help" : "Port of echo server",
             "value" : "7"
         },
-        "tcp-echo-prefix" : {
-            "help" : "Some servers send a prefix before echoed message",
-            "value" : null
+        "WIFI-TX" : {
+            "help" : "Wifi TX pin",
+            "value" : "D8"
+        },
+        "WIFI-RX" : {
+            "help" : "Wifi RX pin",
+            "value" : "D2"
+        }
+    },
+    "target_overrides": {
+        "*": {
+            "target.network-default-interface-type": "WIFI",
+            "nsapi.default-wifi-ssid": "\"WIFI_SSID\"",
+            "nsapi.default-wifi-password": "\"WIFI_PASSWORD\"",
+            "nsapi.default-wifi-security": "WIFI_SECURITY",
+            "idw0xx1.provide-default": true
         }
     }
 }

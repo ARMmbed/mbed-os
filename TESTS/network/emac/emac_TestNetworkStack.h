@@ -15,8 +15,6 @@
  * limitations under the License.
  */
 
-#if MBED_CONF_APP_TEST_WIFI || MBED_CONF_APP_TEST_ETHERNET
-
 #ifndef EMAC_TEST_NETWORK_STACK_H
 #define EMAC_TEST_NETWORK_STACK_H
 
@@ -90,7 +88,6 @@ public:
 
         /** Copies IP address of the network interface to user supplied buffer
          *
-         * @param    emac       EMAC HAL implementation for this network interface
          * @param    buf        buffer to which IP address will be copied as "W:X:Y:Z"
          * @param    buflen     size of supplied buffer
          * @return              Pointer to a buffer, or NULL if the buffer is too small
@@ -392,5 +389,3 @@ private:
 };
 
 #endif /* EMAC_TEST_NETWORK_STACK_H */
-
-#endif

@@ -24,13 +24,6 @@
             "help": "Channel number of unsecure SSID",
             "value": 2
         },
-        "header-file": {
-            "help" : "String for including your driver header file",
-            "value" : "\"WIFI_INTERFACE.h\""
-        },
-        "object-construction" : {
-            "value" : "new WIFI_INTERFACE()"
-        },
         "ap-mac-secure": {
             "help": "BSSID of secure AP in form of AA:BB:CC:DD:EE:FF",
             "value": "\"AA:AA:AA:AA:AA:AA\""
@@ -42,6 +35,11 @@
         "max-scan-size": {
             "help": "How many networks may appear in Wifi scan result",
             "value": 10
+        }
+    },
+    "target_overrides": {
+        "*": {
+            "target.network-default-interface-type": "WIFI"    
         }
     }
 }

@@ -17,7 +17,6 @@
 
 #include "greentea-client/test_env.h"
 #include "mbed.h"
-#include MBED_CONF_APP_HEADER_FILE
 #include "udp_tests.h"
 #include "UDPSocket.h"
 #include "unity/unity.h"

@@ -20,8 +20,6 @@
 #include "unity.h"
 #include "utest.h"
 
-#if MBED_CONF_APP_TEST_WIFI || MBED_CONF_APP_TEST_ETHERNET
-
 #include "emac_tests.h"
 #include "emac_util.h"
 #include "emac_ctp.h"
@@ -83,5 +81,3 @@ void test_emac_unicast_long()
     TEST_ASSERT_FALSE(ERROR_FLAGS);
     RESET_OUTGOING_MSG_DATA;
 }
-
-#endif

@@ -16,7 +16,10 @@
     },
     "target_overrides": {
         "*": {
-            "target.network-default-interface-type": "ETHERNET"
+            "target.network-default-interface-type": "WIFI",
+            "nsapi.default-wifi-ssid": "\"WIFI_SSID\"",
+            "nsapi.default-wifi-password": "\"WIFI_PASSWORD\"",
+            "nsapi.default-wifi-security": "WIFI_SECURITY"
         }
     }
 }

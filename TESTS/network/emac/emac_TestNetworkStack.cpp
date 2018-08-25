@@ -15,8 +15,6 @@
  * limitations under the License.
  */
 
-#if MBED_CONF_APP_TEST_WIFI || MBED_CONF_APP_TEST_ETHERNET
-
 #include "unity.h"
 
 #include "EMACMemoryManager.h"
@@ -204,6 +202,4 @@ OnboardNetworkStack &OnboardNetworkStack::get_default_instance()
 {
     return EmacTestNetworkStack::get_instance();
 }
-#endif
-
 #endif

@@ -1,13 +1,5 @@
 {
     "config": {
-        "test-ethernet": {
-            "help": "Enable ethernet testing",
-            "value": 1
-        },
-        "test-wifi": {
-            "help": "Enable wifi testing",
-            "value": 0
-        },
         "echo-server": {
             "help": "Build test to be echo server",
             "value": 0
@@ -19,22 +11,13 @@
         "wifi-scan": {
             "help": "Scan and list access points",
             "value": 0
-        },
-        "wifi-ssid": {
-            "help": "WiFi SSID for network",
-            "value": "\"SSID\""
-        },
-        "wifi-security": {
-            "help": "WiFi Security",
-            "value": "NSAPI_SECURITY_WPA_WPA2"
-        },
-        "wifi-password": {
-            "help": "WiFi Password",
-            "value": "\"PASSWORD\""
         }
     },
     "target_overrides": {
         "*": {
+            "nsapi.default-wifi-ssid": "\"WIFI_SSID\"",
+            "nsapi.default-wifi-password": "\"WIFI_PASSWORD\"",
+            "nsapi.default-wifi-security": "WIFI_SECURITY",
             "nsapi.default-stack": "TEST"
         }
     }

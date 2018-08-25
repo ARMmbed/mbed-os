@@ -20,10 +20,6 @@
 #include "unity.h"
 #include "utest.h"
 
-#if MBED_CONF_APP_TEST_WIFI || MBED_CONF_APP_TEST_ETHERNET
-
-#include "lwip/opt.h" /* ETH_PAD_SIZE */
-
 #include "mbed.h"
 
 #include "EMAC.h"
@@ -79,5 +75,3 @@ void emac_if_memory_buffer_write(void *buf, unsigned char *eth_frame, bool write
         }
     }
 }
-
-#endif

@@ -22,30 +22,11 @@
 #include "unity.h"
 #include "utest.h"
 
-#if MBED_CONF_APP_TEST_WIFI || MBED_CONF_APP_TEST_ETHERNET
-
-#include "EthernetInterface.h"
+#include "NetworkInterface.h"
 #include "EMAC.h"
 #include "EMACMemoryManager.h"
 #include "emac_TestMemoryManager.h"
 #include "emac_TestNetworkStack.h"
-
-#if MBED_CONF_APP_TEST_WIFI
-
-#if defined(TARGET_UBLOX_EVK_ODIN_W2) || defined(TARGET_MTB_UBLOX_ODIN_W2)
-#include "OdinWiFiInterface.h"
-#endif
-#ifdef TARGET_REALTEK_RTL8195AM
-#include "RTWInterface.h"
-#endif
-#if defined(TARGET_MTB_ADV_WISE_1530)   || \
-    defined(TARGET_MTB_USI_WM_BN_BM_22) || \
-    defined(TARGET_MTB_MXCHIP_EMW3166)
-#include "WicedInterface.h"
-#endif
-
-#endif
-
 #include "emac_initialize.h"
 #include "emac_tests.h"
 #include "emac_util.h"
@@ -59,29 +40,14 @@ void test_emac_initialize()
 {
     worker_loop_init();
 
-#if MBED_CONF_APP_TEST_ETHERNET
+    static NetworkInterface *network_interface = NetworkInterface::get_default_instance();
 
-    static EthernetInterface *network_interface = new EthernetInterface;
-
-#elif MBED_CONF_APP_TEST_WIFI
-
-    // Add wifi classes here
-#if defined(TARGET_UBLOX_EVK_ODIN_W2) || defined(TARGET_MTB_UBLOX_ODIN_W2)
-    static WiFiInterface *network_interface = new OdinWiFiInterface;
-#elif defined(TARGET_REALTEK_RTL8195AM)
-    static WiFiInterface *network_interface = new RTWInterface;
-#elif defined(TARGET_MTB_ADV_WISE_1530)   || \
-      defined(TARGET_MTB_USI_WM_BN_BM_22) || \
-      defined(TARGET_MTB_MXCHIP_EMW3166)
-    static WiFiInterface *network_interface = new WicedInterface;
-#else
-    static WiFiInterface *network_interface = new WiFiInterface;
-#endif
-
+#define WIFI 2
+#if MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE == WIFI
 #if MBED_CONF_APP_WIFI_SCAN
     WiFiAccessPoint ap[30];
 
-    int size = network_interface->scan(ap, 30);
+    int size = network_interface->wifiInterface()->scan(ap, 30);
 
     for (int i = 0; i < size; i++) {
         const char *ssid = ap[i].get_ssid();
@@ -96,9 +62,6 @@ void test_emac_initialize()
         printf("ch %i\r\n\r\n", ch);
     }
 #endif
-
-    network_interface->set_credentials(MBED_CONF_APP_WIFI_SSID, MBED_CONF_APP_WIFI_PASSWORD, MBED_CONF_APP_WIFI_SECURITY);
-
 #endif
 
     // Power up the interface and emac driver
@@ -154,5 +117,3 @@ bool emac_if_init(EMAC *emac)
 
     return true;
 }
-
-#endif

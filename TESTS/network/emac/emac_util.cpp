@@ -20,8 +20,6 @@
 #include "unity.h"
 #include "utest.h"
 
-#if MBED_CONF_APP_TEST_WIFI || MBED_CONF_APP_TEST_ETHERNET
-
 #include "mbed.h"
 
 #include "EMAC.h"
@@ -584,5 +582,3 @@ void emac_if_set_mtu_size(int mtu_size)
 {
     eth_mtu_size = mtu_size;
 }
-
-#endif

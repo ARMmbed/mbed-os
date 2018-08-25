@@ -1,16 +1,5 @@
 {
     "config": {
-        "header-file": {
-            "help" : "String for including your driver header file",
-            "value" : "\"ESP8266Interface.h\""
-        },
-        "object-construction" : {
-            "value" : "new ESP8266Interface( D1, D0, false )"
-        },
-        "connect-statement" : {
-            "help" : "Must use 'net' variable name, replace WIFI_SSID, WIFI_PASSWORD, WIFI_SECURITY with your WiFi settings",
-            "value" : "((ESP8266Interface *)net)->connect(WIFI_SSID, WIFI_PASSWORD, WIFI_SECURITY)"
-        },
         "echo-server-addr" : {
             "help" : "IP address of echo server",
             "value" : "\"echo.mbedcloudtesting.com\""
@@ -18,20 +7,15 @@
         "echo-server-port" : {
             "help" : "Port of echo server",
             "value" : "7"
-        },
-        "tcp-echo-prefix" : {
-            "help" : "Some servers send a prefix before echoed message",
-            "value" : null
-        },
-        "tcp-client-echo-buffer-size" : {
-            "help" : "Number of bytes to be send to echo server",
-            "value" : "200"
-        },
-        "ESP8266-TX": {
-            "value":"D1"
-        },
-        "ESP8266-RX": {
-            "value":"D0"
+        }
+    },
+    "target_overrides": {
+        "*": {
+            "target.network-default-interface-type": "WIFI",
+            "nsapi.default-wifi-ssid": "\"WIFI_SSID\"",
+            "nsapi.default-wifi-password": "\"WIFI_PASSWORD\"",
+            "nsapi.default-wifi-security": "WIFI_SECURITY",
+            "esp8266.provide-default": true
         }
     }
 }

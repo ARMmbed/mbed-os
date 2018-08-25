@@ -15,16 +15,17 @@
  * limitations under the License.
  */
 
-#ifndef MBED_CONF_APP_OBJECT_CONSTRUCTION
-#error [NOT_SUPPORTED] No network interface found for this target.
+#define WIFI 2
+#if !defined(MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE) || \
+    MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE != WIFI
+#error [NOT_SUPPORTED] No network configuration found for this target.
 #endif
-
 #if !defined(MBED_CONF_APP_WIFI_SECURE_SSID) && !defined(MBED_CONF_APP_WIFI_UNSECURE_SSID)
 #error [NOT_SUPPORTED] Requires parameters from mbed_app.json
 #endif
 
 #include "mbed.h"
-#include MBED_CONF_APP_HEADER_FILE
+#include "WiFiInterface.h"
 
 WiFiInterface *get_interface()
 {
@@ -35,7 +36,7 @@ WiFiInterface *get_interface()
         return interface;
     }
 
-    interface = MBED_CONF_APP_OBJECT_CONSTRUCTION;
+    interface = WiFiInterface::get_default_instance();
 
     return interface;
 }

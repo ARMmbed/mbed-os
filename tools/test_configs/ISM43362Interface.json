@@ -1,16 +1,5 @@
 {
     "config": {
-        "header-file": {
-            "help" : "String for including your driver header file",
-            "value" : "\"ISM43362Interface.h\""
-        },
-        "object-construction" : {
-            "value" : "new ISM43362Interface()"
-        },
-        "connect-statement" : {
-            "help" : "Must use 'net' variable name",
-            "value" : "net->wifiInterface()->connect(MBED_CONF_APP_WIFI_SECURE_SSID, MBED_CONF_APP_WIFI_PASSWORD, NSAPI_SECURITY_WPA_WPA2)"
-        },
         "echo-server-addr" : {
             "help" : "IP address of echo server",
             "value" : "\"echo.mbedcloudtesting.com\""
@@ -18,14 +7,6 @@
         "echo-server-port" : {
             "help" : "Port of echo server",
             "value" : "7"
-        },
-        "tcp-echo-prefix" : {
-            "help" : "Some servers send a prefix before echoed message",
-            "value" : null
-        },
-        "tcp-client-echo-buffer-size" : {
-            "help" : "Number of bytes to be send to echo server",
-            "value" : "200"
         },
         "wifi-secure-ssid": {
             "help": "WiFi SSID for WPA2 secured network",
@@ -66,7 +47,12 @@
     },
     "target_overrides": {
         "*": {
-            "platform.stdio-convert-newlines": true
+            "platform.stdio-convert-newlines": true,
+            "target.network-default-interface-type": "WIFI",
+            "nsapi.default-wifi-ssid": "\"WIFI_SSID\"",
+            "nsapi.default-wifi-password": "\"WIFI_PASSWORD\"",
+            "nsapi.default-wifi-security": "WIFI_SECURITY",
+            "ism43362.provide-default": true
         }
     }
 }

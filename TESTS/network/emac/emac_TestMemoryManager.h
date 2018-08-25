@@ -15,8 +15,6 @@
  * limitations under the License.
  */
 
-#if MBED_CONF_APP_TEST_WIFI || MBED_CONF_APP_TEST_ETHERNET
-
 #ifndef EMAC_TEST_MEMORY_MANAGER_H
 #define EMAC_TEST_MEMORY_MANAGER_H
 
@@ -115,7 +113,7 @@ public:
      * If memory buffer is chained must point to the start of the chain. Frees all buffers
      * from the chained list.
      *
-     * @param mem      Memory buffer chain to be freed.
+     * @param buf      Memory buffer chain to be freed.
      */
     virtual void free(emac_mem_buf_t *buf);
 
@@ -124,7 +122,7 @@ public:
      *
      * Returns a total length of this buffer and any following buffers in the chain.
      *
-     * @param mem      Memory buffer chain
+     * @param buf      Memory buffer chain
      * @return         Total length in bytes
      */
     virtual uint32_t get_total_len(const emac_mem_buf_t *buf) const;
@@ -157,7 +155,7 @@ public:
      *
      * Returns the next buffer from the memory buffer chain.
      *
-     * @param mem      Memory buffer
+     * @param buf      Memory buffer
      * @return         The next memory buffer, or NULL if last
      */
     virtual emac_mem_buf_t *get_next(const emac_mem_buf_t *buf) const;
@@ -165,7 +163,7 @@ public:
     /**
      * Return pointer to the payload of the buffer
      *
-     * @param mem      Memory buffer
+     * @param buf      Memory buffer
      * @return         Pointer to the payload
      */
     virtual void *get_ptr(const emac_mem_buf_t *buf) const;
@@ -173,7 +171,7 @@ public:
     /**
      * Return payload size of the buffer
      *
-     * @param mem      Memory buffer
+     * @param buf      Memory buffer
      * @return         Size in bytes
      */
     virtual uint32_t get_len(const emac_mem_buf_t *buf) const;
@@ -184,7 +182,7 @@ public:
      * The allocated payload size will not change. It is not permitted
      * to change the length of a buffer that is not the first (or only) in a chain.
      *
-     * @param mem      Memory buffer
+     * @param buf      Memory buffer
      * @param len      Payload size, must be less or equal allocated size
      */
     virtual void set_len(emac_mem_buf_t *buf, uint32_t len);
@@ -229,4 +227,3 @@ private:
 };
 
 #endif /* EMAC_TEST_MEMORY_MANAGER_H */
-#endif

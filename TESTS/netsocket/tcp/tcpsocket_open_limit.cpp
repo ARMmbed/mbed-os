@@ -17,7 +17,6 @@
 
 #include "greentea-client/test_env.h"
 #include "mbed.h"
-#include MBED_CONF_APP_HEADER_FILE
 #include "tcp_tests.h"
 #include "TCPSocket.h"
 #include "unity/unity.h"

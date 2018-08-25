@@ -15,8 +15,6 @@
  * limitations under the License.
  */
 
-#if MBED_CONF_APP_TEST_WIFI || MBED_CONF_APP_TEST_ETHERNET
-
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
@@ -556,4 +554,3 @@ EmacTestMemoryManager &EmacTestMemoryManager::get_instance()
     return test_memory_manager;
 }
 
-#endif
