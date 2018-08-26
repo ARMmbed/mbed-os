@@ -108,10 +108,6 @@ LoopFillZerobss:
 /* Call the clock system intitialization function.*/
   bl SystemInitPre
   bl HAL_InitPre
-#if defined(FEATURE_UVISOR) && defined(TARGET_UVISOR_SUPPORTED)
-  ldr r0, =uvisor_init
-  blx r0
-#endif /* defined(FEATURE_UVISOR) && defined(TARGET_UVISOR_SUPPORTED) */
   bl  SystemInit   
 /* Call static constructors */
   //bl __libc_init_array

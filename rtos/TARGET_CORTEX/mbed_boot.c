@@ -354,10 +354,7 @@ void $Super$$__cpp_initialize__aeabi_(void);
 
 void _main_init (void) {
     mbed_set_stack_heap();
-    /* Copy the vector table to RAM only if uVisor is not in use. */
-#if !(defined(FEATURE_UVISOR) && defined(TARGET_UVISOR_SUPPORTED))
     mbed_cpy_nvic();
-#endif
     mbed_sdk_init();
     osKernelInitialize();
     mbed_start_main();
@@ -420,10 +417,7 @@ __asm(".global __use_no_semihosting\n\t");
 void __rt_entry (void) {
     __user_setup_stackheap();
     mbed_set_stack_heap();
-    /* Copy the vector table to RAM only if uVisor is not in use. */
-#if !(defined(FEATURE_UVISOR) && defined(TARGET_UVISOR_SUPPORTED))
     mbed_cpy_nvic();
-#endif
     mbed_sdk_init();
     _platform_post_stackheap_init();
     mbed_start_main();
@@ -608,9 +602,6 @@ osMutexId_t               env_mutex_id;
 mbed_rtos_storage_mutex_t env_mutex_obj;
 osMutexAttr_t             env_mutex_attr;
 
-#ifdef  FEATURE_UVISOR
-#include "uvisor-lib/uvisor-lib.h"
-#endif/* FEATURE_UVISOR */
 
 int __wrap_main(void) {
     mbed_main();
@@ -645,22 +636,9 @@ void pre_main(void)
 void software_init_hook(void)
 {
     mbed_set_stack_heap();
-    /* Copy the vector table to RAM only if uVisor is not in use. */
-#if !(defined(FEATURE_UVISOR) && defined(TARGET_UVISOR_SUPPORTED))
     mbed_cpy_nvic();
-#endif
     mbed_sdk_init();
     osKernelInitialize();
-    /* uvisor_lib_init calls RTOS functions, so must be called after the RTOS has
-     * been initialized. */
-#ifdef   FEATURE_UVISOR
-    int return_code;
-
-    return_code = uvisor_lib_init();
-    if (return_code) {
-        mbed_die();
-    }
-#endif/* FEATURE_UVISOR */
     mbed_start_main();
 }
 
@@ -735,10 +713,7 @@ void __iar_program_start( void )
     if (low_level_init_needed_local) {
         __iar_data_init3();
 
-    /* Copy the vector table to RAM only if uVisor is not in use. */
-#if !(defined(FEATURE_UVISOR) && defined(TARGET_UVISOR_SUPPORTED))
     mbed_cpy_nvic();
-#endif
     mbed_sdk_init();
   }
 

@@ -119,45 +119,6 @@
       "auto-update" : true
     },
     {
-      "name": "mbed-os-example-uvisor",
-      "github":"https://github.com/ARMmbed/mbed-os-example-uvisor",
-      "mbed": [],
-      "test-repo-source": "github",
-      "features" : [],
-      "targets" : ["K64F"],
-      "toolchains" : ["GCC_ARM"],
-      "exporters": [],
-      "compile" : true,
-      "export": true,
-      "auto-update" : false
-    },
-    {
-      "name": "mbed-os-example-uvisor-thread",
-      "github":"https://github.com/ARMmbed/mbed-os-example-uvisor-thread",
-      "mbed": [],
-      "test-repo-source": "github",
-      "features" : [],
-      "targets" : ["K64F"],
-      "toolchains" : ["GCC_ARM"],
-      "exporters": [],
-      "compile" : true,
-      "export": true,
-      "auto-update" : false
-    },
-    {
-      "name": "mbed-os-example-uvisor-number-store",
-      "github":"https://github.com/ARMmbed/mbed-os-example-uvisor-number-store",
-      "mbed": [],
-      "test-repo-source": "github",
-      "features" : [],
-      "targets" : ["K64F"],
-      "toolchains" : ["GCC_ARM"],
-      "exporters": [],
-      "compile" : true,
-      "export": true,
-      "auto-update" : false
-    },
-    {
       "name": "mbed-os-example-bootloader",
       "github":"https://github.com/ARMmbed/mbed-os-example-bootloader",
       "mbed": [

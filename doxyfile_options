@@ -846,7 +846,6 @@ EXCLUDE_PATTERNS       = */tools/* \
                          */features/storage/* \
                          */features/unsupported/* \
                          */features/lwipstack/* \
-                         */features/FEATURE_UVISOR/* \
                          */features/nanostack/sal-stack-nanostack/* \
                          */features/nanostack/coap-service/* \
                          */mbed-trace/* \

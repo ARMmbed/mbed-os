@@ -46,5 +46,5 @@ Note: You must resolve any conflicts that arise during this cherry-pick process.
 }
 
 ### Input to importer.py
-1. Repository: -r <repo_path> ( Example: CMSIS / Mbed-tls / uVisor)
+1. Repository: -r <repo_path> ( Example: CMSIS / Mbed-tls)
 2. `repo`_importer.json: -c <json_file>  (Example: cmsis_importer.json)

@@ -62,10 +62,6 @@
 #define OS_STACK_WATERMARK          1
 #endif
 
-/* Run threads unprivileged when uVisor is enabled. */
-#if defined(FEATURE_UVISOR) && defined(TARGET_UVISOR_SUPPORTED)
-# define OS_PRIVILEGE_MODE           0
-#endif
 
 #define OS_IDLE_THREAD_TZ_MOD_ID     1
 #define OS_TIMER_THREAD_TZ_MOD_ID    1

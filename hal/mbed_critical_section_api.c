@@ -49,10 +49,8 @@ MBED_WEAK void hal_critical_section_enter(void)
 
 MBED_WEAK void hal_critical_section_exit(void)
 {
-#ifndef FEATURE_UVISOR
     // Interrupts must be disabled on invoking an exit from a critical section
     MBED_ASSERT(!are_interrupts_enabled());
-#endif
     state_saved = false;
 
     // Restore the IRQs to their state prior to entering the critical section
