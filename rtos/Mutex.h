@@ -74,7 +74,6 @@ public:
     /** Create and Initialize a Mutex object
 
      @param name name to be used for this mutex. It has to stay allocated for the lifetime of the thread.
-
      @note You cannot call this function from ISR context.
     */
     Mutex(const char *name);
@@ -82,26 +81,31 @@ public:
     /**
       Wait until a Mutex becomes available.
 
+      @return  status code that indicates the execution status of the function:
+               @a osOK the mutex has been obtained.
+
       @note You cannot call this function from ISR context.
+      @note This function treats RTOS errors as fatal system errors, so can only return osOK.
+            Use of the return value is deprecated, as the return is expected to become void in the future.
      */
-    void lock(void);
+    osStatus lock(void);
 
     /**
       For backwards compatibility.
-      @deprecated Do not use this function. This function has been replaced with trylock_for and lock(void) functions.
+      @deprecated Do not use this function. This function has been replaced with lock(), trylock() and trylock_for() functions.
 
       Wait until a Mutex becomes available.
       @param   millisec  timeout value or 0 in case of no time-out.
       @return  status code that indicates the execution status of the function:
                @a osOK the mutex has been obtained.
                @a osErrorTimeout the mutex could not be obtained in the given time.
-               @a osErrorParameter internal error.
                @a osErrorResource the mutex could not be obtained when no timeout was specified.
-               @a osErrorISR this function cannot be called from the interrupt service routine.
 
       @note You cannot call this function from ISR context.
+      @note This function treats RTOS errors as fatal system errors, so can only return osOK or
+            osErrorResource in case when millisec is 0 or osErrorTimeout if millisec is not osWaitForever.
      */
-    MBED_DEPRECATED_SINCE("mbed-os-5.10.0", "Replaced with trylock_for and lock(void) functions")
+    MBED_DEPRECATED_SINCE("mbed-os-5.10.0", "Replaced with lock(), trylock() and trylock_for() functions")
     osStatus lock(uint32_t millisec);
 
     /** Try to lock the mutex, and return immediately
@@ -139,9 +143,14 @@ public:
     /**
       Unlock the mutex that has previously been locked by the same thread
 
+      @return status code that indicates the execution status of the function:
+              @a osOK the mutex has been released.
+
       @note You cannot call this function from ISR context.
+      @note This function treats RTOS errors as fatal system errors, so can only return osOK.
+            Use of the return value is deprecated, as the return is expected to become void in the future.
      */
-    void unlock();
+    osStatus unlock();
 
     /** Get the owner the this mutex
       @return  the current owner of this mutex.
