@@ -255,13 +255,13 @@ typedef struct {
     /**
      * This callback is optional
      *
-     * The first parameter to callback function is the demodulation margin, and the second
+     * The first parameter to the callback function is the demodulation margin, and the second
      * parameter is the number of gateways that successfully received the last request.
      */
     mbed::Callback<void(uint8_t, uint8_t)> link_check_resp;
 
     /**
-     * This callback is optional. If callback is not set, stack will return 255 to gateway.
+     * This callback is optional. If the callback is not set, the stack returns 255 to gateway.
      *
      * Battery level return value must follow the specification
      * for DevStatusAns MAC command:
