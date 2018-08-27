@@ -20,8 +20,8 @@
 #include "rtos/Thread.h"
 using namespace rtos;
 #else
-#include "Timer.h"
-#include "LowPowerTimer.h"
+#include "drivers/Timer.h"
+#include "drivers/LowPowerTimer.h"
 #endif
 
 namespace mbed {

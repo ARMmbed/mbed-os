@@ -23,7 +23,7 @@
 #ifndef MBED_POWER_MGMT_H
 #define MBED_POWER_MGMT_H
 
-#include "sleep_api.h"
+#include "hal/sleep_api.h"
 #include "mbed_toolchain.h"
 #include "hal/ticker_api.h"
 #include <stdbool.h>
