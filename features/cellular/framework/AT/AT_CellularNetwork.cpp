@@ -381,8 +381,15 @@ nsapi_error_t AT_CellularNetwork::open_data_channel()
 {
 #if NSAPI_PPP_AVAILABLE
     tr_info("Open data channel in PPP mode");
-    _at.cmd_start("AT+CGDATA=\"PPP\",");
-    _at.write_int(_cid);
+    if (is_supported(AT_CGDATA)) {
+        _at.cmd_start("AT+CGDATA=\"PPP\",");
+        _at.write_int(_cid);
+    } else {
+        MBED_ASSERT(_cid >= 0 && _cid <= 99);
+        char cmd_buf[sizeof("ATD*99***xx#")];
+        std::sprintf(cmd_buf, "ATD*99***%d#", _cid);
+        _at.cmd_start(cmd_buf);
+    }
     _at.cmd_stop();
 
     _at.resp_start("CONNECT", true);
