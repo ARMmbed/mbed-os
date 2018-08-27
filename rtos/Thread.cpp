@@ -93,7 +93,12 @@ void Thread::constructor(Callback<void()> task,
 osStatus Thread::start(Callback<void()> task) {
     _mutex.lock();
 
-    if ((_tid != 0) || _finished) {
+    // Reset _finished, in case thread terminated successfully and was restarted
+    if ((true == _finished) && (_tid == 0)) {
+        _finished = false;
+    }
+
+    if (_tid != 0) {
         _mutex.unlock();
         return osErrorParameter;
     }
