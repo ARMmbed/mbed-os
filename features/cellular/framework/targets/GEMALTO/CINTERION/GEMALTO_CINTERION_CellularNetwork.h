@@ -32,7 +32,7 @@ protected:
     virtual NetworkStack *get_stack();
 #endif // NSAPI_PPP_AVAILABLE
 
-    virtual bool has_registration(RegistrationType reg_type);
+    virtual RegistrationMode has_registration(RegistrationType reg_type);
 
     virtual bool get_modem_stack_type(nsapi_ip_stack_t requested_stack);
 

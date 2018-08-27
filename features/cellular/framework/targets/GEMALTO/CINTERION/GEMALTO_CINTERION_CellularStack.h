@@ -46,13 +46,21 @@ protected:
                                                        void *buffer, nsapi_size_t size);
 
 private:
+    // find the socket handle based on socket identifier
     CellularSocket *find_socket(int sock_id);
+
+    // socket URC handlers as per Cinterion AT manuals
     void urc_sis();
     void urc_sisw();
     void urc_sisr();
+
+    // sockets need a connection profile, one profile is enough to support single stack sockets
     bool create_connection_profile();
+
+    // socket open need to be deferred until sendto due to BGS2 does not support UDP server endpoint
     nsapi_error_t socket_open_defer(CellularSocket *socket, const SocketAddress *address = NULL);
 
+    // connection profile configuration needs Access Point Name
     const char *_apn;
 };
 

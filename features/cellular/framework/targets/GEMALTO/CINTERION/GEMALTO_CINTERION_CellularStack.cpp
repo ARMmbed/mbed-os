@@ -60,7 +60,6 @@ void GEMALTO_CINTERION_CellularStack::urc_sis()
 {
     int sock_id = _at.read_int();
     int urc_code = _at.read_int();
-    //tr_debug("Socket ready: id=%d, urc=%d", sock_id, urc_code);
     CellularSocket *sock = find_socket(sock_id);
     if (sock) {
         if (urc_code == 5) { // data available
@@ -79,7 +78,6 @@ void GEMALTO_CINTERION_CellularStack::urc_sisw()
 {
     int sock_id = _at.read_int();
     int urc_code = _at.read_int();
-    //tr_debug("TX event: socket=%d, urc=%d", sock_id, urc_code);
     CellularSocket *sock = find_socket(sock_id);
     if (sock) {
         if (urc_code == 1) { // ready
@@ -100,7 +98,6 @@ void GEMALTO_CINTERION_CellularStack::urc_sisr()
 {
     int sock_id = _at.read_int();
     int urc_code = _at.read_int();
-    //tr_debug("RX event: socket=%d, urc=%d", sock_id, urc_code);
     CellularSocket *sock = find_socket(sock_id);
     if (sock) {
         if (urc_code == 1) { // data available
@@ -221,11 +218,9 @@ nsapi_error_t GEMALTO_CINTERION_CellularStack::create_socket_impl(CellularSocket
             char paramTag[16];
             int paramTagLen = _at.read_string(paramTag, sizeof(paramTag));
             if (paramTagLen > 0) {
-                //tr_debug("paramTag %s", paramTag);
                 char paramValue[100 + 1]; // APN may be up to 100 chars
                 int paramValueLen = _at.read_string(paramValue, sizeof(paramValue));
                 if (paramValueLen >= 0) {
-                    //tr_debug("paramValue %s", paramValue);
                     if (strcmp(paramTag, "srvType") == 0) {
                         if (strcmp(paramValue, "Socket") == 0) {
                             tr_debug("srvType %s", paramValue);
@@ -298,13 +293,12 @@ nsapi_size_or_error_t GEMALTO_CINTERION_CellularStack::socket_sendto_impl(Cellul
                 socket_close_impl(socket->id);
                 _at.clear_error();
             }
-//    socket->started = false;
+
             if (socket_open_defer(socket, &address) != NSAPI_ERROR_OK) {
                 tr_error("Failed to open socket %d", socket->id);
                 return NSAPI_ERROR_NO_SOCKET;
             }
             socket->remoteAddress = address;
-//    return NSAPI_ERROR_WOULD_BLOCK;
             _at.resp_start("^SISW:");
             int sock_id = _at.read_int();
             int urc_code = _at.read_int();
