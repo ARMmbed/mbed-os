@@ -41,6 +41,8 @@ from os import walk, sep
 from os.path import (join, splitext, dirname, relpath, basename, split, normcase,
                      abspath, exists)
 
+from .ignore import MbedIgnoreSet, IGNORE_FILENAME
+
 # Support legacy build conventions: the original mbed build system did not have
 # standard labels for the "TARGET_" and "TOOLCHAIN_" specific directories, but
 # had the knowledge of a list of these directories to be ignored.
@@ -143,10 +145,7 @@ class Resources(object):
         # Path seperator style (defaults to OS-specific seperator)
         self._sep = sep
 
-        # Ignore patterns from .mbedignore files and add_ignore_patters
-        self._ignore_patterns = []
-        self._ignore_regex = re.compile("$^")
-
+        self._ignoreset = MbedIgnoreSet()
 
     def ignore_dir(self, directory):
         if self._collect_ignores:
@@ -241,27 +240,9 @@ class Resources(object):
         self._legacy_ignore_dirs -= set(
             [toolchain.target.name, LEGACY_TOOLCHAIN_NAMES[toolchain.name]])
 
-    def is_ignored(self, file_path):
-        """Check if file path is ignored by any .mbedignore thus far"""
-        return self._ignore_regex.match(normcase(file_path))
-
     def add_ignore_patterns(self, root, base_path, patterns):
-        """Add a series of patterns to the ignored paths
-
-        Positional arguments:
-        root - the directory containing the ignore file
-        base_path - the location that the scan started from
-        patterns - the list of patterns we will ignore in the future
-        """
         real_base = relpath(root, base_path)
-        if real_base == ".":
-            self._ignore_patterns.extend(normcase(p) for p in patterns)
-        else:
-            self._ignore_patterns.extend(
-                normcase(join(real_base, pat)) for pat in patterns)
-        if self._ignore_patterns:
-            self._ignore_regex = re.compile("|".join(
-                fnmatch.translate(p) for p in self._ignore_patterns))
+        self._ignoreset.add_ignore_patterns(real_base, patterns)
 
     def _not_current_label(self, dirname, label_type):
         return (dirname.startswith(label_type + "_") and
@@ -405,15 +386,13 @@ class Resources(object):
 
         for root, dirs, files in walk(path, followlinks=True):
             # Check if folder contains .mbedignore
-            if ".mbedignore" in files:
-                with open (join(root,".mbedignore"), "r") as f:
-                    lines=f.readlines()
-                    lines = [l.strip() for l in lines
-                             if l.strip() != "" and not l.startswith("#")]
-                    self.add_ignore_patterns(root, base_path, lines)
+            if IGNORE_FILENAME in files:
+                real_base = relpath(root, base_path)
+                self._ignoreset.add_mbedignore(
+                    real_base, join(root, IGNORE_FILENAME))
 
             root_path =join(relpath(root, base_path))
-            if self.is_ignored(join(root_path,"")):
+            if self._ignoreset.is_ignored(join(root_path,"")):
                 self.ignore_dir(root_path)
                 dirs[:] = []
                 continue
@@ -430,7 +409,7 @@ class Resources(object):
                     self.ignore_dir(dir_path)
                     dirs.remove(d)
                 elif (d.startswith('.') or d in self._legacy_ignore_dirs or
-                      self.is_ignored(join(root_path, d, ""))):
+                      self._ignoreset.is_ignored(join(root_path, d, ""))):
                     self.ignore_dir(dir_path)
                     dirs.remove(d)
 
@@ -472,7 +451,7 @@ class Resources(object):
         scanning starting as base_path
         """
 
-        if  (self.is_ignored(relpath(file_path, base_path)) or
+        if  (self._ignoreset.is_ignored(relpath(file_path, base_path)) or
              basename(file_path).startswith(".")):
             self.ignore_dir(relpath(file_path, base_path))
             return
@@ -550,3 +529,4 @@ class Resources(object):
                 self.add_directory(path)
         config.load_resources(self)
         return self
+
