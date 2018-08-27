@@ -48,7 +48,7 @@ extern "C" {
 #define TICKER_100_TICKS 100
 #define TICKER_500_TICKS 500
 
-#define MAX_FUNC_EXEC_TIME_US 20
+#define MAX_FUNC_EXEC_TIME_US 30
 #define DELTA_FUNC_EXEC_TIME_US 5
 #define NUM_OF_CALLS 100
 
