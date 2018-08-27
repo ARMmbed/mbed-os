@@ -27,6 +27,11 @@
 #error [NOT_SUPPORTED] test not supported
 #endif
 
+//FastModels not support time drifting test
+#if defined(__ARM_FM)
+#error [NOT_SUPPORTED] test not supported
+#endif
+
 using utest::v1::Case;
 
 #if defined(__CORTEX_M23) || defined(__CORTEX_M33)

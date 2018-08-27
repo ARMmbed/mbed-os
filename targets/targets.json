@@ -4391,6 +4391,7 @@
     "ARM_FM": {
         "inherits": ["Target"],
         "public": false,
+        "macros": ["__ARM_FM"],
         "extra_labels": ["ARM_FM"]
     },
     "FVP_MPS2": {
@@ -4404,27 +4405,27 @@
     "FVP_MPS2_M0": {
         "inherits": ["FVP_MPS2"],
         "core": "Cortex-M0",
-        "macros": ["CMSDK_CM0"]
+        "macros_add": ["CMSDK_CM0"]
     },
     "FVP_MPS2_M0P": {
         "inherits": ["FVP_MPS2"],
         "core": "Cortex-M0+",
-        "macros": ["CMSDK_CM0plus"]
+        "macros_add": ["CMSDK_CM0plus"]
     },
     "FVP_MPS2_M3": {
         "inherits": ["FVP_MPS2"],
         "core": "Cortex-M3",
-        "macros": ["CMSDK_CM3"]
+        "macros_add": ["CMSDK_CM3"]
     },
     "FVP_MPS2_M4": {
         "inherits": ["FVP_MPS2"],
         "core": "Cortex-M4",
-        "macros": ["CMSDK_CM4"]
+        "macros_add": ["CMSDK_CM4"]
     },
     "FVP_MPS2_M7": {
         "inherits": ["FVP_MPS2"],
         "core": "Cortex-M7",
-        "macros": ["CMSDK_CM7"]
+        "macros_add": ["CMSDK_CM7"]
     },
     "NUMAKER_PFM_M2351": {
         "core": "Cortex-M23-NS",

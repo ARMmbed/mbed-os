@@ -69,7 +69,7 @@ ENTRY(Reset_Handler)
 STACK_SIZE = 0x400;
 
 /* Size of the vector table in SRAM */
-M_VECTOR_RAM_SIZE = 0x100;
+M_VECTOR_RAM_SIZE = NVIC_VECTORS_SIZE;
 
 SECTIONS
 {

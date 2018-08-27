@@ -68,9 +68,10 @@ Case cases[] = {
     Case("1 s delay during sleep (attach_us)", test_sleep<AttachUSTester<Timeout>, 1000000, LONG_DELTA_US>,
          greentea_failure_handler),
 #endif
-
+#if !defined(__ARM_FM)  //FastModels not support time drifting test
     Case("Timing drift (attach)", test_drift<AttachTester<Timeout> >),
     Case("Timing drift (attach_us)", test_drift<AttachUSTester<Timeout> >),
+#endif
 };
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)

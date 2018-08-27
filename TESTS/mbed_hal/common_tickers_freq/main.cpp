@@ -34,6 +34,11 @@
 #error [NOT_SUPPORTED] test not supported
 #endif
 
+//FastModels not support time drifting test
+#if defined(__ARM_FM)
+#error [NOT_SUPPORTED] test not supported
+#endif
+
 #define US_PER_S 1000000
 
 using namespace utest::v1;
