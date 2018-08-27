@@ -140,8 +140,8 @@ osStatus Thread::terminate() {
     // release the semaphore before terminating
     // since this thread could be terminating itself
     osThreadId_t local_id = _tid;
-    _join_sem.release();
     _tid = (osThreadId_t)NULL;
+    _join_sem.release();
     if (!_finished) {
         _finished = true;
         // if local_id == 0 Thread was not started in first place
