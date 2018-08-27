@@ -132,10 +132,10 @@ matrix:
         # update status if we succeeded, compare with master if possible
         - |
           CURR=$(cat astyle-branch.out | grep Formatted | wc -l)
-          PREV=$(curl https://api.github.com/repos/$TRAVIS_REPO_SLUG/status/master \
+          PREV=$(curl -u "$MBED_BOT" https://api.github.com/repos/$TRAVIS_REPO_SLUG/status/master \
               | jq -re "select(.sha != \"$TRAVIS_COMMIT\")
                   | .statuses[] | select(.context == \"travis-ci/$NAME\").description
-                  | capture(\", (?<files>[0-9]+) files\").warnings" \
+                  | capture(\", (?<files>[0-9]+) files\").files" \
               || echo 0)
 
           STATUSM="Passed, ${CURR} files"
