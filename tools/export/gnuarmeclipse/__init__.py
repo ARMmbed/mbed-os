@@ -90,7 +90,9 @@ class GNUARMEclipse(Exporter):
         # TODO: use some logger to display additional info if verbose
 
         libraries = []
+        library_files = []
         for lib in self.libraries:
+            library_files.append(self.filter_dot(lib))
             l, _ = splitext(basename(lib))
             libraries.append(l[3:])
 
@@ -178,6 +180,7 @@ class GNUARMEclipse(Exporter):
 
             opts['ld']['object_files'] = objects
             opts['ld']['user_libraries'] = libraries
+            opts['ld']['user_library_files'] = library_files
             opts['ld']['system_libraries'] = self.system_libraries
             opts['ld']['script'] = join(id.capitalize(),
                                         "linker-script-%s.ld" % id)
