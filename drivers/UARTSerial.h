@@ -21,12 +21,12 @@
 
 #if (DEVICE_SERIAL && DEVICE_INTERRUPTIN) || defined(DOXYGEN_ONLY)
 
-#include "FileHandle.h"
+#include "platform/FileHandle.h"
 #include "SerialBase.h"
 #include "InterruptIn.h"
-#include "PlatformMutex.h"
-#include "serial_api.h"
-#include "CircularBuffer.h"
+#include "platform/PlatformMutex.h"
+#include "hal/serial_api.h"
+#include "platform/CircularBuffer.h"
 #include "platform/NonCopyable.h"
 
 #ifndef MBED_CONF_DRIVERS_UART_SERIAL_RXBUF_SIZE

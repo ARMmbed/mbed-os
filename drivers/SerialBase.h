@@ -20,14 +20,14 @@
 
 #if defined (DEVICE_SERIAL) || defined(DOXYGEN_ONLY)
 
-#include "Callback.h"
-#include "serial_api.h"
-#include "mbed_toolchain.h"
+#include "platform/Callback.h"
+#include "hal/serial_api.h"
+#include "platform/mbed_toolchain.h"
 #include "platform/NonCopyable.h"
 
 #if DEVICE_SERIAL_ASYNCH
-#include "CThunk.h"
-#include "dma_api.h"
+#include "platform/CThunk.h"
+#include "hal/dma_api.h"
 #endif
 
 namespace mbed {
