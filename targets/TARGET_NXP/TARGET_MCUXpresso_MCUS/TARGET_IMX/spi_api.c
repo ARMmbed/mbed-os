@@ -107,15 +107,9 @@ static inline int spi_readable(spi_t * obj)
 
 int spi_master_write(spi_t *obj, int value)
 {
-    lpspi_transfer_t masterXfer;
     uint32_t rx_data;
 
-    masterXfer.txData = (uint8_t *)&value;
-    masterXfer.rxData = NULL;
-    masterXfer.dataSize = 1;
-    masterXfer.configFlags = kLPSPI_MasterPcs0 | kLPSPI_MasterPcsContinuous | kLPSPI_SlaveByteSwap;
-
-    LPSPI_MasterTransferBlocking(spi_address[obj->instance], &masterXfer);
+    LPSPI_WriteData(spi_address[obj->instance], value);
 
     // wait rx buffer full
     while (!spi_readable(obj));
