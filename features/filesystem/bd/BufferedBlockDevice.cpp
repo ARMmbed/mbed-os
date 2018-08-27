@@ -26,7 +26,7 @@ static inline uint32_t align_down(bd_size_t val, bd_size_t size)
 }
 
 BufferedBlockDevice::BufferedBlockDevice(BlockDevice *bd)
-    : _bd(bd), _bd_program_size(0), _curr_aligned_addr(0), _flushed(true), _cache(0), _init_ref_count(0)
+    : _bd(bd), _bd_program_size(0), _curr_aligned_addr(0), _flushed(true), _cache(0), _init_ref_count(0), _is_initialized(false)
 {
 }
 
@@ -57,11 +57,16 @@ int BufferedBlockDevice::init()
     _curr_aligned_addr = _bd->size();
     _flushed = true;
 
-    return 0;
+    _is_initialized = true;
+    return BD_ERROR_OK;
 }
 
 int BufferedBlockDevice::deinit()
 {
+    if (!_is_initialized) {
+        return BD_ERROR_OK;
+    }
+
     uint32_t val = core_util_atomic_decr_u32(&_init_ref_count, 1);
 
     if (val) {
@@ -70,11 +75,16 @@ int BufferedBlockDevice::deinit()
 
     delete[] _cache;
     _cache = 0;
+    _is_initialized = false;
     return _bd->deinit();
 }
 
 int BufferedBlockDevice::flush()
 {
+    if (!_is_initialized) {
+        return BD_ERROR_DEVICE_ERROR;
+    }
+
     if (!_flushed) {
         int ret = _bd->program(_cache, _curr_aligned_addr, _bd_program_size);
         if (ret) {
@@ -87,6 +97,10 @@ int BufferedBlockDevice::flush()
 
 int BufferedBlockDevice::sync()
 {
+    if (!_is_initialized) {
+        return BD_ERROR_DEVICE_ERROR;
+    }
+
     int ret = flush();
     if (ret) {
         return ret;
@@ -97,6 +111,10 @@ int BufferedBlockDevice::sync()
 int BufferedBlockDevice::read(void *b, bd_addr_t addr, bd_size_t size)
 {
     MBED_ASSERT(_cache);
+    if (!_is_initialized) {
+        return BD_ERROR_DEVICE_ERROR;
+    }
+
     bool moved_unit = false;
 
     bd_addr_t aligned_addr = align_down(addr, _bd_program_size);
@@ -132,7 +150,10 @@ int BufferedBlockDevice::read(void *b, bd_addr_t addr, bd_size_t size)
 
 int BufferedBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
 {
-    MBED_ASSERT(_cache);
+    if (!_is_initialized) {
+        return BD_ERROR_DEVICE_ERROR;
+    }
+
     int ret;
     bool moved_unit = false;
 
@@ -196,12 +217,19 @@ int BufferedBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
 int BufferedBlockDevice::erase(bd_addr_t addr, bd_size_t size)
 {
     MBED_ASSERT(is_valid_erase(addr, size));
+    if (!_is_initialized) {
+        return BD_ERROR_DEVICE_ERROR;
+    }
+
     return _bd->erase(addr, size);
 }
 
 int BufferedBlockDevice::trim(bd_addr_t addr, bd_size_t size)
 {
     MBED_ASSERT(is_valid_erase(addr, size));
+    if (!_is_initialized) {
+        return BD_ERROR_DEVICE_ERROR;
+    }
 
     if ((_curr_aligned_addr >= addr) && (_curr_aligned_addr <= addr + size)) {
         _flushed = true;
@@ -222,20 +250,36 @@ bd_size_t BufferedBlockDevice::get_program_size() const
 
 bd_size_t BufferedBlockDevice::get_erase_size() const
 {
+    if (!_is_initialized) {
+        return BD_ERROR_DEVICE_ERROR;
+    }
+
     return _bd->get_erase_size();
 }
 
 bd_size_t BufferedBlockDevice::get_erase_size(bd_addr_t addr) const
 {
+    if (!_is_initialized) {
+        return BD_ERROR_DEVICE_ERROR;
+    }
+
     return _bd->get_erase_size(addr);
 }
 
 int BufferedBlockDevice::get_erase_value() const
 {
+    if (!_is_initialized) {
+        return BD_ERROR_DEVICE_ERROR;
+    }
+
     return _bd->get_erase_value();
 }
 
 bd_size_t BufferedBlockDevice::size() const
 {
+    if (!_is_initialized) {
+        return BD_ERROR_DEVICE_ERROR;
+    }
+
     return _bd->size();
 }

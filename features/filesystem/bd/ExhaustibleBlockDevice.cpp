@@ -20,7 +20,7 @@
 
 
 ExhaustibleBlockDevice::ExhaustibleBlockDevice(BlockDevice *bd, uint32_t erase_cycles)
-    : _bd(bd), _erase_array(NULL), _erase_cycles(erase_cycles), _init_ref_count(0)
+    : _bd(bd), _erase_array(NULL), _erase_cycles(erase_cycles), _init_ref_count(0), _is_initialized(false)
 {
 }
 
@@ -31,15 +31,16 @@ ExhaustibleBlockDevice::~ExhaustibleBlockDevice()
 
 int ExhaustibleBlockDevice::init()
 {
+    int err;
     uint32_t val = core_util_atomic_incr_u32(&_init_ref_count, 1);
 
     if (val != 1) {
         return BD_ERROR_OK;
     }
 
-    int err = _bd->init();
+    err = _bd->init();
     if (err) {
-        return err;
+        goto fail;
     }
 
     if (!_erase_array) {
@@ -50,11 +51,21 @@ int ExhaustibleBlockDevice::init()
         }
     }
 
-    return 0;
+    _is_initialized = true;
+    return BD_ERROR_OK;
+
+fail:
+    _is_initialized = false;
+    _init_ref_count = 0;
+    return err;
 }
 
 int ExhaustibleBlockDevice::deinit()
 {
+    if (!_is_initialized) {
+        return BD_ERROR_OK;
+    }
+
     core_util_atomic_decr_u32(&_init_ref_count, 1);
 
     if (_init_ref_count) {
@@ -63,22 +74,35 @@ int ExhaustibleBlockDevice::deinit()
 
     // _erase_array is lazily cleaned up in destructor to allow
     // data to live across de/reinitialization
+    _is_initialized = false;
     return _bd->deinit();
 }
 
 int ExhaustibleBlockDevice::sync()
 {
+    if (!_is_initialized) {
+        return BD_ERROR_DEVICE_ERROR;
+    }
+
     return _bd->sync();
 }
 
 int ExhaustibleBlockDevice::read(void *buffer, bd_addr_t addr, bd_size_t size)
 {
+    if (!_is_initialized) {
+        return BD_ERROR_DEVICE_ERROR;
+    }
+
     return _bd->read(buffer, addr, size);
 }
 
 int ExhaustibleBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t size)
 {
     MBED_ASSERT(is_valid_program(addr, size));
+
+    if (!_is_initialized) {
+        return BD_ERROR_DEVICE_ERROR;
+    }
 
     if (_erase_array[addr / get_erase_size()] == 0) {
         return 0;
@@ -90,6 +114,9 @@ int ExhaustibleBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_
 int ExhaustibleBlockDevice::erase(bd_addr_t addr, bd_size_t size)
 {
     MBED_ASSERT(is_valid_erase(addr, size));
+    if (!_is_initialized) {
+        return BD_ERROR_DEVICE_ERROR;
+    }
 
     bd_size_t eu_size = get_erase_size();
     while (size) {
@@ -114,30 +141,54 @@ int ExhaustibleBlockDevice::erase(bd_addr_t addr, bd_size_t size)
 
 bd_size_t ExhaustibleBlockDevice::get_read_size() const
 {
+    if (!_is_initialized) {
+        return BD_ERROR_DEVICE_ERROR;
+    }
+
     return _bd->get_read_size();
 }
 
 bd_size_t ExhaustibleBlockDevice::get_program_size() const
 {
+    if (!_is_initialized) {
+        return BD_ERROR_DEVICE_ERROR;
+    }
+
     return _bd->get_program_size();
 }
 
 bd_size_t ExhaustibleBlockDevice::get_erase_size() const
 {
+    if (!_is_initialized) {
+        return BD_ERROR_DEVICE_ERROR;
+    }
+
     return _bd->get_erase_size();
 }
 
 bd_size_t ExhaustibleBlockDevice::get_erase_size(bd_addr_t addr) const
 {
+    if (!_is_initialized) {
+        return BD_ERROR_DEVICE_ERROR;
+    }
+
     return _bd->get_erase_size(addr);
 }
 
 int ExhaustibleBlockDevice::get_erase_value() const
 {
+    if (!_is_initialized) {
+        return BD_ERROR_DEVICE_ERROR;
+    }
+
     return _bd->get_erase_value();
 }
 
 bd_size_t ExhaustibleBlockDevice::size() const
 {
+    if (!_is_initialized) {
+        return BD_ERROR_DEVICE_ERROR;
+    }
+
     return _bd->size();
 }

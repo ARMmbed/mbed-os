@@ -195,40 +195,44 @@ int MBRBlockDevice::partition(BlockDevice *bd, int part, uint8_t type,
 }
 
 MBRBlockDevice::MBRBlockDevice(BlockDevice *bd, int part)
-    : _bd(bd), _part(part), _init_ref_count(0)
+    : _bd(bd), _offset(0), _size(0), _type(0), _part(part), _init_ref_count(0), _is_initialized(false)
 {
     MBED_ASSERT(_part >= 1 && _part <= 4);
 }
 
 int MBRBlockDevice::init()
 {
+    uint32_t buffer_size;
+    uint8_t *buffer = 0;
+    struct mbr_table *table;
+    bd_size_t sector;
+    int err;
+
     uint32_t val = core_util_atomic_incr_u32(&_init_ref_count, 1);
 
     if (val != 1) {
         return BD_ERROR_OK;
     }
 
-    int err = _bd->init();
+    err = _bd->init();
     if (err) {
-        return err;
+        goto fail;
     }
 
     // Allocate smallest buffer necessary to write MBR
-    uint32_t buffer_size = std::max<uint32_t>(_bd->get_read_size(), sizeof(struct mbr_table));
-    uint8_t *buffer = new uint8_t[buffer_size];
+    buffer_size = std::max<uint32_t>(_bd->get_read_size(), sizeof(struct mbr_table));
+    buffer = new uint8_t[buffer_size];
 
     err = _bd->read(buffer, 512-buffer_size, buffer_size);
     if (err) {
-        delete[] buffer;
-        return err;
+        goto fail;
     }
 
     // Check for valid table
-    struct mbr_table *table = reinterpret_cast<struct mbr_table*>(
-            &buffer[buffer_size - sizeof(struct mbr_table)]);
+    table = reinterpret_cast<struct mbr_table*>(&buffer[buffer_size - sizeof(struct mbr_table)]);
     if (table->signature[0] != 0x55 || table->signature[1] != 0xaa) {
-        delete[] buffer;
-        return BD_ERROR_INVALID_MBR;
+        err = BD_ERROR_INVALID_MBR;
+        goto fail;
     }
 
     // Check for valid entry
@@ -237,82 +241,130 @@ int MBRBlockDevice::init()
     if ((table->entries[_part-1].type == 0x00 ||
          table->entries[_part-1].type == 0x05 ||
          table->entries[_part-1].type == 0x0f)) {
-        delete[] buffer;
-        return BD_ERROR_INVALID_PARTITION;
+        err = BD_ERROR_INVALID_PARTITION;
+        goto fail;
     }
 
     // Get partition attributes
-    bd_size_t sector = std::max<uint32_t>(_bd->get_erase_size(), 512);
+    sector = std::max<uint32_t>(_bd->get_erase_size(), 512);
     _type = table->entries[_part-1].type;
     _offset = fromle32(table->entries[_part-1].lba_offset) * sector;
     _size   = fromle32(table->entries[_part-1].lba_size)   * sector;
 
     // Check that block addresses are valid
     if (!_bd->is_valid_erase(_offset, _size)) {
-        delete[] buffer;
-        return BD_ERROR_INVALID_PARTITION;
+        err = BD_ERROR_INVALID_PARTITION;
+        goto fail;
     }
 
+    _is_initialized = true;
     delete[] buffer;
-    return 0;
+    return BD_ERROR_OK;
+
+fail:
+    delete[] buffer;
+    _is_initialized = false;
+    _init_ref_count = 0;
+    return err;
 }
 
 int MBRBlockDevice::deinit()
 {
+    if (!_is_initialized) {
+        return BD_ERROR_OK;
+    }
+
     uint32_t val = core_util_atomic_decr_u32(&_init_ref_count, 1);
 
     if (val) {
         return BD_ERROR_OK;
     }
 
+    _is_initialized = false;
     return _bd->deinit();
 }
 
 int MBRBlockDevice::sync()
 {
+    if (!_is_initialized) {
+        return BD_ERROR_DEVICE_ERROR;
+    }
+
     return _bd->sync();
 }
 
 int MBRBlockDevice::read(void *b, bd_addr_t addr, bd_size_t size)
 {
     MBED_ASSERT(is_valid_read(addr, size));
+    if (!_is_initialized) {
+        return BD_ERROR_DEVICE_ERROR;
+    }
+
     return _bd->read(b, addr + _offset, size);
 }
 
 int MBRBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
 {
     MBED_ASSERT(is_valid_program(addr, size));
+    if (!_is_initialized) {
+        return BD_ERROR_DEVICE_ERROR;
+    }
+
     return _bd->program(b, addr + _offset, size);
 }
 
 int MBRBlockDevice::erase(bd_addr_t addr, bd_size_t size)
 {
     MBED_ASSERT(is_valid_erase(addr, size));
+    if (!_is_initialized) {
+        return BD_ERROR_DEVICE_ERROR;
+    }
+
     return _bd->erase(addr + _offset, size);
 }
 
 bd_size_t MBRBlockDevice::get_read_size() const
 {
+    if (!_is_initialized) {
+        return 0;
+    }
+
     return _bd->get_read_size();
 }
 
 bd_size_t MBRBlockDevice::get_program_size() const
 {
+    if (!_is_initialized) {
+        return 0;
+    }
+
     return _bd->get_program_size();
 }
 
 bd_size_t MBRBlockDevice::get_erase_size() const
 {
+    if (!_is_initialized) {
+        return 0;
+    }
+
     return _bd->get_erase_size();
 }
 
 bd_size_t MBRBlockDevice::get_erase_size(bd_addr_t addr) const
 {
+    if (!_is_initialized) {
+        return 0;
+    }
+
     return _bd->get_erase_size(_offset + addr);
 }
 
 int MBRBlockDevice::get_erase_value() const
 {
+    if (!_is_initialized) {
+        return 0;
+    }
+
     return _bd->get_erase_value();
 }
 

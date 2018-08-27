@@ -154,6 +154,7 @@ protected:
     bool _flushed;
     uint8_t *_cache;
     uint32_t _init_ref_count;
+    bool _is_initialized;
 
     /** Flush data in cache
      *
