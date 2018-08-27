@@ -40,7 +40,7 @@ try:
     from Queue import Queue, Empty
 except ImportError:
     from queue import Queue, Empty
-from os.path import join, exists, basename, relpath, isdir
+from os.path import join, exists, basename, relpath, isdir, isfile
 from threading import Thread, Lock
 from multiprocessing import Pool, cpu_count
 from subprocess import Popen, PIPE
@@ -67,7 +67,7 @@ from tools.build_api import create_result
 from tools.build_api import add_result_to_report
 from tools.build_api import prepare_toolchain
 from tools.build_api import get_config
-from tools.resources import Resources
+from tools.resources import Resources, MbedIgnoreSet, IGNORE_FILENAME
 from tools.libraries import LIBRARIES, LIBRARY_MAP
 from tools.options import extract_profile
 from tools.toolchains import TOOLCHAIN_PATHS
@@ -2090,14 +2090,22 @@ def find_tests(base_dir, target_name, toolchain_name, app_config=None):
     base_resources.scan_with_config(base_dir, config)
 
     dirs = [d for d in base_resources.ignored_dirs if basename(d) == 'TESTS']
+    ignoreset = MbedIgnoreSet()
+
     for directory in dirs:
+        ignorefile = join(directory, IGNORE_FILENAME)
+        if isfile(ignorefile):
+            ignoreset.add_mbedignore(directory, ignorefile)
         for test_group_directory in os.listdir(directory):
             grp_dir = join(directory, test_group_directory)
-            if not isdir(grp_dir):
+            if not isdir(grp_dir) or ignoreset.is_ignored(grp_dir):
                 continue
+            grpignorefile = join(grp_dir, IGNORE_FILENAME)
+            if isfile(grpignorefile):
+                ignoreset.add_mbedignore(grp_dir, grpignorefile)
             for test_case_directory in os.listdir(grp_dir):
                 d = join(directory, test_group_directory, test_case_directory)
-                if not isdir(d):
+                if not isdir(d) or ignoreset.is_ignored(d):
                     continue
                 special_dirs = ['host_tests', 'COMMON']
                 if test_group_directory not in special_dirs and test_case_directory not in special_dirs:
