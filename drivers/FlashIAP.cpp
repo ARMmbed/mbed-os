@@ -24,7 +24,7 @@
 #include <string.h>
 #include <algorithm>
 #include "FlashIAP.h"
-#include "mbed_assert.h"
+#include "platform/mbed_assert.h"
 
 
 #ifdef DEVICE_FLASH
