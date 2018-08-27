@@ -79,12 +79,12 @@ typedef enum {
     STDIO_UART_RX = USBRX,
 
     /* On-board MX25R3235F */
-    QSPI_PIN_IO0 = PG1,
-    QSPI_PIN_IO1 = PG2,
-    QSPI_PIN_IO2 = PG3,
-    QSPI_PIN_IO3 = PG4,
-    QSPI_PIN_SCK = PG0,
-    QSPI_PIN_CSN = PG9,
+    QSPI_FLASH1_IO0 = PG1,
+    QSPI_FLASH1_IO1 = PG2,
+    QSPI_FLASH1_IO2 = PG3,
+    QSPI_FLASH1_IO3 = PG4,
+    QSPI_FLASH1_SCK = PG0,
+    QSPI_FLASH1_CSN = PG9,
 
 } PinName;
 
