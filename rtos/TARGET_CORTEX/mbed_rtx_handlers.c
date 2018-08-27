@@ -55,8 +55,6 @@ __NO_RETURN void osRtxIdleThread(void *argument)
 
 __NO_RETURN uint32_t osRtxErrorNotify(uint32_t code, void *object_id)
 {
-    osThreadId_t tid = osThreadGetId();
-
     switch (code) {
         case osRtxErrorStackUnderflow:
             // Stack underflow detected for thread (thread_id=object_id)
