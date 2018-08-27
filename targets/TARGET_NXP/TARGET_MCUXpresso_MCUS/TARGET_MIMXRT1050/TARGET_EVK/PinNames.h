@@ -196,8 +196,8 @@ typedef enum {
     D14 = GPIO_AD_B0_01,
     D15 = GPIO_AD_B0_00,
 
-    I2C_SCL = D15,
-    I2C_SDA = D14,
+    I2C_SCL = A5,
+    I2C_SDA = A4,
 
     A0 = GPIO_AD_B1_10,
     A1 = GPIO_AD_B1_11,
