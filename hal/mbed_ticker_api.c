@@ -47,7 +47,7 @@ static void initialize(const ticker_data_t *ticker)
 
     uint8_t frequency_shifts = 0;
     for (uint8_t i = 31; i > 0; --i) {
-        if ((1 << i) == frequency) {
+        if ((1U << i) == frequency) {
             frequency_shifts = i;
             break;
         }
