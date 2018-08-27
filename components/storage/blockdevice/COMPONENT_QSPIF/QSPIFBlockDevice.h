@@ -49,6 +49,44 @@ enum qspif_polarity_mode {
 #define MAX_NUM_OF_ERASE_TYPES 4
 #define QSPIF_MAX_ACTIVE_FLASH_DEVICES 10
 
+/** BlockDevice for SFDP based flash devices over QSPI bus
+ *
+ *  @code
+ *  // Here's an example using QSPI flash device on DISCO_L476VG target
+ *  #include "mbed.h"
+ *  #include "QSPIFBlockDevice.h"
+ *
+ *  QSPIFBlockDevice block_device(QSPI_FLASH1_IO0, QSPI_FLASH1_IO1, QSPI_FLASH1_IO2, QSPI_FLASH1_IO3,
+ *                                QSPI_FLASH1_SCK, QSPI_FLASH1_CSN, QSPIF_POLARITY_MODE_0, MBED_CONF_QSPIF_QSPI_FREQ);
+ *
+ *  int main()
+ *  {
+ *      printf("QSPI SFDP Flash Block Device example\n");
+ *
+ *      // Initialize the SPI flash device and print the memory layout
+ *      block_device.init();
+ *      bd_size_t sector_size_at_address_0 = block_device.get_erase_size(0);
+ *
+ *      printf("QSPIF BD size: %llu\n",         block_device.size());
+ *      printf("QSPIF BD read size: %llu\n",    block_device.get_read_size());
+ *      printf("QSPIF BD program size: %llu\n", block_device.get_program_size());
+ *      printf("QSPIF BD erase size (at address 0): %llu\n", sector_size_at_address_0);
+ *
+ *      // Write "Hello World!" to the first block
+ *      char *buffer = (char *) malloc(sector_size_at_address_0);
+ *      sprintf(buffer, "Hello World!\n");
+ *      block_device.erase(0, sector_size_at_address_0);
+ *      block_device.program(buffer, 0, sector_size_at_address_0);
+ *
+ *      // Read back what was stored
+ *      block_device.read(buffer, 0, sector_size_at_address_0);
+ *      printf("%s", buffer);
+ *
+ *      // Deinitialize the device
+ *      block_device.deinit();
+ *  }
+ *  @endcode
+ */
 class QSPIFBlockDevice : public BlockDevice {
 public:
     /** Create QSPIFBlockDevice - An SFDP based Flash Block Device over QSPI bus
