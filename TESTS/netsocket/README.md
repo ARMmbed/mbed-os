@@ -1,54 +1,53 @@
 Network Socket test plan
 ========================
 
-This is a test plan for Mbed OS Socket API. This describes all test
-cases and their intended behaviour. When API document is not clear, this
-should be used as a reference for implementing correct behaviour.
+This is a test plan for the Mbed OS Socket API. This describes all test
+cases and their intended behaviors. When an API document is not clear, use
+this as a reference for implementing correct behavior.
 
-**NOTE:** As testing is a moving target, this test plan might define more test cases than what are
-implemented in Mbed OS. Refer to [test case priorities](#test-case-priorities) for list of test cases that target must pass to be compliant with Mbed OS socket API.
+**NOTE:** Because testing is a moving target, this test plan might define more test cases than Mbed OS
+implements. Refer to [test case priorities](#test-case-priorities) for a list of test cases that the target must pass to be compliant with the Mbed OS socket API.
 
 
 Target API
 ----------
 
-Target for this plan is to test
+The target for this plan is to test:
 
--   [Socket](https://github.com/ARMmbed/mbed-os/blob/master/features/netsocket/Socket.h)
--   [UDPSocket](https://github.com/ARMmbed/mbed-os/blob/master/features/netsocket/UDPSocket.h)
--   [TCPSocket](https://github.com/ARMmbed/mbed-os/blob/master/features/netsocket/TCPSocket.h)
--   [TCPServer](https://github.com/ARMmbed/mbed-os/blob/master/features/netsocket/TCPServer.h)
+-   [Socket](https://github.com/ARMmbed/mbed-os/blob/master/features/netsocket/Socket.h).
+-   [UDPSocket](https://github.com/ARMmbed/mbed-os/blob/master/features/netsocket/UDPSocket.h).
+-   [TCPSocket](https://github.com/ARMmbed/mbed-os/blob/master/features/netsocket/TCPSocket.h).
+-   [TCPServer](https://github.com/ARMmbed/mbed-os/blob/master/features/netsocket/TCPServer.h).
 
 Reference documentation: https://os.mbed.com/docs/latest/reference/network-socket.html
 
-Tools to be used
+Tools to use
 ----------------
 
--   Mbed OS
--   Standard Mbed OS development tools as described in https://os.mbed.com/docs/latest/tools/index.html
--   Test server
+-   Mbed OS.
+-   Standard Mbed OS development tools as described in https://os.mbed.com/docs/latest/tools/index.html.
+-   Test server.
 
-These test cases itself do not require any special tooling, other than
+These test cases themselves do not require any special tooling, other than
 the test server described in "Test environment" chapter.
 
 Test environment
 ----------------
 
 As a general guideline, network connectivity with public Internet access
-is required. This satisfies Socket tests but specific connectivity
+is required. This satisfies Socket tests, but specific connectivity
 methods might require some extra configuration or devices within the
 network.
 
-Test environment consist of DUTs, network connection and test
-server. Arm provides public test server, but it can be installed locally
-as well, if isolated test environment is required.
+The test environment consist of DUTs, network connection and the test
+server. Arm provides a public test server, but it can be installed locally
+as well, if an isolated test environment is required.
 
-### Public Test server
+### Public test server
 
 Address: `echo.mbedcloudtesting.com`
 
-Both IPv4 and IPv6 addresses are available from public DNS service which
-currently are following:
+Both IPv4 and IPv6 addresses are available from a public DNS service:
 
 ```.sh
 $ host echo.mbedcloudtesting.com
@@ -58,10 +57,10 @@ echo.mbedcloudtesting.com has IPv6 address 2a05:d018:21f:3800:8584:60f8:bc9f:e61
 
 **Open services in the test server**
 
--   Echo Protocol, [RFC 862](https://tools.ietf.org/html/rfc862) is
+-   Echo protocol, [RFC 862](https://tools.ietf.org/html/rfc862) is
     enabled in both TCP and UDP. Port 7.
--   Discard Protocol, [RFC 863](https://tools.ietf.org/html/rfc863) is
-    enabled in both TCP and UDP. Port 9
+-   Discard protocol, [RFC 863](https://tools.ietf.org/html/rfc863) is
+    enabled in both TCP and UDP. Port 9.
 -   Character generator protocol, [RFC 864](https://tools.ietf.org/html/rfc864) is
     enabled in both TCP and UDP. Port 19. Output pattern should follow
     the proposed example pattern in RFC.
@@ -70,22 +69,21 @@ echo.mbedcloudtesting.com has IPv6 address 2a05:d018:21f:3800:8584:60f8:bc9f:e61
 -   Time protocol, [RFC 868](https://tools.ietf.org/html/rfc868) in
     both TCP and UDP. Port 37.
 
-Firewall should be configured to allow this traffic to test server.
+Configure the firewall to allow this traffic to access the test server.
 
 **Example configuration for Debian/Ubuntu Linux**
 
-These services are available on many operating systems and its out of
-scope of this document to describe how to install them. This is an
-example how to install these into Debian/Ubuntu based Linux distribution
-using standard Inet Daemon.
+These services are available on many operating systems, and installing them is out of
+scope of this document. Below is an
+example of how to install these services into a Debian/Ubuntu based Linux distribution
+using standard Inet Daemon:
 
 ```.sh
 $ sudo apt install inetutils-inetd
 $ nano /etc/inetd.conf
 ```
 
-
-Enable following services from /etc/inetd.conf
+Enable following services from /etc/inetd.conf:
 
 ```
 #:INTERNAL: Internal services
@@ -99,10 +97,9 @@ daytime     stream  tcp6    nowait  root    internal
 time        stream  tcp6    nowait  root    internal
 ```
 
-
 **Testing the connectivity**
 
-Connection to test server can be used with NMAP tool like this
+You can connect to the test server with an NMAP tool like this:
 
 ```.sh
 $ nmap -sT -p7,9,13,37 echo.mbedcloudtesting.com
@@ -140,27 +137,23 @@ Nmap done: 1 IP address (1 host up) scanned in 0.20 seconds
 
 ![Ethernet](eth_environment.png)
 
-Ethernet test environment consist of devices, ethernet switch, optional
-firewall that allows connecting to Echo server.
+The Ethernet test environment consists of devices, an ethernet switch and an optional
+firewall that allows connecting to the Echo server.
 
+### Wi-Fi test environment
 
+![Wi-Fi](wifi_environment.png)
 
-### Wifi test environment
-
-![Wifi](wifi_environment.png)
-
-Wifi test environment is equiwalent of the ethernet one, except that it
-have two separate access point, or one with dual SSID. Connectivity to
+The Wi-Fi test environment is equivalent to the Ethernet test environment, except that the
+Wi-Fi test environment has two separate access points or one with dual SSID. Connectivity to
 echo server is required, but it can be hosted locally, as specified in
-Ethernet environment.
-
-
+the Ethernet environment.
 
 Test case priorities
 --------------------
 
-Please refer to following table for priorities of test cases. Priorities
-are labelled as MUST and SHOULD. MUST means this is a requirement and
+Please refer to the following table for priorities of test cases. Priorities
+are labeled as MUST and SHOULD. MUST means this is a requirement and
 therefore mandatory to pass the test. SHOULD means it is recommended to
 pass the test if the driver implements the feature in question.
 
@@ -222,10 +215,10 @@ pass the test if the driver implements the feature in question.
 Building test binaries
 --------------------------
 
-For testing the board and driver, testing should be done against Mbed OS
-master to get latest up to date test cases and drivers.
+For testing the board and driver, test against the Mbed OS
+master branch to get the most recent, up-to-date test cases and drivers.
 
-To create build environment:
+To create a build environment:
 
 ```.sh
 mbed new network_test
@@ -235,8 +228,8 @@ git checkout master
 cd ..
 ```
 
-Also, when building socket testcases, special macro is required to
-enable all test, so create `mbed_app.json` file with following
+Also, building socket test cases requires a special macro to
+enable all tests, so create an `mbed_app.json` file with the following
 content at minimum:
 
 ```
@@ -245,7 +238,7 @@ content at minimum:
 }
 ```
 
-WiFi tests require some more configuration, so for WiFi purposes,
+Wi-Fi tests require some more configuration, so for Wi-Fi purposes,
 the `mbed_app.json` might look like this:
 
 ```
@@ -311,7 +304,8 @@ the `mbed_app.json` might look like this:
 }
 ```
 
-Now build test binaries
+Now build test binaries:
+
 ```.sh
 mbed test --compile -t <toolchain> -m <target> -n mbed-os-tests-network-*,mbed-os-tests-netsocket*
 ```
