@@ -248,6 +248,45 @@ void LoRaPHY::copy_channel_mask(uint16_t *dest_mask, uint16_t *src_mask, uint8_t
     }
 }
 
+void LoRaPHY::intersect_channel_mask(const uint16_t *source,
+                                     uint16_t *destination, uint8_t size)
+{
+    if (!source || !destination || size == 0) {
+        return;
+    }
+
+    for (uint8_t i = 0; i < size; i++) {
+        destination[i] &= source[i];
+    }
+}
+
+void LoRaPHY::fill_channel_mask_with_fsb(const uint16_t *expectation,
+                                         const uint16_t *fsb_mask,
+                                         uint16_t *destination,
+                                         uint8_t size)
+{
+    if (!expectation || !fsb_mask || !destination || size == 0) {
+        return;
+    }
+
+    for (uint8_t i = 0; i < size; i++) {
+        destination[i] = expectation[i] & fsb_mask[i];
+    }
+
+}
+
+void LoRaPHY::fill_channel_mask_with_value(uint16_t *channel_mask,
+                                     uint16_t value, uint8_t size)
+{
+    if (!channel_mask || size == 0) {
+        return;
+    }
+
+    for (uint8_t i = 0; i < size; i++) {
+        channel_mask[i] = value;
+    }
+}
+
 void LoRaPHY::set_last_tx_done(uint8_t channel, bool joined, lorawan_time_t last_tx_done_time)
 {
     band_t *band_table = (band_t *) phy_params.bands.table;

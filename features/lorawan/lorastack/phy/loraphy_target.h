@@ -29,7 +29,6 @@
 #define LORA_REGION_IN865           0x16
 #define LORA_REGION_KR920           0x17
 #define LORA_REGION_US915           0x18
-#define LORA_REGION_US915_HYBRID    0x19
 
 //DO NOT USE integer values in mbed_app.json!
 //These are defined for backward compatibility and
@@ -43,7 +42,6 @@
 #define LORA_REGION_6       0x16
 #define LORA_REGION_7       0x17
 #define LORA_REGION_8       0x18
-#define LORA_REGION_9       0x19
 
 //Since 0 would be equal to any undefined value we need to handle this in a other way
 #define mbed_lora_concat_(x) LORA_REGION_##x
@@ -77,9 +75,6 @@
  #elif LORA_REGION    == LORA_REGION_US915
   #include "lorawan/lorastack/phy/LoRaPHYUS915.h"
   #define LoRaPHY_region LoRaPHYUS915
- #elif LORA_REGION    == LORA_REGION_US915_HYBRID
-  #include "lorawan/lorastack/phy/LoRaPHYUS915Hybrid.h"
-  #define LoRaPHY_region LoRaPHYUS915Hybrid
  #else
   #error "Invalid region configuration, update mbed_app.json with correct MBED_CONF_LORA_PHY value"
  #endif //MBED_CONF_LORA_PHY == VALUE
