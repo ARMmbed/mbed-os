@@ -166,9 +166,12 @@ void ff_memfree(void *p)
 }
 
 // Implementation of diskio functions (see ChaN/diskio.h)
-static WORD disk_get_sector_size(BYTE pdrv)
+static DWORD disk_get_sector_size(BYTE pdrv)
 {
-    WORD ssize = _ffs[pdrv]->get_erase_size();
+    bd_size_t sector_size = _ffs[pdrv]->get_erase_size();
+    MBED_ASSERT(sector_size <= DWORD(-1));
+
+    DWORD ssize = sector_size;
     if (ssize < 512) {
         ssize = 512;
     }
@@ -248,7 +251,7 @@ DRESULT disk_ioctl(BYTE pdrv, BYTE cmd, void *buff)
             if (_ffs[pdrv] == NULL) {
                 return RES_NOTRDY;
             } else {
-                *((WORD*)buff) = disk_get_sector_size(pdrv);
+                *((DWORD*)buff) = disk_get_sector_size(pdrv);
                 return RES_OK;
             }
         case GET_BLOCK_SIZE:
