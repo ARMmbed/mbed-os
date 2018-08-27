@@ -92,7 +92,6 @@ public:
      *
      * @param id The code of the URI prefix.
      * @param uri_field The URI itself.
-     * @param uri_field_size The size of the URI.
      *
      * @note To remove the NULL terminator of the C-string of the uri_field
      * parameter, you can use the utility function span_from_cstr.

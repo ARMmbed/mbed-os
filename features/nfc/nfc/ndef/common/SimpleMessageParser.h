@@ -63,25 +63,31 @@ public:
 
         /**
          * Invoked when a text element has been parsed.
+         *
          * @param text The text parsed.
+         * @param id The RecordId of the text object.
          */
         virtual void on_text_parsed(const Text &text, const RecordID &id) { }
 
         /**
          * Invoked when a text element has been parsed.
-         * @param text The text parsed.
+         *
+         * @param uri The uri parsed.
+         * @param id The RecordId of the uri object.
          */
         virtual void on_uri_parsed(const URI &uri, const RecordID &id) { }
 
         /**
          * Invoked when a mime element has been parsed.
+         *
          * @param mime The mime object parsed.
+         * @param id The RecordId of the mime object.
          */
         virtual void on_mime_parsed(const Mime &mime, const RecordID &id) { }
 
         /**
          * Invoked when an unknown record has been parsed.
-         * @param The record freshly parsed.
+         * @param record The record freshly parsed.
          */
         virtual void on_unknown_record_parsed(const Record &record) { }
 

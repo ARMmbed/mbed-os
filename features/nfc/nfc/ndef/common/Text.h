@@ -89,6 +89,7 @@ public:
     /**
      * Copy a text from an external buffer.
      *
+     * @param text_encoding The encoding of the text.
      * @param language_code The language code of the text.
      * @param text The text to copy.
      *

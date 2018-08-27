@@ -78,9 +78,11 @@ struct GenericRecordParser : public RecordParser {
     struct Delegate {
         /**
          * Called when a record has been parsed and converted into a value_type.
-         * @param record The record in its parsed form.
+         *
+         * @param object_parsed The record in its parsed form.
+         * @param id The RecordId associated with the object parsed.
          */
-        virtual void on_record_parsed(const ParsingResult &record, const RecordID &id) = 0;
+        virtual void on_record_parsed(const ParsingResult &object_parsed, const RecordID &id) = 0;
 
     protected:
         ~Delegate() { }
@@ -107,8 +109,9 @@ struct GenericRecordParser : public RecordParser {
     }
 
     /**
-     * Set the handler that processes record parser.
-     * @param handler
+     * Set the delegate that processes record parser.
+     *
+     * @param delegate The delegate to set.
      */
     void set_delegate(Delegate *delegate)
     {

@@ -47,7 +47,6 @@ public:
      * Create a NFCRemoteInitiator.
      * @param[in] controller the NFCController instance that detected this endpoint
      * @param[in] buffer a bytes array used to store NDEF messages
-     * @param[in] buffer_size the array size in bytes
      */
     NFCRemoteInitiator(NFCController *controller, const Span<uint8_t> &buffer);
     virtual ~NFCRemoteInitiator();

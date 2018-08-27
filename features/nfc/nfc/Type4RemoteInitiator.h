@@ -48,7 +48,6 @@ public:
      *
      * @param[in] controller pointer to the NFCController instance that created this object
      * @param[in] buffer a bytes array used to store NDEF messages
-     * @param[in] buffer_size the array size in bytes
      */
     Type4RemoteInitiator(NFCController *controller, const Span<uint8_t> &buffer);
 

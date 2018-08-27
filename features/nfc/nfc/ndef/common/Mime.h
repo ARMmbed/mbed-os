@@ -70,8 +70,10 @@ public:
     ~Mime();
 
     /**
-     * Copy asign a Mime object.
-     * @param to_copy The Mime object to copy.
+     * Copy assign a Mime object.
+     *
+     * @param other The Mime object to copy.
+     *
      * @return a reference to this object
      */
     Mime &operator=(const Mime &other);

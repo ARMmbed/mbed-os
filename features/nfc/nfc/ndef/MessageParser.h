@@ -102,7 +102,7 @@ public:
         /**
          * Invoked when a record has been parsed.
          *
-         * @param The record obtained from parsing.
+         * @param record The record obtained from parsing.
          */
         virtual void on_record_parsed(const Record &record) { }
 

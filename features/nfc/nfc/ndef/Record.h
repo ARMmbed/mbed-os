@@ -50,42 +50,45 @@ struct Header {
  * value.
  */
 struct RecordType {
+    /**
+     * Type name format of a record.
+     */
     enum tnf_t {
         /**
          * empty type; value must be empty.
          */
-        empty = 0x00,
+        empty = 0x00,          //!< empty
 
         /**
          * Type defined by the NFC forum; value must be defined.
          */
-        well_known_type = 0x01,
+        well_known_type = 0x01,//!< well_known_type
 
         /**
          * Mime type; value must be defined.
          */
-        media_type = 0x02,
+        media_type = 0x02,     //!< media_type
 
         /**
          * Absolute URI; value must be defined.
          */
-        absolute_uri = 0x03,
+        absolute_uri = 0x03,   //!< absolute_uri
 
         /**
          * Type defined by vendors; value must be defined.
          */
-        external_type = 0x04,
+        external_type = 0x04,  //!< external_type
 
         /**
          * Unknown type; value must be empty.
          */
-        unknown = 0x05,
+        unknown = 0x05,        //!< unknown
 
         /**
          * Use for middle and terminating chunk record.
          * value must be empty.
          */
-        unchanged = 0x06
+        unchanged = 0x06       //!< unchanged
     };
 
     /**
