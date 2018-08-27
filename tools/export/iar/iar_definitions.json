@@ -11,9 +11,6 @@
     "STM32L496ZG": {
         "OGChipSelectEditMenu": "STM32L496ZG\tST STM32L496ZG"
     },
-    "STM32L4R5ZI": {
-        "OGChipSelectEditMenu": "STM32L4R5ZI\tST STM32L4R5ZI"
-    },
     "STM32L476VG": {
         "OGChipSelectEditMenu": "STM32L476VG\tST STM32L476VG"
     },
