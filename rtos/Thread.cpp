@@ -167,8 +167,6 @@ osStatus Thread::join() {
     MBED_ASSERT(NULL == _tid);
     _mutex.unlock();
 
-    // Release sem so any other threads joining this thread wake up
-    _join_sem.release();
     return osOK;
 }
 
