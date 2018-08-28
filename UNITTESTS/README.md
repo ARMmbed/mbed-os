@@ -62,7 +62,7 @@ pip install 'gcovr>=4.1'
 ```
 virtualenv pyenv
 pyenv\\Scripts\\activate
-pip install 'gcovr>=4.1'
+pip install "gcovr>=4.1"
 ```
 
 ## Building and running unit tests
