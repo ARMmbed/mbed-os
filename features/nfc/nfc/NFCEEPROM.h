@@ -133,8 +133,9 @@ private:
         nfc_eeprom_read_end_session,
 
         nfc_eeprom_erase_start_session,
+        nfc_eeprom_erase_write_max_size,
         nfc_eeprom_erase_erase_bytes,
-        nfc_eeprom_erase_write_size,
+        nfc_eeprom_erase_write_0_size,
         nfc_eeprom_erase_end_session
     };
 

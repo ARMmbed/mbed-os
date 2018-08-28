@@ -125,9 +125,10 @@ void NFCEEPROM::erase_ndef_message()
     _driver->start_session();
 
     // 1 - Start session
-    // 2 - Erase bytes (can be repeated)
-    // 3 - Set NDEF message size to 0
-    // 4 - End session
+    // 2 - Set addressable size to the max
+    // 3 - Erase bytes (can be repeated)
+    // 4 - Set addressable size to 0
+    // 5 - End session
 }
 
 void NFCEEPROM::on_session_started(bool success)
@@ -156,8 +157,9 @@ void NFCEEPROM::on_session_started(bool success)
                 handle_error(NFC_ERR_CONTROLLER);
                 return;
             }
-            _current_op = nfc_eeprom_erase_erase_bytes;
-            continue_erase();
+
+            _current_op = nfc_eeprom_erase_write_max_size;
+            _driver->write_size(_driver->get_max_size());
             break;
 
         default:
@@ -276,7 +278,17 @@ void NFCEEPROM::on_size_written(bool success)
             _operation_result = NFC_OK;
             _driver->end_session();
             break;
-        case nfc_eeprom_erase_write_size:
+        case nfc_eeprom_erase_write_max_size:
+            if (!success) {
+                handle_error(NFC_ERR_CONTROLLER);
+                return;
+            }
+
+            // Start erasing bytes
+            _current_op = nfc_eeprom_erase_erase_bytes;
+            continue_erase();
+            break;
+        case nfc_eeprom_erase_write_0_size:
             if (!success) {
                 handle_error(NFC_ERR_CONTROLLER);
                 return;
@@ -373,7 +385,7 @@ void NFCEEPROM::continue_erase()
         _driver->erase_bytes(_eeprom_address, _driver->get_max_size() - _eeprom_address);
     } else {
         // Now update size
-        _current_op = nfc_eeprom_erase_write_size;
+        _current_op = nfc_eeprom_erase_write_0_size;
         _driver->write_size(0);
     }
 }
