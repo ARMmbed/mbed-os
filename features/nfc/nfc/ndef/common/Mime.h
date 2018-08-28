@@ -112,6 +112,13 @@ public:
         bool is_last_record = false
     );
 
+    /**
+     * Compute the size of this Mime object in a ndef record.
+     *
+     * @return The size of the ndef record required to store this object.
+     */
+    size_t get_record_size() const;
+
 private:
     friend class MimeParser;
 

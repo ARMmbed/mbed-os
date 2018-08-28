@@ -151,6 +151,13 @@ public:
     );
 
     /**
+     * Compute the size of this object in a ndef record.
+     *
+     * @return The size of the ndef record required to store this object.
+     */
+    size_t get_record_size() const;
+
+    /**
      * Equal operator between two URIs
      * @param lhs The URI on the left hand side
      * @param rhs The URI on the right hand side

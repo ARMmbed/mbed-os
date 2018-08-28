@@ -106,6 +106,21 @@ bool Mime::append_as_record(
                get_mime_content(),
                is_last_record
            );
+
+size_t Mime::get_record_size() const
+{
+    return MessageBuilder::compute_record_size(
+        Record(
+            RecordType(
+                RecordType::media_type,
+                get_mime_type()
+            ),
+            get_mime_content(),
+            RecordID(),
+            /* chunk */ false,
+            /* last record */ false
+        )
+    );
 }
 
 void Mime::move_data(

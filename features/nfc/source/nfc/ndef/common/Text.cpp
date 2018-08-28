@@ -149,6 +149,26 @@ bool Text::append_as_record(
     return message_builder.append_record(type, payload, is_last_record);
 }
 
+size_t Text::get_record_size() const
+{
+    if (!_text_record) {
+        return 0;
+    }
+
+    return MessageBuilder::compute_record_size(
+        Record(
+            RecordType(
+                RecordType::well_known_type,
+                text_record_type_value
+            ),
+            RecordPayload(_text_record, _text_record_size),
+            RecordID(),
+            /* chunk */ false,
+            /* last record */ false
+        )
+    );
+}
+
 bool TextParser::do_parse(const Record &record, Text &text)
 {
     if (record.type.tnf != RecordType::well_known_type) {
