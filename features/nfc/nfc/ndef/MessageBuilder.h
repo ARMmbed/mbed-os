@@ -117,6 +117,7 @@ public:
      * Append a new record to the message being built.
      *
      * @param record The record to insert.
+     * @param builder The builder that will construct the payload.
      *
      * @return true if the record has been successfully inserted or false otherwise.
      *
