@@ -99,13 +99,14 @@ bool Mime::append_as_record(
 ) const
 {
     return message_builder.append_record(
-               RecordType(
-                   RecordType::media_type,
-                   get_mime_type()
-               ),
-               get_mime_content(),
-               is_last_record
-           );
+       RecordType(
+           RecordType::media_type,
+           get_mime_type()
+       ),
+       get_mime_content(),
+       is_last_record
+   );
+}
 
 size_t Mime::get_record_size() const
 {

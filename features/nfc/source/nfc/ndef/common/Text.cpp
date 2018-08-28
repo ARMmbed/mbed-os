@@ -125,9 +125,9 @@ Span<const uint8_t> Text::get_text() const
     size_t language_code_size = get_language_code().size();
 
     return make_const_Span(
-               _text_record + header_size + language_code_size,
-               _text_record_size - header_size - language_code_size
-           );
+       _text_record + header_size + language_code_size,
+       _text_record_size - header_size - language_code_size
+   );
 }
 
 void Text::move_data(uint8_t *text, size_t size)
