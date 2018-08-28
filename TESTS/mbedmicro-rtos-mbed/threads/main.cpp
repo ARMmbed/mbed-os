@@ -119,6 +119,14 @@ void self_terminate(Thread *self)
     TEST_ASSERT(0);
 }
 
+Thread common_thread(osPriorityNormal, THREAD_STACK_SIZE);
+void common_wait_inc_join(counter_t *counter)
+{
+    Thread::wait(100);
+    (*counter)++;
+    common_thread.join();
+}
+
 // Tests that spawn tasks in different configurations
 
 /** Template for tests: single thread, with yield, with wait, with child, with murder
@@ -788,6 +796,24 @@ void test_thread_prio()
     t.join();
 }
 
+/** Test case to verify multiple threads can join to single thread */
+template <int N, void (*F)(counter_t *)>
+void test_multi_thread_join()
+{
+    counter_t counter(0);
+    Thread threads[N];
+
+    common_thread.start(callback(thread_wait_flags));
+    for (int i = 0; i < N; i++) {
+        threads[i].start(callback(F, &counter));
+    }
+    common_thread.flags_set(0x1);
+    for (int i = 0; i < N; i++) {
+        threads[i].join();
+    }
+    TEST_ASSERT_EQUAL(N, counter);
+}
+
 utest::v1::status_t test_setup(const size_t number_of_cases)
 {
     GREENTEA_SETUP(20, "default_auto");
@@ -842,7 +868,8 @@ static const case_t cases[] = {
     {"Testing thread states: wait message put", test_msg_put, DEFAULT_HANDLERS},
 
     {"Testing thread with external stack memory", test_thread_ext_stack, DEFAULT_HANDLERS},
-    {"Testing thread priority ops", test_thread_prio, DEFAULT_HANDLERS}
+    {"Testing thread priority ops", test_thread_prio, DEFAULT_HANDLERS},
+    {"Testing multiple threads can join single thread", test_multi_thread_join<0x3, common_wait_inc_join>, DEFAULT_HANDLERS}
 
 };
 
