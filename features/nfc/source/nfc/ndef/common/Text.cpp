@@ -118,6 +118,10 @@ Span<const uint8_t> Text::get_language_code() const
 
 Span<const uint8_t> Text::get_text() const
 {
+    if (!_text_record) {
+        return Span<const uint8_t>();
+    }
+
     size_t language_code_size = get_language_code().size();
 
     return make_const_Span(
@@ -138,6 +142,10 @@ bool Text::append_as_record(
     bool is_last_record
 ) const
 {
+    if (!_text_record) {
+        return false;
+    }
+
     // Build the record type
     RecordType type(
         RecordType::well_known_type,
