@@ -374,6 +374,7 @@ exit_point:
 int QSPIFBlockDevice::erase(bd_addr_t addr, bd_size_t in_size)
 {
     int type = 0;
+    uint32_t offset = 0;
     uint32_t chunk = 4096;
     unsigned int cur_erase_inst = _erase_instruction;
     int size = (int)in_size;
@@ -393,7 +394,8 @@ int QSPIFBlockDevice::erase(bd_addr_t addr, bd_size_t in_size)
         // find the matching instruction and erase size chunk for that type.
         type = _utils_iterate_next_largest_erase_type(bitfield, size, (int)addr, _region_high_boundary[region]);
         cur_erase_inst = _erase_type_inst_arr[type];
-        chunk = _erase_type_size_arr[type];
+        offset = addr % _erase_type_size_arr[type];
+        chunk = ( (offset + size) < _erase_type_size_arr[type]) ? size : (_erase_type_size_arr[type] - offset);
 
         tr_debug("DEBUG: erase - addr: %llu, size:%d, Inst: 0x%xh, chunk: %lu , ",
                  addr, size, cur_erase_inst, chunk);
