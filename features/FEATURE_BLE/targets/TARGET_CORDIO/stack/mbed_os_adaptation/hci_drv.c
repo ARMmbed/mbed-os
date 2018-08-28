@@ -14,30 +14,10 @@
  * limitations under the License.
  */
 
-#ifndef WSF_MBED_OS_ADAPTATION_H_
-#define WSF_MBED_OS_ADAPTATION_H_
+#include "hci_mbed_os_adaptation.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-/**
- * Wrap core_util_critical_section_enter
- */
-void wsf_mbed_os_critical_section_enter(void);
-
-/**
- * Wrap core_util_critical_section_exit
- */
-void wsf_mbed_os_critical_section_exit(void);
-
-/**
- * Signal an event insertion in the Cordio stack to ble API.
- */
-void wsf_mbed_ble_signal_event(void);
-
-#ifdef __cplusplus
-};
-#endif
-
-#endif /* WSF_MBED_OS_ADAPTATION_H_ */
+uint16_t hciDrvWrite(uint8_t type, uint16_t len, uint8_t *pData)
+{
+    // forward write to mbed os.
+    return hci_mbed_os_drv_write(type, len, pData);
+}
