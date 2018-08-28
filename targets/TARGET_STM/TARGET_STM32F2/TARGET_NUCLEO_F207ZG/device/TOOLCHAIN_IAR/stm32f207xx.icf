@@ -18,7 +18,7 @@ define region ROM_region = mem:[from __region_ROM_start__ to __region_ROM_end__]
 define region RAM_region = mem:[from __region_RAM_start__ to __region_RAM_end__];
 
 /* Stack and Heap */
-/* Stack: 4kB - 408B for vector table */
+/* Stack: 1024B */
 /* Heap: 64kB */
 define symbol __size_cstack__ = 0x400;
 define symbol __size_heap__   = 0x10000;
