@@ -9,7 +9,7 @@ There are currently 3 folders:
 - icetea-plugins - contains plugins that are being used by some of the testcases, needed for the test execution
 - testcases - contains Icetea testcases written in Python
 
-The testcases dependends on test applications
+The testcases depends on test applications
 
 ### Preparing your work environment
 
