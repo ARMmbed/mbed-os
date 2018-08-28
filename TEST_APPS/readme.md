@@ -1,21 +1,21 @@
-## Running IceTea tests located under mbed-os
+## Running Icetea tests located under mbed-os
 
 ### Structure
 
-mbed-os has a folder called TEST_APPS that contains everything related to IceTea -testing.
-There are currently 3 folders
+mbed-os has a folder called TEST_APPS that contains everything related to Icetea testing.
+There are currently 3 folders:
 
 - device - contains all the different test applications you can flash to your board
 - icetea-plugins - contains plugins that are being used by some of the testcases, needed for the test execution
-- testcases - contains IceTea testcases written in Python
+- testcases - contains Icetea testcases written in Python
 
-The testcases and test applications have a dependency
+The testcases dependends on test applications
 
 ### Preparing your work environment
 
 #### Prerequisities
 
-You should have IceTea and forked mbed-cli that supports IceTea, installed.
+You need Icetea and mbed-cli that supports Icetea, installed.
 
 #### Selecting the network interface to use
 
@@ -88,7 +88,7 @@ Modified:
 
 ### Test results
 
-IceTea prints the results from the test run to the command line, and the final result looks similar to this.
+Icetea prints the results from the test run to the command line, and the final result looks similar to this.
 
 ```
 +--------------------------------+---------+-------------+-------------+-----------+----------+
@@ -111,5 +111,5 @@ IceTea prints the results from the test run to the command line, and the final r
 +---------------+----------------+
 ```
 
-The results from the tests can also be found from mbed-os/log -folder.
-You probably want to add the log -folder to your .mbedignore -file to prevent issues with build commands becoming too long over the time.
+The results from the tests can also be found from mbed-os/log folder.
+You probably want to add the log folder to your .mbedignore file to prevent issues with build commands becoming too long over the time.
