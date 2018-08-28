@@ -1,5 +1,19 @@
 # Change Log
 
+## [v4.6.2](https://github.com/ARMmbed/mbed-coap/releases/tag/v4.6.2) 
+
+Do not clear block2 in subsequent block request.
+
+When sending a request with block2 option, eg. indicating need
+for response to be blockwised, copy the block2 option from the
+sent_blockwise list item so that the block2 option will be added
+to all requests. This fixes an issue where previously the block2
+was only sent for the first blockwise request and not for the
+subsequent ones, including the last request. This made the response
+not follow the request block2 option.
+
+-[Full Changelog](https://github.com/ARMmbed/mbed-coap/compare/v4.6.1...v4.6.2)
+
 ## [v4.6.1](https://github.com/ARMmbed/mbed-coap/releases/tag/v4.6.1) 
 **Closed issues:**
 -  IOTCLT-2900 - Blockwise handling leaking memory in some error cases
