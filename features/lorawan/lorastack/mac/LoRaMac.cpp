@@ -240,8 +240,10 @@ loramac_event_info_status_t LoRaMac::handle_join_accept_frame(const uint8_t *pay
     //Store server type to local so that invalid join accept of rejoin request won't affect the orig. type.
     if ( (((_params.rx_buffer[11] >> 7) & 0x01) == 1) && MBED_CONF_LORA_VERSION == LORAWAN_VERSION_1_1) {
         stype = LW1_1;
+        tr_debug("LoRaWAN 1.1.x server");
     } else {
         stype = LW1_0_2;
+        tr_debug("LoRaWAN 1.0.x server");
         //Server does not support LW 1.1 so we need to unset JS keys
         memcpy(_params.keys.js_intkey, _params.keys.nwk_key, sizeof(_params.keys.nwk_skey));
         memcpy(_params.keys.js_enckey, _params.keys.nwk_key, sizeof(_params.keys.nwk_skey));
