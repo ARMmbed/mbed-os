@@ -141,6 +141,23 @@ void test_single_thread()
     TEST_ASSERT_EQUAL(counter, 1);
 }
 
+/** Test case to verify restart of thread which terminated successfully */
+template <void (*F)(counter_t *)>
+void test_single_thread_multiple_times()
+{
+    counter_t counter(0);
+    Thread thread(osPriorityNormal, THREAD_STACK_SIZE);
+    thread.start(callback(F, &counter));
+    thread.join();
+    TEST_ASSERT_EQUAL(counter, 1);
+    thread.start(callback(F, &counter));
+    thread.join();
+    TEST_ASSERT_EQUAL(counter, 2);
+    thread.start(callback(F, &counter));
+    thread.join();
+    TEST_ASSERT_EQUAL(counter, 3);
+}
+
 /** Template for tests: parallel threads, with yield, with wait, with child, with murder
 
     Testing parallel threads
@@ -747,7 +764,9 @@ static const case_t cases[] = {
     {"Testing thread states: wait message put", test_msg_put, DEFAULT_HANDLERS},
 
     {"Testing thread with external stack memory", test_thread_ext_stack, DEFAULT_HANDLERS},
-    {"Testing thread priority ops", test_thread_prio, DEFAULT_HANDLERS}
+    {"Testing thread priority ops", test_thread_prio, DEFAULT_HANDLERS},
+
+    {"Testing single thread multiple times", test_single_thread_multiple_times<increment>, DEFAULT_HANDLERS}
 
 };
 
