@@ -22,18 +22,14 @@
 #include "nrf52840.h"
 #include "sns_silib.h"
 #if defined(MBEDTLS_PLATFORM_SETUP_TEARDOWN_ALT)
-/* once https://github.com/ARMmbed/mbedtls/issues/1200 will be supported,
- * rndState should be part of mbedtls_platform_context
- * Until then, we should keep it global and extern */
 
-CRYS_RND_State_t     rndState = { { 0 } } ;
-CRYS_RND_WorkBuff_t  rndWorkBuff = { { 0 } } ;
+static CRYS_RND_WorkBuff_t  rndWorkBuff = { { 0 } } ;
 
 int crypto_platform_setup( crypto_platform_ctx *ctx )
 {
     NRF_CRYPTOCELL->ENABLE = 1;
 
-    if( SaSi_LibInit( &rndState, &rndWorkBuff ) != 0 )
+    if( SaSi_LibInit( &ctx->rndState, &rndWorkBuff ) != 0 )
           return ( MBEDTLS_PLATFORM_HW_FAILED );
 
     return ( 0 );
@@ -41,7 +37,7 @@ int crypto_platform_setup( crypto_platform_ctx *ctx )
 
 void crypto_platform_terminate( crypto_platform_ctx *ctx )
 {
-    SaSi_LibFini( &rndState );
+    SaSi_LibFini( &ctx->rndState );
     NRF_CRYPTOCELL->ENABLE = 0;
 }
 

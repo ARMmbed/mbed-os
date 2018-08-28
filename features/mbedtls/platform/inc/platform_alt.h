@@ -23,7 +23,6 @@
 #include "platform_mbed.h"
 #if defined(MBEDTLS_PLATFORM_SETUP_TEARDOWN_ALT)
 #include "crypto_platform.h"
-
 /**
  * \brief   The platform context structure.
  *
@@ -32,6 +31,7 @@
  */
 typedef struct {
     crypto_platform_ctx platform_impl_ctx; /* A context holding all the platform specific context for cryptography. Should be defined in crypto_platform.h */
+    int reference_count;
 }
 mbedtls_platform_context;
 

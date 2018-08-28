@@ -20,37 +20,32 @@
 
 #include "mbedtls/platform.h"
 #if defined(MBEDTLS_PLATFORM_SETUP_TEARDOWN_ALT)
+mbedtls_platform_context ctx = {0};
 
-static int reference_count = 0;
-
-int mbedtls_platform_setup( mbedtls_platform_context *ctx )
+int mbedtls_platform_setup( mbedtls_platform_context *obsolete_ctx )
 {
     int ret = 0;
-    if( ctx == NULL )
-        return ( MBEDTLS_PLATFORM_INVALID_DATA );
 
-    reference_count++;
+    ctx.reference_count++;
 
-    if( reference_count == 1 )
+    if( ctx.reference_count == 1 )
     {
         /* call platform specific code to setup crypto driver*/
-        ret = crypto_platform_setup( &ctx->platform_impl_ctx );
+        ret = crypto_platform_setup( &ctx.platform_impl_ctx );
     }
     return ( ret );
 }
 
-void mbedtls_platform_teardown( mbedtls_platform_context *ctx )
+void mbedtls_platform_teardown( mbedtls_platform_context *obsolete_ctx )
 {
-    if( ctx == NULL )
-        return;
 
-    reference_count--;
+    ctx.reference_count--;
 
-    if( reference_count <= 0 )
+    if( ctx.reference_count <= 0 )
     {
         /* call platform specific code to terminate crypto driver*/
-        crypto_platform_terminate( &ctx->platform_impl_ctx );
-        reference_count = 0;
+        crypto_platform_terminate( &ctx.platform_impl_ctx );
+        ctx.reference_count = 0;
     }
 }
 
