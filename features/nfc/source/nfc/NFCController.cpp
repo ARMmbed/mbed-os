@@ -145,13 +145,11 @@ void NFCController::polling_callback(nfc_err_t ret)
         // Check if a remote initiator was detected and if so, instantiate it
         if (!transceiver_is_initiator_mode(_transceiver)) {
             nfc_tech_t active_tech = transceiver_get_active_techs(_transceiver);
-            if (active_tech.nfc_iso_dep_a || active_tech.nfc_iso_dep_b) {
+            if ((active_tech.nfc_iso_dep_a || active_tech.nfc_iso_dep_b) && (_delegate != NULL)) {
                 Type4RemoteInitiator *type4_remote_initiator_ptr = new (std::nothrow) Type4RemoteInitiator(this, _ndef_buffer);
                 if (type4_remote_initiator_ptr != NULL) {
                     SharedPtr<NFCRemoteInitiator> type4_remote_initiator(type4_remote_initiator_ptr);
-                    if (_delegate != NULL) {
-                        _delegate->on_nfc_initiator_discovered(type4_remote_initiator);
-                    }
+                    _delegate->on_nfc_initiator_discovered(type4_remote_initiator);
                 }
             }
         }
