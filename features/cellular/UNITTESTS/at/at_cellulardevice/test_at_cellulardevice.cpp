@@ -122,7 +122,7 @@ void Test_AT_CellularDevice::test_AT_CellularDevice_close_network()
     CHECK(ATHandler_stub::ref_count == 1);
 
     dev.close_network();
-    CHECK(ATHandler_stub::ref_count == -909);
+    CHECK(ATHandler_stub::ref_count == kATHandler_destructor_ref_ount);
 }
 
 void Test_AT_CellularDevice::test_AT_CellularDevice_close_sms()
@@ -137,7 +137,7 @@ void Test_AT_CellularDevice::test_AT_CellularDevice_close_sms()
     CHECK(ATHandler_stub::ref_count == 1);
 
     dev.close_sms();
-    CHECK(ATHandler_stub::ref_count == -909);
+    CHECK(ATHandler_stub::ref_count == kATHandler_destructor_ref_ount);
 }
 
 void Test_AT_CellularDevice::test_AT_CellularDevice_close_power()
@@ -152,7 +152,7 @@ void Test_AT_CellularDevice::test_AT_CellularDevice_close_power()
     CHECK(ATHandler_stub::ref_count == 1);
 
     dev.close_power();
-    CHECK(ATHandler_stub::ref_count == -909);
+    CHECK(ATHandler_stub::ref_count == kATHandler_destructor_ref_ount);
 }
 
 void Test_AT_CellularDevice::test_AT_CellularDevice_close_sim()
@@ -170,7 +170,7 @@ void Test_AT_CellularDevice::test_AT_CellularDevice_close_sim()
     CHECK(ATHandler_stub::ref_count == 1);
 
     dev.close_sim();
-    CHECK(ATHandler_stub::ref_count == -909);
+    CHECK(ATHandler_stub::ref_count == kATHandler_destructor_ref_ount);
 }
 
 void Test_AT_CellularDevice::test_AT_CellularDevice_close_information()
