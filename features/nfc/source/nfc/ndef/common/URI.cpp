@@ -111,7 +111,7 @@ Span<const uint8_t> URI::get_uri_field() const
            );
 }
 
-bool URI::append_as_record(MessageBuilder &message_builder, bool is_last_record)
+bool URI::append_as_record(MessageBuilder &message_builder, bool is_last_record) const
 {
     if (!_uri) {
         return false;

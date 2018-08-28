@@ -96,7 +96,7 @@ Span<const uint8_t> Mime::get_mime_content() const
 bool Mime::append_as_record(
     MessageBuilder &message_builder,
     bool is_last_record
-)
+) const
 {
     return message_builder.append_record(
                RecordType(

@@ -136,7 +136,7 @@ void Text::move_data(uint8_t *text, size_t size)
 bool Text::append_as_record(
     MessageBuilder &message_builder,
     bool is_last_record
-)
+) const
 {
     // Build the record type
     RecordType type(

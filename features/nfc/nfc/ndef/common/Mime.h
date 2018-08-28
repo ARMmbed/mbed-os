@@ -110,7 +110,7 @@ public:
     bool append_as_record(
         MessageBuilder &message_builder,
         bool is_last_record = false
-    );
+    ) const;
 
     /**
      * Compute the size of this Mime object in a ndef record.
