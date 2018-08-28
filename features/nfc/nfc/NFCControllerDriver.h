@@ -58,7 +58,7 @@ public:
         virtual void on_hw_interrupt() {}
 
     protected:
-        virtual ~Delegate() {}
+        ~Delegate() {}
     };
 
     /**
