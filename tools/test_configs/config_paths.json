@@ -5,5 +5,9 @@
     "HEAPBLOCKDEVICE_AND_WIFI": "HeapBlockDeviceAndWifiInterface.json",
     "ESP8266_WIFI" : "ESP8266Interface.json",
     "ISM43362_WIFI" : "ISM43362Interface.json",
-    "IDW0XX1_WIFI" : "SpwfSAInterface.json"
+    "IDW0XX1_WIFI" : "SpwfSAInterface.json",
+    "6LOWPAN_HOST" : "6lowpanInterface_host.json",
+    "6LOWPAN_ROUTER" : "6lowpanInterface_router.json",
+    "THREAD_END_DEVICE" : "ThreadInterface_end_device.json",
+    "THREAD_ROUTER" : "ThreadInterface_router.json"
 }
