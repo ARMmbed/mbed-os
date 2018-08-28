@@ -164,7 +164,6 @@ osStatus Thread::join() {
     // terminated or has been terminated. Once the mutex has
     // been locked it is ensured that the thread is deleted.
     _mutex.lock();
-    MBED_ASSERT(NULL == _tid);
     _mutex.unlock();
 
     return osOK;
