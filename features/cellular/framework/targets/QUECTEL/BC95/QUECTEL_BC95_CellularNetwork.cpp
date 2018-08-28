@@ -42,9 +42,9 @@ bool QUECTEL_BC95_CellularNetwork::get_modem_stack_type(nsapi_ip_stack_t request
     return requested_stack == IPV4_STACK ? true : false;
 }
 
-bool QUECTEL_BC95_CellularNetwork::has_registration(RegistrationType reg_tech)
+AT_CellularNetwork::RegistrationMode QUECTEL_BC95_CellularNetwork::has_registration(RegistrationType reg_tech)
 {
-    return (reg_tech == C_EREG);
+    return (reg_tech == C_EREG) ? RegistrationModeLAC : RegistrationModeDisable;
 }
 
 nsapi_error_t QUECTEL_BC95_CellularNetwork::set_access_technology_impl(RadioAccessTechnology opRat)

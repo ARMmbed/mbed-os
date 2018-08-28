@@ -121,9 +121,9 @@ nsapi_error_t AT_CellularNetwork::get_cell_id(int &cell_id)
     return NSAPI_ERROR_OK;
 }
 
-bool AT_CellularNetwork::has_registration(RegistrationType reg_type)
+AT_CellularNetwork::RegistrationMode AT_CellularNetwork::has_registration(RegistrationType reg_type)
 {
-    return false;
+    return RegistrationModeDisable;
 }
 
 nsapi_error_t AT_CellularNetwork::set_attach(int timeout)

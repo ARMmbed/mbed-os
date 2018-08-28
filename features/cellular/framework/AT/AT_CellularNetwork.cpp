@@ -55,7 +55,7 @@ AT_CellularNetwork::~AT_CellularNetwork()
 #endif // NSAPI_PPP_AVAILABLE
 
     for (int type = 0; type < CellularNetwork::C_MAX; type++) {
-        if (has_registration((RegistrationType)type)) {
+        if (has_registration((RegistrationType)type) != RegistrationModeDisable) {
             _at.remove_urc_handler(at_reg[type].urc_prefix, _urc_funcs[type]);
         }
     }
@@ -72,7 +72,7 @@ nsapi_error_t AT_CellularNetwork::init()
     _urc_funcs[C_REG] = callback(this, &AT_CellularNetwork::urc_creg);
 
     for (int type = 0; type < CellularNetwork::C_MAX; type++) {
-        if (has_registration((RegistrationType)type)) {
+        if (has_registration((RegistrationType)type) != RegistrationModeDisable) {
             if (_at.set_urc_handler(at_reg[type].urc_prefix, _urc_funcs[type]) != NSAPI_ERROR_OK) {
                 return NSAPI_ERROR_NO_MEMORY;
             }
@@ -710,13 +710,16 @@ nsapi_error_t AT_CellularNetwork::set_registration_urc(RegistrationType type, bo
     int index = (int)type;
     MBED_ASSERT(index >= 0 && index < C_MAX);
 
-    if (!has_registration(type)) {
+    RegistrationMode mode = has_registration(type);
+    if (mode == RegistrationModeDisable) {
         return NSAPI_ERROR_UNSUPPORTED;
     } else {
         _at.lock();
         if (urc_on) {
             _at.cmd_start(at_reg[index].cmd);
-            _at.write_string("=2", false);
+            const uint8_t ch_eq = '=';
+            _at.write_bytes(&ch_eq, 1);
+            _at.write_int((int)mode);
             _at.cmd_stop();
         } else {
             _at.cmd_start(at_reg[index].cmd);
@@ -808,7 +811,7 @@ nsapi_error_t AT_CellularNetwork::get_registration_status(RegistrationType type,
     int i = (int)type;
     MBED_ASSERT(i >= 0 && i < C_MAX);
 
-    if (!has_registration(at_reg[i].type)) {
+    if (has_registration(at_reg[i].type) == RegistrationModeDisable) {
         return NSAPI_ERROR_UNSUPPORTED;
     }
 
@@ -842,10 +845,10 @@ nsapi_error_t AT_CellularNetwork::get_cell_id(int &cell_id)
     return NSAPI_ERROR_OK;
 }
 
-bool AT_CellularNetwork::has_registration(RegistrationType reg_type)
+AT_CellularNetwork::RegistrationMode AT_CellularNetwork::has_registration(RegistrationType reg_type)
 {
     (void)reg_type;
-    return true;
+    return RegistrationModeLAC;
 }
 
 nsapi_error_t AT_CellularNetwork::set_attach(int /*timeout*/)
