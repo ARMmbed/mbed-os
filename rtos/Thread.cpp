@@ -93,7 +93,12 @@ void Thread::constructor(Callback<void()> task,
 osStatus Thread::start(Callback<void()> task) {
     _mutex.lock();
 
-    if ((_tid != 0) || _finished) {
+    // Reset _finished, in case thread terminated successfully and was restarted
+    if ((true == _finished) && (_tid == 0)) {
+        _finished = false;
+    }
+
+    if (_tid != 0) {
         _mutex.unlock();
         return osErrorParameter;
     }
@@ -135,8 +140,8 @@ osStatus Thread::terminate() {
     // release the semaphore before terminating
     // since this thread could be terminating itself
     osThreadId_t local_id = _tid;
-    _join_sem.release();
     _tid = (osThreadId_t)NULL;
+    _join_sem.release();
     if (!_finished) {
         _finished = true;
         // if local_id == 0 Thread was not started in first place
@@ -159,11 +164,8 @@ osStatus Thread::join() {
     // terminated or has been terminated. Once the mutex has
     // been locked it is ensured that the thread is deleted.
     _mutex.lock();
-    MBED_ASSERT(NULL == _tid);
     _mutex.unlock();
 
-    // Release sem so any other threads joining this thread wake up
-    _join_sem.release();
     return osOK;
 }
 
