@@ -47,7 +47,24 @@ bool MessageBuilder::append_record(
     return append_record(record);
 }
 
-bool MessageBuilder::append_record(const Record &record)
+bool MessageBuilder::append_record(
+    const RecordType &type,
+    const PayloadBuilder &builder,
+    bool is_last_record
+) {
+    Record record(
+        type,
+        RecordPayload(),
+        RecordID(),
+        /* chunk */ false,
+        is_last_record
+    );
+
+    return append_record(record, &builder);
+}
+
+
+bool MessageBuilder::append_record(const Record &record, const PayloadBuilder *builder)
 {
     if (_message_ended) {
         return false;
@@ -88,7 +105,7 @@ bool MessageBuilder::append_record(const Record &record)
             return false;
         }
 
-        if (!record.payload.empty()) {
+        if (get_payload_size(record, builder)) {
             return false;
         }
     }
@@ -107,18 +124,18 @@ bool MessageBuilder::append_record(const Record &record)
         return false;
     }
 
-    size_t record_size = compute_record_size(record);
+    size_t record_size = compute_record_size(record, builder);
     if (record_size > (_message_buffer.size() - _position)) {
         return false;
     }
 
-    append_header(record);
+    append_header(record, builder);
     append_type_length(record);
-    append_payload_length(record);
+    append_payload_length(record, builder);
     append_id_length(record);
     append_type(record);
     append_id(record);
-    append_payload(record);
+    append_payload(record, builder);
 
     if (record.chunk) {
         _in_chunk = true;
@@ -161,12 +178,12 @@ Span<const uint8_t> MessageBuilder::get_message() const
     }
 }
 
-size_t MessageBuilder::compute_record_size(const Record &record)
+size_t MessageBuilder::compute_record_size(const Record &record, const PayloadBuilder *builder)
 {
     size_t record_size = 0;
     record_size = 1; /* header */
     record_size += 1; /* type length */
-    record_size += is_short_payload(record) ? 1 : 4;
+    record_size += is_short_payload(record, builder) ? 1 : 4;
 
     if (!record.id.empty()) {
         record_size += 1;
@@ -174,12 +191,12 @@ size_t MessageBuilder::compute_record_size(const Record &record)
 
     record_size += record.type.value.size();
     record_size += record.id.size();
-    record_size += record.payload.size();
+    record_size += get_payload_size(record, builder);
 
     return record_size;
 }
 
-void MessageBuilder::append_header(const Record &record)
+void MessageBuilder::append_header(const Record &record, const PayloadBuilder *builder)
 {
     uint8_t header = 0;
     if (!_message_started) {
@@ -196,7 +213,7 @@ void MessageBuilder::append_header(const Record &record)
         header |= Header::chunk_flag_bit;
     }
 
-    if (is_short_payload(record)) {
+    if (is_short_payload(record, builder)) {
         header |= Header::short_record_bit;
     }
 
@@ -213,18 +230,13 @@ void MessageBuilder::append_type_length(const Record &record)
     _message_buffer[_position++] = record.type.value.size();
 }
 
-void MessageBuilder::append_payload_length(const Record &record)
+void MessageBuilder::append_payload_length(const Record &record, const PayloadBuilder *builder)
 {
-    if (record.payload.empty()) {
-        _message_buffer[_position++] = 0;
-        return;
-    }
+    size_t size = get_payload_size(record, builder);
 
-    if (is_short_payload(record)) {
-        _message_buffer[_position++] = record.payload.size();
+    if (is_short_payload(record, builder)) {
+        _message_buffer[_position++] = size;
     } else {
-        // TODO: proper host to network
-        uint32_t size = record.payload.size();
         _message_buffer[_position++] = (size >> 24) & 0xFF;
         _message_buffer[_position++] = (size >> 16) & 0xFF;
         _message_buffer[_position++] = (size >> 8) & 0xFF;
@@ -269,27 +281,38 @@ void MessageBuilder::append_id(const Record &record)
     _position += record.id.size();
 }
 
-void MessageBuilder::append_payload(const Record &record)
+void MessageBuilder::append_payload(const Record &record, const PayloadBuilder *builder)
 {
-    if (record.payload.empty()) {
+    size_t size = get_payload_size(record, builder);
+    if (!size) {
         return;
     }
 
-    memcpy(
-        _message_buffer.data() + _position,
-        record.payload.data(),
-        record.payload.size()
-    );
-    _position += record.payload.size();
+    if (builder) {
+        builder->build(_message_buffer.subspan(_position, size));
+    } else {
+        memcpy(
+            _message_buffer.data() + _position,
+            record.payload.data(),
+            size
+        );
+    }
+
+    _position += size;
 }
 
-bool MessageBuilder::is_short_payload(const Record &record)
+bool MessageBuilder::is_short_payload(const Record &record, const PayloadBuilder *builder)
 {
-    if (record.payload.size() <= 255) {
+    if (get_payload_size(record, builder) <= 255) {
         return true;
     } else {
         return false;
     }
+}
+
+size_t MessageBuilder::get_payload_size(const Record &record, const PayloadBuilder *builder)
+{
+    return builder ? builder->size() : record.payload.size();
 }
 
 } // namespace ndef
