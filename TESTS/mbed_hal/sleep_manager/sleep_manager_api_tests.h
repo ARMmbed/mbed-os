@@ -77,6 +77,24 @@ void test_lock_gt_ushrt_max();
  */
 void test_sleep_auto();
 
+/** Test lock/unlock test_check fun
+ *
+ * Given the deep sleep has not been locked
+ * When the deep sleep status is checked
+ * Then sleep_manager_can_deep_sleep() returns true
+ *     and sleep_manager_can_deep_sleep_test_check() returns true instantly.
+ *
+ * When the deep sleep mode is locked
+ * Then sleep_manager_can_deep_sleep() returns false
+ *     and sleep_manager_can_deep_sleep_test_check() returns false with 2 ms delay.
+ *
+ * When the deep sleep mode is unlocked with a 1 ms delay
+ * Then sleep_manager_can_deep_sleep() returns false
+ *     and sleep_manager_can_deep_sleep_test_check() returns true with 1 ms delay
+ *     and sleep_manager_can_deep_sleep() returns true when checked again.
+ */
+void test_lock_unlock_test_check();
+
 #endif
 
 #endif

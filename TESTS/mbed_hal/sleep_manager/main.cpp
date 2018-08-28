@@ -27,6 +27,8 @@
 
 #define SLEEP_DURATION_US 100000ULL
 #define SERIAL_FLUSH_TIME_MS 20
+#define DEEP_SLEEP_TEST_CHECK_WAIT_US 2000
+#define DEEP_SLEEP_TEST_CHECK_WAIT_DELTA_US 200
 
 using utest::v1::Case;
 using utest::v1::Specification;
@@ -106,7 +108,8 @@ void test_lock_gt_ushrt_max()
     TEST_ASSERT_TRUE(sleep_manager_can_deep_sleep());
 }
 
-#if DEVICE_LPTICKER && DEVICE_USTICKER
+#if DEVICE_LPTICKER
+#if DEVICE_USTICKER
 void wakeup_callback(volatile int *wakeup_flag)
 {
     (*wakeup_flag)++;
@@ -181,6 +184,52 @@ void test_sleep_auto()
 }
 #endif
 
+void test_lock_unlock_test_check()
+{
+    // Use LowPowerTimer instead of Timer to prevent deep sleep lock.
+    LowPowerTimer lp_timer;
+    us_timestamp_t exec_time_unlocked, exec_time_locked;
+    LowPowerTimeout lp_timeout;
+
+    // Deep sleep unlocked:
+    // * sleep_manager_can_deep_sleep() returns true,
+    // * sleep_manager_can_deep_sleep_test_check() returns true instantly.
+    TEST_ASSERT_TRUE(sleep_manager_can_deep_sleep());
+    lp_timer.start();
+    TEST_ASSERT_TRUE(sleep_manager_can_deep_sleep_test_check());
+    lp_timer.stop();
+    exec_time_unlocked = lp_timer.read_high_resolution_us();
+
+    // Deep sleep locked:
+    // * sleep_manager_can_deep_sleep() returns false,
+    // * sleep_manager_can_deep_sleep_test_check() returns false with 2 ms delay.
+    sleep_manager_lock_deep_sleep();
+    TEST_ASSERT_FALSE(sleep_manager_can_deep_sleep());
+    lp_timer.reset();
+    lp_timer.start();
+    TEST_ASSERT_FALSE(sleep_manager_can_deep_sleep_test_check());
+    lp_timer.stop();
+    exec_time_locked = lp_timer.read_high_resolution_us();
+    TEST_ASSERT_UINT64_WITHIN(DEEP_SLEEP_TEST_CHECK_WAIT_DELTA_US, DEEP_SLEEP_TEST_CHECK_WAIT_US,
+                              exec_time_locked - exec_time_unlocked);
+
+    // Deep sleep unlocked with a 1 ms delay:
+    // * sleep_manager_can_deep_sleep() returns false,
+    // * sleep_manager_can_deep_sleep_test_check() returns true with a 1 ms delay,
+    // * sleep_manager_can_deep_sleep() returns true when checked again.
+    lp_timer.reset();
+    lp_timeout.attach_us(mbed::callback(sleep_manager_unlock_deep_sleep_internal),
+                         DEEP_SLEEP_TEST_CHECK_WAIT_US / 2);
+    lp_timer.start();
+    TEST_ASSERT_FALSE(sleep_manager_can_deep_sleep());
+    TEST_ASSERT_TRUE(sleep_manager_can_deep_sleep_test_check());
+    lp_timer.stop();
+    TEST_ASSERT_UINT64_WITHIN(DEEP_SLEEP_TEST_CHECK_WAIT_DELTA_US, DEEP_SLEEP_TEST_CHECK_WAIT_US / 2,
+                              lp_timer.read_high_resolution_us());
+    TEST_ASSERT_TRUE(sleep_manager_can_deep_sleep());
+}
+#endif
+
 utest::v1::status_t testsuite_setup(const size_t number_of_cases)
 {
     GREENTEA_SETUP(10, "default_auto");
@@ -212,8 +261,11 @@ Case cases[] = {
     Case("deep sleep unbalanced unlock", test_lone_unlock),
     Case("deep sleep locked USHRT_MAX times", test_lock_eq_ushrt_max),
     Case("deep sleep locked more than USHRT_MAX times", test_lock_gt_ushrt_max),
-#if DEVICE_LPTICKER && DEVICE_USTICKER
+#if DEVICE_LPTICKER
+#if DEVICE_USTICKER
     Case("sleep_auto calls sleep/deep sleep based on lock", test_sleep_auto),
+#endif
+    Case("deep sleep lock/unlock test_check", test_lock_unlock_test_check),
 #endif
 };
 
