@@ -149,10 +149,11 @@ public:
     nfc_err_t cancel_discovery();
 
 private:
+    // These two classes need to be friends to access the following transceiver() method
     friend class NFCRemoteEndpoint;
-    friend class NFCRemoteInitiator;
     friend class Type4RemoteInitiator;
     nfc_transceiver_t *transceiver() const;
+
     void polling_callback(nfc_err_t ret);
 
     // NFC Stack scheduler

@@ -18,6 +18,8 @@
 #define MBED_NFC_DEFINITIONS_H
 
 #include <stdint.h>
+#include <stdbool.h>
+
 #include "stack/nfc_errors.h"
 
 #include "acore/ac_buffer.h"
@@ -25,19 +27,19 @@
 namespace mbed {
 namespace nfc {
 struct nfc_rf_protocols_bitmask_t {
-    uint8_t initiator_t1t : 1;
-    uint8_t initiator_t2t : 1;
-    uint8_t initiator_t3t : 1;
-    uint8_t initiator_iso_dep : 1;
-    uint8_t initiator_nfc_dep : 1;
-    uint8_t initiator_t5t : 1;
+    bool initiator_t1t : 1;
+    bool initiator_t2t : 1;
+    bool initiator_t3t : 1;
+    bool initiator_iso_dep : 1;
+    bool initiator_nfc_dep : 1;
+    bool initiator_t5t : 1;
 
-    uint8_t target_t1t : 1;
-    uint8_t target_t2t : 1;
-    uint8_t target_t3t : 1;
-    uint8_t target_iso_dep : 1;
-    uint8_t target_nfc_dep : 1;
-    uint8_t target_t5t : 1;
+    bool target_t1t : 1;
+    bool target_t2t : 1;
+    bool target_t3t : 1;
+    bool target_iso_dep : 1;
+    bool target_nfc_dep : 1;
+    bool target_t5t : 1;
 };
 
 enum nfc_tag_type_t {

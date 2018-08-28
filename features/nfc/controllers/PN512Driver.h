@@ -30,7 +30,6 @@
 namespace mbed {
 namespace nfc {
 
-struct PN512TransportDriver;
 class PN512Driver : public NFCControllerDriver, private PN512TransportDriver::Delegate {
 public:
     PN512Driver(PN512TransportDriver *transport_driver);
