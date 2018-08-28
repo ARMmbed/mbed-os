@@ -37,9 +37,10 @@ public:
      */
     LoWPANNDInterface(NanostackRfPhy *phy) : MeshInterfaceNanostack(phy) { }
 
-    virtual int connect();
-    virtual int disconnect();
     bool getRouterIpAddress(char *address, int8_t len);
+protected:
+    Nanostack::LoWPANNDInterface *get_interface() const;
+    virtual nsapi_error_t do_initialize();
 };
 
 #endif
