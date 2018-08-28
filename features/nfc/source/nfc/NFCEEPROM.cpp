@@ -40,7 +40,6 @@ nfc_err_t NFCEEPROM::initialize()
 void NFCEEPROM::set_delegate(NFCEEPROM::Delegate *delegate)
 {
     _delegate = delegate;
-    set_ndef_delegate(delegate);
 }
 
 void NFCEEPROM::write_ndef_message()
@@ -418,4 +417,9 @@ void NFCEEPROM::handle_error(nfc_err_t ret)
             _delegate->on_ndef_message_erased(ret);
         }
     }
+}
+
+NFCNDEFCapable::Delegate *NFCEEPROM::ndef_capable_delegate()
+{
+    return _delegate;
 }

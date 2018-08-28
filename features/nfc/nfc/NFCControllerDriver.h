@@ -82,13 +82,14 @@ public:
      * @param[in] delegate the delegate instance to use
      */
     void set_delegate(Delegate *delegate);
-protected:
 
+protected:
     /**
      * An implementation must call this function (can be called from interrupt context)
      * when the controller asserts its interrupt line
      */
     void hw_interrupt();
+
 private:
     Delegate *_delegate;
 };

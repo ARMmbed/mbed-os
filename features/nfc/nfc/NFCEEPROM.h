@@ -119,6 +119,9 @@ private:
     void continue_read();
     void continue_erase();
 
+    // NFCNDEFCapable implementation
+    virtual NFCNDEFCapable::Delegate *ndef_capable_delegate();
+
     enum nfc_eeprom_operation_t {
         nfc_eeprom_idle,
 

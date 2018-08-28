@@ -20,7 +20,7 @@ using namespace mbed;
 using namespace mbed::nfc;
 
 NFCRemoteInitiator::NFCRemoteInitiator(NFCController *controller, const Span<uint8_t> &buffer) :
-    NFCRemoteEndpoint(controller), NFCNDEFCapable(buffer)
+    NFCRemoteEndpoint(controller), NFCNDEFCapable(buffer), _delegate(NULL)
 {
 
 }
@@ -33,7 +33,6 @@ NFCRemoteInitiator::~NFCRemoteInitiator()
 void NFCRemoteInitiator::set_delegate(Delegate *delegate)
 {
     _delegate = delegate;
-    set_ndef_delegate(delegate);
 }
 
 void NFCRemoteInitiator::connected()
@@ -48,4 +47,9 @@ void NFCRemoteInitiator::disconnected()
     if (_delegate != NULL) {
         _delegate->on_disconnected();
     }
+}
+
+NFCNDEFCapable::Delegate *NFCRemoteInitiator::ndef_capable_delegate()
+{
+    return _delegate;
 }

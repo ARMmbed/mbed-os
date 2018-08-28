@@ -92,6 +92,9 @@ protected:
     virtual void disconnected();
 
 private:
+    // NFCNDEFCapable implementation
+    virtual NFCNDEFCapable::Delegate *ndef_capable_delegate();
+
     Delegate *_delegate;
 };
 
