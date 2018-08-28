@@ -1,3 +1,6 @@
+#! armcc -E
+#include "mbed_config.h"
+
 ; Scatter-Loading Description File
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Copyright (c) 2014, STMicroelectronics
@@ -29,6 +32,16 @@
 
 ; STM32F070RB: 128KB FLASH (0x20000) + 16KB RAM (0x4000)
 
+#if (defined(__stack_size__))
+  #define Stack_Size                   __stack_size__
+#else
+  #if (defined(MBED_CONF_RTOS_PRESENT))
+    #define Stack_Size                   0x0400
+  #else
+    #define Stack_Size                   0x1000
+  #endif
+#endif
+
  LR_IROM1 0x08000000 0x20000  {    ; load region size_region
   ER_IROM1 0x08000000 0x20000  {  ; load address = execution address 
    *.o (RESET, +First)
@@ -37,9 +50,11 @@
   }
 
   ; 48 vectors = 192 bytes (0xC0) to be reserved in RAM
-  RW_IRAM1 (0x20000000+0xC0) (0x4000-0xC0)  {  ; RW data
+  RW_IRAM1 (0x20000000+0xC0) (0x4000-0xC0-Stack_Size)  {  ; RW data
    .ANY (+RW +ZI)
   }
 
+  ARM_LIB_STACK 0x20000000+0x4000 EMPTY -Stack_Size { ; Stack region growing down
+  }
 }
 

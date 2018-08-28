@@ -1,3 +1,6 @@
+#! armcc -E
+#include "mbed_config.h"
+
 ; Scatter-Loading Description File
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Copyright (c) 2016, STMicroelectronics
@@ -27,6 +30,16 @@
 ; OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+#if (defined(__stack_size__))
+  #define Stack_Size                   __stack_size__
+#else
+  #if (defined(MBED_CONF_RTOS_PRESENT))
+    #define Stack_Size                   0x0400
+  #else
+    #define Stack_Size                   0x1000
+  #endif
+#endif
+
 LR_IROM1 0x08000000 0x00100000  {    ; load region size_region
   ER_IROM1 0x08000000 0x00100000  {  ; load address = execution address
    *.o (RESET, +First)
@@ -35,8 +48,11 @@ LR_IROM1 0x08000000 0x00100000  {    ; load region size_region
   }
 
   ; 97 vectors * 4 bytes = 388 bytes to reserve (0x184)
-  RW_IRAM1 (0x20000000+0x184) (0x00020000-0x184)  {  ; RW data
+  RW_IRAM1 (0x20000000+0x184) (0x00020000-0x184-Stack_Size)  {  ; RW data
    .ANY (+RW +ZI)
+  }
+  
+  ARM_LIB_STACK 0x20000000+0x00020000 EMPTY -Stack_Size { ; Stack region growing down
   }
 }
 

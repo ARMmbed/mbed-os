@@ -50,6 +50,17 @@
 
 .global g_pfnVectors
 .global Default_Handler
+.globl  Stack_Size
+
+#ifdef __STACK_SIZE
+    .equ    Stack_Size, __STACK_SIZE
+#else
+    #if defined(MBED_CONF_RTOS_PRESENT)
+      .equ    Stack_Size, 0x400
+    #else
+      .equ    Stack_Size, 0x1000
+    #endif
+#endif
 
 /* start address for the initialization values of the .data section.
 defined in linker script */

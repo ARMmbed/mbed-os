@@ -37,12 +37,16 @@
 #ifdef __STACK_SIZE
     .equ    Stack_Size, __STACK_SIZE
 #else
-    .equ    Stack_Size, 0xc00
+    #if defined(MBED_CONF_RTOS_PRESENT)
+      .equ    Stack_Size, 0x400
+    #else
+      .equ    Stack_Size, 0x1000
+    #endif
 #endif
     .globl    __StackTop
     .globl    __StackLimit
 __StackLimit:
-    .space    Stack_Size
+    .globl    Stack_Size
     .size __StackLimit, . - __StackLimit
 __StackTop:
     .size __StackTop, . - __StackTop
