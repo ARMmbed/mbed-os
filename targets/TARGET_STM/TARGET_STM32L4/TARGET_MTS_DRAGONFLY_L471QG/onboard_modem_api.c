@@ -31,11 +31,11 @@ static void press_power_button(int time_us)
 #if defined(TARGET_UBLOX_C030_R410M)
     gpio_init_inout(&gpio, MDMPWRON, PIN_OUTPUT, OpenDrain, 0);
 #else
-    gpio_init_inout(&gpio, MDMPWRON, PIN_OUTPUT, OpenDrainNoPull, 0);
+    gpio_init_inout(&gpio, MDMPWRON, PIN_OUTPUT, OpenDrainNoPull, 1);
 #endif
 
     wait_us(time_us);
-    gpio_write(&gpio, 1);
+    gpio_write(&gpio, 0);
 }
 
 void onboard_modem_init()
@@ -45,8 +45,8 @@ void onboard_modem_init()
     // Take us out of reset
     gpio_init_inout(&gpio, RADIO_PWR, PIN_OUTPUT, PushPullNoPull,   1);
     gpio_init_inout(&gpio, BUF_EN, PIN_OUTPUT, OpenDrainNoPull,   0);
-    gpio_init_inout(&gpio, MDMRST,  PIN_OUTPUT, OpenDrainNoPull,  1);
-    gpio_init_inout(&gpio, MDMPWRON, PIN_OUTPUT, OpenDrainNoPull, 1);
+    gpio_init_inout(&gpio, MDMRST,  PIN_OUTPUT, OpenDrainNoPull,  0);
+    gpio_init_inout(&gpio, MDMPWRON, PIN_OUTPUT, OpenDrainNoPull, 0);
     gpio_init_inout(&gpio, RADIO_DTR, PIN_OUTPUT, OpenDrainNoPull, 0);
 }
 
@@ -55,7 +55,7 @@ void onboard_modem_deinit()
     gpio_t gpio;
 
     // Back into reset
-    gpio_init_inout(&gpio, MDMRST,PIN_OUTPUT, OpenDrainNoPull, 0);
+    gpio_init_inout(&gpio, MDMRST,PIN_OUTPUT, OpenDrainNoPull, 1);
     gpio_init_inout(&gpio, BUF_EN, PIN_OUTPUT, OpenDrainNoPull,   1);
     gpio_init_inout(&gpio, RADIO_PWR, PIN_OUTPUT, PushPullNoPull,   0);
     gpio_init_inout(&gpio, RADIO_DTR, PIN_OUTPUT, OpenDrainNoPull, 1);
