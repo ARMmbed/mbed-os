@@ -43,16 +43,7 @@ QUECTEL_BG96::~QUECTEL_BG96()
 {
 }
 
-CellularNetwork *QUECTEL_BG96::open_network(FileHandle *fh)
+AT_CellularNetwork *QUECTEL_BG96::open_network_impl(ATHandler &at)
 {
-    if (!_network) {
-        ATHandler *atHandler = get_at_handler(fh);
-        if (atHandler) {
-            _network = new QUECTEL_BG96_CellularNetwork(*atHandler);
-            if (!_network) {
-                release_at_handler(atHandler);
-            }
-        }
-    }
-    return _network;
+    return new QUECTEL_BG96_CellularNetwork(at);
 }

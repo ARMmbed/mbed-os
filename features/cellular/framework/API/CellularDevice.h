@@ -18,16 +18,23 @@
 #ifndef CELLULAR_DEVICE_H_
 #define CELLULAR_DEVICE_H_
 
-#include "FileHandle.h"
+#include "CellularTargets.h"
+#if defined(CELLULAR_DEVICE) || defined(DOXYGEN_ONLY)
 
-#include "CellularSIM.h"
-#include "CellularNetwork.h"
-#include "CellularSMS.h"
-#include "CellularPower.h"
-#include "CellularInformation.h"
-#include "NetworkStack.h"
+#include "EventQueue.h"
+#include "nsapi_types.h"
+#include "PlatformMutex.h"
+
+class NetworkStack;
 
 namespace mbed {
+
+class CellularPower;
+class CellularSMS;
+class CellularSIM;
+class CellularInformation;
+class CellularNetwork;
+class FileHandle;
 
 /**
  *  Class CellularDevice
@@ -37,6 +44,23 @@ namespace mbed {
  */
 class CellularDevice {
 public:
+
+    /** Return singleton instance of CellularDevice.
+     *
+     */
+    static CellularDevice *get_default_instance();
+
+    /** Get event queue that can be chained to main event queue. EventQueue is created in get_instance().
+     *  @return event queue
+     */
+    events::EventQueue &get_queue();
+
+protected:
+    // don't allow creating this class in any other way than get_default_instance()
+    CellularDevice();
+    CellularDevice(CellularDevice const&);
+    void operator=(CellularDevice const&);
+
     /** virtual Destructor
      */
     virtual ~CellularDevice() {}
@@ -124,8 +148,19 @@ public:
      *  @return 0 on success
      */
     virtual nsapi_error_t init_module(FileHandle *fh) = 0;
+
+protected:
+    static PlatformMutex _device_mutex;
+    static CellularDevice *_device;
+    static events::EventQueue *_event_queue;
+    int _network_ref_count;
+    int _sms_ref_count;
+    int _power_ref_count;
+    int _sim_ref_count;
+    int _info_ref_count;
 };
 
 } // namespace mbed
 
+#endif // defined(CELLULAR_DEVICE) || defined(DOXYGEN_ONLY)
 #endif // CELLULAR_DEVICE_H_

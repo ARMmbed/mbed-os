@@ -30,30 +30,12 @@ UBLOX_PPP::~UBLOX_PPP()
 {
 }
 
-CellularNetwork *UBLOX_PPP::open_network(FileHandle *fh)
+AT_CellularNetwork *UBLOX_PPP::open_network_impl(ATHandler &at)
 {
-    if (!_network) {
-        ATHandler *atHandler = get_at_handler(fh);
-        if (atHandler) {
-            _network = new UBLOX_PPP_CellularNetwork(*atHandler);
-            if (!_network) {
-                release_at_handler(atHandler);
-            }
-        }
-    }
-    return _network;
+    return new UBLOX_PPP_CellularNetwork(at);
 }
 
-CellularPower *UBLOX_PPP::open_power(FileHandle *fh)
+AT_CellularPower *UBLOX_PPP::open_power_impl(ATHandler &at)
 {
-    if (!_power) {
-        ATHandler *atHandler = get_at_handler(fh);
-        if (atHandler) {
-            _power = new UBLOX_PPP_CellularPower(*get_at_handler(fh));
-            if (!_power) {
-                release_at_handler(atHandler);
-            }
-        }
-    }
-    return _power;
+    return new UBLOX_PPP_CellularPower(at);
 }

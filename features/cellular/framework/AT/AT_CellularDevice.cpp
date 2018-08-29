@@ -16,6 +16,12 @@
  */
 
 #include "AT_CellularDevice.h"
+#include "AT_CellularInformation.h"
+#include "AT_CellularNetwork.h"
+#include "AT_CellularPower.h"
+#include "AT_CellularSIM.h"
+#include "AT_CellularSMS.h"
+#include "ATHandler.h"
 
 using namespace events;
 using namespace mbed;
@@ -100,120 +106,196 @@ void AT_CellularDevice::release_at_handler(ATHandler *at_handler)
 
 CellularNetwork *AT_CellularDevice::open_network(FileHandle *fh)
 {
+    _device_mutex.lock();
     if (!_network) {
         ATHandler *atHandler = get_at_handler(fh);
         if (atHandler) {
-            _network = new AT_CellularNetwork(*atHandler);
+            _network = open_network_impl(*atHandler);
             if (!_network) {
                 release_at_handler(atHandler);
             }
         }
     }
+    if (_network) {
+        _network_ref_count++;
+    }
+    _device_mutex.unlock();
     return _network;
 }
 
 CellularSMS *AT_CellularDevice::open_sms(FileHandle *fh)
 {
+    _device_mutex.lock();
     if (!_sms) {
         ATHandler *atHandler = get_at_handler(fh);
         if (atHandler) {
-            _sms = new AT_CellularSMS(*atHandler);
+            _sms = open_sms_impl(*atHandler);
             if (!_sms) {
                 release_at_handler(atHandler);
             }
         }
     }
+    if (_sms) {
+        _sms_ref_count++;
+    }
+    _device_mutex.unlock();
     return _sms;
 }
 
 CellularSIM *AT_CellularDevice::open_sim(FileHandle *fh)
 {
+    _device_mutex.lock();
     if (!_sim) {
         ATHandler *atHandler = get_at_handler(fh);
         if (atHandler) {
-            _sim = new AT_CellularSIM(*atHandler);
+            _sim = open_sim_impl(*atHandler);
             if (!_sim) {
                 release_at_handler(atHandler);
             }
         }
     }
+    if (_sim) {
+        _sim_ref_count++;
+    }
+    _device_mutex.unlock();
     return _sim;
 }
 
 CellularPower *AT_CellularDevice::open_power(FileHandle *fh)
 {
+    _device_mutex.lock();
     if (!_power) {
         ATHandler *atHandler = get_at_handler(fh);
         if (atHandler) {
-            _power = new AT_CellularPower(*atHandler);
+            _power = open_power_impl(*atHandler);
             if (!_power) {
                 release_at_handler(atHandler);
             }
         }
     }
+    if (_power) {
+        _power_ref_count++;
+    }
+    _device_mutex.unlock();
     return _power;
 }
 
 CellularInformation *AT_CellularDevice::open_information(FileHandle *fh)
 {
+    _device_mutex.lock();
     if (!_information) {
         ATHandler *atHandler = get_at_handler(fh);
         if (atHandler) {
-            _information = new AT_CellularInformation(*atHandler);
+            _information = open_information_impl(*atHandler);
             if (!_information) {
                 release_at_handler(atHandler);
             }
         }
     }
+    if (_information) {
+        _info_ref_count++;
+    }
+    _device_mutex.unlock();
     return _information;
+}
+
+AT_CellularNetwork *AT_CellularDevice::open_network_impl(ATHandler &at)
+{
+    return new AT_CellularNetwork(at);
+}
+
+AT_CellularSMS *AT_CellularDevice::open_sms_impl(ATHandler &at)
+{
+    return new AT_CellularSMS(at);
+}
+
+AT_CellularPower *AT_CellularDevice::open_power_impl(ATHandler &at)
+{
+    return new AT_CellularPower(at);
+}
+
+AT_CellularSIM *AT_CellularDevice::open_sim_impl(ATHandler &at)
+{
+    return new AT_CellularSIM(at);
+}
+
+AT_CellularInformation *AT_CellularDevice::open_information_impl(ATHandler &at)
+{
+    return new AT_CellularInformation(at);
 }
 
 void AT_CellularDevice::close_network()
 {
+    _device_mutex.lock();
     if (_network) {
-        release_at_handler(&_network->get_at_handler());
-        delete _network;
-        _network = NULL;
+        _network_ref_count--;
+        if (_network_ref_count == 0) {
+            release_at_handler(&_network->get_at_handler());
+            delete _network;
+            _network = NULL;
+        }
     }
+    _device_mutex.unlock();
 }
 
 void AT_CellularDevice::close_sms()
 {
+    _device_mutex.lock();
     if (_sms) {
-        release_at_handler(&_sms->get_at_handler());
-        delete _sms;
-        _sms = NULL;
+        _sms_ref_count--;
+        if (_sms_ref_count == 0) {
+            release_at_handler(&_sms->get_at_handler());
+            delete _sms;
+            _sms = NULL;
+        }
     }
+    _device_mutex.unlock();
 }
 void AT_CellularDevice::close_power()
 {
+    _device_mutex.lock();
     if (_power) {
-        release_at_handler(&_power->get_at_handler());
-        delete _power;
-        _power = NULL;
+        _power_ref_count--;
+        if (_power_ref_count == 0) {
+            release_at_handler(&_power->get_at_handler());
+            delete _power;
+            _power = NULL;
+        }
     }
+    _device_mutex.unlock();
 }
 
 void AT_CellularDevice::close_sim()
 {
+    _device_mutex.lock();
     if (_sim) {
-        release_at_handler(&_sim->get_at_handler());
-        delete _sim;
-        _sim = NULL;
+        _sim_ref_count--;
+        if (_sim_ref_count == 0) {
+            release_at_handler(&_sim->get_at_handler());
+            delete _sim;
+            _sim = NULL;
+        }
     }
+    _device_mutex.unlock();
 }
 
 void AT_CellularDevice::close_information()
 {
+    _device_mutex.lock();
     if (_information) {
-        release_at_handler(&_information->get_at_handler());
-        delete _information;
-        _information = NULL;
+        _info_ref_count--;
+        if (_info_ref_count == 0) {
+            release_at_handler(&_information->get_at_handler());
+            delete _information;
+            _information = NULL;
+        }
     }
+    _device_mutex.unlock();
 }
 
 void AT_CellularDevice::set_timeout(int timeout)
 {
+    _device_mutex.lock();
     _default_timeout = timeout;
 
     ATHandler *atHandler = _atHandlers;
@@ -221,6 +303,7 @@ void AT_CellularDevice::set_timeout(int timeout)
         atHandler->set_at_timeout(_default_timeout, true); // set as default timeout
         atHandler = atHandler->_nextATHandler;
     }
+    _device_mutex.unlock();
 }
 
 uint16_t AT_CellularDevice::get_send_delay()
@@ -230,6 +313,7 @@ uint16_t AT_CellularDevice::get_send_delay()
 
 void AT_CellularDevice::modem_debug_on(bool on)
 {
+    _device_mutex.lock();
     _modem_debug_on = on;
 
     ATHandler *atHandler = _atHandlers;
@@ -237,14 +321,19 @@ void AT_CellularDevice::modem_debug_on(bool on)
         atHandler->set_debug(_modem_debug_on);
         atHandler = atHandler->_nextATHandler;
     }
+    _device_mutex.unlock();
 }
 
 NetworkStack *AT_CellularDevice::get_stack()
 {
+    _device_mutex.lock();
     if (!_network) {
+        _device_mutex.unlock();
         return NULL;
     }
-    return _network->get_stack();
+    NetworkStack *stack = _network->get_stack();
+    _device_mutex.unlock();
+    return stack;
 }
 
 nsapi_error_t AT_CellularDevice::init_module(FileHandle *fh)
