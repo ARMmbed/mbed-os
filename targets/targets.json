@@ -4421,5 +4421,18 @@
         "device_name": "TMPM3H6FWFG",
         "detect_code": ["7012"],
         "release_versions": ["5"]
+    },
+    "TMPM4G9": {
+        "inherits": ["Target"],
+        "core": "Cortex-M4",
+        "is_disk_virtual": true,
+        "extra_labels": ["TOSHIBA"],
+        "macros": ["__TMPM4G9__"],
+        "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
+        "device_has": ["ANALOGIN", "ANALOGOUT", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SPI", "I2C", "I2CSLAVE", "STDIO_MESSAGES", "FLASH", "SLEEP", "USTICKER"], 
+        "device_name": "TMPM4G9F15FG",
+        "detect_code": ["7016"],
+        "release_versions": ["5"],
+        "bootloader_supported": true
     }
 }
