@@ -65,6 +65,8 @@
 #define QSPI_PAGE_PROG_MAX_TIME                 5750   // 5ms
 
 #define QSPI_PAGE_SIZE                          256    // 256B
+#define QSPI_SECTOR_SIZE                        4096   // 4kB
+#define QSPI_SECTOR_COUNT                       4096
 
 // Commands for reading
 #define QSPI_CMD_READ_1IO_FAST                  0x0B   // 1-1-1 mode
