@@ -54,7 +54,7 @@ public:
          *
          * @param buffer The buffer used to construct the payload.
          */
-        virtual void build(const Span<uint8_t>& buffer) const = 0;
+        virtual void build(const Span<uint8_t> &buffer) const = 0;
 
     protected:
         /**
@@ -140,7 +140,7 @@ public:
      */
     static size_t compute_record_size(
         const Record &record,
-        const PayloadBuilder* builder = NULL
+        const PayloadBuilder *builder = NULL
     );
 
     /**
@@ -170,17 +170,17 @@ public:
 
 private:
     // append fields
-    void append_header(const Record &record, const PayloadBuilder*);
+    void append_header(const Record &record, const PayloadBuilder *);
     void append_type_length(const Record &record);
-    void append_payload_length(const Record &, const PayloadBuilder*);
+    void append_payload_length(const Record &, const PayloadBuilder *);
     void append_id_length(const Record &);
     void append_type(const Record &);
     void append_id(const Record &);
-    void append_payload(const Record &, const PayloadBuilder*);
+    void append_payload(const Record &, const PayloadBuilder *);
 
     // helpers
-    static bool is_short_payload(const Record &record, const PayloadBuilder*);
-    static size_t get_payload_size(const Record &, const PayloadBuilder*);
+    static bool is_short_payload(const Record &record, const PayloadBuilder *);
+    static size_t get_payload_size(const Record &, const PayloadBuilder *);
 
     // builder state.
     Span<uint8_t> _message_buffer;

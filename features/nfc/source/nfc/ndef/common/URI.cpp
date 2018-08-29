@@ -136,17 +136,17 @@ size_t URI::get_record_size() const
     }
 
     return MessageBuilder::compute_record_size(
-        Record(
-            RecordType(
-                RecordType::well_known_type,
-                uri_record_type_value
-            ),
-            RecordPayload(_uri, _uri_size),
-            RecordID(),
-            /* chunk */ false,
-            /* last record */ false
-        )
-    );
+               Record(
+                   RecordType(
+                       RecordType::well_known_type,
+                       uri_record_type_value
+                   ),
+                   RecordPayload(_uri, _uri_size),
+                   RecordID(),
+                   /* chunk */ false,
+                   /* last record */ false
+               )
+           );
 }
 
 void URI::move_data(uint8_t *new_uri, size_t new_uri_size)

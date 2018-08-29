@@ -51,7 +51,8 @@ bool MessageBuilder::append_record(
     const RecordType &type,
     const PayloadBuilder &builder,
     bool is_last_record
-) {
+)
+{
     Record record(
         type,
         RecordPayload(),

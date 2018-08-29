@@ -31,38 +31,38 @@ using namespace utest::v1;
 
 /* individual steps that map to specific operations that include parameters */
 typedef enum {
-   START_SESSION        = 0x0000,
+    START_SESSION        = 0x0000,
 
-   END_SESSION          = 0x0100,
+    END_SESSION          = 0x0100,
 
-   READ_BYTES           = 0x0200,
-   READ_2_BYTES         = 0x0201,
-   READ_2_BYTES_OFFSET_FAIL = 0x0202,
-   READ_4_BYTES         = 0x0203,
-   READ_4_BYTES_MIXED   = 0x0204,
-   READ_4_BYTES_OFFSET  = 0x0205,
-   READ_4_BYTES_ERASED  = 0x0206,
-   READ_4_BYTES_FAIL    = 0x0207,
+    READ_BYTES           = 0x0200,
+    READ_2_BYTES         = 0x0201,
+    READ_2_BYTES_OFFSET_FAIL = 0x0202,
+    READ_4_BYTES         = 0x0203,
+    READ_4_BYTES_MIXED   = 0x0204,
+    READ_4_BYTES_OFFSET  = 0x0205,
+    READ_4_BYTES_ERASED  = 0x0206,
+    READ_4_BYTES_FAIL    = 0x0207,
 
-   WRITE_BYTES          = 0x0300,
-   WRITE_2_BYTES        = 0x0301,
-   WRITE_2_BYTES_OFFSET = 0x0302,
-   WRITE_2_BYTES_OFFSET_FAIL = 0x0303,
-   WRITE_4_BYTES        = 0x0304,
-   WRITE_4_BYTES_FAIL   = 0x0305,
+    WRITE_BYTES          = 0x0300,
+    WRITE_2_BYTES        = 0x0301,
+    WRITE_2_BYTES_OFFSET = 0x0302,
+    WRITE_2_BYTES_OFFSET_FAIL = 0x0303,
+    WRITE_4_BYTES        = 0x0304,
+    WRITE_4_BYTES_FAIL   = 0x0305,
 
-   ERASE_BYTES          = 0x0400,
-   ERASE_4_BYTES        = 0x0401,
+    ERASE_BYTES          = 0x0400,
+    ERASE_4_BYTES        = 0x0401,
 
-   READ_SIZE            = 0x0500,
-   READ_SIZE_2          = 0x0501,
-   READ_SIZE_4          = 0x0502,
+    READ_SIZE            = 0x0500,
+    READ_SIZE_2          = 0x0501,
+    READ_SIZE_4          = 0x0502,
 
-   WRITE_SIZE           = 0x0600,
-   WRITE_SIZE_2         = 0x0601,
-   WRITE_SIZE_4         = 0x0602,
+    WRITE_SIZE           = 0x0600,
+    WRITE_SIZE_2         = 0x0601,
+    WRITE_SIZE_4         = 0x0602,
 
-   TERMINATE            = 0xFF00
+    TERMINATE            = 0xFF00
 } TestCommand_t;
 
 /* We group the command based on their fist byte to simplify step checking.
@@ -72,15 +72,15 @@ const size_t TEST_COMMAND_GROUP_MASK = 0xFF00;
 
 /* test case sequences that index into the array of commands which comprise them */
 typedef enum {
-   SESSION_TEST,
-   WRITE_READ_TEST,
-   ERASE_TEST,
-   WRITE_READ_SIZE_TEST,
-   TRUNCATE_TEST,
-   WRITE_TRUNCATE_TEST,
-   WRITE_WITH_OFFSET_TEST,
-   WRITE_BEYOND_SIZE_TEST,
-   SEQUENCE_MAX
+    SESSION_TEST,
+    WRITE_READ_TEST,
+    ERASE_TEST,
+    WRITE_READ_SIZE_TEST,
+    TRUNCATE_TEST,
+    WRITE_TRUNCATE_TEST,
+    WRITE_WITH_OFFSET_TEST,
+    WRITE_BEYOND_SIZE_TEST,
+    SEQUENCE_MAX
 } TestSequence_t;
 
 static EventQueue event_queue(/* event count */ 10 * EVENTS_EVENT_SIZE);
@@ -95,32 +95,46 @@ static const TestCommand_t SEQUENCES[SEQUENCE_MAX][MAX_STEP] = {
     { START_SESSION, END_SESSION, TERMINATE },
 
     /* WRITE_READ_TEST */
-    { START_SESSION, WRITE_SIZE_4, READ_SIZE_4, WRITE_4_BYTES, READ_4_BYTES,
-      WRITE_2_BYTES, READ_4_BYTES_MIXED, END_SESSION, TERMINATE },
+    {
+        START_SESSION, WRITE_SIZE_4, READ_SIZE_4, WRITE_4_BYTES, READ_4_BYTES,
+        WRITE_2_BYTES, READ_4_BYTES_MIXED, END_SESSION, TERMINATE
+    },
 
     /* ERASE_TEST */
-    { START_SESSION, WRITE_SIZE_4, READ_SIZE_4, WRITE_4_BYTES, READ_4_BYTES,
-      ERASE_4_BYTES, READ_4_BYTES_ERASED, END_SESSION, TERMINATE },
+    {
+        START_SESSION, WRITE_SIZE_4, READ_SIZE_4, WRITE_4_BYTES, READ_4_BYTES,
+        ERASE_4_BYTES, READ_4_BYTES_ERASED, END_SESSION, TERMINATE
+    },
 
     /* WRITE_READ_SIZE_TEST */
-    { START_SESSION, WRITE_SIZE_2, READ_SIZE_2, WRITE_SIZE_4, READ_SIZE_4,
-      END_SESSION, TERMINATE },
+    {
+        START_SESSION, WRITE_SIZE_2, READ_SIZE_2, WRITE_SIZE_4, READ_SIZE_4,
+        END_SESSION, TERMINATE
+    },
 
     /* TRUNCATE_TEST */
-    { START_SESSION, WRITE_SIZE_4, READ_SIZE_4, WRITE_4_BYTES, READ_4_BYTES,
-      WRITE_SIZE_2, READ_SIZE_2, READ_4_BYTES_FAIL, END_SESSION, TERMINATE },
+    {
+        START_SESSION, WRITE_SIZE_4, READ_SIZE_4, WRITE_4_BYTES, READ_4_BYTES,
+        WRITE_SIZE_2, READ_SIZE_2, READ_4_BYTES_FAIL, END_SESSION, TERMINATE
+    },
 
     /* WRITE_TRUNCATE_TEST */
-    { START_SESSION, WRITE_SIZE_2, READ_SIZE_2, WRITE_4_BYTES_FAIL, READ_4_BYTES_FAIL,
-      END_SESSION, TERMINATE },
+    {
+        START_SESSION, WRITE_SIZE_2, READ_SIZE_2, WRITE_4_BYTES_FAIL, READ_4_BYTES_FAIL,
+        END_SESSION, TERMINATE
+    },
 
     /* WRITE_WITH_OFFSET_TEST */
-    { START_SESSION, WRITE_SIZE_4, READ_SIZE_4, WRITE_4_BYTES, READ_4_BYTES,
-      WRITE_2_BYTES_OFFSET, READ_4_BYTES_OFFSET, END_SESSION, TERMINATE },
+    {
+        START_SESSION, WRITE_SIZE_4, READ_SIZE_4, WRITE_4_BYTES, READ_4_BYTES,
+        WRITE_2_BYTES_OFFSET, READ_4_BYTES_OFFSET, END_SESSION, TERMINATE
+    },
 
     /* WRITE_BEYOND_SIZE_TEST */
-    { START_SESSION, WRITE_SIZE_2, READ_SIZE_2, WRITE_2_BYTES_OFFSET_FAIL, READ_2_BYTES_OFFSET_FAIL,
-      WRITE_2_BYTES, READ_2_BYTES, END_SESSION, TERMINATE }
+    {
+        START_SESSION, WRITE_SIZE_2, READ_SIZE_2, WRITE_2_BYTES_OFFSET_FAIL, READ_2_BYTES_OFFSET_FAIL,
+        WRITE_2_BYTES, READ_2_BYTES, END_SESSION, TERMINATE
+    }
 };
 
 static const uint8_t DATA_4_BYTES[] = { 0x01, 0x02, 0x03, 0x04 };
@@ -129,23 +143,23 @@ static const uint8_t DATA_4_BYTES_MIXED[] = { 0x05, 0x06, 0x03, 0x04 };
 static const uint8_t DATA_4_BYTES_OFFSET[] = { 0x01, 0x02, 0x05, 0x06 };
 static const uint8_t DATA_4_BYTES_ERASED[] = { 0x00, 0x00, 0x00, 0x00 };
 
-class DriverTest : public NFCEEPROMDriver::Delegate
-{
+class DriverTest : public NFCEEPROMDriver::Delegate {
 public:
-    DriverTest(NFCEEPROMDriver* _driver)
-    : _operation_data(NULL),
-      _driver(_driver),
-      _sequence(SEQUENCE_MAX),
-      _step(0),
-      _result_size(0),
-      _address(0),
-      _success(true) { };
+    DriverTest(NFCEEPROMDriver *_driver)
+        : _operation_data(NULL),
+          _driver(_driver),
+          _sequence(SEQUENCE_MAX),
+          _step(0),
+          _result_size(0),
+          _address(0),
+          _success(true) { };
 
     virtual ~DriverTest() { };
 
     /* Delegate events */
 
-    virtual void on_session_started(bool success) {
+    virtual void on_session_started(bool success)
+    {
         if (success != _success) {
             TEST_FAIL_MESSAGE("failed to start session");
         }
@@ -153,7 +167,8 @@ public:
         evaluate_step(START_SESSION);
     };
 
-    virtual void on_session_ended(bool success) {
+    virtual void on_session_ended(bool success)
+    {
         if (success != _success) {
             TEST_FAIL_MESSAGE("failed to end session");
         }
@@ -161,7 +176,8 @@ public:
         evaluate_step(END_SESSION);
     };
 
-    virtual void on_bytes_read(size_t count) {
+    virtual void on_bytes_read(size_t count)
+    {
         if (count != _result_size) {
             TEST_FAIL_MESSAGE("failed to read bytes");
         }
@@ -172,7 +188,8 @@ public:
         evaluate_step(READ_BYTES);
     };
 
-    virtual void on_bytes_written(size_t count) {
+    virtual void on_bytes_written(size_t count)
+    {
         if (count != _result_size) {
             TEST_FAIL_MESSAGE("failed to write bytes");
         }
@@ -180,7 +197,8 @@ public:
         evaluate_step(WRITE_BYTES);
     };
 
-    virtual void on_size_written(bool success) {
+    virtual void on_size_written(bool success)
+    {
         if (success != _success) {
             TEST_FAIL_MESSAGE("failed to write size");
         }
@@ -188,7 +206,8 @@ public:
         evaluate_step(WRITE_SIZE);
     };
 
-    virtual void on_size_read(bool success, size_t size) {
+    virtual void on_size_read(bool success, size_t size)
+    {
         if (success != _success || size != _result_size) {
             TEST_FAIL_MESSAGE("failed to read size");
         }
@@ -196,7 +215,8 @@ public:
         evaluate_step(READ_SIZE);
     };
 
-    virtual void on_bytes_erased(size_t count) {
+    virtual void on_bytes_erased(size_t count)
+    {
         if (count != _result_size) {
             TEST_FAIL_MESSAGE("failed to erase bytes");
         }
@@ -206,7 +226,8 @@ public:
 
     /* Sequence running code */
 
-    void run_sequence(TestSequence_t sequence) {
+    void run_sequence(TestSequence_t sequence)
+    {
         _sequence = sequence;
 
         if (_sequence >= SEQUENCE_MAX) {
@@ -220,139 +241,141 @@ public:
         TEST_ASSERT_EQUAL(TERMINATE, SEQUENCES[_sequence][_step]);
     }
 
-    void execute_next_step() {
+    void execute_next_step()
+    {
         TestCommand_t command = SEQUENCES[_sequence][_step];
 
         /* setup data buffer */
-        switch(command) {
-        case READ_2_BYTES:
-        case READ_2_BYTES_OFFSET_FAIL:
-        case WRITE_2_BYTES:
-        case WRITE_2_BYTES_OFFSET:
-        case WRITE_2_BYTES_OFFSET_FAIL:
-            _operation_data = DATA_2_BYTES;
-            break;
-        case READ_4_BYTES:
-        case READ_4_BYTES_FAIL:
-        case WRITE_4_BYTES:
-        case WRITE_4_BYTES_FAIL:
-            _operation_data = DATA_4_BYTES;
-            break;
-        case READ_4_BYTES_ERASED:
-            _operation_data = DATA_4_BYTES_ERASED;
-            break;
-        case READ_4_BYTES_MIXED:
-            _operation_data = DATA_4_BYTES_MIXED;
-            break;
-        case READ_4_BYTES_OFFSET:
-            _operation_data = DATA_4_BYTES_OFFSET;
-            break;
-        default:
-            _operation_data = NULL;
+        switch (command) {
+            case READ_2_BYTES:
+            case READ_2_BYTES_OFFSET_FAIL:
+            case WRITE_2_BYTES:
+            case WRITE_2_BYTES_OFFSET:
+            case WRITE_2_BYTES_OFFSET_FAIL:
+                _operation_data = DATA_2_BYTES;
+                break;
+            case READ_4_BYTES:
+            case READ_4_BYTES_FAIL:
+            case WRITE_4_BYTES:
+            case WRITE_4_BYTES_FAIL:
+                _operation_data = DATA_4_BYTES;
+                break;
+            case READ_4_BYTES_ERASED:
+                _operation_data = DATA_4_BYTES_ERASED;
+                break;
+            case READ_4_BYTES_MIXED:
+                _operation_data = DATA_4_BYTES_MIXED;
+                break;
+            case READ_4_BYTES_OFFSET:
+                _operation_data = DATA_4_BYTES_OFFSET;
+                break;
+            default:
+                _operation_data = NULL;
         }
 
         /* setup result size */
-        switch(command) {
-        case READ_2_BYTES:
-        case READ_4_BYTES_FAIL:
-        case WRITE_2_BYTES:
-        case WRITE_4_BYTES_FAIL:
-        case WRITE_2_BYTES_OFFSET:
-        case READ_SIZE_2:
-            _result_size = 2;
-            break;
-        case READ_4_BYTES:
-        case READ_4_BYTES_ERASED:
-        case READ_4_BYTES_MIXED:
-        case READ_4_BYTES_OFFSET:
-        case WRITE_4_BYTES:
-        case ERASE_4_BYTES:
-        case READ_SIZE_4:
-            _result_size = 4;
-            break;
-        default:
-            _result_size = 0;
+        switch (command) {
+            case READ_2_BYTES:
+            case READ_4_BYTES_FAIL:
+            case WRITE_2_BYTES:
+            case WRITE_4_BYTES_FAIL:
+            case WRITE_2_BYTES_OFFSET:
+            case READ_SIZE_2:
+                _result_size = 2;
+                break;
+            case READ_4_BYTES:
+            case READ_4_BYTES_ERASED:
+            case READ_4_BYTES_MIXED:
+            case READ_4_BYTES_OFFSET:
+            case WRITE_4_BYTES:
+            case ERASE_4_BYTES:
+            case READ_SIZE_4:
+                _result_size = 4;
+                break;
+            default:
+                _result_size = 0;
         }
 
         /* setup operation size */
-        switch(command) {
-        case READ_2_BYTES:
-        case READ_2_BYTES_OFFSET_FAIL:
-        case WRITE_2_BYTES:
-        case WRITE_2_BYTES_OFFSET:
-        case WRITE_2_BYTES_OFFSET_FAIL:
-        case WRITE_SIZE_2:
-            _operation_size = 2;
-            break;
-        case READ_4_BYTES:
-        case READ_4_BYTES_ERASED:
-        case READ_4_BYTES_MIXED:
-        case READ_4_BYTES_OFFSET:
-        case READ_4_BYTES_FAIL:
-        case WRITE_4_BYTES:
-        case WRITE_4_BYTES_FAIL:
-        case ERASE_4_BYTES:
-        case READ_SIZE_4:
-        case WRITE_SIZE_4:
-            _operation_size = 4;
-            break;
-        default:
-            _operation_size = 0;
+        switch (command) {
+            case READ_2_BYTES:
+            case READ_2_BYTES_OFFSET_FAIL:
+            case WRITE_2_BYTES:
+            case WRITE_2_BYTES_OFFSET:
+            case WRITE_2_BYTES_OFFSET_FAIL:
+            case WRITE_SIZE_2:
+                _operation_size = 2;
+                break;
+            case READ_4_BYTES:
+            case READ_4_BYTES_ERASED:
+            case READ_4_BYTES_MIXED:
+            case READ_4_BYTES_OFFSET:
+            case READ_4_BYTES_FAIL:
+            case WRITE_4_BYTES:
+            case WRITE_4_BYTES_FAIL:
+            case ERASE_4_BYTES:
+            case READ_SIZE_4:
+            case WRITE_SIZE_4:
+                _operation_size = 4;
+                break;
+            default:
+                _operation_size = 0;
         }
 
         /* setup offset */
-        switch(command) {
-        case READ_2_BYTES_OFFSET_FAIL:
-        case WRITE_2_BYTES_OFFSET:
-        case WRITE_2_BYTES_OFFSET_FAIL:
-            _address = 2;
-            break;
-        default:
-            _address = 0;
+        switch (command) {
+            case READ_2_BYTES_OFFSET_FAIL:
+            case WRITE_2_BYTES_OFFSET:
+            case WRITE_2_BYTES_OFFSET_FAIL:
+                _address = 2;
+                break;
+            default:
+                _address = 0;
         }
 
         /* setup command success */
-        switch(command) {
-        case READ_2_BYTES_OFFSET_FAIL:
-        case WRITE_2_BYTES_OFFSET_FAIL:
-            _success = false;
-            break;
-        default:
-            _success = true;
+        switch (command) {
+            case READ_2_BYTES_OFFSET_FAIL:
+            case WRITE_2_BYTES_OFFSET_FAIL:
+                _success = false;
+                break;
+            default:
+                _success = true;
         }
 
         /* call next command */
-        switch(command&TEST_COMMAND_GROUP_MASK) {
-        case START_SESSION:
-            _driver->start_session(true);
-            break;
-        case END_SESSION:
-            _driver->end_session();
-            break;
-        case READ_BYTES:
-            _driver->read_bytes(_address, _buffer, _operation_size);
-            break;
-        case WRITE_BYTES:
-            _driver->write_bytes(_address, _operation_data, _operation_size);
-            break;
-        case ERASE_BYTES:
-            _driver->erase_bytes(_address, 4);
-            break;
-        case READ_SIZE:
-            _driver->read_size();
-            break;
-        case WRITE_SIZE:
-            _driver->write_size(_operation_size);
-            break;
-        case TERMINATE:
-            event_queue.break_dispatch();
-            break;
-        default:
-            TEST_FAIL_MESSAGE("internal test failure - invalid command");
+        switch (command & TEST_COMMAND_GROUP_MASK) {
+            case START_SESSION:
+                _driver->start_session(true);
+                break;
+            case END_SESSION:
+                _driver->end_session();
+                break;
+            case READ_BYTES:
+                _driver->read_bytes(_address, _buffer, _operation_size);
+                break;
+            case WRITE_BYTES:
+                _driver->write_bytes(_address, _operation_data, _operation_size);
+                break;
+            case ERASE_BYTES:
+                _driver->erase_bytes(_address, 4);
+                break;
+            case READ_SIZE:
+                _driver->read_size();
+                break;
+            case WRITE_SIZE:
+                _driver->write_size(_operation_size);
+                break;
+            case TERMINATE:
+                event_queue.break_dispatch();
+                break;
+            default:
+                TEST_FAIL_MESSAGE("internal test failure - invalid command");
         }
     }
 
-    void evaluate_step(TestCommand_t command_completed) {
+    void evaluate_step(TestCommand_t command_completed)
+    {
         /* check last command succeeded */
         TEST_ASSERT_EQUAL(command_completed, SEQUENCES[_sequence][_step]&TEST_COMMAND_GROUP_MASK);
 
@@ -369,7 +392,7 @@ private:
     uint8_t _buffer[BUFFER_MAX];
     const uint8_t *_operation_data;
 
-    NFCEEPROMDriver* _driver;
+    NFCEEPROMDriver *_driver;
 
     TestSequence_t _sequence;
     size_t _step;
@@ -382,7 +405,7 @@ private:
 /* test case running code */
 
 static DriverTest *driver_test;
-extern NFCEEPROMDriver* greentea_nfc_EEPROM_driver_get_instance();
+extern NFCEEPROMDriver *greentea_nfc_EEPROM_driver_get_instance();
 
 utest::v1::status_t test_setup(const Case *const source, const size_t index_of_case)
 {
@@ -398,35 +421,43 @@ utest::v1::status_t test_setup(const Case *const source, const size_t index_of_c
     return greentea_case_setup_handler(source, index_of_case);
 }
 
-void session() {
+void session()
+{
     driver_test->run_sequence(SESSION_TEST);
 }
 
-void write_read() {
+void write_read()
+{
     driver_test->run_sequence(WRITE_READ_TEST);
 }
 
-void erase_bytes() {
+void erase_bytes()
+{
     driver_test->run_sequence(ERASE_TEST);
 }
 
-void write_read_size() {
+void write_read_size()
+{
     driver_test->run_sequence(WRITE_READ_SIZE_TEST);
 }
 
-void truncate_size() {
+void truncate_size()
+{
     driver_test->run_sequence(TRUNCATE_TEST);
 }
 
-void write_bytes_truncated() {
+void write_bytes_truncated()
+{
     driver_test->run_sequence(WRITE_TRUNCATE_TEST);
 }
 
-void write_with_offset() {
+void write_with_offset()
+{
     driver_test->run_sequence(WRITE_WITH_OFFSET_TEST);
 }
 
-void write_beyond_size() {
+void write_beyond_size()
+{
     driver_test->run_sequence(WRITE_BEYOND_SIZE_TEST);
 }
 
@@ -461,6 +492,7 @@ Case cases[] = {
 Specification specification(test_init, cases);
 
 // Entry point into the tests
-int main() {
+int main()
+{
     return !Harness::run(specification);
 }

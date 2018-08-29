@@ -125,9 +125,9 @@ Span<const uint8_t> Text::get_text() const
     size_t language_code_size = get_language_code().size();
 
     return make_const_Span(
-       _text_record + header_size + language_code_size,
-       _text_record_size - header_size - language_code_size
-   );
+               _text_record + header_size + language_code_size,
+               _text_record_size - header_size - language_code_size
+           );
 }
 
 void Text::move_data(uint8_t *text, size_t size)
@@ -164,17 +164,17 @@ size_t Text::get_record_size() const
     }
 
     return MessageBuilder::compute_record_size(
-        Record(
-            RecordType(
-                RecordType::well_known_type,
-                text_record_type_value
-            ),
-            RecordPayload(_text_record, _text_record_size),
-            RecordID(),
-            /* chunk */ false,
-            /* last record */ false
-        )
-    );
+               Record(
+                   RecordType(
+                       RecordType::well_known_type,
+                       text_record_type_value
+                   ),
+                   RecordPayload(_text_record, _text_record_size),
+                   RecordID(),
+                   /* chunk */ false,
+                   /* last record */ false
+               )
+           );
 }
 
 bool TextParser::do_parse(const Record &record, Text &text)
