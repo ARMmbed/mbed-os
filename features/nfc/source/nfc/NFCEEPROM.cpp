@@ -61,7 +61,7 @@ void NFCEEPROM::write_ndef_message()
     ac_buffer_dup(&_ndef_buffer_reader, ac_buffer_builder_buffer(ndef_msg_buffer_builder(ndef_message())));
 
     // Check that NDEF message is not too big
-    if (ac_buffer_reader_readable(&_ndef_buffer_reader) > _driver->get_max_size()) {
+    if (ac_buffer_reader_readable(&_ndef_buffer_reader) > _driver->read_max_size()) {
         handle_error(NFC_ERR_BUFFER_TOO_SMALL);
         return;
     }
@@ -158,7 +158,7 @@ void NFCEEPROM::on_session_started(bool success)
             }
 
             _current_op = nfc_eeprom_erase_write_max_size;
-            _driver->write_size(_driver->get_max_size());
+            _driver->write_size(_driver->read_max_size());
             break;
 
         default:
@@ -379,9 +379,9 @@ void NFCEEPROM::continue_write()
 
 void NFCEEPROM::continue_erase()
 {
-    if (_eeprom_address < _driver->get_max_size()) {
+    if (_eeprom_address < _driver->read_max_size()) {
         // Continue erasing
-        _driver->erase_bytes(_eeprom_address, _driver->get_max_size() - _eeprom_address);
+        _driver->erase_bytes(_eeprom_address, _driver->read_max_size() - _eeprom_address);
     } else {
         // Now update size
         _current_op = nfc_eeprom_erase_write_0_size;

@@ -131,7 +131,7 @@ public:
     /**
      * Get the maximum memory size addressable by the EEPROM.
      */
-    virtual size_t get_max_size() = 0;
+    virtual size_t read_max_size() = 0;
 
     /**
      * Start a session of operations (reads, writes, erases, size gets/sets).
@@ -139,7 +139,7 @@ public:
      * to disable the RF interface or abort the transaction if it's being used.
      * This method should complete asynchronously by calling has_started_session().
      */
-    virtual void start_session() = 0; // This could lock the chip's RF interface
+    virtual void start_session(bool force = true) = 0; // This could lock the chip's RF interface
 
     /**
      * End a session.
