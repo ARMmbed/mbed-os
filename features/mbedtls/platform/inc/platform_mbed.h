@@ -21,10 +21,6 @@
 #define MBEDTLS_ENTROPY_HARDWARE_ALT
 #endif
 
-#if defined(DEVICE_RTC)
-#define MBEDTLS_HAVE_TIME_DATE
-#endif
-
 #if defined(MBEDTLS_CONFIG_HW_SUPPORT)
 #include "mbedtls_device.h"
 #endif
