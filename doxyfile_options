@@ -854,7 +854,8 @@ EXCLUDE_PATTERNS       = */tools/* \
                          */mbed-client-randlib/* \
                          */nanostack/sal-stack-nanostack-eventloop/* \
                          */ble/generic/* \
-                         */ble/pal/*
+                         */ble/pal/* \
+                         */UNITTESTS/*
 
 # The EXCLUDE_SYMBOLS tag can be used to specify one or more symbol names
 # (namespaces, classes, functions, etc.) that should be excluded from the
