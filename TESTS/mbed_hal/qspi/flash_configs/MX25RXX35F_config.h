@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef MBED_QSPI_FLASH_MX25R6435F_H
-#define MBED_QSPI_FLASH_MX25R6435F_H
+#ifndef MBED_QSPI_FLASH_MX25RXX35F_H
+#define MBED_QSPI_FLASH_MX25RXX35F_H
 
 
-#define QSPI_FLASH_CHIP_STRING "macronix MX25R6435F"
+#define QSPI_FLASH_CHIP_STRING "macronix MX25RXX35F"
 
 // Command for reading status register
 #define QSPI_CMD_RDSR                           0x05
@@ -79,7 +79,7 @@
 #define QSPI_ERASE_BLOCK_32_MAX_TIME            3450000     // 3s
 #define QSPI_ERASE_BLOCK_64_MAX_TIME            4025000     // 3.5s
 
-// max frequency for basic rw operation
+// max frequency for basic rw operation (for fast mode)
 #define QSPI_COMMON_MAX_FREQUENCY               32000000
 
 #define QSPI_STATUS_REG_SIZE                    1
@@ -107,21 +107,28 @@
 #define CONFIG1_BIT_LH   (1 << 1)   // 0 = Ultra Low power mode, 1 = High performance mode
 
 
-// single quad enable flag for both dual and quad mode
-#define QUAD_ENABLE()                                                       \
+
+#define EXTENDED_SPI_ENABLE()                                               \
                                                                             \
-    uint8_t reg_data[QSPI_STATUS_REG_SIZE];                                 \
+    const int32_t reg_size = QSPI_STATUS_REG_SIZE + QSPI_CONFIG_REG_0_SIZE; \
+    uint8_t reg_data[reg_size] = { 0 };                                     \
+                                                                            \
+    if (read_register(STATUS_REG, reg_data,                                 \
+            QSPI_STATUS_REG_SIZE, qspi) != QSPI_STATUS_OK) {                \
+        return QSPI_STATUS_ERROR;                                           \
+    }                                                                       \
+    if (read_register(CONFIG_REG0, reg_data + QSPI_STATUS_REG_SIZE,         \
+            QSPI_CONFIG_REG_0_SIZE, qspi) != QSPI_STATUS_OK) {              \
+        return QSPI_STATUS_ERROR;                                           \
+    }                                                                       \
                                                                             \
     if (write_enable(qspi) != QSPI_STATUS_OK) {                             \
         return QSPI_STATUS_ERROR;                                           \
     }                                                                       \
-    WAIT_FOR(WRSR_MAX_TIME, qspi);                                          \
                                                                             \
     reg_data[0] = STATUS_BIT_QE;                                            \
-    qspi.cmd.build(QSPI_CMD_WRSR);                                          \
-                                                                            \
-    if (qspi_command_transfer(&qspi.handle, qspi.cmd.get(),                 \
-            reg_data, QSPI_STATUS_REG_SIZE, NULL, 0) != QSPI_STATUS_OK) {   \
+    if (write_register(QSPI_CMD_WRSR, reg_data,                             \
+            reg_size, qspi) != QSPI_STATUS_OK) {                            \
         return QSPI_STATUS_ERROR;                                           \
     }                                                                       \
     WAIT_FOR(WRSR_MAX_TIME, qspi);                                          \
@@ -137,20 +144,28 @@
 
 
 
-#define QUAD_DISABLE()                                                      \
+#define EXTENDED_SPI_DISABLE()                                              \
                                                                             \
-    uint8_t reg_data[QSPI_STATUS_REG_SIZE];                                 \
+    const int32_t reg_size = QSPI_STATUS_REG_SIZE + QSPI_CONFIG_REG_0_SIZE; \
+    uint8_t reg_data[reg_size] = { 0 };                                     \
+                                                                            \
+    if (read_register(STATUS_REG, reg_data,                                 \
+            QSPI_STATUS_REG_SIZE, qspi) != QSPI_STATUS_OK) {                \
+        return QSPI_STATUS_ERROR;                                           \
+    }                                                                       \
+    if (read_register(CONFIG_REG0, reg_data + QSPI_STATUS_REG_SIZE,         \
+            QSPI_CONFIG_REG_0_SIZE, qspi) != QSPI_STATUS_OK) {              \
+        return QSPI_STATUS_ERROR;                                           \
+    }                                                                       \
                                                                             \
     if (write_enable(qspi) != QSPI_STATUS_OK) {                             \
         return QSPI_STATUS_ERROR;                                           \
     }                                                                       \
-    WAIT_FOR(WRSR_MAX_TIME, qspi);                                          \
                                                                             \
-    reg_data[0] = 0;                                                        \
-    qspi.cmd.build(QSPI_CMD_WRSR);                                          \
+    reg_data[0] &= ~(STATUS_BIT_QE);                                        \
                                                                             \
-    if (qspi_command_transfer(&qspi.handle, qspi.cmd.get(),                 \
-            reg_data, QSPI_STATUS_REG_SIZE, NULL, 0) != QSPI_STATUS_OK) {   \
+    if (write_register(QSPI_CMD_WRSR, reg_data,                             \
+            reg_size, qspi) != QSPI_STATUS_OK) {                            \
         return QSPI_STATUS_ERROR;                                           \
     }                                                                       \
     WAIT_FOR(WRSR_MAX_TIME, qspi);                                          \
@@ -181,12 +196,59 @@
         return QSPI_STATUS_ERROR;                                           \
     }                                                                       \
                                                                             \
-    reg_data[2] |= CONFIG1_BIT_LH;                                          \
-    qspi.cmd.build(QSPI_CMD_WRSR);                                          \
+    if (write_enable(qspi) != QSPI_STATUS_OK) {                             \
+        return QSPI_STATUS_ERROR;                                           \
+    }                                                                       \
                                                                             \
-    return qspi_command_transfer(&qspi.handle, qspi.cmd.get(),              \
-                                    reg_data, reg_size, NULL, 0)
+    reg_data[2] |= CONFIG1_BIT_LH;                                          \
+    if (write_register(QSPI_CMD_WRSR, reg_data,                             \
+            reg_size, qspi) != QSPI_STATUS_OK) {                            \
+        return QSPI_STATUS_ERROR;                                           \
+    }                                                                       \
+    WAIT_FOR(WRSR_MAX_TIME, qspi);                                          \
+                                                                            \
+    if (read_register(CONFIG_REG0, reg_data,                                \
+            QSPI_CONFIG_REG_0_SIZE, qspi) != QSPI_STATUS_OK) {              \
+        return QSPI_STATUS_ERROR;                                           \
+    }                                                                       \
+                                                                            \
+    return ((reg_data[1] & CONFIG1_BIT_LH) != 0 ?                           \
+            QSPI_STATUS_OK : QSPI_STATUS_ERROR)
 
 
+#define FAST_MODE_DISABLE()                                                 \
+                                                                            \
+    qspi_status_t ret;                                                      \
+    const int32_t reg_size = QSPI_STATUS_REG_SIZE + QSPI_CONFIG_REG_0_SIZE; \
+    uint8_t reg_data[reg_size];                                             \
+                                                                            \
+    if (read_register(STATUS_REG, reg_data,                                 \
+            QSPI_STATUS_REG_SIZE, qspi) != QSPI_STATUS_OK) {                \
+        return QSPI_STATUS_ERROR;                                           \
+    }                                                                       \
+    if (read_register(CONFIG_REG0, reg_data + QSPI_STATUS_REG_SIZE,         \
+            QSPI_CONFIG_REG_0_SIZE, qspi) != QSPI_STATUS_OK) {              \
+        return QSPI_STATUS_ERROR;                                           \
+    }                                                                       \
+                                                                            \
+    if (write_enable(qspi) != QSPI_STATUS_OK) {                             \
+        return QSPI_STATUS_ERROR;                                           \
+    }                                                                       \
+                                                                            \
+    reg_data[2] &= ~(CONFIG1_BIT_LH);                                       \
+    if (write_register(QSPI_CMD_WRSR, reg_data,                             \
+            reg_size, qspi) != QSPI_STATUS_OK) {                            \
+        return QSPI_STATUS_ERROR;                                           \
+    }                                                                       \
+    WAIT_FOR(WRSR_MAX_TIME, qspi);                                          \
+                                                                            \
+    if (read_register(CONFIG_REG0, reg_data,                                \
+            QSPI_CONFIG_REG_0_SIZE, qspi) != QSPI_STATUS_OK) {              \
+        return QSPI_STATUS_ERROR;                                           \
+    }                                                                       \
+                                                                            \
+    return ((reg_data[1] & CONFIG1_BIT_LH) == 0 ?                           \
+            QSPI_STATUS_OK : QSPI_STATUS_ERROR)
 
-#endif // MBED_QSPI_FLASH_MX25R6435F_H
+
+#endif // MBED_QSPI_FLASH_MX25RXX35F_H
