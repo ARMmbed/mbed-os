@@ -163,7 +163,7 @@ private:
     static void s_polling_callback(nfc_transceiver_t *pTransceiver, nfc_err_t ret, void *pUserData);
 
     // Implementation of NFCControllerDriver::Delegate
-    void on_hw_interrupt();
+    virtual void on_hw_interrupt();
 
     // Triggers when scheduler must be run again
     void on_timeout();
