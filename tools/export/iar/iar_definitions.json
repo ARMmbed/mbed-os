@@ -317,5 +317,10 @@
     },
     "STM32L432KC": {
         "OGChipSelectEditMenu": "STM32L432KC\tST STM32L432KC"
+    },
+    "TMPM4G9F15FG":{
+        "OGChipSelectEditMenu": "TMPM4G9F15FG\tToshiba TMPM4G9F15FG",
+        "GFPUCoreSlave": 25,
+        "GBECoreSlave": 25
     }
 }
