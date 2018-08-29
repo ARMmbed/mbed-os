@@ -113,6 +113,16 @@ struct SingletonPtr {
         return get();
     }
 
+    /** Get a reference to the underlying singleton
+     *
+     * @returns
+     *   A reference to the singleton
+     */
+    T &operator*()
+    {
+        return *get();
+    }
+
     // This is zero initialized when in global scope
     T *_ptr;
     // Force data to be 4 byte aligned
