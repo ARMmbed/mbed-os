@@ -27,13 +27,7 @@
 static void press_power_button(int time_us)
 {
     gpio_t gpio;
-
-#if defined(TARGET_UBLOX_C030_R410M)
-    gpio_init_inout(&gpio, MDMPWRON, PIN_OUTPUT, OpenDrain, 0);
-#else
-    gpio_init_inout(&gpio, MDMPWRON, PIN_OUTPUT, OpenDrainNoPull, 1);
-#endif
-
+    gpio_init_out_ex(&gpio, MDMPWRON, 1);
     wait_us(time_us);
     gpio_write(&gpio, 0);
 }
@@ -45,71 +39,52 @@ void onboard_modem_init()
     // Take us out of reset
     gpio_init_inout(&gpio, RADIO_PWR, PIN_OUTPUT, PushPullNoPull,   1);
     gpio_init_inout(&gpio, BUF_EN, PIN_OUTPUT, OpenDrainNoPull,   0);
-    gpio_init_inout(&gpio, MDMRST,  PIN_OUTPUT, OpenDrainNoPull,  0);
-    gpio_init_inout(&gpio, MDMPWRON, PIN_OUTPUT, OpenDrainNoPull, 0);
+    gpio_init_out_ex(&gpio, MDMRST, 0);
+    gpio_init_out_ex(&gpio, MDMPWRON, 0);
     gpio_init_inout(&gpio, RADIO_DTR, PIN_OUTPUT, OpenDrainNoPull, 0);
 }
 
 void onboard_modem_deinit()
 {
+    onboard_modem_power_down();
     gpio_t gpio;
 
     // Back into reset
-    gpio_init_inout(&gpio, MDMRST,PIN_OUTPUT, OpenDrainNoPull, 1);
+    gpio_init_out_ex(&gpio, MDMRST, 1);
+    gpio_init_out_ex(&gpio, MDMPWRON, 1);    
     gpio_init_inout(&gpio, BUF_EN, PIN_OUTPUT, OpenDrainNoPull,   1);
     gpio_init_inout(&gpio, RADIO_PWR, PIN_OUTPUT, PushPullNoPull,   0);
     gpio_init_inout(&gpio, RADIO_DTR, PIN_OUTPUT, OpenDrainNoPull, 1);
 }
 
-
-
-
 void onboard_modem_power_up()
 {
-#if defined(TARGET_UBLOX_C030_R410M)
-	/* keep the power line low for 1 seconds */
-    press_power_button(1000000);
-#else
-	/* keep the power line low for 50 microseconds */
+    onboard_modem_init();
+
     gpio_t gpio;
     gpio_init_in(&gpio, MON_1V8);
 
-	if(gpio_is_connected(&gpio) != 0 && gpio_read(&gpio) != 0) {
+	if(gpio_is_connected(&gpio) && !gpio_read(&gpio)) {
 		unsigned int i = 0;
-		while(i < 5)
+		while(i < 3)
 		{
-			press_power_button( 2000000);
-			wait_ms(1000);
-			onboard_modem_deinit();
-			wait_ms(1000);
-			onboard_modem_init();
+			press_power_button(150000);
 			wait_ms(250);
 
-			if(gpio_is_connected(&gpio) != 0 && gpio_read(&gpio) == 0)
+			if(gpio_read(&gpio))
 			{
 				break;
 			}
 			i++;
 		}
 	}
-
-    press_power_button( 2000000);
-
-#endif
-
-    /* give modem a little time to respond */
-    wait_ms(500);
 }
 
 void onboard_modem_power_down()
 {
-#if defined(TARGET_UBLOX_C030_R410M)
-	/* keep the power line low for 1.5 seconds */
+	/* Activate PWR_ON for 1.5s to switch off */
     press_power_button(1500000);
-#else
-	/* keep the power line low for 1 seconds */
-    press_power_button(300000);
-#endif
+    // check for 1.8v low if not, take reset low for 10s    
 }
 
 #endif //MODEM_ON_BOARD

@@ -26,20 +26,8 @@ void ublox_board_init(void) {
     gpio_init_inout(&gpio, VUSB_EN, PIN_OUTPUT, OpenDrainNoPull, 0);
     
     // start with modem disabled 
-    gpio_init_out_ex(&gpio, MDMRST,    1);
-#if defined(TARGET_UBLOX_C030_R410M)
-    gpio_init_inout(&gpio, MDMPWRON, PIN_OUTPUT, OpenDrain, 0);
-#else
-    gpio_init_inout(&gpio, MDMPWRON,  PIN_OUTPUT, OpenDrainNoPull, 0);
-#endif
-    gpio_init_out_ex(&gpio, MDMRTS,    1);
-    //gpio_init_in_ex(&gpio,  MDMCURRENTSENSE, PullNone);
-
-#if !defined (TARGET_UBLOX_C030_R410M)
-    // start with GNSS disabled, this is ONLY TEMPORARY and that once the HW issue with the GNSSEN pin on the R410M board is resolved then this line will become default for all platforms.
-    // gpio_init_inout(&gpio,  GNSSEN,  PIN_OUTPUT, PushPullNoPull, 0);
-#endif
-
+    gpio_init_out_ex(&gpio, MDMRST, 1);
+    gpio_init_out_ex(&gpio, MDMPWRON, 0);
 }
 
 // End Of File
