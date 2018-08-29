@@ -47,7 +47,7 @@ AT_CellularPower *TELIT_HE910::open_power_impl(ATHandler &at)
     return new TELIT_HE910_CellularPower(at);
 }
 
-uint16_t TELIT_HE910::get_send_delay()
+uint16_t TELIT_HE910::get_send_delay() const
 {
     return DEFAULT_DELAY_BETWEEN_AT_COMMANDS;
 }

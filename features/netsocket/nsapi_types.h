@@ -69,6 +69,7 @@ typedef enum nsapi_connection_status {
     NSAPI_STATUS_GLOBAL_UP          = 1,        /*!< global IP address set */
     NSAPI_STATUS_DISCONNECTED       = 2,        /*!< no connection to network */
     NSAPI_STATUS_CONNECTING         = 3,        /*!< connecting to network */
+    NSAPI_STATUS_RECONNECTING       = 4,        /*!< reconnecting to network */
     NSAPI_STATUS_ERROR_UNSUPPORTED  = NSAPI_ERROR_UNSUPPORTED
 } nsapi_connection_status_t;
 

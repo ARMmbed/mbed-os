@@ -18,10 +18,13 @@
 #ifndef EASY_CELLULAR_CONNECTION_H
 #define EASY_CELLULAR_CONNECTION_H
 
-#include "CellularConnectionFSM.h"
+#include "CellularStateMachine.h"
+
 #if defined(CELLULAR_DEVICE) || defined(DOXYGEN_ONLY)
 
-#include "netsocket/CellularBase.h"
+#include "CellularDevice.h"
+#include "UARTSerial.h"
+#include "CellularBase.h"
 
 #define USE_APN_LOOKUP (MBED_CONF_CELLULAR_USE_APN_LOOKUP || (NSAPI_PPP_AVAILABLE && MBED_CONF_PPP_CELL_IFACE_APN_LOOKUP))
 
@@ -34,7 +37,7 @@ namespace mbed {
 class EasyCellularConnection: public CellularBase {
 
 public:
-    EasyCellularConnection(bool debug = false);
+    EasyCellularConnection(CellularDevice *device = CellularDevice::get_default_instance());
     virtual ~EasyCellularConnection();
 
 public:
@@ -140,7 +143,7 @@ public:
      *
      * @return cellular device
      */
-    CellularDevice *get_device();
+    CellularDevice *get_device() const;
 
     /** Get the UART serial file handle used by cellular subsystem
      *
@@ -157,26 +160,19 @@ protected:
     virtual NetworkStack *get_stack();
 
 private:
-    /** Callback for cellular status changes
-     *
-     *  @return true to continue state machine
-     */
-    bool cellular_status(int state, int next_state);
     void network_callback(nsapi_event_t ev, intptr_t ptr);
     nsapi_error_t init();
     nsapi_error_t check_connect();
 
-    bool _is_connected;
     bool _is_initialized;
     bool _stm_error;
 #if USE_APN_LOOKUP
     bool _credentials_set;
 #endif // #if USE_APN_LOOKUP
-    CellularConnectionFSM::CellularState _target_state;
 
-    UARTSerial _cellularSerial;
-    rtos::Semaphore _cellularSemaphore;
-    CellularConnectionFSM *_cellularConnectionFSM;
+    UARTSerial _serial;
+    CellularDevice *_device;
+    CellularNetwork* _network;
     nsapi_error_t _credentials_err;
     Callback<void(nsapi_event_t, intptr_t)> _status_cb;
 };

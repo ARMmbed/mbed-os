@@ -35,7 +35,7 @@ protected: // AT_CellularDevice
     virtual AT_CellularPower *open_power_impl(ATHandler &at);
 
 public: // from CellularDevice
-    virtual uint16_t get_send_delay();
+    virtual uint16_t get_send_delay() const;
 };
 } // namespace mbed
 #endif /* CELLULAR_TARGETS_TELIT_HE910_TELIT_HE910_H_ */

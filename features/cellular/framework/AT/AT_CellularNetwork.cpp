@@ -160,17 +160,22 @@ void AT_CellularNetwork::read_reg_params_and_compare(RegistrationType type)
     if (_at.get_last_error() == NSAPI_ERROR_OK && _connection_status_cb) {
         tr_debug("type: %d, status: %d, lac: %d, cellID: %d, act: %d", type, reg_params._status, reg_params._lac, reg_params._cell_id, reg_params._act);
         _reg_params._type = type;
+	cell_callback_data_t data;
+        data.error = NSAPI_ERROR_OK;
         if (reg_params._act != _reg_params._act) {
             _reg_params._act = reg_params._act;
-            _connection_status_cb((nsapi_event_t)CellularRadioAccessTechnologyChanged, _reg_params._act);
+			data.status_data = reg_params._act;
+            _connection_status_cb((nsapi_event_t)CellularRadioAccessTechnologyChanged, (intptr_t)&data);
         }
         if (reg_params._status != _reg_params._status) {
             _reg_params._status = reg_params._status;
-            _connection_status_cb((nsapi_event_t)CellularRegistrationStatusChanged, _reg_params._status);
+			data.status_data = reg_params._status;
+            _connection_status_cb((nsapi_event_t)CellularRegistrationStatusChanged, (intptr_t)&data);
         }
         if (reg_params._cell_id != -1 && reg_params._cell_id != _reg_params._cell_id) {
             _reg_params._cell_id = reg_params._cell_id;
-            _connection_status_cb((nsapi_event_t)CellularCellIDChanged, _reg_params._cell_id);
+			data.status_data = reg_params._cell_id;
+            _connection_status_cb((nsapi_event_t)CellularCellIDChanged, (intptr_t)&data);
         }
     }
 }

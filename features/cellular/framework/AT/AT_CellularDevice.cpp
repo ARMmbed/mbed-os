@@ -29,13 +29,20 @@ using namespace mbed;
 #define DEFAULT_AT_TIMEOUT 1000 // at default timeout in milliseconds
 
 AT_CellularDevice::AT_CellularDevice(EventQueue &queue) :
-    _atHandlers(0), _network(0), _sms(0), _sim(0), _power(0), _information(0), _queue(queue),
+    _atHandlers(0), _network(0), _sms(0), _sim(0), _power(0), _information(0), _at_queue(queue),
     _default_timeout(DEFAULT_AT_TIMEOUT), _modem_debug_on(false)
 {
 }
 
 AT_CellularDevice::~AT_CellularDevice()
 {
+    // make sure that all is deleted even if somewhere close was not called and reference counting is messed up.
+    _network_ref_count = 1;
+    _sms_ref_count = 1;
+    _power_ref_count = 1;
+    _sim_ref_count = 1;
+    _info_ref_count = 1;
+
     close_network();
     close_sms();
     close_power();
@@ -52,7 +59,7 @@ AT_CellularDevice::~AT_CellularDevice()
 
 events::EventQueue *AT_CellularDevice::get_queue() const
 {
-    return &_queue;
+    return &_at_queue;
 }
 
 // each parser is associated with one filehandle (that is UART)
@@ -70,7 +77,7 @@ ATHandler *AT_CellularDevice::get_at_handler(FileHandle *fileHandle)
         atHandler = atHandler->_nextATHandler;
     }
 
-    atHandler = new ATHandler(fileHandle, _queue, _default_timeout, "\r", get_send_delay());
+    atHandler = new ATHandler(fileHandle, _at_queue, _default_timeout, "\r", get_send_delay());
     if (_modem_debug_on) {
         atHandler->set_debug(_modem_debug_on);
     }
@@ -278,7 +285,7 @@ void AT_CellularDevice::set_timeout(int timeout)
     }
 }
 
-uint16_t AT_CellularDevice::get_send_delay()
+uint16_t AT_CellularDevice::get_send_delay() const
 {
     return 0;
 }

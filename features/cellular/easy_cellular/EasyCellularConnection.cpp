@@ -22,10 +22,8 @@
 #include "nsapi_ppp.h"
 #endif
 
-#include "CellularConnectionFSM.h"
-#include "CellularDevice.h"
-
 #include "EasyCellularConnection.h"
+#include "CellularSIM.h"
 #include "CellularLog.h"
 #include "mbed_wait_api.h"
 
@@ -35,63 +33,26 @@
 
 namespace mbed {
 
-bool EasyCellularConnection::cellular_status(int state, int next_state)
-{
-    tr_info("cellular_status: %s ==> %s", _cellularConnectionFSM->get_state_string((CellularConnectionFSM::CellularState)state),
-            _cellularConnectionFSM->get_state_string((CellularConnectionFSM::CellularState)next_state));
-
-    if (_target_state == state) {
-        tr_info("Target state reached: %s", _cellularConnectionFSM->get_state_string(_target_state));
-        (void)_cellularSemaphore.release();
-        return false; // return false -> state machine is halted
-    }
-
-    // only in case of an error or when connected is reached state and next_state can be the same.
-    // Release semaphore to return application instead of waiting for semaphore to complete.
-    if (state == next_state) {
-        tr_error("cellular_status: state and next_state are same, release semaphore as this is an error in state machine");
-        _stm_error = true;
-        (void)_cellularSemaphore.release();
-        return false; // return false -> state machine is halted
-    }
-
-    return true;
-}
-
 void EasyCellularConnection::network_callback(nsapi_event_t ev, intptr_t ptr)
 {
-    if (ev == NSAPI_EVENT_CONNECTION_STATUS_CHANGE) {
-        if (ptr == NSAPI_STATUS_GLOBAL_UP) {
-            _is_connected = true;
-        } else {
-            _is_connected = false;
-        }
-    }
+    // forward to application
     if (_status_cb) {
         _status_cb(ev, ptr);
     }
 }
 
-EasyCellularConnection::EasyCellularConnection(bool debug) :
-    _is_connected(false), _is_initialized(false), _stm_error(false),
-    _target_state(CellularConnectionFSM::STATE_POWER_ON),
-    _cellularSerial(MDMTXD, MDMRXD, MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE), _cellularSemaphore(0),
-    _cellularConnectionFSM(0), _credentials_err(NSAPI_ERROR_OK), _status_cb(0)
+EasyCellularConnection::EasyCellularConnection(CellularDevice *device) : _is_initialized(false),
+        _serial(MDMTXD, MDMRXD, MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE), _device(device),
+        _credentials_err(NSAPI_ERROR_OK), _status_cb(0)
 {
-    tr_info("EasyCellularConnection()");
 #if USE_APN_LOOKUP
     _credentials_set = false;
 #endif // #if USE_APN_LOOKUP
-    modem_debug_on(debug);
 }
 
 EasyCellularConnection::~EasyCellularConnection()
 {
-    if (_cellularConnectionFSM) {
-        _cellularConnectionFSM->set_callback(NULL);
-        _cellularConnectionFSM->attach(NULL);
-        delete _cellularConnectionFSM;
-    }
+
 }
 
 nsapi_error_t EasyCellularConnection::init()
@@ -100,18 +61,20 @@ nsapi_error_t EasyCellularConnection::init()
     _stm_error = false;
     if (!_is_initialized) {
 #if defined (MDMRTS) && defined (MDMCTS)
-        _cellularSerial.set_flow_control(SerialBase::RTSCTS, MDMRTS, MDMCTS);
+        _serial.set_flow_control(SerialBase::RTSCTS, MDMRTS, MDMCTS);
 #endif
-        _cellularConnectionFSM = new CellularConnectionFSM();
-        _cellularConnectionFSM->set_serial(&_cellularSerial);
-        _cellularConnectionFSM->set_callback(callback(this, &EasyCellularConnection::cellular_status));
-
-        err = _cellularConnectionFSM->init();
-
-        if (err == NSAPI_ERROR_OK) {
-            err = _cellularConnectionFSM->start_dispatch();
-            _cellularConnectionFSM->attach(callback(this, &EasyCellularConnection::network_callback));
+        err = _device->init_stm(&_serial);
+        if (err != NSAPI_ERROR_OK) {
+            return NSAPI_ERROR_NO_MEMORY;
         }
+
+        err = _device->start_dispatch();
+        if (err != NSAPI_ERROR_OK) {
+            return NSAPI_ERROR_NO_MEMORY;
+        }
+
+        _network = _device->open_network(&_serial);
+        _device->attach(callback(this, &EasyCellularConnection::network_callback));
         _is_initialized = true;
     }
 
@@ -126,39 +89,29 @@ void EasyCellularConnection::set_credentials(const char *apn, const char *uname,
         if (_credentials_err) {
             return;
         }
-        CellularNetwork *network = _cellularConnectionFSM->get_network();
-        if (network) {
-            _credentials_err = network->set_credentials(apn, uname, pwd);
+        _credentials_err = _device->set_credentials(apn, uname, pwd);
 #if USE_APN_LOOKUP
-            if (_credentials_err == NSAPI_ERROR_OK) {
-                _credentials_set = true;
-            }
-#endif // #if USE_APN_LOOKUP
-        } else {
-            //if get_network() returns NULL it means there was not enough memory for
-            //an AT_CellularNetwork element during CellularConnectionFSM initialization
-            tr_error("There was not enough memory during CellularConnectionFSM initialization");
+        if (_credentials_err == NSAPI_ERROR_OK) {
+            _credentials_set = true;
         }
+#endif // #if USE_APN_LOOKUP
     }
 }
 
 void EasyCellularConnection::set_sim_pin(const char *sim_pin)
 {
     if (sim_pin && strlen(sim_pin) > 0) {
-        if (!_cellularConnectionFSM) {
-            _credentials_err = init();
-
-            if (_credentials_err) {
-                return;
-            }
+        _credentials_err = init();
+        if (_credentials_err) {
+            return;
         }
-        _cellularConnectionFSM->set_sim_pin(sim_pin);
+        _device->set_sim_pin(sim_pin);
     }
 }
 
 nsapi_error_t EasyCellularConnection::connect(const char *sim_pin, const char *apn, const char *uname, const char *pwd)
 {
-    if (_is_connected) {
+    if (_device->is_connected()) {
         return NSAPI_ERROR_IS_CONNECTED;
     }
 
@@ -176,7 +129,7 @@ nsapi_error_t EasyCellularConnection::connect(const char *sim_pin, const char *a
 
 nsapi_error_t EasyCellularConnection::check_connect()
 {
-    if (_is_connected) {
+    if (_device->is_connected()) {
         return NSAPI_ERROR_IS_CONNECTED;
     }
 
@@ -199,30 +152,26 @@ nsapi_error_t EasyCellularConnection::connect()
     if (err) {
         return err;
     }
+
 #if USE_APN_LOOKUP
     if (!_credentials_set) {
-        _target_state = CellularConnectionFSM::STATE_SIM_PIN;
-        err = _cellularConnectionFSM->continue_to_state(_target_state);
+        err = _device->set_sim_ready();
         if (err == NSAPI_ERROR_OK) {
-            int sim_wait = _cellularSemaphore.wait(60 * 1000); // reserve 60 seconds to access to SIM
-            if (sim_wait != 1 || _stm_error) {
-                tr_error("NO SIM ACCESS");
-                err = NSAPI_ERROR_NO_CONNECTION;
-            } else {
-                char imsi[MAX_IMSI_LENGTH + 1];
-                wait(1); // need to wait to access SIM in some modems
-                err = _cellularConnectionFSM->get_sim()->get_imsi(imsi);
-                if (err == NSAPI_ERROR_OK) {
-                    const char *apn_config = apnconfig(imsi);
-                    if (apn_config) {
-                        const char *apn = _APN_GET(apn_config);
-                        const char *uname = _APN_GET(apn_config);
-                        const char *pwd = _APN_GET(apn_config);
-                        tr_info("Looked up APN %s", apn);
-                        err = _cellularConnectionFSM->get_network()->set_credentials(apn, uname, pwd);
-                    }
+            char imsi[MAX_IMSI_LENGTH + 1];
+            wait(1); // need to wait to access SIM in some modems
+            CellularSIM* sim = _device->open_sim(&_serial);
+            err = sim->get_imsi(imsi);
+            if (err == NSAPI_ERROR_OK) {
+                const char *apn_config = apnconfig(imsi);
+                if (apn_config) {
+                    const char *apn = _APN_GET(apn_config);
+                    const char *uname = _APN_GET(apn_config);
+                    const char *pwd = _APN_GET(apn_config);
+                    tr_info("Looked up APN %s", apn);
+                    err = _device->set_credentials(apn, uname, pwd);
                 }
             }
+            _device->close_sim();
         }
         if (err) {
             tr_error("APN lookup failed");
@@ -231,84 +180,53 @@ nsapi_error_t EasyCellularConnection::connect()
     }
 #endif // USE_APN_LOOKUP
 
-    _target_state = CellularConnectionFSM::STATE_CONNECTED;
-    err = _cellularConnectionFSM->continue_to_state(_target_state);
-    if (err == NSAPI_ERROR_OK) {
-        int ret_wait = _cellularSemaphore.wait(10 * 60 * 1000); // cellular network searching may take several minutes
-        if (ret_wait != 1 || _stm_error) {
-            tr_info("No cellular connection");
-            err = NSAPI_ERROR_NO_CONNECTION;
-        }
+    err = _device->connect();
+    if (err != NSAPI_ERROR_OK) {
+        tr_info("No cellular connection");
+        err = NSAPI_ERROR_NO_CONNECTION;
     }
-
     return err;
 }
 
 nsapi_error_t EasyCellularConnection::disconnect()
 {
     _credentials_err = NSAPI_ERROR_OK;
-    _is_connected = false;
     _is_initialized = false;
     _stm_error = false;
 #if USE_APN_LOOKUP
     _credentials_set = false;
 #endif // #if USE_APN_LOOKUP
 
-    nsapi_error_t err = NSAPI_ERROR_OK;
-    if (_cellularConnectionFSM && _cellularConnectionFSM->get_network()) {
-        err = _cellularConnectionFSM->get_network()->disconnect();
-    }
-
-    if (err == NSAPI_ERROR_OK) {
-        delete _cellularConnectionFSM;
-        _cellularConnectionFSM = NULL;
-    }
-
-    return err;
+    return _device->disconnect();
 }
 
 bool EasyCellularConnection::is_connected()
 {
-    return _is_connected;
+    return _device->is_connected();
 }
 
 const char *EasyCellularConnection::get_ip_address()
 {
-    if (_cellularConnectionFSM) {
-        CellularNetwork *network = _cellularConnectionFSM->get_network();
-        if (!network) {
-            return NULL;
-        }
-        return _cellularConnectionFSM->get_network()->get_ip_address();
-    } else {
+    if (!_network) {
         return NULL;
     }
+    return _network->get_ip_address();
 }
 
 const char *EasyCellularConnection::get_netmask()
 {
-    if (_cellularConnectionFSM) {
-        CellularNetwork *network = _cellularConnectionFSM->get_network();
-        if (!network) {
-            return NULL;
-        }
-        return network->get_netmask();
-    } else {
+    if (!_network) {
         return NULL;
     }
+    return _network->get_netmask();
 }
 
 const char *EasyCellularConnection::get_gateway()
 {
-    if (_cellularConnectionFSM) {
-        CellularNetwork *network = _cellularConnectionFSM->get_network();
-        if (!network) {
-            return NULL;
-        }
-        return network->get_gateway();
-    } else {
+    if (!_network) {
         return NULL;
     }
+    return _network->get_gateway();
 }
 
 void EasyCellularConnection::attach(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb)
@@ -318,45 +236,35 @@ void EasyCellularConnection::attach(mbed::Callback<void(nsapi_event_t, intptr_t)
 
 void EasyCellularConnection::modem_debug_on(bool on)
 {
-    if (_cellularConnectionFSM) {
-        CellularDevice *dev = _cellularConnectionFSM->get_device();
-        if (dev) {
-            dev->modem_debug_on(on);
-        }
-    }
+    _device->modem_debug_on(on);
 }
 
 void EasyCellularConnection::set_plmn(const char *plmn)
 {
     if (plmn && strlen(plmn) > 0) {
-        if (!_cellularConnectionFSM) {
+        if (!_device) {
             _credentials_err = init();
-
             if (_credentials_err) {
                 return;
             }
         }
-        _cellularConnectionFSM->set_plmn(plmn);
+        _device->set_plmn(plmn);
     }
 }
 
 NetworkStack *EasyCellularConnection::get_stack()
 {
-    if (_cellularConnectionFSM) {
-        return _cellularConnectionFSM->get_stack();
-    } else {
-        return NULL;
-    }
+    return _device->get_stack();
 }
 
-CellularDevice *EasyCellularConnection::get_device()
+CellularDevice *EasyCellularConnection::get_device() const
 {
-    return _cellularConnectionFSM->get_device();
+    return _device;
 }
 
 UARTSerial *EasyCellularConnection::get_serial()
 {
-    return &_cellularSerial;
+    return &_serial;
 }
 
 } // namespace
