@@ -39,7 +39,9 @@ const int MAX_RETRY_ARRAY_SIZE = 10;
 
 /** CellularConnectionFSM class
  *
- *  Finite State Machine for connecting to cellular network
+ *  Finite State Machine for connecting to cellular network.
+ *  By default automatic reconnecting is on. This means that when FSM gets the disconnected callback
+ *  it will try to connect automatically. Application can toggle this behavior with method set_automatic_reconnect(...)
  */
 class CellularConnectionFSM {
 public:
@@ -59,7 +61,9 @@ public:
         STATE_ATTACHING_NETWORK,
         STATE_ACTIVATING_PDP_CONTEXT,
         STATE_CONNECTING_NETWORK,
-        STATE_CONNECTED
+        STATE_CONNECTED,
+        STATE_DISCONNECTING,
+        STATE_MAX_FSM_STATE
     };
 
 public:
@@ -68,6 +72,19 @@ public:
      *  @return see nsapi_error_t, 0 on success
      */
     nsapi_error_t init();
+
+    /** By default automatic reconnecting is on. This means that when FSM gets the disconnected callback
+     *  it will try to connect automatically. By this method application can toggle this behavior.
+     *
+     *  @param do_reconnect true for automatic reconnect, false to not reconnect automatically
+     */
+    void set_automatic_reconnect(bool do_reconnect);
+
+    /** Disconnects from the cellular network.
+     *
+     *  @return NSAPI_ERROR_OK on success, negative code in case of failure
+     */
+    nsapi_error_t disconnect();
 
     /** Set serial connection for cellular device
      *  @param serial UART driver
@@ -213,6 +230,7 @@ private:
     const char *_plmn;
     bool _command_success;
     bool _plmn_network_found;
+    bool _automatic_reconnect;
 };
 
 } // namespace

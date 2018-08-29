@@ -29,6 +29,7 @@ public:
 public: //from CellularPower
     virtual nsapi_error_t set_device_ready_urc_cb(mbed::Callback<void()> callback);
     virtual void remove_device_ready_urc_cb(mbed::Callback<void()> callback);
+    virtual nsapi_error_t set_power_level(int func_level, int do_reset = 0);
 };
 
 } // namespace mbed

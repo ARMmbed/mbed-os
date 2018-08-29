@@ -83,6 +83,16 @@ EasyCellularConnection::~EasyCellularConnection()
     }
 }
 
+nsapi_error_t EasyCellularConnection::set_automatic_reconnect(bool do_reconnect)
+{
+    nsapi_error_t err = init();
+    if (err) {
+        return err;
+    }
+    _cellularConnectionFSM->set_automatic_reconnect(do_reconnect);
+    return NSAPI_ERROR_OK;
+}
+
 nsapi_error_t EasyCellularConnection::init()
 {
     nsapi_error_t err = NSAPI_ERROR_OK;
@@ -242,14 +252,12 @@ nsapi_error_t EasyCellularConnection::disconnect()
 #endif // #if USE_APN_LOOKUP
 
     nsapi_error_t err = NSAPI_ERROR_OK;
-    if (_cellularConnectionFSM && _cellularConnectionFSM->get_network()) {
-        err = _cellularConnectionFSM->get_network()->disconnect();
+    if (_cellularConnectionFSM) {
+        err = _cellularConnectionFSM->disconnect();
     }
 
-    if (err == NSAPI_ERROR_OK) {
-        delete _cellularConnectionFSM;
-        _cellularConnectionFSM = NULL;
-    }
+    delete _cellularConnectionFSM;
+    _cellularConnectionFSM = NULL;
 
     return err;
 }

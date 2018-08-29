@@ -59,7 +59,6 @@ static const uint8_t map_3gpp_errors[][2] =  {
 
 ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, int timeout, const char *output_delimiter, uint16_t send_delay) :
     _nextATHandler(0),
-    _fileHandle(fh),
     _queue(queue),
     _last_err(NSAPI_ERROR_OK),
     _last_3gpp_error(0),
@@ -69,7 +68,6 @@ ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, int timeout, const char 
     _previous_at_timeout(timeout),
     _at_send_delay(send_delay),
     _last_response_stop(0),
-    _fh_sigio_set(false),
     _processing(false),
     _ref_count(1),
     _is_fh_usable(true),
@@ -105,9 +103,7 @@ ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, int timeout, const char 
     set_tag(&_info_stop, CRLF);
     set_tag(&_elem_stop, ")");
 
-    _fileHandle->set_blocking(false);
-
-    set_filehandle_sigio();
+    set_file_handle(fh);
 }
 
 void ATHandler::set_debug(bool debug_on)
@@ -150,6 +146,17 @@ FileHandle *ATHandler::get_file_handle()
 void ATHandler::set_file_handle(FileHandle *fh)
 {
     _fileHandle = fh;
+
+    if (fh) {
+        clear_error();
+        _fileHandle->set_blocking(false);
+        _fileHandle->sigio(mbed::Callback<void()>(this, &ATHandler::event));
+    } else {
+        // is filehandle is set to NULL, prevent it's usage by settings it not usable and oh so familiar NSAPI_ERROR_DEVICE_ERROR
+        // which is checked from outside functions.
+        _is_fh_usable = false;
+        _last_err = NSAPI_ERROR_DEVICE_ERROR;
+    }
 }
 
 void ATHandler::set_is_filehandle_usable(bool usable)
@@ -243,7 +250,7 @@ void ATHandler::unlock()
 #ifdef AT_HANDLER_MUTEX
     _fileHandleMutex.unlock();
 #endif
-    if (_fileHandle->readable() || (_recv_pos < _recv_len)) {
+    if (_is_fh_usable && (_fileHandle->readable() || (_recv_pos < _recv_len))) {
         (void) _queue.call(Callback<void(void)>(this, &ATHandler::process_oob));
     }
 }
@@ -306,15 +313,6 @@ void ATHandler::process_oob()
     unlock();
 }
 
-void ATHandler::set_filehandle_sigio()
-{
-    if (_fh_sigio_set) {
-        return;
-    }
-    _fileHandle->sigio(mbed::Callback<void()>(this, &ATHandler::event));
-    _fh_sigio_set = true;
-}
-
 void ATHandler::reset_buffer()
 {
     _recv_pos = 0;
@@ -351,6 +349,9 @@ int ATHandler::poll_timeout(bool wait_for_timeout)
 
 bool ATHandler::fill_buffer(bool wait_for_timeout)
 {
+    if (!_fileHandle) {
+        return false;
+    }
     // Reset buffer when full
     if (sizeof(_recv_buff) == _recv_len) {
         tr_error("AT overflow");

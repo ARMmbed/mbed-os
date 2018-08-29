@@ -37,6 +37,14 @@ public:
     EasyCellularConnection(bool debug = false);
     virtual ~EasyCellularConnection();
 
+    /** By default automatic reconnecting is on. This means that when we get disconnected callback
+     *  we will try to connect automatically. By this method application can toggle this behavior.
+     *
+     *  @param      do_reconnect true for automatic reconnect, false to not reconnect automatically
+     *  @return     NSAPI_ERROR_OK on success, or negative error code on failure
+     */
+    nsapi_error_t set_automatic_reconnect(bool do_reconnect);
+
 public:
     /** Set the Cellular network credentials
      *

@@ -24,8 +24,6 @@
 
 namespace mbed {
 
-#define AT_NETWORK_TRIALS 5
-
 /**
  *  Class AT_CellularNetwork
  *
