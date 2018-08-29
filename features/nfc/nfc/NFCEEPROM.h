@@ -99,12 +99,12 @@ public:
      */
     void set_delegate(Delegate *delegate);
 
-private:
     // Implementation of NFCTarget
     virtual void write_ndef_message();
     virtual void read_ndef_message();
     virtual void erase_ndef_message();
 
+private:
     // Implementation of NFCEEPROMDriver::Delegate
     virtual void on_session_started(bool success);
     virtual void on_session_ended(bool success);
