@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include <cstring>
+#include <string.h>
 
 #include "nfc/ndef/common/Text.h"
 
