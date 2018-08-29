@@ -16,7 +16,7 @@
 #ifndef MBED_QSPI_FLASH_CONFIG_H
 #define MBED_QSPI_FLASH_CONFIG_H
 
-#include "../../MX25R6435F_config.h"
+#include "../../MX25RXX35F_config.h"
 
 // NRF doesn't uses read/write opcodes, instead it uses commands id's.
 // Before sending it to H/W opcodes are mapped to id's in Mbed hal qspi implementation

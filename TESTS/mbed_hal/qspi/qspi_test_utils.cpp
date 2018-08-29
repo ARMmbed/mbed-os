@@ -26,6 +26,12 @@
 #include "flash_configs/flash_configs.h"
 #include "mbed.h"
 
+static qspi_status_t extended_enable(Qspi &qspi);
+static qspi_status_t extended_disable(Qspi &qspi);
+static qspi_status_t dual_enable(Qspi &qspi);
+static qspi_status_t dual_disable(Qspi &qspi);
+static qspi_status_t quad_enable(Qspi &qspi);
+static qspi_status_t quad_disable(Qspi &qspi);
 
 void QspiCommand::configure(qspi_bus_width_t inst_width, qspi_bus_width_t addr_width,
                             qspi_bus_width_t data_width, qspi_bus_width_t alt_width,
@@ -41,6 +47,11 @@ void QspiCommand::configure(qspi_bus_width_t inst_width, qspi_bus_width_t addr_w
     _cmd.alt.bus_width = alt_width;
     _cmd.alt.size = alt_size;
     _cmd.data.bus_width = data_width;
+    _cmd.dummy_count = dummy_cycles;
+}
+
+void QspiCommand::set_dummy_cycles(int dummy_cycles)
+{
     _cmd.dummy_count = dummy_cycles;
 }
 
@@ -188,46 +199,116 @@ qspi_status_t erase(uint32_t erase_cmd, uint32_t flash_addr, Qspi &qspi)
     return qspi_command_transfer(&qspi.handle, qspi.cmd.get(), NULL, 0, NULL, 0);
 }
 
-qspi_status_t dual_enable(Qspi &qspi)
+qspi_status_t mode_enable(Qspi &qspi, qspi_bus_width_t inst_width, qspi_bus_width_t addr_width, qspi_bus_width_t data_width)
+{
+    if(is_extended_mode(inst_width, addr_width, data_width)) {
+        return extended_enable(qspi);
+    } else if(is_dual_mode(inst_width, addr_width, data_width)) {
+        return dual_enable(qspi);
+    } else if(is_quad_mode(inst_width, addr_width, data_width)) {
+        return quad_enable(qspi);
+    } else {
+        return QSPI_STATUS_OK;
+    }
+}
+
+qspi_status_t mode_disable(Qspi &qspi, qspi_bus_width_t inst_width, qspi_bus_width_t addr_width, qspi_bus_width_t data_width)
+{
+    if(is_extended_mode(inst_width, addr_width, data_width)) {
+        return extended_disable(qspi);
+    } else if(is_dual_mode(inst_width, addr_width, data_width)) {
+        return dual_disable(qspi);
+    } else if(is_quad_mode(inst_width, addr_width, data_width)) {
+        return quad_disable(qspi);
+    } else {
+        return QSPI_STATUS_OK;
+    }
+}
+
+static qspi_status_t extended_enable(Qspi &qspi)
+{
+#ifdef EXTENDED_SPI_ENABLE
+    EXTENDED_SPI_ENABLE();
+#else
+    return QSPI_STATUS_OK;
+#endif
+}
+
+static qspi_status_t extended_disable(Qspi &qspi)
+{
+#ifdef EXTENDED_SPI_DISABLE
+    EXTENDED_SPI_DISABLE();
+#else
+    return QSPI_STATUS_OK;
+#endif
+}
+
+static qspi_status_t dual_enable(Qspi &qspi)
 {
 #ifdef DUAL_ENABLE
     DUAL_ENABLE();
 #else
-    QUAD_ENABLE();
+    return QSPI_STATUS_OK;
 #endif
 }
 
-qspi_status_t dual_disable(Qspi &qspi)
+static qspi_status_t dual_disable(Qspi &qspi)
 {
 #ifdef DUAL_DISABLE
     DUAL_DISABLE();
 #else
-    QUAD_DISABLE();
+    return QSPI_STATUS_OK;
 #endif
 
 }
 
-qspi_status_t quad_enable(Qspi &qspi)
+static qspi_status_t quad_enable(Qspi &qspi)
 {
+#ifdef QUAD_ENABLE
     QUAD_ENABLE();
+#else
+    return QSPI_STATUS_OK;
+#endif
 }
 
-qspi_status_t quad_disable(Qspi &qspi)
+static qspi_status_t quad_disable(Qspi &qspi)
 {
+#ifdef QUAD_DISABLE
     QUAD_DISABLE();
+#else
+    return QSPI_STATUS_OK;
+#endif
 }
 
 qspi_status_t fast_mode_enable(Qspi &qspi)
 {
+#ifdef FAST_MODE_ENABLE
     FAST_MODE_ENABLE();
+#else
+    return QSPI_STATUS_OK;
+#endif
 }
 
-bool is_dual_cmd(qspi_bus_width_t inst_width, qspi_bus_width_t addr_width, qspi_bus_width_t data_width)
+qspi_status_t fast_mode_disable(Qspi &qspi)
 {
-    return (inst_width == QSPI_CFG_BUS_DUAL) || (addr_width == QSPI_CFG_BUS_DUAL) || (data_width == QSPI_CFG_BUS_DUAL);
+#ifdef FAST_MODE_DISABLE
+    FAST_MODE_DISABLE();
+#else
+    return QSPI_STATUS_OK;
+#endif
 }
 
-bool is_quad_cmd(qspi_bus_width_t inst_width, qspi_bus_width_t addr_width, qspi_bus_width_t data_width)
+bool is_extended_mode(qspi_bus_width_t inst_width, qspi_bus_width_t addr_width, qspi_bus_width_t data_width)
 {
-    return (inst_width == QSPI_CFG_BUS_QUAD) || (addr_width == QSPI_CFG_BUS_QUAD) || (data_width == QSPI_CFG_BUS_QUAD);
+    return (inst_width == QSPI_CFG_BUS_SINGLE) && ((addr_width != QSPI_CFG_BUS_SINGLE) || (data_width != QSPI_CFG_BUS_SINGLE));
+}
+
+bool is_dual_mode(qspi_bus_width_t inst_width, qspi_bus_width_t addr_width, qspi_bus_width_t data_width)
+{
+    return (inst_width == QSPI_CFG_BUS_DUAL) && (addr_width == QSPI_CFG_BUS_DUAL) && (data_width == QSPI_CFG_BUS_DUAL);
+}
+
+bool is_quad_mode(qspi_bus_width_t inst_width, qspi_bus_width_t addr_width, qspi_bus_width_t data_width)
+{
+    return (inst_width == QSPI_CFG_BUS_QUAD) && (addr_width == QSPI_CFG_BUS_QUAD) && (data_width == QSPI_CFG_BUS_QUAD);
 }
