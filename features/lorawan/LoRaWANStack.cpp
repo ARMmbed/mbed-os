@@ -777,6 +777,8 @@ void LoRaWANStack::process_reception(const uint8_t *const payload, uint16_t size
 
     _rejoin_type0_counter++;
 
+    bool joined = _loramac.nwk_joined();
+
     _loramac.on_radio_rx_done(payload, size, rssi, snr, callback(this, &LoRaWANStack::mlme_confirm_handler));
 
     if (_loramac.get_mlme_confirmation()->pending) {
@@ -790,7 +792,7 @@ void LoRaWANStack::process_reception(const uint8_t *const payload, uint16_t size
     }
     make_rx_metadata_available();
 
-    if (!_loramac.nwk_joined()) {
+    if (!joined) {
         _ready_for_rx = true;
         return;
     }
