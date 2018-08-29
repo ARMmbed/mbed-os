@@ -74,6 +74,13 @@ uint8_t rx_buf[DATA_SIZE_1024];
 #define QCSN   static_cast<PinName>(QSPI_FLASH1_CSN)
 
 
+static uint32_t gen_flash_address()
+{
+    srand(ticker_read(get_us_ticker_data()));
+    uint32_t address = (((uint32_t)rand()) % QSPI_SECTOR_COUNT) * QSPI_SECTOR_SIZE;
+    return address;
+}
+
 static void log_data(const char *str, uint8_t *data, uint32_t size)
 {
     utest_printf("%s: ", str);
@@ -246,6 +253,13 @@ void qspi_write_read_test(void)
 {
     qspi_status_t ret;
     Qspi qspi;
+
+    uint32_t addr = flash_addr;
+    if (addr == 0) {
+        // if no specified address selected, use random one to extend flash life
+        addr = gen_flash_address();
+    }
+
     qspi_init(&qspi.handle, QPIN_0, QPIN_1, QPIN_2, QPIN_3, QSCK, QCSN, QSPI_COMMON_MAX_FREQUENCY, 0);
 
     qspi.cmd.configure(MODE_1_1_1, ADDR_SIZE_24, ALT_SIZE_8);
@@ -270,7 +284,7 @@ void qspi_write_read_test(void)
                           write_addr_size, write_alt_size, write_frequency, write_count, read_inst_width,
                           read_addr_width, read_data_width, read_alt_width, read_cmd, read_dummy_cycles,
                           read_addr_size, read_alt_size, read_frequency, read_count, test_count,
-                          data_size, flash_addr);
+                          data_size, addr);
 
     ret = fast_mode_disable(qspi);
     TEST_ASSERT_EQUAL(QSPI_STATUS_OK, ret);

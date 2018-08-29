@@ -52,6 +52,8 @@
 #define QSPI_PAGE_PROG_MAX_TIME                 11500   // 10ms
 
 #define QSPI_PAGE_SIZE                          256     // 256B
+#define QSPI_SECTOR_SIZE                        4096    // 4kB
+#define QSPI_SECTOR_COUNT                       32      // adjusted to MX25R1035F smallest one from MX25RXX35F family
 
 // Commands for reading
 #define QSPI_CMD_READ_1IO_FAST                  0x0B   // 1-1-1 mode
