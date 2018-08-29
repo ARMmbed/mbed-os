@@ -2110,11 +2110,22 @@ def find_tests(base_dir, target_name, toolchain_name, icetea, greentea, app_conf
                     d = join(directory, test_group_directory, test_case_directory)
                     if not isdir(d) or ignoreset.is_ignored(d):
                         continue
-                if 'device' == subdir:
-                    for test_dir in os.listdir(d):
-                        test_dir_path = join(d, test_dir)
-                        test_name = test_path_to_name(test_dir_path, base_dir)
-                        tests[(test_name, directory, subdir, test_dir)] = [test_dir_path]
+                    special_dirs = ['host_tests', 'COMMON']
+                    if test_group_directory not in special_dirs and test_case_directory not in special_dirs:
+                        test_name = test_path_to_name(d, base_dir)
+                        tests[(test_name, directory, test_group_directory, test_case_directory)] = [d]
+                    if test_case_directory == 'COMMON':
+                        def predicate(base_pred, group_pred, name_base_group_case):
+                            (name, base, group, case) = name_base_group_case
+                            return base == base_pred and group == group_pred
+
+                        commons.append((functools.partial(predicate, directory, test_group_directory), d))
+                if test_group_directory == 'COMMON':
+                    def predicate(base_pred, name_base_group_case):
+                        (name, base, group, case) = name_base_group_case
+                        return base == base_pred
+
+                    commons.append((functools.partial(predicate, directory), grp_dir))
 
     if icetea:
         dirs = [d for d in base_resources.ignored_dirs if basename(d) == 'TEST_APPS']
@@ -2124,6 +2135,12 @@ def find_tests(base_dir, target_name, toolchain_name, icetea, greentea, app_conf
             for subdir in os.listdir(directory):
                 d = join(directory, subdir)
                 if not isdir(d):
+                    continue
+                if 'device' == subdir:
+                    for test_dir in os.listdir(d):
+                        test_dir_path = join(d, test_dir)
+                        test_name = test_path_to_name(test_dir_path, base_dir)
+                        tests[(test_name, directory, subdir, test_dir)] = [test_dir_path]
 
     # Apply common directories
     for pred, path in commons:
