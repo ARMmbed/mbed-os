@@ -23,16 +23,14 @@
 namespace mbed
 {
 
-class UBLOX_AT : public AT_CellularDevice
-{
-
+class UBLOX_AT : public AT_CellularDevice {
 public:
     UBLOX_AT(events::EventQueue &queue);
     virtual ~UBLOX_AT();
 
-public: // CellularDevice
-    virtual CellularNetwork *open_network(FileHandle *fh);
-    virtual CellularPower *open_power(FileHandle *fh);
+protected: // AT_CellularDevice
+    virtual AT_CellularNetwork *open_network_impl(ATHandler &at);
+    virtual AT_CellularPower *open_power_impl(ATHandler &at);
 
 public: // NetworkInterface
     void handle_urc(FileHandle *fh);

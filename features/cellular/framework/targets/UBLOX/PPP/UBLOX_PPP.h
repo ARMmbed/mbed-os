@@ -23,14 +23,13 @@
 namespace mbed {
 
 class UBLOX_PPP : public AT_CellularDevice {
-
 public:
     UBLOX_PPP(events::EventQueue &queue);
     virtual ~UBLOX_PPP();
 
-public: // CellularDevice
-    virtual CellularNetwork *open_network(FileHandle *fh);
-    virtual CellularPower *open_power(FileHandle *fh);
+protected: // AT_CellularDevice
+    virtual AT_CellularNetwork *open_network_impl(ATHandler &at);
+    virtual AT_CellularPower *open_power_impl(ATHandler &at);
 };
 
 MBED_DEPRECATED_SINCE("mbed-os-5.9", "This API will be deprecated, Use UBLOX_PPP instead of UBLOX_LISA_U.")
