@@ -28,8 +28,7 @@ extern "C" {
 #endif
 
 #include "stack/nfc_common.h"
-
-typedef struct __pn512 pn512_t;
+#include "pn512_types.h"
 
 void pn512_timer_config(pn512_t *pPN512, bool autostart, uint16_t prescaler, uint16_t countdown_value);
 

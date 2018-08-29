@@ -30,10 +30,8 @@ extern "C" {
 #include "stack/nfc_common.h"
 #include "transceiver/transceiver.h"
 
-typedef struct __pn512 pn512_t;
-
-#include "pn512_callback.h"
 #include "pn512_types.h"
+#include "pn512_callback.h"
 
 typedef enum __pn512_state {
     pn512_state_ready,

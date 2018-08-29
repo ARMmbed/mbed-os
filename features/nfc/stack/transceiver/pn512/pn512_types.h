@@ -29,9 +29,13 @@ extern "C" {
 
 #include "stack/nfc_common.h"
 
+typedef struct __pn512 pn512_t;
+
 typedef struct __pn512_registers {
     int8_t registers_page;
 } pn512_registers_t;
+
+
 
 #ifdef __cplusplus
 }

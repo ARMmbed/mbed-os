@@ -28,10 +28,9 @@ extern "C" {
 #endif
 
 #include "stack/nfc_common.h"
+#include "pn512_types.h"
 #include "pn512_callback.h"
 #include "pn512.h"
-
-typedef struct __pn512 pn512_t;
 
 nfc_err_t pn512_framing_set(pn512_t *pPN512, nfc_framing_t framing);
 
