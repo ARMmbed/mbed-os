@@ -88,7 +88,7 @@
 #define QSPI_CMD_ERASE_CHIP                     0x60    // or 0xC7
 
 // erase operations max time [us] (datasheet max time + 15%)
-#define QSPI_ERASE_SECTOR_MAX_TIME              276000      // 240 ms
+#define QSPI_ERASE_SECTOR_MAX_TIME              920000      // 0.8s
 #define QSPI_ERASE_BLOCK_32_MAX_TIME            3000000     // 3s
 #define QSPI_ERASE_BLOCK_64_MAX_TIME            3500000     // 3.5s
 
@@ -172,11 +172,5 @@
 #define QUAD_DISABLE()                                                          \
     /* TODO: add implementation */                                              \
     return QSPI_STATUS_OK
-
-
-#define FAST_MODE_ENABLE()                                                      \
-    /* TODO: add implementation */                                              \
-    return QSPI_STATUS_OK
-
 
 #endif // MBED_QSPI_FLASH_N25Q128A_H
