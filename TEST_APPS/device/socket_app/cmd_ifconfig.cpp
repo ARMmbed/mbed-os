@@ -21,12 +21,13 @@
 
 #include "ip4string.h"
 
-#ifndef MBED_CONF_APP_CONNECT_STATEMENT
+#define WIFI 2
+#if !defined(MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE) || \
+    (MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE == WIFI && !defined(MBED_CONF_NSAPI_DEFAULT_WIFI_SSID))
 #error [NOT_SUPPORTED] No network configuration found for this target.
 #endif
 
 #include <string.h>
-#include MBED_CONF_APP_HEADER_FILE
 
 #define TRACE_GROUP "Aifc"
 
@@ -86,9 +87,9 @@ int cmd_ifconfig(int argc, char *argv[])
 int cmd_ifup(int argc, char *argv[])
 {
     if (!net) {
-        net = MBED_CONF_APP_OBJECT_CONSTRUCTION;
+        net = NetworkInterface::get_default_instance();
     }
-    int err =  MBED_CONF_APP_CONNECT_STATEMENT;
+    int err =  net->connect();
     if (err != NSAPI_ERROR_OK) {
         return CMDLINE_RETCODE_FAIL;
     }

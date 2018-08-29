@@ -22,6 +22,7 @@ You need Icetea and mbed-cli that supports Icetea, installed.
 Depending on a device, there might be a default network interface type defined in the mbed-os/targets/targets.json, which is used to locate a test-config file by default. 
 If there is not, or you want to use a different interface than the default, you need to provide a relevant test-config -file to the mbed test with --test-config option.
 The test-config file contains the necessary information for the test application, there are some test-config files located under mbed-os/tools/test-configs.
+Devices which have their network drivers residing inside mbed-os can use generic test-configs like HeapBlockDeviceAndEthernetInterface.json and HeapBlockDeviceAndWifiInterface.json. Otherwise you need to use a device specific test-config.
 
 ### Running the tests
 
@@ -41,49 +42,26 @@ Some devices may offer multiple network interfaces to operate with. For example,
 The tests can be run for either one of those using already existing test-config -files.
 
 To run the tests with Wi-Fi interface:
-`>mbed test -m UBLOX_EVK_ODIN_W2 -t <toolchain> --icetea --test-config tools/test-configs/OdinInterface.json`
+`>mbed test -m UBLOX_EVK_ODIN_W2 -t <toolchain> --icetea --test-config tools/test-configs/HeapBlockDeviceAndWifiInterface.json.json`
 
 To run the tests with ethernet interface:
-`>mbed test -m UBLOX_EVK_ODIN_W2 -t <toolchain> --icetea --test-config tools/test-configs/Odin_EthernetInterface.json`
+`>mbed test -m UBLOX_EVK_ODIN_W2 -t <toolchain> --icetea --test-config tools/test-configs/HeapBlockDeviceAndEthernetInterface.json`
 
 #### Providing Wi-Fi access point information
 
 If you are using Wi-Fi interface for running the tests, you need to provide also information about the used access point.
-The information can be provided in the used test-config -file. Depending on the used interface you might need to provide ssid, password and security.
-You can either provide separate WIFI_SSID, WIFI_PASSWORD and WIFI_SECURITY macros, or provide the SSID, password and security in the connect statement provided in the test-config -file.
+The information can be provided in the used test-config -file.
 
-Example of separate macros:
+Example of access point information:
 ```
-        "wifi-ssid": {
-            "help": "WiFi SSID",
-            "value": "\"ssid\"",
-			"macro_name": "WIFI_SSID"
-        },
-        "wifi-password": {
-            "help": "WiFi Password",
-            "value": "\"password\"",
-			"macro_name": "WIFI_PASSWORD"
-        },
-        "wifi-security": {
-            "help": "WiFi Security, values from nsapi_security from features/netsocket/nsapi_types.h"
-            "value": "NSAPI_SECURITY_WPA_WPA2"
-            "macro_name": "WIFI_SECURITY"
-```
-
-Example of modifying the connect statement
-Original:
-```
-        "connect-statement" : {
-            "help" : "Must use 'net' variable name",
-            "value" : "net->wifiInterface()->connect(WIFI_SSID, WIFI_PASSWORD, WIFI_SECURITY)"
-        },
-```
-Modified:
-```
-        "connect-statement" : {
-            "help" : "Must use 'net' variable name",
-            "value" : "net->wifiInterface()->connect(\"ssid\", \"password\", NSAPI_SECURITY_WPA_WPA2)"
-        },
+    "target_overrides": {
+        "*": {
+            "target.network-default-interface-type": "WIFI",
+            "nsapi.default-wifi-ssid": "\"ssid\"",
+            "nsapi.default-wifi-password": "\"password\"",
+            "nsapi.default-wifi-security": "WPA_WPA2"
+        }
+    }
 ```
 
 ### Test results
