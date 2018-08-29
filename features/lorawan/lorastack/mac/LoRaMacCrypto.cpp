@@ -47,6 +47,7 @@ int LoRaMacCrypto::compute_mic(const uint8_t *buffer, uint16_t size,
     int ret = 0;
 
     mic_block_b0[0] = 0x49;
+
     mic_block_b0[1] = (args) & 0xFF;
     mic_block_b0[2] = (args >> 8) & 0xFF;
     mic_block_b0[3] = (args >> 16) & 0xFF;
@@ -63,6 +64,8 @@ int LoRaMacCrypto::compute_mic(const uint8_t *buffer, uint16_t size,
     mic_block_b0[11] = (seq_counter >> 8) & 0xFF;
     mic_block_b0[12] = (seq_counter >> 16) & 0xFF;
     mic_block_b0[13] = (seq_counter >> 24) & 0xFF;
+
+    mic_block_b0[14] = 0;
 
     mic_block_b0[15] = size & 0xFF;
 
