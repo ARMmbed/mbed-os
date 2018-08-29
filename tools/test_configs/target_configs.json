@@ -42,9 +42,5 @@
     "NUCLEO_F401RE": {
         "default_test_configuration": "NONE",
         "test_configurations": ["IDW0XX1_WIFI"]
-    },
-    "NCS36510": {
-        "default_test_configuration": "6LOWPAN_HOST",
-        "test_configurations": ["6LOWPAN_HOST", "6LOWPAN_ROUTER", "THREAD_ROUTER", "THREAD_END_DEVICE"]
     }
 }
