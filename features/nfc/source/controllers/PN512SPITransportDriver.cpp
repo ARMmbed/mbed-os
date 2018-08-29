@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+#include "platform/platform.h"
+
+#if (defined (DEVICE_SPI) && defined (DEVICE_INTERRUPTIN)) || defined(DOXYGEN_ONLY)
+
 #include "PN512SPITransportDriver.h"
 
 #include "stack/transceiver/transceiver.h"
@@ -109,3 +113,5 @@ void PN512SPITransportDriver::s_transport_read(uint8_t address, uint8_t *inBuf, 
     PN512SPITransportDriver *self = (PN512SPITransportDriver *)pUser;
     self->transport_read(address, inBuf, inLen);
 }
+
+#endif

@@ -39,7 +39,7 @@ public:
 
 private:
     // PN512TransportDriver::Delegate implementation
-    void on_hw_interrupt();
+    virtual void on_hw_interrupt();
 
     PN512TransportDriver *_transport_driver;
     pn512_t _pn512;
