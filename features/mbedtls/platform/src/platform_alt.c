@@ -42,7 +42,7 @@ void mbedtls_platform_teardown( mbedtls_platform_context *obsolete_ctx )
 {
 
     core_util_atomic_decr_u32( ( volatile uint32_t * )&ctx.reference_count, 1 );
-    if( ctx.reference_count <= 0 )
+    if( ctx.reference_count < 1 )
     {
         /* call platform specific code to terminate crypto driver */
         crypto_platform_terminate( &ctx.platform_impl_ctx );
