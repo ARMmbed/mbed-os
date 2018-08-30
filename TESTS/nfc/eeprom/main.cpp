@@ -28,6 +28,7 @@
 #endif
 
 using namespace utest::v1;
+using namespace mbed::nfc;
 
 /* individual steps that map to specific operations that include parameters */
 typedef enum {
