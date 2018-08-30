@@ -1082,7 +1082,7 @@ void LoRaWANStack::mlme_confirm_handler(loramac_mlme_confirm_t& mlme_confirm)
         switch (mlme_confirm.status) {
             case LORAMAC_EVENT_INFO_STATUS_OK:
                 if (_loramac.get_server_type() == LW1_1) {
-                    _rekey_ind_needed = true;
+// TODO:                     _rekey_ind_needed = true;
                     _rekey_ind_counter = 0;
                     // THIS IS NOT ALLOWED HERE!
                     // We might get JOIN_ACCEPT for rejoin type 1,
