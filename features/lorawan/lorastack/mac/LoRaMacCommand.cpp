@@ -304,7 +304,8 @@ lorawan_status_t LoRaMacCommand::process_mac_commands(const uint8_t *payload, ui
                 break;
             default:
                 // Unknown command. ABORT MAC commands processing
-                ret_value = LORAWAN_STATUS_UNSUPPORTED;
+                tr_error("Invalid MAC command (0x%X)!", payload[mac_index]);
+                return LORAWAN_STATUS_UNSUPPORTED;
         }
     }
     return ret_value;
