@@ -241,8 +241,8 @@ utest::v1::status_t testsuite_setup(const size_t number_of_cases)
 #endif
 #if DEVICE_LPTICKER && DEVICE_USTICKER
     // Make sure HAL tickers are initialized.
-    us_ticker_init();
-    lp_ticker_init();
+    ticker_read(get_us_ticker_data());
+    ticker_read(get_lp_ticker_data());
 #endif
     return utest::v1::greentea_test_setup_handler(number_of_cases);
 }
