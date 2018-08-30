@@ -185,7 +185,6 @@
 
 #define FAST_MODE_ENABLE()                                                  \
                                                                             \
-    qspi_status_t ret;                                                      \
     const int32_t reg_size = QSPI_STATUS_REG_SIZE + QSPI_CONFIG_REG_0_SIZE; \
     uint8_t reg_data[reg_size];                                             \
                                                                             \
@@ -220,7 +219,6 @@
 
 #define FAST_MODE_DISABLE()                                                 \
                                                                             \
-    qspi_status_t ret;                                                      \
     const int32_t reg_size = QSPI_STATUS_REG_SIZE + QSPI_CONFIG_REG_0_SIZE; \
     uint8_t reg_data[reg_size];                                             \
                                                                             \
