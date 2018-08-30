@@ -169,7 +169,7 @@ The user instantiates the `NFCController` class using a driver, an event queue u
 It offers the following methods:
 
 ```cpp
-void set_delegate(Delegate* delegate);
+void set_delegate(Delegate *delegate);
 ```
 
 Set the instance's delegate.
@@ -245,9 +245,9 @@ void on_discovery_terminated(nfc_discovery_terminated_reason_t reason);
 Let the user know when a discovery loop has been terminated (either because endpoints have been found, the user canceled it or an error occurred).
 
 ```cpp
-void on_nfc_initiator_discovered(const mbed::SharedPtr<NFCRemoteInitiator>& nfc_initiator);
+void on_nfc_initiator_discovered(const mbed::SharedPtr<NFCRemoteInitiator> &nfc_initiator);
 
-void on_nfc_target_discovered(const mbed::SharedPtr<NFCRemoteTarget>& nfc_target);
+void on_nfc_target_discovered(const mbed::SharedPtr<NFCRemoteTarget> &nfc_target);
 ```
 
 These methods called when a remote initiator (the local controller is acting as a target) or a remote target (the local controller is acting as an initiator) is detected.
@@ -325,14 +325,14 @@ bool is_ndef_supported() const;
 API used by descendant classes:
 
 ```cpp
-void parse_ndef_message(const ac_buffer_t& buffer);
-void build_ndef_message(ac_buffer_builder_t& buffer_builder);
-ndef_msg_t* ndef_message();
+void parse_ndef_message(const ac_buffer_t &buffer);
+void build_ndef_message(ac_buffer_builder_t &buffer_builder);
+ndef_msg_t *ndef_message();
 ```
 
 API implemented by descendant classes:
 ```cpp
-virtual NFCNDEFCapable::Delegate* ndef_capable_delegate();
+virtual NFCNDEFCapable::Delegate *ndef_capable_delegate();
 ```
 
 **Delegate**
@@ -446,13 +446,13 @@ For instance, the `URI`'s class API is:
 uri_prefix_t uri_prefix() const
 void set_uri_prefix(uri_prefix_t prefix)
 
-bool get_uri(char* uri, size_t max_sz) const
+bool get_uri(char *uri, size_t max_sz) const
 size_t uri_size() const
 void set_uri(const char* uri)
 
-bool get_full_uri(char* uri, size_t max_sz) const
+bool get_full_uri(char *uri, size_t max_sz) const
 size_t full_uri_size() const
-void set_full_uri(const char* uri)
+void set_full_uri(const char *uri)
 ```
 
 **Note:** These types can be replaced by user defined ones if parsing and serialization logic is provided.
@@ -466,8 +466,8 @@ void set_full_uri(const char* uri)
 A `MessageParser`, which produces `Record` instances to its client, parses messages incoming from the peer. The parsing operation is event-driven: A message parser client registers a delegate inside the message parser. This delegate is notified whenever an interesting event happens during the parsing.
 
 ```cpp
-void set_delegate(Delegate* delegate);
-void parse(const ac_buffer_t& data_buffer);
+void set_delegate(Delegate *delegate);
+void parse(const ac_buffer_t &data_buffer);
 ```
 
 It is important to note that the data_buffer in the entry of the parse function must contain the entire NDEF message.
@@ -476,7 +476,7 @@ It is important to note that the data_buffer in the entry of the parse function 
 
 ```cpp
 virtual void on_parsing_started() { }
-virtual void on_record_parsed(const Record& record) { }
+virtual void on_record_parsed(const Record &record) { }
 virtual void on_parsing_terminated() { }
 virtual void on_parsing_error(error_t error) { }
 ```
@@ -504,8 +504,8 @@ virtual bool parse(const Record&);
 It aggregates `RecordParser` instances and defers parsing to the instances it contains.
 
 ```cpp
-bool parse(const Record& record);
-void set_next_parser(RecordParser* parser);
+bool parse(const Record &record);
+void set_next_parser(RecordParser *parser);
 ```
 
 ##### ndef::GenericRecordParser<ParserImplementation, ParsingResult>
@@ -514,13 +514,13 @@ This is a partial implementation of the `RecordParser` interface. It exposes a d
 
 ```cpp
 bool parse(const Record&)
-void set_delegate(Delegate* delegate)
+void set_delegate(Delegate *delegate)
 ```
 
 Implementation of this class must expose the following nonvirtual function:
 
 ```c++
-bool do_parse(const Record& record, ParsingResult& parsing_result);
+bool do_parse(const Record &record, ParsingResult &parsing_result);
 ```
 
 If the parsing is successful, then it should return true and fill `parsing_result`; otherwise, it should return false and leave `parsing_result` untouched.
@@ -532,7 +532,7 @@ If the parsing is successful, then it should return true and fill `parsing_resul
 Clients of this class must implement this delegate. It receives the objects parsed.
 
 ```cpp
-virtual void on_record_parsed(const ParsingResult& record, const RecordID* id);
+virtual void on_record_parsed(const ParsingResult &record, const RecordID *id);
 ```
 
 **Note:** Usually, clients are client of an implementation of an ndef::GenericRecordParser<ParserImplementation, ParsingResult> . They can refer to the delegate as `ImplementationName::Delegate`.
@@ -544,7 +544,7 @@ virtual void on_record_parsed(const ParsingResult& record, const RecordID* id);
 Parsers for each common record type exist. They inherit from the `GenericRecordParser` to exposes a common delegate interface:
 
 ```cpp
-virtual void on_record_parsed(const <ParsedType>& result, const ndef::RecordID* id)
+virtual void on_record_parsed(const <ParsedType> &result, const ndef::RecordID *id)
 ```
 
 #### Simple parser
@@ -556,9 +556,9 @@ The APIs provide a class named `SimpleMessageParser` that glues together a `Mess
 Clients of the class can register a delegate, parse a message or add a new `RecordParser` in the parsing chain.
 
 ```cpp
-void set_delegate(Delegate* delegate);
-void parse(const ac_buffer_t& data_buffer);
-void add_record_parser(ndef::RecordParser* parser);
+void set_delegate(Delegate *delegate);
+void parse(const ac_buffer_t &data_buffer);
+void add_record_parser(ndef::RecordParser *parser);
 ```
 
 ##### Delegate
@@ -568,10 +568,10 @@ Clients of this class must implement this delegate. It receives events from the 
 ```cpp
 virtual void on_parsing_error(ndef::MessageParser::error_t error);
 virtual void on_parsing_started();
-virtual void on_text_parsed(const Text& text, const ndef::RecordID* id);
-virtual void on_mime_parsed(const Mime& text, const ndef::RecordID* id);
-virtual void on_uri_parsed(const URI& uri, const ndef::RecordID* id);
-virtual void on_unknown_record_parsed(const ndef::Record& record);
+virtual void on_text_parsed(const Text& text, const ndef::RecordID *id);
+virtual void on_mime_parsed(const Mime& text, const ndef::RecordID *id);
+virtual void on_uri_parsed(const URI& uri, const ndef::RecordID *id);
+virtual void on_unknown_record_parsed(const ndef::Record &record);
 virtual void on_parsing_terminated();
 ```
 
@@ -605,7 +605,7 @@ size_t get_max_size();
 void start_session(bool force = true);
 void end_session();
 void read_bytes(uint32_t address, size_t count);
-void write_bytes(uint32_t address, const uint8_t* bytes, size_t count);
+void write_bytes(uint32_t address, const uint8_t *bytes, size_t count);
 void read_size(size_t count);
 void write_size();
 void erase_bytes(uint32_t address, size_t size)
