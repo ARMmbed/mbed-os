@@ -36,7 +36,6 @@ typedef struct {
 mbedtls_platform_context;
 
 
-void mbedtls_platform_init( mbedtls_platform_context* ctx);
 /**
  * \brief   This function performs any platform initialization operations,
  *          needed for setting up cryptographic modules.
