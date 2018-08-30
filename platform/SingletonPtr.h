@@ -43,6 +43,10 @@ extern osMutexId_t singleton_mutex_id;
 inline static void singleton_lock(void)
 {
 #ifdef MBED_CONF_RTOS_PRESENT
+    if (!singleton_mutex_id) {
+        // RTOS has not booted yet so no mutex is needed
+        return;
+    }
     osMutexAcquire(singleton_mutex_id, osWaitForever);
 #endif
 }
@@ -56,6 +60,10 @@ inline static void singleton_lock(void)
 inline static void singleton_unlock(void)
 {
 #ifdef MBED_CONF_RTOS_PRESENT
+    if (!singleton_mutex_id) {
+        // RTOS has not booted yet so no mutex is needed
+        return;
+    }
     osMutexRelease(singleton_mutex_id);
 #endif
 }
