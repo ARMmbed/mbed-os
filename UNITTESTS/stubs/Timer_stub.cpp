@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Arm Limited and affiliates.
+ * Copyright (c) , Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,20 +15,60 @@
  * limitations under the License.
  */
 
-#ifndef MBED_H
-#define MBED_H
-
-#include <cstdio>
-#include <cstring>
-
-#include "events/mbed_events.h"
-#include "events/mbed_shared_queues.h"
+#include "Timer.h"
+#include "Timer_stub.h"
 
 namespace mbed {
-#include "platform/Callback.h"
-};
 
-using namespace mbed;
-using namespace std;
+Timer::Timer()
+{
+}
 
-#endif // MBED_H
+Timer::Timer(const ticker_data_t *data)
+{
+}
+
+Timer::~Timer()
+{
+}
+
+void Timer::start()
+{
+}
+
+void Timer::stop()
+{
+    ;
+}
+
+int Timer::read_us()
+{
+    return 0;
+}
+
+float Timer::read()
+{
+    return 0;
+}
+
+int Timer::read_ms()
+{
+    timer_stub_value += timer_stub_step;
+    return timer_stub_value;
+}
+
+us_timestamp_t Timer::read_high_resolution_us()
+{
+    return 0;
+}
+
+void Timer::reset()
+{
+}
+
+Timer::operator float()
+{
+    return 0;
+}
+
+} // namespace mbed

@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+#include <cstddef>
 #include "rtos/EventFlags.h"
 
 rtos::EventFlags::EventFlags() {}

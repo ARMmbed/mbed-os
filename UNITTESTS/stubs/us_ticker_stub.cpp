@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Arm Limited and affiliates.
+ * Copyright (c) , Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,20 +15,40 @@
  * limitations under the License.
  */
 
-#ifndef MBED_H
-#define MBED_H
 
-#include <cstdio>
-#include <cstring>
+#include "stdlib.h"
+#include "us_ticker_api.h"
 
-#include "events/mbed_events.h"
-#include "events/mbed_shared_queues.h"
+const ticker_data_t *get_us_ticker_data(void)
+{
+    return NULL;
+}
 
-namespace mbed {
-#include "platform/Callback.h"
-};
+void us_ticker_irq_handler(void)
+{
+}
 
-using namespace mbed;
-using namespace std;
+void us_ticker_init(void)
+{
+}
 
-#endif // MBED_H
+uint32_t us_ticker_read(void)
+{
+    return 0;
+}
+
+void us_ticker_set_interrupt(timestamp_t timestamp)
+{
+}
+
+void us_ticker_disable_interrupt(void)
+{
+}
+
+void us_ticker_clear_interrupt(void)
+{
+}
+
+void us_ticker_fire_interrupt(void)
+{
+}
