@@ -2,16 +2,16 @@
 
 abstract class NFCNDEFCapable {
   +{abstract} bool is_ndef_supported() const
-  +void set_ndef_delegate(Delegate* parser)
 
   #void parse_ndef_message(const ac_buffer_t& buffer)
   #void build_ndef_message(ac_buffer_builder_t& buffer_builder)
   #ndef_msg_t* ndef_message()
+  #{abstract} NFCNDEFCapable::Delegate* ndef_capable_delegate()
 }
 
 abstract class NFCNDEFCapable::Delegate {
-  +{abstract} void parse_ndef_message(const uint8_t* buffer, size_t size)
-  +{abstract} size_t build_ndef_message(uint8_t* buffer, size_t capacity)
+  +{abstract} void parse_ndef_message(const Span<const uint8_t> &buffer)
+  +{abstract} size_t build_ndef_message(const Span<uint8_t> &buffer)
 }
 
 abstract class NFCRemoteEndpoint {
@@ -39,6 +39,9 @@ abstract class NFCTarget::Delegate {
   +{abstract} void on_ndef_message_read(nfc_err_t result)
 }
 
+NFCNDEFCapable <-- NFCTarget
+NFCNDEFCapable::Delegate <-- NFCTarget::Delegate
+
 class NFCEEPROM {
   +nfc_err_t initialize()
   +void set_delegate(NFCEEPROM::Delegate* delegate)
@@ -54,14 +57,14 @@ abstract class NFCEEPROMDriver {
 
   +{abstract} void reset()
   +{abstract} size_t get_max_size()
-  +{abstract} void start_session()
+  +{abstract} void start_session(bool force = true)
   +{abstract} void end_session()
   +{abstract} void read_bytes(uint32_t address, size_t count)
   +{abstract} void write_bytes(uint32_t address, const uint8_t* bytes, size_t count)
   +{abstract} void write_size(size_t count)
   +{abstract} void read_size()
   +{abstract} void erase_bytes(uint32_t address, size_t size)
-  #Delegate *delegate()
+  #NFCEEPROMDriver::Delegate *delegate()
   #events::EventQueue *event_queue()
 }
 
@@ -75,7 +78,6 @@ abstract class NFCEEPROMDriver::Delegate {
   +{abstract} void on_bytes_erased(size_t count)
 }
 
-NFCNDEFCapable <-- NFCTarget
 NFCTarget <-- NFCEEPROM
 NFCTarget::Delegate <-- NFCEEPROM::Delegate
 NFCEEPROM o-- NFCEEPROM::Delegate
@@ -84,10 +86,10 @@ NFCEEPROMDriver o-- NFCEEPROMDriver::Delegate
 NFCEEPROMDriver::Delegate <-- NFCEEPROM
 
 class NFCRemoteInitiator {
-  +void set_remote_initiator_delegate(NFCRemoteInitiator::Delegate* delegate)
+  +void set_delegate(NFCRemoteInitiator::Delegate* delegate)
   
   +{abstract}bool is_iso7816_supported() const
-  +{abstract}void add_iso7816_application(ISO7816App* app)
+  +{abstract}void add_iso7816_application(nfc_tech_iso7816_app_t *application)
   
   +{abstract} nfc_tag_type_t nfc_tag_type()
   +{abstract} bool is_ndef_supported()

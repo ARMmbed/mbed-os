@@ -160,6 +160,12 @@ The `NFCController` class is the entrypoint into NFC for the user.
 
 When NCI integration is complete (phase 2), this class will be able to drive a `NCIDriver` instance. For now, the one controller we support is the PN512, which implements the `NFCControllerDriver` class. This class is specific to the current MicroNFC release.
 
+```cpp
+NFCController(NFCControllerDriver *driver, events::EventQueue *queue, const Span<uint8_t> &ndef_buffer);
+```
+
+The user instantiates the `NFCController` class using a driver, an event queue used for asynchronous operations and a scratch buffer used for NDEF processing.
+
 It offers the following methods:
 
 ```cpp
@@ -314,8 +320,6 @@ The class is constructed using a scratch buffer which is used to encode and/or d
 
 ```cpp
 bool is_ndef_supported() const;
-
-void set_ndef_delegate(Delegate* delegate);
 ```
 
 API used by descendant classes:
@@ -326,18 +330,23 @@ void build_ndef_message(ac_buffer_builder_t& buffer_builder);
 ndef_msg_t* ndef_message();
 ```
 
+API implemented by descendant classes:
+```cpp
+virtual NFCNDEFCapable::Delegate* ndef_capable_delegate();
+```
+
 **Delegate**
 
 The instance receives requests to encode and decode NDEF messages, and the user can choose how to handle them using the relevant builders and parsers.
 
 ```cpp
-void parse_ndef_message(const uint8_t* buffer, size_t size);
+void parse_ndef_message(const Span<const uint8_t> &buffer);
 ```
 
 The user receives the encoded NDEF message for processing.
 
 ```cpp
-size_t build_ndef_message(uint8_t* buffer, size_t capacity);
+size_t build_ndef_message(const Span<uint8_t> &buffer);
 ```
 
 The user can encode a NDEF message in the buffer provided and return its size (or 0).
@@ -363,11 +372,11 @@ nfc_tag_type_t nfc_tag_type();
 
 Additionally, the user can recover the type of NFC tag (1 to 5) being emulated. Type 4 is implemented on either one of two technologies; therefore, this enum both includes type 4a and type 4b to identify the underlying technology.
 
-*Note: This is initially out of scope for the initial release*
+*Note: ISO7816 is only used internally for the initial release*
 
 ```cpp
 bool is_iso7816_supported();
-void add_iso7816_application(ISO7816App* app);
+void add_iso7816_application(nfc_tech_iso7816_app_t *application);
 ```
 
 If the underlying technology supports it (ISO-DEP), the user can emulate a contactless smartcard and register ISO7816-4 applications using this API.
@@ -409,7 +418,7 @@ The `NFCEEPROM` class derives from `NFCTarget` and shares the same API. The user
 
 #### NFC remote target
 
-*Note: This is initially out of scope for the initial release*
+*Note: This is out of scope for the initial release*
 
 The `NFCRemoteTarget` class derives from `NFCTarget` and additionally from `NFCRemoteEndpoint`.
 
@@ -593,7 +602,7 @@ The `set_size()` command is called to change the size of the NDEF buffer (within
 ```cpp
 void reset();
 size_t get_max_size();
-void start_session();
+void start_session(bool force = true);
 void end_session();
 void read_bytes(uint32_t address, size_t count);
 void write_bytes(uint32_t address, const uint8_t* bytes, size_t count);
