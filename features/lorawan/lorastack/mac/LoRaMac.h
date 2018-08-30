@@ -647,6 +647,8 @@ private:
     void set_tx_continuous_wave(uint8_t channel, int8_t datarate, int8_t tx_power,
                                 float max_eirp, float antenna_gain, uint16_t timeout);
 
+    lorawan_status_t calculate_mic();
+
 private:
     typedef mbed::ScopedLock<LoRaMac> Lock;
 #if MBED_CONF_RTOS_PRESENT
