@@ -28,8 +28,10 @@ extern "C" {
 #endif
 
 typedef struct {
-    PinName  pin;
-    uint32_t mask;
+    PinName         pin;
+    uint32_t        mask;
+    PinDirection    direction;
+    PinMode         mode;
 } gpio_t;
 
 static inline void gpio_write(gpio_t *obj, int value)

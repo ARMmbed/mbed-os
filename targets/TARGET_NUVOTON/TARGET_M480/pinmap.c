@@ -47,27 +47,36 @@ void pin_mode(PinName pin, PinMode mode)
     uint32_t mode_intern = GPIO_MODE_INPUT;
 
     switch (mode) {
-    case PullUp:
-        mode_intern = GPIO_MODE_INPUT;
-        break;
+        case InputOnly:
+            mode_intern = GPIO_MODE_INPUT;
+            break;
 
-    case PullDown:
-    case PullNone:
-        // NOTE: Not support
-        return;
+        case PushPullOutput:
+            mode_intern = GPIO_MODE_OUTPUT;
+            break;
 
-    case PushPull:
-        mode_intern = GPIO_MODE_OUTPUT;
-        break;
+        case OpenDrain:
+            mode_intern = GPIO_MODE_OPEN_DRAIN;
+            break;
 
-    case OpenDrain:
-        mode_intern = GPIO_MODE_OPEN_DRAIN;
-        break;
+        case QuasiBidirectional:
+            mode_intern = GPIO_MODE_QUASI;
+            break;
 
-    case Quasi:
-        mode_intern = GPIO_MODE_QUASI;
-        break;
+        default:
+            /* H/W doesn't support separate configuration for input pull mode/direction.
+             * We expect upper layer would have translated input pull mode/direction
+             * to I/O mode */
+            return;
     }
 
     GPIO_SetMode(gpio_base, 1 << pin_index, mode_intern);
+
+    /* Invalid combinations of PinMode/PinDirection
+     *
+     * We assume developer would avoid the following combinations of PinMode/PinDirection
+     * which are invalid:
+     * 1. InputOnly/PIN_OUTPUT
+     * 2. PushPullOutput/PIN_INPUT
+     */
 }
