@@ -190,7 +190,7 @@ nsapi_error_t AT_CellularPower::opt_power_save_mode(int periodic_time, int activ
         }
 
         uint_to_binary_str(active_timer, &at[3], sizeof(at) - 3, PSMTimerBits);
-        pt[8] = '\0';
+        at[8] = '\0';
 
         // request for both GPRS and LTE
         _at.cmd_start("AT+CPSMS=");
