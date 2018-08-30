@@ -430,14 +430,14 @@ void LoRaMac::extract_data_and_mac_commands(const uint8_t *payload,
     // special handling of control port 0
     if (port == 0) {
         if (fopts_len == 0) {
-            // sizeof nws_skey must be the same as _params.keys.nwk_skey,
             if (_lora_crypto.decrypt_payload(payload + payload_start_index,
                                              frame_len,
-                                             nwk_skey,
-                                             sizeof(_params.keys.nwk_skey) * 8,
+                                             _params.keys.nwk_senckey,
+                                             sizeof(_params.keys.nwk_senckey) * 8,
                                              address,
                                              DOWN_LINK,
                                              downlink_counter,
+                                             1, // FMRPayload
                                              _params.rx_buffer) != 0) {
                 _mcps_indication.status = LORAMAC_EVENT_INFO_STATUS_CRYPTO_FAIL;
             }
@@ -477,6 +477,7 @@ void LoRaMac::extract_data_and_mac_commands(const uint8_t *payload,
                                      address,
                                      DOWN_LINK,
                                      downlink_counter,
+                                     1, // FMRPayload
                                      _params.rx_buffer) != 0) {
         _mcps_indication.status = LORAMAC_EVENT_INFO_STATUS_CRYPTO_FAIL;
     } else {
@@ -499,6 +500,7 @@ bool LoRaMac::extract_mac_commands_only(const uint8_t *payload,
                                                   _params.keys.nwk_senckey, sizeof(_params.keys.nwk_senckey) * 8,
                                                   _params.dev_addr, DOWN_LINK,
                                                   _params.dl_frame_counter,
+                                                  0, // FOpts field
                                                   buffer)) {
                 _mcps_indication.status = LORAMAC_EVENT_INFO_STATUS_CRYPTO_FAIL;
                 return false;
@@ -1862,7 +1864,6 @@ lorawan_status_t LoRaMac::prepare_frame(loramac_mhdr_t *machdr,
                                                               _params.ul_frame_counter,
                                                               &_params.tx_buffer[pkt_header_len])) {
                             status = LORAWAN_STATUS_CRYPTO_FAIL;
-
                         }
                         pkt_header_len += mac_commands_len;
                     } else {
@@ -1894,11 +1895,13 @@ lorawan_status_t LoRaMac::prepare_frame(loramac_mhdr_t *machdr,
                     key = _params.keys.nwk_senckey;
                     key_length = sizeof(_params.keys.nwk_senckey) * 8;
                 }
+
                 if (0 != _lora_crypto.encrypt_payload((uint8_t *) payload,
                                                       _params.tx_buffer_len,
                                                       key, key_length,
                                                       _params.dev_addr, UP_LINK,
                                                       _params.ul_frame_counter,
+                                                      1, // FMRPayload
                                                       &_params.tx_buffer[pkt_header_len])) {
                     status = LORAWAN_STATUS_CRYPTO_FAIL;
                 }
