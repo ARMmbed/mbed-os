@@ -73,6 +73,7 @@ public:
      * @param [in]  address         - Frame address
      * @param [in]  dir             - Frame direction [0: uplink, 1: downlink]
      * @param [in]  seq_counter     - Frame sequence counter
+     * @param [in]  s1_block_start  - 0 for FOpts field, 1 for FMRPayload
      * @param [out] enc_buffer      - Encrypted buffer
      *
      * @return                        0 if successful, or a cipher specific error code
@@ -80,6 +81,7 @@ public:
     int encrypt_payload(const uint8_t *buffer, uint16_t size,
                         const uint8_t *key, uint32_t key_length,
                         uint32_t address, uint8_t dir, uint32_t seq_counter,
+                        uint16_t a1_block_start,
                         uint8_t *enc_buffer);
 
     /**
@@ -92,6 +94,7 @@ public:
      * @param [in]  address         - Frame address
      * @param [in]  dir             - Frame direction [0: uplink, 1: downlink]
      * @param [in]  seq_counter     - Frame sequence counter
+     * @param [in]  s1_block_start  - 0 for FOpts field, 1 for FMRPayload
      * @param [out] dec_buffer      - Decrypted buffer
      *
      * @return                        0 if successful, or a cipher specific error code
@@ -99,6 +102,7 @@ public:
     int decrypt_payload(const uint8_t *buffer, uint16_t size,
                         const uint8_t *key, uint32_t key_length,
                         uint32_t address, uint8_t dir, uint32_t seq_counter,
+                        uint16_t a1_block_start,
                         uint8_t *dec_buffer);
 
     /**
