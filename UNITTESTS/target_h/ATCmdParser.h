@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Arm Limited and affiliates.
+ * Copyright (c) , Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,21 +14,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifndef __AT_CMD_PARSER_H__
+#define __AT_CMD_PARSER_H__
 
-#ifndef MBED_H
-#define MBED_H
+#include "mbed.h"
+#include <cstdarg>
+#include "FileHandle.h"
 
-#include <cstdio>
-#include <cstring>
+class ATCmdParser {
+public:
+    ATCmdParser(mbed::FileHandle *fh, const char *output_delimiter = "\r",
+                int buffer_size = 256, int timeout = 8000, bool debug = false) {}
 
-#include "events/mbed_events.h"
-#include "events/mbed_shared_queues.h"
-
-namespace mbed {
-#include "platform/Callback.h"
+    ~ATCmdParser() {}
 };
 
-using namespace mbed;
-using namespace std;
+#endif //__AT_CMD_PARSER_H__
 
-#endif // MBED_H

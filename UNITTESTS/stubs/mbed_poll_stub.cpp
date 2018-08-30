@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Arm Limited and affiliates.
+ * Copyright (c) , Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,24 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef TEST_UTIL_H
-#define TEST_UTIL_H
 
-class Test_util {
-public:
-    Test_util();
+#include "mbed_poll.h"
+#include "mbed_poll_stub.h"
 
-    virtual ~Test_util();
+int mbed_poll_stub::revents_value = POLLOUT;
+int mbed_poll_stub::int_value = 0;
 
-    void test_util_uint_to_binary_string();
+namespace mbed {
 
-    void test_util_char_str_to_hex();
+int poll(pollfh fhs[], unsigned nfhs, int timeout)
+{
+    fhs->revents = mbed_poll_stub::revents_value;
+    return mbed_poll_stub::int_value;
+}
 
-    void test_util_convert_ipv6();
-
-    void test_util_prefer_ipv6();
-
-    void test_util_separate_ip_addresses();
-};
-
-#endif // TEST_UTIL_H
+}

@@ -90,17 +90,35 @@ endif(COVERAGE)
 set(unittest-includes-base
   "${PROJECT_SOURCE_DIR}/target_h"
   "${PROJECT_SOURCE_DIR}/target_h/events"
+  "${PROJECT_SOURCE_DIR}/target_h/events/equeue"
+  "${PROJECT_SOURCE_DIR}/target_h/platform"
   "${PROJECT_SOURCE_DIR}/stubs"
   "${PROJECT_SOURCE_DIR}/.."
   "${PROJECT_SOURCE_DIR}/../features"
+  "${PROJECT_SOURCE_DIR}/../features/netsocket"
   "${PROJECT_SOURCE_DIR}/../platform"
   "${PROJECT_SOURCE_DIR}/../drivers"
   "${PROJECT_SOURCE_DIR}/../hal"
   "${PROJECT_SOURCE_DIR}/../events"
+  "${PROJECT_SOURCE_DIR}/../events/equeue"
+  "${PROJECT_SOURCE_DIR}/../rtos"
   "${PROJECT_SOURCE_DIR}/../rtos/TARGET_CORTEX"
   "${PROJECT_SOURCE_DIR}/../rtos/TARGET_CORTEX/rtx5/Include"
   "${PROJECT_SOURCE_DIR}/../cmsis"
-  "${PROJECT_SOURCE_DIR}/../features/frameworks/nanostack-libservice/mbed-client-libservice/"
+  "${PROJECT_SOURCE_DIR}/../features/frameworks"
+  "${PROJECT_SOURCE_DIR}/../features/frameworks/mbed-trace"
+  "${PROJECT_SOURCE_DIR}/../features/frameworks/nanostack-libservice"
+  "${PROJECT_SOURCE_DIR}/../features/frameworks/nanostack-libservice/mbed-client-libservice"
+  "${PROJECT_SOURCE_DIR}/../features/filesystem/fat"
+  "${PROJECT_SOURCE_DIR}/../features/filesystem/fat/ChaN"
+  "${PROJECT_SOURCE_DIR}/../features/filesystem/bd"
+  "${PROJECT_SOURCE_DIR}/../features/filesystem/"
+  "${PROJECT_SOURCE_DIR}/../features/filesystem/littlefs"
+  "${PROJECT_SOURCE_DIR}/../features/filesystem/littlefs/littlefs"
+  "${PROJECT_SOURCE_DIR}/../features/cellular/framework/API"
+  "${PROJECT_SOURCE_DIR}/../features/cellular/framework/AT"
+  "${PROJECT_SOURCE_DIR}/../features/cellular/framework"
+  "${PROJECT_SOURCE_DIR}/../features/cellular/framework/common"
 )
 
 # Create a list for test suites.
@@ -168,3 +186,4 @@ foreach(testfile ${unittest-file-list})
     message(WARNING "No test source files found for ${TEST_SUITE_NAME}.\n")
   endif(unittest-test-sources)
 endforeach(testfile)
+

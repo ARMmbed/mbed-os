@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Arm Limited and affiliates.
+ * Copyright (c) , Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,20 +15,13 @@
  * limitations under the License.
  */
 
-#ifndef MBED_H
-#define MBED_H
+#include "Thread.h"
 
-#include <cstdio>
-#include <cstring>
+namespace rtos {
 
-#include "events/mbed_events.h"
-#include "events/mbed_shared_queues.h"
+osStatus Thread::wait_until(uint64_t millisec)
+{
+    return 0;
+}
 
-namespace mbed {
-#include "platform/Callback.h"
-};
-
-using namespace mbed;
-using namespace std;
-
-#endif // MBED_H
+}

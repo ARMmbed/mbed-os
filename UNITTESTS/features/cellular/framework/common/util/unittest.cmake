@@ -20,7 +20,6 @@ set(unittest-sources
 
 # Test files
 set(unittest-test-sources
-  stubs/randLIB_stub.c
-  features/cellular/framework/common/util/test_util.cpp
   features/cellular/framework/common/util/utiltest.cpp
+  stubs/randLIB_stub.cpp
 )

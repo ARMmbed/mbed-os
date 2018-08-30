@@ -18,6 +18,7 @@
 #ifndef MBED_RTOS1_TYPES_H
 #define MBED_RTOS1_TYPES_H
 
+#include "cmsis_os.h"
 #include "mbed_rtos_storage.h"
 
 #endif // MBED_RTOS1_TYPES_H
