@@ -54,8 +54,11 @@ define block CSTACK    with alignment = 8, size = __ICFEDIT_size_cstack__   { };
 define block HEAP      with alignment = 8, size = __ICFEDIT_size_heap__     { };
 
 initialize by copy { readwrite };
+do not initialize  { section .nvictable };
+place at address mem:__ICFEDIT_region_RAM_NVIC_start__ { section .nvictable };
+
 do not initialize  { section .noinit };
-place at address mem:__ICFEDIT_region_RAM_NVIC_start__ { section .noinit };
+place in RAM_region { section .noinit };
 
 keep { section .intvec };
 place at address mem:__ICFEDIT_intvec_start__ { readonly section .intvec };

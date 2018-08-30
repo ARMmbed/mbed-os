@@ -28,23 +28,9 @@
 ; it is where the SP start value is found, and the NVIC vector
 ; table register (VTOR) is initialized to this address if != 0.
 
+
+
         MODULE  ?cstartup
-
-#if defined(__STARTUP_CONFIG)
-
-        #include "startup_config.h"
-
-        #ifndef __STARTUP_CONFIG_STACK_ALIGNEMENT
-        #define __STARTUP_CONFIG_STACK_ALIGNEMENT 3
-        #endif
-        
-        SECTION CSTACK:DATA:NOROOT(__STARTUP_CONFIG_STACK_ALIGNEMENT)
-        DS8 __STARTUP_CONFIG_STACK_SIZE
-
-        SECTION HEAP:DATA:NOROOT(3)
-        DS8 __STARTUP_CONFIG_HEAP_SIZE
-
-#else
 
         ;; Stack size default : Defined in *.icf (linker file). Can be modified inside EW.
         ;; Heap size default : Defined in *.icf (linker file). Can be modified inside EW.
@@ -52,13 +38,11 @@
         ;; Forward declaration of sections.
         SECTION CSTACK:DATA:NOROOT(3)
 
-#endif
-
-
         SECTION .intvec:CODE:NOROOT(2)
 
         EXTERN  __iar_program_start
         EXTERN  SystemInit
+        EXTERN  nrf_reloc_vector_table
         PUBLIC  __vector_table
         PUBLIC  __Vectors
         PUBLIC  __Vectors_End
@@ -211,6 +195,8 @@ __Vectors_Size                      EQU   __Vectors_End - __Vectors
 Reset_Handler
 
         LDR     R0, =SystemInit
+        BLX     R0
+        LDR     R0, =nrf_reloc_vector_table
         BLX     R0
         LDR     R0, =__iar_program_start
         BX      R0

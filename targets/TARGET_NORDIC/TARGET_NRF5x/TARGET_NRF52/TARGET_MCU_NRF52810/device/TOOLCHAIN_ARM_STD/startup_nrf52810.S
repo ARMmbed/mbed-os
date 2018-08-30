@@ -16,43 +16,7 @@
 ; 
 ; NOTICE: This file has been modified by Nordic Semiconductor ASA.
 
-                IF :DEF: __STARTUP_CONFIG
-#include "startup_config.h"
-#ifndef __STARTUP_CONFIG_STACK_ALIGNEMENT
-#define __STARTUP_CONFIG_STACK_ALIGNEMENT 3
-#endif
-                ENDIF
-
-                IF :DEF: __STARTUP_CONFIG
-Stack_Size      EQU __STARTUP_CONFIG_STACK_SIZE
-                ELIF :DEF: __STACK_SIZE
-Stack_Size      EQU __STACK_SIZE
-                ELSE
-Stack_Size      EQU     2048
-                ENDIF
-                
-                IF :DEF: __STARTUP_CONFIG
-Stack_Align     EQU __STARTUP_CONFIG_STACK_ALIGNEMENT
-                ELSE
-Stack_Align     EQU 3
-                ENDIF
-
-                AREA    STACK, NOINIT, READWRITE, ALIGN=Stack_Align
-Stack_Mem       SPACE   Stack_Size
-__initial_sp
-
-                IF :DEF: __STARTUP_CONFIG
-Heap_Size       EQU __STARTUP_CONFIG_HEAP_SIZE
-                ELIF :DEF: __HEAP_SIZE
-Heap_Size       EQU __HEAP_SIZE
-                ELSE
-Heap_Size       EQU     2048
-                ENDIF
-
-                AREA    HEAP, NOINIT, READWRITE, ALIGN=3
-__heap_base
-Heap_Mem        SPACE   Heap_Size
-__heap_limit
+__initial_sp	EQU     0x20006000
 
                 PRESERVE8
                 THUMB
@@ -208,9 +172,12 @@ Reset_Handler   PROC
                 EXPORT  Reset_Handler             [WEAK]
                 IMPORT  SystemInit
                 IMPORT  __main
-
-
+                IMPORT  nrf_reloc_vector_table
+                
+                
                 LDR     R0, =SystemInit
+                BLX     R0
+                LDR     R0, =nrf_reloc_vector_table
                 BLX     R0
                 LDR     R0, =__main
                 BX      R0
@@ -319,31 +286,4 @@ PDM_IRQHandler
                 B .
                 ENDP
                 ALIGN
-
-; User Initial Stack & Heap
-
-                IF      :DEF:__MICROLIB
-
-                EXPORT  __initial_sp
-                EXPORT  __heap_base
-                EXPORT  __heap_limit
-
-                ELSE
-
-                IMPORT  __use_two_region_memory
-                EXPORT  __user_initial_stackheap
-
-__user_initial_stackheap PROC
-
-                LDR     R0, = Heap_Mem
-                LDR     R1, = (Stack_Mem + Stack_Size)
-                LDR     R2, = (Heap_Mem + Heap_Size)
-                LDR     R3, = Stack_Mem
-                BX      LR
-                ENDP
-
-                ALIGN
-
-                ENDIF
-
                 END
