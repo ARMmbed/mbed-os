@@ -1,0 +1,25 @@
+{
+    "config": {
+        "echo-server-addr" : {
+            "help" : "IP address of echo server",
+            "value" : "\"echo.mbedcloudtesting.com\""
+        },
+        "echo-server-port" : {
+            "help" : "Port of echo server",
+            "value" : "7"
+        }
+    },
+    "target_overrides": {
+        "*": {
+            "target.network-default-interface-type": "MESH",
+            "nsapi.default-stack": "NANOSTACK",
+            "nsapi.default-mesh-type": "THREAD",
+            "nanostack.configuration": "thread_router",
+            "mbed-mesh-api.thread-device-type": "MESH_DEVICE_TYPE_THREAD_ROUTER",
+            "mbed-mesh-api.thread-config-panid": "0x0700",
+            "mbed-mesh-api.thread-master-key": "{0x10, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff}",
+            "mbed-mesh-api.thread-config-channel": 22,
+            "mbed-trace.enable": false
+        }
+    }
+}
