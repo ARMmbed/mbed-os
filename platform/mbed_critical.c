@@ -101,6 +101,13 @@ void core_util_critical_section_exit(void)
 }
 
 #if MBED_EXCLUSIVE_ACCESS
+bool core_util_atomic_exchange_bool(volatile bool *ptr, bool desiredValue) {
+    bool old;
+    do {
+        old = __LDREXB((volatile uint8_t *)ptr);
+    } while (__STREXB((volatile uint8_t *)ptr, (uint8_t)desiredValue));
+    return old;
+}
 
 /* Supress __ldrex and __strex deprecated warnings - "#3731-D: intrinsic is deprecated" */
 #if defined (__CC_ARM)
@@ -203,6 +210,14 @@ uint32_t core_util_atomic_decr_u32(volatile uint32_t *valuePtr, uint32_t delta)
 }
 
 #else
+bool core_util_atomic_exchange_bool(volatile bool *ptr, bool desiredValue) {
+    bool old;
+    core_util_critical_section_enter();
+    old = *ptr;
+    *ptr = desiredValue;
+    core_util_critical_section_exit();
+    return old;
+}
 
 bool core_util_atomic_cas_u8(volatile uint8_t *ptr, uint8_t *expectedCurrentValue, uint8_t desiredValue)
 {

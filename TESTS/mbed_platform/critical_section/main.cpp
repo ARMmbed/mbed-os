@@ -24,7 +24,7 @@ using utest::v1::Case;
 
 volatile bool callback_called;
 
-void tiemout_callback(void)
+void timeout_callback(void)
 {
     callback_called = true;
 }
@@ -45,7 +45,7 @@ void critical_section_raii_recursive(Timeout &timeout)
         const us_timestamp_t timeout_time_us = 1;
         const int wait_time_us = timeout_time_us * 100;
 
-        timeout.attach_us(callback(tiemout_callback), timeout_time_us);
+        timeout.attach_us(callback(timeout_callback), timeout_time_us);
         wait_us(wait_time_us);
     }
     TEST_ASSERT_TRUE(core_util_in_critical_section());
@@ -83,7 +83,7 @@ void test_C_API(void)
     TEST_ASSERT_FALSE(core_util_in_critical_section());
 
     callback_called = false;
-    timeout.attach_us(callback(tiemout_callback), timeout_time_us);
+    timeout.attach_us(callback(timeout_callback), timeout_time_us);
     wait_us(wait_time_us);
     TEST_ASSERT_TRUE(callback_called);
 
@@ -93,7 +93,7 @@ void test_C_API(void)
     }
 
     callback_called = false;
-    timeout.attach_us(callback(tiemout_callback), timeout_time_us);
+    timeout.attach_us(callback(timeout_callback), timeout_time_us);
     wait_us(wait_time_us);
     TEST_ASSERT_FALSE(callback_called);
     TEST_ASSERT_TRUE(core_util_in_critical_section());
@@ -139,7 +139,7 @@ void test_CPP_API_constructor_destructor(void)
     TEST_ASSERT_FALSE(core_util_in_critical_section());
 
     callback_called = false;
-    timeout.attach_us(callback(tiemout_callback), timeout_time_us);
+    timeout.attach_us(callback(timeout_callback), timeout_time_us);
     wait_us(wait_time_us);
     TEST_ASSERT_TRUE(callback_called);
 
@@ -180,7 +180,7 @@ void test_CPP_API_enable_disable(void)
     TEST_ASSERT_FALSE(core_util_in_critical_section());
 
     callback_called = false;
-    timeout.attach_us(callback(tiemout_callback), timeout_time_us);
+    timeout.attach_us(callback(timeout_callback), timeout_time_us);
     wait_us(wait_time_us);
     TEST_ASSERT_TRUE(callback_called);
 
@@ -190,7 +190,7 @@ void test_CPP_API_enable_disable(void)
     }
 
     callback_called = false;
-    timeout.attach_us(callback(tiemout_callback), timeout_time_us);
+    timeout.attach_us(callback(timeout_callback), timeout_time_us);
     wait_us(wait_time_us);
     TEST_ASSERT_FALSE(callback_called);
     TEST_ASSERT_TRUE(core_util_in_critical_section());
