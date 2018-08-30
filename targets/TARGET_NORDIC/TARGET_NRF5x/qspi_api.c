@@ -281,7 +281,7 @@ qspi_status_t qspi_command_transfer(qspi_t *obj, const qspi_command_t *command, 
     ret_code_t ret_code;
     uint8_t data[8];
     uint32_t data_size = tx_size + rx_size;
- 
+
     nrf_qspi_cinstr_conf_t qspi_cinstr_config;
     qspi_cinstr_config.opcode    = command->instruction.value;
     qspi_cinstr_config.io2_level = true;
@@ -298,8 +298,10 @@ qspi_status_t qspi_command_transfer(qspi_t *obj, const qspi_command_t *command, 
         } else {
             return QSPI_STATUS_INVALID_PARAMETER;
         }
-        for (uint32_t i = 0; i < (uint32_t)qspi_cinstr_config.length - 1; ++i) {
-            data[i] = ((uint8_t *)&command->address.value)[i];
+        uint32_t address_size = (uint32_t)qspi_cinstr_config.length - 1;
+        uint8_t *address_bytes = (uint8_t *)&command->address.value;
+        for (uint32_t i = 0; i < address_size; ++i) {
+            data[i] = address_bytes[address_size - 1 - i];
         }
     } else if (data_size < 9) {
         qspi_cinstr_config.length = (nrf_qspi_cinstr_len_t)(NRF_QSPI_CINSTR_LEN_1B + data_size);
@@ -321,7 +323,7 @@ qspi_status_t qspi_command_transfer(qspi_t *obj, const qspi_command_t *command, 
         // Data is sending as a normal SPI transmission so there is one buffer to send and receive data.
         ((uint8_t *)rx_data)[i] = data[i];
     }
- 
+
     return QSPI_STATUS_OK;
 }
 

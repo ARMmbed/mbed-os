@@ -29,5 +29,4 @@
 #undef QSPI_CMD_READ_1IO
 #define QSPI_CMD_READ_1IO                         QSPI_CMD_READ_1IO_FAST
 
-
 #endif // MBED_QSPI_FLASH_CONFIG_H
