@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Arm Limited and affiliates.
+ * Copyright (c) 2017, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,21 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifndef FEATURES_CELLULAR_UNITTESTS_TARGET_H_RANDLIB_H_
+#define FEATURES_CELLULAR_UNITTESTS_TARGET_H_RANDLIB_H_
 
-#ifndef MBED_H
-#define MBED_H
+#include <stdint.h>
 
-#include <cstdio>
-#include <cstring>
+extern void randLIB_seed_random(void);
 
-#include "events/mbed_events.h"
-#include "events/mbed_shared_queues.h"
+uint16_t randLIB_get_random_in_range(uint16_t min, uint16_t max);
 
-namespace mbed {
-#include "platform/Callback.h"
-};
 
-using namespace mbed;
-using namespace std;
-
-#endif // MBED_H
+#endif /* FEATURES_CELLULAR_UNITTESTS_TARGET_H_RANDLIB_H_ */

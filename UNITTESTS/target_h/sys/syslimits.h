@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Arm Limited and affiliates.
+ * Copyright (c) , Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,21 +14,4 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-#ifndef MBED_H
-#define MBED_H
-
-#include <cstdio>
-#include <cstring>
-
-#include "events/mbed_events.h"
-#include "events/mbed_shared_queues.h"
-
-namespace mbed {
-#include "platform/Callback.h"
-};
-
-using namespace mbed;
-using namespace std;
-
-#endif // MBED_H
+#define NAME_MAX          255

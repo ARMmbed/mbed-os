@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Arm Limited and affiliates.
+ * Copyright (c) , Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,20 +15,16 @@
  * limitations under the License.
  */
 
-#ifndef MBED_H
-#define MBED_H
+#ifndef CMSIS_OS_H_
+#define CMSIS_OS_H_
 
-#include <cstdio>
-#include <cstring>
+#include "cmsis_os2.h"
 
-#include "events/mbed_events.h"
-#include "events/mbed_shared_queues.h"
+#define osPriority osPriority_t
 
-namespace mbed {
-#include "platform/Callback.h"
-};
+#define osThreadId osThreadId_t
 
-using namespace mbed;
-using namespace std;
+typedef struct {
+} osEvent;
 
-#endif // MBED_H
+#endif
