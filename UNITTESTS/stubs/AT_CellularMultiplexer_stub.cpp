@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Arm Limited and affiliates.
+ * Copyright (c) 2017, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,20 +15,21 @@
  * limitations under the License.
  */
 
-#ifndef MBED_H
-#define MBED_H
-
-#include <cstdio>
-#include <cstring>
-
-#include "events/mbed_events.h"
-#include "events/mbed_shared_queues.h"
-
-namespace mbed {
-#include "platform/Callback.h"
-};
+#include "AT_CellularMultiplexer.h"
+#include "CellularLog.h"
+#include "nsapi_types.h"
 
 using namespace mbed;
-using namespace std;
 
-#endif // MBED_H
+AT_CellularMultiplexer::AT_CellularMultiplexer(ATHandler &at) : AT_CellularBase(at)
+{
+}
+
+AT_CellularMultiplexer::~AT_CellularMultiplexer()
+{
+}
+
+nsapi_error_t AT_CellularMultiplexer::multiplexer_mode_start()
+{
+    return 0;
+}

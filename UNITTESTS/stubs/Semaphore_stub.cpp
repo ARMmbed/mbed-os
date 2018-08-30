@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Arm Limited and affiliates.
+ * Copyright (c) , Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,20 +15,43 @@
  * limitations under the License.
  */
 
-#ifndef MBED_H
-#define MBED_H
+#include "Semaphore.h"
 
-#include <cstdio>
-#include <cstring>
+namespace rtos {
 
-#include "events/mbed_events.h"
-#include "events/mbed_shared_queues.h"
+Semaphore::Semaphore(int32_t count)
+{
 
-namespace mbed {
-#include "platform/Callback.h"
-};
+}
 
-using namespace mbed;
-using namespace std;
+Semaphore::Semaphore(int32_t count, uint16_t max_count)
+{
 
-#endif // MBED_H
+}
+
+void Semaphore::constructor(int32_t count, uint16_t max_count)
+{
+
+}
+
+int32_t Semaphore::wait(uint32_t millisec)
+{
+    return 0;
+}
+
+int32_t Semaphore::wait_until(uint64_t millisec)
+{
+    return 0;
+}
+
+osStatus Semaphore::release(void)
+{
+    return 0;
+}
+
+Semaphore::~Semaphore()
+{
+
+}
+
+}
