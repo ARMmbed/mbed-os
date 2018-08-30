@@ -1471,10 +1471,10 @@ public:
     /**
      * Set the preferred PHYs to use in a connection.
      *
-     * @param txPhy: Set of PHYs preferred for tx operations. If NULL then no
+     * @param txPhys: Set of PHYs preferred for tx operations. If NULL then no
      * preferred PHYs are set and the default value of the subsytem is used.
      *
-     * @param rxPhy: Set of PHYs preferred for rx operations. If NULL then no
+     * @param rxPhys: Set of PHYs preferred for rx operations. If NULL then no
      * preferred PHYs are set and the default value of the subsytem is used.
      *
      * @return BLE_ERROR_NONE if the preferences have been set or an appropriate
