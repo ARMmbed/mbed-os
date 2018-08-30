@@ -19,10 +19,6 @@
 
 #include <stdint.h>
 
-#include "NFCDefinitions.h"
-#include "NFCTarget.h"
-#include "NFCEEPROMDriver.h"
-
 #include "events/EventQueue.h"
 
 namespace mbed {
