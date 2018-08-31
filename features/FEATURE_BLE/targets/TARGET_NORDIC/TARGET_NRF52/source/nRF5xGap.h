@@ -30,10 +30,10 @@
 #endif
 #ifndef YOTTA_CFG_IRK_TABLE_MAX_SIZE
     #if  (NRF_SD_BLE_API_VERSION >= 3)
-         #define YOTTA_CFG_IRK_TABLE_MAX_SIZE BLE_GAP_DEVICE_IDENTITIES_MAX_COUNT 
+         #define YOTTA_CFG_IRK_TABLE_MAX_SIZE BLE_GAP_DEVICE_IDENTITIES_MAX_COUNT
     #else
         #define YOTTA_CFG_IRK_TABLE_MAX_SIZE BLE_GAP_WHITELIST_IRK_MAX_COUNT
-     #endif 
+     #endif
 #elif YOTTA_CFG_IRK_TABLE_MAX_SIZE > BLE_GAP_WHITELIST_IRK_MAX_COUNT
     #undef YOTTA_CFG_IRK_TABLE_MAX_SIZE
     #define YOTTA_CFG_IRK_TABLE_MAX_SIZE BLE_GAP_WHITELIST_IRK_MAX_COUNT
@@ -77,7 +77,7 @@ public:
             // The Mbed infrastructure expects 100ms+ - so for now return that
             // return getMinAdvertisingInterval();
             // FIXME infrastructure
-            return GapAdvertisingParams::GAP_ADV_PARAMS_INTERVAL_MIN_NONCON;        
+            return GapAdvertisingParams::GAP_ADV_PARAMS_INTERVAL_MIN_NONCON;
         #else
             return GapAdvertisingParams::ADVERTISEMENT_DURATION_UNITS_TO_MS(BLE_GAP_ADV_NONCON_INTERVAL_MIN);
         #endif
@@ -89,6 +89,19 @@ public:
     virtual ble_error_t connect(const Address_t, ble::peer_address_type_t peerAddrType, const ConnectionParams_t *connectionParams, const GapScanningParams *scanParams);
     virtual ble_error_t connect(const Address_t, BLEProtocol::AddressType_t peerAddrType, const ConnectionParams_t *connectionParams, const GapScanningParams *scanParams);
             ble_error_t connect(const Address_t, BLEProtocol::AddressType_t peerAddrType, const ConnectionParams_t *connectionParams, const GapScanningParams *scanParams, bool identity);
+
+    virtual ble_error_t readPhy(Handle_t connection);
+    virtual ble_error_t setPreferredPhys(
+        const ble::phy_set_t* txPhys,
+        const ble::phy_set_t* rxPhys
+    );
+    virtual ble_error_t setPhy(
+        Handle_t connection,
+        const ble::phy_set_t* txPhys,
+        const ble::phy_set_t* rxPhys,
+        CodedSymbolPerBit_t codedSymbol
+    );
+
     virtual ble_error_t disconnect(Handle_t connectionHandle, DisconnectionReason_t reason);
     virtual ble_error_t disconnect(DisconnectionReason_t reason);
 
@@ -287,6 +300,12 @@ private:
     void release_connection_role(ble::connection_handle_t);
     void release_all_connections_role();
 
+    void on_phy_update(Handle_t connection, const ble_gap_evt_phy_update_t& evt);
+    // FIXME: remove guard when S140 updated
+    #ifndef S140
+    void on_phy_update_request(Handle_t connection, const ble_gap_evt_phy_update_request_t& evt);
+    #endif
+
     uint16_t m_connectionHandle;
     ConnectionEventMonitor::EventHandler* _connection_event_handler;
 
@@ -295,6 +314,8 @@ private:
     CentralPrivacyConfiguration_t _central_privacy_configuration;
     AddressType_t _non_private_address_type;
     Address_t _non_private_address;
+    uint8_t _preferred_tx_phys;
+    uint8_t _preferred_rx_phys;
 
     struct connection_role_t {
         connection_role_t() :

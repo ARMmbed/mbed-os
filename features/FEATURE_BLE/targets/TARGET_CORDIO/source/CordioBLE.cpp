@@ -338,6 +338,7 @@ void BLE::stack_setup()
     DmConnMasterInit();
     DmConnSlaveInit();
     DmSecInit();
+    DmPhyInit();
 
     // Note: enable once security is supported
     DmSecLescInit();
