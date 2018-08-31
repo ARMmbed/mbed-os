@@ -3,12 +3,15 @@
 package ndef {
 
 class MessageBuilder { 
-    +MessageBuilder(uint8_t* buffer, size_t capacity)
+    +MessageBuilder(const Span<uint8_t> &buffer)
     +~MessageBuilder()
-    +bool append_record(const RecordType& type, const RecordPayload* payload, bool is_last_record = false)
-    +bool append_record(const Record& record)
-    +const uint8_t* get_data() const;
-    +size_t get_data_size() const;
+    +bool append_record(const RecordType &type, const RecordPayload &payload = RecordPayload(), bool is_last_record = false)
+    +bool append_record(const RecordType &type, const PayloadBuilder &builder, bool is_last_record = false)
+    +bool append_record(const Record &record, const PayloadBuilder *builder = NULL)
+    +void reset();
+    +void reset(const Span<uint8_t> &buffer);
+    +bool is_message_complete() const
+    +Span<const uint8_t> get_message() const
 }
 
 class Record { 
@@ -23,41 +26,40 @@ class RecordPayload{
 class RecordID{
 }
 
+interface MessageBuilder::PayloadBuilder { 
+    +{abstract} size_t size() const
+    +{abstract} void build(const Span<uint8_t> &buffer) const
+    # ~PayloadBuilder()
+}
+
+
 Record *-- RecordType
 Record *-- "0..1" RecordPayload
 Record *-- "0..1" RecordID
 
 Record - MessageBuilder: insert >
+MessageBuilder - MessageBuilder::PayloadBuilder: < build payload at insertion
 
 }
 
 package common { 
 
-class SimpleMessageBuilder { 
-    +SimpleMessageBuilder(uint8_t* buffer, size_t capacity)
-    +~SimpleMessageBuilder()
-    +bool append_uri(const URI&)
-    +bool append_text(const Text&)
-    +bool append_mime(const Mime&)
-} 
 
 class URI { 
-+friend bool append_record(ndef::MessageBuilder&, const URI&)
++bool append_as_record(ndef::MessageBuilder &builder, bool is_last_record) const
 }
 
 class Text { 
-+friend bool append_record(ndef::MessageBuilder&, const Text&)
++bool append_as_record(ndef::MessageBuilder &builder, bool is_last_record) const
 }
 
 class Mime { 
-+friend bool append_record(ndef::MessageBuilder&, const Mime&)
++bool append_as_record(ndef::MessageBuilder &builder, bool is_last_record) const
 }
 
-SimpleMessageBuilder --|> MessageBuilder
-
-URI -- SimpleMessageBuilder: wrap >
-Text -- SimpleMessageBuilder: wrap >
-Mime -- SimpleMessageBuilder: wrap >
+URI -- MessageBuilder: uses >
+Text -- MessageBuilder: uses >
+Mime -- MessageBuilder: uses >
 
 }
 
