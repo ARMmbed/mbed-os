@@ -24,7 +24,7 @@
 
 mbedtls_platform_context ctx = { };
 
-int mbedtls_platform_setup( mbedtls_platform_context *obsolete_ctx )
+int mbedtls_platform_setup( mbedtls_platform_context *unused_ctx )
 {
     int ret = 0;
 
@@ -38,9 +38,8 @@ int mbedtls_platform_setup( mbedtls_platform_context *obsolete_ctx )
     return ( ret );
 }
 
-void mbedtls_platform_teardown( mbedtls_platform_context *obsolete_ctx )
+void mbedtls_platform_teardown( mbedtls_platform_context *unused_ctx )
 {
-
     core_util_atomic_decr_u32( ( volatile uint32_t * )&ctx.reference_count, 1 );
     if( ctx.reference_count < 1 )
     {

@@ -49,7 +49,7 @@ mbedtls_platform_context;
  *          implementation is platform-specific, and its implementation MUST be provided.
  *
  */
-int crypto_platform_setup( crypto_platform_ctx *ctx );
+int crypto_platform_setup( crypto_platform_ctx *unused_ctx );
 
 /**
  * \brief   This function performs any  platform teardown operations, to disable cryptographic operations.
@@ -60,7 +60,7 @@ int crypto_platform_setup( crypto_platform_ctx *ctx );
  *          Its implementation is platform-specific,and its implementation MUST be provided.
  *
  */
-void crypto_platform_terminate( crypto_platform_ctx *ctx );
+void crypto_platform_terminate( crypto_platform_ctx *unused_ctx );
 #endif
 #endif /* __PLATFORM_ALT__ */
 
