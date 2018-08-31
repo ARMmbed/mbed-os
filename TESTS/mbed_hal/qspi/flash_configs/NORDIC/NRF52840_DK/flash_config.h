@@ -29,4 +29,9 @@
 #undef QSPI_CMD_READ_1IO
 #define QSPI_CMD_READ_1IO                         QSPI_CMD_READ_1IO_FAST
 
+#ifdef QSPI_SECTOR_COUNT
+#undef QSPI_SECTOR_COUNT
+#define QSPI_SECTOR_COUNT                       2048 // for MX25R6435F
+#endif
+
 #endif // MBED_QSPI_FLASH_CONFIG_H
