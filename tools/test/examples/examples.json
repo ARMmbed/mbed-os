@@ -29,8 +29,8 @@
       "targets" : ["K64F", "NUCLEO_F429ZI"],
       "toolchains" : ["GCC_ARM", "ARM"],
       "exporters": [],
-      "compile" : true,
-      "export": true,
+      "compile" : false,
+      "export": false,
       "auto-update" : true
     },
     {
