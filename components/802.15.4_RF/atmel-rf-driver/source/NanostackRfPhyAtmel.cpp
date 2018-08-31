@@ -321,6 +321,13 @@ __asm static void delay_loop(uint32_t count)
   BCS  %BT1
   BX   lr
 }
+#elif defined (__ARMCC_VERSION) /* ARMC6 */
+void delay_loop(uint32_t count)
+{
+    // TODO: This needs implementation
+    while(count--)
+        ;;
+}
 #elif defined (__ICCARM__)
 static void delay_loop(uint32_t count)
 {
