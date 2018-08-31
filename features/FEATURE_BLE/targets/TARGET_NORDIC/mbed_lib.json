@@ -25,6 +25,16 @@
             "help": "select whether to include the Service Changed characteristic in the GATT Server",
             "value": "1",
             "macro_name": "NRF_SDH_BLE_SERVICE_CHANGED"
+        },
+        "max_characteristics": {
+            "help": "Sets the maximum number of characteristics that can be registered",
+            "value": "20",
+            "macro_name": "NRF_SDH_BLE_TOTAL_CHARACTERISTICS"
+        },
+        "max_descriptors": {
+            "help": "Sets the maximum number of descriptors that can be registered",
+            "value": "8",
+            "macro_name": "NRF_SDH_BLE_TOTAL_DESCRIPTORS"
         }
     }
 }
