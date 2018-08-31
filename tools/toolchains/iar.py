@@ -273,7 +273,7 @@ class IAR(mbedToolchain):
 
     @staticmethod
     def make_ld_define(name, value):
-        return "--config_def %s=0x%x" % (name, value)
+        return "--config_def %s=%s" % (name, value)
 
     @staticmethod
     def redirect_symbol(source, sync, build_dir):
