@@ -13,5 +13,4 @@
     "6LOWPAN_ROUTER" : "6lowpanInterface_router.json",
     "THREAD_END_DEVICE" : "ThreadInterface_end_device.json",
     "THREAD_ROUTER" : "ThreadInterface_router.json"
-    "MAC_TESTER" : "MACTester.json"
 }
