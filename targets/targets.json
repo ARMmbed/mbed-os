@@ -1723,7 +1723,6 @@
     },
     "MTB_ADV_WISE_1510": {
         "inherits": ["FAMILY_STM32"],
-        "supported_form_factors": ["ARDUINO"],
         "core": "Cortex-M4F",
         "extra_labels_add": ["STM32L4", "STM32L443xC", "STM32L443RC"],
         "config": {
