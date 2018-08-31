@@ -249,7 +249,7 @@ if __name__ == '__main__':
                             action='store_true',
                             dest='application_list',
                             default=False,
-                            help='List application that need to be build')
+                            help='List applications that need to be build')
 
         parser.add_argument('--ignore-checks',
                             action='store_true',

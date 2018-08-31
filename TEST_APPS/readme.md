@@ -42,7 +42,7 @@ Some devices may offer multiple network interfaces to operate with. For example,
 The tests can be run for either one of those using already existing test-config -files.
 
 To run the tests with Wi-Fi interface:
-`>mbed test -m UBLOX_EVK_ODIN_W2 -t <toolchain> --icetea --test-config tools/test-configs/HeapBlockDeviceAndWifiInterface.json.json`
+`>mbed test -m UBLOX_EVK_ODIN_W2 -t <toolchain> --icetea --test-config tools/test-configs/HeapBlockDeviceAndWifiInterface.json`
 
 To run the tests with ethernet interface:
 `>mbed test -m UBLOX_EVK_ODIN_W2 -t <toolchain> --icetea --test-config tools/test-configs/HeapBlockDeviceAndEthernetInterface.json`
@@ -50,7 +50,7 @@ To run the tests with ethernet interface:
 #### Providing Wi-Fi access point information
 
 If you are using Wi-Fi interface for running the tests, you need to provide also information about the used access point.
-The information can be provided in the used test-config -file.
+The information can be provided in the used test-config file.
 
 Example of access point information:
 ```
@@ -89,5 +89,5 @@ Icetea prints the results from the test run to the command line, and the final r
 +---------------+----------------+
 ```
 
-The results from the tests can also be found from mbed-os/log folder.
+The results from the tests can also be found in the mbed-os/log folder.
 You probably want to add the log folder to your .mbedignore file to prevent issues with build commands becoming too long over the time.
