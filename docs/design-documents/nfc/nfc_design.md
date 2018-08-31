@@ -49,7 +49,7 @@
     - [Interoperability](#interoperability)
     - [HAL testing](#hal-testing)
 - [Dependencies](#dependencies)
-  
+
 ## Revision history
 
 | Revision 	| Date           	| Authors                                                	| Mbed OS version 	| Comments         	|
@@ -313,7 +313,7 @@ This class is the ancestor class for all endpoints which have the capability of 
 User-facing API:
 
 ```cpp
-NFCNDEFCapable(uint8_t* buffer, size_t buffer_size);
+NFCNDEFCapable(const Span<uint8_t> &buffer);
 ```
 
 The class is constructed using a scratch buffer which is used to encode and/or decode NDEF messages.
