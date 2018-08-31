@@ -443,16 +443,10 @@ We will provide multiple helpers to make it easy to create and parse common reco
 For instance, the `URI`'s class API is:
 
 ```cpp
-uri_prefix_t uri_prefix() const
-void set_uri_prefix(uri_prefix_t prefix)
+void set_uri(uri_identifier_code_t id, const Span<const uint8_t> &uri_field)
 
-bool get_uri(char *uri, size_t max_sz) const
-size_t uri_size() const
-void set_uri(const char* uri)
-
-bool get_full_uri(char *uri, size_t max_sz) const
-size_t full_uri_size() const
-void set_full_uri(const char *uri)
+uri_identifier_code_t get_id() const;
+Span<const uint8_t> get_uri_field() const;
 ```
 
 **Note:** These types can be replaced by user defined ones if parsing and serialization logic is provided.
@@ -467,7 +461,7 @@ A `MessageParser`, which produces `Record` instances to its client, parses messa
 
 ```cpp
 void set_delegate(Delegate *delegate);
-void parse(const ac_buffer_t &data_buffer);
+void parse(const Span<const uint8_t> &data_buffer);
 ```
 
 It is important to note that the data_buffer in the entry of the parse function must contain the entire NDEF message.
@@ -478,7 +472,7 @@ It is important to note that the data_buffer in the entry of the parse function 
 virtual void on_parsing_started() { }
 virtual void on_record_parsed(const Record &record) { }
 virtual void on_parsing_terminated() { }
-virtual void on_parsing_error(error_t error) { }
+virtual void on_parsing_error(MessageParser::error_t error) { }
 ```
 
 The delegate is notified by the parser when the parsing starts or ends, when an error is encountered or when an NDEF `Record` has been parsed.
@@ -557,7 +551,7 @@ Clients of the class can register a delegate, parse a message or add a new `Reco
 
 ```cpp
 void set_delegate(Delegate *delegate);
-void parse(const ac_buffer_t &data_buffer);
+void parse(const Span<const uint8_t> &data_buffer);
 void add_record_parser(ndef::RecordParser *parser);
 ```
 
@@ -568,9 +562,9 @@ Clients of this class must implement this delegate. It receives events from the 
 ```cpp
 virtual void on_parsing_error(ndef::MessageParser::error_t error);
 virtual void on_parsing_started();
-virtual void on_text_parsed(const Text& text, const ndef::RecordID *id);
-virtual void on_mime_parsed(const Mime& text, const ndef::RecordID *id);
-virtual void on_uri_parsed(const URI& uri, const ndef::RecordID *id);
+virtual void on_text_parsed(const Text& text, const ndef::RecordID &id);
+virtual void on_mime_parsed(const Mime& text, const ndef::RecordID &id);
+virtual void on_uri_parsed(const URI& uri, const ndef::RecordID &id);
 virtual void on_unknown_record_parsed(const ndef::Record &record);
 virtual void on_parsing_terminated();
 ```
@@ -581,7 +575,7 @@ The class `MessageBuilder` is used to map a record into an NDEF message. It incl
 
 ![ndef_message_builder_diagram]
 
-For convenience, serialization functions for common types are provided, as well as a specialized `MessageBuilder` named `SimpleMessageBuilder` that exposes them in an object oriented fashion.
+For convenience, serialization functions for common types are provided in the common types we provide.
 
 ## HAL APIs
 
