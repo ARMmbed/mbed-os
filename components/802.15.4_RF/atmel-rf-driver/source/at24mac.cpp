@@ -31,21 +31,21 @@
 
 AT24Mac::I2CReset::I2CReset(PinName sda, PinName scl)
 {
-    mbed::DigitalInOut SDA(sda, PIN_OUTPUT, PullUp, 1);
-    mbed::DigitalInOut SCL(scl, PIN_OUTPUT, PullUp, 0);
+    mbed::DigitalInOut pin_sda(sda, PIN_OUTPUT, PullUp, 1);
+    mbed::DigitalInOut pin_scl(scl, PIN_OUTPUT, PullUp, 0);
     //generate 9 clocks for worst-case scenario
     for (int i = 0; i < 10; ++i) {
-        SCL = 1;
+        pin_scl = 1;
         wait_us(5);
-        SCL = 0;
+        pin_scl = 0;
         wait_us(5);
     }
     //generate a STOP condition
-    SDA = 0;
+    pin_sda = 0;
     wait_us(5);
-    SCL = 1;
+    pin_scl = 1;
     wait_us(5);
-    SDA = 1;
+    pin_sda = 1;
     wait_us(5);
 }
 
