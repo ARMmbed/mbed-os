@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017 ARM Limited. All rights reserved.
+ * Copyright (c) 2013-2018 Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -17,12 +17,15 @@
  *
  * ----------------------------------------------------------------------
  *
- * $Date:        30. October 2017
- * $Revision:    V2.1.2
+ * $Date:        18. June 2018
+ * $Revision:    V2.1.3
  *
  * Project:      CMSIS-RTOS2 API
  * Title:        cmsis_os2.h header file
  *
+ * Version 2.1.3
+ *    Additional functions allowed to be called from Interrupt Service Routines:
+ *    - osThreadGetId
  * Version 2.1.2
  *    Additional functions allowed to be called from Interrupt Service Routines:
  *    - osKernelGetInfo, osKernelGetState
@@ -366,11 +369,10 @@ uint32_t osKernelGetSysTimerFreq (void);
 /// \param[in]     attr          thread attributes; NULL: default values.
 /// \return thread ID for reference by other functions or NULL in case of error.
 osThreadId_t osThreadNew (osThreadFunc_t func, void *argument, const osThreadAttr_t *attr);
-osThreadId_t osThreadContextNew (osThreadFunc_t func, void *argument, const osThreadAttr_t *attr, void *context);
  
 /// Get name of a thread.
 /// \param[in]     thread_id     thread ID obtained by \ref osThreadNew or \ref osThreadGetId.
-/// \return name as NULL terminated string.
+/// \return name as null-terminated string.
 const char *osThreadGetName (osThreadId_t thread_id);
  
 /// Return the thread ID of the current running thread.
@@ -496,7 +498,7 @@ osTimerId_t osTimerNew (osTimerFunc_t func, osTimerType_t type, void *argument, 
  
 /// Get name of a timer.
 /// \param[in]     timer_id      timer ID obtained by \ref osTimerNew.
-/// \return name as NULL terminated string.
+/// \return name as null-terminated string.
 const char *osTimerGetName (osTimerId_t timer_id);
  
 /// Start or restart a timer.
@@ -530,7 +532,7 @@ osEventFlagsId_t osEventFlagsNew (const osEventFlagsAttr_t *attr);
  
 /// Get name of an Event Flags object.
 /// \param[in]     ef_id         event flags ID obtained by \ref osEventFlagsNew.
-/// \return name as NULL terminated string.
+/// \return name as null-terminated string.
 const char *osEventFlagsGetName (osEventFlagsId_t ef_id);
  
 /// Set the specified Event Flags.
@@ -573,7 +575,7 @@ osMutexId_t osMutexNew (const osMutexAttr_t *attr);
  
 /// Get name of a Mutex object.
 /// \param[in]     mutex_id      mutex ID obtained by \ref osMutexNew.
-/// \return name as NULL terminated string.
+/// \return name as null-terminated string.
 const char *osMutexGetName (osMutexId_t mutex_id);
  
 /// Acquire a Mutex or timeout if it is locked.
@@ -609,7 +611,7 @@ osSemaphoreId_t osSemaphoreNew (uint32_t max_count, uint32_t initial_count, cons
  
 /// Get name of a Semaphore object.
 /// \param[in]     semaphore_id  semaphore ID obtained by \ref osSemaphoreNew.
-/// \return name as NULL terminated string.
+/// \return name as null-terminated string.
 const char *osSemaphoreGetName (osSemaphoreId_t semaphore_id);
  
 /// Acquire a Semaphore token or timeout if no tokens are available.
@@ -645,7 +647,7 @@ osMemoryPoolId_t osMemoryPoolNew (uint32_t block_count, uint32_t block_size, con
  
 /// Get name of a Memory Pool object.
 /// \param[in]     mp_id         memory pool ID obtained by \ref osMemoryPoolNew.
-/// \return name as NULL terminated string.
+/// \return name as null-terminated string.
 const char *osMemoryPoolGetName (osMemoryPoolId_t mp_id);
  
 /// Allocate a memory block from a Memory Pool.
@@ -697,7 +699,7 @@ osMessageQueueId_t osMessageQueueNew (uint32_t msg_count, uint32_t msg_size, con
  
 /// Get name of a Message Queue object.
 /// \param[in]     mq_id         message queue ID obtained by \ref osMessageQueueNew.
-/// \return name as NULL terminated string.
+/// \return name as null-terminated string.
 const char *osMessageQueueGetName (osMessageQueueId_t mq_id);
  
 /// Put a Message into a Queue or timeout if Queue is full.

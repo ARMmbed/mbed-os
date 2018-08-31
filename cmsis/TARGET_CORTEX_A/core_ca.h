@@ -1,8 +1,8 @@
 /**************************************************************************//**
  * @file     core_ca.h
  * @brief    CMSIS Cortex-A Core Peripheral Access Layer Header File
- * @version  V1.00
- * @date     22. Feb 2017
+ * @version  V1.0.1
+ * @date     07. May 2018
  ******************************************************************************/
 /*
  * Copyright (c) 2009-2017 ARM Limited. All rights reserved.
@@ -1284,8 +1284,6 @@ __STATIC_INLINE void GIC_SetPendingIRQ(IRQn_Type IRQn)
   } else {
     // INTID 0-15 Software Generated Interrupt
     GICDistributor->SPENDSGIR[IRQn / 4U] = 1U << ((IRQn % 4U) * 8U);
-    // Forward the interrupt to the CPU interface that requested it
-    GICDistributor->SGIR = (IRQn | 0x02000000U);
   }
 }
 
