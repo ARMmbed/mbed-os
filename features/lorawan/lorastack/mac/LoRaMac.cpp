@@ -1237,9 +1237,19 @@ lorawan_status_t LoRaMac::schedule_tx()
     uint8_t rx1_dr = _lora_phy->apply_DR_offset(_params.sys_params.channel_data_rate,
                                                 _params.sys_params.rx1_dr_offset);
 
-    status = calculate_mic();
-    if (status != LORAWAN_STATUS_OK) {
-        return status;
+    bool process_mic = true;
+    loramac_mhdr_t mac_hdr;
+    mac_hdr.value = _params.tx_buffer[0];
+    if (mac_hdr.bits.mtype == FRAME_TYPE_JOIN_REQ || mac_hdr.bits.mtype == FRAME_TYPE_REJOIN_REQUEST) {
+        // JOIN and REJOIN frames already has own MIC
+        process_mic = false;
+    }
+
+    if (process_mic) {
+        status = calculate_userdata_mic();
+        if (status != LORAWAN_STATUS_OK) {
+            return status;
+        }
     }
 
     tr_debug("TX: Channel=%d, TX DR=%d, RX1 DR=%d",
@@ -1295,7 +1305,15 @@ lorawan_status_t LoRaMac::schedule_tx()
     }
 
     _can_cancel_tx = false;
-    return send_frame_on_channel(_params.channel);
+    status = send_frame_on_channel(_params.channel);
+
+    // If MIC was calculated, remove it from buffer after sending
+    // so it can be recalculated and added to the buffer in case
+    // of retransmission.
+    if (process_mic) {
+        _params.tx_buffer_len -= LORAMAC_MFR_LEN;
+    }
+    return status;
 }
 
 void LoRaMac::calculate_backOff(uint8_t channel)
@@ -2208,7 +2226,7 @@ void LoRaMac::get_rejoin_parameters(uint32_t& max_time, uint32_t& max_count)
     max_count = _lora_phy->get_rejoin_max_count();
 }
 
-lorawan_status_t LoRaMac::calculate_mic()
+lorawan_status_t LoRaMac::calculate_userdata_mic()
 {
     lorawan_status_t status = LORAWAN_STATUS_OK;
     uint32_t mic = 0;
