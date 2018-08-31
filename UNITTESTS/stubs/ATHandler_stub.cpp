@@ -68,7 +68,7 @@ void ATHandler::set_debug(bool debug_on)
 
 ATHandler::~ATHandler()
 {
-    ATHandler_stub::ref_count = -909;
+    ATHandler_stub::ref_count = kATHandler_destructor_ref_ount;
 }
 
 void ATHandler::inc_ref_count()

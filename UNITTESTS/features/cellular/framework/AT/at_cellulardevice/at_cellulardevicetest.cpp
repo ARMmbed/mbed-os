@@ -120,6 +120,7 @@ TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_close_network)
     ATHandler_stub::ref_count = 0;
 
     EXPECT_TRUE(dev.open_network(&fh1));
+    AT_CellularBase_stub::handler_value = AT_CellularBase_stub::handler_at_constructor_value;
     EXPECT_TRUE(ATHandler_stub::ref_count == 1);
 
     dev.close_network();
@@ -134,6 +135,7 @@ TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_close_sms)
     ATHandler_stub::ref_count = 0;
 
     EXPECT_TRUE(dev.open_sms(&fh1));
+    AT_CellularBase_stub::handler_value = AT_CellularBase_stub::handler_at_constructor_value;
     EXPECT_TRUE(ATHandler_stub::ref_count == 1);
 
     dev.close_sms();
@@ -148,6 +150,7 @@ TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_close_power)
     ATHandler_stub::ref_count = 0;
 
     EXPECT_TRUE(dev.open_power(&fh1));
+    AT_CellularBase_stub::handler_value = AT_CellularBase_stub::handler_at_constructor_value;
     EXPECT_TRUE(ATHandler_stub::ref_count == 1);
 
     dev.close_power();
@@ -163,6 +166,8 @@ TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_close_sim)
 
 
     EXPECT_TRUE(dev.open_sim(&fh1));
+    AT_CellularBase_stub::handler_value = AT_CellularBase_stub::handler_at_constructor_value;
+
     dev.close_sms(); // this should not affect to refcount as it's not opened
     EXPECT_TRUE(ATHandler_stub::ref_count == 1);
 
@@ -191,6 +196,7 @@ TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_close_information)
     AT_CellularBase_stub::handler_value = AT_CellularBase_stub::handler_at_constructor_value;
 
     dev.close_information();
+    EXPECT_TRUE(ATHandler_stub::ref_count == 1);
 
     ATHandler_stub::fh_value = NULL;
 }
