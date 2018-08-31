@@ -15,7 +15,7 @@
  */
 #include <string.h>
 
-#ifdef MBED_CONF_NANOSTACK_CONFIGURATION
+#if defined(MBED_CONF_NANOSTACK_CONFIGURATION) && DEVICE_SPI
 
 #include "platform/arm_hal_interrupt.h"
 #include "nanostack/platform/arm_hal_phy.h"
