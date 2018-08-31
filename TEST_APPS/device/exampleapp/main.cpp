@@ -18,6 +18,9 @@
 #include "mbed.h"
 #include "mbed-client-cli/ns_cmdline.h"
 
+#ifndef ICETEA_EXAMPLE_ENABLED
+#error [NOT_SUPPORTED] Skipping example application.
+#endif
 /**
  * Macros for setting console flow control.
  */
