@@ -305,7 +305,7 @@ struct Span {
         _data(other.data())
     {
         MBED_STATIC_ASSERT(
-            (span_detail::is_convertible<OtherElementType (*)[], ElementType (*)[]>::value),
+            (span_detail::is_convertible<OtherElementType (*)[1], ElementType (*)[1]>::value),
             "OtherElementType(*)[] should be convertible to ElementType (*)[]"
         );
     }
@@ -594,7 +594,7 @@ struct Span<ElementType, SPAN_DYNAMIC_EXTENT> {
         _data(other.data()), _size(other.size())
     {
         MBED_STATIC_ASSERT(
-            (span_detail::is_convertible<OtherElementType (*)[], ElementType (*)[]>::value),
+            (span_detail::is_convertible<OtherElementType (*)[1], ElementType (*)[1]>::value),
             "OtherElementType(*)[] should be convertible to ElementType (*)[]"
         );
     }
