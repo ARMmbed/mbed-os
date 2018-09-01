@@ -43,6 +43,19 @@ typedef uint64_t bd_size_t;
 class BlockDevice
 {
 public:
+
+    /** Return the default block device
+     *
+     * Returns the default BlockDevice base on configuration json.
+     * Use the components in target.json or application config to change
+     * the default block device.
+     *
+     * An application can override all target settings by implementing
+     * BlockDevice::get_default_instance() themselves - the default
+     * definition is weak, and calls get_target_default_instance().
+    */
+    static BlockDevice *get_default_instance();
+
     /** Lifetime of a block device
      */
     virtual ~BlockDevice() {};

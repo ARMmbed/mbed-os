@@ -216,7 +216,9 @@ typedef enum {
     D15         = PB_2,
     D16         = PA_1,
     D17         = PA_0,
-    D18         = PE_5
+    D18         = PE_5,
+    
+    SPI_PERSISTENT_MEM_CS = D9
 
 } PinName;
 
