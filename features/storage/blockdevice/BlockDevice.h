@@ -226,8 +226,8 @@ public:
     bool is_valid_erase(bd_addr_t addr, bd_size_t size) const
     {
         return (
-            addr % get_erase_size() == 0 &&
-            size % get_erase_size() == 0 &&
+            addr % get_erase_size(addr) == 0 &&
+            (addr + size) % get_erase_size(addr + size - 1) == 0 &&
             addr + size <= this->size());
     }
 };
