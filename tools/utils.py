@@ -179,6 +179,27 @@ def mkdir(path):
         makedirs(path)
 
 
+def write_json_to_file(json_data, file_name):
+    """
+    Write json content in file
+    :param json_data:
+    :param file_name:
+    :return:
+    """
+    # Create the target dir for file if necessary
+    test_spec_dir = os.path.dirname(file_name)
+
+    if test_spec_dir:
+        mkdir(test_spec_dir)
+
+    try:
+        with open(file_name, 'w') as f:
+            f.write(json.dumps(json_data, indent=2))
+    except IOError as e:
+        print("[ERROR] Error writing test spec to file")
+        print(e)
+
+
 def copy_file(src, dst):
     """ Implement the behaviour of "shutil.copy(src, dst)" without copying the
     permissions (this was causing errors with directories mounted with samba)

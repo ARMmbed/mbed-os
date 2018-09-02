@@ -1348,11 +1348,13 @@ def merge_build_data(filename, toolchain_report, app_type):
             for project in tc.values():
                 for build in project:
                     try:
+                        build[0]['bin_fullpath'] = build[0]['bin']
+                        build[0]['elf_fullpath'] = build[0]['elf']
                         build[0]['elf'] = relpath(build[0]['elf'], path_to_file)
                         build[0]['bin'] = relpath(build[0]['bin'], path_to_file)
                     except KeyError:
                         pass
                     if 'type' not in build[0]:
                         build[0]['type'] = app_type
-                    build_data['builds'].append(build[0])
-    dump(build_data, open(filename, "w"), indent=4, separators=(',', ': '))
+                    build_data['builds'].insert(0, build[0])
+    dump(build_data, open(filename, "wb"), indent=4, separators=(',', ': '))

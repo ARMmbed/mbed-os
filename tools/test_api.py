@@ -2066,13 +2066,15 @@ def get_test_config(config_name, target_name):
     # Otherwise find the path to configuration file based on mbed OS interface
     return TestConfig.get_config_path(config_name, target_name)
 
-def find_tests(base_dir, target_name, toolchain_name, app_config=None):
+
+def find_tests(base_dir, target_name, toolchain_name, icetea, greentea, app_config=None):
     """ Finds all tests in a directory recursively
-    base_dir: path to the directory to scan for tests (ex. 'path/to/project')
-    target_name: name of the target to use for scanning (ex. 'K64F')
-    toolchain_name: name of the toolchain to use for scanning (ex. 'GCC_ARM')
-    options: Compile options to pass to the toolchain (ex. ['debug-info'])
-    app_config - location of a chosen mbed_app.json file
+    :param base_dir: path to the directory to scan for tests (ex. 'path/to/project')
+    :param target_name: name of the target to use for scanning (ex. 'K64F')
+    :param toolchain_name: name of the toolchain to use for scanning (ex. 'GCC_ARM')
+    :param icetea: icetea enabled
+    :param greentea: greentea enabled
+    :param app_config - location of a chosen mbed_app.json file
 
     returns a dictionary where keys are the test name, and the values are
     lists of paths needed to biuld the test.
@@ -2089,38 +2091,56 @@ def find_tests(base_dir, target_name, toolchain_name, app_config=None):
     base_resources = Resources(MockNotifier(), collect_ignores=True)
     base_resources.scan_with_config(base_dir, config)
 
-    dirs = [d for d in base_resources.ignored_dirs if basename(d) == 'TESTS']
-    ignoreset = MbedIgnoreSet()
+    if greentea:
+        dirs = [d for d in base_resources.ignored_dirs if basename(d) == 'TESTS']
+        ignoreset = MbedIgnoreSet()
 
-    for directory in dirs:
-        ignorefile = join(directory, IGNORE_FILENAME)
-        if isfile(ignorefile):
-            ignoreset.add_mbedignore(directory, ignorefile)
-        for test_group_directory in os.listdir(directory):
-            grp_dir = join(directory, test_group_directory)
-            if not isdir(grp_dir) or ignoreset.is_ignored(grp_dir):
-                continue
-            grpignorefile = join(grp_dir, IGNORE_FILENAME)
-            if isfile(grpignorefile):
-                ignoreset.add_mbedignore(grp_dir, grpignorefile)
-            for test_case_directory in os.listdir(grp_dir):
-                d = join(directory, test_group_directory, test_case_directory)
-                if not isdir(d) or ignoreset.is_ignored(d):
+        for directory in dirs:
+            ignorefile = join(directory, IGNORE_FILENAME)
+            if isfile(ignorefile):
+                ignoreset.add_mbedignore(directory, ignorefile)
+            for test_group_directory in os.listdir(directory):
+                grp_dir = join(directory, test_group_directory)
+                if not isdir(grp_dir) or ignoreset.is_ignored(grp_dir):
                     continue
-                special_dirs = ['host_tests', 'COMMON']
-                if test_group_directory not in special_dirs and test_case_directory not in special_dirs:
-                    test_name = test_path_to_name(d, base_dir)
-                    tests[(test_name, directory, test_group_directory, test_case_directory)] = [d]
-                if test_case_directory == 'COMMON':
-                    def predicate(base_pred, group_pred, name_base_group_case):
+                grpignorefile = join(grp_dir, IGNORE_FILENAME)
+                if isfile(grpignorefile):
+                    ignoreset.add_mbedignore(grp_dir, grpignorefile)
+                for test_case_directory in os.listdir(grp_dir):
+                    d = join(directory, test_group_directory, test_case_directory)
+                    if not isdir(d) or ignoreset.is_ignored(d):
+                        continue
+                    special_dirs = ['host_tests', 'COMMON']
+                    if test_group_directory not in special_dirs and test_case_directory not in special_dirs:
+                        test_name = test_path_to_name(d, base_dir)
+                        tests[(test_name, directory, test_group_directory, test_case_directory)] = [d]
+                    if test_case_directory == 'COMMON':
+                        def predicate(base_pred, group_pred, name_base_group_case):
+                            (name, base, group, case) = name_base_group_case
+                            return base == base_pred and group == group_pred
+
+                        commons.append((functools.partial(predicate, directory, test_group_directory), d))
+                if test_group_directory == 'COMMON':
+                    def predicate(base_pred, name_base_group_case):
                         (name, base, group, case) = name_base_group_case
-                        return base == base_pred and group == group_pred
-                    commons.append((functools.partial(predicate, directory, test_group_directory), d))
-            if test_group_directory == 'COMMON':
-                def predicate(base_pred, name_base_group_case):
-                    (name, base, group, case) = name_base_group_case
-                    return base == base_pred
-                commons.append((functools.partial(predicate, directory), grp_dir))
+                        return base == base_pred
+
+                    commons.append((functools.partial(predicate, directory), grp_dir))
+
+    if icetea:
+        dirs = [d for d in base_resources.ignored_dirs if basename(d) == 'TEST_APPS']
+        for directory in dirs:
+            if not isdir(directory):
+                continue
+            for subdir in os.listdir(directory):
+                d = join(directory, subdir)
+                if not isdir(d):
+                    continue
+                if 'device' == subdir:
+                    for test_dir in os.listdir(d):
+                        test_dir_path = join(d, test_dir)
+                        test_name = test_path_to_name(test_dir_path, base_dir)
+                        tests[(test_name, directory, subdir, test_dir)] = [test_dir_path]
 
     # Apply common directories
     for pred, path in commons:
@@ -2130,6 +2150,7 @@ def find_tests(base_dir, target_name, toolchain_name, app_config=None):
 
     # Drop identity besides name
     return {name: paths for (name, _, _, _), paths in six.iteritems(tests)}
+
 
 def print_tests(tests, format="list", sort=True):
     """Given a dictionary of tests (as returned from "find_tests"), print them
@@ -2235,7 +2256,8 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
         "base_path": base_path,
         "baud_rate": baud_rate,
         "binary_type": "bootable",
-        "tests": {}
+        "tests": {},
+        "test_apps": {}
     }
 
     result = True
@@ -2314,7 +2336,8 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
                             'bin_file' in worker_result):
                             bin_file = norm_relative_path(worker_result['bin_file'], execution_directory)
 
-                            test_build['tests'][worker_result['kwargs']['project_id']] = {
+                            test_key = 'test_apps' if 'test_apps-' in worker_result['kwargs']['project_id'] else 'tests'
+                            test_build[test_key][worker_result['kwargs']['project_id']] = {
                                 "binaries": [
                                     {
                                         "path": bin_file

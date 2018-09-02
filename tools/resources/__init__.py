@@ -69,6 +69,7 @@ LEGACY_IGNORE_DIRS = set([
 
     # Tests, here for simplicity
     'TESTS',
+    'TEST_APPS',
 ])
 LEGACY_TOOLCHAIN_NAMES = {
     'ARM_STD':'ARM',
