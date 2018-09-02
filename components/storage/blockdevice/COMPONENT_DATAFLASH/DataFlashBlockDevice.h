@@ -74,7 +74,7 @@ public:
                          PinName miso,
                          PinName sclk,
                          PinName csel,
-                         int freq = 40000000,
+                         int freq = MBED_CONF_DATAFLASH_SPI_FREQ,
                          PinName nowp = NC);
 
     /** Initialize a block device
