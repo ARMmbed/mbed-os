@@ -22,29 +22,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef RTOS_H
-#define RTOS_H
+#ifndef RTOS_HANDLERS_H
+#define RTOS_HANDLERS_H
 
-#include "mbed_rtos_storage.h"
-#include "rtos/Kernel.h"
-#include "rtos/Thread.h"
-#include "rtos/ThisThread.h"
-#include "rtos/Mutex.h"
-#include "rtos/RtosTimer.h"
-#include "rtos/Semaphore.h"
-#include "rtos/Mail.h"
-#include "rtos/MemoryPool.h"
-#include "rtos/Queue.h"
-#include "rtos/EventFlags.h"
-#include "rtos/ConditionVariable.h"
+#include "cmsis_os2.h"
 
-using namespace rtos;
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-/* Get mbed lib version number, as RTOS depends on mbed lib features
-   like mbed_error, Callback and others.
-*/
-#include "mbed.h"
+/**
+ * \defgroup rtos_handlers RTOS hook functions
+ * @{
+ */
+/**
+ @note
+ Sets the hook function called by thread termination
+ @param fptr Hook function pointer.
+ */
+void rtos_attach_thread_terminate_hook(void (*fptr)(osThreadId_t id));
+/** @}*/
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 
 /** @}*/
+
