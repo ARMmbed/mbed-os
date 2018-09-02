@@ -1,0 +1,33 @@
+@startuml
+class NFCController {
+  +NFCController(NFCControllerDriver* driver, events::EventQueue* queue)
+  +void set_delegate(NFCController::Delegate* delegate)
+  +nfc_rf_protocols_bitmask_t get_supported_rf_protocols() const
+  +nfc_err_t initialize()
+  +nfc_err_t configure_rf_protocols(nfc_rf_protocols_bitmask_t rf_protocols)
+  +nfc_err_t start_discovery()
+  +nfc_err_t cancel_discovery()
+}
+
+abstract class NFCController::Delegate {
+  +{abstract} void on_discovery_terminated(nfc_discovery_terminated_reason_t reason)
+  +{abstract} void on_nfc_target_discovered(const mbed::SharedPtr<NFCRemoteTarget>& target)
+  +{abstract} void on_nfc_initiator_discovered(const mbed::SharedPtr<NFCRemoteInitiator>& initiator)
+}
+
+abstract class NFCControllerDriver {
+  +void set_delegate(Delegate* delegate)
+  +{abstract} transceiver_t* initialize(scheduler_timer_t* pTimer)
+  +{abstract} void get_supported_nfc_techs(nfc_tech_t* initiator, nfc_tech_t* target) const
+}
+
+abstract class NFCControllerDriver::Delegate {
+  +{abstract} void on_hw_interrupt()
+}
+
+NFCController o-- NFCController::Delegate
+NFCController o-- NFCControllerDriver
+NFCControllerDriver o-- NFCControllerDriver::Delegate
+NFCControllerDriver::Delegate <-- NFCController
+
+@enduml

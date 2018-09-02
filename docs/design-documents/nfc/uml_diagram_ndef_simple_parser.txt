@@ -1,0 +1,105 @@
+@startuml
+
+package ndef {
+
+class RecordParserChain { 
+
+}
+
+abstract RecordParser { 
+
+}
+
+abstract GenericRecordParser<ParserImplementation, ParsingResult> { 
+
+}
+
+interface GenericRecordParser::Delegate<ParsingResult> { 
+   +{abstract} void on_record_parsed(const ParsingResult& record, const RecordID* id)
+   #~Delegate()
+}
+
+class MessageParser { 
+
+}
+
+interface MessageParser::Delegate { 
+    +{abstract} void on_parsing_started()
+    +{abstract} void on_record_parsed(const Record& record)
+    +{abstract} void on_parsing_terminated()
+    +{abstract} void on_parsing_error(error_t error)
+    # ~Delegate()
+}
+
+
+MessageParser +-- "0..1" MessageParser::Delegate
+
+
+RecordParserChain -o RecordParser
+GenericRecordParser --|> RecordParser
+GenericRecordParser     +- "0..1" GenericRecordParser::Delegate
+
+RecordParserChain -[hidden]- MessageParser
+
+}
+
+package common { 
+
+class SimpleMessageParser { 
+    + SimpleMessageParser()
+    + ~SimpleMessageParser()
+    + void set_delegate(Delegate *delegate)
+    + void parse(const Span<const uint8_t> &data_buffer)
+    + void add_record_parser(ndef::RecordParser *parser)
+    - void on_parsing_error(ndef::MessageParser::error_t error)
+    - void on_parsing_started()
+    - void on_record_parsed(const ndef::Record &record)
+    - void on_parsing_terminated()
+    - void on_record_parsed(const URI &uri, const ndef::RecordID &id)
+    - void on_record_parsed(const Text &uri, const ndef::RecordID &id)
+    - void on_record_parsed(const Mime &uri, const ndef::RecordID &id)
+}
+
+interface SimpleMessageParser::Delegate {     
+    + {abstract} void on_parsing_started() 
+    + {abstract} void on_text_parsed(const Text &text, const ndef::RecordID &id)
+    + {abstract} void on_mime_parsed(const Mime &text, const ndef::RecordID &id)
+    + {abstract} void on_uri_parsed(const URI &uri, const ndef::RecordID &id)
+    + {abstract} void on_unknown_record_parsed(const ndef::Record &record)
+    + {abstract} void on_parsing_terminated()
+    + {abstract} void on_parsing_error(ndef::MessageParser::error_t error)    
+    # ~Delegate()
+}
+
+SimpleMessageParser::Delegate +- SimpleMessageParser 
+
+class URIParser { 
+
+}
+
+class TextParser { 
+
+}
+
+class MimeParser { 
+
+}
+
+URIParser --|> GenericRecordParser
+TextParser --|> GenericRecordParser
+MimeParser --|> GenericRecordParser
+
+SimpleMessageParser o-- URIParser
+SimpleMessageParser o-- TextParser
+SimpleMessageParser o-- MimeParser
+SimpleMessageParser o-- RecordParserChain
+SimpleMessageParser o-- MessageParser
+SimpleMessageParser <|-- MessageParser::Delegate
+
+SimpleMessageParser <|-- GenericRecordParser::Delegate
+SimpleMessageParser <|-- GenericRecordParser::Delegate
+SimpleMessageParser <|-- GenericRecordParser::Delegate
+
+}
+
+@enduml

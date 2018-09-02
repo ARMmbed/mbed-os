@@ -1,0 +1,46 @@
+@startuml
+
+package ndef {
+
+class MessageParser { 
+    +MessageParser()
+    +void set_delegate(Delegate *delegate)
+    +void parse(const Span<const uint8_t> &data_buffer)
+}
+
+interface MessageParser::Delegate { 
+    +{abstract} void on_parsing_started()
+    +{abstract} void on_record_parsed(const Record &record)
+    +{abstract} void on_parsing_terminated()
+    +{abstract} void on_parsing_error(error_t error)
+    # ~Delegate()
+}
+
+enum MessageParser::error_t { 
+}
+
+MessageParser +-- "0..1" MessageParser::Delegate
+MessageParser +-- MessageParser::error_t
+
+note top of "MessageParser::Delegate"
+Implemented by the client of the parsing operation.
+end note
+
+class Record { 
+}
+class RecordType { 
+}
+class RecordPayload { 
+}
+class RecordID { 
+}
+
+Record *-- RecordType
+Record *-- "0..1" RecordPayload
+Record *-- "0..1" RecordID
+
+MessageParser - Record: Produce >
+
+}
+
+@enduml
