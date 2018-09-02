@@ -26,6 +26,8 @@
 static const int kRead_string_table_size = 100;
 static const int kRead_int_table_size = 100;
 static const int kResp_stop_count_default = 100;
+// set reference count to -909 to separate it from zero so we can test that ATHandler is really deleted.
+static const int kATHandler_destructor_ref_ount = -909;
 
 namespace ATHandler_stub {
 extern nsapi_error_t nsapi_error_value;
