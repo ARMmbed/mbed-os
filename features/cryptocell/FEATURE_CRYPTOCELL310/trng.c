@@ -25,7 +25,7 @@
 #include "mbedtls/platform.h"
 
 extern mbedtls_platform_context  ctx;
-static CRYS_RND_WorkBuff_t  rndWorkBuff;
+static CRYS_RND_WorkBuff_t  rndWorkBuff = { { 0 } };
 
 /* Implementation that should never be optimized out by the compiler */
 static void mbedtls_zeroize( void *v, size_t n ) {

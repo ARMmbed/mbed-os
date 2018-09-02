@@ -22,7 +22,7 @@
 #if defined(MBEDTLS_PLATFORM_SETUP_TEARDOWN_ALT)
 #include "mbed_critical.h"
 
-mbedtls_platform_context ctx = { };
+mbedtls_platform_context ctx = { { 0 } };
 
 int mbedtls_platform_setup( mbedtls_platform_context *unused_ctx )
 {
