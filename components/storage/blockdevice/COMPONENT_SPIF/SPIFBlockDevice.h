@@ -25,11 +25,12 @@
  *  @enum spif_bd_error
  */
 enum spif_bd_error {
-    SPIF_BD_ERROR_OK                 = 0,     /*!< no error */
-    SPIF_BD_ERROR_DEVICE_ERROR       = BD_ERROR_DEVICE_ERROR, /*!< device specific error -4001 */
-    SPIF_BD_ERROR_PARSING_FAILED     = -4002, /* SFDP Parsing failed */
-    SPIF_BD_ERROR_READY_FAILED		 = -4003, /* Wait for  Mem Ready failed */
-    SPIF_BD_ERROR_WREN_FAILED        = -4004, /* Write Enable Failed */
+    SPIF_BD_ERROR_OK                    = 0,     /*!< no error */
+    SPIF_BD_ERROR_DEVICE_ERROR          = BD_ERROR_DEVICE_ERROR, /*!< device specific error -4001 */
+    SPIF_BD_ERROR_PARSING_FAILED        = -4002, /* SFDP Parsing failed */
+    SPIF_BD_ERROR_READY_FAILED	        = -4003, /* Wait for  Mem Ready failed */
+    SPIF_BD_ERROR_WREN_FAILED           = -4004, /* Write Enable Failed */
+    SPIF_BD_ERROR_INVALID_ERASE_PARAMS  = -4005, /* Erase command not on sector aligned addresses or exceeds device size */
 };
 
 
@@ -136,6 +137,7 @@ public:
      *                  SPIF_BD_ERROR_DEVICE_ERROR - device driver transaction failed
      *                  SPIF_BD_ERROR_READY_FAILED - Waiting for Memory ready failed or timed out
      *                  SPIF_BD_ERROR_WREN_FAILED - Write Enable failed
+     *                  SPIF_BD_ERROR_INVALID_ERASE_PARAMS - Trying to erase unaligned address or size
      */
     virtual int erase(bd_addr_t addr, bd_size_t size);
 

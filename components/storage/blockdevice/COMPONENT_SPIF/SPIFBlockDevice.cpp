@@ -339,12 +339,22 @@ int SPIFBlockDevice::erase(bd_addr_t addr, bd_size_t in_size)
     int size = (int)in_size;
     bool erase_failed = false;
     int status = SPIF_BD_ERROR_OK;
-   // Find region of erased address
+    // Find region of erased address
     int region = _utils_find_addr_region(addr);
     // Erase Types of selected region
     uint8_t bitfield = _region_erase_types_bitfield[region];
 
-    tr_error("DEBUG: erase - addr: %llu, in_size: %llu", addr, in_size);
+    tr_info("DEBUG: erase - addr: %llu, in_size: %llu", addr, in_size);
+
+    if ((addr + in_size) > _device_size_bytes) {
+        tr_error("ERROR: erase exceeds flash device size");
+        return SPIF_BD_ERROR_INVALID_ERASE_PARAMS;
+    }
+
+    if ( ((addr % get_erase_size(addr)) != 0 ) ||  (((addr + in_size) % get_erase_size(addr + in_size - 1)) != 0 ) ) {
+        tr_error("ERROR: invalid erase - unaligned address and size");
+        return SPIF_BD_ERROR_INVALID_ERASE_PARAMS;
+    }
 
     // For each iteration erase the largest section supported by current region
     while (size > 0) {
@@ -353,13 +363,12 @@ int SPIFBlockDevice::erase(bd_addr_t addr, bd_size_t in_size)
         // find the matching instruction and erase size chunk for that type.
         type = _utils_iterate_next_largest_erase_type(bitfield, size, (unsigned int)addr, _region_high_boundary[region]);
         cur_erase_inst = _erase_type_inst_arr[type];
-        //chunk = _erase_type_size_arr[type];
         offset = addr % _erase_type_size_arr[type];
         chunk = ( (offset + size) < _erase_type_size_arr[type]) ? size : (_erase_type_size_arr[type] - offset);
 
-        tr_error("DEBUG: erase - addr: %llu, size:%d, Inst: 0x%xh, chunk: %lu , ",
+        tr_debug("DEBUG: erase - addr: %llu, size:%d, Inst: 0x%xh, chunk: %lu , ",
                  addr, size, cur_erase_inst, chunk);
-        tr_error("DEBUG: erase - Region: %d, Type:%d",
+        tr_debug("DEBUG: erase - Region: %d, Type:%d",
                  region, type);
 
         _mutex->lock();
