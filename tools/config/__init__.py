@@ -495,7 +495,8 @@ class Config(object):
         self.target_labels = self.target.labels
         for override in BOOTLOADER_OVERRIDES:
             _, attr = override.split(".")
-            setattr(self.target, attr, None)
+            if not hasattr(self.target, attr):
+                setattr(self.target, attr, None)
 
         self.cumulative_overrides = {key: ConfigCumulativeOverride(key)
                                      for key in CUMULATIVE_ATTRIBUTES}
