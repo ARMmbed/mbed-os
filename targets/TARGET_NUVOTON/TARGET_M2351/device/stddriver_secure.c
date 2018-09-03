@@ -197,6 +197,18 @@ void SYS_UnlockReg_S(void)
     SYS_UnlockReg();
 }
 
+__NONSECURE_ENTRY
+void CLK_Idle_S(void)
+{
+    CLK_Idle();
+}
+
+__NONSECURE_ENTRY
+void CLK_PowerDown_S(void)
+{
+    CLK_PowerDown();
+}
+
 static bool check_mod_ns(int modclass, uint32_t modidx)
 {
     const nu_modidx_ns_t *modidx_ns = modidx_ns_tab;
