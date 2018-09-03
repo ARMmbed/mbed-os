@@ -415,7 +415,6 @@ private:
     int32_t bitwise_compute_partial(const void *buffer, crc_data_size_t size, uint32_t *crc) const
     {
         MBED_ASSERT(crc != NULL);
-        MBED_ASSERT(buffer != NULL);
 
         const uint8_t *data = static_cast<const uint8_t *>(buffer);
         uint32_t p_crc = *crc;
@@ -460,7 +459,6 @@ private:
     int32_t table_compute_partial(const void *buffer, crc_data_size_t size, uint32_t *crc) const
     {
         MBED_ASSERT(crc != NULL);
-        MBED_ASSERT(buffer != NULL);
 
         const uint8_t *data = static_cast<const uint8_t *>(buffer);
         uint32_t p_crc = *crc;
