@@ -34,10 +34,10 @@ RX_BUFF_SIZE = 32
 TERM_REOPEN_DELAY = 0.1
 
 
-def usb_serial_name(vid, pid):
-    """Get USB serial device name based on vid and pid."""
+def usb_serial_name(serial_number):
+    """Get USB serial device name based on the device serial number."""
     for port_info in stlp.comports():
-        if port_info.vid == vid and port_info.pid == pid:
+        if port_info.serial_number == serial_number:
             return port_info.device
     return None
 
@@ -77,11 +77,10 @@ class USBSerialTest(mbed_host_tests.BaseHostTest):
         Search is based on the id received from the device itself.
         Raises RuntimeError if the device is not found.
         """
-        vid, pid = (int(i, base=16) for i in str(usb_id_str).split(','))
-        port_name = usb_serial_name(vid, pid)
+        port_name = usb_serial_name(usb_id_str)
         if port_name is None:
-            err_msg = 'USB serial device (vid={:#04x}, pid={:#04x}) not found.'
-            raise RuntimeError(err_msg.format(vid, pid))
+            err_msg = 'USB serial device (SN={}) not found.'
+            raise RuntimeError(err_msg.format(usb_id_str))
         return port_name
 
     def __init__(self):
