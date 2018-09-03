@@ -397,6 +397,7 @@ void NFCEEPROM::continue_read()
         _driver->read_bytes(_eeprom_address, ac_buffer_builder_write_position(buffer_builder), _ndef_buffer_read_sz - _eeprom_address);
     } else {
         // Done, close session
+        _current_op = nfc_eeprom_read_end_session;
         _operation_result = NFC_OK;
         _driver->end_session();
     }
