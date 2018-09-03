@@ -66,17 +66,17 @@ NRF_SECTION_SET_DEF(sdh_ble_observers, nrf_sdh_ble_evt_observer_t, NRF_SDH_BLE_O
 
 //lint -save -e10 -e19 -e40 -e27 Illegal character (0x24)
 #if defined(__CC_ARM)
-    extern uint32_t  Image$$RW_IRAM1$$Base;
-    uint32_t const * const m_ram_start = &Image$$RW_IRAM1$$Base;
+    extern uint32_t  Image$$RW_IRAM0$$Base;
+    uint32_t const * const m_ram_start = &Image$$RW_IRAM0$$Base;
 #elif defined(__ICCARM__)
-    extern uint32_t  __ICFEDIT_region_RAM_start__;
-    uint32_t const * const m_ram_start = &__ICFEDIT_region_RAM_start__;
+    extern uint32_t  __ICFEDIT_region_RAM_NVIC_start__;
+    uint32_t const * const m_ram_start = &__ICFEDIT_region_RAM_NVIC_start__;
 #elif defined(__SES_ARM)
     extern uint32_t  __app_ram_start__;
     uint32_t const * const m_ram_start = &__app_ram_start__;
 #elif defined(__GNUC__)
-    extern uint32_t  __data_start__;
-    uint32_t const * const m_ram_start = &__data_start__;
+    extern uint32_t  __ram_start__;
+    uint32_t const * const m_ram_start = &__ram_start__;
 #endif
 //lint -restore
 

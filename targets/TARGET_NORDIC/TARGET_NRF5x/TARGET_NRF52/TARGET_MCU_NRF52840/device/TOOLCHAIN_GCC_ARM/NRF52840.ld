@@ -60,6 +60,7 @@ OUTPUT_FORMAT ("elf32-littlearm", "elf32-bigarm", "elf32-littlearm")
  *   __exidx_start
  *   __exidx_end
  *   __etext
+ *   __ram_start__
  *   __data_start__
  *   __preinit_array_start
  *   __preinit_array_end
@@ -202,6 +203,7 @@ SECTIONS
 
     .nvictable (NOLOAD) :
     {
+      __ram_start__ = .;
       PROVIDE(__start_nvictable = .);
       KEEP(*(.nvictable))
       PROVIDE(__stop_nvictable = .);

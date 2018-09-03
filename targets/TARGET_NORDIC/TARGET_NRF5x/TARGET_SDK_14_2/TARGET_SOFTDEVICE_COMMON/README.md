@@ -6,6 +6,10 @@ components/libraries/fstorage/nrf_fstorage_sd.*
 
 # Modifications
 
+The linker definitions for the start of ram in `softdevice/common/nrf_sdh_ble.c` 
+have been updated to the start of the mbed nvic section in ram as this 
+equals the end of softdevice ram.
+
 Removed:
  * common/nrf_sdh_freertos.c
  * common/nrf_sdh_freertos.h
