@@ -30,6 +30,7 @@
 #define USB_CDC_PID 0x2013
 #define USB_SERIAL_VID 0x1f00
 #define USB_SERIAL_PID 0x2012
+#define USB_SN_MAX_LEN 128
 
 #define MSG_KEY_PORT_OPEN_WAIT "port_open_wait"
 #define MSG_KEY_PORT_OPEN_CLOSE "port_open_close"
@@ -54,16 +55,18 @@ using utest::v1::Harness;
 #define EF_SEND (1ul << 0)
 EventFlags event_flags;
 
-bool send_testcase_data(const char *msg_key, uint16_t usb_vid, uint16_t usb_pid)
+char *usb_desc2str(const uint8_t *usb_desc, char *str, size_t n)
 {
-    char msg_value[10];
-    int str_len = snprintf(msg_value, sizeof msg_value, "%04x,%04x", usb_vid, usb_pid);
-    if (str_len != (sizeof msg_value) - 1) {
-        utest_printf("Failed to compose a value string to be sent to host.");
-        return false;
+    const size_t desc_size = usb_desc[0] - 2;
+    const uint8_t *src = &usb_desc[2];
+    size_t i, j;
+    for (i = 0, j = 0; i < n && j < desc_size; i++, j += 2) {
+        str[i] = src[j];
     }
-    greentea_send_kv(msg_key, msg_value);
-    return true;
+    for (; i < n; i++) {
+        str[i] = '\0';
+    }
+    return str;
 }
 
 /** Test CDC USB reconnect
@@ -75,6 +78,8 @@ bool send_testcase_data(const char *msg_key, uint16_t usb_vid, uint16_t usb_pid)
 void test_cdc_usb_reconnect()
 {
     USBCDC usb_cdc(false, USB_CDC_VID, USB_CDC_PID);
+    char usb_cdc_sn[USB_SN_MAX_LEN] = { };
+    usb_desc2str(usb_cdc.string_iserial_desc(), usb_cdc_sn, USB_SN_MAX_LEN);
     TEST_ASSERT_FALSE(usb_cdc.configured());
     TEST_ASSERT_FALSE(usb_cdc.ready());
 
@@ -87,10 +92,7 @@ void test_cdc_usb_reconnect()
     TEST_ASSERT_TRUE(usb_cdc.configured());
     TEST_ASSERT_FALSE(usb_cdc.ready());
 
-    if (!send_testcase_data(MSG_KEY_PORT_OPEN_WAIT, USB_CDC_VID, USB_CDC_PID)) {
-        TEST_ASSERT_MESSAGE(0, "Dev-host communication error.");
-        return;
-    }
+    greentea_send_kv(MSG_KEY_PORT_OPEN_WAIT, usb_cdc_sn);
     // Wait for the host to open the port.
     usb_cdc.wait_ready();
     TEST_ASSERT_TRUE(usb_cdc.configured());
@@ -112,10 +114,7 @@ void test_cdc_usb_reconnect()
     TEST_ASSERT_TRUE(usb_cdc.configured());
     TEST_ASSERT_FALSE(usb_cdc.ready());
 
-    if (!send_testcase_data(MSG_KEY_PORT_OPEN_WAIT, USB_CDC_VID, USB_CDC_PID)) {
-        TEST_ASSERT_MESSAGE(0, "Dev-host communication error.");
-        return;
-    }
+    greentea_send_kv(MSG_KEY_PORT_OPEN_WAIT, usb_cdc_sn);
     // Wait for the host to open the port again.
     usb_cdc.wait_ready();
     TEST_ASSERT_TRUE(usb_cdc.configured());
@@ -137,11 +136,10 @@ void test_cdc_usb_reconnect()
 void test_cdc_rx_single_bytes()
 {
     USBCDC usb_cdc(false, USB_CDC_VID, USB_CDC_PID);
+    char usb_cdc_sn[USB_SN_MAX_LEN] = { };
+    usb_desc2str(usb_cdc.string_iserial_desc(), usb_cdc_sn, USB_SN_MAX_LEN);
     usb_cdc.connect();
-    if (send_testcase_data(MSG_KEY_SEND_BYTES_SINGLE, USB_CDC_VID, USB_CDC_PID) == false) {
-        TEST_ASSERT_MESSAGE(0, "Dev-host communication error.");
-        return;
-    }
+    greentea_send_kv(MSG_KEY_SEND_BYTES_SINGLE, usb_cdc_sn);
     usb_cdc.wait_ready();
     uint8_t buff = 0x01;
     for (int expected = 0xff; expected >= 0; expected--) {
@@ -183,11 +181,10 @@ void tx_thread_fun(USBCDC *usb_cdc)
 void test_cdc_rx_single_bytes_concurrent()
 {
     USBCDC usb_cdc(false, USB_CDC_VID, USB_CDC_PID);
+    char usb_cdc_sn[USB_SN_MAX_LEN] = { };
+    usb_desc2str(usb_cdc.string_iserial_desc(), usb_cdc_sn, USB_SN_MAX_LEN);
     usb_cdc.connect();
-    if (send_testcase_data(MSG_KEY_SEND_BYTES_SINGLE, USB_CDC_VID, USB_CDC_PID) == false) {
-        TEST_ASSERT_MESSAGE(0, "Dev-host communication error.");
-        return;
-    }
+    greentea_send_kv(MSG_KEY_SEND_BYTES_SINGLE, usb_cdc_sn);
     usb_cdc.wait_ready();
     Thread tx_thread;
     event_flags.set(EF_SEND);
@@ -219,11 +216,10 @@ void test_cdc_rx_single_bytes_concurrent()
 void test_cdc_rx_multiple_bytes()
 {
     USBCDC usb_cdc(false, USB_CDC_VID, USB_CDC_PID);
+    char usb_cdc_sn[USB_SN_MAX_LEN] = { };
+    usb_desc2str(usb_cdc.string_iserial_desc(), usb_cdc_sn, USB_SN_MAX_LEN);
     usb_cdc.connect();
-    if (send_testcase_data(MSG_KEY_SEND_BYTES_MULTIPLE, USB_CDC_VID, USB_CDC_PID) == false) {
-        TEST_ASSERT_MESSAGE(0, "Dev-host communication error.");
-        return;
-    }
+    greentea_send_kv(MSG_KEY_SEND_BYTES_MULTIPLE, usb_cdc_sn);
     usb_cdc.wait_ready();
     uint8_t buff[RX_BUFF_SIZE] = { 0 };
     uint8_t expected_buff[RX_BUFF_SIZE] = { 0 };
@@ -254,11 +250,10 @@ void test_cdc_rx_multiple_bytes()
 void test_cdc_rx_multiple_bytes_concurrent()
 {
     USBCDC usb_cdc(false, USB_CDC_VID, USB_CDC_PID);
+    char usb_cdc_sn[USB_SN_MAX_LEN] = { };
+    usb_desc2str(usb_cdc.string_iserial_desc(), usb_cdc_sn, USB_SN_MAX_LEN);
     usb_cdc.connect();
-    if (send_testcase_data(MSG_KEY_SEND_BYTES_MULTIPLE, USB_CDC_VID, USB_CDC_PID) == false) {
-        TEST_ASSERT_MESSAGE(0, "Dev-host communication error.");
-        return;
-    }
+    greentea_send_kv(MSG_KEY_SEND_BYTES_MULTIPLE, usb_cdc_sn);
     usb_cdc.wait_ready();
     Thread tx_thread;
     event_flags.set(EF_SEND);
@@ -294,11 +289,10 @@ void test_cdc_rx_multiple_bytes_concurrent()
 void test_cdc_loopback()
 {
     USBCDC usb_cdc(false, USB_CDC_VID, USB_CDC_PID);
+    char usb_cdc_sn[USB_SN_MAX_LEN] = { };
+    usb_desc2str(usb_cdc.string_iserial_desc(), usb_cdc_sn, USB_SN_MAX_LEN);
     usb_cdc.connect();
-    if (send_testcase_data(MSG_KEY_LOOPBACK, USB_CDC_VID, USB_CDC_PID) == false) {
-        TEST_ASSERT_MESSAGE(0, "Dev-host communication error.");
-        return;
-    }
+    greentea_send_kv(MSG_KEY_LOOPBACK, usb_cdc_sn);
     usb_cdc.wait_ready();
     uint8_t rx_buff, tx_buff;
     for (int i = 0; i < CDC_LOOPBACK_REPS; i++) {
@@ -324,6 +318,8 @@ void test_cdc_loopback()
 void test_serial_usb_reconnect()
 {
     USBSerial usb_serial(false, USB_SERIAL_VID, USB_SERIAL_PID);
+    char usb_serial_sn[USB_SN_MAX_LEN] = { };
+    usb_desc2str(usb_serial.string_iserial_desc(), usb_serial_sn, USB_SN_MAX_LEN);
     TEST_ASSERT_FALSE(usb_serial.configured());
     TEST_ASSERT_FALSE(usb_serial.connected());
     TEST_ASSERT_EQUAL_INT(0, usb_serial.readable());
@@ -338,10 +334,7 @@ void test_serial_usb_reconnect()
     TEST_ASSERT_FALSE(usb_serial.connected());
     TEST_ASSERT_EQUAL_INT(0, usb_serial.readable());
 
-    if (!send_testcase_data(MSG_KEY_PORT_OPEN_WAIT, USB_SERIAL_VID, USB_SERIAL_PID)) {
-        TEST_ASSERT_MESSAGE(0, "Dev-host communication error.");
-        return;
-    }
+    greentea_send_kv(MSG_KEY_PORT_OPEN_WAIT, usb_serial_sn);
     // Wait for the host to open the port.
     while (!usb_serial.connected()) {
         wait_ms(1);
@@ -368,10 +361,7 @@ void test_serial_usb_reconnect()
     TEST_ASSERT_FALSE(usb_serial.connected());
     TEST_ASSERT_EQUAL_INT(0, usb_serial.readable());
 
-    if (!send_testcase_data(MSG_KEY_PORT_OPEN_WAIT, USB_SERIAL_VID, USB_SERIAL_PID)) {
-        TEST_ASSERT_MESSAGE(0, "Dev-host communication error.");
-        return;
-    }
+    greentea_send_kv(MSG_KEY_PORT_OPEN_WAIT, usb_serial_sn);
     // Wait for the host to open the port again.
     while (!usb_serial.connected()) {
         wait_ms(1);
@@ -397,11 +387,10 @@ void test_serial_usb_reconnect()
 void test_serial_term_reopen()
 {
     USBSerial usb_serial(false, USB_SERIAL_VID, USB_SERIAL_PID);
+    char usb_serial_sn[USB_SN_MAX_LEN] = { };
+    usb_desc2str(usb_serial.string_iserial_desc(), usb_serial_sn, USB_SN_MAX_LEN);
     usb_serial.connect();
-    if (!send_testcase_data(MSG_KEY_PORT_OPEN_CLOSE, USB_SERIAL_VID, USB_SERIAL_PID)) {
-        TEST_ASSERT_MESSAGE(0, "Dev-host communication error.");
-        return;
-    }
+    greentea_send_kv(MSG_KEY_PORT_OPEN_CLOSE, usb_serial_sn);
     // Wait for the host to open the terminal.
     while (!usb_serial.connected()) {
         wait_ms(1);
@@ -420,10 +409,7 @@ void test_serial_term_reopen()
     TEST_ASSERT_FALSE(usb_serial.connected());
     TEST_ASSERT_EQUAL_INT(0, usb_serial.readable());
 
-    if (!send_testcase_data(MSG_KEY_PORT_OPEN_CLOSE, USB_SERIAL_VID, USB_SERIAL_PID)) {
-        TEST_ASSERT_MESSAGE(0, "Dev-host communication error.");
-        return;
-    }
+    greentea_send_kv(MSG_KEY_PORT_OPEN_CLOSE, usb_serial_sn);
     // Wait for the host to open the terminal again.
     while (!usb_serial.connected()) {
         wait_ms(1);
@@ -454,11 +440,10 @@ void test_serial_term_reopen()
 void test_serial_getc()
 {
     USBSerial usb_serial(false, USB_SERIAL_VID, USB_SERIAL_PID);
+    char usb_serial_sn[USB_SN_MAX_LEN] = { };
+    usb_desc2str(usb_serial.string_iserial_desc(), usb_serial_sn, USB_SN_MAX_LEN);
     usb_serial.connect();
-    if (send_testcase_data(MSG_KEY_SEND_BYTES_SINGLE, USB_SERIAL_VID, USB_SERIAL_PID) == false) {
-        TEST_ASSERT_MESSAGE(0, "Dev-host communication error.");
-        return;
-    }
+    greentea_send_kv(MSG_KEY_SEND_BYTES_SINGLE, usb_serial_sn);
     while (!usb_serial.connected()) {
         wait_ms(1);
     }
@@ -487,11 +472,10 @@ void test_serial_getc()
 void test_serial_printf_scanf()
 {
     USBSerial usb_serial(false, USB_SERIAL_VID, USB_SERIAL_PID);
+    char usb_serial_sn[USB_SN_MAX_LEN] = { };
+    usb_desc2str(usb_serial.string_iserial_desc(), usb_serial_sn, USB_SN_MAX_LEN);
     usb_serial.connect();
-    if (!send_testcase_data(MSG_KEY_LOOPBACK, USB_SERIAL_VID, USB_SERIAL_PID)) {
-        TEST_ASSERT_MESSAGE(0, "Dev-host communication error.");
-        return;
-    }
+    greentea_send_kv(MSG_KEY_LOOPBACK, usb_serial_sn);
     while (!usb_serial.connected()) {
         wait_ms(1);
     }
