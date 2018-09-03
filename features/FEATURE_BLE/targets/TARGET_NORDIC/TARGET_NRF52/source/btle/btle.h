@@ -35,7 +35,7 @@ extern "C" {
                                                                        /** If value for YOTTA_CFG_NORDIC_BLE_PERIPHERAL_LINKS was used, ram settings are adjusted by the yotta target module. */
 #define PERIPHERAL_LINK_COUNT   NRF_SDH_BLE_PERIPHERAL_LINK_COUNT    /**<number of peripheral links used by the application. When changing this number remember to adjust the RAM settings*/
                                                                        /** If value for YOTTA_CFG_NORDIC_BLE_CENTRAL_LINKS was used, ram settings are adjusted by the yotta target module. */
-#define TOTAL_LINK_COUNT        NRF_SDH_BLE_TOTAL_LINK_COUNT          /**<number of total links used by the application. When changing this number remember to adjust the RAM settings */                                                             
+#define TOTAL_LINK_COUNT        (CENTRAL_LINK_COUNT+PERIPHERAL_LINK_COUNT) /**<number of total links used by the application. When changing this number remember to adjust the RAM settings */                                                             
 #define GATTS_ATTR_TAB_SIZE     NRF_SDH_BLE_GATTS_ATTR_TAB_SIZE /**< GATTS attribite table size. */
                                                                        /** If value for YOTTA_CFG_NORDIC_BLE_GATTS_ATTR_TAB_SIZE was used, ram settings are adjusted by the yotta target module. */
 
