@@ -23,15 +23,15 @@
 namespace mbed {
 
 class QUECTEL_BC95 : public AT_CellularDevice {
-public:
-
+protected:
+friend class CellularDevice;
     QUECTEL_BC95(events::EventQueue &queue);
     virtual ~QUECTEL_BC95();
 
-public: // CellularDevice
-    virtual CellularNetwork *open_network(FileHandle *fh);
-    virtual CellularPower *open_power(FileHandle *fh);
-    virtual CellularSIM *open_sim(FileHandle *fh);
+protected: // AT_CellularDevice
+    virtual AT_CellularNetwork *open_network_impl(ATHandler &at);
+    virtual AT_CellularPower *open_power_impl(ATHandler &at);
+    virtual AT_CellularSIM *open_sim_impl(ATHandler &at);
 
 public: // NetworkInterface
     void handle_urc(FileHandle *fh);

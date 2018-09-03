@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-#ifndef _CELLULAR_CONNECTION_UTIL_H
-#define _CELLULAR_CONNECTION_UTIL_H
+#ifndef _CELLULAR_CONNECTION_FSM_H
+#define _CELLULAR_CONNECTION_FSM_H
 
 #include "CellularTargets.h"
 #if defined(CELLULAR_DEVICE) || defined(DOXYGEN_ONLY)
@@ -29,12 +29,10 @@
 #include "CellularNetwork.h"
 #include "CellularPower.h"
 #include "CellularSIM.h"
-#include "CellularUtil.h"
-
-// modem type is defined as CELLULAR_DEVICE macro
-#include CELLULAR_STRINGIFY(CELLULAR_DEVICE.h)
 
 namespace mbed {
+
+class CellularDevice;
 
 const int PIN_SIZE = 8;
 const int MAX_RETRY_ARRAY_SIZE = 10;
@@ -209,7 +207,7 @@ private:
 
     uint16_t _retry_timeout_array[MAX_RETRY_ARRAY_SIZE];
     int _retry_array_length;
-    events::EventQueue _at_queue;
+    events::EventQueue *_at_queue;
     char _st_string[20];
     int _event_id;
     const char *_plmn;
@@ -221,4 +219,4 @@ private:
 
 #endif // CELLULAR_DEVICE || DOXYGEN
 
-#endif /* _CELLULAR_CONNECTION_UTIL_H */
+#endif // _CELLULAR_CONNECTION_FSM_H
