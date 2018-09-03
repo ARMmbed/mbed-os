@@ -117,6 +117,9 @@
         "REALTEK_RTL8195AM": {
             "tcpip-thread-stacksize": 1600
         },
+        "UBLOX_EVK_ODIN_W2": {
+            "pbuf-pool-size" :  10
+        },
         "STM": {
             "mem-size": 25600
         },
