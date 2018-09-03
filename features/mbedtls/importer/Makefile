@@ -27,7 +27,7 @@
 #
 
 # Set the mbed TLS release to import (this can/should be edited before import)
-MBED_TLS_RELEASE ?= mbedtls-2.10.0
+MBED_TLS_RELEASE ?= 0bbb4fc13255aedcb503159f6e5b626e986f24ac
 
 # Translate between mbed TLS namespace and mbed namespace
 TARGET_PREFIX:=../
