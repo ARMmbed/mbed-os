@@ -1,5 +1,5 @@
 /*
-  *  cc_platform.h
+  *  crypto_platform.h
   *
   *  Copyright (C) 2018, Arm Limited, All Rights Reserved
   *  SPDX-License-Identifier: Apache-2.0
@@ -17,8 +17,10 @@
   *  limitations under the License.
   *
   */
-#ifndef __CC_PLATFORM_H_
-#define __CC_PLATFORM_H_
+#ifndef __CRYPTO_PLATFORM_H_
+#define __CRYPTO_PLATFORM_H_
+#if defined(MBEDTLS_PLATFORM_SETUP_TEARDOWN_ALT)
+#include "crys_rnd.h"
 /**
  * \brief   The CC platform context structure.
  *
@@ -26,8 +28,8 @@
  *          setup or teardown operations.
  */
 typedef struct {
-    char dummy; /**< Placeholder member, as empty structs are not portable. */
+     CRYS_RND_State_t rndState;
 }
-cc_platform_ctx;
-
-#endif /* __CC_PLATFORM_H_ */
+crypto_platform_ctx;
+#endif /* MBEDTLS_PLATFORM_SETUP_TEARDOWN_ALT */
+#endif /* __CRYPTO_PLATFORM_H_ */

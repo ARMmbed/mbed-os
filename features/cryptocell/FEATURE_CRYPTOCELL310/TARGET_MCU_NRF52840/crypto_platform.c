@@ -1,5 +1,5 @@
  /*
-  *  cc_platform_nrf52840.c
+  *  crypto_platform.c
   *
   *  Copyright (C) 2018, Arm Limited, All Rights Reserved
   *  SPDX-License-Identifier: Apache-2.0
@@ -20,14 +20,25 @@
 
 #include "platform_alt.h"
 #include "nrf52840.h"
+#include "sns_silib.h"
+#if defined(MBEDTLS_PLATFORM_SETUP_TEARDOWN_ALT)
 
-int cc_platform_setup( cc_platform_ctx *ctx )
+static CRYS_RND_WorkBuff_t  rndWorkBuff = { { 0 } } ;
+
+int crypto_platform_setup( crypto_platform_ctx *ctx )
 {
     NRF_CRYPTOCELL->ENABLE = 1;
+
+    if( SaSi_LibInit( &ctx->rndState, &rndWorkBuff ) != 0 )
+          return ( MBEDTLS_ERR_PLATFORM_HW_FAILED );
+
     return ( 0 );
 }
 
-void cc_platform_terminate( cc_platform_ctx *ctx )
+void crypto_platform_terminate( crypto_platform_ctx *ctx )
 {
+    SaSi_LibFini( &ctx->rndState );
     NRF_CRYPTOCELL->ENABLE = 0;
 }
+
+#endif /* MBEDTLS_PLATFORM_SETUP_TEARDOWN_ALT */
