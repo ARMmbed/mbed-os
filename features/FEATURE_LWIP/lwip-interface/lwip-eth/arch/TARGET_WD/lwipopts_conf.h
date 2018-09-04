@@ -67,7 +67,7 @@
 
 #define LWIP_PPP_API				    1
 #define PPP_NOTIFY_PHASE			    1
-#define ICMP_STATS					    1   
+#define ICMP_STATS					    0   // setting this to 1 collides with the LWIP_STATS 0
 #define CHECKSUM_GEN_ICMP			    0
 #define LWIP_CHECKSUM_CTRL_PER_NETIF    1
 
