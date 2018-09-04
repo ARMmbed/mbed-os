@@ -1257,6 +1257,7 @@ void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, Pi
 
     /* Force reconfiguration next time object is owner. */
     uart_object->update = true;
+    nordic_nrf5_serial_configure(obj);
 }
 
 /** Clear the serial peripheral
