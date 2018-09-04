@@ -411,7 +411,6 @@ def merge_region_list(region_list, destination, notify, padding=b'\xFF'):
     """
     merged = IntelHex()
     _, format = splitext(destination)
-
     notify.info("Merging Regions")
 
     for region in region_list:
@@ -426,20 +425,21 @@ def merge_region_list(region_list, destination, notify, padding=b'\xFF'):
             notify.info("  Filling region %s with %s" % (region.name, region.filename))
             part = intelhex_offset(region.filename, offset=region.start)
             part.start_addr = None
-            part_size = (part.maxaddr() - part.minaddr()) + 1
+            if len(part.segments()) == 1:
+                part_size = (part.maxaddr() - part.minaddr()) + 1
+            else:
+                # make same assumption as in region builder; first segments must fit.
+                part_size = part.segments()[0][1] - part.segments()[0][0]
+
             if part_size > region.size:
                 raise ToolException("Contents of region %s does not fit"
                                     % region.name)
             merged.merge(part)
             pad_size = region.size - part_size
-            if pad_size > 0 and region != region_list[-1]:
+            if pad_size > 0 and region != region_list[-1] and format != ".hex":
                 notify.info("  Padding region %s with 0x%x bytes" %
                             (region.name, pad_size))
-                if format is ".hex":
-                    """The offset will be in the hex file generated when we're done,
-                    so we can skip padding here"""
-                else:
-                    merged.puts(merged.maxaddr() + 1, padding * pad_size)
+                merged.puts(merged.maxaddr() + 1, padding * pad_size)
 
     if not exists(dirname(destination)):
         makedirs(dirname(destination))
