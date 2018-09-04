@@ -220,7 +220,7 @@ LoRaPHYCN470::LoRaPHYCN470()
     }
 
     // Initialize the channels default mask
-    for (uint8_t i = 0; i < CN470_MAX_NB_CHANNELS; i++) {
+    for (uint8_t i = 0; i < CN470_CHANNEL_MASK_SIZE; i++) {
         default_channel_mask[i] = 0xFFFF & fsb_mask[i];
     }
 
