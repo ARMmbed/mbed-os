@@ -2182,8 +2182,8 @@
             }
         },
         "detect_code": ["0312"],
-        "macros_add": [ "RTC_LSE=1", "CELLULAR_DEVICE=UBLOX_PPP"],
-        "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH", "ANALOGIN", "I2C", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"],
+        "macros_add": ["CELLULAR_DEVICE=UBLOX_PPP"],
+        "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "STM32L471QG",
         "bootloader_supported": true        
