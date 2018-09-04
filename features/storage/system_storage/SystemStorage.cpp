@@ -80,13 +80,13 @@ MBED_WEAK FileSystem *FileSystem::get_default_instance()
 {
 #if COMPONENT_SPIF || COMPONENT_DATAFLASH
 
-    static LittleFileSystem default_fs("fs", BlockDevice::get_default_instance());
+    static LittleFileSystem default_fs("default", BlockDevice::get_default_instance());
 
     return &default_fs;
 
 #elif COMPONENT_SD
 
-    static FATFileSystem default_fs("fs", BlockDevice::get_default_instance());
+    static FATFileSystem default_fs("default", BlockDevice::get_default_instance());
 
     return &default_fs;
 

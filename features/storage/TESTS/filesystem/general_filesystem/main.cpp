@@ -82,87 +82,87 @@ static void FS_fopen_path_not_valid()
 //fopen empty file name with r mode
 static void FS_fopen_empty_path_r_mode()
 {
-    int res = !((fd[0] = fopen("fs/" "", "rb")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "", "rb")) != NULL);
     TEST_ASSERT_EQUAL(1, res);
 }
 
 //fopen empty file name with w mode
 static void FS_fopen_empty_path_w_mode()
 {
-    int res = !((fd[0] = fopen("fs/" "", "wb")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "", "wb")) != NULL);
     TEST_ASSERT_EQUAL(1, res);
 }
 
 //fopen empty mode
 static void FS_fopen_invalid_mode()
 {
-    int res = !((fd[0] = fopen("fs/" "Invalid_mode", "")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "Invalid_mode", "")) != NULL);
     TEST_ASSERT_EQUAL(1, res);
 }
 
 //fopen with valid flowSystemStorage
 static void FS_fopen_supported_wb_mode()
 {
-    int res = !((fd[0] = fopen("fs/" "filename", "wb")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = remove("fs/" "filename");
+    res = remove("/default/" "filename");
     TEST_ASSERT_EQUAL(0, res);
 }
 
 //fopen with append mode
 static void FS_fopen_supported_a_mode()
 {
-    int res = !((fd[0] = fopen("fs/" "filename", "a")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "a")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = remove("fs/" "filename");
+    res = remove("/default/" "filename");
     TEST_ASSERT_EQUAL(0, res);
 }
 
 //fopen with read mode
 static void FS_fopen_supported_r_mode()
 {
-    int res = !((fd[0] = fopen("fs/" "filename", "r")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "r")) != NULL);
     TEST_ASSERT_EQUAL(1, res);
 }
 
 //fopen with append update mode
 static void FS_fopen_supported_a_update_mode()
 {
-    int res = !((fd[0] = fopen("fs/" "filename", "a+")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "a+")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = remove("fs/" "filename");
+    res = remove("/default/" "filename");
     TEST_ASSERT_EQUAL(0, res);
 }
 
 //fopen with read update mode
 static void FS_fopen_supported_r_update_mode()
 {
-    int res = !((fd[0] = fopen("fs/" "filename", "r+")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "r+")) != NULL);
     TEST_ASSERT_EQUAL(1, res);
 }
 
 //fopen with write update mode
 static void FS_fopen_supported_w_update_mode()
 {
-    int res = !((fd[0] = fopen("fs/" "filename", "w+")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "w+")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = remove("fs/" "filename");
+    res = remove("/default/" "filename");
     TEST_ASSERT_EQUAL(0, res);
 }
 
@@ -172,7 +172,7 @@ static void FS_fopen_read_update_create()
     char write_buf[small_buf_size] = "123456789";
     char read_buf[small_buf_size] = "";
 
-    int res = !((fd[0] = fopen("fs/" "filename", "w")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "w")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     int write_sz = fwrite(write_buf, sizeof(char), small_buf_size, fd[0]);
@@ -181,7 +181,7 @@ static void FS_fopen_read_update_create()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = !((fd[0] = fopen("fs/" "filename", "r+")) != NULL);
+    res = !((fd[0] = fopen("/default/" "filename", "r+")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     int read_sz = fread(read_buf, sizeof(char), small_buf_size, fd[0]);
@@ -191,7 +191,7 @@ static void FS_fopen_read_update_create()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = remove("fs/" "filename");
+    res = remove("/default/" "filename");
     TEST_ASSERT_EQUAL(0, res);
 }
 
@@ -201,7 +201,7 @@ static void FS_fopen_write_update_create()
     char write_buf[small_buf_size] = "123456789";
     char read_buf[small_buf_size] = "";
 
-    int res = !((fd[0] = fopen("fs/" "filename", "w")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "w")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     int write_sz = fwrite(write_buf, sizeof(char), small_buf_size, fd[0]);
@@ -210,7 +210,7 @@ static void FS_fopen_write_update_create()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = !((fd[0] = fopen("fs/" "filename", "w+")) != NULL);
+    res = !((fd[0] = fopen("/default/" "filename", "w+")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     int read_sz = fread(read_buf, sizeof(char), small_buf_size, fd[0]);
@@ -219,7 +219,7 @@ static void FS_fopen_write_update_create()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = remove("fs/" "filename");
+    res = remove("/default/" "filename");
     TEST_ASSERT_EQUAL(0, res);
 }
 /*----------------fclose()------------------*/
@@ -227,13 +227,13 @@ static void FS_fopen_write_update_create()
 //fclose valid flow
 static void FS_fclose_valid_flow()
 {
-    int res = !((fd[0] = fopen("fs/" "filename", "wb")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = remove("fs/" "filename");
+    res = remove("/default/" "filename");
     TEST_ASSERT_EQUAL(0, res);
 }
 
@@ -244,7 +244,7 @@ static void FS_fwrite_nmemb_zero()
 {
     char buffer[small_buf_size] = "good_day";
 
-    int res = !((fd[0] = fopen("fs/" "filename", "wb")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     int write_sz = fwrite(buffer, sizeof(char), 0, fd[0]);
@@ -253,7 +253,7 @@ static void FS_fwrite_nmemb_zero()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = remove("fs/" "filename");
+    res = remove("/default/" "filename");
     TEST_ASSERT_EQUAL(0, res);
 }
 
@@ -263,7 +263,7 @@ static void FS_fwrite_valid_flow()
     char write_buf[small_buf_size] = "good_day";
     char read_buf[small_buf_size] = {};
 
-    int res = !((fd[0] = fopen("fs/" "filename", "wb")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     int write_sz = fwrite(write_buf, sizeof(char), small_buf_size, fd[0]);
@@ -272,7 +272,7 @@ static void FS_fwrite_valid_flow()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = !((fd[0] = fopen("fs/" "filename", "rb")) != NULL);
+    res = !((fd[0] = fopen("/default/" "filename", "rb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     int read_sz = fread(read_buf, sizeof(char), small_buf_size, fd[0]);
@@ -282,7 +282,7 @@ static void FS_fwrite_valid_flow()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = remove("fs/" "filename");
+    res = remove("/default/" "filename");
     TEST_ASSERT_EQUAL(0, res);
 }
 
@@ -291,13 +291,13 @@ static void FS_fwrite_with_fopen_r_mode()
 {
     char buffer[small_buf_size] = "good_day";
 
-    int res = !((fd[0] = fopen("fs/" "filename", "wb")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = !((fd[0] = fopen("fs/" "filename", "rb")) != NULL);
+    res = !((fd[0] = fopen("/default/" "filename", "rb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     int write_sz = fwrite(buffer, sizeof(char), small_buf_size, fd[0]);
@@ -306,7 +306,7 @@ static void FS_fwrite_with_fopen_r_mode()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = remove("fs/" "filename");
+    res = remove("/default/" "filename");
     TEST_ASSERT_EQUAL(0, res);
 }
 
@@ -317,7 +317,7 @@ static void FS_fread_size_zero()
 {
     char buffer[small_buf_size] = "good_day";
 
-    int res = !((fd[0] = fopen("fs/" "filename", "wb")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     int write_sz = fwrite(buffer, sizeof(char), small_buf_size, fd[0]);
@@ -326,7 +326,7 @@ static void FS_fread_size_zero()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = !((fd[0] = fopen("fs/" "filename", "rb")) != NULL);
+    res = !((fd[0] = fopen("/default/" "filename", "rb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     int read_sz = fread(buffer, 0, small_buf_size, fd[0]);
@@ -335,7 +335,7 @@ static void FS_fread_size_zero()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = remove("fs/" "filename");
+    res = remove("/default/" "filename");
     TEST_ASSERT_EQUAL(0, res);
 }
 
@@ -344,7 +344,7 @@ static void FS_fread_nmemb_zero()
 {
     char buffer[small_buf_size] = "good_day";
 
-    int res = !((fd[0] = fopen("fs/" "filename", "wb")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     int write_sz = fwrite(buffer, sizeof(char), small_buf_size, fd[0]);
@@ -353,7 +353,7 @@ static void FS_fread_nmemb_zero()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = !((fd[0] = fopen("fs/" "filename", "rb")) != NULL);
+    res = !((fd[0] = fopen("/default/" "filename", "rb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     int read_sz = fread(buffer, sizeof(char), 0, fd[0]);
@@ -362,7 +362,7 @@ static void FS_fread_nmemb_zero()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = remove("fs/" "filename");
+    res = remove("/default/" "filename");
     TEST_ASSERT_EQUAL(0, res);
 }
 
@@ -371,13 +371,13 @@ static void FS_fread_with_fopen_w_mode()
 {
     char buffer[small_buf_size] = {};
 
-    int res = !((fd[0] = fopen("fs/" "filename", "wb")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = !((fd[0] = fopen("fs/" "filename", "wb")) != NULL);
+    res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     int read_sz = fread(buffer, sizeof(char), small_buf_size, fd[0]);
@@ -386,7 +386,7 @@ static void FS_fread_with_fopen_w_mode()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = remove("fs/" "filename");
+    res = remove("/default/" "filename");
     TEST_ASSERT_EQUAL(0, res);
 }
 
@@ -396,7 +396,7 @@ static void FS_fread_to_fwrite_file()
     char read_buf[small_buf_size] = {};
     char write_buf[small_buf_size] = "123456789";
 
-    int res = !((fd[0] = fopen("fs/" "filename", "wb")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     int write_sz = fwrite(write_buf, sizeof(char), small_buf_size, fd[0]);
@@ -408,7 +408,7 @@ static void FS_fread_to_fwrite_file()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = remove("fs/" "filename");
+    res = remove("/default/" "filename");
     TEST_ASSERT_EQUAL(0, res);
 }
 
@@ -417,13 +417,13 @@ static void FS_fread_empty_file()
 {
     char read_buf[small_buf_size] = {};
 
-    int res = !((fd[0] = fopen("fs/" "filename", "wb")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = !((fd[0] = fopen("fs/" "filename", "rb")) != NULL);
+    res = !((fd[0] = fopen("/default/" "filename", "rb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     int read_sz = fread(read_buf, sizeof(char), small_buf_size, fd[0]);
@@ -432,7 +432,7 @@ static void FS_fread_empty_file()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = remove("fs/" "filename");
+    res = remove("/default/" "filename");
     TEST_ASSERT_EQUAL(0, res);
 }
 
@@ -442,7 +442,7 @@ static void FS_fread_valid_flow_small_file()
     char write_buf[small_buf_size] = "good_day";
     char read_buf[small_buf_size] = {};
 
-    int res = !((fd[0] = fopen("fs/" "filename", "wb")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     int write_sz = fwrite(write_buf, sizeof(char), sizeof(write_buf), fd[0]);
@@ -451,7 +451,7 @@ static void FS_fread_valid_flow_small_file()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = !((fd[0] = fopen("fs/" "filename", "rb")) != NULL);
+    res = !((fd[0] = fopen("/default/" "filename", "rb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     int read_sz = fread(read_buf, sizeof(char), sizeof(read_buf), fd[0]);
@@ -461,7 +461,7 @@ static void FS_fread_valid_flow_small_file()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = remove("fs/" "filename");
+    res = remove("/default/" "filename");
     TEST_ASSERT_EQUAL(0, res);
 }
 
@@ -472,7 +472,7 @@ static void FS_fread_valid_flow_medium_file()
     char write_buf[medium_buf_size] = { 1 };
     char read_buf[medium_buf_size] = {};
 
-    int res = !((fd[0] = fopen("fs/" "filename", "wb")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     int write_sz = fwrite(write_buf, sizeof(char), sizeof(write_buf), fd[0]);
@@ -481,7 +481,7 @@ static void FS_fread_valid_flow_medium_file()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = !((fd[0] = fopen("fs/" "filename", "rb")) != NULL);
+    res = !((fd[0] = fopen("/default/" "filename", "rb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     int read_sz = fread(read_buf, sizeof(char), sizeof(read_buf), fd[0]);
@@ -491,7 +491,7 @@ static void FS_fread_valid_flow_medium_file()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = remove("fs/" "filename");
+    res = remove("/default/" "filename");
     TEST_ASSERT_EQUAL(0, res);
 }
 
@@ -501,7 +501,7 @@ static void FS_fread_valid_flow_large_file()
     char write_buf[large_buf_size] = { 1 };
     char read_buf[large_buf_size] = {};
 
-    int res = !((fd[0] = fopen("fs/" "filename", "wb")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     int write_sz = fwrite(write_buf, sizeof(char), sizeof(write_buf), fd[0]);
@@ -510,7 +510,7 @@ static void FS_fread_valid_flow_large_file()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = !((fd[0] = fopen("fs/" "filename", "rb")) != NULL);
+    res = !((fd[0] = fopen("/default/" "filename", "rb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     int read_sz = fread(read_buf, sizeof(char), sizeof(read_buf), fd[0]);
@@ -520,7 +520,7 @@ static void FS_fread_valid_flow_large_file()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = remove("fs/" "filename");
+    res = remove("/default/" "filename");
     TEST_ASSERT_EQUAL(0, res);
 }
 
@@ -530,7 +530,7 @@ static void FS_fread_valid_flow_small_file_read_more_than_write()
     char write_buf[small_buf_size] = "good_day";
     char read_buf[small_buf_size + 10] = {};
 
-    int res = !((fd[0] = fopen("fs/" "filename", "wb")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     int write_sz = fwrite(write_buf, sizeof(char), sizeof(write_buf), fd[0]);
@@ -539,7 +539,7 @@ static void FS_fread_valid_flow_small_file_read_more_than_write()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = !((fd[0] = fopen("fs/" "filename", "rb")) != NULL);
+    res = !((fd[0] = fopen("/default/" "filename", "rb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     int read_sz = fread(read_buf, sizeof(char), sizeof(read_buf), fd[0]);
@@ -549,7 +549,7 @@ static void FS_fread_valid_flow_small_file_read_more_than_write()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = remove("fs/" "filename");
+    res = remove("/default/" "filename");
     TEST_ASSERT_EQUAL(0, res);
 }
 
@@ -558,13 +558,13 @@ static void FS_fread_valid_flow_small_file_read_more_than_write()
 //fgetc to an empty file
 static void FS_fgetc_empty_file()
 {
-    int res = !((fd[0] = fopen("fs/" "filename", "wb")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = !((fd[0] = fopen("fs/" "filename", "rb")) != NULL);
+    res = !((fd[0] = fopen("/default/" "filename", "rb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     res = fgetc(fd[0]);
@@ -573,7 +573,7 @@ static void FS_fgetc_empty_file()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = remove("fs/" "filename");
+    res = remove("/default/" "filename");
     TEST_ASSERT_EQUAL(0, res);
 }
 
@@ -585,7 +585,7 @@ static void FS_fgetc_valid_flow()
     int ch = 0;
     unsigned int i = 0;
 
-    int res = !((fd[0] = fopen("fs/" "filename", "wb")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     int write_sz = fwrite(write_buf, sizeof(char), sizeof(write_buf), fd[0]);
@@ -594,7 +594,7 @@ static void FS_fgetc_valid_flow()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = !((fd[0] = fopen("fs/" "filename", "rb")) != NULL);
+    res = !((fd[0] = fopen("/default/" "filename", "rb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     for (i = 0; (i < (sizeof(read_buf) - 1) && ((ch = fgetc(fd[0])) != EOF) && (ch != '\n')); i++) {
@@ -607,20 +607,20 @@ static void FS_fgetc_valid_flow()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = remove("fs/" "filename");
+    res = remove("/default/" "filename");
     TEST_ASSERT_EQUAL(0, res);
 }
 
 //fgetc to fopen mode w
 static void FS_fgetc_with_fopen_w_mode()
 {
-    int res = !((fd[0] = fopen("fs/" "filename", "wb")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = !((fd[0] = fopen("fs/" "filename", "wb")) != NULL);
+    res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     res = fgetc(fd[0]);
@@ -629,7 +629,7 @@ static void FS_fgetc_with_fopen_w_mode()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = remove("fs/" "filename");
+    res = remove("/default/" "filename");
     TEST_ASSERT_EQUAL(0, res);
 }
 
@@ -640,13 +640,13 @@ static void FS_fgets_empty_file()
 {
     char buffer[small_buf_size] = {};
 
-    int res = !((fd[0] = fopen("fs/" "filename", "wb")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = !((fd[0] = fopen("fs/" "filename", "rb")) != NULL);
+    res = !((fd[0] = fopen("/default/" "filename", "rb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     TEST_ASSERT_NULL(fgets(buffer, sizeof(buffer), fd[0]));
@@ -654,20 +654,20 @@ static void FS_fgets_empty_file()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = remove("fs/" "filename");
+    res = remove("/default/" "filename");
     TEST_ASSERT_EQUAL(0, res);
 }
 
 //fgets with buffer null with zero len of buffer string
 static void FS_fgets_null_buffer_zero_len()
 {
-    int res = !((fd[0] = fopen("fs/" "filename", "wb")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = !((fd[0] = fopen("fs/" "filename", "rb")) != NULL);
+    res = !((fd[0] = fopen("/default/" "filename", "rb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     TEST_ASSERT_NULL(fgets(NULL, 0, fd[0]));
@@ -675,20 +675,20 @@ static void FS_fgets_null_buffer_zero_len()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = remove("fs/" "filename");
+    res = remove("/default/" "filename");
     TEST_ASSERT_EQUAL(0, res);
 }
 
 //fgets with buffer null
 static void FS_fgets_null_buffer()
 {
-    int res = !((fd[0] = fopen("fs/" "filename", "wb")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = !((fd[0] = fopen("fs/" "filename", "rb")) != NULL);
+    res = !((fd[0] = fopen("/default/" "filename", "rb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     TEST_ASSERT_NULL(fgets(NULL, small_buf_size, fd[0]));
@@ -696,7 +696,7 @@ static void FS_fgets_null_buffer()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = remove("fs/" "filename");
+    res = remove("/default/" "filename");
     TEST_ASSERT_EQUAL(0, res);
 }
 
@@ -706,7 +706,7 @@ static void FS_fgets_valid_flow()
     char write_buf[small_buf_size] = "good_day";
     char read_buf[small_buf_size] = {};
 
-    int res = !((fd[0] = fopen("fs/" "filename", "wb")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     int write_sz = fwrite(write_buf, sizeof(char), sizeof(write_buf), fd[0]);
@@ -715,7 +715,7 @@ static void FS_fgets_valid_flow()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = !((fd[0] = fopen("fs/" "filename", "rb")) != NULL);
+    res = !((fd[0] = fopen("/default/" "filename", "rb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     TEST_ASSERT_NOT_NULL(fgets(read_buf, sizeof(read_buf), fd[0]));
@@ -724,7 +724,7 @@ static void FS_fgets_valid_flow()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = remove("fs/" "filename");
+    res = remove("/default/" "filename");
     TEST_ASSERT_EQUAL(0, res);
 }
 
@@ -736,7 +736,7 @@ static void FS_fgets_new_line()
 
     write_buf[4] = '\n';
 
-    int res = !((fd[0] = fopen("fs/" "filename", "wb")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     int write_sz = fwrite(write_buf, sizeof(char), sizeof(write_buf), fd[0]);
@@ -745,7 +745,7 @@ static void FS_fgets_new_line()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = !((fd[0] = fopen("fs/" "filename", "rb")) != NULL);
+    res = !((fd[0] = fopen("/default/" "filename", "rb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     TEST_ASSERT_NOT_NULL(fgets(read_buf, sizeof(read_buf), fd[0]));
@@ -754,7 +754,7 @@ static void FS_fgets_new_line()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = remove("fs/" "filename");
+    res = remove("/default/" "filename");
     TEST_ASSERT_EQUAL(0, res);
 }
 
@@ -763,13 +763,13 @@ static void FS_fgets_with_fopen_w_mode()
 {
     char buffer[small_buf_size] = {};
 
-    int res = !((fd[0] = fopen("fs/" "filename", "wb")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = !((fd[0] = fopen("fs/" "filename", "wb")) != NULL);
+    res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     TEST_ASSERT_NULL(fgets(buffer, sizeof(buffer), fd[0]));
@@ -777,7 +777,7 @@ static void FS_fgets_with_fopen_w_mode()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = remove("fs/" "filename");
+    res = remove("/default/" "filename");
     TEST_ASSERT_EQUAL(0, res);
 }
 
@@ -796,7 +796,7 @@ static void FS_fflush_valid_flow()
 {
     char buffer[small_buf_size] = "good_day";
 
-    int res = !((fd[0] = fopen("fs/" "filename", "wb")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     int write_sz = fwrite(buffer, sizeof(char), small_buf_size, fd[0]);
@@ -808,7 +808,7 @@ static void FS_fflush_valid_flow()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = remove("fs/" "filename");
+    res = remove("/default/" "filename");
     TEST_ASSERT_EQUAL(0, res);
 }
 
@@ -818,7 +818,7 @@ static void FS_fflush_twice()
 {
     char buffer[small_buf_size] = "good_day";
 
-    int res = !((fd[0] = fopen("fs/" "filename", "wb")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     int write_sz = fwrite(buffer, sizeof(char), small_buf_size, fd[0]);
@@ -833,7 +833,7 @@ static void FS_fflush_twice()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = remove("fs/" "filename");
+    res = remove("/default/" "filename");
     TEST_ASSERT_EQUAL(0, res);
 }
 
@@ -844,7 +844,7 @@ static void FS_fputc_valid_flow()
 {
     int write_ch = 10, read_ch = 0;
 
-    int res = !((fd[0] = fopen("fs/" "filename", "wb")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     res = fputc(write_ch, fd[0]);
@@ -853,7 +853,7 @@ static void FS_fputc_valid_flow()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = !((fd[0] = fopen("fs/" "filename", "rb")) != NULL);
+    res = !((fd[0] = fopen("/default/" "filename", "rb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     read_ch = fgetc(fd[0]);
@@ -862,7 +862,7 @@ static void FS_fputc_valid_flow()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = remove("fs/" "filename");
+    res = remove("/default/" "filename");
     TEST_ASSERT_EQUAL(0, res);
 }
 
@@ -871,13 +871,13 @@ static void FS_fputc_in_read_mode()
 {
     int write_ch = 10;
 
-    int res = !((fd[0] = fopen("fs/" "filename", "wb")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = !((fd[0] = fopen("fs/" "filename", "rb")) != NULL);
+    res = !((fd[0] = fopen("/default/" "filename", "rb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     res = fputc(write_ch, fd[0]);
@@ -886,7 +886,7 @@ static void FS_fputc_in_read_mode()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = remove("fs/" "filename");
+    res = remove("/default/" "filename");
     TEST_ASSERT_EQUAL(0, res);
 }
 
@@ -898,7 +898,7 @@ static void FS_fputs_valid_flow()
     char write_buf[small_buf_size] = "123456789";
     char read_buf[small_buf_size] = {};
 
-    int res = !((fd[0] = fopen("fs/" "filename", "wb")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     res = fputs(write_buf, fd[0]);
@@ -907,7 +907,7 @@ static void FS_fputs_valid_flow()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = !((fd[0] = fopen("fs/" "filename", "rb")) != NULL);
+    res = !((fd[0] = fopen("/default/" "filename", "rb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     int read_sz = fread(read_buf, sizeof(char), sizeof(write_buf), fd[0]);
@@ -917,7 +917,7 @@ static void FS_fputs_valid_flow()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = remove("fs/" "filename");
+    res = remove("/default/" "filename");
     TEST_ASSERT_EQUAL(0, res);
 }
 
@@ -926,13 +926,13 @@ static void FS_fputs_in_read_mode()
 {
     char buffer[small_buf_size] = "good_day";
 
-    int res = !((fd[0] = fopen("fs/" "filename", "wb")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = !((fd[0] = fopen("fs/" "filename", "rb")) != NULL);
+    res = !((fd[0] = fopen("/default/" "filename", "rb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     res = fputs(buffer, fd[0]);
@@ -941,7 +941,7 @@ static void FS_fputs_in_read_mode()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = remove("fs/" "filename");
+    res = remove("/default/" "filename");
     TEST_ASSERT_EQUAL(0, res);
 }
 
@@ -950,13 +950,13 @@ static void FS_fputs_in_read_mode()
 //fseek empty file, SEEK_SET, offset 0
 static void FS_fseek_empty_file_seek_set()
 {
-    int res = !((fd[0] = fopen("fs/" "filename", "wb")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = !((fd[0] = fopen("fs/" "filename", "rb")) != NULL);
+    res = !((fd[0] = fopen("/default/" "filename", "rb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     res = fseek(fd[0], 0, SEEK_SET);
@@ -968,7 +968,7 @@ static void FS_fseek_empty_file_seek_set()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = remove("fs/" "filename");
+    res = remove("/default/" "filename");
     TEST_ASSERT_EQUAL(0, res);
 }
 
@@ -977,7 +977,7 @@ static void FS_fseek_non_empty_file_seek_set()
 {
     char write_buf[small_buf_size] = "123456789";
 
-    int res = !((fd[0] = fopen("fs/" "filename", "wb")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     int write_sz = fwrite(write_buf, sizeof(char), sizeof(write_buf), fd[0]);
@@ -986,7 +986,7 @@ static void FS_fseek_non_empty_file_seek_set()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = !((fd[0] = fopen("fs/" "filename", "rb")) != NULL);
+    res = !((fd[0] = fopen("/default/" "filename", "rb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     res = fseek(fd[0], 0, SEEK_SET);
@@ -998,7 +998,7 @@ static void FS_fseek_non_empty_file_seek_set()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = remove("fs/" "filename");
+    res = remove("/default/" "filename");
     TEST_ASSERT_EQUAL(0, res);
 }
 
@@ -1007,13 +1007,13 @@ static void FS_fseek_beyond_empty_file_seek_set()
 {
     char read_buf[small_buf_size] = "";
 
-    int res = !((fd[0] = fopen("fs/" "filename", "wb")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = !((fd[0] = fopen("fs/" "filename", "rb+")) != NULL);
+    res = !((fd[0] = fopen("/default/" "filename", "rb+")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     res = fseek(fd[0], 10, SEEK_SET);
@@ -1028,7 +1028,7 @@ static void FS_fseek_beyond_empty_file_seek_set()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = remove("fs/" "filename");
+    res = remove("/default/" "filename");
     TEST_ASSERT_EQUAL(0, res);
 }
 
@@ -1038,7 +1038,7 @@ static void FS_fseek_beyond_non_empty_file_seek_set()
     char write_buf[small_buf_size] = "123456789";
     char read_buf[small_buf_size] = "";
 
-    int res = !((fd[0] = fopen("fs/" "filename", "wb")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     int write_sz = fwrite(write_buf, sizeof(char), sizeof(write_buf), fd[0]);
@@ -1047,7 +1047,7 @@ static void FS_fseek_beyond_non_empty_file_seek_set()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = !((fd[0] = fopen("fs/" "filename", "rb+")) != NULL);
+    res = !((fd[0] = fopen("/default/" "filename", "rb+")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     res = fseek(fd[0], sizeof(write_buf) + 1, SEEK_SET);
@@ -1062,20 +1062,20 @@ static void FS_fseek_beyond_non_empty_file_seek_set()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = remove("fs/" "filename");
+    res = remove("/default/" "filename");
     TEST_ASSERT_EQUAL(0, res);
 }
 
 //fseek empty file, SEEK_CUR, offset 0
 static void FS_fseek_empty_file_seek_cur()
 {
-    int res = !((fd[0] = fopen("fs/" "filename", "wb")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = !((fd[0] = fopen("fs/" "filename", "rb+")) != NULL);
+    res = !((fd[0] = fopen("/default/" "filename", "rb+")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     res = fseek(fd[0], 0, SEEK_CUR);
@@ -1087,7 +1087,7 @@ static void FS_fseek_empty_file_seek_cur()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = remove("fs/" "filename");
+    res = remove("/default/" "filename");
     TEST_ASSERT_EQUAL(0, res);
 }
 
@@ -1096,7 +1096,7 @@ static void FS_fseek_non_empty_file_seek_cur()
 {
     char write_buf[small_buf_size] = "123456789";
 
-    int res = !((fd[0] = fopen("fs/" "filename", "wb")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     int write_sz = fwrite(write_buf, sizeof(char), sizeof(write_buf), fd[0]);
@@ -1105,7 +1105,7 @@ static void FS_fseek_non_empty_file_seek_cur()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = !((fd[0] = fopen("fs/" "filename", "rb+")) != NULL);
+    res = !((fd[0] = fopen("/default/" "filename", "rb+")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     res = fseek(fd[0], 0, SEEK_CUR);
@@ -1117,7 +1117,7 @@ static void FS_fseek_non_empty_file_seek_cur()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = remove("fs/" "filename");
+    res = remove("/default/" "filename");
     TEST_ASSERT_EQUAL(0, res);
 }
 
@@ -1126,13 +1126,13 @@ static void FS_fseek_beyond_empty_file_seek_cur()
 {
     char read_buf[small_buf_size] = {};
 
-    int res = !((fd[0] = fopen("fs/" "filename", "wb")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = !((fd[0] = fopen("fs/" "filename", "rb+")) != NULL);
+    res = !((fd[0] = fopen("/default/" "filename", "rb+")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     res = fseek(fd[0], 1, SEEK_CUR);
@@ -1147,7 +1147,7 @@ static void FS_fseek_beyond_empty_file_seek_cur()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = remove("fs/" "filename");
+    res = remove("/default/" "filename");
     TEST_ASSERT_EQUAL(0, res);
 }
 
@@ -1157,7 +1157,7 @@ static void FS_fseek_beyond_non_empty_file_seek_cur()
     char read_buf[small_buf_size] = {};
     char write_buf[small_buf_size] = "123456789";
 
-    int res = !((fd[0] = fopen("fs/" "filename", "wb")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     int write_sz = fwrite(write_buf, sizeof(char), sizeof(write_buf), fd[0]);
@@ -1166,7 +1166,7 @@ static void FS_fseek_beyond_non_empty_file_seek_cur()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = !((fd[0] = fopen("fs/" "filename", "rb+")) != NULL);
+    res = !((fd[0] = fopen("/default/" "filename", "rb+")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     res = fseek(fd[0], sizeof(write_buf) + 1, SEEK_CUR);
@@ -1181,20 +1181,20 @@ static void FS_fseek_beyond_non_empty_file_seek_cur()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = remove("fs/" "filename");
+    res = remove("/default/" "filename");
     TEST_ASSERT_EQUAL(0, res);
 }
 
 //fseek empty file, SEEK_END, offset 0
 static void FS_fseek_empty_file_seek_end()
 {
-    int res = !((fd[0] = fopen("fs/" "filename", "wb")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = !((fd[0] = fopen("fs/" "filename", "rb+")) != NULL);
+    res = !((fd[0] = fopen("/default/" "filename", "rb+")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     res = fseek(fd[0], 0, SEEK_END);
@@ -1206,7 +1206,7 @@ static void FS_fseek_empty_file_seek_end()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = remove("fs/" "filename");
+    res = remove("/default/" "filename");
     TEST_ASSERT_EQUAL(0, res);
 }
 
@@ -1215,7 +1215,7 @@ static void FS_fseek_non_empty_file_seek_end()
 {
     char write_buf[small_buf_size] = "123456789";
 
-    int res = !((fd[0] = fopen("fs/" "filename", "wb")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     int write_sz = fwrite(write_buf, sizeof(char), sizeof(write_buf), fd[0]);
@@ -1224,7 +1224,7 @@ static void FS_fseek_non_empty_file_seek_end()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = !((fd[0] = fopen("fs/" "filename", "rb+")) != NULL);
+    res = !((fd[0] = fopen("/default/" "filename", "rb+")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     res = fseek(fd[0], 0, SEEK_END);
@@ -1236,7 +1236,7 @@ static void FS_fseek_non_empty_file_seek_end()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = remove("fs/" "filename");
+    res = remove("/default/" "filename");
     TEST_ASSERT_EQUAL(0, res);
 }
 
@@ -1245,13 +1245,13 @@ static void FS_fseek_beyond_empty_file_seek_end()
 {
     char read_buf[small_buf_size] = {};
 
-    int res = !((fd[0] = fopen("fs/" "filename", "wb")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = !((fd[0] = fopen("fs/" "filename", "rb+")) != NULL);
+    res = !((fd[0] = fopen("/default/" "filename", "rb+")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     res = fseek(fd[0], 1, SEEK_END);
@@ -1266,7 +1266,7 @@ static void FS_fseek_beyond_empty_file_seek_end()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = remove("fs/" "filename");
+    res = remove("/default/" "filename");
     TEST_ASSERT_EQUAL(0, res);
 }
 
@@ -1276,7 +1276,7 @@ static void FS_fseek_beyond_non_empty_file_seek_end()
     char read_buf[small_buf_size] = {};
     char write_buf[small_buf_size] = "123456789";
 
-    int res = !((fd[0] = fopen("fs/" "filename", "wb")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     int write_sz = fwrite(write_buf, sizeof(char), sizeof(write_buf), fd[0]);
@@ -1285,7 +1285,7 @@ static void FS_fseek_beyond_non_empty_file_seek_end()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = !((fd[0] = fopen("fs/" "filename", "rb+")) != NULL);
+    res = !((fd[0] = fopen("/default/" "filename", "rb+")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     res = fseek(fd[0], sizeof(write_buf) + 1, SEEK_END);
@@ -1300,7 +1300,7 @@ static void FS_fseek_beyond_non_empty_file_seek_end()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = remove("fs/" "filename");
+    res = remove("/default/" "filename");
     TEST_ASSERT_EQUAL(0, res);
 }
 
@@ -1309,7 +1309,7 @@ static void FS_fseek_negative_non_empty_file_seek_end()
 {
     char write_buf[small_buf_size] = "123456789";
 
-    int res = !((fd[0] = fopen("fs/" "filename", "wb")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     int write_sz = fwrite(write_buf, sizeof(char), sizeof(write_buf), fd[0]);
@@ -1318,7 +1318,7 @@ static void FS_fseek_negative_non_empty_file_seek_end()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = !((fd[0] = fopen("fs/" "filename", "rb+")) != NULL);
+    res = !((fd[0] = fopen("/default/" "filename", "rb+")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     res = fseek(fd[0], -(sizeof(write_buf)), SEEK_END);
@@ -1330,7 +1330,7 @@ static void FS_fseek_negative_non_empty_file_seek_end()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = remove("fs/" "filename");
+    res = remove("/default/" "filename");
     TEST_ASSERT_EQUAL(0, res);
 }
 
@@ -1344,7 +1344,7 @@ static void FS_fgetpos_rewrite_check_data()
     char read_buf[small_buf_size] = {};
     fpos_t pos;
 
-    int res = !((fd[0] = fopen("fs/" "filename", "wb")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     res = fgetpos(fd[0], &pos);
@@ -1362,7 +1362,7 @@ static void FS_fgetpos_rewrite_check_data()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = !((fd[0] = fopen("fs/" "filename", "rb")) != NULL);
+    res = !((fd[0] = fopen("/default/" "filename", "rb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     int read_sz = fread(read_buf, sizeof(char), sizeof(read_buf), fd[0]);
@@ -1372,7 +1372,7 @@ static void FS_fgetpos_rewrite_check_data()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = remove("fs/" "filename");
+    res = remove("/default/" "filename");
     TEST_ASSERT_EQUAL(0, res);
 }
 
@@ -1385,7 +1385,7 @@ static void FS_fscanf_valid_flow()
     char read_buf[small_buf_size] = {};
     int num = 0;
 
-    int res = !((fd[0] = fopen("fs/" "filename", "wb")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     res = fprintf(fd[0], "%d %s", 123, write_buf);
@@ -1394,7 +1394,7 @@ static void FS_fscanf_valid_flow()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = !((fd[0] = fopen("fs/" "filename", "rb")) != NULL);
+    res = !((fd[0] = fopen("/default/" "filename", "rb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     res = fscanf(fd[0], "%d", &num);
@@ -1408,7 +1408,7 @@ static void FS_fscanf_valid_flow()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = remove("fs/" "filename");
+    res = remove("/default/" "filename");
     TEST_ASSERT_EQUAL(0, res);
 }
 
@@ -1417,7 +1417,7 @@ static void FS_fscanf_empty_file()
 {
     int num = 0;
 
-    int res = !((fd[0] = fopen("fs/" "filename", "wb")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     res = fscanf(fd[0], "%d", &num);
@@ -1426,7 +1426,7 @@ static void FS_fscanf_empty_file()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = remove("fs/" "filename");
+    res = remove("/default/" "filename");
     TEST_ASSERT_EQUAL(0, res);
 }
 
@@ -1437,7 +1437,7 @@ static void FS_fscanf_more_fields_than_exist()
     char read_buf[small_buf_size] = {};
     int num = 0;
 
-    int res = !((fd[0] = fopen("fs/" "filename", "wb")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     res = fprintf(fd[0], "%d %s", 123, write_buf);
@@ -1446,7 +1446,7 @@ static void FS_fscanf_more_fields_than_exist()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = !((fd[0] = fopen("fs/" "filename", "rb")) != NULL);
+    res = !((fd[0] = fopen("/default/" "filename", "rb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     res = fscanf(fd[0], "%d", &num);
@@ -1463,7 +1463,7 @@ static void FS_fscanf_more_fields_than_exist()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = remove("fs/" "filename");
+    res = remove("/default/" "filename");
     TEST_ASSERT_EQUAL(0, res);
 }
 
@@ -1472,13 +1472,13 @@ static void FS_fscanf_more_fields_than_exist()
 //fprintf in mode r
 static void FS_fprintf_read_mode()
 {
-    int res = !((fd[0] = fopen("fs/" "filename", "wb")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = !((fd[0] = fopen("fs/" "filename", "rb")) != NULL);
+    res = !((fd[0] = fopen("/default/" "filename", "rb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     res = fprintf(fd[0], "%d", 123);
@@ -1487,7 +1487,7 @@ static void FS_fprintf_read_mode()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = remove("fs/" "filename");
+    res = remove("/default/" "filename");
     TEST_ASSERT_EQUAL(0, res);
 }
 
@@ -1496,10 +1496,10 @@ static void FS_fprintf_read_mode()
 //freopen point to the same file with two file handler
 static void FS_freopen_point_to_same_file()
 {
-    int res = !((fd[0] = fopen("fs/" "filename", "wb")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = !((fd[1] = freopen("fs/" "new_file_name", "wb", fd[0])) != NULL);
+    res = !((fd[1] = freopen("/default/" "new_file_name", "wb", fd[0])) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     TEST_ASSERT_EQUAL(fd[0], fd[1]);
@@ -1507,7 +1507,7 @@ static void FS_freopen_point_to_same_file()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = remove("fs/" "filename");
+    res = remove("/default/" "filename");
     TEST_ASSERT_EQUAL(0, res);
 }
 
@@ -1517,13 +1517,13 @@ static void FS_freopen_valid_flow()
     char write_buf[small_buf_size] = "123456789";
     char read_buf[small_buf_size] = {};
 
-    int res = !((fd[0] = fopen("fs/" "filename", "wb")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "wb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     int write_sz = fwrite(write_buf, sizeof(char), sizeof(write_buf), fd[0]);
     TEST_ASSERT_EQUAL(sizeof(write_buf), write_sz);
 
-    res = !((fd[1] = freopen("fs/" "filename", "rb", fd[0])) != NULL);
+    res = !((fd[1] = freopen("/default/" "filename", "rb", fd[0])) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     int read_sz = fread(read_buf, sizeof(char), sizeof(read_buf), fd[0]);
@@ -1533,7 +1533,7 @@ static void FS_freopen_valid_flow()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = remove("fs/" "filename");
+    res = remove("/default/" "filename");
     TEST_ASSERT_EQUAL(0, res);
 }
 
@@ -1545,7 +1545,7 @@ static void FS_fopen_write_one_byte_file()
     char write_buf = 1;
     char read_buf[1] = {};
 
-    int res = !((fd[0] = fopen("fs/" "filename", "w")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "w")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     int write_sz = fwrite(&write_buf, sizeof(char), 1, fd[0]);
@@ -1554,7 +1554,7 @@ static void FS_fopen_write_one_byte_file()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = !((fd[0] = fopen("fs/" "filename", "rb")) != NULL);
+    res = !((fd[0] = fopen("/default/" "filename", "rb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     int read_sz = fread(read_buf, sizeof(char), sizeof(read_buf), fd[0]);
@@ -1564,7 +1564,7 @@ static void FS_fopen_write_one_byte_file()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = remove("fs/" "filename");
+    res = remove("/default/" "filename");
     TEST_ASSERT_EQUAL(0, res);
 }
 
@@ -1574,7 +1574,7 @@ static void FS_fopen_write_two_byte_file()
     char write_buf[2] = "1";
     char read_buf[2] = {};
 
-    int res = !((fd[0] = fopen("fs/" "filename", "w")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "w")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     int write_sz = fwrite(write_buf, sizeof(char), sizeof(write_buf), fd[0]);
@@ -1583,7 +1583,7 @@ static void FS_fopen_write_two_byte_file()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = !((fd[0] = fopen("fs/" "filename", "rb")) != NULL);
+    res = !((fd[0] = fopen("/default/" "filename", "rb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     int read_sz = fread(read_buf, sizeof(char), sizeof(read_buf), fd[0]);
@@ -1593,7 +1593,7 @@ static void FS_fopen_write_two_byte_file()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = remove("fs/" "filename");
+    res = remove("/default/" "filename");
     TEST_ASSERT_EQUAL(0, res);
 }
 
@@ -1603,7 +1603,7 @@ static void FS_fopen_write_five_byte_file()
     char write_buf[5] = "1234";
     char read_buf[5] = {};
 
-    int res = !((fd[0] = fopen("fs/" "filename", "w")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "w")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     int write_sz = fwrite(write_buf, sizeof(char), sizeof(write_buf), fd[0]);
@@ -1612,7 +1612,7 @@ static void FS_fopen_write_five_byte_file()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = !((fd[0] = fopen("fs/" "filename", "rb")) != NULL);
+    res = !((fd[0] = fopen("/default/" "filename", "rb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     int read_sz = fread(read_buf, sizeof(char), sizeof(read_buf), fd[0]);
@@ -1622,7 +1622,7 @@ static void FS_fopen_write_five_byte_file()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = remove("fs/" "filename");
+    res = remove("/default/" "filename");
     TEST_ASSERT_EQUAL(0, res);
 }
 
@@ -1632,7 +1632,7 @@ static void FS_fopen_write_fifteen_byte_file()
     char write_buf[15] = "12345678901234";
     char read_buf[15] = {};
 
-    int res = !((fd[0] = fopen("fs/" "filename", "w")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "w")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     int write_sz = fwrite(write_buf, sizeof(char), sizeof(write_buf), fd[0]);
@@ -1641,7 +1641,7 @@ static void FS_fopen_write_fifteen_byte_file()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = !((fd[0] = fopen("fs/" "filename", "rb")) != NULL);
+    res = !((fd[0] = fopen("/default/" "filename", "rb")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     int read_sz = fread(read_buf, sizeof(char), sizeof(read_buf), fd[0]);
@@ -1651,7 +1651,7 @@ static void FS_fopen_write_fifteen_byte_file()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = remove("fs/" "filename");
+    res = remove("/default/" "filename");
     TEST_ASSERT_EQUAL(0, res);
 }
 
@@ -1663,7 +1663,7 @@ static void FS_fopen_write_five_Kbyte_file()
     char read_buf[10] = {};
     char check_buf[10] = "123456789";
 
-    int res = !((fd[0] = fopen("fs/" "filename", "w")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "w")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     memcpy(write_buf, check_buf, sizeof(check_buf) - 1);
@@ -1673,7 +1673,7 @@ static void FS_fopen_write_five_Kbyte_file()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = !((fd[0] = fopen("fs/" "filename", "rb+")) != NULL);
+    res = !((fd[0] = fopen("/default/" "filename", "rb+")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     int read_sz = fread(read_buf, sizeof(char), sizeof(read_buf) - 1, fd[0]);
@@ -1683,7 +1683,7 @@ static void FS_fopen_write_five_Kbyte_file()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = remove("fs/" "filename");
+    res = remove("/default/" "filename");
     TEST_ASSERT_EQUAL(0, res);
 }
 
@@ -1695,7 +1695,7 @@ static void FS_fseek_rewrite_non_empty_file_begining()
     char check_buf[15] = "abcde678901234";
     char read_buf[15] = {};
 
-    int res = !((fd[0] = fopen("fs/" "filename", "w")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "w")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     int write_sz = fwrite(write_buf, sizeof(char), sizeof(write_buf), fd[0]);
@@ -1704,7 +1704,7 @@ static void FS_fseek_rewrite_non_empty_file_begining()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = !((fd[0] = fopen("fs/" "filename", "r+")) != NULL);
+    res = !((fd[0] = fopen("/default/" "filename", "r+")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     res = fseek(fd[0], 0, SEEK_SET);
@@ -1716,7 +1716,7 @@ static void FS_fseek_rewrite_non_empty_file_begining()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = !((fd[0] = fopen("fs/" "filename", "r")) != NULL);
+    res = !((fd[0] = fopen("/default/" "filename", "r")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     res = fseek(fd[0], 0, SEEK_SET);
@@ -1729,7 +1729,7 @@ static void FS_fseek_rewrite_non_empty_file_begining()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = remove("fs/" "filename");
+    res = remove("/default/" "filename");
     TEST_ASSERT_EQUAL(0, res);
 }
 
@@ -1741,7 +1741,7 @@ static void FS_fseek_rewrite_non_empty_file_middle()
     char check_buf[15] = "12345abcde1234";
     char read_buf[15] = {};
 
-    int res = !((fd[0] = fopen("fs/" "filename", "w")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "w")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     int write_sz = fwrite(write_buf, sizeof(char), sizeof(write_buf), fd[0]);
@@ -1750,7 +1750,7 @@ static void FS_fseek_rewrite_non_empty_file_middle()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = !((fd[0] = fopen("fs/" "filename", "r+")) != NULL);
+    res = !((fd[0] = fopen("/default/" "filename", "r+")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     res = fseek(fd[0], 5, SEEK_SET);
@@ -1762,7 +1762,7 @@ static void FS_fseek_rewrite_non_empty_file_middle()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = !((fd[0] = fopen("fs/" "filename", "r")) != NULL);
+    res = !((fd[0] = fopen("/default/" "filename", "r")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     res = fseek(fd[0], 0, SEEK_SET);
@@ -1775,7 +1775,7 @@ static void FS_fseek_rewrite_non_empty_file_middle()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = remove("fs/" "filename");
+    res = remove("/default/" "filename");
     TEST_ASSERT_EQUAL(0, res);
 }
 
@@ -1787,7 +1787,7 @@ static void FS_fseek_rewrite_non_empty_file_end()
     char check_buf[15] = "123456789abcde";
     char read_buf[15] = {};
 
-    int res = !((fd[0] = fopen("fs/" "filename", "w")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "w")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     int write_sz = fwrite(write_buf, sizeof(char), sizeof(write_buf), fd[0]);
@@ -1796,7 +1796,7 @@ static void FS_fseek_rewrite_non_empty_file_end()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = !((fd[0] = fopen("fs/" "filename", "r+")) != NULL);
+    res = !((fd[0] = fopen("/default/" "filename", "r+")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     res = fseek(fd[0], 9, SEEK_SET);
@@ -1808,7 +1808,7 @@ static void FS_fseek_rewrite_non_empty_file_end()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = !((fd[0] = fopen("fs/" "filename", "r")) != NULL);
+    res = !((fd[0] = fopen("/default/" "filename", "r")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     res = fseek(fd[0], 0, SEEK_SET);
@@ -1821,7 +1821,7 @@ static void FS_fseek_rewrite_non_empty_file_end()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = remove("fs/" "filename");
+    res = remove("/default/" "filename");
     TEST_ASSERT_EQUAL(0, res);
 }
 
@@ -1831,7 +1831,7 @@ static void FS_append_empty_file()
     char write_buf[17] = "1234567890123456";
     char read_buf[17] = {};
 
-    int res = !((fd[0] = fopen("fs/" "filename", "a")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "a")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     int write_sz = fwrite(write_buf, sizeof(char), sizeof(write_buf), fd[0]);
@@ -1840,7 +1840,7 @@ static void FS_append_empty_file()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = !((fd[0] = fopen("fs/" "filename", "r")) != NULL);
+    res = !((fd[0] = fopen("/default/" "filename", "r")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     int read_sz = fread(read_buf, sizeof(char), sizeof(read_buf), fd[0]);
@@ -1850,7 +1850,7 @@ static void FS_append_empty_file()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = remove("fs/" "filename");
+    res = remove("/default/" "filename");
     TEST_ASSERT_EQUAL(0, res);
 }
 
@@ -1862,7 +1862,7 @@ static void FS_append_non_empty_file()
     char read_buf[34] = {};
     char check_buf[34] = "1234567890123456abcdefghijklmnop";
 
-    int res = !((fd[0] = fopen("fs/" "filename", "a")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "a")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     int write_sz = fwrite(write_buf, sizeof(char), sizeof(write_buf) - 1, fd[0]);
@@ -1871,7 +1871,7 @@ static void FS_append_non_empty_file()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = !((fd[0] = fopen("fs/" "filename", "a+")) != NULL);
+    res = !((fd[0] = fopen("/default/" "filename", "a+")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     write_sz = fwrite(rewrite_buf, sizeof(char), sizeof(rewrite_buf), fd[0]);
@@ -1880,7 +1880,7 @@ static void FS_append_non_empty_file()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = !((fd[0] = fopen("fs/" "filename", "r")) != NULL);
+    res = !((fd[0] = fopen("/default/" "filename", "r")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     memcpy(check_buf, write_buf, sizeof(write_buf) - 1);
@@ -1893,7 +1893,7 @@ static void FS_append_non_empty_file()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = remove("fs/" "filename");
+    res = remove("/default/" "filename");
     TEST_ASSERT_EQUAL(0, res);
 }
 
@@ -1904,7 +1904,7 @@ static void FS_write_read_random_data()
     unsigned int i;
 
     // Fill write_buf buffer with random data and write the data into the file
-    int res = !((fd[0] = fopen("fs/" "filename", "w")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "w")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     for (i = 0; i < medium_buf_size; i++) {
@@ -1917,7 +1917,7 @@ static void FS_write_read_random_data()
     TEST_ASSERT_EQUAL(0, res);
 
     // Read back the data from the file and store them in data_read
-    res = !((fd[0] = fopen("fs/" "filename", "r")) != NULL);
+    res = !((fd[0] = fopen("/default/" "filename", "r")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     for (i = 0; i < medium_buf_size; i++) {
@@ -1928,7 +1928,7 @@ static void FS_write_read_random_data()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = remove("fs/" "filename");
+    res = remove("/default/" "filename");
     TEST_ASSERT_EQUAL(0, res);
 }
 
@@ -1937,7 +1937,7 @@ static void FS_fill_data_and_seek()
 {
     unsigned int i, j;
 
-    int res = !((fd[0] = fopen("fs/" "filename", "w")) != NULL);
+    int res = !((fd[0] = fopen("/default/" "filename", "w")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     for (i = 0; i < 256; i++) {
@@ -1948,7 +1948,7 @@ static void FS_fill_data_and_seek()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = !((fd[0] = fopen("fs/" "filename", "r")) != NULL);
+    res = !((fd[0] = fopen("/default/" "filename", "r")) != NULL);
     TEST_ASSERT_EQUAL(0, res);
 
     for (i = 1; i <= 255; i++) {
@@ -1978,7 +1978,7 @@ static void FS_fill_data_and_seek()
     res = fclose(fd[0]);
     TEST_ASSERT_EQUAL(0, res);
 
-    res = remove("fs/" "filename");
+    res = remove("/default/" "filename");
     TEST_ASSERT_EQUAL(0, res);
 }
 
