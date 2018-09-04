@@ -42,7 +42,7 @@ extern "C" {
 
 #if defined(MBEDTLS_THREADING_PTHREAD)
 #include <pthread.h>
-typedef struct
+typedef struct mbedtls_threading_mutex_t
 {
     pthread_mutex_t mutex;
     char is_valid;
@@ -98,9 +98,6 @@ extern int (*mbedtls_mutex_unlock)( mbedtls_threading_mutex_t *mutex );
  */
 #if defined(MBEDTLS_FS_IO)
 extern mbedtls_threading_mutex_t mbedtls_threading_readdir_mutex;
-#endif
-#if defined(MBEDTLS_HAVE_TIME_DATE)
-extern mbedtls_threading_mutex_t mbedtls_threading_gmtime_mutex;
 #endif
 #endif /* MBEDTLS_THREADING_C */
 
