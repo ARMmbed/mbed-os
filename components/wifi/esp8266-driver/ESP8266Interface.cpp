@@ -579,7 +579,7 @@ nsapi_connection_status_t ESP8266Interface::get_connection_status() const
 #if MBED_CONF_ESP8266_PROVIDE_DEFAULT
 
 WiFiInterface *WiFiInterface::get_default_instance() {
-    static ESP8266Interface esp();
+    static ESP8266Interface esp;
     return &esp;
 }
 
