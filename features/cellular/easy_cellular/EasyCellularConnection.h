@@ -168,6 +168,7 @@ private:
 
     bool _is_connected;
     bool _is_initialized;
+    bool _stm_error;
 #if USE_APN_LOOKUP
     bool _credentials_set;
 #endif // #if USE_APN_LOOKUP
