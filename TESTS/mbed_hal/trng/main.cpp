@@ -90,6 +90,14 @@ static int fill_buffer_trng(uint8_t *buffer, trng_t *trng_obj, size_t trng_len)
     return 0;
 }
 
+void print_array(uint8_t *buffer, size_t size)
+{
+    for (size_t i=0; i < size; i++) {
+        utest_printf("%02x", buffer[i]);
+    }
+    utest_printf("\n");
+}
+
 static void compress_and_compare(char *key, char *value)
 {
     trng_t trng_obj;
@@ -135,6 +143,9 @@ static void compress_and_compare(char *key, char *value)
                                  (char *)out_comp_buf,
                                  OUT_COMP_BUF_SIZE,
                                  9);
+        if (comp_sz <= BUFFER_LEN){
+           print_array(buffer, BUFFER_LEN);
+        }
         TEST_ASSERT_MESSAGE(comp_sz > BUFFER_LEN,
                         "TRNG_TEST_STEP1: trng_get_bytes was able to compress thus not random");
 
@@ -147,6 +158,9 @@ static void compress_and_compare(char *key, char *value)
                                  (char *)out_comp_buf,
                                  OUT_COMP_BUF_SIZE,
                                  9);
+        if (comp_sz <= BUFFER_LEN){
+           print_array(temp_buf, TEMP_BUF_SIZE);
+        }
         TEST_ASSERT_MESSAGE(comp_sz > TEMP_BUF_SIZE,
                         "TRNG_TEST_STEP2: trng_get_bytes was able to compress thus not random");
 
@@ -157,8 +171,12 @@ static void compress_and_compare(char *key, char *value)
                                  (char *)out_comp_buf,
                                  OUT_COMP_BUF_SIZE,
                                  9);
+        if (comp_sz <= TEMP_BUF_SIZE + BUFFER_LEN){
+           print_array(input_buf, TEMP_BUF_SIZE + BUFFER_LEN);
+        }
         TEST_ASSERT_MESSAGE(comp_sz > TEMP_BUF_SIZE + BUFFER_LEN,
                         "TRNG_TEST_STEP3: concatenated buffer after reset was able to compress thus not random");
+
         greentea_send_kv(MSG_TRNG_TEST_SUITE_ENDED, MSG_VALUE_DUMMY);
     }
 
