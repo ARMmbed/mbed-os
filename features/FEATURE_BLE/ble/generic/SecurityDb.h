@@ -603,7 +603,7 @@ public:
                 sizeof(BLEProtocol::AddressBytes_t)
             );
 
-            if (flags->peer_address_is_public) {
+            if (identity->identity_address_is_public) {
                 whitelist->addresses[whitelist->size].type = BLEProtocol::AddressType::PUBLIC;
             } else {
                 whitelist->addresses[whitelist->size].type = BLEProtocol::AddressType::RANDOM_STATIC;
