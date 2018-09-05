@@ -20,9 +20,10 @@
 #ifndef MBED_ATCMDPARSER_H
 #define MBED_ATCMDPARSER_H
 
-#include "mbed.h"
 #include <cstdarg>
 #include "Callback.h"
+#include "NonCopyable.h"
+#include "FileHandle.h"
 
 namespace mbed {
 
