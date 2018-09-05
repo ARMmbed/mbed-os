@@ -229,6 +229,25 @@ __STATIC_INLINE void nrf_uarte_event_clear(NRF_UARTE_Type * p_reg, nrf_uarte_eve
 __STATIC_INLINE bool nrf_uarte_event_check(NRF_UARTE_Type * p_reg, nrf_uarte_event_t event);
 
 /**
+ * @brief Function for checking the state of a specific extra UARTE event.
+ *
+ * @param[in] p_reg  Pointer to the peripheral registers structure.
+ * @param[in] event  Event to check.
+ *
+ * @retval True if event is set, False otherwise.
+ */
+__STATIC_INLINE bool nrf_uarte_event_extra_check(NRF_UARTE_Type * p_reg, uint32_t event);
+
+/**
+ * @brief Function for clearing a specific extra UARTE event.
+ *
+ * @param[in] p_reg  Pointer to the peripheral registers structure.
+ * @param[in] event  Extra event to clear.
+ */
+
+__STATIC_INLINE void nrf_uarte_event_extra_clear(NRF_UARTE_Type * p_reg, uint32_t event);
+
+/**
  * @brief Function for returning the address of a specific UARTE event register.
  *
  * @param[in] p_reg  Pointer to the peripheral registers structure.
@@ -456,7 +475,21 @@ __STATIC_INLINE void nrf_uarte_event_clear(NRF_UARTE_Type * p_reg, nrf_uarte_eve
 
 }
 
+__STATIC_INLINE void nrf_uarte_event_extra_clear(NRF_UARTE_Type * p_reg, uint32_t event)
+{
+    *((volatile uint32_t *)((uint8_t *)p_reg + (uint32_t)event)) = 0x0UL;
+#if __CORTEX_M == 0x04
+    volatile uint32_t dummy = *((volatile uint32_t *)((uint8_t *)p_reg + (uint32_t)event));
+    (void)dummy;
+#endif
+
+}
 __STATIC_INLINE bool nrf_uarte_event_check(NRF_UARTE_Type * p_reg, nrf_uarte_event_t event)
+{
+    return (bool)*(volatile uint32_t *)((uint8_t *)p_reg + (uint32_t)event);
+}
+
+__STATIC_INLINE bool nrf_uarte_event_extra_check(NRF_UARTE_Type * p_reg, uint32_t event)
 {
     return (bool)*(volatile uint32_t *)((uint8_t *)p_reg + (uint32_t)event);
 }

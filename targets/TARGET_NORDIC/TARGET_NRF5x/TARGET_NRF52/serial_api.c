@@ -1439,6 +1439,7 @@ int serial_getc(serial_t *obj)
  */
 void serial_putc(serial_t *obj, int character)
 {
+    bool done = false;
     MBED_ASSERT(obj);
 
 #if DEVICE_SERIAL_ASYNCH
@@ -1449,35 +1450,20 @@ void serial_putc(serial_t *obj, int character)
 
     int instance = uart_object->instance;
 
-    /**
-     * tx_in_progress acts like a mutex to ensure only one transmission can be active at a time.
-     * The flag is modified using the atomic compare-and-set function.
-     */
-    bool mutex = false;
-
-    do {
-        uint8_t expected = 0;
-        uint8_t desired = 1;
-
-        mutex = core_util_atomic_cas_u8((uint8_t *) &nordic_nrf5_uart_state[instance].tx_in_progress, &expected, desired);
-    } while (mutex == false);
-
-    /* Take ownership and configure UART if necessary. */
     nordic_nrf5_serial_configure(obj);
-
     /* Arm Tx DMA buffer. */
     nordic_nrf5_uart_state[instance].tx_data = character;
     nrf_uarte_tx_buffer_set(nordic_nrf5_uart_register[instance],
                             &nordic_nrf5_uart_state[instance].tx_data,
                             1);
-
-    /* Clear ENDTX event and enable interrupts. */
     nrf_uarte_event_clear(nordic_nrf5_uart_register[instance], NRF_UARTE_EVENT_ENDTX);
-    nrf_uarte_int_enable(nordic_nrf5_uart_register[instance], NRF_UARTE_INT_ENDTX_MASK);
+    nrf_uarte_task_trigger(nordic_nrf5_uart_register[instance], NRF_UARTE_TASK_STARTTX);
 
-    /* Trigger DMA transfer. */
-    nrf_uarte_task_trigger(nordic_nrf5_uart_register[instance],
-                           NRF_UARTE_TASK_STARTTX);
+    do {
+        done = nrf_uarte_event_extra_check(nordic_nrf5_uart_register[instance], NRF_UARTE_EVENT_TXDRDY);
+    } while(done == false);
+
+    nrf_uarte_event_extra_clear(nordic_nrf5_uart_register[instance], NRF_UARTE_EVENT_TXDRDY);
 }
 
 /** Check if the serial peripheral is readable
