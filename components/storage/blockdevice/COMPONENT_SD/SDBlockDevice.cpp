@@ -139,7 +139,8 @@
 #ifdef DEVICE_SPI
 
 #include "SDBlockDevice.h"
-#include "mbed_debug.h"
+#include "platform/mbed_debug.h"
+#include "platform/mbed_wait_api.h"
 #include <errno.h>
 
 #ifndef MBED_CONF_SD_CMD_TIMEOUT
