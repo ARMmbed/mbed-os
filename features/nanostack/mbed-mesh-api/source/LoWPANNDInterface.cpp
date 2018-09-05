@@ -35,7 +35,7 @@ Nanostack::LoWPANNDInterface *LoWPANNDInterface::get_interface() const
 nsapi_error_t LoWPANNDInterface::do_initialize()
 {
     if (!_interface) {
-        _interface = new (nothrow) Nanostack::LoWPANNDInterface(*_phy);
+        _interface = new (std::nothrow) Nanostack::LoWPANNDInterface(*_phy);
         if (!_interface) {
             return NSAPI_ERROR_NO_MEMORY;
         }
