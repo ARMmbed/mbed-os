@@ -49,8 +49,8 @@ LR_IROM1 MBED_APP_START MBED_APP_SIZE  {    ; load region size_region
   .ANY (+RW +ZI)
   }
 
-  ; Total: 99 vectors = 396 bytes (0x18C) to be reserved in RAM
-  RW_IRAM2 (0x10000000+0x18C) (0x04000-0x18C)  {  ; RW data 16k L4-ECC-SRAM2 retained in standby
+  ; Total: 99 vectors = 396 bytes (0x18C+0x4) to be reserved in RAM
+  RW_IRAM2 (0x10000000+0x190) (0x04000-0x190)  {  ; RW data 16k L4-ECC-SRAM2 retained in standby
   .ANY (+RW +ZI)
   }
 
