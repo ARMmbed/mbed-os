@@ -265,7 +265,7 @@ TCPSocket *TCPSocket::accept(nsapi_error_t *error)
         ret = _stack->socket_accept(_socket, &socket, &address);
 
         if (0 == ret) {
-            TCPSocket *connection = new TCPSocket();
+            connection = new TCPSocket();
             connection->_lock.lock();
             connection->_factory_allocated = true; // Destroy automatically on close()
             connection->_remote_peer = address;
