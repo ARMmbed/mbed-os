@@ -29,9 +29,11 @@ MSG_KEY_PORT_OPEN_CLOSE = 'port_open_close'
 MSG_KEY_SEND_BYTES_SINGLE = 'send_single'
 MSG_KEY_SEND_BYTES_MULTIPLE = 'send_multiple'
 MSG_KEY_LOOPBACK = 'loopback'
+MSG_KEY_CHANGE_LINE_CODING = 'change_lc'
 
 RX_BUFF_SIZE = 32
 TERM_REOPEN_DELAY = 0.1
+LINE_CODING_STRLEN = 13
 
 
 def usb_serial_name(serial_number):
@@ -69,6 +71,22 @@ def retry_fun_call(fun, num_retries=3, retry_delay=0.0):
 
 class USBSerialTest(mbed_host_tests.BaseHostTest):
     """Host side test for USB CDC & Serial classes."""
+
+    _BYTESIZES = {
+        5: serial.FIVEBITS,
+        6: serial.SIXBITS,
+        7: serial.SEVENBITS,
+        8: serial.EIGHTBITS}
+    _PARITIES = {
+        0: serial.PARITY_NONE,
+        1: serial.PARITY_ODD,
+        2: serial.PARITY_EVEN,
+        3: serial.PARITY_MARK,
+        4: serial.PARITY_SPACE}
+    _STOPBITS = {
+        0: serial.STOPBITS_ONE,
+        1: serial.STOPBITS_ONE_POINT_FIVE,
+        2: serial.STOPBITS_TWO}
 
     @staticmethod
     def get_usb_serial_name(usb_id_str):
@@ -196,12 +214,50 @@ class USBSerialTest(mbed_host_tests.BaseHostTest):
             time.sleep(0.001)
         mbed_serial.close()
 
+    def change_line_coding(self, usb_id_str):
+        """Open the serial and change serial params according to device request.
+
+        New line coding params are read from the device serial data.
+        """
+        mbed_serial = serial.Serial(timeout=0.5)
+        try:
+            mbed_serial.port = retry_fun_call(
+                fun=functools.partial(self.get_usb_serial_name, usb_id_str),  # pylint: disable=not-callable
+                num_retries=20,
+                retry_delay=0.05)
+            retry_fun_call(
+                fun=mbed_serial.open,
+                num_retries=10,
+                retry_delay=0.05)
+        except RetryError as exc:
+            self.log('TEST ERROR: {}'.format(exc))
+            self.notify_complete(False)
+            return
+        mbed_serial.reset_output_buffer()
+        try:
+            payload = mbed_serial.read(LINE_CODING_STRLEN)
+            while len(payload) == LINE_CODING_STRLEN:
+                baud, bits, parity, stop = (int(i) for i in payload.split(','))
+                new_line_coding = {
+                    'baudrate': baud,
+                    'bytesize': self._BYTESIZES[bits],
+                    'parity': self._PARITIES[parity],
+                    'stopbits': self._STOPBITS[stop]}
+                mbed_serial.apply_settings(new_line_coding)
+                payload = mbed_serial.read(LINE_CODING_STRLEN)
+        except serial.SerialException as exc:
+            self.log('TEST ERROR: {}'.format(exc))
+            self.notify_complete(False)
+            return
+        mbed_serial.close()
+
     def setup(self):
         self.register_callback(MSG_KEY_PORT_OPEN_WAIT, self.cb_port_open_wait)
         self.register_callback(MSG_KEY_PORT_OPEN_CLOSE, self.cb_port_open_close)
         self.register_callback(MSG_KEY_SEND_BYTES_SINGLE, self.cb_send_bytes_single)
         self.register_callback(MSG_KEY_SEND_BYTES_MULTIPLE, self.cb_send_bytes_multiple)
         self.register_callback(MSG_KEY_LOOPBACK, self.cb_loopback)
+        self.register_callback(MSG_KEY_CHANGE_LINE_CODING, self.cb_change_line_coding)
 
     def start_bg_task(self, **thread_kwargs):
         """Start a new daemon thread.
@@ -247,4 +303,10 @@ class USBSerialTest(mbed_host_tests.BaseHostTest):
         """Open the serial and send a sequence of multibyte values."""
         self.start_bg_task(
             target=self.loopback,
+            args=(value, ))
+
+    def cb_change_line_coding(self, key, value, timestamp):
+        """Open the serial and change the line coding."""
+        self.start_bg_task(
+            target=self.change_line_coding,
             args=(value, ))
