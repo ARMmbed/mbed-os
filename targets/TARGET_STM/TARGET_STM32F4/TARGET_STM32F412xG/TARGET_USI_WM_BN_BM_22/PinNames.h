@@ -271,7 +271,6 @@ typedef enum {
     SPI_MISO    = P_25,
     SPI_SCK     = P_24,
     SPI_CS      = P_22,
-    SPI_PERSISTENT_MEM_CS = P_36,
 
     // STDIO for console print
 #ifdef MBED_CONF_TARGET_STDIO_UART_TX

@@ -148,11 +148,6 @@ typedef enum {
     SDSCLK = P1_29,
     SDSSEL = P1_12,
     
-    SPI_MOSI    = SDMOSI,
-    SPI_MISO    = SDMISO,
-    SPI_SCK     = SDSCLK,
-    SPI_PERSISTENT_MEM_CS = SDSSEL,
-    
     // Not connected
     NC = (int)0xFFFFFFFF,
 } PinName;
