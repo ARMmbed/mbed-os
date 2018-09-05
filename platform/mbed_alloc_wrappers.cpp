@@ -40,10 +40,8 @@ are active, the second one (MBED_MEM_TRACING_ENABLED) will trace the first one's
 /* Implementation of the runtime max heap usage checker                       */
 /******************************************************************************/
 
-/* Size must be a multiple of 8 to keep alignment */
 typedef struct {
     uint32_t size;
-    uint32_t pad;
 } alloc_info_t;
 
 #ifdef MBED_HEAP_STATS_ENABLED
