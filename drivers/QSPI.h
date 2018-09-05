@@ -118,7 +118,7 @@ public:
      *  @returns
      *    Returns QSPI_STATUS_SUCCESS on successful reads and QSPI_STATUS_ERROR on failed reads.
      */
-    qspi_status_t read(unsigned int address, char *rx_buffer, size_t *rx_length);
+    qspi_status_t read(int address, char *rx_buffer, size_t *rx_length);
 
     /** Write to QSPI peripheral using custom write instruction
      *
@@ -129,12 +129,12 @@ public:
      *  @returns
      *    Returns QSPI_STATUS_SUCCESS on successful reads and QSPI_STATUS_ERROR on failed reads.
      */
-    qspi_status_t write(unsigned int address, const char *tx_buffer, size_t *tx_length);
+    qspi_status_t write(int address, const char *tx_buffer, size_t *tx_length);
 
     /** Read from QSPI peripheral using custom read instruction, alt values
      *
      *  @param instruction Instruction value to be used in instruction phase
-     *  @param alt Alt value to be used in instruction phase
+     *  @param alt Alt value to be used in Alternate-byte phase. Use -1 for ignoring Alternate-byte phase
      *  @param address Address to be accessed in QSPI peripheral
      *  @param rx_buffer Buffer for data to be read from the peripheral
      *  @param rx_length Pointer to a variable containing the length of rx_buffer, and on return this variable will be updated with the actual number of bytes read
@@ -142,12 +142,12 @@ public:
      *  @returns
      *    Returns QSPI_STATUS_SUCCESS on successful reads and QSPI_STATUS_ERROR on failed reads.
      */
-    qspi_status_t read(unsigned int instruction, unsigned int alt, unsigned int address, char *rx_buffer, size_t *rx_length);
+    qspi_status_t read(int instruction, int alt, int address, char *rx_buffer, size_t *rx_length);
 
     /** Write to QSPI peripheral using custom write instruction, alt values
      *
      *  @param instruction Instruction value to be used in instruction phase
-     *  @param alt Alt value to be used in instruction phase
+     *  @param alt Alt value to be used in Alternate-byte phase. Use -1 for ignoring Alternate-byte phase
      *  @param address Address to be accessed in QSPI peripheral
      *  @param tx_buffer Buffer containing data to be sent to peripheral
      *  @param tx_length Pointer to a variable containing the length of data to be transmitted, and on return this variable will be updated with the actual number of bytes written
@@ -155,12 +155,12 @@ public:
      *  @returns
      *    Returns QSPI_STATUS_SUCCESS on successful reads and QSPI_STATUS_ERROR on failed reads.
      */
-    qspi_status_t write(unsigned int instruction, unsigned int alt, unsigned int address, const char *tx_buffer, size_t *tx_length);
+    qspi_status_t write(int instruction, int alt, int address, const char *tx_buffer, size_t *tx_length);
 
     /** Perform a transaction to write to an address(a control register) and get the status results
      *
      *  @param instruction Instruction value to be used in instruction phase
-     *  @param address Some instruction might require address. Use -1 for ignoring the address value
+     *  @param address Some instruction might require address. Use -1 if no address
      *  @param tx_buffer Buffer containing data to be sent to peripheral
      *  @param tx_length Pointer to a variable containing the length of data to be transmitted, and on return this variable will be updated with the actual number of bytes written
      *  @param rx_buffer Buffer for data to be read from the peripheral
@@ -169,7 +169,7 @@ public:
      *  @returns
      *    Returns QSPI_STATUS_SUCCESS on successful reads and QSPI_STATUS_ERROR on failed reads.
      */
-    qspi_status_t command_transfer(unsigned int instruction, int address, const char *tx_buffer, size_t tx_length, const char *rx_buffer, size_t rx_length);
+    qspi_status_t command_transfer(int instruction, int address, const char *tx_buffer, size_t tx_length, const char *rx_buffer, size_t rx_length);
 
 protected:
     /** Acquire exclusive access to this SPI bus
