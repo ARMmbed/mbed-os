@@ -17,11 +17,17 @@
 // Include before mbed.h to properly get UINT*_C()
 #include "ns_types.h"
 
-#include "mbed.h"
 #include "platform/SingletonPtr.h"
 #include "platform/arm_hal_timer.h"
 #include "platform/arm_hal_interrupt.h"
-#include <mbed_assert.h>
+#include "platform/mbed_assert.h"
+#include "Timeout.h"
+#include "Timer.h"
+#include "events/Event.h"
+#include "events/mbed_shared_queues.h"
+
+using namespace mbed;
+using namespace events;
 
 static SingletonPtr<Timer> timer;
 static SingletonPtr<Timeout> timeout;
