@@ -15,8 +15,6 @@
  * limitations under the License.
  */
 
-#include "mbed.h"
-#include "rtos.h"
 #include "mbed_stats.h"
 #include "cmsis_os2.h"
 #include "greentea-client/test_env.h"
