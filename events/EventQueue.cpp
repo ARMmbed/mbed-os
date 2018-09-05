@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 #include "events/EventQueue.h"
-
 #include "events/mbed_events.h"
-#include "mbed.h"
 
+using mbed::Callback;
+
+namespace events {
 
 EventQueue::EventQueue(unsigned event_size, unsigned char *event_pointer)
 {
@@ -76,4 +77,5 @@ void EventQueue::chain(EventQueue *target)
     } else {
         equeue_chain(&_equeue, 0);
     }
+}
 }
