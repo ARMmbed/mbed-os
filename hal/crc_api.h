@@ -33,6 +33,7 @@ typedef enum crc_polynomial {
     POLY_16BIT_CCITT = 0x1021,     // x16+x12+x5+1
     POLY_16BIT_IBM   = 0x8005,     // x16+x15+x2+1
     POLY_32BIT_ANSI  = 0x04C11DB7, // x32+x26+x23+x22+x16+x12+x11+x10+x8+x7+x5+x4+x2+x+1
+    POLY_32BIT_REV_ANSI = 0xEDB88320
 } crc_polynomial_t;
 
 typedef struct crc_mbed_config {
