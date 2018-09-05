@@ -127,6 +127,8 @@ TEST_F(Testutil, separate_ip_addresses)
     char subnet[64] = {0};
 
     strncpy(s, "32.1.20.187.1.112.139.245.251.136.232.110.123.51.230.138.0.1.2.3.4.5.6.7.8.9.10.11.12.13.14.15", 94);
+    separate_ip_addresses(NULL, ip, sizeof(ip), subnet, sizeof(subnet));
+
     separate_ip_addresses(s, ip, sizeof(ip), subnet, sizeof(subnet));
     EXPECT_STREQ("2001:14BB:170:8BF5:FB88:E86E:7B33:E68A", ip);
     EXPECT_STREQ("001:203:405:607:809:A0B:C0D:E0F", subnet);
@@ -179,3 +181,21 @@ TEST_F(Testutil, separate_ip_addresses)
     EXPECT_STREQ("506:708:90A:B0C:D0E:F10:1112:1314", subnet);
     EXPECT_STREQ("1.2.3.4 5.6.7.8.9.10.11.12.13.14.15.16.17.18.19.20", s);
 }
+
+TEST_F(Testutil, get_dynamic_ip_port)
+{
+    uint16_t port = get_dynamic_ip_port();
+    uint16_t port2 = get_dynamic_ip_port();
+
+    EXPECT_TRUE(port != port2);
+}
+
+TEST_F(Testutil, int_to_hex_str)
+{
+    char buf[2];
+    int_to_hex_str(100, (char*)buf);
+
+    EXPECT_TRUE(buf[0] == '6');
+    EXPECT_TRUE(buf[1] == '4');
+}
+

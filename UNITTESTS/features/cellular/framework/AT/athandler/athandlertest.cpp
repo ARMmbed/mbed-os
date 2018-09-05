@@ -33,6 +33,10 @@ void urc_callback()
 {
 }
 
+void urc2_callback()
+{
+}
+
 // AStyle ignored as the definition is not clear due to preprocessor usage
 // *INDENT-OFF*
 class TestATHandler : public testing::Test {
@@ -119,7 +123,27 @@ TEST_F(TestATHandler, test_ATHandler_set_urc_handler)
 
     ATHandler at(&fh1, que, 0, ",");
     const char ch[] = "testtesttesttest";
-    at.set_urc_handler(ch, &urc_callback);
+
+    mbed::Callback<void()> cb(&urc_callback);
+    at.set_urc_handler(ch, cb);
+
+    //THIS IS NOT same callback in find_urc_handler???
+    EXPECT_TRUE(NSAPI_ERROR_OK == at.set_urc_handler(ch, cb));
+}
+
+TEST_F(TestATHandler, test_ATHandler_remove_urc_handler)
+{
+    EventQueue que;
+    FileHandle_stub fh1;
+
+    ATHandler at(&fh1, que, 0, ",");
+    const char ch[] = "testtesttesttest";
+
+    mbed::Callback<void()> cb(&urc_callback);
+    at.set_urc_handler(ch, cb);
+
+    //This does nothing!!!
+    at.remove_urc_handler(ch, cb);
 }
 
 TEST_F(TestATHandler, test_ATHandler_get_last_error)
@@ -214,6 +238,12 @@ TEST_F(TestATHandler, test_ATHandler_process_oob)
     FileHandle_stub fh1;
 
     ATHandler at(&fh1, que, 0, ",");
+    at.set_at_timeout(10);
+
+    at.set_is_filehandle_usable(false);
+    at.process_oob();
+    at.set_is_filehandle_usable(true);
+
     filehandle_stub_short_value_counter = 1;
     fh1.short_value = POLLIN;
     at.set_urc_handler("s", &urc_callback);
@@ -228,6 +258,8 @@ TEST_F(TestATHandler, test_ATHandler_process_oob)
     char table[] = "ssssssssssssssssssssssssssssssss\0";
     filehandle_stub_table = table;
     filehandle_stub_table_pos = 0;
+    mbed_poll_stub::revents_value = POLLIN;
+    mbed_poll_stub::int_value = 1;
     at.read_bytes(buf, 5);
 
     filehandle_stub_short_value_counter = 2;
@@ -241,24 +273,25 @@ TEST_F(TestATHandler, test_ATHandler_process_oob)
     filehandle_stub_short_value_counter = 1;
     at.process_oob();
 
-    char table2[4];
+    char table2[5];
     table2[0] = '\r';
     table2[1] = '\r';
     table2[2] = '\n';
-    table2[3] = 0;
+    table2[3] = '\n';
+    table2[4] = 0;
     filehandle_stub_table = table2;
 
     at.clear_error();
     timer_stub_value = 0;
     filehandle_stub_table_pos = 0;
+    mbed_poll_stub::revents_value = POLLIN;
+    mbed_poll_stub::int_value = 1;
     at.read_bytes(buf, 1);
 
     filehandle_stub_short_value_counter = 1;
     at.process_oob();
 
-
     filehandle_stub_table = table;
-
 
     filehandle_stub_short_value_counter = 0;
     filehandle_stub_table_pos = 0;
@@ -412,62 +445,72 @@ TEST_F(TestATHandler, test_ATHandler_skip_param)
     FileHandle_stub fh1;
 
     ATHandler at(&fh1, que, 0, ",");
+    at.set_stop_tag("OK\r\n");
     at.skip_param();
 
     char table[] = "ssssssssssssssssssssssssssssOK\r\n\0";
     filehandle_stub_table = table;
-    filehandle_stub_table_pos = 0;
 
     at.flush();
     at.clear_error();
+    filehandle_stub_table_pos = 0;
+    mbed_poll_stub::revents_value = POLLIN;
+    mbed_poll_stub::int_value = 1;
+    filehandle_stub_short_value_counter = 1;
+    fh1.short_value = POLLIN;
     at.resp_start();
     at.skip_param();
     EXPECT_TRUE(at.get_last_error() == NSAPI_ERROR_DEVICE_ERROR);
 
     char table1[] = "ss,sssssssssssss,sssssssssssOK\r\n\0";
     filehandle_stub_table = table1;
-    filehandle_stub_table_pos = 0;
 
     at.flush();
     at.clear_error();
+    filehandle_stub_short_value_counter = 1;
+    filehandle_stub_table_pos = 0;
     at.resp_start();
     at.skip_param();
 
     char table2[] = "sssOK\r\n\0";
     filehandle_stub_table = table2;
-    filehandle_stub_table_pos = 0;
 
     at.flush();
     at.clear_error();
+    filehandle_stub_short_value_counter = 1;
+    filehandle_stub_table_pos = 0;
     at.resp_start();
     at.skip_param();
 
     char table3[] = "sssssssOK\nssss\0";
     filehandle_stub_table = table3;
-    filehandle_stub_table_pos = 0;
 
     //Need to create a new instance because stop tag already found
     ATHandler at2(&fh1, que, 0, ",");
     at2.flush();
     at2.clear_error();
+    filehandle_stub_short_value_counter = 1;
+    filehandle_stub_table_pos = 0;
     at2.resp_start();
     at2.skip_param();
 
     at2.skip_param(4, 3);
 
     filehandle_stub_table = table3;
-    filehandle_stub_table_pos = 0;
 
     at2.flush();
     at2.clear_error();
+    filehandle_stub_short_value_counter = 1;
+    filehandle_stub_table_pos = 0;
     at2.resp_start();
     at2.skip_param(4, 3);
 
     filehandle_stub_table = table3;
-    filehandle_stub_table_pos = 0;
 
     at2.flush();
     at2.clear_error();
+    filehandle_stub_short_value_counter = 1;
+    filehandle_stub_table_pos = 0;
     at2.resp_start();
     at2.skip_param(24, 17);
 }
@@ -834,6 +877,7 @@ TEST_F(TestATHandler, test_ATHandler_resp_start)
 
     at.flush();
     at.clear_error();
+    filehandle_stub_table_pos = 0;
     at.resp_start("ssssaaaassssaaaassss"); //too long prefix
 
     char table3[] = "+CME ERROR: 108\0";
@@ -842,20 +886,22 @@ TEST_F(TestATHandler, test_ATHandler_resp_start)
 
     at.flush();
     at.clear_error();
+    filehandle_stub_table_pos = 0;
     at.resp_start();
 
-    filehandle_stub_table_pos = 0;
 
     at.flush();
     at.clear_error();
+    filehandle_stub_table_pos = 0;
     at.resp_start();
 
     char table4[] = "+CMS ERROR: 6\0";
     filehandle_stub_table = table4;
-    filehandle_stub_table_pos = 0;
 
+    filehandle_stub_table_pos = 0;
     at.flush();
     at.clear_error();
+    filehandle_stub_table_pos = 0;
     at.resp_start();
 
     char table5[] = "ERROR\r\n\0";
@@ -864,6 +910,7 @@ TEST_F(TestATHandler, test_ATHandler_resp_start)
 
     at.flush();
     at.clear_error();
+    filehandle_stub_table_pos = 0;
     at.resp_start();
 
     char table6[] = "OK\r\n\0";
@@ -872,6 +919,7 @@ TEST_F(TestATHandler, test_ATHandler_resp_start)
 
     at.flush();
     at.clear_error();
+    filehandle_stub_table_pos = 0;
     at.resp_start();
 
     char table7[] = "ssssss\0";
@@ -881,6 +929,7 @@ TEST_F(TestATHandler, test_ATHandler_resp_start)
     at.flush();
     at.clear_error();
     at.set_urc_handler("ss", NULL);
+    filehandle_stub_table_pos = 0;
     at.resp_start();
 }
 
@@ -905,6 +954,7 @@ TEST_F(TestATHandler, test_ATHandler_resp_stop)
 
     at.flush();
     at.clear_error();
+    filehandle_stub_table_pos = 0;
     at.resp_start();
 
     at.resp_stop();
@@ -915,6 +965,7 @@ TEST_F(TestATHandler, test_ATHandler_resp_stop)
 
     at.flush();
     at.clear_error();
+    filehandle_stub_table_pos = 0;
     at.resp_start("ss", false);
     at.resp_stop();
 }
@@ -1020,3 +1071,4 @@ TEST_F(TestATHandler, test_ATHandler_get_3gpp_error)
     ATHandler at(&fh1, que, 0, ",");
     at.get_3gpp_error();
 }
+

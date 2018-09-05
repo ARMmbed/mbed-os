@@ -44,6 +44,7 @@ uint8_t ATHandler_stub::uint8_value = 0;
 FileHandle_stub *ATHandler_stub::fh_value = NULL;
 device_err_t ATHandler_stub::device_err_value;
 Callback<void()> ATHandler_stub::callback = NULL;
+bool ATHandler_stub::call_immediately = false;
 uint8_t ATHandler_stub::resp_info_true_counter = false;
 uint8_t ATHandler_stub::info_elem_true_counter = false;
 int ATHandler_stub::int_valid_count_table[kRead_int_table_size];
@@ -98,6 +99,9 @@ void ATHandler::set_file_handle(FileHandle *fh)
 nsapi_error_t ATHandler::set_urc_handler(const char *urc, mbed::Callback<void()> cb)
 {
     ATHandler_stub::callback = cb;
+    if (ATHandler_stub::call_immediately) {
+        cb();
+    }
     return ATHandler_stub::nsapi_error_value;
 }
 

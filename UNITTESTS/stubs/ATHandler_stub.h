@@ -51,6 +51,7 @@ extern uint8_t uint8_value;
 extern mbed::FileHandle_stub *fh_value;
 extern mbed::device_err_t device_err_value;
 extern mbed::Callback<void()> callback;
+extern bool call_immediately;
 extern char *read_string_table[kRead_string_table_size];
 extern int read_string_index;
 extern int int_valid_count_table[kRead_int_table_size];

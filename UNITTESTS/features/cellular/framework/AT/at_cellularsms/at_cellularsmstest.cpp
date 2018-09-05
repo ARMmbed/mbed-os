@@ -56,15 +56,31 @@ TEST_F(TestAT_CellularSMS, Create)
     delete sms;
 }
 
+void my_callback()
+{
+
+}
+
 TEST_F(TestAT_CellularSMS, test_AT_CellularSMS_initialize)
 {
     EventQueue que;
     FileHandle_stub fh1;
     ATHandler at(&fh1, que, 0, ",");
 
+    ATHandler_stub::call_immediately = true;
+
     AT_CellularSMS sms(at);
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_AUTH_FAILURE;
     EXPECT_TRUE(NSAPI_ERROR_NO_MEMORY == sms.initialize(CellularSMS::CellularSMSMmodeText));
+
+    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
+    EXPECT_TRUE(NSAPI_ERROR_OK == sms.initialize(CellularSMS::CellularSMSMmodeText));
+
+    sms.set_sms_callback(&my_callback);
+    ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
+    EXPECT_TRUE(NSAPI_ERROR_OK == sms.initialize(CellularSMS::CellularSMSMmodeText));
+
+    ATHandler_stub::call_immediately = false;
 }
 
 TEST_F(TestAT_CellularSMS, test_AT_CellularSMS_send_sms)
