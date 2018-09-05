@@ -15,6 +15,7 @@
  */
 
 #include "EMACInterface.h"
+using namespace mbed;
 
 /* Interface implementation */
 EMACInterface::EMACInterface(EMAC &emac, OnboardNetworkStack &stack) :
