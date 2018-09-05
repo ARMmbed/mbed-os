@@ -23,9 +23,9 @@
 #define __STDC_LIMIT_MACROS
 #include "rtos/ThisThread.h"
 
-#include "mbed.h"
+#include "rtos/Kernel.h"
 #include "rtos/rtos_idle.h"
-#include "mbed_assert.h"
+#include "platform/mbed_assert.h"
 
 namespace rtos {
 

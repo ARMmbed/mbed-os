@@ -21,11 +21,10 @@
  */
 #include "rtos/Thread.h"
 #include "rtos/ThisThread.h"
-
-#include "mbed.h"
 #include "rtos/rtos_idle.h"
 #include "rtos/rtos_handlers.h"
-#include "mbed_assert.h"
+#include "platform/mbed_assert.h"
+#include "platform/mbed_error.h"
 
 #define ALIGN_UP(pos, align) ((pos) % (align) ? (pos) +  ((align) - (pos) % (align)) : (pos))
 MBED_STATIC_ASSERT(ALIGN_UP(0, 8) == 0, "ALIGN_UP macro error");
@@ -68,7 +67,7 @@ void Thread::constructor(osPriority priority,
     constructor(MBED_TZ_DEFAULT_ACCESS, priority, stack_size, stack_mem, name);
 }
 
-void Thread::constructor(Callback<void()> task,
+void Thread::constructor(mbed::Callback<void()> task,
                          osPriority priority, uint32_t stack_size, unsigned char *stack_mem, const char *name)
 {
     constructor(MBED_TZ_DEFAULT_ACCESS, priority, stack_size, stack_mem, name);
@@ -87,7 +86,7 @@ void Thread::constructor(Callback<void()> task,
     }
 }
 
-osStatus Thread::start(Callback<void()> task)
+osStatus Thread::start(mbed::Callback<void()> task)
 {
     _mutex.lock();
 
