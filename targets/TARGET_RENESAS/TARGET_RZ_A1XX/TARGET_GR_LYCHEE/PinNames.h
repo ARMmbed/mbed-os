@@ -89,11 +89,6 @@ typedef enum {
     // Standardized button names
     BUTTON1 = USER_BUTTON0,
 
-    SPI_MOSI   = P5_6,
-    SPI_MISO   = P5_7,
-    SPI_SCK    = P5_4,
-    SPI_PERSISTENT_MEM_CS = P5_5,
-
     // Not connected
     NC = (int)0xFFFFFFFF
 } PinName;
