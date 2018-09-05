@@ -265,3 +265,10 @@ TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_get_send_delay)
     AT_CellularDevice dev(que);
     EXPECT_TRUE(0 == dev.get_send_delay());
 }
+
+TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_init_module)
+{
+    EventQueue que;
+    AT_CellularDevice dev(que);
+    EXPECT_TRUE(NSAPI_ERROR_OK == dev.init_module(NULL));
+}
