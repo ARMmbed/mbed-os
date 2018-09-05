@@ -22,7 +22,6 @@
 
 #include "ObservingBlockDevice.h"
 #include "ReadOnlyBlockDevice.h"
-#include "mbed.h"
 
 
 ObservingBlockDevice::ObservingBlockDevice(BlockDevice *bd)
@@ -36,7 +35,7 @@ ObservingBlockDevice::~ObservingBlockDevice()
     // Does nothing
 }
 
-void ObservingBlockDevice::attach(Callback<void(BlockDevice *)> cb)
+void ObservingBlockDevice::attach(mbed::Callback<void(BlockDevice *)> cb)
 {
     _change = cb;
 }
