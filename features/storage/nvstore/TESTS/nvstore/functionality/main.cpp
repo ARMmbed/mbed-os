@@ -510,7 +510,7 @@ static void nvstore_multi_thread_test()
         if (!threads[i]) {
             goto mem_fail;
         }
-        threads[i]->start(callback(thread_test_worker));
+        threads[i]->start(mbed::callback(thread_test_worker));
     }
 
     wait_ms(thr_test_num_secs * 1000);
@@ -635,7 +635,7 @@ static void nvstore_race_test()
         }
         delete[] dummy;
 
-        threads[i]->start(callback(race_test_worker, (void *) buffs[i]));
+        threads[i]->start(mbed::callback(race_test_worker, (void *) buffs[i]));
         threads[i]->join();
     }
 

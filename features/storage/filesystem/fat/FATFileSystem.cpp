@@ -29,6 +29,8 @@
 #include <errno.h>
 ////// Error handling /////
 
+using namespace mbed;
+
 static int fat_error_remap(FRESULT res)
 {
     switch(res) {

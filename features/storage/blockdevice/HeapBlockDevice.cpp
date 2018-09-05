@@ -15,7 +15,7 @@
  */
 
 #include "HeapBlockDevice.h"
-#include "mbed_critical.h"
+#include "platform/mbed_critical.h"
 
 
 HeapBlockDevice::HeapBlockDevice(bd_size_t size, bd_size_t block)
