@@ -2934,7 +2934,7 @@
         "extra_labels": ["ARM_SSG", "CM3DS_MPS2"],
         "OUTPUT_EXT": "elf",
         "macros": ["CMSDK_CM3DS"],
-        "device_has": ["ANALOGIN", "EMAC", "FLASH", "I2C", "INTERRUPTIN", "LPTICKER", "PORTIN", "PORTINOUT", "PORTOUT", "SERIAL", "SPI", "TRNG", "USTICKER"],
+        "device_has": ["ANALOGIN", "EMAC", "FLASH", "I2C", "INTERRUPTIN", "LPTICKER", "PORTIN", "PORTINOUT", "PORTOUT", "RTC", "SERIAL", "SLEEP", "SPI", "TRNG", "USTICKER"],
         "release_versions": ["2", "5"],
         "copy_method": "mps2",
         "reset_method": "reboot.txt",

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 ARM Limited
+ * Copyright (c) 2018 Arm Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,10 @@
  */
 
 #include "rtc_api.h"
-#include "device.h"
-#include "cmsis.h"
+#include "platform_devices.h"
+#include "rtc_pl031_drv.h"
+
+static uint32_t is_enabled = 0;
 
 /**
  * \defgroup hal_rtc RTC hal functions
@@ -31,7 +33,9 @@
  */
 void rtc_init(void)
 {
-    CMSDK_RTC->RTCCR |= (1 << CMSDK_RTC_ENABLE_Pos);
+    rtc_pl031_init(&RTC_PL031_DEV);
+    rtc_pl031_dev_enable(&RTC_PL031_DEV);
+    is_enabled = 1;
 }
 
 /**
@@ -41,7 +45,7 @@ void rtc_init(void)
  */
 void rtc_free(void)
 {
-    /* Not supported */
+    is_enabled = 0;
 }
 
 /**
@@ -51,17 +55,24 @@ void rtc_free(void)
  */
 int rtc_isenabled(void)
 {
-    return (CMSDK_RTC->RTCCR & CMSDK_RTC_ENABLE_Msk);
+    return is_enabled;
 }
 
 /**
  * \brief Get the current time from the RTC peripheral
  *
+ *        Sysclock and RTC clock may not be in sync which can cause reading
+ *        out metastable values. It's usually prevented by adding a loop,
+ *        however PL031 has a syncronisation block to prevent this, therefore
+ *        no additional loop needed.
+ *
  * \return The current time in seconds
  */
 time_t rtc_read(void)
 {
-    return (time_t)CMSDK_RTC->RTCDR;
+    uint32_t val;
+    rtc_pl031_read_current_time(&RTC_PL031_DEV, &val);
+    return (time_t)val;
 }
 
 /**
@@ -72,7 +83,7 @@ time_t rtc_read(void)
 
 void rtc_write(time_t t)
 {
-    CMSDK_RTC->RTCLR = (uint32_t)t;
+    rtc_pl031_write_current_time(&RTC_PL031_DEV, (uint32_t)t);
 }
 /**@}*/
 

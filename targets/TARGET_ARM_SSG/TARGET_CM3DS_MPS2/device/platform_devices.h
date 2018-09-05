@@ -39,6 +39,12 @@ extern struct timer_cmsdk_dev_t CMSDK_TIMER1_DEV;
 extern struct dualtimer_cmsdk_dev_t CMSDK_DUALTIMER_DEV;
 #endif
 
+/* RTC PL031 */
+#ifdef RTC_PL031
+#include "rtc_pl031_drv.h"
+extern struct rtc_pl031_dev_t RTC_PL031_DEV;
+#endif
+
 /* ARM GPIO driver structures */
 #ifdef ARM_GPIO0
 #include "arm_gpio_drv.h"

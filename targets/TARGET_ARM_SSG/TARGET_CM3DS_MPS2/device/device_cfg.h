@@ -49,7 +49,8 @@
  */
 #define USEC_TIMER_BIT_WIDTH    32U
 #define USEC_REPORTED_SHIFT     5U
-#define USEC_REPORTED_FREQ_HZ   (TIMERS_INPUT_CLOCK_FREQ_HZ >> USEC_REPORTED_SHIFT)
+#define USEC_REPORTED_FREQ_HZ   (TIMERS_INPUT_CLOCK_FREQ_HZ >> \
+                                 USEC_REPORTED_SHIFT)
 #define USEC_REPORTED_BITS      (USEC_TIMER_BIT_WIDTH - USEC_REPORTED_SHIFT)
 
 /* mbed low power ticker configuration */
@@ -71,6 +72,9 @@
 #define LP_REPORTED_FREQ_HZ           (TIMERS_INPUT_CLOCK_FREQ_HZ >> \
                                       (LP_TIMER_HW_PRESCALER+LP_REPORTED_SHIFT))
 #define LP_REPORTED_BITS              (LP_TIMER_BIT_WIDTH - LP_REPORTED_SHIFT)
+
+/* RTC PL031 */
+#define RTC_PL031
 
 /* ARM GPIO */
 #define ARM_GPIO0
