@@ -18,7 +18,6 @@
 #define ETHERNET_INTERFACE_H
 
 #include "nsapi.h"
-#include "rtos.h"
 #include "EMACInterface.h"
 
 
