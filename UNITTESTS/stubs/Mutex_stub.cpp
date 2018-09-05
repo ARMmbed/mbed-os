@@ -27,7 +27,12 @@ rtos::Mutex::~Mutex()
     return;
 }
 
-osStatus rtos::Mutex::lock(unsigned int)
+osStatus rtos::Mutex::lock(void)
+{
+    return osOK;
+}
+
+osStatus rtos::Mutex::lock(uint32_t millisec)
 {
     return osOK;
 }
