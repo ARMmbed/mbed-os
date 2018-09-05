@@ -22,38 +22,14 @@
 #include "mbed.h"
 
 
-static bool ipv4_is_valid(const char *addr)
-{
-    return false;
-}
-
 static bool ipv6_is_valid(const char *addr)
 {
     return false;
 }
 
-static void ipv4_from_address(uint8_t *bytes, const char *addr)
-{
-
-}
-
 static int ipv6_scan_chunk(uint16_t *shorts, const char *chunk)
 {
     return 0;
-}
-
-static void ipv6_from_address(uint8_t *bytes, const char *addr)
-{
-
-}
-
-static void ipv4_to_address(char *addr, const uint8_t *bytes)
-{
-
-}
-
-static void ipv6_to_address(char *addr, const uint8_t *bytes)
-{
 }
 
 
