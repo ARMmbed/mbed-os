@@ -44,8 +44,12 @@ namespace mbed {
  *
  * #include "mbed.h"
  *
+ * #define CMD_WRITE 0x02
+ * #define CMD_READ  0x03
+ * #define ADDRESS   0x1000
+ *
  * // hardware ssel (where applicable)
- * QSPI qspi_device(QSPI_PIN_IO0, QSPI_PIN_IO1, QSPI_PIN_IO2, QSPI_PIN_IO3, QSPI_PIN_SCK, QSPI_PIN_CSN); // io0, io1, io2, io3, sclk, ssel
+ * QSPI qspi_device(QSPI_FLASH1_IO0, QSPI_FLASH1_IO1, QSPI_FLASH1_IO2, QSPI_FLASH1_IO3, QSPI_FLASH1_SCK, QSPI_FLASH1_CSN); // io0, io1, io2, io3, sclk, ssel
  *
  *
  * int main() {
@@ -53,10 +57,14 @@ namespace mbed {
  *     char rx_buf[4];
  *     int buf_len = sizeof(tx_buf);
  *
- *     int result = qspi_device.write( 0x12 , 0x100000 , 0 , tx_buf, &buf_len );
- *     if( !result ) printf("Write failed");
- *     int result = qspi_device.read( 0x13 , 0x100000 , 0 , rx_buf, &buf_len );
- *     if( !result ) printf("Read failed");
+ *     qspi_status_t result = qspi_device.write(CMD_WRITE, 0, ADDRESS, tx_buf, &buf_len);
+ *     if (result != QSPI_STATUS_OK) {
+ *        printf("Write failed");
+ *     }
+ *     result = qspi_device.read(CMD_READ, 0, ADDRESS, rx_buf, &buf_len);
+ *     if (result != QSPI_STATUS_OK) {
+ *        printf("Read failed");
+ *     }
  *
  * }
  * @endcode
