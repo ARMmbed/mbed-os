@@ -203,7 +203,7 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
     stop_bits -= 1;
     data_bits -= 7;
     
-    int paritysel;
+    int paritysel = 0;
     switch (parity) {
         case ParityNone: paritysel = 0; break;
         case ParityEven: paritysel = 2; break;
