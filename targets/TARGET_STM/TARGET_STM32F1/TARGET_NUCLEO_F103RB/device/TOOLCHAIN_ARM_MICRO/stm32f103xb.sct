@@ -35,8 +35,8 @@ LR_IROM1 0x08000000 0x20000  {    ; load region size_region (128K)
    .ANY (+RO)
   }
 
-  ; 59 vectors (16 core + 43 peripheral) * 4 bytes = 236 bytes to reserve (0xEC)
-  RW_IRAM1 (0x20000000+0xEC) (0x5000-0xEC)  {  ; RW data
+  ; 59 vectors (16 core + 43 peripheral) * 4 bytes = 236 bytes to reserve (0xEC) 8-byte aligned = 0xF0
+  RW_IRAM1 (0x20000000+0xF0) (0x5000-0xF0)  {  ; RW data
    .ANY (+RW +ZI)
   }
 
