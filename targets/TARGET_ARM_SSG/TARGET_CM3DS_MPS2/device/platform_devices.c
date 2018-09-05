@@ -37,6 +37,16 @@ struct timer_cmsdk_dev_t CMSDK_TIMER1_DEV = {&(CMSDK_TIMER1_DEV_CFG),
                                            &(CMSDK_TIMER1_DEV_DATA)};
 #endif
 
+/* ARM CMSDK Dual Timer driver structure */
+#ifdef ARM_CMSDK_DUALTIMER
+static const struct dualtimer_cmsdk_dev_cfg_t CMSDK_DUALTIMER_DEV_CFG = {
+    .base = CMSDK_DUALTIMER_BASE};
+static struct dualtimer_cmsdk_dev_data_t CMSDK_DUALTIMER_DEV_DATA = {
+    .is_initialized = 0};
+struct dualtimer_cmsdk_dev_t CMSDK_DUALTIMER_DEV = {&(CMSDK_DUALTIMER_DEV_CFG),
+                                                   &(CMSDK_DUALTIMER_DEV_DATA)};
+#endif
+
 /* ARM GPIO driver structures */
 #ifdef ARM_GPIO0
 static const struct arm_gpio_dev_cfg_t ARM_GPIO0_DEV_CFG = {
