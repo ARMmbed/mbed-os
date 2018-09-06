@@ -20,10 +20,6 @@ typedef void (*VECTOR_Func)(void *data);
 
 typedef struct {
     void (*RamStartFun)(void);
-} RAM_START_FUNCTION;
-
-typedef struct {
-    void (*RamStartFun)(void);
     void (*RamWakeupFun)(void);
     void (*RamPatchFun0)(void);
     void (*RamPatchFun1)(void);

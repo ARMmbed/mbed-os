@@ -15,7 +15,6 @@
  */
 
 #include <string.h>
-
 #include "objects.h"
 #include "PinNames.h"
 #include "hal_i2c.h"
@@ -79,7 +78,7 @@ static SAL_I2C_TRANSFER_BUF    i2crxtranbuf[4];
 extern u32 ConfigDebugErr;
 extern u32 ConfigDebuginfo;
 void i2c_init(i2c_t *obj, PinName sda, PinName scl)
-{    
+{
     int i2c_sel;
     int i2c_idx;
     PSAL_I2C_MNGT_ADPT      pSalI2CMngtAdpt     = NULL;
@@ -230,9 +229,9 @@ void i2c_frequency(i2c_t *obj, int hz)
 
 inline int i2c_start(i2c_t *obj)
 {
-    memset(address_save_int , 0, sizeof(address_save_int));
-    memset(Byte_count , 0, sizeof(Byte_count));
-    memset(address_save, 0, sizeof(address_save));
+    _memset(address_save_int , 0, sizeof(address_save_int));
+    _memset(Byte_count , 0, sizeof(Byte_count));
+    _memset(address_save, 0, sizeof(address_save));
     return 0;
 }
 
@@ -279,7 +278,7 @@ int i2c_read(i2c_t *obj, int address, char *data, int length, int stop)
     } else {
         /* Calculate user time out parameters */
         I2CInTOTcnt = 300;
-        if ((I2CInTOTcnt != 0) && (I2CInTOTcnt != I2C_TIMEOOUT_ENDLESS)) {
+        if ((I2CInTOTcnt != 0) && (I2CInTOTcnt != I2C_TIMEOUT_ENDLESS)) {
             InTimeoutCount = (I2CInTOTcnt*1000/TIMER_TICK_US);
             InStartCount = HalTimerOp.HalTimerReadCount(1);
         }
@@ -345,7 +344,7 @@ int i2c_write(i2c_t *obj, int address, const char *data, int length, int stop)
     } else {
         /* Calculate user time out parameters */
         I2CInTOTcnt = 300;
-        if ((I2CInTOTcnt != 0) && (I2CInTOTcnt != I2C_TIMEOOUT_ENDLESS)) {
+        if ((I2CInTOTcnt != 0) && (I2CInTOTcnt != I2C_TIMEOUT_ENDLESS)) {
             InTimeoutCount = (I2CInTOTcnt*1000/TIMER_TICK_US);
             InStartCount = HalTimerOp.HalTimerReadCount(1);
         }
@@ -458,7 +457,7 @@ void i2c_slave_address(i2c_t *obj, int idx, uint32_t address, uint32_t mask)
     pSalI2CMngtAdpt         = &(obj->SalI2CMngtAdpt);
     pSalI2CHND              = &(pSalI2CMngtAdpt->pSalHndPriv->SalI2CHndPriv);
     address = (address & 0xFE ) >>1;
-    
+
     uint16_t i2c_user_addr      = (uint16_t) address;
 
     if (i2c_target_addr[pSalI2CHND->DevNum] != i2c_user_addr) {
@@ -528,7 +527,7 @@ int i2c_slave_read(i2c_t *obj, char *data, int length)
     } else {
         /* Calculate user time out parameters */
         I2CInTOTcnt = 300;
-        if ((I2CInTOTcnt != 0) && (I2CInTOTcnt != I2C_TIMEOOUT_ENDLESS)) {
+        if ((I2CInTOTcnt != 0) && (I2CInTOTcnt != I2C_TIMEOUT_ENDLESS)) {
             InTimeoutCount = (I2CInTOTcnt*1000/TIMER_TICK_US);
             InStartCount = HalTimerOp.HalTimerReadCount(1);
         }

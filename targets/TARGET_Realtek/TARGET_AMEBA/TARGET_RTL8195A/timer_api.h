@@ -29,7 +29,7 @@ enum {
     TIMER3 = 5,    // GTimer 5, share with PWM_2
     TIMER4 = 0,    // GTimer 0, share with software-RTC functions
 
-    GTIMER_MAX = 5    
+    GTIMER_MAX = 5
 };
 
 void gtimer_init (gtimer_t *obj, uint32_t tid);

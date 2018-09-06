@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 #include "rtl8195a.h"
+#include "basic_types.h"
+#include "hal_common.h"
 
 #if defined(__CC_ARM) || \
     (defined (__ARMCC_VERSION) && __ARMCC_VERSION >= 6010050)
@@ -67,15 +69,20 @@ extern uint8_t __bss_dram_end__[];
 
 extern VECTOR_Func NewVectorTable[];
 extern void SystemCoreClockUpdate(void);
+extern VOID En32KCalibration(VOID);
 extern void PLAT_Start(void);
 extern void PLAT_Main(void);
 
 IMAGE2_START_RAM_FUN_SECTION
+__USED
+
 const RAM_START_FUNCTION gImage2EntryFun0 = {
     PLAT_Start
 };
 
 IMAGE2_VALID_PATTEN_SECTION
+__USED
+
 const uint8_t IMAGE2_SIGNATURE[20] = {
     'R', 'T', 'K', 'W', 'i', 'n', 0x0, 0xff,
     (FW_VERSION&0xff), ((FW_VERSION >> 8)&0xff),
@@ -166,11 +173,119 @@ void TRAP_HardFaultHandler_Patch(void)
 #endif
 
 extern _LONG_CALL_ void * __rtl_memset_v1_00(void * m , int c , size_t n);
+_WEAK void SDIO_Device_Off(void)
+{
+    /* Disable Clock for SDIO function */
+    ACTCK_SDIOD_CCTRL(OFF);
+
+    /* SDIO Function Disable */
+    SDIOD_ON_FCTRL(OFF);
+    SDIOD_OFF_FCTRL(OFF);
+    // SDIO Pin Mux off
+    SDIOD_PIN_FCTRL(OFF);    
+}
+
+void SYSPlatformInit(void)
+{
+#ifdef CONFIG_CHIP_A_CUT
+    //Set SPS lower voltage
+    HAL_WRITE32(SYSTEM_CTRL_BASE, REG_SYS_EFUSE_SYSCFG0, (HAL_READ32(SYSTEM_CTRL_BASE, REG_SYS_EFUSE_SYSCFG0)&0xf0ffffff));
+#else   // B-Cut & C-Cut
+    //Set SPS lower voltage
+    HAL_WRITE32(SYSTEM_CTRL_BASE, REG_SYS_EFUSE_SYSCFG0, ((HAL_READ32(SYSTEM_CTRL_BASE, REG_SYS_EFUSE_SYSCFG0)&0xf0ffffff)|0x6000000));
+#endif
+
+    //xtal buffer driving current
+    HAL_WRITE32(SYSTEM_CTRL_BASE, REG_SYS_XTAL_CTRL1, 
+    ((HAL_READ32(SYSTEM_CTRL_BASE, REG_SYS_XTAL_CTRL1)&(~(BIT_MASK_SYS_XTAL_DRV_RF1<<BIT_SHIFT_SYS_XTAL_DRV_RF1)))|(BIT_SYS_XTAL_DRV_RF1(1))));
+}
+
+void OSC_32_LINEAR_CALIBRATION(u32 num)
+{
+    u32 Rtemp;
+    u32 Ttemp = 0;
+    u32 flag = num;
+    
+    while(flag){
+
+        //set parameter
+        HAL_WRITE32(SYSTEM_CTRL_BASE,REG_OSC32K_REG_CTRL0, 0);
+        //offset 1 = 0x0942
+        Rtemp = 0x810942;
+        HAL_WRITE32(SYSTEM_CTRL_BASE,REG_OSC32K_REG_CTRL0, Rtemp);
+        HalDelayUs(40);
+        HAL_WRITE32(SYSTEM_CTRL_BASE,REG_OSC32K_REG_CTRL0, 0);
+
+        //offset 2 = 0x00FF
+        Rtemp = 0x8200FF;
+        HAL_WRITE32(SYSTEM_CTRL_BASE,REG_OSC32K_REG_CTRL0, Rtemp);
+        HalDelayUs(40);
+        HAL_WRITE32(SYSTEM_CTRL_BASE,REG_OSC32K_REG_CTRL0, 0);
+
+        //offset 3 = 0x4050
+        Rtemp = 0x834050;
+        HAL_WRITE32(SYSTEM_CTRL_BASE,REG_OSC32K_REG_CTRL0, Rtemp);
+        HalDelayUs(40);
+        HAL_WRITE32(SYSTEM_CTRL_BASE,REG_OSC32K_REG_CTRL0, 0);
+
+        //offset 4 = 0x000A
+        Rtemp = 0x84000A;
+        HAL_WRITE32(SYSTEM_CTRL_BASE,REG_OSC32K_REG_CTRL0, Rtemp);
+        HalDelayUs(40);
+        HAL_WRITE32(SYSTEM_CTRL_BASE,REG_OSC32K_REG_CTRL0, 0);
+
+        //offset 8 = 0x0004
+        Rtemp = 0x880004;
+        HAL_WRITE32(SYSTEM_CTRL_BASE,REG_OSC32K_REG_CTRL0, Rtemp);
+        HalDelayUs(40);
+        HAL_WRITE32(SYSTEM_CTRL_BASE,REG_OSC32K_REG_CTRL0, 0);
+        
+        //offset 0 = 0x7900
+        Rtemp = 0x807900;
+        HAL_WRITE32(SYSTEM_CTRL_BASE,REG_OSC32K_REG_CTRL0, Rtemp);
+        HalDelayUs(40);
+        HAL_WRITE32(SYSTEM_CTRL_BASE,REG_OSC32K_REG_CTRL0, 0);
+
+        //offset 0 = 0xF900
+        Rtemp = 0x80F900;
+        HAL_WRITE32(SYSTEM_CTRL_BASE,REG_OSC32K_REG_CTRL0, Rtemp);
+        HalDelayUs(40);
+        HAL_WRITE32(SYSTEM_CTRL_BASE,REG_OSC32K_REG_CTRL0, 0);
+
+        while(1) {
+            //Polling LOCK
+            Rtemp = 0x110000;
+            HAL_WRITE32(SYSTEM_CTRL_BASE,REG_OSC32K_REG_CTRL0, Rtemp);
+            HalDelayUs(40);
+
+            Rtemp = HAL_READ32(SYSTEM_CTRL_BASE,REG_OSC32K_REG_CTRL1);
+            if ((Rtemp & 0x3000) != 0x0){
+                
+                if ((Rtemp & 0x3000) == 0x3000){
+                    
+                    flag--;
+                }else {
+                    
+                    flag = 0;
+                }
+                break;
+            }
+            else {
+                Ttemp++;
+                HalDelayUs(30);
+                
+                if (Ttemp > 10000) { /*Delay 100ms*/            
+                    //DiagPrintf("32K linear Calibration Fail!!\n");
+                    flag = 0;
+                    break;
+                }
+            }
+        }
+    }
+}
 // Image2 Entry Function
 void PLAT_Init(void)
 {
-    uint32_t val;
-
     // Overwrite vector table
     NewVectorTable[2] = (VECTOR_Func) TRAP_NMIHandler;
 #if defined ( __ICCARM__ )
@@ -185,25 +300,18 @@ void PLAT_Init(void)
     __rtl_memset_v1_00((void *)__bss_dtcm_start__, 0, __bss_dtcm_end__ - __bss_dtcm_start__);
     __rtl_memset_v1_00((void *)__bss_dram_start__, 0, __bss_dram_end__ - __bss_dram_start__);
 
-    extern HAL_TIMER_OP_EXT HalTimerOpExt;
-    __rtl_memset_v1_00((void *)&HalTimerOpExt, 0, sizeof(HalTimerOpExt));
-    __rtl_memset_v1_00((void *)&HalTimerOp, 0, sizeof(HalTimerOp));
+    HAL_WRITE32(SYSTEM_CTRL_BASE, REG_OSC32K_CTRL, (HAL_READ32(SYSTEM_CTRL_BASE, REG_OSC32K_CTRL)|BIT17|BIT18));
+    HalDelayUs(40);
+#ifdef CONFIG_TIMER_MODULE
+    // Re-init G-Timer HAL Function pointer with ROM Patch
+    if (HalCommonInit() != HAL_OK) {
+        DBG_8195A("Hal Common Init Failed.\n");
+    }
+#endif
 
-    HalTimerOpInit_Patch(&HalTimerOp);
     SystemCoreClockUpdate();
 
-    // Set SPS lower voltage
-    val = __RTK_CTRL_READ32(REG_SYS_EFUSE_SYSCFG0);
-    val &= 0xf0ffffff;
-    val |= 0x6000000;
-    __RTK_CTRL_WRITE32(REG_SYS_EFUSE_SYSCFG0, val);
-    
-    // xtal buffer driving current
-    val = __RTK_CTRL_READ32(REG_SYS_XTAL_CTRL1);
-    val &= ~(BIT_MASK_SYS_XTAL_DRV_RF1 << BIT_SHIFT_SYS_XTAL_DRV_RF1);
-    val |= BIT_SYS_XTAL_DRV_RF1(1);
-    __RTK_CTRL_WRITE32(REG_SYS_XTAL_CTRL1, val);
-
+    SYSPlatformInit();
     // Initialize SPIC, then disable it for power saving.
     if ((HAL_PERI_ON_READ32(REG_SOC_FUNC_EN) & BIT_SOC_FLASH_EN) != 0) {
         SpicNVMCalLoadAll();
@@ -212,11 +320,19 @@ void PLAT_Init(void)
     }
 
 #ifdef CONFIG_TIMER_MODULE
+
+    OSC_32_LINEAR_CALIBRATION(10);
+    HalDelayUs(40);
+
     Calibration32k();
 #endif
 
+#ifdef CONFIG_SOC_PS_MODULE
+    InitSoCPM();
+#endif
+
 #ifndef CONFIG_SDIO_DEVICE_EN
-    SDIO_DEV_Disable();
+    SDIO_Device_Off();
 #endif
 
     // Enter App start function

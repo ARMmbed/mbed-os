@@ -67,6 +67,7 @@ int rltk_wlan_rf_on(void);
 int rltk_wlan_rf_off(void);
 int rltk_wlan_check_bus(void);
 int rltk_wlan_wireless_mode(unsigned char mode);
+int rltk_wlan_get_wireless_mode(unsigned char *pmode);
 int rltk_wlan_set_wps_phase(unsigned char is_trigger_wps);
 int rtw_ps_enable(int enable);
 int rltk_wlan_is_connected_to_ap(void);

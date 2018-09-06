@@ -69,6 +69,8 @@ enum _SPIC_BIT_MODE_ {
 #define FLASH_WINBOND 3
 #define FLASH_MICRON 4
 #define FLASH_EON 5
+#define FLASH_GD 6
+#define FLASH_CYPRESS 7
 
 //#define FLASH_MXIC_MX25L4006E   0
 //#define FLASH_MXIC_MX25L8073E   0
@@ -82,40 +84,41 @@ enum _SPIC_BIT_MODE_ {
 #define FLASH_CMD_WRDI      0x04            //write disable
 #define FLASH_CMD_WRSR      0x01            //write status register
 #define FLASH_CMD_RDID      0x9F            //read idenfication
+#define FLASH_CMD_RDUID     0x4B          //Read Unique ID
 #define FLASH_CMD_RDSR      0x05            //read status register
 #define FLASH_CMD_RDSFDP    0x5A            //Read SFDP
 #define FLASH_CMD_READ      0x03            //read data
 #define FLASH_CMD_FREAD     0x0B            //fast read data
 #define FLASH_CMD_PP        0x02            //Page Program
-#define FLASH_CMD_DREAD 0x3B            //Double Output Mode command 1-1-2
-#define FLASH_CMD_2READ 0xBB            // 2 x I/O read  command 1-2-2
-#define FLASH_CMD_QREAD 0x6B            // 1I / 4O read command 1-1-4
-#define FLASH_CMD_4READ 0xEB            // 4 x I/O read  command 1-4-4
-#define FLASH_CMD_DPP   0xA2            // 1-1-2
-#define FLASH_CMD_2PP   0xD2            //  1-2-2
-#define FLASH_CMD_QPP   0x32            //  1-1-4
-#define FLASH_CMD_4PP   0x38            //quad page program 1-4-4
+#define FLASH_CMD_DREAD     0x3B            //Double Output Mode command 1-1-2
+#define FLASH_CMD_2READ     0xBB            // 2 x I/O read  command 1-2-2
+#define FLASH_CMD_QREAD     0x6B            // 1I / 4O read command 1-1-4
+#define FLASH_CMD_4READ     0xEB            // 4 x I/O read  command 1-4-4
+#define FLASH_CMD_DPP       0xA2            // 1-1-2
+#define FLASH_CMD_2PP       0xD2            //  1-2-2
+#define FLASH_CMD_QPP       0x32            //  1-1-4
+#define FLASH_CMD_4PP       0x38            //quad page program 1-4-4
 #define FLASH_CMD_SE        0x20            //Sector Erase
-#define FLASH_CMD_BE    0xD8            //Block Erase(or 0x52)
-#define FLASH_CMD_CE    0xC7            //Chip Erase(or 0xC7)
-#define FLASH_CMD_DP    0xB9            //Deep Power Down
-#define FLASH_CMD_RDP   0xAB            //Release from Deep Power-Down
+#define FLASH_CMD_BE        0xD8            //Block Erase(or 0x52)
+#define FLASH_CMD_CE        0xC7            //Chip Erase(or 0xC7)
+#define FLASH_CMD_DP        0xB9            //Deep Power Down
+#define FLASH_CMD_RDP       0xAB            //Release from Deep Power-Down
 
 /*Micron Special command*/
-#define FLASH_CMD_DE    0xC4
-#define FLASH_CMD_4PP2   0x12
-#define FLASH_CMD_RFSR 0x70
-#define FLASH_CMD_CFSR 0x50
-#define FLASH_CMD_RNCR 0xB5
-#define FLASH_CMD_WNCR 0xB1
-#define FLASH_CMD_RVCR 0x85
-#define FLASH_CMD_WVCR 0x81
-#define FLASH_CMD_REVCR 0x65
-#define FLASH_CMD_WEVCR 0x61
-#define FLASH_CMD_REAR 0xC8
-#define FLASH_CMD_WEAR 0xC5
-#define FLASH_CMD_ENQUAD 0x35
-#define FLASH_CMD_EXQUAD 0xF5
+#define FLASH_CMD_DE        0xC4
+#define FLASH_CMD_4PP2      0x12
+#define FLASH_CMD_RFSR      0x70
+#define FLASH_CMD_CFSR      0x50
+#define FLASH_CMD_RNCR      0xB5
+#define FLASH_CMD_WNCR      0xB1
+#define FLASH_CMD_RVCR      0x85
+#define FLASH_CMD_WVCR      0x81
+#define FLASH_CMD_REVCR     0x65
+#define FLASH_CMD_WEVCR     0x61
+#define FLASH_CMD_REAR      0xC8
+#define FLASH_CMD_WEAR      0xC5
+#define FLASH_CMD_ENQUAD    0x35
+#define FLASH_CMD_EXQUAD    0xF5
 
 /*MXIC Special command*/
 #define FLASH_CMD_RDCR      0x15        //read configurate register
@@ -125,6 +128,19 @@ enum _SPIC_BIT_MODE_ {
 #define FLASH_CMD_EXSO      0xC1            // exit secured OTP
 #define FLASH_CMD_RDSCUR    0x2B            // read security register
 #define FLASH_CMD_WRSCUR    0x2F            // write security register    
+
+/*WINBOND Special command*/
+#define FLASH_CMD_GLOCK     0x7E
+#define FLASH_CMD_GUNLOCK   0x98
+#define FLASH_CMD_RLOCK     0x3D
+#define FLASH_CMD_SLOCK     0x36
+#define FLASH_CMD_SUNLOCK   0x39
+#define FLASH_CMD_WRSR3     0x11
+#define FLASH_CMD_RDSR3     0x15
+
+/*Cypress Special command*/
+#define FLASH_CMD_RDSR4     0x07            //read status register 2
+#define FLASH_CMD_CLSR      0x30            //Clear status register 2 error bit
 
 //#endif
 #if 0
@@ -331,11 +347,16 @@ VOID SpicBlockEraseFlashRtl8195A(IN u32 Address);
 VOID SpicSectorEraseFlashRtl8195A(IN u32 Address);
 VOID SpicDieEraseFlashRtl8195A(IN u32 Address);
 VOID SpicWriteProtectFlashRtl8195A(IN u32 Protect);
-VOID SpicWaitWipDoneRefinedRtl8195A(IN  SPIC_INIT_PARA SpicInitPara);
+VOID SpicWaitWipDoneRefinedRtl8195A(IN SPIC_INIT_PARA SpicInitPara);
 VOID SpicWaitOperationDoneRtl8195A(IN SPIC_INIT_PARA SpicInitPara);
-VOID SpicRxCmdRefinedRtl8195A(IN  u8 cmd,IN  SPIC_INIT_PARA SpicInitPara);
+VOID SpicTxCmdWithDataRtl8195A(IN  u8 cmd,IN u8 DataPhaseLen,IN u8* pData,IN SPIC_INIT_PARA SpicInitPara);
+VOID SpicTxCmdWithDataNoCheckRtl8195A(IN u8 cmd, IN u8 DataPhaseLen,IN u8* pData);
+VOID SpicRxCmdRefinedRtl8195A(IN u8 cmd,IN SPIC_INIT_PARA SpicInitPara);
+VOID SpicRxCmdWithDataRtl8195A(IN u8 cmd,IN u8 DataPhaseLen, IN u8* pData,IN SPIC_INIT_PARA SpicInitPara);
 u8 SpicGetFlashStatusRefinedRtl8195A(IN  SPIC_INIT_PARA SpicInitPara);
-VOID SpicInitRefinedRtl8195A(IN  u8 InitBaudRate,IN  u8 SpicBitMode);
+u8 SpicGetFlashStatus3Rtl8195A(IN SPIC_INIT_PARA SpicInitPara);
+u8 SpicGetFlashStatus4Rtl8195A(IN SPIC_INIT_PARA SpicInitPara);
+VOID SpicInitRefinedRtl8195A(IN u8 InitBaudRate,IN u8 SpicBitMode);
 u32 SpicWaitWipRtl8195A(VOID);
 u32 SpicOneBitCalibrationRtl8195A(IN u8 SysCpuClk);
 VOID SpicDisableRtl8195A(VOID);
@@ -343,10 +364,18 @@ VOID SpicDeepPowerDownFlashRtl8195A(VOID);
 VOID SpicUserProgramRtl8195A(IN u8 * data, IN SPIC_INIT_PARA SpicInitPara, IN u32 addr, IN u32 * LengthInfo);
 VOID SpicUserReadRtl8195A(IN u32 Length, IN u32 addr, IN u8 * data, IN u8 BitMode);
 VOID SpicUserReadFourByteRtl8195A(IN u32 Length, IN u32 addr, IN u32 * data, IN u8 BitMode);
+VOID SpicReadUniqueIDRtl8195A(IN  u8 *buff,IN  u8  len);
 VOID SpicReadIDRtl8195A(VOID);
 VOID SpicSetFlashStatusRefinedRtl8195A(IN u32 data, IN SPIC_INIT_PARA SpicInitPara);
 VOID SpicSetExtendAddrRtl8195A(IN u32 data, IN SPIC_INIT_PARA SpicInitPara);
 u8 SpicGetExtendAddrRtl8195A(IN SPIC_INIT_PARA SpicInitPara);
+VOID SpicSetLockModeRtl8195A(IN u8 Mode);
+VOID SpicLockFlashRtl8195A(VOID);
+VOID SpicUnlockFlashRtl8195A(VOID);
+VOID SpicSingleLockRtl8195A(IN u32 Address);
+VOID SpicSingleUnlockRtl8195A(IN u32 Address);
+u8 SpicReadLockStateRtl8195A(IN u32 Address);
+
 #if SPIC_CALIBRATION_IN_NVM
 VOID SpicNVMCalLoad(u8 BitMode, u8 CpuClk);
 VOID SpicNVMCalLoadAll(void);
