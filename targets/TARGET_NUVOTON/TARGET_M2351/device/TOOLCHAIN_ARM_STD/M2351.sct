@@ -10,7 +10,7 @@
  *   Secure:        32KiB
  *   Non-secure:    64KiB
  */
-#if defined(__DOMAIN_NS) && __DOMAIN_NS
+#if defined(DOMAIN_NS) && DOMAIN_NS
 
 #ifndef MBED_APP_START
 #define MBED_APP_START      0x10040000
@@ -64,14 +64,14 @@
 
 /* Initial/ISR stack size */
 #if (! defined(NU_INITIAL_STACK_SIZE))
-#if defined(__DOMAIN_NS) && __DOMAIN_NS
+#if defined(DOMAIN_NS) && DOMAIN_NS
 #define NU_INITIAL_STACK_SIZE       0x800
 #else
 #define NU_INITIAL_STACK_SIZE       0x800
 #endif
 #endif
 
-#if defined(__DOMAIN_NS) && __DOMAIN_NS
+#if defined(DOMAIN_NS) && DOMAIN_NS
 
 LR_IROM1    MBED_APP_START
 {
