@@ -37,8 +37,9 @@ limitations under the License.
 #define SUPPORT_INTERACTIVE_MODE		0//on/off wifi_interactive_mode
 #define CONFIG_LOG_SERVICE_LOCK 0
 
-#define CONFIG_LOG_USE_HS_UART		0 //command/log via highspeed uart 	
-#define CONFIG_LOG_USE_I2C			0 //command/log via I2C
+#define CONFIG_ATCMD_MP				0 //support MP AT command
+#define USE_MODE                    1 //for test
+
 #endif
 
 /**
@@ -65,6 +66,7 @@ limitations under the License.
 */
 #define AP_SETTING_SECTOR		0x000FE000
 #define UART_SETTING_SECTOR		0x000FC000
+#define SPI_SETTING_SECTOR		0x000FC000
 #define FAST_RECONNECT_DATA 	(0x80000 - 0x1000)
 
 /**
@@ -75,6 +77,8 @@ limitations under the License.
 #define CONFIG_LWIP_LAYER	1
 #define CONFIG_INIT_NET		1 //init lwip layer when start up
 #define CONFIG_WIFI_IND_USE_THREAD	0	// wifi indicate worker thread
+#define CONFIG_ENABLE_AP_POLLING_CLIENT_ALIVE 1 // on or off AP POLLING CLIENT
+
 
 //on/off relative commands in log service
 #define CONFIG_SSL_CLIENT	0
@@ -95,6 +99,11 @@ limitations under the License.
 /* For WPS and P2P */
 #define CONFIG_ENABLE_WPS		0
 #define CONFIG_ENABLE_P2P		0
+
+#if CONFIG_ENABLE_WPS
+#define CONFIG_ENABLE_WPS_DISCOVERY	1
+#endif
+
 #if CONFIG_ENABLE_P2P
 #define CONFIG_ENABLE_WPS_AP		1
 #undef CONFIG_WIFI_IND_USE_THREAD
@@ -102,6 +111,17 @@ limitations under the License.
 #endif
 #if (CONFIG_ENABLE_P2P && ((CONFIG_ENABLE_WPS_AP == 0) || (CONFIG_ENABLE_WPS == 0)))
 #error "If CONFIG_ENABLE_P2P, need to define CONFIG_ENABLE_WPS_AP 1" 
+#endif
+
+/* For SSL/TLS */
+#define CONFIG_USE_POLARSSL     0
+#define CONFIG_USE_MBEDTLS      1
+#if ((CONFIG_USE_POLARSSL == 0) && (CONFIG_USE_MBEDTLS == 0)) || ((CONFIG_USE_POLARSSL == 1) && (CONFIG_USE_MBEDTLS == 1))
+#undef CONFIG_USE_POLARSSL
+#define CONFIG_USE_POLARSSL 1
+#undef CONFIG_USE_MBEDTLS
+#define CONFIG_USE_MBEDTLS 0
+
 #endif
 
 /* For Simple Link */
@@ -124,6 +144,9 @@ limitations under the License.
 
 #endif //end of #if CONFIG_WLAN
 /*******************************************************************************/
+
+/* For LWIP configuration */
+#define CONFIG_LWIP_DHCP_COARSE_TIMER 60
 
 /**
  * For Ethernet configurations
@@ -165,6 +188,10 @@ limitations under the License.
 #define CONFIG_INIC_CMD_RSP     1 //need to return msg to host
 #endif
 /******************End of iNIC configurations*******************/
+
+
+/* for CoAP example*/
+#define CONFIG_EXAMPLE_COAP              0
 
 /* For aj_basic_example */
 #define CONFIG_EXAMPLE_AJ_BASIC          0
@@ -214,6 +241,12 @@ limitations under the License.
 /* For http download example */
 #define CONFIG_EXAMPLE_HTTP_DOWNLOAD	0
 
+/* For httpc example */
+#define CONFIG_EXAMPLE_HTTPC			0
+
+/* For httpd example */
+#define CONFIG_EXAMPLE_HTTPD			0
+
 /* For tcp keepalive example */
 #define CONFIG_EXAMPLE_TCP_KEEPALIVE	0
 
@@ -232,6 +265,96 @@ limitations under the License.
 #define FATFS_DISK_SD 	1
 #define CONFIG_EXAMPLE_CODEC_SGTL5000         1
 #endif
+/* For audio mp3 pcm example */
+#define CONFIG_EXAMPLE_AUDIO_MP3		0
+#if CONFIG_EXAMPLE_AUDIO_MP3
+#define FATFS_DISK_SD 	1
+#define CONFIG_EXAMPLE_MP3_STREAM_SGTL5000      1
+#endif
+
+/* For audio m4a example */
+#define CONFIG_EXAMPLE_AUDIO_M4A		0
+#if CONFIG_EXAMPLE_AUDIO_M4A
+#define CONFIG_EXAMPLE_M4A_FROM_HTTP       1   // 1: From HTTP, 0: From SDCARD
+#define FATFS_DISK_SD 	1
+#undef	CONFIG_INCLUDE_SIMPLE_CONFIG
+#define CONFIG_INCLUDE_SIMPLE_CONFIG	0
+#undef	SUPPORT_MP_MODE
+#define SUPPORT_MP_MODE	0
+#if (CONFIG_EXAMPLE_M4A_FROM_HTTP == 0)
+#undef CONFIG_WLAN
+#define CONFIG_WLAN		0
+#undef CONFIG_EXAMPLE_WLAN_FAST_CONNECT
+#define CONFIG_EXAMPLE_WLAN_FAST_CONNECT  0
+#undef	SUPPORT_LOG_SERVICE
+#define SUPPORT_LOG_SERVICE	0
+#else
+#undef FAST_RECONNECT_DATA
+#define FAST_RECONNECT_DATA (0x200000-0x1000)
+#endif
+#endif
+   
+/* For audio m4a example */
+#define CONFIG_EXAMPLE_AUDIO_M4A_SELFPARSE		0
+#if CONFIG_EXAMPLE_AUDIO_M4A_SELFPARSE
+#define FATFS_DISK_SD 	1
+#undef	CONFIG_INCLUDE_SIMPLE_CONFIG
+#define CONFIG_INCLUDE_SIMP LE_CONFIG	0
+#undef	SUPPORT_MP_MODE
+#define SUPPORT_MP_MODE	0
+#undef CONFIG_WLAN
+#define CONFIG_WLAN		0
+#undef CONFIG_EXAMPLE_WLAN_FAST_CONNECT
+#define CONFIG_EXAMPLE_WLAN_FAST_CONNECT  0
+#undef	SUPPORT_LOG_SERVICE
+#define SUPPORT_LOG_SERVICE	0
+#endif
+   
+/* For m4a,mp3 combined example */
+#define CONFIG_EXAMPLE_AUDIO_M4A_MP3 0
+#if CONFIG_EXAMPLE_AUDIO_M4A_MP3
+#define FATFS_DISK_SD 	1
+#undef CONFIG_WLAN
+#define CONFIG_WLAN		0
+#undef CONFIG_EXAMPLE_WLAN_FAST_CONNECT
+#define CONFIG_EXAMPLE_WLAN_FAST_CONNECT  0
+#undef	CONFIG_INCLUDE_SIMPLE_CONFIG
+#define CONFIG_INCLUDE_SIMPLE_CONFIG	0
+#undef	SUPPORT_LOG_SERVICE
+#define SUPPORT_LOG_SERVICE	0
+#undef	SUPPORT_MP_MODE
+#define SUPPORT_MP_MODE	0
+#endif
+   
+/* For audio amr example */
+#define CONFIG_EXAMPLE_AUDIO_AMR		0
+#if CONFIG_EXAMPLE_AUDIO_AMR
+#define FATFS_DISK_SD 	1
+#undef CONFIG_WLAN
+#define CONFIG_WLAN		0
+#undef CONFIG_EXAMPLE_WLAN_FAST_CONNECT
+#define CONFIG_EXAMPLE_WLAN_FAST_CONNECT  0
+#undef	CONFIG_INCLUDE_SIMPLE_CONFIG
+#define CONFIG_INCLUDE_SIMPLE_CONFIG	0
+#endif
+
+/* For audio HLS example */
+#define CONFIG_EXAMPLE_AUDIO_HLS	0
+#if CONFIG_EXAMPLE_AUDIO_HLS
+#define FATFS_DISK_SD 	1
+#undef FAST_RECONNECT_DATA
+#define FAST_RECONNECT_DATA (0x200000-0x1000)
+#undef CONFIG_INCLUDE_SIMPLE_CONFIG
+#define CONFIG_INCLUDE_SIMPLE_CONFIG		0
+#undef	SUPPORT_MP_MODE
+#define SUPPORT_MP_MODE	0
+#endif
+
+/*Foe alc audio dsp firmware upgrade */
+#define CONFIG_EXAMPLE_ALC_DSP_FW_UPGRADE     0
+
+/*Foe audio pcm upload */
+#define CONFIG_EXAMPLE_AUDIO_PCM_UPLOAD     0
 
 /* For UART Module AT command example */
 #define CONFIG_EXAMPLE_UART_ATCMD	0
@@ -250,20 +373,66 @@ limitations under the License.
 #define CONFIG_EXAMPLE_WLAN_FAST_CONNECT  0
 #endif
 
+/* For SPI Module AT command example */
+#define CONFIG_EXAMPLE_SPI_ATCMD 0
+
+#if CONFIG_EXAMPLE_SPI_ATCMD
+#undef FREERTOS_PMU_TICKLESS_PLL_RESERVED
+#define FREERTOS_PMU_TICKLESS_PLL_RESERVED  1
+#undef CONFIG_OTA_UPDATE
+#define CONFIG_OTA_UPDATE 1
+#undef CONFIG_TRANSPORT
+#define CONFIG_TRANSPORT 1
+#undef LOG_SERVICE_BUFLEN
+#define LOG_SERVICE_BUFLEN 1600
+#undef CONFIG_LOG_SERVICE_LOCK
+#define CONFIG_LOG_SERVICE_LOCK 1
+#undef CONFIG_EXAMPLE_WLAN_FAST_CONNECT
+#define CONFIG_EXAMPLE_WLAN_FAST_CONNECT  0
+#endif
 #define CONFIG_EXAMPLE_MEDIA_SS 				0
-#define CONFIG_EXAMPLE_MEDIA_MS					0
+#define CONFIG_EXAMPLE_MEDIA_MS                 0
 #define CONFIG_EXAMPLE_MEDIA_AUDIO_FROM_RTP                     0
+
+//Defines for mp3 streaming over wifi, default output through alc5651
+#define CONFIG_EXAMPLE_MP3_STREAM_RTP			0
+
+#if CONFIG_EXAMPLE_MP3_STREAM_RTP
+#undef CONFIG_EXAMPLE_MEDIA_AUDIO_FROM_RTP
+#define CONFIG_EXAMPLE_MEDIA_AUDIO_FROM_RTP		1
+#undef	CONFIG_INCLUDE_SIMPLE_CONFIG
+#define CONFIG_INCLUDE_SIMPLE_CONFIG			0
+//Set this flag to 1 in case sgtl5000 to be used else alc5651 will be used
+#define CONFIG_EXAMPLE_MP3_STREAM_SGTL5000		0
+#endif
+
 // Use media source/sink example
-#if (CONFIG_EXAMPLE_MEDIA_SS==1) || (CONFIG_EXAMPLE_MEDIA_MS==1)
+
+#if (CONFIG_EXAMPLE_MEDIA_SS==1) || (CONFIG_EXAMPLE_MEDIA_AUDIO_FROM_RTP)
+
 #undef CONFIG_INCLUDE_SIMPLE_CONFIG
 #define CONFIG_INCLUDE_SIMPLE_CONFIG		0
 #define CONFIG_ENABLE_WPS	0
-#endif   
+#endif
+
+/* For ISP AT COMMAND config*/
+#define CONFIG_ISP 0
 
 /* For Mjpeg capture example*/
 #define CONFIG_EXAMPLE_MJPEG_CAPTURE		0
 #if CONFIG_EXAMPLE_MJPEG_CAPTURE
 #define FATFS_DISK_SD 	1
+#endif
+
+/* For DCT example*/
+#define CONFIG_EXAMPLE_DCT                      0
+
+/* For audio flash mp3 pcm example */
+#define CONFIG_EXAMPLE_FLASH_MP3                0
+#if CONFIG_EXAMPLE_FLASH_MP3
+#define FATFS_DISK_FLASH                        1
+#define CONFIG_EXAMPLE_MP3_STREAM_SGTL5000      1
+
 #endif
 
 /****************** For EAP method example *******************/
@@ -279,6 +448,9 @@ limitations under the License.
 
 #if CONFIG_ENABLE_PEAP || CONFIG_ENABLE_TLS || CONFIG_ENABLE_TTLS
 #define CONFIG_ENABLE_EAP
+
+#undef CONFIG_EXAMPLE_WLAN_FAST_CONNECT
+
 #define CONFIG_EXAMPLE_WLAN_FAST_CONNECT 0
 #endif
 
@@ -292,6 +464,11 @@ limitations under the License.
 /* For usb mass storage example */
 #define CONFIG_EXAMPLE_USB_MASS_STORAGE		0
 
+/* For vendor specific example  */
+#define CONFIG_EXAMPLE_USB_VENDOR_SPECIFIC      0
+
+#define CONFIG_EXAMPLE_USB_ISOC_DEVICE          0
+
 /* For FATFS example*/
 #define CONFIG_EXAMPLE_FATFS			0
 #if CONFIG_EXAMPLE_FATFS
@@ -300,8 +477,9 @@ limitations under the License.
 // fatfs version
 #define FATFS_R_10C
 // fatfs disk interface
-#define FATFS_DISK_USB	0
-#define FATFS_DISK_SD 	1
+#define FATFS_DISK_USB      0
+#define FATFS_DISK_SD       1
+#define FATFS_DISK_FLASH    0
 #endif
 #endif
 
@@ -380,7 +558,42 @@ in lwip_opt.h for support uart adapter*/
 /* For ssl server example */
 #define CONFIG_EXAMPLE_SSL_SERVER		0
 
+/*For timelapse example */
+#define CONFIG_EXAMPLE_TIMELAPSE        0
+#if CONFIG_EXAMPLE_TIMELAPSE
+#define CONFIG_USE_HTTP_SERVER          0
+#if CONFIG_USE_HTTP_SERVER
+#undef CONFIG_INCLUDE_SIMPLE_CONFIG
+#define CONFIG_INCLUDE_SIMPLE_CONFIG    0
+#define CONFIG_ENABLE_WPS               0
+#else
+#undef CONFIG_INCLUDE_SIMPLE_CONFIG
+#define CONFIG_INCLUDE_SIMPLE_CONFIG    0
+#define CONFIG_ENABLE_WPS               0
+#define CONFIG_FATFS_EN                 1
+#define FATFS_R_10C
+#define FATFS_DISK_SD                   1
+#endif
+#endif
+
 /* For ota update http example */
 #define CONFIG_EXAMPLE_OTA_HTTP			0
 
+/* For Amazon AWS IoT example */
+#define CONFIG_EXAMPLE_AMAZON_AWS_IOT   0
+#define CONFIG_EXAMPLE_AMAZON_ALEXA     0
+
+/*For wifi roaming example*/
+#define CONFIG_EXAMPLE_WIFI_ROAMING     0
+#if CONFIG_QQ_LINK
+#define FATFS_R_10C
+#define FATFS_DISK_USB                  0
+#define FATFS_DISK_SD                   1
+#endif
+#if CONFIG_ENABLE_WPS
+#define WPS_CONNECT_RETRY_COUNT         4
+#define WPS_CONNECT_RETRY_INTERVAL      5000 // in ms
+#endif 
+#define AUTO_RECONNECT_COUNT            8
+#define AUTO_RECONNECT_INTERVAL         5 // in sec
 #endif

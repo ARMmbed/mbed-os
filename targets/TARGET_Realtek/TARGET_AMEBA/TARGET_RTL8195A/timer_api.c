@@ -76,7 +76,7 @@ void gtimer_init (gtimer_t *obj, uint32_t tid)
     pTimerAdapter->TimerIrqPriority = 0;
     pTimerAdapter->TimerLoadValueUs = 0xFFFFFFFF;   // Just a whatever value
     pTimerAdapter->TimerMode = USER_DEFINED;
-    
+
     HalTimerInit ((VOID*) pTimerAdapter);
 }
 
