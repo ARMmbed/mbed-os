@@ -1,5 +1,12 @@
 # Change Log
 
+## [v4.6.3](https://github.com/ARMmbed/mbed-coap/releases/tag/v4.6.3) 
+
+ - Bug fix: Remove timed out blockwise message from resend queue. If blockwise message was timed out message was still kept in the resend queue which causes unnecessary reconnections on client side.
+ - Documentation: Document all the available macros.
+
+-[Full Changelog](https://github.com/ARMmbed/mbed-coap/compare/v4.6.2...v4.6.3)
+
 ## [v4.6.2](https://github.com/ARMmbed/mbed-coap/releases/tag/v4.6.2) 
 
 Do not clear block2 in subsequent block request.
