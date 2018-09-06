@@ -205,10 +205,8 @@ void i2c_get_capabilities(i2c_capabilities_t *capabilities);
  *  @param sda       The sda pin
  *  @param scl       The scl pin
  *  @param is_slave  Choose whether the peripheral is initialised as master or slave.
- *  @param address   Specify the address for the peripheral in slave mode.
- *                   This parameter is ignored in master mode.
  */
-void i2c_init(i2c_t *obj, PinName sda, PinName scl, bool is_slave, uint16_t address);
+void i2c_init(i2c_t *obj, PinName sda, PinName scl, bool is_slave);
 
 /** Configure the frequency in Hz the I2C peripheral should operate at.
  *
@@ -292,6 +290,13 @@ typedef enum {
  *  @return The status - i2c_slave_status indicating what mode the peripheral is configured in.
  */
 i2c_slave_status i2c_slave_receive(i2c_t *obj);
+
+/** Configure I2C address.
+ *
+ *  @param obj     The I2C object
+ *  @param address The address to be set
+ */
+void i2c_slave_address(i2c_t *obj, uint16_t address);
 
 typedef void (*i2c_async_handler_f)(i2c_t *obj, void *ctx, i2c_async_event_t event);
 
