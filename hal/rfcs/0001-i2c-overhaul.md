@@ -247,6 +247,7 @@ bool i2c_stop(i2c_t *obj);
  *  @param address 7-bit address (last bit is 0)
  *  @param data    The buffer for sending
  *  @param length  Number of bytes to write
+ *  @param stop    If true, stop will be generated after the transfer is done
  *
  *  @note If the current platform supports multimaster operation the transfer will block until
  *        the peripheral can gain arbitration of the bus and complete the transfer. If the
@@ -257,7 +258,7 @@ bool i2c_stop(i2c_t *obj);
  *      zero or non-zero - Number of written bytes
  *      negative - I2C_ERROR_XXX status
  */
-int i2c_write(i2c_t *obj, uint16_t address, const void *data, uint32_t length);
+int i2c_write(i2c_t *obj, uint16_t address, const void *data, uint32_t length, bool stop);
 
 /** Blocking reading data
  *
@@ -265,6 +266,8 @@ int i2c_write(i2c_t *obj, uint16_t address, const void *data, uint32_t length);
  *  @param address 7-bit address (last bit is 1)
  *  @param data    The buffer for receiving
  *  @param length  Number of bytes to read
+ *  @param last    If true, indicates that the transfer contains the last byte
+ *                 to be sent.
  *
  *  @note If the current platform supports multimaster operation the transfer will block until
  *        the peripheral can gain arbitration of the bus and complete the transfer. If the
@@ -275,7 +278,7 @@ int i2c_write(i2c_t *obj, uint16_t address, const void *data, uint32_t length);
  *      zero or non-zero - Number of written bytes
  *      negative - I2C_ERROR_XXX status
  */
-int i2c_read(i2c_t *obj, uint16_t address, void *data, uint32_t length);
+int i2c_read(i2c_t *obj, uint16_t address, void *data, uint32_t length, bool last);
 
 typedef enum {
     NO_ADDRESS = 0,
