@@ -1275,3 +1275,9 @@ static void radioEventHandler(RAIL_Handle_t railHandle,
     }
     while (events != 0);
 }
+
+NanostackRfPhy &NanostackRfPhy::get_default_instance()
+{
+    static NanostackRfPhyEfr32 rf_phy;
+    return rf_phy;
+}
