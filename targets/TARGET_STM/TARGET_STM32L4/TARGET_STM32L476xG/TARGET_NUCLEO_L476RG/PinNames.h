@@ -208,7 +208,6 @@ typedef enum {
     SPI_MISO    = PA_6,
     SPI_SCK     = PA_5,
     SPI_CS      = PB_6,
-    SPI_PERSISTENT_MEM_CS = PB_6,
     PWM_OUT     = PB_3,
 
     /**** USB pins ****/

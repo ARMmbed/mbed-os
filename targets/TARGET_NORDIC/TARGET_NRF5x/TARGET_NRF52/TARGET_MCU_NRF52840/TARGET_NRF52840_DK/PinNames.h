@@ -197,11 +197,6 @@ typedef enum {
     SPIS_PSELMISO = P1_3,
     SPIS_PSELSS   = P1_1,
     SPIS_PSELSCK  = P1_4,
-    
-    SPI_MOSI   = p20,
-    SPI_MISO   = p21,
-    SPI_SCK    = p19,
-    SPI_PERSISTENT_MEM_CS = p17,
 
     I2C_SDA0 = p26,
     I2C_SCL0 = p27,

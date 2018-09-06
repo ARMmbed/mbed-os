@@ -117,11 +117,6 @@ typedef enum {
     I2C_SCL = D15,
     I2C_SDA = D14,
 
-    SPI_MOSI   = p5,
-    SPI_MISO   = p6,
-    SPI_SCK    = p7,
-    SPI_PERSISTENT_MEM_CS = p8,
-
     // Not connected
     NC = (int)0xFFFFFFFF
 } PinName;

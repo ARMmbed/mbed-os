@@ -124,8 +124,7 @@ typedef enum {
     SPI_SCK         = PA_5,
     SPI_CS0         = PA_4,
     SPI_CS          = SPI_CS0,
-    SPI_PERSISTENT_MEM_CS = PB_12,
-    
+
     I2C1_SDA        = PB_11,
     I2C1_SCL        = PB_10,
 
