@@ -69,17 +69,17 @@ pip install "gcovr>=4.1"
 
 > In case of running into problems see [troubleshooting](#troubleshooting) section.
 
-`UNITTESTS/mbed_unittest.py` contains testing scripts for Mbed OS unit testing. Mbed CLI supports unit testing through `mbed unittest` command with the same arguments.
+`UNITTESTS/mbed_unittest.py` contains testing scripts for Mbed OS unit testing. Mbed CLI supports unit testing through `mbed test --unittests` command with the same arguments.
 
 ### Testing with Mbed CLI
 
 ```
-mbed unittest
+mbed test --unittests
 ```
 
 A subset of tests can be run by providing `-r` flag for the tool which runs tests matching a regular expression.
 
-e.g. `mbed unittest --run -r features_netsocket`
+e.g. `mbed test --unittests --run -r features_netsocket`
 
 ### Build manually without Python tools
 
@@ -144,7 +144,7 @@ Run ctest dashboard test and create test results:
 
 Python tools use gcovr to build code coverage reports. Generate html report `UNITTESTS/build/coverage/index.html` with:
 ```
-mbed unittest --coverage html
+mbed test --unittests --coverage html
 ```
 
 To get coverage for a single test suite, run gcovr separately for suite coverage data directory. See [gcovr documentation](https://gcovr.com/guide.html#filter-options) for more information.
@@ -211,10 +211,10 @@ A unit test definition file `unittest.cmake` requires variables to be set for a 
 #### Creating unit tests files with Mbed CLI
 
 ```
-mbed unittest --new <FILEPATH>
+mbed test --unittests --new <FILEPATH>
 ```
 
-E.g. `mbed unittest --new rtos/Semaphore.cpp`
+E.g. `mbed test --unittests --new rtos/Semaphore.cpp`
 
 The generator script only creates the files required for a unit test. It does not write unit tests automatically nor does it handle source dependencies.
 
