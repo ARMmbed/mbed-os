@@ -12,7 +12,7 @@
  *   Secure:        32KiB
  *   Non-secure:    64KiB
  */
-#if defined(__DOMAIN_NS) && __DOMAIN_NS
+#if defined(DOMAIN_NS) && DOMAIN_NS
 
 #ifndef MBED_APP_START
 #define MBED_APP_START      0x10040000
@@ -50,7 +50,7 @@
 
 #endif
 
-#if defined(__DOMAIN_NS) && __DOMAIN_NS
+#if defined(DOMAIN_NS) && DOMAIN_NS
 StackSize = 0x800;
 #else
 StackSize = 0x800;
@@ -71,7 +71,7 @@ StackSize = 0x800;
 #endif
 
 
-#if defined(__DOMAIN_NS) && __DOMAIN_NS
+#if defined(DOMAIN_NS) && DOMAIN_NS
 
 MEMORY
 {
@@ -192,7 +192,7 @@ SECTIONS
         KEEP(*(.eh_frame*))
     } > FLASH
 
-#if (! defined(__DOMAIN_NS)) || (! __DOMAIN_NS)
+#if (! defined(DOMAIN_NS)) || (! DOMAIN_NS)
     /* Veneer$$CMSE : */
     .gnu.sgstubs :
     {
