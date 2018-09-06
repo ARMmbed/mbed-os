@@ -195,10 +195,18 @@ void gpio_pull_ctrl(gpio_t *obj, PinMode pull_type)
     HAL_GPIO_PullCtrl((u32) obj->pin, (u32)pull_type);
 }
 
-
 void gpio_deinit(gpio_t *obj)
 {
     HAL_GPIO_DeInit(&obj->hal_pin);
+}
+
+int gpio_is_connected(const gpio_t *obj)
+{
+    if(obj->pin != (PinName)NC){
+        return 1;
+    } else {
+        return 0;
+    }
 }
 
 #endif
