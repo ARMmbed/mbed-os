@@ -1559,6 +1559,7 @@ static void sn_coap_protocol_handle_blockwise_timout(struct coap_s *handle)
                     /* Notify the application about the time out */
                     removed_blocwise_msg_ptr->coap_msg_ptr->coap_status = COAP_STATUS_BUILDER_BLOCK_SENDING_FAILED;
                     removed_blocwise_msg_ptr->coap_msg_ptr->msg_id = removed_blocwise_msg_ptr->msg_id;
+                    sn_coap_protocol_delete_retransmission(handle, removed_blocwise_msg_ptr->msg_id);
                     handle->sn_coap_rx_callback(removed_blocwise_msg_ptr->coap_msg_ptr, NULL, removed_blocwise_msg_ptr->param);
                 }
 
