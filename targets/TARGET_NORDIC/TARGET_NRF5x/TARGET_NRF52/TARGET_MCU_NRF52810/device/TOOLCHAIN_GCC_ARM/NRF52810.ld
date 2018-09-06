@@ -25,13 +25,15 @@
   #define MBED_APP_SIZE 0x30000
 #endif
 
-/* If app_start is 0, do not set aside space for the softdevice */
-#if MBED_APP_START == 0
-  #define MBED_RAM_START  0x20000000
-  #define MBED_RAM_SIZE   0x6000
-#else
-  #define MBED_RAM_START  0x20001AF0
-  #define MBED_RAM_SIZE   (0x6000-0x1AF0)
+/* If softdevice is present, set aside space for it */
+#if !defined(MBED_RAM_START)
+  #if defined(SOFTDEVICE_PRESENT)
+    #define MBED_RAM_START  0x20001AF0
+    #define MBED_RAM_SIZE   0x4510
+  #else
+    #define MBED_RAM_START  0x20000000
+    #define MBED_RAM_SIZE   0x6000
+  #endif
 #endif
 
 #define MBED_RAM0_START MBED_RAM_START
