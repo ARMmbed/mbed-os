@@ -152,9 +152,9 @@ The main changes involve removing the slave specific read/write functions and ro
 
 ### Async API changes
 
-- **Support** the `DMAUsage` argument for asynchronous transfers.
+- **Remove** the `DMAUsage` argument for asynchronous transfers.
 
-  Currently the `DMAUsage` argument of the `i2c_transfer_asynch` function is unimplemented, the argument is unused by all `I2C` implementations. There are currently requests for it to be included in the specification here: [Expose DMAUsage in I2C API](https://github.com/ARMmbed/mbed-os/issues/6877)
+  Currently the `DMAUsage` argument of the `i2c_transfer_asynch` function is unimplemented, the argument is unused by all `I2C` implementations. There is no real demand for it so can be removed from the API.
 
 - **Change** the `stop` parameter from the `i2c_transfer_async` from an `uint32_t` to a `bool`.
 
@@ -302,9 +302,8 @@ typedef void (*i2c_async_handler_f)(i2c_t *obj, void *ctx, i2c_async_event_t eve
  *  @param address   The address to be set - 7bit or 9bit
  *  @param stop      If true, stop will be generated after the transfer is done
  *  @param handler   The I2C IRQ handler to be set
- *  @param hint      DMA hint usage
  */
-void i2c_transfer_async(i2c_t *obj, const void *tx, uint32_t tx_length, void *rx, uint32_t rx_length, uint16_t address, bool stop, i2c_async_handler_f handler, DMAUsage hint);
+void i2c_transfer_async(i2c_t *obj, const void *tx, uint32_t tx_length, void *rx, uint32_t rx_length, uint16_t address, bool stop, i2c_async_handler_f handler);
 
 /** Abort asynchronous transfer
  *
