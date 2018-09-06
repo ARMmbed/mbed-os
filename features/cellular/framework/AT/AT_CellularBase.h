@@ -29,7 +29,6 @@ namespace mbed {
 class AT_CellularBase {
 public:
     AT_CellularBase(ATHandler &at);
-
     /** Getter for at handler. Common method for all AT-classes.
      *
      *  @return reference to ATHandler

@@ -207,9 +207,10 @@ void AT_CellularDevice::close_network()
     if (_network) {
         _network_ref_count--;
         if (_network_ref_count == 0) {
-            release_at_handler(&_network->get_at_handler());
+            ATHandler *atHandler = &_network->get_at_handler();
             delete _network;
             _network = NULL;
+            release_at_handler(atHandler);
         }
     }
 }
@@ -219,9 +220,10 @@ void AT_CellularDevice::close_sms()
     if (_sms) {
         _sms_ref_count--;
         if (_sms_ref_count == 0) {
-            release_at_handler(&_sms->get_at_handler());
+            ATHandler *atHandler = &_sms->get_at_handler();
             delete _sms;
             _sms = NULL;
+            release_at_handler(atHandler);
         }
     }
 }
@@ -231,9 +233,10 @@ void AT_CellularDevice::close_power()
     if (_power) {
         _power_ref_count--;
         if (_power_ref_count == 0) {
-            release_at_handler(&_power->get_at_handler());
+            ATHandler *atHandler = &_power->get_at_handler();
             delete _power;
             _power = NULL;
+            release_at_handler(atHandler);
         }
     }
 }
@@ -243,9 +246,10 @@ void AT_CellularDevice::close_sim()
     if (_sim) {
         _sim_ref_count--;
         if (_sim_ref_count == 0) {
-            release_at_handler(&_sim->get_at_handler());
+            ATHandler *atHandler = &_sim->get_at_handler();
             delete _sim;
             _sim = NULL;
+            release_at_handler(atHandler);
         }
     }
 }
@@ -255,9 +259,10 @@ void AT_CellularDevice::close_information()
     if (_information) {
         _info_ref_count--;
         if (_info_ref_count == 0) {
-            release_at_handler(&_information->get_at_handler());
+            ATHandler *atHandler = &_information->get_at_handler();
             delete _information;
             _information = NULL;
+            release_at_handler(atHandler);
         }
     }
 }
