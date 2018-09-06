@@ -16,7 +16,7 @@
 
 #include "objects.h"
 #include "spi_api.h"
-
+#include "spi_ex_api.h"
 #include "PinNames.h"
 #include "pinmap.h"
 #include "hal_ssi.h"
@@ -32,6 +32,11 @@ void spi_tx_done_callback(VOID *obj);
 void spi_rx_done_callback(VOID *obj);
 void spi_bus_tx_done_callback(VOID *obj);
 
+#ifdef CONFIG_GDMA_EN
+HAL_GDMA_OP SpiGdmaOp;
+#endif
+
+uint8_t SPI0_IS_AS_SLAVE = 0;
 
 //TODO: Load default Setting: It should be loaded from external setting file.
 extern const DW_SSI_DEFAULT_SETTING SpiDefaultSetting;
@@ -73,10 +78,12 @@ void spi_init (spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName sse
     _memset((void*)obj, 0, sizeof(spi_t));
     obj->state = 0;
 
-    /* SsiClockDivider doesn't support odd number */
+    uint32_t SystemClock = SystemGetCpuClk();
+    uint32_t MaxSsiFreq  = (SystemClock >> 2) >> 1;
 
-    DBG_SSI_INFO("SystemClock: %d\n", SystemGetCpuClk());
-    DBG_SSI_INFO("MaxSsiFreq : %d\n", SystemGetCpuClk() >> 3);
+    /* SsiClockDivider doesn't support odd number */
+    DBG_SSI_INFO("SystemClock: %d\n", SystemClock);
+    DBG_SSI_INFO("MaxSsiFreq : %d\n", MaxSsiFreq);
 
     ssi_mosi = pinmap_peripheral(mosi, PinMap_SSI_MOSI);
     ssi_miso = pinmap_peripheral(miso, PinMap_SSI_MISO);
@@ -119,7 +126,23 @@ void spi_init (spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName sse
         DBG_SSI_ERR(ANSI_COLOR_RED"spi_init(): SPI %x init fails.\n"ANSI_COLOR_RESET,pHalSsiAdaptor->Index);
         return;        
     }
-    osDelay(1);
+
+    pHalSsiAdaptor->TxCompCallback = spi_tx_done_callback;
+    pHalSsiAdaptor->TxCompCbPara = (void*)obj;
+    pHalSsiAdaptor->RxCompCallback = spi_rx_done_callback;
+    pHalSsiAdaptor->RxCompCbPara = (void*)obj;
+    pHalSsiAdaptor->TxIdleCallback = spi_bus_tx_done_callback;
+    pHalSsiAdaptor->TxIdleCbPara = (void*)obj;
+
+#ifdef CONFIG_GDMA_EN
+    HalGdmaOpInit((VOID*)&SpiGdmaOp);
+    pHalSsiAdaptor->DmaConfig.pHalGdmaOp = &SpiGdmaOp;
+    pHalSsiAdaptor->DmaConfig.pRxHalGdmaAdapter = &obj->spi_gdma_adp_rx;
+    pHalSsiAdaptor->DmaConfig.pTxHalGdmaAdapter = &obj->spi_gdma_adp_tx;
+    obj->dma_en = 0;
+    pHalSsiAdaptor->HaveTxChannel = 0;
+    pHalSsiAdaptor->HaveRxChannel = 0;
+#endif
 }
 
 void spi_free (spi_t *obj)
@@ -129,6 +152,17 @@ void spi_free (spi_t *obj)
     HalSsiDeInit(pHalSsiAdaptor);
 
     SPI0_MULTI_CS_CTRL(OFF);
+
+#ifdef CONFIG_GDMA_EN
+    if (obj->dma_en & SPI_DMA_RX_EN) {
+        HalSsiRxGdmaDeInit(pHalSsiAdaptor);
+    }
+
+    if (obj->dma_en & SPI_DMA_TX_EN) {
+        HalSsiTxGdmaDeInit(pHalSsiAdaptor);
+    }    
+    obj->dma_en = 0;
+#endif
 }
 
 void spi_format (spi_t *obj, int bits, int mode, int slave)
@@ -183,6 +217,7 @@ void spi_format (spi_t *obj, int bits, int mode, int slave)
         if (pHalSsiAdaptor->Index == 0) {
             pHalSsiAdaptor->Role = SSI_SLAVE;
             pHalSsiAdaptor->SlaveOutputEnable = SLV_TXD_ENABLE;  // <-- Slave only
+            SPI0_IS_AS_SLAVE = 1;
             DBG_SSI_INFO("SPI0 is as slave\n");
         } else {
             DBG_SSI_ERR("The SPI%d cannot work as Slave mode, only SPI0 does.\r\n", pHalSsiAdaptor->Index);
@@ -247,10 +282,12 @@ int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length,
                            char *rx_buffer, int rx_length, char write_fill)
 {
     int total = (tx_length > rx_length) ? tx_length : rx_length;
+    int i;
+    char out, in;
 
-    for (int i = 0; i < total; i++) {
-        char out = (i < tx_length) ? tx_buffer[i] : write_fill;
-        char in = spi_master_write(obj, out);
+    for (i = 0; i < total; i++) {
+        out = (i < tx_length) ? tx_buffer[i] : write_fill;
+        in = spi_master_write(obj, out);
         if (i < rx_length) {
             rx_buffer[i] = in;
         }
@@ -296,3 +333,40 @@ int spi_busy (spi_t *obj)
 }
 
 
+// Bus Idle: Real TX done, TX FIFO empty and bus shift all data out already
+void spi_bus_tx_done_callback(VOID *obj)
+{
+    spi_t *spi_obj = (spi_t *)obj;
+    spi_irq_handler handler;
+
+    if (spi_obj->bus_tx_done_handler) {
+        handler = (spi_irq_handler)spi_obj->bus_tx_done_handler;
+        handler(spi_obj->bus_tx_done_irq_id, (SpiIrq)0);
+    }    
+}
+
+void spi_tx_done_callback(VOID *obj)
+{
+    spi_t *spi_obj = (spi_t *)obj;
+    spi_irq_handler handler;
+
+    if (spi_obj->state & SPI_STATE_TX_BUSY) {
+        spi_obj->state &= ~SPI_STATE_TX_BUSY;
+        if (spi_obj->irq_handler) {
+            handler = (spi_irq_handler)spi_obj->irq_handler;
+            handler(spi_obj->irq_id, SpiTxIrq);
+        }
+    }
+}
+
+void spi_rx_done_callback(VOID *obj)
+{
+    spi_t *spi_obj = (spi_t *)obj;
+    spi_irq_handler handler;
+
+    spi_obj->state &= ~SPI_STATE_RX_BUSY;
+    if (spi_obj->irq_handler) {
+        handler = (spi_irq_handler)spi_obj->irq_handler;
+        handler(spi_obj->irq_id, SpiRxIrq);
+    }
+}

@@ -1206,4 +1206,6 @@ struct iw_event
 #define IW_EVT_STR_STA_DISASSOC	"STA Disassoc"
 #define IW_EVT_STR_SEND_ACTION_DONE	"Send Action Done"
 #define IW_EVT_STR_NO_NETWORK "No Assoc Network After Scan Done"
+#define IW_EVT_STR_ICV_ERROR "ICV Eror"
+#define IW_EVT_STR_CHALLENGE_FAIL "Auth Challenge Fail"
 #endif	/* _LINUX_WIRELESS_H */

@@ -19,6 +19,8 @@
 #if CONFIG_GPIO_EN
 #include "gpio_irq_api.h"
 
+extern void HAL_GPIO_DeInit(HAL_GPIO_PIN  *GPIO_Pin);
+
 int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32_t id) 
 {
     uint32_t pin_name;
