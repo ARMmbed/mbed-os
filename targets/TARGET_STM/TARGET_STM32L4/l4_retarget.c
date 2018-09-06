@@ -51,7 +51,7 @@ void *__wrap__sbrk(int incr)
     uint32_t heap_ind_old = heap_ind;
     uint32_t heap_ind_new = heap_ind_old + incr;
 
-    if (heap_ind_new > &__mbed_krbs_start) {
+    if (heap_ind_new > (uint32_t)&__mbed_krbs_start) {
         errno = ENOMEM;
         return (void *) - 1;
     }
