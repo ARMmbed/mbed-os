@@ -91,7 +91,7 @@ qspi_status_t QSPI::set_frequency(int hz)
     return ret_status;
 }
 
-qspi_status_t QSPI::read(unsigned int address, char *rx_buffer, size_t *rx_length)
+qspi_status_t QSPI::read(int address, char *rx_buffer, size_t *rx_length)
 {
     qspi_status_t ret_status = QSPI_STATUS_ERROR;
 
@@ -115,7 +115,7 @@ qspi_status_t QSPI::read(unsigned int address, char *rx_buffer, size_t *rx_lengt
     return ret_status;
 }
 
-qspi_status_t QSPI::write(unsigned int address, const char *tx_buffer, size_t *tx_length)
+qspi_status_t QSPI::write(int address, const char *tx_buffer, size_t *tx_length)
 {
     qspi_status_t ret_status = QSPI_STATUS_ERROR;
 
@@ -139,7 +139,7 @@ qspi_status_t QSPI::write(unsigned int address, const char *tx_buffer, size_t *t
     return ret_status;
 }
 
-qspi_status_t QSPI::read(unsigned int instruction, unsigned int alt, unsigned int address, char *rx_buffer, size_t *rx_length)
+qspi_status_t QSPI::read(int instruction, int alt, int address, char *rx_buffer, size_t *rx_length)
 {
     qspi_status_t ret_status = QSPI_STATUS_ERROR;
 
@@ -163,7 +163,7 @@ qspi_status_t QSPI::read(unsigned int instruction, unsigned int alt, unsigned in
     return ret_status;
 }
 
-qspi_status_t QSPI::write(unsigned int instruction, unsigned int alt, unsigned int address, const char *tx_buffer, size_t *tx_length)
+qspi_status_t QSPI::write(int instruction, int alt, int address, const char *tx_buffer, size_t *tx_length)
 {
     qspi_status_t ret_status = QSPI_STATUS_ERROR;
 
@@ -187,7 +187,7 @@ qspi_status_t QSPI::write(unsigned int instruction, unsigned int alt, unsigned i
     return ret_status;
 }
 
-qspi_status_t QSPI::command_transfer(unsigned int instruction, int address, const char *tx_buffer, size_t tx_length, const char *rx_buffer, size_t rx_length)
+qspi_status_t QSPI::command_transfer(int instruction, int address, const char *tx_buffer, size_t tx_length, const char *rx_buffer, size_t rx_length)
 {
     qspi_status_t ret_status = QSPI_STATUS_ERROR;
 
