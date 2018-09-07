@@ -354,6 +354,7 @@ bool ATHandler::fill_buffer(bool wait_for_timeout)
     // Reset buffer when full
     if (sizeof(_recv_buff) == _recv_len) {
         tr_error("AT overflow");
+        debug_print(_recv_buff, _recv_len);
         reset_buffer();
     }
 
@@ -442,15 +443,20 @@ ssize_t ATHandler::read_bytes(uint8_t *buf, size_t len)
         return -1;
     }
 
+    bool debug_on = _debug_on;
+    _debug_on = false;
     size_t read_len = 0;
     for (; read_len < len; read_len++) {
         int c = get_char();
         if (c == -1) {
             set_error(NSAPI_ERROR_DEVICE_ERROR);
+            _debug_on = debug_on;
             return -1;
         }
         buf[read_len] = c;
     }
+    _debug_on = debug_on;
+    tr_debug("AT read_bytes %u", read_len);
     return read_len;
 }
 
@@ -1089,7 +1095,12 @@ size_t ATHandler::write_bytes(const uint8_t *data, size_t len)
         return 0;
     }
 
-    return write(data, len);
+    bool debug_on = _debug_on;
+    _debug_on = false;
+    size_t wlen = write(data, len);
+    _debug_on = debug_on;
+    tr_debug("AT write_bytes %u", wlen);
+    return wlen;
 }
 
 size_t ATHandler::write(const void *data, size_t len)

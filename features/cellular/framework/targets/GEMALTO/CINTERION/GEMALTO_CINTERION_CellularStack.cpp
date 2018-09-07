@@ -468,7 +468,7 @@ nsapi_size_or_error_t GEMALTO_CINTERION_CellularStack::socket_recvfrom_impl(Cell
 
     _at.resp_stop();
 
-    tr_debug("Socket %d, recvfrom %s, %d bytes (err %d)", socket->id, address, len, _at.get_last_error());
+    tr_debug("Socket %d, recvfrom %s, %d bytes (err %d)", socket->id, address->get_ip_address(), len, _at.get_last_error());
 
     return (_at.get_last_error() == NSAPI_ERROR_OK) ? recv_len : NSAPI_ERROR_DEVICE_ERROR;
 }
@@ -491,24 +491,19 @@ bool GEMALTO_CINTERION_CellularStack::create_connection_profile()
     _at.resp_start("^SICS:");
     while (_at.info_resp()) {
         int id = _at.read_int();
-        tr_debug("SICS %d", id);
         if (id == connection_profile_id) {
             char paramTag[16];
             int paramTagLen = _at.read_string(paramTag, sizeof(paramTag));
             if (paramTagLen > 0) {
-                tr_debug("paramTag %s", paramTag);
                 char paramValue[100 + 1]; // APN may be up to 100 chars
                 int paramValueLen = _at.read_string(paramValue, sizeof(paramValue));
                 if (paramValueLen >= 0) {
-                    tr_debug("paramValue %s", paramValue);
                     if (strcmp(paramTag, "conType") == 0) {
-                        tr_debug("conType %s", paramValue);
                         if (strcmp(paramValue, conParamType) == 0) {
                             foundConnection = true;
                         }
                     }
                     if (strcmp(paramTag, "apn") == 0) {
-                        tr_debug("apn %s", paramValue);
                         if (strcmp(paramValue, _apn ? _apn : "") == 0) {
                             foundAPN = true;
                         }
@@ -520,7 +515,6 @@ bool GEMALTO_CINTERION_CellularStack::create_connection_profile()
     _at.resp_stop();
 
     if (!foundConnection) {
-        tr_debug("Socket conType %s", conParamType);
         _at.cmd_start("AT^SICS=");
         _at.write_int(connection_profile_id);
         _at.write_string("conType");
@@ -531,7 +525,6 @@ bool GEMALTO_CINTERION_CellularStack::create_connection_profile()
     }
 
     if (!foundAPN && _apn) {
-        tr_debug("Socket APN %s", _apn ? _apn : "");
         _at.cmd_start("AT^SICS=");
         _at.write_int(connection_profile_id);
         _at.write_string("apn");
