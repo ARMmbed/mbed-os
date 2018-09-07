@@ -32,7 +32,7 @@ import threading
 import ctypes
 import functools
 from colorama import Fore, Back, Style
-from prettytable import PrettyTable
+from prettytable import PrettyTable, HEADER
 from copy import copy, deepcopy
 
 from time import sleep, time
@@ -766,7 +766,7 @@ class SingleTestRunner(object):
                     result_dict[test[TEST_INDEX]][test[TOOLCHAIN_INDEX]] = test[RESULT_INDEX]
 
             pt_cols = ["Target", "Test ID", "Test Description"] + unique_target_toolchains
-            pt = PrettyTable(pt_cols)
+            pt = PrettyTable(pt_cols, junction_char="|", hrules=HEADER)
             for col in pt_cols:
                 pt.align[col] = "l"
             pt.padding_width = 1 # One space between column edges and contents (default)
@@ -794,7 +794,7 @@ class SingleTestRunner(object):
         result = "Test summary:\n"
         # Pretty table package is used to print results
         pt = PrettyTable(["Result", "Target", "Toolchain", "Test ID", "Test Description",
-                          "Elapsed Time (sec)", "Timeout (sec)", "Loops"])
+                          "Elapsed Time (sec)", "Timeout (sec)", "Loops"], junction_char="|", hrules=HEADER)
         pt.align["Result"] = "l" # Left align
         pt.align["Target"] = "l" # Left align
         pt.align["Toolchain"] = "l" # Left align
@@ -1328,7 +1328,7 @@ def print_muts_configuration_from_json(json_data, join_delim=", ", platform_filt
 
     # Prepare pretty table object to display all MUTs
     pt_cols = ["index"] + muts_info_cols
-    pt = PrettyTable(pt_cols)
+    pt = PrettyTable(pt_cols, junction_char="|", hrules=HEADER)
     for col in pt_cols:
         pt.align[col] = "l"
 
@@ -1366,7 +1366,7 @@ def print_test_configuration_from_json(json_data, join_delim=", "):
 
     # Prepare pretty table object to display test specification
     pt_cols = ["mcu"] + sorted(toolchains_info_cols)
-    pt = PrettyTable(pt_cols)
+    pt = PrettyTable(pt_cols, junction_char="|", hrules=HEADER)
     for col in pt_cols:
         pt.align[col] = "l"
 
@@ -1455,7 +1455,7 @@ def get_avail_tests_summary_table(cols=None, result_summary=True, join_delim=','
                        'duration'] if cols is None else cols
 
     # All tests status table print
-    pt = PrettyTable(test_properties)
+    pt = PrettyTable(test_properties, junction_char="|", hrules=HEADER)
     for col in test_properties:
         pt.align[col] = "l"
     pt.align['duration'] = "r"
@@ -1495,7 +1495,7 @@ def get_avail_tests_summary_table(cols=None, result_summary=True, join_delim=','
     if result_summary and not platform_filter:
         # Automation result summary
         test_id_cols = ['automated', 'all', 'percent [%]', 'progress']
-        pt = PrettyTable(test_id_cols)
+        pt = PrettyTable(test_id_cols, junction_char="|", hrules=HEADER)
         pt.align['automated'] = "r"
         pt.align['all'] = "r"
         pt.align['percent [%]'] = "r"
@@ -1509,7 +1509,7 @@ def get_avail_tests_summary_table(cols=None, result_summary=True, join_delim=','
 
         # Test automation coverage table print
         test_id_cols = ['id', 'automated', 'all', 'percent [%]', 'progress']
-        pt = PrettyTable(test_id_cols)
+        pt = PrettyTable(test_id_cols, junction_char="|", hrules=HEADER)
         pt.align['id'] = "l"
         pt.align['automated'] = "r"
         pt.align['all'] = "r"

@@ -19,7 +19,7 @@ import json
 from argparse import ArgumentParser
 from copy import deepcopy
 from collections import defaultdict
-from prettytable import PrettyTable
+from prettytable import PrettyTable, HEADER
 from jinja2 import FileSystemLoader, StrictUndefined
 from jinja2.environment import Environment
 
@@ -726,7 +726,7 @@ class MemapParser(object):
         columns = ['Module']
         columns.extend(self.print_sections)
 
-        table = PrettyTable(columns)
+        table = PrettyTable(columns, junction_char="|", hrules=HEADER)
         table.align["Module"] = "l"
         for col in self.print_sections:
             table.align[col] = 'r'
