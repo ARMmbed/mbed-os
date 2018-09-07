@@ -665,7 +665,7 @@ typedef struct {
     /**
      * The SNR for the received packet.
      */
-    uint8_t snr;
+    int8_t snr;
     /**
      * A boolean to mark if the meta data is stale
      */
