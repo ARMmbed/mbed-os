@@ -666,7 +666,7 @@ typedef struct {
     /*!
      * The SNR of the received packet.
      */
-    uint8_t snr;
+    int8_t snr;
     /*!
      * The receive window.
      *
