@@ -38,8 +38,6 @@
 extern uint32_t __mbed_sbrk_start;
 extern uint32_t __mbed_krbs_start;
 
-#define STM32L4_HEAP_ALIGN               32
-#define STM32L4_ALIGN_UP(X, ALIGN)       (((X) + (ALIGN) - 1) & ~((ALIGN) - 1))
 /**
  * The default implementation of _sbrk() (in platform/mbed_retarget.cpp) for GCC_ARM requires one-region model (heap and
  * stack share one region), which doesn't fit two-region model (heap and stack are two distinct regions), for example,
@@ -50,10 +48,10 @@ extern uint32_t __mbed_krbs_start;
 void *__wrap__sbrk(int incr)
 {
     static uint32_t heap_ind = (uint32_t) &__mbed_sbrk_start;
-    uint32_t heap_ind_old = STM32L4_ALIGN_UP(heap_ind, STM32L4_HEAP_ALIGN);
-    uint32_t heap_ind_new = STM32L4_ALIGN_UP(heap_ind_old + incr, STM32L4_HEAP_ALIGN);
+    uint32_t heap_ind_old = heap_ind;
+    uint32_t heap_ind_new = heap_ind_old + incr;
 
-    if (heap_ind_new > &__mbed_krbs_start) {
+    if (heap_ind_new > (uint32_t)&__mbed_krbs_start) {
         errno = ENOMEM;
         return (void *) - 1;
     }
