@@ -15,8 +15,10 @@ set(unittest-sources
 )
 
 set(unittest-test-sources
+  features/netsocket/TCPSocket/test_TCPSocket.cpp
   stubs/Mutex_stub.cpp
   stubs/mbed_assert_stub.c
   stubs/EventFlags_stub.cpp
-  features/netsocket/TCPSocket/test_TCPSocket.cpp
+  stubs/stoip4_stub.c
+  stubs/ip4tos_stub.c
 )

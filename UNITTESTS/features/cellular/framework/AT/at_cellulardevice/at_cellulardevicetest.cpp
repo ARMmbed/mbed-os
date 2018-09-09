@@ -124,7 +124,7 @@ TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_close_network)
     EXPECT_TRUE(ATHandler_stub::ref_count == 1);
 
     dev.close_network();
-    EXPECT_TRUE(ATHandler_stub::ref_count == 0);
+    EXPECT_TRUE(ATHandler_stub::ref_count == kATHandler_destructor_ref_ount);
 }
 
 TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_close_sms)
@@ -139,7 +139,7 @@ TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_close_sms)
     EXPECT_TRUE(ATHandler_stub::ref_count == 1);
 
     dev.close_sms();
-    EXPECT_TRUE(ATHandler_stub::ref_count == 0);
+    EXPECT_TRUE(ATHandler_stub::ref_count == kATHandler_destructor_ref_ount);
 }
 
 TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_close_power)
@@ -154,7 +154,7 @@ TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_close_power)
     EXPECT_TRUE(ATHandler_stub::ref_count == 1);
 
     dev.close_power();
-    EXPECT_TRUE(ATHandler_stub::ref_count == 0);
+    EXPECT_TRUE(ATHandler_stub::ref_count == kATHandler_destructor_ref_ount);
 }
 
 TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_close_sim)
@@ -163,16 +163,19 @@ TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_close_sim)
     AT_CellularDevice dev(que);
     FileHandle_stub fh1;
     ATHandler_stub::ref_count = 0;
-
+    int ana = 0;
 
     EXPECT_TRUE(dev.open_sim(&fh1));
     AT_CellularBase_stub::handler_value = AT_CellularBase_stub::handler_at_constructor_value;
 
+    ana = ATHandler_stub::ref_count;
+
     dev.close_sms(); // this should not affect to refcount as it's not opened
     EXPECT_TRUE(ATHandler_stub::ref_count == 1);
+    ana = ATHandler_stub::ref_count;
 
     dev.close_sim();
-    EXPECT_TRUE(ATHandler_stub::ref_count == 0);
+    EXPECT_TRUE(ATHandler_stub::ref_count == kATHandler_destructor_ref_ount);
 }
 
 TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_close_information)
