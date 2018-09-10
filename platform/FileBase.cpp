@@ -57,7 +57,7 @@ FileBase::~FileBase()
     }
 
     if (_default == this) {
-        _default == NULL;
+        _default = NULL;
     }
 
     _mutex->unlock();
