@@ -1,5 +1,5 @@
-/*
- * Copyright (c) , Arm Limited and affiliates.
+#[[
+ * Copyright (c) 2018, Arm Limited and affiliates
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,12 +13,26 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+]]
 
-#include "mbed_assert.h"
+# Unit test suite name
+set(TEST_SUITE_NAME "lorawan_LoRaMacCommand")
 
-void mbed_assert_internal(const char *expr, const char *file, int line)
-{
+# Source files
+set(unittest-sources
+  ../features/lorawan/lorastack/mac/LoRaMacCommand.cpp
+)
 
-}
+# Add test specific include paths
+set(unittest-includes ${unittest-includes}
+  target_h
+  ../features/lorawan/lorastack/mac
+)
+
+# Test & stub files
+set(unittest-test-sources
+  ../features/lorawan/loramaccommand/Test_LoRaMacCommand.cpp
+  stubs/mbed_assert_stub.c
+  stubs/LoRaPHY_stub.cpp
+)
 

@@ -20,9 +20,9 @@ set(unittest-sources
 # Test files
 set(unittest-test-sources
   features/cellular/framework/AT//at_cellularinformation/at_cellularinformationtest.cpp
-  stubs/ATHandler_stub.cpp 
-  stubs/AT_CellularBase_stub.cpp 
-  stubs/EventQueue_stub.cpp 
-  stubs/FileHandle_stub.cpp 
-  stubs/mbed_assert_stub.cpp
+  stubs/ATHandler_stub.cpp
+  stubs/AT_CellularBase_stub.cpp
+  stubs/EventQueue_stub.cpp
+  stubs/FileHandle_stub.cpp
+  stubs/mbed_assert_stub.c
 )
