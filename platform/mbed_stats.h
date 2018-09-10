@@ -48,6 +48,7 @@ typedef struct {
     uint32_t reserved_size;     /**< Current number of bytes allocated for the heap. */
     uint32_t alloc_cnt;         /**< Current number of allocations. */
     uint32_t alloc_fail_cnt;    /**< Number of failed allocations. */
+    uint32_t overhead_size;     /**< Overhead added to heap for stats. */
 } mbed_stats_heap_t;
 
 /**
