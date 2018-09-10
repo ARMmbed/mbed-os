@@ -125,8 +125,13 @@ struct SingletonPtr {
 
     // This is zero initialized when in global scope
     mutable T *_ptr;
-    // Force data to be 4 byte aligned
-    mutable uint32_t _data[(sizeof(T) + sizeof(uint32_t) - 1) / sizeof(uint32_t)];
+#if __cplusplus >= 201103L
+    // Align data appropriately
+    alignas(T) mutable char _data[sizeof(T)];
+#else
+    // Force data to be 8 byte aligned
+    mutable uint64_t _data[(sizeof(T) + sizeof(uint64_t) - 1) / sizeof(uint64_t)];
+#endif
 };
 
 #endif
