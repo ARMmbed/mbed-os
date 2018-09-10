@@ -177,7 +177,7 @@ bool CellularConnectionFSM::open_sim()
 
     if (state == CellularSIM::SimStatePinNeeded) {
         if (strlen(_sim_pin)) {
-            tr_info("SIM pin required, entering pin: %s", _sim_pin);
+            tr_info("SIM pin required, entering pin");
             nsapi_error_t err = _sim->set_pin(_sim_pin);
             if (err) {
                 tr_error("SIM pin set failed with: %d, bailing out...", err);
