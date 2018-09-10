@@ -134,6 +134,23 @@ void UARTSerial::sigio(Callback<void()> func)
     core_util_critical_section_exit();
 }
 
+/* Special synchronous write designed to work from critical section, such
+ * as in mbed_error_vfprintf.
+ */
+ssize_t UARTSerial::write_unbuffered(const char *buf_ptr, size_t length)
+{
+    while (!_txbuf.empty()) {
+        tx_irq();
+    }
+
+    for (size_t data_written = 0; data_written < length; data_written++) {
+        SerialBase::_base_putc(*buf_ptr++);
+        data_written++;
+    }
+
+    return length;
+}
+
 ssize_t UARTSerial::write(const void *buffer, size_t length)
 {
     size_t data_written = 0;
@@ -141,6 +158,10 @@ ssize_t UARTSerial::write(const void *buffer, size_t length)
 
     if (length == 0) {
         return 0;
+    }
+
+    if (core_util_in_critical_section()) {
+        return write_unbuffered(buf_ptr, length);
     }
 
     api_lock();
