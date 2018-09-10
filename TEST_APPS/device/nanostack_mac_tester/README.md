@@ -50,7 +50,7 @@ To set the application to interactive mode:
 
 1. Build the application.
 ```
-mbed test --compile --icetea -t TOOLCHAIN -m TARGET_PLATFORM --test-config MAC_TESTER -n address_read_and_write,send_data,send_data_indirect,send_large_payloads,create_and_join_PAN,ED_scan
+mbed test --compile --icetea -t TOOLCHAIN -m TARGET_PLATFORM --test-config NANOSTACK_MAC_TESTER -n address_read_and_write,send_data,send_data_indirect,send_large_payloads,create_and_join_PAN,ED_scan
 ```
 2. Connect your board and copy the compiled application binary from the `BUILD/tests/TARGET_PLATFORM/TOOLCHAIN/TEST_APPS/device/nanostack_mac_tester/` folder to the board.
 3. Wait for the device to flash the binary.
@@ -64,7 +64,7 @@ To start off, type `help` to list all commands available and furthermore `help <
 ### Automated mode
 
 ```
-mbed test --clean --compile --run --icetea -t TOOLCHAIN -m TARGET_PLATFORM --test-config MAC_TESTER -n address_read_and_write,send_data,send_data_indirect,send_large_payloads,create_and_join_PAN,ED_scan
+mbed test --clean --compile --run --icetea -t TOOLCHAIN -m TARGET_PLATFORM --test-config NANOSTACK_MAC_TESTER -n address_read_and_write,send_data,send_data_indirect,send_large_payloads,create_and_join_PAN,ED_scan
 ```
 
 Many of the provided testcases have a `self.channel` variable in the `setUp()` function for setting the RF channel. The default channel is 11. If you wish to run a test on another channel, you will need to change it manually in TEST_APPS/testcases/nanostack_mac_tester/.
