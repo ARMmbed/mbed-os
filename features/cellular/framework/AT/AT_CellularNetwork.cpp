@@ -1265,7 +1265,7 @@ nsapi_error_t AT_CellularNetwork::get_operator_names(operator_names_list &op_nam
 {
     _at.lock();
 
-    _at.cmd_start("AT+COPN?");
+    _at.cmd_start("AT+COPN");
     _at.cmd_stop();
 
     _at.resp_start("+COPN:");

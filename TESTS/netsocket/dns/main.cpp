@@ -107,6 +107,39 @@ void do_asynchronous_gethostbyname(const char hosts[][DNS_TEST_HOST_LEN], unsign
     delete[] data;
 }
 
+void do_gethostbyname(const char hosts[][DNS_TEST_HOST_LEN], unsigned int op_count, int *exp_ok, int *exp_no_mem, int *exp_dns_failure, int *exp_timeout)
+{
+    // Verify that there is enough hosts in the host list
+    TEST_ASSERT(op_count <= MBED_CONF_APP_DNS_TEST_HOSTS_NUM)
+
+    // Reset counters
+    (*exp_ok) = 0;
+    (*exp_no_mem) = 0;
+    (*exp_dns_failure) = 0;
+    (*exp_timeout) = 0;
+
+    for (unsigned int i = 0; i < op_count; i++) {
+        SocketAddress address;
+        nsapi_error_t err = net->gethostbyname(hosts[i], &address);
+
+        TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_NO_MEMORY || err == NSAPI_ERROR_DNS_FAILURE || err == NSAPI_ERROR_TIMEOUT);
+        if (err == NSAPI_ERROR_OK) {
+            (*exp_ok)++;
+            printf("DNS: query \"%s\" => \"%s\"\n",
+                   hosts[i], address.get_ip_address());
+        } else if (err == NSAPI_ERROR_DNS_FAILURE) {
+            (*exp_dns_failure)++;
+            printf("DNS: query \"%s\" => DNS failure\n", hosts[i]);
+        } else if (err == NSAPI_ERROR_TIMEOUT) {
+            (*exp_timeout)++;
+            printf("DNS: query \"%s\" => timeout\n", hosts[i]);
+        } else if (err == NSAPI_ERROR_NO_MEMORY) {
+            (*exp_no_mem)++;
+            printf("DNS: query \"%s\" => no memory\n", hosts[i]);
+        }
+    }
+}
+
 NetworkInterface *get_interface()
 {
     return net;
@@ -145,6 +178,10 @@ Case cases[] = {
 #ifdef MBED_EXTENDED_TESTS
     Case("ASYNCHRONOUS_DNS_SIMULTANEOUS_REPEAT",  ASYNCHRONOUS_DNS_SIMULTANEOUS_REPEAT),
 #endif
+    Case("SYNCHRONOUS_DNS", SYNCHRONOUS_DNS),
+    Case("SYNCHRONOUS_DNS_MULTIPLE", SYNCHRONOUS_DNS_MULTIPLE),
+    Case("SYNCHRONOUS_DNS_CACHE", SYNCHRONOUS_DNS_CACHE),
+    Case("SYNCHRONOUS_DNS_INVALID", SYNCHRONOUS_DNS_INVALID),
 };
 
 Specification specification(test_setup, cases);

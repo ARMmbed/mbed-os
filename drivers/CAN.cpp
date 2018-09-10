@@ -17,7 +17,6 @@
 
 #if DEVICE_CAN
 
-#include "cmsis.h"
 #include "platform/mbed_power_mgmt.h"
 
 namespace mbed {

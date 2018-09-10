@@ -43,6 +43,18 @@
     #warning No configuration for LF clock source. Xtal source will be used as a default configuration.
 #endif
 
+#define DEFAULT_LFCLK_CONF_ACCURACY NRF_CLOCK_LF_XTAL_ACCURACY_20_PPM
+
+#ifdef NRF52
+    #define MAX_LFCLK_CONF_RC_CTIV    32
+#else
+    #define MAX_LFCLK_CONF_RC_CTIV    64
+#endif
+
+#define MAX_LFCLK_CONF_RC_TEMP_CTIV   33
+
+#define DEFAULT_LFCLK_CONF_RC_CTIV 16     // Check temperature every 16 * 250ms.
+#define DEFAULT_LFCLK_CONF_RC_TEMP_CTIV 1 // Only calibrate if temperature has changed.
 
 
 #define NRF_LF_SRC_XTAL  2 
@@ -50,10 +62,38 @@
 #define NRF_LF_SRC_RC    4
 
 #if MBED_CONF_NORDIC_NRF_LF_CLOCK_SRC == NRF_LF_SRC_SYNTH
+    #define NRF_SDH_CLOCK_LF_SRC NRF_CLOCK_LF_SRC_SYNTH
+    #define NRF_SDH_CLOCK_LF_RC_CTIV      0 // Must be 0 if source is not NRF_CLOCK_LF_SRC_RC.
+    #define NRF_SDH_CLOCK_LF_RC_TEMP_CTIV 0 // Must be 0 if source is not NRF_CLOCK_LF_SRC_RC.
     #define CLOCK_LFCLKSRC_SRC_TO_USE (CLOCK_LFCLKSRC_SRC_Synth)
 #elif MBED_CONF_NORDIC_NRF_LF_CLOCK_SRC == NRF_LF_SRC_XTAL
+    #define NRF_SDH_CLOCK_LF_SRC NRF_CLOCK_LF_SRC_XTAL
+    #define NRF_SDH_CLOCK_LF_RC_CTIV      0 // Must be 0 if source is not NRF_CLOCK_LF_SRC_RC.
+    #define NRF_SDH_CLOCK_LF_RC_TEMP_CTIV 0 // Must be 0 if source is not NRF_CLOCK_LF_SRC_RC.
     #define CLOCK_LFCLKSRC_SRC_TO_USE (CLOCK_LFCLKSRC_SRC_Xtal)
 #elif MBED_CONF_NORDIC_NRF_LF_CLOCK_SRC == NRF_LF_SRC_RC
+    #define NRF_SDH_CLOCK_LF_SRC NRF_CLOCK_LF_SRC_RC
+
+    #ifdef MBED_CONF_NORDIC_NRF_LF_CLOCK_CALIB_TIMER_INTERVAL
+        #define NRF_SDH_CLOCK_LF_RC_CTIV MBED_CONF_NORDIC_NRF_LF_CLOCK_CALIB_TIMER_INTERVAL
+    #else
+        #define NRF_SDH_CLOCK_LF_RC_CTIV DEFAULT_LFCLK_CONF_RC_CTIV
+    #endif
+
+    #ifdef MBED_CONF_NORDIC_NRF_LF_CLOCK_CALIB_MODE_CONFIG
+        #define NRF_SDH_CLOCK_LF_RC_TEMP_CTIV MBED_CONF_NORDIC_NRF_LF_CLOCK_CALIB_MODE_CONFIG
+    #else
+        #define NRF_SDH_CLOCK_LF_RC_TEMP_CTIV DEFAULT_LFCLK_CONF_RC_TEMP_CTIV
+    #endif
+
+    #if (NRF_SDH_CLOCK_LF_RC_CTIV < 1) || (NRF_SDH_CLOCK_LF_RC_CTIV > MAX_LFCLK_CONF_RC_CTIV)
+        #error Calibration timer interval out of range!
+    #endif
+
+    #if (NRF_SDH_CLOCK_LF_RC_TEMP_CTIV < 0 ) || (NRF_SDH_CLOCK_LF_RC_TEMP_CTIV > 33)
+        #error Number/mode of LF RC calibration intervals out of range!
+    #endif
+
     #define CLOCK_LFCLKSRC_SRC_TO_USE (CLOCK_LFCLKSRC_SRC_RC)
 #else
     #error Bad LFCLK configuration. Declare proper source through mbed configuration.

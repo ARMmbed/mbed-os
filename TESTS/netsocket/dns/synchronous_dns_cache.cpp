@@ -32,35 +32,25 @@ static void test_dns_query_ticker(void)
     ticker_us += 100;
 }
 
-void ASYNCHRONOUS_DNS_CACHE()
+void SYNCHRONOUS_DNS_CACHE()
 {
     rtos::Semaphore semaphore;
-    dns_application_data data;
-    data.semaphore = &semaphore;
 
     Ticker ticker;
     ticker.attach_us(&test_dns_query_ticker, 100);
 
     for (unsigned int i = 0; i < 5; i++) {
+        SocketAddress address;
         int started_us = ticker_us;
-
-        nsapi_error_t err = get_interface()->gethostbyname_async(dns_test_hosts[0],
-                                                                 mbed::Callback<void(nsapi_error_t, SocketAddress *)>(hostbyname_cb, (void *) &data));
-        TEST_ASSERT(err >= 0);
-
-        semaphore.wait();
-
-        TEST_ASSERT(data.result == NSAPI_ERROR_OK);
-        TEST_ASSERT(strlen(data.addr.get_ip_address()) > 1);
+        nsapi_error_t err = get_interface()->gethostbyname(dns_test_hosts_second[0], &address);
 
         int delay_ms = (ticker_us - started_us) / 1000;
 
         static int delay_first = delay_ms / 2;
-        printf("Delays: first: %i, delay_ms: %i\n", delay_first, delay_ms);
         // Check that cached accesses are at least twice as fast as the first one
         TEST_ASSERT_TRUE(i == 0 || delay_ms <= delay_first);
 
         printf("DNS: query \"%s\" => \"%s\", time %i ms\n",
-               dns_test_hosts[0], data.addr.get_ip_address(), delay_ms);
+               dns_test_hosts_second[0], address.get_ip_address(), delay_ms);
     }
 }

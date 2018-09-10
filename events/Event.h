@@ -2055,6 +2055,7 @@ private:
     }
 
 public:
+#if !defined(DOXYGEN_ONLY)
     /** Create an event
      *  @param q                Event queue to dispatch on
      *  @param f                Function to execute when the event is dispatched
@@ -4063,7 +4064,7 @@ Event<void(A0, A1, A2, A3, A4)> EventQueue::event(mbed::Callback<R(B0, B1, B2, B
 {
     return Event<void(A0, A1, A2, A3, A4)>(this, cb, c0, c1, c2, c3, c4);
 }
-
+#endif
 }
 
 #endif
