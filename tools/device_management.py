@@ -80,10 +80,23 @@ def wrap_payload(func):
 
 def wrap_init(func):
     def inner(options):
-        accounts = AccountManagementAPI()
-        certs = CertificatesAPI()
+        if getattr(options, 'api_key', None):
+            api_key = options.api_key
+        else:
+            api_key = getenv("MBED_CLOUD_SDK_API_KEY")
+        if getattr(options, 'server_address', None):
+            host_addr = options.server_address
+        else:
+            host_addr = getenv("MBED_CLOUD_SDK_HOST",
+                               "https://api.us-east-1.mbedcloud.com/")
+        config = {
+            "api_key": api_key,
+            "host": host_addr,
+        }
+        accounts = AccountManagementAPI(config)
+        certs = CertificatesAPI(config)
         api_key = accounts.list_api_keys(filter={
-            'key': getenv("MBED_CLOUD_SDK_API_KEY")
+            'key': api_key
         }).next()
         certificates_owned = list(certs.list_certificates())
         dev_cert_info = None
