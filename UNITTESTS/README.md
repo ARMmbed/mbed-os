@@ -1,12 +1,12 @@
 # Unit testing Mbed OS
 
-This document describes how to run and write unit tests for Mbed OS.
+This document describes how to run and write unit tests for Mbed OS. Please see the [troubleshooting](#troubleshooting) section if you run into any issues.
 
 ## Prerequisites
 
 * GNU toolchains installed.
     * GCC 6 or later
-    * MinGW-W64 GCC-6.4.0 or MinGW-W64 GCC-7.3.0 (Windows)
+    	* MinGW-W64 is recommended, although any windows port of the above GCC versions should work
 * CMake 3.0+ installed.
 * Python 2.7.x or >3.5 and pip 10.0 (or newer) installed.
 * gcovr >=4.1
@@ -105,7 +105,7 @@ mingw32-make
 
 #### Custom CMake variables
 
-Usage: 
+Usage:
 `cmake [RELATIVE PATH TO UNITTESTS DIR] [OPTIONS]`
 
 Keyword variables (usage `cmake -D<VARIABLE>(:<TYPE>)=<value>`:
