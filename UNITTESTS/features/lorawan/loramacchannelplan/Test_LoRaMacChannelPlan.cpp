@@ -126,6 +126,21 @@ TEST_F(Test_LoRaMacChannelPlan, remove_plan)
 
     EXPECT_TRUE(object->remove_plan() == LORAWAN_STATUS_SERVICE_UNKNOWN);
 
+    LoRaPHY_stub::uint8_value = 3;
+    LoRaPHY_stub::bool_counter = 0;
+    LoRaPHY_stub::bool_table[0] = true;
+    LoRaPHY_stub::bool_table[1] = false;
+    LoRaPHY_stub::bool_table[2] = true;
+    LoRaPHY_stub::bool_table[3] = true;
+    LoRaPHY_stub::bool_table[4] = true;
+    LoRaPHY_stub::bool_table[5] = true;
+    LoRaPHY_stub::bool_table[7] = true;
+    LoRaPHY_stub::bool_table[8] = true;
+    LoRaPHY_stub::bool_table[9] = true;
+    LoRaPHY_stub::bool_table[10] = true;
+
+    EXPECT_TRUE(object->remove_plan() == LORAWAN_STATUS_OK);
+
 }
 
 TEST_F(Test_LoRaMacChannelPlan, remove_single_channel)

@@ -1,5 +1,5 @@
-/*
- * Copyright (c) 2018, Arm Limited and affiliates.
+#[[
+ * Copyright (c) 2018, Arm Limited and affiliates
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,25 +13,27 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+]]
 
-#include "stdint.h"
-#include "stdbool.h"
-#include <cstddef>
+# Unit test suite name
+set(TEST_SUITE_NAME "lorawan_LoRaWANTimer")
 
-#include "lorawan_types.h"
+# Source files
+set(unittest-sources
+  ../features/lorawan/system/LoRaWANTimer.cpp
+)
 
-namespace LoRaPHY_stub
-{
-extern uint8_t bool_counter;
-extern bool bool_table[20];
-extern uint32_t uint32_value;
-extern uint8_t uint8_value;
-extern int8_t int8_value;
-extern int int_value;
-extern double double_value;
-extern uint16_t uint16_value;
-extern lorawan_status_t lorawan_status_value;
-extern channel_params_t* channel_params_ptr;
-extern uint8_t linkAdrNbBytesParsed;
-}
+# Add test specific include paths
+set(unittest-includes ${unittest-includes}
+  target_h
+  ../features/lorawan/system
+)
+
+# Test & stub files
+set(unittest-test-sources
+  ../features/lorawan/lorawantimer/Test_LoRaWANTimer.cpp
+  stubs/EventQueue_stub.cpp
+  stubs/mbed_assert_stub.c
+  stubs/equeue_stub.c
+)
+
