@@ -18,6 +18,7 @@ lorawan_status_t LoRaPHY_stub::lorawan_status_value = LORAWAN_STATUS_OK;
 channel_params_t *LoRaPHY_stub::channel_params_ptr = NULL;
 uint8_t LoRaPHY_stub::bool_counter = 0;
 bool LoRaPHY_stub::bool_table[20] = {};
+uint8_t LoRaPHY_stub::linkAdrNbBytesParsed = 0;
 
 LoRaPHY::LoRaPHY()
     : _radio(NULL)
@@ -34,10 +35,6 @@ void LoRaPHY::initialize(LoRaWANTimeHandler *lora_time)
 
 bool LoRaPHY::mask_bit_test(const uint16_t *mask, unsigned bit)
 {
-    volatile bool ana = LoRaPHY_stub::bool_table[LoRaPHY_stub::bool_counter];
-    ana = true;
-    volatile uint8_t cc = LoRaPHY_stub::bool_counter;
-    cc = 2;
     return LoRaPHY_stub::bool_table[LoRaPHY_stub::bool_counter++];
 }
 
@@ -352,6 +349,7 @@ uint8_t LoRaPHY::link_ADR_request(adr_req_params_t *link_adr_req,
                                   int8_t *dr_out, int8_t *tx_power_out,
                                   uint8_t *nb_rep_out, uint8_t *nb_bytes_processed)
 {
+    *nb_bytes_processed = LoRaPHY_stub::linkAdrNbBytesParsed;
     return LoRaPHY_stub::uint8_value;
 }
 

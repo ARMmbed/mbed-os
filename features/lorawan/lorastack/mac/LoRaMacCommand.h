@@ -76,7 +76,7 @@ public:
     uint8_t *get_mac_commands_buffer();
 
     /**
-     * @brief Parses the MAC commands which must be resent.
+     * @brief Parses the MAC commands which must be re-sent.
      */
     void parse_mac_commands_to_repeat();
 
