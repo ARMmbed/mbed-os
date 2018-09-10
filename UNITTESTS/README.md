@@ -225,7 +225,7 @@ For example to create a unit test for `rtos/Semaphore.cpp`:
 1. Create a directory for unit test files in `UNITTESTS/rtos/Semaphore`.
 2. Create a test definition file `UNITTESTS/rtos/Semaphore/unittest.cmake` with the following content:
 ```
-set(TEST_SUITE_NAME "rtos_Semaphore")
+set(TEST_SUITE_NAME "rtos-Semaphore")
 
 set(unittest-sources
 	stubs/mbed_assert.c

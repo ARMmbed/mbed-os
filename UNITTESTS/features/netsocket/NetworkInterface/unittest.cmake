@@ -4,7 +4,7 @@
 ####################
 
 # Unit test suite name
-set(TEST_SUITE_NAME "features_netsocket_NetworkInterface")
+set(TEST_SUITE_NAME "features-netsocket-NetworkInterface")
 
 # Source files
 set(unittest-sources

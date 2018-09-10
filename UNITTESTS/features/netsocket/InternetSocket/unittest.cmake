@@ -4,7 +4,7 @@
 ####################
 
 # Unit test suite name
-set(TEST_SUITE_NAME "features_netsocket_InternetSocket")
+set(TEST_SUITE_NAME "features-netsocket-InternetSocket")
 
 set(unittest-sources
   ../features/netsocket/SocketAddress.cpp
