@@ -252,7 +252,7 @@ TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_activate_context)
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
     ATHandler_stub::bool_value = false;
     ATHandler_stub::read_string_index = 1;
-    ATHandler_stub::read_string_table[0] = "";
+    ATHandler_stub::read_string_table[0] = (char *)"";
     ATHandler_stub::int_value = 1;
     EXPECT_TRUE(NSAPI_ERROR_UNSUPPORTED == cn.activate_context());
 
@@ -261,7 +261,7 @@ TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_activate_context)
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
     ATHandler_stub::bool_value = false;
     ATHandler_stub::read_string_index = 1;
-    ATHandler_stub::read_string_table[0] = "IPV6";
+    ATHandler_stub::read_string_table[0] = (char *)"IPV6";
     ATHandler_stub::int_value = 1;
     EXPECT_TRUE(NSAPI_ERROR_NO_CONNECTION == cn.activate_context());
 
@@ -270,8 +270,8 @@ TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_activate_context)
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
     ATHandler_stub::bool_value = false;
     ATHandler_stub::read_string_index = 2;
-    ATHandler_stub::read_string_table[0] = "internet";
-    ATHandler_stub::read_string_table[1] = "IP";
+    ATHandler_stub::read_string_table[0] = (char *)"internet";
+    ATHandler_stub::read_string_table[1] = (char *)"IP";
     ATHandler_stub::int_value = 1;
     EXPECT_TRUE(NSAPI_ERROR_OK == my_cn.set_credentials("apn", CellularNetwork::CHAP, "user", "passwd"));
     EXPECT_TRUE(NSAPI_ERROR_OK == my_cn.activate_context());
@@ -281,8 +281,8 @@ TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_activate_context)
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
     ATHandler_stub::bool_value = false;
     ATHandler_stub::read_string_index = 2;
-    ATHandler_stub::read_string_table[0] = "internet";
-    ATHandler_stub::read_string_table[1] = "IPV4V6";
+    ATHandler_stub::read_string_table[0] = (char *)"internet";
+    ATHandler_stub::read_string_table[1] = (char *)"IPV4V6";
     ATHandler_stub::int_value = 1;
     EXPECT_TRUE(NSAPI_ERROR_OK == my_cn.set_stack_type(IPV4_STACK));
     EXPECT_TRUE(NSAPI_ERROR_OK == my_cn.set_credentials("internet"));
@@ -293,8 +293,8 @@ TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_activate_context)
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
     ATHandler_stub::bool_value = false;
     ATHandler_stub::read_string_index = 2;
-    ATHandler_stub::read_string_table[0] = "internet";
-    ATHandler_stub::read_string_table[1] = "IPV6";
+    ATHandler_stub::read_string_table[0] = (char *)"internet";
+    ATHandler_stub::read_string_table[1] = (char *)"IPV6";
     ATHandler_stub::int_value = 1;
     EXPECT_TRUE(NSAPI_ERROR_OK == my_cnipv6.set_stack_type(IPV6_STACK));
     EXPECT_TRUE(NSAPI_ERROR_OK == my_cnipv6.set_credentials("internet"));
@@ -305,8 +305,8 @@ TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_activate_context)
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
     ATHandler_stub::bool_value = false;
     ATHandler_stub::read_string_index = 2;
-    ATHandler_stub::read_string_table[0] = "internet";
-    ATHandler_stub::read_string_table[1] = "IPV4V6";
+    ATHandler_stub::read_string_table[0] = (char *)"internet";
+    ATHandler_stub::read_string_table[1] = (char *)"IPV4V6";
     ATHandler_stub::int_value = 1;
     EXPECT_TRUE(NSAPI_ERROR_OK == my_cn.set_stack_type(DEFAULT_STACK));
     EXPECT_TRUE(NSAPI_ERROR_OK == my_cn.set_credentials("internet"));
@@ -317,8 +317,8 @@ TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_activate_context)
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
     ATHandler_stub::bool_value = false;
     ATHandler_stub::read_string_index = 2;
-    ATHandler_stub::read_string_table[0] = "internet";
-    ATHandler_stub::read_string_table[1] = "IPV4V6";
+    ATHandler_stub::read_string_table[0] = (char *)"internet";
+    ATHandler_stub::read_string_table[1] = (char *)"IPV4V6";
     ATHandler_stub::int_value = 1;
     EXPECT_TRUE(NSAPI_ERROR_OK == my_cnipv6.set_stack_type(DEFAULT_STACK));
     EXPECT_TRUE(NSAPI_ERROR_OK == my_cnipv6.set_credentials("internet"));
@@ -329,8 +329,8 @@ TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_activate_context)
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
     ATHandler_stub::bool_value = false;
     ATHandler_stub::read_string_index = 2;
-    ATHandler_stub::read_string_table[0] = "internet";
-    ATHandler_stub::read_string_table[1] = "IPV6";
+    ATHandler_stub::read_string_table[0] = (char *)"internet";
+    ATHandler_stub::read_string_table[1] = (char *)"IPV6";
     ATHandler_stub::int_value = 1;
     EXPECT_TRUE(NSAPI_ERROR_OK == my_cnipv6.set_stack_type(DEFAULT_STACK));
     EXPECT_TRUE(NSAPI_ERROR_OK == my_cnipv6.set_credentials("internet"));
@@ -341,8 +341,8 @@ TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_activate_context)
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
     ATHandler_stub::bool_value = false;
     ATHandler_stub::read_string_index = 2;
-    ATHandler_stub::read_string_table[0] = "internet";
-    ATHandler_stub::read_string_table[1] = "IP";
+    ATHandler_stub::read_string_table[0] = (char *)"internet";
+    ATHandler_stub::read_string_table[1] = (char *)"IP";
     ATHandler_stub::int_value = 1;
     EXPECT_TRUE(NSAPI_ERROR_OK == my_cn.set_stack_type(DEFAULT_STACK));
     EXPECT_TRUE(NSAPI_ERROR_OK == my_cn.set_credentials("internet"));
@@ -795,9 +795,9 @@ TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_scan_plmn)
 
 
     ATHandler_stub::read_string_index = 3;
-    ATHandler_stub::read_string_table[0] = "44444";
-    ATHandler_stub::read_string_table[1] = "33333";
-    ATHandler_stub::read_string_table[2] = "12345";
+    ATHandler_stub::read_string_table[0] = (char *)"44444";
+    ATHandler_stub::read_string_table[1] = (char *)"33333";
+    ATHandler_stub::read_string_table[2] = (char *)"12345";
     ATHandler_stub::int_value = 1;
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
     ATHandler_stub::info_elem_true_counter = 1;
@@ -922,13 +922,13 @@ TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_get_pdpcontext_params)
     ATHandler_stub::int_valid_count_table[0] = 9;
 
     ATHandler_stub::read_string_index = 7;
-    ATHandler_stub::read_string_table[6] = "internet";
-    ATHandler_stub::read_string_table[5] = "1.2.3.4.5.6.7.8.9.10.11.112.13.14.15.16.1.2.3.44.55.6.7.8.9.10.11.12.13.14.15.16";
-    ATHandler_stub::read_string_table[4] = "23.33.44.1.2.3.55.123.225.34.11.1.0.0.123.234";
-    ATHandler_stub::read_string_table[3] = "1.2.3.4";
-    ATHandler_stub::read_string_table[2] = "0.255.0.255";
-    ATHandler_stub::read_string_table[1] = "25.66.77.88";
-    ATHandler_stub::read_string_table[0] = "004.003.002.001";
+    ATHandler_stub::read_string_table[6] = (char *)"internet";
+    ATHandler_stub::read_string_table[5] = (char *)"1.2.3.4.5.6.7.8.9.10.11.112.13.14.15.16.1.2.3.44.55.6.7.8.9.10.11.12.13.14.15.16";
+    ATHandler_stub::read_string_table[4] = (char *)"23.33.44.1.2.3.55.123.225.34.11.1.0.0.123.234";
+    ATHandler_stub::read_string_table[3] = (char *)"1.2.3.4";
+    ATHandler_stub::read_string_table[2] = (char *)"0.255.0.255";
+    ATHandler_stub::read_string_table[1] = (char *)"25.66.77.88";
+    ATHandler_stub::read_string_table[0] = (char *)"004.003.002.001";
 
     EXPECT_TRUE(NSAPI_ERROR_OK == cn.get_pdpcontext_params(list));
     CellularNetwork::pdpcontext_params_t *params = list.get_head();
@@ -1005,8 +1005,8 @@ TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_get_cell_id)
     EXPECT_TRUE(id == -1);
 
     ATHandler_stub::read_string_index = 2;
-    ATHandler_stub::read_string_table[1] = "00C3";
-    ATHandler_stub::read_string_table[0] = "1234FFC1"; //==  cellid and in dec: 305463233
+    ATHandler_stub::read_string_table[1] = (char *)"00C3";
+    ATHandler_stub::read_string_table[0] = (char *)"1234FFC1"; //==  cellid and in dec: 305463233
     ATHandler_stub::int_value = 1;
     // Get registration status to modify cell_id
     CellularNetwork::RegistrationType type;
@@ -1043,7 +1043,7 @@ TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_get_operator_params)
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
     ATHandler_stub::int_value = 0;
     ATHandler_stub::read_string_index = 1;
-    ATHandler_stub::read_string_table[0] = "12345";
+    ATHandler_stub::read_string_table[0] = (char *)"12345";
     EXPECT_TRUE(NSAPI_ERROR_OK == cn.get_operator_params(format, ops));
     EXPECT_TRUE(format == 0);
     EXPECT_TRUE(strcmp(ops.op_long, "12345") == 0);
@@ -1054,7 +1054,7 @@ TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_get_operator_params)
     ops.op_long[0] = 0;
     ATHandler_stub::int_value = 1;
     ATHandler_stub::read_string_index = 1;
-    ATHandler_stub::read_string_table[0] = "12345";
+    ATHandler_stub::read_string_table[0] = (char *)"12345";
     EXPECT_TRUE(NSAPI_ERROR_OK == cn.get_operator_params(format, ops));
     EXPECT_TRUE(format == 1);
     EXPECT_TRUE(strlen(ops.op_long) == 0);
@@ -1065,7 +1065,7 @@ TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_get_operator_params)
     ops.op_short[0] = 0;
     ATHandler_stub::int_value = 2;
     ATHandler_stub::read_string_index = 1;
-    ATHandler_stub::read_string_table[0] = "12345";
+    ATHandler_stub::read_string_table[0] = (char *)"12345";
     EXPECT_TRUE(NSAPI_ERROR_OK == cn.get_operator_params(format, ops));
     EXPECT_TRUE(format == 2);
     EXPECT_TRUE(strlen(ops.op_long) == 0);
@@ -1097,8 +1097,8 @@ TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_get_operator_names)
     ATHandler_stub::resp_info_true_counter = 1;
     ATHandler_stub::bool_value = false;
     ATHandler_stub::read_string_index = 2;
-    ATHandler_stub::read_string_table[1] = "12345";
-    ATHandler_stub::read_string_table[0] = "56789";
+    ATHandler_stub::read_string_table[1] = (char *)"12345";
+    ATHandler_stub::read_string_table[0] = (char *)"56789";
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
     name_list.delete_all();
     EXPECT_TRUE(NSAPI_ERROR_OK == cn.get_operator_names(name_list));

@@ -60,7 +60,7 @@ TEST_F(TestAT_CellularInformation, test_AT_CellularInformation_get_manufacturer)
     AT_CellularInformation aci(ah);
 
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
-    ATHandler_stub::read_string_value = "some";
+    ATHandler_stub::read_string_value = (char *)"some";
     ATHandler_stub::ssize_value = 4;
 
     char buf[8];
@@ -82,7 +82,7 @@ TEST_F(TestAT_CellularInformation, test_AT_CellularInformation_get_model)
     AT_CellularInformation aci(ah);
 
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
-    ATHandler_stub::read_string_value = "model";
+    ATHandler_stub::read_string_value = (char *)"model";
     ATHandler_stub::ssize_value = 5;
     char buf[8];
     EXPECT_TRUE(NSAPI_ERROR_OK == aci.get_model(buf, 8));
@@ -105,7 +105,7 @@ TEST_F(TestAT_CellularInformation, test_AT_CellularInformation_get_revision)
     AT_CellularInformation *aci = new AT_CellularInformation(ah);
 
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
-    ATHandler_stub::read_string_value = "revision";
+    ATHandler_stub::read_string_value = (char *)"revision";
     ATHandler_stub::ssize_value = 8;
 
     char buf[9];
@@ -129,7 +129,7 @@ TEST_F(TestAT_CellularInformation, test_AT_CellularInformation_get_serial_number
     AT_CellularInformation aci(ah);
 
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
-    ATHandler_stub::read_string_value = "1234567";
+    ATHandler_stub::read_string_value = (char *)"1234567";
     ATHandler_stub::ssize_value = 7;
     char buf[8];
 
@@ -147,7 +147,7 @@ TEST_F(TestAT_CellularInformation, test_AT_CellularInformation_get_serial_number
     EXPECT_TRUE(strlen(buf) == 0);
 
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
-    ATHandler_stub::read_string_value = "1234567";
+    ATHandler_stub::read_string_value = (char *)"1234567";
     ATHandler_stub::ssize_value = 7;
     AT_CellularBase_stub::supported_bool = true;
     EXPECT_TRUE(NSAPI_ERROR_OK == aci.get_serial_number(buf, 8, CellularInformation::IMEI));

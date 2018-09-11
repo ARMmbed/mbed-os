@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, Arm Limited and affiliates.
+ * Copyright (c) 2018, Arm Limited and affiliates
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,49 +15,26 @@
  * limitations under the License.
  */
 
-#include "EventQueue.h"
-#include "Callback.h"
+#include "gtest/gtest.h"
+#include "LoRaWANStack.h"
 
-using namespace mbed;
+class Test_LoRaWANStack : public testing::Test {
+protected:
+    LoRaWANStack *object;
 
-namespace events {
+    virtual void SetUp()
+    {
+        object = new LoRaWANStack();
+    }
 
-EventQueue::EventQueue(unsigned event_size, unsigned char *event_pointer)
+    virtual void TearDown()
+    {
+        delete object;
+    }
+};
+
+TEST_F(Test_LoRaWANStack, constructor)
 {
+    EXPECT_TRUE(object);
 }
 
-EventQueue::~EventQueue()
-{
-}
-
-void EventQueue::dispatch(int ms)
-{
-}
-
-void EventQueue::break_dispatch()
-{
-}
-
-unsigned EventQueue::tick()
-{
-    return 0;
-}
-
-void EventQueue::cancel(int id)
-{
-}
-
-int EventQueue::time_left(int id)
-{
-    return 0;
-}
-
-void EventQueue::background(Callback<void(int)> update)
-{
-}
-
-void EventQueue::chain(EventQueue *target)
-{
-}
-
-} // namespace events
