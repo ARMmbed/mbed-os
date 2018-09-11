@@ -100,6 +100,7 @@ set(unittest-includes-base
   "${PROJECT_SOURCE_DIR}/../rtos/TARGET_CORTEX"
   "${PROJECT_SOURCE_DIR}/../rtos/TARGET_CORTEX/rtx5/Include"
   "${PROJECT_SOURCE_DIR}/../cmsis"
+  "${PROJECT_SOURCE_DIR}/../features/frameworks/nanostack-libservice/mbed-client-libservice/"
 )
 
 # Create a list for test suites.
