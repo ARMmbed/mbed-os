@@ -56,25 +56,31 @@ void mbed_error_printf(const char *format, ...)
 
 void mbed_error_vprintf(const char *format, va_list arg)
 {
-#define ERROR_BUF_SIZE      (128)
     core_util_critical_section_enter();
-    char buffer[ERROR_BUF_SIZE];
-    int size = vsnprintf(buffer, ERROR_BUF_SIZE, format, arg);
-    if (size > 0) {
-#if MBED_CONF_PLATFORM_STDIO_CONVERT_NEWLINES || MBED_CONF_PLATFORM_STDIO_CONVERT_TTY_NEWLINES
-        char stdio_out_prev = '\0';
-        for (int i = 0; i < size; i++) {
-            if (buffer[i] == '\n' && stdio_out_prev != '\r') {
-                const char cr = '\r';
-                write(STDERR_FILENO, &cr, 1);
-            }
-            write(STDERR_FILENO, &buffer[i], 1);
-            stdio_out_prev = buffer[i];
-        }
-#else
-        write(STDERR_FILENO, buffer, size);
-#endif
+    char buffer[132];
+    int size = vsnprintf(buffer, sizeof buffer, format, arg);
+    if (size >= sizeof buffer) {
+        /* Output was truncated - indicate by overwriting last 4 bytes of buffer
+         * with ellipsis and newline.
+         * (Note that although vsnprintf always leaves a NUL terminator, we
+         * don't need a terminator and can use the entire buffer)
+         */
+        memcpy(&buffer[sizeof buffer - 4], "...\n", 4);
+        size = sizeof buffer;
     }
+#if MBED_CONF_PLATFORM_STDIO_CONVERT_NEWLINES || MBED_CONF_PLATFORM_STDIO_CONVERT_TTY_NEWLINES
+    char stdio_out_prev = '\0';
+    for (int i = 0; i < size; i++) {
+        if (buffer[i] == '\n' && stdio_out_prev != '\r') {
+            const char cr = '\r';
+            write(STDERR_FILENO, &cr, 1);
+        }
+        write(STDERR_FILENO, &buffer[i], 1);
+        stdio_out_prev = buffer[i];
+    }
+#else
+    write(STDERR_FILENO, buffer, size);
+#endif
     core_util_critical_section_exit();
 }
 
