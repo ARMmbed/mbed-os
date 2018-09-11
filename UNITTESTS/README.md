@@ -45,7 +45,7 @@ sudo easy_install pip
 
 ### Installing covr
 
-Install gcovr code coverage tool globally with `pip install 'gcovr>=4.1'` or using virtualenv:
+Install gcovr code coverage tool globally with `pip install "gcovr>=4.1"` or using virtualenv:
 
 #### virtualenv
 
