@@ -54,5 +54,21 @@ void mbed_sdk_init()
     SetSysClock();
     SystemCoreClockUpdate();
 
+    /* Start LSI clock for RTC */
+#if DEVICE_RTC
+#if !MBED_CONF_TARGET_LSE_AVAILABLE
+    RCC_OscInitTypeDef RCC_OscInitStruct = {0};
+
+    if (__HAL_RCC_GET_RTC_SOURCE() != RCC_RTCCLKSOURCE_NO_CLK) {
+        RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI;
+        RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE;
+        RCC_OscInitStruct.LSIState       = RCC_LSI_ON;
+        if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
+            error("Init : cannot initialize LSI\n");
+        }
+    }
+#endif /* ! MBED_CONF_TARGET_LSE_AVAILABLE */
+#endif /* DEVICE_RTC */
+
     mbed_sdk_inited = 1;
 }
