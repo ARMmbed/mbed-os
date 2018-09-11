@@ -1106,12 +1106,14 @@ lorawan_status_t LoRaMac::schedule_tx()
             break;
     }
 
-    tr_debug("TX: Channel=%d, DR=%d", _params.channel, next_channel.current_datarate);
-
-    uint8_t dr_offset = _lora_phy->apply_DR_offset(_params.sys_params.channel_data_rate,
+    uint8_t rx1_dr = _lora_phy->apply_DR_offset(_params.sys_params.channel_data_rate,
                                                   _params.sys_params.rx1_dr_offset);
 
-    _lora_phy->compute_rx_win_params(dr_offset, MBED_CONF_LORA_DOWNLINK_PREAMBLE_LENGTH,
+    tr_debug("TX: Channel=%d, TX DR=%d, RX1 DR=%d",
+             _params.channel, _params.sys_params.channel_data_rate, rx1_dr);
+
+
+    _lora_phy->compute_rx_win_params(rx1_dr, MBED_CONF_LORA_DOWNLINK_PREAMBLE_LENGTH,
                                     MBED_CONF_LORA_MAX_SYS_RX_ERROR,
                                     &_params.rx_window1_config);
 
@@ -1948,147 +1950,3 @@ void LoRaMac::bind_phy(LoRaPHY &phy)
 {
     _lora_phy = &phy;
 }
-
-#if defined(LORAWAN_COMPLIANCE_TEST)
-/***************************************************************************
- * Compliance testing                                                      *
- **************************************************************************/
-
-
-lorawan_status_t LoRaMac::mlme_request(loramac_mlme_req_t *mlmeRequest)
-{
-    if (LORAMAC_IDLE != _params.mac_state) {
-        return LORAWAN_STATUS_BUSY;
-    }
-
-    reset_mlme_confirmation();
-
-    _mlme_confirmation.req_type = mlmeRequest->type;
-    _params.flags.bits.mlme_req = 1;
-
-    lorawan_status_t status = LORAWAN_STATUS_SERVICE_UNKNOWN;
-
-    if (MLME_TXCW == mlmeRequest->type) {
-        set_tx_continuous_wave(_params.channel, _params.sys_params.channel_data_rate, _params.sys_params.channel_tx_power,
-                               _params.sys_params.max_eirp, _params.sys_params.antenna_gain, mlmeRequest->cw_tx_mode.timeout);
-        _lora_time.start(_params.timers.mac_state_check_timer,
-                         MAC_STATE_CHECK_TIMEOUT);
-
-        _params.mac_state |= LORAMAC_TX_RUNNING;
-        status = LORAWAN_STATUS_OK;
-    } else if (MLME_TXCW_1 == mlmeRequest->type) {
-        set_tx_continuous_wave(0, 0, mlmeRequest->cw_tx_mode.power, 0, 0, mlmeRequest->cw_tx_mode.timeout);
-        _lora_time.start(_params.timers.mac_state_check_timer,
-                         MAC_STATE_CHECK_TIMEOUT);
-
-        _params.mac_state |= LORAMAC_TX_RUNNING;
-        status = LORAWAN_STATUS_OK;
-    }
-
-    if (status != LORAWAN_STATUS_OK) {
-        _params.is_node_ack_requested = false;
-        _params.flags.bits.mlme_req = 0;
-    }
-
-    return status;
-}
-
-lorawan_status_t LoRaMac::test_request(loramac_compliance_test_req_t *mcpsRequest)
-{
-    if (_params.mac_state != LORAMAC_IDLE) {
-        return LORAWAN_STATUS_BUSY;
-    }
-
-    loramac_mhdr_t machdr;
-    int8_t datarate = mcpsRequest->data_rate;
-    // TODO: The comment is different than the code???
-    // Apply the minimum possible datarate.
-    // Some regions have limitations for the minimum datarate.
-    datarate = MAX(datarate, (int8_t)_lora_phy->get_minimum_tx_datarate());
-
-    machdr.value = 0;
-
-    reset_mcps_confirmation();
-
-    _params.ack_timeout_retry_counter = 1;
-    _params.max_ack_timeout_retries = 1;
-
-    switch (mcpsRequest->type) {
-        case MCPS_UNCONFIRMED: {
-            machdr.bits.mtype = FRAME_TYPE_DATA_UNCONFIRMED_UP;
-            break;
-        }
-        case MCPS_CONFIRMED: {
-            machdr.bits.mtype = FRAME_TYPE_DATA_CONFIRMED_UP;
-            _params.max_ack_timeout_retries = mcpsRequest->nb_trials;
-            break;
-        }
-        case MCPS_PROPRIETARY: {
-            machdr.bits.mtype = FRAME_TYPE_PROPRIETARY;
-            break;
-        }
-        default:
-            return LORAWAN_STATUS_PARAMETER_INVALID;
-    }
-
-//    Filter fPorts
-//    TODO: Does not work with PROPRIETARY messages
-//    if( IsFPortAllowed( mcpsRequest->fport ) == false ) {
-//        return LORAWAN_STATUS_PARAMETER_INVALID;
-//    }
-
-    if (_params.sys_params.adr_on == false) {
-        if (_lora_phy->verify_tx_datarate(datarate, false) == true) {
-            _params.sys_params.channel_data_rate = datarate;
-        } else {
-            return LORAWAN_STATUS_PARAMETER_INVALID;
-        }
-    }
-
-    lorawan_status_t status = send(&machdr, mcpsRequest->fport, mcpsRequest->f_buffer,
-                                   mcpsRequest->f_buffer_size);
-    if (status == LORAWAN_STATUS_OK) {
-        _mcps_confirmation.req_type = mcpsRequest->type;
-        _params.flags.bits.mcps_req = 1;
-    } else {
-        _params.is_node_ack_requested = false;
-    }
-
-    return status;
-}
-
-lorawan_status_t LoRaMac::LoRaMacSetTxTimer(uint32_t TxDutyCycleTime)
-{
-    _lora_time.start(tx_next_packet_timer, TxDutyCycleTime);
-    return LORAWAN_STATUS_OK;
-}
-
-lorawan_status_t LoRaMac::LoRaMacStopTxTimer()
-{
-    _lora_time.stop(tx_next_packet_timer);
-    return LORAWAN_STATUS_OK;
-}
-
-void LoRaMac::LoRaMacTestRxWindowsOn(bool enable)
-{
-    _params.is_rx_window_enabled = enable;
-}
-
-void LoRaMac::LoRaMacTestSetMic(uint16_t txPacketCounter)
-{
-    _params.ul_frame_counter = txPacketCounter;
-    _params.is_ul_frame_counter_fixed = true;
-}
-
-void LoRaMac::LoRaMacTestSetDutyCycleOn(bool enable)
-{
-    if (_lora_phy->verify_duty_cycle(enable) == true) {
-        _params.is_dutycycle_on = enable;
-    }
-}
-
-void LoRaMac::LoRaMacTestSetChannel(uint8_t channel)
-{
-    _params.channel = channel;
-}
-#endif
