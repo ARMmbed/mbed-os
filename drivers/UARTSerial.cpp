@@ -135,7 +135,7 @@ void UARTSerial::sigio(Callback<void()> func)
 }
 
 /* Special synchronous write designed to work from critical section, such
- * as in mbed_error_vfprintf.
+ * as in mbed_error_vprintf.
  */
 ssize_t UARTSerial::write_unbuffered(const char *buf_ptr, size_t length)
 {

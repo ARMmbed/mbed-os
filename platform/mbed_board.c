@@ -50,11 +50,11 @@ void mbed_error_printf(const char *format, ...)
 {
     va_list arg;
     va_start(arg, format);
-    mbed_error_vfprintf(format, arg);
+    mbed_error_vprintf(format, arg);
     va_end(arg);
 }
 
-void mbed_error_vfprintf(const char *format, va_list arg)
+void mbed_error_vprintf(const char *format, va_list arg)
 {
 #define ERROR_BUF_SIZE      (128)
     core_util_critical_section_enter();
@@ -76,4 +76,9 @@ void mbed_error_vfprintf(const char *format, va_list arg)
 #endif
     }
     core_util_critical_section_exit();
+}
+
+void mbed_error_vfprintf(const char *format, va_list arg)
+{
+    mbed_error_vprintf(format, arg);
 }

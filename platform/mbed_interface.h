@@ -26,6 +26,7 @@
 
 #include <stdarg.h>
 
+#include "mbed_toolchain.h"
 #include "device.h"
 
 /* Mbed interface mac address
@@ -146,8 +147,14 @@ void mbed_error_printf(const char *format, ...);
  * @param arg       Variable arguments list
  *
  */
+void mbed_error_vprintf(const char *format, va_list arg);
+
+/** @deprecated   Renamed to mbed_error_vprintf to match functionality */
+MBED_DEPRECATED_SINCE("mbed-os-5.11",
+                          "Renamed to mbed_error_vprintf to match functionality.")
 void mbed_error_vfprintf(const char *format, va_list arg);
 /** @}*/
+
 
 #ifdef __cplusplus
 }
