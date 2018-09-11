@@ -41,9 +41,14 @@ SPI::SPI(PinName mosi, PinName miso, PinName sclk, PinName ssel) :
     _write_fill(SPI_FILL_CHAR)
 {
     // No lock needed in the constructor
-
     spi_init(&_spi, mosi, miso, sclk, ssel);
-    _acquire();
+}
+
+SPI::~SPI()
+{
+    if (_owner == this) {
+        _owner = NULL;
+    }
 }
 
 void SPI::format(int bits, int mode)
