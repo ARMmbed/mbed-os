@@ -76,10 +76,6 @@ void rtc_init(void)
         error("PeriphClkInitStruct RTC failed with LSE\n");
     }
 #else /*  MBED_CONF_TARGET_LSE_AVAILABLE */
-    // Reset Backup domain
-    __HAL_RCC_BACKUPRESET_FORCE();
-    __HAL_RCC_BACKUPRESET_RELEASE();
-
     // Enable LSI clock
     RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI;
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE; // Mandatory, otherwise the PLL is reconfigured!
