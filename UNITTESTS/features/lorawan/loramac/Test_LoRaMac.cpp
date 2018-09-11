@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, Arm Limited and affiliates.
+ * Copyright (c) 2018, Arm Limited and affiliates
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,49 +15,39 @@
  * limitations under the License.
  */
 
-#include "EventQueue.h"
-#include "Callback.h"
+#include "gtest/gtest.h"
+#include "LoRaMac.h"
 
-using namespace mbed;
+using namespace events;
 
-namespace events {
+class Test_LoRaMac : public testing::Test {
+protected:
+    LoRaMac *object;
 
-EventQueue::EventQueue(unsigned event_size, unsigned char *event_pointer)
+    virtual void SetUp()
+    {
+        object = new LoRaMac();
+    }
+
+    virtual void TearDown()
+    {
+        delete object;
+    }
+};
+
+TEST_F(Test_LoRaMac, constructor)
 {
+    EXPECT_TRUE(object);
 }
 
-EventQueue::~EventQueue()
+void my_cb()
 {
+
 }
 
-void EventQueue::dispatch(int ms)
+TEST_F(Test_LoRaMac, initialize)
 {
+    EXPECT_TRUE(LORAWAN_STATUS_OK == object->initialize(NULL, my_cb));
 }
 
-void EventQueue::break_dispatch()
-{
-}
 
-unsigned EventQueue::tick()
-{
-    return 0;
-}
-
-void EventQueue::cancel(int id)
-{
-}
-
-int EventQueue::time_left(int id)
-{
-    return 0;
-}
-
-void EventQueue::background(Callback<void(int)> update)
-{
-}
-
-void EventQueue::chain(EventQueue *target)
-{
-}
-
-} // namespace events
