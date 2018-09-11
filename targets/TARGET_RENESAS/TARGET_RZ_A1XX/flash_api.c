@@ -99,6 +99,7 @@ typedef struct {
 static mmu_ttbl_desc_section_t desc_tbl[(SPIBSC_ADDR_END >> 20) - (SPIBSC_ADDR_START >> 20) + 1];
 static volatile struct st_spibsc*  SPIBSC = &SPIBSC0;
 static st_spibsc_spimd_reg_t spimd_reg;
+static uint8_t write_tmp_buf[FLASH_PAGE_SIZE];
 
 #if defined(__ICCARM__)
 #define RAM_CODE_SEC    __ramfunc
@@ -136,24 +137,12 @@ int32_t flash_free(flash_t *obj)
 
 int32_t flash_erase_sector(flash_t *obj, uint32_t address)
 {
-    int32_t ret;
-
-    core_util_critical_section_enter();
-    ret = _sector_erase(address - FLASH_BASE);
-    core_util_critical_section_exit();
-
-    return ret;
+    return _sector_erase(address - FLASH_BASE);
 }
 
 int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data, uint32_t size)
 {
-    int32_t ret;
-
-    core_util_critical_section_enter();
-    ret = _page_program(address - FLASH_BASE, data, size);
-    core_util_critical_section_exit();
-
-    return ret;
+    return _page_program(address - FLASH_BASE, data, size);
 }
 
 uint32_t flash_get_sector_size(const flash_t *obj, uint32_t address)
@@ -184,12 +173,14 @@ int32_t _sector_erase(uint32_t addr)
 {
     int32_t ret;
 
+    core_util_critical_section_enter();
     spi_mode();
 
     /* ---- Write enable   ---- */
     ret = write_enable();      /* WREN Command */
     if (ret != 0) {
         ex_mode();
+        core_util_critical_section_exit();
         return ret;
     }
 
@@ -210,12 +201,14 @@ int32_t _sector_erase(uint32_t addr)
     ret = spibsc_transfer(&spimd_reg);
     if (ret != 0) {
         ex_mode();
+        core_util_critical_section_exit();
         return ret;
     }
 
     ret = busy_wait();
 
     ex_mode();
+    core_util_critical_section_exit();
     return ret;
 }
 
@@ -225,8 +218,6 @@ int32_t _page_program(uint32_t addr, const uint8_t * buf, int32_t size)
     int32_t program_size;
     int32_t remainder;
     int32_t idx = 0;
-
-    spi_mode();
 
     while (size > 0) {
         if (size > FLASH_PAGE_SIZE) {
@@ -239,10 +230,15 @@ int32_t _page_program(uint32_t addr, const uint8_t * buf, int32_t size)
             program_size = remainder;
         }
 
+        core_util_critical_section_enter();
+        memcpy(write_tmp_buf, &buf[idx], program_size);
+        spi_mode();
+
         /* ---- Write enable   ---- */
         ret = write_enable();      /* WREN Command */
         if (ret != 0) {
             ex_mode();
+            core_util_critical_section_exit();
             return ret;
         }
 
@@ -267,28 +263,33 @@ int32_t _page_program(uint32_t addr, const uint8_t * buf, int32_t size)
         ret = spibsc_transfer(&spimd_reg);         /* Command,Address */
         if (ret != 0) {
             ex_mode();
+            core_util_critical_section_exit();
             return ret;
         }
 
         /* ----------- 2. Data ---------------*/
-        ret = data_send(SPIBSC_1BIT, SPIBSC_SPISSL_NEGATE, &buf[idx], program_size);
+        ret = data_send(SPIBSC_1BIT, SPIBSC_SPISSL_NEGATE, write_tmp_buf, program_size);
         if (ret != 0) {
             ex_mode();
+            core_util_critical_section_exit();
             return ret;
         }
 
         ret = busy_wait();
         if (ret != 0) {
             ex_mode();
+            core_util_critical_section_exit();
             return ret;
         }
+
+        ex_mode();
+        core_util_critical_section_exit();
 
         addr += program_size;
         idx  += program_size;
         size -= program_size;
     }
 
-    ex_mode();
     return ret;
 }
 
