@@ -838,9 +838,6 @@ typedef enum device_states {
     DEVICE_STATE_SENDING,
     DEVICE_STATE_AWAITING_ACK,
     DEVICE_STATE_STATUS_CHECK,
-#if defined(LORAWAN_COMPLIANCE_TEST)
-    DEVICE_STATE_COMPLIANCE_TEST,
-#endif
     DEVICE_STATE_SHUTDOWN
 } device_states_t;
 
@@ -1283,118 +1280,5 @@ typedef struct {
     multicast_params_t *multicast_channels;
 
 } loramac_protocol_params;
-
-
-#if defined(LORAWAN_COMPLIANCE_TEST)
-
-typedef struct {
-    /*!
-     * MLME-Request type.
-     */
-    mlme_type_t type;
-
-    mlme_cw_tx_mode_t cw_tx_mode;
-} loramac_mlme_req_t;
-
-typedef struct {
-    /*!
-     * Compliance test request
-     */
-    mcps_type_t type;
-
-    /*!
-     * Frame port field. Must be set if the payload is not empty. Use the
-     * application-specific frame port values: [1...223].
-     *
-     * LoRaWAN Specification V1.0.2, chapter 4.3.2.
-     */
-    uint8_t fport;
-
-    /*!
-     * Uplink datarate, if ADR is off.
-     */
-    int8_t data_rate;
-    /*!
-     * The number of trials to transmit the frame, if the LoRaMAC layer did not
-     * receive an acknowledgment. The MAC performs a datarate adaptation
-     * according to the LoRaWAN Specification V1.0.2, chapter 18.4, as in
-     * the following table:
-     *
-     * Transmission nb | Data Rate
-     * ----------------|-----------
-     * 1 (first)       | DR
-     * 2               | DR
-     * 3               | max(DR-1,0)
-     * 4               | max(DR-1,0)
-     * 5               | max(DR-2,0)
-     * 6               | max(DR-2,0)
-     * 7               | max(DR-3,0)
-     * 8               | max(DR-3,0)
-     *
-     * Note that if nb_trials is set to 1 or 2, the MAC will not decrease
-     * the datarate, if the LoRaMAC layer did not receive an acknowledgment.
-     */
-    uint8_t nb_trials;
-
-    /** Payload data
-      *
-      * A pointer to the buffer of the frame payload.
-      */
-    uint8_t f_buffer[LORAMAC_PHY_MAXPAYLOAD];
-
-    /** Payload size
-     *
-     * The size of the frame payload.
-     */
-    uint16_t f_buffer_size;
-
-} loramac_compliance_test_req_t;
-
-/**  LoRaWAN compliance tests support data
- *
- */
-typedef struct compliance_test {
-    /** Is test running
-     *
-     */
-    bool running;
-    /** State of test
-     *
-     */
-    uint8_t state;
-    /** Is TX confirmed
-     *
-     */
-    bool is_tx_confirmed;
-    /** Port used by the application
-     *
-     */
-    uint8_t app_port;
-    /** Maximum size of data used by application
-     *
-     */
-    uint8_t app_data_size;
-    /** Data provided by application
-     *
-     */
-    uint8_t app_data_buffer[MBED_CONF_LORA_TX_MAX_SIZE];
-    /** Downlink counter
-     *
-     */
-    uint16_t downlink_counter;
-    /** Is link check required
-     *
-     */
-    bool link_check;
-    /** Demodulation margin
-     *
-     */
-    uint8_t demod_margin;
-    /** Number of gateways
-     *
-     */
-    uint8_t nb_gateways;
-} compliance_test_t;
-#endif
 
 #endif /* LORAWAN_SYSTEM_LORAWAN_DATA_STRUCTURES_H_ */

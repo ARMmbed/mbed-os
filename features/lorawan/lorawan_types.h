@@ -101,6 +101,8 @@ typedef enum lorawan_status {
     LORAWAN_STATUS_NO_ACTIVE_SESSIONS = -1017,            /**< Services not started - No active session */
     LORAWAN_STATUS_IDLE = -1018,                   /**< Services started - Idle at the moment */
 #if defined(LORAWAN_COMPLIANCE_TEST)
+    //Deprecated - will replace the code -1019 with something
+    //else in future.
     LORAWAN_STATUS_COMPLIANCE_TEST_ON = -1019,     /**< Compliance test - is on-going */
 #endif
     LORAWAN_STATUS_DUTYCYCLE_RESTRICTED = -1020,   /**< Transmission will continue after duty cycle backoff*/
