@@ -85,15 +85,14 @@ def wrap_init(func):
         api_key = accounts.list_api_keys(filter={
             'key': getenv("MBED_CLOUD_SDK_API_KEY")
         }).next()
-        user = accounts.get_user(api_key.owner_id)
         certificates_owned = list(certs.list_certificates())
         dev_cert_info = None
         for certif in certificates_owned:
-            if certif.type == "developer" and (certif.owner_id == user.id or
+            if certif.type == "developer" and (certif.owner_id == api_key.owner_id or
                                                certif.owner_id == api_key.id):
                 dev_cert_info = certs.get_certificate(certif.id)
-                LOG.info("Found developer certificate onwed by %s named %s",
-                         user.full_name, dev_cert_info.name)
+                LOG.info("Found developer certificate named %s",
+                         dev_cert_info.name)
                 break
         else:
             LOG.warning(
