@@ -30,28 +30,36 @@ using namespace utest::v1;
 #error [NOT_SUPPORTED] Filesystem tests not supported by default
 #endif
 
+static const int mem_alloc_threshold = 32 * 1024;
+
 // Test block device
 #define BLOCK_SIZE 512
 #define BLOCK_COUNT 512
-HeapBlockDevice bd(BLOCK_COUNT *BLOCK_SIZE, BLOCK_SIZE);
-
+HeapBlockDevice *bd = 0;
 
 // Test formatting and partitioning
 void test_format()
 {
+    uint8_t *dummy = new (std::nothrow) uint8_t[mem_alloc_threshold];
+    TEST_SKIP_UNLESS_MESSAGE(dummy, "Not enough heap memory to run test. Test skipped.");
+    delete[] dummy;
+
+    bd = new (std::nothrow) HeapBlockDevice(BLOCK_COUNT * BLOCK_SIZE, BLOCK_SIZE);
+    TEST_SKIP_UNLESS_MESSAGE(bd, "Not enough heap memory to run test. Test skipped.");
+
     // Create two partitions splitting device in ~half
-    int err = MBRBlockDevice::partition(&bd, 1, 0x83, 0, (BLOCK_COUNT / 2) * BLOCK_SIZE);
+    int err = MBRBlockDevice::partition(bd, 1, 0x83, 0, (BLOCK_COUNT / 2) * BLOCK_SIZE);
     TEST_ASSERT_EQUAL(0, err);
 
-    err = MBRBlockDevice::partition(&bd, 2, 0x83, -(BLOCK_COUNT / 2) * BLOCK_SIZE);
+    err = MBRBlockDevice::partition(bd, 2, 0x83, -(BLOCK_COUNT / 2) * BLOCK_SIZE);
     TEST_ASSERT_EQUAL(0, err);
 
     // Load both partitions
-    MBRBlockDevice part1(&bd, 1);
+    MBRBlockDevice part1(bd, 1);
     err = part1.init();
     TEST_ASSERT_EQUAL(0, err);
 
-    MBRBlockDevice part2(&bd, 2);
+    MBRBlockDevice part2(bd, 2);
     err = part2.init();
     TEST_ASSERT_EQUAL(0, err);
 
@@ -75,12 +83,14 @@ void test_format()
 template <ssize_t TEST_SIZE>
 void test_read_write()
 {
+    TEST_SKIP_UNLESS_MESSAGE(bd, "Not enough heap memory to run test. Test skipped.");
+
     // Load both partitions
-    MBRBlockDevice part1(&bd, 1);
+    MBRBlockDevice part1(bd, 1);
     int err = part1.init();
     TEST_ASSERT_EQUAL(0, err);
 
-    MBRBlockDevice part2(&bd, 2);
+    MBRBlockDevice part2(bd, 2);
     err = part2.init();
     TEST_ASSERT_EQUAL(0, err);
 
@@ -94,11 +104,11 @@ void test_read_write()
     err = fs2.mount(&part2);
     TEST_ASSERT_EQUAL(0, err);
 
-    uint8_t *buffer1 = (uint8_t *)malloc(TEST_SIZE);
-    TEST_ASSERT(buffer1);
+    uint8_t *buffer1 = new (std::nothrow) uint8_t[TEST_SIZE];
+    TEST_SKIP_UNLESS_MESSAGE(buffer1, "Not enough heap memory to run test. Test skipped.");
 
-    uint8_t *buffer2 = (uint8_t *)malloc(TEST_SIZE);
-    TEST_ASSERT(buffer2);
+    uint8_t *buffer2 = new (std::nothrow) uint8_t[TEST_SIZE];
+    TEST_SKIP_UNLESS_MESSAGE(buffer2, "Not enough heap memory to run test. Test skipped.");
 
     // Fill with random sequence
     srand(1);
@@ -163,47 +173,55 @@ void test_read_write()
 
     err = part2.deinit();
     TEST_ASSERT_EQUAL(0, err);
+
+    delete[] buffer1;
+    delete[] buffer2;
 }
 
 void test_single_mbr()
 {
-    int err = bd.init();
+    TEST_SKIP_UNLESS_MESSAGE(bd, "Not enough heap memory to run test. Test skipped.");
+
+    int err = bd->init();
     TEST_ASSERT_EQUAL(0, err);
 
     const bd_addr_t MBR_OFFSET = 0;
     const bd_addr_t FAT1_OFFSET = 1;
     const bd_addr_t FAT2_OFFSET = BLOCK_COUNT / 2;
 
-    uint8_t *buffer = (uint8_t *)malloc(BLOCK_SIZE);
-    TEST_ASSERT(buffer);
+    uint8_t *buffer = new (std::nothrow) uint8_t[BLOCK_SIZE];
+    TEST_SKIP_UNLESS_MESSAGE(buffer, "Not enough heap memory to run test. Test skipped.");
 
     // Check that all three header blocks have the 0x55aa signature
-    err = bd.read(buffer, MBR_OFFSET * BLOCK_SIZE, BLOCK_SIZE);
+    err = bd->read(buffer, MBR_OFFSET * BLOCK_SIZE, BLOCK_SIZE);
     TEST_ASSERT_EQUAL(0, err);
     TEST_ASSERT(memcmp(&buffer[BLOCK_SIZE - 2], "\x55\xaa", 2) == 0);
 
-    err = bd.read(buffer, FAT1_OFFSET * BLOCK_SIZE, BLOCK_SIZE);
+    err = bd->read(buffer, FAT1_OFFSET * BLOCK_SIZE, BLOCK_SIZE);
     TEST_ASSERT_EQUAL(0, err);
     TEST_ASSERT(memcmp(&buffer[BLOCK_SIZE - 2], "\x55\xaa", 2) == 0);
 
-    err = bd.read(buffer, FAT2_OFFSET * BLOCK_SIZE, BLOCK_SIZE);
+    err = bd->read(buffer, FAT2_OFFSET * BLOCK_SIZE, BLOCK_SIZE);
     TEST_ASSERT_EQUAL(0, err);
     TEST_ASSERT(memcmp(&buffer[BLOCK_SIZE - 2], "\x55\xaa", 2) == 0);
 
     // Check that the headers for both filesystems contain a jump code
     // indicating they are actual FAT superblocks and not an extra MBR
-    err = bd.read(buffer, FAT1_OFFSET * BLOCK_SIZE, BLOCK_SIZE);
+    err = bd->read(buffer, FAT1_OFFSET * BLOCK_SIZE, BLOCK_SIZE);
     TEST_ASSERT_EQUAL(0, err);
     TEST_ASSERT(buffer[0] == 0xe9 || buffer[0] == 0xeb || buffer[0] == 0xe8);
 
-    err = bd.read(buffer, FAT2_OFFSET * BLOCK_SIZE, BLOCK_SIZE);
+    err = bd->read(buffer, FAT2_OFFSET * BLOCK_SIZE, BLOCK_SIZE);
     TEST_ASSERT_EQUAL(0, err);
     TEST_ASSERT(buffer[0] == 0xe9 || buffer[0] == 0xeb || buffer[0] == 0xe8);
 
-    free(buffer);
+    delete[] buffer;
 
-    bd.deinit();
+    bd->deinit();
     TEST_ASSERT_EQUAL(0, err);
+
+    delete bd;
+    bd = 0;
 }
 
 
