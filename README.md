@@ -22,6 +22,7 @@ Mbed OS provides a platform that includes:
 * Security foundations.
 * Cloud management services.
 * Drivers for sensors, I/O devices and connectivity. 
+* Awesome hardware.
 
 ## Release notes
 The [release notes](https://os.mbed.com/releases) detail the current release. You can also find information about previous versions.
