@@ -169,9 +169,9 @@ void sleep_manager_sleep_auto(void);
 static inline void sleep(void)
 {
 #if DEVICE_SLEEP
-#if (MBED_CONF_RTOS_PRESENT == 0) || (DEVICE_STCLK_OFF_DURING_SLEEP == 0) || defined(MBED_TICKLESS)
+#if (MBED_CONF_RTOS_PRESENT == 0) || (DEVICE_SYSTICK_CLK_OFF_DURING_SLEEP == 0) || defined(MBED_TICKLESS)
     sleep_manager_sleep_auto();
-#endif /* (MBED_CONF_RTOS_PRESENT == 0) || (DEVICE_STCLK_OFF_DURING_SLEEP == 0) || defined(MBED_TICKLESS) */
+#endif /* (MBED_CONF_RTOS_PRESENT == 0) || (DEVICE_SYSTICK_CLK_OFF_DURING_SLEEP == 0) || defined(MBED_TICKLESS) */
 #endif /* DEVICE_SLEEP */
 }
 
