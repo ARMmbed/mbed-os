@@ -239,16 +239,7 @@ typedef enum {
     SPI_MISO    = D12,
     SPI_SCK     = D13,
     SPI_CS      = D10,
-    SPI_PERSISTENT_MEM_CS = D10,
     PWM_OUT     = D9,
-#ifdef DEVICE_QSPI
-    QSPI_PIN_IO0 = PE_12,
-    QSPI_PIN_IO1 = PE_13,
-    QSPI_PIN_IO2 = PE_14,
-    QSPI_PIN_IO3 = PE_15,
-    QSPI_PIN_SCK = PE_10,
-    QSPI_PIN_CSN = PE_11,
-#endif
 
     /**** USB pins ****/
     USB_OTG_FS_DM = PA_11,

@@ -128,13 +128,7 @@ typedef enum {
     A2 = P1_8,
     A3 = P1_10,
     A4 = P1_4,
-    A5 = P1_5,
-    
-    SPI_MOSI   = P0_20,
-    SPI_MISO   = P0_18,
-    SPI_SCK    = P0_19,
-    SPI_PERSISTENT_MEM_CS = P1_2
-    
+    A5 = P1_5
 } PinName;
 
 

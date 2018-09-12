@@ -149,12 +149,6 @@ typedef enum {
     I2C_SDA2 = P0_10, // pin used by application board
     I2C_SCL = I2C_SCL2,
     I2C_SDA = I2C_SDA2,
-    
-    SPI_MOSI   = p5,
-    SPI_MISO   = p6,
-    SPI_SCK    = p7,
-    SPI_PERSISTENT_MEM_CS = p8
-    
 } PinName;
 
 typedef enum {

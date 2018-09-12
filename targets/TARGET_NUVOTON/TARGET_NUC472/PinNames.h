@@ -131,11 +131,6 @@ typedef enum {
     SW1 = PC_12,
     SW2 = PC_13,
     
-    SPI_MOSI    = PF_0,
-    SPI_MISO    = PD_15,
-    SPI_SCK     = PD_14,
-    SPI_PERSISTENT_MEM_CS = PD_13,
-    
 } PinName;
 
 #ifdef __cplusplus

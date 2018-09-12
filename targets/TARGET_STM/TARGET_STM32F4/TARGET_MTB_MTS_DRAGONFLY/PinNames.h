@@ -186,12 +186,9 @@ typedef enum {
     SPI_MOSI    = SPI1_MOSI,
     SPI_MISO    = SPI1_MISO,
     SPI_SCK     = SPI1_SCK,
-    
     SPI_CS1     = PA_3, //LCD CS
     SPI_CS2     = PA_15, //SD Card CS
 
-    SPI_PERSISTENT_MEM_CS = SPI_CS2,
-    
     SERIAL_TX   = PA_2,
     SERIAL_RX   = PA_3,
     SERIAL_RTS  = PA_0,

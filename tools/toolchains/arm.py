@@ -325,7 +325,7 @@ class ARM(mbedToolchain):
 
     @staticmethod
     def make_ld_define(name, value):
-        return "--predefine=\"-D%s=0x%x\"" % (name, value)
+        return "--predefine=\"-D%s=%s\"" % (name, value)
 
     @staticmethod
     def redirect_symbol(source, sync, build_dir):
@@ -426,7 +426,7 @@ class ARMC6(ARM_STD):
             self.flags["ld"] += ["--import_cmse_lib_out=%s" % secure_file]
         # Add linking time preprocessor macro __DOMAIN_NS
         if target.core == "Cortex-M23-NS" or self.target.core == "Cortex-M33-NS":
-            define_string = self.make_ld_define("__DOMAIN_NS", 1)
+            define_string = self.make_ld_define("__DOMAIN_NS", "0x1")
             self.flags["ld"].append(define_string)
 
         asm_cpu = {

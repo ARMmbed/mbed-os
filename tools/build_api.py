@@ -1161,7 +1161,7 @@ def mcu_toolchain_matrix(verbose_html=False, platform_filter=None,
     release_version - get the matrix for this major version number
     """
     # Only use it in this function so building works without extra modules
-    from prettytable import PrettyTable
+    from prettytable import PrettyTable, HEADER
     release_version = _lowercase_release_version(release_version)
     version_release_targets = {}
     version_release_target_names = {}
@@ -1183,7 +1183,7 @@ def mcu_toolchain_matrix(verbose_html=False, platform_filter=None,
 
     # All tests status table print
     columns = prepend_columns + unique_supported_toolchains
-    table_printer = PrettyTable(columns)
+    table_printer = PrettyTable(columns, junction_char="|", hrules=HEADER)
     # Align table
     for col in columns:
         table_printer.align[col] = "c"
@@ -1271,10 +1271,10 @@ def print_build_memory_usage(report):
     Positional arguments:
     report - Report generated during build procedure.
     """
-    from prettytable import PrettyTable
+    from prettytable import PrettyTable, HEADER
     columns_text = ['name', 'target', 'toolchain']
     columns_int = ['static_ram', 'total_flash']
-    table = PrettyTable(columns_text + columns_int)
+    table = PrettyTable(columns_text + columns_int, junction_char="|", hrules=HEADER)
 
     for col in columns_text:
         table.align[col] = 'l'

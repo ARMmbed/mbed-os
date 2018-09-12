@@ -21,8 +21,8 @@ You need Icetea and mbed-cli that supports Icetea, installed.
 
 Depending on a device, there might be a default network interface type defined in the mbed-os/targets/targets.json, which is used to locate a test-config file by default. 
 If there is not, or you want to use a different interface than the default, you need to provide a relevant test-config -file to the mbed test with --test-config option.
-The test-config file contains the necessary information for the test application, there are some test-config files located under mbed-os/tools/test-configs.
-Devices which have their network drivers residing inside mbed-os can use generic test-configs like HeapBlockDeviceAndEthernetInterface.json and HeapBlockDeviceAndWifiInterface.json. Otherwise you need to use a device specific test-config.
+The test-config file contains the necessary information for the test application, there are some test-config files located under mbed-os/tools/test_configs.
+Devices which have their network drivers residing inside mbed-os can use generic test_configs like HeapBlockDeviceAndEthernetInterface.json and HeapBlockDeviceAndWifiInterface.json. Otherwise you need to use a device specific test-config.
 
 ### Running the tests
 
@@ -42,10 +42,10 @@ Some devices may offer multiple network interfaces to operate with. For example,
 The tests can be run for either one of those using already existing test-config -files.
 
 To run the tests with Wi-Fi interface:
-`>mbed test -m UBLOX_EVK_ODIN_W2 -t <toolchain> --icetea --test-config tools/test-configs/HeapBlockDeviceAndWifiInterface.json`
+`>mbed test -m UBLOX_EVK_ODIN_W2 -t <toolchain> --icetea --test-config tools/test_configs/HeapBlockDeviceAndWifiInterface.json`
 
 To run the tests with ethernet interface:
-`>mbed test -m UBLOX_EVK_ODIN_W2 -t <toolchain> --icetea --test-config tools/test-configs/HeapBlockDeviceAndEthernetInterface.json`
+`>mbed test -m UBLOX_EVK_ODIN_W2 -t <toolchain> --icetea --test-config tools/test_configs/HeapBlockDeviceAndEthernetInterface.json`
 
 #### Providing Wi-Fi access point information
 

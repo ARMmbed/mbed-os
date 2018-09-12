@@ -167,13 +167,12 @@ typedef enum {
     SPI0_SCK     = D13,
     SPI0_CS      = D10,
     SPI1_CS      = D9,
-    
 
     SPI_MOSI   = SPI0_MOSI,
     SPI_MISO   = SPI0_MISO,
     SPI_SCK    = SPI0_SCK,
     SPI_CS     = SPI0_CS,
-    SPI_PERSISTENT_MEM_CS = SPI_CS,
+
 
     // Standardized button names
     BUTTON1    = SW0,

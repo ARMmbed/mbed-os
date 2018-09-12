@@ -242,10 +242,6 @@ typedef enum lora_events {
  * 'link_check_resp' callback. The result is thus transported to the application
  * via callback function provided.
  *
- * As can be seen from declaration, mbed::Callback<void(uint8_t, uint8_t)> *link_check_resp)
- * carries two parameters. First one is Demodulation Margin and the second one
- * is number of gateways involved in the path to network server.
- *
  * 'battery_level' callback goes in the down direction, i.e., it informs
  * the stack about the battery level by calling a function provided
  * by the upper layers.
@@ -257,11 +253,16 @@ typedef struct {
     mbed::Callback<void(lorawan_event_t)> events;
 
     /**
-     * Optional
+     * This callback is optional
+     *
+     * The first parameter to the callback function is the demodulation margin, and the second
+     * parameter is the number of gateways that successfully received the last request.
      */
     mbed::Callback<void(uint8_t, uint8_t)> link_check_resp;
 
     /**
+     * This callback is optional. If the callback is not set, the stack returns 255 to gateway.
+     *
      * Battery level return value must follow the specification
      * for DevStatusAns MAC command:
      *

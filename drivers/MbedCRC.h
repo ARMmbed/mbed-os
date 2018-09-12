@@ -275,7 +275,7 @@ public:
             p_crc = (uint32_t)(p_crc << (8 - width));
         }
         // Optimized algorithm for 32BitANSI does not need additional reflect_remainder
-        if ((TABLE == _mode) && (POLY_32BIT_ANSI == polynomial)) {
+        if ((TABLE == _mode) && (POLY_32BIT_REV_ANSI == polynomial)) {
             *crc = (p_crc ^ _final_xor) & get_crc_mask();
         } else {
             *crc = (reflect_remainder(p_crc) ^ _final_xor) & get_crc_mask();
@@ -415,7 +415,6 @@ private:
     int32_t bitwise_compute_partial(const void *buffer, crc_data_size_t size, uint32_t *crc) const
     {
         MBED_ASSERT(crc != NULL);
-        MBED_ASSERT(buffer != NULL);
 
         const uint8_t *data = static_cast<const uint8_t *>(buffer);
         uint32_t p_crc = *crc;
@@ -460,7 +459,6 @@ private:
     int32_t table_compute_partial(const void *buffer, crc_data_size_t size, uint32_t *crc) const
     {
         MBED_ASSERT(crc != NULL);
-        MBED_ASSERT(buffer != NULL);
 
         const uint8_t *data = static_cast<const uint8_t *>(buffer);
         uint32_t p_crc = *crc;
@@ -480,9 +478,17 @@ private:
             }
         } else {
             uint32_t *crc_table = (uint32_t *)_crc_table;
-            for (crc_data_size_t i = 0; i < size; i++) {
-                p_crc = (p_crc >> 4) ^ crc_table[(p_crc ^ (data[i] >> 0)) & 0xf];
-                p_crc = (p_crc >> 4) ^ crc_table[(p_crc ^ (data[i] >> 4)) & 0xf];
+            if (POLY_32BIT_REV_ANSI == polynomial) {
+                for (crc_data_size_t i = 0; i < size; i++) {
+                    p_crc = (p_crc >> 4) ^ crc_table[(p_crc ^ (data[i] >> 0)) & 0xf];
+                    p_crc = (p_crc >> 4) ^ crc_table[(p_crc ^ (data[i] >> 4)) & 0xf];
+                }
+            }
+            else {
+                for (crc_data_size_t byte = 0; byte < size; byte++) {
+                    data_byte = reflect_bytes(data[byte]) ^ (p_crc >> (width - 8));
+                    p_crc = crc_table[data_byte] ^ (p_crc << 8);
+                }
             }
         }
         *crc = p_crc & get_crc_mask();
@@ -497,6 +503,11 @@ private:
         MBED_STATIC_ASSERT(width <= 32, "Max 32-bit CRC supported");
 
 #ifdef DEVICE_CRC
+        if (POLY_32BIT_REV_ANSI == polynomial) {
+            _crc_table = (uint32_t *)Table_CRC_32bit_Rev_ANSI;
+            _mode = TABLE;
+            return;
+        }
         crc_mbed_config_t config;
         config.polynomial  = polynomial;
         config.width       = width;
@@ -510,9 +521,13 @@ private:
             return;
         }
 #endif
+
         switch (polynomial) {
             case POLY_32BIT_ANSI:
                 _crc_table = (uint32_t *)Table_CRC_32bit_ANSI;
+                break;
+            case POLY_32BIT_REV_ANSI:
+                _crc_table = (uint32_t *)Table_CRC_32bit_Rev_ANSI;
                 break;
             case POLY_8BIT_CCITT:
                 _crc_table = (uint32_t *)Table_CRC_8bit_CCITT;
