@@ -20,6 +20,7 @@
 #include "platform/FileLike.h"
 #include "platform/FileHandle.h"
 #include "platform/NonCopyable.h"
+#include "mbed_toolchain.h"
 #include <cstdio>
 #include <cstdarg>
 
@@ -47,10 +48,10 @@ public:
     int puts(const char *s);
     int getc();
     char *gets(char *s, int size);
-    int printf(const char *format, ...);
-    int scanf(const char *format, ...);
-    int vprintf(const char *format, std::va_list args);
-    int vscanf(const char *format, std::va_list args);
+    int printf(const char *format, ...) MBED_PRINTF_METHOD(1, 2);
+    int scanf(const char *format, ...) MBED_SCANF_METHOD(1, 2);
+    int vprintf(const char *format, std::va_list args) MBED_PRINTF_METHOD(1, 0);
+    int vscanf(const char *format, std::va_list args) MBED_SCANF_METHOD(1, 0);
 
     operator std::FILE *()
     {
