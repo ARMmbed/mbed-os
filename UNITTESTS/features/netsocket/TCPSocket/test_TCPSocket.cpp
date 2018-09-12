@@ -214,11 +214,31 @@ TEST_F(TestTCPSocket, recv_would_block)
     EXPECT_EQ(socket->recv(dataBuf, dataSize), NSAPI_ERROR_WOULD_BLOCK);
 }
 
-TEST_F(TestTCPSocket, recv_from)
+TEST_F(TestTCPSocket, recv_from_no_socket)
 {
     stack.return_value = NSAPI_ERROR_OK;
     SocketAddress a("127.0.0.1", 1024);
     EXPECT_EQ(socket->recvfrom(&a, dataBuf, dataSize), NSAPI_ERROR_NO_SOCKET);
+}
+
+TEST_F(TestTCPSocket, recv_from)
+{
+    stack.return_value = NSAPI_ERROR_OK;
+    SocketAddress a("127.0.0.1", 1024);
+    EXPECT_EQ(socket->open((NetworkStack *)&stack), NSAPI_ERROR_OK);
+    EXPECT_EQ(socket->connect(a), NSAPI_ERROR_OK);
+    SocketAddress b;
+    EXPECT_EQ(socket->recvfrom(&b, dataBuf, dataSize), NSAPI_ERROR_OK);
+    EXPECT_EQ(a, b);
+}
+
+TEST_F(TestTCPSocket, recv_from_null)
+{
+    stack.return_value = NSAPI_ERROR_OK;
+    SocketAddress a("127.0.0.1", 1024);
+    EXPECT_EQ(socket->open((NetworkStack *)&stack), NSAPI_ERROR_OK);
+    EXPECT_EQ(socket->connect(a), NSAPI_ERROR_OK);
+    EXPECT_EQ(socket->recvfrom(NULL, dataBuf, dataSize), NSAPI_ERROR_OK);
 }
 
 /* listen */
@@ -236,9 +256,7 @@ TEST_F(TestTCPSocket, listen)
     EXPECT_EQ(socket->listen(1), NSAPI_ERROR_OK);
 }
 
-/* accept - will accept ever be used on TCPSocket, or is it just meant for TCPServer?
- * accept currently always returns NULL - is this intended? Memory leak
- * Perhaps we should make it return UNSUPPORTED ? */
+/* these tests will have to be readjusted after TCPServer is deprecated. */
 
 TEST_F(TestTCPSocket, accept_no_open)
 {
