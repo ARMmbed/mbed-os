@@ -19,10 +19,11 @@
 #define NETWORKSTACKSTUB_H
 
 #include "netsocket/NetworkStack.h"
-
+#include <list>
 
 class NetworkStackstub : public NetworkStack {
 public:
+    std::list<nsapi_error_t> return_values;
     nsapi_error_t return_value = 0;
     virtual const char *get_ip_address()
     {
@@ -46,6 +47,11 @@ public:
 protected:
     virtual nsapi_error_t socket_open(nsapi_socket_t *handle, nsapi_protocol_t proto)
     {
+        if (return_value == NSAPI_ERROR_OK && return_values.front() == NSAPI_ERROR_OK)
+        {
+            // Make sure a non-NULL value is returned if error is not expected
+            *handle = reinterpret_cast<nsapi_socket_t*>(1234);
+        }
         return return_value;
     };
     virtual nsapi_error_t socket_close(nsapi_socket_t handle)
@@ -62,6 +68,12 @@ protected:
     };
     virtual nsapi_error_t socket_connect(nsapi_socket_t handle, const SocketAddress &address)
     {
+        if (!return_values.empty())
+        {
+            nsapi_error_t ret = return_values.front();
+            return_values.pop_front();
+            return ret;
+        }
         return return_value;
     };
     virtual nsapi_error_t socket_accept(nsapi_socket_t server,
@@ -72,11 +84,23 @@ protected:
     virtual nsapi_size_or_error_t socket_send(nsapi_socket_t handle,
                                               const void *data, nsapi_size_t size)
     {
+        if (!return_values.empty())
+        {
+            nsapi_error_t ret = return_values.front();
+            return_values.pop_front();
+            return ret;
+        }
         return return_value;
     };
     virtual nsapi_size_or_error_t socket_recv(nsapi_socket_t handle,
                                               void *data, nsapi_size_t size)
     {
+        if (!return_values.empty())
+        {
+            nsapi_error_t ret = return_values.front();
+            return_values.pop_front();
+            return ret;
+        }
         return return_value;
     };
     virtual nsapi_size_or_error_t socket_sendto(nsapi_socket_t handle, const SocketAddress &address,
@@ -87,6 +111,12 @@ protected:
     virtual nsapi_size_or_error_t socket_recvfrom(nsapi_socket_t handle, SocketAddress *address,
                                                   void *buffer, nsapi_size_t size)
     {
+        if (!return_values.empty())
+        {
+            nsapi_error_t ret = return_values.front();
+            return_values.pop_front();
+            return ret;
+        }
         return return_value;
     };
     virtual void socket_attach(nsapi_socket_t handle, void (*callback)(void *), void *data) {};
