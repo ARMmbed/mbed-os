@@ -205,7 +205,7 @@ DSTATUS disk_initialize(BYTE pdrv)
 
 DRESULT disk_read(BYTE pdrv, BYTE *buff, DWORD sector, UINT count)
 {
-    debug_if(FFS_DBG, "disk_read(sector %d, count %d) on pdrv [%d]\n", sector, count, pdrv);
+    debug_if(FFS_DBG, "disk_read(sector %lu, count %u) on pdrv [%d]\n", sector, count, pdrv);
     DWORD ssize = disk_get_sector_size(pdrv);
     bd_addr_t addr = (bd_addr_t)sector*ssize;
     bd_size_t size = (bd_size_t)count*ssize;
@@ -215,7 +215,7 @@ DRESULT disk_read(BYTE pdrv, BYTE *buff, DWORD sector, UINT count)
 
 DRESULT disk_write(BYTE pdrv, const BYTE *buff, DWORD sector, UINT count)
 {
-    debug_if(FFS_DBG, "disk_write(sector %d, count %d) on pdrv [%d]\n", sector, count, pdrv);
+    debug_if(FFS_DBG, "disk_write(sector %lu, count %u) on pdrv [%d]\n", sector, count, pdrv);
     DWORD ssize = disk_get_sector_size(pdrv);
     bd_addr_t addr = (bd_addr_t)sector*ssize;
     bd_size_t size = (bd_size_t)count*ssize;
@@ -572,7 +572,7 @@ void FATFileSystem::unlock()
 ////// File operations //////
 int FATFileSystem::file_open(fs_file_t *file, const char *path, int flags)
 {
-    debug_if(FFS_DBG, "open(%s) on filesystem [%s], drv [%s]\n", path, getName(), _id);
+    debug_if(FFS_DBG, "open(%s) on filesystem [%s], drv [%d]\n", path, getName(), _id);
 
     FIL *fh = new FIL;
     Deferred<const char*> fpath = fat_path_prefix(_id, path);
