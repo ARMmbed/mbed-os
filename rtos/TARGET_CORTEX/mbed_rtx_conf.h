@@ -27,26 +27,23 @@
 /** Any access to RTX5 specific data structures used in common code should be wrapped in ifdef MBED_OS_BACKEND_RTX5 */
 #define MBED_OS_BACKEND_RTX5
 
-/** The thread's stack size can be configured by the application, if not explicitly specified it'll default to 4K */
-#ifndef MBED_CONF_APP_THREAD_STACK_SIZE
-#define MBED_CONF_APP_THREAD_STACK_SIZE 4096
-#endif
-
+#if defined(MBED_CONF_APP_THREAD_STACK_SIZE)
 #define OS_STACK_SIZE               MBED_CONF_APP_THREAD_STACK_SIZE
-
-/** The timer thread's stack size can be configured by the application, if not explicitly specified, it'll default to 768 */
-#ifndef MBED_CONF_APP_TIMER_THREAD_STACK_SIZE
-#define MBED_CONF_APP_TIMER_THREAD_STACK_SIZE   768
+#else
+#define OS_STACK_SIZE               MBED_CONF_RTOS_THREAD_STACK_SIZE
 #endif
 
+#ifdef MBED_CONF_APP_TIMER_THREAD_STACK_SIZE
 #define OS_TIMER_THREAD_STACK_SIZE  MBED_CONF_APP_TIMER_THREAD_STACK_SIZE
-
-/** The idle thread's stack size can be configured by the application, if not explicitly specified, it'll default to 512 */
-#ifndef MBED_CONF_APP_IDLE_THREAD_STACK_SIZE
-#define MBED_CONF_APP_IDLE_THREAD_STACK_SIZE    512
+#else
+#define OS_TIMER_THREAD_STACK_SIZE  MBED_CONF_RTOS_TIMER_THREAD_STACK_SIZE
 #endif
 
+#ifdef MBED_CONF_APP_IDLE_THREAD_STACK_SIZE
 #define OS_IDLE_THREAD_STACK_SIZE   MBED_CONF_APP_IDLE_THREAD_STACK_SIZE
+#else
+#define OS_IDLE_THREAD_STACK_SIZE   MBED_CONF_RTOS_IDLE_THREAD_STACK_SIZE
+#endif
 
 #define OS_DYNAMIC_MEM_SIZE         0
 
