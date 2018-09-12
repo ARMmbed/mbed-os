@@ -28,6 +28,10 @@
 #if DEVICE_STDIO_MESSAGES
 #include <stdio.h>
 #endif
+#ifndef __STDC_FORMAT_MACROS
+#define __STDC_FORMAT_MACROS
+#endif
+#include <inttypes.h>
 
 #ifndef NDEBUG
 #define ERROR_REPORT(ctx, error_msg, error_filename, error_line) print_error_report(ctx, error_msg, error_filename, error_line)
@@ -278,7 +282,7 @@ static const char *name_or_unnamed(const char *name)
 /* Prints info of a thread(using osRtxThread_t struct)*/
 static void print_thread(const osRtxThread_t *thread)
 {
-    mbed_error_printf("\n%s  State: 0x%X Entry: 0x%08X Stack Size: 0x%08X Mem: 0x%08X SP: 0x%08X", name_or_unnamed(thread->name), thread->state, thread->thread_addr, thread->stack_size, (uint32_t)thread->stack_mem, thread->sp);
+    mbed_error_printf("\n%s  State: 0x%" PRIX8 " Entry: 0x%08" PRIX32 " Stack Size: 0x%08" PRIX32 " Mem: 0x%08" PRIX32 " SP: 0x%08" PRIX32, name_or_unnamed(thread->name), thread->state, thread->thread_addr, thread->stack_size, (uint32_t)thread->stack_mem, thread->sp);
 }
 
 /* Prints thread info from a list */
@@ -294,43 +298,43 @@ static void print_threads_info(const osRtxThread_t *threads)
 #ifndef NDEBUG
 static void print_error_report(const mbed_error_ctx *ctx, const char *error_msg, const char *error_filename, int error_line)
 {
-    uint32_t error_code = MBED_GET_ERROR_CODE(ctx->error_status);
-    uint32_t error_module = MBED_GET_ERROR_MODULE(ctx->error_status);
+    int error_code = MBED_GET_ERROR_CODE(ctx->error_status);
+    int error_module = MBED_GET_ERROR_MODULE(ctx->error_status);
 
     mbed_error_printf("\n\n++ MbedOS Error Info ++\nError Status: 0x%X Code: %d Module: %d\nError Message: ", ctx->error_status, error_code, error_module);
 
     switch (error_code) {
         //These are errors reported by kernel handled from mbed_rtx_handlers
         case MBED_ERROR_CODE_RTOS_EVENT:
-            mbed_error_printf("Kernel Error: 0x%X, ", ctx->error_value);
+            mbed_error_printf("Kernel Error: 0x%" PRIX32 ", ", ctx->error_value);
             break;
 
         case MBED_ERROR_CODE_RTOS_THREAD_EVENT:
-            mbed_error_printf("Thread: 0x%X, ", ctx->error_value);
+            mbed_error_printf("Thread: 0x%" PRIX32 ", ", ctx->error_value);
             break;
 
         case MBED_ERROR_CODE_RTOS_MUTEX_EVENT:
-            mbed_error_printf("Mutex: 0x%X, ", ctx->error_value);
+            mbed_error_printf("Mutex: 0x%" PRIX32 ", ", ctx->error_value);
             break;
 
         case MBED_ERROR_CODE_RTOS_SEMAPHORE_EVENT:
-            mbed_error_printf("Semaphore: 0x%X, ", ctx->error_value);
+            mbed_error_printf("Semaphore: 0x%" PRIX32 ", ", ctx->error_value);
             break;
 
         case MBED_ERROR_CODE_RTOS_MEMORY_POOL_EVENT:
-            mbed_error_printf("MemoryPool: 0x%X, ", ctx->error_value);
+            mbed_error_printf("MemoryPool: 0x%" PRIX32 ", ", ctx->error_value);
             break;
 
         case MBED_ERROR_CODE_RTOS_EVENT_FLAGS_EVENT:
-            mbed_error_printf("EventFlags: 0x%X, ", ctx->error_value);
+            mbed_error_printf("EventFlags: 0x%" PRIX32 ", ", ctx->error_value);
             break;
 
         case MBED_ERROR_CODE_RTOS_TIMER_EVENT:
-            mbed_error_printf("Timer: 0x%X, ", ctx->error_value);
+            mbed_error_printf("Timer: 0x%" PRIX32 ", ", ctx->error_value);
             break;
 
         case MBED_ERROR_CODE_RTOS_MESSAGE_QUEUE_EVENT:
-            mbed_error_printf("MessageQueue: 0x%X, ", ctx->error_value);
+            mbed_error_printf("MessageQueue: 0x%" PRIX32 ", ", ctx->error_value);
             break;
 
         case MBED_ERROR_CODE_ASSERTION_FAILED:
@@ -342,7 +346,7 @@ static void print_error_report(const mbed_error_ctx *ctx, const char *error_msg,
             break;
     }
     mbed_error_puts(error_msg);
-    mbed_error_printf("\nLocation: 0x%X", ctx->error_address);
+    mbed_error_printf("\nLocation: 0x%" PRIX32, ctx->error_address);
 
     /* We print the filename passed in, not any filename in the context. This
      * avoids the console print for mbed_error being limited to the presence
@@ -357,9 +361,9 @@ static void print_error_report(const mbed_error_ctx *ctx, const char *error_msg,
         mbed_error_printf("+%d", error_line);
     }
 
-    mbed_error_printf("\nError Value: 0x%X", ctx->error_value);
+    mbed_error_printf("\nError Value: 0x%" PRIX32, ctx->error_value);
 #ifdef MBED_CONF_RTOS_PRESENT
-    mbed_error_printf("\nCurrent Thread: %s  Id: 0x%X Entry: 0x%X StackSize: 0x%X StackMem: 0x%X SP: 0x%X ",
+    mbed_error_printf("\nCurrent Thread: %s  Id: 0x%" PRIX32 " Entry: 0x%" PRIX32 " StackSize: 0x%" PRIX32 " StackMem: 0x%" PRIX32 " SP: 0x%" PRIX32 " ",
                       name_or_unnamed(((osRtxThread_t *)ctx->thread_id)->name),
                       ctx->thread_id, ctx->thread_entry_address, ctx->thread_stack_size, ctx->thread_stack_mem, ctx->thread_current_sp);
 #endif
