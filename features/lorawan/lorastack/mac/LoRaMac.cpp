@@ -535,6 +535,7 @@ void LoRaMac::handle_data_frame(const uint8_t *const payload,
 
     _params.adr_ack_counter = 0;
     _mac_commands.clear_repeat_buffer();
+    _mac_commands.clear_command_buffer();
 
     if (is_multicast) {
         _mcps_indication.type = MCPS_MULTICAST;
@@ -583,18 +584,9 @@ void LoRaMac::handle_data_frame(const uint8_t *const payload,
         _params.dl_frame_counter = downlink_counter;
     }
 
-    // This must be done before parsing the payload and the MAC commands.
-    // We need to reset the MacCommandsBufferIndex here, since we need
-    // to take retransmissions and repetitions into account. Error cases
-    // will be handled in function OnMacStateCheckTimerEvent.
-    if (_params.is_node_ack_requested) {
-        if (fctrl.bits.ack) {
-            _mac_commands.clear_command_buffer();
-            _mcps_confirmation.ack_received = fctrl.bits.ack;
-            _mcps_indication.is_ack_recvd = fctrl.bits.ack;
-        }
-    } else {
-        _mac_commands.clear_command_buffer();
+    if (_params.is_node_ack_requested && fctrl.bits.ack) {
+        _mcps_confirmation.ack_received = fctrl.bits.ack;
+        _mcps_indication.is_ack_recvd = fctrl.bits.ack;
     }
 
     uint8_t frame_len = (size - 4) - app_payload_start_index;
@@ -663,6 +655,8 @@ void LoRaMac::on_radio_tx_done(lorawan_time_t timestamp)
     _lora_phy->set_last_tx_done(_params.channel, _is_nwk_joined, timestamp);
 
     _params.timers.aggregated_last_tx_time = timestamp;
+
+    _mac_commands.clear_command_buffer();
 }
 
 void LoRaMac::on_radio_rx_done(const uint8_t *const payload, uint16_t size,
@@ -781,7 +775,6 @@ bool LoRaMac::continue_joining_process()
 bool LoRaMac::continue_sending_process()
 {
     if (_params.ack_timeout_retry_counter > _params.max_ack_timeout_retries) {
-        _mac_commands.clear_command_buffer();
         _lora_time.stop(_params.timers.ack_timeout_timer);
         return false;
     }
@@ -1193,7 +1186,6 @@ void LoRaMac::reset_mac_parameters(void)
 
     _mac_commands.clear_command_buffer();
     _mac_commands.clear_repeat_buffer();
-    _mac_commands.clear_mac_commands_in_next_tx();
 
     _params.is_rx_window_enabled = true;
 
@@ -1598,26 +1590,23 @@ lorawan_status_t LoRaMac::prepare_frame(loramac_mhdr_t *machdr,
             const uint8_t mac_commands_len = _mac_commands.get_mac_cmd_length();
 
             if ((payload != NULL) && (_params.tx_buffer_len > 0)) {
-                if (_mac_commands.is_mac_command_in_next_tx() == true) {
-                    if (mac_commands_len <= LORA_MAC_COMMAND_MAX_FOPTS_LENGTH) {
-                        fctrl->bits.fopts_len += mac_commands_len;
+                if (mac_commands_len <= LORA_MAC_COMMAND_MAX_FOPTS_LENGTH) {
+                    fctrl->bits.fopts_len += mac_commands_len;
 
-                        // Update FCtrl field with new value of OptionsLength
-                        _params.tx_buffer[0x05] = fctrl->value;
+                    // Update FCtrl field with new value of OptionsLength
+                    _params.tx_buffer[0x05] = fctrl->value;
 
-                        const uint8_t *buffer = _mac_commands.get_mac_commands_buffer();
-                        for (i = 0; i < mac_commands_len; i++) {
-                            _params.tx_buffer[pkt_header_len++] = buffer[i];
-                        }
-                    } else {
-                        _params.tx_buffer_len = mac_commands_len;
-                        payload = _mac_commands.get_mac_commands_buffer();
-                        frame_port = 0;
+                    const uint8_t *buffer = _mac_commands.get_mac_commands_buffer();
+                    for (i = 0; i < mac_commands_len; i++) {
+                        _params.tx_buffer[pkt_header_len++] = buffer[i];
                     }
+                } else {
+                    _params.tx_buffer_len = mac_commands_len;
+                    payload = _mac_commands.get_mac_commands_buffer();
+                    frame_port = 0;
                 }
             } else {
-                if ((mac_commands_len > 0)
-                        && (_mac_commands.is_mac_command_in_next_tx() == true)) {
+                if (mac_commands_len > 0) {
                     _params.tx_buffer_len = mac_commands_len;
                     payload = _mac_commands.get_mac_commands_buffer();
                     frame_port = 0;
@@ -1634,7 +1623,6 @@ lorawan_status_t LoRaMac::prepare_frame(loramac_mhdr_t *machdr,
                 uint8_t *key = _params.keys.app_skey;
                 uint32_t key_length = sizeof(_params.keys.app_skey) * 8;
                 if (frame_port == 0) {
-                    _mac_commands.clear_command_buffer();
                     key = _params.keys.nwk_skey;
                     key_length = sizeof(_params.keys.nwk_skey) * 8;
                 }
@@ -1811,7 +1799,6 @@ void LoRaMac::disconnect()
 
     _mac_commands.clear_command_buffer();
     _mac_commands.clear_repeat_buffer();
-    _mac_commands.clear_mac_commands_in_next_tx();
 
     reset_mcps_confirmation();
     reset_mlme_confirmation();
