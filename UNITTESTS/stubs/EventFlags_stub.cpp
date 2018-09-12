@@ -17,6 +17,10 @@
 
 #include <cstddef>
 #include "rtos/EventFlags.h"
+#include <list>
+
+/** Store the next value to be returned by Event Flags member functions */
+std::list<uint32_t> eventFlagsStubNextRetval;
 
 rtos::EventFlags::EventFlags() {}
 rtos::EventFlags::~EventFlags() {}
@@ -38,5 +42,11 @@ uint32_t rtos::EventFlags::wait_all(uint32_t flags, uint32_t timeout, bool clear
 }
 uint32_t rtos::EventFlags::wait_any(uint32_t flags, uint32_t timeout, bool clear)
 {
+    if (!eventFlagsStubNextRetval.empty())
+    {
+        uint32_t ret = eventFlagsStubNextRetval.front();
+        eventFlagsStubNextRetval.pop_front();
+        return ret;
+    }
     return 0;
 }
