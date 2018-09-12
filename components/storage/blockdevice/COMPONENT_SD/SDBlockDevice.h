@@ -214,8 +214,8 @@ private:
     }
 
     PlatformMutex _mutex;
-    bd_size_t _block_size;
-    bd_size_t _erase_size;
+    static const uint32_t _block_size;
+    uint32_t _erase_size;
     bool _is_initialized;
     bool _dbg;
     bool _crc_on;
