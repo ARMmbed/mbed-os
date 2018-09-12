@@ -44,6 +44,15 @@ from tools.options import extract_mcus
 
 
 class MbedExtendedArgs(MainArgumentParser):
+
+    def __init__(self, *args, **kwargs):
+        MainArgumentParser.__init__(self, *args, **kwargs)
+        self.parser.prog = "mbed device-management"
+        self.parser.description = (
+            "Create or transform a manifest. "
+            "Use {} [command] -h for help on each command."
+        ).format(self.parser.prog)
+
     def _addCreateArgs(self, parser, exclusions=[]):
         if 'payload' not in exclusions:
             parser.add_argument(
