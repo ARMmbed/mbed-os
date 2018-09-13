@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-#include "stdint.h"
 #include "USBCDC.h"
 #include "EndpointResolver.h"
 #include "AsyncOp.h"

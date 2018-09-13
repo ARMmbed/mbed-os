@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#include "stdint.h"
 #include "USBMouse.h"
-#include "PlatformMutex.h"
 #include "usb_phy_api.h"
+#include "PlatformMutex.h"
+#include "mbed_wait_api.h"
 
 
 USBMouse::USBMouse(bool connect_blocking, MOUSE_TYPE mouse_type, uint16_t vendor_id, uint16_t product_id, uint16_t product_release):

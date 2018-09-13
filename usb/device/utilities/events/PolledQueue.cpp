@@ -16,7 +16,7 @@
 #include "events/PolledQueue.h"
 
 #include "events/mbed_events.h"
-#include "platform/Callback.h"
+#include "mbed_critical.h"
 
 
 PolledQueue::PolledQueue(mbed::Callback<void()> cb): _cb(cb)

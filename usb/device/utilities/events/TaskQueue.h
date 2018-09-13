@@ -18,8 +18,6 @@
 #define TASK_QUEUE_H
 
 #include "events/TaskBase.h"
-#include "platform/Callback.h"
-#include "mbed_critical.h"
 
 #define MBED_MAX_TASK_SIZE  32
 

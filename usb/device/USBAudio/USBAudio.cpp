@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-#include "stdint.h"
 #include "USBAudio.h"
 #include "USBAudio_Types.h"
 #include "EndpointResolver.h"
 #include "usb_phy_api.h"
+
+using mbed::Callback;
+using mbed::callback;
 
 #define SAMPLE_SIZE                 2
 #define XFER_FREQUENCY_HZ           1000

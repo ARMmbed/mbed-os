@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-#include "stdint.h"
 #include "USBSerial.h"
 #include "usb_phy_api.h"
 

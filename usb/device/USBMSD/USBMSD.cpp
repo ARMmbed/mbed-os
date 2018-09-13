@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-#include "stdint.h"
 #include "USBMSD.h"
 #include "EndpointResolver.h"
 #include "usb_phy_api.h"
+#include "BlockDevice.h"
+#include <stdlib.h>
 
 #define DISK_OK         0x00
 #define NO_INIT         0x01
@@ -85,6 +86,8 @@ USBMSD::USBMSD(USBPhy *phy, BlockDevice *bd, uint16_t vendor_id, uint16_t produc
 void USBMSD::_init()
 {
     _bd->init();
+
+    using mbed::callback;
 
     _in_task = callback(this, &USBMSD::_in);
     _out_task = callback(this, &USBMSD::_out);

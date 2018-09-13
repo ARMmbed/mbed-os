@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-#include "stdint.h"
-
 #include "USBKeyboard.h"
 #include "usb_phy_api.h"
 

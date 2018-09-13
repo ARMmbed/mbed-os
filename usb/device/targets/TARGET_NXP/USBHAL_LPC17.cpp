@@ -20,6 +20,7 @@
 #include "USBEndpoints_LPC17_LPC23.h"
 #include "USBPhyHw.h"
 #include "usb_phy_api.h"
+#include "mbed_wait_api.h"
 
 
 // Get endpoint direction

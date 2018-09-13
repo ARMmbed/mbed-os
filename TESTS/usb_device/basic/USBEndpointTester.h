@@ -54,7 +54,7 @@ public:
     };
 
 protected:
-    EventQueue *queue;
+    events::EventQueue *queue;
     rtos::EventFlags flags;
     uint8_t ctrl_buf[2048];
 

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#include "stdint.h"
 #include "USBMouseKeyboard.h"
 #include "usb_phy_api.h"
+#include "mbed_wait_api.h"
 
 typedef struct {
     unsigned char usage;

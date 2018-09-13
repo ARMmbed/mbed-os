@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-#include "mbed.h"
 #include "EndpointResolver.h"
 
 static uint32_t logical_to_index(uint32_t logical, bool in_not_out)

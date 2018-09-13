@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-#include "stdint.h"
 #include "USBHID.h"
 #include "EndpointResolver.h"
 #include "usb_phy_api.h"

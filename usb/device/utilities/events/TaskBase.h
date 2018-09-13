@@ -16,9 +16,8 @@
 #ifndef TASK_BASE_H
 #define TASK_BASE_H
 
-#include "platform/Callback.h"
-#include "platform/mbed_assert.h"
 #include "LinkEntry.h"
+#include <stdint.h>
 
 namespace rtos {
 class Semaphore;

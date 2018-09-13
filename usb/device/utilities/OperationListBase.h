@@ -18,7 +18,6 @@
 #define MBED_OPERATION_LIST_BASE_H
 
 #include "LinkedListBase.h"
-#include "Mutex.h"
 
 class AsyncOp;
 

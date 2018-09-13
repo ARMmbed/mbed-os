@@ -17,7 +17,6 @@
 #ifndef MBED_LINKED_LIST_H
 #define MBED_LINKED_LIST_H
 
-#include "LinkEntry.h"
 #include "LinkedListBase.h"
 
 template<class T>

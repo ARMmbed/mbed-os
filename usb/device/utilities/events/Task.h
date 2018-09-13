@@ -19,7 +19,6 @@
 
 #include "events/EventQueue.h"
 #include "events/TaskBase.h"
-#include "platform/mbed_assert.h"
 #include "platform/Callback.h"
 
 namespace events {
