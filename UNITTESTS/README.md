@@ -10,6 +10,7 @@ This document describes how to run and write unit tests for Mbed OS.
 * CMake 3.0+ installed.
 * Python 2.7.x or >3.5 and pip 10.0 (or newer) installed.
 * gcovr >=4.1
+* mbed-cli >= 1.80
 
 ### Installing dependencies on Debian/Ubuntu
 
