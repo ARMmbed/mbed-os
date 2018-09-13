@@ -19,17 +19,13 @@
 #include "features/netsocket/InternetSocket.h"
 #include "NetworkStack_stub.h"
 
+extern std::list<uint32_t> eventFlagsStubNextRetval;
+
+// InternetSocket is an abstract class, so we have to test it via its child.
 class stubInternetSocket : public InternetSocket {
 protected:
     nsapi_error_t return_value = 0;
 public:
-    virtual void event()
-    {
-        if (_callback) {
-            _callback.call();
-        }
-    }
-
     virtual nsapi_error_t connect(const SocketAddress &address)
     {
         return return_value;
@@ -60,6 +56,15 @@ public:
     {
         return return_value;
     }
+
+    // Testing functions
+    void add_reader (void) { _readers++;}
+    void rem_reader (void) { _readers--;}
+    void add_writer (void) { _writers++;}
+    void rem_writer (void) { _writers--;}
+    void add_pending (void) { _pending++;}
+    void rem_pending (void) { _pending--;}
+
 protected:
     virtual nsapi_protocol_t get_proto()
     {
@@ -94,7 +99,6 @@ TEST_F(TestInternetSocket, constructor)
     EXPECT_TRUE(socket);
 }
 
-
 TEST_F(TestInternetSocket, open_null_stack)
 {
     EXPECT_EQ(socket->open(NULL), NSAPI_ERROR_PARAMETER);
@@ -126,34 +130,81 @@ TEST_F(TestInternetSocket, close)
     EXPECT_EQ(socket->close(), NSAPI_ERROR_OK);
 }
 
+TEST_F(TestInternetSocket, close_no_open)
+{
+    stack.return_value = NSAPI_ERROR_OK;
+    EXPECT_EQ(socket->close(), NSAPI_ERROR_OK);
+}
+
+TEST_F(TestInternetSocket, close_during_read)
+{
+    stack.return_value = NSAPI_ERROR_OK;
+    socket->open((NetworkStack *)&stack);
+    // when c++11 is available use something like the code below to test the blocking behavior
+    // socket->add_reader();
+    // std::async(c[](){std::this_thread::sleep_for(1ms); socket->rem_reader()});
+    EXPECT_EQ(socket->close(), NSAPI_ERROR_OK);
+}
+
 TEST_F(TestInternetSocket, modify_multicast_group)
 {
     SocketAddress a("127.0.0.1", 1024);
     stack.return_value = NSAPI_ERROR_OK;
     socket->open((NetworkStack *)&stack);
-
+    // when c++11 is available use something like the code below to test the blocking behavior
+    // socket->add_reader();
+    // std::async(c[](){std::this_thread::sleep_for(1ms); socket->rem_reader()});
     EXPECT_EQ(socket->join_multicast_group(a), NSAPI_ERROR_UNSUPPORTED);
     EXPECT_EQ(socket->leave_multicast_group(a), NSAPI_ERROR_UNSUPPORTED);
 }
 
-TEST_F(TestInternetSocket, set_blocking)
+// set_blocking and set_timeout are tested within TCPSocket.
+
+TEST_F(TestInternetSocket, bind_no_socket)
 {
-    socket->set_blocking(false);
-    socket->set_blocking(true);
+    EXPECT_EQ(socket->bind(1), NSAPI_ERROR_NO_SOCKET);
 }
+
+TEST_F(TestInternetSocket, bind)
+{
+    socket->open((NetworkStack *)&stack);
+    EXPECT_EQ(socket->bind("127.0.0.1", 80), NSAPI_ERROR_OK);
+}
+
+TEST_F(TestInternetSocket, bind_nullstring)
+{
+    socket->open((NetworkStack *)&stack);
+    EXPECT_EQ(socket->bind(NULL, 80), NSAPI_ERROR_OK);
+}
+
+// setsockopt and getsockopt are really just calling the underlying stack functions
 
 TEST_F(TestInternetSocket, setsockopt_no_stack)
 {
-    socket->close();
     EXPECT_EQ(socket->setsockopt(0, 0, 0, 0), NSAPI_ERROR_NO_SOCKET);
+}
+
+TEST_F(TestInternetSocket, setsockopt)
+{
+    socket->open((NetworkStack *)&stack);
+    EXPECT_EQ(socket->setsockopt(0, 0, 0, 0), NSAPI_ERROR_UNSUPPORTED);
+}
+
+TEST_F(TestInternetSocket, getsockopt_no_stack)
+{
+    EXPECT_EQ(socket->getsockopt(0, 0, 0, 0), NSAPI_ERROR_NO_SOCKET);
+}
+
+TEST_F(TestInternetSocket, getsockopt)
+{
+    socket->open((NetworkStack *)&stack);
+    EXPECT_EQ(socket->getsockopt(0, 0, 0, 0), NSAPI_ERROR_UNSUPPORTED);
 }
 
 TEST_F(TestInternetSocket, sigio)
 {
     callback_is_called = false;
-    // I'm calling sigio() through the DEPRECATED method, just to get coverage for both.
-    // Not sure if this is wise at all, we should not aim for 100%
     socket->sigio(mbed::callback(my_callback));
-    socket->event();
+    socket->close(); // Trigger event;
     EXPECT_EQ(callback_is_called, true);
 }
