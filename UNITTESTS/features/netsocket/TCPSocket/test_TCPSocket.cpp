@@ -100,7 +100,7 @@ TEST_F(TestTCPSocket, connect_with_timeout)
     stack.return_value = NSAPI_ERROR_IN_PROGRESS;
     const SocketAddress a("127.0.0.1", 1024);
     eventFlagsStubNextRetval.push_back(osFlagsError); // Break the wait loop
-    socket->set_timeout(1);
+    socket->set_blocking(true);
     EXPECT_EQ(socket->connect(a), NSAPI_ERROR_IN_PROGRESS);
 }
 
@@ -170,7 +170,7 @@ TEST_F(TestTCPSocket, send_error_no_timeout)
 {
     socket->open((NetworkStack *)&stack);
     stack.return_value = NSAPI_ERROR_WOULD_BLOCK;
-    socket->set_timeout(0);
+    socket->set_blocking(false);
     EXPECT_EQ(socket->send(dataBuf, dataSize), NSAPI_ERROR_WOULD_BLOCK);
 }
 
