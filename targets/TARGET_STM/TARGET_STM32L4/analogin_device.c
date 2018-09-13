@@ -82,6 +82,9 @@ void analogin_init(analogin_t *obj, PinName pin)
     obj->handle.Init.DMAContinuousRequests = DISABLE;
     obj->handle.Init.Overrun               = ADC_OVR_DATA_OVERWRITTEN;      // DR register is overwritten with the last conversion result in case of overrun
     obj->handle.Init.OversamplingMode      = DISABLE;                       // No oversampling
+#if defined(ADC_CFGR_DFSDMCFG) &&defined(DFSDM1_Channel0)
+    obj->handle.Init.DFSDMConfig           = 0;
+#endif
 
     // Enable ADC clock
     __HAL_RCC_ADC_CLK_ENABLE();
