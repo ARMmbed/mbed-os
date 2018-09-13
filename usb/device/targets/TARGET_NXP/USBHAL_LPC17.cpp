@@ -409,7 +409,7 @@ void USBPhyHw::init(USBPhyEvents *events)
     LPC_PINCON->PINSEL4 |= 0x00040000;
 
     // Connect must be low for at least 2.5uS
-    wait(0.3);
+    wait_ms(300);
 
     // Disable control endpoints
     SIEsetEndpointStatus(EP0IN, SIE_SES_DA);

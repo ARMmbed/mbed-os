@@ -707,7 +707,7 @@ bool USBMouseKeyboard::doubleClick()
         _mutex.unlock();
         return false;
     }
-    wait(0.1);
+    wait_ms(100);
     bool ret = click(MOUSE_LEFT);
 
     _mutex.unlock();
@@ -722,7 +722,7 @@ bool USBMouseKeyboard::click(uint8_t button)
         _mutex.unlock();
         return false;
     }
-    wait(0.01);
+    wait_ms(10);
     bool ret = update(0, 0, 0, 0);
 
     _mutex.unlock();
