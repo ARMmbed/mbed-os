@@ -127,7 +127,7 @@ public:
 
 protected:
     /*
-    * Get device descriptor. Warning: this method has to store the length of the report descriptor in reportLength.
+    * Get device descriptor
     *
     * @returns pointer to the device descriptor
     */
