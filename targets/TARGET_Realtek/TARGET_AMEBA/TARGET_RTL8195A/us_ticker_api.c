@@ -51,6 +51,7 @@ static int if_us_ticker_disable_read = 0;
 void rtw_us_ticker_disable_read(void)
 {
     if_us_ticker_disable_read = 1;
+    us_ticker_free();
 }
 
 void _us_ticker_irq_handler(void *Data)
@@ -98,26 +99,21 @@ void us_ticker_free(void)
     if_us_ticker_timer_inited = 0;
 }
 
-
 static uint32_t tick_cnt;
 static uint32_t before_tick_cnt = 0;
 
 uint32_t us_ticker_read(void)
 {
-    core_util_critical_section_enter();
+    tick_cnt = HalTimerOp.HalTimerReadCount(US_SYS_TIM_ID);
 
-    if (if_us_ticker_disable_read != 1) {
-        tick_cnt = HalTimerOp.HalTimerReadCount(US_SYS_TIM_ID);
+    if (if_us_ticker_disable_read == 0) {
         tick_cnt = 0xffffffff - tick_cnt;
         before_tick_cnt = tick_cnt;
+        return tick_cnt;
     } else {
-        tick_cnt = before_tick_cnt;
+        if_us_ticker_disable_read = 0;
+        return before_tick_cnt;
     }
-    if_us_ticker_disable_read = 0;
-
-    core_util_critical_section_exit();
-
-    return tick_cnt;
 }
 
 uint32_t us_TICK_TO_US(uint32_t cur_tick)
@@ -134,17 +130,19 @@ uint32_t us_TICK_TO_US(uint32_t cur_tick)
     return ((uint32_t)us_tick);
 }
 
+
+static uint32_t cur_time_us;
+static uint32_t time_def;
+
 void us_ticker_set_interrupt(timestamp_t timestamp) 
 {
-    static uint32_t cur_time_us;
-    static uint32_t time_def;
-
     core_util_critical_section_enter();
 
     if (timestamp == 0) {
         time_def = TIMER_TICK_US;
     } else {
         cur_time_us = us_ticker_read();
+
         if ((uint32_t)timestamp >= cur_time_us) {
             time_def = (uint32_t)timestamp - cur_time_us;
         } else {

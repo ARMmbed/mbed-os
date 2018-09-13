@@ -43,7 +43,6 @@ static TIMER_ADAPTER TimerAdapter;
 extern HAL_TIMER_OP HalTimerOp;
 extern HAL_TIMER_OP_EXT HalTimerOpExt;
 
-static int if_lp_ticker_fire_interrupt = 0;
 static int if_lp_dis_irq = 0;
 static int lp_ticker_timer_inited = 0;
 
@@ -158,16 +157,15 @@ void lp_ticker_free(void)
  * }
  * @endcode
  */
+
+static uint32_t tick_cnt;
+
 uint32_t lp_ticker_read(void)
 {
-    static uint32_t tick_cnt;
-
-    core_util_critical_section_enter();
-
+    //core_util_critical_section_enter();
     tick_cnt = HalTimerOp.HalTimerReadCount(LP_SYS_TIM_ID);
-    tick_cnt = 0xffffffff - tick_cnt;   // it's a down counter
-
-    core_util_critical_section_exit();
+    tick_cnt = 0xffffffff - tick_cnt;
+    //core_util_critical_section_exit();
 
     return tick_cnt;
 }
@@ -186,17 +184,19 @@ uint32_t lp_TICK_TO_US(uint32_t cur_tick)
     return ((uint32_t)us_tick);
 }
 
+
+static uint32_t cur_time_us;
+static uint32_t time_def;
+
 void lp_ticker_set_interrupt(timestamp_t timestamp) 
 {
-    static uint32_t cur_time_us;
-    static uint32_t time_def;
-
     core_util_critical_section_enter();
 
     if (timestamp == 0) {
         time_def = TIMER_TICK_US;
     } else {
         cur_time_us = lp_ticker_read();
+
         if ((uint32_t)timestamp >= cur_time_us) {
             time_def = (uint32_t)timestamp - cur_time_us;
         } else {

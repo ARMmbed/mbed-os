@@ -16,6 +16,7 @@
 
 #include "sleep_api.h"
 #include "sleep_ex_api.h"
+#include "mbed_interface.h"
 
 #if DEVICE_SLEEP
 
@@ -78,16 +79,9 @@ static int if_ready_deepsleep = 0;
 
 void hal_sleep(void)
 {
-    if (if_ready_deepsleep) {
-        if_ready_sleep = cmsis_ready_to_sleep();
-        if (if_ready_sleep) {
-            sleep_ex_selective(SLEEP_WAKEUP_BY_GTIMER |
-                               SLEEP_WAKEUP_BY_GPIO_INT, 0, 1, 0);
-        }
-    }
-
-    if_ready_sleep = 0;
-    if_ready_deepsleep = 0;
+    __DSB();
+    __WFI();
+    __ISB();
 }
 
 /** Send the microcontroller to deep sleep
@@ -104,7 +98,18 @@ void hal_deepsleep(void)
 {
     if_ready_deepsleep = 1;
     rtw_us_ticker_disable_read();
-    hal_sleep();
+
+    if (if_ready_deepsleep) {
+        if_ready_sleep = cmsis_ready_to_sleep();
+
+        if (if_ready_sleep) {
+            sleep_ex_selective(SLEEP_WAKEUP_BY_GTIMER |
+                               SLEEP_WAKEUP_BY_GPIO_INT, 0, 1, 0);
+            if_ready_sleep = 0;
+        }
+
+        if_ready_deepsleep = 0;
+    }
 }
 /**@}*/
 
