@@ -66,6 +66,9 @@ using namespace mbed;
  */
 #define DOWN_LINK                                   1
 
+#define PORT_FIELD_LEN                              1
+#define FHDR_LEN_WITHOUT_FOPTS                      7
+
 static void memcpy_convert_endianess(uint8_t *dst,
                                      const uint8_t *src,
                                      uint16_t size)
@@ -90,6 +93,7 @@ LoRaMac::LoRaMac()
       _is_nwk_joined(false),
       _can_cancel_tx(true),
       _continuous_rx2_window_open(false),
+      _dl_fport_available(true),
       _device_class(CLASS_A),
       _prev_qos_level(LORAWAN_DEFAULT_QOS),
       _demod_ongoing(false)
@@ -310,6 +314,13 @@ loramac_event_info_status_t LoRaMac::handle_join_accept_frame(const uint8_t *pay
             return LORAMAC_EVENT_INFO_STATUS_CRYPTO_FAIL;
         }
 
+        tr_debug("%s", trace_array(_params.keys.nwk_skey, 16));
+        tr_debug("%s", trace_array(_params.keys.app_skey, 16));
+        tr_debug("%s", trace_array(_params.keys.snwk_sintkey, 16));
+        tr_debug("%s", trace_array(_params.keys.nwk_senckey, 16));
+        tr_debug("%s", trace_array(decrypt_key, 16));
+
+
         _params.net_id = (uint32_t) _params.rx_buffer[payload_start + 3];
         _params.net_id |= ((uint32_t) _params.rx_buffer[payload_start + 4] << 8);
         _params.net_id |= ((uint32_t) _params.rx_buffer[payload_start + 5] << 16);
@@ -421,7 +432,7 @@ void LoRaMac::extract_data_and_mac_commands(const uint8_t *payload,
                                             Callback<void(loramac_mlme_confirm_t&)> confirm_handler)
 {
     uint8_t frame_len = 0;
-    uint8_t payload_start_index = 8 + fopts_len;
+    uint8_t payload_start_index = FHDR_LEN_WITHOUT_FOPTS + PORT_FIELD_LEN + fopts_len;
     uint8_t port = payload[payload_start_index++];
     frame_len = (size - 4) - payload_start_index;
 
@@ -495,8 +506,12 @@ bool LoRaMac::extract_mac_commands_only(const uint8_t *payload,
     if (fopts_len > 0) {
         uint8_t buffer[15];
 
+        unsigned pld_idx = _dl_fport_available ?
+                FHDR_LEN_WITHOUT_FOPTS + PORT_FIELD_LEN + fopts_len :
+                FHDR_LEN_WITHOUT_FOPTS + fopts_len;
+
         if (_params.server_type == LW1_1) {
-            if (0 != _lora_crypto.decrypt_payload(payload + 8, fopts_len,
+            if (0 != _lora_crypto.decrypt_payload(payload + pld_idx, fopts_len,
                                                   _params.keys.nwk_senckey, sizeof(_params.keys.nwk_senckey) * 8,
                                                   _params.dev_addr, DOWN_LINK,
                                                   _params.dl_frame_counter,
@@ -505,8 +520,11 @@ bool LoRaMac::extract_mac_commands_only(const uint8_t *payload,
                 _mcps_indication.status = LORAMAC_EVENT_INFO_STATUS_CRYPTO_FAIL;
                 return false;
             }
+
+            tr_debug("%s", trace_array(buffer, 15));
+            tr_debug("%s", buffer);
         } else {
-            memcpy(buffer, payload + 8, fopts_len);
+            memcpy(buffer, payload + pld_idx, fopts_len);
         }
 
         if (_mac_commands.process_mac_commands(buffer, 0, fopts_len,
@@ -535,7 +553,6 @@ void LoRaMac::handle_data_frame(const uint8_t *const payload,
                                 Callback<void(loramac_mlme_confirm_t&)> confirm_handler)
 {
     check_frame_size(size);
-
     bool is_multicast = false;
     loramac_frame_ctrl_t fctrl;
     multicast_params_t *cur_multicast_params;
@@ -548,13 +565,27 @@ void LoRaMac::handle_data_frame(const uint8_t *const payload,
     uint16_t fport = 0;
     uint16_t confFCnt = 0;
 
+    // always assume in the beginning that a downlink fport field is included
+    _dl_fport_available = true;
+
     address = payload[ptr_pos++];
     address |= ((uint32_t) payload[ptr_pos++] << 8);
     address |= ((uint32_t) payload[ptr_pos++] << 16);
     address |= ((uint32_t) payload[ptr_pos++] << 24);
 
     fctrl.value = payload[ptr_pos++];
-    fport = payload[7 + fctrl.bits.fopts_len];
+
+
+    int check_frm_len = size - (fctrl.bits.fopts_len + LORA_MAC_FRMPAYLOAD_OVERHEAD);
+
+    if (check_frm_len < 0) {
+        tr_debug("Port field was excluded in DOWNLINK");
+        _dl_fport_available = false;
+    }
+
+    if (_dl_fport_available) {
+        fport = payload[FHDR_LEN_WITHOUT_FOPTS + fctrl.bits.fopts_len];
+    }
 
     if (address != _params.dev_addr) {
         // check if Multicast is destined for us
@@ -587,14 +618,16 @@ void LoRaMac::handle_data_frame(const uint8_t *const payload,
         downlink_counter = _params.dl_frame_counter;
     }
 
-    app_payload_start_index = 8 + fctrl.bits.fopts_len;
+    app_payload_start_index = _dl_fport_available ?
+            FHDR_LEN_WITHOUT_FOPTS + PORT_FIELD_LEN + fctrl.bits.fopts_len :
+            FHDR_LEN_WITHOUT_FOPTS + fctrl.bits.fopts_len;
 
     if (_params.server_type == LW1_1) {
         if (_params.is_node_ack_requested && fctrl.bits.ack) {
             confFCnt = _mcps_confirmation.ul_frame_counter;
         }
         if (!is_multicast) {
-            if (fport != 0) {
+            if (_dl_fport_available && fport != 0) {
                 downlink_counter = _params.app_dl_frame_counter;
             } else {
                 nwk_skey = _params.keys.nwk_senckey;
@@ -698,9 +731,7 @@ void LoRaMac::handle_data_frame(const uint8_t *const payload,
         _mcps_indication.is_ack_recvd = fctrl.bits.ack;
     }
 
-    uint8_t frame_len = (size - 4) - app_payload_start_index;
-
-    if (frame_len > 0) {
+    if (check_frm_len > 0) {
         extract_data_and_mac_commands(payload, size, fctrl.bits.fopts_len,
                                       nwk_skey, app_skey, address,
                                       downlink_counter, rssi, snr,
