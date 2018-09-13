@@ -46,7 +46,7 @@ void increment_with_delay()
 {
     while (1) {
         counter++;
-        Thread::wait(500);
+        ThisThread::sleep_for(500);
     }
 }
 
@@ -111,7 +111,7 @@ void test_case_multi_threads_blocked()
     uint32_t ret = ef.set(FLAG_SIGNAL_DEC);
     TEST_ASSERT_FALSE(ret & osFlagsError);
 
-    Thread::wait(100);
+    ThisThread::sleep_for(100);
 
     count = mbed_stats_thread_get_each(stats, MAX_THREAD_STATS);
     TEST_ASSERT_EQUAL(1, (count - old_count));

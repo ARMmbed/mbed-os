@@ -518,7 +518,7 @@ static void udp_receiver_thread(SInfo *info)
     int *packetSizes = info->getPacketSizeArray();
     nsapi_size_or_error_t ret = 0;
 
-    info->setReceiverThreadId(Thread::gettid());
+    info->setReceiverThreadId(ThisThread::get_id());
 
     while (i < n) {
         ret = static_cast<UDPSocket &>(info->socket()).recvfrom(&addr, info->getReceiveBuffer() + received, info->getDataCount() - received);
@@ -531,7 +531,7 @@ static void udp_receiver_thread(SInfo *info)
             i++;
             info->setRecvTotal(info->getRecvTotal() + ret);
         } else if (ret == NSAPI_ERROR_WOULD_BLOCK) {
-            Thread::signal_wait(SIGNAL_SIGIO);
+            ThisThread::flags_wait_all(SIGNAL_SIGIO);
         } else {
             handle_nsapi_size_or_error("Thread: UDPSocket::recvfrom()", ret);
             return;
@@ -660,7 +660,7 @@ static void tcp_receiver_thread(SInfo *info)
     int bufferSize = info->getDataCount();
     nsapi_size_or_error_t ret = 0;
 
-    info->setReceiverThreadId(Thread::gettid());
+    info->setReceiverThreadId(ThisThread::get_id());
 
     for (i = 0; i < n; i++) {
         received = 0;
@@ -673,7 +673,7 @@ static void tcp_receiver_thread(SInfo *info)
                 received += ret;
                 info->setRecvTotal(info->getRecvTotal() + ret);
             } else if (ret == NSAPI_ERROR_WOULD_BLOCK) {
-                Thread::signal_wait(SIGNAL_SIGIO);
+                ThisThread::flags_wait_all(SIGNAL_SIGIO);
             } else {
                 handle_nsapi_size_or_error("Thread: TCPSocket::recv()", ret);
                 return;
@@ -729,7 +729,7 @@ static nsapi_size_or_error_t tcp_send_command_handler(SInfo *info, int argc, cha
     void *data;
     nsapi_size_or_error_t ret = 0;
 
-    info->setSenderThreadId(Thread::gettid());
+    info->setSenderThreadId(ThisThread::get_id());
 
     if (cmd_parameter_int(argc, argv, "--data_len", &len)) {
         data = malloc(len);
@@ -809,7 +809,7 @@ static void bg_traffic_thread(SInfo *info)
     char sbuffer[data_len + 1] = "dummydata_";
     char rbuffer[data_len + 1];
     int scount, rtotal = 0;
-    info->setSenderThreadId(Thread::gettid());
+    info->setSenderThreadId(ThisThread::get_id());
 
     for (;;) {
         if (!info->available()) {

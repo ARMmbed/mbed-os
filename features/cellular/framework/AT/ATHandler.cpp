@@ -23,7 +23,7 @@
 #include "FileHandle.h"
 #include "mbed_wait_api.h"
 #include "mbed_debug.h"
-#include "rtos/Thread.h"
+#include "rtos/ThisThread.h"
 #include "Kernel.h"
 #include "CellularUtil.h"
 
@@ -1026,7 +1026,7 @@ void ATHandler::cmd_start(const char *cmd)
 {
 
     if (_at_send_delay) {
-        rtos::Thread::wait_until(_last_response_stop + _at_send_delay);
+        rtos::ThisThread::sleep_until(_last_response_stop + _at_send_delay);
     }
 
     if (_last_err != NSAPI_ERROR_OK) {

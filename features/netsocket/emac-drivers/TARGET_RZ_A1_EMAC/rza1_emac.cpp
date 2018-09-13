@@ -166,7 +166,7 @@ void RZ_A1_EMAC::recv_task(void) {
     int            cnt;
 
     while (1) {
-        rtos::Thread::signal_wait(1);
+        rtos::ThisThread::flags_wait_all(1);
         for (cnt = 0; cnt < 16; cnt++) {
             recv_size = ethernet_receive();
             if (recv_size == 0) {

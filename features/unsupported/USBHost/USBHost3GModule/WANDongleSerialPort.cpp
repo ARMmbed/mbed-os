@@ -90,7 +90,7 @@ int WANDongleSerialPort::readPacket()
   {
     //lock_rx.unlock();
     USB_ERR("host->bulkRead() returned %d", res);
-    Thread::wait(100);
+    ThisThread::sleep_for(100);
     return -1;
   }
   return 0;
@@ -123,7 +123,7 @@ int WANDongleSerialPort::writePacket()
   {
     //lock_tx.unlock();
     USB_ERR("host->bulkWrite() returned %d", res);
-    Thread::wait(100);
+    ThisThread::sleep_for(100);
     return -1;
   }
   return 0;

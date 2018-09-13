@@ -66,7 +66,7 @@ bool manipulate_protected_zone(const int thread_delay) {
     led = !led;
     change_counter++;
     print_char('.');
-    Thread::wait(thread_delay);
+    ThisThread::sleep_for(thread_delay);
 
     changing_counter = false;
     stdio_mutex.unlock();   // UNLOCK
@@ -94,7 +94,7 @@ int main() {
 
     while (true) {
         // Thread 1 action
-        Thread::wait(t1_delay);
+        ThisThread::sleep_for(t1_delay);
         manipulate_protected_zone(t1_delay);
         if (change_counter >= SIGNALS_TO_EMIT or mutex_defect == true) {
             t2.terminate();
