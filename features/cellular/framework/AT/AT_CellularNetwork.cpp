@@ -279,10 +279,7 @@ nsapi_error_t AT_CellularNetwork::activate_context()
     nsapi_error_t err = NSAPI_ERROR_OK;
 
     // try to find or create context with suitable stack
-    if (get_context()) {
-        // try to authenticate user before activating or modifying context
-        err = do_user_authentication();
-    } else {
+    if (!get_context()) {
         err = NSAPI_ERROR_NO_CONNECTION;
     }
 
@@ -315,6 +312,12 @@ nsapi_error_t AT_CellularNetwork::activate_context()
     _at.resp_stop();
 
     if (!_is_context_active) {
+        // authenticate before activating or modifying context
+        if (do_user_authentication() != NSAPI_ERROR_OK) {
+            tr_error("Cellular authentication failed!");
+            return _at.unlock_return_error();
+        }
+
         tr_info("Activate PDP context %d", _cid);
         _at.cmd_start("AT+CGACT=1,");
         _at.write_int(_cid);
