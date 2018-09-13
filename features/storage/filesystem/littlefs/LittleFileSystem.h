@@ -24,6 +24,8 @@
 
 /**
  * LittleFileSystem, a little filesystem
+ *
+ * Synchronization level: Thread safe
  */
 class LittleFileSystem : public mbed::FileSystem {
 public:
