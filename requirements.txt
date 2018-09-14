@@ -17,4 +17,4 @@ future>=0.16.0
 six>=1.11.0
 git+https://github.com/armmbed/manifest-tool.git@v1.4.5
 mbed-cloud-sdk==2.0.0
-icetea>=1.0.1,<2
+icetea>=1.0.2,<2
