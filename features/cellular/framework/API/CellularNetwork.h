@@ -18,8 +18,9 @@
 #ifndef CELLULAR_NETWORK_H_
 #define CELLULAR_NETWORK_H_
 
-#include "NetworkInterface.h"
 #include "CellularList.h"
+#include "Callback.h"
+#include "nsapi_types.h"
 
 namespace mbed {
 
@@ -35,7 +36,7 @@ const int MAX_OPERATOR_NAME_SHORT = 8;
  *
  *  An abstract interface for connecting to a network and getting information from it.
  */
-class CellularNetwork : public NetworkInterface {
+class CellularNetwork {
 protected:
     // friend of CellularDevice so that it's the only way to close/delete this class.
     friend class CellularDevice;
@@ -94,28 +95,6 @@ public:
         Attached,
     };
 
-    /*  whether the additional exception reports are allowed to be sent when the maximum uplink rate is reached */
-    enum RateControlExceptionReports {
-        NotAllowedToBeSent = 0,
-        AllowedToBeSent
-    };
-
-    /* specifies the time unit to be used for the maximum uplink rate */
-    enum RateControlUplinkTimeUnit {
-        Unrestricted = 0,
-        Minute,
-        Hour,
-        Day,
-        Week
-    };
-
-    /* authentication type when activating or modifying the pdp context */
-    enum AuthenticationType {
-        NOAUTH = 0,
-        PAP,
-        CHAP
-    };
-
     enum RadioAccessTechnology {
         RAT_GSM,
         RAT_GSM_COMPACT,
@@ -158,51 +137,6 @@ public:
     };
 
     typedef CellularList<operator_t> operList_t;
-
-    /* PDP Context information */
-    struct pdpcontext_params_t {
-        char apn[MAX_ACCESSPOINT_NAME_LENGTH + 1];
-        char local_addr[MAX_IPV6_ADDR_IN_IPV4LIKE_DOTTED_FORMAT + 1];
-        char local_subnet_mask[MAX_IPV6_ADDR_IN_IPV4LIKE_DOTTED_FORMAT + 1];
-        char gateway_addr[MAX_IPV6_ADDR_IN_IPV4LIKE_DOTTED_FORMAT + 1];
-        char dns_primary_addr[MAX_IPV6_ADDR_IN_IPV4LIKE_DOTTED_FORMAT + 1];
-        char dns_secondary_addr[MAX_IPV6_ADDR_IN_IPV4LIKE_DOTTED_FORMAT + 1];
-        char p_cscf_prim_addr[MAX_IPV6_ADDR_IN_IPV4LIKE_DOTTED_FORMAT + 1];
-        char p_cscf_sec_addr[MAX_IPV6_ADDR_IN_IPV4LIKE_DOTTED_FORMAT + 1];
-        int cid;
-        int bearer_id;
-        int im_signalling_flag;
-        int lipa_indication;
-        int ipv4_mtu;
-        int wlan_offload;
-        int local_addr_ind;
-        int non_ip_mtu;
-        int serving_plmn_rate_control_value;
-        pdpcontext_params_t *next;
-
-        pdpcontext_params_t()
-        {
-            apn[0] = '\0';
-            local_addr[0] = '\0';
-            local_subnet_mask[0] = '\0';
-            gateway_addr[0] = '\0';
-            dns_primary_addr[0] = '\0';
-            dns_secondary_addr[0] = '\0';
-            p_cscf_prim_addr[0] = '\0';
-            p_cscf_sec_addr[0] = '\0';
-            cid = -1;
-            bearer_id = -1;
-            im_signalling_flag = -1;
-            lipa_indication = -1;
-            ipv4_mtu = -1;
-            wlan_offload = -1;
-            local_addr_ind = -1;
-            non_ip_mtu = -1;
-            serving_plmn_rate_control_value = -1;
-            next = NULL;
-        }
-    };
-    typedef CellularList<pdpcontext_params_t> pdpContextList_t;
 
     struct operator_names_t {
         char numeric[MAX_OPERATOR_NAME_SHORT + 1];
@@ -248,14 +182,6 @@ public:
         }
     };
 
-    /** Does all the needed initializations that can fail
-     *
-     *  @remark         must be called immediately after constructor.
-     *  @return         NSAPI_ERROR_OK on success
-     *                  NSAPI_ERROR_NO_MEMORY on memory failure
-     */
-    virtual nsapi_error_t init() = 0;
-
     /** Request registering to network.
      *
      *  @param plmn     format is in numeric format or 0 for automatic network registration
@@ -286,38 +212,12 @@ public:
     virtual nsapi_error_t set_registration_urc(RegistrationType type, bool on) = 0;
 
 
-    /** Set the cellular network APN and credentials
-     *
-     *  @param apn      Optional name of the network to connect to
-     *  @param username Optional username for the APN
-     *  @param password Optional password fot the APN
-     *  @return         NSAPI_ERROR_OK on success
-     *                  NSAPI_ERROR_NO_MEMORY on memory failure
-     */
-    virtual nsapi_error_t set_credentials(const char *apn,
-                                          const char *username = 0, const char *password = 0) = 0;
-
-    /** Set the cellular network APN and credentials
-     *
-     *  @param apn      Name of the network to connect to
-     *  @param type     Authentication type to use
-     *  @param username Optional username for the APN
-     *  @param password Optional password fot the APN
-     *  @return         NSAPI_ERROR_OK on success
-     *                  NSAPI_ERROR_NO_MEMORY on memory failure
-     */
-    virtual nsapi_error_t set_credentials(const char *apn, AuthenticationType type,
-                                          const char *username = 0, const char *password = 0) = 0;
-
     /** Request attach to network.
      *
-     *  @deprecated Parameter timeout will be deprecated. Use mbed-os/features/cellular/framework/API/CellularDevice.h set_timeout instead.
-     *  @param timeout  milliseconds to wait for attach response
      *  @return         NSAPI_ERROR_OK on success
      *                  NSAPI_ERROR_DEVICE_ERROR on failure
      */
-    MBED_DEPRECATED_SINCE("mbed-os-5.9", "Parameter timeout will be deprecated. Use mbed-os/features/cellular/framework/API/CellularDevice.h set_timeout instead.")
-    virtual nsapi_error_t set_attach(int timeout = 10 * 1000) = 0;
+    virtual nsapi_error_t set_attach() = 0;
 
     /** Request attach status from network.
      *
@@ -333,27 +233,6 @@ public:
      *                  NSAPI_ERROR_DEVICE_ERROR on failure
      */
     virtual nsapi_error_t detach() = 0;
-
-    /** Get APN rate control.
-     *
-     *  @remark optional params are not updated if not received from network, so use good defaults
-     *  @param reports       Additional exception reports at maximum rate reached are allowed to be sent [optional]
-     *  @param time_unit     Uplink time unit with values 0=unrestricted, 1=minute, 2=hour, 3=day, 4=week [optional]
-     *  @param uplink_rate   Maximum number of messages per timeUnit [optional]
-     *  @return              NSAPI_ERROR_OK on success
-     *                       NSAPI_ERROR_DEVICE_ERROR on case of failure
-     */
-    virtual nsapi_error_t get_rate_control(CellularNetwork::RateControlExceptionReports &reports,
-                                           CellularNetwork::RateControlUplinkTimeUnit &time_unit, int &uplink_rate) = 0;
-
-    /** Get backoff timer value
-     *
-     *  @param backoff_timer Backoff timer value associated with PDP APN in seconds
-     *  @return              NSAPI_ERROR_OK on success
-     *                       NSAPI_ERROR_PARAMETER if no access point is set or found when activating context
-     *                       NSAPI_ERROR_DEVICE_ERROR on failure
-     */
-    virtual nsapi_error_t get_apn_backoff_timer(int &backoff_timer) = 0;
 
     /** Sets radio access technology.
      *
@@ -394,70 +273,6 @@ public:
      */
     virtual nsapi_error_t get_ciot_optimization_config(Supported_UE_Opt &supported_opt,
                                                        Preferred_UE_Opt &preferred_opt) = 0;
-
-    /** Start the interface. Attempts to connect to a cellular network.
-     *
-     *  @return              NSAPI_ERROR_OK on success
-     *                       NSAPI_ERROR_NO_CONNECTION if fails to find suitable context to activate or activation failed (if not already activated)
-     *                       NSAPI_ERROR_UNSUPPORTED if NetworkStack was not found or cellular device does not support authentication
-     *                       NSAPI_ERROR_AUTH_FAILURE if password and username were provided and authentication to network failed
-     *                       Also if PPP mode
-     *                       NSAPI_ERROR_DEVICE_ERROR on failure and check more error from nsapi_ppp_connect(...)
-     */
-    virtual nsapi_error_t connect() = 0;
-
-    /** Start the interface. Attempts to connect to a cellular network.
-     *
-     *  @param apn      Optional name of the network to connect to
-     *  @param username Optional username for your APN
-     *  @param password Optional password for your APN
-     *  @return              NSAPI_ERROR_OK on success
-     *                       NSAPI_ERROR_NO_CONNECTION if fails to find suitable context to activate or activation failed (if not already activated)
-     *                       NSAPI_ERROR_UNSUPPORTED if NetworkStack was not found
-     *                       NSAPI_ERROR_AUTH_FAILURE if password and username were provided and authentication to network failed
-     *                       NSAPI_ERROR_NO_MEMORY on memory failure
-     *                       Also if PPP mode
-     *                       NSAPI_ERROR_DEVICE_ERROR on failure and check more error from nsapi_ppp_connect(...)
-     */
-    virtual nsapi_error_t connect(const char *apn,
-                                  const char *username = 0, const char *password = 0) = 0;
-
-    /** Finds the correct PDP context and activates it. If correct PDP context is not found, one is created.
-     *  Given APN (or not given) and stack type (IPv4/IPv6/dual) are influencing when finding the PDP context.
-     *
-     *  @return              NSAPI_ERROR_OK on success
-     *                       NSAPI_ERROR_NO_CONNECTION if fails to find suitable context to activate or activation failed (if not already activated)
-     *                       NSAPI_ERROR_UNSUPPORTED if NetworkStack was not found
-     *                       NSAPI_ERROR_AUTH_FAILURE if password and username were provided and authentication to network failed
-     */
-    virtual nsapi_error_t activate_context() = 0;
-
-    /**
-     * Set the pdn type to be used
-     *
-     * @param stack_type the stack type to be used.
-     *
-     * @return              NSAPI_ERROR_OK on success
-     *                      NSAPI_ERROR_PARAMETER if modem does not support the given stack_type
-     */
-    virtual nsapi_error_t set_stack_type(nsapi_ip_stack_t stack_type) = 0;
-
-    /**
-     * Get the pdn type in use
-     *
-     * @return stack type
-     */
-    virtual nsapi_ip_stack_t get_stack_type() = 0;
-
-    /** Get the relevant information for an active non secondary PDP context.
-     *
-     *  @remark optional params are not updated if not received from network.
-     *  @param params_list   reference to linked list, which is filled on successful call
-     *  @return              NSAPI_ERROR_OK on success
-     *                       NSAPI_ERROR_NO_MEMORY on memory failure
-     *                       NSAPI_ERROR_DEVICE_ERROR on other failures
-     */
-    virtual nsapi_error_t get_pdpcontext_params(pdpContextList_t &params_list) = 0;
 
     /** Get extended signal quality parameters.
      *
@@ -511,14 +326,6 @@ public:
      */
     virtual nsapi_connection_status_t get_connection_status() const = 0;
 
-    /** Set blocking status of connect() which by default should be blocking
-     *
-     *  @param blocking true if connect is blocking
-     *  @return         NSAPI_ERROR_OK
-     *                  if PPP mode check errors from nsapi_ppp_set_blocking(...)
-     */
-    virtual nsapi_error_t set_blocking(bool blocking) = 0;
-
     /** Read operator names
      *
      *  @param op_names      on successful return contains linked list of operator names.
@@ -527,6 +334,12 @@ public:
      *                       NSAPI_ERROR_DEVICE_ERROR on other failures
      */
     virtual nsapi_error_t get_operator_names(operator_names_list &op_names) = 0;
+
+    /** Check if there is any PDP context active
+     *
+     *  @return true is any context is active, false otherwise or in case of error
+     */
+    virtual bool is_active_context() = 0;
 
     /** Gets current network registration parameters:
      *  type, status, access technology, cell_id, lac, active_time, periodic_tau.

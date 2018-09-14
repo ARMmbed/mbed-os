@@ -146,7 +146,7 @@ nsapi_error_t CellularConnectionFSM::init()
     _state = STATE_INIT;
     _next_state = STATE_INIT;
 
-    return _network->init();
+    return NSAPI_ERROR_OK;
 }
 
 bool CellularConnectionFSM::power_on()
@@ -447,7 +447,7 @@ void CellularConnectionFSM::state_device_ready()
         }
     } else {
         if (_retry_count == 0) {
-            (void)_power->set_device_ready_urc_cb(mbed::callback(this, &CellularConnectionFSM::ready_urc_cb));
+            _power->set_device_ready_urc_cb(mbed::callback(this, &CellularConnectionFSM::ready_urc_cb));
         }
         retry_state_or_fail();
     }
@@ -528,26 +528,26 @@ void CellularConnectionFSM::state_activating_pdp_context()
 {
     _cellularDevice->set_timeout(TIMEOUT_CONNECT);
     tr_info("Activate PDP Context (timeout %d ms)", TIMEOUT_CONNECT);
-    if (_network->activate_context() == NSAPI_ERROR_OK) {
+   /* if (_network->activate_context() == NSAPI_ERROR_OK) {
         // when using modems stack connect is synchronous
         _next_state = STATE_CONNECTING_NETWORK;
     } else {
         retry_state_or_fail();
-    }
+    }*/
 }
 
 void CellularConnectionFSM::state_connect_to_network()
 {
     _cellularDevice->set_timeout(TIMEOUT_CONNECT);
     tr_info("Connect to cellular network (timeout %d ms)", TIMEOUT_CONNECT);
-    if (_network->connect() == NSAPI_ERROR_OK) {
+    /*if (_network->connect() == NSAPI_ERROR_OK) {
         _cellularDevice->set_timeout(TIMEOUT_NETWORK);
         tr_debug("Connected to cellular network, set at timeout (timeout %d ms)", TIMEOUT_NETWORK);
         // when using modems stack connect is synchronous
         _next_state = STATE_CONNECTED;
     } else {
         retry_state_or_fail();
-    }
+    }*/
 }
 
 void CellularConnectionFSM::state_connected()
@@ -717,11 +717,6 @@ CellularDevice *CellularConnectionFSM::get_device()
 CellularSIM *CellularConnectionFSM::get_sim()
 {
     return _sim;
-}
-
-NetworkStack *CellularConnectionFSM::get_stack()
-{
-    return _cellularDevice->get_stack();
 }
 
 void CellularConnectionFSM::set_retry_timeout_array(uint16_t timeout[], int array_len)

@@ -20,7 +20,7 @@
 #include "EventQueue.h"
 #include "CellularNetwork.h"
 #include "CellularCommon.h"
-#include "Semaphore.h"
+#include "PlatformMutex.h"
 
 namespace rtos {
     class Thread;
@@ -28,33 +28,28 @@ namespace rtos {
 
 namespace mbed {
 
-class UARTSerial;
 class CellularPower;
 class CellularSIM;
 class CellularDevice;
 
-const int MAX_PIN_SIZE = 8;
 const int RETRY_ARRAY_SIZE = 10;
 
 /** CellularStateMachine class
  *
- *  Finite State Machine for connecting to cellular network.
- *  By default automatic reconnecting is on. This means that when FSM gets the disconnected callback
- *  it will try to connect automatically. Application can toggle this behavior with method set_automatic_reconnect(...)
+ *  Finite State Machine for attaching to cellular network. Used by CellularDevice.
  */
 class CellularStateMachine {
-public:
+private:
+    // friend of CellularDevice so that it's the only way to close/delete this class.
+    friend class CellularDevice;
     /** Constructor
      *
      * @param device    reference to CellularDevice
      * @param queue     reference to queue used in state transitions
-     * @param power     power needed in first state. Can be also given with set_power but must be given before
-     *                  calling run_to_state. Transfers ownership to this class.
      */
-    CellularStateMachine(CellularDevice &device, events::EventQueue &queue, CellularPower *power);
+    CellularStateMachine(CellularDevice &device, events::EventQueue &queue);
     ~CellularStateMachine();
 
-public:
     /** Cellular connection states
      */
     enum CellularState {
@@ -65,60 +60,17 @@ public:
         STATE_REGISTERING_NETWORK,
         STATE_MANUAL_REGISTERING_NETWORK,
         STATE_ATTACHING_NETWORK,
-        STATE_ACTIVATING_PDP_CONTEXT,
-        STATE_CONNECTING_NETWORK,
-        STATE_CONNECTED,
-        STATE_DISCONNECTING,
         STATE_MAX_FSM_STATE
     };
 
-public:
-
-    /** Set the SIM interface. Transfers ownership to this class.
+    /** Register cellular specific for status changes
      *
-     * @param sim   sim interface to be used to access sim services
-     */
-    void set_sim(CellularSIM* sim);
-
-    /** Set the network interface. Transfers ownership to this class.
-     *
-     *  @param nw   network interface to be used for network services
-     */
-    void set_network(CellularNetwork* nw);
-
-    /** Set the power interface. Transfers ownership to this class.
-     *
-     *  @param pwr  power interface for power handling
-     */
-    void set_power(CellularPower* pwr);
-
-    /** By default run_to_state is synchronous. This method can toggle between sync/async.
-     *
-     */
-    void set_blocking(bool blocking);
-
-    /** Disconnects from the cellular network.
-     *
-     *  @return NSAPI_ERROR_OK on success, negative code in case of failure
-     */
-    nsapi_error_t disconnect();
-
-    /** By default automatic reconnecting is on. This means that when FSM gets the disconnected callback
-     *  it will try to connect automatically. By this method application can toggle this behavior.
-     *
-     *  @param do_reconnect true for automatic reconnect, false to not reconnect automatically
-     */
-    void set_automatic_reconnect(bool do_reconnect);
-
-    /** Register callback for status reporting
-     *
-     *  The specified status callback function will be called on status changes
-     *  on the network. The parameters on the callback are the event type and
-     *  event-type dependent reason parameter.
+     *  The specified status callback function will be called on device status changes.
+     *  The parameters on the callback are the event type and event-type dependent reason parameter.
      *
      *  @param status_cb The callback for status changes
      */
-    void attach(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb);
+    void set_cellular_callback(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb);
 
     /** Start event queue dispatching
      *  @return see nsapi_error_t, 0 on success
@@ -134,16 +86,6 @@ public:
      *  @return see nsapi_error_t, 0 on success
      */
     nsapi_error_t run_to_state(CellularState state);
-
-    /** Set the Cellular network credentials
-     *
-     *  Please check documentation of connect() for default behaviour of APN settings.
-     *
-     *  @param apn      Access point name
-     *  @param uname    optionally, Username
-     *  @param pwd      optionally, password
-     */
-    nsapi_error_t set_credentials(const char *apn, const char *uname = 0, const char *pwd = 0);
 
     /** Set cellular device SIM PIN code
      *  @param sim_pin PIN code
@@ -176,6 +118,23 @@ public:
      *  @return event queue
      */
     events::EventQueue *get_queue() const;
+
+    /** Get the current status of the state machine. Thread safe.
+     *
+     *  @param  current_state
+     *  @param  target_state
+     *  @return true if state machine is running, false is not
+     *
+     */
+    bool get_current_status(CellularStateMachine::CellularState &current_state, CellularStateMachine::CellularState &target_state);
+
+    /** CellularDevice updates about network events and cellular events
+     *
+     *  @param ev   Event type
+     *  @param ptr  Event type specific data
+     */
+    void cellular_event_changed(nsapi_event_t ev, intptr_t ptr);
+
 private:
     bool power_on();
     bool open_sim();
@@ -191,18 +150,14 @@ private:
     void state_registering();
     void state_manual_registering_network();
     void state_attaching();
-    void state_activating_pdp_context();
-    void state_connect_to_network();
     void enter_to_state(CellularState state);
     void retry_state_or_fail();
-    void network_callback(nsapi_event_t ev, intptr_t ptr);
     void continue_from_state(CellularState state);
     bool is_registered_to_plmn();
-
-private:
     void report_failure(const char *msg);
     void event();
     void ready_urc_cb();
+    void pre_event(CellularState state);
 
     CellularDevice &_cellularDevice;
     CellularState _state;
@@ -217,7 +172,7 @@ private:
     events::EventQueue &_queue;
     rtos::Thread *_queue_thread;
 
-    char _sim_pin[MAX_PIN_SIZE + 1];
+    const char *_sim_pin;
     int _retry_count;
     int _start_time;
     int _event_timeout;
@@ -228,11 +183,11 @@ private:
     const char *_plmn;
     bool _command_success;
     bool _plmn_network_found;
+    bool _is_retry;
     cell_callback_data_t _cb_data;
     nsapi_event_t _current_event;
-    bool _automatic_reconnect;
-    bool _blocking;
-    rtos::Semaphore _stm_semaphore;
+    bool _active_context; // Is there any active context?
+    PlatformMutex _mutex;
 };
 
 } // namespace

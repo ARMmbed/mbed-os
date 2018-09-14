@@ -16,6 +16,8 @@
  */
 
 #include "CellularDevice.h"
+#include "CellularContext.h"
+#include "CellularSIM.h"
 #include "CellularUtil.h"
 #include "CellularLog.h"
 #include "CellularTargets.h"
@@ -31,7 +33,7 @@ namespace mbed {
 #ifdef CELLULAR_DEVICE
 MBED_WEAK CellularDevice *CellularDevice::get_default_instance()
 {
-    static events::EventQueue event_queue(4 * EVENTS_EVENT_SIZE);
+    static events::EventQueue event_queue(5 * EVENTS_EVENT_SIZE);
     static CELLULAR_DEVICE device(event_queue);
     return &device;
 }
@@ -42,10 +44,11 @@ MBED_WEAK CellularDevice *CellularDevice::get_default_instance()
 }
 #endif // CELLULAR_DEVICE
 
-CellularDevice::CellularDevice() : _error(NSAPI_ERROR_OK), _network_ref_count(0), _sms_ref_count(0),
-        _power_ref_count(0), _sim_ref_count(0), _info_ref_count(0), _is_connected(false),
-         _state_machine(0), _fh(0)
+CellularDevice::CellularDevice() : _network_ref_count(0), _sms_ref_count(0),_power_ref_count(0), _sim_ref_count(0),
+        _info_ref_count(0), _fh(0), _error(0), _state_machine(0), _nw(0)
 {
+    set_sim_pin(MBED_CONF_NSAPI_DEFAULT_CELLULAR_SIM_PIN);
+    set_plmn(MBED_CONF_NSAPI_DEFAULT_CELLULAR_PLMN);
 }
 
 CellularDevice::~CellularDevice()
@@ -59,138 +62,136 @@ void CellularDevice::stop()
     _state_machine->stop();
 }
 
-bool CellularDevice::is_connected() const
-{
-    return _is_connected;
-}
-
 events::EventQueue *CellularDevice::get_queue() const
 {
     return NULL;
 }
 
-nsapi_error_t CellularDevice::set_credentials(const char *apn, const char *uname, const char *pwd)
+CellularContext *CellularDevice::get_context_list() const {
+    return NULL;
+}
+
+FileHandle &CellularDevice::get_filehandle() const
 {
-    MBED_ASSERT(_state_machine);
-    return _state_machine->set_credentials(apn, uname, pwd);
+    return *_fh;
 }
 
 void CellularDevice::set_sim_pin(const char *sim_pin)
 {
-    MBED_ASSERT(_state_machine);
-    _state_machine->set_sim_pin(sim_pin);
-}
-
-nsapi_error_t CellularDevice::init_stm(FileHandle *fh)
-{
-    MBED_ASSERT(!_state_machine);
-
-    if (fh == NULL) {
-        return NSAPI_ERROR_PARAMETER;
+    if (sim_pin) {
+        strncpy(_sim_pin, sim_pin, sizeof(_sim_pin));
+        _sim_pin[sizeof(_sim_pin) - 1] = '\0';
+    } else {
+        memset(_sim_pin, 0, sizeof(_sim_pin));
     }
-    _fh = fh;
-
-    _state_machine = new CellularStateMachine(*this, *get_queue(), open_power(_fh));
-    _state_machine->attach(callback(this, &CellularDevice::network_callback));
-    _state_machine->set_sim(open_sim(_fh));
-    CellularNetwork *nw = open_network(_fh);
-    _state_machine->set_network(nw);
-
-    nsapi_error_t err = nw->init();
-    if (err != NSAPI_ERROR_OK) {
-        delete _state_machine;
-        _state_machine = NULL;
-    }
-
-    return err;
-}
-
-nsapi_error_t CellularDevice::start_dispatch() {
-    MBED_ASSERT(_state_machine);
-    return _state_machine->start_dispatch();
-}
-
-nsapi_error_t CellularDevice::set_device_ready()
-{
-    return _state_machine->run_to_state(CellularStateMachine::STATE_DEVICE_READY);
-}
-
-nsapi_error_t CellularDevice::set_sim_ready()
-{
-    return _state_machine->run_to_state(CellularStateMachine::STATE_SIM_PIN);
-}
-
-nsapi_error_t CellularDevice::register_to_network()
-{
-    return _state_machine->run_to_state(CellularStateMachine::STATE_REGISTERING_NETWORK);
-}
-
-nsapi_error_t CellularDevice::attach_to_network()
-{
-    return _state_machine->run_to_state(CellularStateMachine::STATE_ATTACHING_NETWORK);
-}
-
-nsapi_error_t CellularDevice::activate_context()
-{
-    return _state_machine->run_to_state(CellularStateMachine::STATE_ACTIVATING_PDP_CONTEXT);
-}
-
-nsapi_error_t CellularDevice::connect(const char *sim_pin, const char *apn,
-                                  const char *uname, const char *pwd)
-{
-    set_sim_pin(sim_pin);
-    set_credentials(apn, uname, pwd);
-    return connect();
-}
-
-nsapi_error_t CellularDevice::connect()
-{
-    return _state_machine->run_to_state(CellularStateMachine::STATE_CONNECTED);
-}
-
-nsapi_error_t CellularDevice::disconnect()
-{
-    MBED_ASSERT(_state_machine);
-    return _state_machine->disconnect();
 }
 
 void CellularDevice::set_plmn(const char* plmn)
 {
-    MBED_ASSERT(_state_machine);
-    _state_machine->set_plmn(plmn);
+    if (plmn) {
+        strncpy(_plmn, plmn, sizeof(_plmn));
+        _plmn[sizeof(_plmn) - 1] = '\0';
+    } else {
+        memset(_plmn, 0, sizeof(_plmn));
+    }
 }
 
-void CellularDevice::set_blocking(bool blocking)
-{
-    MBED_ASSERT(_state_machine);
-    _state_machine->set_blocking(blocking);
+nsapi_error_t CellularDevice::start_dispatch() {
+    _mutex.lock();
+    create_state_machine();
+    nsapi_error_t err = _state_machine->start_dispatch();
+    _mutex.unlock();
+
+    return err;
 }
 
-void CellularDevice::attach(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb)
+nsapi_error_t CellularDevice::set_device_ready()
 {
-    _nw_status_cb = status_cb;
+    return start_state_machine(CellularStateMachine::STATE_DEVICE_READY);
 }
 
-void CellularDevice::network_callback(nsapi_event_t ev, intptr_t ptr)
+nsapi_error_t CellularDevice::set_sim_ready()
 {
-    if (ev == NSAPI_EVENT_CONNECTION_STATUS_CHANGE) {
-        if (ptr == NSAPI_STATUS_GLOBAL_UP) {
-            _is_connected = true;
-        } else {
-            _is_connected = false;
-        }
+    return start_state_machine(CellularStateMachine::STATE_SIM_PIN);
+}
+
+nsapi_error_t CellularDevice::register_to_network()
+{
+    return start_state_machine(CellularStateMachine::STATE_REGISTERING_NETWORK);
+}
+
+nsapi_error_t CellularDevice::attach_to_network()
+{
+    return start_state_machine(CellularStateMachine::STATE_ATTACHING_NETWORK);
+}
+
+void CellularDevice::create_state_machine()
+{
+    if (!_state_machine) {
+        _state_machine = new CellularStateMachine(*this, *get_queue());
+        _state_machine->set_cellular_callback(callback(this, &CellularDevice::cellular_callback));
+    }
+}
+
+nsapi_error_t CellularDevice::start_state_machine(CellularStateMachine::CellularState target_state)
+{
+    _mutex.lock();
+    create_state_machine();
+
+    CellularStateMachine::CellularState current_state, targeted_state;
+
+    bool is_running = _state_machine->get_current_status(current_state, targeted_state);
+
+    if (current_state >= target_state) { // can stm be in this state but failed?
+        _mutex.unlock();
+        return NSAPI_ERROR_ALREADY;
+    } else if (is_running && targeted_state >= target_state) {
+        _mutex.unlock();
+        return NSAPI_ERROR_IN_PROGRESS;
     }
 
+    nsapi_error_t err = _state_machine->run_to_state(target_state);
+    _mutex.unlock();
+
+    return err;
+}
+
+void CellularDevice::cellular_callback(nsapi_event_t ev, intptr_t ptr)
+{
     if (ev >= NSAPI_EVENT_CELLULAR_STATUS_BASE && ev <= NSAPI_EVENT_CELLULAR_STATUS_END) {
-        tr_debug("Device: network_callback called with event: %d, err: %d, data: %d", ev, ((cell_callback_data_t*)ptr)->error, ((cell_callback_data_t*)ptr)->status_data);
+        cell_callback_data_t* ptr_data = (cell_callback_data_t*)ptr;
+        tr_debug("Device: network_callback called with event: %d, err: %d, data: %d", ev, ptr_data->error, ptr_data->status_data);
+        cellular_connection_status_t cell_ev = (cellular_connection_status_t)ev;
+        if (cell_ev == CellularRegistrationStatusChanged && _state_machine) {
+            // broadcast only network registration changes to state machine
+            _state_machine->cellular_event_changed(ev, ptr);
+        }
+
+        if (cell_ev == CellularDeviceReady && ptr_data->error == NSAPI_ERROR_OK) {
+            // Here we can create mux and give new filehandles as mux reserves the one what was in use.
+            // if mux we would need to set new filehandle:_state_machine->set_filehandle( get fh from mux);
+            _nw = open_network(_fh);
+            // Attach to network so we can get update status from the network
+            _nw->attach(callback(this, &CellularDevice::cellular_callback));
+        } else if (cell_ev == CellularSIMStatusChanged && ptr_data->error == NSAPI_ERROR_OK &&
+                ptr_data->status_data == CellularSIM::SimStatePinNeeded) {
+            if (strlen(_sim_pin)) {
+                _state_machine->set_sim_pin(_sim_pin);
+            }
+            if (strlen(_plmn)) {
+                _state_machine->set_plmn(_plmn);
+            }
+        }
     } else {
         tr_debug("Device: network_callback called with event: %d, ptr: %d", ev, ptr);
     }
-      // forward network callback to application is it has registered with attach
-    if (_nw_status_cb) {
-        _nw_status_cb(ev, ptr);
+
+    // broadcast network and cellular changes to state machine and CellularContext.
+    CellularContext *curr = get_context_list();
+    while (curr) {
+        curr->cellular_callback(ev, ptr);
+        curr = curr->_next;
     }
 }
 
-
-} // namespae mbed
+} // namespace mbed

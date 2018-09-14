@@ -20,8 +20,6 @@
 
 #include "CellularStateMachine.h"
 
-class NetworkStack;
-
 namespace mbed {
 
 class CellularPower;
@@ -29,7 +27,11 @@ class CellularSMS;
 class CellularSIM;
 class CellularInformation;
 class CellularNetwork;
+class CellularContext;
 class FileHandle;
+
+const int MAX_PIN_SIZE = 8;
+const int MAX_PLMN_SIZE = 16;
 
 /**
  *  Class CellularDevice
@@ -53,6 +55,12 @@ public:
      */
     virtual events::EventQueue *get_queue() const;
 
+    /** Get filehandle
+     *
+     * @return  Filehandle used in CellularDevice. With AT it's UARTSerial.
+     */
+    FileHandle &get_filehandle() const;
+
     /** Default constructor
      */
     CellularDevice();
@@ -62,40 +70,65 @@ public:
     virtual ~CellularDevice();
 
 public:
+
+    /** Creates a new CellularContext interface. There can be multiple CellularContext interfaces unlike
+     *  open_xxx(...) methods.
+     *
+     *  @param fh       file handle used in communication to modem. Can be for example UART handle. If null then the default
+     *                  file handle is used.
+     *  @param apn      access point to use with context, can be null.
+     *  @param stack    stack to be used when finding suitable PDP context
+     *
+     *  @return         new instance of class CellularContext or NULL in case of failure
+     *
+     */
+    virtual CellularContext *create_context(FileHandle *fh = NULL, const char *apn = MBED_CONF_NSAPI_DEFAULT_CELLULAR_APN, nsapi_ip_stack_t stack = DEFAULT_STACK) = 0;
+
+    /** Deletes the given CellularContext instance
+     *
+     *  @param context to delete
+     */
+    virtual void delete_context(CellularContext *context) = 0;
+
     /** Create new CellularNetwork interface.
      *
-     *  @param fh    file handle used in communication to modem. Can be for example UART handle.
+     *  @param fh    file handle used in communication to modem. Can be for example UART handle. If null then the default
+     *               file handle is used.
      *  @return      New instance of interface CellularNetwork.
      */
-    virtual CellularNetwork *open_network(FileHandle *fh) = 0;
+    virtual CellularNetwork *open_network(FileHandle *fh = NULL) = 0;
 
     /** Create new CellularSMS interface.
      *
-     *  @param fh    file handle used in communication to modem. Can be for example UART handle.
+     *  @param fh    file handle used in communication to modem. Can be for example UART handle. If null then the default
+     *               file handle is used.
      *  @return      New instance of interface CellularSMS.
      */
-    virtual CellularSMS *open_sms(FileHandle *fh) = 0;
+    virtual CellularSMS *open_sms(FileHandle *fh = NULL) = 0;
 
     /** Create new CellularPower interface.
      *
-     *  @param fh    file handle used in communication to modem. Can be for example UART handle.
+     *  @param fh    file handle used in communication to modem. Can be for example UART handle. If null then the default
+     *               file handle is used.
      *  @return      New instance of interface CellularPower.
      */
-    virtual CellularPower *open_power(FileHandle *fh) = 0;
+    virtual CellularPower *open_power(FileHandle *fh = NULL) = 0;
 
     /** Create new CellularSIM interface.
      *
-     *  @param fh    file handle used in communication to modem. Can be for example UART handle.
+     *  @param fh    file handle used in communication to modem. Can be for example UART handle. If null then the default
+     *               file handle is used.
      *  @return      New instance of interface CellularSIM.
      */
-    virtual CellularSIM *open_sim(FileHandle *fh) = 0;
+    virtual CellularSIM *open_sim(FileHandle *fh = NULL) = 0;
 
     /** Create new CellularInformation interface.
      *
-     *  @param fh    file handle used in communication to modem. Can be for example UART handle.
+     *  @param fh    file handle used in communication to modem. Can be for example UART handle. If null then the default
+     *               file handle is used.
      *  @return      New instance of interface CellularInformation.
      */
-    virtual CellularInformation *open_information(FileHandle *fh) = 0;
+    virtual CellularInformation *open_information(FileHandle *fh = NULL) = 0;
 
     /** Closes the opened CellularNetwork by deleting the CellularNetwork instance.
      */
@@ -129,12 +162,6 @@ public:
      */
     virtual void modem_debug_on(bool on) = 0;
 
-    /** Get network stack.
-     *
-     *  @return network stack
-     */
-    virtual NetworkStack *get_stack() = 0;
-
     /** Initialize cellular module must be called right after module is ready.
      *  For example, when multiple modules are supported in a single AT driver this function detects
      *  and adapts to an actual module at runtime.
@@ -147,33 +174,6 @@ public:
 
 public:
 
-    /** Inits the internal state machine.
-     *
-     *  @remark MUST be called if internal state machine is to be used. All the following public methods place in to this
-     *          category.
-     *
-     *  @param fh       file handle to be used as serial. Can be for example UARTSerial
-     */
-    nsapi_error_t init_stm(FileHandle *fh);
-
-    /** Check if the connection is currently established or not
-     *
-     * @return true/false   If the cellular module have successfully acquired a carrier and is
-     *                      connected to an external packet data network using PPP, isConnected()
-     *                      API returns true and false otherwise.
-     */
-    bool is_connected() const;
-
-    /** Register callback for status reporting
-     *
-     *  The specified status callback function will be called on status changes
-     *  on the network and modem. The parameters on the callback are the event type and struct cell_callback_data_t
-     *  giving more information about the event.
-     *
-     *  @param status_cb The callback for status changes
-     */
-    void attach(Callback<void(nsapi_event_t, intptr_t)> status_cb);
-
     /** Start event queue dispatching in internal state machine by creating a new thread.
      *
      *  @return         NSAPI_ERROR_OK on success
@@ -185,21 +185,6 @@ public:
      *
      */
     void stop();
-
-    /** By default operations are synchronous. This method can toggle between sync/async.
-     *
-     */
-    void set_blocking(bool blocking);
-
-    /** Set the Cellular network credentials
-     *
-     *  Please check documentation of connect() for default behaviour of APN settings.
-     *
-     *  @param apn      Access point name
-     *  @param uname    optionally, Username
-     *  @param pwd      optionally, password
-     */
-    nsapi_error_t set_credentials(const char *apn, const char *uname = 0, const char *pwd = 0);
 
     /** Set the pin code for SIM card
      *
@@ -215,7 +200,8 @@ public:
      */
     void set_plmn(const char* plmn);
 
-public: // Operations that can be sync/async
+public: // Operations that can be sync/async, CellularContext will use these
+    friend class CellularContext;
 
     /** Start the interface
      *
@@ -265,65 +251,35 @@ public: // Operations that can be sync/async
      */
     nsapi_error_t attach_to_network();
 
-     /** Start the interface
+    /** Cellular callback which is called by Network class after this class attaches to it, CellularStateMachine
+     *  and CellularContext when in PPP mode. This method will broadcast to every interested classes:
+     *  CellularContext (might be many) and CellularStateMachine if available.
      *
-     *  Attempts to activate PDP context.
-     *  By default this API is synchronous. API can be set to asynchronous with method set_blocking(...).
-     *  In synchronous and asynchronous mode application can get result in from callback which is set with
-     *  attach(...)
-     *
-     *  @return         NSAPI_ERROR_OK on success
-     *                  NSAPI_ERROR_NO_MEMORY on case of memory failure
      */
-    nsapi_error_t activate_context();
+    void cellular_callback(nsapi_event_t ev, intptr_t ptr);
 
-    /** Start the interface
+    /** Get the linked list of CellularContext instances
      *
-     *  Attempts to connect to a Cellular network.
-     *  By default this API is synchronous. API can be set to asynchronous with method set_blocking(...).
-     *  In synchronous and asynchronous mode application can get result in from callback which is set with
-     *  attach(...)
-     *
-     *  @param sim_pin     PIN for the SIM card
-     *  @param apn         optionally, access point name
-     *  @param uname       optionally, Username
-     *  @param pwd         optionally, password
-     *  @return            NSAPI_ERROR_OK on success, or negative error code on failure
+     *  @return Pointer to first item in linked list
      */
-    nsapi_error_t connect(const char *sim_pin, const char *apn = 0, const char *uname = 0, const char *pwd = 0);
+    virtual CellularContext *get_context_list() const;
 
-    /** Start the interface
-     *
-     *  Attempts to connect to a Cellular network.
-     *  By default this API is synchronous. API can be set to asynchronous with method set_blocking(...).
-     *  In synchronous and asynchronous mode application can get result in from callback which is set with
-     *  attach(...)
-     *  If the SIM requires a PIN, and it is not set/invalid, NSAPI_ERROR_AUTH_ERROR is returned.
-     *
-     *  @return            NSAPI_ERROR_OK on success, or negative error code on failure
-     */
-    nsapi_error_t connect();
-
-    /** Stop the interface
-     *
-     *  @return         0 on success, or error code on failure
-     */
-    nsapi_error_t disconnect();
-
-private:
-    void network_callback(nsapi_event_t ev, intptr_t ptr);
-    Callback<void(nsapi_event_t, intptr_t)> _nw_status_cb;
-
-protected:
-    nsapi_error_t _error;
     int _network_ref_count;
     int _sms_ref_count;
     int _power_ref_count;
     int _sim_ref_count;
     int _info_ref_count;
-    bool _is_connected;
-    CellularStateMachine *_state_machine;
     FileHandle *_fh;
+private:
+    nsapi_error_t start_state_machine(CellularStateMachine::CellularState target_state);
+    void create_state_machine();
+
+    nsapi_error_t _error;
+    CellularStateMachine *_state_machine;
+    CellularNetwork *_nw;
+    char _sim_pin[MAX_PIN_SIZE + 1];
+    char _plmn[MAX_PLMN_SIZE +1];
+    PlatformMutex _mutex;
 };
 
 } // namespace mbed

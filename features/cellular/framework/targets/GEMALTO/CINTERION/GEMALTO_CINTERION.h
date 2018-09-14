@@ -30,8 +30,8 @@ public:
 
 protected: // AT_CellularDevice
     virtual AT_CellularNetwork *open_network_impl(ATHandler &at);
-
-public: // CellularDevice
+    virtual AT_CellularContext *create_context_impl(ATHandler &at, const char *apn, nsapi_ip_stack_t stack);
+public:
     virtual nsapi_error_t init_module(FileHandle *fh);
     virtual uint16_t get_send_delay();
 };

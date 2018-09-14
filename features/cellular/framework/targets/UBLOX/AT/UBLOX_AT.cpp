@@ -18,6 +18,7 @@
 #include "UBLOX_AT.h"
 #include "UBLOX_AT_CellularNetwork.h"
 #include "UBLOX_AT_CellularPower.h"
+#include "UBLOX_AT_CellularContext.h"
 
 using namespace mbed;
 using namespace events;
@@ -48,4 +49,9 @@ AT_CellularNetwork *UBLOX_AT::open_network_impl(ATHandler &at)
 AT_CellularPower *UBLOX_AT::open_power_impl(ATHandler &at)
 {
     return new UBLOX_AT_CellularPower(at);
+}
+
+AT_CellularContext *UBLOX_AT::create_context_impl(ATHandler &at, const char *apn, nsapi_ip_stack_t stack)
+{
+    return new UBLOX_AT_CellularContext(at, this, apn, stack);
 }

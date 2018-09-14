@@ -14,26 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "TELIT_HE910_CellularContext.h"
 
-#include "QUECTEL_UG96_CellularNetwork.h"
+namespace mbed {
 
-using namespace mbed;
-
-QUECTEL_UG96_CellularNetwork::QUECTEL_UG96_CellularNetwork(ATHandler &atHandler) : AT_CellularNetwork(atHandler)
+TELIT_HE910_CellularContext::TELIT_HE910_CellularContext(ATHandler &at, CellularDevice *device, const char *apn,
+        nsapi_ip_stack_t stack) : AT_CellularContext(at, device, apn, stack)
 {
 }
 
-QUECTEL_UG96_CellularNetwork::~QUECTEL_UG96_CellularNetwork()
+TELIT_HE910_CellularContext::~TELIT_HE910_CellularContext()
 {
 }
 
-AT_CellularNetwork::RegistrationMode QUECTEL_UG96_CellularNetwork::has_registration(RegistrationType reg_type)
+bool TELIT_HE910_CellularContext::stack_type_supported(nsapi_ip_stack_t requested_stack)
 {
-    return (reg_type == C_REG || reg_type == C_GREG) ? RegistrationModeLAC : RegistrationModeDisable;
+    return requested_stack == IPV4_STACK || requested_stack == IPV6_STACK;
 }
 
-nsapi_error_t QUECTEL_UG96_CellularNetwork::set_access_technology_impl(RadioAccessTechnology opRat)
-{
-    _op_act = RAT_UNKNOWN;
-    return NSAPI_ERROR_UNSUPPORTED;
-}
+} /* namespace mbed */

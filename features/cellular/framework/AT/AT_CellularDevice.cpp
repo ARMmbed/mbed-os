@@ -21,7 +21,11 @@
 #include "AT_CellularPower.h"
 #include "AT_CellularSIM.h"
 #include "AT_CellularSMS.h"
+#include "AT_CellularContext.h"
+#include "AT_CellularStack.h"
+#include "CellularLog.h"
 #include "ATHandler.h"
+#include "UARTSerial.h"
 
 using namespace events;
 using namespace mbed;
@@ -29,9 +33,10 @@ using namespace mbed;
 #define DEFAULT_AT_TIMEOUT 1000 // at default timeout in milliseconds
 
 AT_CellularDevice::AT_CellularDevice(EventQueue &queue) :
-    _atHandlers(0), _network(0), _sms(0), _sim(0), _power(0), _information(0), _at_queue(queue),
+    _atHandlers(0), _network(0), _sms(0), _sim(0), _power(0), _information(0), _context_list(0), _at_queue(queue),
     _default_timeout(DEFAULT_AT_TIMEOUT), _modem_debug_on(false)
 {
+    _fh = new UARTSerial(MDMTXD, MDMRXD, MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE);
 }
 
 AT_CellularDevice::~AT_CellularDevice()
@@ -49,12 +54,22 @@ AT_CellularDevice::~AT_CellularDevice()
     close_sim();
     close_information();
 
+    AT_CellularContext* curr = _context_list;
+    AT_CellularContext* next;
+    while (curr) {
+        next = (AT_CellularContext*)curr->_next;
+        delete curr;
+        curr = next;
+    }
+
     ATHandler *atHandler = _atHandlers;
     while (atHandler) {
         ATHandler *old = atHandler;
         atHandler = atHandler->_nextATHandler;
         delete old;
     }
+
+    delete _fh;
 }
 
 events::EventQueue *AT_CellularDevice::get_queue() const
@@ -66,7 +81,7 @@ events::EventQueue *AT_CellularDevice::get_queue() const
 ATHandler *AT_CellularDevice::get_at_handler(FileHandle *fileHandle)
 {
     if (!fileHandle) {
-        return NULL;
+        fileHandle = _fh;
     }
     ATHandler *atHandler = _atHandlers;
     while (atHandler) {
@@ -112,6 +127,58 @@ void AT_CellularDevice::release_at_handler(ATHandler *at_handler)
             }
         }
     }
+}
+
+CellularContext *AT_CellularDevice::get_context_list() const
+{
+    return _context_list;
+}
+
+CellularContext *AT_CellularDevice::create_context(FileHandle *fh, const char *apn, nsapi_ip_stack_t stack)
+{
+    ATHandler *atHandler = get_at_handler(_fh);
+    if (atHandler) {
+        AT_CellularContext *ctx = create_context_impl(*atHandler, apn, stack);
+        AT_CellularContext* curr = _context_list;
+
+        if (_context_list == NULL) {
+            _context_list = ctx;
+            return ctx;
+        }
+
+        AT_CellularContext* prev;
+        while (curr) {
+            prev = curr;
+            curr = (AT_CellularContext*)curr->_next;
+        }
+
+        prev->_next = ctx;
+        return ctx;
+    }
+    return NULL;
+}
+
+AT_CellularContext *AT_CellularDevice::create_context_impl(ATHandler &at, const char *apn, nsapi_ip_stack_t stack)
+{
+    return new AT_CellularContext(at, this, apn, stack);
+}
+
+void AT_CellularDevice::delete_context(CellularContext *context)
+{
+    AT_CellularContext* curr = _context_list;
+    AT_CellularContext* prev = NULL;
+    while (curr) {
+        if (curr == context) {
+            if (prev == NULL) {
+                _context_list = (AT_CellularContext*)curr->_next;
+            } else {
+                prev->_next = curr->_next;
+            }
+        }
+        prev = curr;
+        curr = (AT_CellularContext*)curr->_next;
+    }
+    delete (AT_CellularContext*)context;
 }
 
 CellularNetwork *AT_CellularDevice::open_network(FileHandle *fh)
@@ -299,14 +366,6 @@ void AT_CellularDevice::modem_debug_on(bool on)
         atHandler->set_debug(_modem_debug_on);
         atHandler = atHandler->_nextATHandler;
     }
-}
-
-NetworkStack *AT_CellularDevice::get_stack()
-{
-    if (!_network) {
-        return NULL;
-    }
-    return _network->get_stack();
 }
 
 nsapi_error_t AT_CellularDevice::init_module(FileHandle *fh)

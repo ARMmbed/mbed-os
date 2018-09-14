@@ -110,27 +110,8 @@ MBED_WEAK NetworkInterface *NetworkInterface::get_target_default_instance()
 #elif MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE == CELLULAR
 MBED_WEAK NetworkInterface *NetworkInterface::get_target_default_instance()
 {
-    CellularBase *cellular = CellularBase::get_default_instance();
-    if (!cellular) {
-        return NULL;
-    }
-    /* CellularBase is expected to attempt to work without any parameters - we
-     * will try, at least.
-     */
-#ifdef MBED_CONF_NSAPI_DEFAULT_CELLULAR_APN
-#ifndef MBED_CONF_NSAPI_DEFAULT_CELLULAR_USERNAME
-#define MBED_CONF_NSAPI_DEFAULT_CELLULAR_USERNAME NULL
-#endif
-#ifndef MBED_CONF_NSAPI_DEFAULT_CELLULAR_PASSWORD
-#define MBED_CONF_NSAPI_DEFAULT_CELLULAR_PASSWORD NULL
-#endif
-    cellular->set_credentials(MBED_CONF_NSAPI_DEFAULT_CELLULAR_APN, MBED_CONF_NSAPI_DEFAULT_CELLULAR_USERNAME, MBED_CONF_NSAPI_DEFAULT_CELLULAR_PASSWORD);
-#endif
-#ifdef MBED_CONF_NSAPI_DEFAULT_CELLULAR_SIM_PIN
-    cellular->set_sim_pin(MBED_CONF_NSAPI_DEFAULT_CELLULAR_SIM_PIN);
-#endif
+    return CellularContext::get_default_instance();
 
-    return cellular;
 }
 #elif defined(MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE)
 /* If anyone invents a new JSON value, they must have their own default weak

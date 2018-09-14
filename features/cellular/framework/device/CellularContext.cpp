@@ -14,26 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include "CellularContext.h"
 
-#include "QUECTEL_UG96_CellularNetwork.h"
-
-using namespace mbed;
-
-QUECTEL_UG96_CellularNetwork::QUECTEL_UG96_CellularNetwork(ATHandler &atHandler) : AT_CellularNetwork(atHandler)
+namespace mbed {
+#ifdef CELLULAR_DEVICE
+MBED_WEAK NetworkInterface *CellularContext::get_default_instance()
 {
+    // Uses default APN, uname, password from mbed_app.json
+    static CellularDevice *dev = CellularDevice::get_default_instance();
+    return dev->create_context();
 }
-
-QUECTEL_UG96_CellularNetwork::~QUECTEL_UG96_CellularNetwork()
+#else
+MBED_WEAK NetworkInterface *CellularContext::get_default_instance()
 {
+    return NULL;
 }
+#endif // CELLULAR_DEVICE
 
-AT_CellularNetwork::RegistrationMode QUECTEL_UG96_CellularNetwork::has_registration(RegistrationType reg_type)
-{
-    return (reg_type == C_REG || reg_type == C_GREG) ? RegistrationModeLAC : RegistrationModeDisable;
-}
-
-nsapi_error_t QUECTEL_UG96_CellularNetwork::set_access_technology_impl(RadioAccessTechnology opRat)
-{
-    _op_act = RAT_UNKNOWN;
-    return NSAPI_ERROR_UNSUPPORTED;
-}
+} // namespace mbed

@@ -179,10 +179,6 @@ private:
     bool is_registered_to_plmn();
 
 private:
-    friend class EasyCellularConnection;
-    NetworkStack *get_stack();
-
-private:
     void report_failure(const char *msg);
     void event();
     void ready_urc_cb();

@@ -28,15 +28,8 @@ public:
     virtual ~UBLOX_PPP_CellularNetwork();
 
 protected:
-    virtual bool get_modem_stack_type(nsapi_ip_stack_t requested_stack);
-
     virtual RegistrationMode has_registration(RegistrationType rat);
-
     virtual nsapi_error_t set_access_technology_impl(RadioAccessTechnology opRat);
-};
-
-MBED_DEPRECATED_SINCE("mbed-os-5.9", "This API will be deprecated, Use UBLOX_PPP_CellularNetwork instead of UBLOX_LISA_U_CellularNetwork.")
-class UBLOX_LISA_U_CellularNetwork : public UBLOX_PPP_CellularNetwork {
 };
 
 } // namespace mbed

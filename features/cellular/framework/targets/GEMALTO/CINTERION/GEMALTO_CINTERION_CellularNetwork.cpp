@@ -16,7 +16,6 @@
  */
 
 #include "GEMALTO_CINTERION_CellularNetwork.h"
-#include "GEMALTO_CINTERION_CellularStack.h"
 #include "GEMALTO_CINTERION_Module.h"
 
 using namespace mbed;
@@ -27,24 +26,6 @@ GEMALTO_CINTERION_CellularNetwork::GEMALTO_CINTERION_CellularNetwork(ATHandler &
 
 GEMALTO_CINTERION_CellularNetwork::~GEMALTO_CINTERION_CellularNetwork()
 {
-}
-
-#if !NSAPI_PPP_AVAILABLE
-NetworkStack *GEMALTO_CINTERION_CellularNetwork::get_stack()
-{
-    if (!_stack) {
-        _stack = new GEMALTO_CINTERION_CellularStack(_at, _apn, _cid, _ip_stack_type);
-    }
-    return _stack;
-}
-#endif // NSAPI_PPP_AVAILABLE
-
-bool GEMALTO_CINTERION_CellularNetwork::get_modem_stack_type(nsapi_ip_stack_t requested_stack)
-{
-    if (GEMALTO_CINTERION_Module::get_model() == GEMALTO_CINTERION_Module::ModelBGS2) {
-        return (requested_stack == IPV4_STACK);
-    }
-    return (requested_stack == IPV4_STACK || requested_stack == IPV6_STACK);
 }
 
 AT_CellularNetwork::RegistrationMode GEMALTO_CINTERION_CellularNetwork::has_registration(RegistrationType reg_type)

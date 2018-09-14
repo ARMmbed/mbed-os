@@ -24,10 +24,12 @@
 struct cell_callback_data_t {
         nsapi_error_t error; /* possible error code */
         int status_data;     /* cellular_event_status related enum or other info in int format. Check cellular_event_status comments.*/
+        bool final_try;      /* This flag is true if state machine is used and this was the last try. State machine does goes to idle. */
 
         cell_callback_data_t() {
             error = NSAPI_ERROR_OK;
             status_data = -1;
+            final_try = false;
         }
     };
 

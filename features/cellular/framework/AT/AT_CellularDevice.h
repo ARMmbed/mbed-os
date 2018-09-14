@@ -28,6 +28,7 @@ class AT_CellularNetwork;
 class AT_CellularPower;
 class AT_CellularSIM;
 class AT_CellularSMS;
+class AT_CellularContext;
 
 /**
  *  Class AT_CellularDevice
@@ -54,15 +55,19 @@ public: // CellularDevice
 
     virtual events::EventQueue *get_queue() const;
 
-    virtual CellularNetwork *open_network(FileHandle *fh);
+    virtual CellularContext *create_context(FileHandle *fh = NULL, const char *apn = MBED_CONF_NSAPI_DEFAULT_CELLULAR_APN, nsapi_ip_stack_t stack = DEFAULT_STACK);
 
-    virtual CellularSMS *open_sms(FileHandle *fh);
+    virtual void delete_context(CellularContext *context);
 
-    virtual CellularPower *open_power(FileHandle *fh);
+    virtual CellularNetwork *open_network(FileHandle *fh = NULL);
 
-    virtual CellularSIM *open_sim(FileHandle *fh);
+    virtual CellularSMS *open_sms(FileHandle *fh = NULL);
 
-    virtual CellularInformation *open_information(FileHandle *fh);
+    virtual CellularPower *open_power(FileHandle *fh = NULL);
+
+    virtual CellularSIM *open_sim(FileHandle *fh = NULL);
+
+    virtual CellularInformation *open_information(FileHandle *fh = NULL);
 
     virtual void close_network();
 
@@ -80,11 +85,12 @@ public: // CellularDevice
 
     virtual void modem_debug_on(bool on);
 
-    virtual NetworkStack *get_stack();
-
     virtual nsapi_error_t init_module(FileHandle *fh);
 
 protected:
+
+    virtual AT_CellularContext *create_context_impl(ATHandler &at, const char *apn, nsapi_ip_stack_t stack);
+
     /** Create new instance of AT_CellularNetwork or if overridden, modem specific implementation.
      *
      *  @param at   ATHandler reference for communication with the modem.
@@ -120,12 +126,14 @@ protected:
      */
     virtual AT_CellularInformation *open_information_impl(ATHandler &at);
 
+    virtual CellularContext *get_context_list() const;
+
     AT_CellularNetwork *_network;
     AT_CellularSMS *_sms;
     AT_CellularSIM *_sim;
     AT_CellularPower *_power;
     AT_CellularInformation *_information;
-
+    AT_CellularContext *_context_list;
 protected:
     events::EventQueue &_at_queue;
     int _default_timeout;

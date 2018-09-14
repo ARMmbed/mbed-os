@@ -18,6 +18,7 @@
 #include "TELIT_HE910.h"
 #include "TELIT_HE910_CellularPower.h"
 #include "TELIT_HE910_CellularNetwork.h"
+#include "TELIT_HE910_CellularContext.h"
 
 using namespace mbed;
 using namespace events;
@@ -45,6 +46,11 @@ AT_CellularNetwork *TELIT_HE910::open_network_impl(ATHandler &at)
 AT_CellularPower *TELIT_HE910::open_power_impl(ATHandler &at)
 {
     return new TELIT_HE910_CellularPower(at);
+}
+
+AT_CellularContext *TELIT_HE910::create_context_impl(ATHandler &at, const char *apn, nsapi_ip_stack_t stack)
+{
+    return new TELIT_HE910_CellularContext(at, this, apn, stack);
 }
 
 uint16_t TELIT_HE910::get_send_delay() const

@@ -30,10 +30,7 @@ public:
 protected: // AT_CellularDevice
     virtual AT_CellularNetwork *open_network_impl(ATHandler &at);
     virtual AT_CellularPower *open_power_impl(ATHandler &at);
-};
-
-MBED_DEPRECATED_SINCE("mbed-os-5.9", "This API will be deprecated, Use UBLOX_PPP instead of UBLOX_LISA_U.")
-class UBLOX_LISA_U : public UBLOX_PPP {
+    virtual AT_CellularContext *create_context_impl(ATHandler &at, const char *apn, nsapi_ip_stack_t stack);
 };
 
 } // namespace mbed

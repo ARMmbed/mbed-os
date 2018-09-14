@@ -22,7 +22,7 @@
 
 #if defined(CELLULAR_DEVICE) || defined(DOXYGEN_ONLY)
 
-#include "CellularDevice.h"
+#include "CellularContext.h"
 #include "UARTSerial.h"
 #include "CellularBase.h"
 
@@ -30,6 +30,7 @@
 
 namespace mbed {
 
+class CellularDevice;
 /** EasyCellularConnection class
  *
  *  Simplified adapter for cellular connection
@@ -37,7 +38,7 @@ namespace mbed {
 class EasyCellularConnection: public CellularBase {
 
 public:
-    EasyCellularConnection(CellularDevice *device = CellularDevice::get_default_instance());
+    EasyCellularConnection(CellularContext *ctx = (CellularContext *)CellularContext::get_default_instance());
     virtual ~EasyCellularConnection();
 
 public:
@@ -165,14 +166,12 @@ private:
     nsapi_error_t check_connect();
 
     bool _is_initialized;
-    bool _stm_error;
 #if USE_APN_LOOKUP
     bool _credentials_set;
 #endif // #if USE_APN_LOOKUP
 
-    UARTSerial _serial;
     CellularDevice *_device;
-    CellularNetwork* _network;
+    CellularContext* _context;
     nsapi_error_t _credentials_err;
     Callback<void(nsapi_event_t, intptr_t)> _status_cb;
 };

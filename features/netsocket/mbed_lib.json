@@ -6,10 +6,11 @@
         "default-wifi-ssid": null,
         "default-wifi-password": null,
         "default-wifi-security": "NONE",
-        "default-cellular-sim-pin": null,
-        "default-cellular-apn": null,
-        "default-cellular-username": null,
-        "default-cellular-password": null,
+        "default-cellular-plmn": 0,
+        "default-cellular-sim-pin": 0,
+        "default-cellular-apn": 0,
+        "default-cellular-username": 0,
+        "default-cellular-password": 0,
         "default-mesh-type": {
             "help": "Configuration type for MeshInterface::get_default_instance(). [LOWPAN/THREAD]",
             "value": "THREAD"

@@ -14,26 +14,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifndef QUECTEL_BG96_CELLULARCONTEXT_H_
+#define QUECTEL_BG96_CELLULARCONTEXT_H_
 
-#include "QUECTEL_UG96_CellularNetwork.h"
+#include "AT_CellularContext.h"
 
-using namespace mbed;
+namespace mbed {
 
-QUECTEL_UG96_CellularNetwork::QUECTEL_UG96_CellularNetwork(ATHandler &atHandler) : AT_CellularNetwork(atHandler)
-{
-}
+class QUECTEL_BG96_CellularContext: public AT_CellularContext {
+public:
+    QUECTEL_BG96_CellularContext(ATHandler &at, CellularDevice *device, const char *apn, nsapi_ip_stack_t stack);
+    virtual ~QUECTEL_BG96_CellularContext();
 
-QUECTEL_UG96_CellularNetwork::~QUECTEL_UG96_CellularNetwork()
-{
-}
+protected:
+    virtual bool stack_type_supported(nsapi_ip_stack_t stack_type);
+    virtual NetworkStack *get_stack();
+    virtual nsapi_error_t do_user_authentication();
+};
 
-AT_CellularNetwork::RegistrationMode QUECTEL_UG96_CellularNetwork::has_registration(RegistrationType reg_type)
-{
-    return (reg_type == C_REG || reg_type == C_GREG) ? RegistrationModeLAC : RegistrationModeDisable;
-}
+} /* namespace mbed */
 
-nsapi_error_t QUECTEL_UG96_CellularNetwork::set_access_technology_impl(RadioAccessTechnology opRat)
-{
-    _op_act = RAT_UNKNOWN;
-    return NSAPI_ERROR_UNSUPPORTED;
-}
+#endif // QUECTEL_BG96_CELLULARCONTEXT_H_

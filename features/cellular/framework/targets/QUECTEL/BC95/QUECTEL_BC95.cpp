@@ -18,7 +18,7 @@
 #include "QUECTEL_BC95_CellularNetwork.h"
 #include "QUECTEL_BC95_CellularPower.h"
 #include "QUECTEL_BC95_CellularSIM.h"
-
+#include "QUECTEL_BC95_CellularContext.h"
 #include "QUECTEL_BC95.h"
 
 #define CONNECT_DELIM         "\r\n"
@@ -58,4 +58,9 @@ AT_CellularPower *QUECTEL_BC95::open_power_impl(ATHandler &at)
 AT_CellularSIM *QUECTEL_BC95::open_sim_impl(ATHandler &at)
 {
     return new QUECTEL_BC95_CellularSIM(at);
+}
+
+AT_CellularContext *QUECTEL_BC95::create_context_impl(ATHandler &at, const char *apn, nsapi_ip_stack_t stack)
+{
+    return new QUECTEL_BC95_CellularContext(at, this, apn, stack);
 }
