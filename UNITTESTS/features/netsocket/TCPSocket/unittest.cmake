@@ -10,6 +10,8 @@ set(unittest-sources
   ../features/netsocket/SocketAddress.cpp
   ../features/netsocket/InternetSocket.cpp
   ../features/netsocket/TCPSocket.cpp
+  ../features/frameworks/nanostack-libservice/source/libip4string/ip4tos.c
+  ../features/frameworks/nanostack-libservice/source/libip4string/stoip4.c
 )
 
 set(unittest-test-sources
