@@ -32,7 +32,8 @@ test_build_data = {
         {
             "id": "TEST_APPS-DEVICE-SOCKET_APP",
             "target_name": "K64F",
-            "toolchain_name": "GCC_ARM"
+            "toolchain_name": "GCC_ARM",
+            "result": "OK"
         }
     ]
 }
