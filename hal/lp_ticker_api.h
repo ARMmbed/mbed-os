@@ -45,6 +45,7 @@ extern "C" {
  *
  * # Potential bugs
  * * Glitches due to ripple counter - Verified by ::lp_ticker_glitch_test
+ * * Firing early - Verified by - Verified by ::lp_ticker_early_match_test and ::lp_ticker_early_match_race_test
  *
  * @see hal_lp_ticker_tests
  *

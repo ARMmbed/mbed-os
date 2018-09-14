@@ -37,7 +37,9 @@ ticker_irq_handler_type prev_handler;
 #define TICKER_GLITCH_TEST_TICKS 1000
 
 #define TICKER_INT_VAL 500
+#define TICKER_MIN_DELAY 20
 #define TICKER_DELTA 10
+#define TICKS_TO_SWEEP 8
 
 #define LP_TICKER_OV_LIMIT 4000
 
@@ -55,13 +57,24 @@ ticker_irq_handler_type prev_handler;
  * hardware buffers are empty. However, such an API does not exist now,
  * so we'll use the busy_wait_ms() function for now.
  */
-#define SERIAL_FLUSH_TIME_MS    20
+#define SERIAL_FLUSH_TIME_US    20000
 
-void busy_wait_ms(int ms)
+void busy_wait_us(uint32_t us)
 {
     const ticker_data_t *const ticker = get_us_ticker_data();
     uint32_t start = ticker_read(ticker);
-    while ((ticker_read(ticker) - start) < (uint32_t)(ms * US_PER_MS));
+    while ((ticker_read(ticker) - start) < us);
+}
+
+void busy_wait_lp_cycles(uint32_t cycles)
+{
+    const uint32_t mask = (1 << lp_ticker_get_info()->bits) - 1;
+
+    const uint32_t tick_count = lp_ticker_read();
+    uint32_t elapsed;
+    do {
+        elapsed = (lp_ticker_read() - tick_count) & mask;
+    } while (elapsed < cycles);
 }
 
 /* Since according to the ticker requirements min acceptable counter size is
@@ -121,7 +134,7 @@ void lp_ticker_deepsleep_test()
     /* Give some time Green Tea to finish UART transmission before entering
      * deep-sleep mode.
      */
-    busy_wait_ms(SERIAL_FLUSH_TIME_MS);
+    busy_wait_us(SERIAL_FLUSH_TIME_US);
 
     overflow_protect();
 
@@ -158,8 +171,62 @@ void lp_ticker_glitch_test()
     }
 }
 
-#if DEVICE_LPTICKER
-utest::v1::status_t lp_ticker_deepsleep_test_setup_handler(const Case *const source, const size_t index_of_case)
+void lp_ticker_early_match_test()
+{
+    lp_ticker_init();
+
+    const uint32_t mask = (1 << lp_ticker_get_info()->bits) - 1;
+
+    for (uint32_t i = 0; i < 100; i++) {
+        const uint32_t tick_count = lp_ticker_read();
+        const uint32_t match_count = (tick_count + TICKER_MIN_DELAY + i) & mask;
+
+        intFlag = 0;
+        lp_ticker_set_interrupt(match_count);
+
+        while (!intFlag);
+        const uint32_t elapsed = (lp_ticker_read() - match_count) & mask;
+
+        /* Interrupt must fire between 0 and TICKER_DELTA ticks after match */
+        TEST_ASSERT(elapsed <= TICKER_DELTA);
+    }
+}
+
+void lp_ticker_early_match_race_test()
+{
+    lp_ticker_init();
+
+    const uint32_t mask = (1 << lp_ticker_get_info()->bits) - 1;
+
+    /* For worst case of 4KHz (250us period) low power ticker busy wait
+     * in 1 microsecond increments from 0 to TICKS_TO_SWEEP ticks
+     */
+    for (uint32_t i = 0; i < TICKS_TO_SWEEP * 250; i++) {
+
+        /* Schedule an match to occur */
+        uint32_t match_count = (lp_ticker_read() + TICKER_MIN_DELAY) & mask;
+        lp_ticker_set_interrupt(match_count);
+
+        /* Wait until the match is about to or has already fired */
+        busy_wait_lp_cycles(TICKER_MIN_DELAY - TICKS_TO_SWEEP / 2);
+        busy_wait_us(i);
+
+        /* Reset and schedule another match */
+        core_util_critical_section_enter();
+        intFlag = 0;
+        match_count = (lp_ticker_read() + TICKER_MIN_DELAY) & mask;
+        lp_ticker_set_interrupt(match_count);
+        core_util_critical_section_exit();
+
+        while (!intFlag);
+        const uint32_t elapsed = (lp_ticker_read() - match_count) & mask;
+
+        /* Interrupt must fire between 0 and TICKER_DELTA ticks after match */
+        TEST_ASSERT(elapsed <= TICKER_DELTA);
+    }
+}
+
+utest::v1::status_t lp_ticker_test_setup_handler(const Case *const source, const size_t index_of_case)
 {
     /* disable everything using the lp ticker for this test */
     osKernelSuspend();
@@ -171,7 +238,7 @@ utest::v1::status_t lp_ticker_deepsleep_test_setup_handler(const Case *const sou
     return greentea_case_setup_handler(source, index_of_case);
 }
 
-utest::v1::status_t lp_ticker_deepsleep_test_teardown_handler(const Case *const source, const size_t passed, const size_t failed,
+utest::v1::status_t lp_ticker_test_teardown_handler(const Case *const source, const size_t passed, const size_t failed,
                                                               const failure_t reason)
 {
     set_lp_ticker_irq_handler(prev_handler);
@@ -182,7 +249,6 @@ utest::v1::status_t lp_ticker_deepsleep_test_teardown_handler(const Case *const 
     osKernelResume(0);
     return greentea_case_teardown_handler(source, passed, failed, reason);
 }
-#endif
 
 utest::v1::status_t test_setup(const size_t number_of_cases)
 {
@@ -193,9 +259,11 @@ utest::v1::status_t test_setup(const size_t number_of_cases)
 Case cases[] = {
     Case("lp ticker info test", lp_ticker_info_test),
 #if DEVICE_SLEEP
-    Case("lp ticker sleep test", lp_ticker_deepsleep_test_setup_handler, lp_ticker_deepsleep_test, lp_ticker_deepsleep_test_teardown_handler),
+    Case("lp ticker sleep test", lp_ticker_test_setup_handler, lp_ticker_deepsleep_test, lp_ticker_test_teardown_handler),
 #endif
-    Case("lp ticker glitch test", lp_ticker_glitch_test)
+    Case("lp ticker glitch test", lp_ticker_glitch_test),
+    Case("lp ticker early match test", lp_ticker_test_setup_handler, lp_ticker_early_match_test, lp_ticker_test_teardown_handler),
+    Case("lp ticker early match race test", lp_ticker_test_setup_handler, lp_ticker_early_match_race_test, lp_ticker_test_teardown_handler)
 };
 
 Specification specification(test_setup, cases);

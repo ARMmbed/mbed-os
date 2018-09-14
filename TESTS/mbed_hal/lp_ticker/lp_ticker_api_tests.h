@@ -51,6 +51,23 @@ void lp_ticker_deepsleep_test(void);
  * Then ticker does not glitch backwards due to an incorrectly implemented ripple counter driver.
  */
 void lp_ticker_glitch_test(void);
+
+/** Test that the ticker does not fire early.
+ *
+ * Given ticker is available.
+ * When ticker has interrupt set.
+ * Then ticker does not fire before the time specified.
+ */
+void lp_ticker_early_match_test(void);
+
+/** Test that the ticker does not fire early.
+ *
+ * Given ticker is available.
+ * When ticker is about to have a match and a second call to lp_ticker_set_interrupt is ticker is made.
+ * Then ticker does not fire before the new time specified.
+ */
+void lp_ticker_early_match_race_test(void);
+
 /**@}*/
 
 #ifdef __cplusplus
