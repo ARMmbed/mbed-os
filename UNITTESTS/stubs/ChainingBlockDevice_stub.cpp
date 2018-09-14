@@ -1,5 +1,6 @@
-/* mbed Microcontroller Library
- * Copyright (c) 2017 ARM Limited
+/*
+ * Copyright (c) , Arm Limited and affiliates.
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,7 +75,7 @@ bd_size_t ChainingBlockDevice::get_erase_size() const
 
 bd_size_t ChainingBlockDevice::get_erase_size(bd_addr_t addr) const
 {
-    return 0; 
+    return 0;
 }
 
 int ChainingBlockDevice::get_erase_value() const

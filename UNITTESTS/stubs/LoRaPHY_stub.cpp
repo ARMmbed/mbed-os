@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) , Arm Limited and affiliates.
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 
 #include <stdbool.h>
@@ -8,6 +24,7 @@
 #include "LoRaPHY.h"
 #include "LoRaPHY_stub.h"
 
+LoRaRadio *LoRaPHY_stub::radio = NULL;
 uint32_t LoRaPHY_stub::uint32_value = 0;
 uint16_t LoRaPHY_stub::uint16_value = 0;
 uint8_t LoRaPHY_stub::uint8_value = 0;
@@ -19,9 +36,11 @@ channel_params_t *LoRaPHY_stub::channel_params_ptr = NULL;
 uint8_t LoRaPHY_stub::bool_counter = 0;
 bool LoRaPHY_stub::bool_table[20] = {};
 uint8_t LoRaPHY_stub::linkAdrNbBytesParsed = 0;
+uint8_t LoRaPHY_stub::ch_mask_value = 0;
+uint8_t LoRaPHY_stub::adr_parse_count = 0;
 
 LoRaPHY::LoRaPHY()
-    : _radio(NULL)
+    : _radio(LoRaPHY_stub::radio)
 {
 }
 
@@ -154,6 +173,12 @@ lorawan_time_t LoRaPHY::update_band_timeoff(bool joined, bool duty_cycle,
 uint8_t LoRaPHY::parse_link_ADR_req(const uint8_t *payload,
                                     link_adr_params_t *params)
 {
+    params->ch_mask_ctrl = LoRaPHY_stub::ch_mask_value;
+
+    if (LoRaPHY_stub::adr_parse_count) {
+        return --LoRaPHY_stub::adr_parse_count;
+    }
+
     return LoRaPHY_stub::uint8_value;
 }
 

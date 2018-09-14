@@ -615,10 +615,5 @@ lorawan_status_t LoRaPHYAU915::set_next_channel(channel_selection_params_t* next
 
 uint8_t LoRaPHYAU915::apply_DR_offset(int8_t dr, int8_t dr_offset)
 {
-    int8_t datarate = datarate_offsets_AU915[dr][dr_offset];
-
-    if (datarate < 0) {
-        datarate = DR_0;
-    }
-    return datarate;
+    return datarate_offsets_AU915[dr][dr_offset];
 }
