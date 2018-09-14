@@ -376,7 +376,7 @@ static void test_disconnect()
 static void test_detach()
 {
     // in PPP mode there is NO CARRIER waiting so flush it out
-    rtos::Thread::wait(6 * 1000);
+    rtos::ThisThread::sleep_for(6 * 1000);
     ((AT_CellularNetwork *)nw)->get_at_handler().flush();
 
     nsapi_connection_status_t st =  nw->get_connection_status();
@@ -384,7 +384,7 @@ static void test_detach()
 
     TEST_ASSERT(nw->detach() == NSAPI_ERROR_OK);
     // wait to process URC's, received after detach
-    rtos::Thread::wait(50);
+    rtos::ThisThread::sleep_for(50);
     st =  nw->get_connection_status();
     TEST_ASSERT(st == NSAPI_STATUS_DISCONNECTED);
 }

@@ -171,7 +171,7 @@ void USBHost::usb_process()
                                 break;
                             }
 
-                            Thread::wait(100);
+                            ThisThread::sleep_for(100);
                         }
 
                         USB_INFO("New device connected: %p [hub: %d - port: %d]", &devices[i], usb_msg->hub, usb_msg->port);
@@ -599,7 +599,7 @@ USB_TYPE USBHost::resetDevice(USBDeviceConnected * dev)
     int index = findDevice(dev);
     if (index != -1) {
         USB_DBG("Resetting hub %d, port %d\n", dev->getHub(), dev->getPort());
-        Thread::wait(100);
+        ThisThread::sleep_for(100);
         if (dev->getHub() == 0) {
             resetRootHub();
         }
@@ -608,7 +608,7 @@ USB_TYPE USBHost::resetDevice(USBDeviceConnected * dev)
             dev->getHubParent()->portReset(dev->getPort());
         }
 #endif
-        Thread::wait(100);
+        ThisThread::sleep_for(100);
         deviceReset[index] = true;
         return USB_TYPE_OK;
     }
@@ -974,7 +974,7 @@ USB_TYPE USBHost::enumerate(USBDeviceConnected * dev, IUSBEnumerator* pEnumerato
     } while(0);
 
     // Some devices may require this delay
-    Thread::wait(100);
+    ThisThread::sleep_for(100);
 
     return USB_TYPE_OK;
 }

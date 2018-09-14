@@ -43,7 +43,7 @@ void queue_isr() {
 void queue_thread(void const *argument) {
     while (true) {
         queue.put((uint32_t*)QUEUE_PUT_THREAD_VALUE);
-        Thread::wait(THREAD_DELAY);
+        ThisThread::sleep_for(THREAD_DELAY);
     }
 }
 

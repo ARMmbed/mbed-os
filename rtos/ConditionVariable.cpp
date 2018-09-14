@@ -21,7 +21,7 @@
  */
 #include "rtos/ConditionVariable.h"
 #include "rtos/Kernel.h"
-#include "rtos/Thread.h"
+#include "rtos/ThisThread.h"
 
 #include "mbed_error.h"
 #include "mbed_assert.h"
@@ -46,7 +46,7 @@ void ConditionVariable::wait()
 bool ConditionVariable::wait_for(uint32_t millisec)
 {
     Waiter current_thread;
-    MBED_ASSERT(_mutex.get_owner() == Thread::gettid());
+    MBED_ASSERT(_mutex.get_owner() == ThisThread::get_id());
     MBED_ASSERT(_mutex._count == 1);
     _add_wait_list(&_wait_list, &current_thread);
 
@@ -84,7 +84,7 @@ bool ConditionVariable::wait_until(uint64_t millisec)
 
 void ConditionVariable::notify_one()
 {
-    MBED_ASSERT(_mutex.get_owner() == Thread::gettid());
+    MBED_ASSERT(_mutex.get_owner() == ThisThread::get_id());
     if (_wait_list != NULL) {
         _wait_list->sem.release();
         _remove_wait_list(&_wait_list, _wait_list);
@@ -93,7 +93,7 @@ void ConditionVariable::notify_one()
 
 void ConditionVariable::notify_all()
 {
-    MBED_ASSERT(_mutex.get_owner() == Thread::gettid());
+    MBED_ASSERT(_mutex.get_owner() == ThisThread::get_id());
     while (_wait_list != NULL) {
         _wait_list->sem.release();
         _remove_wait_list(&_wait_list, _wait_list);

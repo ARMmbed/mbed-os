@@ -19,7 +19,7 @@
 
 namespace rtos {
 
-osStatus Thread::wait_until(uint64_t millisec)
+osStatus ThisThread::sleep_until(uint64_t millisec)
 {
     return 0;
 }

@@ -58,7 +58,7 @@ static uint32_t print_dec(char *buf, uint32_t value);
 void greentea_metrics_setup()
 {
 #if defined(MBED_STACK_STATS_ENABLED) && MBED_STACK_STATS_ENABLED
-    Thread::attach_terminate_hook(on_thread_terminate);
+    Kernel::attach_thread_terminate_hook(on_thread_terminate);
 #endif
 }
 
@@ -67,7 +67,7 @@ void greentea_metrics_report()
     send_heap_info();
 #if defined(MBED_STACK_STATS_ENABLED) && MBED_STACK_STATS_ENABLED
     send_stack_info();
-    Thread::attach_terminate_hook(NULL);
+    Kernel::attach_thread_terminate_hook(NULL);
 #endif
 #if defined(MBED_CPU_STATS_ENABLED)
     send_CPU_info();

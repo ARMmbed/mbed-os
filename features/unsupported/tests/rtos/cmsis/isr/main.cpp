@@ -17,7 +17,7 @@ void queue_isr() {
 void queue_thread(void const *argument) {
     while (true) {
         queue.put((uint32_t*)1);
-        Thread::wait(1000);
+        ThisThread::sleep_for(1000);
     }
 }
 

@@ -391,7 +391,7 @@ static void test_case_multithread_malloc_free()
         threads[i].start(callback(malloc_free, &threads_continue));
     }
 
-    Thread::wait(wait_time_us);
+    ThisThread::sleep_for(wait_time_us);
     threads_continue = false;
 
     for (int i = 0; i < NUM_TEST_THREADS; i++) {

@@ -46,7 +46,7 @@ void UDPSOCKET_RECV_TIMEOUT()
     UDPSocket sock;
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.open(get_interface()));
     sock.set_timeout(100);
-    sock.sigio(callback(_sigio_handler, Thread::gettid()));
+    sock.sigio(callback(_sigio_handler, ThisThread::get_id()));
 
     int recvd;
     Timer timer;
