@@ -145,22 +145,20 @@ int I2C::recover(PinName sda, PinName scl)
     DigitalInOut pin_sda(sda, PIN_INPUT, PullNone, 1);
     DigitalInOut pin_scl(scl, PIN_INPUT, PullNone, 1);
 
-    // Read and verify if recovery is required
-    if (pin_scl == 1) {
-        if (pin_sda == 1) {
-            // Return successfuly as SDA and SCL is high
-            return 0;
-        }
-    } else {
-        // Return as SCL is low and no access to become master.
+    // Return as SCL is low and no access to become master.
+    if (pin_scl == 0) {
         return I2C_ERROR_BUS_BUSY;
+    }
+
+    // Return successfully as SDA and SCL is high
+    if (pin_sda == 1) {
+        return 0;
     }
 
     // Send clock pulses, for device to recover 9
     pin_scl.mode(PullNone);
     pin_scl.output();
-    int count = 9;
-    while (count--) {
+    for (int count = 0; count < 10; count++) {
         pin_scl.mode(PullNone);
         pin_scl = 0;
         wait_us(5);
@@ -184,6 +182,7 @@ int I2C::recover(PinName sda, PinName scl)
         // Return as SCL is low and no access to become master.
         return I2C_ERROR_BUS_BUSY;
     }
+
     return 0;
 }
 
