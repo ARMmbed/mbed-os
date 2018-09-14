@@ -38,3 +38,10 @@ TEST_F(Test_LoRaPHYIN865, constructor)
     EXPECT_TRUE(object);
 }
 
+TEST_F(Test_LoRaPHYIN865, apply_DR_offset)
+{
+    EXPECT_TRUE(0 == object->apply_DR_offset(0, 0));
+}
+
+
+

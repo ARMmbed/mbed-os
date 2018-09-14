@@ -676,11 +676,5 @@ void LoRaPHYUS915::set_tx_cont_mode(cw_mode_params_t* params, uint32_t given_fre
 
 uint8_t LoRaPHYUS915::apply_DR_offset(int8_t dr, int8_t dr_offset)
 {
-    int8_t datarate = datarate_offsets_US915[dr][dr_offset];
-
-    if (datarate < 0) {
-        datarate = DR_0;
-    }
-
-    return datarate;
+    return datarate_offsets_US915[dr][dr_offset];
 }
