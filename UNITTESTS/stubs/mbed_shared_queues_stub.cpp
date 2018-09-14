@@ -21,8 +21,9 @@ using namespace events;
 
 namespace mbed {
 
+EventQueue *mbed_shared_queue_stub;
 EventQueue *mbed_event_queue()
 {
-    return 0;
+    return mbed_shared_queue_stub;
 }
 } // namespace mbed
