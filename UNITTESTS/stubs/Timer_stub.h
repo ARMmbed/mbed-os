@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #ifndef TIMER_STUB_H
 #define TIMER_STUB_H
 
