@@ -3,9 +3,6 @@
 # UNIT TESTS
 ####################
 
-# Unit test suite name
-set(TEST_SUITE_NAME "cellular-framework-common-util")
-
 # Add test specific include paths
 set(unittest-includes ${unittest-includes}
   features/cellular/framework/common/util
