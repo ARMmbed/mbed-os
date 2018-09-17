@@ -31,8 +31,14 @@
 using namespace events;
 using namespace mbed;
 
+static const AT_CellularBase::SupportedFeature unsupported_features[] =  {
+    AT_CellularBase::AT_CGAUTH, // BC95_AT_Commands_Manual_V1.9
+    AT_CellularBase::SUPPORTED_FEATURE_END_MARK
+};
+
 QUECTEL_BC95::QUECTEL_BC95(EventQueue &queue) : AT_CellularDevice(queue)
 {
+    AT_CellularBase::set_unsupported_features(unsupported_features);
 }
 
 QUECTEL_BC95::~QUECTEL_BC95()
