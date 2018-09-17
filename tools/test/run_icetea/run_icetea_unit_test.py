@@ -21,7 +21,7 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..",
 sys.path.insert(0, ROOT)
 
 from tools.run_icetea import find_build_from_build_data, filter_test_by_build_data, filter_test_by_name, \
-    get_application_list
+    get_application_list, set_allowed_platform
 
 """
 Unit tests for run_icetea.py
@@ -32,7 +32,8 @@ test_build_data = {
         {
             "id": "TEST_APPS-DEVICE-SOCKET_APP",
             "target_name": "K64F",
-            "toolchain_name": "GCC_ARM"
+            "toolchain_name": "GCC_ARM",
+            "result": "OK"
         }
     ]
 }
@@ -142,3 +143,36 @@ def test_get_application_list_not_found():
 
 def test_get_application_list_none():
     assert 'TEST_APPS-device-socket_app' in get_application_list(icetea_json_output, None)
+
+
+def test_set_allowed_platform_simple():
+    ret = set_allowed_platform({"duts": {}}, "K66F")
+    assert ret['duts']['*']['allowed_platforms'] == ["K66F"]
+
+
+def test_set_allowed_platform_normal():
+    ret = set_allowed_platform({
+        "duts": {
+            "*": {
+                "count": 3,
+                "allowed_platforms": ["K64F"],
+                "application": {"bin": "hex.bin"}
+            },
+            1: {"application": {"bin": "my_hex.bin"}},
+            2: {"application": {"bin": "my_hex2.bin"}}
+        }
+    }, "K66F")
+    assert ret['duts']['*']['allowed_platforms'] == ["K66F"]
+
+
+def test_set_allowed_platform_no_changes():
+    temp = {
+        "duts": {
+            "*": {
+                "count": 3,
+                "allowed_platforms": ["K64F"],
+                "application": {"bin": "hex.bin"}
+            },
+        }
+    }
+    assert temp == set_allowed_platform(temp, "K64F")
