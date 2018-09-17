@@ -798,19 +798,16 @@ class Config(object):
             if part.minaddr() != rom_start:
                 raise ConfigException("bootloader executable does not "
                                       "start at 0x%x" % rom_start)
-            if len(part.segments()) == 1:
-                part_size = (part.maxaddr() - part.minaddr()) + 1
-                part_size = Config._align_ceiling(rom_start + part_size, self.sectors) - rom_start
-            else:
-                # assume first segment is at start
+
+            # segments returns start address and 'next after end' address
+            part_size = part.segments()[0][1] - part.segments()[0][0]
+            part_size = Config._align_ceiling(rom_start + part_size, self.sectors) - rom_start
+
+            if len(part.segments()) > 1 and part.segments()[1][0] < rom_end:
+                # assume first segment is at start (already checked earlier as segments are returned in order)
                 # second at the end or outside ROM
                 # rest outside regular ROM
-                if part.segments()[0][0] != rom_start:
-                    raise ConfigException("bootloader segments not in order")
-                part_size = part.segments()[0][1] - part.segments()[0][0]
-                part_size = Config._align_ceiling(rom_start + part_size, self.sectors) - rom_start
-                if part.segments()[1][0] < rom_end:
-                    max_app_addr = part.segments()[1][0]
+                max_app_addr = part.segments()[1][0]
 
             yield Region("bootloader", rom_start, part_size, False,
                          filename)

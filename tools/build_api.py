@@ -425,11 +425,11 @@ def merge_region_list(region_list, destination, notify, padding=b'\xFF'):
             notify.info("  Filling region %s with %s" % (region.name, region.filename))
             part = intelhex_offset(region.filename, offset=region.start)
             part.start_addr = None
-            if len(part.segments()) == 1:
-                part_size = (part.maxaddr() - part.minaddr()) + 1
-            else:
-                # make same assumption as in region builder; first segments must fit.
-                part_size = part.segments()[0][1] - part.segments()[0][0]
+
+            # make same assumption as in region builder; first segment must fit.
+            # this is only to get a neat ToolException anyway, since IntelHex.merge will
+            # throw intelhex.AddressOverlapError if there's overlapping
+            part_size = part.segments()[0][1] - part.segments()[0][0]
 
             if part_size > region.size:
                 raise ToolException("Contents of region %s does not fit"
