@@ -24,6 +24,7 @@ using namespace events;
 
 static const AT_CellularBase::SupportedFeature unsupported_features[] =  {
     AT_CellularBase::AT_CGSN_WITH_TYPE, // HE910/UE910/UL865/UE866 AT Commands Reference Guide Rev. 11-2006-10-14
+    AT_CellularBase::AT_CGAUTH, // HE910/UE910/UL865/UE866 AT Commands Reference Guide Rev. 11-2006-10-14
     AT_CellularBase::SUPPORTED_FEATURE_END_MARK
 };
 
