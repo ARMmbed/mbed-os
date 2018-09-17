@@ -23,7 +23,7 @@
 #endif
 
 #include "CellularConnectionFSM.h"
-#include "CellularUtil.h"
+#include "CellularDevice.h"
 
 #include "EasyCellularConnection.h"
 #include "CellularLog.h"

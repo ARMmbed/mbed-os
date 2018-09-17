@@ -28,8 +28,9 @@ public:
     GEMALTO_CINTERION(events::EventQueue &queue);
     virtual ~GEMALTO_CINTERION();
 
-public: // CellularDevice
-    virtual CellularNetwork *open_network(FileHandle *fh);
+protected: // AT_CellularDevice
+    virtual AT_CellularNetwork *open_network_impl(ATHandler &at);
+public:
     virtual nsapi_error_t init_module(FileHandle *fh);
 };
 

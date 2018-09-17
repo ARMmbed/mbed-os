@@ -32,18 +32,9 @@ GEMALTO_CINTERION::~GEMALTO_CINTERION()
 {
 }
 
-CellularNetwork *GEMALTO_CINTERION::open_network(FileHandle *fh)
+AT_CellularNetwork *GEMALTO_CINTERION::open_network_impl(ATHandler &at)
 {
-    if (!_network) {
-        ATHandler *atHandler = get_at_handler(fh);
-        if (atHandler) {
-            _network = new GEMALTO_CINTERION_CellularNetwork(*get_at_handler(fh));
-            if (!_network) {
-                release_at_handler(atHandler);
-            }
-        }
-    }
-    return _network;
+    return new GEMALTO_CINTERION_CellularNetwork(at);
 }
 
 nsapi_error_t GEMALTO_CINTERION::init_module(FileHandle *fh)

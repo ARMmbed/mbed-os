@@ -16,6 +16,12 @@
  */
 
 #include "AT_CellularDevice.h"
+#include "AT_CellularInformation.h"
+#include "AT_CellularNetwork.h"
+#include "AT_CellularPower.h"
+#include "AT_CellularSIM.h"
+#include "AT_CellularSMS.h"
+#include "ATHandler.h"
 
 using namespace events;
 using namespace mbed;
@@ -44,6 +50,11 @@ AT_CellularDevice::~AT_CellularDevice()
     }
 }
 
+events::EventQueue *AT_CellularDevice::get_queue() const
+{
+    return &_queue;
+}
+
 // each parser is associated with one filehandle (that is UART)
 ATHandler *AT_CellularDevice::get_at_handler(FileHandle *fileHandle)
 {
@@ -60,13 +71,11 @@ ATHandler *AT_CellularDevice::get_at_handler(FileHandle *fileHandle)
     }
 
     atHandler = new ATHandler(fileHandle, _queue, _default_timeout, "\r", get_send_delay());
-    if (atHandler) {
-        if (_modem_debug_on) {
-            atHandler->set_debug(_modem_debug_on);
-        }
-        atHandler->_nextATHandler = _atHandlers;
-        _atHandlers = atHandler;
+    if (_modem_debug_on) {
+        atHandler->set_debug(_modem_debug_on);
     }
+    atHandler->_nextATHandler = _atHandlers;
+    _atHandlers = atHandler;
 
     return atHandler;
 }
@@ -103,11 +112,11 @@ CellularNetwork *AT_CellularDevice::open_network(FileHandle *fh)
     if (!_network) {
         ATHandler *atHandler = get_at_handler(fh);
         if (atHandler) {
-            _network = new AT_CellularNetwork(*atHandler);
-            if (!_network) {
-                release_at_handler(atHandler);
-            }
+            _network = open_network_impl(*atHandler);
         }
+    }
+    if (_network) {
+        _network_ref_count++;
     }
     return _network;
 }
@@ -117,11 +126,11 @@ CellularSMS *AT_CellularDevice::open_sms(FileHandle *fh)
     if (!_sms) {
         ATHandler *atHandler = get_at_handler(fh);
         if (atHandler) {
-            _sms = new AT_CellularSMS(*atHandler);
-            if (!_sms) {
-                release_at_handler(atHandler);
-            }
+            _sms = open_sms_impl(*atHandler);
         }
+    }
+    if (_sms) {
+        _sms_ref_count++;
     }
     return _sms;
 }
@@ -131,11 +140,11 @@ CellularSIM *AT_CellularDevice::open_sim(FileHandle *fh)
     if (!_sim) {
         ATHandler *atHandler = get_at_handler(fh);
         if (atHandler) {
-            _sim = new AT_CellularSIM(*atHandler);
-            if (!_sim) {
-                release_at_handler(atHandler);
-            }
+            _sim = open_sim_impl(*atHandler);
         }
+    }
+    if (_sim) {
+        _sim_ref_count++;
     }
     return _sim;
 }
@@ -145,11 +154,11 @@ CellularPower *AT_CellularDevice::open_power(FileHandle *fh)
     if (!_power) {
         ATHandler *atHandler = get_at_handler(fh);
         if (atHandler) {
-            _power = new AT_CellularPower(*atHandler);
-            if (!_power) {
-                release_at_handler(atHandler);
-            }
+            _power = open_power_impl(*atHandler);
         }
+    }
+    if (_power) {
+        _power_ref_count++;
     }
     return _power;
 }
@@ -159,56 +168,97 @@ CellularInformation *AT_CellularDevice::open_information(FileHandle *fh)
     if (!_information) {
         ATHandler *atHandler = get_at_handler(fh);
         if (atHandler) {
-            _information = new AT_CellularInformation(*atHandler);
-            if (!_information) {
-                release_at_handler(atHandler);
-            }
+            _information = open_information_impl(*atHandler);
         }
     }
+    if (_information) {
+        _info_ref_count++;
+    }
     return _information;
+}
+
+AT_CellularNetwork *AT_CellularDevice::open_network_impl(ATHandler &at)
+{
+    return new AT_CellularNetwork(at);
+}
+
+AT_CellularSMS *AT_CellularDevice::open_sms_impl(ATHandler &at)
+{
+    return new AT_CellularSMS(at);
+}
+
+AT_CellularPower *AT_CellularDevice::open_power_impl(ATHandler &at)
+{
+    return new AT_CellularPower(at);
+}
+
+AT_CellularSIM *AT_CellularDevice::open_sim_impl(ATHandler &at)
+{
+    return new AT_CellularSIM(at);
+}
+
+AT_CellularInformation *AT_CellularDevice::open_information_impl(ATHandler &at)
+{
+    return new AT_CellularInformation(at);
 }
 
 void AT_CellularDevice::close_network()
 {
     if (_network) {
-        release_at_handler(&_network->get_at_handler());
-        delete _network;
-        _network = NULL;
+        _network_ref_count--;
+        if (_network_ref_count == 0) {
+            release_at_handler(&_network->get_at_handler());
+            delete _network;
+            _network = NULL;
+        }
     }
 }
 
 void AT_CellularDevice::close_sms()
 {
     if (_sms) {
-        release_at_handler(&_sms->get_at_handler());
-        delete _sms;
-        _sms = NULL;
+        _sms_ref_count--;
+        if (_sms_ref_count == 0) {
+            release_at_handler(&_sms->get_at_handler());
+            delete _sms;
+            _sms = NULL;
+        }
     }
 }
+
 void AT_CellularDevice::close_power()
 {
     if (_power) {
-        release_at_handler(&_power->get_at_handler());
-        delete _power;
-        _power = NULL;
+        _power_ref_count--;
+        if (_power_ref_count == 0) {
+            release_at_handler(&_power->get_at_handler());
+            delete _power;
+            _power = NULL;
+        }
     }
 }
 
 void AT_CellularDevice::close_sim()
 {
     if (_sim) {
-        release_at_handler(&_sim->get_at_handler());
-        delete _sim;
-        _sim = NULL;
+        _sim_ref_count--;
+        if (_sim_ref_count == 0) {
+            release_at_handler(&_sim->get_at_handler());
+            delete _sim;
+            _sim = NULL;
+        }
     }
 }
 
 void AT_CellularDevice::close_information()
 {
     if (_information) {
-        release_at_handler(&_information->get_at_handler());
-        delete _information;
-        _information = NULL;
+        _info_ref_count--;
+        if (_info_ref_count == 0) {
+            release_at_handler(&_information->get_at_handler());
+            delete _information;
+            _information = NULL;
+        }
     }
 }
 
