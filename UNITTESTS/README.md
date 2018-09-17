@@ -203,7 +203,6 @@ Each class to be tested requires two files for unit testing:
 
 A unit test definition file `unittest.cmake` requires variables to be set for a test to be configured. File source paths in `unittest.cmake` files need to be relative to the unit test folder and `CMakeLists.txt`.
 
-* **TEST_SUITE_NAME** - Identifier for the test suite. Use naming convention *PATH_TO_THE_TESTABLE_FILE* e.g. *features-netsocket-InternetSocket*
 * **unittest-includes** - Include paths for headers needed to build the tests in addition to the base include paths listed in [CMakeLists.txt](CMakeLists.txt). Optional.
 * **unittest-sources** - Mbed OS source files and stubs included for the build.
 * **unittest-test-sources** - Unit test source files.
@@ -225,8 +224,6 @@ For example to create a unit test for `rtos/Semaphore.cpp`:
 1. Create a directory for unit test files in `UNITTESTS/rtos/Semaphore`.
 2. Create a test definition file `UNITTESTS/rtos/Semaphore/unittest.cmake` with the following content:
 ```
-set(TEST_SUITE_NAME "rtos-Semaphore")
-
 set(unittest-sources
 	stubs/mbed_assert.c
 	../rtos/Semaphore.cpp
