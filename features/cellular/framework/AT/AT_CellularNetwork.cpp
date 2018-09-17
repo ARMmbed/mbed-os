@@ -210,6 +210,9 @@ nsapi_error_t AT_CellularNetwork::set_credentials(const char *apn,
     }
 
     if (username && (len = strlen(username)) > 0) {
+        if (!is_supported(AT_CGAUTH)) { // APN authentication is needed with username/password
+            return NSAPI_ERROR_UNSUPPORTED;
+        }
         _uname = (char *)malloc(len * sizeof(char) + 1);
         if (_uname) {
             memcpy(_uname, username, len + 1);
@@ -512,6 +515,9 @@ nsapi_error_t AT_CellularNetwork::do_user_authentication()
 {
     // if user has defined user name and password we need to call CGAUTH before activating or modifying context
     if (_pwd && _uname) {
+        if (!is_supported(AT_CGAUTH)) {
+            return NSAPI_ERROR_UNSUPPORTED;
+        }
         _at.cmd_start("AT+CGAUTH=");
         _at.write_int(_cid);
         _at.write_int(_authentication_type);
