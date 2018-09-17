@@ -271,7 +271,7 @@ TEST_F(TestTCPSocket, accept)
     nsapi_error_t error;
     stack.return_value = NSAPI_ERROR_OK;
     socket->open((NetworkStack *)&stack);
-    EXPECT_EQ(socket->accept(&error), static_cast<TCPSocket*>(NULL));
+    EXPECT_NE(socket->accept(&error), static_cast<TCPSocket*>(NULL));
     EXPECT_EQ(error, NSAPI_ERROR_OK);
 }
 
