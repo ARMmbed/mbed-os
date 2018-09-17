@@ -339,6 +339,7 @@ class ARM(mbedToolchain):
 class ARM_STD(ARM):
     def __init__(self, target, notify=None, macros=None,
                  build_profile=None, build_dir=None):
+        target.default_lib = ""
         ARM.__init__(self, target, notify, macros, build_dir=build_dir,
                      build_profile=build_profile)
         if not set(("ARM", "uARM")).intersection(set(target.supported_toolchains)):
