@@ -146,6 +146,12 @@ protected:
      */
     virtual nsapi_error_t set_access_technology_impl(RadioAccessTechnology op_rat);
 
+    /** APN user authentication
+     *
+     *  @return       NSAPI_ERROR_OK on success
+     *                NSAPI_ERROR_UNSUPPORTED on authentication not supported by cellular device
+     *                NSAPI_ERROR_AUTH_FAILURE on authentication to network failed
+     */
     virtual nsapi_error_t do_user_authentication();
 private:
     //  "NO CARRIER" urc

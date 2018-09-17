@@ -390,7 +390,7 @@ public:
      *
      *  @return              NSAPI_ERROR_OK on success
      *                       NSAPI_ERROR_NO_CONNECTION if fails to find suitable context to activate or activation failed (if not already activated)
-     *                       NSAPI_ERROR_UNSUPPORTED if NetworkStack was not found
+     *                       NSAPI_ERROR_UNSUPPORTED if NetworkStack was not found or cellular device does not support authentication
      *                       NSAPI_ERROR_AUTH_FAILURE if password and username were provided and authentication to network failed
      *                       Also if PPP mode
      *                       NSAPI_ERROR_DEVICE_ERROR on failure and check more error from nsapi_ppp_connect(...)
