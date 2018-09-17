@@ -75,6 +75,11 @@ def get_options_parser():
                         help="Generate code coverage report",
                         dest="coverage")
 
+    parser.add_argument("--include-headers",
+                        action="store_true",
+                        help="Include headers to coverage reports, defaults to false.",
+                        dest="include_headers")
+
     parser.add_argument("-m",
                         "--make-program",
                         default=get_make_tool(),
@@ -140,3 +145,4 @@ Mbed OS unit testing:
     if options.coverage:
         logging.info(" [%s]  \tGenerate coverage reports", "SET")
         logging.info(" \t\t - Output: %s", options.coverage)
+        logging.info(" \t\t - Include headers: %s", options.include_headers)
