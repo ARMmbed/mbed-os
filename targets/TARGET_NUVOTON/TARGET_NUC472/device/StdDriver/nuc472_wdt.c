@@ -1,8 +1,8 @@
 /**************************************************************************//**
  * @file     wdt.c
  * @version  V1.00
- * $Revision: 6 $
- * $Date: 14/10/02 7:19p $
+ * $Revision: 9 $
+ * $Date: 15/11/12 9:49a $
  * @brief    NUC472/NUC442 WDT driver source file
  *
  * @note
@@ -49,9 +49,10 @@ void  WDT_Open(uint32_t u32TimeoutInterval,
                uint32_t u32EnableWakeup)
 {
 
-    WDT->CTL = u32TimeoutInterval | u32ResetDelay | WDT_CTL_WDTEN_Msk |
+    WDT->CTL = u32TimeoutInterval | WDT_CTL_WDTEN_Msk |
                (u32EnableReset << WDT_CTL_RSTEN_Pos) |
                (u32EnableWakeup << WDT_CTL_WKEN_Pos);
+    WDT->ALTCTL = u32ResetDelay;
     return;
 }
 
