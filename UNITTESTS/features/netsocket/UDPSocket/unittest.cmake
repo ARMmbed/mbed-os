@@ -3,9 +3,6 @@
 # UNIT TESTS
 ####################
 
-# Unit test suite name
-set(TEST_SUITE_NAME "features-netsocket-UDPSocket")
-
 set(unittest-sources
   ../features/netsocket/SocketAddress.cpp
   ../features/netsocket/NetworkStack.cpp

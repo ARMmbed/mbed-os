@@ -147,11 +147,17 @@ foreach(testfile ${unittest-file-list})
   # Get source files
   include("${testfile}")
 
-  if(TEST_SUITE_NAME)
-    set(TEST_SUITES ${TEST_SUITES} ${TEST_SUITE_NAME})
-  else()
-    message(FATAL_ERROR "No TEST_SUITE_NAME found in test file. Add it to ${testfile}.")
-  endif()
+  get_filename_component(TEST_SUITE_DIR ${testfile} DIRECTORY)
+
+  file(RELATIVE_PATH
+       TEST_SUITE_NAME # output
+       ${PROJECT_SOURCE_DIR} # root
+       ${TEST_SUITE_DIR} #abs dirpath
+  )
+
+  string(REGEX REPLACE "/|\\\\" "-" TEST_SUITE_NAME ${TEST_SUITE_NAME})
+
+  set(TEST_SUITES ${TEST_SUITES} ${TEST_SUITE_NAME})
 
   set(LIBS_TO_BE_LINKED gmock_main)
 
@@ -178,7 +184,7 @@ foreach(testfile ${unittest-file-list})
     # Link the executable with the libraries.
     target_link_libraries(${TEST_SUITE_NAME} ${LIBS_TO_BE_LINKED})
 
-    add_test(NAME "${TEST_SUITE_NAME}UnitTests" COMMAND ${TEST_SUITE_NAME})
+    add_test(NAME "${TEST_SUITE_NAME}" COMMAND ${TEST_SUITE_NAME})
 
     # Append test build directory to list
     list(APPEND BUILD_DIRECTORIES "./CMakeFiles/${TEST_SUITE_NAME}.dir")
