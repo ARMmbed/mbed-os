@@ -199,4 +199,13 @@ void gpio_deinit(gpio_t *obj)
     HAL_GPIO_DeInit(&obj->hal_pin);
 }
 
+int gpio_is_connected(const gpio_t *obj)
+{
+    if(obj->pin != (PinName)NC){
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
 #endif
