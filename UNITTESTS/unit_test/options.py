@@ -21,7 +21,7 @@ UNIT TEST OPTIONS
 import argparse
 import logging
 
-from .settings import CMAKE_GENERATORS, MAKE_PROGRAMS, COVERAGE_TYPES
+from .settings import CMAKE_GENERATORS, MAKE_PROGRAMS, COVERAGE_ARGS
 from .get_tools import get_make_tool
 
 def get_options_parser():
@@ -71,7 +71,7 @@ def get_options_parser():
                         dest="debug_build")
 
     parser.add_argument("--coverage",
-                        choices=COVERAGE_TYPES,
+                        choices=COVERAGE_ARGS,
                         help="Generate code coverage report",
                         dest="coverage")
 
