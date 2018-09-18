@@ -72,7 +72,7 @@
         },
         "error-decode-http-url-str": {
             "help": "HTTP URL string for ARM Mbed-OS Error Decode microsite",
-            "value": "\"\\nFor more info, visit: https://armmbed.github.io/mbedos-error/?error=0x%08X\""
+            "value": "\"armmbed.github.io/mbedos-error/?error=0x%08x\""
         }
     },
     "target_overrides": {
