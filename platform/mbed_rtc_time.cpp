@@ -33,6 +33,8 @@ static void (*_rtc_write)(time_t t) = rtc_write;
 
 #include "drivers/LowPowerTimer.h"
 
+#define US_PER_SEC 1000000
+
 static SingletonPtr<mbed::LowPowerTimer> _rtc_lp_timer;
 static uint64_t _rtc_lp_base;
 static bool _rtc_enabled;
@@ -50,7 +52,7 @@ static int _rtc_lpticker_isenabled(void)
 
 static time_t _rtc_lpticker_read(void)
 {
-    return (uint64_t)_rtc_lp_timer->read() + _rtc_lp_base;
+    return _rtc_lp_timer->read_high_resolution_us() / US_PER_SEC + _rtc_lp_base;
 }
 
 static void _rtc_lpticker_write(time_t t)
