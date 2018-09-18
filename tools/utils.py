@@ -544,10 +544,15 @@ def intelhex_offset(filename, offset):
                             % filename)
     return ih
 
-
 def integer(maybe_string, base):
     """Make an integer of a number or a string"""
     if isinstance(maybe_string, int):
         return maybe_string
     else:
         return int(maybe_string, base)
+
+def generate_update_filename(name, target):
+    return "%s_update.%s" % (
+                    name,
+                    getattr(target, "OUTPUT_EXT_UPDATE", "bin")
+                )
