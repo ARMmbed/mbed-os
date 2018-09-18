@@ -510,7 +510,7 @@ private:
     const char *mem_str(const char *dest, size_t dest_len, const char *src, size_t src_len);
 
     // check is urc is already added
-    bool find_urc_handler(const char *prefix, mbed::Callback<void()> callback);
+    bool find_urc_handler(const char *prefix, mbed::Callback<void()> *callback);
 
     // print contents of a buffer to trace log
     void debug_print(char *p, int len);

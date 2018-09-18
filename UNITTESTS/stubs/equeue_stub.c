@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, Arm Limited and affiliates.
+ * Copyright (c) , Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,25 +15,90 @@
  * limitations under the License.
  */
 
-#include "equeue/equeue.h"
+#include "equeue.h"
 
-void *equeue_alloc(equeue_t *q, size_t size)
-{
-}
-
-int equeue_post(equeue_t *q, void (*cb)(void *), void *p)
+int equeue_create(equeue_t *queue, size_t size)
 {
     return 0;
 }
 
-void equeue_event_delay(void *p, int ms)
+int equeue_create_inplace(equeue_t *queue, size_t size, void *buffer)
 {
+    return 0;
 }
 
-void equeue_event_period(void *p, int ms)
+void equeue_destroy(equeue_t *queue)
 {
+
 }
 
-void equeue_event_dtor(void *p, void (*dtor)(void *))
+void equeue_dispatch(equeue_t *queue, int ms)
 {
+
+}
+
+void equeue_break(equeue_t *queue)
+{
+
+}
+
+int equeue_call(equeue_t *queue, void (*cb)(void *), void *data)
+{
+    return 0;
+}
+
+int equeue_call_in(equeue_t *queue, int ms, void (*cb)(void *), void *data)
+{
+    return 0;
+}
+
+int equeue_call_every(equeue_t *queue, int ms, void (*cb)(void *), void *data)
+{
+    return 0;
+}
+
+void *equeue_alloc(equeue_t *queue, size_t size)
+{
+    return NULL;
+}
+
+void equeue_dealloc(equeue_t *queue, void *event)
+{
+
+}
+
+void equeue_event_delay(void *event, int ms)
+{
+
+}
+
+void equeue_event_period(void *event, int ms)
+{
+
+}
+
+void equeue_event_dtor(void *event, void (*dtor)(void *))
+{
+
+}
+
+int equeue_post(equeue_t *queue, void (*cb)(void *), void *event)
+{
+    return 0;
+}
+
+void equeue_cancel(equeue_t *queue, int id)
+{
+
+}
+
+void equeue_background(equeue_t *queue,
+                       void (*update)(void *timer, int ms), void *timer)
+{
+
+}
+
+void equeue_chain(equeue_t *queue, equeue_t *target)
+{
+
 }

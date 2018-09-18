@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, Arm Limited and affiliates.
+ * Copyright (c) , Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,24 +15,6 @@
  * limitations under the License.
  */
 
-#include "rtos/Mutex.h"
-
-rtos::Mutex::Mutex()
-{
-    return;
-}
-
-rtos::Mutex::~Mutex()
-{
-    return;
-}
-
-osStatus rtos::Mutex::lock(uint32_t millisec)
-{
-    return osOK;
-}
-
-osStatus rtos::Mutex::unlock()
-{
-    return osOK;
-}
+#ifndef OS_STACK_SIZE
+#define OS_STACK_SIZE 0
+#endif

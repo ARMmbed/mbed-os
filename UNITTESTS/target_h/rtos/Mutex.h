@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, Arm Limited and affiliates.
+ * Copyright (c) , Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,25 +14,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifndef __MUTEX_H__
+#define __MUTEX_H__
 
-#include "rtos/Mutex.h"
+#include <inttypes.h>
+#include "cmsis_os2.h"
 
-rtos::Mutex::Mutex()
-{
-    return;
+namespace rtos {
+
+class Mutex {
+public:
+    Mutex();
+
+    Mutex(const char *name);
+
+    osStatus lock(uint32_t millisec=osWaitForever);
+
+    bool trylock();
+
+    bool trylock_for(uint32_t millisec);
+
+    bool trylock_until(uint64_t millisec);
+
+    osStatus unlock();
+
+    osThreadId_t get_owner();
+
+    ~Mutex();
+};
+
 }
 
-rtos::Mutex::~Mutex()
-{
-    return;
-}
-
-osStatus rtos::Mutex::lock(uint32_t millisec)
-{
-    return osOK;
-}
-
-osStatus rtos::Mutex::unlock()
-{
-    return osOK;
-}
+#endif
