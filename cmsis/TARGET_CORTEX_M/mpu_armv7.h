@@ -1,8 +1,8 @@
 /******************************************************************************
  * @file     mpu_armv7.h
  * @brief    CMSIS MPU API for Armv7-M MPU
- * @version  V5.0.4
- * @date     10. January 2018
+ * @version  V5.0.5
+ * @date     06. September 2018
  ******************************************************************************/
 /*
  * Copyright (c) 2017-2018 Arm Limited. All rights reserved.
@@ -86,10 +86,10 @@
 * \param IsBufferable      Region is bufferable, i.e. using write-back caching. Cacheable but non-bufferable regions use write-through policy.
 */  
 #define ARM_MPU_ACCESS_(TypeExtField, IsShareable, IsCacheable, IsBufferable)   \
-  ((((TypeExtField ) << MPU_RASR_TEX_Pos) & MPU_RASR_TEX_Msk)                 | \
-   (((IsShareable ) << MPU_RASR_S_Pos) & MPU_RASR_S_Msk)                      | \
-   (((IsCacheable ) << MPU_RASR_C_Pos) & MPU_RASR_C_Msk)                      | \
-   (((IsBufferable ) << MPU_RASR_B_Pos) & MPU_RASR_B_Msk))
+  ((((TypeExtField) << MPU_RASR_TEX_Pos) & MPU_RASR_TEX_Msk)                  | \
+   (((IsShareable)  << MPU_RASR_S_Pos)   & MPU_RASR_S_Msk)                    | \
+   (((IsCacheable)  << MPU_RASR_C_Pos)   & MPU_RASR_C_Msk)                    | \
+   (((IsBufferable) << MPU_RASR_B_Pos)   & MPU_RASR_B_Msk))
 
 /**
 * MPU Region Attribute and Size Register Value
@@ -100,11 +100,14 @@
 * \param SubRegionDisable  Sub-region disable field.
 * \param Size              Region size of the region to be configured, for example 4K, 8K.
 */
-#define ARM_MPU_RASR_EX(DisableExec, AccessPermission, AccessAttributes, SubRegionDisable, Size)      \
-  ((((DisableExec ) << MPU_RASR_XN_Pos) & MPU_RASR_XN_Msk)                                          | \
-   (((AccessPermission) << MPU_RASR_AP_Pos) & MPU_RASR_AP_Msk)                                      | \
-   (((AccessAttributes) ) & (MPU_RASR_TEX_Msk | MPU_RASR_S_Msk | MPU_RASR_C_Msk | MPU_RASR_B_Msk)))
-  
+#define ARM_MPU_RASR_EX(DisableExec, AccessPermission, AccessAttributes, SubRegionDisable, Size)    \
+  ((((DisableExec)      << MPU_RASR_XN_Pos)   & MPU_RASR_XN_Msk)                                  | \
+   (((AccessPermission) << MPU_RASR_AP_Pos)   & MPU_RASR_AP_Msk)                                  | \
+   (((AccessAttributes) & (MPU_RASR_TEX_Msk | MPU_RASR_S_Msk | MPU_RASR_C_Msk | MPU_RASR_B_Msk))) | \
+   (((SubRegionDisable) << MPU_RASR_SRD_Pos)  & MPU_RASR_SRD_Msk)                                 | \
+   (((Size)             << MPU_RASR_SIZE_Pos) & MPU_RASR_SIZE_Msk)                                | \
+   (((MPU_RASR_ENABLE_Msk))))
+
 /**
 * MPU Region Attribute and Size Register Value
 * 
