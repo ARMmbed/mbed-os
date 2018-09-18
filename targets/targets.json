@@ -4318,9 +4318,10 @@
         "release_versions": ["5"],
         "device_name": "nRF52832_xxAA"
     },
-    "NUMAKER_PFM_M487": {
+    "MCU_M480": {
         "core": "Cortex-M4F",
         "default_toolchain": "ARM",
+        "public": false,
         "extra_labels": ["NUVOTON", "M480", "FLASH_CMSIS_ALGO","NUVOTON_EMAC"],
         "is_disk_virtual": true,
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
@@ -4354,11 +4355,18 @@
         "macros_add": ["MBEDTLS_CONFIG_HW_SUPPORT", "LPTICKER_DELAY_TICKS=3"],
         "device_has": ["USTICKER", "LPTICKER", "RTC", "ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "TRNG", "FLASH", "CAN", "EMAC"],
         "release_versions": ["5"],
-        "device_name": "M487JIDAE",
         "bootloader_supported": true,
         "overrides": {
             "network-default-interface-type": "ETHERNET"
         }
+    },
+    "NUMAKER_PFM_M487": {
+        "inherits": ["MCU_M480"],
+        "device_name": "M487JIDAE"
+    },
+    "NUMAKER_IOT_M487": {
+        "inherits": ["MCU_M480"],
+        "device_name": "M487JIDAE"
     },
     "TMPM066": {
         "inherits": ["Target"],
@@ -4489,47 +4497,5 @@
         "device_name": "TMPM3H6FWFG",
         "detect_code": ["7012"],
         "release_versions": ["5"]
-    },
-    "NUMAKER_IOT_M487": {
-        "core": "Cortex-M4F",
-        "default_toolchain": "ARM",
-        "extra_labels": ["NUVOTON", "M480", "FLASH_CMSIS_ALGO","NUVOTON_EMAC"],
-        "is_disk_virtual": true,
-        "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
-        "config": {
-            "gpio-irq-debounce-enable": {
-                "help": "Enable GPIO IRQ debounce",
-                "value": 0
-            },
-            "gpio-irq-debounce-enable-list": {
-                "help": "Comma separated pin list to enable GPIO IRQ debounce",
-                "value": "NC"
-            },
-            "gpio-irq-debounce-clock-source": {
-                "help": "Select GPIO IRQ debounce clock source: GPIO_DBCTL_DBCLKSRC_HCLK or GPIO_DBCTL_DBCLKSRC_LIRC",
-                "value": "GPIO_DBCTL_DBCLKSRC_LIRC"
-            },
-            "gpio-irq-debounce-sample-rate": {
-                "help": "Select GPIO IRQ debounce sample rate: GPIO_DBCTL_DBCLKSEL_1, GPIO_DBCTL_DBCLKSEL_2, GPIO_DBCTL_DBCLKSEL_4, ..., or GPIO_DBCTL_DBCLKSEL_32768",
-                "value": "GPIO_DBCTL_DBCLKSEL_16"
-            },
-            "usb-device-hsusbd": {
-                "help": "Select high-speed USB device or not",
-                "value": 1
-            },
-            "ctrl01-enable": {
-                "help": "Enable control_01",
-                "value": 0
-            }
-        },
-        "inherits": ["Target"],
-        "macros_add": ["MBEDTLS_CONFIG_HW_SUPPORT", "LPTICKER_DELAY_TICKS=3"],
-        "device_has": ["USTICKER", "LPTICKER", "RTC", "ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "TRNG", "FLASH", "CAN", "EMAC"],
-        "release_versions": ["5"],
-        "device_name": "M487JIDAE",
-        "bootloader_supported": true,
-        "overrides": {
-            "network-default-interface-type": "ETHERNET"
-        }
     }
 }
