@@ -45,7 +45,7 @@ sudo easy_install pip
 
 ### Installing covr
 
-Install gcovr code coverage tool globally with `pip install 'gcovr>=4.1'` or using virtualenv:
+Install gcovr code coverage tool globally with `pip install "gcovr>=4.1"` or using virtualenv:
 
 #### virtualenv
 
@@ -79,7 +79,7 @@ mbed test --unittests
 
 A subset of tests can be run by providing `-r` flag for the tool which runs tests matching a regular expression.
 
-e.g. `mbed test --unittests --run -r features_netsocket`
+e.g. `mbed test --unittests --run -r features-netsocket`
 
 ### Build manually without Python tools
 
@@ -105,7 +105,7 @@ mingw32-make
 
 #### Custom CMake variables
 
-Usage: 
+Usage:
 `cmake [RELATIVE PATH TO UNITTESTS DIR] [OPTIONS]`
 
 Keyword variables (usage `cmake -D<VARIABLE>(:<TYPE>)=<value>`:
@@ -157,8 +157,8 @@ mkdir UNITTESTS/build
 cd UNITTESTS/build
 cmake -DCMAKE_BUILD_TYPE=Debug -DCOVERAGE:STRING=html  ..
 make
-./features_netsocket_InternetSocket
-gcovr -r ../.. --html --html-detail -o ./index.html ./CMakeFiles/features_netsocket_InternetSocket.MbedOS.dir/
+./features-netsocket-InternetSocket
+gcovr -r ../.. --html --html-detail -o ./index.html ./CMakeFiles/features-netsocket-InternetSocket.MbedOS.dir/
 ```
 Windows:
 ```
@@ -166,8 +166,8 @@ mkdir UNITTESTS/build
 cd UNITTESTS/build
 cmake -DCMAKE_BUILD_TYPE=Debug -DCOVERAGE:STRING=html -g "MinGW Makefiles" ..
 mingw32-make
-features_netsocket_InternetSocket.exe
-gcovr -r ..\.. --html --html-detail -o .\index.html .\CMakeFiles\features_netsocket_InternetSocket.MbedOS.dir\
+features-netsocket-InternetSocket.exe
+gcovr -r ..\.. --html --html-detail -o .\index.html .\CMakeFiles\features-netsocket-InternetSocket.MbedOS.dir\
 ```
 
 ## The structure of unit tests
@@ -203,7 +203,7 @@ Each class to be tested requires two files for unit testing:
 
 A unit test definition file `unittest.cmake` requires variables to be set for a test to be configured. File source paths in `unittest.cmake` files need to be relative to the unit test folder and `CMakeLists.txt`.
 
-* **TEST_SUITE_NAME** - Identifier for the test suite. Use naming convention *PATH_TO_THE_TESTABLE_FILE* e.g. *features_netsocket_InternetSocket*
+* **TEST_SUITE_NAME** - Identifier for the test suite. Use naming convention *PATH_TO_THE_TESTABLE_FILE* e.g. *features-netsocket-InternetSocket*
 * **unittest-includes** - Include paths for headers needed to build the tests in addition to the base include paths listed in [CMakeLists.txt](CMakeLists.txt). Optional.
 * **unittest-sources** - Mbed OS source files and stubs included for the build.
 * **unittest-test-sources** - Unit test source files.
@@ -225,7 +225,7 @@ For example to create a unit test for `rtos/Semaphore.cpp`:
 1. Create a directory for unit test files in `UNITTESTS/rtos/Semaphore`.
 2. Create a test definition file `UNITTESTS/rtos/Semaphore/unittest.cmake` with the following content:
 ```
-set(TEST_SUITE_NAME "rtos_Semaphore")
+set(TEST_SUITE_NAME "rtos-Semaphore")
 
 set(unittest-sources
 	stubs/mbed_assert.c

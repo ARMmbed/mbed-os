@@ -4,12 +4,14 @@
 ####################
 
 # Unit test suite name
-set(TEST_SUITE_NAME "features_netsocket_TCPSocket")
+set(TEST_SUITE_NAME "features-netsocket-TCPSocket")
 
 set(unittest-sources
   ../features/netsocket/SocketAddress.cpp
   ../features/netsocket/InternetSocket.cpp
   ../features/netsocket/TCPSocket.cpp
+  ../features/frameworks/nanostack-libservice/source/libip4string/ip4tos.c
+  ../features/frameworks/nanostack-libservice/source/libip4string/stoip4.c
 )
 
 set(unittest-test-sources

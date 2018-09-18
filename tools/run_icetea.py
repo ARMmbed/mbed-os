@@ -34,7 +34,6 @@ plugins_path = abspath(join(ROOT, 'TEST_APPS', 'icetea_plugins', 'plugins_to_loa
 
 
 def find_build_from_build_data(build_data, id, target, toolchain):
-
     if 'builds' not in build_data:
         raise Exception("build data is in wrong format, does not include builds object")
 
@@ -86,7 +85,7 @@ def create_test_suite(target, tool, icetea_json_output, build_data, tests_by_nam
             test_case = {
                 'name': test['name'],
                 'config': {
-                    'requirements': test['requirements']
+                    'requirements': set_allowed_platform(test['requirements'], target)
                 }
             }
 
@@ -102,6 +101,17 @@ def create_test_suite(target, tool, icetea_json_output, build_data, tests_by_nam
             test_suite['testcases'].append(test_case)
 
     return test_suite
+
+
+def set_allowed_platform(requirements, target):
+    """
+    Allowed platform restrict icetea to run tests on specific board
+    This targets tests to the right board in case that user has multiple ones connected same time
+    """
+    if '*' not in requirements['duts'].keys():
+        requirements['duts']['*'] = dict()
+    requirements['duts']['*']['allowed_platforms'] = [target]
+    return requirements
 
 
 def get_applications(test):
