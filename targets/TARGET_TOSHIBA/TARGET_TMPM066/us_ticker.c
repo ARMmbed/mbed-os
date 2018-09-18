@@ -112,4 +112,9 @@ void us_ticker_clear_interrupt(void)
 
 void us_ticker_free(void)
 {
+    TMRB_SetINTMask(TSB_TB7, TMRB_MASK_MATCH_LEADINGTIMING_INT | TMRB_MASK_MATCH_TRAILINGTIMING_INT | TMRB_MASK_OVERFLOW_INT);
+    NVIC_ClearPendingIRQ(INTTB7_IRQn);
+    NVIC_DisableIRQ(INTTB7_IRQn);
+    TMRB_SetRunState(TSB_TB7, TMRB_STOP);
+    TMRB_Disable(TSB_TB7);
 }
