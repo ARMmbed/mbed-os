@@ -99,4 +99,9 @@ void us_ticker_clear_interrupt(void)
 
 void us_ticker_free(void)
 {
+    TSB_T32A0->RUNC = T32A_RUN_DISABLE;
+    TSB_IB->IMC006 = CLR_TIMER_INT_FLAG;
+    NVIC_ClearPendingIRQ(INTT32A00_A_CT_IRQn);
+    NVIC_DisableIRQ(INTT32A00_A_CT_IRQn);
+    TSB_CG_FSYSMENA_IPMENA06 = TXZ_DISABLE;
 }
