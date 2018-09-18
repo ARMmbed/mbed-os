@@ -25,12 +25,15 @@ import re
 
 from .utils import execute_program
 from .get_tools import get_gcov_program, \
-                       get_gcovr_program
+    get_gcovr_program
+from .settings import COVERAGE_OUTPUT_TYPES
+
 
 class CoverageAPI(object):
     """
     Generate code coverage reports for unit tests.
     """
+
     def __init__(self, mbed_os_root=None, build_dir=None):
         self.root = mbed_os_root
 
@@ -62,6 +65,8 @@ class CoverageAPI(object):
             args.extend(["-x",
                          "-o",
                          "./coverage.xml"])
+        else:
+            logging.error("Invalid coverage output type: %s" % coverage_type)
 
         # Add exclude filters:
         for path in excludes:
@@ -103,9 +108,11 @@ class CoverageAPI(object):
         build_path - build path
         """
 
+        # Check for the tool
         if get_gcovr_program() is None:
-            logging.error("No gcovr tool found in path. \
-            Cannot generate coverage reports.")
+            logging.error(
+                "No gcovr tool found in path. " +
+                "Cannot generate coverage reports.")
             return
 
         if build_path is None:
@@ -118,19 +125,24 @@ class CoverageAPI(object):
             excludes = []
 
         for output in outputs:
+            # Skip if invalid/unsupported output type
+            if output not in COVERAGE_OUTPUT_TYPES:
+                logging.warning(
+                    "Invalid output type. " +
+                    "Skip coverage report for type: %s." % output.upper())
+                continue
+
             if output == "html":
-                # Create build directory if not exist.
+                # Create a build directory if not exist
                 coverage_path = os.path.join(build_path, "coverage")
                 if not os.path.exists(coverage_path):
                     os.mkdir(coverage_path)
 
+            # Generate the command
             args = self._gen_cmd(output, excludes, filter_regex)
 
-            if output == "html":
-                execute_program(args,
-                                "HTML code coverage report generation failed.",
-                                "HTML code coverage report created.")
-            elif output == "xml":
-                execute_program(args,
-                                "XML code coverage report generation failed.",
-                                "XML code coverage report created.")
+            # Run the coverage tool
+            execute_program(
+                args,
+                "%s code coverage report generation failed." % output.upper(),
+                "%s code coverage report created." % output.upper())
