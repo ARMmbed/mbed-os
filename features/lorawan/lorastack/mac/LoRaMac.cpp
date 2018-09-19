@@ -163,6 +163,7 @@ void LoRaMac::post_process_mcps_req()
             _mcps_indication.is_ack_recvd = false;
             if (_params.is_ul_frame_counter_fixed == false) {
                 _params.ul_frame_counter++;
+                _params.adr_ack_counter++;
             }
         } else {
             _mcps_confirmation.status = LORAMAC_EVENT_INFO_STATUS_ERROR;
@@ -171,6 +172,7 @@ void LoRaMac::post_process_mcps_req()
         //UNCONFIRMED or PROPRIETARY
         if (_params.is_ul_frame_counter_fixed == false) {
             _params.ul_frame_counter++;
+            _params.adr_ack_counter++;
         }
     }
 }
@@ -269,6 +271,7 @@ void LoRaMac::handle_join_accept_frame(const uint8_t *payload, uint16_t size)
         // Node joined successfully
         _params.ul_frame_counter = 0;
         _params.ul_nb_rep_counter = 0;
+        _params.adr_ack_counter = 0;
 
     } else {
         _mlme_confirmation.status = LORAMAC_EVENT_INFO_STATUS_JOIN_FAIL;
@@ -779,7 +782,6 @@ bool LoRaMac::continue_sending_process()
 {
     if (_params.ack_timeout_retry_counter > _params.max_ack_timeout_retries) {
         _mac_commands.clear_command_buffer();
-        _params.adr_ack_counter++;
         _lora_time.stop(_params.timers.ack_timeout_timer);
         return false;
     }
@@ -1821,13 +1823,17 @@ uint8_t LoRaMac::get_max_possible_tx_size(uint8_t fopts_len)
     uint8_t max_possible_payload_size = 0;
     uint8_t allowed_frm_payload_size = 0;
 
+    int8_t datarate = _params.sys_params.channel_data_rate;
+    int8_t tx_power = _params.sys_params.channel_tx_power;
+    uint32_t adr_ack_counter = _params.adr_ack_counter;
+
     if (_params.sys_params.adr_on) {
-        _lora_phy->get_next_ADR(false, _params.sys_params.channel_data_rate,
-                               _params.sys_params.channel_tx_power,
-                               _params.adr_ack_counter);
+        // Just query the information. We do not want to apply them into use
+        // at this point.
+        _lora_phy->get_next_ADR(false, datarate, tx_power, adr_ack_counter);
     }
 
-    allowed_frm_payload_size = _lora_phy->get_max_payload(_params.sys_params.channel_data_rate,
+    allowed_frm_payload_size = _lora_phy->get_max_payload(datarate,
                                                           _params.is_repeater_supported);
 
     if (allowed_frm_payload_size >= fopts_len) {
