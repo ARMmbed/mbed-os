@@ -618,6 +618,7 @@ TEST_F(TestATHandler, test_ATHandler_read_string)
     // *** Reading more than available in buffer ***
     at.clear_error();
     char table4[] = "\"s,\"OK\r\n\0";
+    mbed_poll_stub::int_value = 0;
     at.flush();
     filehandle_stub_table = table4;
     filehandle_stub_table_pos = 0;
@@ -741,6 +742,7 @@ TEST_F(TestATHandler, test_ATHandler_read_string)
     // *** CRLF part of the string ***
     at.clear_error();
     char table10[] = "\"s\"\r\nOK\r\n\0";
+    mbed_poll_stub::int_value = 0;
     at.flush();
     filehandle_stub_table = table10;
     filehandle_stub_table_pos = 0;
