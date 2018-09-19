@@ -39,8 +39,9 @@ nsapi_error_t LWIP::err_remap(err_t err) {
         case ERR_RST:
         case ERR_ABRT:
             return NSAPI_ERROR_NO_CONNECTION;
-        case ERR_TIMEOUT:
         case ERR_RTE:
+            return NSAPI_ERROR_NO_ADDRESS;
+        case ERR_TIMEOUT:
         case ERR_WOULDBLOCK:
             return NSAPI_ERROR_WOULD_BLOCK;
         case ERR_VAL:
