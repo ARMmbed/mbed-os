@@ -23,13 +23,13 @@ SECTIONS
 {
 
     /* MAIN TEXT SECTION */ 
-    .text : ALIGN(4)
+    .text : ALIGN(8)
     {
         FILL(0xff)
         KEEP(*(.isr_vector))
         
         /* Global Section Table */
-        . = ALIGN(4) ;
+        . = ALIGN(8) ;
         __section_table_start = .;
         __data_section_table = .;
         LONG(LOADADDR(.data));
@@ -53,18 +53,18 @@ SECTIONS
         
         *(.text*)
         *(.rodata .rodata.*)
-        . = ALIGN(4);
+        . = ALIGN(8);
         
         /* C++ constructors etc */
-        . = ALIGN(4);
+        . = ALIGN(8);
         KEEP(*(.init))
         
-        . = ALIGN(4);
+        . = ALIGN(8);
         __preinit_array_start = .;
         KEEP (*(.preinit_array))
         __preinit_array_end = .;
         
-        . = ALIGN(4);
+        . = ALIGN(8);
         __init_array_start = .;
         KEEP (*(SORT(.init_array.*)))
         KEEP (*(.init_array))
@@ -90,13 +90,13 @@ SECTIONS
      * for exception handling/unwind - some Newlib functions (in common
      * with C++ and STDC++) use this.
      */
-    .ARM.extab : ALIGN(4)
+    .ARM.extab : ALIGN(8)
     {
         *(.ARM.extab* .gnu.linkonce.armextab.*)
     } > MFlash512
     __exidx_start = .;
     
-    .ARM.exidx : ALIGN(4)
+    .ARM.exidx : ALIGN(8)
     {
         *(.ARM.exidx* .gnu.linkonce.armexidx.*)
     } > MFlash512
@@ -105,52 +105,52 @@ SECTIONS
     _etext = .;
         
     
-    .data_RAM2 : ALIGN(4)
+    .data_RAM2 : ALIGN(8)
     {
        FILL(0xff)
         *(.data.$RAM2*)
         *(.data.$RamAHB32*)
-       . = ALIGN(4) ;
+       . = ALIGN(8) ;
     } > RamAHB_USB AT>MFlash512
     
     /* MAIN DATA SECTION */
 
-    .uninit_RESERVED(NOLOAD) : ALIGN(4)
+    .uninit_RESERVED(NOLOAD) : ALIGN(8)
     {
         KEEP(*(.bss.$RESERVED*))
     } > RamLoc32
 
-    .data : ALIGN(4)
+    .data : ALIGN(8)
     {
         FILL(0xff)
         _data = .;
         *(vtable)
         *(.data*)
-        . = ALIGN(4) ;
+        . = ALIGN(8) ;
         _edata = .;
     } > RamLoc32 AT>MFlash512
 
     
-    .bss_RAM2(NOLOAD) : ALIGN(4)
+    .bss_RAM2(NOLOAD) : ALIGN(8)
     {
         *(.bss.$RAM2*)
         *(.bss.$RamAHB32*)
         *(AHBSRAM0)
-       . = ALIGN(4) ;
+       . = ALIGN(8) ;
     } > RamAHB_USB
 
-    .bss_RAM3(NOLOAD) : ALIGN(4)
+    .bss_RAM3(NOLOAD) : ALIGN(8)
     {
         *(AHBSRAM1)
-       . = ALIGN(4) ;
+       . = ALIGN(8) ;
     } > RamAHB_Eth
     /* MAIN BSS SECTION */
-    .bss(NOLOAD) : ALIGN(4)
+    .bss(NOLOAD) : ALIGN(8)
     {
         _bss = .;
         *(.bss*)
         *(COMMON)
-        . = ALIGN(4) ;
+        . = ALIGN(8) ;
         _ebss = .;
         PROVIDE(end = .);
         __end__ = .;

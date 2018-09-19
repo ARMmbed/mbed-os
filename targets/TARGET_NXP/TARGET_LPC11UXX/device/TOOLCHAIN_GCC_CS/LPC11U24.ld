@@ -75,15 +75,15 @@ SECTIONS
     *(.eh_frame_hdr)
     *(.eh_frame)
 
-    . = ALIGN(4);
+    . = ALIGN(8);
     KEEP(*(.init))
 
-    . = ALIGN(4);
+    . = ALIGN(8);
     __preinit_array_start = .;
     KEEP (*(.preinit_array))
     __preinit_array_end = .;
 
-    . = ALIGN(4);
+    . = ALIGN(8);
     __init_array_start = .;
     KEEP (*(SORT(.init_array.*)))
     KEEP (*(.init_array))
@@ -95,10 +95,10 @@ SECTIONS
     KEEP (*(SORT(.ctors.*)))
     KEEP (*crtend.o(.ctors))
 
-    . = ALIGN(4);
+    . = ALIGN(8);
     KEEP(*(.fini))
 
-    . = ALIGN(4);
+    . = ALIGN(8);
     __fini_array_start = .;
     KEEP (*(.fini_array))
     KEEP (*(SORT(.fini_array.*)))
@@ -109,7 +109,7 @@ SECTIONS
     KEEP (*(SORT(.dtors.*)))
     KEEP (*crtend.o(.dtors))
 
-    . = ALIGN(4);
+    . = ALIGN(8);
     __cs3_regions = .;
     LONG (0)
     LONG (__cs3_region_init_ram)

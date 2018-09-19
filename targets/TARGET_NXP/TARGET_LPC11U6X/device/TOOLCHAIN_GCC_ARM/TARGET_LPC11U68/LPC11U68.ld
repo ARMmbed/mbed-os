@@ -30,14 +30,14 @@ SECTIONS
 {
 
     /* MAIN TEXT SECTION */    
-    .text : ALIGN(4)
+    .text : ALIGN(8)
     {
         FILL(0xff)
         __vectors_start__ = ABSOLUTE(.) ;
         KEEP(*(.isr_vector))
         
         /* Global Section Table */
-        . = ALIGN(4) ;
+        . = ALIGN(8) ;
         __section_table_start = .;
         __data_section_table = .;
         LONG(LOADADDR(.data));
@@ -66,18 +66,18 @@ SECTIONS
         
         *(.text*)
         *(.rodata .rodata.*)
-        . = ALIGN(4);
+        . = ALIGN(8);
         
         /* C++ constructors etc */
-        . = ALIGN(4);
+        . = ALIGN(8);
         KEEP(*(.init))
         
-        . = ALIGN(4);
+        . = ALIGN(8);
         __preinit_array_start = .;
         KEEP (*(.preinit_array))
         __preinit_array_end = .;
         
-        . = ALIGN(4);
+        . = ALIGN(8);
         __init_array_start = .;
         KEEP (*(SORT(.init_array.*)))
         KEEP (*(.init_array))
@@ -102,13 +102,13 @@ SECTIONS
      * for exception handling/unwind - some Newlib functions (in common
      * with C++ and STDC++) use this. 
      */
-    .ARM.extab : ALIGN(4)
+    .ARM.extab : ALIGN(8)
     {
     	*(.ARM.extab* .gnu.linkonce.armextab.*)
     } > MFlash256
     __exidx_start = .;
     
-    .ARM.exidx : ALIGN(4)
+    .ARM.exidx : ALIGN(8)
     {
     	*(.ARM.exidx* .gnu.linkonce.armexidx.*)
     } > MFlash256
@@ -124,14 +124,14 @@ SECTIONS
     } > Ram1_2 
     
     /* DATA section for Ram1_2 */
-    .data_RAM2 : ALIGN(4)
+    .data_RAM2 : ALIGN(8)
     {
        FILL(0xff)
        *(.ramfunc.$RAM2)
        *(.ramfunc.$Ram1_2)
     	*(.data.$RAM2*)
     	*(.data.$Ram1_2*)
-       . = ALIGN(4) ;
+       . = ALIGN(8) ;
     } > Ram1_2 AT>MFlash256
     /* possible MTB section for Ram2USB_2 */
     .mtb_buffer_RAM3 (NOLOAD) :
@@ -141,14 +141,14 @@ SECTIONS
     } > Ram2USB_2 
     
     /* DATA section for Ram2USB_2 */
-    .data_RAM3 : ALIGN(4)
+    .data_RAM3 : ALIGN(8)
     {
        FILL(0xff)
        *(.ramfunc.$RAM3)
        *(.ramfunc.$Ram2USB_2)
     	*(.data.$RAM3*)
     	*(.data.$Ram2USB_2*)
-       . = ALIGN(4) ;
+       . = ALIGN(8) ;
     } > Ram2USB_2 AT>MFlash256
     
     /* MAIN DATA SECTION */
@@ -159,74 +159,74 @@ SECTIONS
        KEEP(*(.mtb*))
     } > Ram0_32 
 
-    .uninit_RESERVED : ALIGN(4)
+    .uninit_RESERVED : ALIGN(8)
     {
         KEEP(*(.bss.$RESERVED*))
-        . = ALIGN(4) ;
+        . = ALIGN(8) ;
         _end_uninit_RESERVED = .;
     } > Ram0_32
 
 	
 	/* Main DATA section (Ram0_32) */
-	.data : ALIGN(4)
+	.data : ALIGN(8)
 	{
 	   FILL(0xff)
 	   _data = . ;
 	   *(vtable)
 	   *(.ramfunc*)
 	   *(.data*)
-	   . = ALIGN(4) ;
+	   . = ALIGN(8) ;
 	   _edata = . ;
 	} > Ram0_32 AT>MFlash256
 
     /* BSS section for Ram1_2 */
-    .bss_RAM2 : ALIGN(4)
+    .bss_RAM2 : ALIGN(8)
     {
     	*(.bss.$RAM2*)
     	*(.bss.$Ram1_2*)
-       . = ALIGN(4) ;
+       . = ALIGN(8) ;
     } > Ram1_2
     /* BSS section for Ram2USB_2 */
-    .bss_RAM3 : ALIGN(4)
+    .bss_RAM3 : ALIGN(8)
     {
     	*(.bss.$RAM3*)
     	*(.bss.$Ram2USB_2*)
-       . = ALIGN(4) ;
+       . = ALIGN(8) ;
     } > Ram2USB_2
 
     /* MAIN BSS SECTION */
-    .bss : ALIGN(4)
+    .bss : ALIGN(8)
     {
         _bss = .;
         *(.bss*)
         *(COMMON)
-        . = ALIGN(4) ;
+        . = ALIGN(8) ;
         _ebss = .;
         PROVIDE(end = .);
         __end__ = .;
     } > Ram0_32
         
     /* NOINIT section for Ram1_2 */
-    .noinit_RAM2 (NOLOAD) : ALIGN(4)
+    .noinit_RAM2 (NOLOAD) : ALIGN(8)
     {
     	*(.noinit.$RAM2*)
     	*(.noinit.$Ram1_2*)
-       . = ALIGN(4) ;
+       . = ALIGN(8) ;
     } > Ram1_2 
     /* NOINIT section for Ram2USB_2 */
-    .noinit_RAM3 (NOLOAD) : ALIGN(4)
+    .noinit_RAM3 (NOLOAD) : ALIGN(8)
     {
     	*(.noinit.$RAM3*)
     	*(.noinit.$Ram2USB_2*)
-       . = ALIGN(4) ;
+       . = ALIGN(8) ;
     } > Ram2USB_2 
     
     /* DEFAULT NOINIT SECTION */
-    .noinit (NOLOAD): ALIGN(4)
+    .noinit (NOLOAD): ALIGN(8)
     {
         _noinit = .;
         *(.noinit*) 
-         . = ALIGN(4) ;
+         . = ALIGN(8) ;
         _end_noinit = .;
     } > Ram0_32
     

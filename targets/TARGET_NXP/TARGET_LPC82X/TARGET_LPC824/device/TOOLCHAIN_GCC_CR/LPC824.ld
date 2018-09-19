@@ -54,14 +54,14 @@ SECTIONS
 {
 
     /* MAIN TEXT SECTION */    
-    .text : ALIGN(4)
+    .text : ALIGN(8)
     {
         FILL(0xff)
         __vectors_start__ = ABSOLUTE(.) ;
         KEEP(*(.isr_vector))
         
         /* Global Section Table */
-        . = ALIGN(4) ;
+        . = ALIGN(8) ;
         __section_table_start = .;
         __data_section_table = .;
         LONG(LOADADDR(.data));
@@ -79,23 +79,23 @@ SECTIONS
         *(.after_vectors*)        
     } >MFlash32
     
-    .text : ALIGN(4)    
+    .text : ALIGN(8)    
     {
          *(.text*)
         *(.rodata .rodata.* .constdata .constdata.*)
-        . = ALIGN(4);
+        . = ALIGN(8);
 
 
         /* C++ constructors etc */
-        . = ALIGN(4);
+        . = ALIGN(8);
         KEEP(*(.init))
         
-        . = ALIGN(4);
+        . = ALIGN(8);
         __preinit_array_start = .;
         KEEP (*(.preinit_array))
         __preinit_array_end = .;
         
-        . = ALIGN(4);
+        . = ALIGN(8);
         __init_array_start = .;
         KEEP (*(SORT(.init_array.*)))
         KEEP (*(.init_array))
@@ -129,13 +129,13 @@ SECTIONS
      * for exception handling/unwind - some Newlib functions (in common
      * with C++ and STDC++) use this. 
      */
-    .ARM.extab : ALIGN(4)
+    .ARM.extab : ALIGN(8)
     {
     	*(.ARM.extab* .gnu.linkonce.armextab.*)
     } > MFlash32
     __exidx_start = .;
     
-    .ARM.exidx : ALIGN(4)
+    .ARM.exidx : ALIGN(8)
     {
     	*(.ARM.exidx* .gnu.linkonce.armexidx.*)
     } > MFlash32
@@ -152,45 +152,45 @@ SECTIONS
        KEEP(*(.mtb*))
     } > RamLoc8 
 
-    .uninit_RESERVED : ALIGN(4)
+    .uninit_RESERVED : ALIGN(8)
     {
         KEEP(*(.bss.$RESERVED*))
-        . = ALIGN(4) ;
+        . = ALIGN(8) ;
         _end_uninit_RESERVED = .;
     } > RamLoc8
 
 	
 	/* Main DATA section (RamLoc8) */
-	.data : ALIGN(4)
+	.data : ALIGN(8)
 	{
 	   FILL(0xff)
 	   _data = . ;
 	   *(vtable)
 	   *(.ramfunc*)
 	   *(.data*)
-	   . = ALIGN(4) ;
+	   . = ALIGN(8) ;
 	   _edata = . ;
 	} > RamLoc8 AT>MFlash32
 
 
     /* MAIN BSS SECTION */
-    .bss : ALIGN(4)
+    .bss : ALIGN(8)
     {
         _bss = .;
         *(.bss*)
         *(COMMON)
-        . = ALIGN(4) ;
+        . = ALIGN(8) ;
         _ebss = .;
         PROVIDE(end = .);
     } > RamLoc8
         
     
     /* DEFAULT NOINIT SECTION */
-    .noinit (NOLOAD): ALIGN(4)
+    .noinit (NOLOAD): ALIGN(8)
     {
         _noinit = .;
         *(.noinit*) 
-         . = ALIGN(4) ;
+         . = ALIGN(8) ;
         _end_noinit = .;
     } > RamLoc8
     
