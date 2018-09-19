@@ -479,7 +479,7 @@ uint8_t LoRaPHYAU915::link_ADR_request(adr_req_params_t* params,
     verify_params.nb_rep = adr_settings.nb_rep;
     verify_params.current_datarate = params->current_datarate;
     verify_params.current_tx_power = params->current_tx_power;
-    verify_params.current_nb_rep = params->current_nb_rep;
+    verify_params.current_nb_rep = params->current_nb_trans;
     verify_params.channel_mask = temp_channel_masks;
 
 
