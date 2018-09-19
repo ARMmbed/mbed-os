@@ -233,4 +233,3 @@ TEST_F(Test_LoRaPHYUS915, set_tx_cont_mode)
     p.datarate = 4;
     object->set_tx_cont_mode(&p, 0);
 }
-
