@@ -52,7 +52,7 @@ LR_IROM1 MBED_APP_START MBED_APP_SIZE       ; load region size_region
   RAM_CODE   0x20020000
   { * (RAM_CODE) }              ; Application RAM_CODE
 
-  RW_DATA     +0 ALIGN 0x4
+  RW_DATA     +0 ALIGN 0x8
   { * (+RW) }                   ; Application RW data (.data)
 
   RW_IRAM1    +0 ALIGN 0x10
