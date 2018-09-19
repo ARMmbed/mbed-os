@@ -104,9 +104,7 @@ int32_t LoRaPHY::get_random(int32_t min, int32_t max)
     return LoRaPHY_stub::uint32_value;
 }
 
-bool LoRaPHY::verify_channel_DR(uint8_t nb_channels, uint16_t *channel_mask,
-                                int8_t dr, int8_t min_dr, int8_t max_dr,
-                                channel_params_t *channels)
+bool LoRaPHY::verify_channel_DR(uint16_t *channel_mask, int8_t dr)
 {
     return LoRaPHY_stub::bool_table[LoRaPHY_stub::bool_counter++];
 }
@@ -142,24 +140,6 @@ void LoRaPHY::copy_channel_mask(uint16_t *dest_mask, uint16_t *src_mask, uint8_t
     }
 }
 
-void LoRaPHY::intersect_channel_mask(const uint16_t *source,
-                                     uint16_t *destination, uint8_t size)
-{
-}
-
-void LoRaPHY::fill_channel_mask_with_fsb(const uint16_t *expectation,
-                                         const uint16_t *fsb_mask,
-                                         uint16_t *destination,
-                                         uint8_t size)
-{
-
-}
-
-void LoRaPHY::fill_channel_mask_with_value(uint16_t *channel_mask,
-                                     uint16_t value, uint8_t size)
-{
-}
-
 void LoRaPHY::set_last_tx_done(uint8_t channel, bool joined, lorawan_time_t last_tx_done_time)
 {
 }
@@ -186,16 +166,6 @@ uint8_t LoRaPHY::verify_link_ADR_req(verify_adr_params_t *verify_params,
                                      int8_t *dr, int8_t *tx_pow, uint8_t *nb_rep)
 {
     return LoRaPHY_stub::uint8_value;
-}
-
-double LoRaPHY::compute_symb_timeout_lora(uint8_t phy_dr, uint32_t bandwidth)
-{
-    return LoRaPHY_stub::double_value;
-}
-
-double LoRaPHY::compute_symb_timeout_fsk(uint8_t phy_dr)
-{
-    return LoRaPHY_stub::double_value;
 }
 
 void LoRaPHY::get_rx_window_params(double t_symb, uint8_t min_rx_symb,

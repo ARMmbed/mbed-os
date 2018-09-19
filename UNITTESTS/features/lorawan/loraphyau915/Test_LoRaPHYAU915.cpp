@@ -229,4 +229,3 @@ TEST_F(Test_LoRaPHYAU915, apply_DR_offset)
         }
     }
 }
-
