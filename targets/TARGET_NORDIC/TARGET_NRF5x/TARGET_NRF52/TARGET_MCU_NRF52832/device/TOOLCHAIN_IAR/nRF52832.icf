@@ -23,7 +23,7 @@ if (!isdefinedsymbol(MBED_RAM_START)) {
 }
 
 define symbol MBED_RAM0_START = MBED_RAM_START;
-define symbol MBED_RAM0_SIZE  = 0xDC;
+define symbol MBED_RAM0_SIZE  = 0xE0;  /* 8-byte aligned(0xDC) = 0xE0 */ 
 define symbol MBED_RAM1_START = (MBED_RAM_START + MBED_RAM0_SIZE);
 define symbol MBED_RAM1_SIZE  = (MBED_RAM_SIZE - MBED_RAM0_SIZE);
 
