@@ -354,7 +354,7 @@ void serial_baud(serial_t *obj, int baudrate)
             if (!__HAL_RCC_GET_FLAG(RCC_FLAG_LSERDY)) {
                 RCC_OscInitTypeDef RCC_OscInitStruct = {0};
                 RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSE;
-                RCC_OscInitStruct.HSIState       = RCC_LSE_ON;
+                RCC_OscInitStruct.LSEState       = RCC_LSE_ON;
                 RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_OFF;
                 HAL_RCC_OscConfig(&RCC_OscInitStruct);
             }
