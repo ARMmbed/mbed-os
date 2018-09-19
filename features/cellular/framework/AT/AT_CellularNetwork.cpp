@@ -388,7 +388,6 @@ nsapi_error_t AT_CellularNetwork::open_data_channel()
 {
 #if NSAPI_PPP_AVAILABLE
     tr_info("Open data channel in PPP mode");
-//<<<<<<< HEAD
     if (is_supported(AT_CGDATA)) {
         _at.cmd_start("AT+CGDATA=\"PPP\",");
         _at.write_int(_cid);
@@ -398,16 +397,6 @@ nsapi_error_t AT_CellularNetwork::open_data_channel()
         std::sprintf(cmd_buf, "ATD*99***%d#", _cid);
         _at.cmd_start(cmd_buf);
     }
-//=======
-//
-//#ifdef TARGET_MTS_DRAGONFLY_L471QG
-//    _at.cmd_start("ATD*99***1#");
-//#else
-//    _at.cmd_start("AT+CGDATA=\"PPP\",");
-//    _at.write_int(_cid);
-//#endif
-//
-//>>>>>>> changes to support mts dragonfly nano ppp
     _at.cmd_stop();
 
     _at.resp_start("CONNECT", true);

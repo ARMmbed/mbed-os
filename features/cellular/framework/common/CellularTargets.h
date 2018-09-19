@@ -37,8 +37,8 @@ namespace mbed {
 #endif
 #elif TARGET_UBLOX_C027
 #define CELLULAR_DEVICE UBLOX_PPP
-#elif TARGET_DRAGONFLY_L471QG
-#define CELLULAR_DEVICE UBLOX_PPP
+#elif TARGET_MTS_DRAGONFLY_L471QG
+#define CELLULAR_DEVICE SARA4_PPP
 //#else
 //#error Cellular target not defined, see cellular/targets.h
 //#define CELLULAR_TARGET <target-modem>
