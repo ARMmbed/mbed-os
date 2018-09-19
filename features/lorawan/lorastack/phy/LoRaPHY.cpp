@@ -1031,7 +1031,7 @@ uint8_t LoRaPHY::link_ADR_request(adr_req_params_t *link_adr_req,
         verify_params.adr_enabled = link_adr_req->adr_enabled;
         verify_params.current_datarate = link_adr_req->current_datarate;
         verify_params.current_tx_power = link_adr_req->current_tx_power;
-        verify_params.current_nb_rep = link_adr_req->current_nb_rep;
+        verify_params.current_nb_rep = link_adr_req->current_nb_trans;
 
         verify_params.datarate = adr_settings.datarate;
         verify_params.tx_power = adr_settings.tx_power;

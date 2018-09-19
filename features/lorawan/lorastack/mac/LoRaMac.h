@@ -295,10 +295,11 @@ public:
     /**
      * @brief set_device_class Sets active device class.
      * @param device_class Device class to use.
-     * @param ack_expiry_handler callback function to inform about ack expiry
+     * @param rx2_would_be_closure_handler callback function to inform about
+     *        would be closure of RX2 window
      */
     void set_device_class(const device_class_t &device_class,
-                          mbed::Callback<void(void)>ack_expiry_handler);
+                          mbed::Callback<void(void)>rx2_would_be_closure_handler);
 
     /**
      * @brief setup_link_check_request Adds link check request command
@@ -403,6 +404,17 @@ public:
      * Gets the current receive slot
      */
     rx_slot_t get_current_slot(void);
+
+    /**
+     * Indicates what level of QOS is set by network server. QOS level is set
+     * in response to a LinkADRReq for UNCONFIRMED messages
+     */
+    uint8_t get_QOS_level(void);
+
+    /**
+     *Indicates level of QOS used for the previous outgoing message
+     */
+    uint8_t get_prev_QOS_level(void);
 
     /**
      * These locks trample through to the upper layers and make
@@ -632,10 +644,16 @@ private:
 
     /**
      * Class C doesn't timeout in RX2 window as it is a continuous window.
-     * We use this callback to inform the LoRaWANStack controller that the
-     * system cannot do more retries.
+     * We use this callback to inform the LoRaWANStack controller that we did
+     * not receive a downlink in a time equal to normal Class A type RX2
+     * window timeout. This marks a 'would-be' closure for RX2, actual RX2 is
+     * not closed. Mostly network servers will send right at the beginning of
+     * RX2 window if they have something to send. So if we didn't receive anything
+     * in the time period equal to would be RX2 delay (which is a function of
+     * uplink message length and data rate), we will invoke this callback to let
+     * the upper layer know.
      */
-    mbed::Callback<void(void)> _ack_expiry_handler_for_class_c;
+    mbed::Callback<void(void)> _rx2_would_be_closure_for_class_c;
 
     /**
      * Transmission is async, i.e., a call to schedule_tx() may be deferred to
@@ -644,6 +662,8 @@ private:
      * backoff or retry.
      */
     mbed::Callback<void(void)> _scheduling_failure_handler;
+
+    timer_event_t _rx2_closure_timer_for_class_c;
 
     /**
      * Structure to hold MCPS indication data.
@@ -672,6 +692,8 @@ private:
     bool _continuous_rx2_window_open;
 
     device_class_t _device_class;
+
+    uint8_t _prev_qos_level;
 };
 
 #endif // MBED_LORAWAN_MAC_H__

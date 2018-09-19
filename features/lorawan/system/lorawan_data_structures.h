@@ -70,6 +70,8 @@ typedef uint32_t lorawan_time_t;
  */
 #define LORAMAC_PHY_MAXPAYLOAD                      255
 
+#define LORAWAN_DEFAULT_QOS                         1
+
 /**
  *
  * Default user application maximum data size for transmission
@@ -187,9 +189,10 @@ typedef struct {
      */
     uint32_t join_accept_delay2;
     /*!
-     * The number of uplink messages repetitions (confirmed messages only).
+     * The number of uplink messages repetitions for QOS set by network server
+     * in LinkADRReq mac command (unconfirmed messages only).
      */
-    uint8_t retry_num;
+    uint8_t nb_trans;
     /*!
      * The datarate offset between uplink and downlink on first window.
      */
@@ -874,6 +877,9 @@ typedef struct {
      */
     int8_t data_rate;
     /*!
+     *
+     * For CONFIRMED Messages:
+     *
      * The number of trials to transmit the frame, if the LoRaMAC layer did not
      * receive an acknowledgment. The MAC performs a datarate adaptation
      * according to the LoRaWAN Specification V1.0.2, chapter 18.4, as in
@@ -892,6 +898,13 @@ typedef struct {
      *
      * Note that if nb_trials is set to 1 or 2, the MAC will not decrease
      * the datarate, if the LoRaMAC layer did not receive an acknowledgment.
+     *
+     * For UNCONFIRMED Messages:
+     *
+     * Provides a certain QOS level set by network server in LinkADRReq MAC
+     * command. The device will transmit the given UNCONFIRMED message nb_trials
+     * time with same frame counter until a downlink is received. Standard defined
+     * range is 1:15. Data rates will NOT be adapted according to chapter 18.4.
      */
     uint8_t nb_trials;
 

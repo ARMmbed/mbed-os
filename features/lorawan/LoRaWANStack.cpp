@@ -40,7 +40,7 @@ SPDX-License-Identifier: BSD-3-Clause
  * Control flags for transient states
  */
 #define IDLE_FLAG                   0x00000000
-#define TX_ONGOING_FLAG             0x00000001
+#define RETRY_EXHAUSTED_FLAG        0x00000001
 #define MSG_RECVD_FLAG              0x00000002
 #define CONNECTED_FLAG              0x00000004
 #define USING_OTAA_FLAG             0x00000008
@@ -68,6 +68,7 @@ LoRaWANStack::LoRaWANStack()
       _tx_metadata(),
       _rx_metadata(),
       _num_retry(1),
+      _qos_cnt(1),
       _ctrl_flags(IDLE_FLAG),
       _app_port(INVALID_PORT),
       _link_check_requested(false),
@@ -274,7 +275,6 @@ lorawan_status_t LoRaWANStack::stop_sending(void)
 
     if (_loramac.clear_tx_pipe() == LORAWAN_STATUS_OK) {
         _ctrl_flags &= ~TX_DONE_FLAG;
-        _ctrl_flags &= ~TX_ONGOING_FLAG;
         _loramac.set_tx_ongoing(false);
         _device_current_state = DEVICE_STATE_IDLE;
         return LORAWAN_STATUS_OK;
@@ -453,7 +453,8 @@ lorawan_status_t LoRaWANStack::set_device_class(const device_class_t &device_cla
     if (device_class == CLASS_B) {
         return LORAWAN_STATUS_UNSUPPORTED;
     }
-    _loramac.set_device_class(device_class, mbed::callback(this, &LoRaWANStack::handle_ack_expiry_for_class_c));
+    _loramac.set_device_class(device_class,
+                              mbed::callback(this, &LoRaWANStack::post_process_tx_no_reception));
     return LORAWAN_STATUS_OK;
 }
 
@@ -563,7 +564,6 @@ void LoRaWANStack::process_transmission_timeout()
     // this is a fatal error and should not happen
     tr_debug("TX Timeout");
     _loramac.on_radio_tx_timeout();
-    _ctrl_flags &= ~TX_ONGOING_FLAG;
     _ctrl_flags &= ~TX_DONE_FLAG;
     if (_device_current_state == DEVICE_STATE_JOINING) {
         mlme_confirm_handler();
@@ -579,39 +579,108 @@ void LoRaWANStack::process_transmission(void)
     tr_debug("Transmission completed");
     _loramac.on_radio_tx_done(_tx_timestamp);
 
-    make_tx_metadata_available();
-
     if (_device_current_state == DEVICE_STATE_JOINING) {
         _device_current_state = DEVICE_STATE_AWAITING_JOIN_ACCEPT;
     }
 
     if (_device_current_state == DEVICE_STATE_SENDING) {
         if (_loramac.get_mcps_confirmation()->req_type == MCPS_CONFIRMED) {
-            _ctrl_flags |= TX_ONGOING_FLAG;
-            _ctrl_flags &= ~TX_DONE_FLAG;
             tr_debug("Awaiting ACK");
             _device_current_state = DEVICE_STATE_AWAITING_ACK;
-        } else if (_loramac.get_device_class() == CLASS_A) {
-            // Class A unconfirmed message sent, TX_DONE event will be sent to
-            // application when RX2 windows is elapsed, i.e., in process_reception_timeout()
-            _ctrl_flags &= ~TX_ONGOING_FLAG;
-            _ctrl_flags |= TX_DONE_FLAG;
-        } else if (_loramac.get_device_class() == CLASS_C) {
-            // In Class C, reception timeout never happens, so we handle the state
-             // progression for TX_DONE in UNCONFIRMED case here
-            _loramac.post_process_mcps_req();
-            state_controller(DEVICE_STATE_STATUS_CHECK);
-            state_machine_run_to_completion();
         }
     }
 }
 
-void LoRaWANStack::handle_ack_expiry_for_class_c(void)
+void LoRaWANStack::post_process_tx_with_reception()
 {
-    _ctrl_flags &= ~TX_DONE_FLAG;
-    _ctrl_flags |= TX_ONGOING_FLAG;
-    tr_error("Retries exhausted for Class C device");
+    if (_loramac.get_mcps_confirmation()->req_type == MCPS_CONFIRMED) {
+        // if ack was not received, we will try retransmission after
+        // ACK_TIMEOUT. handle_data_frame() already disables ACK_TIMEOUT timer
+        // if ack was received. Otherwise, following method will be called in
+        // LoRaMac.cpp, on_ack_timeout_timer_event().
+        if (_loramac.get_mcps_indication()->is_ack_recvd) {
+            _ctrl_flags |= TX_DONE_FLAG;
+            _ctrl_flags &= ~RETRY_EXHAUSTED_FLAG;
+            tr_debug("Ack=OK, NbTrials=%d",
+                     _loramac.get_mcps_confirmation()->nb_retries);
+            _loramac.post_process_mcps_req();
+            make_tx_metadata_available();
+            state_controller(DEVICE_STATE_STATUS_CHECK);
+        } else {
+            if (!_loramac.continue_sending_process()
+                    && _loramac.get_current_slot() != RX_SLOT_WIN_1) {
+                tr_error("Retries exhausted for Class %s device",
+                         _loramac.get_device_class() == CLASS_A ? "A" : "C");
+                _ctrl_flags &= ~TX_DONE_FLAG;
+                _ctrl_flags |= RETRY_EXHAUSTED_FLAG;
+                state_controller(DEVICE_STATE_STATUS_CHECK);
+            }
+        }
+    } else {
+        // handle UNCONFIRMED case here, RX slots were turned off due to
+        // valid packet reception.
+        uint8_t prev_QOS_level = _loramac.get_prev_QOS_level();
+        uint8_t QOS_level = _loramac.get_QOS_level();
+
+        // We will not apply QOS on the post-processing of the previous
+        // outgoing message as we would have received QOS instruction in response
+        // to that particular message
+        if (QOS_level > LORAWAN_DEFAULT_QOS && _qos_cnt < QOS_level
+                && (prev_QOS_level == QOS_level)) {
+            _ctrl_flags &= ~TX_DONE_FLAG;
+            const int ret = _queue->call(this, &LoRaWANStack::state_controller,
+                                         DEVICE_STATE_SCHEDULING);
+            MBED_ASSERT(ret != 0);
+            (void) ret;
+            _qos_cnt++;
+            tr_info("QOS: repeated transmission #%d queued", _qos_cnt);
+        } else {
+            _loramac.post_process_mcps_req();
+            _ctrl_flags |= TX_DONE_FLAG;
+            make_tx_metadata_available();
+            state_controller(DEVICE_STATE_STATUS_CHECK);
+        }
+    }
+}
+
+void LoRaWANStack::post_process_tx_no_reception()
+{
+    if (_loramac.get_mcps_confirmation()->req_type == MCPS_CONFIRMED) {
+        _loramac.post_process_mcps_req();
+        if (_loramac.continue_sending_process()) {
+            _ctrl_flags &= ~TX_DONE_FLAG;
+            _ctrl_flags &= ~RETRY_EXHAUSTED_FLAG;
+            return;
+        }
+
+        tr_error("Retries exhausted for Class %s device",
+                 _loramac.get_device_class() == CLASS_A ? "A" : "C");
+        _ctrl_flags &= ~TX_DONE_FLAG;
+        _ctrl_flags |= RETRY_EXHAUSTED_FLAG;
+    } else {
+        _ctrl_flags |= TX_DONE_FLAG;
+
+        uint8_t prev_QOS_level = _loramac.get_prev_QOS_level();
+        uint8_t QOS_level = _loramac.get_QOS_level();
+
+        if (QOS_level > LORAWAN_DEFAULT_QOS && (prev_QOS_level == QOS_level)) {
+            if (_qos_cnt < QOS_level) {
+                const int ret = _queue->call(this, &LoRaWANStack::state_controller,
+                                             DEVICE_STATE_SCHEDULING);
+                MBED_ASSERT(ret != 0);
+                (void)ret;
+                _qos_cnt++;
+                tr_info("QOS: repeated transmission #%d queued", _qos_cnt);
+                state_machine_run_to_completion();
+                return;
+            }
+        }
+    }
+
+    _loramac.post_process_mcps_req();
+    make_tx_metadata_available();
     state_controller(DEVICE_STATE_STATUS_CHECK);
+    state_machine_run_to_completion();
 }
 
 void LoRaWANStack::handle_scheduling_failure(void)
@@ -621,15 +690,17 @@ void LoRaWANStack::handle_scheduling_failure(void)
     state_machine_run_to_completion();
 }
 
+
 void LoRaWANStack::process_reception(const uint8_t *const payload, uint16_t size,
                                      int16_t rssi, int8_t snr)
 {
     _device_current_state = DEVICE_STATE_RECEIVING;
+
     _ctrl_flags &= ~MSG_RECVD_FLAG;
+    _ctrl_flags &= ~TX_DONE_FLAG;
+    _ctrl_flags &= ~RETRY_EXHAUSTED_FLAG;
 
     _loramac.on_radio_rx_done(payload, size, rssi, snr);
-
-    make_rx_metadata_available();
 
     if (_loramac.get_mlme_confirmation()->pending) {
         _loramac.post_process_mlme_request();
@@ -646,36 +717,10 @@ void LoRaWANStack::process_reception(const uint8_t *const payload, uint16_t size
         return;
     }
 
-    // if the outgoing message was of CONFIRMED type
-    if (_loramac.get_mcps_confirmation()->req_type == MCPS_CONFIRMED) {
-        // if ack was not received, we will try retransmission after
-        // ACK_TIMEOUT. handle_data_frame() already disables ACK_TIMEOUT timer
-        // if ack was received. Otherwise, following method will be called in
-        // LoRaMac.cpp, on_ack_timeout_timer_event().
-        if (_loramac.get_mcps_indication()->is_ack_recvd) {
-            tr_debug("Ack=OK, NbTrials=%d",
-                     _loramac.get_mcps_confirmation()->nb_retries);
-            _loramac.post_process_mcps_req();
-            _ctrl_flags |= TX_DONE_FLAG;
-            _ctrl_flags &= ~TX_ONGOING_FLAG;
-            state_controller(DEVICE_STATE_STATUS_CHECK);
-        } else {
-            if (!_loramac.continue_sending_process() &&
-                _loramac.get_current_slot() != RX_SLOT_WIN_1) {
-                tr_error("Retries exhausted for Class A device");
-                _ctrl_flags &= ~TX_DONE_FLAG;
-                _ctrl_flags |= TX_ONGOING_FLAG;
-                state_controller(DEVICE_STATE_STATUS_CHECK);
-            }
-        }
-    } else if (_loramac.get_device_class() == CLASS_A) {
-        // handle UNCONFIRMED case here, RX slots were turned off due to
-        // valid packet reception. For Class C, an outgoing UNCONFIRMED message
-        // gets its handling in process_transmission.
-        _loramac.post_process_mcps_req();
-        _ctrl_flags |= TX_DONE_FLAG;
-        state_controller(DEVICE_STATE_STATUS_CHECK);
-    }
+    make_rx_metadata_available();
+
+    // Post process transmission in response to the reception
+    post_process_tx_with_reception();
 
     // handle any pending MCPS indication
     if (_loramac.get_mcps_indication()->pending) {
@@ -684,11 +729,8 @@ void LoRaWANStack::process_reception(const uint8_t *const payload, uint16_t size
         state_controller(DEVICE_STATE_STATUS_CHECK);
     }
 
-    // change the state only if a TX cycle completes for Class A
-    // For class C it's not needed as it will already be in receiving
-    // state, no matter if the TX cycle completed or not.
-    if (!(_ctrl_flags & TX_ONGOING_FLAG)) {
-        // we are done here, update the state
+    // complete the cycle only if TX_DONE_FLAG is set
+    if (_ctrl_flags & TX_DONE_FLAG) {
         state_machine_run_to_completion();
     }
 
@@ -729,18 +771,7 @@ void LoRaWANStack::process_reception_timeout(bool is_timeout)
      * never occurs.
      */
     if (slot == RX_SLOT_WIN_2) {
-        _loramac.post_process_mcps_req();
-
-        if (_loramac.get_mcps_confirmation()->req_type == MCPS_CONFIRMED) {
-            if (_loramac.continue_sending_process()) {
-                return;
-            } else {
-                tr_error("Retries exhausted for Class A device");
-            }
-        }
-
-        state_controller(DEVICE_STATE_STATUS_CHECK);
-        state_machine_run_to_completion();
+        post_process_tx_no_reception();
     }
 }
 
@@ -1091,8 +1122,7 @@ void LoRaWANStack::process_shutdown_state(lorawan_status_t &op_status)
     _lw_session.active = false;
     _device_current_state = DEVICE_STATE_SHUTDOWN;
     op_status = LORAWAN_STATUS_DEVICE_OFF;
-    _ctrl_flags &= ~CONNECTED_FLAG;
-    _ctrl_flags &= ~CONN_IN_PROGRESS_FLAG;
+    _ctrl_flags = 0;
     send_event_to_application(DISCONNECTED);
 }
 
@@ -1108,20 +1138,15 @@ void LoRaWANStack::process_status_check_state()
         // Another possibility is the case when the stack fails to schedule a
         // deferred transmission and a scheduling failure handler is invoked.
         _ctrl_flags &= ~TX_DONE_FLAG;
-        _ctrl_flags &= ~TX_ONGOING_FLAG;
         _loramac.set_tx_ongoing(false);
         _loramac.reset_ongoing_tx();
         mcps_confirm_handler();
 
     } else if (_device_current_state == DEVICE_STATE_RECEIVING) {
 
-        if ((_ctrl_flags & TX_DONE_FLAG) || (_ctrl_flags & TX_ONGOING_FLAG)) {
-            // for CONFIRMED case, ack validity is already checked
-            // If it was a successful transmission, TX_ONGOING_FLAG will not be set.
-            // If it was indeed set, that means the device was in Class C mode and
-            // CONFIRMED transmission was in place and the ack retries maxed out.
+        if ((_ctrl_flags & TX_DONE_FLAG) || (_ctrl_flags & RETRY_EXHAUSTED_FLAG)) {
             _ctrl_flags &= ~TX_DONE_FLAG;
-            _ctrl_flags &= ~TX_ONGOING_FLAG;
+            _ctrl_flags &= ~RETRY_EXHAUSTED_FLAG;
             _loramac.set_tx_ongoing(false);
             _loramac.reset_ongoing_tx();
             // if an automatic uplink is ongoing, we should not send a TX_DONE
@@ -1153,7 +1178,6 @@ void LoRaWANStack::process_scheduling_state(lorawan_status_t &op_status)
 
     op_status = _loramac.send_ongoing_tx();
     if (op_status == LORAWAN_STATUS_OK) {
-        _ctrl_flags |= TX_ONGOING_FLAG;
         _ctrl_flags &= ~TX_DONE_FLAG;
         _loramac.set_tx_ongoing(true);
         _device_current_state = DEVICE_STATE_SENDING;
