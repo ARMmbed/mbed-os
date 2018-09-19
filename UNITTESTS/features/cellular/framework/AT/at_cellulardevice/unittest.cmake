@@ -31,5 +31,5 @@ set(unittest-test-sources
   stubs/NetworkInterface_stub.cpp 
   stubs/EventQueue_stub.cpp 
   stubs/FileHandle_stub.cpp 
-  stubs/mbed_assert_stub.cpp
+  stubs/mbed_assert_stub.c
 )

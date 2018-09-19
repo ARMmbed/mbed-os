@@ -17,6 +17,10 @@
 
 #include "LoRaWANTimer.h"
 
+#include "LoRaWANTimer_stub.h"
+
+lorawan_time_t LoRaWANTimer_stub::time_value = 0;
+
 LoRaWANTimeHandler::LoRaWANTimeHandler()
     : _queue(NULL)
 {
@@ -32,12 +36,12 @@ void LoRaWANTimeHandler::activate_timer_subsystem(events::EventQueue *queue)
 
 lorawan_time_t LoRaWANTimeHandler::get_current_time( void )
 {
-    return (lorawan_time_t)0;
+    return LoRaWANTimer_stub::time_value;
 }
 
 lorawan_time_t LoRaWANTimeHandler::get_elapsed_time(lorawan_time_t saved_time)
 {
-    return (lorawan_time_t)0;
+    return LoRaWANTimer_stub::time_value;
 }
 
 void LoRaWANTimeHandler::init(timer_event_t &obj, mbed::Callback<void()> callback)
