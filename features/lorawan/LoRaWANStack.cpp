@@ -692,7 +692,8 @@ void LoRaWANStack::process_reception(const uint8_t *const payload, uint16_t size
         state_machine_run_to_completion();
     }
 
-    if (_loramac.get_mlme_indication()->pending) {
+    // suppress auto uplink if another auto-uplink is in AWAITING_ACK state
+    if (_loramac.get_mlme_indication()->pending && !_automatic_uplink_ongoing) {
         tr_debug("MLME Indication pending");
         _loramac.post_process_mlme_ind();
         tr_debug("Immediate Uplink requested");
@@ -1028,11 +1029,15 @@ void LoRaWANStack::mcps_indication_handler()
             || (_loramac.get_device_class() == CLASS_C
                     && mcps_indication->type == MCPS_CONFIRMED)) {
 #if (MBED_CONF_LORA_AUTOMATIC_UPLINK_MESSAGE)
-        tr_debug("Sending empty uplink message...");
-        _automatic_uplink_ongoing = true;
-        const int ret = _queue->call(this, &LoRaWANStack::send_automatic_uplink_message, mcps_indication->port);
-        MBED_ASSERT(ret != 0);
-        (void)ret;
+            // Do not queue an automatic uplink of there is one already outgoing
+            // This means we have not received an ack for the previous automatic uplink
+            if (!_automatic_uplink_ongoing) {
+                tr_debug("Sending empty uplink message...");
+                _automatic_uplink_ongoing = true;
+                const int ret = _queue->call(this, &LoRaWANStack::send_automatic_uplink_message, mcps_indication->port);
+                MBED_ASSERT(ret != 0);
+                (void)ret;
+            }
 #else
         send_event_to_application(UPLINK_REQUIRED);
 #endif
