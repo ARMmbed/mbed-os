@@ -30,6 +30,7 @@ import json
 from collections import OrderedDict
 import logging
 from intelhex import IntelHex
+import io
 
 try:
     unicode
@@ -367,9 +368,9 @@ def json_file_to_dict(fname):
     fname - the name of the file to parse
     """
     try:
-        with open(fname, "r") as file_obj:
-            return json.loads(file_obj.read().encode('ascii', 'ignore'),
-                              object_pairs_hook=OrderedDict)
+        with io.open(fname, encoding='ascii', 
+                         errors='ignore') as file_obj:
+            return json.load(file_obj, object_pairs_hook=OrderedDict)
     except (ValueError, IOError):
         sys.stderr.write("Error parsing '%s':\n" % fname)
         raise
