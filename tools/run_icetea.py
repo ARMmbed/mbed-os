@@ -169,6 +169,9 @@ def icetea_tests(target, tcdir, verbose):
     command = ['icetea', '--tcdir', tcdir, '--list', '--json', '--platform_filter', target] \
               + (['-v'] if verbose else [])
 
+    if not os.path.exists(tcdir):
+        raise Exception("Icetea run error: No TEST_APPS folder in {}".format(os.path.curdir))
+
     stdout, stderr, returncode = run_cmd(command)
 
     if returncode != 0:
