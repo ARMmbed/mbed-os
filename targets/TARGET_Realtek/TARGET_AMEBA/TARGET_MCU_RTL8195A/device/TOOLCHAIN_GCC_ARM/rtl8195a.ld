@@ -66,7 +66,7 @@ SECTIONS
 
     .text.sram1 :
     {
-        . = ALIGN(4);
+        . = ALIGN(8);
         *rtl8195a_crypto*.o (.text* .rodata*)
         *mbedtls*.o (.text* .rodata*)
         *libc.a: (.text* .rodata*)
@@ -77,7 +77,7 @@ SECTIONS
 
     .text.sram2 :
     {
-        . = ALIGN(4);
+        . = ALIGN(8);
         *(.text*)
 
         KEEP(*(.init))
@@ -107,7 +107,7 @@ SECTIONS
 
     .data.sram1 :
     {
-        . = ALIGN(4);
+        . = ALIGN(8);
         __sram_data_start__ = .;
         *rtl8195a_crypto*.o (.data*)
         *mbedtls*.o (.data*)
@@ -121,27 +121,27 @@ SECTIONS
         *(.data*)
         *(.sdram.data*)
 
-        . = ALIGN(4);
+        . = ALIGN(8);
         /* preinit data */
         PROVIDE (__preinit_array_start = .);
         KEEP(*(.preinit_array))
         PROVIDE (__preinit_array_end = .);
 
-        . = ALIGN(4);
+        . = ALIGN(8);
         /* init data */
         PROVIDE (__init_array_start = .);
         KEEP(*(SORT(.init_array.*)))
         KEEP(*(.init_array))
         PROVIDE (__init_array_end = .);
 
-        . = ALIGN(4);
+        . = ALIGN(8);
         /* finit data */
         PROVIDE (__fini_array_start = .);
         KEEP(*(SORT(.fini_array.*)))
         KEEP(*(.fini_array))
         PROVIDE (__fini_array_end = .);
 
-        . = ALIGN(4);
+        . = ALIGN(8);
 
         __sdram_data_end__ = .;
         /* All data end */
