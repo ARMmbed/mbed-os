@@ -171,9 +171,20 @@ CellularInformation *AT_CellularDevice::open_information(FileHandle *fh)
 void AT_CellularDevice::close_network()
 {
     if (_network) {
-        release_at_handler(&_network->get_at_handler());
+<<<<<<< HEAD
+        _network_ref_count--;
+        if (_network_ref_count == 0) {
+            ATHandler *atHandler = &_network->get_at_handler();
+            delete _network;
+            _network = NULL;
+            release_at_handler(atHandler);
+        }
+=======
+        ATHandler *at_handler = &_network->get_at_handler();
         delete _network;
+        release_at_handler(at_handler);
         _network = NULL;
+>>>>>>> Rebase and changes for Dragonfly nano support
     }
 }
 
