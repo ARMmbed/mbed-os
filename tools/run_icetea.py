@@ -172,9 +172,9 @@ def icetea_tests(target, tcdir, verbose):
     stdout, stderr, returncode = run_cmd(command)
 
     if returncode != 0:
-        raise Exception(
-            "Error when running icetea. \ncwd:{} \nCommand:'{}' \noutput:{}".format(os.getcwd(), ' '.join(command),
-                                                                                    stderr.decode()))
+        additional_information = "\ncwd:{} \nCommand:'{}' \noutput:{}".format(os.getcwd(), ' '.join(command),
+                                                                              stderr.decode())
+        raise Exception("Error when running icetea. {}".format(additional_information))
 
     return json.loads(stdout)
 
