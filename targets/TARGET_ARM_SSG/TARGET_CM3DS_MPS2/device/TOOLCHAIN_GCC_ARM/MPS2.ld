@@ -72,12 +72,12 @@ SECTIONS
     {
         __vector_table = .;
         KEEP(*(.vector_table))
-         . = ALIGN(4);
+         . = ALIGN(8);
     } > VECTORS
 
     .text :
     {
-        . = ALIGN(4);
+        . = ALIGN(8);
         *(.text*)
 
         KEEP(*(.init))
@@ -116,30 +116,30 @@ SECTIONS
 
     .interrupts_ram :
     {
-        . = ALIGN(4);
+        . = ALIGN(8);
         __VECTOR_RAM__ = .;
         __interrupts_ram_start__ = .;   /* Create a global symbol at data start */
         . += M_VECTOR_RAM_SIZE;
-        . = ALIGN(4);
+        . = ALIGN(8);
         __interrupts_ram_end__ = .;     /* Define a global symbol at data end */
     } > RAM
 
     .data :
     {
         PROVIDE(__etext = LOADADDR(.data));
-        . = ALIGN(4);
+        . = ALIGN(8);
         __data_start__ = .;
         *(vtable)
         *(.data)
         *(.data*)
 
-        . = ALIGN(4);
+        . = ALIGN(8);
         /* preinit data */
         PROVIDE (__preinit_array_start = .);
         KEEP(*(.preinit_array))
         PROVIDE (__preinit_array_end = .);
 
-        . = ALIGN(4);
+        . = ALIGN(8);
         /* init data */
         PROVIDE (__init_array_start = .);
         KEEP(*(SORT(.init_array.*)))
@@ -147,14 +147,14 @@ SECTIONS
         PROVIDE (__init_array_end = .);
 
 
-        . = ALIGN(4);
+        . = ALIGN(8);
         /* finit data */
         PROVIDE (__fini_array_start = .);
         KEEP(*(SORT(.fini_array.*)))
         KEEP(*(.fini_array))
         PROVIDE (__fini_array_end = .);
 
-        . = ALIGN(4);
+        . = ALIGN(8);
         /* All data end */
         __data_end__ = .;
 
@@ -172,13 +172,13 @@ SECTIONS
 
     .bss :
     {
-        . = ALIGN(4);
+        . = ALIGN(8);
         __START_BSS = .;
         __bss_start__ = .;
         *(.bss)
         *(.bss*)
         *(COMMON)
-        . = ALIGN(4);
+        . = ALIGN(8);
         __bss_end__ = .;
         __END_BSS = .;
 
