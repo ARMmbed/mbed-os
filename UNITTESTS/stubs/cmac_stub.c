@@ -26,28 +26,47 @@
 #include "mbedtls/platform_util.h"
 #include <string.h>
 
+#include "cmac_stub.h"
+
+cmac_stub_def cmac_stub;
 
 int mbedtls_cipher_cmac_starts( mbedtls_cipher_context_t *ctx,
                                 const unsigned char *key, size_t keybits )
 {
-    return 0;
+    if (cmac_stub.int_zero_counter) {
+        cmac_stub.int_zero_counter--;
+        return 0;
+    }
+    return cmac_stub.int_value;
 }
 
 int mbedtls_cipher_cmac_update( mbedtls_cipher_context_t *ctx,
                                 const unsigned char *input, size_t ilen )
 {
-    return( 0 );
+    if (cmac_stub.int_zero_counter) {
+        cmac_stub.int_zero_counter--;
+        return 0;
+    }
+    return cmac_stub.int_value;
 }
 
 int mbedtls_cipher_cmac_finish( mbedtls_cipher_context_t *ctx,
                                 unsigned char *output )
 {
-    return( 0 );
+    if (cmac_stub.int_zero_counter) {
+        cmac_stub.int_zero_counter--;
+        return 0;
+    }
+    return cmac_stub.int_value;
 }
 
 int mbedtls_cipher_cmac_reset( mbedtls_cipher_context_t *ctx )
 {
-    return( 0 );
+    if (cmac_stub.int_zero_counter) {
+        cmac_stub.int_zero_counter--;
+        return 0;
+    }
+    return cmac_stub.int_value;
 }
 
 int mbedtls_cipher_cmac( const mbedtls_cipher_info_t *cipher_info,
@@ -55,13 +74,21 @@ int mbedtls_cipher_cmac( const mbedtls_cipher_info_t *cipher_info,
                          const unsigned char *input, size_t ilen,
                          unsigned char *output )
 {
-    return( 0 );
+    if (cmac_stub.int_zero_counter) {
+        cmac_stub.int_zero_counter--;
+        return 0;
+    }
+    return cmac_stub.int_value;
 }
 
 int mbedtls_aes_cmac_prf_128( const unsigned char *key, size_t key_length,
                               const unsigned char *input, size_t in_len,
                               unsigned char *output )
 {
-    return( 0 );
+    if (cmac_stub.int_zero_counter) {
+        cmac_stub.int_zero_counter--;
+        return 0;
+    }
+    return cmac_stub.int_value;
 }
 
