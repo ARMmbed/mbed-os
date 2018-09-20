@@ -32,6 +32,7 @@ MSG_KEY_LOOPBACK = 'loopback'
 MSG_KEY_CHANGE_LINE_CODING = 'change_lc'
 
 RX_BUFF_SIZE = 32
+TERM_CLOSE_DELAY = 0.01
 TERM_REOPEN_DELAY = 0.1
 LINE_CODING_STRLEN = 13
 
@@ -181,6 +182,7 @@ class USBSerialTest(mbed_host_tests.BaseHostTest):
                 return
         while mbed_serial.out_waiting > 0:
             time.sleep(0.001)
+        time.sleep(TERM_CLOSE_DELAY)
         mbed_serial.close()
 
     def loopback(self, usb_id_str):
@@ -212,6 +214,7 @@ class USBSerialTest(mbed_host_tests.BaseHostTest):
             return
         while mbed_serial.out_waiting > 0:
             time.sleep(0.001)
+        time.sleep(TERM_CLOSE_DELAY)
         mbed_serial.close()
 
     def change_line_coding(self, usb_id_str):
@@ -249,6 +252,7 @@ class USBSerialTest(mbed_host_tests.BaseHostTest):
             self.log('TEST ERROR: {}'.format(exc))
             self.notify_complete(False)
             return
+        time.sleep(TERM_CLOSE_DELAY)
         mbed_serial.close()
 
     def setup(self):
