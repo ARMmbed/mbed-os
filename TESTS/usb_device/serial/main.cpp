@@ -49,6 +49,12 @@
 // to handle the reconnect operation correctly.
 #define USB_DISCONNECT_DELAY_MS 1
 
+// Despite having ECHO and ECHOCTL POSIX lflags disabled by default by
+// pyserial, a delay is needed for host to properly handle data received
+// from USB serial/CDC device.
+// With no delay host would echo 0x00-0x31 characters prefixed with '^'.
+#define TX_DELAY_MS 10
+
 #define LINE_CODING_STRLEN 13 // 6 + 2 + 1 + 1 + 3 * comma
 
 using utest::v1::Case;
@@ -247,6 +253,7 @@ void test_cdc_rx_single_bytes_concurrent()
     usb_cdc.connect();
     greentea_send_kv(MSG_KEY_SEND_BYTES_SINGLE, usb_cdc_sn);
     usb_cdc.wait_ready();
+    wait_ms(TX_DELAY_MS);
     Thread tx_thread;
     event_flags.set(EF_SEND);
     tx_thread.start(mbed::callback(tx_thread_fun, &usb_cdc));
@@ -316,6 +323,7 @@ void test_cdc_rx_multiple_bytes_concurrent()
     usb_cdc.connect();
     greentea_send_kv(MSG_KEY_SEND_BYTES_MULTIPLE, usb_cdc_sn);
     usb_cdc.wait_ready();
+    wait_ms(TX_DELAY_MS);
     Thread tx_thread;
     event_flags.set(EF_SEND);
     tx_thread.start(mbed::callback(tx_thread_fun, &usb_cdc));
@@ -355,6 +363,7 @@ void test_cdc_loopback()
     usb_cdc.connect();
     greentea_send_kv(MSG_KEY_LOOPBACK, usb_cdc_sn);
     usb_cdc.wait_ready();
+    wait_ms(TX_DELAY_MS);
     uint8_t rx_buff, tx_buff;
     for (int i = 0; i < CDC_LOOPBACK_REPS; i++) {
         tx_buff = (uint8_t)(rand() % 0x100);
@@ -540,6 +549,7 @@ void test_serial_printf_scanf()
     while (!usb_serial.connected()) {
         wait_ms(1);
     }
+    wait_ms(TX_DELAY_MS);
     static const char fmt[] = "Formatted\nstring %i.";
     int tx_val, rx_val, rc;
     for (int i = 0; i < SERIAL_LOOPBACK_REPS; i++) {
@@ -585,6 +595,7 @@ void test_serial_line_coding_change()
     while (!usb_serial.connected()) {
         wait_ms(1);
     }
+    wait_ms(TX_DELAY_MS);
     usb_serial.attach(line_coding_changed_cb);
     size_t num_line_codings = sizeof test_codings / sizeof test_codings[0];
     line_coding_t *lc_prev = &default_lc;
