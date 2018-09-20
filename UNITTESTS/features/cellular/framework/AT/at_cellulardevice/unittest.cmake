@@ -32,4 +32,5 @@ set(unittest-test-sources
   stubs/EventQueue_stub.cpp 
   stubs/FileHandle_stub.cpp 
   stubs/mbed_assert_stub.cpp
+  stubs/CellularDevice_stub.cpp
 )
