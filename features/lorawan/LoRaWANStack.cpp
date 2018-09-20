@@ -647,7 +647,6 @@ void LoRaWANStack::post_process_tx_with_reception()
 void LoRaWANStack::post_process_tx_no_reception()
 {
     if (_loramac.get_mcps_confirmation()->req_type == MCPS_CONFIRMED) {
-        _loramac.post_process_mcps_req();
         if (_loramac.continue_sending_process()) {
             _ctrl_flags &= ~TX_DONE_FLAG;
             _ctrl_flags &= ~RETRY_EXHAUSTED_FLAG;
