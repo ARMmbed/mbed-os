@@ -18,14 +18,22 @@
 #include "mbed_critical.h"
 
 #if DEVICE_FLASH
+#include <string.h>
 #include "iodefine.h"
 #include "spibsc_iobitmask.h"
 #include "spibsc.h"
 #include "mbed_drv_cfg.h"
 
 /* ---- serial flash command ---- */
+#if (FLASH_SIZE > 0x1000000)
+#define SPIBSC_OUTPUT_ADDR           SPIBSC_OUTPUT_ADDR_32
+#define SFLASHCMD_SECTOR_ERASE       (0x21u)    /* SE4B   4-byte address(1bit)             */
+#define SFLASHCMD_PAGE_PROGRAM       (0x12u)    /* PP4B   4-byte address(1bit), data(1bit) */
+#else
+#define SPIBSC_OUTPUT_ADDR           SPIBSC_OUTPUT_ADDR_24
 #define SFLASHCMD_SECTOR_ERASE       (0x20u)    /* SE     3-byte address(1bit)             */
 #define SFLASHCMD_PAGE_PROGRAM       (0x02u)    /* PP     3-byte address(1bit), data(1bit) */
+#endif
 #define SFLASHCMD_READ_STATUS_REG    (0x05u)    /* RDSR                         data(1bit) */
 #define SFLASHCMD_WRITE_ENABLE       (0x06u)    /* WREN                                    */
 /* ---- serial flash register definitions ---- */
@@ -74,10 +82,6 @@ typedef struct {
     uint32_t smwdr[2];  /* write data */
 } st_spibsc_spimd_reg_t;
 
-/*  SPI Multi-I/O bus address space address definitions */
-#define SPIBSC_ADDR_START  (0x18000000uL)
-#define SPIBSC_ADDR_END    (0x1BFFFFFFuL)
-
 typedef struct {
     uint32_t b0             : 1 ;       /* bit 0        : -         (0)                                   */
     uint32_t b1             : 1 ;       /* bit 1        : -         (1)                                   */
@@ -96,7 +100,7 @@ typedef struct {
     uint32_t base_addr      : 12;       /* bit 31-20    : PA[31:20] PA(physical address) bits:bit31-20    */
 } mmu_ttbl_desc_section_t;
 
-static mmu_ttbl_desc_section_t desc_tbl[(SPIBSC_ADDR_END >> 20) - (SPIBSC_ADDR_START >> 20) + 1];
+static mmu_ttbl_desc_section_t desc_tbl[(FLASH_SIZE >> 20)];
 static volatile struct st_spibsc*  SPIBSC = &SPIBSC0;
 static st_spibsc_spimd_reg_t spimd_reg;
 static uint8_t write_tmp_buf[FLASH_PAGE_SIZE];
@@ -193,7 +197,7 @@ int32_t _sector_erase(uint32_t addr)
     spimd_reg.cmd    = SFLASHCMD_SECTOR_ERASE;
 
     /* ---- address ---- */
-    spimd_reg.ade    = SPIBSC_OUTPUT_ADDR_24;
+    spimd_reg.ade    = SPIBSC_OUTPUT_ADDR;
     spimd_reg.addre  = SPIBSC_SDR_TRANS;       /* SDR */
     spimd_reg.adb    = SPIBSC_1BIT;
     spimd_reg.addr   = addr;
@@ -252,7 +256,7 @@ int32_t _page_program(uint32_t addr, const uint8_t * buf, int32_t size)
         spimd_reg.cmd    = SFLASHCMD_PAGE_PROGRAM;
 
         /* ---- address ---- */
-        spimd_reg.ade    = SPIBSC_OUTPUT_ADDR_24;
+        spimd_reg.ade    = SPIBSC_OUTPUT_ADDR;
         spimd_reg.addre  = SPIBSC_SDR_TRANS;       /* SDR */
         spimd_reg.adb    = SPIBSC_1BIT;
         spimd_reg.addr   = addr;
@@ -687,16 +691,16 @@ static void change_mmu_ttbl_spibsc(uint32_t type)
     mmu_ttbl_desc_section_t * table = (mmu_ttbl_desc_section_t *)TTB;
 
     /* ==== Modify SPI Multi-I/O bus space settings in the MMU translation table ==== */
-    for (index = (SPIBSC_ADDR_START >> 20); index <= (SPIBSC_ADDR_END >> 20); index++) {
+    for (index = (FLASH_BASE >> 20); index < ((FLASH_BASE + FLASH_SIZE) >> 20); index++) {
         /* Modify memory attribute descriptor */
         if (type == 0) {         /* Spi */
             desc = table[index];
-            desc_tbl[index - (SPIBSC_ADDR_START >> 20)] = desc;
+            desc_tbl[index - (FLASH_BASE >> 20)] = desc;
             desc.AP1_0 = 0x0u;   /* AP[2:0] = b'000 (No access) */
             desc.AP2   = 0x0u;
             desc.XN    = 0x1u;   /* XN = 1 (Execute never) */
         } else {                 /* Xip */
-            desc = desc_tbl[index - (SPIBSC_ADDR_START >> 20)];
+            desc = desc_tbl[index - (FLASH_BASE >> 20)];
         }
         /* Write descriptor back to translation table */
         table[index] = desc;
