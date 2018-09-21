@@ -41,13 +41,13 @@
 #include "us_ticker_api.h"
 #include "nrf_timer.h"
 #include "app_util_platform.h"
-#include "nrf_drv_common.h"
+#include "nrfx_common.h"
 #include "mbed_critical.h"
 #include "nrfx_glue.h"
 
 bool us_ticker_initialized = false;
 
-/* us ticker is driven by 1MHz clock and counter length is 16 bits. */
+/* us ticker is driven by 1MHz clock and counter length is 32 bits for nRF52 */
 const ticker_info_t* us_ticker_get_info()
 {
     static const ticker_info_t info = {
