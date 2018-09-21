@@ -132,7 +132,12 @@
         "use-mpu": {
             "help": "Use the MPU if available to fault execution from RAM and writes to ROM. Can be disabled to reduce image size.",
             "value": true
+        },
+        "soft-file-buffer": {
+            "help": "Use circular file buffer instead of serial",
+            "value": false
         }
+
     },
     "target_overrides": {
         "EFM32": {

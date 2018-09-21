@@ -44,6 +44,7 @@
 
 static SingletonPtr<PlatformMutex> _mutex;
 
+
 #if defined(__ARMCC_VERSION)
 #   if __ARMCC_VERSION >= 6010050
 #      include <arm_compat.h>
@@ -256,7 +257,7 @@ MBED_WEAK FileHandle *mbed::mbed_override_console(int fd)
 
 static FileHandle *default_console()
 {
-#if DEVICE_SERIAL
+# if DEVICE_SERIAL
 #  if MBED_CONF_PLATFORM_STDIO_BUFFERED_SERIAL
     static UARTSerial console(STDIO_UART_TX, STDIO_UART_RX, MBED_CONF_PLATFORM_STDIO_BAUD_RATE);
 #   if   CONSOLE_FLOWCONTROL == CONSOLE_FLOWCONTROL_RTS
