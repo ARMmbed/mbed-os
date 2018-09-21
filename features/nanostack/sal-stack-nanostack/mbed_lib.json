@@ -13,6 +13,9 @@
         },
         "NCS36510": {
             "nanostack.configuration": "lowpan_router"
+        },
+        "TB_SENSE_12": {
+            "nanostack.configuration": "lowpan_router"
         }
     }
 }
