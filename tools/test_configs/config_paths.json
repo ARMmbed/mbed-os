@@ -12,5 +12,6 @@
     "6LOWPAN_HOST" : "6lowpanInterface_host.json",
     "6LOWPAN_ROUTER" : "6lowpanInterface_router.json",
     "THREAD_END_DEVICE" : "ThreadInterface_end_device.json",
-    "THREAD_ROUTER" : "ThreadInterface_router.json"
+    "THREAD_ROUTER" : "ThreadInterface_router.json",
+    "NO_NETWORK": "no_network.json"
 }

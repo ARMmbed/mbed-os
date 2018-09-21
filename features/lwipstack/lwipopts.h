@@ -139,6 +139,26 @@
 
 #define LWIP_RAM_HEAP_POINTER       lwip_ram_heap
 
+// Number of simultaneously queued TCP segments.
+#ifdef MBED_CONF_LWIP_MEMP_NUM_TCP_SEG
+#define MEMP_NUM_TCP_SEG            MBED_CONF_LWIP_MEMP_NUM_TCP_SEG
+#endif
+
+// TCP Maximum segment size.
+#ifdef MBED_CONF_LWIP_TCP_MSS
+#define TCP_MSS                     MBED_CONF_LWIP_TCP_MSS
+#endif
+
+// TCP sender buffer space (bytes).
+#ifdef MBED_CONF_LWIP_TCP_SND_BUF
+#define TCP_SND_BUF                 MBED_CONF_LWIP_TCP_SND_BUF
+#endif
+
+// TCP sender buffer space (bytes).
+#ifdef MBED_CONF_LWIP_TCP_WND
+#define TCP_WND                     MBED_CONF_LWIP_TCP_WND
+#endif
+
 // Number of pool pbufs.
 // Each requires 684 bytes of RAM (if MSS=536 and PBUF_POOL_BUFSIZE defaulting to be based on MSS)
 #ifdef MBED_CONF_LWIP_PBUF_POOL_SIZE

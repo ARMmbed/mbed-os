@@ -153,7 +153,7 @@ TEST_F(TestInternetSocket, sigio)
     callback_is_called = false;
     // I'm calling sigio() through the DEPRECATED method, just to get coverage for both.
     // Not sure if this is wise at all, we should not aim for 100%
-    socket->attach(mbed::callback(my_callback));
+    socket->sigio(mbed::callback(my_callback));
     socket->event();
     EXPECT_EQ(callback_is_called, true);
 }

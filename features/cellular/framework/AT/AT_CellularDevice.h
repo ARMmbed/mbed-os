@@ -20,15 +20,14 @@
 
 #include "CellularDevice.h"
 
-#include "AT_CellularNetwork.h"
-#include "AT_CellularSIM.h"
-#include "AT_CellularSMS.h"
-#include "AT_CellularPower.h"
-#include "AT_CellularInformation.h"
-
-#include "ATHandler.h"
-
 namespace mbed {
+
+class ATHandler;
+class AT_CellularInformation;
+class AT_CellularNetwork;
+class AT_CellularPower;
+class AT_CellularSIM;
+class AT_CellularSMS;
 
 /**
  *  Class AT_CellularDevice
@@ -53,6 +52,9 @@ protected:
     void release_at_handler(ATHandler *at_handler);
 
 public: // CellularDevice
+
+    virtual events::EventQueue *get_queue() const;
+
     virtual CellularNetwork *open_network(FileHandle *fh);
 
     virtual CellularSMS *open_sms(FileHandle *fh);
@@ -84,6 +86,41 @@ public: // CellularDevice
     virtual nsapi_error_t init_module(FileHandle *fh);
 
 protected:
+    /** Create new instance of AT_CellularNetwork or if overridden, modem specific implementation.
+     *
+     *  @param at   ATHandler reference for communication with the modem.
+     *  @return new instance of class AT_CellularNetwork
+     */
+    virtual AT_CellularNetwork *open_network_impl(ATHandler &at);
+
+    /** Create new instance of AT_CellularSMS or if overridden, modem specific implementation.
+     *
+     *  @param at   ATHandler reference for communication with the modem.
+     *  @return new instance of class AT_CellularSMS
+     */
+    virtual AT_CellularSMS *open_sms_impl(ATHandler &at);
+
+    /** Create new instance of AT_CellularPower or if overridden, modem specific implementation.
+     *
+     *  @param at   ATHandler reference for communication with the modem.
+     *  @return new instance of class AT_CellularPower
+     */
+    virtual AT_CellularPower *open_power_impl(ATHandler &at);
+
+    /** Create new instance of AT_CellularSIM or if overridden, modem specific implementation.
+     *
+     *  @param at   ATHandler reference for communication with the modem.
+     *  @return new instance of class AT_CellularSIM
+     */
+    virtual AT_CellularSIM *open_sim_impl(ATHandler &at);
+
+    /** Create new instance of AT_CellularInformation or if overridden, modem specific implementation.
+     *
+     *  @param at   ATHandler reference for communication with the modem.
+     *  @return new instance of class AT_CellularInformation
+     */
+    virtual AT_CellularInformation *open_information_impl(ATHandler &at);
+
     AT_CellularNetwork *_network;
     AT_CellularSMS *_sms;
     AT_CellularSIM *_sim;

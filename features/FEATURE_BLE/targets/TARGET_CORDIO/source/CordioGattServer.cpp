@@ -624,6 +624,8 @@ ble_error_t GattServer::write(
     // successful
     uint16_t conn_id = 0;
     uint16_t conn_found = 0;
+    size_t updates_sent = 0;
+
     while((conn_found < DM_CONN_MAX) && (conn_id < CONNECTION_ID_LIMIT)) {
         if (DmConnInUse(conn_id) == true) {
             ++conn_found;
@@ -631,13 +633,19 @@ ble_error_t GattServer::write(
                 uint16_t cccd_config = AttsCccEnabled(conn_id, cccd_index);
                 if (cccd_config & ATT_CLIENT_CFG_NOTIFY) {
                     AttsHandleValueNtf(conn_id, att_handle, len, (uint8_t*)buffer);
+                    updates_sent++;
                 }
                 if (cccd_config & ATT_CLIENT_CFG_INDICATE) {
                     AttsHandleValueInd(conn_id, att_handle, len, (uint8_t*)buffer);
+                    updates_sent++;
                 }
             }
         }
         ++conn_id;
+    }
+
+    if (updates_sent) {
+        handleDataSentEvent(updates_sent);
     }
 
     return BLE_ERROR_NONE;
@@ -674,14 +682,22 @@ ble_error_t GattServer::write(
     }
 
     // This characteristic has a CCCD attribute. Handle notifications and indications.
+    size_t updates_sent = 0;
+
     if (is_update_authorized(connection, att_handle)) {
         uint16_t cccEnabled = AttsCccEnabled(connection, cccd_index);
         if (cccEnabled & ATT_CLIENT_CFG_NOTIFY) {
             AttsHandleValueNtf(connection, att_handle, len, (uint8_t*)buffer);
+            updates_sent++;
         }
         if (cccEnabled & ATT_CLIENT_CFG_INDICATE) {
             AttsHandleValueInd(connection, att_handle, len, (uint8_t*)buffer);
+            updates_sent++;
         }
+    }
+
+    if (updates_sent) {
+        handleDataSentEvent(updates_sent);
     }
 
     return BLE_ERROR_NONE;

@@ -20,10 +20,10 @@
 
 #if defined (DEVICE_SERIAL) || defined(DOXYGEN_ONLY)
 
-#include "Stream.h"
+#include "platform/Stream.h"
 #include "SerialBase.h"
-#include "PlatformMutex.h"
-#include "serial_api.h"
+#include "platform/PlatformMutex.h"
+#include "hal/serial_api.h"
 #include "platform/NonCopyable.h"
 
 namespace mbed {

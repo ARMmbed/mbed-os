@@ -1,0 +1,17 @@
+{
+    "config": {
+        "echo-server-addr" : {
+            "help" : "IP address of echo server",
+            "value" : null
+        },
+        "echo-server-port" : {
+            "help" : "Port of echo server",
+            "value" : null
+        }
+    },
+    "target_overrides": {
+        "*": {
+            "target.network-default-interface-type": null
+        }
+    }
+}

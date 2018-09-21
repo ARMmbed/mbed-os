@@ -36,32 +36,14 @@ TELIT_HE910::~TELIT_HE910()
 {
 }
 
-CellularPower *TELIT_HE910::open_power(FileHandle *fh)
+AT_CellularNetwork *TELIT_HE910::open_network_impl(ATHandler &at)
 {
-    if (!_power) {
-        ATHandler *atHandler = get_at_handler(fh);
-        if (atHandler) {
-            _power = new TELIT_HE910_CellularPower(*atHandler);
-            if (!_power) {
-                release_at_handler(atHandler);
-            }
-        }
-    }
-    return _power;
+    return new TELIT_HE910_CellularNetwork(at);
 }
 
-CellularNetwork *TELIT_HE910::open_network(FileHandle *fh)
+AT_CellularPower *TELIT_HE910::open_power_impl(ATHandler &at)
 {
-    if (!_network) {
-        ATHandler *atHandler = get_at_handler(fh);
-        if (atHandler) {
-            _network = new TELIT_HE910_CellularNetwork(*atHandler);
-            if (!_network) {
-                release_at_handler(atHandler);
-            }
-        }
-    }
-    return _network;
+    return new TELIT_HE910_CellularPower(at);
 }
 
 uint16_t TELIT_HE910::get_send_delay()

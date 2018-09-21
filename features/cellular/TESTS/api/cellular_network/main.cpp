@@ -184,6 +184,7 @@ static void test_network_registration()
 
 static void test_attach()
 {
+    wait(10);
     TEST_ASSERT(nw->set_attach() == NSAPI_ERROR_OK);
 
     CellularNetwork::AttachStatus status;

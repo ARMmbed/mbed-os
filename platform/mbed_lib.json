@@ -69,6 +69,10 @@
             "macro_name": "MBED_MEM_TRACING_ENABLED",
             "help": "Enable tracing of each memory call by invoking a callback on each memory operation. See mbed_mem_trace.h in the HAL API for more information",
             "value": false
+        },
+        "error-decode-http-url-str": {
+            "help": "HTTP URL string for ARM Mbed-OS Error Decode microsite",
+            "value": "\"\\nFor more info, visit: https://armmbed.github.io/mbedos-error/?error=0x%08X\""
         }
     },
     "target_overrides": {

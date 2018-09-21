@@ -97,7 +97,7 @@ class GCC(mbedToolchain):
                 "-Wl,--out-implib=%s" % join(build_dir, "cmse_lib.o")
             ])
         elif target.core == "Cortex-M23-NS" or target.core == "Cortex-M33-NS":
-             self.flags["ld"].append("-D__DOMAIN_NS=1")
+             self.flags["ld"].append("-DDOMAIN_NS=1")
 
         self.flags["common"] += self.cpu
 
@@ -293,7 +293,7 @@ class GCC(mbedToolchain):
 
     @staticmethod
     def make_ld_define(name, value):
-        return "-D%s=0x%x" % (name, value)
+        return "-D%s=%s" % (name, value)
 
     @staticmethod
     def redirect_symbol(source, sync, build_dir):

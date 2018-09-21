@@ -19,7 +19,7 @@
 
 #include "WiFiInterface.h"
 #ifdef DEVICE_WIFI_AP
-#include "WiFiSoftAPInterface.h"
+#include "UbloxWiFiSoftAPInterface.h"
 #endif
 
 #include "mbed.h"
@@ -29,6 +29,7 @@
 #include "lwip/netif.h"
 #include "rtos.h"
 #include "cb_wlan.h"
+#include "wifi_emac.h"
 
 #define ODIN_WIFI_MAX_MAC_ADDR_STR  (18)
 #define ODIN_WIFI_SCAN_CACHE_SIZE   (5)
@@ -45,16 +46,18 @@ struct wlan_scan_indication_s;
 /** OdinWiFiInterface class
  *  Implementation of the WiFiInterface for the ODIN-W2 module
  */
-
+#ifdef DEVICE_WIFI_AP
+class OdinWiFiInterface : public WiFiInterface, public UbloxWiFiSoftAPInterface, public EMACInterface
+#else
 class OdinWiFiInterface : public WiFiInterface, public EMACInterface
-
+#endif
 {
 public:
     /** OdinWiFiInterface lifetime
      */
-    OdinWiFiInterface();
+    OdinWiFiInterface(OdinWiFiEMAC &emac = OdinWiFiEMAC::get_instance(), OnboardNetworkStack &stack = OnboardNetworkStack::get_default_instance());
     
-    OdinWiFiInterface(bool debug);
+    OdinWiFiInterface(bool debug, OdinWiFiEMAC &emac = OdinWiFiEMAC::get_instance(), OnboardNetworkStack &stack = OnboardNetworkStack::get_default_instance());
 
     ~OdinWiFiInterface();
     
@@ -138,6 +141,100 @@ public:
      */
     virtual nsapi_error_t set_timeout(int ms);
 
+#ifdef DEVICE_WIFI_AP
+
+    /** Set IP config for access point
+         *
+         *  This function has to be called before the access point is started.
+         *
+         *  @param gateway     Null-terminated representation of the local gateway
+         *  @param netmask     Null-terminated representation of the network mask
+         *  @return            0 on success, negative error code on failure
+         */
+    //TODO: In previous WiFiInterface.h but not in new UbloxWiFiSoftAPInterface
+    virtual nsapi_error_t set_ap_network(const char *ip_address, const char *netmask, const char *gateway);
+
+    /** Set the WiFi network credentials
+     *
+     *  @param ssid      Name of the network to connect to
+     *  @param pass      Security passphrase to connect to the network
+     *  @param security  Type of encryption for connection
+     *                   (defaults to NSAPI_SECURITY_NONE)
+     *  @return          0 on success, or error code on failure
+     */
+    virtual nsapi_error_t set_ap_credentials(const char *ssid, const char *pass = 0,
+            nsapi_security_t security = NSAPI_SECURITY_NONE);
+
+    /** Set the WiFi network channel
+     *
+     *  @param channel   Channel on which the connection is to be made.
+     *  @return          0 on success, or error code on failure
+     */
+    virtual nsapi_error_t set_ap_channel(uint8_t channel);
+
+    /** Gets the current number of active connections
+     *
+     *  @return         number of active connections
+     */
+    virtual int get_ap_connection_count();
+
+    /** Gets the max supported number of active connections
+     *
+     *  @return         maximum number of active connections
+     */
+    virtual int get_ap_max_connection_count();
+
+    /** Enable or disable DHCP on the network access point
+     *
+     *  Enables DHCP in SoftAP mode. Defaults to enabled unless
+     *  a static IP address has been assigned. Requires that the network is
+     *  service stopped.
+     *
+     *  @param dhcp     True to enable DHCP
+     *  @return         0 on success, negative error code on failure
+     */
+    virtual nsapi_error_t set_ap_dhcp(bool dhcp);
+
+    /** Set the beacon interval.
+     *
+     *  Note that the value needs to be set before ap_start in order to take effect.
+     *
+     *  @param interval  Beason interval in time units (Default: 100 time units = 102.4 ms)
+     *  @return          0 on success, or error code on failure
+     */
+    virtual nsapi_error_t set_ap_beacon_interval(uint16_t interval);
+
+    /** Start the interface
+     *
+     *  Attempts to serve a WiFi network.
+     *
+     *  @param ssid      Name of the network to connect to
+     *  @param pass      Security passphrase to connect to the network
+     *  @param security  Type of encryption for connection (Default: NSAPI_SECURITY_NONE)
+     *  @param channel   Channel on which the connection is to be made.
+     *  @return          0 on success, or error code on failure
+     */
+    virtual nsapi_error_t ap_start(const char *ssid, const char *pass = 0,
+            nsapi_security_t security = NSAPI_SECURITY_NONE, uint8_t channel = 0);
+
+    /** Start the interface
+     *
+     *  Attempts to serve a WiFi network. Requires ssid to be set.
+     *  passphrase is optional.
+     *  If passphrase is invalid, NSAPI_ERROR_AUTH_ERROR is returned.
+     *
+     *  @return         0 on success, negative error code on failure
+     */
+    virtual nsapi_error_t ap_start();
+
+    /** Stop the interface
+     *
+     *  @return         0 on success, or error code on failure
+     */
+    virtual nsapi_error_t ap_stop();
+
+#endif
+
 private:
 
     enum OdinWifiState {
@@ -151,7 +248,6 @@ private:
         S_STA_CONNECTED,
         S_STA_DISCONNECTED_WAIT_CONNECT,
         S_STA_CONNECTION_FAIL_WAIT_DISCONNECT,
-        //S_STA_LINK_LOSS_WAIT_DISCONNECT,
         S_STA_WAIT_DISCONNECT,
 
         S_AP_IDLE,
@@ -199,7 +295,6 @@ private:
     OdinWifiState entry_connect_fail_wait_disconnect();
     OdinWifiState entry_wait_connect();
     OdinWifiState entry_wait_disconnect();
-    //OdinWifiState entry_link_loss_wait_disconnect(void);
     OdinWifiState entry_ap_wait_start();
     OdinWifiState entry_ap_started();
     OdinWifiState entry_ap_wait_stop();
@@ -278,7 +373,6 @@ private:
     Queue<odin_wifi_msg_s, 1>           _cache_queue;
     MemoryPool<odin_wifi_msg_s, 7>      *_msg_pool;
     Thread                              _thread;
-    //Timeout                             _timeout; //Randomly lost interrupts/callbacks; replaced by Timer
     Timer                               _timer;
 
     bool    _debug;

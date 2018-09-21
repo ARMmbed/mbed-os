@@ -42,5 +42,9 @@
     "NUCLEO_F401RE": {
         "default_test_configuration": "NONE",
         "test_configurations": ["IDW0XX1_WIFI"]
+    },
+    "KW24D": {
+        "default_test_configuration": "NO_NETWORK",
+        "test_configurations": ["6LOWPAN_HOST", "6LOWPAN_ROUTER", "THREAD_END_DEVICE", "THREAD_ROUTER"]
     }
 }

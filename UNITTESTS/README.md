@@ -10,6 +10,7 @@ This document describes how to run and write unit tests for Mbed OS.
 * CMake 3.0+ installed.
 * Python 2.7.x or >3.5 and pip 10.0 (or newer) installed.
 * gcovr >=4.1
+* mbed-cli >= 1.80
 
 ### Installing dependencies on Debian/Ubuntu
 
@@ -45,7 +46,7 @@ sudo easy_install pip
 
 ### Installing covr
 
-Install gcovr code coverage tool globally with `pip install 'gcovr>=4.1'` or using virtualenv:
+Install gcovr code coverage tool globally with `pip install "gcovr>=4.1"` or using virtualenv:
 
 #### virtualenv
 
@@ -69,17 +70,17 @@ pip install "gcovr>=4.1"
 
 > In case of running into problems see [troubleshooting](#troubleshooting) section.
 
-`UNITTESTS/mbed_unittest.py` contains testing scripts for Mbed OS unit testing. Mbed CLI supports unit testing through `mbed unittest` command with the same arguments.
+`UNITTESTS/mbed_unittest.py` contains testing scripts for Mbed OS unit testing. Mbed CLI supports unit testing through `mbed test --unittests` command with the same arguments.
 
 ### Testing with Mbed CLI
 
 ```
-mbed unittest
+mbed test --unittests
 ```
 
 A subset of tests can be run by providing `-r` flag for the tool which runs tests matching a regular expression.
 
-e.g. `mbed unittest --run -r features_netsocket`
+e.g. `mbed test --unittests --run -r features-netsocket`
 
 ### Build manually without Python tools
 
@@ -105,7 +106,7 @@ mingw32-make
 
 #### Custom CMake variables
 
-Usage: 
+Usage:
 `cmake [RELATIVE PATH TO UNITTESTS DIR] [OPTIONS]`
 
 Keyword variables (usage `cmake -D<VARIABLE>(:<TYPE>)=<value>`:
@@ -144,7 +145,7 @@ Run ctest dashboard test and create test results:
 
 Python tools use gcovr to build code coverage reports. Generate html report `UNITTESTS/build/coverage/index.html` with:
 ```
-mbed unittest --coverage html
+mbed test --unittests --coverage html
 ```
 
 To get coverage for a single test suite, run gcovr separately for suite coverage data directory. See [gcovr documentation](https://gcovr.com/guide.html#filter-options) for more information.
@@ -157,8 +158,8 @@ mkdir UNITTESTS/build
 cd UNITTESTS/build
 cmake -DCMAKE_BUILD_TYPE=Debug -DCOVERAGE:STRING=html  ..
 make
-./features_netsocket_InternetSocket
-gcovr -r ../.. --html --html-detail -o ./index.html ./CMakeFiles/features_netsocket_InternetSocket.MbedOS.dir/
+./features-netsocket-InternetSocket
+gcovr -r ../.. --html --html-detail -o ./index.html ./CMakeFiles/features-netsocket-InternetSocket.MbedOS.dir/
 ```
 Windows:
 ```
@@ -166,8 +167,8 @@ mkdir UNITTESTS/build
 cd UNITTESTS/build
 cmake -DCMAKE_BUILD_TYPE=Debug -DCOVERAGE:STRING=html -g "MinGW Makefiles" ..
 mingw32-make
-features_netsocket_InternetSocket.exe
-gcovr -r ..\.. --html --html-detail -o .\index.html .\CMakeFiles\features_netsocket_InternetSocket.MbedOS.dir\
+features-netsocket-InternetSocket.exe
+gcovr -r ..\.. --html --html-detail -o .\index.html .\CMakeFiles\features-netsocket-InternetSocket.MbedOS.dir\
 ```
 
 ## The structure of unit tests
@@ -203,7 +204,6 @@ Each class to be tested requires two files for unit testing:
 
 A unit test definition file `unittest.cmake` requires variables to be set for a test to be configured. File source paths in `unittest.cmake` files need to be relative to the unit test folder and `CMakeLists.txt`.
 
-* **TEST_SUITE_NAME** - Identifier for the test suite. Use naming convention *PATH_TO_THE_TESTABLE_FILE* e.g. *features_netsocket_InternetSocket*
 * **unittest-includes** - Include paths for headers needed to build the tests in addition to the base include paths listed in [CMakeLists.txt](CMakeLists.txt). Optional.
 * **unittest-sources** - Mbed OS source files and stubs included for the build.
 * **unittest-test-sources** - Unit test source files.
@@ -211,10 +211,10 @@ A unit test definition file `unittest.cmake` requires variables to be set for a 
 #### Creating unit tests files with Mbed CLI
 
 ```
-mbed unittest --new <FILEPATH>
+mbed test --unittests --new <FILEPATH>
 ```
 
-E.g. `mbed unittest --new rtos/Semaphore.cpp`
+E.g. `mbed test --unittests --new rtos/Semaphore.cpp`
 
 The generator script only creates the files required for a unit test. It does not write unit tests automatically nor does it handle source dependencies.
 
@@ -225,8 +225,6 @@ For example to create a unit test for `rtos/Semaphore.cpp`:
 1. Create a directory for unit test files in `UNITTESTS/rtos/Semaphore`.
 2. Create a test definition file `UNITTESTS/rtos/Semaphore/unittest.cmake` with the following content:
 ```
-set(TEST_SUITE_NAME "rtos_Semaphore")
-
 set(unittest-sources
 	stubs/mbed_assert.c
 	../rtos/Semaphore.cpp

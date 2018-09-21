@@ -389,7 +389,7 @@ static void print_error_report(mbed_error_ctx *ctx, const char *error_msg)
     threads = (osRtxThread_t *)&osRtxInfo.thread.idle;
     print_threads_info(threads);
 #endif
-
+    mbed_error_printf(MBED_CONF_PLATFORM_ERROR_DECODE_HTTP_URL_STR, ctx->error_status);
     mbed_error_printf("\n-- MbedOS Error Info --\n");
 }
 #endif //ifndef NDEBUG

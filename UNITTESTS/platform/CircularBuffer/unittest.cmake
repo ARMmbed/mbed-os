@@ -3,9 +3,6 @@
 # UNIT TESTS
 ####################
 
-# Unit test suite name
-set(TEST_SUITE_NAME "platform_CircularBuffer")
-
 set(unittest-sources
 )
 

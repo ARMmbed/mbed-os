@@ -58,18 +58,24 @@
 #define QSPI_CMD_WRITE_1IO                      0x02    // 1-1-1 mode
 #define QSPI_CMD_WRITE_2IO                      0xD2    // 1-2-2 mode
 #define QSPI_CMD_WRITE_4IO                      0x12    // 1-4-4 mode
+#define QSPI_CMD_WRITE_DPI                      0xD2    // 2-2-2 mode
+#define QSPI_CMD_WRITE_QPI                      0x12    // 4-4-4 mode
 
 // write operations max time [us] (datasheet max time + 15%)
 #define QSPI_PAGE_PROG_MAX_TIME                 5750   // 5ms
 
 #define QSPI_PAGE_SIZE                          256    // 256B
+#define QSPI_SECTOR_SIZE                        4096   // 4kB
+#define QSPI_SECTOR_COUNT                       4096
 
 // Commands for reading
 #define QSPI_CMD_READ_1IO_FAST                  0x0B   // 1-1-1 mode
 #define QSPI_CMD_READ_1IO                       0x03   // 1-1-1 mode
 #define QSPI_CMD_READ_2IO                       0xBB   // 1-2-2 mode
+#define QSPI_CMD_READ_DPI                       0xBB   // 2-2-2 mode
 #define QSPI_CMD_READ_1I2O                      0x3B   // 1-1-2 mode
 #define QSPI_CMD_READ_4IO                       0xEB   // 1-4-4 mode
+#define QSPI_CMD_READ_QPI                       0xEB   // 4-4-4 mode
 #define QSPI_CMD_READ_1I4O                      0x6B   // 1-1-4 mode
 
 
@@ -88,7 +94,7 @@
 #define QSPI_CMD_ERASE_CHIP                     0x60    // or 0xC7
 
 // erase operations max time [us] (datasheet max time + 15%)
-#define QSPI_ERASE_SECTOR_MAX_TIME              276000      // 240 ms
+#define QSPI_ERASE_SECTOR_MAX_TIME              920000      // 0.8s
 #define QSPI_ERASE_BLOCK_32_MAX_TIME            3000000     // 3s
 #define QSPI_ERASE_BLOCK_64_MAX_TIME            3500000     // 3.5s
 
@@ -155,28 +161,122 @@
 
 
 #define DUAL_ENABLE()                                                           \
-    /* TODO: add implementation */                                              \
-    return QSPI_STATUS_OK
+                                                                                \
+    uint8_t reg_data[QSPI_CONFIG_REG_2_SIZE];                                   \
+                                                                                \
+    memset(reg_data, 0, QSPI_CONFIG_REG_2_SIZE);                                \
+    if (read_register(QSPI_CMD_RDCR2, reg_data,                                 \
+            QSPI_CONFIG_REG_2_SIZE, qspi) != QSPI_STATUS_OK) {                  \
+        return QSPI_STATUS_ERROR;                                               \
+    }                                                                           \
+    if (write_enable(qspi) != QSPI_STATUS_OK) {                                 \
+        return QSPI_STATUS_ERROR;                                               \
+    }                                                                           \
+                                                                                \
+    reg_data[0] = reg_data[0] & ~(CONFIG2_BIT_DE);                              \
+    if (write_register(QSPI_CMD_WRCR2, reg_data,                                \
+            QSPI_CONFIG_REG_2_SIZE, qspi) != QSPI_STATUS_OK) {                  \
+        return QSPI_STATUS_ERROR;                                               \
+    }                                                                           \
+    qspi.cmd.configure(MODE_2_2_2, ADDR_SIZE_24, ALT_SIZE_8);                   \
+    WAIT_FOR(WRSR_MAX_TIME, qspi);                                              \
+    memset(reg_data, 0, QSPI_CONFIG_REG_2_SIZE);                                \
+    if (read_register(QSPI_CMD_RDCR2, reg_data,                                 \
+            QSPI_CONFIG_REG_2_SIZE, qspi) != QSPI_STATUS_OK) {                  \
+        return QSPI_STATUS_ERROR;                                               \
+    }                                                                           \
+                                                                                \
+    return ((reg_data[0] & (CONFIG2_BIT_DE)) == 0 ?                             \
+                QSPI_STATUS_OK : QSPI_STATUS_ERROR)
 
 
 #define DUAL_DISABLE()                                                          \
-    /* TODO: add implementation */                                              \
-    return QSPI_STATUS_OK
+                                                                                \
+    uint8_t reg_data[QSPI_CONFIG_REG_2_SIZE];                                   \
+                                                                                \
+    memset(reg_data, 0, QSPI_CONFIG_REG_2_SIZE);                                \
+    if (read_register(QSPI_CMD_RDCR2, reg_data,                                 \
+            QSPI_CONFIG_REG_2_SIZE, qspi) != QSPI_STATUS_OK) {                  \
+        return QSPI_STATUS_ERROR;                                               \
+    }                                                                           \
+    if (write_enable(qspi) != QSPI_STATUS_OK) {                                 \
+        return QSPI_STATUS_ERROR;                                               \
+    }                                                                           \
+                                                                                \
+    reg_data[0] = reg_data[0] | (CONFIG2_BIT_DE);                               \
+    if (write_register(QSPI_CMD_WRCR2, reg_data,                                \
+            QSPI_CONFIG_REG_2_SIZE, qspi) != QSPI_STATUS_OK) {                  \
+        return QSPI_STATUS_ERROR;                                               \
+    }                                                                           \
+    WAIT_FOR(WRSR_MAX_TIME, qspi);                                              \
+    qspi.cmd.configure(MODE_1_1_1, ADDR_SIZE_24, ALT_SIZE_8);                   \
+    memset(reg_data, 0, QSPI_CONFIG_REG_2_SIZE);                                \
+    if (read_register(QSPI_CMD_RDCR2, reg_data,                                 \
+            QSPI_CONFIG_REG_2_SIZE, qspi) != QSPI_STATUS_OK) {                  \
+        return QSPI_STATUS_ERROR;                                               \
+    }                                                                           \
+                                                                                \
+    return ((reg_data[0] & CONFIG2_BIT_DE) != 1 ?                               \
+                QSPI_STATUS_OK : QSPI_STATUS_ERROR)
 
 
 #define QUAD_ENABLE()                                                           \
-    /* TODO: add implementation */                                              \
-    return QSPI_STATUS_OK
+                                                                                \
+    uint8_t reg_data[QSPI_CONFIG_REG_2_SIZE];                                   \
+                                                                                \
+    memset(reg_data, 0, QSPI_CONFIG_REG_2_SIZE);                                \
+    if (read_register(QSPI_CMD_RDCR2, reg_data,                                 \
+            QSPI_CONFIG_REG_2_SIZE, qspi) != QSPI_STATUS_OK) {                  \
+        return QSPI_STATUS_ERROR;                                               \
+    }                                                                           \
+    if (write_enable(qspi) != QSPI_STATUS_OK) {                                 \
+        return QSPI_STATUS_ERROR;                                               \
+    }                                                                           \
+                                                                                \
+    reg_data[0] = reg_data[0] & ~(CONFIG2_BIT_QE);                              \
+    if (write_register(QSPI_CMD_WRCR2, reg_data,                                \
+            QSPI_CONFIG_REG_2_SIZE, qspi) != QSPI_STATUS_OK) {                  \
+        return QSPI_STATUS_ERROR;                                               \
+    }                                                                           \
+    qspi.cmd.configure(MODE_4_4_4, ADDR_SIZE_24, ALT_SIZE_8);                   \
+    WAIT_FOR(WRSR_MAX_TIME, qspi);                                              \
+    memset(reg_data, 0, QSPI_CONFIG_REG_2_SIZE);                                \
+    if (read_register(QSPI_CMD_RDCR2, reg_data,                                 \
+            QSPI_CONFIG_REG_2_SIZE, qspi) != QSPI_STATUS_OK) {                  \
+        return QSPI_STATUS_ERROR;                                               \
+    }                                                                           \
+                                                                                \
+    return ((reg_data[0] & (CONFIG2_BIT_QE)) == 0 ?                             \
+                QSPI_STATUS_OK : QSPI_STATUS_ERROR)
 
 
 #define QUAD_DISABLE()                                                          \
-    /* TODO: add implementation */                                              \
-    return QSPI_STATUS_OK
-
-
-#define FAST_MODE_ENABLE()                                                      \
-    /* TODO: add implementation */                                              \
-    return QSPI_STATUS_OK
-
+                                                                                \
+    uint8_t reg_data[QSPI_CONFIG_REG_2_SIZE];                                   \
+                                                                                \
+    memset(reg_data, 0, QSPI_CONFIG_REG_2_SIZE);                                \
+    if (read_register(QSPI_CMD_RDCR2, reg_data,                                 \
+            QSPI_CONFIG_REG_2_SIZE, qspi) != QSPI_STATUS_OK) {                  \
+        return QSPI_STATUS_ERROR;                                               \
+    }                                                                           \
+    if (write_enable(qspi) != QSPI_STATUS_OK) {                                 \
+        return QSPI_STATUS_ERROR;                                               \
+    }                                                                           \
+                                                                                \
+    reg_data[0] = reg_data[0] | (CONFIG2_BIT_QE);                               \
+    if (write_register(QSPI_CMD_WRCR2, reg_data,                                \
+            QSPI_CONFIG_REG_2_SIZE, qspi) != QSPI_STATUS_OK) {                  \
+        return QSPI_STATUS_ERROR;                                               \
+    }                                                                           \
+    WAIT_FOR(WRSR_MAX_TIME, qspi);                                              \
+    qspi.cmd.configure(MODE_1_1_1, ADDR_SIZE_24, ALT_SIZE_8);                   \
+    memset(reg_data, 0, QSPI_CONFIG_REG_2_SIZE);                                \
+    if (read_register(QSPI_CMD_RDCR2, reg_data,                                 \
+            QSPI_CONFIG_REG_2_SIZE, qspi) != QSPI_STATUS_OK) {                  \
+        return QSPI_STATUS_ERROR;                                               \
+    }                                                                           \
+                                                                                \
+    return ((reg_data[0] & CONFIG2_BIT_QE) != 1 ?                               \
+                QSPI_STATUS_OK : QSPI_STATUS_ERROR)
 
 #endif // MBED_QSPI_FLASH_N25Q128A_H

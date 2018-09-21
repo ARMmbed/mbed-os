@@ -411,15 +411,11 @@ public:
 #if MBED_CONF_RTOS_PRESENT
     void lock(void)
     {
-        osStatus status = _mutex.lock();
-        MBED_ASSERT(status == osOK);
-        (void) status;
+        _mutex.lock();
     }
     void unlock(void)
     {
-        osStatus status = _mutex.unlock();
-        MBED_ASSERT(status == osOK);
-        (void) status;
+        _mutex.unlock();
     }
 #else
     void lock(void) { }
@@ -676,136 +672,6 @@ private:
     bool _continuous_rx2_window_open;
 
     device_class_t _device_class;
-
-#if defined(LORAWAN_COMPLIANCE_TEST)
-public: // Test interface
-
-    /**
-     * @brief   Set forth an MLME request.
-     *
-     * @details The MAC layer management entity handles the management services.
-     *
-     * @param [in] request    The MLME request to perform.
-     *                        Refer to \ref loramac_mlme_req_t.
-     *
-     * @return  `lorawan_status_t` The status of the operation. The possible values are:
-     *          \ref LORAWAN_STATUS_OK
-     *          \ref LORAWAN_STATUS_BUSY
-     *          \ref LORAWAN_STATUS_SERVICE_UNKNOWN
-     *          \ref LORAWAN_STATUS_PARAMETER_INVALID
-     *          \ref LORAWAN_STATUS_NO_NETWORK_JOINED
-     *          \ref LORAWAN_STATUS_LENGTH_ERROR
-     *          \ref LORAWAN_STATUS_DEVICE_OFF
-     */
-    lorawan_status_t mlme_request(loramac_mlme_req_t *request);
-
-    /**
-     * @brief   Set forth an MCPS request.
-     *
-     * @details The MAC Common Part Sublayer handles the data services. The following
-     *          code-snippet shows how to use the API to send an unconfirmed
-     *          LoRaMAC frame.
-     *
-     * @code
-     *
-     * uint8_t buffer[] = {1, 2, 3};
-     *
-     * loramac_compliance_test_req_t request;
-     * request.type = MCPS_UNCONFIRMED;
-     * request.fport = 1;
-     * request.f_buffer = buffer;
-     * request.f_buffer_size = sizeof(buffer);
-     *
-     * if (test_request(&request) == LORAWAN_STATUS_OK) {
-     *   // Service started successfully. Waiting for the MCPS-Confirm event
-     * }
-     *
-     * @endcode
-     *
-     * @param [in] request    The test request to perform.
-     *                        Refer to \ref loramac_compliance_test_req_t.
-     *
-     * @return  `lorawan_status_t` The status of the operation. The possible values are:
-     *          \ref LORAWAN_STATUS_OK
-     *          \ref LORAWAN_STATUS_BUSY
-     *          \ref LORAWAN_STATUS_SERVICE_UNKNOWN
-     *          \ref LORAWAN_STATUS_PARAMETER_INVALID
-     *          \ref LORAWAN_STATUS_NO_NETWORK_JOINED
-     *          \ref LORAWAN_STATUS_LENGTH_ERROR
-     *          \ref LORAWAN_STATUS_DEVICE_OFF
-     */
-    lorawan_status_t test_request(loramac_compliance_test_req_t *request);
-
-    /**
-     * \brief   LoRaMAC set tx timer.
-     *
-     * \details Sets up a timer for next transmission (application specific timers).
-     *
-     * \param   [in] NextTxTime - Periodic time for next uplink.
-
-     * \retval  `lorawan_status_t` The status of the operation. The possible values are:
-     *          \ref LORAWAN_STATUS_OK
-     *          \ref LORAWAN_STATUS_PARAMETER_INVALID
-     */
-    lorawan_status_t LoRaMacSetTxTimer(uint32_t NextTxTime);
-
-    /**
-     * \brief   LoRaMAC stop tx timer.
-     *
-     * \details Stops the next tx timer.
-     *
-     * \retval  `lorawan_status_t` The status of the operation. The possible values are:
-     *          \ref LORAWAN_STATUS_OK
-     *          \ref LORAWAN_STATUS_PARAMETER_INVALID
-     */
-    lorawan_status_t LoRaMacStopTxTimer();
-
-    /**
-     * \brief   Enabled or disables the reception windows
-     *
-     * \details This is a test function. It shall be used for testing purposes only.
-     *          Changing this attribute may lead to a non-conformance LoRaMac operation.
-     *
-     * \param   [in] enable - Enabled or disables the reception windows
-     */
-    void LoRaMacTestRxWindowsOn(bool enable);
-
-    /**
-     * \brief   Enables the MIC field test
-     *
-     * \details This is a test function. It shall be used for testing purposes only.
-     *          Changing this attribute may lead to a non-conformance LoRaMac operation.
-     *
-     * \param   [in] txPacketCounter - Fixed Tx packet counter value
-     */
-    void LoRaMacTestSetMic(uint16_t txPacketCounter);
-
-    /**
-     * \brief   Enabled or disables the duty cycle
-     *
-     * \details This is a test function. It shall be used for testing purposes only.
-     *          Changing this attribute may lead to a non-conformance LoRaMac operation.
-     *
-     * \param   [in] enable - Enabled or disables the duty cycle
-     */
-    void LoRaMacTestSetDutyCycleOn(bool enable);
-
-    /**
-     * \brief   Sets the channel index
-     *
-     * \details This is a test function. It shall be used for testing purposes only.
-     *          Changing this attribute may lead to a non-conformance LoRaMac operation.
-     *
-     * \param   [in] channel - Channel index
-     */
-    void LoRaMacTestSetChannel(uint8_t channel);
-
-private:
-    /**
-     * Timer to handle the application data transmission duty cycle
-     */
-    timer_event_t tx_next_packet_timer;
-#endif
 };
 
 #endif // MBED_LORAWAN_MAC_H__

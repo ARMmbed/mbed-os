@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <cstring>
+
 #include "platform/FileBase.h"
 #include "platform/FileLike.h"
 #include "platform/FileHandle.h"
@@ -21,6 +23,7 @@ namespace mbed {
 
 FileBase *FileBase::_head = NULL;
 SingletonPtr<PlatformMutex> FileBase::_mutex;
+FileBase *FileBase::_default = NULL;
 
 FileBase::FileBase(const char *name, PathType t) : _next(NULL),
     _name(name),
@@ -52,12 +55,24 @@ FileBase::~FileBase()
             p->_next = _next;
         }
     }
+
+    if (_default == this) {
+        _default = NULL;
+    }
+
     _mutex->unlock();
 
     if (getPathType() == FilePathType) {
-        extern void remove_filehandle(FileHandle * file);
-        remove_filehandle(static_cast<FileHandle *>(static_cast<FileLike *>(this)));
+        extern void remove_filehandle(FileHandle *file);
+        remove_filehandle(static_cast<FileLike *>(this));
     }
+}
+
+void FileBase::set_as_default()
+{
+    _mutex->lock();
+    _default = this;
+    _mutex->unlock();
 }
 
 FileBase *FileBase::lookup(const char *name, unsigned int len)
@@ -66,11 +81,14 @@ FileBase *FileBase::lookup(const char *name, unsigned int len)
     FileBase *p = _head;
     while (p != NULL) {
         /* Check that p->_name matches name and is the correct length */
-        if (p->_name != NULL && std::strncmp(p->_name, name, len) == 0 && std::strlen(p->_name) == len) {
+        if (p->_name != NULL && len == std::strlen(p->_name) && std::memcmp(p->_name, name, len) == 0) {
             _mutex->unlock();
             return p;
         }
         p = p->_next;
+    }
+    if (len == (sizeof "default") - 1 && std::memcmp("default", name, len) == 0) {
+        return _default;
     }
     _mutex->unlock();
     return NULL;

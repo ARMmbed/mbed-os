@@ -134,7 +134,10 @@ class UnitTestTool(object):
                          "./coverage.xml"])
 
         for path in excludes:
-            args.extend(["-e", path])
+            args.extend(["-e", path.replace("\\", "/")])
+
+        #Exclude header files from report
+        args.extend(["-e", ".*\.h"])
 
         if logging.getLogger().getEffectiveLevel() == logging.DEBUG:
             args.append("-v")

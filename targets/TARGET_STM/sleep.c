@@ -158,6 +158,7 @@ void hal_sleep(void)
 }
 
 extern int serial_is_tx_ongoing(void);
+extern int mbed_sdk_inited;
 
 void hal_deepsleep(void)
 {
@@ -200,6 +201,10 @@ void hal_deepsleep(void)
     HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
 #endif /* TARGET_STM32L4 */
 
+    /* Prevent HAL_GetTick() from using ticker_read_us() to read the
+     * us_ticker timestamp until the us_ticker context is restored. */
+    mbed_sdk_inited = 0;
+
     // Verify Clock Out of Deep Sleep
     ForceClockOutofDeepSleep();
 
@@ -213,6 +218,10 @@ void hal_deepsleep(void)
     wait_loop(500);
 
     restore_timer_ctx();
+
+    /* us_ticker context restored, allow HAL_GetTick() to read the us_ticker
+     * timestamp via ticker_read_us() again. */
+    mbed_sdk_inited = 1;
 
     // Enable IRQs
     core_util_critical_section_exit();

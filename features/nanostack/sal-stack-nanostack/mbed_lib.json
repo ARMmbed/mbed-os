@@ -6,5 +6,13 @@
             "value": "nanostack_full"
         }
     },
-    "macros": ["NS_USE_EXTERNAL_MBED_TLS"]
+    "macros": ["NS_USE_EXTERNAL_MBED_TLS"],
+    "target_overrides": {
+        "KW24D": {
+            "nanostack.configuration": "lowpan_router"
+        },
+        "NCS36510": {
+            "nanostack.configuration": "lowpan_router"
+        }
+    }
 }

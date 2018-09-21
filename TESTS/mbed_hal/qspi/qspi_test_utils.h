@@ -34,6 +34,8 @@ public:
                    qspi_bus_width_t alt_width, qspi_address_size_t addr_size, qspi_alt_size_t alt_size,
                    int dummy_cycles = 0);
 
+    void set_dummy_cycles(int dummy_cycles);
+
     void build(int instruction, int address = QSPI_NONE, int alt = QSPI_NONE);
 
     qspi_command_t *get();
@@ -51,8 +53,10 @@ struct Qspi {
 #define MODE_1_1_1      QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_SINGLE
 #define MODE_1_1_2      QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_DUAL,   QSPI_CFG_BUS_DUAL
 #define MODE_1_2_2      QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_DUAL,   QSPI_CFG_BUS_DUAL,   QSPI_CFG_BUS_DUAL
-#define MODE_1_1_4      QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_QUAD,   QSPI_CFG_BUS_SINGLE
+#define MODE_2_2_2      QSPI_CFG_BUS_DUAL,   QSPI_CFG_BUS_DUAL,   QSPI_CFG_BUS_DUAL,   QSPI_CFG_BUS_DUAL
+#define MODE_1_1_4      QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_QUAD,   QSPI_CFG_BUS_QUAD
 #define MODE_1_4_4      QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_QUAD,   QSPI_CFG_BUS_QUAD,   QSPI_CFG_BUS_QUAD
+#define MODE_4_4_4      QSPI_CFG_BUS_QUAD,   QSPI_CFG_BUS_QUAD,   QSPI_CFG_BUS_QUAD,   QSPI_CFG_BUS_QUAD
 
 #define WRITE_1_1_1     MODE_1_1_1, QSPI_CMD_WRITE_1IO
 #ifdef QSPI_CMD_WRITE_2IO
@@ -61,6 +65,12 @@ struct Qspi {
 #ifdef QSPI_CMD_WRITE_4IO
 #define WRITE_1_4_4     MODE_1_4_4, QSPI_CMD_WRITE_4IO
 #endif
+#ifdef QSPI_CMD_WRITE_DPI
+#define WRITE_2_2_2     MODE_2_2_2, QSPI_CMD_WRITE_DPI
+#endif
+#ifdef QSPI_CMD_WRITE_QPI
+#define WRITE_4_4_4     MODE_4_4_4, QSPI_CMD_WRITE_QPI
+#endif
 
 
 #define READ_1_1_1      MODE_1_1_1, QSPI_CMD_READ_1IO,  QSPI_READ_1IO_DUMMY_CYCLE
@@ -68,7 +78,12 @@ struct Qspi {
 #define READ_1_2_2      MODE_1_2_2, QSPI_CMD_READ_2IO,  QSPI_READ_2IO_DUMMY_CYCLE
 #define READ_1_1_4      MODE_1_1_4, QSPI_CMD_READ_1I4O, QSPI_READ_1I4O_DUMMY_CYCLE
 #define READ_1_4_4      MODE_1_4_4, QSPI_CMD_READ_4IO,  QSPI_READ_4IO_DUMMY_CYCLE
-
+#ifdef QSPI_CMD_READ_DPI
+#define READ_2_2_2      MODE_2_2_2, QSPI_CMD_READ_DPI,  QSPI_READ_2IO_DUMMY_CYCLE
+#endif
+#ifdef QSPI_CMD_READ_QPI
+#define READ_4_4_4      MODE_4_4_4, QSPI_CMD_READ_QPI,  QSPI_READ_4IO_DUMMY_CYCLE
+#endif
 
 #define ADDR_SIZE_8  QSPI_CFG_ADDR_SIZE_8
 #define ADDR_SIZE_16 QSPI_CFG_ADDR_SIZE_16
@@ -120,26 +135,21 @@ QspiStatus flash_wait_for(uint32_t time_us, Qspi &qspi);
 void flash_init(Qspi &qspi);
 
 qspi_status_t write_enable(Qspi &qspi);
-
 qspi_status_t write_disable(Qspi &qspi);
 
 void log_register(uint32_t cmd, uint32_t reg_size, Qspi &qspi, const char *str = NULL);
 
-qspi_status_t dual_enable(Qspi &qspi);
-
-qspi_status_t dual_disable(Qspi &qspi);
-
-qspi_status_t quad_enable(Qspi &qspi);
-
-qspi_status_t quad_disable(Qspi &qspi);
+qspi_status_t mode_enable(Qspi &qspi, qspi_bus_width_t inst_width, qspi_bus_width_t addr_width, qspi_bus_width_t data_width);
+qspi_status_t mode_disable(Qspi &qspi, qspi_bus_width_t inst_width, qspi_bus_width_t addr_width, qspi_bus_width_t data_width);
 
 qspi_status_t fast_mode_enable(Qspi &qspi);
+qspi_status_t fast_mode_disable(Qspi &qspi);
 
 qspi_status_t erase(uint32_t erase_cmd, uint32_t flash_addr, Qspi &qspi);
 
-bool is_dual_cmd(qspi_bus_width_t inst_width, qspi_bus_width_t addr_width, qspi_bus_width_t data_width);
-
-bool is_quad_cmd(qspi_bus_width_t inst_width, qspi_bus_width_t addr_width, qspi_bus_width_t data_width);
+bool is_extended_mode(qspi_bus_width_t inst_width, qspi_bus_width_t addr_width, qspi_bus_width_t data_width);
+bool is_dual_mode(qspi_bus_width_t inst_width, qspi_bus_width_t addr_width, qspi_bus_width_t data_width);
+bool is_quad_mode(qspi_bus_width_t inst_width, qspi_bus_width_t addr_width, qspi_bus_width_t data_width);
 
 #define  WAIT_FOR(timeout, q)   TEST_ASSERT_EQUAL_MESSAGE(sOK, flash_wait_for(timeout, q), "flash_wait_for failed!!!")
 

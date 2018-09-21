@@ -39,44 +39,17 @@ QUECTEL_BC95::~QUECTEL_BC95()
 {
 }
 
-CellularNetwork *QUECTEL_BC95::open_network(FileHandle *fh)
+AT_CellularNetwork *QUECTEL_BC95::open_network_impl(ATHandler &at)
 {
-    if (!_network) {
-        ATHandler *atHandler = get_at_handler(fh);
-        if (atHandler) {
-            _network = new QUECTEL_BC95_CellularNetwork(*atHandler);
-            if (!_network) {
-                release_at_handler(atHandler);
-            }
-        }
-    }
-    return _network;
+    return new QUECTEL_BC95_CellularNetwork(at);
 }
 
-CellularPower *QUECTEL_BC95::open_power(FileHandle *fh)
+AT_CellularPower *QUECTEL_BC95::open_power_impl(ATHandler &at)
 {
-    if (!_power) {
-        ATHandler *atHandler = get_at_handler(fh);
-        if (atHandler) {
-            _power = new QUECTEL_BC95_CellularPower(*atHandler);
-            if (!_power) {
-                release_at_handler(atHandler);
-            }
-        }
-    }
-    return _power;
+    return new QUECTEL_BC95_CellularPower(at);
 }
 
-CellularSIM *QUECTEL_BC95::open_sim(FileHandle *fh)
+AT_CellularSIM *QUECTEL_BC95::open_sim_impl(ATHandler &at)
 {
-    if (!_sim) {
-        ATHandler *atHandler = get_at_handler(fh);
-        if (atHandler) {
-            _sim = new QUECTEL_BC95_CellularSIM(*atHandler);
-            if (!_sim) {
-                release_at_handler(atHandler);
-            }
-        }
-    }
-    return _sim;
+    return new QUECTEL_BC95_CellularSIM(at);
 }

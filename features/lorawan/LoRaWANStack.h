@@ -505,21 +505,6 @@ private:
     uint8_t _rx_payload[LORAMAC_PHY_MAXPAYLOAD];
     events::EventQueue *_queue;
     lorawan_time_t _tx_timestamp;
-
-#if defined(LORAWAN_COMPLIANCE_TEST)
-
-    /**
-     * Used only for compliance testing
-     */
-    void compliance_test_handler(loramac_mcps_indication_t *mcps_indication);
-
-    /**
-     * Used only for compliance testing
-     */
-    lorawan_status_t send_compliance_test_frame_to_mac();
-
-    compliance_test_t _compliance_test;
-#endif
 };
 
 #endif /* LORAWANSTACK_H_ */
