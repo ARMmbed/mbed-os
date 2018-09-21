@@ -849,6 +849,11 @@ void LoRaPHY::compute_rx_win_params(int8_t datarate, uint8_t min_rx_symbols,
                                              ((uint32_t *)phy_params.bandwidths.table)[rx_conf_params->datarate]);
     }
 
+    if (rx_conf_params->rx_slot == RX_SLOT_WIN_1) {
+        rx_conf_params->frequency = phy_params.channels.channel_list[rx_conf_params->channel].frequency;
+    }
+
+
     get_rx_window_params(t_symbol, min_rx_symbols, rx_error, RADIO_WAKEUP_TIME,
                          &rx_conf_params->window_timeout, &rx_conf_params->window_offset);
 }

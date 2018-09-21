@@ -903,7 +903,7 @@ void LoRaMac::open_rx1_window(void)
     _lora_phy->rx_config(&_params.rx_window1_config);
     _lora_phy->handle_receive();
 
-    tr_debug("Opening RX1 Window");
+    tr_debug("RX1 slot open, Freq = %lu", _params.rx_window1_config.frequency);
 }
 
 void LoRaMac::open_rx2_window()
@@ -932,7 +932,7 @@ void LoRaMac::open_rx2_window()
     _lora_phy->handle_receive();
     _params.rx_slot = _params.rx_window2_config.rx_slot;
 
-    tr_debug("Opening RX2 Window, Frequency = %lu", _params.rx_window2_config.frequency);
+    tr_debug("RX2 slot open, Freq = %lu", _params.rx_window2_config.frequency);
 }
 
 void LoRaMac::on_ack_timeout_timer_event(void)
