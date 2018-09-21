@@ -753,7 +753,12 @@
             },
             "stdio_uart_rx": {
                 "help": "default RX STDIO pins is defined in PinNames.h file, but it can be overridden"
-            }
+            },
+            "lpticker_delay_ticks": {
+                "help": "https://os.mbed.com/docs/latest/porting/low-power-ticker.html",
+                "value": 1,
+                "macro_name": "LPTICKER_DELAY_TICKS"
+             }
         },
         "device_has": ["USTICKER", "LPTICKER", "RTC", "ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES"]
     },
@@ -882,11 +887,6 @@
                 "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
                 "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
-            },
-            "lpticker_delay_ticks": {
-                "help": "For targets with low frequency system clock, set lpticker_delay_ticks value to 1",
-                "value": 1,
-                "macro_name": "LPTICKER_DELAY_TICKS"
             }
         },
         "detect_code": ["0755"],
@@ -905,11 +905,6 @@
                 "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
                 "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
-            },
-            "lpticker_delay_ticks": {
-                "help": "For targets with low frequency system clock, set lpticker_delay_ticks value to 1",
-                "value": 1,
-                "macro_name": "LPTICKER_DELAY_TICKS"
             }
         },
         "detect_code": ["0730"],
@@ -928,11 +923,6 @@
                 "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
                 "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
-            },
-            "lpticker_delay_ticks": {
-                "help": "For targets with low frequency system clock, set lpticker_delay_ticks value to 1",
-                "value": 1,
-                "macro_name": "LPTICKER_DELAY_TICKS"
             }
         },
         "detect_code": ["0750"],
@@ -1131,11 +1121,6 @@
             "lpticker_lptim": {
                 "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
                 "value": 1
-            },
-            "lpticker_delay_ticks": {
-                "help": "In case of lpticker_lptim=1, set lpticker_delay_ticks=3",
-                "value": 3,
-                "macro_name": "LPTICKER_DELAY_TICKS"
             }
         },
         "detect_code": ["0744"],
@@ -1261,11 +1246,6 @@
             "lpticker_lptim": {
                 "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
                 "value": 1
-            },
-            "lpticker_delay_ticks": {
-                "help": "In case of lpticker_lptim=1, set lpticker_delay_ticks=3",
-                "value": 3,
-                "macro_name": "LPTICKER_DELAY_TICKS"
             }
         },
         "detect_code": ["0743"],
@@ -1288,11 +1268,6 @@
             "lpticker_lptim": {
                 "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
                 "value": 1
-            },
-            "lpticker_delay_ticks": {
-                "help": "In case of lpticker_lptim=1, set lpticker_delay_ticks=3",
-                "value": 3,
-                "macro_name": "LPTICKER_DELAY_TICKS"
             }
         },
         "detect_code": ["0743"],
@@ -1443,11 +1418,6 @@
             "lpticker_lptim": {
                 "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
                 "value": 1
-            },
-            "lpticker_delay_ticks": {
-                "help": "In case of lpticker_lptim=1, set lpticker_delay_ticks=3",
-                "value": 3,
-                "macro_name": "LPTICKER_DELAY_TICKS"
             }
         },
         "macros_add": ["USBHOST_OTHER"],
@@ -1479,11 +1449,6 @@
             "lpticker_lptim": {
                 "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
                 "value": 1
-            },
-            "lpticker_delay_ticks": {
-                "help": "In case of lpticker_lptim=1, set lpticker_delay_ticks=3",
-                "value": 3,
-                "macro_name": "LPTICKER_DELAY_TICKS"
             }
         },
         "macros_add": ["TRANSACTION_QUEUE_SIZE_SPI=2", "USBHOST_OTHER", "MBEDTLS_CONFIG_HW_SUPPORT"],
@@ -1518,11 +1483,6 @@
             "lpticker_lptim": {
                 "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
                 "value": 1
-            },
-            "lpticker_delay_ticks": {
-                "help": "In case of lpticker_lptim=1, set lpticker_delay_ticks=3",
-                "value": 3,
-                "macro_name": "LPTICKER_DELAY_TICKS"
             }
         },
         "supported_form_factors": ["ARDUINO"],
@@ -1552,13 +1512,9 @@
             "lpticker_lptim": {
                 "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
                 "value": 1
-            },
-            "lpticker_delay_ticks": {
-                "help": "In case of lpticker_lptim=1, set lpticker_delay_ticks=3",
-                "value": 3,
-                "macro_name": "LPTICKER_DELAY_TICKS"
             }
         },
+        "overrides": {"lpticker_delay_ticks": 4},
         "detect_code": ["0780"],
         "device_has_add": ["CRC", "SERIAL_FC", "FLASH"],
         "default_lib": "small",
@@ -1580,13 +1536,9 @@
             "lpticker_lptim": {
                 "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
                 "value": 1
-            },
-            "lpticker_delay_ticks": {
-                "help": "In case of lpticker_lptim=1, set lpticker_delay_ticks=3",
-                "value": 3,
-                "macro_name": "LPTICKER_DELAY_TICKS"
             }
         },
+        "overrides": {"lpticker_delay_ticks": 4},
         "detect_code": ["0790"],
         "device_has_add": ["CRC", "SERIAL_FC", "FLASH"],
         "default_lib": "small",
@@ -1607,13 +1559,9 @@
             "lpticker_lptim": {
                 "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
                 "value": 1
-            },
-            "lpticker_delay_ticks": {
-                "help": "In case of lpticker_lptim=1, set lpticker_delay_ticks=3",
-                "value": 3,
-                "macro_name": "LPTICKER_DELAY_TICKS"
             }
         },
+        "overrides": {"lpticker_delay_ticks": 4},
         "detect_code": ["0715"],
         "device_has_add": ["ANALOGOUT", "CRC", "SERIAL_FC", "SERIAL_ASYNCH", "FLASH"],
         "default_lib": "small",
@@ -1634,13 +1582,9 @@
             "lpticker_lptim": {
                 "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
                 "value": 1
-            },
-            "lpticker_delay_ticks": {
-                "help": "In case of lpticker_lptim=1, set lpticker_delay_ticks=3",
-                "value": 3,
-                "macro_name": "LPTICKER_DELAY_TICKS"
             }
         },
+        "overrides": {"lpticker_delay_ticks": 4},
         "detect_code": ["0760"],
         "device_has_add": ["ANALOGOUT", "CRC", "SERIAL_FC", "SERIAL_ASYNCH", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
@@ -1656,11 +1600,6 @@
                 "help": "Mask value : USE_PLL_HSE_EXTC | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI",
                 "value": "USE_PLL_HSE_EXTC|USE_PLL_HSI",
                 "macro_name": "CLOCK_SOURCE"
-            },
-            "lpticker_delay_ticks": {
-                "help": "For targets with low frequency system clock, set lpticker_delay_ticks value to 1",
-                "value": 1,
-                "macro_name": "LPTICKER_DELAY_TICKS"
             }
         },
         "detect_code": ["0710"],
@@ -1682,11 +1621,6 @@
             "lpticker_lptim": {
                 "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
                 "value": 1
-            },
-            "lpticker_delay_ticks": {
-                "help": "In case of lpticker_lptim=1, set lpticker_delay_ticks=3",
-                "value": 3,
-                "macro_name": "LPTICKER_DELAY_TICKS"
             }
         },
         "detect_code": ["0770"],
@@ -1709,11 +1643,6 @@
             "lpticker_lptim": {
                 "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
                 "value": 1
-            },
-            "lpticker_delay_ticks": {
-                "help": "In case of lpticker_lptim=1, set lpticker_delay_ticks=3",
-                "value": 3,
-                "macro_name": "LPTICKER_DELAY_TICKS"
             }
         },
         "detect_code": ["0779"],
@@ -1756,11 +1685,6 @@
             "lpticker_lptim": {
                 "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
                 "value": 1
-            },
-            "lpticker_delay_ticks": {
-                "help": "In case of lpticker_lptim=1, set lpticker_delay_ticks=3",
-                "value": 3,
-                "macro_name": "LPTICKER_DELAY_TICKS"
             }
         },
         "detect_code": ["0765"],
@@ -1802,11 +1726,6 @@
             "lpticker_lptim": {
                 "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
                 "value": 1
-            },
-            "lpticker_delay_ticks": {
-                "help": "In case of lpticker_lptim=1, set lpticker_delay_ticks=3",
-                "value": 3,
-                "macro_name": "LPTICKER_DELAY_TICKS"
             }
         },
         "detect_code": ["0827"],
@@ -2014,14 +1933,12 @@
                 "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
                 "value": 1
 
-            },
-            "lpticker_delay_ticks": {
-                "help": "In case of lpticker_lptim=1, set lpticker_delay_ticks=3",
-                "value": 3,
-                "macro_name": "LPTICKER_DELAY_TICKS"
             }
         },
-        "overrides": {"lse_available": 0},
+        "overrides": {
+            "lse_available": 0,
+            "lpticker_delay_ticks": 4
+        },
         "device_has_add": ["ANALOGOUT", "CRC", "SERIAL_FC", "FLASH"],
         "default_lib": "small",
         "release_versions": ["2"],
@@ -2041,13 +1958,9 @@
             "lpticker_lptim": {
                 "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
                 "value": 1
-            },
-            "lpticker_delay_ticks": {
-                "help": "In case of lpticker_lptim=1, set lpticker_delay_ticks=3",
-                "value": 3,
-                "macro_name": "LPTICKER_DELAY_TICKS"
             }
         },
+        "overrides": {"lpticker_delay_ticks": 4},
         "detect_code": ["0833"],
         "device_has_add": ["ANALOGOUT", "SERIAL_FC", "SERIAL_ASYNCH", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
@@ -2081,11 +1994,6 @@
             "lpticker_lptim": {
                 "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
                 "value": 1
-            },
-            "lpticker_delay_ticks": {
-                "help": "In case of lpticker_lptim=1, set lpticker_delay_ticks=3",
-                "value": 3,
-                "macro_name": "LPTICKER_DELAY_TICKS"
             }
         },
         "detect_code": ["0815"],
@@ -2115,11 +2023,6 @@
             "lpticker_lptim": {
                 "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
                 "value": 1
-            },
-            "lpticker_delay_ticks": {
-                "help": "In case of lpticker_lptim=1, set lpticker_delay_ticks=3",
-                "value": 3,
-                "macro_name": "LPTICKER_DELAY_TICKS"
             }
         },
         "detect_code": ["0817"],
@@ -2144,11 +2047,6 @@
             "lpticker_lptim": {
                 "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
                 "value": 1
-            },
-            "lpticker_delay_ticks": {
-                "help": "In case of lpticker_lptim=1, set lpticker_delay_ticks=3",
-                "value": 3,
-                "macro_name": "LPTICKER_DELAY_TICKS"
             }
         },
         "supported_form_factors": ["ARDUINO"],
@@ -2172,11 +2070,6 @@
             "lpticker_lptim": {
                 "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
                 "value": 1
-            },
-            "lpticker_delay_ticks": {
-                "help": "In case of lpticker_lptim=1, set lpticker_delay_ticks=3",
-                "value": 3,
-                "macro_name": "LPTICKER_DELAY_TICKS"
             }
         },
         "detect_code": ["0820"],
@@ -4282,11 +4175,6 @@
             "lpticker_lptim": {
                 "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
                 "value": 1
-            },
-            "lpticker_delay_ticks": {
-                "help": "In case of lpticker_lptim=1, set lpticker_delay_ticks=3",
-                "value": 3,
-                "macro_name": "LPTICKER_DELAY_TICKS"
             }
         },
         "detect_code": ["0822"],
@@ -4308,11 +4196,6 @@
             "lpticker_lptim": {
                 "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
                 "value": 1
-            },
-            "lpticker_delay_ticks": {
-                "help": "In case of lpticker_lptim=1, set lpticker_delay_ticks=3",
-                "value": 3,
-                "macro_name": "LPTICKER_DELAY_TICKS"
             }
         },
         "detect_code": ["0823"],
