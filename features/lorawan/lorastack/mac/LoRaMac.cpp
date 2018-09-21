@@ -1862,7 +1862,6 @@ uint8_t LoRaMac::get_max_possible_tx_size(uint8_t fopts_len)
         max_possible_payload_size = allowed_frm_payload_size - fopts_len;
     } else {
         max_possible_payload_size = allowed_frm_payload_size;
-        fopts_len = 0;
         _mac_commands.clear_command_buffer();
         _mac_commands.clear_repeat_buffer();
     }

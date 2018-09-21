@@ -36,7 +36,8 @@ SPDX-License-Identifier: BSD-3-Clause
 #define CHANNELS_IN_MASK  16
 
 LoRaPHY::LoRaPHY()
-    : _radio(NULL)
+    : _radio(NULL),
+      _lora_time(NULL)
 {
     memset(&phy_params, 0, sizeof(phy_params));
 }
