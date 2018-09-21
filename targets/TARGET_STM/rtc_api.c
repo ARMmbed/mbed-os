@@ -381,6 +381,7 @@ void rtc_set_wake_up_timer(timestamp_t timestamp)
     }
 
     RtcHandle.Instance = RTC;
+    HAL_RTCEx_DeactivateWakeUpTimer(&RtcHandle);
     if (HAL_RTCEx_SetWakeUpTimer_IT(&RtcHandle, WakeUpCounter, RTC_WAKEUPCLOCK_RTCCLK_DIV4) != HAL_OK) {
         error("rtc_set_wake_up_timer init error\n");
     }
@@ -402,10 +403,7 @@ void rtc_fire_interrupt(void)
 void rtc_deactivate_wake_up_timer(void)
 {
     RtcHandle.Instance = RTC;
-    __HAL_RTC_WRITEPROTECTION_DISABLE(&RtcHandle);
-    __HAL_RTC_WAKEUPTIMER_DISABLE(&RtcHandle);
-    __HAL_RTC_WAKEUPTIMER_DISABLE_IT(&RtcHandle, RTC_IT_WUT);
-    __HAL_RTC_WRITEPROTECTION_ENABLE(&RtcHandle);
+    HAL_RTCEx_DeactivateWakeUpTimer(&RtcHandle);
     NVIC_DisableIRQ(RTC_WKUP_IRQn);
 }
 
