@@ -149,51 +149,15 @@ Information about STM32F1:
 For date, there is no specific register, only a software structure.
 It is then not a problem to not use shifts.
 */
-#if TARGET_STM32F1
 time_t rtc_read(void)
 {
-    RTC_DateTypeDef dateStruct = {0};
-    RTC_TimeTypeDef timeStruct = {0};
-    struct tm timeinfo;
+#if TARGET_STM32F1
 
     RtcHandle.Instance = RTC;
-
-    // Read actual date and time
-    // Warning: the time must be read first!
-    HAL_RTC_GetTime(&RtcHandle, &timeStruct, RTC_FORMAT_BIN);
-    HAL_RTC_GetDate(&RtcHandle, &dateStruct, RTC_FORMAT_BIN);
-
-    /* date information is null before first write procedure */
-    /* set 01/01/1970 as default values */
-    if (dateStruct.Year == 0) {
-        dateStruct.Year = 2 ;
-        dateStruct.Month = 1 ;
-        dateStruct.Date = 1 ;
-    }
-
-    // Setup a tm structure based on the RTC
-    /* tm_wday information is ignored by _rtc_maketime */
-    /* tm_isdst information is ignored by _rtc_maketime */
-    timeinfo.tm_mon  = dateStruct.Month - 1;
-    timeinfo.tm_mday = dateStruct.Date;
-    timeinfo.tm_year = dateStruct.Year + 68;
-    timeinfo.tm_hour = timeStruct.Hours;
-    timeinfo.tm_min  = timeStruct.Minutes;
-    timeinfo.tm_sec  = timeStruct.Seconds;
-
-    // Convert to timestamp
-    time_t t;
-    if (_rtc_maketime(&timeinfo, &t, RTC_4_YEAR_LEAP_YEAR_SUPPORT) == false) {
-        return 0;
-    }
-
-    return t;
-}
+    return RTC_ReadTimeCounter(&RtcHandle);
 
 #else /* TARGET_STM32F1 */
 
-time_t rtc_read(void)
-{
     struct tm timeinfo;
 
     /* Since the shadow registers are bypassed we have to read the time twice and compare them until both times are the same */
@@ -231,12 +195,23 @@ time_t rtc_read(void)
     }
 
     return t;
-}
 
 #endif /* TARGET_STM32F1 */
+}
+
+
 
 void rtc_write(time_t t)
 {
+#if TARGET_STM32F1
+
+    RtcHandle.Instance = RTC;
+    if (RTC_WriteTimeCounter(&RtcHandle, t) != HAL_OK) {
+        error("RTC_WriteTimeCounter error\n");
+    }
+
+#else /* TARGET_STM32F1 */
+
     RTC_DateTypeDef dateStruct = {0};
     RTC_TimeTypeDef timeStruct = {0};
 
@@ -261,12 +236,9 @@ void rtc_write(time_t t)
     timeStruct.Hours          = timeinfo.tm_hour;
     timeStruct.Minutes        = timeinfo.tm_min;
     timeStruct.Seconds        = timeinfo.tm_sec;
-
-#if !(TARGET_STM32F1)
     timeStruct.TimeFormat     = RTC_HOURFORMAT_24;
     timeStruct.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
     timeStruct.StoreOperation = RTC_STOREOPERATION_RESET;
-#endif /* TARGET_STM32F1 */
 
 #if DEVICE_LPTICKER && !MBED_CONF_TARGET_LPTICKER_LPTIM
     /* Need to update LP_continuous_time value before new RTC time */
@@ -293,6 +265,7 @@ void rtc_write(time_t t)
 #endif /* DEVICE_LPTICKER && !MBED_CONF_TARGET_LPTICKER_LPTIM */
 
     core_util_critical_section_exit();
+#endif /* TARGET_STM32F1 */
 }
 
 int rtc_isenabled(void)
