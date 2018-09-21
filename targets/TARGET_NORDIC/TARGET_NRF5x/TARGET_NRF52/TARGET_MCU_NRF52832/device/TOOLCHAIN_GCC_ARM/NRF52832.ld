@@ -28,7 +28,7 @@
 /* If softdevice is present, set aside space for it */
 #if !defined(MBED_RAM_START)
   #if defined(SOFTDEVICE_PRESENT)
-    #define MBED_RAM_START  0x200031D0
+    #define MBED_RAM_START  0x20001D70
     #define MBED_RAM_SIZE   0xCE30
   #else
     #define MBED_RAM_START  0x20000000
@@ -47,7 +47,7 @@
 
 MEMORY
 {
-  FLASH (rx)     : ORIGIN = MBED_APP_START, LENGTH = MBED_APP_SIZE
+  FLASH (rx)     : ORIGIN = 0x26000, LENGTH = MBED_APP_SIZE
   RAM_NVIC (rwx) : ORIGIN = MBED_RAM0_START, LENGTH = MBED_RAM0_SIZE
   RAM (rwx)      : ORIGIN = MBED_RAM1_START, LENGTH = MBED_RAM1_SIZE
 }
