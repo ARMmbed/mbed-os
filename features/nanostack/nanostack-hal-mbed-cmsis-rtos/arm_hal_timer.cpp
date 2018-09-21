@@ -45,8 +45,8 @@ void platform_timer_enable(void)
     equeue = mbed_highprio_event_queue();
     MBED_ASSERT(equeue != NULL);
 #endif
-    // Prime the SingletonPtrs - can't construct from IRQ/critical section
-    timer.get();
+    timer->start();
+    // Prime the SingletonPtr - can't construct from IRQ/critical section
     timeout.get();
 }
 
