@@ -113,7 +113,7 @@ void hal_crc_compute_partial(const uint8_t *data, const size_t size)
         return;
     }
 
-    if (!enableWordInput || size < 4) {
+    if (!enableWordInput || size < sizeof(uint32_t)) {
         // Input to a non-word-sized poly, or too small data size for a word input
         for (size_t i = 0; i < size; i++) {
             GPCRC_InputU8(GPCRC, data[i]);
@@ -122,21 +122,21 @@ void hal_crc_compute_partial(const uint8_t *data, const size_t size)
         size_t i = 0;
 
         // If input is unaligned, take off as many bytes as needed to align
-        if (((uint32_t)data & 0x3) != 0) {
-            for (; i < (sizeof(uint32_t) - ((uint32_t)data & 0x3)); i++) {
-                GPCRC_InputU8(GPCRC, data[i]);
-            }
+        while (((uint32_t)(data + i) & 0x3) != 0) {
+            GPCRC_InputU8(GPCRC, data[i]);
+            i++;
         }
 
         // If enough input remaining to do word-sized writes, do so
         while ((size - i) >= sizeof(uint32_t)) {
             GPCRC_InputU32(GPCRC, *((uint32_t*)(&data[i])));
-            i += 4;
+            i += sizeof(uint32_t);
         }
 
         // Do byte input to pick off the last remaining bytes
-        for (; i < size; i++) {
+        while (i < size) {
             GPCRC_InputU8(GPCRC, data[i]);
+            i++;
         }
     }
 }
