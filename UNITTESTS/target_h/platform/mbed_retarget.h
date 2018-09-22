@@ -324,9 +324,9 @@ struct statvfs {
     unsigned long  f_bsize;    ///< Filesystem block size
     unsigned long  f_frsize;   ///< Fragment size (block size)
 
-    fsblkcnt_t     f_blocks;   ///< Number of blocks
-    fsblkcnt_t     f_bfree;    ///< Number of free blocks
-    fsblkcnt_t     f_bavail;   ///< Number of free blocks for unprivileged users
+    unsigned long long     f_blocks;   ///< Number of blocks
+    unsigned long long     f_bfree;    ///< Number of free blocks
+    unsigned long long     f_bavail;   ///< Number of free blocks for unprivileged users
 
     unsigned long  f_fsid;     ///< Filesystem ID
 
