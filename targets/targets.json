@@ -4330,9 +4330,10 @@
         "release_versions": ["5"],
         "device_name": "nRF52832_xxAA"
     },
-    "NUMAKER_PFM_M487": {
+    "MCU_M480": {
         "core": "Cortex-M4F",
         "default_toolchain": "ARM",
+        "public": false,
         "extra_labels": ["NUVOTON", "M480", "FLASH_CMSIS_ALGO","NUVOTON_EMAC"],
         "is_disk_virtual": true,
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
@@ -4366,11 +4367,18 @@
         "macros_add": ["MBEDTLS_CONFIG_HW_SUPPORT", "LPTICKER_DELAY_TICKS=3"],
         "device_has": ["USTICKER", "LPTICKER", "RTC", "ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "TRNG", "FLASH", "CAN", "EMAC"],
         "release_versions": ["5"],
-        "device_name": "M487JIDAE",
         "bootloader_supported": true,
         "overrides": {
             "network-default-interface-type": "ETHERNET"
         }
+    },
+    "NUMAKER_PFM_M487": {
+        "inherits": ["MCU_M480"],
+        "device_name": "M487JIDAE"
+    },
+    "NUMAKER_IOT_M487": {
+        "inherits": ["MCU_M480"],
+        "device_name": "M487JIDAE"
     },
     "TMPM066": {
         "inherits": ["Target"],
