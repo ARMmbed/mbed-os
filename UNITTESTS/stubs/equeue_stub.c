@@ -18,6 +18,10 @@
 #include "equeue.h"
 #include <stdlib.h>
 
+#include "equeue_stub.h"
+
+equeue_stub_def equeue_stub;
+
 int equeue_create(equeue_t *queue, size_t size)
 {
     return 0;
@@ -80,11 +84,10 @@ void equeue_event_dtor(void *event, void (*dtor)(void *))
 
 int equeue_post(equeue_t *queue, void (*cb)(void *), void *event)
 {
-    if (cb)
-    {
+    if (cb) {
         cb(event);
         free(event);
-        return 1; //Fake ID for calling cancel
+        return 1;
     }
     return 0;
 }
