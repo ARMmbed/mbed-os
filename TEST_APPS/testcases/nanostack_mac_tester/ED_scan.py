@@ -105,6 +105,3 @@ class Testcase(Bench):
         self.th.join()
         del self.th
         self.reset_dut()
-
-if __name__=='__main__':
-    sys.exit( Testcase().run() )

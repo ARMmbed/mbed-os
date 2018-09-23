@@ -63,6 +63,3 @@ class Testcase(Bench):
 
     def tearDown(self):
         self.reset_dut()
-
-if __name__=='__main__':
-    sys.exit( Testcase().run() )
