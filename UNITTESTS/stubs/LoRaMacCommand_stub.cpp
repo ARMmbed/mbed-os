@@ -55,15 +55,6 @@ uint8_t LoRaMacCommand::get_repeat_commands_length() const
     return 0;
 }
 
-void LoRaMacCommand::clear_mac_commands_in_next_tx()
-{
-}
-
-bool LoRaMacCommand::is_mac_command_in_next_tx() const
-{
-    return false;
-}
-
 void LoRaMacCommand::clear_sticky_mac_cmd()
 {
 }
@@ -80,11 +71,6 @@ lorawan_status_t LoRaMacCommand::process_mac_commands(const uint8_t *payload, ui
                                                       LoRaPHY &lora_phy)
 {
     return LORAWAN_STATUS_OK;
-}
-
-bool LoRaMacCommand::is_sticky_mac_command_pending()
-{
-    return false;
 }
 
 int32_t LoRaMacCommand::cmd_buffer_remaining() const

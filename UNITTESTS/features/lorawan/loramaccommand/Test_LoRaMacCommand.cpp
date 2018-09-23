@@ -69,7 +69,6 @@ TEST_F(Test_LoRaMacCommand, parse_mac_commands_to_repeat)
     uint8_t buf[20];
 
     object->parse_mac_commands_to_repeat();
-    EXPECT_TRUE(object->is_mac_command_in_next_tx() == false);
 
     buf[0] = 2;
     buf[1] = 16;
@@ -120,7 +119,6 @@ TEST_F(Test_LoRaMacCommand, parse_mac_commands_to_repeat)
     EXPECT_TRUE(object->process_mac_commands(buf, 0, 4, 0, mlme, params, phy) == LORAWAN_STATUS_OK);
 
     object->parse_mac_commands_to_repeat();
-    EXPECT_TRUE(object->is_mac_command_in_next_tx() == true);
 }
 
 TEST_F(Test_LoRaMacCommand, clear_repeat_buffer)
@@ -156,42 +154,6 @@ TEST_F(Test_LoRaMacCommand, copy_repeat_commands_to_buffer)
 TEST_F(Test_LoRaMacCommand, get_repeat_commands_length)
 {
     EXPECT_TRUE(object->get_repeat_commands_length() == 0 );
-}
-
-TEST_F(Test_LoRaMacCommand, clear_mac_commands_in_next_tx)
-{
-    loramac_mlme_confirm_t mlme;
-    lora_mac_system_params_t params;
-    my_LoRaPHY phy;
-    uint8_t buf[20];
-
-    EXPECT_TRUE(object->is_mac_command_in_next_tx() == false);
-
-    buf[0] = 4;
-    buf[1] = 16;
-    buf[2] = 32;
-    EXPECT_TRUE(object->process_mac_commands(buf, 0, 1, 0, mlme, params, phy) == LORAWAN_STATUS_OK);
-
-    EXPECT_TRUE(object->is_mac_command_in_next_tx() == true);
-    object->clear_mac_commands_in_next_tx();
-    EXPECT_TRUE(object->is_mac_command_in_next_tx() == false);
-}
-
-TEST_F(Test_LoRaMacCommand, is_mac_command_in_next_tx)
-{
-    loramac_mlme_confirm_t mlme;
-    lora_mac_system_params_t params;
-    my_LoRaPHY phy;
-    uint8_t buf[20];
-
-    EXPECT_TRUE(object->is_mac_command_in_next_tx() == false);
-
-    buf[0] = 4;
-    buf[1] = 16;
-    buf[2] = 32;
-    EXPECT_TRUE(object->process_mac_commands(buf, 0, 1, 0, mlme, params, phy) == LORAWAN_STATUS_OK);
-
-    EXPECT_TRUE(object->is_mac_command_in_next_tx() == true);
 }
 
 TEST_F(Test_LoRaMacCommand, clear_sticky_mac_cmd)
@@ -373,27 +335,6 @@ TEST_F(Test_LoRaMacCommand, process_mac_commands)
     object->clear_command_buffer();
     buf[0] = 80;
     EXPECT_TRUE(object->process_mac_commands(buf, 0, 1, 0, mlme, params, phy) == LORAWAN_STATUS_UNSUPPORTED);
-}
-
-TEST_F(Test_LoRaMacCommand, is_sticky_mac_command_pending)
-{
-    loramac_mlme_confirm_t mlme;
-    lora_mac_system_params_t params;
-    my_LoRaPHY phy;
-    uint8_t buf[20];
-
-    EXPECT_TRUE(object->is_sticky_mac_command_pending() == false);
-
-    object->clear_command_buffer();
-    buf[0] = 5;
-    buf[1] = 2;
-    buf[2] = 2;
-    buf[3] = 2;
-    buf[4] = 2;
-    buf[5] = 2;
-    EXPECT_TRUE(object->process_mac_commands(buf, 0, 5, 0, mlme, params, phy) == LORAWAN_STATUS_OK);
-    object->parse_mac_commands_to_repeat();
-    EXPECT_TRUE(object->is_sticky_mac_command_pending() == true);
 }
 
 TEST_F(Test_LoRaMacCommand, add_link_check_req)
