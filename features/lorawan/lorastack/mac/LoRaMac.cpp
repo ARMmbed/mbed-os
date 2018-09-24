@@ -1880,6 +1880,7 @@ lorawan_status_t LoRaMac::prepare_frame(loramac_mhdr_t *machdr,
                                                               sizeof(_params.keys.nwk_senckey) * 8,
                                                               _params.dev_addr, UP_LINK,
                                                               _params.ul_frame_counter,
+                                                              0, //FOpts
                                                               &_params.tx_buffer[pkt_header_len])) {
                             status = LORAWAN_STATUS_CRYPTO_FAIL;
                         }
