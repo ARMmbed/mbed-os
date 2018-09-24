@@ -1721,21 +1721,6 @@ void LoRaMac::reset_mcps_indication()
     _mcps_indication.status = LORAMAC_EVENT_INFO_STATUS_ERROR;
 }
 
-void LoRaMac::set_tx_continuous_wave(uint8_t channel, int8_t datarate, int8_t tx_power,
-                                     float max_eirp, float antenna_gain, uint16_t timeout)
-{
-    cw_mode_params_t continuous_wave;
-
-    continuous_wave.channel = channel;
-    continuous_wave.datarate = datarate;
-    continuous_wave.tx_power = tx_power;
-    continuous_wave.max_eirp = max_eirp;
-    continuous_wave.antenna_gain = antenna_gain;
-    continuous_wave.timeout = timeout;
-
-    _lora_phy->set_tx_cont_mode(&continuous_wave);
-}
-
 lorawan_status_t LoRaMac::initialize(EventQueue *queue,
                                      mbed::Callback<void(void)>scheduling_failure_handler)
 {

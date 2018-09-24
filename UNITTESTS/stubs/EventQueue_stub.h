@@ -1,5 +1,5 @@
-#[[
- * Copyright (c) 2018, Arm Limited and affiliates
+/*
+ * Copyright (c) , Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,28 +13,13 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
-]]
+ */
 
-# Unit test suite name
-set(TEST_SUITE_NAME "lorawan_LoRaPHYKR920")
+#include <inttypes.h>
 
-# Source files
-set(unittest-sources
-  ../features/lorawan/lorastack/phy/LoRaPHYKR920.cpp
-)
-
-# Add test specific include paths
-set(unittest-includes ${unittest-includes}
-  target_h
-  ../features/lorawan/lorastack/phy
-)
-
-# Test & stub files
-set(unittest-test-sources
-  ../features/lorawan/loraphykr920/Test_LoRaPHYKR920.cpp
-  stubs/LoRaPHY_stub.cpp
-  stubs/LoRaWANTimer_stub.cpp
-  stubs/mbed_assert_stub.c
-
-)
+namespace EventQueue_stub
+{
+extern int int_value;
+extern unsigned unsigned_value;
+}
 

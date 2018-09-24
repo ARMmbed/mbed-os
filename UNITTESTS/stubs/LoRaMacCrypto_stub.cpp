@@ -21,6 +21,10 @@
 #include "LoRaMacCrypto.h"
 #include "system/lorawan_data_structures.h"
 
+#include "LoRaMacCrypto_stub.h"
+
+int LoRaMacCrypto_stub::int_table_idx_value = 0;
+int LoRaMacCrypto_stub::int_table[20] = {};
 
 LoRaMacCrypto::LoRaMacCrypto()
 {
@@ -29,34 +33,34 @@ LoRaMacCrypto::LoRaMacCrypto()
 int LoRaMacCrypto::compute_mic(const uint8_t *, uint16_t , const uint8_t *, uint32_t, uint32_t,
                                uint8_t dir, uint32_t, uint32_t *)
 {
-    return 0;
+    return LoRaMacCrypto_stub::int_table[LoRaMacCrypto_stub::int_table_idx_value++];
 }
 
 int LoRaMacCrypto::encrypt_payload(const uint8_t *, uint16_t , const uint8_t *, uint32_t, uint32_t,
                                    uint8_t , uint32_t , uint8_t *)
 {
-    return 0;
+    return LoRaMacCrypto_stub::int_table[LoRaMacCrypto_stub::int_table_idx_value++];
 }
 
 int LoRaMacCrypto::decrypt_payload(const uint8_t *, uint16_t , const uint8_t *, uint32_t, uint32_t,
                                    uint8_t , uint32_t , uint8_t *)
 {
-    return 0;
+    return LoRaMacCrypto_stub::int_table[LoRaMacCrypto_stub::int_table_idx_value++];
 }
 
 int LoRaMacCrypto::compute_join_frame_mic(const uint8_t *, uint16_t , const uint8_t *, uint32_t, uint32_t *)
 {
-    return 0;
+    return LoRaMacCrypto_stub::int_table[LoRaMacCrypto_stub::int_table_idx_value++];
 }
 
-int LoRaMacCrypto::decrypt_join_frame(const uint8_t *, uint16_t , const uint8_t *, uint32_t, uint8_t *)
+int LoRaMacCrypto::decrypt_join_frame(const uint8_t *in, uint16_t size, const uint8_t *, uint32_t, uint8_t *out)
 {
-    return 0;
+    memcpy(out, in, size);
+    return LoRaMacCrypto_stub::int_table[LoRaMacCrypto_stub::int_table_idx_value++];
 }
 
 int LoRaMacCrypto::compute_skeys_for_join_frame(const uint8_t *, uint32_t, const uint8_t *, uint16_t ,
                                                 uint8_t *, uint8_t *)
 {
-    return 0;
+    return LoRaMacCrypto_stub::int_table[LoRaMacCrypto_stub::int_table_idx_value++];
 }
-
