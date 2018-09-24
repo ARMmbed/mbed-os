@@ -111,12 +111,12 @@ nsapi_error_t AT_CellularNetwork::set_registration(const char *plmn)
     return NSAPI_ERROR_OK;
 }
 
-nsapi_error_t AT_CellularNetwork::get_registration_status(RegistrationType type, RegistrationStatus &status)
+nsapi_error_t AT_CellularNetwork::get_registration_params(RegistrationType type, registration_params_t &reg_params)
 {
     return NSAPI_ERROR_OK;
 }
 
-nsapi_error_t AT_CellularNetwork::get_cell_id(int &cell_id)
+nsapi_error_t AT_CellularNetwork::get_registration_params(registration_params_t &reg_params)
 {
     return NSAPI_ERROR_OK;
 }
@@ -183,12 +183,6 @@ nsapi_error_t AT_CellularNetwork::set_access_technology_impl(RadioAccessTechnolo
 
 nsapi_error_t AT_CellularNetwork::set_access_technology(RadioAccessTechnology opAct)
 {
-    return NSAPI_ERROR_OK;
-}
-
-nsapi_error_t AT_CellularNetwork::get_access_technology(RadioAccessTechnology &rat)
-{
-    rat = RAT_CATM1;
     return NSAPI_ERROR_OK;
 }
 

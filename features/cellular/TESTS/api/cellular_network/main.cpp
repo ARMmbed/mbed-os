@@ -102,9 +102,11 @@ static bool get_network_registration(CellularNetwork::RegistrationType type,
                                      CellularNetwork::RegistrationStatus &status, bool &is_registered)
 {
     is_registered = false;
-    nsapi_error_t err = nw->get_registration_status(type, status);
+    CellularNetwork::registration_params_t reg_params;
+    nsapi_error_t err = nw->get_registration_params(type, reg_params);
     TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_UNSUPPORTED);
 
+    status = reg_params._status;
     switch (status) {
         case CellularNetwork::RegisteredRoaming:
         case CellularNetwork::RegisteredHomeNetwork:
@@ -312,9 +314,10 @@ static void test_other()
         TEST_ASSERT(ber >= 0);
     }
 
-    int cell_id = -5;
-    TEST_ASSERT(nw->get_cell_id(cell_id) == NSAPI_ERROR_OK);
-    TEST_ASSERT(cell_id != -5);
+    CellularNetwork::registration_params_t reg_params;
+    reg_params._cell_id = -5;
+    TEST_ASSERT(nw->get_registration_params(reg_params) == NSAPI_ERROR_OK);
+    TEST_ASSERT(reg_params._cell_id != -5);
 
     int format = -1;
     CellularNetwork::operator_t operator_params;

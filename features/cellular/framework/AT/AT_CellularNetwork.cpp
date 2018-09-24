@@ -41,8 +41,8 @@ static const at_reg_t at_reg[] = {
 AT_CellularNetwork::AT_CellularNetwork(ATHandler &atHandler) : AT_CellularBase(atHandler),
     _stack(NULL), _apn(NULL), _uname(NULL), _pwd(NULL), _ip_stack_type_requested(DEFAULT_STACK),
     _ip_stack_type(DEFAULT_STACK), _cid(-1), _connection_status_cb(NULL), _op_act(RAT_UNKNOWN),
-    _authentication_type(CHAP), _cell_id(-1), _connect_status(NSAPI_STATUS_DISCONNECTED), _new_context_set(false),
-    _is_context_active(false), _reg_status(NotRegistered), _current_act(RAT_UNKNOWN)
+    _authentication_type(CHAP), _connect_status(NSAPI_STATUS_DISCONNECTED), _new_context_set(false),
+    _is_context_active(false)
 {
 }
 
@@ -138,13 +138,11 @@ void AT_CellularNetwork::urc_cgev()
 
 void AT_CellularNetwork::read_reg_params_and_compare(RegistrationType type)
 {
-    RegistrationStatus reg_status = NotRegistered;
-    int lac = -1, cell_id = -1, act = -1;
-
-    read_reg_params(type, reg_status, lac, cell_id, act);
+    registration_params_t reg_params;
+    read_reg_params(reg_params);
 
 #if MBED_CONF_MBED_TRACE_ENABLE
-    switch (reg_status) {
+    switch (reg_params._status) {
         case NotRegistered:
             tr_warn("not registered");
             break;
@@ -160,18 +158,19 @@ void AT_CellularNetwork::read_reg_params_and_compare(RegistrationType type)
 #endif
 
     if (_at.get_last_error() == NSAPI_ERROR_OK && _connection_status_cb) {
-        tr_debug("stat: %d, lac: %d, cellID: %d, act: %d", reg_status, lac, cell_id, act);
-        if (act != -1 && (RadioAccessTechnology)act != _current_act) {
-            _current_act = (RadioAccessTechnology)act;
-            _connection_status_cb((nsapi_event_t)CellularRadioAccessTechnologyChanged, _current_act);
+        tr_debug("type: %d, status: %d, lac: %d, cellID: %d, act: %d", type, reg_params._status, reg_params._lac, reg_params._cell_id, reg_params._act);
+        _reg_params._type = type;
+        if (reg_params._act != _reg_params._act) {
+            _reg_params._act = reg_params._act;
+            _connection_status_cb((nsapi_event_t)CellularRadioAccessTechnologyChanged, _reg_params._act);
         }
-        if (reg_status != _reg_status) {
-            _reg_status = reg_status;
-            _connection_status_cb((nsapi_event_t)CellularRegistrationStatusChanged, _reg_status);
+        if (reg_params._status != _reg_params._status) {
+            _reg_params._status = reg_params._status;
+            _connection_status_cb((nsapi_event_t)CellularRegistrationStatusChanged, _reg_params._status);
         }
-        if (cell_id != -1 && cell_id != _cell_id) {
-            _cell_id = cell_id;
-            _connection_status_cb((nsapi_event_t)CellularCellIDChanged, _cell_id);
+        if (reg_params._cell_id != -1 && reg_params._cell_id != _reg_params._cell_id) {
+            _reg_params._cell_id = reg_params._cell_id;
+            _connection_status_cb((nsapi_event_t)CellularCellIDChanged, _reg_params._cell_id);
         }
     }
 }
@@ -455,7 +454,7 @@ nsapi_error_t AT_CellularNetwork::disconnect()
 
     // 3GPP TS 27.007:
     // For EPS, if an attempt is made to disconnect the last PDN connection, then the MT responds with ERROR
-    if (_is_context_active && (_current_act < RAT_E_UTRAN || active_contexts_count > 1)) {
+    if (_is_context_active && (_reg_params._act < RAT_E_UTRAN || active_contexts_count > 1)) {
         _at.cmd_start("AT+CGACT=0,");
         _at.write_int(_cid);
         _at.cmd_stop();
@@ -785,74 +784,47 @@ nsapi_error_t AT_CellularNetwork::set_registration(const char *plmn)
     return _at.unlock_return_error();
 }
 
-void AT_CellularNetwork::read_reg_params(RegistrationType type, RegistrationStatus &reg_status, int &lac, int &cell_id, int &act)
+void AT_CellularNetwork::read_reg_params(registration_params_t &reg_params)
 {
-    const int LAC_LENGTH = 5, CELL_ID_LENGTH = 9;
-    char lac_string[LAC_LENGTH] = {0}, cell_id_string[CELL_ID_LENGTH] = {0};
-    bool lac_read = false, cell_id_read = false;
+    const int MAX_STRING_LENGTH = 9;
+    char string_param[MAX_STRING_LENGTH] = {0};
 
-    reg_status = (RegistrationStatus)_at.read_int();
+    int int_param = _at.read_int();
+    reg_params._status = (RegistrationStatus)int_param;
 
-    int len = _at.read_string(lac_string, LAC_LENGTH);
-    if (memcmp(lac_string, "ffff", LAC_LENGTH - 1) && len >= 0) {
-        lac_read = true;
+    int len = _at.read_string(string_param, TWO_BYTES_HEX + 1);
+    if (len > 0) {
+        reg_params._lac = hex_str_to_int(string_param, TWO_BYTES_HEX);
+        tr_debug("lac %s %d", string_param, reg_params._lac);
+    } else {
+        reg_params._lac = -1;
     }
 
-    len = _at.read_string(cell_id_string, CELL_ID_LENGTH);
-    if (memcmp(cell_id_string, "ffffffff", CELL_ID_LENGTH - 1) && len >= 0) {
-        cell_id_read = true;
+    len = _at.read_string(string_param, FOUR_BYTES_HEX + 1);
+    if (len > 0) {
+        reg_params._cell_id = hex_str_to_int(string_param, FOUR_BYTES_HEX);
+        tr_debug("cell_id %s %d", string_param, reg_params._cell_id);
+    } else {
+        reg_params._cell_id = -1;
     }
 
-    act = _at.read_int();
+    int_param = _at.read_int();
+    reg_params._act = (int_param == -1) ? RAT_UNKNOWN : (RadioAccessTechnology)int_param;
 
-    if (lac_read) {
-        lac = hex_str_to_int(lac_string, LAC_LENGTH);
-        tr_debug("lac %s %d", lac_string, lac);
+    // Skip [<cause_type>],[<reject_cause>]
+    _at.skip_param(2);
+
+    len = _at.read_string(string_param, ONE_BYTE_BINARY + 1);
+    reg_params._active_time = calculate_active_time(string_param, len);
+    if (reg_params._active_time != -1) {
+        tr_debug("active_time %s %d", string_param, reg_params._active_time);
     }
 
-    if (cell_id_read) {
-        cell_id = hex_str_to_int(cell_id_string, CELL_ID_LENGTH);
-        tr_debug("cell_id %s %d", cell_id_string, cell_id);
+    len = _at.read_string(string_param, ONE_BYTE_BINARY + 1);
+    reg_params._periodic_tau = calculate_periodic_tau(string_param, len);
+    if (reg_params._periodic_tau == -1) {
+        tr_debug("periodic_tau %s %d", string_param, reg_params._periodic_tau);
     }
-}
-
-nsapi_error_t AT_CellularNetwork::get_registration_status(RegistrationType type, RegistrationStatus &status)
-{
-    int i = (int)type;
-    MBED_ASSERT(i >= 0 && i < C_MAX);
-
-    if (has_registration(at_reg[i].type) == RegistrationModeDisable) {
-        return NSAPI_ERROR_UNSUPPORTED;
-    }
-
-    _at.lock();
-
-    const char *rsp[] = { "+CEREG:", "+CGREG:", "+CREG:"};
-    _at.cmd_start(at_reg[i].cmd);
-    _at.write_string("?", false);
-    _at.cmd_stop();
-    _at.resp_start(rsp[i]);
-
-    (void)_at.read_int(); // ignore urc mode subparam
-    int lac = -1, cell_id = -1, act = -1;
-    read_reg_params(type, status, lac, cell_id, act);
-    _at.resp_stop();
-    _reg_status = status;
-
-    if (cell_id != -1) {
-        _cell_id = cell_id;
-    }
-    if (act != -1) {
-        _current_act = (RadioAccessTechnology)act;
-    }
-
-    return _at.unlock_return_error();
-}
-
-nsapi_error_t AT_CellularNetwork::get_cell_id(int &cell_id)
-{
-    cell_id = _cell_id;
-    return NSAPI_ERROR_OK;
 }
 
 AT_CellularNetwork::RegistrationMode AT_CellularNetwork::has_registration(RegistrationType reg_type)
@@ -986,12 +958,6 @@ bool AT_CellularNetwork::get_modem_stack_type(nsapi_ip_stack_t requested_stack)
 nsapi_error_t AT_CellularNetwork::set_access_technology_impl(RadioAccessTechnology opsAct)
 {
     return NSAPI_ERROR_UNSUPPORTED;
-}
-
-nsapi_error_t AT_CellularNetwork::get_access_technology(RadioAccessTechnology &rat)
-{
-    rat = _current_act;
-    return NSAPI_ERROR_OK;
 }
 
 nsapi_error_t AT_CellularNetwork::set_access_technology(RadioAccessTechnology opAct)
@@ -1328,4 +1294,89 @@ nsapi_error_t AT_CellularNetwork::get_operator_names(operator_names_list &op_nam
 
     _at.resp_stop();
     return _at.unlock_return_error();
+}
+
+nsapi_error_t AT_CellularNetwork::get_registration_params(registration_params_t &reg_params)
+{
+    reg_params = _reg_params;
+    return NSAPI_ERROR_OK;
+}
+
+nsapi_error_t AT_CellularNetwork::get_registration_params(RegistrationType type, registration_params_t &reg_params)
+{
+    int i = (int)type;
+    MBED_ASSERT(i >= 0 && i < C_MAX);
+
+    if (!has_registration(at_reg[i].type)) {
+        return NSAPI_ERROR_UNSUPPORTED;
+    }
+
+    _at.lock();
+
+    const char *rsp[] = { "+CEREG:", "+CGREG:", "+CREG:"};
+    _at.cmd_start(at_reg[i].cmd);
+    _at.write_string("?", false);
+    _at.cmd_stop();
+    _at.resp_start(rsp[i]);
+
+    (void)_at.read_int(); // ignore urc mode subparam
+    _reg_params._type = type;
+    read_reg_params(reg_params);
+    _at.resp_stop();
+
+    _reg_params = reg_params;
+
+    return _at.unlock_return_error();
+}
+
+int AT_CellularNetwork::calculate_active_time(const char *active_time_string, int active_time_length)
+{
+    if (active_time_length != ONE_BYTE_BINARY) {
+        return -1;
+    }
+
+    uint32_t ie_unit = binary_str_to_uint(active_time_string, TIMER_UNIT_LENGTH);
+    uint32_t ie_value = binary_str_to_uint(active_time_string + TIMER_UNIT_LENGTH, active_time_length - TIMER_UNIT_LENGTH);
+
+    switch (ie_unit) {
+        case 0: // multiples of 2 seconds
+            return 2 * ie_value;
+        case 1: // multiples of 1 minute
+            return 60 * ie_value;
+        case 2: // multiples of decihours
+            return 6 * 60 * ie_value;
+        case 7: // timer is deactivated
+            return 0;
+        default: // other values shall be interpreted as multiples of 1 minute
+            return 60 * ie_value;
+    }
+}
+
+int AT_CellularNetwork::calculate_periodic_tau(const char *periodic_tau_string, int periodic_tau_length)
+{
+    if (periodic_tau_length != ONE_BYTE_BINARY) {
+        return -1;
+    }
+
+    uint32_t ie_unit = binary_str_to_uint(periodic_tau_string, TIMER_UNIT_LENGTH);
+    uint32_t ie_value = binary_str_to_uint(periodic_tau_string + TIMER_UNIT_LENGTH, periodic_tau_length - TIMER_UNIT_LENGTH);
+
+    switch (ie_unit) {
+        case 0: // multiples of 10 minutes
+            return 60 * 10 * ie_value;
+        case 1: // multiples of 1 hour
+            return 60 * 60 * ie_value;
+        case 2: // multiples of 10 hours
+            return 10 * 60 * 60 * ie_value;
+        case 3: // multiples of 2 seconds
+            return 2 * ie_value;
+        case 4: // multiples of 30 seconds
+            return 30 * ie_value;
+        case 5: // multiples of 1 minute
+            return 60 * ie_value;
+        case 6: // multiples of 320 hours
+            return 320 * 60 * 60 * ie_value;
+        default: // timer is deactivated
+            return 0;
+    }
 }

@@ -223,13 +223,15 @@ bool CellularConnectionFSM::get_network_registration(CellularNetwork::Registrati
 {
     is_registered = false;
     bool is_roaming = false;
-    nsapi_error_t err = _network->get_registration_status(type, status);
+    CellularNetwork::registration_params_t reg_params;
+    nsapi_error_t err = _network->get_registration_params(type, reg_params);
     if (err != NSAPI_ERROR_OK) {
         if (err != NSAPI_ERROR_UNSUPPORTED) {
             tr_warn("Get network registration failed (type %d)!", type);
         }
         return false;
     }
+    status = reg_params._status;
     switch (status) {
         case CellularNetwork::RegisteredRoaming:
             is_roaming = true;
