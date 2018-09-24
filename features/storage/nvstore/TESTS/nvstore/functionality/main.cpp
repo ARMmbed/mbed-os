@@ -26,7 +26,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <algorithm>
-#include "mbed_stats.h"
 
 #if !NVSTORE_ENABLED
 #error [NOT_SUPPORTED] NVSTORE needs to be enabled for this test
@@ -35,6 +34,7 @@
 using namespace utest::v1;
 
 static const uint16_t max_test_keys = 20;
+static const uint16_t max_possible_keys_threshold = 64;
 
 static const size_t basic_func_max_data_size = 128;
 
@@ -44,11 +44,9 @@ static const int thr_test_max_data_size = 32;
 static const int thr_test_num_threads = 3;
 
 #if defined(__CORTEX_M23) || defined(__CORTEX_M33)
-static const int thr_test_min_stack_size = 1280;
-static const int thr_test_max_stack_size = 1280;
+static const int thr_test_stack_size = 1280;
 #else
-static const int thr_test_min_stack_size = 768;
-static const int thr_test_max_stack_size = 1024;
+static const int thr_test_stack_size = 1024;
 #endif
 
 typedef struct {
@@ -63,8 +61,7 @@ static thread_test_data_t *thr_test_data;
 static const int race_test_num_threads = 4;
 static const int race_test_key = 1;
 static const int race_test_data_size = 128;
-static const int race_test_min_stack_size = 768;
-static const int race_test_max_stack_size = 1024;
+static const int race_test_stack_size = 768;
 
 static bool nvstore_overlaps_code = false;
 
@@ -81,9 +78,7 @@ static void nvstore_basic_functionality_test()
     uint16_t actual_len_bytes = 0;
     NVStore &nvstore = NVStore::get_instance();
     uint16_t key;
-
-    uint8_t *nvstore_testing_buf_set = new uint8_t[basic_func_max_data_size];
-    uint8_t *nvstore_testing_buf_get = new uint8_t[basic_func_max_data_size];
+    uint16_t max_possible_keys;
 
     int result;
 
@@ -99,11 +94,20 @@ static void nvstore_basic_functionality_test()
         TEST_SKIP_UNLESS_MESSAGE(!nvstore_overlaps_code, "Test skipped. NVStore region overlaps code.");
     }
 
+    uint8_t *nvstore_testing_buf_set = new (std::nothrow) uint8_t[basic_func_max_data_size];
+    uint8_t *nvstore_testing_buf_get = new (std::nothrow) uint8_t[basic_func_max_data_size];
+    if (!nvstore_testing_buf_set || !nvstore_testing_buf_get) {
+        printf("Not enough heap space to run test. Test skipped\n");
+        goto clean;
+    }
+
     gen_random(nvstore_testing_buf_set, basic_func_max_data_size);
 
-    uint16_t max_possible_keys = nvstore.get_max_possible_keys();
+    max_possible_keys = nvstore.get_max_possible_keys();
     TEST_SKIP_UNLESS_MESSAGE(max_test_keys < max_possible_keys,
                              "Not enough possible keys for test. Test skipped.");
+    TEST_SKIP_UNLESS_MESSAGE(max_possible_keys >= max_possible_keys_threshold,
+                             "Max possible keys below threshold. Test skipped.");
 
     nvstore.set_max_keys(max_test_keys);
     TEST_ASSERT_EQUAL(max_test_keys, nvstore.get_max_keys());
@@ -387,44 +391,9 @@ static void nvstore_basic_functionality_test()
     result = nvstore.get(NVSTORE_NUM_PREDEFINED_KEYS + 1, 64, nvstore_testing_buf_get, actual_len_bytes);
     TEST_ASSERT_EQUAL(NVSTORE_NOT_FOUND, result);
 
+clean:
     delete[] nvstore_testing_buf_set;
     delete[] nvstore_testing_buf_get;
-}
-
-// This function calculates the stack size that needs to be allocated per thread in
-// the multi-thread tests. Given minimal and maximal stack sizes, and based on the heap
-// stats (automatically enabled in CI), the function checks whether each thread has at least
-// the minimal stack size, otherwise it reduces the number of threads (something that may happen
-// on low memory boards).
-static void calc_thread_stack_size(int &num_threads, uint32_t min_size, uint32_t max_size,
-                                   uint32_t &stack_size)
-{
-    mbed_stats_heap_t heap_stats;
-    mbed_stats_heap_get(&heap_stats);
-
-    // reserved size (along with all other fields in heap stats) will be zero if
-    // app is compiled without heap stats (typically local builds)
-    if (!heap_stats.reserved_size) {
-        stack_size = max_size;
-        printf("Heap stats disabled in this build, so test may fail due to insufficient heap size\n");
-        printf("If this happens, please build the test with heap stats enabled (-DMBED_HEAP_STATS_ENABLED=1)\n");
-        return;
-    }
-
-    NVStore &nvstore = NVStore::get_instance();
-    int page_size = nvstore.size() / nvstore.get_max_possible_keys();
-    // Check if we can allocate enough stack size (per thread) for the current number of threads
-    while (num_threads) {
-        stack_size = (heap_stats.reserved_size - heap_stats.current_size) / num_threads - sizeof(rtos::Thread) - page_size;
-
-        stack_size = std::min(stack_size, max_size);
-        if (stack_size >= min_size) {
-            return;
-        }
-
-        // Got here - stack not sufficient per thread. Reduce number of threads
-        num_threads--;
-    }
 }
 
 static void thread_test_check_key(uint16_t key)
@@ -481,47 +450,66 @@ static void nvstore_multi_thread_test()
 {
 #ifdef MBED_CONF_RTOS_PRESENT
     int i;
-    int num_threads = thr_test_num_threads;
-    uint32_t stack_size;
     uint16_t size;
     uint16_t key;
     int ret;
-
-    rtos::Thread **threads = new rtos::Thread*[num_threads];
+    char *dummy;
+    uint16_t max_possible_keys;
 
     NVStore &nvstore = NVStore::get_instance();
 
     TEST_SKIP_UNLESS_MESSAGE(!nvstore_overlaps_code, "Test skipped. NVStore region overlaps code.");
 
+    thr_test_data = 0;
+    rtos::Thread **threads = new (std::nothrow) rtos::Thread*[thr_test_num_threads];
+    if (!threads) {
+        goto mem_fail;
+    }
+    memset(threads, 0, thr_test_num_threads * sizeof(rtos::Thread*));
+
     ret = nvstore.reset();
     TEST_ASSERT_EQUAL(NVSTORE_SUCCESS, ret);
 
-    thr_test_data = new thread_test_data_t;
+    thr_test_data = new (std::nothrow) thread_test_data_t;
+    if (!thr_test_data) {
+        goto mem_fail;
+    }
+
+    memset(thr_test_data, 0, sizeof(thread_test_data_t));
     thr_test_data->max_keys = max_test_keys / 2;
-    uint16_t max_possible_keys = nvstore.get_max_possible_keys();
+    max_possible_keys = nvstore.get_max_possible_keys();
     TEST_SKIP_UNLESS_MESSAGE(thr_test_data->max_keys < max_possible_keys,
                              "Not enough possible keys for test. Test skipped.");
+    TEST_SKIP_UNLESS_MESSAGE(max_possible_keys >= max_possible_keys_threshold,
+                             "Max possible keys below threshold. Test skipped.");
 
     thr_test_data->stop_threads = false;
     for (key = 0; key < thr_test_data->max_keys; key++) {
         for (i = 0; i < thr_test_num_buffs; i++) {
             size = 1 + rand() % thr_test_max_data_size;
             thr_test_data->sizes[key][i] = size;
-            thr_test_data->buffs[key][i] = new uint8_t[size + 1];
+            thr_test_data->buffs[key][i] = new (std::nothrow) uint8_t[size + 1];
+            if (!thr_test_data->buffs[key][i]) {
+                goto mem_fail;
+            }
             gen_random(thr_test_data->buffs[key][i], size);
         }
         ret = nvstore.set(key, thr_test_data->sizes[key][0], thr_test_data->buffs[key][0]);
         TEST_ASSERT_EQUAL(NVSTORE_SUCCESS, ret);
     }
 
-    calc_thread_stack_size(num_threads, thr_test_min_stack_size, thr_test_max_stack_size, stack_size);
-    if (!num_threads) {
-        printf("Not enough heap space to run test. Test skipped\n");
-        goto end;
+    dummy = new (std::nothrow) char[thr_test_num_threads * thr_test_stack_size];
+    delete[] dummy;
+    if (!dummy) {
+        goto mem_fail;
     }
 
-    for (i = 0; i < num_threads; i++) {
-        threads[i] = new rtos::Thread((osPriority_t)((int)osPriorityBelowNormal - num_threads + i), stack_size);
+    for (i = 0; i < thr_test_num_threads; i++) {
+        threads[i] = new (std::nothrow) rtos::Thread((osPriority_t)((int)osPriorityBelowNormal - thr_test_num_threads + i),
+                                                     thr_test_stack_size);
+        if (!threads[i]) {
+            goto mem_fail;
+        }
         threads[i]->start(callback(thread_test_worker));
     }
 
@@ -529,12 +517,6 @@ static void nvstore_multi_thread_test()
     thr_test_data->stop_threads = true;
 
     wait_ms(1000);
-
-    for (i = 0; i < num_threads; i++) {
-        delete threads[i];
-    }
-
-    delete[] threads;
 
     ret = nvstore.deinit();
     TEST_ASSERT_EQUAL(NVSTORE_SUCCESS, ret);
@@ -545,15 +527,32 @@ static void nvstore_multi_thread_test()
     for (key = 0; key < thr_test_data->max_keys; key++) {
         thread_test_check_key(key);
     }
+    goto clean;
 
-end:
-    for (key = 0; key < thr_test_data->max_keys; key++) {
-        for (i = 0; i < thr_test_num_buffs; i++) {
-            delete[] thr_test_data->buffs[key][i];
+mem_fail:
+    printf("Not enough heap space to run test. Test skipped\n");
+
+clean:
+    if (thr_test_data) {
+        thr_test_data->stop_threads = true;
+        wait_ms(1000);
+
+        for (key = 0; key < thr_test_data->max_keys; key++) {
+            for (i = 0; i < thr_test_num_buffs; i++) {
+                delete[] thr_test_data->buffs[key][i];
+            }
         }
+
+        delete thr_test_data;
     }
 
-    delete thr_test_data;
+    if (threads) {
+        for (i = 0; i < thr_test_num_threads; i++) {
+            delete threads[i];
+        }
+
+        delete[] threads;
+    }
 
     nvstore.reset();
 
@@ -574,45 +573,68 @@ static void nvstore_race_test()
 {
 #ifdef MBED_CONF_RTOS_PRESENT
     int i;
-    uint32_t stack_size;
     uint16_t initial_buf_size;
     int ret;
+    int num_sets;
     rtos::Thread *threads[race_test_num_threads];
-    uint8_t *get_buff, *buffs[race_test_num_threads];
-    int num_threads = race_test_num_threads;
+    uint8_t *get_buff = 0, *buffs[race_test_num_threads];
     uint16_t actual_len_bytes;
+    uint16_t max_possible_keys;
+    char *dummy;
 
     TEST_SKIP_UNLESS_MESSAGE(!nvstore_overlaps_code, "Test skipped. NVStore region overlaps code.");
 
     NVStore &nvstore = NVStore::get_instance();
 
+    max_possible_keys = nvstore.get_max_possible_keys();
+    TEST_SKIP_UNLESS_MESSAGE(max_possible_keys >= max_possible_keys_threshold,
+                             "Max possible keys below threshold. Test skipped.");
+
     ret = nvstore.reset();
     TEST_ASSERT_EQUAL(NVSTORE_SUCCESS, ret);
 
+    memset(buffs, 0, sizeof(buffs));
+    memset(threads, 0, sizeof(threads));
+
     initial_buf_size = std::min((nvstore.size() - race_test_data_size) / 2, (size_t) race_test_data_size);
-    uint8_t *initial_buf = new uint8_t[initial_buf_size];
-    int num_sets = (nvstore.size() - race_test_data_size) / initial_buf_size;
+    uint8_t *initial_buf = new (std::nothrow) uint8_t[initial_buf_size];
+    if (!initial_buf) {
+        goto mem_fail;
+    }
+
+    num_sets = (nvstore.size() - race_test_data_size) / initial_buf_size;
     for (i = 0; i < num_sets; i++) {
         ret = nvstore.set(0, initial_buf_size, initial_buf);
         TEST_ASSERT_EQUAL(NVSTORE_SUCCESS, ret);
     }
     delete[] initial_buf;
 
-    get_buff = new uint8_t[race_test_data_size];
-
-    calc_thread_stack_size(num_threads, race_test_min_stack_size, race_test_max_stack_size, stack_size);
-    if (!num_threads) {
-        printf("Not enough heap space to run test. Test skipped\n");
-        goto end;
+    get_buff = new (std::nothrow) uint8_t[race_test_data_size];
+    if (!get_buff) {
+        goto mem_fail;
     }
 
-    for (i = 0; i < num_threads; i++) {
-        buffs[i] = new uint8_t[race_test_data_size];
+    for (i = 0; i < race_test_num_threads; i++) {
+        buffs[i] = new (std::nothrow) uint8_t[race_test_data_size];
+        if (!buffs[i]) {
+            goto mem_fail;
+        }
         gen_random(buffs[i], race_test_data_size);
     }
 
-    for (i = 0; i < num_threads; i++) {
-        threads[i] = new rtos::Thread((osPriority_t)((int)osPriorityBelowNormal - num_threads + i), stack_size);
+    for (i = 0; i < race_test_num_threads; i++) {
+        threads[i] = new (std::nothrow) rtos::Thread((osPriority_t)((int)osPriorityBelowNormal - race_test_num_threads + i),
+                                                     race_test_stack_size);
+        if (!threads[i]) {
+            goto mem_fail;
+        }
+
+        dummy = new (std::nothrow) char[race_test_stack_size];
+        if (!dummy) {
+            goto mem_fail;
+        }
+        delete[] dummy;
+
         threads[i]->start(callback(race_test_worker, (void *) buffs[i]));
         threads[i]->join();
     }
@@ -621,19 +643,23 @@ static void nvstore_race_test()
     TEST_ASSERT_EQUAL(NVSTORE_SUCCESS, ret);
     TEST_ASSERT_EQUAL(race_test_data_size, actual_len_bytes);
 
-    for (i = 0; i < num_threads; i++) {
+    for (i = 0; i < race_test_num_threads; i++) {
         if (!memcmp(buffs[i], get_buff, actual_len_bytes)) {
             break;
         }
     }
-    TEST_ASSERT_NOT_EQUAL(num_threads, i);
+    TEST_ASSERT_NOT_EQUAL(race_test_num_threads, i);
 
-    for (i = 0; i < num_threads; i++) {
+    goto clean;
+
+mem_fail:
+    printf("Not enough heap space to run test. Test skipped\n");
+
+clean:
+    for (i = 0; i < race_test_num_threads; i++) {
         delete threads[i];
         delete[] buffs[i];
     }
-
-end:
     delete[] get_buff;
 #endif
 }
