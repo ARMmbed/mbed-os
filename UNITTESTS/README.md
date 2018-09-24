@@ -162,9 +162,11 @@ Use Mbed CLI to build and run unit tests. For advanced use, you can run CMake an
 1. Move to the build directory `cd UNITTESTS/build`.
 1. Run CMake using a relative path to `UNITTESTS` folder as the argument. So from `UNITTESTS/build` use `cmake ..`:
    - Add `-g [generator]` if generating other than Unix Makefiles such in case of MinGW use `-g "MinGW Makefiles"`.
-   - Add `-DCOVERAGE:True` to add coverage compiler flags.
+   - Add `-DCMAKE_MAKE_PROGRAM=<value>`, `-DCMAKE_CXX_COMPILER=<value>` and `-DCMAKE_C_COMPILER=<value>` to use a specific make program and compilers.
+   - Add `-DCMAKE_BUILD_TYPE=Debug` to build a debug build.
+   - Add `-DCOVERAGE=True` to add coverage compiler flags.
    - See the [CMake manual](https://cmake.org/cmake/help/v3.0/manual/cmake.1.html) for more information.
-1. Run a make program (Make, Gmake, Mingw32-make and so on) to build the tests.
+1. Run a make program to build the tests.
 
 #### Run tests directly with CTest
 
@@ -177,9 +179,19 @@ Run a test binary in the build directory to run a unit test suite. To run multip
 1. Add test executables into the list.
 1. Run them.
 
+### Debugging
+
+1. Use Mbed CLI to build a debug build. For advanced use, run CMake directly with `-DCMAKE_BUILD_TYPE=Debug` and then run a make program.
+1. Run GDB with a test executable as an argument to debug unit tests.
+
 ### Get code coverage
 
-Use Mbed CLI to generate code coverage reports. For advanced use, you can run Gcovr or any other code coverage tool directly in the build directory.
+Use Mbed CLI to generate code coverage reports. For advanced use, follow these steps:
+
+1. Run CMake with both `-DCMAKE_BUILD_TYPE=Debug` and `-DCOVERAGE=True`.
+1. Run a make program to build the tests.
+1. Run the tests.
+1. Run Gcovr or any other code coverage tool directly in the build directory.
 
 ### Troubleshooting
 
