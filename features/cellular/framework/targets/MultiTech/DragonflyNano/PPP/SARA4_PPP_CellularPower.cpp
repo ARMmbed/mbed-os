@@ -33,13 +33,17 @@ SARA4_PPP_CellularPower::~SARA4_PPP_CellularPower()
 
 nsapi_error_t SARA4_PPP_CellularPower::on()
 {
+#if MODEM_ON_BOARD
     ::onboard_modem_init();
     ::onboard_modem_power_up();
+#endif
     return NSAPI_ERROR_OK;
 }
 
 nsapi_error_t SARA4_PPP_CellularPower::off()
 {
+#if MODEM_ON_BOARD
     ::onboard_modem_power_down();
+#endif
     return NSAPI_ERROR_OK;
 }
