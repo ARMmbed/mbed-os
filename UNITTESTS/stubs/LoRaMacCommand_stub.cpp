@@ -18,6 +18,12 @@
 #include "LoRaMacCommand.h"
 #include "LoRaMac.h"
 
+#include "LoRaMacCommand_stub.h"
+
+lorawan_status_t LoRaMacCommand_stub::status_value = LORAWAN_STATUS_OK;
+bool LoRaMacCommand_stub::bool_value = false;
+uint8_t LoRaMacCommand_stub::uint8_value = 0;
+int32_t LoRaMacCommand_stub::int32_value = 0;
 
 LoRaMacCommand::LoRaMacCommand()
 {
@@ -29,12 +35,12 @@ void LoRaMacCommand::clear_command_buffer()
 
 uint8_t LoRaMacCommand::get_mac_cmd_length() const
 {
-    return 0;
+    return LoRaMacCommand_stub::uint8_value;
 }
 
 uint8_t *LoRaMacCommand::get_mac_commands_buffer()
 {
-    return NULL;
+    return &LoRaMacCommand_stub::uint8_value;
 }
 
 void LoRaMacCommand::parse_mac_commands_to_repeat()
@@ -52,7 +58,7 @@ void LoRaMacCommand::copy_repeat_commands_to_buffer()
 
 uint8_t LoRaMacCommand::get_repeat_commands_length() const
 {
-    return 0;
+    return LoRaMacCommand_stub::uint8_value;
 }
 
 void LoRaMacCommand::clear_sticky_mac_cmd()
@@ -61,7 +67,7 @@ void LoRaMacCommand::clear_sticky_mac_cmd()
 
 bool LoRaMacCommand::has_sticky_mac_cmd() const
 {
-    return false;
+    return LoRaMacCommand_stub::bool_value;
 }
 
 lorawan_status_t LoRaMacCommand::process_mac_commands(const uint8_t *payload, uint8_t mac_index,
@@ -70,12 +76,12 @@ lorawan_status_t LoRaMacCommand::process_mac_commands(const uint8_t *payload, ui
                                                       lora_mac_system_params_t &mac_sys_params,
                                                       LoRaPHY &lora_phy)
 {
-    return LORAWAN_STATUS_OK;
+    return LoRaMacCommand_stub::status_value;
 }
 
 int32_t LoRaMacCommand::cmd_buffer_remaining() const
 {
-    return 0;
+    return LoRaMacCommand_stub::int32_value;
 }
 
 void LoRaMacCommand::set_batterylevel_callback(mbed::Callback<uint8_t(void)> battery_level)
@@ -84,45 +90,45 @@ void LoRaMacCommand::set_batterylevel_callback(mbed::Callback<uint8_t(void)> bat
 
 lorawan_status_t LoRaMacCommand::add_link_check_req()
 {
-    return LORAWAN_STATUS_OK;
+    return LoRaMacCommand_stub::status_value;
 }
 
 lorawan_status_t LoRaMacCommand::add_link_adr_ans(uint8_t status)
 {
-    return LORAWAN_STATUS_OK;
+    return LoRaMacCommand_stub::status_value;
 }
 
 lorawan_status_t LoRaMacCommand::add_duty_cycle_ans()
 {
-    return LORAWAN_STATUS_OK;
+    return LoRaMacCommand_stub::status_value;
 }
 
 lorawan_status_t LoRaMacCommand::add_rx_param_setup_ans(uint8_t status)
 {
-    return LORAWAN_STATUS_OK;
+    return LoRaMacCommand_stub::status_value;
 }
 
 lorawan_status_t LoRaMacCommand::add_dev_status_ans(uint8_t battery, uint8_t margin)
 {
-    return LORAWAN_STATUS_OK;
+    return LoRaMacCommand_stub::status_value;
 }
 
 lorawan_status_t LoRaMacCommand::add_new_channel_ans(uint8_t status)
 {
-    return LORAWAN_STATUS_OK;
+    return LoRaMacCommand_stub::status_value;
 }
 
 lorawan_status_t LoRaMacCommand::add_rx_timing_setup_ans()
 {
-    return LORAWAN_STATUS_OK;
+    return LoRaMacCommand_stub::status_value;
 }
 
 lorawan_status_t LoRaMacCommand::add_tx_param_setup_ans()
 {
-    return LORAWAN_STATUS_OK;
+    return LoRaMacCommand_stub::status_value;
 }
 
 lorawan_status_t LoRaMacCommand::add_dl_channel_ans(uint8_t status)
 {
-    return LORAWAN_STATUS_OK;
+    return LoRaMacCommand_stub::status_value;
 }
