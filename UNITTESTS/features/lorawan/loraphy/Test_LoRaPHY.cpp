@@ -536,6 +536,7 @@ TEST_F(Test_LoRaPHY, set_next_channel)
     uint8_t ch;
     lorawan_time_t t1;
     lorawan_time_t t2;
+    p.aggregate_timeoff = 10000;
     EXPECT_TRUE(LORAWAN_STATUS_DUTYCYCLE_RESTRICTED == object->set_next_channel(&p, &ch, &t1, &t2));
 
     uint16_t list[16];

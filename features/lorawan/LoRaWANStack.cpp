@@ -1064,8 +1064,8 @@ lorawan_status_t LoRaWANStack::state_controller(device_states_t new_state)
             break;
         default:
             //Because this is internal function only coding error causes this
+            tr_error("Unknown state: %d:", new_state);
             MBED_ASSERT(false);
-            break;
     }
 
     return status;
