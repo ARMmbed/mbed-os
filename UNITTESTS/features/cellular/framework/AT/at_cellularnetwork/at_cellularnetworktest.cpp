@@ -227,9 +227,8 @@ TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_activate_context)
     ATHandler_stub::resp_stop_success_count = 2;
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
     ATHandler_stub::bool_value = false;
-    EXPECT_TRUE(NSAPI_ERROR_OK == cn.set_credentials("apn", CellularNetwork::CHAP, "user", "passwd"));
-    EXPECT_TRUE(NSAPI_ERROR_AUTH_FAILURE == cn.activate_context());
-
+    EXPECT_TRUE(NSAPI_ERROR_OK == my_cn.set_credentials("apn", CellularNetwork::CHAP, "user", "passwd"));
+    EXPECT_TRUE(NSAPI_ERROR_AUTH_FAILURE == my_cn.activate_context());
 
     // get_context return true and new context created, also do_user_authentication called with success.
     // Now there is stack.
