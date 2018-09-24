@@ -419,6 +419,7 @@ TEST_F(Test_LoRaWANStack, handle_rx)
 
     loramac_mcps_indication_t ind;
     LoRaMac_stub::mcps_ind_ptr = &ind;
+    ind.status = LORAMAC_EVENT_INFO_STATUS_OK;
 
     loramac_mlme_confirm_t mlme;
     LoRaMac_stub::mlme_conf_ptr = &mlme;
@@ -442,6 +443,7 @@ TEST_F(Test_LoRaWANStack, handle_rx)
     ind.buffer = ind_buf;
     ind.buffer_size = 150;
     ind.type = MCPS_UNCONFIRMED;
+    ind.is_data_recvd = true;
     radio._ev->rx_done(NULL, 0, 0, 0);
 
     //data == NULL || LENGTH == 0 (2 cases)

@@ -31,7 +31,7 @@ set(unittest-includes ${unittest-includes}
 
 # Test & stub files
 set(unittest-test-sources
-  ../features/lorawan/loramacchannelplan/Test_LoRaMacChannelPlan.cpp
+  features/lorawan/loramacchannelplan/Test_LoRaMacChannelPlan.cpp
   stubs/LoRaPHY_stub.cpp
 )
 
