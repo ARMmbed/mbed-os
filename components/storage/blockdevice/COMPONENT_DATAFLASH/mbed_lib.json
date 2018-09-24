@@ -5,6 +5,7 @@
         "SPI_MISO": "NC",
         "SPI_CLK":  "NC",
         "SPI_CS":   "NC",
+        "SPI_FREQ": "40000000",
         "binary-size": {
             "help": "Configure device to use binary address space.",
             "value": "0"
