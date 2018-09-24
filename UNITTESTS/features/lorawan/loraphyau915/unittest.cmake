@@ -20,7 +20,7 @@ set(TEST_SUITE_NAME "lorawan_LoRaPHYAU915")
 
 # Source files
 set(unittest-sources
-  ../features/lorawan/lorastack/phy/LoRaPHYAU915.cpp
+ ../features/lorawan/lorastack/phy/LoRaPHYAU915.cpp
 )
 
 # Add test specific include paths
@@ -31,7 +31,7 @@ set(unittest-includes ${unittest-includes}
 
 # Test & stub files
 set(unittest-test-sources
-  ../features/lorawan/loraphyau915/Test_LoRaPHYAU915.cpp
+  features/lorawan/loraphyau915/Test_LoRaPHYAU915.cpp
   stubs/LoRaPHY_stub.cpp
   stubs/LoRaWANTimer_stub.cpp
   stubs/mbed_assert_stub.c

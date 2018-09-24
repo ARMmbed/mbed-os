@@ -31,7 +31,7 @@ set(unittest-includes ${unittest-includes}
 
 # Test & stub files
 set(unittest-test-sources
-  ../features/lorawan/lorawantimer/Test_LoRaWANTimer.cpp
+  features/lorawan/lorawantimer/Test_LoRaWANTimer.cpp
   stubs/EventQueue_stub.cpp
   stubs/mbed_assert_stub.c
   stubs/equeue_stub.c

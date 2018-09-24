@@ -33,7 +33,6 @@ SPDX-License-Identifier: BSD-3-Clause
  */
 static const uint8_t max_eirp_table[] = { 8, 10, 12, 13, 14, 16, 18, 20, 21, 24, 26, 27, 29, 30, 33, 36 };
 
-
 LoRaMacCommand::LoRaMacCommand()
 {
     sticky_mac_cmd = false;
@@ -93,7 +92,9 @@ void LoRaMacCommand::parse_mac_commands_to_repeat()
             case MOTE_MAC_LINK_CHECK_REQ: { // 0 byte payload
                 break;
             }
-            default: {}//Cannot happen
+            default: {
+                MBED_ASSERT(false);
+            }
         }
     }
 
