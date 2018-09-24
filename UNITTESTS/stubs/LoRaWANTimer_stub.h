@@ -20,4 +20,5 @@
 namespace LoRaWANTimer_stub
 {
 extern lorawan_time_t time_value;
+extern bool call_cb_immediately;
 }
