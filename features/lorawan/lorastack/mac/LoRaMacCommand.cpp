@@ -412,7 +412,6 @@ lorawan_status_t LoRaMacCommand::add_reset_ind(uint8_t version)
         mac_cmd_buffer[mac_cmd_buf_idx++] = MOTE_MAC_RESET_IND;
         mac_cmd_buffer[mac_cmd_buf_idx++] = version & 0x0F;
         ret = LORAWAN_STATUS_OK;
-        mac_cmd_in_next_tx = true;
     }
     return ret;
 }
@@ -424,7 +423,6 @@ lorawan_status_t LoRaMacCommand::add_rekey_ind(uint8_t version)
         mac_cmd_buffer[mac_cmd_buf_idx++] = MOTE_MAC_REKEY_IND;
         mac_cmd_buffer[mac_cmd_buf_idx++] = version & 0x0F;
         ret = LORAWAN_STATUS_OK;
-        mac_cmd_in_next_tx = true;
     }
     return ret;
 }
@@ -436,7 +434,6 @@ lorawan_status_t LoRaMacCommand::add_device_mode_indication(uint8_t classType)
         mac_cmd_buffer[mac_cmd_buf_idx++] = MOTE_DEVICE_MODE_IND;
         mac_cmd_buffer[mac_cmd_buf_idx++] = classType;
         ret = LORAWAN_STATUS_OK;
-        mac_cmd_in_next_tx = true;
     }
     return ret;
 }
@@ -447,7 +444,6 @@ lorawan_status_t LoRaMacCommand::add_device_time_req()
     if (cmd_buffer_remaining() > 0) {
         mac_cmd_buffer[mac_cmd_buf_idx++] = MOTE_MAC_DEVICE_TIME_REQ;
         ret = LORAWAN_STATUS_OK;
-        mac_cmd_in_next_tx = true;
     }
     return ret;
 }
