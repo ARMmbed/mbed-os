@@ -29,7 +29,7 @@ class RtcResetTest(BaseHostTest):
     """
 
     """Start of the RTC"""
-    START_TIME = 50000
+    START_TIME = 1537789823 # GMT: Monday, 24 September 2018 11:50:23
     START_TIME_TOLERANCE = 10
     """Time to delay after sending reset"""
     DELAY_TIME = 5.0
