@@ -2150,6 +2150,7 @@
                 "macro_name": "MODEM_ON_BOARD_UART"
             }
         },
+        "macros_add": ["TWO_RAM_REGIONS"],
         "detect_code": ["0312"],
         "device_has_add": ["ANALOGOUT", "CAN", "LOWPOWERTIMER", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
