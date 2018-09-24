@@ -360,7 +360,7 @@ static void print_security(const mlme_security_t *key)
         cmd_printf("Key.SecurityLevel:  %u\n", key->SecurityLevel);
         cmd_printf("Key.KeyIdMode:      %u\n", key->KeyIdMode);
         cmd_printf("Key.KeyIndex:       %hhu\n", key->KeyIndex);
-        cmd_printf("Key.Keysource       %s\n", mbed_trace_array(key->Keysource, 8));
+        cmd_printf("Key.Keysource       %s\n", trace_array(key->Keysource, 8));
     }
 }
 
@@ -368,7 +368,7 @@ static void print_PAN_descriptor(const mlme_pan_descriptor_t *desc)
 {
     cmd_printf("PANDescriptor.CoordAddrMode:    %u\n", desc->CoordAddrMode);
     cmd_printf("PANDescriptor.CoordPANId:       0x%04X\n", desc->CoordPANId);
-    cmd_printf("PANDescriptor.CoordAddress:     %s\n", mbed_trace_array(desc->CoordAddress, 8));
+    cmd_printf("PANDescriptor.CoordAddress:     %s\n", trace_array(desc->CoordAddress, 8));
     cmd_printf("PANDescriptor.LogicalChannel:   %hhu\n", desc->LogicalChannel);
     cmd_printf("PANDescriptor.ChannelPage:      %hhu\n", desc->ChannelPage);
     cmd_printf("PANDescriptor.SuperframeSpec:   %02x:%02x\n", desc->SuperframeSpec[0], desc->SuperframeSpec[1]);
@@ -420,7 +420,7 @@ static int handle_security_args(int argc, char *argv[], mlme_security_t *key)
 static void add_beacon(const uint8_t *beacon, uint8_t len)
 {
     if (received_beacons.count >= MLME_MAC_RES_SIZE_MAX) {
-        tr_warn("List of received beacons is full. Discarding %s <%.*s>", mbed_trace_array(beacon, len), len, beacon);
+        tr_warn("List of received beacons is full. Discarding %s <%.*s>", trace_array(beacon, len), len, beacon);
         return;
     }
     unsigned int cur_beacon = received_beacons.count;
@@ -487,17 +487,17 @@ void mac_data_indication_handler(const mac_api_t *api, const mcps_data_ind_t *da
     if (!silent_mode) {
         cmd_printf("SrcAddrMode:    %u\n", data->SrcAddrMode);
         cmd_printf("SrcPANId:       0x%04X\n", data->SrcPANId);
-        cmd_printf("SrcAddr:        %s\n", mbed_trace_array(data->SrcAddr, 8));
+        cmd_printf("SrcAddr:        %s\n", trace_array(data->SrcAddr, 8));
         cmd_printf("DstAddrMode:    %u\n", data->DstAddrMode);
         cmd_printf("DstPANId:       0x%04X\n", data->DstPANId);
-        cmd_printf("DstAddr:        %s\n", mbed_trace_array(data->DstAddr, 8));
+        cmd_printf("DstAddr:        %s\n", trace_array(data->DstAddr, 8));
         cmd_printf("mpduLinkQuality:%hhu\n", data->mpduLinkQuality);
         cmd_printf("signal_dbm:     %hhi\n", data->signal_dbm);
         cmd_printf("timestamp:      %lu\n", data->timestamp);
         cmd_printf("DSN:            %hhi\n", data->DSN);
         print_security(&data->Key);
         cmd_printf("msduLength      %hu\n", data->msduLength);
-        cmd_printf("msdu_ptr:       %s <%.*s>\n", mbed_trace_array(data->msdu_ptr, data->msduLength), data->msduLength, data->msdu_ptr);
+        cmd_printf("msdu_ptr:       %s <%.*s>\n", trace_array(data->msdu_ptr, data->msduLength), data->msduLength, data->msdu_ptr);
     }
     if (data->msdu_ptr && expected_statuses.data_ind) {
         if (data->msduLength != expected_statuses.data_ind_len) {
@@ -541,7 +541,7 @@ void mac_mlme_confirm_handler(const mac_api_t *api, mlme_primitive id, const voi
                 cmd_printf("status:         %hhu (%s)\n", get_data->status, mlme_status_string(get_data->status));
                 cmd_printf("attr:           %hhu\n", get_data->attr);
                 cmd_printf("attr_index:     %hhu\n", get_data->attr_index);
-                cmd_printf("value_pointer:  %s\n", mbed_trace_array((uint8_t*)get_data->value_pointer, get_data->value_size));
+                cmd_printf("value_pointer:  %s\n", trace_array((uint8_t*)get_data->value_pointer, get_data->value_size));
                 cmd_printf("value_size:     %hhu\n", get_data->value_size);
             }
             if (get_data->status == expected_statuses.get_conf) {
@@ -639,10 +639,10 @@ void mac_mlme_indication_handler(const mac_api_t *api, mlme_primitive id, const 
                 print_PAN_descriptor(&beacon_ind->PANDescriptor);
                 cmd_printf("PendAddrSpec.short_address_count    %u\n", beacon_ind->PendAddrSpec.short_address_count);
                 cmd_printf("PendAddrSpec.extended_address_count %u\n", beacon_ind->PendAddrSpec.extended_address_count);
-                cmd_printf("AddrList                            %s\n", mbed_trace_array(beacon_ind->AddrList, beacon_ind->PendAddrSpec.short_address_count * 2 +
+                cmd_printf("AddrList                            %s\n", trace_array(beacon_ind->AddrList, beacon_ind->PendAddrSpec.short_address_count * 2 +
                                                                                                               beacon_ind->PendAddrSpec.extended_address_count * 8));
                 cmd_printf("beacon_data_length                  %hu\n", beacon_ind->beacon_data_length);
-                cmd_printf("beacon_data                         %s\n", mbed_trace_array(beacon_ind->beacon_data, beacon_ind->beacon_data_length));
+                cmd_printf("beacon_data                         %s\n", trace_array(beacon_ind->beacon_data, beacon_ind->beacon_data_length));
             }
             add_beacon(beacon_ind->beacon_data, beacon_ind->beacon_data_length);
             break;
@@ -659,9 +659,9 @@ void mac_mlme_indication_handler(const mac_api_t *api, mlme_primitive id, const 
             if (!silent_mode) {
                 cmd_printf("PANId:          0x%04X\n", comm_status_ind_data->PANId);
                 cmd_printf("SrcAddrMode:    %u\n", comm_status_ind_data->SrcAddrMode);
-                cmd_printf("SrcAddr:        %s\n", mbed_trace_array(comm_status_ind_data->SrcAddr, 8));
+                cmd_printf("SrcAddr:        %s\n", trace_array(comm_status_ind_data->SrcAddr, 8));
                 cmd_printf("DstAddrMode:    %u\n", comm_status_ind_data->DstAddrMode);
-                cmd_printf("DstAddr:        %s\n", mbed_trace_array(comm_status_ind_data->DstAddr, 8));
+                cmd_printf("DstAddr:        %s\n", trace_array(comm_status_ind_data->DstAddr, 8));
                 cmd_printf("status:         %hhu (%s)\n", comm_status_ind_data->status, mlme_status_string(comm_status_ind_data->status));
                 print_security(&comm_status_ind_data->Key);
             }
@@ -1033,7 +1033,7 @@ int mac_address_command(int argc, char *argv[])
             return CMDLINE_RETCODE_INVALID_PARAMETERS;
         }
         mac_interface->mac64_set(mac_interface, ext_addr);
-        cmd_printf("64-bit MAC address set to: %s\n", mbed_trace_array(ext_addr, 8));
+        cmd_printf("64-bit MAC address set to: %s\n", trace_array(ext_addr, 8));
     } else if (cmd_parameter_val(argc, argv, "--16-bit", &str)) {
         uint32_t short_addr_32 = strtoul(str, NULL,  16);
         if (short_addr_32 <= 0xFFFF) {
@@ -1049,13 +1049,13 @@ int mac_address_command(int argc, char *argv[])
         }
     } else if (argc == 1) {
         if (mac_interface->mac64_get(mac_interface, MAC_EXTENDED_READ_ONLY, ext_addr) == 0) {
-            cmd_printf("EUI64: %s\n", mbed_trace_array(ext_addr, 8));
+            cmd_printf("EUI64: %s\n", trace_array(ext_addr, 8));
         } else {
             tr_warn("Failed to read EUI64");
             return CMDLINE_RETCODE_FAIL;
         }
         if (mac_interface->mac64_get(mac_interface, MAC_EXTENDED_DYNAMIC, ext_addr) == 0) {
-            cmd_printf("MAC64: %s\n", mbed_trace_array(ext_addr, 8));
+            cmd_printf("MAC64: %s\n", trace_array(ext_addr, 8));
         } else {
             tr_warn("Failed to read MAC64");
             return CMDLINE_RETCODE_FAIL;
@@ -1480,7 +1480,7 @@ int mac_config_status_command(int argc, char *argv[])
         cmd_printf("MLME-POLL.confirm:              %d (%s)\n", expected_statuses.poll_conf, mlme_status_string(expected_statuses.poll_conf));
         cmd_printf("MCPS.PURGE.confirm.             %d (%s)\n", expected_statuses.purge_conf, mlme_status_string(expected_statuses.purge_conf));
         cmd_printf("MLME-COMM-STATUS.indication:    %d (%s)\n", expected_statuses.comm_status_ind, mlme_status_string(expected_statuses.comm_status_ind));
-        cmd_printf("MCPS-DATA.indication:           %s <%.*s>\n", mbed_trace_array(expected_statuses.data_ind, expected_statuses.data_ind_len), expected_statuses.data_ind_len, expected_statuses.data_ind);
+        cmd_printf("MCPS-DATA.indication:           %s <%.*s>\n", trace_array(expected_statuses.data_ind, expected_statuses.data_ind_len), expected_statuses.data_ind_len, expected_statuses.data_ind);
     } else {
         return CMDLINE_RETCODE_INVALID_PARAMETERS;
     }
