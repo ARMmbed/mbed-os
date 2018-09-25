@@ -25,6 +25,8 @@
 #endif
 
 using namespace utest::v1;
+using events::EventQueue;
+using events::Event;
 
 // Assume that tolerance is 5% of measured time.
 #define DELTA(ms) (ms / 20)

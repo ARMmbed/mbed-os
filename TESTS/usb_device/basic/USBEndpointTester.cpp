@@ -167,7 +167,7 @@ USBEndpointTester::USBEndpointTester(USBPhy *phy, uint16_t vendor_id, uint16_t p
     }
     MBED_ASSERT(resolver.valid());
 
-    queue = mbed_highprio_event_queue();
+    queue = mbed::mbed_highprio_event_queue();
     configuration_desc(0);
     init();
     USBDevice::connect();

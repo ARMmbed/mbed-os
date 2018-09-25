@@ -26,7 +26,6 @@
 #include "unity.h"
 #include "utest.h"
 #include "nsapi_dns.h"
-#include "EventQueue.h"
 #include "dns_tests.h"
 
 using namespace utest::v1;

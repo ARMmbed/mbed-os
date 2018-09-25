@@ -24,6 +24,7 @@
 #include "nsapi_dns.h"
 
 using namespace utest::v1;
+using events::EventQueue;
 
 namespace {
 int result_ok;
@@ -34,7 +35,7 @@ int result_exp_timeout;
 const int EXTERNAL_THREAD_SIZE = 2048;
 const int EVENT_QUEUE_SIZE = 10;
 
-events::EventQueue *event_queue;
+EventQueue *event_queue;
 }
 
 static nsapi_error_t event_queue_call(int delay, mbed::Callback<void()> func)
