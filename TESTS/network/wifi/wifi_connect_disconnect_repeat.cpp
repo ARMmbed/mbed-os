@@ -30,6 +30,7 @@ void wifi_connect_disconnect_repeat(void)
     WiFiInterface *wifi = get_interface();
     nsapi_error_t error;
 
+    wifi->set_channel(MBED_CONF_APP_WIFI_CH_UNSECURE); 
     error = wifi->set_credentials(MBED_CONF_APP_WIFI_UNSECURE_SSID, NULL);
     TEST_ASSERT(error == NSAPI_ERROR_OK);
 

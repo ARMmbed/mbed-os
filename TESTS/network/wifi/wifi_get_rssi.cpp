@@ -29,6 +29,8 @@ void wifi_get_rssi(void)
 {
     WiFiInterface *wifi = get_interface();
 
+    wifi->set_channel(MBED_CONF_APP_WIFI_CH_UNSECURE);
+
     TEST_ASSERT_EQUAL_INT(NSAPI_ERROR_OK, wifi->set_credentials(MBED_CONF_APP_WIFI_UNSECURE_SSID, NULL));
 
     TEST_ASSERT_EQUAL_INT8(0, wifi->get_rssi());
