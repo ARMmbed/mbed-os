@@ -29,8 +29,8 @@
       "targets" : ["K64F", "NUCLEO_F429ZI"],
       "toolchains" : ["GCC_ARM", "ARM"],
       "exporters": [],
-      "compile" : false,
-      "export": false,
+      "compile" : true,
+      "export": true,
       "auto-update" : true
     },
     {
@@ -229,6 +229,83 @@
         "compile" : true,
         "export": true,
         "auto-update" : true
-    }    
+    },
+    {
+        "name": "mbed-os-example-filesystem",
+        "github":"https://github.com/ARMmbed/mbed-os-example-filesystem",
+        "mbed": [
+            "https://os.mbed.com/teams/mbed-os-examples/code/mbed-os-example-filesystem"
+        ],
+        "test-repo-source": "github",
+        "features" : [],
+        "targets" : ["K64F"],
+        "toolchains" : [],
+        "exporters": [],
+        "compile" : true,
+        "export": true,
+        "auto-update" : true
+    },
+    {
+        "name": "mbed-os-example-blockdevice",
+        "github":"https://github.com/armmbed/mbed-os-example-blockdevice",
+        "mbed": [],
+        "test-repo-source": "github",
+        "features" : [],
+        "targets" : ["K64F"],
+        "toolchains" : [],
+        "exporters": [],
+        "compile" : true,
+        "export": true,
+        "auto-update" : true
+    },
+    {
+        "name": "mbed-os-example-mesh-minimal",
+        "github":"https://github.com/ARMmbed/mbed-os-example-mesh-minimal",
+        "mbed": [
+            "https://os.mbed.com/teams/mbed-os-examples/code/mbed-os-example-mesh-minimal"
+        ],
+        "test-repo-source": "github",
+        "features" : [],
+        "targets" : ["DISCO_F469NI", "DISCO_F746NG", "K64F", "K66F",
+                     "NUCLEO_F429ZI", "NUCLEO_F439ZI", "NUCLEO_F746ZG",
+                     "NUCLEO_F756ZG", "NUCLEO_F767ZI",
+                     "NUMAKER_PFM_NUC472", "UBLOX_EVK_ODIN_W2"],
+        "toolchains" : [],
+        "exporters": [],
+        "compile" : true,
+        "export": true,
+        "auto-update" : true
+    },
+    {
+        "name": "mbed-os-example-bootloader",
+        "github":"https://github.com/ARMmbed/mbed-os-example-bootloader",
+        "mbed": [
+            "https://os.mbed.com/teams/mbed-os-examples/code/mbed-os-example-bootloader"
+        ],
+        "test-repo-source": "github",
+        "features" : [],
+        "targets" : ["K64F", "NUCLEO_F429ZI", "UBLOX_EVK_ODIN_W2"],
+        "toolchains" : [],
+        "exporters": [],
+        "compile" : true,
+        "export": true,
+        "auto-update" : true
+    },
+    {
+        "name": "mbed-os-example-nfc",
+        "github": "https://github.com/ARMmbed/mbed-os-example-nfc",
+        "mbed": [
+            "https://os.mbed.com/teams/mbed-os-examples/code/mbed-os-example-nfc-EEPROM/",
+            "https://os.mbed.com/teams/mbed-os-examples/code/mbed-os-example-nfc-SmartPoster/"
+        ],
+        "test-repo-source": "mbed",
+        "features" : [],
+        "targets" : [],
+        "toolchains" : [],
+        "exporters": [],
+        "compile" : true,
+        "export": true,
+        "auto-update" : true
+    }      
   ]
 }
