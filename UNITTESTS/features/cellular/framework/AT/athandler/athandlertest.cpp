@@ -460,7 +460,7 @@ TEST_F(TestATHandler, test_ATHandler_skip_param)
     fh1.short_value = POLLIN;
     at.resp_start();
     at.skip_param();
-    EXPECT_TRUE(at.get_last_error() == NSAPI_ERROR_DEVICE_ERROR);
+    EXPECT_TRUE(at.get_last_error() == NSAPI_ERROR_OK);
 
     char table1[] = "ss,sssssssssssss,sssssssssssOK\r\n\0";
     filehandle_stub_table = table1;
@@ -935,15 +935,88 @@ TEST_F(TestATHandler, test_ATHandler_resp_start)
     filehandle_stub_table_pos = 0;
     at.resp_start();
 
-    char table7[] = "ssssss\0";
+    char table7[] = "urc: info\r\nresponseOK\r\n\0";
+    at.flush();
+    at.clear_error();
     filehandle_stub_table = table7;
     filehandle_stub_table_pos = 0;
 
+    at.set_urc_handler("urc: ", NULL);
+    at.resp_start(); // recv_buff: "responseOK\r\n\0"
+    at.resp_stop();  // consumes to OKCRLF -> OK
+    EXPECT_TRUE(at.get_last_error() == NSAPI_ERROR_OK);
+
+    char table8[] = "urc: info\r\nresponse\0";
     at.flush();
     at.clear_error();
-    at.set_urc_handler("ss", NULL);
+    filehandle_stub_table = table8;
     filehandle_stub_table_pos = 0;
+
+    at.set_urc_handler("urc: ", NULL);
     at.resp_start();
+    at.resp_stop();
+    // No stop tag(OKCRLF) found
+    EXPECT_TRUE(at.get_last_error() == NSAPI_ERROR_DEVICE_ERROR);
+
+    char table9[] = "urc: prefix: infoOK\r\n\0";
+    at.flush();
+    at.clear_error();
+    filehandle_stub_table = table9;
+    filehandle_stub_table_pos = 0;
+
+    at.set_urc_handler("urc: ", NULL);
+    at.resp_start();
+    // Match URC consumes to CRLF -> nothing to read after that -> ERROR
+    EXPECT_TRUE(at.get_last_error() == NSAPI_ERROR_DEVICE_ERROR);
+
+    char table10[] = "urc: info\r\ngarbage\r\nprefix: info\r\nOK\r\n\0";
+    at.flush();
+    at.clear_error();
+    filehandle_stub_table = table10;
+    filehandle_stub_table_pos = 0;
+
+    at.set_urc_handler("urc: ", NULL);
+    at.resp_start("prefix"); // match URC -> consumes to first CRLF -> consumes the garbage because there is expected prefix and no match found -> then prefix match
+    at.resp_stop(); //ends the info scope -> consumes to CRLF -> ends the resp scope -> consumes to OKCRLF
+    EXPECT_TRUE(at.get_last_error() == NSAPI_ERROR_OK);
+
+    // No stop tag(OKCRLF) will be found because, after match URC consumed everything to CRLF, rest of buffer
+    // is consumed to next/last CRLF because there is expected prefix and no match found
+    // -> nothing to read after that -> ERROR
+    char table11[] = "urc: info\r\ngarbageprefix: infoOK\r\n\0";
+    at.flush();
+    at.clear_error();
+    filehandle_stub_table = table11;
+    filehandle_stub_table_pos = 0;
+
+    at.set_urc_handler("urc: ", NULL);
+    at.resp_start("prefix");
+    EXPECT_TRUE(at.get_last_error() == NSAPI_ERROR_DEVICE_ERROR);
+
+    // After URC match no prefix match -> try to read more -> no more to read
+    char table12[] = "urc: infoprefix: info\0";
+    at.flush();
+    at.clear_error();
+    filehandle_stub_table = table12;
+    filehandle_stub_table_pos = 0;
+
+    at.set_urc_handler("urc: ", NULL);
+    at.resp_start("prefix");
+    EXPECT_TRUE(at.get_last_error() == NSAPI_ERROR_DEVICE_ERROR);
+
+    // Will run into mem_str check of identical strings
+    char table13[] = "\r\n\r\n\0";
+    at.flush();
+    at.clear_error();
+    filehandle_stub_table = table13;
+    filehandle_stub_table_pos = 0;
+
+    char buf[3];
+    at.resp_start();
+    EXPECT_TRUE(2 == at.read_string(buf, 3));
+    EXPECT_TRUE(!strncmp(buf, "\r\n", 2));
+    // Consume to delimiter or stop_tag OKCRLF fails -> ERROR
+    EXPECT_TRUE(at.get_last_error() == NSAPI_ERROR_DEVICE_ERROR);
 }
 
 TEST_F(TestATHandler, test_ATHandler_resp_stop)

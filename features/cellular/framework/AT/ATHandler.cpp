@@ -820,6 +820,8 @@ void ATHandler::resp(const char *prefix, bool check_urc)
 
         if (check_urc && match_urc()) {
             _urc_matched = true;
+            clear_error();
+            continue;
         }
 
         // If no match found, look for CRLF and consume everything up to and including CRLF
