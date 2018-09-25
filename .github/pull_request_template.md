@@ -20,5 +20,6 @@
     [ ] Refactor
     [ ] Target update
     [ ] Functionality change
+    [ ] Docs update
     [ ] Breaking change
 
