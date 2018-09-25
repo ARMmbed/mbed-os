@@ -200,6 +200,10 @@
   * @brief Include module's header file
   */
 
+#ifdef HAL_DMA_MODULE_ENABLED
+  #include "stm32wbxx_hal_dma.h"
+#endif /* HAL_DMA_MODULE_ENABLED */
+
 #ifdef HAL_ADC_MODULE_ENABLED
   #include "stm32wbxx_hal_adc.h"
 #endif /* HAL_ADC_MODULE_ENABLED */
@@ -219,10 +223,6 @@
 #ifdef HAL_CRYP_MODULE_ENABLED
   #include "stm32wbxx_hal_cryp.h"
 #endif /* HAL_CRYP_MODULE_ENABLED */
-
-#ifdef HAL_DMA_MODULE_ENABLED
-  #include "stm32wbxx_hal_dma.h"
-#endif /* HAL_DMA_MODULE_ENABLED */
 
 #ifdef HAL_EXTI_MODULE_ENABLED
   #include "stm32wbxx_hal_exti.h"

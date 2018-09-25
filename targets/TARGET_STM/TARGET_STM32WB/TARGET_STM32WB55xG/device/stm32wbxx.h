@@ -62,7 +62,7 @@
    In this case, these drivers will not be included and the application code will
    be based on direct access to peripherals registers
    */
-  /*#define USE_HAL_DRIVER */
+  #define USE_HAL_DRIVER
 #endif /* USE_HAL_DRIVER */
 
 /**
@@ -84,7 +84,7 @@
 /** @addtogroup Device_Included
   * @{
   */
-
+#define STM32WB55xx // Added for MBED
 #if defined(STM32WB55xx)
   #include "stm32wb55xx.h"
 #else
