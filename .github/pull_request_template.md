@@ -21,5 +21,6 @@
     [ ] Target update
     [ ] Functionality change
     [ ] Docs update
+    [ ] Test update
     [ ] Breaking change
 
