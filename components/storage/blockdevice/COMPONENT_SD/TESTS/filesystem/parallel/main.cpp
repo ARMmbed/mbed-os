@@ -97,7 +97,7 @@ void test_file_tests()
     TEST_ASSERT_EQUAL(0, res);
 }
 
-void write_file_data (char count)
+void write_file_data(char count)
 {
 
     char filename[10];
@@ -125,7 +125,7 @@ void write_file_data (char count)
     TEST_ASSERT_EQUAL(0, res);
 }
 
-void read_file_data (char count)
+void read_file_data(char count)
 {
     char filename[10];
     uint8_t rbuffer[MBED_TEST_BUFFER];
