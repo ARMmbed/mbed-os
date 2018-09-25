@@ -37,4 +37,6 @@
 /*  WORKAROUND waiting for mbed-os issue 4408 to be addressed */
 #include "stm32wbxx_ll_usart.h"
 
+#include "stm32wbxx_ll_rtc.h"
+
 #endif

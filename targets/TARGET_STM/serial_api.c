@@ -568,12 +568,12 @@ HAL_StatusTypeDef init_uart(serial_t *obj)
 #if defined(LPUART1_BASE)
     if (huart->Instance == LPUART1) {
         if (obj_s->baudrate <= 9600) {
-#if ((MBED_CONF_TARGET_LPUART_CLOCK_SOURCE) & USE_LPUART_CLK_LSE) && !TARGET_STM32H7
+#if ((MBED_CONF_TARGET_LPUART_CLOCK_SOURCE) & USE_LPUART_CLK_LSE) && !TARGET_STM32H7 && !TARGET_STM32WB
             HAL_UARTEx_EnableClockStopMode(huart);
 #endif
             HAL_UARTEx_EnableStopMode(huart);
         } else {
-#if !TARGET_STM32H7
+#if (!defined(TARGET_STM32H7) && !defined(TARGET_STM32WB))
             HAL_UARTEx_DisableClockStopMode(huart);
 #endif
             HAL_UARTEx_DisableStopMode(huart);

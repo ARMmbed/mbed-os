@@ -37,6 +37,8 @@ void trng_init(trng_t *obj)
         error("Only 1 RNG instance supported\r\n");
     }
 
+#if !defined(TARGET_STM32WB)
+/*  Because M0 core of WB also needs RG RNG is already clocked by default */
 #if defined(RCC_PERIPHCLK_RNG)
     RCC_PeriphCLKInitTypeDef PeriphClkInitStruct;
 
@@ -51,6 +53,7 @@ void trng_init(trng_t *obj)
         error("RNG clock configuration error\n");
     }
 #endif
+#endif //!defined(TARGET_STM32WB)
 
     /* RNG Peripheral clock enable */
     __HAL_RCC_RNG_CLK_ENABLE();

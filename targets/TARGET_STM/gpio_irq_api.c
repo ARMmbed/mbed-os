@@ -194,7 +194,9 @@ int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler, uint32
     }
 
     /* Enable SYSCFG Clock */
+#if !defined(TARGET_STM32WB)
     __HAL_RCC_SYSCFG_CLK_ENABLE();
+#endif
 
     uint32_t port_index  = STM_PORT(pin);
     uint32_t pin_index  = STM_PIN(pin);
