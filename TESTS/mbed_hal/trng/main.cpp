@@ -111,8 +111,8 @@ static void compress_and_compare(char *key, char *value)
 
     out_comp_buf = new uint8_t[OUT_COMP_BUF_SIZE];
     buffer = new uint8_t[BUFFER_LEN];
-    input_buf = new uint8_t[BUFFER_LEN * 4];
     temp_buf = new uint8_t[BUFFER_LEN * 2];
+    input_buf = new uint8_t[BUFFER_LEN * 4];
 
     /*At the begining of step 2 load trng buffer from step 1*/
     if (strcmp(key, MSG_TRNG_TEST_STEP2) == 0) {
@@ -149,7 +149,7 @@ static void compress_and_compare(char *key, char *value)
         TEST_ASSERT_MESSAGE(comp_sz > BUFFER_LEN,
                         "TRNG_TEST_STEP1: trng_get_bytes was able to compress thus not random");
 
-        /*pithy_Compress will try to compress the random data with a different buffer sizem*/
+        /*pithy_Compress will try to compress the random data with a different buffer size*/
         result = fill_buffer_trng(temp_buf, &trng_obj, TEMP_BUF_SIZE);
         TEST_ASSERT_EQUAL(0, result);
 
@@ -158,7 +158,7 @@ static void compress_and_compare(char *key, char *value)
                                  (char *)out_comp_buf,
                                  OUT_COMP_BUF_SIZE,
                                  9);
-        if (comp_sz <= BUFFER_LEN){
+        if (comp_sz <= TEMP_BUF_SIZE){
            print_array(temp_buf, TEMP_BUF_SIZE);
         }
         TEST_ASSERT_MESSAGE(comp_sz > TEMP_BUF_SIZE,
