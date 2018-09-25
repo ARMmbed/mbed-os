@@ -189,7 +189,7 @@ class Resources(object):
             for file_type in self.ALL_FILE_TYPES:
                 v = [f._replace(name=f.name.replace(sep, self._sep)) for
                      f in self.get_file_refs(file_type)]
-                self._file_refs[file_type] = v
+                self._file_refs[file_type] = set(v)
 
     def __str__(self):
         s = []
