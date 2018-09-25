@@ -74,8 +74,13 @@ class CMake(Exporter):
         # sort includes reverse, so the deepest dir comes first (ensures short includes)
         includes = sorted([re.sub(r'^[.]/', '', l) for l in self.resources.inc_dirs], reverse=True)
 
+        if self.project_name.endswith(".elf"):
+            bin_name = self.project_name
+        else:
+            bin_name = self.project_name + ".elf"
+
         ctx = {
-            'name': self.project_name,
+            'name': bin_name,
             'target': self.target,
             'sources': sorted(srcs),
             'libraries': libraries,
