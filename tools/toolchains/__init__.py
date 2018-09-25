@@ -620,8 +620,11 @@ class mbedToolchain:
         objects = sorted(set(r.get_file_paths(FileType.OBJECT)))
         config_file = ([self.config.app_config_location]
                        if self.config.app_config_location else [])
-        linker_script = [path for _, path in r.get_file_refs(FileType.LD_SCRIPT)
-                         if path.endswith(self.LINKER_EXT)][-1]
+        try:
+            linker_script = [path for _, path in r.get_file_refs(FileType.LD_SCRIPT)
+                             if path.endswith(self.LINKER_EXT)][-1]
+        except IndexError:
+            raise NotSupportedException("No linker script found")
         lib_dirs = r.get_file_paths(FileType.LIB_DIR)
         libraries = [l for l in r.get_file_paths(FileType.LIB)
                      if l.endswith(self.LIBRARY_EXT)]
