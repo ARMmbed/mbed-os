@@ -57,16 +57,16 @@ extern "C" {
 
 /* kv data for test */
 typedef struct fsfat_kv_data_t {
-    const char* filename;
-    const char* value;
+    const char *filename;
+    const char *value;
 } fsfat_kv_data_t;
 
 
 extern const uint8_t fsfat_test_byte_data_table[FSFAT_TEST_BYTE_DATA_TABLE_SIZE];
 
-int32_t fsfat_test_create(const char* filename, const char* data, size_t len);
-int32_t fsfat_test_delete(const char* key_name);
-int32_t fsfat_test_filename_gen(char* name, const size_t len);
+int32_t fsfat_test_create(const char *filename, const char *data, size_t len);
+int32_t fsfat_test_delete(const char *key_name);
+int32_t fsfat_test_filename_gen(char *name, const size_t len);
 #ifdef __cplusplus
 }
 #endif
