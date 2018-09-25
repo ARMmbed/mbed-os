@@ -27,7 +27,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
-#include <stddef.h>
+#include <stdbool.h>
 #include "cmsis.h"
 #include "gpio_irq_api.h"
 #include "pinmap.h"
@@ -268,11 +268,11 @@ void gpio_irq_free(gpio_irq_t *obj)
     uint32_t gpio_idx = pin_lines_desc[STM_PIN(obj->pin)].gpio_idx;
     gpio_channel_t *gpio_channel = &channels[obj->irq_index];
 
-    gpio_irq_disable(obj);
     gpio_channel->pin_mask &= ~(1 << gpio_idx);
     gpio_channel->channel_ids[gpio_idx] = 0;
     gpio_channel->channel_gpio[gpio_idx] = 0;
     gpio_channel->channel_pin[gpio_idx] = 0;
+    gpio_irq_disable(obj);
 }
 
 void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
@@ -325,10 +325,20 @@ void gpio_irq_enable(gpio_irq_t *obj)
 
 void gpio_irq_disable(gpio_irq_t *obj)
 {
+    const uint32_t pin_index = STM_PIN(obj->pin);
+    const uint32_t gpio_idx = pin_lines_desc[pin_index].gpio_idx;
+    const uint32_t pin_mask = 1 << gpio_idx;
+    const uint32_t irq_index = pin_lines_desc[pin_index].irq_index;
+    const gpio_channel_t *const gpio_channel = &channels[irq_index];
+
     /* Clear EXTI line configuration */
-    LL_EXTI_DisableRisingTrig_0_31(1 << STM_PIN(obj->pin));
-    LL_EXTI_DisableFallingTrig_0_31(1 << STM_PIN(obj->pin));
-    LL_EXTI_DisableIT_0_31(1 << STM_PIN(obj->pin));
-    NVIC_DisableIRQ(obj->irq_n);
-    NVIC_ClearPendingIRQ(obj->irq_n);
+    LL_EXTI_DisableRisingTrig_0_31(1 << pin_index);
+    LL_EXTI_DisableFallingTrig_0_31(1 << pin_index);
+    LL_EXTI_DisableIT_0_31(1 << pin_index);
+
+    const bool no_more_pins_on_vector = (gpio_channel->pin_mask & ~pin_mask) == 0;
+    if (no_more_pins_on_vector) {
+        NVIC_DisableIRQ(obj->irq_n);
+        NVIC_ClearPendingIRQ(obj->irq_n);
+    }
 }
