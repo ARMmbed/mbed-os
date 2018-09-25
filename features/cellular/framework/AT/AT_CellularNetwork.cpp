@@ -316,9 +316,10 @@ nsapi_error_t AT_CellularNetwork::activate_context()
 
     if (!_is_context_active) {
         // authenticate before activating or modifying context
-        if (do_user_authentication() != NSAPI_ERROR_OK) {
+        nsapi_error_t err = do_user_authentication();
+        if (err != NSAPI_ERROR_OK) {
             tr_error("Cellular authentication failed!");
-            return _at.unlock_return_error();
+            return err;
         }
 
         tr_info("Activate PDP context %d", _cid);

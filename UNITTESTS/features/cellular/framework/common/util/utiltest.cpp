@@ -126,14 +126,14 @@ TEST_F(Testutil, separate_ip_addresses)
     char ip[64] = {0};
     char subnet[64] = {0};
 
-    strncpy(s, "32.1.20.187.1.112.139.245.251.136.232.110.123.51.230.138.0.1.2.3.4.5.6.7.8.9.10.11.12.13.14.15", 94);
+    strncpy(s, "32.1.20.187.1.112.139.245.251.136.232.110.123.51.230.138.0.1.2.3.4.5.6.7.8.9.10.11.12.13.14.15\0", 95);
     separate_ip_addresses(NULL, ip, sizeof(ip), subnet, sizeof(subnet));
 
     separate_ip_addresses(s, ip, sizeof(ip), subnet, sizeof(subnet));
     EXPECT_STREQ("2001:14BB:170:8BF5:FB88:E86E:7B33:E68A", ip);
     EXPECT_STREQ("001:203:405:607:809:A0B:C0D:E0F", subnet);
 
-    strncpy(s, "32:1:20:187:1:112:139:245:251:136:232:110:123:51:230:138 0:1:2:3:4:5:6:7:8:9:10:11:12:13:14:15", 94);
+    strncpy(s, "32:1:20:187:1:112:139:245:251:136:232:110:123:51:230:138 0:1:2:3:4:5:6:7:8:9:10:11:12:13:14:15\0", 95);
     separate_ip_addresses(s, ip, sizeof(ip), subnet, sizeof(subnet));
     EXPECT_STREQ("32:1:20:187:1:112:139:245:251:136:232:110:123:51:230:138", ip);
     EXPECT_STREQ("0:1:2:3:4:5:6:7:8:9:10:11:12:13:14:15", subnet);

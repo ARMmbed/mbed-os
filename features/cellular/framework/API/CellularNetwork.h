@@ -150,6 +150,9 @@ public:
             op_status = Unknown;
             op_rat = RAT_UNKNOWN;
             next = NULL;
+            op_long[0] = NULL;
+            op_short[0] = NULL;
+            op_num[0] = NULL;
         }
     };
 
