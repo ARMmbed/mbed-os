@@ -346,8 +346,8 @@ typedef enum {
     QSPI_FLASH1_IO1 = PB_0,
     QSPI_FLASH1_IO2 = PA_7,
     QSPI_FLASH1_IO3 = PA_6,
-    QSPI_FLASH1_SCK = PB_11,
-    QSPI_FLASH1_CSN = PA_3,
+    QSPI_FLASH1_SCK = PA_3,
+    QSPI_FLASH1_CSN = PB_11,
 
     // Not connected
     NC = (int)0xFFFFFFFF
