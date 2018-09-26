@@ -300,7 +300,7 @@
         ],
         "test-repo-source": "mbed",
         "features" : [],
-        "targets" : [],
+        "targets" : ["NUCLEO_F401RE", "DISCO_L475VG_IOT01A"],
         "toolchains" : [],
         "exporters": [],
         "compile" : true,
