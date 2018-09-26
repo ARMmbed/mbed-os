@@ -1,14 +1,96 @@
-README for mbed TLS
+README for Mbed TLS
 ===================
 
-mbed TLS for mbed OS
+Mbed TLS for Mbed OS
 --------------------
 
-This edition of mbed TLS has been adapted for mbed OS and imported from its standalone release, which you can find on [github here](https://github.com/ARMmbed/mbedtls). This edition of mbed TLS does not include test code, sample applications, or the scripts used in the development of the library. All of these can be found in the standalone release.
+This edition of Mbed TLS has been adapted for Mbed OS and imported from its standalone release, which you can find on [github here](https://github.com/ARMmbed/mbedtls). This edition of Mbed TLS does not include the test code or the scripts used in the development of the library. All of these can be found in the standalone release.
 
 
-Getting Help and Support
-------------------------
+Getting Started
+---------------
+
+Several example programs are available that demonstrate the use of Mbed TLS with
+Mbed OS. These are a great way of getting to know the library.
+
+1. [**TLS Client:**](https://github.com/ARMmbed/mbed-os-example-tls/tree/master/tls-client) TLS Client demonstrates the use of Mbed TLS to establish a client TLS connection to a remote server.
+
+2. [**Benchmark:**](https://github.com/ARMmbed/mbed-os-example-tls/tree/master/benchmark) Benchmark measures the time taken to perform basic cryptographic functions used in the library.
+
+3. [**Hashing:**](https://github.com/ARMmbed/mbed-os-example-tls/tree/master/hashing) Hashing demonstrates the various APIs for computing hashes of data (also known as message digests) with SHA-256.
+
+4. [**Authenticated encryption:**](https://github.com/ARMmbed/mbed-os-example-tls/tree/master/authcrypt) Authcrypt demonstrates usage of the Cipher API for encrypting and authenticating data with AES-CCM.
+
+
+These examples are fully integrated into Mbed OS. Each of them comes with complete usage instructions as a `README.md` file in the directory of each example.
+
+
+Configuring Mbed TLS features
+-----------------------------
+
+Mbed TLS makes it easy to disable any feature during compilation, if that feature isn't required for a particular project. The default configuration enables all modern and widely-used features of the TLS protocol, which should meet the needs of most projects. It also disables all older and less common features, to minimize the code footprint.
+
+The list of available compilation flags is available in the fully documented [config.h file](https://github.com/ARMmbed/mbedtls/blob/development/include/mbedtls/config.h).
+
+If you need to adjust those flags, you can provide your own supplementary configuration-adjustment file with suitable `#define` and `#undef` statements. These will be included between the default definitions and the sanity checks. Your configuration file should be in your application's include directory, and can be named freely; you just need to let mbed TLS know the file's name. To do that, you can use the [Mbed OS Configuration
+system](https://docs.mbed.com/docs/mbed-os-api/en/latest/api/md_docs_config_system.html)
+
+For example, if you wanted to enable the options, `MBEDTLS_PEM_WRITE_C` and `MBEDTLS_CMAC_C`, and provide your own additional configuration file for Mbed TLS named `my_config.h`, you could define these in a top level `mbed_app.json` configuration file in the root directory of your project.
+
+The Mbed TLS configuration file would be specified in the `.json` file as follows.
+
+```
+{
+    "macros" : [
+
+        "MBEDTLS_USER_CONFIG_FILE" : "my_config.h",
+
+        "MBEDTLS_PEM_WRITE_C",
+        "MBEDTLS_CMAC_C"
+    ]
+    ....remainder of file...
+}
+```
+
+The additional configuration file, `my_config.h`, can then be used as a normal configuration header file to include additional configurations. For example, it could include the follow lines to include ECJPAKE, and the CBC block mode:
+
+```
+    #define MBEDTLS_ECJPAKE_C
+    #define MBEDTLS_KEY_EXCHANGE_ECJPAKE_ENABLED
+
+    #undef MBEDTLS_CIPHER_MODE_CBC
+```
+
+## Getting Mbed TLS from GitHub
+
+Mbed TLS is maintained and developed in the open, independently of Mbed OS, and its source can be found on GitHub here: [ARMmbed/mbedtls](https://github.com/ARMmbed/mbedtls). As a consequence, unlike other parts of mbed OS, changes to Mbed TLS must be committed upstream in the Mbed TLS repository.
+
+To import into an instance of Mbed OS a different version of Mbed TLS, a `Makefile` script is provided to update the local git repository, extract a specific version, and to modify the configuration files to those used for the Mbed OS defaults.
+
+To use the `Makefile`, you can either set `MBED_TLS_RELEASE` environment variable to the git tag or commit id of the Mbed TLS Release or version you want to use, or alternatively you can modify the `Makefile` itself.
+
+You should then run the following commands in the `importer` directory in the Mbed TLS directory:
+
+```
+    make update
+    make
+```
+
+`make update` will pull the specified version of Mbed TLS into the local `importer/TARGET_IGNORE` directory and `make` will transform it into the `src` directory, modifying its configuration file as necessary.
+
+Once these steps are complete, you can make your Mbed OS build normally with the new version of Mbed TLS.
+
+## Differences between the standalone and mbed OS editions
+
+While the two editions share the same code base, there are still a number of differences, mainly in configuration and integration. You should keep in mind those differences when reading some articles in our [knowledge base](https://tls.mbed.org/kb), as currently all the articles are about the standalone edition.
+
+* The Mbed OS edition has a smaller set of features enabled by default in `config.h`, in order to reduce footprint. While the default configuration of the standalone edition puts more emphasize on maintaining interoperability with old peers, the mbed OS edition only enables the most modern ciphers and the latest version of (D)TLS.
+
+* The following components of mbed TLS are disabled in the mbed OS edition: `net_sockets.c` and `timing.c`. This is because Mbed OS includes its own equivalents.
+
+
+Help and Support
+----------------
 
 The [mbed TLS website](https://tls.mbed.org/) contains full documentation for the library, including function by function descriptions, knowledgebase articles, blogs and a support forum for questions to the community.
 
