@@ -1,4 +1,4 @@
-## Running Icetea tests located under mbed-os
+## Running Icetea tests located under `mbed-os`
 
 ### Structure
 
