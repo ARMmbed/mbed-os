@@ -29,9 +29,11 @@ DEFAULT_CMAKE_GENERATORS = {
     "ninja": "Ninja"
 }
 
-COVERAGE_TYPES = ["html",
+COVERAGE_ARGS = ["html",
                   "xml",
                   "both"]
+
+COVERAGE_OUTPUT_TYPES = ["html", "xml"]
 
 CXX_COMPILERS = ["g++-6", "g++-8", "g++-7", "g++-5", "g++-4.9", "g++"]
 
