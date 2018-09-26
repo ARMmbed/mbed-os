@@ -461,7 +461,7 @@ bd_size_t SPIFBlockDevice::get_erase_size(bd_addr_t addr)
 bd_size_t SPIFBlockDevice::size() const
 {
     if (!_is_initialized) {
-        return SPIF_BD_ERROR_DEVICE_ERROR;
+        return 0;
     }
 
     return _device_size_bytes;
