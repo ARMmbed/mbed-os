@@ -3,6 +3,9 @@
 # UNIT TESTS
 ####################
 
+# Unit test suite name
+set(TEST_SUITE_NAME "features_netsocket_NetworkStack")
+
 # Source files
 set(unittest-sources
   ../features/netsocket/SocketAddress.cpp
@@ -21,5 +24,5 @@ set(unittest-test-sources
   stubs/mbed_shared_queues_stub.cpp
   stubs/nsapi_dns_stub.cpp
   stubs/EventFlags_stub.cpp
-  features/netsocket/NetworkInterface/test_NetworkInterface.cpp
+  features/netsocket/NetworkStack/test_NetworkStack.cpp
 )
