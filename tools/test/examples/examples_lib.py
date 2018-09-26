@@ -203,7 +203,7 @@ def deploy_repos(config, examples):
     print("\nDeploying example repos....\n")
     for example in config['examples']:
         for repo_info in get_repo_list(example):
-            name = basename(repo_info['repo'])
+            name = basename(repo_info['repo'].strip('/'))
             if name in examples:
                 if os.path.exists(name):
                     os.chdir(name)
