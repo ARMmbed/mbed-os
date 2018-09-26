@@ -140,6 +140,11 @@ void sleep_usticker_test()
 
     const ticker_irq_handler_type us_ticker_irq_handler_org = set_us_ticker_irq_handler(us_ticker_isr);
 
+    /* Give some time Green Tea to finish UART transmission before entering
+     * sleep mode.
+     */
+    busy_wait_ms(SERIAL_FLUSH_TIME_MS);
+
     /* Test only sleep functionality. */
     sleep_manager_lock_deep_sleep();
     TEST_ASSERT_FALSE_MESSAGE(sleep_manager_can_deep_sleep(), "deep sleep should be locked");
