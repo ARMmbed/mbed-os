@@ -52,7 +52,7 @@ static void wait_loop(uint32_t timeout)
 
 
 // On L4 platforms we've seen unstable PLL CLK configuraiton
-// when DEEP SLEEP exits just few µs after being entered
+// when DEEP SLEEP exits just few Âµs after being entered
 // So we need to force MSI usage before setting clocks again
 static void ForcePeriphOutofDeepSleep(void)
 {
@@ -162,19 +162,10 @@ void hal_sleep(void)
     // [5.4.1 Power control register 1 (PWR_CR1)]
     // 	LPR: When this bit is set, the regulator is switched from main mode (MR) to low-power mode (LPR).
     int lowPowerMode = PWR->CR1 & PWR_CR1_LPR;
-
-    // LPR -> Run
     if (lowPowerMode) {
-        HAL_PWREx_DisableLowPowerRunMode();
-    }
-
-    // Entering Sleep mode [5.3.4 Sleep mode]
-    CLEAR_BIT(SCB->SCR, ((uint32_t)SCB_SCR_SLEEPDEEP_Msk)); // SLEEPDEEP = 0
-    __WFI();
-
-    // Run -> LPR
-    if (lowPowerMode) {
-        HAL_PWREx_EnableLowPowerRunMode();
+        HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
+    } else {
+        HAL_PWR_EnterSLEEPMode(PWR_LOWPOWERREGULATOR_ON, PWR_SLEEPENTRY_WFI);
     }
 #else
     HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
