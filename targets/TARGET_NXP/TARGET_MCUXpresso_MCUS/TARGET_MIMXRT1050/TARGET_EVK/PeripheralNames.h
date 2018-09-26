@@ -52,14 +52,38 @@ typedef enum {
 #define PWM_SHIFT          8
 
 typedef enum {
-    PWM_1  = (0 << PWM_SHIFT) | (0 << PWM_MODULE_SHIFT) | (0),  // PWM1 Submodule 0 PWMA
-    PWM_2  = (0 << PWM_SHIFT) | (0 << PWM_MODULE_SHIFT) | (1),  // PWM1 Submodule 0 PWMB
-    PWM_3  = (0 << PWM_SHIFT) | (1 << PWM_MODULE_SHIFT) | (0),  // PWM1 Submodule 1 PWMA
-    PWM_4  = (0 << PWM_SHIFT) | (1 << PWM_MODULE_SHIFT) | (1),  // PWM1 Submodule 1 PWMB
-    PWM_5  = (0 << PWM_SHIFT) | (2 << PWM_MODULE_SHIFT) | (0),  // PWM1 Submodule 2 PWMA
-    PWM_6  = (0 << PWM_SHIFT) | (2 << PWM_MODULE_SHIFT) | (1),  // PWM1 Submodule 2 PWMB
-    PWM_7  = (0 << PWM_SHIFT) | (3 << PWM_MODULE_SHIFT) | (0),  // PWM1 Submodule 3 PWMA
-    PWM_8  = (0 << PWM_SHIFT) | (3 << PWM_MODULE_SHIFT) | (1),  // PWM1 Submodule 3 PWMB
+    PWM_1  = (1 << PWM_SHIFT) | (0 << PWM_MODULE_SHIFT) | (0),  // PWM1 Submodule 0 PWMA
+    PWM_2  = (1 << PWM_SHIFT) | (0 << PWM_MODULE_SHIFT) | (1),  // PWM1 Submodule 0 PWMB
+    PWM_3  = (1 << PWM_SHIFT) | (1 << PWM_MODULE_SHIFT) | (0),  // PWM1 Submodule 1 PWMA
+    PWM_4  = (1 << PWM_SHIFT) | (1 << PWM_MODULE_SHIFT) | (1),  // PWM1 Submodule 1 PWMB
+    PWM_5  = (1 << PWM_SHIFT) | (2 << PWM_MODULE_SHIFT) | (0),  // PWM1 Submodule 2 PWMA
+    PWM_6  = (1 << PWM_SHIFT) | (2 << PWM_MODULE_SHIFT) | (1),  // PWM1 Submodule 2 PWMB
+    PWM_7  = (1 << PWM_SHIFT) | (3 << PWM_MODULE_SHIFT) | (0),  // PWM1 Submodule 3 PWMA
+    PWM_8  = (1 << PWM_SHIFT) | (3 << PWM_MODULE_SHIFT) | (1),  // PWM1 Submodule 3 PWMB
+    PWM_9  = (2 << PWM_SHIFT) | (0 << PWM_MODULE_SHIFT) | (0),  // PWM2 Submodule 0 PWMA
+    PWM_10 = (2 << PWM_SHIFT) | (0 << PWM_MODULE_SHIFT) | (1),  // PWM2 Submodule 0 PWMB
+    PWM_11 = (2 << PWM_SHIFT) | (1 << PWM_MODULE_SHIFT) | (0),  // PWM2 Submodule 1 PWMA
+    PWM_12 = (2 << PWM_SHIFT) | (1 << PWM_MODULE_SHIFT) | (1),  // PWM2 Submodule 1 PWMB
+    PWM_13 = (2 << PWM_SHIFT) | (2 << PWM_MODULE_SHIFT) | (0),  // PWM2 Submodule 2 PWMA
+    PWM_14 = (2 << PWM_SHIFT) | (2 << PWM_MODULE_SHIFT) | (1),  // PWM2 Submodule 2 PWMB
+    PWM_15 = (2 << PWM_SHIFT) | (3 << PWM_MODULE_SHIFT) | (0),  // PWM2 Submodule 3 PWMA
+    PWM_16 = (2 << PWM_SHIFT) | (3 << PWM_MODULE_SHIFT) | (1),  // PWM2 Submodule 3 PWMB
+    PWM_17 = (3 << PWM_SHIFT) | (0 << PWM_MODULE_SHIFT) | (0),  // PWM3 Submodule 0 PWMA
+    PWM_18 = (3 << PWM_SHIFT) | (0 << PWM_MODULE_SHIFT) | (1),  // PWM3 Submodule 0 PWMB
+    PWM_19 = (3 << PWM_SHIFT) | (1 << PWM_MODULE_SHIFT) | (0),  // PWM3 Submodule 1 PWMA
+    PWM_20 = (3 << PWM_SHIFT) | (1 << PWM_MODULE_SHIFT) | (1),  // PWM3 Submodule 1 PWMB
+    PWM_21 = (3 << PWM_SHIFT) | (2 << PWM_MODULE_SHIFT) | (0),  // PWM3 Submodule 2 PWMA
+    PWM_22 = (3 << PWM_SHIFT) | (2 << PWM_MODULE_SHIFT) | (1),  // PWM3 Submodule 2 PWMB
+    PWM_23 = (3 << PWM_SHIFT) | (3 << PWM_MODULE_SHIFT) | (0),  // PWM3 Submodule 3 PWMA
+    PWM_24 = (3 << PWM_SHIFT) | (3 << PWM_MODULE_SHIFT) | (1),  // PWM3 Submodule 3 PWMB
+    PWM_25 = (4 << PWM_SHIFT) | (0 << PWM_MODULE_SHIFT) | (0),  // PWM4 Submodule 0 PWMA
+    PWM_26 = (4 << PWM_SHIFT) | (0 << PWM_MODULE_SHIFT) | (1),  // PWM4 Submodule 0 PWMB
+    PWM_27 = (4 << PWM_SHIFT) | (1 << PWM_MODULE_SHIFT) | (0),  // PWM4 Submodule 1 PWMA
+    PWM_28 = (4 << PWM_SHIFT) | (1 << PWM_MODULE_SHIFT) | (1),  // PWM4 Submodule 1 PWMB
+    PWM_29 = (4 << PWM_SHIFT) | (2 << PWM_MODULE_SHIFT) | (0),  // PWM4 Submodule 2 PWMA
+    PWM_30 = (4 << PWM_SHIFT) | (2 << PWM_MODULE_SHIFT) | (1),  // PWM4 Submodule 2 PWMB
+    PWM_31 = (4 << PWM_SHIFT) | (3 << PWM_MODULE_SHIFT) | (0),  // PWM4 Submodule 3 PWMA
+    PWM_32 = (4 << PWM_SHIFT) | (3 << PWM_MODULE_SHIFT) | (1)   // PWM4 Submodule 3 PWMB
 } PWMName;
 
 #define ADC_INSTANCE_SHIFT           8
