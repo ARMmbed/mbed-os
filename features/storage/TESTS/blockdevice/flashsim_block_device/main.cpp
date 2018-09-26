@@ -34,6 +34,11 @@ static const uint8_t   blank = 0xFF;
 // Simple test for all APIs
 void functionality_test()
 {
+
+    uint8_t *dummy = new (std::nothrow) uint8_t[num_blocks * erase_size];
+    TEST_SKIP_UNLESS_MESSAGE(dummy, "Not enough memory for test");
+    delete[] dummy;
+    
     HeapBlockDevice heap_bd(num_blocks * erase_size, read_size, prog_size, erase_size);
     FlashSimBlockDevice bd(&heap_bd, blank);
 
