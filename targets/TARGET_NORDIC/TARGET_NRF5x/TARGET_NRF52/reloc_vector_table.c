@@ -47,15 +47,7 @@
 #include "nrf_dfu_mbr.h"
 #endif
 
-#if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
-    __attribute__ ((section(".bss.nvictable"),zero_init))
-    uint32_t nrf_dispatch_vector[NVIC_NUM_VECTORS];
-#elif defined(__GNUC__)
-    __attribute__ ((section(".nvictable")))
-    uint32_t nrf_dispatch_vector[NVIC_NUM_VECTORS];
-#elif defined(__ICCARM__)
-    uint32_t nrf_dispatch_vector[NVIC_NUM_VECTORS] @ ".nvictable";
-#endif
+uint32_t nrf_dispatch_vector[NVIC_NUM_VECTORS];
 
 extern uint32_t __Vectors[];
 
@@ -112,7 +104,6 @@ void nrf_reloc_vector_table(void)
     SCB->VTOR = (uint32_t) nrf_dispatch_vector;    
 #endif
 }
-
 
 void mbed_sdk_init(void)
 {
