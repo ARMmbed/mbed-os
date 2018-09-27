@@ -1955,7 +1955,8 @@
             "SERIAL",
             "SPI",
             "SPISLAVE",
-            "STDIO_MESSAGES"
+            "STDIO_MESSAGES",
+            "TRNG"
         ],
         "release_versions": ["2", "5"],
         "features": ["LWIP"],
