@@ -29,7 +29,7 @@ namespace cordio {
 /**
  * Simple implementation of the pal::EventQueue.
  */
-struct SimpleEventQueue : EventQueue {
+struct SimpleEventQueue : pal::EventQueue {
 
     typedef mbed::Callback<void()> event_t;
 
@@ -52,7 +52,7 @@ struct SimpleEventQueue : EventQueue {
      *
      * @param ble_id Id of the BLE instance using that event queue.
      */
-    void initialize(BLEInstanceBase* ble_base, BLE::InstanceID_t ble_id)
+    void initialize(BLEInstanceBase* ble_base, ::BLE::InstanceID_t ble_id)
     {
         _ble_base = ble_base;
         _ble_instance_id = ble_id;
@@ -140,7 +140,7 @@ private:
     }
 
     BLEInstanceBase* _ble_base;
-    BLE::InstanceID_t _ble_instance_id;
+    ::BLE::InstanceID_t _ble_instance_id;
     EventNode* _events;
 };
 
