@@ -22,7 +22,6 @@
 #include "ble/BLEInstanceBase.h"
 #include "ble/generic/GenericGattClient.h"
 #include "ble/generic/GenericSecurityManager.h"
-#include "SimpleEventQueue.h"
 #include "nRF5xPalSecurityManager.h"
 
 #include "nRF5xGap.h"
