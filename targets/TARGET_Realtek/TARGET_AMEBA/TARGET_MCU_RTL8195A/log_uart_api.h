@@ -328,3 +328,4 @@ uint8_t log_uart_raed_msr(log_uart_t *obj);
 
 #endif //CONFIG_PLATFORM_8195A
 #endif  // end of "#ifndef LOG_UART_API_H"
+

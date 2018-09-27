@@ -24,7 +24,9 @@
 
 #include "pinmap.h"
 
-
+#ifdef CONFIG_MBED_ENABLED
+#include "PeripheralPins.h"
+#else
 static const PinMap PinMap_I2C_SDA[] = {
     {PD_4,  RTL_PIN_PERI(I2C0, 0, S0), RTL_PIN_FUNC(I2C0, S0)},
     {PH_1,  RTL_PIN_PERI(I2C0, 0, S1), RTL_PIN_FUNC(I2C0, S1)},
@@ -68,6 +70,7 @@ static const PinMap PinMap_I2C_SCL[] = {
 
     {NC,    NC,     0}
 };
+#endif
 
 static int address_save_int[4];
 static int Byte_count[4];
