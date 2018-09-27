@@ -33,6 +33,9 @@ void mbed_sdk_init()
 
      /* Check if the Rtc oscillator is enabled */
     if ((RTC->CR & RTC_CR_OSCE_MASK) == 0u) {
+        /*Init the RTC with default configuration*/
+        RTC_GetDefaultConfig(&rtc_basic_config);
+
         RTC_Init(RTC, &rtc_basic_config);
 
         /* Enable the RTC 32KHz oscillator */
@@ -48,6 +51,8 @@ void mbed_sdk_init()
         /* 32kHz Oscillator is ready. */
         RTC_Deinit(RTC);
     }
+
+    CLOCK_DisableClock(kCLOCK_Rtc0);
 }
 
 void rtc_setup_oscillator(void)
