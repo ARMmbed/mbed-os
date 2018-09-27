@@ -1519,7 +1519,7 @@ int mac_wait_command(int argc, char *argv[])
         }
     }
     while (data_count < 1) {
-        Thread::wait(10);
+        ThisThread::sleep_for(10);
         remaining_ms -= 10;
         if (remaining_ms <= 0) {
             return CMDLINE_RETCODE_FAIL;
