@@ -30,7 +30,7 @@
 #include "CordioPalGenericAccessService.h"
 #include "ble/generic/GenericGap.h"
 #include "ble/generic/GenericSecurityManager.h"
-#include "ble/pal/SimpleEventQueue.h"
+#include "SimpleEventQueue.h"
 
 namespace ble {
 namespace vendor {

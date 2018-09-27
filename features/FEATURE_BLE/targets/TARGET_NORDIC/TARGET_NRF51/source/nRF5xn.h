@@ -22,7 +22,7 @@
 #include "ble/BLEInstanceBase.h"
 #include "ble/generic/GenericGattClient.h"
 #include "ble/generic/GenericSecurityManager.h"
-#include "ble/pal/SimpleEventQueue.h"
+#include "SimpleEventQueue.h"
 #include "nRF5xPalSecurityManager.h"
 
 
