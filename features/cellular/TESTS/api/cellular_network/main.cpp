@@ -206,10 +206,13 @@ static void test_connect()
 
 static void test_credentials()
 {
-    TEST_ASSERT(nw->set_credentials(NULL, "username", "pass") == NSAPI_ERROR_OK);
+    nsapi_error_t err = nw->set_credentials(NULL, "username", "pass");
+    TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_UNSUPPORTED);
+    err = nw->set_credentials("internet", "user", NULL);
+    TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_UNSUPPORTED);
+    err = nw->set_credentials("internet", CellularNetwork::NOAUTH, "user", "pass");
+    TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_UNSUPPORTED);
     TEST_ASSERT(nw->set_credentials("internet", NULL, "pass") == NSAPI_ERROR_OK);
-    TEST_ASSERT(nw->set_credentials("internet", "user", NULL) == NSAPI_ERROR_OK);
-    TEST_ASSERT(nw->set_credentials("internet", CellularNetwork::NOAUTH, "user", "pass") == NSAPI_ERROR_OK);
 }
 
 static void test_other()
