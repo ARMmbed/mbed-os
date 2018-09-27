@@ -201,9 +201,9 @@ TEST_F(Test_LoRaWANStack, connect)
     my_LoRaPHY phy;
     object->bind_phy_and_radio_driver(radio, phy);
 
-//    struct equeue_event ptr;
-//    equeue_stub.void_ptr = &ptr;
-//    equeue_stub.call_cb_immediately = true;
+    struct equeue_event ptr;
+    equeue_stub.void_ptr = &ptr;
+    equeue_stub.call_cb_immediately = true;
     loramac_mcps_confirm_t conf;
     LoRaMac_stub::mcps_conf_ptr = &conf;
     radio._ev->tx_done();
@@ -410,16 +410,15 @@ TEST_F(Test_LoRaWANStack, handle_rx)
     my_LoRaPHY phy;
     object->bind_phy_and_radio_driver(radio, phy);
 
-//    struct equeue_event ptr;
-//    equeue_stub.void_ptr = &ptr;
-//    equeue_stub.call_cb_immediately = true;
+    struct equeue_event ptr;
+    equeue_stub.void_ptr = &ptr;
+    equeue_stub.call_cb_immediately = true;
     loramac_mcps_confirm_t conf;
     LoRaMac_stub::mcps_conf_ptr = &conf;
     radio._ev->tx_done();
 
     loramac_mcps_indication_t ind;
     LoRaMac_stub::mcps_ind_ptr = &ind;
-    ind.status = LORAMAC_EVENT_INFO_STATUS_OK;
 
     loramac_mlme_confirm_t mlme;
     LoRaMac_stub::mlme_conf_ptr = &mlme;
@@ -443,7 +442,6 @@ TEST_F(Test_LoRaWANStack, handle_rx)
     ind.buffer = ind_buf;
     ind.buffer_size = 150;
     ind.type = MCPS_UNCONFIRMED;
-    ind.is_data_recvd = true;
     radio._ev->rx_done(NULL, 0, 0, 0);
 
     //data == NULL || LENGTH == 0 (2 cases)
@@ -572,9 +570,9 @@ TEST_F(Test_LoRaWANStack, acquire_tx_metadata)
     my_LoRaPHY phy;
     object->bind_phy_and_radio_driver(radio, phy);
 
-//    struct equeue_event ptr;
-//    equeue_stub.void_ptr = &ptr;
-//    equeue_stub.call_cb_immediately = true;
+    struct equeue_event ptr;
+    equeue_stub.void_ptr = &ptr;
+    equeue_stub.call_cb_immediately = true;
     loramac_mcps_confirm_t conf;
     LoRaMac_stub::mcps_conf_ptr = &conf;
     radio._ev->tx_done();
@@ -599,9 +597,9 @@ TEST_F(Test_LoRaWANStack, acquire_rx_metadata)
     my_LoRaPHY phy;
     object->bind_phy_and_radio_driver(radio, phy);
 
-//    struct equeue_event ptr;
-//    equeue_stub.void_ptr = &ptr;
-//    equeue_stub.call_cb_immediately = true;
+    struct equeue_event ptr;
+    equeue_stub.void_ptr = &ptr;
+    equeue_stub.call_cb_immediately = true;
     loramac_mcps_confirm_t conf;
     LoRaMac_stub::mcps_conf_ptr = &conf;
     radio._ev->tx_done();
@@ -687,9 +685,9 @@ TEST_F(Test_LoRaWANStack, interrupt_functions)
     my_LoRaPHY phy;
     object->bind_phy_and_radio_driver(radio, phy);
 
-//    struct equeue_event ptr;
-//    equeue_stub.void_ptr = &ptr;
-//    equeue_stub.call_cb_immediately = true;
+    struct equeue_event ptr;
+    equeue_stub.void_ptr = &ptr;
+    equeue_stub.call_cb_immediately = true;
     loramac_mcps_confirm_t conf;
     LoRaMac_stub::mcps_conf_ptr = &conf;
     radio._ev->tx_done();
@@ -750,9 +748,9 @@ TEST_F(Test_LoRaWANStack, process_transmission)
 
     object->connect();
 
-//    struct equeue_event ptr;
-//    equeue_stub.void_ptr = &ptr;
-//    equeue_stub.call_cb_immediately = true;
+    struct equeue_event ptr;
+    equeue_stub.void_ptr = &ptr;
+    equeue_stub.call_cb_immediately = true;
     loramac_mcps_confirm_t conf;
     LoRaMac_stub::mcps_conf_ptr = &conf;
     radio._ev->tx_done();
@@ -807,9 +805,9 @@ TEST_F(Test_LoRaWANStack, process_reception)
     my_LoRaPHY phy;
     object->bind_phy_and_radio_driver(radio, phy);
 
-//    struct equeue_event ptr;
-//    equeue_stub.void_ptr = &ptr;
-//    equeue_stub.call_cb_immediately = true;
+    struct equeue_event ptr;
+    equeue_stub.void_ptr = &ptr;
+    equeue_stub.call_cb_immediately = true;
     loramac_mcps_confirm_t conf;
     LoRaMac_stub::mcps_conf_ptr = &conf;
     radio._ev->tx_done();
