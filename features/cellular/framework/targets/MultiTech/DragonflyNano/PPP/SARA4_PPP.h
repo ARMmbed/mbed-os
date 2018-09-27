@@ -29,8 +29,8 @@ public:
     virtual ~SARA4_PPP();
 
 public: // CellularDevice
-    virtual CellularNetwork *open_network(FileHandle *fh);
-    virtual CellularPower *open_power(FileHandle *fh);
+    virtual AT_CellularNetwork *open_network_impl(ATHandler &at);
+    virtual AT_CellularPower *open_power_impl(ATHandler &at);
 };
 
 } // namespace mbed
