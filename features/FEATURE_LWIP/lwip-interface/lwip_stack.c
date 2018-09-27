@@ -567,17 +567,7 @@ static void mbed_lwip_core_init(void)
 
     // Check if we've already brought up lwip
     if (!lwip_inited) {
-	// Seed lwip random
-        lwip_seed_random();
 
-        // Initialise TCP sequence number
-        uint32_t tcp_isn_secret[4];
-        for (int i = 0; i < 4; i++) {
-            tcp_isn_secret[i] = LWIP_RAND();
-        }
-        lwip_init_tcp_isn(0, (u8_t *) &tcp_isn_secret);
-
-        sys_sem_new(&lwip_tcpip_inited, 0);
         sys_sem_new(&lwip_netif_linked, 0);
         sys_sem_new(&lwip_netif_unlinked, 0);
         sys_sem_new(&lwip_netif_has_any_addr, 0);
@@ -587,8 +577,6 @@ static void mbed_lwip_core_init(void)
 #if BOTH_ADDR_TIMEOUT
         sys_sem_new(&lwip_netif_has_both_addr, 0);
 #endif
-        tcpip_init(mbed_lwip_tcpip_init_irq, NULL);
-        sys_arch_sem_wait(&lwip_tcpip_inited, 0);
 
         lwip_inited = true;
     }
@@ -890,6 +878,10 @@ static nsapi_error_t mbed_lwip_err_remap(err_t err) {
         default:
             return NSAPI_ERROR_DEVICE_ERROR;
     }
+}
+
+void mbed_lwip_set_as_default(){
+    netif_set_default(&lwip_netif);
 }
 
 /* LWIP network stack implementation */

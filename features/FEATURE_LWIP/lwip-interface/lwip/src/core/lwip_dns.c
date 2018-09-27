@@ -364,11 +364,20 @@ void
 dns_setserver(u8_t numdns, const ip_addr_t *dnsserver)
 {
   if (numdns < DNS_MAX_SERVERS) {
+
     if (dnsserver != NULL) {
-      dns_servers[numdns] = (*dnsserver);
+      u8_t insert_index = numdns;
+      while(insert_index < DNS_MAX_SERVERS){
+        if(ip_addr_cmp(&dns_servers[insert_index], IP_ADDR_ANY)){
+          dns_servers[insert_index] = (*dnsserver);
+          break;
+        }
+        insert_index++;
+      }
     } else {
       dns_servers[numdns] = *IP_ADDR_ANY;
     }
+
   }
 }
 
