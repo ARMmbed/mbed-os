@@ -23,7 +23,8 @@
 #include "ble/BLE.h"
 
 namespace ble {
-namespace pal {
+namespace vendor {
+namespace cordio {
 
 /**
  * Simple implementation of the pal::EventQueue.
@@ -143,7 +144,8 @@ private:
     EventNode* _events;
 };
 
-} // namespace pal
+} // namespace cordio
+} // namespace vendor
 } // namespace ble
 
 #endif /* BLE_PAL_SIMPLE_EVENT_QUEUE_H_ */
