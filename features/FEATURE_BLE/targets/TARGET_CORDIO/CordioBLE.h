@@ -152,7 +152,7 @@ private:
     } initialization_status;
 
     ::BLE::InstanceID_t instanceID;
-    mutable pal::SimpleEventQueue _event_queue;
+    mutable SimpleEventQueue _event_queue;
 
     class SigningEventMonitorProxy : public pal::SigningEventMonitor {
     public:
