@@ -25,6 +25,7 @@ import sys
 from copy import copy
 from inspect import getmro
 from collections import namedtuple, Mapping
+from tools.resources import FileType
 from tools.targets.LPC import patch
 from tools.paths import TOOLS_BOOTLOADERS
 from tools.utils import json_file_to_dict
@@ -481,7 +482,7 @@ class MCU_NRF51Code(object):
         sdf = None
         for softdevice_and_offset_entry\
             in t_self.target.EXPECTED_SOFTDEVICES_WITH_OFFSETS:
-            for hexf in resources.hex_files:
+            for hexf in resources.get_file_paths(FileType.HEX):
                 if hexf.find(softdevice_and_offset_entry['name']) != -1:
                     t_self.notify.debug("SoftDevice file found %s."
                                         % softdevice_and_offset_entry['name'])
@@ -500,7 +501,7 @@ class MCU_NRF51Code(object):
         # override image
         blf = None
         if t_self.target.MERGE_BOOTLOADER is True:
-            for hexf in resources.hex_files:
+            for hexf in resources.get_file_paths(FileType.HEX):
                 if hexf.find(t_self.target.OVERRIDE_BOOTLOADER_FILENAME) != -1:
                     t_self.notify.debug("Bootloader file found %s."
                                         % t_self.target.OVERRIDE_BOOTLOADER_FILENAME)
