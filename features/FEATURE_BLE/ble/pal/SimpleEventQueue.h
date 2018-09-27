@@ -74,6 +74,10 @@ struct SimpleEventQueue : EventQueue {
             return false;
         }
         uint8_t* event_buf = (uint8_t*)WsfBufAlloc(sizeof(EventNode));
+        if (event_buf == NULL) {
+            error("\r\n%s:%d Cordio WsfBufAlloc out of memory\r\n", __FILE__, __LINE__);
+            return false;
+        }
         EventNode* next = new(event_buf) EventNode(event);
         if (next == NULL) {
             return false;
