@@ -73,8 +73,8 @@ struct SimpleEventQueue : EventQueue {
         if (_ble_base == NULL) {
             return false;
         }
-
-        EventNode* next = new (std::nothrow) EventNode(event);
+        uint8_t* event_buf = (uint8_t*)WsfBufAlloc(sizeof(EventNode));
+        EventNode* next = new(event_buf) EventNode(event);
         if (next == NULL) {
             return false;
         }
@@ -102,7 +102,8 @@ struct SimpleEventQueue : EventQueue {
     {
         while (_events) {
             EventNode* next = _events->next;
-            delete _events;
+            _events->~EventNode();
+            WsfBufFree(_events);
             _events = next;
         }
     }
@@ -115,7 +116,8 @@ struct SimpleEventQueue : EventQueue {
         while (_events) {
             EventNode* next = _events->next;
             _events->event();
-            delete _events;
+            _events->~EventNode();
+            WsfBufFree(_events);
             _events = next;
         }
     }
