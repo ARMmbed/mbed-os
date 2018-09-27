@@ -75,8 +75,8 @@ struct SimpleEventQueue : pal::EventQueue {
             return false;
         }
         void* event_buf = WsfBufAlloc(sizeof(EventNode));
+        MBED_ASSERT(event_buf != NULL);
         if (event_buf == NULL) {
-            error("\r\n%s:%d Cordio WsfBufAlloc out of memory\r\n", __FILE__, __LINE__);
             return false;
         }
         EventNode* next = new(event_buf) EventNode(event);
