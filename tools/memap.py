@@ -142,7 +142,10 @@ class _GccParser(_Parser):
                 return join('[lib]', test_re_obj_name.group(2),
                             test_re_obj_name.group(3))
             else:
-                print("Unknown object name found in GCC map file: %s" % line)
+                if (not line.startswith("LONG") and
+                    not line.startswith("linker stubs")):
+                    print("Unknown object name found in GCC map file: %s"
+                          % line)
                 return '[misc]'
 
     def parse_section(self, line):
