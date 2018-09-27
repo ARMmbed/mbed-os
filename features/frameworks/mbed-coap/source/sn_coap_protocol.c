@@ -257,6 +257,21 @@ void sn_coap_protocol_clear_sent_blockwise_messages(struct coap_s *handle)
 #endif
 }
 
+void sn_coap_protocol_clear_received_blockwise_messages(struct coap_s *handle)
+{
+    (void) handle;
+#if SN_COAP_BLOCKWISE_ENABLED || SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE
+    if (handle == NULL) {
+        return;
+    }
+
+    /* Loop all stored Blockwise messages in Linked list */
+    ns_list_foreach_safe(coap_blockwise_payload_s, removed_blockwise_payload_ptr, &handle->linked_list_blockwise_received_payloads) {
+        sn_coap_protocol_linked_list_blockwise_payload_remove(handle, removed_blockwise_payload_ptr);
+    }
+#endif
+}
+
 int8_t sn_coap_protocol_set_duplicate_buffer_size(struct coap_s *handle, uint8_t message_count)
 {
     (void) handle;
