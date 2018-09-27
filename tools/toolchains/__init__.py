@@ -420,7 +420,7 @@ class mbedToolchain:
             self.compiled += 1
             self.progress("compile", item['source'].name, build_update=True)
             for res in result['results']:
-                self.notify.cc_verbose("Compile: %s" % ' '.join(res['command']), result['source'])
+                self.notify.cc_verbose("Compile: %s" % ' '.join(res['command']), result['source'].name)
                 self.compile_output([
                     res['code'],
                     res['output'],
@@ -458,7 +458,7 @@ class mbedToolchain:
                         self.compiled += 1
                         self.progress("compile", result['source'].name, build_update=True)
                         for res in result['results']:
-                            self.notify.cc_verbose("Compile: %s" % ' '.join(res['command']), result['source'])
+                            self.notify.cc_verbose("Compile: %s" % ' '.join(res['command']), result['source'].name)
                             self.compile_output([
                                 res['code'],
                                 res['output'],
