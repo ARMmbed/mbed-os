@@ -282,7 +282,6 @@
         "name": "mbed-os-example-nfc",
         "github": "https://github.com/ARMmbed/mbed-os-example-nfc",
         "mbed": [
-            "https://os.mbed.com/teams/mbed-os-examples/code/mbed-os-example-nfc-EEPROM",
             "https://os.mbed.com/teams/mbed-os-examples/code/mbed-os-example-nfc-SmartPoster"
         ],
         "test-repo-source": "mbed",
