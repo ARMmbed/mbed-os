@@ -136,4 +136,11 @@ extern uint32_t               __HeapLimit[];
 #define ISR_STACK_SIZE        ((uint32_t)((uint32_t)__StackTop - (uint32_t)__StackLimit))
 #endif
 
+#if (defined(TARGET_STM32F070RB) || defined(TARGET_STM32F072RB))
+#ifdef MBED_CONF_RTOS_MAIN_THREAD_STACK_SIZE
+#undef MBED_CONF_RTOS_MAIN_THREAD_STACK_SIZE
+#endif
+#define MBED_CONF_RTOS_MAIN_THREAD_STACK_SIZE 3072
+#endif
+
 #endif  // MBED_MBED_RTX_H
