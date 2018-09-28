@@ -1,4 +1,5 @@
 /* Linker script to configure memory regions. */
+StackSize = 0x400;
 MEMORY
 { 
   FLASH (rx)      : ORIGIN = 0x08000000, LENGTH = 128k
@@ -113,6 +114,20 @@ SECTIONS
 
     } > RAM
 
+    /* .stack section doesn't contains any symbols. It is only
+     * used for linker to reserve space for the main stack section
+     */
+    .stack (NOLOAD):
+    {
+        __StackLimit = .;
+        *(.stack*);
+        . += StackSize - (. - __StackLimit);
+    } > RAM
+    __StackTop = ADDR(.stack) + SIZEOF(.stack);
+    _estack = __StackTop;
+    __StackLimit = ADDR(.stack);
+    PROVIDE(__stack = __StackTop);
+
     .bss :
     {
         . = ALIGN(4);
@@ -129,25 +144,13 @@ SECTIONS
     {
         __end__ = .;
         end = __end__;
-        *(.heap*)
+        *(.heap*);
+        . += (ORIGIN(RAM) + LENGTH(RAM) - .);
         __HeapLimit = .;
     } > RAM
 
-    /* .stack_dummy section doesn't contains any symbols. It is only
-     * used for linker to calculate size of stack sections, and assign
-     * values to stack symbols later */
-    .stack_dummy (COPY):
-    {
-        *(.stack*)
-    } > RAM
+    PROVIDE(__heap_size = SIZEOF(.heap));
+    PROVIDE(__mbed_sbrk_start = ADDR(.heap));
+    PROVIDE(__mbed_krbs_start = ADDR(.heap) + SIZEOF(.heap));
 
-    /* Set stack top to end of RAM, and stack limit move down by
-     * size of stack_dummy section */
-    __StackTop = ORIGIN(RAM) + LENGTH(RAM);
-    _estack = __StackTop;
-    __StackLimit = __StackTop - SIZEOF(.stack_dummy);
-    PROVIDE(__stack = __StackTop);
-
-    /* Check if data + heap + stack exceeds RAM limit */
-    ASSERT(__StackLimit >= __HeapLimit, "region RAM overflowed with stack")
 }
