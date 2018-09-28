@@ -73,6 +73,12 @@ static int partition_absolute(
 {
     // Allocate smallest buffer necessary to write MBR
     uint32_t buffer_size = std::max<uint32_t>(bd->get_program_size(), sizeof(struct mbr_table));
+
+    // Prevent alignment issues
+    if(buffer_size % bd->get_program_size() != 0) {
+        buffer_size += bd->get_program_size() - (buffer_size % bd->get_program_size());
+    }
+
     uint8_t *buffer = new uint8_t[buffer_size];
 
     // Check for existing MBR
