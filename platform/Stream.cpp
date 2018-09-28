@@ -43,7 +43,7 @@ Stream::~Stream()
 int Stream::putc(int c)
 {
     lock();
-    fflush(_file);
+    std::fseek(_file, 0, SEEK_CUR);
     int ret = std::fputc(c, _file);
     unlock();
     return ret;
@@ -51,7 +51,7 @@ int Stream::putc(int c)
 int Stream::puts(const char *s)
 {
     lock();
-    fflush(_file);
+    std::fseek(_file, 0, SEEK_CUR);
     int ret = std::fputs(s, _file);
     unlock();
     return ret;
@@ -60,7 +60,7 @@ int Stream::getc()
 {
     lock();
     fflush(_file);
-    int ret = mbed_getc(_file);
+    int ret = std::fgetc(_file);
     unlock();
     return ret;
 }
@@ -68,7 +68,7 @@ char *Stream::gets(char *s, int size)
 {
     lock();
     fflush(_file);
-    char *ret = mbed_gets(s, size, _file);
+    char *ret = std::fgets(s, size, _file);
     unlock();
     return ret;
 }
