@@ -39,6 +39,9 @@
 #error [NOT_SUPPORTED] No 802.15.4 RF driver found for this target
 #endif
 
+#ifndef ICETEA_MAC_TESTER_ENABLED
+#error [NOT_SUPPORTED] Skipping Nanostack MAC tester application.
+#endif
 
 extern mac_api_s *mac_interface;
 RawSerial pc(USBTX, USBRX);
