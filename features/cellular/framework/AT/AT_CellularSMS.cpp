@@ -41,7 +41,7 @@ const uint8_t SMS_MAX_GSM7_CONCATENATED_SINGLE_SMS_SIZE = 153;
 #define NVAM '?' // Not Valid ascii, ISO-8859-1 mark
 
 // mapping table from 7-bit GSM to ascii (ISO-8859-1)
-static const int gsm_to_ascii[] = {
+static const char gsm_to_ascii[] = {
     64,     // 0
     163,    // 1
     36,     // 2
