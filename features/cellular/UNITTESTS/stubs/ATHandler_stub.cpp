@@ -279,6 +279,13 @@ void ATHandler::cmd_stop()
 {
 }
 
+void ATHandler::cmd_stop_read_resp()
+{
+    cmd_stop();
+    resp_start();
+    resp_stop();
+}
+
 device_err_t ATHandler::get_last_device_error() const
 {
     return ATHandler_stub::device_err_value;

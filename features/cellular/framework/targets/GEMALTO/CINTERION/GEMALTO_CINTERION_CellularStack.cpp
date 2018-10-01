@@ -148,9 +148,7 @@ nsapi_error_t GEMALTO_CINTERION_CellularStack::socket_close_impl(int sock_id)
 
     _at.cmd_start("AT^SISC=");
     _at.write_int(sock_id);
-    _at.cmd_stop();
-    _at.resp_start();
-    _at.resp_stop();
+    _at.cmd_stop_read_resp();
 
     _at.clear_error(); // clear SISS even though SISC fails
     _at.cmd_start("AT^SISS=");
@@ -181,15 +179,12 @@ nsapi_error_t GEMALTO_CINTERION_CellularStack::socket_open_defer(CellularSocket 
     _at.write_int(socket->id);
     _at.write_string("address", false);
     _at.write_string(sock_addr);
-    _at.cmd_stop();
-    _at.resp_start();
-    _at.resp_stop();
+    _at.cmd_stop_read_resp();
 
     _at.cmd_start("AT^SISO=");
     _at.write_int(socket->id);
-    _at.cmd_stop();
-    _at.resp_start();
-    _at.resp_stop();
+    _at.cmd_stop_read_resp();
+
     if (_at.get_last_error()) {
         tr_error("Socket %d open failed!", socket->id);
         _at.clear_error();
@@ -264,9 +259,7 @@ nsapi_error_t GEMALTO_CINTERION_CellularStack::create_socket_impl(CellularSocket
         _at.write_int(internet_service_id);
         _at.write_string("srvType");
         _at.write_string("Socket");
-        _at.cmd_stop();
-        _at.resp_start();
-        _at.resp_stop();
+        _at.cmd_stop_read_resp();
     }
 
     if (!foundConIdType) {
@@ -274,9 +267,7 @@ nsapi_error_t GEMALTO_CINTERION_CellularStack::create_socket_impl(CellularSocket
         _at.write_int(internet_service_id);
         _at.write_string("conId");
         _at.write_int(connection_profile_id);
-        _at.cmd_stop();
-        _at.resp_start();
-        _at.resp_stop();
+        _at.cmd_stop_read_resp();
     }
 
     tr_debug("Internet service %d (err %d)", internet_service_id, _at.get_last_error());
@@ -533,18 +524,14 @@ nsapi_error_t GEMALTO_CINTERION_CellularStack::create_connection_profile(int con
         _at.write_int(connection_profile_id);
         _at.write_string("conType");
         _at.write_string(conParamType);
-        _at.cmd_stop();
-        _at.resp_start();
-        _at.resp_stop();
+        _at.cmd_stop_read_resp();
 
         if (_apn && strlen(_apn) > 0) {
             _at.cmd_start("AT^SICS=");
             _at.write_int(connection_profile_id);
             _at.write_string("apn");
             _at.write_string(_apn);
-            _at.cmd_stop();
-            _at.resp_start();
-            _at.resp_stop();
+            _at.cmd_stop_read_resp();
         }
 
         // set maximum inactivity timeout
@@ -552,15 +539,11 @@ nsapi_error_t GEMALTO_CINTERION_CellularStack::create_connection_profile(int con
         _at.write_int(connection_profile_id);
         _at.write_string("inactTO");
         _at.write_int(0xffff); // 2^16-1
-        _at.cmd_stop();
-        _at.resp_start();
-        _at.resp_stop();
+        _at.cmd_stop_read_resp();
 
         // use URC mode ON
         _at.cmd_start("AT^SCFG=\"Tcp/withURCs\",\"on\"");
-        _at.cmd_stop();
-        _at.resp_start();
-        _at.resp_stop();
+        _at.cmd_stop_read_resp();
     }
 
     tr_debug("Connection profile %d, stack_type %d (err %d)", connection_profile_id, _stack_type, _at.get_last_error());
@@ -577,18 +560,14 @@ void GEMALTO_CINTERION_CellularStack::close_connection_profile(int connection_pr
     // After detach modem sends PDP disconnected event to network class,
     // which propagates network disconnected to upper layer to start reconnecting.
     _at.cmd_start("AT+CGATT=0");
-    _at.cmd_stop();
-    _at.resp_start();
-    _at.resp_stop();
+    _at.cmd_stop_read_resp();
     _at.clear_error();
 
     _at.cmd_start("AT^SICS=");
     _at.write_int(connection_profile_id);
     _at.write_string("conType");
     _at.write_string("none");
-    _at.cmd_stop();
-    _at.resp_start();
-    _at.resp_stop();
+    _at.cmd_stop_read_resp();
 
     _at.clear_error();
 }

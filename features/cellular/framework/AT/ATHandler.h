@@ -248,6 +248,11 @@ public:
      */
     void cmd_stop();
 
+    /** Stops the AT command by writing command-line terminator CR to mark command as finished and reads the OK/ERROR response.
+     *
+     */
+    void cmd_stop_read_resp();
+
     /** Write bytes without any subparameter delimiters, such as comma.
      *  In case of failure when writing, the last error is set to NSAPI_ERROR_DEVICE_ERROR.
      *
