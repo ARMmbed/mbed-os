@@ -25,10 +25,11 @@ import sys
 from copy import copy
 from inspect import getmro
 from collections import namedtuple, Mapping
+from future.utils import raise_from
 from tools.resources import FileType
 from tools.targets.LPC import patch
 from tools.paths import TOOLS_BOOTLOADERS
-from tools.utils import json_file_to_dict
+from tools.utils import json_file_to_dict, NotSupportedException
 
 __all__ = ["target", "TARGETS", "TARGET_MAP", "TARGET_NAMES", "CORE_LABELS",
            "CORE_ARCH", "HookError", "generate_py_target", "Target",
@@ -116,7 +117,12 @@ def get_resolution_order(json_data, target_name, order, level=0):
 
 def target(name, json_data):
     """Construct a target object"""
-    resolution_order = get_resolution_order(json_data, name, [])
+    try:
+        resolution_order = get_resolution_order(json_data, name, [])
+    except KeyError as exc:
+        raise_from(NotSupportedException(
+            "target {} has an incomplete target definition".format(name)
+        ), exc)
     resolution_order_names = [tgt for tgt, _ in resolution_order]
     return Target(name=name,
                   json_data={key: value for key, value in json_data.items()
