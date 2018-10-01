@@ -196,9 +196,6 @@ typedef enum {
     D14 = GPIO_AD_B0_01,
     D15 = GPIO_AD_B0_00,
 
-    I2C_SCL = D15,
-    I2C_SDA = D14,
-
     A0 = GPIO_AD_B1_10,
     A1 = GPIO_AD_B1_11,
     A2 = GPIO_AD_B1_04,
@@ -206,6 +203,9 @@ typedef enum {
     A4 = GPIO_AD_B1_01,
     A5 = GPIO_AD_B1_00,
 
+    I2C_SCL = A5,
+    I2C_SDA = A4,
+	
     // Not connected
     NC = (int)0xFFFFFFFF
 } PinName;
