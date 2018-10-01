@@ -117,7 +117,7 @@ NetworkStack *EMACInterface::get_stack()
 }
 
 void EMACInterface::attach(
-    Callback<void(nsapi_event_t, intptr_t)> status_cb)
+    mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb)
 {
     _connection_status_cb = status_cb;
     if (_interface) {

@@ -54,7 +54,7 @@ TEST_F(TestTCPServer, constructor)
 
 TEST_F(TestTCPServer, constructor_parameters)
 {
-    TCPServer serverParam = TCPServer(dynamic_cast<NetworkStack*>(&stack));
+    TCPServer serverParam = TCPServer(dynamic_cast<NetworkStack *>(&stack));
     const SocketAddress a("127.0.0.1", 1024);
     EXPECT_EQ(serverParam.connect(a), NSAPI_ERROR_OK);
 }
