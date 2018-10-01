@@ -582,6 +582,7 @@ bool AT_CellularNetwork::set_new_context(int cid)
     // Fall back to ipv4
     if (!success && tmp_stack == IPV4V6_STACK) {
         tmp_stack = IPV4_STACK;
+        _at.clear_error();
         _at.cmd_start("AT+FCLASS=0;+CGDCONT=");
         _at.write_int(cid);
         _at.write_string("IP");
