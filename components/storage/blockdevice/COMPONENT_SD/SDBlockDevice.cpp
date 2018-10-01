@@ -139,17 +139,9 @@
 #ifdef DEVICE_SPI
 
 #include "SDBlockDevice.h"
-#include "mbed_debug.h"
+#include "platform/mbed_debug.h"
+#include "platform/mbed_wait_api.h"
 #include <errno.h>
-
-/* Required version: 5.9.0 and above */
-#if defined(MBED_MAJOR_VERSION) && MBED_MAJOR_VERSION >= 5
-#if (MBED_VERSION < MBED_ENCODE_VERSION(5,9,0))
-#error "Incompatible mbed-os version detected! Required 5.9.0 and above"
-#endif
-#else
-#warning "mbed-os version 5.9.0 or above required"
-#endif
 
 #ifndef MBED_CONF_SD_CMD_TIMEOUT
 #define MBED_CONF_SD_CMD_TIMEOUT                 5000   /*!< Timeout in ms for response */
