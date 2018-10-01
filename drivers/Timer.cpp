@@ -79,7 +79,7 @@ int Timer::read_us()
 
 float Timer::read()
 {
-    return (float)read_us() / 1000000.0f;
+    return (float)read_high_resolution_us() / 1000000.0f;
 }
 
 int Timer::read_ms()
