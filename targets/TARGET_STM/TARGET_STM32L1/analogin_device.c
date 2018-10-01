@@ -105,6 +105,9 @@ uint16_t adc_read(analogin_t *obj)
     ADC_ChannelConfTypeDef sConfig = {0};
 
     // Configure ADC channel
+    sConfig.Rank         = ADC_REGULAR_RANK_1;
+    sConfig.SamplingTime = ADC_SAMPLETIME_48CYCLES;
+
     switch (obj->channel) {
         case 0:
             sConfig.Channel = ADC_CHANNEL_0;
@@ -156,9 +159,11 @@ uint16_t adc_read(analogin_t *obj)
             break;
         case 16:
             sConfig.Channel = ADC_CHANNEL_TEMPSENSOR;
+            sConfig.SamplingTime = ADC_SAMPLETIME_384CYCLES;
             break;
         case 17:
             sConfig.Channel = ADC_CHANNEL_VREFINT;
+            sConfig.SamplingTime = ADC_SAMPLETIME_384CYCLES;
             break;
         case 18:
             sConfig.Channel = ADC_CHANNEL_18;
@@ -215,9 +220,6 @@ uint16_t adc_read(analogin_t *obj)
         default:
             return 0;
     }
-
-    sConfig.Rank         = ADC_REGULAR_RANK_1;
-    sConfig.SamplingTime = ADC_SAMPLETIME_16CYCLES;
 
     HAL_ADC_ConfigChannel(&obj->handle, &sConfig);
 
