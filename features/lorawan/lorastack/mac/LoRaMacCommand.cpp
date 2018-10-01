@@ -36,7 +36,6 @@ static const uint8_t max_eirp_table[] = { 8, 10, 12, 13, 14, 16, 18, 20, 21, 24,
 
 LoRaMacCommand::LoRaMacCommand()
 {
-    mac_cmd_in_next_tx = false;
     sticky_mac_cmd = false;
     mac_cmd_buf_idx = 0;
     mac_cmd_buf_idx_to_repeat = 0;
@@ -99,14 +98,8 @@ void LoRaMacCommand::parse_mac_commands_to_repeat()
         }
     }
 
-    if (cmd_cnt > 0) {
-        mac_cmd_in_next_tx = true;
-    } else {
-        mac_cmd_in_next_tx = false;
-    }
     mac_cmd_buf_idx_to_repeat = cmd_cnt;
 }
-
 
 void LoRaMacCommand::clear_repeat_buffer()
 {
@@ -122,16 +115,6 @@ void LoRaMacCommand::copy_repeat_commands_to_buffer()
 uint8_t LoRaMacCommand::get_repeat_commands_length() const
 {
     return mac_cmd_buf_idx_to_repeat;
-}
-
-void LoRaMacCommand::clear_mac_commands_in_next_tx()
-{
-    mac_cmd_in_next_tx = false;
-}
-
-bool LoRaMacCommand::is_mac_command_in_next_tx() const
-{
-    return mac_cmd_in_next_tx;
 }
 
 void LoRaMacCommand::clear_sticky_mac_cmd()
@@ -304,18 +287,11 @@ lorawan_status_t LoRaMacCommand::process_mac_commands(const uint8_t *payload, ui
                 break;
             default:
                 // Unknown command. ABORT MAC commands processing
-                ret_value = LORAWAN_STATUS_UNSUPPORTED;
+                tr_error("Invalid MAC command (0x%X)!", payload[mac_index]);
+                return LORAWAN_STATUS_UNSUPPORTED;
         }
     }
     return ret_value;
-}
-
-bool LoRaMacCommand::is_sticky_mac_command_pending()
-{
-    if (mac_cmd_buf_idx_to_repeat > 0) {
-        return true;
-    }
-    return false;
 }
 
 int32_t LoRaMacCommand::cmd_buffer_remaining() const
@@ -336,7 +312,6 @@ lorawan_status_t LoRaMacCommand::add_link_check_req()
         mac_cmd_buffer[mac_cmd_buf_idx++] = MOTE_MAC_LINK_CHECK_REQ;
         // No payload for this command
         ret = LORAWAN_STATUS_OK;
-        mac_cmd_in_next_tx = true;
     }
     return ret;
 }
@@ -348,7 +323,6 @@ lorawan_status_t LoRaMacCommand::add_link_adr_ans(uint8_t status)
         mac_cmd_buffer[mac_cmd_buf_idx++] = MOTE_MAC_LINK_ADR_ANS;
         mac_cmd_buffer[mac_cmd_buf_idx++] = status;
         ret = LORAWAN_STATUS_OK;
-        mac_cmd_in_next_tx = true;
     }
     return ret;
 }
@@ -360,7 +334,6 @@ lorawan_status_t LoRaMacCommand::add_duty_cycle_ans()
         mac_cmd_buffer[mac_cmd_buf_idx++] = MOTE_MAC_DUTY_CYCLE_ANS;
         // No payload for this answer
         ret = LORAWAN_STATUS_OK;
-        mac_cmd_in_next_tx = true;
     }
     return ret;
 }
@@ -375,7 +348,6 @@ lorawan_status_t LoRaMacCommand::add_rx_param_setup_ans(uint8_t status)
         // This is a sticky MAC command answer. Setup indication
         sticky_mac_cmd = true;
         ret = LORAWAN_STATUS_OK;
-        mac_cmd_in_next_tx = true;
     }
     return ret;
 }
@@ -390,7 +362,6 @@ lorawan_status_t LoRaMacCommand::add_dev_status_ans(uint8_t battery, uint8_t mar
         mac_cmd_buffer[mac_cmd_buf_idx++] = battery;
         mac_cmd_buffer[mac_cmd_buf_idx++] = margin;
         ret = LORAWAN_STATUS_OK;
-        mac_cmd_in_next_tx = true;
     }
     return ret;
 }
@@ -403,7 +374,6 @@ lorawan_status_t LoRaMacCommand::add_new_channel_ans(uint8_t status)
         // Status: Datarate range OK, Channel frequency OK
         mac_cmd_buffer[mac_cmd_buf_idx++] = status;
         ret = LORAWAN_STATUS_OK;
-        mac_cmd_in_next_tx = true;
     }
     return ret;
 }
@@ -417,7 +387,6 @@ lorawan_status_t LoRaMacCommand::add_rx_timing_setup_ans()
         // This is a sticky MAC command answer. Setup indication
         sticky_mac_cmd = true;
         ret = LORAWAN_STATUS_OK;
-        mac_cmd_in_next_tx = true;
     }
     return ret;
 }
@@ -429,7 +398,6 @@ lorawan_status_t LoRaMacCommand::add_tx_param_setup_ans()
         mac_cmd_buffer[mac_cmd_buf_idx++] = MOTE_MAC_TX_PARAM_SETUP_ANS;
         // No payload for this answer
         ret = LORAWAN_STATUS_OK;
-        mac_cmd_in_next_tx = true;
     }
     return ret;
 }
@@ -444,7 +412,6 @@ lorawan_status_t LoRaMacCommand::add_dl_channel_ans(uint8_t status)
         // This is a sticky MAC command answer. Setup indication
         sticky_mac_cmd = true;
         ret = LORAWAN_STATUS_OK;
-        mac_cmd_in_next_tx = true;
     }
     return ret;
 }

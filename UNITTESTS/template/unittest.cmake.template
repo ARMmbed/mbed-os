@@ -3,9 +3,6 @@
 # UNIT TESTS
 ####################
 
-# Unit test suite name
-set(TEST_SUITE_NAME "suitename")
-
 set(unittest-includes ${unittest-includes}
   headerfile
 )

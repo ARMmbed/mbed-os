@@ -98,18 +98,6 @@ public:
     uint8_t get_repeat_commands_length() const;
 
     /**
-     * @brief Clear MAC commands in next TX.
-     */
-    void clear_mac_commands_in_next_tx();
-
-    /**
-     * @brief Check if MAC command buffer has commands to be sent in next TX
-     *
-     * @return status  True: buffer has MAC commands to be sent, false: no commands in buffer
-     */
-    bool is_mac_command_in_next_tx() const;
-
-    /**
      * @brief Clear sticky MAC commands.
      */
     void clear_sticky_mac_cmd();
@@ -131,13 +119,6 @@ public:
                                           loramac_mlme_confirm_t& mlme_conf,
                                           lora_mac_system_params_t& mac_params,
                                           LoRaPHY& lora_phy);
-
-    /**
-     * @brief Verifies if sticky MAC commands are pending.
-     *
-     * @return [true: sticky MAC commands pending, false: No MAC commands pending]
-     */
-    bool is_sticky_mac_command_pending();
 
     /**
      * @brief Adds a new LinkCheckReq MAC command to be sent.
@@ -237,11 +218,6 @@ private:
     lorawan_status_t add_dl_channel_ans(uint8_t status);
 
 private:
-    /**
-     * Indicates if the MAC layer wants to send MAC commands
-     */
-    bool mac_cmd_in_next_tx;
-
     /**
       * Indicates if there are any pending sticky MAC commands
       */

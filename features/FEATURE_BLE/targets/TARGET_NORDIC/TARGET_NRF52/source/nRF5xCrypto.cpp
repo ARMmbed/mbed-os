@@ -47,7 +47,7 @@ namespace vendor {
 namespace nordic {
 
 CryptoToolbox::CryptoToolbox() : _initialized(false) {
-    mbedtls_platform_setup(&_platform_context);
+    mbedtls_platform_setup(NULL);
     mbedtls_entropy_init(&_entropy_context);
     mbedtls_ecp_group_init(&_group);
     int err = mbedtls_ecp_group_load(
@@ -60,7 +60,7 @@ CryptoToolbox::CryptoToolbox() : _initialized(false) {
 CryptoToolbox::~CryptoToolbox() {
     mbedtls_ecp_group_free(&_group);
     mbedtls_entropy_free(&_entropy_context);
-    mbedtls_platform_teardown(&_platform_context);
+    mbedtls_platform_teardown(NULL);
 }
 
 bool CryptoToolbox::generate_keys(

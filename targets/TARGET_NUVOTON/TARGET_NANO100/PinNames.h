@@ -55,15 +55,18 @@ typedef enum {
 } PinDirection;
 
 typedef enum {
+    /* Input pull mode */
     PullNone = 0,
     PullDown,
     PullUp,
     
-    PushPull,
+    /* I/O mode */
+    InputOnly,
+    PushPullOutput,
     OpenDrain,
-    Quasi,
     
-    PullDefault = PullUp,
+    /* Default input pull mode */
+    PullDefault = PullUp
 } PinMode;
 
 typedef enum {

@@ -210,6 +210,9 @@ nsapi_error_t AT_CellularNetwork::set_credentials(const char *apn,
     }
 
     if (username && (len = strlen(username)) > 0) {
+        if (!is_supported(AT_CGAUTH)) { // APN authentication is needed with username/password
+            return NSAPI_ERROR_UNSUPPORTED;
+        }
         _uname = (char *)malloc(len * sizeof(char) + 1);
         if (_uname) {
             memcpy(_uname, username, len + 1);
@@ -279,10 +282,7 @@ nsapi_error_t AT_CellularNetwork::activate_context()
     nsapi_error_t err = NSAPI_ERROR_OK;
 
     // try to find or create context with suitable stack
-    if (get_context()) {
-        // try to authenticate user before activating or modifying context
-        err = do_user_authentication();
-    } else {
+    if (!get_context()) {
         err = NSAPI_ERROR_NO_CONNECTION;
     }
 
@@ -315,6 +315,13 @@ nsapi_error_t AT_CellularNetwork::activate_context()
     _at.resp_stop();
 
     if (!_is_context_active) {
+        // authenticate before activating or modifying context
+        nsapi_error_t err = do_user_authentication();
+        if (err != NSAPI_ERROR_OK) {
+            tr_error("Cellular authentication failed!");
+            return err;
+        }
+
         tr_info("Activate PDP context %d", _cid);
         _at.cmd_start("AT+CGACT=1,");
         _at.write_int(_cid);
@@ -509,6 +516,9 @@ nsapi_error_t AT_CellularNetwork::do_user_authentication()
 {
     // if user has defined user name and password we need to call CGAUTH before activating or modifying context
     if (_pwd && _uname) {
+        if (!is_supported(AT_CGAUTH)) {
+            return NSAPI_ERROR_UNSUPPORTED;
+        }
         _at.cmd_start("AT+CGAUTH=");
         _at.write_int(_cid);
         _at.write_int(_authentication_type);

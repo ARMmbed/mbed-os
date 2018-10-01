@@ -3,9 +3,6 @@
 # UNIT TESTS
 ####################
 
-# Unit test suite name
-set(TEST_SUITE_NAME "cellular-framework-common-util")
-
 # Add test specific include paths
 set(unittest-includes ${unittest-includes}
   features/cellular/framework/common/util
@@ -20,7 +17,6 @@ set(unittest-sources
 
 # Test files
 set(unittest-test-sources
-  stubs/randLIB_stub.c
-  features/cellular/framework/common/util/test_util.cpp
   features/cellular/framework/common/util/utiltest.cpp
+  stubs/randLIB_stub.cpp
 )

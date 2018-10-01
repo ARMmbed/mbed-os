@@ -166,15 +166,18 @@ def get_application_list(icetea_json_output, tests_by_name):
 
 
 def icetea_tests(target, tcdir, verbose):
+    if not os.path.exists(tcdir):
+        raise Exception("Icetea run error: No TEST_APPS folder in {}".format(os.path.curdir))
+
     command = ['icetea', '--tcdir', tcdir, '--list', '--json', '--platform_filter', target] \
               + (['-v'] if verbose else [])
 
     stdout, stderr, returncode = run_cmd(command)
 
     if returncode != 0:
-        raise Exception(
-            "Error when running icetea. \ncwd:{} \nCommand:'{}' \noutput:{}".format(os.getcwd(), ' '.join(command),
-                                                                                    stderr.decode()))
+        additional_information = "\ncwd:{} \nCommand:'{}' \noutput:{}".format(os.getcwd(), ' '.join(command),
+                                                                              stderr.decode())
+        raise Exception("Error when running icetea. {}".format(additional_information))
 
     return json.loads(stdout)
 

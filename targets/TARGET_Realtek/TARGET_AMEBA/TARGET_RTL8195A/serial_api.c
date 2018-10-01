@@ -73,13 +73,17 @@ static HAL_GDMA_OP UartGdmaOp;
 
 #ifdef CONFIG_MBED_ENABLED
 #include "log_uart_api.h"
+
 #include "hal_log_uart.h"
+
 int stdio_uart_inited = 0;
 serial_t stdio_uart;
 log_uart_t stdio_uart_log;
+
 static uint32_t serial_log_irq_ids;
 static uart_irq_handler log_irq_handler;
 static uint32_t serial_log_irq_en;
+
 #endif
 
 static void SerialTxDoneCallBack(VOID *pAdapter);

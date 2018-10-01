@@ -23,12 +23,14 @@ UNIT TEST BUILD & RUN
 from __future__ import print_function
 import os
 import logging
+import re
 
 from unit_test.options import get_options_parser, \
                               pretty_print_test_options
 from unit_test.settings import DEFAULT_CMAKE_GENERATORS
 from unit_test.test import UnitTestTool
 from unit_test.new import UnitTestGeneratorTool
+from unit_test.coverage import CoverageAPI
 
 def _mbed_unittest_test(options, cwd, pwd):
     if options is None:
@@ -80,14 +82,28 @@ def _mbed_unittest_test(options, cwd, pwd):
         tool.build_tests()
 
     if options.run_only:
+        tool.run_tests(filter_regex=options.test_regex)
+
         # If code coverage generation:
         if options.coverage:
-            # Run tests and generate reports
-            tool.generate_coverage_report(coverage_output_type=options.coverage,
-                                          excludes=[pwd, options.build],
-                                          build_path=options.build)
-        else:
-            tool.run_tests(filter_regex=options.test_regex) # Only run tests
+            cov_api = CoverageAPI(
+                mbed_os_root=os.path.normpath(os.path.join(pwd, "..")),
+                build_dir=options.build)
+
+            # Generate reports
+            outputs = [options.coverage]
+            if options.coverage == "both":
+                outputs = ["html", "xml"]
+
+            excludes = [pwd, options.build]
+
+            if not options.include_headers:
+                excludes.append(re.compile(".*\\.h"))
+
+            cov_api.generate_reports(outputs=outputs,
+                                     excludes=excludes,
+                                     filter_regex=options.test_regex,
+                                     build_path=options.build)
 
 def _mbed_unittest_new(options, pwd):
     if options is None:

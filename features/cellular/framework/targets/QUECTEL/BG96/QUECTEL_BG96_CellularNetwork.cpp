@@ -111,3 +111,24 @@ nsapi_error_t QUECTEL_BG96_CellularNetwork::set_access_technology_impl(RadioAcce
 
     return _at.unlock_return_error();
 }
+
+nsapi_error_t QUECTEL_BG96_CellularNetwork::do_user_authentication()
+{
+    if (_pwd && _uname) {
+        _at.cmd_start("AT+QICSGP=");
+        _at.write_int(_cid);
+        _at.write_int(1); // IPv4
+        _at.write_string(_apn);
+        _at.write_string(_uname);
+        _at.write_string(_pwd);
+        _at.write_int(_authentication_type);
+        _at.cmd_stop();
+        _at.resp_start();
+        _at.resp_stop();
+        if (_at.get_last_error() != NSAPI_ERROR_OK) {
+            return NSAPI_ERROR_AUTH_FAILURE;
+        }
+    }
+
+    return NSAPI_ERROR_OK;
+}

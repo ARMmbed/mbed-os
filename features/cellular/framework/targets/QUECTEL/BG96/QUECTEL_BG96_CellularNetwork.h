@@ -33,6 +33,8 @@ protected:
     virtual nsapi_error_t set_access_technology_impl(RadioAccessTechnology opRat);
 
     virtual bool get_modem_stack_type(nsapi_ip_stack_t requested_stack);
+
+    virtual nsapi_error_t do_user_authentication();
 };
 
 } // namespace mbed

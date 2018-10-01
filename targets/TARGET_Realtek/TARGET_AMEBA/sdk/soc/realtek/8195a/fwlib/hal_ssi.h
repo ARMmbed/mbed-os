@@ -21,6 +21,7 @@
  */
 
 extern u32 SSI_DBG_CONFIG;
+extern uint8_t SPI0_IS_AS_SLAVE;
 
 
 #define SSI_DBG_ENTRANCE(...)  do {\

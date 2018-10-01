@@ -28,7 +28,7 @@ class UnitTestGeneratorTool(object):
     Generator tool to create new unit tests from template
     """
 
-    def _replace_content(self, template_content, dirname, classname, suite_name, extension):
+    def _replace_content(self, template_content, dirname, classname, extension):
         if extension == "h":
             content = re.sub(r"cppfile",
                              "",
@@ -41,7 +41,6 @@ class UnitTestGeneratorTool(object):
         content = re.sub(r"headerfile", "../dirname/template.h", content)
         content = re.sub(r"dirname", dirname, content)
         content = re.sub(r"template", classname, content)
-        content = re.sub(r"suitename", suite_name, content)
 
         return content
 
@@ -111,7 +110,6 @@ class UnitTestGeneratorTool(object):
                 content = self._replace_content(template_content,
                                                 dir_name,
                                                 class_name,
-                                                suite_name,
                                                 file_extension)
 
                 output_file.writelines(content)
@@ -130,7 +128,6 @@ class UnitTestGeneratorTool(object):
                 content = self._replace_content(template_content,
                                                 dir_name,
                                                 class_name,
-                                                suite_name,
                                                 file_extension)
 
                 output_file.writelines(content)

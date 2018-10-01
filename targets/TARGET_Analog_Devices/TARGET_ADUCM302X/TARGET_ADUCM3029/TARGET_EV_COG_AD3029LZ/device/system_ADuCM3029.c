@@ -259,8 +259,8 @@ void adi_system_EnableISRAM(bool bEnable)
  * \n
  * \n              false :To disable retention during the hibernation.
  * \n
- * @return : SUCCESS : Configured successfully.
- *           FAILURE :  For invalid bank.
+ * @return : ADI_SYS_SUCCESS : Configured successfully.
+ *           ADI_SYS_FAILURE :  For invalid bank.
  * @note: Please note that respective linker file need to support the configuration. Only BANK-1 and
           BANK-2 of SRAM is valid.
  */
@@ -269,7 +269,7 @@ uint32_t adi_system_EnableRetention(ADI_SRAM_BANK eBank,bool bEnable)
 #ifdef ADI_DEBUG
     if((eBank != ADI_SRAM_BANK_1) && (eBank != ADI_SRAM_BANK_2))
     {
-        return FAILURE;
+        return ADI_SYS_FAILURE;
     }
 #endif
     pADI_PMG0->PWRKEY = PWRKEY_VALUE_KEY;
@@ -282,5 +282,5 @@ uint32_t adi_system_EnableRetention(ADI_SRAM_BANK eBank,bool bEnable)
         pADI_PMG0->SRAMRET &= ~((uint32_t)eBank >> 1);
     }
 
-    return SUCCESS;
+    return ADI_SYS_SUCCESS;
 }

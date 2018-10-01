@@ -162,7 +162,7 @@ static void udp_network_stack()
     cellular.set_sim_pin(MBED_CONF_APP_CELLULAR_SIM_PIN);
 #ifdef MBED_CONF_APP_APN
     CellularNetwork *network = cellular.get_network();
-    TEST_ASSERT(network->set_credentials(MBED_CONF_APP_APN) == NSAPI_ERROR_OK);
+    TEST_ASSERT(network->set_credentials(MBED_CONF_APP_APN, MBED_CONF_APP_USERNAME, MBED_CONF_APP_PASSWORD) == NSAPI_ERROR_OK);
 #endif
     cellular_target_state = CellularConnectionFSM::STATE_CONNECTED;
     TEST_ASSERT(cellular.continue_to_state(cellular_target_state) == NSAPI_ERROR_OK);
