@@ -1,7 +1,7 @@
 {
     "target_overrides": {
         "*": {
-            "target.features_add": ["LWIP"],
+            "target.features_add": ["BOOTLOADER"],
             "lib2.test": "GOOD"
         }
     }

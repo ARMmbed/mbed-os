@@ -1,5 +1,5 @@
 {
     "K64F": {
-        "exception_msg": "Configuration conflict. The feature LWIP both added and removed." 
+        "exception_msg": "Configuration conflict. The feature BOOTLOADER both added and removed."
     }
 }
