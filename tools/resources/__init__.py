@@ -392,7 +392,7 @@ class Resources(object):
                 self._ignoreset.add_mbedignore(
                     real_base, join(root, IGNORE_FILENAME))
 
-            root_path =join(relpath(root, base_path))
+            root_path = join(relpath(root, base_path))
             if self._ignoreset.is_ignored(join(root_path,"")):
                 self.ignore_dir(root_path)
                 dirs[:] = []
