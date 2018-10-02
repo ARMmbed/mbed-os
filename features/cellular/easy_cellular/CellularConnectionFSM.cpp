@@ -44,7 +44,8 @@ namespace mbed {
 CellularConnectionFSM::CellularConnectionFSM() :
     _serial(0), _state(STATE_INIT), _next_state(_state), _status_callback(0), _event_status_cb(0), _network(0), _power(0), _sim(0),
     _queue(8 * EVENTS_EVENT_SIZE), _queue_thread(0), _cellularDevice(0), _retry_count(0), _event_timeout(-1),
-    _at_queue(0), _event_id(0), _plmn(0), _command_success(false), _plmn_network_found(false)
+    _at_queue(0), _event_id(0), _plmn(0), _command_success(false), _plmn_network_found(false),
+    _automatic_reconnect(true)
 {
     memset(_sim_pin, 0, sizeof(_sim_pin));
 #if MBED_CONF_CELLULAR_RANDOM_MAX_START_DELAY == 0
@@ -138,6 +139,11 @@ nsapi_error_t CellularConnectionFSM::init()
     _next_state = STATE_INIT;
 
     return _network->init();
+}
+
+void CellularConnectionFSM::set_automatic_reconnect(bool do_reconnect)
+{
+    _automatic_reconnect = do_reconnect;
 }
 
 bool CellularConnectionFSM::power_on()
@@ -271,7 +277,7 @@ void CellularConnectionFSM::report_failure(const char *msg)
 const char *CellularConnectionFSM::get_state_string(CellularState state)
 {
 #if MBED_CONF_MBED_TRACE_ENABLE
-    static const char *strings[] = { "Init", "Power", "Device ready", "SIM pin", "Registering network", "Manual registering", "Attaching network", "Activating PDP Context", "Connecting network", "Connected"};
+    static const char *strings[STATE_MAX_FSM_STATE] = { "Init", "Power", "Device ready", "SIM pin", "Registering network", "Manual registering", "Attaching network", "Activating PDP Context", "Connecting network", "Connected", "Disconnecting"};
     return strings[state];
 #else
     return NULL;
@@ -575,6 +581,7 @@ void CellularConnectionFSM::event()
         case STATE_CONNECTED:
             state_connected();
             break;
+        case STATE_DISCONNECTING:
         default:
             MBED_ASSERT(0);
             break;
@@ -642,6 +649,17 @@ void CellularConnectionFSM::attach(mbed::Callback<void(nsapi_event_t, intptr_t)>
     }
 }
 
+nsapi_error_t CellularConnectionFSM::disconnect()
+{
+    nsapi_error_t err = NSAPI_ERROR_OK;
+    if (_network) {
+        // set state to disconnecting
+        _state = STATE_DISCONNECTING;
+        err = _network->disconnect();
+    }
+    return err;
+}
+
 void CellularConnectionFSM::network_callback(nsapi_event_t ev, intptr_t ptr)
 {
     tr_info("FSM: network_callback called with event: %d, intptr: %d, _state: %s", ev, ptr, get_state_string(_state));
@@ -666,6 +684,26 @@ void CellularConnectionFSM::network_callback(nsapi_event_t ev, intptr_t ptr)
 
     if (_event_status_cb) {
         _event_status_cb(ev, ptr);
+    }
+
+    // try to reconnect if we think that we are connected, automatic reconnection is on and we get event disconnected
+    if (_automatic_reconnect && ev == NSAPI_EVENT_CONNECTION_STATUS_CHANGE && ptr == NSAPI_STATUS_DISCONNECTED &&
+            _state == STATE_CONNECTED) {
+
+        tr_info("FSM: start automatic reconnect!");
+        // call disconnect to set filehandle irq back to us, don't really care about return value.
+        (void)_network->disconnect();
+
+        // start from registering phase as we might have been deregistered if there is no network
+        if (_plmn) {
+            continue_from_state(STATE_MANUAL_REGISTERING_NETWORK);
+        } else {
+            continue_from_state(STATE_REGISTERING_NETWORK);
+        }
+
+        if (_event_status_cb) {
+            _event_status_cb(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, NSAPI_STATUS_RECONNECTING);
+        }
     }
 }
 

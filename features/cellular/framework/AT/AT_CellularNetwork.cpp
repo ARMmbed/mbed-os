@@ -62,6 +62,14 @@ AT_CellularNetwork::~AT_CellularNetwork()
 
     _at.remove_urc_handler("NO CARRIER", callback(this, &AT_CellularNetwork::urc_no_carrier));
     _at.remove_urc_handler("+CGEV:", callback(this, &AT_CellularNetwork::urc_cgev));
+
+    _at.lock();
+    _at.cmd_start("AT+CGEREP=0");
+    _at.cmd_stop();
+    _at.resp_start();
+    _at.resp_stop();
+    _at.unlock();
+
     free_credentials();
 }
 
@@ -79,6 +87,16 @@ nsapi_error_t AT_CellularNetwork::init()
         }
     }
 
+    // additional urc to get better disconnect info for application. Not critical so not returning an error in case of failure
+    nsapi_error_t err = _at.set_urc_handler("+CGEV:", callback(this, &AT_CellularNetwork::urc_cgev));
+    if (err == NSAPI_ERROR_OK) {
+        _at.lock();
+        _at.cmd_start("AT+CGEREP=1");
+        _at.cmd_stop();
+        _at.resp_start();
+        _at.resp_stop();
+        _at.unlock();
+    }
     return _at.set_urc_handler("NO CARRIER", callback(this, &AT_CellularNetwork::urc_no_carrier));
 }
 
@@ -168,6 +186,13 @@ void AT_CellularNetwork::read_reg_params_and_compare(RegistrationType type)
         if (reg_status != _reg_status) {
             _reg_status = reg_status;
             _connection_status_cb((nsapi_event_t)CellularRegistrationStatusChanged, _reg_status);
+            // Call network callback if we think we are connected and we get some other registration status than
+            // "registered"
+            if (_connect_status == NSAPI_STATUS_GLOBAL_UP && (_reg_status != RegisteredHomeNetwork &&
+                    _reg_status != RegisteredRoaming)) {
+                tr_info("AT_CellularNetwork, calling disconnected after registration change!");
+                call_network_cb(NSAPI_STATUS_DISCONNECTED);
+            }
         }
         if (cell_id != -1 && cell_id != _cell_id) {
             _cell_id = cell_id;
@@ -367,17 +392,6 @@ nsapi_error_t AT_CellularNetwork::connect()
         return err;
     }
 #else
-    // additional urc to get better disconnect info for application. Not critical so not returning an error in case of failure
-    err = _at.set_urc_handler("+CGEV:", callback(this, &AT_CellularNetwork::urc_cgev));
-    if (err == NSAPI_ERROR_OK) {
-        _at.lock();
-        _at.cmd_start("AT+CGEREP=1");
-        _at.cmd_stop();
-        _at.resp_start();
-        _at.resp_stop();
-        _at.unlock();
-    }
-
     call_network_cb(NSAPI_STATUS_GLOBAL_UP);
 #endif
 

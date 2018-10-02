@@ -34,3 +34,26 @@ void QUECTEL_BG96_CellularPower::remove_device_ready_urc_cb(mbed::Callback<void(
 {
     _at.remove_urc_handler(DEVICE_READY_URC, callback);
 }
+
+nsapi_error_t QUECTEL_BG96_CellularPower::set_power_level(int func_level, int do_reset0)
+{
+    nsapi_error_t err = AT_CellularPower::set_at_mode();
+    if (err) {
+        return err;
+    }
+
+    _at.lock();
+    _at.cmd_start("AT+QURCCFG=");
+    _at.write_string("urcport");
+    _at.write_string("uart1");
+#ifndef NDEBUG
+    _at.write_string("usbat");
+    _at.write_string("usbmodem");
+#endif // NDEBUG
+    _at.cmd_stop();
+    _at.resp_start();
+    _at.resp_stop();
+    return _at.unlock_return_error();
+}
+
+

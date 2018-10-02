@@ -165,10 +165,6 @@ public:
      */
     void process_oob();
 
-    /** Set sigio for the current file handle. Sigio event goes through eventqueue so that it's handled in current thread.
-     */
-    void set_filehandle_sigio();
-
     /** Set file handle, which is used for reading AT responses and writing AT commands
      *
      *  @param fh file handle used for reading AT responses and writing AT commands
@@ -211,8 +207,6 @@ private:
 
     uint16_t _at_send_delay;
     uint64_t _last_response_stop;
-
-    bool _fh_sigio_set;
 
     bool _processing;
     int32_t _ref_count;
