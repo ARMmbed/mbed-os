@@ -379,7 +379,7 @@ class Resources(object):
             base_path = path
         if into_path is None:
             into_path = path
-        if self._collect_ignores and path in self.ignored_dirs:
+        if self._collect_ignores and relpath(path, base_path) in self.ignored_dirs:
             self.ignored_dirs.remove(path)
         if exclude_paths:
             self.add_ignore_patterns(
@@ -407,11 +407,11 @@ class Resources(object):
                 if (any(self._not_current_label(d, t) for t
                         in self._labels.keys())):
                     self._label_paths.append((dir_path, base_path, into_path))
-                    self.ignore_dir(dir_path)
+                    self.ignore_dir(relpath(dir_path, base_path))
                     dirs.remove(d)
                 elif (d.startswith('.') or d in self._legacy_ignore_dirs or
                       self._ignoreset.is_ignored(join(root_path, d, ""))):
-                    self.ignore_dir(dir_path)
+                    self.ignore_dir(relpath(dir_path, base_path))
                     dirs.remove(d)
 
             # Add root to include paths
