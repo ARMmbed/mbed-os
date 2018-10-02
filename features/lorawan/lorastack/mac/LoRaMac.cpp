@@ -77,6 +77,7 @@ LoRaMac::LoRaMac()
       _mlme_indication(),
       _mlme_confirmation(),
       _is_nwk_joined(false),
+      _can_cancel_tx(true),
       _continuous_rx2_window_open(false),
       _device_class(CLASS_A)
 {
@@ -1030,11 +1031,16 @@ int LoRaMac::get_backoff_timer_event_id(void)
 
 lorawan_status_t LoRaMac::clear_tx_pipe(void)
 {
+    if (!_can_cancel_tx) {
+        return LORAWAN_STATUS_BUSY;
+    }
+
     // check if the event is not already queued
     const int id = get_backoff_timer_event_id();
+
     if (id == 0) {
         // No queued send request
-        return LORAWAN_STATUS_OK;
+        return LORAWAN_STATUS_NO_OP;
     }
 
     if (_ev_queue->time_left(id) > 0) {
@@ -1092,6 +1098,7 @@ lorawan_status_t LoRaMac::schedule_tx()
         case LORAWAN_STATUS_DUTYCYCLE_RESTRICTED:
             if (backoff_time != 0) {
                 tr_debug("DC enforced: Transmitting in %lu ms", backoff_time);
+                _can_cancel_tx = true;
                 _lora_time.start(_params.timers.backoff_timer, backoff_time);
             }
             return LORAWAN_STATUS_OK;
@@ -1154,6 +1161,7 @@ lorawan_status_t LoRaMac::schedule_tx()
         _params.is_srv_ack_requested = false;
     }
 
+    _can_cancel_tx = false;
     return send_frame_on_channel(_params.channel);
 }
 
@@ -1238,6 +1246,7 @@ bool LoRaMac::tx_ongoing()
 
 void LoRaMac::set_tx_ongoing(bool ongoing)
 {
+    _can_cancel_tx = true;
     _ongoing_tx_msg.tx_ongoing = ongoing;
 }
 
