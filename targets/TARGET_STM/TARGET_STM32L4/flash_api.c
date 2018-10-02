@@ -140,8 +140,6 @@ int32_t flash_erase_sector(flash_t *obj, uint32_t address)
     /* Clear error programming flags */
     __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_ALL_ERRORS);
 
-    /* Clear OPTVERR bit set on virgin samples */
-    __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_OPTVERR);
     /* Get the 1st page to erase */
     FirstPage = GetPage(address);
     /* MBED HAL erases 1 page  / sector at a time */
