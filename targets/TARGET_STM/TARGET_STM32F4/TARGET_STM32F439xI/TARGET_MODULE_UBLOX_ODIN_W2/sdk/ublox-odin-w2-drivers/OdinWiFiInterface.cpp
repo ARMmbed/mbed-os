@@ -1,5 +1,5 @@
 /* ODIN-W2 implementation of WiFiInterface
- * Copyright (c) 2016 u-blox Malmö AB
+ * Copyright (c) 2016 u-blox MalmÃ¶ AB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -937,7 +937,7 @@ void OdinWiFiInterface::handle_user_scan(user_scan_s *user_scan)
     cbRTSL_Status status = cbSTATUS_ERROR;
     for(int i = 0; (i < 10) && (status != cbSTATUS_OK); i++) {
         if(i > 0) {
-            wait(0.5);
+            wait_ms(500);
         }
 
         cbMAIN_driverLock();
