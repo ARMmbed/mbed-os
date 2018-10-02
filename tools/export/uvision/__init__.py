@@ -290,17 +290,24 @@ class Uvision(Exporter):
         out, err = p.communicate()
         ret_code = p.returncode
 
+        # Print logs if something goes wrong
+        if not os.path.isfile(log_name):
+            print("Log file missing!")
+
         # Print the log file to stdout
-        with open(log_name, 'r') as f:
-            print(f.read())
+        if os.path.isfile(log_name):
+            with open(log_name, 'r') as f:
+                print(f.read())
 
         # Cleanup the exported and built files
         if cleanup:
-            os.remove(log_name)
+            if os.path.isfile(log_name):
+                os.remove(log_name)
             Uvision.clean(project_name)
 
         # Returns 0 upon success, 1 upon a warning, and neither upon an error
         if ret_code != 0 and ret_code != 1:
+            print("ERROR! Return code was {}! \nOut:{}\n\nErr:{}".format(ret_code, out.decode(), err.decode()))
             # Seems like something went wrong.
             return -1
         else:
