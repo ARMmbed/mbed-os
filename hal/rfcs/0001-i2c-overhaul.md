@@ -325,41 +325,72 @@ void i2c_abort_async(i2c_t *obj);
 
 ### Defined behaviours
 
-- `i2c_init()` initialises the pins.
-- `i2c_init()` ignores the address parameter if `is_slave` is false.
-- `i2c_get_capabilities()` fills the given `i2c_capabilities_t` instance
-- `i2c_free()` resets the pins to their default states.
-- `i2c_free()` disables the peripheral clock.
-- `i2c_frequency()` sets the frequency to use during the following transfers.
-- `i2c_timeout()` set the clock stretching timeout to use during the following transfers.
-- `i2c_write()`
-
-  - Writes `tx_len` symbols to the bus.
+- `i2c_init`:
+  - Initialises the peripheral pins specified in the input parameters.
+  - Initialises the peripheral in master mode if `is_slave` is false.
+  - Initialises the peripheral in slave mode if `is_slave` is true and `supports_slave_mode` is true.
+- `i2c_free`:
+  - Resets the pins used to initialise the peripheral to their default state.
+  - Disables the peripheral clock.
+- `i2c_get_capabilities`:
+  - Fills the contents of the `i2c_capabilities_t` parameter
+- `i2c_frequency`:
+  - Sets the frequency to use for the transfer.
+  - Must leave all other configuration unchanged.
+- `i2c_timeout`:
+  - Sets the clock stretching timeout to use for the following transfers.
+  - If the timeout is set to 0, disables clock stretching.
+- `i2c_write`:
+  - Writes `length` number of symbols to the bus.
+  - Returns the number of symbols sent to the bus.
+  - Returns an error status if transfer fails.
+  - Generates a stop condition on the bus at the end of the transfer if `stop` parameter is true.
   - Handles transfer collisions and loss of arbitration if the platform supports multimaster in hardware.
   - The transfer will timeout and return `I2C_ERROR_TIMEOUT ` if the slave stretches the clock for longer than the configured timeout duration.
-- `i2c_read()`
-
+- `i2c_read`:
   - Reads `rx_len` symbols from the bus.
+  - Returns the number of symbols received from the bus.
+  - Returns an error code if transfer fails.
   - Handles transfer collisions and loss of arbitration if the platform supports multimaster in hardware.
-  - If `rx` is `nullptr` then inputs are discarded.
   - The transfer will timeout and return `I2C_ERROR_TIMEOUT ` if the slave stretches the clock for longer than the configured timeout duration.
-- `i2c_transfer_async` returns immediately with a `bool` indicating whether the transfer was successfully scheduled or not.
-- The callback given to `i2c_transfer_async` is invoked when the transfer completes (with a success or an error)
-- `i2c_abort_asynch` aborts an on-going async transfer.
-
-
+- `i2c_start`:
+  - Generates I2C START condition on the bus in master mode.
+  - Does nothing if called when the peripheral is configured in slave mode.
+- `i2c_stop`:
+  - Generates I2C STOP condition on the bus in master mode.
+  - Does nothing if called when the peripheral is configured in slave mode.
+- `i2c_slave_receive`:
+  - Indicates which mode the peripheral has been addressed in.
+  - Returns not addressed when called in master mode.
+- `i2c_slave_address`:
+  - Sets the address of the peripheral to the `address` parameter.
+  - Does nothing if called master mode.
+- `i2c_transfer_async`:
+  - Returns immediately with a `bool` indicating whether the transfer was successfully scheduled or not.
+  - The callback given to `i2c_transfer_async` is invoked when the transfer finishes.
+  - Must save the handler and context pointers inside the `obj` pointer.
+  - The context pointer is passed to the callback on transfer completion.
+  - The callback must be invoked on completion unless the transfer is aborted.
+  - `i2c_async_event_t` must be filled with the number of symbols sent to the bus during transfer.
+- `i2c_abort_async`:
+  - Aborts any on-going async transfers.
 
 ### Undefined behaviours
 
-- Calling `i2c_init` multiple times without calling `i2c_free`.
-- Calling any i2c function before calling `i2c_init` or after calling `i2c_free`.
-- Passing an invalid pointer as `obj` to any function.
-- Passing invalid pins to `i2c_init`
-- Using the device in multimaster configuration when `supports_multimaster_mode` is false.
-- Setting a frequency outside the supported range given by `i2c_get_capabilities`.
-- Setting a timeout outside the supported range given by `i2c_get_capabilities`.
-- Setting `address` to an invalid value when initialising the peripheral as a slave.
-- Specifying an invalid `address` when calling any `read` or `write` functions.
+- Use of a `null` pointer as an argument to any function.
+- Calling any `I2C` function before calling `i2c_init` or after calling `i2c_free`.
+- Initialising the `I2C` peripheral with invalid `SDA` and `SCL` pins.
+- Initialising the peripheral in slave mode if slave mode is not supported, indicated by `i2c_get_capabilities`.
+- Operating the peripheral in slave mode without first specifying and address using `i2c_address`
+- Setting an address using `i2c_address` after initialising the peripheral in master mode.
+- Setting an address to an `I2C` reserved value.
+- Setting an address larger than the 7-bit supported maximum if 10-bit addressing is not supported.
+- Setting an address larger than the 10-bit supported maximum.
+- Setting a frequency outside the supported range given by `i2c_get_capabilities`
+- Using the device in a multimaster configuration when `supports_multimaster_mode` is false.
+- Setting the timeout outside the supported range given by `i2c_get_capabilities`.
+- Specifying an invalid address when calling any `read` or `write` functions.
+- Setting the length of the transfer or receive buffers to larger than the buffers are.
 - Passing an invalid pointer as `handler` to `i2c_transfer_async`.
 - Calling `i2c_transfer_abort` when no transfer is currently in progress.
 
@@ -390,7 +421,6 @@ For each target implementation the existing API must be refactored or reimplemen
 - Maxim - No implementation 6
 
   There are 6 instances of the `i2c_api` driver, only 3 of these are unique and the rest are copies in different folders so realistically only 3 updates are required.
-
 
 
 ## Drawbacks
