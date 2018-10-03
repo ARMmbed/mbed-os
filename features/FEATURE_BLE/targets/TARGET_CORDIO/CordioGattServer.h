@@ -222,8 +222,8 @@ private:
     void add_generic_attribute_service();
     void* alloc_block(size_t block_size);
     GattCharacteristic* get_auth_char(uint16_t value_handle);
-    bool get_cccd_id(GattAttribute::Handle_t cccd_handle, uint8_t& idx) const;
-    bool has_cccd(GattAttribute::Handle_t char_handle) const;
+    bool get_cccd_index_by_cccd_handle(GattAttribute::Handle_t cccd_handle, uint8_t& idx) const;
+    bool get_cccd_index_by_value_handle(GattAttribute::Handle_t char_handle, uint8_t& idx) const;
     bool is_update_authorized(Gap::Handle_t connection, GattAttribute::Handle_t value_handle);
 
     struct alloc_block_t {
