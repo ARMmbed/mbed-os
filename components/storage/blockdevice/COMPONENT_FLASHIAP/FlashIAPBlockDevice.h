@@ -31,7 +31,11 @@ public:
     /** Creates a FlashIAPBlockDevice **/
     FlashIAPBlockDevice();
 
-    MBED_DEPRECATED("Please use default constructor instead")
+    /** Creates a FlashIAPBlockDevice
+     *
+     *  @param address  Physical address where the block device start
+     *  @param size     The block device size
+     */
     FlashIAPBlockDevice(uint32_t address, uint32_t size = 0);
 
     virtual ~FlashIAPBlockDevice();
