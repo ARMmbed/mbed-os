@@ -1072,7 +1072,10 @@ def get_unique_supported_toolchains(release_targets=None):
                       If release_targets is not specified, then it queries all
                       known targets
     """
-    return ["ARM", "uARM", "GCC_ARM", "IAR"]
+    return [
+        name for name, cls in TOOLCHAIN_CLASSES.items()
+        if cls.OFFICIALLY_SUPPORTED
+    ]
 
 
 def _lowercase_release_version(release_version):
