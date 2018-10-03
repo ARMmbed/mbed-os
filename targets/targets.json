@@ -821,6 +821,7 @@
         "detect_code": ["1054"],
         "device_has": ["USTICKER", "RTC", "ANALOGIN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "FLASH"],
         "release_versions": ["2", "5"],
+        "post_binary_hook": {"function": "LPCTargetCode.lpc_patch"},
         "device_name" : "LPC54114J256BD64"
     },
     "MCU_LPC546XX": {
@@ -832,6 +833,7 @@
         "inherits": ["Target"],
         "device_has": ["USTICKER", "RTC", "ANALOGIN", "EMAC", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "FLASH", "TRNG"],
         "device_name" : "LPC54628J512ET180",
+        "post_binary_hook": {"function": "LPCTargetCode.lpc_patch"},
         "overrides": {
             "network-default-interface-type": "ETHERNET"
         }
