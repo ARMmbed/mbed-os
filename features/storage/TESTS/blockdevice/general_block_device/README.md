@@ -7,11 +7,11 @@ You can find more information about the Mbed OS block device and other related p
 **Table of contents:**
 
 1. [Hardware requirements](#hardware-requirements)
-1. [Usage](#usage)
+2. [Usage](#usage)
    - [Compile the test](#compile-the-test)
    - [Run the test](#run-the-test)
-1. [Changing the block device](#changing-the-block-device)
-1. [Tested configurations](#tested-configurations)
+3. [Changing the block device](#changing-the-block-device)
+4. [Tested configurations](#tested-configurations)
 
 ## Hardware requirements
 
