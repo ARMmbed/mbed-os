@@ -120,77 +120,77 @@ void pin_mode(PinName pin, PinMode mode)
 
     switch (port) {
         case PortA:
-            if (mode == OpenDrain)   TSB_PA->OD  = val;
-            else if (mode == PullUp) TSB_PA->PUP = val;
-            else if (mode == PullDown || mode == PullDefault) TSB_PA->PDN = val;
+            if (mode == OpenDrain)   TSB_PA->OD  |= val;
+            else if (mode == PullUp) TSB_PA->PUP |= val;
+            else if (mode == PullDown || mode == PullDefault) TSB_PA->PDN |= val;
             break;
         case PortB:
-            if (mode == OpenDrain)   TSB_PB->OD  = val;
-            else if (mode == PullUp) TSB_PB->PUP = val;
-            else if (mode == PullDown || mode == PullDefault) TSB_PB->PDN = val;
+            if (mode == OpenDrain)   TSB_PB->OD  |= val;
+            else if (mode == PullUp) TSB_PB->PUP |= val;
+            else if (mode == PullDown || mode == PullDefault) TSB_PB->PDN |= val;
             break;
         case PortC:
-            if (mode == OpenDrain)   TSB_PC->OD  = val;
-            else if (mode == PullUp) TSB_PC->PUP = val;
-            else if (mode == PullDown || mode == PullDefault) TSB_PC->PDN = val;
+            if (mode == OpenDrain)   TSB_PC->OD  |= val;
+            else if (mode == PullUp) TSB_PC->PUP |= val;
+            else if (mode == PullDown || mode == PullDefault) TSB_PC->PDN |= val;
             break;
         case PortD:
-            if (mode == OpenDrain)   TSB_PD->OD  = val;
-            else if (mode == PullUp) TSB_PD->PUP = val;
-            else if (mode == PullDown || mode == PullDefault) TSB_PD->PDN = val;
+            if (mode == OpenDrain)   TSB_PD->OD  |= val;
+            else if (mode == PullUp) TSB_PD->PUP |= val;
+            else if (mode == PullDown || mode == PullDefault) TSB_PD->PDN |= val;
             break;
         case PortE:
-            if (mode == OpenDrain)   TSB_PE->OD  = val;
-            else if (mode == PullUp) TSB_PE->PUP = val;
-            else if (mode == PullDown || mode == PullDefault) TSB_PE->PDN = val;
+            if (mode == OpenDrain)   TSB_PE->OD  |= val;
+            else if (mode == PullUp) TSB_PE->PUP |= val;
+            else if (mode == PullDown || mode == PullDefault) TSB_PE->PDN |= val;
             break;
         case PortF:
-            if (mode == OpenDrain)   TSB_PF->OD  = val;
-            else if (mode == PullUp) TSB_PF->PUP = val;
-            else if (mode == PullDown || mode == PullDefault) TSB_PF->PDN = val;
+            if (mode == OpenDrain)   TSB_PF->OD  |= val;
+            else if (mode == PullUp) TSB_PF->PUP |= val;
+            else if (mode == PullDown || mode == PullDefault) TSB_PF->PDN |= val;
             break;
         case PortG:
-            if (mode == OpenDrain)   TSB_PG->OD  = val;
-            else if (mode == PullUp) TSB_PG->PUP = val;
-            else if (mode == PullDown || mode == PullDefault) TSB_PG->PDN = val;
+            if (mode == OpenDrain)   TSB_PG->OD  |= val;
+            else if (mode == PullUp) TSB_PG->PUP |= val;
+            else if (mode == PullDown || mode == PullDefault) TSB_PG->PDN |= val;
             break;
         case PortH:
-            if (mode == PullDown) TSB_PH->PDN = val;
+            if (mode == PullDown) TSB_PH->PDN |= val;
             break;
         case PortJ:
-            if (mode == OpenDrain)  TSB_PJ->OD   = val;
-            else if (mode == PullUp) TSB_PJ->PUP = val;
-            else if (mode == PullDown || mode == PullDefault) TSB_PJ->PDN = val;
+            if (mode == OpenDrain)  TSB_PJ->OD   |= val;
+            else if (mode == PullUp) TSB_PJ->PUP |= val;
+            else if (mode == PullDown || mode == PullDefault) TSB_PJ->PDN |= val;
             break;
         case PortK:
-            if (mode == OpenDrain)  TSB_PK->OD   = val;
-            else if (mode == PullUp) TSB_PK->PUP = val;
-            else if (mode == PullDown || mode == PullDefault) TSB_PK->PDN = val;
+            if (mode == OpenDrain)  TSB_PK->OD   |= val;
+            else if (mode == PullUp) TSB_PK->PUP |= val;
+            else if (mode == PullDown || mode == PullDefault) TSB_PK->PDN |= val;
             break;
         case PortL:
-            if (mode == OpenDrain)  TSB_PL->OD   = val;
-            else if (mode == PullUp) TSB_PL->PUP = val;
-            else if (mode == PullDown || mode == PullDefault) TSB_PL->PDN = val;
+            if (mode == OpenDrain)  TSB_PL->OD   |= val;
+            else if (mode == PullUp) TSB_PL->PUP |= val;
+            else if (mode == PullDown || mode == PullDefault) TSB_PL->PDN |= val;
             break;
         case PortM:
-            if (mode == OpenDrain)  TSB_PM->OD   = val;
-            else if (mode == PullUp) TSB_PM->PUP = val;
-            else if (mode == PullDown || mode == PullDefault) TSB_PM->PDN = val;
+            if (mode == OpenDrain)  TSB_PM->OD   |= val;
+            else if (mode == PullUp) TSB_PM->PUP |= val;
+            else if (mode == PullDown || mode == PullDefault) TSB_PM->PDN |= val;
             break;
         case PortN:
-            if (mode == OpenDrain)  TSB_PN->OD   = val;
-            else if (mode == PullUp) TSB_PN->PUP = val;
-            else if (mode == PullDown || mode == PullDefault) TSB_PN->PDN = val;
+            if (mode == OpenDrain)  TSB_PN->OD   |= val;
+            else if (mode == PullUp) TSB_PN->PUP |= val;
+            else if (mode == PullDown || mode == PullDefault) TSB_PN->PDN |= val;
             break;
         case PortP:
-            if (mode == OpenDrain)  TSB_PP->OD   = val;
-            else if (mode == PullUp) TSB_PP->PUP = val;
-            else if (mode == PullDown || mode == PullDefault) TSB_PP->PDN = val;
+            if (mode == OpenDrain)  TSB_PP->OD   |= val;
+            else if (mode == PullUp) TSB_PP->PUP |= val;
+            else if (mode == PullDown || mode == PullDefault) TSB_PP->PDN |= val;
             break;
         case PortR:
-            if (mode == OpenDrain)  TSB_PR->OD   = val;
-            else if (mode == PullUp) TSB_PR->PUP = val;
-            else if (mode == PullDown || mode == PullDefault) TSB_PR->PDN = val;
+            if (mode == OpenDrain)  TSB_PR->OD   |= val;
+            else if (mode == PullUp) TSB_PR->PUP |= val;
+            else if (mode == PullDown || mode == PullDefault) TSB_PR->PDN |= val;
             break;
         default:
             break;
