@@ -213,6 +213,7 @@ private:
     const char *_plmn;
     bool _command_success;
     bool _plmn_network_found;
+    int _cid_active; // an active PDP context ID
 };
 
 } // namespace
