@@ -68,7 +68,6 @@ UsageFault_Handler\
 Fault_Handler   PROC
                 EXPORT   Fault_Handler
 #if (DOMAIN_NS == 1)
-                IMPORT   osRtxInfo
                 IMPORT   mbed_fault_handler
                 IMPORT   mbed_fault_context
                 
@@ -152,7 +151,6 @@ Fault_Handler_Continue2
                 LDR      R3,=mbed_fault_handler   ; Load address of mbedFaultHandler
                 MOV      R0,R12
                 LDR      R1,=mbed_fault_context
-                LDR      R2,=osRtxInfo
                 BLX      R3
 #endif                    
                 B        .                        ; Just in case we come back here                

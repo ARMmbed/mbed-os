@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-#include "rtx_os.h"
 #include "device.h"
 #include "platform/mbed_error.h"
 #include "platform/mbed_interface.h"
 
 #ifndef MBED_FAULT_HANDLER_DISABLED
-#include "mbed_rtx_fault_handler.h"
+#include "mbed_fault_handler.h"
 
 //Functions Prototypes
 void print_context_info(void);
@@ -30,7 +29,7 @@ mbed_fault_context_t mbed_fault_context;
 
 //This is a handler function called from Fault handler to print the error information out.
 //This runs in fault context and uses special functions(defined in mbed_rtx_fault_handler.c) to print the information without using C-lib support.
-void mbed_fault_handler (uint32_t fault_type, void *mbed_fault_context_in, void *osRtxInfoIn)
+void mbed_fault_handler (uint32_t fault_type, void *mbed_fault_context_in)
 {
     mbed_error_status_t faultStatus = MBED_SUCCESS;
     
