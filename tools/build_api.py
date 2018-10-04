@@ -377,7 +377,7 @@ def _fill_header(region_list, current_region):
         elif type == "timestamp":
             fmt = {"32le": "<L", "64le": "<Q",
                    "32be": ">L", "64be": ">Q"}[subtype]
-            header.puts(start, struct.pack(fmt, time()))
+            header.puts(start, struct.pack(fmt, int(time())))
         elif type == "size":
             fmt = {"32le": "<L", "64le": "<Q",
                    "32be": ">L", "64be": ">Q"}[subtype]
