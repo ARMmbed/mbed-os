@@ -60,14 +60,12 @@ void rtc_init(void)
 
 #if MBED_CONF_TARGET_LSE_AVAILABLE
     RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSE;
-    RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE; // Mandatory, otherwise the PLL is reconfigured!
+    RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE;
     RCC_OscInitStruct.LSEState       = RCC_LSE_ON;
-
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
         error("Cannot initialize RTC with LSE\n");
     }
 
-    __HAL_RCC_RTC_CLKPRESCALER(RCC_RTCCLKSOURCE_LSE);
     __HAL_RCC_RTC_CONFIG(RCC_RTCCLKSOURCE_LSE);
 
     PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_RTC;
@@ -76,19 +74,13 @@ void rtc_init(void)
         error("PeriphClkInitStruct RTC failed with LSE\n");
     }
 #else /*  MBED_CONF_TARGET_LSE_AVAILABLE */
-    // Reset Backup domain
-    __HAL_RCC_BACKUPRESET_FORCE();
-    __HAL_RCC_BACKUPRESET_RELEASE();
-
-    // Enable LSI clock
     RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI;
-    RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE; // Mandatory, otherwise the PLL is reconfigured!
+    RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE;
     RCC_OscInitStruct.LSIState       = RCC_LSI_ON;
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
         error("Cannot initialize RTC with LSI\n");
     }
 
-    __HAL_RCC_RTC_CLKPRESCALER(RCC_RTCCLKSOURCE_LSI);
     __HAL_RCC_RTC_CONFIG(RCC_RTCCLKSOURCE_LSI);
 
     PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_RTC;
@@ -116,14 +108,14 @@ void rtc_init(void)
 #endif /* TARGET_STM32F1 */
 
     if (HAL_RTC_Init(&RtcHandle) != HAL_OK) {
-        error("RTC initialization failed");
+        error("RTC initialization failed\n");
     }
 
 #if !(TARGET_STM32F1) && !(TARGET_STM32F2)
     /* STM32F1 : there are no shadow registers */
     /* STM32F2 : shadow registers can not be bypassed */
     if (HAL_RTCEx_EnableBypassShadow(&RtcHandle) != HAL_OK) {
-        error("EnableBypassShadow error");
+        error("EnableBypassShadow error\n");
     }
 #endif /* TARGET_STM32F1 || TARGET_STM32F2 */
 }
