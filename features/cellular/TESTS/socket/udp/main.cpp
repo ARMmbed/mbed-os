@@ -150,7 +150,7 @@ static void network_callback(nsapi_event_t ev, intptr_t ptr)
     }
 }
 
-static void udp_network_stack()
+static void udp_network_stack_open()
 {
     cellular.set_serial(&cellular_serial);
     TEST_ASSERT(cellular.init() == NSAPI_ERROR_OK);
@@ -207,6 +207,12 @@ static void udp_socket_send_receive_async()
     TEST_ASSERT(echo_socket.close() == NSAPI_ERROR_OK);
 }
 
+static void udp_network_stack_close()
+{
+    CellularNetwork *network = cellular.get_network();
+    TEST_ASSERT(network->disconnect() == NSAPI_ERROR_OK);
+}
+
 using namespace utest::v1;
 
 static utest::v1::status_t greentea_failure_handler(const Case *const source, const failure_t reason)
@@ -219,10 +225,11 @@ static utest::v1::status_t greentea_failure_handler(const Case *const source, co
 }
 
 static Case cases[] = {
-    Case("UDP network stack", udp_network_stack, greentea_failure_handler),
+    Case("UDP network stack open", udp_network_stack_open, greentea_failure_handler),
     Case("UDP gethostbyname", udp_gethostbyname, greentea_failure_handler),
     Case("UDP socket send/receive", udp_socket_send_receive, greentea_failure_handler),
     Case("UDP socket send/receive async", udp_socket_send_receive_async, greentea_failure_handler),
+    Case("UDP network stack close", udp_network_stack_close, greentea_failure_handler),
 };
 
 static utest::v1::status_t test_setup(const size_t number_of_cases)
