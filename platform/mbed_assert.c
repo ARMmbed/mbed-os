@@ -29,5 +29,5 @@ void mbed_assert_internal(const char *expr, const char *file, int line)
     char error_message[error_message_length];
     snprintf(error_message, error_message_length, "%s%s", error_description, expr);
 
-    mbed_error(MBED_ERROR_INVALID_ARGUMENT, error_message, 0, file, line);
+    mbed_error(MBED_ERROR_ASSERTATION_FAILED, error_message, 0, file, line);
 }
