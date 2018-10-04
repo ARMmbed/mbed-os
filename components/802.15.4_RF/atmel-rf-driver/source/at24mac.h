@@ -17,6 +17,9 @@
 #define AT24MAC_H
 
 #include "PinNames.h"
+
+#if DEVICE_I2C
+
 #include "I2C.h"
 #include "drivers/DigitalInOut.h"
 #include "platform/mbed_wait_api.h"
@@ -71,4 +74,5 @@ private:
     mbed::I2C _i2c;
 };
 
+#endif /* DEVICE_I2C */
 #endif /* AT24MAC_H */
