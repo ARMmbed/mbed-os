@@ -47,6 +47,8 @@
 
 using namespace utest::v1;
 
+static char info[512] = {0};
+
 /* The following ticker frequencies are possible:
  * high frequency ticker: 250 KHz (1 tick per 4 us) - 8 Mhz (1 tick per 1/8 us)
  * low power ticker: 8 KHz (1 tick per 125 us) - 64 KHz (1 tick per ~15.6 us)
@@ -140,6 +142,11 @@ void sleep_usticker_test()
 
     const ticker_irq_handler_type us_ticker_irq_handler_org = set_us_ticker_irq_handler(us_ticker_isr);
 
+    /* Give some time Green Tea to finish UART transmission before entering
+     * sleep mode.
+     */
+    busy_wait_ms(SERIAL_FLUSH_TIME_MS);
+
     /* Test only sleep functionality. */
     sleep_manager_lock_deep_sleep();
     TEST_ASSERT_FALSE_MESSAGE(sleep_manager_can_deep_sleep(), "deep sleep should be locked");
@@ -147,7 +154,8 @@ void sleep_usticker_test()
     /* Testing wake-up time 10 us. */
     for (timestamp_t i = 100; i < 1000; i += 100) {
         /* note: us_ticker_read() operates on ticks. */
-        const timestamp_t next_match_timestamp = overflow_protect(us_ticker_read() + us_to_ticks(i, ticker_freq),
+        const timestamp_t start_timestamp = us_ticker_read();
+        const timestamp_t next_match_timestamp = overflow_protect(start_timestamp + us_to_ticks(i, ticker_freq),
                                                                   ticker_width);
 
         us_ticker_set_interrupt(next_match_timestamp);
@@ -156,9 +164,11 @@ void sleep_usticker_test()
 
         const unsigned int wakeup_timestamp = us_ticker_read();
 
-        TEST_ASSERT(
-            compare_timestamps(us_to_ticks(sleep_mode_delta_us, ticker_freq), ticker_width, next_match_timestamp,
-                               wakeup_timestamp));
+        sprintf(info, "Delta ticks: %u, Ticker width: %u, Expected wake up tick: %d, Actual wake up tick: %d, delay ticks: %d, wake up after ticks: %d",
+                us_to_ticks(sleep_mode_delta_us, ticker_freq), ticker_width, next_match_timestamp, wakeup_timestamp, us_to_ticks(i, ticker_freq) , wakeup_timestamp - start_timestamp);
+
+        TEST_ASSERT_MESSAGE(compare_timestamps(us_to_ticks(sleep_mode_delta_us, ticker_freq),
+                            ticker_width, next_match_timestamp, wakeup_timestamp), info);
     }
 
     set_us_ticker_irq_handler(us_ticker_irq_handler_org);
@@ -189,7 +199,8 @@ void deepsleep_lpticker_test()
     /* Testing wake-up time 10 ms. */
     for (timestamp_t i = 20000; i < 200000; i += 20000) {
         /* note: lp_ticker_read() operates on ticks. */
-        const timestamp_t next_match_timestamp = overflow_protect(lp_ticker_read() + us_to_ticks(i, ticker_freq), ticker_width);
+        const timestamp_t start_timestamp = lp_ticker_read();
+        const timestamp_t next_match_timestamp = overflow_protect(start_timestamp + us_to_ticks(i, ticker_freq), ticker_width);
 
         lp_ticker_set_interrupt(next_match_timestamp);
 
@@ -197,7 +208,11 @@ void deepsleep_lpticker_test()
 
         const timestamp_t wakeup_timestamp = lp_ticker_read();
 
-        TEST_ASSERT(compare_timestamps(us_to_ticks(deepsleep_mode_delta_us, ticker_freq), ticker_width, next_match_timestamp, wakeup_timestamp));
+        sprintf(info, "Delta ticks: %u, Ticker width: %u, Expected wake up tick: %d, Actual wake up tick: %d, delay ticks: %d, wake up after ticks: %d",
+                us_to_ticks(deepsleep_mode_delta_us, ticker_freq), ticker_width, next_match_timestamp, wakeup_timestamp, us_to_ticks(i, ticker_freq) ,  wakeup_timestamp - start_timestamp);
+
+        TEST_ASSERT_MESSAGE(compare_timestamps(us_to_ticks(deepsleep_mode_delta_us, ticker_freq), ticker_width,
+                            next_match_timestamp, wakeup_timestamp), info);
     }
 
     set_lp_ticker_irq_handler(lp_ticker_irq_handler_org);
@@ -240,8 +255,12 @@ void deepsleep_high_speed_clocks_turned_off_test()
 
     TEST_ASSERT_UINT32_WITHIN(1000, 0, ticks_to_us(us_ticks_diff, us_ticker_freq));
 
+    sprintf(info, "Delta ticks: %u, Ticker width: %u, Expected wake up tick: %d, Actual wake up tick: %d",
+            us_to_ticks(deepsleep_mode_delta_us, lp_ticker_freq), lp_ticker_width, wakeup_time, lp_ticks_after_sleep);
+
     /* Check if we have woken-up after expected time. */
-    TEST_ASSERT(compare_timestamps(us_to_ticks(deepsleep_mode_delta_us, lp_ticker_freq), lp_ticker_width, wakeup_time, lp_ticks_after_sleep));
+    TEST_ASSERT_MESSAGE(compare_timestamps(us_to_ticks(deepsleep_mode_delta_us, lp_ticker_freq), lp_ticker_width,
+                        wakeup_time, lp_ticks_after_sleep), info);
 }
 
 #endif
