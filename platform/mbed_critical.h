@@ -90,6 +90,43 @@ void core_util_critical_section_exit(void);
 bool core_util_in_critical_section(void);
 
 /**
+ * A lock-free, primitive atomic flag.
+ *
+ * Emulate C11's atomic_flag. The flag is initially in an indeterminate state
+ * unless explicitly initialised with CORE_UTIL_ATOMIC_FLAG_INIT.
+ */
+typedef struct core_util_atomic_flag {
+    uint8_t _flag;
+} core_util_atomic_flag;
+
+/**
+ * Initialiser for a core_util_atomic_flag.
+ *
+ * Example:
+ * ~~~
+ *     core_util_atomic_flag in_progress = CORE_UTIL_ATOMIC_FLAG_INIT;
+ * ~~~
+ */
+#define CORE_UTIL_ATOMIC_FLAG_INIT { 0 }
+
+/**
+ * Atomic test and set.
+ *
+ * Atomically tests then sets the flag to true, returning the previous value.
+ *
+ * @param  flagPtr Target flag being tested and set.
+ * @return         The previous value.
+ */
+bool core_util_atomic_flag_test_and_set(volatile core_util_atomic_flag *flagPtr);
+
+/**
+ * Atomic clear.
+ *
+ * @param  flagPtr Target flag being cleared.
+ */
+void core_util_atomic_flag_clear(volatile core_util_atomic_flag *flagPtr);
+
+/**
  * Atomic compare and set. It compares the contents of a memory location to a
  * given value and, only if they are the same, modifies the contents of that
  * memory location to a given new value. This is done as a single atomic
