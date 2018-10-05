@@ -12,9 +12,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from __future__ import print_function, absolute_import
+from builtins import str
+
 
 from os.path import join, exists, realpath, relpath, basename, isfile, splitext
-from os import makedirs, listdir
+from os import makedirs, listdir, remove, rmdir
 import json
 
 from tools.export.makefile import Makefile, GccArm, Armc5, IAR
@@ -40,12 +43,13 @@ class VSCode(Makefile):
         if not exists(join(self.export_dir, '.vscode')):
             makedirs(join(self.export_dir, '.vscode'))
 
-        self.gen_file('vscode/tasks.tmpl', ctx,
-                      join('.vscode', 'tasks.json'))
-        self.gen_file('vscode/launch.tmpl', ctx,
-                      join('.vscode', 'launch.json'))
-        self.gen_file('vscode/settings.tmpl', ctx,
-                      join('.vscode', 'settings.json'))
+        config_files = ['launch', 'settings', 'tasks']
+        for file in config_files:
+            if not exists('.vscode/%s.json' % file):
+                self.gen_file('vscode/%s.tmpl' % file, ctx,
+                              '.vscode/%s.json' % file)
+            else:
+                print('Keeping existing %s.json' % file)
 
         # So.... I want all .h and .hpp files in self.resources.inc_dirs
         all_directories = []
@@ -82,6 +86,11 @@ class VSCode(Makefile):
         with open(join(self.export_dir, '.vscode', 'c_cpp_properties.json'), 'w') as outfile:
             json.dump(cpp_props, outfile, indent=4, separators=(',', ': '))
 
+    @staticmethod
+    def clean(_):
+        for f in ['launch', 'settings', 'tasts', 'c_cpp_properties']:
+            remove(".vscode/%s.json" % f)
+        rmdir(".vscode")
 
 class VSCodeGcc(VSCode, GccArm):
     LOAD_EXE = True

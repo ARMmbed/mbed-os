@@ -30,7 +30,7 @@ static uint32_t lp_ticker_overflows_delta = 0;
 /* lp_ticker Overflow limit */
 static uint32_t lp_ticker_overflow_limit = 0;
 
-#if DEVICE_LOWPOWERTIMER
+#if DEVICE_LPTICKER
 /**
  * Interrupt Handler
  */
@@ -150,6 +150,11 @@ void lp_ticker_clear_interrupt(void)
 {
     /* Clear Interrupt */
     DualTimer_ClearInterrupt(DUALTIMER0);
+}
+
+void lp_ticker_free(void)
+{
+
 }
 
 #endif

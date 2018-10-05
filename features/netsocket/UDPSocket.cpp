@@ -18,12 +18,7 @@
 #include "Timer.h"
 #include "mbed_assert.h"
 
-#define TCP_EVENT           "UDP_Events"
-#define READ_FLAG           0x1u
-#define WRITE_FLAG          0x2u
-
 UDPSocket::UDPSocket()
-    : _pending(0), _event_flag()
 {
 }
 
@@ -37,6 +32,11 @@ nsapi_protocol_t UDPSocket::get_proto()
     return NSAPI_UDP;
 }
 
+nsapi_error_t UDPSocket::connect(const SocketAddress &address)
+{
+    _remote_peer = address;
+    return NSAPI_ERROR_OK;
+}
 
 nsapi_size_or_error_t UDPSocket::sendto(const char *host, uint16_t port, const void *data, nsapi_size_t size)
 {
@@ -56,6 +56,8 @@ nsapi_size_or_error_t UDPSocket::sendto(const SocketAddress &address, const void
 {
     _lock.lock();
     nsapi_size_or_error_t ret;
+
+    _writers++;
 
     while (true) {
         if (!_socket) {
@@ -85,14 +87,33 @@ nsapi_size_or_error_t UDPSocket::sendto(const SocketAddress &address, const void
         }
     }
 
+    _writers--;
+    if (!_socket || !_writers) {
+        _event_flag.set(FINISHED_FLAG);
+    }
     _lock.unlock();
     return ret;
+}
+
+nsapi_size_or_error_t UDPSocket::send(const void *data, nsapi_size_t size)
+{
+    if (!_remote_peer) {
+        return NSAPI_ERROR_NO_ADDRESS;
+    }
+    return sendto(_remote_peer, data, size);
 }
 
 nsapi_size_or_error_t UDPSocket::recvfrom(SocketAddress *address, void *buffer, nsapi_size_t size)
 {
     _lock.lock();
     nsapi_size_or_error_t ret;
+    SocketAddress ignored;
+
+    if (!address) {
+        address = &ignored;
+    }
+
+    _readers++;
 
     while (true) {
         if (!_socket) {
@@ -102,6 +123,13 @@ nsapi_size_or_error_t UDPSocket::recvfrom(SocketAddress *address, void *buffer, 
 
         _pending = 0;
         nsapi_size_or_error_t recv = _stack->socket_recvfrom(_socket, address, buffer, size);
+
+        // Filter incomming packets using connected peer address
+        if (recv >= 0 && _remote_peer && _remote_peer != *address) {
+            continue;
+        }
+
+        // Non-blocking sockets always return. Blocking only returns when success or errors other than WOULD_BLOCK
         if ((0 == _timeout) || (NSAPI_ERROR_WOULD_BLOCK != recv)) {
             ret = recv;
             break;
@@ -122,16 +150,29 @@ nsapi_size_or_error_t UDPSocket::recvfrom(SocketAddress *address, void *buffer, 
         }
     }
 
+    _readers--;
+    if (!_socket || !_readers) {
+        _event_flag.set(FINISHED_FLAG);
+    }
+
     _lock.unlock();
     return ret;
 }
 
-void UDPSocket::event()
+nsapi_size_or_error_t UDPSocket::recv(void *buffer, nsapi_size_t size)
 {
-    _event_flag.set(READ_FLAG|WRITE_FLAG);
+    return recvfrom(NULL, buffer, size);
+}
 
-    _pending += 1;
-    if (_callback && _pending == 1) {
-        _callback();
+Socket *UDPSocket::accept(nsapi_error_t *error)
+{
+    if (error) {
+        *error = NSAPI_ERROR_UNSUPPORTED;
     }
+    return NULL;
+}
+
+nsapi_error_t UDPSocket::listen(int)
+{
+    return NSAPI_ERROR_UNSUPPORTED;
 }

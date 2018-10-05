@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32l0xx_hal.h
   * @author  MCD Application Team
-  * @version V1.7.0
-  * @date    31-May-2016
   * @brief   This file contains all the functions prototypes for the HAL 
   *          module driver.
   ******************************************************************************
@@ -346,7 +344,7 @@
   *     @arg SYSCFG_FASTMODEPLUS_PB9
   */
 #define __HAL_SYSCFG_FASTMODEPLUS_ENABLE(__FASTMODEPLUS__)  do {assert_param(IS_SYSCFG_FASTMODEPLUS((__FASTMODEPLUS__))); \
-                                                                SET_BIT(SYSCFG->CFGR2, __FASTMODEPLUS__);                 \
+                                                                SET_BIT(SYSCFG->CFGR2, (__FASTMODEPLUS__));                 \
                                                                }while(0)
 /** @brief  Fast mode Plus driving capability disable macro
   * @param __FASTMODEPLUS__: This parameter can be a value of : 
@@ -356,7 +354,7 @@
   *     @arg SYSCFG_FASTMODEPLUS_PB9
   */
 #define __HAL_SYSCFG_FASTMODEPLUS_DISABLE(__FASTMODEPLUS__) do {assert_param(IS_SYSCFG_FASTMODEPLUS((__FASTMODEPLUS__))); \
-                                                                CLEAR_BIT(SYSCFG->CFGR2, __FASTMODEPLUS__);               \
+                                                                CLEAR_BIT(SYSCFG->CFGR2, (__FASTMODEPLUS__));               \
                                                                }while(0)
 
 

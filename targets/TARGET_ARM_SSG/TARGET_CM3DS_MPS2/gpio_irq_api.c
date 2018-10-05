@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2017 ARM Limited
+ * Copyright (c) 2006-2018 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,425 +14,192 @@
  * limitations under the License.
  */
 #include <stddef.h>
-#include "cmsis.h"
+#include "objects.h"
 #include "gpio_irq_api.h"
 #include "mbed_error.h"
 
-#define CHANNEL_NUM  32
-#define CMSDK_GPIO_0 CMSDK_GPIO0
-#define CMSDK_GPIO_1 CMSDK_GPIO1
-#define PININT_IRQ   0
+#define ERROR_BIT_NUMBER 0xFF
 
-static uint32_t channel_ids[CHANNEL_NUM] = {0};
-static gpio_irq_handler irq_handler;
+struct gpio_irq_handler_t {
+    gpio_irq_handler handler;
+    gpio_irq_event event;
+    uint32_t id;
+};
 
-static inline void handle_interrupt_in(uint32_t channel)
+/* Handlers registered */
+static struct gpio_irq_handler_t gpio_irq[PINS_NUMBER];
+
+/*
+ * Return the bit number of the lowest significant bit set to 1 or
+ * ERROR_BIT_NUMBER if there is no bit set.
+ */
+static uint8_t find_first_set_bit(uint32_t word)
 {
-    uint32_t ch_bit = (1 << channel);
-    // Return immediately if:
-    //   * The interrupt was already served
-    //   * There is no user handler
-    //   * It is a level interrupt, not an edge interrupt
-    if (ch_bit < 16) {
-        if (((CMSDK_GPIO_0->INTSTATUS) == 0)
-             || (channel_ids[channel] == 0)
-             || ((CMSDK_GPIO_0->INTTYPESET) == 0) ) {
-            return;
-        }
+    uint8_t bit_number = 0;
 
-        if ((CMSDK_GPIO_0->INTTYPESET & ch_bit) && (CMSDK_GPIO_0->INTPOLSET & ch_bit)) {
-            irq_handler(channel_ids[channel], IRQ_RISE);
-            CMSDK_GPIO_0->INTPOLSET = ch_bit;
-        }
-        if ((CMSDK_GPIO_0->INTTYPESET & ch_bit) && ~(CMSDK_GPIO_0->INTPOLSET & ch_bit)) {
-            irq_handler(channel_ids[channel], IRQ_FALL);
-        }
-
-        CMSDK_GPIO_0->INTCLEAR = ch_bit;
-    } else {
-        if (((CMSDK_GPIO_1->INTSTATUS) == 0)
-             || (channel_ids[channel] == 0)
-             || ((CMSDK_GPIO_1->INTTYPESET) == 0)) {
-            return;
-        }
-
-        if ((CMSDK_GPIO_1->INTTYPESET & ch_bit) && (CMSDK_GPIO_1->INTPOLSET & ch_bit)) {
-            irq_handler(channel_ids[channel], IRQ_RISE);
-            CMSDK_GPIO_1->INTPOLSET = ch_bit;
-        }
-        if ((CMSDK_GPIO_1->INTTYPESET & ch_bit) && ~(CMSDK_GPIO_1->INTPOLSET & ch_bit)) {
-            irq_handler(channel_ids[channel], IRQ_FALL);
-        }
-        CMSDK_GPIO_1->INTCLEAR = ch_bit;
+    if (word == 0) {
+        return ERROR_BIT_NUMBER;
     }
+
+    while (((word >> bit_number++) & 1UL) == 0);
+
+    return (bit_number - 1);
 }
 
-void gpio0_irq0(void)
+static void handler(struct arm_gpio_dev_t* dev, uint32_t gpio_number,
+                    uint32_t exp_pin_base)
 {
-    handle_interrupt_in(0);
+    uint32_t irq_status = 0;
+    /* Pin that triggered the IRQ in this GPIO */
+    uint8_t pin_number;
+    /* Pin number in the expension port */
+    uint8_t exp_pin_number;
+
+    (void)arm_gpio_get_irq_status(dev, ARM_GPIO_ACCESS_PORT, ARG_NOT_USED,
+                                  &irq_status);
+
+    pin_number = find_first_set_bit(irq_status);
+    if (pin_number == ERROR_BIT_NUMBER) {
+        /* There was no IRQ */
+        return;
+    }
+
+    (void)arm_gpio_clear_interrupt(dev, pin_number);
+
+    exp_pin_number = exp_pin_base + pin_number;
+
+    gpio_irq[exp_pin_number].handler(gpio_irq[exp_pin_number].id,
+                                     gpio_irq[exp_pin_number].event);
 }
 
-void gpio0_irq1(void)
+#ifdef ARM_GPIO0
+void PORT0_IRQHandler(void)
 {
-    handle_interrupt_in(1);
+    handler(&ARM_GPIO0_DEV, GPIO0_NUMBER, EXP_PIN_BASE0);
 }
+#endif /* ARM_GPIO0 */
 
-void gpio0_irq2(void)
+#ifdef ARM_GPIO1
+void PORT1_ALL_IRQHandler(void)
 {
-    handle_interrupt_in(2);
+    handler(&ARM_GPIO1_DEV, GPIO1_NUMBER, EXP_PIN_BASE1);
 }
+#endif /* ARM_GPIO1 */
 
-void gpio0_irq3(void)
+#ifdef ARM_GPIO2
+void PORT2_ALL_IRQHandler(void)
 {
-    handle_interrupt_in(3);
+    handler(&ARM_GPIO2_DEV, GPIO2_NUMBER, EXP_PIN_BASE2);
 }
+#endif /* ARM_GPIO2 */
 
-void gpio0_irq4(void)
+#ifdef ARM_GPIO3
+void PORT3_ALL_IRQHandler(void)
 {
-    handle_interrupt_in(4);
+    handler(&ARM_GPIO3_DEV, GPIO3_NUMBER, EXP_PIN_BASE3);
 }
+#endif /* ARM_GPIO3 */
 
-void gpio0_irq5(void)
+int gpio_irq_init(gpio_irq_t *obj, PinName pin, gpio_irq_handler handler,
+                  uint32_t id)
 {
-    handle_interrupt_in(5);
-}
+    struct arm_gpio_dev_t *gpio_dev;
 
-void gpio0_irq6(void)
-{
-    handle_interrupt_in(6);
-}
+    if (pin >= EXP0 && pin <= EXP51) {
+        /* GPIO pins */
+        switch (GPIO_DEV_NUMBER(pin)) {
+#ifdef ARM_GPIO0
+            case 0:
+                gpio_dev = &ARM_GPIO0_DEV;
+                obj->irq_number = PORT0_ALL_IRQn;
+                break;
+#endif /* ARM_GPIO0 */
+#ifdef ARM_GPIO1
+            case 1:
+                gpio_dev = &ARM_GPIO1_DEV;
+                obj->irq_number = PORT1_ALL_IRQn;
+                break;
+#endif /* ARM_GPIO1 */
+#ifdef ARM_GPIO2
+            case 2:
+                gpio_dev = &ARM_GPIO2_DEV;
+                obj->irq_number = PORT2_ALL_IRQn;
+                break;
+#endif /* ARM_GPIO2 */
+#ifdef ARM_GPIO3
+            case 3:
+                gpio_dev = &ARM_GPIO3_DEV;
+                obj->irq_number = PORT3_ALL_IRQn;
+                break;
+#endif /* ARM_GPIO3 */
+            default:
+                error("GPIO %d is not enabled", GPIO_DEV_NUMBER(pin));
+                return -1;
+        }
 
-void gpio0_irq7(void)
-{
-    handle_interrupt_in(7);
-}
+        obj->gpio_dev = gpio_dev;
+        obj->pin_number = GPIO_PIN_NUMBER(pin);
+        obj->exp_pin_number = pin;
 
-void gpio0_irq8(void)
-{
-    handle_interrupt_in(8);
-}
+        arm_gpio_init(gpio_dev);
 
-void gpio0_irq9(void)
-{
-    handle_interrupt_in(9);
-}
+        /* Save the handler and id into the global structure */
+        gpio_irq[pin].handler = handler;
+        gpio_irq[pin].id = id;
 
-void gpio0_irq10(void)
-{
-    handle_interrupt_in(10);
-}
-
-void gpio0_irq11(void)
-{
-    handle_interrupt_in(11);
-}
-
-void gpio0_irq12(void)
-{
-    handle_interrupt_in(12);
-}
-
-void gpio0_irq13(void)
-{
-    handle_interrupt_in(13);
-}
-
-void gpio0_irq14(void)
-{
-    handle_interrupt_in(14);
-}
-
-void gpio0_irq15(void)
-{
-    handle_interrupt_in(15);
-}
-
-void gpio1_irq0(void)
-{
-    handle_interrupt_in(16);
-}
-
-void gpio1_irq1(void)
-{
-    handle_interrupt_in(17);
-}
-void gpio1_irq2(void)
-{
-    handle_interrupt_in(18);
-}
-
-void gpio1_irq3(void)
-{
-    handle_interrupt_in(19);
-}
-
-void gpio1_irq4(void)
-{
-    handle_interrupt_in(20);
-}
-
-void gpio1_irq5(void)
-{
-    handle_interrupt_in(21);
-}
-
-void gpio1_irq6(void)
-{
-    handle_interrupt_in(22);
-}
-
-void gpio1_irq7(void)
-{
-    handle_interrupt_in(23);
-}
-
-void gpio1_irq8(void)
-{
-    handle_interrupt_in(24);
-}
-
-void gpio1_irq9(void)
-{
-    handle_interrupt_in(25);
-}
-
-void gpio1_irq10(void)
-{
-    handle_interrupt_in(26);
-}
-
-void gpio1_irq11(void)
-{
-    handle_interrupt_in(27);
-}
-
-void gpio1_irq12(void)
-{
-    handle_interrupt_in(28);
-}
-
-void gpio1_irq13(void)
-{
-    handle_interrupt_in(29);
-}
-
-void gpio1_irq14(void)
-{
-    handle_interrupt_in(30);
-}
-
-void gpio1_irq15(void)
-{
-    handle_interrupt_in(31);
-}
-
-int gpio_irq_init(gpio_irq_t *obj, PinName pin,
-                  gpio_irq_handler handler, uint32_t id)
-{
-    int found_free_channel = 0;
-    int i = 0;
-
-    if (pin == NC) {
+        return 0;
+    } else {
+        /* The pin is not concerned with GPIO IRQ */
+        error("Pin %d is not a GPIO", pin);
         return -1;
     }
-
-    irq_handler = handler;
-
-    for (i=0; i<CHANNEL_NUM; i++) {
-        if (channel_ids[i] == 0) {
-            channel_ids[i] = id;
-            obj->ch = i;
-            found_free_channel = 1;
-            break;
-        }
-    }
-
-    if (!found_free_channel) {
-       return -1;
-    }
-
-    /* To select a pin for any of the eight pin interrupts, write the pin number
-    * as 0 to 23 for pins PIO0_0 to PIO0_23 and 24 to 55.
-    * @see: mbed_capi/PinNames.h
-    */
-    if (pin <16) {
-        CMSDK_GPIO_0->INTENSET |= (0x1 << pin);
-    }
-
-    if (pin >= 16) {
-        CMSDK_GPIO_1->INTENSET |= (0x1 << pin);
-    }
-
-    void (*channels_irq)(void) = NULL;
-    switch (obj->ch) {
-        case 0:
-            channels_irq = &gpio0_irq0;
-            break;
-        case 1:
-            channels_irq = &gpio0_irq1;
-            break;
-        case 2:
-            channels_irq = &gpio0_irq2;
-            break;
-        case 3:
-            channels_irq = &gpio0_irq3;
-            break;
-        case 4:
-            channels_irq = &gpio0_irq4;
-            break;
-        case 5:
-            channels_irq = &gpio0_irq5;
-            break;
-        case 6:
-            channels_irq = &gpio0_irq6;
-            break;
-        case 7:
-            channels_irq = &gpio0_irq7;
-            break;
-        case 8:
-            channels_irq = &gpio0_irq8;
-            break;
-        case 9:
-            channels_irq = &gpio0_irq9;
-            break;
-        case 10:
-            channels_irq = &gpio0_irq10;
-            break;
-        case 11:
-            channels_irq = &gpio0_irq11;
-            break;
-        case 12:
-            channels_irq = &gpio0_irq12;
-            break;
-        case 13:
-            channels_irq = &gpio0_irq13;
-            break;
-        case 14:
-            channels_irq = &gpio0_irq14;
-            break;
-        case 15:
-            channels_irq = &gpio0_irq15;
-            break;
-        case 16:
-            channels_irq = &gpio1_irq0;
-            break;
-        case 17:
-            channels_irq = &gpio1_irq1;
-            break;
-        case 18:
-            channels_irq = &gpio1_irq2;
-            break;
-        case 19:
-            channels_irq = &gpio1_irq3;
-            break;
-        case 20:
-            channels_irq = &gpio1_irq4;
-            break;
-        case 21:
-            channels_irq = &gpio1_irq5;
-            break;
-        case 22:
-            channels_irq = &gpio1_irq6;
-            break;
-        case 23:
-            channels_irq = &gpio1_irq7;
-            break;
-        case 24:
-            channels_irq = &gpio1_irq8;
-            break;
-        case 25:
-            channels_irq = &gpio1_irq9;
-            break;
-        case 26:
-            channels_irq = &gpio1_irq10;
-            break;
-        case 27:
-            channels_irq = &gpio1_irq11;
-            break;
-        case 28:
-            channels_irq = &gpio1_irq12;
-            break;
-        case 29:
-            channels_irq = &gpio1_irq13;
-            break;
-        case 30:
-            channels_irq = &gpio1_irq14;
-            break;
-        case 31:
-            channels_irq = &gpio1_irq15;
-            break;
-    }
-
-    NVIC_SetVector((IRQn_Type)(PININT_IRQ + obj->ch), (uint32_t)channels_irq);
-    NVIC_EnableIRQ((IRQn_Type)(PININT_IRQ + obj->ch));
-
-    return 0;
 }
 
 void gpio_irq_free(gpio_irq_t *obj)
 {
-   channel_ids[obj->ch] = 0;
+    /* Not implemented because the device can not be uninitialized. */
 }
 
 void gpio_irq_set(gpio_irq_t *obj, gpio_irq_event event, uint32_t enable)
 {
-    unsigned int ch_bit = (1 << obj->ch);
+    /* Interrupt is set on an input pin on rising or falling edge */
+    uint32_t flags = ARM_GPIO_PIN_ENABLE | ARM_GPIO_INPUT | ARM_GPIO_IRQ |
+                     ARM_GPIO_IRQ_EDGE;
 
-    if (obj->ch <16) {
-        /* Clear interrupt */
-        if (!(CMSDK_GPIO_0->INTTYPESET & ch_bit)) {
-            CMSDK_GPIO_0->INTCLEAR = ch_bit;
-        }
-        CMSDK_GPIO_0->INTTYPESET &= ch_bit;
+    switch (event) {
+        case IRQ_RISE:
+            flags |= ARM_GPIO_IRQ_ACTIVE_HIGH;
+            break;
+        case IRQ_FALL:
+            flags |= ARM_GPIO_IRQ_ACTIVE_LOW;
+            break;
+        case IRQ_NONE:
+            return;
+    }
 
-        /* Set interrupt */
-        if (event == IRQ_RISE) {
-            CMSDK_GPIO_0->INTPOLSET |= ch_bit;
-            if (enable) {
-                CMSDK_GPIO_0->INTENSET |= ch_bit;
-            } else {
-                CMSDK_GPIO_0->INTENCLR |= ch_bit;
-            }
-        } else {
-            CMSDK_GPIO_0->INTPOLCLR |= ch_bit;
-            if (enable) {
-                CMSDK_GPIO_0->INTENSET |= ch_bit;
-            } else {
-                CMSDK_GPIO_0->INTENCLR |= ch_bit;
-            }
-        }
+    (void)arm_gpio_config(obj->gpio_dev, ARM_GPIO_ACCESS_PIN, obj->pin_number,
+                          flags);
+
+    /* Record the event type of this pin */
+    gpio_irq[obj->exp_pin_number].event = event;
+
+    NVIC_EnableIRQ(obj->irq_number);
+
+    if (enable) {
+        gpio_irq_enable(obj);
     } else {
-        /* Clear interrupt */
-        if (!(CMSDK_GPIO_1->INTTYPESET & ch_bit)) {
-            CMSDK_GPIO_1->INTCLEAR = ch_bit;
-        }
-        CMSDK_GPIO_1->INTTYPESET &= ch_bit;
-
-        /* Set interrupt */
-        if (event == IRQ_RISE) {
-            CMSDK_GPIO_1->INTPOLSET |= ch_bit;
-            if (enable) {
-                CMSDK_GPIO_1->INTENSET |= ch_bit;
-            } else {
-                CMSDK_GPIO_1->INTENCLR |= ch_bit;
-            }
-        } else {
-            CMSDK_GPIO_1->INTPOLCLR |= ch_bit;
-            if (enable) {
-                CMSDK_GPIO_1->INTENSET |= ch_bit;
-            } else {
-                CMSDK_GPIO_1->INTENCLR |= ch_bit;
-            }
-        }
+        gpio_irq_disable(obj);
     }
 }
 
 void gpio_irq_enable(gpio_irq_t *obj)
 {
-    NVIC_EnableIRQ((IRQn_Type)(PININT_IRQ + obj->ch));
+    (void)arm_gpio_set_interrupt(obj->gpio_dev, ARM_GPIO_ACCESS_PIN,
+                                 obj->pin_number, ARM_GPIO_IRQ_ENABLE);
 }
 
 void gpio_irq_disable(gpio_irq_t *obj)
 {
-    NVIC_DisableIRQ((IRQn_Type)(PININT_IRQ + obj->ch));
+    (void)arm_gpio_set_interrupt(obj->gpio_dev, ARM_GPIO_ACCESS_PIN,
+                                 obj->pin_number, ARM_GPIO_IRQ_DISABLE);
 }

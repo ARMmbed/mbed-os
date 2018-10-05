@@ -1,0 +1,66 @@
+@startuml
+
+package ndef {
+
+class MessageBuilder { 
+    +MessageBuilder(const Span<uint8_t> &buffer)
+    +~MessageBuilder()
+    +bool append_record(const RecordType &type, const RecordPayload &payload = RecordPayload(), bool is_last_record = false)
+    +bool append_record(const RecordType &type, const PayloadBuilder &builder, bool is_last_record = false)
+    +bool append_record(const Record &record, const PayloadBuilder *builder = NULL)
+    +void reset();
+    +void reset(const Span<uint8_t> &buffer);
+    +bool is_message_complete() const
+    +Span<const uint8_t> get_message() const
+}
+
+class Record { 
+}
+
+class RecordType{ 
+}
+
+class RecordPayload{ 
+}
+
+class RecordID{
+}
+
+interface MessageBuilder::PayloadBuilder { 
+    +{abstract} size_t size() const
+    +{abstract} void build(const Span<uint8_t> &buffer) const
+    # ~PayloadBuilder()
+}
+
+
+Record *-- RecordType
+Record *-- "0..1" RecordPayload
+Record *-- "0..1" RecordID
+
+Record - MessageBuilder: insert >
+MessageBuilder - MessageBuilder::PayloadBuilder: < build payload at insertion
+
+}
+
+package common { 
+
+
+class URI { 
++bool append_as_record(ndef::MessageBuilder &builder, bool is_last_record) const
+}
+
+class Text { 
++bool append_as_record(ndef::MessageBuilder &builder, bool is_last_record) const
+}
+
+class Mime { 
++bool append_as_record(ndef::MessageBuilder &builder, bool is_last_record) const
+}
+
+URI -- MessageBuilder: uses >
+Text -- MessageBuilder: uses >
+Mime -- MessageBuilder: uses >
+
+}
+
+@enduml

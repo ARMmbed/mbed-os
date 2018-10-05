@@ -57,10 +57,6 @@ __ram_vector_table__ = 1;
  * the stack where main runs is determined via the RTOS. */
 __stack_size__ = 0x400;
 
-/* This is the guaranteed minimum available heap size for an application. When
- * uVisor is enabled, this is also the maximum available heap size. The
- * HEAP_SIZE value is set by uVisor porters to balance the size of the legacy
- * heap and the page heap in uVisor applications. */
 __heap_size__ = 0x6000;
 
 #if !defined(MBED_APP_START)
@@ -104,18 +100,8 @@ SECTIONS
     . = ALIGN(4);
   } > m_flash_config
 
-  /* The program code and other data goes into internal flash */
-  /* Note: The uVisor expects this section at a fixed location, as specified by
-   * the porting process configuration parameter: FLASH_OFFSET. */
-  __UVISOR_FLASH_OFFSET = 0x410;
-  __UVISOR_FLASH_START = ORIGIN(m_interrupts) + __UVISOR_FLASH_OFFSET;
-  .text __UVISOR_FLASH_START :
+  .text :
   {
-    /* uVisor code and data */
-    . = ALIGN(4);
-    __uvisor_main_start = .;
-    *(.uvisor.main)
-    __uvisor_main_end = .;
 
     . = ALIGN(4);
     *(.text)                 /* .text sections (code) */
@@ -211,48 +197,6 @@ SECTIONS
     __interrupts_ram_end__ = .; /* Define a global symbol at data end */
   } > m_data
 
-  /* uVisor own memory and private box memories
-  /* If uVisor shares the SRAM with the OS/app, ensure that this section is
-   * the first one after the VTOR relocation section. */
-  /* Note: The uVisor expects this section at a fixed location, as specified
-           by the porting process configuration parameter: SRAM_OFFSET. */
-  __UVISOR_SRAM_OFFSET = 0x400;
-  __UVISOR_SRAM_START = ORIGIN(m_data) + __UVISOR_SRAM_OFFSET;
-  .uvisor.bss __UVISOR_SRAM_START (NOLOAD):
-  {
-    . = ALIGN(32);
-    __uvisor_bss_start = .;
-
-    /* Protected uVisor own BSS section */
-    . = ALIGN(32);
-    __uvisor_bss_main_start = .;
-    KEEP(*(.keep.uvisor.bss.main))
-    . = ALIGN(32);
-    __uvisor_bss_main_end = .;
-
-    /* Protected uVisor boxes' static memories */
-    . = ALIGN(32);
-    __uvisor_bss_boxes_start = .;
-    KEEP(*(.keep.uvisor.bss.boxes))
-    . = ALIGN(32);
-    __uvisor_bss_boxes_end = .;
-
-    . = ALIGN(32);
-    __uvisor_bss_end = .;
-  } > m_data
-
-  /* Heap space for the page allocator
-  /* If uVisor shares the SRAM with the OS/app, ensure that this section is
-   * the first one after the uVisor BSS section. Otherwise, ensure it is the
-   * first one after the VTOR relocation section. */
-  .page_heap (NOLOAD) :
-  {
-    . = ALIGN(32);
-    __uvisor_page_start = .;
-    KEEP(*(.keep.uvisor.page_heap))
-    . = ALIGN(32);
-    __uvisor_page_end = .;
-  } > m_data_2
 
   __VECTOR_RAM = DEFINED(__ram_vector_table__) ? __VECTOR_RAM__ : ORIGIN(m_interrupts);
   __RAM_VECTOR_TABLE_SIZE_BYTES = DEFINED(__ram_vector_table__) ? (__interrupts_ram_end__ - __interrupts_ram_start__) : 0x0;
@@ -275,37 +219,6 @@ SECTIONS
   text_end = ORIGIN(m_text) + LENGTH(m_text);
   ASSERT(__DATA_END <= text_end, "region m_text overflowed with text and data")
 
-  /* uVisor configuration section
-   * This section must be located after all other flash regions. */
-  .uvisor.secure :
-  {
-    . = ALIGN(32);
-    __uvisor_secure_start = .;
-
-    /* uVisor secure boxes configuration tables */
-    . = ALIGN(32);
-    __uvisor_cfgtbl_start = .;
-    KEEP(*(.keep.uvisor.cfgtbl))
-    . = ALIGN(32);
-    __uvisor_cfgtbl_end = .;
-
-    /* Pointers to the uVisor secure boxes configuration tables */
-    /* Note: Do not add any further alignment here, as uVisor will need to have
-     * access to the exact list of pointers. */
-    __uvisor_cfgtbl_ptr_start = .;
-    KEEP(*(.keep.uvisor.cfgtbl_ptr_first))
-    KEEP(*(.keep.uvisor.cfgtbl_ptr))
-    __uvisor_cfgtbl_ptr_end = .;
-
-    /* Pointers to all boxes register gateways. These are grouped here to allow
-     * discoverability and firmware verification. */
-    __uvisor_register_gateway_ptr_start = .;
-    KEEP(*(.keep.uvisor.register_gateway_ptr))
-    __uvisor_register_gateway_ptr_end = .;
-
-    . = ALIGN(32);
-    __uvisor_secure_end = .;
-  } > m_text
 
   /* Uninitialized data section
    * This region is not initialized by the C/C++ library and can be used to
@@ -343,14 +256,12 @@ SECTIONS
   .heap :
   {
     . = ALIGN(8);
-    __uvisor_heap_start = .;
     __end__ = .;
     PROVIDE(end = .);
     __HeapBase = .;
     . += HEAP_SIZE;
     __HeapLimit = .;
     __heap_limit = .; /* Add for _sbrk */
-    __uvisor_heap_end = .;
   } > m_data_2
 
   m_usb_bdt USB_RAM_START (NOLOAD) :
@@ -373,11 +284,4 @@ SECTIONS
 
   ASSERT(__StackLimit >= __HeapLimit, "Region m_data_2 overflowed with stack and heap")
 
-  /* Provide the physical memory boundaries for uVisor. */
-  __uvisor_flash_start = ORIGIN(m_interrupts);
-  __uvisor_flash_end = ORIGIN(m_text) + LENGTH(m_text);
-  __uvisor_sram_start = ORIGIN(m_data);
-  __uvisor_sram_end = ORIGIN(m_data_2) + LENGTH(m_data_2);
-  __uvisor_public_sram_start = __uvisor_sram_start;
-  __uvisor_public_sram_end = __uvisor_sram_end;
 }

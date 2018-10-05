@@ -68,7 +68,12 @@ typedef enum
     GPIO_PuPd_UP = Px_PCR_PUPD_UP,
     GPIO_PuPd_DOWN = Px_PCR_PUPD_DOWN,
     GPIO_PuPd_Default = 0x0ul,
+    GPIO_DS = Px_PCR_DS_HIGH,
+    GPIO_IE = Px_PCR_IE,
+    GPIO_SUMMIT = Px_PCR_CS_SUMMIT
 }GPIOPad_TypeDef;
+
+#define IS_GPIO_PUPD(PUPD)  (((PUPD) == GPIO_PuPd_UP) || ((PUPD) == GPIO_PuPd_DOWN))
 
 typedef struct
 {
@@ -79,12 +84,24 @@ typedef struct
 
 typedef enum
 {
+    Falling = 0,
+    Rising  = 1
+}GPIOPol_TypeDef;
+
+typedef enum
+{
+    Reset = 0,
+    Set   = 1
+}GPIOSet_TypeDef;
+
+typedef enum
+{
     Bit_RESET = 0,
     Bit_SET
 }BitAction;
 
 
-#define IS_PAD_TYPE(Px)  (((Px) == PAD_PA) || ((Px) == PAD_PB) \
+#define IS_PAD_TYPE(Px)  (((Px) == PAD_PA) || ((Px) == PAD_PB) || \
                           ((Px) == PAD_PC) || ((Px) == PAD_PD))
 
 #define IS_PA_NUM(NUM) (((NUM)>=0) && ((NUM)<16))

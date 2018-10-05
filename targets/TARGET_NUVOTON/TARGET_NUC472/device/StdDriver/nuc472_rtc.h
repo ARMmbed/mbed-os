@@ -191,7 +191,23 @@ typedef struct {
  */
 #define RTC_GET_TAMPER_FLAG(u32PinNum)    ( (RTC->TAMPSTS & (1 << u32PinNum)) >> u32PinNum)
 
+/* Declare these inline functions here to avoid MISRA C 2004 rule 8.1 error */
+static __INLINE void RTC_WaitAccessEnable(void);
 
+/**
+  * @brief      Wait RTC Access Enable
+  *
+  * @param      None
+  *
+  * @return     None
+  *
+  * @details    This function is used to enable the maximum RTC read/write accessible time.
+  */
+static __INLINE void RTC_WaitAccessEnable(void)
+{
+    RTC->RWEN = RTC_WRITE_KEY;
+    while(!(RTC->RWEN & RTC_RWEN_RWENF_Msk));
+}
 
 void RTC_Open(S_RTC_TIME_DATA_T *sPt);
 void RTC_Close(void);

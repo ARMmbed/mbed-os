@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <link rel="stylesheet" type="text/css" 
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" 
+      integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" 
+      crossorigin="anonymous" 
+    />
+    <link rel="stylesheet" type="text/css" 
+      href="https://cdn.jsdelivr.net/gh/spiermar/d3-flame-graph@1.0.4/dist/d3.flameGraph.min.css" 
+      integrity="sha256-w762vSe6WGrkVZ7gEOpnn2Y+FSmAGlX77jYj7nhuCyY=" 
+      crossorigin="anonymous" 
+    />
+
+    <style>
+    /* Space out content a bit */
+    body {
+      padding-top: 20px;
+      padding-bottom: 20px;
+    }
+    /* Custom page header */
+    .header {
+      padding-bottom: 20px;
+      padding-right: 15px;
+      padding-left: 15px;
+      border-bottom: 1px solid #e5e5e5;
+    }
+    /* Make the masthead heading the same height as the navigation */
+    .header h3 {
+      margin-top: 0;
+      margin-bottom: 0;
+      line-height: 40px;
+    }
+    </style>
+
+    <title>{{name}} Memory Details</title>
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js" integrity="sha256-4OrICDjBYfKefEbVT7wETRLNFkuq4TJV5WLGvjqpGAk=" crossorigin="anonymous"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js" integrity="sha256-g6iAfvZp+nDQ2TdTR/VVKJf3bGro4ub5fvWSWVRi2NE=" crossorigin="anonymous"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="container">
+      <div class="header clearfix">
+        <h3 class="text-muted">{{name}} Memory Details</h3>
+      </div>
+      <div id="chart-rom">
+      </div>
+      <hr/>
+      <div id="chart-ram">
+      </div>
+      <hr/>
+      <div id="details"></div>
+    </div>
+
+    <script type="text/javascript" 
+      src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.10.0/d3.min.js" 
+      integrity="sha256-r7j1FXNTvPzHR41+V71Jvej6fIq4v4Kzu5ee7J/RitM=" 
+      crossorigin="anonymous">
+    </script>
+    <script type="text/javascript" 
+      src="https://cdnjs.cloudflare.com/ajax/libs/d3-tip/0.7.1/d3-tip.min.js" 
+      integrity="sha256-z0A2CQF8xxCKuOJsn4sJ5HBjxiHHRAfTX8hDF4RSN5s=" 
+      crossorigin="anonymous">
+    </script>
+    <script type="text/javascript" 
+      src="https://cdn.jsdelivr.net/gh/spiermar/d3-flame-graph@1.0.4/dist/d3.flameGraph.min.js" 
+      integrity="sha256-I1CkrWbmjv+GWjgbulJ4i0vbzdrDGfxqdye2qNlhG3Q=" 
+      crossorigin="anonymous">
+    </script>
+
+    <script type="text/javascript">
+    var tip = d3.tip()
+      .direction("s")
+      .offset([8, 0])
+      .attr('class', 'd3-flame-graph-tip')
+      .html(function(d) { return "module: " + d.data.name + ", bytes: " + d.data.value + ", delta: " + d.data.delta; });
+    var colorizer = function (d) {
+        if (d.data.delta > 0) {
+            ratio = (d.data.value - d.data.delta) / d.data.value;
+            green = ("0" + (Number(ratio * 0xFF | 0).toString(16))).slice(-2).toUpperCase();
+            blue = ("0" + (Number(ratio * 0xEE | 0).toString(16))).slice(-2).toUpperCase();
+            console.log(d.data.name, green, blue);
+            return "#EE" + green + blue
+        } else if (d.data.delta < 0) {
+            ratio = (d.data.value + d.data.delta) / d.data.value;
+            green = ("0" + (Number(ratio * 0xFF | 0).toString(16))).slice(-2).toUpperCase();
+            red = ("0" + (Number(ratio * 0xFF | 0).toString(16))).slice(-2).toUpperCase();
+            console.log(d.data.name, red, green);
+            return "#" + red + green + "EE";
+        } else {
+            return "#FFFFEE";
+        }
+    }
+    var flameGraph_rom = d3.flameGraph()
+      .transitionDuration(250)
+      .transitionEase(d3.easeCubic)
+      .sort(true)
+      .color(colorizer)
+      .tooltip(tip);
+    var flameGraph_ram = d3.flameGraph()
+      .transitionDuration(250)
+      .transitionEase(d3.easeCubic)
+      .sort(true)
+      .color(colorizer)
+      .tooltip(tip);
+    var rom_elem = d3.select("#chart-rom");
+    flameGraph_rom.width(rom_elem.node().getBoundingClientRect().width);
+    rom_elem.datum({{rom}}).call(flameGraph_rom);
+    var ram_elem = d3.select("#chart-ram");
+    flameGraph_ram.width(ram_elem.node().getBoundingClientRect().width);
+    ram_elem.datum({{ram}}).call(flameGraph_ram);
+    </script>
+  </body>
+</html>
+

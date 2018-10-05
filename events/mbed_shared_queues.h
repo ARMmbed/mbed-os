@@ -45,6 +45,11 @@ namespace mbed {
  * for the event loop to work without an RTOS, or an RTOS system can can save
  * memory by reusing the main stack.
  *
+ * @note
+ * mbed_event_queue is not itself IRQ safe. To use the mbed_event_queue in
+ * interrupt context, you must first call `mbed_event_queue()` in threaded
+ * context and store the pointer for later use.
+ *
  * @return pointer to event queue
  */
 events::EventQueue *mbed_event_queue();
@@ -66,6 +71,12 @@ events::EventQueue *mbed_event_queue();
  * users. As such, users can expect that event latency will typically be 100us
  * or less, but could occasionally be significantly higher if many events are
  * queued.
+ *
+ * @note
+ * mbed_highprio_event_queue is not itself IRQ safe. To use the
+ * mbed_highprio_event_queue in interrupt context, you must first call
+ * `mbed_event_queue()` in threaded context and store the pointer for
+ * later use.
  *
  * @return pointer to high-priority event queue
  */

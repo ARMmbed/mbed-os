@@ -14,6 +14,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+from __future__ import print_function
 
 import re
 import sys
@@ -45,7 +46,7 @@ class UDPEchoServerTest():
             # We assume this test fails so can't send 'error' message to server
             try:
                 self.s = socket(AF_INET, SOCK_DGRAM)
-            except Exception, e:
+            except Exception as e:
                 self.s = None
                 selftest.notify("HOST: Socket error: %s"% e)
                 return selftest.RESULT_ERROR

@@ -1,4 +1,13 @@
 {
+    "STM32L443RC": {
+        "OGChipSelectEditMenu": "STM32L443RC\tST STM32L443RC"
+    },
+    "STM32L433RC": {
+        "OGChipSelectEditMenu": "STM32L433RC\tST STM32L433RC"
+    },
+    "STM32L496AG": {
+        "OGChipSelectEditMenu": "STM32L496AG\tST STM32L496AG"
+    },
     "STM32L496ZG": {
         "OGChipSelectEditMenu": "STM32L496ZG\tST STM32L496ZG"
     },
@@ -48,8 +57,9 @@
         "OGChipSelectEditMenu": "STM32F070RB\tST STM32F070RB"
     },
     "MK22DN512xxx5": {
-        "OGChipSelectEditMenu": "MK22DN512xxx5\tNXP MK22DN512xxx5"
+        "OGChipSelectEditMenu": "MK22FN512xxx12\tFreescale MK22FN512xxx12"
     },
+
     "MK24FN1M0xxx12": {
         "OGChipSelectEditMenu": "MK24FN1M0xxx12\tNXP MK24FN1M0xxx12"
     },
@@ -80,7 +90,7 @@
     "LPC54114J256BD64": {
         "OGChipSelectEditMenu": "LPC54114J256_M4\tNXP LPC54114J256_M4"
     },
-    "LPC54618J512ET180": {
+    "LPC54628J512ET180": {
         "OGChipSelectEditMenu": "LPC54618J512\tNXP LPC54618J512"
     },
     "STM32F072RB": {
@@ -106,6 +116,9 @@
     },
     "STM32F303RE": {
         "OGChipSelectEditMenu": "STM32F303xE\tST STM32F303xE"
+    },
+    "STM32L151CC": {
+        "OGChipSelectEditMenu": "STM32L151CC\tST STM32L151CC"
     },
     "STM32L152RE": {
         "OGChipSelectEditMenu": "STM32L152xE\tST STM32L152xE"
@@ -142,9 +155,6 @@
         "FPU2": 7,
         "NrRegs": 1
     },
-    "MKL43Z256xxx4": {
-        "OGChipSelectEditMenu": "MKL43Z256xxx4\tFreescale MKL43Z256xxx4"
-    },
     "LPC812M101JDH20": {
         "OGChipSelectEditMenu": "LPC812M101\tNXP LPC812M101"
     },
@@ -173,9 +183,6 @@
     "STM32F446ZE": {
         "OGChipSelectEditMenu": "STM32F446ZE\tST STM32F446ZE"
     },
-    "MK22DN512xxx5": {
-        "OGChipSelectEditMenu": "MK22FN512xxx12\tFreescale MK22FN512xxx12"
-    },
     "STM32F303K8": {
         "OGChipSelectEditMenu": "STM32F303x8\tST STM32F303x8"
     },
@@ -197,7 +204,7 @@
     "STM32F091RC": {
         "OGChipSelectEditMenu": "STM32F091RC\tST STM32F091RC"
     },
-    "RZ_A1H": {
+    "R7S72100": {
         "OGChipSelectEditMenu": "R7S721001\tRenesas R7S721001",
         "CoreVariant": 37,
         "GFPUCoreSlave": 37,
@@ -206,6 +213,13 @@
     },
     "VK_RZ_A1H": {
         "OGChipSelectEditMenu": "R7S721000\tRenesas R7S721000",
+        "CoreVariant": 37,
+        "GFPUCoreSlave": 37,
+        "GBECoreSlave": 37,
+        "NEON":1
+    },
+    "R7S72103": {
+        "OGChipSelectEditMenu": "R7S721030\tRenesas R7S721030",
         "CoreVariant": 37,
         "GFPUCoreSlave": 37,
         "GBECoreSlave": 37,
@@ -248,5 +262,21 @@
         "OGChipSelectEditMenu": "TMPM066FWUG\tToshiba TMPM066FWUG",
         "GFPUCoreSlave": 21,
         "GBECoreSlave": 21
+    },
+    "ADuCM3029": {
+        "OGChipSelectEditMenu": "ADuCM3029\tAnalogDevices ADuCM3029"
+    },
+    "ADuCM4050": {
+        "OGChipSelectEditMenu": "ADuCM4050\tAnalogDevices ADuCM4050"
+    },
+    "TMPM46BF10FG":{
+        "OGChipSelectEditMenu": "TMPM46BF10FG\tToshiba TMPM46BF10FG",
+        "GFPUCoreSlave": 21,
+        "GBECoreSlave": 21
+    },
+    "TMPM3H6FWFG":{
+        "OGChipSelectEditMenu": "TMPM3H6FWFG\tToshiba TMPM3H6FWFG",
+        "GFPUCoreSlave": 24,
+        "GBECoreSlave": 24
     }
 }

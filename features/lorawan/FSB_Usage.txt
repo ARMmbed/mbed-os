@@ -1,0 +1,52 @@
+Frequency sub-bands in US915/AU915:
+
+ US915/AU915 PHYs define channel structures that can support up to 72 channels for upstream.
+ The first 64 channels (0-63), occupy 125 kHz and the last 8 channels (64-71) occupy 500 kHz. 
+ However, most of the base stations available in the market support 8 or 16 channels. 
+ Network acquisition can become costly if the device has no prior knowledge of the active channel plan and it enables 
+ all 72 channels to begin with. 
+ 
+ The LoRaWAN 1.0.2 Regional parameters specification refers to a strategy of probing a set of nine channels (8 + 1) for
+ the joining process. According to that strategy, the device alternatively selects a channel from a set of 
+ 8 125 kHz channels and a 500 kHz channel.
+ For example, send a join request alternatively on a randomly selected channel from a set of 0-7 channels and
+ channel 64, which is the first 500 kHz channel.
+ 
+ Once the device has joined the network (in case of OTAA) or has sent the first uplink (in the case of ABP), the network
+ may send a LinkAdrReq MAC command to set the channel mask to be used. Please note that these PHY layers do not
+ support CFList, so LinkAdrReq is the way the network tells you what channel plan to use. 
+ 
+ You can configure the Mbed LoRaWAN stack to use a particular frequency sub-band (FSB), which means that you don't have to
+ probe all sets of channels. "fsb-mask" in lorawan/mbed_lib.json is the parameter that you can use to tell the 
+ system which FSB or set of FSBs to use. By default, the "fsb-mask" is set to "{0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0x00FF}". 
+ That means all channels are active. In other words, 64 125 kHz channels and 8 500 kHz channels are active. If you wish
+ to use a custom FSB, you need to set an appropriate mask as the value of "fsb-mask". For example, if you wish to use the 
+ first FSB, in other words, the first 8 125 kHz channels (0-7) and the first 500 kHz channel:
+    "fsb-mask" = "{0x00FF, 0x0000, 0x0000, 0x0000, 0x0001}" 
+ Similarly, if you wish to use the second FSB, in other words, the second set of 8 125 kHz channels (8-15) and the 2nd 500 kHz 
+ channel:
+    "fsb-mask" = "{0xFF00, 0x0000, 0x0000, 0x0000, 0x0002}"
+ 
+ You can also combine FSBs if your base station supports more than 8 channels. For example:
+    "fsb-mask" = "{0x00FF, 0x0000, 0x0000, 0xFF00, 0x0081}"
+ means use channels 0-7(125 kHz) + channel 64 (500 KHz) and channels 56-63 (125 kHz) + channel 71 (500 kHz).
+ 
+ Please note that for Certification requirements, you need to alternate between 125 kHz and 500 kHz channels, so before joining, 
+ do not set a mask that enables only 500 kHz or only 125 kHz channels.  
+ 
+ Frequency sub-bands in CN470 PHY:
+ 
+ The LoRaPHYCN470 class defines 96 channels in total, as per the LoRaWAN Regional Specification. These 96 channels
+ are 125 kHz wide each and can be subdivided into 6 sub-bands containing 16 channels each. 
+ "fsb-mask-china" is the parameter that lorawan/mbed_lib.json defines. It can be used to enforce an FSB. It is defined
+ as a C-style array, and the first element of the array corresponds to first 8 channels (0-7) and so on. By default, all 
+ 96 channels are enabled, but there may be base stations that do not support all 96 channels. Therefore, network acquisition
+ can become cumbersome if the device hops on random channels. The probability of finding a correct channel for a base station 
+ that supports 8 channels would be 1/12. 
+ 
+ For example, if your base station supports 16 channels (channels 0-15), set the "fsb-mask-china" as:
+  "fsb-mask-china" = "{0xFFFF, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000}" 
+ 
+ Similarly, if your base station supports 8 channels (channels 0-7), set the "fsb-mask-china" as:
+  "fsb-mask-china" = "{0x00FF, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000}" 
+ 

@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_rcc.c
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    04-November-2016
   * @brief   RCC HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Reset and Clock Control (RCC) peripheral:
@@ -986,7 +984,7 @@ HAL_StatusTypeDef HAL_RCC_ClockConfig(RCC_ClkInitTypeDef  *RCC_ClkInitStruct, ui
 #endif
 void HAL_RCC_MCOConfig(uint32_t RCC_MCOx, uint32_t RCC_MCOSource, uint32_t RCC_MCODiv)
 {
-  GPIO_InitTypeDef gpio = {0U};
+  GPIO_InitTypeDef gpio;
 
   /* Check the parameters */
   assert_param(IS_RCC_MCO(RCC_MCOx));
@@ -1068,7 +1066,7 @@ uint32_t HAL_RCC_GetSysClockFreq(void)
   const uint8_t aPLLMULFactorTable[16] = { 2U,  3U,  4U,  5U,  6U,  7U,  8U,  9U,
                                          10U, 11U, 12U, 13U, 14U, 15U, 16U, 16U};
   const uint8_t aPredivFactorTable[16] = { 1U, 2U,  3U,  4U,  5U,  6U,  7U,  8U,
-                                           9U, 10U, 11U, 12U, 13U, 14U, 15U, 16U};
+                                           9U,10U, 11U, 12U, 13U, 14U, 15U, 16U};
 
   uint32_t tmpreg = 0U, prediv = 0U, pllclk = 0U, pllmul = 0U;
   uint32_t sysclockfreq = 0U;

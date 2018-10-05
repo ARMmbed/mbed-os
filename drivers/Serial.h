@@ -20,10 +20,10 @@
 
 #if defined (DEVICE_SERIAL) || defined(DOXYGEN_ONLY)
 
-#include "Stream.h"
+#include "platform/Stream.h"
 #include "SerialBase.h"
-#include "PlatformMutex.h"
-#include "serial_api.h"
+#include "platform/PlatformMutex.h"
+#include "hal/serial_api.h"
 #include "platform/NonCopyable.h"
 
 namespace mbed {
@@ -68,7 +68,7 @@ public:
      *  @note
      *    Either tx or rx may be specified as NC if unused
      */
-    Serial(PinName tx, PinName rx, const char *name=NULL, int baud = MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE);
+    Serial(PinName tx, PinName rx, const char *name = NULL, int baud = MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE);
 
 
     /** Create a Serial port, connected to the specified transmit and receive pins, with the specified baud

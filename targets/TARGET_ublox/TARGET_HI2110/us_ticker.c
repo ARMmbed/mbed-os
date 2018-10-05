@@ -251,3 +251,8 @@ void us_ticker_clear_interrupt(void)
     g_timer_extra_loops_required = 0;
     g_us_overflow_increment = 0;
 }
+
+void us_ticker_free(void)
+{
+
+}

@@ -2,13 +2,11 @@
   ******************************************************************************
   * @file    stm32l1xx_ll_spi.c
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    01-July-2016
   * @brief   SPI LL module driver.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -422,22 +420,15 @@ ErrorStatus LL_I2S_Init(SPI_TypeDef *SPIx, LL_I2S_InitTypeDef *I2S_InitStruct)
      * - AudioFreq:     SPI_I2SPR_I2SDIV[7:0] and SPI_I2SPR_ODD bits
      */
 
-    /* If the default value has to be written, reinitialize i2sdiv and i2sodd*/
-    if (I2S_InitStruct->AudioFreq == LL_I2S_AUDIOFREQ_DEFAULT)
+    /* If the requested audio frequency is not the default, compute the prescaler (i2sodd, i2sdiv)
+     * else, default values are used:  i2sodd = 0U, i2sdiv = 2U.
+     */
+    if (I2S_InitStruct->AudioFreq != LL_I2S_AUDIOFREQ_DEFAULT)
     {
-      i2sodd = 0U;
-      i2sdiv = 2U;
-    }
-    /* If the requested audio frequency is not the default, compute the prescaler */
-    else
-    {
-      /* Check the frame length (For the Prescaler computing) */
-      if (I2S_InitStruct->DataFormat == LL_I2S_DATAFORMAT_16B)
-      {
-        /* Packet length is 16 bits */
-        packetlength = 1U;
-      }
-      else
+      /* Check the frame length (For the Prescaler computing)
+       * Default value: LL_I2S_DATAFORMAT_16B (packetlength = 1U).
+       */
+      if (I2S_InitStruct->DataFormat != LL_I2S_DATAFORMAT_16B)
       {
         /* Packet length is 32 bits */
         packetlength = 2U;

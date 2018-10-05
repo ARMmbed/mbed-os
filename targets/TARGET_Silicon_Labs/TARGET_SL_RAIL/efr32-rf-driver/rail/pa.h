@@ -3,7 +3,7 @@
  * @brief RADIO PA API
  *******************************************************************************
  * @section License
- * <b>(C) Copyright 2015 Silicon Labs, http://www.silabs.com</b>
+ * <b>(C) Copyright 2015 Silicon Labs, www.silabs.com</b>
  *******************************************************************************
  *
  * Permission is granted to anyone to use this software for any purpose,
@@ -81,13 +81,17 @@ extern "C" {
  * @param[in] paConfig
  *   Pointer to a structure containing the desired PA configuration settings.
  *
+ * @param[in] timings
+ *   Pointer to a structure containing the current state transition timings.
+ *
  * @return
  *   RAIL_Status_t indicating success
  *
  * @warning
  *   The radio should not be transmitting when this function is called!
  */
-RAIL_Status_t PA_Config(const RAIL_TxPowerConfig_t *paConfig);
+RAIL_Status_t PA_Config(const RAIL_TxPowerConfig_t *paConfig,
+                        const StateTimings_t *timings);
 
 /**
  * @brief
@@ -131,6 +135,9 @@ uint32_t PA_GetRampTime(void);
  *
  * @param[in] ramptime
  *   Desired ramp time in microseconds
+
+ * @param[in] timings
+ *   Pointer to a structure containing the current state transition timings.
  *
  * @return
  *   The actual ramp time that was set in microseconds.
@@ -138,7 +145,7 @@ uint32_t PA_GetRampTime(void);
  * @warning
  *   The radio should not be transmitting when this function is called!
  */
-uint32_t PA_SetRampTime(uint32_t ramptime, StateTimings_t *timings);
+uint32_t PA_SetRampTime(uint32_t rampTime, const StateTimings_t *timings);
 
 /**
  * Enable/Disable PA calibration
@@ -194,7 +201,7 @@ void PA_SetCTune(uint8_t txPaCtuneValue, uint8_t rxPaCtuneValue);
  * @warning
  *   The radio should not be transmitting when this function is called!
  */
-RAIL_TxPowerLevel_t PA_SetPowerLevel(RAIL_TxPowerLevel_t pwrLevel);
+RAIL_TxPowerLevel_t PA_SetPowerLevel(RAIL_TxPowerLevel_t powerLevel);
 
 /** @} (end addtogroup EFR32xG1x_PA_Advanced) */
 /** @} (end addtogroup EFR32xG1x_PA) */

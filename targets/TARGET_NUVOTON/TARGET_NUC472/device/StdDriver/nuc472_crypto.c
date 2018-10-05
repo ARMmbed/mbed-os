@@ -1,8 +1,8 @@
 /**************************************************************************//**
  * @file     crypto.c
  * @version  V1.10
- * $Revision: 11 $
- * $Date: 14/10/03 1:54p $
+ * $Revision: 12 $
+ * $Date: 15/11/06 2:17p $
  * @brief  Cryptographic Accelerator driver source file
  *
  * @note
@@ -141,13 +141,15 @@ void AES_Start(int32_t u32Channel, uint32_t u32DMAMode)
   */
 void AES_SetKey(uint32_t u32Channel, uint32_t au32Keys[], uint32_t u32KeySize)
 {
-    int       i, wcnt;
-    uint32_t  *key_ptr;
+    uint32_t  i, wcnt, key_reg_addr;
 
-    key_ptr = (uint32_t *)((uint32_t)&CRPT->AES0_KEY0 + (u32Channel * 0x3C));
-    wcnt = 4 + u32KeySize*2;
-    for (i = 0; i < wcnt; i++, key_ptr++)
-        *key_ptr = au32Keys[i];
+    key_reg_addr = (uint32_t)&CRPT->AES0_KEY0 + (u32Channel * 0x3CUL);
+    wcnt = 4UL + u32KeySize*2UL;
+
+    for (i = 0U; i < wcnt; i++) {
+        outpw(key_reg_addr, au32Keys[i]);
+        key_reg_addr += 4UL;
+    }
 }
 
 /**
@@ -158,12 +160,14 @@ void AES_SetKey(uint32_t u32Channel, uint32_t au32Keys[], uint32_t u32KeySize)
   */
 void AES_SetInitVect(uint32_t u32Channel, uint32_t au32IV[])
 {
-    int       i;
-    uint32_t  *key_ptr;
+    uint32_t  i, key_reg_addr;
 
-    key_ptr = (uint32_t *)((uint32_t)&CRPT->AES0_IV0 + (u32Channel * 0x3C));
-    for (i = 0; i < 4; i++, key_ptr++)
-        *key_ptr = au32IV[i];
+    key_reg_addr = (uint32_t)&CRPT->AES0_IV0 + (u32Channel * 0x3CUL);
+
+    for (i = 0U; i < 4U; i++) {
+        outpw(key_reg_addr, au32IV[i]);
+        key_reg_addr += 4UL;
+    }
 }
 
 /**
@@ -177,15 +181,24 @@ void AES_SetInitVect(uint32_t u32Channel, uint32_t au32IV[])
 void AES_SetDMATransfer(uint32_t u32Channel, uint32_t u32SrcAddr,
                         uint32_t u32DstAddr, uint32_t u32TransCnt)
 {
-    *(uint32_t *)((uint32_t)&CRPT->AES0_SADDR + (u32Channel * 0x3C)) = u32SrcAddr;
-    *(uint32_t *)((uint32_t)&CRPT->AES0_DADDR + (u32Channel * 0x3C)) = u32DstAddr;
-    *(uint32_t *)((uint32_t)&CRPT->AES0_CNT + (u32Channel * 0x3C)) = u32TransCnt;
+    uint32_t  reg_addr;
+
+    reg_addr = (uint32_t)&CRPT->AES0_SADDR + (u32Channel * 0x3CUL);
+    outpw(reg_addr, u32SrcAddr);
+
+    reg_addr = (uint32_t)&CRPT->AES0_DADDR + (u32Channel * 0x3CUL);
+    outpw(reg_addr, u32DstAddr);
+
+    reg_addr = (uint32_t)&CRPT->AES0_CNT + (u32Channel * 0x3CUL);
+    outpw(reg_addr, u32TransCnt);
 }
 
 /**
   * @brief  Open TDES encrypt/decrypt function.
   * @param[in]  u32Channel   TDES channel. Must be 0~3.
   * @param[in]  u32EncDec    1: TDES encode; 0: TDES decode
+  * @param[in]  Is3DES       1: TDES; 0: DES
+  * @param[in]  Is3Key       1: TDES 3 key mode; 0: TDES 2 key mode
   * @param[in]  u32OpMode    TDES operation mode, including:
   *         - \ref TDES_MODE_ECB
   *         - \ref TDES_MODE_CBC
@@ -203,12 +216,18 @@ void AES_SetDMATransfer(uint32_t u32Channel, uint32_t u32SrcAddr,
   *         - \ref TDES_IN_OUT_WHL_SWAP
   * @return None
   */
-void TDES_Open(uint32_t u32Channel, uint32_t u32EncDec, uint32_t u32OpMode, uint32_t u32SwapType)
+void TDES_Open(uint32_t u32Channel, uint32_t u32EncDec, int32_t Is3DES, int32_t Is3Key,
+               uint32_t u32OpMode, uint32_t u32SwapType)
 {
     g_TDES_CTL[u32Channel] = (u32Channel << CRPT_TDES_CTL_CHANNEL_Pos) |
                              (u32EncDec << CRPT_TDES_CTL_ENCRPT_Pos) |
-                             u32OpMode |
-                             (u32SwapType << CRPT_TDES_CTL_BLKSWAP_Pos);
+                             u32OpMode | (u32SwapType << CRPT_TDES_CTL_BLKSWAP_Pos);
+    if (Is3DES) {
+        g_TDES_CTL[u32Channel] |= CRPT_TDES_CTL_TMODE_Msk;
+    }
+    if (Is3Key) {
+        g_TDES_CTL[u32Channel] |= CRPT_TDES_CTL_3KEYS_Msk;
+    }
 }
 
 /**
@@ -229,17 +248,21 @@ void TDES_Start(int32_t u32Channel, uint32_t u32DMAMode)
 /**
   * @brief  Set TDES keys
   * @param[in]  u32Channel  TDES channel. Must be 0~3.
-  * @param[in]  au8Keys     The TDES keys.
+  * @param[in]  au32Keys    The TDES keys. au32Keys[0][0] is Key0 high word and au32Keys[0][1] is key0 low word.
   * @return None
   */
-void TDES_SetKey(uint32_t u32Channel, uint8_t au8Keys[3][8])
+void TDES_SetKey(uint32_t u32Channel, uint32_t au32Keys[3][2])
 {
-    int         i;
-    uint8_t     *pu8TKey;
+    uint32_t   i, reg_addr;
 
-    pu8TKey = (uint8_t *)((uint32_t)&CRPT->TDES0_KEY1H + (0x40 * u32Channel));
-    for (i = 0; i < 3; i++, pu8TKey+=8)
-        memcpy(pu8TKey, &au8Keys[i][0], 8);
+    reg_addr = (uint32_t)&CRPT->TDES0_KEY1H + (0x40UL * u32Channel);
+
+    for (i = 0U; i < 3U; i++) {
+        outpw(reg_addr, au32Keys[i][0]);   /* TDESn_KEYxH */
+        reg_addr += 4UL;
+        outpw(reg_addr, au32Keys[i][1]);   /* TDESn_KEYxL */
+        reg_addr += 4UL;
+    }
 }
 
 /**
@@ -251,8 +274,13 @@ void TDES_SetKey(uint32_t u32Channel, uint8_t au8Keys[3][8])
   */
 void TDES_SetInitVect(uint32_t u32Channel, uint32_t u32IVH, uint32_t u32IVL)
 {
-    *(uint32_t *)((uint32_t)&CRPT->TDES0_IVH + 0x40 * u32Channel) = u32IVH;
-    *(uint32_t *)((uint32_t)&CRPT->TDES0_IVL + 0x40 * u32Channel) = u32IVL;
+    uint32_t  reg_addr;
+
+    reg_addr = (uint32_t)&CRPT->TDES0_IVH + (u32Channel * 0x40UL);
+    outpw(reg_addr, u32IVH);
+
+    reg_addr = (uint32_t)&CRPT->TDES0_IVL + (u32Channel * 0x40UL);
+    outpw(reg_addr, u32IVL);
 }
 
 /**
@@ -266,9 +294,16 @@ void TDES_SetInitVect(uint32_t u32Channel, uint32_t u32IVH, uint32_t u32IVL)
 void TDES_SetDMATransfer(uint32_t u32Channel, uint32_t u32SrcAddr,
                          uint32_t u32DstAddr, uint32_t u32TransCnt)
 {
-    *(uint32_t *)((uint32_t)&CRPT->TDES0_SADDR + (u32Channel * 0x40)) = u32SrcAddr;
-    *(uint32_t *)((uint32_t)&CRPT->TDES0_DADDR + (u32Channel * 0x40)) = u32DstAddr;
-    *(uint32_t *)((uint32_t)&CRPT->TDES0_CNT + (u32Channel * 0x40)) = u32TransCnt;
+    uint32_t  reg_addr;
+
+    reg_addr = (uint32_t)&CRPT->TDES0_SADDR + (u32Channel * 0x40UL);
+    outpw(reg_addr, u32SrcAddr);
+
+    reg_addr = (uint32_t)&CRPT->TDES0_DADDR + (u32Channel * 0x40UL);
+    outpw(reg_addr, u32DstAddr);
+
+    reg_addr = (uint32_t)&CRPT->TDES0_CNT + (u32Channel * 0x40UL);
+    outpw(reg_addr, u32TransCnt);
 }
 
 /**

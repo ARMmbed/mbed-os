@@ -1,7 +1,7 @@
 /*
  * MPS2 CMSIS Library
  *
- * Copyright (c) 2009-2017 ARM Limited. All rights reserved.
+ * Copyright (c) 2009-2018 ARM Limited. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -16,15 +16,15 @@
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- *
- * This file is derivative of CMSIS V5.00 startup_ARMCM3.s
- *
-//-------- <<< Use Configuration Wizard in Context Menu >>> ------------------
  */
 
+/*
+ * This file is derivative of CMSIS V5.00 startup_ARMCM3.s
+ */
 
-__initial_sp        EQU     0x20020000  ; Top of RAM
+#include "../memory_zones.h"
+
+__initial_sp    EQU     ZBT_SSRAM23_START + ZBT_SSRAM23_SIZE ; Top of ZBT SSRAM2 and 3, used for data
 
                 PRESERVE8
                 THUMB

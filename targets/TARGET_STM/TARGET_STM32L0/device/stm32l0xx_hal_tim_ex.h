@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_tim_ex.h
   * @author  MCD Application Team
-  * @version V1.7.0
-  * @date    31-May-2016
   * @brief   Header file of TIM HAL module.
   ******************************************************************************
   * @attention
@@ -155,10 +153,10 @@ typedef struct {
 #define TIM21_TI2_COMP2_OUT               TIM21_OR_TI2_RMP
 
 #if !defined(STM32L011xx) && !defined(STM32L021xx)
-#define TIM22_ETR_LSE                     ((uint32_t)0x0U)
+#define TIM22_ETR_GPIO                    ((uint32_t)0x0U)
 #define TIM22_ETR_COMP2_OUT               TIM22_OR_ETR_RMP_0
 #define TIM22_ETR_COMP1_OUT               TIM22_OR_ETR_RMP_1
-#define TIM22_ETR_GPIO                    TIM22_OR_ETR_RMP
+#define TIM22_ETR_LSE                     TIM22_OR_ETR_RMP
 #define TIM22_TI1_GPIO1                   ((uint32_t)0x0U)
 #define TIM22_TI1_COMP2_OUT               TIM22_OR_TI1_RMP_0
 #define TIM22_TI1_COMP1_OUT               TIM22_OR_TI1_RMP_1
@@ -185,54 +183,54 @@ typedef struct {
 
 
 #define IS_TIM_REMAP(__INSTANCE__, __TIM_REMAP__)               \
-        (((__INSTANCE__ == TIM2)   &&  ((__TIM_REMAP__) <=  (TIM2_OR_TI4_RMP  | TIM2_OR_ETR_RMP))) || \
-         ((__INSTANCE__ == TIM22)  &&  ((__TIM_REMAP__) <=  (TIM22_OR_TI1_RMP | TIM22_OR_ETR_RMP))) || \
-         ((__INSTANCE__ == TIM21)  &&  ((__TIM_REMAP__) <=  (TIM21_OR_ETR_RMP | TIM21_OR_TI1_RMP | TIM21_OR_TI2_RMP))) || \
-         ((__INSTANCE__ == TIM3)   &&  ((__TIM_REMAP__) <=  (TIM3_OR_ETR_RMP  | TIM3_OR_TI1_RMP  | TIM3_OR_TI2_RMP | TIM3_OR_TI4_RMP))))
+        ((((__INSTANCE__) == TIM2)   &&  ((__TIM_REMAP__) <=  (TIM2_OR_TI4_RMP  | TIM2_OR_ETR_RMP))) || \
+         (((__INSTANCE__) == TIM22)  &&  ((__TIM_REMAP__) <=  (TIM22_OR_TI1_RMP | TIM22_OR_ETR_RMP))) || \
+         (((__INSTANCE__) == TIM21)  &&  ((__TIM_REMAP__) <=  (TIM21_OR_ETR_RMP | TIM21_OR_TI1_RMP | TIM21_OR_TI2_RMP))) || \
+         (((__INSTANCE__) == TIM3)   &&  ((__TIM_REMAP__) <=  (TIM3_OR_ETR_RMP  | TIM3_OR_TI1_RMP  | TIM3_OR_TI2_RMP | TIM3_OR_TI4_RMP))))
 
 #define IS_CHANNEL_AVAILABLE(__INSTANCE__, __CHANNEL__)     \
-        (((__INSTANCE__ == TIM2)   &&  (((__CHANNEL__) == TIM_CHANNEL_1)    ||   \
+        ((((__INSTANCE__) == TIM2)   &&  (((__CHANNEL__) == TIM_CHANNEL_1)    ||   \
                                         ((__CHANNEL__) == TIM_CHANNEL_2)   ||   \
                                         ((__CHANNEL__) == TIM_CHANNEL_3)   ||   \
                                         ((__CHANNEL__) == TIM_CHANNEL_4))) ||   \
-          ((__INSTANCE__ == TIM3) &&   (((__CHANNEL__) == TIM_CHANNEL_1)    ||   \
+          (((__INSTANCE__) == TIM3) &&   (((__CHANNEL__) == TIM_CHANNEL_1)    ||   \
                                         ((__CHANNEL__) == TIM_CHANNEL_2)   ||   \
                                         ((__CHANNEL__) == TIM_CHANNEL_3)   ||   \
                                         ((__CHANNEL__) == TIM_CHANNEL_4))) ||   \
-          ((__INSTANCE__ == TIM21) &&  (((__CHANNEL__) == TIM_CHANNEL_1)    ||   \
+          (((__INSTANCE__) == TIM21) &&  (((__CHANNEL__) == TIM_CHANNEL_1)    ||   \
                                         ((__CHANNEL__) == TIM_CHANNEL_2))) ||   \
-          ((__INSTANCE__ == TIM22) &&  (((__CHANNEL__) == TIM_CHANNEL_1)    ||   \
+          (((__INSTANCE__) == TIM22) &&  (((__CHANNEL__) == TIM_CHANNEL_1)    ||   \
                                         ((__CHANNEL__) == TIM_CHANNEL_2))))
 									
 #elif defined (STM32L011xx) || defined (STM32L021xx)
 
 #define IS_TIM_REMAP(__INSTANCE__, __TIM_REMAP__)               \
-        (((__INSTANCE__ == TIM2)   &&  ((__TIM_REMAP__) <=  (TIM2_OR_TI4_RMP  | TIM2_OR_ETR_RMP))) || \
-         ((__INSTANCE__ == TIM21)  &&  ((__TIM_REMAP__) <=  (TIM21_OR_ETR_RMP | TIM21_OR_TI1_RMP | TIM21_OR_TI2_RMP))))
+        ((((__INSTANCE__) == TIM2)   &&  ((__TIM_REMAP__) <=  (TIM2_OR_TI4_RMP  | TIM2_OR_ETR_RMP))) || \
+         (((__INSTANCE__) == TIM21)  &&  ((__TIM_REMAP__) <=  (TIM21_OR_ETR_RMP | TIM21_OR_TI1_RMP | TIM21_OR_TI2_RMP))))
 
 #define IS_CHANNEL_AVAILABLE(__INSTANCE__, __CHANNEL__)     \
-        (((__INSTANCE__ == TIM2)   &&   (((__CHANNEL__) == TIM_CHANNEL_1)   || \
+        ((((__INSTANCE__) == TIM2)   &&   (((__CHANNEL__) == TIM_CHANNEL_1)   || \
                                          ((__CHANNEL__) == TIM_CHANNEL_2)   || \
                                          ((__CHANNEL__) == TIM_CHANNEL_3)   || \
                                          ((__CHANNEL__) == TIM_CHANNEL_4))) || \
-          ((__INSTANCE__ == TIM21)  &&  (((__CHANNEL__) == TIM_CHANNEL_1)   || \
+          (((__INSTANCE__) == TIM21)  &&  (((__CHANNEL__) == TIM_CHANNEL_1)   || \
                                          ((__CHANNEL__) == TIM_CHANNEL_2))))
 										 
 #else
 
 #define IS_TIM_REMAP(__INSTANCE__, __TIM_REMAP__)               \
-        (((__INSTANCE__ == TIM2)   &&  ((__TIM_REMAP__) <=  (TIM2_OR_TI4_RMP  | TIM2_OR_ETR_RMP))) || \
-         ((__INSTANCE__ == TIM22)  &&  ((__TIM_REMAP__) <=  (TIM22_OR_TI1_RMP | TIM22_OR_ETR_RMP))) || \
-         ((__INSTANCE__ == TIM21)  &&  ((__TIM_REMAP__) <=  (TIM21_OR_ETR_RMP | TIM21_OR_TI1_RMP | TIM21_OR_TI2_RMP))))
+        ((((__INSTANCE__) == TIM2)   &&  ((__TIM_REMAP__) <=  (TIM2_OR_TI4_RMP  | TIM2_OR_ETR_RMP))) || \
+         (((__INSTANCE__) == TIM22)  &&  ((__TIM_REMAP__) <=  (TIM22_OR_TI1_RMP | TIM22_OR_ETR_RMP))) || \
+         (((__INSTANCE__) == TIM21)  &&  ((__TIM_REMAP__) <=  (TIM21_OR_ETR_RMP | TIM21_OR_TI1_RMP | TIM21_OR_TI2_RMP))))
 
 #define IS_CHANNEL_AVAILABLE(__INSTANCE__, __CHANNEL__)     \
-        (((__INSTANCE__ == TIM2)   &&   (((__CHANNEL__) == TIM_CHANNEL_1)   || \
+        ((((__INSTANCE__) == TIM2)   &&   (((__CHANNEL__) == TIM_CHANNEL_1)   || \
                                          ((__CHANNEL__) == TIM_CHANNEL_2)   || \
                                          ((__CHANNEL__) == TIM_CHANNEL_3)   || \
                                          ((__CHANNEL__) == TIM_CHANNEL_4))) || \
-          ((__INSTANCE__ == TIM21)  &&  (((__CHANNEL__) == TIM_CHANNEL_1)   || \
+          (((__INSTANCE__) == TIM21)  &&  (((__CHANNEL__) == TIM_CHANNEL_1)   || \
                                          ((__CHANNEL__) == TIM_CHANNEL_2))) || \
-          ((__INSTANCE__ == TIM22)  &&  (((__CHANNEL__) == TIM_CHANNEL_1)   || \
+          (((__INSTANCE__) == TIM22)  &&  (((__CHANNEL__) == TIM_CHANNEL_1)   || \
                                          ((__CHANNEL__) == TIM_CHANNEL_2))))
 
 #endif /*defined (STM32L07Xxx) or defined (STM32L08Xxx) */

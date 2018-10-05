@@ -36,7 +36,8 @@
 #define SIZE_OF_BD_ADDR                               (6)
 #define SIZE_OF_COD                                   (3)
 #define SIZE_OF_LINK_KEY                              (16)
-#define SIZE_OF_NAME                                  (248)
+#define SIZE_OF_NAME_INCOMING                         (248)
+#define SIZE_OF_NAME_OUTGOING                         (64)
 #define SIZE_OF_PIN_CODE                              ((cb_uint8)16)
 #define SIZE_OF_LAP                                   (3)
 #define SIZE_OF_AFH_LMP_HCI_CHANNEL_MAP               (10)
@@ -150,9 +151,15 @@ typedef struct
 
 typedef struct
 {
-  cb_uint8 Name[SIZE_OF_NAME];
+  cb_uint8 Name[SIZE_OF_NAME_INCOMING];
 
 } TName;
+
+typedef struct
+{
+    cb_uint8 Name[SIZE_OF_NAME_OUTGOING];
+
+} TNameOutgoing;
 
 typedef struct
 {

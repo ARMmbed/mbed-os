@@ -127,10 +127,6 @@ Reset_Handler:
     blx     r0
 #endif
 
-#if defined(FEATURE_UVISOR) && defined(TARGET_UVISOR_SUPPORTED)
-    ldr r0, =uvisor_init
-    blx r0
-#endif /* defined(FEATURE_UVISOR) && defined(UVISOR_SUPPORTED) */
 
 /*  Firstly it copies data from read only memory to RAM. There are two schemes
  *  to copy. One can copy more than one sections. Another can only copy

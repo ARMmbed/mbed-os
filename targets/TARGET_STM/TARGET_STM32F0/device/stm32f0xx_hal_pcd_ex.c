@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_pcd_ex.c
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    04-November-2016
   * @brief   Extended PCD HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the USB Peripheral Controller:
@@ -81,12 +79,12 @@
 
 /**
   * @brief Configure PMA for EP
-  * @param  hpcd: PCD handle
-  * @param  ep_addr: endpoint address
-  * @param  ep_kind: endpoint Kind
+  * @param  hpcd PCD handle
+  * @param  ep_addr endpoint address
+  * @param  ep_kind endpoint Kind
   *                @arg USB_SNG_BUF: Single Buffer used
   *                @arg USB_DBL_BUF: Double Buffer used
-  * @param  pmaadress: EP address in The PMA: In case of single buffer endpoint
+  * @param  pmaadress EP address in The PMA: In case of single buffer endpoint
   *                   this parameter is 16-bit value providing the address
   *                   in PMA allocated to endpoint.
   *                   In case of double buffer endpoint this parameter

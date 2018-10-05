@@ -56,6 +56,8 @@ USBAudio::USBAudio(uint32_t frequency_in, uint8_t channel_nb_in, uint32_t freque
 
     volume = 0;
 
+    _build_configurationDesc();
+
     // connect the device
     USBDevice::connect();
 }
@@ -377,8 +379,8 @@ void USBAudio::USBCallback_requestCompleted(uint8_t * buf, uint32_t length) {
                                       FEATURE_UNIT_DESCRIPTOR_LENGTH    + \
                                       2*OUTPUT_TERMINAL_DESCRIPTOR_LENGTH)
 
-uint8_t * USBAudio::configurationDesc() {
-    static uint8_t configDescriptor[] = {
+void USBAudio::_build_configurationDesc() {
+    uint8_t configDescriptorTemp[] = {
         // Configuration 1
         CONFIGURATION_DESCRIPTOR_LENGTH,        // bLength
         CONFIGURATION_DESCRIPTOR,               // bDescriptorType
@@ -615,15 +617,19 @@ uint8_t * USBAudio::configurationDesc() {
         0x00,                                   // bLockDelayUnits
         LSB(0x0000),                            // wLockDelay
         MSB(0x0000),                            // wLockDelay
-
-        // Terminator
-        0                                       // bLength
     };
+
+    MBED_ASSERT(sizeof(configDescriptorTemp) == sizeof(configDescriptor));
+    memcpy(configDescriptor, configDescriptorTemp, sizeof(configDescriptor));
+}
+
+const uint8_t * USBAudio::configurationDesc() {
+
     return configDescriptor;
 }
 
-uint8_t * USBAudio::stringIinterfaceDesc() {
-    static uint8_t stringIinterfaceDescriptor[] = {
+const uint8_t * USBAudio::stringIinterfaceDesc() {
+    static const uint8_t stringIinterfaceDescriptor[] = {
         0x0c,                           //bLength
         STRING_DESCRIPTOR,              //bDescriptorType 0x03
         'A',0,'u',0,'d',0,'i',0,'o',0   //bString iInterface - Audio
@@ -631,8 +637,8 @@ uint8_t * USBAudio::stringIinterfaceDesc() {
     return stringIinterfaceDescriptor;
 }
 
-uint8_t * USBAudio::stringIproductDesc() {
-    static uint8_t stringIproductDescriptor[] = {
+const uint8_t * USBAudio::stringIproductDesc() {
+    static const uint8_t stringIproductDescriptor[] = {
         0x16,                                                       //bLength
         STRING_DESCRIPTOR,                                          //bDescriptorType 0x03
         'M',0,'b',0,'e',0,'d',0,' ',0,'A',0,'u',0,'d',0,'i',0,'o',0 //bString iProduct - Mbed Audio

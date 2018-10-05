@@ -35,6 +35,7 @@
 int32_t flash_init(flash_t *obj)
 {
     (void)obj;
+    MSC_Init();
     return 0;
 }
 
@@ -46,6 +47,7 @@ int32_t flash_init(flash_t *obj)
 int32_t flash_free(flash_t *obj)
 {
     (void)obj;
+    MSC_Deinit();
     return 0;
 }
 
@@ -110,14 +112,14 @@ uint32_t flash_get_sector_size(const flash_t *obj, uint32_t address)
 
 /** Get page size
  *
+ * The page size defines the writable page size
  * @param obj The flash object
- * @param address The page starting address
  * @return The size of a page
  */
 uint32_t flash_get_page_size(const flash_t *obj)
 {
     (void)obj;
-    return FLASH_PAGE_SIZE;
+    return sizeof(uint32_t);
 }
 
 /** Get start address for the flash region

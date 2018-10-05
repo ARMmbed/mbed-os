@@ -183,9 +183,9 @@ typedef enum {
 
 
     // mbed original LED naming
-    LED1 = P0_13,
+    LED1 = P1_3,
     LED2 = P1_27,
-    LED3 = P0_14,
+    LED3 = P1_26,
     LED4 = P1_28,
 
 
@@ -223,7 +223,7 @@ typedef enum {
     p23 = P0_19,
     p24 = P0_22,
     p25 = P0_28,
-    p26 = P0_29,
+    p26 = P1_31,
     p27 = P1_30,
     p28 = P1_29,
     p29 = P0_0,

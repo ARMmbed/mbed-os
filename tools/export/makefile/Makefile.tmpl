@@ -75,11 +75,11 @@ SREC_CAT = srec_cat
 {%- endif %}
 {%- block additional_executables -%}{%- endblock %}
 
-{% for flag in c_flags %}C_FLAGS += {{flag}}
+{% for flag in c_flags %}C_FLAGS += {{shell_escape(flag)}}
 {% endfor %}
-{% for flag in cxx_flags %}CXX_FLAGS += {{flag}}
+{% for flag in cxx_flags %}CXX_FLAGS += {{shell_escape(flag)}}
 {% endfor %}
-{% for flag in asm_flags %}ASM_FLAGS += {{flag}}
+{% for flag in asm_flags %}ASM_FLAGS += {{shell_escape(flag)}}
 {% endfor %}
 
 LD_FLAGS :={%- block ld_flags -%} {{ld_flags|join(" ")}} {% endblock %}

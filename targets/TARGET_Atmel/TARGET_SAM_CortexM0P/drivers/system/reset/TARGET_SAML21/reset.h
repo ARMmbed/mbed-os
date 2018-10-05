@@ -122,18 +122,6 @@ enum system_wakeup_debounce_count {
  */
 
 /**
- * \brief Reset the MCU.
- *
- * Resets the MCU and all associated peripherals and registers, except RTC,
- * OSC32KCTRL, RSTC, GCLK (if WRTLOCK is set), and I/O retention state of PM.
- *
- */
-static inline void system_reset(void)
-{
-    NVIC_SystemReset();
-}
-
-/**
  * \brief Get the reset cause.
  *
  * Retrieves the cause of the last system reset.

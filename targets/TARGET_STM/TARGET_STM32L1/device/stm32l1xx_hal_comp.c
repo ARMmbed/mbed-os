@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_comp.c
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    01-July-2016
   * @brief   COMP HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the COMP peripheral:
@@ -92,7 +90,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -192,13 +190,13 @@
   /*  - Comparator 2: delay minimum of 800 CPU cycles. Wait loop takes 3 CPU  */
   /*                 cycles per iteration, therefore total wait iterations    */
   /*                 number must be initialized at 266 iterations.            */
-#define COMP1_START_DELAY_CPU_CYCLES       ((uint32_t)106)
-#define COMP2_START_DELAY_CPU_CYCLES       ((uint32_t)266)
+#define COMP1_START_DELAY_CPU_CYCLES       (106U)
+#define COMP2_START_DELAY_CPU_CYCLES       (266U)
 
   /* Comparator status "locked": to update COMP handle state (software lock   */
   /* only on COMP of STM32L1xx devices) by bitfield:                          */
   /* states HAL_COMP_STATE_READY_LOCKED, HAL_COMP_STATE_BUSY_LOCKED.          */
-#define COMP_STATE_BIT_LOCK     ((uint32_t) 0x00000010)  
+#define COMP_STATE_BIT_LOCK     (0x00000010U)  
 
 /**
   * @}

@@ -1,8 +1,8 @@
 /**************************************************************************//**
  * @file     os_tick.h
  * @brief    CMSIS OS Tick header file
- * @version  V1.0.0
- * @date     05. June 2017
+ * @version  V1.0.1
+ * @date     24. November 2017
  ******************************************************************************/
 /*
  * Copyright (c) 2017-2017 ARM Limited. All rights reserved.
@@ -33,41 +33,38 @@
 typedef void (*IRQHandler_t) (void);
 #endif
 
-/// Setup OS Tick.
+/// Setup OS Tick timer to generate periodic RTOS Kernel Ticks
 /// \param[in]     freq         tick frequency in Hz
 /// \param[in]     handler      tick IRQ handler
 /// \return 0 on success, -1 on error.
 int32_t  OS_Tick_Setup (uint32_t freq, IRQHandler_t handler);
 
-/// Enable OS Tick.
-/// \return 0 on success, -1 on error.
-int32_t  OS_Tick_Enable (void);
+/// Enable OS Tick timer interrupt
+void     OS_Tick_Enable (void);
 
-/// Disable OS Tick.
-/// \return 0 on success, -1 on error.
-int32_t  OS_Tick_Disable (void);
+/// Disable OS Tick timer interrupt
+void     OS_Tick_Disable (void);
 
-/// Acknowledge OS Tick IRQ.
-/// \return 0 on success, -1 on error.
-int32_t  OS_Tick_AcknowledgeIRQ (void);
+/// Acknowledge execution of OS Tick timer interrupt
+void     OS_Tick_AcknowledgeIRQ (void);
 
-/// Get OS Tick IRQ number.
-/// \return OS Tick IRQ number.
+/// Get OS Tick timer IRQ number
+/// \return OS Tick IRQ number
 int32_t  OS_Tick_GetIRQn (void);
 
-/// Get OS Tick clock.
-/// \return OS Tick clock in Hz.
+/// Get OS Tick timer clock frequency
+/// \return OS Tick timer clock frequency in Hz
 uint32_t OS_Tick_GetClock (void);
 
-/// Get OS Tick interval.
-/// \return OS Tick interval.
+/// Get OS Tick timer interval reload value
+/// \return OS Tick timer interval reload value
 uint32_t OS_Tick_GetInterval (void);
 
-/// Get OS Tick count value.
-/// \return OS Tick count value.
+/// Get OS Tick timer counter value
+/// \return OS Tick timer counter value
 uint32_t OS_Tick_GetCount (void);
 
-/// Get OS Tick overflow status.
+/// Get OS Tick timer overflow status
 /// \return OS Tick overflow status (1 - overflow, 0 - no overflow).
 uint32_t OS_Tick_GetOverflow (void);
 

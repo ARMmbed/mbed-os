@@ -2,34 +2,22 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_adc_ex.c
   * @author  MCD Application Team
-  * @version V1.7.0
-  * @date    31-May-2016
   * @brief   This file provides firmware functions to manage the following 
   *          functionalities of the Analog to Digital Convertor (ADC)
   *          peripheral:
-  *           + Start calibration.
-  *           + Read the calibration factor.
-  *           + Set a calibration factor.
-  *          
+  *           + Operation functions
+  *             ++ Calibration
+  *               +++ ADC automatic self-calibration
+  *               +++ Calibration factors get or set
+  *          Other functions (generic functions) are available in file 
+  *          "stm32l0xx_hal_adc.c".
+  *
   @verbatim
-  ==============================================================================
-                    ##### ADC specific features #####
-  ==============================================================================
   [..] 
-  (#) Self calibration.
-
-
-                     ##### How to use this driver #####
-  ==============================================================================
-    [..]
-
-    (#) Call HAL_ADCEx_Calibration_Start() to start calibration
-    
-    (#) Read the calibration factor using HAL_ADCEx_Calibration_GetValue()
-  
-    (#) User can set a his calibration factor using HAL_ADCEx_Calibration_SetValue()
-  
-    @endverbatim
+  (@) Sections "ADC peripheral features" and "How to use this driver" are
+      available in file of generic functions "stm32l0xx_hal_adc.c".
+  [..]
+  @endverbatim
   ******************************************************************************
   * @attention
   *
@@ -57,7 +45,7 @@
   * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
   * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
-  ******************************************************************************  
+  ******************************************************************************
   */
 
 /* Includes ------------------------------------------------------------------*/
@@ -67,18 +55,21 @@
   * @{
   */
 
+/** @defgroup ADCEx ADCEx
+  * @brief ADC Extended HAL module driver
+  * @{
+  */
+
 #ifdef HAL_ADC_MODULE_ENABLED
 
-/** @addtogroup ADCEx 
-  * @brief ADC driver modules
-  * @{
-  */ 
-
 /* Private typedef -----------------------------------------------------------*/
-
 /* Private define ------------------------------------------------------------*/
 
-/* Fixed timeout values for ADC calibration, enable settling time, disable  */
+/** @defgroup ADCEx_Private_Constants ADC Extended Private Constants
+  * @{
+  */
+
+  /* Fixed timeout values for ADC calibration, enable settling time, disable  */
   /* settling time.                                                           */
   /* Values defined to be higher than worst cases: low clock frequency,       */
   /* maximum prescaler.                                                       */
@@ -98,38 +89,32 @@
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
-/* Private functions ---------------------------------------------------------*/
+/* Exported functions --------------------------------------------------------*/
 
+/** @defgroup ADCEx_Exported_Functions ADC Extended Exported Functions
+  * @{
+  */
 
-/** @addtogroup ADCEx_Exported_Functions
- *  @brief    ADC Extended features functions 
- *
-@verbatim   
+/** @defgroup ADCEx_Exported_Functions_Group1 Extended Input and Output operation functions
+  * @brief    Extended IO operation functions
+  *
+@verbatim
  ===============================================================================
-            ##### ADC Extended features functions #####
- ===============================================================================  
-    [..]
-This subsection provides functions allowing to:
-      (+) Start calibration.
-      (+) Get calibration factor.
-      (+) Set calibration factor.
-      (+) Enable VREFInt.
-      (+) Disable VREFInt.
-      (+) Enable VREFInt TempSensor.
-      (+) Disable VREFInt TempSensor.
-
+                      ##### IO operation functions #####
+ ===============================================================================
+    [..]  This section provides functions allowing to:
+      (+) Perform the ADC calibration.
 @endverbatim
   * @{
   */
 
-/** @addtogroup ADCEx_Exported_Functions_Group3
-  * @{
-  */
-
 /**
-  * @brief  Start an automatic calibration
-  * @param  hadc: pointer to a ADC_HandleTypeDef structure that contains
-  *         the configuration information for the specified ADC.
+  * @brief  Perform an ADC automatic self-calibration
+  *         Calibration prerequisite: ADC must be disabled (execute this
+  *         function before HAL_ADC_Start() or after HAL_ADC_Stop() ).
+  * @note   Calibration factor can be read after calibration, using function
+  *         HAL_ADC_GetValue() (value on 7 bits: from DR[6;0]).
+  * @param  hadc       ADC handle
   * @param  SingleDiff: Selection of single-ended or differential input
   *          This parameter can be only of the following values:
   *            @arg ADC_SINGLE_ENDED: Channel in mode input single ended
@@ -138,7 +123,8 @@ This subsection provides functions allowing to:
 HAL_StatusTypeDef HAL_ADCEx_Calibration_Start(ADC_HandleTypeDef* hadc, uint32_t SingleDiff)
 {
   HAL_StatusTypeDef tmp_hal_status = HAL_OK;
-  uint32_t tickstart=0U;
+  uint32_t tickstart = 0U;
+  uint32_t backup_setting_adc_dma_transfer = 0U; /* Note: Variable not declared as volatile because register read is already declared as volatile */
   
   /* Check the parameters */
   assert_param(IS_ADC_ALL_INSTANCE(hadc->Instance));
@@ -154,11 +140,20 @@ HAL_StatusTypeDef HAL_ADCEx_Calibration_Start(ADC_HandleTypeDef* hadc, uint32_t 
                       HAL_ADC_STATE_REG_BUSY,
                       HAL_ADC_STATE_BUSY_INTERNAL);
     
+    /* Disable ADC DMA transfer request during calibration */
+    /* Note: Specificity of this STM32 serie: Calibration factor is           */
+    /*       available in data register and also transfered by DMA.           */
+    /*       To not insert ADC calibration factor among ADC conversion data   */
+    /*       in array variable, DMA transfer must be disabled during          */
+    /*       calibration.                                                     */
+    backup_setting_adc_dma_transfer = READ_BIT(hadc->Instance->CFGR1, ADC_CFGR1_DMAEN | ADC_CFGR1_DMACFG);
+    CLEAR_BIT(hadc->Instance->CFGR1, ADC_CFGR1_DMAEN | ADC_CFGR1_DMACFG);
+    
     /* Start ADC calibration */
     hadc->Instance->CR |= ADC_CR_ADCAL;
-
+    
     tickstart = HAL_GetTick();  
-
+    
     /* Wait for calibration completion */
     while(HAL_IS_BIT_SET(hadc->Instance->CR, ADC_CR_ADCAL))
     {
@@ -175,6 +170,9 @@ HAL_StatusTypeDef HAL_ADCEx_Calibration_Start(ADC_HandleTypeDef* hadc, uint32_t 
         return HAL_ERROR;
       }
     }
+    
+    /* Restore ADC DMA transfer request after calibration */
+    SET_BIT(hadc->Instance->CFGR1, backup_setting_adc_dma_transfer);
     
     /* Set ADC state */
     ADC_STATE_CLR_SET(hadc->State,
@@ -195,7 +193,6 @@ HAL_StatusTypeDef HAL_ADCEx_Calibration_Start(ADC_HandleTypeDef* hadc, uint32_t 
   /* Return function status */
   return tmp_hal_status;
 }
-
 
 /**
   * @brief  Get the calibration factor.
@@ -352,13 +349,13 @@ void HAL_ADCEx_DisableVREFINTTempSensor(void)
   * @}
   */
 
+#endif /* HAL_ADC_MODULE_ENABLED */
 /**
   * @}
   */
 
-#endif /* HAL_ADC_MODULE_ENABLED */
 /**
   * @}
-  */ 
+  */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

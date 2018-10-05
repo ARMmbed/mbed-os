@@ -2,13 +2,11 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_i2s.h
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    01-July-2016
   * @brief   Header file of I2S HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -153,11 +151,11 @@ typedef struct
   * @{
   */
 
-#define HAL_I2S_ERROR_NONE      ((uint32_t)0x00)    /*!< No error                    */
-#define HAL_I2S_ERROR_UDR       ((uint32_t)0x01)    /*!< I2S Underrun error          */
-#define HAL_I2S_ERROR_OVR       ((uint32_t)0x02)    /*!< I2S Overrun error           */
-#define HAL_I2S_ERROR_FRE       ((uint32_t)0x04)    /*!< I2S Frame format error      */
-#define HAL_I2S_ERROR_DMA       ((uint32_t)0x08)    /*!< DMA transfer error          */
+#define HAL_I2S_ERROR_NONE      (0x00U)    /*!< No error                    */
+#define HAL_I2S_ERROR_UDR       (0x01U)    /*!< I2S Underrun error          */
+#define HAL_I2S_ERROR_OVR       (0x02U)    /*!< I2S Overrun error           */
+#define HAL_I2S_ERROR_FRE       (0x04U)    /*!< I2S Frame format error      */
+#define HAL_I2S_ERROR_DMA       (0x08U)    /*!< DMA transfer error          */
 
 /**
   * @}
@@ -166,10 +164,10 @@ typedef struct
 /** @defgroup I2S_Mode I2S Mode
   * @{
   */
-#define I2S_MODE_SLAVE_TX                ((uint32_t)0x00000000)
-#define I2S_MODE_SLAVE_RX                ((uint32_t)0x00000100)
-#define I2S_MODE_MASTER_TX               ((uint32_t)0x00000200)
-#define I2S_MODE_MASTER_RX               ((uint32_t)0x00000300)
+#define I2S_MODE_SLAVE_TX                (0x00000000U)
+#define I2S_MODE_SLAVE_RX                (0x00000100U)
+#define I2S_MODE_MASTER_TX               (0x00000200U)
+#define I2S_MODE_MASTER_RX               (0x00000300U)
 
 #define IS_I2S_MODE(MODE) (((MODE) == I2S_MODE_SLAVE_TX)  || \
                            ((MODE) == I2S_MODE_SLAVE_RX)  || \
@@ -182,7 +180,7 @@ typedef struct
 /** @defgroup I2S_Standard I2S Standard
   * @{
   */
-#define I2S_STANDARD_PHILIPS             ((uint32_t)0x00000000)
+#define I2S_STANDARD_PHILIPS             (0x00000000U)
 #define I2S_STANDARD_MSB                 ((uint32_t) SPI_I2SCFGR_I2SSTD_0)
 #define I2S_STANDARD_LSB                 ((uint32_t) SPI_I2SCFGR_I2SSTD_1)
 #define I2S_STANDARD_PCM_SHORT           ((uint32_t)(SPI_I2SCFGR_I2SSTD_0 |\
@@ -204,7 +202,7 @@ typedef struct
 /** @defgroup I2S_Data_Format I2S Data Format
   * @{
   */
-#define I2S_DATAFORMAT_16B               ((uint32_t)0x00000000)
+#define I2S_DATAFORMAT_16B               (0x00000000U)
 #define I2S_DATAFORMAT_16B_EXTENDED      ((uint32_t) SPI_I2SCFGR_CHLEN)
 #define I2S_DATAFORMAT_24B               ((uint32_t)(SPI_I2SCFGR_CHLEN | SPI_I2SCFGR_DATLEN_0))
 #define I2S_DATAFORMAT_32B               ((uint32_t)(SPI_I2SCFGR_CHLEN | SPI_I2SCFGR_DATLEN_1))
@@ -221,7 +219,7 @@ typedef struct
   * @{
   */
 #define I2S_MCLKOUTPUT_ENABLE           ((uint32_t)SPI_I2SPR_MCKOE)
-#define I2S_MCLKOUTPUT_DISABLE          ((uint32_t)0x00000000)
+#define I2S_MCLKOUTPUT_DISABLE          (0x00000000U)
 
 #define IS_I2S_MCLK_OUTPUT(OUTPUT) (((OUTPUT) == I2S_MCLKOUTPUT_ENABLE) || \
                                     ((OUTPUT) == I2S_MCLKOUTPUT_DISABLE))
@@ -232,16 +230,16 @@ typedef struct
 /** @defgroup I2S_Audio_Frequency I2S Audio Frequency
   * @{
   */
-#define I2S_AUDIOFREQ_192K               ((uint32_t)192000)
-#define I2S_AUDIOFREQ_96K                ((uint32_t)96000)
-#define I2S_AUDIOFREQ_48K                ((uint32_t)48000)
-#define I2S_AUDIOFREQ_44K                ((uint32_t)44100)
-#define I2S_AUDIOFREQ_32K                ((uint32_t)32000)
-#define I2S_AUDIOFREQ_22K                ((uint32_t)22050)
-#define I2S_AUDIOFREQ_16K                ((uint32_t)16000)
-#define I2S_AUDIOFREQ_11K                ((uint32_t)11025)
-#define I2S_AUDIOFREQ_8K                 ((uint32_t)8000)
-#define I2S_AUDIOFREQ_DEFAULT            ((uint32_t)2)
+#define I2S_AUDIOFREQ_192K               (192000U)
+#define I2S_AUDIOFREQ_96K                (96000U)
+#define I2S_AUDIOFREQ_48K                (48000U)
+#define I2S_AUDIOFREQ_44K                (44100U)
+#define I2S_AUDIOFREQ_32K                (32000U)
+#define I2S_AUDIOFREQ_22K                (22050U)
+#define I2S_AUDIOFREQ_16K                (16000U)
+#define I2S_AUDIOFREQ_11K                (11025U)
+#define I2S_AUDIOFREQ_8K                 (8000U)
+#define I2S_AUDIOFREQ_DEFAULT            (2U)
 
 #define IS_I2S_AUDIO_FREQ(FREQ) ((((FREQ) >= I2S_AUDIOFREQ_8K)    && \
                                   ((FREQ) <= I2S_AUDIOFREQ_192K)) || \
@@ -253,7 +251,7 @@ typedef struct
 /** @defgroup I2S_Clock_Polarity I2S Clock Polarity
   * @{
   */
-#define I2S_CPOL_LOW                    ((uint32_t)0x00000000)
+#define I2S_CPOL_LOW                    (0x00000000U)
 #define I2S_CPOL_HIGH                   ((uint32_t)SPI_I2SCFGR_CKPOL)
 
 #define IS_I2S_CPOL(CPOL) (((CPOL) == I2S_CPOL_LOW) || \

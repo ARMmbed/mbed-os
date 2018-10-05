@@ -19,33 +19,57 @@
 
 namespace mbed {
 
+// Note: This single-parameter constructor exists to maintain binary
+//       compatibility.
+//       If not for that, we could simplify by having only the 2-param
+//       constructor, with a default value for the PinMode.
 InterruptIn::InterruptIn(PinName pin) : gpio(),
-                                        gpio_irq(),
-                                        _rise(NULL),
-                                        _fall(NULL) {
+    gpio_irq(),
+    _rise(NULL),
+    _fall(NULL)
+{
     // No lock needed in the constructor
-
-    gpio_irq_init(&gpio_irq, pin, (&InterruptIn::_irq_handler), (uint32_t)this);
+    irq_init(pin);
     gpio_init_in(&gpio, pin);
 }
 
-InterruptIn::~InterruptIn() {
+InterruptIn::InterruptIn(PinName pin, PinMode mode) :
+    gpio(),
+    gpio_irq(),
+    _rise(NULL),
+    _fall(NULL)
+{
+    // No lock needed in the constructor
+    irq_init(pin);
+    gpio_init_in_ex(&gpio, pin, mode);
+}
+
+void InterruptIn::irq_init(PinName pin)
+{
+    gpio_irq_init(&gpio_irq, pin, (&InterruptIn::_irq_handler), (uint32_t)this);
+}
+
+InterruptIn::~InterruptIn()
+{
     // No lock needed in the destructor
     gpio_irq_free(&gpio_irq);
 }
 
-int InterruptIn::read() {
+int InterruptIn::read()
+{
     // Read only
     return gpio_read(&gpio);
 }
 
-void InterruptIn::mode(PinMode pull) {
+void InterruptIn::mode(PinMode pull)
+{
     core_util_critical_section_enter();
     gpio_mode(&gpio, pull);
     core_util_critical_section_exit();
 }
 
-void InterruptIn::rise(Callback<void()> func) {
+void InterruptIn::rise(Callback<void()> func)
+{
     core_util_critical_section_enter();
     if (func) {
         _rise = func;
@@ -57,7 +81,8 @@ void InterruptIn::rise(Callback<void()> func) {
     core_util_critical_section_exit();
 }
 
-void InterruptIn::fall(Callback<void()> func) {
+void InterruptIn::fall(Callback<void()> func)
+{
     core_util_critical_section_enter();
     if (func) {
         _fall = func;
@@ -69,36 +94,41 @@ void InterruptIn::fall(Callback<void()> func) {
     core_util_critical_section_exit();
 }
 
-void InterruptIn::_irq_handler(uint32_t id, gpio_irq_event event) {
-    InterruptIn *handler = (InterruptIn*)id;
+void InterruptIn::_irq_handler(uint32_t id, gpio_irq_event event)
+{
+    InterruptIn *handler = (InterruptIn *)id;
     switch (event) {
-        case IRQ_RISE: 
+        case IRQ_RISE:
             if (handler->_rise) {
                 handler->_rise();
             }
             break;
-        case IRQ_FALL: 
+        case IRQ_FALL:
             if (handler->_fall) {
-                handler->_fall(); 
+                handler->_fall();
             }
             break;
-        case IRQ_NONE: break;
+        case IRQ_NONE:
+            break;
     }
 }
 
-void InterruptIn::enable_irq() {
+void InterruptIn::enable_irq()
+{
     core_util_critical_section_enter();
     gpio_irq_enable(&gpio_irq);
     core_util_critical_section_exit();
 }
 
-void InterruptIn::disable_irq() {
+void InterruptIn::disable_irq()
+{
     core_util_critical_section_enter();
     gpio_irq_disable(&gpio_irq);
     core_util_critical_section_exit();
 }
 
-InterruptIn::operator int() {
+InterruptIn::operator int()
+{
     // Underlying call is atomic
     return read();
 }

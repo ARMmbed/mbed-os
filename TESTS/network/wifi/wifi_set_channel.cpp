@@ -51,7 +51,7 @@ void wifi_set_channel(void)
 
     if (is_2Ghz) {
         error = wifi->set_channel(0);
-        TEST_ASSERT(error == NSAPI_ERROR_PARAMETER);
+        TEST_ASSERT(error == NSAPI_ERROR_OK);
         error = wifi->set_channel(1);
         TEST_ASSERT(error == NSAPI_ERROR_OK);
         error = wifi->set_channel(13);

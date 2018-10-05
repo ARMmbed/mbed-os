@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <cstring>
+
 #include "platform/FileBase.h"
 #include "platform/FileLike.h"
 #include "platform/FileHandle.h"
@@ -21,10 +23,12 @@ namespace mbed {
 
 FileBase *FileBase::_head = NULL;
 SingletonPtr<PlatformMutex> FileBase::_mutex;
+FileBase *FileBase::_default = NULL;
 
 FileBase::FileBase(const char *name, PathType t) : _next(NULL),
-                                                   _name(name),
-                                                   _path_type(t) {
+    _name(name),
+    _path_type(t)
+{
     _mutex->lock();
     if (name != NULL) {
         // put this object at head of the list
@@ -36,7 +40,8 @@ FileBase::FileBase(const char *name, PathType t) : _next(NULL),
     _mutex->unlock();
 }
 
-FileBase::~FileBase() {
+FileBase::~FileBase()
+{
     _mutex->lock();
     if (_name != NULL) {
         // remove this object from the list
@@ -50,30 +55,47 @@ FileBase::~FileBase() {
             p->_next = _next;
         }
     }
+
+    if (_default == this) {
+        _default = NULL;
+    }
+
     _mutex->unlock();
 
     if (getPathType() == FilePathType) {
         extern void remove_filehandle(FileHandle *file);
-        remove_filehandle(static_cast<FileHandle*>(static_cast<FileLike*>(this)));
+        remove_filehandle(static_cast<FileLike *>(this));
     }
 }
 
-FileBase *FileBase::lookup(const char *name, unsigned int len) {
+void FileBase::set_as_default()
+{
+    _mutex->lock();
+    _default = this;
+    _mutex->unlock();
+}
+
+FileBase *FileBase::lookup(const char *name, unsigned int len)
+{
     _mutex->lock();
     FileBase *p = _head;
     while (p != NULL) {
         /* Check that p->_name matches name and is the correct length */
-        if (p->_name != NULL && std::strncmp(p->_name, name, len) == 0 && std::strlen(p->_name) == len) {
+        if (p->_name != NULL && len == std::strlen(p->_name) && std::memcmp(p->_name, name, len) == 0) {
             _mutex->unlock();
             return p;
         }
         p = p->_next;
     }
+    if (len == (sizeof "default") - 1 && std::memcmp("default", name, len) == 0) {
+        return _default;
+    }
     _mutex->unlock();
     return NULL;
 }
 
-FileBase *FileBase::get(int n) {
+FileBase *FileBase::get(int n)
+{
     _mutex->lock();
     FileBase *p = _head;
     int m = 0;
@@ -90,12 +112,14 @@ FileBase *FileBase::get(int n) {
     return NULL;
 }
 
-const char* FileBase::getName(void) {
+const char *FileBase::getName(void)
+{
     // Constant read so no lock needed
     return _name;
 }
 
-PathType FileBase::getPathType(void) {
+PathType FileBase::getPathType(void)
+{
     // Constant read so no lock needed
     return _path_type;
 }

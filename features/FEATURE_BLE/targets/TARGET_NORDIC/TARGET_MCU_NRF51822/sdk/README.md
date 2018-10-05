@@ -8,7 +8,7 @@ The files are kept the same as much as possible to the Nordic SDK. Modifications
 
 
 ## Porting new versions of Nordic SDK
-A list of files currently requierd by mbed is maintained in [script/required_files.txt](https://github.com/ARMmbed/nrf51-sdk/blob/master/script/required_files.txt). [A python script](https://github.com/ARMmbed/nrf51-sdk/blob/master/script/pick_nrf51_files.py) is written to help porting from nordic sdk releases. **required_files.txt** is parsed to find a list of filenames. The script searches for these filenames in the sdk folder, and copy then into the yotta module mirroring the folder structure in the sdk. **extraIncludes** is automatically added to module.json to allow direct inclusion of noridc headers with just the filename.
+A list of files currently required by mbed is maintained in [script/required_files.txt](https://github.com/ARMmbed/nrf51-sdk/blob/master/script/required_files.txt). [A python script](https://github.com/ARMmbed/nrf51-sdk/blob/master/script/pick_nrf51_files.py) is written to help porting from nordic sdk releases. **required_files.txt** is parsed to find a list of filenames. The script searches for these filenames in the sdk folder, and copy then into the yotta module mirroring the folder structure in the sdk. **extraIncludes** is automatically added to module.json to allow direct inclusion of noridc headers with just the filename.
 
 ### Script usage
 ```

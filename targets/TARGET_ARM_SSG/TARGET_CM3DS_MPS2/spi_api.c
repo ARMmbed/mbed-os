@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2017 ARM Limited
+ * Copyright (c) 2017-2018 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,282 +13,253 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include <math.h>
 
 #include "spi_api.h"
-#include "spi_def.h"
-#include "cmsis.h"
 #include "pinmap.h"
 #include "mbed_error.h"
 #include "mbed_wait_api.h"
+#include "platform_devices.h"
 
-#define SPI_PL022_MIN_SSPCPSR_VALUE  2
-#define SPI_PL022_MAX_SSPCPSR_VALUE  254
-#define SPI_PL022_MAX_SRC_VALUE      255
-#define SPI_PL022_SSPCR0_SCR_POS     8
-#define SPI_PL022_SSPCR0_SCR_MSK     (0xFFul<<SPI_PL022_SSPCR0_SCR_POS)
 
 static const PinMap PinMap_SPI_SCLK[] = {
-    {SPI_SCLK         , SPI_0, 0},
-    {CLCD_SCLK        , SPI_1, 0},
-    {ADC_SCLK         , SPI_2, ALTERNATE_FUNC},
-    {SHIELD_0_SPI_SCK , SPI_3, ALTERNATE_FUNC},
-    {SHIELD_1_SPI_SCK , SPI_4, ALTERNATE_FUNC},
-    {NC               , NC   , 0}
+    {SPI_SCLK,         SPI_0, 0},
+    {CLCD_SCLK,        SPI_1, 0},
+    {ADC_SCLK,         SPI_2, ALTERNATE_FUNC},
+    {SHIELD_0_SPI_SCK, SPI_3, ALTERNATE_FUNC},
+    {SHIELD_1_SPI_SCK, SPI_4, ALTERNATE_FUNC},
+    {NC,               NC,    0}
 };
 
 static const PinMap PinMap_SPI_MOSI[] = {
-    {SPI_MOSI         , SPI_0, 0},
-    {CLCD_MOSI        , SPI_1, 0},
-    {ADC_MOSI         , SPI_2, ALTERNATE_FUNC},
+    {SPI_MOSI,          SPI_0, 0},
+    {CLCD_MOSI,         SPI_1, 0},
+    {ADC_MOSI,          SPI_2, ALTERNATE_FUNC},
     {SHIELD_0_SPI_MOSI, SPI_3, ALTERNATE_FUNC},
     {SHIELD_1_SPI_MOSI, SPI_4, ALTERNATE_FUNC},
-    {NC               , NC   , 0}
+    {NC,                NC,    0}
 };
 
 static const PinMap PinMap_SPI_MISO[] = {
-    {SPI_MISO         , SPI_0, 0},
-    {CLCD_MISO        , SPI_1, 0},
-    {ADC_MISO         , SPI_2, ALTERNATE_FUNC},
+    {SPI_MISO,          SPI_0, 0},
+    {CLCD_MISO,         SPI_1, 0},
+    {ADC_MISO,          SPI_2, ALTERNATE_FUNC},
     {SHIELD_0_SPI_MISO, SPI_3, ALTERNATE_FUNC},
     {SHIELD_1_SPI_MISO, SPI_4, ALTERNATE_FUNC},
-    {NC               , NC   , 0}
+    {NC,                NC,    0}
 };
 
 static const PinMap PinMap_SPI_SSEL[] = {
-    {SPI_SSEL        , SPI_0, 0},
-    {CLCD_SSEL       , SPI_1, 0},
-    {ADC_SSEL        , SPI_2, ALTERNATE_FUNC},
+    {SPI_SSEL,         SPI_0, 0},
+    {CLCD_SSEL,        SPI_1, 0},
+    {ADC_SSEL,         SPI_2, ALTERNATE_FUNC},
     {SHIELD_0_SPI_nCS, SPI_3, ALTERNATE_FUNC},
     {SHIELD_1_SPI_nCS, SPI_4, ALTERNATE_FUNC},
-    {NC              , NC   , 0}
+    {NC,               NC,    0}
 };
 
-static inline int ssp_disable(spi_t *obj);
-static inline int ssp_enable(spi_t *obj);
+/* SPI configuration values */
+#define SPI_BITS_MIN_VALUE          4
+#define SPI_BITS_MAX_VALUE          16
+#define SPI_MODE_PHASE_BIT          0
+#define SPI_MODE_PHASE_BIT_MSK      (0x1ul << SPI_MODE_PHASE_BIT)
+#define SPI_MODE_POLARITY_BIT       1
+#define SPI_MODE_POLARITY_BIT_MSK   (0x1ul << SPI_MODE_POLARITY_BIT)
+#define SPI_MODE_MAX_VALUE_MSK      ((0x1ul << (SPI_MODE_POLARITY_BIT+1))-1)
+
+static uint32_t spi_fill_object(spi_t *obj, PinName mosi, PinName miso,
+                                PinName sclk, PinName ssel)
+{
+    /* Determine the SPI to use */
+    uint32_t spi_mosi = pinmap_peripheral(mosi, PinMap_SPI_MOSI);
+    uint32_t spi_miso = pinmap_peripheral(miso, PinMap_SPI_MISO);
+    uint32_t spi_sclk = pinmap_peripheral(sclk, PinMap_SPI_SCLK);
+    uint32_t spi_ssel = pinmap_peripheral(ssel, PinMap_SPI_SSEL);
+    uint32_t spi_data = pinmap_merge(spi_mosi, spi_miso);
+    uint32_t spi_cntl = pinmap_merge(spi_sclk, spi_ssel);
+    uint32_t spi_index = pinmap_merge(spi_data, spi_cntl);
+    if ((spi_data == (uint32_t)NC) || (spi_index == (uint32_t)NC)) {
+        /* Both miso and mosi or all 4 pins are NC */
+        error("SPI pinout mapping failed");
+        return 1;
+    }
+
+    switch (spi_index) {
+#ifdef ARM_SPI0
+        case SPI_0:
+            obj->spi = &SPI0_PL022_DEV;
+            return 0;
+#endif /* ARM_SPI0 */
+#ifdef ARM_SPI1
+        case SPI_1:
+            obj->spi = &SPI1_PL022_DEV;
+            return 0;
+#endif /* ARM_SPI1 */
+#ifdef ARM_SPI2
+        case SPI_2:
+            obj->spi = &SPI2_PL022_DEV;
+            return 0;
+#endif /* ARM_SPI2 */
+#ifdef ARM_SPI3
+        case SPI_3:
+            obj->spi = &SPI3_PL022_DEV;
+            return 0;
+#endif /* ARM_SPI3 */
+#ifdef ARM_SPI4
+        case SPI_4:
+            obj->spi = &SPI4_PL022_DEV;
+            return 0;
+#endif /* ARM_SPI4 */
+        default:
+            error("Can not assign valid SPI peripheral to the pins given");
+            return 1;
+    }
+}
 
 void spi_init(spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel)
 {
-    /* Determine the SPI to use */
-    SPIName spi_mosi = (SPIName)pinmap_peripheral(mosi, PinMap_SPI_MOSI);
-    SPIName spi_miso = (SPIName)pinmap_peripheral(miso, PinMap_SPI_MISO);
-    SPIName spi_sclk = (SPIName)pinmap_peripheral(sclk, PinMap_SPI_SCLK);
-    SPIName spi_ssel = (SPIName)pinmap_peripheral(ssel, PinMap_SPI_SSEL);
-    SPIName spi_data = (SPIName)pinmap_merge(spi_mosi, spi_miso);
-    SPIName spi_cntl = (SPIName)pinmap_merge(spi_sclk, spi_ssel);
-
-    obj->spi = (MPS2_SSP_TypeDef*)pinmap_merge(spi_data, spi_cntl);
-    if ((int)obj->spi == NC) {
-        error("SPI pinout mapping failed");
+    if (spi_fill_object(obj, mosi, miso, sclk, ssel) != 0) {
+        return;
     }
 
-    /* Enable power and clocking */
-    switch ((int)obj->spi) {
-        case SPI_0:
-            obj->spi->CR1   = 0;
-            obj->spi->CR0   = SSP_CR0_SCR_DFLT | SSP_CR0_FRF_MOT | SSP_CR0_DSS_8;
-            obj->spi->CPSR  = SSP_CPSR_DFLT;
-            obj->spi->IMSC  = 0x8;
-            obj->spi->DMACR = 0;
-            obj->spi->CR1   = SSP_CR1_SSE_Msk;
-            obj->spi->ICR   = 0x3;
-            break;
-        case SPI_1: /* Configure SSP used for LCD */
-            obj->spi->CR1   = 0;                /* Synchronous serial port disable  */
-            obj->spi->DMACR = 0;                /* Disable FIFO DMA                 */
-            obj->spi->IMSC  = 0;                /* Mask all FIFO/IRQ interrupts     */
-            obj->spi->ICR   = ((1ul <<  0) |    /* Clear SSPRORINTR interrupt       */
-                               (1ul <<  1) );   /* Clear SSPRTINTR interrupt        */
-            obj->spi->CR0   = ((7ul <<  0) |    /* 8 bit data size                  */
-                               (0ul <<  4) |    /* Motorola frame format            */
-                               (0ul <<  6) |    /* CPOL = 0                         */
-                               (0ul <<  7) |    /* CPHA = 0                         */
-                               (1ul <<  8) );   /* Set serial clock rate            */
-            obj->spi->CPSR  = (2ul <<  0);      /* set SSP clk to 6MHz (6.6MHz max) */
-            obj->spi->CR1   = ((1ul <<  1) |    /* Synchronous serial port enable   */
-                               (0ul <<  2) );   /* Device configured as master      */
-            break;
-        case SPI_2:  /* Shield ADC SPI */
-        case SPI_3:  /* Shield 0 SPI */
-        case SPI_4:  /* Shield 1 SPI */
-            obj->spi->CR1   = 0;
-            obj->spi->CR0   = SSP_CR0_SCR_DFLT | SSP_CR0_FRF_MOT | SSP_CR0_DSS_8;
-            obj->spi->CPSR  = SSP_CPSR_DFLT;
-            obj->spi->IMSC  = 0x8;
-            obj->spi->DMACR = 0;
-            obj->spi->CR1   = SSP_CR1_SSE_Msk;
-            obj->spi->ICR   = 0x3;
-            /* Set pin function as an alt-function */
-            if (mosi != NC) {
-                pin_function(mosi, ALTERNATE_FUNC);
-            }
-            if (miso != NC) {
-                pin_function(miso, ALTERNATE_FUNC);
-            }
-            if (sclk != NC) {
-                pin_function(sclk, ALTERNATE_FUNC);
-            }
-            if (ssel != NC) {
-                pin_function(ssel, ALTERNATE_FUNC);
-            }
-            break;
+    (void)spi_pl022_init(obj->spi, SystemCoreClock);
+
+    /*
+     * If the pins are not linked to a GPIO,
+     * pin_function will have no effect.
+     * Mosi, miso and ssel pins are allowed to be NC,
+     * call pin_function only if they are connected
+     */
+    if (mosi != NC) {
+        pin_function(mosi, pinmap_function(mosi, PinMap_SPI_MOSI));
     }
-
-    /* Set default format and frequency */
-    if (ssel == NC) {
-        spi_format(obj, 8, 0, 0);  /* 8 bits, mode 0, master */
-    } else {
-        spi_format(obj, 8, 0, 1);  /* 8 bits, mode 0, slave */
+    if (miso != NC) {
+        pin_function(miso, pinmap_function(miso, PinMap_SPI_MISO));
     }
-
-    /* Default SPI frequency */
-    spi_frequency(obj, 1000000);
-
-    /* Enable the ssp channel */
-    ssp_enable(obj);
+    if (ssel != NC) {
+        pin_function(ssel, pinmap_function(ssel, PinMap_SPI_SSEL));
+    }
+    pin_function(sclk, pinmap_function(sclk, PinMap_SPI_SCLK));
 }
 
 void spi_free(spi_t *obj)
 {
-    error("SPI free error");
+    /* No need to implement free function, this API is intentionally blank */
 }
 
 void spi_format(spi_t *obj, int bits, int mode, int slave)
 {
-    ssp_disable(obj);
-    if (!(bits >= 4 && bits <= 16) || !(mode >= 0 && mode <= 3)) {
+    uint32_t polarity, phase, frame_format;
+    struct spi_pl022_ctrl_cfg_t ctrl_cfg;
+
+    if (!(bits >= SPI_BITS_MIN_VALUE && bits <= SPI_BITS_MAX_VALUE) ||
+        (mode & ~SPI_MODE_MAX_VALUE_MSK)) {
         error("SPI format error");
+        return;
     }
 
-    int polarity = (mode & 0x2) ? 1 : 0;
-    int phase = (mode & 0x1) ? 1 : 0;
+    spi_pl022_dev_disable(obj->spi);
+    if (spi_pl022_get_ctrl_cfg(obj->spi, &ctrl_cfg) != 0) {
+        error("SPI not initialized");
+        return;
+    };
 
-    // set it up
-    int DSS = bits - 1;            /* DSS (data select size) */
-    int SPO = (polarity) ? 1 : 0;  /* SPO - clock out polarity */
-    int SPH = (phase) ? 1 : 0;     /* SPH - clock out phase */
+    polarity = (mode & SPI_MODE_POLARITY_BIT_MSK) ? 1u : 0;
+    phase = (mode & SPI_MODE_PHASE_BIT_MSK) ? 1u : 0;
+    frame_format = (SPI_PL022_CFG_FRF_MOT << 0 |
+                    polarity << 6 |
+                    phase << 7);
 
-    int FRF = 0;                   /* FRF (frame format) = SPI */
-    uint32_t tmp = obj->spi->CR0;
-    tmp &= ~(0xFFFF);
-    tmp |= DSS << 0
-        | FRF << 4
-        | SPO << 6
-        | SPH << 7;
-    obj->spi->CR0 = tmp;
+    ctrl_cfg.frame_format = (uint8_t) frame_format;
+    ctrl_cfg.word_size = (uint8_t) bits;
+    ctrl_cfg.spi_mode =
+                  slave ? SPI_PL022_SLAVE_SELECT : SPI_PL022_MASTER_SELECT;
 
-    tmp = obj->spi->CR1;
-    tmp &= ~(0xD);
-    tmp |= 0 << 0                  /* LBM - loop back mode - off */
-        | ((slave) ? 1 : 0) << 2   /* MS  - master slave mode, 1 = slave */
-        | 0 << 3;                  /* SOD - slave output disable - na */
-    obj->spi->CR1 = tmp;
+    if (spi_pl022_set_ctrl_cfg(obj->spi, &ctrl_cfg) != 0) {
+        error("SPI configuration failed");
+    }
 
-    ssp_enable(obj);
+    spi_pl022_dev_enable(obj->spi);
 }
 
 void spi_frequency(spi_t *obj, int hz)
 {
-    uint32_t clkps_dvsr, scr;
-    uint32_t sys_clk = SystemCoreClock;
+    spi_pl022_dev_disable(obj->spi);
 
-    for(clkps_dvsr = SPI_PL022_MIN_SSPCPSR_VALUE;
-        clkps_dvsr <= SPI_PL022_MAX_SSPCPSR_VALUE; clkps_dvsr += 2) {
-
-        /* Calculate clock rate based on the new clock prescale divisor */
-        scr = (sys_clk / (clkps_dvsr * hz)) - 1;
-
-        /* Checks if it can be supported by the divider */
-        if (scr <= SPI_PL022_MAX_SRC_VALUE) {
-            ssp_disable(obj);
-            obj->spi->CPSR = clkps_dvsr;
-            obj->spi->CR0 &= ~SPI_PL022_SSPCR0_SCR_MSK;
-            obj->spi->CR0 |= (scr << SPI_PL022_SSPCR0_SCR_POS);
-            ssp_enable(obj);
-            return;
-        }
+    obj->spi->data->ctrl_cfg.bit_rate = hz;
+    if (spi_pl022_set_sys_clk(obj->spi, SystemCoreClock) != 0) {
+        error("SPI frequency config failed");
     }
 
-    error("Couldn't setup requested SPI frequency %dHz", hz);
-}
-
-static inline int ssp_disable(spi_t *obj)
-{
-    return obj->spi->CR1 &= ~(1 << 1);
-}
-
-static inline int ssp_enable(spi_t *obj)
-{
-    return obj->spi->CR1 |= SSP_CR1_SSE_Msk;
-}
-
-static inline int ssp_readable(spi_t *obj)
-{
-    return obj->spi->SR & (1 << 2);
-}
-
-static inline int ssp_writeable(spi_t *obj)
-{
-    return obj->spi->SR & SSP_SR_BSY_Msk;
-}
-
-static inline void ssp_write(spi_t *obj, int value)
-{
-    obj->spi->DR = value;
-    while (ssp_writeable(obj));
-}
-static inline int ssp_read(spi_t *obj)
-{
-    int read_DR = obj->spi->DR;
-    return read_DR;
-}
-
-static inline int ssp_busy(spi_t *obj)
-{
-    return (obj->spi->SR & (1 << 4)) ? (1) : (0);
+    spi_pl022_dev_enable(obj->spi);
 }
 
 int spi_master_write(spi_t *obj, int value)
 {
-    ssp_write(obj, value);
-    while (obj->spi->SR & SSP_SR_BSY_Msk);  /* Wait for send to finish */
-    return (ssp_read(obj));
+    int32_t rx_data = 0;
+    uint32_t size = 1;
+
+    if(obj->spi->data->ctrl_cfg.word_size > 8) {
+        size = 2;
+    }
+
+    if (spi_pl022_txrx_blocking(obj->spi, &value, &size, &rx_data, &size) ) {
+        return 0;
+    }
+
+    return rx_data;
 }
 
 int spi_master_block_write(spi_t *obj, const char *tx_buffer, int tx_length,
                            char *rx_buffer, int rx_length, char write_fill)
 {
-    int total = (tx_length > rx_length) ? tx_length : rx_length;
-    char out, in;
-
-    for (int i = 0; i < total; i++) {
-        out = (i < tx_length) ? tx_buffer[i] : write_fill;
-        in = spi_master_write(obj, out);
-        if (i < rx_length) {
-            rx_buffer[i] = in;
-        }
+    if (spi_pl022_txrx_blocking(obj->spi, tx_buffer, (uint32_t*)&tx_length,
+                                          rx_buffer, (uint32_t*)&rx_length)) {
+        return 0;
     }
 
-    return total;
+    return ((tx_length > rx_length) ? tx_length : rx_length);
 }
 
 int spi_slave_receive(spi_t *obj)
 {
-    return (ssp_readable(obj) && !ssp_busy(obj)) ? (1) : (0);
+    int32_t status = spi_pl022_get_status(obj->spi);
+    /* Rx FIFO not empty and device not busy */
+    int32_t ret = ((status & SPI_PL022_SSPSR_RNE_MSK) &&
+                        !(status & SPI_PL022_SSPSR_BSY_MSK));
+    return ret;
+}
+
+uint8_t spi_get_module(spi_t *obj)
+{
+    if (obj->spi == &SPI0_PL022_DEV) {
+        return SPI_0;
+    } else if (obj->spi == &SPI1_PL022_DEV) {
+        return SPI_1;
+    } else if (obj->spi == &SPI2_PL022_DEV) {
+        return SPI_2;
+    } else if (obj->spi == &SPI3_PL022_DEV) {
+        return SPI_3;
+    } else if (obj->spi == &SPI4_PL022_DEV) {
+        return SPI_4;
+    } else {
+        error("SPI object is not initialized");
+        return (SPI_NC);
+    }
 }
 
 int spi_slave_read(spi_t *obj)
 {
-    return obj->spi->DR;
+    while(spi_slave_receive(obj) == 0) {};
+    return spi_pl022_slave_read(obj->spi);
 }
 
 void spi_slave_write(spi_t *obj, int value)
 {
-    while (ssp_writeable(obj) == 0);
-    obj->spi->DR = value;
+    (void)spi_pl022_write(obj->spi, SPI_PL022_SLAVE_SELECT, &value);
 }
 
 int spi_busy(spi_t *obj)
 {
-    return ssp_busy(obj);
+    int32_t status = spi_pl022_get_status(obj->spi);
+    return (status & SPI_PL022_SSPSR_BSY_MSK);
 }

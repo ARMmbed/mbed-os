@@ -1,10 +1,13 @@
 /*
+ * The Clear BSD License
  * Copyright (c) 2016, Freescale Semiconductor, Inc.
  * Copyright (c) 2016 - 2017 , NXP
  * All rights reserved.
  *
+ *
  * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
+ * are permitted (subject to the limitations in the disclaimer below) provided
+ * that the following conditions are met:
  *
  * o Redistributions of source code must retain the above copyright notice, this list
  *   of conditions and the following disclaimer.
@@ -17,6 +20,7 @@
  *   contributors may be used to endorse or promote products derived from this
  *   software without specific prior written permission.
  *
+ * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE.
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -150,6 +154,10 @@ static uint32_t findPllPreDiv(uint32_t ctrlReg, uint32_t nDecReg);
 static uint32_t findPllPostDiv(uint32_t ctrlReg, uint32_t pDecReg);
 /* Get multiplier (M) from PLL MDEC and BYPASS_FBDIV2 settings */
 static uint32_t findPllMMult(uint32_t ctrlReg, uint32_t mDecReg);
+/* Convert the binary to fractional part */
+static double Binary2Fractional(uint32_t binaryPart);
+/* Calculate the powerTimes' power of 2 */
+static uint32_t power2Cal(uint32_t powerTimes);
 /* Get the greatest common divisor */
 static uint32_t FindGreatestCommonDivisor(uint32_t m, uint32_t n);
 /* Set PLL output based on desired output rate */
@@ -969,6 +977,25 @@ static uint32_t findPllMMult(uint32_t ctrlReg, uint32_t mDecReg)
     return mMult;
 }
 
+/* Calculate the powerTimes' power of 2 */
+static uint32_t power2Cal(uint32_t powerTimes)
+{
+    if (powerTimes == 0)
+        return 1;
+    return 2 * power2Cal(powerTimes - 1);
+}
+
+/* Convert the binary to fractional part */
+static double Binary2Fractional(uint32_t binaryPart)
+{
+    double fractional = 0;
+    for (uint32_t i = 0; i <= 14; i++)
+    {
+        fractional += (double)((binaryPart >> i) & 0x1U) / (double)power2Cal(15 - i);
+    }
+    return fractional;
+}
+
 /* Find greatest common divisor between m and n */
 static uint32_t FindGreatestCommonDivisor(uint32_t m, uint32_t n)
 {
@@ -1174,6 +1201,12 @@ static void CLOCK_GetAudioPLLOutFromSetupUpdate(pll_setup_t *pSetup)
     s_Audio_Pll_Freq = CLOCK_GetAudioPLLOutFromSetup(pSetup);
 }
 
+/* Update AUDIO Fractional PLL rate variable */
+static void CLOCK_GetAudioPLLOutFromAudioFracSetupUpdate(pll_setup_t *pSetup)
+{
+    s_Audio_Pll_Freq = CLOCK_GetAudioPLLOutFromFractSetup(pSetup);
+}
+
 /* Update USB PLL rate variable */
 static void CLOCK_GetUsbPLLOutFromSetupUpdate(const usb_pll_setup_t *pSetup)
 {
@@ -1355,6 +1388,58 @@ uint32_t CLOCK_GetAudioPLLOutFromSetup(pll_setup_t *pSetup)
         workRate = (uint64_t)inPllRate * (uint64_t)mMult;
 
         workRate = workRate / ((uint64_t)postdiv);
+        workRate = workRate * 2U; /* SYS PLL hardware cco is divide by 2 before to M-DIVIDER*/
+    }
+    else
+    {
+        /* In bypass mode */
+        workRate = (uint64_t)inPllRate;
+    }
+
+    return (uint32_t)workRate;
+}
+
+/* Return Audio PLL output clock rate from audio fractioanl setup structure */
+uint32_t CLOCK_GetAudioPLLOutFromFractSetup(pll_setup_t *pSetup)
+{
+    uint32_t prediv, postdiv, inPllRate;
+    double workRate, mMultFactional;
+
+    inPllRate = CLOCK_GetAudioPLLInClockRate();
+    if ((pSetup->pllctrl & (1UL << SYSCON_SYSPLLCTRL_BYPASS_SHIFT)) == 0U)
+    {
+        /* PLL is not in bypass mode, get pre-divider, and M divider, post-divider. */
+        /*
+         * 1. Pre-divider
+         * Pre-divider is only available when the DIRECTI is disabled.
+         */
+        if (0U == (pSetup->pllctrl & SYSCON_AUDPLLCTRL_DIRECTI_MASK))
+        {
+            prediv = findPllPreDiv(pSetup->pllctrl, pSetup->pllndec);
+        }
+        else
+        {
+            prediv = 1U; /* The pre-divider is bypassed. */
+        }
+        /*
+         * 2. Post-divider
+         * Post-divider is only available when the DIRECTO is disabled.
+         */
+        if (0U == (pSetup->pllctrl & SYSCON_AUDPLLCTRL_DIRECTO_MASK))
+        {
+            postdiv = findPllPostDiv(pSetup->pllctrl, pSetup->pllpdec);
+        }
+        else
+        {
+            postdiv = 1U;           /* The post-divider is bypassed. */
+        }
+        /* Adjust input clock */
+        inPllRate = inPllRate / prediv;
+
+        mMultFactional = (double)(pSetup->audpllfrac >> 15) + (double)Binary2Fractional(pSetup->audpllfrac & 0x7FFFU);
+        workRate = (double)inPllRate * (double)mMultFactional;
+
+        workRate = workRate / ((double)postdiv);
         workRate = workRate * 2U; /* SYS PLL hardware cco is divide by 2 before to M-DIVIDER*/
     }
     else
@@ -1609,6 +1694,48 @@ pll_error_t CLOCK_SetupAudioPLLPrec(pll_setup_t *pSetup, uint32_t flagcfg)
     return kStatus_PLL_Success;
 }
 
+/* Set AUDIO PLL output from AUDIO PLL fractional setup structure */
+pll_error_t CLOCK_SetupAudioPLLPrecFract(pll_setup_t *pSetup, uint32_t flagcfg)
+{
+    if ((SYSCON->AUDPLLCLKSEL & SYSCON_AUDPLLCLKSEL_SEL_MASK) == 0x01U)
+    {
+       /* Turn on the ext clock if system pll input select clk_in */
+       CLOCK_Enable_SysOsc(true);
+    }
+    /* Enable power VD3 for PLLs */
+    POWER_SetPLL();
+    /* Power off PLL during setup changes */
+    POWER_EnablePD(kPDRUNCFG_PD_AUDIO_PLL);
+
+    pSetup->flags = flagcfg;
+
+    /* Write PLL setup data */
+    SYSCON->AUDPLLCTRL = pSetup->pllctrl;
+    SYSCON->AUDPLLNDEC = pSetup->pllndec;
+    SYSCON->AUDPLLNDEC = pSetup->pllndec | (1U << SYSCON_SYSPLLNDEC_NREQ_SHIFT); /* latch */
+    SYSCON->AUDPLLPDEC = pSetup->pllpdec;
+    SYSCON->AUDPLLPDEC = pSetup->pllpdec | (1U << SYSCON_SYSPLLPDEC_PREQ_SHIFT); /* latch */
+    SYSCON->AUDPLLMDEC = pSetup->pllmdec;
+    SYSCON->AUDPLLFRAC = SYSCON_AUDPLLFRAC_SEL_EXT(0); /* enable fractional function */
+    SYSCON->AUDPLLFRAC = pSetup->audpllfrac;
+    SYSCON->AUDPLLFRAC = pSetup->audpllfrac | (1U << SYSCON_AUDPLLFRAC_REQ_SHIFT);
+
+    /* Enable peripheral states by setting low */
+    POWER_DisablePD(kPDRUNCFG_PD_AUDIO_PLL);
+
+    if ((pSetup->flags & PLL_SETUPFLAG_WAITLOCK) != 0U)
+    {
+        while (CLOCK_IsAudioPLLLocked() == false)
+        {
+        }
+    }
+
+    /* Update current programmed PLL rate var */
+    CLOCK_GetAudioPLLOutFromAudioFracSetupUpdate(pSetup);
+
+    return kStatus_PLL_Success;
+}
+
 /* Set Audio PLL output based on the passed Audio PLL setup data */
 pll_error_t CLOCK_SetupAudioPLLData(pll_config_t *pControl, pll_setup_t *pSetup)
 {
@@ -1819,7 +1946,7 @@ pll_error_t CLOCK_SetUsbPLLFreq(const usb_pll_setup_t *pSetup)
     }
     
     /* If configure the USB HOST clock, VD5 power for USB PHY should be enable 
-       before the the PLL is working */
+       before the PLL is working */
     /* Turn on the ext clock for usb pll input */
     CLOCK_Enable_SysOsc(true);
     

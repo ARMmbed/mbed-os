@@ -23,10 +23,18 @@
 using utest::v1::Case;
 
 #if defined(MBED_RTOS_SINGLE_THREAD)
-  #error [NOT_SUPPORTED] test not supported
+#error [NOT_SUPPORTED] test not supported
 #endif
 
+#if !DEVICE_USTICKER
+#error [NOT_SUPPORTED] test not supported
+#endif
+
+#if defined(__CORTEX_M23) || defined(__CORTEX_M33)
+#define THREAD_STACK_SIZE   512
+#else
 #define THREAD_STACK_SIZE   320 /* 512B stack on GCC_ARM compiler cause out of memory on some 16kB RAM boards e.g. NUCLEO_F070RB */
+#endif
 
 #define MAX_FLAG_POS 30
 #define PROHIBITED_FLAG_POS 31
@@ -48,8 +56,15 @@ Semaphore sync_sem(0, 1);
  * which aborts test program.
  */
 #if defined(MBED_TRAP_ERRORS_ENABLED) && MBED_TRAP_ERRORS_ENABLED
-void error(const char* format, ...) {
+void error(const char *format, ...)
+{
     (void) format;
+}
+
+//Override the set_error function to trap the errors
+mbed_error_status_t mbed_error(mbed_error_status_t error_status, const char *error_msg, unsigned int error_value, const char *filename, int line_number)
+{
+    return MBED_SUCCESS;
 }
 #endif
 
@@ -264,7 +279,7 @@ void test_multi_thread_any_timeout(void)
     EventFlags ef;
     uint32_t ret;
     Thread thread(osPriorityNormal, THREAD_STACK_SIZE);
-    thread.start(callback(send_thread_sync<FLAG01 | FLAG02 | FLAG03, 1>, &ef));
+    thread.start(callback(send_thread_sync < FLAG01 | FLAG02 | FLAG03, 1 >, &ef));
 
     for (int i = 0; i <= MAX_FLAG_POS; i++) {
         uint32_t flag = 1 << i;

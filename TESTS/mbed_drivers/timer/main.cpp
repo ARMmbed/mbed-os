@@ -22,39 +22,38 @@
 #include "rtos.h"
 #include "hal/us_ticker_api.h"
 
+#if !DEVICE_USTICKER
+#error [NOT_SUPPORTED] test not supported
+#endif
+
 using namespace utest::v1;
 
 extern uint32_t SystemCoreClock;
 
-/* Macro to define delta based on CPU clock frequency.
- *
- * Note that some extra time is counted by the timer.
- * Additional time is caused by the function calls and
- * additional operations performed by wait and
- * stop functions before in fact timer is stopped. This may
- * add additional time to the counted result.
- *
- * To take in to account this extra time we introduce DELTA
- * value based on CPU clock (speed):
- *   DELTA = TOLERANCE_FACTOR / SystemCoreClock * US_FACTOR
- *
- *   e.g.
- *   For K64F          DELTA = (30000 / 120000000) * 1000000 = 250[us]
- *   For NUCLEO_F070RB DELTA = (30000 /  48000000) * 1000000 = 625[us]
- *   For NRF51_DK      DELTA = (30000 /  16000000) * 1000000 = 1875[us]
- */
 #define US_PER_SEC       1000000
 #define US_PER_MSEC      1000
-#define TOLERANCE_FACTOR 30000.0f
-#define US_FACTOR        1000000.0f
+#define MSEC_PER_SEC     1000
 
-static const int delta_sys_clk_us = ((int) (TOLERANCE_FACTOR / (float)SystemCoreClock * US_FACTOR));
+/*
+* Define tolerance as follows:
+* tolerance = 500 us + 2% of measured time
+*
+* e.g.
+* 1 ms delay: tolerance = 520 us
+* 10 ms delay: tolerance = 700 us
+* 100 ms delay: tolerance = 2500 us
+* 1000 ms delay: tolerance = 20500 us
+*
+*  */
+#ifdef NO_SYSTICK
+#define TOLERANCE 5
+#else
+#define TOLERANCE 2
+#endif
 
-/* When test performs time measurement using Timer in sequence, then measurement error accumulates
- * in the successive attempts. */
- #define DELTA_US(i) (delta_sys_clk_us * i)
- #define DELTA_S(i)  ((float)delta_sys_clk_us * i / US_PER_SEC)
- #define DELTA_MS(i) (1 + ( (i * delta_sys_clk_us) / US_PER_MSEC))
+#define DELTA_US(delay_ms) (500 + (delay_ms) * US_PER_MSEC  * TOLERANCE / 100)
+#define DELTA_MS(delay_ms) (1 + (delay_ms) * TOLERANCE / 100)
+#define DELTA_S(delay_ms) (0.000500f + ((float)(delay_ms)) * ((float)(TOLERANCE) / 100.f) / MSEC_PER_SEC)
 
 #define TICKER_FREQ_1MHZ 1000000
 #define TICKER_BITS 32
@@ -65,6 +64,20 @@ static Timer *p_timer = NULL;
  * in case when timer which uses user ticker is tested.
  */
 static uint32_t curr_ticker_ticks_val;
+
+
+/* Replacement for generic wait functions to avoid invoking OS scheduling stuff. */
+void busy_wait_us(int us)
+{
+    const ticker_data_t *const ticker = get_us_ticker_data();
+    uint32_t start = ticker_read(ticker);
+    while ((ticker_read(ticker) - start) < (uint32_t)us);
+}
+
+void busy_wait_ms(int ms)
+{
+    busy_wait_us(ms * US_PER_MSEC);
+}
 
 /* User ticker interface function. */
 static void stub_interface_init()
@@ -104,10 +117,16 @@ static void stub_fire_interrupt(void)
     /* do nothing. */
 }
 
+/* User ticker interface function. */
+static void stub_free(void)
+{
+    /* do nothing. */
+}
+
 ticker_info_t info =
 { TICKER_FREQ_1MHZ, TICKER_BITS };
 
-const ticker_info_t * stub_get_info(void)
+const ticker_info_t *stub_get_info(void)
 {
     return &info;
 }
@@ -123,6 +142,7 @@ static const ticker_interface_t us_interface = {
     .clear_interrupt = stub_clear_interrupt,
     .set_interrupt = stub_set_interrupt,
     .fire_interrupt = stub_fire_interrupt,
+    .free = stub_free,
     .get_info = stub_get_info,
 };
 
@@ -133,7 +153,7 @@ static const ticker_data_t us_data = {
 };
 
 /* Function which returns user ticker data. */
-const ticker_data_t* get_user_ticker_data(void)
+const ticker_data_t *get_user_ticker_data(void)
 {
     return &us_data;
 }
@@ -197,7 +217,7 @@ void test_timer_creation_os_ticker()
 
     /* Wait 10 ms.
      * After that operation timer read routines should still return 0. */
-    wait_ms(10);
+    busy_wait_ms(10);
 
     /* Check results. */
     TEST_ASSERT_EQUAL_FLOAT(0, p_timer->read());
@@ -407,21 +427,21 @@ void test_timer_time_accumulation_os_ticker()
     p_timer->start();
 
     /* Wait 10 ms. */
-    wait_ms(10);
+    busy_wait_ms(10);
 
     /* Stop the timer. */
     p_timer->stop();
 
     /* Check results - totally 10 ms have elapsed. */
-    TEST_ASSERT_FLOAT_WITHIN(DELTA_S(1), 0.010f, p_timer->read());
-    TEST_ASSERT_INT32_WITHIN(DELTA_MS(1), 10, p_timer->read_ms());
-    TEST_ASSERT_INT32_WITHIN(DELTA_US(1), 10000, p_timer->read_us());
-    TEST_ASSERT_UINT64_WITHIN(DELTA_US(1), 10000, p_timer->read_high_resolution_us());
+    TEST_ASSERT_FLOAT_WITHIN(DELTA_S(10), 0.010f, p_timer->read());
+    TEST_ASSERT_INT32_WITHIN(DELTA_MS(10), 10, p_timer->read_ms());
+    TEST_ASSERT_INT32_WITHIN(DELTA_US(10), 10000, p_timer->read_us());
+    TEST_ASSERT_UINT64_WITHIN(DELTA_US(10), 10000, p_timer->read_high_resolution_us());
 
     /* Wait 50 ms - this is done to show that time elapsed when
      * the timer is stopped does not have influence on the
      * timer counted time. */
-    wait_ms(50);
+    busy_wait_ms(50);
 
     /* ------ */
 
@@ -429,16 +449,16 @@ void test_timer_time_accumulation_os_ticker()
     p_timer->start();
 
     /* Wait 20 ms. */
-    wait_ms(20);
+    busy_wait_ms(20);
 
     /* Stop the timer. */
     p_timer->stop();
 
     /* Check results - totally 30 ms have elapsed. */
-    TEST_ASSERT_FLOAT_WITHIN(DELTA_S(2), 0.030f, p_timer->read());
-    TEST_ASSERT_INT32_WITHIN(DELTA_MS(2), 30, p_timer->read_ms());
-    TEST_ASSERT_INT32_WITHIN(DELTA_US(2), 30000, p_timer->read_us());
-    TEST_ASSERT_UINT64_WITHIN(DELTA_US(2), 30000, p_timer->read_high_resolution_us());
+    TEST_ASSERT_FLOAT_WITHIN(DELTA_S(30), 0.030f, p_timer->read());
+    TEST_ASSERT_INT32_WITHIN(DELTA_MS(30), 30, p_timer->read_ms());
+    TEST_ASSERT_INT32_WITHIN(DELTA_US(30), 30000, p_timer->read_us());
+    TEST_ASSERT_UINT64_WITHIN(DELTA_US(30), 30000, p_timer->read_high_resolution_us());
 
     /* Wait 50 ms - this is done to show that time elapsed when
      * the timer is stopped does not have influence on the
@@ -450,21 +470,21 @@ void test_timer_time_accumulation_os_ticker()
     p_timer->start();
 
     /* Wait 30 ms. */
-    wait_ms(30);
+    busy_wait_ms(30);
 
     /* Stop the timer. */
     p_timer->stop();
 
     /* Check results - totally 60 ms have elapsed. */
-    TEST_ASSERT_FLOAT_WITHIN(DELTA_S(3), 0.060f, p_timer->read());
-    TEST_ASSERT_INT32_WITHIN(DELTA_MS(3), 60, p_timer->read_ms());
-    TEST_ASSERT_INT32_WITHIN(DELTA_US(3), 60000, p_timer->read_us());
-    TEST_ASSERT_UINT64_WITHIN(DELTA_US(3), 60000, p_timer->read_high_resolution_us());
+    TEST_ASSERT_FLOAT_WITHIN(DELTA_S(60), 0.060f, p_timer->read());
+    TEST_ASSERT_INT32_WITHIN(DELTA_MS(60), 60, p_timer->read_ms());
+    TEST_ASSERT_INT32_WITHIN(DELTA_US(60), 60000, p_timer->read_us());
+    TEST_ASSERT_UINT64_WITHIN(DELTA_US(60), 60000, p_timer->read_high_resolution_us());
 
     /* Wait 50 ms - this is done to show that time elapsed when
      * the timer is stopped does not have influence on the
      * timer time. */
-    wait_ms(50);
+    busy_wait_ms(50);
 
     /* ------ */
 
@@ -472,16 +492,16 @@ void test_timer_time_accumulation_os_ticker()
     p_timer->start();
 
     /* Wait 1 sec. */
-    wait_ms(1000);
+    busy_wait_ms(1000);
 
     /* Stop the timer. */
     p_timer->stop();
 
     /* Check results - totally 1060 ms have elapsed. */
-    TEST_ASSERT_FLOAT_WITHIN(DELTA_S(4), 1.060f, p_timer->read());
-    TEST_ASSERT_INT32_WITHIN(DELTA_MS(4), 1060, p_timer->read_ms());
-    TEST_ASSERT_INT32_WITHIN(DELTA_US(4), 1060000, p_timer->read_us());
-    TEST_ASSERT_UINT64_WITHIN(DELTA_US(4), 1060000, p_timer->read_high_resolution_us());
+    TEST_ASSERT_FLOAT_WITHIN(DELTA_S(1060), 1.060f, p_timer->read());
+    TEST_ASSERT_INT32_WITHIN(DELTA_MS(1060), 1060, p_timer->read_ms());
+    TEST_ASSERT_INT32_WITHIN(DELTA_US(1060), 1060000, p_timer->read_us());
+    TEST_ASSERT_UINT64_WITHIN(DELTA_US(1060), 1060000, p_timer->read_high_resolution_us());
 }
 
 /* This test verifies if reset() function resets the timer
@@ -501,16 +521,16 @@ void test_timer_reset_os_ticker()
     p_timer->start();
 
     /* Wait 10 ms. */
-    wait_ms(10);
+    busy_wait_ms(10);
 
     /* Stop the timer. */
     p_timer->stop();
 
     /* Check results - totally 10 ms elapsed. */
-    TEST_ASSERT_FLOAT_WITHIN(DELTA_S(1), 0.010f, p_timer->read());
-    TEST_ASSERT_INT32_WITHIN(DELTA_MS(1), 10, p_timer->read_ms());
-    TEST_ASSERT_INT32_WITHIN(DELTA_US(1), 10000, p_timer->read_us());
-    TEST_ASSERT_UINT64_WITHIN(DELTA_US(1), 10000, p_timer->read_high_resolution_us());
+    TEST_ASSERT_FLOAT_WITHIN(DELTA_S(10), 0.010f, p_timer->read());
+    TEST_ASSERT_INT32_WITHIN(DELTA_MS(10), 10, p_timer->read_ms());
+    TEST_ASSERT_INT32_WITHIN(DELTA_US(10), 10000, p_timer->read_us());
+    TEST_ASSERT_UINT64_WITHIN(DELTA_US(10), 10000, p_timer->read_high_resolution_us());
 
     /* Reset the timer - previous measured time should be lost now. */
     p_timer->reset();
@@ -519,16 +539,16 @@ void test_timer_reset_os_ticker()
     p_timer->start();
 
     /* Wait 20 ms. */
-    wait_ms(20);
+    busy_wait_ms(20);
 
     /* Stop the timer. */
     p_timer->stop();
 
     /* Check results - 20 ms elapsed since the reset. */
-    TEST_ASSERT_FLOAT_WITHIN(DELTA_S(1), 0.020f, p_timer->read());
-    TEST_ASSERT_INT32_WITHIN(DELTA_MS(1), 20, p_timer->read_ms());
-    TEST_ASSERT_INT32_WITHIN(DELTA_US(1), 20000, p_timer->read_us());
-    TEST_ASSERT_UINT64_WITHIN(DELTA_US(1), 20000, p_timer->read_high_resolution_us());
+    TEST_ASSERT_FLOAT_WITHIN(DELTA_S(20), 0.020f, p_timer->read());
+    TEST_ASSERT_INT32_WITHIN(DELTA_MS(20), 20, p_timer->read_ms());
+    TEST_ASSERT_INT32_WITHIN(DELTA_US(20), 20000, p_timer->read_us());
+    TEST_ASSERT_UINT64_WITHIN(DELTA_US(20), 20000, p_timer->read_high_resolution_us());
 }
 
 /* This test verifies if reset() function resets the timer
@@ -597,22 +617,22 @@ void test_timer_start_started_timer_os_ticker()
     p_timer->start();
 
     /* Wait 10 ms. */
-    wait_ms(10);
+    busy_wait_ms(10);
 
     /* Now start timer again. */
     p_timer->start();
 
     /* Wait 20 ms. */
-    wait_ms(20);
+    busy_wait_ms(20);
 
     /* Stop the timer. */
     p_timer->stop();
 
     /* Check results - 30 ms have elapsed since the first start. */
-    TEST_ASSERT_FLOAT_WITHIN(DELTA_S(2), 0.030f, p_timer->read());
-    TEST_ASSERT_INT32_WITHIN(DELTA_MS(2), 30, p_timer->read_ms());
-    TEST_ASSERT_INT32_WITHIN(DELTA_US(2), 30000, p_timer->read_us());
-    TEST_ASSERT_UINT64_WITHIN(DELTA_US(2), 30000, p_timer->read_high_resolution_us());
+    TEST_ASSERT_FLOAT_WITHIN(DELTA_S(30), 0.030f, p_timer->read());
+    TEST_ASSERT_INT32_WITHIN(DELTA_MS(30), 30, p_timer->read_ms());
+    TEST_ASSERT_INT32_WITHIN(DELTA_US(30), 30000, p_timer->read_us());
+    TEST_ASSERT_UINT64_WITHIN(DELTA_US(30), 30000, p_timer->read_high_resolution_us());
 }
 
 /* This test verifies if calling start() for already
@@ -646,10 +666,10 @@ void test_timer_start_started_timer_user_ticker()
     p_timer->stop();
 
     /* Check results - 30 ms have elapsed since the first start. */
-    TEST_ASSERT_FLOAT_WITHIN(DELTA_S(2), 0.030f, p_timer->read());
-    TEST_ASSERT_INT32_WITHIN(DELTA_MS(2), 30, p_timer->read_ms());
-    TEST_ASSERT_INT32_WITHIN(DELTA_US(2), 30000, p_timer->read_us());
-    TEST_ASSERT_UINT64_WITHIN(DELTA_US(2), 30000, p_timer->read_high_resolution_us());
+    TEST_ASSERT_FLOAT_WITHIN(DELTA_S(30), 0.030f, p_timer->read());
+    TEST_ASSERT_INT32_WITHIN(DELTA_MS(30), 30, p_timer->read_ms());
+    TEST_ASSERT_INT32_WITHIN(DELTA_US(30), 30000, p_timer->read_us());
+    TEST_ASSERT_UINT64_WITHIN(DELTA_US(30), 30000, p_timer->read_high_resolution_us());
 }
 
 /* This test verifies Timer float operator.
@@ -667,13 +687,13 @@ void test_timer_float_operator_os_ticker()
     p_timer->start();
 
     /* Wait 10 ms. */
-    wait_ms(10);
+    busy_wait_ms(10);
 
     /* Stop the timer. */
     p_timer->stop();
 
     /* Check result - 10 ms elapsed. */
-    TEST_ASSERT_FLOAT_WITHIN(DELTA_S(1), 0.010f, (float)(*p_timer));
+    TEST_ASSERT_FLOAT_WITHIN(DELTA_S(10), 0.010f, (float)(*p_timer));
 }
 
 /* This test verifies Timer float operator.
@@ -722,19 +742,20 @@ void test_timer_time_measurement()
     p_timer->start();
 
     /* Wait <wait_val_us> us. */
-    wait_us(wait_val_us);
+    busy_wait_us(wait_val_us);
 
     /* Stop the timer. */
     p_timer->stop();
 
     /* Check results. */
-    TEST_ASSERT_FLOAT_WITHIN(DELTA_S(1), (float)wait_val_us / 1000000, p_timer->read());
-    TEST_ASSERT_INT32_WITHIN(DELTA_MS(1), wait_val_us / 1000, p_timer->read_ms());
-    TEST_ASSERT_INT32_WITHIN(DELTA_US(1), wait_val_us, p_timer->read_us());
-    TEST_ASSERT_UINT64_WITHIN(DELTA_US(1), wait_val_us, p_timer->read_high_resolution_us());
+    TEST_ASSERT_FLOAT_WITHIN(DELTA_S(wait_val_us / US_PER_MSEC), (float)wait_val_us / US_PER_SEC, p_timer->read());
+    TEST_ASSERT_INT32_WITHIN(DELTA_MS(wait_val_us / US_PER_MSEC), wait_val_us / US_PER_MSEC, p_timer->read_ms());
+    TEST_ASSERT_INT32_WITHIN(DELTA_US(wait_val_us / US_PER_MSEC), wait_val_us, p_timer->read_us());
+    TEST_ASSERT_UINT64_WITHIN(DELTA_US(wait_val_us / US_PER_MSEC), wait_val_us, p_timer->read_high_resolution_us());
 }
 
-utest::v1::status_t test_setup(const size_t number_of_cases) {
+utest::v1::status_t test_setup(const size_t number_of_cases)
+{
     GREENTEA_SETUP(15, "default_auto");
     return verbose_test_setup_handler(number_of_cases);
 }
@@ -763,7 +784,8 @@ Case cases[] = {
 
 Specification specification(test_setup, cases);
 
-int main() {
+int main()
+{
     return !Harness::run(specification);
 }
 

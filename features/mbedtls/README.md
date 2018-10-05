@@ -10,7 +10,7 @@ This edition of mbed TLS has been adapted for mbed OS and imported from its stan
 Getting Help and Support
 ------------------------
 
-The [mbed TLS website](https://tls.mbed.org/) contains fulll documentation for the library, including function by function descriptions, knowledgebase articles, blogs and a support forum for questions to the community.
+The [mbed TLS website](https://tls.mbed.org/) contains full documentation for the library, including function by function descriptions, knowledgebase articles, blogs and a support forum for questions to the community.
 
 
 Contributing to the Project

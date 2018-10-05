@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32f0xx_hal.h
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    04-November-2016
   * @brief   This file contains all the functions prototypes for the HAL 
   *          module driver.
   ******************************************************************************
@@ -378,7 +376,7 @@
 #if defined(SYSCFG_CFGR1_PA11_PA12_RMP)
 /** @defgroup HAL_Pin_remap HAL Pin remap 
   * @brief  Pin remapping enable/disable macros
-  * @param __PIN_REMAP__: This parameter can be a value of @ref HAL_Pin_remapping
+  * @param __PIN_REMAP__ This parameter can be a value of @ref HAL_Pin_remapping
   * @{   
   */
 #define __HAL_REMAP_PIN_ENABLE(__PIN_REMAP__)          do {assert_param(IS_HAL_REMAP_PIN((__PIN_REMAP__)));                 \
@@ -393,7 +391,7 @@
 #endif /* SYSCFG_CFGR1_PA11_PA12_RMP */
 
 /** @brief  Fast-mode Plus driving capability enable/disable macros
-  * @param __FASTMODEPLUS__: This parameter can be a value of @ref SYSCFG_FastModePlus_GPIO values.
+  * @param __FASTMODEPLUS__ This parameter can be a value of @ref SYSCFG_FastModePlus_GPIO values.
   *                          That you can find above these macros.
   */
 #define __HAL_SYSCFG_FASTMODEPLUS_ENABLE(__FASTMODEPLUS__)  do {assert_param(IS_SYSCFG_FASTMODEPLUS((__FASTMODEPLUS__)));\
@@ -482,7 +480,7 @@
 /** @defgroup HAL_SYSCFG_IRDA_modulation_envelope_selection HAL SYSCFG IRDA modulation envelope selection
   * @brief  selection of the modulation envelope signal macro, using bits [7:6] of SYS_CTRL(CFGR1) register
   * @note This feature is applicable on STM32F09x
-  * @param __SOURCE__: This parameter can be a value of @ref HAL_IRDA_ENV_SEL
+  * @param __SOURCE__ This parameter can be a value of @ref HAL_IRDA_ENV_SEL
   * @{  
   */
 #define __HAL_SYSCFG_IRDA_ENV_SELECTION(__SOURCE__)  do {assert_param(IS_HAL_SYSCFG_IRDA_ENV_SEL((__SOURCE__))); \
@@ -532,6 +530,9 @@ void              HAL_ResumeTick(void);
 uint32_t          HAL_GetHalVersion(void);
 uint32_t          HAL_GetREVID(void);
 uint32_t          HAL_GetDEVID(void);
+uint32_t          HAL_GetUIDw0(void);
+uint32_t          HAL_GetUIDw1(void);
+uint32_t          HAL_GetUIDw2(void);
 void              HAL_DBGMCU_EnableDBGStopMode(void);
 void              HAL_DBGMCU_DisableDBGStopMode(void);
 void              HAL_DBGMCU_EnableDBGStandbyMode(void);

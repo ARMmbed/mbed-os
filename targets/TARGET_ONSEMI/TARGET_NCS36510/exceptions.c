@@ -68,12 +68,6 @@ void NotImplemented_Handler(void)
     while (1) {};
 }
 
-/** Hardware fault interrupt handler */
-void HardFault_Handler(void)
-{
-    while (1) {};
-}
-
 /*************************************************************************************************
 *                                                                                                *
 *  Functions                                                                                     *
@@ -123,11 +117,13 @@ void fIrqUart2Handler(void)
     Uart2_Irq();
 }
 
+#ifdef DEVICE_RTC
 /** Call the RTC IRQ handler */
 void fIrqRtcHandler(void)
 {
     fRtcHandler();
 }
+#endif
 
 /** Call the I2C IRQ handler */
 void fIrqI2CHandler(void)

@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file      startup_stm32f437xx.s
   * @author    MCD Application Team
-  * @version   V2.6.0
-  * @date      04-November-2016
   * @brief     STM32F437xx Devices vector table for GCC based toolchains.
   *            This module performs:
   *                - Set the initial SP
@@ -16,7 +14,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -95,6 +93,17 @@ LoopCopyDataInit:
   adds  r2, r0, r1
   cmp  r2, r3
   bcc  CopyDataInit
+  ldr  r2, =_sbss
+  b  LoopFillZerobss
+/* Zero fill the bss segment. */  
+FillZerobss:
+  movs  r3, #0
+  str  r3, [r2], #4
+    
+LoopFillZerobss:
+  ldr  r3, = _ebss
+  cmp  r2, r3
+  bcc  FillZerobss
 
 /* Call the clock system intitialization function.*/
   bl  SystemInit

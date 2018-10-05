@@ -1,0 +1,7 @@
+lwip/doc/*
+lwip/test/*
+lwip/src/apps/*
+lwip/src/netif/lwip_slipif.c
+lwip/src/include/lwip/apps/*
+lwip/src/include/posix/*
+lwip-eth/*

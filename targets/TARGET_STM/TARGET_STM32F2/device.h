@@ -33,5 +33,7 @@
 #define DEVICE_ID_LENGTH       24
 
 #include "objects.h"
+/*  WORKAROUND waiting for mbed-os issue 4408 to be addressed */
+#include "stm32f2xx_ll_usart.h"
 
 #endif

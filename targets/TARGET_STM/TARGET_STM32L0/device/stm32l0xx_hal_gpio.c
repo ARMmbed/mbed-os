@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_gpio.c
   * @author  MCD Application Team
-  * @version V1.7.0
-  * @date    31-May-2016
   * @brief   GPIO HAL module driver.  
   *          This file provides firmware functions to manage the following 
   *          functionalities of the General Purpose Input/Output (GPIO) peripheral:
@@ -194,7 +192,7 @@ void HAL_GPIO_Init(GPIO_TypeDef  *GPIOx, GPIO_InitTypeDef *GPIO_Init)
   assert_param(IS_GPIO_PIN_AVAILABLE(GPIOx,(GPIO_Init->Pin)));
 
   /* Configure the port pins */
-  while ((GPIO_Init->Pin) >> position)
+  while (((GPIO_Init->Pin) >> position) != 0)
   {
     /* Get the IO position */
     iocurrent = (GPIO_Init->Pin) & (1U << position);
@@ -251,12 +249,12 @@ void HAL_GPIO_Init(GPIO_TypeDef  *GPIOx, GPIO_InitTypeDef *GPIO_Init)
       {
         /* Enable SYSCFG Clock */
         __HAL_RCC_SYSCFG_CLK_ENABLE();
-
+        
         temp = SYSCFG->EXTICR[position >> 2U];
-        temp &= ~(((uint32_t)0x0FU) << (4U * (position & 0x03U)));
-        temp |= ((uint32_t)(GPIO_GET_INDEX(GPIOx)) << (4U * (position & 0x03U)));
+        CLEAR_BIT(temp, ((uint32_t)0x0FU) << (4U * (position & 0x03U)));
+        SET_BIT(temp, (GPIO_GET_INDEX(GPIOx)) << (4 * (position & 0x03U)));
         SYSCFG->EXTICR[position >> 2U] = temp;
-
+                  
         /* Clear EXTI line configuration */
         temp = EXTI->IMR;
         temp &= ~((uint32_t)iocurrent);
@@ -315,7 +313,7 @@ void HAL_GPIO_DeInit(GPIO_TypeDef  *GPIOx, uint32_t GPIO_Pin)
   assert_param(IS_GPIO_PIN_AVAILABLE(GPIOx,GPIO_Pin));
 
   /* Configure the port pins */
-  while (GPIO_Pin >> position)
+  while ((GPIO_Pin >> position) != 0)
   {
     /* Get the IO position */
     iocurrent = (GPIO_Pin) & (1U << position);
@@ -324,8 +322,8 @@ void HAL_GPIO_DeInit(GPIO_TypeDef  *GPIOx, uint32_t GPIO_Pin)
     {
       /*------------------------- GPIO Mode Configuration --------------------*/
       /* Configure IO Direction in Input Floting Mode */
-      GPIOx->MODER &= ~(GPIO_MODER_MODE0 << (position * 2U));
-      
+      GPIOx->MODER |= (GPIO_MODER_MODE0 << (position * 2U));
+           
       /* Configure the default Alternate Function in current IO */ 
       GPIOx->AFR[position >> 3U] &= ~((uint32_t)0xFU << ((uint32_t)(position & (uint32_t)0x07U) * 4U)) ;
       

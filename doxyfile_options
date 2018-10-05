@@ -841,15 +841,24 @@ EXCLUDE_PATTERNS       = */tools/* \
                          */BUILD/* \
                          */rtos/TARGET_CORTEX/rtx* \
                          */cmsis/* \
+                         */features/cryptocell/* \
                          */features/mbedtls/* \
-                         */features/storage/* \
+                         */features/storage/cfstore/* \
+                         */features/storage/FEATURE_STORAGE/* \
                          */features/unsupported/* \
-                         */features/FEATURE_COMMON_PAL/* \
-                         */features/FEATURE_LWIP/* \
-                         */features/FEATURE_UVISOR/* \
-                         */features/nanostack/* \
+                         */features/lwipstack/* \
+                         */features/nanostack/sal-stack-nanostack/* \
+                         */features/nanostack/coap-service/* \
+                         */mbed-trace/* \
+                         */mbed-coap/* \
+                         */nanostack-libservice/* \
+                         */mbed-client-randlib/* \
+                         */nanostack/sal-stack-nanostack-eventloop/* \
                          */ble/generic/* \
-                         */ble/pal/*
+                         */ble/pal/* \
+                         */components/802.15.4_RF/* \
+                         */components/wifi/* \
+                         */UNITTESTS/*
 
 # The EXCLUDE_SYMBOLS tag can be used to specify one or more symbol names
 # (namespaces, classes, functions, etc.) that should be excluded from the
@@ -2063,14 +2072,17 @@ PREDEFINED             = DOXYGEN_ONLY            \
                          DEVICE_ANALOGIN         \
                          DEVICE_ANALOGOUT        \
                          DEVICE_CAN              \
+                         DEVICE_CRC              \
                          DEVICE_ETHERNET         \
                          DEVICE_EMAC             \
+                         DEVICE_ETH              \
                          DEVICE_FLASH            \
                          DEVICE_I2C              \
                          DEVICE_I2CSLAVE         \
                          DEVICE_I2C_ASYNCH       \
                          DEVICE_INTERRUPTIN      \
-                         DEVICE_LOWPOWERTIMER    \
+                         DEVICE_ITM              \
+                         DEVICE_LPTICKER         \
                          DEVICE_PORTIN           \
                          DEVICE_PORTINOUT        \
                          DEVICE_PORTOUT          \
@@ -2084,6 +2096,7 @@ PREDEFINED             = DOXYGEN_ONLY            \
                          DEVICE_SPI              \
                          DEVICE_SPI_ASYNCH       \
                          DEVICE_SPISLAVE         \
+                         DEVICE_QSPI             \
                          DEVICE_STORAGE          \
                          "MBED_DEPRECATED_SINCE(d, m)=" \
                          "MBED_ENABLE_IF_CALLBACK_COMPATIBLE(F, M)=" \

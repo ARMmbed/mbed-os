@@ -52,10 +52,6 @@ __ram_vector_table__ = 1;
  * the stack where main runs is determined via the RTOS. */
 __stack_size__ = 0x400;
 
-/* This is the guaranteed minimum available heap size for an application. When
- * uVisor is enabled, this is also the maximum available heap size. The
- * HEAP_SIZE value is set by uVisor porters to balance the size of the legacy
- * heap and the page heap in uVisor applications. */
 __heap_size__ = 0x6000;
 
 HEAP_SIZE  = DEFINED(__heap_size__)  ? __heap_size__  : 0x0400;

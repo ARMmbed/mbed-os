@@ -23,179 +23,143 @@
 
 #include "device.h"
 #include "clocking.h"
-#if DEVICE_LOWPOWERTIMER
+#if DEVICE_LPTICKER
 
-#include "rtc_api.h"
-#include "rtc_api_HAL.h"
+/*******************************************************************************
+ * The Silicon Labs lp_ticker implementation is mapped on top of an extended RTC
+ * API, since the RTC is available in the lowest energy modes. By default, the
+ * RTC counter is configured to run at 4kHz, giving us a quarter-ms resolution
+ * for the low power timer, which should be good enough for a low power use
+ * case.
+ *
+ * Mapping of mbed APIs to Silicon Labs peripherals:
+ *  ---: Does not meet mbed API requirements
+ *   X : Implemented to provide mbed API functionality
+ *
+ *  --------------------------------------------
+ * | ------------- | RTCC | BURTC | RTC | TIMER |
+ * | rtc_api       |  X   |   X   | --- | ----- |
+ * | lp_ticker_api |  X   |       |  X  | ----- |
+ * | us_ticker_api | ---  | ----- | --- |   X   |
+ *  --------------------------------------------
+ *
+ * On Silicon Labs devices, the lowest width RTC implementation has a 24-bit
+ * counter, which gets extended with a further 32-bit software counter. This
+ * gives 56 bits of actual width, which with the default speed maps to
+ * 557462 years before the extended RTC counter wraps around. We are pretty
+ * certain no device is going to have that amount of uptime.
+ * (At max speed the wraparound is at 69730 years, which is unlikely as well)
+ ******************************************************************************/
+
+#if defined(RTC_PRESENT) && !defined(RTCC_PRESENT)
+#include "em_rtc.h"
+#include "em_cmu.h"
 #include "lp_ticker_api.h"
-
 #include "mbed_critical.h"
-#if (defined RTCC_COUNT) && (RTCC_COUNT > 0)
-#include "em_rtcc.h"
+
+#if RTC_CLOCKDIV_INT > 16
+#error invalid prescaler value RTC_CLOCKDIV_INT, since LP ticker resolution will exceed 1ms.
 #endif
 
-static int rtc_reserved = 0;
+#define RTC_BITS (24U)
+#define RTC_MAX_VALUE (0xFFFFFFUL)
+
+static bool         rtc_inited  = false;
+
+const ticker_info_t* lp_ticker_get_info(void)
+{
+    static const ticker_info_t rtc_info = {
+        LOW_ENERGY_CLOCK_FREQUENCY,
+        RTC_BITS
+    };
+    return &rtc_info;
+}
+
+void RTC_IRQHandler(void)
+{
+    uint32_t flags;
+    flags = RTC_IntGet();
+    if ((flags & RTC_IF_COMP0) && rtc_inited) {
+        RTC_IntClear(RTC_IF_COMP0);
+        lp_ticker_irq_handler();
+    }
+}
 
 void lp_ticker_init()
 {
-    if(!rtc_reserved) {
-        core_util_critical_section_enter();
-        rtc_init_real(RTC_INIT_LPTIMER);
-        rtc_set_comp0_handler((uint32_t)lp_ticker_irq_handler);
-        rtc_reserved = 1;
-        core_util_critical_section_exit();
+    core_util_critical_section_enter();
+    if (!rtc_inited) {
+        CMU_ClockEnable(cmuClock_RTC, true);
+
+        /* Initialize RTC */
+        RTC_Init_TypeDef init = RTC_INIT_DEFAULT;
+        init.enable = 1;
+        /* Don't use compare register 0 as top value */
+        init.comp0Top = 0;
+
+        /* Initialize */
+        RTC_Init(&init);
+        RTC_CounterSet(20);
+
+        /* Enable Interrupt from RTC */
+        RTC_IntDisable(RTC_IF_COMP0);
+        RTC_IntClear(RTC_IF_COMP0);
+        NVIC_SetVector(RTC_IRQn, (uint32_t)RTC_IRQHandler);
+        NVIC_EnableIRQ(RTC_IRQn);
+
+        rtc_inited = true;
+    } else {
+        /* Cancel current interrupt by virtue of calling init again */
+        RTC_IntDisable(RTC_IF_COMP0);
+        RTC_IntClear(RTC_IF_COMP0);
     }
+    core_util_critical_section_exit();
 }
 
 void lp_ticker_free()
 {
-    if(rtc_reserved) {
-        core_util_critical_section_enter();
-        rtc_free_real(RTC_INIT_LPTIMER);
-        rtc_reserved = 0;
-        core_util_critical_section_exit();
+    /* Disable the RTC if it was inited and is no longer in use by anyone. */
+    if (rtc_inited) {
+        NVIC_DisableIRQ(RTC_IRQn);
+        RTC_Reset();
+        CMU_ClockEnable(cmuClock_RTC, false);
+        rtc_inited = false;
     }
+    RTC_FreezeEnable(false);
 }
-
-#ifndef RTCC_COUNT
-
-/* RTC API */
 
 void lp_ticker_set_interrupt(timestamp_t timestamp)
 {
-    uint64_t timestamp_ticks;
-    uint64_t current_ticks = RTC_CounterGet();
-    timestamp_t current_time = ((uint64_t)(current_ticks * 1000000) / (LOW_ENERGY_CLOCK_FREQUENCY / RTC_CLOCKDIV_INT));
-
-    /* Initialize RTC */
-    lp_ticker_init();
-
-    /* calculate offset value */
-    timestamp_t offset = timestamp - current_time;
-    if(offset > 0xEFFFFFFF) offset = 100;
-
-    /* map offset to RTC value */
-    // ticks = offset * RTC frequency div 1000000
-    timestamp_ticks = ((uint64_t)offset * (LOW_ENERGY_CLOCK_FREQUENCY / RTC_CLOCKDIV_INT)) / 1000000;
-    timestamp_ticks += current_ticks;
-
-    /* RTC has 24 bit resolution */
-    timestamp_ticks &= 0xFFFFFF;
-
-    /* check for RTC limitation */
-    if((timestamp_ticks - RTC_CounterGet()) >= 0x800000) timestamp_ticks = RTC_CounterGet() + 2;
-
-    /* Set callback */
+    RTC_IntDisable(RTC_IF_COMP0);
+    RTC_IntClear(RTC_IF_COMP0);
     RTC_FreezeEnable(true);
-    RTC_CompareSet(0, (uint32_t)timestamp_ticks);
-    RTC_IntEnable(RTC_IF_COMP0);
+    RTC_CompareSet(0, (uint32_t) (timestamp & RTC_MAX_VALUE));
     RTC_FreezeEnable(false);
+    RTC_IntEnable(RTC_IF_COMP0);
 }
 
 void lp_ticker_fire_interrupt(void)
 {
-    RTC_IntSet(RTC_IFS_COMP0);
+    RTC_IntEnable(RTC_IF_COMP0);
+    RTC_IntSet(RTC_IF_COMP0);
 }
 
-inline void lp_ticker_disable_interrupt()
+void lp_ticker_disable_interrupt()
 {
     RTC_IntDisable(RTC_IF_COMP0);
 }
 
-inline void lp_ticker_clear_interrupt()
+void lp_ticker_clear_interrupt()
 {
     RTC_IntClear(RTC_IF_COMP0);
 }
 
 timestamp_t lp_ticker_read()
 {
-    lp_ticker_init();
-    
-    uint64_t ticks_temp;
-    uint64_t ticks = RTC_CounterGet();
-
-    /* ticks = counter tick value
-     * timestamp = value in microseconds
-     * timestamp = ticks * 1.000.000 / RTC frequency
-     */
-
-    ticks_temp = (ticks * 1000000) / (LOW_ENERGY_CLOCK_FREQUENCY / RTC_CLOCKDIV_INT);
-    return (timestamp_t) (ticks_temp & 0xFFFFFFFF);
+    return (timestamp_t) RTC_CounterGet();
 }
 
-#else
-
-/* RTCC API */
-
-void lp_ticker_set_interrupt(timestamp_t timestamp)
-{
-    uint64_t timestamp_ticks;
-    uint64_t current_ticks = RTCC_CounterGet();
-    timestamp_t current_time = ((uint64_t)(current_ticks * 1000000) / (LOW_ENERGY_CLOCK_FREQUENCY / RTC_CLOCKDIV_INT));
-
-    /* Initialize RTC */
-    lp_ticker_init();
-
-    /* calculate offset value */
-    timestamp_t offset = timestamp - current_time;
-    if(offset > 0xEFFFFFFF) offset = 100;
-
-    /* map offset to RTC value */
-    // ticks = offset * RTC frequency div 1000000
-    timestamp_ticks = ((uint64_t)offset * (LOW_ENERGY_CLOCK_FREQUENCY / RTC_CLOCKDIV_INT)) / 1000000;
-    // checking the rounding. If timeout is wanted between RTCC ticks, irq should be configured to
-    // trigger in the latter RTCC-tick. Otherwise ticker-api fails to send timer event to its client
-    if(((timestamp_ticks * 1000000) / (LOW_ENERGY_CLOCK_FREQUENCY / RTC_CLOCKDIV_INT)) < offset){
-        timestamp_ticks++;
-    }
-
-    timestamp_ticks += current_ticks;
-
-    /* RTCC has 32 bit resolution */
-    timestamp_ticks &= 0xFFFFFFFF;
-
-    /* check for RTCC limitation */
-    if((timestamp_ticks - RTCC_CounterGet()) >= 0x80000000) timestamp_ticks = RTCC_CounterGet() + 2;
-
-    /* init channel */
-    RTCC_CCChConf_TypeDef ccchConf = RTCC_CH_INIT_COMPARE_DEFAULT;
-    RTCC_ChannelInit(0,&ccchConf);
-    /* Set callback */
-    RTCC_ChannelCCVSet(0, (uint32_t)timestamp_ticks);
-    RTCC_IntEnable(RTCC_IF_CC0);
-}
-
-void lp_ticker_fire_interrupt(void)
-{
-    RTCC_IntSet(RTCC_IFS_CC0);
-}
-
-inline void lp_ticker_disable_interrupt()
-{
-    RTCC_IntDisable(RTCC_IF_CC0);
-}
-
-inline void lp_ticker_clear_interrupt()
-{
-    RTCC_IntClear(RTCC_IF_CC0);
-}
-
-timestamp_t lp_ticker_read()
-{
-    lp_ticker_init();
-    
-    uint64_t ticks_temp;
-    uint64_t ticks = RTCC_CounterGet();
-
-    /* ticks = counter tick value
-     * timestamp = value in microseconds
-     * timestamp = ticks * 1.000.000 / RTC frequency
-     */
-
-    ticks_temp = (ticks * 1000000) / (LOW_ENERGY_CLOCK_FREQUENCY / RTC_CLOCKDIV_INT);
-    return (timestamp_t) (ticks_temp & 0xFFFFFFFF);
-}
-
-#endif /* RTCC */
-
-#endif
+#elif defined(RTCC_PRESENT)
+/* lp_ticker api is implemented in rtc_rtcc.c */
+#endif /* RTC_PRESENT */
+#endif /* DEVICE_LPTICKER */

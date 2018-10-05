@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
  *******************************************************************************
- * Copyright (c) 2015, STMicroelectronics
+ * Copyright (c) 2018, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,6 +27,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 
@@ -123,6 +124,18 @@ typedef enum {
     D14         = PB_9,
     D15         = PB_8,
 
+    // STDIO for console print
+#ifdef MBED_CONF_TARGET_STDIO_UART_TX
+    STDIO_UART_TX = MBED_CONF_TARGET_STDIO_UART_TX,
+#else
+    STDIO_UART_TX = PA_2,
+#endif
+#ifdef MBED_CONF_TARGET_STDIO_UART_RX
+    STDIO_UART_RX = MBED_CONF_TARGET_STDIO_UART_RX,
+#else
+    STDIO_UART_RX = PA_3,
+#endif
+
     // Generic signals namings
     LED1        = PA_5,
     LED2        = PA_5,
@@ -131,10 +144,10 @@ typedef enum {
     USER_BUTTON = PC_13,
     // Standardized button names
     BUTTON1 = USER_BUTTON,
-    SERIAL_TX   = PA_2,
-    SERIAL_RX   = PA_3,
-    USBTX       = PA_2,
-    USBRX       = PA_3,
+    SERIAL_TX   = STDIO_UART_TX,
+    SERIAL_RX   = STDIO_UART_RX,
+    USBTX       = STDIO_UART_TX,
+    USBRX       = STDIO_UART_RX,
     I2C_SCL     = PB_8,
     I2C_SDA     = PB_9,
     SPI_MOSI    = PA_7,
@@ -143,11 +156,26 @@ typedef enum {
     SPI_CS      = PB_6,
     PWM_OUT     = PB_3,
 
-    //USB pins
+    /**** USB pins ****/
     USB_DM = PA_11,
     USB_DP = PA_12,
-    USB_NOE_ALT = PA_13,
     USB_NOE = PC_9,
+    USB_NOE_ALT0 = PA_13,
+
+    /**** OSCILLATOR pins ****/
+    RCC_OSC32_IN = PC_14,
+    RCC_OSC32_OUT = PC_15,
+    RCC_OSC_IN = PH_0,
+    RCC_OSC_OUT = PH_1,
+
+    /**** DEBUG pins ****/
+    SYS_PVD_IN = PB_7,
+    SYS_SWCLK = PA_14,
+    SYS_SWDIO = PA_13,
+    SYS_VREF_OUT_PB0 = PB_0,
+    SYS_VREF_OUT_PB1 = PB_1,
+    SYS_WKUP1 = PA_0,
+    SYS_WKUP2 = PC_13,
 
     // Not connected
     NC = (int)0xFFFFFFFF

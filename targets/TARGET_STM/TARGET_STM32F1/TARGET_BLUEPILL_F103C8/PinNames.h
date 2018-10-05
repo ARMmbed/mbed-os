@@ -38,6 +38,13 @@ extern "C" {
 #endif
 
 typedef enum {
+    ALT0  = 0x100,
+    ALT1  = 0x200,
+    ALT2  = 0x300,
+    ALT3  = 0x400
+} ALTx;
+
+typedef enum {
     PA_0  = 0x00,
     PA_1  = 0x01,
     PA_2  = 0x02,
@@ -46,6 +53,7 @@ typedef enum {
     PA_5  = 0x05,
     PA_6  = 0x06,
     PA_7  = 0x07,
+    PA_7_ALT0 = 0x07 | ALT0,
     PA_8  = 0x08,
     PA_9  = 0x09,
     PA_10 = 0x0A,
@@ -56,7 +64,9 @@ typedef enum {
     PA_15 = 0x0F,
 
     PB_0  = 0x10,
+    PB_0_ALT0 = 0x10 | ALT0,
     PB_1  = 0x11,
+    PB_1_ALT0 = 0x11 | ALT0,
     PB_2  = 0x12,
     PB_3  = 0x13,
     PB_4  = 0x14,
@@ -132,15 +142,27 @@ typedef enum {
     C14         = PC_14,
     C15         = PC_15,
 
+    // STDIO for console print
+#ifdef MBED_CONF_TARGET_STDIO_UART_TX
+    STDIO_UART_TX = MBED_CONF_TARGET_STDIO_UART_TX,
+#else
+    STDIO_UART_TX = PA_2,
+#endif
+#ifdef MBED_CONF_TARGET_STDIO_UART_RX
+    STDIO_UART_RX = MBED_CONF_TARGET_STDIO_UART_RX,
+#else
+    STDIO_UART_RX = PA_3,
+#endif
+
     // Generic signals namings
     LED1        = PC_13,
     LED2        = PC_13,
     LED3        = PC_13,
     LED4        = PC_13,
-    SERIAL_TX   = PA_9,
-    SERIAL_RX   = PA_10,
-    USBTX       = PA_9,
-    USBRX       = PA_10,
+    SERIAL_TX   = STDIO_UART_TX,
+    SERIAL_RX   = STDIO_UART_RX,
+    USBTX       = STDIO_UART_TX,
+    USBRX       = STDIO_UART_RX,
     I2C_SCL     = PB_6,
     I2C_SDA     = PB_7,
     SPI_MOSI    = PA_7,

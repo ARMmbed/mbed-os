@@ -77,11 +77,11 @@ void pin_function(PinName pin, int data)
      *  But for families like F1, speed only applies to output.
      */
 #if defined (TARGET_STM32F1)
-if (mode == STM_PIN_OUTPUT) {
+    if (mode == STM_PIN_OUTPUT) {
 #endif
-    LL_GPIO_SetPinSpeed(gpio, ll_pin, LL_GPIO_SPEED_FREQ_HIGH);
+        LL_GPIO_SetPinSpeed(gpio, ll_pin, LL_GPIO_SPEED_FREQ_HIGH);
 #if defined (TARGET_STM32F1)
-}
+    }
 #endif
 
     switch (mode) {
@@ -94,7 +94,7 @@ if (mode == STM_PIN_OUTPUT) {
         case STM_PIN_ALTERNATE:
             ll_mode = LL_GPIO_MODE_ALTERNATE;
             // In case of ALT function, also set he afnum
-           stm_pin_SetAFPin(gpio, pin, afnum);
+            stm_pin_SetAFPin(gpio, pin, afnum);
             break;
         case STM_PIN_ANALOG:
             ll_mode = LL_GPIO_MODE_ANALOG;
@@ -115,12 +115,12 @@ if (mode == STM_PIN_OUTPUT) {
 #endif
 
     /*  For now by default use Speed HIGH for output or alt modes */
-    if ((mode == STM_PIN_OUTPUT) ||(mode == STM_PIN_ALTERNATE)) {
-    if (STM_PIN_OD(data)) {
+    if ((mode == STM_PIN_OUTPUT) || (mode == STM_PIN_ALTERNATE)) {
+        if (STM_PIN_OD(data)) {
             LL_GPIO_SetPinOutputType(gpio, ll_pin, LL_GPIO_OUTPUT_OPENDRAIN);
-    } else {
+        } else {
             LL_GPIO_SetPinOutputType(gpio, ll_pin, LL_GPIO_OUTPUT_PUSHPULL);
-    }
+        }
     }
 
     stm_pin_PullConfig(gpio, ll_pin, STM_PIN_PUPD(data));
@@ -141,8 +141,7 @@ void pin_mode(PinName pin, PinMode mode)
     GPIO_TypeDef *gpio = Set_GPIO_Clock(port_index);
     uint32_t function = LL_GPIO_GetPinMode(gpio, ll_pin);
 
-    if ((function == LL_GPIO_MODE_OUTPUT) || (function == LL_GPIO_MODE_ALTERNATE))
-    {
+    if ((function == LL_GPIO_MODE_OUTPUT) || (function == LL_GPIO_MODE_ALTERNATE)) {
         if ((mode == OpenDrainNoPull) || (mode == OpenDrainPullUp) || (mode == OpenDrainPullDown)) {
             LL_GPIO_SetPinOutputType(gpio, ll_pin, LL_GPIO_OUTPUT_OPENDRAIN);
         } else {

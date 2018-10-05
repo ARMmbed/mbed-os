@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32l0xx_ll_adc.c
   * @author  MCD Application Team
-  * @version V1.7.0
-  * @date    31-May-2016
   * @brief   ADC LL module driver
   ******************************************************************************
   * @attention
@@ -215,7 +213,7 @@ ErrorStatus LL_ADC_CommonDeInit(ADC_Common_TypeDef *ADCxy_COMMON)
   
   /* Force reset of ADC clock (core clock) */
   LL_APB2_GRP1_ForceReset(LL_APB2_GRP1_PERIPH_ADC1);
-
+  
   /* Release reset of ADC clock (core clock) */
   LL_APB2_GRP1_ReleaseReset(LL_APB2_GRP1_PERIPH_ADC1);
   
@@ -385,10 +383,10 @@ ErrorStatus LL_ADC_DeInit(ADC_TypeDef *ADCx)
     
     /* Reset register CFGR1 */
     CLEAR_BIT(ADCx->CFGR1,
-              (  ADC_CFGR1_AWDCH   | ADC_CFGR1_AWDEN  | ADC_CFGR1_AWDSGL | ADC_CFGR1_DISCEN
-               | ADC_CFGR1_AUTOFF  | ADC_CFGR1_WAIT   | ADC_CFGR1_CONT   | ADC_CFGR1_OVRMOD
-               | ADC_CFGR1_EXTEN   | ADC_CFGR1_EXTSEL | ADC_CFGR1_ALIGN  | ADC_CFGR1_RES
-               | ADC_CFGR1_SCANDIR | ADC_CFGR1_DMACFG | ADC_CFGR1_DMAEN                    )
+              (  ADC_CFGR1_AWDCH   | ADC_CFGR1_AWDEN  | ADC_CFGR1_AWDSGL  | ADC_CFGR1_DISCEN
+               | ADC_CFGR1_AUTOFF  | ADC_CFGR1_WAIT   | ADC_CFGR1_CONT    | ADC_CFGR1_OVRMOD
+               | ADC_CFGR1_EXTEN   | ADC_CFGR1_EXTSEL | ADC_CFGR1_ALIGN   | ADC_CFGR1_RES
+               | ADC_CFGR1_SCANDIR | ADC_CFGR1_DMACFG | ADC_CFGR1_DMAEN                     )
              );
     
     /* Reset register CFGR2 */

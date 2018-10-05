@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_i2c_ex.h
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    04-November-2016
   * @brief   Header file of I2C HAL Extended module.
   ******************************************************************************
   * @attention
@@ -40,7 +38,7 @@
 #define __STM32F0xx_HAL_I2C_EX_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -52,7 +50,7 @@
 
 /** @addtogroup I2CEx
   * @{
-  */ 
+  */
 
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
@@ -64,7 +62,7 @@
 /** @defgroup I2CEx_Analog_Filter I2C Extended Analog Filter
   * @{
   */
-#define I2C_ANALOGFILTER_ENABLE         (0x00000000U)
+#define I2C_ANALOGFILTER_ENABLE         0x00000000U
 #define I2C_ANALOGFILTER_DISABLE        I2C_CR1_ANFOFF
 /**
   * @}
@@ -73,7 +71,7 @@
 /** @defgroup I2CEx_FastModePlus I2C Extended Fast Mode Plus
   * @{
   */
-#define I2C_FMP_NOT_SUPPORTED           (0xAAAA0000U)                                   /*!< Fast Mode Plus not supported       */
+#define I2C_FMP_NOT_SUPPORTED           0xAAAA0000U                                     /*!< Fast Mode Plus not supported       */
 #if defined(SYSCFG_CFGR1_I2C_FMP_PA9)
 #define I2C_FASTMODEPLUS_PA9            SYSCFG_CFGR1_I2C_FMP_PA9                        /*!< Enable Fast Mode Plus on PA9       */
 #define I2C_FASTMODEPLUS_PA10           SYSCFG_CFGR1_I2C_FMP_PA10                       /*!< Enable Fast Mode Plus on PA10      */
@@ -101,7 +99,7 @@
 
 /**
   * @}
-  */ 
+  */
 
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions --------------------------------------------------------*/
@@ -154,7 +152,7 @@ void HAL_I2CEx_DisableFastModePlus(uint32_t ConfigFastModePlus);
                                           (((__CONFIG__) & (I2C_FASTMODEPLUS_I2C2)) == I2C_FASTMODEPLUS_I2C2)))
 /**
   * @}
-  */ 
+  */
 
 /* Private Functions ---------------------------------------------------------*/
 /** @defgroup I2CEx_Private_Functions I2C Extended Private Functions

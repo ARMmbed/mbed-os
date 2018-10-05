@@ -22,7 +22,7 @@
 #include "USBRegs_STM32.h"
 #include "pinmap.h"
 
-USBHAL * USBHAL::instance;
+USBHAL *USBHAL::instance;
 
 static volatile int epComplete = 0;
 
@@ -32,11 +32,13 @@ static uint32_t rxFifoCount = 0;
 
 static uint32_t setupBuffer[MAX_PACKET_SIZE_EP0 >> 2];
 
-uint32_t USBHAL::endpointReadcore(uint8_t endpoint, uint8_t *buffer) {
+uint32_t USBHAL::endpointReadcore(uint8_t endpoint, uint8_t *buffer)
+{
     return 0;
 }
 
-USBHAL::USBHAL(void) {
+USBHAL::USBHAL(void)
+{
     NVIC_DisableIRQ(OTG_FS_IRQn);
     epCallback[0] = &USBHAL::EP1_OUT_callback;
     epCallback[1] = &USBHAL::EP1_IN_callback;
@@ -94,32 +96,39 @@ USBHAL::USBHAL(void) {
     NVIC_SetPriority(OTG_FS_IRQn, 1);
 }
 
-USBHAL::~USBHAL(void) {
+USBHAL::~USBHAL(void)
+{
 }
 
-void USBHAL::connect(void) {
+void USBHAL::connect(void)
+{
     NVIC_EnableIRQ(OTG_FS_IRQn);
 }
 
-void USBHAL::disconnect(void) {
+void USBHAL::disconnect(void)
+{
     NVIC_DisableIRQ(OTG_FS_IRQn);
 }
 
-void USBHAL::configureDevice(void) {
+void USBHAL::configureDevice(void)
+{
     // Not needed
 }
 
-void USBHAL::unconfigureDevice(void) {
+void USBHAL::unconfigureDevice(void)
+{
     // Not needed
 }
 
-void USBHAL::setAddress(uint8_t address) {
+void USBHAL::setAddress(uint8_t address)
+{
     OTG_FS->DREGS.DCFG |= (address << 4);
     EP0write(0, 0);
 }
 
 bool USBHAL::realiseEndpoint(uint8_t endpoint, uint32_t maxPacket,
-                             uint32_t flags) {
+                             uint32_t flags)
+{
     uint32_t epIndex = endpoint >> 1;
 
     uint32_t type;
@@ -151,8 +160,7 @@ bool USBHAL::realiseEndpoint(uint8_t endpoint, uint32_t maxPacket,
         if (endpoint == EP0IN) {
             OTG_FS->GREGS.DIEPTXF0_HNPTXFSIZ = ((maxPacket >> 2) << 16) |
                                                (bufferEnd << 0);
-        }
-        else {
+        } else {
             OTG_FS->GREGS.DIEPTXF[epIndex - 1] = ((maxPacket >> 2) << 16) |
                                                  (bufferEnd << 0);
         }
@@ -169,8 +177,7 @@ bool USBHAL::realiseEndpoint(uint8_t endpoint, uint32_t maxPacket,
 
         // Unmask the interrupt
         OTG_FS->DREGS.DAINTMSK |= (1 << epIndex);
-    }
-    else { // Out endpoint
+    } else { // Out endpoint
         // Set the out EP specific control settings
         control |= (1 << 26); // CNAK
         OTG_FS->OUTEP_REGS[epIndex].DOEPCTL = control;
@@ -182,18 +189,22 @@ bool USBHAL::realiseEndpoint(uint8_t endpoint, uint32_t maxPacket,
 }
 
 // read setup packet
-void USBHAL::EP0setup(uint8_t *buffer) {
+void USBHAL::EP0setup(uint8_t *buffer)
+{
     memcpy(buffer, setupBuffer, MAX_PACKET_SIZE_EP0);
 }
 
-void USBHAL::EP0readStage(void) {
+void USBHAL::EP0readStage(void)
+{
 }
 
-void USBHAL::EP0read(void) {
+void USBHAL::EP0read(void)
+{
 }
 
-uint32_t USBHAL::EP0getReadResult(uint8_t *buffer) {
-    uint32_t* buffer32 = (uint32_t *) buffer;
+uint32_t USBHAL::EP0getReadResult(uint8_t *buffer)
+{
+    uint32_t *buffer32 = (uint32_t *) buffer;
     uint32_t length = rxFifoCount;
     for (uint32_t i = 0; i < length; i += 4) {
         buffer32[i >> 2] = OTG_FS->FIFO[0][0];
@@ -203,14 +214,17 @@ uint32_t USBHAL::EP0getReadResult(uint8_t *buffer) {
     return length;
 }
 
-void USBHAL::EP0write(uint8_t *buffer, uint32_t size) {
+void USBHAL::EP0write(uint8_t *buffer, uint32_t size)
+{
     endpointWrite(0, buffer, size);
 }
 
-void USBHAL::EP0getWriteResult(void) {
+void USBHAL::EP0getWriteResult(void)
+{
 }
 
-void USBHAL::EP0stall(void) {
+void USBHAL::EP0stall(void)
+{
     // If we stall the out endpoint here then we have problems transferring
     // and setup requests after the (stalled) get device qualifier requests.
     // TODO: Find out if this is correct behavior, or whether we are doing
@@ -219,12 +233,13 @@ void USBHAL::EP0stall(void) {
 //    stallEndpoint(EP0OUT);
 }
 
-EP_STATUS USBHAL::endpointRead(uint8_t endpoint, uint32_t maximumSize) {
+EP_STATUS USBHAL::endpointRead(uint8_t endpoint, uint32_t maximumSize)
+{
     uint32_t epIndex = endpoint >> 1;
     uint32_t size = (1 << 19) | // 1 packet
                     (maximumSize << 0); // Packet size
 //    if (endpoint == EP0OUT) {
-        size |= (1 << 29); // 1 setup packet
+    size |= (1 << 29); // 1 setup packet
 //    }
     OTG_FS->OUTEP_REGS[epIndex].DOEPTSIZ = size;
     OTG_FS->OUTEP_REGS[epIndex].DOEPCTL |= (1 << 31) | // Enable endpoint
@@ -234,12 +249,13 @@ EP_STATUS USBHAL::endpointRead(uint8_t endpoint, uint32_t maximumSize) {
     return EP_PENDING;
 }
 
-EP_STATUS USBHAL::endpointReadResult(uint8_t endpoint, uint8_t * buffer, uint32_t *bytesRead) {
+EP_STATUS USBHAL::endpointReadResult(uint8_t endpoint, uint8_t *buffer, uint32_t *bytesRead)
+{
     if (!(epComplete & (1 << endpoint))) {
         return EP_PENDING;
     }
 
-    uint32_t* buffer32 = (uint32_t *) buffer;
+    uint32_t *buffer32 = (uint32_t *) buffer;
     uint32_t length = rxFifoCount;
     for (uint32_t i = 0; i < length; i += 4) {
         buffer32[i >> 2] = OTG_FS->FIFO[endpoint >> 1][0];
@@ -249,7 +265,8 @@ EP_STATUS USBHAL::endpointReadResult(uint8_t endpoint, uint8_t * buffer, uint32_
     return EP_COMPLETED;
 }
 
-EP_STATUS USBHAL::endpointWrite(uint8_t endpoint, uint8_t *data, uint32_t size) {
+EP_STATUS USBHAL::endpointWrite(uint8_t endpoint, uint8_t *data, uint32_t size)
+{
     uint32_t epIndex = endpoint >> 1;
     OTG_FS->INEP_REGS[epIndex].DIEPTSIZ = (1 << 19) | // 1 packet
                                           (size << 0); // Size of packet
@@ -259,7 +276,7 @@ EP_STATUS USBHAL::endpointWrite(uint8_t endpoint, uint8_t *data, uint32_t size) 
 
     while ((OTG_FS->INEP_REGS[epIndex].DTXFSTS & 0XFFFF) < ((size + 3) >> 2));
 
-    for (uint32_t i=0; i<(size + 3) >> 2; i++, data+=4) {
+    for (uint32_t i = 0; i < (size + 3) >> 2; i++, data += 4) {
         OTG_FS->FIFO[epIndex][0] = *(uint32_t *)data;
     }
 
@@ -268,7 +285,8 @@ EP_STATUS USBHAL::endpointWrite(uint8_t endpoint, uint8_t *data, uint32_t size) 
     return EP_PENDING;
 }
 
-EP_STATUS USBHAL::endpointWriteResult(uint8_t endpoint) {
+EP_STATUS USBHAL::endpointWriteResult(uint8_t endpoint)
+{
     if (epComplete & (1 << endpoint)) {
         epComplete &= ~(1 << endpoint);
         return EP_COMPLETED;
@@ -277,36 +295,41 @@ EP_STATUS USBHAL::endpointWriteResult(uint8_t endpoint) {
     return EP_PENDING;
 }
 
-void USBHAL::stallEndpoint(uint8_t endpoint) {
+void USBHAL::stallEndpoint(uint8_t endpoint)
+{
     if (endpoint & 0x1) { // In EP
         OTG_FS->INEP_REGS[endpoint >> 1].DIEPCTL |= (1 << 30) | // Disable
                                                     (1 << 21); // Stall
-    }
-    else {  // Out EP
+    } else { // Out EP
         OTG_FS->DREGS.DCTL |= (1 << 9); // Set global out NAK
         OTG_FS->OUTEP_REGS[endpoint >> 1].DOEPCTL |= (1 << 30) | // Disable
                                                      (1 << 21); // Stall
     }
 }
 
-void USBHAL::unstallEndpoint(uint8_t endpoint) {
+void USBHAL::unstallEndpoint(uint8_t endpoint)
+{
 
 }
 
-bool USBHAL::getEndpointStallState(uint8_t endpoint) {
+bool USBHAL::getEndpointStallState(uint8_t endpoint)
+{
     return false;
 }
 
-void USBHAL::remoteWakeup(void) {
+void USBHAL::remoteWakeup(void)
+{
 }
 
 
-void USBHAL::_usbisr(void) {
+void USBHAL::_usbisr(void)
+{
     instance->usbisr();
 }
 
 
-void USBHAL::usbisr(void) {
+void USBHAL::usbisr(void)
+{
     if (OTG_FS->GREGS.GINTSTS & (1 << 11)) { // USB Suspend
         suspendStateChanged(1);
     };
@@ -347,7 +370,7 @@ void USBHAL::usbisr(void) {
 
         if (type == 0x6) {
             // Setup packet
-            for (uint32_t i=0; i<length; i+=4) {
+            for (uint32_t i = 0; i < length; i += 4) {
                 setupBuffer[i >> 2] = OTG_FS->FIFO[0][i >> 2];
             }
             rxFifoCount = 0;
@@ -363,8 +386,7 @@ void USBHAL::usbisr(void) {
             // Out packet
             if (endpoint == EP0OUT) {
                 EP0out();
-            }
-            else {
+            } else {
                 epComplete |= (1 << endpoint);
                 if ((instance->*(epCallback[endpoint - 2]))()) {
                     epComplete &= ~(1 << endpoint);
@@ -372,7 +394,7 @@ void USBHAL::usbisr(void) {
             }
         }
 
-        for (uint32_t i=0; i<rxFifoCount; i+=4) {
+        for (uint32_t i = 0; i < rxFifoCount; i += 4) {
             (void) OTG_FS->FIFO[0][0];
         }
         OTG_FS->GREGS.GINTSTS = (1 << 4);
@@ -380,7 +402,7 @@ void USBHAL::usbisr(void) {
 
     if (OTG_FS->GREGS.GINTSTS & (1 << 18)) { // In endpoint interrupt
         // Loop through the in endpoints
-        for (uint32_t i=0; i<4; i++) {
+        for (uint32_t i = 0; i < 4; i++) {
             if (OTG_FS->DREGS.DAINT & (1 << i)) { // Interrupt is on endpoint
 
                 if (OTG_FS->INEP_REGS[i].DIEPINT & (1 << 7)) {// Tx FIFO empty

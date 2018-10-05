@@ -14,7 +14,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-
+from __future__ import print_function
 from os import getenv
 from os.path import join, abspath, dirname, exists
 import logging
@@ -45,6 +45,7 @@ IAR_PATH = ""
 # Goanna static analyser. Please overload it in mbed_settings.py
 GOANNA_PATH = ""
 
+
 # cppcheck path (command) and output message format
 CPPCHECK_CMD = ["cppcheck", "--enable=all"]
 CPPCHECK_MSG_FORMAT = ["--template=[{severity}] {file}@{line}: {id}:{message}"]
@@ -54,9 +55,18 @@ BUILD_OPTIONS = []
 # mbed.org username
 MBED_ORG_USER = ""
 
+# Print compiler warnings and errors as link format
+PRINT_COMPILER_OUTPUT_AS_LINK = False
+
+# Compare against a fixed build of the project for space consumption
+COMPARE_FIXED = False
+
+# Print warnings/errors in color
+COLOR = False
+
 CLI_COLOR_MAP = {
-    "warning": "yellow",
-    "error"  : "red"
+    "Warning": "yellow",
+    "Error"  : "red"
 }
 
 ##############################################################################
@@ -81,7 +91,14 @@ for _n in _ENV_PATHS:
         if exists(getenv('MBED_'+_n)):
             globals()[_n] = getenv('MBED_'+_n)
         else:
-            print "WARNING: MBED_%s set as environment variable but doesn't exist" % _n
+            print("WARNING: MBED_%s set as environment variable but doesn't"
+                  " exist" % _n)
+
+_ENV_VARS = ['PRINT_COMPILER_OUTPUT_AS_LINK', 'COLOR', 'COMPARE_FIXED']
+for _n in _ENV_VARS:
+    value = getenv('MBED_%s' % _n)
+    if value:
+        globals()[_n] = value
 
 
 ##############################################################################

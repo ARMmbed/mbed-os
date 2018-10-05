@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32l4xx_ll_usb.c
   * @author  MCD Application Team
-  * @version V1.7.1
-  * @date    21-April-2017
   * @brief   USB Low Layer HAL module driver.
   *   
   *          This file provides firmware functions to manage the following 
@@ -67,7 +65,8 @@
 #if defined(STM32L432xx) || defined(STM32L433xx) || defined(STM32L442xx) || defined(STM32L443xx) || \
     defined(STM32L452xx) || defined(STM32L462xx) || \
     defined(STM32L475xx) || defined(STM32L476xx) || defined(STM32L485xx) || defined(STM32L486xx) || \
-    defined(STM32L496xx) || defined(STM32L4A6xx)
+    defined(STM32L496xx) || defined(STM32L4A6xx) || \
+    defined(STM32L4R5xx) || defined(STM32L4R7xx) || defined(STM32L4R9xx) || defined(STM32L4S5xx) || defined(STM32L4S7xx) || defined(STM32L4S9xx)
       
 /** @addtogroup STM32L4xx_LL_USB_DRIVER
   * @{
@@ -571,6 +570,7 @@ HAL_StatusTypeDef USB_EPStartXfer(USB_OTG_GlobalTypeDef *USBx , USB_OTG_EPTypeDe
         /* Enable the Tx FIFO Empty Interrupt for this EP */
         if (ep->xfer_len > 0)
         {
+          // Added for MBED PR #3062
           atomic_set_u32(&USBx_DEVICE->DIEPEMPMSK,  1 << ep->num);
         }
       }
@@ -681,6 +681,7 @@ HAL_StatusTypeDef USB_EP0StartXfer(USB_OTG_GlobalTypeDef *USBx , USB_OTG_EPTypeD
     /* Enable the Tx FIFO Empty Interrupt for this EP */
     if (ep->xfer_len > 0)
     {
+          // Added for MBED PR #3062
 	  atomic_set_u32(&USBx_DEVICE->DIEPEMPMSK, 1 << (ep->num));
     }
     
@@ -1407,6 +1408,7 @@ HAL_StatusTypeDef USB_HC_StartXfer(USB_OTG_GlobalTypeDef *USBx, USB_OTG_HCTypeDe
       
       /* Write packet into the Tx FIFO. */
       USB_WritePacket(USBx, hc->xfer_buff, hc->ch_num, hc->xfer_len, 0);
+      // Added for MBED PR #3432
       hc->xfer_count = hc->xfer_len;
 
     }
@@ -2386,7 +2388,8 @@ static HAL_StatusTypeDef USB_CoreReset(USB_OTG_GlobalTypeDef *USBx)
 #endif /* STM32L432xx || STM32L433xx || STM32L442xx || STM32L443xx || */
        /* STM32L452xx || STM32L462xx || */
        /* STM32L475xx || STM32L476xx || STM32L485xx || STM32L486xx || */
-       /* STM32L496xx || STM32L4A6xx */
+       /* STM32L496xx || STM32L4A6xx || */
+       /* STM32L4R5xx || STM32L4R7xx || STM32L4R9xx || STM32L4S5xx || STM32L4S7xx || STM32L4S9xx */
 
 #endif /* defined (HAL_PCD_MODULE_ENABLED) || defined (HAL_HCD_MODULE_ENABLED) */
 /**

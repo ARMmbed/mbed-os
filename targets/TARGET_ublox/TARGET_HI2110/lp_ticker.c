@@ -346,3 +346,8 @@ void lp_ticker_clear_interrupt(void)
     g_user_interrupt_pending = false;
     g_user_interrupt_set = false;
 }
+
+void lp_ticker_free(void)
+{
+
+}

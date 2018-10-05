@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_sd.c
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    01-July-2016
   * @brief   SD card HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Secure Digital (SD) peripheral:
@@ -153,7 +151,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -1853,7 +1851,7 @@ HAL_SD_ErrorTypedef HAL_SD_HighSpeed (SD_HandleTypeDef *hsd)
   if (SD_SPEC != SD_ALLZERO)
   {
     /* Set Block Size for Card */
-    sdio_cmdinitstructure.Argument         = (uint32_t)64;
+    sdio_cmdinitstructure.Argument         = 64U;
     sdio_cmdinitstructure.CmdIndex         = SD_CMD_SET_BLOCKLEN;
     sdio_cmdinitstructure.Response         = SDIO_RESPONSE_SHORT;
     sdio_cmdinitstructure.WaitForInterrupt = SDIO_WAIT_NO;
@@ -3183,7 +3181,7 @@ static HAL_SD_ErrorTypedef SD_FindSCR(SD_HandleTypeDef *hsd, uint32_t *pSCR)
   
   /* Set Block Size To 8 Bytes */
   /* Send CMD55 APP_CMD with argument as card's RCA */
-  sdio_cmdinitstructure.Argument         = (uint32_t)8;
+  sdio_cmdinitstructure.Argument         = 8U;
   sdio_cmdinitstructure.CmdIndex         = SD_CMD_SET_BLOCKLEN;
   sdio_cmdinitstructure.Response         = SDIO_RESPONSE_SHORT;
   sdio_cmdinitstructure.WaitForInterrupt = SDIO_WAIT_NO;

@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_rcc.c
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    01-July-2016
   * @brief   RCC HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the Reset and Clock Control (RCC) peripheral:
@@ -51,7 +49,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -272,10 +270,10 @@ void HAL_RCC_DeInit(void)
   CLEAR_REG(RCC->CFGR);
   
   /* Set MSIClockRange & MSITRIM[4:0] bits to the reset value */
-  MODIFY_REG(RCC->ICSCR, (RCC_ICSCR_MSIRANGE | RCC_ICSCR_MSITRIM), (((uint32_t)0 << RCC_ICSCR_MSITRIM_BITNUMBER) | RCC_ICSCR_MSIRANGE_5));
+  MODIFY_REG(RCC->ICSCR, (RCC_ICSCR_MSIRANGE | RCC_ICSCR_MSITRIM), ((0U << RCC_ICSCR_MSITRIM_BITNUMBER) | RCC_ICSCR_MSIRANGE_5));
   
   /* Set HSITRIM bits to the reset value */
-  MODIFY_REG(RCC->ICSCR, RCC_ICSCR_HSITRIM, ((uint32_t)0x10 << POSITION_VAL(RCC_ICSCR_HSITRIM)));
+  MODIFY_REG(RCC->ICSCR, RCC_ICSCR_HSITRIM, (0x10U << POSITION_VAL(RCC_ICSCR_HSITRIM)));
   
   /* Disable all interrupts */
   CLEAR_REG(RCC->CIR);
@@ -713,10 +711,21 @@ HAL_StatusTypeDef HAL_RCC_OscConfig(RCC_OscInitTypeDef  *RCC_OscInitStruct)
     }
     else
     {
-      return HAL_ERROR;
+      /* MBED patch - ST internal ticket 42806 */
+      if (READ_BIT(RCC->CFGR, RCC_CFGR_PLLSRC) != RCC_OscInitStruct->PLL.PLLSource) {
+        return HAL_ERROR;
+      }
+
+      if (READ_BIT(RCC->CFGR, RCC_CFGR_PLLDIV) != RCC_OscInitStruct->PLL.PLLDIV) {
+        return HAL_ERROR;
+      }
+
+      if (READ_BIT(RCC->CFGR, RCC_CFGR_PLLMUL) != RCC_OscInitStruct->PLL.PLLMUL) {
+        return HAL_ERROR;
+      }
+      /* MBED patch - ST internal ticket 42806 */
     }
   }
-  
   return HAL_OK;
 }
 
@@ -892,7 +901,7 @@ HAL_StatusTypeDef HAL_RCC_ClockConfig(RCC_ClkInitTypeDef  *RCC_ClkInitStruct, ui
   if(((RCC_ClkInitStruct->ClockType) & RCC_CLOCKTYPE_PCLK2) == RCC_CLOCKTYPE_PCLK2)
   {
     assert_param(IS_RCC_PCLK(RCC_ClkInitStruct->APB2CLKDivider));
-    MODIFY_REG(RCC->CFGR, RCC_CFGR_PPRE2, ((RCC_ClkInitStruct->APB2CLKDivider) << 3));
+    MODIFY_REG(RCC->CFGR, RCC_CFGR_PPRE2, ((RCC_ClkInitStruct->APB2CLKDivider) << 3U));
   }
  
   /* Update the SystemCoreClock global variable */
@@ -950,7 +959,7 @@ HAL_StatusTypeDef HAL_RCC_ClockConfig(RCC_ClkInitTypeDef  *RCC_ClkInitStruct, ui
   */
 void HAL_RCC_MCOConfig(uint32_t RCC_MCOx, uint32_t RCC_MCOSource, uint32_t RCC_MCODiv)
 {
-  GPIO_InitTypeDef gpio = {0};
+  GPIO_InitTypeDef gpio;
 
   /* Check the parameters */
   assert_param(IS_RCC_MCO(RCC_MCOx));
@@ -1028,8 +1037,8 @@ void HAL_RCC_DisableCSS(void)
   */
 uint32_t HAL_RCC_GetSysClockFreq(void)
 {
-  uint32_t tmpreg = 0, pllm = 0, plld = 0, pllvco = 0, msiclkrange = 0;
-  uint32_t sysclockfreq = 0;
+  uint32_t tmpreg = 0U, pllm = 0U, plld = 0U, pllvco = 0U, msiclkrange = 0U;
+  uint32_t sysclockfreq = 0U;
   
   tmpreg = RCC->CFGR;
   
@@ -1049,7 +1058,7 @@ uint32_t HAL_RCC_GetSysClockFreq(void)
     case RCC_SYSCLKSOURCE_STATUS_PLLCLK:  /* PLL used as system clock */
     {
       pllm = PLLMulTable[(uint32_t)(tmpreg & RCC_CFGR_PLLMUL) >> RCC_CFGR_PLLMUL_BITNUMBER];
-      plld = ((uint32_t)(tmpreg & RCC_CFGR_PLLDIV) >> RCC_CFGR_PLLDIV_BITNUMBER) + 1;
+      plld = ((uint32_t)(tmpreg & RCC_CFGR_PLLDIV) >> RCC_CFGR_PLLDIV_BITNUMBER) + 1U;
       if (__HAL_RCC_GET_PLL_OSCSOURCE() != RCC_PLLSOURCE_HSI)
       {
         /* HSE used as PLL clock source */
@@ -1067,7 +1076,7 @@ uint32_t HAL_RCC_GetSysClockFreq(void)
     default: /* MSI used as system clock */
     {
       msiclkrange = (RCC->ICSCR & RCC_ICSCR_MSIRANGE ) >> RCC_ICSCR_MSIRANGE_BITNUMBER;
-      sysclockfreq = (32768 * (1 << (msiclkrange + 1)));
+      sysclockfreq = (32768U * (1U << (msiclkrange + 1U)));
       break;
     }
   }
@@ -1234,7 +1243,7 @@ void HAL_RCC_GetClockConfig(RCC_ClkInitTypeDef  *RCC_ClkInitStruct, uint32_t *pF
   RCC_ClkInitStruct->APB1CLKDivider = (uint32_t)(RCC->CFGR & RCC_CFGR_PPRE1);   
   
   /* Get the APB2 configuration ----------------------------------------------*/ 
-  RCC_ClkInitStruct->APB2CLKDivider = (uint32_t)((RCC->CFGR & RCC_CFGR_PPRE2) >> 3);
+  RCC_ClkInitStruct->APB2CLKDivider = (uint32_t)((RCC->CFGR & RCC_CFGR_PPRE2) >> 3U);
   
   /* Get the Flash Wait State (Latency) configuration ------------------------*/   
   *pFLatency = (uint32_t)(FLASH->ACR & FLASH_ACR_LATENCY); 
@@ -1289,7 +1298,7 @@ __weak void HAL_RCC_CSSCallback(void)
   */
 static HAL_StatusTypeDef RCC_SetFlashLatencyFromMSIRange(uint32_t MSIrange)
 {
-  uint32_t vos = 0;
+  uint32_t vos = 0U;
   uint32_t latency = FLASH_LATENCY_0;  /* default value 0WS */
 
   /* HCLK can reach 4 MHz only if AHB prescaler = 1 */
@@ -1297,12 +1306,12 @@ static HAL_StatusTypeDef RCC_SetFlashLatencyFromMSIRange(uint32_t MSIrange)
   {
     if(__HAL_RCC_PWR_IS_CLK_ENABLED())
     {
-      vos = HAL_PWREx_GetVoltageRange();
+      vos = READ_BIT(PWR->CR, PWR_CR_VOS);
     }
     else
     {
       __HAL_RCC_PWR_CLK_ENABLE();
-      vos = HAL_PWREx_GetVoltageRange();
+      vos = READ_BIT(PWR->CR, PWR_CR_VOS);
       __HAL_RCC_PWR_CLK_DISABLE();
     }
     

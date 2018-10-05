@@ -275,7 +275,7 @@
 #ifndef cb_PACKED_STRUCT_BEGIN
 #  define cb_PACKED_STRUCT_BEGIN(name) \
         cb_PACKED_STRUCT_ATTR_PRE \
-        typedef cb_PACKED_STRUCT_ATTR_INLINE_PRE struct name##_t
+        typedef cb_PACKED_STRUCT_ATTR_INLINE_PRE struct name
 #endif
 
 #ifndef cb_PACKED_STRUCT_END

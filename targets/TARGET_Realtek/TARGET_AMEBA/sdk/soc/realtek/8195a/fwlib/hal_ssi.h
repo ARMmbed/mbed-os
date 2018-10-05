@@ -21,11 +21,13 @@
  */
 
 extern u32 SSI_DBG_CONFIG;
+extern uint8_t SPI0_IS_AS_SLAVE;
 
 
 #define SSI_DBG_ENTRANCE(...)  do {\
-    if (unlikely(SSI_DBG_CONFIG & DBG_TYPE_ENTRANCE)) \
+    if (unlikely(SSI_DBG_CONFIG & DBG_TYPE_ENTRANCE)) { \
         DBG_SSI_INFO(IDENT_FOUR_SPACE ANSI_COLOR_GREEN __VA_ARGS__ ANSI_COLOR_RESET); \
+    } \
 }while(0)
 
 #define SSI_DBG_INIT(...)  do {\

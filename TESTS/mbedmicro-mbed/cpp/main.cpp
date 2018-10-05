@@ -20,37 +20,43 @@
 class Test {
 
 private:
-    const char* name;
+    const char *name;
     const int pattern;
 
 public:
-    Test(const char* _name, bool print_message=true) : name(_name), pattern(PATTERN_CHECK_VALUE)  {
+    Test(const char *_name, bool print_message = true) : name(_name), pattern(PATTERN_CHECK_VALUE)
+    {
         if (print_message) {
             print("init");
         }
     }
 
-    void print(const char *message) {
+    void print(const char *message)
+    {
         printf("%s::%s\n", name, message);
     }
 
-    bool check_init(void) {
+    bool check_init(void)
+    {
         bool result = (pattern == PATTERN_CHECK_VALUE);
         print(result ? "check_init: OK" : "check_init: ERROR");
         return result;
     }
 
-    void stack_test(void) {
+    void stack_test(void)
+    {
         print("stack_test");
         Test t("Stack");
         t.hello();
     }
 
-    void hello(void) {
+    void hello(void)
+    {
         print("hello");
     }
 
-    ~Test() {
+    ~Test()
+    {
         print("destroy");
     }
 };
@@ -70,17 +76,16 @@ Heap::init
 Heap::hello
 Heap::destroy
 *******************/
-int main (void) {
+int main(void)
+{
     GREENTEA_SETUP(10, "default_auto");
 
     bool result = true;
-    for (;;)
-    {
+    for (;;) {
         s.print("init");
         // Global stack object simple test
         s.stack_test();
-        if (s.check_init() == false)
-        {
+        if (s.check_init() == false) {
             result = false;
             break;
         }
@@ -89,8 +94,7 @@ int main (void) {
         Test *m = new Test("Heap");
         m->hello();
 
-        if (m->check_init() == false)
-        {
+        if (m->check_init() == false) {
             result = false;
         }
         delete m;

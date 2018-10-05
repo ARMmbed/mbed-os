@@ -34,13 +34,13 @@
 #define XDOT_EEPROM_SIZE        0x00002000
 
 typedef union {
-    uint32_t* w;
-    uint8_t* b;
+    uint32_t *w;
+    uint8_t *b;
 } b2w;
 
 typedef union {
-    uint16_t* hw;
-    uint8_t* b;
+    uint16_t *hw;
+    uint8_t *b;
 } b2hw;
 
 enum {
@@ -49,7 +49,8 @@ enum {
     word_write
 };
 
-static int xdot_eeprom_write_byte(uint32_t addr, uint8_t data) {
+static int xdot_eeprom_write_byte(uint32_t addr, uint8_t data)
+{
     if (addr > XDOT_EEPROM_SIZE - 1) {
         return -1;
     }
@@ -61,7 +62,8 @@ static int xdot_eeprom_write_byte(uint32_t addr, uint8_t data) {
     }
 }
 
-static int xdot_eeprom_write_hword(uint32_t addr, uint16_t data) {
+static int xdot_eeprom_write_hword(uint32_t addr, uint16_t data)
+{
     if (addr > XDOT_EEPROM_SIZE - 2) {
         return -1;
     }
@@ -73,7 +75,8 @@ static int xdot_eeprom_write_hword(uint32_t addr, uint16_t data) {
     }
 }
 
-static int xdot_eeprom_write_word(uint32_t addr, uint32_t data) {
+static int xdot_eeprom_write_word(uint32_t addr, uint32_t data)
+{
     if (addr > XDOT_EEPROM_SIZE - 4) {
         return -1;
     }
@@ -85,18 +88,20 @@ static int xdot_eeprom_write_word(uint32_t addr, uint32_t data) {
     }
 }
 
-static int xdot_eeprom_read_byte(uint32_t addr, uint8_t* data) {
+static int xdot_eeprom_read_byte(uint32_t addr, uint8_t *data)
+{
     if (addr > XDOT_EEPROM_SIZE - 1) {
         return -1;
     }
 
-    *data = (*((uint8_t*)(XDOT_EEPROM_START + addr)));
+    *data = (*((uint8_t *)(XDOT_EEPROM_START + addr)));
 
     return 0;
 }
 
 
-int xdot_eeprom_write_buf(uint32_t addr, uint8_t* buf, uint32_t size) {
+int xdot_eeprom_write_buf(uint32_t addr, uint8_t *buf, uint32_t size)
+{
     uint32_t bytes_written = 0;
 
     if (addr + size > XDOT_EEPROM_SIZE) {
@@ -133,7 +138,7 @@ int xdot_eeprom_write_buf(uint32_t addr, uint8_t* buf, uint32_t size) {
                 }
                 //printf("%smatch\r\n", mismatch[i] ? "mis" : "");
             }
-            if (! (mismatch[0] || mismatch[1] || mismatch[2] || mismatch[3])) {
+            if (!(mismatch[0] || mismatch[1] || mismatch[2] || mismatch[3])) {
                 //printf("all match - no write necessary\r\n");
                 bytes_written += 4;
                 continue;
@@ -180,7 +185,7 @@ int xdot_eeprom_write_buf(uint32_t addr, uint8_t* buf, uint32_t size) {
                 }
                 //printf("%smatch\r\n", mismatch[i] ? "mis" : "");
             }
-            if (! (mismatch[0] || mismatch[1])) {
+            if (!(mismatch[0] || mismatch[1])) {
                 //printf("all match - no write necessary\r\n");
                 bytes_written += 2;
                 continue;
@@ -261,7 +266,8 @@ int xdot_eeprom_write_buf(uint32_t addr, uint8_t* buf, uint32_t size) {
     return 0;
 }
 
-int xdot_eeprom_read_buf(uint32_t addr, uint8_t* buf, uint32_t size) {
+int xdot_eeprom_read_buf(uint32_t addr, uint8_t *buf, uint32_t size)
+{
     if (addr + size > XDOT_EEPROM_SIZE) {
         return -1;
     }

@@ -2,13 +2,11 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_opamp.h
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    01-July-2016
   * @brief   Header file of OPAMP HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -174,15 +172,15 @@ typedef  uint32_t HAL_OPAMP_TrimmingValueTypeDef;
 /**
   * CSR register Mask 
   */
-#define OPAMP_CSR_INSTANCE_OFFSET   ((uint32_t)  8) /* Offset of each OPAMP instance into register CSR */
-#define OPAMP_OTR_INSTANCE_OFFSET   ((uint32_t) 10) /* Offset of each OPAMP instance into register OTR */
+#define OPAMP_CSR_INSTANCE_OFFSET   ( 8U) /* Offset of each OPAMP instance into register CSR */
+#define OPAMP_OTR_INSTANCE_OFFSET   (10U) /* Offset of each OPAMP instance into register OTR */
     
         
 /** @defgroup OPAMP_Mode OPAMP Mode
   * @{
   */
-#define OPAMP_STANDALONE_MODE            ((uint32_t)0x00000000) /*!< OPAMP standalone mode */
-#define OPAMP_FOLLOWER_MODE              ((uint32_t)0x00000001) /*!< OPAMP follower mode */
+#define OPAMP_STANDALONE_MODE            (0x00000000U) /*!< OPAMP standalone mode */
+#define OPAMP_FOLLOWER_MODE              (0x00000001U) /*!< OPAMP follower mode */
 
 /**
   * @}
@@ -191,9 +189,9 @@ typedef  uint32_t HAL_OPAMP_TrimmingValueTypeDef;
 /** @defgroup OPAMP_NonInvertingInput OPAMP NonInvertingInput
   * @{
   */
-#define OPAMP_NONINVERTINGINPUT_IO0      ((uint32_t)0x00000000)  /*!< Comparator non-inverting input connected to dedicated IO pin low-leakage */
-#define OPAMP_NONINVERTINGINPUT_DAC_CH1  ((uint32_t)0x00000001)  /*!< Comparator non-inverting input connected internally to DAC channel 1. Available only on OPAMP1 and OPAMP2. */
-#define OPAMP_NONINVERTINGINPUT_DAC_CH2  ((uint32_t)0x00000002)  /*!< Comparator non-inverting input connected internally to DAC channel 2. Available only on OPAMP2 and OPAMP3 (OPAMP3 availability depends on STM32L1 devices). */
+#define OPAMP_NONINVERTINGINPUT_IO0      (0x00000000U)  /*!< Comparator non-inverting input connected to dedicated IO pin low-leakage */
+#define OPAMP_NONINVERTINGINPUT_DAC_CH1  (0x00000001U)  /*!< Comparator non-inverting input connected internally to DAC channel 1. Available only on OPAMP1 and OPAMP2. */
+#define OPAMP_NONINVERTINGINPUT_DAC_CH2  (0x00000002U)  /*!< Comparator non-inverting input connected internally to DAC channel 2. Available only on OPAMP2 and OPAMP3 (OPAMP3 availability depends on STM32L1 devices). */
 
 /**
   * @}
@@ -203,8 +201,8 @@ typedef  uint32_t HAL_OPAMP_TrimmingValueTypeDef;
   * @{
   */
 /* Note: Literal "OPAMP_SEC_INVERTINGINPUT_IO1" is a legacy naming of "OPAMP_INVERTINGINPUT_IO1". It is equivalent and must be replaced by "OPAMP_INVERTINGINPUT_IO1". */
-#define OPAMP_INVERTINGINPUT_IO0         ((uint32_t)0x00000000)  /*!< Comparator inverting input connected to dedicated IO pin low-leakage */
-#define OPAMP_INVERTINGINPUT_IO1         ((uint32_t)0x00000001)  /*!< Comparator inverting input connected to alternative IO pin available on some device packages */
+#define OPAMP_INVERTINGINPUT_IO0         (0x00000000U)  /*!< Comparator inverting input connected to dedicated IO pin low-leakage */
+#define OPAMP_INVERTINGINPUT_IO1         (0x00000001U)  /*!< Comparator inverting input connected to alternative IO pin available on some device packages */
 
 /**
   * @}
@@ -213,8 +211,8 @@ typedef  uint32_t HAL_OPAMP_TrimmingValueTypeDef;
 /** @defgroup OPAMP_PowerMode OPAMP PowerMode
   * @{
   */
-#define OPAMP_POWERMODE_NORMAL        ((uint32_t)0x00000000)
-#define OPAMP_POWERMODE_LOWPOWER      ((uint32_t)0x00000001)
+#define OPAMP_POWERMODE_NORMAL        (0x00000000U)
+#define OPAMP_POWERMODE_LOWPOWER      (0x00000001U)
 
 /**
   * @}
@@ -223,7 +221,7 @@ typedef  uint32_t HAL_OPAMP_TrimmingValueTypeDef;
 /** @defgroup OPAMP_PowerSupplyRange OPAMP PowerSupplyRange
   * @{
   */
-#define OPAMP_POWERSUPPLY_LOW          ((uint32_t)0x00000000)  /*!< Power supply range low (VDDA lower than 2.4V) */
+#define OPAMP_POWERSUPPLY_LOW          (0x00000000U)           /*!< Power supply range low (VDDA lower than 2.4V) */
 #define OPAMP_POWERSUPPLY_HIGH         OPAMP_CSR_AOP_RANGE     /*!< Power supply range high (VDDA higher than 2.4V) */
 
 /**
@@ -233,8 +231,8 @@ typedef  uint32_t HAL_OPAMP_TrimmingValueTypeDef;
 /** @defgroup OPAMP_UserTrimming OPAMP User Trimming
   * @{
   */
-#define OPAMP_TRIMMING_FACTORY        ((uint32_t)0x00000000)                          /*!< Factory trimming */
-#define OPAMP_TRIMMING_USER           OPAMP_OTR_OT_USER                               /*!< User trimming */
+#define OPAMP_TRIMMING_FACTORY        (0x00000000U)                          /*!< Factory trimming */
+#define OPAMP_TRIMMING_USER           OPAMP_OTR_OT_USER                      /*!< User trimming */
 
 /**
   * @}
@@ -243,9 +241,9 @@ typedef  uint32_t HAL_OPAMP_TrimmingValueTypeDef;
 /** @defgroup OPAMP_FactoryTrimming OPAMP FactoryTrimming
   * @{
   */
-#define OPAMP_FACTORYTRIMMING_DUMMY    ((uint32_t)0xFFFFFFFF)                           /*!< Dummy value if trimming value could not be retrieved */
+#define OPAMP_FACTORYTRIMMING_DUMMY    (0xFFFFFFFFU)                                    /*!< Dummy value if trimming value could not be retrieved */
 
-#define OPAMP_FACTORYTRIMMING_P        ((uint32_t)0x00000000)                           /*!< Offset trimming P */
+#define OPAMP_FACTORYTRIMMING_P        (0x00000000U)                                    /*!< Offset trimming P */
 #define OPAMP_FACTORYTRIMMING_N        POSITION_VAL(OPAMP_OTR_AO1_OPT_OFFSET_TRIM_HIGH) /*!< Offset trimming N */
 
 /**

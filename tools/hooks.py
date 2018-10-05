@@ -30,14 +30,14 @@ def hook_tool(function):
             return function(t_self, *args, **kwargs)
         _RUNNING_HOOKS[tool] = True
         # If this tool isn't hooked, return original function
-        if not _HOOKS.has_key(tool):
+        if tool not in _HOOKS:
             res = function(t_self, *args, **kwargs)
             _RUNNING_HOOKS[tool] = False
             return res
         tooldesc = _HOOKS[tool]
         setattr(t_self, tool_flag, False)
         # If there is a replace hook, execute the replacement instead
-        if tooldesc.has_key("replace"):
+        if "replace" in tooldesc:
             res = tooldesc["replace"](t_self, *args, **kwargs)
         # If the replacement has set the "done" flag, exit now
         # Otherwise continue as usual
@@ -45,12 +45,12 @@ def hook_tool(function):
             _RUNNING_HOOKS[tool] = False
             return res
         # Execute pre-function before main function if specified
-        if tooldesc.has_key("pre"):
+        if "pre" in tooldesc:
             tooldesc["pre"](t_self, *args, **kwargs)
         # Execute the main function now
         res = function(t_self, *args, **kwargs)
         # Execute post-function after main function if specified
-        if tooldesc.has_key("post"):
+        if "post" in tooldesc:
             post_res = tooldesc["post"](t_self, *args, **kwargs)
             _RUNNING_HOOKS[tool] = False
             return post_res or res
@@ -173,7 +173,7 @@ class Hook(object):
         hook_type - one of the _HOOK_TYPES
         cmdline - the initial command line
         """
-        if self._cmdline_hooks.has_key(hook_type):
+        if hook_type in  self._cmdline_hooks:
             cmdline = self._cmdline_hooks[hook_type](
                 self.toolchain.__class__.__name__, cmdline)
         return cmdline

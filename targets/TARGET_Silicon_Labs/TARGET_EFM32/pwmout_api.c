@@ -26,7 +26,7 @@
 #if DEVICE_PWMOUT
 
 #include "mbed_assert.h"
-#include "mbed_sleep.h"
+#include "mbed_power_mgmt.h"
 #include "pwmout_api.h"
 #include "pinmap.h"
 #include "PeripheralPins.h"
@@ -302,7 +302,7 @@ void pwmout_period(pwmout_t *obj, float seconds)
     }
 
     //Check if anything changed
-    if(((PWM_TIMER->CTRL & ~_TIMER_CTRL_PRESC_MASK) == (pwm_prescaler_div << _TIMER_CTRL_PRESC_SHIFT)) && (TIMER_TopGet(PWM_TIMER) == cycles)) return;
+    if(((PWM_TIMER->CTRL & _TIMER_CTRL_PRESC_MASK) == (pwm_prescaler_div << _TIMER_CTRL_PRESC_SHIFT)) && (TIMER_TopGet(PWM_TIMER) == cycles)) return;
 
     //Save previous period for recalculation of duty cycles
     uint32_t previous_period_cycles = PWM_TIMER->TOPB;

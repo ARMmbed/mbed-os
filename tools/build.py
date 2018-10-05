@@ -17,6 +17,8 @@ limitations under the License.
 
 LIBRARIES BUILD
 """
+from __future__ import print_function, division, absolute_import
+
 import sys
 from time import time
 from os.path import join, abspath, dirname
@@ -37,9 +39,10 @@ from tools.build_api import build_library, build_mbed_libs, build_lib
 from tools.build_api import mcu_toolchain_matrix
 from tools.build_api import print_build_results
 from tools.settings import CPPCHECK_CMD, CPPCHECK_MSG_FORMAT
-from utils import argparse_filestring_type, args_error
 from tools.settings import CPPCHECK_CMD, CPPCHECK_MSG_FORMAT, CLI_COLOR_MAP
-from utils import argparse_filestring_type, argparse_dir_not_parent
+from tools.notifier.term import TerminalNotifier
+from tools.utils import argparse_filestring_type, args_error, argparse_many
+from tools.utils import argparse_filestring_type, argparse_dir_not_parent
 
 if __name__ == '__main__':
     start = time()
@@ -126,11 +129,14 @@ if __name__ == '__main__':
                       default=False,
                       help="Makes compiler more verbose, CI friendly.")
 
+    parser.add_argument("--ignore", dest="ignore", type=argparse_many(str),
+                        default=None, help="Comma separated list of patterns to add to mbedignore (eg. ./main.cpp)")
+
     options = parser.parse_args()
 
     # Only prints matrix of supported toolchains
     if options.supported_toolchains:
-        print mcu_toolchain_matrix(platform_filter=options.general_filter_regex)
+        print(mcu_toolchain_matrix(platform_filter=options.general_filter_regex))
         exit(0)
 
 
@@ -143,16 +149,6 @@ if __name__ == '__main__':
     if options.source_dir and not options.build_dir:
         args_error(parser, "argument --build is required by argument --source")
 
-    if options.color:
-        # This import happens late to prevent initializing colorization when we don't need it
-        import colorize
-        if options.verbose:
-            notify = mbedToolchain.print_notify_verbose
-        else:
-            notify = mbedToolchain.print_notify
-        notify = colorize.print_in_color_notifier(CLI_COLOR_MAP, notify)
-    else:
-        notify = None
 
     # Get libraries list
     libraries = []
@@ -184,66 +180,66 @@ if __name__ == '__main__':
             tt_id = "%s::%s" % (toolchain, target)
             if toolchain not in TARGET_MAP[target].supported_toolchains:
                 # Log this later
-                print "%s skipped: toolchain not supported" % tt_id
+                print("%s skipped: toolchain not supported" % tt_id)
                 skipped.append(tt_id)
             else:
                 try:
+                    notifier = TerminalNotifier(options.verbose, options.silent)
                     mcu = TARGET_MAP[target]
                     profile = extract_profile(parser, options, toolchain)
                     if options.source_dir:
-                        lib_build_res = build_library(options.source_dir, options.build_dir, mcu, toolchain,
-                                                    extra_verbose=options.extra_verbose_notify,
-                                                    verbose=options.verbose,
-                                                    silent=options.silent,
-                                                    jobs=options.jobs,
-                                                    clean=options.clean,
-                                                    archive=(not options.no_archive),
-                                                    macros=options.macros,
-                                                    name=options.artifact_name,
-                                                    build_profile=profile)
+                        lib_build_res = build_library(
+                            options.source_dir, options.build_dir, mcu, toolchain,
+                            jobs=options.jobs,
+                            clean=options.clean,
+                            archive=(not options.no_archive),
+                            macros=options.macros,
+                            name=options.artifact_name,
+                            build_profile=profile,
+                            ignore=options.ignore,
+                            notify = notifier,
+                        )
                     else:
-                        lib_build_res = build_mbed_libs(mcu, toolchain,
-                                                    extra_verbose=options.extra_verbose_notify,
-                                                    verbose=options.verbose,
-                                                    silent=options.silent,
-                                                    jobs=options.jobs,
-                                                    clean=options.clean,
-                                                        macros=options.macros,
-                                                        build_profile=profile)
+                        lib_build_res = build_mbed_libs(
+                            mcu, toolchain,
+                            jobs=options.jobs,
+                            clean=options.clean,
+                            macros=options.macros,
+                            build_profile=profile,
+                            ignore=options.ignore,
+                            notify=notifier,
+                        )
 
                     for lib_id in libraries:
-                        build_lib(lib_id, mcu, toolchain,
-                                extra_verbose=options.extra_verbose_notify,
-                                verbose=options.verbose,
-                                silent=options.silent,
-                                clean=options.clean,
-                                macros=options.macros,
-                                    jobs=options.jobs,
-                                    build_profile=profile)
+                        build_lib(
+                            lib_id, mcu, toolchain,
+                            clean=options.clean,
+                            macros=options.macros,
+                            jobs=options.jobs,
+                            build_profile=profile,
+                            ignore=options.ignore,
+                        )
                     if lib_build_res:
                         successes.append(tt_id)
                     else:
                         skipped.append(tt_id)
-                except Exception, e:
+                except Exception as e:
                     if options.verbose:
                         import traceback
                         traceback.print_exc(file=sys.stdout)
                         sys.exit(1)
                     failures.append(tt_id)
-                    print e
-
+                    print(e)
 
     # Write summary of the builds
-    print
-    print "Completed in: (%.2f)s" % (time() - start)
-    print
+    print("\nCompleted in: (%.2f)s\n" % (time() - start))
 
     for report, report_name in [(successes, "Build successes:"),
                                 (skipped, "Build skipped:"),
                                 (failures, "Build failures:"),
                                ]:
         if report:
-            print print_build_results(report, report_name),
+            print(print_build_results(report, report_name))
 
     if failures:
         sys.exit(1)

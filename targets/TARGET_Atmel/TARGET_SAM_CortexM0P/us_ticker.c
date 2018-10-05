@@ -167,3 +167,8 @@ void us_ticker_clear_interrupt(void)
     tc_clear_interrupt(&us_ticker_module, TC_CALLBACK_CC_CHANNEL0);
     NVIC_ClearPendingIRQ(TICKER_COUNTER_IRQn);
 }
+
+void us_ticker_free(void)
+{
+
+}

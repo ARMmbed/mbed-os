@@ -62,7 +62,6 @@ extern uint32_t __bss_end__;
 extern uint32_t __bss_extern_start__  WEAK;
 extern uint32_t __bss_extern_end__ WEAK;
 
-extern void uvisor_init(void);
 #if defined(TOOLCHAIN_GCC_ARM)
 extern void _start(void);
 #else

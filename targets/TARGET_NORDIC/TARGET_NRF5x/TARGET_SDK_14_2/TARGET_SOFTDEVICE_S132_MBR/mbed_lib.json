@@ -1,0 +1,8 @@
+{
+    "name": "softdevice_mbr",
+    "target_overrides": {
+        "*": {
+            "target.bootloader_img": "hex/s132_nrf52_5.0.0_mbr.hex"
+        }
+    }
+}

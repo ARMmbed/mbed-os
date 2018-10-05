@@ -180,15 +180,6 @@ const PinMap PinMap_PWM[] = {
     {PTB0,  PWM_7 , 3},
     {PTB1,  PWM_8 , 3},
 
-    {PTE22, PWM_9 , 3},
-    {PTE23, PWM_10, 3},
-    {PTA1 , PWM_9 , 3},
-    {PTA2 , PWM_10, 3},
-    {PTB2 , PWM_9 , 3},
-    {PTB3 , PWM_10, 3},
-    {PTB18, PWM_9 , 3},
-    {PTB19, PWM_10, 3},
-
     {NC   , NC    , 0}
 };
 

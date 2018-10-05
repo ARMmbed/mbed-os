@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32f1xx_hal_pcd.c
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    14-April-2017
   * @brief   PCD HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the USB Peripheral Controller:
@@ -1152,7 +1150,7 @@ static HAL_StatusTypeDef PCD_WriteEmptyTxFifo(PCD_HandleTypeDef *hpcd, uint32_t 
 {
   USB_OTG_GlobalTypeDef *USBx = hpcd->Instance;  
   USB_OTG_EPTypeDef *ep = NULL;
-  int32_t len = 0;
+  uint32_t len; // MBED patch
   uint32_t len32b = 0U;
   uint32_t fifoemptymsk = 0U;
   
@@ -1185,7 +1183,7 @@ static HAL_StatusTypeDef PCD_WriteEmptyTxFifo(PCD_HandleTypeDef *hpcd, uint32_t 
     ep->xfer_count += len;
   }
   
-  if(len <= 0)
+  if (ep->xfer_count >= ep->xfer_len) // MBED patch
   {
     fifoemptymsk = 0x01U << epnum;
     USBx_DEVICE->DIEPEMPMSK &= ~fifoemptymsk;

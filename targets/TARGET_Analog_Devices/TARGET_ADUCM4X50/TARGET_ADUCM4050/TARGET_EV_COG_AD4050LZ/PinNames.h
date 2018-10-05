@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010-2017 Analog Devices, Inc.
+ * Copyright (c) 2010-2018 Analog Devices, Inc.
  *
  * All rights reserved.
  *
@@ -135,6 +135,9 @@ typedef enum {
     //Push buttons
     PB0 = P1_00,        // BTN1
     PB1 = P0_09,        // BTN2
+    BUTTON1 = P1_00,    // BTN1
+    BUTTON2 = P0_09,    // BTN2
+
     BOOT = P1_01,
     WAKE0 = P0_15,      // JP15 to select
     WAKE1 = P1_00,      // JP8 (BTN1 jumper) to select

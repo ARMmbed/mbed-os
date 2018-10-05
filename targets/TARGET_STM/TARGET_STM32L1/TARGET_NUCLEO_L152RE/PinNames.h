@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
  *******************************************************************************
- * Copyright (c) 2016, STMicroelectronics
+ * Copyright (c) 2018, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,6 +27,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 
@@ -38,14 +39,28 @@ extern "C" {
 #endif
 
 typedef enum {
+    ALT0  = 0x100,
+    ALT1  = 0x200,
+    ALT2  = 0x300,
+    ALT3  = 0x400
+} ALTx;
+
+typedef enum {
     PA_0  = 0x00,
     PA_1  = 0x01,
+    PA_1_ALT0 = PA_1 | ALT0,
+    PA_1_ALT1 = PA_1 | ALT1,
     PA_2  = 0x02,
     PA_3  = 0x03,
     PA_4  = 0x04,
+    PA_4_ALT0 = PA_4 | ALT0,
     PA_5  = 0x05,
     PA_6  = 0x06,
+    PA_6_ALT0 = PA_6 | ALT0,
     PA_7  = 0x07,
+    PA_7_ALT0 = PA_7 | ALT0,
+    PA_7_ALT1 = PA_7 | ALT1,
+    PA_7_ALT2 = PA_7 | ALT2,
     PA_8  = 0x08,
     PA_9  = 0x09,
     PA_10 = 0x0A,
@@ -54,17 +69,27 @@ typedef enum {
     PA_13 = 0x0D,
     PA_14 = 0x0E,
     PA_15 = 0x0F,
+    PA_15_ALT0 = PA_15 | ALT0,
 
     PB_0  = 0x10,
     PB_1  = 0x11,
     PB_2  = 0x12,
     PB_3  = 0x13,
+    PB_3_ALT0 = PB_3 | ALT0,
     PB_4  = 0x14,
+    PB_4_ALT0 = PB_4 | ALT0,
+    PB_4_ALT1 = PB_4 | ALT1,
     PB_5  = 0x15,
+    PB_5_ALT0 = PB_5 | ALT0,
+    PB_5_ALT1 = PB_5 | ALT1,
     PB_6  = 0x16,
     PB_7  = 0x17,
     PB_8  = 0x18,
+    PB_8_ALT0 = PB_8 | ALT0,
+    PB_8_ALT1 = PB_8 | ALT1,
     PB_9  = 0x19,
+    PB_9_ALT0 = PB_9 | ALT0,
+    PB_9_ALT1 = PB_9 | ALT1,
     PB_10 = 0x1A,
     PB_11 = 0x1B,
     PB_12 = 0x1C,
@@ -83,7 +108,9 @@ typedef enum {
     PC_8  = 0x28,
     PC_9  = 0x29,
     PC_10 = 0x2A,
+    PC_10_ALT0 = PC_10 | ALT0,
     PC_11 = 0x2B,
+    PC_11_ALT0 = PC_11 | ALT0,
     PC_12 = 0x2C,
     PC_13 = 0x2D,
     PC_14 = 0x2E,
@@ -122,6 +149,18 @@ typedef enum {
     D14         = PB_9,
     D15         = PB_8,
 
+    // STDIO for console print
+#ifdef MBED_CONF_TARGET_STDIO_UART_TX
+    STDIO_UART_TX = MBED_CONF_TARGET_STDIO_UART_TX,
+#else
+    STDIO_UART_TX = PA_2,
+#endif
+#ifdef MBED_CONF_TARGET_STDIO_UART_RX
+    STDIO_UART_RX = MBED_CONF_TARGET_STDIO_UART_RX,
+#else
+    STDIO_UART_RX = PA_3,
+#endif
+
     // Generic signals namings
     LED1        = PA_5,
     LED2        = PA_5,
@@ -130,10 +169,10 @@ typedef enum {
     USER_BUTTON = PC_13,
     // Standardized button names
     BUTTON1 = USER_BUTTON,
-    SERIAL_TX   = PA_2,
-    SERIAL_RX   = PA_3,
-    USBTX       = PA_2,
-    USBRX       = PA_3,
+    SERIAL_TX   = STDIO_UART_TX,
+    SERIAL_RX   = STDIO_UART_RX,
+    USBTX       = STDIO_UART_TX,
+    USBRX       = STDIO_UART_RX,
     I2C_SCL     = PB_8,
     I2C_SDA     = PB_9,
     SPI_MOSI    = PA_7,
@@ -142,9 +181,27 @@ typedef enum {
     SPI_CS      = PB_6,
     PWM_OUT     = PB_3,
 
-    //USB pins
+    /**** USB pins ****/
     USB_DM = PA_11,
     USB_DP = PA_12,
+
+    /**** OSCILLATOR pins ****/
+    RCC_OSC32_IN = PC_14,
+    RCC_OSC32_OUT = PC_15,
+    RCC_OSC_IN = PH_0,
+    RCC_OSC_OUT = PH_1,
+
+    /**** DEBUG pins ****/
+    SYS_JTCK_SWCLK = PA_14,
+    SYS_JTDI = PA_15,
+    SYS_JTDO_TRACESWO = PB_3,
+    SYS_JTMS_SWDIO = PA_13,
+    SYS_JTRST = PB_4,
+    SYS_PVD_IN = PB_7,
+    SYS_V_REF_OUT = PB_0,
+    SYS_V_REF_OUT_ALT0 = PB_1,
+    SYS_WKUP1 = PA_0,
+    SYS_WKUP2 = PC_13,
 
     // Not connected
     NC = (int)0xFFFFFFFF

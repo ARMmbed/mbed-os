@@ -1,0 +1,313 @@
+{
+   "project" : {
+      "schema" : "1.1",
+      "configuration" : {
+         {% for config in ["arm.toolchain.gcc.target.exe.release", "arm.toolchain.gcc.target.exe.debug"] %}
+         "{{ config }}" : {
+            "buildSteps" : {
+               "postbuild" : "",
+               "prebuild" : "",
+               "prebuilddes" : "",
+               "postbuilddes" : ""
+            },
+            "tools" : {
+               "arm.toolchain.gcc.assembler" : {
+                  {% for opt in asm_opts %}
+                  "{{ opt }}" : {
+                     "type" : "{{ asm_opts[opt].type }}",
+                     "value": "{{ asm_opts[opt].value }}"
+                  },
+                  {% endfor %}
+                  "arm.toolchain.gcc.assembler.option.instructionset" : {
+                     "type" : "baseId",
+                     "value" : "-mthumb"
+                  },
+                  {% if float_abi %}
+                  "-mfloat-abi=${value}" : {
+                     "type" : "command",
+                     "value" : "{{ float_abi }}"
+                  },
+                  {% endif %}
+                  "-mcpu=${value}" : {
+                     "type" : "command",
+                     "value" : "{{ cpu }}"
+                  },
+                  "arm.assembler.option.assemblerswitch" : {
+                     "type" : "baseId",
+                     "value" : "true"
+                  },
+                  "arm.assembler.option.additionaloptions" : {
+                     "type" : "command",
+                     "value" : [
+                        {% for flag in asm_flags %}
+                        "{{ flag }}"{{ "," if not loop.last else "" }}
+                        {% endfor %}
+                     ]
+                  },
+                  "-mproc=${value}" : {
+                     "type" : "command",
+                     "value" : " {{ proc }}"
+                  },
+                  "-D" : {
+                     "type" : "command",
+                     "value" : [
+                        {% for def in asm_defines %}
+                        "{{ def }}"{{ "," if not loop.last else "" }}
+                        {% endfor %}
+                     ]
+                  },
+                  {% if fpu %}
+                  "-mfpu=${value}" : {
+                     "type" : "command",
+                     "value" : "{{ fpu }}"
+                  },
+                  {% endif %}
+                  "-I" : {
+                     "type" : "command",
+                     "value" : [
+                        {% for dir in include_dirs %}
+                        "\"{{ dir }}\""{{ "," if not loop.last else "" }}
+                        {% endfor %}
+                     ]
+                  }
+               },
+               "arm.toolchain.gcc.cpp.linker" : {
+                  {% for opt in ld_opts %}
+                  "{{ opt }}" : {
+                     "type" : "{{ ld_opts[opt].type }}",
+                     "value": "{{ ld_opts[opt].value }}"
+                  },
+                  {% endfor %}
+                  "arm.toolchain.gcc.cpp.linker.option.instructionset" : {
+                     "type" : "baseId",
+                     "value" : "-mthumb"
+                  },
+                  "arm.linker.option.additionaloptions" : {
+                     "type" : "command",
+                     "value" : [
+                        {% for flag in ld_flags %}
+                        "{{ flag }}"{{ "," if not loop.last else "" }}
+                        {% endfor %}
+                     ]
+                  },
+                  {% if float_abi %}
+                  "arm.toolchain.gcc.cpp.linker.option.fpu.abi" : {
+                     "type" : "baseId",
+                     "value" : "arm.toolchain.gcc.c.linker.option.fpu.abi.{{ float_abi }}"
+                  },
+                  {% endif %}
+                  "-T" : {
+                     "type" : "command",
+                     "value" : "{{ ld_script }}"
+                  },
+                  "-mcpu=${value}" : {
+                     "type" : "command",
+                     "value" : "{{ cpu }}"
+                  },
+                  "arm.linker.option.userlibs" : {
+                     "type" : "baseId",
+                     "value" : [ ]
+                  },
+                  "arm.cpp.linker.option.shared" : {
+                     "type" : "baseId",
+                     "value" : "false"
+                  },
+                  "arm.toolchain.gcc.cpp.linker.option.specs" : {
+                     "type" : "baseId",
+                     "value" : "arm.toolchain.gcc.c.linker.option.specs.nosys"
+                  },
+                  "-mproc=${value}" : {
+                     "type" : "command",
+                     "value" : " {{ proc }}"
+                  },
+                  "arm.c.linker.mathslib" : {
+                     "type" : "baseId",
+                     "value" : "true"
+                  },
+                  {% if fpu %}
+                  "-mfpu=${value}" : {
+                     "type" : "command",
+                     "value" : "{{ fpu }}"
+                  },
+                  {% endif %}
+                  "-L" : {
+                     "type" : "command",
+                     "value" : [ ]
+                  },
+                  "-l" : {
+                     "type" : "command",
+                     "value" : [ ]
+                  }
+               },
+               "arm.toolchain.gcc.c.compiler" : {
+                  {% for opt in c_opts %}
+                  "{{ opt }}" : {
+                     "type" : "{{ c_opts[opt].type }}",
+                     "value": "{{ c_opts[opt].value }}"
+                  },
+                  {% endfor %}
+                  "-U" : {
+                     "type" : "command",
+                     "value" : [ ]
+                  },
+                  "arm.base.compiler.option.additionaloptions" : {
+                     "type" : "command",
+                     "value" : [
+                        {% for flag in c_flags %}
+                        "{{ flag }}"{{ "," if not loop.last else "" }}
+                        {% endfor %}
+                     ]
+                  },
+                  "arm.toolchain.gcc.c.compiler.option.instructionset" : {
+                     "type" : "baseId",
+                     "value" : "-mthumb"
+                  },
+                  "arm.base.compiler.option.compilerswitch.hide" : {
+                     "type" : "baseId",
+                     "value" : "-c"
+                  },
+                  "arm.toolchain.cpp.compiler.option.coreid" : {
+                     "type" : "baseId",
+                     "value" : "0"
+                  },
+                  {% if float_abi %}
+                  "-mfloat-abi=${value}" : {
+                     "type" : "command",
+                     "value" : "{{ float_abi }}"
+                  },
+                  {% endif %}
+                  "-mcpu=${value}" : {
+                     "type" : "command",
+                     "value" : "{{ cpu }}"
+                  },
+                  "-mproc=${value}" : {
+                     "type" : "command",
+                     "value" : " {{ proc }}"
+                  },
+                  "-D" : {
+                     "type" : "command",
+                     "value" : [
+                        {% for def in c_defines %}
+                        "{{ def }}"{{ "," if not loop.last else "" }}
+                        {% endfor %}
+                     ]
+                  },
+                  "arm.base.compiler.option.noadiinclude" : {
+                     "type" : "baseId",
+                     "value" : "false"
+                  },
+                  {% if fpu %}
+                  "-mfpu=${value}" : {
+                     "type" : "command",
+                     "value" : "{{ fpu }}"
+                  },
+                  {% endif %}
+                  "-I" : {
+                     "type" : "command",
+                     "value" : [
+                        {% for dir in include_dirs %}
+                        "\"{{ dir }}\""{{ "," if not loop.last else "" }}
+                        {% endfor %}
+                     ]
+                  }
+               },
+               "arm.toolchain.gcc.cpp.compiler" : {
+                  {% for opt in cxx_opts %}
+                  "{{ opt }}" : {
+                     "type" : "{{ cxx_opts[opt].type }}",
+                     "value": "{{ cxx_opts[opt].value }}"
+                  },
+                  {% endfor %}
+                  "-U" : {
+                     "type" : "command",
+                     "value" : [ ]
+                  },
+                  "arm.base.compiler.option.additionaloptions" : {
+                     "type" : "command",
+                     "value" : [
+                        {% for flag in cxx_flags %}
+                        "{{ flag }}"{{ "," if not loop.last else "" }}
+                        {% endfor %}
+                     ]
+                  },
+                  "arm.toolchain.gcc.cpp.compiler.option.instructionset" : {
+                     "type" : "baseId",
+                     "value" : "-mthumb"
+                  },
+                  "arm.base.compiler.option.compilerswitch.hide" : {
+                     "type" : "baseId",
+                     "value" : "-c"
+                  },
+                  "arm.toolchain.cpp.compiler.option.coreid" : {
+                     "type" : "baseId",
+                     "value" : "0"
+                  },
+                  {% if float_abi %}
+                  "-mfloat-abi=${value}" : {
+                     "type" : "command",
+                     "value" : "{{ float_abi }}"
+                  },
+                  {% endif %}
+                  "-mcpu=${value}" : {
+                     "type" : "command",
+                     "value" : "{{ cpu }}"
+                  },
+                  "-mproc=${value}" : {
+                     "type" : "command",
+                     "value" : " {{ proc }}"
+                  },
+                  "-D" : {
+                     "type" : "command",
+                     "value" : [
+                        {% for def in c_defines %}
+                        "{{ def }}"{{ "," if not loop.last else "" }}
+                        {% endfor %}
+                     ]
+                  },
+                  "arm.base.compiler.option.noadiinclude" : {
+                     "type" : "baseId",
+                     "value" : "false"
+                  },
+                  {% if fpu %}
+                  "-mfpu=${value}" : {
+                     "type" : "command",
+                     "value" : "{{ fpu }}"
+                  },
+                  {% endif %}
+                  "-I" : {
+                     "type" : "command",
+                     "value" : [
+                        {% for dir in include_dirs %}
+                        "\"{{ dir }}\""{{ "," if not loop.last else "" }}
+                        {% endfor %}
+                     ]
+                  }
+               }
+            }
+         }{{ "," if not loop.last else "" }}
+         {% endfor %}
+      },
+      "srcFiles" : [
+         {% for src in srcs %}
+         {
+            "path" : "{{ srcs[src] }}",
+            "location" : "{{ src }}",
+            "linked" : true
+         }{{ "," if not loop.last else "" }}
+         {% endfor %}
+      ],
+      "basicInfo" : {
+         "artifact" : "",
+         "name" : "{{ project }}",
+         "projectType" : "Executable",
+         "localLocation" : "{{ local_location }}",
+         "family" : "{{ family }}",
+         "toolChain" : "arm.gcc.toolchain",
+         "activecfg" : "Debug",
+         "language" : "C++",
+         {% if not fpu %}
+         "fpu" : "NO_FPU"
+         {% endif %}
+      }
+   }
+}

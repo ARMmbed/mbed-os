@@ -2,13 +2,11 @@
   ******************************************************************************
   * @file    stm32l1xx_ll_i2c.h
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    01-July-2016
   * @brief   Header file of I2C LL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -63,8 +61,6 @@ extern "C" {
 /** @defgroup I2C_LL_Private_Constants I2C Private Constants
   * @{
   */
-/* Defines used for the bit position in the register and perform offsets */
-#define LL_I2C_POSITION_SR2_PEC             (uint32_t)POSITION_VAL(I2C_SR2_PEC)
 
 /* Defines used to perform compute and check in the macros */
 #define LL_I2C_MAX_SPEED_STANDARD           100000U
@@ -1540,6 +1536,17 @@ __STATIC_INLINE void LL_I2C_EnableReset(I2C_TypeDef *I2Cx)
 }
 
 /**
+  * @brief  Disable Reset of I2C peripheral.
+  * @rmtoll CR1          SWRST         LL_I2C_DisableReset
+  * @param  I2Cx I2C Instance.
+  * @retval None
+  */
+__STATIC_INLINE void LL_I2C_DisableReset(I2C_TypeDef *I2Cx)
+{
+  CLEAR_BIT(I2Cx->CR1, I2C_CR1_SWRST);
+}
+
+/**
   * @brief  Check if the I2C peripheral is under reset state or not.
   * @rmtoll CR1          SWRST         LL_I2C_IsResetEnabled
   * @param  I2Cx I2C Instance.
@@ -1725,7 +1732,7 @@ __STATIC_INLINE uint32_t LL_I2C_IsEnabledSMBusPECCompare(I2C_TypeDef *I2Cx)
   */
 __STATIC_INLINE uint32_t LL_I2C_GetSMBusPEC(I2C_TypeDef *I2Cx)
 {
-  return (uint32_t)(READ_BIT(I2Cx->SR2, I2C_SR2_PEC) >> LL_I2C_POSITION_SR2_PEC);
+  return (uint32_t)(READ_BIT(I2Cx->SR2, I2C_SR2_PEC) >> I2C_SR2_PEC_Pos);
 }
 
 /**

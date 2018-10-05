@@ -2,13 +2,11 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_sd.h
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    01-July-2016
   * @brief   Header file of SD HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -290,15 +288,15 @@ typedef enum
   */  
 typedef enum
 {
-  SD_CARD_READY                  = ((uint32_t)0x00000001),  /*!< Card state is ready                     */
-  SD_CARD_IDENTIFICATION         = ((uint32_t)0x00000002),  /*!< Card is in identification state         */
-  SD_CARD_STANDBY                = ((uint32_t)0x00000003),  /*!< Card is in standby state                */
-  SD_CARD_TRANSFER               = ((uint32_t)0x00000004),  /*!< Card is in transfer state               */  
-  SD_CARD_SENDING                = ((uint32_t)0x00000005),  /*!< Card is sending an operation            */
-  SD_CARD_RECEIVING              = ((uint32_t)0x00000006),  /*!< Card is receiving operation information */
-  SD_CARD_PROGRAMMING            = ((uint32_t)0x00000007),  /*!< Card is in programming state            */
-  SD_CARD_DISCONNECTED           = ((uint32_t)0x00000008),  /*!< Card is disconnected                    */
-  SD_CARD_ERROR                  = ((uint32_t)0x000000FF)   /*!< Card is in error state                  */
+  SD_CARD_READY                  = (0x00000001U),  /*!< Card state is ready                     */
+  SD_CARD_IDENTIFICATION         = (0x00000002U),  /*!< Card is in identification state         */
+  SD_CARD_STANDBY                = (0x00000003U),  /*!< Card is in standby state                */
+  SD_CARD_TRANSFER               = (0x00000004U),  /*!< Card is in transfer state               */  
+  SD_CARD_SENDING                = (0x00000005U),  /*!< Card is sending an operation            */
+  SD_CARD_RECEIVING              = (0x00000006U),  /*!< Card is receiving operation information */
+  SD_CARD_PROGRAMMING            = (0x00000007U),  /*!< Card is in programming state            */
+  SD_CARD_DISCONNECTED           = (0x00000008U),  /*!< Card is disconnected                    */
+  SD_CARD_ERROR                  = (0x000000FFU)   /*!< Card is in error state                  */
 
 }HAL_SD_CardStateTypedef;
 /** 
@@ -420,14 +418,14 @@ typedef enum
 /** 
   * @brief Supported SD Memory Cards 
   */
-#define STD_CAPACITY_SD_CARD_V1_1             ((uint32_t)0x00000000)
-#define STD_CAPACITY_SD_CARD_V2_0             ((uint32_t)0x00000001)
-#define HIGH_CAPACITY_SD_CARD                 ((uint32_t)0x00000002)
-#define MULTIMEDIA_CARD                       ((uint32_t)0x00000003)
-#define SECURE_DIGITAL_IO_CARD                ((uint32_t)0x00000004)
-#define HIGH_SPEED_MULTIMEDIA_CARD            ((uint32_t)0x00000005)
-#define SECURE_DIGITAL_IO_COMBO_CARD          ((uint32_t)0x00000006)
-#define HIGH_CAPACITY_MMC_CARD                ((uint32_t)0x00000007)
+#define STD_CAPACITY_SD_CARD_V1_1             (0x00000000U)
+#define STD_CAPACITY_SD_CARD_V2_0             (0x00000001U)
+#define HIGH_CAPACITY_SD_CARD                 (0x00000002U)
+#define MULTIMEDIA_CARD                       (0x00000003U)
+#define SECURE_DIGITAL_IO_CARD                (0x00000004U)
+#define HIGH_SPEED_MULTIMEDIA_CARD            (0x00000005U)
+#define SECURE_DIGITAL_IO_COMBO_CARD          (0x00000006U)
+#define HIGH_CAPACITY_MMC_CARD                (0x00000007U)
 /**
   * @}
   */

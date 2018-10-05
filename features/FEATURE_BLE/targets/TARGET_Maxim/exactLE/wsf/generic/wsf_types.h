@@ -22,42 +22,6 @@
 #ifndef WSF_TYPES_H
 #define WSF_TYPES_H
 
-/**************************************************************************************************
-  Macros
-**************************************************************************************************/
-
-#ifndef NULL
-#define NULL  0
-#endif
-
-#ifndef TRUE
-#define TRUE  1
-#endif
-
-#ifndef FALSE
-#define FALSE 0
-#endif
-
-/**************************************************************************************************
-  Data Types
-**************************************************************************************************/
-
-/* Integer data types */
-#if ((defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L)) && \
-     (__ICC8051__ == 0)) || defined(__CC_ARM) || \
-     (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)) || \
-     defined(__IAR_SYSTEMS_ICC__)
-#include <stdint.h>
-#else
-typedef signed char int8_t;
-typedef unsigned char uint8_t;
-typedef signed short int16_t;
-typedef unsigned short uint16_t;
-typedef signed long int32_t;
-typedef unsigned long uint32_t;
-#endif
-
-/* Boolean data type */
-typedef uint8_t bool_t;
+#include <rtx_core_cm.h>
 
 #endif /* WSF_TYPES_H */

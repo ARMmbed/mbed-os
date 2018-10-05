@@ -1,0 +1,43 @@
+{
+    "config": {
+        "cellular_sim_pin": {
+            "help": "PIN code",
+            "value": "\"1234\""
+        },
+        "apn": {
+            "help": "The APN string to use for this SIM/network, set to 0 if none",
+            "value": 0
+        },
+        "username": {
+            "help": "The user name string to use for this APN, set to zero if none",
+            "value": 0
+        },
+        "password": {
+            "help": "The password string to use for this APN, set to 0 if none",
+            "value": 0
+        },
+        "trace-level": {
+            "help": "Note that excessive trace prints may mess up with Greentea parsing",
+            "macro_name": "MBED_TRACE_MAX_LEVEL",
+            "value": "TRACE_LEVEL_ERROR"
+        }
+    },
+    "target_overrides": {
+        "*": {
+            "ppp-cell-iface.apn-lookup": false,
+            "cellular.use-apn-lookup": false,
+            "target.features_add": ["LWIP"],
+            "mbed-trace.enable": false,
+            "lwip.ipv4-enabled": true,
+            "lwip.ipv6-enabled": true,
+            "lwip.tcp-enabled": false,
+            "lwip.ppp-enabled": true,
+            "lwip.ethernet-enabled": false,
+            "platform.stdio-convert-newlines": true,
+            "platform.default-serial-baud-rate": 115200,
+            "drivers.uart-serial-txbuf-size": 512,
+            "drivers.uart-serial-rxbuf-size": 1024,
+            "cellular.debug-at": false
+        }
+    }
+}

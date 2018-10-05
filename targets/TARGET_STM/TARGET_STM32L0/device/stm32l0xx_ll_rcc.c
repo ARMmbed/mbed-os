@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32l0xx_ll_rcc.c
   * @author  MCD Application Team
-  * @version V1.7.0
-  * @date    31-May-2016
   * @brief   RCC LL module driver.
   ******************************************************************************
   * @attention
@@ -172,7 +170,7 @@ ErrorStatus LL_RCC_DeInit(void)
   /* Set RCC_CR_RTCPRE to 0b00*/
   CLEAR_BIT(vl_mask, RCC_CR_RTCPRE); 
   LL_RCC_WriteReg(CR, vl_mask);
- 
+
   /* Reset CFGR register */
   LL_RCC_WriteReg(CFGR, 0x00000000U);
 

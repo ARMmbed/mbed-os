@@ -2,13 +2,11 @@
   ******************************************************************************
   * @file    stm32l1xx_ll_usart.h
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    01-July-2016
   * @brief   Header file of USART LL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -58,17 +56,7 @@ extern "C" {
 
 /* Private types -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
-
 /* Private constants ---------------------------------------------------------*/
-/** @defgroup USART_LL_Private_Constants USART Private Constants
-  * @{
-  */
-
-/* Defines used for the bit position in the register and perform offsets*/
-#define USART_POSITION_GTPR_GT                  USART_GTPR_GT_Pos
-/**
-  * @}
-  */
 
 /* Private macros ------------------------------------------------------------*/
 #if defined(USE_FULL_LL_DRIVER)
@@ -207,7 +195,7 @@ typedef struct
 /** @defgroup USART_LL_EC_DIRECTION Communication Direction
   * @{
   */
-#define LL_USART_DIRECTION_NONE                 (uint32_t)0x00000000U              /*!< Transmitter and Receiver are disabled */
+#define LL_USART_DIRECTION_NONE                 0x00000000U                        /*!< Transmitter and Receiver are disabled */
 #define LL_USART_DIRECTION_RX                   USART_CR1_RE                       /*!< Transmitter is disabled and Receiver is enabled */
 #define LL_USART_DIRECTION_TX                   USART_CR1_TE                       /*!< Transmitter is enabled and Receiver is disabled */
 #define LL_USART_DIRECTION_TX_RX                (USART_CR1_TE |USART_CR1_RE)       /*!< Transmitter and Receiver are enabled */
@@ -218,7 +206,7 @@ typedef struct
 /** @defgroup USART_LL_EC_PARITY Parity Control
   * @{
   */
-#define LL_USART_PARITY_NONE                    (uint32_t)0x00000000U                /*!< Parity control disabled */
+#define LL_USART_PARITY_NONE                    0x00000000U                          /*!< Parity control disabled */
 #define LL_USART_PARITY_EVEN                    USART_CR1_PCE                        /*!< Parity control enabled and Even Parity is selected */
 #define LL_USART_PARITY_ODD                     (USART_CR1_PCE | USART_CR1_PS)       /*!< Parity control enabled and Odd Parity is selected */
 /**
@@ -228,7 +216,7 @@ typedef struct
 /** @defgroup USART_LL_EC_WAKEUP Wakeup
   * @{
   */
-#define LL_USART_WAKEUP_IDLELINE                (uint32_t)0x00000000U /*!<  USART wake up from Mute mode on Idle Line */
+#define LL_USART_WAKEUP_IDLELINE                0x00000000U           /*!<  USART wake up from Mute mode on Idle Line */
 #define LL_USART_WAKEUP_ADDRESSMARK             USART_CR1_WAKE        /*!<  USART wake up from Mute mode on Address Mark */
 /**
   * @}
@@ -237,7 +225,7 @@ typedef struct
 /** @defgroup USART_LL_EC_DATAWIDTH Datawidth
   * @{
   */
-#define LL_USART_DATAWIDTH_8B                   (uint32_t)0x00000000U   /*!< 8 bits word length : Start bit, 8 data bits, n stop bits */
+#define LL_USART_DATAWIDTH_8B                   0x00000000U             /*!< 8 bits word length : Start bit, 8 data bits, n stop bits */
 #define LL_USART_DATAWIDTH_9B                   USART_CR1_M             /*!< 9 bits word length : Start bit, 9 data bits, n stop bits */
 /**
   * @}
@@ -246,7 +234,7 @@ typedef struct
 /** @defgroup USART_LL_EC_OVERSAMPLING Oversampling
   * @{
   */
-#define LL_USART_OVERSAMPLING_16                (uint32_t)0x00000000U  /*!< Oversampling by 16 */
+#define LL_USART_OVERSAMPLING_16                0x00000000U            /*!< Oversampling by 16 */
 #define LL_USART_OVERSAMPLING_8                 USART_CR1_OVER8        /*!< Oversampling by 8 */
 /**
   * @}
@@ -257,7 +245,7 @@ typedef struct
   * @{
   */
 
-#define LL_USART_CLOCK_DISABLE                  (uint32_t)0x00000000U  /*!< Clock signal not provided */
+#define LL_USART_CLOCK_DISABLE                  0x00000000U            /*!< Clock signal not provided */
 #define LL_USART_CLOCK_ENABLE                   USART_CR2_CLKEN        /*!< Clock signal provided */
 /**
   * @}
@@ -267,7 +255,7 @@ typedef struct
 /** @defgroup USART_LL_EC_LASTCLKPULSE Last Clock Pulse
   * @{
   */
-#define LL_USART_LASTCLKPULSE_NO_OUTPUT         (uint32_t)0x00000000U /*!< The clock pulse of the last data bit is not output to the SCLK pin */
+#define LL_USART_LASTCLKPULSE_NO_OUTPUT         0x00000000U           /*!< The clock pulse of the last data bit is not output to the SCLK pin */
 #define LL_USART_LASTCLKPULSE_OUTPUT            USART_CR2_LBCL        /*!< The clock pulse of the last data bit is output to the SCLK pin */
 /**
   * @}
@@ -276,7 +264,7 @@ typedef struct
 /** @defgroup USART_LL_EC_PHASE Clock Phase
   * @{
   */
-#define LL_USART_PHASE_1EDGE                    (uint32_t)0x00000000U /*!< The first clock transition is the first data capture edge */
+#define LL_USART_PHASE_1EDGE                    0x00000000U           /*!< The first clock transition is the first data capture edge */
 #define LL_USART_PHASE_2EDGE                    USART_CR2_CPHA        /*!< The second clock transition is the first data capture edge */
 /**
   * @}
@@ -285,7 +273,7 @@ typedef struct
 /** @defgroup USART_LL_EC_POLARITY Clock Polarity
   * @{
   */
-#define LL_USART_POLARITY_LOW                   (uint32_t)0x00000000U /*!< Steady low value on SCLK pin outside transmission window*/
+#define LL_USART_POLARITY_LOW                   0x00000000U           /*!< Steady low value on SCLK pin outside transmission window*/
 #define LL_USART_POLARITY_HIGH                  USART_CR2_CPOL        /*!< Steady high value on SCLK pin outside transmission window */
 /**
   * @}
@@ -295,7 +283,7 @@ typedef struct
   * @{
   */
 #define LL_USART_STOPBITS_0_5                   USART_CR2_STOP_0                           /*!< 0.5 stop bit */
-#define LL_USART_STOPBITS_1                     (uint32_t)0x00000000U                      /*!< 1 stop bit */
+#define LL_USART_STOPBITS_1                     0x00000000U                                /*!< 1 stop bit */
 #define LL_USART_STOPBITS_1_5                   (USART_CR2_STOP_0 | USART_CR2_STOP_1)      /*!< 1.5 stop bits */
 #define LL_USART_STOPBITS_2                     USART_CR2_STOP_1                           /*!< 2 stop bits */
 /**
@@ -305,7 +293,7 @@ typedef struct
 /** @defgroup USART_LL_EC_HWCONTROL Hardware Control
   * @{
   */
-#define LL_USART_HWCONTROL_NONE                 (uint32_t)0x00000000U                /*!< CTS and RTS hardware flow control disabled */
+#define LL_USART_HWCONTROL_NONE                 0x00000000U                          /*!< CTS and RTS hardware flow control disabled */
 #define LL_USART_HWCONTROL_RTS                  USART_CR3_RTSE                       /*!< RTS output enabled, data is only requested when there is space in the receive buffer */
 #define LL_USART_HWCONTROL_CTS                  USART_CR3_CTSE                       /*!< CTS mode enabled, data is only transmitted when the nCTS input is asserted (tied to 0) */
 #define LL_USART_HWCONTROL_RTS_CTS              (USART_CR3_RTSE | USART_CR3_CTSE)    /*!< CTS and RTS hardware flow control enabled */
@@ -316,7 +304,7 @@ typedef struct
 /** @defgroup USART_LL_EC_IRDA_POWER IrDA Power
   * @{
   */
-#define LL_USART_IRDA_POWER_NORMAL              (uint32_t)0x00000000U /*!< IrDA normal power mode */
+#define LL_USART_IRDA_POWER_NORMAL              0x00000000U           /*!< IrDA normal power mode */
 #define LL_USART_IRDA_POWER_LOW                 USART_CR3_IRLP        /*!< IrDA low power mode */
 /**
   * @}
@@ -325,7 +313,7 @@ typedef struct
 /** @defgroup USART_LL_EC_LINBREAK_DETECT LIN Break Detection Length
   * @{
   */
-#define LL_USART_LINBREAK_DETECT_10B            (uint32_t)0x00000000U /*!< 10-bit break detection method selected */
+#define LL_USART_LINBREAK_DETECT_10B            0x00000000U           /*!< 10-bit break detection method selected */
 #define LL_USART_LINBREAK_DETECT_11B            USART_CR2_LBDL        /*!< 11-bit break detection method selected */
 /**
   * @}
@@ -1318,7 +1306,7 @@ __STATIC_INLINE uint32_t LL_USART_GetSmartcardPrescaler(USART_TypeDef *USARTx)
   */
 __STATIC_INLINE void LL_USART_SetSmartcardGuardTime(USART_TypeDef *USARTx, uint32_t GuardTime)
 {
-  MODIFY_REG(USARTx->GTPR, USART_GTPR_GT, GuardTime << USART_POSITION_GTPR_GT);
+  MODIFY_REG(USARTx->GTPR, USART_GTPR_GT, GuardTime << USART_GTPR_GT_Pos);
 }
 
 /**
@@ -1332,7 +1320,7 @@ __STATIC_INLINE void LL_USART_SetSmartcardGuardTime(USART_TypeDef *USARTx, uint3
   */
 __STATIC_INLINE uint32_t LL_USART_GetSmartcardGuardTime(USART_TypeDef *USARTx)
 {
-  return (uint32_t)(READ_BIT(USARTx->GTPR, USART_GTPR_GT) >> USART_POSITION_GTPR_GT);
+  return (uint32_t)(READ_BIT(USARTx->GTPR, USART_GTPR_GT) >> USART_GTPR_GT_Pos);
 }
 
 /**

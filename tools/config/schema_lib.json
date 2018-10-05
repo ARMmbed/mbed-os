@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-06/schema#",
+  "title": "Mbed Library Schema",
+  "description": "Configuration file for an mbed library",
+  "type": "object",
+  "properties": {
+    "name": {
+      "$ref": "definitions.json#/name_definition"
+    },
+    "config": {
+      "$ref": "definitions.json#/config_definition"
+    },
+    "target_overrides": {
+      "$ref": "definitions.json#/target_overrides_definition"
+    },
+    "macros": {
+      "$ref": "definitions.json#/macro_definition"
+    }
+  },
+  "required": [
+    "name"
+  ],
+  "additionalProperties": false
+}

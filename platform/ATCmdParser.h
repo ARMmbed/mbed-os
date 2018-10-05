@@ -52,8 +52,7 @@ namespace mbed {
  * @endcode
  */
 
-class ATCmdParser : private NonCopyable<ATCmdParser>
-{
+class ATCmdParser : private NonCopyable<ATCmdParser> {
 private:
     // File handle
     // Not owned by ATCmdParser
@@ -90,8 +89,8 @@ public:
      * @param debug turns on/off debug output for AT commands
      */
     ATCmdParser(FileHandle *fh, const char *output_delimiter = "\r",
-             int buffer_size = 256, int timeout = 8000, bool debug = false)
-            : _fh(fh), _buffer_size(buffer_size), _in_prev(0), _oobs(NULL)
+                int buffer_size = 256, int timeout = 8000, bool debug = false)
+        : _fh(fh), _buffer_size(buffer_size), _in_prev(0), _oobs(NULL)
     {
         _buffer = new char[buffer_size];
         set_timeout(timeout);
@@ -124,6 +123,7 @@ public:
 
     /**
      * For backwards compatibility.
+     * @deprecated Do not use this function. This function has been replaced with set_timeout for consistency.
      *
      * Please use set_timeout(int) API only from now on.
      * Allows timeout to be changed between commands
@@ -149,6 +149,7 @@ public:
 
     /**
      * For backwards compatibility.
+     * @deprecated Do not use this function. This function has been replaced with set_delimiter for consistency.
      *
      * Please use set_delimiter(const char *) API only from now on.
      * Sets string of characters to use as line delimiters
@@ -173,6 +174,7 @@ public:
 
     /**
      * For backwards compatibility.
+     * @deprecated Do not use this function. This function has been replaced with debug_on for consistency.
      *
      * Allows traces from modem to be turned on or off
      *
@@ -195,7 +197,7 @@ public:
      * @param ... all printf-like arguments to insert into command
      * @return true only if command is successfully sent
      */
-    bool send(const char *command, ...) MBED_PRINTF_METHOD(1,2);
+    bool send(const char *command, ...) MBED_PRINTF_METHOD(1, 2);
 
     bool vsend(const char *command, va_list args);
 
@@ -213,7 +215,7 @@ public:
      * @param ... all scanf-like arguments to extract from response
      * @return true only if response is successfully matched
      */
-    bool recv(const char *response, ...) MBED_SCANF_METHOD(1,2);
+    bool recv(const char *response, ...) MBED_SCANF_METHOD(1, 2);
 
     bool vrecv(const char *response, va_list args);
 
@@ -258,7 +260,7 @@ public:
      * @param ... arguments to printf
      * @return number of bytes written or -1 on failure
      */
-    int printf(const char *format, ...) MBED_PRINTF_METHOD(1,2);
+    int printf(const char *format, ...) MBED_PRINTF_METHOD(1, 2);
 
     int vprintf(const char *format, va_list args);
 
@@ -270,7 +272,7 @@ public:
      * @param ... arguments to scanf
      * @return number of bytes read or -1 on failure
      */
-    int scanf(const char *format, ...) MBED_SCANF_METHOD(1,2);
+    int scanf(const char *format, ...) MBED_SCANF_METHOD(1, 2);
 
     int vscanf(const char *format, va_list args);
 
@@ -295,7 +297,7 @@ public:
      * recv operation.
      */
     void abort();
-    
+
     /**
     * Process out-of-band data
     *

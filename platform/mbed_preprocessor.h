@@ -52,6 +52,33 @@
 #define MBED_STRINGIFY(a) MBED_STRINGIFY_(a)
 #define MBED_STRINGIFY_(a) #a
 
+/** MBED_STRLEN
+ *  Reports string token length
+ *
+ *  @note
+ *  Expands tokens before calculating length
+ *
+ *  @code
+ *  // Get string length
+ *  const int len = MBED_STRLEN("Get the length")
+ *  @endcode
+ */
+#define MBED_STRLEN(a) MBED_STRLEN_(a)
+#define MBED_STRLEN_(a) (sizeof(a) - 1)
+
+/** MBED_COUNT_VA_ARGS(...)
+ *  Reports number of tokens passed
+ *
+ *  @note
+ *  Token limit is 16
+ *
+ *  @code
+ *  // Get number of arguments
+ *  const int count = MBED_COUNT_VA_ARGS("Address 0x%x, Data[0] = %d Data[1] = %d", 0x20001234, 10, 20)
+ *  @endcode
+ */
+#define MBED_COUNT_VA_ARGS(...) GET_NTH_ARG_(__VA_ARGS__, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1)
+#define GET_NTH_ARG_(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, N, ...) N
 
 #endif
 

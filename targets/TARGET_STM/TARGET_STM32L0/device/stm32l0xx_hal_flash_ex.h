@@ -2,9 +2,7 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_flash_ex.h
   * @author  MCD Application Team
-  * @version V1.7.0
-  * @date    31-May-2016
-  * @brief   Header file of FLash HAL Extension module.
+  * @brief   Header file of Flash HAL Extended module.
   ******************************************************************************
   * @attention
   *
@@ -50,113 +48,238 @@
   * @{
   */
 
-/** @defgroup FLASHEx FLASHEx
+/** @addtogroup FLASHEx
   * @{
   */ 
+
+/** @addtogroup FLASHEx_Private_Constants
+  * @{
+  */
+#define FLASH_SIZE_DATA_REGISTER   FLASHSIZE_BASE
+
+#define FLASH_NBPAGES_MAX (FLASH_SIZE / FLASH_PAGE_SIZE)
+
+#define WRP_MASK_LOW                 (0x0000FFFFU)
+#define WRP_MASK_HIGH                (0xFFFF0000U)
+
+/**
+  * @}
+  */  
+
+/** @addtogroup FLASHEx_Private_Macros
+  * @{
+  */
+
+#define IS_FLASH_TYPEERASE(__VALUE__)   (((__VALUE__) == FLASH_TYPEERASE_PAGES))
+
+#define IS_OPTIONBYTE(__VALUE__) (((__VALUE__) <= (OPTIONBYTE_WRP  | OPTIONBYTE_RDP | \
+                                                  OPTIONBYTE_USER | OPTIONBYTE_BOR | OPTIONBYTE_BOOT_BIT1)))
+
+#define IS_WRPSTATE(__VALUE__)          (((__VALUE__) == OB_WRPSTATE_DISABLE) || \
+                                         ((__VALUE__) == OB_WRPSTATE_ENABLE))
+                                         
+#define IS_OB_WRP(__PAGE__)             (((__PAGE__) != 0x0000000U))
+
+#define IS_OB_RDP(__LEVEL__)            (((__LEVEL__) == OB_RDP_LEVEL_0) ||\
+                                         ((__LEVEL__) == OB_RDP_LEVEL_1) ||\
+                                         ((__LEVEL__) == OB_RDP_LEVEL_2))
+                                         
+#define IS_OB_BOR_LEVEL(__LEVEL__)      (((__LEVEL__) == OB_BOR_OFF)     || \
+                                         ((__LEVEL__) == OB_BOR_LEVEL1)  || \
+                                         ((__LEVEL__) == OB_BOR_LEVEL2)  || \
+                                         ((__LEVEL__) == OB_BOR_LEVEL3)  || \
+                                         ((__LEVEL__) == OB_BOR_LEVEL4)  || \
+                                         ((__LEVEL__) == OB_BOR_LEVEL5))
+
+#define IS_OB_IWDG_SOURCE(__SOURCE__)   (((__SOURCE__) == OB_IWDG_SW) || ((__SOURCE__) == OB_IWDG_HW))
+
+#define IS_OB_STOP_SOURCE(__SOURCE__)   (((__SOURCE__) == OB_STOP_NORST) || ((__SOURCE__) == OB_STOP_RST))
+
+#define IS_OB_STDBY_SOURCE(__SOURCE__)  (((__SOURCE__) == OB_STDBY_NORST) || ((__SOURCE__) == OB_STDBY_RST))
+
+#if defined(FLASH_OPTR_WPRMOD) && defined(FLASH_OPTR_BFB2)
+    
+#define IS_OBEX(__VALUE__)              (((__VALUE__) == OPTIONBYTE_PCROP) || ((__VALUE__) == OPTIONBYTE_BOOTCONFIG))
+
+#elif defined(FLASH_OPTR_WPRMOD) && !defined(FLASH_OPTR_BFB2)
+
+#define IS_OBEX(__VALUE__)              ((__VALUE__) == OPTIONBYTE_PCROP)
+
+#elif !defined(FLASH_OPTR_WPRMOD) && defined(FLASH_OPTR_BFB2)
+
+#define IS_OBEX(__VALUE__)              ((__VALUE__) == OPTIONBYTE_BOOTCONFIG)
+
+#endif /* FLASH_OPTR_WPRMOD && FLASH_OPTR_BFB2 */
+
+#if defined(FLASH_OPTR_WPRMOD)
+
+#define IS_PCROPSTATE(__VALUE__)        (((__VALUE__) == OB_PCROP_STATE_DISABLE) || \
+                                         ((__VALUE__) == OB_PCROP_STATE_ENABLE))  
+
+#define IS_OB_PCROP(__PAGE__)           (((__PAGE__) != 0x0000000U))
+#endif /* FLASH_OPTR_WPRMOD */
+
+#if defined(FLASH_OPTR_BFB2)
+    
+#define IS_OB_BOOT_BANK(__BANK__)     (((__BANK__) == OB_BOOT_BANK2) || ((__BANK__) == OB_BOOT_BANK1))
+
+#endif /* FLASH_OPTR_BFB2 */
+
+#define IS_OB_BOOT1(__BOOT_BIT1__)  (((__BOOT_BIT1__) == OB_BOOT_BIT1_RESET) || ((__BOOT_BIT1__) == OB_BOOT_BIT1_SET))
+#define IS_TYPEPROGRAMDATA(__VALUE__)   (((__VALUE__) == FLASH_TYPEPROGRAMDATA_BYTE)     || \
+                                         ((__VALUE__) == FLASH_TYPEPROGRAMDATA_HALFWORD) || \
+                                         ((__VALUE__) == FLASH_TYPEPROGRAMDATA_WORD))
+
+
+/** @defgroup FLASHEx_Address FLASHEx Address
+  * @{
+  */
+
+#if defined (STM32L071xx) || defined (STM32L072xx) || defined (STM32L073xx) || defined (STM32L081xx) || defined (STM32L082xx) || defined (STM32L083xx)
+ 
+#define IS_FLASH_DATA_ADDRESS(__ADDRESS__)          (((__ADDRESS__) >= DATA_EEPROM_BASE) && ((__ADDRESS__) <= DATA_EEPROM_BANK2_END))
+#define IS_FLASH_DATA_BANK1_ADDRESS(__ADDRESS__)    (((__ADDRESS__) >= DATA_EEPROM_BASE) && ((__ADDRESS__) <= DATA_EEPROM_BANK1_END))
+#define IS_FLASH_DATA_BANK2_ADDRESS(__ADDRESS__)    (((__ADDRESS__) >= DATA_EEPROM_BANK2_BASE) && ((__ADDRESS__) <= DATA_EEPROM_BANK2_END))
+#define IS_FLASH_PROGRAM_ADDRESS(__ADDRESS__)       (((__ADDRESS__) >= FLASH_BASE)       && ((__ADDRESS__) <  (FLASH_BASE + FLASH_SIZE)))
+#define IS_FLASH_PROGRAM_BANK1_ADDRESS(__ADDRESS__) (((__ADDRESS__) >= FLASH_BASE)       && ((__ADDRESS__) <  (FLASH_BASE + (FLASH_SIZE >> 1))))
+#define IS_FLASH_PROGRAM_BANK2_ADDRESS(__ADDRESS__) (((__ADDRESS__) >= FLASH_BANK2_BASE) && ((__ADDRESS__) <  (FLASH_BASE + FLASH_SIZE)))
+#else
+#define IS_FLASH_DATA_ADDRESS(__ADDRESS__)          (((__ADDRESS__) >= DATA_EEPROM_BASE) && ((__ADDRESS__) <= DATA_EEPROM_END))
+#define IS_FLASH_PROGRAM_ADDRESS(__ADDRESS__)       (((__ADDRESS__) >= FLASH_BASE)       && ((__ADDRESS__) <  (FLASH_BASE + FLASH_SIZE)))
+#endif
+
+#define IS_NBPAGES(__PAGES__) (((__PAGES__) >= 1) && ((__PAGES__) <= FLASH_NBPAGES_MAX)) 
+
+/**
+  * @}
+  */ 
+
+/**
+  * @}
+  */  
+/* Exported types ------------------------------------------------------------*/ 
 
 /** @defgroup FLASHEx_Exported_Types FLASHEx Exported Types
   * @{
   */  
 
 /**
+  * @brief  FLASH Erase structure definition
+  */
+typedef struct
+{
+  uint32_t TypeErase;   /*!< TypeErase: Page Erase only.
+                             This parameter can be a value of @ref FLASHEx_Type_Erase */
+
+  uint32_t PageAddress; /*!< PageAddress: Initial FLASH address to be erased
+                             This parameter must be a value belonging to FLASH Programm address (depending on the devices)  */
+  
+  uint32_t NbPages;     /*!< NbPages: Number of pages to be erased.
+                             This parameter must be a value between 1 and (max number of pages - value of Initial page)*/
+  
+} FLASH_EraseInitTypeDef;
+
+/**
   * @brief  FLASH Option Bytes PROGRAM structure definition
   */
 typedef struct
 {
-  uint32_t OptionType;  /*!< OptionType: Option byte to be configured.
-                             This parameter can be a value of @ref FLASHEx_Option_Type */
+  uint32_t  OptionType;       /*!< OptionType: Option byte to be configured.
+                                   This parameter can be a value of @ref FLASHEx_Option_Type */
 
-  uint32_t WRPState;    /*!< WRPState: Write protection activation or deactivation.
-                             This parameter can be a value of @ref FLASHEx_WRP_State */
+  uint32_t  WRPState;         /*!< WRPState: Write protection activation or deactivation.
+                                   This parameter can be a value of @ref FLASHEx_WRP_State */
 
-  uint32_t WRPSector;   /*!< WRPSector: This bitfield specifies the sector (s) which are write protected.
-                             This parameter can be a combination of @ref FLASHEx_Option_Bytes_Write_Protection */
+  uint32_t WRPSector;         /*!< WRPSector: This bitfield specifies the sector (s) which are write protected.
+                                   This parameter can be a combination of @ref FLASHEx_Option_Bytes_Write_Protection */
 
 #if defined(STM32L071xx) || defined(STM32L072xx) || defined(STM32L073xx) || defined(STM32L081xx) || defined(STM32L082xx) || defined(STM32L083xx)  
-  uint32_t WRPSector2;  /*!< WRPSector2 : This bitfield specifies the sector(s) upper Sector31 which are write protected.
-                             This parameter can be a combination of @ref FLASHEx_Option_Bytes_Write_Protection2 */
+  uint32_t WRPSector2;        /*!< WRPSector2 : This bitfield specifies the sector(s) upper Sector31 which are write protected.
+                                   This parameter can be a combination of @ref FLASHEx_Option_Bytes_Write_Protection2 */
 #endif
 
-  uint8_t RDPLevel;     /*!< RDPLevel: Set the read protection level.
-                             This parameter can be a value of @ref FLASHEx_Option_Bytes_Read_Protection */
+  uint8_t   RDPLevel;         /*!< RDPLevel: Set the read protection level.
+                                   This parameter can be a value of @ref FLASHEx_Option_Bytes_Read_Protection */
 
-  uint8_t BORLevel;     /*!< BORLevel: Set the BOR Level.
-                             This parameter can be a value of @ref FLASHEx_Option_Bytes_BOR_Level */
+  uint8_t   BORLevel;         /*!< BORLevel: Set the BOR Level.
+                                   This parameter can be a value of @ref FLASHEx_Option_Bytes_BOR_Level */
+                                
+  uint8_t   USERConfig;       /*!< USERConfig: Program the FLASH User Option Byte: IWDG_SW / RST_STOP / RST_STDBY.
+                                   This parameter can be a combination of @ref FLASHEx_Option_Bytes_IWatchdog, 
+                                   @ref FLASHEx_Option_Bytes_nRST_STOP and @ref FLASHEx_Option_Bytes_nRST_STDBY*/
 
-  uint8_t USERConfig;   /*!< USERConfig: Program the FLASH User Option Byte: IWDG_SW / RST_STOP / RST_STDBY.
-                             This parameter can be a combination of @ref FLASHEx_Option_Bytes_IWatchdog, 
-                             @ref FLASHEx_Option_Bytes_nRST_STOP and @ref FLASHEx_Option_Bytes_nRST_STDBY */
-                              
-  uint8_t BOOTBit1Config; /*!< BOOT1Config: Together with input pad Boot0, this bit selects the boot source, flash, ram or system memory
-                               This parameter can be a value of @ref FLASHEx_Option_Bytes_BOOTBit1 */
-                              
+  uint8_t BOOTBit1Config;     /*!< BOOT1Config: Together with input pad Boot0, this bit selects the boot source, flash, ram or system memory
+                                   This parameter can be a value of @ref FLASHEx_Option_Bytes_BOOTBit1 */
 } FLASH_OBProgramInitTypeDef;
 
+#if defined(FLASH_OPTR_WPRMOD) || defined(FLASH_OPTR_BFB2)
 /**
   * @brief  FLASH Advanced Option Bytes Program structure definition
   */
 typedef struct
 {
-  uint32_t OptionType;         /*!< OptionType: Option byte to be configured for extension .
-                                    This parameter can be a value of @ref FLASHEx_OptionAdv_Type */
-                               
-  uint8_t PCROPState;          /*!< PCROPState: PCROP activation or deactivation.
-                                    This parameter can be a value of @ref FLASHEx_PCROP_State */
- 
+  uint32_t OptionType;          /*!< OptionType: Option byte to be configured for extension .
+                                     This parameter can be a value of @ref FLASHEx_OptionAdv_Type */
+
+#if defined(FLASH_OPTR_WPRMOD)
+  uint32_t PCROPState;          /*!< PCROPState: PCROP activation or deactivation.
+                                     This parameter can be a value of @ref FLASHEx_PCROP_State */
+
   uint32_t PCROPSector;        /*!< PCROPSector : This bitfield specifies the sector(s) which are read/write protected.
                                     This parameter can be a combination of @ref FLASHEx_Option_Bytes_PC_ReadWrite_Protection */
 
 #if defined (STM32L071xx) || defined (STM32L072xx) || defined (STM32L073xx) || defined (STM32L081xx) || defined (STM32L082xx) || defined (STM32L083xx)
   uint32_t PCROPSector2;       /*!< PCROPSector : This bitfield specifies the sector(s) upper Sector31 which are read/write protected.
                                     This parameter can be a combination of @ref FLASHEx_Option_Bytes_PC_ReadWrite_Protection2 */
-
-  uint8_t  BootConfig;         /*!< BootConfig: specifies Option bytes for boot config.
-                                    This parameter can be a value of @ref FLASHEx_Option_Bytes_BOOT_BANK */
-#endif /* if STM32L071xx || STM32L072xx || STM32L073xx || STM32L081xx || STM32L082xx || STM32L083xx */
+#endif /* STM32L071xx || STM32L072xx || STM32L073xx || STM32L081xx || STM32L082xx || STM32L083xx */
+#endif /* FLASH_OPTR_WPRMOD */
+ 
+#if defined(FLASH_OPTR_BFB2)
+  uint16_t BootConfig;          /*!< BootConfig: specifies Option bytes for boot config
+                                     This parameter can be a value of @ref FLASHEx_Option_Bytes_BOOT */
+#endif /* FLASH_OPTR_BFB2*/
 } FLASH_AdvOBProgramInitTypeDef;
 
 /**
   * @}
-  */ 
+  */
+#endif /* FLASH_OPTR_WPRMOD || FLASH_OPTR_BFB2 */
+
+/* Exported constants --------------------------------------------------------*/
+
 
 /** @defgroup FLASHEx_Exported_Constants FLASHEx Exported Constants
   * @{
   */  
 
-/** @defgroup FLASHEx_Type_Erase FLASH Type Erase
+/** @defgroup FLASHEx_Type_Erase FLASHEx_Type_Erase
   * @{
-  */  
-#define FLASH_TYPEERASE_PAGES       ((uint32_t)0x00U)  /*!< Page erase only */
+  */
+#define FLASH_TYPEERASE_PAGES           ((uint32_t)0x00U)  /*!<Page erase only*/
+
 /**
   * @}
   */
 
-/** @defgroup FLASHEx_Option_Type FLASH Option Type
+/** @defgroup FLASHEx_Option_Type FLASHEx Option Type
   * @{
   */
-#define OPTIONBYTE_WRP        ((uint32_t)0x01U)  /*!< WRP option byte configuration */
-#define OPTIONBYTE_RDP        ((uint32_t)0x02U)  /*!< RDP option byte configuration */
-#define OPTIONBYTE_USER       ((uint32_t)0x04U)  /*!< USER option byte configuration */
-#define OPTIONBYTE_BOR        ((uint32_t)0x08U)  /*!< BOR option byte configuration */
-#define OPTIONBYTE_BOOT_BIT1  ((uint32_t)0x10U)  /*!< BOOT PIN1 option byte configuration*/
+#define OPTIONBYTE_WRP            ((uint32_t)0x01U)  /*!<WRP option byte configuration*/
+#define OPTIONBYTE_RDP            ((uint32_t)0x02U)  /*!<RDP option byte configuration*/
+#define OPTIONBYTE_USER           ((uint32_t)0x04U)  /*!<USER option byte configuration*/
+#define OPTIONBYTE_BOR            ((uint32_t)0x08U)  /*!<BOR option byte configuration*/
+#define OPTIONBYTE_BOOT_BIT1      ((uint32_t)0x10U)  /*!< BOOT PIN1 option byte configuration*/
+
 /**
   * @}
   */
 
-/** @defgroup FLASHEx_WRP_State FLASH WRP State
+/** @defgroup FLASHEx_WRP_State FLASHEx WRP State
   * @{
   */
-#define OB_WRPSTATE_DISABLE      ((uint32_t)0x00U)  /*!< Disable the write protection of the desired sectors */
-#define OB_WRPSTATE_ENABLE       ((uint32_t)0x01U)  /*!< Enable the write protection of the desired sectors */
-/**
-  * @}
-  */
+#define OB_WRPSTATE_DISABLE        ((uint32_t)0x00U)  /*!<Disable the write protection of the desired sectors*/
+#define OB_WRPSTATE_ENABLE         ((uint32_t)0x01U)  /*!<Enable the write protection of the desired sectors*/
 
-/** @defgroup FLASHEx_Option_Bytes_ReadWrite_Mask FLASH Option Bytes Write Mask
-  * @{
-  */ 
-#define WRP_MASK_LOW          ((uint32_t)0x0000FFFFU)
-#define WRP_MASK_HIGH         ((uint32_t)0xFFFF0000U)
 /**
   * @}
   */
@@ -266,38 +389,43 @@ typedef struct
 /**
   * @}
   */
-#endif /* STM32L071xx || STM32L072xx || (STM32L073xx) || (STM32L081xx) || (STM32L082xx) || (STM32L083xx) */ 
+#endif /* STM32L071xx || STM32L072xx || (STM32L073xx) || (STM32L081xx) || (STM32L082xx) || (STM32L083xx) */
 
-/** @defgroup FLASHEx_Option_Bytes_Read_Protection FLASH Option Bytes Read Protection
+/** @defgroup FLASHEx_Option_Bytes_Read_Protection FLASHEx Option Bytes Read Protection
   * @{
   */ 
 #define OB_RDP_LEVEL_0         ((uint8_t)0xAAU)
 #define OB_RDP_LEVEL_1         ((uint8_t)0xBBU)
 #define OB_RDP_LEVEL_2         ((uint8_t)0xCCU) /* Warning: When enabling read protection level 2 
                                                 it is no more possible to go back to level 1 or 0 */
+
 /**
   * @}
   */ 
 
-/** @defgroup FLASHEx_Option_Bytes_BOR_Level FLASH Option Bytes BOR Level
+/** @defgroup FLASHEx_Option_Bytes_BOR_Level FLASHEx Option Bytes BOR Level
   * @{
   */
-#define OB_BOR_OFF            ((uint8_t)0x00U) /*!< BOR is disabled at power down, the reset is asserted when the VDD 
+
+#define OB_BOR_OFF       ((uint8_t)0x00U) /*!< BOR is disabled at power down, the reset is asserted when the VDD 
                                               power supply reaches the PDR(Power Down Reset) threshold (1.5V) */
-#define OB_BOR_LEVEL1         ((uint8_t)0x08U) /*!< BOR Reset threshold levels for 1.7V - 1.8V VDD power supply    */
-#define OB_BOR_LEVEL2         ((uint8_t)0x09U) /*!< BOR Reset threshold levels for 1.9V - 2.0V VDD power supply    */
-#define OB_BOR_LEVEL3         ((uint8_t)0x0AU) /*!< BOR Reset threshold levels for 2.3V - 2.4V VDD power supply    */
-#define OB_BOR_LEVEL4         ((uint8_t)0x0BU) /*!< BOR Reset threshold levels for 2.55V - 2.65V VDD power supply  */
-#define OB_BOR_LEVEL5         ((uint8_t)0x0CU) /*!< BOR Reset threshold levels for 2.8V - 2.9V VDD power supply    */
+#define OB_BOR_LEVEL1    ((uint8_t)0x08U) /*!< BOR Reset threshold levels for 1.7V - 1.8V VDD power supply    */
+#define OB_BOR_LEVEL2    ((uint8_t)0x09U) /*!< BOR Reset threshold levels for 1.9V - 2.0V VDD power supply    */
+#define OB_BOR_LEVEL3    ((uint8_t)0x0AU) /*!< BOR Reset threshold levels for 2.3V - 2.4V VDD power supply    */
+#define OB_BOR_LEVEL4    ((uint8_t)0x0BU) /*!< BOR Reset threshold levels for 2.55V - 2.65V VDD power supply  */
+#define OB_BOR_LEVEL5    ((uint8_t)0x0CU) /*!< BOR Reset threshold levels for 2.8V - 2.9V VDD power supply    */
+
 /**
   * @}
   */
-
-/** @defgroup FLASHEx_Option_Bytes_IWatchdog FLASH Option Bytes IWatchdog
+  
+/** @defgroup FLASHEx_Option_Bytes_IWatchdog FLASHEx Option Bytes IWatchdog
   * @{
   */
-#define OB_IWDG_SW            ((uint8_t)0x10U)  /*!< Software WDG selected */
-#define OB_IWDG_HW            ((uint8_t)0x00U)  /*!< Hardware WDG selected */
+
+#define OB_IWDG_SW                     ((uint8_t)0x10U)  /*!< Software WDG selected */
+#define OB_IWDG_HW                     ((uint8_t)0x00U)  /*!< Hardware WDG selected */
+
 /**
   * @}
   */
@@ -305,44 +433,74 @@ typedef struct
 /** @defgroup FLASHEx_Option_Bytes_nRST_STOP FLASHEx Option Bytes nRST_STOP
   * @{
   */
-#define OB_STOP_NORST         ((uint8_t)0x20U) /*!< No reset generated when entering in STOP */
-#define OB_STOP_RST           ((uint8_t)0x00U) /*!< Reset generated when entering in STOP */
+
+#define OB_STOP_NORST                  ((uint8_t)0x20U) /*!< No reset generated when entering in STOP */
+#define OB_STOP_RST                    ((uint8_t)0x00U) /*!< Reset generated when entering in STOP */
 /**
   * @}
   */
 
-/** @defgroup FLASHEx_Option_Bytes_nRST_STDBY FLASH Option Bytes nRST_STDBY
+/** @defgroup FLASHEx_Option_Bytes_nRST_STDBY FLASHEx Option Bytes nRST_STDBY
   * @{
   */
-#define OB_STDBY_NORST        ((uint8_t)0x40U) /*!< No reset generated when entering in STANDBY */
-#define OB_STDBY_RST          ((uint8_t)0x00U) /*!< Reset generated when entering in STANDBY */
+
+#define OB_STDBY_NORST                 ((uint8_t)0x40U) /*!< No reset generated when entering in STANDBY */
+#define OB_STDBY_RST                   ((uint8_t)0x00U) /*!< Reset generated when entering in STANDBY */
+
 /**
   * @}
   */
 
-
-/** @defgroup FLASHEx_PCROP_State FLASH PCROP State
-  * @{
-  */ 
-#define OB_PCROP_STATE_DISABLE    ((uint8_t)0x00U)  /*!< Disable PCROP */
-#define OB_PCROP_STATE_ENABLE     ((uint8_t)0x01U)  /*!< Enable PCROP */
-/**
-  * @}
-  */
-
-
-/** @defgroup FLASHEx_OptionAdv_Type FLASH Option Byte
+#if defined(FLASH_OPTR_WPRMOD)
+    
+/** @defgroup FLASHEx_OptionAdv_Type FLASHEx Option Advanced Type
   * @{
   */ 
-#if defined (STM32L071xx) || defined (STM32L072xx) || defined (STM32L073xx) || defined (STM32L081xx) || defined (STM32L082xx) || defined (STM32L083xx)
-#define OPTIONBYTE_PCROP            ((uint32_t)0x01U)  /*!< PCROP option byte configuration*/
-#define OPTIONBYTE_BOOTCONFIG       ((uint32_t)0x02U)  /*!< BOOTConfig option byte configuration, boot from bank 2*/
-#else /* if STM32L071xx || STM32L072xx || STM32L073xx || STM32L081xx || STM32L082xx || STM32L083xx */
-#define OPTIONBYTE_PCROP            ((uint32_t)0x01U)  /*!< PCROP option byte configuration*/
-#endif /* if STM32L071xx || STM32L072xx || STM32L073xx || STM32L081xx || STM32L082xx || STM32L083xx */
+  
+#define OPTIONBYTE_PCROP        ((uint32_t)0x01U)  /*!<PCROP option byte configuration*/
+
 /**
   * @}
   */
+
+#endif /* FLASH_OPTR_WPRMOD */
+
+#if defined(FLASH_OPTR_BFB2)
+
+/** @defgroup FLASHEx_OptionAdv_Type FLASHEx Option Advanced Type
+  * @{
+  */ 
+  
+#define OPTIONBYTE_BOOTCONFIG   ((uint32_t)0x02U)  /*!<BOOTConfig option byte configuration*/
+
+/**
+  * @}
+  */
+
+#endif /* FLASH_OPTR_BFB2 */
+
+#if defined(FLASH_OPTR_WPRMOD)
+
+/** @defgroup  FLASHEx_PCROP_State FLASHEx PCROP State
+  * @{
+  */
+#define OB_PCROP_STATE_DISABLE        ((uint32_t)0x00U)  /*!<Disable PCROP for selected sectors */
+#define OB_PCROP_STATE_ENABLE         ((uint32_t)0x01U)  /*!<Enable PCROP for selected sectors */
+    
+/**
+  * @}
+  */
+
+/** @defgroup  FLASHEx_Selection_Protection_Mode FLASHEx Selection Protection Mode
+  * @{
+  */
+#define OB_PCROP_DESELECTED     ((uint16_t)0x0000U)            /*!< Disabled PCROP, nWPRi bits used for Write Protection on sector i */
+#define OB_PCROP_SELECTED       ((uint16_t)FLASH_OPTR_WPRMOD)  /*!< Enable PCROP, nWPRi bits used for PCRoP Protection on sector i   */
+
+/**
+  * @}
+  */
+#endif /* FLASH_OPTR_WPRMOD */
 
 #if defined (STM32L011xx) || defined (STM32L021xx) ||  defined (STM32L031xx) || defined (STM32L041xx) 
 /** @defgroup FLASHEx_Option_Bytes_PC_ReadWrite_Protection FLASHEx Option Bytes PC Read/Write Protection
@@ -450,8 +608,8 @@ typedef struct
 /**
   * @}
   */
-#endif /* if STM32L071xx || STM32L072xx || STM32L073xx || STM32L081xx || STM32L082xx || STM32L083xx */
-  
+#endif /* STM32L071xx || STM32L072xx || STM32L073xx || STM32L081xx || STM32L082xx || STM32L083xx */
+
 /** @defgroup FLASHEx_Option_Bytes_BOOTBit1 FLASH Option Bytes BOOT Bit1 Setup
   * @{
   */
@@ -461,97 +619,110 @@ typedef struct
   * @}
   */
 
-#if defined (STM32L071xx) || defined (STM32L072xx) || defined (STM32L073xx) || defined (STM32L081xx) || defined (STM32L082xx) || defined (STM32L083xx)
-/** @defgroup FLASHEx_Option_Bytes_BOOT_BANK FLASH Option Bytes BOOT BANK
+/** @defgroup FLASHEx_Type_Program_Data FLASHEx Type Program Data
   * @{
   */
+#define FLASH_TYPEPROGRAMDATA_BYTE            ((uint32_t)0x00U)  /*!<Program byte (8-bit) at a specified address.*/
+#define FLASH_TYPEPROGRAMDATA_HALFWORD        ((uint32_t)0x01U)  /*!<Program a half-word (16-bit) at a specified address.*/
+#define FLASH_TYPEPROGRAMDATA_WORD            ((uint32_t)0x02U)  /*!<Program a word (32-bit) at a specified address.*/
+
+/**
+  * @}
+  */
+
+#if defined(FLASH_OPTR_BFB2)
+    
+/** @defgroup FLASHEx_Option_Bytes_BOOT FLASHEx Option Bytes BOOT
+  * @{
+  */
+
 #define OB_BOOT_BANK1                 ((uint8_t)0x00U) /*!<  At startup, if boot pin 0 and BOOT1 bit are set in boot from user Flash position
                                                             and this parameter is selected the device will boot from Bank 1 (Default)*/
-#define OB_BOOT_BANK2                 (uint8_t)(0x01U) /*!< At startup, if boot pin 0 and BOOT1 bit are set in boot from user Flash position
+#define OB_BOOT_BANK2                 ((uint8_t)(FLASH_OPTR_BFB2 >> 16)) /*!< At startup, if boot pin 0 and BOOT1 bit are set in boot from user Flash position
                                                             and this parameter is selected the device will boot from Bank 2 */
+
 /**
   * @}
   */
-#endif /* if STM32L071xx || STM32L072xx || STM32L073xx || STM32L081xx || STM32L082xx || STM32L083xx */
+#endif /* FLASH_OPTR_BFB2 */
 
-/** @defgroup FLASHEx_Type_Program_Data FLASH Type Program Data
-  * @{
-  */
-#define FLASH_TYPEPROGRAMDATA_BYTE            ((uint32_t)0x00U)  /*!< Program byte (8-bit) at a specified address.*/
-#define FLASH_TYPEPROGRAMDATA_HALFWORD        ((uint32_t)0x01U)  /*!< Program a half-word (16-bit) at a specified address.*/
-#define FLASH_TYPEPROGRAMDATA_WORD            ((uint32_t)0x02U)  /*!< Program a word (32-bit) at a specified address.*/
-
-/* Aliases for compatibility with the V1.0.0 package */
-#define FLASH_TYPEPROGRAM_BYTE           FLASH_TYPEPROGRAMDATA_BYTE
-#define FLASH_TYPEPROGRAM_HALFWORD       FLASH_TYPEPROGRAMDATA_HALFWORD
 /**
   * @}
   */
 
-/** @defgroup FLASHEx_Address FLASHEx Address
-  * @{
-  */
-#define FLASH_NBPAGES_MAX (FLASH_SIZE / FLASH_PAGE_SIZE)
-/**
-  * @}
-  */ 
-    
-/**
-  * @}
-  */
+/* Exported macro ------------------------------------------------------------*/
 
-/** @defgroup FLASHEx_Exported_Macros FLASHEx Exported Macros 
- *  @brief 
+/** @defgroup FLASHEx_Exported_Macros FLASHEx Exported Macros
  *  @{
  */
  
 /**
   * @brief  Set the FLASH Latency.
-  * @param  __LATENCY__: FLASH Latency                   
-  *         This parameter can be one of the following values:
-  *           @arg FLASH_LATENCY_0:  FLASH Zero Latency cycle
-  *           @arg FLASH_LATENCY_1:  FLASH One Latency cycle
+  * @param  __LATENCY__ FLASH Latency
+  *          This parameter can be one of the following values:
+  *            @arg @ref FLASH_LATENCY_0  FLASH Zero Latency cycle
+  *            @arg @ref FLASH_LATENCY_1  FLASH One Latency cycle
   * @retval none
   */ 
 #define __HAL_FLASH_SET_LATENCY(__LATENCY__) \
                   MODIFY_REG(FLASH->ACR, FLASH_ACR_LATENCY, (uint32_t)(__LATENCY__))
 
 /**
-  * @brief Get the FLASH Latency.
-  * @retval FLASH Latency 
-  * This parameter can be one of the following values:
-  * @arg FLASH_LATENCY_0: FLASH Zero Latency cycle
-  * @arg FLASH_LATENCY_1: FLASH One Latency cycle
-*/ 
-#define __HAL_FLASH_GET_LATENCY() (READ_BIT((FLASH->ACR), FLASH_ACR_LATENCY))
+  * @brief  Get the FLASH Latency.
+  * @retval FLASH Latency                   
+  *          This parameter can be one of the following values:
+  *            @arg @ref FLASH_LATENCY_0  FLASH Zero Latency cycle
+  *            @arg @ref FLASH_LATENCY_1  FLASH One Latency cycle
+  */ 
+#define __HAL_FLASH_GET_LATENCY()     (READ_BIT((FLASH->ACR), FLASH_ACR_LATENCY))
 
 /**
-  * @brief  Enable/Disable the FLASH prefetch buffer.
+  * @brief  Enable the FLASH prefetch buffer.
   * @retval none
   */ 
-#define __HAL_FLASH_PREFETCH_BUFFER_ENABLE()  SET_BIT((FLASH->ACR), FLASH_ACR_PRFTEN)
-#define __HAL_FLASH_PREFETCH_BUFFER_DISABLE()   CLEAR_BIT((FLASH->ACR), FLASH_ACR_PRFTEN)
+#define __HAL_FLASH_PREFETCH_BUFFER_ENABLE()      SET_BIT((FLASH->ACR), FLASH_ACR_PRFTEN)
 
 /**
-  * @brief  Enable/Disable the FLASH Buffer cache.
+  * @brief  Disable the FLASH prefetch buffer.
   * @retval none
   */ 
-#define __HAL_FLASH_BUFFER_CACHE_ENABLE()      SET_BIT((FLASH->ACR), FLASH_ACR_DISAB_BUF)
-#define __HAL_FLASH_BUFFER_CACHE_DISABLE()   CLEAR_BIT((FLASH->ACR), FLASH_ACR_DISAB_BUF)
+#define __HAL_FLASH_PREFETCH_BUFFER_DISABLE()     CLEAR_BIT((FLASH->ACR), FLASH_ACR_PRFTEN)
 
 /**
-  * @brief  Enable/Disable the FLASH preread buffer.
+  * @brief  Enable the FLASH Buffer cache.
   * @retval none
   */ 
-#define __HAL_FLASH_PREREAD_BUFFER_ENABLE()      SET_BIT((FLASH->ACR), FLASH_ACR_PRE_READ)
-#define __HAL_FLASH_PREREAD_BUFFER_DISABLE()   CLEAR_BIT((FLASH->ACR), FLASH_ACR_PRE_READ)
+#define __HAL_FLASH_BUFFER_CACHE_ENABLE()         SET_BIT((FLASH->ACR), FLASH_ACR_DISAB_BUF)
 
 /**
-  * @brief  Enable/Disable the FLASH power down during Sleep mode.
+  * @brief  Disable the FLASH Buffer cache.
   * @retval none
   */ 
-#define __HAL_FLASH_SLEEP_POWERDOWN_ENABLE()     SET_BIT(FLASH->ACR, FLASH_ACR_SLEEP_PD)
-#define __HAL_FLASH_SLEEP_POWERDOWN_DISABLE()  CLEAR_BIT(FLASH->ACR, FLASH_ACR_SLEEP_PD)
+#define __HAL_FLASH_BUFFER_CACHE_DISABLE()        CLEAR_BIT((FLASH->ACR), FLASH_ACR_DISAB_BUF)
+
+/**
+  * @brief  Enable the FLASH preread buffer.
+  * @retval none
+  */ 
+#define __HAL_FLASH_PREREAD_BUFFER_ENABLE()       SET_BIT((FLASH->ACR), FLASH_ACR_PRE_READ)
+
+/**
+  * @brief  Disable the FLASH preread buffer.
+  * @retval none
+  */ 
+#define __HAL_FLASH_PREREAD_BUFFER_DISABLE()      CLEAR_BIT((FLASH->ACR), FLASH_ACR_PRE_READ)
+
+/**
+  * @brief  Enable the FLASH power down during Sleep mode
+  * @retval none
+  */ 
+#define __HAL_FLASH_SLEEP_POWERDOWN_ENABLE()      SET_BIT(FLASH->ACR, FLASH_ACR_SLEEP_PD)
+
+/**
+  * @brief  Disable the FLASH power down during Sleep mode
+  * @retval none
+  */ 
+#define __HAL_FLASH_SLEEP_POWERDOWN_DISABLE()     CLEAR_BIT(FLASH->ACR, FLASH_ACR_SLEEP_PD)
 
 /**
   * @brief  Enable the Flash Run power down mode.
@@ -565,49 +736,67 @@ typedef struct
 
 /**
   * @brief  Disable the Flash Run power down mode.
-  * @note   Writing this bit  to 0 this bit, automatically the keys are
+  * @note   Writing this bit to 0 this bit, automatically the keys are
   *         loss and a new unlock sequence is necessary to re-write it to 1.
   */
 #define __HAL_FLASH_POWER_DOWN_DISABLE() do { FLASH->PDKEYR = FLASH_PDKEY1;    \
                                               FLASH->PDKEYR = FLASH_PDKEY2;    \
-                                              CLEAR_BIT((FLASH->ACR), FLASH_ACR_RUN_PD);  \
+                                             CLEAR_BIT((FLASH->ACR), FLASH_ACR_RUN_PD);  \
                                             } while (0)
                                             
 /**
   * @}
   */
 
-/** @defgroup FLASHEx_Exported_Functions FLASHEx Exported Functions
+/* Exported functions --------------------------------------------------------*/
+
+/** @addtogroup FLASHEx_Exported_Functions
   * @{
   */
 
-/** @defgroup FLASHEx_Exported_Functions_Group1 FLASH Memory Erasing functions
+/** @addtogroup FLASHEx_Exported_Functions_Group1
   * @{
   */
+
 HAL_StatusTypeDef HAL_FLASHEx_Erase(FLASH_EraseInitTypeDef *pEraseInit, uint32_t *PageError);
 HAL_StatusTypeDef HAL_FLASHEx_Erase_IT(FLASH_EraseInitTypeDef *pEraseInit);
+
 /**
   * @}
   */
 
-/** @defgroup FLASHEx_Exported_Functions_Group2 Option Bytes Programming functions
+/** @addtogroup FLASHEx_Exported_Functions_Group2
   * @{
   */
+
 HAL_StatusTypeDef HAL_FLASHEx_OBProgram(FLASH_OBProgramInitTypeDef *pOBInit);
 void              HAL_FLASHEx_OBGetConfig(FLASH_OBProgramInitTypeDef *pOBInit);
+
+#if defined(FLASH_OPTR_WPRMOD) || defined(FLASH_OPTR_BFB2)
+    
 HAL_StatusTypeDef HAL_FLASHEx_AdvOBProgram (FLASH_AdvOBProgramInitTypeDef *pAdvOBInit);
 void              HAL_FLASHEx_AdvOBGetConfig(FLASH_AdvOBProgramInitTypeDef *pAdvOBInit);
+
+#endif /* FLASH_OPTR_WPRMOD || FLASH_OPTR_BFB2 */
+
+#if defined(FLASH_OPTR_WPRMOD)
+
 HAL_StatusTypeDef HAL_FLASHEx_OB_SelectPCROP(void);
 HAL_StatusTypeDef HAL_FLASHEx_OB_DeSelectPCROP(void);
+
+#endif /* FLASH_OPTR_WPRMOD */
+
 /**
   * @}
   */
 
-/** @defgroup FLASHEx_Exported_Functions_Group3 DATA EEPROM Programming functions
+/** @addtogroup FLASHEx_Exported_Functions_Group3
   * @{
   */
+
 HAL_StatusTypeDef HAL_FLASHEx_DATAEEPROM_Unlock(void);
 HAL_StatusTypeDef HAL_FLASHEx_DATAEEPROM_Lock(void);
+
 HAL_StatusTypeDef HAL_FLASHEx_DATAEEPROM_Erase(uint32_t Address);
 HAL_StatusTypeDef HAL_FLASHEx_DATAEEPROM_Program(uint32_t TypeProgram, uint32_t Address, uint32_t Data);
 void              HAL_FLASHEx_DATAEEPROM_EnableFixedTimeProgram(void);
@@ -620,77 +809,6 @@ void              HAL_FLASHEx_DATAEEPROM_DisableFixedTimeProgram(void);
 /**
   * @}
   */ 
-  
-/** @addtogroup FLASHEx_Private
-  * @{
-  */
-#define IS_FLASH_TYPEERASE(__VALUE__)  (((__VALUE__) == FLASH_TYPEERASE_PAGES))
-
-#define IS_OPTIONBYTE(__VALUE__) (((__VALUE__) <= (OPTIONBYTE_WRP  | OPTIONBYTE_RDP | \
-                                                  OPTIONBYTE_USER | OPTIONBYTE_BOR | OPTIONBYTE_BOOT_BIT1)))
-
-#define IS_WRPSTATE(__VALUE__)   (((__VALUE__) == OB_WRPSTATE_DISABLE) || \
-                                  ((__VALUE__) == OB_WRPSTATE_ENABLE))
-
-#define IS_OB_WRP(PAGE) (((PAGE) != 0x0000000U))
-
-#define IS_OB_RDP(__LEVEL__) (((__LEVEL__) == OB_RDP_LEVEL_0)||\
-                             ((__LEVEL__) == OB_RDP_LEVEL_1)||\
-                             ((__LEVEL__) == OB_RDP_LEVEL_2))
-
-#define IS_OB_BOR_LEVEL(__LEVEL__)  ( ((__LEVEL__) == OB_BOR_OFF)     || \
-                                      ((__LEVEL__) == OB_BOR_LEVEL1)  || \
-                                      ((__LEVEL__) == OB_BOR_LEVEL2)  || \
-                                      ((__LEVEL__) == OB_BOR_LEVEL3)  || \
-                                      ((__LEVEL__) == OB_BOR_LEVEL4)  || \
-                                      ((__LEVEL__) == OB_BOR_LEVEL5))
-
-#define IS_OB_IWDG_SOURCE(__SOURCE__)  (((__SOURCE__) == OB_IWDG_SW) || ((__SOURCE__) == OB_IWDG_HW))
-
-#define IS_OB_STOP_SOURCE(__SOURCE__)  (((__SOURCE__) == OB_STOP_NORST) || ((__SOURCE__) == OB_STOP_RST))
-
-#define IS_OB_STDBY_SOURCE(__SOURCE__) (((__SOURCE__) == OB_STDBY_NORST) || ((__SOURCE__) == OB_STDBY_RST))
-
-#define IS_PCROPSTATE(VALUE)(((VALUE) == OB_PCROP_STATE_DISABLE) || \
-                             ((VALUE) == OB_PCROP_STATE_ENABLE))
-  
-#define IS_OB_PCROP(__PAGE__)       (((__PAGE__) != 0x0000000U))
-
-#define IS_OB_BOOT1(__BOOT_BIT1__)  (((__BOOT_BIT1__) == OB_BOOT_BIT1_RESET) || ((__BOOT_BIT1__) == OB_BOOT_BIT1_SET))
-
-#define IS_TYPEPROGRAMDATA(__VALUE__)   (((__VALUE__) == FLASH_TYPEPROGRAMDATA_BYTE) || \
-                                         ((__VALUE__) == FLASH_TYPEPROGRAMDATA_HALFWORD) || \
-                                         ((__VALUE__) == FLASH_TYPEPROGRAMDATA_WORD))
-
-#define IS_NBPAGES(__PAGES__) (((__PAGES__) >= 1) && ((__PAGES__) <= FLASH_NBPAGES_MAX)) 
-
-#if defined (STM32L071xx) || defined (STM32L072xx) || defined (STM32L073xx) || defined (STM32L081xx) || defined (STM32L082xx) || defined (STM32L083xx)
-#define IS_OBEX(__VALUE__)(((__VALUE__) <= (OPTIONBYTE_PCROP  | OPTIONBYTE_BOOTCONFIG)))
-#define IS_OB_BOOT_BANK(__BANK__)     (((__BANK__) == OB_BOOT_BANK2) || ((__BANK__) == OB_BOOT_BANK1))
-#define IS_FLASH_DATA_ADDRESS(__ADDRESS__)          (((__ADDRESS__) >= DATA_EEPROM_BASE) && ((__ADDRESS__) <= DATA_EEPROM_BANK2_END))
-#define IS_FLASH_DATA_BANK1_ADDRESS(__ADDRESS__)    (((__ADDRESS__) >= DATA_EEPROM_BASE) && ((__ADDRESS__) <= DATA_EEPROM_BANK1_END))
-#define IS_FLASH_DATA_BANK2_ADDRESS(__ADDRESS__)    (((__ADDRESS__) >= DATA_EEPROM_BANK2_BASE) && ((__ADDRESS__) <= DATA_EEPROM_BANK2_END))
-#define IS_FLASH_PROGRAM_ADDRESS(__ADDRESS__)       (((__ADDRESS__) >= FLASH_BASE)       && ((__ADDRESS__) <  (FLASH_BASE + FLASH_SIZE)))
-#define IS_FLASH_PROGRAM_BANK1_ADDRESS(__ADDRESS__) (((__ADDRESS__) >= FLASH_BASE)       && ((__ADDRESS__) <  (FLASH_BASE + (FLASH_SIZE >> 1))))
-#define IS_FLASH_PROGRAM_BANK2_ADDRESS(__ADDRESS__) (((__ADDRESS__) >= FLASH_BANK2_BASE) && ((__ADDRESS__) <  (FLASH_BASE + FLASH_SIZE)))
-#else
-#define IS_OBEX(VALUE)((VALUE) == OPTIONBYTE_PCROP)  
-#define IS_FLASH_DATA_ADDRESS(__ADDRESS__)          (((__ADDRESS__) >= DATA_EEPROM_BASE) && ((__ADDRESS__) <= DATA_EEPROM_END))
-#define IS_FLASH_PROGRAM_ADDRESS(__ADDRESS__)       (((__ADDRESS__) >= FLASH_BASE)       && ((__ADDRESS__) <  (FLASH_BASE + FLASH_SIZE)))
-#endif
-/**
-  * @}
-  */ 
-
-/* Define the private group ***********************************/
-/**************************************************************/
-/** @defgroup FLASHEx_Private FLASHEx Private
-  * @{
-  */
-/**
-  * @}
-  */
-/**************************************************************/
 
 /**
   * @}
@@ -707,4 +825,3 @@ void              HAL_FLASHEx_DATAEEPROM_DisableFixedTimeProgram(void);
 #endif /* __STM32L0xx_HAL_FLASH_EX_H */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
-

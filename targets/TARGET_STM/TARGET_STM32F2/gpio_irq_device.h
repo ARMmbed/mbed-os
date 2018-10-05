@@ -34,34 +34,7 @@
 extern "C" {
 #endif
 
-// when LL is available, below include can be used
-// #include "stm32f2xx_ll_exti.h"
-// until then let's define locally the required functions
-__STATIC_INLINE void LL_EXTI_EnableRisingTrig_0_31(uint32_t ExtiLine)
-{
-  SET_BIT(EXTI->RTSR, ExtiLine);
-}
-__STATIC_INLINE void LL_EXTI_DisableRisingTrig_0_31(uint32_t ExtiLine)
-{
-  CLEAR_BIT(EXTI->RTSR, ExtiLine);
-}
-__STATIC_INLINE void LL_EXTI_EnableFallingTrig_0_31(uint32_t ExtiLine)
-{
-  SET_BIT(EXTI->FTSR, ExtiLine);
-}
-__STATIC_INLINE void LL_EXTI_DisableFallingTrig_0_31(uint32_t ExtiLine)
-{
-  CLEAR_BIT(EXTI->FTSR, ExtiLine);
-}
-__STATIC_INLINE void LL_EXTI_EnableIT_0_31(uint32_t ExtiLine)
-{
-  SET_BIT(EXTI->IMR, ExtiLine);
-}
-__STATIC_INLINE void LL_EXTI_DisableIT_0_31(uint32_t ExtiLine)
-{
-  CLEAR_BIT(EXTI->IMR, ExtiLine);
-}
-// Above lines shall be later defined in LL
+#include "stm32f2xx_ll_exti.h"
 
 // Number of EXTI irq vectors (EXTI0, EXTI1, EXTI2, EXTI3, EXTI4, EXTI5_9, EXTI10_15)
 #define CHANNEL_NUM (7)

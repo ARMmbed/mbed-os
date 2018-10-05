@@ -22,105 +22,135 @@
  ******************************************************************************/
 
 #include "PeripheralPins.h"
+#include "mbed_toolchain.h"
 
 /************ADC***************/
-const PinMap PinMap_ADC[] = {
+MBED_WEAK const PinMap PinMap_ADC[] = {
+#ifdef ADC0_BASE
     {PD4, ADC_0, ADC_SINGLECTRL_INPUTSEL_CH4},
     {PD5, ADC_0, ADC_SINGLECTRL_INPUTSEL_CH5},
     {PD6, ADC_0, ADC_SINGLECTRL_INPUTSEL_CH6},
     {PD7, ADC_0, ADC_SINGLECTRL_INPUTSEL_CH7},
+#endif
     {NC  , NC   , NC}
 };
 
 /************I2C SCL***********/
-const PinMap PinMap_I2C_SCL[] = {
+MBED_WEAK const PinMap PinMap_I2C_SCL[] = {
+#ifdef I2C0_BASE
     /* I2C0 */
     {PA1,  I2C_0, 0},
     {PD7,  I2C_0, 1},
     {PC1,  I2C_0, 4},
     {PF1,  I2C_0, 5},
     {PE13, I2C_0, 6},
-
+#endif
     /* Not connected */
     {NC  , NC   , NC}
 };
 
 /************I2C SDA***********/
-const PinMap PinMap_I2C_SDA[] = {
+MBED_WEAK const PinMap PinMap_I2C_SDA[] = {
+#ifdef I2C0_BASE
     /* I2C0 */
     {PA0,  I2C_0, 0},
     {PD6,  I2C_0, 1},
     {PC0,  I2C_0, 4},
     {PF0,  I2C_0, 5},
     {PE12, I2C_0, 6},
-
+#endif
     /* Not connected */
     {NC  , NC   , NC}
 };
 /************PWM***************/
-const PinMap PinMap_PWM[] = {
+MBED_WEAK const PinMap PinMap_PWM[] = {
+#if defined(TIMER_ROUTE_CC0PEN) || defined(TIMER_ROUTEPEN_CC0PEN)
+    /* PWM0 */
     {PA0, PWM_CH0, 0},
+#endif
+#if defined(TIMER_ROUTE_CC1PEN) || defined(TIMER_ROUTEPEN_CC1PEN)
+    /* PWM1 */
     {PA1, PWM_CH1, 0},
+#endif
+#if defined(TIMER_ROUTE_CC2PEN) || defined(TIMER_ROUTEPEN_CC2PEN)
+    /* PWM2 */
     {PA2, PWM_CH2, 0},
+#endif
     {NC  , NC   , NC}
 };
 
 /*************SPI**************/
-const PinMap PinMap_SPI_MOSI[] = {
+MBED_WEAK const PinMap PinMap_SPI_MOSI[] = {
+#ifdef USART1_BASE
     /* USART1 */
     {PC0, SPI_1, 0},
     {PD7, SPI_1, 3},
+#endif
     /* Not connected */
     {NC  , NC   , NC}
 };
 
-const PinMap PinMap_SPI_MISO[] = {
+MBED_WEAK const PinMap PinMap_SPI_MISO[] = {
+#ifdef USART1_BASE
     /* USART1 */
     {PC1, SPI_1, 0},
     {PD6, SPI_1, 3},
+#endif
     /* Not connected */
     {NC  , NC   , NC}
 };
 
-const PinMap PinMap_SPI_CLK[] = {
+MBED_WEAK const PinMap PinMap_SPI_CLK[] = {
+#ifdef USART1_BASE
     /* USART1 */
     {PB7, SPI_1, 0},
     {PC15, SPI_1, 3},
+#endif
     /* Not connected */
     {NC  , NC   , NC}
 };
 
-const PinMap PinMap_SPI_CS[] = {
+MBED_WEAK const PinMap PinMap_SPI_CS[] = {
+#ifdef USART1_BASE
     /* USART1 */
     {PB8, SPI_1, 0},
     {PC14, SPI_1, 3},
+#endif
     /* Not connected */
     {NC  , NC   , NC}
 };
 
 /************UART**************/
-const PinMap PinMap_UART_TX[] = {
+MBED_WEAK const PinMap PinMap_UART_TX[] = {
+#ifdef USART1_BASE
     /* USART1 */
     {PC0, USART_1, 0},
     {PD7, USART_1, 3},
+#endif
+#ifdef LEUART0_BASE
     /* LEUART0 */
     {PD4,  LEUART_0, 0},
     {PB13, LEUART_0, 1},
     {PF0,  LEUART_0, 3},
     {PF2,  LEUART_0, 4},
+#endif
     /* Not connected */
     {NC  , NC   , NC}
 };
 
-const PinMap PinMap_UART_RX[] = {
+MBED_WEAK const PinMap PinMap_UART_RX[] = {
+#ifdef USART1_BASE
     /* USART1 */
     {PC1, USART_1, 0},
     {PD6, USART_1, 3},
+#endif
+#ifdef LEUART0_BASE
     /* LEUART0 */
     {PD5,  LEUART_0, 0},
     {PB14, LEUART_0, 1},
     {PF1,  LEUART_0, 3},
     {PA0,  LEUART_0, 4},
+#endif
     /* Not connected */
     {NC  , NC   , NC}
 };

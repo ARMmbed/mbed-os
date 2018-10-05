@@ -13,23 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 #ifndef MBEDTLS_DES_ALT_H
 #define MBEDTLS_DES_ALT_H
 
-#if !defined(MBEDTLS_CONFIG_FILE)
-#include "mbedtls/config.h"
-#else
-#include MBEDTLS_CONFIG_FILE
-#endif
+#include "mbedtls/des.h"
 
-#if defined(MBEDTLS_DES_C)
 #if defined(MBEDTLS_DES_ALT)
 
 #include <stddef.h>
 #include <stdint.h>
-#include "des.h"
-#include "des_alt_sw.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -38,19 +31,19 @@ extern "C" {
 /**
  * \brief          DES context structure
  */
-typedef struct
-{
-    int enc;                                            /*!<  0: dec, 1: enc    */
-    uint16_t keyopt;
-    uint8_t key[3][MBEDTLS_DES_KEY_SIZE];               /*!<  3DES keys         */
+typedef struct {
+    int enc;                                            /* 0: dec, 1: enc */
+    uint16_t keyopt;                                    /* 1: All three keys are independent.
+                                                         * 2: K1 and K2 are independent, and K3 = K1.
+                                                         * 3: All three keys are identical, i.e. K1 = K2 = K3. */
+    uint8_t key[3][MBEDTLS_DES_KEY_SIZE];               /* 3DES keys */
 }
 mbedtls_des_context;
 
 /**
  * \brief          Triple-DES context structure
  */
-typedef struct
-{
+typedef struct {
     int enc;                                            /*!<  0: dec, 1: enc    */
     uint16_t keyopt;
     uint8_t key[3][MBEDTLS_DES_KEY_SIZE];               /*!<  3DES keys         */
@@ -145,7 +138,7 @@ int mbedtls_des_setkey_dec( mbedtls_des_context *ctx, const unsigned char key[MB
  * \return         0
  */
 int mbedtls_des3_set2key_enc( mbedtls_des3_context *ctx,
-                      const unsigned char key[MBEDTLS_DES_KEY_SIZE * 2] );
+                              const unsigned char key[MBEDTLS_DES_KEY_SIZE * 2] );
 
 /**
  * \brief          Triple-DES key schedule (112-bit, decryption)
@@ -156,7 +149,7 @@ int mbedtls_des3_set2key_enc( mbedtls_des3_context *ctx,
  * \return         0
  */
 int mbedtls_des3_set2key_dec( mbedtls_des3_context *ctx,
-                      const unsigned char key[MBEDTLS_DES_KEY_SIZE * 2] );
+                              const unsigned char key[MBEDTLS_DES_KEY_SIZE * 2] );
 
 /**
  * \brief          Triple-DES key schedule (168-bit, encryption)
@@ -167,7 +160,7 @@ int mbedtls_des3_set2key_dec( mbedtls_des3_context *ctx,
  * \return         0
  */
 int mbedtls_des3_set3key_enc( mbedtls_des3_context *ctx,
-                      const unsigned char key[MBEDTLS_DES_KEY_SIZE * 3] );
+                              const unsigned char key[MBEDTLS_DES_KEY_SIZE * 3] );
 
 /**
  * \brief          Triple-DES key schedule (168-bit, decryption)
@@ -178,7 +171,7 @@ int mbedtls_des3_set3key_enc( mbedtls_des3_context *ctx,
  * \return         0
  */
 int mbedtls_des3_set3key_dec( mbedtls_des3_context *ctx,
-                      const unsigned char key[MBEDTLS_DES_KEY_SIZE * 3] );
+                              const unsigned char key[MBEDTLS_DES_KEY_SIZE * 3] );
 
 /**
  * \brief          DES-ECB block encryption/decryption
@@ -190,8 +183,8 @@ int mbedtls_des3_set3key_dec( mbedtls_des3_context *ctx,
  * \return         0 if successful
  */
 int mbedtls_des_crypt_ecb( mbedtls_des_context *ctx,
-                    const unsigned char input[8],
-                    unsigned char output[8] );
+                           const unsigned char input[8],
+                           unsigned char output[8] );
 
 #if defined(MBEDTLS_CIPHER_MODE_CBC)
 /**
@@ -213,11 +206,11 @@ int mbedtls_des_crypt_ecb( mbedtls_des_context *ctx,
  * \param output   buffer holding the output data
  */
 int mbedtls_des_crypt_cbc( mbedtls_des_context *ctx,
-                    int mode,
-                    size_t length,
-                    unsigned char iv[8],
-                    const unsigned char *input,
-                    unsigned char *output );
+                           int mode,
+                           size_t length,
+                           unsigned char iv[8],
+                           const unsigned char *input,
+                           unsigned char *output );
 #endif /* MBEDTLS_CIPHER_MODE_CBC */
 
 /**
@@ -230,8 +223,8 @@ int mbedtls_des_crypt_cbc( mbedtls_des_context *ctx,
  * \return         0 if successful
  */
 int mbedtls_des3_crypt_ecb( mbedtls_des3_context *ctx,
-                     const unsigned char input[8],
-                     unsigned char output[8] );
+                            const unsigned char input[8],
+                            unsigned char output[8] );
 
 #if defined(MBEDTLS_CIPHER_MODE_CBC)
 /**
@@ -255,11 +248,11 @@ int mbedtls_des3_crypt_ecb( mbedtls_des3_context *ctx,
  * \return         0 if successful, or MBEDTLS_ERR_DES_INVALID_INPUT_LENGTH
  */
 int mbedtls_des3_crypt_cbc( mbedtls_des3_context *ctx,
-                     int mode,
-                     size_t length,
-                     unsigned char iv[8],
-                     const unsigned char *input,
-                     unsigned char *output );
+                            int mode,
+                            size_t length,
+                            unsigned char iv[8],
+                            const unsigned char *input,
+                            unsigned char *output );
 #endif /* MBEDTLS_CIPHER_MODE_CBC */
 
 /**
@@ -277,6 +270,5 @@ void mbedtls_des_setkey( uint32_t SK[32],
 #endif
 
 #endif /* MBEDTLS_DES_ALT */
-#endif /* MBEDTLS_DES_C */
 
 #endif /* des_alt.h */

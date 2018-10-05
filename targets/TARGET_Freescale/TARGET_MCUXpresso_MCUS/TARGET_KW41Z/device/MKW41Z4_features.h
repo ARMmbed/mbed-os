@@ -1680,14 +1680,29 @@
 #define FSL_FEATURE_TPM_HAS_PAUSE_COUNTER_ON_TRIGGER (1)
 /* @brief Has external trigger selection. */
 #define FSL_FEATURE_TPM_HAS_EXTERNAL_TRIGGER_SELECTION (1)
-/* @brief Has TPM_COMBINE. */
+/* @brief Has TPM_COMBINE register. */
 #define FSL_FEATURE_TPM_HAS_COMBINE (1)
+/* @brief Whether COMBINE register has effect. */
+#define FSL_FEATURE_TPM_COMBINE_HAS_EFFECTn(x) \
+    ((x) == TPM0 ? (0) : \
+    ((x) == TPM1 ? (1) : \
+    ((x) == TPM2 ? (1) : (-1))))
 /* @brief Has TPM_POL. */
 #define FSL_FEATURE_TPM_HAS_POL (1)
-/* @brief Has TPM_FILTER. */
+/* @brief Has TPM_FILTER register. */
 #define FSL_FEATURE_TPM_HAS_FILTER (1)
-/* @brief Has TPM_QDCTRL. */
+/* @brief Whether FILTER register has effect. */
+#define FSL_FEATURE_TPM_FILTER_HAS_EFFECTn(x) \
+    ((x) == TPM0 ? (0) : \
+    ((x) == TPM1 ? (1) : \
+    ((x) == TPM2 ? (1) : (-1))))
+/* @brief Has TPM_QDCTRL register. */
 #define FSL_FEATURE_TPM_HAS_QDCTRL (1)
+/* @brief Whether QDCTRL register has effect. */
+#define FSL_FEATURE_TPM_QDCTRL_HAS_EFFECTn(x) \
+    ((x) == TPM0 ? (0) : \
+    ((x) == TPM1 ? (1) : \
+    ((x) == TPM2 ? (1) : (-1))))
 
 /* TRNG0 module features */
 

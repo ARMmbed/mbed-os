@@ -33,12 +33,6 @@
 
 #include "fsl_clock.h"
 
-/* Array for LPUART module clocks */
-#define LPUART_CLOCK_FREQS                         \
-    {                                              \
-        kCLOCK_Osc0ErClk, kCLOCK_Osc0ErClk, kCLOCK_Osc0ErClk   \
-    }
-
 /* Array for I2C module clocks */
 #define I2C_CLOCK_FREQS               \
     {                                 \

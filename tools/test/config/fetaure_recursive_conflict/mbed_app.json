@@ -1,7 +1,0 @@
-{
-    "target_overrides": {
-        "*": {
-            "target.features": ["IPV4", "STORAGE"]
-        }
-    }
-}

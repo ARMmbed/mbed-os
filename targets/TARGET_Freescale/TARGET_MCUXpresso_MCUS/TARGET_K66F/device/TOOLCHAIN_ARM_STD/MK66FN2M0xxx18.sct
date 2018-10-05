@@ -91,14 +91,14 @@
   #define Heap_Size                    0x0400
 #endif
 
-LR_m_text m_interrupts_start m_text_start+m_text_size-m_interrupts_start {   ; load region size_region
+LR_IROM1 m_interrupts_start m_text_start+m_text_size-m_interrupts_start {   ; load region size_region
   VECTOR_ROM m_interrupts_start m_interrupts_size { ; load address = execution address
     * (RESET,+FIRST)
   }
   ER_m_flash_config m_flash_config_start FIXED m_flash_config_size { ; load address = execution address
     * (FlashConfig)
   }
-  ER_m_text m_text_start m_text_size { ; load address = execution address
+  ER_IROM1 m_text_start m_text_size { ; load address = execution address
     * (InRoot$$Sections)
     .ANY (+RO)
   }

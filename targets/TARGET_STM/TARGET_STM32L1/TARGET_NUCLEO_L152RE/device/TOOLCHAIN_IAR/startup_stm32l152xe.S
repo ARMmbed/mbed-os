@@ -1,8 +1,8 @@
-;/******************** (C) COPYRIGHT 2016 STMicroelectronics ********************
+;********************* (C) COPYRIGHT 2017 STMicroelectronics ********************
 ;* File Name          : startup_stm32l152xe.s
 ;* Author             : MCD Application Team
-;* Version            : V2.2.0
-;* Date               : 01-July-2016
+;* Version            : 21-April-2017
+;* Date               : V2.2.1
 ;* Description        : STM32L152XE Devices vector for EWARM toolchain.
 ;*                      This module performs:
 ;*                      - Set the initial SP
@@ -16,7 +16,7 @@
 ;*                      priority is Privileged, and the Stack is set to Main.
 ;********************************************************************************
 ;*
-;* <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+;* <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
 ;*
 ;* Redistribution and use in source and binary forms, with or without modification,
 ;* are permitted provided that the following conditions are met:

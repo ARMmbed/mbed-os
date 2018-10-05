@@ -18,6 +18,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+from __future__ import print_function, division, absolute_import
 
 import os
 import sys
@@ -32,8 +33,9 @@ build_list = [
     {
     "STM":
         (
-        { "target": "B96B_F446VE",     "toolchains": "GCC_ARM", "libs": ["dsp"] },
+        { "target": "B96B_F446VE",       "toolchains": "GCC_ARM", "libs": ["dsp"] },
         { "target": "NUCLEO_L053R8",     "toolchains": "GCC_ARM", "libs": ["dsp"] },
+        { "target": "MTB_RAK811",        "toolchains": "GCC_ARM"},
         { "target": "NUCLEO_L152RE",     "toolchains": "GCC_ARM", "libs": ["dsp"] },
         { "target": "NUCLEO_F030R8",     "toolchains": "GCC_ARM", "libs": ["dsp"] },
         { "target": "NUCLEO_F031K6",     "toolchains": "GCC_ARM", "libs": ["dsp"] },
@@ -49,10 +51,13 @@ build_list = [
         { "target": "NUCLEO_F303ZE",     "toolchains": "GCC_ARM", "libs": ["dsp", "usb"] },
         { "target": "NUCLEO_F334R8",     "toolchains": "GCC_ARM", "libs": ["dsp"] },
         { "target": "NUCLEO_F401RE",     "toolchains": "GCC_ARM", "libs": ["dsp", "usb"] },
+        { "target": "STEVAL_3DP001V1",   "toolchains": "GCC_ARM", "libs": ["dsp", "usb"] },
         { "target": "NUCLEO_F410RB",     "toolchains": "GCC_ARM", "libs": ["dsp"] },
         { "target": "NUCLEO_F411RE",     "toolchains": "GCC_ARM", "libs": ["dsp", "usb"] },
         { "target": "NUCLEO_F412ZG",     "toolchains": "GCC_ARM", "libs": ["dsp"] },
+        { "target": "NUCLEO_F413ZH",     "toolchains": "GCC_ARM", "libs": ["dsp", "usb"] },
         { "target": "NUCLEO_L432KC",     "toolchains": "GCC_ARM", "libs": ["dsp"] },
+        { "target": "MTB_ADV_WISE_1510", "toolchains": "GCC_ARM", "libs": ["dsp"] },
         { "target": "NUCLEO_L476RG",     "toolchains": "GCC_ARM", "libs": ["dsp"] },
         { "target": "NUCLEO_L011K4",     "toolchains": "GCC_ARM", "libs": ["dsp"] },
         { "target": "NUCLEO_L031K6",     "toolchains": "GCC_ARM", "libs": ["dsp"] },
@@ -87,6 +92,9 @@ build_list = [
         { "target": "DISCO_L475VG_IOT01A", "toolchains": "GCC_ARM", "libs": ["dsp", "usb"] },
         { "target": "DISCO_L476VG",        "toolchains": "GCC_ARM", "libs": ["dsp", "usb"] },
         { "target": "DISCO_L072CZ_LRWAN1", "toolchains": "GCC_ARM", "libs": ["dsp", "usb"] },
+
+        # module manufacturer : muRata
+        { "target": "MTB_MURATA_ABZ",    "toolchains": "GCC_ARM", "libs": [] },
         ),
     },
 
@@ -142,15 +150,6 @@ build_list = [
     },
 
     {
-        "MAXIM":
-        (
-            { "target": "MAXWSNENV",    "toolchains": "GCC_ARM", "libs": ["dsp"] },
-            { "target": "MAX32600MBED", "toolchains": "GCC_ARM", "libs": ["dsp"] },
-            { "target": "MAX32620HSP",  "toolchains": "GCC_ARM", "libs": ["dsp"] },
-        )
-    },
-
-    { 
         "ATMEL":
         (
             { "target": "SAMR21G18A",  "toolchains": "GCC_ARM", "libs": ["dsp"] },
@@ -161,12 +160,21 @@ build_list = [
     },
 
 
-    { 
+    {
         "NUVOTON":
         (
             { "target": "NUMAKER_PFM_NUC472",   "toolchains": "GCC_ARM",    "libs": ["dsp", "usb"] },
             { "target": "NUMAKER_PFM_M453",     "toolchains": "GCC_ARM",    "libs": ["dsp", "usb"] },
             { "target": "NUMAKER_PFM_M487",     "toolchains": "GCC_ARM",    "libs": ["dsp", "usb"] },
+        )
+    },
+
+
+    {
+        "RENESAS":
+        (
+            { "target": "RZ_A1H",    "toolchains": "GCC_ARM" },
+            { "target": "GR_LYCHEE", "toolchains": "GCC_ARM" },
         )
     }
 ]
@@ -221,7 +229,7 @@ linking_list = [
             {"target": "NUCLEO_F401RE",
              "toolchains": "GCC_ARM",
              "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
-                       "usb"  : ["USB_1", "USB_2" ,"USB_3"], 
+                       "usb"  : ["USB_1", "USB_2" ,"USB_3"],
                      }
             },
             {"target": "NUCLEO_F411RE",
@@ -233,6 +241,12 @@ linking_list = [
             {"target": "NUCLEO_F412ZG",
              "toolchains": "GCC_ARM",
              "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
+                     }
+            },
+            {"target": "NUCLEO_F413ZH",
+             "toolchains": "GCC_ARM",
+             "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
+                       "usb"  : ["USB_1", "USB_2" ,"USB_3"],
                      }
             },
             {"target": "NUCLEO_F429ZI",
@@ -303,6 +317,11 @@ linking_list = [
              "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
                       }
             },
+            {"target": "MTB_MURATA_ABZ",
+             "toolchains": "GCC_ARM",
+             "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
+                      }
+            },
         )
     },
     {
@@ -326,6 +345,23 @@ linking_list = [
                        }
              }
         )
+    },
+    {
+        "RENESAS":
+        (
+            {
+             "target": "RZ_A1H",
+             "toolchains": "GCC_ARM",
+             "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
+                      }
+            },
+            {
+             "target": "GR_LYCHEE",
+             "toolchains": "GCC_ARM",
+             "tests": {""     : ["MBED_2", "MBED_10", "MBED_11", "MBED_16"],
+                      }
+            },
+        )
     }
 ]
 
@@ -340,11 +376,12 @@ def run_builds(dry_run, vendor):
                 toolchain_list = build["toolchains"]
                 if type(toolchain_list) != type([]): toolchain_list = [toolchain_list]
                 for toolchain in toolchain_list:
-                    cmdline = "python tools/build.py -m %s -t %s -c --silent "% (build["target"], toolchain)
+                    cmdline = ("%s tools/build.py -m %s -t %s -c --silent "%
+                               (sys.executable, build["target"], toolchain))
                     libs = build.get("libs", [])
                     if libs:
                         cmdline = cmdline + " ".join(["--" + l for l in libs])
-                    print "Executing: " + cmdline
+                    print("Executing: %s" % cmdline)
                     if not dry_run:
                         if os.system(cmdline) != 0:
                             sys.exit(1)
@@ -366,18 +403,14 @@ def run_test_linking(dry_run, vendor):
                     for test_lib in tests:
                         test_names = tests[test_lib]
                         test_lib_switch = "--" + test_lib if test_lib else ""
-                        cmdline = "python tools/make.py -m %s -t %s -c --silent %s -n %s " % (link["target"], toolchain, test_lib_switch, ",".join(test_names))
-                        print "Executing: " + cmdline
+                        cmdline = ("%s tools/make.py -m %s -t %s -c --silent %s "
+                                   "-n %s" % (sys.executable, link["target"],
+                                               toolchain, test_lib_switch,
+                                               ",".join(test_names)))
+                        print("Executing: %s" % cmdline)
                         if not dry_run:
                             if os.system(cmdline) != 0:
                                 sys.exit(1)
-
-def run_test_testsuite(dry_run, vendor):
-    cmdline = "python tools/singletest.py --version"
-    print "Executing: " + cmdline
-    if not dry_run:
-        if os.system(cmdline) != 0:
-            sys.exit(1)
 
 if __name__ == "__main__":
     parser = ArgumentParser()
@@ -392,4 +425,3 @@ if __name__ == "__main__":
 
     run_builds("-s" in sys.argv, options.vendor)
     run_test_linking("-s" in sys.argv, options.vendor)
-    run_test_testsuite("-s" in sys.argv, options.vendor)

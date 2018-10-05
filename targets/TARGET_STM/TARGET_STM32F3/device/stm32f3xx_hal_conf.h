@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_conf.h
   * @author  MCD Application Team
-  * @version V1.4.0
-  * @date    16-December-2016
   * @brief   HAL configuration file.
   ******************************************************************************
   * @attention
@@ -162,10 +160,11 @@
   */     
 #define  VDD_VALUE                    (3300U) /*!< Value of VDD in mv */
 #define  TICK_INT_PRIORITY            ((uint32_t)(1U<<__NVIC_PRIO_BITS) - 1U)   /*!< tick interrupt priority (lowest by default) */
-#define  USE_RTOS                     0
-#define  PREFETCH_ENABLE              1
-#define  INSTRUCTION_CACHE_ENABLE     0
-#define  DATA_CACHE_ENABLE            0
+#define  USE_RTOS                     0U
+#define  PREFETCH_ENABLE              1U
+#define  INSTRUCTION_CACHE_ENABLE     0U
+#define  DATA_CACHE_ENABLE            0U
+#define  USE_SPI_CRC                  1U
 
 /* ########################## Assert Selection ############################## */
 /**
@@ -313,7 +312,18 @@
 
 /* Exported macro ------------------------------------------------------------*/
 #ifdef  USE_FULL_ASSERT
-/* ALL MBED targets use same stm32_assert.h */
+/**
+  * @brief  The assert_param macro is used for function's parameters check.
+  * @param  expr If expr is false, it calls assert_failed function
+  *         which reports the name of the source file and the source
+  *         line number of the call that failed. 
+  *         If expr is true, it returns no value.
+  * @retval None
+  */
+  //#define assert_param(expr) ((expr) ? (void)0U : assert_failed((char *)__FILE__, __LINE__))
+/* Exported functions ------------------------------------------------------- */
+  //void assert_failed(char* file, uint32_t line);
+// MBED patch. All targets use same stm32_assert.h
 #include "stm32_assert.h"
 #else
   #define assert_param(expr) ((void)0U)

@@ -16,24 +16,27 @@ limitations under the License.
 """
 import re
 from os.path import join, basename, splitext, dirname, exists
+from os import getenv
 from distutils.spawn import find_executable
+from distutils.version import LooseVersion
 
 from tools.toolchains import mbedToolchain, TOOLCHAIN_PATHS
 from tools.hooks import hook_tool
+from tools.utils import run_cmd, NotSupportedException
 
 class GCC(mbedToolchain):
     LINKER_EXT = '.ld'
     LIBRARY_EXT = '.a'
 
     STD_LIB_NAME = "lib%s.a"
-    DIAGNOSTIC_PATTERN = re.compile('((?P<file>[^:]+):(?P<line>\d+):)(\d+:)? (?P<severity>warning|[eE]rror|fatal error): (?P<message>.+)')
-    INDEX_PATTERN  = re.compile('(?P<col>\s*)\^')
+    DIAGNOSTIC_PATTERN = re.compile('((?P<file>[^:]+):(?P<line>\d+):)(?P<col>\d+):? (?P<severity>warning|[eE]rror|fatal error): (?P<message>.+)')
 
-    def __init__(self, target,  notify=None, macros=None,
-                 silent=False, extra_verbose=False, build_profile=None,
+    GCC_RANGE = (LooseVersion("6.0.0"), LooseVersion("7.0.0"))
+    GCC_VERSION_RE = re.compile(b"\d+\.\d+\.\d+")
+
+    def __init__(self, target,  notify=None, macros=None, build_profile=None,
                  build_dir=None):
-        mbedToolchain.__init__(self, target, notify, macros, silent,
-                               extra_verbose=extra_verbose,
+        mbedToolchain.__init__(self, target, notify, macros,
                                build_profile=build_profile, build_dir=build_dir)
 
         tool_path=TOOLCHAIN_PATHS['GCC_ARM']
@@ -49,21 +52,20 @@ class GCC(mbedToolchain):
             self.flags["ld"].append("--specs=nano.specs")
 
         if target.core == "Cortex-M0+":
-            cpu = "cortex-m0plus"
-        elif target.core == "Cortex-M4F":
-            cpu = "cortex-m4"
-        elif target.core == "Cortex-M7F":
-            cpu = "cortex-m7"
-        elif target.core == "Cortex-M7FD":
-            cpu = "cortex-m7"
-        elif target.core == "Cortex-M23-NS":
-            cpu = "cortex-m23"
-        elif target.core == "Cortex-M33-NS":
-            cpu = "cortex-m33"
+            self.cpu = ["-mcpu=cortex-m0plus"]
+        elif target.core.startswith("Cortex-M4"):
+            self.cpu = ["-mcpu=cortex-m4"]
+        elif target.core.startswith("Cortex-M7"):
+            self.cpu = ["-mcpu=cortex-m7"]
+        elif target.core.startswith("Cortex-M23"):
+            self.cpu = ["-mcpu=cortex-m23"]
+        elif target.core.startswith("Cortex-M33F"):
+            self.cpu = ["-mcpu=cortex-m33"]
+        elif target.core.startswith("Cortex-M33"):
+            self.cpu = ["-march=armv8-m.main"]
         else:
-            cpu = target.core.lower()
+            self.cpu = ["-mcpu={}".format(target.core.lower())]
 
-        self.cpu = ["-mcpu=%s" % cpu]
         if target.core.startswith("Cortex-M"):
             self.cpu.append("-mthumb")
 
@@ -86,13 +88,16 @@ class GCC(mbedToolchain):
             self.cpu.append("-mfloat-abi=hard")
             self.cpu.append("-mno-unaligned-access")
 
-        if target.core.startswith("Cortex-M23"):
-            self.cpu.append("-march=armv8-m.base")
-        elif target.core.startswith("Cortex-M33"):
-            self.cpu.append("-march=armv8-m.main")
-
-        if target.core == "Cortex-M23" or target.core == "Cortex-M33":
+        if ((target.core.startswith("Cortex-M23") or
+             target.core.startswith("Cortex-M33")) and
+            not target.core.endswith("-NS")):
             self.cpu.append("-mcmse")
+            self.flags["ld"].extend([
+                "-Wl,--cmse-implib",
+                "-Wl,--out-implib=%s" % join(build_dir, "cmse_lib.o")
+            ])
+        elif target.core == "Cortex-M23-NS" or target.core == "Cortex-M33-NS":
+             self.flags["ld"].append("-DDOMAIN_NS=1")
 
         self.flags["common"] += self.cpu
 
@@ -112,6 +117,32 @@ class GCC(mbedToolchain):
         self.ar = join(tool_path, "arm-none-eabi-ar")
         self.elf2bin = join(tool_path, "arm-none-eabi-objcopy")
 
+        self.use_distcc = (bool(getenv("DISTCC_POTENTIAL_HOSTS", False))
+                           and not getenv("MBED_DISABLE_DISTCC", False))
+
+    def version_check(self):
+        stdout, _, retcode = run_cmd([self.cc[0], "--version"], redirect=True)
+        msg = None
+        match = self.GCC_VERSION_RE.search(stdout)
+        found_version = LooseVersion(match.group(0).decode('utf-8')) if match else None
+        min_ver, max_ver = self.GCC_RANGE
+        if found_version and (found_version < min_ver or found_version >= max_ver):
+            msg = ("Compiler version mismatch: Have {}; "
+                   "expected version >= {} and < {}"
+                   .format(found_version, min_ver, max_ver))
+        elif not match:
+            msg = ("Compiler version mismatch: Could not detect version; "
+                   "expected version >= {} and < {}"
+                   .format(min_ver, max_ver))
+        if msg:
+            self.notify.cc_info({
+                "message": msg,
+                "file": "",
+                "line": "",
+                "col": "",
+                "severity": "Warning",
+            })
+
     def is_not_supported_error(self, output):
         return "error: #error [NOT_SUPPORTED]" in output
 
@@ -122,30 +153,21 @@ class GCC(mbedToolchain):
             match = self.DIAGNOSTIC_PATTERN.search(line)
             if match is not None:
                 if msg is not None:
-                    self.cc_info(msg)
+                    self.notify.cc_info(msg)
                     msg = None
                 msg = {
                     'severity': match.group('severity').lower(),
                     'file': match.group('file'),
                     'line': match.group('line'),
-                    'col': 0,
+                    'col': match.group('col'),
                     'message': match.group('message'),
                     'text': '',
                     'target_name': self.target.name,
                     'toolchain_name': self.name
                 }
-            elif msg is not None:
-                # Determine the warning/error column by calculating the ^ position
-                match = self.INDEX_PATTERN.match(line)
-                if match is not None:
-                    msg['col'] = len(match.group('col'))
-                    self.cc_info(msg)
-                    msg = None
-                else:
-                    msg['text'] += line+"\n"
 
         if msg is not None:
-            self.cc_info(msg)
+            self.notify.cc_info(msg)
 
     def get_dep_option(self, object):
         base, _ = splitext(object)
@@ -162,10 +184,9 @@ class GCC(mbedToolchain):
         else:
             opts += ["-I%s" % i for i in includes]
 
-        if not for_asm:
-            config_header = self.get_config_header()
-            if config_header is not None:
-                opts = opts + self.get_config_option(config_header)
+        config_header = self.get_config_header()
+        if config_header is not None:
+            opts = opts + self.get_config_option(config_header)
         return opts
 
     @hook_tool
@@ -190,6 +211,8 @@ class GCC(mbedToolchain):
 
         # Call cmdline hook
         cmd = self.hook.get_cmdline_compiler(cmd)
+        if self.use_distcc:
+            cmd = ["distcc"] + cmd
 
         return [cmd]
 
@@ -212,13 +235,14 @@ class GCC(mbedToolchain):
             preproc_output = join(dirname(output), ".link_script.ld")
             cmd = (self.preproc + [mem_map] + self.ld[1:] +
                    [ "-o", preproc_output])
-            self.cc_verbose("Preproc: %s" % ' '.join(cmd))
+            self.notify.cc_verbose("Preproc: %s" % ' '.join(cmd))
             self.default_cmd(cmd)
             mem_map = preproc_output
 
         # Build linker command
         map_file = splitext(output)[0] + ".map"
         cmd = self.ld + ["-o", output, "-Wl,-Map=%s" % map_file] + objects + ["-Wl,--start-group"] + libs + ["-Wl,--end-group"]
+
         if mem_map:
             cmd.extend(['-T', mem_map])
 
@@ -236,7 +260,7 @@ class GCC(mbedToolchain):
             cmd = [cmd_linker, "@%s" % link_files]
 
         # Exec command
-        self.cc_verbose("Link: %s" % ' '.join(cmd))
+        self.notify.cc_verbose("Link: %s" % ' '.join(cmd))
         self.default_cmd(cmd)
 
     @hook_tool
@@ -260,7 +284,7 @@ class GCC(mbedToolchain):
         cmd = self.hook.get_cmdline_binary(cmd)
 
         # Exec command
-        self.cc_verbose("FromELF: %s" % ' '.join(cmd))
+        self.notify.cc_verbose("FromELF: %s" % ' '.join(cmd))
         self.default_cmd(cmd)
 
     @staticmethod
@@ -269,7 +293,7 @@ class GCC(mbedToolchain):
 
     @staticmethod
     def make_ld_define(name, value):
-        return "-D%s=0x%x" % (name, value)
+        return "-D%s=%s" % (name, value)
 
     @staticmethod
     def redirect_symbol(source, sync, build_dir):

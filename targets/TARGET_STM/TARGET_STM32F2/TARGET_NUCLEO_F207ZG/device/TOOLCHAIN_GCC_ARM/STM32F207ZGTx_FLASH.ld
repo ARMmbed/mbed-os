@@ -1,8 +1,16 @@
+#if !defined(MBED_APP_START)
+  #define MBED_APP_START 0x8000000
+#endif
+
+#if !defined(MBED_APP_SIZE)
+  #define MBED_APP_SIZE 1024k
+#endif
+
 /* Linker script to configure memory regions. */
 /* 97 vectors * 4 bytes = 388 bytes to reserve (0x184) */
 MEMORY
-{ 
-  FLASH (rx) : ORIGIN = 0x8000000, LENGTH = 1024K
+{
+  FLASH (rx) : ORIGIN = MBED_APP_START, LENGTH = MBED_APP_SIZE
   RAM (rwx) : ORIGIN = 0x20000184, LENGTH = 128K - 0x184
 }
 
@@ -10,7 +18,7 @@ MEMORY
  * with other linker script that defines memory regions FLASH and RAM.
  * It references following symbols, which must be defined in code:
  *   Reset_Handler : Entry of reset handler
- * 
+ *
  * It defines following symbols, which code can use without definition:
  *   __exidx_start
  *   __exidx_end

@@ -63,7 +63,6 @@ extern uint32_t __data_end__;
 extern uint32_t __bss_start__;
 extern uint32_t __bss_end__;
 
-extern void uvisor_init(void);
 #if defined(TOOLCHAIN_GCC_ARM)
 extern void _start(void);
 #else
@@ -417,17 +416,6 @@ void Reset_Handler_1(void)
 
 void Reset_Handler_2(void)
 {
-    /**
-     * The call to uvisor_init() happens independently of uVisor being enabled or
-     * not, so it is conditionally compiled only based on FEATURE_UVISOR.
-     *
-     * The call to uvisor_init() must be right after system initialization (usually called SystemInit()) and 
-     * right before the C/C++ library initialization (zeroing the BSS section, loading data from flash to SRAM). 
-     * Otherwise, we might get data corruption.
-     */
-#if defined(FEATURE_UVISOR)
-    uvisor_init();
-#endif
 
 #if defined(__CC_ARM) || (defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050))
     __main();

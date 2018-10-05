@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32f3xx_hal_comp_ex.h
   * @author  MCD Application Team
-  * @version V1.4.0
-  * @date    16-December-2016
   * @brief   Header file of COMP HAL Extended module.
   ******************************************************************************
   * @attention
@@ -1491,7 +1489,7 @@
     defined(STM32F303x8) || defined(STM32F334x8) || defined(STM32F328xx)
 /**
   * @brief  Get the specified EXTI line for a comparator instance
-  * @param  __INSTANCE__: specifies the COMP instance.
+  * @param  __INSTANCE__ specifies the COMP instance.
   * @retval value of @ref COMPEx_ExtiLineEvent
   */
 #define COMP_GET_EXTI_LINE(__INSTANCE__) (((__INSTANCE__) == COMP2) ? COMP_EXTI_LINE_COMP2 : \
@@ -1504,7 +1502,7 @@
     defined(STM32F302xC)
 /**
   * @brief  Get the specified EXTI line for a comparator instance
-  * @param  __INSTANCE__: specifies the COMP instance.
+  * @param  __INSTANCE__ specifies the COMP instance.
   * @retval value of @ref COMPEx_ExtiLineEvent
   */
 #define COMP_GET_EXTI_LINE(__INSTANCE__) (((__INSTANCE__) == COMP1) ? COMP_EXTI_LINE_COMP1 : \
@@ -1518,7 +1516,7 @@
     defined(STM32F303xC) || defined(STM32F358xx)
 /**
   * @brief  Get the specified EXTI line for a comparator instance
-  * @param  __INSTANCE__: specifies the COMP instance.
+  * @param  __INSTANCE__ specifies the COMP instance.
   * @retval value of @ref COMPEx_ExtiLineEvent
   */
 #define COMP_GET_EXTI_LINE(__INSTANCE__) (((__INSTANCE__) == COMP1) ? COMP_EXTI_LINE_COMP1 : \
@@ -1534,7 +1532,7 @@
 #if defined(STM32F373xC) || defined(STM32F378xx)
 /**
   * @brief  Get the specified EXTI line for a comparator instance
-  * @param  __INSTANCE__: specifies the COMP instance.
+  * @param  __INSTANCE__ specifies the COMP instance.
   * @retval value of @ref COMPEx_ExtiLineEvent
   */
 #define COMP_GET_EXTI_LINE(__INSTANCE__) (((__INSTANCE__) == COMP1) ? COMP_EXTI_LINE_COMP1 : \
@@ -1605,7 +1603,7 @@
 
 /**
   * @brief  Enable the Exti Line rising edge trigger.
-  * @param  __EXTILINE__: specifies the COMP Exti sources to be enabled.
+  * @param  __EXTILINE__ specifies the COMP Exti sources to be enabled.
   *         This parameter can be a value of @ref COMPEx_ExtiLineEvent 
   * @retval None.
   */                                         
@@ -1613,7 +1611,7 @@
 
 /**
   * @brief  Disable the Exti Line rising edge trigger.
-  * @param  __EXTILINE__: specifies the COMP Exti sources to be disabled.
+  * @param  __EXTILINE__ specifies the COMP Exti sources to be disabled.
   *         This parameter can be a value of @ref COMPEx_ExtiLineEvent 
   * @retval None.
   */                                         
@@ -1621,7 +1619,7 @@
 
 /**
   * @brief  Enable the Exti Line falling edge trigger.
-  * @param  __EXTILINE__: specifies the COMP Exti sources to be enabled.
+  * @param  __EXTILINE__ specifies the COMP Exti sources to be enabled.
   *         This parameter can be a value of @ref COMPEx_ExtiLineEvent 
   * @retval None.
   */                                         
@@ -1629,7 +1627,7 @@
 
 /**
   * @brief  Disable the Exti Line falling edge trigger.
-  * @param  __EXTILINE__: specifies the COMP Exti sources to be disabled.
+  * @param  __EXTILINE__ specifies the COMP Exti sources to be disabled.
   *         This parameter can be a value of @ref COMPEx_ExtiLineEvent 
   * @retval None.
   */                                         
@@ -1637,7 +1635,7 @@
 
 /**
   * @brief  Enable the COMP Exti Line interrupt generation.
-  * @param  __EXTILINE__: specifies the COMP Exti sources to be enabled.
+  * @param  __EXTILINE__ specifies the COMP Exti sources to be enabled.
   *         This parameter can be a value of @ref COMPEx_ExtiLineEvent 
   * @retval None.
   */                                         
@@ -1645,7 +1643,7 @@
                                              
 /**
   * @brief  Disable the COMP Exti Line interrupt generation.
-  * @param  __EXTILINE__: specifies the COMP Exti sources to be disabled.
+  * @param  __EXTILINE__ specifies the COMP Exti sources to be disabled.
   *         This parameter can be a value of @ref COMPEx_ExtiLineEvent 
   * @retval None.
   */
@@ -1653,7 +1651,7 @@
 
 /**
   * @brief  Enable the COMP Exti Line event generation.
-  * @param  __EXTILINE__: specifies the COMP Exti sources to be enabled.
+  * @param  __EXTILINE__ specifies the COMP Exti sources to be enabled.
   *         This parameter can be a value of @ref COMPEx_ExtiLineEvent 
   * @retval None.
   */                                         
@@ -1661,7 +1659,7 @@
                                              
 /**
   * @brief  Disable the COMP Exti Line event generation.
-  * @param  __EXTILINE__: specifies the COMP Exti sources to be disabled.
+  * @param  __EXTILINE__ specifies the COMP Exti sources to be disabled.
   *         This parameter can be a value of @ref COMPEx_ExtiLineEvent 
   * @retval None.
   */
@@ -1669,7 +1667,7 @@
 
 /**
   * @brief  Check whether the specified EXTI line flag is set or not.
-  * @param  __FLAG__: specifies the COMP Exti sources to be checked.
+  * @param  __FLAG__ specifies the COMP Exti sources to be checked.
   *          This parameter can be a value of @ref COMPEx_ExtiLineEvent 
   * @retval The state of __FLAG__ (SET or RESET).
   */
@@ -1677,7 +1675,7 @@
      
 /**
   * @brief Clear the COMP Exti flags.
-  * @param  __FLAG__: specifies the COMP Exti sources to be cleared.
+  * @param  __FLAG__ specifies the COMP Exti sources to be cleared.
   *          This parameter can be a value of @ref COMPEx_ExtiLineEvent 
   * @retval None.
   */
@@ -1716,7 +1714,7 @@
 
 /**
   * @brief  Enable the Exti Line rising edge trigger.
-  * @param  __EXTILINE__: specifies the COMP Exti sources to be enabled.
+  * @param  __EXTILINE__ specifies the COMP Exti sources to be enabled.
   *         This parameter can be a value of @ref COMPEx_ExtiLineEvent 
   * @retval None.
   */                                         
@@ -1724,7 +1722,7 @@
 
 /**
   * @brief  Disable the Exti Line rising edge trigger.
-  * @param  __EXTILINE__: specifies the COMP Exti sources to be disabled.
+  * @param  __EXTILINE__ specifies the COMP Exti sources to be disabled.
   *         This parameter can be a value of @ref COMPEx_ExtiLineEvent 
   * @retval None.
   */                                         
@@ -1732,7 +1730,7 @@
 
 /**
   * @brief  Enable the Exti Line falling edge trigger.
-  * @param  __EXTILINE__: specifies the COMP Exti sources to be enabled.
+  * @param  __EXTILINE__ specifies the COMP Exti sources to be enabled.
   *         This parameter can be a value of @ref COMPEx_ExtiLineEvent 
   * @retval None.
   */                                         
@@ -1740,7 +1738,7 @@
 
 /**
   * @brief  Disable the Exti Line falling edge trigger.
-  * @param  __EXTILINE__: specifies the COMP Exti sources to be disabled.
+  * @param  __EXTILINE__ specifies the COMP Exti sources to be disabled.
   *         This parameter can be a value of @ref COMPEx_ExtiLineEvent 
   * @retval None.
   */                                         
@@ -1748,7 +1746,7 @@
 
 /**
   * @brief  Enable the COMP Exti Line interrupt generation.
-  * @param  __EXTILINE__: specifies the COMP Exti sources to be enabled.
+  * @param  __EXTILINE__ specifies the COMP Exti sources to be enabled.
   *         This parameter can be a value of @ref COMPEx_ExtiLineEvent 
   * @retval None.
   */                                         
@@ -1756,7 +1754,7 @@
                                              
 /**
   * @brief  Disable the COMP Exti Line interrupt generation.
-  * @param  __EXTILINE__: specifies the COMP Exti sources to be disabled.
+  * @param  __EXTILINE__ specifies the COMP Exti sources to be disabled.
   *         This parameter can be a value of @ref COMPEx_ExtiLineEvent 
   * @retval None.
   */
@@ -1764,7 +1762,7 @@
 
 /**
   * @brief  Enable the COMP Exti Line event generation.
-  * @param  __EXTILINE__: specifies the COMP Exti sources to be enabled.
+  * @param  __EXTILINE__ specifies the COMP Exti sources to be enabled.
   *         This parameter can be a value of @ref COMPEx_ExtiLineEvent 
   * @retval None.
   */                                         
@@ -1772,7 +1770,7 @@
                                              
 /**
   * @brief  Disable the COMP Exti Line event generation.
-  * @param  __EXTILINE__: specifies the COMP Exti sources to be disabled.
+  * @param  __EXTILINE__ specifies the COMP Exti sources to be disabled.
   *         This parameter can be a value of @ref COMPEx_ExtiLineEvent 
   * @retval None.
   */
@@ -1780,7 +1778,7 @@
 
 /**
   * @brief  Check whether the specified EXTI line flag is set or not.
-  * @param  __FLAG__: specifies the COMP Exti sources to be checked.
+  * @param  __FLAG__ specifies the COMP Exti sources to be checked.
   *          This parameter can be a value of @ref COMPEx_ExtiLineEvent 
   * @retval The state of __FLAG__ (SET or RESET).
   */
@@ -1788,7 +1786,7 @@
      
 /**
   * @brief Clear the COMP Exti flags.
-  * @param  __FLAG__: specifies the COMP Exti sources to be cleared.
+  * @param  __FLAG__ specifies the COMP Exti sources to be cleared.
   *          This parameter can be a value of @ref COMPEx_ExtiLineEvent 
   * @retval None.
   */

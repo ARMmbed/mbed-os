@@ -36,6 +36,7 @@ from tools.test_api import SingleTestRunner
 from tools.test_api import singletest_in_cli_mode
 from tools.paths import TEST_DIR, MBED_LIBRARIES
 from tools.tests import TEST_MAP
+from tools.notifier.term import TerminalNotifier
 
 OFFICIAL_MBED_LIBRARY_BUILD = get_mbed_official_release('2')
 
@@ -76,6 +77,8 @@ if __name__ == '__main__':
     platforms = None
     if options.platforms != "":
         platforms = set(options.platforms.split(","))
+
+    status = True
 
     if options.build_tests:
         # Get all paths
@@ -165,21 +168,16 @@ if __name__ == '__main__':
                 toolchains = toolchainSet.intersection(set((options.toolchains).split(',')))
 
             for toolchain in toolchains:
-                id = "%s::%s" % (target_name, toolchain)
+                built_mbed_lib = build_mbed_libs(
+                    TARGET_MAP[target_name],
+                    toolchain,
+                    notify=TerminalNotifier(options.verbose),
+                    jobs=options.jobs,
+                    report=build_report,
+                    properties=build_properties,
+                    build_profile=extract_profile(parser, options, toolchain),
+                )
 
-                profile = extract_profile(parser, options, toolchain)
-
-                try:
-                    built_mbed_lib = build_mbed_libs(TARGET_MAP[target_name],
-                                                     toolchain,
-                                                     verbose=options.verbose,
-                                                     jobs=options.jobs,
-                                                     report=build_report,
-                                                     properties=build_properties,
-                                                     build_profile=profile)
-
-                except Exception, e:
-                    print str(e)
 
     # copy targets.json file as part of the release
     copy(join(dirname(abspath(__file__)), '..', 'targets', 'targets.json'), MBED_LIBRARIES)
@@ -192,7 +190,7 @@ if __name__ == '__main__':
     print "\n\nCompleted in: (%.2f)s" % (time() - start)
 
     print_report_exporter = ReportExporter(ResultExporterType.PRINT, package="build")
-    status = print_report_exporter.report(build_report)
+    status = status and print_report_exporter.report(build_report)
 
     if not status:
         sys.exit(1)

@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * Copyright (c) 2006-2017 ARM Limited
+ * Copyright (c) 2006-2018 ARM Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,11 +23,11 @@ extern "C" {
 #endif
 
 typedef enum {
-    UART_0 = (int)CMSDK_UART0_BASE, /* MCC UART */
-    UART_1 = (int)CMSDK_UART1_BASE, /* MPS2+ UART */
-    UART_2 = (int)CMSDK_UART2_BASE, /* Shield 0 UART */
-    UART_3 = (int)CMSDK_UART3_BASE, /* Shield 1 UART */
-    UART_4 = (int)CMSDK_UART4_BASE  /* Shield BT UART */
+    UART_0 = 0, /* MCC UART */
+    UART_1,     /* MPS2+ UART */
+    UART_2,     /* Shield 0 UART */
+    UART_3,     /* Shield 1 UART */
+    UART_4      /* Shield BT UART */
 } UARTName;
 
 typedef enum {
@@ -53,37 +53,13 @@ typedef enum {
 } ADCName;
 
 typedef enum {
-    SPI_0 = (int)MPS2_SSP0_BASE,
-    SPI_1 = (int)MPS2_SSP1_BASE,
-    SPI_2 = (int)MPS2_SSP2_BASE,
-    SPI_3 = (int)MPS2_SSP3_BASE,
-    SPI_4 = (int)MPS2_SSP4_BASE
+    SPI_0 = 0,
+    SPI_1,
+    SPI_2,
+    SPI_3,
+    SPI_4,
+    SPI_NC = (SPI_4 + 1)
 } SPIName;
-
-typedef enum {
-    PWM_1 = 0,
-    PWM_2,
-    PWM_3,
-    PWM_4,
-    PWM_5,
-    PWM_6,
-    PWM_7,
-    PWM_8,
-    PWM_9,
-    PWM_10,
-    PWM_11
-} PWMName;
-
-#define STDIO_UART_TX     USBTX
-#define STDIO_UART_RX     USBRX
-#define STDIO_UART        UART_1
-
-#define MBED_UART0        MCC_TX, MCC_RX
-#define MBED_UART1        USBTX, USBRX
-#define MBED_UART2        XB_TX, XB_RX
-#define MBED_UART3        SH0_TX, SH0_RX
-#define MBED_UART4        SH1_TX, SH1_RX
-#define MBED_UARTUSB      USBTX, USBRX
 
 #ifdef __cplusplus
 }

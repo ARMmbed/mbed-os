@@ -29,6 +29,7 @@ static const char UnityStrOk[]                     = "OK";
 static const char UnityStrPass[]                   = "PASS";
 static const char UnityStrFail[]                   = "FAIL";
 static const char UnityStrIgnore[]                 = "IGNORE";
+static const char UnityStrSkip[]                   = "SKIP";
 static const char UnityStrNull[]                   = "NULL";
 static const char UnityStrSpacer[]                 = ". ";
 static const char UnityStrExpected[]               = " Expected ";
@@ -1226,6 +1227,19 @@ void UnityIgnore(const char* msg, const UNITY_LINE_TYPE line)
       UnityPrint(msg);
     }
     UNITY_IGNORE_AND_BAIL;
+}
+
+/*-----------------------------------------------*/
+void UnitySkipPrint(const char* msg, const UNITY_LINE_TYPE line)
+{
+    UnityTestResultsBegin(Unity.TestFile, line);
+    UnityPrint(UnityStrSkip);
+    if (msg != NULL)
+    {
+      UNITY_OUTPUT_CHAR(':');
+      UNITY_OUTPUT_CHAR(' ');
+      UnityPrint(msg);
+    }
 }
 
 /*-----------------------------------------------*/

@@ -98,6 +98,7 @@ class DeviceCMSIS():
         cpu = cpu.replace("Cortex-","ARMC")
         cpu = cpu.replace("+","P")
         cpu = cpu.replace("F","_FP")
+        cpu = cpu.replace("-NS", "")
         return cpu
 
 
@@ -143,7 +144,7 @@ class CMSIS(Exporter):
     def generate(self):
         srcs = self.resources.headers + self.resources.s_sources + \
                self.resources.c_sources + self.resources.cpp_sources + \
-               self.resources.objects + self.resources.libraries + \
+               self.resources.objects + self.libraries + \
                [self.resources.linker_script]
         srcs = [fileCMSIS(src, src) for src in srcs if src]
         ctx = {
@@ -153,3 +154,8 @@ class CMSIS(Exporter):
             'date': ''
         }
         self.gen_file('cmsis/cpdsc.tmpl', ctx, 'project.cpdsc')
+
+
+    @staticmethod
+    def clean(_):
+        os.remove('project.cpdsc')

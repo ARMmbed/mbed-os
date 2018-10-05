@@ -46,31 +46,31 @@ protected:
     *
     * @returns pointer to the device descriptor
     */
-    virtual uint8_t * deviceDesc();
+    virtual const uint8_t * deviceDesc();
 
     /*
     * Get string product descriptor
     *
     * @returns pointer to the string product descriptor
     */
-    virtual uint8_t * stringIproductDesc();
+    virtual const uint8_t * stringIproductDesc();
 
     /*
     * Get string interface descriptor
     *
     * @returns pointer to the string interface descriptor
     */
-    virtual uint8_t * stringIinterfaceDesc();
+    virtual const uint8_t * stringIinterfaceDesc();
 
     /*
     * Get configuration descriptor
     *
     * @returns pointer to the configuration descriptor
     */
-    virtual uint8_t * configurationDesc();
+    virtual const uint8_t * configurationDesc();
 
     /*
-    * Send a buffer
+    * Send a buffer. Warning: blocking
     *
     * @param endpoint endpoint which will be sent the buffer
     * @param buffer buffer to be sent
@@ -78,6 +78,16 @@ protected:
     * @returns true if successful
     */
     bool send(uint8_t * buffer, uint32_t size);
+
+    /*
+    * Send a buffer. Warning: non blocking
+    *
+    * @param endpoint endpoint which will be sent the buffer
+    * @param buffer buffer to be sent
+    * @param size length of the buffer
+    * @returns true if successful
+    */
+    bool send_NB(uint8_t * buffer, uint32_t size);
 
     /*
     * Read a buffer from a certain endpoint. Warning: blocking

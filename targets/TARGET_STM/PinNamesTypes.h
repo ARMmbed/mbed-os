@@ -37,7 +37,7 @@ extern "C" {
 #endif
 
 /*  STM PIN data as used in pin_function is coded on 32 bits as below
- *   [2:0]  Function (like in MODER reg) : Input / Output / Alt / Analog 
+ *   [2:0]  Function (like in MODER reg) : Input / Output / Alt / Analog
  *     [3]  Output Push-Pull / Open Drain (as in OTYPER reg)
  *   [5:4]  as in PUPDR reg: No Pull, Pull-up, Pull-Donc
  *   [7:6]  Reserved for speed config (as in OSPEEDR), but not used yet

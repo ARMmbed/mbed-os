@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32l0xx_hal_tsc.h
   * @author  MCD Application Team
-  * @version V1.7.0
-  * @date    31-May-2016
   * @brief   This file contains all the functions prototypes for the TSC firmware 
   *          library.
   ******************************************************************************
@@ -36,7 +34,6 @@
   ******************************************************************************
   */
 
-#if !defined (STM32L011xx) && !defined (STM32L021xx) && !defined (STM32L031xx) && !defined (STM32L041xx) && !defined (STM32L051xx) && !defined (STM32L061xx) && !defined (STM32L071xx) && !defined (STM32L081xx)
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __STM32L0xx_TSC_H
 #define __STM32L0xx_TSC_H
@@ -45,6 +42,8 @@
  extern "C" {
 #endif
 
+#if !defined (STM32L011xx) && !defined (STM32L021xx) && !defined (STM32L031xx) && !defined (STM32L041xx) && !defined (STM32L051xx) && !defined (STM32L061xx) && !defined (STM32L071xx) && !defined (STM32L081xx)
+   
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l0xx_hal_def.h"
 

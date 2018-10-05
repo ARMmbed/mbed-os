@@ -22,10 +22,10 @@
  *-------------------------------------------------------------------------*/
 
 /**
-* @file cb_bt_conn_man.h
-* @brief Connection management. Functionality for setting up and tearing 
-* down Bluetooth connections. Profile services are also enabled
-* using this module.
+ * @file cb_bt_conn_man.h
+ * @brief Connection management. Functionality for setting up and tearing 
+ * down Bluetooth connections. Profile services are also enabled
+ * using this module.
  */
 
 #ifndef _CB_BT_CONN_MAN_H_
@@ -120,6 +120,8 @@ typedef enum
 typedef struct
 {
     TBdAddr                 address;
+    TNameOutgoing           remoteName;
+    cb_int8                 remoteRssi;
     cbBCM_ConnectionType    type;
     TConnHandle             aclHandle;
     TBluetoothType          btType;
@@ -128,17 +130,6 @@ typedef struct
     cb_boolean              uuidValid;
     cb_char                 serviceName[cbBCM_SERVICE_NAME_MAX_LEN];
 } cbBCM_ConnectionInfo;
-
-typedef struct
-{
-    cb_uint8  flags;            /** Reserved for future use. */
-    cb_uint8  flowDirection;    /** 0x00 for Outgoing Flow and 0x01 for Incoming Flow */
-    cb_uint8  serviceType;      /** 0x00 No Traffic; 0x01 Best Effort; 0x02 Guaranteed */
-    cb_uint32 tokenRate;        /** Token Rate in octets per second */
-    cb_uint32 tokenBucketSize;  /** Token Bucket Size in octets */
-    cb_uint32 peakBandwidth;    /** Peak Bandwidth in octets per second */
-    cb_uint32 latency;          /** Latency in microseconds */
-} cbBCM_FlowSpecParams;
 
 typedef void (*cbBCM_ConnectInd)(
     cbBCM_Handle handle,
@@ -195,6 +186,7 @@ typedef cb_int32 (*cbBCM_SetMaxLinksCmd)(cb_uint32 maxLinks);
  * @return TRUE if handle is free, FALSE otherwise
  */
 typedef cb_boolean (*cbBCM_IsHandleFree)(cbBCM_Handle handle);
+
 /**
  * Callback to indicate that remaining buffer size needs to be obtained from 
  * upper layer. The callback returns remaining buffer size and there is 
@@ -238,12 +230,6 @@ typedef void(*cbBCM_LinkQualityCallback)(
     uint8               linkQuality);
 
 typedef void(*cbBCM_ServiceClassEnabled)(cb_uint8 serviceChannel);
-
-typedef void(*cbBCM_SetFlowSpecCallback)(
-    cb_uint8 status,
-    cbBCM_Handle handle,
-    cbBCM_FlowSpecParams parameters);
-
 /*===========================================================================
  * FUNCTIONS
  *=========================================================================*/
@@ -308,7 +294,6 @@ extern cb_int32 cbBCM_enableServerProfileUuid128(
     cbBCM_ConnectionCallback *pConnectionCallback, 
     cbBCM_ServiceClassEnabled pServiceClassEnabled);
 
-
 /**
 * Registers the server role of the local device. If role is cbBCM_PAN_ROLE_NAP a service
 * record will be registred in the local service data base. The local device can only act as a
@@ -347,27 +332,27 @@ extern cb_int32 cbBCM_enableDeviceIdServiceRecord(
     cb_uint16 vendorIdSource);
 
 /**
-* Set Bluetooth watchdog settings
-*
-* @param   disconnectReset Reset the device on any dropped Bluetooth connection
-* @return  void
-*/
+ * Set Bluetooth watchdog settings
+ *
+ * @param   disconnectReset Reset the device on any dropped Bluetooth connection
+ * @return  void
+ */
 extern void cbBCM_setBluetoothWatchdogValue(cb_uint32 disconnectReset);
 
 /**
-* Set the packet types to use. Call cbBCM_cmdChangePacketType()
-* to start using the new packet types.
-*
-* @param  packetType   See packet types in bt_types.h
-* @return  If the operation is successful cbBCM_OK is returned.
-*/
+ * Set the packet types to use. Call cbBCM_cmdChangePacketType()
+ * to start using the new packet types.
+ *
+ * @param  packetType   See packet types in bt_types.h
+ * @return  If the operation is successful cbBCM_OK is returned.
+ */
 extern cb_uint32 cbBCM_setPacketType(cb_uint16 packetType);
 
 /**
-* Get BT classic packet type.
-*
-* @return  Allowed packet types returned.
-*/
+ * Get BT classic packet type.
+ *
+ * @return  Allowed packet types returned.
+ */
 extern cb_uint16 cbBCM_getPacketType(void);
 
 /**
@@ -419,6 +404,7 @@ extern cb_uint16 cbBCM_getMaxLinksLE(void);
  * @param   serverChannel     RFCOMM server channel that shall be used. Set to
  *                            cbBCM_INVALID_SERVER_CHANNEL to perform automatic
  *                            service search to find the server channel.
+ * @param   pRemoteName       Pointer used in case user connects to the Bluetooth name
  * @param   pAclParameters    Link configuration including link supervision timeout
  *                            and master slave policy. Pass NULL to use default connection 
  *                            parameters.
@@ -430,7 +416,9 @@ extern cbBCM_Handle cbBCM_reqConnectSpp(
     TBdAddr *pAddress,
     cb_char *pServiceName,
     cb_uint8 serverChannel,
+    cb_char *pRemoteName,
     cbBCM_ConnectionParameters *pAclParameters,
+    cb_boolean qosEnable,
     cbBCM_ConnectionCallback *pConnectionCallback);
 
 /**
@@ -477,6 +465,7 @@ extern cbBCM_Handle cbBCM_reqConnectDun(
     cb_char *pServiceName,
     cb_uint8 serverChannel,
     cbBCM_ConnectionParameters *pAclParameters,
+    cb_boolean qosEnable,
     cbBCM_ConnectionCallback *pConnectionCallback);
 
 /**
@@ -525,6 +514,7 @@ extern cbBCM_Handle cbBCM_reqConnectUuid(
     cb_char *pServiceName,
     cb_uint8 serverChannel,
     cbBCM_ConnectionParameters *pAclParameters,
+    cb_boolean qosEnable,
     cbBCM_ConnectionCallback *pConnectionCallback);
 
 /**
@@ -533,7 +523,7 @@ extern cbBCM_Handle cbBCM_reqConnectUuid(
  *
  * @param handle    Connection handle
  * @param accept    TRUE to accept the incoming connection.
-                    FALSE to reject.
+ *                  FALSE to reject.
  * @return If the operation is successful cbBCM_OK is returned.
  */
 extern cb_int32 cbBCM_rspConnectUuidCnf(
@@ -541,22 +531,22 @@ extern cb_int32 cbBCM_rspConnectUuidCnf(
     cb_boolean accept);
 
 /**
-* Initiate a Bluetooth PAN Profile connection.
-* The connection sequence includes ACL connection setup and L2CAP connection setup.
-* A pfConnectCnf callback will be received when the connection is complete.
-* The error code in the*callback is cbBCM_OK if the connection was successfully established.
-* The error code in the callback is cbBCM_ERROR if the connection failed.
-*
-* @param   pAddress          Pointer to address of remote device.
-* @param   remoteRole        PAN role of the remote device
-* @param   localRole         PAN role of the local device
-* @param   pAclParams        Link configuration including link supervision timeout
-*                            and master slave policy. Pass NULL to use default connection
-*                            parameters.
-* @param   pConnectionCallback Callback structure for connection management.
-* @return  If the operation is successful the connection handle is returned. If
-*          not cbBCM_INVALID_CONNECTION_HANDLE is returned.
-*/
+ * Initiate a Bluetooth PAN Profile connection.
+ * The connection sequence includes ACL connection setup and L2CAP connection setup.
+ * A pfConnectCnf callback will be received when the connection is complete.
+ * The error code in the*callback is cbBCM_OK if the connection was successfully established.
+ * The error code in the callback is cbBCM_ERROR if the connection failed.
+ *
+ * @param   pAddress          Pointer to address of remote device.
+ * @param   remoteRole        PAN role of the remote device
+ * @param   localRole         PAN role of the local device
+ * @param   pAclParams        Link configuration including link supervision timeout
+ *                            and master slave policy. Pass NULL to use default connection
+ *                            parameters.
+ * @param   pConnectionCallback Callback structure for connection management.
+ * @return  If the operation is successful the connection handle is returned. If
+ *          not cbBCM_INVALID_CONNECTION_HANDLE is returned.
+ */
 extern cbBCM_Handle cbBCM_reqConnectPan(
     TBdAddr *pAddress,
     cbBCM_PAN_Role remoteRole,
@@ -565,14 +555,14 @@ extern cbBCM_Handle cbBCM_reqConnectPan(
     cbBCM_ConnectionCallback *pConnectionCallback);
 
 /**
-* Accept or reject an incoming PAN connection. This is a
-* response to a cbBCM_ConnectInd connection indication.
-*
-* @param handle    Connection handle
-* @param accept    TRUE to accept the incoming connection.
-*                  FALSE to reject.
-* @return If the operation is successful cbBCM_OK is returned.
-*/
+ * Accept or reject an incoming PAN connection. This is a
+ * response to a cbBCM_ConnectInd connection indication.
+ *
+ * @param handle    Connection handle
+ * @param accept    TRUE to accept the incoming connection.
+ *                  FALSE to reject.
+ * @return If the operation is successful cbBCM_OK is returned.
+ */
 extern cb_int32 cbBCM_rspConnectPan(
     cbBCM_Handle handle,
     cb_boolean accept);
@@ -624,6 +614,7 @@ extern cb_int32 cbBCM_autoConnect(
  */
 extern cbBCM_Handle cbBCM_reqConnectSps(
     TBdAddr *pAddress,
+    cb_char *pRemoteName,
     cbBCM_ConnectionParametersLe *pAclLeParams,
     cbBCM_ConnectionCallback *pConnectionCallback);
 
@@ -725,11 +716,11 @@ cb_int32 cbBCM_reqServiceSearchDeviceId(
     cbBCM_ServiceSearchCompleteCallback pCompleteCallback);
 
 /**
-* @brief   Get local Master/Slave role in an active connection.
-* @param   bdAddr                 address to the connection
-* @param   roleDiscoveryCallback  Callback function used to notify the role
-* @return  If the operation is successful cbBCM_OK is returned.
-*/
+ * @brief   Get local Master/Slave role in an active connection.
+ * @param   bdAddr                 address to the connection
+ * @param   roleDiscoveryCallback  Callback function used to notify the role
+ * @return  If the operation is successful cbBCM_OK is returned.
+ */
 extern cb_int32 cbBCM_RoleDiscovery(
     TBdAddr bdAddr,
     cbBCM_RoleDiscoveryCallback roleDiscoveryCallback);
@@ -746,10 +737,10 @@ extern cb_int32 cbBCM_getRssi(
     cbBCM_RssiCallback rssiCallback);
 
 /*
-* Read the LinkQuality .
-* @return status as int32.
-* @cbBM_LinkQualityCallback is used to provide result.
-*/
+ * Read the LinkQuality .
+ * @return status as int32.
+ * @cbBM_LinkQualityCallback is used to provide result.
+ */
 extern cb_int32 cbBCM_GetLinkQuality(TBdAddr bdAddr, cbBCM_LinkQualityCallback  linkQualityCallback);
 
 /**
@@ -825,7 +816,7 @@ extern TBdAddr cbBCM_getAddress(cbBCM_Handle handle);
  */
 extern cb_int32 cbBCM_registerDataCallback(
     cbBCM_ConnectionType type,
-    cbBCM_DataCallback *pDataCallback);
+    const cbBCM_DataCallback *pDataCallback);
 
 /**
  * @brief   Get the protocol handle for an active connection. Shall not be used
@@ -840,43 +831,44 @@ extern cbBCM_Handle cbBCM_getProtocolHandle(
     cbBCM_Handle handle);
 
 /**
-* @brief   Get the bcm id from acl handle for an active connection. 
-*
-* @param   handle Connection handle
-* @return  bcm handle.
-*/
+ * @brief   Get the bcm id from acl handle for an active connection. 
+ *
+ * @param   handle Connection handle
+ * @return  bcm handle.
+ */
 extern cbBCM_Handle cbBCM_getIdFromAclHandle(TConnHandle aclHandle);
 
 /**
-* @brief   Get the acl handle from bcm handle.
-* 
-* @param   handle bcm handle
-* @return  acl handle
-*/
+ * @brief   Get the acl handle from bcm handle.
+ * 
+ * @param   handle bcm handle
+ * @return  acl handle
+ */
 extern TConnHandle cbBCM_getAclFromIdHandle(cbBCM_Handle  bcmHandle);
-/**
-* @brief   This will send cbHCI_cmdFlowSpecification command for the specified link
-*          with the specified parameters.
-* @param   handle           Connection handle
-* @param   parameters       Flow Specification parameters. For details see Bluetooth Core
-*                           Specification [Vol 3] Part A, Section 5.3
-* @param   flowSpecCallback Callback contains the data in Flow Specification Complete event
-* @return  If the operation is successful cbBCM_OK is returned.
-*/
-extern cb_int32 cbBCM_setFlowSpecification(
-    cbBCM_Handle handle,
-    cbBCM_FlowSpecParams parameters,
-    cbBCM_SetFlowSpecCallback flowSpecCallback);
 
 /**
-* @brief   Change which packet types can be used for the connection identified by the handle
-* @param   handle           Connection handle
-* @param   aclPacketType    bit map according to packet types defined in bt_types.h
-* @return  If the operation is successful cbBCM_OK is returned.
-*/
+ * @brief   Set active poll mode to introduce periodic BT classic link polling.
+ * @param   mode   Active poll mode  0=disable, 1=enable (default period), 2-UINT16_MAX: period of poll
+ * @return  If the update is successfully initiated cbBCM_OK is returned.
+ */
+extern cb_int32 cbBCM_setActivePollMode(cb_uint16 mode);
+
+/**
+ * @brief   Get active poll mode.
+ * @return   Active poll mode  0=disable, 1=enable
+ */
+extern cb_uint16 cbBCM_getActivePollMode(void);
+
+/**
+ * @brief   Change which packet types can be used for the connection identified by the handle
+ * @param   handle           Connection handle
+ * @param   aclPacketType    bit map according to packet types defined in bt_types.h
+ * @return  If the operation is successful cbBCM_OK is returned.
+ */
 extern cb_int32 cbBCM_changeConnectionPacketType(
     cbBCM_Handle handle,
     TPacketType aclPacketType);
+	
 
 #ifdef __cplusplus
 }
@@ -884,9 +876,3 @@ extern cb_int32 cbBCM_changeConnectionPacketType(
 
 
 #endif /* _CB_BT_CONN_MAN_H_ */
-
-
-
-
-
-

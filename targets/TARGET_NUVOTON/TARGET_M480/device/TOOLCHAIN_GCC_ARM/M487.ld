@@ -64,56 +64,9 @@ SECTIONS
          . = ALIGN(4);
     } > VECTORS
 
-    /* Note: Ensure that uVisor bss is at the beginning of SRAM to match vmpu_arch_init_hw of
-             uvisor/core/system/src/mpu/vmpu_armv7m.c */
-    /* Note: The uVisor expects this section at a fixed location, as specified
-             by the porting process configuration parameter: SRAM_OFFSET. */
-    __UVISOR_SRAM_OFFSET = 0x0;
-    __UVISOR_BSS_START = ORIGIN(RAM_INTERN) + __UVISOR_SRAM_OFFSET;
-    .uvisor.bss __UVISOR_BSS_START (NOLOAD):
+
+    .text :
     {
-        . = ALIGN(32);
-        __uvisor_bss_start = .;
-
-        /* uVisor main BSS section */
-        . = ALIGN(32);
-        __uvisor_bss_main_start = .;
-        KEEP(*(.keep.uvisor.bss.main))
-        . = ALIGN(32);
-        __uvisor_bss_main_end = .;
-
-        /* Secure boxes BSS section */
-        . = ALIGN(32);
-        __uvisor_bss_boxes_start = .;
-        KEEP(*(.keep.uvisor.bss.boxes))
-        . = ALIGN(32);
-        __uvisor_bss_boxes_end = .;
-
-        . = ALIGN(32);
-        __uvisor_bss_end = .;
-    } > RAM_INTERN
-
-    /* Heap space for the page allocator */
-    .page_heap (NOLOAD) :
-    {
-        . = ALIGN(32);
-        __uvisor_page_start = .;
-        KEEP(*(.keep.uvisor.page_heap))
-        . = ALIGN((1 << LOG2CEIL(LENGTH(RAM_INTERN))) / 8);
-        __uvisor_page_end = .;
-    } > RAM_INTERN
-    
-    /* Note: The uVisor expects this section at a fixed location, as specified
-             by the porting process configuration parameter: FLASH_OFFSET. */
-    __UVISOR_TEXT_OFFSET = 0x400;
-    __UVISOR_TEXT_START = ORIGIN(VECTORS) + __UVISOR_TEXT_OFFSET;
-    .text __UVISOR_TEXT_START :
-    {
-        /* uVisor code and data */
-        . = ALIGN(4);
-        __uvisor_main_start = .;
-        *(.uvisor.main)
-        __uvisor_main_end = .;
 
         *(.text*)
 
@@ -211,37 +164,6 @@ SECTIONS
 
     } >RAM_INTERN AT>FLASH
 
-    /* uVisor configuration section
-     * This section must be located after all other flash regions. */
-    .uvisor.secure :
-    {
-        . = ALIGN(32);
-        __uvisor_secure_start = .;
-
-        /* uVisor secure boxes configuration tables */
-        . = ALIGN(32);
-        __uvisor_cfgtbl_start = .;
-        KEEP(*(.keep.uvisor.cfgtbl))
-        . = ALIGN(32);
-        __uvisor_cfgtbl_end = .;
-
-        /* Pointers to the uVisor secure boxes configuration tables */
-        /* Note: Do not add any further alignment here, as uVisor will need to
-                 have access to the exact list of pointers. */
-        __uvisor_cfgtbl_ptr_start = .;
-        KEEP(*(.keep.uvisor.cfgtbl_ptr_first))
-        KEEP(*(.keep.uvisor.cfgtbl_ptr))
-        __uvisor_cfgtbl_ptr_end = .;
-
-        /* Pointers to all boxes register gateways. These are grouped here to
-           allow discoverability and firmware verification. */
-        __uvisor_register_gateway_ptr_start = .;
-        KEEP(*(.keep.uvisor.register_gateway_ptr))
-        __uvisor_register_gateway_ptr_end = .;
-
-        . = ALIGN(32);
-        __uvisor_secure_end = .;
-    } > FLASH
 
     /* Uninitialized data section
      * This region is not initialized by the C/C++ library and can be used to
@@ -267,24 +189,15 @@ SECTIONS
     .heap (NOLOAD):
     {
         . = ALIGN(8);
-        __uvisor_heap_start = .;
         __end__ = .;
         PROVIDE(end = .);
         __HeapBase = .;
         *(.heap*);
         . += (ORIGIN(RAM_INTERN) + LENGTH(RAM_INTERN) - .);
         __HeapLimit = .;
-        __uvisor_heap_end = . - 4;
     } > RAM_INTERN
     PROVIDE(__heap_size = SIZEOF(.heap));
     PROVIDE(__mbed_sbrk_start = ADDR(.heap));
     PROVIDE(__mbed_krbs_start = ADDR(.heap) + SIZEOF(.heap));
     
-    /* Provide physical memory boundaries for uVisor. */
-    __uvisor_flash_start = ORIGIN(VECTORS);
-    __uvisor_flash_end = ORIGIN(FLASH) + LENGTH(FLASH);
-    __uvisor_sram_start = ORIGIN(RAM_INTERN);
-    __uvisor_sram_end = ORIGIN(RAM_INTERN) + LENGTH(RAM_INTERN);
-    __uvisor_public_sram_start = __uvisor_sram_start;
-    __uvisor_public_sram_end = __uvisor_sram_end;
 }

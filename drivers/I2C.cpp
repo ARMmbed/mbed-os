@@ -18,7 +18,7 @@
 #if DEVICE_I2C
 
 #if DEVICE_I2C_ASYNCH
-#include "platform/mbed_sleep.h"
+#include "platform/mbed_power_mgmt.h"
 #endif
 
 namespace mbed {
@@ -28,9 +28,10 @@ SingletonPtr<PlatformMutex> I2C::_mutex;
 
 I2C::I2C(PinName sda, PinName scl) :
 #if DEVICE_I2C_ASYNCH
-                                     _irq(this), _usage(DMA_USAGE_NEVER),
+    _irq(this), _usage(DMA_USAGE_NEVER), _deep_sleep_locked(false),
 #endif
-                                      _i2c(), _hz(100000) {
+    _i2c(), _hz(100000)
+{
     // No lock needed in the constructor
 
     // The init function also set the frequency to 100000
@@ -40,7 +41,8 @@ I2C::I2C(PinName sda, PinName scl) :
     _owner = this;
 }
 
-void I2C::frequency(int hz) {
+void I2C::frequency(int hz)
+{
     lock();
     _hz = hz;
 
@@ -52,7 +54,8 @@ void I2C::frequency(int hz) {
     unlock();
 }
 
-void I2C::aquire() {
+void I2C::aquire()
+{
     lock();
     if (_owner != this) {
         i2c_frequency(&_i2c, _hz);
@@ -62,7 +65,8 @@ void I2C::aquire() {
 }
 
 // write - Master Transmitter Mode
-int I2C::write(int address, const char* data, int length, bool repeated) {
+int I2C::write(int address, const char *data, int length, bool repeated)
+{
     lock();
     aquire();
 
@@ -73,15 +77,17 @@ int I2C::write(int address, const char* data, int length, bool repeated) {
     return length != written;
 }
 
-int I2C::write(int data) {
+int I2C::write(int data)
+{
     lock();
     int ret = i2c_byte_write(&_i2c, data);
     unlock();
     return ret;
 }
 
-// read - Master Reciever Mode
-int I2C::read(int address, char* data, int length, bool repeated) {
+// read - Master Receiver Mode
+int I2C::read(int address, char *data, int length, bool repeated)
+{
     lock();
     aquire();
 
@@ -92,7 +98,8 @@ int I2C::read(int address, char* data, int length, bool repeated) {
     return length != read;
 }
 
-int I2C::read(int ack) {
+int I2C::read(int ack)
+{
     lock();
     int ret;
     if (ack) {
@@ -104,36 +111,40 @@ int I2C::read(int ack) {
     return ret;
 }
 
-void I2C::start(void) {
+void I2C::start(void)
+{
     lock();
     i2c_start(&_i2c);
     unlock();
 }
 
-void I2C::stop(void) {
+void I2C::stop(void)
+{
     lock();
     i2c_stop(&_i2c);
     unlock();
 }
 
-void I2C::lock() {
+void I2C::lock()
+{
     _mutex->lock();
 }
 
-void I2C::unlock() {
+void I2C::unlock()
+{
     _mutex->unlock();
 }
 
 #if DEVICE_I2C_ASYNCH
 
-int I2C::transfer(int address, const char *tx_buffer, int tx_length, char *rx_buffer, int rx_length, const event_callback_t& callback, int event, bool repeated)
+int I2C::transfer(int address, const char *tx_buffer, int tx_length, char *rx_buffer, int rx_length, const event_callback_t &callback, int event, bool repeated)
 {
     lock();
     if (i2c_active(&_i2c)) {
         unlock();
         return -1; // transaction ongoing
     }
-    sleep_manager_lock_deep_sleep();
+    lock_deep_sleep();
     aquire();
 
     _callback = callback;
@@ -148,7 +159,7 @@ void I2C::abort_transfer(void)
 {
     lock();
     i2c_abort_asynch(&_i2c);
-    sleep_manager_unlock_deep_sleep();
+    unlock_deep_sleep();
     unlock();
 }
 
@@ -159,11 +170,26 @@ void I2C::irq_handler_asynch(void)
         _callback.call(event);
     }
     if (event) {
-        sleep_manager_unlock_deep_sleep();
+        unlock_deep_sleep();
     }
 
 }
 
+void I2C::lock_deep_sleep()
+{
+    if (_deep_sleep_locked == false) {
+        sleep_manager_lock_deep_sleep();
+        _deep_sleep_locked = true;
+    }
+}
+
+void I2C::unlock_deep_sleep()
+{
+    if (_deep_sleep_locked == true) {
+        sleep_manager_unlock_deep_sleep();
+        _deep_sleep_locked = false;
+    }
+}
 
 #endif
 

@@ -35,12 +35,9 @@
 #include "pinmap.h"
 #include "mbed_error.h"
 #include "PeripheralPins.h"
-#include <stdbool.h>
 
 void analogin_init(analogin_t *obj, PinName pin)
 {
-    static bool adc_hsi_inited = false;
-    RCC_OscInitTypeDef RCC_OscInitStruct;
     uint32_t function = (uint32_t)NC;
 
     // ADC Internal Channels "pins"  (Temperature, Vref, Vbat, ...)
@@ -92,10 +89,9 @@ void analogin_init(analogin_t *obj, PinName pin)
         error("Cannot initialize ADC");
     }
 
-    // This section is done only once
-    if (!adc_hsi_inited) {
-        adc_hsi_inited = true;
+    if (!__HAL_RCC_GET_FLAG(RCC_FLAG_HSIRDY)) {
         // Enable the HSI (to clock the ADC)
+        RCC_OscInitTypeDef RCC_OscInitStruct;
         RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
         RCC_OscInitStruct.HSIState       = RCC_HSI_ON;
         RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE;
@@ -109,6 +105,9 @@ uint16_t adc_read(analogin_t *obj)
     ADC_ChannelConfTypeDef sConfig = {0};
 
     // Configure ADC channel
+    sConfig.Rank         = ADC_REGULAR_RANK_1;
+    sConfig.SamplingTime = ADC_SAMPLETIME_48CYCLES;
+
     switch (obj->channel) {
         case 0:
             sConfig.Channel = ADC_CHANNEL_0;
@@ -160,9 +159,11 @@ uint16_t adc_read(analogin_t *obj)
             break;
         case 16:
             sConfig.Channel = ADC_CHANNEL_TEMPSENSOR;
+            sConfig.SamplingTime = ADC_SAMPLETIME_384CYCLES;
             break;
         case 17:
             sConfig.Channel = ADC_CHANNEL_VREFINT;
+            sConfig.SamplingTime = ADC_SAMPLETIME_384CYCLES;
             break;
         case 18:
             sConfig.Channel = ADC_CHANNEL_18;
@@ -219,9 +220,6 @@ uint16_t adc_read(analogin_t *obj)
         default:
             return 0;
     }
-
-    sConfig.Rank         = ADC_REGULAR_RANK_1;
-    sConfig.SamplingTime = ADC_SAMPLETIME_16CYCLES;
 
     HAL_ADC_ConfigChannel(&obj->handle, &sConfig);
 

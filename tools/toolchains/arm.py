@@ -14,15 +14,21 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+from __future__ import print_function, absolute_import
+from builtins import str
+
 import re
 from copy import copy
-from os.path import join, dirname, splitext, basename, exists
-from os import makedirs, write
+from os.path import join, dirname, splitext, basename, exists, relpath, isfile
+from os import makedirs, write, curdir, remove
 from tempfile import mkstemp
+from shutil import rmtree
+from distutils.version import LooseVersion
 
+from tools.targets import CORE_ARCH
 from tools.toolchains import mbedToolchain, TOOLCHAIN_PATHS
 from tools.hooks import hook_tool
-from tools.utils import mkdir, NotSupportedException
+from tools.utils import mkdir, NotSupportedException, run_cmd
 
 class ARM(mbedToolchain):
     LINKER_EXT = '.sct'
@@ -34,7 +40,9 @@ class ARM(mbedToolchain):
     DEP_PATTERN = re.compile('\S+:\s(?P<file>.+)\n')
     SHEBANG = "#! armcc -E"
     SUPPORTED_CORES = ["Cortex-M0", "Cortex-M0+", "Cortex-M3", "Cortex-M4",
-                       "Cortex-M4F", "Cortex-M7", "Cortex-M7F", "Cortex-M7FD"]
+                       "Cortex-M4F", "Cortex-M7", "Cortex-M7F", "Cortex-M7FD", "Cortex-A9"]
+    ARMCC_RANGE = (LooseVersion("5.06"), LooseVersion("5.07"))
+    ARMCC_VERSION_RE = re.compile(b"Component: ARM Compiler (\d+\.\d+)")
 
     @staticmethod
     def check_executable():
@@ -44,15 +52,23 @@ class ARM(mbedToolchain):
         return mbedToolchain.generic_check_executable("ARM", 'armcc', 2, 'bin')
 
     def __init__(self, target, notify=None, macros=None,
-                 silent=False, extra_verbose=False, build_profile=None,
-                 build_dir=None):
-        mbedToolchain.__init__(self, target, notify, macros, silent,
-                               build_dir=build_dir,
-                               extra_verbose=extra_verbose,
-                               build_profile=build_profile)
+                 build_profile=None, build_dir=None):
+        mbedToolchain.__init__(
+            self, target, notify, macros, build_dir=build_dir,
+            build_profile=build_profile)
         if target.core not in self.SUPPORTED_CORES:
             raise NotSupportedException(
                 "this compiler does not support the core %s" % target.core)
+
+        if getattr(target, "default_lib", "std") == "small":
+            if "-DMBED_RTOS_SINGLE_THREAD" not in self.flags['common']:
+                self.flags['common'].append("-DMBED_RTOS_SINGLE_THREAD")
+            if "-D__MICROLIB" not in self.flags['common']:
+                self.flags['common'].append("-D__MICROLIB")
+            if "--library_type=microlib" not in self.flags['ld']:
+                self.flags['ld'].append("--library_type=microlib")
+            if "--library_type=microlib" not in self.flags['common']:
+                self.flags['common'].append("--library_type=microlib")
 
         if target.core == "Cortex-M0+":
             cpu = "Cortex-M0"
@@ -67,7 +83,7 @@ class ARM(mbedToolchain):
 
         ARM_BIN = join(TOOLCHAIN_PATHS['ARM'], "bin")
         ARM_INC = join(TOOLCHAIN_PATHS['ARM'], "include")
-        
+
         main_cc = join(ARM_BIN, "armcc")
 
         self.flags['common'] += ["--cpu=%s" % cpu]
@@ -80,6 +96,39 @@ class ARM(mbedToolchain):
 
         self.ar = join(ARM_BIN, "armar")
         self.elf2bin = join(ARM_BIN, "fromelf")
+
+        self.SHEBANG += " --cpu=%s" % cpu
+
+    def version_check(self):
+        stdout, _, retcode = run_cmd([self.cc[0], "--vsn"], redirect=True)
+        msg = None
+        min_ver, max_ver = self.ARMCC_RANGE
+        match = self.ARMCC_VERSION_RE.search(stdout)
+        found_version = LooseVersion(match.group(1).decode("utf-8")) if match else None
+        min_ver, max_ver = self.ARMCC_RANGE
+        if found_version and (found_version < min_ver or found_version >= max_ver):
+            msg = ("Compiler version mismatch: Have {}; "
+                   "expected version >= {} and < {}"
+                   .format(found_version, min_ver, max_ver))
+        elif not match or len(match.groups()) != 1:
+            msg = ("Compiler version mismatch: Could not detect version; "
+                   "expected version >= {} and < {}"
+                   .format(min_ver, max_ver))
+
+        if msg:
+            self.notify.cc_info({
+                "message": msg,
+                "file": "",
+                "line": "",
+                "col": "",
+                "severity": "WARNING",
+            })
+
+    def _get_toolchain_labels(self):
+        if getattr(self.target, "default_lib", "std") == "small":
+            return ["ARM", "ARM_MICRO"]
+        else:
+            return ["ARM", "ARM_STD"]
 
     def parse_dependencies(self, dep_path):
         dependencies = []
@@ -96,7 +145,7 @@ class ARM(mbedToolchain):
             match = ARM.DIAGNOSTIC_PATTERN.match(line)
             if match is not None:
                 if msg is not None:
-                    self.cc_info(msg)
+                    self.notify.cc_info(msg)
                     msg = None
                 msg = {
                     'severity': match.group('severity').lower(),
@@ -113,13 +162,13 @@ class ARM(mbedToolchain):
                 match = ARM.INDEX_PATTERN.match(line)
                 if match is not None:
                     msg['col'] = len(match.group('col'))
-                    self.cc_info(msg)
+                    self.notify.cc_info(msg)
                     msg = None
                 else:
                     msg['text'] += line+"\n"
         
         if msg is not None:
-            self.cc_info(msg)
+            self.notify.cc_info(msg)
 
     def get_dep_option(self, object):
         base, _ = splitext(object)
@@ -129,17 +178,18 @@ class ARM(mbedToolchain):
     def get_config_option(self, config_header):
         return ['--preinclude=' + config_header]
 
-    def get_compile_options(self, defines, includes, for_asm=False):        
+    def get_compile_options(self, defines, includes, for_asm=False):
         opts = ['-D%s' % d for d in defines]
+        config_header = self.get_config_header()
+        if config_header is not None:
+            opts = opts + self.get_config_option(config_header)
+        if for_asm:
+            return opts
         if self.RESPONSE_FILES:
             opts += ['--via', self.get_inc_file(includes)]
         else:
             opts += ["-I%s" % i for i in includes]
 
-        if not for_asm:
-            config_header = self.get_config_header()
-            if config_header is not None:
-                opts = opts + self.get_config_option(config_header)
         return opts
 
     @hook_tool
@@ -148,9 +198,12 @@ class ARM(mbedToolchain):
         dir = join(dirname(object), '.temp')
         mkdir(dir)
         tempfile = join(dir, basename(object) + '.E.s')
-        
+
         # Build preprocess assemble command
-        cmd_pre = self.asm + self.get_compile_options(self.get_symbols(True), includes) + ["-E", "-o", tempfile, source]
+        cmd_pre = copy(self.asm)
+        cmd_pre.extend(self.get_compile_options(
+            self.get_symbols(True), includes, True))
+        cmd_pre.extend(["-E", "-o", tempfile, source])
 
         # Build main assemble command
         cmd = self.asm + ["-o", object, tempfile]
@@ -158,7 +211,7 @@ class ARM(mbedToolchain):
         # Call cmdline hook
         cmd_pre = self.hook.get_cmdline_assembler(cmd_pre)
         cmd = self.hook.get_cmdline_assembler(cmd)
-       
+
         # Return command array, don't execute
         return [cmd_pre, cmd]
 
@@ -166,9 +219,9 @@ class ARM(mbedToolchain):
     def compile(self, cc, source, object, includes):
         # Build compile command
         cmd = cc + self.get_compile_options(self.get_symbols(), includes)
-        
+
         cmd.extend(self.get_dep_option(object))
-            
+
         cmd.extend(["-o", object, source])
 
         # Call cmdline hook
@@ -182,11 +235,15 @@ class ARM(mbedToolchain):
     def compile_cpp(self, source, object, includes):
         return self.compile(self.cppc, source, object, includes)
 
-    def correct_scatter_shebang(self, scatter_file):
+    def correct_scatter_shebang(self, scatter_file, cur_dir_name=None):
         """Correct the shebang at the top of a scatter file.
 
         Positional arguments:
         scatter_file -- the scatter file to correct
+
+        Keyword arguments:
+        cur_dir_name -- the name (not path) of the directory containing the
+                        scatter file
 
         Return:
         The location of the correct scatter file
@@ -194,18 +251,22 @@ class ARM(mbedToolchain):
         Side Effects:
         This method MAY write a new scatter file to disk
         """
-        with open(scatter_file, "rb") as input:
+        with open(scatter_file, "r") as input:
             lines = input.readlines()
-            if  (lines[0].startswith(self.SHEBANG) or
-                 not lines[0].startswith("#!")):
+            if (lines[0].startswith(self.SHEBANG) or
+                not lines[0].startswith("#!")):
                 return scatter_file
             else:
                 new_scatter = join(self.build_dir, ".link_script.sct")
+                if cur_dir_name is None:
+                    cur_dir_name = dirname(scatter_file)
+                self.SHEBANG += " -I %s" % cur_dir_name
                 if self.need_update(new_scatter, [scatter_file]):
-                    with open(new_scatter, "wb") as out:
+                    with open(new_scatter, "w") as out:
                         out.write(self.SHEBANG)
                         out.write("\n")
                         out.write("".join(lines[1:]))
+
                 return new_scatter
 
     @hook_tool
@@ -229,7 +290,7 @@ class ARM(mbedToolchain):
             link_files = self.get_link_file(cmd[1:])
             cmd = [cmd_linker, '--via', link_files]
 
-        self.cc_verbose("Link: %s" % ' '.join(cmd))
+        self.notify.cc_verbose("Link: %s" % ' '.join(cmd))
         self.default_cmd(cmd)
 
     @hook_tool
@@ -243,10 +304,19 @@ class ARM(mbedToolchain):
     @hook_tool
     def binary(self, resources, elf, bin):
         _, fmt = splitext(bin)
-        bin_arg = {".bin": "--bin", ".hex": "--i32"}[fmt]
+        # On .hex format, combine multiple .hex files (for multiple load regions) into one 
+        bin_arg = {".bin": "--bin", ".hex": "--i32combined"}[fmt]
         cmd = [self.elf2bin, bin_arg, '-o', bin, elf]
         cmd = self.hook.get_cmdline_binary(cmd)
-        self.cc_verbose("FromELF: %s" % ' '.join(cmd))
+
+        # remove target binary file/path
+        if exists(bin):
+            if isfile(bin):
+                remove(bin)
+            else:
+                rmtree(bin)
+
+        self.notify.cc_verbose("FromELF: %s" % ' '.join(cmd))
         self.default_cmd(cmd)
 
     @staticmethod
@@ -255,7 +325,7 @@ class ARM(mbedToolchain):
 
     @staticmethod
     def make_ld_define(name, value):
-        return "--predefine=\"-D%s=0x%x\"" % (name, value)
+        return "--predefine=\"-D%s=%s\"" % (name, value)
 
     @staticmethod
     def redirect_symbol(source, sync, build_dir):
@@ -268,13 +338,11 @@ class ARM(mbedToolchain):
 
 class ARM_STD(ARM):
     def __init__(self, target, notify=None, macros=None,
-                 silent=False, extra_verbose=False, build_profile=None,
-                 build_dir=None):
-        ARM.__init__(self, target, notify, macros, silent,
-                     build_dir=build_dir, extra_verbose=extra_verbose,
+                 build_profile=None, build_dir=None):
+        ARM.__init__(self, target, notify, macros, build_dir=build_dir,
                      build_profile=build_profile)
-        if "ARM" not in target.supported_toolchains:
-            raise NotSupportedException("ARM compiler support is required for ARM build")
+        if not set(("ARM", "uARM")).intersection(set(target.supported_toolchains)):
+            raise NotSupportedException("ARM/uARM compiler support is required for ARM build")
 
 
 class ARM_MICRO(ARM):
@@ -282,8 +350,8 @@ class ARM_MICRO(ARM):
     def __init__(self, target, notify=None, macros=None,
                  silent=False, extra_verbose=False, build_profile=None,
                  build_dir=None):
-        ARM.__init__(self, target, notify, macros, silent,
-                     build_dir=build_dir, extra_verbose=extra_verbose,
+        target.default_lib = "small"
+        ARM.__init__(self, target, notify, macros, build_dir=build_dir,
                      build_profile=build_profile)
         if not set(("ARM", "uARM")).intersection(set(target.supported_toolchains)):
             raise NotSupportedException("ARM/uARM compiler support is required for ARM build")
@@ -293,7 +361,9 @@ class ARMC6(ARM_STD):
     SUPPORTED_CORES = ["Cortex-M0", "Cortex-M0+", "Cortex-M3", "Cortex-M4",
                        "Cortex-M4F", "Cortex-M7", "Cortex-M7F", "Cortex-M7FD",
                        "Cortex-M23", "Cortex-M23-NS", "Cortex-M33",
-                       "CortexM33-NS"]
+                       "Cortex-M33-NS", "Cortex-A9"]
+    ARMCC_RANGE = (LooseVersion("6.10"), LooseVersion("7.0"))
+
     @staticmethod
     def check_executable():
         return mbedToolchain.generic_check_executable("ARMC6", "armclang", 1)
@@ -303,6 +373,14 @@ class ARMC6(ARM_STD):
         if target.core not in self.SUPPORTED_CORES:
             raise NotSupportedException(
                 "this compiler does not support the core %s" % target.core)
+        if CORE_ARCH[target.core] < 8:
+            self.notify.cc_info({
+                'severity': "Error", 'file': "", 'line': "", 'col': "",
+                'message': "ARMC6 does not support ARM architecture v{}"
+                " targets".format(CORE_ARCH[target.core]),
+                'text': '', 'target_name': self.target.name,
+                'toolchain_name': self.name
+            })
 
         if not set(("ARM", "ARMC6")).intersection(set(target.supported_toolchains)):
             raise NotSupportedException("ARM/ARMC6 compiler support is required for ARMC6 build")
@@ -310,15 +388,19 @@ class ARMC6(ARM_STD):
         if target.core.lower().endswith("fd"):
             self.flags['common'].append("-mcpu=%s" % target.core.lower()[:-2])
             self.flags['ld'].append("--cpu=%s" % target.core.lower()[:-2])
+            self.SHEBANG += " -mcpu=%s" % target.core.lower()[:-2]
         elif target.core.lower().endswith("f"):
             self.flags['common'].append("-mcpu=%s" % target.core.lower()[:-1])
             self.flags['ld'].append("--cpu=%s" % target.core.lower()[:-1])
-        elif target.core.lower().endswith("ns"):
-            self.flags['common'].append("-mcpu=%s" % target.core.lower()[:-3])
-            self.flags['ld'].append("--cpu=%s" % target.core.lower()[:-3])
-        else:
+            self.SHEBANG += " -mcpu=%s" % target.core.lower()[:-1]
+        elif target.core.startswith("Cortex-M33"):
+            self.flags['common'].append("-mcpu=cortex-m33+nodsp")
+            self.flags['common'].append("-mfpu=none")
+            self.flags['ld'].append("--cpu=Cortex-M33.no_dsp.no_fp")
+        elif not target.core.startswith("Cortex-M23"):
             self.flags['common'].append("-mcpu=%s" % target.core.lower())
             self.flags['ld'].append("--cpu=%s" % target.core.lower())
+            self.SHEBANG += " -mcpu=%s" % target.core.lower()
 
         if target.core == "Cortex-M4F":
             self.flags['common'].append("-mfpu=fpv4-sp-d16")
@@ -331,11 +413,21 @@ class ARMC6(ARM_STD):
             self.flags['common'].append("-mfloat-abi=softfp")
         elif target.core.startswith("Cortex-M23"):
             self.flags['common'].append("-march=armv8-m.base")
-        elif target.core.startswith("Cortex-M33"):
-            self.flags['common'].append("-march=armv8-m.main")
 
         if target.core == "Cortex-M23" or target.core == "Cortex-M33":
-            self.flags['common'].append("-mcmse")
+            self.flags['cxx'].append("-mcmse")
+            self.flags['c'].append("-mcmse")
+
+        # Create Secure library
+        if ((target.core == "Cortex-M23" or self.target.core == "Cortex-M33") and
+            kwargs.get('build_dir', False)):
+            build_dir = kwargs['build_dir']
+            secure_file = join(build_dir, "cmse_lib.o")
+            self.flags["ld"] += ["--import_cmse_lib_out=%s" % secure_file]
+        # Add linking time preprocessor macro DOMAIN_NS
+        if target.core == "Cortex-M23-NS" or self.target.core == "Cortex-M33-NS":
+            define_string = self.make_ld_define("DOMAIN_NS", "0x1")
+            self.flags["ld"].append(define_string)
 
         asm_cpu = {
             "Cortex-M0+": "Cortex-M0",
@@ -345,7 +437,10 @@ class ARMC6(ARM_STD):
             "Cortex-M23-NS": "Cortex-M23",
             "Cortex-M33-NS": "Cortex-M33" }.get(target.core, target.core)
 
-        self.flags['asm'].append("--cpu=%s" % asm_cpu)
+        if target.core.startswith("Cortex-M33"):
+            self.flags['asm'].append("--cpu=Cortex-M33.no_dsp.no_fp")
+        else :
+            self.flags['asm'].append("--cpu=%s" % asm_cpu)
 
         self.cc = ([join(TOOLCHAIN_PATHS["ARMC6"], "armclang")] +
                    self.flags['common'] + self.flags['c'])
@@ -356,6 +451,8 @@ class ARMC6(ARM_STD):
         self.ar = [join(TOOLCHAIN_PATHS["ARMC6"], "armar")]
         self.elf2bin = join(TOOLCHAIN_PATHS["ARMC6"], "fromelf")
 
+    def _get_toolchain_labels(self):
+        return ["ARM", "ARM_STD", "ARMC6"]
 
     def parse_dependencies(self, dep_path):
         return mbedToolchain.parse_dependencies(self, dep_path)

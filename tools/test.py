@@ -16,28 +16,31 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 
-TEST BUILD & RUN
+TEST BUILD
 """
+from __future__ import print_function, division, absolute_import
 import sys
 import os
-import json
 import fnmatch
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
 
+from tools.config import ConfigException, Config
+from tools.test_configs import get_default_config
 from tools.config import ConfigException
-from tools.test_api import test_path_to_name, find_tests, get_test_config, print_tests, build_tests, test_spec_from_test_builds
+from tools.test_api import find_tests, get_test_config, print_tests, build_tests, test_spec_from_test_builds
 import tools.test_configs as TestConfig
 from tools.options import get_default_options_parser, extract_profile, extract_mcus
 from tools.build_api import build_project, build_library
 from tools.build_api import print_build_memory_usage
 from tools.build_api import merge_build_data
 from tools.targets import TARGET_MAP
-from tools.utils import mkdir, ToolException, NotSupportedException, args_error
+from tools.notifier.term import TerminalNotifier
+from tools.utils import mkdir, ToolException, NotSupportedException, args_error, write_json_to_file
 from tools.test_exporters import ReportExporter, ResultExporterType
-from utils import argparse_filestring_type, argparse_lowercase_type, argparse_many
-from utils import argparse_dir_not_parent
+from tools.utils import argparse_filestring_type, argparse_lowercase_type, argparse_many
+from tools.utils import argparse_dir_not_parent
 from tools.toolchains import mbedToolchain, TOOLCHAIN_PATHS, TOOLCHAIN_CLASSES
 from tools.settings import CLI_COLOR_MAP
 
@@ -109,6 +112,19 @@ if __name__ == '__main__':
                             dest="stats_depth",
                             default=2,
                             help="Depth level for static memory report")
+        parser.add_argument("--ignore", dest="ignore", type=argparse_many(str),
+                          default=None, help="Comma separated list of patterns to add to mbedignore (eg. ./main.cpp)")
+        parser.add_argument("--icetea",
+                            action="store_true",
+                            dest="icetea",
+                            default=False,
+                            help="Only icetea tests")
+
+        parser.add_argument("--greentea",
+                            action="store_true",
+                            dest="greentea",
+                            default=False,
+                            help="Only greentea tests")
 
         options = parser.parse_args()
 
@@ -121,8 +137,13 @@ if __name__ == '__main__':
         all_tests = {}
         tests = {}
 
+        # As default both test tools are enabled
+        if not (options.greentea or options.icetea):
+            options.greentea = True
+            options.icetea = True
+
         # Target
-        if options.mcu is None :
+        if options.mcu is None:
             args_error(parser, "argument -m/--mcu is required")
         mcu = extract_mcus(parser, options)[0]
 
@@ -143,15 +164,24 @@ if __name__ == '__main__':
             config = get_test_config(options.test_config, mcu)
             if not config:
                 args_error(parser, "argument --test-config contains invalid path or identifier")
-        elif not options.app_config:
-            config = TestConfig.get_default_config(options.source_dir or ['.'], mcu)
-        else:
+        elif options.app_config:
             config = options.app_config
+        else:
+            config = Config.find_app_config(options.source_dir)
+
+        if not config:
+            config = get_default_config(options.source_dir or ['.'], mcu)
+
 
         # Find all tests in the relevant paths
         for path in all_paths:
-            all_tests.update(find_tests(path, mcu, toolchain,
-                                        app_config=config))
+            all_tests.update(find_tests(
+                base_dir=path,
+                target_name=mcu,
+                toolchain_name=toolchain,
+                icetea=options.icetea,
+                greentea=options.greentea,
+                app_config=config))
 
         # Filter tests by name if specified
         if options.names:
@@ -164,20 +194,11 @@ if __name__ == '__main__':
                         if fnmatch.fnmatch(testname, name):
                             tests[testname] = test
                 else:
-                    print "[Warning] Test with name '%s' was not found in the available tests" % (name)
+                    print("[Warning] Test with name '%s' was not found in the "
+                          "available tests" % (name))
         else:
             tests = all_tests
 
-        if options.color:
-            # This import happens late to prevent initializing colorization when we don't need it
-            import colorize
-            if options.verbose:
-                notify = mbedToolchain.print_notify_verbose
-            else:
-                notify = mbedToolchain.print_notify
-            notify = colorize.print_in_color_notifier(CLI_COLOR_MAP, notify)
-        else:
-            notify = None
 
         if options.list:
             # Print available tests in order and exit
@@ -201,60 +222,57 @@ if __name__ == '__main__':
             profile = extract_profile(parser, options, toolchain)
             try:
                 # Build sources
+                notify = TerminalNotifier(options.verbose)
                 build_library(base_source_paths, options.build_dir, mcu,
                               toolchain, jobs=options.jobs,
                               clean=options.clean, report=build_report,
                               properties=build_properties, name="mbed-build",
-                              macros=options.macros, verbose=options.verbose,
+                              macros=options.macros,
                               notify=notify, archive=False,
                               app_config=config,
-                              build_profile=profile)
+                              build_profile=profile,
+                              ignore=options.ignore)
 
                 library_build_success = True
-            except ToolException, e:
+            except ToolException as e:
                 # ToolException output is handled by the build log
                 pass
-            except NotSupportedException, e:
+            except NotSupportedException as e:
                 # NotSupportedException is handled by the build log
                 pass
-            except Exception, e:
+            except Exception as e:
+                if options.verbose:
+                    import traceback
+                    traceback.print_exc()
                 # Some other exception occurred, print the error message
-                print e
+                print(e)
 
             if not library_build_success:
-                print "Failed to build library"
+                print("Failed to build library")
             else:
                 # Build all the tests
-
-                test_build_success, test_build = build_tests(tests, [options.build_dir], options.build_dir, mcu, toolchain,
-                        clean=options.clean,
-                        report=build_report,
-                        properties=build_properties,
-                        macros=options.macros,
-                        verbose=options.verbose,
-                        notify=notify,
-                        jobs=options.jobs,
-                        continue_on_build_fail=options.continue_on_build_fail,
-                        app_config=config,
-                        build_profile=profile,
-                        stats_depth=options.stats_depth)
+                notify = TerminalNotifier(options.verbose)
+                test_build_success, test_build = build_tests(
+                    tests,
+                    [os.path.relpath(options.build_dir)],
+                    options.build_dir,
+                    mcu,
+                    toolchain,
+                    clean=options.clean,
+                    report=build_report,
+                    properties=build_properties,
+                    macros=options.macros,
+                    notify=notify,
+                    jobs=options.jobs,
+                    continue_on_build_fail=options.continue_on_build_fail,
+                    app_config=config,
+                    build_profile=profile,
+                    stats_depth=options.stats_depth,
+                    ignore=options.ignore)
 
                 # If a path to a test spec is provided, write it to a file
                 if options.test_spec:
-                    test_spec_data = test_spec_from_test_builds(test_build)
-
-                    # Create the target dir for the test spec if necessary
-                    # mkdir will not create the dir if it already exists
-                    test_spec_dir = os.path.dirname(options.test_spec)
-                    if test_spec_dir:
-                        mkdir(test_spec_dir)
-
-                    try:
-                        with open(options.test_spec, 'w') as f:
-                            f.write(json.dumps(test_spec_data, indent=2))
-                    except IOError, e:
-                        print "[ERROR] Error writing test spec to file"
-                        print e
+                    write_json_to_file(test_spec_from_test_builds(test_build), options.test_spec)
 
             # If a path to a JUnit build report spec is provided, write it to a file
             if options.build_report_junit:
@@ -264,7 +282,7 @@ if __name__ == '__main__':
             # Print memory map summary on screen
             if build_report:
                 print
-                print print_build_memory_usage(build_report)
+                print(print_build_memory_usage(build_report))
 
             print_report_exporter = ReportExporter(ResultExporterType.PRINT, package="build")
             status = print_report_exporter.report(build_report)
@@ -276,13 +294,14 @@ if __name__ == '__main__':
             else:
                 sys.exit(1)
 
-    except KeyboardInterrupt, e:
-        print "\n[CTRL+c] exit"
-    except ConfigException, e:
+    except KeyboardInterrupt as e:
+        print("\n[CTRL+c] exit")
+    except ConfigException as e:
         # Catching ConfigException here to prevent a traceback
-        print "[ERROR] %s" % str(e)
-    except Exception,e:
+        print("[ERROR] %s" % str(e))
+    except Exception as e:
         import traceback
         traceback.print_exc(file=sys.stdout)
-        print "[ERROR] %s" % str(e)
+        print("[ERROR] %s" % str(e))
         sys.exit(1)
+

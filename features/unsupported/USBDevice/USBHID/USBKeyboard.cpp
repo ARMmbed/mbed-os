@@ -352,8 +352,8 @@ const KEYMAP keymap[KEYMAP_SIZE] = {
 };
 #endif
 
-uint8_t * USBKeyboard::reportDesc() {
-    static uint8_t reportDescriptor[] = {
+const uint8_t * USBKeyboard::reportDesc() {
+    static const uint8_t reportDescriptor[] = {
         USAGE_PAGE(1), 0x01,                    // Generic Desktop
         USAGE(1), 0x06,                         // Keyboard
         COLLECTION(1), 0x01,                    // Application
@@ -501,8 +501,8 @@ bool USBKeyboard::mediaControl(MEDIA_KEY key) {
                                + (1 * HID_DESCRIPTOR_LENGTH) \
                                + (2 * ENDPOINT_DESCRIPTOR_LENGTH))
 
-uint8_t * USBKeyboard::configurationDesc() {
-    static uint8_t configurationDescriptor[] = {
+const uint8_t * USBKeyboard::configurationDesc() {
+    uint8_t configurationDescriptorTemp[] = {
         CONFIGURATION_DESCRIPTOR_LENGTH,    // bLength
         CONFIGURATION_DESCRIPTOR,           // bDescriptorType
         LSB(TOTAL_DESCRIPTOR_LENGTH),       // wTotalLength (LSB)
@@ -549,5 +549,7 @@ uint8_t * USBKeyboard::configurationDesc() {
         MSB(MAX_PACKET_SIZE_EPINT),         // wMaxPacketSize (MSB)
         1,                                  // bInterval (milliseconds)
     };
+    MBED_ASSERT(sizeof(configurationDescriptorTemp) == sizeof(configurationDescriptor));
+    memcpy(configurationDescriptor, configurationDescriptorTemp, sizeof(configurationDescriptor));
     return configurationDescriptor;
 }

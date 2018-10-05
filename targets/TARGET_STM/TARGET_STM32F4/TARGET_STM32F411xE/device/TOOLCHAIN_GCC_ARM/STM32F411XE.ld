@@ -1,7 +1,15 @@
+#if !defined(MBED_APP_START)
+  #define MBED_APP_START 0x08000000
+#endif
+
+#if !defined(MBED_APP_SIZE)
+  #define MBED_APP_SIZE 512K
+#endif
+
 /* Linker script to configure memory regions. */
 MEMORY
-{ 
-  FLASH (rx) : ORIGIN = 0x08000000, LENGTH = 512K
+{
+  FLASH (rx)   : ORIGIN = MBED_APP_START, LENGTH = MBED_APP_SIZE
   RAM (rwx)  : ORIGIN = 0x20000198, LENGTH = 128k - 0x198
 }
 

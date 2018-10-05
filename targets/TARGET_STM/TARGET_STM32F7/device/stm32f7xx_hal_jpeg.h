@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_jpeg.h
   * @author  MCD Application Team
-  * @version V1.2.2
-  * @date    14-April-2017
   * @brief   Header file of JPEG HAL module.
   ******************************************************************************
   * @attention
@@ -276,7 +274,7 @@ typedef struct
   */
 
 /** @brief Reset JPEG handle state
-  * @param  __HANDLE__: specifies the JPEG handle.
+  * @param  __HANDLE__ specifies the JPEG handle.
   * @retval None
   */
 #define __HAL_JPEG_RESET_HANDLE_STATE(__HANDLE__) ( (__HANDLE__)->State = HAL_JPEG_STATE_RESET)
@@ -284,14 +282,14 @@ typedef struct
 
 /**
   * @brief  Enable the JPEG peripheral.
-  * @param  __HANDLE__: specifies the JPEG handle.
+  * @param  __HANDLE__ specifies the JPEG handle.
   * @retval None
   */
 #define __HAL_JPEG_ENABLE(__HANDLE__)  ((__HANDLE__)->Instance->CR |=  JPEG_CR_JCEN)
 
 /**
   * @brief Disable the JPEG peripheral.
-  * @param  __HANDLE__: specifies the JPEG handle.
+  * @param  __HANDLE__ specifies the JPEG handle.
   * @retval None
   */
 #define __HAL_JPEG_DISABLE(__HANDLE__) ((__HANDLE__)->Instance->CR &=  ~JPEG_CR_JCEN)
@@ -299,8 +297,8 @@ typedef struct
 
 /**
   * @brief  Check the specified JPEG status flag.
-  * @param  __HANDLE__: specifies the JPEG handle. 
-  * @param  __FLAG__ : specifies the flag to check
+  * @param  __HANDLE__ specifies the JPEG handle. 
+  * @param  __FLAG__  specifies the flag to check
   *         This parameter can be one of the following values:
   *         @arg JPEG_FLAG_IFTF  : The input FIFO is not full and is bellow its threshold flag
   *         @arg JPEG_FLAG_IFNFF : The input FIFO Not Full Flag, a data can be written
@@ -319,8 +317,8 @@ typedef struct
 
 /**
   * @brief  Clear the specified JPEG status flag.
-  * @param  __HANDLE__: specifies the JPEG handle. 
-  * @param  __FLAG__ : specifies the flag to clear
+  * @param  __HANDLE__ specifies the JPEG handle. 
+  * @param  __FLAG__  specifies the flag to clear
   *         This parameter can be one of the following values:
   *         @arg JPEG_FLAG_EOCF  : JPEG Codec core has finished the encoding or the decoding process 
   *                                and than last data has been sent to the output FIFO
@@ -333,8 +331,8 @@ typedef struct
 
 /**
   * @brief  Enable Interrupt.
-  * @param   __HANDLE__: specifies the JPEG handle.
-  * @param  __INTERRUPT__ : specifies the interrupt to enable
+  * @param   __HANDLE__ specifies the JPEG handle.
+  * @param  __INTERRUPT__  specifies the interrupt to enable
   *         This parameter can be one of the following values:
   *         @arg JPEG_IT_IFT   : Input FIFO Threshold Interrupt
   *         @arg JPEG_IT_IFNF  : Input FIFO Not Full Interrupt
@@ -349,8 +347,8 @@ typedef struct
 
 /**
   * @brief  Disable Interrupt.
-  * @param   __HANDLE__: specifies the JPEG handle.
-  * @param  __INTERRUPT__ : specifies the interrupt to disable
+  * @param   __HANDLE__ specifies the JPEG handle.
+  * @param  __INTERRUPT__  specifies the interrupt to disable
   *         This parameter can be one of the following values:
   *         @arg JPEG_IT_IFT   : Input FIFO Threshold Interrupt
   *         @arg JPEG_IT_IFNF  : Input FIFO Not Full Interrupt
@@ -368,8 +366,8 @@ typedef struct
 
 /**
   * @brief  Get Interrupt state.
-  * @param   __HANDLE__: specifies the JPEG handle.
-  * @param  __INTERRUPT__ : specifies the interrupt to check
+  * @param   __HANDLE__ specifies the JPEG handle.
+  * @param  __INTERRUPT__  specifies the interrupt to check
   *         This parameter can be one of the following values:
   *         @arg JPEG_IT_IFT   : Input FIFO Threshold Interrupt
   *         @arg JPEG_IT_IFNF  : Input FIFO Not Full Interrupt

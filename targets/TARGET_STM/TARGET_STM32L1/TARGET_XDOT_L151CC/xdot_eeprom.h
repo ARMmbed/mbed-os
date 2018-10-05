@@ -46,7 +46,7 @@ extern "C" {
  * valid addresses are 0x0000 - 0x1FFF
  * returns 0 if all data was successfully written otherwise -1
  */
-int xdot_eeprom_write_buf(uint32_t addr, uint8_t* buf, uint32_t size);
+int xdot_eeprom_write_buf(uint32_t addr, uint8_t *buf, uint32_t size);
 
 /* xdot_eeprom_read_buf
  * attempts to read size bytes into buf starting at addr
@@ -54,7 +54,7 @@ int xdot_eeprom_write_buf(uint32_t addr, uint8_t* buf, uint32_t size);
  * valid addresses are 0x0000 - 0x1FFF
  * returns 0 if all data was successfully read otherwise -1
  */
-int xdot_eeprom_read_buf(uint32_t addr, uint8_t* buf, uint32_t size);
+int xdot_eeprom_read_buf(uint32_t addr, uint8_t *buf, uint32_t size);
 
 #ifdef __cplusplus
 }

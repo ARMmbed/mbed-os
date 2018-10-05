@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_cortex.c
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    04-November-2016
   * @brief   CORTEX HAL module driver.
   *          This file provides firmware functions to manage the following
   *          functionalities of the CORTEX:
@@ -140,13 +138,13 @@
 
 /**
   * @brief  Sets the priority of an interrupt.
-  * @param  IRQn: External interrupt number .
+  * @param  IRQn External interrupt number .
   *         This parameter can be an enumerator of IRQn_Type enumeration
-  *         (For the complete STM32 Devices IRQ Channels list, please refer to stm32l0xx.h file)
-  * @param  PreemptPriority: The preemption priority for the IRQn channel.
+  *         (For the complete STM32 Devices IRQ Channels list, please refer to stm32f0xx.h file)
+  * @param  PreemptPriority The preemption priority for the IRQn channel.
   *         This parameter can be a value between 0 and 3.
   *         A lower priority value indicates a higher priority
-  * @param  SubPriority: the subpriority level for the IRQ channel.
+  * @param  SubPriority the subpriority level for the IRQ channel.
   *         with stm32f0xx devices, this parameter is a dummy value and it is ignored, because 
   *         no subpriority supported in Cortex M0 based products.   
   * @retval None
@@ -205,7 +203,7 @@ void HAL_NVIC_SystemReset(void)
 /**
   * @brief  Initializes the System Timer and its interrupt, and starts the System Tick Timer.
   *         Counter is in free running mode to generate periodic interrupts.
-  * @param  TicksNumb: Specifies the ticks Number of ticks between two interrupts.
+  * @param  TicksNumb Specifies the ticks Number of ticks between two interrupts.
   * @retval status:  - 0  Function succeeded.
   *                  - 1  Function failed.
   */
@@ -236,7 +234,7 @@ uint32_t HAL_SYSTICK_Config(uint32_t TicksNumb)
 
 /**
   * @brief  Gets the priority of an interrupt.
-  * @param  IRQn: External interrupt number.
+  * @param  IRQn External interrupt number.
   *         This parameter can be an enumerator of IRQn_Type enumeration
   *         (For the complete STM32 Devices IRQ Channels list, please refer to the appropriate CMSIS device file (stm32f0xxxx.h))
   * @retval None
@@ -299,7 +297,7 @@ void HAL_NVIC_ClearPendingIRQ(IRQn_Type IRQn)
 
 /**
   * @brief  Configures the SysTick clock source.
-  * @param  CLKSource: specifies the SysTick clock source.
+  * @param  CLKSource specifies the SysTick clock source.
   *         This parameter can be one of the following values:
   *             @arg SYSTICK_CLKSOURCE_HCLK_DIV8: AHB clock divided by 8 selected as SysTick clock source.
   *             @arg SYSTICK_CLKSOURCE_HCLK: AHB clock selected as SysTick clock source.

@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32l0xx_ll_comp.c
   * @author  MCD Application Team
-  * @version V1.7.0
-  * @date    31-May-2016
   * @brief   COMP LL module driver
   ******************************************************************************
   * @attention

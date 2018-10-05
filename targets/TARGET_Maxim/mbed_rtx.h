@@ -29,7 +29,7 @@
 #define INITIAL_SP              (0x20008000UL)
 #endif
 
-#elif defined(TARGET_MAX32620)
+#elif defined(TARGET_MAX32620) || defined(TARGET_MAX32620C)
 
 #ifndef INITIAL_SP
 #define INITIAL_SP              (0x20040000UL)

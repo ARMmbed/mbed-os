@@ -15,6 +15,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+from __future__ import print_function
 import sys
 import os
 import re
@@ -67,8 +68,8 @@ def main():
 
         # Only prints matrix of supported toolchains
         if options.supported_toolchains:
-            print mcu_toolchain_matrix(
-                platform_filter=options.general_filter_regex)
+            print(mcu_toolchain_matrix(
+                platform_filter=options.general_filter_regex))
             exit(0)
 
         # If auto_detect attribute is present, we assume other auto-detection
@@ -79,25 +80,25 @@ def main():
 
         count = 0
         for mut in muts.values():
-            if re.match(mcu_filter, mut['mcu']):
+            if re.match(mcu_filter, mut['mcu'] or "Unknown"):
                 interface_version = get_interface_version(mut['disk'])
-                print ""
-                print "[mbed] Detected %s, port %s, mounted %s, interface version %s:" % \
-                        (mut['mcu'], mut['port'], mut['disk'], interface_version)
-                                    
-                print "[mbed] Supported toolchains for %s" % mut['mcu']
-                print mcu_toolchain_matrix(platform_filter=mut['mcu'])
+                print("")
+                print("[mbed] Detected %s, port %s, mounted %s, interface "
+                      "version %s:" %
+                      (mut['mcu'], mut['port'], mut['disk'], interface_version))
+                print("[mbed] Supported toolchains for %s" % mut['mcu'])
+                print(mcu_toolchain_matrix(platform_filter=mut['mcu']))
                 count += 1
 
         if count == 0:
-            print "[mbed] No mbed targets were detected on your system."
+            print("[mbed] No mbed targets were detected on your system.")
 
     except KeyboardInterrupt:
-        print "\n[CTRL+c] exit"
+        print("\n[CTRL+c] exit")
     except Exception as exc:
         import traceback
         traceback.print_exc(file=sys.stdout)
-        print "[ERROR] %s" % str(exc)
+        print("[ERROR] %s" % str(exc))
         sys.exit(1)
         
 def get_interface_version(mount_point):

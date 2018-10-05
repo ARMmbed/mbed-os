@@ -18,8 +18,9 @@
 #define BLE_PAL_GAP_H_
 
 #include "platform/Callback.h"
-#include "GapTypes.h"
+#include "ble/pal/GapTypes.h"
 #include "GapEvents.h"
+#include "blecommon.h"
 
 namespace ble {
 namespace pal {
@@ -32,6 +33,55 @@ namespace pal {
  * by that layer.
  */
 struct Gap {
+    /** @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 6, Part B - 4.6 */
+    struct ControllerSupportedFeatures_t : SafeEnum<ControllerSupportedFeatures_t, uint8_t> {
+        enum type {
+            LE_ENCRYPTION = 0,
+            CONNECTION_PARAMETERS_REQUEST_PROCEDURE,
+            EXTENDED_REJECT_INDICATION,
+            SLAVE_INITIATED_FEATURES_EXCHANGE,
+            LE_PING,
+            LE_DATA_PACKET_LENGTH_EXTENSION,
+            LL_PRIVACY,
+            EXTENDED_SCANNER_FILTER_POLICIES,
+            LE_2M_PHY,
+            STABLE_MODULATION_INDEX_TRANSMITTER,
+            STABLE_MODULATION_INDEX_RECEIVER,
+            LE_CODED_PHY,
+            LE_EXTENDED_ADVERTISING,
+            LE_PERIODIC_ADVERTISING,
+            CHANNEL_SELECTION_ALGORITHM_2,
+            LE_POWER_CLASS
+        };
+
+        /**
+         * Construct a new instance of ControllerSupportedFeatures_t.
+         */
+        ControllerSupportedFeatures_t(type value) : SafeEnum<ControllerSupportedFeatures_t, uint8_t>(value) { }
+    };
+
+    struct EventHandler {
+        /**
+         * @copydoc Gap::EventHandler::onReadPhy
+         */
+        virtual void on_read_phy(
+            pal::hci_error_code_t status,
+            connection_handle_t connectionHandle,
+            ble::phy_t tx_phy,
+            ble::phy_t rx_phy
+        ) = 0;
+
+        /**
+         * @copydoc Gap::EventHandler::onPhyUpdateComplete
+         */
+        virtual void on_phy_update_complete(
+            pal::hci_error_code_t status,
+            connection_handle_t connection_handle,
+            ble::phy_t tx_phy,
+            ble::phy_t rx_phy
+        ) = 0;
+    };
+
     /**
      * Initialisation of the instance. An implementation can use this function
      * to initialise the subsystems needed to realize the operations of this
@@ -649,6 +699,60 @@ struct Gap {
         disconnection_reason_t disconnection_reason
     ) = 0;
 
+    /** Check if privacy feature is supported by implementation
+     *  
+     * @return true if privacy is supported, false otherwise.
+     * 
+     * @note: See Bluetooth 5 Vol 3 Part C: 10.7 Privacy feature.
+     */ 
+    virtual bool is_privacy_supported() = 0;
+
+    /** Enable or disable private addresses resolution
+     *
+     * @param enable whether to enable private addresses resolution
+     *  
+     * @return BLE_ERROR_NONE if the request has been successfully sent or the
+     * appropriate error otherwise.
+     * 
+     * @note: See Bluetooth 5 Vol 2 PartE: 7.8.44 LE Set Address Resolution Enable command.
+     */
+    virtual ble_error_t set_address_resolution(
+        bool enable
+    ) = 0;
+
+    /**
+     * Checked support for a feature in the link controller.
+     *
+     * @param feature feature to be checked.
+     * @return TRUE if feature is supported.
+     */
+    virtual bool is_feature_supported(
+        ControllerSupportedFeatures_t feature
+    ) = 0;
+     
+    /**
+    * @see Gap::readPhy
+    */
+    virtual ble_error_t read_phy(connection_handle_t connection) = 0;
+
+    /**
+    * @see Gap::setPreferredPhys
+    */
+    virtual ble_error_t set_preferred_phys(
+       const phy_set_t& tx_phys,
+       const phy_set_t& rx_phys
+    ) = 0;
+
+    /**
+    * @see Gap::setPhy
+    */
+    virtual ble_error_t set_phy(
+       connection_handle_t connection,
+       const phy_set_t& tx_phys,
+       const phy_set_t& rx_phys,
+       coded_symbol_per_bit_t coded_symbol
+    ) = 0;
+
     /**
      * Register a callback which will handle Gap events.
      *
@@ -661,8 +765,27 @@ struct Gap {
         _gap_event_cb = cb;
     }
 
+public:
+    /**
+    * Sets the event handler that us called by the PAL porters to notify the stack of events
+    * which will in turn be passed onto the user application when appropriate.
+    *
+    * @param[in] event_handler the new event handler interface implementation. Memory
+    * owned by caller who is responsible for updating this pointer if interface changes.
+    */
+    void set_event_handler(EventHandler *event_handler) {
+        _pal_event_handler = event_handler;
+    }
+
+    EventHandler* get_event_handler() {
+        return _pal_event_handler;
+    }
+
 protected:
-    Gap() { }
+    EventHandler *_pal_event_handler;
+
+protected:
+    Gap() : _pal_event_handler(NULL) { }
 
     virtual ~Gap() { }
 
@@ -679,12 +802,34 @@ protected:
         }
     }
 
+public:
+    /**
+     * Create an ALL_PHYS parameter used in LE Set PHY Command
+     * and LE Set Default PHY Command.
+     * @see BLUETOOTH SPECIFICATION Version 5.0 | Vol 2, Part E - 7.8.49
+     */
+    static uint8_t create_all_phys_value(
+        const phy_set_t& tx_phys,
+        const phy_set_t& rx_phys
+    ) {
+        /* if phy set is empty set corresponding all_phys bit to 1 */
+        uint8_t all_phys = 0;
+        if (tx_phys.value() == 0) {
+            all_phys |= 0x01;
+        }
+        if (rx_phys.value() == 0) {
+            all_phys |= 0x02;
+        }
+        return all_phys;
+    }
+
 private:
     /**
      * Callback called when an event is emitted by the LE subsystem.
      */
     mbed::Callback<void(const GapEvent&)> _gap_event_cb;
 
+private:
     // Disallow copy construction and copy assignment.
     Gap(const Gap&);
     Gap& operator=(const Gap&);

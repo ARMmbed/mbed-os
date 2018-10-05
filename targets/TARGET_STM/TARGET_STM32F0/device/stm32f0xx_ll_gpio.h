@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32f0xx_ll_gpio.h
   * @author  MCD Application Team
-  * @version V1.4.0
-  * @date    27-May-2016
   * @brief   Header file of GPIO LL module.
   ******************************************************************************
   * @attention
@@ -152,7 +150,7 @@ typedef struct
 /** @defgroup GPIO_LL_EC_MODE Mode
   * @{
   */
-#define LL_GPIO_MODE_INPUT                 ((uint32_t)0x00000000U) /*!< Select input mode */
+#define LL_GPIO_MODE_INPUT                 (0x00000000U) /*!< Select input mode */
 #define LL_GPIO_MODE_OUTPUT                GPIO_MODER_MODER0_0  /*!< Select output mode */
 #define LL_GPIO_MODE_ALTERNATE             GPIO_MODER_MODER0_1  /*!< Select alternate function mode */
 #define LL_GPIO_MODE_ANALOG                GPIO_MODER_MODER0    /*!< Select analog mode */
@@ -163,7 +161,7 @@ typedef struct
 /** @defgroup GPIO_LL_EC_OUTPUT Output Type
   * @{
   */
-#define LL_GPIO_OUTPUT_PUSHPULL            ((uint32_t)0x00000000U) /*!< Select push-pull as output type */
+#define LL_GPIO_OUTPUT_PUSHPULL            (0x00000000U) /*!< Select push-pull as output type */
 #define LL_GPIO_OUTPUT_OPENDRAIN           GPIO_OTYPER_OT_0 /*!< Select open-drain as output type */
 /**
   * @}
@@ -172,23 +170,20 @@ typedef struct
 /** @defgroup GPIO_LL_EC_SPEED Output Speed
   * @{
   */
-#define LL_GPIO_SPEED_FREQ_LOW             ((uint32_t)0x00000000U) /*!< Select I/O low output speed    */
+#define LL_GPIO_SPEED_FREQ_LOW             (0x00000000U) /*!< Select I/O low output speed    */
 #define LL_GPIO_SPEED_FREQ_MEDIUM          GPIO_OSPEEDR_OSPEEDR0_0 /*!< Select I/O medium output speed */
-#define LL_GPIO_SPEED_FREQ_HIGH            GPIO_OSPEEDR_OSPEEDR0_1 /*!< Select I/O fast output speed   */
-#define LL_GPIO_SPEED_FREQ_VERY_HIGH       GPIO_OSPEEDR_OSPEEDR0   /*!< Select I/O high output speed   */
+#define LL_GPIO_SPEED_FREQ_HIGH            GPIO_OSPEEDR_OSPEEDR0   /*!< Select I/O high output speed   */
 /**
   * @}
   */
 #define LL_GPIO_SPEED_LOW                  LL_GPIO_SPEED_FREQ_LOW
 #define LL_GPIO_SPEED_MEDIUM               LL_GPIO_SPEED_FREQ_MEDIUM
-#define LL_GPIO_SPEED_FAST                 LL_GPIO_SPEED_FREQ_HIGH
-#define LL_GPIO_SPEED_HIGH                 LL_GPIO_SPEED_FREQ_VERY_HIGH
-
+#define LL_GPIO_SPEED_HIGH                 LL_GPIO_SPEED_FREQ_HIGH
 
 /** @defgroup GPIO_LL_EC_PULL Pull Up Pull Down
   * @{
   */
-#define LL_GPIO_PULL_NO                    ((uint32_t)0x00000000U) /*!< Select I/O no pull */
+#define LL_GPIO_PULL_NO                    (0x00000000U) /*!< Select I/O no pull */
 #define LL_GPIO_PULL_UP                    GPIO_PUPDR_PUPDR0_0 /*!< Select I/O pull up */
 #define LL_GPIO_PULL_DOWN                  GPIO_PUPDR_PUPDR0_1 /*!< Select I/O pull down */
 /**
@@ -198,14 +193,14 @@ typedef struct
 /** @defgroup GPIO_LL_EC_AF Alternate Function
   * @{
   */
-#define LL_GPIO_AF_0                       ((uint32_t)0x0000000U) /*!< Select alternate function 0 */
-#define LL_GPIO_AF_1                       ((uint32_t)0x0000001U) /*!< Select alternate function 1 */
-#define LL_GPIO_AF_2                       ((uint32_t)0x0000002U) /*!< Select alternate function 2 */
-#define LL_GPIO_AF_3                       ((uint32_t)0x0000003U) /*!< Select alternate function 3 */
-#define LL_GPIO_AF_4                       ((uint32_t)0x0000004U) /*!< Select alternate function 4 */
-#define LL_GPIO_AF_5                       ((uint32_t)0x0000005U) /*!< Select alternate function 5 */
-#define LL_GPIO_AF_6                       ((uint32_t)0x0000006U) /*!< Select alternate function 6 */
-#define LL_GPIO_AF_7                       ((uint32_t)0x0000007U) /*!< Select alternate function 7 */
+#define LL_GPIO_AF_0                       (0x0000000U) /*!< Select alternate function 0 */
+#define LL_GPIO_AF_1                       (0x0000001U) /*!< Select alternate function 1 */
+#define LL_GPIO_AF_2                       (0x0000002U) /*!< Select alternate function 2 */
+#define LL_GPIO_AF_3                       (0x0000003U) /*!< Select alternate function 3 */
+#define LL_GPIO_AF_4                       (0x0000004U) /*!< Select alternate function 4 */
+#define LL_GPIO_AF_5                       (0x0000005U) /*!< Select alternate function 5 */
+#define LL_GPIO_AF_6                       (0x0000006U) /*!< Select alternate function 6 */
+#define LL_GPIO_AF_7                       (0x0000007U) /*!< Select alternate function 7 */
 /**
   * @}
   */
@@ -422,7 +417,6 @@ __STATIC_INLINE uint32_t LL_GPIO_GetPinOutputType(GPIO_TypeDef *GPIOx, uint32_t 
   *         @arg @ref LL_GPIO_SPEED_FREQ_LOW
   *         @arg @ref LL_GPIO_SPEED_FREQ_MEDIUM
   *         @arg @ref LL_GPIO_SPEED_FREQ_HIGH
-  *         @arg @ref LL_GPIO_SPEED_FREQ_VERY_HIGH
   * @retval None
   */
 __STATIC_INLINE void LL_GPIO_SetPinSpeed(GPIO_TypeDef *GPIOx, uint32_t Pin, uint32_t  Speed)
@@ -459,7 +453,6 @@ __STATIC_INLINE void LL_GPIO_SetPinSpeed(GPIO_TypeDef *GPIOx, uint32_t Pin, uint
   *         @arg @ref LL_GPIO_SPEED_FREQ_LOW
   *         @arg @ref LL_GPIO_SPEED_FREQ_MEDIUM
   *         @arg @ref LL_GPIO_SPEED_FREQ_HIGH
-  *         @arg @ref LL_GPIO_SPEED_FREQ_VERY_HIGH
   */
 __STATIC_INLINE uint32_t LL_GPIO_GetPinSpeed(GPIO_TypeDef *GPIOx, uint32_t Pin)
 {
@@ -559,7 +552,7 @@ __STATIC_INLINE uint32_t LL_GPIO_GetPinPull(GPIO_TypeDef *GPIOx, uint32_t Pin)
   */
 __STATIC_INLINE void LL_GPIO_SetAFPin_0_7(GPIO_TypeDef *GPIOx, uint32_t Pin, uint32_t Alternate)
 {
-  MODIFY_REG(GPIOx->AFR[0], ((((Pin * Pin) * Pin) * Pin) * GPIO_AFRL_AFRL0),
+  MODIFY_REG(GPIOx->AFR[0], ((((Pin * Pin) * Pin) * Pin) * GPIO_AFRL_AFSEL0),
              ((((Pin * Pin) * Pin) * Pin) * Alternate));
 }
 
@@ -589,7 +582,7 @@ __STATIC_INLINE void LL_GPIO_SetAFPin_0_7(GPIO_TypeDef *GPIOx, uint32_t Pin, uin
 __STATIC_INLINE uint32_t LL_GPIO_GetAFPin_0_7(GPIO_TypeDef *GPIOx, uint32_t Pin)
 {
   return (uint32_t)(READ_BIT(GPIOx->AFR[0],
-                             ((((Pin * Pin) * Pin) * Pin) * GPIO_AFRL_AFRL0)) / (((Pin * Pin) * Pin) * Pin));
+                             ((((Pin * Pin) * Pin) * Pin) * GPIO_AFRL_AFSEL0)) / (((Pin * Pin) * Pin) * Pin));
 }
 
 /**
@@ -620,7 +613,7 @@ __STATIC_INLINE uint32_t LL_GPIO_GetAFPin_0_7(GPIO_TypeDef *GPIOx, uint32_t Pin)
   */
 __STATIC_INLINE void LL_GPIO_SetAFPin_8_15(GPIO_TypeDef *GPIOx, uint32_t Pin, uint32_t Alternate)
 {
-  MODIFY_REG(GPIOx->AFR[1], (((((Pin >> 8U) * (Pin >> 8U)) * (Pin >> 8U)) * (Pin >> 8U)) * GPIO_AFRH_AFRH0),
+  MODIFY_REG(GPIOx->AFR[1], (((((Pin >> 8U) * (Pin >> 8U)) * (Pin >> 8U)) * (Pin >> 8U)) * GPIO_AFRH_AFSEL8),
              (((((Pin >> 8U) * (Pin >> 8U)) * (Pin >> 8U)) * (Pin >> 8U)) * Alternate));
 }
 
@@ -651,7 +644,7 @@ __STATIC_INLINE void LL_GPIO_SetAFPin_8_15(GPIO_TypeDef *GPIOx, uint32_t Pin, ui
 __STATIC_INLINE uint32_t LL_GPIO_GetAFPin_8_15(GPIO_TypeDef *GPIOx, uint32_t Pin)
 {
   return (uint32_t)(READ_BIT(GPIOx->AFR[1],
-                             (((((Pin >> 8U) * (Pin >> 8U)) * (Pin >> 8U)) * (Pin >> 8U)) * GPIO_AFRH_AFRH0)) / ((((Pin >> 8U) *
+                             (((((Pin >> 8U) * (Pin >> 8U)) * (Pin >> 8U)) * (Pin >> 8U)) * GPIO_AFRH_AFSEL8)) / ((((Pin >> 8U) *
                                  (Pin >> 8U)) * (Pin >> 8U)) * (Pin >> 8U)));
 }
 

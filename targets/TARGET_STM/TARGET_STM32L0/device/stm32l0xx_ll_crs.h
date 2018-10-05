@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32l0xx_ll_crs.h
   * @author  MCD Application Team
-  * @version V1.7.0
-  * @date    31-May-2016
   * @brief   Header file of CRS LL module.
   ******************************************************************************
   * @attention
@@ -65,10 +63,9 @@ extern "C" {
   */
 
 /* Defines used for the bit position in the register and perform offsets*/
-#define CRS_POSITION_TRIM        (uint32_t)8U   /* bit position in CR reg */
-#define CRS_POSITION_FECAP       (uint32_t)16U  /* bit position in ISR reg */
-#define CRS_POSITION_RELOAD      (uint32_t)0U   /* bit position in CFGR reg */
-#define CRS_POSITION_FELIM       (uint32_t)16U  /* bit position in CFGR reg */
+#define CRS_POSITION_TRIM        (CRS_CR_TRIM_Pos)     /* bit position in CR reg */
+#define CRS_POSITION_FECAP       (CRS_ISR_FECAP_Pos)   /* bit position in ISR reg */
+#define CRS_POSITION_FELIM       (CRS_CFGR_FELIM_Pos)  /* bit position in CFGR reg */
 
 
 /**

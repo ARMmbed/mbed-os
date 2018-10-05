@@ -16,6 +16,9 @@ BUILD/
 .mbed
 venv/
 
+# Mbedls
+.mbedls-mock.lock
+
 # Eclipse Project Files
 .cproject
 .project
@@ -44,6 +47,8 @@ pip-log.txt
 .coverage
 .tox
 nosetests.xml
+.cache
+.hypothesis
 
 # Translations
 *.mo
@@ -72,9 +77,20 @@ debug.log
 # Cscope
 cscope.*
 
+# Ctags
+tags
+
 # vim swap files
 *.swp
 *~
 
 # Visual Studio Code
 .vscode/
+
+features/FEATURE_BLE/targets/TARGET_CORDIO/stack_backup/
+
+.pytest_cache
+log
+
+# Icetea related file
+test_suite.json

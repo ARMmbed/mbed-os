@@ -26,7 +26,7 @@
 #if DEVICE_SPI
 
 #include "mbed_assert.h"
-#include "mbed_sleep.h"
+#include "mbed_power_mgmt.h"
 #include "PeripheralPins.h"
 #include "pinmap.h"
 #include "pinmap_function.h"

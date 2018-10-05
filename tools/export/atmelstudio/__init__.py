@@ -16,6 +16,7 @@ limitations under the License.
 """
 import uuid
 from os.path import splitext, basename, dirname
+from os import remove
 
 from tools.export.exporters import Exporter, deprecated_exporter
 
@@ -58,7 +59,7 @@ class AtmelStudio(Exporter):
                 source_folders.append(e)
 
         libraries = []
-        for lib in self.resources.libraries:
+        for lib in self.libraries:
             l, _ = splitext(basename(lib))
             libraries.append(l[3:])
 		
@@ -83,3 +84,8 @@ class AtmelStudio(Exporter):
         target = self.target.lower()
         self.gen_file('atmelstudio/atsln.tmpl', ctx, '%s.atsln' % self.project_name)
         self.gen_file('atmelstudio/cppproj.tmpl', ctx, '%s.cppproj' % self.project_name)
+
+    @staticmethod
+    def clean(project_name):
+        remove('%s.atsln' % project_name)
+        remove('%s.cppproj' % project_name)

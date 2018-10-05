@@ -108,7 +108,7 @@ typedef enum {
     P_C16      = PF_7,   // GPIO-7
     P_C17      = PF_1,   // I2C-SCL
     P_C18      = PF_0,   // I2C-SDA
-	  // D
+    // D
     P_D1       = PB_12,  // RMII-TXD0
     P_D2       = PB_13,  // RMII-TXD1
     P_D3       = PB_11,  // RMII-TXEN
@@ -141,7 +141,7 @@ typedef enum {
     // Standardized button names
     BUTTON1    = SW1,
     BUTTON2    = SW2,
-    
+
     I2C_SDA    = PF_0,
     I2C_SCL    = PF_1,
     SPI0_MOSI  = PE_14,
@@ -149,15 +149,32 @@ typedef enum {
     SPI0_SCK   = PE_12,
     SPI0_CS    = PE_11,
     SPI1_CS    = PE_9,
-    
+
     SPI_MOSI   = SPI0_MOSI,
     SPI_MISO   = SPI0_MISO,
     SPI_SCK    = SPI0_SCK,
     SPI_CS     = SPI0_CS,
 
+    // STDIO for console print
+#ifdef MBED_CONF_TARGET_STDIO_UART_TX
+    STDIO_UART_TX = MBED_CONF_TARGET_STDIO_UART_TX,
+#elif MBED_CONF_TARGET_USB_TX
+    STDIO_UART_TX = MBED_CONF_TARGET_USB_TX,
+#else
+    STDIO_UART_TX = PA_9,
+#endif
+
+#ifdef MBED_CONF_TARGET_STDIO_UART_RX
+    STDIO_UART_RX = MBED_CONF_TARGET_STDIO_UART_RX,
+#elif MBED_CONF_TARGET_USB_RX
+    STDIO_UART_TX = MBED_CONF_TARGET_USB_RX,
+#else
+    STDIO_UART_RX = PA_10,
+#endif
+
     // DAPLink
-    USBRX      = MBED_CONF_TARGET_USB_RX,
-    USBTX      = MBED_CONF_TARGET_USB_TX,
+    USBRX      = STDIO_UART_RX,
+    USBTX      = STDIO_UART_TX,
     SWDIO      = PA_15,
     SWCLK      = PA_14,
     NTRST      = PB_4,

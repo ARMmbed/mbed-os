@@ -1,0 +1,16 @@
+
+####################
+# UNIT TESTS
+####################
+
+set(unittest-includes ${unittest-includes}
+  headerfile
+)
+
+set(unittest-sources
+  cppfile
+)
+
+set(unittest-test-sources
+  dirname/template/test_template.cpp
+)

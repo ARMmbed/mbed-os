@@ -14,10 +14,11 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+from __future__ import print_function
 
 import os
-from host_test_plugins import HostTestPluginBase
 from time import sleep
+from .host_test_plugins import HostTestPluginBase
 
 # Note: This plugin is not fully functional, needs improvements
 

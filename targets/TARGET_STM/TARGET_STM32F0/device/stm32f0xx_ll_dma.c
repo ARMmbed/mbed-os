@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32f0xx_ll_dma.c
   * @author  MCD Application Team
-  * @version V1.4.0
-  * @date    27-May-2016
   * @brief   DMA LL module driver.
   ******************************************************************************
   * @attention
@@ -83,7 +81,7 @@
                                                  ((__VALUE__) == LL_DMA_MDATAALIGN_HALFWORD)  || \
                                                  ((__VALUE__) == LL_DMA_MDATAALIGN_WORD))
 
-#define IS_LL_DMA_NBDATA(__VALUE__)             ((__VALUE__)  <= (uint32_t)0x0000FFFFU)
+#define IS_LL_DMA_NBDATA(__VALUE__)             ((__VALUE__)  <= 0x0000FFFFU)
 
 #if (defined(DMA1_CSELR_DEFAULT)||defined(DMA2_CSELR_DEFAULT))
 #define IS_LL_DMA_PERIPHREQUEST(__VALUE__)      (((__VALUE__) == LL_DMA_REQUEST_0)  || \
@@ -359,7 +357,7 @@ uint32_t LL_DMA_Init(DMA_TypeDef *DMAx, uint32_t Channel, LL_DMA_InitTypeDef *DM
 
 #if (defined(DMA1_CSELR_DEFAULT)||defined(DMA2_CSELR_DEFAULT))
   /*--------------------------- DMAx CSELR Configuration -----------------------
-   * Configure the peripheral base address with parameter :
+   * Configure the DMA request for DMA instance on Channel x with parameter :
    * - PeriphRequest: DMA_CSELR[31:0] bits
    */
   LL_DMA_SetPeriphRequest(DMAx, Channel, DMA_InitStruct->PeriphRequest);
@@ -376,15 +374,15 @@ uint32_t LL_DMA_Init(DMA_TypeDef *DMAx, uint32_t Channel, LL_DMA_InitTypeDef *DM
 void LL_DMA_StructInit(LL_DMA_InitTypeDef *DMA_InitStruct)
 {
   /* Set DMA_InitStruct fields to default values */
-  DMA_InitStruct->PeriphOrM2MSrcAddress  = (uint32_t)0x00000000U;
-  DMA_InitStruct->MemoryOrM2MDstAddress  = (uint32_t)0x00000000U;
+  DMA_InitStruct->PeriphOrM2MSrcAddress  = 0x00000000U;
+  DMA_InitStruct->MemoryOrM2MDstAddress  = 0x00000000U;
   DMA_InitStruct->Direction              = LL_DMA_DIRECTION_PERIPH_TO_MEMORY;
   DMA_InitStruct->Mode                   = LL_DMA_MODE_NORMAL;
   DMA_InitStruct->PeriphOrM2MSrcIncMode  = LL_DMA_PERIPH_NOINCREMENT;
   DMA_InitStruct->MemoryOrM2MDstIncMode  = LL_DMA_MEMORY_NOINCREMENT;
   DMA_InitStruct->PeriphOrM2MSrcDataSize = LL_DMA_PDATAALIGN_BYTE;
   DMA_InitStruct->MemoryOrM2MDstDataSize = LL_DMA_MDATAALIGN_BYTE;
-  DMA_InitStruct->NbData                 = (uint32_t)0x00000000U;
+  DMA_InitStruct->NbData                 = 0x00000000U;
 #if (defined(DMA1_CSELR_DEFAULT)||defined(DMA2_CSELR_DEFAULT))
   DMA_InitStruct->PeriphRequest          = LL_DMA_REQUEST_0;
 #endif

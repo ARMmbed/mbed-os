@@ -23,7 +23,11 @@
 #include <stdio.h>
 
 #ifdef MBED_RTOS_SINGLE_THREAD
-  #error [NOT_SUPPORTED] test not supported for single threaded enviroment
+#error [NOT_SUPPORTED] test not supported for single threaded enviroment
+#endif
+
+#if !DEVICE_USTICKER
+#error [NOT_SUPPORTED] test not supported
 #endif
 
 using namespace utest::v1;
@@ -33,21 +37,24 @@ static uint32_t instance_count = 0;
 
 class TestClass {
 public:
-    TestClass() {
+    TestClass()
+    {
         Thread::wait(500);
         instance_count++;
     }
 
-    void do_something() {
+    void do_something()
+    {
         Thread::wait(100);
     }
 
-    ~TestClass() {
+    ~TestClass()
+    {
         instance_count--;
     }
 };
 
-static TestClass* get_test_class()
+static TestClass *get_test_class()
 {
     static TestClass tc;
     return &tc;

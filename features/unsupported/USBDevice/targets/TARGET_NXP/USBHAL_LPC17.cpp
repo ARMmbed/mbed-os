@@ -275,11 +275,6 @@ uint32_t USBHAL::endpointReadcore(uint8_t endpoint, uint8_t *buffer) {
 
     LPC_USB->USBCtrl = 0;
 
-    if ((endpoint >> 1) % 3 || (endpoint >> 1) == 0) {
-        SIEselectEndpoint(endpoint);
-        SIEclearBuffer();
-    }
-
     return size;
 }
 
@@ -431,7 +426,7 @@ void USBHAL::EP0setup(uint8_t *buffer) {
 }
 
 void USBHAL::EP0read(void) {
-    // Not required
+    endpointRead(EP0OUT, MAX_PACKET_SIZE_EP0);
 }
 
 void USBHAL::EP0readStage(void) {
@@ -456,6 +451,11 @@ void USBHAL::EP0stall(void) {
 }
 
 EP_STATUS USBHAL::endpointRead(uint8_t endpoint, uint32_t maximumSize) {
+    // Don't clear isochronous endpoints
+    if ((endpoint >> 1) % 3 || (endpoint >> 1) == 0) {
+        SIEselectEndpoint(endpoint);
+        SIEclearBuffer();
+    }
     return EP_PENDING;
 }
 
@@ -590,6 +590,25 @@ void USBHAL::usbisr(void) {
     if (LPC_USB->USBDevIntSt & EP_SLOW) {
         // (Slow) Endpoint Interrupt
 
+        // Process IN packets before SETUP packets
+        // Note - order of OUT and SETUP does not matter as OUT packets
+        //        are clobbered by SETUP packets and thus ignored.
+        //
+        // A SETUP packet can arrive at any time where as an IN packet is
+        // only sent after calling EP0write and an OUT packet after EP0read.
+        // The functions EP0write and EP0read are called only in response to
+        // a setup packet or IN/OUT packets sent in response to that
+        // setup packet. Therefore, if an IN or OUT packet is pending
+        // at the same time as a SETUP packet, the IN or OUT packet belongs
+        // to the previous control transfer and should either be processed
+        // before the SETUP packet (in the case of IN) or dropped (in the
+        // case of OUT as SETUP clobbers the OUT data).
+        if (LPC_USB->USBEpIntSt & EP(EP0IN)) {
+            selectEndpointClearInterrupt(EP0IN);
+            LPC_USB->USBDevIntClr = EP_SLOW;
+            EP0in();
+        }
+
         // Process each endpoint interrupt
         if (LPC_USB->USBEpIntSt & EP(EP0OUT)) {
             if (selectEndpointClearInterrupt(EP0OUT) & SIE_SE_STP) {
@@ -599,12 +618,6 @@ void USBHAL::usbisr(void) {
                 EP0out();
             }
             LPC_USB->USBDevIntClr = EP_SLOW;
-        }
-
-        if (LPC_USB->USBEpIntSt & EP(EP0IN)) {
-            selectEndpointClearInterrupt(EP0IN);
-            LPC_USB->USBDevIntClr = EP_SLOW;
-            EP0in();
         }
 
         for (uint8_t num = 2; num < 16*2; num++) {

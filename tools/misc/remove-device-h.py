@@ -43,13 +43,13 @@ class MyJSONEncoder(json.JSONEncoder):
                     break
             output = []
             if primitives_only and len(o) < 3:
-                for key, value in o.iteritems():
+                for key, value in o.items():
                     output.append(json.dumps(key) + ": " + self.encode(value))
                 return "{" + ", ".join(output) + "}"
             else:
                 self.current_indent += self.indent
                 self.current_indent_str = " " * self.current_indent
-                for key, value in o.iteritems():
+                for key, value in o.items():
                     output.append(self.current_indent_str + json.dumps(key) + ": " + self.encode(value))
                 self.current_indent -= self.indent
                 self.current_indent_str = " " * self.current_indent
@@ -141,7 +141,7 @@ def add_to_targets(targets, device_file, verbose=False, remove=False) :
         print("[WARNING] device {} did not have an associated device.h".format(device))
     else :
         possible_matches = set([key for key in targets.keys() if stem_match(device, key)])
-        for key, value in targets.iteritems() :
+        for key, value in targets.items() :
             for alt in value['extra_labels'] if 'extra_labels' in value else [] :
                 if stem_match(device, alt) : possible_matches.add(key)
             for alt in value['extra_labels_add'] if 'extra_labels_add' in value else [] :

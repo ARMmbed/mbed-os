@@ -87,3 +87,8 @@ void us_ticker_clear_interrupt(void) {
     US_TICKER_TIMER2->TimerIntClr = 0x1;
 
 }
+
+void us_ticker_free(void)
+{
+
+}

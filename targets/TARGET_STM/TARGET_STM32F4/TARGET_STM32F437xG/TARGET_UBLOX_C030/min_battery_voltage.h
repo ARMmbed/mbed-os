@@ -17,11 +17,14 @@
 #ifndef MIN_BATTERY_VOLTAGE_H
 #define MIN_BATTERY_VOLTAGE_H
 
+#include "hal/i2c_api.h"
+
 #ifdef __cplusplus
 extern"C"{
 #endif
 
-#define BQ24295_I2C_ADDRESS (0x6B << 1)
+#define BQ24295_I2C_ADDRESS (0x6B)
+#define I2C_FREQUENCY 100000
 #define MIN_BATTERY_VOLTAGE_MASK (0x87)
 
 /** Initializes an instance of class BatteryChargerI2c which is using the STM HAL I2C APIs
@@ -29,6 +32,8 @@ extern"C"{
  */
 
 void set_minimum_battery_voltage(void);
+char read_from_i2c(int slave_addr, int reg_addr, int* data_read, i2c_t i2c_obj);
+char write_to_i2c(int slave_addr, int reg_addr,int data_write, i2c_t i2c_obj);
 
 #ifdef __cplusplus
 }

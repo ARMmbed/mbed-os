@@ -40,7 +40,12 @@
 // called before main
 void mbed_sdk_init()
 {
-    BOARD_BootClockFROHF48M();
+    if (SYSCON->DEVICE_ID0 == 0xFFF54628) {
+        /* LPC54628 runs at a higher core speed */
+        BOARD_BootClockPLL220M();
+    } else {
+        BOARD_BootClockFROHF48M();
+    }
 }
 
 // Change the NMI pin to an input. This allows NMI pin to
@@ -68,8 +73,6 @@ void ADC_ClockPower_Configuration(void)
     POWER_DisablePD(kPDRUNCFG_PD_VREFP);   /* Power on the reference voltage source. */
     POWER_DisablePD(kPDRUNCFG_PD_TS);      /* Power on the temperature sensor. */
 
-    /* Enable the clock. */
-    CLOCK_AttachClk(kFRO12M_to_MAIN_CLK);
 
     /* CLOCK_AttachClk(kMAIN_CLK_to_ADC_CLK); */
     /* Sync clock source is not used. Using sync clock source and would be divided by 2.

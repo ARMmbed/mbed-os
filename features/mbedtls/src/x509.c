@@ -59,24 +59,12 @@
 #define mbedtls_snprintf  snprintf
 #endif
 
-
 #if defined(MBEDTLS_HAVE_TIME)
 #include "mbedtls/platform_time.h"
 #endif
-
-#if defined(_WIN32) && !defined(EFIX64) && !defined(EFI32)
-#include <windows.h>
-#else
+#if defined(MBEDTLS_HAVE_TIME_DATE)
+#include "mbedtls/platform_util.h"
 #include <time.h>
-#endif
-
-#if defined(MBEDTLS_FS_IO)
-#include <stdio.h>
-#if !defined(_WIN32)
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <dirent.h>
-#endif
 #endif
 
 #define CHECK(code) if( ( ret = code ) != 0 ){ return( ret ); }
@@ -496,9 +484,10 @@ static int x509_parse_int( unsigned char **p, size_t n, int *res )
     return( 0 );
 }
 
-static int x509_date_is_valid(const mbedtls_x509_time *t)
+static int x509_date_is_valid(const mbedtls_x509_time *t )
 {
     int ret = MBEDTLS_ERR_X509_INVALID_DATE;
+    int month_len;
 
     CHECK_RANGE( 0, 9999, t->year );
     CHECK_RANGE( 0, 23,   t->hour );
@@ -508,17 +497,22 @@ static int x509_date_is_valid(const mbedtls_x509_time *t)
     switch( t->mon )
     {
         case 1: case 3: case 5: case 7: case 8: case 10: case 12:
-            CHECK_RANGE( 1, 31, t->day );
+            month_len = 31;
             break;
         case 4: case 6: case 9: case 11:
-            CHECK_RANGE( 1, 30, t->day );
+            month_len = 30;
             break;
         case 2:
-            CHECK_RANGE( 1, 28 + (t->year % 4 == 0), t->day );
+            if( ( !( t->year % 4 ) && t->year % 100 ) ||
+                !( t->year % 400 ) )
+                month_len = 29;
+            else
+                month_len = 28;
             break;
         default:
             return( ret );
     }
+    CHECK_RANGE( 1, month_len, t->day );
 
     return( 0 );
 }
@@ -897,36 +891,14 @@ int mbedtls_x509_key_size_helper( char *buf, size_t buf_size, const char *name )
  * Set the time structure to the current time.
  * Return 0 on success, non-zero on failure.
  */
-#if defined(_WIN32) && !defined(EFIX64) && !defined(EFI32)
 static int x509_get_current_time( mbedtls_x509_time *now )
 {
-    SYSTEMTIME st;
-
-    GetSystemTime( &st );
-
-    now->year = st.wYear;
-    now->mon  = st.wMonth;
-    now->day  = st.wDay;
-    now->hour = st.wHour;
-    now->min  = st.wMinute;
-    now->sec  = st.wSecond;
-
-    return( 0 );
-}
-#else
-static int x509_get_current_time( mbedtls_x509_time *now )
-{
-    struct tm *lt;
+    struct tm *lt, tm_buf;
     mbedtls_time_t tt;
     int ret = 0;
 
-#if defined(MBEDTLS_THREADING_C)
-    if( mbedtls_mutex_lock( &mbedtls_threading_gmtime_mutex ) != 0 )
-        return( MBEDTLS_ERR_THREADING_MUTEX_ERROR );
-#endif
-
     tt = mbedtls_time( NULL );
-    lt = gmtime( &tt );
+    lt = mbedtls_platform_gmtime_r( &tt, &tm_buf );
 
     if( lt == NULL )
         ret = -1;
@@ -940,14 +912,8 @@ static int x509_get_current_time( mbedtls_x509_time *now )
         now->sec  = lt->tm_sec;
     }
 
-#if defined(MBEDTLS_THREADING_C)
-    if( mbedtls_mutex_unlock( &mbedtls_threading_gmtime_mutex ) != 0 )
-        return( MBEDTLS_ERR_THREADING_MUTEX_ERROR );
-#endif
-
     return( ret );
 }
-#endif /* _WIN32 && !EFIX64 && !EFI32 */
 
 /*
  * Return 0 if before <= after, 1 otherwise

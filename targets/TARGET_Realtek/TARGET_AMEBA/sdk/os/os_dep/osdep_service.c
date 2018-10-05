@@ -5,6 +5,10 @@
  ******************************************************************************/
 
 #include <osdep_service.h>
+#if CONFIG_USE_TCM_HEAP
+#include "tcm_heap.h"
+#endif
+
 #define OSDEP_DBG(x, ...) do {} while(0)
 
 extern struct osdep_service_ops osdep_service;
@@ -70,8 +74,10 @@ u32 rtw_atoi(u8* s)
 
 	return(num); 
 }
+#if CONFIG_USE_TCM_HEAP
 void *tcm_heap_malloc(int size);
 void *tcm_heap_calloc(int size);
+#endif
 u8* _rtw_vmalloc(u32 sz)
 {
 	u8 *pbuf = NULL;	
@@ -607,6 +613,22 @@ void rtw_exit_critical_mutex(_mutex *pmutex, _irqL *pirqL)
 		OSDEP_DBG("Not implement osdep service: rtw_exit_critical_mutex");
 }
 
+void rtw_cpu_lock(void)
+{
+	if(osdep_service.rtw_cpu_lock)
+		osdep_service.rtw_cpu_lock();
+	else
+		OSDEP_DBG("Not implement osdep service: rtw_cpu_lock");	
+}
+
+void rtw_cpu_unlock(void)
+{
+	if(osdep_service.rtw_cpu_unlock)
+		osdep_service.rtw_cpu_unlock();
+	else
+		OSDEP_DBG("Not implement osdep service: rtw_cpu_unlock");		
+}
+
 void	rtw_init_queue(_queue	*pqueue)
 {
 	rtw_init_listhead(&(pqueue->queue));
@@ -1060,7 +1082,7 @@ static void worker_thread_main( void *arg )
 			message.function(message.buf, message.buf_len, message.flags, message.user_data);
 			if(message.buf){
 				//printf("\n!!!!!Free %p(%d)\n", message.buf, message.buf_len);
-				_rtw_mfree(message.buf, message.buf_len);
+				_rtw_mfree((u8 *)message.buf, message.buf_len);
 			}
 		}
 	}
@@ -1157,6 +1179,83 @@ u32  rtw_timerChangePeriod( _timerHandle xTimer,
 
 	return 0;	
 }
+
+void *rtw_timerGetID( _timerHandle xTimer )
+{
+	if(osdep_service.rtw_timerGetID)
+		return osdep_service.rtw_timerGetID(xTimer);
+	else
+		OSDEP_DBG("Not implement osdep service: rtw_timerGetID");
+
+	return NULL;		
+}
+
+u32  rtw_timerStart( _timerHandle xTimer, osdepTickType xBlockTime )
+{
+	if(osdep_service.rtw_timerStart)
+		return osdep_service.rtw_timerStart(xTimer, xBlockTime);
+	else
+		OSDEP_DBG("Not implement osdep service: rtw_timerStart");
+
+	return 0;	
+}
+
+u32  rtw_timerStartFromISR( _timerHandle xTimer, 
+								osdepBASE_TYPE *pxHigherPriorityTaskWoken )
+{
+	if(osdep_service.rtw_timerStartFromISR)
+		return osdep_service.rtw_timerStartFromISR(xTimer, pxHigherPriorityTaskWoken);
+	else
+		OSDEP_DBG("Not implement osdep service: rtw_timerStartFromISR");
+
+	return 0;	
+}
+
+u32  rtw_timerStopFromISR( _timerHandle xTimer, 
+							   osdepBASE_TYPE *pxHigherPriorityTaskWoken )
+{
+	if(osdep_service.rtw_timerStopFromISR)
+		return osdep_service.rtw_timerStopFromISR(xTimer, pxHigherPriorityTaskWoken);
+	else
+		OSDEP_DBG("Not implement osdep service: rtw_timerStopFromISR");
+
+	return 0;	
+}
+
+u32  rtw_timerResetFromISR( _timerHandle xTimer, 
+							   osdepBASE_TYPE *pxHigherPriorityTaskWoken )
+{
+	if(osdep_service.rtw_timerResetFromISR)
+		return osdep_service.rtw_timerResetFromISR(xTimer, pxHigherPriorityTaskWoken);
+	else
+		OSDEP_DBG("Not implement osdep service: rtw_timerResetFromISR");
+
+	return 0;	
+}
+
+u32  rtw_timerChangePeriodFromISR( _timerHandle xTimer, 
+							   osdepTickType xNewPeriod, 
+							   osdepBASE_TYPE *pxHigherPriorityTaskWoken )
+{
+	if(osdep_service.rtw_timerChangePeriodFromISR)
+		return osdep_service.rtw_timerChangePeriodFromISR(xTimer, xNewPeriod, pxHigherPriorityTaskWoken);
+	else
+		OSDEP_DBG("Not implement osdep service: rtw_timerChangePeriodFromISR");
+
+	return 0;	
+}
+
+u32  rtw_timerReset( _timerHandle xTimer, 
+						osdepTickType xBlockTime )
+{
+	if(osdep_service.rtw_timerReset)
+		return osdep_service.rtw_timerReset(xTimer, xBlockTime);
+	else
+		OSDEP_DBG("Not implement osdep service: rtw_timerReset");
+
+	return 0;	
+}
+
 
 #if 0 //TODO
 void rtw_init_delayed_work(struct delayed_work *dwork, work_func_t func, const char *name)

@@ -203,3 +203,8 @@ void us_ticker_set_interrupt(timestamp_t timestamp)
     // we set the full reminder of 16 bit, the next ISR will do the upper part
     ticker_set(delta & 0xFFFF);
 }
+
+void us_ticker_free(void)
+{
+
+}

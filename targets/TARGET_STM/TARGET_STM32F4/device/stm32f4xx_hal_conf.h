@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32f4xx_hal_conf.h
   * @author  MCD Application Team
-  * @version V1.7.1
-  * @date    14-April-2017
   * @brief   HAL configuration file.
   ******************************************************************************
   * @attention
@@ -52,7 +50,8 @@
   */
 #define HAL_MODULE_ENABLED
 #define HAL_ADC_MODULE_ENABLED
-#define HAL_CAN_MODULE_ENABLED
+/* #define HAL_CAN_MODULE_ENABLED */
+#define HAL_CAN_LEGACY_MODULE_ENABLED
 #define HAL_CRC_MODULE_ENABLED
 #define HAL_CEC_MODULE_ENABLED
 #define HAL_CRYP_MODULE_ENABLED
@@ -272,6 +271,10 @@
 #ifdef HAL_CAN_MODULE_ENABLED
   #include "stm32f4xx_hal_can.h"
 #endif /* HAL_CAN_MODULE_ENABLED */
+
+#ifdef HAL_CAN_LEGACY_MODULE_ENABLED
+  #include "stm32f4xx_hal_can_legacy.h"
+#endif /* HAL_CAN_LEGACY_MODULE_ENABLED */
 
 #ifdef HAL_CRC_MODULE_ENABLED
   #include "stm32f4xx_hal_crc.h"

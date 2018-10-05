@@ -2,13 +2,11 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_adc_ex.h
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    01-July-2016
   * @brief   Header file of ADC HAL Extension module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -140,10 +138,10 @@ typedef struct
 /** @defgroup ADCEx_injected_rank ADCEx rank into injected group
   * @{
   */
-#define ADC_INJECTED_RANK_1    ((uint32_t)0x00000001)
-#define ADC_INJECTED_RANK_2    ((uint32_t)0x00000002)
-#define ADC_INJECTED_RANK_3    ((uint32_t)0x00000003)
-#define ADC_INJECTED_RANK_4    ((uint32_t)0x00000004)
+#define ADC_INJECTED_RANK_1    (0x00000001U)
+#define ADC_INJECTED_RANK_2    (0x00000002U)
+#define ADC_INJECTED_RANK_3    (0x00000003U)
+#define ADC_INJECTED_RANK_4    (0x00000004U)
 /**
   * @}
   */
@@ -151,7 +149,7 @@ typedef struct
 /** @defgroup ADCEx_External_trigger_edge_Injected ADCEx external trigger enable for injected group
   * @{
   */
-#define ADC_EXTERNALTRIGINJECCONV_EDGE_NONE           ((uint32_t)0x00000000)
+#define ADC_EXTERNALTRIGINJECCONV_EDGE_NONE           (0x00000000U)
 #define ADC_EXTERNALTRIGINJECCONV_EDGE_RISING         ((uint32_t)ADC_CR2_JEXTEN_0)
 #define ADC_EXTERNALTRIGINJECCONV_EDGE_FALLING        ((uint32_t)ADC_CR2_JEXTEN_1)
 #define ADC_EXTERNALTRIGINJECCONV_EDGE_RISINGFALLING  ((uint32_t)ADC_CR2_JEXTEN)
@@ -175,7 +173,7 @@ typedef struct
 #define ADC_EXTERNALTRIGINJECCONV_T9_TRGO     ADC_EXTERNALTRIGINJEC_T9_TRGO
 #define ADC_EXTERNALTRIGINJECCONV_T10_CC1     ADC_EXTERNALTRIGINJEC_T10_CC1
 #define ADC_EXTERNALTRIGINJECCONV_EXT_IT15    ADC_EXTERNALTRIGINJEC_EXT_IT15
-#define ADC_INJECTED_SOFTWARE_START      ((uint32_t)0x00000010)
+#define ADC_INJECTED_SOFTWARE_START      (0x00000010U)
 /**
   * @}
   */
@@ -197,7 +195,7 @@ typedef struct
 
 /* List of external triggers of injected group for ADC1:                      */
 /* (used internally by HAL driver. To not use into HAL structure parameters)  */
-#define ADC_EXTERNALTRIGINJEC_T9_CC1         ((uint32_t) 0x00000000)
+#define ADC_EXTERNALTRIGINJEC_T9_CC1         (0x00000000U)
 #define ADC_EXTERNALTRIGINJEC_T9_TRGO        ((uint32_t)(                                                         ADC_CR2_JEXTSEL_0))
 #define ADC_EXTERNALTRIGINJEC_T2_TRGO        ((uint32_t)(                                      ADC_CR2_JEXTSEL_1                   ))
 #define ADC_EXTERNALTRIGINJEC_T2_CC1         ((uint32_t)(                                      ADC_CR2_JEXTSEL_1 | ADC_CR2_JEXTSEL_0))
@@ -333,7 +331,7 @@ typedef struct
   ((_SAMPLETIME_) << (3 * ((_CHANNELNB_) - 30)))
 #else
 #define ADC_SMPR0(_SAMPLETIME_, _CHANNELNB_)                                   \
-  ((uint32_t)0x00000000)
+  (0x00000000U)
 #endif /* STM32L151xCA || STM32L151xD || STM32L152xCA || STM32L152xD || STM32L162xCA || STM32L162xD || STM32L151xE || STM32L151xDX || STM32L152xE || STM32L152xDX || STM32L162xE || STM32L162xDX */
 
 #if defined(STM32L151xCA) || defined (STM32L151xD) || defined (STM32L152xCA) || defined (STM32L152xD) || defined (STM32L162xCA) || defined (STM32L162xD) || defined(STM32L151xE) || defined(STM32L151xDX) || defined (STM32L152xE) || defined (STM32L152xDX) || defined (STM32L162xE) || defined (STM32L162xDX)
@@ -517,7 +515,7 @@ typedef struct
 /** @defgroup ADCEx_injected_nb_conv_verification ADCEx injected nb conv verification
   * @{
   */
-#define IS_ADC_INJECTED_NB_CONV(LENGTH) (((LENGTH) >= ((uint32_t)1)) && ((LENGTH) <= ((uint32_t)4)))
+#define IS_ADC_INJECTED_NB_CONV(LENGTH) (((LENGTH) >= (1U)) && ((LENGTH) <= (4U)))
 /**
   * @}
   */

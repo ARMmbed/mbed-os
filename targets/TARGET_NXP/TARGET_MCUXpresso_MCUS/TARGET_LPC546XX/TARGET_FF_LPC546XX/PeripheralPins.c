@@ -120,6 +120,6 @@ const PinMap PinMap_PWM[] = {
     {P0_19   , PWM_3,  4},
     {P0_22   , PWM_4,  4},
     {P0_28   , PWM_8,  4},
-    {P0_29   , PWM_9,  4},
+    {P1_31   , PWM_7,  4},
     {NC      , NC,     0}
 };

@@ -16,7 +16,7 @@
 #include "drivers/SerialBase.h"
 #include "platform/mbed_wait_api.h"
 #include "platform/mbed_critical.h"
-#include "platform/mbed_sleep.h"
+#include "platform/mbed_power_mgmt.h"
 
 #if DEVICE_SERIAL
 
@@ -24,11 +24,12 @@ namespace mbed {
 
 SerialBase::SerialBase(PinName tx, PinName rx, int baud) :
 #if DEVICE_SERIAL_ASYNCH
-                                                 _thunk_irq(this), _tx_usage(DMA_USAGE_NEVER),
-                                                 _rx_usage(DMA_USAGE_NEVER), _tx_callback(NULL),
-                                                 _rx_callback(NULL),
+    _thunk_irq(this), _tx_usage(DMA_USAGE_NEVER),
+    _rx_usage(DMA_USAGE_NEVER), _tx_callback(NULL),
+    _rx_callback(NULL),
 #endif
-                                                _serial(), _baud(baud) {
+    _serial(), _baud(baud)
+{
     // No lock needed in the constructor
 
     for (size_t i = 0; i < sizeof _irq / sizeof _irq[0]; i++) {
@@ -40,20 +41,23 @@ SerialBase::SerialBase(PinName tx, PinName rx, int baud) :
     serial_irq_handler(&_serial, SerialBase::_irq_handler, (uint32_t)this);
 }
 
-void SerialBase::baud(int baudrate) {
+void SerialBase::baud(int baudrate)
+{
     lock();
     serial_baud(&_serial, baudrate);
     _baud = baudrate;
     unlock();
 }
 
-void SerialBase::format(int bits, Parity parity, int stop_bits) {
+void SerialBase::format(int bits, Parity parity, int stop_bits)
+{
     lock();
     serial_format(&_serial, bits, (SerialParity)parity, stop_bits);
     unlock();
 }
 
-int SerialBase::readable() {
+int SerialBase::readable()
+{
     lock();
     int ret = serial_readable(&_serial);
     unlock();
@@ -61,14 +65,16 @@ int SerialBase::readable() {
 }
 
 
-int SerialBase::writeable() {
+int SerialBase::writeable()
+{
     lock();
     int ret = serial_writable(&_serial);
     unlock();
     return ret;
 }
 
-void SerialBase::attach(Callback<void()> func, IrqType type) {
+void SerialBase::attach(Callback<void()> func, IrqType type)
+{
     lock();
     // Disable interrupts when attaching interrupt handler
     core_util_critical_section_enter();
@@ -76,14 +82,14 @@ void SerialBase::attach(Callback<void()> func, IrqType type) {
         // lock deep sleep only the first time
         if (!_irq[type]) {
             sleep_manager_lock_deep_sleep();
-        } 
+        }
         _irq[type] = func;
         serial_irq_set(&_serial, (SerialIrq)type, 1);
     } else {
         // unlock deep sleep only the first time
         if (_irq[type]) {
             sleep_manager_unlock_deep_sleep();
-        } 
+        }
         _irq[type] = NULL;
         serial_irq_set(&_serial, (SerialIrq)type, 0);
     }
@@ -91,45 +97,51 @@ void SerialBase::attach(Callback<void()> func, IrqType type) {
     unlock();
 }
 
-void SerialBase::_irq_handler(uint32_t id, SerialIrq irq_type) {
-    SerialBase *handler = (SerialBase*)id;
+void SerialBase::_irq_handler(uint32_t id, SerialIrq irq_type)
+{
+    SerialBase *handler = (SerialBase *)id;
     if (handler->_irq[irq_type]) {
         handler->_irq[irq_type]();
     }
 }
 
-int SerialBase::_base_getc() {
+int SerialBase::_base_getc()
+{
     // Mutex is already held
     return serial_getc(&_serial);
 }
 
-int SerialBase::_base_putc(int c) {
+int SerialBase::_base_putc(int c)
+{
     // Mutex is already held
     serial_putc(&_serial, c);
     return c;
 }
 
-void SerialBase::send_break() {
+void SerialBase::send_break()
+{
     lock();
-  // Wait for 1.5 frames before clearing the break condition
-  // This will have different effects on our platforms, but should
-  // ensure that we keep the break active for at least one frame.
-  // We consider a full frame (1 start bit + 8 data bits bits +
-  // 1 parity bit + 2 stop bits = 12 bits) for computation.
-  // One bit time (in us) = 1000000/_baud
-  // Twelve bits: 12000000/baud delay
-  // 1.5 frames: 18000000/baud delay
-  serial_break_set(&_serial);
-  wait_us(18000000/_baud);
-  serial_break_clear(&_serial);
-  unlock();
+    // Wait for 1.5 frames before clearing the break condition
+    // This will have different effects on our platforms, but should
+    // ensure that we keep the break active for at least one frame.
+    // We consider a full frame (1 start bit + 8 data bits bits +
+    // 1 parity bit + 2 stop bits = 12 bits) for computation.
+    // One bit time (in us) = 1000000/_baud
+    // Twelve bits: 12000000/baud delay
+    // 1.5 frames: 18000000/baud delay
+    serial_break_set(&_serial);
+    wait_us(18000000 / _baud);
+    serial_break_clear(&_serial);
+    unlock();
 }
 
-void SerialBase::lock() {
+void SerialBase::lock()
+{
     // Stub
 }
 
-void SerialBase:: unlock() {
+void SerialBase:: unlock()
+{
     // Stub
 }
 
@@ -144,10 +156,11 @@ SerialBase::~SerialBase()
 }
 
 #if DEVICE_SERIAL_FC
-void SerialBase::set_flow_control(Flow type, PinName flow1, PinName flow2) {
+void SerialBase::set_flow_control(Flow type, PinName flow1, PinName flow2)
+{
     lock();
     FlowControl flow_type = (FlowControl)type;
-    switch(type) {
+    switch (type) {
         case RTS:
             serial_set_flow_control(&_serial, flow_type, flow1, NC);
             break;
@@ -170,7 +183,7 @@ void SerialBase::set_flow_control(Flow type, PinName flow1, PinName flow2) {
 
 #if DEVICE_SERIAL_ASYNCH
 
-int SerialBase::write(const uint8_t *buffer, int length, const event_callback_t& callback, int event)
+int SerialBase::write(const uint8_t *buffer, int length, const event_callback_t &callback, int event)
 {
     if (serial_tx_active(&_serial)) {
         return -1; // transaction ongoing
@@ -179,7 +192,7 @@ int SerialBase::write(const uint8_t *buffer, int length, const event_callback_t&
     return 0;
 }
 
-int SerialBase::write(const uint16_t *buffer, int length, const event_callback_t& callback, int event)
+int SerialBase::write(const uint16_t *buffer, int length, const event_callback_t &callback, int event)
 {
     if (serial_tx_active(&_serial)) {
         return -1; // transaction ongoing
@@ -188,7 +201,7 @@ int SerialBase::write(const uint16_t *buffer, int length, const event_callback_t
     return 0;
 }
 
-void SerialBase::start_write(const void *buffer, int buffer_size, char buffer_width, const event_callback_t& callback, int event)
+void SerialBase::start_write(const void *buffer, int buffer_size, char buffer_width, const event_callback_t &callback, int event)
 {
     _tx_callback = callback;
 
@@ -235,27 +248,27 @@ int SerialBase::set_dma_usage_rx(DMAUsage usage)
     return 0;
 }
 
-int SerialBase::read(uint8_t *buffer, int length, const event_callback_t& callback, int event, unsigned char char_match)
+int SerialBase::read(uint8_t *buffer, int length, const event_callback_t &callback, int event, unsigned char char_match)
 {
     if (serial_rx_active(&_serial)) {
         return -1; // transaction ongoing
     }
-    start_read((void*)buffer, length, 8, callback, event, char_match);
+    start_read((void *)buffer, length, 8, callback, event, char_match);
     return 0;
 }
 
 
-int SerialBase::read(uint16_t *buffer, int length, const event_callback_t& callback, int event, unsigned char char_match)
+int SerialBase::read(uint16_t *buffer, int length, const event_callback_t &callback, int event, unsigned char char_match)
 {
     if (serial_rx_active(&_serial)) {
         return -1; // transaction ongoing
     }
-    start_read((void*)buffer, length, 16, callback, event, char_match);
+    start_read((void *)buffer, length, 16, callback, event, char_match);
     return 0;
 }
 
 
-void SerialBase::start_read(void *buffer, int buffer_size, char buffer_width, const event_callback_t& callback, int event, unsigned char char_match)
+void SerialBase::start_read(void *buffer, int buffer_size, char buffer_width, const event_callback_t &callback, int event, unsigned char char_match)
 {
     _rx_callback = callback;
     _thunk_irq.callback(&SerialBase::interrupt_handler_asynch);

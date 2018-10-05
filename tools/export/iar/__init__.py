@@ -1,3 +1,6 @@
+from __future__ import print_function, absolute_import
+from builtins import str
+
 import os
 from os.path import sep, join, exists
 from collections import namedtuple
@@ -106,11 +109,11 @@ class IAR(Exporter):
             raise NotSupportedException("No linker script found.")
         srcs = self.resources.headers + self.resources.s_sources + \
                self.resources.c_sources + self.resources.cpp_sources + \
-               self.resources.objects + self.resources.libraries
+               self.resources.objects + self.libraries
         flags = self.flags
         c_flags = list(set(flags['common_flags']
-                                    + flags['c_flags']
-                                    + flags['cxx_flags']))
+                           + flags['c_flags']
+                           + flags['cxx_flags']))
         # Flags set in template to be set by user in IDE
         template = ["--vla", "--no_static_destruction"]
         # Flag invalid if set in template
@@ -130,13 +133,24 @@ class IAR(Exporter):
             'include_paths': [self.format_file(src) for src in self.resources.inc_dirs],
             'device': self.iar_device(),
             'ewp': sep+self.project_name + ".ewp",
-            'debugger': debugger
+            'debugger': debugger,
         }
         ctx.update(flags)
 
         self.gen_file('iar/eww.tmpl', ctx, self.project_name + ".eww")
         self.gen_file('iar/ewd.tmpl', ctx, self.project_name + ".ewd")
         self.gen_file('iar/ewp.tmpl', ctx, self.project_name + ".ewp")
+
+    @staticmethod
+    def clean(project_name):
+        os.remove(project_name + ".ewp")
+        os.remove(project_name + ".ewd")
+        os.remove(project_name + ".eww")
+        # legacy output file location
+        if exists('.build'):
+            shutil.rmtree('.build')
+        if exists('BUILD'):
+            shutil.rmtree('BUILD')
 
     @staticmethod
     def build(project_name, log_name="build_log.txt", cleanup=True):
@@ -170,7 +184,7 @@ class IAR(Exporter):
         else:
             out_string += "FAILURE"
 
-        print out_string
+        print(out_string)
 
         if log_name:
             # Write the output to the log file
@@ -179,19 +193,10 @@ class IAR(Exporter):
 
         # Cleanup the exported and built files
         if cleanup:
-            os.remove(project_name + ".ewp")
-            os.remove(project_name + ".ewd")
-            os.remove(project_name + ".eww")
-            # legacy output file location
-            if exists('.build'):
-                shutil.rmtree('.build')
-            if exists('BUILD'):
-                shutil.rmtree('BUILD')
+            IAR.clean(project_name)
 
         if ret_code !=0:
             # Seems like something went wrong.
             return -1
         else:
             return 0
-
-

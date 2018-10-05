@@ -14,6 +14,7 @@
  */
 #include "UARTCellularInterface.h"
 
+
 #if NSAPI_PPP_AVAILABLE
 
 UARTCellularInterface::UARTCellularInterface(PinName txd, PinName rxd, PinName dcd, PinName rts, PinName cts, PinName ri,

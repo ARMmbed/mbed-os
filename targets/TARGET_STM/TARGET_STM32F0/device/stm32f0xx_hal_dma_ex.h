@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_dma_ex.h
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    04-November-2016
   * @brief   Header file of DMA HAL Extension module.
   ******************************************************************************
   * @attention
@@ -523,7 +521,7 @@
 #if defined(STM32F071xB) || defined(STM32F072xB) || defined(STM32F078xx)
 /**
   * @brief  Returns the current DMA Channel transfer complete flag.
-  * @param  __HANDLE__: DMA handle
+  * @param  __HANDLE__ DMA handle
   * @retval The specified transfer complete flag index.
   */      
 #define __HAL_DMA_GET_TC_FLAG_INDEX(__HANDLE__) \
@@ -537,7 +535,7 @@
 
 /**
   * @brief  Returns the current DMA Channel half transfer complete flag.
-  * @param  __HANDLE__: DMA handle
+  * @param  __HANDLE__ DMA handle
   * @retval The specified half transfer complete flag index.
   */      
 #define __HAL_DMA_GET_HT_FLAG_INDEX(__HANDLE__)\
@@ -551,7 +549,7 @@
 
 /**
   * @brief  Returns the current DMA Channel transfer error flag.
-  * @param  __HANDLE__: DMA handle
+  * @param  __HANDLE__ DMA handle
   * @retval The specified transfer error flag index.
   */
 #define __HAL_DMA_GET_TE_FLAG_INDEX(__HANDLE__)\
@@ -565,7 +563,7 @@
 
 /**
   * @brief  Return the current DMA Channel Global interrupt flag.
-  * @param  __HANDLE__: DMA handle
+  * @param  __HANDLE__ DMA handle
   * @retval The specified transfer error flag index.
   */
 #define __HAL_DMA_GET_GI_FLAG_INDEX(__HANDLE__)\
@@ -579,8 +577,8 @@
 
 /**
   * @brief  Get the DMA Channel pending flags.
-  * @param  __HANDLE__: DMA handle
-  * @param  __FLAG__: Get the specified flag.
+  * @param  __HANDLE__ DMA handle
+  * @param  __FLAG__ Get the specified flag.
   *          This parameter can be any combination of the following values:
   *            @arg DMA_FLAG_TCx:  Transfer complete flag
   *            @arg DMA_FLAG_HTx:  Half transfer complete flag
@@ -593,8 +591,8 @@
 
 /**
   * @brief  Clears the DMA Channel pending flags.
-  * @param  __HANDLE__: DMA handle
-  * @param  __FLAG__: specifies the flag to clear.
+  * @param  __HANDLE__ DMA handle
+  * @param  __FLAG__ specifies the flag to clear.
   *          This parameter can be any combination of the following values:
   *            @arg DMA_FLAG_TCx:  Transfer complete flag
   *            @arg DMA_FLAG_HTx:  Half transfer complete flag
@@ -607,7 +605,7 @@
 #elif defined(STM32F091xC) || defined(STM32F098xx)
 /**
   * @brief  Returns the current DMA Channel transfer complete flag.
-  * @param  __HANDLE__: DMA handle
+  * @param  __HANDLE__ DMA handle
   * @retval The specified transfer complete flag index.
   */      
 #define __HAL_DMA_GET_TC_FLAG_INDEX(__HANDLE__) \
@@ -626,7 +624,7 @@
 
 /**
   * @brief  Returns the current DMA Channel half transfer complete flag.
-  * @param  __HANDLE__: DMA handle
+  * @param  __HANDLE__ DMA handle
   * @retval The specified half transfer complete flag index.
   */      
 #define __HAL_DMA_GET_HT_FLAG_INDEX(__HANDLE__)\
@@ -645,7 +643,7 @@
 
 /**
   * @brief  Returns the current DMA Channel transfer error flag.
-  * @param  __HANDLE__: DMA handle
+  * @param  __HANDLE__ DMA handle
   * @retval The specified transfer error flag index.
   */
 #define __HAL_DMA_GET_TE_FLAG_INDEX(__HANDLE__)\
@@ -664,7 +662,7 @@
 
 /**
   * @brief  Return the current DMA Channel Global interrupt flag.
-  * @param  __HANDLE__: DMA handle
+  * @param  __HANDLE__ DMA handle
   * @retval The specified transfer error flag index.
   */
 #define __HAL_DMA_GET_GI_FLAG_INDEX(__HANDLE__)\
@@ -683,8 +681,8 @@
 
 /**
   * @brief  Get the DMA Channel pending flags.
-  * @param  __HANDLE__: DMA handle
-  * @param  __FLAG__: Get the specified flag.
+  * @param  __HANDLE__ DMA handle
+  * @param  __FLAG__ Get the specified flag.
   *          This parameter can be any combination of the following values:
   *            @arg DMA_FLAG_TCx:  Transfer complete flag
   *            @arg DMA_FLAG_HTx:  Half transfer complete flag
@@ -699,8 +697,8 @@
 
 /**
   * @brief  Clears the DMA Channel pending flags.
-  * @param  __HANDLE__: DMA handle
-  * @param  __FLAG__: specifies the flag to clear.
+  * @param  __HANDLE__ DMA handle
+  * @param  __FLAG__ specifies the flag to clear.
   *          This parameter can be any combination of the following values:
   *            @arg DMA_FLAG_TCx:  Transfer complete flag
   *            @arg DMA_FLAG_HTx:  Half transfer complete flag
@@ -715,7 +713,7 @@
 #else /* STM32F030x8_STM32F030xC_STM32F031x6_STM32F038xx_STM32F051x8_STM32F058xx_STM32F070x6_STM32F070xB Product devices */
 /**
   * @brief  Returns the current DMA Channel transfer complete flag.
-  * @param  __HANDLE__: DMA handle
+  * @param  __HANDLE__ DMA handle
   * @retval The specified transfer complete flag index.
   */      
 #define __HAL_DMA_GET_TC_FLAG_INDEX(__HANDLE__) \
@@ -727,7 +725,7 @@
 
 /**
   * @brief  Returns the current DMA Channel half transfer complete flag.
-  * @param  __HANDLE__: DMA handle
+  * @param  __HANDLE__ DMA handle
   * @retval The specified half transfer complete flag index.
   */      
 #define __HAL_DMA_GET_HT_FLAG_INDEX(__HANDLE__)\
@@ -739,7 +737,7 @@
 
 /**
   * @brief  Returns the current DMA Channel transfer error flag.
-  * @param  __HANDLE__: DMA handle
+  * @param  __HANDLE__ DMA handle
   * @retval The specified transfer error flag index.
   */
 #define __HAL_DMA_GET_TE_FLAG_INDEX(__HANDLE__)\
@@ -751,7 +749,7 @@
 
 /**
   * @brief  Return the current DMA Channel Global interrupt flag.
-  * @param  __HANDLE__: DMA handle
+  * @param  __HANDLE__ DMA handle
   * @retval The specified transfer error flag index.
   */
 #define __HAL_DMA_GET_GI_FLAG_INDEX(__HANDLE__)\
@@ -763,8 +761,8 @@
 
 /**
   * @brief  Get the DMA Channel pending flags.
-  * @param  __HANDLE__: DMA handle
-  * @param  __FLAG__: Get the specified flag.
+  * @param  __HANDLE__ DMA handle
+  * @param  __FLAG__ Get the specified flag.
   *          This parameter can be any combination of the following values:
   *            @arg DMA_FLAG_TCx:  Transfer complete flag
   *            @arg DMA_FLAG_HTx:  Half transfer complete flag
@@ -777,8 +775,8 @@
 
 /**
   * @brief  Clears the DMA Channel pending flags.
-  * @param  __HANDLE__: DMA handle
-  * @param  __FLAG__: specifies the flag to clear.
+  * @param  __HANDLE__ DMA handle
+  * @param  __FLAG__ specifies the flag to clear.
   *          This parameter can be any combination of the following values:
   *            @arg DMA_FLAG_TCx:  Transfer complete flag
   *            @arg DMA_FLAG_HTx:  Half transfer complete flag

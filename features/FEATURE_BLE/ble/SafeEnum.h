@@ -139,6 +139,57 @@ struct SafeEnum {
 		return !(lhs == rhs);
 	}
 
+	/**
+	 * Less than operator for SafeEnum instances.
+	 *
+     * @param lhs left hand side of the comparison
+     * @param rhs right hand side of the comparison
+     *
+     * @return true if the inner value of lhs is less than rhs and false otherwise.
+	 */
+	friend bool operator<(SafeEnum lhs, SafeEnum rhs) {
+	    return lhs.value() < rhs.value();
+	}
+
+    /**
+     * Less than or equal to operator for SafeEnum instances.
+     *
+     * @param lhs left hand side of the comparison
+     * @param rhs right hand side of the comparison
+     *
+     * @return true if the inner value of lhs is less than or equal to rhs and
+     * false otherwise.
+     */
+	friend bool operator<=(SafeEnum lhs, SafeEnum rhs) {
+	    return lhs.value() < rhs.value() || lhs == rhs;
+	}
+
+    /**
+     * Greater than operator for SafeEnum instances.
+     *
+     * @param lhs left hand side of the comparison
+     * @param rhs right hand side of the comparison
+     *
+     * @return true if the inner value of lhs is greater than rhs; false
+     * otherwise.
+     */
+    friend bool operator>(SafeEnum lhs, SafeEnum rhs) {
+        return !(lhs <= rhs);
+    }
+
+    /**
+     * Greater than or equal to operator for SafeEnum instances.
+     *
+     * @param lhs left hand side of the comparison
+     * @param rhs right hand side of the comparison
+     *
+     * @return true if the inner value of lhs is greater than or equal to rhs;
+     * false otherwise.
+     */
+    friend bool operator>=(SafeEnum lhs, SafeEnum rhs) {
+        return !(lhs < rhs);
+    }
+
     /**
      * Explicit access to the inner value of the SafeEnum instance.
      */

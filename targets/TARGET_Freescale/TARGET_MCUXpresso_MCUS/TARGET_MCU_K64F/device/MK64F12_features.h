@@ -230,8 +230,8 @@
     #define FSL_FEATURE_SOC_MMAU_COUNT (0)
     /* @brief MMDVSQ availability on the SoC. */
     #define FSL_FEATURE_SOC_MMDVSQ_COUNT (0)
-    /* @brief MPU availability on the SoC. */
-    #define FSL_FEATURE_SOC_MPU_COUNT (1)
+    /* @brief SYSMPU availability on the SoC. */
+    #define FSL_FEATURE_SOC_SYSMPU_COUNT (1)
     /* @brief MSCAN availability on the SoC. */
     #define FSL_FEATURE_SOC_MSCAN_COUNT (0)
     /* @brief MSCM availability on the SoC. */
@@ -477,8 +477,8 @@
     #define FSL_FEATURE_SOC_MMAU_COUNT (0)
     /* @brief MMDVSQ availability on the SoC. */
     #define FSL_FEATURE_SOC_MMDVSQ_COUNT (0)
-    /* @brief MPU availability on the SoC. */
-    #define FSL_FEATURE_SOC_MPU_COUNT (1)
+    /* @brief SYSMPU availability on the SoC. */
+    #define FSL_FEATURE_SOC_SYSMPU_COUNT (1)
     /* @brief MSCAN availability on the SoC. */
     #define FSL_FEATURE_SOC_MSCAN_COUNT (0)
     /* @brief MSCM availability on the SoC. */
@@ -1499,21 +1499,6 @@
 /* @brief Reset clock mode is BLPI. */
 #define FSL_FEATURE_MCG_RESET_IS_BLPI (0)
 
-/* MPU module features */
-
-/* @brief Specifies number of descriptors available. */
-#define FSL_FEATURE_MPU_DESCRIPTOR_COUNT (12)
-/* @brief Has process identifier support. */
-#define FSL_FEATURE_MPU_HAS_PROCESS_IDENTIFIER (1)
-/* @brief Total number of MPU master. */
-#define FSL_FEATURE_MPU_MASTER_COUNT (8)
-/* @brief Total number of MPU master with privileged rights */
-#define FSL_FEATURE_MPU_PRIVILEGED_RIGHTS_MASTER_COUNT (4)
-/* @brief Max index of used MPU master. */
-#define FSL_FEATURE_MPU_MASTER_MAX_INDEX (5)
-/* @brief Has master 4 or 5 or 6 or 7. */
-#define FSL_FEATURE_MPU_HAS_MASTER_4_7 (1)
-
 /* interrupt module features */
 
 /* @brief Lowest interrupt request number. */
@@ -2008,6 +1993,17 @@
     ((x) == DSPI0 ? (1) : \
     ((x) == DSPI1 ? (0) : \
     ((x) == DSPI2 ? (0) : (-1))))
+
+/* SYSMPU module features */
+
+/* @brief Specifies number of descriptors available. */
+#define FSL_FEATURE_SYSMPU_DESCRIPTOR_COUNT (12)
+/* @brief Has process identifier support. */
+#define FSL_FEATURE_SYSMPU_HAS_PROCESS_IDENTIFIER (1)
+/* @brief Total number of MPU slave. */
+#define FSL_FEATURE_SYSMPU_SLAVE_COUNT (5)
+/* @brief Total number of MPU master. */
+#define FSL_FEATURE_SYSMPU_MASTER_COUNT (6)
 
 /* SysTick module features */
 

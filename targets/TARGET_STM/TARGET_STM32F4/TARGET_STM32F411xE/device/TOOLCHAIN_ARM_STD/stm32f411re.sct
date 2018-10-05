@@ -1,3 +1,4 @@
+#! armcc -E
 ; Scatter-Loading Description File
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Copyright (c) 2014, STMicroelectronics
@@ -27,10 +28,18 @@
 ; OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-; STM32F411RE: 512 KB FLASH (0x80000) + 128 KB SRAM (0x20000)
-LR_IROM1 0x08000000 0x80000  {    ; load region size_region
+#if !defined(MBED_APP_START)
+  #define MBED_APP_START 0x08000000
+#endif
 
-  ER_IROM1 0x08000000 0x80000  {  ; load address = execution address
+#if !defined(MBED_APP_SIZE)
+  #define MBED_APP_SIZE 0x80000
+#endif
+
+; STM32F411RE: 512 KB FLASH (0x80000) + 128 KB SRAM (0x20000)
+LR_IROM1 MBED_APP_START MBED_APP_SIZE  {    ; load region size_region
+
+  ER_IROM1 MBED_APP_START MBED_APP_SIZE  {  ; load address = execution address
    *.o (RESET, +First)
    *(InRoot$$Sections)
    .ANY (+RO)

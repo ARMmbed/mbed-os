@@ -1,8 +1,6 @@
 ;******************** (C) COPYRIGHT 2015 STMicroelectronics ********************
 ;* File Name          : startup_stm32f042x6.s
 ;* Author             : MCD Application Team
-;* Version            : V2.2.2
-;* Date               : 26-June-2015
 ;* Description        : STM32F042x4/STM32F042x6 devices vector table for EWARM toolchain.
 ;*                      This module performs:
 ;*                      - Set the initial SP
@@ -14,8 +12,6 @@
 ;*                      After Reset the Cortex-M0 processor is in Thread mode,
 ;*                      priority is Privileged, and the Stack is set to Main.
 ;*******************************************************************************
-;*
-;* <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
 ;*
 ;* Redistribution and use in source and binary forms, with or without modification,
 ;* are permitted provided that the following conditions are met:

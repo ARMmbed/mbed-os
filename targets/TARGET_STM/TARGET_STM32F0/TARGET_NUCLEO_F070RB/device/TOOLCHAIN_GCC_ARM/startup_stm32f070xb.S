@@ -2,9 +2,7 @@
   ******************************************************************************
   * @file      startup_stm32f070xb.s
   * @author    MCD Application Team
-  * @version   V2.2.0
-  * @date      05-December-2014
-  * @brief     STM32F070xb/STM32F070x8 devices vector table for Atollic TrueSTUDIO toolchain.
+  * @brief     STM32F070xb/STM32F070x8 devices vector table for GCC toolchain.
   *            This module performs:
   *                - Set the initial SP
   *                - Set the initial PC == Reset_Handler,
@@ -55,7 +53,10 @@ defined in linker script */
 .word _sdata
 /* end address for the .data section. defined in linker script */
 .word _edata
-
+/* start address for the .bss section. defined in linker script */
+.word _sbss
+/* end address for the .bss section. defined in linker script */
+.word _ebss
 
   .section .text.Reset_Handler
   .weak Reset_Handler
@@ -65,21 +66,6 @@ Reset_Handler:
   mov   sp, r0          /* set stack pointer */
 
 /* Copy the data segment initializers from flash to SRAM */
-  // Load from _sidata -> _sdata through _edata
-  // _sidata has a vma = lma in flash at the end of .text
-  // _sdata has a lma in flash but a vma of ram, so here we move it from where
-  // it was loaded (lma) into where it will be accessed (vma).
-  // Register Schema:
-  //  r0 = _sdata, r1 = _edata, r2 = _sidata
-  //  r3 = index (goes from 0 -> _sdata - _edata)
-  //  r4 = temp var for *(_sidata + r3) or (_sdata + r3)
-  // This is all equivalent to this C:
-  //  int index = 0;
-  //  extern uint32_t *_sdata, *_sidata;
-  //  while (_sdata + index < _edata) {
-  //    *_sdata[index] = *_sidata[index];
-  //    index += 1;
-  //  }
   ldr r0, =_sdata
   ldr r1, =_edata
   ldr r2, =_sidata
@@ -92,16 +78,28 @@ CopyDataInit:
   adds r3, r3, #4
 
 LoopCopyDataInit:
-  // while (_sdata + r3 < _edata)
   adds r4, r0, r3
-  // if (r4 < r1) branch to CopyDataInit
   cmp r4, r1
   bcc CopyDataInit
+  
+/* Zero fill the bss segment. */
+  ldr r2, =_sbss
+  ldr r4, =_ebss
+  movs r3, #0
+  b LoopFillZerobss
 
+FillZerobss:
+  str  r3, [r2]
+  adds r2, r2, #4
+
+LoopFillZerobss:
+  cmp r2, r4
+  bcc FillZerobss
 
 /* Call the clock system intitialization function.*/
   bl  SystemInit
-
+/* Call static constructors */
+  // bl __libc_init_array
 /* Call the application's entry point.*/
 //  bl main
   bl _start

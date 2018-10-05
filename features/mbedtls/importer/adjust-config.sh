@@ -55,20 +55,20 @@ add_code                                                                        
     "\n"                                                                                  \
     "#else\n"
 
-add_code                                                                              \
-    "#include \"check_config.h\"\n"                                                   \
-    "\n"                                                                              \
-    "#endif \/* !MBEDTLS_ENTROPY_HARDWARE_ALT && !MBEDTLS_TEST_NULL_ENTROPY *\/\n"    \
-    "\n"                                                                              \
-    "#if defined(MBEDTLS_TEST_NULL_ENTROPY)\n"                                        \
-    "#warning \"MBEDTLS_TEST_NULL_ENTROPY has been enabled. This \" \\\\\n"           \
-    "    \"configuration is not secure and is not suitable for production use\"\n"    \
-    "#endif\n"                                                                        \
-    "\n"                                                                              \
-    "#if defined(MBEDTLS_SSL_TLS_C) && !defined(MBEDTLS_TEST_NULL_ENTROPY) && \\\\\n" \
-    "    !defined(MBEDTLS_ENTROPY_HARDWARE_ALT)\n"                                    \
-    "#error \"No entropy source was found at build time, so TLS \" \\\\\n"            \
-    "    \"functionality is not available\"\n"                                        \
+add_code                                                                                \
+    "#include \"check_config.h\"\n"                                                     \
+    "\n"                                                                                \
+    "#endif \/* !MBEDTLS_ENTROPY_HARDWARE_ALT && !MBEDTLS_TEST_NULL_ENTROPY *\/\n"      \
+    "\n"                                                                                \
+    "#if defined(MBEDTLS_TEST_NULL_ENTROPY)\n"                                          \
+    "#warning \"MBEDTLS_TEST_NULL_ENTROPY has been enabled. This \" \\\\\n"             \
+    "    \"configuration is not secure and is not suitable for production use\"\n"      \
+    "#endif\n"                                                                          \
+    "\n"                                                                                \
+    "#if defined(MBEDTLS_SSL_TLS_C) && !defined(MBEDTLS_TEST_NULL_ENTROPY) && \\\\\n"   \
+    "    !defined(MBEDTLS_ENTROPY_HARDWARE_ALT) && !defined(MBEDTLS_ENTROPY_NV_SEED)\n" \
+    "#error \"No entropy source was found at build time, so TLS \" \\\\\n"              \
+    "    \"functionality is not available\"\n"                                          \
     "#endif\n"
 
 # not supported on mbed OS, nor used by mbed Client
@@ -81,10 +81,12 @@ conf unset MBEDTLS_FS_IO
 conf set MBEDTLS_NO_PLATFORM_ENTROPY
 
 conf unset MBEDTLS_CIPHER_MODE_CFB
+conf unset MBEDTLS_CIPHER_MODE_OFB
 conf unset MBEDTLS_CIPHER_MODE_CTR
 conf unset MBEDTLS_CIPHER_PADDING_ONE_AND_ZEROS
 conf unset MBEDTLS_CIPHER_PADDING_ZEROS_AND_LEN
 conf unset MBEDTLS_CIPHER_PADDING_ZEROS
+conf unset MBEDTLS_CIPHER_MODE_XTS
 conf unset MBEDTLS_ECP_DP_SECP192R1_ENABLED
 conf unset MBEDTLS_ECP_DP_SECP224R1_ENABLED
 conf unset MBEDTLS_ECP_DP_SECP521R1_ENABLED
@@ -111,6 +113,8 @@ conf unset MBEDTLS_PKCS12_C
 conf unset MBEDTLS_RIPEMD160_C
 conf unset MBEDTLS_SHA1_C
 conf unset MBEDTLS_XTEA_C
+
+conf set MBEDTLS_CMAC_C
 
 conf set MBEDTLS_AES_ROM_TABLES
 

@@ -14,6 +14,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+from __future__ import print_function
 
 from os import access, F_OK
 from sys import stdout
@@ -58,16 +59,13 @@ class HostTestPluginBase:
     def print_plugin_error(self, text):
         """ Function prints error in console and exits always with False
         """
-        print "Plugin error: %s::%s: %s"% (self.name, self.type, text)
+        print("Plugin error: %s::%s: %s" % (self.name, self.type, text))
         return False
 
     def print_plugin_info(self, text, NL=True):
         """ Function prints notification in console and exits always with True
         """
-        if NL:
-            print "Plugin info: %s::%s: %s"% (self.name, self.type, text)
-        else:
-            print "Plugin info: %s::%s: %s"% (self.name, self.type, text),
+        print("Plugin info: %s::%s: %s"% (self.name, self.type, text))
         return True
 
     def print_plugin_char(self, char):

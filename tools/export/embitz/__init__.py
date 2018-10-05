@@ -15,6 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 from os.path import splitext, basename
+from os import remove
 from tools.targets import TARGET_MAP
 from tools.export.exporters import Exporter, apply_supported_whitelist
 
@@ -52,20 +53,16 @@ class EmBitz(Exporter):
     def generate(self):
         self.resources.win_to_unix()
         source_files = []
-        for r_type, n in self.FILE_TYPES.iteritems():
+        for r_type, n in self.FILE_TYPES.items():
             for file in getattr(self.resources, r_type):
                 source_files.append({
                     'name': file, 'type': n
                 })
 
         libraries = []
-        for lib in self.resources.libraries:
+        for lib in self.libraries:
             l, _ = splitext(basename(lib))
             libraries.append(l[3:])
-
-
-        if self.resources.linker_script is None:
-            self.resources.linker_script = ''
 
         ctx = {
             'name': self.project_name,
@@ -73,7 +70,7 @@ class EmBitz(Exporter):
             'toolchain': self.toolchain.name,
             'source_files': source_files,
             'include_paths': self.resources.inc_dirs,
-            'script_file': self.resources.linker_script,
+            'script_file': self.resources.linker_script or '',
             'library_paths': self.resources.lib_dirs,
             'libraries': libraries,
             'symbols': self.toolchain.get_symbols(),
@@ -87,3 +84,7 @@ class EmBitz(Exporter):
         }
 
         self.gen_file('embitz/eix.tmpl', ctx, '%s.eix' % self.project_name)
+
+    @staticmethod
+    def clean(project_name):
+        remove("%s.eix" % project_name)

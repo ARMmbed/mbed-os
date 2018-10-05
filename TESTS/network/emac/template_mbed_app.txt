@@ -1,0 +1,24 @@
+{
+    "config": {
+        "echo-server": {
+            "help": "Build test to be echo server",
+            "value": 0
+        },
+        "echo-server-trace": {
+            "help": "Trace incoming messages on echo server",
+            "value": 0
+        },
+        "wifi-scan": {
+            "help": "Scan and list access points",
+            "value": 0
+        }
+    },
+    "target_overrides": {
+        "*": {
+            "nsapi.default-wifi-ssid": "\"WIFI_SSID\"",
+            "nsapi.default-wifi-password": "\"WIFI_PASSWORD\"",
+            "nsapi.default-wifi-security": "WIFI_SECURITY",
+            "nsapi.default-stack": "TEST"
+        }
+    }
+}

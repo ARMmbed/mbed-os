@@ -1,0 +1,12 @@
+lcov/
+results/
+coverages/
+gcov/
+*.exe
+*.o
+*.d
+*.a
+*.gcda
+*.gcno
+cpputest_*.xml
+*_unit_tests*

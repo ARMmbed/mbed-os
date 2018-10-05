@@ -2,13 +2,11 @@
   ******************************************************************************
   * @file    stm32l1xx_ll_sdmmc.h
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    01-July-2016
   * @brief   Header file of SDMMC HAL module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -151,7 +149,7 @@ typedef struct
 /** @defgroup SDIO_Clock_Edge Clock Edge
   * @{
   */
-#define SDIO_CLOCK_EDGE_RISING               ((uint32_t)0x00000000)
+#define SDIO_CLOCK_EDGE_RISING               (0x00000000U)
 #define SDIO_CLOCK_EDGE_FALLING              SDIO_CLKCR_NEGEDGE
 
 #define IS_SDIO_CLOCK_EDGE(EDGE) (((EDGE) == SDIO_CLOCK_EDGE_RISING) || \
@@ -163,7 +161,7 @@ typedef struct
 /** @defgroup SDIO_Clock_Bypass Clock Bypass
   * @{
   */
-#define SDIO_CLOCK_BYPASS_DISABLE             ((uint32_t)0x00000000)
+#define SDIO_CLOCK_BYPASS_DISABLE             (0x00000000U)
 #define SDIO_CLOCK_BYPASS_ENABLE              SDIO_CLKCR_BYPASS   
 
 #define IS_SDIO_CLOCK_BYPASS(BYPASS) (((BYPASS) == SDIO_CLOCK_BYPASS_DISABLE) || \
@@ -175,7 +173,7 @@ typedef struct
 /** @defgroup SDIO_Clock_Power_Save Clock Power Saving
   * @{
   */
-#define SDIO_CLOCK_POWER_SAVE_DISABLE         ((uint32_t)0x00000000)
+#define SDIO_CLOCK_POWER_SAVE_DISABLE         (0x00000000U)
 #define SDIO_CLOCK_POWER_SAVE_ENABLE          SDIO_CLKCR_PWRSAV
 
 #define IS_SDIO_CLOCK_POWER_SAVE(SAVE) (((SAVE) == SDIO_CLOCK_POWER_SAVE_DISABLE) || \
@@ -187,7 +185,7 @@ typedef struct
 /** @defgroup SDIO_Bus_Wide Bus Width
   * @{
   */
-#define SDIO_BUS_WIDE_1B                      ((uint32_t)0x00000000)
+#define SDIO_BUS_WIDE_1B                      (0x00000000U)
 #define SDIO_BUS_WIDE_4B                      SDIO_CLKCR_WIDBUS_0
 #define SDIO_BUS_WIDE_8B                      SDIO_CLKCR_WIDBUS_1
 
@@ -201,7 +199,7 @@ typedef struct
 /** @defgroup SDIO_Hardware_Flow_Control Hardware Flow Control
   * @{
   */
-#define SDIO_HARDWARE_FLOW_CONTROL_DISABLE    ((uint32_t)0x00000000)
+#define SDIO_HARDWARE_FLOW_CONTROL_DISABLE    (0x00000000U)
 #define SDIO_HARDWARE_FLOW_CONTROL_ENABLE     SDIO_CLKCR_HWFC_EN
 
 #define IS_SDIO_HARDWARE_FLOW_CONTROL(CONTROL) (((CONTROL) == SDIO_HARDWARE_FLOW_CONTROL_DISABLE) || \
@@ -229,7 +227,7 @@ typedef struct
 /** @defgroup SDIO_Response_Type Response Type
   * @{
   */
-#define SDIO_RESPONSE_NO                    ((uint32_t)0x00000000)
+#define SDIO_RESPONSE_NO                    (0x00000000U)
 #define SDIO_RESPONSE_SHORT                 SDIO_CMD_WAITRESP_0
 #define SDIO_RESPONSE_LONG                  SDIO_CMD_WAITRESP
 
@@ -243,7 +241,7 @@ typedef struct
 /** @defgroup SDIO_Wait_Interrupt_State Wait Interrupt
   * @{
   */
-#define SDIO_WAIT_NO                        ((uint32_t)0x00000000)
+#define SDIO_WAIT_NO                        (0x00000000U)
 #define SDIO_WAIT_IT                        SDIO_CMD_WAITINT 
 #define SDIO_WAIT_PEND                      SDIO_CMD_WAITPEND
 
@@ -257,7 +255,7 @@ typedef struct
 /** @defgroup SDIO_CPSM_State CPSM State
   * @{
   */
-#define SDIO_CPSM_DISABLE                   ((uint32_t)0x00000000)
+#define SDIO_CPSM_DISABLE                   (0x00000000U)
 #define SDIO_CPSM_ENABLE                    SDIO_CMD_CPSMEN
 
 #define IS_SDIO_CPSM(CPSM) (((CPSM) == SDIO_CPSM_DISABLE) || \
@@ -269,10 +267,10 @@ typedef struct
 /** @defgroup SDIO_Response_Registers Response Register
   * @{
   */
-#define SDIO_RESP1                          ((uint32_t)0x00000000)
-#define SDIO_RESP2                          ((uint32_t)0x00000004)
-#define SDIO_RESP3                          ((uint32_t)0x00000008)
-#define SDIO_RESP4                          ((uint32_t)0x0000000C)
+#define SDIO_RESP1                          (0x00000000U)
+#define SDIO_RESP2                          (0x00000004U)
+#define SDIO_RESP3                          (0x00000008U)
+#define SDIO_RESP4                          (0x0000000CU)
 
 #define IS_SDIO_RESP(RESP) (((RESP) == SDIO_RESP1) || \
                             ((RESP) == SDIO_RESP2) || \
@@ -293,21 +291,21 @@ typedef struct
 /** @defgroup SDIO_Data_Block_Size Data Block Size
   * @{
   */
-#define SDIO_DATABLOCK_SIZE_1B               ((uint32_t)0x00000000)
+#define SDIO_DATABLOCK_SIZE_1B               (0x00000000U)
 #define SDIO_DATABLOCK_SIZE_2B               SDIO_DCTRL_DBLOCKSIZE_0
 #define SDIO_DATABLOCK_SIZE_4B               SDIO_DCTRL_DBLOCKSIZE_1
-#define SDIO_DATABLOCK_SIZE_8B               ((uint32_t)0x00000030)
+#define SDIO_DATABLOCK_SIZE_8B               (0x00000030U)
 #define SDIO_DATABLOCK_SIZE_16B              SDIO_DCTRL_DBLOCKSIZE_2
-#define SDIO_DATABLOCK_SIZE_32B              ((uint32_t)0x00000050)
-#define SDIO_DATABLOCK_SIZE_64B              ((uint32_t)0x00000060)
-#define SDIO_DATABLOCK_SIZE_128B             ((uint32_t)0x00000070)
+#define SDIO_DATABLOCK_SIZE_32B              (0x00000050U)
+#define SDIO_DATABLOCK_SIZE_64B              (0x00000060U)
+#define SDIO_DATABLOCK_SIZE_128B             (0x00000070U)
 #define SDIO_DATABLOCK_SIZE_256B             SDIO_DCTRL_DBLOCKSIZE_3
-#define SDIO_DATABLOCK_SIZE_512B             ((uint32_t)0x00000090)
-#define SDIO_DATABLOCK_SIZE_1024B            ((uint32_t)0x000000A0)
-#define SDIO_DATABLOCK_SIZE_2048B            ((uint32_t)0x000000B0)
-#define SDIO_DATABLOCK_SIZE_4096B            ((uint32_t)0x000000C0)
-#define SDIO_DATABLOCK_SIZE_8192B            ((uint32_t)0x000000D0)
-#define SDIO_DATABLOCK_SIZE_16384B           ((uint32_t)0x000000E0)
+#define SDIO_DATABLOCK_SIZE_512B             (0x00000090U)
+#define SDIO_DATABLOCK_SIZE_1024B            (0x000000A0U)
+#define SDIO_DATABLOCK_SIZE_2048B            (0x000000B0U)
+#define SDIO_DATABLOCK_SIZE_4096B            (0x000000C0U)
+#define SDIO_DATABLOCK_SIZE_8192B            (0x000000D0U)
+#define SDIO_DATABLOCK_SIZE_16384B           (0x000000E0U)
 
 #define IS_SDIO_BLOCK_SIZE(SIZE) (((SIZE) == SDIO_DATABLOCK_SIZE_1B)    || \
                                   ((SIZE) == SDIO_DATABLOCK_SIZE_2B)    || \
@@ -331,7 +329,7 @@ typedef struct
 /** @defgroup SDIO_Transfer_Direction Transfer Direction
   * @{
   */
-#define SDIO_TRANSFER_DIR_TO_CARD            ((uint32_t)0x00000000)
+#define SDIO_TRANSFER_DIR_TO_CARD            (0x00000000U)
 #define SDIO_TRANSFER_DIR_TO_SDIO            SDIO_DCTRL_DTDIR
 
 #define IS_SDIO_TRANSFER_DIR(DIR) (((DIR) == SDIO_TRANSFER_DIR_TO_CARD) || \
@@ -343,7 +341,7 @@ typedef struct
 /** @defgroup SDIO_Transfer_Type Transfer Type
   * @{
   */
-#define SDIO_TRANSFER_MODE_BLOCK             ((uint32_t)0x00000000)
+#define SDIO_TRANSFER_MODE_BLOCK             (0x00000000U)
 #define SDIO_TRANSFER_MODE_STREAM            SDIO_DCTRL_DTMODE
 
 #define IS_SDIO_TRANSFER_MODE(MODE) (((MODE) == SDIO_TRANSFER_MODE_BLOCK) || \
@@ -355,7 +353,7 @@ typedef struct
 /** @defgroup SDIO_DPSM_State DPSM State
   * @{
   */
-#define SDIO_DPSM_DISABLE                    ((uint32_t)0x00000000)
+#define SDIO_DPSM_DISABLE                    (0x00000000U)
 #define SDIO_DPSM_ENABLE                     SDIO_DCTRL_DTEN
 
 #define IS_SDIO_DPSM(DPSM) (((DPSM) == SDIO_DPSM_DISABLE) ||\
@@ -367,8 +365,8 @@ typedef struct
 /** @defgroup SDIO_Read_Wait_Mode Read Wait Mode
   * @{
   */
-#define SDIO_READ_WAIT_MODE_DATA2             ((uint32_t)0x00000000)
-#define SDIO_READ_WAIT_MODE_CLK               ((uint32_t)0x00000001)
+#define SDIO_READ_WAIT_MODE_DATA2             (0x00000000U)
+#define SDIO_READ_WAIT_MODE_CLK               (0x00000001U)
 
 #define IS_SDIO_READWAIT_MODE(MODE) (((MODE) == SDIO_READ_WAIT_MODE_CLK) || \
                                      ((MODE) == SDIO_READ_WAIT_MODE_DATA2))
@@ -811,13 +809,13 @@ typedef struct
   * @brief  Enable the CE-ATA interrupt.
   * @retval None
   */    
-#define __SDIO_CEATA_ENABLE_IT()   (*(__IO uint32_t *) CMD_NIEN_BB = (uint32_t)0)
+#define __SDIO_CEATA_ENABLE_IT()   (*(__IO uint32_t *) CMD_NIEN_BB = 0U)
 
 /**
   * @brief  Disable the CE-ATA interrupt.
   * @retval None
   */  
-#define __SDIO_CEATA_DISABLE_IT()   (*(__IO uint32_t *) CMD_NIEN_BB = (uint32_t)1)
+#define __SDIO_CEATA_DISABLE_IT()   (*(__IO uint32_t *) CMD_NIEN_BB = 1U)
 
 /**
   * @brief  Enable send CE-ATA command (CMD61).

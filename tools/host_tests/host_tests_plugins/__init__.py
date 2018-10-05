@@ -14,26 +14,27 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+from __future__ import print_function
 
-import host_test_registry
+from . import host_test_registry
 
 # This plugins provide 'flashing' methods to host test scripts
-import module_copy_mbed
-import module_copy_shell
-import module_copy_silabs
+from . import module_copy_mbed
+from . import module_copy_shell
+from . import module_copy_silabs
 
 try:
-    import module_copy_smart
+    from . import module_copy_smart
 except:
     pass
 
 #import module_copy_firefox
-import module_copy_mps2
+from . import module_copy_mps2
 
 # Plugins used to reset certain platform
-import module_reset_mbed
-import module_reset_silabs
-import module_reset_mps2
+from . import module_reset_mbed
+from . import module_reset_silabs
+from . import module_reset_mps2
 
 
 # Plugin registry instance
@@ -77,4 +78,4 @@ def get_plugin_caps(type):
 def print_plugin_info():
     """ Prints plugins' information in user friendly way
     """
-    print HOST_TEST_PLUGIN_REGISTRY
+    print(HOST_TEST_PLUGIN_REGISTRY)

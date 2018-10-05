@@ -67,6 +67,13 @@ void gpio_init(gpio_t *obj, PinName name)
 
 void gpio_mode(gpio_t *obj, PinMode mode)
 {
+#ifdef OPEN_DRAIN_LEDS
+    if ((obj->name == LED1) || (obj->name == LED2) ||
+        (obj->name == LED3) || (obj->name == LED4)) {
+        mode = OpenDrain;
+    }
+#endif
+
     obj->mode = mode;
     pin_mode(obj->name, mode);
 }

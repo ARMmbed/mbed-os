@@ -1,9 +1,12 @@
 /*
+ * The Clear BSD License
  * Copyright (c) 2016, Freescale Semiconductor, Inc.
  * Copyright 2016-2017 NXP
+ * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
+ * are permitted (subject to the limitations in the disclaimer below) provided
+ * that the following conditions are met:
  *
  * o Redistributions of source code must retain the above copyright notice, this list
  *   of conditions and the following disclaimer.
@@ -16,6 +19,7 @@
  *   contributors may be used to endorse or promote products derived from this
  *   software without specific prior written permission.
  *
+ * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE.
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -37,40 +41,56 @@
  * @{
  */
 
-/******************************************************************************
+/**********************************
  * Definitions.
  *****************************************************************************/
 
 /*! @name Driver version */
 /*@{*/
-/*! @brief Driver version 2.0.1. */
-#define FSL_SDIF_DRIVER_VERSION (MAKE_VERSION(2U, 0U, 1U))
+/*! @brief Driver version 2.0.4. */
+#define FSL_SDIF_DRIVER_VERSION (MAKE_VERSION(2U, 0U, 4U))
 /*@}*/
 
-#define SDIF_DriverIRQHandler SDIO_DriverIRQHandler /*!< convert the name here, due to RM use SDIO */
-
-#define SDIF_SUPPORT_SD_VERSION (0x20)  /*!< define the controller support sd/sdio card version 2.0 */
-#define SDIF_SUPPORT_MMC_VERSION (0x44) /*!< define the controller support mmc card version 4.4 */
-
-#define SDIF_TIMEOUT_VALUE (65535U)    /*!< define the timeout counter */
-#define SDIF_POLL_DEMAND_VALUE (0xFFU) /*!< this value can be any value */
-
-#define SDIF_DMA_DESCRIPTOR_BUFFER1_SIZE(x) (x & 0x1FFFU)          /*!< DMA descriptor buffer1 size */
-#define SDIF_DMA_DESCRIPTOR_BUFFER2_SIZE(x) ((x & 0x1FFFU) << 13U) /*!<DMA descriptor buffer2 size */
-#define SDIF_RX_WATERMARK (15U)                                    /*!<RX water mark value */
-#define SDIF_TX_WATERMARK (16U)                                    /*!<TX water mark value */
-
 /*! @brief  SDIOCLKCTRL setting
-* below clock delay setting should meet you board layout
-* user can change it when you meet timing mismatch issue
-* such as: response error/CRC error and so on
+* Below clock delay setting should depend on specific platform, so
+* it can be redefined when timing mismatch issue occur.
+* Such as: response error/CRC error and so on
 */
-#define SDIF_INDENTIFICATION_MODE_SAMPLE_DELAY (0X17U)
-#define SDIF_INDENTIFICATION_MODE_DRV_DELAY (0X17U)
-#define SDIF_HIGHSPEED_25MHZ_SAMPLE_DELAY (0x10U)
-#define SDIF_HIGHSPEED_25MHZ_DRV_DELAY (0x10U)
-#define SDIF_HIGHSPEED_50MHZ_SAMPLE_DELAY (0x1FU)
-#define SDIF_HIGHSPEED_50MHZ_DRV_DELAY (0x1FU)
+/*! @brief clock range value which need to add delay to avoid timing issue */
+#ifndef SDIF_CLOCK_RANGE_NEED_DELAY
+#define SDIF_CLOCK_RANGE_NEED_DELAY (50000000U)
+#endif
+
+/*
+* Fixed delay configuration
+* min hold time:2ns
+* min setup time: 6ns
+* delay = (x+1)*250ps
+*/
+/*! @brief High speed mode clk_sample fixed delay*/
+#ifndef SDIF_HIGHSPEED_SAMPLE_DELAY
+#define SDIF_HIGHSPEED_SAMPLE_DELAY (0U)
+#endif
+/*! @brief High speed mode clk_drv fixed delay */
+#ifndef SDIF_HIGHSPEED_DRV_DELAY
+#define SDIF_HIGHSPEED_DRV_DELAY (0x1FU)
+#endif
+
+/*
+* Pharse shift delay configuration
+* 0 degree: no delay
+* 90 degree: 0.25/source clk value
+* 180 degree: 0.50/source clk value
+* 270 degree: 0.75/source clk value
+*/
+/*! @brief High speed mode clk_sample pharse shift */
+#ifndef SDIF_HIGHSPEED_SAMPLE_PHASE_SHIFT
+#define SDIF_HIGHSPEED_SAMPLE_PHASE_SHIFT (0U)
+#endif
+/*! @brief High speed mode clk_drv pharse shift */
+#ifndef SDIF_HIGHSPEED_DRV_PHASE_SHIFT
+#define SDIF_HIGHSPEED_DRV_PHASE_SHIFT (1U) /* 90 degrees clk_drv pharse delay */
+#endif
 
 /*! @brief SDIF status */
 enum _sdif_status
@@ -257,22 +277,6 @@ typedef enum _sdif_dma_mode
     kSDIF_DualDMAMode = 0x02U,  /* dual mode is one descriptor with two buffer */
 } sdif_dma_mode_t;
 
-/*! @brief define the card work freq mode */
-enum _sdif_card_freq
-{
-    kSDIF_Freq50MHZ = 50000000U, /*!< 50MHZ mode*/
-    kSDIF_Freq400KHZ = 400000U,  /*!< identificatioin mode*/
-};
-
-/*! @brief define the clock pharse shift */
-enum _sdif_clock_pharse_shift
-{
-    kSDIF_ClcokPharseShift0,   /*!< clock pharse shift 0*/
-    kSDIF_ClcokPharseShift90,  /*!< clock pharse shift 90*/
-    kSDIF_ClcokPharseShift180, /*!< clock pharse shift 180*/
-    kSDIF_ClcokPharseShift270, /*!< clock pharse shift 270*/
-};
-
 /*! @brief define the internal DMA descriptor */
 typedef struct _sdif_dma_descriptor
 {
@@ -368,9 +372,11 @@ typedef struct _sdif_capability
 /*! @brief sdif callback functions. */
 typedef struct _sdif_transfer_callback
 {
-    void (*SDIOInterrupt)(void);     /*!< SDIO card interrupt occurs */
-    void (*DMADesUnavailable)(void); /*!< DMA descriptor unavailable */
-    void (*CommandReload)(void);     /*!< command buffer full,need re-load */
+    void (*cardInserted)(SDIF_Type *base, void *userData);      /*!< card insert call back */
+    void (*cardRemoved)(SDIF_Type *base, void *userData);       /*!< card remove call back */
+    void (*SDIOInterrupt)(SDIF_Type *base, void *userData);     /*!< SDIO card interrupt occurs */
+    void (*DMADesUnavailable)(SDIF_Type *base, void *userData); /*!< DMA descriptor unavailable */
+    void (*CommandReload)(SDIF_Type *base, void *userData);     /*!< command buffer full,need re-load */
     void (*TransferComplete)(SDIF_Type *base,
                              void *handle,
                              status_t status,
@@ -448,17 +454,18 @@ bool SDIF_SendCardActive(SDIF_Type *base, uint32_t timeout);
  * @brief SDIF module detect card insert status function.
  * @param base SDIF peripheral base address.
  * @param data3 indicate use data3 as card insert detect pin
- * will return the data3 PIN status in this condition
+ * @retval 1 card is inserted
+ *         0 card is removed
  */
 static inline uint32_t SDIF_DetectCardInsert(SDIF_Type *base, bool data3)
 {
     if (data3)
     {
-        return base->STATUS & SDIF_STATUS_DATA_3_STATUS_MASK;
+        return (base->STATUS & SDIF_STATUS_DATA_3_STATUS_MASK) == SDIF_STATUS_DATA_3_STATUS_MASK ? 1U : 0U;
     }
     else
     {
-        return base->CDETECT & SDIF_CDETECT_CARD_DETECT_MASK;
+        return (base->CDETECT & SDIF_CDETECT_CARD_DETECT_MASK) == 0U ? 1U : 0U;
     }
 }
 

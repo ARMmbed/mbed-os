@@ -40,17 +40,17 @@ extern "C" {
  implementation specific, header file, therefore limiting scope of possible changes.
  */
 
-#include "rtx_lib.h"
+#include "rtx_os.h"
 #include "mbed_rtx_conf.h"
 
-typedef os_mutex_t mbed_rtos_storage_mutex_t;
-typedef os_semaphore_t mbed_rtos_storage_semaphore_t;
-typedef os_thread_t mbed_rtos_storage_thread_t;
-typedef os_memory_pool_t mbed_rtos_storage_mem_pool_t;
-typedef os_message_queue_t mbed_rtos_storage_msg_queue_t;
-typedef os_event_flags_t mbed_rtos_storage_event_flags_t;
-typedef os_message_t mbed_rtos_storage_message_t;
-typedef os_timer_t mbed_rtos_storage_timer_t;
+typedef osRtxMutex_t mbed_rtos_storage_mutex_t;
+typedef osRtxSemaphore_t mbed_rtos_storage_semaphore_t;
+typedef osRtxThread_t mbed_rtos_storage_thread_t;
+typedef osRtxMemoryPool_t mbed_rtos_storage_mem_pool_t;
+typedef osRtxMessageQueue_t mbed_rtos_storage_msg_queue_t;
+typedef osRtxEventFlags_t mbed_rtos_storage_event_flags_t;
+typedef osRtxMessage_t mbed_rtos_storage_message_t;
+typedef osRtxTimer_t mbed_rtos_storage_timer_t;
 
 #ifdef __cplusplus
 }

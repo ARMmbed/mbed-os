@@ -18,7 +18,7 @@
 #ifndef MBED_OLD_SLEEP_H
 #define MBED_OLD_SLEEP_H
 
-#warning sleep.h has been replaced by mbed_sleep.h, please update to mbed_sleep.h [since mbed-os-5.3]
-#include "platform/mbed_sleep.h"
+#warning sleep.h has been replaced by mbed_power_mgmt.h, please update to mbed_power_mgmt.h [since mbed-os-5.8]
+#include "platform/mbed_power_mgmt.h"
 
 #endif

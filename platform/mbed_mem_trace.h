@@ -63,7 +63,7 @@ enum {
  * - for calloc: cb(MBED_MEM_TRACE_CALLOC, res, caller, nmemb, size).
  * - for free: cb(MBED_MEM_TRACE_FREE, NULL, caller, ptr).
  */
-typedef void (*mbed_mem_trace_cb_t)(uint8_t op, void *res, void* caller, ...);
+typedef void (*mbed_mem_trace_cb_t)(uint8_t op, void *res, void *caller, ...);
 
 /**
  * Set the callback used by the memory tracer (use NULL for disable tracing).
@@ -71,6 +71,17 @@ typedef void (*mbed_mem_trace_cb_t)(uint8_t op, void *res, void* caller, ...);
  * @param cb the callback to call on each memory operation.
  */
 void mbed_mem_trace_set_callback(mbed_mem_trace_cb_t cb);
+
+/**
+ * Trace lock.
+ * @note Locking prevent recursive tracing of malloc/free inside relloc/calloc
+ */
+void mbed_mem_trace_lock();
+
+/**
+ * Trace unlock.
+ */
+void mbed_mem_trace_unlock();
 
 /**
  * Trace a call to 'malloc'.

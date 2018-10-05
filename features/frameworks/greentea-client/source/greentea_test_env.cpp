@@ -728,6 +728,7 @@ static int gettok(char *out_str, const int str_size) {
 	if (LastChar == '}') {
 		LastChar = greentea_getc();
 		if (LastChar == '}') {
+			LastChar = '!';
 			return tok_close;
 		}
 	}

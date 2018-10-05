@@ -73,24 +73,23 @@
  * of the characteristic. Clients use this handle to interact with the
  * characteristic. This handle is used locally in GattServer APIs.
  *
+ * @par Security requirements
  *
+ * Verification of security requirements happens whenever a client request to
+ * read the characteristic; write it or even register to its updates. Different
+ * requirements may be defined for these three type of operation. As an example:
+ * it is possible to define a characteristic that do not require security to be
+ * read and require an authenticated link to be written.
  *
+ * By default all security requirements are set to att_security_requirement_t::NONE
+ * except if the characteristic supports signed write; in such case the security
+ * requirement for write operations is set to att_security_requirement_t::UNAUTHENTICATED.
  *
- *
- *
- *
- *
- * Representation of a GattServer characteristic.
- *
- * A characteristic is a typed value used in a service. It contains a set of
- * properties that define client operations supported by the characteristic.
- * A characteristic may also include descriptors; a descriptor exposes
- * metainformation associated to a characteristic, such as the unit of its value,
- * its human readable name or a control point attribute that allows the client to
- * subscribe to the characteristic notifications.
- *
- * The GattCharacteristic class allows application code to construct
- * and monitor characteristics presents in a GattServer.
+ * @note If a peer uses an operation that is not set in the characteristic
+ * properties then the request request is discarded regardless of the security
+ * requirements and current security level. The only exception being signed
+ * write: signed write are converted into regular write without response if
+ * the link is encrypted.
  */
 class GattCharacteristic {
 public:
@@ -1276,8 +1275,39 @@ public:
          * defines additional characteristic properties.
          */
         BLE_GATT_CHAR_PROPERTIES_EXTENDED_PROPERTIES = 0x80
-
     };
+
+    /**
+     * Indicates if the properties has at least one of the writable flags.
+     *
+     * @param[in] properties The properties to inspect.
+     *
+     * @return True if the properties set at least one of the writable flags and
+     * false otherwise.
+     */
+    static bool isWritable(uint8_t properties)
+    {
+        const uint8_t writable =
+             BLE_GATT_CHAR_PROPERTIES_WRITE_WITHOUT_RESPONSE |
+             BLE_GATT_CHAR_PROPERTIES_WRITE |
+             BLE_GATT_CHAR_PROPERTIES_AUTHENTICATED_SIGNED_WRITES;
+
+        return properties & writable;
+    }
+
+    /**
+     * Indicates if the properties is readable.
+     *
+     * @param[in] properties The properties to inspect.
+     *
+     * @return True if the properties has its readable flag set and false
+     * otherwise.
+     */
+    static bool isReadable(uint8_t properties)
+    {
+        const uint8_t readable = BLE_GATT_CHAR_PROPERTIES_READ;
+        return properties & readable;
+    }
 
     /**
      * Value of a Characteristic Presentation Format descriptor.
@@ -1328,6 +1358,11 @@ public:
     };
 
     /**
+     * Security level applied to GATT operations.
+     */
+    typedef ble::att_security_requirement_t SecurityRequirement_t;
+
+    /**
      * @brief  Constructs a new GattCharacteristic.
      *
      * @param[in] uuid The UUID of this characteristic.
@@ -1371,13 +1406,21 @@ public:
         bool hasVariableLen = true
     ) : _valueAttribute(uuid, valuePtr, len, maxLen, hasVariableLen),
         _properties(props),
-        _requiredSecurity(SecurityManager::SECURITY_MODE_ENCRYPTION_OPEN_LINK),
         _descriptors(descriptors),
         _descriptorCount(numDescriptors),
-        enabledReadAuthorization(false),
-        enabledWriteAuthorization(false),
         readAuthorizationCallback(),
-        writeAuthorizationCallback() {
+        writeAuthorizationCallback(),
+        _update_security(SecurityRequirement_t::NONE) {
+        _valueAttribute.allowWrite(isWritable(_properties));
+        _valueAttribute.allowRead(isReadable(_properties));
+
+        // signed writes requires at least an unauthenticated CSRK or an
+        // unauthenticated ltk if the link is encrypted.
+        if (_properties & BLE_GATT_CHAR_PROPERTIES_AUTHENTICATED_SIGNED_WRITES) {
+            _valueAttribute.setWriteSecurityRequirement(
+                SecurityRequirement_t::UNAUTHENTICATED
+            );
+        }
     }
 
 public:
@@ -1387,10 +1430,120 @@ public:
      *
      * @param[in] securityMode Can be one of encryption or signing, with or
      * without protection for man in the middle attacks (MITM).
+     *
+     * @deprecated Fine grained security check has been added to with mbed OS
+     * 5.9. It is possible to set independently security requirements for read,
+     * write and update operations. In the meantime SecurityManager::SecurityMode_t
+     * is not used anymore to represent security requirements as it maps
+     * incorrectly the Bluetooth standard.
      */
+    MBED_DEPRECATED_SINCE(
+        "mbed-os-5.9",
+        "Use setWriteSecurityRequirements, setReadSecurityRequirements and "
+        "setUpdateSecurityRequirements"
+    )
     void requireSecurity(SecurityManager::SecurityMode_t securityMode)
     {
-        _requiredSecurity = securityMode;
+        SecurityRequirement_t sec_requirements = SecurityModeToAttSecurity(securityMode);
+
+        _valueAttribute.setReadSecurityRequirement(sec_requirements);
+        _valueAttribute.setWriteSecurityRequirement(sec_requirements);
+        _update_security = sec_requirements.value();
+    }
+
+    /**
+     * Set all security requirements of the characteristic.
+     *
+     * @param read_security The security requirement of the read operations.
+     * @param write_security The security requirement of write operations.
+     * @param update_security The security requirement of update operations.
+     */
+    void setSecurityRequirements(
+        SecurityRequirement_t read_security,
+        SecurityRequirement_t write_security,
+        SecurityRequirement_t update_security
+    ) {
+        setReadSecurityRequirement(read_security);
+        setWriteSecurityRequirement(write_security);
+        setUpdateSecurityRequirement(update_security);
+    }
+
+    /**
+     * Set the security of the read operation.
+     *
+     * @param[in] security The security requirement of the read operation.
+     */
+    void setReadSecurityRequirement(SecurityRequirement_t security)
+    {
+        _valueAttribute.setReadSecurityRequirement(security);
+    }
+
+    /**
+     * Get the security requirement of the read operation.
+     *
+     * @return The security requirement of the read operation.
+     */
+    SecurityRequirement_t getReadSecurityRequirement() const
+    {
+        return _valueAttribute.getReadSecurityRequirement();
+    }
+
+    /**
+     * Set the security requirement of the write operations.
+     *
+     * @note If the signed write flag is set in the characteristic properties
+     * then the security requirement applied to write operation must be either
+     * AUTHENTICATED or UNAUTHENTICATED. Security requirements NONE and
+     * SC_AUTHENTICATED are not applicable to signing operation.
+     *
+     * @param[in] security The security requirement of write operations.
+     */
+    void setWriteSecurityRequirement(SecurityRequirement_t security)
+    {
+        MBED_ASSERT(
+            ((_properties & BLE_GATT_CHAR_PROPERTIES_AUTHENTICATED_SIGNED_WRITES) &&
+            ((security == SecurityRequirement_t::NONE) ||
+            (security == SecurityRequirement_t::SC_AUTHENTICATED))) == false
+        );
+        _valueAttribute.setWriteSecurityRequirement(security);
+    }
+
+    /**
+     * Get the security requirement of write operations.
+     *
+     * @return The security requirement of write operations.
+     */
+    SecurityRequirement_t getWriteSecurityRequirement() const
+    {
+        return _valueAttribute.getWriteSecurityRequirement();
+    }
+
+    /**
+     * Set the security requirement of update operations.
+     *
+     * @note This security requirement is also applied to the write operation of
+     * the Client Characteristic Configuration Descriptor.
+     *
+     * @param[in] security The security requirement that must be met to send
+     * updates and accept write of the CCCD.
+     */
+    void setUpdateSecurityRequirement(SecurityRequirement_t security)
+    {
+        _update_security = security.value();
+    }
+
+    /**
+     * Get the security requirement of update operations.
+     *
+     * @note This security requirement is also applied to the write operation of
+     * the Client Characteristic Configuration Descriptor.
+     *
+     * @return The security requirement that must be met to send updates and
+     * accept write of the CCCD.
+     */
+    SecurityRequirement_t getUpdateSecurityRequirement() const
+    {
+        return static_cast<SecurityRequirement_t::type>(_update_security);
     }
 
 public:
@@ -1407,7 +1560,6 @@ public:
         void (*callback)(GattWriteAuthCallbackParams *)
     ) {
         writeAuthorizationCallback.attach(callback);
-        enabledWriteAuthorization = true;
     }
 
     /**
@@ -1428,7 +1580,6 @@ public:
         void (T::*member)(GattWriteAuthCallbackParams *)
     ) {
         writeAuthorizationCallback.attach(object, member);
-        enabledWriteAuthorization = true;
     }
 
     /**
@@ -1445,7 +1596,6 @@ public:
         void (*callback)(GattReadAuthCallbackParams *)
     ) {
         readAuthorizationCallback.attach(callback);
-        enabledReadAuthorization = true;
     }
 
     /**
@@ -1467,7 +1617,6 @@ public:
         void (T::*member)(GattReadAuthCallbackParams *)
     ) {
         readAuthorizationCallback.attach(object, member);
-        enabledReadAuthorization = true;
     }
 
     /**
@@ -1580,10 +1729,54 @@ public:
      * Get the characteristic's required security.
      *
      * @return The characteristic's required security.
+     *
+     * @deprecated Fine grained security check has been added to with mbed OS
+     * 5.9. It is possible to set independently security requirements for read,
+     * write and update operations. In the meantime SecurityManager::SecurityMode_t
+     * is not used anymore to represent security requirements as it maps
+     * incorrectly the Bluetooth standard.
      */
+    MBED_DEPRECATED_SINCE(
+        "mbed-os-5.9",
+        "Use getWriteSecurityRequirements, getReadSecurityRequirements and "
+        "getUpdateSecurityRequirements"
+    )
     SecurityManager::SecurityMode_t getRequiredSecurity() const
     {
-        return _requiredSecurity;
+        SecurityRequirement_t max_sec = std::max(
+            std::max(
+                getReadSecurityRequirement(),
+                getWriteSecurityRequirement()
+            ),
+            getUpdateSecurityRequirement()
+        );
+
+        bool needs_signing =
+            _properties & BLE_GATT_CHAR_PROPERTIES_AUTHENTICATED_SIGNED_WRITES;
+
+        switch(max_sec.value()) {
+            case SecurityRequirement_t::NONE:
+                MBED_ASSERT(needs_signing == false);
+                return SecurityManager::SECURITY_MODE_ENCRYPTION_OPEN_LINK;
+
+            case SecurityRequirement_t::UNAUTHENTICATED:
+                return (needs_signing) ?
+                    SecurityManager::SECURITY_MODE_SIGNED_NO_MITM :
+                    SecurityManager::SECURITY_MODE_ENCRYPTION_NO_MITM;
+
+            case SecurityRequirement_t::AUTHENTICATED:
+                return (needs_signing) ?
+                    SecurityManager::SECURITY_MODE_SIGNED_WITH_MITM :
+                    SecurityManager::SECURITY_MODE_ENCRYPTION_WITH_MITM;
+
+            case SecurityRequirement_t::SC_AUTHENTICATED:
+                MBED_ASSERT(needs_signing == false);
+                // fallback to encryption with MITM
+                return SecurityManager::SECURITY_MODE_ENCRYPTION_WITH_MITM;
+            default:
+                MBED_ASSERT(false);
+                return SecurityManager::SECURITY_MODE_NO_ACCESS;
+        }
     }
 
     /**
@@ -1606,7 +1799,7 @@ public:
      */
     bool isReadAuthorizationEnabled() const
     {
-        return enabledReadAuthorization;
+        return readAuthorizationCallback;
     }
 
     /**
@@ -1619,7 +1812,7 @@ public:
      */
     bool isWriteAuthorizationEnabled() const
     {
-        return enabledWriteAuthorization;
+        return writeAuthorizationCallback;
     }
 
     /**
@@ -1640,6 +1833,39 @@ public:
     }
 
 private:
+
+    /**
+     * Loosely convert a SecurityManager::SecurityMode_t into a
+     * SecurityRequirement_t.
+     *
+     * @param[in] mode The security mode to convert
+     *
+     * @return The security requirement equivalent to the security mode in input.
+     */
+    SecurityRequirement_t SecurityModeToAttSecurity(
+        SecurityManager::SecurityMode_t mode
+    ) {
+        switch(mode) {
+            case SecurityManager::SECURITY_MODE_ENCRYPTION_OPEN_LINK:
+            case SecurityManager::SECURITY_MODE_NO_ACCESS:
+                // assuming access is managed by property and orthogonal to
+                // security mode ...
+                return SecurityRequirement_t::NONE;
+
+            case SecurityManager::SECURITY_MODE_ENCRYPTION_NO_MITM:
+            case SecurityManager::SECURITY_MODE_SIGNED_NO_MITM:
+                return SecurityRequirement_t::UNAUTHENTICATED;
+
+            case SecurityManager::SECURITY_MODE_ENCRYPTION_WITH_MITM:
+            case SecurityManager::SECURITY_MODE_SIGNED_WITH_MITM:
+                return SecurityRequirement_t::AUTHENTICATED;
+
+            default:
+                // should not happens; makes the compiler happy.
+                return SecurityRequirement_t::NONE;
+        }
+    }
+
     /**
      * Attribute that contains the actual value of this characteristic.
      */
@@ -1652,11 +1878,6 @@ private:
     uint8_t _properties;
 
     /**
-     * The characteristic's required security.
-     */
-    SecurityManager::SecurityMode_t _requiredSecurity;
-
-    /**
      * The characteristic's descriptor attributes.
      */
     GattAttribute **_descriptors;
@@ -1665,16 +1886,6 @@ private:
      * The number of descriptors in this characteristic.
      */
     uint8_t _descriptorCount;
-
-    /**
-     * Whether read authorization is enabled.
-     */
-    bool enabledReadAuthorization;
-
-    /**
-     * Whether write authorization is enabled.
-     */
-    bool enabledWriteAuthorization;
 
     /**
      * The registered callback handler for read authorization reply.
@@ -1687,6 +1898,14 @@ private:
      */
     FunctionPointerWithContext<GattWriteAuthCallbackParams *>
         writeAuthorizationCallback;
+
+    /**
+     * Security requirements of update operations.
+     *
+     * The peer must meet the security requirement to enable, disable and
+     * receive updates
+     */
+    uint8_t _update_security: SecurityRequirement_t::size;
 
 private:
     /* Disallow copy and assignment. */

@@ -89,7 +89,7 @@ static const PinMap PinMap_UART_RTS[] = {
 
 static const PinMap PinMap_UART_CTS[] = {
     {P1_11, UART_1, (SCU_PINIO_FAST | 1)},
-    {P5_4,  UART_1, (SCU_PINIO_FAST | 4),
+    {P5_4,  UART_1, (SCU_PINIO_FAST | 4)},
     {PC_2,  UART_1, (SCU_PINIO_FAST | 2)},
     {PE_7,  UART_1, (SCU_PINIO_FAST | 2)},
     {NC,    NC,     0}
@@ -264,7 +264,7 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
     }
     data_bits -= 5;
 
-    int parity_enable, parity_select;
+    int parity_enable = 0, parity_select = 0;
     switch (parity) {
         case ParityNone: parity_enable = 0; parity_select = 0; break;
         case ParityOdd : parity_enable = 1; parity_select = 0; break;
@@ -272,8 +272,7 @@ void serial_format(serial_t *obj, int data_bits, SerialParity parity, int stop_b
         case ParityForced1: parity_enable = 1; parity_select = 2; break;
         case ParityForced0: parity_enable = 1; parity_select = 3; break;
         default:
-            error("Invalid serial parity setting");
-            return;
+            break;
     }
     
     obj->uart->LCR = data_bits            << 0

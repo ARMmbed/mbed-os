@@ -1,6 +1,6 @@
 /* mbed Microcontroller Library
  *******************************************************************************
- * Copyright (c) 2014, STMicroelectronics
+ * Copyright (c) 2018, STMicroelectronics
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,6 +27,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *******************************************************************************
  */
+
 #ifndef MBED_PINNAMES_H
 #define MBED_PINNAMES_H
 
@@ -38,14 +39,27 @@ extern "C" {
 #endif
 
 typedef enum {
+    ALT0  = 0x100,
+    ALT1  = 0x200,
+    ALT2  = 0x300,
+    ALT3  = 0x400
+} ALTx;
+
+typedef enum {
     PA_0  = 0x00,
     PA_1  = 0x01,
     PA_2  = 0x02,
+    PA_2_ALT0 = PA_2 | ALT0,
     PA_3  = 0x03,
+    PA_3_ALT0 = PA_3 | ALT0,
     PA_4  = 0x04,
     PA_5  = 0x05,
     PA_6  = 0x06,
+    PA_6_ALT0 = PA_6 | ALT0,
     PA_7  = 0x07,
+    PA_7_ALT0 = PA_7 | ALT0,
+    PA_7_ALT1 = PA_7 | ALT1,
+    PA_7_ALT2 = PA_7 | ALT2,
     PA_8  = 0x08,
     PA_9  = 0x09,
     PA_10 = 0x0A,
@@ -57,6 +71,8 @@ typedef enum {
 
     PB_0  = 0x10,
     PB_1  = 0x11,
+    PB_1_ALT0 = PB_1 | ALT0,
+    PB_1_ALT1 = PB_1 | ALT1,
     PB_2  = 0x12,
     PB_3  = 0x13,
     PB_4  = 0x14,
@@ -71,6 +87,8 @@ typedef enum {
     PB_13 = 0x1D,
     PB_14 = 0x1E,
     PB_15 = 0x1F,
+    PB_15_ALT0 = PB_15 | ALT0,
+    PB_15_ALT1 = PB_15 | ALT1,
 
     PC_0  = 0x20,
     PC_1  = 0x21,
@@ -126,6 +144,18 @@ typedef enum {
     D13         = PB_3,
 //    D14         = PB_9,
 //    D15         = PB_8,
+
+    // STDIO for console print
+#ifdef MBED_CONF_TARGET_STDIO_UART_TX
+    STDIO_UART_TX = MBED_CONF_TARGET_STDIO_UART_TX,
+#else
+    STDIO_UART_TX = PA_2,
+#endif
+#ifdef MBED_CONF_TARGET_STDIO_UART_RX
+    STDIO_UART_RX = MBED_CONF_TARGET_STDIO_UART_RX,
+#else
+    STDIO_UART_RX = PA_3,
+#endif
 
     // STM32F0-Discovery(STM32F051R8) connector namings
     PA0          = PA_0,
@@ -188,10 +218,10 @@ typedef enum {
     USER_BUTTON = PA_0,
     // Standardized button names
     BUTTON1 = USER_BUTTON,
-    SERIAL_TX   = PA_2,
-    SERIAL_RX   = PA_3,
-    USBTX       = PA_2,
-    USBRX       = PA_3,
+    SERIAL_TX   = STDIO_UART_TX,
+    SERIAL_RX   = STDIO_UART_RX,
+    USBTX       = STDIO_UART_TX,
+    USBRX       = STDIO_UART_RX,
     I2C_SCL     = PB_8,
     I2C_SDA     = PB_9,
     SPI_MOSI    = PA_7,
@@ -199,6 +229,18 @@ typedef enum {
     SPI_SCK     = PA_5,
     SPI_CS      = PB_6,
     PWM_OUT     = PB_3,
+
+    /**** OSCILLATOR pins ****/
+    RCC_OSC32_IN = PC_14,
+    RCC_OSC32_OUT = PC_15,
+    RCC_OSC_IN = PF_0,
+    RCC_OSC_OUT = PF_1,
+
+    /**** DEBUG pins ****/
+    SYS_SWCLK = PA_14,
+    SYS_SWDIO = PA_13,
+    SYS_WKUP1 = PA_0,
+    SYS_WKUP2 = PC_13,
 
     // Not connected
     NC = (int)0xFFFFFFFF

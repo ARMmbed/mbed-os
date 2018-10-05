@@ -4,7 +4,7 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ *                                        
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -19,24 +19,18 @@
 #include <autoconf.h>
 #include <lwip_intf.h>
 #include <lwip/netif.h>
-#if !DEVICE_EMAC
+#if !defined(CONFIG_MBED_ENABLED)
 #include <lwip_netconf.h>
 #include <ethernetif.h>
 #endif
 #include <osdep_service.h>
 #include <wifi/wifi_util.h>
-
 //----- ------------------------------------------------------------------
 // External Reference
 //----- ------------------------------------------------------------------
 #if (CONFIG_LWIP_LAYER == 1)
-#if DEVICE_EMAC
-	extern struct netif *xnetif[];
-#else
-	extern struct netif xnetif[];			//LWIP netif
+extern struct netif xnetif[];			//LWIP netif
 #endif
-#endif
-
 
 /**
  *      rltk_wlan_set_netif_info - set netif hw address and register dev pointer to netif device
@@ -51,7 +45,7 @@
 void rltk_wlan_set_netif_info(int idx_wlan, void * dev, unsigned char * dev_addr)
 {
 #if (CONFIG_LWIP_LAYER == 1)
-#if DEVICE_EMAC
+#if defined(CONFIG_MBED_ENABLED)
 	//rtw_memcpy(xnetif[idx_wlan]->hwaddr, dev_addr, 6);
 	//set netif hwaddr later
 #else
@@ -74,8 +68,8 @@ int rltk_wlan_send(int idx, struct eth_drv_sg *sg_list, int sg_len, int total_le
 {
 #if (CONFIG_LWIP_LAYER == 1)
 	struct eth_drv_sg *last_sg;
-    struct sk_buff *skb = NULL;
-    int ret = 0;
+	struct sk_buff *skb = NULL;
+	int ret = 0;
 
 	if(idx == -1){
 		DBG_ERR("netif is DOWN");
@@ -83,35 +77,35 @@ int rltk_wlan_send(int idx, struct eth_drv_sg *sg_list, int sg_len, int total_le
 	}
 	DBG_TRACE("%s is called", __FUNCTION__);
 
-    save_and_cli();
-	if(rltk_wlan_check_isup(idx))
-    	rltk_wlan_tx_inc(idx);
-	else {
+	save_and_cli();
+	if (rltk_wlan_check_isup(idx)) {
+		rltk_wlan_tx_inc(idx);
+	} else {
 		DBG_ERR("netif is DOWN");
 		restore_flags();
 		return -1;
 	}
-    restore_flags();
+	restore_flags();
 
-    skb = rltk_wlan_alloc_skb(total_len);
-    if (skb == NULL) {
+	skb = rltk_wlan_alloc_skb(total_len);
+	if (skb == NULL) {
 		//DBG_ERR("rltk_wlan_alloc_skb() for data len=%d failed!", total_len);
-        ret = -1;
-        goto exit;
-    }
+		ret = -1;
+		goto exit;
+	}
 
 	for (last_sg = &sg_list[sg_len]; sg_list < last_sg; ++sg_list) {
 		rtw_memcpy(skb->tail, (void *)(sg_list->buf), sg_list->len);
-        skb_put(skb,  sg_list->len);        
-    }
+		skb_put(skb,  sg_list->len);
+	}
 
-    rltk_wlan_send_skb(idx, skb);
+	rltk_wlan_send_skb(idx, skb);
 
 exit:
-    save_and_cli();
-    rltk_wlan_tx_dec(idx);
-    restore_flags();
-    return ret;
+	save_and_cli();
+	rltk_wlan_tx_dec(idx);
+	restore_flags();
+	return ret;
 #endif
 }
 
@@ -127,56 +121,62 @@ void rltk_wlan_recv(int idx, struct eth_drv_sg *sg_list, int sg_len)
 {
 #if (CONFIG_LWIP_LAYER == 1)
 	struct eth_drv_sg *last_sg;
-    struct sk_buff *skb;
-
+	struct sk_buff *skb;
+	
 	DBG_TRACE("%s is called", __FUNCTION__);
-	
-    if (!rltk_wlan_check_isup(idx))
-        return;
-	
 	if(idx == -1){
 		DBG_ERR("skb is NULL");
 		return;
 	}
-	
-    skb = rltk_wlan_get_recv_skb(idx);
+	skb = rltk_wlan_get_recv_skb(idx);
 	DBG_ASSERT(skb, "No pending rx skb");
 
 	for (last_sg = &sg_list[sg_len]; sg_list < last_sg; ++sg_list) {
-        if (sg_list->buf != 0) {
+		if (sg_list->buf != 0) {
 			rtw_memcpy((void *)(sg_list->buf), skb->data, sg_list->len);
-            skb_pull(skb, sg_list->len);
-        }
-    }
+			skb_pull(skb, sg_list->len);
+		}
+	}
 #endif
 }
 
 int netif_is_valid_IP(int idx, unsigned char *ip_dest)
 {
-#if CONFIG_LWIP_LAYER == 1
-#if DEVICE_EMAC
-    return 1;
+#if defined(CONFIG_MBED_ENABLED)
+	return 1;
 #else
-    struct netif *pnetif = &xnetif[idx];
+#if CONFIG_LWIP_LAYER == 1
+	struct netif * pnetif = &xnetif[idx];
 
-    ip_addr_t addr = { 0 };
+	ip_addr_t addr = { 0 };
 
 #ifdef CONFIG_MEMORY_ACCESS_ALIGNED
-    unsigned int temp;
-    memcpy(&temp, ip_dest, sizeof(unsigned int));
-    u32_t *ip_dest_addr = &temp;
+	unsigned int temp;
+	memcpy(&temp, ip_dest, sizeof(unsigned int));
+	u32_t *ip_dest_addr = &temp;
 #else
-    u32_t *ip_dest_addr  = (u32_t*)ip_dest;
+	u32_t *ip_dest_addr  = (u32_t*)ip_dest;
 #endif
-    addr.addr = *ip_dest_addr;
-    
+
+#if LWIP_VERSION_MAJOR >= 2
+	ip_addr_set_ip4_u32(&addr, *ip_dest_addr);
+#else
+	addr.addr = *ip_dest_addr;
+#endif
+
+#if (LWIP_VERSION_MAJOR >= 2)
+	if((ip_addr_get_ip4_u32(netif_ip_addr4(pnetif))) == 0)
+		return 1;
+#else
+
 	if(pnetif->ip_addr.addr == 0)
-        return 1;
-	
-    if(ip_addr_ismulticast(&addr) || ip_addr_isbroadcast(&addr,pnetif)){
+		return 1;
+#endif
+
+	if(ip_addr_ismulticast(&addr) || ip_addr_isbroadcast(&addr,pnetif)){
 		return 1;
 	}
-		
+
 	//if(ip_addr_netcmp(&(pnetif->ip_addr), &addr, &(pnetif->netmask))) //addr&netmask
 	//	return 1;
 
@@ -187,28 +187,26 @@ int netif_is_valid_IP(int idx, unsigned char *ip_dest)
 #endif	
 #ifdef CONFIG_DONT_CARE_TP
 	if(pnetif->flags & NETIF_FLAG_IPSWITCH)
-        return 1;
+		return 1;
 	else
 #endif
-    return 0;
+	return 0;
 #endif
 }
 
-#if DEVICE_EMAC
-
-#else
-int netif_get_idx(struct netif *pnetif)
+#if !defined(CONFIG_MBED_ENABLED)
+int netif_get_idx(struct netif* pnetif)
 {
 #if (CONFIG_LWIP_LAYER == 1)
 	int idx = pnetif - xnetif;
 
 	switch(idx) {
-		case 0:
-			return 0;
-		case 1:
-			return 1;
-		default:
-			return -1;
+	case 0:
+		return 0;
+	case 1:
+		return 1;
+	default:
+		return -1;
 	}
 #else	
 	return -1;
@@ -225,13 +223,23 @@ unsigned char *netif_get_hwaddr(int idx_wlan)
 }
 #endif
 
+#if defined(CONFIG_MBED_ENABLED)
+emac_callback emac_callback_func = NULL;
+void *emac_callback_data = NULL;
+void set_callback_func(emac_callback p, void *data)
+{
+	emac_callback_func = p;
+	emac_callback_data = data;
+}
+#endif
+
 void netif_rx(int idx, unsigned int len)
 {
 #if (CONFIG_LWIP_LAYER == 1)
-#if DEVICE_EMAC
-    wlan_emac_recv(NULL, len);
+#if defined(CONFIG_MBED_ENABLED)
+	emac_callback_func(emac_callback_data, NULL, len);
 #else
-    ethernetif_recv(&xnetif[idx], len);
+	ethernetif_recv(&xnetif[idx], len);
 #endif
 #endif
 #if (CONFIG_INIC_EN == 1)
@@ -242,7 +250,7 @@ void netif_rx(int idx, unsigned int len)
 void netif_post_sleep_processing(void)
 {
 #if (CONFIG_LWIP_LAYER == 1)
-#if DEVICE_EMAC
+#if defined(CONFIG_MBED_ENABLED)
 #else
 	lwip_POST_SLEEP_PROCESSING();	//For FreeRTOS tickless to enable Lwip ARP timer when leaving IPS - Alex Fang
 #endif
@@ -252,7 +260,7 @@ void netif_post_sleep_processing(void)
 void netif_pre_sleep_processing(void)
 {
 #if (CONFIG_LWIP_LAYER == 1)
-#if DEVICE_EMAC
+#if defined(CONFIG_MBED_ENABLED)
 #else
 	lwip_PRE_SLEEP_PROCESSING();
 #endif

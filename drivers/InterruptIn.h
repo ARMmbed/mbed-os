@@ -66,6 +66,15 @@ public:
      *  @param pin InterruptIn pin to connect to
      */
     InterruptIn(PinName pin);
+
+    /** Create an InterruptIn connected to the specified pin,
+     *  and the pin configured to the specified mode.
+     *
+     *  @param pin InterruptIn pin to connect to
+     *  @param mode The mode to set the pin to (PullUp/PullDown/etc.)
+     */
+    InterruptIn(PinName pin, PinMode mode);
+
     virtual ~InterruptIn();
 
     /** Read the input, represented as 0 or 1 (int)
@@ -97,9 +106,10 @@ public:
      */
     template<typename T, typename M>
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
-        "The rise function does not support cv-qualifiers. Replaced by "
-        "rise(callback(obj, method)).")
-    void rise(T *obj, M method) {
+                          "The rise function does not support cv-qualifiers. Replaced by "
+                          "rise(callback(obj, method)).")
+    void rise(T *obj, M method)
+    {
         core_util_critical_section_enter();
         rise(callback(obj, method));
         core_util_critical_section_exit();
@@ -121,9 +131,10 @@ public:
      */
     template<typename T, typename M>
     MBED_DEPRECATED_SINCE("mbed-os-5.1",
-        "The fall function does not support cv-qualifiers. Replaced by "
-        "fall(callback(obj, method)).")
-    void fall(T *obj, M method) {
+                          "The fall function does not support cv-qualifiers. Replaced by "
+                          "fall(callback(obj, method)).")
+    void fall(T *obj, M method)
+    {
         core_util_critical_section_enter();
         fall(callback(obj, method));
         core_util_critical_section_exit();
@@ -153,6 +164,8 @@ protected:
 
     Callback<void()> _rise;
     Callback<void()> _fall;
+
+    void irq_init(PinName pin);
 };
 
 } // namespace mbed

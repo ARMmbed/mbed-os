@@ -99,6 +99,10 @@
     {
       "src_file" : "CMSIS/RTOS2/RTX/Source/IAR/irq_ca.S",
       "dest_file" : "rtos/TARGET_CORTEX/rtx5/RTX/Source/TOOLCHAIN_IAR/TARGET_CORTEX_A/irq_ca.S"
+    },
+    {
+      "src_file" : "CMSIS/RTOS2/RTX/Library/cmsis_os1.c",
+      "dest_file" : "rtos/TARGET_CORTEX/rtx4/cmsis_os1.c"
     }
   ],
   "folders" : [
@@ -109,6 +113,10 @@
     {
       "src_folder" : "CMSIS/RTOS2/Include/",
       "dest_folder" : "rtos/TARGET_CORTEX/rtx5/Include/"
+    },
+    {
+      "src_folder" : "CMSIS/RTOS2/Source/",
+      "dest_folder" : "rtos/TARGET_CORTEX/rtx5/Source/"
     },
     {
       "src_folder" : "CMSIS/RTOS2/RTX/Include1/",
@@ -136,19 +144,12 @@
     }
   ],
    "commit_sha" : [
-      "428acae1b2ac15c3ad523e8d40755a9301220822",
-      "d9d622afe0ca8c7ab9d24c17f9fe59b54dcc61c9",
-      "a1fcd36be8ee00aba2c9c1b079f5728368922bc8",
-      "f3db103d481d8729950414868cfc8123b8055601",
-      "c07cc6b0f42ff4fe215aa1641a043e205d9128a5",
-      "dd8fdf4c768e5fef3a7ce2e014de4339dbafe5ce",
-      "2a837ea97900cc30f82e5a23b95b3f293d17eae1",
-      "c03b3f9eedab7cb0732d1519c4f1a8d90b08eede",
-      "314a9eb559752132a89b0dbd986db960b3ab9055",
-      "e83fd0099a69e6eb865e4e6fcadbfb1328c04c85",
-      "a019acaf8d6fb1f0512414d072f667cc2749b1d9",
-      "a884fdc0639ae4e17299838ec9de4fddd83cf93c",
-      "6c827cb5879bc096e45efd992dfadcb96c1d50bc"
+      "4360b7bbf815c4d812005938c9c27af199803a97",
+      "cc2e0517e1c6440abf88f2815b8e1501a55cdd4d",
+      "b88254809eb626689c8aeb41304a308bf4e34a04",
+      "287121ffdc4c9c19f9ce8872e4edd941862daca1",
+      "1752803626865147dca92f30a39cef8d04581736",
+      "6a6e3ac0ebab1a6b6aa08d0928702c79562acee9"
     ]
 }
 

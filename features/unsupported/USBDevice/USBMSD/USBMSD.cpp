@@ -589,8 +589,8 @@ bool USBMSD::USBCallback_setConfiguration(uint8_t configuration) {
 }
 
 
-uint8_t * USBMSD::stringIinterfaceDesc() {
-    static uint8_t stringIinterfaceDescriptor[] = {
+const uint8_t * USBMSD::stringIinterfaceDesc() {
+    static const uint8_t stringIinterfaceDescriptor[] = {
         0x08,                           //bLength
         STRING_DESCRIPTOR,              //bDescriptorType 0x03
         'M',0,'S',0,'D',0               //bString iInterface - MSD
@@ -598,8 +598,8 @@ uint8_t * USBMSD::stringIinterfaceDesc() {
     return stringIinterfaceDescriptor;
 }
 
-uint8_t * USBMSD::stringIproductDesc() {
-    static uint8_t stringIproductDescriptor[] = {
+const uint8_t * USBMSD::stringIproductDesc() {
+    static const uint8_t stringIproductDescriptor[] = {
         0x12,                                           //bLength
         STRING_DESCRIPTOR,                              //bDescriptorType 0x03
         'M',0,'b',0,'e',0,'d',0,' ',0,'M',0,'S',0,'D',0 //bString iProduct - Mbed Audio
@@ -608,8 +608,8 @@ uint8_t * USBMSD::stringIproductDesc() {
 }
 
 
-uint8_t * USBMSD::configurationDesc() {
-    static uint8_t configDescriptor[] = {
+const uint8_t * USBMSD::configurationDesc() {
+    static const uint8_t configDescriptor[] = {
 
         // Configuration 1
         9,      // bLength

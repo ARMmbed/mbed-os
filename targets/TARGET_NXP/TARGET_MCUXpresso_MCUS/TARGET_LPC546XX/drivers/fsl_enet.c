@@ -1,9 +1,12 @@
 /*
+ * The Clear BSD License
  * Copyright (c) 2016, Freescale Semiconductor, Inc.
  * Copyright 2016-2017 NXP
+ * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
+ * are permitted (subject to the limitations in the disclaimer below) provided
+ * that the following conditions are met:
  *
  * o Redistributions of source code must retain the above copyright notice, this list
  *   of conditions and the following disclaimer.
@@ -16,6 +19,7 @@
  *   contributors may be used to endorse or promote products derived from this
  *   software without specific prior written permission.
  *
+ * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE.
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -919,8 +923,8 @@ status_t ENET_DescriptorInit(ENET_Type *base, enet_config_t *config, enet_buffer
     assert(config);
     assert(bufferConfig);
 
-    bool intTxEnable;
-    bool intRxEnable;
+    bool intTxEnable = false;
+    bool intRxEnable = false;
     bool doubleBuffEnable = (config->specialControl & kENET_DescDoubleBuffer) ? true : false;
     uint8_t ringNum = config->multiqueueCfg == NULL ? 1 : 2;
     uint8_t channel;
@@ -928,12 +932,12 @@ status_t ENET_DescriptorInit(ENET_Type *base, enet_config_t *config, enet_buffer
     for (channel = 0; channel < ringNum; channel++)
     {
         intRxEnable = (base->DMA_CH[channel].DMA_CHX_INT_EN & ENET_DMA_CH_DMA_CHX_INT_EN_RIE_MASK) ? true : false;
+        intTxEnable = (base->DMA_CH[channel].DMA_CHX_INT_EN & ENET_DMA_CH_DMA_CHX_INT_EN_TIE_MASK) ? true : false;
 
         if (ENET_TxDescriptorsInit(base, bufferConfig, intTxEnable, channel) != kStatus_Success)
         {
             return kStatus_Fail;
         }
-        intTxEnable = (base->DMA_CH[channel].DMA_CHX_INT_EN & ENET_DMA_CH_DMA_CHX_INT_EN_TIE_MASK) ? true : false;
 
         if (ENET_RxDescriptorsInit(base, bufferConfig, intRxEnable, channel, doubleBuffEnable) != kStatus_Success)
         {
@@ -1244,7 +1248,7 @@ status_t ENET_GetRxFrameSize(ENET_Type *base, enet_handle_t *handle, uint32_t *l
 
     enet_rx_bd_ring_t *rxBdRing = (enet_rx_bd_ring_t *)&handle->rxBdRing[channel];
     enet_rx_bd_struct_t *rxDesc = rxBdRing->rxBdBase + rxBdRing->rxGenIdx;
-    uint16_t index;
+    uint16_t index = rxBdRing->rxGenIdx;
 
     /* Reset the length to zero. */
     *length = 0;
@@ -1802,9 +1806,19 @@ void ENET_IRQHandler(ENET_Type *base, enet_handle_t *handle)
         }
     }
 #endif /* ENET_PTP1588FEATURE_REQUIRED */
+    /* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate overlapping
+      exception return operation might vector to incorrect interrupt */
+#if defined __CORTEX_M && (__CORTEX_M == 4U)
+    __DSB();
+#endif
 }
 
 void ETHERNET_DriverIRQHandler(void)
 {
     s_enetIsr(ENET, s_ENETHandle[0]);
+    /* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate overlapping
+      exception return operation might vector to incorrect interrupt */
+#if defined __CORTEX_M && (__CORTEX_M == 4U)
+    __DSB();
+#endif
 }

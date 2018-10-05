@@ -27,6 +27,7 @@ static const ticker_interface_t us_interface = {
     .set_interrupt = us_ticker_set_interrupt,
     .fire_interrupt = us_ticker_fire_interrupt,
     .get_info = us_ticker_get_info,
+    .free = us_ticker_free,
 };
 
 static const ticker_data_t us_data = {
@@ -34,7 +35,7 @@ static const ticker_data_t us_data = {
     .queue = &events
 };
 
-const ticker_data_t* get_us_ticker_data(void)
+const ticker_data_t *get_us_ticker_data(void)
 {
     return &us_data;
 }

@@ -20,6 +20,7 @@
  * SOFTWARE.
  */
 #include "rtos/Semaphore.h"
+#include "rtos/Kernel.h"
 #include "platform/mbed_assert.h"
 
 #include <string.h>
@@ -54,6 +55,19 @@ int32_t Semaphore::wait(uint32_t millisec) {
         case osErrorParameter:
         default:
             return -1;
+    }
+}
+
+int32_t Semaphore::wait_until(uint64_t millisec) {
+    uint64_t now = Kernel::get_ms_count();
+
+    if (now >= millisec) {
+        return wait(0);
+    } else if (millisec - now >= osWaitForever) {
+        // API permits early return
+        return wait(osWaitForever - 1);
+    } else {
+        return wait(millisec - now);
     }
 }
 

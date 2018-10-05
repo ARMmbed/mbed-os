@@ -151,7 +151,8 @@ public:
      */
     virtual void unlock(void);
 
-    virtual ~I2C() {
+    virtual ~I2C()
+    {
         // Do nothing
     }
 
@@ -159,9 +160,9 @@ public:
 
     /** Start non-blocking I2C transfer.
      *
-     * This function locks the deep sleep until any event has occured
-     * 
-     * @param address   8/10 bit I2c slave address
+     * This function locks the deep sleep until any event has occurred
+     *
+     * @param address   8/10 bit I2C slave address
      * @param tx_buffer The TX buffer with data to be transfered
      * @param tx_length The length of TX buffer in bytes
      * @param rx_buffer The RX buffer which is used for received data
@@ -171,16 +172,24 @@ public:
      * @param repeated Repeated start, true - do not send stop at end
      * @return Zero if the transfer has started, or -1 if I2C peripheral is busy
      */
-    int transfer(int address, const char *tx_buffer, int tx_length, char *rx_buffer, int rx_length, const event_callback_t& callback, int event = I2C_EVENT_TRANSFER_COMPLETE, bool repeated = false);
+    int transfer(int address, const char *tx_buffer, int tx_length, char *rx_buffer, int rx_length, const event_callback_t &callback, int event = I2C_EVENT_TRANSFER_COMPLETE, bool repeated = false);
 
     /** Abort the on-going I2C transfer
      */
     void abort_transfer();
+
 protected:
+    /** Lock deep sleep only if it is not yet locked */
+    void lock_deep_sleep();
+
+    /** Unlock deep sleep only if it has been locked */
+    void unlock_deep_sleep();
+
     void irq_handler_asynch(void);
     event_callback_t _callback;
     CThunk<I2C> _irq;
     DMAUsage _usage;
+    bool _deep_sleep_locked;
 #endif
 
 protected:

@@ -30,13 +30,17 @@ using namespace utest::v1;
 #error invalid RESTART_DELAY_MS value
 #endif
 
+#if !DEVICE_USTICKER
+#error [NOT_SUPPORTED] test not supported
+#endif
+
 class Stopwatch: public Timer {
 private:
     Semaphore _sem;
 
 public:
     Stopwatch() :
-            Timer(), _sem(1)
+        Timer(), _sem(1)
     {
     }
 
@@ -81,9 +85,14 @@ void sem_callback(Semaphore *sem)
  * which aborts test program.
  */
 #if defined(MBED_TRAP_ERRORS_ENABLED) && MBED_TRAP_ERRORS_ENABLED
-void error(const char* format, ...)
+void error(const char *format, ...)
 {
     (void) format;
+}
+
+mbed_error_status_t mbed_error(mbed_error_status_t error_status, const char *error_msg, unsigned int error_value, const char *filename, int line_number)
+{
+    return MBED_SUCCESS;
 }
 #endif
 
@@ -325,7 +334,7 @@ void test_isr_calls_fail()
 
 utest::v1::status_t test_setup(const size_t number_of_cases)
 {
-    GREENTEA_SETUP(5, "default_auto");
+    GREENTEA_SETUP(10, "default_auto");
     return verbose_test_setup_handler(number_of_cases);
 }
 

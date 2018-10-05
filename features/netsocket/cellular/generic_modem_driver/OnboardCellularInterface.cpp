@@ -12,7 +12,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#include "mbed_toolchain.h"
+#include "CellularBase.h"
 #include "OnboardCellularInterface.h"
+
+#ifndef CELLULAR_DEVICE
 
 #if MODEM_ON_BOARD && MODEM_ON_BOARD_UART && NSAPI_PPP_AVAILABLE
 
@@ -20,7 +25,9 @@
 
 /**
  * OnboardCellularInterface is an on-board specific implementation.
+ *
  */
+
 OnboardCellularInterface::OnboardCellularInterface(bool debug) :
                                                       UARTCellularInterface(MDMTXD, MDMRXD, MDMDCD, MDMRTS,
                                                                             MDMCTS, MDMRI, MDMDTR, MDMDSR,
@@ -50,5 +57,22 @@ void OnboardCellularInterface::modem_power_up()
 void OnboardCellularInterface::modem_power_down()
 {
     ::onboard_modem_power_down();
+}
+#endif
+
+
+#endif // CELLULAR_DEVICE
+
+#ifdef ONBOARD_CELLULAR_INTERFACE_AVAILABLE
+MBED_WEAK CellularBase *CellularBase::get_target_default_instance()
+{
+    static OnboardCellularInterface cellular;
+
+    return &cellular;
+}
+#else
+MBED_WEAK CellularBase *CellularBase::get_target_default_instance()
+{
+    return NULL;
 }
 #endif

@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32l031xx.h
   * @author  MCD Application Team
-  * @version V1.7.0
-  * @date    31-May-2016
   * @brief   CMSIS Cortex-M0+ Device Peripheral Access Layer Header File. 
   *          This file contains all the peripheral register's definitions, bits 
   *          definitions and memory mapping for stm32l031xx devices.  
@@ -16,7 +14,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -761,7 +759,7 @@ typedef struct
 
 /*******************  Bits definition for ADC_CFGR2 register  *****************/
 #define ADC_CFGR2_TOVS_Pos         (9U)                                        
-#define ADC_CFGR2_TOVS_Msk         (0x400001U << ADC_CFGR2_TOVS_Pos)           /*!< 0x80000200 */
+#define ADC_CFGR2_TOVS_Msk         (0x1U << ADC_CFGR2_TOVS_Pos)                /*!< 0x80000200 */
 #define ADC_CFGR2_TOVS             ADC_CFGR2_TOVS_Msk                          /*!< Triggered Oversampling */
 #define ADC_CFGR2_OVSS_Pos         (5U)                                        
 #define ADC_CFGR2_OVSS_Msk         (0xFU << ADC_CFGR2_OVSS_Pos)                /*!< 0x000001E0 */
@@ -5857,7 +5855,7 @@ typedef struct
 #define IS_COMP_ALL_INSTANCE(INSTANCE) (((INSTANCE) == COMP1) || \
                                        ((INSTANCE) == COMP2))
 
-#define IS_COMP_COMMON_INSTANCE(INSTANCE) ((INSTANCE) == COMP12_COMMON)
+#define IS_COMP_COMMON_INSTANCE(COMMON_INSTANCE) ((COMMON_INSTANCE) == COMP12_COMMON)
 
 /******************************* CRC Instances ********************************/
 #define IS_CRC_ALL_INSTANCE(INSTANCE) ((INSTANCE) == CRC)

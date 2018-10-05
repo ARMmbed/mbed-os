@@ -31,8 +31,6 @@ define __SCRIPT_GDB
 	monitor flash device = $(CPU)
 	load $(TARGET)
 	file $(TARGET)
-	$(GDB_DEBUG_UVISOR)
-	b vmpu_init_post
 	b app_start
 endef
 export __SCRIPT_GDB

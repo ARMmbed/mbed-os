@@ -39,6 +39,10 @@ static char buf[128];
 static SingletonPtr<CircularBuffer<thread_info_t, THREAD_BUF_COUNT> > queue;
 #endif
 
+#if defined(MBED_CPU_STATS_ENABLED)
+static void send_CPU_info(void);
+#endif
+
 static void send_heap_info(void);
 #if defined(MBED_STACK_STATS_ENABLED) && MBED_STACK_STATS_ENABLED
 static void send_stack_info(void);
@@ -65,7 +69,23 @@ void greentea_metrics_report()
     send_stack_info();
     Thread::attach_terminate_hook(NULL);
 #endif
+#if defined(MBED_CPU_STATS_ENABLED)
+    send_CPU_info();
+#endif
 }
+
+#if defined(MBED_CPU_STATS_ENABLED)
+static void send_CPU_info()
+{
+    mbed_stats_cpu_t stats;
+    mbed_stats_cpu_get(&stats);
+
+    greentea_send_kv("__cpu_info        up time", stats.uptime);
+    greentea_send_kv("__cpu_info     sleep time", stats.sleep_time);
+    greentea_send_kv("__cpu_info deepsleep time", stats.deep_sleep_time);
+    greentea_send_kv("__cpu_info  %  sleep/deep", (stats.sleep_time * 100) / stats.uptime, (stats.deep_sleep_time * 100) / stats.uptime);
+}
+#endif
 
 static void send_heap_info()
 {
@@ -87,7 +107,11 @@ MBED_UNUSED static void send_stack_info()
 
     // Print info for all other threads
     uint32_t thread_n = osThreadGetCount();
-    osThreadId_t *threads = new osThreadId_t[thread_n];
+    osThreadId_t *threads = new (std::nothrow) osThreadId_t[thread_n];
+    // Don't fail on lack of memory
+    if (!threads) {
+        goto end;
+    }
     thread_n = osThreadEnumerate(threads, thread_n);
 
     for(size_t i = 0; i < thread_n; i++) {
@@ -97,6 +121,7 @@ MBED_UNUSED static void send_stack_info()
 
     delete[] threads;
 
+end:
     mutex->unlock();
 }
 

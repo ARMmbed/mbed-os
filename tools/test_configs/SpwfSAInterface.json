@@ -1,0 +1,29 @@
+{
+    "config": {
+        "echo-server-addr" : {
+            "help" : "IP address of echo server",
+            "value" : "\"echo.mbedcloudtesting.com\""
+        },
+        "echo-server-port" : {
+            "help" : "Port of echo server",
+            "value" : "7"
+        },
+        "WIFI-TX" : {
+            "help" : "Wifi TX pin",
+            "value" : "D8"
+        },
+        "WIFI-RX" : {
+            "help" : "Wifi RX pin",
+            "value" : "D2"
+        }
+    },
+    "target_overrides": {
+        "*": {
+            "target.network-default-interface-type": "WIFI",
+            "nsapi.default-wifi-ssid": "\"WIFI_SSID\"",
+            "nsapi.default-wifi-password": "\"WIFI_PASSWORD\"",
+            "nsapi.default-wifi-security": "WIFI_SECURITY",
+            "idw0xx1.provide-default": true
+        }
+    }
+}

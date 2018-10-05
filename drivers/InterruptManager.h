@@ -26,6 +26,7 @@ namespace mbed {
 /** \addtogroup drivers */
 
 /** Use this singleton if you need to chain interrupt handlers.
+ *  @deprecated Do not use this class. This class is not part of the public API of mbed-os and is being removed in the future.
  *
  * @note Synchronization level: Thread safe
  *
@@ -57,20 +58,27 @@ namespace mbed {
 class InterruptManager : private NonCopyable<InterruptManager> {
 public:
     /** Get the instance of InterruptManager Class
+     *  @deprecated
+     *  Do not use this function, this class is not part of the public API of mbed-os and is being removed in the future.
      *
      *  @return the only instance of this class
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.6", "This class is not part of the "
-        "public API of mbed-os and is being removed in the future.")
-    static InterruptManager* get();
+                          "public API of mbed-os and is being removed in the future.")
+    static InterruptManager *get();
 
     /** Destroy the current instance of the interrupt manager
+     *  @deprecated
+     *  Do not use this function, this class is not part of the public API of mbed-os and is being removed in the future.
+     *
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.6", "This class is not part of the "
-        "public API of mbed-os and is being removed in the future.")
+                          "public API of mbed-os and is being removed in the future.")
     static void destroy();
 
     /** Add a handler for an interrupt at the end of the handler list
+     *  @deprecated
+     *  Do not use this function, this class is not part of the public API of mbed-os and is being removed in the future.
      *
      *  @param function the handler to add
      *  @param irq interrupt number
@@ -79,13 +87,16 @@ public:
      *  The function object created for 'function'
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.6", "This class is not part of the "
-        "public API of mbed-os and is being removed in the future.")
-    pFunctionPointer_t add_handler(void (*function)(void), IRQn_Type irq) {
+                          "public API of mbed-os and is being removed in the future.")
+    pFunctionPointer_t add_handler(void (*function)(void), IRQn_Type irq)
+    {
         // Underlying call is thread safe
         return add_common(function, irq);
     }
 
     /** Add a handler for an interrupt at the beginning of the handler list
+     *  @deprecated
+     *  Do not use this function, this class is not part of the public API of mbed-os and is being removed in the future.
      *
      *  @param function the handler to add
      *  @param irq interrupt number
@@ -94,13 +105,16 @@ public:
      *  The function object created for 'function'
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.6", "This class is not part of the "
-        "public API of mbed-os and is being removed in the future.")
-    pFunctionPointer_t add_handler_front(void (*function)(void), IRQn_Type irq) {
+                          "public API of mbed-os and is being removed in the future.")
+    pFunctionPointer_t add_handler_front(void (*function)(void), IRQn_Type irq)
+    {
         // Underlying call is thread safe
         return add_common(function, irq, true);
     }
 
     /** Add a handler for an interrupt at the end of the handler list
+     *  @deprecated
+     *  Do not use this function, this class is not part of the public API of mbed-os and is being removed in the future.
      *
      *  @param tptr pointer to the object that has the handler function
      *  @param mptr pointer to the actual handler function
@@ -111,13 +125,16 @@ public:
      */
     template<typename T>
     MBED_DEPRECATED_SINCE("mbed-os-5.6", "This class is not part of the "
-        "public API of mbed-os and is being removed in the future.")
-    pFunctionPointer_t add_handler(T* tptr, void (T::*mptr)(void), IRQn_Type irq) {
+                          "public API of mbed-os and is being removed in the future.")
+    pFunctionPointer_t add_handler(T *tptr, void (T::*mptr)(void), IRQn_Type irq)
+    {
         // Underlying call is thread safe
         return add_common(tptr, mptr, irq);
     }
 
     /** Add a handler for an interrupt at the beginning of the handler list
+     *  @deprecated
+     *  Do not use this function, this class is not part of the public API of mbed-os and is being removed in the future.
      *
      *  @param tptr pointer to the object that has the handler function
      *  @param mptr pointer to the actual handler function
@@ -128,13 +145,16 @@ public:
      */
     template<typename T>
     MBED_DEPRECATED_SINCE("mbed-os-5.6", "This class is not part of the "
-        "public API of mbed-os and is being removed in the future.")
-    pFunctionPointer_t add_handler_front(T* tptr, void (T::*mptr)(void), IRQn_Type irq) {
+                          "public API of mbed-os and is being removed in the future.")
+    pFunctionPointer_t add_handler_front(T *tptr, void (T::*mptr)(void), IRQn_Type irq)
+    {
         // Underlying call is thread safe
         return add_common(tptr, mptr, irq, true);
     }
 
     /** Remove a handler from an interrupt
+     *  @deprecated
+     *  Do not use this function, this class is not part of the public API of mbed-os and is being removed in the future.
      *
      *  @param handler the function object for the handler to remove
      *  @param irq the interrupt number
@@ -143,7 +163,7 @@ public:
      *  true if the handler was found and removed, false otherwise
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.6", "This class is not part of the "
-        "public API of mbed-os and is being removed in the future.")
+                          "public API of mbed-os and is being removed in the future.")
     bool remove_handler(pFunctionPointer_t handler, IRQn_Type irq);
 
 private:
@@ -154,27 +174,29 @@ private:
     void unlock();
 
     template<typename T>
-    pFunctionPointer_t add_common(T *tptr, void (T::*mptr)(void), IRQn_Type irq, bool front=false) {
+    pFunctionPointer_t add_common(T *tptr, void (T::*mptr)(void), IRQn_Type irq, bool front = false)
+    {
         _mutex.lock();
         int irq_pos = get_irq_index(irq);
         bool change = must_replace_vector(irq);
 
         pFunctionPointer_t pf = front ? _chains[irq_pos]->add_front(tptr, mptr) : _chains[irq_pos]->add(tptr, mptr);
-        if (change)
+        if (change) {
             NVIC_SetVector(irq, (uint32_t)&InterruptManager::static_irq_helper);
+        }
         _mutex.unlock();
         return pf;
     }
 
-    pFunctionPointer_t add_common(void (*function)(void), IRQn_Type irq, bool front=false);
+    pFunctionPointer_t add_common(void (*function)(void), IRQn_Type irq, bool front = false);
     bool must_replace_vector(IRQn_Type irq);
     int get_irq_index(IRQn_Type irq);
     void irq_helper();
-    void add_helper(void (*function)(void), IRQn_Type irq, bool front=false);
+    void add_helper(void (*function)(void), IRQn_Type irq, bool front = false);
     static void static_irq_helper();
 
-    CallChain* _chains[NVIC_NUM_VECTORS];
-    static InterruptManager* _instance;
+    CallChain *_chains[NVIC_NUM_VECTORS];
+    static InterruptManager *_instance;
     PlatformMutex _mutex;
 };
 

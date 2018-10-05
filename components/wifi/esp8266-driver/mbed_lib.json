@@ -1,0 +1,35 @@
+{
+    "name": "esp8266",
+    "config": {
+        "tx": {
+            "help": "TX pin for serial connection",
+            "value": null
+        },
+        "rx": {
+            "help": "RX pin for serial connection",
+            "value": null
+        },
+        "debug": {
+            "help": "Enable debug logs",
+            "value": false
+        },
+        "provide-default": {
+            "help": "Provide default WifiInterface. [true/false]",
+            "value": false
+        }
+    },
+    "target_overrides": {
+         "HEXIWEAR": {
+            "tx": "PTD3",
+            "rx": "PTD2"
+        },
+        "NUCLEO_F401RE": {
+            "tx": "D8",
+            "rx": "D2"
+        },
+        "NUCLEO_F411RE": {
+            "tx": "D8",
+            "rx": "D2"
+        }
+    }
+}

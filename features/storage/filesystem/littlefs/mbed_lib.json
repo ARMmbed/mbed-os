@@ -1,0 +1,55 @@
+{
+  "name": "littlefs",
+  "config": {
+    "read_size": {
+        "macro_name": "MBED_LFS_READ_SIZE",
+        "value": 64,
+        "help": "Minimum size of a block read. This determines the size of read buffers. This may be larger than the physical read size to improve performance by caching more of the block device."
+    },
+    "prog_size": {
+        "macro_name": "MBED_LFS_PROG_SIZE",
+        "value": 64,
+        "help": "Minimum size of a block program. This determines the size of program buffers. This may be larger than the physical program size to improve performance by caching more of the block device."
+    },
+    "block_size": {
+        "macro_name": "MBED_LFS_BLOCK_SIZE",
+        "value": 512,
+        "help": "Size of an erasable block. This does not impact ram consumption and may be larger than the physical erase size. However, this should be kept small as each file currently takes up an entire block."
+    },
+    "lookahead": {
+        "macro_name": "MBED_LFS_LOOKAHEAD",
+        "value": 512,
+        "help": "Number of blocks to lookahead during block allocation. A larger lookahead reduces the number of passes required to allocate a block. The lookahead buffer requires only 1 bit per block so it can be quite large with little ram impact. Should be a multiple of 32."
+    },
+    "intrinsics": {
+        "macro_name": "MBED_LFS_INTRINSICS",
+        "value": true,
+        "help": "Enable intrinsics for bit operations such as ctz, popc, and le32 conversion. Can be disabled to help debug toolchain issues"
+    },
+    "enable_info": {
+        "macro_name": "MBED_LFS_ENABLE_INFO",
+        "value": false,
+        "help": "Enables info logging, true = enabled, false = disabled, null = disabled only in release builds"
+    },
+    "enable_debug": {
+        "macro_name": "MBED_LFS_ENABLE_DEBUG",
+        "value": null,
+        "help": "Enables debug logging, true = enabled, false = disabled, null = disabled only in release builds"
+    },
+    "enable_warn": {
+        "macro_name": "MBED_LFS_ENABLE_WARN",
+        "value": null,
+        "help": "Enables warn logging, true = enabled, false = disabled, null = disabled only in release builds"
+    },
+    "enable_error": {
+        "macro_name": "MBED_LFS_ENABLE_ERROR",
+        "value": null,
+        "help": "Enables error logging, true = enabled, false = disabled, null = disabled only in release builds"
+    },
+    "enable_assert": {
+        "macro_name": "MBED_LFS_ENABLE_ASSERT",
+        "value": null,
+        "help": "Enables asserts, true = enabled, false = disabled, null = disabled only in release builds"
+    }
+  }
+}

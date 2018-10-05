@@ -28,6 +28,7 @@
 #if defined(MBEDTLS_PLATFORM_C)
 
 #include "mbedtls/platform.h"
+#include "mbedtls/platform_util.h"
 
 #if defined(MBEDTLS_PLATFORM_MEMORY)
 #if !defined(MBEDTLS_PLATFORM_STD_CALLOC)
@@ -50,14 +51,24 @@ static void platform_free_uninit( void *ptr )
 #define MBEDTLS_PLATFORM_STD_FREE     platform_free_uninit
 #endif /* !MBEDTLS_PLATFORM_STD_FREE */
 
-void * (*mbedtls_calloc)( size_t, size_t ) = MBEDTLS_PLATFORM_STD_CALLOC;
-void (*mbedtls_free)( void * )     = MBEDTLS_PLATFORM_STD_FREE;
+static void * (*mbedtls_calloc_func)( size_t, size_t ) = MBEDTLS_PLATFORM_STD_CALLOC;
+static void (*mbedtls_free_func)( void * ) = MBEDTLS_PLATFORM_STD_FREE;
+
+void * mbedtls_calloc( size_t nmemb, size_t size )
+{
+    return (*mbedtls_calloc_func)( nmemb, size );
+}
+
+void mbedtls_free( void * ptr )
+{
+    (*mbedtls_free_func)( ptr );
+}
 
 int mbedtls_platform_set_calloc_free( void * (*calloc_func)( size_t, size_t ),
                               void (*free_func)( void * ) )
 {
-    mbedtls_calloc = calloc_func;
-    mbedtls_free = free_func;
+    mbedtls_calloc_func = calloc_func;
+    mbedtls_free_func = free_func;
     return( 0 );
 }
 #endif /* MBEDTLS_PLATFORM_MEMORY */
@@ -74,7 +85,7 @@ int mbedtls_platform_win32_snprintf( char *s, size_t n, const char *fmt, ... )
         return( -1 );
 
     va_start( argp, fmt );
-#if defined(_TRUNCATE)
+#if defined(_TRUNCATE) && !defined(__MINGW32__)
     ret = _vsnprintf_s( s, n, _TRUNCATE, fmt, argp );
 #else
     ret = _vsnprintf( s, n, fmt, argp );
@@ -228,12 +239,13 @@ int mbedtls_platform_std_nv_seed_read( unsigned char *buf, size_t buf_len )
     size_t n;
 
     if( ( file = fopen( MBEDTLS_PLATFORM_STD_NV_SEED_FILE, "rb" ) ) == NULL )
-        return -1;
+        return( -1 );
 
     if( ( n = fread( buf, 1, buf_len, file ) ) != buf_len )
     {
         fclose( file );
-        return -1;
+        mbedtls_platform_zeroize( buf, buf_len );
+        return( -1 );
     }
 
     fclose( file );

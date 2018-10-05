@@ -29,11 +29,11 @@
 namespace mbed {
 
 UARTSerial::UARTSerial(PinName tx, PinName rx, int baud) :
-        SerialBase(tx, rx, baud),
-        _blocking(true),
-        _tx_irq_enabled(false),
-        _rx_irq_enabled(true),
-        _dcd_irq(NULL)
+    SerialBase(tx, rx, baud),
+    _blocking(true),
+    _tx_irq_enabled(false),
+    _rx_irq_enabled(true),
+    _dcd_irq(NULL)
 {
     /* Attatch IRQ routines to the serial device. */
     SerialBase::attach(callback(this, &UARTSerial::rx_irq), RxIrq);
@@ -56,7 +56,7 @@ void UARTSerial::set_baud(int baud)
 
 void UARTSerial::set_data_carrier_detect(PinName dcd_pin, bool active_high)
 {
-     delete _dcd_irq;
+    delete _dcd_irq;
     _dcd_irq = NULL;
 
     if (dcd_pin != NC) {
@@ -121,7 +121,8 @@ int UARTSerial::sync()
     return 0;
 }
 
-void UARTSerial::sigio(Callback<void()> func) {
+void UARTSerial::sigio(Callback<void()> func)
+{
     core_util_critical_section_enter();
     _sigio_cb = func;
     if (_sigio_cb) {
@@ -133,7 +134,7 @@ void UARTSerial::sigio(Callback<void()> func) {
     core_util_critical_section_exit();
 }
 
-ssize_t UARTSerial::write(const void* buffer, size_t length)
+ssize_t UARTSerial::write(const void *buffer, size_t length)
 {
     size_t data_written = 0;
     const char *buf_ptr = static_cast<const char *>(buffer);
@@ -178,10 +179,10 @@ ssize_t UARTSerial::write(const void* buffer, size_t length)
 
     api_unlock();
 
-    return data_written != 0 ? (ssize_t) data_written : (ssize_t) -EAGAIN;
+    return data_written != 0 ? (ssize_t) data_written : (ssize_t) - EAGAIN;
 }
 
-ssize_t UARTSerial::read(void* buffer, size_t length)
+ssize_t UARTSerial::read(void *buffer, size_t length)
 {
     size_t data_read = 0;
 
@@ -235,7 +236,8 @@ void UARTSerial::wake()
     }
 }
 
-short UARTSerial::poll(short events) const {
+short UARTSerial::poll(short events) const
+{
 
     short revents = 0;
     /* Check the Circular Buffer if space available for writing out */
@@ -305,12 +307,11 @@ void UARTSerial::rx_irq(void)
 void UARTSerial::tx_irq(void)
 {
     bool was_full = _txbuf.full();
+    char data;
 
     /* Write to the peripheral if there is something to write
      * and if the peripheral is available to write. */
-    while (!_txbuf.empty() && SerialBase::writeable()) {
-        char data;
-        _txbuf.pop(data);
+    while (SerialBase::writeable() && _txbuf.pop(data)) {
         SerialBase::_base_putc(data);
     }
 

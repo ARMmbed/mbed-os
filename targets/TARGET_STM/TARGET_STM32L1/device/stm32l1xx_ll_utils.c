@@ -2,13 +2,11 @@
   ******************************************************************************
   * @file    stm32l1xx_ll_utils.c
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    01-July-2016
   * @brief   UTILS LL module driver.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -54,23 +52,23 @@
 /** @addtogroup UTILS_LL_Private_Constants
   * @{
   */
-#define UTILS_MAX_FREQUENCY_SCALE1  ((uint32_t)32000000U)        /*!< Maximum frequency for system clock at power scale1, in Hz */
-#define UTILS_MAX_FREQUENCY_SCALE2  ((uint32_t)16000000U)        /*!< Maximum frequency for system clock at power scale2, in Hz */
-#define UTILS_MAX_FREQUENCY_SCALE3  ((uint32_t)4000000U)         /*!< Maximum frequency for system clock at power scale3, in Hz */
+#define UTILS_MAX_FREQUENCY_SCALE1  32000000U        /*!< Maximum frequency for system clock at power scale1, in Hz */
+#define UTILS_MAX_FREQUENCY_SCALE2  16000000U        /*!< Maximum frequency for system clock at power scale2, in Hz */
+#define UTILS_MAX_FREQUENCY_SCALE3   4000000U        /*!< Maximum frequency for system clock at power scale3, in Hz */
 
 /* Defines used for PLL range */
-#define UTILS_PLLVCO_OUTPUT_SCALE1  ((uint32_t)96000000U)        /*!< Frequency max for PLLVCO output at power scale1, in Hz  */
-#define UTILS_PLLVCO_OUTPUT_SCALE2  ((uint32_t)48000000U)        /*!< Frequency max for PLLVCO output at power scale2, in Hz  */
-#define UTILS_PLLVCO_OUTPUT_SCALE3  ((uint32_t)24000000U)        /*!< Frequency max for PLLVCO output at power scale3, in Hz  */
+#define UTILS_PLLVCO_OUTPUT_SCALE1  96000000U        /*!< Frequency max for PLLVCO output at power scale1, in Hz  */
+#define UTILS_PLLVCO_OUTPUT_SCALE2  48000000U        /*!< Frequency max for PLLVCO output at power scale2, in Hz  */
+#define UTILS_PLLVCO_OUTPUT_SCALE3  24000000U        /*!< Frequency max for PLLVCO output at power scale3, in Hz  */
 
 /* Defines used for HSE range */
-#define UTILS_HSE_FREQUENCY_MIN     ((uint32_t)1000000U)         /*!< Frequency min for HSE frequency, in Hz   */
-#define UTILS_HSE_FREQUENCY_MAX     ((uint32_t)24000000U)        /*!< Frequency max for HSE frequency, in Hz   */
+#define UTILS_HSE_FREQUENCY_MIN      1000000U       /*!< Frequency min for HSE frequency, in Hz   */
+#define UTILS_HSE_FREQUENCY_MAX     24000000U       /*!< Frequency max for HSE frequency, in Hz   */
 
 /* Defines used for FLASH latency according to HCLK Frequency */
-#define UTILS_SCALE1_LATENCY1_FREQ  ((uint32_t)16000000U)        /*!< HCLK frequency to set FLASH latency 1 in power scale 1 */
-#define UTILS_SCALE2_LATENCY1_FREQ  ((uint32_t)8000000U)         /*!< HCLK frequency to set FLASH latency 1 in power scale 2 */
-#define UTILS_SCALE3_LATENCY1_FREQ  ((uint32_t)2000000U)         /*!< HCLK frequency to set FLASH latency 1 in power scale 3 */
+#define UTILS_SCALE1_LATENCY1_FREQ  16000000U        /*!< HCLK frequency to set FLASH latency 1 in power scale 1 */
+#define UTILS_SCALE2_LATENCY1_FREQ   8000000U        /*!< HCLK frequency to set FLASH latency 1 in power scale 2 */
+#define UTILS_SCALE3_LATENCY1_FREQ   2000000U        /*!< HCLK frequency to set FLASH latency 1 in power scale 3 */
 /**
   * @}
   */
@@ -134,7 +132,9 @@
   */
 static uint32_t    UTILS_GetPLLOutputFrequency(uint32_t PLL_InputFrequency,
                                                LL_UTILS_PLLInitTypeDef *UTILS_PLLInitStruct);
+#if defined(FLASH_ACR_LATENCY)
 static ErrorStatus UTILS_SetFlashLatency(uint32_t Frequency);
+#endif /* FLASH_ACR_LATENCY */
 static ErrorStatus UTILS_EnablePLLAndSwitchSystem(uint32_t SYSCLK_Frequency, LL_UTILS_ClkInitTypeDef *UTILS_ClkInitStruct);
 static ErrorStatus UTILS_PLL_IsBusy(void);
 /**
@@ -338,6 +338,7 @@ ErrorStatus LL_PLL_ConfigSystemClock_HSE(uint32_t HSEFrequency, uint32_t HSEBypa
   /* Check if one of the PLL is enabled */
   if (UTILS_PLL_IsBusy() == SUCCESS)
   {
+
     /* Calculate the new PLL output frequency */
     pllfreq = UTILS_GetPLLOutputFrequency(HSEFrequency, UTILS_PLLInitStruct);
 
@@ -396,6 +397,7 @@ ErrorStatus LL_PLL_ConfigSystemClock_HSE(uint32_t HSEFrequency, uint32_t HSEBypa
   *          - SUCCESS: Latency has been modified
   *          - ERROR: Latency cannot be modified
   */
+#if defined(FLASH_ACR_LATENCY)
 static ErrorStatus UTILS_SetFlashLatency(uint32_t Frequency)
 {
   ErrorStatus status = SUCCESS;
@@ -454,6 +456,7 @@ static ErrorStatus UTILS_SetFlashLatency(uint32_t Frequency)
   }
   return status;
 }
+#endif /* FLASH_ACR_LATENCY */
 
 /**
   * @brief  Function to check that PLL can be modified
@@ -502,7 +505,6 @@ static ErrorStatus UTILS_PLL_IsBusy(void)
     /* PLL configuration cannot be modified */
     status = ERROR;
   }
-
 
   return status;
 }

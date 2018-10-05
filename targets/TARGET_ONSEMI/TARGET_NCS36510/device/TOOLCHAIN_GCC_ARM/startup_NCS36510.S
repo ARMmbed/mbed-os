@@ -146,11 +146,6 @@ disable_watchdog:
 
   ldr   r0, =SystemInit
   blx   r0
-/* TODO -  Uncomment when uvisor support is added */
-/*
-  ldr   r0, =uvisor_init
-  blx   r0
-*/
   ldr   r0, =_start
   bx    r0
   .pool

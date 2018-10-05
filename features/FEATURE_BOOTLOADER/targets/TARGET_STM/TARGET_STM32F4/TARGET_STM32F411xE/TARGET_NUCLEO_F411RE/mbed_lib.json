@@ -1,0 +1,10 @@
+{
+    "name": "bootloader_NUCLEO_F411RE",
+    "target_overrides": {
+        "*": {
+            "target.app_offset": "0x10400",
+            "target.header_offset": "0x10000",
+            "target.bootloader_img": "mbed-bootloader-nucleo_f411re-block_device-sotp-v3_4_0.bin"
+        }
+    }
+}

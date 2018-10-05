@@ -41,6 +41,9 @@
  * if the alarm occurs upon a Counter increment condition.
  *
  */
+
+#ifdef DEVICE_RTC
+
 #include "rtc.h"
 #include "mbed_assert.h"
 #include "lp_ticker_api.h"
@@ -300,3 +303,5 @@ boolean fIsRtcEnabled(void)
         return False;
     }
 }
+
+#endif

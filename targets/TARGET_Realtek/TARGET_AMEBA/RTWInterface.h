@@ -21,7 +21,11 @@
 #include "netsocket/WiFiInterface.h"
 #include "nsapi.h"
 #include "rtos.h"
-#include "lwip/netif.h"
+#include "netif.h"
+#include "rtw_emac.h"
+#include "OnboardNetworkStack.h"
+#include "EMACInterface.h"
+#include "LWIPStack.h"
 
 // Forward declaration
 class NetworkStack;
@@ -29,35 +33,16 @@ class NetworkStack;
 /** Realtek Wlan (RTW) interface class
  *  Implementation of the NetworkStack for Ameba
  */
-class RTWInterface: public WiFiInterface
+class RTWInterface: public WiFiInterface, public EMACInterface
 {
 public:
     /** RTWWlanInterface lifetime
      */
-    RTWInterface(bool debug=false);
+    RTWInterface(
+        RTW_EMAC &rtw_emac = RTW_EMAC::get_instance(),
+        OnboardNetworkStack &rtw_lwip_stack = OnboardNetworkStack::get_default_instance());
+
     ~RTWInterface();
-
-    /** Set a static IP address
-     *
-     *  Configures this network interface to use a static IP address.
-     *  Implicitly disables DHCP, which can be enabled in set_dhcp.
-     *  Requires that the network is disconnected.
-     *
-     *  @param address  Null-terminated representation of the local IP address
-     *  @param netmask  Null-terminated representation of the local network mask
-     *  @param gateway  Null-terminated representation of the local gateway
-     *  @return         0 on success, negative error code on failure
-     */
-    virtual nsapi_error_t set_network(const char *ip_address, const char *netmask, const char *gateway);
-
-    /** Enable or disable DHCP on the network
-     *
-     *  Requires that the network is disconnected
-     *
-     *  @param dhcp     False to disable dhcp (defaults to enabled)
-     *  @return         0 on success, negative error code on failure
-     */
-    virtual nsapi_error_t set_dhcp(bool dhcp);
 
     /** Set the WiFi network credentials
      *
@@ -106,42 +91,14 @@ public:
      *  @return          Number of entries in @a, or if @a count was 0 number of available networks, negative on error
      *  see @a nsapi_error
      */
-     virtual nsapi_size_or_error_t scan(WiFiAccessPoint *res, unsigned count);
+    virtual nsapi_size_or_error_t scan(WiFiAccessPoint *res, unsigned count);
 
-     virtual nsapi_error_t set_channel(uint8_t channel);
-     virtual int8_t get_rssi();
+    virtual nsapi_error_t set_channel(uint8_t channel);
+    virtual int8_t get_rssi();
 
-    /** Get the local MAC address
-     *
-     *  Provided MAC address is intended for info or debug purposes and
-     *  may not be provided if the underlying network interface does not
-     *  provide a MAC address
-     *  
-     *  @return         Null-terminated representation of the local MAC address
-     *                  or null if no MAC address is available
-     */
-    virtual const char *get_mac_address();
+    RTW_EMAC &get_emac() const { return rtw_emac; }
 
-    /** Get the local IP address
-     *
-     *  @return         Null-terminated representation of the local IP address
-     *                  or null if no IP address has been recieved
-     */
-    virtual const char *get_ip_address();
-
-    /** Get the local network mask
-     *
-     *  @return         Null-terminated representation of the local network mask 
-     *                  or null if no network mask has been recieved
-     */
-    virtual const char *get_netmask();
-
-    /** Get the local gateways
-     *
-     *  @return         Null-terminated representation of the local gateway
-     *                  or null if no network mask has been recieved
-     */
-    virtual const char *get_gateway();
+    virtual RTWInterface *rtwInterface() { return this; }
 
 protected:
     /** Provide access to the underlying stack
@@ -149,15 +106,11 @@ protected:
      *  @return The underlying network stack 
      */
     virtual NetworkStack *get_stack();
-
-    bool _dhcp;
+    RTW_EMAC &rtw_emac;
+    OnboardNetworkStack &rtw_obn_stack;
     char _ssid[256];
     char _pass[256];
     nsapi_security_t _security;
     uint8_t _channel;
-    char _ip_address[IPADDR_STRLEN_MAX];
-    char _netmask[NSAPI_IPv4_SIZE];
-    char _gateway[NSAPI_IPv4_SIZE];
 };
-
 #endif

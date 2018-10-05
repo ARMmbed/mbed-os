@@ -24,6 +24,8 @@
 #ifndef MBED_CLOCKING_H
 #define MBED_CLOCKING_H
 
+#include "em_cmu.h"
+
 /* Clock definitions */
 #define LFXO    0
 #define HFXO    1
@@ -51,8 +53,8 @@
 #ifndef CORE_CLOCK_SOURCE
 #define CORE_CLOCK_SOURCE   HFRCO
 #if defined(_CMU_HFRCOCTRL_BAND_MASK)
-#define HFRCO_FREQUENCY_ENUM   _CMU_HFRCOCTRL_BAND_21MHZ 
-#define HFRCO_FREQUENCY        21000000 
+#define HFRCO_FREQUENCY_ENUM   _CMU_HFRCOCTRL_BAND_21MHZ
+#define HFRCO_FREQUENCY        21000000
 #elif defined(_CMU_HFRCOCTRL_FREQRANGE_MASK)
 #define HFRCO_FREQUENCY_ENUM   cmuHFRCOFreq_32M0Hz
 #define HFRCO_FREQUENCY        32000000
@@ -102,5 +104,14 @@
 #  define LEUART_REF_FREQ (REFERENCE_FREQUENCY / 2)
 # endif
 #endif
+
+/* Adjust this to change speed of RTC and LP ticker ticks */
+#define RTC_CLOCKDIV        cmuClkDiv_1
+/* Adjust this to match RTC_CLOCKDIV as integer value */
+#define RTC_CLOCKDIV_INT    1U
+/* Adjust this to match RTC_CLOCKDIV as shift for 1 second worth of ticks.
+ * E.g. with 32768 Hz crystal and CLOCKDIV of 8, 1 second is 4096 ticks.
+ * 4096 equals 1 << 12, so RTC_FREQ_SHIFT needs to be 12. */
+#define RTC_FREQ_SHIFT      15U
 
 #endif

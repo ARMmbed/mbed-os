@@ -35,11 +35,9 @@
 #include "pinmap.h"
 #include "mbed_error.h"
 #include "PeripheralPins.h"
-#include <stdbool.h>
 
 void analogin_init(analogin_t *obj, PinName pin)
 {
-    static bool adc_calibrated = false;
     uint32_t function = (uint32_t)NC;
 
     // ADC Internal Channels "pins"  (Temperature, Vref, Vbat, ...)
@@ -73,7 +71,7 @@ void analogin_init(analogin_t *obj, PinName pin)
     obj->handle.Init.Resolution            = ADC_RESOLUTION_12B;
     obj->handle.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
     obj->handle.Init.ScanConvMode          = ADC_SCAN_DIRECTION_FORWARD;
-    obj->handle.Init.EOCSelection          = EOC_SINGLE_CONV;
+    obj->handle.Init.EOCSelection          = ADC_EOC_SINGLE_CONV;
     obj->handle.Init.LowPowerAutoWait      = DISABLE;
     obj->handle.Init.LowPowerAutoPowerOff  = DISABLE;
     obj->handle.Init.ContinuousConvMode    = DISABLE;
@@ -81,7 +79,7 @@ void analogin_init(analogin_t *obj, PinName pin)
     obj->handle.Init.ExternalTrigConv      = ADC_SOFTWARE_START;
     obj->handle.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_NONE;
     obj->handle.Init.DMAContinuousRequests = DISABLE;
-    obj->handle.Init.Overrun               = OVR_DATA_OVERWRITTEN;
+    obj->handle.Init.Overrun               = ADC_OVR_DATA_OVERWRITTEN;
 
     __HAL_RCC_ADC1_CLK_ENABLE();
 
@@ -89,9 +87,7 @@ void analogin_init(analogin_t *obj, PinName pin)
         error("Cannot initialize ADC");
     }
 
-    // ADC calibration is done only once
-    if (!adc_calibrated) {
-        adc_calibrated = true;
+    if (!LL_ADC_REG_ReadConversionData6(obj->handle.Instance)) {
         HAL_ADCEx_Calibration_Start(&obj->handle);
     }
 }
@@ -102,11 +98,7 @@ uint16_t adc_read(analogin_t *obj)
 
     // Configure ADC channel
     sConfig.Rank         = ADC_RANK_CHANNEL_NUMBER;
-#if defined (TARGET_STM32F091RC)
-    sConfig.SamplingTime = ADC_SAMPLETIME_13CYCLES_5;
-#else
-    sConfig.SamplingTime = ADC_SAMPLETIME_7CYCLES_5;
-#endif
+    sConfig.SamplingTime = ADC_SAMPLETIME_41CYCLES_5;
 
     switch (obj->channel) {
         case 0:
@@ -159,13 +151,16 @@ uint16_t adc_read(analogin_t *obj)
             break;
         case 16:
             sConfig.Channel = ADC_CHANNEL_TEMPSENSOR;
+            sConfig.SamplingTime = ADC_SAMPLETIME_239CYCLES_5;
             break;
         case 17:
             sConfig.Channel = ADC_CHANNEL_VREFINT;
+            sConfig.SamplingTime = ADC_SAMPLETIME_239CYCLES_5;
             break;
 #ifdef ADC_CHANNEL_VBAT
         case 18:
             sConfig.Channel = ADC_CHANNEL_VBAT;
+            sConfig.SamplingTime = ADC_SAMPLETIME_239CYCLES_5;
             break;
 #endif
         default:

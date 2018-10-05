@@ -26,7 +26,9 @@
 #define RTOS_H
 
 #include "mbed_rtos_storage.h"
+#include "rtos/Kernel.h"
 #include "rtos/Thread.h"
+#include "rtos/ThisThread.h"
 #include "rtos/Mutex.h"
 #include "rtos/RtosTimer.h"
 #include "rtos/Semaphore.h"

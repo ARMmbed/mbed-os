@@ -1,7 +1,8 @@
 import re
 
 from os.path import join, exists
-from os import makedirs
+from os import makedirs, remove
+import shutil
 
 from tools.export.makefile import Makefile, GccArm, Armc5, IAR
 
@@ -38,6 +39,12 @@ class Eclipse(Makefile):
 
         self.gen_file('cdt/.cproject.tmpl', ctx, '.cproject')
         self.gen_file('cdt/.project.tmpl', ctx, '.project')
+
+    @staticmethod
+    def clean(project_name):
+        shutil.rmtree("eclipse-extras")
+        remove(".cproject")
+        remove(".project")
 
 
 class EclipseGcc(Eclipse, GccArm):

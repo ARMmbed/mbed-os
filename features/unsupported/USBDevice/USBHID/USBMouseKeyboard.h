@@ -195,7 +195,7 @@ class USBMouseKeyboard: public USBHID, public Stream
         *
         * @returns pointer to the report descriptor
         */
-        virtual uint8_t * reportDesc();
+        virtual const uint8_t * reportDesc();
 
         /*
         * Called when a data is received on the OUT endpoint. Useful to switch on LED of LOCK keys

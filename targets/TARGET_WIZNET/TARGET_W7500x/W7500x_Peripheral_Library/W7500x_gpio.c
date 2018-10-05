@@ -12,16 +12,10 @@ void HAL_GPIO_DeInit(GPIO_TypeDef* GPIOx)
 
     /* DeInit GPIOx Registers */
     GPIOx->DATA = 0x0000;        
-    GPIOx->DATAOUT = 0x0000;     
-    //GPIOx->OUTENSET = 0x0000;    
-    GPIOx->OUTENCLR = 0xFFFF;    
-    //GPIOx->INTENSET = 0x0000;    
+    GPIOx->DATAOUT = 0x0000;       
+    GPIOx->OUTENCLR = 0xFFFF;      
     GPIOx->INTENCLR = 0xFFFF;    
-    //GPIOx->INTTYPESET = 0x0000;  
-    GPIOx->INTTYPECLR = 0xFFFF;  
-    //GPIOx->INTPOLSET = 0x0000;
-    GPIOx->INTPOLCLR = 0xFFFF;   
-
+    GPIOx->INTTYPESET = 0x0000;  
 
     /* DeInit GPIOx 
      *      Pad Control Register
@@ -65,9 +59,8 @@ void HAL_GPIO_Init(GPIO_TypeDef* GPIOx, GPIO_InitTypeDef* GPIO_InitStruct)
 
     assert_param(IS_GPIO_ALL_PERIPH(GPIOx));
     assert_param(IS_GPIO_PIN(GPIO_InitStruct->GPIO_Pin));
-//    assert_param(IS_GPIO_PUPD(GPIO_InitStruct->GPIO_PuPd));
-
-    GPIOx->INTTYPESET = 0x00FF;  
+    assert_param(IS_GPIO_PIN(GPIO_InitStruct->GPIO_Mode));
+    assert_param(IS_GPIO_PUPD(GPIO_InitStruct->GPIO_PuPd));
     
     if      (GPIOx == GPIOA)        px_pcr  = PA_PCR;
     else if (GPIOx == GPIOB)        px_pcr  = PB_PCR;
@@ -117,16 +110,6 @@ void HAL_GPIO_Init(GPIO_TypeDef* GPIOx, GPIO_InitTypeDef* GPIO_InitStruct)
                 px_pcr->Port[pinpos] &= ~(Px_PCR_DS_HIGH);
             }
 
-            // Configure Open Drain selections bit
-            if(GPIO_InitStruct->GPIO_Pad & Px_PCR_OD)
-            {
-                px_pcr->Port[pinpos] |= Px_PCR_OD;
-            }
-           else
-            {
-                px_pcr->Port[pinpos] &= ~(Px_PCR_OD);
-            }
-
             // Configure Input buffer enable selection bit 
             if(GPIO_InitStruct->GPIO_Pad & Px_PCR_IE)
             {
@@ -154,7 +137,7 @@ void HAL_GPIO_StructInit(GPIO_InitTypeDef* GPIO_InitStruct)
 {
     GPIO_InitStruct->GPIO_Pin  = GPIO_Pin_All;
     GPIO_InitStruct->GPIO_Mode = GPIO_Mode_IN;
-    GPIO_InitStruct->GPIO_Pad = (GPIOPad_TypeDef)(GPIO_PuPd_UP);
+    GPIO_InitStruct->GPIO_Pad = (GPIOPad_TypeDef)(GPIO_SUMMIT|GPIO_IE|GPIO_PuPd_UP);
 }
 
 
@@ -232,13 +215,27 @@ void HAL_GPIO_ResetBits(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
 
 void HAL_GPIO_WriteBit(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin, BitAction BitVal)
 {
+    uint32_t temp_gpio_lb;
+    uint32_t temp_gpio_ub;
+    
     /* Check the parameters */
     assert_param(IS_GPIO_ALL_PERIPH(GPIOx));
     assert_param(IS_GET_GPIO_PIN(GPIO_Pin));
     assert_param(IS_GPIO_BIT_ACTION(BitVal)); 
-
-    (GPIOx->LB_MASKED[(uint8_t)(GPIO_Pin)]) = BitVal;
-    (GPIOx->UB_MASKED[(uint8_t)((GPIO_Pin)>>8)]) = BitVal;
+    
+    temp_gpio_lb = (GPIOx->LB_MASKED[(uint8_t)(GPIO_Pin)]);
+    temp_gpio_ub = (GPIOx->UB_MASKED[(uint8_t)((GPIO_Pin)>>8)]);
+ 
+    if( BitVal == Bit_SET)
+    {
+        (GPIOx->LB_MASKED[(uint8_t)(GPIO_Pin)]) = (temp_gpio_lb | GPIO_Pin);
+        (GPIOx->UB_MASKED[(uint8_t)((GPIO_Pin)>>8)]) = (temp_gpio_ub | GPIO_Pin);
+    }
+    else
+    {
+        (GPIOx->LB_MASKED[(uint8_t)(GPIO_Pin)]) = (temp_gpio_lb & ~(GPIO_Pin));
+        (GPIOx->UB_MASKED[(uint8_t)((GPIO_Pin)>>8)]) = (temp_gpio_ub & ~(GPIO_Pin));
+    }
 }
 
 void HAL_GPIO_Write(GPIO_TypeDef* GPIOx, uint16_t PortVal)
@@ -254,6 +251,7 @@ void HAL_PAD_AFConfig(PAD_Type Px, uint16_t GPIO_Pin, PAD_AF_TypeDef P_AF)
     int i;
     uint16_t idx =0x1;
     assert_param(IS_PAD_Type(Px));
+    assert_param(IS_GET_GPIO_PIN(GPIO_Pin));
 
     for(i=0;i<16;i++)
     {
@@ -262,29 +260,25 @@ void HAL_PAD_AFConfig(PAD_Type Px, uint16_t GPIO_Pin, PAD_AF_TypeDef P_AF)
             if(Px == PAD_PA)
             {
                 assert_param(IS_PA_NUM(i));
-                //PA_AFSR->Port[i] &= ~(0x03ul);
-                //PA_AFSR->Port[i] |= P_AF;
+                PA_AFSR->Port[i] &= ~(0x03ul);
                 PA_AFSR->Port[i] = P_AF;
             }
             else if(Px == PAD_PB)
             {
                 assert_param(IS_PB_NUM(i));
-                //PB_AFSR->Port[i] &= ~(0x03ul);
-                //PB_AFSR->Port[i] |= P_AF;
+                PB_AFSR->Port[i] &= ~(0x03ul);
                 PB_AFSR->Port[i] = P_AF;
             }
             else if(Px == PAD_PC)
             {
                 assert_param(IS_PC_NUM(i));
-                //PC_AFSR->Port[i] &= ~(0x03ul);
-                //PC_AFSR->Port[i] |= P_AF;
+                PC_AFSR->Port[i] &= ~(0x03ul);
                 PC_AFSR->Port[i] = P_AF;
             }
             else
             {
                 assert_param(IS_PD_NUM(i));
-                //PD_AFSR->Port[i] &= ~(0x03ul);
-                //PD_AFSR->Port[i] |= P_AF;
+                PD_AFSR->Port[i] &= ~(0x03ul);
                 PD_AFSR->Port[i] = P_AF;
             }				
         }

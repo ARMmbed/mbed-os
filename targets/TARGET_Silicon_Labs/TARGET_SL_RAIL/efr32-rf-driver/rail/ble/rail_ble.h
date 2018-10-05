@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file rail_ble.h
  * @brief The BLE specific header file for the RAIL library.
- * @copyright Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com
+ * @copyright Copyright 2016 Silicon Laboratories, Inc. www.silabs.com
  ******************************************************************************/
 
 #ifndef __RAIL_BLE_H__
@@ -14,48 +14,65 @@
 // Get the RAIL specific structures and types
 #include "rail_types.h"
 
-/**
- * @addtogroup BLE
- * @ingroup Protocol_Specific
- * Accelerator routines for Bluetooth Low Energy (BLE).
- *
- * The APIs in this module help take care of configuring the radio for BLE
- * operation and provide some additional helper routines necessary for
- * normal BLE send/receive that aren't available directly in RAIL. To initialize
- * the radio you will still have to call RAIL_Init(). However
- * RAIL_ConfigChannels(), and RAIL_ConfigRadio() will be taken care of for you.
- *
- * To implement a standard BLE link layer you will also need to handle tight
- * turnaround times and send packets at specific instants. This can all be
- * managed through general RAIL functions like RAIL_ScheduleTx(),
- * RAIL_ScheduleRx(), and RAIL_SetStateTiming(). See the full RAIL API for more
- * useful functions.
- *
- * A simple example of how to setup your application to be in BLE mode is shown
- * below. Note that this will put the radio on the first advertising channel
- * with the advertising Access Address. In any full featured BLE application you
- * will need to use the RAIL_BLE_ConfigChannelRadioParams() function to change
- * the sync word and other parameters as needed based on your connection.
- *
- * @code{.c}
- *
- * // Put the radio into receive on the first BLE advertising channel
- * int bleAdvertiseEnable(void)
- * {
- *   // Call the BLE initialization function to load the right radio config
- *   RAIL_BLE_Init();
- *
- *   // Configure us for the first advertising channel (Physical: 0, Logical: 37)
- *   // The CRC init value and Access Address come from the BLE specification.
- *   RAIL_BLE_ConfigChannelRadioParams(0x555555, 0x8E89BED6, 37, false);
- *
- *   // Start receiving on this channel (Physical: 0, Logical: 37)
- *   RAIL_StartRx(0);
- *  }
- * @endcode
- *
- * @{
- */
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/// @addtogroup BLE
+/// @ingroup Protocol_Specific
+/// Accelerator routines for Bluetooth Low Energy (BLE).
+///
+/// The APIs in this module help take care of configuring the radio for BLE
+/// operation and provide some additional helper routines necessary for
+/// normal BLE send/receive that aren't available directly in RAIL. All normal
+/// RAIL APIs should be used to setup the application; however,
+/// RAIL_ConfigChannels() and RAIL_ConfigRadio() should not be called to setup
+/// the PHY. Instead, the RAIL_BLE_Config* APIs should be used to setup the
+/// 1Mbps, 2Mbps, or Coded PHY configuration needed by the application. These
+/// APIs will configure the hardware and also configure the set of valid BLE
+/// channels.
+///
+/// To implement a standard BLE link layer you will also need to handle tight
+/// turnaround times and send packets at specific instants. This can all be
+/// managed through general RAIL functions like RAIL_ScheduleTx(),
+/// RAIL_ScheduleRx(), and RAIL_SetStateTiming(). See the full RAIL API for more
+/// useful functions.
+///
+/// A simple example of how to setup your application to be in BLE mode is shown
+/// below. Note that this will put the radio on the first advertising channel
+/// with the advertising Access Address. In any full featured BLE application you
+/// will need to use the RAIL_BLE_ConfigChannelRadioParams() function to change
+/// the sync word and other parameters as needed based on your connection.
+///
+/// @code{.c}
+///
+/// // RAIL Handle set at init time
+/// static RAIL_Handle_t railHandle = NULL;
+///
+/// // Put the radio into receive on the first BLE advertising channel
+/// int bleAdvertiseEnable(void)
+/// {
+///   // Call the BLE initialization function to load the right radio config
+///   RAIL_BLE_Init(railHandle);
+///
+///   // Always choose the Viterbi PHY configuration if available on your chip
+///   // for performance reasons.
+///   RAIL_BLE_ConfigPhy1MbpsViterbi(railHandle);
+///
+///   // Configure us for the first advertising channel (Physical: 0, Logical: 37)
+///   // The CRC init value and Access Address come from the BLE specification.
+///   RAIL_BLE_ConfigChannelRadioParams(railHandle,
+///                                     0x555555,
+///                                     0x8E89BED6,
+///                                     37,
+///                                     false);
+///
+///   // Start receiving on physical channel 0 (logical channel 37)
+///   RAIL_StartRx(railHandle, 0, NULL);
+///  }
+/// @endcode
+///
+/// @{
 
 /**
  * @enum RAIL_BLE_Coding_t
@@ -175,7 +192,7 @@ RAIL_Status_t RAIL_BLE_ConfigPhy2Mbps(RAIL_Handle_t railHandle);
  * Switch to the BLE Coded PHY.
  *
  * @param[in] railHandle Handle for RAIL instance.
- * @param[in] ble_coding The RAIL_BLE_Coding_t to use
+ * @param[in] bleCoding The RAIL_BLE_Coding_t to use
  * @return Status code indicating success of the function call.
  *
  * You can use this function to switch back to BLE Coded PHY from the default
@@ -188,7 +205,7 @@ RAIL_Status_t RAIL_BLE_ConfigPhy2Mbps(RAIL_Handle_t railHandle);
  * manual to be sure that it does before trying this.
  */
 RAIL_Status_t RAIL_BLE_ConfigPhyCoded(RAIL_Handle_t railHandle,
-                                      RAIL_BLE_Coding_t ble_coding);
+                                      RAIL_BLE_Coding_t bleCoding);
 
 /**
  * Helper function to change BLE radio parameters.
@@ -214,5 +231,9 @@ RAIL_Status_t RAIL_BLE_ConfigChannelRadioParams(RAIL_Handle_t railHandle,
                                                 bool disableWhitening);
 
 /** @} */ // end of BLE
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // __RAIL_BLE_H__

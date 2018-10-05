@@ -21,14 +21,12 @@
 using namespace utest::v1;
 
 /* Enum used to select block allocation method. */
-typedef enum
-{
+typedef enum {
     ALLOC, CALLOC
 } AllocType;
 
 /* Structure for complex block type. */
-typedef struct
-{
+typedef struct {
     int a;
     char b;
     int c;
@@ -75,7 +73,7 @@ template<typename T, const uint32_t numOfEntries>
 void test_mem_pool_alloc_success(AllocType atype)
 {
     MemoryPool<T, numOfEntries> mem_pool;
-    T * p_blocks[numOfEntries];
+    T *p_blocks[numOfEntries];
     uint32_t i;
 
     /* Test alloc()/calloc() methods - try to allocate max number of
@@ -121,7 +119,7 @@ template<typename T, const uint32_t numOfEntries>
 void test_mem_pool_alloc_success_complex(AllocType atype)
 {
     MemoryPool<T, numOfEntries> mem_pool;
-    T * p_blocks[numOfEntries];
+    T *p_blocks[numOfEntries];
     uint32_t i;
 
     /* Test alloc()/calloc() methods - try to allocate max number of
@@ -164,8 +162,8 @@ template<typename T, const uint32_t numOfEntries>
 void test_mem_pool_alloc_fail(AllocType atype)
 {
     MemoryPool<T, numOfEntries> mem_pool;
-    T * p_blocks[numOfEntries];
-    T * p_extra_block;
+    T *p_blocks[numOfEntries];
+    T *p_extra_block;
     uint32_t i;
 
     /* Allocate all available blocks. */
@@ -203,7 +201,7 @@ template<typename T, const uint32_t numOfEntries>
 void test_mem_pool_free_success(AllocType atype)
 {
     MemoryPool<T, numOfEntries> mem_pool;
-    T * p_blocks[numOfEntries];
+    T *p_blocks[numOfEntries];
     uint32_t i;
     osStatus status;
 
@@ -243,7 +241,7 @@ template<typename T, const uint32_t numOfEntries>
 void test_mem_pool_free_realloc_last(AllocType atype)
 {
     MemoryPool<T, numOfEntries> mem_pool;
-    T * p_blocks[numOfEntries];
+    T *p_blocks[numOfEntries];
     uint32_t i;
     osStatus status;
 
@@ -299,7 +297,7 @@ template<typename T, const uint32_t numOfEntries>
 void test_mem_pool_free_realloc_last_complex(AllocType atype)
 {
     MemoryPool<T, numOfEntries> mem_pool;
-    T * p_blocks[numOfEntries];
+    T *p_blocks[numOfEntries];
     uint32_t i;
     osStatus status;
 
@@ -355,7 +353,7 @@ template<typename T, const uint32_t numOfEntries>
 void test_mem_pool_free_realloc_first(AllocType atype)
 {
     MemoryPool<T, numOfEntries> mem_pool;
-    T * p_blocks[numOfEntries];
+    T *p_blocks[numOfEntries];
     uint32_t i;
     osStatus status;
 
@@ -411,7 +409,7 @@ template<typename T, const uint32_t numOfEntries>
 void test_mem_pool_free_realloc_first_complex(AllocType atype)
 {
     MemoryPool<T, numOfEntries> mem_pool;
-    T * p_blocks[numOfEntries];
+    T *p_blocks[numOfEntries];
     uint32_t i;
     osStatus status;
 
@@ -453,38 +451,6 @@ void test_mem_pool_free_realloc_first_complex(AllocType atype)
 }
 
 /* Robustness checks for free() function.
- *
- * Given block from the MemoryPool has been successfully deallocated.
- * When free operation is executed on this block again.
- * Then operation fails with osErrorResource status.
- *
- * */
-void test_mem_pool_free_on_freed_block()
-{
-    MemoryPool<int, 1> mem_pool;
-    int * p_block;
-    osStatus status;
-
-    /* Allocate memory block. */
-    p_block = mem_pool.alloc();
-
-    /* Show that memory pool block has been allocated. */
-    TEST_ASSERT_NOT_NULL(p_block);
-
-    /* Free memory block. */
-    status = mem_pool.free(p_block);
-
-    /* Check operation status. */
-    TEST_ASSERT_EQUAL(osOK, status);
-
-    /* Free memory block again. */
-    status = mem_pool.free(p_block);
-
-    /* Check operation status. */
-    TEST_ASSERT_EQUAL(osErrorResource, status);
-}
-
-/* Robustness checks for free() function.
  * Function under test is called with invalid parameters.
  *
  * Given MemoryPool object has been successfully created.
@@ -518,7 +484,7 @@ void free_block_invalid_parameter()
     osStatus status;
 
     /* Try to free block passing invalid parameter (variable address). */
-    status = mem_pool.free(reinterpret_cast<int*>(&status));
+    status = mem_pool.free(reinterpret_cast<int *>(&status));
 
     /* Check operation status. */
     TEST_ASSERT_EQUAL(osErrorParameter, status);
@@ -603,7 +569,6 @@ Case cases[] = {
 
     Case("Test: fail (out of free blocks).", test_mem_pool_alloc_fail_wrapper<int, 3>),
 
-    Case("Test: free() - robust (free block twice).", test_mem_pool_free_on_freed_block),
     Case("Test: free() - robust (free called with invalid param - NULL).", free_block_invalid_parameter_null),
     Case("Test: free() - robust (free called with invalid param).", free_block_invalid_parameter)
 };

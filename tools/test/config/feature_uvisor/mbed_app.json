@@ -1,8 +1,0 @@
-{
-    "target_overrides": {
-        "*": {
-            "target.features_add": ["UVISOR"],
-            "target.extra_labels_add": ["UVISOR_SUPPORTED"]
-        }
-    }
-}

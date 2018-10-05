@@ -14,6 +14,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+from __future__ import print_function
 
 import re
 import sys
@@ -47,18 +48,18 @@ class TCPEchoServerTest():
             try:
                 self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 self.s.connect((self.ECHO_SERVER_ADDRESS, self.ECHO_PORT))
-            except Exception, e:
+            except Exception as e:
                 self.s = None
                 selftest.notify("HOST: Socket error: %s"% e)
                 return selftest.RESULT_ERROR
 
-            print 'HOST: Sending %d echo strings...'% self.ECHO_LOOPs,
+            print('HOST: Sending %d echo strings...'% self.ECHO_LOOPs,)
             for i in range(0, self.ECHO_LOOPs):
                 TEST_STRING = str(uuid.uuid4())
                 try:
                     self.s.sendall(TEST_STRING)
                     data = self.s.recv(128)
-                except Exception, e:
+                except Exception as e:
                     self.s = None
                     selftest.notify("HOST: Socket error: %s"% e)
                     return selftest.RESULT_ERROR
@@ -69,10 +70,10 @@ class TCPEchoServerTest():
                     stdout.flush()
                     result = True
                 else:
-                    print "Expected: "
-                    print "'%s'"% TEST_STRING
-                    print "received: "
-                    print "'%s'"% received_str
+                    print("Expected: ")
+                    print("'%s'"% TEST_STRING)
+                    print("received: ")
+                    print("'%s'"% received_str)
                     result = False
                     break
 

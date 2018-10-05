@@ -1,7 +1,15 @@
+#if !defined(MBED_APP_START)
+  #define MBED_APP_START 0x08000000
+#endif
+
+#if !defined(MBED_APP_SIZE)
+  #define MBED_APP_SIZE 1024k
+#endif
+
 /* Linker script to configure memory regions. */
 MEMORY
-{ 
-  FLASH (rx) : ORIGIN = 0x08000000, LENGTH = 1024K
+{
+  FLASH (rx) : ORIGIN = MBED_APP_START, LENGTH = MBED_APP_SIZE
   SRAM2 (rwx)  : ORIGIN = 0x10000188, LENGTH = 32k - 0x188
   SRAM1 (rwx)  : ORIGIN = 0x20000000, LENGTH = 96k
 }
@@ -10,7 +18,7 @@ MEMORY
  * with other linker script that defines memory regions FLASH and RAM.
  * It references following symbols, which must be defined in code:
  *   Reset_Handler : Entry of reset handler
- * 
+ *
  * It defines following symbols, which code can use without definition:
  *   __exidx_start
  *   __exidx_end
@@ -131,24 +139,29 @@ SECTIONS
         __end__ = .;
         end = __end__;
         *(.heap*)
+        . += (ORIGIN(SRAM1) + LENGTH(SRAM1) - .);
         __HeapLimit = .;
     } > SRAM1
-
+    PROVIDE(__heap_size = SIZEOF(.heap));
+    PROVIDE(__mbed_sbrk_start = ADDR(.heap));
+    PROVIDE(__mbed_krbs_start = ADDR(.heap) + SIZEOF(.heap));
+    /* Check if data + heap exceeds RAM1 limit */
+    ASSERT((ORIGIN(SRAM1)+LENGTH(SRAM1)) >= __HeapLimit, "SRAM1 overflow")
     /* .stack_dummy section doesn't contains any symbols. It is only
      * used for linker to calculate size of stack sections, and assign
      * values to stack symbols later */
     .stack_dummy (COPY):
     {
         *(.stack*)
-    } > SRAM1
+    } > SRAM2
 
     /* Set stack top to end of RAM, and stack limit move down by
      * size of stack_dummy section */
-    __StackTop = ORIGIN(SRAM1) + LENGTH(SRAM1);
+    __StackTop = ORIGIN(SRAM2) + LENGTH(SRAM2);
     _estack = __StackTop;
     __StackLimit = __StackTop - SIZEOF(.stack_dummy);
     PROVIDE(__stack = __StackTop);
+    /* Check if stack exceeds RAM2 limit */
+    ASSERT((ORIGIN(SRAM2)+LENGTH(SRAM2)) >= __StackLimit, "SRAM2 overflow")
 
-    /* Check if data + heap + stack exceeds RAM limit */
-    ASSERT(__StackLimit >= __HeapLimit, "region RAM overflowed with stack")
 }

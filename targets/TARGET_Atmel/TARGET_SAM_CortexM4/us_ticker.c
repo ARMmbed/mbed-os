@@ -186,3 +186,8 @@ void us_ticker_clear_interrupt(void)
 {
     NVIC_ClearPendingIRQ(TICKER_COUNTER_IRQn1);
 }
+
+void us_ticker_free(void)
+{
+
+}

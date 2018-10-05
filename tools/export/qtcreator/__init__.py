@@ -15,6 +15,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 from os.path import splitext, basename
+from os import remove
 from tools.targets import TARGET_MAP
 from tools.export.exporters import Exporter
 from tools.export.makefile import GccArm
@@ -63,3 +64,8 @@ class QtCreator(GccArm):
 
         # finally, generate the Makefile
         super(QtCreator, self).generate()
+
+    @staticmethod
+    def clean(project_name):
+        for ext in ['creator', 'files', 'includes', 'config']:
+            remove("%s.%s" % (project_name, ext))

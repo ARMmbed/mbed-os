@@ -39,12 +39,7 @@ using namespace utest::v1;
 #include "mbedtls/platform.h"
 #else
 #include <stdio.h>
-#include <stdlib.h>
 #define mbedtls_printf     printf
-#define mbedtls_snprintf   snprintf
-#define mbedtls_exit       exit
-#define MBEDTLS_EXIT_SUCCESS EXIT_SUCCESS
-#define MBEDTLS_EXIT_FAILURE EXIT_FAILURE
 #endif
 
 #define MBEDTLS_SELF_TEST_TEST_CASE(self_test_function) \
@@ -89,14 +84,27 @@ Case cases[] = {
 #endif /* MBEDTLS_SELF_TEST */
 };
 
-utest::v1::status_t test_setup(const size_t num_cases) {
+utest::v1::status_t test_setup(const size_t num_cases)
+{
     GREENTEA_SETUP(120, "default_auto");
     return verbose_test_setup_handler(num_cases);
 }
 
 Specification specification(test_setup, cases);
 
-int main() {
-    return !Harness::run(specification);
+int main()
+{
+    int ret = 0;
+#if defined(MBEDTLS_PLATFORM_C)
+    if ((ret = mbedtls_platform_setup(NULL)) != 0) {
+        mbedtls_printf("Mbed TLS selftest failed! mbedtls_platform_setup returned %d\n", ret);
+        return 1;
+    }
+#endif
+    ret = (Harness::run(specification) ? 0 : 1);
+#if defined(MBEDTLS_PLATFORM_C)
+    mbedtls_platform_teardown(NULL);
+#endif
+    return ret;
 }
 

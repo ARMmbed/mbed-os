@@ -80,7 +80,7 @@ public:
      */
     virtual void rewind() = 0;
 
-    /** Get the sizeof the directory 
+    /** Get the sizeof the directory
      *
      *  @return         Number of files in the directory
      */
@@ -105,9 +105,13 @@ public:
      *  @returns
      *    0 on success,
      *   -1 on error.
+     *  @deprecated Replaced by `int DirHandle::close()'
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.4", "Replaced by DirHandle::close")
-    virtual int closedir() { return close(); };
+    virtual int closedir()
+    {
+        return close();
+    };
 
     /** Return the directory entry at the current position, and
      *  advances the position to the next entry.
@@ -116,6 +120,7 @@ public:
      *  A pointer to a dirent structure representing the
      *  directory entry at the current position, or NULL on reaching
      *  end of directory or error.
+     * @deprecated Replaced by `ssize_t DirHandle::read(struct dirent *ent)
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.4", "Replaced by DirHandle::read")
     virtual struct dirent *readdir()
@@ -125,25 +130,37 @@ public:
     }
 
     /** Resets the position to the beginning of the directory.
+     * @deprecated Replaced by `void DirHandle::rewind()'
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.4", "Replaced by DirHandle::rewind")
-    virtual void rewinddir() { rewind(); }
+    virtual void rewinddir()
+    {
+        rewind();
+    }
 
     /** Returns the current position of the DirHandle.
      *
      * @returns
      *   the current position,
      *  -1 on error.
+     * @deprecated Replaced by `off_t DirHandle::tell()'
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.4", "Replaced by DirHandle::tell")
-    virtual off_t telldir() { return tell(); }
+    virtual off_t telldir()
+    {
+        return tell();
+    }
 
     /** Sets the position of the DirHandle.
      *
      *  @param location The location to seek to. Must be a value returned by telldir.
+     *  @deprecated Replaced by `void DirHandle::seek(off_t offset)'
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.4", "Replaced by DirHandle::seek")
-    virtual void seekdir(off_t location) { seek(location); }
+    virtual void seekdir(off_t location)
+    {
+        seek(location);
+    }
 };
 
 /**@}*/

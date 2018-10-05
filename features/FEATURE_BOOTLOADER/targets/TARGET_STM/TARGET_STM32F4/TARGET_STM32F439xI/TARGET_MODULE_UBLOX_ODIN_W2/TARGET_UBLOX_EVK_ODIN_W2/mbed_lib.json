@@ -1,0 +1,10 @@
+{
+    "name": "bootloader_UBLOX_EVK_ODIN_W2",
+    "target_overrides": {
+        "*": {
+            "target.app_offset": "0x10400",
+            "target.header_offset": "0x10000",
+            "target.bootloader_img": "mbed-bootloader-sotp-v3_4_0.bin"
+        }
+    }
+}

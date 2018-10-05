@@ -2,14 +2,12 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_irda.h
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    01-July-2016
   * @brief   This file contains all the functions prototypes for the IRDA 
   *          firmware library.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -154,12 +152,12 @@ typedef struct
 /** @defgroup IRDA_Error_Codes IRDA Error Codes
   * @{
   */
-#define HAL_IRDA_ERROR_NONE      ((uint32_t)0x00)    /*!< No error            */
-#define HAL_IRDA_ERROR_PE        ((uint32_t)0x01)    /*!< Parity error        */
-#define HAL_IRDA_ERROR_NE        ((uint32_t)0x02)    /*!< Noise error         */
-#define HAL_IRDA_ERROR_FE        ((uint32_t)0x04)    /*!< frame error         */
-#define HAL_IRDA_ERROR_ORE       ((uint32_t)0x08)    /*!< Overrun error       */
-#define HAL_IRDA_ERROR_DMA       ((uint32_t)0x10)    /*!< DMA transfer error  */
+#define HAL_IRDA_ERROR_NONE      (0x00U)    /*!< No error            */
+#define HAL_IRDA_ERROR_PE        (0x01U)    /*!< Parity error        */
+#define HAL_IRDA_ERROR_NE        (0x02U)    /*!< Noise error         */
+#define HAL_IRDA_ERROR_FE        (0x04U)    /*!< frame error         */
+#define HAL_IRDA_ERROR_ORE       (0x08U)    /*!< Overrun error       */
+#define HAL_IRDA_ERROR_DMA       (0x10U)    /*!< DMA transfer error  */
 
 /**
   * @}
@@ -169,7 +167,7 @@ typedef struct
 /** @defgroup IRDA_Word_Length IRDA Word Length
   * @{
   */
-#define IRDA_WORDLENGTH_8B                  ((uint32_t)0x00000000)
+#define IRDA_WORDLENGTH_8B                  (0x00000000U)
 #define IRDA_WORDLENGTH_9B                  ((uint32_t)USART_CR1_M)
 /**
   * @}
@@ -178,7 +176,7 @@ typedef struct
 /** @defgroup IRDA_Parity IRDA Parity
   * @{
   */
-#define IRDA_PARITY_NONE                    ((uint32_t)0x00000000)
+#define IRDA_PARITY_NONE                    (0x00000000U)
 #define IRDA_PARITY_EVEN                    ((uint32_t)USART_CR1_PCE)
 #define IRDA_PARITY_ODD                     ((uint32_t)(USART_CR1_PCE | USART_CR1_PS)) 
 /**
@@ -199,7 +197,7 @@ typedef struct
   * @{
   */
 #define IRDA_POWERMODE_LOWPOWER             ((uint32_t)USART_CR3_IRLP)
-#define IRDA_POWERMODE_NORMAL               ((uint32_t)0x00000000)
+#define IRDA_POWERMODE_NORMAL               (0x00000000U)
 /**
   * @}
   */
@@ -207,7 +205,7 @@ typedef struct
 /** @defgroup IRDA_One_Bit  IRDA One Bit Sampling
   * @{
   */
-#define IRDA_ONE_BIT_SAMPLE_DISABLE         ((uint32_t)0x00000000)
+#define IRDA_ONE_BIT_SAMPLE_DISABLE         (0x00000000U)
 #define IRDA_ONE_BIT_SAMPLE_ENABLE          ((uint32_t)USART_CR3_ONEBIT)
 /**
   * @}
@@ -485,7 +483,7 @@ do{                                         \
                                         ((PARITY) == IRDA_PARITY_ODD))
 
 #define IS_IRDA_MODE(MODE)             ((((MODE) & (~((uint32_t)IRDA_MODE_TX_RX))) == 0x00) && \
-                                        ((MODE) != (uint32_t)0x00000000))
+                                        ((MODE) != 0x00000000U))
 
 #define IS_IRDA_POWERMODE(MODE)        (((MODE) == IRDA_POWERMODE_LOWPOWER) || \
                                         ((MODE) == IRDA_POWERMODE_NORMAL))

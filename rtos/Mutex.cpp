@@ -20,6 +20,7 @@
  * SOFTWARE.
  */
 #include "rtos/Mutex.h"
+#include "rtos/Kernel.h"
 
 #include <string.h>
 #include "mbed_error.h"
@@ -40,7 +41,8 @@ Mutex::Mutex(const char *name)
 void Mutex::constructor(const char *name)
 {
     memset(&_obj_mem, 0, sizeof(_obj_mem));
-    osMutexAttr_t attr = { 0 };
+    osMutexAttr_t attr =
+    { 0 };
     attr.name = name ? name : "aplication_unnamed_mutex";
     attr.cb_mem = &_obj_mem;
     attr.cb_size = sizeof(_obj_mem);
@@ -49,33 +51,95 @@ void Mutex::constructor(const char *name)
     MBED_ASSERT(_id);
 }
 
-osStatus Mutex::lock(uint32_t millisec) {
+osStatus Mutex::lock(void)
+{
+    osStatus status = osMutexAcquire(_id, osWaitForever);
+    if (osOK == status) {
+        _count++;
+    }
+
+    if (status != osOK) {
+        MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_KERNEL, MBED_ERROR_CODE_MUTEX_LOCK_FAILED), "Mutex lock failed", status);
+    }
+
+    return osOK;
+}
+
+osStatus Mutex::lock(uint32_t millisec)
+{
     osStatus status = osMutexAcquire(_id, millisec);
     if (osOK == status) {
         _count++;
     }
+
+    bool success = (status == osOK ||
+                    (status == osErrorResource && millisec == 0) ||
+                    (status == osErrorTimeout && millisec != osWaitForever));
+
+    if (!success) {
+        MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_KERNEL, MBED_ERROR_CODE_MUTEX_LOCK_FAILED), "Mutex lock failed", status);
+    }
+
     return status;
 }
 
-bool Mutex::trylock() {
-    if (osMutexAcquire(_id, 0) == osOK) {
-        _count++;
+bool Mutex::trylock()
+{
+    return trylock_for(0);
+}
+
+bool Mutex::trylock_for(uint32_t millisec)
+{
+    osStatus status = osMutexAcquire(_id, millisec);
+    if (status == osOK) {
         return true;
+    }
+
+    bool success = (status == osOK ||
+                    (status == osErrorResource && millisec == 0) ||
+                    (status == osErrorTimeout && millisec != osWaitForever));
+
+    if (!success) {
+        MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_KERNEL, MBED_ERROR_CODE_MUTEX_LOCK_FAILED), "Mutex lock failed", status);
+    }
+
+    return false;
+}
+
+bool Mutex::trylock_until(uint64_t millisec)
+{
+    uint64_t now = Kernel::get_ms_count();
+
+    if (now >= millisec) {
+        return trylock();
+    } else if (millisec - now >= osWaitForever) {
+        // API permits early return
+        return trylock_for(osWaitForever - 1);
     } else {
-        return false;
+        return trylock_for(millisec - now);
     }
 }
 
-osStatus Mutex::unlock() {
+osStatus Mutex::unlock()
+{
     _count--;
-    return osMutexRelease(_id);
+
+    osStatus status = osMutexRelease(_id);
+
+    if (status != osOK) {
+        MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_KERNEL, MBED_ERROR_CODE_MUTEX_UNLOCK_FAILED), "Mutex unlock failed", status);
+    }
+
+    return osOK;
 }
 
-osThreadId Mutex::get_owner() {
+osThreadId Mutex::get_owner()
+{
     return osMutexGetOwner(_id);
 }
 
-Mutex::~Mutex() {
+Mutex::~Mutex()
+{
     osMutexDelete(_id);
 }
 

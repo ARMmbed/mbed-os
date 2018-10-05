@@ -43,6 +43,10 @@ extern osMutexId_t singleton_mutex_id;
 inline static void singleton_lock(void)
 {
 #ifdef MBED_CONF_RTOS_PRESENT
+    if (!singleton_mutex_id) {
+        // RTOS has not booted yet so no mutex is needed
+        return;
+    }
     osMutexAcquire(singleton_mutex_id, osWaitForever);
 #endif
 }
@@ -56,7 +60,11 @@ inline static void singleton_lock(void)
 inline static void singleton_unlock(void)
 {
 #ifdef MBED_CONF_RTOS_PRESENT
-    osMutexRelease (singleton_mutex_id);
+    if (!singleton_mutex_id) {
+        // RTOS has not booted yet so no mutex is needed
+        return;
+    }
+    osMutexRelease(singleton_mutex_id);
 #endif
 }
 
@@ -80,7 +88,8 @@ struct SingletonPtr {
      * @returns
      *   A pointer to the singleton
      */
-    T* get() {
+    T *get()
+    {
         if (NULL == _ptr) {
             singleton_lock();
             if (NULL == _ptr) {
@@ -99,7 +108,8 @@ struct SingletonPtr {
      * @returns
      *   A pointer to the singleton
      */
-    T* operator->() {
+    T *operator->()
+    {
         return get();
     }
 

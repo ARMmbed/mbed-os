@@ -129,8 +129,6 @@ extern "C" {
 #define ARM_CFSTORE_DRIVER_ERROR_JOURNAL_STATUS_EMPTY                               -1033
 #define ARM_CFSTORE_DRIVER_ERROR_JOURNAL_STATUS_SMALL_LOG_REQUEST                   -1034
 #define ARM_CFSTORE_DRIVER_ERROR_OPERATION_PENDING                                  -1035
-#define ARM_CFSTORE_DRIVER_ERROR_UVISOR_BOX_ID                                      -1036
-#define ARM_CFSTORE_DRIVER_ERROR_UVISOR_NAMESPACE                                   -1037
 /// @endcond
 
 
@@ -308,7 +306,6 @@ typedef struct ARM_CFSTORE_CAPABILITIES
 {
     uint32_t asynchronous_ops : 1;          //!< When set then the configuration store dispatch interface is operating in non-blocking (asynchronous) mode.
                                             //!< When unset then the configuration store dispatch interface is operating in blocking (synchronous) mode.
-    uint32_t uvisor_support_enabled : 1;    //!< The configuration store is using uvisor security contexts.
 } ARM_CFSTORE_CAPABILITIES;
 
 

@@ -215,6 +215,11 @@ typedef enum {
 
     DAC0_OUT = 0xFEFE, /* DAC does not have Pin Name in RM */
 
+    SPI_MOSI   = PTE3,
+    SPI_MISO   = PTE1,
+    SPI_SCK    = PTE2,
+    SPI_PERSISTENT_MEM_CS = PTE4,
+
     // Not connected
     NC = (int)0xFFFFFFFF
 } PinName;

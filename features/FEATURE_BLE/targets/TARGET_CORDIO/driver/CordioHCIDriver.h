@@ -58,6 +58,10 @@ struct buf_pool_desc_t {
  *   - Access to the write function of the underlying HCITransport driver.
  */
 class CordioHCIDriver {
+
+    // hook for internal tests and passthrough driver
+    friend class CordioHCIHook;
+
 public:
     /**
      * Construct a new instance of an HCI driver.

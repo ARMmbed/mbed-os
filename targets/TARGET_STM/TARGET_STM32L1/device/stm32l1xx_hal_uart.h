@@ -2,14 +2,12 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_uart.h
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    01-July-2016
   * @brief   This file contains all the functions prototypes for the UART 
   *          firmware library.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -157,12 +155,12 @@ typedef struct
   * @{
   */
 
-#define HAL_UART_ERROR_NONE      ((uint32_t)0x00)    /*!< No error            */
-#define HAL_UART_ERROR_PE        ((uint32_t)0x01)    /*!< Parity error        */
-#define HAL_UART_ERROR_NE        ((uint32_t)0x02)    /*!< Noise error         */
-#define HAL_UART_ERROR_FE        ((uint32_t)0x04)    /*!< frame error         */
-#define HAL_UART_ERROR_ORE       ((uint32_t)0x08)    /*!< Overrun error       */
-#define HAL_UART_ERROR_DMA       ((uint32_t)0x10)    /*!< DMA transfer error  */
+#define HAL_UART_ERROR_NONE      (0x00U)    /*!< No error            */
+#define HAL_UART_ERROR_PE        (0x01U)    /*!< Parity error        */
+#define HAL_UART_ERROR_NE        (0x02U)    /*!< Noise error         */
+#define HAL_UART_ERROR_FE        (0x04U)    /*!< frame error         */
+#define HAL_UART_ERROR_ORE       (0x08U)    /*!< Overrun error       */
+#define HAL_UART_ERROR_DMA       (0x10U)    /*!< DMA transfer error  */
 
 /**
   * @}
@@ -171,7 +169,7 @@ typedef struct
 /** @defgroup UART_Word_Length   UART Word Length
   * @{
   */
-#define UART_WORDLENGTH_8B                  ((uint32_t)0x00000000)
+#define UART_WORDLENGTH_8B                  (0x00000000U)
 #define UART_WORDLENGTH_9B                  ((uint32_t)USART_CR1_M)
 /**
   * @}
@@ -180,7 +178,7 @@ typedef struct
 /** @defgroup UART_Stop_Bits   UART Number of Stop Bits
   * @{
   */
-#define UART_STOPBITS_1                     ((uint32_t)0x00000000)
+#define UART_STOPBITS_1                     (0x00000000U)
 #define UART_STOPBITS_2                     ((uint32_t)USART_CR2_STOP_1)
 /**
   * @}
@@ -189,7 +187,7 @@ typedef struct
 /** @defgroup UART_Parity  UART Parity
   * @{
   */ 
-#define UART_PARITY_NONE                    ((uint32_t)0x00000000)
+#define UART_PARITY_NONE                    (0x00000000U)
 #define UART_PARITY_EVEN                    ((uint32_t)USART_CR1_PCE)
 #define UART_PARITY_ODD                     ((uint32_t)(USART_CR1_PCE | USART_CR1_PS)) 
 /**
@@ -199,7 +197,7 @@ typedef struct
 /** @defgroup UART_Hardware_Flow_Control UART Hardware Flow Control
   * @{
   */ 
-#define UART_HWCONTROL_NONE                  ((uint32_t)0x00000000)
+#define UART_HWCONTROL_NONE                  (0x00000000U)
 #define UART_HWCONTROL_RTS                   ((uint32_t)USART_CR3_RTSE)
 #define UART_HWCONTROL_CTS                   ((uint32_t)USART_CR3_CTSE)
 #define UART_HWCONTROL_RTS_CTS               ((uint32_t)(USART_CR3_RTSE | USART_CR3_CTSE))
@@ -221,7 +219,7 @@ typedef struct
  /** @defgroup UART_State  UART State
   * @{
   */ 
-#define UART_STATE_DISABLE                  ((uint32_t)0x00000000)
+#define UART_STATE_DISABLE                  (0x00000000U)
 #define UART_STATE_ENABLE                   ((uint32_t)USART_CR1_UE)
 /**
   * @}
@@ -230,7 +228,7 @@ typedef struct
 /** @defgroup UART_Over_Sampling UART Over Sampling
   * @{
   */
-#define UART_OVERSAMPLING_16                    ((uint32_t)0x00000000)
+#define UART_OVERSAMPLING_16                    (0x00000000U)
 #define UART_OVERSAMPLING_8                     ((uint32_t)USART_CR1_OVER8)
 /**
   * @}
@@ -239,7 +237,7 @@ typedef struct
 /** @defgroup UART_LIN_Break_Detection_Length  UART LIN Break Detection Length
   * @{
   */  
-#define UART_LINBREAKDETECTLENGTH_10B      ((uint32_t)0x00000000)
+#define UART_LINBREAKDETECTLENGTH_10B      (0x00000000U)
 #define UART_LINBREAKDETECTLENGTH_11B      ((uint32_t)USART_CR2_LBDL)
 /**
   * @}
@@ -248,7 +246,7 @@ typedef struct
 /** @defgroup UART_WakeUp_functions UART Wakeup Functions
   * @{
   */
-#define UART_WAKEUPMETHOD_IDLELINE                ((uint32_t)0x00000000)
+#define UART_WAKEUPMETHOD_IDLELINE                (0x00000000U)
 #define UART_WAKEUPMETHOD_ADDRESSMARK             ((uint32_t)USART_CR1_WAKE)
 /**
   * @}
@@ -628,8 +626,8 @@ do{                                         \
                                         ((CONTROL) == UART_HWCONTROL_CTS) || \
                                         ((CONTROL) == UART_HWCONTROL_RTS_CTS))
 
-#define IS_UART_MODE(MODE)             ((((MODE) & (~((uint32_t)UART_MODE_TX_RX))) == 0x00) && \
-                                        ((MODE) != (uint32_t)0x00000000))
+#define IS_UART_MODE(MODE)             ((((MODE) & (~((uint32_t)UART_MODE_TX_RX))) == 0x00U) && \
+                                        ((MODE) != 0x00000000U))
 
 #define IS_UART_STATE(STATE)           (((STATE) == UART_STATE_DISABLE) || \
                                         ((STATE) == UART_STATE_ENABLE))

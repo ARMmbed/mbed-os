@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32f7xx_hal_tim_ex.h
   * @author  MCD Application Team
-  * @version V1.2.2
-  * @date    14-April-2017
   * @brief   Header file of TIM HAL Extension module.
   ******************************************************************************
   * @attention
@@ -130,6 +128,9 @@ typedef struct {
                                 This parameter can be a value of @ref TIMEx_Break_Input_Source */
   uint32_t Enable;         /*!< Specifies whether or not the break input source is enabled.
                                 This parameter can be a value of @ref TIMEx_Break_Input_Source_Enable */
+  uint32_t Polarity;       /*!< Specifies the break input source polarity.
+                                This parameter can be a value of @ref TIMEx_Break_Input_Source_Polarity
+                                Not relevant when analog watchdog output of the DFSDM1 used as break input source */
 } TIMEx_BreakInputConfigTypeDef;
 #endif /* STM32F767xx || STM32F769xx || STM32F777xx || STM32F779xx */
 /**
@@ -284,7 +285,7 @@ typedef struct {
   * @{
   */
 #define TIM_BREAKINPUTSOURCE_BKIN     ((uint32_t)0x00000001U) /* !< An external source (GPIO) is connected to the BKIN pin  */
-#define TIM_BREAKINPUTSOURCE_DFSDM1    ((uint32_t)0x00000008U) /* !< The analog watchdog output of the DFSDM1 peripheral is connected to the break input */
+#define TIM_BREAKINPUTSOURCE_DFSDM1   ((uint32_t)0x00000008U) /* !< The analog watchdog output of the DFSDM1 peripheral is connected to the break input */
 /**
   * @}
   */ 
@@ -297,6 +298,15 @@ typedef struct {
 /**
   * @}
   */ 
+
+/** @defgroup TIMEx_Break_Input_Source_Polarity TIM  Extended Break input polarity
+  * @{
+  */
+#define TIM_BREAKINPUTSOURCE_POLARITY_LOW     ((uint32_t)(0x00000001)) /* !< Break input source is active low */
+#define TIM_BREAKINPUTSOURCE_POLARITY_HIGH    ((uint32_t)(0x00000000)) /* !< Break input source is active_high */
+/**
+  * @}
+  */
 
 /**
   * @}
@@ -314,8 +324,8 @@ typedef struct {
 /**
   * @brief  Sets the TIM Capture Compare Register value on runtime without
   *         calling another time ConfigChannel function.
-  * @param  __HANDLE__: TIM handle.
-  * @param  __CHANNEL__ : TIM Channels to be configured.
+  * @param  __HANDLE__ TIM handle.
+  * @param  __CHANNEL__  TIM Channels to be configured.
   *          This parameter can be one of the following values:
   *            @arg TIM_CHANNEL_1: TIM Channel 1 selected
   *            @arg TIM_CHANNEL_2: TIM Channel 2 selected
@@ -323,7 +333,7 @@ typedef struct {
   *            @arg TIM_CHANNEL_4: TIM Channel 4 selected
   *            @arg TIM_CHANNEL_5: TIM Channel 5 selected
   *            @arg TIM_CHANNEL_6: TIM Channel 6 selected
-  * @param  __COMPARE__: specifies the Capture Compare register new value.
+  * @param  __COMPARE__ specifies the Capture Compare register new value.
   * @retval None
   */
 #define __HAL_TIM_SET_COMPARE(__HANDLE__, __CHANNEL__, __COMPARE__) \
@@ -336,8 +346,8 @@ typedef struct {
 
 /**
   * @brief  Gets the TIM Capture Compare Register value on runtime
-  * @param  __HANDLE__: TIM handle.
-  * @param  __CHANNEL__ : TIM Channel associated with the capture compare register
+  * @param  __HANDLE__ TIM handle.
+  * @param  __CHANNEL__  TIM Channel associated with the capture compare register
   *          This parameter can be one of the following values:
   *            @arg TIM_CHANNEL_1: get capture/compare 1 register value
   *            @arg TIM_CHANNEL_2: get capture/compare 2 register value
@@ -357,8 +367,8 @@ typedef struct {
 
 /**
   * @brief  Sets the TIM Output compare preload.
-  * @param  __HANDLE__: TIM handle.
-  * @param  __CHANNEL__: TIM Channels to be configured.
+  * @param  __HANDLE__ TIM handle.
+  * @param  __CHANNEL__ TIM Channels to be configured.
   *          This parameter can be one of the following values:
   *            @arg TIM_CHANNEL_1: TIM Channel 1 selected
   *            @arg TIM_CHANNEL_2: TIM Channel 2 selected
@@ -378,8 +388,8 @@ typedef struct {
 
 /**
   * @brief  Resets the TIM Output compare preload.
-  * @param  __HANDLE__: TIM handle.
-  * @param  __CHANNEL__: TIM Channels to be configured.
+  * @param  __HANDLE__ TIM handle.
+  * @param  __CHANNEL__ TIM Channels to be configured.
   *          This parameter can be one of the following values:
   *            @arg TIM_CHANNEL_1: TIM Channel 1 selected
   *            @arg TIM_CHANNEL_2: TIM Channel 2 selected
@@ -616,7 +626,10 @@ HAL_TIM_StateTypeDef HAL_TIMEx_HallSensor_GetState(TIM_HandleTypeDef* htim);
 
 #define IS_TIM_BREAKINPUTSOURCE_STATE(__STATE__)  (((__STATE__) == TIM_BREAKINPUTSOURCE_DISABLE)  || \
                                                    ((__STATE__) == TIM_BREAKINPUTSOURCE_ENABLE))
-                                                   
+                                   
+#define IS_TIM_BREAKINPUTSOURCE_POLARITY(__POLARITY__)  (((__POLARITY__) == TIM_BREAKINPUTSOURCE_POLARITY_LOW)  || \
+                                                         ((__POLARITY__) == TIM_BREAKINPUTSOURCE_POLARITY_HIGH))
+
 #endif /* STM32F767xx || STM32F769xx || STM32F777xx || STM32F779xx */
 /**
   * @}

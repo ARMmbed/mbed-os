@@ -1,48 +1,31 @@
-Note: This is just a template, so feel free to use/remove the unnecessary things
-
 ### Description
-- Type: Bug | Enhancement | Question
-- Related issue: `#abc`
-- Priority: Blocker | Major | Minor
+<!-- 
+    Required
+    Add detailed description of what you are reporting.
+    Good example: https://os.mbed.com/docs/latest/reference/workflow.html
+    Things to consider sharing:
+    - What target does this relate to?
+    - What toolchain (name + version) are you using?
+    - What tools (name + version - is it mbed-cli, online compiler or IDE) are you using?
+    - What is the SHA of Mbed OS (git log -n1 --oneline)?
+    - Steps to reproduce. (Did you publish code or a test case that exhibits the problem?)
+-->
 
----------------------------------------------------------------
-## Bug
 
-**Target**
-K64F|??
+### Issue request type
+<!-- 
+    Required
+    Please add only one X to one of the following types. Do not fill multiple types. (Split the issue otherwise.)
+    Please note this is not a GitHub task list; indenting the boxes or changing the format to add a '.' or '*' in front
+    of them changes the meaning incorrectly. The only changes to make are to add a description under the
+    description heading and to add an 'x' to the correct box.
 
-**Toolchain:**
-GCC_ARM|ARM|IAR
+    [X] Question
+    [ ] Enhancement 
+    [ ] Bug 
+-->
 
-**Toolchain version:**
+[ ] Question  
+[ ] Enhancement  
+[ ] Bug  
 
-**mbed-cli version:** 
-(`mbed --version`)
-
-**mbed-os sha:**
-(`git log -n1 --oneline`)
-
-**DAPLink version:**
-
-**Expected behavior**
-
-**Actual behavior**
-
-**Steps to reproduce**
-
-----------------------------------------------------------------
-## Enhancement
-
-**Reason to enhance or problem with existing solution**
-
-**Suggested enhancement**
-
-**Pros**
-
-**Cons**
-
------------------------------------------------------------------
-
-## Question
-
-**How to?**

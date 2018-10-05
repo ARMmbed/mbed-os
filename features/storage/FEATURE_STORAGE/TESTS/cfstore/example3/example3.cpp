@@ -71,9 +71,6 @@
 #include "cfstore_test.h"
 #include "configuration_store.h"
 
-#ifdef YOTTA_CFG_CONFIG_UVISOR
-#include "uvisor-lib/uvisor-lib.h"
-#endif /* YOTTA_CFG_CONFIG_UVISOR */
 
 #include <stdio.h>
 #include <stdlib.h>

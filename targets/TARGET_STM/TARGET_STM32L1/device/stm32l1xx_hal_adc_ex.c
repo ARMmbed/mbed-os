@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_adc_ex.c
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    01-July-2016
   * @brief   This file provides firmware functions to manage the following 
   *          functionalities of the Analog to Digital Convertor (ADC)
   *          peripheral:
@@ -25,7 +23,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -75,19 +73,19 @@
   /* ADC conversion cycles (unit: ADC clock cycles)                           */
   /* (selected sampling time + conversion time of 12 ADC clock cycles, with   */
   /* resolution 12 bits)                                                      */
-  #define ADC_CONVERSIONCLOCKCYCLES_SAMPLETIME_4CYCLE5   ((uint32_t) 16)
-  #define ADC_CONVERSIONCLOCKCYCLES_SAMPLETIME_9CYCLES   ((uint32_t) 21)
-  #define ADC_CONVERSIONCLOCKCYCLES_SAMPLETIME_16CYCLES  ((uint32_t) 28)
-  #define ADC_CONVERSIONCLOCKCYCLES_SAMPLETIME_24CYCLES  ((uint32_t) 36)
-  #define ADC_CONVERSIONCLOCKCYCLES_SAMPLETIME_48CYCLES  ((uint32_t) 60)
-  #define ADC_CONVERSIONCLOCKCYCLES_SAMPLETIME_96CYCLES  ((uint32_t)108)
-  #define ADC_CONVERSIONCLOCKCYCLES_SAMPLETIME_192CYCLES ((uint32_t)204)
-  #define ADC_CONVERSIONCLOCKCYCLES_SAMPLETIME_384CYCLES ((uint32_t)396)
+  #define ADC_CONVERSIONCLOCKCYCLES_SAMPLETIME_4CYCLE5   ( 16U)
+  #define ADC_CONVERSIONCLOCKCYCLES_SAMPLETIME_9CYCLES   ( 21U)
+  #define ADC_CONVERSIONCLOCKCYCLES_SAMPLETIME_16CYCLES  ( 28U)
+  #define ADC_CONVERSIONCLOCKCYCLES_SAMPLETIME_24CYCLES  ( 36U)
+  #define ADC_CONVERSIONCLOCKCYCLES_SAMPLETIME_48CYCLES  ( 60U)
+  #define ADC_CONVERSIONCLOCKCYCLES_SAMPLETIME_96CYCLES  (108U)
+  #define ADC_CONVERSIONCLOCKCYCLES_SAMPLETIME_192CYCLES (204U)
+  #define ADC_CONVERSIONCLOCKCYCLES_SAMPLETIME_384CYCLES (396U)
 
   /* Delay for temperature sensor stabilization time.                         */
   /* Maximum delay is 10us (refer to device datasheet, parameter tSTART).     */
   /* Unit: us                                                                 */
-  #define ADC_TEMPSENSOR_DELAY_US         ((uint32_t) 10)
+  #define ADC_TEMPSENSOR_DELAY_US         (10U)
 
 /**
   * @}

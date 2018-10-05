@@ -21,12 +21,12 @@
 
 #if (DEVICE_SERIAL && DEVICE_INTERRUPTIN) || defined(DOXYGEN_ONLY)
 
-#include "FileHandle.h"
+#include "platform/FileHandle.h"
 #include "SerialBase.h"
 #include "InterruptIn.h"
-#include "PlatformMutex.h"
-#include "serial_api.h"
-#include "CircularBuffer.h"
+#include "platform/PlatformMutex.h"
+#include "hal/serial_api.h"
+#include "platform/CircularBuffer.h"
 #include "platform/NonCopyable.h"
 
 #ifndef MBED_CONF_DRIVERS_UART_SERIAL_RXBUF_SIZE
@@ -42,7 +42,7 @@ namespace mbed {
 /** \addtogroup drivers */
 
 /** Class providing buffered UART communication functionality using separate circular buffer for send and receive channels
- *  
+ *
  * @ingroup drivers
  */
 
@@ -81,7 +81,7 @@ public:
      *  @param length   The number of bytes to write
      *  @return         The number of bytes written, negative error on failure
      */
-    virtual ssize_t write(const void* buffer, size_t length);
+    virtual ssize_t write(const void *buffer, size_t length);
 
     /** Read the contents of a file into a buffer
      *
@@ -95,7 +95,7 @@ public:
      *  @param length   The number of bytes to read
      *  @return         The number of bytes read, 0 at end of file, negative error on failure
      */
-    virtual ssize_t read(void* buffer, size_t length);
+    virtual ssize_t read(void *buffer, size_t length);
 
     /** Close a file
      *
@@ -140,6 +140,15 @@ public:
     {
         _blocking = blocking;
         return 0;
+    }
+
+    /** Check current blocking or non-blocking mode for file operations.
+     *
+     *  @return             true for blocking mode, false for non-blocking mode.
+     */
+    virtual bool is_blocking() const
+    {
+        return _blocking;
     }
 
     /** Register a callback on state change of the file.
@@ -192,7 +201,7 @@ public:
      *  @param parity The parity used (None, Odd, Even, Forced1, Forced0; default = None)
      *  @param stop_bits The number of stop bits (1 or 2; default = 1)
      */
-    void set_format(int bits=8, Parity parity=UARTSerial::None, int stop_bits=1);
+    void set_format(int bits = 8, Parity parity = UARTSerial::None, int stop_bits = 1);
 
 #if DEVICE_SERIAL_FC
     // For now use the base enum - but in future we may have extra options
@@ -210,7 +219,7 @@ public:
      *  @param flow1 the first flow control pin (RTS for RTS or RTSCTS, CTS for CTS)
      *  @param flow2 the second flow control pin (CTS for RTSCTS)
      */
-    void set_flow_control(Flow type, PinName flow1=NC, PinName flow2=NC);
+    void set_flow_control(Flow type, PinName flow1 = NC, PinName flow2 = NC);
 #endif
 
 private:

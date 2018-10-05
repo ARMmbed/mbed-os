@@ -332,7 +332,8 @@ static void armHandler(wsfEventMask_t event, wsfMsgHdr_t *pMsg)
                                                                         (scan->scanReport.eventType == DM_ADV_SCAN_RESPONSE) ? true : false,
                                                                         (GapAdvertisingParams::AdvertisingType_t)scan->scanReport.eventType,
                                                                         scan->scanReport.len,
-                                                                        scan->scanReport.pData);
+                                                                        scan->scanReport.pData,
+                                                                        (BLEProtocol::AddressType_t) scan->scanReport.addrType);
                 }
                 break;
             case DM_CONN_OPEN_IND:

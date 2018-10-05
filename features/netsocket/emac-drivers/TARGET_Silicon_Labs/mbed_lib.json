@@ -1,0 +1,34 @@
+{
+    "name": "sl-eth",
+    "config": {
+        "rmii-location": {
+            "help": "Location number to use for the RMII pins, see chip datasheet",
+            "value": null
+        },
+        "mdio-location": {
+            "help": "Location number to use for the MDIO pins, see chip datasheet",
+            "value": null
+        },
+        "refclk-location": {
+            "help": "Location number to use for the REFCLK output from CMU (CLKOUTSEL2), see chip datasheet",
+            "value": null
+        },
+        "phy-enable-pin": {
+            "help": "Pin attached to the PHY enable line",
+            "value": null
+        },
+        "phy-power-pin": {
+            "help": "Pin used to switch on power to the PHY. If not defined, we assume the PHY is always powered.",
+            "value": null
+        }
+    },
+    "target_overrides": {
+        "EFM32GG11_STK3701": {
+            "rmii-location": 1,
+            "mdio-location": 1,
+            "refclk-location": 5,
+            "phy-enable-pin": "PH7",
+            "phy-power-pin": "PI10"
+        }
+    }
+}

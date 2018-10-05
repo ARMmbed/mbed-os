@@ -178,7 +178,7 @@ int LP_ConfigGPIOWakeUpDetect(const gpio_cfg_t *gpio, unsigned int act_high, lp_
     return result;
 }
 
-uint8_t LP_IsGPIOWakeUpSource(const gpio_cfg_t *gpio)
+int LP_IsGPIOWakeUpSource(const gpio_cfg_t *gpio)
 {
     uint8_t gpioWokeUp = 0;
 

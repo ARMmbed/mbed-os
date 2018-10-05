@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017 ARM Limited. All rights reserved.
+ * Copyright (c) 2013-2018 Arm Limited. All rights reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -22,8 +22,9 @@
  *
  * -----------------------------------------------------------------------------
  */
+#include "RTE_Components.h"
+#include CMSIS_device_header
 
-#include <cmsis.h>
 
 //Fault Status Register (IFSR/DFSR) definitions
 #define FSR_ALIGNMENT_FAULT                  0x01   //DFSR only. Fault on first lookup
@@ -50,8 +51,10 @@
 #define FSR_ASYNC_PARITY_ERROR               0x18   //DFSR only - async/external
 
 void CDAbtHandler(uint32_t DFSR, uint32_t DFAR, uint32_t LR) {
-    uint32_t FS = (DFSR & (1 << 10)) >> 6 | (DFSR & 0x0f); //Store Fault Status
-
+    uint32_t FS = (DFSR & (1U << 10U)) >> 6U | (DFSR & 0x0FU); //Store Fault Status
+    (void)DFAR;
+    (void)LR;
+  
     switch(FS) {
         //Synchronous parity errors - retry
         case FSR_SYNC_PARITY_ERROR:
@@ -85,8 +88,10 @@ void CDAbtHandler(uint32_t DFSR, uint32_t DFAR, uint32_t LR) {
 }
 
 void CPAbtHandler(uint32_t IFSR, uint32_t IFAR, uint32_t LR) {
-    uint32_t FS = (IFSR & (1 << 10)) >> 6 | (IFSR & 0x0f); //Store Fault Status
-
+    uint32_t FS = (IFSR & (1U << 10U)) >> 6U | (IFSR & 0x0FU); //Store Fault Status
+    (void)IFAR;
+    (void)LR;
+    
     switch(FS) {
         //Synchronous parity errors - retry
         case FSR_SYNC_PARITY_ERROR:
@@ -119,30 +124,31 @@ void CPAbtHandler(uint32_t IFSR, uint32_t IFAR, uint32_t LR) {
 //returns amount to decrement lr by
 //this will be 0 when we have emulated the instruction and want to execute the next instruction
 //this will be 2 when we have performed some maintenance and want to retry the instruction in Thumb (state == 2)
-//this will be 4 when we have performed some maintenance and want to retry the instruction in ARM   (state == 4)
+//this will be 4 when we have performed some maintenance and want to retry the instruction in Arm   (state == 4)
 uint32_t CUndefHandler(uint32_t opcode, uint32_t state, uint32_t LR) {
-    const int THUMB = 2;
-    const int ARM = 4;
+    const uint32_t THUMB = 2U;
+    const uint32_t ARM = 4U;
+    (void)LR;
     //Lazy VFP/NEON initialisation and switching
 
-    // (ARM ARM section A7.5) VFP data processing instruction?
-    // (ARM ARM section A7.6) VFP/NEON register load/store instruction?
-    // (ARM ARM section A7.8) VFP/NEON register data transfer instruction?
-    // (ARM ARM section A7.9) VFP/NEON 64-bit register data transfer instruction?
-    if ((state == ARM   && ((opcode & 0x0C000000) >> 26 == 0x03)) ||
-        (state == THUMB && ((opcode & 0xEC000000) >> 26 == 0x3B))) {
-        if (((opcode & 0x00000E00) >> 9) == 5) {
+    // (Arm Architecture Reference Manual section A7.5) VFP data processing instruction?
+    // (Arm Architecture Reference Manual section A7.6) VFP/NEON register load/store instruction?
+    // (Arm Architecture Reference Manual section A7.8) VFP/NEON register data transfer instruction?
+    // (Arm Architecture Reference Manual section A7.9) VFP/NEON 64-bit register data transfer instruction?
+    if ((state == ARM   && ((opcode & 0x0C000000U) >> 26U == 0x03U)) ||
+        (state == THUMB && ((opcode & 0xEC000000U) >> 26U == 0x3BU))) {
+        if (((opcode & 0x00000E00U) >> 9U) == 5U) {
             __FPU_Enable();
             return state;
         }
     }
 
-    // (ARM ARM section A7.4) NEON data processing instruction?
-    if ((state == ARM   && ((opcode & 0xFE000000) >> 24 == 0xF2)) ||
-        (state == THUMB && ((opcode & 0xEF000000) >> 24 == 0xEF)) ||
-    // (ARM ARM section A7.7) NEON load/store instruction?
-        (state == ARM   && ((opcode >> 24) == 0xF4)) ||
-        (state == THUMB && ((opcode >> 24) == 0xF9))) {
+    // (Arm Architecture Reference Manual section A7.4) NEON data processing instruction?
+    if ((state == ARM   && ((opcode & 0xFE000000U) >> 24U == 0xF2U)) ||
+        (state == THUMB && ((opcode & 0xEF000000U) >> 24U == 0xEFU)) ||
+    // (Arm Architecture Reference Manual section A7.7) NEON load/store instruction?
+        (state == ARM   && ((opcode >> 24U) == 0xF4U)) ||
+        (state == THUMB && ((opcode >> 24U) == 0xF9U))) {
             __FPU_Enable();
             return state;
     }

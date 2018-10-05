@@ -304,11 +304,13 @@ class ReportExporter():
 
     def exporter_print_helper(self, array, print_log=False):
         for item in array:
-            print "  * %s::%s::%s" % (item["target_name"], item["toolchain_name"], item["id"])
+            print("  * %s::%s::%s" % (item["target_name"],
+                                      item["toolchain_name"],
+                                      item["id"]))
             if print_log:
                 log_lines = item["output"].split("\n")
                 for log_line in log_lines:
-                    print "        %s" % log_line
+                    print("        %s" % log_line)
 
     def exporter_print(self, test_result_ext, print_log_for_failures=False):
         """ Export test results in print format.
@@ -343,15 +345,15 @@ class ReportExporter():
                             raise Exception("'test_run' did not have a 'result' value")
 
         if successes:
-            print "\n\nBuild successes:"
+            print("\n\nBuild successes:")
             self.exporter_print_helper(successes)
 
         if skips:
-            print "\n\nBuild skips:"
+            print("\n\nBuild skips:")
             self.exporter_print_helper(skips)
 
         if failures:
-            print "\n\nBuild failures:"
+            print("\n\nBuild failures:")
             self.exporter_print_helper(failures, print_log=print_log_for_failures)
             return False
         else:
@@ -410,5 +412,5 @@ class ReportExporter():
         result += "\n"
 
         # Print result count
-        result += "Result: " + ' / '.join(['%s %s' % (value, key) for (key, value) in {k: v for k, v in result_dict.items() if v != 0}.iteritems()])
+        result += "Result: " + ' / '.join(['%s %s' % (value, key) for (key, value) in {k: v for k, v in result_dict.items() if v != 0}.items()])
         return result

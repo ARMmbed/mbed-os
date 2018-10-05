@@ -148,7 +148,7 @@ public:
     *
     * @returns pointer to the report descriptor
     */
-    virtual uint8_t * reportDesc();
+    virtual const uint8_t * reportDesc();
 
     /*
     * Called when a data is received on the OUT endpoint. Useful to switch on LED of LOCK keys
@@ -173,7 +173,7 @@ protected:
     *
     * @returns pointer to the configuration descriptor
     */
-    virtual uint8_t * configurationDesc();
+    virtual const uint8_t * configurationDesc();
 
 private:
     //dummy otherwise it doesn,t compile (we must define all methods of an abstract class)
@@ -181,6 +181,7 @@ private:
         return -1;
     };
 
+    uint8_t configurationDescriptor[41];
     uint8_t lock_status;
 
 };

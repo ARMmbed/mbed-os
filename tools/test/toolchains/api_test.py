@@ -11,18 +11,99 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..",
                                     ".."))
 sys.path.insert(0, ROOT)
 
-from tools.toolchains import TOOLCHAIN_CLASSES, LEGACY_TOOLCHAIN_NAMES,\
-    Resources, TOOLCHAIN_PATHS, mbedToolchain
-from tools.targets import TARGET_MAP
+from tools.toolchains import (
+    TOOLCHAIN_CLASSES,
+    TOOLCHAIN_PATHS,
+    mbedToolchain,
+)
+from tools.resources import LEGACY_TOOLCHAIN_NAMES, Resources, FileType
+from tools.targets import TARGET_MAP, set_targets_json_location
+from tools.notifier.mock import MockNotifier
 
-def test_instantiation():
-    """Test that all exported toolchain may be instantiated"""
-    for name, tc_class in  TOOLCHAIN_CLASSES.items():
-        cls = tc_class(TARGET_MAP["K64F"])
-        assert name == cls.name or\
-            name == LEGACY_TOOLCHAIN_NAMES[cls.name]
+ALPHABET = [char for char in printable if char not in [u'.', u'/', u'\\']]
 
-ALPHABET = [char for char in printable if char not in [u'.', u'/']]
+
+@patch('tools.toolchains.arm.run_cmd')
+def test_arm_version_check(_run_cmd):
+    set_targets_json_location()
+    _run_cmd.return_value = ("""
+    Product: ARM Compiler 5.06
+    Component: ARM Compiler 5.06 update 5 (build 528)
+    Tool: armcc [4d3621]
+    """, "", 0)
+    notifier = MockNotifier()
+    toolchain = TOOLCHAIN_CLASSES["ARM"](TARGET_MAP["K64F"], notify=notifier)
+    toolchain.version_check()
+    assert notifier.messages == []
+    _run_cmd.return_value = ("""
+    Product: MDK Professional 5.22
+    Component: ARM Compiler 5.06 update 5 (build 528)
+    Tool: armcc [4d3621]
+    """, "", 0)
+    toolchain.version_check()
+    assert notifier.messages == []
+    _run_cmd.return_value = ("""
+    Product: ARM Compiler
+    Component: ARM Compiler
+    Tool: armcc [4d3621]
+    """, "", 0)
+    toolchain.version_check()
+    assert len(notifier.messages) == 1
+
+
+@patch('tools.toolchains.iar.run_cmd')
+def test_iar_version_check(_run_cmd):
+    set_targets_json_location()
+    _run_cmd.return_value = ("""
+    IAR ANSI C/C++ Compiler V7.80.1.28/LNX for ARM
+    """, "", 0)
+    notifier = MockNotifier()
+    toolchain = TOOLCHAIN_CLASSES["IAR"](TARGET_MAP["K64F"], notify=notifier)
+    toolchain.version_check()
+    assert notifier.messages == []
+    _run_cmd.return_value = ("""
+    IAR ANSI C/C++ Compiler V/LNX for ARM
+    """, "", 0)
+    toolchain.version_check()
+    assert len(notifier.messages) == 1
+    _run_cmd.return_value = ("""
+    IAR ANSI C/C++ Compiler V/8.80LNX for ARM
+    """, "", 0)
+    toolchain.version_check()
+    assert len(notifier.messages) == 2
+
+
+@patch('tools.toolchains.gcc.run_cmd')
+def test_gcc_version_check(_run_cmd):
+    set_targets_json_location()
+    _run_cmd.return_value = ("""
+    arm-none-eabi-gcc (Arch Repository) 6.4.4
+    Copyright (C) 2018 Free Software Foundation, Inc.
+    This is free software; see the source for copying conditions.  There is NO
+    warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+    """, "", 0)
+    notifier = MockNotifier()
+    toolchain = TOOLCHAIN_CLASSES["GCC_ARM"](
+        TARGET_MAP["K64F"], notify=notifier)
+    toolchain.version_check()
+    assert notifier.messages == []
+    _run_cmd.return_value = ("""
+    arm-none-eabi-gcc (Arch Repository) 8.1.0
+    Copyright (C) 2018 Free Software Foundation, Inc.
+    This is free software; see the source for copying conditions.  There is NO
+    warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+    """, "", 0)
+    toolchain.version_check()
+    assert len(notifier.messages) == 1
+    _run_cmd.return_value = ("""
+    arm-none-eabi-gcc (Arch Repository)
+    Copyright (C) 2018 Free Software Foundation, Inc.
+    This is free software; see the source for copying conditions.  There is NO
+    warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+    """, "", 0)
+    toolchain.version_check()
+    assert len(notifier.messages) == 2
+
 
 @given(fixed_dictionaries({
     'common': lists(text()),
@@ -37,9 +118,11 @@ def test_toolchain_profile_c(profile, source_file):
     filename = deepcopy(source_file)
     filename[-1] += ".c"
     to_compile = os.path.join(*filename)
+    set_targets_json_location()
     with patch('os.mkdir') as _mkdir:
         for _, tc_class in TOOLCHAIN_CLASSES.items():
-            toolchain = tc_class(TARGET_MAP["K64F"], build_profile=profile)
+            toolchain = tc_class(TARGET_MAP["K64F"], build_profile=profile,
+                                 notify=MockNotifier())
             toolchain.inc_md5 = ""
             toolchain.build_dir = ""
             toolchain.config = MagicMock(app_config_location=None)
@@ -69,7 +152,8 @@ def test_toolchain_profile_cpp(profile, source_file):
     to_compile = os.path.join(*filename)
     with patch('os.mkdir') as _mkdir:
         for _, tc_class in TOOLCHAIN_CLASSES.items():
-            toolchain = tc_class(TARGET_MAP["K64F"], build_profile=profile)
+            toolchain = tc_class(TARGET_MAP["K64F"], build_profile=profile,
+                                 notify=MockNotifier())
             toolchain.inc_md5 = ""
             toolchain.build_dir = ""
             toolchain.config = MagicMock(app_config_location=None)
@@ -99,9 +183,12 @@ def test_toolchain_profile_asm(profile, source_file):
     to_compile = os.path.join(*filename)
     with patch('os.mkdir') as _mkdir:
         for _, tc_class in TOOLCHAIN_CLASSES.items():
-            toolchain = tc_class(TARGET_MAP["K64F"], build_profile=profile)
+            toolchain = tc_class(TARGET_MAP["K64F"], build_profile=profile,
+                                 notify=MockNotifier())
             toolchain.inc_md5 = ""
             toolchain.build_dir = ""
+            toolchain.config = MagicMock()
+            toolchain.config.get_config_data_macros.return_value = []
             for parameter in profile['asm']:
                 assert any(parameter in cmd for cmd in toolchain.asm), \
                     "Toolchain %s did not propagate arg %s" % (toolchain.name,
@@ -116,7 +203,7 @@ def test_toolchain_profile_asm(profile, source_file):
                                                                parameter)
 
     for name, Class in  TOOLCHAIN_CLASSES.items():
-        CLS = Class(TARGET_MAP["K64F"])
+        CLS = Class(TARGET_MAP["K64F"], notify=MockNotifier())
         assert name == CLS.name or name ==  LEGACY_TOOLCHAIN_NAMES[CLS.name]
 
 @given(fixed_dictionaries({
@@ -135,7 +222,8 @@ def test_toolchain_profile_ld(profile, source_file):
     with patch('os.mkdir') as _mkdir,\
          patch('tools.toolchains.mbedToolchain.default_cmd') as _dflt_cmd:
         for _, tc_class in TOOLCHAIN_CLASSES.items():
-            toolchain = tc_class(TARGET_MAP["K64F"], build_profile=profile)
+            toolchain = tc_class(TARGET_MAP["K64F"], build_profile=profile,
+                                 notify=MockNotifier())
             toolchain.RESPONSE_FILES = False
             toolchain.inc_md5 = ""
             toolchain.build_dir = ""
@@ -153,7 +241,7 @@ def test_toolchain_profile_ld(profile, source_file):
                                                                parameter)
 
     for name, Class in  TOOLCHAIN_CLASSES.items():
-        CLS = Class(TARGET_MAP["K64F"])
+        CLS = Class(TARGET_MAP["K64F"], notify=MockNotifier())
         assert name == CLS.name or name ==  LEGACY_TOOLCHAIN_NAMES[CLS.name]
 
 
@@ -162,22 +250,21 @@ def test_detect_duplicates(filenames):
     c_sources = [os.path.join(name, "dupe.c") for name in filenames]
     s_sources = [os.path.join(name, "dupe.s") for name in filenames]
     cpp_sources = [os.path.join(name, "dupe.cpp") for name in filenames]
-    with MagicMock() as notify:
-        toolchain = TOOLCHAIN_CLASSES["ARM"](TARGET_MAP["K64F"], notify=notify)
-        res = Resources()
-        res.c_sources = c_sources
-        res.s_sources = s_sources
-        res.cpp_sources = cpp_sources
-        assert res.detect_duplicates(toolchain) == 1,\
-            "Not Enough duplicates found"
+    notify = MockNotifier()
+    res = Resources(notify)
+    res.add_files_to_type(FileType.C_SRC, c_sources)
+    res.add_files_to_type(FileType.ASM_SRC, s_sources)
+    res.add_files_to_type(FileType.CPP_SRC, cpp_sources)
+    assert res.detect_duplicates() == 1,\
+        "Not Enough duplicates found"
 
-        _, (notification, _), _ = notify.mock_calls[1]
-        assert "dupe.o" in notification["message"]
-        assert "dupe.s" in notification["message"]
-        assert "dupe.c" in notification["message"]
-        assert "dupe.cpp" in notification["message"]
+    notification = notify.messages[0]
+    assert "dupe.o" in notification["message"]
+    assert "dupe.s" in notification["message"]
+    assert "dupe.c" in notification["message"]
+    assert "dupe.cpp" in notification["message"]
 
-@given(text(alphabet=ALPHABET + ["/"], min_size=1))
+@given(text(alphabet=ALPHABET + [os.sep], min_size=1))
 @given(booleans())
 @given(booleans())
 @settings(max_examples=20)

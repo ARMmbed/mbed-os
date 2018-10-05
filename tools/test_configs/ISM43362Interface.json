@@ -1,0 +1,58 @@
+{
+    "config": {
+        "echo-server-addr" : {
+            "help" : "IP address of echo server",
+            "value" : "\"echo.mbedcloudtesting.com\""
+        },
+        "echo-server-port" : {
+            "help" : "Port of echo server",
+            "value" : "7"
+        },
+        "wifi-secure-ssid": {
+            "help": "WiFi SSID for WPA2 secured network",
+            "value": "\"SSID-SECURE\""
+        },
+        "wifi-unsecure-ssid": {
+            "help": "WiFi SSID for unsecure network",
+            "value": "\"SSID-UNSECURE\""
+        },
+        "wifi-password": {
+            "help": "WiFi Password",
+            "value": "\"PASSWORD\""
+        },
+        "wifi-secure-protocol": {
+            "help": "WiFi security protocol, valid values are WEP, WPA, WPA2, WPA/WPA2",
+            "value": "\"WPA2\""
+        },
+        "wifi-ch-secure": {
+            "help": "Channel number of secure SSID",
+            "value": 1
+        },
+        "wifi-ch-unsecure": {
+            "help": "Channel number of unsecure SSID",
+            "value": 2
+        },
+        "ap-mac-secure": {
+            "help": "BSSID of secure AP in form of AA:BB:CC:DD:EE:FF",
+            "value": "\"AA:AA:AA:AA:AA:AA\""
+        },
+        "ap-mac-unsecure": {
+            "help": "BSSID of unsecure AP in form of \"AA:BB:CC:DD:EE:FF\"",
+            "value": "\"BB:BB:BB:BB:BB:BB\""
+        },
+        "max-scan-size": {
+            "help": "How many networks may appear in Wifi scan result",
+            "value": 10
+        }
+    },
+    "target_overrides": {
+        "*": {
+            "platform.stdio-convert-newlines": true,
+            "target.network-default-interface-type": "WIFI",
+            "nsapi.default-wifi-ssid": "\"WIFI_SSID\"",
+            "nsapi.default-wifi-password": "\"WIFI_PASSWORD\"",
+            "nsapi.default-wifi-security": "WIFI_SECURITY",
+            "ism43362.provide-default": true
+        }
+    }
+}

@@ -20,7 +20,7 @@
 #include <new>
 #include "EventQueue.h"
 #include "ble/BLEInstanceBase.h"
-#include "BLE/ble.h"
+#include "ble/BLE.h"
 
 namespace ble {
 namespace pal {

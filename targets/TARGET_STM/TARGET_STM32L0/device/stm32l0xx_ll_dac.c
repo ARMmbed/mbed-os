@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32l0xx_ll_dac.c
   * @author  MCD Application Team
-  * @version V1.7.0
-  * @date    31-May-2016
   * @brief   DAC LL module driver
   ******************************************************************************
   * @attention
@@ -40,7 +38,7 @@
 #include "stm32l0xx_ll_dac.h"
 #include "stm32l0xx_ll_bus.h"
 
-#ifdef  USE_FULL_ASSERT
+#ifdef USE_FULL_ASSERT
   #include "stm32_assert.h"
 #else
   #define assert_param(expr) ((void)0U)
@@ -175,7 +173,7 @@ ErrorStatus LL_DAC_DeInit(DAC_TypeDef *DACx)
   *         @arg @ref LL_DAC_CHANNEL_1
   *         @arg @ref LL_DAC_CHANNEL_2 (1)
   *         
-  *         (1) On this STM32 family, parameter not available on all devices.
+  *         (1) On this STM32 serie, parameter not available on all devices.
   *             Refer to device datasheet for channels availability.
   * @param  DAC_InitStruct Pointer to a @ref LL_DAC_InitTypeDef structure
   * @retval An ErrorStatus enumeration value:

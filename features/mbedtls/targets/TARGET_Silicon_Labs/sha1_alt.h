@@ -78,8 +78,10 @@ void mbedtls_sha1_clone( mbedtls_sha1_context *dst,
  * \brief          SHA-1 context setup
  *
  * \param ctx      context to be initialized
+ *
+ * \returns        error code
  */
-void mbedtls_sha1_starts( mbedtls_sha1_context *ctx );
+int mbedtls_sha1_starts_ret( mbedtls_sha1_context *ctx );
 
 /**
  * \brief          SHA-1 process buffer
@@ -87,19 +89,96 @@ void mbedtls_sha1_starts( mbedtls_sha1_context *ctx );
  * \param ctx      SHA-1 context
  * \param input    buffer holding the  data
  * \param ilen     length of the input data
+ *
+ * \returns        error code
  */
-void mbedtls_sha1_update( mbedtls_sha1_context *ctx, const unsigned char *input, size_t ilen );
+int mbedtls_sha1_update_ret( mbedtls_sha1_context *ctx, const unsigned char *input, size_t ilen );
 
 /**
  * \brief          SHA-1 final digest
  *
  * \param ctx      SHA-1 context
  * \param output   SHA-1 checksum result
+ *
+ * \returns        error code
  */
-void mbedtls_sha1_finish( mbedtls_sha1_context *ctx, unsigned char output[20] );
+int mbedtls_sha1_finish_ret( mbedtls_sha1_context *ctx, unsigned char output[20] );
 
 /* Internal use */
-void mbedtls_sha1_process( mbedtls_sha1_context *ctx, const unsigned char data[64] );
+int mbedtls_internal_sha1_process( mbedtls_sha1_context *ctx, const unsigned char data[64] );
+
+#if !defined(MBEDTLS_DEPRECATED_REMOVED)
+#if defined(MBEDTLS_DEPRECATED_WARNING)
+#define MBEDTLS_DEPRECATED      __attribute__((deprecated))
+#else
+#define MBEDTLS_DEPRECATED
+#endif
+/**
+ * \brief          SHA-1 context setup
+ *
+ * \deprecated     Superseded by mbedtls_sha1_starts_ret() in 2.7.0
+ *
+ * \param ctx      The SHA-1 context to be initialized.
+ *
+ * \warning        SHA-1 is considered a weak message digest and its use
+ *                 constitutes a security risk. We recommend considering
+ *                 stronger message digests instead.
+ *
+ */
+MBEDTLS_DEPRECATED void mbedtls_sha1_starts( mbedtls_sha1_context *ctx );
+
+/**
+ * \brief          SHA-1 process buffer
+ *
+ * \deprecated     Superseded by mbedtls_sha1_update_ret() in 2.7.0
+ *
+ * \param ctx      The SHA-1 context.
+ * \param input    The buffer holding the input data.
+ * \param ilen     The length of the input data.
+ *
+ * \warning        SHA-1 is considered a weak message digest and its use
+ *                 constitutes a security risk. We recommend considering
+ *                 stronger message digests instead.
+ *
+ */
+MBEDTLS_DEPRECATED void mbedtls_sha1_update( mbedtls_sha1_context *ctx,
+                                             const unsigned char *input,
+                                             size_t ilen );
+
+/**
+ * \brief          SHA-1 final digest
+ *
+ * \deprecated     Superseded by mbedtls_sha1_finish_ret() in 2.7.0
+ *
+ * \param ctx      The SHA-1 context.
+ * \param output   The SHA-1 checksum result.
+ *
+ * \warning        SHA-1 is considered a weak message digest and its use
+ *                 constitutes a security risk. We recommend considering
+ *                 stronger message digests instead.
+ *
+ */
+MBEDTLS_DEPRECATED void mbedtls_sha1_finish( mbedtls_sha1_context *ctx,
+                                             unsigned char output[20] );
+
+/**
+ * \brief          SHA-1 process data block (internal use only)
+ *
+ * \deprecated     Superseded by mbedtls_internal_sha1_process() in 2.7.0
+ *
+ * \param ctx      The SHA-1 context.
+ * \param data     The data block being processed.
+ *
+ * \warning        SHA-1 is considered a weak message digest and its use
+ *                 constitutes a security risk. We recommend considering
+ *                 stronger message digests instead.
+ *
+ */
+MBEDTLS_DEPRECATED void mbedtls_sha1_process( mbedtls_sha1_context *ctx,
+                                              const unsigned char data[64] );
+
+#undef MBEDTLS_DEPRECATED
+#endif /* !MBEDTLS_DEPRECATED_REMOVED */
 
 #ifdef __cplusplus
 }

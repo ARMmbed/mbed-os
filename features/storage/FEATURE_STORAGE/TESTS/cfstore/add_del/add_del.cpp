@@ -33,11 +33,6 @@
 #include "greentea-client/test_env.h"
 #include "cfstore_utest.h"
 
-#ifdef YOTTA_CFG_CFSTORE_UVISOR
-#include "uvisor-lib/uvisor-lib.h"
-#include "cfstore_uvisor.h"
-#endif /* YOTTA_CFG_CFSTORE_UVISOR */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -48,16 +43,6 @@ using namespace utest::v1;
 #define CFSTORE_ADD_DEL_MALLOC_SIZE            1024
 
 static char cfstore_add_del_utest_msg_g[CFSTORE_UTEST_MSG_BUF_SIZE];
-
-#ifdef YOTTA_CFG_CFSTORE_UVISOR
-/* Create the main box ACL list for the application.
- * The main ACL gets inherited by all the other boxes
- */
-CFSTORE_UVISOR_MAIN_ACL(cfstore_acl_uvisor_box_add_del_g);
-
-/* Enable uVisor. */
-UVISOR_SET_MODE_ACL(UVISOR_ENABLED, cfstore_acl_uvisor_box_add_del_g);
-#endif /* YOTTA_CFG_CFSTORE_UVISOR */
 
 static cfstore_kv_data_t cfstore_add_del_test_07_data[] = {
         CFSTORE_INIT_1_TABLE_MID_NODE,

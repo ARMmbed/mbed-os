@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32f0xx_hal_comp.h
   * @author  MCD Application Team
-  * @version V1.5.0
-  * @date    04-November-2016
   * @brief   Header file of COMP HAL module.
   ******************************************************************************
   * @attention
@@ -262,14 +260,14 @@ typedef struct
   */
 
 /** @brief  Reset COMP handle state
-  * @param  __HANDLE__: COMP handle.
+  * @param  __HANDLE__ COMP handle.
   * @retval None
   */
 #define __HAL_COMP_RESET_HANDLE_STATE(__HANDLE__) ((__HANDLE__)->State = HAL_COMP_STATE_RESET)
 
 /**
   * @brief  Enable the specified comparator.
-  * @param  __HANDLE__: COMP handle.
+  * @param  __HANDLE__ COMP handle.
   * @retval None
   */
 #define __HAL_COMP_ENABLE(__HANDLE__)                 (((__HANDLE__)->Instance == COMP1) ?    \
@@ -278,7 +276,7 @@ typedef struct
 
 /**
   * @brief  Disable the specified comparator.
-  * @param  __HANDLE__: COMP handle.
+  * @param  __HANDLE__ COMP handle.
   * @retval None
   */
 #define __HAL_COMP_DISABLE(__HANDLE__)                (((__HANDLE__)->Instance == COMP1) ?    \
@@ -287,7 +285,7 @@ typedef struct
 
 /**
   * @brief  Lock the specified comparator configuration.
-  * @param  __HANDLE__: COMP handle.
+  * @param  __HANDLE__ COMP handle.
   * @retval None
   */
 #define __HAL_COMP_LOCK(__HANDLE__)                   (((__HANDLE__)->Instance == COMP1) ?    \
@@ -463,8 +461,8 @@ typedef struct
 #define __HAL_COMP_COMP2_EXTI_CLEAR_FLAG()            WRITE_REG(EXTI->PR, COMP_EXTI_LINE_COMP2)
 
 /** @brief  Check whether the specified COMP flag is set or not.
-  * @param  __HANDLE__: specifies the COMP Handle.
-  * @param  __FLAG__: specifies the flag to check.
+  * @param  __HANDLE__ specifies the COMP Handle.
+  * @param  __FLAG__ specifies the flag to check.
   *        This parameter can be one of the following values:
   *            @arg COMP_FLAG_LOCK:  lock flag
   * @retval The new state of __FLAG__ (TRUE or FALSE).
@@ -564,7 +562,7 @@ uint32_t HAL_COMP_GetState(COMP_HandleTypeDef *hcomp);
   */
 /**
   * @brief  Get the specified EXTI line for a comparator instance.
-  * @param  __INSTANCE__: specifies the COMP instance.
+  * @param  __INSTANCE__ specifies the COMP instance.
   * @retval value of @ref COMP_ExtiLine
   */
 #define COMP_GET_EXTI_LINE(__INSTANCE__)             (((__INSTANCE__) == COMP1) ? COMP_EXTI_LINE_COMP1 : \

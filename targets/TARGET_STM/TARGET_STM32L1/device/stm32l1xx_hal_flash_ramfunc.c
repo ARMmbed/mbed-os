@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32l1xx_hal_flash_ramfunc.c
   * @author  MCD Application Team
-  * @version V1.2.0
-  * @date    01-July-2016
   * @brief   FLASH RAMFUNC driver.
   *          This file provides a Flash firmware functions which should be 
   *          executed from internal SRAM
@@ -32,7 +30,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -195,9 +193,9 @@ __RAM_FUNC HAL_FLASHEx_EraseParallelPage(uint32_t Page_Address1, uint32_t Page_A
     SET_BIT(FLASH->PECR, FLASH_PECR_PROG);
   
     /* Write 00000000h to the first word of the first program page to erase */
-    *(__IO uint32_t *)Page_Address1 = 0x00000000;
+    *(__IO uint32_t *)Page_Address1 = 0x00000000U;
     /* Write 00000000h to the first word of the second program page to erase */    
-    *(__IO uint32_t *)Page_Address2 = 0x00000000;    
+    *(__IO uint32_t *)Page_Address2 = 0x00000000U;
  
     /* Wait for last operation to be completed */
     status = FLASHRAM_WaitForLastOperation(FLASH_TIMEOUT_VALUE);
@@ -243,10 +241,10 @@ __RAM_FUNC HAL_FLASHEx_EraseParallelPage(uint32_t Page_Address1, uint32_t Page_A
   */
 __RAM_FUNC HAL_FLASHEx_ProgramParallelHalfPage(uint32_t Address1, uint32_t* pBuffer1, uint32_t Address2, uint32_t* pBuffer2)
 {
-  uint32_t count = 0; 
+  uint32_t count = 0U; 
   HAL_StatusTypeDef status = HAL_OK;
 
-  /* Set the DISMCYCINT[0] bit in the Auxillary Control Register (0xE000E008) 
+  /* Set the DISMCYCINT[0] bit in the Auxillary Control Register (0xE000E008U) 
      This bit prevents the interruption of multicycle instructions and therefore 
      will increase the interrupt latency. of Cortex-M3. */
   SET_BIT(SCnSCB->ACTLR, SCnSCB_ACTLR_DISMCYCINT_Msk);
@@ -269,7 +267,7 @@ __RAM_FUNC HAL_FLASHEx_ProgramParallelHalfPage(uint32_t Address1, uint32_t* pBuf
       __disable_irq();
 
       /* Write the first half page directly with 32 different words */
-      while(count < 32)
+      while(count < 32U)
       {
         *(__IO uint32_t*) ((uint32_t)(Address1 + (4 * count))) = *pBuffer1;
         pBuffer1++;
@@ -277,8 +275,8 @@ __RAM_FUNC HAL_FLASHEx_ProgramParallelHalfPage(uint32_t Address1, uint32_t* pBuf
       }
 
       /* Write the second half page directly with 32 different words */
-      count = 0;
-      while(count < 32)
+      count = 0U;
+      while(count < 32U)
       {
         *(__IO uint32_t*) ((uint32_t)(Address2 + (4 * count))) = *pBuffer2;
         pBuffer2++;
@@ -331,10 +329,10 @@ __RAM_FUNC HAL_FLASHEx_ProgramParallelHalfPage(uint32_t Address1, uint32_t* pBuf
   */
 __RAM_FUNC HAL_FLASHEx_HalfPageProgram(uint32_t Address, uint32_t* pBuffer)
 {
-  uint32_t count = 0; 
+  uint32_t count = 0U; 
   HAL_StatusTypeDef status = HAL_OK;
 
-  /* Set the DISMCYCINT[0] bit in the Auxillary Control Register (0xE000E008) 
+  /* Set the DISMCYCINT[0] bit in the Auxillary Control Register (0xE000E008U) 
      This bit prevents the interruption of multicycle instructions and therefore 
      will increase the interrupt latency. of Cortex-M3. */
   SET_BIT(SCnSCB->ACTLR, SCnSCB_ACTLR_DISMCYCINT_Msk);
@@ -352,18 +350,18 @@ __RAM_FUNC HAL_FLASHEx_HalfPageProgram(uint32_t Address, uint32_t* pBuffer)
     __disable_irq();
 
     /* Write one half page directly with 32 different words */
-    while(count < 32)
+    while(count < 32U)
     {
       *(__IO uint32_t*) ((uint32_t)(Address + (4 * count))) = *pBuffer;
       pBuffer++;
       count ++;  
     }
 
-    /* Enable IRQs */
-    __enable_irq();
-
     /* Wait for last operation to be completed */
     status = FLASHRAM_WaitForLastOperation(FLASH_TIMEOUT_VALUE);
+
+    /* Enable IRQs */
+    __enable_irq();
  
     /* If the write operation is completed, disable the PROG and FPRG bits */
     CLEAR_BIT(FLASH->PECR, FLASH_PECR_PROG);
@@ -462,7 +460,7 @@ __RAM_FUNC HAL_FLASHEx_DATAEEPROM_EraseDoubleWord(uint32_t Address)
 {
   HAL_StatusTypeDef status = HAL_OK;
   
-  /* Set the DISMCYCINT[0] bit in the Auxillary Control Register (0xE000E008) 
+  /* Set the DISMCYCINT[0] bit in the Auxillary Control Register (0xE000E008U) 
      This bit prevents the interruption of multicycle instructions and therefore 
      will increase the interrupt latency. of Cortex-M3. */
   SET_BIT(SCnSCB->ACTLR, SCnSCB_ACTLR_DISMCYCINT_Msk);
@@ -480,9 +478,9 @@ __RAM_FUNC HAL_FLASHEx_DATAEEPROM_EraseDoubleWord(uint32_t Address)
     SET_BIT(FLASH->PECR, FLASH_PECR_DATA);
    
     /* Write 00000000h to the 2 words to erase */
-    *(__IO uint32_t *)Address = 0x00000000;
-    Address += 4;
-    *(__IO uint32_t *)Address = 0x00000000;
+    *(__IO uint32_t *)Address = 0x00000000U;
+    Address += 4U;
+    *(__IO uint32_t *)Address = 0x00000000U;
    
     /* Wait for last operation to be completed */
     status = FLASHRAM_WaitForLastOperation(FLASH_TIMEOUT_VALUE);
@@ -520,7 +518,7 @@ __RAM_FUNC HAL_FLASHEx_DATAEEPROM_ProgramDoubleWord(uint32_t Address, uint64_t D
 {
   HAL_StatusTypeDef status = HAL_OK;
 
-  /* Set the DISMCYCINT[0] bit in the Auxillary Control Register (0xE000E008) 
+  /* Set the DISMCYCINT[0] bit in the Auxillary Control Register (0xE000E008U) 
      This bit prevents the interruption of multicycle instructions and therefore 
      will increase the interrupt latency. of Cortex-M3. */
   SET_BIT(SCnSCB->ACTLR, SCnSCB_ACTLR_DISMCYCINT_Msk);
@@ -536,7 +534,7 @@ __RAM_FUNC HAL_FLASHEx_DATAEEPROM_ProgramDoubleWord(uint32_t Address, uint64_t D
     
     /* Write the 2 words */  
      *(__IO uint32_t *)Address = (uint32_t) Data;
-     Address += 4;
+     Address += 4U;
      *(__IO uint32_t *)Address = (uint32_t) (Data >> 32);
     
     /* Wait for last operation to be completed */
@@ -571,7 +569,7 @@ __RAM_FUNC HAL_FLASHEx_DATAEEPROM_ProgramDoubleWord(uint32_t Address, uint64_t D
   */
 static __RAM_FUNC FLASHRAM_SetErrorCode(void)
 {
-  uint32_t flags = 0;
+  uint32_t flags = 0U;
   
   if(__HAL_FLASH_GET_FLAG(FLASH_FLAG_WRPERR))
   {
@@ -621,12 +619,12 @@ static __RAM_FUNC  FLASHRAM_WaitForLastOperation(uint32_t Timeout)
        Even if the FLASH operation fails, the BUSY flag will be reset and an error
        flag will be set */
        
-    while(__HAL_FLASH_GET_FLAG(FLASH_FLAG_BSY) && (Timeout != 0x00)) 
+    while(__HAL_FLASH_GET_FLAG(FLASH_FLAG_BSY) && (Timeout != 0x00U)) 
     { 
       Timeout--;
     }
     
-    if(Timeout == 0x00 )
+    if(Timeout == 0x00U)
     {
       return HAL_TIMEOUT;
     }

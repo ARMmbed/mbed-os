@@ -1,7 +1,7 @@
 /***************************************************************************//**
  * @file rail_ieee802154.h
  * @brief The IEEE 802.15.4 specific header file for the RAIL library.
- * @copyright Copyright 2016 Silicon Laboratories, Inc. http://www.silabs.com
+ * @copyright Copyright 2016 Silicon Laboratories, Inc. www.silabs.com
  ******************************************************************************/
 
 #ifndef __RAIL_IEEE802154_H__
@@ -9,67 +9,142 @@
 
 #include "rail_types.h"
 
-/**
- * @addtogroup IEEE802_15_4 IEEE 802.15.4
- * @ingroup Protocol_Specific
- * @brief IEEE 802.15.4 configuration routines
- *
- * The functions in this group configure RAIL IEEE 802.15.4 hardware
- * acceleration. To configure 802.15.4 functionality, call
- * RAIL_IEEE802154_Init(). Make note that this function calls many other RAIL
- * functions; the application is advised to not reconfigure any of these
- * functions.  When using 802.15.4 functionality in the 2.4 GHz band, consider
- * using RAIL_IEEE802154_Config2p4GHzRadio() instead of RAIL_ConfigRadio() and
- * RAIL_ConfigChannels().
- *
- * @code{.c}
- * RAIL_IEEE802154_Config_t config = { NULL, {100, 192, 894, RAIL_RF_STATE_RX},
- *                                     RAIL_IEEE802154_ACCEPT_STANDARD_FRAMES,
- *                                     false, false };
- * RAIL_IEEE802154_Config2p4GHzRadio();
- * RAIL_IEEE802154_Init(&config);
- * @endcode
- *
- * The application can configure the node's address by using
- * RAIL_IEEE802154_SetAddresses(). Inidividual members can be changed with
- * RAIL_IEEE802154_SetPanId(), RAIL_IEEE802154_SetShortAddress(),
- * RAIL_IEEE802154_SetLongAddress(). RAIL only supports one set of addresses at
- * a time. Beacon addresses are supported by default, without additional
- * configuration.
- *
- * @code{.c}
- * // PanID OTA value of 0x34 0x12
- * // Short Address OTA byte order of 0x78 0x56
- * // Long address with OTA byte order of 0x11 0x22 0x33 0x44 0x55 0x66 0x77 0x88
- * RAIL_IEEE802154_AddrConfig_t nodeAddress = {
- *   { 0x1234, 0xFFFF },
- *   { 0x5678, 0xFFFF },
- *   { { 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88 },
- *     { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 } }
- * };
- *
- * bool status = RAIL_IEEE802154_SetAddresses(&nodeAddress);
- *
- * // Alternative methods:
- * status = RAIL_IEEE802154_SetPanId(nodeAddress.panId[0], 0);
- * status = RAIL_IEEE802154_SetPanId(nodeAddress.panId[1], 1);
- * status = RAIL_IEEE802154_SetShortAddress(nodeAddress.shortAddr[0], 0);
- * status = RAIL_IEEE802154_SetShortAddress(nodeAddress.shortAddr[1], 1);
- * status = RAIL_IEEE802154_SetLongAddress(nodeAddress.longAddr[0], 0);
- * status = RAIL_IEEE802154_SetLongAddress(nodeAddress.longAddr[1], 1);
- * @endcode
- *
- * Auto ack is initialized through RAIL_IEEE802154_Init(). It is not advised
- * to call RAIL_ConfigAutoAck() while 802.15.4 hardware acceleration is
- * enabled. The default IEEE 802.15.4 ack will have a 5 byte length. The frame
- * type will be an ack. The frame pending bit will be set based on the
- * RAIL_IEEE802154_SetFramePending() function. The sequence number will be set to
- * match the packet being acknowledged. All other frame control fields will be
- * set to 0, in compliance with IEEE Std 802.15.4-2011 section 5.2.2.3.
- * However, the auto ack modification function can be used to control auto
- * acking. Documentation for these functions can be found in \ref Auto_Ack.
- * @{
- */
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/// @addtogroup IEEE802_15_4 IEEE 802.15.4
+/// @ingroup Protocol_Specific
+/// @brief IEEE 802.15.4 configuration routines
+///
+/// The functions in this group configure RAIL IEEE 802.15.4 hardware
+/// acceleration which includes IEEE 802.15.4 format filtering, address
+/// filtering, acking, and filtering based on the frame type.
+///
+/// To configure IEEE 802.15.4 functionality, the application must first setup
+/// a RAIL instance as normal with RAIL_Init() and other setup functions.
+/// Instead of RAIL_ConfigChannels() and RAIL_ConfigRadio(), however, an
+/// application may use RAIL_IEEE802154_Config2p4GHzRadio() to setup the
+/// official IEEE 2.4GHz 802.15.4 PHY. This configuration is shown below.
+///
+/// @code{.c}
+/// static RAIL_Handle_t railHandle = NULL; // Initialized somewhere else
+///
+/// static const RAIL_IEEE802154_Config_t rail154Config = {
+///   .addresses = NULL,
+///   .ackConfig = {
+///     .enable = true,     // Turn on auto ACK for IEEE 802.15.4
+///     .ackTimeout = 864,  // 54 symbols * 16 us/symbol = 864 us
+///     .rxTransitions = {
+///       .success = RAIL_RF_STATE_TX,  // Go to Tx to send the ACK
+///       .error = RAIL_RF_STATE_RX,    // For an always on device stay in Rx
+///     },
+///     .txTransitions = {
+///       .success = RAIL_RF_STATE_RX,  // Go to Rx for receiving the ACK
+///       .error = RAIL_RF_STATE_RX,    // For an always on device stay in Rx
+///     },
+///   },
+///   .timings = {
+///     .idleToRx = 100,
+///     .idleToTx = 100,
+///     .rxToTx = 192,    // 12 symbols * 16 us/symbol = 192 us
+///     .txToRx = 192,    // 12 symbols * 16 us/symbol = 192 us
+///     .rxSearchTimeout = 0, // not used
+///     .txToRxSearchTimeout = 0, // not used
+///   },
+///   .framesMask = RAIL_IEEE802154_ACCEPT_STANDARD_FRAMES,
+///   .promiscuousMode = false,  // Enable format and address filtering
+///   .isPanCoordinator = false,
+/// };
+///
+/// void config154(void)
+/// {
+///   // Configure the radio and channels for 2.4GHz IEEE 802.15.4
+///   RAIL_IEEE802154_Config2p4GHzRadio(railHandle);
+///   // Initialize the IEEE 802.15.4 config using the static config above
+///   RAIL_IEEE802154_Init(railHandle, &rail154Config);
+/// }
+/// @endcode
+///
+/// To configure address filtering the application can call
+/// RAIL_IEEE802154_SetAddresses() with a structure containing all addresses or
+/// can call the individual RAIL_IEEE802154_SetPanId(),
+/// RAIL_IEEE802154_SetShortAddress(), and RAIL_IEEE802154_SetLongAddress()
+/// APIs. RAIL supports \ref RAIL_IEEE802154_MAX_ADDRESSES number of address
+/// pairs for situations where you want to receive packets from multiple IEEE
+/// 802.15.4 networks at the same time. Broadcast addresses are supported by
+/// default without any additional configuration so they do not consume one of
+/// these slots. If the application does not require all address pairs be sure
+/// to set unused ones to the proper disabled value for each type. These can
+/// be found in the \ref RAIL_IEEE802154_AddrConfig_t documentation. Below is
+/// an example of setting filtering for one set of addresses.
+///
+/// @code{.c}
+/// // PanID OTA value of 0x34 0x12
+/// // Short Address OTA byte order of 0x78 0x56
+/// // Long address with OTA byte order of 0x11 0x22 0x33 0x44 0x55 0x66 0x77 0x88
+///
+/// // Setup all address simultaneously
+/// RAIL_Status_t setup1(void)
+/// {
+///   RAIL_IEEE802154_AddrConfig_t nodeAddress = {
+///     { 0x1234, 0xFFFF, 0xFFFF },
+///     { 0x5678, 0xFFFF, 0xFFFF },
+///     { { 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88 },
+///       { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 },
+///       { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 } }
+///   };
+///   return RAIL_IEEE802154_SetAddresses(railHandle, &nodeAddress);
+/// }
+///
+/// // Alternatively the addresses can be setup individually as follows:
+/// RAIL_Status_t setup2(void)
+/// {
+///   RAIL_Status_t status;
+///   const uint8_t longAddress[] = { 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88 };
+///
+///   status = RAIL_IEEE802154_SetPanId(railHandle, 0x1234, 0);
+///   if (status != RAIL_STATUS_NO_ERROR) {
+///     return status
+///   }
+///   status = RAIL_IEEE802154_SetShortAddress(railHandle, 0x5678, 0);
+///   if (status != RAIL_STATUS_NO_ERROR) {
+///     return status
+///   }
+///   status = RAIL_IEEE802154_SetLongAddress(railHandle, longAddress, 0);
+///   if (status != RAIL_STATUS_NO_ERROR) {
+///     return status
+///   }
+///
+///   return RAIL_STATUS_NO_ERROR;
+/// }
+/// @endcode
+///
+/// Address filtering will be enabled except when in promiscuous mode which can
+/// be set with RAIL_IEEE802154_SetPromiscuousMode(). The addresses may be
+/// changed at runtime but if you are receiving a packet while reconfiguring the
+/// address filters you may get undesired behavior so it's safest to do this
+/// while not in receive.
+///
+/// Auto ACK is controlled by the ackConfig and timings fields passed to
+/// RAIL_IEEE802154_Init(). After initialization though they may be controlled
+/// using the normal \ref Auto_Ack and \ref State_Transitions APIs. When in IEEE
+/// 802.15.4 mode the ACK will have a 5 byte length, the frame type will be set
+/// to ack, and the frame pending bit will be set if
+/// RAIL_IEEE802154_SetFramePending() is called when the \ref
+/// RAIL_EVENT_IEEE802154_DATA_REQUEST_COMMAND event is triggered. This event
+/// must be turned on by the user and will fire whenever a data request is being
+/// received so that the stack can determine whether there is pending data. Be
+/// aware that the frame pending bit must be set quickly after receiving the
+/// event or the ACK may already have been transmitted. Check the return code of
+/// RAIL_IEEE802154_SetFramePending() to be sure that the bit was set in time.
+///
+/// Transmit and receive operations are all done using the standard RAIL APIs in
+/// IEEE 802.15.4 mode. To send packets using the correct CSMA configuration
+/// there is a \ref RAIL_CSMA_CONFIG_802_15_4_2003_2p4_GHz_OQPSK_CSMA define
+/// that can initialize the csmaConfig structure passed to \ref
+/// RAIL_StartCcaCsmaTx().
+/// @{
 
 /**
  * @enum RAIL_IEEE802154_AddressLength_t
@@ -176,7 +251,7 @@ typedef struct RAIL_IEEE802154_Config {
  * Initialize RAIL for IEEE802.15.4 features
  *
  * @param[in] railHandle Handle of RAIL instance
- * @param[in] config IEEE802154 configuration struct
+ * @param[in] fifteenFourConfig IEEE802154 configuration struct
  * @return Status code indicating success of the function call.
  *
  * This function calls the following RAIL functions to configure the radio for
@@ -196,7 +271,7 @@ typedef struct RAIL_IEEE802154_Config {
  * - RAIL_EnableAddressFilter()
  */
 RAIL_Status_t RAIL_IEEE802154_Init(RAIL_Handle_t railHandle,
-                                   const RAIL_IEEE802154_Config_t *config);
+                                   const RAIL_IEEE802154_Config_t *fifteenFourConfig);
 
 /**
  * Configures the radio for 2.4GHz 802.15.4 operation
@@ -227,7 +302,7 @@ RAIL_Status_t RAIL_IEEE802154_Config2p4GHzRadio(RAIL_Handle_t railHandle);
 RAIL_Status_t RAIL_IEEE802154_Deinit(RAIL_Handle_t railHandle);
 
 /**
- * Return whether IEEE802.15.4 hardware accelertion is currently enabled.
+ * Return whether IEEE802.15.4 hardware acceleration is currently enabled.
  *
  * @param[in] railHandle Handle of RAIL instance
  * @return True if IEEE802.15.4 hardware acceleration was enabled to start with
@@ -258,7 +333,7 @@ RAIL_Status_t RAIL_IEEE802154_SetAddresses(RAIL_Handle_t railHandle,
  * @param[in] panId The 16-bit PAN ID information.
  * This will be matched against the destination PAN ID of incoming messages.
  * The PAN ID is sent little endian over the air meaning panId[7:0] is first in
- * the payload followed by panId[15:8].
+ * the payload followed by panId[15:8]. Set to 0xFFFF to disable for this index.
  * @param[in] index Which PAN ID to set. Must be below
  * RAIL_IEEE802154_MAX_ADDRESSES.
  * @return Status code indicating success of the function call.
@@ -276,7 +351,7 @@ RAIL_Status_t RAIL_IEEE802154_SetPanId(RAIL_Handle_t railHandle,
  * @param[in] shortAddr 16 bit short address value. This will be matched against the
  * destination short address of incoming messages. The short address is sent
  * little endian over the air meaning shortAddr[7:0] is first in the payload
- * followed by shortAddr[15:8].
+ * followed by shortAddr[15:8]. Set to 0xFFFF to disable for this index.
  * @param[in] index Which short address to set. Must be below
  * RAIL_IEEE802154_MAX_ADDRESSES.
  * @return Status code indicating success of the function call.
@@ -294,7 +369,8 @@ RAIL_Status_t RAIL_IEEE802154_SetShortAddress(RAIL_Handle_t railHandle,
  * @param[in] railHandle Handle of RAIL instance
  * @param[in] longAddr Pointer to a 8 byte array containing the long address
  * information. The long address must be in over the air byte order. This will
- * be matched against the destination long address of incoming messages.
+ * be matched against the destination long address of incoming messages. Set to
+ * 0x00 00 00 00 00 00 00 00 to disable for this index.
  * @param[in] index Which long address to set. Must be below
  * RAIL_IEEE802154_MAX_ADDRESSES.
  * @return Status code indicating success of the function call.
@@ -316,7 +392,7 @@ RAIL_Status_t RAIL_IEEE802154_SetLongAddress(RAIL_Handle_t railHandle,
  * If the device is a PAN Coordinator, then it will accept data and command
  * frames with no destination address. This function will fail if 802.15.4
  * hardware acceleration is not currently enabled. This setting may be changed
- * at any time when 802.15.4 hardwarea acceleration is enabled.
+ * at any time when 802.15.4 hardware acceleration is enabled.
  */
 RAIL_Status_t RAIL_IEEE802154_SetPanCoordinator(RAIL_Handle_t railHandle,
                                                 bool isPanCoordinator);
@@ -403,5 +479,9 @@ RAIL_Status_t RAIL_IEEE802154_GetAddress(RAIL_Handle_t railHandle,
                                          RAIL_IEEE802154_Address_t *pAddress);
 
 /** @} */ // end of IEEE802.15.4
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // __RAIL_IEEE802154_H__

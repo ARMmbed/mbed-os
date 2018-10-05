@@ -118,7 +118,10 @@ struct Waiter;
  */
 class ConditionVariable : private mbed::NonCopyable<ConditionVariable> {
 public:
-    /** Create and Initialize a ConditionVariable object */
+    /** Create and Initialize a ConditionVariable object
+     *
+     * @note You cannot call this function from ISR context.
+    */
     ConditionVariable(Mutex &mutex);
 
     /** Wait for a notification
@@ -142,8 +145,43 @@ public:
      *
      * mutex.unlock();
      * @endcode
+     *
+     * @note You cannot call this function from ISR context.
      */
     void wait();
+
+    /** Wait for a notification until specified time
+     *
+     * @param   millisec  absolute end time referenced to Kernel::get_ms_count()
+     * @return  true if a timeout occurred, false otherwise.
+     *
+     * @note - The thread calling this function must be the owner of the
+     * ConditionVariable's mutex and it must be locked exactly once
+     * @note - Spurious notifications can occur so the caller of this API
+     * should check to make sure the condition they are waiting on has
+     * been met
+     *
+     * Example:
+     * @code
+     * mutex.lock();
+     * uint64_t end_time = Kernel::get_ms_count() + COND_WAIT_TIMEOUT;
+     *
+     * while (!condition_met) {
+     *     if (cond.wait_until(end_time)) {
+     *         break;
+     *     }
+     * }
+     *
+     * if (condition_met) {
+     *     function_to_handle_condition();
+     * }
+     *
+     * mutex.unlock();
+     * @endcode
+     *
+     * @note You cannot call this function from ISR context.
+     */
+    bool wait_until(uint64_t millisec);
 
     /** Wait for a notification or timeout
      *
@@ -159,15 +197,12 @@ public:
      * Example:
      * @code
      * mutex.lock();
-     * Timer timer;
-     * timer.start();
      *
-     * bool timed_out = false;
-     * uint32_t time_left = TIMEOUT;
-     * while (!condition_met && !timed_out) {
-     *     timed_out = cond.wait_for(time_left);
-     *     uint32_t elapsed = timer.read_ms();
-     *     time_left = elapsed > TIMEOUT ? 0 : TIMEOUT - elapsed;
+     * while (!condition_met) {
+     *     cond.wait_for(MAX_SLEEP_TIME);
+     *     if (!condition_met) {
+     *         do_other_work_while_condition_false();
+     *     }
      * }
      *
      * if (condition_met) {
@@ -176,21 +211,31 @@ public:
      *
      * mutex.unlock();
      * @endcode
+     *
+     * @note You cannot call this function from ISR context.
      */
     bool wait_for(uint32_t millisec);
 
     /** Notify one waiter on this condition variable that a condition changed.
      *
      * @note - The thread calling this function must be the owner of the ConditionVariable's mutex
+     *
+     * @note You cannot call this function from ISR context.
      */
     void notify_one();
 
     /** Notify all waiters on this condition variable that a condition changed.
      *
      * @note - The thread calling this function must be the owner of the ConditionVariable's mutex
+     *
+     * @note You cannot call this function from ISR context.
      */
     void notify_all();
 
+    /** ConditionVariable destructor
+     *
+     * @note You cannot call this function from ISR context.
+     */
     ~ConditionVariable();
 
 protected:

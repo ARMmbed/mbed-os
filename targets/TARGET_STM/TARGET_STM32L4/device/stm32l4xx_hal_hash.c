@@ -2,8 +2,6 @@
   ******************************************************************************
   * @file    stm32l4xx_hal_hash.c
   * @author  MCD Application Team
-  * @version V1.7.1
-  * @date    21-April-2017
   * @brief   HASH HAL module driver.
   *          This file provides firmware functions to manage the following 
   *          functionalities of the HASH peripheral:
@@ -140,7 +138,7 @@
 
 #ifdef HAL_HASH_MODULE_ENABLED
 
-#if defined (STM32L4A6xx)
+#if defined (STM32L4A6xx) || defined (STM32L4S5xx) || defined (STM32L4S7xx) || defined (STM32L4S9xx)
 
 /** @addtogroup STM32L4xx_HAL_Driver
   * @{
@@ -181,6 +179,14 @@
 /**
   * @}
   */
+   
+/** @defgroup HASH_DMA_Suspension_Words_Limit HASH DMA suspension words limit 
+  * @{
+  */ 
+#define HASH_DMA_SUSPENSION_WORDS_LIMIT             20   /*!< Number of words below which DMA suspension is aborted */
+/**
+  * @}
+  */  
    
 /**
   * @}
@@ -1083,15 +1089,48 @@ HAL_StatusTypeDef HAL_HASH_DMAFeed_ProcessSuspend(HASH_HandleTypeDef *hhash)
   }
   else
   {  
-    /* Set State as suspended (it may be required to update it if suspension failed).
-       The context saving operations must be carried out to be able to resume later on. */   
-    hhash->State = HAL_HASH_STATE_SUSPENDED;
+  
+   /* Make sure there is enough time to suspend the processing */
+    tmp_remaining_DMATransferSize_inWords = hhash->hdmain->Instance->CNDTR;
+    if (tmp_remaining_DMATransferSize_inWords <= HASH_DMA_SUSPENSION_WORDS_LIMIT)
+    {
+      /* No suspension attempted since almost to the end of the transferred data. */
+      /* Best option for user code is to wrap up low priority message hashing     */
+      return HAL_ERROR; 
+    }
+
+    /* Wait for DMAS to be reset */
+    if (HASH_WaitOnFlagUntilTimeout(hhash, HASH_FLAG_BUSY, SET, HASH_TIMEOUTVALUE) != HAL_OK)
+    {
+       return HAL_TIMEOUT;
+    }
+        
+    if (__HAL_HASH_GET_FLAG(HASH_FLAG_DCIS) != RESET)
+    {
+      return HAL_ERROR;
+    }
+        
+    /* Wait for DMAS to be set */
+    if (HASH_WaitOnFlagUntilTimeout(hhash, HASH_FLAG_BUSY, RESET, HASH_TIMEOUTVALUE) != HAL_OK)
+    {
+       return HAL_TIMEOUT;
+    }    
     
     /* Disable DMA channel */
     HAL_DMA_Abort(hhash->hdmain);    
     
     /* Clear DMAE bit */
     CLEAR_BIT(HASH->CR,HASH_CR_DMAE);
+    
+    if (HASH_WaitOnFlagUntilTimeout(hhash, HASH_FLAG_BUSY, SET, HASH_TIMEOUTVALUE) != HAL_OK)
+    {
+      return HAL_TIMEOUT;
+    }
+       
+    if (__HAL_HASH_GET_FLAG(HASH_FLAG_DCIS) != RESET)
+    {
+      return HAL_ERROR;
+    }        
     
     /* At this point, DMA interface is disabled and no transfer is on-going */
     /* Retrieve from the DMA handle how many words remain to be written */
@@ -1108,7 +1147,6 @@ HAL_StatusTypeDef HAL_HASH_DMAFeed_ProcessSuspend(HASH_HandleTypeDef *hhash)
            priority block processing (HASH case)
          - re-attempt a new suspension (HMAC case)  
          */       
-      hhash->State  = HAL_HASH_STATE_READY;
       return HAL_ERROR;
     }
     else
@@ -1126,6 +1164,7 @@ HAL_StatusTypeDef HAL_HASH_DMAFeed_ProcessSuspend(HASH_HandleTypeDef *hhash)
       {
         tmp_remaining_DMATransferSize_inWords--; /* one less word to be transferred again */ 
       }
+     
       /* Accordingly, update the input pointer that points at the next word to be transferred to the IP by DMA */
       hhash->pHashInBuffPtr +=  4 * (tmp_initial_DMATransferSize_inWords - tmp_remaining_DMATransferSize_inWords) ;
       
@@ -1133,6 +1172,9 @@ HAL_StatusTypeDef HAL_HASH_DMAFeed_ProcessSuspend(HASH_HandleTypeDef *hhash)
       hhash->HashInCount = 4 * tmp_remaining_DMATransferSize_inWords;      
   
     }
+  
+    /* Set State as suspended */   
+    hhash->State = HAL_HASH_STATE_SUSPENDED;    
   
     return HAL_OK;
   
@@ -1307,13 +1349,15 @@ static void HASH_DMAError(DMA_HandleTypeDef *hdma)
 static HAL_StatusTypeDef HASH_WriteData(HASH_HandleTypeDef *hhash, uint8_t *pInBuffer, uint32_t Size)
 {
   uint32_t buffercounter;
-  __IO uint32_t inputaddr = (uint32_t) pInBuffer;
   
   for(buffercounter = 0; buffercounter < Size; buffercounter+=4)
   {
     /* Write input data 4 bytes at a time */
-    HASH->DIN = *(uint32_t*)inputaddr;
-    inputaddr+=4;
+    uint32_t data = (uint32_t) *pInBuffer++;
+    data |= (uint32_t) *pInBuffer++ << 8;
+    data |= (uint32_t) *pInBuffer++ << 16;
+    data |= (uint32_t) *pInBuffer++ << 24;
+    HASH->DIN = data;
     
     /* If the suspension flag has been raised and if the processing is not about
        to end, suspend processing */
@@ -1331,14 +1375,14 @@ static HAL_StatusTypeDef HASH_WriteData(HASH_HandleTypeDef *hhash, uint8_t *pInB
         if ((hhash->Phase == HAL_HASH_PHASE_PROCESS) || (hhash->Phase == HAL_HASH_PHASE_HMAC_STEP_2))
         {
           /* Save current reading and writing locations of Input and Output buffers */
-          hhash->pHashInBuffPtr =  (uint8_t *)inputaddr;
+          hhash->pHashInBuffPtr = pInBuffer;
           /* Save the number of bytes that remain to be processed at this point */
           hhash->HashInCount    =  Size - (buffercounter + 4);
         }
         else if ((hhash->Phase == HAL_HASH_PHASE_HMAC_STEP_1) || (hhash->Phase == HAL_HASH_PHASE_HMAC_STEP_3))
         {
           /* Save current reading and writing locations of Input and Output buffers */
-          hhash->pHashKeyBuffPtr  =  (uint8_t *)inputaddr;
+          hhash->pHashKeyBuffPtr = pInBuffer;
           /* Save the number of bytes that remain to be processed at this point */
           hhash->HashKeyCount  =  Size - (buffercounter + 4);        
         }
@@ -1644,15 +1688,21 @@ static uint32_t HASH_Write_Block_Data(HASH_HandleTypeDef *hhash)
       (16 32-bit words, or 64 bytes are entered) */
     for(buffercounter = 0; buffercounter < 64; buffercounter+=4)
     {
-      HASH->DIN = *(uint32_t*)inputaddr;
-      inputaddr+=4;
+      uint32_t data = (uint32_t) *(uint8_t *)inputaddr++;
+      data |= (uint32_t) *(uint8_t *)inputaddr++ << 8;
+      data |= (uint32_t) *(uint8_t *)inputaddr++ << 16;
+      data |= (uint32_t) *(uint8_t *)inputaddr++ << 24;
+      HASH->DIN = data;
     }
     /* If this is the start of input data entering, an additional word
       must be entered to start up the HASH processing */
     if(hhash->HashITCounter == 2)
     {
-      HASH->DIN = *(uint32_t*)inputaddr;
-      inputaddr+=4;
+      uint32_t data = (uint32_t) *(uint8_t *)inputaddr++;
+      data |= (uint32_t) *(uint8_t *)inputaddr++ << 8;
+      data |= (uint32_t) *(uint8_t *)inputaddr++ << 16;
+      data |= (uint32_t) *(uint8_t *)inputaddr++ << 24;
+      HASH->DIN = data;
       if(hhash->HashInCount >= 68)
       {
         /* There are still data waiting to be entered in the IP.
@@ -1691,8 +1741,11 @@ static uint32_t HASH_Write_Block_Data(HASH_HandleTypeDef *hhash)
     /* Write the Input block in the Data IN register */
     for(buffercounter = 0; buffercounter < (inputcounter+3)/4; buffercounter++)
     {
-      HASH->DIN = *(uint32_t*)inputaddr;
-      inputaddr+=4;
+      uint32_t data = (uint32_t) *(uint8_t *)inputaddr++;
+      data |= (uint32_t) *(uint8_t *)inputaddr++ << 8;
+      data |= (uint32_t) *(uint8_t *)inputaddr++ << 16;
+      data |= (uint32_t) *(uint8_t *)inputaddr++ << 24;
+      HASH->DIN = data;
     }
     /* Start the Digest calculation */
     __HAL_HASH_START_DIGEST();
@@ -2250,6 +2303,7 @@ HAL_StatusTypeDef HASH_Start_DMA(HASH_HandleTypeDef *hhash, uint8_t *pInBuffer, 
          processing was suspended */  
       inputaddr = (uint32_t)hhash->pHashInBuffPtr;  /* DMA transfer start address   */  
       inputSize = hhash->HashInCount;               /* DMA transfer size (in bytes) */
+      
     }
       
     /* Set the HASH DMA transfert complete callback */
@@ -2668,7 +2722,7 @@ HAL_StatusTypeDef HMAC_Start_DMA(HASH_HandleTypeDef *hhash, uint8_t *pInBuffer, 
   * @}
   */
 
-#endif /* defined (STM32L4A6xx) */
+#endif /* defined (STM32L4A6xx) || defined (STM32L4S5xx) || defined (STM32L4S7xx) || defined (STM32L4S9xx) */  
 
 #endif /* HAL_HASH_MODULE_ENABLED */
 

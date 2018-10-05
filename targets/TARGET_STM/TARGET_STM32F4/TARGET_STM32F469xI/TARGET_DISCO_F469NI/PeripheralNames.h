@@ -43,7 +43,7 @@ typedef enum {
 } ADCName;
 
 typedef enum {
-    DAC_0 = 0
+    DAC_1 = (int)DAC_BASE
 } DACName;
 
 typedef enum {
@@ -56,10 +56,6 @@ typedef enum {
     UART_7 = (int)UART7_BASE,
     UART_8 = (int)UART8_BASE
 } UARTName;
-
-#define STDIO_UART_TX  PB_10
-#define STDIO_UART_RX  PB_11
-#define STDIO_UART     UART_3
 
 typedef enum {
     SPI_1 = (int)SPI1_BASE,
@@ -95,6 +91,10 @@ typedef enum {
     CAN_1 = (int)CAN1_BASE,
     CAN_2 = (int)CAN2_BASE
 } CANName;
+
+typedef enum {
+    QSPI_1 = (int)QSPI_R_BASE,
+} QSPIName;
 
 #ifdef __cplusplus
 }
