@@ -45,7 +45,7 @@ static mbed_error_hook_t error_hook = NULL;
 static mbed_error_status_t handle_error(mbed_error_status_t error_status, unsigned int error_value, const char *filename, int line_number, void *caller);
 
 //Helper function to halt the system
-static void mbed_halt_system(void)
+static MBED_NORETURN void mbed_halt_system(void)
 {
     // Prevent recursion if halt is called again during halt attempt - try
     // something simple instead.
@@ -66,7 +66,7 @@ static void mbed_halt_system(void)
     exit(1);
 }
 
-WEAK void error(const char *format, ...)
+WEAK MBED_NORETURN void error(const char *format, ...)
 {
     // Prevent recursion if error is called again during store+print attempt
     if (!core_util_atomic_flag_test_and_set(&error_in_progress)) {
@@ -169,14 +169,14 @@ int mbed_get_error_count(void)
     return error_count;
 }
 
-//Sets a fatal error
+//Sets a non-fatal error
 mbed_error_status_t mbed_warning(mbed_error_status_t error_status, const char *error_msg, unsigned int error_value, const char *filename, int line_number)
 {
     return handle_error(error_status, error_value, filename, line_number, MBED_CALLER_ADDR());
 }
 
 //Sets a fatal error, this function is marked WEAK to be able to override this for some tests
-WEAK mbed_error_status_t mbed_error(mbed_error_status_t error_status, const char *error_msg, unsigned int error_value, const char *filename, int line_number)
+WEAK MBED_NORETURN mbed_error_status_t mbed_error(mbed_error_status_t error_status, const char *error_msg, unsigned int error_value, const char *filename, int line_number)
 {
     // Prevent recursion if error is called again during store+print attempt
     if (!core_util_atomic_flag_test_and_set(&error_in_progress)) {
@@ -188,8 +188,6 @@ WEAK mbed_error_status_t mbed_error(mbed_error_status_t error_status, const char
     }
 
     mbed_halt_system();
-
-    return MBED_ERROR_FAILED_OPERATION;
 }
 
 //Register an application defined callback with error handling

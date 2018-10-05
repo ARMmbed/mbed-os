@@ -21,7 +21,7 @@
 #include "platform/mbed_retarget.h"
 #include "platform/mbed_critical.h"
 
-WEAK void mbed_die(void)
+WEAK MBED_NORETURN void mbed_die(void)
 {
 #if !defined (NRF51_H) && !defined(TARGET_EFM32)
     core_util_critical_section_enter();
