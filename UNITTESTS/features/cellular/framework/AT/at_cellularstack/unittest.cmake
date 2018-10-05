@@ -27,5 +27,5 @@ set(unittest-test-sources
   stubs/us_ticker_stub.cpp
   stubs/NetworkStack_stub.cpp
   stubs/SocketAddress_stub.cpp
-  stubs/mbed_assert_stub.cpp
+  stubs/mbed_assert_stub.c
 )

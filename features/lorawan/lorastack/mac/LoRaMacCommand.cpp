@@ -33,7 +33,6 @@ SPDX-License-Identifier: BSD-3-Clause
  */
 static const uint8_t max_eirp_table[] = { 8, 10, 12, 13, 14, 16, 18, 20, 21, 24, 26, 27, 29, 30, 33, 36 };
 
-
 LoRaMacCommand::LoRaMacCommand()
 {
     sticky_mac_cmd = false;
@@ -93,8 +92,9 @@ void LoRaMacCommand::parse_mac_commands_to_repeat()
             case MOTE_MAC_LINK_CHECK_REQ: { // 0 byte payload
                 break;
             }
-            default:
-                break;
+            default: {
+                MBED_ASSERT(false);
+            }
         }
     }
 
@@ -190,8 +190,7 @@ lorawan_status_t LoRaMacCommand::process_mac_commands(const uint8_t *payload, ui
                 rx_param_setup_req_t rxParamSetupReq;
 
                 rxParamSetupReq.dr_offset = (payload[mac_index] >> 4) & 0x07;
-                rxParamSetupReq.datarate = payload[mac_index] & 0x0F;
-                mac_index++;
+                rxParamSetupReq.datarate = payload[mac_index++] & 0x0F;
 
                 rxParamSetupReq.frequency = (uint32_t) payload[mac_index++];
                 rxParamSetupReq.frequency |= (uint32_t) payload[mac_index++] << 8;
@@ -405,7 +404,7 @@ lorawan_status_t LoRaMacCommand::add_tx_param_setup_ans()
 lorawan_status_t LoRaMacCommand::add_dl_channel_ans(uint8_t status)
 {
     lorawan_status_t ret = LORAWAN_STATUS_LENGTH_ERROR;
-    if (cmd_buffer_remaining() > 0) {
+    if (cmd_buffer_remaining() > 1) {
         mac_cmd_buffer[mac_cmd_buf_idx++] = MOTE_MAC_DL_CHANNEL_ANS;
         // Status: Uplink frequency exists, Channel frequency OK
         mac_cmd_buffer[mac_cmd_buf_idx++] = status;

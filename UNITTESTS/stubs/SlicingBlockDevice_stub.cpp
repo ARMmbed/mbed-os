@@ -1,5 +1,6 @@
-/* mbed Microcontroller Library
- * Copyright (c) 2017 ARM Limited
+/*
+ * Copyright (c) , Arm Limited and affiliates.
+ * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +20,7 @@
 
 SlicingBlockDevice::SlicingBlockDevice(BlockDevice *bd, bd_addr_t start, bd_addr_t stop)
 {
-   
+
 }
 
 int SlicingBlockDevice::init()

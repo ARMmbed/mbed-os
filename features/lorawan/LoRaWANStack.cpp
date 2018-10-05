@@ -380,35 +380,31 @@ int16_t LoRaWANStack::handle_rx(uint8_t *data, uint16_t length, uint8_t &port, i
     uint16_t base_size = _rx_msg.msg.mcps_indication.buffer_size;
     bool read_complete = false;
 
+    if (_rx_msg.pending_size == 0) {
+        _rx_msg.pending_size = _rx_msg.msg.mcps_indication.buffer_size;
+        _rx_msg.prev_read_size = 0;
+    }
+
     // check the length of received message whether we can fit into user
     // buffer completely or not
-    if (_rx_msg.msg.mcps_indication.buffer_size > length
-            && _rx_msg.prev_read_size == 0) {
-        // we can't fit into user buffer. Invoke counter measures
-        _rx_msg.pending_size = _rx_msg.msg.mcps_indication.buffer_size - length;
+    if (_rx_msg.prev_read_size == 0 && _rx_msg.msg.mcps_indication.buffer_size <= length) {
+        memcpy(data, base_ptr, base_size);
+        read_complete = true;
+    } else if (_rx_msg.pending_size > length) {
+        _rx_msg.pending_size = _rx_msg.pending_size - length;
         base_size = length;
-        _rx_msg.prev_read_size = base_size;
-        memcpy(data, base_ptr, base_size);
-    } else if (_rx_msg.prev_read_size == 0) {
-        _rx_msg.pending_size = 0;
-        _rx_msg.prev_read_size = 0;
-        memcpy(data, base_ptr, base_size);
+        memcpy(data, base_ptr + _rx_msg.prev_read_size, base_size);
+        _rx_msg.prev_read_size += base_size;
+    } else {
+        base_size = _rx_msg.pending_size;
+        memcpy(data, base_ptr + _rx_msg.prev_read_size, base_size);
         read_complete = true;
     }
 
-    // If its the pending read then we should copy only the remaining part of
-    // the buffer. Due to checks above, in case of a pending read, this block
-    // will be the only one to get invoked
-    if (_rx_msg.pending_size > 0 && _rx_msg.prev_read_size > 0) {
-        memcpy(data, base_ptr + _rx_msg.prev_read_size, base_size);
-    }
-
-    // we are done handing over received buffer to user. check if there is
-    // anything pending. If not, memset the buffer to zero and indicate
-    // that no read is in progress
     if (read_complete) {
         _rx_msg.msg.mcps_indication.buffer = NULL;
         _rx_msg.msg.mcps_indication.buffer_size = 0;
+        _rx_msg.pending_size = 0;
         _rx_msg.receive_ready = false;
     }
 
@@ -1067,9 +1063,9 @@ lorawan_status_t LoRaWANStack::state_controller(device_states_t new_state)
             process_shutdown_state(status);
             break;
         default:
-            tr_debug("state_controller: Unknown state!");
-            status = LORAWAN_STATUS_SERVICE_UNKNOWN;
-            break;
+            //Because this is internal function only coding error causes this
+            tr_error("Unknown state: %d:", new_state);
+            MBED_ASSERT(false);
     }
 
     return status;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) , Arm Limited and affiliates.
+ * Copyright (c) 2018, Arm Limited and affiliates
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,10 +15,26 @@
  * limitations under the License.
  */
 
-#include "mbed_assert.h"
+#include "gtest/gtest.h"
+#include "LoRaPHYCN779.h"
 
-void mbed_assert_internal(const char *expr, const char *file, int line)
+class Test_LoRaPHYCN779 : public testing::Test {
+protected:
+    LoRaPHYCN779 *object;
+
+    virtual void SetUp()
+    {
+        object = new LoRaPHYCN779();
+    }
+
+    virtual void TearDown()
+    {
+        delete object;
+    }
+};
+
+TEST_F(Test_LoRaPHYCN779, constructor)
 {
-
+    EXPECT_TRUE(object);
 }
 

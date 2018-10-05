@@ -73,7 +73,7 @@ TEST_F(TestAT_CellularSIM, test_AT_CellularSIM_set_pin)
     EXPECT_TRUE(NSAPI_ERROR_DEVICE_ERROR == sim.set_pin("12"));
 
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
-    ATHandler_stub::read_string_value = "READY";
+    ATHandler_stub::read_string_value = (char *)"READY";
     ATHandler_stub::ssize_value = 5;
     EXPECT_TRUE(NSAPI_ERROR_OK == sim.set_pin("12"));
 
@@ -131,22 +131,22 @@ TEST_F(TestAT_CellularSIM, test_AT_CellularSIM_get_sim_state)
     EXPECT_TRUE(NSAPI_ERROR_OK == sim.get_sim_state(state));
     EXPECT_TRUE(CellularSIM::SimStateUnknown == state);
 
-    ATHandler_stub::read_string_value = "READY";
+    ATHandler_stub::read_string_value = (char *)"READY";
     ATHandler_stub::ssize_value = 5;
     EXPECT_TRUE(NSAPI_ERROR_OK == sim.get_sim_state(state));
     EXPECT_TRUE(CellularSIM::SimStateReady == state);
 
-    ATHandler_stub::read_string_value = "SIM PIN";
+    ATHandler_stub::read_string_value = (char *)"SIM PIN";
     ATHandler_stub::ssize_value = 7;
     EXPECT_TRUE(NSAPI_ERROR_OK == sim.get_sim_state(state));
     EXPECT_TRUE(CellularSIM::SimStatePinNeeded == state);
 
-    ATHandler_stub::read_string_value = "SIM PUK";
+    ATHandler_stub::read_string_value = (char *)"SIM PUK";
     ATHandler_stub::ssize_value = 7;
     EXPECT_TRUE(NSAPI_ERROR_OK == sim.get_sim_state(state));
     EXPECT_TRUE(CellularSIM::SimStatePukNeeded == state);
 
-    ATHandler_stub::read_string_value = "SOME CRAP";
+    ATHandler_stub::read_string_value = (char *)"SOME CRAP";
     ATHandler_stub::ssize_value = 9;
     EXPECT_TRUE(NSAPI_ERROR_OK == sim.get_sim_state(state));
     EXPECT_TRUE(CellularSIM::SimStateUnknown == state);
@@ -161,7 +161,7 @@ TEST_F(TestAT_CellularSIM, test_AT_CellularSIM_get_imsi)
     char imsi[16];
     AT_CellularSIM sim(at);
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
-    ATHandler_stub::read_string_value = "123456789012345";
+    ATHandler_stub::read_string_value = (char *)"123456789012345";
     ATHandler_stub::ssize_value = 15;
     EXPECT_TRUE(NSAPI_ERROR_OK == sim.get_imsi(imsi));
     EXPECT_TRUE(strcmp(ATHandler_stub::read_string_value, imsi) == 0);
@@ -190,7 +190,7 @@ TEST_F(TestAT_CellularSIM, test_AT_CellularSIM_get_iccid)
     char buf[16];
     AT_CellularSIM sim(at);
     ATHandler_stub::nsapi_error_value = NSAPI_ERROR_OK;
-    ATHandler_stub::read_string_value = "123456789012345";
+    ATHandler_stub::read_string_value = (char *)"123456789012345";
     ATHandler_stub::ssize_value = 15;
     EXPECT_TRUE(NSAPI_ERROR_OK == sim.get_iccid(buf, 16));
     EXPECT_TRUE(strcmp(ATHandler_stub::read_string_value, buf) == 0);

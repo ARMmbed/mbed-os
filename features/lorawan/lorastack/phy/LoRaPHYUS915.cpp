@@ -676,11 +676,33 @@ void LoRaPHYUS915::set_tx_cont_mode(cw_mode_params_t* params, uint32_t given_fre
 
 uint8_t LoRaPHYUS915::apply_DR_offset(int8_t dr, int8_t dr_offset)
 {
-    int8_t datarate = datarate_offsets_US915[dr][dr_offset];
+    return datarate_offsets_US915[dr][dr_offset];
+}
 
-    if (datarate < 0) {
-        datarate = DR_0;
+
+void LoRaPHYUS915::intersect_channel_mask(const uint16_t *source,
+                                     uint16_t *destination, uint8_t size)
+{
+    for (uint8_t i = 0; i < size; i++) {
+        destination[i] &= source[i];
+    }
+}
+
+void LoRaPHYUS915::fill_channel_mask_with_fsb(const uint16_t *expectation,
+                                         const uint16_t *fsb_mask,
+                                         uint16_t *destination,
+                                         uint8_t size)
+{
+    for (uint8_t i = 0; i < size; i++) {
+        destination[i] = expectation[i] & fsb_mask[i];
     }
 
-    return datarate;
+}
+
+void LoRaPHYUS915::fill_channel_mask_with_value(uint16_t *channel_mask,
+                                     uint16_t value, uint8_t size)
+{
+    for (uint8_t i = 0; i < size; i++) {
+        channel_mask[i] = value;
+    }
 }
