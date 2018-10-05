@@ -288,6 +288,11 @@ class Sw4STM32(GNUARMEclipse):
             'name': 'NUCLEO-L496ZG',
             'mcuId': 'STM32L496ZGTx'
         },
+        'NUCLEO_L4R5ZI':
+        {
+            'name': 'NUCLEO-L4R5ZI',
+            'mcuId': 'STM32L4R5ZITx'
+        }
     }
 
     @classmethod
