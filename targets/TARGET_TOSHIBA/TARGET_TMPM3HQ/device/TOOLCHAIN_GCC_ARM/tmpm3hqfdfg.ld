@@ -1,9 +1,17 @@
 /* Linker script for Toshiba TMPM3HQ */
 
+#if !defined(MBED_APP_START)
+  #define MBED_APP_START  0x00000000
+#endif
+
+#if !defined(MBED_APP_SIZE)
+  #define MBED_APP_SIZE   512K
+#endif
+
 /* Linker script to configure memory regions. */
 MEMORY
 {
-  FLASH (rx) : ORIGIN = 0x00000000, LENGTH = 512K
+  FLASH (rx) : ORIGIN = MBED_APP_START, LENGTH = MBED_APP_SIZE
   /* 8_byte_aligned((166 + 16) vect * 4 bytes) =  8_byte_aligned(0x2D8) = 0x2D8 */
   RAM (rwx) : ORIGIN = (0x20000000 + 0x2D8), LENGTH = (64K - 0x2D8)
 }
