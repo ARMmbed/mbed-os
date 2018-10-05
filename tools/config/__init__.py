@@ -785,7 +785,6 @@ class Config(object):
         rom_start, rom_size = rom_memories.get('ROM')
         start = rom_start
         rom_end = rom_start + rom_size
-        max_app_addr = None
         if self.target.bootloader_img:
             if isabs(self.target.bootloader_img):
                 filename = self.target.bootloader_img
@@ -803,12 +802,6 @@ class Config(object):
             part_size = part.segments()[0][1] - part.segments()[0][0]
             part_size = Config._align_ceiling(rom_start + part_size, self.sectors) - rom_start
 
-            if len(part.segments()) > 1 and part.segments()[1][0] < rom_end:
-                # assume first segment is at start (already checked earlier as segments are returned in order)
-                # second at the end or outside ROM
-                # rest outside regular ROM
-                max_app_addr = part.segments()[1][0]
-
             yield Region("bootloader", rom_start, part_size, False,
                          filename)
             start = rom_start + part_size
@@ -819,13 +812,6 @@ class Config(object):
                 start, region = self._make_header_region(
                     start, self.target.header_format)
                 yield region._replace(filename=self.target.header_format)
-
-            if max_app_addr is not None and self.target.restrict_size is None:
-                # Multipart bootloader restricts the app size
-                if self.target.app_offset:
-                    self.target.restrict_size = "0x%x" % (max_app_addr - int(self.target.app_offset, 0))
-                else:
-                    self.target.restrict_size = "0x%x" % (max_app_addr - start)
 
         if self.target.restrict_size is not None:
             new_size = int(self.target.restrict_size, 0)
