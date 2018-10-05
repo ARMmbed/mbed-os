@@ -23,7 +23,6 @@
 void mbed_assert_internal(const char *expr, const char *file, int line)
 {
     core_util_critical_section_enter();
-
     mbed_error(MBED_ERROR_ASSERTION_FAILED, expr, 0, file, line);
 }
 
