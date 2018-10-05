@@ -83,6 +83,9 @@ def wrap_payload(func):
                 app_name, output_ext
             ))
             options.payload = open(payload_name, "rb")
+        if not options.payload:
+            LOG.error("No Payload specified. Please use \"-t\" and \"-m\" or \"-p\" to specify a payload ")
+            exit(1)
         return func(options)
     return inner
 
