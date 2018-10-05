@@ -36,7 +36,8 @@ static void print_error_report(const mbed_error_ctx *ctx, const char *, const ch
 #define ERROR_REPORT(ctx, error_msg, error_filename, error_line) ((void) 0)
 #endif
 
-static uint8_t error_in_progress = 0;
+static core_util_atomic_flag error_in_progress = CORE_UTIL_ATOMIC_FLAG_INIT;
+static core_util_atomic_flag halt_in_progress = CORE_UTIL_ATOMIC_FLAG_INIT;
 static int error_count = 0;
 static mbed_error_ctx first_error_ctx = {0};
 static mbed_error_ctx last_error_ctx = {0};
@@ -46,37 +47,41 @@ static mbed_error_status_t handle_error(mbed_error_status_t error_status, unsign
 //Helper function to halt the system
 static void mbed_halt_system(void)
 {
-    //If not in ISR context exit, otherwise spin on WFI
-    if (core_util_is_isr_active() || !core_util_are_interrupts_enabled()) {
+    // Prevent recursion if halt is called again during halt attempt - try
+    // something simple instead.
+    if (core_util_atomic_flag_test_and_set(&halt_in_progress)) {
+        core_util_critical_section_enter();
+        __DSB();
         for (;;) {
-            __WFI();
+            __WFE(); // Not WFI, as don't want to wake for pending interrupts
         }
-    } else {
-        //exit eventually calls mbed_die
-        exit(1);
     }
+
+    //If in ISR context, call mbed_die directly
+    if (core_util_is_isr_active() || !core_util_are_interrupts_enabled()) {
+        mbed_die();
+    }
+
+    // In normal context, try orderly exit(1), which eventually calls mbed_die
+    exit(1);
 }
 
 WEAK void error(const char *format, ...)
 {
-
-    // Prevent recursion if error is called again
-    if (error_in_progress) {
-        return;
-    }
-
-    //Call handle_error/print_error_report permanently setting error_in_progress flag
-    handle_error(MBED_ERROR_UNKNOWN, 0, NULL, 0, MBED_CALLER_ADDR());
-    ERROR_REPORT(&last_error_ctx, "Fatal Run-time error", NULL, 0);
-    error_in_progress = 1;
+    // Prevent recursion if error is called again during store+print attempt
+    if (!core_util_atomic_flag_test_and_set(&error_in_progress)) {
+        handle_error(MBED_ERROR_UNKNOWN, 0, NULL, 0, MBED_CALLER_ADDR());
+        ERROR_REPORT(&last_error_ctx, "Fatal Run-time error", NULL, 0);
 
 #ifndef NDEBUG
-    va_list arg;
-    va_start(arg, format);
-    mbed_error_vprintf(format, arg);
-    va_end(arg);
+        va_list arg;
+        va_start(arg, format);
+        mbed_error_vprintf(format, arg);
+        va_end(arg);
 #endif
-    exit(1);
+    }
+
+    mbed_halt_system();
 }
 
 //Set an error status with the error handling system
@@ -90,18 +95,6 @@ static mbed_error_status_t handle_error(mbed_error_status_t error_status, unsign
         //We will still handle the situation but change the error code to ERROR_INVALID_ARGUMENT, atleast the context will have info on who called it
         error_status = MBED_ERROR_INVALID_ARGUMENT;
     }
-
-    //Prevent corruption by holding out other callers
-    //and we also need this until we remove the "error" call completely
-    while (error_in_progress == 1);
-
-    //Use critsect here, as we don't want inadvertant modification of this global variable
-    core_util_critical_section_enter();
-    error_in_progress = 1;
-    core_util_critical_section_exit();
-
-    //Increment error count
-    error_count++;
 
     //Clear the context capturing buffer
     memset(&current_error_ctx, 0, sizeof(mbed_error_ctx));
@@ -126,6 +119,12 @@ static mbed_error_status_t handle_error(mbed_error_status_t error_status, unsign
     current_error_ctx.error_line_number = line_number;
 #endif
 
+    //Prevent corruption by holding out other callers
+    core_util_critical_section_enter();
+
+    //Increment error count
+    error_count++;
+
     //Capture the fist system error and store it
     if (error_count == 1) { //first error
         memcpy(&first_error_ctx, &current_error_ctx, sizeof(mbed_error_ctx));
@@ -144,7 +143,7 @@ static mbed_error_status_t handle_error(mbed_error_status_t error_status, unsign
         error_hook(&last_error_ctx);
     }
 
-    error_in_progress = 0;
+    core_util_critical_section_exit();
 
     return MBED_SUCCESS;
 }
@@ -179,13 +178,15 @@ mbed_error_status_t mbed_warning(mbed_error_status_t error_status, const char *e
 //Sets a fatal error, this function is marked WEAK to be able to override this for some tests
 WEAK mbed_error_status_t mbed_error(mbed_error_status_t error_status, const char *error_msg, unsigned int error_value, const char *filename, int line_number)
 {
-    //set the error reported and then halt the system
-    if (MBED_SUCCESS != handle_error(error_status, error_value, filename, line_number, MBED_CALLER_ADDR())) {
-        return MBED_ERROR_FAILED_OPERATION;
+    // Prevent recursion if error is called again during store+print attempt
+    if (!core_util_atomic_flag_test_and_set(&error_in_progress)) {
+        //set the error reported
+        (void) handle_error(error_status, error_value, filename, line_number, MBED_CALLER_ADDR());
+
+        //On fatal errors print the error context/report
+        ERROR_REPORT(&last_error_ctx, error_msg, filename, line_number);
     }
 
-    //On fatal errors print the error context/report
-    ERROR_REPORT(&last_error_ctx, error_msg, filename, line_number);
     mbed_halt_system();
 
     return MBED_ERROR_FAILED_OPERATION;
