@@ -49,23 +49,23 @@ typedef enum {
     PU0 = 16 << 3, PU1, PU2, PU3, PU4, PU5,
     PV0 = 17 << 3, PV1, PV2, PV3, PV4, PV5, PV6, PV7,
 
-    // Other mbed Pin Names
+    // LED
     LED1 = PK4,
     LED2 = PK5,
     LED3 = PK6,
     LED4 = PK7,
 
     // External data bus Pin Names
-    D0 = PV7,
-    D1 = PV6,
-    D2 = PC4,
-    D3 = PK2,
-    D4 = PC3,
-    D5 = PJ0,
-    D6 = PN0,
-    D7 = PM6,
-    D8 = PT0,
-    D9 = PG2,
+    D0  = PV7,
+    D1  = PV6,
+    D2  = PC4,
+    D3  = PK2,
+    D4  = PC3,
+    D5  = PJ0,
+    D6  = PN0,
+    D7  = PM6,
+    D8  = PT0,
+    D9  = PG2,
     D10 = PT1,
     D11 = PT3,
     D12 = PT4,
@@ -81,24 +81,43 @@ typedef enum {
     A4 = PF6,
     A5 = PF7,
 
+    // DAC
     DAC0 = PG0,
     DAC1 = PG1,
 
     // DAP_UART
-    USBTX = PJ1,
-    USBRX = PJ2,
+    USBTX      = PJ1,
+    USBRX      = PJ2,
     MBEDIF_TXD = USBTX,
     MBEDIF_RXD = USBRX,
 
-    // Switches
+    // Push buttons
     SW1 = PV0,
     SW2 = PV1,
     SW3 = PV2,
     SW4 = PV3,
 
+    // Standardized button names
+    BUTTON1 = SW1,
+    BUTTON2 = SW2,
+    BUTTON3 = SW3,
+    BUTTON4 = SW4,
+
+    // TSPI2
+    MOSI = D11,
+    MISO = D12,
+    SCLK = D13,
+    CS   = D10,
+
+    // SD Shield TSPI2
+    SD_SEL  = CS,   // Chip select
+    SD_CLK  = SCLK, // SPI clock
+    SD_MISO = MISO, // Master in Salve out
+    SD_MOSI = MOSI, // Master out Salve in
+
     // I2C pins
-    SDA = D14,
-    SCL = D15,
+    SDA     = D14,
+    SCL     = D15,
     I2C_SDA = SDA,
     I2C_SCL = SCL,
 
