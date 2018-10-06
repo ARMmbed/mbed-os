@@ -210,3 +210,4 @@ int gpio_is_connected(const gpio_t *obj)
 }
 
 #endif
+

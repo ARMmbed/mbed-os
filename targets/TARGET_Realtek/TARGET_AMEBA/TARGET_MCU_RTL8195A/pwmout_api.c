@@ -26,7 +26,10 @@
 
 #ifdef CONFIG_PWM_EN
 #include "pwmout_api.h"
-     
+
+#ifdef CONFIG_MBED_ENABLED
+#include "PeripheralPins.h"
+#else
 static const PinMap PinMap_PWM[] = {
     {PB_4,  RTL_PIN_PERI(PWM0, 0, S0), RTL_PIN_FUNC(PWM0, S0)},
     {PB_5,  RTL_PIN_PERI(PWM1, 1, S0), RTL_PIN_FUNC(PWM1, S0)},
@@ -50,7 +53,8 @@ static const PinMap PinMap_PWM[] = {
 
     {NC,    NC,     0}
 };
- 
+#endif
+
 void pwmout_init(pwmout_t* obj, PinName pin) 
 {
     int peripheral;

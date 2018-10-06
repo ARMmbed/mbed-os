@@ -41,6 +41,9 @@ uint8_t SPI0_IS_AS_SLAVE = 0;
 //TODO: Load default Setting: It should be loaded from external setting file.
 extern const DW_SSI_DEFAULT_SETTING SpiDefaultSetting;
 
+#ifdef CONFIG_MBED_ENABLED
+#include "PeripheralPins.h"
+#else
 static const PinMap PinMap_SSI_MOSI[] = {
     {PE_2,  RTL_PIN_PERI(SPI0, 0, S0), RTL_PIN_FUNC(SPI0, S0)},
     {PC_2,  RTL_PIN_PERI(SPI0, 0, S1), RTL_PIN_FUNC(SPI0, S1)},
@@ -64,7 +67,7 @@ static const PinMap PinMap_SSI_MISO[] = {
     {PD_3,  RTL_PIN_PERI(SPI2, 2, S2), RTL_PIN_FUNC(SPI2, S2)},
     {NC,    NC,     0}
 };
-
+#endif
 
 void spi_init (spi_t *obj, PinName mosi, PinName miso, PinName sclk, PinName ssel)
 {
@@ -332,7 +335,6 @@ int spi_busy (spi_t *obj)
     return (int)pHalSsiOp->HalSsiBusy(pHalSsiAdaptor);
 }
 
-
 // Bus Idle: Real TX done, TX FIFO empty and bus shift all data out already
 void spi_bus_tx_done_callback(VOID *obj)
 {
@@ -370,3 +372,4 @@ void spi_rx_done_callback(VOID *obj)
         handler(spi_obj->irq_id, SpiRxIrq);
     }
 }
+

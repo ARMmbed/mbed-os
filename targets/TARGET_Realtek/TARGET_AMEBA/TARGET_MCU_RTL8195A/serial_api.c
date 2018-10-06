@@ -27,6 +27,9 @@
 #include "pinmap.h"
 #include <string.h>
 
+#ifdef CONFIG_MBED_ENABLED
+#include "PeripheralPins.h"
+#else
 static const PinMap PinMap_UART_TX[] = {
     {PC_3,  RTL_PIN_PERI(UART0, 0, S0), RTL_PIN_FUNC(UART0, S0)},
     {PE_0,  RTL_PIN_PERI(UART0, 0, S1), RTL_PIN_FUNC(UART0, S1)},
@@ -54,6 +57,7 @@ static const PinMap PinMap_UART_RX[] = {
     {PB_1,  RTL_PIN_PERI(LOG_UART, 3, S0), RTL_PIN_FUNC(LOG_UART, S0)},
     {NC,    NC,     0}
 };
+#endif
 
 #define UART_NUM (3)
 #define SERIAL_TX_IRQ_EN        0x01
