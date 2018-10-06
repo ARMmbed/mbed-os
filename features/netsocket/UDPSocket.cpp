@@ -24,6 +24,7 @@ UDPSocket::UDPSocket()
 
 UDPSocket::~UDPSocket()
 {
+    _factory_allocated = false;
     close();
 }
 

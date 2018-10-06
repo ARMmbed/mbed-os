@@ -24,6 +24,7 @@ TCPSocket::TCPSocket()
 
 TCPSocket::~TCPSocket()
 {
+    _factory_allocated = false;
     close();
 }
 
