@@ -3790,7 +3790,7 @@
             "SLEEP",
             "SPI",
             "SPI_ASYNCH",
-            "STCLK_OFF_DURING_SLEEP",
+            "SYSTICK_CLK_OFF_DURING_SLEEP",
             "TRNG",
             "USTICKER"
         ],
@@ -3895,7 +3895,7 @@
             "SLEEP",
             "SPI",
             "SPI_ASYNCH",
-            "STCLK_OFF_DURING_SLEEP",
+            "SYSTICK_CLK_OFF_DURING_SLEEP",
             "TRNG",
             "USTICKER",
             "QSPI"
