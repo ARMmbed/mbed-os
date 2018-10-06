@@ -204,6 +204,7 @@ TEST_F(TestInternetSocket, getsockopt)
 TEST_F(TestInternetSocket, sigio)
 {
     callback_is_called = false;
+    socket->open((NetworkStack *)&stack);
     socket->sigio(mbed::callback(my_callback));
     socket->close(); // Trigger event;
     EXPECT_EQ(callback_is_called, true);
