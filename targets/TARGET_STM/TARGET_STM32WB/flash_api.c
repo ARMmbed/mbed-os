@@ -29,7 +29,7 @@
   */
 static uint32_t GetPage(uint32_t Addr)
 {
-  return (Addr - FLASH_BASE) / FLASH_PAGE_SIZE;
+    return (Addr - FLASH_BASE) / FLASH_PAGE_SIZE;
 }
 
 /** Initialize the flash peripheral and the flash_t object
@@ -137,7 +137,7 @@ int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data, 
     if ((uint32_t) data % 4 != 0) { // Data is not aligned, copy data in a temp buffer before programming it
         volatile uint64_t data64;
         while ((address < (StartAddress + size)) && (status == 0)) {
-            for (uint8_t i =0; i < 8; i++) {
+            for (uint8_t i = 0; i < 8; i++) {
                 *(((uint8_t *) &data64) + i) = *(data + i);
             }
             if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, address, data64) == HAL_OK) {
@@ -149,7 +149,7 @@ int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data, 
         }
     } else { // Data is aligned, so let's avoid any copy
         while ((address < (StartAddress + size)) && (status == 0)) {
-            if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, address, *((uint64_t*) data)) == HAL_OK) {
+            if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, address, *((uint64_t *) data)) == HAL_OK) {
                 address = address + 8;
                 data = data + 8;
             } else {
@@ -171,7 +171,8 @@ int32_t flash_program_page(flash_t *obj, uint32_t address, const uint8_t *data, 
  * @param address The sector starting address
  * @return The size of a sector
  */
-uint32_t flash_get_sector_size(const flash_t *obj, uint32_t address) {
+uint32_t flash_get_sector_size(const flash_t *obj, uint32_t address)
+{
     /*  considering 1 sector = 1 page */
     if ((address >= (FLASH_BASE + FLASH_SIZE)) || (address < FLASH_BASE)) {
         return MBED_FLASH_INVALID_SIZE;
@@ -185,7 +186,8 @@ uint32_t flash_get_sector_size(const flash_t *obj, uint32_t address) {
  * @param obj The flash object
  * @return Minimum programmable page size in bytes
  */
-uint32_t flash_get_page_size(const flash_t *obj) {
+uint32_t flash_get_page_size(const flash_t *obj)
+{
     return 8;
 }
 
@@ -194,7 +196,8 @@ uint32_t flash_get_page_size(const flash_t *obj) {
  * @param obj The flash object
  * @return The start address for the flash region
  */
-uint32_t flash_get_start_address(const flash_t *obj) {
+uint32_t flash_get_start_address(const flash_t *obj)
+{
     return FLASH_BASE;
 }
 
@@ -203,7 +206,8 @@ uint32_t flash_get_start_address(const flash_t *obj) {
  * @param obj The flash object
  * @return The flash region size
  */
-uint32_t flash_get_size(const flash_t *obj) {
+uint32_t flash_get_size(const flash_t *obj)
+{
     return FLASH_SIZE;
 }
 

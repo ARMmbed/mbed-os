@@ -129,7 +129,7 @@ struct analogin_s {
 }
 #endif
 
-/* STM32WB HAL doesn't provide this API called in sleep.c */
+/* STM32WB HAL doesn't provide some macro */
 #define __HAL_RCC_PWR_CLK_DISABLE()
 #define __HAL_RCC_PWR_CLK_ENABLE()
 #define __HAL_RCC_PWR_IS_CLK_ENABLED() 1
