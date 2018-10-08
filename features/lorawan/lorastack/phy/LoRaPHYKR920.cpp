@@ -479,29 +479,3 @@ lorawan_status_t LoRaPHYKR920::set_next_channel(channel_selection_params_t *para
         return LORAWAN_STATUS_NO_CHANNEL_FOUND;
     }
 }
-
-void LoRaPHYKR920::set_tx_cont_mode(cw_mode_params_t *params, uint32_t given_frequency)
-{
-    (void)given_frequency;
-
-    if (params->tx_power > bands[channels[params->channel].band].max_tx_pwr) {
-        params->tx_power = bands[channels[params->channel].band].max_tx_pwr;
-    }
-
-    float max_eirp = get_max_eirp(channels[params->channel].frequency);
-    int8_t phy_tx_power = 0;
-    uint32_t frequency = channels[params->channel].frequency;
-
-    // Take the minimum between the max_eirp and params->max_eirp.
-    // The value of params->max_eirp could have changed during runtime,
-    // e.g. due to a MAC command.
-    max_eirp = MIN(params->max_eirp, max_eirp);
-
-    // Calculate physical TX power
-    phy_tx_power = compute_tx_power(params->tx_power, max_eirp, params->antenna_gain);
-
-    _radio->lock();
-    _radio->set_tx_continuous_wave(frequency, phy_tx_power, params->timeout);
-    _radio->unlock();
-}
-

@@ -106,10 +106,6 @@ public:
         return bool_value;
     };
 
-    virtual void set_tx_continuous_wave(uint32_t freq, int8_t power, uint16_t time)
-    {
-    };
-
     virtual void lock(void)
     {
     };
@@ -189,12 +185,3 @@ TEST_F(Test_LoRaPHYKR920, set_next_channel)
     radio.bool_value = true;
     EXPECT_TRUE(LORAWAN_STATUS_OK == object->set_next_channel(&next_channel, &ch, &backoff_time, &time));
 }
-
-TEST_F(Test_LoRaPHYKR920, set_tx_cont_mode)
-{
-    cw_mode_params_t params;
-    memset(&params, 0, sizeof(params));
-    params.tx_power = 9;
-    object->set_tx_cont_mode(&params, 0);
-}
-
