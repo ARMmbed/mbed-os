@@ -36,7 +36,7 @@ int ATHandler_stub::timeout = 0;
 bool ATHandler_stub::default_timeout = 0;
 bool ATHandler_stub::debug_on = 0;
 ssize_t ATHandler_stub::ssize_value = 0;
-char *ATHandler_stub::read_string_value = NULL;
+const char *ATHandler_stub::read_string_value = NULL;
 size_t ATHandler_stub::size_value = 0;
 size_t ATHandler_stub::return_given_size = false;
 bool ATHandler_stub::bool_value = false;
@@ -51,7 +51,7 @@ int ATHandler_stub::int_valid_count_table[kRead_int_table_size];
 int ATHandler_stub::int_count = kRead_int_table_size;
 
 int ATHandler_stub::read_string_index = kRead_string_table_size;
-char *ATHandler_stub::read_string_table[kRead_string_table_size];
+const char *ATHandler_stub::read_string_table[kRead_string_table_size];
 int ATHandler_stub::resp_stop_success_count = kResp_stop_count_default;
 
 ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, int timeout, const char *output_delimiter, uint16_t send_delay) :
@@ -176,7 +176,7 @@ ssize_t ATHandler::read_string(char *buf, size_t size, bool read_even_stop_tag)
 
     ATHandler_stub::read_string_index--;
     if (ATHandler_stub::read_string_index >= 0) {
-        char *tmp = ATHandler_stub::read_string_table[ATHandler_stub::read_string_index];
+        const char *tmp = ATHandler_stub::read_string_table[ATHandler_stub::read_string_index];
         ssize_t len = strlen(tmp);
         memcpy(buf, tmp, len + 1);
         return len;
