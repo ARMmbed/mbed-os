@@ -45,7 +45,8 @@ enum _ADC_DBG_LVL_ {
 typedef uint32_t ADC_DBG_LVL;
 typedef uint32_t * PADC_DBG_LVL;
 
-#if defined (CONFIG_DEBUG_LOG) && defined (CONFIG_DEBUG_LOG_ADC_HAL)
+#ifdef CONFIG_DEBUG_LOG
+#ifdef CONFIG_DEBUG_LOG_ADC_HAL
 
     #define DBG_8195A_ADC(...)  do{ \
         _DbgDump("\r"ADC_PREFIX __VA_ARGS__);\
@@ -62,6 +63,7 @@ typedef uint32_t * PADC_DBG_LVL;
     #define DBG_ADC_LOG_PERD    100
     #define DBG_8195A_ADC(...)
     #define DBG_8195A_ADC_LVL(...)
+#endif
 #endif
 
 
@@ -213,14 +215,10 @@ typedef struct _SAL_ADC_USERCB_ADPT_ {
 
 // ADC user callback structure
 typedef struct _SAL_ADC_USER_CB_ {
-    PSAL_ADC_USERCB_ADPT    pTXCB;          //ADC Transmit Callback
-    PSAL_ADC_USERCB_ADPT    pTXCCB;         //ADC Transmit Complete Callback
     PSAL_ADC_USERCB_ADPT    pRXCB;          //ADC Receive Callback
     PSAL_ADC_USERCB_ADPT    pRXCCB;         //ADC Receive Complete Callback
-    PSAL_ADC_USERCB_ADPT    pRDREQCB;       //ADC Read Request Callback
     PSAL_ADC_USERCB_ADPT    pERRCB;         //ADC Error Callback
-    PSAL_ADC_USERCB_ADPT    pDMATXCB;       //ADC DMA Transmit Callback
-    PSAL_ADC_USERCB_ADPT    pDMATXCCB;      //ADC DMA Transmit Complete Callback
+    PSAL_ADC_USERCB_ADPT    pIDMARXCCB;      //ADC Error Callback
     PSAL_ADC_USERCB_ADPT    pDMARXCB;       //ADC DMA Receive Callback
     PSAL_ADC_USERCB_ADPT    pDMARXCCB;      //ADC DMA Receive Complete Callback
 }SAL_ADC_USER_CB, *PSAL_ADC_USER_CB;
@@ -229,7 +227,7 @@ typedef struct _SAL_ADC_USER_CB_ {
 typedef struct _SAL_ADC_TRANSFER_BUF_ {
     u32     DataLen;                        //ADC Transmfer Length
     u32     *pDataBuf;                      //ADC Transfer Buffer Pointer
-    u32     RSVD;                           //
+    u16     *pUserDataBuf;                           //
 }SAL_ADC_TRANSFER_BUF,*PSAL_ADC_TRANSFER_BUF;
 
 typedef struct _SAL_ADC_DMA_USER_DEF_ {

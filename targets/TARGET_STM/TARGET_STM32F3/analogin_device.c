@@ -34,6 +34,7 @@
 #include "cmsis.h"
 #include "pinmap.h"
 #include "mbed_error.h"
+#include "mbed_debug.h"
 #include "PeripheralPins.h"
 
 void analogin_init(analogin_t *obj, PinName pin)
@@ -211,16 +212,27 @@ uint16_t adc_read(analogin_t *obj)
             return 0;
     }
 
-    HAL_ADC_ConfigChannel(&obj->handle, &sConfig);
-
-    HAL_ADC_Start(&obj->handle); // Start conversion
-
-    // Wait end of conversion and get value
-    if (HAL_ADC_PollForConversion(&obj->handle, 10) == HAL_OK) {
-        return (uint16_t)HAL_ADC_GetValue(&obj->handle);
-    } else {
-        return 0;
+    if (HAL_ADC_ConfigChannel(&obj->handle, &sConfig) != HAL_OK) {
+        debug("HAL_ADC_ConfigChannel issue\n");;
     }
+
+    if (HAL_ADC_Start(&obj->handle) != HAL_OK) {
+        debug("HAL_ADC_Start issue\n");;
+    }
+
+    uint16_t MeasuredValue = 0;
+
+    if (HAL_ADC_PollForConversion(&obj->handle, 10) == HAL_OK) {
+        MeasuredValue = (uint16_t)HAL_ADC_GetValue(&obj->handle);
+    } else {
+        debug("HAL_ADC_PollForConversion issue\n");
+    }
+
+    if (HAL_ADC_Stop(&obj->handle) != HAL_OK) {
+        debug("HAL_ADC_Stop issue\n");;
+    }
+
+    return MeasuredValue;
 }
 
 #endif

@@ -78,6 +78,28 @@ public:
 
 private:
 
+    /**
+     * Sets the intersection of source and destination channel masks
+     * into the destination.
+     */
+    void intersect_channel_mask(const uint16_t *source, uint16_t *destination,
+                                uint8_t size);
+
+    /**
+     * Fills channel mask array based upon the provided FSB mask
+     */
+    void fill_channel_mask_with_fsb(const uint16_t *expectation,
+                                    const uint16_t *fsb_mask,
+                                    uint16_t *channel_mask, uint8_t size);
+
+    /**
+     * Fills channel mask array with a given value
+     */
+    void fill_channel_mask_with_value(uint16_t *channel_mask,
+                                      uint16_t value, uint8_t size);
+
+private:
+
     /*!
      * LoRaMAC channels
      */

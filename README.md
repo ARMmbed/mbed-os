@@ -33,3 +33,9 @@ We have a [developer website](https://os.mbed.com) for asking questions, engagin
 ## Getting started for contributors
  
 We also have a [contributing and publishing guide](https://os.mbed.com/contributing/) that covers licensing, contributor agreements and style guidelines.
+
+## Documentation
+
+For more information about Mbed OS, please see [our published documentation](https://os.mbed.com/docs/latest). It includes published Doxygen for our APIs, step-by-step tutorials, porting information and background reference materials about our architecture and tools.
+
+To contribute to this documentation, please see the [mbed-os-5-docs repo](https://github.com/ARMmbed/mbed-os-5-docs).

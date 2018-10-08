@@ -94,15 +94,19 @@ typedef enum {
 } PinDirection;
 
 typedef enum {
+    /* Input pull mode */
     PullNone = 0,
     PullDown,
     PullUp,
     
-    PushPull,
+    /* I/O mode */
+    InputOnly,
+    PushPullOutput,
     OpenDrain,
-    Quasi,
+    QuasiBidirectional,
     
-    PullDefault = PullUp,
+    /* Default input pull mode */
+    PullDefault = PullUp
 } PinMode;
 
 typedef enum {
@@ -124,13 +128,13 @@ typedef enum {
     A1 = PB_10,
     A2 = PB_9,
     A3 = PB_8,
-    A4 = PB_7,
-    A5 = PB_6,
+    A4 = PB_4,
+    A5 = PB_5,
 
     D0 = PA_8,
     D1 = PA_9,
-    D2 = PB_5,
-    D3 = PB_4,
+    D2 = PB_7,
+    D3 = PB_6,
     D4 = PB_3,
     D5 = PB_2,
     D6 = PC_12,

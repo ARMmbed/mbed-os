@@ -27,9 +27,7 @@ from .utils import execute_program
 from .get_tools import get_make_tool, \
                        get_cmake_tool, \
                        get_cxx_tool, \
-                       get_c_tool, \
-                       get_gcov_program, \
-                       get_gcovr_program
+                       get_c_tool
 from .settings import DEFAULT_CMAKE_GENERATORS
 
 class UnitTestTool(object):
@@ -114,77 +112,6 @@ class UnitTestTool(object):
         execute_program(args,
                         "Building unit tests failed.",
                         "Unit tests built successfully.")
-
-    def _get_coverage_script(self, coverage_type, excludes):
-        args = [get_gcovr_program(),
-                "--gcov-executable",
-                get_gcov_program(),
-                "-r",
-                "../..",
-                "."]
-
-        if coverage_type == "html":
-            args.extend(["--html",
-                         "--html-detail",
-                         "-o",
-                         "./coverage/index.html"])
-        elif coverage_type == "xml":
-            args.extend(["-x",
-                         "-o",
-                         "./coverage.xml"])
-
-        for path in excludes:
-            args.extend(["-e", path.replace("\\", "/")])
-
-        if logging.getLogger().getEffectiveLevel() == logging.DEBUG:
-            args.append("-v")
-
-        return args
-
-    def generate_coverage_report(self,
-                                 coverage_output_type=None,
-                                 excludes=None,
-                                 build_path=None):
-        """
-        Run tests to generate coverage data, and generate coverage reports.
-        """
-
-        self.run_tests()
-
-        if get_gcovr_program() is None:
-            logging.error("No gcovr tool found in path. \
-            Cannot generate coverage report.")
-            return
-
-        if build_path is None:
-            build_path = os.getcwd()
-
-        if coverage_output_type is None:
-            logging.warning("No coverage output type give. \
-                            Cannot generate coverage reports.")
-            return
-
-        if excludes is None:
-            excludes = []
-
-        if coverage_output_type == "html" or coverage_output_type == "both":
-            # Create build directory if not exist.
-            coverage_path = os.path.join(build_path, "coverage")
-            if not os.path.exists(coverage_path):
-                os.mkdir(coverage_path)
-
-            args = self._get_coverage_script("html", excludes)
-
-            execute_program(args,
-                            "HTML code coverage report generation failed.",
-                            "HTML code coverage report created.")
-
-        if coverage_output_type == "xml" or coverage_output_type == "both":
-            args = self._get_coverage_script("xml", excludes)
-
-            execute_program(args,
-                            "XML code coverage report generation failed.",
-                            "XML code coverage report created.")
 
     def run_tests(self, filter_regex=None):
         """

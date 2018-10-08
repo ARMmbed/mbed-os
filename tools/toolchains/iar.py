@@ -112,7 +112,7 @@ class IAR(mbedToolchain):
                 "file": "",
                 "line": "",
                 "col": "",
-                "severity": "ERROR",
+                "severity": "Warning",
             })
 
 
@@ -167,7 +167,7 @@ class IAR(mbedToolchain):
         opts = ['-D%s' % d for d in defines]
         if for_asm:
             config_macros = self.config.get_config_data_macros()
-            macros_cmd = ['"-D%s"' % d.replace('"', '').replace('//','/\/') for d in config_macros]
+            macros_cmd = ['"-D%s"' % d for d in config_macros if not '"' in d]
             if self.RESPONSE_FILES:
                 via_file = self.make_option_file(
                     macros_cmd, "asm_macros_{}.xcl")

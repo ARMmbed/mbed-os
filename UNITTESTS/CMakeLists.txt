@@ -90,17 +90,42 @@ endif(COVERAGE)
 set(unittest-includes-base
   "${PROJECT_SOURCE_DIR}/target_h"
   "${PROJECT_SOURCE_DIR}/target_h/events"
+  "${PROJECT_SOURCE_DIR}/target_h/events/equeue"
+  "${PROJECT_SOURCE_DIR}/target_h/platform"
   "${PROJECT_SOURCE_DIR}/stubs"
   "${PROJECT_SOURCE_DIR}/.."
   "${PROJECT_SOURCE_DIR}/../features"
+  "${PROJECT_SOURCE_DIR}/../features/netsocket"
   "${PROJECT_SOURCE_DIR}/../platform"
   "${PROJECT_SOURCE_DIR}/../drivers"
   "${PROJECT_SOURCE_DIR}/../hal"
   "${PROJECT_SOURCE_DIR}/../events"
+  "${PROJECT_SOURCE_DIR}/../events/equeue"
+  "${PROJECT_SOURCE_DIR}/../rtos"
   "${PROJECT_SOURCE_DIR}/../rtos/TARGET_CORTEX"
   "${PROJECT_SOURCE_DIR}/../rtos/TARGET_CORTEX/rtx5/Include"
   "${PROJECT_SOURCE_DIR}/../cmsis"
-  "${PROJECT_SOURCE_DIR}/../features/frameworks/nanostack-libservice/mbed-client-libservice/"
+  "${PROJECT_SOURCE_DIR}/../features/frameworks"
+  "${PROJECT_SOURCE_DIR}/../features/frameworks/mbed-trace"
+  "${PROJECT_SOURCE_DIR}/../features/frameworks/nanostack-libservice"
+  "${PROJECT_SOURCE_DIR}/../features/frameworks/nanostack-libservice/mbed-client-libservice"
+  "${PROJECT_SOURCE_DIR}/../features/filesystem/fat"
+  "${PROJECT_SOURCE_DIR}/../features/filesystem/fat/ChaN"
+  "${PROJECT_SOURCE_DIR}/../features/filesystem/bd"
+  "${PROJECT_SOURCE_DIR}/../features/filesystem/"
+  "${PROJECT_SOURCE_DIR}/../features/filesystem/littlefs"
+  "${PROJECT_SOURCE_DIR}/../features/filesystem/littlefs/littlefs"
+  "${PROJECT_SOURCE_DIR}/../features/cellular/framework/API"
+  "${PROJECT_SOURCE_DIR}/../features/cellular/framework/AT"
+  "${PROJECT_SOURCE_DIR}/../features/cellular/framework"
+  "${PROJECT_SOURCE_DIR}/../features/cellular/framework/common"
+  "${PROJECT_SOURCE_DIR}/../features/lorawan"
+  "${PROJECT_SOURCE_DIR}/../features/lorawan/lorastack"
+  "${PROJECT_SOURCE_DIR}/../features/lorawan/lorastack/mac"
+  "${PROJECT_SOURCE_DIR}/../features/lorawan/lorastack/phy"
+  "${PROJECT_SOURCE_DIR}/../features/lorawan/system"
+  "${PROJECT_SOURCE_DIR}/../features/mbedtls"
+  "${PROJECT_SOURCE_DIR}/../features/mbedtls/inc"
 )
 
 # Create a list for test suites.
@@ -129,11 +154,17 @@ foreach(testfile ${unittest-file-list})
   # Get source files
   include("${testfile}")
 
-  if(TEST_SUITE_NAME)
-    set(TEST_SUITES ${TEST_SUITES} ${TEST_SUITE_NAME})
-  else()
-    message(FATAL_ERROR "No TEST_SUITE_NAME found in test file. Add it to ${testfile}.")
-  endif()
+  get_filename_component(TEST_SUITE_DIR ${testfile} DIRECTORY)
+
+  file(RELATIVE_PATH
+       TEST_SUITE_NAME # output
+       ${PROJECT_SOURCE_DIR} # root
+       ${TEST_SUITE_DIR} #abs dirpath
+  )
+
+  string(REGEX REPLACE "/|\\\\" "-" TEST_SUITE_NAME ${TEST_SUITE_NAME})
+
+  set(TEST_SUITES ${TEST_SUITES} ${TEST_SUITE_NAME})
 
   set(LIBS_TO_BE_LINKED gmock_main)
 
@@ -160,7 +191,7 @@ foreach(testfile ${unittest-file-list})
     # Link the executable with the libraries.
     target_link_libraries(${TEST_SUITE_NAME} ${LIBS_TO_BE_LINKED})
 
-    add_test(NAME "${TEST_SUITE_NAME}UnitTests" COMMAND ${TEST_SUITE_NAME})
+    add_test(NAME "${TEST_SUITE_NAME}" COMMAND ${TEST_SUITE_NAME})
 
     # Append test build directory to list
     list(APPEND BUILD_DIRECTORIES "./CMakeFiles/${TEST_SUITE_NAME}.dir")
@@ -168,3 +199,4 @@ foreach(testfile ${unittest-file-list})
     message(WARNING "No test source files found for ${TEST_SUITE_NAME}.\n")
   endif(unittest-test-sources)
 endforeach(testfile)
+

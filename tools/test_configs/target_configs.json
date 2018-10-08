@@ -9,11 +9,11 @@
     },
     "K64F": {
         "default_test_configuration": "HEAPBLOCKDEVICE_AND_ETHERNET",
-        "test_configurations": ["HEAPBLOCKDEVICE_AND_ETHERNET", "MAC_TESTER", "ESP8266_WIFI", "ETHERNET"]
+        "test_configurations": ["HEAPBLOCKDEVICE_AND_ETHERNET", "NANOSTACK_MAC_TESTER", "ESP8266_WIFI", "ETHERNET"]
     },
     "NUCLEO_F429ZI": {
         "default_test_configuration": "HEAPBLOCKDEVICE_AND_ETHERNET",
-        "test_configurations": ["HEAPBLOCKDEVICE_AND_ETHERNET", "MAC_TESTER"]
+        "test_configurations": ["HEAPBLOCKDEVICE_AND_ETHERNET", "NANOSTACK_MAC_TESTER"]
     },
     "DISCO_L475VG_IOT01A": {
         "default_test_configuration": "NONE",
@@ -44,6 +44,14 @@
         "test_configurations": ["IDW0XX1_WIFI"]
     },
     "KW24D": {
+        "default_test_configuration": "NO_NETWORK",
+        "test_configurations": ["6LOWPAN_HOST", "6LOWPAN_ROUTER", "THREAD_END_DEVICE", "THREAD_ROUTER"]
+    },
+    "TB_SENSE_12": {
+        "default_test_configuration": "NO_NETWORK",
+        "test_configurations": ["6LOWPAN_HOST", "6LOWPAN_ROUTER", "THREAD_END_DEVICE", "THREAD_ROUTER"]
+    },
+    "TB_SENSE_1": {
         "default_test_configuration": "NO_NETWORK",
         "test_configurations": ["6LOWPAN_HOST", "6LOWPAN_ROUTER", "THREAD_END_DEVICE", "THREAD_ROUTER"]
     }

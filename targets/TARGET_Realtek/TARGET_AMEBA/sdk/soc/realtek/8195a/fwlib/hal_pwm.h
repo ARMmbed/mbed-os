@@ -15,6 +15,9 @@
 #define _HAL_PWM_H_
 
 #define MAX_PWM_CTRL_PIN        4
+#define MAX_GTIMER_NUM          4
+#define MAX_DEVID_TICK          1020
+
 // the minimum tick time for G-timer is 61 us (clock source = 32768Hz, reload value=1 and reload takes extra 1T)
 //#define GTIMER_TICK_US            31   // micro-second, 1000000/32768 ~= 30.5
 #define MIN_GTIMER_TIMEOUT    61  // in micro-sec, use this value to set the g-timer to generate tick for PWM. 61=(1000000/32768)*2
@@ -32,6 +35,10 @@ typedef struct _HAL_PWM_ADAPTER_ {
 //    float duty_ratio;   // the dyty ratio = pulswidth/period
 }HAL_PWM_ADAPTER, *PHAL_PWM_ADAPTER;
 
+typedef struct _HAL_PWM_GTIMER_ {
+    u32 tick_time;  // the tick time for the G-timer
+    u8 reference;   // map of referenced by PWM
+}HAL_PWM_TIMER, *PHAL_PWM_TIMER;
 
 extern HAL_Status 
 HAL_Pwm_Init(

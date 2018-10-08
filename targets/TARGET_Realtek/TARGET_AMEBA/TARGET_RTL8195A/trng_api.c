@@ -27,7 +27,7 @@
 void trng_init(trng_t *obj)
 {
     _memset((void *)obj, 0, sizeof(trng_t));
-    analogin_init(&obj->tradcng, ADC0);
+    analogin_init(&obj->tradcng, (PinName)ADC0);
     obj->inited = 1;
 }
 
