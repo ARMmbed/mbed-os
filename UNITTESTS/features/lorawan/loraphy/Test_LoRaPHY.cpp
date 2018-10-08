@@ -124,10 +124,6 @@ public:
         return bool_value;
     };
 
-    virtual void set_tx_continuous_wave(uint32_t freq, int8_t power, uint16_t time)
-    {
-    };
-
     virtual void lock(void)
     {
     };
@@ -752,30 +748,6 @@ TEST_F(Test_LoRaPHY, remove_channel)
 
     object->get_phy_params().max_channel_cnt = 1;
     EXPECT_TRUE(true == object->remove_channel(0));
-}
-
-TEST_F(Test_LoRaPHY, set_tx_cont_mode)
-{
-    channel_params_t pp;
-    pp.band = 0;
-    object->get_phy_params().channels.channel_list = &pp;
-    band_t b;
-    b.max_tx_pwr = 10;
-    object->get_phy_params().bands.table = &b;
-    my_radio radio;
-    object->set_radio_instance(radio);
-
-    cw_mode_params_t p;
-    p.max_eirp = 0;
-    p.channel = 0;
-    p.tx_power = -1;
-    p.datarate = 0;
-    p.antenna_gain = 1;
-    object->set_tx_cont_mode(&p);
-
-    p.max_eirp = 1;
-    p.antenna_gain = 1;
-    object->set_tx_cont_mode(&p, 1);
 }
 
 TEST_F(Test_LoRaPHY, apply_DR_offset)
