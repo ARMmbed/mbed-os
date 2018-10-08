@@ -383,11 +383,6 @@ void LoRaMac::reset_mcps_indication()
 {
 }
 
-void LoRaMac::set_tx_continuous_wave(uint8_t channel, int8_t datarate, int8_t tx_power,
-                                     float max_eirp, float antenna_gain, uint16_t timeout)
-{
-}
-
 lorawan_status_t LoRaMac::initialize(EventQueue *queue,
                                      mbed::Callback<void(void)>scheduling_failure_handler)
 {
