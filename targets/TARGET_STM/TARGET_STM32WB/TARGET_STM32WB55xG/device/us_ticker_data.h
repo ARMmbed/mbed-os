@@ -17,13 +17,13 @@
 #define __US_TICKER_DATA_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 #include "stm32wbxx.h"
 #include "stm32wbxx_ll_tim.h"
 #include "cmsis_nvic.h"
-   
+
 #define TIM_MST      TIM16
 #define TIM_MST_IRQ  TIM1_UP_TIM16_IRQn
 #define TIM_MST_RCC  __HAL_RCC_TIM16_CLK_ENABLE()
