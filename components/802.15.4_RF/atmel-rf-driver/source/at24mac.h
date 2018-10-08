@@ -59,15 +59,6 @@ public:
     int read_eui48(void *buf);
 
 private:
-    /*
-     * Dummy class to allow us to reset I2C before the I2C constructor is called in
-     * the initializer list of AT24Mac's constructor
-     */
-    class I2CReset {
-    public:
-        I2CReset(PinName sda, PinName scl);
-    };
-    I2CReset i2c_reset;
     mbed::I2C _i2c;
 };
 
