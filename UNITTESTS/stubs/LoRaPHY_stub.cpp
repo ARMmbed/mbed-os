@@ -402,10 +402,6 @@ bool LoRaPHY::remove_channel(uint8_t channel_id)
     return LoRaPHY_stub::bool_table[LoRaPHY_stub::bool_counter++];
 }
 
-void LoRaPHY::set_tx_cont_mode(cw_mode_params_t *params, uint32_t given_frequency)
-{
-}
-
 uint8_t LoRaPHY::apply_DR_offset(int8_t dr, int8_t dr_offset)
 {
     return LoRaPHY_stub::uint8_value;

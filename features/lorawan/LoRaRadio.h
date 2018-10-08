@@ -391,14 +391,6 @@ public:
      */
     virtual bool check_rf_frequency(uint32_t frequency) = 0;
 
-    /** Sets the radio in continuous wave transmission mode.
-     *
-     *  @param freq          The RF frequency of the channel.
-     *  @param power         The output power [dBm].
-     *  @param time          The transmission mode timeout [s].
-     */
-    virtual void set_tx_continuous_wave(uint32_t freq, int8_t power, uint16_t time) = 0;
-
     /**
      * Acquires exclusive access to this radio.
      */

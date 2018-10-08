@@ -371,15 +371,6 @@ public:
      */
     virtual bool remove_channel(uint8_t channel_id);
 
-    /** Puts the radio into continuous wave mode.
-     *
-     * @param [in] continuous_wave   A pointer to the function parameters.
-     *
-     * @param [in] frequency         Frequency to transmit at
-     */
-    virtual void set_tx_cont_mode(cw_mode_params_t *continuous_wave,
-                                  uint32_t frequency = 0);
-
     /** Computes new data rate according to the given offset
      *
      * @param [in] dr The current datarate.

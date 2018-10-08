@@ -652,26 +652,6 @@ lorawan_status_t LoRaPHYUS915::set_next_channel(channel_selection_params_t *para
     }
 }
 
-void LoRaPHYUS915::set_tx_cont_mode(cw_mode_params_t *params, uint32_t given_frequency)
-{
-    (void)given_frequency;
-
-    int8_t tx_power_limited = limit_tx_power(params->tx_power,
-                                             bands[channels[params->channel].band].max_tx_pwr,
-                                             params->datarate);
-    int8_t phyTxPower = 0;
-    uint32_t frequency = channels[params->channel].frequency;
-
-    // Calculate physical TX power
-    phyTxPower = compute_tx_power(tx_power_limited, US915_DEFAULT_MAX_ERP, 0);
-
-    _radio->lock();
-
-    _radio->set_tx_continuous_wave(frequency, phyTxPower, params->timeout);
-
-    _radio->unlock();
-}
-
 uint8_t LoRaPHYUS915::apply_DR_offset(int8_t dr, int8_t dr_offset)
 {
     return datarate_offsets_US915[dr][dr_offset];

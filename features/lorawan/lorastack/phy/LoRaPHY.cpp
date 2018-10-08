@@ -1426,37 +1426,6 @@ bool LoRaPHY::remove_channel(uint8_t channel_id)
                            phy_params.max_channel_cnt);
 }
 
-void LoRaPHY::set_tx_cont_mode(cw_mode_params_t *params, uint32_t given_frequency)
-{
-    band_t *bands_table = (band_t *) phy_params.bands.table;
-    channel_params_t *channels = phy_params.channels.channel_list;
-
-    if (params->tx_power > bands_table[channels[params->channel].band].max_tx_pwr) {
-        params->tx_power = bands_table[channels[params->channel].band].max_tx_pwr;
-    }
-
-    int8_t phy_tx_power = 0;
-    uint32_t frequency  = 0;
-
-    if (given_frequency == 0) {
-        frequency = channels[params->channel].frequency;
-    } else {
-        frequency = given_frequency;
-    }
-
-    // Calculate physical TX power
-    if (params->max_eirp > 0 && params->antenna_gain > 0) {
-        phy_tx_power = compute_tx_power(params->tx_power, params->max_eirp,
-                                        params->antenna_gain);
-    } else {
-        phy_tx_power = params->tx_power;
-    }
-
-    _radio->lock();
-    _radio->set_tx_continuous_wave(frequency, phy_tx_power, params->timeout);
-    _radio->unlock();
-}
-
 uint8_t LoRaPHY::apply_DR_offset(int8_t dr, int8_t dr_offset)
 {
     int8_t datarate = dr - dr_offset;
