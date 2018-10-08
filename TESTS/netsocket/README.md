@@ -715,10 +715,9 @@ Call `UDPSocket::sendto()` with invalid parameters.
 3.  Call `UDPSocket:sendto( "", 0, NULL, 0);`
 4.  Call `UDPSocket:sendto(NULL, 9, "hello", 5);`
 5.  Call `UDPSocket:sendto(NULL, 0, "hello", 5);`
-6.  Call `UDPSocket:sendto("echo.mbedcloudtesting.com", 0, "hello", 5);`
-7.  Call `UDPSocket:sendto("echo.mbedcloudtesting.com", 9,NULL, 0);`
-8.  Call `UDPSocket:sendto("echo.mbedcloudtesting.com", 9, "hello", 5);`
-9.  destroy the socket
+6.  Call `UDPSocket:sendto("echo.mbedcloudtesting.com", 9,NULL, 0);`
+7.  Call `UDPSocket:sendto("echo.mbedcloudtesting.com", 9, "hello", 5);`
+8.  destroy the socket
 
 **Expected result:**
 
@@ -990,9 +989,8 @@ Call `TCPSocket::connect()` with invalid parameters.
 1.  Call `TCPSocket:connect( NULL, 9);`
 2.  Call `TCPSocket:connect( "", 9);`
 3.  Call `TCPSocket:connect( "", 0);`
-4.  Call `TCPSocket:connect( "echo.mbedcloudtesting.com", 0);`
-5.  Call `TCPSocket:connect( "echo.mbedcloudtesting.com", 9);`
-6.  destroy the socket
+4.  Call `TCPSocket:connect( "echo.mbedcloudtesting.com", 9);`
+5.  destroy the socket
 
 **Expected result:**
 
