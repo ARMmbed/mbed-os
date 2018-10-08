@@ -56,7 +56,7 @@ class Testcase(Bench):
         self.command("First", "addr")
         self.command("First", "addr --64-bit 01:02:03:00:00:00:00:01")
         self.command("First", "addr --16-bit 0xABCD")
-        #macPANId
+        # Set MAC PAN ID
         self.command("First", "mlme-set --attr 0x50 --value_bytes CD:CD --value_size 2")
         self.command("First", "addr")
         self.verify_trace(1, "MAC64: 01:02:03:00:00:00:00:01")

@@ -58,17 +58,25 @@ class Testcase(Bench):
     def case(self):
         #104 characters, headers are 2+1+2+8+8+2=23 bytes, resulting in a packet size of 127 (max)
         large_payload = "0123456789abcdefghjiklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZZZZZZZZZ0123456789012345678901234567891234"
+        # Start PAN coordinator
         self.command("First", "start --pan_coordinator true --logical_channel {}".format(self.channel))
+        # Start PAN beacon
         self.command("Second", "start --pan_coordinator false --logical_channel {}".format(self.channel))
 
+        # Set indirect data
         self.command("First", "config-status --data_ind {}".format(large_payload))
         self.command("Second", "config-status --data_ind {}".format(large_payload))
 
+        # Send data to DUT2
         self.command("First", "data --dst_addr 01:02:03:00:00:00:00:02 --msdu_length {} --msdu {}".format(len(large_payload), large_payload))
+        # Wait for transmission to finish
         self.command("Second", "wait --timeout 500")
 
+        # Send data to DUT1
         self.command("Second", "data --dst_addr 01:02:03:00:00:00:00:01 --msdu_length {} --msdu {}".format(len(large_payload), large_payload))
+        # Wait for transmission to finish
         self.command("First", "wait --timeout 500")
+        # Loop with previous settings
         for i in range(0, 25):
             self.command("First", "data")
             self.command("Second", "wait")
