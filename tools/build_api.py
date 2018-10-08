@@ -36,7 +36,7 @@ from jinja2.environment import Environment
 from .arm_pack_manager import Cache
 from .utils import (mkdir, run_cmd, run_cmd_ext, NotSupportedException,
                     ToolException, InvalidReleaseTargetException,
-                    intelhex_offset, integer)
+                    intelhex_offset, integer, generate_update_filename)
 from .paths import (MBED_CMSIS_PATH, MBED_TARGETS_PATH, MBED_LIBRARIES,
                     MBED_HEADER, MBED_DRIVERS, MBED_PLATFORM, MBED_HAL,
                     MBED_CONFIG_FILE, MBED_LIBRARIES_DRIVERS,
@@ -550,10 +550,7 @@ def build_project(src_paths, build_path, target, toolchain_name,
                 r for r in region_list if r.name in UPDATE_WHITELIST
             ]
             if update_regions:
-                update_res = "%s_update.%s" % (
-                    join(build_path, name),
-                    getattr(toolchain.target, "OUTPUT_EXT", "bin")
-                )
+                update_res = join(build_path, generate_update_filename(name, toolchain.target))
                 merge_region_list(update_regions, update_res, notify)
                 res = (res, update_res)
             else:
