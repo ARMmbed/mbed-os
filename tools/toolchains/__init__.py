@@ -742,6 +742,15 @@ class mbedToolchain:
         except ConfigException:
             pass
 
+    def add_linker_defines(self):
+        stack_param = "target.boot-stack-size"
+        params, _ = self.config_data
+
+        if stack_param in params:
+            define_string = self.make_ld_define("MBED_BOOT_STACK_SIZE", int(params[stack_param].value, 0))
+            self.ld.append(define_string)
+            self.flags["ld"].append(define_string)
+
     # Set the configuration data
     def set_config_data(self, config_data):
         self.config_data = config_data
@@ -753,6 +762,7 @@ class mbedToolchain:
             self.ld.append(define_string)
             self.flags["ld"].append(define_string)
         self.add_regions()
+        self.add_linker_defines()
 
     # Creates the configuration header if needed:
     # - if there is no configuration data, "mbed_config.h" is not create (or deleted if it exists).

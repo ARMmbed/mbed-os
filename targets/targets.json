@@ -20,6 +20,10 @@
             "network-default-interface-type": {
                 "help": "Default network interface type. Typical options: null, ETHERNET, WIFI, CELLULAR, MESH",
                 "value": null
+            },
+            "boot-stack-size": {
+                "help": "Define the boot stack size in bytes. This value must be a multiple of 8",
+                "value": "0x1000"
             }
         }
     },
