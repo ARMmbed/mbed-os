@@ -256,8 +256,8 @@ nsapi_error_t AT_CellularSMS::set_csdh(int show_header)
 
 nsapi_error_t AT_CellularSMS::initialize(CellularSMSMmode mode)
 {
-    if (_at.set_urc_handler("+CMTI:", callback(this, &AT_CellularSMS::cmti_urc)) ||
-            _at.set_urc_handler("+CMT:", callback(this, &AT_CellularSMS::cmt_urc))) {
+    if (NSAPI_ERROR_OK != _at.set_urc_handler("+CMTI:", callback(this, &AT_CellularSMS::cmti_urc)) ||
+        NSAPI_ERROR_OK != _at.set_urc_handler("+CMT:", callback(this, &AT_CellularSMS::cmt_urc))) {
         return NSAPI_ERROR_NO_MEMORY;
     }
 

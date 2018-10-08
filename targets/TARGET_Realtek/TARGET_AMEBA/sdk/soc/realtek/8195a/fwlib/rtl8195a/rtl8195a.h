@@ -28,6 +28,7 @@
 #include "hal_diag.h"
 #include "hal_spi_flash.h"
 #include "rtl8195a_spi_flash.h"
+#include "hal_timer.h"
 #include "hal_util.h"
 #include "hal_efuse.h"
 #include "hal_soc_ps_monitor.h"
@@ -148,10 +149,8 @@ __##name##_Disable(void)                                         \
 #include "rtl8195a_trap.h"
 #include "rtl8195a_clk.h"
 #include "rtl8195a_misc.h"
-#include "rtl8195a_sdio.h"
 
 #endif
-
 
 /* ----------------------------------------------------------------------------
    -- Cortex M3 Core Configuration
@@ -198,6 +197,10 @@ __##name##_Disable(void)                                         \
 #include "rtl8195a_i2c.h"
 #endif
 
+#ifdef CONFIG_PCM_EN
+#include "hal_pcm.h"
+#include "rtl8195a_pcm.h"
+#endif
 
 #ifdef CONFIG_PWM_EN
 #include "hal_pwm.h"
@@ -226,7 +229,7 @@ __##name##_Disable(void)                                         \
 #endif
 
 #ifdef CONFIG_SDIO_DEVICE_EN
-//#include "hal_sdio.h"
+#include "hal_sdio.h"
 #endif
 
 #ifdef CONFIG_NFC_EN

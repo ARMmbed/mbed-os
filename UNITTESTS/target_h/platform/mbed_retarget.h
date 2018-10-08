@@ -18,7 +18,15 @@
 #ifndef RETARGET_H
 #define RETARGET_H
 
+#include <inttypes.h>
 #include <sys/types.h>
+#include <stdio.h>
+
+#include <time.h>
+
+namespace mbed {
+
+#define NAME_MAX 255
 
 #undef  EPERM
 #define EPERM           1       /* Operation not permitted */
@@ -282,5 +290,76 @@
 #define EOWNERDEAD      130     /* Owner died */
 #undef  ENOTRECOVERABLE
 #define ENOTRECOVERABLE 131     /* State not recoverable */
+
+#define     _IFMT   0170000 //< type of file
+#define     _IFSOCK 0140000 //< socket
+#define     _IFLNK  0120000 //< symbolic link
+#define     _IFREG  0100000 //< regular
+#define     _IFBLK  0060000 //< block special
+#define     _IFDIR  0040000 //< directory
+#define     _IFCHR  0020000 //< character special
+#define     _IFIFO  0010000 //< fifo special
+
+
+#define O_RDONLY 0        ///< Open for reading
+#define O_WRONLY 1        ///< Open for writing
+#define O_RDWR   2        ///< Open for reading and writing
+#define O_NONBLOCK 0x0004 ///< Non-blocking mode
+#define O_APPEND   0x0008 ///< Set file offset to end of file prior to each write
+#define O_CREAT    0x0200 ///< Create file if it does not exist
+#define O_TRUNC    0x0400 ///< Truncate file to zero length
+#define O_EXCL     0x0800 ///< Fail if file exists
+#define O_BINARY   0x8000 ///< Open file in binary mode
+
+#define O_ACCMODE   (O_RDONLY|O_WRONLY|O_RDWR)
+
+#define NAME_MAX 255    ///< Maximum size of a name in a file path
+
+#define STDIN_FILENO  0
+#define STDOUT_FILENO 1
+#define STDERR_FILENO 2
+
+
+struct statvfs {
+    unsigned long  f_bsize;    ///< Filesystem block size
+    unsigned long  f_frsize;   ///< Fragment size (block size)
+
+    unsigned long long     f_blocks;   ///< Number of blocks
+    unsigned long long     f_bfree;    ///< Number of free blocks
+    unsigned long long     f_bavail;   ///< Number of free blocks for unprivileged users
+
+    unsigned long  f_fsid;     ///< Filesystem ID
+
+    unsigned long  f_namemax;  ///< Maximum filename length
+};
+
+
+struct dirent {
+    char d_name[NAME_MAX + 1]; ///< Name of file
+    uint8_t d_type;          ///< Type of file
+};
+
+enum {
+    DT_UNKNOWN, ///< The file type could not be determined.
+    DT_FIFO,    ///< This is a named pipe (FIFO).
+    DT_CHR,     ///< This is a character device.
+    DT_DIR,     ///< This is a directory.
+    DT_BLK,     ///< This is a block device.
+    DT_REG,     ///< This is a regular file.
+    DT_LNK,     ///< This is a symbolic link.
+    DT_SOCK,    ///< This is a UNIX domain socket.
+};
+
+/* fcntl.h defines */
+#define F_GETFL 3
+#define F_SETFL 4
+
+struct pollfd {
+    int fd;
+    short events;
+    short revents;
+};
+
+}
 
 #endif //RETARGET_H

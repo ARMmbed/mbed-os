@@ -120,7 +120,7 @@ static mbed_error_status_t handle_error(mbed_error_status_t error_status, unsign
     error_count++;
 
     //Clear the context capturing buffer
-    memset(&current_error_ctx, sizeof(mbed_error_ctx), 0);
+    memset(&current_error_ctx, 0, sizeof(mbed_error_ctx));
     //Capture error information
     current_error_ctx.error_status = error_status;
     current_error_ctx.error_address = (uint32_t)caller;
@@ -279,7 +279,7 @@ mbed_error_status_t mbed_clear_all_errors(void)
     //Make sure we dont multiple clients resetting
     core_util_critical_section_enter();
     //Clear the error and context capturing buffer
-    memset(&last_error_ctx, sizeof(mbed_error_ctx), 0);
+    memset(&last_error_ctx, 0, sizeof(mbed_error_ctx));
     //reset error count to 0
     error_count = 0;
 #if MBED_CONF_PLATFORM_ERROR_HIST_ENABLED

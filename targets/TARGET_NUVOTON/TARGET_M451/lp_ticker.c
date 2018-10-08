@@ -76,8 +76,6 @@ void lp_ticker_init(void)
         /* By HAL spec, ticker_init allows the ticker to keep counting and disables the
          * ticker interrupt. */
         lp_ticker_disable_interrupt();
-        lp_ticker_clear_interrupt();
-        NVIC_ClearPendingIRQ(TIMER_MODINIT.irq_n);
         return;
     }
     ticker_inited = 1;
@@ -128,23 +126,7 @@ void lp_ticker_init(void)
 
 void lp_ticker_free(void)
 {
-    TIMER_T *timer_base = (TIMER_T *) NU_MODBASE(TIMER_MODINIT.modname);
-
-    /* Stop counting */
-    TIMER_Stop(timer_base);
-    wait_us((NU_US_PER_SEC / NU_TMRCLK_PER_SEC) * 3);
-
-    /* Wait for timer to stop counting and unset active flag */
-    while((timer_base->CTL & TIMER_CTL_ACTSTS_Msk));
-
-    /* Disable wakeup */
-    TIMER_DisableWakeup(timer_base);
-    wait_us((NU_US_PER_SEC / NU_TMRCLK_PER_SEC) * 3);
-
     /* Disable interrupt */
-    TIMER_DisableInt(timer_base);
-    wait_us((NU_US_PER_SEC / NU_TMRCLK_PER_SEC) * 3);
-
     NVIC_DisableIRQ(TIMER_MODINIT.irq_n);
 
     /* Disable IP clock */
@@ -166,6 +148,10 @@ timestamp_t lp_ticker_read()
 
 void lp_ticker_set_interrupt(timestamp_t timestamp)
 {
+    /* Clear any previously pending interrupts */
+    lp_ticker_clear_interrupt();
+    NVIC_ClearPendingIRQ(TIMER_MODINIT.irq_n);
+
     /* In continuous mode, counter will be reset to zero with the following sequence: 
      * 1. Stop counting
      * 2. Configure new CMP value

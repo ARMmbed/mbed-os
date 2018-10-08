@@ -1,0 +1,10 @@
+{
+    "name": "bootloader_NUCLEO_F207ZG",
+    "target_overrides": {
+        "*": {
+            "target.app_offset": "0x10400",
+            "target.header_offset": "0x10000",
+            "target.bootloader_img": "mbed-bootloader-nucleo_f207zg-block_device-sotp-v3.4.0-3-gdbbb.bin"
+        }
+    }
+}

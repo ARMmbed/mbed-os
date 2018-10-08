@@ -148,24 +148,6 @@ public:
 
 private:
     /**
-     * MIC field computation initial data
-     */
-    uint8_t mic_block_b0[16];
-
-    /**
-     * Contains the computed MIC field.
-     *
-     * \remark Only the 4 first bytes are used
-     */
-    uint8_t computed_mic[16];
-
-    /**
-     * Encryption aBlock and sBlock
-     */
-    uint8_t a_block[16];
-    uint8_t s_block[16];
-
-    /**
      * AES computation context variable
      */
     mbedtls_aes_context aes_ctx;

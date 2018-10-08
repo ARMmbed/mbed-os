@@ -17,7 +17,7 @@
 #include <stddef.h>
 #include "hal/ticker_api.h"
 #include "platform/mbed_critical.h"
-#include "mbed_assert.h"
+#include "platform/mbed_assert.h"
 
 static void schedule_interrupt(const ticker_data_t *const ticker);
 static void update_present_time(const ticker_data_t *const ticker);
@@ -47,7 +47,7 @@ static void initialize(const ticker_data_t *ticker)
 
     uint8_t frequency_shifts = 0;
     for (uint8_t i = 31; i > 0; --i) {
-        if ((1 << i) == frequency) {
+        if ((1U << i) == frequency) {
             frequency_shifts = i;
             break;
         }

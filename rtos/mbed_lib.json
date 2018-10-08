@@ -1,7 +1,23 @@
 {
     "name": "rtos",
     "config": {
-        "present": 1
+        "present": 1,
+         "main-thread-stack-size": {
+            "help": "The size of the main thread's stack",
+            "value": 4096
+         },
+         "timer-thread-stack-size": {
+            "help": "The size of the timer thread's stack",
+            "value": 768
+         },
+         "idle-thread-stack-size": {
+            "help": "The size of the idle thread's stack",
+            "value": 512
+         },
+         "thread-stack-size": {
+            "help": "The default stack size of new threads",
+            "value": 4096
+         }
     },
     "macros": ["_RTE_"]
 }

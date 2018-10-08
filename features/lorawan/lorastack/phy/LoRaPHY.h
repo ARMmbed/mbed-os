@@ -536,26 +536,6 @@ protected:
     LoRaPHY();
 
     /**
-     * Sets the intersection of source and destination channel masks
-     * into the destination.
-     */
-    void intersect_channel_mask(const uint16_t *source, uint16_t *destination,
-                                uint8_t size);
-
-    /**
-     * Fills channel mask array based upon the provided FSB mask
-     */
-    void fill_channel_mask_with_fsb(const uint16_t *expectation,
-                                    const uint16_t *fsb_mask,
-                                    uint16_t *channel_mask, uint8_t size);
-
-    /**
-     * Fills channel mask array with a given value
-     */
-    void fill_channel_mask_with_value(uint16_t *channel_mask,
-                                      uint16_t value, uint8_t size);
-
-    /**
      * Looks up corresponding band for a frequency. Returns -1 if not in any band.
      */
     int lookup_band_for_frequency(uint32_t freq) const;
@@ -573,8 +553,7 @@ protected:
     /**
      * Verifies, if a datarate is available on an active channel.
      */
-    bool verify_channel_DR(uint8_t nbChannels, uint16_t* channelsMask, int8_t dr,
-                           int8_t minDr, int8_t maxDr, channel_params_t* channels);
+    bool verify_channel_DR(uint16_t* channelsMask, int8_t dr);
 
     /**
      * Disables a channel in a given channels mask.
@@ -616,16 +595,6 @@ protected:
                                 int8_t* tx_pow, uint8_t* nb_rep);
 
     /**
-     * Computes the symbol time for LoRa modulation.
-     */
-    double compute_symb_timeout_lora(uint8_t phy_dr, uint32_t bandwidth );
-
-    /**
-     * Computes the symbol time for FSK modulation.
-     */
-    double compute_symb_timeout_fsk(uint8_t phy_dr);
-
-    /**
      * Computes the RX window timeout and the RX window offset.
      */
     void get_rx_window_params(double t_symbol, uint8_t min_rx_symbols,
@@ -657,6 +626,18 @@ protected:
                                   uint8_t* delayTx);
 
     bool is_datarate_supported(const int8_t datarate) const;
+
+private:
+
+    /**
+     * Computes the symbol time for LoRa modulation.
+     */
+    double compute_symb_timeout_lora(uint8_t phy_dr, uint32_t bandwidth );
+
+    /**
+     * Computes the symbol time for FSK modulation.
+     */
+    double compute_symb_timeout_fsk(uint8_t phy_dr);
 
 protected:
     LoRaRadio *_radio;

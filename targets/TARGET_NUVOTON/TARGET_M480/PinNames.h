@@ -55,15 +55,19 @@ typedef enum {
 } PinDirection;
 
 typedef enum {
+    /* Input pull mode */
     PullNone = 0,
     PullDown,
     PullUp,
     
-    PushPull,
+    /* I/O mode */
+    InputOnly,
+    PushPullOutput,
     OpenDrain,
-    Quasi,
+    QuasiBidirectional,
     
-    PullDefault = PullUp,
+    /* Default input pull mode */
+    PullDefault = PullUp
 } PinMode;
 
 typedef enum {
@@ -125,7 +129,11 @@ typedef enum {
     LED3 = LED_GREEN,
     LED4 = LED1,    // No real LED. Just for passing ATS.
     // Button naming
+#if TARGET_NUMAKER_PFM_M487
     SW2 = PG_15,
+#elif TARGET_NUMAKER_IOT_M487
+    SW2 = PG_5,
+#endif
     SW3 = PF_11,
     
 } PinName;

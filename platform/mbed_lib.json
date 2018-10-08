@@ -70,6 +70,31 @@
             "help": "Enable tracing of each memory call by invoking a callback on each memory operation. See mbed_mem_trace.h in the HAL API for more information",
             "value": false
         },
+        "sys-stats-enabled": {
+            "macro_name": "MBED_SYS_STATS_ENABLED",
+            "help": "Set to 1 to enable system stats. When enabled the function mbed_stats_sys_get returns non-zero data. See mbed_stats.h for more information",
+            "value": null
+        },
+        "stack-stats-enabled": {
+            "macro_name": "MBED_STACK_STATS_ENABLED",
+            "help": "Set to 1 to enable stack stats. When enabled the functions mbed_stats_stack_get and mbed_stats_stack_get_each return non-zero data. See mbed_stats.h for more information",
+            "value": null
+        },
+        "cpu-stats-enabled": {
+            "macro_name": "MBED_CPU_STATS_ENABLED",
+            "help": "Set to 1 to enable cpu stats. When enabled the function mbed_stats_cpu_get returns non-zero data. See mbed_stats.h for more information",
+            "value": null
+        },
+        "heap-stats-enabled": {
+            "macro_name": "MBED_HEAP_STATS_ENABLED",
+            "help": "Set to 1 to enable heap stats. When enabled the function mbed_stats_heap_get returns non-zero data. See mbed_stats.h for more information",
+            "value": null
+        },
+        "thread-stats-enabled": {
+            "macro_name": "MBED_THREAD_STATS_ENABLED",
+            "help": "Set to 1 to enable thread stats. When enabled the function mbed_stats_thread_get_each returns non-zero data. See mbed_stats.h for more information",
+            "value": null
+        },
         "error-decode-http-url-str": {
             "help": "HTTP URL string for ARM Mbed-OS Error Decode microsite",
             "value": "\"\\nFor more info, visit: https://armmbed.github.io/mbedos-error/?error=0x%08X\""

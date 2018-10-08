@@ -30,8 +30,8 @@ nsapi_error_t tcpsocket_connect_to_discard_srv(TCPSocket &sock);
 int split2half_rmng_tcp_test_time(); // [s]
 
 namespace tcp_global {
-static const int TESTS_TIMEOUT = 480;
-static const int TCP_OS_STACK_SIZE = 1024;
+static const int TESTS_TIMEOUT = 960;
+static const int TCP_OS_STACK_SIZE = 2048;
 
 static const int RX_BUFF_SIZE = 1220;
 static const int TX_BUFF_SIZE = 1220;

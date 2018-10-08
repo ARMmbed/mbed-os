@@ -121,7 +121,7 @@ class ARM(mbedToolchain):
                 "file": "",
                 "line": "",
                 "col": "",
-                "severity": "ERROR",
+                "severity": "WARNING",
             })
 
     def _get_toolchain_labels(self):
@@ -424,9 +424,9 @@ class ARMC6(ARM_STD):
             build_dir = kwargs['build_dir']
             secure_file = join(build_dir, "cmse_lib.o")
             self.flags["ld"] += ["--import_cmse_lib_out=%s" % secure_file]
-        # Add linking time preprocessor macro __DOMAIN_NS
+        # Add linking time preprocessor macro DOMAIN_NS
         if target.core == "Cortex-M23-NS" or self.target.core == "Cortex-M33-NS":
-            define_string = self.make_ld_define("__DOMAIN_NS", "0x1")
+            define_string = self.make_ld_define("DOMAIN_NS", "0x1")
             self.flags["ld"].append(define_string)
 
         asm_cpu = {

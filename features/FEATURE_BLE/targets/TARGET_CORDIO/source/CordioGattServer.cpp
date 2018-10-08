@@ -560,7 +560,7 @@ ble_error_t GattServer::read(
 ) {
     // Check to see if this is a CCCD
     uint8_t cccd_index;
-    if (get_cccd_id(att_handle, cccd_index)) {
+    if (get_cccd_index_by_cccd_handle(att_handle, cccd_index)) {
         if (connection == DM_CONN_ID_NONE) {
             return BLE_ERROR_PARAM_OUT_OF_RANGE;
         }
@@ -588,7 +588,7 @@ ble_error_t GattServer::write(
     // Check to see if this is a CCCD, if it is the case update the value for all
     // connections
     uint8_t cccd_index;
-    if (get_cccd_id(att_handle, cccd_index)) {
+    if (get_cccd_index_by_cccd_handle(att_handle, cccd_index)) {
         if (len != sizeof(uint16_t)) {
             return BLE_ERROR_INVALID_PARAM;
         }
@@ -615,7 +615,7 @@ ble_error_t GattServer::write(
     }
 
     // return if the update does not have to be propagated to peers
-    if (local_only || !has_cccd(att_handle)) {
+    if (local_only || !get_cccd_index_by_value_handle(att_handle, cccd_index)) {
         return BLE_ERROR_NONE;
     }
 
@@ -624,6 +624,8 @@ ble_error_t GattServer::write(
     // successful
     uint16_t conn_id = 0;
     uint16_t conn_found = 0;
+    size_t updates_sent = 0;
+
     while((conn_found < DM_CONN_MAX) && (conn_id < CONNECTION_ID_LIMIT)) {
         if (DmConnInUse(conn_id) == true) {
             ++conn_found;
@@ -631,13 +633,19 @@ ble_error_t GattServer::write(
                 uint16_t cccd_config = AttsCccEnabled(conn_id, cccd_index);
                 if (cccd_config & ATT_CLIENT_CFG_NOTIFY) {
                     AttsHandleValueNtf(conn_id, att_handle, len, (uint8_t*)buffer);
+                    updates_sent++;
                 }
                 if (cccd_config & ATT_CLIENT_CFG_INDICATE) {
                     AttsHandleValueInd(conn_id, att_handle, len, (uint8_t*)buffer);
+                    updates_sent++;
                 }
             }
         }
         ++conn_id;
+    }
+
+    if (updates_sent) {
+        handleDataSentEvent(updates_sent);
     }
 
     return BLE_ERROR_NONE;
@@ -652,7 +660,7 @@ ble_error_t GattServer::write(
 ) {
     // Check to see if this is a CCCD
     uint8_t cccd_index;
-    if (get_cccd_id(att_handle, cccd_index)) {
+    if (get_cccd_index_by_cccd_handle(att_handle, cccd_index)) {
         if ((connection == DM_CONN_ID_NONE) || (len != 2)) { // CCCDs are always 16 bits
             return BLE_ERROR_PARAM_OUT_OF_RANGE;
         }
@@ -669,19 +677,27 @@ ble_error_t GattServer::write(
     }
 
     // return if the update does not have to be propagated to peers
-    if (local_only || !has_cccd(att_handle)) {
+    if (local_only || !get_cccd_index_by_value_handle(att_handle, cccd_index)) {
         return BLE_ERROR_NONE;
     }
 
     // This characteristic has a CCCD attribute. Handle notifications and indications.
+    size_t updates_sent = 0;
+
     if (is_update_authorized(connection, att_handle)) {
         uint16_t cccEnabled = AttsCccEnabled(connection, cccd_index);
         if (cccEnabled & ATT_CLIENT_CFG_NOTIFY) {
             AttsHandleValueNtf(connection, att_handle, len, (uint8_t*)buffer);
+            updates_sent++;
         }
         if (cccEnabled & ATT_CLIENT_CFG_INDICATE) {
             AttsHandleValueInd(connection, att_handle, len, (uint8_t*)buffer);
+            updates_sent++;
         }
+    }
+
+    if (updates_sent) {
+        handleDataSentEvent(updates_sent);
     }
 
     return BLE_ERROR_NONE;
@@ -1195,7 +1211,7 @@ GattCharacteristic* GattServer::get_auth_char(uint16_t value_handle)
     return NULL;
 }
 
-bool GattServer::get_cccd_id(GattAttribute::Handle_t cccd_handle, uint8_t& idx) const
+bool GattServer::get_cccd_index_by_cccd_handle(GattAttribute::Handle_t cccd_handle, uint8_t& idx) const
 {
     for (idx = 0; idx < cccd_cnt; idx++) {
         if (cccd_handle == cccds[idx].handle) {
@@ -1205,10 +1221,10 @@ bool GattServer::get_cccd_id(GattAttribute::Handle_t cccd_handle, uint8_t& idx) 
     return false;
 }
 
-bool GattServer::has_cccd(GattAttribute::Handle_t char_handle) const
+bool GattServer::get_cccd_index_by_value_handle(GattAttribute::Handle_t char_handle, uint8_t& idx) const
 {
-    for (uint8_t cccd_index = 0; cccd_index < cccd_cnt; ++cccd_index) {
-        if (char_handle == cccd_handles[cccd_index]) {
+    for (idx = 0; idx < cccd_cnt; ++idx) {
+        if (char_handle == cccd_handles[idx]) {
             return true;
         }
     }

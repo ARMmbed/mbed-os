@@ -74,8 +74,10 @@
 #define RUART_TRAN_HOLD_REG_OFF         0x24  //Transmitter Holding Register
 
 #define RUART_MISC_CTL_REG_OFF          0x28
-#define RUART_TXDMA_BURSTSIZE_MASK      0xF8    //7:3
-#define RUART_RXDMA_BURSTSIZE_MASK      0x1F00  //12:8
+#define RUART_TXDMA_EN_MASK             0x02    // [1]
+#define RUART_RXDMA_EN_MASK             0x04    // [2]
+#define RUART_TXDMA_BURSTSIZE_MASK      0xF8    // [7:3]
+#define RUART_RXDMA_BURSTSIZE_MASK      0x1F00  // [12:8]
 
 #define RUART_DEBUG_REG_OFF             0x3C
 
@@ -551,6 +553,26 @@ HalRuartExitCriticalRtl8195a(
         IN VOID *Data
 );
 
+VOID
+HalRuartTxGdmaEnable8195a(
+    IN VOID *pHalRuartAdapter
+);
+
+VOID
+HalRuartTxGdmaDisable8195a(
+    IN VOID *pHalRuartAdapter
+);
+
+VOID
+HalRuartRxGdmaEnable8195a(
+    IN VOID *pHalRuartAdapter
+);
+
+VOID
+HalRuartRxGdmaDisable8195a(
+    IN VOID *pHalRuartAdapter
+);
+
 #if CONFIG_CHIP_E_CUT
 _LONG_CALL_ HAL_Status
 HalRuartResetTxFifoRtl8195a_V04(
@@ -649,33 +671,10 @@ _LONG_CALL_ VOID
 HalRuartExitCriticalRtl8195a_V04(
     IN VOID *Data
 );
-
 #endif  // #if CONFIG_CHIP_E_CUT
 
 #ifdef CONFIG_MBED_ENABLED
 // Interface to ROM functions
-//extern __longcall void HalRuartAdapterLoadDefRtl8195a(UART_Handle *uart, uint8_t idx);
-//extern __longcall void HalRuartDeInitRtl8195a(UART_Handle *uart);
-//extern __longcall HAL_Status HalRuartDisableRtl8195a(UART_Handle *data);
-//extern __longcall HAL_Status HalRuartEnableRtl8195a(UART_Handle *data);
-//extern __longcall void HalRuartDmaInitRtl8195a(UART_Handle *data);
-//extern __longcall void HalRuartTxGdmaLoadDefRtl8195a(UART_Handle *uart, RUART_DMA_Config *cfg);
-//extern __longcall void HalRuartRxGdmaLoadDefRtl8195a(UART_Handle *uart, RUART_DMA_Config *cfg);
-//extern __longcall HAL_Status HalRuartGetCRtl8195a(UART_Handle *uart, uint8_t *byte);
-//extern __longcall HAL_Status HalRuartPutCRtl8195a(UART_Handle *uart, uint8_t byte);
-//extern __longcall HAL_Status RuartLock(UART_Handle * uart);
-//extern __longcall void RuartUnlock(UART_Handle * uart);
-//extern __longcall void HalRuartSetIMRRtl8195a(UART_Handle *uart);
-//extern __longcall uint8_t HalRuartGetIMRRtl8195a(UART_Handle *uart);
-//extern __longcall uint32_t HalRuartSendRtl8195a(UART_Handle *, uint8_t *, uint32_t, uint32_t);
-//extern __longcall HAL_Status HalRuartIntSendRtl8195a(UART_Handle *, uint8_t *, uint32_t);
-//extern __longcall HAL_Status HalRuartIntRecvRtl8195a(UART_Handle *, uint8_t *, uint32_t);
-//extern __longcall uint32_t HalRuartRecvRtl8195a(UART_Handle *, uint8_t *, uint32_t, uint32_t);
-//extern __longcall void HalRuartRegIrqRtl8195a(UART_Handle *Data);
-//extern __longcall void HalRuartIntEnableRtl8195a(UART_Handle *Data);
-//extern __longcall void HalRuartIntDisableRtl8195a(UART_Handle *Data);
-//extern __longcall uint32_t HalRuartGetDebugValueRtl8195a(HAL_RUART_ADAPTER *Data, uint32_t sel);
-//extern __longcall void HalRuartRTSCtrlRtl8195a(UART_Handle *Data, bool val);
 extern __longcall HAL_Status RuartIsTimeout(uint32_t StartCount, uint32_t TimeoutCnt);
 #endif
 

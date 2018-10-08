@@ -32,6 +32,8 @@
 
 /**
  * FATFileSystem based on ChaN's Fat Filesystem library v0.8
+ *
+ * Synchronization level: Thread safe
  */
 class FATFileSystem : public mbed::FileSystem {
 public:

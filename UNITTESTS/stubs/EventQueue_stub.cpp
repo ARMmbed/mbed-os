@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, Arm Limited and affiliates.
+ * Copyright (c) , Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,8 +17,12 @@
 
 #include "EventQueue.h"
 #include "Callback.h"
+#include "EventQueue_stub.h"
 
 using namespace mbed;
+
+int EventQueue_stub::int_value = 0;
+unsigned EventQueue_stub::unsigned_value = 0;
 
 namespace events {
 
@@ -40,11 +44,16 @@ void EventQueue::break_dispatch()
 
 unsigned EventQueue::tick()
 {
-    return 0;
+    return EventQueue_stub::unsigned_value;
 }
 
 void EventQueue::cancel(int id)
 {
+}
+
+int EventQueue::time_left(int id)
+{
+    return EventQueue_stub::int_value;
 }
 
 void EventQueue::background(Callback<void(int)> update)
