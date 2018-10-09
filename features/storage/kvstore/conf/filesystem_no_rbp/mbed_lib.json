@@ -1,0 +1,29 @@
+{
+    "name": "storage_filesystem_no_rbp",
+    "config": {
+        "filesystem": {
+            "help": "Options are default, FAT or LITTLE. If default value the filesystem is chosen by the blockdevice type",
+            "value": "default"
+        },
+        "blockdevice": {
+            "help": "Options are default, SPIF, DATAFLASH, QSPIF or SD. If default the block device will be chosen by the defined component",
+            "value": "default"
+        },
+        "external_size": {
+            "help": "Size in bytes of the external block device, if default the maximum size available is used.",
+            "value": "0"
+        },
+        "external_base_address": {
+            "help": "The default will set start address to address 0",
+            "value": "0"
+        },    
+        "mount_point": {
+            "help": "Where to mount the filesystem.",
+            "value": "kv"
+        },
+        "folder_path": {
+            "help": "Path for the working directory where the FileSystemStore stores the data",
+            "value": "kvstore"
+        }
+    }
+}

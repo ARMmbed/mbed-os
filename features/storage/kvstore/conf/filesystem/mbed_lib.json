@@ -1,0 +1,42 @@
+{
+    "name": "storage_filesystem",
+    "config": {
+        "rbp_internal_size": {
+            "help": "If default the size will be 4K*#entries/32",
+            "value": "0"
+        },
+        "rbp_number_of_entries": {
+            "help": "If not defined default is 64",
+            "value": "64"
+        },
+        "internal_base_address": {
+            "help": "If default, base address is the first sector after the application code",
+            "value": "0"
+        },
+        "filesystem": {
+            "help": "Options are default, FAT or LITTLE. If default value the filesystem is chosen by the blockdevice type",
+            "value": "default"
+        },
+        "blockdevice": {
+            "help": "Options are default, SPIF, DATAFASH, QSPIF or SD. If default, the block device will be chosen according to the component defined in targets.json",
+            "value": "default"
+        },
+        "external_size": {
+            "help": "Size in bytes of the external block device, if default value, the maximum size available is used.",
+            "value": "0"
+        },
+        "external_base_address": {
+            "help": "The default will set start address to address 0",
+            "value": "0"
+        },    
+        "mount_point": {
+            "help": "Where to mount the filesystem.",
+            "value": "kv"
+        },
+        "folder_path": {
+            "help": "Path for the working directory where the FileSystemStore stores the data",
+            "value": "kvstore"
+        }
+    }
+}
+
