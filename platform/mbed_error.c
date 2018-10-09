@@ -350,7 +350,7 @@ static void print_error_report(mbed_error_ctx *ctx, const char *error_msg)
             break;
 
         case MBED_ERROR_CODE_ASSERTION_FAILED:
-            mbed_error_printf("Assertion failed: ", ctx->error_value);
+            mbed_error_printf("Assertion failed: ");
             break;
 
         default:
