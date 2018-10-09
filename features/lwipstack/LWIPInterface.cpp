@@ -166,8 +166,9 @@ nsapi_error_t LWIP::Interface::set_dhcp()
 void LWIP::Interface::netif_link_irq(struct netif *netif)
 {
     LWIP::Interface *interface = our_if_from_netif(netif);
+    nsapi_connection_status_t connectedStatusPrev = interface->connected;
 
-    if (netif_is_link_up(&interface->netif)) {
+    if (netif_is_link_up(&interface->netif) && interface->connected == NSAPI_STATUS_CONNECTING) {
         nsapi_error_t dhcp_status = interface->set_dhcp();
 
         if (interface->blocking && dhcp_status == NSAPI_ERROR_OK) {
@@ -177,15 +178,25 @@ void LWIP::Interface::netif_link_irq(struct netif *netif)
         }
     } else {
         osSemaphoreRelease(interface->unlinked);
+        if (netif_is_up(&interface->netif)) {
+            interface->connected = NSAPI_STATUS_CONNECTING;
+        }
         netif_set_down(&interface->netif);
+    }
+
+    if (interface->client_callback && connectedStatusPrev != interface->connected
+            && interface->connected != NSAPI_STATUS_GLOBAL_UP /* advertised by netif_status_irq */
+            && interface->connected != NSAPI_STATUS_DISCONNECTED) /* advertised by bring_down */ {
+        interface->client_callback(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, interface->connected);
     }
 }
 
 void LWIP::Interface::netif_status_irq(struct netif *netif)
 {
     LWIP::Interface *interface = our_if_from_netif(netif);
+    nsapi_connection_status_t connectedStatusPrev = interface->connected;
 
-    if (netif_is_up(&interface->netif)) {
+    if (netif_is_up(&interface->netif) && netif_is_link_up(&interface->netif)) {
         bool dns_addr_has_to_be_added = false;
         if (!(interface->has_addr_state & HAS_ANY_ADDR) && LWIP::get_ip_addr(true, netif)) {
             if (interface->blocking) {
@@ -212,19 +223,19 @@ void LWIP::Interface::netif_status_irq(struct netif *netif)
             dns_addr_has_to_be_added = true;
         }
 #endif
-       if (dns_addr_has_to_be_added && !interface->blocking) {
+        if (dns_addr_has_to_be_added && !interface->blocking) {
             add_dns_addr(&interface->netif);
         }
-
 
         if (interface->has_addr_state & HAS_ANY_ADDR) {
             interface->connected = NSAPI_STATUS_GLOBAL_UP;
         }
-    } else {
+    } else if (!netif_is_up(&interface->netif) && netif_is_link_up(&interface->netif)) {
         interface->connected = NSAPI_STATUS_DISCONNECTED;
     }
 
-    if (interface->client_callback) {
+    if (interface->client_callback && (connectedStatusPrev != interface->connected)
+            && interface->connected != NSAPI_STATUS_DISCONNECTED) /* advertised by bring_down */ {
         interface->client_callback(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, interface->connected);
     }
 }
@@ -632,5 +643,8 @@ nsapi_error_t LWIP::Interface::bringdown()
     has_addr_state = 0;
 
     connected = NSAPI_STATUS_DISCONNECTED;
+    if (client_callback) {
+        client_callback(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, connected);
+    }
     return 0;
 }
