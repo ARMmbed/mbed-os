@@ -1423,7 +1423,7 @@
     },
     "K64F": {
         "supported_form_factors": ["ARDUINO"],
-        "components_add": ["SD", "FLASHIAP"],
+        "components": ["SD", "FLASHIAP"],
         "core": "Cortex-M4F",
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "extra_labels": [
@@ -1675,7 +1675,7 @@
     },
     "K66F": {
         "supported_form_factors": ["ARDUINO"],
-        "components_add": ["SD", "FLASHIAP"],
+        "components": ["SD", "FLASHIAP"],
         "core": "Cortex-M4F",
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "extra_labels": [
@@ -1721,7 +1721,7 @@
     },
     "K82F": {
         "supported_form_factors": ["ARDUINO"],
-        "components_add": ["SPIF", "FLASHIAP"],
+        "components": ["SPIF", "FLASHIAP"],
         "core": "Cortex-M4F",
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "extra_labels": ["Freescale", "MCUXpresso_MCUS", "KSDK2_MCUS", "FRDM"],
@@ -2410,7 +2410,7 @@
     },
     "USI_WM_BN_BM_22": {
         "inherits": ["FAMILY_STM32"],
-        "components_add": ["SPIF", "FLASHIAP"],
+        "components": ["SPIF", "FLASHIAP"],
         "core": "Cortex-M4F",
         "extra_labels_add": [
             "STM32F4",
@@ -3580,7 +3580,7 @@
         }
     },
     "DISCO_L475VG_IOT01A": {
-        "components_add": ["QSPIF", "FLASHIAP"],
+        "components": ["QSPIF", "FLASHIAP"],
         "inherits": ["FAMILY_STM32"],
         "core": "Cortex-M4F",
         "extra_labels_add": ["STM32L4", "STM32L475xG", "STM32L475VG"],
@@ -3611,7 +3611,7 @@
         "bootloader_supported": true
     },
     "DISCO_L476VG": {
-        "components_add": ["QSPIF", "FLASHIAP"],
+        "components": ["QSPIF", "FLASHIAP"],
         "inherits": ["FAMILY_STM32"],
         "core": "Cortex-M4F",
         "extra_labels_add": ["STM32L4", "STM32L476xG", "STM32L476VG"],

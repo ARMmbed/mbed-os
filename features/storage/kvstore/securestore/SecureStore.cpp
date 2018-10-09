@@ -18,8 +18,6 @@
 
 #include "SecureStore.h"
 
-#if SECURESTORE_ENABLED
-
 #include "aes.h"
 #include "cmac.h"
 #include "entropy.h"
@@ -870,4 +868,3 @@ int SecureStore::iterator_close(iterator_t it)
     return ret;
 }
 
-#endif

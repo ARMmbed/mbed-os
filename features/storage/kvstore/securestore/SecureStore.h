@@ -17,22 +17,6 @@
 #ifndef MBED_SECURESTORE_H
 #define MBED_SECURESTORE_H
 
-#if !defined(MBEDTLS_CONFIG_FILE)
-#include "mbedtls/config.h"
-#else
-#include MBEDTLS_CONFIG_FILE
-#endif
-
-#define SECURESTORE_ENABLED 1
-
-// Whole class is not supported if entropy is not enabled
-#ifndef MBEDTLS_ENTROPY_C
-#undef SECURESTORE_ENABLED
-#define SECURESTORE_ENABLED 0
-#endif
-
-#if (SECURESTORE_ENABLED) || defined(DOXYGEN_ONLY)
-
 #include <stdint.h>
 #include <stdio.h>
 #include "KVStore.h"
@@ -288,5 +272,4 @@ private:
 
 } // namespace mbed
 
-#endif
 #endif

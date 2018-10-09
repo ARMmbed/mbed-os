@@ -706,7 +706,6 @@ int _storage_config_TDB_EXTERNAL_NO_RBP()
 
 int _storage_config_tdb_external_common()
 {
-#if SECURESTORE_ENABLED
     int ret = kvstore_config.external_bd->init();
     if (ret != MBED_SUCCESS) {
         tr_error("KV Config: Fail to init external BlockDevice.");
@@ -751,9 +750,6 @@ int _storage_config_tdb_external_common()
     }
 
     return MBED_SUCCESS;
-#else
-    return MBED_ERROR_UNSUPPORTED;
-#endif
 }
 
 int _storage_config_FILESYSTEM()
@@ -847,13 +843,13 @@ int _storage_config_FILESYSTEM_NO_RBP()
 
 int _storage_config_filesystem_common()
 {
-#if SECURESTORE_ENABLED
+    const char *mount_point = STR(MBED_CONF_STORAGE_FILESYSTEM_NO_RBP_MOUNT_POINT);
+
     int ret = kvstore_config.external_fs->mount(kvstore_config.external_bd);
     if (ret != MBED_SUCCESS) {
         ret = kvstore_config.external_fs->reformat(kvstore_config.external_bd);
         if (ret != MBED_SUCCESS) {
-            tr_error("KV Config: Fail to mount FileSystem to %s",
-                     STR(MBED_CONF_STORAGE_FILESYSTEM_NO_RBP_MOUNT_POINT));
+            tr_error("KV Config: Fail to mount FileSystem to %s", mount_point);
             return MBED_ERROR_FAILED_OPERATION ;
         }
     }
@@ -894,9 +890,6 @@ int _storage_config_filesystem_common()
     }
 
     return MBED_SUCCESS;
-#else
-    return MBED_ERROR_UNSUPPORTED;
-#endif
 }
 
 MBED_WEAK int kv_init_storage_config()

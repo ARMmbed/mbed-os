@@ -46,6 +46,10 @@ kv_iterator_t kvstore_it;
 #define STR_EXPAND(tok) #tok
 #define STR(tok) STR_EXPAND(tok)
 
+#if !DEVICE_TRNG
+#error [NOT_SUPPORTED] TRNG needs to be supported for this test
+#endif
+
 /*----------------helpers------------------*/
 
 char *def_kv_temp = NULL;
@@ -74,9 +78,7 @@ static void kvstore_init()
     parse_default_kv();
 
     init_res = kv_reset(def_kv);
-    if (init_res != MBED_ERROR_UNSUPPORTED) {
-        TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, init_res);
-    }
+    TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, init_res);
 }
 
 /*----------------set()------------------*/

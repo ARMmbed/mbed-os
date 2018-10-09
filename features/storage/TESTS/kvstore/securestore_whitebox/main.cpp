@@ -34,8 +34,11 @@
 #include <stdio.h>
 #include <algorithm>
 
-#if !SECURESTORE_ENABLED
-#error [NOT_SUPPORTED] SecureStore needs to be enabled for this test
+#define LOCAL_TEST
+
+// MBED_TEST_SIM_BLOCKDEVICE is used here only to filter out inappropriate boards (little RAM etc.)
+#if !defined(MBED_TEST_SIM_BLOCKDEVICE) && !defined(LOCAL_TEST)
+#error [NOT_SUPPORTED] KVStore test not supported on this platform
 #endif
 
 using namespace mbed;

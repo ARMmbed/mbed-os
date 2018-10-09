@@ -43,22 +43,17 @@ static char *keys[] = {"key1", "key2", "key3"};
 KVStore::info_t info;
 KVStore::iterator_t kvstore_it;
 
+#define TEST_ASSERT_EQUAL_ERROR_CODE(expected, actual) \
+TEST_ASSERT_EQUAL(expected & MBED_ERROR_STATUS_CODE_MASK, actual & MBED_ERROR_STATUS_CODE_MASK)
+
 KVStore *kvstore = NULL;
 FileSystem *fs = NULL;
 BlockDevice *bd = NULL;
 FlashSimBlockDevice *flash_bd = NULL;
 SlicingBlockDevice *ul_bd = NULL, *rbp_bd = NULL;
 
-enum kv_setup {
-    TDBStoreSet = 0,
-    FSStoreSet,
-    SecStoreSet,
-    NumKVs
-};
-
-static const char *kv_prefix[] = {"TDB_", "FS_", "SEC_"};
-
-static int kv_setup = TDBStoreSet;
+enum kv_setup {TDBStoreSet = 1, FSStoreSet = 2, SecStoreSet = 3};
+static int kv_setup = 1;
 
 static const size_t ul_bd_size = 16 * 4096;
 static const size_t rbp_bd_size = 8 * 4096;
@@ -102,8 +97,6 @@ static void kvstore_init()
         }
         kvstore = new FileSystemStore(fs);
     }
-
-#if SECURESTORE_ENABLED
     if (kv_setup == SecStoreSet) {
         bd = BlockDevice::get_default_instance();
         TEST_SKIP_UNLESS(bd != NULL);
@@ -121,12 +114,13 @@ static void kvstore_init()
         TDBStore *rbp_kv = new TDBStore(rbp_bd);
         kvstore = new SecureStore(ul_kv, rbp_kv);
     }
-#endif
 
     TEST_SKIP_UNLESS(kvstore != NULL);
 
     res = kvstore->init();
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
+
+    kv_setup++;
 }
 
 //deinit the blockdevice
@@ -136,21 +130,26 @@ static void kvstore_deinit()
 
     TEST_SKIP_UNLESS(kvstore != NULL);
 
-    res = kvstore->deinit();
-    TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
-
     if (kv_setup == TDBStoreSet) {
+        res = bd->deinit();
+        TEST_ASSERT_EQUAL_ERROR_CODE(0, res);
+
         if (bd->get_erase_value() == -1) {
             delete flash_bd;
         }
     }
     if (kv_setup == FSStoreSet) {
+        res = bd->deinit();
+        TEST_ASSERT_EQUAL_ERROR_CODE(0, res);
+
         fs = FileSystem::get_default_instance();
         TEST_SKIP_UNLESS(fs != NULL);
         res = fs->unmount();
         TEST_ASSERT_EQUAL_ERROR_CODE(0, res);
     }
     if (kv_setup == SecStoreSet) {
+        res = bd->deinit();
+        TEST_ASSERT_EQUAL_ERROR_CODE(0, res);
         if (bd->get_erase_value() == -1) {
             delete flash_bd;
         }
@@ -158,10 +157,10 @@ static void kvstore_deinit()
         delete rbp_bd;
     }
 
-    delete kvstore;
-    kvstore = NULL;
+    res = kvstore->deinit();
+    TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
 
-    kv_setup++;
+    delete kvstore;
 }
 
 /*----------------set()------------------*/
@@ -423,7 +422,6 @@ static void set_several_key_value_sizes()
 static void Sec_set_key_rollback_without_auth_flag()
 {
     TEST_SKIP_UNLESS(kvstore != NULL);
-    TEST_SKIP_UNLESS(kv_setup == SecStoreSet);
 
     int res = kvstore->set(key, data, data_size, KVStore::REQUIRE_REPLAY_PROTECTION_FLAG);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_ERROR_INVALID_ARGUMENT, res);
@@ -435,7 +433,6 @@ static void Sec_set_key_rollback_set_again_no_rollback()
     char key_name[7] = "name";
 
     TEST_SKIP_UNLESS(kvstore != NULL);
-    TEST_SKIP_UNLESS(kv_setup == SecStoreSet);
 
     int res = kvstore->set(key_name, data, data_size, KVStore::REQUIRE_REPLAY_PROTECTION_FLAG || KVStore::REQUIRE_INTEGRITY_FLAG);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
@@ -456,7 +453,6 @@ static void Sec_set_key_rollback_set_again_no_rollback()
 static void Sec_set_key_encrypt()
 {
     TEST_SKIP_UNLESS(kvstore != NULL);
-    TEST_SKIP_UNLESS(kv_setup == SecStoreSet);
 
     int res = kvstore->set(key, data, data_size, KVStore::REQUIRE_CONFIDENTIALITY_FLAG);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
@@ -474,7 +470,6 @@ static void Sec_set_key_encrypt()
 static void Sec_set_key_auth()
 {
     TEST_SKIP_UNLESS(kvstore != NULL);
-    TEST_SKIP_UNLESS(kv_setup == SecStoreSet);
 
     int res = kvstore->set(key, data, data_size, KVStore::REQUIRE_INTEGRITY_FLAG);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
@@ -974,11 +969,9 @@ static void iterator_next_full_list()
     TEST_SKIP_UNLESS(kvstore != NULL);
 
     int i = 0;
-    bool *key_found = new bool[num_of_keys];
     for (i = 0; i < num_of_keys; i++) {
         int res = kvstore->set(keys[i], data, data_size, 0);
         TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
-        key_found[i] = false;
     }
 
     int res = kvstore->iterator_open(&kvstore_it, NULL);
@@ -992,14 +985,7 @@ static void iterator_next_full_list()
 
         res = kvstore->get(temp_key, buffer, buffer_size, &actual_size, 0);
         TEST_ASSERT_EQUAL_ERROR_CODE(MBED_SUCCESS, res);
-        int j;
-        for (j = 0; j < num_of_keys; j++) {
-            if (!key_found[j] && (!strcmp(keys[j], temp_key))) {
-                key_found[j] = true;
-                break;
-            }
-        }
-        TEST_ASSERT_NOT_EQUAL(j, num_of_keys);
+        TEST_ASSERT_EQUAL_STRING(keys[i], temp_key);
     }
 
     res = kvstore->reset();
@@ -1223,7 +1209,7 @@ static void set_add_data_without_set_start()
 {
     TEST_SKIP_UNLESS(kvstore != NULL);
 
-    KVStore::set_handle_t handle = reinterpret_cast<KVStore::set_handle_t>(0);
+    KVStore::set_handle_t handle;
 
     int res = kvstore->set_add_data(handle, data, data_size);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_ERROR_INVALID_ARGUMENT, res);
@@ -1236,7 +1222,7 @@ static void set_finalize_without_set_start()
 {
     TEST_SKIP_UNLESS(kvstore != NULL);
 
-    KVStore::set_handle_t handle = reinterpret_cast<KVStore::set_handle_t>(0);
+    KVStore::set_handle_t handle;
 
     int res = kvstore->set_finalize(handle);
     TEST_ASSERT_EQUAL_ERROR_CODE(MBED_ERROR_INVALID_ARGUMENT, res);
@@ -1263,92 +1249,239 @@ utest::v1::status_t greentea_failure_handler(const Case *const source, const fai
     return STATUS_CONTINUE;
 }
 
-typedef struct {
-    const char *description;
-    const case_handler_t case_handler;
-    const case_failure_handler_t failure_handler;
-} template_case_t;
+Case cases[] = {
 
-template_case_t template_cases[] = {
+    /*----------------TDBStore------------------*/
 
-    {"kvstore_init", kvstore_init, default_handler}, //must be first
+    Case("TDB_kvstore_init", kvstore_init), //must be first
 
-    {"set_key_null", set_key_null, greentea_failure_handler},
-    {"set_key_length_exceeds_max", set_key_length_exceeds_max, greentea_failure_handler},
-    {"set_buffer_null_size_not_zero", set_buffer_null_size_not_zero, greentea_failure_handler},
-    {"set_key_undefined_flags", set_key_undefined_flags, greentea_failure_handler},
-    {"set_buffer_size_is_zero", set_buffer_size_is_zero, greentea_failure_handler},
-    {"set_same_key_several_time", set_same_key_several_time, greentea_failure_handler},
-    {"set_several_keys_multithreaded", set_several_keys_multithreaded, greentea_failure_handler},
-    {"set_write_once_flag_try_set_twice", set_write_once_flag_try_set_twice, greentea_failure_handler},
-    {"set_write_once_flag_try_remove", set_write_once_flag_try_remove, greentea_failure_handler},
-    {"set_key_value_one_byte_size", set_key_value_one_byte_size, greentea_failure_handler},
-    {"set_key_value_two_byte_size", set_key_value_two_byte_size, greentea_failure_handler},
-    {"set_key_value_five_byte_size", set_key_value_five_byte_size, greentea_failure_handler},
-    {"set_key_value_fifteen_byte_size", set_key_value_fifteen_byte_size, greentea_failure_handler},
-    {"set_key_value_seventeen_byte_size", set_key_value_seventeen_byte_size, greentea_failure_handler},
-    {"set_several_key_value_sizes", set_several_key_value_sizes, greentea_failure_handler},
+    Case("TDB_set_key_null", set_key_null, greentea_failure_handler),
+    Case("TDB_set_key_length_exceeds_max", set_key_length_exceeds_max, greentea_failure_handler),
+    Case("TDB_set_buffer_null_size_not_zero", set_buffer_null_size_not_zero, greentea_failure_handler),
+    Case("TDB_set_key_undefined_flags", set_key_undefined_flags, greentea_failure_handler),
+    Case("TDB_set_buffer_size_is_zero", set_buffer_size_is_zero, greentea_failure_handler),
+    Case("TDB_set_same_key_several_time", set_same_key_several_time, greentea_failure_handler),
+    Case("TDB_set_several_keys_multithreaded", set_several_keys_multithreaded, greentea_failure_handler),
+    Case("TDB_set_write_once_flag_try_set_twice", set_write_once_flag_try_set_twice, greentea_failure_handler),
+    Case("TDB_set_write_once_flag_try_remove", set_write_once_flag_try_remove, greentea_failure_handler),
+    Case("TDB_set_key_value_one_byte_size", set_key_value_one_byte_size, greentea_failure_handler),
+    Case("TDB_set_key_value_two_byte_size", set_key_value_two_byte_size, greentea_failure_handler),
+    Case("TDB_set_key_value_five_byte_size", set_key_value_five_byte_size, greentea_failure_handler),
+    Case("TDB_set_key_value_fifteen_byte_size", set_key_value_fifteen_byte_size, greentea_failure_handler),
+    Case("TDB_set_key_value_seventeen_byte_size", set_key_value_seventeen_byte_size, greentea_failure_handler),
+    Case("TDB_set_several_key_value_sizes", set_several_key_value_sizes, greentea_failure_handler),
 
-    {"get_key_null", get_key_null, greentea_failure_handler},
-    {"get_key_length_exceeds_max", get_key_length_exceeds_max, greentea_failure_handler},
-    {"get_buffer_null_size_not_zero", get_buffer_null_size_not_zero, greentea_failure_handler},
-    {"get_buffer_size_is_zero", get_buffer_size_is_zero, greentea_failure_handler},
-    {"get_buffer_size_smaller_than_data_real_size", get_buffer_size_smaller_than_data_real_size, greentea_failure_handler},
-    {"get_buffer_size_bigger_than_data_real_size", get_buffer_size_bigger_than_data_real_size, greentea_failure_handler},
-    {"get_offset_bigger_than_data_size", get_offset_bigger_than_data_size, greentea_failure_handler},
-    {"get_non_existing_key", get_non_existing_key, greentea_failure_handler},
-    {"get_removed_key", get_removed_key, greentea_failure_handler},
-    {"get_key_that_was_set_twice", get_key_that_was_set_twice, greentea_failure_handler},
-    {"get_several_keys_multithreaded", get_several_keys_multithreaded, greentea_failure_handler},
+    Case("TDB_get_key_null", get_key_null, greentea_failure_handler),
+    Case("TDB_get_key_length_exceeds_max", get_key_length_exceeds_max, greentea_failure_handler),
+    Case("TDB_get_buffer_null_size_not_zero", get_buffer_null_size_not_zero, greentea_failure_handler),
+    Case("TDB_get_buffer_size_is_zero", get_buffer_size_is_zero, greentea_failure_handler),
+    Case("TDB_get_buffer_size_smaller_than_data_real_size", get_buffer_size_smaller_than_data_real_size, greentea_failure_handler),
+    Case("TDB_get_buffer_size_bigger_than_data_real_size", get_buffer_size_bigger_than_data_real_size, greentea_failure_handler),
+    Case("TDB_get_offset_bigger_than_data_size", get_offset_bigger_than_data_size, greentea_failure_handler),
+    Case("TDB_get_non_existing_key", get_non_existing_key, greentea_failure_handler),
+    Case("TDB_get_removed_key", get_removed_key, greentea_failure_handler),
+    Case("TDB_get_key_that_was_set_twice", get_key_that_was_set_twice, greentea_failure_handler),
+    Case("TDB_get_several_keys_multithreaded", get_several_keys_multithreaded, greentea_failure_handler),
 
-    {"remove_key_null", remove_key_null, greentea_failure_handler},
-    {"remove_key_length_exceeds_max", remove_key_length_exceeds_max, greentea_failure_handler},
-    {"remove_non_existing_key", remove_non_existing_key, greentea_failure_handler},
-    {"remove_removed_key", remove_removed_key, greentea_failure_handler},
-    {"remove_existed_key", remove_existed_key, greentea_failure_handler},
+    Case("TDB_remove_key_null", remove_key_null, greentea_failure_handler),
+    Case("TDB_remove_key_length_exceeds_max", remove_key_length_exceeds_max, greentea_failure_handler),
+    Case("TDB_remove_non_existing_key", remove_non_existing_key, greentea_failure_handler),
+    Case("TDB_remove_removed_key", remove_removed_key, greentea_failure_handler),
+    Case("TDB_remove_existed_key", remove_existed_key, greentea_failure_handler),
 
-    {"get_info_key_null", get_info_key_null, greentea_failure_handler},
-    {"get_info_key_length_exceeds_max", get_info_key_length_exceeds_max, greentea_failure_handler},
-    {"get_info_info_null", get_info_info_null, greentea_failure_handler},
-    {"get_info_non_existing_key", get_info_non_existing_key, greentea_failure_handler},
-    {"get_info_removed_key", get_info_removed_key, greentea_failure_handler},
-    {"get_info_existed_key", get_info_existed_key, greentea_failure_handler},
-    {"get_info_overwritten_key", get_info_overwritten_key, greentea_failure_handler},
+    Case("TDB_get_info_key_null", get_info_key_null, greentea_failure_handler),
+    Case("TDB_get_info_key_length_exceeds_max", get_info_key_length_exceeds_max, greentea_failure_handler),
+    Case("TDB_get_info_info_null", get_info_info_null, greentea_failure_handler),
+    Case("TDB_get_info_non_existing_key", get_info_non_existing_key, greentea_failure_handler),
+    Case("TDB_get_info_removed_key", get_info_removed_key, greentea_failure_handler),
+    Case("TDB_get_info_existed_key", get_info_existed_key, greentea_failure_handler),
+    Case("TDB_get_info_overwritten_key", get_info_overwritten_key, greentea_failure_handler),
 
-    {"iterator_open_it_null", iterator_open_it_null, greentea_failure_handler},
+    Case("TDB_iterator_open_it_null", iterator_open_it_null, greentea_failure_handler),
 
-    {"iterator_next_key_size_zero", iterator_next_key_size_zero, greentea_failure_handler},
-    {"iterator_next_empty_list", iterator_next_empty_list, greentea_failure_handler},
-    {"iterator_next_one_key_list", iterator_next_one_key_list, greentea_failure_handler},
-    {"iterator_next_empty_list_keys_removed", iterator_next_empty_list_keys_removed, greentea_failure_handler},
-    {"iterator_next_empty_list_non_matching_prefix", iterator_next_empty_list_non_matching_prefix, greentea_failure_handler},
-    {"iterator_next_several_overwritten_keys", iterator_next_several_overwritten_keys, greentea_failure_handler},
-    {"iterator_next_full_list", iterator_next_full_list, greentea_failure_handler},
+    Case("TDB_iterator_next_key_size_zero", iterator_next_key_size_zero, greentea_failure_handler),
+    Case("TDB_iterator_next_empty_list", iterator_next_empty_list, greentea_failure_handler),
+    Case("TDB_iterator_next_one_key_list", iterator_next_one_key_list, greentea_failure_handler),
+    Case("TDB_iterator_next_empty_list_keys_removed", iterator_next_empty_list_keys_removed, greentea_failure_handler),
+    Case("TDB_iterator_next_empty_list_non_matching_prefix", iterator_next_empty_list_non_matching_prefix, greentea_failure_handler),
+    Case("TDB_iterator_next_several_overwritten_keys", iterator_next_several_overwritten_keys, greentea_failure_handler),
+    Case("TDB_iterator_next_full_list", iterator_next_full_list, greentea_failure_handler),
 
-    {"iterator_close_right_after_iterator_open", iterator_close_right_after_iterator_open, greentea_failure_handler},
+    Case("TDB_iterator_close_right_after_iterator_open", iterator_close_right_after_iterator_open, greentea_failure_handler),
 
-    {"set_start_key_is_null", set_start_key_is_null, greentea_failure_handler},
-    {"set_start_key_size_exceeds_max_size", set_start_key_size_exceeds_max_size, greentea_failure_handler},
-    {"set_start_final_data_size_is_zero", set_start_final_data_size_is_zero, greentea_failure_handler},
-    {"set_start_final_data_size_is_smaller_than_real_data", set_start_final_data_size_is_smaller_than_real_data, greentea_failure_handler},
-    {"set_start_final_data_size_is_bigger_than_real_data", set_start_final_data_size_is_bigger_than_real_data, greentea_failure_handler},
+    Case("TDB_set_start_key_is_null", set_start_key_is_null, greentea_failure_handler),
+    Case("TDB_set_start_key_size_exceeds_max_size", set_start_key_size_exceeds_max_size, greentea_failure_handler),
+    Case("TDB_set_start_final_data_size_is_zero", set_start_final_data_size_is_zero, greentea_failure_handler),
+    Case("TDB_set_start_final_data_size_is_smaller_than_real_data", set_start_final_data_size_is_smaller_than_real_data, greentea_failure_handler),
+    Case("TDB_set_start_final_data_size_is_bigger_than_real_data", set_start_final_data_size_is_bigger_than_real_data, greentea_failure_handler),
 
-    {"set_add_data_value_data_is_null", set_add_data_value_data_is_null, greentea_failure_handler},
-    {"set_add_data_data_size_is_zero", set_add_data_data_size_is_zero, greentea_failure_handler},
-    {"set_add_data_data_size_bigger_than_real_data", set_add_data_data_size_bigger_than_real_data, greentea_failure_handler},
-    {"set_add_data_set_different_data_size_in_same_transaction", set_add_data_set_different_data_size_in_same_transaction, greentea_failure_handler},
-    {"set_add_data_set_key_value_five_Kbytes", set_add_data_set_key_value_five_Kbytes, greentea_failure_handler},
-    {"set_add_data_without_set_start", set_add_data_without_set_start, greentea_failure_handler},
+    Case("TDB_set_add_data_value_data_is_null", set_add_data_value_data_is_null, greentea_failure_handler),
+    Case("TDB_set_add_data_data_size_is_zero", set_add_data_data_size_is_zero, greentea_failure_handler),
+    Case("TDB_set_add_data_data_size_bigger_than_real_data", set_add_data_data_size_bigger_than_real_data, greentea_failure_handler),
+    Case("TDB_set_add_data_set_different_data_size_in_same_transaction", set_add_data_set_different_data_size_in_same_transaction, greentea_failure_handler),
+    Case("TDB_set_add_data_set_key_value_five_Kbytes", set_add_data_set_key_value_five_Kbytes, greentea_failure_handler),
+    Case("TDB_set_add_data_without_set_start", set_add_data_without_set_start, greentea_failure_handler),
 
-    {"set_finalize_without_set_start", set_finalize_without_set_start, greentea_failure_handler},
-    {"set_finalize_right_after_set_start", set_finalize_right_after_set_start, greentea_failure_handler},
+    Case("TDB_set_finalize_without_set_start", set_finalize_without_set_start, greentea_failure_handler),
+    Case("TDB_set_finalize_right_after_set_start", set_finalize_right_after_set_start, greentea_failure_handler),
 
-    {"Sec_set_key_rollback_without_auth_flag", Sec_set_key_rollback_without_auth_flag, greentea_failure_handler},
-    {"Sec_set_key_rollback_set_again_no_rollback", Sec_set_key_rollback_set_again_no_rollback, greentea_failure_handler},
-    {"Sec_set_key_encrypt", Sec_set_key_encrypt, greentea_failure_handler},
-    {"Sec_set_key_auth", Sec_set_key_auth, greentea_failure_handler},
+    Case("TDB_kvstore_deinit", kvstore_deinit),
 
-    {"kvstore_deinit", kvstore_deinit},
+    /*----------------FSStore------------------*/
+
+    Case("FS_kvstore_init", kvstore_init),
+
+    Case("FS_set_key_null", set_key_null, greentea_failure_handler),
+    Case("FS_set_key_length_exceeds_max", set_key_length_exceeds_max, greentea_failure_handler),
+    Case("FS_set_buffer_null_size_not_zero", set_buffer_null_size_not_zero, greentea_failure_handler),
+    Case("FS_set_key_undefined_flags", set_key_undefined_flags, greentea_failure_handler),
+    Case("FS_set_buffer_size_is_zero", set_buffer_size_is_zero, greentea_failure_handler),
+    Case("FS_set_same_key_several_time", set_same_key_several_time, greentea_failure_handler),
+    Case("FS_set_several_keys_multithreaded", set_several_keys_multithreaded, greentea_failure_handler),
+    Case("FS_set_write_once_flag_try_set_twice", set_write_once_flag_try_set_twice, greentea_failure_handler),
+    Case("FS_set_write_once_flag_try_remove", set_write_once_flag_try_remove, greentea_failure_handler),
+    Case("FS_set_key_value_one_byte_size", set_key_value_one_byte_size, greentea_failure_handler),
+    Case("FS_set_key_value_two_byte_size", set_key_value_two_byte_size, greentea_failure_handler),
+    Case("FS_set_key_value_five_byte_size", set_key_value_five_byte_size, greentea_failure_handler),
+    Case("FS_set_key_value_fifteen_byte_size", set_key_value_fifteen_byte_size, greentea_failure_handler),
+    Case("FS_set_key_value_seventeen_byte_size", set_key_value_seventeen_byte_size, greentea_failure_handler),
+    Case("FS_set_several_key_value_sizes", set_several_key_value_sizes, greentea_failure_handler),
+
+    Case("FS_get_key_null", get_key_null, greentea_failure_handler),
+    Case("FS_get_key_length_exceeds_max", get_key_length_exceeds_max, greentea_failure_handler),
+    Case("FS_get_buffer_null_size_not_zero", get_buffer_null_size_not_zero, greentea_failure_handler),
+    Case("FS_get_buffer_size_is_zero", get_buffer_size_is_zero, greentea_failure_handler),
+    Case("FS_get_buffer_size_smaller_than_data_real_size", get_buffer_size_smaller_than_data_real_size, greentea_failure_handler),
+    Case("FS_get_buffer_size_bigger_than_data_real_size", get_buffer_size_bigger_than_data_real_size, greentea_failure_handler),
+    Case("FS_get_offset_bigger_than_data_size", get_offset_bigger_than_data_size, greentea_failure_handler),
+    Case("FS_get_non_existing_key", get_non_existing_key, greentea_failure_handler),
+    Case("FS_get_removed_key", get_removed_key, greentea_failure_handler),
+    Case("FS_get_key_that_was_set_twice", get_key_that_was_set_twice, greentea_failure_handler),
+    Case("FS_get_several_keys_multithreaded", get_several_keys_multithreaded, greentea_failure_handler),
+
+    Case("FS_remove_key_null", remove_key_null, greentea_failure_handler),
+    Case("FS_remove_key_length_exceeds_max", remove_key_length_exceeds_max, greentea_failure_handler),
+    Case("FS_remove_non_existing_key", remove_non_existing_key, greentea_failure_handler),
+    Case("FS_remove_removed_key", remove_removed_key, greentea_failure_handler),
+    Case("FS_remove_existed_key", remove_existed_key, greentea_failure_handler),
+
+    Case("FS_get_info_key_null", get_info_key_null, greentea_failure_handler),
+    Case("FS_get_info_key_length_exceeds_max", get_info_key_length_exceeds_max, greentea_failure_handler),
+    Case("FS_get_info_info_null", get_info_info_null, greentea_failure_handler),
+    Case("FS_get_info_non_existing_key", get_info_non_existing_key, greentea_failure_handler),
+    Case("FS_get_info_removed_key", get_info_removed_key, greentea_failure_handler),
+    Case("FS_get_info_existed_key", get_info_existed_key, greentea_failure_handler),
+    Case("FS_get_info_overwritten_key", get_info_overwritten_key, greentea_failure_handler),
+
+    Case("FS_iterator_open_it_null", iterator_open_it_null, greentea_failure_handler),
+
+    Case("FS_iterator_next_key_size_zero", iterator_next_key_size_zero, greentea_failure_handler),
+    Case("FS_iterator_next_empty_list", iterator_next_empty_list, greentea_failure_handler),
+    Case("FS_iterator_next_one_key_list", iterator_next_one_key_list, greentea_failure_handler),
+    Case("FS_iterator_next_empty_list_keys_removed", iterator_next_empty_list_keys_removed, greentea_failure_handler),
+    Case("FS_iterator_next_empty_list_non_matching_prefix", iterator_next_empty_list_non_matching_prefix, greentea_failure_handler),
+    Case("FS_iterator_next_several_overwritten_keys", iterator_next_several_overwritten_keys, greentea_failure_handler),
+    Case("FS_iterator_next_full_list", iterator_next_full_list, greentea_failure_handler),
+
+    Case("FS_iterator_close_right_after_iterator_open", iterator_close_right_after_iterator_open, greentea_failure_handler),
+
+    Case("FS_set_start_key_is_null", set_start_key_is_null, greentea_failure_handler),
+    Case("FS_set_start_key_size_exceeds_max_size", set_start_key_size_exceeds_max_size, greentea_failure_handler),
+    Case("FS_set_start_final_data_size_is_zero", set_start_final_data_size_is_zero, greentea_failure_handler),
+    Case("FS_set_start_final_data_size_is_smaller_than_real_data", set_start_final_data_size_is_smaller_than_real_data, greentea_failure_handler),
+    Case("FS_set_start_final_data_size_is_bigger_than_real_data", set_start_final_data_size_is_bigger_than_real_data, greentea_failure_handler),
+
+    Case("FS_set_add_data_value_data_is_null", set_add_data_value_data_is_null, greentea_failure_handler),
+    Case("FS_set_add_data_data_size_is_zero", set_add_data_data_size_is_zero, greentea_failure_handler),
+    Case("FS_set_add_data_data_size_bigger_than_real_data", set_add_data_data_size_bigger_than_real_data, greentea_failure_handler),
+    Case("FS_set_add_data_set_different_data_size_in_same_transaction", set_add_data_set_different_data_size_in_same_transaction, greentea_failure_handler),
+    Case("FS_set_add_data_set_key_value_five_Kbytes", set_add_data_set_key_value_five_Kbytes, greentea_failure_handler),
+    Case("FS_set_add_data_without_set_start", set_add_data_without_set_start, greentea_failure_handler),
+
+    Case("FS_set_finalize_without_set_start", set_finalize_without_set_start, greentea_failure_handler),
+    Case("FS_set_finalize_right_after_set_start", set_finalize_right_after_set_start, greentea_failure_handler),
+
+    Case("FS_kvstore_deinit", kvstore_deinit),
+
+    /*----------------SecureStore------------------*/
+
+    Case("Sec_kvstore_init", kvstore_init),
+
+    Case("Sec_set_key_null", set_key_null, greentea_failure_handler),
+    Case("Sec_set_key_length_exceeds_max", set_key_length_exceeds_max, greentea_failure_handler),
+    Case("Sec_set_buffer_null_size_not_zero", set_buffer_null_size_not_zero, greentea_failure_handler),
+    Case("Sec_set_buffer_size_is_zero", set_buffer_size_is_zero, greentea_failure_handler),
+    Case("Sec_set_same_key_several_time", set_same_key_several_time, greentea_failure_handler),
+    Case("Sec_set_several_keys_multithreaded", set_several_keys_multithreaded, greentea_failure_handler),
+    Case("Sec_set_write_once_flag_try_set_twice", set_write_once_flag_try_set_twice, greentea_failure_handler),
+    Case("Sec_set_write_once_flag_try_remove", set_write_once_flag_try_remove, greentea_failure_handler),
+    Case("Sec_set_key_value_one_byte_size", set_key_value_one_byte_size, greentea_failure_handler),
+    Case("Sec_set_key_value_two_byte_size", set_key_value_two_byte_size, greentea_failure_handler),
+    Case("Sec_set_key_value_five_byte_size", set_key_value_five_byte_size, greentea_failure_handler),
+    Case("Sec_set_key_value_fifteen_byte_size", set_key_value_fifteen_byte_size, greentea_failure_handler),
+    Case("Sec_set_key_value_seventeen_byte_size", set_key_value_seventeen_byte_size, greentea_failure_handler),
+    Case("Sec_set_several_key_value_sizes", set_several_key_value_sizes, greentea_failure_handler),
+    Case("Sec_set_key_rollback_without_auth_flag", Sec_set_key_rollback_without_auth_flag, greentea_failure_handler),
+    Case("Sec_set_key_rollback_set_again_no_rollback", Sec_set_key_rollback_set_again_no_rollback, greentea_failure_handler),
+    Case("Sec_set_key_encrypt", Sec_set_key_encrypt, greentea_failure_handler),
+    Case("Sec_set_key_auth", Sec_set_key_auth, greentea_failure_handler),
+
+    Case("Sec_get_key_null", get_key_null, greentea_failure_handler),
+    Case("Sec_get_key_length_exceeds_max", get_key_length_exceeds_max, greentea_failure_handler),
+    Case("Sec_get_buffer_null_size_not_zero", get_buffer_null_size_not_zero, greentea_failure_handler),
+    Case("Sec_get_buffer_size_is_zero", get_buffer_size_is_zero, greentea_failure_handler),
+    Case("Sec_get_buffer_size_smaller_than_data_real_size", get_buffer_size_smaller_than_data_real_size, greentea_failure_handler),
+    Case("Sec_get_buffer_size_bigger_than_data_real_size", get_buffer_size_bigger_than_data_real_size, greentea_failure_handler),
+    Case("Sec_get_offset_bigger_than_data_size", get_offset_bigger_than_data_size, greentea_failure_handler),
+    Case("Sec_get_non_existing_key", get_non_existing_key, greentea_failure_handler),
+    Case("Sec_get_removed_key", get_removed_key, greentea_failure_handler),
+    Case("Sec_get_key_that_was_set_twice", get_key_that_was_set_twice, greentea_failure_handler),
+    Case("Sec_get_several_keys_multithreaded", get_several_keys_multithreaded, greentea_failure_handler),
+
+    Case("Sec_remove_key_null", remove_key_null, greentea_failure_handler),
+    Case("Sec_remove_key_length_exceeds_max", remove_key_length_exceeds_max, greentea_failure_handler),
+    Case("Sec_remove_non_existing_key", remove_non_existing_key, greentea_failure_handler),
+    Case("Sec_remove_removed_key", remove_removed_key, greentea_failure_handler),
+    Case("Sec_remove_existed_key", remove_existed_key, greentea_failure_handler),
+
+    Case("Sec_get_info_key_null", get_info_key_null, greentea_failure_handler),
+    Case("Sec_get_info_key_length_exceeds_max", get_info_key_length_exceeds_max, greentea_failure_handler),
+    Case("Sec_get_info_info_null", get_info_info_null, greentea_failure_handler),
+    Case("Sec_get_info_non_existing_key", get_info_non_existing_key, greentea_failure_handler),
+    Case("Sec_get_info_removed_key", get_info_removed_key, greentea_failure_handler),
+    Case("Sec_get_info_existed_key", get_info_existed_key, greentea_failure_handler),
+    Case("Sec_get_info_overwritten_key", get_info_overwritten_key, greentea_failure_handler),
+
+    Case("Sec_iterator_open_it_null", iterator_open_it_null, greentea_failure_handler),
+
+    Case("Sec_iterator_next_key_size_zero", iterator_next_key_size_zero, greentea_failure_handler),
+    Case("Sec_iterator_next_empty_list", iterator_next_empty_list, greentea_failure_handler),
+    Case("Sec_iterator_next_one_key_list", iterator_next_one_key_list, greentea_failure_handler),
+    Case("Sec_iterator_next_empty_list_keys_removed", iterator_next_empty_list_keys_removed, greentea_failure_handler),
+    Case("Sec_iterator_next_empty_list_non_matching_prefix", iterator_next_empty_list_non_matching_prefix, greentea_failure_handler),
+    Case("Sec_iterator_next_several_overwritten_keys", iterator_next_several_overwritten_keys, greentea_failure_handler),
+    Case("Sec_iterator_next_full_list", iterator_next_full_list, greentea_failure_handler),
+
+    Case("Sec_iterator_close_right_after_iterator_open", iterator_close_right_after_iterator_open, greentea_failure_handler),
+
+    Case("Sec_set_start_key_is_null", set_start_key_is_null, greentea_failure_handler),
+    Case("Sec_set_start_key_size_exceeds_max_size", set_start_key_size_exceeds_max_size, greentea_failure_handler),
+    Case("Sec_set_start_final_data_size_is_zero", set_start_final_data_size_is_zero, greentea_failure_handler),
+    Case("Sec_set_start_final_data_size_is_smaller_than_real_data", set_start_final_data_size_is_smaller_than_real_data, greentea_failure_handler),
+    Case("Sec_set_start_final_data_size_is_bigger_than_real_data", set_start_final_data_size_is_bigger_than_real_data, greentea_failure_handler),
+
+    Case("Sec_set_add_data_value_data_is_null", set_add_data_value_data_is_null, greentea_failure_handler),
+    Case("Sec_set_add_data_data_size_is_zero", set_add_data_data_size_is_zero, greentea_failure_handler),
+    Case("Sec_set_add_data_data_size_bigger_than_real_data", set_add_data_data_size_bigger_than_real_data, greentea_failure_handler),
+    Case("Sec_set_add_data_set_different_data_size_in_same_transaction", set_add_data_set_different_data_size_in_same_transaction, greentea_failure_handler),
+    Case("Sec_set_add_data_set_key_value_five_Kbytes", set_add_data_set_key_value_five_Kbytes, greentea_failure_handler),
+    Case("Sec_set_add_data_without_set_start", set_add_data_without_set_start, greentea_failure_handler),
+
+    Case("Sec_set_finalize_without_set_start", set_finalize_without_set_start, greentea_failure_handler),
+    Case("Sec_set_finalize_right_after_set_start", set_finalize_right_after_set_start, greentea_failure_handler),
+
+    Case("Sec_kvstore_deinit", kvstore_deinit),
+
 };
 
 
@@ -1358,30 +1491,9 @@ utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
     return greentea_test_setup_handler(number_of_cases);
 }
 
+Specification specification(greentea_test_setup, cases, greentea_test_teardown_handler);
+
 int main()
 {
-    // We want to replicate our test cases to different KV types
-    size_t num_cases = sizeof(template_cases) / sizeof(template_case_t);
-
-    void *raw_mem = operator new[](NumKVs * num_cases * sizeof(Case));
-    Case *cases = static_cast<Case *>(raw_mem);
-
-    for (int kv = 0; kv < NumKVs; kv++) {
-        for (int i = 0; i < num_cases; i++) {
-            char desc[128], *desc_ptr;
-            sprintf(desc, "%s%s", kv_prefix[kv], template_cases[i].description);
-            desc_ptr = new char[strlen(desc) + 1];
-            strcpy(desc_ptr, desc);
-            new (&cases[kv * num_cases + i]) Case((const char *) desc_ptr, template_cases[i].case_handler,
-                                                  template_cases[i].failure_handler);
-        }
-    }
-
-    Specification specification((const test_setup_handler_t)greentea_test_setup,
-                                (const Case *)cases,
-                                (size_t)NumKVs * num_cases,
-                                (const test_teardown_handler_t)greentea_test_teardown_handler,
-                                (const test_failure_handler_t)greentea_failure_handler);
-
     return !Harness::run(specification);
 }
