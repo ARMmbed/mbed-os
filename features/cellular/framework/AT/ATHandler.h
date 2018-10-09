@@ -156,10 +156,13 @@ public:
      */
     void clear_error();
 
-    /**
-     * Flushes the underlying stream
+    /** Flushes the underlying stream. Prefer sync() to this due to flushing might dismiss URCs.
      */
     void flush();
+
+    /** Synchronize AT command and response handling with cellular module, it takes max 10 seconds.
+     */
+    bool sync();
 
     /** Tries to find oob's from the AT response. Call the urc callback if one is found.
      */
@@ -509,7 +512,7 @@ private:
      */
     const char *mem_str(const char *dest, size_t dest_len, const char *src, size_t src_len);
 
-    // check is urc is already added
+    // check is urc is already added, a caller must hold lock()
     bool find_urc_handler(const char *prefix, mbed::Callback<void()> *callback);
 
     // print contents of a buffer to trace log

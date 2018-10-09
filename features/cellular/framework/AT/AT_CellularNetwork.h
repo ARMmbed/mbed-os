@@ -63,7 +63,7 @@ public: // CellularNetwork
 
     virtual nsapi_error_t activate_context();
 
-    virtual nsapi_error_t set_registration(const char *plmn = 0);
+    virtual nsapi_error_t set_registration(NWRegisteringMode mode = NWModeAutomatic, const char *plmn = 0);
 
     virtual nsapi_error_t get_network_registering_mode(NWRegisteringMode &mode);
 
@@ -118,6 +118,9 @@ public: // CellularNetwork
     virtual nsapi_error_t set_registration_urc(RegistrationType type, bool on);
 
     virtual nsapi_error_t get_operator_names(operator_names_list &op_names);
+
+    virtual nsapi_error_t get_active_context(int &cid, char *apn = NULL, nsapi_ip_stack_t stack_type = DEFAULT_STACK);
+
 protected:
 
     /** Check if modem supports the given stack type.
@@ -166,7 +169,7 @@ private:
     void free_credentials();
 
     nsapi_error_t open_data_channel();
-    bool get_context();
+    bool get_context(int cid_requested = -1);
     bool set_new_context(int cid);
 
     nsapi_error_t delete_current_context();
@@ -178,6 +181,8 @@ private:
 #if NSAPI_PPP_AVAILABLE
     void ppp_status_cb(nsapi_event_t, intptr_t);
 #endif
+
+    static const int PDP_CONTEXT_COUNT = 4; // max simultaneous PDP contexts active
 
 protected:
     NetworkStack *_stack;
@@ -194,6 +199,7 @@ protected:
     nsapi_connection_status_t _connect_status;
     bool _new_context_set;
     bool _is_context_active;
+    bool _is_context_activated; // did we activate the context
     RegistrationStatus _reg_status;
     RadioAccessTechnology _current_act;
     mbed::Callback<void()> _urc_funcs[C_MAX];

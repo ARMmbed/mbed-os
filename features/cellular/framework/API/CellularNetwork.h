@@ -236,11 +236,12 @@ public:
 
     /** Request registering to network.
      *
-     *  @param plmn     format is in numeric format or 0 for automatic network registration
+     *  @param mode     network registration mode
+     *  @param plmn     operator in numeric format for manual registration modes
      *  @return         NSAPI_ERROR_OK on success
      *                  NSAPI_ERROR_DEVICE_ERROR on failure
      */
-    virtual nsapi_error_t set_registration(const char *plmn = 0) = 0;
+    virtual nsapi_error_t set_registration(NWRegisteringMode mode = NWModeAutomatic, const char *plmn = 0) = 0;
 
     /** Get the current network registering mode
      *
@@ -314,7 +315,7 @@ public:
      */
     virtual nsapi_error_t get_attach(AttachStatus &status) = 0;
 
-    /** Request detach from a network.
+    /** Detach from GSM and packet networks.
      *
      *  @return         NSAPI_ERROR_OK on success
      *                  NSAPI_ERROR_DEVICE_ERROR on failure
@@ -528,6 +529,17 @@ public:
      *                       NSAPI_ERROR_DEVICE_ERROR on other failures
      */
     virtual nsapi_error_t get_operator_names(operator_names_list &op_names) = 0;
+
+    /** Find an active context
+     *
+     *  @param[out] cid     PDP Context ID returned on success
+     *  @param apn          Access Point Name, or NULL for any
+     *  @param stack_type   Protocol stack, IPv4, IPv6, ... or DEFAULT_STACK for any
+     *  @return             NSAPI_ERROR_OK on success
+     *                      NSAPI_ERROR_NO_MEMORY on memory failure
+     *                      NSAPI_ERROR_NO_CONNECTION on not found active context
+     */
+    virtual nsapi_error_t get_active_context(int &cid, char *apn = NULL, nsapi_ip_stack_t stack_type = DEFAULT_STACK) = 0;
 };
 
 } // namespace mbed

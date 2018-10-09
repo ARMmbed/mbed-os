@@ -42,15 +42,16 @@ AT_CellularNetwork::AT_CellularNetwork(ATHandler &atHandler) : AT_CellularBase(a
     _stack(NULL), _apn(NULL), _uname(NULL), _pwd(NULL), _ip_stack_type_requested(DEFAULT_STACK),
     _ip_stack_type(DEFAULT_STACK), _cid(-1), _connection_status_cb(NULL), _op_act(RAT_UNKNOWN),
     _authentication_type(CHAP), _cell_id(-1), _connect_status(NSAPI_STATUS_DISCONNECTED), _new_context_set(false),
-    _is_context_active(false), _reg_status(NotRegistered), _current_act(RAT_UNKNOWN)
+    _is_context_active(false), _is_context_activated(false), _reg_status(NotRegistered), _current_act(RAT_UNKNOWN)
 {
 }
 
 AT_CellularNetwork::~AT_CellularNetwork()
 {
-#if NSAPI_PPP_AVAILABLE
     (void)disconnect();
-#else
+
+#if !NSAPI_PPP_AVAILABLE
+    _at.remove_urc_handler("+CGEV:", callback(this, &AT_CellularNetwork::urc_cgev));
     delete _stack;
 #endif // NSAPI_PPP_AVAILABLE
 
@@ -61,7 +62,6 @@ AT_CellularNetwork::~AT_CellularNetwork()
     }
 
     _at.remove_urc_handler("NO CARRIER", callback(this, &AT_CellularNetwork::urc_no_carrier));
-    _at.remove_urc_handler("+CGEV:", callback(this, &AT_CellularNetwork::urc_cgev));
     free_credentials();
 }
 
@@ -302,6 +302,7 @@ nsapi_error_t AT_CellularNetwork::activate_context()
     }
 
     _is_context_active = false;
+    _is_context_activated = false;
     _at.cmd_start("AT+CGACT?");
     _at.cmd_stop();
     _at.resp_start("+CGACT:");
@@ -328,6 +329,9 @@ nsapi_error_t AT_CellularNetwork::activate_context()
         _at.cmd_stop();
         _at.resp_start();
         _at.resp_stop();
+        if (_at.get_last_error() == NSAPI_ERROR_OK) {
+            _is_context_activated = true;
+        }
     }
 
     err = (_at.get_last_error() == NSAPI_ERROR_OK) ? NSAPI_ERROR_OK : NSAPI_ERROR_NO_CONNECTION;
@@ -426,50 +430,57 @@ nsapi_error_t AT_CellularNetwork::disconnect()
 {
 #if NSAPI_PPP_AVAILABLE
     nsapi_error_t err = nsapi_ppp_disconnect(_at.get_file_handle());
+    if (err != NSAPI_ERROR_OK) {
+        tr_error("Cellular disconnect failed!");
+        // continue even in failure due to ppp disconnect in any case releases filehandle
+    }
     // after ppp disconnect if we wan't to use same at handler we need to set filehandle again to athandler so it
     // will set the correct sigio and nonblocking
     _at.lock();
     _at.set_file_handle(_at.get_file_handle());
     _at.set_is_filehandle_usable(true);
+    _at.sync(); // consume extra characters after ppp disconnect, also it may take a while until modem listens AT commands
     _at.unlock();
-    return err;
 #else
+    _at.remove_urc_handler("+CGEV:", callback(this, &AT_CellularNetwork::urc_cgev));
+#endif
     _at.lock();
 
-    _is_context_active = false;
-    size_t active_contexts_count = 0;
-    _at.cmd_start("AT+CGACT?");
-    _at.cmd_stop();
-    _at.resp_start("+CGACT:");
-    while (_at.info_resp()) {
-        int context_id = _at.read_int();
-        int context_activation_state = _at.read_int();
-        if (context_activation_state == 1) {
-            active_contexts_count++;
-            if (context_id == _cid) {
-                _is_context_active = true;
+    // deactivate a context only if we have activated
+    if (_is_context_activated) {
+        _is_context_active = false;
+        size_t active_contexts_count = 0;
+        _at.cmd_start("AT+CGACT?");
+        _at.cmd_stop();
+        _at.resp_start("+CGACT:");
+        while (_at.info_resp()) {
+            int context_id = _at.read_int();
+            int context_activation_state = _at.read_int();
+            if (context_activation_state == 1) {
+                active_contexts_count++;
+                if (context_id == _cid) {
+                    _is_context_active = true;
+                }
             }
         }
-    }
-    _at.resp_stop();
-
-    // 3GPP TS 27.007:
-    // For EPS, if an attempt is made to disconnect the last PDN connection, then the MT responds with ERROR
-    if (_is_context_active && (_current_act < RAT_E_UTRAN || active_contexts_count > 1)) {
-        _at.cmd_start("AT+CGACT=0,");
-        _at.write_int(_cid);
-        _at.cmd_stop();
-        _at.resp_start();
         _at.resp_stop();
+
+        // 3GPP TS 27.007:
+        // For EPS, if an attempt is made to disconnect the last PDN connection, then the MT responds with ERROR
+        if (_is_context_active && (_current_act < RAT_E_UTRAN || active_contexts_count > 1)) {
+            _at.cmd_start("AT+CGACT=0,");
+            _at.write_int(_cid);
+            _at.cmd_stop();
+            _at.resp_start();
+            _at.resp_stop();
+        }
     }
 
-    _at.restore_at_timeout();
-
-    _at.remove_urc_handler("+CGEV:", callback(this, &AT_CellularNetwork::urc_cgev));
-    call_network_cb(NSAPI_STATUS_DISCONNECTED);
+    if (!_at.get_last_error()) {
+        call_network_cb(NSAPI_STATUS_DISCONNECTED);
+    }
 
     return _at.unlock_return_error();
-#endif
 }
 
 void AT_CellularNetwork::call_network_cb(nsapi_connection_status_t status)
@@ -581,6 +592,7 @@ bool AT_CellularNetwork::set_new_context(int cid)
 
     // Fall back to ipv4
     if (!success && tmp_stack == IPV4V6_STACK) {
+        _at.clear_error();
         tmp_stack = IPV4_STACK;
         _at.cmd_start("AT+FCLASS=0;+CGDCONT=");
         _at.write_int(cid);
@@ -602,7 +614,7 @@ bool AT_CellularNetwork::set_new_context(int cid)
     return success;
 }
 
-bool AT_CellularNetwork::get_context()
+bool AT_CellularNetwork::get_context(int cid_requested)
 {
     if (_apn) {
         tr_debug("APN in use: %s", _apn);
@@ -623,6 +635,9 @@ bool AT_CellularNetwork::get_context()
 
     while (_at.info_resp()) {
         int cid = _at.read_int();
+        if (cid_requested != -1 && cid_requested != cid) {
+            continue;
+        }
         if (cid > cid_max) {
             cid_max = cid;
         }
@@ -681,6 +696,9 @@ bool AT_CellularNetwork::get_context()
     }
     _at.resp_stop();
     if (_cid == -1) { // no suitable context was found so create a new one
+        if (cid_requested != -1) {
+            return false;
+        }
         if (!set_new_context(cid_max + 1)) {
             return false;
         }
@@ -755,28 +773,27 @@ nsapi_error_t AT_CellularNetwork::get_network_registering_mode(NWRegisteringMode
     return _at.unlock_return_error();
 }
 
-nsapi_error_t AT_CellularNetwork::set_registration(const char *plmn)
+nsapi_error_t AT_CellularNetwork::set_registration(NWRegisteringMode mode, const char *plmn)
 {
     _at.lock();
 
-    if (!plmn) {
-        tr_debug("Automatic network registration");
-        _at.cmd_start("AT+COPS?");
-        _at.cmd_stop();
-        _at.resp_start("+COPS:");
-        int mode = _at.read_int();
-        _at.resp_stop();
-        if (mode != 0) {
-            _at.clear_error();
-            _at.cmd_start("AT+COPS=0");
-            _at.cmd_stop();
-            _at.resp_start();
-            _at.resp_stop();
+    _at.cmd_start("AT+COPS?");
+    _at.cmd_stop();
+    _at.resp_start("+COPS:");
+    int cur_mode = _at.read_int();
+    _at.resp_stop();
+
+    tr_debug("Network registration: mode=%d (was %d), plmn=%s", mode, cur_mode, plmn ? plmn : "0");
+    // avoid setting automatic mode again when cur_mode is automatic, that may trigger unwanted oper/AcT re-selection
+    if (plmn || (cur_mode != (int)mode)) {
+        _at.cmd_start("AT+COPS=");
+        _at.write_int((int)mode);
+        if (mode == NWModeManual || mode == NWModeManualAutomatic) {
+            _at.write_int(2); // plmn in numeric format
+            if (plmn) {
+                _at.write_string(plmn);
+            }
         }
-    } else {
-        tr_debug("Manual network registration to %s", plmn);
-        _at.cmd_start("AT+COPS=4,2,");
-        _at.write_string(plmn);
         _at.cmd_stop();
         _at.resp_start();
         _at.resp_stop();
@@ -907,8 +924,6 @@ nsapi_error_t AT_CellularNetwork::detach()
     _at.cmd_stop();
     _at.resp_start();
     _at.resp_stop();
-
-    call_network_cb(NSAPI_STATUS_DISCONNECTED);
 
     return _at.unlock_return_error();
 }
@@ -1329,3 +1344,50 @@ nsapi_error_t AT_CellularNetwork::get_operator_names(operator_names_list &op_nam
     _at.resp_stop();
     return _at.unlock_return_error();
 }
+
+nsapi_error_t AT_CellularNetwork::get_active_context(int &cid, char *apn, nsapi_ip_stack_t stack_type)
+{
+    _at.lock();
+
+    if (apn) {
+        _apn = apn;
+    }
+    if (stack_type != DEFAULT_STACK) {
+        _ip_stack_type_requested = stack_type;
+    }
+
+    int cid_active[PDP_CONTEXT_COUNT];
+    int cid_count = 0;
+
+    // read active contexts
+    _at.cmd_start("AT+CGACT?");
+    _at.cmd_stop();
+    _at.resp_start("+CGACT:");
+    while (_at.info_resp()) {
+        int context_id = _at.read_int();
+        if (_at.read_int() == 1) {
+            cid_active[cid_count] = context_id;
+            cid_count++;
+            if (cid_count >= PDP_CONTEXT_COUNT) {
+                break;
+            }
+        }
+    }
+    _at.resp_stop();
+
+    // try to find a suitable context from active ones
+    cid = -1;
+    for (int i = 0; i < cid_count; i++) {
+        if (get_context(cid_active[i])) {
+            _is_context_active = true;
+            cid = cid_active[i];
+            tr_debug("Found active context %d", cid);
+            break;
+        }
+    }
+
+     _at.unlock();
+
+    return _is_context_active ? NSAPI_ERROR_OK : NSAPI_ERROR_NO_CONNECTION;
+}
+

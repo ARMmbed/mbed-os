@@ -78,7 +78,8 @@ public:
      */
     virtual nsapi_error_t connect();
 
-    /** Stop the interface
+    /** Disconnect from a cellular PDN connection
+     *  To disconnect from cellular network call also CellularNetwork::detach.
      *
      *  @return         0 on success, or error code on failure
      */

@@ -44,7 +44,7 @@ namespace mbed {
 CellularConnectionFSM::CellularConnectionFSM() :
     _serial(0), _state(STATE_INIT), _next_state(_state), _status_callback(0), _event_status_cb(0), _network(0), _power(0), _sim(0),
     _queue(8 * EVENTS_EVENT_SIZE), _queue_thread(0), _cellularDevice(0), _retry_count(0), _event_timeout(-1),
-    _at_queue(0), _event_id(0), _plmn(0), _command_success(false), _plmn_network_found(false)
+    _at_queue(0), _event_id(0), _plmn(0), _command_success(false), _plmn_network_found(false), _cid_active(-1)
 {
     memset(_sim_pin, 0, sizeof(_sim_pin));
 #if MBED_CONF_CELLULAR_RANDOM_MAX_START_DELAY == 0
@@ -215,7 +215,7 @@ bool CellularConnectionFSM::is_registered()
         }
     }
 
-    return is_registered;
+    return is_registered || (_cid_active >= 0);
 }
 
 bool CellularConnectionFSM::get_network_registration(CellularNetwork::RegistrationType type,
@@ -458,6 +458,7 @@ void CellularConnectionFSM::state_sim_pin()
             retry_state_or_fail();
             return;
         }
+        (void) _network->get_active_context(_cid_active); // check if context was already activated
         if (_plmn) {
             enter_to_state(STATE_MANUAL_REGISTERING_NETWORK);
         } else {
@@ -494,7 +495,7 @@ void CellularConnectionFSM::state_manual_registering_network()
             enter_to_state(STATE_ATTACHING_NETWORK);
         } else {
             if (!_command_success) {
-                _command_success = (_network->set_registration(_plmn) == NSAPI_ERROR_OK);
+                _command_success = (_network->set_registration(CellularNetwork::NWModeManualAutomatic, _plmn) == NSAPI_ERROR_OK);
             }
             retry_state_or_fail();
         }
