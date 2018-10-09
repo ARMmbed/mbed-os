@@ -27,15 +27,18 @@
 
 namespace rtos {
 
-Semaphore::Semaphore(int32_t count) {
+Semaphore::Semaphore(int32_t count)
+{
     constructor(count, 0xffff);
 }
 
-Semaphore::Semaphore(int32_t count, uint16_t max_count) {
+Semaphore::Semaphore(int32_t count, uint16_t max_count)
+{
     constructor(count, max_count);
 }
 
-void Semaphore::constructor(int32_t count, uint16_t max_count) {
+void Semaphore::constructor(int32_t count, uint16_t max_count)
+{
     memset(&_obj_mem, 0, sizeof(_obj_mem));
     osSemaphoreAttr_t attr = { 0 };
     attr.cb_mem = &_obj_mem;
@@ -44,7 +47,8 @@ void Semaphore::constructor(int32_t count, uint16_t max_count) {
     MBED_ASSERT(_id != NULL);
 }
 
-int32_t Semaphore::wait(uint32_t millisec) {
+int32_t Semaphore::wait(uint32_t millisec)
+{
     osStatus_t stat = osSemaphoreAcquire(_id, millisec);
     switch (stat) {
         case osOK:
@@ -58,7 +62,8 @@ int32_t Semaphore::wait(uint32_t millisec) {
     }
 }
 
-int32_t Semaphore::wait_until(uint64_t millisec) {
+int32_t Semaphore::wait_until(uint64_t millisec)
+{
     uint64_t now = Kernel::get_ms_count();
 
     if (now >= millisec) {
@@ -71,11 +76,13 @@ int32_t Semaphore::wait_until(uint64_t millisec) {
     }
 }
 
-osStatus Semaphore::release(void) {
+osStatus Semaphore::release(void)
+{
     return osSemaphoreRelease(_id);
 }
 
-Semaphore::~Semaphore() {
+Semaphore::~Semaphore()
+{
     osSemaphoreDelete(_id);
 }
 

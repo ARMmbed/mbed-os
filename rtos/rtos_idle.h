@@ -35,7 +35,7 @@ extern "C" {
  * \defgroup rtos_Idle Idle hook function
  * @{
  */
-/** 
+/**
  @note
  Sets the hook function called by idle task
  @param fptr Hook function pointer.
