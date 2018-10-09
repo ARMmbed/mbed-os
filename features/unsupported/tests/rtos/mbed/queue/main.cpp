@@ -49,7 +49,7 @@ void send_thread (void const *argument) {
         message->current = CREATE_CURRENT(i);
         message->counter = i;
         queue.put(message);
-        Thread::wait(QUEUE_PUT_DELAY);
+        ThisThread::sleep_for(QUEUE_PUT_DELAY);
     }
 }
 

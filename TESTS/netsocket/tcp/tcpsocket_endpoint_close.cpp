@@ -63,7 +63,7 @@ void TCPSOCKET_ENDPOINT_CLOSE()
         TEST_FAIL();
         return;
     }
-    sock.sigio(callback(_sigio_handler, Thread::gettid()));
+    sock.sigio(callback(_sigio_handler, ThisThread::get_id()));
 
     int recvd = 0;
     int recvd_total = 0;

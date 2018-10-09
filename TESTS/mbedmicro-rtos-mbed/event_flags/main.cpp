@@ -75,7 +75,7 @@ void send_thread(EventFlags *ef)
         const uint32_t flag = flags & (1 << i);
         if (flag) {
             ef->set(flag);
-            Thread::wait(wait_ms);
+            ThisThread::sleep_for(wait_ms);
         }
     }
 }
@@ -88,7 +88,7 @@ void send_thread_sync(EventFlags *ef)
         if (flag) {
             sync_sem.wait();
             ef->set(flag);
-            Thread::wait(wait_ms);
+            ThisThread::sleep_for(wait_ms);
         }
     }
 }

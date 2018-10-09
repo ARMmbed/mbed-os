@@ -45,7 +45,7 @@ void TCPSOCKET_RECV_TIMEOUT()
     TCPSocket sock;
     tcpsocket_connect_to_echo_srv(sock);
     sock.set_timeout(100);
-    sock.sigio(callback(_sigio_handler, Thread::gettid()));
+    sock.sigio(callback(_sigio_handler, ThisThread::get_id()));
 
     int recvd = 0;
     int pkt_unrecvd;

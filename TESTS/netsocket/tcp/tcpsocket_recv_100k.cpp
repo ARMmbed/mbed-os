@@ -170,7 +170,7 @@ void TCPSOCKET_RECV_100K_NONBLOCK()
     }
 
     sock.set_blocking(false);
-    sock.sigio(callback(_sigio_handler, Thread::gettid()));
+    sock.sigio(callback(_sigio_handler, ThisThread::get_id()));
 
     rcv_n_chk_against_rfc864_pattern_nonblock(sock);
 

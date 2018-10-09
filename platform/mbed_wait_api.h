@@ -57,7 +57,7 @@ extern "C" {
  *  @note
  *    If the RTOS is present, this function always spins to get the exact number of microseconds,
  *    which potentially affects power (such as preventing deep sleep) and multithread performance.
- *    You can avoid it by using Thread::wait().
+ *    You can avoid it by using ThisThread::sleep_for().
  */
 void wait(float s);
 
@@ -68,7 +68,7 @@ void wait(float s);
  *  @note
  *    If the RTOS is present, this function always spins to get the exact number of microseconds,
  *    which potentially affects power (such as preventing deep sleep) and multithread performance.
- *    You can avoid it by using Thread::wait().
+ *    You can avoid it by using ThisThread::sleep_for().
  */
 void wait_ms(int ms);
 

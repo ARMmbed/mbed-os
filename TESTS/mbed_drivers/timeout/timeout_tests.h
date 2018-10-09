@@ -177,7 +177,7 @@ void test_multiple(void)
     for (size_t i = 0; i < NUM_TIMEOUTS; i++) {
         timeouts[i].attach_callback(mbed::callback(cnt_callback, &callback_count), TEST_DELAY_US);
     }
-    Thread::wait(TEST_DELAY_MS + 2);
+    ThisThread::sleep_for(TEST_DELAY_MS + 2);
     TEST_ASSERT_EQUAL(NUM_TIMEOUTS, callback_count);
 }
 

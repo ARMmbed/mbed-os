@@ -79,7 +79,7 @@ void test_multi_ticker(void)
         ticker[i].attach_us(callback(increment_multi_counter), MULTI_TICKER_TIME_MS * 1000);
     }
 
-    Thread::wait(MULTI_TICKER_TIME_MS + extra_wait);
+    ThisThread::sleep_for(MULTI_TICKER_TIME_MS + extra_wait);
     TEST_ASSERT_EQUAL(TICKER_COUNT, multi_counter);
 
     for (int i = 0; i < TICKER_COUNT; i++) {
@@ -95,7 +95,7 @@ void test_multi_ticker(void)
         ticker[i].attach_us(callback(increment_multi_counter), (MULTI_TICKER_TIME_MS + i) * 1000);
     }
 
-    Thread::wait(MULTI_TICKER_TIME_MS + TICKER_COUNT + extra_wait);
+    ThisThread::sleep_for(MULTI_TICKER_TIME_MS + TICKER_COUNT + extra_wait);
     TEST_ASSERT_EQUAL(TICKER_COUNT, multi_counter);
 
     for (int i = 0; i < TICKER_COUNT; i++) {

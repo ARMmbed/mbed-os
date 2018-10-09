@@ -90,7 +90,7 @@ void test_multithread_allocation(void)
 
     // Give the test time to run
     while (test_time--) {
-        Thread::wait(1000);
+        ThisThread::sleep_for(1000);
     }
 
     // Join and delete all threads

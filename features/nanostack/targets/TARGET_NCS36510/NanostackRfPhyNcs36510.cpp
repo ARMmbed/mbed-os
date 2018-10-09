@@ -157,13 +157,10 @@ static phy_device_driver_s device_driver = {
 static void rf_thread_loop()
 {
     for (;;) {
-        osEvent event = rf_thread.signal_wait(0);
-        if (event.status != osEventSignal) {
-            continue;
-        }
+        uint32_t flags = ThisThread::flags_wait_any(0x7FFFFFFF);
 
         platform_enter_critical();
-        if (event.value.signals & SIGNAL_COUNT_RADIO) {
+        if (flags & SIGNAL_COUNT_RADIO) {
             handle_IRQ_events();
         }
         platform_exit_critical();
@@ -806,7 +803,7 @@ static void rf_mac_tx_interrupt(void)
 extern "C" void fIrqMacHwHandler(void)
 {
     NVIC_DisableIRQ(MacHw_IRQn);
-    rf_thread.signal_set(SIGNAL_COUNT_RADIO);
+    rf_thread.flags_set(SIGNAL_COUNT_RADIO);
 }
 
 static void handle_IRQ_events(void)

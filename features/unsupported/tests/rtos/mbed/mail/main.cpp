@@ -47,7 +47,7 @@ void send_thread (void const *argument) {
         mail->current = CREATE_CURRENT(i);
         mail->counter = i;
         mail_box.put(mail);
-        Thread::wait(QUEUE_PUT_DELAY);
+        ThisThread::sleep_for(QUEUE_PUT_DELAY);
     }
 }
 
