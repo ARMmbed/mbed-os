@@ -36,8 +36,8 @@
 #include "mbed_critical.h"
 
 #if DEVICE_LPTICKER && !MBED_CONF_TARGET_LPTICKER_LPTIM
-volatile uint32_t LP_continuous_time = 0;
-volatile uint32_t LP_last_RTC_time = 0;
+volatile uint32_t LPTICKER_counter = 0;
+volatile uint32_t LPTICKER_RTC_time = 0;
 #endif
 
 static int RTC_inited = 0;
@@ -261,14 +261,14 @@ void rtc_write(time_t t)
 #endif /* TARGET_STM32F1 */
 
 #if DEVICE_LPTICKER && !MBED_CONF_TARGET_LPTICKER_LPTIM
-    /* Need to update LP_continuous_time value before new RTC time */
+    /* Before setting the new time, we need to update the LPTICKER_counter value */
+    /* rtc_read_lp function is then called */
     rtc_read_lp();
 
-    /* LP_last_RTC_time value is updated with the new RTC time */
-    LP_last_RTC_time = timeStruct.Seconds + timeStruct.Minutes * 60 + timeStruct.Hours * 60 * 60;
-
-    /* Save current SSR */
-    uint32_t Read_SubSeconds = (uint32_t)(RTC->SSR);
+    /* In rtc_read_lp, LPTICKER_RTC_time value has been updated with the current time */
+    /* We need now to overwrite the value with the new RTC time */
+    /* Note that when a new RTC time is set by HW, the RTC SubSeconds counter is reset to PREDIV_S_VALUE */
+    LPTICKER_RTC_time = (timeStruct.Seconds + timeStruct.Minutes * 60 + timeStruct.Hours * 60 * 60) * PREDIV_S_VALUE;
 #endif /* DEVICE_LPTICKER && !MBED_CONF_TARGET_LPTICKER_LPTIM */
 
     // Change the RTC current date/time
@@ -278,11 +278,6 @@ void rtc_write(time_t t)
     if (HAL_RTC_SetTime(&RtcHandle, &timeStruct, RTC_FORMAT_BIN) != HAL_OK) {
         error("HAL_RTC_SetTime error\n");
     }
-
-#if DEVICE_LPTICKER && !MBED_CONF_TARGET_LPTICKER_LPTIM
-    while (Read_SubSeconds != (RTC->SSR)) {
-    }
-#endif /* DEVICE_LPTICKER && !MBED_CONF_TARGET_LPTICKER_LPTIM */
 
     core_util_critical_section_exit();
 }
@@ -333,11 +328,18 @@ static void RTC_IRQHandler(void)
 
 uint32_t rtc_read_lp(void)
 {
+    /* RTC_time_tick is the addition of the RTC time register (in second) and the RTC sub-second register
+    *  This time value is breaking each 24h (= 86400s = 0x15180)
+    *  In order to get a U32 continuous time information, we use an internal counter : LPTICKER_counter
+    *  This counter is the addition of each spent time since last function call
+    *  Current RTC time is saved into LPTICKER_RTC_time
+    *  NB: rtc_read_lp() output is not the time in us, but the LPTICKER_counter (frequency LSE/4 = 8kHz => 122us)
+    */
+    core_util_critical_section_enter();
     struct tm timeinfo;
 
     /* Since the shadow registers are bypassed we have to read the time twice and compare them until both times are the same */
     /* We don't have to read date as we bypass shadow registers */
-    uint32_t Read_SecondFraction = (uint32_t)(RTC->PRER & RTC_PRER_PREDIV_S);
     uint32_t Read_time = (uint32_t)(RTC->TR & RTC_TR_RESERVED_MASK);
     uint32_t Read_SubSeconds = (uint32_t)(RTC->SSR);
 
@@ -350,17 +352,18 @@ uint32_t rtc_read_lp(void)
     timeinfo.tm_min  = RTC_Bcd2ToByte((uint8_t)((Read_time & (RTC_TR_MNT | RTC_TR_MNU)) >> 8));
     timeinfo.tm_sec  = RTC_Bcd2ToByte((uint8_t)((Read_time & (RTC_TR_ST  | RTC_TR_SU))  >> 0));
 
-    uint32_t RTC_time_s = timeinfo.tm_sec + timeinfo.tm_min * 60 + timeinfo.tm_hour * 60 * 60; // Max 0x0001-517F => * 8191 + 8191 = 0x2A2E-AE80
+    uint32_t RTC_time_tick = (timeinfo.tm_sec + timeinfo.tm_min * 60 + timeinfo.tm_hour * 60 * 60) * PREDIV_S_VALUE + PREDIV_S_VALUE - Read_SubSeconds; // Max 0x0001-517F * 8191 + 8191 = 0x2A2E-AE80
 
-    if (LP_last_RTC_time <= RTC_time_s) {
-        LP_continuous_time += (RTC_time_s - LP_last_RTC_time);
+    if (LPTICKER_RTC_time <= RTC_time_tick) {
+        LPTICKER_counter += (RTC_time_tick - LPTICKER_RTC_time);
     } else {
-        /* Add 24h */
-        LP_continuous_time += (24 * 60 * 60 + RTC_time_s - LP_last_RTC_time);
+        /* When RTC time is 0h00.01 and was 11H59.59, difference is "current time + 24h - previous time" */
+        LPTICKER_counter += (RTC_time_tick + 24 * 60 * 60 * PREDIV_S_VALUE - LPTICKER_RTC_time);
     }
-    LP_last_RTC_time = RTC_time_s;
+    LPTICKER_RTC_time = RTC_time_tick;
 
-    return LP_continuous_time * PREDIV_S_VALUE + Read_SecondFraction - Read_SubSeconds;
+    core_util_critical_section_exit();
+    return LPTICKER_counter;
 }
 
 void rtc_set_wake_up_timer(timestamp_t timestamp)
@@ -380,6 +383,7 @@ void rtc_set_wake_up_timer(timestamp_t timestamp)
         WakeUpCounter = 0xFFFF;
     }
 
+    core_util_critical_section_enter();
     RtcHandle.Instance = RTC;
     HAL_RTCEx_DeactivateWakeUpTimer(&RtcHandle);
     if (HAL_RTCEx_SetWakeUpTimer_IT(&RtcHandle, WakeUpCounter, RTC_WAKEUPCLOCK_RTCCLK_DIV4) != HAL_OK) {
@@ -389,6 +393,7 @@ void rtc_set_wake_up_timer(timestamp_t timestamp)
     NVIC_SetVector(RTC_WKUP_IRQn, (uint32_t)RTC_IRQHandler);
     irq_handler = (void (*)(void))lp_ticker_irq_handler;
     NVIC_EnableIRQ(RTC_WKUP_IRQn);
+    core_util_critical_section_exit();
 }
 
 void rtc_fire_interrupt(void)
