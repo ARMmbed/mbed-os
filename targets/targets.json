@@ -76,7 +76,7 @@
         "default_toolchain": "uARM",
         "extra_labels": ["NXP", "LPC11XX_11CXX", "LPC11XX"],
         "macros": ["CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""],
-        "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "GCC_CR", "IAR"],
+        "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
         "default_lib": "small",
         "release_versions": ["2"],
@@ -135,7 +135,7 @@
         "default_toolchain": "uARM",
         "extra_labels": ["NXP", "LPC11UXX"],
         "macros": ["CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""],
-        "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "GCC_CR", "IAR"],
+        "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"],
         "default_lib": "small",
         "release_versions": ["2"],
@@ -147,7 +147,7 @@
         "default_toolchain": "uARM",
         "extra_labels": ["NXP", "LPC11UXX", "MCU_LPC11U35_501"],
         "macros": ["CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""],
-        "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "GCC_CR", "IAR"],
+        "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"],
         "default_lib": "small",
         "release_versions": ["2"],
@@ -159,7 +159,7 @@
         "default_toolchain": "uARM",
         "extra_labels": ["NXP", "LPC11UXX", "MCU_LPC11U35_501"],
         "macros": ["CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""],
-        "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "GCC_CR", "IAR"],
+        "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"],
         "default_lib": "small",
         "device_name": "LPC11U35FHI33/501"
@@ -173,7 +173,7 @@
         "default_toolchain": "uARM",
         "extra_labels": ["NXP", "LPC11UXX", "MCU_LPC11U35_501"],
         "macros": ["CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""],
-        "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "GCC_CR", "IAR"],
+        "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"],
         "default_lib": "small",
         "device_name": "LPC11U35FHI33/501"
@@ -184,7 +184,7 @@
         "default_toolchain": "uARM",
         "extra_labels": ["NXP", "LPC11UXX"],
         "macros": ["CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""],
-        "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "GCC_CR", "IAR"],
+        "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "default_lib": "small",
         "device_name": "LPC11U37FBD64/501"
     },
@@ -199,7 +199,7 @@
         "default_toolchain": "uARM",
         "extra_labels": ["NXP", "LPC11UXX", "LPC11U37_501"],
         "macros": ["CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""],
-        "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "GCC_CR", "IAR"],
+        "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "inherits": ["LPCTarget"],
         "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"],
         "default_lib": "small",
@@ -211,7 +211,7 @@
         "core": "Cortex-M0+",
         "default_toolchain": "uARM",
         "extra_labels": ["NXP", "LPC11U6X"],
-        "supported_toolchains": ["ARM", "uARM", "GCC_CR", "GCC_ARM", "IAR"],
+        "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "inherits": ["LPCTarget"],
         "detect_code": ["1168"],
         "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PWMOUT", "SERIAL", "SLEEP", "SPI"],
@@ -233,7 +233,7 @@
         "core": "Cortex-M3",
         "default_toolchain": "uARM",
         "extra_labels": ["NXP", "LPC15XX"],
-        "supported_toolchains": ["uARM", "GCC_CR", "GCC_ARM", "IAR"],
+        "supported_toolchains": ["uARM", "GCC_ARM", "IAR"],
         "inherits": ["LPCTarget"],
         "detect_code": ["1549"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "CAN", "I2C", "INTERRUPTIN", "PWMOUT", "SERIAL", "SERIAL_FC", "SPI", "SPISLAVE"],
@@ -245,7 +245,7 @@
         "inherits": ["LPCTarget"],
         "core": "Cortex-M3",
         "extra_labels": ["NXP", "LPC176X", "MBED_LPC1768", "NXP_EMAC"],
-        "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "GCC_CR", "IAR"],
+        "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "detect_code": ["1010"],
         "device_has": ["RTC", "USTICKER", "ANALOGIN", "ANALOGOUT", "CAN", "DEBUG_AWARENESS", "EMAC", "ETHERNET", "I2C", "I2CSLAVE", "INTERRUPTIN", "LOCALFILESYSTEM", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SEMIHOST", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "FLASH"],
         "release_versions": ["2", "5"],
@@ -262,7 +262,7 @@
     "ARCH_PRO": {
         "supported_form_factors": ["ARDUINO"],
         "core": "Cortex-M3",
-        "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "GCC_CR", "IAR"],
+        "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "extra_labels": ["NXP", "LPC176X", "NXP_EMAC"],
         "macros": ["TARGET_LPC1768"],
         "inherits": ["LPCTarget"],
@@ -277,7 +277,7 @@
     "UBLOX_C027": {
         "supported_form_factors": ["ARDUINO"],
         "core": "Cortex-M3",
-        "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "GCC_CR", "IAR"],
+        "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "extra_labels": ["NXP", "LPC176X", "NXP_EMAC"],
         "config": {
             "modem_is_on_board": {
@@ -304,7 +304,7 @@
     "XBED_LPC1768": {
         "inherits": ["LPCTarget"],
         "core": "Cortex-M3",
-        "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "GCC_CR", "IAR"],
+        "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "IAR"],
         "extra_labels": ["NXP", "LPC176X", "XBED_LPC1768"],
         "macros": ["TARGET_LPC1768"],
         "detect_code": ["1010"],
@@ -342,7 +342,7 @@
         "default_toolchain": "uARM",
         "extra_labels": ["NXP", "LPC82X"],
         "is_disk_virtual": true,
-        "supported_toolchains": ["uARM", "GCC_ARM", "GCC_CR", "IAR"],
+        "supported_toolchains": ["uARM", "GCC_ARM", "IAR"],
         "inherits": ["LPCTarget"],
         "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"],
         "default_lib": "small",
@@ -365,7 +365,7 @@
         "core": "Cortex-M4F",
         "extra_labels": ["NXP", "LPC408X", "NXP_EMAC"],
         "is_disk_virtual": true,
-        "supported_toolchains": ["ARM", "GCC_CR", "GCC_ARM", "IAR"],
+        "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "post_binary_hook": {
             "function": "LPC4088Code.binary_hook"
         },
@@ -387,7 +387,7 @@
         "inherits": ["LPCTarget"],
         "core": "Cortex-M4F",
         "extra_labels": ["NXP", "LPC43XX", "LPC4330"],
-        "supported_toolchains": ["ARM", "GCC_CR", "IAR", "GCC_ARM"],
+        "supported_toolchains": ["ARM", "IAR", "GCC_ARM"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "DEBUG_AWARENESS", "ETHERNET", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"],
         "device_name": "LPC4330"
     },
@@ -395,7 +395,7 @@
         "inherits": ["LPCTarget"],
         "core": "Cortex-M0",
         "extra_labels": ["NXP", "LPC43XX", "LPC4330"],
-        "supported_toolchains": ["ARM", "GCC_CR", "IAR"],
+        "supported_toolchains": ["ARM", "IAR"],
         "device_has": ["ANALOGIN", "ANALOGOUT", "DEBUG_AWARENESS", "ETHERNET", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES"]
     },
     "LPC4337": {
@@ -412,7 +412,7 @@
         "core": "Cortex-M3",
         "extra_labels": ["NXP", "LPC43XX"],
         "public": false,
-        "supported_toolchains": ["ARM", "GCC_CR", "IAR"]
+        "supported_toolchains": ["ARM", "IAR"]
     },
     "LPC11U37H_401": {
         "supported_form_factors": ["ARDUINO"],
@@ -420,7 +420,7 @@
         "default_toolchain": "uARM",
         "extra_labels": ["NXP", "LPC11UXX"],
         "macros": ["CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""],
-        "supported_toolchains": ["ARM", "uARM", "GCC_ARM", "GCC_CR"],
+        "supported_toolchains": ["ARM", "uARM", "GCC_ARM"],
         "inherits": ["LPCTarget"],
         "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE"],
         "default_lib": "small",
