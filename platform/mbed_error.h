@@ -532,6 +532,9 @@ typedef enum _mbed_module_type {
     BLE_NO_FRAME_INITIALIZED,  321      BLE No frame initialized
     BLE_BACKEND_CREATION_FAILED 322     BLE Backend creation failed
     BLE_BACKEND_NOT_INITIALIZED 323     BLE Backend not initialized
+    ASSERTION_FAILED           324      Assertion Failed
+    AUTHENTICATION_FAILED      325      Authentication Failed
+    RBP_AUTHENTICATION_FAILED  326      Rollback Protect Authentication Failed
     \endverbatim
  *
  *  @note
@@ -783,6 +786,8 @@ typedef enum _mbed_error_code {
     MBED_DEFINE_SYSTEM_ERROR(BLE_BACKEND_CREATION_FAILED, 66),          /* 322      BLE Backend creation failed */
     MBED_DEFINE_SYSTEM_ERROR(BLE_BACKEND_NOT_INITIALIZED, 67),          /* 323      BLE Backend not initialized */
     MBED_DEFINE_SYSTEM_ERROR(ASSERTION_FAILED, 68),                     /* 324      Assertion Failed */
+    MBED_DEFINE_SYSTEM_ERROR(AUTHENTICATION_FAILED, 69),                /* 325      Authentication Failed */
+    MBED_DEFINE_SYSTEM_ERROR(RBP_AUTHENTICATION_FAILED, 70),            /* 326      Rollback Protection Authentication Failed */
 
     //Everytime you add a new system error code, you must update
     //Error documentation under Handbook to capture the info on

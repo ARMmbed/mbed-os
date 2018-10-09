@@ -1,0 +1,17 @@
+{
+    "name": "storage_tdb_external_no_rbp",
+    "config": {
+        "blockdevice": {
+            "help": "Options are default, SPIF, DATAFASH, QSPIF or SD. If default the block device will be chosen by the defined component",
+            "value": "default"
+        },
+        "external_size": {
+            "help": "Size in bytes of the external block device, if default the maximum size available is used.",
+            "value": "0"
+        },
+        "external_base_address": {
+            "help": "The default will set start address to address 0",
+            "value": "0"
+        }
+    }
+}
