@@ -25,25 +25,8 @@
 #include "greentea-client/test_env.h"
 #include "mbed_lp_ticker_wrapper.h"
 
+#include "sleep_test_utils.h"
 #include "sleep_api_tests.h"
-
-#define US_PER_S 1000000
-
-/* Flush serial buffer before deep sleep
- *
- * Since deepsleep() may shut down the UART peripheral, we wait for some time
- * to allow for hardware serial buffers to completely flush.
- *
- * Take NUMAKER_PFM_NUC472 as an example:
- * Its UART peripheral has 16-byte Tx FIFO. With baud rate set to 9600, flush
- * Tx FIFO would take: 16 * 8 * 1000 / 9600 = 13.3 (ms). So set wait time to
- * 20ms here for safe.
- *
- * This should be replaced with a better function that checks if the
- * hardware buffers are empty. However, such an API does not exist now,
- * so we'll use the busy_wait_ms() function for now.
- */
-#define SERIAL_FLUSH_TIME_MS    20
 
 using namespace utest::v1;
 
@@ -66,71 +49,6 @@ static const uint32_t sleep_mode_delta_us = (10 + 4 + 5);
 /* Used for deep-sleep mode, a target should be awake within 10 ms. Define us delta value as follows:
  * delta = default 10 ms + worst ticker resolution + extra time for code execution */
 static const uint32_t deepsleep_mode_delta_us = (10000 + 125 + 5);
-
-unsigned int ticks_to_us(unsigned int ticks, unsigned int freq)
-{
-    return (unsigned int)((unsigned long long) ticks * US_PER_S / freq);
-}
-
-unsigned int us_to_ticks(unsigned int us, unsigned int freq)
-{
-    return (unsigned int)((unsigned long long) us * freq / US_PER_S);
-}
-
-unsigned int overflow_protect(unsigned int timestamp, unsigned int ticker_width)
-{
-    unsigned int counter_mask = ((1 << ticker_width) - 1);
-
-    return (timestamp & counter_mask);
-}
-
-bool compare_timestamps(unsigned int delta_ticks, unsigned int ticker_width, unsigned int expected, unsigned int actual)
-{
-    const unsigned int counter_mask = ((1 << ticker_width) - 1);
-
-    const unsigned int lower_bound = ((expected - delta_ticks) & counter_mask);
-    const unsigned int upper_bound = ((expected + delta_ticks) & counter_mask);
-
-    if (lower_bound < upper_bound) {
-        if (actual >= lower_bound && actual <= upper_bound) {
-            return true;
-        } else {
-            return false;
-        }
-    } else {
-        if ((actual >= lower_bound && actual <= counter_mask) || (actual >= 0 && actual <= upper_bound)) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-}
-
-void busy_wait_ms(int ms)
-{
-    const ticker_info_t *info = us_ticker_get_info();
-    uint32_t mask = (1 << info->bits) - 1;
-    int delay = (int)((uint64_t)ms * info->frequency / 1000);
-
-    uint32_t prev = us_ticker_read();
-    while (delay > 0) {
-        uint32_t next = us_ticker_read();
-        delay -= (next - prev) & mask;
-        prev = next;
-    }
-}
-
-void us_ticker_isr(const ticker_data_t *const ticker_data)
-{
-    us_ticker_clear_interrupt();
-}
-
-#ifdef DEVICE_LPTICKER
-void lp_ticker_isr(const ticker_data_t *const ticker_data)
-{
-    lp_ticker_clear_interrupt();
-}
-#endif
 
 /* Test that wake-up time from sleep should be less than 10 us and
  * high frequency ticker interrupt can wake-up target from sleep. */
