@@ -698,6 +698,7 @@
     },
     "K66F": {
         "supported_form_factors": ["ARDUINO"],
+        "components": ["SD"],
         "core": "Cortex-M4F",
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "extra_labels": ["Freescale", "MCUXpresso_MCUS", "KSDK2_MCUS", "FRDM", "Freescale_EMAC"],
@@ -706,6 +707,7 @@
         "inherits": ["Target"],
         "detect_code": ["0311"],
         "device_has": ["USTICKER", "LPTICKER", "RTC", "ANALOGIN", "ANALOGOUT", "EMAC", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_FC", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "TRNG", "FLASH"],
+        "features": ["STORAGE"],
         "release_versions": ["2", "5"],
         "device_name": "MK66FN2M0xxx18",
         "bootloader_supported": true,
