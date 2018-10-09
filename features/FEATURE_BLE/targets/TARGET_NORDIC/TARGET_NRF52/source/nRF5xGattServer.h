@@ -43,8 +43,8 @@ public:
 
 
 private:
-    const static unsigned BLE_TOTAL_CHARACTERISTICS = 20;
-    const static unsigned BLE_TOTAL_DESCRIPTORS     = 8;
+    const static unsigned BLE_TOTAL_CHARACTERISTICS = NRF_SDH_BLE_TOTAL_CHARACTERISTICS;
+    const static unsigned BLE_TOTAL_DESCRIPTORS     = NRF_SDH_BLE_TOTAL_DESCRIPTORS;
     const static unsigned TOTAL_CONCURRENT_LONG_WRITE_REQUESTS = 3;
 
 private:
