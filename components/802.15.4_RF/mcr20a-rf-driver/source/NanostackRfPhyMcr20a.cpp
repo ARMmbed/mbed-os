@@ -1093,7 +1093,6 @@ static void rf_init_phy_mode(void)
  */
 static void PHY_InterruptHandler(void)
 {
-    /* Disable and clear transceiver(IRQ_B) interrupt */
     MCR20Drv_IRQ_Disable();
     irq_thread->signal_set(1);
 }
@@ -1106,14 +1105,13 @@ static void PHY_InterruptThread(void)
             continue;
         }
         handle_interrupt();
+        MCR20Drv_IRQ_Enable();
     }
 }
 
 static void handle_interrupt(void)
 {
     uint8_t xcvseqCopy;
-
-    //MCR20Drv_IRQ_Clear();
 
     /* Read transceiver interrupt status and control registers */
     mStatusAndControlRegs[IRQSTS1] =
@@ -1158,7 +1156,6 @@ static void handle_interrupt(void)
             MCR20Drv_DirectAccessSPIMultiByteWrite(IRQSTS1, mStatusAndControlRegs, 5);
 
             rf_ack_wait_timer_interrupt();
-            MCR20Drv_IRQ_Enable();
             return;
         }
     }
@@ -1182,7 +1179,6 @@ static void handle_interrupt(void)
             {
                 rf_receive();
             }
-            MCR20Drv_IRQ_Enable();
             return;
         }
 
@@ -1205,12 +1201,10 @@ static void handle_interrupt(void)
             break;
         }
 
-        MCR20Drv_IRQ_Enable();
         return;
     }
     /* Other IRQ. Clear XCVR interrupt flags */
     MCR20Drv_DirectAccessSPIMultiByteWrite(IRQSTS1, mStatusAndControlRegs, 3);
-    MCR20Drv_IRQ_Enable();
 }
 
 /*
