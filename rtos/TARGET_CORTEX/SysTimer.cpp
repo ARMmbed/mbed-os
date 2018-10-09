@@ -46,6 +46,10 @@ extern "C" {
 extern "C" IRQn_Type mbed_get_m0_tick_irqn(void);
 #endif
 
+#if defined(TARGET_CORTEX_A)
+extern "C" IRQn_ID_t mbed_get_a9_tick_irqn(void);
+#endif
+
 namespace rtos {
 namespace internal {
 

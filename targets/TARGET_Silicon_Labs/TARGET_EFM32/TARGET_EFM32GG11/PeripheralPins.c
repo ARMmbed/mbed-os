@@ -579,3 +579,53 @@ MBED_WEAK const PinMap PinMap_CAN_RX[] = {
 #endif
 };
 #endif
+
+#if DEVICE_QSPI
+MBED_WEAK const PinMap PinMap_QSPI_DQ0[] = {
+#ifdef QSPI0_BASE
+    {PD9,  QSPI_0, 0},
+    {PA2,  QSPI_0, 1},
+    {PG1,  QSPI_0, 2},
+#endif
+};
+
+MBED_WEAK const PinMap PinMap_QSPI_DQ1[] = {
+#ifdef QSPI0_BASE
+    {PD10, QSPI_0, 0},
+    {PA3,  QSPI_0, 1},
+    {PG2,  QSPI_0, 2},
+#endif
+};
+
+MBED_WEAK const PinMap PinMap_QSPI_DQ2[] = {
+#ifdef QSPI0_BASE
+    {PD11, QSPI_0, 0},
+    {PA4,  QSPI_0, 1},
+    {PG3,  QSPI_0, 2},
+#endif
+};
+
+MBED_WEAK const PinMap PinMap_QSPI_DQ3[] = {
+#ifdef QSPI0_BASE
+    {PD12, QSPI_0, 0},
+    {PA5,  QSPI_0, 1},
+    {PG4,  QSPI_0, 2},
+#endif
+};
+
+MBED_WEAK const PinMap PinMap_QSPI_SCLK[] = {
+#ifdef QSPI0_BASE
+    {PF6,  QSPI_0, 0},
+    {PE14, QSPI_0, 1},
+    {PG0,  QSPI_0, 2},
+#endif
+};
+
+MBED_WEAK const PinMap PinMap_QSPI_CS0[] = {
+#ifdef QSPI0_BASE
+    {PF7,  QSPI_0, 0},
+    {PA0,  QSPI_0, 1},
+    {PG9,  QSPI_0, 2},
+#endif
+};
+#endif

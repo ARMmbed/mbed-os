@@ -843,7 +843,8 @@ EXCLUDE_PATTERNS       = */tools/* \
                          */cmsis/* \
                          */features/cryptocell/* \
                          */features/mbedtls/* \
-                         */features/storage/* \
+                         */features/storage/cfstore/* \
+                         */features/storage/FEATURE_STORAGE/* \
                          */features/unsupported/* \
                          */features/lwipstack/* \
                          */features/nanostack/sal-stack-nanostack/* \
@@ -854,7 +855,10 @@ EXCLUDE_PATTERNS       = */tools/* \
                          */mbed-client-randlib/* \
                          */nanostack/sal-stack-nanostack-eventloop/* \
                          */ble/generic/* \
-                         */ble/pal/*
+                         */ble/pal/* \
+                         */components/802.15.4_RF/* \
+                         */components/wifi/* \
+                         */UNITTESTS/*
 
 # The EXCLUDE_SYMBOLS tag can be used to specify one or more symbol names
 # (namespaces, classes, functions, etc.) that should be excluded from the

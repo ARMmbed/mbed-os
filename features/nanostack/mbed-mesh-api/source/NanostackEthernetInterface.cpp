@@ -87,25 +87,16 @@ nsapi_error_t Nanostack::EthernetInterface::bringup(bool dhcp, const char *ip,
     return 0;
 }
 
-int NanostackEthernetInterface::connect()
+nsapi_error_t NanostackEthernetInterface::do_initialize()
 {
     if (!_interface) {
         return NSAPI_ERROR_PARAMETER;
     }
-    return _interface->bringup(false, NULL, NULL, NULL, IPV6_STACK, _blocking);
+    return NSAPI_ERROR_OK;
 }
 
 nsapi_error_t Nanostack::EthernetInterface::bringdown()
 {
     enet_tasklet_disconnect();
     return 0;
-}
-
-
-int NanostackEthernetInterface::disconnect()
-{
-    if (!_interface) {
-        return NSAPI_ERROR_NO_CONNECTION;
-    }
-    return _interface->bringdown();
 }

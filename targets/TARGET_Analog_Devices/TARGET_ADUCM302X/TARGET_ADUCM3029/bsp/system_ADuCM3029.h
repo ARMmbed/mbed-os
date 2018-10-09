@@ -40,9 +40,12 @@ extern "C" {
 #endif /* __cplusplus */
 
 /*! \cond PRIVATE */
-#define SUCCESS 0u
-
-#define FAILURE 1u
+/*! System API function return codes */
+typedef enum
+{
+    ADI_SYS_SUCCESS = 0,  /*!< No error detected. */
+    ADI_SYS_FAILURE,      /*!< The API call failed. */
+} ADI_SYS_RESULT;
 
 /* System clock constant */
 #define __HFOSC     26000000u  

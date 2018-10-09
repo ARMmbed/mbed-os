@@ -26,9 +26,6 @@
 #define OS_TICK_H
 
 #include <stdint.h>
-#if defined(TARGET_CORTEX_A)
-#include "irq_ctrl.h"
-#endif
 
 /// IRQ Handler.
 #ifndef IRQHANDLER_T
@@ -36,44 +33,39 @@
 typedef void (*IRQHandler_t) (void);
 #endif
 
-/// Setup OS Tick.
+/// Setup OS Tick timer to generate periodic RTOS Kernel Ticks
 /// \param[in]     freq         tick frequency in Hz
 /// \param[in]     handler      tick IRQ handler
 /// \return 0 on success, -1 on error.
 int32_t  OS_Tick_Setup (uint32_t freq, IRQHandler_t handler);
 
-/// Enable OS Tick.
+/// Enable OS Tick timer interrupt
 void     OS_Tick_Enable (void);
 
-/// Disable OS Tick.
+/// Disable OS Tick timer interrupt
 void     OS_Tick_Disable (void);
 
-/// Acknowledge OS Tick IRQ.
+/// Acknowledge execution of OS Tick timer interrupt
 void     OS_Tick_AcknowledgeIRQ (void);
 
-/// Get OS Tick IRQ number.
-/// \return OS Tick IRQ number.
+/// Get OS Tick timer IRQ number
+/// \return OS Tick IRQ number
 int32_t  OS_Tick_GetIRQn (void);
 
-/// Get OS Tick clock.
-/// \return OS Tick clock in Hz.
+/// Get OS Tick timer clock frequency
+/// \return OS Tick timer clock frequency in Hz
 uint32_t OS_Tick_GetClock (void);
 
-/// Get OS Tick interval.
-/// \return OS Tick interval.
+/// Get OS Tick timer interval reload value
+/// \return OS Tick timer interval reload value
 uint32_t OS_Tick_GetInterval (void);
 
-/// Get OS Tick count value.
-/// \return OS Tick count value.
+/// Get OS Tick timer counter value
+/// \return OS Tick timer counter value
 uint32_t OS_Tick_GetCount (void);
 
-/// Get OS Tick overflow status.
+/// Get OS Tick timer overflow status
 /// \return OS Tick overflow status (1 - overflow, 0 - no overflow).
 uint32_t OS_Tick_GetOverflow (void);
 
-/// Get Cortex-A9 OS Timer interrupt number
-/// \returns Cortex-A9 OS Timer interrupt number (134)
-#if defined(TARGET_CORTEX_A)
-IRQn_ID_t mbed_get_a9_tick_irqn(void);
-#endif
 #endif  /* OS_TICK_H */

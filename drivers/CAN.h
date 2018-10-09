@@ -55,7 +55,7 @@ public:
      *  @param _type    Type of Data: Use enum CANType for valid parameter values
      *  @param _format  Data Format: Use enum CANFormat for valid parameter values
      */
-    CANMessage(int _id, const char *_data, char _len = 8, CANType _type = CANData, CANFormat _format = CANStandard)
+    CANMessage(unsigned _id, const char *_data, char _len = 8, CANType _type = CANData, CANFormat _format = CANStandard)
     {
         len    = _len & 0xF;
         type   = _type;
@@ -69,7 +69,7 @@ public:
      *  @param _id      Message ID
      *  @param _format  Data Format: Use enum CANType for valid parameter values
      */
-    CANMessage(int _id, CANFormat _format = CANStandard)
+    CANMessage(unsigned _id, CANFormat _format = CANStandard)
     {
         len    = 0;
         type   = CANRemote;

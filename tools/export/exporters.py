@@ -112,10 +112,10 @@ class Exporter(object):
         flags['cxx_flags'] += c_defines
         config_header = self.config_header_ref
         if config_header:
-            flags['c_flags'] += self.toolchain.get_config_option(
+            config_option = self.toolchain.get_config_option(
                 config_header.name)
-            flags['cxx_flags'] += self.toolchain.get_config_option(
-                config_header.name)
+            flags['c_flags'] += config_option
+            flags['cxx_flags'] += config_option
         return flags
 
     @property
@@ -150,9 +150,9 @@ class Exporter(object):
         if config_header:
             def is_config_header(f):
                 return f.path == config_header
-            return filter(
+            return list(filter(
                 is_config_header, self.resources.get_file_refs(FileType.HEADER)
-            )[0]
+            ))[0]
         else:
             return None
 

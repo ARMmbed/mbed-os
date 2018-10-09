@@ -3,7 +3,7 @@
 ;* Author             : MCD Application Team
 ;* Version            : V2.1.1
 ;* Date               : 20-November-2015
-;* Description        : STM32F207xx devices vector table for MDK-ARM_STD toolchain. 
+;* Description        : STM32F207xx devices vector table for MDK-ARM_STD toolchain.
 ;*                      This module performs:
 ;*                      - Set the initial SP
 ;*                      - Set the initial PC == Reset_Handler
@@ -13,7 +13,7 @@
 ;*                      After Reset the CortexM3 processor is in Thread mode,
 ;*                      priority is Privileged, and the Stack is set to Main.
 ;*******************************************************************************
-; 
+;
 ;* Redistribution and use in source and binary forms, with or without modification,
 ;* are permitted provided that the following conditions are met:
 ;*   1. Redistributions of source code must retain the above copyright notice,
@@ -35,32 +35,10 @@
 ;* CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 ;* OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 ;* OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-; 
+;
 ;*******************************************************************************
 
-; Amount of memory (in bytes) allocated for Stack
-; Tailor this value to your application needs
-; <h> Stack Configuration
-;   <o> Stack Size (in Bytes) <0x0-0xFFFFFFFF:8>
-; </h>
-
-Stack_Size      EQU     0x00000400
-
-                AREA    STACK, NOINIT, READWRITE, ALIGN=3
-Stack_Mem       SPACE   Stack_Size
 __initial_sp    EQU     0x20020000
-
-
-; <h> Heap Configuration
-;   <o>  Heap Size (in Bytes) <0x0-0xFFFFFFFF:8>
-; </h>
-
-Heap_Size       EQU     0x00000200
-
-                AREA    HEAP, NOINIT, READWRITE, ALIGN=3
-__heap_base
-Heap_Mem        SPACE   Heap_Size
-__heap_limit
 
                 PRESERVE8
                 THUMB
@@ -404,33 +382,6 @@ HASH_RNG_IRQHandler
                 ENDP
 
                 ALIGN
-
-;*******************************************************************************
-; User Stack and Heap initialization
-;*******************************************************************************
-                 IF      :DEF:__MICROLIB
-                
-                 EXPORT  __initial_sp
-                 EXPORT  __heap_base
-                 EXPORT  __heap_limit
-                
-                 ELSE
-                
-                 IMPORT  __use_two_region_memory
-                 EXPORT  __user_initial_stackheap
-                 
-__user_initial_stackheap
-
-                 LDR     R0, =  Heap_Mem
-                 LDR     R1, =(Stack_Mem + Stack_Size)
-                 LDR     R2, = (Heap_Mem +  Heap_Size)
-                 LDR     R3, = Stack_Mem
-                 BX      LR
-
-                 ALIGN
-
-                 ENDIF
-
-                 END
+                END
 
 ;************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE*****

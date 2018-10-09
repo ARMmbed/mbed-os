@@ -95,14 +95,18 @@ nsapi_error_t AT_CellularStack::socket_open(nsapi_socket_t *handle, nsapi_protoc
 
     int max_socket_count = get_max_socket_count();
 
+    _socket_mutex.lock();
+
     if (!_socket) {
         if (socket_stack_init() != NSAPI_ERROR_OK) {
+            _socket_mutex.unlock();
             return NSAPI_ERROR_NO_SOCKET;
         }
 
         _socket = new CellularSocket*[max_socket_count];
         if (!_socket) {
             tr_error("No memory to open socket!");
+            _socket_mutex.unlock();
             return NSAPI_ERROR_NO_SOCKET;
         }
         _socket_count = max_socket_count;
@@ -121,6 +125,7 @@ nsapi_error_t AT_CellularStack::socket_open(nsapi_socket_t *handle, nsapi_protoc
 
     if (index == -1) {
         tr_error("No socket found!");
+        _socket_mutex.unlock();
         return NSAPI_ERROR_NO_SOCKET;
     }
 
@@ -135,6 +140,8 @@ nsapi_error_t AT_CellularStack::socket_open(nsapi_socket_t *handle, nsapi_protoc
     psock->localAddress = addr;
     psock->proto = proto;
     *handle = psock;
+
+    _socket_mutex.unlock();
 
     return NSAPI_ERROR_OK;
 }
@@ -166,8 +173,6 @@ nsapi_error_t AT_CellularStack::socket_close(nsapi_socket_t handle)
         return err;
     }
 
-    _socket[index] = NULL;
-    delete socket;
     err = NSAPI_ERROR_OK;
 
     // Close the socket on the modem if it was created
@@ -175,6 +180,10 @@ nsapi_error_t AT_CellularStack::socket_close(nsapi_socket_t handle)
     if (sock_created) {
         err = socket_close_impl(sock_id);
     }
+
+    _socket[index] = NULL;
+    delete socket;
+
     _at.unlock();
 
     return err;
@@ -267,10 +276,10 @@ nsapi_size_or_error_t AT_CellularStack::socket_sendto(nsapi_socket_t handle, con
 
     ret_val = socket_sendto_impl(socket, addr, data, size);
 
-    if (ret_val <= 0) {
-        tr_error("Error sending to: %s error code: %d", addr.get_ip_address(), ret_val);
-    } else {
+    if (ret_val > 0) {
         tr_info("Success sending %d Bytes to: %s", ret_val, addr.get_ip_address());
+    } else if (ret_val != NSAPI_ERROR_WOULD_BLOCK) {
+        tr_error("Error sending to: %s error code: %d", addr.get_ip_address(), ret_val);
     }
 
     _at.unlock();

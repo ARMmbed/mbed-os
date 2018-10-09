@@ -13,29 +13,20 @@ namespace cordio {
  * Implementation of ble::pal::Gap for the Cordio stack.
  */
 class Gap : public ::ble::pal::Gap {
-
 public:
-    virtual ble_error_t initialize() {
-        return BLE_ERROR_NONE;
-    }
+    virtual bool is_feature_supported(
+        Gap::ControllerSupportedFeatures_t feature
+    );
 
-    virtual ble_error_t terminate() {
-        return BLE_ERROR_NONE;
-    }
+    virtual ble_error_t initialize();
 
-    virtual address_t get_device_address() {
-        return address_t(HciGetBdAddr());
-    }
+    virtual ble_error_t terminate();
 
-    virtual address_t get_random_address() {
-        return device_random_address;
-    }
+    virtual address_t get_device_address();
 
-    virtual ble_error_t set_random_address(const address_t& address) {
-        device_random_address = address;
-        DmDevSetRandAddr(const_cast<uint8_t*>(address.data()));
-        return BLE_ERROR_NONE;
-    }
+    virtual address_t get_random_address();
+
+    virtual ble_error_t set_random_address(const address_t& address);
 
     virtual ble_error_t set_advertising_parameters(
         uint16_t advertising_interval_min,
@@ -46,75 +37,19 @@ public:
         const address_t& peer_address,
         advertising_channel_map_t advertising_channel_map,
         advertising_filter_policy_t advertising_filter_policy
-    ) {
-        DmAdvSetInterval(
-            DM_ADV_HANDLE_DEFAULT,
-            advertising_interval_min,
-            advertising_interval_max
-        );
-
-        DmAdvSetAddrType(own_address_type.value());
-
-        DmAdvSetChannelMap(
-            DM_ADV_HANDLE_DEFAULT,
-            advertising_channel_map.value()
-        );
-
-        DmDevSetFilterPolicy(
-            DM_FILT_POLICY_MODE_ADV,
-            advertising_filter_policy.value()
-        );
-
-        DmAdvConfig(
-            DM_ADV_HANDLE_DEFAULT,
-            advertising_type.value(),
-            peer_address_type.value(),
-            const_cast<uint8_t*>(peer_address.data())
-        );
-
-        return BLE_ERROR_NONE;
-    }
+    );
 
     virtual ble_error_t set_advertising_data(
         uint8_t advertising_data_length,
         const advertising_data_t& advertising_data
-    ) {
-        DmAdvSetData(
-            DM_ADV_HANDLE_DEFAULT,
-            HCI_ADV_DATA_OP_COMP_FRAG,
-            DM_DATA_LOC_ADV,
-            advertising_data_length,
-            const_cast<uint8_t*>(advertising_data.data())
-        );
-        return BLE_ERROR_NONE;
-    }
+    );
 
     virtual ble_error_t set_scan_response_data(
         uint8_t scan_response_data_length,
         const advertising_data_t& scan_response_data
-    ) {
-        DmAdvSetData(
-            DM_ADV_HANDLE_DEFAULT,
-            HCI_ADV_DATA_OP_COMP_FRAG,
-            DM_DATA_LOC_SCAN,
-            scan_response_data_length,
-            const_cast<uint8_t*>(scan_response_data.data())
-        );
-        return BLE_ERROR_NONE;
-    }
+    );
 
-    virtual ble_error_t advertising_enable(bool enable) {
-        if (enable) {
-            uint8_t adv_handles[] = { DM_ADV_HANDLE_DEFAULT };
-            uint16_t adv_durations[] = { /* infinite */ 0 };
-            uint8_t max_ea_events[] = { 0 };
-            DmAdvStart(1, adv_handles, adv_durations, max_ea_events);
-        } else {
-            uint8_t adv_handles[] = { DM_ADV_HANDLE_DEFAULT };
-            DmAdvStop(1, adv_handles);
-        }
-        return BLE_ERROR_NONE;
-    }
+    virtual ble_error_t advertising_enable(bool enable);
 
     virtual ble_error_t set_scan_parameters(
         bool active_scanning,
@@ -122,36 +57,12 @@ public:
         uint16_t scan_window,
         own_address_type_t own_address_type,
         scanning_filter_policy_t filter_policy
-    ) {
-        use_active_scanning = active_scanning;
-        DmScanSetInterval(HCI_INIT_PHY_LE_1M_BIT, &scan_interval, &scan_window);
-        DmScanSetAddrType(own_address_type.value());
-        DmDevSetFilterPolicy(
-            DM_FILT_POLICY_MODE_SCAN,
-            filter_policy.value()
-        );
-        return BLE_ERROR_NONE;
-    }
+    );
 
     virtual ble_error_t scan_enable(
         bool enable,
         bool filter_duplicates
-    ) {
-        if (enable) {
-            uint8_t scanType = use_active_scanning ? DM_SCAN_TYPE_ACTIVE : DM_SCAN_TYPE_PASSIVE;
-            DmScanStart(
-                HCI_SCAN_PHY_LE_1M_BIT,
-                DM_DISC_MODE_NONE,
-                &scanType,
-                filter_duplicates,
-                0,
-                0
-            );
-        } else {
-            DmScanStop();
-        }
-        return BLE_ERROR_NONE;
-    }
+    );
 
     virtual ble_error_t create_connection(
         uint16_t scan_interval,
@@ -166,74 +77,23 @@ public:
         uint16_t supervision_timeout,
         uint16_t minimum_connection_event_length,
         uint16_t maximum_connection_event_length
-    ) {
-        DmConnSetScanInterval(scan_interval, scan_window);
-        DmDevSetFilterPolicy(DM_FILT_POLICY_MODE_INIT, initiator_policy.value());
-        DmConnSetAddrType(own_address_type.value());
+    );
 
-        hciConnSpec_t conn_spec = {
-            connection_interval_min,
-            connection_interval_max,
-            connection_latency,
-            supervision_timeout,
-            minimum_connection_event_length,
-            maximum_connection_event_length
-        };
-        DmConnSetConnSpec(&conn_spec);
+    virtual ble_error_t cancel_connection_creation();
 
-        dmConnId_t connection_id = DmConnOpen(
-            DM_CLIENT_ID_APP,
-            HCI_INIT_PHY_LE_1M_BIT,
-            peer_address_type.value(),
-            const_cast<uint8_t*>(peer_address.data())
-        );
+    virtual uint8_t read_white_list_capacity();
 
-        if (connection_id == DM_CONN_ID_NONE) {
-            return BLE_ERROR_INTERNAL_STACK_FAILURE;
-        }
-
-        return BLE_ERROR_NONE;
-    }
-
-    virtual ble_error_t cancel_connection_creation() {
-        DmConnClose(
-            DM_CLIENT_ID_APP,
-            /* connection handle - invalid */ DM_CONN_ID_NONE,
-            /* reason - invalid (use success) */ 0x00
-        );
-        return BLE_ERROR_NONE;
-    }
-
-    virtual uint8_t read_white_list_capacity() {
-        return HciGetWhiteListSize();
-    }
-
-    virtual ble_error_t clear_whitelist() {
-        DmDevWhiteListClear();
-        return BLE_ERROR_NONE;
-    }
+    virtual ble_error_t clear_whitelist();
 
     virtual ble_error_t add_device_to_whitelist(
         whitelist_address_type_t address_type,
         address_t address
-    ) {
-        DmDevWhiteListAdd(
-            address_type.value(),
-            const_cast<uint8_t*>(address.data())
-        );
-        return BLE_ERROR_NONE;
-    }
+    );
 
     virtual ble_error_t remove_device_from_whitelist(
         whitelist_address_type_t address_type,
         address_t address
-    ) {
-        DmDevWhiteListRemove(
-            address_type.value(),
-            const_cast<uint8_t*>(address.data())
-        );
-        return BLE_ERROR_NONE;
-    }
+    );
 
     virtual ble_error_t connection_parameters_update(
         connection_handle_t connection,
@@ -243,26 +103,7 @@ public:
         uint16_t supervision_timeout,
         uint16_t minimum_connection_event_length,
         uint16_t maximum_connection_event_length
-    ) {
-        if (DmConnCheckIdle(connection) != 0) {
-            return BLE_ERROR_INVALID_STATE;
-        }
-
-        hciConnSpec_t connection_spec = {
-            connection_interval_min,
-            connection_interval_max,
-            connection_latency,
-            supervision_timeout,
-            minimum_connection_event_length,
-            maximum_connection_event_length
-        };
-        DmConnUpdate(
-            connection,
-            &connection_spec
-        );
-
-        return BLE_ERROR_NONE;
-    }
+    );
 
     virtual ble_error_t accept_connection_parameter_request(
         connection_handle_t connection_handle,
@@ -272,104 +113,52 @@ public:
         uint16_t supervision_timeout,
         uint16_t minimum_connection_event_length,
         uint16_t maximum_connection_event_length
-    ) {
-        hciConnSpec_t connection_spec = {
-            interval_min,
-            interval_max,
-            latency,
-            supervision_timeout,
-            minimum_connection_event_length,
-            maximum_connection_event_length
-        };
-        DmRemoteConnParamReqReply(connection_handle, &connection_spec);
-        return BLE_ERROR_NONE;
-    }
+    );
 
     virtual ble_error_t reject_connection_parameter_request(
         connection_handle_t connection_handle,
         hci_error_code_t rejection_reason
-    ) {
-        DmRemoteConnParamReqNegReply(
-            connection_handle,
-            rejection_reason.value()
-        );
-        return BLE_ERROR_NONE;
-    }
+    );
 
     virtual ble_error_t disconnect(
         connection_handle_t connection,
         disconnection_reason_t disconnection_reason
-    ) {
-        DmConnClose(
-            DM_CLIENT_ID_APP,
-            connection,
-            disconnection_reason.value()
-        );
-        return BLE_ERROR_NONE;
-    }
+    );
 
-    virtual bool is_privacy_supported() {
-        // We only support controller-based privacy, so return whether the controller supports it
-        return HciLlPrivacySupported();
-    }
+    virtual bool is_privacy_supported();
     
     virtual ble_error_t set_address_resolution(
         bool enable
-    ) {
-        DmPrivSetAddrResEnable(enable);
-        return BLE_ERROR_NONE;
-    }
+    );
+
+    virtual ble_error_t read_phy(connection_handle_t connection);
+
+    virtual ble_error_t set_preferred_phys(
+        const phy_set_t& tx_phys,
+        const phy_set_t& rx_phys
+    );
+
+    virtual ble_error_t set_phy(
+        connection_handle_t connection,
+        const phy_set_t& tx_phys,
+        const phy_set_t& rx_phys,
+        coded_symbol_per_bit_t coded_symbol
+    );
 
     // singleton of the ARM Cordio client
-    static Gap& get_gap() {
-        static Gap _gap;
-        return _gap;
-    }
+    static Gap& get_gap();
 
-private:
-    typedef bool (*event_handler_t)(const wsfMsgHdr_t* msg);
-
-public:
     /**
      * Callback which handle wsfMsgHdr_t and forward them to emit_gap_event.
      */
-    static void gap_handler(const wsfMsgHdr_t* msg) {
-        if (msg == NULL) {
-            return;
-        }
-
-        // all handlers are stored in a static array
-        static const event_handler_t handlers[] = {
-            &event_handler<ConnectionCompleteMessageConverter>,
-            &event_handler<GapAdvertisingReportMessageConverter>,
-            &event_handler<DisconnectionMessageConverter>,
-            &event_handler<ConnectionUpdateMessageConverter>,
-            &event_handler<RemoteConnectionParameterRequestMessageConverter>
-        };
-
-        // event->hdr.param: connection handle
-
-        // traverse all handlers and execute them with the event in input.
-        // exit if an handler has handled the event.
-        for(size_t i = 0; i < (sizeof(handlers)/sizeof(handlers[0])); ++i) {
-            if (handlers[i](msg)) {
-                return;
-            }
-        }
-    }
+    static void gap_handler(const wsfMsgHdr_t* msg);
 
 private:
     /**
      * T shall define a can_convert and convert function and a type
      */
     template<typename T>
-    static bool event_handler(const wsfMsgHdr_t* msg) {
-        if (T::can_convert(msg)) {
-            get_gap().emit_gap_event(T::convert((const typename T::type*)msg));
-            return true;
-        }
-        return false;
-    }
+    static bool event_handler(const wsfMsgHdr_t* msg);
 
     /**
      * Traits defining can_convert for events.

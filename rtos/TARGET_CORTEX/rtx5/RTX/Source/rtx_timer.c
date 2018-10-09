@@ -240,13 +240,6 @@ static const char *svcRtxTimerGetName (osTimerId_t timer_id) {
     return NULL;
   }
 
-  // Check object state
-  if (timer->state == osRtxObjectInactive) {
-    EvrRtxTimerGetName(timer, NULL);
-    //lint -e{904} "Return statement before end of function" [MISRA Note 1]
-    return NULL;
-  }
-
   EvrRtxTimerGetName(timer, timer->name);
 
   return timer->name;
@@ -264,12 +257,6 @@ static osStatus_t svcRtxTimerStart (osTimerId_t timer_id, uint32_t ticks) {
     return osErrorParameter;
   }
 
-  // Check object state
-  if (timer->state == osRtxTimerInactive) {
-    EvrRtxTimerError(timer, (int32_t)osErrorResource);
-    //lint -e{904} "Return statement before end of function" [MISRA Note 1]
-    return osErrorResource;
-  }
   if (timer->state == osRtxTimerRunning) {
     TimerRemove(timer);
   } else {
@@ -331,7 +318,6 @@ static uint32_t svcRtxTimerIsRunning (osTimerId_t timer_id) {
     return 0U;
   }
 
-  // Check object state
   if (timer->state == osRtxTimerRunning) {
     EvrRtxTimerIsRunning(timer, 1U);
     is_running = 1U;
@@ -355,18 +341,13 @@ static osStatus_t svcRtxTimerDelete (osTimerId_t timer_id) {
     return osErrorParameter;
   }
 
-  // Check object state
-  if (timer->state == osRtxTimerInactive) {
-    EvrRtxTimerError(timer, (int32_t)osErrorResource);
-    //lint -e{904} "Return statement before end of function" [MISRA Note 1]
-    return osErrorResource;
-  }
   if (timer->state == osRtxTimerRunning) {
     TimerRemove(timer);
   }
 
-  // Mark object as inactive
+  // Mark object as inactive and invalid
   timer->state = osRtxTimerInactive;
+  timer->id    = osRtxIdInvalid;
 
   // Free object memory
   if ((timer->flags & osRtxFlagSystemObject) != 0U) {

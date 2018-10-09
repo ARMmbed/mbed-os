@@ -330,9 +330,7 @@ uint16_t get_dynamic_ip_port()
     }
 
     port_counter += randLIB_get_random_in_range(1, RANDOM_PORT_NUMBER_MAX_STEP);
-    if (port_counter >= RANDOM_PORT_NUMBER_COUNT) {
-        port_counter -= RANDOM_PORT_NUMBER_COUNT;
-    }
+    port_counter %= RANDOM_PORT_NUMBER_COUNT;
 
     return (RANDOM_PORT_NUMBER_START + port_counter);
 }

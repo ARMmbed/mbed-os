@@ -23,8 +23,6 @@
 #define MBEDTLS_AES_ALT
 #define MBEDTLS_SHA1_ALT
 
-
-#define MBEDTLS_SHA256_ALT
 #define MBEDTLS_MD5_ALT
 
 #endif /* MBEDTLS_DEVICE_H */

@@ -37,9 +37,9 @@ extern "C"
  
  
 /// Kernel Information
-#define osRtxVersionAPI      20010002   ///< API version (2.1.2)
-#define osRtxVersionKernel   50030000   ///< Kernel version (5.3.0)
-#define osRtxKernelId     "RTX V5.3.0"  ///< Kernel identification string
+#define osRtxVersionAPI      20010003   ///< API version (2.1.3)
+#define osRtxVersionKernel   50040000   ///< Kernel version (5.4.0)
+#define osRtxKernelId     "RTX V5.4.0"  ///< Kernel identification string
  
  
 //  ==== Common definitions ====
@@ -54,10 +54,6 @@ extern "C"
 #define osRtxIdMemoryPool       0x06U
 #define osRtxIdMessage          0x07U
 #define osRtxIdMessageQueue     0x08U
- 
-/// Object State definitions (except for Threads and Timers)
-#define osRtxObjectInactive     0x00U
-#define osRtxObjectActive       0x01U
  
 /// Object Flags definitions
 #define osRtxFlagSystemObject   0x01U
@@ -127,7 +123,9 @@ typedef struct osRtxThread_s {
   uint32_t                         sp;  ///< Current Stack Pointer
   uint32_t                thread_addr;  ///< Thread entry address
   uint32_t                  tz_memory;  ///< TrustZone Memory Identifier
-  void                       *context;  ///< Context for OsEventObserver objects
+#ifdef RTX_TF_M_EXTENSION
+  uint32_t                  tz_module;  ///< TrustZone Module Identifier
+#endif
 } osRtxThread_t;
  
  
@@ -167,7 +165,7 @@ typedef struct osRtxTimer_s {
 /// Event Flags Control Block
 typedef struct {
   uint8_t                          id;  ///< Object Identifier
-  uint8_t                       state;  ///< Object State
+  uint8_t              reserved_state;  ///< Object State (not used)
   uint8_t                       flags;  ///< Object Flags
   uint8_t                    reserved;
   const char                    *name;  ///< Object Name
@@ -181,7 +179,7 @@ typedef struct {
 /// Mutex Control Block
 typedef struct osRtxMutex_s {
   uint8_t                          id;  ///< Object Identifier
-  uint8_t                       state;  ///< Object State
+  uint8_t              reserved_state;  ///< Object State (not used)
   uint8_t                       flags;  ///< Object Flags
   uint8_t                        attr;  ///< Object Attributes
   const char                    *name;  ///< Object Name
@@ -199,7 +197,7 @@ typedef struct osRtxMutex_s {
 /// Semaphore Control Block
 typedef struct {
   uint8_t                          id;  ///< Object Identifier
-  uint8_t                       state;  ///< Object State
+  uint8_t              reserved_state;  ///< Object State (not used)
   uint8_t                       flags;  ///< Object Flags
   uint8_t                    reserved;
   const char                    *name;  ///< Object Name
@@ -224,7 +222,7 @@ typedef struct {
 /// Memory Pool Control Block
 typedef struct {
   uint8_t                          id;  ///< Object Identifier
-  uint8_t                       state;  ///< Object State
+  uint8_t              reserved_state;  ///< Object State (not used)
   uint8_t                       flags;  ///< Object Flags
   uint8_t                    reserved;
   const char                    *name;  ///< Object Name
@@ -238,7 +236,7 @@ typedef struct {
 /// Message Control Block
 typedef struct osRtxMessage_s {
   uint8_t                          id;  ///< Object Identifier
-  uint8_t                       state;  ///< Object State
+  uint8_t              reserved_state;  ///< Object State (not used)
   uint8_t                       flags;  ///< Object Flags
   uint8_t                    priority;  ///< Message Priority
   struct osRtxMessage_s         *prev;  ///< Pointer to previous Message
@@ -248,7 +246,7 @@ typedef struct osRtxMessage_s {
 /// Message Queue Control Block
 typedef struct {
   uint8_t                          id;  ///< Object Identifier
-  uint8_t                       state;  ///< Object State
+  uint8_t              reserved_state;  ///< Object State (not used)
   uint8_t                       flags;  ///< Object Flags
   uint8_t                    reserved;
   const char                    *name;  ///< Object Name
@@ -410,6 +408,11 @@ extern void osRtxIdleThread (void *argument);
 extern void SVC_Handler     (void);
 extern void PendSV_Handler  (void);
 extern void SysTick_Handler (void);
+ 
+/// OS Trusted Firmware M Extension
+#ifdef RTX_TF_M_EXTENSION
+extern uint32_t osRtxTzGetModuleId (void);
+#endif
  
  
 //  ==== OS External Configuration ====

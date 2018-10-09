@@ -41,7 +41,7 @@ protected:
 
     virtual bool get_modem_stack_type(nsapi_ip_stack_t requested_stack);
 
-    virtual bool has_registration(RegistrationType rat);
+    virtual RegistrationMode has_registration(RegistrationType rat);
 
 private:
 

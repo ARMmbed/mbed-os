@@ -76,7 +76,16 @@ typedef enum {
 
     /* Board Controller */
     STDIO_UART_TX = USBTX,
-    STDIO_UART_RX = USBRX
+    STDIO_UART_RX = USBRX,
+
+    /* On-board MX25R3235F */
+    QSPI_FLASH1_IO0 = PG1,
+    QSPI_FLASH1_IO1 = PG2,
+    QSPI_FLASH1_IO2 = PG3,
+    QSPI_FLASH1_IO3 = PG4,
+    QSPI_FLASH1_SCK = PG0,
+    QSPI_FLASH1_CSN = PG9,
+
 } PinName;
 
 #ifdef __cplusplus

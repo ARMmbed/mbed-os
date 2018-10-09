@@ -283,6 +283,7 @@ typedef enum _mbed_module_type {
     MBED_MODULE_DRIVER_QSPI,
     MBED_MODULE_DRIVER_USB,
     MBED_MODULE_TARGET_SDK,
+    MBED_MODULE_BLE,
     /* Add More entities here as required */
 
     MBED_MODULE_UNKNOWN = 255,
@@ -776,6 +777,9 @@ typedef enum _mbed_error_code {
     MBED_DEFINE_SYSTEM_ERROR(MEMMANAGE_EXCEPTION, 62),                  /* 318      MemManage exception */
     MBED_DEFINE_SYSTEM_ERROR(BUSFAULT_EXCEPTION, 63),                   /* 319      BusFault exception */
     MBED_DEFINE_SYSTEM_ERROR(USAGEFAULT_EXCEPTION, 64),                 /* 320      UsageFault exception*/
+    MBED_DEFINE_SYSTEM_ERROR(BLE_NO_FRAME_INITIALIZED, 65),             /* 321      BLE No frame initialized */
+    MBED_DEFINE_SYSTEM_ERROR(BLE_BACKEND_CREATION_FAILED, 66),          /* 322      BLE Backend creation failed */
+    MBED_DEFINE_SYSTEM_ERROR(BLE_BACKEND_NOT_INITIALIZED, 67),          /* 323      BLE Backend not initialized */
 
     //Everytime you add a new system error code, you must update
     //Error documentation under Handbook to capture the info on

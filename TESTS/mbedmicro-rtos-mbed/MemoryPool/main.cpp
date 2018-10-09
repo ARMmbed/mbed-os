@@ -451,38 +451,6 @@ void test_mem_pool_free_realloc_first_complex(AllocType atype)
 }
 
 /* Robustness checks for free() function.
- *
- * Given block from the MemoryPool has been successfully deallocated.
- * When free operation is executed on this block again.
- * Then operation fails with osErrorResource status.
- *
- * */
-void test_mem_pool_free_on_freed_block()
-{
-    MemoryPool<int, 1> mem_pool;
-    int *p_block;
-    osStatus status;
-
-    /* Allocate memory block. */
-    p_block = mem_pool.alloc();
-
-    /* Show that memory pool block has been allocated. */
-    TEST_ASSERT_NOT_NULL(p_block);
-
-    /* Free memory block. */
-    status = mem_pool.free(p_block);
-
-    /* Check operation status. */
-    TEST_ASSERT_EQUAL(osOK, status);
-
-    /* Free memory block again. */
-    status = mem_pool.free(p_block);
-
-    /* Check operation status. */
-    TEST_ASSERT_EQUAL(osErrorResource, status);
-}
-
-/* Robustness checks for free() function.
  * Function under test is called with invalid parameters.
  *
  * Given MemoryPool object has been successfully created.
@@ -601,7 +569,6 @@ Case cases[] = {
 
     Case("Test: fail (out of free blocks).", test_mem_pool_alloc_fail_wrapper<int, 3>),
 
-    Case("Test: free() - robust (free block twice).", test_mem_pool_free_on_freed_block),
     Case("Test: free() - robust (free called with invalid param - NULL).", free_block_invalid_parameter_null),
     Case("Test: free() - robust (free called with invalid param).", free_block_invalid_parameter)
 };

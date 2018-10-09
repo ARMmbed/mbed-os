@@ -97,7 +97,7 @@ class GCC(mbedToolchain):
                 "-Wl,--out-implib=%s" % join(build_dir, "cmse_lib.o")
             ])
         elif target.core == "Cortex-M23-NS" or target.core == "Cortex-M33-NS":
-             self.flags["ld"].append("-D__DOMAIN_NS=1")
+             self.flags["ld"].append("-DDOMAIN_NS=1")
 
         self.flags["common"] += self.cpu
 
@@ -140,7 +140,7 @@ class GCC(mbedToolchain):
                 "file": "",
                 "line": "",
                 "col": "",
-                "severity": "ERROR",
+                "severity": "Warning",
             })
 
     def is_not_supported_error(self, output):
@@ -262,8 +262,6 @@ class GCC(mbedToolchain):
         # Exec command
         self.notify.cc_verbose("Link: %s" % ' '.join(cmd))
         self.default_cmd(cmd)
-        if self.target.core == "Cortex-M23" or self.target.core == "Cortex-M33":
-            self.notify.info("Secure Library Object %s" %secure_file)
 
     @hook_tool
     def archive(self, objects, lib_path):
@@ -295,7 +293,7 @@ class GCC(mbedToolchain):
 
     @staticmethod
     def make_ld_define(name, value):
-        return "-D%s=0x%x" % (name, value)
+        return "-D%s=%s" % (name, value)
 
     @staticmethod
     def redirect_symbol(source, sync, build_dir):

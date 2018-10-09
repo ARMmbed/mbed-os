@@ -36,7 +36,6 @@
 
 /**
  * \def SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE
- *
  * \brief For Message blockwising
  * Init value for the maximum payload size to be sent and received at one blockwise message
  * Setting of this value to 0 with SN_COAP_BLOCKWISE_ENABLED will disable this feature, and
@@ -46,18 +45,7 @@
 #undef SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE   /* 0 */ // < Must be 2^x and x is at least 4. Suitable values: 0, 16, 32, 64, 128, 256, 512 and 1024
 
 /**
- * \def COAP_DISABLE_OBS_FEATURE
- *
- * \brief Disables CoAP 'obs' sending feature
- * as part of registration message, this might be
- * needed to be enabled for some strict LWM2M server implementation.
- * By default, this feature is disabled.
- */
-#undef COAP_DISABLE_OBS_FEATURE
-
-/**
  * \def SN_COAP_DISABLE_RESENDINGS
- *
  * \brief Disables resending feature. Resending feature should not be needed
  * when using CoAP with TCP transport for example. By default resendings are
  * enabled. Set to 1 to disable.
@@ -66,15 +54,20 @@
 
 /**
  * \def SN_COAP_RESENDING_QUEUE_SIZE_MSGS
- *
  * \brief Sets the number of messages stored
  * in the resending queue. Default is 2
  */
 #undef SN_COAP_RESENDING_QUEUE_SIZE_MSGS    /* 2  */ // < Default re-sending queue size - defines how many messages can be stored. Setting this to 0 disables feature
 
 /**
+ * \def DEFAULT_RESPONSE_TIMEOUT
+ * \brief Sets the CoAP re-send interval in seconds.
+ * By default is 10 seconds.
+ */
+#undef DEFAULT_RESPONSE_TIMEOUT
+
+/**
  * \def SN_COAP_RESENDING_QUEUE_SIZE_BYTES
- *
  * \brief Sets the size of the re-sending buffer.
  * Setting this to 0 disables this feature.
  * By default, this feature is disabled.
@@ -83,7 +76,6 @@
 
 /**
  * \def SN_COAP_MAX_INCOMING_MESSAGE_SIZE
- *
  * \brief Sets the maximum size (in bytes) that
  * mbed Client will allow to be handled while
  * receiving big payload in blockwise mode.
@@ -114,6 +106,75 @@
  * size is set to '0' in  SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE.
  */
 #undef SN_COAP_BLOCKWISE_ENABLED                    /* 0 */
+
+/**
+ * \def SN_COAP_RESENDING_MAX_COUNT
+ * \brief Defines how many times CoAP library tries to re-send the CoAP packet.
+ * By default value is 3.
+ */
+#undef SN_COAP_RESENDING_MAX_COUNT                    /* 3 */
+
+/**
+ * \def SN_COAP_MAX_ALLOWED_RESENDING_COUNT
+ * \brief Maximum allowed count of re-sending that can be set at runtime via
+ * 'sn_coap_protocol_set_retransmission_parameters()' API.
+ * By default value is 6.
+ */
+#undef SN_COAP_MAX_ALLOWED_RESENDING_COUNT            /* 6 */
+
+/**
+ * \def SN_COAP_MAX_ALLOWED_RESPONSE_TIMEOUT
+ * \brief Maximum allowed re-send interval in seconds that can be set at runtime via
+ * 'sn_coap_protocol_set_retransmission_parameters()' API.
+ * By default value is 40.
+ */
+#undef SN_COAP_MAX_ALLOWED_RESPONSE_TIMEOUT           /* 40 */
+
+/**
+ * \def SN_COAP_MAX_ALLOWED_RESENDING_BUFF_SIZE_MSGS
+ * \brief Maximum allowed count of messages that can be stored into resend buffer at runtime via
+ * 'sn_coap_protocol_set_retransmission_buffer()' API.
+ * By default value is 6.
+ */
+#undef SN_COAP_MAX_ALLOWED_RESENDING_BUFF_SIZE_MSGS   /* 6 */
+
+/**
+ * \def SN_COAP_MAX_ALLOWED_RESENDING_BUFF_SIZE_BYTES
+ * \brief Maximum size of messages in bytes that can be stored into resend buffer at runtime via
+ * 'sn_coap_protocol_set_retransmission_buffer()' API.
+ * By default value is 512.
+ */
+#undef SN_COAP_MAX_ALLOWED_RESENDING_BUFF_SIZE_BYTES   /* 512 */
+
+/**
+ * \def SN_COAP_MAX_ALLOWED_DUPLICATION_MESSAGE_COUNT
+ * \brief Maximum allowed number of saved messages for message duplicate searching
+ * that can be set via 'sn_coap_protocol_set_duplicate_buffer_size' API.
+ * By default value is 6.
+ */
+#undef SN_COAP_MAX_ALLOWED_DUPLICATION_MESSAGE_COUNT
+
+/**
+ * \def SN_COAP_DUPLICATION_MAX_TIME_MSGS_STORED
+ * \brief Maximum time in seconds howe long message is kept for duplicate detection.
+ * By default 60 seconds.
+ */
+#undef SN_COAP_DUPLICATION_MAX_TIME_MSGS_STORED
+
+/**
+ * \def SN_COAP_BLOCKWISE_MAX_TIME_DATA_STORED
+ * \brief Maximum time in seconds how long (messages and payload) are be stored for blockwising.
+ * Longer time will increase the memory consumption in lossy networks.
+ * By default 60 seconds.
+ */
+#undef SN_COAP_BLOCKWISE_MAX_TIME_DATA_STORED
+
+/**
+ * \def SN_COAP_MAX_INCOMING_BLOCK_MESSAGE_SIZE
+ * \brief Maximum size of blockwise message that can be received.
+ * By default 65535 bytes.
+ */
+#undef SN_COAP_MAX_INCOMING_BLOCK_MESSAGE_SIZE
 
 #ifdef MBED_CLIENT_USER_CONFIG_FILE
 #include MBED_CLIENT_USER_CONFIG_FILE

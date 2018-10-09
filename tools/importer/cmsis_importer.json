@@ -99,6 +99,10 @@
     {
       "src_file" : "CMSIS/RTOS2/RTX/Source/IAR/irq_ca.S",
       "dest_file" : "rtos/TARGET_CORTEX/rtx5/RTX/Source/TOOLCHAIN_IAR/TARGET_CORTEX_A/irq_ca.S"
+    },
+    {
+      "src_file" : "CMSIS/RTOS2/RTX/Library/cmsis_os1.c",
+      "dest_file" : "rtos/TARGET_CORTEX/rtx4/cmsis_os1.c"
     }
   ],
   "folders" : [
@@ -140,19 +144,12 @@
     }
   ],
    "commit_sha" : [
-      "466b74e518eb9a4f2389dee1fc58ec1617be35d7",
-      "a06759d76e286994e457ba5aa6a8f6bb028828ce",
-      "0f0f21fdfeb25f0b350bbaba560270537f873e7a",
-      "3f7a235c6cc118b0bf634f330185718ef95477d9",
-      "0774ee3c8515ba447230433f44aab94a2cea02d2",
-      "5611950394fda1308087520ef3381c95244df201",
-      "b108cc8a8ad3d5e9c51b4ef95139aacf690d4223",
-      "adb6e821cc448f005e63ba9c7e2ce335abd54082",
-      "acd8ab1ff0588410f0fc5463fa12094250a371fb",
-      "1a511c456143bd31606f6a47807f506da1b51b90",
-      "474d2e3c9944d2866a0643795aafdfee743488eb",
-      "7b3a3a441ab6451462bd476721d6e8cb6ddd6c9d",
-      "d30da821a19fb6776e15eea33c5b45052a264dfd"
+      "4360b7bbf815c4d812005938c9c27af199803a97",
+      "cc2e0517e1c6440abf88f2815b8e1501a55cdd4d",
+      "b88254809eb626689c8aeb41304a308bf4e34a04",
+      "287121ffdc4c9c19f9ce8872e4edd941862daca1",
+      "1752803626865147dca92f30a39cef8d04581736",
+      "6a6e3ac0ebab1a6b6aa08d0928702c79562acee9"
     ]
 }
 

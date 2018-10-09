@@ -529,7 +529,7 @@ public:
             DBG("attached tlmCallback every %d seconds", TlmAdvPeriod);
         }
         if (NONE == frameIndex) {
-            error("No Frames were Initialized! Please initialize a frame before starting an eddystone beacon.");
+            MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_BLE, MBED_ERROR_CODE_BLE_NO_FRAME_INITIALIZED), "No Frames were Initialized! Please initialize a frame before starting an eddystone beacon.");
         }
         //uidRFU = 0;
 

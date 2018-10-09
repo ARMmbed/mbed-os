@@ -23,12 +23,13 @@
 #include "fsl_pwm.h"
 #include "PeripheralPins.h"
 
-static float pwm_clock_mhz;
+static float pwm_clock_mhz = 0;
+
 
 /* Array of PWM peripheral base address. */
 static PWM_Type *const pwm_addrs[] = PWM_BASE_PTRS;
 
-extern void pwm_setup_clock();
+extern void pwm_setup();
 extern uint32_t pwm_get_clock();
 
 void pwmout_init(pwmout_t* obj, PinName pin)
@@ -36,48 +37,57 @@ void pwmout_init(pwmout_t* obj, PinName pin)
     PWMName pwm = (PWMName)pinmap_peripheral(pin, PinMap_PWM);
     MBED_ASSERT(pwm != (PWMName)NC);
 
-    pwm_setup_clock();
+    uint32_t pwm_base_clock;
+    uint32_t instance = (pwm >> PWM_SHIFT) & 0x7;
+    uint32_t module = (pwm >> PWM_MODULE_SHIFT) & 0x3;
+    uint32_t pwmchannel = pwm & 0x1;
+    pwm_config_t pwmInfo;
+    static uint32_t clkdiv;
 
     obj->pwm_name = pwm;
-
-    uint32_t pwm_base_clock;
     pwm_base_clock = pwm_get_clock();
-    float clkval = (float)pwm_base_clock / 1000000.0f;
-    uint32_t clkdiv = 0;
-    while (clkval > 1) {
-        clkdiv++;
-        clkval /= 2.0f;
-        if (clkdiv == 7) {
-            break;
+
+    if (pwm_clock_mhz == 0) {
+        float clkval = (float)pwm_base_clock / 1000000.0f;
+
+        while (clkval > 1) {
+            clkdiv++;
+            clkval /= 2.0f;
+            if (clkdiv == 7) {
+                break;
+            }
         }
+        pwm_clock_mhz = clkval;
     }
 
-    pwm_clock_mhz = clkval;
-    uint32_t instance = (pwm >> PWM_SHIFT) & 0x3;
-    uint32_t module = pwm >> PWM_MODULE_SHIFT;
-    uint8_t pwmchannel = pwm & 0x1;
-    pwm_config_t pwmInfo;
+    pwm_setup(instance);
 
+    /* Initialize PWM module */
     PWM_GetDefaultConfig(&pwmInfo);
     pwmInfo.prescale = (pwm_clock_prescale_t)clkdiv;
-    /* Initialize PWM module */
+
     PWM_Init(pwm_addrs[instance], (pwm_submodule_t)module, &pwmInfo);
 
-    pwm_signal_param_t config = {
+    pwm_signal_param_t channel_config = {
         .level = kPWM_HighTrue,
         .dutyCyclePercent = 0,
         .deadtimeValue = 0
     };
+
     if (pwmchannel == 0) {
-        config.pwmChannel = kPWM_PwmA;
+        channel_config.pwmChannel = kPWM_PwmA;
     } else {
-        config.pwmChannel = kPWM_PwmB;
+        channel_config.pwmChannel = kPWM_PwmB;
     }
 
-    // default to 20ms: standard for servos, and fine for e.g. brightness control
-    PWM_SetupPwm(pwm_addrs[instance], (pwm_submodule_t)module, &config, 1, kPWM_EdgeAligned, 50, pwm_base_clock);
+    // Setup the module signals to be low
+    PWM_SetupPwm(pwm_addrs[instance], (pwm_submodule_t)module, &channel_config, 1, kPWM_EdgeAligned, 50, pwm_base_clock);
 
-    PWM_StartTimer(pwm_addrs[instance], module);
+    /* Set the load okay bit for all submodules to load registers from their buffer */
+    PWM_SetPwmLdok(pwm_addrs[instance], (1 << module), true);
+
+    /* Start the timer for the sub-module */
+    PWM_StartTimer(pwm_addrs[instance], (1 << module));
 
     // Wire pinout
     pinmap_pinout(pin, PinMap_PWM);
@@ -85,10 +95,10 @@ void pwmout_init(pwmout_t* obj, PinName pin)
 
 void pwmout_free(pwmout_t* obj)
 {
-    uint32_t instance = (obj->pwm_name >> PWM_SHIFT) & 0x3;
-    uint32_t module = obj->pwm_name >> PWM_MODULE_SHIFT;
+    uint32_t instance = (obj->pwm_name >> PWM_SHIFT) & 0x7;
+    uint32_t module = (obj->pwm_name >> PWM_MODULE_SHIFT) & 0x3;
 
-    PWM_Deinit(pwm_addrs[instance], (pwm_submodule_t)module);
+    PWM_StopTimer(pwm_addrs[instance], (1 << module));
 }
 
 void pwmout_write(pwmout_t* obj, float value)
@@ -99,9 +109,9 @@ void pwmout_write(pwmout_t* obj, float value)
         value = 1.0f;
     }
 
-    PWM_Type *base = pwm_addrs[(obj->pwm_name >> PWM_SHIFT) & 0x3];
-    uint32_t module = obj->pwm_name >> PWM_MODULE_SHIFT;
-    uint32_t pwmchannel = obj->pwm_name & 0xF;
+    PWM_Type *base = pwm_addrs[(obj->pwm_name >> PWM_SHIFT) & 0x7];
+    uint32_t module = (obj->pwm_name >> PWM_MODULE_SHIFT) & 0x3;
+    uint32_t pwmchannel = obj->pwm_name & 0x1;
     uint16_t pulseCnt = 0;
 
     pulseCnt = base->SM[module].VAL1;
@@ -117,15 +127,14 @@ void pwmout_write(pwmout_t* obj, float value)
     }
 
     /* Set the load okay bit */
-    PWM_SetPwmLdok(base, module, true);
-
+    PWM_SetPwmLdok(base, (1 << module), true);
 }
 
 float pwmout_read(pwmout_t* obj)
 {
-    PWM_Type *base = pwm_addrs[(obj->pwm_name >> PWM_SHIFT) & 0x3];
-    uint32_t module = obj->pwm_name >> PWM_MODULE_SHIFT;
-    uint32_t pwmchannel = obj->pwm_name & 0xF;
+    PWM_Type *base = pwm_addrs[(obj->pwm_name >> PWM_SHIFT) & 0x7];
+    uint32_t module = (obj->pwm_name >> PWM_MODULE_SHIFT) & 0x3;
+    uint32_t pwmchannel = obj->pwm_name & 0x1;
     uint16_t count;
     uint16_t mod = (base->SM[module].VAL1) & PWM_VAL1_VAL1_MASK;
 
@@ -157,12 +166,30 @@ void pwmout_period_ms(pwmout_t* obj, int ms)
 // Set the PWM period, keeping the duty cycle the same.
 void pwmout_period_us(pwmout_t* obj, int us)
 {
-    PWM_Type *base = pwm_addrs[(obj->pwm_name >> PWM_SHIFT) & 0x3];
-    uint32_t module = obj->pwm_name >> PWM_MODULE_SHIFT;
+    PWM_Type *base = pwm_addrs[(obj->pwm_name >> PWM_SHIFT) & 0x7];
+    uint32_t module = (obj->pwm_name >> PWM_MODULE_SHIFT) & 0x3;
     float dc = pwmout_read(obj);
+    uint32_t pwm_base_clock;
+
+    pwm_base_clock = pwm_get_clock();
+    uint32_t clkdiv = 0;
+
+    pwm_clock_mhz = (float) pwm_base_clock / 1000000.0f;
+    uint32_t mod = (pwm_clock_mhz * (float) us) - 1;
+    while (mod > 0xFFFF) {
+        ++clkdiv;
+        pwm_clock_mhz /= 2.0f;
+        mod = (pwm_clock_mhz * (float) us) - 1;
+        if (clkdiv == 7) {
+            break;
+        }
+    }
+    uint32_t PRSC = base->SM[module].CTRL & ~PWM_CTRL_PRSC_MASK;
+    PRSC |= PWM_CTRL_PRSC(clkdiv);
+    base->SM[module].CTRL = PRSC;
 
     /* Indicates the end of the PWM period */
-    base->SM[module].VAL1 = PWM_VAL1_VAL1((pwm_clock_mhz * (float)us) - 1);
+    base->SM[module].VAL1 = PWM_VAL1_VAL1(mod);
 
     pwmout_write(obj, dc);
 }
@@ -179,9 +206,9 @@ void pwmout_pulsewidth_ms(pwmout_t* obj, int ms)
 
 void pwmout_pulsewidth_us(pwmout_t* obj, int us)
 {
-    PWM_Type *base = pwm_addrs[(obj->pwm_name >> PWM_SHIFT) & 0x3];
-    uint32_t module = obj->pwm_name >> PWM_MODULE_SHIFT;
-    uint32_t pwmchannel = obj->pwm_name & 0xF;
+    PWM_Type *base = pwm_addrs[(obj->pwm_name >> PWM_SHIFT) & 0x7];
+    uint32_t module = (obj->pwm_name >> PWM_MODULE_SHIFT) & 0x3;
+    uint32_t pwmchannel = obj->pwm_name & 0x1;
     uint32_t value = (uint32_t)(pwm_clock_mhz * (float)us);
 
     /* Setup the PWM dutycycle */
@@ -193,7 +220,7 @@ void pwmout_pulsewidth_us(pwmout_t* obj, int us)
         base->SM[module].VAL5 = value;
     }
     /* Set the load okay bit */
-    PWM_SetPwmLdok(base, module, true);
+    PWM_SetPwmLdok(base, (1 << module), true);
 }
 
 #endif

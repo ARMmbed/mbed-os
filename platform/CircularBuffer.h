@@ -92,10 +92,14 @@ public:
         core_util_critical_section_enter();
         if (full()) {
             _tail++;
-            _tail %= BufferSize;
+            if (_tail == BufferSize) {
+                _tail = 0;
+            }
         }
         _pool[_head++] = data;
-        _head %= BufferSize;
+        if (_head == BufferSize) {
+                _head = 0;
+        }
         if (_head == _tail) {
             _full = true;
         }
@@ -113,7 +117,9 @@ public:
         core_util_critical_section_enter();
         if (!empty()) {
             data = _pool[_tail++];
-            _tail %= BufferSize;
+            if (_tail == BufferSize) {
+                _tail = 0;
+            }
             _full = false;
             data_popped = true;
         }

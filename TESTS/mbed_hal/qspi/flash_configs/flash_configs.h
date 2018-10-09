@@ -23,6 +23,8 @@
 #include "NORDIC/NRF52840_DK/flash_config.h"
 #elif defined(TARGET_DISCO_F413ZH)
 #include "STM/DISCO_F413ZH/flash_config.h"
+#elif defined(TARGET_EFM32GG11_STK3701)
+#include "SiliconLabs/EFM32GG11_STK3701/flash_config.h"
 #endif
 
 #endif // MBED_FLASH_CONFIGS_H

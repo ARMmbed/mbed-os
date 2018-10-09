@@ -59,6 +59,7 @@ extern const char dns_test_hosts_second[MBED_CONF_APP_DNS_TEST_HOSTS_NUM][DNS_TE
 NetworkInterface *get_interface();
 void hostbyname_cb(void *data, nsapi_error_t result, SocketAddress *address);
 void do_asynchronous_gethostbyname(const char hosts[][DNS_TEST_HOST_LEN], unsigned int op_count, int *exp_ok, int *exp_no_mem, int *exp_dns_failure, int *exp_timeout);
+void do_gethostbyname(const char hosts[][DNS_TEST_HOST_LEN], unsigned int op_count, int *exp_ok, int *exp_no_mem, int *exp_dns_failure, int *exp_timeout);
 
 /*
  * Test cases
@@ -73,5 +74,8 @@ void ASYNCHRONOUS_DNS_EXTERNAL_EVENT_QUEUE();
 void ASYNCHRONOUS_DNS_INVALID_HOST();
 void ASYNCHRONOUS_DNS_TIMEOUTS();
 void ASYNCHRONOUS_DNS_SIMULTANEOUS_REPEAT();
-
+void SYNCHRONOUS_DNS();
+void SYNCHRONOUS_DNS_MULTIPLE();
+void SYNCHRONOUS_DNS_CACHE();
+void SYNCHRONOUS_DNS_INVALID();
 #endif

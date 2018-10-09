@@ -25,7 +25,8 @@
      defined(TARGET_STM32L476RG) ||\
      defined(TARGET_STM32L476JG) ||\
      defined(TARGET_STM32L476VG) ||\
-     defined(TARGET_STM32L486RG))
+     defined(TARGET_STM32L486RG) ||\
+     defined(TARGET_STM32L471QG))
 /* only GCC_ARM and IAR toolchains have the stack on SRAM2 */
 #if (((defined(__GNUC__) && !defined(__CC_ARM)) ||\
        defined(__IAR_SYSTEMS_ICC__ )) &&\
@@ -36,10 +37,10 @@
 #endif /* toolchains */
 
 #elif (defined(TARGET_STM32F051R8) ||\
-     defined(TARGET_STM32F100RB) ||\
-     defined(TARGET_STM32L031K6) ||\
-     defined(TARGET_STM32L053C8) ||\
-     defined(TARGET_STM32L053R8))
+       defined(TARGET_STM32F100RB) ||\
+       defined(TARGET_STM32L031K6) ||\
+       defined(TARGET_STM32L053C8) ||\
+       defined(TARGET_STM32L053R8))
 #define INITIAL_SP              (0x20002000UL)
 
 #elif (defined(TARGET_STM32F303K8) ||\
@@ -73,13 +74,11 @@
 #elif defined(TARGET_STM32L443RC)
 #define INITIAL_SP              (0x2000C000UL)
 
-#elif defined(TARGET_STM32L432KC) ||\
-      defined (TARGET_STM32L433RC)
-#define INITIAL_SP              (0x20010000UL)
-
 #elif (defined(TARGET_STM32F303RE) ||\
        defined(TARGET_STM32F303ZE) ||\
-       defined(TARGET_STM32F401VC))
+       defined(TARGET_STM32F401VC) ||\
+       defined(TARGET_STM32L432KC) ||\
+       defined(TARGET_STM32L433RC))
 #define INITIAL_SP              (0x20010000UL)
 
 #elif defined(TARGET_STM32L152RE)
@@ -119,6 +118,9 @@
 #elif (defined(TARGET_STM32F767ZI) ||\
        defined(TARGET_STM32F769NI))
 #define INITIAL_SP              (0x20080000UL)
+
+#elif defined(TARGET_STM32L4R5ZI)
+#define INITIAL_SP              (0x200A0000UL)
 
 #else
 #error "INITIAL_SP is not defined for this target in the mbed_rtx.h file"

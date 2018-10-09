@@ -9,7 +9,10 @@
         "default-cellular-apn": null,
         "default-cellular-username": null,
         "default-cellular-password": null,
-        "default-mesh-type": "THREAD",
+        "default-mesh-type": {
+            "help": "Configuration type for MeshInterface::get_default_instance(). [LOWPAN/THREAD]",
+            "value": "THREAD"
+        },
         "dns-response-wait-time": {
             "help": "How long the DNS translator waits for a reply from a server in milliseconds",
             "value": 5000
@@ -25,6 +28,17 @@
         "dns-cache-size": {
             "help": "Number of cached host name resolutions",
             "value": 3
+        }
+    },
+    "target_overrides": {
+        "KW24D": {
+            "nsapi.default-mesh-type": "LOWPAN"
+        },
+        "NCS36510": {
+            "nsapi.default-mesh-type": "LOWPAN"
+        },
+        "TB_SENSE_12": {
+            "nsapi.default-mesh-type": "LOWPAN"
         }
     }
 }

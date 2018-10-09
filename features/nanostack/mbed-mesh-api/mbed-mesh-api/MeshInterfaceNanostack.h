@@ -67,6 +67,18 @@ protected:
 
 class InterfaceNanostack : public virtual NetworkInterface {
 public:
+    /** Start the interface
+     *
+     *  @return     0 on success, negative error code on failure
+     */
+    virtual nsapi_error_t connect();
+
+    /** Stop the interface
+     *
+     *  @return     0 on success, negative error code on failure
+     */
+    virtual nsapi_error_t disconnect();
+
     /** Get the internally stored IP address
     /return     IP address of the interface or null if not yet connected
     */
@@ -109,6 +121,7 @@ protected:
     InterfaceNanostack();
     virtual Nanostack *get_stack(void);
     Nanostack::Interface *get_interface() const { return _interface; }
+    virtual nsapi_error_t do_initialize() = 0;
 
     Nanostack::Interface *_interface;
 

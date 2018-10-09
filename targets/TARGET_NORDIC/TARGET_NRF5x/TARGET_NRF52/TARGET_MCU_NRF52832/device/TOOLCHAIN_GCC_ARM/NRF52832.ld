@@ -25,13 +25,15 @@
   #define MBED_APP_SIZE 0x80000
 #endif
 
-/* If app_start is 0, do not set aside space for the softdevice */
-#if MBED_APP_START == 0
-  #define MBED_RAM_START  0x20000000
-  #define MBED_RAM_SIZE   0x10000
-#else
-  #define MBED_RAM_START  0x200031D0
-  #define MBED_RAM_SIZE   0xCE30
+/* If softdevice is present, set aside space for it */
+#if !defined(MBED_RAM_START)
+  #if defined(SOFTDEVICE_PRESENT)
+    #define MBED_RAM_START  0x200031D0
+    #define MBED_RAM_SIZE   0xCE30
+  #else
+    #define MBED_RAM_START  0x20000000
+    #define MBED_RAM_SIZE   0x10000
+  #endif
 #endif
 
 #define MBED_RAM0_START MBED_RAM_START
@@ -189,7 +191,7 @@ SECTIONS
         PROVIDE(__start_fs_data = .);
         KEEP(*(.fs_data))
         PROVIDE(__stop_fs_data = .);
-        
+
         *(.jcr)
         . = ALIGN(4);
         /* All data end */

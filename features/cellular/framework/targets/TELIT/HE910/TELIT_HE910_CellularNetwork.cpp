@@ -32,9 +32,9 @@ bool TELIT_HE910_CellularNetwork::get_modem_stack_type(nsapi_ip_stack_t requeste
     return requested_stack == IPV4_STACK ? true : false;
 }
 
-bool TELIT_HE910_CellularNetwork::has_registration(RegistrationType reg_type)
+AT_CellularNetwork::RegistrationMode TELIT_HE910_CellularNetwork::has_registration(RegistrationType reg_type)
 {
-    return (reg_type == C_REG || reg_type == C_GREG);
+    return (reg_type == C_REG || reg_type == C_GREG) ? RegistrationModeLAC : RegistrationModeDisable;
 }
 
 nsapi_error_t TELIT_HE910_CellularNetwork::set_access_technology_impl(RadioAccessTechnology opRat)

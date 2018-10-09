@@ -1,0 +1,9 @@
+{
+    "name": "mcr20a",
+    "config": {
+        "provide-default": {
+            "help": "Provide default NanostackRfpy. [true/false]",
+            "value": false
+        }
+    }
+}

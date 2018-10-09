@@ -572,6 +572,182 @@ struct peer_address_type_t :SafeEnum<peer_address_type_t, uint8_t> {
         SafeEnum<peer_address_type_t, uint8_t>(PUBLIC) { }
 };
 
+/**
+ * Type that describes a bluetooth PHY(sical) transport.
+ */
+struct phy_t : SafeEnum<phy_t, uint8_t> {
+    /** struct scoped enum wrapped by the class */
+    enum type {
+        /**
+         * 1Mbit/s LE.
+         *
+         * @note This physical transport was available since Bluetooth 4.0
+         */
+        LE_1M = 1,
+
+        /**
+         * 2Mbit/s LE.
+         *
+         * Modulation is similar to LE_1M but differs in rate. Therefore range
+         * performances are in the same ballpark as LE_1M while the increased rate
+         * minimize time spent to transfer or receive a packet which leads to a
+         * better power consumption and/or faster transfer.
+         *
+         * @note This transport has been introduced with the Bluetooth 5.
+         * @note When operating at 2Mbit/s range is not exactly identical to the
+         * range at 1Mbit/s due to a loss in sensitivity.
+         */
+        LE_2M = 2,
+
+        /**
+         * LE Coded PHY.
+         *
+         * This transport reuse the 1Mbit/s channel with different coding schemes.
+         * Either two (S=2) or eight (S=8) symbols can be used to represent a
+         * bit while the 1Mbit/s transport use 1 symbol to code 1 bit of data.
+         *
+         * Here is the data rate of the two coding schemes:
+         *   - S=2: 500kbit/s
+         *   - S=8: 125kbit/s
+         *
+         * The goal of the coded PHY is to increase the range of BLE devices.
+         * Of course given it takes more time to transfer data, transmission
+         * and reception last longer which leads to an increase in power
+         * consumption.
+         *
+         * @note This transport has been introduced with the Bluetooth 5.
+         */
+        LE_CODED
+    };
+
+    /**
+     * Construct a new instance of phy_t.
+     */
+    phy_t(type value) :
+        SafeEnum<phy_t, uint8_t>(value) { }
+};
+
+/**
+ * Type that describe a set of PHY(sical) transports. This is used to
+ * indicate preference for the PHY transports set within it.
+ */
+class phy_set_t {
+public:
+    enum PhysFlags_t {
+        PHY_SET_1M    = 0x01,
+        PHY_SET_2M    = 0x02,
+        PHY_SET_CODED = 0x04
+    };
+
+    /**
+     * Create set that indicates no preference.
+     */
+    phy_set_t() : _value(0) { }
+
+    /**
+     * Create a set based on the mask specified in the Bluetooth spec.
+     *
+     * @param value Octet containing the set of preferred PHYs
+     */
+    phy_set_t(uint8_t value) : _value(value) { }
+
+    /**
+     * Create a set based on individual settings.
+     *
+     * @param phy_1m Prefer LE 1M
+     * @param phy_2m Prefer LE 2M if avaiable
+     * @param phy_coded Prefer coded modulation if avaiable
+     */
+    phy_set_t(
+        bool phy_1m,
+        bool phy_2m,
+        bool phy_coded
+    ) {
+        set_1m(phy_1m);
+        set_2m(phy_2m);
+        set_coded(phy_coded);
+    }
+
+    /** Prefer 1M PHY. */
+    void set_1m(bool enabled = true) {
+        if (enabled) {
+            _value |= PHY_SET_1M;
+        } else {
+            _value &= ~PHY_SET_1M;
+        }
+    }
+
+    /** Prefer 2M PHY. */
+    void set_2m(bool enabled = true) {
+        if (enabled) {
+            _value |= PHY_SET_2M;
+        } else {
+            _value &= ~PHY_SET_2M;
+        }
+    }
+
+    /** Prefer coded PHY. */
+    void set_coded(bool enabled = true) {
+        if (enabled) {
+            _value |= PHY_SET_CODED;
+        } else {
+            _value &= ~PHY_SET_CODED;
+        }
+    }
+
+    bool get_1m() const {
+        return (_value & PHY_SET_1M);
+    }
+
+    bool get_2m() const {
+        return (_value & PHY_SET_2M);
+    }
+
+    bool get_coded() const {
+        return (_value & PHY_SET_CODED);
+    }
+
+    operator uint8_t() const {
+        return _value;
+    }
+
+    uint8_t value() const {
+        return _value;
+    }
+
+private:
+    uint8_t _value;
+};
+
+/**
+ * Type describing the number of symbols per bit in le coded PHY.
+ */
+struct coded_symbol_per_bit_t :SafeEnum<coded_symbol_per_bit_t, uint8_t> {
+    /** struct scoped enum wrapped by the class */
+    enum type {
+        /**
+         * The Number of symbol used to code a bit is undefined.
+         */
+        UNDEFINED,
+
+        /**
+         * Two symbols to code a bit.
+         */
+        S2,
+
+        /**
+         * Eight symbols to code a bit.
+         */
+        S8
+    };
+
+    /**
+     * Construct a new instance of coded_symbol_per_bit_t.
+     */
+    coded_symbol_per_bit_t(type value) :
+        SafeEnum<coded_symbol_per_bit_t, uint8_t>(value) { }
+};
+
 } // namespace ble
 
 /**

@@ -11,13 +11,15 @@ if (!isdefinedsymbol(MBED_APP_SIZE)) {
     define symbol MBED_APP_SIZE = 0x80000;
 }
 
-/* If app_start is 0, do not set aside space for the softdevice */
-if (MBED_APP_START == 0) {
-  define symbol MBED_RAM_START = 0x20000000;
-  define symbol MBED_RAM_SIZE  = 0x10000;
-} else {
-  define symbol MBED_RAM_START = 0x200031D0;
-  define symbol MBED_RAM_SIZE  = 0xCE30;
+/* If softdevice is present, set aside space for it */
+if (!isdefinedsymbol(MBED_RAM_START)) {
+  if (isdefinedsymbol(SOFTDEVICE_PRESENT)) {
+    define symbol MBED_RAM_START = 0x200031D0;
+    define symbol MBED_RAM_SIZE  = 0xCE30;
+  } else {
+    define symbol MBED_RAM_START = 0x20000000;
+    define symbol MBED_RAM_SIZE  = 0x10000;
+  }
 }
 
 define symbol MBED_RAM0_START = MBED_RAM_START;

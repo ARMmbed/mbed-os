@@ -82,16 +82,39 @@ InterfaceNanostack::InterfaceNanostack()
     // Nothing to do
 }
 
+int InterfaceNanostack::connect()
+{
+    nsapi_error_t error = do_initialize();
+    if (error) {
+        return error;
+    }
+
+    return _interface->bringup(false, NULL, NULL, NULL, IPV6_STACK, _blocking);
+}
+
+int InterfaceNanostack::disconnect()
+{
+    if (!_interface) {
+        return NSAPI_ERROR_NO_CONNECTION;
+    }
+    return _interface->bringdown();
+}
+
 nsapi_error_t MeshInterfaceNanostack::initialize(NanostackRfPhy *phy)
 {
-    if (_phy) {
+    if (_phy && phy && _phy != phy) {
         error("Phy already set");
         return NSAPI_ERROR_IS_CONNECTED;
     }
-    _phy = phy;
-    return NSAPI_ERROR_OK;
+    if (phy) {
+        _phy = phy;
+    }
+    if (_phy) {
+        return do_initialize();
+    } else {
+        return NSAPI_ERROR_PARAMETER;
+    }
 }
-
 
 void Nanostack::Interface::network_handler(mesh_connection_status_t status)
 {
@@ -130,7 +153,9 @@ nsapi_error_t Nanostack::Interface::register_phy()
 {
     NanostackLockGuard lock;
 
-    _device_id = interface_phy.phy_register();
+    if (_device_id < 0) {
+        _device_id = interface_phy.phy_register();
+    }
     if (_device_id < 0) {
         return NSAPI_ERROR_DEVICE_ERROR;
     }

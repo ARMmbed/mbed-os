@@ -33,8 +33,12 @@
 /**
  *  Auxilary macros
  */
+#ifndef NL
 #define NL "\n"
+#endif
+#ifndef RCNL
 #define RCNL "\r\n"
+#endif
 
 /**
  *  Auxilary macros to keep mbed-drivers compatibility with utest before greentea-client

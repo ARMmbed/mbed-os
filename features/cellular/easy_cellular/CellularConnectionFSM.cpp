@@ -24,6 +24,8 @@
 #endif
 #include "CellularLog.h"
 #include "CellularCommon.h"
+#include "CellularDevice.h"
+#include "CellularUtil.h"
 
 // timeout to wait for AT responses
 #define TIMEOUT_POWER_ON     (1*1000)
@@ -42,7 +44,7 @@ namespace mbed {
 CellularConnectionFSM::CellularConnectionFSM() :
     _serial(0), _state(STATE_INIT), _next_state(_state), _status_callback(0), _event_status_cb(0), _network(0), _power(0), _sim(0),
     _queue(8 * EVENTS_EVENT_SIZE), _queue_thread(0), _cellularDevice(0), _retry_count(0), _event_timeout(-1),
-    _at_queue(8 * EVENTS_EVENT_SIZE), _event_id(0), _plmn(0), _command_success(false), _plmn_network_found(false)
+    _at_queue(0), _event_id(0), _plmn(0), _command_success(false), _plmn_network_found(false)
 {
     memset(_sim_pin, 0, sizeof(_sim_pin));
 #if MBED_CONF_CELLULAR_RANDOM_MAX_START_DELAY == 0
@@ -82,12 +84,20 @@ void CellularConnectionFSM::stop()
         _queue_thread = NULL;
     }
 
-    delete _cellularDevice;
-    _cellularDevice = NULL;
-    // _cellularDevice closes all interfaces in destructor
-    _power = NULL;
-    _network = NULL;
-    _sim = NULL;
+    if (_power) {
+        _cellularDevice->close_power();
+        _power = NULL;
+    }
+
+    if (_network) {
+        _cellularDevice->close_network();
+        _network = NULL;
+    }
+
+    if (_sim) {
+        _cellularDevice->close_sim();
+        _sim = NULL;
+    }
 
     _state = STATE_INIT;
     _next_state = _state;
@@ -96,7 +106,7 @@ void CellularConnectionFSM::stop()
 nsapi_error_t CellularConnectionFSM::init()
 {
     tr_info("CELLULAR_DEVICE: %s", CELLULAR_STRINGIFY(CELLULAR_DEVICE));
-    _cellularDevice = new CELLULAR_DEVICE(_at_queue);
+    _cellularDevice = CellularDevice::get_default_instance();
     if (!_cellularDevice) {
         stop();
         return NSAPI_ERROR_NO_MEMORY;
@@ -120,7 +130,8 @@ nsapi_error_t CellularConnectionFSM::init()
         return NSAPI_ERROR_NO_MEMORY;
     }
 
-    _at_queue.chain(&_queue);
+    _at_queue = _cellularDevice->get_queue();
+    _at_queue->chain(&_queue);
 
     _retry_count = 0;
     _state = STATE_INIT;
@@ -161,7 +172,15 @@ bool CellularConnectionFSM::open_sim()
     // here you could add wait(secs) if you know start delay of your SIM
     if (_sim->get_sim_state(state) != NSAPI_ERROR_OK) {
         tr_info("Waiting for SIM (err while reading)...");
+        if (_event_status_cb) {
+            _event_status_cb((nsapi_event_t)CellularSIMStatusChanged, state);
+        }
         return false;
+    }
+
+    // report current state so callback can set sim pin if needed
+    if (_event_status_cb) {
+        _event_status_cb((nsapi_event_t)CellularSIMStatusChanged, state);
     }
 
     if (state == CellularSIM::SimStatePinNeeded) {
@@ -172,12 +191,11 @@ bool CellularConnectionFSM::open_sim()
                 tr_error("SIM pin set failed with: %d, bailing out...", err);
             }
         } else {
-            tr_warn("PIN required but No SIM pin provided.");
+            // No sim pin provided even it's needed, stop state machine
+            tr_error("PIN required but No SIM pin provided.");
+            _retry_count = MAX_RETRY_ARRAY_SIZE;
+            return false;
         }
-    }
-
-    if (_event_status_cb) {
-        _event_status_cb((nsapi_event_t)CellularSIMStatusChanged, state);
     }
 
     return state == CellularSIM::SimStateReady;

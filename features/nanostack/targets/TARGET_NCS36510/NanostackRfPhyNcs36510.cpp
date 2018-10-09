@@ -902,3 +902,8 @@ void NanostackRfPhyNcs36510::set_mac_address(uint8_t *mac)
     platform_exit_critical();
 }
 
+NanostackRfPhy &NanostackRfPhy::get_default_instance()
+{
+    static NanostackRfPhyNcs36510 rf_phy;
+    return rf_phy;
+}

@@ -1469,7 +1469,7 @@ extern "C" void __cxa_guard_abort(int *guard_object_p)
 
 #endif
 
-#if defined(MBED_MEM_TRACING_ENABLED) && (defined(__CC_ARM) || defined(__ICCARM__) || (defined (__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)))
+#if MBED_MEM_TRACING_ENABLED && (defined(__CC_ARM) || defined(__ICCARM__) || (defined (__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)))
 
 // If the memory tracing is enabled, the wrappers in mbed_alloc_wrappers.cpp
 // provide the implementation for these. Note: this needs to use the wrappers
@@ -1515,7 +1515,7 @@ void operator delete[](void *ptr)
     free_wrapper(ptr, MBED_CALLER_ADDR());
 }
 
-#elif defined(MBED_MEM_TRACING_ENABLED) && defined(__GNUC__)
+#elif MBED_MEM_TRACING_ENABLED && defined(__GNUC__)
 
 #include <reent.h>
 

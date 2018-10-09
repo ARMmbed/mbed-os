@@ -202,6 +202,8 @@ class mbedToolchain:
                 self.cxx_symbols += ["DEVICE_" + data + "=1" for data in self.target.device_has]
                 # Add target's features
                 self.cxx_symbols += ["FEATURE_" + data + "=1" for data in self.target.features]
+                # Add target's components
+                self.cxx_symbols += ["COMPONENT_" + data + "=1" for data in self.target.components]
                 # Add extra symbols passed via 'macros' parameter
                 self.cxx_symbols += self.macros
 
@@ -221,6 +223,7 @@ class mbedToolchain:
             self.labels = {
                 'TARGET': self.target.labels,
                 'FEATURE': self.target.features,
+                'COMPONENT': self.target.components,
                 'TOOLCHAIN': toolchain_labels
             }
 
@@ -703,8 +706,8 @@ class mbedToolchain:
             self._add_defines_from_region(region)
             if region.active:
                 for define in [
-                        ("%s_START" % active_region_name, region.start),
-                        ("%s_SIZE" % active_region_name, region.size)
+                        ("%s_START" % active_region_name, "0x%x" % region.start),
+                        ("%s_SIZE" % active_region_name, "0x%x" % region.size)
                 ]:
                     define_string = self.make_ld_define(*define)
                     self.ld.append(define_string)
@@ -744,6 +747,11 @@ class mbedToolchain:
         self.config_data = config_data
         # new configuration data can change labels, so clear the cache
         self.labels = None
+        # pass info about softdevice presence to linker (see NRF52)
+        if "SOFTDEVICE_PRESENT" in config_data[1]:
+            define_string = self.make_ld_define("SOFTDEVICE_PRESENT", config_data[1]["SOFTDEVICE_PRESENT"].macro_value)
+            self.ld.append(define_string)
+            self.flags["ld"].append(define_string)
         self.add_regions()
 
     # Creates the configuration header if needed:

@@ -36,9 +36,6 @@ class SystemResetTest(BaseHostTest):
     def __init__(self):
         super(SystemResetTest, self).__init__()
         self.reset = False
-        cycle_s = self.get_config_item('program_cycle_s')
-        self.program_cycle_s = cycle_s if cycle_s is not None else DEFAULT_CYCLE_PERIOD
-
         self.test_steps_sequence = self.test_steps()
         # Advance the coroutine to it's first yield statement.
         self.test_steps_sequence.send(None)
@@ -61,14 +58,16 @@ class SystemResetTest(BaseHostTest):
         """Reset the device and check the status
         """
         system_reset = yield
-
         self.reset = False
+
+        wait_after_reset = self.get_config_item('forced_reset_timeout')
+        wait_after_reset = wait_after_reset if wait_after_reset is not None else DEFAULT_CYCLE_PERIOD
+
         self.send_kv(MSG_KEY_DEVICE_RESET, MSG_VALUE_DUMMY)
-        time.sleep(self.program_cycle_s)
+        time.sleep(wait_after_reset)
         self.send_kv(MSG_KEY_SYNC, MSG_VALUE_DUMMY)
 
         system_reset = yield
-
         if self.reset == False:
             raise RuntimeError('Platform did not reset as expected.')
 

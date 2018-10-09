@@ -34,6 +34,7 @@
 #include "em_gpcrc.h"
 
 static bool revOutput = false;
+static bool enableWordInput = false;
 static uint32_t final_xor;
 
 bool hal_crc_is_supported(const crc_mbed_config_t *config)
@@ -75,20 +76,23 @@ void hal_crc_compute_partial_start(const crc_mbed_config_t *config)
     // defined by the mbed API. Emlib does the reversal on the poly, but
     // not on the initial value.
     if (config->width == 16) {
+        enableWordInput = false;
         crc_init.initValue = __RBIT(config->initial_xor) >> 16;
     } else {
+        enableWordInput = true;
         crc_init.initValue = __RBIT(config->initial_xor);
     }
 
     // GPCRC operates on bit-reversed inputs and outputs vs the standard
     // defined by the mbed API, so reflect_in/out needs to be negated.
     if (config->reflect_in) {
-        crc_init.reverseByteOrder = false;
         crc_init.reverseBits = false;
     } else {
-        crc_init.reverseByteOrder = true;
         crc_init.reverseBits = true;
     }
+
+    // Input is little-endian
+    crc_init.reverseByteOrder = false;
 
     // Disable byte mode to be able to run a faster U32 input version
     crc_init.enableByteMode = false;
@@ -109,19 +113,30 @@ void hal_crc_compute_partial(const uint8_t *data, const size_t size)
         return;
     }
 
-    if (((uint32_t)data & 0x3) != 0 || size < 4) {
-        // Unaligned or very small input, run a bytewise CRC
+    if (!enableWordInput || size < sizeof(uint32_t)) {
+        // Input to a non-word-sized poly, or too small data size for a word input
         for (size_t i = 0; i < size; i++) {
             GPCRC_InputU8(GPCRC, data[i]);
         }
     } else {
-        // Aligned input, run 32-bit inputs as long as possible to make go faster.
         size_t i = 0;
-        for (; i < (size & (~0x3)); i+=4) {
-            GPCRC_InputU32(GPCRC, *((uint32_t*)(&data[i])));
-        }
-        for (; i < size; i++) {
+
+        // If input is unaligned, take off as many bytes as needed to align
+        while (((uint32_t)(data + i) & 0x3) != 0) {
             GPCRC_InputU8(GPCRC, data[i]);
+            i++;
+        }
+
+        // If enough input remaining to do word-sized writes, do so
+        while ((size - i) >= sizeof(uint32_t)) {
+            GPCRC_InputU32(GPCRC, *((uint32_t*)(&data[i])));
+            i += sizeof(uint32_t);
+        }
+
+        // Do byte input to pick off the last remaining bytes
+        while (i < size) {
+            GPCRC_InputU8(GPCRC, data[i]);
+            i++;
         }
     }
 }

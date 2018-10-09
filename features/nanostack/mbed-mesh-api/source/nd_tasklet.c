@@ -64,7 +64,6 @@ typedef struct {
     net_6lowpan_mode_e mode;
     net_6lowpan_link_layer_sec_mode_e sec_mode;
     net_link_layer_psk_security_info_s psk_sec_info;
-    int8_t node_main_tasklet_id;
     int8_t network_interface_id;
     int8_t tasklet;
 } tasklet_data_str_t;
@@ -133,13 +132,12 @@ void nd_tasklet_main(arm_event_s *event)
              * The event is delivered when the NanoStack OS is running fine.
              * This event should be delivered ONLY ONCE.
              */
-            tasklet_data_ptr->node_main_tasklet_id = event->receiver;
             mesh_system_send_connect_event(tasklet_data_ptr->tasklet);
             break;
 
         case ARM_LIB_SYSTEM_TIMER_EVENT:
             eventOS_event_timer_cancel(event->event_id,
-                                       tasklet_data_ptr->node_main_tasklet_id);
+                                       tasklet_data_ptr->tasklet);
 
             if (event->event_id == TIMER_EVENT_START_BOOTSTRAP) {
                 tr_debug("Restart bootstrap");
@@ -215,12 +213,14 @@ void nd_tasklet_parse_network_event(arm_event_s *event)
             break;
     }
 
-    if (tasklet_data_ptr->tasklet_state != TASKLET_STATE_BOOTSTRAP_READY) {
+    if (tasklet_data_ptr->tasklet_state != TASKLET_STATE_BOOTSTRAP_READY &&
+        tasklet_data_ptr->network_interface_id != INVALID_INTERFACE_ID) {
         // Set 5s timer for new network scan
         eventOS_event_timer_request(TIMER_EVENT_START_BOOTSTRAP,
                                     ARM_LIB_SYSTEM_TIMER_EVENT,
-                                    tasklet_data_ptr->node_main_tasklet_id,
+                                    tasklet_data_ptr->tasklet,
                                     5000);
+
     }
 }
 
@@ -386,7 +386,10 @@ int8_t nd_tasklet_connect(mesh_interface_cb callback, int8_t nwk_interface_id)
         }
     } else {
         tasklet_data_ptr->tasklet = tasklet_id;
-        mesh_system_send_connect_event(tasklet_data_ptr->tasklet);
+        eventOS_event_timer_request(TIMER_EVENT_START_BOOTSTRAP,
+                                    ARM_LIB_SYSTEM_TIMER_EVENT,
+                                    tasklet_data_ptr->tasklet,
+                                    500);
     }
 
     return tasklet_data_ptr->tasklet;

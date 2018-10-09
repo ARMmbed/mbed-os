@@ -295,7 +295,9 @@ typedef enum {
  * @ingroup wlan
  */
 typedef enum {
-    cbWLAN_IOCTL_FIRST
+    cbWLAN_IOCTL_FIRST = 0,
+    cbWLAN_IOCTL_SET_AP_BEACON_INTERVAL = 9,                         //!< Beacon period in TUs
+    cbWLAN_IOCTL_GET_AP_BEACON_INTERVAL = 10,                        //!< Beacon period in TUs
 } cbWLAN_Ioctl;
 
 

@@ -136,6 +136,14 @@ typedef enum {
 } UARTName;
 #endif
 
+#if DEVICE_QSPI
+typedef enum {
+#ifdef QSPI0_BASE
+    QSPI_0 = QSPI0_BASE,
+#endif
+} QSPIName;
+#endif
+
 #ifdef __cplusplus
 }
 #endif

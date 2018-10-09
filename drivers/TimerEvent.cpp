@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 #include "drivers/TimerEvent.h"
-#include "cmsis.h"
 
 #include <stddef.h>
 #include "hal/ticker_api.h"

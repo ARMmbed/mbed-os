@@ -728,66 +728,6 @@ __STATIC_INLINE uint32_t atomic_inc32 (uint32_t *mem) {
 }
 #endif
 
-/// atomic Access Operation: Increment (32-bit) if Less Than
-/// \param[in]  mem             Memory address
-/// \param[in]  max             Maximum value
-/// \return                     Previous value
-#if defined(__CC_ARM)
-static __asm    uint32_t atomic_inc32_lt (uint32_t *mem, uint32_t max) {
-  push  {r4,lr}
-  mov   r2,r0
-1
-  ldrex r0,[r2]
-  cmp   r1,r0
-  bhi   %F2
-  clrex
-  pop   {r4,pc}
-2
-  adds  r4,r0,#1
-  strex r3,r4,[r2]
-  cmp   r3,#0
-  bne   %B1
-  pop   {r4,pc}
-}
-#else
-__STATIC_INLINE uint32_t atomic_inc32_lt (uint32_t *mem, uint32_t max) {
-#ifdef  __ICCARM__
-#pragma diag_suppress=Pe550
-#endif
-  register uint32_t val, res;
-#ifdef  __ICCARM__
-#pragma diag_default=Pe550
-#endif
-  register uint32_t ret;
-
-  __ASM volatile (
-#ifndef __ICCARM__
-  ".syntax unified\n\t"
-#endif
-  "1:\n\t"
-    "ldrex %[ret],[%[mem]]\n\t"
-    "cmp   %[max],%[ret]\n\t"
-    "bhi    2f\n\t"
-    "clrex\n\t"
-    "b      3f\n"
-  "2:\n\t"
-    "adds  %[val],%[ret],#1\n\t"
-    "strex %[res],%[val],[%[mem]]\n\t"
-    "cmp   %[res],#0\n\t"
-    "bne   1b\n"
-  "3:"
-  : [ret] "=&l" (ret),
-    [val] "=&l" (val),
-    [res] "=&l" (res)
-  : [mem] "l"   (mem),
-    [max] "l"   (max)
-  : "cc", "memory"
-  );
-
-  return ret;
-}
-#endif
-
 /// Atomic Access Operation: Increment (16-bit) if Less Than
 /// \param[in]  mem             Memory address
 /// \param[in]  max             Maximum value
@@ -898,6 +838,52 @@ __STATIC_INLINE uint16_t atomic_inc16_lim (uint16_t *mem, uint16_t lim) {
     [res] "=&l" (res)
   : [mem] "l"   (mem),
     [lim] "l"   (lim)
+  : "cc", "memory"
+  );
+
+  return ret;
+}
+#endif
+
+/// Atomic Access Operation: Decrement (32-bit)
+/// \param[in]  mem             Memory address
+/// \return                     Previous value
+#if defined(__CC_ARM)
+static __asm    uint32_t atomic_dec32 (uint32_t *mem) {
+  mov   r2,r0
+1
+  ldrex r0,[r2]
+  subs  r1,r0,#1
+  strex r3,r1,[r2]
+  cmp   r3,#0
+  bne   %B1
+  bx    lr
+}
+#else
+__STATIC_INLINE uint32_t atomic_dec32 (uint32_t *mem) {
+#ifdef  __ICCARM__
+#pragma diag_suppress=Pe550
+#endif
+  register uint32_t val, res;
+#ifdef  __ICCARM__
+#pragma diag_default=Pe550
+#endif
+  register uint32_t ret;
+
+  __ASM volatile (
+#ifndef __ICCARM__
+  ".syntax unified\n\t"
+#endif
+  "1:\n\t"
+    "ldrex %[ret],[%[mem]]\n\t"
+    "subs  %[val],%[ret],#1\n\t"
+    "strex %[res],%[val],[%[mem]]\n\t"
+    "cmp   %[res],#0\n\t"
+    "bne   1b\n"
+  : [ret] "=&l" (ret),
+    [val] "=&l" (val),
+    [res] "=&l" (res)
+  : [mem] "l"   (mem)
   : "cc", "memory"
   );
 

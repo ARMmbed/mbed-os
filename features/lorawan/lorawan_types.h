@@ -101,6 +101,8 @@ typedef enum lorawan_status {
     LORAWAN_STATUS_NO_ACTIVE_SESSIONS = -1017,            /**< Services not started - No active session */
     LORAWAN_STATUS_IDLE = -1018,                   /**< Services started - Idle at the moment */
 #if defined(LORAWAN_COMPLIANCE_TEST)
+    //Deprecated - will replace the code -1019 with something
+    //else in future.
     LORAWAN_STATUS_COMPLIANCE_TEST_ON = -1019,     /**< Compliance test - is on-going */
 #endif
     LORAWAN_STATUS_DUTYCYCLE_RESTRICTED = -1020,   /**< Transmission will continue after duty cycle backoff*/
@@ -242,10 +244,6 @@ typedef enum lora_events {
  * 'link_check_resp' callback. The result is thus transported to the application
  * via callback function provided.
  *
- * As can be seen from declaration, mbed::Callback<void(uint8_t, uint8_t)> *link_check_resp)
- * carries two parameters. First one is Demodulation Margin and the second one
- * is number of gateways involved in the path to network server.
- *
  * 'battery_level' callback goes in the down direction, i.e., it informs
  * the stack about the battery level by calling a function provided
  * by the upper layers.
@@ -257,11 +255,16 @@ typedef struct {
     mbed::Callback<void(lorawan_event_t)> events;
 
     /**
-     * Optional
+     * This callback is optional
+     *
+     * The first parameter to the callback function is the demodulation margin, and the second
+     * parameter is the number of gateways that successfully received the last request.
      */
     mbed::Callback<void(uint8_t, uint8_t)> link_check_resp;
 
     /**
+     * This callback is optional. If the callback is not set, the stack returns 255 to gateway.
+     *
      * Battery level return value must follow the specification
      * for DevStatusAns MAC command:
      *
@@ -662,7 +665,7 @@ typedef struct {
     /**
      * The SNR for the received packet.
      */
-    uint8_t snr;
+    int8_t snr;
     /**
      * A boolean to mark if the meta data is stale
      */

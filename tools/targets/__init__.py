@@ -91,7 +91,7 @@ def cached(func):
 
 # Cumulative attributes can have values appended to them, so they
 # need to be computed differently than regular attributes
-CUMULATIVE_ATTRIBUTES = ['extra_labels', 'macros', 'device_has', 'features']
+CUMULATIVE_ATTRIBUTES = ['extra_labels', 'macros', 'device_has', 'features', 'components']
 
 
 def get_resolution_order(json_data, target_name, order, level=0):
@@ -222,8 +222,7 @@ class Target(namedtuple("Target", "name json_data resolution_order resolution_or
                 def_idx = idx
                 break
         else:
-            raise AttributeError("Attribute '%s' not found in target '%s'"
-                                 % (attrname, self.name))
+            return []
         # Get the starting value of the attribute
         starting_value = (tdata[self.resolution_order[def_idx][0]][attrname]
                           or [])[:]

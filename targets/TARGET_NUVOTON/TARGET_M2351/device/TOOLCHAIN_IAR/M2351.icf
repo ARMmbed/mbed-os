@@ -2,7 +2,7 @@
 /*-Editor annotation file-*/
 /* IcfEditorFile="$TOOLKIT_DIR$\config\ide\IcfEditor\cortex_v1_0.xml" */
 
-if (isdefinedsymbol(__DOMAIN_NS)) {
+if (isdefinedsymbol(DOMAIN_NS)) {
 
     if (! isdefinedsymbol(MBED_APP_START)) {
         define symbol MBED_APP_START                = 0x10040000;
@@ -85,7 +85,7 @@ do not initialize  { section .noinit };
 place at address mem:__ICFEDIT_intvec_start__ { readonly section .intvec };
 
 place in ROM_region   { readonly };
-if (! isdefinedsymbol(__DOMAIN_NS)) {
+if (! isdefinedsymbol(DOMAIN_NS)) {
     place at address mem:__ICFEDIT_region_NSCROM_start__ { readonly section Veneer$$CMSE };
 }
 place at start of IRAM_region   { block CSTACK };
