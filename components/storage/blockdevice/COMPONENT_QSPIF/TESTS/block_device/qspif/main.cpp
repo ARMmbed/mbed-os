@@ -132,10 +132,10 @@ end:
     delete[] read_block;
 }
 
-void test_qspif_unaligned_program()
+void test_qspif_unaligned_erase()
 {
 
-    utest_printf("\nTest Unaligned Program Starts..\n");
+    utest_printf("\nTest Unaligned Erase Starts..\n");
 
     QSPIFBlockDevice blockD(QSPI_FLASH1_IO0, QSPI_FLASH1_IO1, QSPI_FLASH1_IO2, QSPI_FLASH1_IO3,
                             QSPI_FLASH1_SCK, QSPI_FLASH1_CSN, QSPIF_POLARITY_MODE_0, MBED_CONF_QSPIF_QSPI_FREQ);
@@ -155,53 +155,42 @@ void test_qspif_unaligned_program()
         }
     }
 
-    bd_size_t block_size = blockD.get_erase_size();
+    bd_addr_t addr = 0;
+    bd_size_t sector_erase_size = blockD.get_erase_size(addr);
     unsigned addrwidth = ceil(log(float(blockD.size() - 1)) / log(float(16))) + 1;
 
-    uint8_t *write_block = new (std::nothrow) uint8_t[block_size];
-    uint8_t *read_block = new (std::nothrow) uint8_t[block_size];
-    if (!write_block || !read_block ) {
-        utest_printf("\n Not enough memory for test");
-        goto end;
-    }
+    utest_printf("\ntest  %0*llx:%llu...", addrwidth, addr, sector_erase_size);
 
-    {
-        bd_addr_t block = (rand() * block_size) % blockD.size() + 15;
+    //unaligned start address
+    addr += 1;
+    err = blockD.erase(addr, sector_erase_size - 1);
+    TEST_ASSERT_EQUAL(QSPIF_BD_ERROR_INVALID_ERASE_PARAMS, err);
 
-        // Use next random number as temporary seed to keep
-        // the address progressing in the pseudorandom sequence
-        unsigned seed = rand();
+    err = blockD.erase(addr, sector_erase_size);
+    TEST_ASSERT_EQUAL(QSPIF_BD_ERROR_INVALID_ERASE_PARAMS, err);
 
-        // Fill with random sequence
-        srand(seed);
-        for (bd_size_t i_ind = 0; i_ind < block_size; i_ind++) {
-            write_block[i_ind] = 0xff & rand();
-        }
+    err = blockD.erase(addr, 1);
+    TEST_ASSERT_EQUAL(QSPIF_BD_ERROR_INVALID_ERASE_PARAMS, err);
 
-        // Write, sync, and read the block
-        utest_printf("\ntest  %0*llx:%llu...", addrwidth, block, block_size);
+    //unaligned end address
+    addr = 0;
 
-        err = blockD.erase(block, block_size);
-        TEST_ASSERT_EQUAL(0, err);
+    err = blockD.erase(addr, 1);
+    TEST_ASSERT_EQUAL(QSPIF_BD_ERROR_INVALID_ERASE_PARAMS, err);
 
-        err = blockD.program(write_block, block, block_size);
-        TEST_ASSERT_EQUAL(0, err);
+    err = blockD.erase(addr, sector_erase_size + 1);
+    TEST_ASSERT_EQUAL(QSPIF_BD_ERROR_INVALID_ERASE_PARAMS, err);
 
-        err = blockD.read(read_block, block, block_size);
-        TEST_ASSERT_EQUAL(0, err);
+    //erase size exceeds flash device size
+    err = blockD.erase(addr, blockD.size() + 1);
+    TEST_ASSERT_EQUAL(QSPIF_BD_ERROR_INVALID_ERASE_PARAMS, err);
 
-        // Check that the data was unmodified
-        srand(seed);
-        for (bd_size_t i_ind = 0; i_ind < block_size; i_ind++) {
-            TEST_ASSERT_EQUAL(0xff & rand(), read_block[i_ind]);
-        }
+    // Valid erase
+    err = blockD.erase(addr, sector_erase_size);
+    TEST_ASSERT_EQUAL(QSPIF_BD_ERROR_OK, err);
 
-        err = blockD.deinit();
-        TEST_ASSERT_EQUAL(0, err);
-    }
-end:
-    delete[] write_block;
-    delete[] read_block;
+    err = blockD.deinit();
+    TEST_ASSERT_EQUAL(0, err);
 }
 
 
@@ -286,7 +275,7 @@ utest::v1::status_t test_setup(const size_t number_of_cases)
 }
 
 Case cases[] = {
-    Case("Testing unaligned program blocks", test_qspif_unaligned_program),
+    Case("Testing unaligned erase blocks", test_qspif_unaligned_erase),
     Case("Testing read write random blocks", test_qspif_random_program_read_erase),
     Case("Testing Multi Threads Erase Program Read", test_qspif_multi_threads)
 };
