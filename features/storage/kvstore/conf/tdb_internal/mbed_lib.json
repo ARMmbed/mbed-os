@@ -1,0 +1,13 @@
+{
+    "name": "storage_tdb_internal",
+    "config": {
+        "internal_size": {
+            "help": "Size of the FlashIAP block device",
+            "value": "0"
+        },
+        "internal_base_address": {
+            "help": "If default, the base address is set to the first sector after the application code ends.",
+            "value": "0"
+        }
+    }
+}

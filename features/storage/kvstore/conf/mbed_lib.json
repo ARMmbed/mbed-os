@@ -1,0 +1,18 @@
+{
+"name": "storage",
+    "config": {
+        "storage_type": {
+            "help": "Options are TDB_INTERNAL, TDB_EXTERNAL, TDB_EXTERNAL_NO_RBP, FILESYSTEM or FILESYSTEM_NO_RBP.",
+            "value": "TDB_EXTERNAL"
+        },
+        "default_kv": {
+            "help": "A string name for the default kvstore configuration",
+            "value": "kv"
+        }
+    },
+    "target_overrides": {
+        "K66F": {
+            "storage_type": "TDB_INTERNAL"
+        }
+    }
+}
