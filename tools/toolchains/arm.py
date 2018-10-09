@@ -60,7 +60,7 @@ class ARM(mbedToolchain):
             raise NotSupportedException(
                 "this compiler does not support the core %s" % target.core)
 
-        if getattr(target, "default_lib", "std") == "small":
+        if getattr(target, "default_toolchain", "ARM") == "uARM":
             if "-DMBED_RTOS_SINGLE_THREAD" not in self.flags['common']:
                 self.flags['common'].append("-DMBED_RTOS_SINGLE_THREAD")
             if "-D__MICROLIB" not in self.flags['common']:
@@ -350,7 +350,7 @@ class ARM_MICRO(ARM):
     def __init__(self, target, notify=None, macros=None,
                  silent=False, extra_verbose=False, build_profile=None,
                  build_dir=None):
-        target.default_lib = "small"
+        target.default_toolchain = "uARM"
         ARM.__init__(self, target, notify, macros, build_dir=build_dir,
                      build_profile=build_profile)
         if not set(("ARM", "uARM")).intersection(set(target.supported_toolchains)):
