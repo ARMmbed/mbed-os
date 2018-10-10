@@ -105,6 +105,15 @@ int hex_str_to_char_str(const char *str, uint16_t len, char *buf);
  */
 void uint_to_binary_str(uint32_t num, char *str, int str_size, int bit_cnt);
 
+/** Converts the given binary string to uint.
+ *  For example binary_str_to_uint("0000001001", 10) would return 9
+ *
+ *  @param binary_string           binary string from where chars are converted to uint
+ *  @param binary_string_length    length of the param binary_string
+ *  @return                        uint represented by the binary string
+ */
+uint32_t binary_str_to_uint(const char *binary_string, int binary_string_length);
+
 /** Get dynamic port for socket
  *
  *  @return next port number above 49152

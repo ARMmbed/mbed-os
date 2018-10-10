@@ -460,14 +460,9 @@ ssize_t ATHandler::read_string(char *buf, size_t size, bool read_even_stop_tag)
         return -1;
     }
 
-    consume_char('\"');
-
-    if (_last_err) {
-        return -1;
-    }
-
-    size_t len = 0;
+    int len = 0;
     size_t match_pos = 0;
+    bool delimiter_found = false;
 
     for (; len < (size - 1 + match_pos); len++) {
         int c = get_char();
@@ -476,6 +471,7 @@ ssize_t ATHandler::read_string(char *buf, size_t size, bool read_even_stop_tag)
             return -1;
         } else if (c == _delimiter) {
             buf[len] = '\0';
+            delimiter_found = true;
             break;
         } else if (c == '\"') {
             match_pos = 0;
@@ -499,6 +495,26 @@ ssize_t ATHandler::read_string(char *buf, size_t size, bool read_even_stop_tag)
 
     if (len && (len == size - 1 + match_pos)) {
         buf[len] = '\0';
+    }
+
+    // Consume to delimiter or stop_tag
+    if (!delimiter_found && !_stop_tag->found) {
+        match_pos = 0;
+        while(1) {
+            int c = get_char();
+            if (c == -1) {
+                set_error(NSAPI_ERROR_DEVICE_ERROR);
+                break;
+            } else if (c == _delimiter) {
+                break;
+            } else if (_stop_tag->len && c == _stop_tag->tag[match_pos]) {
+                match_pos++;
+                if (match_pos == _stop_tag->len) {
+                    _stop_tag->found = true;
+                    break;
+                }
+            }
+        }
     }
 
     return len;
@@ -830,6 +846,7 @@ void ATHandler::resp_start(const char *prefix, bool stop)
         return;
     }
 
+    set_scope(NotSet);
     // Try get as much data as possible
     rewind_buffer();
     (void)fill_buffer(false);
