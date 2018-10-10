@@ -130,7 +130,7 @@ void test_thread(void)
     char  test[] = "123456789";
     uint32_t crc;
     MbedCRC<POLY_32BIT_ANSI, 32> ct;
-    TEST_ASSERT_EQUAL(0, ct.compute((void *)test, strlen((const char*)test), &crc));
+    TEST_ASSERT_EQUAL(0, ct.compute((void *)test, strlen((const char *)test), &crc));
     TEST_ASSERT_EQUAL(0xCBF43926, crc);
 }
 

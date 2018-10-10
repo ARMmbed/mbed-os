@@ -72,10 +72,10 @@ base64_result_e trng_DecodeNBase64(const char *string,
     }
 
     *writePtr = 0;
-    while (( currPos < stringMaxSize ) &&
-            ( string[currPos] != 0 ) &&
-            ( writePtr  <  bufferEnd ) &&
-            ( !isEndOfString )) {
+    while ((currPos < stringMaxSize) &&
+            (string[currPos] != 0) &&
+            (writePtr  <  bufferEnd) &&
+            (!isEndOfString)) {
         uint8_t val;
 
         if (string[currPos] == 0) {
@@ -125,11 +125,11 @@ base64_result_e trng_DecodeNBase64(const char *string,
     }
 
     // Check if additional bytes should have been processed but buffer isn't sufficient.
-    if (( result == BASE64_SUCCESS ) &&
-            ( !isEndOfString ) &&
-            ( currPos < stringMaxSize ) &&
-            ( string[currPos] != 0 ) &&
-            ( string[currPos] != '=' ) ) {
+    if ((result == BASE64_SUCCESS) &&
+            (!isEndOfString) &&
+            (currPos < stringMaxSize) &&
+            (string[currPos] != 0) &&
+            (string[currPos] != '=')) {
         return BASE64_BUFFER_TOO_SMALL;
     }
 
