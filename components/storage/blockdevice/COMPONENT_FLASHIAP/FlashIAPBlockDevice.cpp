@@ -36,12 +36,6 @@
 #define DEBUG_PRINTF(...)
 #endif
 
-FlashIAPBlockDevice::FlashIAPBlockDevice()
-    : _flash(), _base(0), _size(0), _is_initialized(false), _init_ref_count(0)
-{
-    DEBUG_PRINTF("FlashIAPBlockDevice: %" PRIX32 " %" PRIX32 "\r\n", address, size);
-}
-
 FlashIAPBlockDevice::FlashIAPBlockDevice(uint32_t address, uint32_t size)
     : _flash(), _base(address), _size(size), _is_initialized(false), _init_ref_count(0)
 {
