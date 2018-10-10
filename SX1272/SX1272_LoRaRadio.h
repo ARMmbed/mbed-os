@@ -31,7 +31,6 @@ SPDX-License-Identifier: BSD-3-Clause
 #include "DigitalOut.h"
 #include "DigitalInOut.h"
 #include "SPI.h"
-#include "Timeout.h"
 #include "platform/PlatformMutex.h"
 #ifdef MBED_CONF_RTOS_PRESENT
  #include "rtos/Thread.h"
@@ -43,6 +42,14 @@ SPDX-License-Identifier: BSD-3-Clause
 #define MAX_DATA_BUFFER_SIZE_SX172                        MBED_CONF_SX1272_LORA_DRIVER_BUFFER_SIZE
 #else
 #define MAX_DATA_BUFFER_SIZE_SX172                        255
+#endif
+
+#if DEVICE_LPTICKER
+#include "LowPowerTimeout.h"
+#define ALIAS_LORAWAN_TIMER    mbed::LowPowerTimeout
+#else
+#include "Timeout.h"
+#define ALIAS_LORAWAN_TIMER    mbed::Timeout
 #endif
 
 /**
@@ -367,7 +374,7 @@ private:
     // If the chip fails to transmit, its a fatal error, reflecting
     // some catastrophic bus failure etc. We wish to have the control
     // back from the driver in such a case.
-    mbed::Timeout tx_timeout_timer;
+    ALIAS_LORAWAN_TIMER tx_timeout_timer;
 
 #ifdef MBED_CONF_RTOS_PRESENT
     // Thread to handle interrupts
