@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #include "utest/utest.h"
 #include "unity/unity.h"
 #include "greentea-client/test_env.h"
+#include "mbed.h"
+#include "sleep_manager_api_racecondition_tests.h"
 
 #if !DEVICE_SLEEP
 #error [NOT_SUPPORTED] test not supported
@@ -94,8 +95,8 @@ utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
 }
 
 Case cases[] = {
-    Case("sleep manager HAL - locking multithreaded", sleep_manager_multithread_test),
-    Case("sleep manager HAL - locking IRQ", sleep_manager_irq_test),
+    Case("deep sleep lock/unlock is thread safe", sleep_manager_multithread_test),
+    Case("deep sleep lock/unlock is IRQ safe", sleep_manager_irq_test),
 };
 
 Specification specification(greentea_test_setup, cases, greentea_test_teardown_handler);
