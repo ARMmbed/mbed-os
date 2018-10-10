@@ -121,7 +121,7 @@ static void mbed_cpy_nvic(void)
 #if !defined(__CORTEX_M0) && !defined(__CORTEX_A9)
 #ifdef NVIC_RAM_VECTOR_ADDRESS
     uint32_t *old_vectors = (uint32_t *)SCB->VTOR;
-    uint32_t *vectors = (uint32_t*)NVIC_RAM_VECTOR_ADDRESS;
+    uint32_t *vectors = (uint32_t *)NVIC_RAM_VECTOR_ADDRESS;
     for (int i = 0; i < NVIC_NUM_VECTORS; i++) {
         vectors[i] = old_vectors[i];
     }

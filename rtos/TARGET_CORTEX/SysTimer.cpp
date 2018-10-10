@@ -54,7 +54,7 @@ namespace rtos {
 namespace internal {
 
 SysTimer::SysTimer() :
-        TimerEvent(get_lp_ticker_data()), _start_time(0), _tick(0)
+    TimerEvent(get_lp_ticker_data()), _start_time(0), _tick(0)
 {
     _start_time = ticker_read_us(_ticker_data);
     _suspend_time_passed = true;
@@ -62,7 +62,7 @@ SysTimer::SysTimer() :
 }
 
 SysTimer::SysTimer(const ticker_data_t *data) :
-        TimerEvent(data), _start_time(0), _tick(0)
+    TimerEvent(data), _start_time(0), _tick(0)
 {
     _start_time = ticker_read_us(_ticker_data);
 }
