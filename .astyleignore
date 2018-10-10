@@ -6,6 +6,7 @@ features/lwipstack/lwip
 rtos/TARGET_CORTEX/rtx4
 features/storage/filesystem/littlefs/littlefs/
 features/storage/filesystem/fat/ChaN
+features/storage/FEATURE_STORAGE
 features/frameworks
 features/FEATURE_BLE/targets
 features/unsupported/
