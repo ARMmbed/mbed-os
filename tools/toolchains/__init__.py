@@ -19,7 +19,7 @@ from __future__ import print_function, division, absolute_import
 import re
 import sys
 import json
-from os import stat, walk, getcwd, sep, remove
+from os import stat, walk, getcwd, sep, remove, getenv
 from copy import copy
 from time import time, sleep
 from shutil import copyfile
@@ -126,7 +126,7 @@ class mbedToolchain:
 
         # Build output dir
         self.build_dir = abspath(build_dir) if PRINT_COMPILER_OUTPUT_AS_LINK else build_dir
-        self.timestamp = time()
+        self.timestamp = getenv("MBED_BUILD_TIMESTAMP",time())
 
         # Number of concurrent build jobs. 0 means auto (based on host system cores)
         self.jobs = 0
