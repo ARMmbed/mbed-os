@@ -9,7 +9,6 @@ features/storage/filesystem/fat/ChaN
 features/frameworks
 features/FEATURE_BLE/targets
 features/unsupported/
-features/FEATURE_COMMON_PAL/
 hal/storage_abstraction
 FEATURE_NANOSTACK/coap-service
 FEATURE_NANOSTACK/sal-stack-nanostack
