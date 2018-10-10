@@ -20,12 +20,11 @@
 #include "LoRaPHY_stub.h"
 #include "LoRaPHY.h"
 
-class my_LoRaPHY : public LoRaPHY
-{
+class my_LoRaPHY : public LoRaPHY {
 public:
-    my_LoRaPHY(){};
+    my_LoRaPHY() {};
 
-    virtual ~my_LoRaPHY(){};
+    virtual ~my_LoRaPHY() {};
 };
 
 

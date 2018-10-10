@@ -30,8 +30,8 @@
 
 cmac_stub_def cmac_stub;
 
-int mbedtls_cipher_cmac_starts( mbedtls_cipher_context_t *ctx,
-                                const unsigned char *key, size_t keybits )
+int mbedtls_cipher_cmac_starts(mbedtls_cipher_context_t *ctx,
+                               const unsigned char *key, size_t keybits)
 {
     if (cmac_stub.int_zero_counter) {
         cmac_stub.int_zero_counter--;
@@ -40,8 +40,8 @@ int mbedtls_cipher_cmac_starts( mbedtls_cipher_context_t *ctx,
     return cmac_stub.int_value;
 }
 
-int mbedtls_cipher_cmac_update( mbedtls_cipher_context_t *ctx,
-                                const unsigned char *input, size_t ilen )
+int mbedtls_cipher_cmac_update(mbedtls_cipher_context_t *ctx,
+                               const unsigned char *input, size_t ilen)
 {
     if (cmac_stub.int_zero_counter) {
         cmac_stub.int_zero_counter--;
@@ -50,8 +50,8 @@ int mbedtls_cipher_cmac_update( mbedtls_cipher_context_t *ctx,
     return cmac_stub.int_value;
 }
 
-int mbedtls_cipher_cmac_finish( mbedtls_cipher_context_t *ctx,
-                                unsigned char *output )
+int mbedtls_cipher_cmac_finish(mbedtls_cipher_context_t *ctx,
+                               unsigned char *output)
 {
     if (cmac_stub.int_zero_counter) {
         cmac_stub.int_zero_counter--;
@@ -60,7 +60,7 @@ int mbedtls_cipher_cmac_finish( mbedtls_cipher_context_t *ctx,
     return cmac_stub.int_value;
 }
 
-int mbedtls_cipher_cmac_reset( mbedtls_cipher_context_t *ctx )
+int mbedtls_cipher_cmac_reset(mbedtls_cipher_context_t *ctx)
 {
     if (cmac_stub.int_zero_counter) {
         cmac_stub.int_zero_counter--;
@@ -69,10 +69,10 @@ int mbedtls_cipher_cmac_reset( mbedtls_cipher_context_t *ctx )
     return cmac_stub.int_value;
 }
 
-int mbedtls_cipher_cmac( const mbedtls_cipher_info_t *cipher_info,
-                         const unsigned char *key, size_t keylen,
-                         const unsigned char *input, size_t ilen,
-                         unsigned char *output )
+int mbedtls_cipher_cmac(const mbedtls_cipher_info_t *cipher_info,
+                        const unsigned char *key, size_t keylen,
+                        const unsigned char *input, size_t ilen,
+                        unsigned char *output)
 {
     if (cmac_stub.int_zero_counter) {
         cmac_stub.int_zero_counter--;
@@ -81,9 +81,9 @@ int mbedtls_cipher_cmac( const mbedtls_cipher_info_t *cipher_info,
     return cmac_stub.int_value;
 }
 
-int mbedtls_aes_cmac_prf_128( const unsigned char *key, size_t key_length,
-                              const unsigned char *input, size_t in_len,
-                              unsigned char *output )
+int mbedtls_aes_cmac_prf_128(const unsigned char *key, size_t key_length,
+                             const unsigned char *input, size_t in_len,
+                             unsigned char *output)
 {
     if (cmac_stub.int_zero_counter) {
         cmac_stub.int_zero_counter--;

@@ -459,7 +459,7 @@ TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_get_registration_params)
     EXPECT_TRUE(NSAPI_ERROR_OK == cn.get_registration_params(CellularNetwork::C_EREG, reg_params));
     EXPECT_TRUE(reg_params._cell_id == 305463233);
     EXPECT_TRUE(reg_params._active_time == 240);
-    EXPECT_TRUE(reg_params._periodic_tau == 70 * 60 *60);
+    EXPECT_TRUE(reg_params._periodic_tau == 70 * 60 * 60);
     ATHandler_stub::read_string_index = kRead_string_table_size;
     ATHandler_stub::read_string_value = NULL;
     ATHandler_stub::ssize_value = 0;
@@ -469,7 +469,7 @@ TEST_F(TestAT_CellularNetwork, test_AT_CellularNetwork_get_registration_params)
     EXPECT_TRUE(reg_params_check._act == CellularNetwork::RAT_EGPRS);
     EXPECT_TRUE(reg_params_check._cell_id == 305463233);
     EXPECT_TRUE(reg_params_check._active_time == 240);
-    EXPECT_TRUE(reg_params_check._periodic_tau == 70 * 60 *60);
+    EXPECT_TRUE(reg_params_check._periodic_tau == 70 * 60 * 60);
 
     reg_params._status = CellularNetwork::NotRegistered;
     reg_params._act = CellularNetwork::RAT_GSM;

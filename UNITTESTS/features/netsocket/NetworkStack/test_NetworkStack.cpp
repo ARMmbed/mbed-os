@@ -77,22 +77,22 @@ class NetworkStackChild : public NetworkStack {
         return NSAPI_ERROR_OK;
     }
     virtual nsapi_size_or_error_t socket_send(nsapi_socket_t handle,
-            const void *data, nsapi_size_t size)
+                                              const void *data, nsapi_size_t size)
     {
         return NSAPI_ERROR_OK;
     }
     virtual nsapi_size_or_error_t socket_recv(nsapi_socket_t handle,
-            void *data, nsapi_size_t size)
+                                              void *data, nsapi_size_t size)
     {
         return NSAPI_ERROR_OK;
     }
     virtual nsapi_size_or_error_t socket_sendto(nsapi_socket_t handle, const SocketAddress &address,
-            const void *data, nsapi_size_t size)
+                                                const void *data, nsapi_size_t size)
     {
         return NSAPI_ERROR_OK;
     }
     virtual nsapi_size_or_error_t socket_recvfrom(nsapi_socket_t handle, SocketAddress *address,
-            void *buffer, nsapi_size_t size)
+                                                  void *buffer, nsapi_size_t size)
     {
         return NSAPI_ERROR_OK;
     }

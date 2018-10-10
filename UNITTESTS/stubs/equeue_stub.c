@@ -84,7 +84,7 @@ void equeue_event_dtor(void *event, void (*dtor)(void *))
 
 int equeue_post(equeue_t *queue, void (*cb)(void *), void *event)
 {
-    struct equeue_event *e = (struct equeue_event*)event - 1;
+    struct equeue_event *e = (struct equeue_event *)event - 1;
     if (cb && equeue_stub.call_cb_immediately) {
         cb(e + 1);
         return 1;
@@ -108,7 +108,8 @@ void equeue_chain(equeue_t *queue, equeue_t *target)
 
 }
 
-int equeue_call_in(equeue_t *q, int ms, void (*cb)(void*), void *data) {
+int equeue_call_in(equeue_t *q, int ms, void (*cb)(void *), void *data)
+{
     // The stub does not implement the delay mechanism.
     return equeue_post(q, cb, data);
 }

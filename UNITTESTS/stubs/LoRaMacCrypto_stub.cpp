@@ -30,25 +30,25 @@ LoRaMacCrypto::LoRaMacCrypto()
 {
 }
 
-int LoRaMacCrypto::compute_mic(const uint8_t *, uint16_t , const uint8_t *, uint32_t, uint32_t,
+int LoRaMacCrypto::compute_mic(const uint8_t *, uint16_t, const uint8_t *, uint32_t, uint32_t,
                                uint8_t dir, uint32_t, uint32_t *)
 {
     return LoRaMacCrypto_stub::int_table[LoRaMacCrypto_stub::int_table_idx_value++];
 }
 
-int LoRaMacCrypto::encrypt_payload(const uint8_t *, uint16_t , const uint8_t *, uint32_t, uint32_t,
-                                   uint8_t , uint32_t , uint8_t *)
+int LoRaMacCrypto::encrypt_payload(const uint8_t *, uint16_t, const uint8_t *, uint32_t, uint32_t,
+                                   uint8_t, uint32_t, uint8_t *)
 {
     return LoRaMacCrypto_stub::int_table[LoRaMacCrypto_stub::int_table_idx_value++];
 }
 
-int LoRaMacCrypto::decrypt_payload(const uint8_t *, uint16_t , const uint8_t *, uint32_t, uint32_t,
-                                   uint8_t , uint32_t , uint8_t *)
+int LoRaMacCrypto::decrypt_payload(const uint8_t *, uint16_t, const uint8_t *, uint32_t, uint32_t,
+                                   uint8_t, uint32_t, uint8_t *)
 {
     return LoRaMacCrypto_stub::int_table[LoRaMacCrypto_stub::int_table_idx_value++];
 }
 
-int LoRaMacCrypto::compute_join_frame_mic(const uint8_t *, uint16_t , const uint8_t *, uint32_t, uint32_t *)
+int LoRaMacCrypto::compute_join_frame_mic(const uint8_t *, uint16_t, const uint8_t *, uint32_t, uint32_t *)
 {
     return LoRaMacCrypto_stub::int_table[LoRaMacCrypto_stub::int_table_idx_value++];
 }
@@ -59,7 +59,7 @@ int LoRaMacCrypto::decrypt_join_frame(const uint8_t *in, uint16_t size, const ui
     return LoRaMacCrypto_stub::int_table[LoRaMacCrypto_stub::int_table_idx_value++];
 }
 
-int LoRaMacCrypto::compute_skeys_for_join_frame(const uint8_t *, uint32_t, const uint8_t *, uint16_t ,
+int LoRaMacCrypto::compute_skeys_for_join_frame(const uint8_t *, uint32_t, const uint8_t *, uint16_t,
                                                 uint8_t *, uint8_t *)
 {
     return LoRaMacCrypto_stub::int_table[LoRaMacCrypto_stub::int_table_idx_value++];

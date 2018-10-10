@@ -26,10 +26,12 @@ using namespace events;
 class TestAT_CellularDevice : public testing::Test {
 protected:
 
-    void SetUp() {
+    void SetUp()
+    {
     }
 
-    void TearDown() {
+    void TearDown()
+    {
     }
 };
 
