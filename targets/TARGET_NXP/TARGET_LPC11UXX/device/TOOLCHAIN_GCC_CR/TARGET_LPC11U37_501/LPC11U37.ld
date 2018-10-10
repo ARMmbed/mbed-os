@@ -21,7 +21,7 @@ SECTIONS
 {
 
     /* MAIN TEXT SECTION */ 
-    .text : ALIGN(4)
+    .text : ALIGN(8)
     {
         FILL(0xff)
         KEEP(*(.isr_vector))
@@ -29,7 +29,7 @@ SECTIONS
         . = 0x200;
         
         /* Global Section Table */
-        . = ALIGN(4) ;
+        . = ALIGN(8) ;
         __section_table_start = .;
         __data_section_table = .;
         LONG(LOADADDR(.data));
@@ -53,18 +53,18 @@ SECTIONS
         
         *(.text*)
         *(.rodata .rodata.*)
-        . = ALIGN(4);
+        . = ALIGN(8);
         
         /* C++ constructors etc */
-        . = ALIGN(4);
+        . = ALIGN(8);
         KEEP(*(.init))
         
-        . = ALIGN(4);
+        . = ALIGN(8);
         __preinit_array_start = .;
         KEEP (*(.preinit_array))
         __preinit_array_end = .;
         
-        . = ALIGN(4);
+        . = ALIGN(8);
         __init_array_start = .;
         KEEP (*(SORT(.init_array.*)))
         KEEP (*(.init_array))
@@ -90,13 +90,13 @@ SECTIONS
      * for exception handling/unwind - some Newlib functions (in common
      * with C++ and STDC++) use this.
      */
-    .ARM.extab : ALIGN(4)
+    .ARM.extab : ALIGN(8)
     {
         *(.ARM.extab* .gnu.linkonce.armextab.*)
     } > MFlash32
     __exidx_start = .;
     
-    .ARM.exidx : ALIGN(4)
+    .ARM.exidx : ALIGN(8)
     {
         *(.ARM.exidx* .gnu.linkonce.armexidx.*)
     } > MFlash32
@@ -105,46 +105,46 @@ SECTIONS
     _etext = .;
         
     
-    .data_RAM2 : ALIGN(4)
+    .data_RAM2 : ALIGN(8)
     {
        FILL(0xff)
         *(.data.$RAM2*)
         *(.data.$RamUsb2*)
-       . = ALIGN(4) ;
+       . = ALIGN(8) ;
     } > RamUsb2 AT>MFlash32
     
     /* MAIN DATA SECTION */
 
-    .uninit_RESERVED : ALIGN(4)
+    .uninit_RESERVED : ALIGN(8)
     {
         KEEP(*(.bss.$RESERVED*))
     } > RamLoc8
 
-    .data : ALIGN(4)
+    .data : ALIGN(8)
     {
         FILL(0xff)
         _data = .;
         *(vtable)
         *(.data*)
-        . = ALIGN(4) ;
+        . = ALIGN(8) ;
         _edata = .;
     } > RamLoc8 AT>MFlash32
 
     
-    .bss_RAM2 : ALIGN(4)
+    .bss_RAM2 : ALIGN(8)
     {
         *(.bss.$RAM2*)
         *(.bss.$RamUsb2*)
-       . = ALIGN(4) ;
+       . = ALIGN(8) ;
     } > RamUsb2
 
     /* MAIN BSS SECTION */
-    .bss : ALIGN(4)
+    .bss : ALIGN(8)
     {
         _bss = .;
         *(.bss*)
         *(COMMON)
-        . = ALIGN(4) ;
+        . = ALIGN(8) ;
         _ebss = .;
         PROVIDE(end = .);
         __end__ = .;
