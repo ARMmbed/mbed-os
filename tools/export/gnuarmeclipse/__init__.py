@@ -361,9 +361,6 @@ class GNUARMEclipse(Exporter):
         - recurse the tree and collect all unused folders; descend
         the hierarchy only for used nodes
         """
-        source_folders = [self.filter_dot(s) for s in set(dirname(
-            src) for src in self.resources.c_sources + self.resources.cpp_sources + self.resources.s_sources)]
-
         self.excluded_folders = set(self.resources.ignored_dirs) - set(self.resources.inc_dirs)
 
 
