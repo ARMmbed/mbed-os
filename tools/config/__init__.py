@@ -685,7 +685,7 @@ class Config(object):
         size = self._header_size(header_format)
         region = Region("header", start, size, False, None)
         start += size
-        start = ((start + 7) // 8) * 8
+        start = ((start + (2**7 - 1)) // (2**7)) * (2**7)
         return (start, region)
 
     @staticmethod
