@@ -28,16 +28,15 @@
  */
 class FlashIAPBlockDevice : public BlockDevice {
 public:
-    /** Creates a FlashIAPBlockDevice **/
-    FlashIAPBlockDevice();
 
     /** Creates a FlashIAPBlockDevice
      *
      *  @param address  Physical address where the block device start
      *  @param size     The block device size
      */
-    FlashIAPBlockDevice(uint32_t address, uint32_t size = 0);
-
+    FlashIAPBlockDevice(uint32_t address = MBED_CONF_FLASHIAP_BLOCK_DEVICE_BASE_ADDRESS,
+                        uint32_t size = MBED_CONF_FLASHIAP_BLOCK_DEVICE_SIZE);
+                        
     virtual ~FlashIAPBlockDevice();
 
     /** Initialize a block device
