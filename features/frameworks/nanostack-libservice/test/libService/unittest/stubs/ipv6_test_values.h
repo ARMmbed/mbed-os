@@ -33,6 +33,7 @@ struct ip6_addresses_and_its_binary_form_t {
     { "2001:db8::",                             { 0x20, 0x01, 0xd, 0xb8 }},
     { "::aaaa:0:0:1",                           { 0, 0, 0, 0, 0, 0, 0, 0, 0xaa, 0xaa, 0, 0, 0, 0, 0, 1 }},
     { "::1",                                    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 }},
+    { "fe80::1",                                { 0xfe, 0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}},
     { "::",                                     { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }},
     { "FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF", { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}},
     {NULL, {0}}
