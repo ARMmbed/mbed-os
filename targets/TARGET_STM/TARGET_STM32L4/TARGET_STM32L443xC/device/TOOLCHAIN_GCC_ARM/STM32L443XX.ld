@@ -7,10 +7,11 @@
 #endif
 
 /* Linker script to configure memory regions. */
+/* 0x18C resevered for vectors; 8-byte aligned = 0x190 (0x18C + 0x4)*/
 MEMORY
 {
   FLASH (rx)   : ORIGIN = MBED_APP_START, LENGTH = MBED_APP_SIZE
-  SRAM2 (rwx)  : ORIGIN = 0x1000018C, LENGTH = 16k - 0x18C
+  SRAM2 (rwx)  : ORIGIN = 0x10000190, LENGTH = 16k - (0x18C+0x4)
   SRAM1 (rwx)  : ORIGIN = 0x20000000, LENGTH = 48k
 }
 
@@ -93,13 +94,13 @@ SECTIONS
         *(vtable)
         *(.data*)
 
-        . = ALIGN(4);
+        . = ALIGN(8);
         /* preinit data */
         PROVIDE_HIDDEN (__preinit_array_start = .);
         KEEP(*(.preinit_array))
         PROVIDE_HIDDEN (__preinit_array_end = .);
 
-        . = ALIGN(4);
+        . = ALIGN(8);
         /* init data */
         PROVIDE_HIDDEN (__init_array_start = .);
         KEEP(*(SORT(.init_array.*)))
@@ -107,7 +108,7 @@ SECTIONS
         PROVIDE_HIDDEN (__init_array_end = .);
 
 
-        . = ALIGN(4);
+        . = ALIGN(8);
         /* finit data */
         PROVIDE_HIDDEN (__fini_array_start = .);
         KEEP(*(SORT(.fini_array.*)))
@@ -115,7 +116,7 @@ SECTIONS
         PROVIDE_HIDDEN (__fini_array_end = .);
 
         KEEP(*(.jcr*))
-        . = ALIGN(4);
+        . = ALIGN(8);
         /* All data end */
         __data_end__ = .;
         _edata = .;
@@ -124,12 +125,12 @@ SECTIONS
 
     .bss :
     {
-        . = ALIGN(4);
+        . = ALIGN(8);
         __bss_start__ = .;
         _sbss = .;
         *(.bss*)
         *(COMMON)
-        . = ALIGN(4);
+        . = ALIGN(8);
         __bss_end__ = .;
         _ebss = .;
     } > SRAM1
