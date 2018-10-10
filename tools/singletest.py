@@ -24,7 +24,7 @@ File format example: test_spec.json:
 {
     "targets": {
         "KL46Z": ["ARM", "GCC_ARM"],
-        "LPC1768": ["ARM", "GCC_ARM", "GCC_CR", "IAR"],
+        "LPC1768": ["ARM", "GCC_ARM", "IAR"],
         "LPC11U24": ["uARM"],
         "NRF51822": ["ARM"]
     }
