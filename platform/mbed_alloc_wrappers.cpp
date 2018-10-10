@@ -53,7 +53,7 @@ static mbed_stats_heap_t heap_stats = {0, 0, 0, 0, 0, 0, 0};
 
 typedef struct  {
     size_t size;
-}mbed_heap_overhead_t;
+} mbed_heap_overhead_t;
 
 #define MALLOC_HEADER_SIZE          (sizeof(mbed_heap_overhead_t))
 #define MALLOC_HEADER_PTR(p)        (mbed_heap_overhead_t *)((char *)(p) - MALLOC_HEADER_SIZE)

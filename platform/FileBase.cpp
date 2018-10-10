@@ -63,7 +63,7 @@ FileBase::~FileBase()
     _mutex->unlock();
 
     if (getPathType() == FilePathType) {
-        extern void remove_filehandle(FileHandle *file);
+        extern void remove_filehandle(FileHandle * file);
         remove_filehandle(static_cast<FileLike *>(this));
     }
 }
