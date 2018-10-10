@@ -1052,6 +1052,27 @@ TEST_F(TestATHandler, test_ATHandler_consume_to_stop_tag)
 
     ATHandler at(&fh1, que, 0, ",");
     EXPECT_TRUE(at.consume_to_stop_tag());
+
+    at.clear_error();
+    char table1[] = "\r\n\r\r\r\nOOK\r\n";
+    at.flush();
+    filehandle_stub_table = table1;
+    filehandle_stub_table_pos = 0;
+    mbed_poll_stub::revents_value = POLLIN;
+    mbed_poll_stub::int_value = 1;
+    char buf1[6];
+    at.resp_start();
+    EXPECT_TRUE(at.consume_to_stop_tag());
+
+    at.clear_error();
+    char table2[] = "OKOK\r\n";
+    at.flush();
+    filehandle_stub_table = table2;
+    filehandle_stub_table_pos = 0;
+    mbed_poll_stub::revents_value = POLLIN;
+    mbed_poll_stub::int_value = 1;
+    char buf2[6];
+    EXPECT_TRUE(at.consume_to_stop_tag());
 }
 
 TEST_F(TestATHandler, test_ATHandler_set_debug)
