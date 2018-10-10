@@ -21,12 +21,6 @@
 #include "nrf_timer.h"
 #include "us_ticker.h"
 
-// Mask of reserved bits of the register ICSR in the System Control Block peripheral
-// In this case, bits which are equal to 0 are the bits reserved in this register
-#define SCB_ICSR_RESERVED_BITS_MASK     0x9E43F03F
-
-#define FPU_EXCEPTION_MASK 0x0000009F
-
 extern bool us_ticker_initialized;
 
 void hal_sleep(void)
@@ -36,13 +30,6 @@ void hal_sleep(void)
     // Trigger an event when an interrupt is pending. This allows to wake up
     // the processor from disabled interrupts.
     SCB->SCR |= SCB_SCR_SEVONPEND_Msk;
-
-#if defined(NRF52)  || defined(NRF52840_XXAA)
-    /* Clear exceptions and PendingIRQ from the FPU unit */
-    __set_FPSCR(__get_FPSCR()  & ~(FPU_EXCEPTION_MASK));
-    (void) __get_FPSCR();
-    NVIC_ClearPendingIRQ(FPU_IRQn);
-#endif
 
     // If the SoftDevice is enabled, its API must be used to go to sleep.
     if (softdevice_handler_is_enabled()) {
@@ -59,21 +46,10 @@ void hal_sleep(void)
         // by using SEV/WFE pair, and then execute WFE again, unless there is
         // a pending interrupt.
 
-        // Set an event and wake up whatsoever, this will clear the event
-        // register from all previous events set (SVC call included)
+        __DSB();
         __SEV();
         __WFE();
-
-        // Test if there is an interrupt pending (mask reserved regions)
-        if (SCB->ICSR & (SCB_ICSR_RESERVED_BITS_MASK)) {
-            // Ok, there is an interrut pending, no need to go to sleep
-            return;
-        } else {
-            // next event will wakeup the CPU
-            // If an interrupt occured between the test of SCB->ICSR and this
-            // instruction, WFE will just not put the CPU to sleep
-            __WFE();
-        }
+        __WFE();
     }
 }
 
