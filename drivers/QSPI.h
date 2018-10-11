@@ -84,8 +84,8 @@ public:
      *  @param io3 4th IO pin used for sending/receiving data during data phase of a transaction
      *  @param sclk QSPI Clock pin
      *  @param ssel QSPI chip select pin
-     *  @param mode Mode specifies the SPI mode(Mode=0 uses CPOL=0, CPHA=0, Mode=1 uses CPOL=1, CPHA=1)
-     *         default value = 0
+     *  @param mode Clock polarity and phase mode (0 - 3) of SPI
+     *         (Default: Mode=0 uses CPOL=0, CPHA=0, Mode=1 uses CPOL=1, CPHA=1)
      *
      */
     QSPI(PinName io0, PinName io1, PinName io2, PinName io3, PinName sclk, PinName ssel = NC, int mode = 0);
@@ -99,7 +99,7 @@ public:
      *  @param address_width Bus width used by address phase(Valid values are QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_DUAL, QSPI_CFG_BUS_QUAD)
      *  @param address_size Size in bits used by address phase(Valid values are QSPI_CFG_ADDR_SIZE_8, QSPI_CFG_ADDR_SIZE_16, QSPI_CFG_ADDR_SIZE_24, QSPI_CFG_ADDR_SIZE_32)
      *  @param alt_width Bus width used by alt phase(Valid values are QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_DUAL, QSPI_CFG_BUS_QUAD)
-     *  @param alt_size Size in bits used by alt phase(Valid values are QSPI_CFG_ADDR_SIZE_8, QSPI_CFG_ADDR_SIZE_16, QSPI_CFG_ADDR_SIZE_24, QSPI_CFG_ADDR_SIZE_32)
+     *  @param alt_size Size in bits used by alt phase(Valid values are QSPI_CFG_ALT_SIZE_8, QSPI_CFG_ALT_SIZE_16, QSPI_CFG_ALT_SIZE_24, QSPI_CFG_ALT_SIZE_32)
      *  @param data_width Bus width used by data phase(Valid values are QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_DUAL, QSPI_CFG_BUS_QUAD)
      *  @param dummy_cycles Number of dummy clock cycles to be used after alt phase
      *
