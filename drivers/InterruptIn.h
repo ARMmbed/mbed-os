@@ -157,7 +157,7 @@ public:
     void disable_irq();
 
     static void _irq_handler(uint32_t id, gpio_irq_event event);
-
+#if !defined(DOXYGEN_ONLY)
 protected:
     gpio_t gpio;
     gpio_irq_t gpio_irq;
@@ -166,6 +166,7 @@ protected:
     Callback<void()> _fall;
 
     void irq_init(PinName pin);
+#endif
 };
 
 } // namespace mbed
