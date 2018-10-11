@@ -43,7 +43,7 @@
 #define RX_BUFF_SIZE 32
 #define CDC_LOOPBACK_REPS 1200
 #define SERIAL_LOOPBACK_REPS 100
-#define USB_RECONNECT_DELAY_MS 200
+#define USB_RECONNECT_DELAY_MS 1
 
 // Additional delay necessary for Windows hosts
 // to handle the reconnect operation correctly.
