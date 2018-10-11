@@ -432,6 +432,11 @@ lorawan_status_t LoRaMacCommand::add_device_mode_indication(uint8_t classType)
 
 lorawan_status_t LoRaMacCommand::add_device_time_req()
 {
+    //App developer must know if the server version is 1.0.3 (or greater)
+    //1.0.2 does not support this MAC command and our stack does not support pre 1.0.2 versions
+    if (LORAWAN_VERSION_1_0_2 == MBED_CONF_LORA_VERSION) {
+        return LORAWAN_STATUS_UNSUPPORTED;
+    }
     lorawan_status_t ret = LORAWAN_STATUS_LENGTH_ERROR;
     if (cmd_buffer_remaining() > 0) {
         mac_cmd_buffer[mac_cmd_buf_idx++] = MOTE_MAC_DEVICE_TIME_REQ;
