@@ -82,7 +82,7 @@ public:
       Wait until a Mutex becomes available.
 
       @return  status code that indicates the execution status of the function:
-               @a Status code like osOK indicates that the mutex has been obtained.
+               @a Status code such as osOK indicates that the mutex has been obtained.
 
       @note You cannot call this function from ISR context.
       @note This function treats RTOS errors as fatal system errors, so can only return osOK.
@@ -144,7 +144,7 @@ public:
       Unlock the mutex that has previously been locked by the same thread
 
       @return status code that indicates the execution status of the function:
-              @a Status code like osOK indicates that the mutex has been released.
+              @a Status code such as osOK indicates that the mutex has been released.
 
       @note You cannot call this function from ISR context.
       @note This function treats RTOS errors as fatal system errors, so can only return osOK.
