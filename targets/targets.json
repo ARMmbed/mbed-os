@@ -3374,7 +3374,7 @@
     },
     "EFR32MG1_BRD4150": {
         "inherits": ["EFR32MG1P132F256GM48"],
-
+        "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LPTICKER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RESET_REASON", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES", "USTICKER", "WATCHDOG", "FLASH"],
         "forced_reset_timeout": 2,
         "config": {
             "hf_clock_src": {
@@ -3420,7 +3420,7 @@
     },
     "TB_SENSE_1": {
         "inherits": ["EFR32MG1P233F256GM48"],
-
+        "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LPTICKER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RESET_REASON", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES", "USTICKER", "WATCHDOG", "FLASH"],
         "forced_reset_timeout": 5,
         "config": {
             "hf_clock_src": {
@@ -3471,7 +3471,7 @@
     },
     "EFM32PG12_STK3402": {
         "inherits": ["EFM32PG12B500F1024GL125"],
-
+        "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LPTICKER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RESET_REASON", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES", "USTICKER", "TRNG", "WATCHDOG", "FLASH"],
         "forced_reset_timeout": 2,
         "config": {
             "hf_clock_src": {
@@ -3525,7 +3525,7 @@
     "TB_SENSE_12": {
         "inherits": ["EFR32MG12P332F1024GL125"],
         "device_name": "EFR32MG12P332F1024GL125",
-
+        "device_has": ["ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "LPTICKER", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "RESET_REASON", "RTC", "SERIAL", "SERIAL_ASYNCH", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "STDIO_MESSAGES", "USTICKER", "TRNG", "WATCHDOG", "FLASH"],
         "forced_reset_timeout": 5,
         "config": {
             "hf_clock_src": {
@@ -4083,7 +4083,7 @@
         "inherits": ["Target"],
         "macros_add": ["LPTICKER_DELAY_TICKS=3"],
         "progen": {"target": "numaker-pfm-m453"},
-
+        "device_has": ["RTC", "ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "CAN", "FLASH", "RESET_REASON", "WATCHDOG"],
         "release_versions": ["2", "5"],
         "device_name": "M453VG6AE",
         "bootloader_supported": true
@@ -4118,7 +4118,8 @@
             }
         },
         "inherits": ["Target"],
-
+        "macros": ["CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\"","MBED_FAULT_HANDLER_DISABLED"],
+        "device_has": ["RTC", "ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "RESET_REASON", "WATCHDOG"],
         "release_versions": ["5"],
         "device_name": "NANO130KE3BN"
     },
@@ -4312,7 +4313,9 @@
             }
         },
         "inherits": ["Target"],
-
+        "macros_add": ["MBEDTLS_CONFIG_HW_SUPPORT"],
+        "device_has": ["RTC", "ANALOGIN", "I2C", "I2CSLAVE", "I2C_ASYNCH", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "STDIO_MESSAGES", "SLEEP", "SPI", "SPISLAVE", "SPI_ASYNCH", "TRNG", "FLASH", "CAN", "EMAC", "RESET_REASON", "WATCHDOG"],
+        "features": ["LWIP"],
         "release_versions": ["5"],
         "bootloader_supported": true,
         "overrides": {
