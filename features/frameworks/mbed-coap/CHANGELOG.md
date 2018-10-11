@@ -1,5 +1,12 @@
 # Change Log
 
+## [v4.7.0](https://github.com/ARMmbed/mbed-coap/releases/tag/v4.7.0) 
+
+- Add function that can be used to clear the received blockwise payloads for example in the case of a connection error.
+- Silence compiler warning when CoAP duplicate detection is enabled.
+
+-[Full Changelog](https://github.com/ARMmbed/mbed-coap/compare/v4.6.3...v4.7.0)
+
 ## [v4.6.3](https://github.com/ARMmbed/mbed-coap/releases/tag/v4.6.3) 
 
  - Bug fix: Remove timed out blockwise message from resend queue. If blockwise message was timed out message was still kept in the resend queue which causes unnecessary reconnections on client side.
