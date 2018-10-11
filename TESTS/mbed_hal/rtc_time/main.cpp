@@ -25,8 +25,6 @@
 
 using namespace utest::v1;
 
-static rtc_leap_year_support_t rtc_leap_year_support;
-
 /*  Regular is_leap_year, see platform/mbed_mktime.c for the optimised version. */
 bool is_leap_year(int year)
 {
@@ -53,6 +51,7 @@ bool is_leap_year(int year)
  * When _rtc_is_leap_year() function is called.
  * Then _rtc_is_leap_year() returns true if given year is a leap year; false otherwise.
  */
+template <rtc_leap_year_support_t rtc_leap_year_support>
 void test_is_leap_year()
 {
     for (int i = 70; i <= LAST_VALID_YEAR; ++i) {
@@ -91,6 +90,7 @@ typedef struct {
  * When _rtc_maketime() function is called to convert the calendar time into timestamp.
  * Then if given calendar time is valid function returns true and conversion result, otherwise returns false.
  */
+template <rtc_leap_year_support_t rtc_leap_year_support>
 void test_mk_time_boundary()
 {
     test_mk_time_struct *pTestCases;
@@ -169,33 +169,13 @@ void test_local_time_invalid_param()
     TEST_ASSERT_EQUAL(false, _rtc_localtime(1, NULL, RTC_4_YEAR_LEAP_YEAR_SUPPORT));
 }
 
-utest::v1::status_t teardown_handler_t(const Case *const source, const size_t passed, const size_t failed,
-                                       const failure_t reason)
-{
-    return greentea_case_teardown_handler(source, passed, failed, reason);
-}
-
-utest::v1::status_t full_leap_year_case_setup_handler_t(const Case *const source, const size_t index_of_case)
-{
-    rtc_leap_year_support = RTC_FULL_LEAP_YEAR_SUPPORT;
-
-    return greentea_case_setup_handler(source, index_of_case);
-}
-
-utest::v1::status_t partial_leap_year_case_setup_handler_t(const Case *const source, const size_t index_of_case)
-{
-    rtc_leap_year_support = RTC_4_YEAR_LEAP_YEAR_SUPPORT;
-
-    return greentea_case_setup_handler(source, index_of_case);
-}
-
 Case cases[] = {
-    Case("test is leap year - RTC leap years full support", full_leap_year_case_setup_handler_t, test_is_leap_year, teardown_handler_t),
-    Case("test is leap year - RTC leap years partial support", partial_leap_year_case_setup_handler_t, test_is_leap_year, teardown_handler_t),
-    Case("test make time boundary values - RTC leap years full support", full_leap_year_case_setup_handler_t, test_mk_time_boundary, teardown_handler_t),
-    Case("test make time boundary values - RTC leap years partial support", partial_leap_year_case_setup_handler_t, test_mk_time_boundary, teardown_handler_t),
-    Case("test make time - invalid param", test_mk_time_invalid_param, teardown_handler_t),
-    Case("test local time - invalid param", test_local_time_invalid_param, teardown_handler_t),
+    Case("test is leap year - RTC leap years full support", test_is_leap_year<RTC_FULL_LEAP_YEAR_SUPPORT>),
+    Case("test is leap year - RTC leap years partial support", test_is_leap_year<RTC_4_YEAR_LEAP_YEAR_SUPPORT>),
+    Case("test make time boundary values - RTC leap years full support", test_mk_time_boundary<RTC_FULL_LEAP_YEAR_SUPPORT>),
+    Case("test make time boundary values - RTC leap years partial support", test_mk_time_boundary<RTC_4_YEAR_LEAP_YEAR_SUPPORT>),
+    Case("test make time - invalid param", test_mk_time_invalid_param),
+    Case("test local time - invalid param", test_local_time_invalid_param),
 };
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)
