@@ -4050,7 +4050,7 @@
         "device_name": "nRF52840_xxAA",
         "detect_code": ["0465"],
         "features_remove": ["CRYPTOCELL310"],
-		"macros_remove":  ["MBEDTLS_CONFIG_HW_SUPPORT"],
+        "macros_remove":  ["MBEDTLS_CONFIG_HW_SUPPORT"],
         "overrides": {
             "lf_clock_src": "NRF_LF_SRC_RC"
         }
