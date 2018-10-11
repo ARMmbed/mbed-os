@@ -30,9 +30,6 @@ from os.path import join, abspath, dirname
 # GCC ARM
 #GCC_ARM_PATH = ""
 
-# GCC CodeRed
-#GCC_CR_PATH = "C:/code_red/RedSuite_4.2.0_349/redsuite/Tools/bin"
-
 # IAR
 #IAR_PATH = "C:/Program Files (x86)/IAR Systems/Embedded Workbench 7.0/arm"
 
