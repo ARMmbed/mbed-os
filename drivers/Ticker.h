@@ -155,6 +155,7 @@ public:
      */
     void detach();
 
+#if !defined(DOXYGEN_ONLY)
 protected:
     void setup(us_timestamp_t t);
     virtual void handler();
@@ -163,6 +164,7 @@ protected:
     us_timestamp_t         _delay;  /**< Time delay (in microseconds) for re-setting the multi-shot callback. */
     Callback<void()>    _function;  /**< Callback. */
     bool          _lock_deepsleep;  /**< Flag which indicates if deep-sleep should be disabled. */
+#endif
 };
 
 } // namespace mbed
