@@ -79,31 +79,6 @@ typedef struct {
     bool result;
 } test_mk_time_struct;
 
-/* Array which contains data to test boundary values for the RTC devices which handles correctly leap years in
- * whole range (1970 - 2106).
- * Expected range: the 1st of January 1970 at 00:00:00 (seconds: 0) to the 7th of February 2106 at 06:28:15 (seconds: UINT_MAX).
- */
-test_mk_time_struct test_mk_time_arr_full[] = {
-    {{ 0, 0, 0, 1, 0, 70, 0, 0, 0 }, (time_t) 0, true},               // valid lower bound - the 1st of January 1970 at 00:00:00
-    {{ 59, 59, 23, 31, 11, 59, 0, 0, 0 }, (time_t) 0, false },        // invalid lower bound - the 31st of December 1969 at 23:59:59
-
-    {{ 15, 28, 6, 7, 1, 206, 0, 0, 0 }, (time_t)(UINT_MAX), true },   // valid upper bound - the 7th of February 2106 at 06:28:15
-    {{ 16, 28, 6, 7, 1, 206, 0, 0, 0 }, (time_t) 0, false },          // invalid upper bound - the 7th of February 2106 at 06:28:16
-};
-
-/* Array which contains data to test boundary values for the RTC devices which does not handle correctly leap years in
- * whole range (1970 - 2106). On this platforms we will be one day off after 28.02.2100 since 2100 year will be
- * incorrectly treated as a leap year.
- * Expected range: the 1st of January 1970 at 00:00:00 (seconds: 0) to the 6th of February 2106 at 06:28:15 (seconds: UINT_MAX).
- */
-test_mk_time_struct test_mk_time_arr_partial[] = {
-    {{ 0, 0, 0, 1, 0, 70, 0, 0, 0 }, (time_t) 0, true},               // valid lower bound - the 1st of January 1970 at 00:00:00
-    {{ 59, 59, 23, 31, 11, 59, 0, 0, 0 }, (time_t) 0, false },        // invalid lower bound - the 31st of December 1969 at 23:59:59
-
-    {{ 15, 28, 6, 6, 1, 206, 0, 0, 0 }, (time_t)(UINT_MAX), true },   // valid upper bound - the 6th of February 2106 at 06:28:15
-    {{ 16, 28, 6, 6, 1, 206, 0, 0, 0 }, (time_t) 0, false },          // invalid upper bound - the 6th of February 2106 at 06:28:16
-};
-
 /* Test boundary values for _rtc_maketime().
  *
  * Note: This test case is designed for both types of RTC devices:
@@ -119,6 +94,31 @@ test_mk_time_struct test_mk_time_arr_partial[] = {
 void test_mk_time_boundary()
 {
     test_mk_time_struct *pTestCases;
+
+    /* Array which contains data to test boundary values for the RTC devices which handles correctly leap years in
+     * whole range (1970 - 2106).
+     * Expected range: the 1st of January 1970 at 00:00:00 (seconds: 0) to the 7th of February 2106 at 06:28:15 (seconds: UINT_MAX).
+     */
+    test_mk_time_struct test_mk_time_arr_full[] = {
+        {{ 0, 0, 0, 1, 0, 70, 0, 0, 0 }, (time_t) 0, true},               // valid lower bound - the 1st of January 1970 at 00:00:00
+        {{ 59, 59, 23, 31, 11, 59, 0, 0, 0 }, (time_t) 0, false },        // invalid lower bound - the 31st of December 1969 at 23:59:59
+
+        {{ 15, 28, 6, 7, 1, 206, 0, 0, 0 }, (time_t)(UINT_MAX), true },   // valid upper bound - the 7th of February 2106 at 06:28:15
+        {{ 16, 28, 6, 7, 1, 206, 0, 0, 0 }, (time_t) 0, false },          // invalid upper bound - the 7th of February 2106 at 06:28:16
+    };
+
+    /* Array which contains data to test boundary values for the RTC devices which does not handle correctly leap years in
+     * whole range (1970 - 2106). On this platforms we will be one day off after 28.02.2100 since 2100 year will be
+     * incorrectly treated as a leap year.
+     * Expected range: the 1st of January 1970 at 00:00:00 (seconds: 0) to the 6th of February 2106 at 06:28:15 (seconds: UINT_MAX).
+     */
+    test_mk_time_struct test_mk_time_arr_partial[] = {
+        {{ 0, 0, 0, 1, 0, 70, 0, 0, 0 }, (time_t) 0, true},               // valid lower bound - the 1st of January 1970 at 00:00:00
+        {{ 59, 59, 23, 31, 11, 59, 0, 0, 0 }, (time_t) 0, false },        // invalid lower bound - the 31st of December 1969 at 23:59:59
+
+        {{ 15, 28, 6, 6, 1, 206, 0, 0, 0 }, (time_t)(UINT_MAX), true },   // valid upper bound - the 6th of February 2106 at 06:28:15
+        {{ 16, 28, 6, 6, 1, 206, 0, 0, 0 }, (time_t) 0, false },          // invalid upper bound - the 6th of February 2106 at 06:28:16
+    };
 
     /* Select array with test cases. */
     if (rtc_leap_year_support == RTC_FULL_LEAP_YEAR_SUPPORT) {
