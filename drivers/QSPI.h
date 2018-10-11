@@ -89,6 +89,9 @@ public:
      *
      */
     QSPI(PinName io0, PinName io1, PinName io2, PinName io3, PinName sclk, PinName ssel = NC, int mode = 0);
+    virtual ~QSPI()
+    {
+    }
 
     /** Configure the data transmission format
      *
@@ -179,6 +182,7 @@ public:
      */
     qspi_status_t command_transfer(int instruction, int address, const char *tx_buffer, size_t tx_length, const char *rx_buffer, size_t rx_length);
 
+#if !defined(DOXYGEN_ONLY)
 protected:
     /** Acquire exclusive access to this SPI bus
      */
@@ -188,12 +192,6 @@ protected:
      */
     virtual void unlock(void);
 
-public:
-    virtual ~QSPI()
-    {
-    }
-
-protected:
     qspi_t _qspi;
 
     bool acquire(void);
@@ -223,6 +221,7 @@ private:
      * This function builds the qspi command struct to be send to Hal
      */
     inline void _build_qspi_command(int instruction, int address, int alt);
+#endif
 };
 
 } // namespace mbed
