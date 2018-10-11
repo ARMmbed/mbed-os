@@ -29,6 +29,8 @@ void wifi_connect_secure(void)
 {
     WiFiInterface *wifi = get_interface();
 
+    wifi->set_channel(MBED_CONF_APP_WIFI_CH_SECURE); 
+
     TEST_ASSERT_EQUAL_INT(NSAPI_ERROR_OK, wifi->set_credentials(MBED_CONF_APP_WIFI_SECURE_SSID, MBED_CONF_APP_WIFI_PASSWORD, get_security()));
 
     TEST_ASSERT_EQUAL_INT(NSAPI_ERROR_OK, wifi->connect());
