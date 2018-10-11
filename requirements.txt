@@ -1,4 +1,4 @@
-colorama>=0.3.3
+colorama==0.3.9
 PySerial>=2.7
 PrettyTable>=0.7.2
 Jinja2>=2.7.3
