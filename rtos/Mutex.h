@@ -54,7 +54,7 @@ typedef mbed::ScopedLock<Mutex> ScopedMutexLock;
  */
  
 /** The Mutex class is used to synchronize the execution of threads.
- This is for example used to protect access to a shared resource.
+ This is, for example, used to protect access to a shared resource.
 
  @note You cannot use member functions of this class in ISR context. If you require Mutex functionality within
  ISR handler, consider using @a Semaphore.
@@ -82,7 +82,7 @@ public:
       Wait until a Mutex becomes available.
 
       @return  status code that indicates the execution status of the function:
-               @a osOK the mutex has been obtained.
+               @a Status code like osOK indicates that the mutex has been obtained.
 
       @note You cannot call this function from ISR context.
       @note This function treats RTOS errors as fatal system errors, so can only return osOK.
@@ -91,10 +91,10 @@ public:
     osStatus lock(void);
 
     /**
-      For backwards compatibility.
+      Wait until a Mutex becomes available.
+      
       @deprecated Do not use this function. This function has been replaced with lock(), trylock() and trylock_for() functions.
 
-      Wait until a Mutex becomes available.
       @param   millisec  timeout value or 0 in case of no time-out.
       @return  status code that indicates the execution status of the function:
                @a osOK the mutex has been obtained.
@@ -144,7 +144,7 @@ public:
       Unlock the mutex that has previously been locked by the same thread
 
       @return status code that indicates the execution status of the function:
-              @a osOK the mutex has been released.
+              @a Status code like osOK indicates that the mutex has been released.
 
       @note You cannot call this function from ISR context.
       @note This function treats RTOS errors as fatal system errors, so can only return osOK.
