@@ -72,7 +72,7 @@ void Timer::stop()
     core_util_critical_section_exit();
 }
 
-int Timer::read_us()
+us_timestamp_t Timer::read_us()
 {
     return read_high_resolution_us();
 }
