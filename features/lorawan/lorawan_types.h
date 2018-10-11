@@ -52,6 +52,7 @@
 #define MSG_PROPRIETARY_FLAG                  0x08
 
 #define LORAWAN_VERSION_1_0_2                 0
+#define LORAWAN_VERSION_1_0_3                 1
 #define LORAWAN_VERSION_1_1                   10
 
 /**
