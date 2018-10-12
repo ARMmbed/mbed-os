@@ -73,7 +73,7 @@ public:
      *
      *  @param pin InterruptIn pin to connect to
      *  @param mode Desired Pin mode configuration.
-     *  (Valid values could be PullNone/PullDown/PullUp/PullDefault
+     *  (Valid values could be PullNone, PullDown, PullUp and PullDefault.
      *  See PinNames.h for your target for definitions)
      *
      */
@@ -151,7 +151,7 @@ public:
      */
     void mode(PinMode pull);
 
-    /** Enable IRQ. This method depends on hw implementation, might enable one
+    /** Enable IRQ. This method depends on hardware implementation, might enable one
      *  port interrupts. For further information, check gpio_irq_enable().
      */
     void enable_irq();
