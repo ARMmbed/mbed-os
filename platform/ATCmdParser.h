@@ -83,7 +83,7 @@ public:
      * Constructor
      *
      * @param fh A FileHandle to the digital interface, used for AT commands
-     * @param output_delimiter End of command line termination
+     * @param output_delimiter End of command-line termination
      * @param buffer_size Size of internal buffer for transaction
      * @param timeout Timeout of the connection
      * @param debug Turns on/off debug output for AT commands
@@ -114,7 +114,7 @@ public:
     /**
      * Allows timeout to be changed between commands
      *
-     * @param timeout ATCmdParser API's (read/write/send/recv ..etc) throw an
+     * @param timeout ATCmdParser APIs (read/write/send/recv ..etc) throw an
      *                error if no response is received in `timeout` duration
      */
     void set_timeout(int timeout)
@@ -123,13 +123,13 @@ public:
     }
 
     /**
-     * For backwards compatibility.
+     * For backward compatibility.
      * @deprecated Do not use this function. This function has been replaced with set_timeout for consistency.
      *
      * Please use set_timeout(int) API only from now on.
      * Allows timeout to be changed between commands
      *
-     * @param timeout ATCmdParser API's (read/write/send/recv ..etc) throw an
+     * @param timeout ATCmdParser APIs (read/write/send/recv ..etc) throw an
      *                error if no response is received in `timeout` duration
      *
      */
@@ -176,7 +176,7 @@ public:
     }
 
     /**
-     * For backwards compatibility.
+     * For backward compatibility.
      * @deprecated Do not use this function. This function has been replaced with debug_on for consistency.
      *
      * Allows traces from modem to be turned on or off
@@ -296,7 +296,7 @@ public:
     /**
      * Abort current recv
      *
-     * Can be called from oob handler to interrupt the current
+     * Can be called from out-of-band handler to interrupt the current
      * recv operation.
      */
     void abort();
@@ -307,7 +307,7 @@ public:
     * Process out-of-band data in the receive buffer. This function
     * returns immediately if there is no data to process.
     *
-    * @return true if oob data processed, false otherwise
+    * @return true if out-of-band data processed, false otherwise
     */
     bool process_oob(void);
 };
