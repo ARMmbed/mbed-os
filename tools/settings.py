@@ -36,9 +36,6 @@ ARMC6_PATH = ""
 # GCC ARM
 GCC_ARM_PATH = ""
 
-# GCC CodeRed
-GCC_CR_PATH = ""
-
 # IAR
 IAR_PATH = ""
 
@@ -83,8 +80,7 @@ except ImportError:
 ##############################################################################
 # User Settings (env vars)
 ##############################################################################
-_ENV_PATHS = ['ARM_PATH', 'GCC_ARM_PATH', 'GCC_CR_PATH', 'IAR_PATH',
-              'ARMC6_PATH']
+_ENV_PATHS = ['ARM_PATH', 'GCC_ARM_PATH', 'IAR_PATH', 'ARMC6_PATH']
 
 for _n in _ENV_PATHS:
     if getenv('MBED_'+_n):
