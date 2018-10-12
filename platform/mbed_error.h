@@ -90,7 +90,7 @@ extern "C" {
  *   System Error Status-es - 0x80XX0100 to 0x80XX0FFF - This corresponds to System error codes range(all values are negative). Bits 23-16 will be module type(marked with XX)\n
  *   Custom Error Status-es - 0xA0XX1000 to 0xA0XXFFFF - This corresponds to Custom error codes range(all values are negative). Bits 23-16 will be module type(marked with XX)\n\n
  *
- * The ERROR CODE(values encoded into ERROR CODE bit-field in mbed_error_status_t) value range for each error type is also seperated as below:\n
+ * The ERROR CODE(values encoded into ERROR CODE bit-field in mbed_error_status_t) value range for each error type is also separated as below:\n
  *   Posix Error Codes  - 1 to 255.\n
  *   System Error Codes - 256 to 4095.\n
  *   Custom Error Codes - 4096 to 65535.\n
@@ -231,31 +231,32 @@ typedef enum _mbed_error_type_t {
  * @note
  *  \n Below are the module code mappings:\n
     \verbatim
-    MBED_MODULE_APPLICATION              0       Application
-    MBED_MODULE_PLATFORM                 1       Platform
-    MODULE_KERNEL                   2       RTX Kernel
-    MBED_MODULE_NETWORK_STACK            3       Network stack
-    MBED_MODULE_HAL                      4       HAL - Hardware Abstraction Layer
-    MBED_MODULE_NETWORK_STACKMODULE_MEMORY_SUBSYSTEM         5       Memory Subsystem
-    MBED_MODULE_FILESYSTEM               6       Filesystem
-    MBED_MODULE_BLOCK_DEVICE             7       Block device
-    MBED_MODULE_DRIVER                   8       Driver
-    MBED_MODULE_DRIVER_SERIAL            9       Serial Driver
-    MBED_MODULE_DRIVER_RTC               10      RTC Driver
-    MBED_MODULE_DRIVER_I2C               11      I2C Driver
-    MODULE_DRIVER_SPI               12      SPI Driver
-    MODULE_DRIVER_GPIO              13      GPIO Driver
-    MODULE_DRIVER_ANALOG            14      Analog Driver
-    MODULE_DRIVER_DIGITAL           15      DigitalIO Driver
-    MODULE_DRIVER_CAN               16      CAN Driver
-    MODULE_DRIVER_ETHERNET          17      Ethernet Driver
-    MODULE_DRIVER_CRC               18      CRC Module
-    MODULE_DRIVER_PWM               19      PWM Driver
-    MODULE_DRIVER_QSPI              20      QSPI Driver
-    MODULE_DRIVER_USB               21      USB Driver
-    MODULE_TARGET_SDK               22      SDK
+    MBED_MODULE_APPLICATION                     0       Application
+    MBED_MODULE_PLATFORM                        1       Platform
+    MBED_MODULE_KERNEL                          2       RTX Kernel
+    MBED_MODULE_NETWORK_STACK                   3       Network stack
+    MBED_MODULE_HAL                             4       HAL - Hardware Abstraction Layer
+    MBED_MODULE_MEMORY_SUBSYSTEM                5       Memory Subsystem
+    MBED_MODULE_FILESYSTEM                      6       Filesystem
+    MBED_MODULE_BLOCK_DEVICE                    7       Block device
+    MBED_MODULE_DRIVER                          8       Driver
+    MBED_MODULE_DRIVER_SERIAL                   9       Serial Driver
+    MBED_MODULE_DRIVER_RTC                      10      RTC Driver
+    MBED_MODULE_DRIVER_I2C                      11      I2C Driver
+    MBED_MODULE_DRIVER_SPI                      12      SPI Driver
+    MBED_MODULE_DRIVER_GPIO                     13      GPIO Driver
+    MBED_MODULE_DRIVER_ANALOG                   14      Analog Driver
+    MBED_MODULE_DRIVER_DIGITAL                  15      DigitalIO Driver
+    MBED_MODULE_DRIVER_CAN                      16      CAN Driver
+    MBED_MODULE_DRIVER_ETHERNET                 17      Ethernet Driver
+    MBED_MODULE_DRIVER_CRC                      18      CRC Module
+    MBED_MODULE_DRIVER_PWM                      19      PWM Driver
+    MBED_MODULE_DRIVER_QSPI                     20      QSPI Driver
+    MBED_MODULE_DRIVER_USB                      21      USB Driver
+    MBED_MODULE_TARGET_SDK                      22      SDK
+    MBED_MODULE_BLE                             23      BLE
 
-    MBED_MODULE_UNKNOWN                  255     Unknown module
+    MBED_MODULE_UNKNOWN                         255     Unknown module
     \endverbatim
  *
  */
@@ -265,7 +266,7 @@ typedef enum _mbed_module_type {
     MBED_MODULE_KERNEL,
     MBED_MODULE_NETWORK_STACK,
     MBED_MODULE_HAL,
-    MBED_MODULE_NETWORK_STACKMODULE_MEMORY_SUBSYSTEM,
+    MBED_MODULE_MEMORY_SUBSYSTEM,
     MBED_MODULE_FILESYSTEM,
     MBED_MODULE_BLOCK_DEVICE,
     MBED_MODULE_DRIVER,
@@ -290,7 +291,7 @@ typedef enum _mbed_module_type {
     MBED_MODULE_MAX = MBED_MODULE_UNKNOWN
 } mbed_module_type_t;
 
-//Use MBED_SUCCESS(=0) or any postive number for successful returns
+//Use MBED_SUCCESS(=0) or any positive number for successful returns
 #define MBED_SUCCESS           0
 
 #define MBED_POSIX_ERROR_BASE   0
@@ -469,7 +470,7 @@ typedef enum _mbed_module_type {
     INVALID_DATA               258      Invalid data
     INVALID_FORMAT             259      Invalid format
     INVALID_INDEX              260      Invalid Index
-    INVALID_SIZE               261      Inavlid Size
+    INVALID_SIZE               261      Invalid Size
     INVALID_OPERATION          262      Invalid Operation
     NOT_FOUND                  263      Not Found
     ACCESS_DENIED              264      Access Denied
@@ -484,9 +485,9 @@ typedef enum _mbed_module_type {
     OPERATION_ABORTED          273      Operation failed
     WRITE_PROTECTED            274      Attempt to write to write-protected resource
     NO_RESPONSE                275      No response
-    SEMAPHORE_LOCK_FAILED      276      Sempahore lock failed
+    SEMAPHORE_LOCK_FAILED      276      Semaphore lock failed
     MUTEX_LOCK_FAILED          277      Mutex lock failed
-    SEMAPHORE_UNLOCK_FAILED    278      Sempahore unlock failed
+    SEMAPHORE_UNLOCK_FAILED    278      Semaphore unlock failed
     MUTEX_UNLOCK_FAILED        279      Mutex unlock failed
     CRC_ERROR                  280      CRC error or mismatch
     OPEN_FAILED                281      Open failed
@@ -524,11 +525,14 @@ typedef enum _mbed_module_type {
     DEVICE_BUSY                313      Device Busy
     CONFIG_UNSUPPORTED         314      Configuration not supported
     CONFIG_MISMATCH            315      Configuration mismatch
-    ALREADY_INITIALIZED        316      Already initialzied
+    ALREADY_INITIALIZED        316      Already initialized
     HARDFAULT_EXCEPTION        317      HardFault exception
     MEMMANAGE_EXCEPTION        318      MemManage exception
     BUSFAULT_EXCEPTION         319      BusFault exception
     USAGEFAULT_EXCEPTION       320      UsageFault exception
+    BLE_NO_FRAME_INITIALIZED,  321      BLE No frame initialized
+    BLE_BACKEND_CREATION_FAILED 322     BLE Backend creation failed
+    BLE_BACKEND_NOT_INITIALIZED 323     BLE Backend not initialized
     \endverbatim
  *
  *  @note
@@ -561,13 +565,12 @@ typedef enum _mbed_module_type {
  *
  *  \verbatim
     ++ MbedOS Error Info ++
-    Error Status: 0x80040103
-    Error Code: 259
-    Error Module: 04
-    Error Message: HAL Module error
-    Error Location: 0x000067C7
-    Error Value: 0x00005566
-    Current Thread: Id: 0x200024A8 EntryFn: 0x0000FB0D StackSize: 0x00001000 StackMem: 0x200014A8 SP: 0x2002FFD8
+    Error Status: 0x80FF013D Code: 317 Module: 255
+    Error Message: Fault exception
+    Location: 0x5CD1
+    Error Value: 0x4A2A
+    Current Thread: Id: 0x20001E80 Entry: 0x5EB1 StackSize: 0x1000 StackMem: 0x20000E80 SP: 0x2002FF90
+    For more info, visit: https://mbed.com/s/error?error=0x80FF013D&mbedos=999999&core=0x410FC241&compile=1&ver=5060528
     -- MbedOS Error Info --
     \endverbatim
  */
@@ -717,7 +720,7 @@ typedef enum _mbed_error_code {
     MBED_DEFINE_SYSTEM_ERROR(INVALID_DATA_DETECTED, 2),                 /* 258      Invalid data detected */
     MBED_DEFINE_SYSTEM_ERROR(INVALID_FORMAT, 3),                        /* 259      Invalid format */
     MBED_DEFINE_SYSTEM_ERROR(INVALID_INDEX, 4),                         /* 260      Invalid Index */
-    MBED_DEFINE_SYSTEM_ERROR(INVALID_SIZE, 5),                          /* 261      Inavlid Size */
+    MBED_DEFINE_SYSTEM_ERROR(INVALID_SIZE, 5),                          /* 261      Invalid Size */
     MBED_DEFINE_SYSTEM_ERROR(INVALID_OPERATION, 6),                     /* 262      Invalid Operation */
     MBED_DEFINE_SYSTEM_ERROR(ITEM_NOT_FOUND, 7),                        /* 263      Item Not Found */
     MBED_DEFINE_SYSTEM_ERROR(ACCESS_DENIED, 8),                         /* 264      Access Denied */
@@ -732,9 +735,9 @@ typedef enum _mbed_error_code {
     MBED_DEFINE_SYSTEM_ERROR(OPERATION_ABORTED, 17),                    /* 273      Operation failed */
     MBED_DEFINE_SYSTEM_ERROR(WRITE_PROTECTED, 18),                      /* 274      Attempt to write to write-protected resource */
     MBED_DEFINE_SYSTEM_ERROR(NO_RESPONSE, 19),                          /* 275      No response */
-    MBED_DEFINE_SYSTEM_ERROR(SEMAPHORE_LOCK_FAILED, 20),                /* 276      Sempahore lock failed */
+    MBED_DEFINE_SYSTEM_ERROR(SEMAPHORE_LOCK_FAILED, 20),                /* 276      Semaphore lock failed */
     MBED_DEFINE_SYSTEM_ERROR(MUTEX_LOCK_FAILED, 21),                    /* 277      Mutex lock failed */
-    MBED_DEFINE_SYSTEM_ERROR(SEMAPHORE_UNLOCK_FAILED, 22),              /* 278      Sempahore unlock failed */
+    MBED_DEFINE_SYSTEM_ERROR(SEMAPHORE_UNLOCK_FAILED, 22),              /* 278      Semaphore unlock failed */
     MBED_DEFINE_SYSTEM_ERROR(MUTEX_UNLOCK_FAILED, 23),                  /* 279      Mutex unlock failed */
     MBED_DEFINE_SYSTEM_ERROR(CRC_ERROR, 24),                            /* 280      CRC error or mismatch */
     MBED_DEFINE_SYSTEM_ERROR(OPEN_FAILED, 25),                          /* 281      Open failed */
@@ -772,7 +775,7 @@ typedef enum _mbed_error_code {
     MBED_DEFINE_SYSTEM_ERROR(DEVICE_BUSY, 57),                          /* 313      Device Busy */
     MBED_DEFINE_SYSTEM_ERROR(CONFIG_UNSUPPORTED, 58),                   /* 314      Configuration not supported */
     MBED_DEFINE_SYSTEM_ERROR(CONFIG_MISMATCH, 59),                      /* 315      Configuration mismatch */
-    MBED_DEFINE_SYSTEM_ERROR(ALREADY_INITIALIZED, 60),                  /* 316      Already initialzied */
+    MBED_DEFINE_SYSTEM_ERROR(ALREADY_INITIALIZED, 60),                  /* 316      Already initialized */
     MBED_DEFINE_SYSTEM_ERROR(HARDFAULT_EXCEPTION, 61),                  /* 317      HardFault exception */
     MBED_DEFINE_SYSTEM_ERROR(MEMMANAGE_EXCEPTION, 62),                  /* 318      MemManage exception */
     MBED_DEFINE_SYSTEM_ERROR(BUSFAULT_EXCEPTION, 63),                   /* 319      BusFault exception */
@@ -919,7 +922,6 @@ void error(const char *format, ...);
  * Callback/Error hook function prototype. Applications needing a callback when an error is reported can use mbed_set_error_hook function
  * to register a callback/error hook function using the following prototype. When an error happens in the system error handling
  * implementation will invoke this callback with the mbed_error_status_t reported and the error context at the time of error.
- * @param  error_status     mbed_error_status_t status being reported.
  * @param  error_ctx        Error context structure associated with this error.
  * @return                  void
  *
