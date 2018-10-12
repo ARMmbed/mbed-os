@@ -193,6 +193,7 @@ protected:
     bool _deep_sleep_locked;
 #endif
 
+#if !defined(DOXYGEN_ONLY)
 protected:
     void aquire();
 
@@ -202,6 +203,7 @@ protected:
     static SingletonPtr<PlatformMutex> _mutex;
     PinName _sda;
     PinName _scl;
+#endif
 
 private:
     /** Recover I2C bus, when stuck with SDA low
