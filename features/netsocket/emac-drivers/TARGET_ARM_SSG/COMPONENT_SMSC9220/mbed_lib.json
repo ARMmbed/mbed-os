@@ -1,0 +1,7 @@
+{
+    "name": "smsc9220-emac",
+    "config": {
+        "rx-ring-len": 1,
+        "tx-ring-len": 1
+    }
+}
