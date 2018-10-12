@@ -99,6 +99,7 @@ public:
         return SerialBase::writeable();
     }
 
+#if !(DOXYGEN_ONLY)
 protected:
     virtual int _getc();
     virtual int _putc(int c);
@@ -106,6 +107,7 @@ protected:
     virtual void unlock();
 
     PlatformMutex _mutex;
+#endif
 };
 
 } // namespace mbed
