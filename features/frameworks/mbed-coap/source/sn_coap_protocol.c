@@ -1561,9 +1561,11 @@ static uint32_t sn_coap_protocol_linked_list_blockwise_payloads_get_len(struct c
 static void sn_coap_protocol_handle_blockwise_timout(struct coap_s *handle)
 {
     /* Loop all outgoing blockwise messages */
+    /* foreach_safe isn't sufficient because callback routine could remove messages. */
+rescan:
     ns_list_foreach_safe(coap_blockwise_msg_s, removed_blocwise_msg_ptr, &handle->linked_list_blockwise_sent_msgs) {
         if ((handle->system_time - removed_blocwise_msg_ptr->timestamp)  > SN_COAP_BLOCKWISE_MAX_TIME_DATA_STORED) {
-
+            bool callback_called = false;
             // Item must be removed from the list before calling the rx_callback function.
             // Callback could actually clear the list and free the item and cause a use after free when callback returns.
             ns_list_remove(&handle->linked_list_blockwise_sent_msgs, removed_blocwise_msg_ptr);
@@ -1576,6 +1578,7 @@ static void sn_coap_protocol_handle_blockwise_timout(struct coap_s *handle)
                     removed_blocwise_msg_ptr->coap_msg_ptr->msg_id = removed_blocwise_msg_ptr->msg_id;
                     sn_coap_protocol_delete_retransmission(handle, removed_blocwise_msg_ptr->msg_id);
                     handle->sn_coap_rx_callback(removed_blocwise_msg_ptr->coap_msg_ptr, NULL, removed_blocwise_msg_ptr->param);
+                    callback_called = true;
                 }
 
                 handle->sn_coap_protocol_free(removed_blocwise_msg_ptr->coap_msg_ptr->payload_ptr);
@@ -1583,6 +1586,12 @@ static void sn_coap_protocol_handle_blockwise_timout(struct coap_s *handle)
             }
 
             handle->sn_coap_protocol_free(removed_blocwise_msg_ptr);
+
+            if (callback_called) {
+                /* Callback routine could have wiped the list already */
+                /* Be super cautious and rescan from the start */
+                goto rescan;
+            }
         }
     }
 
