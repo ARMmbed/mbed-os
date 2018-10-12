@@ -33,9 +33,9 @@ extern "C" {
  */    
 enum {
     MBED_MEM_TRACE_MALLOC,          /**< Identifier for malloc operation */
-    MBED_MEM_TRACE_REALLOC,         /**< Identifier for realloc  operation */
-    MBED_MEM_TRACE_CALLOC,          /**< Identifier for calloc  operation */
-    MBED_MEM_TRACE_FREE             /**< Identifier for free  operation */
+    MBED_MEM_TRACE_REALLOC,         /**< Identifier for realloc operation */
+    MBED_MEM_TRACE_CALLOC,          /**< Identifier for calloc operation */
+    MBED_MEM_TRACE_FREE             /**< Identifier for free operation */
 };
 
 /**
