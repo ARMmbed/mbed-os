@@ -36,8 +36,7 @@ SPDX-License-Identifier: BSD-3-Clause
 #define CHANNELS_IN_MASK  16
 
 LoRaPHY::LoRaPHY()
-    : _radio(NULL),
-      _lora_time(NULL)
+    : _radio(NULL)
 {
     memset(&phy_params, 0, sizeof(phy_params));
 }
@@ -807,11 +806,6 @@ void LoRaPHY::compute_rx_win_params(int8_t datarate, uint8_t min_rx_symbols,
                                              ((uint32_t *)phy_params.bandwidths.table)[rx_conf_params->datarate]);
     }
 
-    if (rx_conf_params->rx_slot == RX_SLOT_WIN_1) {
-        rx_conf_params->frequency = phy_params.channels.channel_list[rx_conf_params->channel].frequency;
-    }
-
-
     get_rx_window_params(t_symbol, min_rx_symbols, rx_error, RADIO_WAKEUP_TIME,
                          &rx_conf_params->window_timeout, &rx_conf_params->window_offset);
 }
@@ -994,7 +988,7 @@ uint8_t LoRaPHY::link_ADR_request(adr_req_params_t *link_adr_req,
         verify_params.adr_enabled = link_adr_req->adr_enabled;
         verify_params.current_datarate = link_adr_req->current_datarate;
         verify_params.current_tx_power = link_adr_req->current_tx_power;
-        verify_params.current_nb_rep = link_adr_req->current_nb_trans;
+        verify_params.current_nb_rep = link_adr_req->current_nb_rep;
 
         verify_params.datarate = adr_settings.datarate;
         verify_params.tx_power = adr_settings.tx_power;
