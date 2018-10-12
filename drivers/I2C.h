@@ -44,8 +44,8 @@ namespace mbed {
  * Read temperature from LM75BD
  * #include "mbed.h"
  * I2C i2c(I2C_SDA , I2C_SCL);
- * const int addr7bit = 0x48;      // 7 bit I2C address
- * const int addr8bit = 0x48 << 1; // 8bit I2C address, 0x90
+ * const int addr7bit = 0x48;      // 7-bit I2C address
+ * const int addr8bit = 0x48 << 1; // 8-bit I2C address, 0x90
  *
  * int main() {
  *     char cmd[2];
@@ -53,7 +53,7 @@ namespace mbed {
  *         cmd[0] = 0x01;
  *         cmd[1] = 0x00;
  *
- *         // read and write takes the 8 bit version of the address.
+ *         // read and write takes the 8-bit version of the address.
  *         // set up configuration register (at 0x01)
  *         i2c.write(addr8bit, cmd, 2);
  *
@@ -112,7 +112,7 @@ public:
      *
      *  @returns
      *       0 on success (ack),
-     *       non-zero on failure (nack)
+     *       nonzero on failure (nack)
      */
     int read(int address, char *data, int length, bool repeated = false);
 
@@ -138,7 +138,7 @@ public:
      *
      *  @returns
      *       0 on success (ack),
-     *       non-zero on failure (nack)
+     *       nonzero on failure (nack)
      */
     int write(int address, const char *data, int length, bool repeated = false);
 
@@ -176,14 +176,14 @@ public:
 
 #if DEVICE_I2C_ASYNCH
 
-    /** Start non-blocking I2C transfer.
+    /** Start nonblocking I2C transfer.
      *
      * This function locks the deep sleep until any event has occurred
      *
      * @param address   8/10 bit I2C slave address
      * @param tx_buffer The TX buffer with data to be transfered
      * @param tx_length The length of TX buffer in bytes
-     * @param rx_buffer The RX buffer which is used for received data
+     * @param rx_buffer The RX buffer, which is used for received data
      * @param rx_length The length of RX buffer in bytes
      * @param event     The logical OR of events to modify
      * @param callback  The event callback function
@@ -194,7 +194,7 @@ public:
      */
     int transfer(int address, const char *tx_buffer, int tx_length, char *rx_buffer, int rx_length, const event_callback_t &callback, int event = I2C_EVENT_TRANSFER_COMPLETE, bool repeated = false);
 
-    /** Abort the on-going I2C transfer
+    /** Abort the ongoing I2C transfer
      */
     void abort_transfer();
 
