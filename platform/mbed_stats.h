@@ -108,7 +108,7 @@ void mbed_stats_cpu_get(mbed_stats_cpu_t *stats);
  * struct mbed_stats_thread_t definition
  */
 typedef struct {
-    uint32_t id;                /**< Id of the thread */
+    uint32_t id;                /**< ID of the thread */
     uint32_t state;             /**< State of the thread */
     uint32_t priority;          /**< Priority of the thread (higher number indicates higher priority) */
     uint32_t stack_size;        /**< Current number of bytes reserved for the stack */
@@ -142,7 +142,7 @@ typedef enum {
 typedef struct {
     uint32_t os_version;                /**< Mbed OS version (populated only for tagged releases) */
     uint32_t cpu_id;                    /**< CPUID register data (Cortex-M only supported) */
-    mbed_compiler_id_t compiler_id;     /**< Compiler id \ref mbed_compiler_id_t */
+    mbed_compiler_id_t compiler_id;     /**< Compiler ID \ref mbed_compiler_id_t */
     uint32_t compiler_version;          /**< Compiler version */
 } mbed_stats_sys_t;
 
