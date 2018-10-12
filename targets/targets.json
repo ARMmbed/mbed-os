@@ -4458,5 +4458,25 @@
         "device_name": "TMPM3H6FWFG",
         "detect_code": ["7012"],
         "release_versions": ["5"]
+    },
+    "GL486VG": {
+        "inherits": ["FAMILY_STM32"],
+        "core": "Cortex-M4F",
+        "extra_labels_add": ["STM32L4", "STM32L486VG", "STM32L486xG"],
+        "config": {
+            "clock_source": {
+                "help": "Mask value : USE_PLL_HSE_EXTC (need HW patch) | USE_PLL_HSE_XTAL (need HW patch) | USE_PLL_HSI | USE_PLL_MSI",
+                "value": "USE_PLL_MSI",
+                "macro_name": "CLOCK_SOURCE"
+            },
+            "lpticker_lptim": {
+                "help": "This target supports LPTIM. Set value 1 to use LPTIM for LPTICKER, or 0 to use RTC wakeup timer",
+                "value": 1
+            }
+        },
+        "macros_add": ["MBEDTLS_CONFIG_HW_SUPPORT", "TWO_RAM_REGIONS"],
+        "device_has_add": ["ANALOGIN", "ANALOGOUT", "CAN", "CRC", "PWMOUT", "SLEEP", "I2C","SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
+        "release_versions": ["0", "1"],
+        "device_name": "STM32L486VG"
     }
 }
