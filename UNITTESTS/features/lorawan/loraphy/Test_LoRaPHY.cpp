@@ -430,7 +430,7 @@ TEST_F(Test_LoRaPHY, link_ADR_request)
     //verify adr with p.adr_enabled = false
     EXPECT_TRUE(0 == object->link_ADR_request(&p, &i, &j, &k, &l));
 
-    p.current_nb_rep = 0;
+    p.current_nb_trans = 0;
     EXPECT_TRUE(0 == object->link_ADR_request(&p, &i, &j, &k, &l));
 
     p.adr_enabled = true;

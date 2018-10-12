@@ -26,6 +26,7 @@ int LoRaMac_stub::bool_false_counter = 0;
 int LoRaMac_stub::bool_true_counter = 0;
 bool LoRaMac_stub::bool_value = false;
 int LoRaMac_stub::int_value = 0;
+uint8_t LoRaMac_stub::uint8_value = 1;
 rx_slot_t LoRaMac_stub::slot_value = RX_SLOT_WIN_1;
 lorawan_status_t LoRaMac_stub::status_value = LORAWAN_STATUS_OK;
 loramac_mcps_confirm_t *LoRaMac_stub::mcps_conf_ptr = NULL;
@@ -33,9 +34,7 @@ loramac_mcps_indication_t *LoRaMac_stub::mcps_ind_ptr = NULL;
 loramac_mlme_confirm_t *LoRaMac_stub::mlme_conf_ptr = NULL;
 loramac_mlme_indication_t *LoRaMac_stub::mlme_ind_ptr = NULL;
 device_class_t LoRaMac_stub::dev_class_value = CLASS_A;
-mbed::Callback<void(void)> LoRaMac_stub::_ack_expiry_handler_for_class_c = NULL;
 mbed::Callback<void(void)> LoRaMac_stub::_scheduling_failure_handler = NULL;
-
 
 LoRaMac::LoRaMac()
     : _lora_time(),
@@ -334,9 +333,8 @@ device_class_t LoRaMac::get_device_class() const
 }
 
 void LoRaMac::set_device_class(const device_class_t &device_class,
-                               mbed::Callback<void(void)>ack_expiry_handler)
+                               mbed::Callback<void(void)>rx2_would_be_closure_handler)
 {
-    LoRaMac_stub::_ack_expiry_handler_for_class_c = ack_expiry_handler;
 }
 
 void LoRaMac::setup_link_check_request()
@@ -455,4 +453,14 @@ lorawan_status_t LoRaMac::multicast_channel_unlink(multicast_params_t *channel_p
 
 void LoRaMac::bind_phy(LoRaPHY &phy)
 {
+}
+
+uint8_t LoRaMac::get_QOS_level(void)
+{
+    return LoRaMac_stub::uint8_value;
+}
+
+uint8_t LoRaMac::get_prev_QOS_level(void)
+{
+    return LoRaMac_stub::uint8_value;
 }

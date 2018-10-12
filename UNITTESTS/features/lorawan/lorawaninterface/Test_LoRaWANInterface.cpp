@@ -201,7 +201,7 @@ TEST_F(Test_LoRaWANInterface, add_app_callbacks)
 
 TEST_F(Test_LoRaWANInterface, set_device_class)
 {
-    object->set_device_class(CLASS_A);
+    EXPECT_TRUE(LORAWAN_STATUS_OK == object->set_device_class(CLASS_A));
 }
 
 TEST_F(Test_LoRaWANInterface, get_tx_metadata)
