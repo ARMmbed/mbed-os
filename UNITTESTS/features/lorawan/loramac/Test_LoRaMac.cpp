@@ -558,3 +558,12 @@ TEST_F(Test_LoRaMac, get_current_slot)
     object->get_current_slot();
 }
 
+TEST_F(Test_LoRaMac, get_QOS_level)
+{
+    EXPECT_EQ(1, object->get_QOS_level());
+}
+
+TEST_F(Test_LoRaMac, get_prev_QOS_level)
+{
+    EXPECT_EQ(1, object->get_prev_QOS_level());
+}
