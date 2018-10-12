@@ -763,4 +763,14 @@ int serial_is_tx_ongoing(void) {
     return TxOngoing;
 }
 
+#else
+
+/*  Function to protect deep sleep while a seral Tx is ongoing on not complete
+ *  yet. Returns 1 if there is at least 1 serial instance with ongoing ransfer
+ *  0 otherwise.
+ */
+int serial_is_tx_ongoing(void) {
+    return 0;
+}
+
 #endif /* DEVICE_SERIAL */
