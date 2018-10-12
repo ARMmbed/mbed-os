@@ -66,7 +66,7 @@ public:
      *  @param baud The baud rate of the serial port (optional, defaults to MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE)
      *
      *  @note
-     *    Either tx or rx may be specified as NC if unused
+     *    Either tx or rx may be specified as NC (Not Connected) if unused
      */
     Serial(PinName tx, PinName rx, const char *name = NULL, int baud = MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE);
 
@@ -78,7 +78,7 @@ public:
      *  @param baud The baud rate of the serial port
      *
      *  @note
-     *    Either tx or rx may be specified as NC if unused
+     *    Either tx or rx may be specified as NC (Not Connected) if unused
      */
     Serial(PinName tx, PinName rx, int baud);
 
