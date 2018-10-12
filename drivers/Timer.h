@@ -30,7 +30,7 @@ namespace mbed {
  *
  * Example:
  * @code
- * // Count the time to toggle a LED
+ * // Count the time to toggle an LED
  *
  * #include "mbed.h"
  *
@@ -75,15 +75,15 @@ public:
      */
     float read();
 
-    /** Get the time passed in milli-seconds
+    /** Get the time passed in milliseconds
      *
-     *  @returns    Time passed in milli seconds
+     *  @returns    Time passed in milliseconds
      */
     int read_ms();
 
-    /** Get the time passed in micro-seconds
+    /** Get the time passed in microseconds
      *
-     *  @returns    Time passed in micro seconds
+     *  @returns    Time passed in microseconds
      */
     int read_us();
 
@@ -91,7 +91,7 @@ public:
      */
     operator float();
 
-    /** Get in a high resolution type the time passed in micro-seconds.
+    /** Get in a high resolution type the time passed in microseconds.
      *  Returns a 64 bit integer.
      */
     us_timestamp_t read_high_resolution_us();
@@ -103,7 +103,7 @@ protected:
     us_timestamp_t _start;   // the start time of the latest slice
     us_timestamp_t _time;    // any accumulated time from previous slices
     const ticker_data_t *_ticker_data;
-    bool _lock_deepsleep;    // flag which indicates if deep-sleep should be disabled
+    bool _lock_deepsleep;    // flag that indicates if deep sleep should be disabled
 };
 #endif
 
