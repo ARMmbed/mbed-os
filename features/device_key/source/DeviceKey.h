@@ -56,7 +56,7 @@ public:
     /**
      * @brief As a singleton, return the single instance of the class.
      *        Reason for this class being a singleton is the following:
-     *        - Ease the use for users of this class not having to coordinate instantiations.
+     *        - Ease of use for users of this class not having to coordinate instantiations.
      *        - Lazy instantiation of internal data (which we can't achieve with simple static classes).
      *
      * @returns Singleton instance reference.
@@ -65,7 +65,7 @@ public:
     {
         // Use this implementation of singleton (Meyer's) rather than the one that allocates
         // the instance on the heap, as it ensures destruction at program end (preventing warnings
-        // from memory checking tools such as valgrind).
+        // from memory checking tools, such as valgrind).
         static DeviceKey instance;
         return instance;
     }
@@ -73,7 +73,7 @@ public:
     ~DeviceKey();
 
     /** Derive a new key based on the salt string.
-     * @param isalt Input buffer used to create the new key. Same input will always generate the same key
+     * @param isalt Input buffer used to create the new key. Same input always generates the same key
      * @param isalt_size Size of the data in salt buffer.
      * @param output Buffer to receive the derived key. Size must be 16 bytes or 32 bytes
      *               according to the ikey_type parameter
@@ -82,7 +82,7 @@ public:
      */
     int generate_derived_key(const unsigned char *isalt, size_t isalt_size, unsigned char *output, uint16_t ikey_type);
 
-    /** Set a device key into the NVStore. In case TRNG support is missing, Call this method
+    /** Set a device key into the NVStore. If TRNG support is missing, call this method
      *  before calling device_key_derived_key. This method should be called only once!
      * @param value Input buffer contain the key.
      * @param isize Size of the supplied key. Must be 16 bytes or 32 bytes.
@@ -124,10 +124,10 @@ private:
 
     /** Generate a random ROT key by using TRNG
      * @param output Output buffer for the generated key.
-     * @param size Input: The size of the buffer. if size is less
-     *                    then 16 bytes the method will generate an
-     *                    error. 16-31 bytes will create a 16 byte key.
-     *                    32 or higher will generate a 32 bytes key
+     * @param size Input: The size of the buffer. If size is less
+     *                    than 16 bytes, the method generates an
+     *                    error. 16-31 bytes creates a 16-byte key.
+     *                    32 or higher generates a 32-byte key
      *             Output: The actual written size to the buffer
      * @return 0 on success, negative error code on failure
      */
