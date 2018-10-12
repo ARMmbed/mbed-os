@@ -95,6 +95,7 @@ public:
      */
     us_timestamp_t read_high_resolution_us();
 
+#if !defined(DOXYGEN_ONLY)
 protected:
     us_timestamp_t slicetime();
     int _running;            // whether the timer is running
@@ -103,6 +104,7 @@ protected:
     const ticker_data_t *_ticker_data;
     bool _lock_deepsleep;    // flag which indicates if deep-sleep should be disabled
 };
+#endif
 
 } // namespace mbed
 
