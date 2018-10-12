@@ -94,7 +94,6 @@ public:
      * @code
      * #include "mbed.h"
      *
-     * #if defined (DEVICE_CAN) || defined(DOXYGEN_ONLY)
      *
      * Ticker ticker;
      * DigitalOut led1(LED1);
@@ -126,10 +125,6 @@ public:
      *     }
      * }
      * 
-     * #else
-     *   #error CAN NOT SUPPORTED
-     *
-     * #endif
      * @endcode
      */
     CAN(PinName rd, PinName td);
@@ -304,11 +299,13 @@ protected:
     can_t               _can;
     Callback<void()>    _irq[IrqCnt];
     PlatformMutex       _mutex;
-};
 #endif
+};
 
 } // namespace mbed
 
+#else
+    #error CAN NOT SUPPORTED
 #endif
 
 #endif    // MBED_CAN_H
