@@ -59,7 +59,7 @@ extern "C" {
 
 /** Set the current time
  *
- * Initialises and sets the time of the microcontroller Real-Time Clock (RTC)
+ * Initializes and sets the time of the microcontroller Real-Time Clock (RTC)
  * to the time represented by the number of seconds since January 1, 1970
  * (the UNIX timestamp).
  *
@@ -85,7 +85,7 @@ void set_time(time_t t);
  * @param read_rtc pointer to function which returns current UNIX timestamp
  * @param write_rtc pointer to function which sets current UNIX timestamp, can be NULL
  * @param init_rtc pointer to funtion which initializes RTC, can be NULL
- * @param isenabled_rtc pointer to function which returns if the rtc is enabled, can be NULL
+ * @param isenabled_rtc pointer to function which returns if the RTC is enabled, can be NULL
  */
 void attach_rtc(time_t (*read_rtc)(void), void (*write_rtc)(time_t), void (*init_rtc)(void), int (*isenabled_rtc)(void));
 
