@@ -41,16 +41,32 @@ namespace mbed {
  *
  * Example:
  * @code
- * // Read from I2C slave at address 0x62
- *
+ * Read temperature from LM75BD
  * #include "mbed.h"
- *
- * I2C i2c(p28, p27);
+ * I2C i2c(I2C_SDA , I2C_SCL);
+ * const int addr7bit = 0x48;      // 7 bit I2C address
+ * const int addr8bit = 0x48 << 1; // 8bit I2C address, 0x90
  *
  * int main() {
- *     int address = 0x62;
- *     char data[2];
- *     i2c.read(address, data, 2);
+ *     char cmd[2];
+ *     while (1) {
+ *         cmd[0] = 0x01;
+ *         cmd[1] = 0x00;
+ *
+ *         // read and write takes the 8 bit version of the address.
+ *         // set up configuration register (at 0x01)
+ *         i2c.write(addr8bit, cmd, 2);
+ *
+ *         wait(0.5);
+ *
+ *         // read temperature register
+ *         cmd[0] = 0x00;
+ *         i2c.write(addr8bit, cmd, 1);
+ *         i2c.read( addr8bit, cmd, 2);
+ *
+ *         float tmp = (float((cmd[0]<<8)|cmd[1]) / 256.0);
+ *         printf("Temp = %.2f\n", tmp);
+ *   }
  * }
  * @endcode
  * @ingroup drivers
@@ -92,10 +108,11 @@ public:
      *  @param data Pointer to the byte-array to read data in to
      *  @param length Number of bytes to read
      *  @param repeated Repeated start, true - don't send stop at end
+	 *         default value is false.
      *
      *  @returns
      *       0 on success (ack),
-     *   non-0 on failure (nack)
+     *       non-zero on failure (nack)
      */
     int read(int address, char *data, int length, bool repeated = false);
 
@@ -117,10 +134,11 @@ public:
      *  @param data Pointer to the byte-array data to send
      *  @param length Number of bytes to send
      *  @param repeated Repeated start, true - do not send stop at end
+	 *         default value is false.
      *
      *  @returns
      *       0 on success (ack),
-     *   non-0 on failure (nack)
+     *       non-zero on failure (nack)
      */
     int write(int address, const char *data, int length, bool repeated = false);
 
@@ -137,7 +155,6 @@ public:
 
     /** Creates a start condition on the I2C bus
      */
-
     void start(void);
 
     /** Creates a stop condition on the I2C bus
@@ -171,7 +188,9 @@ public:
      * @param event     The logical OR of events to modify
      * @param callback  The event callback function
      * @param repeated Repeated start, true - do not send stop at end
-     * @return Zero if the transfer has started, or -1 if I2C peripheral is busy
+	 *        default value is false.
+	 *
+     * @returns Zero if the transfer has started, or -1 if I2C peripheral is busy
      */
     int transfer(int address, const char *tx_buffer, int tx_length, char *rx_buffer, int rx_length, const event_callback_t &callback, int event = I2C_EVENT_TRANSFER_COMPLETE, bool repeated = false);
 
@@ -212,7 +231,7 @@ private:
      *  @param sda I2C data line pin
      *  @param scl I2C clock line pin
      *
-     * @returns:
+     * @returns
      *    '0' - Successfully recovered
      *    'I2C_ERROR_BUS_BUSY' - In case of failure
      *
