@@ -304,8 +304,6 @@ protected:
 
 } // namespace mbed
 
-#else
-    #error CAN NOT SUPPORTED
 #endif
 
 #endif    // MBED_CAN_H
