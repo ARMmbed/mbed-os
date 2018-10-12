@@ -48,6 +48,7 @@ namespace mbed {
  * }
  *
  * int main() {
+ *     // register trigger() to be called upon the rising edge of event
  *     event.rise(&trigger);
  *     while(1) {
  *         led = !led;
@@ -71,7 +72,10 @@ public:
      *  and the pin configured to the specified mode.
      *
      *  @param pin InterruptIn pin to connect to
-     *  @param mode The mode to set the pin to (PullUp/PullDown/etc.)
+     *  @param mode Desired Pin mode configuration.
+     *  (Valid values could be PullNone, PullDown, PullUp and PullDefault.
+     *  See PinNames.h for your target for definitions)
+     *
      */
     InterruptIn(PinName pin, PinMode mode);
 
@@ -142,11 +146,12 @@ public:
 
     /** Set the input pin mode
      *
-     *  @param pull PullUp, PullDown, PullNone
+     *  @param pull PullUp, PullDown, PullNone, PullDefault
+     *  See PinNames.h for your target for definitions)
      */
     void mode(PinMode pull);
 
-    /** Enable IRQ. This method depends on hw implementation, might enable one
+    /** Enable IRQ. This method depends on hardware implementation, might enable one
      *  port interrupts. For further information, check gpio_irq_enable().
      */
     void enable_irq();
@@ -157,7 +162,7 @@ public:
     void disable_irq();
 
     static void _irq_handler(uint32_t id, gpio_irq_event event);
-
+#if !defined(DOXYGEN_ONLY)
 protected:
     gpio_t gpio;
     gpio_irq_t gpio_irq;
@@ -166,6 +171,7 @@ protected:
     Callback<void()> _fall;
 
     void irq_init(PinName pin);
+#endif
 };
 
 } // namespace mbed
