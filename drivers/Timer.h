@@ -65,7 +65,7 @@ public:
 
     /** Reset the timer to 0.
      *
-     * If it was already counting, it will continue
+     * If it was already running, it will continue
      */
     void reset();
 
@@ -92,6 +92,7 @@ public:
     operator float();
 
     /** Get in a high resolution type the time passed in micro-seconds.
+     *  Returns a 64 bit integer.
      */
     us_timestamp_t read_high_resolution_us();
 
