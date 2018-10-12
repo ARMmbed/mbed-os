@@ -15,9 +15,11 @@
  */
 
 #include "MBRBlockDevice.h"
-#include "mbed_critical.h"
+#include "platform/mbed_critical.h"
+#include "platform/mbed_toolchain.h"
+#include "platform/mbed_assert.h"
 #include <algorithm>
-
+#include <string.h>
 
 // On disk structures, all entries are little endian
 MBED_PACKED(struct) mbr_entry {
