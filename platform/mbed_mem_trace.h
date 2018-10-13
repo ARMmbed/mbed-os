@@ -28,12 +28,14 @@ extern "C" {
 #include <stdint.h>
 #include <stddef.h>
 
-/* Operation types for tracer */
+/**
+ * enum Memory operation types for tracer
+ */    
 enum {
-    MBED_MEM_TRACE_MALLOC,
-    MBED_MEM_TRACE_REALLOC,
-    MBED_MEM_TRACE_CALLOC,
-    MBED_MEM_TRACE_FREE
+    MBED_MEM_TRACE_MALLOC,          /**< Identifier for malloc operation */
+    MBED_MEM_TRACE_REALLOC,         /**< Identifier for realloc operation */
+    MBED_MEM_TRACE_CALLOC,          /**< Identifier for calloc operation */
+    MBED_MEM_TRACE_FREE             /**< Identifier for free operation */
 };
 
 /**

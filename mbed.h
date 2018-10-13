@@ -73,6 +73,7 @@
 #include "drivers/UARTSerial.h"
 #include "drivers/FlashIAP.h"
 #include "drivers/MbedCRC.h"
+#include "drivers/QSPI.h"
 
 // mbed Internal components
 #include "drivers/Timer.h"

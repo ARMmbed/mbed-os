@@ -54,13 +54,13 @@ typedef mbed::ScopedLock<Mutex> ScopedMutexLock;
  */
  
 /** The Mutex class is used to synchronize the execution of threads.
- This is for example used to protect access to a shared resource.
+ This is, for example, used to protect access to a shared resource.
 
  @note You cannot use member functions of this class in ISR context. If you require Mutex functionality within
  ISR handler, consider using @a Semaphore.
 
  @note
- Memory considerations: The mutex control structures will be created on current thread's stack, both for the Mbed OS
+ Memory considerations: The mutex control structures are created on the current thread's stack, both for the Mbed OS
  and underlying RTOS objects (static or dynamic RTOS memory pools are not being used).
 */
 class Mutex : private mbed::NonCopyable<Mutex> {
@@ -85,16 +85,16 @@ public:
                @a osOK the mutex has been obtained.
 
       @note You cannot call this function from ISR context.
-      @note This function treats RTOS errors as fatal system errors, so can only return osOK.
+      @note This function treats RTOS errors as fatal system errors, so it can only return osOK.
             Use of the return value is deprecated, as the return is expected to become void in the future.
      */
     osStatus lock(void);
 
     /**
-      For backwards compatibility.
+      Wait until a Mutex becomes available.
+      
       @deprecated Do not use this function. This function has been replaced with lock(), trylock() and trylock_for() functions.
 
-      Wait until a Mutex becomes available.
       @param   millisec  timeout value or 0 in case of no time-out.
       @return  status code that indicates the execution status of the function:
                @a osOK the mutex has been obtained.
@@ -102,7 +102,7 @@ public:
                @a osErrorResource the mutex could not be obtained when no timeout was specified.
 
       @note You cannot call this function from ISR context.
-      @note This function treats RTOS errors as fatal system errors, so can only return osOK or
+      @note This function treats RTOS errors as fatal system errors, so it can only return osOK or
             osErrorResource in case when millisec is 0 or osErrorTimeout if millisec is not osWaitForever.
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.10.0", "Replaced with lock(), trylock() and trylock_for() functions")
@@ -147,7 +147,7 @@ public:
               @a osOK the mutex has been released.
 
       @note You cannot call this function from ISR context.
-      @note This function treats RTOS errors as fatal system errors, so can only return osOK.
+      @note This function treats RTOS errors as fatal system errors, so it can only return osOK.
             Use of the return value is deprecated, as the return is expected to become void in the future.
      */
     osStatus unlock();
