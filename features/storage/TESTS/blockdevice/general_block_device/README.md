@@ -1,6 +1,6 @@
 # Getting started with the Mbed OS block device test
 
-Mbed OS block device test is used to test exsiting and new block devices.
+Mbed OS block device test is used to test existing and new block devices.
 
 You can find more information about the Mbed OS block device and other related pieces of the Mbed OS storage stack [in the storage overview](https://os.mbed.com/docs/latest/reference/storage.html).
 
