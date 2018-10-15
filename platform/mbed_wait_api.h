@@ -55,9 +55,9 @@ extern "C" {
  *  @param s number of seconds to wait
  *
  *  @note
- *    If the RTOS is present, this function always spins to get the exact number of microseconds,
- *    which potentially affects power (such as preventing deep sleep) and multithread performance.
- *    You can avoid it by using ThisThread::sleep_for().
+ *    If the RTOS is present, this function spins to get the exact number of microseconds for
+ *    usec precision upto 10msec. If delay is larger then 10msec and not in ISR, it is same as
+ *    `wait_ms`. `wait_us` and `wait_ms` are recommended over `wait`
  */
 void wait(float s);
 
@@ -66,9 +66,8 @@ void wait(float s);
  *  @param ms the whole number of milliseconds to wait
  *
  *  @note
- *    If the RTOS is present, this function always spins to get the exact number of microseconds,
- *    which potentially affects power (such as preventing deep sleep) and multithread performance.
- *    You can avoid it by using ThisThread::sleep_for().
+ *    If the RTOS is present, it is same as CMSIS osDelay()
+ *    Not callable from interrupts, doesn't lock hardware sleep.
  */
 void wait_ms(int ms);
 
@@ -77,8 +76,9 @@ void wait_ms(int ms);
  *  @param us the whole number of microseconds to wait
  *
  *  @note
- *    If the RTOS is present, this function always spins to get the exact number of microseconds,
- *    which potentially affects power (such as preventing deep sleep) and multithread performance.
+ *    This function always spins to get the exact number of microseconds.
+ *    If RTOS is present, this will affect power (prevents deep sleep) and
+ *    multithread performance, hence spinning for milli-sec wait is not recommended.
  */
 void wait_us(int us);
 
