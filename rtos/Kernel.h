@@ -47,14 +47,14 @@ uint64_t get_ms_count();
 /** Attach a function to be called by the RTOS idle task
   @param   fptr  pointer to the function to be called
 
-  @note You may call this function from ISR context.
+  @note You can call this function from ISR context.
 */
 void attach_idle_hook(void (*fptr)(void));
 
-/** Attach a function to be called when a task is killed
+/** Attach a function to be called when a task is terminated
   @param   fptr  pointer to the function to be called
 
-  @note You may call this function from ISR context.
+  @note You can call this function from ISR context.
 */
 void attach_thread_terminate_hook(void (*fptr)(osThreadId_t id));
 
