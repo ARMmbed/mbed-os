@@ -17,8 +17,9 @@
 #include <stdarg.h>
 #include <string.h>
 #include "device.h"
-#include "platform/mbed_critical.h"
+#include "platform/mbed_debug.h"
 #include "platform/mbed_error.h"
+#include "platform/mbed_critical.h"
 #include "platform/mbed_error_hist.h"
 #include "platform/mbed_interface.h"
 #ifdef MBED_CONF_RTOS_PRESENT
@@ -193,6 +194,7 @@ int mbed_get_error_count(void)
 //Sets a fatal error
 mbed_error_status_t mbed_warning(mbed_error_status_t error_status, const char *error_msg, unsigned int error_value, const char *filename, int line_number)
 {
+    debug("%s", error_msg);
     return handle_error(error_status, error_value, filename, line_number, MBED_CALLER_ADDR());
 }
 
