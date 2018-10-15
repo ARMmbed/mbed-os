@@ -680,7 +680,7 @@ control_t fslittle_fopen_test_05(const size_t call_count)
 }
 
 
-static const char fslittle_fopen_ascii_illegal_buf_g[] = "\"�'*+,./:;<=>?[\\]|";
+static const char fslittle_fopen_ascii_illegal_buf_g[] = "\"?'*+,./:;<=>?[\\]|";
 
 /** @brief  test to call fopen() with filename that in includes
  *          illegal characters
