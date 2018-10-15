@@ -474,7 +474,7 @@ void test_thread_wait()
     Timer timer;
     timer.start();
 
-    Thread::wait(150);
+    ThisThread::sleep_for(150);
 
     TEST_ASSERT_UINT32_WITHIN(50000, 150000, timer.read_us());
 }
@@ -528,7 +528,7 @@ void test_deleted()
 
 void test_delay_thread()
 {
-    Thread::wait(50);
+    ThisThread::sleep_for(50);
 }
 
 /** Testing thread states: wait delay

@@ -47,7 +47,7 @@ static void check_const_len_rand_sequence()
 {
     TCPSocket sock;
     tcpsocket_connect_to_echo_srv(sock);
-    sock.sigio(callback(_sigio_handler1, Thread::gettid()));
+    sock.sigio(callback(_sigio_handler1, ThisThread::get_id()));
 
     static const int BUFF_SIZE = 10;
     static char rx_buff[BUFF_SIZE] = {0};
@@ -104,7 +104,7 @@ static void check_var_len_rand_sequence()
 {
     TCPSocket sock;
     tcpsocket_connect_to_echo_srv(sock);
-    sock.sigio(callback(_sigio_handler2, Thread::gettid()));
+    sock.sigio(callback(_sigio_handler2, ThisThread::get_id()));
 
     static const int BUFF_SIZE = 1001;
     static char rx_buff[BUFF_SIZE];

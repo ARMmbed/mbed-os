@@ -297,17 +297,17 @@ static void rf_if_unlock(void)
 #ifdef MBED_CONF_RTOS_PRESENT
 static void rf_if_cca_timer_signal(void)
 {
-    rf->irq_thread.signal_set(SIG_TIMER_CCA);
+    rf->irq_thread.flags_set(SIG_TIMER_CCA);
 }
 
 static void rf_if_cal_timer_signal(void)
 {
-    rf->irq_thread.signal_set(SIG_TIMER_CAL);
+    rf->irq_thread.flags_set(SIG_TIMER_CAL);
 }
 
 static void rf_if_ack_timer_signal(void)
 {
-    rf->irq_thread.signal_set(SIG_TIMER_ACK);
+    rf->irq_thread.flags_set(SIG_TIMER_ACK);
 }
 #endif
 
@@ -1040,7 +1040,7 @@ static void rf_if_disable_irq(void)
 #ifdef MBED_CONF_RTOS_PRESENT
 static void rf_if_interrupt_handler(void)
 {
-    rf->irq_thread.signal_set(SIG_RADIO);
+    rf->irq_thread.flags_set(SIG_RADIO);
 }
 
 // Started during construction of rf, so variable
@@ -1048,21 +1048,18 @@ static void rf_if_interrupt_handler(void)
 void RFBits::rf_if_irq_task(void)
 {
     for (;;) {
-        osEvent event = irq_thread.signal_wait(0);
-        if (event.status != osEventSignal) {
-            continue;
-        }
+        uint32_t flags = ThisThread::flags_wait_any(SIG_ALL);
         rf_if_lock();
-        if (event.value.signals & SIG_RADIO) {
+        if (flags & SIG_RADIO) {
             rf_if_irq_task_process_irq();
         }
-        if (event.value.signals & SIG_TIMER_ACK) {
+        if (flags & SIG_TIMER_ACK) {
             rf_ack_wait_timer_interrupt();
         }
-        if (event.value.signals & SIG_TIMER_CCA) {
+        if (flags & SIG_TIMER_CCA) {
             rf_cca_timer_interrupt();
         }
-        if (event.value.signals & SIG_TIMER_CAL) {
+        if (flags & SIG_TIMER_CAL) {
             rf_calibration_timer_interrupt();
         }
         rf_if_unlock();

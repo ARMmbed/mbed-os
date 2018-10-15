@@ -35,7 +35,7 @@ void sleep_manager_locking_thread_test()
 {
     for (uint32_t i = 0; i < 100; i++) {
         sleep_manager_lock_deep_sleep();
-        Thread::wait(25);
+        ThisThread::sleep_for(25);
         sleep_manager_unlock_deep_sleep();
     }
 }
@@ -48,7 +48,7 @@ void sleep_manager_multithread_test()
         Thread t2(osPriorityNormal, TEST_STACK_SIZE);
 
         t1.start(callback(cb));
-        Thread::wait(25);
+        ThisThread::sleep_for(25);
         t2.start(callback(cb));
 
         // Wait for the threads to finish

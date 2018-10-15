@@ -30,7 +30,7 @@ set(unittest-test-sources
   stubs/Timer_stub.cpp
   stubs/equeue_stub.c
   stubs/Kernel_stub.cpp
-  stubs/Thread_stub.cpp
+  stubs/ThisThread_stub.cpp
   stubs/randLIB_stub.cpp
 )
 

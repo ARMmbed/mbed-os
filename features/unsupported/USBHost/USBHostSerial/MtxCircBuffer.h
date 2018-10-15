@@ -53,7 +53,7 @@ public:
         mtx.lock();
         while (((write + 1) % size) == read) {
             mtx.unlock();
-            Thread::wait(10);
+            ThisThread::sleep_for(10);
             mtx.lock();
         }
         buf[write++] = k;

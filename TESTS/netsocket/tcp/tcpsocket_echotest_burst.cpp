@@ -41,7 +41,7 @@ void TCPSOCKET_ECHOTEST_BURST()
 {
     TCPSocket sock;
     tcpsocket_connect_to_echo_srv(sock);
-    sock.sigio(callback(_sigio_handler, Thread::gettid()));
+    sock.sigio(callback(_sigio_handler, ThisThread::get_id()));
 
     // TX buffer to be preserved for comparison
     fill_tx_buffer_ascii(tcp_global::tx_buffer, BURST_SIZE);
@@ -94,7 +94,7 @@ void TCPSOCKET_ECHOTEST_BURST_NONBLOCK()
     TCPSocket sock;
     tcpsocket_connect_to_echo_srv(sock);
     sock.set_blocking(false);
-    sock.sigio(callback(_sigio_handler, Thread::gettid()));
+    sock.sigio(callback(_sigio_handler, ThisThread::get_id()));
 
     // TX buffer to be preserved for comparison
     fill_tx_buffer_ascii(tcp_global::tx_buffer, BURST_SIZE);

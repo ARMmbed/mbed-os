@@ -36,7 +36,7 @@ DigitalOut led2(LED2);
 void led2_thread(void const *argument) {
     while (true) {
         led2 = !led2;
-        Thread::wait(1000);
+        ThisThread::sleep_for(1000);
         print_char();
     }
 }
@@ -51,6 +51,6 @@ int main() {
 
     while (true) {
         led1 = !led1;
-        Thread::wait(500);
+        ThisThread::sleep_for(500);
     }
 }

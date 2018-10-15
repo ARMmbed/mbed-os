@@ -119,7 +119,7 @@ void TCPSOCKET_ECHOTEST_NONBLOCK()
 
     tcpsocket_connect_to_echo_srv(sock);
     sock.set_blocking(false);
-    sock.sigio(callback(_sigio_handler, Thread::gettid()));
+    sock.sigio(callback(_sigio_handler, ThisThread::get_id()));
 
     int bytes2send;
     int sent;

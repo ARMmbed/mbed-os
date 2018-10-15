@@ -103,7 +103,7 @@ void run_wait_clear(Sync *sync)
 {
     sync->sem_parent.release();
     sync->sem_child.wait();
-    int32_t ret = Thread::signal_clr(signals);
+    int32_t ret = ThisThread::flags_clear(signals);
     TEST_ASSERT_EQUAL(test_val, ret);
 }
 
@@ -114,10 +114,10 @@ void run_double_wait_clear(Sync *sync)
 
     sync->sem_parent.release();
     sync->sem_child.wait();
-    ret = Thread::signal_clr(signals1);
+    ret = ThisThread::flags_clear(signals1);
     TEST_ASSERT_EQUAL(test_val1, ret);
 
-    ret = Thread::signal_clr(signals2);
+    ret = ThisThread::flags_clear(signals2);
     TEST_ASSERT_EQUAL(test_val2, ret);
 }
 
@@ -128,7 +128,7 @@ void run_loop_wait_clear(Sync *sync)
         int32_t signal = 1 << i;
         signals |= signal;
         sync->sem_child.wait();
-        int32_t ret = Thread::signal_clr(NO_SIGNALS);
+        int32_t ret = ThisThread::flags_clear(NO_SIGNALS);
         TEST_ASSERT_EQUAL(signals, ret);
         sync->sem_parent.release();
     }

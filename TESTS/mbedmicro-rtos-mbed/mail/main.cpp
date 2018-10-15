@@ -62,7 +62,7 @@ void send_thread(Mail<mail_t, QUEUE_SIZE> *m)
         mail->thread_id = thread_id;
         mail->data = data++;
         m->put(mail);
-        Thread::wait(wait_ms);
+        ThisThread::sleep_for(wait_ms);
     }
 }
 
@@ -72,7 +72,7 @@ void receive_thread(Mail<mail_t, queue_size> *m)
     int result_counter = 0;
     uint32_t data = thread_id * DATA_BASE;
 
-    Thread::wait(wait_ms);
+    ThisThread::sleep_for(wait_ms);
     for (uint32_t i = 0; i < queue_size; i++) {
         osEvent evt = m->get();
         if (evt.status == osEventMail) {
@@ -108,7 +108,7 @@ void test_single_thread_order(void)
     thread.start(callback(send_thread<THREAD_1_ID, QUEUE_PUT_DELAY_1, QUEUE_SIZE>, &mail_box));
 
     // wait for some mail to be collected
-    Thread::wait(10);
+    ThisThread::sleep_for(10);
 
     for (uint32_t i = 0; i < QUEUE_SIZE; i++) {
         // mail receive (main thread)
@@ -150,7 +150,7 @@ void test_multi_thread_order(void)
     thread3.start(callback(send_thread<THREAD_3_ID, QUEUE_PUT_DELAY_3, 4>, &mail_box));
 
     // wait for some mail to be collected
-    Thread::wait(10);
+    ThisThread::sleep_for(10);
 
     for (uint32_t i = 0; i < QUEUE_SIZE; i++) {
         // mail receive (main thread)
@@ -211,7 +211,7 @@ void test_multi_thread_multi_mail_order(void)
         mail->data = data[id]++;
         mail_box[id].put(mail);
 
-        Thread::wait(i * 10);
+        ThisThread::sleep_for(i * 10);
     }
 
     thread1.join();

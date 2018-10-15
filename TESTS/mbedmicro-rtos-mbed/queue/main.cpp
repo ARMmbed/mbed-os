@@ -37,7 +37,7 @@ using namespace utest::v1;
 template <uint32_t ms>
 void thread_put_uint_msg(Queue<uint32_t, 1> *q)
 {
-    Thread::wait(ms);
+    ThisThread::sleep_for(ms);
     osStatus stat = q->put((uint32_t *) TEST_UINT_MSG);
     TEST_ASSERT_EQUAL(osOK, stat);
 }
@@ -45,7 +45,7 @@ void thread_put_uint_msg(Queue<uint32_t, 1> *q)
 template <uint32_t ms, uint32_t val>
 void thread_get_uint_msg(Queue<uint32_t, 1> *q)
 {
-    Thread::wait(ms);
+    ThisThread::sleep_for(ms);
     osEvent evt = q->get();
     TEST_ASSERT_EQUAL(osEventMessage, evt.status);
     TEST_ASSERT_EQUAL(val, evt.value.v);
