@@ -78,7 +78,8 @@ void basic_erase_program_read_test(BlockDevice *block_device, bd_size_t block_si
         val_rand = rand();
         if ( (0xff & val_rand) != read_block[i_ind] ) {
             utest_printf("\n Assert Failed Buf Read - block:size: %llx:%llu \n", block, block_size);
-            utest_printf("\n pos: %llu, exp: %02x, act: %02x, wrt: %02x \n", i_ind, (0xff & val_rand), read_block[i_ind],
+            utest_printf("\n pos: %llu, exp: %02x, act: %02x, wrt: %02x \n", i_ind, (0xff & val_rand), 
+                         read_block[i_ind],
                          write_block[i_ind] );
         }
         TEST_ASSERT_EQUAL(0xff & val_rand, read_block[i_ind]);
@@ -213,7 +214,5 @@ Specification specification(test_setup, cases);
 
 int main()
 {
-    //mbed_trace_init();
-    utest_printf("MAIN STARTS\n");
     return !Harness::run(specification);
 }
