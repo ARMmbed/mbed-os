@@ -38,6 +38,7 @@
 
 
 using namespace utest::v1;
+using namespace mbed;
 
 static LoRaRadio *radio = NULL;
 rtos::Semaphore event_sem(0);

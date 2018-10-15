@@ -18,6 +18,7 @@
 #include "utest.h"
 #include "SPIFBlockDevice.h"
 #include "mbed_trace.h"
+#include "rtos/Thread.h"
 #include <stdlib.h>
 
 using namespace utest::v1;
