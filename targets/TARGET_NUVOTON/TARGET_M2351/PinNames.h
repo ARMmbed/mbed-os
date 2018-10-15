@@ -165,7 +165,7 @@ typedef enum {
     LED2 = PA_11,
     LED3 = PA_10,  // No real LED. Just for passing ATS.
     LED4 = PA_11,  // No real LED. Just for passing ATS.
-    LED_GREEN = LED2,
+    LED_GREEN = LED1,
     
     // Button naming
     SW2 = PB_0,
