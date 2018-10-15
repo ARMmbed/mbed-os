@@ -56,30 +56,35 @@ void mbed_error_printf(const char *format, ...)
 
 void mbed_error_vprintf(const char *format, va_list arg)
 {
-    core_util_critical_section_enter();
     char buffer[132];
     int size = vsnprintf(buffer, sizeof buffer, format, arg);
     if (size >= sizeof buffer) {
-        /* Output was truncated - indicate by overwriting last 4 bytes of buffer
-         * with ellipsis and newline.
-         * (Note that although vsnprintf always leaves a NUL terminator, we
-         * don't need a terminator and can use the entire buffer)
+        /* Output was truncated - indicate by overwriting tail of buffer
+         * with ellipsis, newline and null terminator.
          */
-        memcpy(&buffer[sizeof buffer - 4], "...\n", 4);
-        size = sizeof buffer;
+        static const char ellipsis[] = "...\n";
+        memcpy(&buffer[sizeof buffer - sizeof ellipsis], ellipsis, sizeof ellipsis);
     }
+    if (size > 0) {
+        mbed_error_puts(buffer);
+    }
+}
+
+void mbed_error_puts(const char *str)
+{
+    core_util_critical_section_enter();
 #if MBED_CONF_PLATFORM_STDIO_CONVERT_NEWLINES || MBED_CONF_PLATFORM_STDIO_CONVERT_TTY_NEWLINES
     char stdio_out_prev = '\0';
-    for (int i = 0; i < size; i++) {
-        if (buffer[i] == '\n' && stdio_out_prev != '\r') {
+    for (; *str != '\0'; str++) {
+        if (*str == '\n' && stdio_out_prev != '\r') {
             const char cr = '\r';
             write(STDERR_FILENO, &cr, 1);
         }
-        write(STDERR_FILENO, &buffer[i], 1);
-        stdio_out_prev = buffer[i];
+        write(STDERR_FILENO, str, 1);
+        stdio_out_prev = *str;
     }
 #else
-    write(STDERR_FILENO, buffer, size);
+    write(STDERR_FILENO, str, strlen(str));
 #endif
     core_util_critical_section_exit();
 }
