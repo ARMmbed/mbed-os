@@ -36,6 +36,7 @@ typedef struct {
 
 #include "rtos/Mutex.h"
 #include "rtos/Thread.h"
+#include "rtos/Kernel.h"
 #include "mbed_stats.h"
 #include "cmsis_os2.h"
 #include "platform/SingletonPtr.h"

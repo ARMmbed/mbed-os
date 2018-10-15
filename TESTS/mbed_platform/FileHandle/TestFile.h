@@ -18,14 +18,13 @@
 
 #include "platform/FileHandle.h"
 
-
 #define POS_IS_VALID(pos) (pos >= 0 && pos < _end)
 #define NEW_POS_IS_VALID(pos) (pos >= 0 && pos < (int32_t)FILE_SIZE)
 #define SEEK_POS_IS_VALID(pos) (pos >= 0 && pos <= _end)
 #define INVALID_POS (-1)
 
 template<uint32_t FILE_SIZE>
-class TestFile : public FileHandle {
+class TestFile : public mbed::FileHandle {
 public:
     TestFile(): _pos(0), _end(0) {}
     ~TestFile() {}

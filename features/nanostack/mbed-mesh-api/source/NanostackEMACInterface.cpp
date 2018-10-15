@@ -2,12 +2,11 @@
  * Copyright (c) 2017 ARM Limited. All rights reserved.
  */
 
-#include "Nanostack.h"
 #include "NanostackEthernetInterface.h"
 #include "NanostackEthernetPhy.h"
-#include "EMAC.h"
 #include "nsdynmemLIB.h"
 #include "arm_hal_phy.h"
+#include "EMAC.h"
 
 class EMACPhy : public NanostackEthernetPhy
 {
