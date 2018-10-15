@@ -272,9 +272,7 @@ lorawan_status_t LoRaWANStack::stop_sending(void)
         return LORAWAN_STATUS_NOT_INITIALIZED;
     }
 
-    lorawan_status_t status = _loramac.clear_tx_pipe();
-
-    if (status == LORAWAN_STATUS_OK) {
+    if (_loramac.clear_tx_pipe() == LORAWAN_STATUS_OK) {
         _ctrl_flags &= ~TX_DONE_FLAG;
         _ctrl_flags &= ~TX_ONGOING_FLAG;
         _loramac.set_tx_ongoing(false);
@@ -282,7 +280,7 @@ lorawan_status_t LoRaWANStack::stop_sending(void)
         return LORAWAN_STATUS_OK;
     }
 
-    return status;
+    return LORAWAN_STATUS_BUSY;
 }
 
 int16_t LoRaWANStack::handle_tx(const uint8_t port, const uint8_t *data,
@@ -296,6 +294,11 @@ int16_t LoRaWANStack::handle_tx(const uint8_t port, const uint8_t *data,
     if (!null_allowed && !data) {
         return LORAWAN_STATUS_PARAMETER_INVALID;
     }
+    // add a link check request with normal data, until the application
+    // explicitly removes it.
+    if (_link_check_requested) {
+        _loramac.setup_link_check_request();
+    }
 
     if (!_lw_session.active) {
         return LORAWAN_STATUS_NO_ACTIVE_SESSIONS;
@@ -303,12 +306,6 @@ int16_t LoRaWANStack::handle_tx(const uint8_t port, const uint8_t *data,
 
     if (_loramac.tx_ongoing()) {
         return LORAWAN_STATUS_WOULD_BLOCK;
-    }
-
-    // add a link check request with normal data, until the application
-    // explicitly removes it.
-    if (_link_check_requested) {
-        _loramac.setup_link_check_request();
     }
 
     lorawan_status_t status;
