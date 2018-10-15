@@ -55,7 +55,8 @@ private:
     void urc_sisr();
 
     // sockets need a connection profile, one profile is enough to support single stack sockets
-    bool create_connection_profile();
+    nsapi_error_t create_connection_profile(int connection_profile_id);
+    void close_connection_profile(int connection_profile_id);
 
     // socket open need to be deferred until sendto due to BGS2 does not support UDP server endpoint
     nsapi_error_t socket_open_defer(CellularSocket *socket, const SocketAddress *address = NULL);

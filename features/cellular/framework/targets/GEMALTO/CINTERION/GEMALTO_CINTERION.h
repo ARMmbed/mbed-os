@@ -30,8 +30,10 @@ public:
 
 protected: // AT_CellularDevice
     virtual AT_CellularNetwork *open_network_impl(ATHandler &at);
-public:
+
+public: // CellularDevice
     virtual nsapi_error_t init_module(FileHandle *fh);
+    virtual uint16_t get_send_delay();
 };
 
 } // namespace mbed
