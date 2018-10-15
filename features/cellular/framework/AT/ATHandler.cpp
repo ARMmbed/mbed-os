@@ -81,6 +81,7 @@ ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, int timeout, const char 
     _max_resp_length(MAX_RESP_LENGTH),
     _debug_on(MBED_CONF_CELLULAR_DEBUG_AT),
     _cmd_start(false),
+    _use_delimiter(true),
     _start_time(0)
 {
     clear_error();
@@ -610,6 +611,11 @@ void ATHandler::set_delimiter(char delimiter)
 void ATHandler::set_default_delimiter()
 {
     _delimiter = DEFAULT_DELIMITER;
+}
+
+void ATHandler::use_delimiter(bool use_delimiter)
+{
+    _use_delimiter = use_delimiter;
 }
 
 void ATHandler::set_tag(tag_t *tag_dst, const char *tag_seq)
@@ -1145,6 +1151,11 @@ bool ATHandler::check_cmd_send()
 {
     if (_last_err != NSAPI_ERROR_OK) {
         return false;
+    }
+
+    // Don't write delimiter if flag was set so
+    if (!_use_delimiter) {
+        return true;
     }
 
     // Don't write delimiter if this is the first subparameter

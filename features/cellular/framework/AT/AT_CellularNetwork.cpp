@@ -386,9 +386,11 @@ nsapi_error_t AT_CellularNetwork::open_data_channel()
         _at.write_int(_cid);
     } else {
         MBED_ASSERT(_cid >= 0 && _cid <= 99);
-        char cmd_buf[sizeof("ATD*99***xx#")];
-        std::sprintf(cmd_buf, "ATD*99***%d#", _cid);
-        _at.cmd_start(cmd_buf);
+        _at.cmd_start("ATD*99***");
+        _at.use_delimiter(false);
+        _at.write_int(_cid);
+        _at.write_string("#", false);
+        _at.use_delimiter(true);
     }
     _at.cmd_stop();
 
