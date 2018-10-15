@@ -1,0 +1,44 @@
+{
+    "config": {
+        "SPI_MASTER_CS": "D10",
+        "SPI_MASTER_MOSI": "D11",
+        "SPI_MASTER_MISO": "D12",
+        "SPI_MASTER_CLK": "D13",
+        "SPI_MASTER_DEBUG": "0",
+        "SPI_MASTER_DELAY": "1000",
+        "SPI_MASTER_TRANSMISSION_START_BTN": "NC",
+        "SPI_MASTER_TRANSMISSION_START_LED": "LED1",
+            
+        "SPI_SLAVE_CS": "D10",
+        "SPI_SLAVE_MOSI": "D11",
+        "SPI_SLAVE_MISO": "D12",
+        "SPI_SLAVE_CLK": "D13",
+        "SPI_SLAVE_DEBUG": "0",
+        "SPI_SLAVE_DELAY": "100",
+        "SPI_SLAVE_TRANSMISSION_START_BTN": "NC",
+        "SPI_SLAVE_TRANSMISSION_START_LED": "LED1"
+    },
+    "target_overrides": {
+        "K66F": {
+            "SPI_MASTER_CS": "PTE25",
+            "SPI_MASTER_MOSI": "PTD13",
+            "SPI_MASTER_MISO": "PTB23",
+            "SPI_MASTER_CLK": "PTD12",
+            "SPI_MASTER_DEBUG": "1",
+            "SPI_MASTER_DELAY": "1000",
+            "SPI_MASTER_TRANSMISSION_START_BTN": "NC",
+            "SPI_MASTER_TRANSMISSION_START_LED": "LED1",
+            
+            "SPI_SLAVE_CS": "PTD0",
+            "SPI_SLAVE_MOSI": "PTD3",
+            "SPI_SLAVE_MISO": "PTD2",
+            "SPI_SLAVE_CLK": "PTD1",
+            "SPI_SLAVE_DEBUG": "0",
+            "SPI_SLAVE_DELAY": "100",
+            "SPI_SLAVE_TRANSMISSION_START_BTN": "NC",
+            "SPI_SLAVE_TRANSMISSION_START_LED": "LED1"
+            
+            
+        }
+    }
+}
