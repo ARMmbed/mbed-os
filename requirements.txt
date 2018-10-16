@@ -5,6 +5,7 @@ Jinja2>=2.7.3
 IntelHex>=1.3
 junit-xml
 pyYAML
+urllib3[secure]==1.23
 requests
 mbed-ls>=1.5.1,==1.*
 mbed-host-tests>=1.1.2
