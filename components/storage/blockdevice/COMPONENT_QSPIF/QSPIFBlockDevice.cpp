@@ -781,33 +781,44 @@ int QSPIFBlockDevice::_sfdp_set_qpi_enabled(uint8_t *basic_param_table_ptr)
     switch (en_seq_444_value) {
         case 1:
         case 2:
-            tr_debug("_setQPIEnabled - send command 38h");
-            _qspi_send_general_command(0x38, QSPI_NO_ADDRESS_COMMAND, NULL, 0, NULL, 0);
+            tr_debug("_sfdp_set_qpi_enabled - send command 38h");
+            if  (QSPI_STATUS_OK != _qspi_send_general_command(0x38, QSPI_NO_ADDRESS_COMMAND, NULL, 0, NULL, 0)) {
+                tr_error("_sfdp_set_qpi_enabled - send command 38h Failed");
+            }
             break;
 
         case 4:
-            tr_debug("_setQPIEnabled - send command 35h");
-            _qspi_send_general_command(0x35, QSPI_NO_ADDRESS_COMMAND, NULL, 0, NULL, 0);
+            tr_debug("_sfdp_set_qpi_enabled - send command 35h");
+            if  (QSPI_STATUS_OK != _qspi_send_general_command(0x35, QSPI_NO_ADDRESS_COMMAND, NULL, 0, NULL, 0)) {
+                tr_error("_sfdp_set_qpi_enabled - send command 35h Failed");
+            }
             break;
 
         case 8:
-            tr_debug("_setQPIEnabled - set config bit 6 and send command 71h");
-            _qspi_send_general_command(0x65, 0x800003, NULL, 0, (char *)config_reg, 1);
+            tr_debug("_sfdp_set_qpi_enabled - set config bit 6 and send command 71h");
+            if  (QSPI_STATUS_OK != _qspi_send_general_command(0x65, 0x800003, NULL, 0, (char *)config_reg, 1)) {
+                tr_error("_sfdp_set_qpi_enabled - set config bit 6 command 65h Failed");
+            }
             config_reg[0] |= 0x40; //Set Bit 6
-            _qspi_send_general_command(0x71, 0x800003, NULL, 0, (char *)config_reg, 1);
+            if  (QSPI_STATUS_OK != _qspi_send_general_command(0x71, 0x800003, NULL, 0, (char *)config_reg, 1)) {
+                tr_error("_sfdp_set_qpi_enabled - send command 71h Failed");
+            }
             break;
 
         case 16:
-            tr_debug("DEBUG: _setQPIEnabled - reset config bits 0-7 and send command 61h");
-            _qspi_send_general_command(0x65, QSPI_NO_ADDRESS_COMMAND, NULL, 0, (char *)config_reg, 1);
+            tr_debug("_sfdp_set_qpi_enabled - reset config bits 0-7 and send command 61h");
+            if  (QSPI_STATUS_OK != _qspi_send_general_command(0x65, QSPI_NO_ADDRESS_COMMAND, NULL, 0, (char *)config_reg, 1)) {
+                tr_error("_sfdp_set_qpi_enabled - send command 65h Failed");
+            }
             config_reg[0] &= 0x7F; //Reset Bit 7 of CR
-            _qspi_send_general_command(0x61, QSPI_NO_ADDRESS_COMMAND, NULL, 0, (char *)config_reg, 1);
+            if  (QSPI_STATUS_OK != _qspi_send_general_command(0x61, QSPI_NO_ADDRESS_COMMAND, NULL, 0, (char *)config_reg, 1)) {
+                tr_error("_sfdp_set_qpi_enabled - send command 61 Failed");
+            }
             break;
 
         default:
-            tr_warning("_setQPIEnabled - Unsuported En Seq 444 configuration");
+            tr_warning("_sfdp_set_qpi_enabled - Unsuported En Seq 444 configuration");
             break;
-
     }
     return 0;
 }
@@ -1087,7 +1098,7 @@ int QSPIFBlockDevice::_reset_flash_mem()
             QSPI_MAX_STATUS_REGISTER_SIZE) ) {  // store received values in status_value
         tr_debug("Reading Status Register Success: value = 0x%x", (int)status_value[0]);
     } else {
-        tr_debug("Reading Status Register failed: value = 0x%x", (int)status_value[0]);
+        tr_error("Reading Status Register failed: value = 0x%x", (int)status_value[0]);
         status = -1;
     }
 
