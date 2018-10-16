@@ -4459,5 +4459,24 @@
         "device_name": "TMPM3H6FWFG",
         "detect_code": ["7012"],
         "release_versions": ["5"]
+    },
+    "GD32_Target": {
+        "inherits": ["Target"],
+        "public": false,
+        "extra_labels": ["Gigadevice"],
+        "supported_toolchains": ["ARM", "IAR", "GCC_ARM"],
+        "device_has":["USTICKER", "LPTICKER", "CRC", "ANALOGIN", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL"]
+    },
+    "GD32_F307VG": {
+        "inherits": ["GD32_Target"],
+        "supported_form_factors": ["ARDUINO"],
+        "core": "Cortex-M4",
+        "extra_labels_add": ["GD32F30X"],
+        "detect_code": ["1701"],
+        "macros_add": ["CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""],
+        "device_has_add": ["RTC", "I2C", "I2CSLAVE", "ANALOGOUT", "SPI", "SPISLAVE", "ETHERNET"],
+        "default_lib": "small",
+        "release_versions": ["2", "5"],
+        "device_name": "GD32F307VG"
     }
 }
