@@ -272,13 +272,13 @@ mbed_error_status_t mbed_clear_all_errors(void)
 
 #if MBED_CONF_PLATFORM_ERROR_ALL_THREADS_INFO && defined(MBED_CONF_RTOS_PRESENT)
 /* Prints info of a thread(using osRtxThread_t struct)*/
-static void print_thread(osRtxThread_t *thread)
+static void print_thread(const osRtxThread_t *thread)
 {
     mbed_error_printf("\nState: 0x%08X Entry: 0x%08X Stack Size: 0x%08X Mem: 0x%08X SP: 0x%08X", thread->state, thread->thread_addr, thread->stack_size, (uint32_t)thread->stack_mem, thread->sp);
 }
 
 /* Prints thread info from a list */
-static void print_threads_info(osRtxThread_t *threads)
+static void print_threads_info(const osRtxThread_t *threads)
 {
     while (threads != NULL) {
         print_thread(threads);
@@ -355,17 +355,14 @@ static void print_error_report(mbed_error_ctx *ctx, const char *error_msg)
     mbed_error_printf("\nNext:");
     print_thread(osRtxInfo.thread.run.next);
 
+    mbed_error_printf("\nReady:");
+    print_threads_info(osRtxInfo.thread.ready.thread_list);
+
     mbed_error_printf("\nWait:");
-    osRtxThread_t *threads = (osRtxThread_t *)&osRtxInfo.thread.wait_list;
-    print_threads_info(threads);
+    print_threads_info(osRtxInfo.thread.wait_list);
 
     mbed_error_printf("\nDelay:");
-    threads = (osRtxThread_t *)&osRtxInfo.thread.delay_list;
-    print_threads_info(threads);
-
-    mbed_error_printf("\nIdle:");
-    threads = (osRtxThread_t *)&osRtxInfo.thread.idle;
-    print_threads_info(threads);
+    print_threads_info(osRtxInfo.thread.delay_list);
 #endif
     mbed_error_printf(MBED_CONF_PLATFORM_ERROR_DECODE_HTTP_URL_STR, ctx->error_status);
     mbed_error_printf("\n-- MbedOS Error Info --\n");
