@@ -29,22 +29,6 @@
 #include <stdio.h>
 #endif
 
-//Helper macro to get the current SP
-#define GET_CURRENT_SP(sp)                                                          \
-                        {                                                           \
-                            /*If in Handler mode we are always using MSP*/          \
-                            if ( __get_IPSR() != 0U ) {                             \
-                                sp = __get_MSP();                                   \
-                            } else {                                                \
-                                /*Look into CONTROL.SPSEL value*/                   \
-                                if ((__get_CONTROL() & 2U) == 0U) {                 \
-                                    sp = __get_MSP();/*Read MSP*/                   \
-                                } else {                                            \
-                                    sp = __get_PSP();/*Read PSP*/                   \
-                                }                                                   \
-                            }                                                       \
-                        }
-
 #ifndef NDEBUG
 #define ERROR_REPORT(ctx, error_msg) print_error_report(ctx, error_msg)
 #else
@@ -132,10 +116,7 @@ static mbed_error_status_t handle_error(mbed_error_status_t error_status, unsign
     current_error_ctx.thread_entry_address = (uint32_t)current_thread->thread_addr;
     current_error_ctx.thread_stack_size = current_thread->stack_size;
     current_error_ctx.thread_stack_mem = (uint32_t)current_thread->stack_mem;
-#ifdef TARGET_CORTEX_M
-    GET_CURRENT_SP(current_error_ctx.thread_current_sp);
-#endif //TARGET_CORTEX_M
-
+    current_error_ctx.thread_current_sp = (uint32_t)&current_error_ctx; // Address local variable to get a stack pointer
 #endif //MBED_CONF_RTOS_PRESENT
 
 #if MBED_CONF_PLATFORM_ERROR_FILENAME_CAPTURE_ENABLED
@@ -368,14 +349,8 @@ static void print_error_report(mbed_error_ctx *ctx, const char *error_msg)
 #endif
 
     mbed_error_printf("\nError Value: 0x%X", ctx->error_value);
-#ifdef TARGET_CORTEX_M
     mbed_error_printf("\nCurrent Thread: Id: 0x%X Entry: 0x%X StackSize: 0x%X StackMem: 0x%X SP: 0x%X ",
                       ctx->thread_id, ctx->thread_entry_address, ctx->thread_stack_size, ctx->thread_stack_mem, ctx->thread_current_sp);
-#else
-    //For Cortex-A targets we dont have support to capture the current SP
-    mbed_error_printf("\nCurrent Thread: Id: 0x%X Entry: 0x%X StackSize: 0x%X StackMem: 0x%X ",
-                      ctx->thread_id, ctx->thread_entry_address, ctx->thread_stack_size, ctx->thread_stack_mem);
-#endif //TARGET_CORTEX_M
 
 #if MBED_CONF_PLATFORM_ERROR_ALL_THREADS_INFO && defined(MBED_CONF_RTOS_PRESENT)
     mbed_error_printf("\nNext:");
