@@ -45,6 +45,8 @@ protected:
     virtual nsapi_size_or_error_t socket_recvfrom_impl(CellularSocket *socket, SocketAddress *address,
                                                        void *buffer, nsapi_size_t size);
 
+    virtual nsapi_error_t socket_connect(nsapi_socket_t handle, const SocketAddress &address);
+
 private:
     // find the socket handle based on socket identifier
     CellularSocket *find_socket(int sock_id);
@@ -52,7 +54,9 @@ private:
     // socket URC handlers as per Cinterion AT manuals
     void urc_sis();
     void urc_sisw();
+    void sisw_urc_handler(int sock_id, int urc_code);
     void urc_sisr();
+    void sisr_urc_handler(int sock_id, int urc_code);
 
     // sockets need a connection profile, one profile is enough to support single stack sockets
     nsapi_error_t create_connection_profile(int connection_profile_id);
