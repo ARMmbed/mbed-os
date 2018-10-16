@@ -662,10 +662,10 @@ int8_t get_uart_index(UARTName uart_name)
     return -1;
 }
 
-/*  Function to protect deep sleep while a seral Tx is ongoing on not complete
- *  yet. Returns 1 if there is at least 1 serial instance with ongoing ransfer
- *  0 otherwise.
- */
+/* Function used to protect deep sleep while a serial transmission is on-going.
+.* Returns 1 if there is at least 1 serial instance with an on-going transfer
+ * and 0 otherwise.
+*/
 int serial_is_tx_ongoing(void) {
     int TxOngoing = 0;
 
@@ -759,8 +759,13 @@ int serial_is_tx_ongoing(void) {
     }
 #endif
 
-    /*  If Tx is ongoing, then transfer is */
     return TxOngoing;
+}
+
+#else
+
+int serial_is_tx_ongoing(void) {
+    return 0;
 }
 
 #endif /* DEVICE_SERIAL */
