@@ -17,7 +17,7 @@ from tools.utils import NotSupportedException
 ARMC5_CORES = ["Cortex-M0", "Cortex-M0+", "Cortex-M3", "Cortex-M4",
                "Cortex-M4F", "Cortex-M7", "Cortex-M7F", "Cortex-M7FD"]
 ARMC6_CORES = ARMC5_CORES + ["Cortex-M23", "Cortex-M23-NS",
-                             "Cortex-M33", "CortexM33-NS"]
+                             "Cortex-M33", "Cortex-M33-NS", "Cortex-M33F", "Cortex-M33F-NS"]
 
 CORE_SUF_ALPHA = ["MDFNS02347-+"]
 
