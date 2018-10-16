@@ -41,8 +41,8 @@
 #if DEVICE_QSPI
 
 #include "nrf_drv_common.h"
-#include "nrf_drv_qspi.h"
 #include "PeripheralPins.h"
+#include "nrfx_qspi.h"
 
 /* 
 TODO
@@ -80,7 +80,7 @@ TODO
 #define SFDP_READ_LEN       8    // 8 SFDP bytes can be read at a time
 #define SFDP_READ_MAX       (SFDP_DATA_LEN / SFDP_READ_LEN)
 
-static nrf_drv_qspi_config_t config;
+static nrfx_qspi_config_t config;
 
 // Private helper function to track initialization
 static ret_code_t _qspi_drv_init(void);
@@ -195,8 +195,8 @@ qspi_status_t qspi_prepare_command(qspi_t *obj, const qspi_command_t *command, b
     
     //Configure QSPI with new command format
     ret_code_t ret_status = _qspi_drv_init();
-    if (ret_status != NRF_SUCCESS ) {
-        if (ret_status == NRF_ERROR_INVALID_PARAM) {
+    if (ret_status != NRFX_SUCCESS ) {
+        if (ret_status == NRFX_ERROR_INVALID_PARAM) {
             return QSPI_STATUS_INVALID_PARAMETER;
         } else {
             return QSPI_STATUS_ERROR;
@@ -252,7 +252,7 @@ qspi_status_t qspi_frequency(qspi_t *obj, int hz)
 
     // use sync version, no handler
     ret_code_t ret = _qspi_drv_init();
-    if (ret == NRF_SUCCESS ) {
+    if (ret == NRFX_SUCCESS ) {
         return QSPI_STATUS_OK;
     } else if (ret == NRF_ERROR_INVALID_PARAM) {
         return QSPI_STATUS_INVALID_PARAMETER;
@@ -323,7 +323,7 @@ qspi_status_t qspi_read(qspi_t *obj, const qspi_command_t *command, void *data, 
         }
     }
 
-    ret_code_t ret = nrf_drv_qspi_read(data, *length, command->address.value);
+    ret_code_t ret = nrfx_qspi_read(data, *length, command->address.value);
     if (ret == NRF_SUCCESS ) {
         return QSPI_STATUS_OK;
     } else {
@@ -368,7 +368,7 @@ qspi_status_t qspi_command_transfer(qspi_t *obj, const qspi_command_t *command, 
         return QSPI_STATUS_ERROR;
     }
  
-    ret_code = nrf_drv_qspi_cinstr_xfer(&qspi_cinstr_config, data, data);
+    ret_code = nrfx_qspi_cinstr_xfer(&qspi_cinstr_config, data, data);
     if (ret_code != NRF_SUCCESS) {
         return QSPI_STATUS_ERROR;
     }
@@ -391,9 +391,9 @@ static ret_code_t _qspi_drv_init(void)
     if(_initialized) {
         //NRF implementation prevents calling init again. But we need to call init again to program the new command settings in the IFCONFIG registers. 
         //So, we have to uninit qspi first and call init again. 
-        nrf_drv_qspi_uninit();
+        nrfx_qspi_uninit();
     }
-    ret = nrf_drv_qspi_init(&config, NULL , NULL);
+    ret = nrfx_qspi_init(&config, NULL , NULL);
     if( ret == NRF_SUCCESS )
         _initialized = true;
     return ret;
