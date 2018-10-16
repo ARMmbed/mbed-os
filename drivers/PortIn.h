@@ -32,20 +32,20 @@ namespace mbed {
  *
  *  Example:
  * @code
- * // Switch on an LED if any of mbed pins 21-26 is high
+ * // Turn on an LED if any pins of Port2[0:5] are high
  *
  * #include "mbed.h"
  *
- * PortIn     p(Port2, 0x0000003F);   // p21-p26
- * DigitalOut ind(LED4);
+ * PortIn     p(Port2, 0x0000003F);  // Port2 pins [0:5] only
+ * DigitalOut led(LED4);
  *
  * int main() {
  *     while(1) {
  *         int pins = p.read();
  *         if(pins) {
- *             ind = 1;
+ *             led = 1;
  *         } else {
- *             ind = 0;
+ *             led = 0;
  *         }
  *     }
  * }
@@ -55,10 +55,10 @@ namespace mbed {
 class PortIn {
 public:
 
-    /** Create an PortIn, connected to the specified port
+    /** Create a PortIn, connected to the specified port
      *
-     *  @param port Port to connect to (Port0-Port5)
-     *  @param mask A bitmask to identify which bits in the port should be included (0 - ignore)
+     *  @param port Port to connect to (as defined in target's PortNames.h)
+     *  @param mask Bitmask defines which port pins should be an input (0 - ignore, 1 - include)
         */
     PortIn(PortName port, int mask = 0xFFFFFFFF)
     {
@@ -67,10 +67,10 @@ public:
         core_util_critical_section_exit();
     }
 
-    /** Read the value currently output on the port
+    /** Read the value input to the port
      *
      *  @returns
-     *    An integer with each bit corresponding to associated port pin setting
+     *    An integer with each bit corresponding to the associated pin value
      */
     int read()
     {
