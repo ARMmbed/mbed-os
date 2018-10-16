@@ -349,6 +349,10 @@ static void print_error_report(mbed_error_ctx *ctx, const char *error_msg)
             mbed_error_printf("MessageQueue: 0x%X, ", ctx->error_value);
             break;
 
+        case MBED_ERROR_CODE_ASSERTION_FAILED:
+            mbed_error_printf("Assertion failed: ");
+            break;
+
         default:
             //Nothing to do here, just print the error info down
             break;
