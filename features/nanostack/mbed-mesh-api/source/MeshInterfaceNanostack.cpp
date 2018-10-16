@@ -69,7 +69,7 @@ void Nanostack::Interface::attach(
 }
 
 Nanostack::Interface::Interface(NanostackPhy &phy) : interface_phy(phy), interface_id(-1), _device_id(-1),
-      _connect_status(NSAPI_STATUS_DISCONNECTED), _blocking(true)
+      _connect_status(NSAPI_STATUS_DISCONNECTED), _blocking(true), _previous_connection_status(NSAPI_STATUS_DISCONNECTED)
 {
     mesh_system_init();
 }
@@ -138,15 +138,17 @@ void Nanostack::Interface::network_handler(mesh_connection_status_t status)
         _connect_status = NSAPI_STATUS_LOCAL_UP;
     } else if (status == MESH_CONNECTED_GLOBAL) {
         _connect_status = NSAPI_STATUS_GLOBAL_UP;
-    } else if (status == MESH_BOOTSTRAP_STARTED) {
+    } else if (status == MESH_BOOTSTRAP_STARTED || status == MESH_BOOTSTRAP_FAILED) {
         _connect_status = NSAPI_STATUS_CONNECTING;
     } else {
         _connect_status = NSAPI_STATUS_DISCONNECTED;
     }
 
-    if (_connection_status_cb) {
+    if (_connection_status_cb && _previous_connection_status != _connect_status) {
+
         _connection_status_cb(NSAPI_EVENT_CONNECTION_STATUS_CHANGE, _connect_status);
     }
+    _previous_connection_status = _connect_status;
 }
 
 nsapi_error_t Nanostack::Interface::register_phy()
