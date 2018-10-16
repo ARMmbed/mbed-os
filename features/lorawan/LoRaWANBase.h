@@ -493,7 +493,6 @@ public:
      *                      other negative error code if request failed:
      *                      LORAWAN_STATUS_NOT_INITIALIZED if system is not initialized with initialize(),
      *                      LORAWAN_STATUS_BUSY if the send cannot be canceled
-     *                      LORAWAN_STATUS_NO_OP if the operation cannot be completed (nothing to cancel)
      */
     virtual lorawan_status_t cancel_sending(void) = 0;
 };

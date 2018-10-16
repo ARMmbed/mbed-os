@@ -689,8 +689,6 @@ private:
 
     bool _is_nwk_joined;
 
-    bool _can_cancel_tx;
-
     bool _continuous_rx2_window_open;
 
     device_class_t _device_class;
