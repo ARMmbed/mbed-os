@@ -98,7 +98,7 @@ extern uint32_t __StackLimit;
 #elif defined ( __CC_ARM )
 extern char Load$$LR$$LR_IROM1$$Base;
 extern char Load$$LR$$LR_IROM1$$Length;
-extern char Load$$LR$$LR_IROM1$$Limit;
+extern uint32_t Load$$LR$$LR_IROM1$$Limit[];
 #define CODE_START ((uint32_t)&Load$$LR$$LR_IROM1$$Base)
 #define CODE_END   ((uint32_t)&Load$$LR$$LR_IROM1$$Limit)
 #define CODE_SIZE  ((uint32_t)&Load$$LR$$LR_IROM1$$Length)

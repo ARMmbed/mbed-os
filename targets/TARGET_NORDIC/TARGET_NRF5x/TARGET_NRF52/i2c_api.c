@@ -577,7 +577,6 @@ static void i2c_configure_driver_instance(i2c_t *obj)
         config->mode = NORDIC_I2C_MODE_DRIVER;
 
         /* If the peripheral is already running, then disable it and use the driver API to uninitialize it.*/
-        // 15.0 - has additional "twi" structure level and had to rename to "u" from "reg"
         if (nordic_nrf5_instance[instance].p_twi->ENABLE) {
             nrfx_twi_disable(&nordic_nrf5_instance[instance]);
             nrfx_twi_uninit(&nordic_nrf5_instance[instance]);
