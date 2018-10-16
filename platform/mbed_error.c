@@ -30,9 +30,10 @@
 #endif
 
 #ifndef NDEBUG
-#define ERROR_REPORT(ctx, error_msg) print_error_report(ctx, error_msg)
+#define ERROR_REPORT(ctx, error_msg, error_filename, error_line) print_error_report(ctx, error_msg, error_filename, error_line)
+static void print_error_report(const mbed_error_ctx *ctx, const char *, const char *error_filename, int error_line);
 #else
-#define ERROR_REPORT(ctx, error_msg) ((void) 0)
+#define ERROR_REPORT(ctx, error_msg, error_filename, error_line) ((void) 0)
 #endif
 
 static uint8_t error_in_progress = 0;
@@ -40,7 +41,6 @@ static int error_count = 0;
 static mbed_error_ctx first_error_ctx = {0};
 static mbed_error_ctx last_error_ctx = {0};
 static mbed_error_hook_t error_hook = NULL;
-static void print_error_report(mbed_error_ctx *ctx, const char *);
 static mbed_error_status_t handle_error(mbed_error_status_t error_status, unsigned int error_value, const char *filename, int line_number, void *caller);
 
 //Helper function to halt the system
@@ -67,7 +67,7 @@ WEAK void error(const char *format, ...)
 
     //Call handle_error/print_error_report permanently setting error_in_progress flag
     handle_error(MBED_ERROR_UNKNOWN, 0, NULL, 0, MBED_CALLER_ADDR());
-    ERROR_REPORT(&last_error_ctx, "Fatal Run-time error");
+    ERROR_REPORT(&last_error_ctx, "Fatal Run-time error", NULL, 0);
     error_in_progress = 1;
 
 #ifndef NDEBUG
@@ -185,7 +185,7 @@ WEAK mbed_error_status_t mbed_error(mbed_error_status_t error_status, const char
     }
 
     //On fatal errors print the error context/report
-    ERROR_REPORT(&last_error_ctx, error_msg);
+    ERROR_REPORT(&last_error_ctx, error_msg, filename, line_number);
     mbed_halt_system();
 
     return MBED_ERROR_FAILED_OPERATION;
@@ -293,7 +293,7 @@ static void print_threads_info(const osRtxThread_t *threads)
 #endif
 
 #ifndef NDEBUG
-static void print_error_report(mbed_error_ctx *ctx, const char *error_msg)
+static void print_error_report(const mbed_error_ctx *ctx, const char *error_msg, const char *error_filename, int error_line)
 {
     uint32_t error_code = MBED_GET_ERROR_CODE(ctx->error_status);
     uint32_t error_module = MBED_GET_ERROR_MODULE(ctx->error_status);
@@ -342,15 +342,21 @@ static void print_error_report(mbed_error_ctx *ctx, const char *error_msg)
             //Nothing to do here, just print the error info down
             break;
     }
-    mbed_error_printf(error_msg);
+    mbed_error_puts(error_msg);
     mbed_error_printf("\nLocation: 0x%X", ctx->error_address);
 
-#if MBED_CONF_PLATFORM_ERROR_FILENAME_CAPTURE_ENABLED && !defined(NDEBUG)
-    if ((NULL != ctx->error_filename[0]) && (ctx->error_line_number != 0)) {
-        //for string, we must pass address of a ptr which has the address of the string
-        mbed_error_printf("\nFile:%s+%d", ctx->error_filename, ctx->error_line_number);
+    /* We print the filename passed in, not any filename in the context. This
+     * avoids the console print for mbed_error being limited to the presence
+     * and length of the filename storage. Note that although the MBED_ERROR
+     * macro compiles out filenames unless platform.error-filename-capture-enabled
+     * is turned on, MBED_ASSERT always passes filenames, and other direct
+     * users of mbed_error() may also choose to.
+     */
+    if (error_filename) {
+        mbed_error_puts("\nFile: ");
+        mbed_error_puts(error_filename);
+        mbed_error_printf("+%d", error_line);
     }
-#endif
 
     mbed_error_printf("\nError Value: 0x%X", ctx->error_value);
 #ifdef MBED_CONF_RTOS_PRESENT
