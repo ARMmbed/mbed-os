@@ -329,9 +329,10 @@ typedef struct {
      */
     int8_t current_tx_power;
     /*!
-     * The current number of repetitions.
+     * The current number of repetitions for obtaining a QOS level set by
+     * NS (applicable only to unconfirmed messages).
      */
-    uint8_t current_nb_rep;
+    uint8_t current_nb_trans;
 } adr_req_params_t;
 
 /**

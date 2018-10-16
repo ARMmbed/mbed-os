@@ -145,40 +145,40 @@ lorawan_status_t LoRaMacCommand::process_mac_commands(const uint8_t *payload, ui
                 mlme_conf.nb_gateways = payload[mac_index++];
                 break;
             case SRV_MAC_LINK_ADR_REQ: {
-                adr_req_params_t linkAdrReq;
-                int8_t linkAdrDatarate = DR_0;
-                int8_t linkAdrTxPower = TX_POWER_0;
-                uint8_t linkAdrNbRep = 0;
-                uint8_t linkAdrNbBytesParsed = 0;
+                adr_req_params_t link_adr_req;
+                int8_t link_adr_dr = DR_0;
+                int8_t link_adr_txpower = TX_POWER_0;
+                uint8_t link_adr_nbtrans = 0;
+                uint8_t link_adr_nb_bytes_pasred = 0;
 
                 // Fill parameter structure
-                linkAdrReq.payload = &payload[mac_index - 1];
-                linkAdrReq.payload_size = commands_size - (mac_index - 1);
-                linkAdrReq.adr_enabled = mac_sys_params.adr_on;
-                linkAdrReq.ul_dwell_time = mac_sys_params.uplink_dwell_time;
-                linkAdrReq.current_datarate = mac_sys_params.channel_data_rate;
-                linkAdrReq.current_tx_power = mac_sys_params.channel_tx_power;
-                linkAdrReq.current_nb_rep = mac_sys_params.retry_num;
+                link_adr_req.payload = &payload[mac_index - 1];
+                link_adr_req.payload_size = commands_size - (mac_index - 1);
+                link_adr_req.adr_enabled = mac_sys_params.adr_on;
+                link_adr_req.ul_dwell_time = mac_sys_params.uplink_dwell_time;
+                link_adr_req.current_datarate = mac_sys_params.channel_data_rate;
+                link_adr_req.current_tx_power = mac_sys_params.channel_tx_power;
+                link_adr_req.current_nb_trans = mac_sys_params.nb_trans;
 
                 // Process the ADR requests
-                status = lora_phy.link_ADR_request(&linkAdrReq,
-                                                   &linkAdrDatarate,
-                                                   &linkAdrTxPower,
-                                                   &linkAdrNbRep,
-                                                   &linkAdrNbBytesParsed);
+                status = lora_phy.link_ADR_request(&link_adr_req,
+                                                   &link_adr_dr,
+                                                   &link_adr_txpower,
+                                                   &link_adr_nbtrans,
+                                                   &link_adr_nb_bytes_pasred);
 
                 if ((status & 0x07) == 0x07) {
-                    mac_sys_params.channel_data_rate = linkAdrDatarate;
-                    mac_sys_params.channel_tx_power = linkAdrTxPower;
-                    mac_sys_params.retry_num = linkAdrNbRep;
+                    mac_sys_params.channel_data_rate = link_adr_dr;
+                    mac_sys_params.channel_tx_power = link_adr_txpower;
+                    mac_sys_params.nb_trans = link_adr_nbtrans;
                 }
 
                 // Add the answers to the buffer
-                for (uint8_t i = 0; i < (linkAdrNbBytesParsed / 5); i++) {
+                for (uint8_t i = 0; i < (link_adr_nb_bytes_pasred / 5); i++) {
                     ret_value = add_link_adr_ans(status);
                 }
                 // Update MAC index
-                mac_index += linkAdrNbBytesParsed - 1;
+                mac_index += link_adr_nb_bytes_pasred - 1;
             }
                 break;
             case SRV_MAC_DUTY_CYCLE_REQ:

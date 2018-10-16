@@ -350,6 +350,9 @@ TEST_F(Test_LoRaWANStack, handle_tx)
     cb.events = events_cb;
     cb.link_check_resp = lc_resp;
     cb.battery_level = batt_lvl;
+    struct equeue_event ptr;
+    equeue_stub.void_ptr = &ptr;
+    equeue_stub.call_cb_immediately = true;
     EXPECT_TRUE(LORAWAN_STATUS_OK == object->set_lora_callbacks(&cb));
     EXPECT_TRUE(LORAWAN_STATUS_OK == object->set_link_check_request());
 
@@ -394,6 +397,10 @@ TEST_F(Test_LoRaWANStack, handle_rx)
     LoRaMac_stub::status_value = LORAWAN_STATUS_OK;
     EXPECT_TRUE(LORAWAN_STATUS_NO_ACTIVE_SESSIONS == object->handle_rx(NULL, 0, port, flags, false));
 
+    struct equeue_event ptr;
+    equeue_stub.void_ptr = &ptr;
+    equeue_stub.call_cb_immediately = true;
+
     lorawan_connect_t conn;
     conn.connect_type = LORAWAN_CONNECTION_ABP;
     EXPECT_TRUE(LORAWAN_STATUS_OK == object->connect(conn));
@@ -410,14 +417,13 @@ TEST_F(Test_LoRaWANStack, handle_rx)
     my_LoRaPHY phy;
     object->bind_phy_and_radio_driver(radio, phy);
 
-    struct equeue_event ptr;
-    equeue_stub.void_ptr = &ptr;
-    equeue_stub.call_cb_immediately = true;
     loramac_mcps_confirm_t conf;
+    conf.status = LORAMAC_EVENT_INFO_STATUS_OK;
     LoRaMac_stub::mcps_conf_ptr = &conf;
     radio._ev->tx_done();
 
     loramac_mcps_indication_t ind;
+    ind.status = LORAMAC_EVENT_INFO_STATUS_OK;
     LoRaMac_stub::mcps_ind_ptr = &ind;
 
     loramac_mlme_confirm_t mlme;
@@ -429,7 +435,7 @@ TEST_F(Test_LoRaWANStack, handle_rx)
     conf.req_type = MCPS_PROPRIETARY;
 
     ind.pending = true;
-    LoRaMac_stub::dev_class_value = CLASS_C;
+    LoRaMac_stub::dev_class_value = CLASS_A;
 
     loramac_mlme_indication_t mlme_ind;
     mlme_ind.pending = false;
@@ -546,11 +552,6 @@ TEST_F(Test_LoRaWANStack, set_device_class)
     EXPECT_TRUE(LORAWAN_STATUS_UNSUPPORTED == object->set_device_class(CLASS_B));
 
     EXPECT_TRUE(LORAWAN_STATUS_OK == object->set_device_class(CLASS_A));
-
-    //Visit callback
-    if (LoRaMac_stub::_ack_expiry_handler_for_class_c) {
-        LoRaMac_stub::_ack_expiry_handler_for_class_c.call();
-    }
 }
 
 TEST_F(Test_LoRaWANStack, acquire_tx_metadata)
@@ -574,8 +575,12 @@ TEST_F(Test_LoRaWANStack, acquire_tx_metadata)
     equeue_stub.void_ptr = &ptr;
     equeue_stub.call_cb_immediately = true;
     loramac_mcps_confirm_t conf;
+    conf.status = LORAMAC_EVENT_INFO_STATUS_OK;
     LoRaMac_stub::mcps_conf_ptr = &conf;
     radio._ev->tx_done();
+
+    LoRaMac_stub::slot_value = RX_SLOT_WIN_2;
+    radio._ev->rx_timeout();
 
     EXPECT_TRUE(LORAWAN_STATUS_OK == object->acquire_tx_metadata(data));
 }
@@ -601,13 +606,16 @@ TEST_F(Test_LoRaWANStack, acquire_rx_metadata)
     equeue_stub.void_ptr = &ptr;
     equeue_stub.call_cb_immediately = true;
     loramac_mcps_confirm_t conf;
+    conf.status = LORAMAC_EVENT_INFO_STATUS_OK;
     LoRaMac_stub::mcps_conf_ptr = &conf;
     radio._ev->tx_done();
 
     loramac_mcps_indication_t ind;
+    ind.status = LORAMAC_EVENT_INFO_STATUS_OK;
     LoRaMac_stub::mcps_ind_ptr = &ind;
 
     loramac_mlme_confirm_t mlme;
+    mlme.status = LORAMAC_EVENT_INFO_STATUS_OK;
     LoRaMac_stub::mlme_conf_ptr = &mlme;
     mlme.pending = true;
     mlme.req_type = MLME_JOIN;
@@ -631,6 +639,7 @@ TEST_F(Test_LoRaWANStack, acquire_rx_metadata)
     EXPECT_TRUE(LORAWAN_STATUS_OK == object->set_lora_callbacks(&cb));
     mlme.req_type = MLME_LINK_CHECK;
     mlme.status = LORAMAC_EVENT_INFO_STATUS_OK;
+    LoRaMac_stub::bool_true_counter = true;
     radio._ev->rx_done(NULL, 0, 0, 0);
 
     EXPECT_TRUE(LORAWAN_STATUS_OK == object->acquire_rx_metadata(data));
@@ -658,7 +667,7 @@ TEST_F(Test_LoRaWANStack, stop_sending)
     EventQueue queue;
     EXPECT_TRUE(LORAWAN_STATUS_OK == object->initialize_mac_layer(&queue));
 
-    LoRaMac_stub::status_value = LORAWAN_STATUS_DEVICE_OFF;
+    LoRaMac_stub::status_value = LORAWAN_STATUS_BUSY;
     EXPECT_TRUE(LORAWAN_STATUS_BUSY == object->stop_sending());
 
     LoRaMac_stub::status_value = LORAWAN_STATUS_OK;
@@ -851,7 +860,7 @@ TEST_F(Test_LoRaWANStack, process_reception)
 
     conf.req_type = MCPS_UNCONFIRMED;
     LoRaMac_stub::dev_class_value = CLASS_A;
-    LoRaMac_stub::bool_value = true;
+    LoRaMac_stub::bool_true_counter++;
     mlme_ind.pending = true;
     mlme_ind.indication_type = MLME_SCHEDULE_UPLINK;
     conf.status = LORAMAC_EVENT_INFO_STATUS_ERROR;

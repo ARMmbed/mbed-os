@@ -483,8 +483,10 @@ private:
     void make_tx_metadata_available(void);
     void make_rx_metadata_available(void);
 
-    void handle_ack_expiry_for_class_c(void);
     void handle_scheduling_failure(void);
+
+    void post_process_tx_with_reception(void);
+    void post_process_tx_no_reception(void);
 
 private:
     LoRaMac _loramac;
@@ -497,6 +499,7 @@ private:
     lorawan_tx_metadata _tx_metadata;
     lorawan_rx_metadata _rx_metadata;
     uint8_t _num_retry;
+    uint8_t _qos_cnt;
     uint32_t _ctrl_flags;
     uint8_t _app_port;
     bool _link_check_requested;
