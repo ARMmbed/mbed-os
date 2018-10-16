@@ -667,7 +667,7 @@ TEST_F(Test_LoRaWANStack, stop_sending)
     EventQueue queue;
     EXPECT_TRUE(LORAWAN_STATUS_OK == object->initialize_mac_layer(&queue));
 
-    LoRaMac_stub::status_value = LORAWAN_STATUS_DEVICE_OFF;
+    LoRaMac_stub::status_value = LORAWAN_STATUS_BUSY;
     EXPECT_TRUE(LORAWAN_STATUS_BUSY == object->stop_sending());
 
     LoRaMac_stub::status_value = LORAWAN_STATUS_OK;

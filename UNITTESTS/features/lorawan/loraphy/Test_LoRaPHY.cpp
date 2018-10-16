@@ -167,8 +167,17 @@ TEST_F(Test_LoRaPHY, calculate_backoff)
 {
     channel_params_t p[1];
     p[0].band = 0;
+    p[0].dr_range.fields.min = DR_0;
+    p[0].dr_range.fields.max = DR_5;
     object->get_phy_params().channels.channel_list = p;
     band_t b[1];
+    b[0].duty_cycle = 0;
+    b[0].higher_band_freq = 8689000;
+    b[0].lower_band_freq = 8687000;
+    b[0].max_tx_pwr = 20;
+    b[0].last_join_tx_time = 0;
+    b[0].last_tx_time = 0;
+    b[0].off_time = 0;
     object->get_phy_params().bands.table = b;
     object->calculate_backoff(false, false, false, 0, 10, 12);
 
@@ -180,6 +189,7 @@ TEST_F(Test_LoRaPHY, calculate_backoff)
 TEST_F(Test_LoRaPHY, mask_bit_test)
 {
     uint16_t buf;
+    buf = 0x08;
     EXPECT_TRUE(!object->mask_bit_test(&buf, 0));
 }
 
@@ -197,51 +207,58 @@ TEST_F(Test_LoRaPHY, mask_bit_clear)
 
 TEST_F(Test_LoRaPHY, request_new_channel)
 {
+    band_t b;
+    object->get_phy_params().bands.size = 1;
+    b.higher_band_freq = 8689000;
+    b.lower_band_freq = 8678000;
+    b.duty_cycle = 0;
+    b.last_join_tx_time = 0;
+    b.last_tx_time = 0;
+    b.max_tx_pwr = 20;
+    b.off_time = 0;
+    object->get_phy_params().bands.table = &b;
+
     channel_params_t p;
-    EXPECT_TRUE(0 == object->request_new_channel(1, &p));
-
-    p.frequency = 0;
+    //First 3 channels are set to be default
+    p.band = 0;
+    p.dr_range.fields.min = DR_0;
+    p.dr_range.fields.max = DR_5;
+    p.frequency = 8687000;
+    p.rx1_frequency = 0;
+    uint16_t dflt_msk = 0x07;
+    object->get_phy_params().channels.default_mask = &dflt_msk;
+    object->get_phy_params().channels.channel_list = &p;
     object->get_phy_params().custom_channelplans_supported = true;
-    uint16_t list;
-    object->get_phy_params().channels.default_mask = &list;
-    channel_params_t pp;
-    object->get_phy_params().channels.channel_list = &pp;
-    EXPECT_TRUE(0 == object->request_new_channel(1, &p));
 
-    //Default
-    p.frequency = 2;
-    EXPECT_TRUE(0 == object->request_new_channel(1, &p));
+    //Default channel, PARAMETER invalid
+    EXPECT_TRUE(0 == object->request_new_channel(0, &p));
 
     //Freq & DR invalid
-    object->get_phy_params().max_channel_cnt = 2;
-    EXPECT_TRUE(0 == object->request_new_channel(1, &p));
+    p.frequency = 12345;
+    p.dr_range.fields.max = 12;
+    object->get_phy_params().max_channel_cnt = 16;
+    object->get_phy_params().min_tx_datarate = DR_0;
+    object->get_phy_params().max_tx_datarate = DR_5;
+    // Frequency and DR are invalid - LORAWAN_STATUS_FREQ_AND_DR_INVALID
+    EXPECT_TRUE(0 == object->request_new_channel(0, &p));
 
     //Freq invalid
-    pp.frequency = 0;
-    object->get_phy_params().default_max_datarate = 1;
-    object->get_phy_params().max_tx_datarate = 8;
-    p.dr_range.fields.max = 2;
-    p.dr_range.fields.min = 0;
+    p.frequency = 12345;
+    p.dr_range.fields.max = DR_5;
     object->get_phy_params().default_channel_cnt = 3;
     EXPECT_TRUE(2 == object->request_new_channel(0, &p));
 
     //DR invalid
-    pp.frequency = 2;
-    p.band = 0;
-    object->get_phy_params().bands.size = 1;
-    band_t b;
-    object->get_phy_params().bands.table = &b;
-    b.higher_band_freq = 5;
-    b.lower_band_freq = 1;
+    p.frequency = 8687000;
     p.dr_range.fields.max = 12;
     p.dr_range.fields.min = 1;
     EXPECT_TRUE(1 == object->request_new_channel(0, &p));
 
     //STATUS_OK
-    p.dr_range.fields.max = 2;
-    uint16_t list2[16];
-    p.dr_range.fields.min = 0;
-    object->get_phy_params().channels.mask = list2;
+    p.dr_range.fields.max = DR_5;
+    p.dr_range.fields.min = DR_0;
+    uint16_t ch_msk = 0x08;
+    object->get_phy_params().channels.mask = &ch_msk;
     EXPECT_TRUE(3 == object->request_new_channel(0, &p));
 }
 
@@ -272,19 +289,27 @@ TEST_F(Test_LoRaPHY, restore_default_channels)
 TEST_F(Test_LoRaPHY, apply_cf_list)
 {
     uint8_t list[16];
+    memset(list, 0, 16);
     object->apply_cf_list(list, 0);
 
     object->get_phy_params().cflist_supported = true;
     object->apply_cf_list(list, 0);
 
-    object->get_phy_params().default_channel_cnt = 2;
+    object->get_phy_params().default_channel_cnt = 1;
     object->get_phy_params().cflist_channel_cnt = 0;
     object->get_phy_params().max_channel_cnt = 3;
 
-    uint16_t mask[8];
-    channel_params_t p[8];
-    object->get_phy_params().channels.default_mask = mask;
-    object->get_phy_params().channels.mask = mask;
+    uint16_t def_mask = 0x01;
+    channel_params_t p[16];
+    memset(p, 0, 16);
+    //one default channel
+    p[0].band = 0;
+    p[0].dr_range.fields.min = DR_0;
+    p[0].dr_range.fields.min = DR_5;
+    p[0].frequency = 8687000;
+
+    object->get_phy_params().channels.default_mask = &def_mask;
+    object->get_phy_params().channels.mask = &def_mask;
     object->get_phy_params().channels.channel_list = p;
     object->apply_cf_list(list, 16);
 
@@ -325,6 +350,7 @@ TEST_F(Test_LoRaPHY, rx_config)
     uint8_t list2;
     object->get_phy_params().payloads_with_repeater.table = &list2;
     rx_config_params_t p;
+    memset(&p, 0, sizeof(rx_config_params_t));
     p.datarate = 0;
     p.rx_slot = RX_SLOT_WIN_1;
     channel_params_t pp[1];
@@ -345,11 +371,22 @@ TEST_F(Test_LoRaPHY, rx_config)
 TEST_F(Test_LoRaPHY, compute_rx_win_params)
 {
     uint32_t list[1];
-    list[0] = 0;
+    list[0] = 125000;
     object->get_phy_params().bandwidths.table = list;
-    uint8_t list2;
+    uint8_t list2[1];
+    list2[0]= 12;
     object->get_phy_params().datarates.table = &list2;
+    channel_params_t ch_lst[16];
+    memset(ch_lst, 0, sizeof(channel_params_t)*16);
+    ch_lst[0].band = 0;
+    ch_lst[0].dr_range.fields.min = DR_0;
+    ch_lst[0].dr_range.fields.max = DR_5;
+    ch_lst[0].frequency = 8687000;
+    object->get_phy_params().channels.channel_list = ch_lst;
+    object->get_phy_params().channels.channel_list_size = 16;
     rx_config_params_t p;
+    memset(&p, 0, sizeof(rx_config_params_t));
+    p.frequency = 8687000;
     object->compute_rx_win_params(0, 0, 0, &p);
 
     p.datarate = 0;
@@ -368,20 +405,25 @@ TEST_F(Test_LoRaPHY, compute_rx_win_params)
 TEST_F(Test_LoRaPHY, tx_config)
 {
     band_t b;
+    memset(&b, 0, sizeof(band_t));
     object->get_phy_params().bands.table = &b;
     channel_params_t pp;
+    memset(&pp, 0, sizeof(channel_params_t));
     pp.band=0;
     object->get_phy_params().channels.channel_list = &pp;
-    uint32_t list = 0;
+    uint32_t list[1];
+    list[0] = 125000;
     object->get_phy_params().bandwidths.table = &list;
-    uint8_t list2;
+    uint8_t list2[1];
+    list2[0] = 12;
     object->get_phy_params().datarates.table = &list2;
     my_radio radio;
     object->set_radio_instance(radio);
     tx_config_params_t p;
+    memset(&p, 0, sizeof(tx_config_params_t));
     p.channel=0;
-    int8_t i;
-    lorawan_time_t t;
+    int8_t i = 20;
+    lorawan_time_t t = 36;
     object->tx_config(&p, &i, &t);
 
     p.datarate = 8;
@@ -392,7 +434,9 @@ TEST_F(Test_LoRaPHY, tx_config)
 TEST_F(Test_LoRaPHY, link_ADR_request)
 {
     adr_req_params_t p;
+    memset(&p, 0, sizeof(adr_req_params_t));
     uint8_t b[100];
+    memset(b, 0, 100);
     p.payload = b;
     b[0] = 0x03;
     b[1] = 1;
@@ -411,16 +455,17 @@ TEST_F(Test_LoRaPHY, link_ADR_request)
     b[14] = 0;
     b[15] = 0;
     p.payload_size = 16;
-    int8_t i, j;
-    uint8_t k, l;
-    uint8_t t[5];
+    int8_t i = 0, j = 0;
+    uint8_t k = 0, l = 0;
+    uint8_t t[5] = {12, 11, 10,  9,  8};
     t[0] = 0;
-    object->get_phy_params().datarates.size = 1;
+    object->get_phy_params().datarates.size = 5;
     object->get_phy_params().datarates.table = t;
     //Test without ADR payload does not make sense here.
 
-    object->get_phy_params().max_channel_cnt = 2;
-    channel_params_t li[4];
+    object->get_phy_params().max_channel_cnt = 16;
+    channel_params_t li[16];
+    memset(li, 0, sizeof(channel_params_t)*16);
     object->get_phy_params().channels.channel_list = li;
     li[0].frequency = 0;
     li[1].frequency = 5;
@@ -484,9 +529,19 @@ TEST_F(Test_LoRaPHY, link_ADR_request)
 TEST_F(Test_LoRaPHY, accept_rx_param_setup_req)
 {
     my_radio radio;
+    radio.bool_value = true;
     object->set_radio_instance(radio);
     rx_param_setup_req_t req;
-    EXPECT_TRUE(0 == object->accept_rx_param_setup_req(&req));
+    req.datarate = DR_0;
+    req.dr_offset = 0;
+    req.frequency = 8678000;
+    band_t band[1];
+    memset(band, 0, sizeof(band_t));
+    band[0].higher_band_freq = 8688000;
+    band[0].lower_band_freq = 8666000;
+    object->get_phy_params().bands.size = 1;
+    object->get_phy_params().bands.table = band;
+    EXPECT_TRUE(0x07 == object->accept_rx_param_setup_req(&req));
 }
 
 TEST_F(Test_LoRaPHY, accept_tx_param_setup_req)
@@ -504,8 +559,14 @@ TEST_F(Test_LoRaPHY, dl_channel_request)
     object->get_phy_params().dl_channel_req_supported = true;
     object->get_phy_params().bands.size = 1;
     band_t t[1];
+    memset(t, 0, sizeof(band_t));
+    t[0].higher_band_freq = 8688000;
+    t[0].lower_band_freq = 8668000;
+    object->get_phy_params().bands.size = 1;
     object->get_phy_params().bands.table = t;
-    channel_params_t p[4];
+    channel_params_t p[16];
+    memset(p, 0, sizeof(channel_params_t) * 16);
+    object->get_phy_params().channels.channel_list_size = 16;
     object->get_phy_params().channels.channel_list = p;
 
     p[0].frequency = 0;
@@ -533,15 +594,21 @@ TEST_F(Test_LoRaPHY, get_alternate_DR)
 TEST_F(Test_LoRaPHY, set_next_channel)
 {
     channel_selection_params_t p;
-    uint8_t ch;
-    lorawan_time_t t1;
-    lorawan_time_t t2;
+    memset(&p, 0, sizeof(channel_selection_params_t));
+    band_t band[1];
+    memset(band, 0, sizeof(band_t));
+    band[0].higher_band_freq = 8687000;
+    object->get_phy_params().bands.size = 1;
+    object->get_phy_params().bands.table = band;
+    uint8_t ch = 5;
+    lorawan_time_t t1 = 16;
+    lorawan_time_t t2 = 32;
     p.aggregate_timeoff = 10000;
     EXPECT_TRUE(LORAWAN_STATUS_DUTYCYCLE_RESTRICTED == object->set_next_channel(&p, &ch, &t1, &t2));
 
     uint16_t list[16];
+    memset(list, 0, 16);
     list[4] = 1;
-    memcpy(list, "\0", 16);
     object->get_phy_params().channels.mask = list;
     object->get_phy_params().channels.mask_size = 1;
     p.aggregate_timeoff = 10000;
@@ -553,6 +620,7 @@ TEST_F(Test_LoRaPHY, set_next_channel)
     p.joined = false;
     p.dc_enabled = false;
     band_t b[4];
+    memset(b, 0, sizeof(band_t)*4);
     object->get_phy_params().bands.size = 2;
     object->get_phy_params().bands.table = &b;
     b[0].off_time = 0;

@@ -527,7 +527,7 @@ TEST_F(Test_LoRaMac, get_backoff_timer_event_id)
 
 TEST_F(Test_LoRaMac, clear_tx_pipe)
 {
-    EXPECT_EQ(LORAWAN_STATUS_OK, object->clear_tx_pipe()); //timer id == 0
+    EXPECT_EQ(LORAWAN_STATUS_NO_OP, object->clear_tx_pipe()); //timer id == 0
 
     my_phy phy;
     object->bind_phy(phy);
@@ -543,6 +543,12 @@ TEST_F(Test_LoRaMac, clear_tx_pipe)
     EXPECT_TRUE(LORAWAN_STATUS_OK == object->initialize(NULL, my_cb));
     EventQueue_stub::int_value = 0;
     EXPECT_EQ(LORAWAN_STATUS_BUSY, object->clear_tx_pipe());
+    loramac_mhdr_t machdr;
+    machdr.bits.mtype = MCPS_UNCONFIRMED;
+    uint8_t buf[1];
+    buf[0] = 'T';
+    LoRaPHY_stub::lorawan_status_value = LORAWAN_STATUS_DUTYCYCLE_RESTRICTED;
+    EXPECT_TRUE(LORAWAN_STATUS_OK == object->send(&machdr, 15, buf, 1));
 
     EventQueue_stub::int_value = 1;
     EXPECT_EQ(LORAWAN_STATUS_OK, object->clear_tx_pipe());

@@ -387,6 +387,7 @@ lorawan_status_t LoRaPHY::set_next_channel(channel_selection_params_t *params,
                                            uint8_t *channel, lorawan_time_t *time,
                                            lorawan_time_t *aggregate_timeoff)
 {
+    *time = 100;
     return LoRaPHY_stub::lorawan_status_value;
 }
 
