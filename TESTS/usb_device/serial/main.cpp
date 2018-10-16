@@ -23,6 +23,7 @@
 #include "unity/unity.h"
 #include "mbed.h"
 #include <stdlib.h>
+#include "usb_phy_api.h"
 #include "USBCDC.h"
 #include "USBSerial.h"
 
@@ -30,8 +31,13 @@
 #define USB_CDC_PID 0x2013
 #define USB_SERIAL_VID 0x1f00
 #define USB_SERIAL_PID 0x2012
-#define USB_SN_MAX_LEN 128
 
+#define MSG_KEY_LEN 24
+
+#define MSG_VALUE_DUMMY "0"
+
+#define MSG_KEY_DEVICE_READY "ready"
+#define MSG_KEY_SERIAL_NUMBER "usb_dev_sn"
 #define MSG_KEY_PORT_OPEN_WAIT "port_open_wait"
 #define MSG_KEY_PORT_OPEN_CLOSE "port_open_close"
 #define MSG_KEY_SEND_BYTES_SINGLE "send_single"
@@ -56,6 +62,13 @@
 #define TX_DELAY_MS 10
 
 #define LINE_CODING_STRLEN 13 // 6 + 2 + 1 + 1 + 3 * comma
+
+#define USB_DEV_SN_LEN (32) // 32 hex digit UUID
+#define NONASCII_CHAR ('?')
+#define USB_DEV_SN_DESC_SIZE (USB_DEV_SN_LEN * 2 + 2)
+
+const char *default_serial_num = "0123456789";
+char usb_dev_sn[USB_DEV_SN_LEN + 1];
 
 using utest::v1::Case;
 using utest::v1::Specification;
@@ -122,19 +135,127 @@ Mail<line_coding_t, 8> lc_mail;
 #define EF_SEND (1ul << 0)
 EventFlags event_flags;
 
-char *usb_desc2str(const uint8_t *usb_desc, char *str, size_t n)
+/**
+ * Convert a USB string descriptor to C style ASCII
+ *
+ * The string placed in str is always null-terminated which may cause the
+ * loss of data if n is to small. If the length of descriptor string is less
+ * than n, additional null bytes are written to str.
+ *
+ * @param str output buffer for the ASCII string
+ * @param usb_desc USB string descriptor
+ * @param n size of str buffer
+ * @returns number of non-null bytes returned in str or -1 on failure
+ */
+int usb_string_desc2ascii(char *str, const uint8_t *usb_desc, size_t n)
 {
-    const size_t desc_size = usb_desc[0] - 2;
-    const uint8_t *src = &usb_desc[2];
-    size_t i, j;
-    for (i = 0, j = 0; i < n && j < desc_size; i++, j += 2) {
-        str[i] = src[j];
+    if (str == NULL || usb_desc == NULL || n < 1) {
+        return -1;
     }
-    for (; i < n; i++) {
-        str[i] = '\0';
+    // bDescriptorType @ offset 1
+    if (usb_desc[1] != STRING_DESCRIPTOR) {
+        return -1;
     }
-    return str;
+    // bLength @ offset 0
+    const size_t bLength = usb_desc[0];
+    if (bLength % 2 != 0) {
+        return -1;
+    }
+    size_t s, d;
+    for (s = 0, d = 2; s < n - 1 && d < bLength; s++, d += 2) {
+        // handle non-ASCII characters
+        if (usb_desc[d] > 0x7f || usb_desc[d + 1] != 0) {
+            str[s] = NONASCII_CHAR;
+        } else {
+            str[s] = usb_desc[d];
+        }
+    }
+    int str_len = s;
+    for (; s < n; s++) {
+        str[s] = '\0';
+    }
+    return str_len;
 }
+
+/**
+ * Convert a C style ASCII to a USB string descriptor
+ *
+ * @param usb_desc output buffer for the USB string descriptor
+ * @param str ASCII string
+ * @param n size of usb_desc buffer, even number
+ * @returns number of bytes returned in usb_desc or -1 on failure
+ */
+int ascii2usb_string_desc(uint8_t *usb_desc, const char *str, size_t n)
+{
+    if (str == NULL || usb_desc == NULL || n < 4) {
+        return -1;
+    }
+    if (n % 2 != 0) {
+        return -1;
+    }
+    size_t s, d;
+    // set bString (@ offset 2 onwards) as a UNICODE UTF-16LE string
+    memset(usb_desc, 0, n);
+    for (s = 0, d = 2; str[s] != '\0' && d < n; s++, d += 2) {
+        usb_desc[d] = str[s];
+    }
+    // set bLength @ offset 0
+    usb_desc[0] = d;
+    // set bDescriptorType @ offset 1
+    usb_desc[1] = STRING_DESCRIPTOR;
+    return d;
+}
+
+class TestUSBCDC: public USBCDC {
+private:
+    uint8_t _serial_num_descriptor[USB_DEV_SN_DESC_SIZE];
+public:
+    TestUSBCDC(uint16_t vendor_id = 0x1f00, uint16_t product_id = 0x2012, uint16_t product_release = 0x0001,
+               const char *serial_number = default_serial_num) :
+        USBCDC(get_usb_phy(), vendor_id, product_id, product_release)
+    {
+        init();
+        int rc = ascii2usb_string_desc(_serial_num_descriptor, serial_number, USB_DEV_SN_DESC_SIZE);
+        if (rc < 0) {
+            ascii2usb_string_desc(_serial_num_descriptor, default_serial_num, USB_DEV_SN_DESC_SIZE);
+        }
+    }
+
+    virtual ~TestUSBCDC()
+    {
+        deinit();
+    }
+
+    virtual const uint8_t *string_iserial_desc()
+    {
+        return (const uint8_t *) _serial_num_descriptor;
+    }
+};
+
+class TestUSBSerial: public USBSerial {
+private:
+    uint8_t _serial_num_descriptor[USB_DEV_SN_DESC_SIZE];
+public:
+    TestUSBSerial(uint16_t vendor_id = 0x1f00, uint16_t product_id = 0x2012, uint16_t product_release = 0x0001,
+                  const char *serial_number = default_serial_num) :
+        USBSerial(get_usb_phy(), vendor_id, product_id, product_release)
+    {
+        int rc = ascii2usb_string_desc(_serial_num_descriptor, serial_number, USB_DEV_SN_DESC_SIZE);
+        if (rc < 0) {
+            ascii2usb_string_desc(_serial_num_descriptor, default_serial_num, USB_DEV_SN_DESC_SIZE);
+        }
+    }
+
+    virtual ~TestUSBSerial()
+    {
+        deinit();
+    }
+
+    virtual const uint8_t *string_iserial_desc()
+    {
+        return (const uint8_t *) _serial_num_descriptor;
+    }
+};
 
 /** Test CDC USB reconnect
  *
@@ -144,9 +265,7 @@ char *usb_desc2str(const uint8_t *usb_desc, char *str, size_t n)
  */
 void test_cdc_usb_reconnect()
 {
-    USBCDC usb_cdc(false, USB_CDC_VID, USB_CDC_PID);
-    char usb_cdc_sn[USB_SN_MAX_LEN] = { };
-    usb_desc2str(usb_cdc.string_iserial_desc(), usb_cdc_sn, USB_SN_MAX_LEN);
+    TestUSBCDC usb_cdc(USB_CDC_VID, USB_CDC_PID, 1, usb_dev_sn);
     TEST_ASSERT_FALSE(usb_cdc.configured());
     TEST_ASSERT_FALSE(usb_cdc.ready());
 
@@ -159,7 +278,7 @@ void test_cdc_usb_reconnect()
     TEST_ASSERT_TRUE(usb_cdc.configured());
     TEST_ASSERT_FALSE(usb_cdc.ready());
 
-    greentea_send_kv(MSG_KEY_PORT_OPEN_WAIT, usb_cdc_sn);
+    greentea_send_kv(MSG_KEY_PORT_OPEN_WAIT, MSG_VALUE_DUMMY);
     // Wait for the host to open the port.
     usb_cdc.wait_ready();
     TEST_ASSERT_TRUE(usb_cdc.configured());
@@ -181,7 +300,7 @@ void test_cdc_usb_reconnect()
     TEST_ASSERT_TRUE(usb_cdc.configured());
     TEST_ASSERT_FALSE(usb_cdc.ready());
 
-    greentea_send_kv(MSG_KEY_PORT_OPEN_WAIT, usb_cdc_sn);
+    greentea_send_kv(MSG_KEY_PORT_OPEN_WAIT, MSG_VALUE_DUMMY);
     // Wait for the host to open the port again.
     usb_cdc.wait_ready();
     TEST_ASSERT_TRUE(usb_cdc.configured());
@@ -202,11 +321,9 @@ void test_cdc_usb_reconnect()
  */
 void test_cdc_rx_single_bytes()
 {
-    USBCDC usb_cdc(false, USB_CDC_VID, USB_CDC_PID);
-    char usb_cdc_sn[USB_SN_MAX_LEN] = { };
-    usb_desc2str(usb_cdc.string_iserial_desc(), usb_cdc_sn, USB_SN_MAX_LEN);
+    TestUSBCDC usb_cdc(USB_CDC_VID, USB_CDC_PID, 1, usb_dev_sn);
     usb_cdc.connect();
-    greentea_send_kv(MSG_KEY_SEND_BYTES_SINGLE, usb_cdc_sn);
+    greentea_send_kv(MSG_KEY_SEND_BYTES_SINGLE, MSG_VALUE_DUMMY);
     usb_cdc.wait_ready();
     uint8_t buff = 0x01;
     for (int expected = 0xff; expected >= 0; expected--) {
@@ -247,11 +364,9 @@ void tx_thread_fun(USBCDC *usb_cdc)
  */
 void test_cdc_rx_single_bytes_concurrent()
 {
-    USBCDC usb_cdc(false, USB_CDC_VID, USB_CDC_PID);
-    char usb_cdc_sn[USB_SN_MAX_LEN] = { };
-    usb_desc2str(usb_cdc.string_iserial_desc(), usb_cdc_sn, USB_SN_MAX_LEN);
+    TestUSBCDC usb_cdc(USB_CDC_VID, USB_CDC_PID, 1, usb_dev_sn);
     usb_cdc.connect();
-    greentea_send_kv(MSG_KEY_SEND_BYTES_SINGLE, usb_cdc_sn);
+    greentea_send_kv(MSG_KEY_SEND_BYTES_SINGLE, MSG_VALUE_DUMMY);
     usb_cdc.wait_ready();
     wait_ms(TX_DELAY_MS);
     Thread tx_thread;
@@ -283,11 +398,9 @@ void test_cdc_rx_single_bytes_concurrent()
  */
 void test_cdc_rx_multiple_bytes()
 {
-    USBCDC usb_cdc(false, USB_CDC_VID, USB_CDC_PID);
-    char usb_cdc_sn[USB_SN_MAX_LEN] = { };
-    usb_desc2str(usb_cdc.string_iserial_desc(), usb_cdc_sn, USB_SN_MAX_LEN);
+    TestUSBCDC usb_cdc(USB_CDC_VID, USB_CDC_PID, 1, usb_dev_sn);
     usb_cdc.connect();
-    greentea_send_kv(MSG_KEY_SEND_BYTES_MULTIPLE, usb_cdc_sn);
+    greentea_send_kv(MSG_KEY_SEND_BYTES_MULTIPLE, MSG_VALUE_DUMMY);
     usb_cdc.wait_ready();
     uint8_t buff[RX_BUFF_SIZE] = { 0 };
     uint8_t expected_buff[RX_BUFF_SIZE] = { 0 };
@@ -317,11 +430,9 @@ void test_cdc_rx_multiple_bytes()
  */
 void test_cdc_rx_multiple_bytes_concurrent()
 {
-    USBCDC usb_cdc(false, USB_CDC_VID, USB_CDC_PID);
-    char usb_cdc_sn[USB_SN_MAX_LEN] = { };
-    usb_desc2str(usb_cdc.string_iserial_desc(), usb_cdc_sn, USB_SN_MAX_LEN);
+    TestUSBCDC usb_cdc(USB_CDC_VID, USB_CDC_PID, 1, usb_dev_sn);
     usb_cdc.connect();
-    greentea_send_kv(MSG_KEY_SEND_BYTES_MULTIPLE, usb_cdc_sn);
+    greentea_send_kv(MSG_KEY_SEND_BYTES_MULTIPLE, MSG_VALUE_DUMMY);
     usb_cdc.wait_ready();
     wait_ms(TX_DELAY_MS);
     Thread tx_thread;
@@ -357,11 +468,9 @@ void test_cdc_rx_multiple_bytes_concurrent()
  */
 void test_cdc_loopback()
 {
-    USBCDC usb_cdc(false, USB_CDC_VID, USB_CDC_PID);
-    char usb_cdc_sn[USB_SN_MAX_LEN] = { };
-    usb_desc2str(usb_cdc.string_iserial_desc(), usb_cdc_sn, USB_SN_MAX_LEN);
+    TestUSBCDC usb_cdc(USB_CDC_VID, USB_CDC_PID, 1, usb_dev_sn);
     usb_cdc.connect();
-    greentea_send_kv(MSG_KEY_LOOPBACK, usb_cdc_sn);
+    greentea_send_kv(MSG_KEY_LOOPBACK, MSG_VALUE_DUMMY);
     usb_cdc.wait_ready();
     wait_ms(TX_DELAY_MS);
     uint8_t rx_buff, tx_buff;
@@ -387,9 +496,7 @@ void test_cdc_loopback()
  */
 void test_serial_usb_reconnect()
 {
-    USBSerial usb_serial(false, USB_SERIAL_VID, USB_SERIAL_PID);
-    char usb_serial_sn[USB_SN_MAX_LEN] = { };
-    usb_desc2str(usb_serial.string_iserial_desc(), usb_serial_sn, USB_SN_MAX_LEN);
+    TestUSBSerial usb_serial(USB_SERIAL_VID, USB_SERIAL_PID, 1, usb_dev_sn);
     TEST_ASSERT_FALSE(usb_serial.configured());
     TEST_ASSERT_FALSE(usb_serial.connected());
     TEST_ASSERT_EQUAL_INT(0, usb_serial.readable());
@@ -404,7 +511,7 @@ void test_serial_usb_reconnect()
     TEST_ASSERT_FALSE(usb_serial.connected());
     TEST_ASSERT_EQUAL_INT(0, usb_serial.readable());
 
-    greentea_send_kv(MSG_KEY_PORT_OPEN_WAIT, usb_serial_sn);
+    greentea_send_kv(MSG_KEY_PORT_OPEN_WAIT, MSG_VALUE_DUMMY);
     // Wait for the host to open the port.
     while (!usb_serial.connected()) {
         wait_ms(1);
@@ -431,7 +538,7 @@ void test_serial_usb_reconnect()
     TEST_ASSERT_FALSE(usb_serial.connected());
     TEST_ASSERT_EQUAL_INT(0, usb_serial.readable());
 
-    greentea_send_kv(MSG_KEY_PORT_OPEN_WAIT, usb_serial_sn);
+    greentea_send_kv(MSG_KEY_PORT_OPEN_WAIT, MSG_VALUE_DUMMY);
     // Wait for the host to open the port again.
     while (!usb_serial.connected()) {
         wait_ms(1);
@@ -456,11 +563,9 @@ void test_serial_usb_reconnect()
  */
 void test_serial_term_reopen()
 {
-    USBSerial usb_serial(false, USB_SERIAL_VID, USB_SERIAL_PID);
-    char usb_serial_sn[USB_SN_MAX_LEN] = { };
-    usb_desc2str(usb_serial.string_iserial_desc(), usb_serial_sn, USB_SN_MAX_LEN);
+    TestUSBSerial usb_serial(USB_SERIAL_VID, USB_SERIAL_PID, 1, usb_dev_sn);
     usb_serial.connect();
-    greentea_send_kv(MSG_KEY_PORT_OPEN_CLOSE, usb_serial_sn);
+    greentea_send_kv(MSG_KEY_PORT_OPEN_CLOSE, MSG_VALUE_DUMMY);
     // Wait for the host to open the terminal.
     while (!usb_serial.connected()) {
         wait_ms(1);
@@ -479,7 +584,7 @@ void test_serial_term_reopen()
     TEST_ASSERT_FALSE(usb_serial.connected());
     TEST_ASSERT_EQUAL_INT(0, usb_serial.readable());
 
-    greentea_send_kv(MSG_KEY_PORT_OPEN_CLOSE, usb_serial_sn);
+    greentea_send_kv(MSG_KEY_PORT_OPEN_CLOSE, MSG_VALUE_DUMMY);
     // Wait for the host to open the terminal again.
     while (!usb_serial.connected()) {
         wait_ms(1);
@@ -509,11 +614,9 @@ void test_serial_term_reopen()
  */
 void test_serial_getc()
 {
-    USBSerial usb_serial(false, USB_SERIAL_VID, USB_SERIAL_PID);
-    char usb_serial_sn[USB_SN_MAX_LEN] = { };
-    usb_desc2str(usb_serial.string_iserial_desc(), usb_serial_sn, USB_SN_MAX_LEN);
+    TestUSBSerial usb_serial(USB_SERIAL_VID, USB_SERIAL_PID, 1, usb_dev_sn);
     usb_serial.connect();
-    greentea_send_kv(MSG_KEY_SEND_BYTES_SINGLE, usb_serial_sn);
+    greentea_send_kv(MSG_KEY_SEND_BYTES_SINGLE, MSG_VALUE_DUMMY);
     while (!usb_serial.connected()) {
         wait_ms(1);
     }
@@ -541,11 +644,9 @@ void test_serial_getc()
  */
 void test_serial_printf_scanf()
 {
-    USBSerial usb_serial(false, USB_SERIAL_VID, USB_SERIAL_PID);
-    char usb_serial_sn[USB_SN_MAX_LEN] = { };
-    usb_desc2str(usb_serial.string_iserial_desc(), usb_serial_sn, USB_SN_MAX_LEN);
+    TestUSBSerial usb_serial(USB_SERIAL_VID, USB_SERIAL_PID, 1, usb_dev_sn);
     usb_serial.connect();
-    greentea_send_kv(MSG_KEY_LOOPBACK, usb_serial_sn);
+    greentea_send_kv(MSG_KEY_LOOPBACK, MSG_VALUE_DUMMY);
     while (!usb_serial.connected()) {
         wait_ms(1);
     }
@@ -587,11 +688,9 @@ void line_coding_changed_cb(int baud, int bits, int parity, int stop)
  */
 void test_serial_line_coding_change()
 {
-    USBSerial usb_serial(false, USB_SERIAL_VID, USB_SERIAL_PID);
-    char usb_serial_sn[USB_SN_MAX_LEN] = { };
-    usb_desc2str(usb_serial.string_iserial_desc(), usb_serial_sn, USB_SN_MAX_LEN);
+    TestUSBSerial usb_serial(USB_SERIAL_VID, USB_SERIAL_PID, 1, usb_dev_sn);
     usb_serial.connect();
-    greentea_send_kv(MSG_KEY_CHANGE_LINE_CODING, usb_serial_sn);
+    greentea_send_kv(MSG_KEY_CHANGE_LINE_CODING, MSG_VALUE_DUMMY);
     while (!usb_serial.connected()) {
         wait_ms(1);
     }
@@ -643,7 +742,25 @@ utest::v1::status_t testsuite_setup(const size_t number_of_cases)
 {
     GREENTEA_SETUP(35, "usb_device_serial");
     srand((unsigned) ticker_read_us(get_us_ticker_data()));
-    return utest::v1::greentea_test_setup_handler(number_of_cases);
+
+    utest::v1::status_t status = utest::v1::greentea_test_setup_handler(number_of_cases);
+    if (status != utest::v1::STATUS_CONTINUE) {
+        return status;
+    }
+
+    char key[MSG_KEY_LEN + 1] = { };
+    char usb_dev_uuid[USB_DEV_SN_LEN + 1] = { };
+
+    greentea_send_kv(MSG_KEY_DEVICE_READY, MSG_VALUE_DUMMY);
+    greentea_parse_kv(key, usb_dev_uuid, MSG_KEY_LEN, USB_DEV_SN_LEN + 1);
+
+    if (strcmp(key, MSG_KEY_SERIAL_NUMBER) != 0) {
+        utest_printf("Invalid message key.\n");
+        return utest::v1::STATUS_ABORT;
+    }
+
+    strncpy(usb_dev_sn, usb_dev_uuid, USB_DEV_SN_LEN + 1);
+    return status;
 }
 
 Case cases[] = {
@@ -660,7 +777,7 @@ Case cases[] = {
     Case("Serial line coding change", test_serial_line_coding_change),
 };
 
-Specification specification(testsuite_setup, cases);
+Specification specification((utest::v1::test_setup_handler_t) testsuite_setup, cases);
 
 int main()
 {
