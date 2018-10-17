@@ -79,7 +79,7 @@ static void powerdown_nvic()
     int i;
     int j;
 
-#if defined(__CORTEX_M23)
+#if defined(__CORTEX_M23) || defined(__CORTEX_M33)
     // M23 doesn't support ICTR and supports up to 240 external interrupts.
     isr_groups_32 = 8;
 #else
@@ -89,7 +89,7 @@ static void powerdown_nvic()
         NVIC->ICER[i] = 0xFFFFFFFF;
         NVIC->ICPR[i] = 0xFFFFFFFF;
         for (j = 0; j < 8; j++) {
-#if defined(__CORTEX_M23)
+#if defined(__CORTEX_M23) || defined(__CORTEX_M33)
             NVIC->IPR[i * 8 + j] = 0x00000000;
 #else
             NVIC->IP[i * 8 + j] = 0x00000000;
@@ -108,7 +108,7 @@ static void powerdown_scb(uint32_t vtor)
     SCB->AIRCR = 0x05FA | 0x0000;
     SCB->SCR = 0x00000000;
     // SCB->CCR     - Implementation defined value
-#if defined(__CORTEX_M23)
+#if defined(__CORTEX_M23) || defined(__CORTEX_M33)
     for (i = 0; i < 2; i++) {
         SCB->SHPR[i] = 0x00;
     }
@@ -122,7 +122,7 @@ static void powerdown_scb(uint32_t vtor)
     }
 #endif
     SCB->SHCSR = 0x00000000;
-#if defined(__CORTEX_M23)
+#if defined(__CORTEX_M23) || defined(__CORTEX_M33)
 #else
     SCB->CFSR = 0xFFFFFFFF;
     SCB->HFSR = SCB_HFSR_DEBUGEVT_Msk | SCB_HFSR_FORCED_Msk | SCB_HFSR_VECTTBL_Msk;
