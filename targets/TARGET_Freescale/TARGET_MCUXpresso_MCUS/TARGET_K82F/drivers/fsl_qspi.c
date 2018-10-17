@@ -1,9 +1,12 @@
 /*
+ * The Clear BSD License
  * Copyright (c) 2015, Freescale Semiconductor, Inc.
+ * Copyright 2016-2017 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
- * are permitted provided that the following conditions are met:
+ * are permitted (subject to the limitations in the disclaimer below) provided
+ *  that the following conditions are met:
  *
  * o Redistributions of source code must retain the above copyright notice, this list
  *   of conditions and the following disclaimer.
@@ -12,10 +15,11 @@
  *   list of conditions and the following disclaimer in the documentation and/or
  *   other materials provided with the distribution.
  *
- * o Neither the name of Freescale Semiconductor, Inc. nor the names of its
+ * o Neither the name of the copyright holder nor the names of its
  *   contributors may be used to endorse or promote products derived from this
  *   software without specific prior written permission.
  *
+ * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS LICENSE.
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -30,6 +34,12 @@
 
 #include "fsl_qspi.h"
 
+/* Component ID definition, used by tools. */
+#ifndef FSL_COMPONENT_ID
+#define FSL_COMPONENT_ID "platform.drivers.qspi"
+#endif
+
+
 /*******************************************************************************
  * Definitations
  ******************************************************************************/
@@ -40,17 +50,11 @@ enum _qspi_transfer_state
     kQSPI_TxError        /*!< Transfer error occured. */
 };
 
-#define QSPI_AHB_BUFFER_REG(base, index) (*((uint32_t *)&(base->BUF0CR) + index))
+#define QSPI_AHB_BUFFER_REG(base, index) (((volatile uint32_t *)&((base)->BUF0CR))[(index)])
 
 /*******************************************************************************
  * Prototypes
  ******************************************************************************/
-/*!
-* @brief Get the instance number for QSPI.
-*
-* @param base QSPI base pointer.
-*/
-uint32_t QSPI_GetInstance(QuadSPI_Type *base);
 
 /*******************************************************************************
  * Variables
@@ -70,7 +74,7 @@ uint32_t QSPI_GetInstance(QuadSPI_Type *base)
     uint32_t instance;
 
     /* Find the instance index from base address mappings. */
-    for (instance = 0; instance < FSL_FEATURE_SOC_QuadSPI_COUNT; instance++)
+    for (instance = 0; instance < ARRAY_SIZE(s_qspiBases); instance++)
     {
         if (s_qspiBases[instance] == base)
         {
@@ -78,7 +82,7 @@ uint32_t QSPI_GetInstance(QuadSPI_Type *base)
         }
     }
 
-    assert(instance < FSL_FEATURE_SOC_QuadSPI_COUNT);
+    assert(instance < ARRAY_SIZE(s_qspiBases));
 
     return instance;
 }
@@ -102,12 +106,21 @@ void QSPI_Init(QuadSPI_Type *base, qspi_config_t *config, uint32_t srcClock_Hz)
     /* Configure QSPI */
     QSPI_Enable(base, false);
 
+#if !defined (FSL_FEATURE_QSPI_CLOCK_CONTROL_EXTERNAL) || (!FSL_FEATURE_QSPI_CLOCK_CONTROL_EXTERNAL)
     /* Set qspi clock source */
     base->SOCCR = config->clockSource;
 
     /* Set the divider of QSPI clock */
     base->MCR &= ~QuadSPI_MCR_SCLKCFG_MASK;
-    base->MCR |= QuadSPI_MCR_SCLKCFG(srcClock_Hz / config->baudRate - 1U);
+
+    if (srcClock_Hz % config->baudRate) {
+        /* In case we cannot get the exact baudrate, get the closest lower value */
+        base->MCR |= QuadSPI_MCR_SCLKCFG(srcClock_Hz / config->baudRate);
+    } else {
+        base->MCR |= QuadSPI_MCR_SCLKCFG(srcClock_Hz / config->baudRate - 1U);
+    }
+
+#endif /* FSL_FEATURE_QSPI_CLOCK_CONTROL_EXTERNAL */
 
     /* Set AHB buffer size and buffer master */
     for (i = 0; i < FSL_FEATURE_QSPI_AHB_BUFFER_COUNT; i++)
@@ -127,8 +140,11 @@ void QSPI_Init(QuadSPI_Type *base, qspi_config_t *config, uint32_t srcClock_Hz)
     /* Set watermark */
     base->RBCT &= ~QuadSPI_RBCT_WMRK_MASK;
     base->RBCT |= QuadSPI_RBCT_WMRK(config->rxWatermark - 1);
+
+#if !defined (FSL_FEATURE_QSPI_HAS_NO_TXDMA) || (!FSL_FEATURE_QSPI_HAS_NO_TXDMA)
     base->TBCT &= ~QuadSPI_TBCT_WMRK_MASK;
     base->TBCT |= QuadSPI_TBCT_WMRK(config->txWatermark - 1);
+#endif /* FSL_FEATURE_QSPI_HAS_NO_TXDMA */
 
     /* Enable QSPI module */
     if (config->enableQspi)
@@ -178,9 +194,11 @@ void QSPI_SetFlashConfig(QuadSPI_Type *base, qspi_flash_config_t *config)
     base->SFB2AD = address;
 #endif /* FSL_FEATURE_QSPI_SUPPORT_PARALLEL_MODE */
 
+#if !defined (FSL_FEATURE_QSPI_HAS_NO_SFACR) || (!FSL_FEATURE_QSPI_HAS_NO_SFACR)
     /* Set Word Addressable feature */
     val = QuadSPI_SFACR_WA(config->enableWordAddress) | QuadSPI_SFACR_CAS(config->cloumnspace);
     base->SFACR = val;
+#endif /* FSL_FEATURE_QSPI_HAS_NO_SFACR */
 
     /* Config look up table */
     base->LUTKEY = 0x5AF05AF0U;
@@ -192,9 +210,13 @@ void QSPI_SetFlashConfig(QuadSPI_Type *base, qspi_flash_config_t *config)
     base->LUTKEY = 0x5AF05AF0U;
     base->LCKCR = 0x1U;
 
+#if !defined (FSL_FEATURE_QSPI_HAS_NO_TDH) || (!FSL_FEATURE_QSPI_HAS_NO_TDH)
     /* Config flash timing */
     val = QuadSPI_FLSHCR_TCSS(config->CSHoldTime) | QuadSPI_FLSHCR_TDH(config->dataHoldTime) |
           QuadSPI_FLSHCR_TCSH(config->CSSetupTime);
+#else
+    val = QuadSPI_FLSHCR_TCSS(config->CSHoldTime) | QuadSPI_FLSHCR_TCSH(config->CSSetupTime);
+#endif /* FSL_FEATURE_QSPI_HAS_NO_TDH */
     base->FLSHCR = val;
 
     /* Set flash endianness */
@@ -207,7 +229,7 @@ void QSPI_SetFlashConfig(QuadSPI_Type *base, qspi_flash_config_t *config)
 
 void QSPI_SoftwareReset(QuadSPI_Type *base)
 {
-    volatile uint32_t i = 0;
+    uint32_t i = 0;
 
     /* Reset AHB domain and buffer domian */
     base->MCR |= (QuadSPI_MCR_SWRSTHD_MASK | QuadSPI_MCR_SWRSTSD_MASK);
