@@ -106,6 +106,10 @@ typedef enum {
     SPI_2 = 2,
 } SPIName;
 
+typedef enum {
+    QSPI_0 = 0
+} QSPIName;
+
 #ifdef __cplusplus
 }
 #endif
