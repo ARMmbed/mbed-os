@@ -402,11 +402,33 @@ int32_t secure_time_set_impl(uint64_t new_time)
     return SECURE_TIME_SUCCESS;
 }
 
+#define SECURE_TIME_MAX(A, B)   ((A) > (B) ? (A) : (B))
+
 uint64_t secure_time_get_impl(void)
 {
     uint64_t boot_time = secure_time_get_boot_time();
     uint64_t secs_since_boot = secure_time_get_seconds_since_boot();
-    return (boot_time > 0) ? (boot_time + secs_since_boot) : 0;
+
+    // If boot_time is valid (not 0), we can return boot_time + secs_since_boot as current time.
+    // Otherwise, the best estimation we have is the latest between the RTC and the stored time.
+    if (boot_time > 0) {
+        return boot_time + secs_since_boot;
+    } else {
+        // Read the current stored time from secure storage
+        uint64_t stored_time = 0;
+        secure_time_get_stored_time(&stored_time);
+
+        // Get current RTC time
+        uint64_t rtc_time = (uint64_t)time(NULL);
+        
+        // Set new time according to the latest between the RTC and the stored time
+        uint64_t new_time = SECURE_TIME_MAX(stored_time, rtc_time);
+
+        // Update the latest boot time value for next calculations
+        secure_time_update_boot_time(new_time);
+
+        return new_time;
+    }
 }
 
 #endif // SECURE_TIME_ENABLED
