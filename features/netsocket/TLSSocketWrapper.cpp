@@ -272,10 +272,15 @@ nsapi_size_or_error_t TLSSocketWrapper::recvfrom(SocketAddress *address, void *d
 }
 
 void TLSSocketWrapper::print_mbedtls_error(const char *name, int err) {
+#ifdef MBEDTLS_ERROR_C
     char *buf = new char[128];
     mbedtls_strerror(err, buf, 128);
     tr_err("%s() failed: -0x%04x (%d): %s", name, -err, err, buf);
     delete[] buf;
+#else
+    (void)name;
+    (void)err;
+#endif
 }
 
 
