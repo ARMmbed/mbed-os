@@ -20,6 +20,7 @@ import itertools
 import time
 import threading
 import uuid
+import sys
 import serial
 import serial.tools.list_ports as stlp
 import mbed_host_tests
@@ -50,6 +51,12 @@ LINE_CODING_STRLEN = 13
 
 def usb_serial_name(serial_number):
     """Get USB serial device name based on the device serial number."""
+    if sys.platform.startswith('win'):
+        # The USB spec defines all USB string descriptors to be
+        # UNICODE UTF-16LE. Windows however, decodes the USB serial
+        # number string descriptor as uppercase characters only.
+        # To solve this issue, convert the pattern to uppercase.
+        serial_number = str(serial_number).upper()
     for port_info in stlp.comports():
         if port_info.serial_number == serial_number:
             return port_info.device
