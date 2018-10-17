@@ -103,8 +103,7 @@ public:
      *
      */
     QSPIFBlockDevice(PinName io0, PinName io1, PinName io2, PinName io3, PinName sclk, PinName csel,
-                     int clock_mode, int freq = 40000000);
-
+                     int clock_mode, int freq = MBED_CONF_QSPIF_QSPI_FREQ);
 
     /** Initialize a block device
      *
@@ -238,9 +237,10 @@ private:
 
     // Send set_frequency command to Driver
     qspi_status_t _qspi_set_frequency(int freq);
-    /********************************/
 
-
+    /*********************************/
+    /* Flash Configuration Functions */
+    /*********************************/
     // Soft Reset Flash Memory
     int _reset_flash_mem();
 
@@ -253,6 +253,7 @@ private:
     // Enable Fast Mode - for flash chips with low power default
     int _enable_fast_mdoe();
 
+    /****************************************/
     /* SFDP Detection and Parsing Functions */
     /****************************************/
     // Parse SFDP Headers and retrieve Basic Param and Sector Map Tables (if exist)
@@ -283,6 +284,7 @@ private:
             unsigned int& erase4k_inst,
             unsigned int *erase_type_inst_arr, unsigned int *erase_type_size_arr);
 
+    /***********************/
     /* Utilities Functions */
     /***********************/
     // Find the region to which the given offset belong to
