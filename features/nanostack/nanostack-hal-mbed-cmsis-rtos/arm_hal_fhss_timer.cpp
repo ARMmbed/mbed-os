@@ -138,8 +138,9 @@ static uint32_t platform_fhss_get_remaining_slots(void (*callback)(const fhss_ap
         platform_exit_critical();
         return 0;
     }
+    uint32_t remaining_slots = fhss_tim->stop_time - read_current_time();
     platform_exit_critical();
-    return fhss_tim->stop_time - read_current_time();
+    return remaining_slots;
 }
 
 static uint32_t platform_fhss_timestamp_read(const fhss_api_t *api)
