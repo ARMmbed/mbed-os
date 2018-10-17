@@ -250,7 +250,7 @@ public:
      *  The callback may be called in an interrupt context and should not
      *  perform expensive operations.
      *
-     *  Note! This is not intended as an attach-like asynchronous api, but rather
+     *  Note! This is not intended as an attach-like asynchronous API, but rather
      *  as a building block for constructing  such functionality.
      *
      *  The exact timing of when the registered function
