@@ -100,6 +100,7 @@ protected:
     virtual void SetUp()
     {
         object = new my_LoRaPHY();
+        memset(&object->get_phy_params(), 0, sizeof(object->get_phy_params()));
     }
 
     virtual void TearDown()
@@ -606,10 +607,12 @@ TEST_F(Test_LoRaPHY, set_next_channel)
     p.aggregate_timeoff = 10000;
     EXPECT_TRUE(LORAWAN_STATUS_DUTYCYCLE_RESTRICTED == object->set_next_channel(&p, &ch, &t1, &t2));
 
-    uint16_t list[16];
-    memset(list, 0, 16);
+    uint16_t list[129];
+    memset(list, 0, sizeof(list));
     list[4] = 1;
+    list[128] = 1;
     object->get_phy_params().channels.mask = list;
+    object->get_phy_params().channels.default_mask = list;
     object->get_phy_params().channels.mask_size = 1;
     p.aggregate_timeoff = 10000;
     EXPECT_TRUE(LORAWAN_STATUS_DUTYCYCLE_RESTRICTED == object->set_next_channel(&p, &ch, &t1, &t2));
@@ -620,12 +623,18 @@ TEST_F(Test_LoRaPHY, set_next_channel)
     p.joined = false;
     p.dc_enabled = false;
     band_t b[4];
+    ch = 5;
+    t1 = 16;
+    t2 = 32;
     memset(b, 0, sizeof(band_t)*4);
     object->get_phy_params().bands.size = 2;
     object->get_phy_params().bands.table = &b;
     b[0].off_time = 0;
     b[1].off_time = 9999999;
+    memset(list, 0, 129);
     list[4] = 0;
+    object->get_phy_params().channels.mask = list;
+    object->get_phy_params().channels.default_mask = list;
     object->get_phy_params().channels.mask_size = 128;
     p.current_datarate = DR_1;
     object->get_phy_params().max_channel_cnt = 4;
@@ -663,6 +672,8 @@ TEST_F(Test_LoRaPHY, add_channel)
     object->get_phy_params().channels.mask = list;
     object->get_phy_params().channels.default_mask = list;
     channel_params_t p;
+    p.band = 0;
+    p.frequency = 0;
     EXPECT_TRUE(LORAWAN_STATUS_PARAMETER_INVALID == object->add_channel(&p, 0));
 
     object->get_phy_params().custom_channelplans_supported = true;
@@ -702,6 +713,7 @@ TEST_F(Test_LoRaPHY, set_tx_cont_mode)
     pp.band=0;
     object->get_phy_params().channels.channel_list = &pp;
     band_t b;
+    b.max_tx_pwr = 10;
     object->get_phy_params().bands.table = &b;
     my_radio radio;
     object->set_radio_instance(radio);
@@ -709,6 +721,9 @@ TEST_F(Test_LoRaPHY, set_tx_cont_mode)
     cw_mode_params_t p;
     p.max_eirp = 0;
     p.channel=0;
+    p.tx_power = -1;
+    p.datarate = 0;
+    p.antenna_gain = 1;
     object->set_tx_cont_mode(&p);
 
     p.max_eirp = 1;

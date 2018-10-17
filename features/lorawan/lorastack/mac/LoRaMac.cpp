@@ -82,6 +82,7 @@ LoRaMac::LoRaMac()
       _device_class(CLASS_A),
       _prev_qos_level(LORAWAN_DEFAULT_QOS)
 {
+    memset(&_params, 0, sizeof(_params));
     _params.keys.dev_eui = NULL;
     _params.keys.app_eui = NULL;
     _params.keys.app_key = NULL;
@@ -89,6 +90,7 @@ LoRaMac::LoRaMac()
     memset(_params.keys.nwk_skey, 0, sizeof(_params.keys.nwk_skey));
     memset(_params.keys.app_skey, 0, sizeof(_params.keys.app_skey));
     memset(&_ongoing_tx_msg, 0, sizeof(_ongoing_tx_msg));
+    memset(&_params.sys_params, 0, sizeof(_params.sys_params));
 
     _params.dev_nonce = 0;
     _params.net_id = 0;
@@ -110,6 +112,7 @@ LoRaMac::LoRaMac()
     _params.timers.tx_toa = 0;
 
     _params.multicast_channels = NULL;
+
 
     _params.sys_params.adr_on = false;
     _params.sys_params.max_duty_cycle = 0;

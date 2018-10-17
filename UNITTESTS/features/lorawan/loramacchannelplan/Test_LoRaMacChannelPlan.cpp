@@ -60,6 +60,8 @@ TEST_F(Test_LoRaMacChannelPlan, constructor)
 TEST_F(Test_LoRaMacChannelPlan, set_plan)
 {
     lorawan_channelplan_t plan;
+    memset(&plan, 0, sizeof(plan));
+    memset(&LoRaPHY_stub::bool_table, 0, sizeof(LoRaPHY_stub::bool_table));
     LoRaPHY_stub::bool_counter = 0;
     LoRaPHY_stub::bool_table[0] = false;
     EXPECT_TRUE(object->set_plan(plan) == LORAWAN_STATUS_SERVICE_UNKNOWN);
@@ -74,6 +76,9 @@ TEST_F(Test_LoRaMacChannelPlan, set_plan)
     LoRaPHY_stub::bool_table[0] = true;
     LoRaPHY_stub::uint8_value = 10;
     LoRaPHY_stub::lorawan_status_value = LORAWAN_STATUS_PARAMETER_INVALID;
+    loramac_channel_t chan;
+    memset(&chan, 0, sizeof(chan));
+    plan.channels = &chan;
     EXPECT_TRUE(object->set_plan(plan) == LORAWAN_STATUS_PARAMETER_INVALID);
 
     LoRaPHY_stub::bool_counter = 0;

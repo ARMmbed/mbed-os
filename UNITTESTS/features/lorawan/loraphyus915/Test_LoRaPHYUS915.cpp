@@ -111,6 +111,7 @@ TEST_F(Test_LoRaPHYUS915, restore_default_channels)
 TEST_F(Test_LoRaPHYUS915, rx_config)
 {
     rx_config_params_t p;
+    memset(&p, 0, sizeof(p));
 
     radio.uint8_value = 1;
     EXPECT_TRUE(!object->rx_config(&p));
@@ -126,18 +127,20 @@ TEST_F(Test_LoRaPHYUS915, rx_config)
 TEST_F(Test_LoRaPHYUS915, tx_config)
 {
     tx_config_params_t p;
-    int8_t tx;
-    lorawan_time_t time;
+    memset(&p, 0, sizeof(p));
+    int8_t tx = 0;
+    lorawan_time_t time = 0;
     EXPECT_TRUE(object->tx_config(&p, &tx, &time));
 }
 
 TEST_F(Test_LoRaPHYUS915, link_ADR_request)
 {
     adr_req_params_t params;
-    int8_t dr_out;
-    int8_t tx_power_out;
-    uint8_t nb_rep_out;
-    uint8_t nb_bytes_parsed;
+    memset(&params, 0, sizeof(params));
+    int8_t dr_out = 0;
+    int8_t tx_power_out = 0;
+    uint8_t nb_rep_out = 0;
+    uint8_t nb_bytes_parsed = 0;
 
     EXPECT_TRUE(0 == object->link_ADR_request(&params, &dr_out, &tx_power_out, &nb_rep_out, &nb_bytes_parsed));
 
@@ -164,6 +167,8 @@ TEST_F(Test_LoRaPHYUS915, link_ADR_request)
 TEST_F(Test_LoRaPHYUS915, accept_rx_param_setup_req)
 {
     rx_param_setup_req_t p;
+    memset(&p, 0, sizeof(p));
+    radio.bool_value = false;
     EXPECT_TRUE(0 == object->accept_rx_param_setup_req(&p));
 
     radio.bool_value = true;
@@ -188,9 +193,10 @@ TEST_F(Test_LoRaPHYUS915, get_alternate_DR)
 TEST_F(Test_LoRaPHYUS915, set_next_channel)
 {
     channel_selection_params_t params;
-    uint8_t channel;
-    lorawan_time_t time;
-    lorawan_time_t timeoff;
+    memset(&params, 0, sizeof(params));
+    uint8_t channel = 0;
+    lorawan_time_t time = 0;
+    lorawan_time_t timeoff = 0;
 
     params.current_datarate = 4;
     params.aggregate_timeoff = 0;
@@ -228,6 +234,7 @@ TEST_F(Test_LoRaPHYUS915, apply_DR_offset)
 TEST_F(Test_LoRaPHYUS915, set_tx_cont_mode)
 {
     cw_mode_params_t p;
+    memset(&p, 0, sizeof(p));
     object->set_tx_cont_mode(&p, 0);
 
     p.datarate = 4;
