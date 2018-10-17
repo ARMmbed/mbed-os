@@ -18,7 +18,6 @@
 #define EMAC_INTERFACE_H
 
 #include "nsapi.h"
-#include "rtos.h"
 #include "EMAC.h"
 #include "OnboardNetworkStack.h"
 

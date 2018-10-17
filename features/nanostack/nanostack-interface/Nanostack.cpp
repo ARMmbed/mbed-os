@@ -17,8 +17,6 @@
 
 /* Nanostack implementation of NetworkSocketAPI */
 
-#include "mbed.h"
-#include "rtos.h"
 #include "Nanostack.h"
 #include "NanostackLockGuard.h"
 

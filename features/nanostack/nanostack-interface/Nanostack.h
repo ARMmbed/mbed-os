@@ -18,7 +18,6 @@
 #ifndef NANOSTACK_H_
 #define NANOSTACK_H_
 
-#include "mbed.h"
 #include "OnboardNetworkStack.h"
 #include "NanostackMemoryManager.h"
 #include "MeshInterface.h"

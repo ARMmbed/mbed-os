@@ -18,7 +18,6 @@
 #include <ctype.h>
 #include <cstdio>
 #include <string.h>
-#include "mbed.h"
 #include "greentea-client/test_env.h"
 #include "greentea-client/greentea_serial.h"
 #include "greentea-client/greentea_metrics.h"

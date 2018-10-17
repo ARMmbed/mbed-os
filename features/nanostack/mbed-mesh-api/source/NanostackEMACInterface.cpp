@@ -2,12 +2,11 @@
  * Copyright (c) 2017 ARM Limited. All rights reserved.
  */
 
-#include "Nanostack.h"
 #include "NanostackEthernetInterface.h"
 #include "NanostackEthernetPhy.h"
-#include "EMAC.h"
 #include "nsdynmemLIB.h"
 #include "arm_hal_phy.h"
+#include "EMAC.h"
 
 class EMACPhy : public NanostackEthernetPhy
 {
@@ -138,7 +137,7 @@ int8_t EMACPhy::phy_register()
         phy.phy_tx_done_cb = NULL;
 
         emac.set_memory_manager(memory_manager);
-        emac.set_link_input_cb(callback(this, &EMACPhy::emac_phy_rx));
+        emac.set_link_input_cb(mbed::callback(this, &EMACPhy::emac_phy_rx));
 
         if (!emac.power_up()) {
             return -1;
@@ -183,7 +182,7 @@ nsapi_error_t Nanostack::add_ethernet_interface(EMAC &emac, bool default_if, Nan
         return NSAPI_ERROR_DEVICE_ERROR;
     }
 
-    single_phy = new (nothrow) EMACPhy(this->memory_manager, emac);
+    single_phy = new (std::nothrow) EMACPhy(this->memory_manager, emac);
     if (!single_phy) {
         return NSAPI_ERROR_NO_MEMORY;
     }
@@ -194,7 +193,7 @@ nsapi_error_t Nanostack::add_ethernet_interface(EMAC &emac, bool default_if, Nan
 
     Nanostack::EthernetInterface *interface;
 
-    interface = new (nothrow) Nanostack::EthernetInterface(*single_phy);
+    interface = new (std::nothrow) Nanostack::EthernetInterface(*single_phy);
     if (!interface) {
         return NSAPI_ERROR_NO_MEMORY;
     }

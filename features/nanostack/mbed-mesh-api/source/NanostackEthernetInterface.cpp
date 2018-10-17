@@ -38,7 +38,7 @@ nsapi_error_t NanostackEthernetInterface::initialize(NanostackEthernetPhy *phy)
         return NSAPI_ERROR_PARAMETER;
     }
 
-    _interface = new (nothrow) Nanostack::EthernetInterface(*phy);
+    _interface = new (std::nothrow) Nanostack::EthernetInterface(*phy);
     if (!_interface) {
         return NSAPI_ERROR_NO_MEMORY;
     }

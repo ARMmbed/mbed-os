@@ -18,6 +18,8 @@
 #include "utest/utest.h"
 #include "BlockDevice.h"
 #include "FileSystem.h"
+
+#include <stdlib.h>
 #if COMPONENT_SPIF
 #include "SPIFBlockDevice.h"
 #include "LittleFileSystem.h"
@@ -32,6 +34,7 @@
 #endif
 
 using namespace utest::v1;
+using namespace mbed;
 
 static const size_t small_buf_size = 10;
 static const size_t medium_buf_size = 250;
