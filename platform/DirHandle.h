@@ -35,12 +35,18 @@ namespace mbed {
  *  but only a subset needs to be provided.
  *
  *  If a FileSystemLike class defines the opendir method, then the
- *  directories of an object of that type can be accessed by
- *  DIR *d = opendir("/example/directory") (or opendir("/example")
- *  to open the root of the filesystem), and then using readdir(d) etc.
+ *  directories of an object of that type can be accessed by either:
+ *  @code
+ *  DIR *d  = opendir("/example/directory");
+ *  @endcode
+ *  or
+ *  @code
+ *  DIR *d = opendir("/example");
+ *  @endcode
+ *  to open the root of the file system.
  *
  *  The root directory is considered to contain all FileHandle and
- *  FileSystem objects, so the DIR* returned by opendir("/") will
+ *  FileSystem objects, so the DIR pointer returned by opendir("/") will
  *  reflect this.
  *
  *  @note to create a directory, @see Dir
