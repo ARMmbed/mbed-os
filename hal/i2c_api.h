@@ -322,7 +322,7 @@ void i2c_slave_address(i2c_t *obj, uint16_t address);
  */
 void i2c_transfer_async(i2c_t *obj, const void *tx, uint32_t tx_length,
                         void *rx, uint32_t rx_length, uint16_t address,
-                        bool stop, i2c_async_handler_f handler);
+                        bool stop, i2c_async_handler_f handler, void *ctx);
 
 /** Abort asynchronous transfer
  *
