@@ -557,6 +557,7 @@ TEST_F(Test_LoRaWANStack, set_device_class)
 TEST_F(Test_LoRaWANStack, acquire_tx_metadata)
 {
     lorawan_tx_metadata data;
+    memset(&data, 0, sizeof(data));
     EXPECT_TRUE(LORAWAN_STATUS_NOT_INITIALIZED == object->acquire_tx_metadata(data));
 
     EventQueue queue;
@@ -575,6 +576,7 @@ TEST_F(Test_LoRaWANStack, acquire_tx_metadata)
     equeue_stub.void_ptr = &ptr;
     equeue_stub.call_cb_immediately = true;
     loramac_mcps_confirm_t conf;
+    memset(&conf, 0, sizeof(conf));
     conf.status = LORAMAC_EVENT_INFO_STATUS_OK;
     LoRaMac_stub::mcps_conf_ptr = &conf;
     radio._ev->tx_done();
@@ -588,6 +590,7 @@ TEST_F(Test_LoRaWANStack, acquire_tx_metadata)
 TEST_F(Test_LoRaWANStack, acquire_rx_metadata)
 {
     lorawan_rx_metadata data;
+    memset(&data, 0, sizeof(data));
     EXPECT_TRUE(LORAWAN_STATUS_NOT_INITIALIZED == object->acquire_rx_metadata(data));
 
     EventQueue queue;
@@ -606,11 +609,13 @@ TEST_F(Test_LoRaWANStack, acquire_rx_metadata)
     equeue_stub.void_ptr = &ptr;
     equeue_stub.call_cb_immediately = true;
     loramac_mcps_confirm_t conf;
+    memset(&conf, 0, sizeof(conf));
     conf.status = LORAMAC_EVENT_INFO_STATUS_OK;
     LoRaMac_stub::mcps_conf_ptr = &conf;
     radio._ev->tx_done();
 
     loramac_mcps_indication_t ind;
+    memset(&ind, 0, sizeof(ind));
     ind.status = LORAMAC_EVENT_INFO_STATUS_OK;
     LoRaMac_stub::mcps_ind_ptr = &ind;
 
@@ -818,10 +823,12 @@ TEST_F(Test_LoRaWANStack, process_reception)
     equeue_stub.void_ptr = &ptr;
     equeue_stub.call_cb_immediately = true;
     loramac_mcps_confirm_t conf;
+    memset(&conf, 0, sizeof(&conf));
     LoRaMac_stub::mcps_conf_ptr = &conf;
     radio._ev->tx_done();
 
     loramac_mcps_indication_t ind;
+    memset(&ind, 0, sizeof(ind));
     LoRaMac_stub::mcps_ind_ptr = &ind;
 
     loramac_mlme_confirm_t mlme;

@@ -1345,7 +1345,7 @@ lorawan_status_t LoRaPHY::add_channel(const channel_params_t *new_channel,
         return LORAWAN_STATUS_FREQUENCY_INVALID;
     }
 
-    memcpy(&(phy_params.channels.channel_list[id]), new_channel, sizeof(channel_params_t));
+    memmove(&(phy_params.channels.channel_list[id]), new_channel, sizeof(channel_params_t));
 
     phy_params.channels.channel_list[id].band = new_channel->band;
 
