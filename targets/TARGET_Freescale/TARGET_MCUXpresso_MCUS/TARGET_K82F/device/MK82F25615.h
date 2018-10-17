@@ -11013,7 +11013,14 @@ typedef struct {
 typedef struct {
   __IO uint32_t MCR;                               /**< Module Configuration Register, offset: 0x0 */
        uint8_t RESERVED_0[4];
-  __IO uint32_t IPCR;                              /**< IP Configuration Register, offset: 0x8 */
+  union {                                          /* offset: 0x8 */
+    __IO uint32_t IPCR;                            /**< IP Configuration Register, offset: 0x8 */
+    struct {
+      __IO uint16_t IDATZ;                         /**< IP data transfer size, offset: 0x8 */
+      __IO uint8_t PAR_EN;                         /**< IP data transfer size, offset: 0xA */
+      __IO uint8_t SEQID;                          /**< IP data transfer size, offset: 0xB */
+    } IPCR_ACCESSBIT;
+  };
   __IO uint32_t FLSHCR;                            /**< Flash Configuration Register, offset: 0xC */
   __IO uint32_t BUF0CR;                            /**< Buffer0 Configuration Register, offset: 0x10 */
   __IO uint32_t BUF1CR;                            /**< Buffer1 Configuration Register, offset: 0x14 */
