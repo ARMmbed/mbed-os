@@ -63,3 +63,10 @@ void serial_clock_init(void)
 {
     CLOCK_SetLpuartClock(2U);
 }
+
+// Get the QSPI clock frequency
+uint32_t qspi_get_freq(void)
+{
+    return CLOCK_GetFreq(kCLOCK_McgPll0Clk);
+}
+
