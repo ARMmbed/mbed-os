@@ -86,6 +86,7 @@ matrix:
 
         - arm-none-eabi-gcc --version
         - python --version
+        - pip list --verbose
       script:
         # Run local testing on tools
         - PYTHONPATH=. coverage run -a -m pytest tools/test
