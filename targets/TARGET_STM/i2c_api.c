@@ -1000,6 +1000,7 @@ void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *hi2c)
     /* Get object ptr based on handler ptr */
     i2c_t *obj = get_i2c_obj(hi2c);
     struct i2c_s *obj_s = I2C_S(obj);
+    I2C_HandleTypeDef *handle = &(obj_s->handle);
 
 #if DEVICE_I2C_ASYNCH
     /* Handle potential Tx/Rx use case */
@@ -1017,6 +1018,22 @@ void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *hi2c)
         /* Set event flag */
         obj_s->event = I2C_EVENT_TRANSFER_COMPLETE;
     }
+
+#if DEVICE_I2C_ASYNCH
+    /* */
+    if (obj->handler == NULL) {
+      return;
+    }
+
+    i2c_async_event_t event;
+    event.transferred = handle->XferCount;
+    event.error       = false;
+
+    obj->handler(obj, &event, obj->ctx);
+
+    obj->handler = NULL;
+    obj->ctx     = NULL;
+#endif // DEVICE_I2C_ASYNCH
 }
 
 void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *hi2c)
@@ -1024,9 +1041,26 @@ void HAL_I2C_MasterRxCpltCallback(I2C_HandleTypeDef *hi2c)
     /* Get object ptr based on handler ptr */
     i2c_t *obj = get_i2c_obj(hi2c);
     struct i2c_s *obj_s = I2C_S(obj);
+    I2C_HandleTypeDef *handle = &(obj_s->handle);
 
     /* Set event flag */
     obj_s->event = I2C_EVENT_TRANSFER_COMPLETE;
+
+#if DEVICE_I2C_ASYNCH
+    /* */
+    if (obj->handler == NULL) {
+      return;
+    }
+
+    i2c_async_event_t event;
+    event.transferred = handle->XferCount;
+    event.error       = false;
+
+    obj->handler(obj, &event, obj->ctx);
+
+    obj->handler = NULL;
+    obj->ctx     = NULL;
+#endif // DEVICE_I2C_ASYNCH
 }
 
 void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *hi2c)
@@ -1063,6 +1097,22 @@ void HAL_I2C_ErrorCallback(I2C_HandleTypeDef *hi2c)
 
     /* Keep Set event flag */
     obj_s->event = I2C_EVENT_ERROR;
+
+#if DEVICE_I2C_ASYNCH
+    /* */
+    if (obj->handler == NULL) {
+      return;
+    }
+
+    i2c_async_event_t event;
+    event.transferred = handle->XferCount;
+    event.error       = true;
+
+    obj->handler(obj, &event, obj->ctx);
+
+    obj->handler = NULL;
+    obj->ctx     = NULL;
+#endif // DEVICE_I2C_ASYNCH
 }
 
 const PinMap *i2c_master_sda_pinmap()
@@ -1179,34 +1229,48 @@ void HAL_I2C_AbortCpltCallback(I2C_HandleTypeDef *hi2c)
 
     /* Set event flag */
     obj_s->event = I2C_EVENT_ERROR;
+
+    /* */
+    if (obj->handler == NULL) {
+      return;
+    }
+
+    i2c_async_event_t event;
+    event.transferred = handle->XferCount;
+    event.error       = false;
+
+    obj->handler(obj, &event, obj->ctx);
+
+    obj->handler = NULL;
+    obj->ctx     = NULL;
 }
 
-void i2c_transfer_asynch(i2c_t *obj, const void *tx, size_t tx_length, void *rx, size_t rx_length, uint32_t address, uint32_t stop, uint32_t handler, uint32_t event, DMAUsage hint)
+void i2c_transfer_async(i2c_t *obj, const void *tx, uint32_t tx_length,
+                        void *rx, uint32_t rx_length, uint16_t address,
+                        bool stop, i2c_async_handler_f handler, void *ctx)
 {
-
-    // TODO: DMA usage is currently ignored by this way
-    (void) hint;
-
     struct i2c_s *obj_s = I2C_S(obj);
     I2C_HandleTypeDef *handle = &(obj_s->handle);
 
     /* Update object */
     obj->tx_buff.buffer = (void *)tx;
     obj->tx_buff.length = tx_length;
-    obj->tx_buff.pos = 0;
-    obj->tx_buff.width = 8;
+    obj->tx_buff.pos    = 0;
+    obj->tx_buff.width  = 8;
 
     obj->rx_buff.buffer = (void *)rx;
     obj->rx_buff.length = rx_length;
-    obj->rx_buff.pos = SIZE_MAX;
-    obj->rx_buff.width = 8;
+    obj->rx_buff.pos    = SIZE_MAX;
+    obj->rx_buff.width  = 8;
 
-    obj_s->available_events = event;
+    obj->handler = handler;
+    obj->ctx     = ctx;
+
     obj_s->event = 0;
     obj_s->address = address;
     obj_s->stop = stop;
 
-    i2c_ev_err_enable(obj, handler);
+    i2c_ev_err_enable(obj, i2c_get_irq_handler(obj));
 
     /* Set operation step depending if stop sending required or not */
     if ((tx_length && !rx_length) || (!tx_length && rx_length)) {
@@ -1248,34 +1312,7 @@ void i2c_transfer_asynch(i2c_t *obj, const void *tx, size_t tx_length, void *rx,
     }
 }
 
-
-uint32_t i2c_irq_handler_asynch(i2c_t *obj)
-{
-
-    struct i2c_s *obj_s = I2C_S(obj);
-    I2C_HandleTypeDef *handle = &(obj_s->handle);
-
-    HAL_I2C_EV_IRQHandler(handle);
-    HAL_I2C_ER_IRQHandler(handle);
-
-    /*  Return I2C event status */
-    return (obj_s->event & obj_s->available_events);
-}
-
-uint8_t i2c_active(i2c_t *obj)
-{
-
-    struct i2c_s *obj_s = I2C_S(obj);
-    I2C_HandleTypeDef *handle = &(obj_s->handle);
-
-    if (handle->State == HAL_I2C_STATE_READY) {
-        return 0;
-    } else {
-        return 1;
-    }
-}
-
-void i2c_abort_asynch(i2c_t *obj)
+void i2c_abort_async(i2c_t *obj)
 {
 
     struct i2c_s *obj_s = I2C_S(obj);
