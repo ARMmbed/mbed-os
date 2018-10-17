@@ -30,7 +30,7 @@ toolchain (`GCC_ARM`, `ARM`, `IAR`). For example, for the ARM Compiler 5:
 mbed test -m K64F -t ARM -n mbed-os-features-storage-tests-blockdevice-general_block_device --compile
 ```
 
-#### Run the example
+#### Run the test
 
 Use `mbed test` again:
 
@@ -45,7 +45,7 @@ for suggestions on what could be wrong and how to fix it.
 
 ## Changing the block device
 
-In Mbed OS, a C++ classes that inherits from the [BlockDevice](https://os.mbed.com/docs/latest/reference/storage.html#block-devices)
+In Mbed OS, a C++ class that inherits from the [BlockDevice](https://os.mbed.com/docs/latest/reference/storage.html#block-devices)
 interface represents each block device. 
 This test uses the default block device received by the function get_default_instance(), it is defined in [SystemStorage.cpp](https://github.com/ARMmbed/mbed-os/blob/master/features/storage/system_storage/SystemStorage.cpp#L35-L77) as MBED_WEAK, in case we would like to test a new block device we will have to override it.
 
