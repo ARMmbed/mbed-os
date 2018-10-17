@@ -188,6 +188,14 @@
                 "NRF52_ERRATA_20"
             ],
             "target.console-uart-flow-control": "RTSCTS"
+        },
+        "MTB_LAIRD_BL654": {
+            "target.macros_add": [
+                "CONFIG_GPIO_AS_PINRESET",
+                "NRF52_ERRATA_20"
+            ],
+            "target.lf_clock_src": "NRF_LF_SRC_RC",
+            "target.console-uart-flow-control": null
         }
     }
 }
