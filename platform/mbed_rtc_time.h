@@ -31,7 +31,7 @@ extern "C" {
  *
  * Provides mechanisms to set and read the current time, based
  * on the microcontroller Real-Time Clock (RTC), plus some
- * standard C manipulation and formating functions.
+ * standard C manipulation and formatting functions.
  *
  * Example:
  * @code
