@@ -88,6 +88,7 @@ FileBase *FileBase::lookup(const char *name, unsigned int len)
         p = p->_next;
     }
     if (len == (sizeof "default") - 1 && std::memcmp("default", name, len) == 0) {
+        _mutex->unlock();
         return _default;
     }
     _mutex->unlock();
