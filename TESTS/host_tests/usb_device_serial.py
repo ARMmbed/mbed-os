@@ -35,8 +35,16 @@ MSG_KEY_LOOPBACK = 'loopback'
 MSG_KEY_CHANGE_LINE_CODING = 'change_lc'
 
 RX_BUFF_SIZE = 32
+
+# This delay eliminates the possibility of the device detecting
+# the port being closed when still waiting for data.
 TERM_CLOSE_DELAY = 0.01
+
+# A duration the serial terminal is open on the host side
+# during terminal reopen test.
 TERM_REOPEN_DELAY = 0.1
+
+# 6 (baud) + 2 (bits) + 1 (parity) + 1 (stop) + 3 * comma
 LINE_CODING_STRLEN = 13
 
 

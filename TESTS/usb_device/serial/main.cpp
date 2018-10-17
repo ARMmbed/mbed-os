@@ -33,9 +33,7 @@
 #define USB_SERIAL_PID 0x2012
 
 #define MSG_KEY_LEN 24
-
 #define MSG_VALUE_DUMMY "0"
-
 #define MSG_KEY_DEVICE_READY "ready"
 #define MSG_KEY_SERIAL_NUMBER "usb_dev_sn"
 #define MSG_KEY_PORT_OPEN_WAIT "port_open_wait"
