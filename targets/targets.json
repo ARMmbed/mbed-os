@@ -570,7 +570,7 @@
         "is_disk_virtual": true,
         "inherits": ["Target"],
         "detect_code": ["0218"],
-        "device_has": ["USTICKER", "LPTICKER", "RTC", "ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SEMIHOST", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "TRNG", "FLASH"],
+        "device_has": ["USTICKER", "LPTICKER", "RTC", "ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SEMIHOST", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "TRNG", "FLASH", "QSPI"],
         "release_versions": ["2", "5"],
         "device_name": "MKL82Z128xxx7"
     },
@@ -754,7 +754,7 @@
         "macros": ["CPU_MK82FN256VDC15", "FSL_RTOS_MBED"],
         "inherits": ["Target"],
         "detect_code": ["0217"],
-        "device_has": ["USTICKER", "LPTICKER", "RTC", "ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "TRNG", "FLASH"],
+        "device_has": ["USTICKER", "LPTICKER", "RTC", "ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "TRNG", "FLASH", "QSPI"],
         "release_versions": ["2", "5"],
         "device_name": "MK82FN256xxx15"
     },
