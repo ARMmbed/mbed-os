@@ -55,6 +55,18 @@ typedef struct
     cbWM_TxPowerSettings   txPowerSettings;     /**< Transmission power settings. */
 } cbMAIN_WlanStartParams;
 
+#if (BLE_STACK_UBX != true)
+
+typedef void (*vs_cmd_send_t)(uint16_t opcode);
+
+typedef struct {
+    vs_cmd_send_t   vs_command_callback;
+    char            *Service_pack;
+    uint32_t        service_pack_size;
+} cordio_callback_s;
+
+#endif /* !BLE_STACK_UBX */
+
 /*---------------------------------------------------------------------------
  * Callback to indicate that initialization of BT stack is completed.
  *-------------------------------------------------------------------------*/
@@ -141,5 +153,32 @@ extern void cbMAIN_driverUnlock(void);
  * @return void
  */
 extern void cbMAIN_dispatchEventQueue(void);
+
+#if (BLE_STACK_UBX != true)
+/**
+* Initialize BT Hardware by detecting if external LPO is connected else Emulate LPO by using TIMER1 and
+* configuring PORTA in alternate mode as source of external clk(LPO for BT).
+*
+* @return void
+*/
+void cbCordio_Btinit(cordio_callback_s *bt_callback_cordio);
+
+/**
+* Get BT address saved in OTP memory and provide it to stack for assignment.
+*
+* @param BdAddress      Pointer to be initialized with  BT address saved in OTP
+* @return void
+*/
+void cbCordio_Retreive_Btaddr(cb_uint8 *BdAddress);
+
+
+/**
+* Update HCI H4 UART baud-rate to 3Mbps to achieve minimum setup time.
+*
+* @return void
+*/
+void update_uart_baud_rate(void);
+
+#endif /* BLE_STACK_UBX */
 
 #endif /*_CB_MAIN_H_*/
