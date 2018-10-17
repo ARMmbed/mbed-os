@@ -157,7 +157,7 @@ bool sleep_manager_can_deep_sleep(void);
  */
 bool sleep_manager_can_deep_sleep_test_check(void);
 
-/** Enter auto selected sleep mode. It chooses the sleep or deeepsleep modes based
+/** Enter auto selected sleep mode. It chooses the sleep or deepsleep modes based
  *  on the deepsleep locking counter
  *
  * This function is IRQ and thread safe
