@@ -40,6 +40,7 @@ protected:
     virtual void SetUp()
     {
         object = new LoRaMac();
+        LoRaWANTimer_stub::time_value = 1;
     }
 
     virtual void TearDown()
@@ -64,7 +65,9 @@ TEST_F(Test_LoRaMac, initialize)
     object->bind_phy(phy);
 
     lorawan_connect_t conn;
+    memset(&conn, 0, sizeof(conn));
     uint8_t key[16];
+    memset(key, 0, sizeof(key));
     conn.connection_u.otaa.app_key = key;
     conn.connection_u.otaa.app_eui = key;
     conn.connection_u.otaa.dev_eui = key;
@@ -119,6 +122,7 @@ TEST_F(Test_LoRaMac, remove_single_channel)
 TEST_F(Test_LoRaMac, multicast_channel_link)
 {
     multicast_params_t p;
+    memset(&p, 0, sizeof(p));
 
     EXPECT_EQ(LORAWAN_STATUS_PARAMETER_INVALID, object->multicast_channel_link(NULL));
 
@@ -132,6 +136,7 @@ TEST_F(Test_LoRaMac, multicast_channel_link)
 TEST_F(Test_LoRaMac, multicast_channel_unlink)
 {
     multicast_params_t p;
+    memset(&p, 0, sizeof(p));
 
     EXPECT_EQ(LORAWAN_STATUS_PARAMETER_INVALID, object->multicast_channel_unlink(NULL));
 
@@ -145,7 +150,9 @@ TEST_F(Test_LoRaMac, multicast_channel_unlink)
 TEST_F(Test_LoRaMac, send)
 {
     loramac_mhdr_t mac_hdr;
+    memset(&mac_hdr, 0, sizeof(mac_hdr));
     uint8_t buf[15];
+    memset(buf, 0, sizeof(buf));
     mac_hdr.bits.mtype = FRAME_TYPE_DATA_CONFIRMED_UP;
     object->send(&mac_hdr, 1, buf, 15);
 }
@@ -183,6 +190,7 @@ TEST_F(Test_LoRaMac, reset_ongoing_tx)
 TEST_F(Test_LoRaMac, prepare_ongoing_tx)
 {
     uint8_t buf[16];
+    memset(buf, 0, sizeof(buf));
     object->prepare_ongoing_tx(1, buf, 16, 1, 0);
 }
 
@@ -214,6 +222,7 @@ TEST_F(Test_LoRaMac, setup_link_check_request)
 TEST_F(Test_LoRaMac, prepare_join)
 {
     lorawan_connect_t conn;
+    memset(&conn, 0, sizeof(conn));
     object->prepare_join(&conn, false);
 
     my_phy phy;
@@ -293,7 +302,9 @@ TEST_F(Test_LoRaMac, join)
     EXPECT_EQ(LORAWAN_STATUS_OK, object->join(false));
 
     lorawan_connect_t conn;
+    memset(&conn, 0, sizeof(conn));
     uint8_t key[16];
+    memset(key, 0, sizeof(key));
     conn.connection_u.otaa.app_key = key;
     conn.connection_u.otaa.app_eui = key;
     conn.connection_u.otaa.dev_eui = key;
@@ -312,6 +323,7 @@ TEST_F(Test_LoRaMac, on_radio_tx_done)
 TEST_F(Test_LoRaMac, on_radio_rx_done)
 {
     uint8_t buf[16];
+    memset(buf, 0, sizeof(buf));
     object->on_radio_rx_done(buf, 16, 0, 0);
 }
 
@@ -330,7 +342,9 @@ TEST_F(Test_LoRaMac, continue_joining_process)
     my_phy phy;
     object->bind_phy(phy);
     lorawan_connect_t conn;
+    memset(&conn, 0, sizeof(conn));
     uint8_t key[16];
+    memset(key, 0, sizeof(key));
     conn.connection_u.otaa.app_key = key;
     conn.connection_u.otaa.app_eui = key;
     conn.connection_u.otaa.dev_eui = key;
@@ -369,6 +383,7 @@ TEST_F(Test_LoRaMac, get_mlme_indication)
 TEST_F(Test_LoRaMac, post_process_mcps_req)
 {
     uint8_t data[16];
+    memset(data, 0, sizeof(data));
     LoRaPHY_stub::bool_counter = 0;
     LoRaPHY_stub::bool_table[0] = true;
 
@@ -533,7 +548,9 @@ TEST_F(Test_LoRaMac, clear_tx_pipe)
     object->bind_phy(phy);
 
     lorawan_connect_t conn;
+    memset(&conn, 0, sizeof(conn));
     uint8_t key[16];
+    memset(key, 0, sizeof(key));
     conn.connection_u.otaa.app_key = key;
     conn.connection_u.otaa.app_eui = key;
     conn.connection_u.otaa.dev_eui = key;
@@ -566,7 +583,7 @@ TEST_F(Test_LoRaMac, get_current_slot)
 
 TEST_F(Test_LoRaMac, get_QOS_level)
 {
-    EXPECT_EQ(1, object->get_QOS_level());
+    EXPECT_EQ(0, object->get_QOS_level());
 }
 
 TEST_F(Test_LoRaMac, get_prev_QOS_level)
