@@ -3977,6 +3977,17 @@
         "release_versions": ["5"],
         "device_name": "nRF52840_xxAA"
     },
+    "MTB_LAIRD_BL654": {
+        "inherits": ["MCU_NRF52840"],
+        "release_versions": ["5"],
+        "device_name": "nRF52840_xxAA",
+        "detect_code": ["0465"],
+        "features_remove": ["CRYPTOCELL310"],
+        "macros_remove":  ["MBEDTLS_CONFIG_HW_SUPPORT"],
+        "overrides": {
+            "lf_clock_src": "NRF_LF_SRC_RC"
+        }
+    },
     "BLUEPILL_F103C8": {
         "inherits": ["FAMILY_STM32"],
         "core": "Cortex-M3",
