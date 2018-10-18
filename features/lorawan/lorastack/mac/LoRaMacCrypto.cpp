@@ -30,7 +30,6 @@
 #include "system/lorawan_data_structures.h"
 #include "mbedtls/platform.h"
 
-
 #if defined(MBEDTLS_CMAC_C) && defined(MBEDTLS_AES_C) && defined(MBEDTLS_CIPHER_C)
 
 LoRaMacCrypto::LoRaMacCrypto()
@@ -359,7 +358,6 @@ int LoRaMacCrypto::compute_join_server_keys(const uint8_t *key, uint32_t key_len
     if (0 != ret)
         goto exit;
 
-    mbedtls_aes_free(&aes_ctx);
     memset(nonce, 0, sizeof(nonce));
     nonce[0] = 0x06;
     memcpy(nonce + 1, eui, 8);
