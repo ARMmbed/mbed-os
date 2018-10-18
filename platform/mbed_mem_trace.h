@@ -75,6 +75,16 @@ typedef void (*mbed_mem_trace_cb_t)(uint8_t op, void *res, void *caller, ...);
 void mbed_mem_trace_set_callback(mbed_mem_trace_cb_t cb);
 
 /**
+ * Disable the memory trace output by disabling the callback function
+ */
+void mbed_mem_trace_disable();
+
+/**
+ * Renable the memory trace output with the cb in use when disable was called
+ */
+void mbed_mem_trace_enable();
+
+/**
  * Trace lock.
  * @note Locking prevent recursive tracing of malloc/free inside relloc/calloc
  */
