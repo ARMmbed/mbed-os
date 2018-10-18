@@ -48,7 +48,7 @@ CPU_COUNT_MIN = 1
 CPU_COEF = 1
 
 class mbedToolchain:
-    OFFICILLY_SUPPORTED = False
+    OFFICIALLY_SUPPORTED = False
 
     # Verbose logging
     VERBOSE = True
