@@ -105,6 +105,11 @@ static int platform_fhss_timer_start(uint32_t slots, void (*callback)(const fhss
     if (!fhss_tim) {
         fhss_tim = allocate_timeout();
     }
+    if (!fhss_tim) {
+        platform_exit_critical();
+        tr_error("Failed to allocate timeout");
+        return ret_val;
+    }
     fhss_tim->fhss_timer_callback = callback;
     fhss_tim->start_time = read_current_time();
     fhss_tim->stop_time = fhss_tim->start_time + slots;
