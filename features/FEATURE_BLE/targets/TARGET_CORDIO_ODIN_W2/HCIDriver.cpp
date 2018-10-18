@@ -32,108 +32,101 @@ namespace vendor {
 namespace odin_w2 {
 
 class HCIDriver : public cordio::CordioHCIDriver {
+public:
+    HCIDriver(cordio::CordioHCITransportDriver &transport_driver, PinName shutdown_name, PinName hci_rts_name) :
+        cordio::CordioHCIDriver(transport_driver),
+        shutdown(shutdown_name, 0),
+        hci_rts(hci_rts_name, 0),
+        service_pack_index(0),
+        service_pack_transfered(false) {
+    };
 
-    public:
-        HCIDriver(cordio::CordioHCITransportDriver& transport_driver, PinName shutdown_name, PinName hci_rts_name) :
-            cordio::CordioHCIDriver(transport_driver),
-            shutdown(shutdown_name, 0),
-            hci_rts(hci_rts_name, 0),
-            service_pack_index(0),
-            service_pack_transfered(false) {
-        };
+    virtual void do_initialize();
 
-        virtual void do_initialize();
+    virtual void do_terminate();
 
-        virtual void do_terminate();
+    virtual void start_reset_sequence();
 
-        virtual void start_reset_sequence();
+    virtual void handle_reset_sequence(uint8_t *pMsg);
 
-        virtual void handle_reset_sequence(uint8_t *pMsg);
+private:
+    void start_service_pack_transfert(void)
+    {
+        service_pack_index = 0;
+        service_pack_transfered = false;
+        send_service_pack_command();
+    }
 
-    private:
-        void start_service_pack_transfert(void) {
-            service_pack_index = 0;
-            service_pack_transfered = false;
+    void send_service_pack_command(void)
+    {
+        uint16_t cmd_len = odin_service_pack[service_pack_index + HCI_CMD_HDR_LEN];
+        cmd_opcode_ack_expected = (odin_service_pack[service_pack_index + 2] << 8) | odin_service_pack[service_pack_index + 1];
+        uint8_t *pBuf = hciCmdAlloc(cmd_opcode_ack_expected, cmd_len);
+        if (pBuf) {
+            memcpy(pBuf, odin_service_pack + service_pack_index + 1, cmd_len + HCI_CMD_HDR_LEN);
+            hciCmdSend(pBuf);
+        } else {
+            printf("Error cannot allocate memory for the buffer");
+        }
+    }
+
+    void ack_service_pack_command(uint16_t opcode, uint8_t *msg)
+    {
+        /* check if response opcode is same as expected command opcode */
+        MBED_ASSERT (cmd_opcode_ack_expected == opcode); 
+
+        // update service pack index
+        service_pack_index += (1 + HCI_CMD_HDR_LEN + odin_service_pack[service_pack_index + HCI_CMD_HDR_LEN]);
+
+        if (service_pack_index < service_pack_size)
             send_service_pack_command();
+        else if (opcode == HCID_VS_WRITE_BD_ADDR) {
+           /* send an HCI Reset command to start the sequence */
+            HciResetCmd();
+            service_pack_transfered = true;
+        } else {
+            /* send BT device hardware address write command */
+            send_hci_vs_cmd(HCID_VS_WRITE_BD_ADDR);
+            cmd_opcode_ack_expected = HCID_VS_WRITE_BD_ADDR;
         }
+    }
 
-        void send_service_pack_command(void) {
-            uint16_t cmd_len = OdinServicePack[service_pack_index + HCI_CMD_HDR_LEN];
-            cmd_opcode_ack_expected = (OdinServicePack[service_pack_index + 2] << 8) | OdinServicePack[service_pack_index + 1];
-            uint8_t *pBuf = hciCmdAlloc(cmd_opcode_ack_expected, cmd_len);
-            if (pBuf) {
-                memcpy(pBuf, OdinServicePack + service_pack_index + 1, cmd_len + HCI_CMD_HDR_LEN);
-                hciCmdSend(pBuf);
-            }
-            else {
-                printf("Error cannot allocate memory for the buffer");
-            }
+    void hci_read_resolving_list_size(void)
+    {
+        /* if LL Privacy is supported by Controller and included */
+        if ((hciCoreCb.leSupFeat & HCI_LE_SUP_FEAT_PRIVACY) &&
+            (hciLeSupFeatCfg & HCI_LE_SUP_FEAT_PRIVACY)) {
+            /* send next command in sequence */
+            HciLeReadResolvingListSize();
+        } else {
+            hciCoreCb.resListSize = 0;
+
+            /* send next command in sequence */
+            hci_read_max_data_len();
         }
+    }
 
-        void ack_service_pack_command(uint16_t opcode, uint8_t* msg) {
-            /* check if response opcode is same as expected command opcode */
-            MBED_ASSERT (cmd_opcode_ack_expected == opcode); 
-
-            // update service pack index
-            service_pack_index += (1 + HCI_CMD_HDR_LEN + OdinServicePack[service_pack_index + HCI_CMD_HDR_LEN]);
-
-            if (service_pack_index < service_pack_size) {
-                send_service_pack_command();
-            }
-            else if (opcode == HCID_VS_WRITE_BD_ADDR) {
-               /* send an HCI Reset command to start the sequence */
-                HciResetCmd();
-                service_pack_transfered = true;
-            }
-            else {
-                /* send BT device hardware address write command */
-                send_hci_vs_cmd(HCID_VS_WRITE_BD_ADDR);
-                cmd_opcode_ack_expected = HCID_VS_WRITE_BD_ADDR;
-            }
+    void hci_read_max_data_len(void)
+    {
+        /* if LE Data Packet Length Extensions is supported by Controller and included */
+        if ((hciCoreCb.leSupFeat & HCI_LE_SUP_FEAT_DATA_LEN_EXT) &&
+            (hciLeSupFeatCfg & HCI_LE_SUP_FEAT_DATA_LEN_EXT)) {
+            /* send next command in sequence */
+            HciLeReadMaxDataLen();
+        } else {
+            /* send next command in sequence */
+            HciLeRandCmd();
         }
+    }
 
-        void hciCoreReadResolvingListSize(void)
-        {
-            /* if LL Privacy is supported by Controller and included */
-            if ((hciCoreCb.leSupFeat & HCI_LE_SUP_FEAT_PRIVACY) &&
-                (hciLeSupFeatCfg & HCI_LE_SUP_FEAT_PRIVACY))
-            {
-                /* send next command in sequence */
-                HciLeReadResolvingListSize();
-            }
-            else
-            {
-                hciCoreCb.resListSize = 0;
-
-                /* send next command in sequence */
-                hciCoreReadMaxDataLen();
-            }
-        }
-
-        void hciCoreReadMaxDataLen(void)
-        {
-            /* if LE Data Packet Length Extensions is supported by Controller and included */
-            if ((hciCoreCb.leSupFeat & HCI_LE_SUP_FEAT_DATA_LEN_EXT) &&
-                (hciLeSupFeatCfg & HCI_LE_SUP_FEAT_DATA_LEN_EXT))
-            {
-                /* send next command in sequence */
-                HciLeReadMaxDataLen();
-            }
-            else
-            {
-                /* send next command in sequence */
-                HciLeRandCmd();
-            }
-        }
-
-        DigitalOut      shutdown;                       // power/shutdown pin for bt device
-        DigitalOut      hci_rts;                        // request to sent pin
-        size_t          service_pack_index;             // Index of command to be recently sent over hci
-        bool            service_pack_transfered;        // Flag to notify if service pack is completely transferred or not
-        uint16_t        cmd_opcode_ack_expected;        // Command against which acknowledgment is expected
-        uint32_t        service_pack_size;              // size of service pack
-        char*           OdinServicePack ;
-        vs_cmd_send_t   send_hci_vs_cmd ;
+    DigitalOut      shutdown;                       // power/shutdown pin for bt device
+    DigitalOut      hci_rts;                        // request to sent pin
+    size_t          service_pack_index;             // Index of command to be recently sent over hci
+    bool            service_pack_transfered;        // Flag to notify if service pack is completely transferred or not
+    uint16_t        cmd_opcode_ack_expected;        // Command against which acknowledgment is expected
+    uint32_t        service_pack_size;              // size of service pack
+    char            *odin_service_pack ;            // Service pack needs to be provided by driver
+    vs_cmd_send_t   send_hci_vs_cmd ;               // callback function to call vendor specific call handler
 
 };
 
@@ -157,7 +150,7 @@ void ble::vendor::odin_w2::HCIDriver::do_initialize()
     /* ODIN ble driver initialization function  */
     cbCordio_Btinit(&callback);
 
-    OdinServicePack = callback.Service_pack;
+    odin_service_pack = callback.Service_pack;
     send_hci_vs_cmd = callback.vs_command_callback;
     service_pack_size = callback.service_pack_size;
 }
@@ -180,16 +173,14 @@ void ble::vendor::odin_w2::HCIDriver::handle_reset_sequence(uint8_t *pMsg)
     static uint8_t randCnt;
 
     /* if event is a command complete event */
-    if (*pMsg == HCI_CMD_CMPL_EVT)
-    {
+    if (*pMsg == HCI_CMD_CMPL_EVT) {
         /* parse parameters */
         pMsg += HCI_EVT_HDR_LEN;
         pMsg++;                   /* skip num packets */
         BSTREAM_TO_UINT16(opcode, pMsg);
         pMsg++;                   /* skip status */
 
-        if (opcode == HCID_VS_UPDATE_UART_BAUD_RATE)
-        {
+        if (opcode == HCID_VS_UPDATE_UART_BAUD_RATE) {
             update_uart_baud_rate();
             start_service_pack_transfert();
             return;
@@ -282,7 +273,7 @@ void ble::vendor::odin_w2::HCIDriver::handle_reset_sequence(uint8_t *pMsg)
                 BSTREAM_TO_UINT16(hciCoreCb.leSupFeat, pMsg);
 
                 /* send next command in sequence */
-                hciCoreReadResolvingListSize();
+                hci_read_resolving_list_size();
                 break;
 
             case HCI_OPCODE_LE_READ_RES_LIST_SIZE:
@@ -290,11 +281,10 @@ void ble::vendor::odin_w2::HCIDriver::handle_reset_sequence(uint8_t *pMsg)
                 BSTREAM_TO_UINT8(hciCoreCb.resListSize, pMsg);
 
                 /* send next command in sequence */
-                hciCoreReadMaxDataLen();
+                hci_read_max_data_len();
                 break;
 
             case HCI_OPCODE_LE_READ_MAX_DATA_LEN:
-            {
                 uint16_t maxTxOctets;
                 uint16_t maxTxTime;
 
@@ -306,17 +296,13 @@ void ble::vendor::odin_w2::HCIDriver::handle_reset_sequence(uint8_t *pMsg)
                 * of payload octets and maximum packet transmission time for new connections.
                 */
                 HciLeWriteDefDataLen(maxTxOctets, maxTxTime);
-            }
-            break;
+                break;
 
             case HCI_OPCODE_LE_WRITE_DEF_DATA_LEN:
-                if (hciCoreCb.extResetSeq)
-                {
+                if (hciCoreCb.extResetSeq) {
                     /* send first extended command */
                     (*hciCoreCb.extResetSeq)(pMsg, opcode);
-                }
-                else
-                {
+                } else {
                     /* initialize extended parameters */
                     hciCoreCb.maxAdvDataLen = 0;
                     hciCoreCb.numSupAdvSets = 0;
@@ -330,8 +316,7 @@ void ble::vendor::odin_w2::HCIDriver::handle_reset_sequence(uint8_t *pMsg)
             case HCI_OPCODE_LE_READ_MAX_ADV_DATA_LEN:
             case HCI_OPCODE_LE_READ_NUM_SUP_ADV_SETS:
             case HCI_OPCODE_LE_READ_PER_ADV_LIST_SIZE:
-                if (hciCoreCb.extResetSeq)
-                {
+                if (hciCoreCb.extResetSeq) {
                     /* send next extended command in sequence */
                     (*hciCoreCb.extResetSeq)(pMsg, opcode);
                 }
@@ -339,13 +324,10 @@ void ble::vendor::odin_w2::HCIDriver::handle_reset_sequence(uint8_t *pMsg)
 
             case HCI_OPCODE_LE_RAND:
                 /* check if need to send second rand command */
-                if (randCnt < (HCI_RESET_RAND_CNT - 1))
-                {
+                if (randCnt < (HCI_RESET_RAND_CNT - 1)) {
                     randCnt++;
                     HciLeRandCmd();
-                }
-                else
-                {
+                } else {
                     signal_reset_sequence_done();
                 }
                 break;
