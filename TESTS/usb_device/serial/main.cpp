@@ -45,6 +45,13 @@
 
 #define TX_BUFF_SIZE 32
 #define RX_BUFF_SIZE 32
+
+// The size of every data chunk the host sends (for each value from a
+// known sequence) during 'CDC RX multiple' test cases is
+// HOST_RX_BUFF_SIZE_RATIO times the size of RX_BUFF_SIZE input buffer.
+// This way the device has to correctly handle data bigger that its buffer.
+#define HOST_RX_BUFF_SIZE_RATIO 64
+
 #define CDC_LOOPBACK_REPS 1200
 #define SERIAL_LOOPBACK_REPS 100
 #define USB_RECONNECT_DELAY_MS 1
@@ -398,19 +405,23 @@ void test_cdc_rx_multiple_bytes()
 {
     TestUSBCDC usb_cdc(USB_CDC_VID, USB_CDC_PID, 1, usb_dev_sn);
     usb_cdc.connect();
-    greentea_send_kv(MSG_KEY_SEND_BYTES_MULTIPLE, MSG_VALUE_DUMMY);
+    greentea_send_kv(MSG_KEY_SEND_BYTES_MULTIPLE, HOST_RX_BUFF_SIZE_RATIO);
     usb_cdc.wait_ready();
     uint8_t buff[RX_BUFF_SIZE] = { 0 };
     uint8_t expected_buff[RX_BUFF_SIZE] = { 0 };
     for (int expected = 0xff; expected >= 0; expected--) {
-        memset(expected_buff, expected, RX_BUFF_SIZE);
-        TEST_ASSERT(usb_cdc.receive(buff, RX_BUFF_SIZE, NULL));
-        TEST_ASSERT_EQUAL_UINT8_ARRAY(expected_buff, buff, RX_BUFF_SIZE);
+        for (int chunk = 0; chunk < HOST_RX_BUFF_SIZE_RATIO; chunk++) {
+            memset(expected_buff, expected, RX_BUFF_SIZE);
+            TEST_ASSERT(usb_cdc.receive(buff, RX_BUFF_SIZE, NULL));
+            TEST_ASSERT_EQUAL_UINT8_ARRAY(expected_buff, buff, RX_BUFF_SIZE);
+        }
     }
     for (int expected = 0; expected <= 0xff; expected++) {
-        memset(expected_buff, expected, RX_BUFF_SIZE);
-        TEST_ASSERT(usb_cdc.receive(buff, RX_BUFF_SIZE, NULL));
-        TEST_ASSERT_EQUAL_UINT8_ARRAY(expected_buff, buff, RX_BUFF_SIZE);
+        for (int chunk = 0; chunk < HOST_RX_BUFF_SIZE_RATIO; chunk++) {
+            memset(expected_buff, expected, RX_BUFF_SIZE);
+            TEST_ASSERT(usb_cdc.receive(buff, RX_BUFF_SIZE, NULL));
+            TEST_ASSERT_EQUAL_UINT8_ARRAY(expected_buff, buff, RX_BUFF_SIZE);
+        }
     }
     // Wait for the host to close its port.
     while (usb_cdc.ready()) {
@@ -430,7 +441,7 @@ void test_cdc_rx_multiple_bytes_concurrent()
 {
     TestUSBCDC usb_cdc(USB_CDC_VID, USB_CDC_PID, 1, usb_dev_sn);
     usb_cdc.connect();
-    greentea_send_kv(MSG_KEY_SEND_BYTES_MULTIPLE, MSG_VALUE_DUMMY);
+    greentea_send_kv(MSG_KEY_SEND_BYTES_MULTIPLE, HOST_RX_BUFF_SIZE_RATIO);
     usb_cdc.wait_ready();
     wait_ms(TX_DELAY_MS);
     Thread tx_thread;
@@ -439,14 +450,18 @@ void test_cdc_rx_multiple_bytes_concurrent()
     uint8_t buff[RX_BUFF_SIZE] = { 0 };
     uint8_t expected_buff[RX_BUFF_SIZE] = { 0 };
     for (int expected = 0xff; expected >= 0; expected--) {
-        memset(expected_buff, expected, RX_BUFF_SIZE);
-        TEST_ASSERT(usb_cdc.receive(buff, RX_BUFF_SIZE, NULL));
-        TEST_ASSERT_EQUAL_UINT8_ARRAY(expected_buff, buff, RX_BUFF_SIZE);
+        for (int chunk = 0; chunk < HOST_RX_BUFF_SIZE_RATIO; chunk++) {
+            memset(expected_buff, expected, RX_BUFF_SIZE);
+            TEST_ASSERT(usb_cdc.receive(buff, RX_BUFF_SIZE, NULL));
+            TEST_ASSERT_EQUAL_UINT8_ARRAY(expected_buff, buff, RX_BUFF_SIZE);
+        }
     }
     for (int expected = 0; expected <= 0xff; expected++) {
-        memset(expected_buff, expected, RX_BUFF_SIZE);
-        TEST_ASSERT(usb_cdc.receive(buff, RX_BUFF_SIZE, NULL));
-        TEST_ASSERT_EQUAL_UINT8_ARRAY(expected_buff, buff, RX_BUFF_SIZE);
+        for (int chunk = 0; chunk < HOST_RX_BUFF_SIZE_RATIO; chunk++) {
+            memset(expected_buff, expected, RX_BUFF_SIZE);
+            TEST_ASSERT(usb_cdc.receive(buff, RX_BUFF_SIZE, NULL));
+            TEST_ASSERT_EQUAL_UINT8_ARRAY(expected_buff, buff, RX_BUFF_SIZE);
+        }
     }
     event_flags.clear(EF_SEND);
     tx_thread.join();
@@ -738,7 +753,7 @@ void test_serial_line_coding_change()
 
 utest::v1::status_t testsuite_setup(const size_t number_of_cases)
 {
-    GREENTEA_SETUP(35, "usb_device_serial");
+    GREENTEA_SETUP(45, "usb_device_serial");
     srand((unsigned) ticker_read_us(get_us_ticker_data()));
 
     utest::v1::status_t status = utest::v1::greentea_test_setup_handler(number_of_cases);
