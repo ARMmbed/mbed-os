@@ -323,9 +323,10 @@ class USBSerialTest(mbed_host_tests.BaseHostTest):
 
     def cb_send_bytes_multiple(self, key, value, timestamp):
         """Open the serial and send a sequence of one byte values."""
+        chunk_size = RX_BUFF_SIZE * int(value)
         self.start_bg_task(
             target=self.send_data_sequence,
-            args=(RX_BUFF_SIZE, ))
+            args=(chunk_size, ))
 
     def cb_loopback(self, key, value, timestamp):
         """Open the serial and send a sequence of multibyte values."""
