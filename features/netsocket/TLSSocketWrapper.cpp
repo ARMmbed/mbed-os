@@ -28,8 +28,10 @@
 
 TLSSocketWrapper::TLSSocketWrapper(Socket *transport, const char *hostname, control_transport control) :
     _transport(transport),
+#ifdef MBEDTLS_X509_CRT_PARSE_C
     _cacert(NULL),
     _clicert(NULL),
+#endif
     _ssl_conf(NULL),
     _connect_transport(control==TRANSPORT_CONNECT || control==TRANSPORT_CONNECT_AND_CLOSE),
     _close_transport(control==TRANSPORT_CLOSE || control==TRANSPORT_CONNECT_AND_CLOSE),
@@ -57,20 +59,24 @@ TLSSocketWrapper::~TLSSocketWrapper() {
     mbedtls_ssl_free(&_ssl);
     mbedtls_pk_free(&_pkctx);
 
+#ifdef MBEDTLS_X509_CRT_PARSE_C
     set_own_cert(NULL);
     set_ca_chain(NULL);
+#endif
     set_ssl_config(NULL);
 }
 
 void TLSSocketWrapper::set_hostname(const char *hostname)
 {
+#ifdef MBEDTLS_X509_CRT_PARSE_C
     mbedtls_ssl_set_hostname(&_ssl, hostname);
+#endif
 }
 
 nsapi_error_t TLSSocketWrapper::set_root_ca_cert(const void *root_ca, size_t len)
 {
 #if !defined(MBEDTLS_X509_CRT_PARSE_C)
-    return NSAPI_ERROR_UNSUPPORTED
+    return NSAPI_ERROR_UNSUPPORTED;
 #else
     mbedtls_x509_crt *crt;
 
@@ -108,7 +114,7 @@ nsapi_error_t TLSSocketWrapper::set_client_cert_key(const void *client_cert, siz
         const void *client_private_key_pem, size_t client_private_key_len)
 {
 #if !defined(MBEDTLS_X509_CRT_PARSE_C)
-    return NSAPI_ERROR_UNSUPPORTED
+    return NSAPI_ERROR_UNSUPPORTED;
 #else
 
     int ret;
@@ -173,8 +179,12 @@ nsapi_error_t TLSSocketWrapper::do_handshake() {
 
     mbedtls_ssl_set_bio(&_ssl, this, ssl_send, ssl_recv, NULL );
 
+#ifdef MBEDTLS_X509_CRT_PARSE_C
     /* Start the handshake, the rest will be done in onReceive() */
     tr_info("Starting TLS handshake with %s", _ssl.hostname);
+#else
+    tr_info("Starting TLS handshake");
+#endif
 
     do {
         ret = mbedtls_ssl_handshake(&_ssl);
@@ -185,9 +195,14 @@ nsapi_error_t TLSSocketWrapper::do_handshake() {
         return ret;
     }
 
+#ifdef MBEDTLS_X509_CRT_PARSE_C
     /* It also means the handshake is done, time to print info */
-    tr_info("TLS connection to %s established\r\n", _ssl.hostname);
+    tr_info("TLS connection to %s established", _ssl.hostname);
+#else
+    tr_info("TLS connection established");
+#endif
 
+#ifdef MBEDTLS_X509_CRT_PARSE_C
     /* Prints the server certificate and verify it. */
     const size_t buf_size = 1024;
     char* buf = new char[buf_size];
@@ -205,6 +220,7 @@ nsapi_error_t TLSSocketWrapper::do_handshake() {
         tr_info("Certificate verification passed");
     }
     delete[] buf;
+#endif
 
     _handshake_completed = true;
 
@@ -368,6 +384,7 @@ int TLSSocketWrapper::ssl_send(void *ctx, const unsigned char *buf, size_t len) 
     return size;
  }
 
+#ifdef MBEDTLS_X509_CRT_PARSE_C
 
 mbedtls_x509_crt *TLSSocketWrapper::get_own_cert()
 {
@@ -407,6 +424,8 @@ void TLSSocketWrapper::set_ca_chain(mbedtls_x509_crt *crt)
     tr_info("mbedtls_ssl_conf_ca_chain()");
     mbedtls_ssl_conf_ca_chain(get_ssl_config(), _cacert, NULL);
 }
+
+#endif /* MBEDTLS_X509_CRT_PARSE_C */
 
 mbedtls_ssl_config *TLSSocketWrapper::get_ssl_config()
 {

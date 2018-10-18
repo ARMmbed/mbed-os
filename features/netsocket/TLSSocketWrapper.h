@@ -133,6 +133,7 @@ public:
     virtual Socket *accept(nsapi_error_t *error = NULL);
     virtual nsapi_error_t listen(int backlog = 1);
 
+#if defined(MBEDTLS_X509_CRT_PARSE_C) || defined(DOXYGEN)
     /** Get own certificate directly from Mbed TLS
      * @return internal Mbed TLS X509 structure
      */
@@ -153,6 +154,7 @@ public:
      * @param crt Mbed TLS X509 certificate chain.
      */
     void set_ca_chain(mbedtls_x509_crt *crt);
+#endif
 
     /** Get internal Mbed TLS configuration structure
      * @return Mbed TLS SSL config
@@ -216,8 +218,10 @@ private:
 
     Socket *_transport;
 
+#ifdef MBEDTLS_X509_CRT_PARSE_C
     mbedtls_x509_crt* _cacert;
     mbedtls_x509_crt* _clicert;
+#endif
     mbedtls_ssl_config* _ssl_conf;
 
     bool _connect_transport:1;
