@@ -113,12 +113,13 @@ void nrf_reloc_vector_table(void)
 #endif
 }
 
-#if (STDIO_UART_RTS != NC)
+
 void mbed_sdk_init(void)
 {
-	gpio_t rts;
-	gpio_init_out(&rts, STDIO_UART_RTS);
-	/* Set STDIO_UART_RTS as gpio driven low */
-	gpio_write(&rts, 0);
+	if (STDIO_UART_RTS != NC) {
+		gpio_t rts;
+		gpio_init_out(&rts, STDIO_UART_RTS);
+		/* Set STDIO_UART_RTS as gpio driven low */
+		gpio_write(&rts, 0);
+	}
 }
-#endif
