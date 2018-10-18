@@ -22,7 +22,9 @@
 #include <Timer.h>
 
 #define TRACE_GROUP "fhdr"
+#ifndef NUMBER_OF_SIMULTANEOUS_TIMEOUTS
 #define NUMBER_OF_SIMULTANEOUS_TIMEOUTS  2
+#endif //NUMBER_OF_SIMULTANEOUS_TIMEOUTS
 
 static Timer timer;
 static bool timer_initialized = false;
