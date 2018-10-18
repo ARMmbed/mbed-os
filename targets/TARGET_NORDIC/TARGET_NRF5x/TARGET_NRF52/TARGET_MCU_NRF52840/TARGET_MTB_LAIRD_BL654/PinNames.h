@@ -285,6 +285,22 @@ typedef enum {
     UART_TX = UART_TX1,
     UART_RX = UART_RX1,
 
+    /* QSPI */
+    QSPI1_IO0 = P0_20,
+    QSPI1_IO1 = P0_21,
+    QSPI1_IO2 = P0_22,
+    QSPI1_IO3 = P0_23,
+    QSPI1_SCK = P0_19,
+    QSPI1_CSN = P0_17,
+
+    /* QSPI FLASH */
+    QSPI_FLASH1_IO0 = QSPI1_IO0,
+    QSPI_FLASH1_IO1 = QSPI1_IO1,
+    QSPI_FLASH1_IO2 = QSPI1_IO2,
+    QSPI_FLASH1_IO3 = QSPI1_IO3,
+    QSPI_FLASH1_SCK = QSPI1_SCK,
+    QSPI_FLASH1_CSN = QSPI1_CSN,
+
     //MTB aliases
     GP0    = SIO_33,
     GP1    = SIO_34,
