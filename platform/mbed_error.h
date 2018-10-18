@@ -42,7 +42,7 @@ extern "C" {
 #else //MBED_CONF_PLATFORM_MAX_ERROR_FILENAME_LEN
 #if MBED_CONF_PLATFORM_MAX_ERROR_FILENAME_LEN > 64
 //We have to limit this to 64 bytes since we use mbed_error_printf for error reporting
-//and mbed_error_vfprintf uses 128bytes internal buffer which may not be sufficient for anything
+//and mbed_error_vprintf uses 128bytes internal buffer which may not be sufficient for anything
 //longer that 64 bytes with the current implementation.
 #error "Unsupported error filename buffer length detected, max supported length is 64 chars. Please change MBED_CONF_PLATFORM_MAX_ERROR_FILENAME_LEN or max-error-filename-len in configuration."
 #endif
