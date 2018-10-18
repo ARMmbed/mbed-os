@@ -30,12 +30,12 @@ namespace mbed {
  */
 
 
-/** Represents a directory stream. Objects of this type are returned
- *  by an opendir function. The core functions are read and seek,
+/** Represents a directory stream. An opendir function returns 
+ *  objects of this type. The core functions are read and seek,
  *  but only a subset needs to be provided.
  *
- *  If a FileSystemLike class defines the opendir method, then the
- *  directories of an object of that type can be accessed by either:
+ *  If a FileSystemLike class defines the opendir method, then you
+ *  can access the directories of an object of that type by either:
  *  @code
  *  DIR *d  = opendir("/example/directory");
  *  @endcode
@@ -46,8 +46,8 @@ namespace mbed {
  *  to open the root of the file system.
  *
  *  The root directory is considered to contain all FileHandle and
- *  FileSystem objects, so the DIR pointer returned by opendir("/") will
- *  reflect this.
+ *  FileSystem objects, so the DIR pointer returned by opendir("/")
+ *  reflects this.
  *
  *  @note to create a directory, @see Dir
  *  @note Synchronization level: Set by subclass
