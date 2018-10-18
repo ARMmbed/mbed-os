@@ -18,7 +18,6 @@
 #define ODIN_CORDIO_INTF_H
 
 #include <stdio.h>
-#include "mbed.h"
 #include "cb_main.h"
 
 /*------------------------------------------------------------------------------
