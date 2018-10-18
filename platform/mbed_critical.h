@@ -39,7 +39,7 @@ extern "C" {
   * This function can be called to determine whether or not interrupts are currently enabled.
   * @note
   * NOTE:
-  * This function works for both cortex-A and cortex-M, although the underlyng implementation
+  * This function works for both cortex-A and cortex-M, although the underlying implementation
   * differs.
   * @return true if interrupts are enabled, false otherwise
   */
@@ -50,7 +50,7 @@ bool core_util_are_interrupts_enabled(void);
   * This function can be called to determine if the code is running on interrupt context.
   * @note
   * NOTE:
-  * This function works for both cortex-A and cortex-M, although the underlyng implementation
+  * This function works for both cortex-A and cortex-M, although the underlying implementation
   * differs.
   * @return true if in an isr, false otherwise
   */
