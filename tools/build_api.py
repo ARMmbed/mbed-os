@@ -1072,20 +1072,10 @@ def get_unique_supported_toolchains(release_targets=None):
                       If release_targets is not specified, then it queries all
                       known targets
     """
-    unique_supported_toolchains = []
-
-    if not release_targets:
-        for target in TARGET_NAMES:
-            for toolchain in TARGET_MAP[target].supported_toolchains:
-                if toolchain not in unique_supported_toolchains:
-                    unique_supported_toolchains.append(toolchain)
-    else:
-        for target in release_targets:
-            for toolchain in target[1]:
-                if toolchain not in unique_supported_toolchains:
-                    unique_supported_toolchains.append(toolchain)
-
-    return unique_supported_toolchains
+    return [
+        name for name, cls in TOOLCHAIN_CLASSES.items()
+        if cls.OFFICIALLY_SUPPORTED
+    ]
 
 
 def _lowercase_release_version(release_version):
