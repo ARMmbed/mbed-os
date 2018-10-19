@@ -1858,6 +1858,7 @@
         "inherits": ["MCU_LPC546XX"],
         "extra_labels_remove": ["LPCXpresso"],
         "detect_code": ["8081"],
+        "device_has_remove": ["QSPI"],
         "release_versions": ["2", "5"]
     },
     "NUCLEO_F030R8": {
