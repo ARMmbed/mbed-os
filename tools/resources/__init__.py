@@ -380,7 +380,7 @@ class Resources(object):
         if into_path is None:
             into_path = path
         if self._collect_ignores and relpath(path, base_path) in self.ignored_dirs:
-            self.ignored_dirs.remove(path)
+            self.ignored_dirs.remove(relpath(path, base_path))
         if exclude_paths:
             self.add_ignore_patterns(
                 path, base_path, [join(e, "*") for e in exclude_paths])
