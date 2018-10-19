@@ -69,7 +69,8 @@ void LoRaMacCommand::parse_mac_commands_to_repeat()
         switch (mac_cmd_buffer[i]) {
             // STICKY
             case MOTE_MAC_DL_CHANNEL_ANS:
-            case MOTE_MAC_RX_PARAM_SETUP_ANS: { // 1 byte payload
+            case MOTE_MAC_RX_PARAM_SETUP_ANS:
+            case MOTE_MAC_REKEY_IND: { // 1 byte payload
                 mac_cmd_buffer_to_repeat[cmd_cnt++] = mac_cmd_buffer[i++];
                 mac_cmd_buffer_to_repeat[cmd_cnt++] = mac_cmd_buffer[i];
                 break;
@@ -414,6 +415,8 @@ lorawan_status_t LoRaMacCommand::add_rekey_ind(uint8_t version)
     if (cmd_buffer_remaining() > 0) {
         mac_cmd_buffer[mac_cmd_buf_idx++] = MOTE_MAC_REKEY_IND;
         mac_cmd_buffer[mac_cmd_buf_idx++] = version & 0x0F;
+        // This is a sticky MAC command answer. Setup indication
+        sticky_mac_cmd = true;
         ret = LORAWAN_STATUS_OK;
     }
     return ret;
