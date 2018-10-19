@@ -643,7 +643,6 @@ void LoRaWANStack::process_transmission_timeout()
 void LoRaWANStack::process_transmission(void)
 {
     tr_debug("Transmission completed");
-    _loramac.on_radio_tx_done(_tx_timestamp);
 
     if (_loramac.get_server_type() == LW1_1 && _device_mode_ind_ongoing) {
         _device_mode_ind_ongoing = false;
