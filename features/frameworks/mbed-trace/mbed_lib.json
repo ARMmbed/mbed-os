@@ -5,6 +5,12 @@
             "help": "Used to globally enable traces.",
             "value": null
         },
+        "level": {
+            "help": "Sets the tracing level. Possible levels are TRACE_LEVEL_DEBUG, TRACE_LEVEL_INFO, TRACE_LEVEL_WARN, TRACE_LEVEL_ERROR and TRACE_LEVEL_CMD.",
+            "value": null,
+            "macro_name": "MBED_TRACE_MAX_LEVEL"
+
+        },
         "fea-ipv6": {
             "help": "Used to globally disable ipv6 tracing features.",
             "value": null
