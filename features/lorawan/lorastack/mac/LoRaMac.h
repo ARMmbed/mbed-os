@@ -551,6 +551,7 @@ private:
                                        uint8_t fopts_len, uint8_t *nwk_skey,
                                        uint8_t *app_skey, uint32_t address,
                                        uint32_t downlink_frame_counter,
+                                       seq_counter_type_t cnt_type,
                                        int16_t rssi, int8_t snr,
                                        mbed::Callback<void(loramac_mlme_confirm_t&)> confirm_handler);
     /**
@@ -558,7 +559,7 @@ private:
      * payload if there is no data
      * @return True if successful, false otherwise
      */
-    bool extract_mac_commands_only(const uint8_t *payload, int8_t snr, uint8_t fopts_len,
+    bool extract_mac_commands_only(const uint8_t *payload, uint16_t size, int8_t snr, uint8_t fopts_len,
                                    mbed::Callback<void(loramac_mlme_confirm_t&)> confirm_handler);
 
     /**

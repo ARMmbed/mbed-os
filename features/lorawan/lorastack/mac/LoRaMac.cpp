@@ -66,6 +66,7 @@ using namespace mbed;
  */
 #define DOWN_LINK                                   1
 
+#define MHDR_LEN                                    1
 #define PORT_FIELD_LEN                              1
 #define FHDR_LEN_WITHOUT_FOPTS                      7
 
@@ -276,6 +277,7 @@ loramac_event_info_status_t LoRaMac::handle_join_accept_frame(const uint8_t *pay
         _params.rx_buffer[9] = _params.dev_nonce & 0xFF; // DevNonce
         _params.rx_buffer[10] = (_params.dev_nonce >> 8) & 0xFF;
 
+        // MIC is encrypted as part of payload
         mic_start = size + 11 - LORAMAC_MFR_LEN;
         payload_start += 11;
 
@@ -314,13 +316,6 @@ loramac_event_info_status_t LoRaMac::handle_join_accept_frame(const uint8_t *pay
                                                       _params.server_type) != 0) {
             return LORAMAC_EVENT_INFO_STATUS_CRYPTO_FAIL;
         }
-
-        tr_debug("%s", trace_array(_params.keys.nwk_skey, 16));
-        tr_debug("%s", trace_array(_params.keys.app_skey, 16));
-        tr_debug("%s", trace_array(_params.keys.snwk_sintkey, 16));
-        tr_debug("%s", trace_array(_params.keys.nwk_senckey, 16));
-        tr_debug("%s", trace_array(decrypt_key, 16));
-
 
         _params.net_id = (uint32_t) _params.rx_buffer[payload_start + 3];
         _params.net_id |= ((uint32_t) _params.rx_buffer[payload_start + 4] << 8);
@@ -428,6 +423,7 @@ void LoRaMac::extract_data_and_mac_commands(const uint8_t *payload,
                                             uint8_t *app_skey,
                                             uint32_t address,
                                             uint32_t downlink_counter,
+                                            seq_counter_type_t cnt_type,
                                             int16_t rssi,
                                             int8_t snr,
                                             Callback<void(loramac_mlme_confirm_t&)> confirm_handler)
@@ -449,8 +445,9 @@ void LoRaMac::extract_data_and_mac_commands(const uint8_t *payload,
                                              address,
                                              DOWN_LINK,
                                              downlink_counter,
-                                             1, // FMRPayload
-                                             _params.rx_buffer) != 0) {
+                                             cnt_type,
+                                             FRMPAYLOAD,
+                                             _params.rx_buffer, _params.server_type) != 0) {
                 _mcps_indication.status = LORAMAC_EVENT_INFO_STATUS_CRYPTO_FAIL;
             }
 
@@ -477,7 +474,7 @@ void LoRaMac::extract_data_and_mac_commands(const uint8_t *payload,
         return;
     }
 
-    if(!extract_mac_commands_only(payload, snr, fopts_len, confirm_handler)) {
+    if(!extract_mac_commands_only(payload, size, snr, fopts_len, confirm_handler)) {
         return;
     }
 
@@ -489,8 +486,10 @@ void LoRaMac::extract_data_and_mac_commands(const uint8_t *payload,
                                      address,
                                      DOWN_LINK,
                                      downlink_counter,
-                                     1, // FMRPayload
-                                     _params.rx_buffer) != 0) {
+                                     cnt_type,
+                                     FRMPAYLOAD,
+                                     _params.rx_buffer,
+                                     _params.server_type) != 0) {
         _mcps_indication.status = LORAMAC_EVENT_INFO_STATUS_CRYPTO_FAIL;
     } else {
         _mcps_indication.buffer = _params.rx_buffer;
@@ -500,30 +499,29 @@ void LoRaMac::extract_data_and_mac_commands(const uint8_t *payload,
 }
 
 bool LoRaMac::extract_mac_commands_only(const uint8_t *payload,
+                                        uint16_t size,
                                         int8_t snr,
                                         uint8_t fopts_len,
                                         Callback<void(loramac_mlme_confirm_t&)> confirm_handler)
 {
     if (fopts_len > 0) {
-        uint8_t buffer[15];
+        uint8_t buffer[15] = {0};
 
-        unsigned pld_idx = _dl_fport_available ?
-                FHDR_LEN_WITHOUT_FOPTS + PORT_FIELD_LEN + fopts_len :
-                FHDR_LEN_WITHOUT_FOPTS + fopts_len;
+        unsigned pld_idx = MHDR_LEN + FHDR_LEN_WITHOUT_FOPTS;
 
         if (_params.server_type == LW1_1) {
             if (0 != _lora_crypto.decrypt_payload(payload + pld_idx, fopts_len,
                                                   _params.keys.nwk_senckey, sizeof(_params.keys.nwk_senckey) * 8,
                                                   _params.dev_addr, DOWN_LINK,
                                                   _params.dl_frame_counter,
-                                                  0, // FOpts field
-                                                  buffer)) {
+                                                  NFCNT_DOWN,
+                                                  FOPTS,
+                                                  buffer,
+                                                  _params.server_type)) {
                 _mcps_indication.status = LORAMAC_EVENT_INFO_STATUS_CRYPTO_FAIL;
                 return false;
             }
 
-            tr_debug("%s", trace_array(buffer, 15));
-            tr_debug("%s", buffer);
         } else {
             memcpy(buffer, payload + pld_idx, fopts_len);
         }
@@ -559,7 +557,7 @@ void LoRaMac::handle_data_frame(const uint8_t *const payload,
     multicast_params_t *cur_multicast_params;
     uint32_t address = 0;
     uint32_t downlink_counter = 0;
-    uint8_t app_payload_start_index = 0;
+    seq_counter_type_t cnt_type;
     uint8_t *nwk_skey = _params.keys.nwk_skey;
     uint8_t *mic_key  = _params.keys.nwk_skey;
     uint8_t *app_skey = _params.keys.app_skey;
@@ -576,11 +574,9 @@ void LoRaMac::handle_data_frame(const uint8_t *const payload,
 
     fctrl.value = payload[ptr_pos++];
 
-
     int check_frm_len = size - (fctrl.bits.fopts_len + LORA_MAC_FRMPAYLOAD_OVERHEAD);
 
     if (check_frm_len < 0) {
-        tr_debug("Port field was excluded in DOWNLINK");
         _dl_fport_available = false;
     }
 
@@ -619,10 +615,6 @@ void LoRaMac::handle_data_frame(const uint8_t *const payload,
         downlink_counter = _params.dl_frame_counter;
     }
 
-    app_payload_start_index = _dl_fport_available ?
-            FHDR_LEN_WITHOUT_FOPTS + PORT_FIELD_LEN + fctrl.bits.fopts_len :
-            FHDR_LEN_WITHOUT_FOPTS + fctrl.bits.fopts_len;
-
     if (_params.server_type == LW1_1) {
         if (_params.is_node_ack_requested && fctrl.bits.ack) {
             confFCnt = _mcps_confirmation.ul_frame_counter;
@@ -630,8 +622,10 @@ void LoRaMac::handle_data_frame(const uint8_t *const payload,
         if (!is_multicast) {
             if (_dl_fport_available && fport != 0) {
                 downlink_counter = _params.app_dl_frame_counter;
+                cnt_type = AFCNT_DOWN;
             } else {
                 nwk_skey = _params.keys.nwk_senckey;
+                cnt_type = NFCNT_DOWN;
             }
         }
     }
@@ -735,10 +729,10 @@ void LoRaMac::handle_data_frame(const uint8_t *const payload,
     if (check_frm_len > 0) {
         extract_data_and_mac_commands(payload, size, fctrl.bits.fopts_len,
                                       nwk_skey, app_skey, address,
-                                      downlink_counter, rssi, snr,
+                                      downlink_counter, cnt_type, rssi, snr,
                                       confirm_handler);
     } else {
-        extract_mac_commands_only(payload, snr, fctrl.bits.fopts_len, confirm_handler);
+        extract_mac_commands_only(payload, size, snr, fctrl.bits.fopts_len, confirm_handler);
     }
 
     // Handle proprietary messages.
@@ -1912,8 +1906,10 @@ lorawan_status_t LoRaMac::prepare_frame(loramac_mhdr_t *machdr,
                                                               sizeof(_params.keys.nwk_senckey) * 8,
                                                               _params.dev_addr, UP_LINK,
                                                               _params.ul_frame_counter,
-                                                              0, //FOpts
-                                                              &_params.tx_buffer[pkt_header_len])) {
+                                                              FCNT_UP,
+                                                              FOPTS,
+                                                              &_params.tx_buffer[pkt_header_len],
+                                                              _params.server_type)) {
                             status = LORAWAN_STATUS_CRYPTO_FAIL;
                         }
                         pkt_header_len += mac_commands_len;
@@ -1952,8 +1948,10 @@ lorawan_status_t LoRaMac::prepare_frame(loramac_mhdr_t *machdr,
                                                       key, key_length,
                                                       _params.dev_addr, UP_LINK,
                                                       _params.ul_frame_counter,
-                                                      1, // FMRPayload
-                                                      &_params.tx_buffer[pkt_header_len])) {
+                                                      FCNT_UP,
+                                                      FRMPAYLOAD,
+                                                      &_params.tx_buffer[pkt_header_len],
+                                                      _params.server_type)) {
                     status = LORAWAN_STATUS_CRYPTO_FAIL;
                 }
             }

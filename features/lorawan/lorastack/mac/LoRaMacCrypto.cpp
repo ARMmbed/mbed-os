@@ -113,13 +113,15 @@ exit:
 int LoRaMacCrypto::encrypt_payload(const uint8_t *buffer, uint16_t size,
                                    const uint8_t *key, const uint32_t key_length,
                                    uint32_t address, uint8_t dir, uint32_t seq_counter,
-                                   uint16_t a1_block_start,
-                                   uint8_t *enc_buffer)
+                                   seq_counter_type_t seq_cnt_type,
+                                   payload_type_t pld_type,
+                                   uint8_t *enc_buffer,
+                                   server_type_t serv_type)
 {
     uint16_t i;
     uint8_t bufferIndex = 0;
     int ret = 0;
-    uint8_t a_block[16] = {};
+    uint8_t a_block[16] = {0};
     uint8_t s_block[16] = {};
 
     mbedtls_aes_init(&aes_ctx);
@@ -129,6 +131,17 @@ int LoRaMacCrypto::encrypt_payload(const uint8_t *buffer, uint16_t size,
     }
 
     a_block[0] = 0x01;
+
+    if (serv_type == LW1_1 && pld_type == FOPTS) {
+        if ((seq_cnt_type == FCNT_UP || seq_cnt_type == NFCNT_DOWN)) {
+            a_block[4] = 0x01;
+        } else if (seq_cnt_type == AFCNT_DOWN) {
+            a_block[4] = 0x02;
+        }
+    }
+
+
+
     a_block[5] = dir;
 
     a_block[6] = (address) & 0xFF;
@@ -141,9 +154,11 @@ int LoRaMacCrypto::encrypt_payload(const uint8_t *buffer, uint16_t size,
     a_block[12] = (seq_counter >> 16) & 0xFF;
     a_block[13] = (seq_counter >> 24) & 0xFF;
 
+    a_block[15] = 0x01;
+
     while (size >= 16) {
-        a_block[15] = ((a1_block_start) & 0xFF);
-        a1_block_start++;
+        a_block[15]++;
+
         ret = mbedtls_aes_crypt_ecb(&aes_ctx, MBEDTLS_AES_ENCRYPT, a_block,
                                     s_block);
         if (0 != ret) {
@@ -158,7 +173,6 @@ int LoRaMacCrypto::encrypt_payload(const uint8_t *buffer, uint16_t size,
     }
 
     if (size > 0) {
-        a_block[15] = ((a1_block_start) & 0xFF);
         ret = mbedtls_aes_crypt_ecb(&aes_ctx, MBEDTLS_AES_ENCRYPT, a_block,
                                     s_block);
         if (0 != ret) {
@@ -178,11 +192,13 @@ exit:
 int LoRaMacCrypto::decrypt_payload(const uint8_t *buffer, uint16_t size,
                                    const uint8_t *key, uint32_t key_length,
                                    uint32_t address, uint8_t dir, uint32_t seq_counter,
-                                   uint16_t a1_block_start,
-                                   uint8_t *dec_buffer)
+                                   seq_counter_type_t seq_cnt_type,
+                                   payload_type_t pld_type,
+                                   uint8_t *dec_buffer,
+                                   server_type_t serv_type)
 {
     return encrypt_payload(buffer, size, key, key_length, address, dir, seq_counter,
-                           a1_block_start, dec_buffer);
+                           seq_cnt_type, pld_type, dec_buffer, serv_type);
 }
 
 int LoRaMacCrypto::compute_join_frame_mic(const uint8_t *buffer, uint16_t size,
