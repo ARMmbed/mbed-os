@@ -1839,7 +1839,8 @@
             "SPISLAVE",
             "STDIO_MESSAGES",
             "FLASH",
-            "TRNG"
+            "TRNG",
+            "QSPI"
         ],
         "device_name": "LPC54628J512ET180",
         "post_binary_hook": { "function": "LPCTargetCode.lpc_patch" },
