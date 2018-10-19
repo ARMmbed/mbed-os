@@ -138,8 +138,8 @@ void NFCEEPROM::on_session_started(bool success)
                 handle_error(NFC_ERR_CONTROLLER); // An EEPROM is not really a controller but close enough
                 return;
             }
-            _current_op = nfc_eeprom_write_write_bytes;
-            continue_write();
+            _current_op = nfc_eeprom_write_write_size;
+            _driver->write_size(ac_buffer_reader_readable(&_ndef_buffer_reader));
             break;
 
         case nfc_eeprom_read_start_session:
@@ -272,10 +272,8 @@ void NFCEEPROM::on_size_written(bool success)
                 return;
             }
 
-            // End session
-            _current_op = nfc_eeprom_write_end_session;
-            _operation_result = NFC_OK;
-            _driver->end_session();
+            _current_op = nfc_eeprom_write_write_bytes;
+            continue_write();
             break;
         case nfc_eeprom_erase_write_max_size:
             if (!success) {
@@ -371,9 +369,10 @@ void NFCEEPROM::continue_write()
         // Continue writing
         _driver->write_bytes(_eeprom_address, ac_buffer_reader_current_buffer_pointer(&_ndef_buffer_reader), ac_buffer_reader_current_buffer_length(&_ndef_buffer_reader));
     } else {
-        // Now update size
-        _current_op = nfc_eeprom_write_write_size;
-        _driver->write_size(_eeprom_address);
+        // we are done
+        _current_op = nfc_eeprom_write_end_session;
+        _operation_result = NFC_OK;
+        _driver->end_session();
     }
 }
 
