@@ -75,7 +75,7 @@ events::EventQueue *mbed_event_queue();
  * @note
  * mbed_highprio_event_queue is not itself IRQ safe. To use the
  * mbed_highprio_event_queue in interrupt context, you must first call
- * `mbed_event_queue()` in threaded context and store the pointer for
+ * `mbed_highprio_event_queue()` in threaded context and store the pointer for
  * later use.
  *
  * @return pointer to high-priority event queue
