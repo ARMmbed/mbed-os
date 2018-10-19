@@ -172,3 +172,12 @@ void BOARD_InitSDRAM(void)
     /* EMC Dynamc memory configuration. */
     EMC_DynamicMemInit(EMC, &dynTiming, &dynChipConfig, 1);
 }
+
+// Get the QSPI clock frequency
+uint32_t qspi_get_freq(void)
+{
+    CLOCK_AttachClk(kFRO_HF_to_SPIFI_CLK);
+
+    return CLOCK_GetFroHfFreq();
+}
+

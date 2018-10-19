@@ -105,6 +105,10 @@ typedef enum {
     SPI_1 = Flexcomm9
 } SPIName;
 
+typedef enum {
+    QSPI_0 = 0
+} QSPIName;
+
 #ifdef __cplusplus
 }
 #endif
