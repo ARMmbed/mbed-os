@@ -164,9 +164,20 @@ typedef enum {
 } join_req_type_t;
 
 typedef enum {
-    LW1_0_2,
+    LW1_0_2 = 0,
     LW1_1
 } server_type_t;
+
+typedef enum {
+    FCNT_UP = 0,
+    NFCNT_DOWN,
+    AFCNT_DOWN
+} seq_counter_type_t;
+
+typedef enum {
+    FRMPAYLOAD = 0,
+    FOPTS
+} payload_type_t;
 
 /*!
  * The global MAC layer parameters.
