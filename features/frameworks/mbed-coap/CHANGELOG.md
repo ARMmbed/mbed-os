@@ -1,5 +1,20 @@
 # Change Log
 
+## [v4.7.1](https://github.com/ARMmbed/mbed-coap/releases/tag/v4.7.1) 
+
+- Fix CoAP stored blockwise message release and list continue
+	Add re-scan routine goto if message is caused user callback
+	This will fix hard fault when blockwise message sending timeouts. This happens cause same list is manipulated through rx callback.
+
+-[Full Changelog](https://github.com/ARMmbed/mbed-coap/compare/v4.7.0...v4.7.1)
+
+## [v4.7.0](https://github.com/ARMmbed/mbed-coap/releases/tag/v4.7.0) 
+
+- Add function that can be used to clear the received blockwise payloads for example in the case of a connection error.
+- Silence compiler warning when CoAP duplicate detection is enabled.
+
+-[Full Changelog](https://github.com/ARMmbed/mbed-coap/compare/v4.6.3...v4.7.0)
+
 ## [v4.6.3](https://github.com/ARMmbed/mbed-coap/releases/tag/v4.6.3) 
 
  - Bug fix: Remove timed out blockwise message from resend queue. If blockwise message was timed out message was still kept in the resend queue which causes unnecessary reconnections on client side.

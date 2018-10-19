@@ -48,25 +48,18 @@ void wifi_scan(void)
         const char *ssid = ap[i].get_ssid();
         nsapi_security_t security = ap[i].get_security();
         int8_t rssi = ap[i].get_rssi();
-        uint8_t ch = ap[i].get_channel();
         TEST_ASSERT_INT8_WITHIN(-10, -100, rssi);
         if (strcmp(MBED_CONF_APP_WIFI_SECURE_SSID, ssid) == 0) {
             secure_found = true;
             TEST_ASSERT_EQUAL_INT(get_security(), security);
-            if (MBED_CONF_APP_WIFI_CH_SECURE) {
-                TEST_ASSERT_EQUAL_INT(MBED_CONF_APP_WIFI_CH_SECURE, ch);
-            }
         }
         if (strcmp(MBED_CONF_APP_WIFI_UNSECURE_SSID, ssid) == 0) {
             unsecure_found = true;
             TEST_ASSERT_EQUAL_INT(NSAPI_SECURITY_NONE, security);
-            if (MBED_CONF_APP_WIFI_CH_UNSECURE) {
-                TEST_ASSERT_EQUAL_INT(MBED_CONF_APP_WIFI_CH_UNSECURE, ch);
-            }
         }
     }
-    TEST_ASSERT_TRUE(secure_found);
-    TEST_ASSERT_TRUE(unsecure_found);
+    // Finding one SSID is enough
+    TEST_ASSERT_TRUE(secure_found || unsecure_found);
 }
 
 #endif // defined(MBED_CONF_APP_WIFI_SECURE_SSID) && defined(MBED_CONF_APP_WIFI_UNSECURE_SSID)

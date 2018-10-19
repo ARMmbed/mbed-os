@@ -83,6 +83,21 @@ protected:
 
     class CellularSocket {
     public:
+        CellularSocket() :
+            id(-1),
+            connected(false),
+            proto(NSAPI_UDP),
+            remoteAddress("", 0),
+            localAddress("", 0),
+            _cb(NULL),
+            _data(NULL),
+            created(false),
+            started(false),
+            tx_ready(false),
+            rx_avail(false),
+            pending_bytes(0)
+        {
+        }
         // Socket id from cellular device
         int id;
         // Being connected means remote ip address and port are set

@@ -420,7 +420,7 @@ uint8_t LoRaPHYAU915::link_ADR_request(adr_req_params_t* params,
                                        uint8_t* nb_bytes_parsed)
 {
     uint8_t status = 0x07;
-    link_adr_params_t adr_settings;
+    link_adr_params_t adr_settings = {};
     uint8_t next_index = 0;
     uint8_t bytes_processed = 0;
     uint16_t temp_channel_masks[AU915_CHANNEL_MASK_SIZE] = { 0, 0, 0, 0, 0};
@@ -479,7 +479,7 @@ uint8_t LoRaPHYAU915::link_ADR_request(adr_req_params_t* params,
     verify_params.nb_rep = adr_settings.nb_rep;
     verify_params.current_datarate = params->current_datarate;
     verify_params.current_tx_power = params->current_tx_power;
-    verify_params.current_nb_rep = params->current_nb_rep;
+    verify_params.current_nb_rep = params->current_nb_trans;
     verify_params.channel_mask = temp_channel_masks;
 
 

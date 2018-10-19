@@ -23,7 +23,6 @@
 #define MBED_MBR_BLOCK_DEVICE_H
 
 #include "BlockDevice.h"
-#include "mbed.h"
 
 
 /** Additional error codes used for MBR records

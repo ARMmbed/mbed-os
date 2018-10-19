@@ -29,11 +29,11 @@
 extern "C" {
 #endif
 
-/** Internal mbed assert function which is invoked when MBED_ASSERT macro failes.
+/** Internal mbed assert function which is invoked when MBED_ASSERT macro fails.
  *  This function is active only if NDEBUG is not defined prior to including this
  *  assert header file.
  *  In case of MBED_ASSERT failing condition, error() is called with the assertation message.
- *  @param expr Expresion to be checked.
+ *  @param expr Expression to be checked.
  *  @param file File where assertation failed.
  *  @param line Failing assertation line number.
  */

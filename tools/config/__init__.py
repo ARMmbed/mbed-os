@@ -495,7 +495,8 @@ class Config(object):
         self.target_labels = self.target.labels
         for override in BOOTLOADER_OVERRIDES:
             _, attr = override.split(".")
-            setattr(self.target, attr, None)
+            if not hasattr(self.target, attr):
+                setattr(self.target, attr, None)
 
         self.cumulative_overrides = {key: ConfigCumulativeOverride(key)
                                      for key in CUMULATIVE_ATTRIBUTES}
@@ -684,7 +685,7 @@ class Config(object):
         size = self._header_size(header_format)
         region = Region("header", start, size, False, None)
         start += size
-        start = ((start + 7) // 8) * 8
+        start = ((start + (2**7 - 1)) // (2**7)) * (2**7)
         return (start, region)
 
     @staticmethod

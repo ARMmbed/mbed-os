@@ -23,8 +23,7 @@
 #define MBED_SLICING_BLOCK_DEVICE_H
 
 #include "BlockDevice.h"
-#include "mbed.h"
-
+#include "platform/mbed_assert.h"
 
 /** Block device for mapping to a slice of another block device
  *

@@ -56,6 +56,10 @@ nsapi_error_t InternetSocket::close()
     _lock.lock();
 
     nsapi_error_t ret = NSAPI_ERROR_OK;
+    if (!_stack)  {
+        return ret;
+    }
+
     if (_socket) {
         _stack->socket_attach(_socket, 0, 0);
         nsapi_socket_t socket = _socket;

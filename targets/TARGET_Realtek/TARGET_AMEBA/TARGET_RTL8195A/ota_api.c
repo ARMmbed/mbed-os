@@ -167,7 +167,7 @@ uint32_t OTA_ReadImage(uint32_t base, uint32_t offset, uint32_t len, uint8_t *da
 void OTA_ResetTarget(void)
 {
     __RTK_CTRL_WRITE32(0x14, 0x00000021);
-    wait(1);
+    wait_ms(1000);
 
     NVIC_SystemReset();
 

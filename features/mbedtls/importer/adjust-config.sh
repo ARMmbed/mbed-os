@@ -37,38 +37,39 @@ add_code() {
 
 # add an #ifndef to include config-no-entropy.h when the target does not have
 # an entropy source we can use.
-add_code                                                                                  \
-    "#ifndef MBEDTLS_CONFIG_H\n"                                                          \
-    "\n"                                                                                  \
-    "#include \"platform\/inc\/platform_mbed.h\"\n"                                       \
-    "\n"                                                                                  \
-    "\/*\n"                                                                               \
-    " * Only use features that do not require an entropy source when\n"                   \
-    " * DEVICE_ENTROPY_SOURCE is not defined in mbed OS.\n"                               \
-    " *\/\n"                                                                              \
-    "#if !defined(MBEDTLS_ENTROPY_HARDWARE_ALT) && !defined(MBEDTLS_TEST_NULL_ENTROPY)\n" \
-    "#include \"mbedtls\/config-no-entropy.h\"\n"                                         \
-    "\n"                                                                                  \
-    "#if defined(MBEDTLS_USER_CONFIG_FILE)\n"                                             \
-    "#include MBEDTLS_USER_CONFIG_FILE\n"                                                 \
-    "#endif\n"                                                                            \
-    "\n"                                                                                  \
+add_code                                                                                          \
+    "#ifndef MBEDTLS_CONFIG_H\n"                                                                  \
+    "\n"                                                                                          \
+    "#include \"platform\/inc\/platform_mbed.h\"\n"                                               \
+    "\n"                                                                                          \
+    "\/*\n"                                                                                       \
+    " * Only use features that do not require an entropy source when\n"                           \
+    " * DEVICE_ENTROPY_SOURCE is not defined in mbed OS.\n"                                       \
+    " *\/\n"                                                                                      \
+    "#if !defined(MBEDTLS_ENTROPY_HARDWARE_ALT) && !defined(MBEDTLS_TEST_NULL_ENTROPY) && \\\\\n" \
+    "    !defined(MBEDTLS_ENTROPY_NV_SEED)\n"                                                     \
+    "#include \"mbedtls\/config-no-entropy.h\"\n"                                                 \
+    "\n"                                                                                          \
+    "#if defined(MBEDTLS_USER_CONFIG_FILE)\n"                                                     \
+    "#include MBEDTLS_USER_CONFIG_FILE\n"                                                         \
+    "#endif\n"                                                                                    \
+    "\n"                                                                                          \
     "#else\n"
 
-add_code                                                                                \
-    "#include \"check_config.h\"\n"                                                     \
-    "\n"                                                                                \
-    "#endif \/* !MBEDTLS_ENTROPY_HARDWARE_ALT && !MBEDTLS_TEST_NULL_ENTROPY *\/\n"      \
-    "\n"                                                                                \
-    "#if defined(MBEDTLS_TEST_NULL_ENTROPY)\n"                                          \
-    "#warning \"MBEDTLS_TEST_NULL_ENTROPY has been enabled. This \" \\\\\n"             \
-    "    \"configuration is not secure and is not suitable for production use\"\n"      \
-    "#endif\n"                                                                          \
-    "\n"                                                                                \
-    "#if defined(MBEDTLS_SSL_TLS_C) && !defined(MBEDTLS_TEST_NULL_ENTROPY) && \\\\\n"   \
-    "    !defined(MBEDTLS_ENTROPY_HARDWARE_ALT) && !defined(MBEDTLS_ENTROPY_NV_SEED)\n" \
-    "#error \"No entropy source was found at build time, so TLS \" \\\\\n"              \
-    "    \"functionality is not available\"\n"                                          \
+add_code                                                                                                       \
+    "#include \"check_config.h\"\n"                                                                            \
+    "\n"                                                                                                       \
+    "#endif \/* !MBEDTLS_ENTROPY_HARDWARE_ALT && !MBEDTLS_TEST_NULL_ENTROPY && !MBEDTLS_ENTROPY_NV_SEED *\/\n" \
+    "\n"                                                                                                       \
+    "#if defined(MBEDTLS_TEST_NULL_ENTROPY)\n"                                                                 \
+    "#warning \"MBEDTLS_TEST_NULL_ENTROPY has been enabled. This \" \\\\\n"                                    \
+    "    \"configuration is not secure and is not suitable for production use\"\n"                             \
+    "#endif\n"                                                                                                 \
+    "\n"                                                                                                       \
+    "#if defined(MBEDTLS_SSL_TLS_C) && !defined(MBEDTLS_TEST_NULL_ENTROPY) && \\\\\n"                          \
+    "    !defined(MBEDTLS_ENTROPY_HARDWARE_ALT) && !defined(MBEDTLS_ENTROPY_NV_SEED)\n"                        \
+    "#error \"No entropy source was found at build time, so TLS \" \\\\\n"                                     \
+    "    \"functionality is not available\"\n"                                                                 \
     "#endif\n"
 
 # not supported on mbed OS, nor used by mbed Client

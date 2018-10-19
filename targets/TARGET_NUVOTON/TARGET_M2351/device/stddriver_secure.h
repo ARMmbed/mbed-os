@@ -71,6 +71,14 @@ void SYS_LockReg_S(void);
 __NONSECURE_ENTRY
 void SYS_UnlockReg_S(void);
 
+/* Secure CLK_Idle */
+__NONSECURE_ENTRY
+void CLK_Idle_S(void);
+
+/* Secure CLK_PowerDown */
+__NONSECURE_ENTRY
+void CLK_PowerDown_S(void);
+
 #ifdef __cplusplus
 }
 #endif

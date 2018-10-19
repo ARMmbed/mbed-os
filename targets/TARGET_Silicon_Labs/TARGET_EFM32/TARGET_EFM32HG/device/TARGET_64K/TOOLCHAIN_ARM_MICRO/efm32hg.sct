@@ -17,7 +17,7 @@ LR_IROM1 MBED_APP_START MBED_APP_SIZE  {    ; load region size_region
    *(InRoot$$Sections)
    .ANY (+RO)
   }
-  RW_IRAM1 0x20000094 0x00001F6C  {  ; RW data
+  RW_IRAM1 0x20000098 0x00001F68  {  ; RW data
    .ANY (+RW +ZI)
   }
 }

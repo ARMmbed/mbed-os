@@ -171,9 +171,10 @@ CellularInformation *AT_CellularDevice::open_information(FileHandle *fh)
 void AT_CellularDevice::close_network()
 {
     if (_network) {
-        release_at_handler(&_network->get_at_handler());
+        ATHandler *atHandler = &_network->get_at_handler();
         delete _network;
         _network = NULL;
+        release_at_handler(atHandler);
     }
 }
 

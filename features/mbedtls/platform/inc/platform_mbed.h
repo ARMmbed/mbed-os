@@ -25,4 +25,9 @@
 #include "mbedtls_device.h"
 #endif
 
+/*
+ * MBEDTLS_ERR_PLATFORM_HW_FAILED is deprecated and should not be used.
+ */
 #define MBEDTLS_ERR_PLATFORM_HW_FAILED       -0x0080
+
+#define MBEDTLS_ERR_PLATFORM_HW_ACCEL_FAILED -0x0070

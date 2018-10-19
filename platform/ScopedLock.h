@@ -60,7 +60,7 @@ namespace mbed {
 template <typename Lockable>
 class ScopedLock : private NonCopyable<ScopedLock<Lockable> > {
 public:
-    /** Locks given locable object
+    /** Locks given lockable object
      *
      * @param lockable reference to the instance of Lockable object
      * @note lockable object should outlive the ScopedLock object

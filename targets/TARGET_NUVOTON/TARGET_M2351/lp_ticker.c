@@ -19,9 +19,9 @@
 #if DEVICE_LPTICKER
 
 #include "sleep_api.h"
-#include "mbed_wait_api.h"
 #include "mbed_assert.h"
 #include "nu_modutil.h"
+#include "nu_timer.h"
 #include "nu_miscutil.h"
 #include "partition_M2351.h"
 
@@ -135,10 +135,10 @@ void lp_ticker_init(void)
     // Continuous mode
     // NOTE: TIMER_CTL_CNTDATEN_Msk exists in NUC472, but not in M451/M480/M2351. In M451/M480/M2351, TIMER_CNT is updated continuously by default.
     timer_base->CTL = TIMER_CONTINUOUS_MODE | prescale_timer/* | TIMER_CTL_CNTDATEN_Msk*/;
-    wait_us((NU_US_PER_SEC / NU_TMRCLK_PER_SEC) * 3);
+    nu_busy_wait_us((NU_US_PER_SEC / NU_TMRCLK_PER_SEC) * 3);
 
     timer_base->CMP = cmp_timer;
-    wait_us((NU_US_PER_SEC / NU_TMRCLK_PER_SEC) * 3);
+    nu_busy_wait_us((NU_US_PER_SEC / NU_TMRCLK_PER_SEC) * 3);
 
     // Set vector
     NVIC_SetVector(TIMER_MODINIT.irq_n, (uint32_t) TIMER_MODINIT.var);
@@ -146,13 +146,13 @@ void lp_ticker_init(void)
     NVIC_DisableIRQ(TIMER_MODINIT.irq_n);
 
     TIMER_EnableInt(timer_base);
-    wait_us((NU_US_PER_SEC / NU_TMRCLK_PER_SEC) * 3);
+    nu_busy_wait_us((NU_US_PER_SEC / NU_TMRCLK_PER_SEC) * 3);
 
     TIMER_EnableWakeup(timer_base);
-    wait_us((NU_US_PER_SEC / NU_TMRCLK_PER_SEC) * 3);
+    nu_busy_wait_us((NU_US_PER_SEC / NU_TMRCLK_PER_SEC) * 3);
 
     TIMER_Start(timer_base);
-    wait_us((NU_US_PER_SEC / NU_TMRCLK_PER_SEC) * 3);
+    nu_busy_wait_us((NU_US_PER_SEC / NU_TMRCLK_PER_SEC) * 3);
 
     /* Wait for timer to start counting and raise active flag */
     while(! (timer_base->CTL & TIMER_CTL_ACTSTS_Msk));

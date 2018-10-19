@@ -141,7 +141,7 @@ public:
     }
 
 protected:
-
+    #if !defined(DOXYGEN_ONLY)
     virtual void lock()
     {
         _mutex.lock();
@@ -154,6 +154,7 @@ protected:
 
     dac_t _dac;
     PlatformMutex _mutex;
+    #endif //!defined(DOXYGEN_ONLY)
 };
 
 } // namespace mbed

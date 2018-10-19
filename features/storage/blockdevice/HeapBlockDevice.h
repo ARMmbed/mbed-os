@@ -23,8 +23,9 @@
 #define MBED_MEM_BLOCK_DEVICE_H
 
 #include "BlockDevice.h"
-#include "mbed.h"
-
+#include "platform/mbed_assert.h"
+#include <string.h>
+#include <stdlib.h>
 
 /** Lazily allocated heap-backed block device
  *

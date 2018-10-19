@@ -36,7 +36,7 @@ from jinja2.environment import Environment
 from .arm_pack_manager import Cache
 from .utils import (mkdir, run_cmd, run_cmd_ext, NotSupportedException,
                     ToolException, InvalidReleaseTargetException,
-                    intelhex_offset, integer)
+                    intelhex_offset, integer, generate_update_filename)
 from .paths import (MBED_CMSIS_PATH, MBED_TARGETS_PATH, MBED_LIBRARIES,
                     MBED_HEADER, MBED_DRIVERS, MBED_PLATFORM, MBED_HAL,
                     MBED_CONFIG_FILE, MBED_LIBRARIES_DRIVERS,
@@ -292,7 +292,7 @@ def prepare_toolchain(src_paths, build_dir, target, toolchain_name,
     Positional arguments:
     src_paths - the paths to source directories
     target - ['LPC1768', 'LPC11U24', etc.]
-    toolchain_name - ['ARM', 'uARM', 'GCC_ARM', 'GCC_CR']
+    toolchain_name - ['ARM', 'uARM', 'GCC_ARM', 'IAR']
 
     Keyword arguments:
     macros - additional macros
@@ -377,7 +377,7 @@ def _fill_header(region_list, current_region):
         elif type == "timestamp":
             fmt = {"32le": "<L", "64le": "<Q",
                    "32be": ">L", "64be": ">Q"}[subtype]
-            header.puts(start, struct.pack(fmt, time()))
+            header.puts(start, struct.pack(fmt, int(time())))
         elif type == "size":
             fmt = {"32le": "<L", "64le": "<Q",
                    "32be": ">L", "64be": ">Q"}[subtype]
@@ -550,10 +550,7 @@ def build_project(src_paths, build_path, target, toolchain_name,
                 r for r in region_list if r.name in UPDATE_WHITELIST
             ]
             if update_regions:
-                update_res = "%s_update.%s" % (
-                    join(build_path, name),
-                    getattr(toolchain.target, "OUTPUT_EXT", "bin")
-                )
+                update_res = join(build_path, generate_update_filename(name, toolchain.target))
                 merge_region_list(update_regions, update_res, notify)
                 res = (res, update_res)
             else:

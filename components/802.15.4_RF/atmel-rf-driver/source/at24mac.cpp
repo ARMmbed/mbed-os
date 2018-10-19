@@ -15,6 +15,8 @@
  */
 #include "at24mac.h"
 
+#if DEVICE_I2C
+
 /* Device addressing */
 #define AT24MAC_EEPROM_ADDRESS		(0x0A<<4)
 #define AT24MAC_RW_PROTECT_ADDRESS	(0x06<<4)
@@ -80,3 +82,5 @@ int AT24Mac::read_eui48(void *buf)
         return -1; //No ACK
     return _i2c.read(AT24MAC_SERIAL_ADDRESS, (char*)buf, EUI48_LEN);
 }
+
+#endif /* DEVICE_I2C */

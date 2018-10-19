@@ -15,8 +15,8 @@
  */
 
 #include "FlashSimBlockDevice.h"
-#include "mbed_assert.h"
-#include "mbed_critical.h"
+#include "platform/mbed_assert.h"
+#include "platform/mbed_critical.h"
 #include <algorithm>
 #include <stdlib.h>
 #include <string.h>
@@ -96,7 +96,7 @@ int FlashSimBlockDevice::sync()
 bd_size_t FlashSimBlockDevice::get_read_size() const
 {
     if (!_is_initialized) {
-        return BD_ERROR_DEVICE_ERROR;
+        return 0;
     }
 
     return _bd->get_read_size();
@@ -105,7 +105,7 @@ bd_size_t FlashSimBlockDevice::get_read_size() const
 bd_size_t FlashSimBlockDevice::get_program_size() const
 {
     if (!_is_initialized) {
-        return BD_ERROR_DEVICE_ERROR;
+        return 0;
     }
 
     return _bd->get_program_size();
@@ -114,7 +114,7 @@ bd_size_t FlashSimBlockDevice::get_program_size() const
 bd_size_t FlashSimBlockDevice::get_erase_size() const
 {
     if (!_is_initialized) {
-        return BD_ERROR_DEVICE_ERROR;
+        return 0;
     }
 
     return _bd->get_erase_size();
@@ -123,7 +123,7 @@ bd_size_t FlashSimBlockDevice::get_erase_size() const
 bd_size_t FlashSimBlockDevice::get_erase_size(bd_addr_t addr) const
 {
     if (!_is_initialized) {
-        return BD_ERROR_DEVICE_ERROR;
+        return 0;
     }
 
     return _bd->get_erase_size(addr);
@@ -132,7 +132,7 @@ bd_size_t FlashSimBlockDevice::get_erase_size(bd_addr_t addr) const
 bd_size_t FlashSimBlockDevice::size() const
 {
     if (!_is_initialized) {
-        return BD_ERROR_DEVICE_ERROR;
+        return 0;
     }
 
     return _bd->size();

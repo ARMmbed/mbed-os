@@ -18,7 +18,7 @@
 
 static bool us_ticker_inited = false;      // Is ticker initialized yet?
 
-const ticker_info_t* us_ticker_get_info()
+const ticker_info_t* us_ticker_get_info(void)
 {
     static const ticker_info_t info = {
         1248125, // (39.94 MHz / 32 )
@@ -86,5 +86,11 @@ void us_ticker_clear_interrupt(void)
 
 void us_ticker_free(void)
 {
-
+    TSB_CG_FSYSENA_IPENA26 = TXZ_DISABLE;
+    us_ticker_inited = false;
+    TSB_T32A0->RUNC  = (T32A_RUN_ENABLE | T32A_COUNT_STOP);
+    // Disable and clear interrupts in NVIC
+    TSB_T32A0->STC = T32A_INT_MASK;
+    NVIC_ClearPendingIRQ(INTT32A00C_IRQn);
+    NVIC_DisableIRQ(INTT32A00C_IRQn);
 }

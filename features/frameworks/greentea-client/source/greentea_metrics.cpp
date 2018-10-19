@@ -15,14 +15,10 @@
  * limitations under the License.
  */
 
-#include "mbed.h"
-#include "rtos.h"
-#include "mbed_stats.h"
-#include "cmsis_os2.h"
 #include "greentea-client/test_env.h"
 #include "greentea-client/greentea_metrics.h"
-#include "SingletonPtr.h"
-#include "CircularBuffer.h"
+#include "platform/mbed_stats.h"
+#include <stdint.h>
 
 #define THREAD_BUF_COUNT    16
 
@@ -33,6 +29,21 @@ typedef struct {
 } thread_info_t;
 
 #if defined(MBED_STACK_STATS_ENABLED) && MBED_STACK_STATS_ENABLED
+
+#if !defined(MBED_CONF_RTOS_PRESENT) || !(MBED_CONF_RTOS_PRESENT)
+#error "RTOS required for Stack stats"
+#endif
+
+#include "rtos/Mutex.h"
+#include "rtos/Thread.h"
+#include "rtos/Kernel.h"
+#include "mbed_stats.h"
+#include "cmsis_os2.h"
+#include "platform/SingletonPtr.h"
+#include "platform/CircularBuffer.h"
+using namespace mbed;
+using namespace rtos;
+
 // Mutex to protect "buf"
 static SingletonPtr<Mutex> mutex;
 static char buf[128];
@@ -43,7 +54,9 @@ static SingletonPtr<CircularBuffer<thread_info_t, THREAD_BUF_COUNT> > queue;
 static void send_CPU_info(void);
 #endif
 
+#if defined(MBED_HEAP_STATS_ENABLED ) && MBED_HEAP_STATS_ENABLED
 static void send_heap_info(void);
+#endif
 #if defined(MBED_STACK_STATS_ENABLED) && MBED_STACK_STATS_ENABLED
 static void send_stack_info(void);
 static void on_thread_terminate(osThreadId_t id);
@@ -64,7 +77,9 @@ void greentea_metrics_setup()
 
 void greentea_metrics_report()
 {
+#if defined(MBED_HEAP_STATS_ENABLED ) && MBED_HEAP_STATS_ENABLED
     send_heap_info();
+#endif
 #if defined(MBED_STACK_STATS_ENABLED) && MBED_STACK_STATS_ENABLED
     send_stack_info();
     Thread::attach_terminate_hook(NULL);
@@ -87,6 +102,7 @@ static void send_CPU_info()
 }
 #endif
 
+#if defined(MBED_HEAP_STATS_ENABLED ) && MBED_HEAP_STATS_ENABLED
 static void send_heap_info()
 {
     mbed_stats_heap_t heap_stats;
@@ -94,6 +110,7 @@ static void send_heap_info()
     greentea_send_kv("max_heap_usage",heap_stats.max_size);
     greentea_send_kv("reserved_heap",heap_stats.reserved_size);
 }
+#endif
 
 #if defined(MBED_STACK_STATS_ENABLED) && MBED_STACK_STATS_ENABLED
 MBED_UNUSED static void send_stack_info()
