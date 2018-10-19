@@ -533,7 +533,7 @@ def build_project(src_paths, build_path, target, toolchain_name,
         if linker_script is not None:
             resources.add_file_ref(linker_script, linker_script)
         if not resources.get_file_refs(FileType.LD_SCRIPT):
-            raise NotSupportedException("No Linker Script found!")
+            raise NotSupportedException("No Linker Script found")
 
         # Compile Sources
         objects = toolchain.compile_sources(resources, sorted(resources.get_file_paths(FileType.INC_DIR)))
