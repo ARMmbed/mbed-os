@@ -154,6 +154,9 @@ void read_file_data (char count)
 
 void test_thread_access_test()
 {
+    char *dummy = new (std::nothrow) char[OS_STACK_SIZE * MBED_THREAD_COUNT];
+    delete[] dummy;
+    TEST_SKIP_UNLESS_MESSAGE(dummy, "Not enough memory to run test");
 
     Thread *data[MBED_THREAD_COUNT];
     int res = bd.init();
