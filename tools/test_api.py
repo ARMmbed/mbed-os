@@ -2196,7 +2196,7 @@ def build_test_worker(*args, **kwargs):
 def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
                 clean=False, notify=None, jobs=1, macros=None,
                 silent=False, report=None, properties=None,
-                continue_on_build_fail=False, app_config=None,
+                continue_on_build_fail=False, config=None,
                 build_profile=None, stats_depth=None, ignore=None):
     """Given the data structure from 'find_tests' and the typical build parameters,
     build all the tests
@@ -2212,7 +2212,10 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
     else:
         target_name = target
         target = TARGET_MAP[target_name]
-    cfg, _, _ = get_config(base_source_paths, target, app_config=app_config)
+    if config:
+        cfg = config.get_config_data()
+    else:
+        cfg, _, _ = get_config(base_source_paths, target)
 
     baud_rate = 9600
     if 'platform.stdio-baud-rate' in cfg:
@@ -2250,7 +2253,7 @@ def build_tests(tests, base_source_paths, build_path, target, toolchain_name,
             'project_id': test_name,
             'report': report,
             'properties': properties,
-            'app_config': app_config,
+            'config': deepcopy(config),
             'build_profile': build_profile,
             'toolchain_paths': TOOLCHAIN_PATHS,
             'stats_depth': stats_depth,

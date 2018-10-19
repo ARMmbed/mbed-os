@@ -23,6 +23,7 @@ import sys
 import os
 import json
 import fnmatch
+from copy import deepcopy
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
@@ -199,6 +200,10 @@ if __name__ == '__main__':
 
             library_build_success = False
             profile = extract_profile(parser, options, toolchain)
+            config = Config(
+                mcu,
+                app_config=Config.find_app_config(base_source_paths),
+            )
             try:
                 # Build sources
                 notify = TerminalNotifier(options.verbose)
@@ -208,7 +213,7 @@ if __name__ == '__main__':
                               properties=build_properties, name="mbed-build",
                               macros=options.macros,
                               notify=notify, archive=False,
-                              app_config=config,
+                              config=deepcopy(config),
                               build_profile=profile,
                               ignore=options.ignore)
 
