@@ -25,15 +25,25 @@ using namespace utest::v1;
 
 #if defined(MBED_CONF_APP_WIFI_UNSECURE_SSID)
 
+#define SSID_MAX_LEN 32
+
 void wifi_connect(void)
 {
     WiFiInterface *wifi = get_interface();
 
-    TEST_ASSERT_EQUAL_INT(NSAPI_ERROR_OK, wifi->set_credentials(MBED_CONF_APP_WIFI_UNSECURE_SSID, NULL));
+    char ssid[SSID_MAX_LEN+1] = MBED_CONF_APP_WIFI_UNSECURE_SSID;
+
+    TEST_ASSERT_EQUAL_INT(NSAPI_ERROR_OK, wifi->set_credentials(ssid, NULL));
     TEST_ASSERT_EQUAL_INT(NSAPI_ERROR_OK, wifi->connect());
     TEST_ASSERT_EQUAL_INT(NSAPI_ERROR_OK, wifi->disconnect());
 
-    TEST_ASSERT_EQUAL_INT(NSAPI_ERROR_OK, wifi->set_credentials(MBED_CONF_APP_WIFI_UNSECURE_SSID, ""));
+    TEST_ASSERT_EQUAL_INT(NSAPI_ERROR_OK, wifi->set_credentials(ssid, ""));
+    TEST_ASSERT_EQUAL_INT(NSAPI_ERROR_OK, wifi->connect());
+    TEST_ASSERT_EQUAL_INT(NSAPI_ERROR_OK, wifi->disconnect());
+
+    // Driver is expected to cache the credentials
+    memset(ssid, 0, SSID_MAX_LEN+1);
+
     TEST_ASSERT_EQUAL_INT(NSAPI_ERROR_OK, wifi->connect());
     TEST_ASSERT_EQUAL_INT(NSAPI_ERROR_OK, wifi->disconnect());
 }
