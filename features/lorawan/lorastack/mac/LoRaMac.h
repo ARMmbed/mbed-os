@@ -512,6 +512,10 @@ private:
      */
     void reset_mac_parameters(void);
 
+    void reset_frame_counters(void);
+
+    void reset_phy_params(void);
+
     /**
      * Handles a Join Accept frame
      */
