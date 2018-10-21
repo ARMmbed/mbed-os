@@ -398,23 +398,24 @@ uint8_t LoRaPHY::verify_link_ADR_req(verify_adr_params_t *verify_params,
     return status;
 }
 
-double LoRaPHY::compute_symb_timeout_lora(uint8_t phy_dr, uint32_t bandwidth)
+float LoRaPHY::compute_symb_timeout_lora(uint8_t phy_dr, uint32_t bandwidth)
 {
-    return ((double)(1 << phy_dr) / (double) bandwidth) * 1000;
+    return ((float)(1 << phy_dr) / (float) bandwidth) * 1000;
 }
 
-double LoRaPHY::compute_symb_timeout_fsk(uint8_t phy_dr)
+float LoRaPHY::compute_symb_timeout_fsk(uint8_t phy_dr)
 {
-    return (8.0 / (double) phy_dr); // 1 symbol equals 1 byte
+    return (8.0f / (float) phy_dr); // 1 symbol equals 1 byte
 }
 
-void LoRaPHY::get_rx_window_params(double t_symb, uint8_t min_rx_symb,
+void LoRaPHY::get_rx_window_params(float t_symb, uint8_t min_rx_symb,
                                    uint32_t rx_error, uint32_t wakeup_time,
                                    uint32_t *window_timeout, int32_t *window_offset)
 {
     // Computed number of symbols
     *window_timeout = MAX((uint32_t) ceil(((2 * min_rx_symb - 8) * t_symb + 2 * rx_error) / t_symb), min_rx_symb);
-    *window_offset = (int32_t) ceil((4.0 * t_symb) - ((*window_timeout * t_symb) / 2.0) - wakeup_time);
+
+    *window_offset = (int32_t) ceil((4.0f * t_symb) - ((*window_timeout * t_symb) / 2.0f ) - wakeup_time);
 }
 
 int8_t LoRaPHY::compute_tx_power(int8_t tx_power_idx, float max_eirp,
@@ -846,7 +847,7 @@ void LoRaPHY::compute_rx_win_params(int8_t datarate, uint8_t min_rx_symbols,
                                     uint32_t rx_error,
                                     rx_config_params_t *rx_conf_params)
 {
-    double t_symbol = 0.0;
+    float t_symbol = 0.0f;
 
     // Get the datarate, perform a boundary check
     rx_conf_params->datarate = MIN(datarate, phy_params.max_rx_datarate);
