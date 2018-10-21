@@ -189,6 +189,10 @@ void LoRaMac::post_process_mcps_req()
             _params.ul_frame_counter++;
             _params.adr_ack_counter++;
         } else {
+            if (_params.server_type == LW1_1) {
+                // because network server will not accept un-incremented fcnt
+                _params.ul_frame_counter++;
+            }
             _mcps_confirmation.status = LORAMAC_EVENT_INFO_STATUS_ERROR;
         }
     } else {
@@ -601,7 +605,7 @@ void LoRaMac::handle_data_frame(const uint8_t *const payload,
     multicast_params_t *cur_multicast_params;
     uint32_t address = 0;
     uint32_t downlink_counter = 0;
-    seq_counter_type_t cnt_type;
+    seq_counter_type_t cnt_type = NFCNT_DOWN;
     uint8_t *nwk_skey = _params.keys.nwk_skey;
     uint8_t *mic_key  = _params.keys.nwk_skey;
     uint8_t *app_skey = _params.keys.app_skey;
@@ -967,7 +971,7 @@ bool LoRaMac::continue_joining_process()
 
 bool LoRaMac::continue_sending_process()
 {
-    if (_params.ack_timeout_retry_counter > _params.max_ack_timeout_retries) {
+    if (_params.ack_timeout_retry_counter >= _params.max_ack_timeout_retries) {
         _lora_time.stop(_params.timers.ack_timeout_timer);
         return false;
     }
@@ -1325,7 +1329,6 @@ lorawan_status_t LoRaMac::schedule_tx()
     tr_debug("TX: Channel=%d, TX DR=%d, RX1 DR=%d",
              _params.channel, _params.sys_params.channel_data_rate, rx1_dr);
 
-
     _lora_phy->compute_rx_win_params(rx1_dr, MBED_CONF_LORA_DOWNLINK_PREAMBLE_LENGTH,
                                      MBED_CONF_LORA_MAX_SYS_RX_ERROR,
                                      &_params.rx_window1_config);
@@ -1519,7 +1522,7 @@ int16_t LoRaMac::prepare_ongoing_tx(const uint8_t port,
     if (flags & MSG_PROPRIETARY_FLAG) {
         _ongoing_tx_msg.type = MCPS_PROPRIETARY;
         _ongoing_tx_msg.fport = port;
-        _ongoing_tx_msg.nb_trials = _params.sys_params.nb_trans;
+        _ongoing_tx_msg.nb_trials = _params.sys_params.nb_trans > 0 ? _params.sys_params.nb_trans : 1;
         // a proprietary frame only includes an MHDR field which contains MTYPE field.
         // Everything else is at the discretion of the implementer
         fopts_len = 0;
@@ -1574,7 +1577,11 @@ lorawan_status_t LoRaMac::send_ongoing_tx()
         machdr.bits.mtype = FRAME_TYPE_DATA_UNCONFIRMED_UP;
     } else if (_ongoing_tx_msg.type == MCPS_CONFIRMED) {
         machdr.bits.mtype = FRAME_TYPE_DATA_CONFIRMED_UP;
-        _params.max_ack_timeout_retries = _ongoing_tx_msg.nb_trials;
+        if (_params.server_type == LW1_1) {
+            _params.max_ack_timeout_retries = _params.sys_params.nb_trans;
+        } else {
+            _params.max_ack_timeout_retries = _ongoing_tx_msg.nb_trials;
+        }
     } else if (_ongoing_tx_msg.type == MCPS_PROPRIETARY) {
         machdr.bits.mtype = FRAME_TYPE_PROPRIETARY;
     } else {
@@ -2334,7 +2341,7 @@ lorawan_status_t LoRaMac::calculate_userdata_mic()
         if (_params.is_srv_ack_requested) {
             args = _params.counterForAck;
         }
-        args |= _params.sys_params.channel_data_rate << 16;
+        args |= ((uint8_t) _params.sys_params.channel_data_rate) << 16;
         args |= _params.channel << 24;
 
         if (0 != _lora_crypto.compute_mic(_params.tx_buffer, _params.tx_buffer_len,
