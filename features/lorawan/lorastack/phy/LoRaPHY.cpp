@@ -882,7 +882,7 @@ void LoRaPHY::compute_rx_win_params(int8_t datarate, uint8_t min_rx_symbols,
                                     uint32_t rx_error,
                                     rx_config_params_t *rx_conf_params)
 {
-    float t_symbol = 0.0;
+    float t_symbol = 0.0f;
 
     // Get the datarate, perform a boundary check
     rx_conf_params->datarate = MIN(datarate, phy_params.max_rx_datarate);
