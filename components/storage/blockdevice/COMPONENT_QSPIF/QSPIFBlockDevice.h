@@ -296,7 +296,7 @@ private:
     // Internal Members
 
     // QSPI Driver Object
-    QSPI _qspi;
+    mbed::QSPI _qspi;
 
     // Static List of different QSPI based Flash devices csel that already exist
     // Each QSPI Flash device csel can have only 1 QSPIFBlockDevice instance
