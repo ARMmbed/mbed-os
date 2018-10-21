@@ -71,18 +71,44 @@ public:
      */
     static FileSystem *get_default_instance();
 
+    /** Initializes the file system
+     *
+     *  The init function may be called multiple times recursively as long
+     *  as each init has a matching deinit. If not called, the file system
+     *  will be mounted on the first file system operation.
+     *
+     *  @return         0 on success, negative error code on failure
+     */
+    virtual int init();
+
+    /** Deinitializes the file system
+     *
+     *  @return         0 on success, negative error code on failure
+     */
+    virtual int deinit();
+
+    /** Reformats the underlying filesystem
+     *
+     *  @return         0 on success, negative error code on failure
+     */
+    virtual int reset();
+
     /** Mounts a filesystem to a block device
      *
      *  @param bd       BlockDevice to mount to
      *  @return         0 on success, negative error code on failure
+     *  @deprecated     Replaced by FileSystem::init for consistency with other storage APIs
      */
-    virtual int mount(BlockDevice *bd) = 0;
+    MBED_DEPRECATED_SINCE("mbed-os-5.11", "Replaced by FileSystem::init for consistency with other storage APIs")
+    virtual int mount(BlockDevice *bd);
 
     /** Unmounts a filesystem from the underlying block device
      *
      *  @return         0 on success, negative error code on failure
+     *  @deprecated     Replaced by FileSystem::deinit for consistency with other storage APIs
      */
-    virtual int unmount() = 0;
+    MBED_DEPRECATED_SINCE("mbed-os-5.11", "Replaced by FileSystem::deinit for consistency with other storage APIs")
+    virtual int unmount();
 
     /** Reformats a filesystem, results in an empty and mounted filesystem
      *
@@ -91,7 +117,9 @@ public:
      *                  Note: if mount fails, bd must be provided.
      *                  Default: NULL
      *  @return         0 on success, negative error code on failure
+     *  @deprecated     Replaced by FileSystem::reset for consistency with other storage APIs
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.11", "Replaced by FileSystem::reset for consistency with other storage APIs")
     virtual int reformat(BlockDevice *bd = NULL);
 
     /** Remove a file from the filesystem.

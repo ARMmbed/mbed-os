@@ -32,7 +32,7 @@ public:
     /** Lifetime of the LittleFileSystem
      *
      *  @param name         Name to add filesystem to tree as
-     *  @param bd           BlockDevice to mount, may be passed instead to mount call
+     *  @param bd           BlockDevice to mount, lazily mounted in init
      *  @param read_size
      *      Minimum size of a block read. This determines the size of read buffers.
      *      This may be larger than the physical read size to improve performance
@@ -87,17 +87,41 @@ public:
                       lfs_size_t block_size = MBED_LFS_BLOCK_SIZE,
                       lfs_size_t lookahead = MBED_LFS_LOOKAHEAD);
 
+    /** Initializes the file system
+     *
+     *  The init function may be called multiple times recursively as long
+     *  as each init has a matching deinit. If not called, the file system
+     *  will be mounted on the first file system operation.
+     *
+     *  @return         0 on success, negative error code on failure
+     */
+    virtual int init();
+
+    /** Deinitializes the file system
+     *
+     *  @return         0 on success, negative error code on failure
+     */
+    virtual int deinit();
+
+    /** Reformats the underlying filesystem
+     *
+     *  @return         0 on success, negative error code on failure
+     */
+    virtual int reset();
+
     /** Mounts a filesystem to a block device
      *
      *  @param bd       BlockDevice to mount to
      *  @return         0 on success, negative error code on failure
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.11", "Replaced by FileSystem::init for consistency with other storage APIs")
     virtual int mount(BlockDevice *bd);
 
     /** Unmounts a filesystem from the underlying block device
      *
      *  @return         0 on success, negative error code on failure
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.11", "Replaced by FileSystem::deinit for consistency with other storage APIs")
     virtual int unmount();
 
     /** Reformats a filesystem, results in an empty and mounted filesystem
@@ -110,6 +134,7 @@ public:
      *
      *  @return         0 on success, negative error code on failure
      */
+    MBED_DEPRECATED_SINCE("mbed-os-5.11", "Replaced by FileSystem::reset for consistency with other storage APIs")
     virtual int reformat(BlockDevice *bd);
 
     /** Remove a file from the filesystem.
@@ -265,9 +290,10 @@ protected:
     virtual void dir_rewind(mbed::fs_dir_t dir);
 
 private:
-    lfs_t _lfs; // _the actual filesystem
+    lfs_t _lfs; // the actual filesystem
     struct lfs_config _config;
     BlockDevice *_bd; // the block device
+    int _ref; // reference counting for inits
 
     // default parameters
     const lfs_size_t _read_size;
@@ -275,7 +301,7 @@ private:
     const lfs_size_t _block_size;
     const lfs_size_t _lookahead;
 
-    // thread-safe locking
+    // thread-safe synchronization
     PlatformMutex _mutex;
 };
 

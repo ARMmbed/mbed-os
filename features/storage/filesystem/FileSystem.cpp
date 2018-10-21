@@ -26,6 +26,31 @@ FileSystem::FileSystem(const char *name)
 {
 }
 
+int FileSystem::init()
+{
+    return 0;
+}
+
+int FileSystem::deinit()
+{
+    return 0;
+}
+
+int FileSystem::mount(BlockDevice *bd)
+{
+    return -ENOSYS;
+}
+
+int FileSystem::unmount()
+{
+    return -ENOSYS;
+}
+
+int FileSystem::reset()
+{
+    return -ENOSYS;
+}
+
 int FileSystem::reformat(BlockDevice *bd)
 {
     return -ENOSYS;

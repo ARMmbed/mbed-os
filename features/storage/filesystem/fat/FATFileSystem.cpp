@@ -280,76 +280,117 @@ DRESULT disk_ioctl(BYTE pdrv, BYTE cmd, void *buff)
 
 // Filesystem implementation (See FATFilySystem.h)
 FATFileSystem::FATFileSystem(const char *name, BlockDevice *bd)
-    : FileSystem(name), _id(-1)
+    : FileSystem(name)
+    , _bd(bd)
+    , _id(-1)
+    , _ref(0)
 {
-    if (bd) {
-        mount(bd);
-    }
 }
 
 FATFileSystem::~FATFileSystem()
 {
-    // nop if unmounted
-    unmount();
+    // noop if unmounted
+    deinit();
 }
 
-int FATFileSystem::mount(BlockDevice *bd)
+int FATFileSystem::init()
 {
     // requires duplicate definition to allow virtual overload to work
-    return mount(bd, true);
+    return init(true);
 }
 
-int FATFileSystem::mount(BlockDevice *bd, bool mount)
+int FATFileSystem::init(bool mount)
 {
+    MBED_ASSERT(_bd != NULL);
+
     lock();
-    if (_id != -1) {
+    _ref += 1;
+    if (_ref > 1) {
         unlock();
-        return -EINVAL;
+        return 0;
     }
 
     for (int i = 0; i < FF_VOLUMES; i++) {
         if (!_ffs[i]) {
             _id = i;
-            _ffs[_id] = bd;
+            _ffs[_id] = _bd;
             _fsid[0] = '0' + _id;
             _fsid[1] = ':';
             _fsid[2] = '\0';
             debug_if(FFS_DBG, "Mounting [%s] on ffs drive [%s]\n", getName(), _fsid);
             FRESULT res = f_mount(&_fs, _fsid, mount);
+            if (res != FR_OK) {
+                _ref -= 1;
+                unlock();
+                return fat_error_remap(res);
+            }
+
             unlock();
-            return fat_error_remap(res);
+            return 0;
         }
     }
 
+    // Limited to FF_VOLUMES mounted filesystems
+    _ref -= 1;
     unlock();
     return -ENOMEM;
 }
 
-int FATFileSystem::unmount()
+int FATFileSystem::deinit()
 {
+    FRESULT res = FR_OK;
     lock();
-    if (_id == -1) {
-        unlock();
-        return -EINVAL;
+    if (_ref > 0) {
+        _ref -= 1;
+        if (_ref == 0) {
+            res = f_mount(NULL, _fsid, 0);
+            _ffs[_id] = NULL;
+            _id = -1;
+        }
     }
-
-    FRESULT res = f_mount(NULL, _fsid, 0);
-    _ffs[_id] = NULL;
-    _id = -1;
     unlock();
     return fat_error_remap(res);
+}
+
+int FATFileSystem::reset()
+{
+    MBED_ASSERT(_bd != NULL);
+
+    lock();
+    int oldref = _ref;
+
+    if (oldref > 0) {
+        int err = deinit();
+        if (err) {
+            unlock();
+            return err;
+        }
+    }
+
+    int err = FATFileSystem::format(_bd);
+    if (err) {
+        unlock();
+        return err;
+    }
+
+    if (oldref > 0) {
+        int err = init();
+        if (err) {
+            unlock();
+            return err;
+        }
+    }
+
+    unlock();
+    return err;
 }
 
 /* See http://elm-chan.org/fsw/ff/en/mkfs.html for details of f_mkfs() and
  * associated arguments. */
 int FATFileSystem::format(BlockDevice *bd, bd_size_t cluster_size)
 {
-    FATFileSystem fs;
-    fs.lock();
-
     int err = bd->init();
     if (err) {
-        fs.unlock();
         return err;
     }
 
@@ -358,7 +399,6 @@ int FATFileSystem::format(BlockDevice *bd, bd_size_t cluster_size)
     err = bd->erase(0, header);
     if (err) {
         bd->deinit();
-        fs.unlock();
         return err;
     }
 
@@ -368,7 +408,6 @@ int FATFileSystem::format(BlockDevice *bd, bd_size_t cluster_size)
         void *buf = malloc(program_size);
         if (!buf) {
             bd->deinit();
-            fs.unlock();
             return -ENOMEM;
         }
 
@@ -379,7 +418,6 @@ int FATFileSystem::format(BlockDevice *bd, bd_size_t cluster_size)
             if (err) {
                 free(buf);
                 bd->deinit();
-                fs.unlock();
                 return err;
             }
         }
@@ -391,69 +429,65 @@ int FATFileSystem::format(BlockDevice *bd, bd_size_t cluster_size)
     err = bd->trim(0, bd->size());
     if (err) {
         bd->deinit();
-        fs.unlock();
         return err;
     }
 
     err = bd->deinit();
     if (err) {
-        fs.unlock();
         return err;
     }
 
-    err = fs.mount(bd, false);
+    FATFileSystem fs(NULL, bd);
+    err = fs.init(false);
     if (err) {
-        fs.unlock();
         return err;
     }
 
     // Logical drive number, Partitioning rule, Allocation unit size (bytes per cluster)
     FRESULT res = f_mkfs(fs._fsid, FM_ANY | FM_SFD, cluster_size, NULL, 0);
     if (res != FR_OK) {
-        fs.unmount();
-        fs.unlock();
+        fs.deinit();
         return fat_error_remap(res);
     }
 
-    err = fs.unmount();
+    err = fs.deinit();
     if (err) {
-        fs.unlock();
         return err;
     }
 
-    fs.unlock();
     return 0;
+}
+
+int FATFileSystem::mount(BlockDevice *bd)
+{
+    if (bd) {
+        _bd = bd;
+    }
+
+    return init();
+}
+
+int FATFileSystem::unmount()
+{
+    return deinit();
+}
+
+int FATFileSystem::reformat(BlockDevice *bd)
+{
+    if (bd) {
+        _bd = bd;
+    }
+
+    return reset();
 }
 
 int FATFileSystem::reformat(BlockDevice *bd, int allocation_unit)
 {
-    lock();
-    if (_id != -1) {
-        if (!bd) {
-            bd = _ffs[_id];
-        }
-
-        int err = unmount();
-        if (err) {
-            unlock();
-            return err;
-        }
+    if (bd) {
+        _bd = bd;
     }
 
-    if (!bd) {
-        unlock();
-        return -ENODEV;
-    }
-
-    int err = FATFileSystem::format(bd, allocation_unit);
-    if (err) {
-        unlock();
-        return err;
-    }
-
-    err = mount(bd);
-    unlock();
-    return err;
+    return reset();
 }
 
 int FATFileSystem::remove(const char *path)
@@ -461,6 +495,15 @@ int FATFileSystem::remove(const char *path)
     Deferred<const char *> fpath = fat_path_prefix(_id, path);
 
     lock();
+    if (_ref == 0) {
+        // make sure we're mounted
+        int err = init();
+        if (err) {
+            unlock();
+            return err;
+        }
+    }
+
     FRESULT res = f_unlink(fpath);
     unlock();
 
@@ -479,6 +522,15 @@ int FATFileSystem::rename(const char *oldpath, const char *newpath)
     Deferred<const char *> newfpath = fat_path_prefix(_id, newpath);
 
     lock();
+    if (_ref == 0) {
+        // make sure we're mounted
+        int err = init();
+        if (err) {
+            unlock();
+            return err;
+        }
+    }
+
     FRESULT res = f_rename(oldfpath, newfpath);
     unlock();
 
@@ -493,6 +545,15 @@ int FATFileSystem::mkdir(const char *path, mode_t mode)
     Deferred<const char *> fpath = fat_path_prefix(_id, path);
 
     lock();
+    if (_ref == 0) {
+        // make sure we're mounted
+        int err = init();
+        if (err) {
+            unlock();
+            return err;
+        }
+    }
+
     FRESULT res = f_mkdir(fpath);
     unlock();
 
@@ -507,6 +568,15 @@ int FATFileSystem::stat(const char *path, struct stat *st)
     Deferred<const char *> fpath = fat_path_prefix(_id, path);
 
     lock();
+    if (_ref == 0) {
+        // make sure we're mounted
+        int err = init();
+        if (err) {
+            unlock();
+            return err;
+        }
+    }
+
     FILINFO f;
     memset(&f, 0, sizeof(f));
 
@@ -538,6 +608,15 @@ int FATFileSystem::statvfs(const char *path, struct statvfs *buf)
     DWORD fre_clust;
 
     lock();
+    if (_ref == 0) {
+        // make sure we're mounted
+        int err = init();
+        if (err) {
+            unlock();
+            return err;
+        }
+    }
+
     FRESULT res = f_getfree(_fsid, &fre_clust, &fs);
     if (res != FR_OK) {
         unlock();
@@ -601,6 +680,15 @@ int FATFileSystem::file_open(fs_file_t *file, const char *path, int flags)
     }
 
     lock();
+    if (_ref == 0) {
+        // make sure we're mounted
+        int err = init();
+        if (err) {
+            unlock();
+            return err;
+        }
+    }
+
     FRESULT res = f_open(fh, fpath, openmode);
 
     if (res != FR_OK) {
@@ -729,6 +817,15 @@ int FATFileSystem::dir_open(fs_dir_t *dir, const char *path)
     Deferred<const char *> fpath = fat_path_prefix(_id, path);
 
     lock();
+    if (_ref == 0) {
+        // make sure we're mounted
+        int err = init();
+        if (err) {
+            unlock();
+            return err;
+        }
+    }
+
     FRESULT res = f_opendir(dh, fpath);
     unlock();
 
