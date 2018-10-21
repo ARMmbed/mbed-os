@@ -1,6 +1,6 @@
 ## Unit testing
 
-This document describes how to write and test unit tests for Mbed OS. To prevent and solve problems, please see the [troubleshooting](#troubleshooting) section.
+This document describes how to write and test unit tests for Arm Mbed OS. To prevent and solve problems, please see the [troubleshooting](#troubleshooting) section.
 
 ### Introduction
 
@@ -11,12 +11,12 @@ Unit tests test code in small sections on a host machine. Unlike other testing t
 Please install the following dependencies to use Mbed OS unit testing. 
 
 - GNU toolchains.
-   - GCC 6 or later. We recommend you use MinGW-W64 on Windows, but any Windows port of the above GCC versions works.
+   - GCC 6 or later. We recommend you use MinGW-W64 on Windows, but any Windows port of the above GCC versions works. Default compilers can be used on Mac OS instead of GCC to shorten build times, but code coverage results can then differ.
 - CMake 3.0 or newer.
 - Python 2.7.x, 3.5 or newer.
 - Pip 10.0 or newer.
 - Gcovr 4.1 or newer.
-- Mbed CLI 1.8.0 or newer.
+- Arm Mbed CLI 1.8.0 or newer.
 
 Detailed instructions for supported operating systems are below.
 
@@ -30,12 +30,13 @@ Detailed instructions for supported operating systems are below.
    sudo easy_install pip
    ```
 
-1. Install Gcovr and [Mbed CLI](https://os.mbed.com/docs/latest/tools/arm-mbed-cli.html) with `pip install "gcovr>=4.1" mbed-cli`.
+1. Install Gcovr and [Mbed CLI](https://os.mbed.com/docs/latest/tools/developing-arm-mbed-cli.html) with `pip install "gcovr>=4.1" mbed-cli`.
 
 #### Installing dependencies on macOS
 
 1. Install [Homebrew](https://brew.sh/).
-1. Install GCC compilers and CMake with: `brew install gcc cmake`.
+1. Install Xcode Command Line Tools with `xcode-select --install`.
+1. Install CMake with: `brew install cmake`.
 1. Install Python and Pip:
 
    ```
@@ -43,7 +44,8 @@ Detailed instructions for supported operating systems are below.
    sudo easy_install pip
    ```
 
-1. Install Gcovr and [Mbed CLI](https://os.mbed.com/docs/latest/tools/arm-mbed-cli.html) with `pip install "gcovr>=4.1" mbed-cli`.
+1. Install Gcovr and [Mbed CLI](https://os.mbed.com/docs/latest/tools/developing-arm-mbed-cli.html) with `pip install "gcovr>=4.1" mbed-cli`.
+1. (Optional) Install GCC with `brew install gcc`.
 
 #### Installing dependencies on Windows
 
@@ -51,7 +53,7 @@ Detailed instructions for supported operating systems are below.
 1. Download CMake binaries from https://cmake.org/download/, and run the installer.
 1. Download Python 2.7 or Python 3 from https://www.python.org/getit/, and run the installer.
 1. Add MinGW, CMake and Python into system PATH.
-1. Install Gcovr and [Mbed CLI](https://os.mbed.com/docs/latest/tools/arm-mbed-cli.html) with `pip install "gcovr>=4.1" mbed-cli`.
+1. Install Gcovr and [Mbed CLI](https://os.mbed.com/docs/latest/tools/developing-arm-mbed-cli.html) with `pip install "gcovr>=4.1" mbed-cli`.
 
 ### Test code structure
 
@@ -69,7 +71,7 @@ The build system automatically generates names of test suites. The name is const
 
 ### Unit testing with Mbed CLI
 
-Mbed CLI supports unit tests through `mbed test --unittests` command. For information on using Mbed CLI, please see the [CLI documentation in handbook](https://os.mbed.com/docs/latest/tools/arm-mbed-cli.html).
+Mbed CLI supports unit tests through `mbed test --unittests` command. For information on using Mbed CLI, please see the [CLI documentation](https://os.mbed.com/docs/latest/tools/developing-arm-mbed-cli.html).
 
 ### Writing unit tests
 
@@ -154,7 +156,7 @@ TEST_F(TestSemaphore, constructor)
 
 ### Building and running unit tests
 
-Use Mbed CLI to build and run unit tests. For advanced use, you can run CMake and a make program directly.
+Use Mbed CLI to build and run unit tests. For advanced use, you can run CMake and a Make program directly.
 
 #### Build tests directly with CMake
 
@@ -162,9 +164,11 @@ Use Mbed CLI to build and run unit tests. For advanced use, you can run CMake an
 1. Move to the build directory `cd UNITTESTS/build`.
 1. Run CMake using a relative path to `UNITTESTS` folder as the argument. So from `UNITTESTS/build` use `cmake ..`:
    - Add `-g [generator]` if generating other than Unix Makefiles such in case of MinGW use `-g "MinGW Makefiles"`.
-   - Add `-DCOVERAGE:True` to add coverage compiler flags.
+   - Add `-DCMAKE_MAKE_PROGRAM=<value>`, `-DCMAKE_CXX_COMPILER=<value>` and `-DCMAKE_C_COMPILER=<value>` to use a specific Make program and compilers.
+   - Add `-DCMAKE_BUILD_TYPE=Debug` to build a debug build.
+   - Add `-DCOVERAGE=True` to add coverage compiler flags.
    - See the [CMake manual](https://cmake.org/cmake/help/v3.0/manual/cmake.1.html) for more information.
-1. Run a make program (Make, Gmake, Mingw32-make and so on) to build the tests.
+1. Run a Make program to build the tests.
 
 #### Run tests directly with CTest
 
@@ -177,14 +181,27 @@ Run a test binary in the build directory to run a unit test suite. To run multip
 1. Add test executables into the list.
 1. Run them.
 
+### Debugging
+
+1. Use Mbed CLI to build a debug build. For advanced use, run CMake directly with `-DCMAKE_BUILD_TYPE=Debug`, and then run a Make program.
+1. Run GDB with a test executable as an argument to debug unit tests.
+
 ### Get code coverage
 
-Use Mbed CLI to generate code coverage reports. For advanced use, you can run Gcovr or any other code coverage tool directly in the build directory.
+Use Mbed CLI to generate code coverage reports. For advanced use, follow these steps:
+
+1. Run CMake with both `-DCMAKE_BUILD_TYPE=Debug` and `-DCOVERAGE=True`.
+1. Run a Make program to build the tests.
+1. Run the tests.
+1. Run Gcovr or any other code coverage tool directly in the build directory.
 
 ### Troubleshooting
 
 **Problem:** Generic problems with CMake or with the build process.
-* **Solution**: Delete the build directory. Make sure that CMake, g++, gcc and a make program can be found in the path and are correct versions.
+* **Solution**: Delete the build directory. Make sure that CMake, g++, GCC and a Make program can be found in the path and are correct versions.
 
 **Problem:** Virus protection identifies files generated by CMake as malicious and quarantines the files on Windows.
 * **Solution**: Restore the false positive files from the quarantine.
+
+**Problem:** CMake compiler check fails on Mac OS Mojave when using GCC-8.
+* **Solution**: Make sure gnm (binutils) is not installed. Uninstall binutils with `brew uninstall binutils`.

@@ -269,6 +269,15 @@ extern int8_t sn_coap_protocol_handle_block2_response_internally(struct coap_s *
 extern void sn_coap_protocol_clear_sent_blockwise_messages(struct coap_s *handle);
 
 /**
+ * \fn void sn_coap_protocol_clear_received_blockwise_messages(struct coap_s *handle)
+ *
+ * \brief This function clears all the received blockwise messages from the linked list.
+ *
+ * \param *handle Pointer to CoAP library handle
+ */
+extern void sn_coap_protocol_clear_received_blockwise_messages(struct coap_s *handle);
+
+/**
  * \fn void sn_coap_protocol_send_rst(struct coap_s *handle, uint16_t msg_id, sn_nsdl_addr_s *addr_ptr, void *param)
  *
  * \brief This function sends a RESET message.

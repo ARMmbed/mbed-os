@@ -28,12 +28,14 @@ extern "C" {
 #include <stdint.h>
 #include <stddef.h>
 
-/* Operation types for tracer */
+/**
+ * enum Memory operation types for tracer
+ */    
 enum {
-    MBED_MEM_TRACE_MALLOC,
-    MBED_MEM_TRACE_REALLOC,
-    MBED_MEM_TRACE_CALLOC,
-    MBED_MEM_TRACE_FREE
+    MBED_MEM_TRACE_MALLOC,          /**< Identifier for malloc operation */
+    MBED_MEM_TRACE_REALLOC,         /**< Identifier for realloc operation */
+    MBED_MEM_TRACE_CALLOC,          /**< Identifier for calloc operation */
+    MBED_MEM_TRACE_FREE             /**< Identifier for free operation */
 };
 
 /**
@@ -71,6 +73,16 @@ typedef void (*mbed_mem_trace_cb_t)(uint8_t op, void *res, void *caller, ...);
  * @param cb the callback to call on each memory operation.
  */
 void mbed_mem_trace_set_callback(mbed_mem_trace_cb_t cb);
+
+/**
+ * Disable the memory trace output by disabling the callback function
+ */
+void mbed_mem_trace_disable();
+
+/**
+ * Renable the memory trace output with the cb in use when disable was called
+ */
+void mbed_mem_trace_enable();
 
 /**
  * Trace lock.

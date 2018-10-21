@@ -29,6 +29,8 @@
 #include <errno.h>
 ////// Error handling /////
 
+using namespace mbed;
+
 static int fat_error_remap(FRESULT res)
 {
     switch(res) {
@@ -168,7 +170,10 @@ void ff_memfree(void *p)
 // Implementation of diskio functions (see ChaN/diskio.h)
 static WORD disk_get_sector_size(BYTE pdrv)
 {
-    WORD ssize = _ffs[pdrv]->get_erase_size();
+    bd_size_t sector_size = _ffs[pdrv]->get_erase_size();
+    MBED_ASSERT(sector_size <= WORD(-1));
+
+    WORD ssize = sector_size;
     if (ssize < 512) {
         ssize = 512;
     }

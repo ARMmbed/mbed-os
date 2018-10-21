@@ -25,3 +25,4 @@ int main(int ac, char **av)
 
 IMPORT_TEST_GROUP(stoip6);
 IMPORT_TEST_GROUP(stoip6_2);
+IMPORT_TEST_GROUP(stoip6_3);

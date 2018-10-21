@@ -186,8 +186,14 @@ void LoRaWANStack::process_transmission(void)
 {
 }
 
-void LoRaWANStack::handle_ack_expiry_for_class_c(void)
+void post_process_tx_with_reception(void)
 {
+
+}
+
+void post_process_tx_no_reception(void)
+{
+
 }
 
 void LoRaWANStack::handle_scheduling_failure(void)
@@ -295,4 +301,3 @@ void LoRaWANStack::process_idle_state(lorawan_status_t &op_status)
 void LoRaWANStack::process_uninitialized_state(lorawan_status_t &op_status)
 {
 }
-

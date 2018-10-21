@@ -127,7 +127,7 @@ void UDPSOCKET_ECHOTEST_NONBLOCK()
 
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.open(get_interface()));
     sock.set_blocking(false);
-    sock.sigio(callback(_sigio_handler, Thread::gettid()));
+    sock.sigio(callback(_sigio_handler, ThisThread::get_id()));
 
     int sent;
     int s_idx = 0;

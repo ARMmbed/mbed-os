@@ -23,8 +23,8 @@
 #define MBED_OBSERVING_BLOCK_DEVICE_H
 
 #include "BlockDevice.h"
-#include "PlatformMutex.h"
-#include "Callback.h"
+#include "platform/PlatformMutex.h"
+#include "platform/Callback.h"
 
 
 class ObservingBlockDevice : public BlockDevice

@@ -60,7 +60,7 @@ class ARM(mbedToolchain):
             raise NotSupportedException(
                 "this compiler does not support the core %s" % target.core)
 
-        if getattr(target, "default_lib", "std") == "small":
+        if getattr(target, "default_toolchain", "ARM") == "uARM":
             if "-DMBED_RTOS_SINGLE_THREAD" not in self.flags['common']:
                 self.flags['common'].append("-DMBED_RTOS_SINGLE_THREAD")
             if "-D__MICROLIB" not in self.flags['common']:
@@ -125,7 +125,7 @@ class ARM(mbedToolchain):
             })
 
     def _get_toolchain_labels(self):
-        if getattr(self.target, "default_lib", "std") == "small":
+        if getattr(self.target, "default_toolchain", "ARM") == "uARM":
             return ["ARM", "ARM_MICRO"]
         else:
             return ["ARM", "ARM_STD"]
@@ -337,6 +337,7 @@ class ARM(mbedToolchain):
 
 
 class ARM_STD(ARM):
+    OFFICIALLY_SUPPORTED = True
     def __init__(self, target, notify=None, macros=None,
                  build_profile=None, build_dir=None):
         ARM.__init__(self, target, notify, macros, build_dir=build_dir,
@@ -347,16 +348,18 @@ class ARM_STD(ARM):
 
 class ARM_MICRO(ARM):
     PATCHED_LIBRARY = False
+    OFFICIALLY_SUPPORTED = True
     def __init__(self, target, notify=None, macros=None,
                  silent=False, extra_verbose=False, build_profile=None,
                  build_dir=None):
-        target.default_lib = "small"
+        target.default_toolchain = "uARM"
         ARM.__init__(self, target, notify, macros, build_dir=build_dir,
                      build_profile=build_profile)
         if not set(("ARM", "uARM")).intersection(set(target.supported_toolchains)):
             raise NotSupportedException("ARM/uARM compiler support is required for ARM build")
 
 class ARMC6(ARM_STD):
+    OFFICIALLY_SUPPORTED = False
     SHEBANG = "#! armclang -E --target=arm-arm-none-eabi -x c"
     SUPPORTED_CORES = ["Cortex-M0", "Cortex-M0+", "Cortex-M3", "Cortex-M4",
                        "Cortex-M4F", "Cortex-M7", "Cortex-M7F", "Cortex-M7FD",

@@ -28,6 +28,7 @@
 
 /* The callback function that will be called after a traced memory operations finishes. */
 static mbed_mem_trace_cb_t mem_trace_cb;
+static mbed_mem_trace_cb_t mem_trace_cb_reserve;
 /* 'trace_lock_count' guards "trace inside trace" situations (for example, the implementation
  * of realloc() might call malloc() internally, and since malloc() is also traced, this could
  * result in two calls to the callback function instead of one. */
@@ -44,6 +45,24 @@ static SingletonPtr<PlatformMutex> mem_trace_mutex;
 void mbed_mem_trace_set_callback(mbed_mem_trace_cb_t cb)
 {
     mem_trace_cb = cb;
+}
+
+void mbed_mem_trace_disable()
+{
+    mbed_mem_trace_lock();
+    if (mem_trace_cb) {
+        mem_trace_cb_reserve = mem_trace_cb;
+        mem_trace_cb = 0;
+    }
+    mbed_mem_trace_unlock();
+}
+void mbed_mem_trace_enable()
+{
+    mbed_mem_trace_lock();
+    if (!mem_trace_cb && mem_trace_cb_reserve) {
+        mem_trace_cb = mem_trace_cb_reserve;
+    }
+    mbed_mem_trace_unlock();
 }
 
 void mbed_mem_trace_lock()

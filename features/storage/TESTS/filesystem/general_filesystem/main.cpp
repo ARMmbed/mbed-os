@@ -18,17 +18,23 @@
 #include "utest/utest.h"
 #include "BlockDevice.h"
 #include "FileSystem.h"
+
+#include <stdlib.h>
 #if COMPONENT_SPIF
 #include "SPIFBlockDevice.h"
 #include "LittleFileSystem.h"
 #elif COMPONENT_SD
 #include "SDBlockDevice.h"
 #include "FATFileSystem.h"
+#elif COMPONENT_FLASHIAP
+#include "FlashIAPBlockDevice.h"
+#include "LittleFileSystem.h"
 #else
 #error [NOT_SUPPORTED] storage test not supported on this platform
 #endif
 
 using namespace utest::v1;
+using namespace mbed;
 
 static const size_t small_buf_size = 10;
 static const size_t medium_buf_size = 250;

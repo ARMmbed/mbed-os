@@ -15,6 +15,7 @@
  */
 
 #include "EMACInterface.h"
+using namespace mbed;
 
 /* Interface implementation */
 EMACInterface::EMACInterface(EMAC &emac, OnboardNetworkStack &stack) :
@@ -117,7 +118,7 @@ NetworkStack *EMACInterface::get_stack()
 }
 
 void EMACInterface::attach(
-    Callback<void(nsapi_event_t, intptr_t)> status_cb)
+    mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb)
 {
     _connection_status_cb = status_cb;
     if (_interface) {

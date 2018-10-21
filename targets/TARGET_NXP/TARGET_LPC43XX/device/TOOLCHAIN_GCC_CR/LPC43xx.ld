@@ -29,14 +29,14 @@ SECTIONS
 {
 
     /* MAIN TEXT SECTION */ 
-    .text : ALIGN(4)
+    .text : ALIGN(8)
     {
         FILL(0xff)
         __vectors_start__ = ABSOLUTE(.) ;
         KEEP(*(.isr_vector))
         
         /* Global Section Table */
-        . = ALIGN(4) ;
+        . = ALIGN(8) ;
         __section_table_start = .;
         __data_section_table = .;
         LONG(LOADADDR(.data));
@@ -75,22 +75,22 @@ SECTIONS
         
     } >SPIFI
     
-    .text : ALIGN(4)    
+    .text : ALIGN(8)    
     {
          *(.text*)
         *(.rodata .rodata.* .constdata .constdata.*)
-        . = ALIGN(4);
+        . = ALIGN(8);
         
         /* C++ constructors etc */
-        . = ALIGN(4);
+        . = ALIGN(8);
         KEEP(*(.init))
         
-        . = ALIGN(4);
+        . = ALIGN(8);
         __preinit_array_start = .;
         KEEP (*(.preinit_array))
         __preinit_array_end = .;
         
-        . = ALIGN(4);
+        . = ALIGN(8);
         __init_array_start = .;
         KEEP (*(SORT(.init_array.*)))
         KEEP (*(.init_array))
@@ -98,13 +98,13 @@ SECTIONS
         
         KEEP(*(.fini));
         
-        . = ALIGN(4);
+        . = ALIGN(8);
         KEEP (*crtbegin.o(.ctors))
         KEEP (*(EXCLUDE_FILE (*crtend.o) .ctors))
         KEEP (*(SORT(.ctors.*)))
         KEEP (*crtend.o(.ctors))
         
-        . = ALIGN(4);
+        . = ALIGN(8);
         KEEP (*crtbegin.o(.dtors))
         KEEP (*(EXCLUDE_FILE (*crtend.o) .dtors))
         KEEP (*(SORT(.dtors.*)))
@@ -116,13 +116,13 @@ SECTIONS
      * for exception handling/unwind - some Newlib functions (in common
      * with C++ and STDC++) use this. 
      */
-    .ARM.extab : ALIGN(4)
+    .ARM.extab : ALIGN(8)
     {
     	*(.ARM.extab* .gnu.linkonce.armextab.*)
     } > SPIFI
     __exidx_start = .;
     
-    .ARM.exidx : ALIGN(4)
+    .ARM.exidx : ALIGN(8)
     {
     	*(.ARM.exidx* .gnu.linkonce.armexidx.*)
     } > SPIFI
@@ -132,147 +132,147 @@ SECTIONS
         
     
     /* DATA section for RamLoc72 */
-    .data_RAM2 : ALIGN(4)
+    .data_RAM2 : ALIGN(8)
     {
        FILL(0xff)
        *(.ramfunc.$RAM2)
        *(.ramfunc.$RamLoc72)
     	*(.data.$RAM2*)
     	*(.data.$RamLoc72*)
-       . = ALIGN(4) ;
+       . = ALIGN(8) ;
     } > RamLoc72 AT>SPIFI
     
     /* DATA section for RamAHB32 */
-    .data_RAM3 : ALIGN(4)
+    .data_RAM3 : ALIGN(8)
     {
        FILL(0xff)
        *(.ramfunc.$RAM3)
        *(.ramfunc.$RamAHB32)
     	*(.data.$RAM3*)
     	*(.data.$RamAHB32*)
-       . = ALIGN(4) ;
+       . = ALIGN(8) ;
     } > RamAHB32 AT>SPIFI
     
     /* DATA section for RamAHB16 */
-    .data_RAM4 : ALIGN(4)
+    .data_RAM4 : ALIGN(8)
     {
        FILL(0xff)
        *(.ramfunc.$RAM4)
        *(.ramfunc.$RamAHB16)
     	*(.data.$RAM4*)
     	*(.data.$RamAHB16*)
-       . = ALIGN(4) ;
+       . = ALIGN(8) ;
     } > RamAHB16 AT>SPIFI
     
     /* DATA section for RamAHB_ETB16 */
-    .data_RAM5 : ALIGN(4)
+    .data_RAM5 : ALIGN(8)
     {
        FILL(0xff)
        *(.ramfunc.$RAM5)
        *(.ramfunc.$RamAHB_ETB16)
     	*(.data.$RAM5*)
     	*(.data.$RamAHB_ETB16*)
-       . = ALIGN(4) ;
+       . = ALIGN(8) ;
     } > RamAHB_ETB16 AT>SPIFI
     
     /* MAIN DATA SECTION */
     
 
-    .uninit_RESERVED : ALIGN(4)
+    .uninit_RESERVED : ALIGN(8)
     {
         KEEP(*(.bss.$RESERVED*))
-        . = ALIGN(4) ;
+        . = ALIGN(8) ;
         _end_uninit_RESERVED = .;
     } > RamLoc128
 
 	
 	/* Main DATA section (RamLoc128) */
-	.data : ALIGN(4)
+	.data : ALIGN(8)
 	{
 	   FILL(0xff)
 	   _data = . ;
 	   *(vtable)
 	   *(.ramfunc*)
 	   *(.data*)
-	   . = ALIGN(4) ;
+	   . = ALIGN(8) ;
 	   _edata = . ;
 	} > RamLoc128 AT>SPIFI
 
     /* BSS section for RamLoc72 */
-    .bss_RAM2 : ALIGN(4)
+    .bss_RAM2 : ALIGN(8)
     {
     	*(.bss.$RAM2*)
     	*(.bss.$RamLoc72*)
-       . = ALIGN(4) ;
+       . = ALIGN(8) ;
     } > RamLoc72
     /* BSS section for RamAHB32 */
-    .bss_RAM3 : ALIGN(4)
+    .bss_RAM3 : ALIGN(8)
     {
     	*(.bss.$RAM3*)
     	*(.bss.$RamAHB32*)
-       . = ALIGN(4) ;
+       . = ALIGN(8) ;
     } > RamAHB32
     /* BSS section for RamAHB16 */
-    .bss_RAM4 : ALIGN(4)
+    .bss_RAM4 : ALIGN(8)
     {
     	*(.bss.$RAM4*)
     	*(.bss.$RamAHB16*)
-       . = ALIGN(4) ;
+       . = ALIGN(8) ;
     } > RamAHB16
     /* BSS section for RamAHB_ETB16 */
-    .bss_RAM5 : ALIGN(4)
+    .bss_RAM5 : ALIGN(8)
     {
     	*(.bss.$RAM5*)
     	*(.bss.$RamAHB_ETB16*)
-       . = ALIGN(4) ;
+       . = ALIGN(8) ;
     } > RamAHB_ETB16
 
     /* MAIN BSS SECTION */
-    .bss : ALIGN(4)
+    .bss : ALIGN(8)
     {
         _bss = .;
         *(.bss*)
         *(COMMON)
-        . = ALIGN(4) ;
+        . = ALIGN(8) ;
         _ebss = .;
         PROVIDE(end = .);
     } > RamLoc128
         
     /* NOINIT section for RamLoc72 */
-    .noinit_RAM2 (NOLOAD) : ALIGN(4)
+    .noinit_RAM2 (NOLOAD) : ALIGN(8)
     {
     	*(.noinit.$RAM2*)
     	*(.noinit.$RamLoc72*)
-       . = ALIGN(4) ;
+       . = ALIGN(8) ;
     } > RamLoc72 
     /* NOINIT section for RamAHB32 */
-    .noinit_RAM3 (NOLOAD) : ALIGN(4)
+    .noinit_RAM3 (NOLOAD) : ALIGN(8)
     {
     	*(.noinit.$RAM3*)
     	*(.noinit.$RamAHB32*)
-       . = ALIGN(4) ;
+       . = ALIGN(8) ;
     } > RamAHB32 
     /* NOINIT section for RamAHB16 */
-    .noinit_RAM4 (NOLOAD) : ALIGN(4)
+    .noinit_RAM4 (NOLOAD) : ALIGN(8)
     {
     	*(.noinit.$RAM4*)
     	*(.noinit.$RamAHB16*)
-       . = ALIGN(4) ;
+       . = ALIGN(8) ;
     } > RamAHB16 
     /* NOINIT section for RamAHB_ETB16 */
-    .noinit_RAM5 (NOLOAD) : ALIGN(4)
+    .noinit_RAM5 (NOLOAD) : ALIGN(8)
     {
     	*(.noinit.$RAM5*)
     	*(.noinit.$RamAHB_ETB16*)
-       . = ALIGN(4) ;
+       . = ALIGN(8) ;
     } > RamAHB_ETB16 
     
     /* DEFAULT NOINIT SECTION */
-    .noinit (NOLOAD): ALIGN(4)
+    .noinit (NOLOAD): ALIGN(8)
     {
         _noinit = .;
         *(.noinit*) 
-         . = ALIGN(4) ;
+         . = ALIGN(8) ;
         _end_noinit = .;
     } > RamLoc128
     

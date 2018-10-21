@@ -25,6 +25,10 @@
 namespace mbed {
 
 #define AT_NETWORK_TRIALS 5
+#define TIMER_UNIT_LENGTH 3
+#define TWO_BYTES_HEX 4
+#define FOUR_BYTES_HEX 8
+#define ONE_BYTE_BINARY 8
 
 /**
  *  Class AT_CellularNetwork
@@ -67,8 +71,6 @@ public: // CellularNetwork
 
     virtual nsapi_error_t get_network_registering_mode(NWRegisteringMode &mode);
 
-    virtual nsapi_error_t get_registration_status(RegistrationType type, RegistrationStatus &status);
-
     virtual nsapi_error_t set_attach(int timeout = 10 * 1000);
 
     virtual nsapi_error_t get_attach(AttachStatus &status);
@@ -89,7 +91,6 @@ public: // CellularNetwork
     virtual const char *get_ip_address();
 
     virtual nsapi_error_t set_access_technology(RadioAccessTechnology rat);
-    virtual nsapi_error_t get_access_technology(RadioAccessTechnology &rat);
 
     virtual nsapi_error_t scan_plmn(operList_t &operators, int &ops_count);
 
@@ -109,8 +110,6 @@ public: // CellularNetwork
 
     virtual nsapi_error_t get_signal_quality(int &rssi, int &ber);
 
-    virtual nsapi_error_t get_cell_id(int &cell_id);
-
     virtual int get_3gpp_error();
 
     virtual nsapi_error_t get_operator_params(int &format, operator_t &operator_params);
@@ -118,6 +117,10 @@ public: // CellularNetwork
     virtual nsapi_error_t set_registration_urc(RegistrationType type, bool on);
 
     virtual nsapi_error_t get_operator_names(operator_names_list &op_names);
+
+    virtual nsapi_error_t get_registration_params(registration_params_t &reg_params);
+
+    virtual nsapi_error_t get_registration_params(RegistrationType type, registration_params_t &reg_params);
 protected:
 
     /** Check if modem supports the given stack type.
@@ -171,10 +174,17 @@ private:
 
     nsapi_error_t delete_current_context();
 
-    void read_reg_params_and_compare(RegistrationType type);
-    void read_reg_params(RegistrationType type, RegistrationStatus &reg_status, int &lac, int &cell_id, int &act);
     // calls network callback only if status was changed, updates local connection status
     void call_network_cb(nsapi_connection_status_t status);
+
+    void read_reg_params_and_compare(RegistrationType type);
+    void read_reg_params(registration_params_t &reg_params);
+
+    // Returns active time(Table 10.5.163/3GPP TS 24.008: GPRS Timer 2 information element) in seconds
+    int calculate_active_time(const char *active_time_string, int active_time_length);
+    // Returns periodic tau(Table 10.5.163a/3GPP TS 24.008: GPRS Timer 3 information element) in seconds
+    int calculate_periodic_tau(const char *periodic_tau_string, int periodic_tau_length);
+
 #if NSAPI_PPP_AVAILABLE
     void ppp_status_cb(nsapi_event_t, intptr_t);
 #endif
@@ -190,12 +200,12 @@ protected:
     Callback<void(nsapi_event_t, intptr_t)> _connection_status_cb;
     RadioAccessTechnology _op_act;
     AuthenticationType _authentication_type;
-    int _cell_id;
     nsapi_connection_status_t _connect_status;
     bool _new_context_set;
     bool _is_context_active;
-    RegistrationStatus _reg_status;
-    RadioAccessTechnology _current_act;
+
+    registration_params_t _reg_params;
+
     mbed::Callback<void()> _urc_funcs[C_MAX];
 };
 

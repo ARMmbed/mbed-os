@@ -24,7 +24,7 @@ SECTIONS
     /* Code and const data */
     .text :
     {
-        . = ALIGN(4);
+        . = ALIGN(8);
         *(.text)
         *(.text*)
 
@@ -77,20 +77,20 @@ SECTIONS
         *(.data)
         *(.data*)
 
-        . = ALIGN(4);
+        . = ALIGN(8);
         /* preinit data */
         PROVIDE_HIDDEN (__preinit_array_start = .);
         KEEP(*(.preinit_array))
         PROVIDE_HIDDEN (__preinit_array_end = .);
 
-        . = ALIGN(4);
+        . = ALIGN(8);
         /* init data */
         PROVIDE_HIDDEN (__init_array_start = .);
         KEEP(*(SORT(.init_array.*)))
         KEEP(*(.init_array))
         PROVIDE_HIDDEN (__init_array_end = .);
 
-        . = ALIGN(4);
+        . = ALIGN(8);
         /* finit data */
         PROVIDE_HIDDEN (__fini_array_start = .);
         KEEP(*(SORT(.fini_array.*)))
@@ -105,12 +105,12 @@ SECTIONS
     /* Uninitialised data */
     .bss (NOLOAD):
     {
-        . = ALIGN(4);
+        . = ALIGN(8);
         __bss_start__ = .;
         *(.bss)
         *(.bss*)
         *(COMMON)
-        . = ALIGN(4);
+        . = ALIGN(8);
         __bss_end__ = .;
     } > RAM
     
@@ -118,7 +118,7 @@ SECTIONS
     
     .resume (NOLOAD):
     {
-        . = ALIGN(4);
+        . = ALIGN(8);
         *(preserve)
     } > RAM
 
@@ -161,7 +161,7 @@ SECTIONS
     /* The size of this section (256 bytes) is already taken off the size of RAM so there is no danger of the heap overflowing into it */
     .ipc_mailbox (NOLOAD):
     {
-        . = ALIGN(4);
+        . = ALIGN(8);
         __ipc_mailbox_start__ = .;
         *(.ipc_mailbox)
         *(.ipc_mailbox*)

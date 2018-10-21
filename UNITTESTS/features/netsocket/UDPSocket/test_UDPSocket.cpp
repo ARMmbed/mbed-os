@@ -79,7 +79,7 @@ TEST_F(TestUDPSocket, sendto_addr_port)
 TEST_F(TestUDPSocket, connect)
 {
     stack.return_value = NSAPI_ERROR_OK;
-    const nsapi_addr_t addr = {NSAPI_IPv4, {127,0,0,1} };
+    const nsapi_addr_t addr = {NSAPI_IPv4, {127, 0, 0, 1} };
     const SocketAddress a(addr, 1024);
 
     socket->open((NetworkStack *)&stack);
@@ -93,7 +93,7 @@ TEST_F(TestUDPSocket, connect)
 
 TEST_F(TestUDPSocket, sendto_timeout)
 {
-    const nsapi_addr_t saddr = {NSAPI_IPv4, {127,0,0,1} };
+    const nsapi_addr_t saddr = {NSAPI_IPv4, {127, 0, 0, 1} };
     const SocketAddress addr(saddr, 1024);
 
     socket->open((NetworkStack *)&stack);
@@ -127,8 +127,8 @@ TEST_F(TestUDPSocket, recv)
 TEST_F(TestUDPSocket, recv_address_filtering)
 {
     socket->open((NetworkStack *)&stack);
-    const nsapi_addr_t addr1 = {NSAPI_IPv4, {127,0,0,1} };
-    const nsapi_addr_t addr2 = {NSAPI_IPv4, {127,0,0,2} };
+    const nsapi_addr_t addr1 = {NSAPI_IPv4, {127, 0, 0, 1} };
+    const nsapi_addr_t addr2 = {NSAPI_IPv4, {127, 0, 0, 2} };
     SocketAddress a1(addr1, 1024);
     SocketAddress a2(addr2, 1024);
 

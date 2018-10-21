@@ -89,7 +89,7 @@ WEAK void error(const char *format, ...)
 #ifndef NDEBUG
     va_list arg;
     va_start(arg, format);
-    mbed_error_vfprintf(format, arg);
+    mbed_error_vprintf(format, arg);
     va_end(arg);
 #endif
     exit(1);
@@ -347,6 +347,10 @@ static void print_error_report(mbed_error_ctx *ctx, const char *error_msg)
 
         case MBED_ERROR_CODE_RTOS_MESSAGE_QUEUE_EVENT:
             mbed_error_printf("MessageQueue: 0x%X, ", ctx->error_value);
+            break;
+
+        case MBED_ERROR_CODE_ASSERTION_FAILED:
+            mbed_error_printf("Assertion failed: ");
             break;
 
         default:

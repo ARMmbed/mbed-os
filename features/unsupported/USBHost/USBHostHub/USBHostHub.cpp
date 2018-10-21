@@ -232,7 +232,7 @@ void USBHostHub::portReset(uint8_t port)
     USB_DBG("reset port %d on hub: %p [this: %p]", port, dev, this)
     setPortFeature(PORT_RESET_FEATURE, port);
 #if defined(TARGET_RZ_A1H)
-    Thread::wait(50);   // Reset release waiting for Hi-Speed check.
+    ThisThread::sleep_for(50);   // Reset release waiting for Hi-Speed check.
 #endif
     while(1) {
         status = getPortStatus(port);
@@ -249,7 +249,7 @@ void USBHostHub::portReset(uint8_t port)
             host->deviceDisconnected(dev->getHub() + 1, port, this, 0);
             break;
         }
-        Thread::wait(10);
+        ThisThread::sleep_for(10);
     }
 }
 

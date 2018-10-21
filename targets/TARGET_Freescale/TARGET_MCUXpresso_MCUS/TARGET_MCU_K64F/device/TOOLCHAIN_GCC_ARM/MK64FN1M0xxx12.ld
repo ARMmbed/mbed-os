@@ -53,12 +53,6 @@ ENTRY(Reset_Handler)
 
 __ram_vector_table__ = 1;
 
-/* With the RTOS in use, this does not affect the main stack size. The size of
- * the stack where main runs is determined via the RTOS. */
-__stack_size__ = 0x400;
-
-__heap_size__ = 0x6000;
-
 #if !defined(MBED_APP_START)
   #define MBED_APP_START 0
 #endif
@@ -66,6 +60,16 @@ __heap_size__ = 0x6000;
 #if !defined(MBED_APP_SIZE)
   #define MBED_APP_SIZE 0x100000
 #endif
+
+#if !defined(MBED_BOOT_STACK_SIZE)
+    #define MBED_BOOT_STACK_SIZE 0x400
+#endif
+
+/* With the RTOS in use, this does not affect the main stack size. The size of
+ * the stack where main runs is determined via the RTOS. */
+__stack_size__ = MBED_BOOT_STACK_SIZE;
+
+__heap_size__ = 0x6000;
 
 HEAP_SIZE  = DEFINED(__heap_size__)  ? __heap_size__  : 0x0400;
 STACK_SIZE = DEFINED(__stack_size__) ? __stack_size__ : 0x0400;
@@ -88,22 +92,22 @@ SECTIONS
   .interrupts :
   {
     __VECTOR_TABLE = .;
-    . = ALIGN(4);
+    . = ALIGN(8);
     KEEP(*(.isr_vector))     /* Startup code */
-    . = ALIGN(4);
+    . = ALIGN(8);
   } > m_interrupts
 
   .flash_config :
   {
-    . = ALIGN(4);
+    . = ALIGN(8);
     KEEP(*(.FlashConfig))    /* Flash Configuration Field (FCF) */
-    . = ALIGN(4);
+    . = ALIGN(8);
   } > m_flash_config
 
   .text :
   {
 
-    . = ALIGN(4);
+    . = ALIGN(8);
     *(.text)                 /* .text sections (code) */
     *(.text*)                /* .text* sections (code) */
     *(.rodata)               /* .rodata sections (constants, strings, etc.) */
@@ -113,7 +117,7 @@ SECTIONS
     *(.eh_frame)
     KEEP (*(.init))
     KEEP (*(.fini))
-    . = ALIGN(4);
+    . = ALIGN(8);
   } > m_text
 
   .ARM.extab :
@@ -188,12 +192,12 @@ SECTIONS
 
   .interrupts_ram :
   {
-    . = ALIGN(4);
+    . = ALIGN(8);
     __VECTOR_RAM__ = .;
     __interrupts_ram_start__ = .; /* Create a global symbol at data start */
     *(.m_interrupts_ram)     /* This is a user defined section */
     . += M_VECTOR_RAM_SIZE;
-    . = ALIGN(4);
+    . = ALIGN(8);
     __interrupts_ram_end__ = .; /* Define a global symbol at data end */
   } > m_data
 
@@ -205,13 +209,13 @@ SECTIONS
   {
     PROVIDE(__etext = LOADADDR(.data));    /* Define a global symbol at end of code, */
     PROVIDE(__DATA_ROM = LOADADDR(.data)); /* Symbol is used by startup for data initialization. */
-    . = ALIGN(4);
+    . = ALIGN(8);
     __DATA_RAM = .;
     __data_start__ = .;      /* create a global symbol at data start */
     *(.data)                 /* .data sections */
     *(.data*)                /* .data* sections */
     KEEP(*(.jcr*))
-    . = ALIGN(4);
+    . = ALIGN(8);
     __data_end__ = .;        /* define a global symbol at data end */
   } > m_data_2 AT > m_text
 
@@ -239,7 +243,7 @@ SECTIONS
   .bss :
   {
     /* This is used by the startup in order to initialize the .bss section */
-    . = ALIGN(4);
+    . = ALIGN(8);
     __START_BSS = .;
     __bss_start__ = .;
     *(.bss)
@@ -248,7 +252,7 @@ SECTIONS
     USB_RAM_START = .;
     . += USB_RAM_GAP;
     *(COMMON)
-    . = ALIGN(4);
+    . = ALIGN(8);
     __bss_end__ = .;
     __END_BSS = .;
   } > m_data_2
@@ -259,7 +263,7 @@ SECTIONS
     __end__ = .;
     PROVIDE(end = .);
     __HeapBase = .;
-    . += HEAP_SIZE;
+    . = ORIGIN(m_data_2) + LENGTH(m_data_2) - STACK_SIZE;
     __HeapLimit = .;
     __heap_limit = .; /* Add for _sbrk */
   } > m_data_2

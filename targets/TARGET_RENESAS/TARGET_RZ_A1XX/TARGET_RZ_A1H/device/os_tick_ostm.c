@@ -195,7 +195,7 @@ uint32_t OS_Tick_GetOverflow (void)
 
 // Get Cortex-A9 OS Timer interrupt number
 IRQn_ID_t mbed_get_a9_tick_irqn(){
-  return OSTMI0TINT_IRQn;
+  return OSTM_IRQn;
 }
 #endif
 

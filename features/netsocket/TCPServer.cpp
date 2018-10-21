@@ -15,7 +15,8 @@
  */
 
 #include "TCPServer.h"
-#include "mbed.h"
+
+using mbed::Callback;
 
 TCPServer::TCPServer()
 {

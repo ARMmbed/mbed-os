@@ -20,6 +20,8 @@
 #include "lfs_util.h"
 #include "MbedCRC.h"
 
+using namespace mbed;
+
 extern "C" void lfs_crc(uint32_t *crc, const void *buffer, size_t size)
 {
     uint32_t initial_xor = *crc;    

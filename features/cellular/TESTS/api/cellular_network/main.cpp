@@ -102,9 +102,11 @@ static bool get_network_registration(CellularNetwork::RegistrationType type,
                                      CellularNetwork::RegistrationStatus &status, bool &is_registered)
 {
     is_registered = false;
-    nsapi_error_t err = nw->get_registration_status(type, status);
+    CellularNetwork::registration_params_t reg_params;
+    nsapi_error_t err = nw->get_registration_params(type, reg_params);
     TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_UNSUPPORTED);
 
+    status = reg_params._status;
     switch (status) {
         case CellularNetwork::RegisteredRoaming:
         case CellularNetwork::RegisteredHomeNetwork:
@@ -210,10 +212,13 @@ static void test_connect()
 
 static void test_credentials()
 {
-    TEST_ASSERT(nw->set_credentials(NULL, "username", "pass") == NSAPI_ERROR_OK);
+    nsapi_error_t err = nw->set_credentials(NULL, "username", "pass");
+    TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_UNSUPPORTED);
+    err = nw->set_credentials("internet", "user", NULL);
+    TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_UNSUPPORTED);
+    err = nw->set_credentials("internet", CellularNetwork::NOAUTH, "user", "pass");
+    TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_UNSUPPORTED);
     TEST_ASSERT(nw->set_credentials("internet", NULL, "pass") == NSAPI_ERROR_OK);
-    TEST_ASSERT(nw->set_credentials("internet", "user", NULL) == NSAPI_ERROR_OK);
-    TEST_ASSERT(nw->set_credentials("internet", CellularNetwork::NOAUTH, "user", "pass") == NSAPI_ERROR_OK);
 }
 
 static void test_other()
@@ -309,9 +314,10 @@ static void test_other()
         TEST_ASSERT(ber >= 0);
     }
 
-    int cell_id = -5;
-    TEST_ASSERT(nw->get_cell_id(cell_id) == NSAPI_ERROR_OK);
-    TEST_ASSERT(cell_id != -5);
+    CellularNetwork::registration_params_t reg_params;
+    reg_params._cell_id = -5;
+    TEST_ASSERT(nw->get_registration_params(reg_params) == NSAPI_ERROR_OK);
+    TEST_ASSERT(reg_params._cell_id != -5);
 
     int format = -1;
     CellularNetwork::operator_t operator_params;
@@ -324,6 +330,7 @@ static void test_other()
 
     TEST_ASSERT(nw->set_blocking(true) == NSAPI_ERROR_OK);
 
+#ifndef TARGET_UBLOX_C027 // AT command is supported, but excluded as it runs out of memory easily (there can be very many operator names)
     if (strcmp(devi, "QUECTEL_BG96") != 0 && strcmp(devi, "SARA4_PPP") != 0) {
         // QUECTEL_BG96 timeouts with this one, tested with 3 minute timeout
         CellularNetwork::operator_names_list op_names;
@@ -340,6 +347,7 @@ static void test_other()
             TEST_ASSERT(strlen(opn->alpha) > 0);
         }
     }
+#endif
 
     // TELIT_HE910 and QUECTEL_BG96 just gives an error and no specific error number so we can't know is this real error or that modem/network does not support the command
     CellularNetwork::Supported_UE_Opt supported_opt = CellularNetwork::SUPPORTED_UE_OPT_MAX;
@@ -376,13 +384,13 @@ static void test_disconnect()
     TEST_ASSERT(st == NSAPI_STATUS_GLOBAL_UP);
     TEST_ASSERT(nw->disconnect() == NSAPI_ERROR_OK);
     // wait to process URC's, received after disconnect
-    rtos::Thread::wait(500);
+    rtos::ThisThread::sleep_for(500);
 }
 
 static void test_detach()
 {
     // in PPP mode there is NO CARRIER waiting so flush it out
-    rtos::Thread::wait(6 * 1000);
+    rtos::ThisThread::sleep_for(6 * 1000);
     ((AT_CellularNetwork *)nw)->get_at_handler().flush();
 
     nsapi_connection_status_t st =  nw->get_connection_status();
@@ -390,7 +398,7 @@ static void test_detach()
 
     TEST_ASSERT(nw->detach() == NSAPI_ERROR_OK);
     // wait to process URC's, received after detach
-    rtos::Thread::wait(500);
+    rtos::ThisThread::sleep_for(500);
     st =  nw->get_connection_status();
     TEST_ASSERT(st == NSAPI_STATUS_DISCONNECTED);
 }

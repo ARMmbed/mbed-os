@@ -149,9 +149,11 @@ void spi_frequency(spi_t *obj, int hz) {
     
     hz_min = pclk_base / 2 / 256 / 8;
     hz_max = pclk_base / 2;
-    if (((uint32_t)hz < hz_min) || ((uint32_t)hz > hz_max)) {
-        error("Couldn't setup requested SPI frequency");
-        return;
+    if ((uint32_t)hz < hz_min) {
+        hz = hz_min;
+    }
+    if ((uint32_t)hz > hz_max) {
+        hz = hz_max;
     }
     
     div = (pclk_base / hz / 2);

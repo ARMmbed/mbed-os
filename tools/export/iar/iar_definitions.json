@@ -66,6 +66,9 @@
     "MK64FN1M0xxx12": {
         "OGChipSelectEditMenu": "MK64FN1M0xxx12\tNXP MK64FN1M0xxx12"
     },
+    "RAPIDIOT_K64F": {
+        "OGChipSelectEditMenu": "MK64FN1M0xxx12\tNXP MK64FN1M0xxx12"
+    },
     "MK66FN2M0xxx18": {
         "OGChipSelectEditMenu": "MK66FN2M0xxx18\tNXP MK66FN2M0xxx18"
     },
@@ -278,5 +281,44 @@
         "OGChipSelectEditMenu": "TMPM3H6FWFG\tToshiba TMPM3H6FWFG",
         "GFPUCoreSlave": 24,
         "GBECoreSlave": 24
+    },
+    "STM32F446VE": {
+        "OGChipSelectEditMenu": "STM32F446VE\tST STM32F446VE"
+    },
+    "STM32F303VC": {
+        "OGChipSelectEditMenu": "STM32F303VC\tST STM32F303VC"
+    },
+    "STM32F334C8": {
+        "OGChipSelectEditMenu": "STM32F334C8\tST STM32F334C8"
+    },
+    "STM32F413ZH": {
+        "OGChipSelectEditMenu": "STM32F413ZH\tST STM32F413ZH"
+    },
+    "STM32F469NI": {
+        "OGChipSelectEditMenu": "STM32F469NI\tST STM32F469NI"
+    },
+    "STM32F769NI": {
+        "OGChipSelectEditMenu": "STM32F769NI\tST STM32F769NI"
+    },
+    "STM32F303ZE": {
+        "OGChipSelectEditMenu": "STM32F303ZE\tST STM32F303ZE"
+    },
+    "STM32F410RB": {
+        "OGChipSelectEditMenu": "STM32F410RB\tST STM32F410RB"
+    },
+    "STM32F412ZG": {
+        "OGChipSelectEditMenu": "STM32F412ZG\tST STM32F412ZG"
+    },
+    "STM32F413ZH": {
+        "OGChipSelectEditMenu": "STM32F413ZH\tST STM32F413ZH"
+    },
+    "STM32F756ZG": {
+        "OGChipSelectEditMenu": "STM32F756ZG\tST STM32F756ZG"
+    },
+    "STM32L053R8": {
+        "OGChipSelectEditMenu": "STM32L053R8\tST STM32L053R8"
+    },
+    "STM32L432KC": {
+        "OGChipSelectEditMenu": "STM32L432KC\tST STM32L432KC"
     }
 }

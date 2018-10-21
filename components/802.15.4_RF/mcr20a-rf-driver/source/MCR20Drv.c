@@ -44,7 +44,7 @@
 
 #if defined(MBED_CONF_NANOSTACK_CONFIGURATION) && DEVICE_SPI
 
-#include "platform/arm_hal_interrupt.h"
+#include "platform/mbed_critical.h"
 
 /*****************************************************************************
 *                               PRIVATE VARIABLES                           *
@@ -524,7 +524,7 @@ void MCR20Drv_IRQ_Disable
 void
 )
 {
-    platform_enter_critical();
+    core_util_critical_section_enter();
 
     if( mPhyIrqDisableCnt == 0 )
     {
@@ -533,7 +533,7 @@ void
 
     mPhyIrqDisableCnt++;
 
-    platform_exit_critical();
+    core_util_critical_section_exit();
 }
 
 /*---------------------------------------------------------------------------
@@ -547,7 +547,7 @@ void MCR20Drv_IRQ_Enable
 void
 )
 {
-    platform_enter_critical();
+    core_util_critical_section_enter();
 
     if( mPhyIrqDisableCnt )
     {
@@ -559,7 +559,7 @@ void
         }
     }
 
-    platform_exit_critical();
+    core_util_critical_section_exit();
 }
 
 /*---------------------------------------------------------------------------

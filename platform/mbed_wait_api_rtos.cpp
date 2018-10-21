@@ -42,7 +42,7 @@ void wait_us(int us)
     if ((us >= 1000) && core_util_are_interrupts_enabled()) {
         // Use the RTOS to wait for millisecond delays if possible
         sleep_manager_lock_deep_sleep();
-        Thread::wait((uint32_t)us / 1000);
+        rtos::ThisThread::sleep_for((uint32_t)us / 1000);
         sleep_manager_unlock_deep_sleep();
     }
     // Use busy waiting for sub-millisecond delays, or for the whole

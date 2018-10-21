@@ -23,7 +23,6 @@
 #define MBED_PROFILING_BLOCK_DEVICE_H
 
 #include "BlockDevice.h"
-#include "mbed.h"
 
 
 /** Block device for measuring storage operations of another block device

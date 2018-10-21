@@ -81,19 +81,16 @@ struct sn_coap_hdr_;
 
 /* Init value for the maximum count of messages to be stored for duplication detection          */
 /* Setting of this value to 0 will disable duplication check, also reduce use of ROM memory     */
-
-// Keep the old flag to maintain backward compatibility
-#ifndef SN_COAP_DUPLICATION_MAX_MSGS_COUNT
-#define SN_COAP_DUPLICATION_MAX_MSGS_COUNT              0
-#endif
-
 #ifdef YOTTA_CFG_COAP_DUPLICATION_MAX_MSGS_COUNT
 #define SN_COAP_DUPLICATION_MAX_MSGS_COUNT YOTTA_CFG_COAP_DUPLICATION_MAX_MSGS_COUNT
 #elif defined MBED_CONF_MBED_CLIENT_SN_COAP_DUPLICATION_MAX_MSGS_COUNT
 #define SN_COAP_DUPLICATION_MAX_MSGS_COUNT MBED_CONF_MBED_CLIENT_SN_COAP_DUPLICATION_MAX_MSGS_COUNT
 #endif
 
-
+// Keep the old flag to maintain backward compatibility
+#ifndef SN_COAP_DUPLICATION_MAX_MSGS_COUNT
+#define SN_COAP_DUPLICATION_MAX_MSGS_COUNT              0
+#endif
 
 /* Maximum allowed number of saved messages for duplicate searching */
 #define SN_COAP_MAX_ALLOWED_DUPLICATION_MESSAGE_COUNT   6

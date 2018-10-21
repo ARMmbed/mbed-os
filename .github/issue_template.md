@@ -1,5 +1,6 @@
 ### Description
-<!-- 
+
+<!--
     Required
     Add detailed description of what you are reporting.
     Good example: https://os.mbed.com/docs/latest/reference/workflow.html
@@ -13,19 +14,15 @@
 
 
 ### Issue request type
-<!-- 
+
+<!--
     Required
-    Please add only one X to one of the following types. Do not fill multiple types. (Split the issue otherwise.)
-    Please note this is not a GitHub task list; indenting the boxes or changing the format to add a '.' or '*' in front
-    of them changes the meaning incorrectly. The only changes to make are to add a description under the
-    description heading and to add an 'x' to the correct box.
-
-    [X] Question
-    [ ] Enhancement 
-    [ ] Bug 
+    Please add only one X to one of the following types. Do not fill multiple types (split the issue otherwise.)
+    Please note this is not a GitHub task list, indenting the boxes or changing the format to add a '.' or '*' in front
+    of them would change the meaning incorrectly. The only changes to be made are to add a description text under the
+    description heading and to add a 'x' to the correct box.
 -->
-
-[ ] Question  
-[ ] Enhancement  
-[ ] Bug  
+    [ ] Question
+    [ ] Enhancement
+    [ ] Bug
 

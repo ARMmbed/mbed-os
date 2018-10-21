@@ -15,7 +15,7 @@
  */
 
 #include "ChainingBlockDevice.h"
-#include "mbed_critical.h"
+#include "platform/mbed_critical.h"
 
 
 ChainingBlockDevice::ChainingBlockDevice(BlockDevice **bds, size_t bd_count)
@@ -254,7 +254,7 @@ bd_size_t ChainingBlockDevice::get_erase_size() const
 bd_size_t ChainingBlockDevice::get_erase_size(bd_addr_t addr) const
 {
     if (!_is_initialized) {
-        return BD_ERROR_DEVICE_ERROR;
+        return 0;
     }
 
     bd_addr_t bd_start_addr = 0;

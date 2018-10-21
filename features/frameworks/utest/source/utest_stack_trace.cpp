@@ -17,7 +17,6 @@
 #ifdef UTEST_STACK_TRACE
  
 #include "greentea-client/test_env.h"
-#include "mbed.h"
 #include "utest/utest.h"
 #include "unity/unity.h"
 #include "utest/utest_stack_trace.h"

@@ -18,7 +18,6 @@
 #include "device.h"
 #include "platform/mbed_error.h"
 #include "platform/mbed_interface.h"
-#include "hal/serial_api.h"
 
 #ifndef MBED_FAULT_HANDLER_DISABLED
 #include "mbed_rtx_fault_handler.h"

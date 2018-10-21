@@ -88,7 +88,7 @@ struct SingletonPtr {
      * @returns
      *   A pointer to the singleton
      */
-    T *get()
+    T *get() const
     {
         if (NULL == _ptr) {
             singleton_lock();
@@ -108,15 +108,30 @@ struct SingletonPtr {
      * @returns
      *   A pointer to the singleton
      */
-    T *operator->()
+    T *operator->() const
     {
         return get();
     }
 
+    /** Get a reference to the underlying singleton
+     *
+     * @returns
+     *   A reference to the singleton
+     */
+    T &operator*() const
+    {
+        return *get();
+    }
+
     // This is zero initialized when in global scope
-    T *_ptr;
-    // Force data to be 4 byte aligned
-    uint32_t _data[(sizeof(T) + sizeof(uint32_t) - 1) / sizeof(uint32_t)];
+    mutable T *_ptr;
+#if __cplusplus >= 201103L
+    // Align data appropriately
+    alignas(T) mutable char _data[sizeof(T)];
+#else
+    // Force data to be 8 byte aligned
+    mutable uint64_t _data[(sizeof(T) + sizeof(uint64_t) - 1) / sizeof(uint64_t)];
+#endif
 };
 
 #endif

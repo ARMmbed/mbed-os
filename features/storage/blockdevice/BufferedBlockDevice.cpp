@@ -15,8 +15,8 @@
  */
 
 #include "BufferedBlockDevice.h"
-#include "mbed_assert.h"
-#include "mbed_critical.h"
+#include "platform/mbed_assert.h"
+#include "platform/mbed_critical.h"
 #include <algorithm>
 #include <string.h>
 
@@ -251,7 +251,7 @@ bd_size_t BufferedBlockDevice::get_program_size() const
 bd_size_t BufferedBlockDevice::get_erase_size() const
 {
     if (!_is_initialized) {
-        return BD_ERROR_DEVICE_ERROR;
+        return 0;
     }
 
     return _bd->get_erase_size();
@@ -260,7 +260,7 @@ bd_size_t BufferedBlockDevice::get_erase_size() const
 bd_size_t BufferedBlockDevice::get_erase_size(bd_addr_t addr) const
 {
     if (!_is_initialized) {
-        return BD_ERROR_DEVICE_ERROR;
+        return 0;
     }
 
     return _bd->get_erase_size(addr);
@@ -278,7 +278,7 @@ int BufferedBlockDevice::get_erase_value() const
 bd_size_t BufferedBlockDevice::size() const
 {
     if (!_is_initialized) {
-        return BD_ERROR_DEVICE_ERROR;
+        return 0;
     }
 
     return _bd->size();

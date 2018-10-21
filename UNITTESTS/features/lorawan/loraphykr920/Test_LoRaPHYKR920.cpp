@@ -117,8 +117,9 @@ TEST_F(Test_LoRaPHYKR920, verify_frequency_for_band)
 TEST_F(Test_LoRaPHYKR920, tx_config)
 {
     tx_config_params_t tx_config;
+    memset(&tx_config, 0, sizeof(tx_config));
     int8_t tx_power = 0;
-    lorawan_time_t time;
+    lorawan_time_t time = 0;
 
     tx_config.tx_power = 9;
     EXPECT_TRUE(true == object->tx_config(&tx_config, &tx_power, &time));
@@ -127,6 +128,7 @@ TEST_F(Test_LoRaPHYKR920, tx_config)
 TEST_F(Test_LoRaPHYKR920, set_next_channel)
 {
     channel_selection_params_t next_channel;
+    memset(&next_channel, 0, sizeof(next_channel));
     lorawan_time_t backoff_time = 0;
     lorawan_time_t time = 0;
     uint8_t ch = 1;
@@ -150,6 +152,7 @@ TEST_F(Test_LoRaPHYKR920, set_next_channel)
 TEST_F(Test_LoRaPHYKR920, set_tx_cont_mode)
 {
     cw_mode_params_t params;
+    memset(&params, 0, sizeof(params));
     params.tx_power = 9;
     object->set_tx_cont_mode(&params, 0);
 }

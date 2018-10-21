@@ -45,7 +45,7 @@
 
 extern mac_api_s *mac_interface;
 RawSerial pc(USBTX, USBRX);
-osThreadId main_thread;
+osThreadId_t main_thread;
 static CircularBuffer<uint8_t, RX_BUFFER_SIZE> rx_buffer;
 static uint8_t ns_heap[HEAP_FOR_MAC_TESTER_SIZE];
 
@@ -71,7 +71,7 @@ static void rx_interrupt(void)
     uint8_t c = pc.getc();
     rx_buffer.push(c);
     if (main_thread != NULL) {
-        osSignalSet(main_thread, 1);
+        osThreadFlagsSet(main_thread, 1);
     }
 }
 
@@ -132,7 +132,7 @@ static void trace_printer(const char *str)
 
 int main(void)
 {
-    main_thread = osThreadGetId();
+    main_thread = ThisThread::get_id();
     pc.baud(MBED_CONF_PLATFORM_STDIO_BAUD_RATE);
     pc.attach(rx_interrupt);
     ns_hal_init(ns_heap, HEAP_FOR_MAC_TESTER_SIZE, app_heap_error_handler, NULL);
@@ -148,12 +148,8 @@ int main(void)
     tr_info("Created driver & SW MAC");
 
     while (true) {
-        osEvent os_event = Thread::signal_wait(1);
-        if (os_event.status != osEventSignal) {
-            osThreadYield();
-        } else {
-            handle_rx_data();
-        }
+        ThisThread::flags_wait_any(1);
+        handle_rx_data();
     }
     return 0;
 }
