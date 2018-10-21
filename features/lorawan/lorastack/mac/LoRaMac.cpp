@@ -70,6 +70,8 @@ using namespace mbed;
 #define PORT_FIELD_LEN                              1
 #define FHDR_LEN_WITHOUT_FOPTS                      7
 
+#define JOIN_ACCEPT_LEN_WITHOUT_CFLIST              12
+
 static void memcpy_convert_endianess(uint8_t *dst,
                                      const uint8_t *src,
                                      uint16_t size)
@@ -227,8 +229,12 @@ loramac_event_info_status_t LoRaMac::handle_join_accept_frame(const uint8_t *pay
     uint32_t mic = 0;
     uint32_t mic_rx = 0;
     server_type_t stype = LW1_0_2;
-
+    bool is_cflist_present = false;
     uint8_t *decrypt_key = NULL;
+
+    if (size > JOIN_ACCEPT_LEN_WITHOUT_CFLIST) {
+        is_cflist_present = true;
+    }
 
     if (_params.join_request_type == JOIN_REQUEST) {
         decrypt_key = _params.keys.nwk_key;
@@ -259,6 +265,7 @@ loramac_event_info_status_t LoRaMac::handle_join_accept_frame(const uint8_t *pay
     uint8_t mic_start = 0;
     uint8_t args_size = 0;
     uint8_t args[16];
+    uint16_t nonce_or_rj_cnt = 0;
 
     uint8_t *mic_key = _params.keys.js_intkey; //in case of LW1.0.2 js_intkey == nwk_key == app_key
 
@@ -273,8 +280,27 @@ loramac_event_info_status_t LoRaMac::handle_join_accept_frame(const uint8_t *pay
         memmove(_params.rx_buffer + 11, _params.rx_buffer, size);
         _params.rx_buffer[0] = _params.join_request_type; // JoinReqType
         memcpy_convert_endianess(_params.rx_buffer + 1,  _params.keys.app_eui, 8); // JoinEUI
-        _params.rx_buffer[9] = _params.dev_nonce & 0xFF; // DevNonce
-        _params.rx_buffer[10] = (_params.dev_nonce >> 8) & 0xFF;
+
+
+
+        switch (_params.join_request_type) {
+            case JOIN_REQUEST:
+                nonce_or_rj_cnt = _params.dev_nonce;
+                break;
+            case REJOIN_REQUEST_TYPE0:
+            case REJOIN_REQUEST_TYPE2:
+                nonce_or_rj_cnt = _params.RJcount0;
+                break;
+            case REJOIN_REQUEST_TYPE1:
+                nonce_or_rj_cnt = _params.RJcount1;
+                break;
+            default:
+                tr_error("Unknown Join Request Type");
+                MBED_ASSERT(false);
+        }
+
+        _params.rx_buffer[9] = nonce_or_rj_cnt & 0xFF; // DevNonce
+        _params.rx_buffer[10] = (nonce_or_rj_cnt >> 8) & 0xFF;
 
         // MIC is encrypted as part of payload
         mic_start = size + 11 - LORAMAC_MFR_LEN;
@@ -282,8 +308,8 @@ loramac_event_info_status_t LoRaMac::handle_join_accept_frame(const uint8_t *pay
 
         memcpy(args, _params.rx_buffer + payload_start, 3);
         memcpy_convert_endianess(args + 3, _params.keys.app_eui, 8);
-        args[3+8] = _params.dev_nonce & 0xFF;
-        args[3+9] = (_params.dev_nonce >> 8) & 0xFF;
+        args[3+8] = nonce_or_rj_cnt & 0xFF;
+        args[3+9] = (nonce_or_rj_cnt >> 8) & 0xFF;
         args_size = 13;
     }
 
@@ -325,6 +351,16 @@ loramac_event_info_status_t LoRaMac::handle_join_accept_frame(const uint8_t *pay
         _params.dev_addr |= ((uint32_t) _params.rx_buffer[payload_start + 8] << 16);
         _params.dev_addr |= ((uint32_t) _params.rx_buffer[payload_start + 9] << 24);
 
+        if (_params.server_type == LW1_0_2 ||
+                _params.join_request_type != REJOIN_REQUEST_TYPE2) {
+            reset_mac_parameters();
+            reset_frame_counters();
+            reset_phy_params();
+        } else if (_params.server_type == LW1_1 &&
+                _params.join_request_type == REJOIN_REQUEST_TYPE2){
+            reset_frame_counters();
+        }
+
         _params.sys_params.rx1_dr_offset = (_params.rx_buffer[payload_start + 10] >> 4) & 0x07;
         _params.sys_params.rx2_channel.datarate = _params.rx_buffer[payload_start + 10] & 0x0F;
 
@@ -340,15 +376,24 @@ loramac_event_info_status_t LoRaMac::handle_join_accept_frame(const uint8_t *pay
         // Size of the regular payload is 12. Plus 1 byte MHDR and 4 bytes MIC (== 17)
         //TODO: join request type is needed here also! See LW1.1 lines 1711 -> 1719 (Reset or not)
         // LW1.1 CF_LIST's 16th byte is CFListType!
-        _lora_phy->apply_cf_list(&_params.rx_buffer[payload_start + 12], size - 17);
+        if (is_cflist_present) {
+            _lora_phy->apply_cf_list(&_params.rx_buffer[payload_start + JOIN_ACCEPT_LEN_WITHOUT_CFLIST],
+                                     size - (JOIN_ACCEPT_LEN_WITHOUT_CFLIST + MHDR_LEN + LORAMAC_MFR_LEN));
+        } else {
+            if (_params.join_request_type != REJOIN_REQUEST_TYPE2) {
+                _lora_phy->restore_default_channels();
+            }
+        }
 
         _is_nwk_joined = true;
-        // Node joined successfully
-        _params.ul_frame_counter = 0;
-        _params.ul_nb_rep_counter = 0;
-        _params.adr_ack_counter = 0;
 
-        _params.RJcount0 = 0;
+        if (_params.join_request_type == REJOIN_REQUEST_TYPE0 ||
+                _params.join_request_type == REJOIN_REQUEST_TYPE2) {
+            _params.RJcount0 = 0;
+        } else {
+            _params.RJcount1 = 0;
+        }
+
     } else {
         return LORAMAC_EVENT_INFO_STATUS_JOIN_FAIL;
     }
@@ -1353,12 +1398,21 @@ void LoRaMac::calculate_backOff(uint8_t channel)
                                          - _params.timers.tx_toa);
 }
 
+void LoRaMac::reset_frame_counters(void)
+{
+    _params.ul_frame_counter = 0;
+    _params.dl_frame_counter = 0;
+}
+
+void LoRaMac::reset_phy_params(void)
+{
+    _lora_phy->reset_to_default_values(&_params, false);
+}
+
 void LoRaMac::reset_mac_parameters(void)
 {
     _is_nwk_joined = false;
 
-    _params.ul_frame_counter = 0;
-    _params.dl_frame_counter = 0;
     _params.adr_ack_counter = 0;
 
     _params.ul_nb_rep_counter = 0;
@@ -1374,8 +1428,6 @@ void LoRaMac::reset_mac_parameters(void)
     _mac_commands.clear_repeat_buffer();
 
     _params.is_rx_window_enabled = true;
-
-    _lora_phy->reset_to_default_values(&_params, false);
 
     _params.is_node_ack_requested = false;
     _params.is_srv_ack_requested = false;
@@ -1636,6 +1688,10 @@ lorawan_status_t LoRaMac::prepare_join(const lorawan_connect_t *params, bool is_
 
             reset_mac_parameters();
 
+            reset_frame_counters();
+
+            reset_phy_params();
+
             _params.sys_params.channel_data_rate =
                 _lora_phy->get_alternate_DR(_params.join_request_trial_counter + 1);
         } else {
@@ -1708,6 +1764,8 @@ lorawan_status_t LoRaMac::prepare_join(const lorawan_connect_t *params, bool is_
         _params.join_request_trial_counter = 0;
 
         reset_mac_parameters();
+        reset_frame_counters();
+        reset_phy_params();
 
         _params.sys_params.channel_data_rate =
             _lora_phy->get_alternate_DR(_params.join_request_trial_counter + 1);
@@ -2050,6 +2108,7 @@ lorawan_status_t LoRaMac::initialize(EventQueue *queue,
     _params.sys_params.nb_trans = 1;
 
     reset_mac_parameters();
+    reset_frame_counters();
 
     srand(_lora_phy->get_radio_rng());
 
