@@ -19,8 +19,6 @@
 #include "QSPI.h"
 #include "BlockDevice.h"
 
-namespace mbed {
-
 /** Enum qspif standard error codes
  *
  *  @enum qspif_bd_error
@@ -349,5 +347,4 @@ private:
     bool _is_initialized;
 };
 
-} //namespace mbed
 #endif
