@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (c) 2013 Nordic Semiconductor ASA
  * All rights reserved.
  * 
@@ -49,8 +49,6 @@ typedef enum {
     PIN_INPUT,
     PIN_OUTPUT
 } PinDirection;
-
-#define PORT_SHIFT  3
 
 typedef enum {
     p0  = 0,
