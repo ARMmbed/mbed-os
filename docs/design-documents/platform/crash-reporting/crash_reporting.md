@@ -26,7 +26,7 @@
 
 ### Overview and background
 
-Mbed-OS currently implements error and exception handlers which gets invoked when the system encounters a fatal error/exception. The error handler capture information such as register context/thread info etc and these are valuable information required to debug the issue later. This information is currently printed over the serial port, but in many cases the serial port is not accessible and the serial terminal log is not captured, particularly in the case of field deployed devices. We cannot send this information using mechanisms like Network because the state of the system might be unstable after the fatal error. And thus a different mechanism is needed to record and report this data. So, if we can auto-reboot the system after a fatal error has occured, without losing the RAM contents where we have the error information collected, we can send this information over network or other interfaces to be logged externally(E.g:- ARM Pelion cloud) or can even be written to file system if required. 
+MbedOS currently implements error/exception handlers which gets invoked when the system encounters a fatal error/exception. The error handler capture information such as register context/thread info etc and these are valuable information required to debug the issue later. This information is currently printed over the serial port, but in many cases the serial port is not accessible and the serial terminal log is not captured, particularly in the case of field deployed devices. We cannot send this information using mechanisms like Network because the state of the system might be unstable after the fatal error. And thus a different mechanism is needed to record and report this data. So, if we can auto-reboot the system after a fatal error has occured, without losing the RAM contents where we have the error information collected, we can send this information over network or other interfaces to be logged externally(E.g:- ARM Pelion cloud) or can even be written to file system if required. 
 
 ### Requirements and assumptions
 
@@ -34,12 +34,11 @@ This feature requires 256 bytes of dedicated RAM allocated for storing the error
 
 # System architecture and high-level design
 
-Below are the high-level design goals for "Crash Reporting" feature.
+Below are the high-level design goals for "Crash Reporting" feature:
 
 **Error information collection including exception context**
 
-The current error handling implementation in Mbed OS already collects error and exception context. With this feature the above mentioned data structures should be placed in an uninitialized 
-RAM region so that the data is retained after a auto-reboot(warm-reset).
+The current error handling implementation in Mbed OS already collects error and exception context. With this feature the above mentioned data structures should be placed in an uninitialized RAM region so that the data is retained after an auto-reboot(warm-reset).
 
 **Mechanism to auto reboot(also called warm-reset) the system without losing RAM contents where error info is stored**
 
@@ -49,9 +48,13 @@ Implement auto-reboot functionality to reboot the system automatically after a f
 
 Provide platform APIs to read the saved error information after reboot.
 
-**System should implement mechanism to track number of times the system is auto-rebooted and be able to stop auto-reboot when a configurable limit is reached**
+**Mechanism to report the error data after reboot**
 
-Implementation should provide a mechanism to prevent constant reboot loop by limiting the number aut-reboots. The number of times auto-reboot happens should be configurable.
+During reboot the system should check if the reboot is caused by a fatal error and report the same using callback mechanism. 
+
+**Implementation should provide a mechanism to prevent constant reboot loop by limiting the number of auto-reboots**
+
+System should implement mechanism to track number of times the system is auto-rebooted and be able to stop auto-reboot when a configurable limit is reached. The number of times auto-reboot happens should be configurable.
 
 **Implementation should provide following configuration options**
 
@@ -66,214 +69,140 @@ The below diagram shows overall architecture of crash-reporting implementation.
 
 ![System architecture and component interaction](./diagrams/crash-report1.jpg)
 
-As depicted in the above diagram, when the system gets into fatal error state the information collected by error and fault handlers are saved into RAM space allocated for Crash-Report. This is followed by a
-auto-reboot triggered from error handler. On reboot the the initialization routine validates the contents of Crash-Report RAM. This validation is for two purposes - to validate the captured content itself and also it tells the
-system if the previous reboot was caused by a fatal error. It then reads this information and calls an application defined callback function passing the crash-report information. The callback is invoked just before the entry to main()
-and thus the callback implementation may access libraries and other resources as other parts of the system have already initialized(like SDK, HAL etc).
+As depicted in the above diagram, when the system gets into fatal error state the information collected by error and fault handlers are saved into RAM space allocated for Crash-Report. This is followed by a auto-reboot triggered from error handler. On reboot the the initialization routine validates the contents of Crash-Report RAM. This validation serves two purposes - to validate the captured content itself and also it tells the system if the previous reboot was caused by a fatal error. It then reads this information and calls an application defined callback function passing the crash-report information. The callback is invoked just before the entry to main() and thus the callback implementation may access libraries and other resources as other parts of the system have already initialized(like SDK, HAL etc) or just capture the error information to be acted upon later.
 
 # Detailed design
 
-### Error information collection including exception context**
+### Error information collection including exception context
 
-Current error and exception handling implementation in Mbed OS already collects error and exception context.
-But currently these data structures are implemented as statically allocated memory locations. With this feature these data structures should be placed in an uninitialized RAM region 
-so that the data is retained after a auto-reboot(warm-reset). So, this should be allocated as a dedicated region using linker command file(or in scatter file) for the corresponding target for each
-toolchain. Also note that this region should be marked as uninitialized region using the right toolchain attributes. For example, for ARM compiler  
+Current error and exception handling implementation in Mbed OS already collects error and exception context. But currently these data structures are implemented as statically allocated memory locations. With this feature these data structures should be placed in an uninitialized RAM region so that the data is retained after auto-reboot(warm-reset). So, this should be allocated as a dedicated region using linker command file(or in scatter file) for the corresponding target for each toolchain. Also note that this region should be marked as uninitialized region using the right toolchain attributes. For example, for ARM compiler we can define a new section as below:
+```
+RW_m_crash_data m_crash_report_ram_start EMPTY m_crash_report_ram_size { ; Dedicated Region to store crash report data
+} 
+```
+Note that the actual location of the data should be carefully chosen without affecting the current usage of other regions such as interrupt table region, flash configuration area etc. The absolute location of this Crash-Report RAM region may also differ for each target.
 
-### Mechanism to auto reboot(also called warm-reset) the system without losing RAM contents where error info is stored**
+### Mechanism to auto reboot(also called warm-reset) the system without losing RAM contents where error info is stored
 
-Implement auto-reboot functionality to reboot the system automatically after a fatal error. Note that the auto-reboot feature should be configurable.
+The current mbed_error() implementation should be modified to cause an auto-reboot at the end of error handling if this feature is enabled. The mechanism used for rebooting should make sure it doesn't cause a reset of RAM contents. This can be done by calling system_reset() function already implemented by MbedOS which cause the system to reboot without resetting the RAM. The mbed_error() implementation also should make sure it updates the error context stored in Crash-Report RAM with the right CRC value and it should also implement mechanism to track the reboot count caused by fatal errors. The below psuedo-code shows how the mbed_error() implementation should be modified.
 
-### Mechanism to retrieve the error data after reboot**
+```
+mbed_error_status_t mbed_error( ... )
+{
+    //Handle the error just as we do now and then do the following to save the context into Crash-Report RAM and reset
+    
+    Read the current Crash Report and calculate CRC
+	If CRC matches what's in Crash-Report RAM: 
+		Update the location with new error information
+		Update Reboot Count
+		Calculate new CRC
+		Update with new CRC value
+	Else (if CRC doesnt match) 
+		//This is the case when we dont have a crash report already stored.
+		Update the location with new error information
+		Set Reboot count to 1
+		Calculate new CRC
+		Update with new CRC value
 
-Provide platform APIs to read the saved error information after reboot.
+    Do a system reset //using system_reset() function
+}
 
-### System should implement mechanism to track number of times the system is auto-rebooted and be able to stop auto-reboot when a configurable limit is reached**
+```
+The Crash-Report RAM region should also be used for tracking other pieces of information such as the CRC value and the
+auto-reboot count. 
 
-Implementation should provide a mechanism to prevent constant reboot loop by limiting the number aut-reboots. The number of times auto-reboot happens should be configurable.
+### Mechanism to retrieve and reset the error data after reboot
 
-### Implementation should provide following configuration options**
+MbedOS error handling system should implement necessary APIs for application to retrieve and reset the error and/or fault context of the previous fatal error after auto-reboot.
+The below APIs should be implemented.
 
-1. Configuration option to enable or disable this feature
+The below API can be called by application to retrieve the error context captured in the Crash-Report RAM. The error context is copied into the location pointed by *error_info*. Note that the caller should allocate the memory for this location.
+The function should return MBED_ERROR_NOT_FOUND if there is no error context currently stored.
+```
+//Retrieve the reboot error context
+mbed_error_status_t mbed_get_reboot_error_info(mbed_error_ctx *error_info)
+```
+
+The below API can be called by application to retrieve the fault context captured in the Crash-Report RAM. The error context is copied into the location pointed by *fault_context*. Note that the caller should allocate the memory for this location. Note that the fault context is valid only if the previous reboot was caused by an exception. Whether the previous reboot was caused by an exception can be determined from the error code stored in error context information retrieved using mbed_get_reboot_error_info() API above.
+The function should return MBED_ERROR_NOT_FOUND if there is no fault context currently stored.
+```
+//Call this function to retrieve the last reboot fault context
+mbed_error_status_t mbed_get_reboot_fault_context (mbed_fault_context_t *fault_context);
+```
+
+The below API can be called by application to reset the error context captured in the Crash-Report RAM.
+The function should MBED_ERROR_NOT_FOUND if there is no error context currently stored.
+```
+//Reset the reboot error context
+mbed_error_status_t mbed_reset_reboot_error_info()
+```
+
+### Mechanism to report the error data after reboot
+
+MbedOS initialization sequence should check if the reboot is caused by a fatal error and should report the same to the application using callback mechanism. The system may also print this to terminal if enabled. 
+
+MbedOS initialization sequence should be modified as shown in below diagram to report the crash report and invoke the callback.
+
+![Error report on reboot](./diagrams/boot-error-report.jpg)
+
+Below should be the siganture of the callback for reporting the error information.
+
+The error handing system in MbedOS will call this callback function if it detects that the current reboot has been caused by a fatal error. This function will be defined with MBED_WEAK attribute by default and applications wanting to process the error report should override this function in application implementation.
+```
+void mbed_error_reboot_callback(mbed_error_ctx *error_context);
+```
+
+### System should implement mechanism to track number of times the system is auto-rebooted and be able to stop auto-reboot when a configurable limit is reached
+
+Many a times rebooting may be a solution to bring the erroring device back into good state(after a fatal error for example)but there might be scenarios when the system has a permanent issue causing it to run into fatal error on every boot. In such scenarios, auto-reboot mechanism can cause a constant reboot loop situation. In order to avoid this, implementation should provide a mechanism to prevent constant reboot loop by limiting the number of auto-reboots. The number of times auto-reboot happens on fatal errors should be configurable. A configuration option should be provided to configure the
+maximum number of auto-reboots(warm-resets). In order to implement this, system should track the number of times auto-reboot was effected using the Crash-Report RAM region.
+
+### Implementation should provide following configuration options
+
+Crash reporting implementation should provide enough parameters to control different aspects of crash reporting behavior so that developers can configure this feature to conform to their system design. Implementation should provide following configuration options to control the behavior as below.
+
+1. Configuration option to enable or disable error the entire feature
 1. Configuration option to enable or disable auto-reboot when the system enters a fatal error scenario
 1. Configuration option to limit the number of auto-reboots
 1. Configuration option to print the saved error report on reboot
 
-
 # Usage scenarios and examples
 
-Below (pseudocode) are some common usage scenarios using the error handling APIs.
+Below (pseudocode) are some common usage scenarios using the new error reporting APIs.
 
-### Defining error codes
+### Implementing crash reporting callback 
 
-**Defining a nonfatal out-of-memory error.**
+### Retrieving error info after reboot
 
-As shown in the example below, you can fabricate new error codes using MAKE_ERROR macro.
-
-```
-    char *dataPtr = malloc( datasize );
-	If( dataPtr == NULL )
-	{
-		// Make a new error code
-		uint32 errorCode = MAKE_ERROR(
-        ERROR_TYPE_SYSTEM, 
-        ENTITY_DRIVER,  
-        ERROR_OUT_OF_MEMORY);
-		set_error( errorCode, NULL, NULL );
-    }
-```
-
-Below (pseudocode) are some common usage scenarios using the error handling APIs.
-
-### Defining error codes
-
-**Defining a nonfatal out-of-memory error.**
-
-As shown in the example below, you can fabricate new error codes using MAKE_ERROR macro.
-
-```
-    char *dataPtr = malloc( datasize );
-	If( dataPtr == NULL )
-	{
-		// Make a new error code
-		uint32 errorCode = MAKE_ERROR(
-        ERROR_TYPE_SYSTEM, 
-        ENTITY_DRIVER,  
-        ERROR_OUT_OF_MEMORY);
-		set_error( errorCode, NULL, NULL );
-    }
-```
-
-### Reporting errors
-
-**Reporting a fatal error using set_error_fatal API**
-
-The below sample code shows how to report a fatal error using set_error_fatal API:
-
-```
-    char *dataPtr = malloc( datasize );
-	If( dataPtr == NULL )
-	{
-		// Make a new error code
-		uint32 errorCode = MAKE_ERROR(
-        ERROR_TYPE_SYSTEM, 
-        ENTITY_DRIVER,  
-        ERROR_OUT_OF_MEMORY);
-		set_error_fatal( errorCode, NULL, NULL );
-    }
-```
-
-### Setting up an error hook function
-
-**Defining and registering an error hook function**
-
-The below shows a definition for error hook function, followed by Error hook registration from main.
-
-```
-MbedErrorStatus MyErrorHookFunction(unsigned int error_code)
-{
-	printf( “New error received” %X”, error_code );
-	//Do more processing
-	…
-}
-//Main function registering the Error hook function.
-Main()
-{
-	set_error_hook(MyErrorHookFunction);
-	.. Continue
-}
-```
-
-### Getting error info
-
-**Getting error info using get_error_log_count and get_error calls.**
-
-The below sample code shows how to retrieve all the recorded error codes from the error log.
-int totalErrorsInLog = get_error_log_count();
-for( index = 0; index < totalErrorsInLog; index++)
-{
-	printf( “Error %d: Code = 0X%08X”, get_error(index));
-}
-Reporting errors
-
-**Reporting a fatal error using set_error_fatal API**
-
-The below sample code shows how to report a fatal error using set_error_fatal API.
-char *dataPtr = malloc( datasize );
-	If( dataPtr == NULL )
-	{
-		// Make a new error code
-		uint32 errorCode = MAKE_ERROR(
-ERROR_TYPE_SYSTEM, 
-ENTITY_DRIVER,  
-ERROR_OUT_OF_MEMORY);
-		set_error_fatal( errorCode, NULL, NULL );
-}
-
-### Setting up an error hook function
-
-**Defining and registering an error hook function**
-
-The below shows a definition for error hook function, followed by Error hook registration from main.
-MbedErrorStatus MyErrorHookFunction(unsigned int error_code)
-{
-	printf( “New error received” %X”, error_code );
-	//Do more processing
-	…
-}
-//Main function registering the Error hook function.
-Main()
-{
-	set_error_hook(MyErrorHookFunction);
-	.. Continue
-}
-
-### Getting error info
-
-**Getting error info using get_error_log_count and get_error calls.**
-
-The below sample code shows how to retrieve all the recorded error codes from the error log.
-int totalErrorsInLog = get_error_log_count();
-for( index = 0; index < totalErrorsInLog; index++)
-{
-	printf( “Error %d: Code = 0X%08X”, get_error(index));
-}
+### Retrieving fault context after reboot
 
 # Tools and configuration changes
 
-### Platform configuration options for error handling infrastruture
+### Platform configuration options for error reporting infrastruture
 
-Below is the list of new configuration options added to configure error handling functionality. All of these options are capture in mbed_lib.json file in platform folder.
+Below is the list of new configuration options added to configure error reporting functionality. All of these options are capture in mbed_lib.json file in platform folder.
 
-**error-all-threads-info**
+**crash-capture-enabled**
 
-Enabling this reports all the threads in the system as part of error report.
+Enables crash context capture when the system enters a fatal error/crash. When this is disabled it should also disable other dependent options.
 
-**error-filename-capture-enabled**
+**fatal-error-auto-reboot-enabled**
 
-Enables capture of filename and line number as part of error context capture, this works only for debug and develop builds. On release builds, filename capture is always disabled
+Enables auto-reboot on fatal errors.
 
-**error-hist-enabled**
+**reboot-crash-report-enabled**
 
-Enable this option for error history tracking.
+Enables crash report over terminal when the system reboots after a fatal error/crash.
 
-**error-hist-size**
+**error-reboot-max**
 
-This options sets the number of most recent errors the system keeps in its history, needs error-hist-enabled set to true for this to work.
-
-**max-error-filename-len**
-
-Sets the maximum length of buffer used for capturing the filename in error context. This needs error-filename-capture-enabled feature.
+Maximum number of auto reboots permitted when an error happens.
 
 # Other information
 
 ### Reusability
 
-The error handling implementation is very generic that other components should no longer need to implement their own error codes or handling. For example, fault exception handling implements part of error handling (like halting the system) which is no longer needed and can be switched to use common error handling which handles system behavior on a fatal error.
-
 ### Deprecations
 
 ### References
-
-
 
