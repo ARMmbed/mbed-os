@@ -630,7 +630,8 @@ class mbedToolchain:
         lib_dirs = r.get_file_paths(FileType.LIB_DIR)
         libraries = [l for l in r.get_file_paths(FileType.LIB)
                      if l.endswith(self.LIBRARY_EXT)]
-        dependencies = objects + libraries + [linker_script] + config_file
+        hex_files = r.get_file_paths(FileType.HEX)
+        dependencies = objects + libraries + [linker_script] + config_file + hex_files
         dependencies.append(join(self.build_dir, self.PROFILE_FILE_NAME + "-ld"))
         if self.need_update(elf, dependencies):
             needed_update = True
