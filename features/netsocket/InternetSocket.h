@@ -36,7 +36,7 @@ public:
      *
      *  Closes socket if the socket is still open
      */
-    virtual ~InternetSocket() {}
+    virtual ~InternetSocket();
 
     /** Opens a socket
      *

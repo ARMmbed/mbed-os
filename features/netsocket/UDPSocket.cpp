@@ -24,7 +24,6 @@ UDPSocket::UDPSocket()
 
 UDPSocket::~UDPSocket()
 {
-    close();
 }
 
 nsapi_protocol_t UDPSocket::get_proto()

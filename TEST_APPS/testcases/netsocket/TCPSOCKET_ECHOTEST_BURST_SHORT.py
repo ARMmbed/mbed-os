@@ -48,31 +48,30 @@ class Testcase(Bench):
 
     def case(self):
         response = self.command("dut1", "socket new TCPSocket")
-        socket_id = int(response.parsed['socket_id'])
+        self.socket_id = int(response.parsed['socket_id'])
 
-        self.command("dut1", "socket " + str(socket_id) + " open")
-        self.command("dut1", "socket " + str(socket_id) + " connect echo.mbedcloudtesting.com 7")
+        self.command("dut1", "socket " + str(self.socket_id) + " open")
+        self.command("dut1", "socket " + str(self.socket_id) + " connect echo.mbedcloudtesting.com 7")
 
         for i in range(2):
             sentData = ""
             for size in (100, 200, 300, 120, 500):
                 packet = Randomize.random_string(max_len=size, min_len=size, chars=string.ascii_uppercase)
                 sentData += packet
-                response = self.command("dut1", "socket " + str(socket_id) + " send " + str(packet))
+                response = self.command("dut1", "socket " + str(self.socket_id) + " send " + str(packet))
                 response.verify_trace("TCPSocket::send() returned: " + str(size))
 
             received = 0
             data = ""
             totalSize = 1220
             while received < totalSize:
-                response = self.command("dut1", "socket " + str(socket_id) + " recv " + str(totalSize))
+                response = self.command("dut1", "socket " + str(self.socket_id) + " recv " + str(totalSize))
                 data += response.parsed['data'].replace(":", "")
                 received += int(response.parsed['received_bytes'])
 
             if data != sentData:
                 raise TestStepFail("Received data doesn't match the sent data")
 
-        self.command("dut1", "socket " + str(socket_id) + " delete")
-
     def teardown(self):
+        self.command("dut1", "socket " + str(self.socket_id) + " delete")
         self.command("dut1", "ifdown")
