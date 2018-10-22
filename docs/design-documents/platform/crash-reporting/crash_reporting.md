@@ -20,13 +20,13 @@
 
 ### Revision history
 
-1.0 - Initial version - Senthil Ramakrishnan - 10/10/2018
+1.0 - Initial version - Senthil Ramakrishnan - 10/22/2018
 
 # Introduction
 
 ### Overview and background
 
-MbedOS currently implements error/exception handlers which gets invoked when the system encounters a fatal error/exception. The error handler capture information such as register context/thread info etc and these are valuable information required to debug the issue later. This information is currently printed over the serial port, but in many cases the serial port is not accessible and the serial terminal log is not captured, particularly in the case of field deployed devices. We cannot send this information using mechanisms like Network because the state of the system might be unstable after the fatal error. And thus a different mechanism is needed to record and report this data. So, if we can auto-reboot the system after a fatal error has occurred, without losing the RAM contents where we have the error information collected, we can send this information over network or other interfaces to be logged externally(E.g:- ARM Pelion cloud) or can even be written to file system if required. 
+MbedOS currently implements error/exception handlers which gets invoked when the system encounters a fatal error/exception. The error handler capture information such as register context/thread info etc and these are valuable information required to debug the problem later. This information is currently printed over the serial port, but in many cases the serial port is not accessible and the serial terminal log is not captured, particularly in the case of field deployed devices. We cannot save this information by sending it over network or writing to a file, as the state of the system might be unstable after the fatal error. And thus a different mechanism is needed to record and report this data. The idea here is to auto-reboot the system after a fatal error has occurred to bring the system back in stable state, without losing the RAM contents where we have the error information collected, and we can then save this information reliably to be logged externally(E.g:- ARM Pelion cloud) or can be written to file system. 
 
 ### Requirements and assumptions
 
@@ -34,7 +34,7 @@ This feature requires 256 bytes of dedicated RAM allocated for storing the error
 
 # System architecture and high-level design
 
-Below are the high-level design goals for "Crash Reporting" feature:
+Below are the high-level goals for "Crash Reporting" feature:
 
 **Error information collection including exception context**
 
@@ -54,7 +54,7 @@ During reboot the system should check if the reboot is caused by a fatal error a
 
 **Implementation should provide a mechanism to prevent constant reboot loop by limiting the number of auto-reboots**
 
-System should implement mechanism to track number of times the system is auto-rebooted and be able to stop auto-reboot when a configurable limit is reached. The number of times auto-reboot happens should be configurable.
+System should implement mechanism to track number of times the system has auto-rebooted and be able to stop auto-reboot when a configurable limit is reached.
 
 **Implementation should provide following configuration options**
 
@@ -69,7 +69,7 @@ The below diagram shows overall architecture of crash-reporting implementation.
 
 ![System architecture and component interaction](./diagrams/crash-report1.jpg)
 
-As depicted in the above diagram, when the system gets into fatal error state the information collected by error and fault handlers are saved into RAM space allocated for Crash-Report. This is followed by a auto-reboot triggered from error handler. On reboot the the initialization routine validates the contents of Crash-Report RAM. This validation serves two purposes - to validate the captured content itself and also it tells the system if the previous reboot was caused by a fatal error. It then reads this information and calls an application defined callback function passing the crash-report information. The callback is invoked just before the entry to main() and thus the callback implementation may access libraries and other resources as other parts of the system have already initialized(like SDK, HAL etc) or just capture the error information to be acted upon later.
+As depicted in the above diagram, when the system gets into fatal error state the information collected by error and fault handlers are saved into RAM space allocated for Crash-Report. This is followed by a auto-reboot triggered from error handler. On reboot the the initialization routine validates the contents of Crash-Report space in RAM. This validation serves two purposes - to validate the captured content itself and also it tells the system if the previous reboot was caused by a fatal error. It then reads this information and calls an application defined callback function passing the crash-report information. The callback is invoked just before the entry to main() and thus the callback implementation may access libraries and other resources as other parts of the system have already initialized(like SDK, HAL etc) or can just capture the error information in application space to be acted upon later.
 
 # Detailed design
 
