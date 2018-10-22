@@ -510,6 +510,7 @@ private:
     void post_process_tx_no_reception(void);
 
     void process_rejoin(join_req_type_t rejoin_type, bool is_forced);
+    void poll_rejoin(void);
     void reset_forced_rejoin();
 
     void forced_timer_expiry();

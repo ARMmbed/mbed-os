@@ -46,6 +46,7 @@ SPDX-License-Identifier: BSD-3-Clause
 #define USING_OTAA_FLAG             0x00000008
 #define TX_DONE_FLAG                0x00000010
 #define CONN_IN_PROGRESS_FLAG       0x00000020
+#define REJOIN_IN_PROGRESS          0x00000040
 
 using namespace mbed;
 using namespace events;
@@ -311,6 +312,10 @@ int16_t LoRaWANStack::handle_tx(const uint8_t port, const uint8_t *data,
         return LORAWAN_STATUS_PARAMETER_INVALID;
     } else if (DEVICE_STATE_NOT_INITIALIZED == _device_current_state) {
         return LORAWAN_STATUS_NOT_INITIALIZED;
+    }
+
+    if (_ctrl_flags & REJOIN_IN_PROGRESS) {
+        return LORAWAN_STATUS_BUSY;
     }
 
     // ResetInd is only used for ABP devices after connect, until ResetConf is received
@@ -720,6 +725,11 @@ void LoRaWANStack::post_process_tx_with_reception()
 
 void LoRaWANStack::post_process_tx_no_reception()
 {
+    if (_ctrl_flags & REJOIN_IN_PROGRESS) {
+        _ctrl_flags &= ~REJOIN_IN_PROGRESS;
+        goto exit;
+    }
+
     if (_loramac.get_mcps_confirmation()->req_type == MCPS_CONFIRMED) {
         if (_loramac.continue_sending_process()) {
             _ctrl_flags &= ~TX_DONE_FLAG;
@@ -754,6 +764,8 @@ void LoRaWANStack::post_process_tx_no_reception()
     _loramac.post_process_mcps_req();
     make_tx_metadata_available();
     state_controller(DEVICE_STATE_STATUS_CHECK);
+
+exit:
     state_machine_run_to_completion();
 }
 
@@ -796,6 +808,12 @@ void LoRaWANStack::process_reception(const uint8_t *const payload, uint16_t size
         return;
     }
 
+    if (_ctrl_flags & REJOIN_IN_PROGRESS) {
+        _ctrl_flags &= ~REJOIN_IN_PROGRESS;
+        _ready_for_rx = true;
+        return;
+    }
+
     make_rx_metadata_available();
 
     // Post process transmission in response to the reception
@@ -821,20 +839,44 @@ void LoRaWANStack::process_reception(const uint8_t *const payload, uint16_t size
         mlme_indication_handler();
     }
 
+    if (MBED_CONF_LORA_VERSION == LORAWAN_VERSION_1_1) {
+        poll_rejoin();
+    }
+
+    _ready_for_rx = true;
+}
+
+void LoRaWANStack::poll_rejoin(void)
+{
+    if (_ctrl_flags & REJOIN_IN_PROGRESS) {
+        return;
+    }
+
+    // check if REJOIN_TYPE_1 is due, if it is, do not proceed with
+    // REJOIN_TYPE_0
     if (((_loramac.get_lora_time()->get_current_time()/1000) -
         _rejoin_type1_stamp) > _rejoin_type1_send_period) {
+        _ctrl_flags |= REJOIN_IN_PROGRESS;
         _rejoin_type1_stamp = _loramac.get_lora_time()->get_current_time()/1000;
-        process_rejoin(REJOIN_REQUEST_TYPE1, false);
+        const int ret = _queue->call(this, &LoRaWANStack::process_rejoin,
+                                     REJOIN_REQUEST_TYPE1, false);
+        MBED_ASSERT(ret != 0);
+        (void)ret;
+
+        return;
     }
+
     uint32_t max_time;
     uint32_t max_count;
     _loramac.get_rejoin_parameters(max_time, max_count);
     if (_rejoin_type0_counter >= max_count) {
+        _rejoin_type0_counter = 0;
         //This causes excactly same handling as a timeout
-        process_rejoin_type0();
+        _ctrl_flags |= REJOIN_IN_PROGRESS;
+        const int ret = _queue->call(this, &LoRaWANStack::process_rejoin_type0);
+        MBED_ASSERT(ret != 0);
+        (void)ret;
     }
-
-    _ready_for_rx = true;
 }
 
 void LoRaWANStack::process_reception_timeout(bool is_timeout)
@@ -864,28 +906,14 @@ void LoRaWANStack::process_reception_timeout(bool is_timeout)
      * never occurs.
      */
     if (slot == RX_SLOT_WIN_2) {
-<<<<<<< HEAD
-=======
-
->>>>>>> c998cc4... Implementing CR-FcntDwn-usage-in-FOpts-encryption
         post_process_tx_no_reception();
         _loramac.post_process_mcps_req();
 
         state_controller(DEVICE_STATE_STATUS_CHECK);
         state_machine_run_to_completion();
 
-        if ((_loramac.get_lora_time()->get_current_time()/1000) -
-            _rejoin_type1_stamp > _rejoin_type1_send_period) {
-            _rejoin_type1_stamp = _loramac.get_lora_time()->get_current_time()/1000;
-            process_rejoin(REJOIN_REQUEST_TYPE1, false);
-        }
-
-        uint32_t max_time;
-        uint32_t max_count;
-        _loramac.get_rejoin_parameters(max_time, max_count);
-        if (_rejoin_type0_counter >= max_count) {
-            //This causes excactly same handling as a timeout
-            process_rejoin_type0();
+        if (MBED_CONF_LORA_VERSION == LORAWAN_VERSION_1_1) {
+            poll_rejoin();
         }
     }
 }
@@ -1105,6 +1133,11 @@ void LoRaWANStack::mlme_confirm_handler(loramac_mlme_confirm_t& mlme_confirm)
                 send_event_to_application(CRYPTO_ERROR);
                 break;
             default:
+                if (_loramac.get_server_type() == LW1_1 && (_ctrl_flags & REJOIN_IN_PROGRESS)) {
+                    // do not retry, do not send an event
+                    return;
+                }
+
                 // non-fatal, retry if possible
                 _device_current_state = DEVICE_STATE_AWAITING_JOIN_ACCEPT;
                 state_controller(DEVICE_STATE_JOINING);
@@ -1418,7 +1451,7 @@ void LoRaWANStack::process_uninitialized_state(lorawan_status_t &op_status)
         _loramac.get_lora_time()->init(_rejoin_type0_timer,
                         mbed::callback(this, &LoRaWANStack::process_rejoin_type0));
 
-        _rejoin_type1_stamp = _loramac.get_lora_time()->get_current_time()/1000;
+        _rejoin_type1_stamp = _loramac.get_lora_time()->get_current_time() / 1000;
     }
 }
 
@@ -1432,7 +1465,8 @@ void LoRaWANStack::process_rejoin(join_req_type_t rejoin_type, bool is_forced)
             uint32_t max_time;
             uint32_t max_count;
             _loramac.get_rejoin_parameters(max_time, max_count);
-            _loramac.get_lora_time()->start(_rejoin_type0_timer, max_time);
+            // start() takes parameters in ms, max_time is in seconds
+            _loramac.get_lora_time()->start(_rejoin_type0_timer, max_time * 1000);
         }
     }
 }
@@ -1459,12 +1493,6 @@ void LoRaWANStack::process_rejoin_type0()
 {
     if (_loramac.get_server_type() == LW1_1 ) {
         //stop in case counter was exceeded
-        _loramac.get_lora_time()->stop(_rejoin_type0_timer);
-        _rejoin_type0_counter = 0;
         process_rejoin(REJOIN_REQUEST_TYPE0, false);
-        uint32_t max_time;
-        uint32_t max_count;
-        _loramac.get_rejoin_parameters(max_time, max_count);
-        _loramac.get_lora_time()->start(_rejoin_type0_timer, max_time);
     }
 }
