@@ -320,5 +320,20 @@
     },
     "STM32L432KC": {
         "OGChipSelectEditMenu": "STM32L432KC\tST STM32L432KC"
+    },
+    "CY8C6347BZI-BLD53M0+": {
+        "OGChipSelectEditMenu": "CY8C6347BZI-BLD53M0+\tCypress CY8C6347BZI-BLD53M0+",
+        "CoreVariant": 35,
+        "GFPUCoreSlave": 35,
+        "GBECoreSlave": 35,
+        "GFPUCoreSlave2": 35
+    },
+    "CY8C6347BZI-BLD53M4": {
+        "OGChipSelectEditMenu": "CY8C6347BZI-BLD53M4\tCypress CY8C6347BZI-BLD53M4",
+        "CoreVariant": 39,
+        "GFPUCoreSlave": 39,
+        "GBECoreSlave": 39,
+        "FPU2": 6,
+        "GFPUCoreSlave2": 39
     }
 }
