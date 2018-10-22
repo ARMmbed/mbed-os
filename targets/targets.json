@@ -732,6 +732,7 @@
     },
     "K66F": {
         "supported_form_factors": ["ARDUINO"],
+        "components": ["SD"],
         "core": "Cortex-M4F",
         "supported_toolchains": ["ARM", "GCC_ARM", "IAR"],
         "extra_labels": ["Freescale", "MCUXpresso_MCUS", "KSDK2_MCUS", "FRDM", "Freescale_EMAC"],
