@@ -26,7 +26,7 @@
 
 ### Overview and background
 
-MbedOS currently implements error/exception handlers which gets invoked when the system encounters a fatal error/exception. The error handler capture information such as register context/thread info etc and these are valuable information required to debug the issue later. This information is currently printed over the serial port, but in many cases the serial port is not accessible and the serial terminal log is not captured, particularly in the case of field deployed devices. We cannot send this information using mechanisms like Network because the state of the system might be unstable after the fatal error. And thus a different mechanism is needed to record and report this data. So, if we can auto-reboot the system after a fatal error has occured, without losing the RAM contents where we have the error information collected, we can send this information over network or other interfaces to be logged externally(E.g:- ARM Pelion cloud) or can even be written to file system if required. 
+MbedOS currently implements error/exception handlers which gets invoked when the system encounters a fatal error/exception. The error handler capture information such as register context/thread info etc and these are valuable information required to debug the issue later. This information is currently printed over the serial port, but in many cases the serial port is not accessible and the serial terminal log is not captured, particularly in the case of field deployed devices. We cannot send this information using mechanisms like Network because the state of the system might be unstable after the fatal error. And thus a different mechanism is needed to record and report this data. So, if we can auto-reboot the system after a fatal error has occurred, without losing the RAM contents where we have the error information collected, we can send this information over network or other interfaces to be logged externally(E.g:- ARM Pelion cloud) or can even be written to file system if required. 
 
 ### Requirements and assumptions
 
@@ -38,7 +38,7 @@ Below are the high-level design goals for "Crash Reporting" feature:
 
 **Error information collection including exception context**
 
-The current error handling implementation in Mbed OS already collects error and exception context. With this feature the above mentioned data structures should be placed in an uninitialized RAM region so that the data is retained after an auto-reboot(warm-reset).
+The current error handling implementation in MbedOS already collects error and exception context. With this feature the above mentioned data structures should be placed in an uninitialized RAM region so that the data is retained after an auto-reboot(warm-reset).
 
 **Mechanism to auto reboot(also called warm-reset) the system without losing RAM contents where error info is stored**
 
@@ -84,7 +84,7 @@ Note that the actual location of the data should be carefully chosen without aff
 
 ### Mechanism to auto reboot(also called warm-reset) the system without losing RAM contents where error info is stored
 
-The current mbed_error() implementation should be modified to cause an auto-reboot at the end of error handling if this feature is enabled. The mechanism used for rebooting should make sure it doesn't cause a reset of RAM contents. This can be done by calling system_reset() function already implemented by MbedOS which cause the system to reboot without resetting the RAM. The mbed_error() implementation also should make sure it updates the error context stored in Crash-Report RAM with the right CRC value and it should also implement mechanism to track the reboot count caused by fatal errors. The below psuedo-code shows how the mbed_error() implementation should be modified.
+The current mbed_error() implementation should be modified to cause an auto-reboot at the end of error handling if this feature is enabled. The mechanism used for rebooting should make sure it doesn't cause a reset of RAM contents. This can be done by calling system_reset() function already implemented by MbedOS which cause the system to reboot without resetting the RAM. The mbed_error() implementation also should make sure it updates the error context stored in Crash-Report RAM with the right CRC value and it should also implement mechanism to track the reboot count caused by fatal errors. The below pueudo-code shows how the mbed_error() implementation should be modified.
 
 ```
 mbed_error_status_t mbed_error( ... )
@@ -97,7 +97,7 @@ mbed_error_status_t mbed_error( ... )
 		Update Reboot Count
 		Calculate new CRC
 		Update with new CRC value
-	Else (if CRC doesnt match) 
+	Else (if CRC doesn't match) 
 		//This is the case when we dont have a crash report already stored.
 		Update the location with new error information
 		Set Reboot count to 1
@@ -118,21 +118,21 @@ The below APIs should be implemented.
 
 The below API can be called by application to retrieve the error context captured in the Crash-Report RAM. The error context is copied into the location pointed by *error_info*. Note that the caller should allocate the memory for this location.
 The function should return MBED_ERROR_NOT_FOUND if there is no error context currently stored.
-```
+```C
 //Retrieve the reboot error context
 mbed_error_status_t mbed_get_reboot_error_info(mbed_error_ctx *error_info)
 ```
 
 The below API can be called by application to retrieve the fault context captured in the Crash-Report RAM. The error context is copied into the location pointed by *fault_context*. Note that the caller should allocate the memory for this location. Note that the fault context is valid only if the previous reboot was caused by an exception. Whether the previous reboot was caused by an exception can be determined from the error code stored in error context information retrieved using mbed_get_reboot_error_info() API above.
 The function should return MBED_ERROR_NOT_FOUND if there is no fault context currently stored.
-```
+```C
 //Call this function to retrieve the last reboot fault context
 mbed_error_status_t mbed_get_reboot_fault_context (mbed_fault_context_t *fault_context);
 ```
 
 The below API can be called by application to reset the error context captured in the Crash-Report RAM.
 The function should MBED_ERROR_NOT_FOUND if there is no error context currently stored.
-```
+```C
 //Reset the reboot error context
 mbed_error_status_t mbed_reset_reboot_error_info()
 ```
@@ -145,10 +145,10 @@ MbedOS initialization sequence should be modified as shown in below diagram to r
 
 ![Error report on reboot](./diagrams/boot-error-report.jpg)
 
-Below should be the siganture of the callback for reporting the error information.
+Below should be the signature of the callback for reporting the error information.
 
 The error handing system in MbedOS will call this callback function if it detects that the current reboot has been caused by a fatal error. This function will be defined with MBED_WEAK attribute by default and applications wanting to process the error report should override this function in application implementation.
-```
+```CS
 void mbed_error_reboot_callback(mbed_error_ctx *error_context);
 ```
 
@@ -168,13 +168,79 @@ Crash reporting implementation should provide enough parameters to control diffe
 
 # Usage scenarios and examples
 
-Below (pseudocode) are some common usage scenarios using the new error reporting APIs.
+Below (pseudo code) are some common usage scenarios using the new error reporting APIs.
 
-### Implementing crash reporting callback 
+### Implementing crash reporting callback
+In order to implement the callback the user can override the default callback function(*mbed_error_reboot_callback()*) implemented with MBED_WEAK attribute in platform layer as below. 
+
+```C
+mbed_error_ctx my_error_ctx;
+//Callback during reboot
+void mbed_error_reboot_callback(mbed_error_ctx *error_context) {
+    printf("Error callback received");
+    //Copy the error context in a local struct for processing it later
+    memcpy(&my_error_ctx, error_context, sizeof(mbed_error_ctx));
+}
+```
+The above function will be called during boot with a pointer to *error_context* structure.
 
 ### Retrieving error info after reboot
+The error context captured can be retrieved using mbed_get_reboot_error_info() API. See the below code
+for example usage of that API. In the example below, a status variable reboot_error_detected has been used to track the presence of error context capture.
+
+```C
+mbed_error_ctx error_ctx;
+int reboot_error_detected = 0;
+
+//Callback during reboot
+void mbed_error_reboot_callback(mbed_error_ctx *error_context) {
+    printf("error callback received");
+    reboot_error_detected = 1;
+}
+
+// main() runs in its own thread in the OS
+int main() {
+  
+    if(reboot_error_detected == 1) {
+        if(MBED_SUCCESS == mbed_get_reboot_error_info(&error_ctx)) {
+        printf("\nSuccessfully read error context\n");
+    }
+    //main continues...
+}
+```
 
 ### Retrieving fault context after reboot
+The fault context captured can be retrieved using mbed_get_reboot_fault_context() API. See the below code
+for example usage of that API. The example code below checks for error_status using the error context and then
+retrieves the fault context using mbed_get_reboot_fault_context() API.
+
+```C
+mbed_error_ctx error_ctx;
+mbed_fault_context_t fault_ctx;
+int reboot_error_detected = 0;
+
+//Callback during reboot
+void mbed_error_reboot_callback(mbed_error_ctx *error_context) {
+    printf("error callback received");
+    reboot_error_detected = 1;
+}
+
+// main() runs in its own thread in the OS
+int main() {
+  
+    if(reboot_error_detected == 1) {
+        if(MBED_SUCCESS == mbed_get_reboot_error_info(&error_ctx)) {
+            printf("\nRead in reboot info\n");
+            if(error_ctx.error_status == MBED_ERROR_HARDFAULT_EXCEPTION) {
+               if(MBED_SUCCESS == mbed_get_reboot_fault_context(&fault_ctx)) {
+                   printf("\nRead in fault context info\n");
+               }
+            }
+        }
+    }
+    //main continues...
+}
+```
 
 # Tools and configuration changes
 
