@@ -51,8 +51,6 @@ typedef enum {
     PIN_OUTPUT
 } PinDirection;
 
-#define PORT_SHIFT  3
-
 ///> define macro producing for example Px_y = NRF_GPIO_PIN_MAP(x, y)
 #define PinDef(port_num, pin_num) P##port_num##_##pin_num = NRF_GPIO_PIN_MAP(port_num, pin_num)
 
