@@ -95,7 +95,8 @@ public:
     enum SocketType {
         TCP_CLIENT,
         TCP_SERVER,
-        UDP
+        UDP,
+        OTHER
     };
     SInfo(TCPSocket *sock):
         _id(id_count++),
@@ -150,6 +151,24 @@ public:
         _check_pattern(false)
     {
         assert(sock);
+    }
+    SInfo(Socket* sock, bool delete_on_exit=true):
+        _id(id_count++),
+        _sock(sock),
+        _type(SInfo::OTHER),
+        _blocking(true),
+        _dataLen(0),
+        _maxRecvLen(0),
+        _repeatBufferFill(1),
+        _receivedTotal(0),
+        _receiverThread(NULL),
+        _receiveBuffer(NULL),
+        _senderThreadId(NULL),
+        _receiverThreadId(NULL),
+        _packetSizes(NULL),
+        _check_pattern(false)
+    {
+        MBED_ASSERT(sock);
     }
     ~SInfo()
     {
@@ -1109,40 +1128,48 @@ static int cmd_socket(int argc, char *argv[])
     }
 
     /*
-     * Commands for TCPServer
+     * Commands for TCPServer and TCPSocket
      * listen, accept
      */
-    if ((COMMAND_IS("listen") || COMMAND_IS("accept")) && info->type() != SInfo::TCP_SERVER) {
-        cmd_printf("Not TCPServer\r\n");
-        return CMDLINE_RETCODE_FAIL;
-    }
     if (COMMAND_IS("listen")) {
         int32_t backlog;
         if (cmd_parameter_int(argc, argv, "listen", &backlog)) {
-            return handle_nsapi_error("TCPServer::listen()", static_cast<TCPServer &>(info->socket()).listen(backlog));
+            return handle_nsapi_error("Socket::listen()", info->socket().listen(backlog));
         } else {
-            return handle_nsapi_error("TCPServer::listen()", static_cast<TCPServer &>(info->socket()).listen());
+            return handle_nsapi_error("Socket::listen()", info->socket().listen());
         }
 
     } else if (COMMAND_IS("accept")) {
-        SocketAddress addr;
-        int32_t id;
-        if (!cmd_parameter_int(argc, argv, "accept", &id)) {
-            cmd_printf("Need new socket id\r\n");
-            return CMDLINE_RETCODE_INVALID_PARAMETERS;
+        nsapi_error_t ret;
+        if (info->type() != SInfo::TCP_SERVER) {
+            Socket *new_sock = info->socket().accept(&ret);
+            if (ret == NSAPI_ERROR_OK) {
+                SInfo *new_info = new SInfo(new_sock);
+                m_sockets.push_back(new_info);
+                cmd_printf("Socket::accept() new socket sid: %d\r\n", new_info->id());
+            }
+            return handle_nsapi_error("Socket::accept()", ret);
+        } else { // Old TCPServer API
+            int32_t id;
+            SocketAddress addr;
+
+            if (!cmd_parameter_int(argc, argv, "accept", &id)) {
+                cmd_printf("Need new socket id\r\n");
+                return CMDLINE_RETCODE_INVALID_PARAMETERS;
+            }
+            SInfo *new_info = get_sinfo(id);
+            if (!new_info) {
+                cmd_printf("Invalid socket id\r\n");
+                return CMDLINE_RETCODE_FAIL;
+            }
+            TCPSocket *new_sock = static_cast<TCPSocket*>(&new_info->socket());
+            nsapi_error_t ret = static_cast<TCPServer&>(info->socket()).accept(new_sock, &addr);
+            if (ret == NSAPI_ERROR_OK) {
+                cmd_printf("TCPServer::accept() new socket sid: %d connection from %s port %d\r\n",
+                        new_info->id(), addr.get_ip_address(), addr.get_port());
+            }
+            return handle_nsapi_error("TCPServer::accept()", ret);
         }
-        SInfo *new_info = get_sinfo(id);
-        if (!new_info) {
-            cmd_printf("Invalid socket id\r\n");
-            return CMDLINE_RETCODE_FAIL;
-        }
-        TCPSocket *new_sock = static_cast<TCPSocket *>(&new_info->socket());
-        nsapi_error_t ret = static_cast<TCPServer &>(info->socket()).accept(new_sock, &addr);
-        if (ret == NSAPI_ERROR_OK) {
-            cmd_printf("TCPServer::accept() new socket sid: %d connection from %s port %d\r\n",
-                       new_info->id(), addr.get_ip_address(), addr.get_port());
-        }
-        return handle_nsapi_error("TCPServer::accept()", ret);
     }
     return CMDLINE_RETCODE_INVALID_PARAMETERS;
 }

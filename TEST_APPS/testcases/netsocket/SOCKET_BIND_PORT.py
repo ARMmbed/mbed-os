@@ -43,15 +43,15 @@ class MultipleTestcase(Bench):
 
     def socket_bind_port(self, socket_type):
         response = self.command("dut1", "socket new " + socket_type)
-        socket_id = int(response.parsed['socket_id'])
+        self.socket_id = int(response.parsed['socket_id'])
 
-        self.command("dut1", "socket " + str(socket_id) + " open")
+        self.command("dut1", "socket " + str(self.socket_id) + " open")
 
-        self.command("dut1", "socket " + str(socket_id) + " bind port 1024")
-
-        self.command("dut1", "socket " + str(socket_id) + " delete")
+        self.command("dut1", "socket " + str(self.socket_id) + " bind port 1024")
 
     def teardown(self):
+        self.command("dut1", "socket " + str(self.socket_id) + " delete")
+        
         self.command("dut1", "ifdown")
 
 

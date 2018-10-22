@@ -36,7 +36,7 @@ public:
      *
      *  @note Closes socket if it's still open.
      */
-    virtual ~InternetSocket() {}
+    virtual ~InternetSocket();
 
     /** Open a network socket on the network stack of the given
      *  network interface.
