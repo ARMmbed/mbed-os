@@ -359,6 +359,24 @@ def check_required_modules(required_modules, verbose=True):
     else:
         return True
 
+
+def _ordered_dict_collapse_dups(pair_list):
+    to_ret = OrderedDict()
+    for key, value in pair_list:
+        if key in to_ret:
+            if isinstance(to_ret[key], dict):
+                to_ret[key].update(value)
+            elif isinstance(to_ret[key], list):
+                to_ret[key].extend(value)
+            else:
+                raise ValueError(
+                    "Key %s found twice and is not mergeable" % key
+                )
+        else:
+            to_ret[key] = value
+    return to_ret
+
+
 def json_file_to_dict(fname):
     """ Read a JSON file and return its Python representation, transforming all
     the strings from Unicode to ASCII. The order of keys in the JSON file is
@@ -368,11 +386,13 @@ def json_file_to_dict(fname):
     fname - the name of the file to parse
     """
     try:
-        with io.open(fname, encoding='ascii', 
-                         errors='ignore') as file_obj:
-            return json.load(file_obj, object_pairs_hook=OrderedDict)
-    except (ValueError, IOError):
-        sys.stderr.write("Error parsing '%s':\n" % fname)
+        with io.open(fname, encoding='ascii',
+                     errors='ignore') as file_obj:
+            return json.load(
+                file_obj,  object_pairs_hook=_ordered_dict_collapse_dups
+            )
+    except (ValueError, IOError) as e:
+        sys.stderr.write("Error parsing '%s': %s\n" % (fname, e))
         raise
 
 # Wowza, double closure
