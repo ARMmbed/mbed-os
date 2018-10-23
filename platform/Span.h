@@ -25,6 +25,13 @@
 
 namespace mbed {
 
+/** \addtogroup platform */
+/** @{*/
+/**
+ * \defgroup platform_Span Span class
+ * @{
+ */
+
 // Internal details of Span
 // It is used construct Span from Span of convertible types (non const -> const)
 namespace span_detail {
@@ -995,6 +1002,10 @@ Span<const T> make_const_Span(T *array_ptr, size_t array_size)
 {
     return Span<const T>(array_ptr, array_size);
 }
+
+/**@}*/
+
+/**@}*/
 
 } // namespace mbed
 
