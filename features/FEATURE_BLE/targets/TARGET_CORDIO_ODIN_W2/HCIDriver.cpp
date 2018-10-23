@@ -50,7 +50,7 @@ public:
     virtual void handle_reset_sequence(uint8_t *pMsg);
 
 private:
-    void start_service_pack_transfert(void)
+    void start_service_pack_transfer(void)
     {
         service_pack_index = 0;
         service_pack_transfered = false;
@@ -75,7 +75,7 @@ private:
         /* check if response opcode is same as expected command opcode */
         MBED_ASSERT (cmd_opcode_ack_expected == opcode); 
 
-        // update service pack index
+        /* update service pack index */
         service_pack_index += (1 + HCI_CMD_HDR_LEN + odin_service_pack[service_pack_index + HCI_CMD_HDR_LEN]);
 
         if (service_pack_index < service_pack_size)
@@ -157,12 +157,12 @@ void ble::vendor::odin_w2::HCIDriver::do_initialize()
 
 void ble::vendor::odin_w2::HCIDriver::do_terminate()
 {
-    // TODO: ASRI
+    
 }
 
 void ble::vendor::odin_w2::HCIDriver::start_reset_sequence()
 {
-    /* Update baudrate of BT to speed up setup time */
+    /* Update baudrate of ble to speed up setup time */
     send_hci_vs_cmd(HCID_VS_UPDATE_UART_BAUD_RATE);
 
 }
@@ -182,7 +182,7 @@ void ble::vendor::odin_w2::HCIDriver::handle_reset_sequence(uint8_t *pMsg)
 
         if (opcode == HCID_VS_UPDATE_UART_BAUD_RATE) {
             update_uart_baud_rate();
-            start_service_pack_transfert();
+            start_service_pack_transfer();
             return;
         }
 
