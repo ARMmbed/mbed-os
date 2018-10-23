@@ -47,12 +47,18 @@ public:
 
 }
 
+#if defined(DOXYGEN_ONLY)
 /**
  * Special value for the Extent parameter of Span.
  * If the type uses this value, then the size of the array is stored in the object
  * at runtime.
+ * 
+ * @relates Span
  */
+const ptrdiff_t SPAN_DYNAMIC_EXTENT = -1;
+#else 
 #define SPAN_DYNAMIC_EXTENT -1
+#endif
 
 /**
  * Nonowning view to a sequence of contiguous elements.
