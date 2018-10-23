@@ -780,6 +780,8 @@ private:
  *
  * @return True if Spans in input have the same size and the same content and
  * false otherwise.
+ * 
+ * @relates Span
  */
 template<typename T, typename U, ptrdiff_t LhsExtent, ptrdiff_t RhsExtent>
 bool operator==(const Span<T, LhsExtent> &lhs, const Span<U, RhsExtent> &rhs)
@@ -833,6 +835,8 @@ bool operator==(T (&lhs)[LhsExtent], const Span<T, RhsExtent> &rhs)
  *
  * @return True if arrays in input do not have the same size or the same content
  * and false otherwise.
+ * 
+ * @relates Span
  */
 template<typename T, typename U, ptrdiff_t LhsExtent, ptrdiff_t RhsExtent>
 bool operator!=(const Span<T, LhsExtent> &lhs, const Span<U, RhsExtent> &rhs)
@@ -882,6 +886,8 @@ bool operator!=(T (&lhs)[LhsExtent], const Span<T, RhsExtent> &rhs)
  *
  * @note This helper avoids the typing of template parameter when Span is
  * created 'inline'.
+ * 
+ * @relates Span
  */
 template<typename T, size_t Size>
 Span<T, Size> make_Span(T (&elements)[Size])
@@ -920,6 +926,8 @@ Span<T, Extent> make_Span(T *elements)
  *
  * @note This helper avoids the typing of template parameter when Span is
  * created 'inline'.
+ * 
+ * @relates Span
  */
 template<typename T>
 Span<T> make_Span(T *array_ptr, ptrdiff_t array_size)
@@ -957,6 +965,8 @@ Span<const T, Extent> make_const_Span(const T (&elements)[Extent])
  *
  * @note This helper avoids the typing of template parameter when Span is
  * created 'inline'.
+ * 
+ * @relates Span
  */
 template<size_t Extent, typename T>
 Span<const T, Extent> make_const_Span(const T *elements)
@@ -977,6 +987,8 @@ Span<const T, Extent> make_const_Span(const T *elements)
  *
  * @note This helper avoids the typing of template parameter when Span is
  * created 'inline'.
+ * 
+ * @relates Span
  */
 template<typename T>
 Span<const T> make_const_Span(T *array_ptr, size_t array_size)
