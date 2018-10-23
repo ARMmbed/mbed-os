@@ -43,7 +43,7 @@ namespace rtos {
  EventFlags support 31 flags. The MSB flag is ignored. It is used to return an error code (@a osFlagsError).
 
  @note
- Memory considerations: The EventFlags control structures will be created on current thread's stack, both for the Mbed OS
+ Memory considerations: The EventFlags control structures will be created on the current thread's stack, both for the Mbed OS
  and underlying RTOS objects (static or dynamic RTOS memory pools are not being used).
 */
 class EventFlags : private mbed::NonCopyable<EventFlags> {
@@ -54,7 +54,7 @@ public:
     */
     EventFlags();
 
-    /** Create and initialize a EventFlags object.
+    /** Create and initialize an EventFlags object.
 
      @param name name to be used for this EventFlags. It has to stay allocated for the lifetime of the thread.
 
@@ -63,7 +63,7 @@ public:
     EventFlags(const char *name);
 
     /** Set the specified event flags.
-      @param   flags the flags that shall be set.
+      @param   flags the flags that will be set.
       @return  event flags after setting or error code if highest bit set (see @a osFlagsError for details).
 
       @note This function may be called from ISR context.
@@ -71,7 +71,7 @@ public:
     uint32_t set(uint32_t flags);
 
     /** Clear the specified event flags.
-      @param   flags the flags that shall be cleared (default: 0x7fffffff -- all flags).
+      @param   flags the flags that will be cleared (default: 0x7fffffff -- all flags).
       @return  event flags before clearing or error code if highest bit set (see @a osFlagsError for details).
 
       @note You may call this function from ISR context.
@@ -97,7 +97,7 @@ public:
 
     /** Wait for any of the specified event flags to become signaled.
       @param   flags    the flags to wait for (default: 0 -- no flags).
-      @param   timeout  timeout value or 0 in case of no time-out (default: osWaitForever).
+      @param   timeout  timeout value or 0 in case of no timeout (default: osWaitForever).
       @param   clear    clear specified event flags after waiting for them (default: true).
       @return  event flags before clearing or error code if highest bit set (see @a osFlagsError for details).
 
