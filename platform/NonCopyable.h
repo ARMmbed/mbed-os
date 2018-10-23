@@ -36,7 +36,7 @@ namespace mbed {
  * 
  * @par Usage
  * 
- * To prevent generation of copy constructor and copy assignment operator simply 
+ * To prevent generation of copy constructor and copy assignment operator, 
  * inherit privately from the NonCopyable class. 
  * 
  * @code 
@@ -49,8 +49,8 @@ namespace mbed {
  * 
  * @par Background information
  * 
- * Instances of polymorphic classes are not meant to be copied. Unfortunately, 
- * the C++ standards generates a default copy constructor and copy assignment 
+ * Instances of polymorphic classes are not meant to be copied. The 
+ * C++ standards generate a default copy constructor and copy assignment 
  * function if these functions have not been defined in the class.
  * 
  * Consider the following example:
@@ -79,18 +79,18 @@ namespace mbed {
  * Connection connection = get_connection();
  * @endcode
  * 
- * There is a subtile bug in this code, the function get_connection returns a 
+ * There is a subtle bug in this code, the function get_connection returns a 
  * reference to a Connection which is captured by value instead of reference. 
  * 
- * When the reference returned by get_connection is copied into connection, the 
- * vtable and others members defined in Connection are copied but members defined
+ * When the reference get_connection returns is copied into connection, the 
+ * vtable and others members defined in Connection are copied, but members defined
  * in SerialConnection are left apart. This can cause severe crashes or bugs if 
- * the virtual functions captured uses members not present in the base 
- * declaration. 
+ * the virtual functions captured use members not present in the base 
+ * declaration.
  * 
  * To solve that problem, the copy constructor and assignment operator have to 
- * be declared (but doesn't need to be defined) in the private section of the 
- * Connection class: 
+ * be declared (but don't need to be defined) in the private section of the 
+ * Connection class:
  * 
  * @code
  * struct Connection { 
@@ -100,12 +100,12 @@ namespace mbed {
  * }
  * @endcode
  * 
- * While manually declaring private copy constructor and assignment functions 
- * works, it is not ideal as these declarations are usually not immediately 
- * visible, easy to forget and may be obscure for uninformed programmer. 
+ * Although manually declaring private copy constructor and assignment functions 
+ * works, it is not ideal because these declarations are usually easy to forget,  
+ * not immediately visible and may be obscure for uninformed programmers.
  * 
- * Using the NonCopyable class reduce the boilerplate required and express 
- * clearly the intent as class inheritance appears right after the class name
+ * Using the NonCopyable class reduces the boilerplate required and expresses 
+ * the intent because class inheritance appears right after the class name
  * declaration.
  * 
  * @code
@@ -118,11 +118,11 @@ namespace mbed {
  * @par Implementation details 
  * 
  * Using a template type prevents cases where the empty base optimization cannot 
- * be applied and therefore ensure that the cost of the NonCopyable semantic 
+ * be applied and therefore ensures that the cost of the NonCopyable semantic 
  * sugar is null.
  * 
  * As an example, the empty base optimization is prohibited if one of the empty
- * base class is also a base type of the first non static data member:
+ * base classes is also a base type of the first nonstatic data member:
  *
  * @code
  * struct A { };
@@ -136,11 +136,11 @@ namespace mbed {
  * };
  *
  * // empty base optimization cannot be applied here because A from C and A from
- * // B shall have a different address. In that case, with the alignment
+ * // B have a different address. In that case, with the alignment
  * // sizeof(C) == 2* sizeof(int)
  * @endcode
  *
- * The solution to that problem is to templatize the empty class to makes it
+ * The solution to that problem is to templatize the empty class to make it
  * unique to the type it is applied to:
  *
  * @code
@@ -157,10 +157,10 @@ namespace mbed {
  * // kind of A. sizeof(C) == sizeof(B) == sizeof(int).
  * @endcode
  *
- * @tparam T The type that should be made non copyable. 
+ * @tparam T The type that should be made noncopyable. 
  *
- * @note Compile time errors are disabled if the develop or the release profile
- * is used. To override this behavior and force compile time errors in all profile
+ * @note Compile time errors are disabled if you use the develop or the release profile.
+ * To override this behavior and force compile time errors in all profiles,
  * set the configuration parameter "platform.force-non-copyable-error" to true.
  */
 template<typename T>
@@ -180,11 +180,11 @@ protected:
     /**
      * NonCopyable copy constructor.
      *
-     * A compile time warning is issued when this function is used and a runtime
-     * warning is printed when the copy construction of the non copyable happens.
+     * A compile time warning is issued when this function is used, and a runtime
+     * warning is printed when the copy construction of the noncopyable happens.
      *
      * If you see this warning, your code is probably doing something unspecified.
-     * Copy of non copyable resources can lead to resource leak and random error.
+     * Copying of noncopyable resources can lead to resource leak and random error.
      */
     MBED_DEPRECATED("Invalid copy construction of a NonCopyable resource.")
     NonCopyable(const NonCopyable &)
@@ -195,11 +195,11 @@ protected:
     /**
      * NonCopyable copy assignment operator.
      *
-     * A compile time warning is issued when this function is used and a runtime
-     * warning is printed when the copy construction of the non copyable happens.
+     * A compile time warning is issued when this function is used, and a runtime
+     * warning is printed when the copy construction of the noncopyable happens.
      *
      * If you see this warning, your code is probably doing something unspecified.
-     * Copy of non copyable resources can lead to resource leak and random error.
+     * Copying of noncopyable resources can lead to resource leak and random error.
      */
     MBED_DEPRECATED("Invalid copy assignment of a NonCopyable resource.")
     NonCopyable &operator=(const NonCopyable &)
@@ -211,13 +211,13 @@ protected:
 #else
 private:
     /**
-     * Declare copy constructor as private, any attempt to copy construct
+     * Declare copy constructor as private. Any attempt to copy construct
      * a NonCopyable will fail at compile time.
      */
     NonCopyable(const NonCopyable &);
 
     /**
-     * Declare copy assignment operator as private, any attempt to copy assign
+     * Declare copy assignment operator as private. Any attempt to copy assign
      * a NonCopyable will fail at compile time.
      */
     NonCopyable &operator=(const NonCopyable &);
