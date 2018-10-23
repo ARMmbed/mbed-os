@@ -24,88 +24,96 @@
 namespace mbed {
 
 /**
- * Inheriting from this class autogeneration of copy construction and copy
- * assignment operations.
- *
- * Classes which are not value type should inherit privately from this class
- * to avoid generation of invalid copy constructor or copy assignment operator
- * which can lead to unnoticeable programming errors.
- *
- * As an example consider the following signature:
- *
+ * Prevents generation of copy constructor and copy assignment operator in 
+ * derived classes.
+ * 
+ * @par Usage
+ * 
+ * To prevent generation of copy constructor and copy assignment operator simply 
+ * inherit privately from the NonCopyable class. 
+ * 
+ * @code 
+ * class Resource : NonCopyable<Resource> { };
+ * 
+ * Resource r;
+ * // generates compile time error:
+ * Resource r2 = r;
+ * @endcode
+ * 
+ * @par Background information
+ * 
+ * Instances of polymorphic classes are not meant to be copied. Unfortunately, 
+ * the C++ standards generates a default copy constructor and copy assignment 
+ * function if these functions have not been defined in the class.
+ * 
+ * Consider the following example:
+ * 
  * @code
- * class Resource;
- *
- * class Foo {
+ * // base class representing a connection
+ * struct Connection { 
+ *     Connection();
+ *     virtual ~Connection();
+ *     virtual void open() = 0;
+ * }
+ * 
+ * class SerialConnection : public Connection { 
  * public:
- *   Foo() : _resource(new Resource()) { }
- *   ~Foo() { delete _resource; }
+ *     SerialConnection(Serial*);
+ * 
  * private:
- *   Resource* _resource;
+ *     Serial* _serial;
+ * };
+ * 
+ * Connection& get_connection() { 
+ *     static SerialConnection serial_connection;
+ *     return serial_connection;
  * }
  *
- * Foo get_foo();
- *
- * Foo foo = get_foo();
+ * Connection connection = get_connection();
  * @endcode
- *
- * There is a bug in this function, it returns a temporary value which will be
- * byte copied into foo then destroyed. Unfortunately, internally the Foo class
- * manage a pointer to a Resource object. This pointer will be released when the
- * temporary is destroyed and foo will manage a pointer to an already released
- * Resource.
- *
- * Two issues has to be fixed in the example above:
- *   - Function signature has to be changed to reflect the fact that Foo
- *     instances cannot be copied. In that case accessor should return a
- *     reference to give access to objects already existing and managed.
- *     Generator on the other hand should return a pointer to the created object.
- *
+ * 
+ * There is a subtile bug in this code, the function get_connection returns a 
+ * reference to a Connection which is captured by value instead of reference. 
+ * 
+ * When the reference returned by get_connection is copied into connection, the 
+ * vtable and others members defined in Connection are copied but members defined
+ * in SerialConnection are left apart. This can cause severe crashes or bugs if 
+ * the virtual functions captured uses members not present in the base 
+ * declaration. 
+ * 
+ * To solve that problem, the copy constructor and assignment operator have to 
+ * be declared (but doesn't need to be defined) in the private section of the 
+ * Connection class: 
+ * 
  * @code
- * // return a reference to an already managed Foo instance
- * Foo& get_foo();
- * Foo& foo = get_foo();
- *
- * // create a new Foo instance
- * Foo* make_foo();
- * Foo* m = make_foo();
- * @endcode
- *
- *   - Copy constructor and copy assignment operator has to be made private
- *     in the Foo class. It prevents unwanted copy of Foo objects. This can be
- *     done by declaring copy constructor and copy assignment in the private
- *     section of the Foo class.
- *
- * @code
- * class Foo {
- * public:
- *   Foo() : _resource(new Resource()) { }
- *   ~Foo() { delete _resource; }
+ * struct Connection { 
  * private:
- *   // disallow copy operations
- *   Foo(const Foo&);
- *   Foo& operator=(const Foo&);
- *   // data members
- *   Resource* _resource;
+ *     Connection(const Connection&);
+ *     Connection& operator=(const Connection&);
  * }
  * @endcode
- *
- * Another solution is to inherit privately from the NonCopyable class.
- * It reduces the boiler plate needed to avoid copy operations but more
- * importantly it clarifies the programmer intent and the object semantic.
- *
- * class Foo : private NonCopyable<Foo> {
- * public:
- *   Foo() : _resource(new Resource()) { }
- *   ~Foo() { delete _resource; }
- * private:
- *   Resource* _resource;
+ * 
+ * While manually declaring private copy constructor and assignment functions 
+ * works, it is not ideal as these declarations are usually not immediately 
+ * visible, easy to forget and may be obscure for uninformed programmer. 
+ * 
+ * Using the NonCopyable class reduce the boilerplate required and express 
+ * clearly the intent as class inheritance appears right after the class name
+ * declaration.
+ * 
+ * @code
+ * struct Connection : private NonCopyable<Connection> { 
+ *      // regular declarations
  * }
- *
- * @tparam T The type that should be made non copyable. It prevent cases where
- * the empty base optimization cannot be applied and therefore ensure that the
- * cost of this semantic sugar is null.
- *
+ * @endcode
+ * 
+ * 
+ * @par Implementation details 
+ * 
+ * Using a template type prevents cases where the empty base optimization cannot 
+ * be applied and therefore ensure that the cost of the NonCopyable semantic 
+ * sugar is null.
+ * 
  * As an example, the empty base optimization is prohibited if one of the empty
  * base class is also a base type of the first non static data member:
  *
@@ -141,6 +149,8 @@ namespace mbed {
  * // empty base optimization can be applied B and C does not refer to the same
  * // kind of A. sizeof(C) == sizeof(B) == sizeof(int).
  * @endcode
+ *
+ * @tparam T The type that should be made non copyable. 
  *
  * @note Compile time errors are disabled if the develop or the release profile
  * is used. To override this behavior and force compile time errors in all profile
