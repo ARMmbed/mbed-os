@@ -23,6 +23,13 @@
 
 namespace mbed {
 
+/** \addtogroup platform */
+/** @{*/
+/**
+ * \defgroup platform_NonCopyable NonCopyable class
+ * @{
+ */
+
 /**
  * Prevents generation of copy constructor and copy assignment operator in 
  * derived classes.
@@ -217,6 +224,10 @@ private:
 #endif
 #endif 
 };
+
+/**@}*/
+
+/**@}*/
 
 } // namespace mbed
 
