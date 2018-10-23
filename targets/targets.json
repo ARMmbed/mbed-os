@@ -1268,6 +1268,7 @@
         }
     },
     "DISCO_F413ZH": {
+        "components": ["QSPIF"],
         "inherits": ["FAMILY_STM32"],
         "supported_form_factors": ["ARDUINO"],
         "core": "Cortex-M4F",
@@ -1938,6 +1939,7 @@
         "bootloader_supported": true
     },
     "DISCO_F469NI": {
+        "components": ["QSPIF"],
         "inherits": ["FAMILY_STM32"],
         "supported_form_factors": ["ARDUINO"],
         "core": "Cortex-M4F",
@@ -2071,6 +2073,7 @@
         }
     },
     "DISCO_L475VG_IOT01A": {
+        "components": ["QSPIF"],
         "inherits": ["FAMILY_STM32"],
         "core": "Cortex-M4F",
         "extra_labels_add": ["STM32L4", "STM32L475xG", "STM32L475VG"],
@@ -2094,6 +2097,7 @@
         "bootloader_supported": true
     },
     "DISCO_L476VG": {
+        "components": ["QSPIF"],
         "inherits": ["FAMILY_STM32"],
         "core": "Cortex-M4F",
         "extra_labels_add": ["STM32L4", "STM32L476xG", "STM32L476VG"],
