@@ -148,6 +148,7 @@ namespace mbed {
  */
 template<typename T>
 class NonCopyable {
+#ifndef DOXYGEN_ONLY
 protected:
     /**
      * Disallow construction of NonCopyable objects from outside of its hierarchy.
@@ -204,6 +205,7 @@ private:
      */
     NonCopyable &operator=(const NonCopyable &);
 #endif
+#endif 
 };
 
 } // namespace mbed
