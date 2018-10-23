@@ -44,10 +44,10 @@ struct Waiter;
  *
  * The thread that intends to wait on a ConditionVariable must:
  * - Acquire a lock on a mutex
- * - Execute `wait`, `wait_for`, or `wait_until`. While the thread is waiting,
+ * - Execute `wait`, `wait_for` or `wait_until`. While the thread is waiting,
  *   the mutex will be unlocked.
  * - When the condition variable has been notified, or in the case of `wait_for`
- *   and `wait_until` the timeout expires the thread is awakened.
+ *   and `wait_until` the timeout expires, the thread is awakened.
  *
  * The thread that intends to notify a ConditionVariable must:
  * - Acquire a lock on the mutex used to construct the condition variable.
@@ -58,13 +58,13 @@ struct Waiter;
  *   ConditionVariable::notify_all is called.
  * - At least one thread that is waiting on the condition variable will wake
  *   when ConditionVariable::notify_one is called.
- * - While waiting for a thread is waiting for notification of a
- *   ConditionVariable it will release the lock held on the mutex.
+ * - While a thread is waiting for notification of a
+ *   ConditionVariable, it will release the lock held on the mutex.
  * - The ConditionVariable will reacquire the mutex lock before exiting the wait
  *   function.
  *
  * ## Undefined behavior
- * - The thread which is unblocked on ConditionVariable::notify_one is
+ * - The thread that is unblocked on ConditionVariable::notify_one is
  *   undefined if there are multiple waiters.
  * - Calling wait if the mutex is not locked by the current thread is undefined
  *   behavior.
@@ -72,12 +72,12 @@ struct Waiter;
  *   mutex after ConditionVariable::notify_all is called is undefined.
  * - When ConditionVariable::notify_one or ConditionVariable::notify_all is
  *   called and there are one or more waiters, and one or more threads
- *   attempting to acquire the condition variable's mutex the order in which the mutex is
+ *   attempting to acquire the condition variable's mutex, the order in which the mutex is
  *   acquired is undefined.
  * - The behavior of ConditionVariable::wait and ConditionVariable::wait_for
  *   is undefined if the condition variable's mutex is locked more than once by
  *   the calling thread.
- * - Spurious notifications (not triggered by the application) can occur
+ * - Spurious notifications (not triggered by the application) can occur,
  *   and it is not defined when these occur.
  *
  * @note Synchronization level: Thread safe
@@ -123,7 +123,7 @@ struct Waiter;
  *     // Acquire lock on mutex before modifying variables and notifying.
  *     mutex.lock();
  *
- *     // Change count and notify waiters of this
+ *     // Change count and notify waiters of this.
  *     work_count++;
  *     printf("Main thread: Set count to: %lu\r\n", work_count);
  *     printf("Main thread: Notifying worker thread\r\n");
@@ -135,7 +135,7 @@ struct Waiter;
  *     wait(1.0);
  *   }
  *
- *   // Change done and notify waiters of this
+ *   // Change done and notify waiters of this.
  *   mutex.lock();
  *   done = true;
  *   cv.notify_all();
@@ -150,22 +150,22 @@ struct Waiter;
 
 class ConditionVariable : private mbed::NonCopyable<ConditionVariable> {
 public:
-    /** Create and initialize a ConditionVariable object
+    /** Create and initialize a ConditionVariable object.
      *
      * @note You cannot call this function from ISR context.
     */
     ConditionVariable(Mutex &mutex);
 
-    /** Wait for a notification
+    /** Wait for a notification.
      *
      * Wait causes the current thread to block until the condition variable
      * receives a notification from another thread.
      *
      * @note - The thread calling this function must be the owner of the
-     * ConditionVariable's mutex and it must be locked exactly once.
+     * ConditionVariable's mutex, and it must be locked exactly once.
      *
-     * @note - Spurious notifications can occur so the caller of this API
-     * should check to make sure the condition they are waiting on has
+     * @note - Spurious notifications can occur, so the caller of this API
+     * should check to make sure the condition the caller is waiting on has
      * been met.
      * 
      * @note - The current thread will release the lock while inside the wait
@@ -188,7 +188,7 @@ public:
      */
     void wait();
 
-    /** Wait for a notification until specified time
+    /** Wait for a notification until the specified time.
      *
      * Wait until causes the current thread to block until the condition
      * variable is notified, or a specific time given by millisec parameter is
@@ -198,10 +198,10 @@ public:
      * @return  true if a timeout occurred, false otherwise.
      *
      * @note - The thread calling this function must be the owner of the
-     * ConditionVariable's mutex and it must be locked exactly once.
+     * ConditionVariable's mutex, and it must be locked exactly once.
      *
-     * @note - Spurious notifications can occur so the caller of this API
-     * should check to make sure the condition they are waiting on has
+     * @note - Spurious notifications can occur, so the caller of this API
+     * should check to make sure the condition the caller is waiting on has
      * been met.
      *
      * @note - The current thread will release the lock while inside the wait
@@ -235,14 +235,14 @@ public:
      * variable receives a notification from another thread, or the timeout
      * specified by the millisec parameter is reached.
      *
-     * @param   millisec  timeout value or osWaitForever in case of no time-out.
+     * @param   millisec  timeout value or osWaitForever in case of no timeout.
      * @return  true if a timeout occurred, false otherwise.
      *
      * @note - The thread calling this function must be the owner of the
-     * ConditionVariable's mutex and it must be locked exactly once.
+     * ConditionVariable's mutex, and it must be locked exactly once.
      *
-     * @note - Spurious notifications can occur so the caller of this API
-     * should check to make sure the condition they are waiting on has
+     * @note - Spurious notifications can occur, so the caller of this API
+     * should check to make sure the condition the caller is waiting on has
      * been met.
      *
      * @note - The current thread will release the lock while inside the wait
@@ -276,9 +276,9 @@ public:
      * variable.
      *
      * @note - The thread calling this function must be the owner of the
-     * ConditionVariable's mutex
+     * ConditionVariable's mutex.
      *
-     * @note - The thread which is unblocked on ConditionVariable::notify_one is
+     * @note - The thread that is unblocked on ConditionVariable::notify_one is
      * undefined if there are multiple waiters.
      *
      * @note You cannot call this function from ISR context.
@@ -291,7 +291,7 @@ public:
      * variable.
      *
      * @note - The thread calling this function must be the owner of the
-     * ConditionVariable's mutex
+     * ConditionVariable's mutex.
      *
      * @note - If there are one or more waiters and one or more threads
      * attempting to acquire the condition variable's mutex the order in which
