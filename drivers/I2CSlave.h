@@ -150,8 +150,13 @@ public:
      */
     void stop(void);
 
+#if !defined(DOXYGEN_ONLY)
+
 protected:
+    /* Internal i2c object identifying the resources */
     i2c_t _i2c;
+
+#endif //!defined(DOXYGEN_ONLY)
 };
 
 } // namespace mbed
