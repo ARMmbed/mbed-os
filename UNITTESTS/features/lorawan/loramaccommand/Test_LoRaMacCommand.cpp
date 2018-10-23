@@ -22,9 +22,13 @@
 
 class my_LoRaPHY : public LoRaPHY {
 public:
-    my_LoRaPHY() {};
+    my_LoRaPHY()
+    {
+    };
 
-    virtual ~my_LoRaPHY() {};
+    virtual ~my_LoRaPHY()
+    {
+    };
 };
 
 uint8_t my_cb()

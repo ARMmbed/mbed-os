@@ -27,9 +27,13 @@ using namespace events;
 
 class my_phy : public LoRaPHY {
 public:
-    my_phy() {};
+    my_phy()
+    {
+    };
 
-    virtual ~my_phy() {};
+    virtual ~my_phy()
+    {
+    };
 };
 
 class Test_LoRaMac : public testing::Test {
