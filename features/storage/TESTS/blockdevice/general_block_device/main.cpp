@@ -95,6 +95,11 @@ void test_random_program_read_erase()
 
     BlockDevice *block_device = BlockDevice::get_default_instance();
 
+    if (!block_device) {
+        utest_printf("\nno block device found.\n");
+        return;
+    }
+
     int err = block_device->init();
     TEST_ASSERT_EQUAL(0, err);
 
@@ -163,6 +168,11 @@ void test_multi_threads()
     utest_printf("\nTest Multi Threaded Erase/Program/Read Starts..\n");
 
     BlockDevice *block_device = BlockDevice::get_default_instance();
+
+    if (!block_device) {
+        utest_printf("\nno block device found.\n");
+        return;
+    }
 
     int err = block_device->init();
     TEST_ASSERT_EQUAL(0, err);
