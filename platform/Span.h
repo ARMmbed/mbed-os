@@ -697,7 +697,7 @@ struct Span<ElementType, SPAN_DYNAMIC_EXTENT> {
      * @return A subspan of this starting at Offset and Count long.
      */
     template<std::ptrdiff_t Offset, std::ptrdiff_t Count>
-    Span<element_type, Count == SPAN_DYNAMIC_EXTENT ? SPAN_DYNAMIC_EXTENT : Count>
+    Span<element_type, Count>
     subspan() const
     {
         MBED_ASSERT(0 <= Offset && Offset <= _size);
@@ -705,7 +705,7 @@ struct Span<ElementType, SPAN_DYNAMIC_EXTENT> {
             (Count == SPAN_DYNAMIC_EXTENT) ||
             (0 <= Count && (Count + Offset) <= _size)
         );
-        return Span<element_type, Count == SPAN_DYNAMIC_EXTENT ? SPAN_DYNAMIC_EXTENT : Count>(
+        return Span<element_type, Count>(
             _data + Offset,
             Count == SPAN_DYNAMIC_EXTENT ? _size - Offset : Count
         );
