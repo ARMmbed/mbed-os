@@ -117,6 +117,7 @@ set(unittest-includes-base
   "${PROJECT_SOURCE_DIR}/../features/filesystem/littlefs/littlefs"
   "${PROJECT_SOURCE_DIR}/../features/cellular/framework/API"
   "${PROJECT_SOURCE_DIR}/../features/cellular/framework/AT"
+  "${PROJECT_SOURCE_DIR}/../features/cellular/framework/device"
   "${PROJECT_SOURCE_DIR}/../features/cellular/framework"
   "${PROJECT_SOURCE_DIR}/../features/cellular/framework/common"
   "${PROJECT_SOURCE_DIR}/../features/lorawan"

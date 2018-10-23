@@ -70,8 +70,12 @@ TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_open_network)
     AT_CellularDevice dev(que);
     FileHandle_stub fh1;
 
-    EXPECT_TRUE(!dev.open_network(NULL));
-    EXPECT_TRUE(dev.open_network(&fh1));
+    CellularNetwork *nw = dev.open_network(NULL);
+    CellularNetwork *nw1 = dev.open_network(&fh1);
+
+    EXPECT_TRUE(nw);
+    EXPECT_TRUE(nw1);
+    EXPECT_TRUE(nw1 == nw);
 }
 
 TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_open_sms)
@@ -80,8 +84,12 @@ TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_open_sms)
     AT_CellularDevice dev(que);
     FileHandle_stub fh1;
 
-    EXPECT_TRUE(!dev.open_sms(NULL));
-    EXPECT_TRUE(dev.open_sms(&fh1));
+    CellularSMS *sms = dev.open_sms(NULL);
+    CellularSMS *sms1 = dev.open_sms(&fh1);
+
+    EXPECT_TRUE(sms);
+    EXPECT_TRUE(sms1);
+    EXPECT_TRUE(sms1 == sms);
 }
 
 TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_open_power)
@@ -90,8 +98,12 @@ TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_open_power)
     AT_CellularDevice dev(que);
     FileHandle_stub fh1;
 
-    EXPECT_TRUE(!dev.open_power(NULL));
-    EXPECT_TRUE(dev.open_power(&fh1));
+    CellularPower *pwr = dev.open_power(NULL);
+    CellularPower *pwr1 = dev.open_power(&fh1);
+
+    EXPECT_TRUE(pwr);
+    EXPECT_TRUE(pwr1);
+    EXPECT_TRUE(pwr1 == pwr);
 }
 
 TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_open_sim)
@@ -100,8 +112,12 @@ TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_open_sim)
     AT_CellularDevice dev(que);
     FileHandle_stub fh1;
 
-    EXPECT_TRUE(! dev.open_sim(NULL));
-    EXPECT_TRUE(dev.open_sim(&fh1));
+    CellularSIM *sim =  dev.open_sim(NULL);
+    CellularSIM *sim1 =  dev.open_sim(&fh1);
+
+    EXPECT_TRUE(sim);
+    EXPECT_TRUE(sim1);
+    EXPECT_TRUE(sim1 == sim);
 }
 
 TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_open_information)
@@ -110,8 +126,12 @@ TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_open_information)
     AT_CellularDevice dev(que);
     FileHandle_stub fh1;
 
-    EXPECT_TRUE(!dev.open_information(NULL));
-    EXPECT_TRUE(dev.open_information(&fh1));
+    CellularInformation *info = dev.open_information(NULL);
+    CellularInformation *info1 = dev.open_information(&fh1);
+
+    EXPECT_TRUE(info);
+    EXPECT_TRUE(info1);
+    EXPECT_TRUE(info1 == info);
 }
 
 TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_close_network)
@@ -247,21 +267,6 @@ TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_modem_debug_on)
     EXPECT_TRUE(ATHandler_stub::debug_on == true);
 
     dev.close_sim();
-}
-
-TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_get_stack)
-{
-    EventQueue que;
-    AT_CellularDevice dev(que);
-    FileHandle_stub fh1;
-
-    NetworkStack *stack = dev.get_stack();
-    EXPECT_TRUE(stack == NULL);
-
-    EXPECT_TRUE(dev.open_network(&fh1));
-
-    stack = dev.get_stack();
-    EXPECT_TRUE(stack == NULL); // Not in PPP so also null but this is got from the network class
 }
 
 TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_get_send_delay)

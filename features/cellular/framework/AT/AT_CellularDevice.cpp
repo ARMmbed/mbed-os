@@ -26,6 +26,7 @@
 #include "CellularLog.h"
 #include "ATHandler.h"
 #include "UARTSerial.h"
+#include "FileHandle.h"
 
 using namespace events;
 using namespace mbed;

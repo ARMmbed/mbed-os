@@ -27,13 +27,45 @@ MBED_WEAK CellularDevice *CellularDevice::get_default_instance()
 }
 
 CellularDevice::CellularDevice() : _network_ref_count(0), _sms_ref_count(0), _power_ref_count(0), _sim_ref_count(0),
-    _info_ref_count(0)
+        _info_ref_count(0), _fh(0), _error(0), _state_machine(0), _nw(0)
 {
+}
+
+CellularDevice::~CellularDevice()
+{
+
 }
 
 events::EventQueue *CellularDevice::get_queue() const
 {
     return NULL;
 }
+
+CellularContext *CellularDevice::get_context_list() const
+{
+    return NULL;
+}
+
+nsapi_error_t CellularDevice::set_device_ready()
+{
+    return NSAPI_ERROR_OK;
+}
+
+nsapi_error_t CellularDevice::set_sim_ready()
+{
+    return NSAPI_ERROR_OK;
+}
+
+nsapi_error_t CellularDevice::register_to_network()
+{
+    return NSAPI_ERROR_OK;
+}
+
+nsapi_error_t CellularDevice::attach_to_network()
+{
+    return NSAPI_ERROR_OK;
+}
+
+
 
 }

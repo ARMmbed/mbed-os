@@ -15,28 +15,66 @@
  * limitations under the License.
  */
 
-#ifndef MBED_OBJECTS_H
-#define MBED_OBJECTS_H
+#include "SerialBase.h"
 
-#include "PeripheralNames.h"
-#include "PinNames.h"
+namespace mbed {
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-struct gpio_irq_s {
-    uint32_t ch;
-};
-
-struct serial_s {
-    int x;
-};
-
-#include "gpio_object.h"
-
-#ifdef __cplusplus
+SerialBase::SerialBase(PinName tx, PinName rx, int baud)
+{
 }
-#endif
 
-#endif
+SerialBase::~SerialBase()
+{
+
+}
+
+void SerialBase::baud(int baudrate)
+{
+}
+
+void SerialBase::format(int bits, Parity parity, int stop_bits)
+{
+}
+
+int SerialBase::readable()
+{
+    return 0;
+}
+
+
+int SerialBase::writeable()
+{
+    return 0;
+}
+
+void SerialBase::attach(Callback<void()> func, IrqType type)
+{
+}
+
+void SerialBase::_irq_handler(uint32_t id, SerialIrq irq_type)
+{
+}
+
+int SerialBase::_base_getc()
+{
+    return 0;
+}
+
+int SerialBase::_base_putc(int c)
+{
+    return 0;
+}
+
+void SerialBase::send_break()
+{
+}
+
+void SerialBase::lock()
+{
+}
+
+void SerialBase:: unlock()
+{
+}
+
+}
