@@ -131,8 +131,8 @@ public:
      *  @param data Value to write.
      *
      *  @return Result of the operation.
-     *  @retval 0 If an NACK was received.
-     *  @retval 1 If an ACK was received.
+     *  @retval 0 If a NACK is received.
+     *  @retval 1 If an ACK is received.
      *  @retval 2 On timeout.
      */
     int write(int data);
