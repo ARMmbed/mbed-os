@@ -531,7 +531,7 @@ def build_project(src_paths, build_path, target, toolchain_name,
 
         # Change linker script if specified
         if linker_script is not None:
-            resources.add_file_ref(linker_script, linker_script)
+            resources.add_file_ref(FileType.LD_SCRIPT, linker_script, linker_script)
         if not resources.get_file_refs(FileType.LD_SCRIPT):
             raise NotSupportedException("No Linker Script found")
 
