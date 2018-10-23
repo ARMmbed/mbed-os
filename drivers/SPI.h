@@ -213,7 +213,7 @@ protected:
      */
     void irq_handler_asynch(void);
 
-    /** Starts transfer or puts the transfer on the queue.
+    /** Start the transfer or put it on the queue.
      *
      * @param tx_buffer The TX buffer with data to be transfered. If NULL is passed,
      *                  the default SPI value is sent
@@ -249,7 +249,7 @@ protected:
      */
     int queue_transfer(const void *tx_buffer, int tx_length, void *rx_buffer, int rx_length, unsigned char bit_width, const event_callback_t &callback, int event);
 
-    /** Configures a callback, spi peripheral and initiate a new transfer.
+    /** Configure a callback, spi peripheral and initiate a new transfer.
      *
      * @param tx_buffer The TX buffer with data to be transfered. If NULL is passed,
      *                  the default SPI value is sent.
