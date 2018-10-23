@@ -26,9 +26,9 @@
 namespace mbed {
 /** \addtogroup drivers */
 
-/** A SPI slave, used for communicating with a SPI Master device.
+/** A SPI slave, used for communicating with a SPI master device.
  *
- * The default format is set to 8-bits, mode 0, and a clock frequency of 1MHz.
+ * The default format is set to 8 bits, mode 0 and a clock frequency of 1MHz.
  *
  * @note Synchronization level: Not protected
  *
@@ -89,7 +89,7 @@ public:
      */
     void frequency(int hz = 1000000);
 
-    /** Polls the SPI to see if data has been received
+    /** Polls the SPI to see if data has been received.
      *
      *  @return Presence of received data.
      *  @retval 0 No data waiting.
