@@ -32,7 +32,7 @@ mbed test -m K64F -t ARM -n mbed-os-features-storage-tests-blockdevice-general_b
 Use `mbed test` again:
 
 ```
-mbed test -m K64F -t ARM -n mbed-os-features-storage-tests-blockdevice-general_block_device --run
+mbed test -m K64F -t ARM -n mbed-os-features-storage-tests-blockdevice-general_block_device --run -v
 ```
    
 #### Troubleshooting
