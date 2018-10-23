@@ -574,13 +574,14 @@
         "is_disk_virtual": true,
         "inherits": ["Target"],
         "detect_code": ["0218"],
-        "device_has": ["USTICKER", "LPTICKER", "RTC", "ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SEMIHOST", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "TRNG", "FLASH"],
+        "device_has": ["USTICKER", "LPTICKER", "RTC", "ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SEMIHOST", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "TRNG", "FLASH", "QSPI"],
         "release_versions": ["2", "5"],
         "device_name": "MKL82Z128xxx7"
     },
     "USENSE": {
         "inherits": ["KL82Z"],
         "extra_labels_remove": ["FRDM"],
+        "device_has_remove": ["QSPI"],
         "supported_form_factors": []
     },
     "KW24D": {
@@ -758,7 +759,7 @@
         "macros": ["CPU_MK82FN256VDC15", "FSL_RTOS_MBED"],
         "inherits": ["Target"],
         "detect_code": ["0217"],
-        "device_has": ["USTICKER", "LPTICKER", "RTC", "ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "TRNG", "FLASH"],
+        "device_has": ["USTICKER", "LPTICKER", "RTC", "ANALOGIN", "ANALOGOUT", "I2C", "I2CSLAVE", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "SPISLAVE", "STDIO_MESSAGES", "TRNG", "FLASH", "QSPI"],
         "release_versions": ["2", "5"],
         "device_name": "MK82FN256xxx15"
     },
@@ -766,6 +767,7 @@
         "inherits": ["K82F"],
         "extra_labels_remove": ["FRDM"],
         "components_remove": ["SPIF"],
+        "device_has_remove": ["QSPI"],
         "supported_form_factors": []
     },
     "FAMILY_STM32": {
@@ -2195,7 +2197,7 @@
         "device_has_add": ["ANALOGOUT", "CAN", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
         "device_name": "STM32L471QG",
-        "bootloader_supported": true        
+        "bootloader_supported": true
     },
     "MTB_MTS_DRAGONFLY": {
         "inherits": ["FAMILY_STM32"],
@@ -4507,7 +4509,7 @@
         "extra_labels": ["TOSHIBA"],
         "macros": ["__TMPM4G9__"],
         "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
-        "device_has": ["ANALOGIN", "ANALOGOUT", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SPI", "I2C", "I2CSLAVE", "STDIO_MESSAGES", "FLASH", "SLEEP", "USTICKER"], 
+        "device_has": ["ANALOGIN", "ANALOGOUT", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SPI", "I2C", "I2CSLAVE", "STDIO_MESSAGES", "FLASH", "SLEEP", "USTICKER"],
         "device_name": "TMPM4G9F15FG",
         "detect_code": ["7016"],
         "release_versions": ["5"],

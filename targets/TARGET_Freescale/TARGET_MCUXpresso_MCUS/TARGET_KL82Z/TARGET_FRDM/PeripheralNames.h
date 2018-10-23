@@ -95,6 +95,10 @@ typedef enum {
     DAC_0 = 0
 } DACName;
 
+typedef enum {
+    QSPI_0 = 0
+} QSPIName;
+
 #ifdef __cplusplus
 }
 #endif

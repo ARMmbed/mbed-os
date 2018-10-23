@@ -158,3 +158,28 @@ const PinMap PinMap_PWM[] = {
     {NC   , NC    , 0}
 };
 
+const PinMap PinMap_QSPI_DATA[] = {
+    {PTE0,  QSPI_0, 5},
+    {PTE2,  QSPI_0, 5},
+    {PTE3,  QSPI_0, 5},
+    {PTE4,  QSPI_0, 5},
+    {PTE6,  QSPI_0, 5},
+    {PTE7,  QSPI_0, 5},
+    {PTE8,  QSPI_0, 5},
+    {PTE9,  QSPI_0, 5},
+    {PTE10,  QSPI_0, 5},
+    {NC   , NC    , 0}
+};
+
+const PinMap PinMap_QSPI_SCLK[] = {
+    {PTE1,  QSPI_0, 5},
+    {PTE7,  QSPI_0, 5},
+    {NC   , NC    , 0}
+};
+
+const PinMap PinMap_QSPI_SSEL[] = {
+    {PTE5,  QSPI_0, 5},
+    {PTE11, QSPI_0, 5},
+    {NC   , NC    , 0}
+};
+

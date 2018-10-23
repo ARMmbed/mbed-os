@@ -178,6 +178,14 @@ typedef enum {
     SPI_SCK     = PTE1,
     SPI_PERSISTENT_MEM_CS = PTE5,
 
+    /**** QSPI FLASH pins ****/
+    QSPI_FLASH1_IO0 = PTE2,
+    QSPI_FLASH1_IO1 = PTE4,
+    QSPI_FLASH1_IO2 = PTE3,
+    QSPI_FLASH1_IO3 = PTE0,
+    QSPI_FLASH1_SCK = PTE1,
+    QSPI_FLASH1_CSN = PTE5,
+
     // Not connected
     NC = (int)0xFFFFFFFF
 } PinName;
