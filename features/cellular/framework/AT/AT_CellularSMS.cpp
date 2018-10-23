@@ -41,7 +41,7 @@ const uint8_t SMS_MAX_GSM7_CONCATENATED_SINGLE_SMS_SIZE = 153;
 #define NVAM '?' // Not Valid ascii, ISO-8859-1 mark
 
 // mapping table from 7-bit GSM to ascii (ISO-8859-1)
-static const int gsm_to_ascii[] = {
+static const char gsm_to_ascii[] = {
     64,     // 0
     163,    // 1
     36,     // 2
@@ -212,9 +212,7 @@ nsapi_error_t AT_CellularSMS::set_cnmi()
 {
     _at.lock();
     _at.cmd_start("AT+CNMI=2,1");
-    _at.cmd_stop();
-    _at.resp_start();
-    _at.resp_stop();
+    _at.cmd_stop_read_resp();
     return _at.unlock_return_error();
 }
 
@@ -223,9 +221,7 @@ nsapi_error_t AT_CellularSMS::set_cmgf(int msg_format)
     _at.lock();
     _at.cmd_start("AT+CMGF=");
     _at.write_int(msg_format);
-    _at.cmd_stop();
-    _at.resp_start();
-    _at.resp_stop();
+    _at.cmd_stop_read_resp();
     return _at.unlock_return_error();
 }
 
@@ -237,9 +233,7 @@ nsapi_error_t AT_CellularSMS::set_csmp(int fo, int vp, int pid, int dcs)
     _at.write_int(vp);
     _at.write_int(pid);
     _at.write_int(dcs);
-    _at.cmd_stop();
-    _at.resp_start();
-    _at.resp_stop();
+    _at.cmd_stop_read_resp();
     return _at.unlock_return_error();
 }
 
@@ -248,9 +242,7 @@ nsapi_error_t AT_CellularSMS::set_csdh(int show_header)
     _at.lock();
     _at.cmd_start("AT+CSDH=");
     _at.write_int(show_header);
-    _at.cmd_stop();
-    _at.resp_start();
-    _at.resp_stop();
+    _at.cmd_stop_read_resp();
     return _at.unlock_return_error();
 }
 
@@ -546,9 +538,7 @@ nsapi_error_t AT_CellularSMS::set_cpms(const char *memr, const char *memw, const
     _at.write_string(memr);
     _at.write_string(memw);
     _at.write_string(mems);
-    _at.cmd_stop();
-    _at.resp_start();
-    _at.resp_stop();
+    _at.cmd_stop_read_resp();
 
     return _at.unlock_return_error();
 }
@@ -559,9 +549,7 @@ nsapi_error_t AT_CellularSMS::set_csca(const char *sca, int type)
     _at.cmd_start("AT+CSCA=");
     _at.write_string(sca);
     _at.write_int(type);
-    _at.cmd_stop();
-    _at.resp_start();
-    _at.resp_stop();
+    _at.cmd_stop_read_resp();
 
     return _at.unlock_return_error();
 }
@@ -571,9 +559,7 @@ nsapi_size_or_error_t AT_CellularSMS::set_cscs(const char *chr_set)
     _at.lock();
     _at.cmd_start("AT+CSCS=");
     _at.write_string(chr_set);
-    _at.cmd_stop();
-    _at.resp_start();
-    _at.resp_stop();
+    _at.cmd_stop_read_resp();
 
     return _at.unlock_return_error();
 }
@@ -584,9 +570,7 @@ nsapi_error_t AT_CellularSMS::delete_sms(sms_info_t *sms)
     for (int i = 0; i < sms->parts; i++) {
         _at.cmd_start("AT+CMGD=");
         _at.write_int(sms->msg_index[i]);
-        _at.cmd_stop();
-        _at.resp_start();
-        _at.resp_stop();
+        _at.cmd_stop_read_resp();
     }
 
     return _at.unlock_return_error();
@@ -600,9 +584,7 @@ nsapi_error_t AT_CellularSMS::delete_all_messages()
 {
     _at.lock();
     _at.cmd_start("AT+CMGD=1,4");
-    _at.cmd_stop();
-    _at.resp_start();
-    _at.resp_stop();
+    _at.cmd_stop_read_resp();
     return _at.unlock_return_error();
 }
 

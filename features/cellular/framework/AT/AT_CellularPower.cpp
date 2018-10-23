@@ -49,14 +49,10 @@ nsapi_error_t AT_CellularPower::set_at_mode()
     _at.lock();
     _at.flush();
     _at.cmd_start("ATE0"); // echo off
-    _at.cmd_stop();
-    _at.resp_start();
-    _at.resp_stop();
+    _at.cmd_stop_read_resp();
 
     _at.cmd_start("AT+CMEE=1"); // verbose responses
-    _at.cmd_stop();
-    _at.resp_start();
-    _at.resp_stop();
+    _at.cmd_stop_read_resp();
     return _at.unlock_return_error();
 }
 
@@ -66,9 +62,7 @@ nsapi_error_t AT_CellularPower::set_power_level(int func_level, int do_reset)
     _at.cmd_start("AT+CFUN=");
     _at.write_int(func_level);
     _at.write_int(do_reset);
-    _at.cmd_stop();
-    _at.resp_start();
-    _at.resp_stop();
+    _at.cmd_stop_read_resp();
     return _at.unlock_return_error();
 }
 
@@ -78,9 +72,7 @@ nsapi_error_t AT_CellularPower::reset()
     _at.cmd_start("AT+CFUN=");// reset to full power levels
     _at.write_int(1);
     _at.write_int(1);
-    _at.cmd_stop();
-    _at.resp_start();
-    _at.resp_stop();
+    _at.cmd_stop_read_resp();
     return _at.unlock_return_error();
 }
 
@@ -92,9 +84,7 @@ nsapi_error_t AT_CellularPower::opt_power_save_mode(int periodic_time, int activ
         // disable PSM
         _at.cmd_start("AT+CPSMS=");
         _at.write_int(0);
-        _at.cmd_stop();
-        _at.resp_start();
-        _at.resp_stop();
+        _at.cmd_stop_read_resp();
     } else {
         /**
             Table 10.5.163a/3GPP TS 24.008: GPRS Timer 3 information element
@@ -199,10 +189,7 @@ nsapi_error_t AT_CellularPower::opt_power_save_mode(int periodic_time, int activ
         _at.write_string(at);
         _at.write_string(pt);
         _at.write_string(at);
-        _at.cmd_stop();
-        _at.resp_start();
-        _at.resp_stop();
-
+        _at.cmd_stop_read_resp();
 
         if (_at.get_last_error() != NSAPI_ERROR_OK) {
             tr_warn("Power save mode not enabled!");
@@ -227,9 +214,7 @@ nsapi_error_t AT_CellularPower::opt_receive_period(int mode, EDRXAccessTechnolog
     _at.write_int(mode);
     _at.write_int(act_type);
     _at.write_string(edrx);
-    _at.cmd_stop();
-    _at.resp_start();
-    _at.resp_stop();
+    _at.cmd_stop_read_resp();
 
     return _at.unlock_return_error();
 }
@@ -238,17 +223,13 @@ nsapi_error_t AT_CellularPower::is_device_ready()
 {
     _at.lock();
     _at.cmd_start("AT");
-    _at.cmd_stop();
-    _at.resp_start();
-    _at.resp_stop();
+    _at.cmd_stop_read_resp();
 
     // we need to do this twice because for example after data mode the first 'AT' command will give modem a
     // stimulus that we are back to command mode.
     _at.clear_error();
     _at.cmd_start("AT");
-    _at.cmd_stop();
-    _at.resp_start();
-    _at.resp_stop();
+    _at.cmd_stop_read_resp();
 
     return _at.unlock_return_error();
 }

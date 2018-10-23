@@ -139,9 +139,7 @@ nsapi_error_t QUECTEL_BG96_CellularStack::socket_close_impl(int sock_id)
     _at.set_at_timeout(BG96_CLOSE_SOCKET_TIMEOUT);
     _at.cmd_start("AT+QICLOSE=");
     _at.write_int(sock_id);
-    _at.cmd_stop();
-    _at.resp_start();
-    _at.resp_stop();
+    _at.cmd_stop_read_resp();
     _at.restore_at_timeout();
 
     return _at.get_last_error();
@@ -182,9 +180,7 @@ nsapi_error_t QUECTEL_BG96_CellularStack::create_socket_impl(CellularSocket *soc
         if ((_at.get_last_error() == NSAPI_ERROR_OK) && err) {
             _at.cmd_start("AT+QICLOSE=");
             _at.write_int(modem_connect_id);
-            _at.cmd_stop();
-            _at.resp_start();
-            _at.resp_stop();
+            _at.cmd_stop_read_resp();
 
             _at.cmd_start("AT+QIOPEN=");
             _at.write_int(_cid);
@@ -212,9 +208,7 @@ nsapi_error_t QUECTEL_BG96_CellularStack::create_socket_impl(CellularSocket *soc
         if ((_at.get_last_error() == NSAPI_ERROR_OK) && err) {
             _at.cmd_start("AT+QICLOSE=");
             _at.write_int(modem_connect_id);
-            _at.cmd_stop();
-            _at.resp_start();
-            _at.resp_stop();
+            _at.cmd_stop_read_resp();
 
             _at.cmd_start("AT+QIOPEN=");
             _at.write_int(_cid);
@@ -232,9 +226,7 @@ nsapi_error_t QUECTEL_BG96_CellularStack::create_socket_impl(CellularSocket *soc
     if (!err && (modem_connect_id != request_connect_id)) {
         _at.cmd_start("AT+QICLOSE=");
         _at.write_int(modem_connect_id);
-        _at.cmd_stop();
-        _at.resp_start();
-        _at.resp_stop();
+        _at.cmd_stop_read_resp();
     }
 
     nsapi_error_t ret_val = _at.get_last_error();

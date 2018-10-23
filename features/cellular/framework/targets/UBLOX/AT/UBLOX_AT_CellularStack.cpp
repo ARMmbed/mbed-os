@@ -177,9 +177,7 @@ nsapi_error_t UBLOX_AT_CellularStack::socket_connect(nsapi_socket_t handle, cons
     _at.write_int(socket->id);
     _at.write_string(addr.get_ip_address());
     _at.write_int(addr.get_port());
-    _at.cmd_stop();
-    _at.resp_start();
-    _at.resp_stop();
+    _at.cmd_stop_read_resp();
     _at.unlock();
 
     if (_at.get_last_error() == NSAPI_ERROR_OK) {
@@ -407,9 +405,7 @@ nsapi_error_t UBLOX_AT_CellularStack::socket_close_impl(int sock_id)
     _at.lock();
     _at.cmd_start("AT+USOCL=");
     _at.write_int(sock_id);
-    _at.cmd_stop();
-    _at.resp_start();
-    _at.resp_stop();
+    _at.cmd_stop_read_resp();
 
     return _at.unlock_return_error();
 }

@@ -1100,6 +1100,13 @@ void ATHandler::cmd_stop()
     (void)write(_output_delimiter, strlen(_output_delimiter));
 }
 
+void ATHandler::cmd_stop_read_resp()
+{
+    cmd_stop();
+    resp_start();
+    resp_stop();
+}
+
 size_t ATHandler::write_bytes(const uint8_t *data, size_t len)
 {
     if (_last_err != NSAPI_ERROR_OK) {

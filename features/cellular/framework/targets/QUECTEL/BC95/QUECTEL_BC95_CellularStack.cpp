@@ -100,9 +100,7 @@ nsapi_error_t QUECTEL_BC95_CellularStack::socket_close_impl(int sock_id)
 {
     _at.cmd_start("AT+NSOCL=");
     _at.write_int(sock_id);
-    _at.cmd_stop();
-    _at.resp_start();
-    _at.resp_stop();
+    _at.cmd_stop_read_resp();
 
     tr_info("Close socket: %d error: %d", sock_id, _at.get_last_error());
 
@@ -132,9 +130,7 @@ nsapi_error_t QUECTEL_BC95_CellularStack::create_socket_impl(CellularSocket *soc
 
     if (!socketOpenWorking) {
         _at.cmd_start("AT+NSOCL=0");
-        _at.cmd_stop();
-        _at.resp_start();
-        _at.resp_stop();
+        _at.cmd_stop_read_resp();
 
         if (socket->proto == NSAPI_UDP) {
             _at.cmd_start("AT+NSOCR=DGRAM,17,");

@@ -262,9 +262,7 @@ nsapi_error_t AT_CellularNetwork::delete_current_context()
     _at.clear_error();
     _at.cmd_start("AT+CGDCONT=");
     _at.write_int(_cid);
-    _at.cmd_stop();
-    _at.resp_start();
-    _at.resp_stop();
+    _at.cmd_stop_read_resp();
 
     if (_at.get_last_error() == NSAPI_ERROR_OK) {
         _cid = -1;
@@ -324,9 +322,7 @@ nsapi_error_t AT_CellularNetwork::activate_context()
         tr_info("Activate PDP context %d", _cid);
         _at.cmd_start("AT+CGACT=1,");
         _at.write_int(_cid);
-        _at.cmd_stop();
-        _at.resp_start();
-        _at.resp_stop();
+        _at.cmd_stop_read_resp();
     }
 
     err = (_at.get_last_error() == NSAPI_ERROR_OK) ? NSAPI_ERROR_OK : NSAPI_ERROR_NO_CONNECTION;
@@ -371,9 +367,7 @@ nsapi_error_t AT_CellularNetwork::connect()
     if (err == NSAPI_ERROR_OK) {
         _at.lock();
         _at.cmd_start("AT+CGEREP=1");
-        _at.cmd_stop();
-        _at.resp_start();
-        _at.resp_stop();
+        _at.cmd_stop_read_resp();
         _at.unlock();
     }
 
@@ -457,9 +451,7 @@ nsapi_error_t AT_CellularNetwork::disconnect()
     if (_is_context_active && (_reg_params._act < RAT_E_UTRAN || active_contexts_count > 1)) {
         _at.cmd_start("AT+CGACT=0,");
         _at.write_int(_cid);
-        _at.cmd_stop();
-        _at.resp_start();
-        _at.resp_stop();
+        _at.cmd_stop_read_resp();
     }
 
     _at.restore_at_timeout();
@@ -523,9 +515,7 @@ nsapi_error_t AT_CellularNetwork::do_user_authentication()
         _at.write_int(_authentication_type);
         _at.write_string(_uname);
         _at.write_string(_pwd);
-        _at.cmd_stop();
-        _at.resp_start();
-        _at.resp_stop();
+        _at.cmd_stop_read_resp();
         if (_at.get_last_error() != NSAPI_ERROR_OK) {
             return NSAPI_ERROR_AUTH_FAILURE;
         }
@@ -573,9 +563,7 @@ bool AT_CellularNetwork::set_new_context(int cid)
     _at.write_int(cid);
     _at.write_string(pdp_type);
     _at.write_string(_apn);
-    _at.cmd_stop();
-    _at.resp_start();
-    _at.resp_stop();
+    _at.cmd_stop_read_resp();
     success = (_at.get_last_error() == NSAPI_ERROR_OK);
 
     // Fall back to ipv4
@@ -586,9 +574,7 @@ bool AT_CellularNetwork::set_new_context(int cid)
         _at.write_int(cid);
         _at.write_string("IP");
         _at.write_string(_apn);
-        _at.cmd_stop();
-        _at.resp_start();
-        _at.resp_stop();
+        _at.cmd_stop_read_resp();
         success = (_at.get_last_error() == NSAPI_ERROR_OK);
     }
 
@@ -730,15 +716,12 @@ nsapi_error_t AT_CellularNetwork::set_registration_urc(RegistrationType type, bo
             const uint8_t ch_eq = '=';
             _at.write_bytes(&ch_eq, 1);
             _at.write_int((int)mode);
-            _at.cmd_stop();
         } else {
             _at.cmd_start(at_reg[index].cmd);
             _at.write_string("=0", false);
-            _at.cmd_stop();
         }
 
-        _at.resp_start();
-        _at.resp_stop();
+        _at.cmd_stop_read_resp();
         return _at.unlock_return_error();
     }
 }
@@ -769,17 +752,13 @@ nsapi_error_t AT_CellularNetwork::set_registration(const char *plmn)
         if (mode != 0) {
             _at.clear_error();
             _at.cmd_start("AT+COPS=0");
-            _at.cmd_stop();
-            _at.resp_start();
-            _at.resp_stop();
+            _at.cmd_stop_read_resp();
         }
     } else {
         tr_debug("Manual network registration to %s", plmn);
         _at.cmd_start("AT+COPS=4,2,");
         _at.write_string(plmn);
-        _at.cmd_stop();
-        _at.resp_start();
-        _at.resp_stop();
+        _at.cmd_stop_read_resp();
     }
 
     return _at.unlock_return_error();
@@ -846,9 +825,7 @@ nsapi_error_t AT_CellularNetwork::set_attach(int /*timeout*/)
     if (attached_state != 1) {
         tr_debug("Network attach");
         _at.cmd_start("AT+CGATT=1");
-        _at.cmd_stop();
-        _at.resp_start();
-        _at.resp_stop();
+        _at.cmd_stop_read_resp();
     }
 
     return _at.unlock_return_error();
@@ -877,9 +854,7 @@ nsapi_error_t AT_CellularNetwork::detach()
 
     tr_debug("Network detach");
     _at.cmd_start("AT+CGATT=0");
-    _at.cmd_stop();
-    _at.resp_start();
-    _at.resp_stop();
+    _at.cmd_stop_read_resp();
 
     call_network_cb(NSAPI_STATUS_DISCONNECTED);
 
@@ -1030,10 +1005,7 @@ nsapi_error_t AT_CellularNetwork::set_ciot_optimization_config(Supported_UE_Opt 
     _at.write_int(_cid);
     _at.write_int(supported_opt);
     _at.write_int(preferred_opt);
-    _at.cmd_stop();
-
-    _at.resp_start();
-    _at.resp_stop();
+    _at.cmd_stop_read_resp();
 
     return _at.unlock_return_error();
 }
