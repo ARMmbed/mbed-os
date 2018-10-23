@@ -90,7 +90,7 @@ Case cases[] = {
 #endif
 };
 
-Specification specification(test_setup, cases);
+Specification specification(test_setup, cases, greentea_continue_handlers);
 
 // Entry point into the tests
 int main()
