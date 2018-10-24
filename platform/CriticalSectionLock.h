@@ -23,10 +23,11 @@
 
 namespace mbed {
 
-/** \addtogroup platform */
-/** @{*/
 /**
- * \defgroup platform_CriticalSectionLock CriticalSectionLock functions
+ * @addtogroup platform 
+ * @{
+ * @defgroup platform_concurency Concurency
+ * Platform independent concurency primitives
  * @{
  */
 

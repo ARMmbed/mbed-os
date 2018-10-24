@@ -22,10 +22,8 @@
 
 namespace mbed {
 
-/** \addtogroup platform */
-/** @{*/
 /**
- * \defgroup platform_DeepSleepLock DeepSleepLock functions
+ * @addtogroup platform_concurency
  * @{
  */
 
@@ -89,9 +87,6 @@ public:
 };
 
 /**@}*/
-
-/**@}*/
-
 
 }
 

@@ -1,10 +1,3 @@
-
-/** \addtogroup platform */
-/** @{*/
-/**
- * \defgroup platform_PlatformMutex PlatformMutex class
- * @{
- */
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2013 ARM Limited
  *
@@ -24,6 +17,11 @@
 #define PLATFORM_MUTEX_H
 
 #include "platform/NonCopyable.h"
+
+/**
+ * @addtogroup platform_concurency 
+ * @{
+ */
 
 #ifdef MBED_CONF_RTOS_PRESENT
 #include "rtos/Mutex.h"
@@ -57,7 +55,5 @@ public:
 #endif
 
 #endif
-
-/**@}*/
 
 /**@}*/

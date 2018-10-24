@@ -1,11 +1,3 @@
-
-/** \addtogroup platform */
-/** @{*/
-/**
- * \defgroup platform_wait_api wait_api functions
- * @{
- */
-
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2013 ARM Limited
  *
@@ -27,6 +19,11 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/**
+ * @addtogroup platform_concurency 
+ * @{
+ */
 
 /** Generic wait functions.
  *
@@ -88,5 +85,4 @@ void wait_us(int us);
 
 #endif
 
-/** @}*/
 /** @}*/

@@ -20,10 +20,8 @@
 
 namespace mbed {
 
-/** \addtogroup platform */
-/** @{*/
 /**
- * \defgroup platform_ScopedLock ScopedLock functions
+ * @addtogroup platform_concurency 
  * @{
  */
 
@@ -77,8 +75,6 @@ public:
 private:
     Lockable &_lockable;
 };
-
-/**@}*/
 
 /**@}*/
 
