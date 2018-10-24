@@ -48,6 +48,11 @@ public:
 }
 
 /**
+ * @addtogroup platform_containers
+ * @{
+ */
+
+/**
  * Special value for the Extent parameter of Span.
  * If the type uses this value, then the size of the array is stored in the object
  * at runtime.
@@ -977,6 +982,8 @@ Span<const T> make_const_Span(T *array_ptr, size_t array_size)
 {
     return Span<const T>(array_ptr, array_size);
 }
+
+/**@}*/
 
 } // namespace mbed
 

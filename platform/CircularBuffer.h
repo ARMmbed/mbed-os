@@ -49,10 +49,11 @@ struct is_unsigned<unsigned long long> {
 };
 };
 
-/** \addtogroup platform */
-/** @{*/
 /**
- * \defgroup platform_CircularBuffer CircularBuffer functions
+ * @addtogroup platform 
+ * @{
+ * @defgroup platform_containers Containers
+ * Platform independent containers.
  * @{
  */
 

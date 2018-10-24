@@ -1,10 +1,3 @@
-
-/** \addtogroup platform */
-/** @{*/
-/**
- * \defgroup platform_SingletonPtr SingletonPtr class
- * @{
- */
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2013 ARM Limited
  *
@@ -29,6 +22,11 @@
 #ifdef MBED_CONF_RTOS_PRESENT
 #include "cmsis_os2.h"
 #endif
+
+/**
+ * @addtogroup platform_containers
+ * @{
+ */
 
 #ifdef MBED_CONF_RTOS_PRESENT
 extern osMutexId_t singleton_mutex_id;
@@ -135,6 +133,4 @@ struct SingletonPtr {
 };
 
 #endif
-/**@}*/
-
 /**@}*/
