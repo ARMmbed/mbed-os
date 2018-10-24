@@ -1,10 +1,3 @@
-/** \addtogroup platform */
-/** @{*/
-/**
- * \defgroup platform_power_mgmt Power management functions
- * @{
- */
-
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2018 ARM Limited
  *
@@ -31,6 +24,14 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/** \addtogroup platform_system */
+/** @{*/
+/**
+ * \defgroup platform_power_mgmt Power management
+ * Power management APIs
+ * @{
+ */
 
 /**
  * @defgroup hal_sleep_manager Sleep manager API

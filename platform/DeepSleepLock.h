@@ -23,7 +23,7 @@
 namespace mbed {
 
 /**
- * @addtogroup platform_concurency
+ * @ingroup platform_concurency platform_power_mgmt
  * @{
  */
 
