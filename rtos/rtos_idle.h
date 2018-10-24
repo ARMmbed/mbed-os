@@ -25,6 +25,7 @@
 #ifndef RTOS_IDLE_H
 #define RTOS_IDLE_H
 
+#include "mbed_toolchain.h"
 #include <stddef.h>
 
 #ifdef __cplusplus
@@ -41,6 +42,10 @@ extern "C" {
  @param fptr Hook function pointer.
  */
 void rtos_attach_idle_hook(void (*fptr)(void));
+
+/** @private */
+MBED_NORETURN void rtos_idle_loop(void);
+
 /** @}*/
 
 #ifdef __cplusplus
