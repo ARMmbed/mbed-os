@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
-/** \addtogroup hal_critical_tests
+/** \addtogroup hal_critical
  *  @{
+ *  \defgroup hal_critical_test Tests 
+ *  Tests definitions of the HAL Critical module.
+ *  @{ 
  */
 
 #ifndef MBED_CRITICAL_SECTION_TEST_H
@@ -45,7 +48,7 @@
 template <int N>
 void test_critical_section();
 
-
+/**@}*/
 /**@}*/
 
 #endif // MBED_CRITICAL_SECTION_TEST_H

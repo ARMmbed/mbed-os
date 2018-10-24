@@ -15,8 +15,11 @@
  */
 
 /**
- * @addtogroup hal_sleep_test_utils
+ * @addtogroup hal_sleep
  * @{
+ * @defgroup hal_sleep_test_util Tests
+ * Tests of the sleep HAL.
+ * @{     
  */
 
 #ifndef MBED_SLEEP_TEST_UTILS_H
@@ -111,4 +114,5 @@ void lp_ticker_isr(const ticker_data_t * const ticker_data)
 
 #endif
 
+/** @}*/
 /** @}*/
