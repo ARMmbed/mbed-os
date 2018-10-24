@@ -336,34 +336,34 @@ protected:
      */
     virtual void socket_attach(nsapi_socket_t handle, void (*callback)(void *), void *data) = 0;
 
-    /**  Set stack-specific socket options
+    /**  Set stack-specific socket options.
      *
      *  The setsockopt allow an application to pass stack-specific hints
      *  to the underlying stack. For unsupported options,
      *  NSAPI_ERROR_UNSUPPORTED is returned and the socket is unmodified.
      *
-     *  @param handle   Socket handle
-     *  @param level    Stack-specific protocol level
-     *  @param optname  Stack-specific option identifier
-     *  @param optval   Option value
-     *  @param optlen   Length of the option value
-     *  @return         NSAPI_ERROR_OK on success, negative error code on failure
+     *  @param handle   Socket handle.
+     *  @param level    Stack-specific protocol level.
+     *  @param optname  Stack-specific option identifier.
+     *  @param optval   Option value.
+     *  @param optlen   Length of the option value.
+     *  @return         NSAPI_ERROR_OK on success, negative error code on failure.
      */
     virtual nsapi_error_t setsockopt(nsapi_socket_t handle, int level,
                                      int optname, const void *optval, unsigned optlen);
 
-    /**  Get stack-specific socket options
+    /**  Get stack-specific socket options.
      *
      *  The getstackopt allow an application to retrieve stack-specific hints
      *  from the underlying stack. For unsupported options,
      *  NSAPI_ERROR_UNSUPPORTED is returned and optval is unmodified.
      *
-     *  @param handle   Socket handle
-     *  @param level    Stack-specific protocol level
-     *  @param optname  Stack-specific option identifier
-     *  @param optval   Destination for option value
-     *  @param optlen   Length of the option value
-     *  @return         NSAPI_ERROR_OK on success, negative error code on failure
+     *  @param handle   Socket handle.
+     *  @param level    Stack-specific protocol level.
+     *  @param optname  Stack-specific option identifier.
+     *  @param optval   Destination for option value.
+     *  @param optlen   Length of the option value.
+     *  @return         NSAPI_ERROR_OK on success, negative error code on failure.
      */
     virtual nsapi_error_t getsockopt(nsapi_socket_t handle, int level,
                                      int optname, void *optval, unsigned *optlen);
