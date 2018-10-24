@@ -22,10 +22,8 @@
 #include "platform/FileLike.h"
 
 namespace mbed {
-/** \addtogroup platform */
-/** @{*/
 /**
- * \defgroup platform_FilePath FilePath class
+ * @addtogroup platform_file
  * @{
  */
 
@@ -55,8 +53,6 @@ private:
     const char *file_name;
     FileBase *fb;
 };
-
-/**@}*/
 
 /**@}*/
 

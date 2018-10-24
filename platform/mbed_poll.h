@@ -16,22 +16,22 @@
 #ifndef MBED_POLL_H
 #define MBED_POLL_H
 
+namespace mbed {
+
+/**
+ * @addtogroup platform 
+ * @{
+ * @addtogroup platform_file
+ * @{
+ */
+
 #define POLLIN         0x0001 ///< Data may be read without blocking
 #define POLLOUT        0x0010 ///< Data may be written without blocking
 #define POLLERR        0x1000 ///< An error has occurred on the device or stream
 #define POLLHUP        0x2000 ///< The device has been disconnected
 #define POLLNVAL       0x4000 ///< The specified file handle value is invalid
 
-namespace mbed {
-
 class FileHandle;
-
-/** \addtogroup platform */
-/** @{*/
-/**
- * \defgroup platform_poll poll functions
- * @{
- */
 
 struct pollfh {
     FileHandle *fh;

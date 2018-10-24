@@ -16,7 +16,16 @@
 #ifndef MBED_FILEBASE_H
 #define MBED_FILEBASE_H
 
+/**
+ * @addtogroup platform_file
+ * @{
+ */
+
 typedef int FILEHANDLE;
+
+/**
+ * @}
+ */
 
 #include "platform/platform.h"
 #include "platform/SingletonPtr.h"
@@ -25,17 +34,16 @@ typedef int FILEHANDLE;
 
 namespace mbed {
 
+/**
+ * @addtogroup platform_file
+ * @{
+ */
+
 typedef enum {
     FilePathType,
     FileSystemPathType
 } PathType;
 
-/** \addtogroup platform */
-/** @{*/
-/**
- * \defgroup platform_FileBase FileBase class
- * @{
- */
 /** Class FileBase
  *
  */
@@ -64,9 +72,9 @@ private:
     const PathType _path_type;
 };
 
-/**@}*/
-
-/**@}*/
+/**
+ * @}
+ */
 
 } // namespace mbed
 

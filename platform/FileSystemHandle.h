@@ -24,10 +24,8 @@
 #include "platform/NonCopyable.h"
 
 namespace mbed {
-/** \addtogroup platform */
-/** @{*/
 /**
- * \defgroup platform_FileSystemHandle FileSystemHandle functions
+ * @addtogroup platform_file
  * @{
  */
 
@@ -103,8 +101,6 @@ public:
      */
     virtual int statvfs(const char *path, struct statvfs *buf);
 };
-/**@}*/
-
 /**@}*/
 
 } // namespace mbed

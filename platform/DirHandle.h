@@ -22,13 +22,14 @@
 #include "platform/NonCopyable.h"
 
 namespace mbed {
-/** \addtogroup platform */
-/** @{*/
+
 /**
- * \defgroup platform_DirHandle DirHandle functions
+ * @addtogroup platform 
+ * @{
+ * @defgroup platform_file File
+ * File, directory and filesystem abstractions.
  * @{
  */
-
 
 /** Represents a directory stream. An opendir function returns 
  *  objects of this type. The core functions are read and seek,
@@ -169,9 +170,11 @@ public:
     }
 };
 
-/**@}*/
+/**
+ * @}
+ * @}
+ */
 
-/**@}*/
 } // namespace mbed
 
 #endif /* MBED_DIRHANDLE_H */

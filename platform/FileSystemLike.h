@@ -24,10 +24,8 @@
 #include "platform/NonCopyable.h"
 
 namespace mbed {
-/** \addtogroup platform */
-/** @{*/
 /**
- * \defgroup platform_FileSystemLike FileSystemLike functions
+ * @addtogroup platform_file
  * @{
  */
 
@@ -82,8 +80,6 @@ public:
         return err ? NULL : dir;
     }
 };
-
-/**@}*/
 
 /**@}*/
 

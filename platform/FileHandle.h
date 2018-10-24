@@ -25,13 +25,11 @@ typedef int FILEHANDLE;
 #include "platform/NonCopyable.h"
 
 namespace mbed {
-/** \addtogroup platform */
-/** @{*/
+
 /**
- * \defgroup platform_FileHandle FileHandle functions
+ * @addtogroup platform_file
  * @{
  */
-
 
 /** Class FileHandle
  *
@@ -266,9 +264,6 @@ public:
 };
 
 /**@}*/
-
-/**@}*/
-
 
 } // namespace mbed
 

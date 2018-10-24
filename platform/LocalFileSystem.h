@@ -25,10 +25,8 @@
 #include "platform/NonCopyable.h"
 
 namespace mbed {
-/** \addtogroup platform */
-/** @{*/
 /**
- * \defgroup platform_LocalFileSystem LocalFileSystem functions
+ * @addtogroup platform_file
  * @{
  */
 
@@ -36,7 +34,6 @@ FILEHANDLE local_file_open(const char *name, int flags);
 
 /**
  * @class LocalFileHandle
- * @ingroup platform
  */
 class LocalFileHandle : public FileHandle, private NonCopyable<LocalFileHandle> {
 
@@ -115,8 +112,6 @@ public:
     virtual int open(DirHandle **dir, const char *name);
     virtual int remove(const char *filename);
 };
-
-/**@}*/
 
 /**@}*/
 
