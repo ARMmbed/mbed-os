@@ -118,7 +118,7 @@ public:
      *  @param ip_address Null-terminated representation of the local IP address
      *  @param netmask    Null-terminated representation of the local network mask
      *  @param gateway    Null-terminated representation of the local gateway
-     *  @return           0 on success, negative error code on failure
+     *  @return           NSAPI_ERROR_OK on success, negative error code on failure
      */
     virtual nsapi_error_t set_network(const char *ip_address, const char *netmask, const char *gateway);
 
@@ -128,19 +128,19 @@ public:
      *  that the network is disconnected.
      *
      *  @param dhcp     True to enable DHCP.
-     *  @return         0 on success, negative error code on failure.
+     *  @return         NSAPI_ERROR_OK on success, negative error code on failure.
      */
     virtual nsapi_error_t set_dhcp(bool dhcp);
 
     /** Start the interface.
      *
-     *  @return     0 on success, negative error code on failure.
+     *  @return     NSAPI_ERROR_OK on success, negative error code on failure.
      */
     virtual nsapi_error_t connect() = 0;
 
     /** Stop the interface.
      *
-     *  @return     0 on success, negative error code on failure.
+     *  @return     NSAPI_ERROR_OK on success, negative error code on failure.
      */
     virtual nsapi_error_t disconnect() = 0;
 
@@ -153,10 +153,10 @@ public:
      *  will be resolve using a UDP socket on the stack.
      *
      *  @param host     Hostname to resolve.
-     *  @param address  Destination for the host SocketAddress.
+     *  @param address  Pointer to a SocketAddress to store the result.
      *  @param version  IP version of address to resolve, NSAPI_UNSPEC indicates
      *                  version is chosen by the stack (defaults to NSAPI_UNSPEC).
-     *  @return         0 on success, negative error code on failure.
+     *  @return         NSAPI_ERROR_OK on success, negative error code on failure.
      */
     virtual nsapi_error_t gethostbyname(const char *host,
                                         SocketAddress *address, nsapi_version_t version = NSAPI_UNSPEC);
@@ -171,7 +171,7 @@ public:
      *  The callback should not perform expensive operations such as socket recv/send
      *  calls or blocking operations.
      *
-     *  @param result  0 on success, negative error code on failure.
+     *  @param result  NSAPI_ERROR_OK on success, negative error code on failure.
      *  @param address On success, destination for the host SocketAddress.
      */
     typedef mbed::Callback<void (nsapi_error_t result, SocketAddress *address)> hostbyname_cb_t;
@@ -207,14 +207,14 @@ public:
      *
      *  @param id       Unique id of the hostname translation operation (returned
      *                  by gethostbyname_async)
-     *  @return         0 on success, negative error code on failure.
+     *  @return         NSAPI_ERROR_OK on success, negative error code on failure.
      */
     virtual nsapi_error_t gethostbyname_async_cancel(int id);
 
     /** Add a domain name server to list of servers to query
      *
      *  @param address  Address for the dns host.
-     *  @return         0 on success, negative error code on failure.
+     *  @return         NSAPI_ERROR_OK on success, negative error code on failure.
      */
     virtual nsapi_error_t add_dns_server(const SocketAddress &address);
 
@@ -237,7 +237,7 @@ public:
     /** Set blocking status of connect() which by default should be blocking.
      *
      *  @param blocking Use true to make connect() blocking.
-     *  @return         0 on success, negative error code on failure.
+     *  @return         NSAPI_ERROR_OK on success, negative error code on failure.
      */
     virtual nsapi_error_t set_blocking(bool blocking);
 
