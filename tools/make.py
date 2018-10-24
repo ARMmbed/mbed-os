@@ -56,6 +56,41 @@ from utils import argparse_many
 from utils import argparse_dir_not_parent
 from tools.toolchains import mbedToolchain, TOOLCHAIN_CLASSES, TOOLCHAIN_PATHS
 
+
+def default_args_dict(options):
+    return dict(
+        linker_script=options.linker_script,
+        clean=options.clean,
+        macros=options.macros,
+        jobs=options.jobs,
+        name=options.artifact_name,
+        app_config=options.app_config,
+        stats_depth=options.stats_depth,
+        ignore=options.ignore
+    )
+
+
+def wrapped_build_project(src_dir, build_dir, mcu, *args, **kwargs):
+    try:
+        bin_file, update_file = build_project(
+            src_dir, build_dir, mcu, *args, **kwargs
+        )
+        if update_file:
+            print('Update Image: %s' % update_file)
+        print('Image: %s' % bin_file)
+    except KeyboardInterrupt as e:
+        print("\n[CTRL+c] exit")
+    except NotSupportedException as e:
+        print("\nCould not compile for %s: %s" % (mcu, str(e)))
+    except Exception as e:
+        if options.verbose:
+            import traceback
+            traceback.print_exc(file=sys.stdout)
+        else:
+            print("[ERROR] %s" % str(e))
+        sys.exit(1)
+
+
 if __name__ == '__main__':
     # Parse Options
     parser = get_default_options_parser(add_app_config=True)
@@ -207,16 +242,6 @@ if __name__ == '__main__':
         print('\n'.join(map(str, sorted(TEST_MAP.values()))))
         sys.exit()
 
-    # force program to "0" if a source dir is specified
-    if options.source_dir is not None:
-        p = 0
-    else:
-    # Program Number or name
-        p = options.program
-
-    # If 'p' was set via -n to list of numbers make this a single element integer list
-    if type(p) != type([]):
-        p = [p]
 
     # Target
     if options.mcu is None :
@@ -243,102 +268,72 @@ if __name__ == '__main__':
                            "Currently set search path: %s"
                            %(toolchain, search_path))
 
-    # Test
-    build_data_blob = {} if options.build_data else None
-    for test_no in p:
-        test = Test(test_no)
-        if options.automated is not None:    test.automated = options.automated
-        if options.dependencies is not None: test.dependencies = options.dependencies
-        if options.host_test is not None:    test.host_test = options.host_test;
-        if options.peripherals is not None:  test.peripherals = options.peripherals;
-        if options.duration is not None:     test.duration = options.duration;
-        if options.extra is not None:        test.extra_files = options.extra
+    if options.source_dir is not None:
+        wrapped_build_project(
+            options.source_dir,
+            options.build_dir,
+            mcu,
+            toolchain,
+            notify=notify,
+            build_profile=extract_profile(parser, options, toolchain),
+            **default_args_dict(options)
+        )
+    else:
+        p = options.program
 
-        if not test.is_supported(mcu, toolchain):
-            print('The selected test is not supported on target %s with toolchain %s' % (mcu, toolchain))
-            sys.exit()
+        # If 'p' was set via -n to list of numbers make this a single element
+        # integer list
+        if not isinstance(p, list):
+            p = [p]
 
-        # Linking with extra libraries
-        if options.rpc:      test.dependencies.append(RPC_LIBRARY)
-        if options.usb:      test.dependencies.append(USB_LIBRARIES)
-        if options.dsp:      test.dependencies.append(DSP_LIBRARIES)
-        if options.testlib:  test.dependencies.append(TEST_MBED_LIB)
+        build_data_blob = {} if options.build_data else None
+        for test_no in p:
+            test = Test(test_no)
+            if options.automated is not None:
+                test.automated = options.automated
+            if options.dependencies is not None:
+                test.dependencies = options.dependencies
+            if options.host_test is not None:
+                test.host_test = options.host_test
+            if options.peripherals is not None:
+                test.peripherals = options.peripherals
+            if options.duration is not None:
+                test.duration = options.duration
+            if options.extra is not None:
+                test.extra_files = options.extra
 
-        build_dir = join(BUILD_DIR, "test", mcu, toolchain, test.id)
-        if options.source_dir is not None:
-            test.source_dir = options.source_dir
-            build_dir = options.source_dir
+            if not test.is_supported(mcu, toolchain):
+                print(
+                    'The selected test is not supported on target '
+                    '%s with toolchain %s' % (mcu, toolchain)
+                )
+                sys.exit()
 
-        if options.build_dir is not None:
-            build_dir = options.build_dir
+            # Linking with extra libraries
+            if options.rpc:
+                test.dependencies.append(RPC_LIBRARY)
+            if options.usb:
+                test.dependencies.append(USB_LIBRARIES)
+            if options.dsp:
+                test.dependencies.append(DSP_LIBRARIES)
+            if options.testlib:
+                test.dependencies.append(TEST_MBED_LIB)
 
-        try:
-            bin_file, update_file = build_project(
+            build_dir = join(BUILD_DIR, "test", mcu, toolchain, test.id)
+            if options.build_dir is not None:
+                build_dir = options.build_dir
+
+            wrapped_build_project(
                 test.source_dir,
                 build_dir,
                 mcu,
                 toolchain,
                 set(test.dependencies),
-                linker_script=options.linker_script,
-                clean=options.clean,
                 notify=notify,
                 report=build_data_blob,
-                macros=options.macros,
-                jobs=options.jobs,
-                name=options.artifact_name,
-                app_config=options.app_config,
                 inc_dirs=[dirname(MBED_LIBRARIES)],
                 build_profile=extract_profile(parser, options, toolchain),
-                stats_depth=options.stats_depth,
-                ignore=options.ignore
+                **default_args_dict(options)
             )
-            if update_file:
-                print('Update Image: %s' % update_file)
-            print('Image: %s' % bin_file)
-
-            if options.disk:
-                # Simple copy to the mbed disk
-                copy(bin_file, options.disk)
-
-            if options.serial:
-                # Import pyserial: https://pypi.python.org/pypi/pyserial
-                from serial import Serial
-
-                sleep(TARGET_MAP[mcu].program_cycle_s)
-
-                serial = Serial(options.serial, timeout = 1)
-                if options.baud:
-                    serial.setBaudrate(options.baud)
-
-                serial.flushInput()
-                serial.flushOutput()
-
-                try:
-                    serial.sendBreak()
-                except:
-                    # In linux a termios.error is raised in sendBreak and in setBreak.
-                    # The following setBreak() is needed to release the reset signal on the target mcu.
-                    try:
-                        serial.setBreak(False)
-                    except:
-                        pass
-
-                while True:
-                    c = serial.read(512)
-                    sys.stdout.write(c)
-                    sys.stdout.flush()
-
-        except KeyboardInterrupt as e:
-            print("\n[CTRL+c] exit")
-        except NotSupportedException as e:
-            print("\nCould not compile for %s: %s" % (mcu, str(e)))
-        except Exception as e:
-            if options.verbose:
-                import traceback
-                traceback.print_exc(file=sys.stdout)
-            else:
-                print("[ERROR] %s" % str(e))
-
-            sys.exit(1)
-    if options.build_data:
-        merge_build_data(options.build_data, build_data_blob, "application")
+        if options.build_data:
+            merge_build_data(options.build_data, build_data_blob, "application")
