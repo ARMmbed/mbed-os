@@ -213,6 +213,81 @@ void test_multi_threads()
     TEST_ASSERT_EQUAL(0, err);
 }
 
+void test_get_erase_value()
+{
+    utest_printf("\nTest BlockDevice::get_erase_value()..\n");
+
+    // Test flow:
+    //  1. Write data to selected region
+    //    - Known starting point
+    //  2. Erase selected region
+    //  3. Read erased region and compare with get_erase_value()
+
+    BlockDevice *block_device = BlockDevice::get_default_instance();
+    TEST_SKIP_UNLESS_MESSAGE(block_device != NULL, "\nno block device found.\n");
+
+    int err = block_device->init();
+    TEST_ASSERT_EQUAL(0, err);
+
+    // Check erase value
+    int erase_value_int = block_device->get_erase_value();
+    utest_printf("\nblock_device->get_erase_value()=%d", erase_value_int);
+    TEST_SKIP_UNLESS_MESSAGE(erase_value_int >= 0, "\nerase value is negative which means the erase value is unknown\n");
+
+    // Assuming that get_erase_value() returns byte value as documentation mentions
+    // "If get_erase_value() returns a non-negative byte value" for unknown case.
+    TEST_ASSERT(erase_value_int <= 255);
+    uint8_t erase_value = (uint8_t)erase_value_int;
+
+    // Determine data_buf_size
+    bd_size_t erase_size = block_device->get_erase_size();
+    TEST_ASSERT(erase_size > 0);
+    bd_size_t data_buf_size = erase_size;
+
+    // Determine start_address
+    bd_addr_t start_address = rand();            // low 32 bytes
+    start_address += (uint64_t)rand() << 32;     // high 32 bytes
+    start_address %= block_device->size() - data_buf_size - erase_size; //  fit all data + alignment reserve
+    start_address += erase_size;                 // add alignment reserve
+    start_address -= start_address % erase_size; // align with erase_block
+    utest_printf("\nstart_address=0x%016" PRIx64, start_address);
+
+    // Allocate buffer for read test data
+    uint8_t *data_buf = (uint8_t*)malloc(data_buf_size);
+    TEST_ASSERT_NOT_NULL(data_buf);
+
+    // Write random data to selected region to make sure data is not accidentally set to "erased" value.
+    // With this pre-write, the test case will fail even if block_device->erase() is broken.
+    for (bd_size_t i=0; i<data_buf_size; i++) {
+        data_buf[i] = (uint8_t) rand();
+    }
+    utest_printf("\nwriting given memory region");
+    err = block_device->program((const void*)data_buf, start_address, data_buf_size);
+    TEST_ASSERT_EQUAL(0, err);
+
+    // Erase given memory region
+    utest_printf("\nerasing given memory region");
+    err = block_device->erase(start_address, data_buf_size);
+    TEST_ASSERT_EQUAL(0, err);
+
+    // Read erased memory region
+    utest_printf("\nreading erased memory region");
+    err = block_device->read((void*)data_buf, start_address, data_buf_size);
+    TEST_ASSERT_EQUAL(0, err);
+
+    // Verify erased memory region
+    utest_printf("\nverifying erased memory region");
+    for (bd_size_t i=0; i<data_buf_size; i++) {
+        TEST_ASSERT_EQUAL(erase_value, data_buf[i]);
+    }
+
+    free(data_buf);
+
+    // BlockDevice deinitialization
+    err = block_device->deinit();
+    TEST_ASSERT_EQUAL(0, err);
+}
+
 void test_contiguous_erase_write_read()
 {
     utest_printf("\nTest Contiguous Erase/Program/Read Starts..\n");
@@ -355,7 +430,8 @@ utest::v1::status_t test_setup(const size_t number_of_cases)
 Case cases[] = {
     Case("Testing read write random blocks", test_random_program_read_erase),
     Case("Testing Multi Threads Erase Program Read", test_multi_threads),
-    Case("Testing contiguous erase, write and read", test_contiguous_erase_write_read)
+    Case("Testing contiguous erase, write and read", test_contiguous_erase_write_read),
+    Case("Test BlockDevice::get_erase_value()", test_get_erase_value)
 };
 
 Specification specification(test_setup, cases);
