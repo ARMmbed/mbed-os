@@ -21,11 +21,7 @@ TEST BUILD & RUN
 from __future__ import print_function
 from builtins import str
 import sys
-import json
-from time import sleep
-from shutil import copy
 from os.path import join, abspath, dirname
-from json import load, dump
 
 # Be sure that the tools directory is in the search path
 ROOT = abspath(join(dirname(__file__), ".."))
@@ -41,7 +37,6 @@ from tools.paths import DSP_LIBRARIES
 from tools.tests import TESTS, Test, TEST_MAP
 from tools.tests import TEST_MBED_LIB
 from tools.tests import test_known, test_name_known
-from tools.targets import TARGET_MAP
 from tools.options import get_default_options_parser
 from tools.options import extract_profile
 from tools.options import extract_mcus
@@ -54,7 +49,7 @@ from tools.build_api import merge_build_data
 from utils import argparse_filestring_type
 from utils import argparse_many
 from utils import argparse_dir_not_parent
-from tools.toolchains import mbedToolchain, TOOLCHAIN_CLASSES, TOOLCHAIN_PATHS
+from tools.toolchains import TOOLCHAIN_CLASSES, TOOLCHAIN_PATHS
 
 
 def default_args_dict(options):
