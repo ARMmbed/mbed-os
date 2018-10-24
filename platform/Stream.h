@@ -24,12 +24,8 @@
 #include <cstdarg>
 
 namespace mbed {
-/** \addtogroup platform */
+/** \addtogroup platform_file */
 /** @{*/
-/**
- * \defgroup platform_Stream Stream class
- * @{
- */
 
 extern void mbed_set_unbuffered_stream(std::FILE *_file);
 
@@ -89,7 +85,6 @@ protected:
 };
 /**@}*/
 
-/**@}*/
 } // namespace mbed
 
 #endif
