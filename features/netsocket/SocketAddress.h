@@ -42,7 +42,7 @@ public:
      *
      *  @param stack    Network stack to use for DNS resolution
      *  @param host     Hostname to resolve
-     *  @param port     Optional 16-bit port
+     *  @param port     Optional 16-bit port, defaults to 0
      *  @deprecated
      *      Constructors hide possible errors. Replaced by
      *      NetworkInterface::gethostbyname.
@@ -57,16 +57,18 @@ public:
     }
 
     /** Create a SocketAddress from a raw IP address and port
+     * 
+     * To construct from a host name, use NetworkInterface::gethostbyname
      *
      *  @param addr     Raw IP address
-     *  @param port     Optional 16-bit port
+     *  @param port     Optional 16-bit port, defaults to 0
      */
     SocketAddress(nsapi_addr_t addr = nsapi_addr_t(), uint16_t port = 0);
 
     /** Create a SocketAddress from an IP address and port
      *
      *  @param addr     Null-terminated representation of the IP address
-     *  @param port     Optional 16-bit port
+     *  @param port     Optional 16-bit port, defaults to 0
      */
     SocketAddress(const char *addr, uint16_t port = 0);
 
@@ -74,7 +76,7 @@ public:
      *
      *  @param bytes    Raw IP address in big-endian order
      *  @param version  IP address version, NSAPI_IPv4 or NSAPI_IPv6
-     *  @param port     Optional 16-bit port
+     *  @param port     Optional 16-bit port, defaults to 0
      */
     SocketAddress(const void *bytes, nsapi_version_t version, uint16_t port = 0);
 
