@@ -427,7 +427,7 @@ static int crypto_device_init( CRYPTO_TypeDef *device, const mbedtls_ecp_group *
 #endif /* MBEDTLS_ECP_DP_SECP256R1_ENABLED */
 
         default:
-            ret = MBEDTLS_ERR_ECP_FEATURE_UNAVAILABLE;
+            ret = MBEDTLS_ERR_PLATFORM_FEATURE_UNSUPPORTED;
         break;
     }
 

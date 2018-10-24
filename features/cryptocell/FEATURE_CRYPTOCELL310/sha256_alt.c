@@ -47,7 +47,7 @@ int mbedtls_sha256_starts_ret( mbedtls_sha256_context *ctx, int is224 )
 {
     if(CRYS_HASH_Init( &ctx->crys_hash_ctx, is224 ?
                     CRYS_HASH_SHA224_mode : CRYS_HASH_SHA256_mode ) != CRYS_OK )
-        return ( MBEDTLS_ERR_SHA256_HW_ACCEL_FAILED );
+        return ( MBEDTLS_ERR_PLATFORM_HW_ACCEL_FAILED );
     return ( 0 );
 }
 
@@ -55,7 +55,7 @@ int mbedtls_internal_sha256_process( mbedtls_sha256_context *ctx,
                                      const unsigned char data[64] )
 {
     if( CRYS_HASH_Update( &ctx->crys_hash_ctx, (uint8_t*)data, 64 ) != CRYS_OK )
-        return ( MBEDTLS_ERR_SHA256_HW_ACCEL_FAILED );
+        return ( MBEDTLS_ERR_PLATFORM_HW_ACCEL_FAILED );
     return ( 0 );
 }
 
@@ -64,7 +64,7 @@ int mbedtls_sha256_update_ret( mbedtls_sha256_context *ctx,
                                size_t ilen )
 {
     if( CRYS_HASH_Update( &ctx->crys_hash_ctx, (uint8_t*)input, ilen ) != CRYS_OK )
-        return ( MBEDTLS_ERR_SHA256_HW_ACCEL_FAILED );
+        return ( MBEDTLS_ERR_PLATFORM_HW_ACCEL_FAILED );
     return ( 0 );
 }
 
@@ -80,7 +80,7 @@ int mbedtls_sha256_finish_ret( mbedtls_sha256_context *ctx,
         return ( 0 );
     }
     else
-        return ( MBEDTLS_ERR_SHA256_HW_ACCEL_FAILED );
+        return ( MBEDTLS_ERR_PLATFORM_HW_ACCEL_FAILED );
 }
 #endif //MBEDTLS_SHA256_ALT
 

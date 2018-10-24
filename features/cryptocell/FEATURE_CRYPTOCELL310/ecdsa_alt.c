@@ -132,7 +132,7 @@ int mbedtls_ecdsa_sign( mbedtls_ecp_group *grp, mbedtls_mpi *r, mbedtls_mpi *s,
     }
     else
     {
-        ret =  MBEDTLS_ERR_ECP_FEATURE_UNAVAILABLE;
+        ret =  MBEDTLS_ERR_PLATFORM_FEATURE_UNSUPPORTED;
         goto cleanup;
     }
 
@@ -226,7 +226,7 @@ int mbedtls_ecdsa_verify( mbedtls_ecp_group *grp,
         }
     }
     else
-        ret =  MBEDTLS_ERR_ECP_FEATURE_UNAVAILABLE;
+        ret =  MBEDTLS_ERR_PLATFORM_FEATURE_UNSUPPORTED;
 
 cleanup:
 
@@ -313,7 +313,7 @@ int mbedtls_ecdsa_genkey( mbedtls_ecdsa_context *ctx, mbedtls_ecp_group_id gid,
         }
     }
     else
-        ret =  MBEDTLS_ERR_ECP_FEATURE_UNAVAILABLE;
+        ret =  MBEDTLS_ERR_PLATFORM_FEATURE_UNSUPPORTED;
 
 
 cleanup:

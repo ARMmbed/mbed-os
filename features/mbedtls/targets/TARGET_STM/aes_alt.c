@@ -24,6 +24,7 @@
 #if defined(MBEDTLS_AES_ALT)
 
 #if defined(TARGET_STM32L486xG) || defined (TARGET_STM32L443xC)
+#include "mbedtls/platform.h"
 //the following defines are provided to maintain compatibility between STM32 families
 #define __HAL_RCC_CRYP_CLK_ENABLE    __HAL_RCC_AES_CLK_ENABLE
 #define __HAL_RCC_CRYP_FORCE_RESET   __HAL_RCC_AES_FORCE_RESET
@@ -40,7 +41,7 @@ static int aes_set_key(mbedtls_aes_context *ctx, const unsigned char *key, unsig
             break;
         case 192:
 #if defined (TARGET_STM32L486xG) || defined (TARGET_STM32L443xC)
-            return (MBEDTLS_ERR_AES_INVALID_KEY_LENGTH);
+            return (MBEDTLS_ERR_PLATFORM_FEATURE_UNSUPPORTED);
 #else
             ctx->hcryp_aes.Init.KeySize = CRYP_KEYSIZE_192B;
             memcpy(ctx->aes_key, key, 24);
