@@ -1,11 +1,3 @@
-
-/** \addtogroup platform */
-/** @{*/
-/**
- * \defgroup platform_toolchain Toolchain functions
- * @{
- */
-
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2013 ARM Limited
  *
@@ -26,6 +18,7 @@
 
 #include "mbed_preprocessor.h"
 
+/** \addtogroup platform_preprocessor */
 
 // Warning for unsupported compilers
 #if !defined(__GNUC__)   /* GCC        */ \

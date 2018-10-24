@@ -1,10 +1,3 @@
-
-/** \addtogroup platform */
-/** @{*/
-/**
- * \defgroup platform_version Version macros
- * @{
- */
 /* mbed Microcontroller Library
  * Copyright (c) 2018 ARM Limited
  *
@@ -23,6 +16,8 @@
 
 #ifndef MBED_VERSION_H
 #define MBED_VERSION_H
+
+/** \addtogroup platform_preprocessor */
 
 /** MBED_MAJOR_VERSION
   * Mbed OS major version

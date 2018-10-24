@@ -1,10 +1,3 @@
-/** \addtogroup platform */
-/** @{*/
-/**
- * \defgroup platform_preprocessor preprocessor macros
- * @{
- */
-
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2013 ARM Limited
  *
@@ -22,6 +15,14 @@
  */
 #ifndef MBED_PREPROCESSOR_H
 #define MBED_PREPROCESSOR_H
+
+/** \addtogroup platform */
+/** @{*/
+/**
+ * \defgroup platform_preprocessor Preprocessor
+ * Collection of preprocessor macros.
+ * @{
+ */
 
 
 /** MBED_CONCAT
