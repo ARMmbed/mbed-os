@@ -26,10 +26,11 @@
 
 namespace mbed {
 
-/** \addtogroup platform */
-/** @{*/
 /**
- * \defgroup platform_ATCmdParser ATCmdParser class
+ * @addtogroup platform 
+ * @{
+ * @defgroup platform_parser Parser
+ * Platform independent parsers.
  * @{
  */
 
