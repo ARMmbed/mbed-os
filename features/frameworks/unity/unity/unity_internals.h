@@ -1,5 +1,5 @@
 
-/** \addtogroup frameworks */
+/** \addtogroup Icetea */
 /** @{*/
 /* ==========================================
     Unity Project - A Test Framework for C

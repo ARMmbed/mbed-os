@@ -26,7 +26,7 @@
 #include "SingletonPtr.h"
 
 namespace utest {
-/** \addtogroup frameworks */
+/** \addtogroup Icetea */
 /** @{*/
 namespace v1 {
 

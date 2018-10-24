@@ -1,5 +1,5 @@
 
-/** \addtogroup frameworks */
+/** \addtogroup Icetea */
 /** @{*/
 /*
  * Copyright (c) 2013-2016, ARM Limited, All Rights Reserved

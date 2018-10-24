@@ -1,5 +1,5 @@
 
-/** \addtogroup frameworks */
+/** \addtogroup Icetea */
 /** @{*/
 #ifndef GREENTEA_METRICS_H
 #define GREENTEA_METRICS_H
