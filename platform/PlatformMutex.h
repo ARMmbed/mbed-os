@@ -28,7 +28,7 @@
 
 /** The PlatformMutex class is used to synchronize the execution of threads.
  *
- * The PlatformMutex class is used by Mbed OS drivers instead of rtos::Mutex.
+ * Mbed drivers use the PlatformMutex class instead of rtos::Mutex.
  * This enables the use of drivers when the Mbed OS is compiled without the RTOS.
  *
  * @note
@@ -71,7 +71,7 @@ public:
     {
     }
 
-    /** Unlock a PlatformMutex that has previously been locked by the same thread.
+    /** Unlock a PlatformMutex that the same thread has previously locked.
      *
      * @note
      * - When the RTOS is present, this is an alias for rtos::Mutex::unlock().
