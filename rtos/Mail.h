@@ -156,13 +156,9 @@ public:
         return _pool.free(mptr);
     }
 
-#if !defined(DOXYGEN_ONLY)
-
 private:
     Queue<T, queue_sz> _queue;
     MemoryPool<T, queue_sz> _pool;
-
-#endif //!defined(DOXYGEN_ONLY)
 };
 
 /** @}*/
