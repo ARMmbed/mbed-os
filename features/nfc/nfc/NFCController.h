@@ -36,6 +36,10 @@ class NFCRemoteTarget;
 class NFCControllerDriver;
 
 /**
+ * @addtogroup connectivity 
+ * @{
+ * @addtogroup pan
+ * @{
  * @addtogroup nfc
  * @{
  */
@@ -181,6 +185,8 @@ private:
 
 /**
  * @}
+ * @}
+ * @}  
  */
 
 } // namespace nfc
