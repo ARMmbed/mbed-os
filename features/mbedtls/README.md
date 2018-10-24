@@ -10,8 +10,7 @@ This edition of Mbed TLS has been adapted for Mbed OS and imported from its stan
 Getting Started
 ---------------
 
-Several example programs are available that demonstrate the use of Mbed TLS with
-Mbed OS. These are a great way of getting to know the library.
+Several example programs are available that demonstrate the use of Mbed TLS with Mbed OS. These are a great way of getting to know the library.
 
 1. [**TLS Client:**](https://github.com/ARMmbed/mbed-os-example-tls/tree/master/tls-client) TLS Client demonstrates the use of Mbed TLS to establish a TLS connection to a remote server.
 
@@ -36,7 +35,7 @@ If you need to adjust those flags, you can provide your own supplementary config
 
 For example, if you wanted to enable the options, `MBEDTLS_PEM_WRITE_C` and `MBEDTLS_CMAC_C`, and provide your own additional configuration file for Mbed TLS named `my_config.h`, you could define these in a top level `mbed_app.json` configuration file in the root directory of your project.
 
-The Mbed TLS configuration file would be specified in the `.json` file as follows.
+The Mbed TLS configuration file would be specified in the `.json` file as:
 
 ```
 {
@@ -65,7 +64,7 @@ This can be used to change any configuration normally configured in the `config.
 
 ## Getting Mbed TLS from GitHub
 
-Mbed TLS is maintained and developed in the open, independently of Mbed OS, and its source can be found on GitHub here: [ARMmbed/mbedtls](https://github.com/ARMmbed/mbedtls). To import into an instance of Mbed OS a different version of Mbed TLS, a `Makefile` script is provided to update the local git repository, extract a specific version, and to modify the configuration files to those used for the Mbed OS defaults.
+Mbed TLS is maintained and developed in the open, independently of Mbed OS, and its source can be found on GitHub here: [ARMmbed/mbedtls](https://github.com/ARMmbed/mbedtls). To import into an instance of Mbed OS a different version of Mbed TLS, a `Makefile` script is provided to update the local Git repository, extract a specific version, and to modify the configuration files to those used for the Mbed OS defaults.
 
 To use the `Makefile`, you can either set `MBED_TLS_RELEASE` environment variable to the git tag or commit id of the Mbed TLS Release or version you want to use, or alternatively you can modify the `Makefile` itself. If `MBED_TLS_RELEASE` is unset, the HEAD of the main development branch will be extracted.
 
@@ -83,7 +82,7 @@ Once these steps are complete, you can make your Mbed OS build normally with the
 
 ## Differences between the standalone and Mbed OS editions
 
-While the two editions share the same code base, there are still a number of differences, mainly in configuration and integration. You should keep in mind those differences when reading some articles in our [knowledge base](https://tls.mbed.org/kb), as currently all the articles are about the standalone edition.
+While the two editions share the same code base, there are still a number of differences, mainly in configuration and integration. You should keep those differences in mind if you consult our [knowledge base](https://tls.mbed.org/kb), as these refer to the standalone edition.
 
 * The Mbed OS edition has a smaller set of features enabled by default in `config.h`, in order to reduce footprint. While the default configuration of the standalone edition puts more emphasis on maintaining interoperability with old peers, the Mbed OS edition only enables the most modern ciphers and the latest version of (D)TLS.
 
@@ -93,7 +92,7 @@ While the two editions share the same code base, there are still a number of dif
 Help and Support
 ----------------
 
-The [Mbed TLS website](https://tls.mbed.org/) contains full documentation for the library, including function by function descriptions, knowledge base articles and blogs. In addition there is a [support forum](https://forums.mbed.com/c/mbed-tls) for questions to the community.
+For further documentation and help, you can visit the [Mbed TLS website](https://tls.mbed.org/) which contains full documentation of the library, including function-by-function descriptions, knowledge base articles and blogs. Additionally you can join our [support forum](https://forums.mbed.com/c/mbed-tls) for questions to the community or to help others.
 
 
 Contributing to the Project
@@ -104,4 +103,4 @@ We gratefully accept bug reports and contributions from the community. There are
 -   Simple bug fixes to existing code do not contain copyright themselves and we can integrate without issue. The same is true of trivial contributions.
 -   For larger contributions, such as a new feature, the code can possibly fall under copyright law. We then need your consent to share in the ownership of the copyright. We have a form for this, which we will send to you in case you submit a contribution or pull request that we deem this necessary for.
 
-Contributions should be submitted to the [standalone Mbed TLS project](https://github.com/ARMmbed/mbedtls), not to the version of Mbed TLS embedded within Mbed OS.
+Please submit contributions to the [standalone Mbed TLS project](https://github.com/ARMmbed/mbedtls), not to the version of Mbed TLS embedded within Mbed OS.
