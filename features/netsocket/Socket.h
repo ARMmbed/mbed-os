@@ -1,4 +1,5 @@
-
+/** \addtogroup connectivity */
+/** @{*/
 /** \addtogroup netsocket */
 /** @{*/
 /* Socket
@@ -258,4 +259,5 @@ public:
 
 #endif
 
+/** @}*/
 /** @}*/
