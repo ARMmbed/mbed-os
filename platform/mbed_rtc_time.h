@@ -1,10 +1,3 @@
-
-/** \addtogroup platform */
-/** @{*/
-/**
- * \defgroup platform_rtc_time rtc_time functions
- * @{
- */
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2013 ARM Limited
  *
@@ -26,6 +19,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/** \addtogroup platform_system */
 
 /** Implementation of the C time.h functions
  *

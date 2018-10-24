@@ -78,16 +78,11 @@ typedef unsigned int  gid_t;    ///< Group ID
 
 #include <time.h>
 
-/** \addtogroup platform */
-/** @{*/
-/**
- * \defgroup platform_retarget Retarget functions
- * @{
- */
-
 /* DIR declarations must also be here */
 #if __cplusplus
 namespace mbed {
+
+/** \addtogroup platform_system */
 
 class FileHandle;
 class DirHandle;
@@ -574,8 +569,6 @@ int bind_to_fd(mbed::FileHandle *fh);
 } // namespace mbed
 
 #endif // __cplusplus
-
-/**@}*/
 
 /**@}*/
 

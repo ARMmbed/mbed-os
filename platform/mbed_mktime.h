@@ -1,6 +1,3 @@
-
-/** \addtogroup platform */
-/** @{*/
 /* mbed Microcontroller Library
  * Copyright (c) 2017-2017 ARM Limited
  *
@@ -28,8 +25,11 @@
 extern "C" {
 #endif
 
+/** \addtogroup platform */
+/** @{*/
 /**
- * \defgroup platform_mktime mktime functions
+ * \defgroup platform_system System
+ * System related API.
  * @{
  */
 
