@@ -1,8 +1,6 @@
 
-/** \addtogroup platform */
-/** @{*/
 /**
- * \defgroup platform_CThunk CThunk class
+ * @addtogroup platform_functional 
  * @{
  */
 /* General C++ Object Thunking class
@@ -242,8 +240,6 @@ private:
         __DSB();
     }
 };
-
-/**@}*/
 
 /**@}*/
 

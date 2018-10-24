@@ -23,10 +23,11 @@
 #include "platform/mbed_toolchain.h"
 
 namespace mbed {
-/** \addtogroup platform */
-/** @{*/
 /**
- * \defgroup platform_Callback Callback class
+ * @addtogroup platform 
+ * @{
+ * @defgroup platform_functional Function objects
+ * Function and Callable abstractions.
  * @{
  */
 

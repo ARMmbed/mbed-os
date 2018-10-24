@@ -27,10 +27,8 @@ namespace mbed {
 typedef Callback<void()> *pFunctionPointer_t;
 class CallChainLink;
 
-/** \addtogroup platform */
-/** @{*/
 /**
- * \defgroup platform_CallChain CallChain class
+ * @addtogroup platform_functional 
  * @{
  */
 
@@ -253,8 +251,6 @@ public:
 private:
     CallChainLink *_chain;
 };
-
-/**@}*/
 
 /**@}*/
 

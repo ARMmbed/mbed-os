@@ -22,10 +22,8 @@
 #include <stdint.h>
 
 namespace mbed {
-/** \addtogroup platform */
-/** @{*/
 /**
- * \defgroup platform_FunctionPointer FunctionPointer class
+ * @addtogroup platform_functional 
  * @{
  */
 
@@ -102,9 +100,6 @@ public:
 typedef FunctionPointerArg1<void, void> FunctionPointer;
 
 /**@}*/
-
-/**@}*/
-
 
 } // namespace mbed
 
