@@ -326,9 +326,9 @@ private:
      *  Implemented in order to avoid duplicate locking and boost performance.
      */
     void _acquire(void);
-};
 
 #endif //!defined(DOXYGEN_ONLY)
+};
 
 } // namespace mbed
 
