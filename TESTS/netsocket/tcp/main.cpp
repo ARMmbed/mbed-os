@@ -151,7 +151,7 @@ Case cases[] = {
 #endif
 };
 
-Specification specification(greentea_setup, cases, greentea_teardown);
+Specification specification(greentea_setup, cases, greentea_teardown, greentea_continue_handlers);
 
 int main()
 {
