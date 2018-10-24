@@ -14,8 +14,8 @@
  * limitations under the License.
  */
  
-#ifndef MBED_RTX_FAULT_HANDLER_H
-#define MBED_RTX_FAULT_HANDLER_H 
+#ifndef MBED_FAULT_HANDLER_H
+#define MBED_FAULT_HANDLER_H 
 
 //Fault context struct
 //WARNING: DO NOT CHANGE THIS STRUCT WITHOUT MAKING CORRESPONDING CHANGES in except.S files.
@@ -52,7 +52,7 @@ typedef struct {
 #define USAGE_FAULT_EXCEPTION      (0x40)
 
 //This is a handler function called from Fault handler to print the error information out.
-//This runs in fault context and uses special functions(defined in mbed_rtx_fault_handler.c) to print the information without using C-lib support.
-void mbed_fault_handler (uint32_t fault_type, void *mbed_fault_context_in, void *osRtxInfoIn);
+//This runs in fault context and uses special functions(defined in mbed_fault_handler.c) to print the information without using C-lib support.
+void mbed_fault_handler (uint32_t fault_type, void *mbed_fault_context_in);
 
 #endif
