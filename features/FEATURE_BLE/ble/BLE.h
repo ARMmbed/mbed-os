@@ -37,6 +37,10 @@
 class BLEInstanceBase;
 
 /**
+ * @addtogroup connectivity 
+ * @{
+ * @addtogroup pan
+ * @{
  * @addtogroup ble
  * @{
  */
@@ -1793,6 +1797,8 @@ typedef BLE BLEDevice;
  */
 
 /**
+ * @} 
+ * @}
  * @}
  */
 
