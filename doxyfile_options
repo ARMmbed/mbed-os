@@ -849,6 +849,8 @@ EXCLUDE_PATTERNS       = */tools/* \
                          */features/lwipstack/* \
                          */features/nanostack/sal-stack-nanostack/* \
                          */features/nanostack/coap-service/* \
+                         */features/nfc/acore/* \
+                         */features/nfc/stack/* \
                          */mbed-trace/* \
                          */mbed-coap/* \
                          */nanostack-libservice/* \

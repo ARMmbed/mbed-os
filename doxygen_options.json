@@ -10,7 +10,7 @@
     "EXPAND_AS_DEFINED": "",
     "SKIP_FUNCTION_MACROS": "NO",
     "STRIP_CODE_COMMENTS": "NO",
-    "EXCLUDE_PATTERNS": "*/tools/* */targets/* */features/mbedtls/* */features/storage/cfstore/* */features/storage/FEATURE_STORAGE/* */features/unsupported/* */BUILD/* */rtos/TARGET_CORTEX/rtx*/* */cmsis/* */features/lwipstack/* */nanostack/sal-stack-nanostack/* */nanostack/coap-service/* */ble/generic/* */ble/pal/* */mbed-trace/* */mbed-coap/* */nanostack-libservice/* */mbed-client-randlib/* */nanostack/sal-stack-nanostack-eventloop/* */components/802.15.4_RF/* */components/wifi/* */features/nfc/stack/* */UNITTESTS/* */features/cryptocell/*",
+    "EXCLUDE_PATTERNS": "*/tools/* */targets/* */features/mbedtls/* */features/storage/cfstore/* */features/storage/FEATURE_STORAGE/* */features/unsupported/* */BUILD/* */rtos/TARGET_CORTEX/rtx*/* */cmsis/* */features/lwipstack/* */nanostack/sal-stack-nanostack/* */nanostack/coap-service/* */features/nfc/acore/* */features/nfc/stack/* */ble/generic/* */ble/pal/* */mbed-trace/* */mbed-coap/* */nanostack-libservice/* */mbed-client-randlib/* */nanostack/sal-stack-nanostack-eventloop/* */components/802.15.4_RF/* */components/wifi/* */features/nfc/stack/* */UNITTESTS/* */features/cryptocell/*",
     "ALPHABETICAL_INDEX": "NO",
     "CASE_SENSE_NAMES": "NO",
     "DOT_MULTI_TARGETS": "YES",
