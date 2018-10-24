@@ -84,7 +84,7 @@ public:
 
     /** Create a SPI master connected to the specified pins.
      *
-     *  @note Either mosi or miso can be specified as NC if not used.
+     *  @note You can specify mosi or miso as NC if not used.
      *
      *  @param mosi SPI Master Out, Slave In pin.
      *  @param miso SPI Master In, Slave Out pin.
