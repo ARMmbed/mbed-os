@@ -13,12 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifndef __STDC_FORMAT_MACROS
+#define __STDC_FORMAT_MACROS //Required for PRIu64
+#endif
 
 #include "mbed.h"
 #include "greentea-client/test_env.h"
 #include "unity.h"
 #include "utest.h"
 #include "mbed_trace.h"
+#include <inttypes.h>
 #include <stdlib.h>
 
 using namespace utest::v1;
@@ -209,6 +213,137 @@ void test_multi_threads()
     TEST_ASSERT_EQUAL(0, err);
 }
 
+void test_contiguous_erase_write_read()
+{
+    utest_printf("\nTest Contiguous Erase/Program/Read Starts..\n");
+
+    // Test flow:
+    //  1. Erase whole test area
+    //    - Tests contiguous erase
+    //  2. Write smaller memory area
+    //    - Tests contiguous sector writes
+    //  3. Rerun step 2 for whole erase region
+
+    BlockDevice *block_device = BlockDevice::get_default_instance();
+    TEST_SKIP_UNLESS_MESSAGE(block_device != NULL, "\nno block device found.\n");
+
+    // Initialize BlockDevice
+    int err = block_device->init();
+    TEST_ASSERT_EQUAL(0, err);
+
+    // Test parameters
+    bd_size_t erase_size = block_device->get_erase_size();
+    TEST_ASSERT(erase_size > 0);
+    bd_size_t program_size = block_device->get_program_size();
+    TEST_ASSERT(program_size > 0);
+    utest_printf("\nerase_size=%d", erase_size);
+    utest_printf("\nprogram_size=%d", program_size);
+    utest_printf("\nblock_device->size()=%" PRId64, block_device->size());
+
+    // Determine write/read buffer size
+    //  start write_read_buf_size from 1% block_device->size()
+    bd_size_t write_read_buf_size = block_device->size() / 100; // 1%, 10k=100, 100k=1k, 1MB=10k, 32MB=32k
+    //  try to limit write_read_buf_size to 10k. If program_size*2 is larger than 10k, that will be used instead.
+    if (write_read_buf_size > 10000) {
+        write_read_buf_size = 10000;
+    }
+    //  2 program_size blocks is minimum for contiguous write/read test
+    if (write_read_buf_size < program_size*2) {
+        write_read_buf_size = program_size*2; // going over 10k
+    }
+    bd_size_t contiguous_write_read_blocks_per_region = write_read_buf_size / program_size; // 2 is minimum to test contiguous write
+    write_read_buf_size = contiguous_write_read_blocks_per_region * program_size;
+    utest_printf("\ncontiguous_write_read_blocks_per_region=%" PRIu64, contiguous_write_read_blocks_per_region);
+    utest_printf("\nwrite_read_buf_size=%" PRIu64, write_read_buf_size);
+
+    // Determine test region count
+    int contiguous_write_read_regions = TEST_BLOCK_COUNT;
+    utest_printf("\ncontiguous_write_read_regions=%d", contiguous_write_read_regions);
+
+    // Determine whole erase size
+    bd_size_t contiguous_erase_size = write_read_buf_size * contiguous_write_read_regions;
+    contiguous_erase_size -= contiguous_erase_size % erase_size; // aligned to erase_size
+    contiguous_erase_size += erase_size; // but larger than write/read size * regions
+    utest_printf("\ncontiguous_erase_size=%" PRIu64, contiguous_erase_size);
+
+    // Determine starting address
+    bd_addr_t start_address = rand();            // low 32 bytes
+    start_address += (uint64_t)rand() << 32;     // high 32 bytes
+    start_address %= block_device->size() - contiguous_erase_size - erase_size; //  fit all data + alignment reserve
+    start_address += erase_size;                 // add alignment reserve
+    start_address -= start_address % erase_size; // align with erase_block
+    bd_addr_t stop_address = start_address + write_read_buf_size * contiguous_write_read_regions;
+    utest_printf("\nstart_address=0x%016" PRIx64, start_address);
+    utest_printf("\nstop_address=0x%016" PRIx64, stop_address);
+
+    // Allocate write/read buffer
+    uint8_t *write_read_buf = (uint8_t*)malloc(write_read_buf_size);
+    if (write_read_buf == NULL) {
+        block_device->deinit();
+        TEST_SKIP_MESSAGE("\nnot enough memory for test");
+    }
+    utest_printf("\nwrite_read_buf_size=%" PRIu64 "", (uint64_t)write_read_buf_size);
+
+    // Pre-fill the to-be-erased region. By pre-filling the region,
+    // we can be sure the test will not pass if the erase doesn't work.
+    for (bd_size_t offset=0; start_address+offset < stop_address; offset+=write_read_buf_size) {
+        for (size_t i=0; i<write_read_buf_size; i++) {
+            write_read_buf[i] = (uint8_t)rand();
+        }
+        utest_printf("\npre-filling memory, from 0x%" PRIx64 " of size 0x%" PRIx64, start_address+offset, write_read_buf_size);
+        err = block_device->program((const void*)write_read_buf, start_address+offset, write_read_buf_size);
+        TEST_ASSERT_EQUAL(0, err);
+    }
+
+    // Erase the whole region first
+    utest_printf("\nerasing memory, from 0x%" PRIx64 " of size 0x%" PRIx64, start_address, contiguous_erase_size);
+    err = block_device->erase(start_address, contiguous_erase_size);
+    TEST_ASSERT_EQUAL(0, err);
+
+    // Loop through all write/read regions
+    int region = 0;
+    for (; start_address < stop_address; start_address+=write_read_buf_size) {
+        utest_printf("\n\nregion #%d start_address=0x%016" PRIx64, region++, start_address);
+
+        // Generate test data
+        unsigned int seed = rand();
+        utest_printf("\ngenerating test data, seed=%u", seed);
+        srand(seed);
+        for (size_t i=0; i<write_read_buf_size; i++) {
+            write_read_buf[i] = (uint8_t)rand();
+        }
+
+        // Write test data
+        utest_printf("\nwriting test data");
+        err = block_device->program((const void*)write_read_buf, start_address, write_read_buf_size);
+        TEST_ASSERT_EQUAL(0, err);
+
+        // Read test data
+        memset(write_read_buf, 0, (size_t)write_read_buf_size);
+        utest_printf("\nreading test data");
+        err = block_device->read(write_read_buf, start_address, write_read_buf_size);
+        TEST_ASSERT_EQUAL(0, err);
+
+        // Verify read data
+        utest_printf("\nverifying test data");
+        srand(seed);
+        for (size_t i=0; i<write_read_buf_size; i++) {
+            uint8_t expected_value = (uint8_t)rand();
+            if (write_read_buf[i] != expected_value) {
+                utest_printf("\ndata verify failed, write_read_buf[%d]=%" PRIu8 " and not %" PRIu8 "\n",
+                    i, write_read_buf[i], expected_value);
+            }
+            TEST_ASSERT_EQUAL(write_read_buf[i], expected_value);
+        }
+        utest_printf("\nverify OK");
+    }
+
+    free(write_read_buf);
+
+    // BlockDevice deinitialization
+    err = block_device->deinit();
+    TEST_ASSERT_EQUAL(0, err);
+}
 
 // Test setup
 utest::v1::status_t test_setup(const size_t number_of_cases)
@@ -219,7 +354,8 @@ utest::v1::status_t test_setup(const size_t number_of_cases)
 
 Case cases[] = {
     Case("Testing read write random blocks", test_random_program_read_erase),
-    Case("Testing Multi Threads Erase Program Read", test_multi_threads)
+    Case("Testing Multi Threads Erase Program Read", test_multi_threads),
+    Case("Testing contiguous erase, write and read", test_contiguous_erase_write_read)
 };
 
 Specification specification(test_setup, cases);
