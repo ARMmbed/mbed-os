@@ -1,7 +1,3 @@
-
-/** \addtogroup platform */
-/** @{*/
-
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2016 ARM Limited
  *
@@ -29,6 +25,14 @@ extern "C" {
 #include <stddef.h>
 
 /**
+ * @addtogroup platform_debug
+ * @{
+ * @defgroup platform_debug_memtrace Memory tracing
+ * Memory tracing framework.
+ * @{
+ */
+
+/**
  * enum Memory operation types for tracer
  */    
 enum {
@@ -37,11 +41,6 @@ enum {
     MBED_MEM_TRACE_CALLOC,          /**< Identifier for calloc operation */
     MBED_MEM_TRACE_FREE             /**< Identifier for free operation */
 };
-
-/**
- * \defgroup platform_mem_trace mem_trace functions
- * @{
- */
 
 /* Prefix for the output of the default tracer */
 #define MBED_MEM_DEFAULT_TRACER_PREFIX  "#"

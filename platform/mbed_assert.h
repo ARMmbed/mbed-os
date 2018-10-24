@@ -1,10 +1,3 @@
-
-/** \addtogroup platform */
-/** @{*/
-/**
- * \defgroup platform_Assert Assert macros
- * @{
- */
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2013 ARM Limited
  *
@@ -28,6 +21,14 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/**
+ * @addtogroup platform 
+ * @{
+ * @defgroup platform_debug Debug
+ * Debugging, logging and assertion utilities.
+ * @{
+ */
 
 /** Internal mbed assert function which is invoked when MBED_ASSERT macro fails.
  *  This function is active only if NDEBUG is not defined prior to including this

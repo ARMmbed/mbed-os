@@ -1,10 +1,3 @@
-
-/** \addtogroup platform */
-/** @{*/
-/**
- * \defgroup platform_stats stats functions
- * @{
- */
 /* mbed Microcontroller Library
  * Copyright (c) 2016-2018 ARM Limited
  *
@@ -29,6 +22,14 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/**
+ * @addtogroup platform_debug 
+ * @{
+ * @defgroup platform_debug_sysstats System stats
+ * System stats framework.
+ * @{
+ */
 
 #ifdef MBED_ALL_STATS_ENABLED
 #define MBED_SYS_STATS_ENABLED      1

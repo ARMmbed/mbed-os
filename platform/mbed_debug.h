@@ -1,11 +1,3 @@
-
-/** \addtogroup platform */
-/** @{*/
-/**
- * \defgroup platform_debug Debug functions
- * @{
- */
-
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2013 ARM Limited
  *
@@ -32,6 +24,10 @@
 extern "C" {
 #endif
 
+/**
+ * @addtogroup platform_debug 
+ * @{
+ */
 
 /** Output a debug message
  *
@@ -74,8 +70,6 @@ static inline void debug_if(int condition, const char *format, ...)
 #endif
 
 #endif
-
-/**@}*/
 
 /**@}*/
 

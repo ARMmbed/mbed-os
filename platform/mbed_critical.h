@@ -27,10 +27,8 @@
 extern "C" {
 #endif
 
-/** \addtogroup platform */
-/** @{*/
 /**
- * \defgroup platform_critical critical section function
+ * @addtogroup platform_concurency 
  * @{
  */
 
@@ -390,7 +388,6 @@ void *core_util_atomic_decr_ptr(void *volatile *valuePtr, ptrdiff_t delta);
 #ifdef __cplusplus
 } // extern "C"
 #endif
-/**@}*/
 
 /**@}*/
 
