@@ -1,11 +1,3 @@
-
-/** \addtogroup platform */
-/** @{*/
-/**
- * \defgroup platform_interface Network interface and other utility functions
- * @{
- */
-
 /* mbed Microcontroller Library
  * Copyright (c) 2006-2013 ARM Limited
  *
@@ -46,10 +38,14 @@
 extern "C" {
 #endif
 
-#if DEVICE_SEMIHOST
+#if DEVICE_SEMIHOST || DOXYGEN_ONLY
+
+/** @ingroup platform_system
+ * @{
+ */    
 
 /**
- * \defgroup platform_interface interface functions
+ * \defgroup platform_interface Debug interface
  * @{
  */
 
@@ -107,6 +103,10 @@ int mbed_interface_powerdown(void);
  */
 int mbed_interface_uid(char *uid);
 
+/**
+ * @}
+ */
+
 #endif
 
 /** This returns a unique 6-byte MAC address, based on the interface UID
@@ -116,8 +116,13 @@ int mbed_interface_uid(char *uid);
  * provide a MAC address.
  *
  *  @param mac A 6-byte array to write the MAC address
+ *  @ingroup platform_interface 
  */
 void mbed_mac_address(char *mac);
+
+/**
+ * @ingroup platform_debug
+ */
 
 /** Cause the mbed to flash the BLOD (Blue LEDs Of Death) sequence
  */
