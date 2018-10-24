@@ -26,19 +26,18 @@
 namespace mbed {
 /** \addtogroup drivers */
 
-/** A SPI slave, used for communicating with a SPI Master device
+/** A SPI slave, used for communicating with a SPI master device.
  *
- * The default format is set to 8-bits, mode 0, and a clock frequency of 1MHz
+ * The default format is set to 8 bits, mode 0 and a clock frequency of 1MHz.
  *
  * @note Synchronization level: Not protected
  *
- * Example:
+ * Example of how to reply to a SPI master as slave:
  * @code
- * // Reply to a SPI master as slave
  *
  * #include "mbed.h"
  *
- * SPISlave device(p5, p6, p7, p8); // mosi, miso, sclk, ssel
+ * SPISlave device(SPI_MOSI, SPI_MISO, SPI_SCLK, SPI_CS);
  *
  * int main() {
  *     device.reply(0x00);              // Prime SPI with first reply
@@ -57,21 +56,21 @@ class SPISlave : private NonCopyable<SPISlave> {
 
 public:
 
-    /** Create a SPI slave connected to the specified pins
+    /** Create a SPI slave connected to the specified pins.
      *
-     *  mosi or miso can be specified as NC if not used
+     *  @note Either mosi or miso can be specified as NC if not used.
      *
-     *  @param mosi SPI Master Out, Slave In pin
-     *  @param miso SPI Master In, Slave Out pin
-     *  @param sclk SPI Clock pin
-     *  @param ssel SPI chip select pin
+     *  @param mosi SPI Master Out, Slave In pin.
+     *  @param miso SPI Master In, Slave Out pin.
+     *  @param sclk SPI Clock pin.
+     *  @param ssel SPI Chip Select pin.
      */
     SPISlave(PinName mosi, PinName miso, PinName sclk, PinName ssel);
 
-    /** Configure the data transmission format
+    /** Configure the data transmission format.
      *
-     *  @param bits Number of bits per SPI frame (4 - 16)
-     *  @param mode Clock polarity and phase mode (0 - 3)
+     *  @param bits Number of bits per SPI frame (4 - 16).
+     *  @param mode Clock polarity and phase mode (0 - 3).
      *
      * @code
      * mode | POL PHA
@@ -84,40 +83,47 @@ public:
      */
     void format(int bits, int mode = 0);
 
-    /** Set the spi bus clock frequency
+    /** Set the SPI bus clock frequency.
      *
-     *  @param hz SCLK frequency in hz (default = 1MHz)
+     *  @param hz Clock frequency in hz (default = 1MHz).
      */
     void frequency(int hz = 1000000);
 
-    /** Polls the SPI to see if data has been received
+    /** Polls the SPI to see if data has been received.
      *
-     *  @returns
-     *    0 if no data,
-     *    1 otherwise
+     *  @return Presence of received data.
+     *  @retval 0 No data waiting.
+     *  @retval 1 Data waiting.
      */
     int receive(void);
 
-    /** Retrieve  data from receive buffer as slave
+    /** Retrieve data from receive buffer as slave.
      *
-     *  @returns
-     *    the data in the receive buffer
+     *  @return The data in the receive buffer.
      */
     int read(void);
 
     /** Fill the transmission buffer with the value to be written out
      *  as slave on the next received message from the master.
      *
-     *  @param value the data to be transmitted next
+     *  @param value The data to be transmitted next.
      */
     void reply(int value);
 
+#if !defined(DOXYGEN_ONLY)
+
 protected:
+    /* Internal SPI object identifying the resources */
     spi_t _spi;
 
+    /* How many bits in an SPI frame */
     int _bits;
+    /* Clock phase and polarity */
     int _mode;
+    /* Clock frequency */
     int _hz;
+
+#endif //!defined(DOXYGEN_ONLY)
 };
 
 } // namespace mbed
