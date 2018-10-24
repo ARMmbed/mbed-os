@@ -82,11 +82,11 @@ namespace mbed {
  * There is a subtle bug in this code, the function get_connection returns a 
  * reference to a Connection which is captured by value instead of reference. 
  * 
- * When the reference get_connection returns is copied into connection, the 
- * vtable and others members defined in Connection are copied, but members defined
- * in SerialConnection are left apart. This can cause severe crashes or bugs if 
- * the virtual functions captured use members not present in the base 
- * declaration.
+ * When `get_connection` returns a reference to serial_connection it is copied into 
+ * the local variable connection. The vtable and others members defined in Connection 
+ * are copied, but members defined in SerialConnection are left apart. This can cause 
+ * severe crashes or bugs if the virtual functions captured use members not present 
+ * in the base declaration.
  * 
  * To solve that problem, the copy constructor and assignment operator have to 
  * be declared (but don't need to be defined) in the private section of the 
