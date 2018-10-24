@@ -23,7 +23,7 @@ namespace mbed {
 /** \addtogroup platform */
 /** @{*/
 /**
- * \defgroup platform_Transaction Transaction class
+ * \defgroup platform_misc Miscellaneous
  * @{
  */
 
