@@ -336,7 +336,7 @@ protected:
      */
     virtual void socket_attach(nsapi_socket_t handle, void (*callback)(void *), void *data) = 0;
 
-    /*  Set stack-specific socket options
+    /**  Set stack-specific socket options
      *
      *  The setsockopt allow an application to pass stack-specific hints
      *  to the underlying stack. For unsupported options,
@@ -352,7 +352,7 @@ protected:
     virtual nsapi_error_t setsockopt(nsapi_socket_t handle, int level,
                                      int optname, const void *optval, unsigned optlen);
 
-    /*  Get stack-specific socket options
+    /**  Get stack-specific socket options
      *
      *  The getstackopt allow an application to retrieve stack-specific hints
      *  from the underlying stack. For unsupported options,
