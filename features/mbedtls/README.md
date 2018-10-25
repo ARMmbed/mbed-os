@@ -3,9 +3,9 @@
 Mbed TLS for Mbed OS
 --------------------
 
-This edition of Mbed TLS has been adapted for Mbed OS and imported from its standalone release, which you can find on [Github](https://github.com/ARMmbed/mbedtls). This edition of Mbed TLS does not include the test code or scripts used in the development of the library. These can be found in the standalone release.
+This edition of Mbed TLS has been adapted for Mbed OS and imported from its standalone release, which you can find on [GitHub](https://github.com/ARMmbed/mbedtls). This edition of Mbed TLS does not include the test code or scripts used in the development of the library. You can find these in the standalone release.
 
-Getting Started
+Getting started
 ---------------
 
 Several example programs are available that demonstrate Mbed TLS with Mbed OS. These can help you become familiar with the library:
@@ -23,13 +23,13 @@ These examples are fully integrated into Mbed OS. Each of them comes with comple
 Configuring Mbed TLS features
 -----------------------------
 
-Mbed TLS makes it easy to disable any unneeded features during compilation for a particular project. The default configuration enables all modern and widely-used features of the TLS protocol, which should meet the needs of most projects. It also disables all older and less common features, to minimize the code footprint.
+With Mbed TLS, you can disable any unneeded features during compilation for a particular project. The default configuration enables widely used features of the TLS protocol, which meets the needs of most projects. It also disables all older and less common features to minimize the code footprint.
 
 The list of available compilation flags is available in the fully documented [`config.h` file](https://github.com/ARMmbed/mbedtls/blob/development/include/mbedtls/config.h).
 
-If you need to adjust these flags, you can provide your own supplementary configuration adjustment file with suitable `#define` and `#undef` statements. These are included between the default definitions and the sanity checks. Your configuration file should be in your application's include directory, and can be named freely, but you then need to tell Mbed TLS the file's name. To do that, you can use the [Mbed OS Configuration system](https://docs.mbed.com/docs/mbed-os-api/en/latest/api/md_docs_config_system.html).
+If you need to adjust these flags, you can provide your own supplementary configuration adjustment file with suitable `#define` and `#undef` statements. These are included between the default definitions and the sanity checks. Your configuration file should be in your application's include directory and can be named freely, but you then need to tell Mbed TLS the file's name. To do that, you can use the [Mbed OS configuration system](https://os.mbed.com/docs/latest/reference/configuration.html).
 
-For example, if you wanted to enable the options `MBEDTLS_PEM_WRITE_C` and `MBEDTLS_CMAC_C`, and provide your own additional configuration file for Mbed TLS named `my_config.h`, you could define these in a top level `mbed_app.json` configuration file in the root directory of your project.
+For example, if you wanted to enable the options `MBEDTLS_PEM_WRITE_C` and `MBEDTLS_CMAC_C` and provide your own additional configuration file for Mbed TLS named `my_config.h`, you could define these in a top level `mbed_app.json` configuration file in the root directory of your project.
 
 The Mbed TLS configuration file would be specified in the `.json` file as:
 
@@ -59,9 +59,9 @@ You can use this to change any configuration normally in the `config.h` file.
 
 ### Getting Mbed TLS from GitHub
 
-Mbed TLS is maintained and developed in the open, independently of Mbed OS, and its source can be found on GitHub here: [ARMmbed/mbedtls](https://github.com/ARMmbed/mbedtls). To import a different version of Mbed TLS into an instance of Mbed OS, there is a `Makefile` script to update the local Git repository, extract a specific version, and modify the configuration files to Mbed OS defaults.
+We maintain and develop Mbed TLS in the open, independently of Mbed OS, and you can find its source on GitHub here: [ARMmbed/mbedtls](https://github.com/ARMmbed/mbedtls). To import a different version of Mbed TLS into an instance of Mbed OS, there is a `Makefile` script to update the local Git repository, extract a specific version and modify the configuration files to Mbed OS defaults.
 
-To use the `Makefile`, you can either set `MBED_TLS_RELEASE` environment variable to the Git tag or commit ID of the Mbed TLS release or version you want to use, or modify the `Makefile` itself. If `MBED_TLS_RELEASE` is unset, the HEAD of the main development branch will be extracted.
+To use the `Makefile`, you can either set `MBED_TLS_RELEASE` environment variable to the Git tag or commit ID of the Mbed TLS release or version you want to use, or modify the `Makefile` itself. If `MBED_TLS_RELEASE` is not set, the HEAD of the main development branch will be extracted.
 
 Run the following commands in the `importer` directory in the Mbed TLS directory:
 
@@ -76,22 +76,23 @@ Once these steps are complete, you can build Mbed OS normally with the new versi
 
 ### Differences between the standalone and Mbed OS editions
 
-While the two editions share the same code base, there are still a number of differences, mainly in configuration and integration. You should keep those differences in mind if you consult our [knowledge base](https://tls.mbed.org/kb), as these refer to the standalone edition.
+Although the two editions share the same code base, there are differences, mainly in configuration and integration. Remember these differences if you consult our [knowledge base](https://tls.mbed.org/kb), as the knowledge base articles refer to the standalone edition.
 
-* The Mbed OS edition has a smaller set of features enabled by default in `config.h`, in order to reduce footprint. While the default configuration of the standalone edition puts more emphasis on maintaining interoperability with old peers, the Mbed OS edition only enables the most modern ciphers and the latest version of (D)TLS.
+* The Mbed OS edition has a smaller set of features enabled by default in `config.h`, to reduce footprint. Although the default configuration of the standalone edition puts more emphasis on maintaining interoperability with old peers, the Mbed OS edition only enables the most modern ciphers and the latest version of (D)TLS.
 
 * The following components of Mbed TLS are disabled in the Mbed OS edition: `net_sockets.c` and `timing.c`. This is because Mbed OS includes its own equivalents.
 
-### Help and Support
+### Help and support
 ----------------
 
-For further documentation and help, you can visit the [Mbed TLS website](https://tls.mbed.org/) which contains full documentation of the library, including function-by-function descriptions, knowledge base articles and blogs. Additionally you can join our [support forum](https://forums.mbed.com/c/mbed-tls) for questions to the community or to help others.
+For further documentation and help, you can visit the [Mbed TLS website](https://tls.mbed.org/), which contains full documentation of the library, including function-by-function descriptions, knowledge base articles and blogs. Additionally, you can join our [support forum](https://forums.mbed.com/c/mbed-tls) for questions to the community or to help others.
 
-Contributing to the Project
+Contributing to the project
 ---------------------------
 
 We are happy to accept bug reports and contributions from the community. There are some requirements to integrate contributions:
+
 * Simple bug fixes to existing code do not contain copyright themselves, and we can integrate without issue. The same is true of trivial contributions.
-* For larger contributions, such as a new feature, the code can possibly fall under copyright law. We then need your consent to share in the ownership of the copyright. We have a form for this, which we will send to you in case you submit a contribution or pull request that we deem this necessary for.
+* For larger contributions, such as a new feature, the code can possibly fall under copyright law. We then need your consent to share in the ownership of the copyright. We have a form for this, which we will send to you if you submit a contribution or pull request that we deem this necessary for.
 
 Please submit contributions to the [standalone Mbed TLS project](https://github.com/ARMmbed/mbedtls), not to the version of Mbed TLS embedded within Mbed OS.
