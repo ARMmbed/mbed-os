@@ -2,21 +2,21 @@
 
 # Table of contents
 
-1. [Crash Reporting](#crash-reporting).
-1. [Table of contents](#table-of-contents).
-        1. [Revision history](#revision-history).
-1. [Introduction](#introduction).
-        1. [Overview and background](#overview-and-background).
-        1. [Requirements and assumptions](#requirements-and-assumptions).
-1. [System architecture and high-level design](#system-architecture-and-high-level-design).
-        1. [System architecture and component interaction](#system-architecture-and-component-interaction).
-1. [Detailed design](#detailed-design).
-1. [Usage scenarios and examples](#usage-scenarios-and-examples).
-1. [Tools and configuration changes](#tools-and-configuration-changes).
-1. [Other information](#other-information).
-        1. [Reusability](#reusability).
-        1. [Deprecations](#deprecations).
-        1. [References](#references).
+- [Crash Reporting](#crash-reporting)
+- [Table of contents](#table-of-contents)
+        - [Revision history](#revision-history)
+- [Introduction](#introduction)
+        - [Overview and background](#overview-and-background)
+        - [Requirements and assumptions](#requirements-and-assumptions)
+- [System architecture and high-level design](#system-architecture-and-high-level-design)
+        - [System architecture and component interaction](#system-architecture-and-component-interaction)
+- [Detailed design](#detailed-design)
+- [Usage scenarios and examples](#usage-scenarios-and-examples)
+- [Tools and configuration changes](#tools-and-configuration-changes)
+- [Other information](#other-information)
+        - [Reusability](#reusability)
+        - [Deprecations](#deprecations)
+        - [References](#references)
 
 ### Revision history
 
