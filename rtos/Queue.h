@@ -39,19 +39,19 @@ namespace rtos {
 /** The Queue class represents a collection of objects that are stored first by
  *  order of priorty, and then in first-in, first-out (FIFO) order.
  *
- * A queue is used to when data needs to stored and then accessed in the same
- * order that it has been stored. The order in which they are retrieved is in
- * order of descending priority, if multiple elements have the same priority
+ * You can use a queue when you need to store data and then access it in the same
+ * order that it has been stored. The order in which you retrieve the data is in
+ * order of descending priority. If multiple elements have the same priority,
  * they are retrieved in FIFO order.
  *
- * The object type stored in the queue can be an integer, pointer, or a generic
+ * The object type stored in the queue can be an integer, pointer or a generic
  * type given by the template parameter T.
  *
- * @tparam T        Specifies the type of elements that are stored in the queue.
- * @tparam queue_sz Maximum number of messages that can be stored in the queue.
+ * @tparam T        Specifies the type of elements stored in the queue.
+ * @tparam queue_sz Maximum number of messages that you can store in the queue.
  *
- * @note Memory considerations: The queue control structures will be created on
- *       current thread's stack, both for the mbed OS and underlying RTOS
+ * @note Memory considerations: The queue control structures are created on the
+ *       current thread's stack, both for the Mbed OS and underlying RTOS
  *       objects (static or dynamic RTOS memory pools are not being used).
  *
  */
@@ -82,7 +82,7 @@ public:
         osMessageQueueDelete(_id);
     }
 
-    /** Check if the queue is empty
+    /** Check if the queue is empty.
      *
      * @return True if the queue is empty, false if not
      *
@@ -92,7 +92,7 @@ public:
         return osMessageQueueGetCount(_id) == 0;
     }
 
-    /** Check if the queue is full
+    /** Check if the queue is full.
      *
      * @return True if the queue is full, false if not
      *
@@ -109,19 +109,19 @@ public:
      * (higher numbers indicate higher priority) on insertion.
      *
      * The timeout indicated by the parameter `millisec` specifies how long the
-     * function will block waiting for the message to be inserted into the
+     * function blocks waiting for the message to be inserted into the
      * queue.
      *
      * The parameter `millisec` can have the following values:
      *  - When the timeout is 0 (the default), the function returns instantly.
-     *  - When the timeout is osWaitForever the function will wait for an
+     *  - When the timeout is osWaitForever, the function waits for an
      *    infinite time.
-     *  - For all other values the function will wait for the given number of
+     *  - For all other values, the function waits for the given number of
      *    milliseconds.
      *
      * @param  data      Pointer to the element to insert into the queue.
      * @param  millisec  Timeout for the operation to be executed, or 0 in case
-     *                   of no-timeout. (default: 0)
+     *                   of no timeout. (default: 0)
      * @param  prio      Priority of the operation or 0 in case of default.
      *                   (default: 0)
      *
@@ -132,7 +132,7 @@ public:
      *                              queue in the given time.
      *         @a osErrorResource   The message could not be inserted because
      *                              the queue is full.
-     *         @a osErrorParameter  Internal error or non-zero timeout specified
+     *         @a osErrorParameter  Internal error or nonzero timeout specified
      *                              in an ISR.
      *
      * @note You may call this function from ISR context if the millisec
@@ -149,17 +149,17 @@ public:
      * in the value field of the returned `osEvent` object.
      *
      * The timeout specified by the parameter `millisec` specifies how long the
-     * function will wait to retrieve the message from the queue.
+     * function waits to retrieve the message from the queue.
      *
      * The timeout parameter can have the following values:
      *  - When the timeout is 0, the function returns instantly.
-     *  - When the timeout is osWaitForever (default), the function will wait
+     *  - When the timeout is osWaitForever (default), the function waits
      *    infinite time until the message is retrieved.
-     *  - When the timeout is any other value the function will wait for th
+     *  - When the timeout is any other value, the function waits for the
      *    specified time before returning a timeout error.
      *
      * Messages are retrieved in descending priority order. If two messages
-     * share the same priority level they are retrieved in first-in, first-out
+     * share the same priority level, they are retrieved in first-in, first-out
      * (FIFO) order.
      *
      * @param   millisec  Timeout value or 0 in case of no time-out.
@@ -168,7 +168,7 @@ public:
      * @return Event information that includes the message in event. Message
      *         value and the status code in event.status:
      *         @a osEventMessage   Message successfully received.
-     *         @a osOK             No message is available in the queue and no
+     *         @a osOK             No message is available in the queue, and no
      *                             timeout was specified.
      *         @a osEventTimeout   No message was received before a timeout
      *                             event occurred.
