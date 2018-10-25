@@ -212,7 +212,9 @@ protected:
 
 private:
     mbedtls_ssl_context _ssl;
+#ifdef MBEDTLS_PK_C
     mbedtls_pk_context _pkctx;
+#endif
     mbedtls_ctr_drbg_context _ctr_drbg;
     mbedtls_entropy_context _entropy;
 
