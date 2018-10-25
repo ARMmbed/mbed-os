@@ -20,11 +20,11 @@
  * SOFTWARE.
  */
 
+#include "cmsis_os2.h"
 #include "rtos/Kernel.h"
-
-#include "mbed.h"
 #include "rtos/rtos_idle.h"
 #include "rtos/rtos_handlers.h"
+#include "platform/mbed_critical.h"
 
 namespace rtos {
 
