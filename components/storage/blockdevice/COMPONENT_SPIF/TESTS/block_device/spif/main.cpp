@@ -42,7 +42,7 @@ static SingletonPtr<PlatformMutex> _mutex;
 // Mutex is protecting rand() per srand for buffer writing and verification.
 // Mutex is also protecting printouts for clear logs.
 // Mutex is NOT protecting Block Device actions: erase/program/read - which is the purpose of the multithreaded test!
-void basic_erase_program_read_test(SPIFBlockDevice& block_device, bd_size_t block_size, uint8_t *write_block,
+void basic_erase_program_read_test(SPIFBlockDevice &block_device, bd_size_t block_size, uint8_t *write_block,
                                    uint8_t *read_block, unsigned addrwidth)
 {
     int err = 0;
@@ -78,10 +78,10 @@ void basic_erase_program_read_test(SPIFBlockDevice& block_device, bd_size_t bloc
     int val_rand;
     for (bd_size_t i_ind = 0; i_ind < block_size; i_ind++) {
         val_rand = rand();
-        if ( (0xff & val_rand) != read_block[i_ind] ) {
+        if ((0xff & val_rand) != read_block[i_ind]) {
             utest_printf("\n Assert Failed Buf Read - block:size: %llx:%llu \n", block, block_size);
             utest_printf("\n pos: %llu, exp: %02x, act: %02x, wrt: %02x \n", i_ind, (0xff & val_rand), read_block[i_ind],
-                         write_block[i_ind] );
+                         write_block[i_ind]);
         }
         TEST_ASSERT_EQUAL(0xff & val_rand, read_block[i_ind]);
     }
@@ -206,7 +206,7 @@ static void test_spif_thread_job(void *block_device_ptr/*, int thread_num*/)
 
     uint8_t *write_block = new (std::nothrow) uint8_t[block_size];
     uint8_t *read_block = new (std::nothrow) uint8_t[block_size];
-    if (!write_block || !read_block ) {
+    if (!write_block || !read_block) {
         utest_printf("\n Not enough memory for test");
         goto end;
     }

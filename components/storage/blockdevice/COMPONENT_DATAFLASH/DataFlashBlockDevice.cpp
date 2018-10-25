@@ -131,11 +131,11 @@ enum dummy {
 };
 
 DataFlashBlockDevice::DataFlashBlockDevice(PinName mosi,
-        PinName miso,
-        PinName sclk,
-        PinName cs,
-        int freq,
-        PinName nwp)
+                                           PinName miso,
+                                           PinName sclk,
+                                           PinName cs,
+                                           int freq,
+                                           PinName nwp)
     :   _spi(mosi, miso, sclk),
         _cs(cs, 1),
         _nwp(nwp),

@@ -294,7 +294,7 @@ void test_dir_check()
                         TEST_ASSERT(1);
                     }
                     break;
-                } else if ( i == numFiles) {
+                } else if (i == numFiles) {
                     TEST_ASSERT_EQUAL(0, res);
                 }
             }

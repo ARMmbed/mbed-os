@@ -61,7 +61,7 @@ const uint8_t fslittle_test_byte_data_table[FSLITTLE_TEST_BYTE_DATA_TABLE_SIZE] 
 
 /* @brief  test utility function to delete the file identified by filename
  */
-int32_t fslittle_test_delete(const char* filename)
+int32_t fslittle_test_delete(const char *filename)
 {
     FSLITTLE_FENTRYLOG("%s:entered.\r\n", __func__);
     return remove(filename);
@@ -74,18 +74,18 @@ int32_t fslittle_test_delete(const char* filename)
  * @param   data        data to store in file
  * @param   len         number of bytes of data present in the data buffer.
  */
-int32_t fslittle_test_create(const char* filename, const char* data, size_t len)
+int32_t fslittle_test_create(const char *filename, const char *data, size_t len)
 {
     int32_t ret = -1;
     FILE *fp = NULL;
 
     FSLITTLE_FENTRYLOG("%s:entered (filename=%s, len=%d).\n", __func__, filename, (int) len);
     fp = fopen(filename, "w+");
-    if(fp == NULL){
+    if (fp == NULL) {
         return ret;
     }
-    ret = fwrite((const void*) data, len, 1, fp);
-    if(ret < 0){
+    ret = fwrite((const void *) data, len, 1, fp);
+    if (ret < 0) {
         fclose(fp);
         return ret;
     }
@@ -99,16 +99,15 @@ int32_t fslittle_test_create(const char* filename, const char* data, size_t len)
  * @param   len     length of kv name to generate
  *
  */
-int32_t fslittle_test_filename_gen(char* name, const size_t len)
+int32_t fslittle_test_filename_gen(char *name, const size_t len)
 {
     size_t i;
     uint32_t pos = 0;
 
-    const char* buf = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!$-_@";
+    const char *buf = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!$-_@";
     const int buf_len = strlen(buf);
     FSLITTLE_FENTRYLOG("%s:entered\n", __func__);
-    for(i = 0; i < len; i++)
-    {
+    for (i = 0; i < len; i++) {
         pos = rand() % (buf_len);
         name[i] = buf[pos];
     }
