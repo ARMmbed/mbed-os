@@ -30,6 +30,8 @@ The [release notes](https://os.mbed.com/releases) detail the current release. Yo
 
 The software is provided under ]Apache-2.0 license](LICENSE). Contributions to this project are accepted under the same license. Please see [contributing.md](CONTRIBUTING.md) for more info. 
 
+This project contains code from other projects. The original license text is included in those source files.
+
 ## Getting started for developers
  
 We have a [developer website](https://os.mbed.com) for asking questions, engaging with others, finding information on boards and components, using an online IDE and compiler, reading the documentation and learning about what's new and what's coming next in Mbed OS.
