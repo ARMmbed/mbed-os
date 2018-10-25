@@ -4269,7 +4269,8 @@
         "detect_code": ["0822"],
         "device_has_add": ["ANALOGOUT", "CAN", "CRC", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
-        "device_name": "STM32L496AG"
+        "device_name": "STM32L496AG",
+        "bootloader_supported": true
     },
     "NUCLEO_L496ZG": {
         "inherits": ["FAMILY_STM32"],
@@ -4290,7 +4291,8 @@
         "detect_code": ["0823"],
         "device_has_add": ["ANALOGOUT", "CAN", "CRC", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
         "release_versions": ["2", "5"],
-        "device_name": "STM32L496ZG"
+        "device_name": "STM32L496ZG",
+        "bootloader_supported": true
     },
     "NUCLEO_L496ZG_P": {
         "inherits": ["NUCLEO_L496ZG"],
