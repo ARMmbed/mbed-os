@@ -53,7 +53,7 @@ struct Waiter;
  * - Acquire a lock on the mutex used to construct the condition variable.
  * - Execute `notify_one` or `notify_all` on the condition variable.
  *
- * ### Defined behavior
+ * #### Defined behavior
  * - All threads waiting on the condition variable wake when
  *   `ConditionVariable::notify_all` is called.
  * - At least one thread waiting on the condition variable wakes
@@ -63,18 +63,18 @@ struct Waiter;
  * - The ConditionVariable reacquires the mutex lock before exiting the wait
  *   function.
  *
- * ### Undefined behavior
+ * #### Undefined behavior
  * - The thread that is unblocked on `ConditionVariable::notify_one` is
  *   undefined if there are multiple waiters.
  * - Calling wait if the mutex is not locked by the current thread is undefined
  *   behavior.
  * - The order in which waiting threads acquire the condition variable's
- *   mutex after ConditionVariable::notify_all is called is undefined.
- * - When ConditionVariable::notify_one or ConditionVariable::notify_all is
+ *   mutex after `ConditionVariable::notify_all` is called is undefined.
+ * - When `ConditionVariable::notify_one` or `ConditionVariable::notify_all` is
  *   called and there are one or more waiters, and one or more threads
  *   attempting to acquire the condition variable's mutex, the order in which the mutex is
  *   acquired is undefined.
- * - The behavior of ConditionVariable::wait and ConditionVariable::wait_for
+ * - The behavior of `ConditionVariable::wait` and `ConditionVariable::wait_for`
  *   is undefined if the condition variable's mutex is locked more than once by
  *   the calling thread.
  * - Spurious notifications (not triggered by the application) can occur,
@@ -194,8 +194,8 @@ public:
      * variable is notified, or a specific time given by millisec parameter is
      * reached.
      *
-     * @param   millisec  absolute end time referenced to Kernel::get_ms_count()
-     * @return  true if a timeout occurred, false otherwise.
+     * @param   millisec  Absolute end time referenced to `Kernel::get_ms_count()`
+     * @return  True if a timeout occurred, false otherwise.
      *
      * @note - The thread calling this function must be the owner of the
      * ConditionVariable's mutex, and it must be locked exactly once.
@@ -205,7 +205,7 @@ public:
      * been met.
      *
      * @note - The current thread releases the lock while inside the wait
-     * function and reacquire it upon exiting the function.
+     * function and reacquires it upon exiting the function.
      *
      * Example:
      * @code
@@ -235,8 +235,8 @@ public:
      * variable receives a notification from another thread, or the timeout
      * specified by the millisec parameter is reached.
      *
-     * @param   millisec  timeout value or osWaitForever in case of no timeout.
-     * @return  true if a timeout occurred, false otherwise.
+     * @param   millisec  Timeout value or osWaitForever in case of no timeout.
+     * @return  True if a timeout occurred, false otherwise.
      *
      * @note - The thread calling this function must be the owner of the
      * ConditionVariable's mutex, and it must be locked exactly once.
