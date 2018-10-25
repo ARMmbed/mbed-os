@@ -22,13 +22,13 @@
 #include "netsocket/NetworkInterface.h"
 #include "netsocket/WiFiAccessPoint.h"
 
-/** Common interface that is shared between WiFi devices.
+/** Common interface that is shared between Wi-Fi devices.
  *
  *  @addtogroup netsocket
  */
 class WiFiInterface: public virtual NetworkInterface {
 public:
-    /** Get the default WiFi interface.
+    /** Get the default Wi-Fi interface.
      *
      * This is provided as a weak method so applications can override.
      * Default behaviour is to get the target's default interface, if
@@ -38,7 +38,7 @@ public:
      */
     static WiFiInterface *get_default_instance();
 
-    /** Set the WiFi network credentials.
+    /** Set the Wi-Fi network credentials.
      *
      *  @param ssid      Name of the network to connect to.
      *  @param pass      Security passphrase to connect to the network.
@@ -49,7 +49,7 @@ public:
     virtual nsapi_error_t set_credentials(const char *ssid, const char *pass,
                                           nsapi_security_t security = NSAPI_SECURITY_NONE) = 0;
 
-    /** Set the WiFi network channel.
+    /** Set the Wi-Fi network channel.
      *
      *  @param channel   Channel on which the connection is to be made, or 0 for any (Default: 0).
      *  @return          NSAPI_ERROR_OK on success, or error code on failure.
@@ -63,7 +63,7 @@ public:
      */
     virtual int8_t get_rssi() = 0;
 
-    /** Attempt to connect to a WiFi network.
+    /** Attempt to connect to a Wi-Fi network.
      *
      *  @param ssid      Name of the network to connect to.
      *  @param pass      Security passphrase to connect to the network.
@@ -74,7 +74,7 @@ public:
     virtual nsapi_error_t connect(const char *ssid, const char *pass,
                                   nsapi_security_t security = NSAPI_SECURITY_NONE, uint8_t channel = 0) = 0;
 
-    /** Attempt to connect to a WiFi network. Requires ssid and passphrase to be set.
+    /** Attempt to connect to a Wi-Fi network. Requires ssid and passphrase to be set.
      *  If passphrase is invalid, NSAPI_ERROR_AUTH_ERROR is returned.
      *
      *  @return         NSAPI_ERROR_OK on success, negative error code on failure
@@ -110,7 +110,7 @@ public:
 #if !defined(DOXYGEN_ONLY)
 protected:
 
-    /** Get the target's default WiFi interface.
+    /** Get the target's default Wi-Fi interface.
      *
      * This is provided as a weak method so targets can override. The
      * default implementation returns NULL.
