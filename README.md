@@ -26,6 +26,10 @@ Mbed OS provides a platform that includes:
 ## Release notes
 The [release notes](https://os.mbed.com/releases) detail the current release. You can also find information about previous versions.
 
+## License & Contributions 
+
+The software is provided under ]Apache-2.0 license](LICENSE). Contributions to this project are accepted under the same license. Please see [contributing.md](CONTRIBUTING.md) for more info. 
+
 ## Getting started for developers
  
 We have a [developer website](https://os.mbed.com) for asking questions, engaging with others, finding information on boards and components, using an online IDE and compiler, reading the documentation and learning about what's new and what's coming next in Mbed OS.
@@ -39,3 +43,4 @@ We also have a [contributing and publishing guide](https://os.mbed.com/contribut
 For more information about Mbed OS, please see [our published documentation](https://os.mbed.com/docs/latest). It includes published Doxygen for our APIs, step-by-step tutorials, porting information and background reference materials about our architecture and tools.
 
 To contribute to this documentation, please see the [mbed-os-5-docs repo](https://github.com/ARMmbed/mbed-os-5-docs).
+
