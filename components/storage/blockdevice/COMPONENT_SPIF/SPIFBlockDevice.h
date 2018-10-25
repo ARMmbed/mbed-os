@@ -72,7 +72,7 @@ enum spif_bd_error {
  *  }
  *  @endcode
  */
-class SPIFBlockDevice : public BlockDevice {
+class SPIFBlockDevice : public mbed::BlockDevice {
 public:
     /** Creates a SPIFBlockDevice on a SPI bus specified by pins
      *
@@ -114,7 +114,7 @@ public:
      *  @return         SPIF_BD_ERROR_OK(0) - success
      *                  SPIF_BD_ERROR_DEVICE_ERROR - device driver transaction failed
      */
-    virtual int read(void *buffer, bd_addr_t addr, bd_size_t size);
+    virtual int read(void *buffer, mbed::bd_addr_t addr, mbed::bd_size_t size);
 
     /** Program blocks to a block device
      *
@@ -128,7 +128,7 @@ public:
      *                  SPIF_BD_ERROR_READY_FAILED - Waiting for Memory ready failed or timed out
      *                  SPIF_BD_ERROR_WREN_FAILED - Write Enable failed
      */
-    virtual int program(const void *buffer, bd_addr_t addr, bd_size_t size);
+    virtual int program(const void *buffer, mbed::bd_addr_t addr, mbed::bd_size_t size);
 
     /** Erase blocks on a block device
      *
@@ -142,27 +142,27 @@ public:
      *                  SPIF_BD_ERROR_WREN_FAILED - Write Enable failed
      *                  SPIF_BD_ERROR_INVALID_ERASE_PARAMS - Trying to erase unaligned address or size
      */
-    virtual int erase(bd_addr_t addr, bd_size_t size);
+    virtual int erase(mbed::bd_addr_t addr, mbed::bd_size_t size);
 
     /** Get the size of a readable block
      *
      *  @return         Size of a readable block in bytes
      */
-    virtual bd_size_t get_read_size() const;
+    virtual mbed::bd_size_t get_read_size() const;
 
     /** Get the size of a programable block
      *
      *  @return         Size of a programable block in bytes
      *  @note Must be a multiple of the read size
      */
-    virtual bd_size_t get_program_size() const;
+    virtual mbed::bd_size_t get_program_size() const;
 
     /** Get the size of a eraseable block
      *
      *  @return         Size of a eraseable block in bytes
      *  @note Must be a multiple of the program size
      */
-    virtual bd_size_t get_erase_size() const;
+    virtual mbed::bd_size_t get_erase_size() const;
 
     /** Get the size of minimal eraseable sector size of given address
      *
@@ -170,7 +170,7 @@ public:
      *  @return         Size of minimal erase sector size, in given address region, in bytes
      *  @note Must be a multiple of the program size
      */
-    virtual bd_size_t get_erase_size(bd_addr_t addr);
+    virtual mbed::bd_size_t get_erase_size(mbed::bd_addr_t addr);
 
     /** Get the value of storage byte after it was erased
      *
@@ -187,7 +187,7 @@ public:
      *
      *  @return         Size of the underlying device in bytes
      */
-    virtual bd_size_t size() const;
+    virtual mbed::bd_size_t size() const;
 
 private:
 
@@ -231,17 +231,17 @@ private:
     /*   Calls to SPI Driver APIs   */
     /********************************/
     // Send Program => Write command to Driver
-    spif_bd_error _spi_send_program_command(int prog_inst, const void *buffer, bd_addr_t addr, bd_size_t size);
+    spif_bd_error _spi_send_program_command(int prog_inst, const void *buffer, mbed::bd_addr_t addr, mbed::bd_size_t size);
 
     // Send Read command to Driver
     //spif_bd_error _spi_send_read_command(uint8_t read_inst, void *buffer, bd_addr_t addr, bd_size_t size);
-    spif_bd_error _spi_send_read_command(int read_inst, uint8_t *buffer, bd_addr_t addr, bd_size_t size);
+    spif_bd_error _spi_send_read_command(int read_inst, uint8_t *buffer, mbed::bd_addr_t addr, mbed::bd_size_t size);
 
     // Send Erase Instruction using command_transfer command to Driver
-    spif_bd_error _spi_send_erase_command(int erase_inst, bd_addr_t addr, bd_size_t size);
+    spif_bd_error _spi_send_erase_command(int erase_inst, mbed::bd_addr_t addr, mbed::bd_size_t size);
 
     // Send Generic command_transfer command to Driver
-    spif_bd_error _spi_send_general_command(int instruction, bd_addr_t addr, char *tx_buffer,
+    spif_bd_error _spi_send_general_command(int instruction, mbed::bd_addr_t addr, char *tx_buffer,
                                             size_t tx_length, char *rx_buffer, size_t rx_length);
 
     // Send set_frequency command to Driver

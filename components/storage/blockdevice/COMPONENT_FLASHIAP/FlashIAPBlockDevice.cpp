@@ -20,7 +20,7 @@
 #include "mbed_critical.h"
 
 #include "mbed.h"
-
+using namespace mbed;
 #include <inttypes.h>
 
 #define FLASHIAP_READ_SIZE 1

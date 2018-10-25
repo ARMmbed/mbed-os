@@ -20,6 +20,8 @@
 #include <algorithm>
 #include <string.h>
 
+namespace mbed {
+
 static inline uint32_t align_down(bd_size_t val, bd_size_t size)
 {
     return val / size * size;
@@ -327,3 +329,5 @@ bd_size_t BufferedBlockDevice::size() const
 
     return _bd_size;
 }
+
+} // namespace mbed

@@ -17,6 +17,8 @@
 #include "SPIFReducedBlockDevice.h"
 #include "mbed_wait_api.h"
 
+using namespace mbed;
+
 // Read/write/erase sizes
 #define SPIF_READ_SIZE  1
 #define SPIF_PROG_SIZE  1

@@ -18,7 +18,8 @@
 #include <errno.h>
 
 namespace mbed {
-int FileSystemHandle::open(DirHandle **dir, const char *path)
+
+int FileSystemHandle::open(mbed::DirHandle **dir, const char *path)
 {
     return -ENOSYS;
 }
@@ -47,4 +48,5 @@ int FileSystemHandle::statvfs(const char *path, struct statvfs *buf)
 {
     return -ENOSYS;
 }
-}
+
+} // namespace mbed

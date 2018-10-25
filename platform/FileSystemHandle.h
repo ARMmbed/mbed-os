@@ -110,5 +110,3 @@ public:
 } // namespace mbed
 
 #endif
-
-/** @}*/

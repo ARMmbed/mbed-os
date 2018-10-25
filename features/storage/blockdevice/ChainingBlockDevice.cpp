@@ -16,7 +16,9 @@
 
 #include "ChainingBlockDevice.h"
 #include "platform/mbed_critical.h"
+#include "platform/mbed_assert.h"
 
+namespace mbed {
 
 ChainingBlockDevice::ChainingBlockDevice(BlockDevice **bds, size_t bd_count)
     : _bds(bds), _bd_count(bd_count)
@@ -280,3 +282,5 @@ bd_size_t ChainingBlockDevice::size() const
 {
     return _size;
 }
+
+} // namespace mbed

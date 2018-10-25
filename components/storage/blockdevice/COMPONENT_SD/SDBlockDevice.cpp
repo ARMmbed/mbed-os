@@ -147,6 +147,8 @@
 #include <inttypes.h>
 #include <errno.h>
 
+using namespace mbed;
+
 #ifndef MBED_CONF_SD_CMD_TIMEOUT
 #define MBED_CONF_SD_CMD_TIMEOUT                 5000   /*!< Timeout in ms for response */
 #endif

@@ -19,6 +19,8 @@
 
 #include <inttypes.h>
 
+using namespace mbed;
+
 /* constants */
 #define DATAFLASH_READ_SIZE        1
 #define DATAFLASH_PROG_SIZE        1

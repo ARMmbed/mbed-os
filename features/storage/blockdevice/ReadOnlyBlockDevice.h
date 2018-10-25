@@ -19,12 +19,17 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
+/** \addtogroup storage */
+/** @{*/
+
 #ifndef MBED_READ_ONLY_BLOCK_DEVICE_H
 #define MBED_READ_ONLY_BLOCK_DEVICE_H
 
 #include "BlockDevice.h"
 #include "PlatformMutex.h"
 
+namespace mbed {
 
 class ReadOnlyBlockDevice : public BlockDevice {
 public:
@@ -132,6 +137,13 @@ private:
     BlockDevice *_bd;
 };
 
+} // namespace mbed
 
+// Added "using" for backwards compatibility
+#ifndef MBED_NO_GLOBAL_USING_DIRECTIVE
+using mbed::ReadOnlyBlockDevice;
+#endif
 
 #endif
+
+/** @}*/

@@ -20,7 +20,7 @@
 #include "lfs_util.h"
 #include "MbedCRC.h"
 
-using namespace mbed;
+namespace mbed {
 
 extern "C" void lfs_crc(uint32_t *crc, const void *buffer, size_t size)
 {
@@ -577,3 +577,4 @@ void LittleFileSystem::dir_rewind(fs_dir_t dir)
     _mutex.unlock();
 }
 
+} // namespace mbed
