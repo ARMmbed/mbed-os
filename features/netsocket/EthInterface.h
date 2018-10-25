@@ -24,7 +24,6 @@
 
 
 /** Common interface that is shared between Ethernet hardware.
- *  @addtogroup netsocket
  */
 class EthInterface : public virtual NetworkInterface {
 public:

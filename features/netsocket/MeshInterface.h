@@ -24,7 +24,6 @@
 
 
 /** Common interface that is shared between mesh hardware
- *  @addtogroup netsocket
  */
 class MeshInterface : public virtual NetworkInterface {
 public:

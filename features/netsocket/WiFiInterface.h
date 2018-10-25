@@ -77,7 +77,7 @@ public:
     /** Attempt to connect to a Wi-Fi network. Requires ssid and passphrase to be set.
      *  If passphrase is invalid, NSAPI_ERROR_AUTH_ERROR is returned.
      *
-     *  @return         NSAPI_ERROR_OK on success, negative error code on failure
+     *  @return         NSAPI_ERROR_OK on success, negative error code on failure.
      */
     virtual nsapi_error_t connect() = 0;
 
