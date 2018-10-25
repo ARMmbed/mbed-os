@@ -120,7 +120,7 @@ public:
      *
      *  @param value Data to be sent to the SPI slave.
      *
-     *  @return Response from the SPI slave
+     *  @return Response from the SPI slave.
      */
     virtual int write(int value);
 
@@ -186,7 +186,7 @@ public:
         return 0;
     }
 
-    /** Abort the on-going SPI transfer, and continue with transfers in the queue if any.
+    /** Abort the on-going SPI transfer, and continue with transfers in the queue, if any.
      */
     void abort_transfer();
 
@@ -249,7 +249,7 @@ protected:
      */
     int queue_transfer(const void *tx_buffer, int tx_length, void *rx_buffer, int rx_length, unsigned char bit_width, const event_callback_t &callback, int event);
 
-    /** Configure a callback, SPI peripheral and initiate a new transfer.
+    /** Configure a callback, SPI peripheral, and initiate a new transfer.
      *
      * @param tx_buffer The TX buffer with data to be transfered. If NULL is passed,
      *                  the default SPI value is sent.
