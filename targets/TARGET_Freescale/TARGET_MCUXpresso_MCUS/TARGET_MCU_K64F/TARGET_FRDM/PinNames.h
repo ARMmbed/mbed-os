@@ -246,7 +246,7 @@ typedef enum {
     SPI_MOSI    = PTE3,
     SPI_MISO    = PTE1,
     SPI_SCK     = PTE2,
-    SPI_PERSISTENT_MEM_CS = PTE4,
+    SPI_CS      = PTE4,
 
     // Not connected
     NC = (int)0xFFFFFFFF

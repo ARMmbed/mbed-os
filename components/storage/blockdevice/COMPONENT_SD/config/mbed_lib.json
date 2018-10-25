@@ -1,7 +1,7 @@
 {
     "name": "sd",
     "config": {
-        "SPI_CS": "SPI_PERSISTENT_MEM_CS",
+        "SPI_CS": "SPI_CS",
         "SPI_MOSI": "SPI_MOSI",
         "SPI_MISO": "SPI_MISO",
         "SPI_CLK": "SPI_SCK",

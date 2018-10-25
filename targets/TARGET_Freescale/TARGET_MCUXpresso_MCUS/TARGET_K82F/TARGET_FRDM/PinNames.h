@@ -176,7 +176,7 @@ typedef enum {
     SPI_MOSI    = PTE2,
     SPI_MISO    = PTE4,
     SPI_SCK     = PTE1,
-    SPI_PERSISTENT_MEM_CS = PTE5,
+    SPI_CS      = PTE5,
 
     /**** QSPI FLASH pins ****/
     QSPI_FLASH1_IO0 = PTE2,
