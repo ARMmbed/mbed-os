@@ -30,7 +30,7 @@ The [release notes](https://os.mbed.com/releases) detail the current release. Yo
 
 The software is provided under ]Apache-2.0 license](LICENSE). Contributions to this project are accepted under the same license. Please see [contributing.md](CONTRIBUTING.md) for more info. 
 
-This project contains code from other projects. The original license text is included in those source files.
+This project contains code from other projects. The original license text is included in those source files. They must comply with our [license guide](https://os.mbed.com/docs/latest/reference/license.html)
 
 ## Getting started for developers
  
