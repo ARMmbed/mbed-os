@@ -43,14 +43,14 @@ namespace rtos {
  * @{
  */
  
-/** The Mail class allows you to control, send, receive, or wait for mail.
- * A mail is a memory block that is sent to a thread or interrupt service routine.
+/** The Mail class allows you to control, send, receive or wait for mail.
+ * A mail is a memory block that is sent to a thread or interrupt service routine (ISR).
  * @tparam  T         Data type of a single mail message element.
  * @tparam  queue_sz  Maximum number of mail messages in queue.
  *
  * @note
  * Memory considerations: The mail data store and control structures are part of this class - they do not (themselves)
- * allocate memory on the heap, both for the mbed OS and underlying RTOS objects (static or dynamic RTOS memory
+ * allocate memory on the heap, both for the Mbed OS and underlying RTOS objects (static or dynamic RTOS memory
  * pools are not being used).
  */
 template<typename T, uint32_t queue_sz>
@@ -92,7 +92,7 @@ public:
      *
      * @param   millisec  Not used.
      *
-     * @return  Pointer to memory block that can be filled with mail or NULL in case error.
+     * @return  Pointer to memory block that you can fill with mail or NULL in case error.
      *
      * @note You may call this function from ISR context.
      */
@@ -100,11 +100,11 @@ public:
         return _pool.alloc();
     }
 
-    /** Allocate a memory block of type T and set memory block to zero.
+    /** Allocate a memory block of type T, and set memory block to zero.
      *
      * @param   millisec  Not used.
      *
-     * @return  Pointer to memory block that can be filled with mail or NULL in case error.
+     * @return  Pointer to memory block that you can fill with mail or NULL in case error.
      *
      * @note You may call this function from ISR context.
      */
