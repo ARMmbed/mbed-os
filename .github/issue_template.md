@@ -1,3 +1,19 @@
+<!--
+
+   ************************************** WARNING **************************************
+
+   This header is parsed automatically by the ciarcom bot. Any deviation from the 
+   template may cause this header to be automatically corrected or result in a 
+   warning message being issued, requesting updates.
+
+   Please ensure that nothing follows the Issue request type section, all 
+   issue details are within the Description section and no changes are made to the 
+   template format (as detailed below).  
+
+   *************************************************************************************
+
+-->
+
 ### Description
 
 <!--
