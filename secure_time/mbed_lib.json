@@ -10,6 +10,9 @@
     "target_overrides": {
         "NUCLEO_F410RB": {
             "enabled": false
+        },
+        "KL82Z": {
+            "enabled": false
         }
     }
 }
