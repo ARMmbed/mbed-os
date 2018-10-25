@@ -24,8 +24,6 @@ from os import makedirs, walk
 import copy
 from shutil import rmtree, copyfile
 import zipfile
-import inspect
-from inspect import getmro
 
 from ..resources import Resources, FileType, FileRef
 from ..config import ALLOWED_FEATURES
@@ -131,62 +129,6 @@ def mcu_ide_matrix(verbose_html=False):
     return result
 
 
-def get_target_exporter(target, toolchain):
-    """Locate target-specyfic exporter function.
-    Positional Arguments:
-    target - the target object for inspection
-    toolchain - the toolchain object for inspection
-    """
-    # If there's no hook, simply return
-    target_obj = toolchain.config.target
-    try:
-        hook_data = target_obj.post_binary_hook
-    except AttributeError:
-        return None
-    # A hook was found. The hook's name is in the format
-    # "classname.functionname"
-    temp = hook_data["export_function"].split(".")
-    if len(temp) != 2:
-        raise HookError(
-            ("Invalid format for hook '%s' in target '%s'"
-             % (hook_data["export_function"], target_obj.name)) +
-            " (must be 'class_name.function_name')")
-    class_name, function_name = temp
-    # "class_name" must refer to a class in tools/targets module, so check if the
-    # class exists
-    from .. import targets
-    from targets import HookError
-    mdata = dict([(m[0], m[1]) for m in
-                     inspect.getmembers(sys.modules[targets.__name__])])
-
-    if class_name not in mdata or \
-       not inspect.isclass(mdata[class_name]):
-        print (mdata)
-        raise HookError(
-            ("Class '%s' required by '%s' in target '%s'"
-             % (class_name, hook_data["export_function"], target_obj.name)) +
-            " not found in targets.py")
-    # "function_name" must refer to a static function inside class
-    # "class_name"
-    cls = mdata[class_name]
-    if (not hasattr(cls, function_name)) or \
-       (not inspect.isfunction(getattr(cls, function_name))):
-        raise HookError(
-            ("Static function '%s' " % function_name) +
-            ("required by '%s' " % hook_data["export_function"]) +
-            ("in target '%s' " % target_obj.name) +
-            ("not found in class '%s'" %  class_name))
-    # Check if the hook specification also has toolchain restrictions
-    toolchain_restrictions = set(hook_data.get("toolchains", []))
-    toolchain_labels = set(c.__name__ for c in getmro(toolchain.__class__))
-    if toolchain_restrictions and \
-       not toolchain_labels.intersection(toolchain_restrictions):
-        return None
-    # Finally, get the requested function
-    print("Found function '%s' in class '%s'."% (function_name, class_name))
-    return getattr(cls, function_name)
-
-
 def get_exporter_toolchain(ide):
     """ Return the exporter class and the toolchain string as a tuple
 
@@ -216,9 +158,6 @@ def generate_project_files(resources, export_path, target, name, toolchain, ide,
     exporter_cls, _ = get_exporter_toolchain(ide)
     exporter = exporter_cls(target, export_path, name, toolchain,
                             extra_symbols=macros, resources=resources)
-    # Locate target-specyfic exporter if specified.
-    exporter.TARGET_EXPORTER = get_target_exporter(target, toolchain)
-
     exporter.generate()
     files = exporter.generated_files
     return files, exporter

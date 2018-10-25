@@ -64,7 +64,6 @@ static void Cy_TCPWM_PWM_SetPrescaler(TCPWM_Type *base, uint32_t cntNum,  uint32
     base->CNT[cntNum].CTRL = _CLR_SET_FLD32U(base->CNT[cntNum].CTRL, TCPWM_CNT_CTRL_GENERIC, prescaler);
 }
 
-
 static void pwm_start_32b(pwmout_t *obj, uint32_t new_period, uint32_t new_width)
 {
     obj->period = new_period;
@@ -74,7 +73,6 @@ static void pwm_start_32b(pwmout_t *obj, uint32_t new_period, uint32_t new_width
     Cy_TCPWM_PWM_Enable(obj->base, obj->counter_id);
     Cy_TCPWM_TriggerStart(obj->base, 1UL << obj->counter_id);
 }
-
 
 static void pwm_start_16b(pwmout_t *obj, uint32_t period, uint32_t width)
 {
@@ -104,24 +102,23 @@ static void pwm_start_16b(pwmout_t *obj, uint32_t period, uint32_t width)
     Cy_TCPWM_TriggerStart(obj->base, 1UL << obj->counter_id);
 }
 
-
 static void pwm_start(pwmout_t *obj, uint32_t new_period, uint32_t new_pulse_width)
 {
     obj->period = new_period;
     obj->pulse_width = new_pulse_width;
     Cy_TCPWM_PWM_Disable(obj->base, obj->counter_id);
     if (new_period > 0) {
-		if (obj->base == TCPWM0) {
-			pwm_start_32b(obj, new_period, new_pulse_width);
-		} else {
-			pwm_start_16b(obj, new_period, new_pulse_width);
-		}
+        if (obj->base == TCPWM0) {
+            pwm_start_32b(obj, new_period, new_pulse_width);
+        } else {
+            pwm_start_16b(obj, new_period, new_pulse_width);
+        }
     }
 }
 
 
-/** Callback handler to restart the timer after deep sleep.
- *
+/*
+ * Callback handler to restart the timer after deep sleep.
  */
 #if DEVICE_SLEEP && DEVICE_LOWPOWERTIMER
 static cy_en_syspm_status_t pwm_pm_callback(cy_stc_syspm_callback_params_t *callback_params)
@@ -129,21 +126,21 @@ static cy_en_syspm_status_t pwm_pm_callback(cy_stc_syspm_callback_params_t *call
     pwmout_t *obj = (pwmout_t *)callback_params->context;
 
     switch (callback_params->mode) {
-		case CY_SYSPM_BEFORE_TRANSITION:
-			/* Disable timer before transition */
-		    Cy_TCPWM_PWM_Disable(obj->base, obj->counter_id);
-			break;
+        case CY_SYSPM_BEFORE_TRANSITION:
+            /* Disable timer before transition */
+            Cy_TCPWM_PWM_Disable(obj->base, obj->counter_id);
+            break;
 
-		case CY_SYSPM_AFTER_TRANSITION:
-			/* Enable the timer to operate */
-			if (obj->period > 0) {
-			    Cy_TCPWM_PWM_Enable(obj->base, obj->counter_id);
-			    Cy_TCPWM_TriggerStart(obj->base, 1UL << obj->counter_id);
-			}
-			break;
+        case CY_SYSPM_AFTER_TRANSITION:
+            /* Enable the timer to operate */
+            if (obj->period > 0) {
+                Cy_TCPWM_PWM_Enable(obj->base, obj->counter_id);
+                Cy_TCPWM_TriggerStart(obj->base, 1UL << obj->counter_id);
+            }
+            break;
 
-		default:
-			break;
+        default:
+            break;
     }
 
     return CY_SYSPM_SUCCESS;
@@ -151,15 +148,11 @@ static cy_en_syspm_status_t pwm_pm_callback(cy_stc_syspm_callback_params_t *call
 #endif // DEVICE_SLEEP && DEVICE_LOWPOWERTIMER
 
 
-/** Initialize the pwm out peripheral and configure the pin
- *
- * @param obj The pwmout object to initialize
- * @param pin The pwmout pin to initialize
- */
 void pwmout_init(pwmout_t *obj, PinName pin)
 {
     uint32_t    pwm_cnt = 0;
     uint32_t    pwm_function = 0;
+    uint32_t    abs_cnt_num = 0;
 
     MBED_ASSERT(obj);
     MBED_ASSERT(pin != (PinName)NC);
@@ -185,9 +178,14 @@ void pwmout_init(pwmout_t *obj, PinName pin)
         obj->pin = pin;
         if (obj->base == TCPWM0) {
             obj->counter_id = ((PWMName)pwm_cnt - PWM_32b_0) / (PWM_32b_1 - PWM_32b_0);
+            abs_cnt_num = obj->counter_id;
         } else {
             // TCPWM1 is used.
             obj->counter_id = ((PWMName)pwm_cnt - PWM_16b_0) / (PWM_16b_1 - PWM_16b_0);
+            abs_cnt_num = obj->counter_id + 8;
+        }
+        if (cy_reserve_tcpwm(abs_cnt_num)) {
+            error("PWMOUT Timer/Counter reservation conflict.");
         }
 
         // Configure clock.
@@ -201,15 +199,15 @@ void pwmout_init(pwmout_t *obj, PinName pin)
         obj->pulse_width = 0;
         obj->prescaler = 0;
 #if DEVICE_SLEEP && DEVICE_LOWPOWERTIMER
-		obj->pm_callback_handler.callback = pwm_pm_callback;
-		obj->pm_callback_handler.type = CY_SYSPM_DEEPSLEEP;
-		obj->pm_callback_handler.skipMode = CY_SYSPM_SKIP_CHECK_READY | CY_SYSPM_SKIP_CHECK_FAIL;
-		obj->pm_callback_handler.callbackParams = &obj->pm_callback_params;
-		obj->pm_callback_params.base = obj->base;
-		obj->pm_callback_params.context = obj;
-		if (!Cy_SysPm_RegisterCallback(&obj->pm_callback_handler)) {
-			error("PM callback registration failed!");
-		}
+        obj->pm_callback_handler.callback = pwm_pm_callback;
+        obj->pm_callback_handler.type = CY_SYSPM_DEEPSLEEP;
+        obj->pm_callback_handler.skipMode = CY_SYSPM_SKIP_CHECK_READY | CY_SYSPM_SKIP_CHECK_FAIL;
+        obj->pm_callback_handler.callbackParams = &obj->pm_callback_params;
+        obj->pm_callback_params.base = obj->base;
+        obj->pm_callback_params.context = obj;
+        if (!Cy_SysPm_RegisterCallback(&obj->pm_callback_handler)) {
+            error("PM callback registration failed!");
+        }
 #endif // DEVICE_SLEEP && DEVICE_LOWPOWERTIMER
 
     } else {
@@ -217,21 +215,11 @@ void pwmout_init(pwmout_t *obj, PinName pin)
     }
 }
 
-/** Deinitialize the pwmout object
- *
- * @param obj The pwmout object
- */
 void pwmout_free(pwmout_t *obj)
 {
     // TODO: Not implemented yet.
 }
 
-/** Set the output duty-cycle in range <0.0f, 1.0f>
- *
- * Value 0.0f represents 0 percentage, 1.0f represents 100 percent.
- * @param obj     The pwmout object
- * @param percent The floating-point percentage number
- */
 void pwmout_write(pwmout_t *obj, float percent)
 {
     uint32_t pulse_width;
@@ -246,11 +234,6 @@ void pwmout_write(pwmout_t *obj, float percent)
     pwm_start(obj, obj->period, pulse_width);
 }
 
-/** Read the current float-point output duty-cycle
- *
- * @param obj The pwmout object
- * @return A floating-point output duty-cycle
- */
 float pwmout_read(pwmout_t *obj)
 {
     MBED_ASSERT(obj);
@@ -258,12 +241,6 @@ float pwmout_read(pwmout_t *obj)
     return (float)(obj->pulse_width) / obj->period;
 }
 
-/** Set the PWM period specified in seconds, keeping the duty cycle the same
- *
- * Periods smaller than microseconds (the lowest resolution) are set to zero.
- * @param obj     The pwmout object
- * @param seconds The floating-point seconds period
- */
 void pwmout_period(pwmout_t *obj, float seconds)
 {
     uint32_t period;
@@ -279,11 +256,6 @@ void pwmout_period(pwmout_t *obj, float seconds)
     pwm_start(obj, period, pulse_width);
 }
 
-/** Set the PWM period specified in miliseconds, keeping the duty cycle the same
- *
- * @param obj The pwmout object
- * @param ms  The milisecond period
- */
 void pwmout_period_ms(pwmout_t *obj, int ms)
 {
     uint32_t period;
@@ -299,11 +271,6 @@ void pwmout_period_ms(pwmout_t *obj, int ms)
     pwm_start(obj, period, pulse_width);
 }
 
-/** Set the PWM period specified in microseconds, keeping the duty cycle the same
- *
- * @param obj The pwmout object
- * @param us  The microsecond period
- */
 void pwmout_period_us(pwmout_t *obj, int us)
 {
     uint32_t pulse_width;
@@ -317,11 +284,6 @@ void pwmout_period_us(pwmout_t *obj, int us)
     pwm_start(obj, us, pulse_width);
 }
 
-/** Set the PWM pulsewidth specified in seconds, keeping the period the same.
- *
- * @param obj     The pwmout object
- * @param seconds The floating-point pulsewidth in seconds
- */
 void pwmout_pulsewidth(pwmout_t *obj, float seconds)
 {
     uint32_t pulse_width;
@@ -335,11 +297,6 @@ void pwmout_pulsewidth(pwmout_t *obj, float seconds)
     pwm_start(obj, obj->period, pulse_width);
 }
 
-/** Set the PWM pulsewidth specified in miliseconds, keeping the period the same.
- *
- * @param obj The pwmout object
- * @param ms  The floating-point pulsewidth in miliseconds
- */
 void pwmout_pulsewidth_ms(pwmout_t *obj, int ms)
 {
     uint32_t pulse_width;
@@ -353,11 +310,6 @@ void pwmout_pulsewidth_ms(pwmout_t *obj, int ms)
     pwm_start(obj, obj->period, pulse_width);
 }
 
-/** Set the PWM pulsewidth specified in microseconds, keeping the period the same.
- *
- * @param obj The pwmout object
- * @param us  The floating-point pulsewidth in microseconds
- */
 void pwmout_pulsewidth_us(pwmout_t *obj, int us)
 {
     MBED_ASSERT(obj);

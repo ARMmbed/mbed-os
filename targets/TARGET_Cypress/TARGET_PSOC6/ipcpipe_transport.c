@@ -18,7 +18,7 @@
 #include "ipcpipe_transport.h"
 #include "cy_ipc_config.h"
 #include "ipc/cy_ipc_pipe.h"
-#include "syspm/cy_syspm.h"
+//#include "syspm/cy_syspm.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -34,12 +34,21 @@ static uint32_t num_registered_clients = 0;
 IpcPipeTxCompleteHandler *ipcpipe_xfer_complete_cb[CY_IPC_USRPIPE_CLIENT_CNT] = {NULL};
 
 
+/** Buffer release callback function
+ * Just releases currently transmitted buffer upon tx completion.
+ * Used in the case the currently transmitted buffer was not the last one
+ * in the queue, i.e. event doesn't complete the whole transmission.
+ */
 void ipcpipe_buffer_release(void)
 {
     IPCPIPE_ASSERT(ipcpipe_buffer[ipcpipe_transfer_buffer].busy_flag == 1);
     ipcpipe_buffer[ipcpipe_transfer_buffer].busy_flag = 0;
 }
 
+/** Buffer release callback function
+ * Releases currently transmitted buffer upon tx completion
+ * and calls associated tx complete event handler.
+ */
 void ipcpipe_buffer_release_callback(void)
 {
     uint32_t client_id = ipcpipe_buffer[ipcpipe_transfer_buffer].message.client_id;
@@ -55,7 +64,9 @@ void ipcpipe_buffer_release_callback(void)
     }
 }
 
-/** Sets current buffer available for transmission.
+/** Locks a buffer making it available for transmission.
+ *
+ * @param current_buffer    index of the buffer to be locked
  */
 void ipcpipe_transfer_lock_buffer(uint32_t current_buffer)
 {
@@ -70,13 +81,18 @@ void ipcpipe_transfer_lock_buffer(uint32_t current_buffer)
     ipcpipe_transfer_buffer = current_buffer;
 }
 
+/** Find index of the next available buffer
+ * This is a blocking call, it blocks until the buffer becomes available
+ * if there is no free buffer at the moment.
+ *
+ * @return index of the buffer
+ */
 uint32_t ipcpipe_buffer_aquire(void)
 {
     uint32_t buffer_index;
     /* check that we have a buffer available */
     while (ipcpipe_buffer[ipcpipe_current_buffer].busy_flag) {
         /* just wait here */
-        Cy_SysPm_Sleep(CY_SYSPM_WAIT_FOR_INTERRUPT);
     }
 
     buffer_index = ipcpipe_current_buffer;
@@ -122,7 +138,7 @@ void ipcpipe_write_data(uint32_t client_id, uint8_t *header, uint32_t header_len
                                              &buffer->message,
                                              avail? ipcpipe_buffer_release : ipcpipe_buffer_release_callback);
             if (status == CY_IPC_PIPE_ERROR_SEND_BUSY) {
-                Cy_SysPm_Sleep(CY_SYSPM_WAIT_FOR_INTERRUPT);
+                /* busy wait */
             }
         } while (status != CY_IPC_PIPE_SUCCESS);
     }

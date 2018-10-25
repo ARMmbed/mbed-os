@@ -564,22 +564,11 @@ class PSOC6Code:
         from tools.targets.PSOC6 import complete as psoc6_complete
         if hasattr(t_self.target, "sub_target"):
             # Completing main image involves merging M0 image.
-            from tools.targets.PSOC6 import find_cm0_images
-            _, m0hexf = find_cm0_images(t_self, resources, elf, binf)
+            from tools.targets.PSOC6 import find_cm0_image
+            m0hexf = find_cm0_image(t_self, resources, elf, binf)
             psoc6_complete(t_self, elf, binf, m0hexf)
         else:
             psoc6_complete(t_self, elf, binf)
-
-    @staticmethod
-    def export_function(exporter, ctx):
-        if exporter.NAME in ['Make-GCC-ARM', 'Eclipse-GCC-ARM']:
-            from tools.targets.PSOC6 import find_cm0_images
-            elf = ctx['name']+'.elf'
-            hexf = ctx['name']+'.hex'
-            _, m0_hexf = find_cm0_images(exporter.toolchain, exporter.resources, elf, hexf)
-            print ("Adding hex image: %s"% m0_hexf)
-            ctx['hex_files'] = [m0_hexf]
-
 
 ################################################################################
 

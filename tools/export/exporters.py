@@ -53,7 +53,7 @@ class Exporter(object):
     TARGETS = set()
     TOOLCHAIN = None
     CLEAN_FILES = ("GettingStarted.html",)
-    TARGET_EXPORTER = None
+
 
     def __init__(self, target, export_dir, project_name, toolchain,
                  extra_symbols=None, resources=None):

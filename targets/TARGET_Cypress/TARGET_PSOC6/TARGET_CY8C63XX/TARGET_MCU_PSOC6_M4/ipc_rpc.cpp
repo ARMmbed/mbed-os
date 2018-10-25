@@ -30,22 +30,22 @@ using namespace rtos;
 static SingletonPtr<Mutex>      msg_mutex;
 static SingletonPtr<Semaphore>  msg_semaphore;
 
+
 #define RPC_GEN     RPC_GEN_INTERFACE_IDS
-
-#include "rpc_defs.h"
 #include "rpc_api.h"
-
 #undef RPC_GEN
 
-extern "C" {
-
+// This function uses a "C" linkage as it is a callback called from Cypress library
+// which is C-only.
+extern "C" void ipcrpc_release(void);
 void ipcrpc_release(void)
 {
     // Just signal on semaphore that we are done with a call.
     msg_semaphore->release();
 }
 
-
+// Encapsulate call arguments and send a message over IPC pipe to the
+// other core for execution.
 uint32_t ipcrpc_call(uint32_t call_id, uint32_t args_num, ...)
 {
     va_list ap;
@@ -82,43 +82,26 @@ uint32_t ipcrpc_call(uint32_t call_id, uint32_t args_num, ...)
     return message.result;
 }
 
+extern "C" {
 
+    void ipcrpc_init(void)
+    {
+        uint32_t rpc_counter = 0;
 #define RPC_GEN     RPC_GEN_INTERFACE_IDS_INIT
-
-void ipcrpc_init(void)
-{
-    uint32_t rpc_counter = 0;
-
-#include "rpc_defs.h"
 #include "rpc_api.h"
-}
-
 #undef RPC_GEN
+    }
+
 
 #define RPC_GEN     RPC_GEN_INTERFACE
-
-#include "rpc_defs.h"
 #include "rpc_api.h"
-
-/////////
-
 #undef RPC_GEN
+
 
 #define RPC_GEN     RPC_GEN_IMPLEMENTATION
-
-#include "rpc_defs.h"
 #include "rpc_api.h"
-
 #undef RPC_GEN
 
-#define RPC_GEN     RPC_GEN_INITIALIZATION
-
-void ipcrpc_init2(void)
-{
-    uint32_t rpc_counter = 0;
-#include "rpc_defs.h"
-#include "rpc_api.h"
-}
 
 } /* extern "C" */
 

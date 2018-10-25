@@ -96,7 +96,7 @@ typedef enum {
 
 typedef enum {
     ADC_0 = (int)SAR_BASE,
-}ADCName;
+} ADCName;
 
 typedef enum {
     DAC_0 = (int)CTDAC0_BASE,

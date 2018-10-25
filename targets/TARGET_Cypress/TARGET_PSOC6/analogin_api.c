@@ -46,19 +46,19 @@ const uint32_t SAR_BASE_CLOCK_HZ = 18000000;    // 18 MHz or less
  */
 static cy_stc_sar_config_t sar_config = {
     .ctrl         = CY_SAR_VREF_SEL_VDDA_DIV_2 |
-                    CY_SAR_NEG_SEL_VREF |
-                    CY_SAR_CTRL_COMP_DLY_12 |
-                    CY_SAR_COMP_PWR_50 |
-                    CY_SAR_SARSEQ_SWITCH_DISABLE,       /**< Control register */
+    CY_SAR_NEG_SEL_VREF |
+    CY_SAR_CTRL_COMP_DLY_12 |
+    CY_SAR_COMP_PWR_50 |
+    CY_SAR_SARSEQ_SWITCH_DISABLE,       /**< Control register */
     .sampleCtrl   = CY_SAR_RIGHT_ALIGN |
-                    CY_SAR_SINGLE_ENDED_UNSIGNED |
-                    CY_SAR_AVG_CNT_16 |
-                    CY_SAR_AVG_MODE_SEQUENTIAL_FIXED |
-                    CY_SAR_TRIGGER_MODE_FW_ONLY,        /**< Sample control register */
+    CY_SAR_SINGLE_ENDED_UNSIGNED |
+    CY_SAR_AVG_CNT_16 |
+    CY_SAR_AVG_MODE_SEQUENTIAL_FIXED |
+    CY_SAR_TRIGGER_MODE_FW_ONLY,        /**< Sample control register */
     .sampleTime01 = (4uL << CY_SAR_SAMPLE_TIME0_SHIFT) |
-                    (4uL << CY_SAR_SAMPLE_TIME1_SHIFT), /**< Sample time in ADC clocks for ST0 and ST1 */
+    (4uL << CY_SAR_SAMPLE_TIME1_SHIFT), /**< Sample time in ADC clocks for ST0 and ST1 */
     .sampleTime23 = (4uL << CY_SAR_SAMPLE_TIME2_SHIFT) |
-                    (4uL << CY_SAR_SAMPLE_TIME3_SHIFT), /**< Sample time in ADC clocks for ST2 and ST3 */
+    (4uL << CY_SAR_SAMPLE_TIME3_SHIFT), /**< Sample time in ADC clocks for ST2 and ST3 */
     .rangeThres   = 0,                                  /**< Range detect threshold register for all channels (unused)*/
     .rangeCond    = 0,                                  /**< Range detect mode for all channels (unused)*/
     .chanEn       = 0,                                  /**< Enable bits for the channels */
@@ -115,13 +115,6 @@ static void sar_init(analogin_t *obj)
     }
 }
 
-
-/** Initialize the analogin peripheral
- *
- * Configures the pin used by analogin.
- * @param obj The analogin object to initialize
- * @param pin The analogin pin name
- */
 void analogin_init(analogin_t *obj, PinName pin)
 {
     uint32_t    sar = 0;
@@ -150,12 +143,6 @@ void analogin_init(analogin_t *obj, PinName pin)
     }
 }
 
-
-/** Read the input voltage, represented as a float in the range [0.0, 1.0]
- *
- * @param obj The analogin object
- * @return A floating value representing the current input voltage
- */
 float analogin_read(analogin_t *obj)
 {
     uint16_t result = analogin_read_u16(obj);
@@ -163,12 +150,6 @@ float analogin_read(analogin_t *obj)
     return (float)result * (1.0 / ADC_MAX_VALUE);
 }
 
-
-/** Read the value from analogin pin, represented as an unsigned 16bit value
- *
- * @param obj The analogin object
- * @return An unsigned 16bit value representing the current input voltage
- */
 uint16_t analogin_read_u16(analogin_t *obj)
 {
     uint32_t result = 0;

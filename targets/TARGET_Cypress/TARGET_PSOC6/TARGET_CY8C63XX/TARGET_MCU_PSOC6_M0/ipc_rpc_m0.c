@@ -21,21 +21,18 @@
 #include "cy_ipc_config.h"
 #include "ipc/cy_ipc_pipe.h"
 
-#undef RPC_GEN
 #define RPC_GEN     RPC_GEN_IMPLEMENTATION
-
-#include "rpc_defs.h"
 #include "rpc_api.h"
-
 #undef RPC_GEN
-#define RPC_GEN     RPC_GEN_INITIALIZATION
+
 
 void ipcrpc_init(void)
 {
     uint32_t rpc_counter = 0;
 
-#include "rpc_defs.h"
+#define RPC_GEN     RPC_GEN_INITIALIZATION
 #include "rpc_api.h"
+#undef RPC_GEN
 }
 
 /* [] END OF FILE */

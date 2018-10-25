@@ -35,8 +35,7 @@
 static uint32_t trng_initialized = 0;
 
 /** The Crypto configuration structure. */
-static const cy_stc_crypto_config_t crypto_config =
-{
+static const cy_stc_crypto_config_t crypto_config = {
     /* .ipcChannel             */ CY_IPC_CHAN_CRYPTO,
     /* .acquireNotifierChannel */ CY_CRYPTO_IPC_INTR_NOTIFY_NUM,
     /* .releaseNotifierChannel */ CY_CRYPTO_IPC_INTR_RELEASE_NUM,
@@ -84,10 +83,6 @@ static cy_stc_crypto_server_context_t crypto_server_context;
 static cy_stc_crypto_context_t crypto_scratch;
 static cy_stc_crypto_context_trng_t trng_context;
 
-/** Initialize the TRNG peripheral
- *
- * @param obj The TRNG object
- */
 void trng_init(trng_t *obj)
 {
     (void) obj;
@@ -112,10 +107,6 @@ void trng_init(trng_t *obj)
 
 }
 
-/** Deinitialize the TRNG peripheral
- *
- * @param obj The TRNG object
- */
 void trng_free(trng_t *obj)
 {
     (void) obj;
@@ -130,15 +121,6 @@ void trng_free(trng_t *obj)
     trng_initialized = 0;
 }
 
-
-/** Get random data from TRNG peripheral
- *
- * @param obj The TRNG object
- * @param output The pointer to an output array
- * @param length The size of output data, to avoid buffer overwrite
- * @param output_length The length of generated data
- * @return 0 success, -1 fail
- */
 int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_length)
 {
     uint8_t     random_val[4];

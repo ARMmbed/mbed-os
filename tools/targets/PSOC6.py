@@ -19,19 +19,14 @@ import platform
 import subprocess
 import errno
 from array import array
+from struct import (pack, unpack)
 from distutils.spawn import find_executable
 from shutil import copyfile
 from intelhex import IntelHex
 from intelhex.compat import asbytes
 
 from ..config import ConfigException
-
-
-class HookError(Exception):
-    def __init__(self, msg):
-        self.msg = msg
-    def __str__(self):
-        return self.msg
+from ..targets import HookError
 
 
 # Patch Cypress hex file:
@@ -44,28 +39,20 @@ def patch(message_func, ihex, hexf, align=256):
     for start, end in ihex.segments():
         if start  >= 0x090000000:
             continue
-        segment = ihex.tobinarray(start = start, end = end)
+        segment = ihex.tobinarray(start, end)
         checksum += sum(segment)
 
     lowchecksum = checksum & 0x0FFFF
-    message_func("Calculated checksum for %s is 0x%04x" % (hexf, checksum))
+    message_func("Calculated checksum for %s is 0x%04x" % (hexf, lowchecksum))
 
     # update checksum
-    checksum_bytes = array('B', asbytes('\0'*2))
-    checksum_bytes[0] = lowchecksum >> 8
-    checksum_bytes[1] = lowchecksum & 0xFF
-    ihex.frombytes(checksum_bytes, offset=0x90300000)
+    checksum_str = pack('>H', lowchecksum)
+    ihex.frombytes(array('B', checksum_str), offset=0x90300000)
 
     # update metadata
-    sig_bytes = ihex.tobinarray(start=0x90500002, size=4)
-    signature = (sig_bytes[0] << 24) | (sig_bytes[1]  << 16) | (sig_bytes[2] << 8) | sig_bytes[3]
-    sigcheck = checksum + signature
-    sigcheck_bytes = array('B', asbytes('\0'*4))
-    sigcheck_bytes[0] = (sigcheck >> 24) & 0xff
-    sigcheck_bytes[1] = (sigcheck >> 16) & 0xff
-    sigcheck_bytes[2] = (sigcheck >> 8) & 0xff
-    sigcheck_bytes[3] = sigcheck & 0xFF
-    ihex.frombytes(sigcheck_bytes, offset=0x90500008)
+    signature = unpack('>L', ihex.tobinstr(start=0x90500002, size=4))[0]
+    sigcheck = pack('>L', (checksum + signature) & 0x0FFFF)
+    ihex.frombytes(array('B',sigcheck), offset=0x90500008)
 
     # align flash segments
     align_mask = align - 1
@@ -106,59 +93,20 @@ def complete_func(message_func, elf0, hexf0, hexf1=None, dest=None):
     patch(message_func, ihex, hexf0)
     ihex.write_hex_file(dest if dest else hexf0, write_start_addr=False, byte_count=64)
 
-def check_matching_features(image_features, target_features):
-    for feature in image_features:
-        if not (feature in target_features):
-            return False
-    return True
-
-# Find Cortex M0 boot image proper for the application image.
-def find_cm0_images(toolchain, resources, elf, hexf):
-    # Scan to find the actual paths of m0 image
-    # First check if user-compiled image exists.
-    params, _ = toolchain.config.get_config_data()
-    dual_core_enabled = params['target.sub-target-build-enable'].value
-    if dual_core_enabled:
-        if "BLE" in toolchain.target.features:
-            raise ConfigException("Feature 'BLE' not compatible with dual core configuration.")
-        m0target = toolchain.target.sub_target
-        m4target = toolchain.target.name
-        m0hexf = hexf.replace(m4target, m0target)
-        if not os.path.isfile(m0hexf):
-            raise ConfigException("Matching M0 core hex image not found.")
-    else:
-        # Try default image.
-        m0hexf = None
-        m0_images = toolchain.target.M0_CORE_IMAGE
-        # convert into a list if needed
-        if not isinstance(m0_images, list):
-            m0_images = [m0_images]
-
-        # find an image with matching features
-        try:
-            target_features = toolchain.target.features
-        except AttributeError:
-            target_features = []
-            pass
-
-        for image in m0_images:
-            features = image['features']
-            if check_matching_features(image['features'], target_features):
-                for hexf in resources.hex_files:
-                    if hexf.find(image['name']) != -1:
-                        m0hexf = hexf
-                        break
-            if m0hexf:
-                break
+# Find Cortex M0 image.
+def find_cm0_image(toolchain, resources, elf, hexf):
+    # Locate user-specified image
+    from tools.resources import FileType
+    hex_files = resources.get_file_paths(FileType.HEX)
+    m0hexf = next((f for f in hex_files if os.path.basename(f) == toolchain.target.m0_core_img), None)
 
     if m0hexf:
-        toolchain.notify.info("M0 core image file found %s." % os.path.basename(m0hexf))
+        toolchain.notify.debug("M0 core image file found %s." % os.path.basename(m0hexf))
     else:
-        toolchain.notify.debug("M0 core hex image file not found. Aborting.")
-        raise ConfigException("Matching M0 core hex image not found.")
+        toolchain.notify.debug("M0 core hex image file %s not found. Aborting." % toolchain.target.m0_core_img)
+        raise ConfigException("Required M0 core hex image not found.")
 
-    m0elf = m0hexf.replace(".hex", ".elf")
-    return m0elf, m0hexf
+    return m0hexf
 
 
 def complete(toolchain, elf0, hexf0, hexf1=None):

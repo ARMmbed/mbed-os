@@ -72,9 +72,6 @@ static cy_stc_sysint_t lpt_sysint_config = {
 };
 
 
-/** Initialize the low power ticker
- *
- */
 void lp_ticker_init(void)
 {
     lp_ticker_disable_interrupt();
@@ -101,9 +98,6 @@ void lp_ticker_init(void)
     lpt_init_done = true;
 }
 
-/** Deinitialize the lower power ticker
- *
- */
 void lp_ticker_free(void)
 {
     NVIC_DisableIRQ(lpt_sysint_config.intrSrc);
@@ -115,19 +109,11 @@ void lp_ticker_free(void)
     lpt_init_done = 0;
 }
 
-/** Read the current counter
- *
- * @return The current timer's counter value in microseconds
- */
 uint32_t lp_ticker_read(void)
 {
     return Cy_MCWDT_GetCount(LPT_MCWDT_UNIT, CY_MCWDT_COUNTER0);
 }
 
-/** Set interrupt for specified timestamp
- *
- * @param timestamp The time in microseconds to be set
- */
 void lp_ticker_set_interrupt(timestamp_t timestamp)
 {
     uint16_t delay;
@@ -153,17 +139,11 @@ void lp_ticker_set_interrupt(timestamp_t timestamp)
     Cy_MCWDT_SetInterruptMask(LPT_MCWDT_UNIT, CY_MCWDT_CTR0);
 }
 
-/** Disable low power ticker interrupt
- *
- */
 void lp_ticker_disable_interrupt(void)
 {
     Cy_MCWDT_SetInterruptMask(LPT_MCWDT_UNIT, 0);
 }
 
-/** Clear the low power ticker interrupt
- *
- */
 void lp_ticker_clear_interrupt(void)
 {
     Cy_MCWDT_ClearInterrupt(LPT_MCWDT_UNIT, CY_MCWDT_CTR0);
