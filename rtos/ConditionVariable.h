@@ -43,7 +43,7 @@ struct Waiter;
  * threads.
  *
  * The thread that intends to wait on a ConditionVariable must:
- * - Acquire a lock on a mutex
+ * - Acquire a lock on a mutex.
  * - Execute `wait`, `wait_for` or `wait_until`. While the thread is waiting,
  *   the mutex is unlocked.
  * - When the condition variable has been notified, or in the case of `wait_for`
@@ -64,7 +64,7 @@ struct Waiter;
  *   function.
  *
  * ### Undefined behavior
- * - The thread that is unblocked on ConditionVariable::notify_one is
+ * - The thread that is unblocked on `ConditionVariable::notify_one` is
  *   undefined if there are multiple waiters.
  * - Calling wait if the mutex is not locked by the current thread is undefined
  *   behavior.
@@ -90,7 +90,7 @@ struct Waiter;
  * Mutex mutex;
  * ConditionVariable cv(mutex);
  *
- * // These variables are protected by locking mutex
+ * // These variables are protected by locking mutex.
  * uint32_t work_count = 0;
  * bool done = false;
  *
@@ -102,7 +102,7 @@ struct Waiter;
  *   while (done == false) {
  *     printf("Worker thread: Count: %lu\r\n", work_count);
  *
- *     // Wait for main thread to notify the condition variable
+ *     // Wait for main thread to notify the condition variable.
  *     printf("Worker thread: Waiting\r\n");
  *     cv.wait();
  *   }
@@ -169,7 +169,7 @@ public:
      * been met.
      *
      * @note - The current thread releases the lock while inside the wait
-     * function and reacquire it upon exiting the function.
+     * function and reacquires it upon exiting the function.
      *
      * Example:
      * @code
@@ -229,7 +229,7 @@ public:
      */
     bool wait_until(uint64_t millisec);
 
-    /** Wait for a notification or timeout
+    /** Wait for a notification or timeout.
      *
      * `Wait for` causes the current thread to block until the condition
      * variable receives a notification from another thread, or the timeout
@@ -301,7 +301,7 @@ public:
      */
     void notify_all();
 
-    /** ConditionVariable destructor
+    /** ConditionVariable destructor.
      *
      * @note You cannot call this function from ISR context.
      */
