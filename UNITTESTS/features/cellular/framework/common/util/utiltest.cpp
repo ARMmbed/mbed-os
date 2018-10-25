@@ -37,7 +37,7 @@ protected:
 
 TEST_F(Testutil, test_util_binary_str_to_uint)
 {
-    char binary_str[]="011001011101101000";
+    char binary_str[] = "011001011101101000";
     uint32_t value = binary_str_to_uint(binary_str, strlen(binary_str) + 1);
     EXPECT_TRUE(value == 104296);
     value = binary_str_to_uint(binary_str, strlen(binary_str));
@@ -210,7 +210,7 @@ TEST_F(Testutil, get_dynamic_ip_port)
 TEST_F(Testutil, int_to_hex_str)
 {
     char buf[2];
-    int_to_hex_str(100, (char*)buf);
+    int_to_hex_str(100, (char *)buf);
 
     EXPECT_TRUE(buf[0] == '6');
     EXPECT_TRUE(buf[1] == '4');

@@ -52,7 +52,7 @@ typedef mbed::ScopedLock<Mutex> ScopedMutexLock;
  * \defgroup rtos_Mutex Mutex class
  * @{
  */
- 
+
 /** The Mutex class is used to synchronize the execution of threads.
  This is, for example, used to protect access to a shared resource.
 

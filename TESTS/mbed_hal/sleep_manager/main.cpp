@@ -110,7 +110,7 @@ void test_lock_gt_ushrt_max()
 
 #if DEVICE_LPTICKER
 #if DEVICE_USTICKER
-utest::v1::status_t testcase_setup(const Case * const source, const size_t index_of_case)
+utest::v1::status_t testcase_setup(const Case *const source, const size_t index_of_case)
 {
     // Suspend the RTOS kernel scheduler to prevent interference with duration of sleep.
     osKernelSuspend();
@@ -130,8 +130,8 @@ utest::v1::status_t testcase_setup(const Case * const source, const size_t index
     return utest::v1::greentea_case_setup_handler(source, index_of_case);
 }
 
-utest::v1::status_t testcase_teardown(const Case * const source, const size_t passed, const size_t failed,
-        const utest::v1::failure_t failure)
+utest::v1::status_t testcase_teardown(const Case *const source, const size_t passed, const size_t failed,
+                                      const utest::v1::failure_t failure)
 {
     ticker_resume(get_us_ticker_data());
 #if DEVICE_LPTICKER

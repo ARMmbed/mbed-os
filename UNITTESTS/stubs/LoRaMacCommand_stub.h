@@ -19,8 +19,7 @@
 #include <inttypes.h>
 #include "lorawan_types.h"
 
-namespace LoRaMacCommand_stub
-{
+namespace LoRaMacCommand_stub {
 extern lorawan_status_t status_value;
 extern bool bool_value;
 extern uint8_t uint8_value;

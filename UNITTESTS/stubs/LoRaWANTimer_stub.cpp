@@ -36,7 +36,7 @@ void LoRaWANTimeHandler::activate_timer_subsystem(events::EventQueue *queue)
 {
 }
 
-lorawan_time_t LoRaWANTimeHandler::get_current_time( void )
+lorawan_time_t LoRaWANTimeHandler::get_current_time(void)
 {
     return LoRaWANTimer_stub::time_value;
 }

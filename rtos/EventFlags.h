@@ -36,10 +36,10 @@ namespace rtos {
  * \defgroup rtos_EventFlags EventFlags class
  * @{
  */
- 
+
 /** The EventFlags class is used to control event flags or wait for event flags other threads control.
 
- @note 
+ @note
  EventFlags support 31 flags. The MSB flag is ignored. It is used to return an error code (@a osFlagsError).
 
  @note

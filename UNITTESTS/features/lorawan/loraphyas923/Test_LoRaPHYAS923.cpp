@@ -20,62 +20,104 @@
 
 #include "LoRaPHY_stub.h"
 
-class my_radio : public LoRaRadio
-{
+class my_radio : public LoRaRadio {
 public:
 
-    virtual void init_radio(radio_events_t *events){};
+    virtual void init_radio(radio_events_t *events)
+    {
+    };
 
-    virtual void radio_reset(){};
+    virtual void radio_reset()
+    {
+    };
 
-    virtual void sleep(void){};
+    virtual void sleep(void)
+    {
+    };
 
-    virtual void standby(void){};
+    virtual void standby(void)
+    {
+    };
 
-    virtual void set_rx_config (radio_modems_t modem, uint32_t bandwidth,
-                                   uint32_t datarate, uint8_t coderate,
-                                   uint32_t bandwidth_afc, uint16_t preamble_len,
-                                   uint16_t symb_timeout, bool fix_len,
-                                   uint8_t payload_len,
-                                   bool crc_on, bool freq_hop_on, uint8_t hop_period,
-                                   bool iq_inverted, bool rx_continuous){};
+    virtual void set_rx_config(radio_modems_t modem, uint32_t bandwidth,
+                               uint32_t datarate, uint8_t coderate,
+                               uint32_t bandwidth_afc, uint16_t preamble_len,
+                               uint16_t symb_timeout, bool fix_len,
+                               uint8_t payload_len,
+                               bool crc_on, bool freq_hop_on, uint8_t hop_period,
+                               bool iq_inverted, bool rx_continuous)
+    {
+    };
 
     virtual void set_tx_config(radio_modems_t modem, int8_t power, uint32_t fdev,
-                                  uint32_t bandwidth, uint32_t datarate,
-                                  uint8_t coderate, uint16_t preamble_len,
-                                  bool fix_len, bool crc_on, bool freq_hop_on,
-                                  uint8_t hop_period, bool iq_inverted, uint32_t timeout){};
+                               uint32_t bandwidth, uint32_t datarate,
+                               uint8_t coderate, uint16_t preamble_len,
+                               bool fix_len, bool crc_on, bool freq_hop_on,
+                               uint8_t hop_period, bool iq_inverted, uint32_t timeout)
+    {
+    };
 
-    virtual void send(uint8_t *buffer, uint8_t size){};
+    virtual void send(uint8_t *buffer, uint8_t size)
+    {
+    };
 
-    virtual void receive(void){};
+    virtual void receive(void)
+    {
+    };
 
-    virtual void set_channel(uint32_t freq){};
+    virtual void set_channel(uint32_t freq)
+    {
+    };
 
-    virtual uint32_t random(void){};
+    virtual uint32_t random(void)
+    {
+    };
 
-    virtual uint8_t get_status(void){return uint8_value;};
+    virtual uint8_t get_status(void)
+    {
+        return uint8_value;
+    };
 
-    virtual void set_max_payload_length(radio_modems_t modem, uint8_t max){};
+    virtual void set_max_payload_length(radio_modems_t modem, uint8_t max)
+    {
+    };
 
-    virtual void set_public_network(bool enable){};
+    virtual void set_public_network(bool enable)
+    {
+    };
 
-    virtual uint32_t time_on_air(radio_modems_t modem, uint8_t pkt_len){};
+    virtual uint32_t time_on_air(radio_modems_t modem, uint8_t pkt_len)
+    {
+    };
 
     virtual bool perform_carrier_sense(radio_modems_t modem,
-                                           uint32_t freq,
-                                           int16_t rssi_threshold,
-                                           uint32_t max_carrier_sense_time){ return bool_value;};
+                                       uint32_t freq,
+                                       int16_t rssi_threshold,
+                                       uint32_t max_carrier_sense_time)
+    {
+        return bool_value;
+    };
 
-    virtual void start_cad(void){};
+    virtual void start_cad(void)
+    {
+    };
 
-    virtual bool check_rf_frequency(uint32_t frequency){ return bool_value; };
+    virtual bool check_rf_frequency(uint32_t frequency)
+    {
+        return bool_value;
+    };
 
-    virtual void set_tx_continuous_wave(uint32_t freq, int8_t power, uint16_t time){};
+    virtual void set_tx_continuous_wave(uint32_t freq, int8_t power, uint16_t time)
+    {
+    };
 
-    virtual void lock(void){};
+    virtual void lock(void)
+    {
+    };
 
-    virtual void unlock(void){};
+    virtual void unlock(void)
+    {
+    };
 
     bool bool_value;
     uint8_t uint8_value;
@@ -135,8 +177,8 @@ TEST_F(Test_LoRaPHYAS923, set_next_channel)
 TEST_F(Test_LoRaPHYAS923, apply_DR_offset)
 {
     //0, 1, 2, 3, 4, 5, -1, -2
-    for (int i=0; i < 8; i++) {
-        uint8_t val = i>5?5:2;
+    for (int i = 0; i < 8; i++) {
+        uint8_t val = i > 5 ? 5 : 2;
         EXPECT_TRUE(object->apply_DR_offset(0, i));
     }
 }

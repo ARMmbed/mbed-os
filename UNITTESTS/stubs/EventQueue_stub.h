@@ -17,8 +17,7 @@
 
 #include <inttypes.h>
 
-namespace EventQueue_stub
-{
+namespace EventQueue_stub {
 extern int int_value;
 extern unsigned unsigned_value;
 }

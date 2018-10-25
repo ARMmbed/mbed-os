@@ -21,8 +21,7 @@
 
 #include "lorawan_types.h"
 
-namespace LoRaPHY_stub
-{
+namespace LoRaPHY_stub {
 extern LoRaRadio *radio;
 extern uint8_t bool_counter;
 extern bool bool_table[20];
@@ -33,7 +32,7 @@ extern int int_value;
 extern double double_value;
 extern uint16_t uint16_value;
 extern lorawan_status_t lorawan_status_value;
-extern channel_params_t* channel_params_ptr;
+extern channel_params_t *channel_params_ptr;
 extern uint8_t linkAdrNbBytesParsed;
 extern uint8_t ch_mask_value;
 extern uint8_t adr_parse_count;

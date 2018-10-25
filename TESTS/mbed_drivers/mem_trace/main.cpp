@@ -25,7 +25,7 @@
 #include <stdarg.h>
 
 #if !MBED_MEM_TRACING_ENABLED
-  #error [NOT_SUPPORTED] test not supported
+#error [NOT_SUPPORTED] test not supported
 #endif
 
 using utest::v1::Case;

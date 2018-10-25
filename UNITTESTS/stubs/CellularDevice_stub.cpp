@@ -27,7 +27,7 @@ MBED_WEAK CellularDevice *CellularDevice::get_default_instance()
 }
 
 CellularDevice::CellularDevice() : _network_ref_count(0), _sms_ref_count(0), _power_ref_count(0), _sim_ref_count(0),
-        _info_ref_count(0)
+    _info_ref_count(0)
 {
 }
 

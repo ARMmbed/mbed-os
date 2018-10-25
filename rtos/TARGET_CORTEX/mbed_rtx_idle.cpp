@@ -42,7 +42,7 @@ static rtos::internal::SysTimer *os_timer;
 static uint64_t os_timer_data[sizeof(rtos::internal::SysTimer) / 8];
 
 /// Enable System Timer.
-void OS_Tick_Enable (void)
+void OS_Tick_Enable(void)
 {
     // Do not use SingletonPtr since this relies on the RTOS
     if (NULL == os_timer) {
@@ -55,36 +55,39 @@ void OS_Tick_Enable (void)
 }
 
 /// Disable System Timer.
-void OS_Tick_Disable (void)
+void OS_Tick_Disable(void)
 {
     os_timer->cancel_tick();
 }
 
 /// Acknowledge System Timer IRQ.
-void OS_Tick_AcknowledgeIRQ (void)
+void OS_Tick_AcknowledgeIRQ(void)
 {
 
 }
 
 /// Get System Timer count.
-uint32_t OS_Tick_GetCount (void)
+uint32_t OS_Tick_GetCount(void)
 {
     return os_timer->get_time() & 0xFFFFFFFF;
 }
 
 // Get OS Tick IRQ number.
-int32_t  OS_Tick_GetIRQn (void) {
-  return -1;
+int32_t  OS_Tick_GetIRQn(void)
+{
+    return -1;
 }
 
 // Get OS Tick overflow status.
-uint32_t OS_Tick_GetOverflow (void) {
-  return 0;
+uint32_t OS_Tick_GetOverflow(void)
+{
+    return 0;
 }
 
 // Get OS Tick interval.
-uint32_t OS_Tick_GetInterval (void) {
-  return 1000;
+uint32_t OS_Tick_GetInterval(void)
+{
+    return 1000;
 }
 
 static void default_idle_hook(void)

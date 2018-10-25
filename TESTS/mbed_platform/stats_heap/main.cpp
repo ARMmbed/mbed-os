@@ -67,7 +67,7 @@ void test_case_malloc_free_size()
         TEST_ASSERT_EQUAL_UINT32(stats_start.alloc_cnt + 1, stats_current.alloc_cnt);
         TEST_ASSERT_EQUAL_UINT32(stats_start.alloc_fail_cnt, stats_current.alloc_fail_cnt);
         // Library header 0x4-0x8, stats header 0x8 and alignment addition 0x4
-        TEST_ASSERT_INT_WITHIN(0x8, stats_start.overhead_size + 0xC , stats_current.overhead_size);
+        TEST_ASSERT_INT_WITHIN(0x8, stats_start.overhead_size + 0xC, stats_current.overhead_size);
         // Free memory and assert back to starting size
         free(data);
         mbed_stats_heap_get(&stats_current);
@@ -97,7 +97,7 @@ void test_case_allocate_zero()
         TEST_ASSERT_EQUAL_UINT32(stats_start.alloc_fail_cnt, stats_current.alloc_fail_cnt);
         // Library header 0x4-0x8, stats header 0x8 and alignment addition 0x4
         if (NULL != data) {
-            TEST_ASSERT_INT_WITHIN(0x8, stats_start.overhead_size + 0xC , stats_current.overhead_size);
+            TEST_ASSERT_INT_WITHIN(0x8, stats_start.overhead_size + 0xC, stats_current.overhead_size);
         }
         // Free memory and assert back to starting size
         free(data);

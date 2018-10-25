@@ -18,8 +18,7 @@
 
 #include <inttypes.h>
 
-namespace LoRaMacCrypto_stub
-{
+namespace LoRaMacCrypto_stub {
 extern int int_table_idx_value;
 extern int int_table[20];
 }

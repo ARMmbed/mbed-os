@@ -83,10 +83,10 @@ void sleep_usticker_test()
         const unsigned int wakeup_timestamp = us_ticker_read();
 
         sprintf(info, "Delta ticks: %u, Ticker width: %u, Expected wake up tick: %d, Actual wake up tick: %d, delay ticks: %d, wake up after ticks: %d",
-                us_to_ticks(sleep_mode_delta_us, ticker_freq), ticker_width, next_match_timestamp, wakeup_timestamp, us_to_ticks(i, ticker_freq) , wakeup_timestamp - start_timestamp);
+                us_to_ticks(sleep_mode_delta_us, ticker_freq), ticker_width, next_match_timestamp, wakeup_timestamp, us_to_ticks(i, ticker_freq), wakeup_timestamp - start_timestamp);
 
         TEST_ASSERT_MESSAGE(compare_timestamps(us_to_ticks(sleep_mode_delta_us, ticker_freq),
-                            ticker_width, next_match_timestamp, wakeup_timestamp), info);
+                                               ticker_width, next_match_timestamp, wakeup_timestamp), info);
     }
 
     set_us_ticker_irq_handler(us_ticker_irq_handler_org);
@@ -127,10 +127,10 @@ void deepsleep_lpticker_test()
         const timestamp_t wakeup_timestamp = lp_ticker_read();
 
         sprintf(info, "Delta ticks: %u, Ticker width: %u, Expected wake up tick: %d, Actual wake up tick: %d, delay ticks: %d, wake up after ticks: %d",
-                us_to_ticks(deepsleep_mode_delta_us, ticker_freq), ticker_width, next_match_timestamp, wakeup_timestamp, us_to_ticks(i, ticker_freq) ,  wakeup_timestamp - start_timestamp);
+                us_to_ticks(deepsleep_mode_delta_us, ticker_freq), ticker_width, next_match_timestamp, wakeup_timestamp, us_to_ticks(i, ticker_freq),  wakeup_timestamp - start_timestamp);
 
         TEST_ASSERT_MESSAGE(compare_timestamps(us_to_ticks(deepsleep_mode_delta_us, ticker_freq), ticker_width,
-                            next_match_timestamp, wakeup_timestamp), info);
+                                               next_match_timestamp, wakeup_timestamp), info);
     }
 
     set_lp_ticker_irq_handler(lp_ticker_irq_handler_org);
@@ -178,7 +178,7 @@ void deepsleep_high_speed_clocks_turned_off_test()
 
     /* Check if we have woken-up after expected time. */
     TEST_ASSERT_MESSAGE(compare_timestamps(us_to_ticks(deepsleep_mode_delta_us, lp_ticker_freq), lp_ticker_width,
-                        wakeup_time, lp_ticks_after_sleep), info);
+                                           wakeup_time, lp_ticks_after_sleep), info);
 }
 
 #endif

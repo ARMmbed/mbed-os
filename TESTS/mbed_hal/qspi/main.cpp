@@ -151,7 +151,7 @@ static void _qspi_write_read_test(Qspi &qspi, qspi_bus_width_t write_inst_width,
             TEST_ASSERT_EQUAL(QSPI_STATUS_OK, ret);
             TEST_ASSERT_EQUAL(write_size, buf_len);
 
-            if(is_extended_mode(write_inst_width, write_addr_width, write_data_width)) {
+            if (is_extended_mode(write_inst_width, write_addr_width, write_data_width)) {
                 // on some flash chips in extended-SPI mode, control commands works only in 1-1-1 mode
                 // so switching back to 1-1-1 mode
                 qspi.cmd.configure(MODE_1_1_1, ADDR_SIZE_24, ALT_SIZE_8);
@@ -195,7 +195,7 @@ static void _qspi_write_read_test(Qspi &qspi, qspi_bus_width_t write_inst_width,
         }
         qspi.cmd.set_dummy_cycles(0);
 
-        if(is_extended_mode(read_inst_width, read_addr_width, read_data_width)) {
+        if (is_extended_mode(read_inst_width, read_addr_width, read_data_width)) {
             // on some flash chips in extended-SPI mode, control commands works only in 1-1-1 mode
             // so switching back to 1-1-1 mode
             qspi.cmd.configure(MODE_1_1_1, ADDR_SIZE_24, ALT_SIZE_8);

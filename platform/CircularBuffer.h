@@ -98,7 +98,7 @@ public:
         }
         _pool[_head++] = data;
         if (_head == BufferSize) {
-                _head = 0;
+            _head = 0;
         }
         if (_head == _tail) {
             _full = true;

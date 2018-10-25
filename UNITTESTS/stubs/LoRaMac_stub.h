@@ -22,8 +22,7 @@
 #include "lorawan_types.h"
 #include "lorawan_data_structures.h"
 
-namespace LoRaMac_stub
-{
+namespace LoRaMac_stub {
 extern bool bool_value;
 extern int bool_false_counter;
 extern int bool_true_counter;

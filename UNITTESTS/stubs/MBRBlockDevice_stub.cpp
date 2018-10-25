@@ -55,8 +55,8 @@ static void tochs(uint32_t lba, uint8_t chs[3])
 // Partition after address are turned into absolute
 // addresses, assumes bd is initialized
 static int partition_absolute(
-        BlockDevice *bd, int part, uint8_t type,
-        bd_size_t offset, bd_size_t size)
+    BlockDevice *bd, int part, uint8_t type,
+    bd_size_t offset, bd_size_t size)
 {
     return 0;
 }
@@ -67,7 +67,7 @@ int MBRBlockDevice::partition(BlockDevice *bd, int part, uint8_t type, bd_addr_t
 }
 
 int MBRBlockDevice::partition(BlockDevice *bd, int part, uint8_t type,
-        bd_addr_t start, bd_addr_t stop)
+                              bd_addr_t start, bd_addr_t stop)
 {
     return 0;
 }

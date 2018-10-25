@@ -42,8 +42,7 @@ uint32_t rtos::EventFlags::wait_all(uint32_t flags, uint32_t timeout, bool clear
 }
 uint32_t rtos::EventFlags::wait_any(uint32_t flags, uint32_t timeout, bool clear)
 {
-    if (!eventFlagsStubNextRetval.empty())
-    {
+    if (!eventFlagsStubNextRetval.empty()) {
         uint32_t ret = eventFlagsStubNextRetval.front();
         eventFlagsStubNextRetval.pop_front();
         return ret;

@@ -45,7 +45,7 @@ static void powerdown_gic()
             GICDistributor->CPENDSGIR[i] = 0xFFFFFFFF;
         }
         for (j = 0; j < 8; j++) {
-            GICDistributor->IPRIORITYR[i*8+j] = 0x00000000;
+            GICDistributor->IPRIORITYR[i * 8 + j] = 0x00000000;
         }
     }
 }

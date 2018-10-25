@@ -29,13 +29,13 @@ void LoRaMacChannelPlan::activate_channelplan_subsystem(LoRaPHY *phy)
 {
 }
 
-lorawan_status_t LoRaMacChannelPlan::set_plan(const lorawan_channelplan_t& plan)
+lorawan_status_t LoRaMacChannelPlan::set_plan(const lorawan_channelplan_t &plan)
 {
     return LORAWAN_STATUS_OK;
 }
 
-lorawan_status_t LoRaMacChannelPlan::get_plan(lorawan_channelplan_t& plan,
-                                              const channel_params_t* channel_list)
+lorawan_status_t LoRaMacChannelPlan::get_plan(lorawan_channelplan_t &plan,
+                                              const channel_params_t *channel_list)
 {
     return LORAWAN_STATUS_OK;
 }

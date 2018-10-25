@@ -58,13 +58,13 @@ typedef struct osRtxThread_s {
 } osRtxThread_t;
 
 typedef struct {
-  uint8_t                          id;  ///< Object Identifier
-  uint8_t                       state;  ///< Object State
-  uint8_t                       flags;  ///< Object Flags
-  uint8_t                    reserved;
-  const char                    *name;  ///< Object Name
-  osRtxThread_t          *thread_list;  ///< Waiting Threads List
-  uint32_t                event_flags;  ///< Event Flags
+    uint8_t                          id;  ///< Object Identifier
+    uint8_t                       state;  ///< Object State
+    uint8_t                       flags;  ///< Object Flags
+    uint8_t                    reserved;
+    const char                    *name;  ///< Object Name
+    osRtxThread_t          *thread_list;  ///< Waiting Threads List
+    uint32_t                event_flags;  ///< Event Flags
 } osRtxEventFlags_t;
 
 #endif

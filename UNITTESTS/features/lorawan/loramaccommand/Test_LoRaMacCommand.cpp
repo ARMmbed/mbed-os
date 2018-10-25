@@ -20,12 +20,15 @@
 
 #include "LoRaPHY_stub.h"
 
-class my_LoRaPHY : public LoRaPHY
-{
+class my_LoRaPHY : public LoRaPHY {
 public:
-    my_LoRaPHY(){};
+    my_LoRaPHY()
+    {
+    };
 
-    virtual ~my_LoRaPHY(){};
+    virtual ~my_LoRaPHY()
+    {
+    };
 };
 
 uint8_t my_cb()
@@ -153,7 +156,7 @@ TEST_F(Test_LoRaMacCommand, copy_repeat_commands_to_buffer)
 
 TEST_F(Test_LoRaMacCommand, get_repeat_commands_length)
 {
-    EXPECT_TRUE(object->get_repeat_commands_length() == 0 );
+    EXPECT_TRUE(object->get_repeat_commands_length() == 0);
 }
 
 TEST_F(Test_LoRaMacCommand, clear_sticky_mac_cmd)
@@ -222,7 +225,7 @@ TEST_F(Test_LoRaMacCommand, process_mac_commands)
     //Overflow add_link_adr_ans function here
     object->clear_command_buffer();
     buf[0] = 3;
-    for (int i=0; i < 64; i++) {
+    for (int i = 0; i < 64; i++) {
         EXPECT_TRUE(object->process_mac_commands(buf, 0, 5, 0, mlme, params, phy) == LORAWAN_STATUS_OK);
     }
     EXPECT_TRUE(object->process_mac_commands(buf, 0, 5, 0, mlme, params, phy) == LORAWAN_STATUS_LENGTH_ERROR);
@@ -234,7 +237,7 @@ TEST_F(Test_LoRaMacCommand, process_mac_commands)
 
     //Overflow add_duty_cycle_ans()
     object->clear_command_buffer();
-    for (int i=0; i < 128; i++) {
+    for (int i = 0; i < 128; i++) {
         EXPECT_TRUE(object->process_mac_commands(buf, 0, 1, 0, mlme, params, phy) == LORAWAN_STATUS_OK);
     }
     EXPECT_TRUE(object->process_mac_commands(buf, 0, 1, 0, mlme, params, phy) == LORAWAN_STATUS_LENGTH_ERROR);
@@ -251,7 +254,7 @@ TEST_F(Test_LoRaMacCommand, process_mac_commands)
     //Overflow add_rx_param_setup_ans
     object->clear_command_buffer();
     LoRaPHY_stub::uint8_value = 7;
-    for (int i=0; i < 64; i++) {
+    for (int i = 0; i < 64; i++) {
         EXPECT_TRUE(object->process_mac_commands(buf, 0, 5, 0, mlme, params, phy) == LORAWAN_STATUS_OK);
     }
     EXPECT_TRUE(object->process_mac_commands(buf, 0, 5, 0, mlme, params, phy) == LORAWAN_STATUS_LENGTH_ERROR);
@@ -263,7 +266,7 @@ TEST_F(Test_LoRaMacCommand, process_mac_commands)
 
     //overflow add_dev_status_ans
     object->clear_command_buffer();
-    for (int i=0; i < 42; i++) {
+    for (int i = 0; i < 42; i++) {
         EXPECT_TRUE(object->process_mac_commands(buf, 0, 1, 0, mlme, params, phy) == LORAWAN_STATUS_OK);
     }
     EXPECT_TRUE(object->process_mac_commands(buf, 0, 1, 0, mlme, params, phy) == LORAWAN_STATUS_LENGTH_ERROR);
@@ -280,7 +283,7 @@ TEST_F(Test_LoRaMacCommand, process_mac_commands)
     //Overflow add_new_channel_ans
     object->clear_command_buffer();
     LoRaPHY_stub::uint8_value = 7;
-    for (int i=0; i < 64; i++) {
+    for (int i = 0; i < 64; i++) {
         EXPECT_TRUE(object->process_mac_commands(buf, 0, 6, 0, mlme, params, phy) == LORAWAN_STATUS_OK);
     }
     EXPECT_TRUE(object->process_mac_commands(buf, 0, 6, 0, mlme, params, phy) == LORAWAN_STATUS_LENGTH_ERROR);
@@ -293,7 +296,7 @@ TEST_F(Test_LoRaMacCommand, process_mac_commands)
     //Overflow add_rx_timing_setup_ans
     object->clear_command_buffer();
     LoRaPHY_stub::uint8_value = 7;
-    for (int i=0; i < 128; i++) {
+    for (int i = 0; i < 128; i++) {
         EXPECT_TRUE(object->process_mac_commands(buf, 0, 2, 0, mlme, params, phy) == LORAWAN_STATUS_OK);
     }
     EXPECT_TRUE(object->process_mac_commands(buf, 0, 2, 0, mlme, params, phy) == LORAWAN_STATUS_LENGTH_ERROR);
@@ -308,7 +311,7 @@ TEST_F(Test_LoRaMacCommand, process_mac_commands)
     LoRaPHY_stub::bool_table[0] = true;
     object->clear_command_buffer();
     LoRaPHY_stub::uint8_value = 7;
-    for (int i=0; i < 128; i++) {
+    for (int i = 0; i < 128; i++) {
         EXPECT_TRUE(object->process_mac_commands(buf, 0, 2, 0, mlme, params, phy) == LORAWAN_STATUS_OK);
         LoRaPHY_stub::bool_counter = 0;
     }
@@ -326,7 +329,7 @@ TEST_F(Test_LoRaMacCommand, process_mac_commands)
     LoRaPHY_stub::bool_table[0] = true;
     object->clear_command_buffer();
     LoRaPHY_stub::uint8_value = 7;
-    for (int i=0; i < 64; i++) {
+    for (int i = 0; i < 64; i++) {
         EXPECT_TRUE(object->process_mac_commands(buf, 0, 4, 0, mlme, params, phy) == LORAWAN_STATUS_OK);
         LoRaPHY_stub::bool_counter = 0;
     }

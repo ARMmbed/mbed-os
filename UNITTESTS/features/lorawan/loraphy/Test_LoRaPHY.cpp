@@ -20,74 +20,121 @@
 
 #include "LoRaWANTimer_stub.h"
 
-class my_LoRaPHY : public LoRaPHY
-{
+class my_LoRaPHY : public LoRaPHY {
 public:
-    my_LoRaPHY(){phy_params.adr_ack_delay = 1;}
+    my_LoRaPHY()
+    {
+        phy_params.adr_ack_delay = 1;
+    }
 
-    virtual ~my_LoRaPHY(){}
+    virtual ~my_LoRaPHY() 
+    {
+    }
 
-    loraphy_params_t &get_phy_params() {
+    loraphy_params_t &get_phy_params()
+    {
         return phy_params;
     }
 };
 
-class my_radio : public LoRaRadio
-{
+class my_radio : public LoRaRadio {
 public:
 
-    virtual void init_radio(radio_events_t *events){};
+    virtual void init_radio(radio_events_t *events) 
+    {
+    };
 
-    virtual void radio_reset(){};
+    virtual void radio_reset() 
+    {
+    };
 
-    virtual void sleep(void){};
+    virtual void sleep(void) 
+    {
+    };
 
-    virtual void standby(void){};
+    virtual void standby(void) 
+    {
+    };
 
-    virtual void set_rx_config (radio_modems_t modem, uint32_t bandwidth,
-                                   uint32_t datarate, uint8_t coderate,
-                                   uint32_t bandwidth_afc, uint16_t preamble_len,
-                                   uint16_t symb_timeout, bool fix_len,
-                                   uint8_t payload_len,
-                                   bool crc_on, bool freq_hop_on, uint8_t hop_period,
-                                   bool iq_inverted, bool rx_continuous){};
+    virtual void set_rx_config(radio_modems_t modem, uint32_t bandwidth,
+                               uint32_t datarate, uint8_t coderate,
+                               uint32_t bandwidth_afc, uint16_t preamble_len,
+                               uint16_t symb_timeout, bool fix_len,
+                               uint8_t payload_len,
+                               bool crc_on, bool freq_hop_on, uint8_t hop_period,
+                               bool iq_inverted, bool rx_continuous) 
+    {
+    };
 
     virtual void set_tx_config(radio_modems_t modem, int8_t power, uint32_t fdev,
-                                  uint32_t bandwidth, uint32_t datarate,
-                                  uint8_t coderate, uint16_t preamble_len,
-                                  bool fix_len, bool crc_on, bool freq_hop_on,
-                                  uint8_t hop_period, bool iq_inverted, uint32_t timeout){};
+                               uint32_t bandwidth, uint32_t datarate,
+                               uint8_t coderate, uint16_t preamble_len,
+                               bool fix_len, bool crc_on, bool freq_hop_on,
+                               uint8_t hop_period, bool iq_inverted, uint32_t timeout) 
+    {
+    };
 
-    virtual void send(uint8_t *buffer, uint8_t size){};
+    virtual void send(uint8_t *buffer, uint8_t size) 
+    {
+    };
 
-    virtual void receive(void){};
+    virtual void receive(void) 
+    {
+    };
 
-    virtual void set_channel(uint32_t freq){};
+    virtual void set_channel(uint32_t freq) 
+    {
+    };
 
-    virtual uint32_t random(void){};
+    virtual uint32_t random(void) 
+    {
+    };
 
-    virtual uint8_t get_status(void){return uint8_value;};
+    virtual uint8_t get_status(void)
+    {
+        return uint8_value;
+    };
 
-    virtual void set_max_payload_length(radio_modems_t modem, uint8_t max){};
+    virtual void set_max_payload_length(radio_modems_t modem, uint8_t max) 
+    {
+    };
 
-    virtual void set_public_network(bool enable){};
+    virtual void set_public_network(bool enable) 
+    {
+    };
 
-    virtual uint32_t time_on_air(radio_modems_t modem, uint8_t pkt_len){};
+    virtual uint32_t time_on_air(radio_modems_t modem, uint8_t pkt_len) 
+    {
+    };
 
     virtual bool perform_carrier_sense(radio_modems_t modem,
-                                           uint32_t freq,
-                                           int16_t rssi_threshold,
-                                           uint32_t max_carrier_sense_time){ return bool_value;};
+                                       uint32_t freq,
+                                       int16_t rssi_threshold,
+                                       uint32_t max_carrier_sense_time)
+    {
+        return bool_value;
+    };
 
-    virtual void start_cad(void){};
+    virtual void start_cad(void) 
+    {
+    };
 
-    virtual bool check_rf_frequency(uint32_t frequency){ return bool_value; };
+    virtual bool check_rf_frequency(uint32_t frequency)
+    {
+        return bool_value;
+    };
 
-    virtual void set_tx_continuous_wave(uint32_t freq, int8_t power, uint16_t time){};
+    virtual void set_tx_continuous_wave(uint32_t freq, int8_t power, uint16_t time) 
+    {
+    };
 
-    virtual void lock(void){};
+    virtual void lock(void) 
+    {
+    };
 
-    virtual void unlock(void){};
+    virtual void unlock(void) 
+    {
+    };
 
     bool bool_value;
     uint8_t uint8_value;
@@ -410,7 +457,7 @@ TEST_F(Test_LoRaPHY, tx_config)
     object->get_phy_params().bands.table = &b;
     channel_params_t pp;
     memset(&pp, 0, sizeof(channel_params_t));
-    pp.band=0;
+    pp.band = 0;
     object->get_phy_params().channels.channel_list = &pp;
     uint32_t list[1];
     list[0] = 125000;
@@ -422,7 +469,7 @@ TEST_F(Test_LoRaPHY, tx_config)
     object->set_radio_instance(radio);
     tx_config_params_t p;
     memset(&p, 0, sizeof(tx_config_params_t));
-    p.channel=0;
+    p.channel = 0;
     int8_t i = 20;
     lorawan_time_t t = 36;
     object->tx_config(&p, &i, &t);
@@ -688,7 +735,7 @@ TEST_F(Test_LoRaPHY, add_channel)
 TEST_F(Test_LoRaPHY, remove_channel)
 {
     channel_params_t pp;
-    pp.band=0;
+    pp.band = 0;
     object->get_phy_params().channels.channel_list = &pp;
     uint16_t list[16];
     list[0] = 1;
@@ -710,7 +757,7 @@ TEST_F(Test_LoRaPHY, remove_channel)
 TEST_F(Test_LoRaPHY, set_tx_cont_mode)
 {
     channel_params_t pp;
-    pp.band=0;
+    pp.band = 0;
     object->get_phy_params().channels.channel_list = &pp;
     band_t b;
     b.max_tx_pwr = 10;
@@ -791,7 +838,7 @@ TEST_F(Test_LoRaPHY, get_default_tx_power)
 
 TEST_F(Test_LoRaPHY, get_max_payload)
 {
-    uint8_t list=8;
+    uint8_t list = 8;
     object->get_phy_params().payloads.table = &list;
     object->get_phy_params().payloads_with_repeater.table = &list;
     EXPECT_TRUE(8 == object->get_max_payload(0));

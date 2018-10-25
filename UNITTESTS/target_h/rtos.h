@@ -19,8 +19,8 @@
 #define RTOS_H
 
 typedef enum {
-  osTimerOnce             = 0,          ///< One-shot timer.
-  osTimerPeriodic         = 1           ///< Repeating timer.
+    osTimerOnce             = 0,          ///< One-shot timer.
+    osTimerPeriodic         = 1           ///< Repeating timer.
 } os_timer_type;
 
 #endif /* RTOS_H */
