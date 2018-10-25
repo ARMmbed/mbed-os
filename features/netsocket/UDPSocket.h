@@ -57,7 +57,7 @@ public:
     /** Send data to the specified host and port.
      *
      *  By default, sendto blocks until data is sent. If socket is set to
-     *  non-blocking or times out, NSAPI_ERROR_WOULD_BLOCK is returned
+     *  nonblocking or times out, NSAPI_ERROR_WOULD_BLOCK is returned
      *  immediately.
      *
      *  @param host     Domain name of the remote host or a dotted notation IP address.
@@ -73,7 +73,7 @@ public:
     /** Send data to the specified address.
      *
      *  By default, sendto blocks until data is sent. If socket is set to
-     *  non-blocking or times out, NSAPI_ERROR_WOULD_BLOCK is returned
+     *  nonblocking or times out, NSAPI_ERROR_WOULD_BLOCK is returned
      *  immediately.
      *
      *  @param address  The SocketAddress of the remote host.
@@ -88,7 +88,7 @@ public:
     /** Receive a datagram and store the source address in address if it's not NULL.
      *
      *  By default, recvfrom blocks until a datagram is received. If socket is set to
-     *  non-blocking or times out with no datagram, NSAPI_ERROR_WOULD_BLOCK
+     *  nonblocking or times out with no datagram, NSAPI_ERROR_WOULD_BLOCK
      *  is returned.
      *
      *  @note If the datagram is larger than the buffer, the excess data is silently discarded.
@@ -108,7 +108,7 @@ public:
                                            void *data, nsapi_size_t size);
 
     /** Set the remote address for next send() call and filtering
-     *  of incoming packets. To reset the address, zero initialised
+     *  of incoming packets. To reset the address, zero initialized
      *  SocketAddress must be in the address parameter.
      *
      *  @param address  The SocketAddress of the remote host.
@@ -119,7 +119,7 @@ public:
     /** Send a datagram to connected remote address.
      *
      *  By default, send blocks until all data is sent. If socket is set to
-     *  non-blocking or times out, a partial amount can be written.
+     *  nonblocking or times out, a partial amount can be written.
      *  NSAPI_ERROR_WOULD_BLOCK is returned if no data was written.
      *
      *  @note The socket must be connected to a remote host before send() call.
@@ -133,13 +133,13 @@ public:
 
     /** Receive data from a socket.
      *
-     *  This is equivalent of calling recvfrom(NULL, data, size).
+     *  This is equivalent to calling recvfrom(NULL, data, size).
      *
-     *  If socket is connected, only packets coming from connected peer address
+     *  If the socket is connected, only packets coming from a connected peer address
      *  are accepted.
      *
      *  By default, recv blocks until some data is received. If socket is set to
-     *  non-blocking or times out, NSAPI_ERROR_WOULD_BLOCK can be returned to
+     *  nonblocking or times out, NSAPI_ERROR_WOULD_BLOCK can be returned to
      *  indicate no data.
      *
      *  @note recv() is allowed write to data buffer even if error occurs.
