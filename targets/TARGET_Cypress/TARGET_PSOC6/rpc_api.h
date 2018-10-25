@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-/** This file contains declarations of all the functions executed on CM0+ core
+/* This file contains declarations of all the functions executed on CM0+ core
  * that need to be callable from CM4 core via internal RPC mechanism.
  *
  * Functions are declared using RPC_FUNCTION( _type_, _name_, _args_) macro,

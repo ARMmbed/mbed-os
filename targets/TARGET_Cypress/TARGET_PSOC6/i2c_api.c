@@ -159,7 +159,8 @@ static int allocate_divider(I2cDividerType divider)
     return (p_div->div_num == CY_INVALID_DIVIDER)? -1 : 0;
 }
 
-/** Select one of the 3 dividers used depending on the required frequency.
+/*
+ * Select one of the 3 dividers used depending on the required frequency.
  */
 static I2cDividerType select_divider(uint32_t frequency)
 {
@@ -178,7 +179,8 @@ static I2cDividerType select_divider(uint32_t frequency)
     }
 }
 
-/** Initializes i2c clock for the required speed
+/*
+ * Initializes i2c clock for the required speed
  */
 static cy_en_sysclk_status_t i2c_init_clock(i2c_obj_t *obj, uint32_t speed)
 {
@@ -210,7 +212,7 @@ static cy_en_sysclk_status_t i2c_init_clock(i2c_obj_t *obj, uint32_t speed)
     return (obj->actual_speed != 0)? CY_SYSCLK_SUCCESS : CY_SYSCLK_BAD_PARAM;
 }
 
-/**
+/*
  * Initializes i/o pins for i2c sda/scl.
  */
 static void i2c_init_pins(i2c_obj_t *obj)
@@ -222,7 +224,7 @@ static void i2c_init_pins(i2c_obj_t *obj)
 }
 
 
-/**
+/*
  * Initializes and enables I2C/SCB.
  */
 static void i2c_init_peripheral(i2c_obj_t *obj)
@@ -235,10 +237,11 @@ static void i2c_init_peripheral(i2c_obj_t *obj)
     Cy_SCB_I2C_Enable(obj->base);
 }
 
-/**
+/*
  * Coverts PDL status into Mbed status.
  */
- static int i2c_convert_status(cy_en_scb_i2c_status_t status) {
+static int i2c_convert_status(cy_en_scb_i2c_status_t status)
+{
     switch (status) {
         case CY_SCB_I2C_MASTER_NOT_READY:
         case CY_SCB_I2C_MASTER_MANUAL_ARB_LOST:
@@ -256,9 +259,9 @@ static void i2c_init_peripheral(i2c_obj_t *obj)
         default:
             return 0;
     }
- }
+}
 
-/**
+/*
  * Callback function to handle into and out of deep sleep state transitions.
  */
 #if DEVICE_SLEEP && DEVICE_LOWPOWERTIMER
@@ -273,13 +276,6 @@ static cy_en_syspm_status_t i2c_pm_callback(cy_stc_syspm_callback_params_t *call
 #endif // DEVICE_SLEEP && DEVICE_LOWPOWERTIMER
 
 
-/** Initialize the I2C peripheral. It sets the default parameters for I2C
- *  peripheral, and configures its specified pins.
- *
- *  @param obj  The I2C object
- *  @param sda  The sda pin
- *  @param scl  The scl pin
- */
 void i2c_init(i2c_t *obj_in, PinName sda, PinName scl)
 {
     i2c_obj_t *obj = OBJ_P(obj_in);
@@ -305,26 +301,21 @@ void i2c_init(i2c_t *obj_in, PinName sda, PinName scl)
         i2c_init_pins(obj);
         i2c_init_peripheral(obj);
 #if DEVICE_SLEEP && DEVICE_LOWPOWERTIMER
-		obj->pm_callback_handler.callback = i2c_pm_callback;
-		obj->pm_callback_handler.type = CY_SYSPM_DEEPSLEEP;
-		obj->pm_callback_handler.skipMode = 0;
-		obj->pm_callback_handler.callbackParams = &obj->pm_callback_params;
-		obj->pm_callback_params.base = obj->base;
-		obj->pm_callback_params.context = obj;
-		if (!Cy_SysPm_RegisterCallback(&obj->pm_callback_handler)) {
-			error("PM callback registration failed!");
-		}
+        obj->pm_callback_handler.callback = i2c_pm_callback;
+        obj->pm_callback_handler.type = CY_SYSPM_DEEPSLEEP;
+        obj->pm_callback_handler.skipMode = 0;
+        obj->pm_callback_handler.callbackParams = &obj->pm_callback_params;
+        obj->pm_callback_params.base = obj->base;
+        obj->pm_callback_params.context = obj;
+        if (!Cy_SysPm_RegisterCallback(&obj->pm_callback_handler)) {
+            error("PM callback registration failed!");
+        }
 #endif // DEVICE_SLEEP && DEVICE_LOWPOWERTIMER
     } else {
         error("I2C pinout mismatch. Requested pins Rx and Tx can't be used for the same I2C communication.");
     }
 }
 
-/** Configure the I2C frequency
- *
- *  @param obj The I2C object
- *  @param hz  Frequency in Hz
- */
 void i2c_frequency(i2c_t *obj_in, int hz)
 {
     i2c_obj_t *obj = OBJ_P(obj_in);
@@ -333,35 +324,18 @@ void i2c_frequency(i2c_t *obj_in, int hz)
     Cy_SCB_I2C_Enable(obj->base);
 }
 
-/** Send START command
- *
- *  This function is a dummy operation on PSoC
- */
 int  i2c_start(i2c_t *obj_in)
 {
+    // Unsupported, start condition is sent automatically.
     return 0;
 }
 
-/** Send STOP command
- *
- *  @param obj The I2C object
- */
 int  i2c_stop(i2c_t *obj_in)
 {
-    i2c_obj_t *obj = OBJ_P(obj_in);
-//    Cy_SCB_I2C_MasterSendStop(obj->base, obj->timeout, &obj->context);
+    // Unsupported, stop condition is sent automatically.
     return 0;
 }
 
-/** Blocking reading data
- *
- *  @param obj     The I2C object
- *  @param address 7-bit address (last bit is 1)
- *  @param data    The buffer for receiving
- *  @param length  Number of bytes to read
- *  @param stop    Stop to be generated after the transfer is done
- *  @return Number of read bytes
- */
 int i2c_read(i2c_t *obj_in, int address, char *data, int length, int stop)
 {
     cy_en_scb_i2c_status_t status = CY_SCB_I2C_SUCCESS;
@@ -400,17 +374,6 @@ int i2c_read(i2c_t *obj_in, int address, char *data, int length, int stop)
     return byte_count;
 }
 
-/** Blocking sending data
- *
- *  @param obj     The I2C object
- *  @param address 7-bit address (last bit is 0)
- *  @param data    The buffer for sending
- *  @param length  Number of bytes to write
- *  @param stop    Stop to be generated after the transfer is done
- *  @return
- *      zero or non-zero - Number of written bytes
- *      negative - I2C_ERROR_XXX status
- */
 int i2c_write(i2c_t *obj_in, int address, const char *data, int length, int stop)
 {
     cy_en_scb_i2c_status_t status = CY_SCB_I2C_SUCCESS;
@@ -445,21 +408,11 @@ int i2c_write(i2c_t *obj_in, int address, const char *data, int length, int stop
     return byte_count;
 }
 
-/** Reset I2C peripheral. TODO: The action here. Most of the implementation sends stop()
- *
- *  @param obj The I2C object
- */
 void i2c_reset(i2c_t *obj_in)
 {
     i2c_stop(obj_in);
 }
 
-/** Read one byte
- *
- *  @param obj The I2C object
- *  @param last Acknowledge
- *  @return The read byte
- */
 int i2c_byte_read(i2c_t *obj_in, int last)
 {
     i2c_obj_t *obj = OBJ_P(obj_in);
@@ -474,12 +427,6 @@ int i2c_byte_read(i2c_t *obj_in, int last)
     }
 }
 
-/** Write one byte
- *
- *  @param obj The I2C object
- *  @param data Byte to be written
- *  @return 0 if NAK was received, 1 if ACK was received, 2 for timeout.
- */
 int i2c_byte_write(i2c_t *obj_in, int data)
 {
     i2c_obj_t *obj = OBJ_P(obj_in);
@@ -498,84 +445,8 @@ int i2c_byte_write(i2c_t *obj_in, int data)
     }
 }
 
-#if DEVICE_I2CSLAVE
-
-/** Configure I2C as slave or master.
- *  @param obj The I2C object
- *  @return non-zero if a value is available
- */
-void i2c_slave_mode(i2c_t *obj_in, int enable_slave)
-{
-    i2c_obj_t *obj = OBJ_P(obj_in);
-
-}
-
-/** Check to see if the I2C slave has been addressed.
- *  @param obj The I2C object
- *  @return The status - 1 - read addresses, 2 - write to all slaves,
- *         3 write addressed, 0 - the slave has not been addressed
- */
-int  i2c_slave_receive(i2c_t *obj_in)
-{
-    i2c_obj_t *obj = OBJ_P(obj_in);
-
-}
-
-/** Configure I2C as slave or master.
- *  @param obj The I2C object
- *  @return non-zero if a value is available
- */
-int  i2c_slave_read(i2c_t *obj_in, char *data, int length)
-{
-    i2c_obj_t *obj = OBJ_P(obj_in);
-
-}
-
-/** Configure I2C as slave or master.
- *  @param obj The I2C object
- *  @return non-zero if a value is available
- */
-int  i2c_slave_write(i2c_t *obj_in, const char *data, int length)
-{
-    i2c_obj_t *obj = OBJ_P(obj_in);
-
-}
-
-/** Configure I2C address.
- *  @param obj     The I2C object
- *  @param idx     Currently not used
- *  @param address The address to be set
- *  @param mask    Currently not used
- */
-void i2c_slave_address(i2c_t *obj_in, int idx, uint32_t address, uint32_t mask)
-{
-    i2c_obj_t *obj = OBJ_P(obj_in);
-    obj->slave_addr = (uint8_t)address >> 1;
-    Cy_SCB_I2C_SlaveSetAddress(obj->base, obj->slave_addr);
-}
-
-#endif
-
-
 #if DEVICE_I2C_ASYNCH
 
-/**
- * \defgroup hal_AsynchI2C Asynchronous I2C Hardware Abstraction Layer
- * @{
- */
-
-/** Start I2C asynchronous transfer
- *
- *  @param obj       The I2C object
- *  @param tx        The transmit buffer
- *  @param tx_length The number of bytes to transmit
- *  @param rx        The receive buffer
- *  @param rx_length The number of bytes to receive
- *  @param address   The address to be set - 7bit or 9bit
- *  @param stop      If true, stop will be generated after the transfer is done
- *  @param handler   The I2C IRQ handler to be set
- *  @param hint      DMA hint usage
- */
 void i2c_transfer_asynch(i2c_t *obj_in,
                          const void *tx,
                          size_t tx_length,
@@ -625,16 +496,11 @@ void i2c_transfer_asynch(i2c_t *obj_in,
     }
 }
 
-/** The asynchronous IRQ handler
- *
- *  @param obj The I2C object which holds the transfer information
- *  @return Event flags if a transfer termination condition was met, otherwise return 0.
- */
 uint32_t i2c_irq_handler_asynch(i2c_t *obj_in)
 {
     i2c_obj_t *obj = OBJ_P(obj_in);
     uint32_t event = 0;
-     // Process actual interrupt.
+    // Process actual interrupt.
     Cy_SCB_I2C_Interrupt(obj->base, &obj->context);
     if (obj->context.state == CY_SCB_I2C_MASTER_CMPLT) {
         if (obj->context.masterStatus & CY_SCB_I2C_MASTER_ERR) {
@@ -648,8 +514,8 @@ uint32_t i2c_irq_handler_asynch(i2c_t *obj_in)
         } else {
             // Check if a read phase is pending after write.
             if (obj->pending == PENDING_TX_RX) {
-               obj->pending = PENDING_RX;
-               Cy_SCB_I2C_MasterRead(obj->base, &obj->rx_config, &obj->context);
+                obj->pending = PENDING_RX;
+                Cy_SCB_I2C_MasterRead(obj->base, &obj->rx_config, &obj->context);
             } else {
                 event = I2C_EVENT_TRANSFER_COMPLETE;
             }
@@ -661,22 +527,12 @@ uint32_t i2c_irq_handler_asynch(i2c_t *obj_in)
     return event & obj->events;
 }
 
-/** Attempts to determine if the I2C peripheral is already in use
- *
- *  @param obj The I2C object
- *  @return Non-zero if the I2C module is active or zero if it is not
- */
 uint8_t i2c_active(i2c_t *obj_in)
 {
     i2c_obj_t *obj = OBJ_P(obj_in);
     return (obj->pending != PENDING_NONE);
 }
 
-/** Abort asynchronous transfer
- *
- *  This function does not perform any check - that should happen in upper layers.
- *  @param obj The I2C object
- */
 void i2c_abort_asynch(i2c_t *obj_in)
 {
     i2c_obj_t *obj = OBJ_P(obj_in);

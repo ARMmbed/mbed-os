@@ -80,12 +80,6 @@ static void ctdac_init(dac_t *obj)
 }
 
 
-/** Initialize the analogout peripheral
- *
- * Configures the pin used by analogout.
- * @param obj The analogout object to initialize
- * @param pin The analogout pin name
- */
 void analogout_init(dac_t *obj, PinName pin)
 {
     uint32_t    dac = 0;
@@ -93,7 +87,6 @@ void analogout_init(dac_t *obj, PinName pin)
 
     MBED_ASSERT(obj);
     MBED_ASSERT(pin != (PinName)NC);
-
 
     dac = pinmap_peripheral(pin, PinMap_DAC);
     if (dac != (uint32_t)NC) {
@@ -113,21 +106,11 @@ void analogout_init(dac_t *obj, PinName pin)
     }
 }
 
-/** Release the analogout object
- *
- * Note: This is not currently used in the mbed-drivers
- * @param obj The analogout object
- */
 void analogout_free(dac_t *obj)
 {
-
+    // Not supported yet.
 }
 
-/** Set the output voltage, specified as a percentage (float)
- *
- * @param obj The analogout object
- * @param value The floating-point output voltage to be set
- */
 void analogout_write(dac_t *obj, float value)
 {
     uint32_t val = 0;
@@ -140,11 +123,6 @@ void analogout_write(dac_t *obj, float value)
     Cy_CTDAC_SetValueBuffered(obj->base, val);
 }
 
-/** Set the output voltage, specified as unsigned 16-bit
- *
- * @param obj The analogout object
- * @param value The unsigned 16-bit output voltage to be set
- */
 void analogout_write_u16(dac_t *obj, uint16_t value)
 {
     uint32_t val = 0;
@@ -154,22 +132,11 @@ void analogout_write_u16(dac_t *obj, uint16_t value)
     Cy_CTDAC_SetValueBuffered(obj->base, val);
 }
 
-/** Read the current voltage value on the pin
- *
- * @param obj The analogout object
- * @return A floating-point value representing the current voltage on the pin,
- *     measured as a percentage
- */
 float analogout_read(dac_t *obj)
 {
     return (float)analogout_read_u16(obj) / 0xffff;
 }
 
-/** Read the current voltage value on the pin, as a normalized unsigned 16bit value
- *
- * @param obj The analogout object
- * @return An unsigned 16-bit value representing the current voltage on the pin
- */
 uint16_t analogout_read_u16(dac_t *obj)
 {
     uint16_t value = (obj->base->CTDAC_VAL_NXT >> CTDAC_CTDAC_VAL_NXT_VALUE_Pos) & CTDAC_CTDAC_VAL_NXT_VALUE_Msk;
@@ -178,8 +145,6 @@ uint16_t analogout_read_u16(dac_t *obj)
 
     return value;
 }
-
-
 
 #endif // DEVICE_ANALOGIN
 

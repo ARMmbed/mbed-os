@@ -131,7 +131,8 @@ static int allocate_divider(spi_obj_t *obj)
 }
 
 
-/** Initializes spi clock for the required speed
+/*
+ * Initializes spi clock for the required speed
  */
 static cy_en_sysclk_status_t spi_init_clock(spi_obj_t *obj, uint32_t frequency)
 {
@@ -164,15 +165,15 @@ static cy_en_sysclk_status_t spi_init_clock(spi_obj_t *obj, uint32_t frequency)
     return CY_SYSCLK_SUCCESS;
 }
 
-/**
+/*
  * Initializes i/o pins for spi.
  */
 static void spi_init_pins(spi_obj_t *obj)
 {
     if (cy_reserve_io_pin(obj->pin_sclk) ||
-        cy_reserve_io_pin(obj->pin_mosi) ||
-        cy_reserve_io_pin(obj->pin_miso) ||
-        cy_reserve_io_pin(obj->pin_ssel)) {
+            cy_reserve_io_pin(obj->pin_mosi) ||
+            cy_reserve_io_pin(obj->pin_miso) ||
+            cy_reserve_io_pin(obj->pin_ssel)) {
         error("SPI pin reservation conflict.");
     }
     pin_function(obj->pin_sclk, pinmap_function(obj->pin_sclk, PinMap_SPI_SCLK));
@@ -188,7 +189,7 @@ static void spi_init_pins(spi_obj_t *obj)
     }
 }
 
-/**
+/*
  * Initializes and enables SPI/SCB.
  */
 static void spi_init_peripheral(spi_obj_t *obj)
@@ -203,7 +204,7 @@ static void spi_init_peripheral(spi_obj_t *obj)
 }
 
 
-/** Callback function to handle into and out of deep sleep state transitions.
+/* Callback function to handle into and out of deep sleep state transitions.
  *
  */
 #if DEVICE_SLEEP && DEVICE_LOWPOWERTIMER
@@ -218,15 +219,6 @@ static cy_en_syspm_status_t spi_pm_callback(cy_stc_syspm_callback_params_t *call
 #endif // DEVICE_SLEEP && DEVICE_LOWPOWERTIMER
 
 
-/** Initialize the SPI peripheral. It sets the default parameters for SPI
- *  peripheral, and configures its specified pins.
- *
- *  @param obj  The SPI object
- *  @param mosi  The mosi pin
- *  @param miso  The miso pin
- *  @param sclk  The sclk pin
- *  @param ssel  The ssel pin
- */
 void spi_init(spi_t *obj_in, PinName mosi, PinName miso, PinName sclk, PinName ssel)
 {
     spi_obj_t *obj = OBJ_P(obj_in);
@@ -273,30 +265,21 @@ void spi_init(spi_t *obj_in, PinName mosi, PinName miso, PinName sclk, PinName s
         spi_init_pins(obj);
         spi_init_peripheral(obj);
 #if DEVICE_SLEEP && DEVICE_LOWPOWERTIMER
-		obj->pm_callback_handler.callback = spi_pm_callback;
-		obj->pm_callback_handler.type = CY_SYSPM_DEEPSLEEP;
-		obj->pm_callback_handler.skipMode = 0;
-		obj->pm_callback_handler.callbackParams = &obj->pm_callback_params;
-		obj->pm_callback_params.base = obj->base;
-		obj->pm_callback_params.context = obj;
-		if (!Cy_SysPm_RegisterCallback(&obj->pm_callback_handler)) {
-			error("PM callback registration failed!");
-		}
+        obj->pm_callback_handler.callback = spi_pm_callback;
+        obj->pm_callback_handler.type = CY_SYSPM_DEEPSLEEP;
+        obj->pm_callback_handler.skipMode = 0;
+        obj->pm_callback_handler.callbackParams = &obj->pm_callback_params;
+        obj->pm_callback_params.base = obj->base;
+        obj->pm_callback_params.context = obj;
+        if (!Cy_SysPm_RegisterCallback(&obj->pm_callback_handler)) {
+            error("PM callback registration failed!");
+        }
 #endif // DEVICE_SLEEP && DEVICE_LOWPOWERTIMER
     } else {
         error("Serial pinout mismatch. Requested pins Rx and Tx can't be used for the same Serial communication.");
     }
 }
 
-/** Configure the SPI format
- *
- * Set the number of bits per frame, configure clock polarity and phase, shift order and master/slave mode.
- * The default bit order is MSB.
- * @param[in,out] obj   The SPI object to configure
- * @param[in]     bits  The number of bits per frame
- * @param[in]     mode  The SPI mode (clock polarity, phase, and shift direction)
- * @param[in]     slave Zero for master mode or non-zero for slave mode
- */
 void spi_format(spi_t *obj_in, int bits, int mode, int slave)
 {
     spi_obj_t *obj = OBJ_P(obj_in);
@@ -312,11 +295,6 @@ void spi_format(spi_t *obj_in, int bits, int mode, int slave)
     spi_init_peripheral(obj);
 }
 
-/** Configure the SPI frequency
- *
- *  @param obj The SPI object
- *  @param hz  Frequency in Hz
- */
 void spi_frequency(spi_t *obj_in, int hz)
 {
     spi_obj_t *obj = OBJ_P(obj_in);
@@ -325,14 +303,6 @@ void spi_frequency(spi_t *obj_in, int hz)
     Cy_SCB_SPI_Enable(obj->base);
 }
 
-
-
-/** Write a byte out in master mode and receive a value
- *
- * @param[in] obj   The SPI peripheral to use for sending
- * @param[in] value The value to send
- * @return Returns the value received during send
- */
 int  spi_master_write(spi_t *obj_in, int value)
 {
     spi_obj_t *obj = OBJ_P(obj_in);
@@ -351,22 +321,6 @@ int  spi_master_write(spi_t *obj_in, int value)
     }
 }
 
-/** Write a block out in master mode and receive a value
- *
- *  The total number of bytes sent and recieved will be the maximum of
- *  tx_length and rx_length. The bytes written will be padded with the
- *  value 0xff.
- *
- * @param[in] obj       The SPI peripheral to use for sending
- * @param[in] tx_buffer Pointer to the byte-array of data to write to the device
- * @param[in] tx_length Number of bytes to write, may be zero
- * @param[in] rx_buffer Pointer to the byte-array of data to read from the device
- * @param[in] rx_length Number of bytes to read, may be zero
- * @param[in] write_fill Default data transmitted while performing a read
- * @returns
- *      The number of bytes written and read from the device. This is
- *      maximum of tx_length and rx_length.
- */
 int spi_master_block_write(spi_t *obj_in, const char *tx_buffer, int tx_length, char *rx_buffer, int rx_length,  char write_fill)
 {
     spi_obj_t *obj = OBJ_P(obj_in);
@@ -422,12 +376,8 @@ int spi_master_block_write(spi_t *obj_in, const char *tx_buffer, int tx_length, 
     return trans_length;
 }
 
-/** Check if a value is available to read
- *
- * @param[in] obj The SPI peripheral to check
- * @return non-zero if a value is available
- */
-int  spi_slave_receive(spi_t *obj_in) {
+int  spi_slave_receive(spi_t *obj_in)
+{
     spi_obj_t *obj = OBJ_P(obj_in);
     if (obj->ms_mode == CY_SCB_SPI_SLAVE) {
         return Cy_SCB_SPI_GetNumInRxFifo(obj->base);
@@ -436,12 +386,6 @@ int  spi_slave_receive(spi_t *obj_in) {
     }
 }
 
-/** Get a received value out of the SPI receive buffer in slave mode
- *
- * Blocks until a value is available
- * @param[in] obj The SPI peripheral to read
- * @return The value received
- */
 int  spi_slave_read(spi_t *obj_in)
 {
     spi_obj_t *obj = OBJ_P(obj_in);
@@ -456,12 +400,6 @@ int  spi_slave_read(spi_t *obj_in)
     }
 }
 
-/** Write a value to the SPI peripheral in slave mode
- *
- * Blocks until the SPI peripheral can be written to
- * @param[in] obj   The SPI peripheral to write
- * @param[in] value The value to write
- */
 void spi_slave_write(spi_t *obj_in, int value)
 {
     spi_obj_t *obj = OBJ_P(obj_in);
@@ -474,44 +412,18 @@ void spi_slave_write(spi_t *obj_in, int value)
     }
 }
 
-/** Checks if the specified SPI peripheral is in use
- *
- * @param[in] obj The SPI peripheral to check
- * @return non-zero if the peripheral is currently transmitting
- */
-int  spi_busy(spi_t *obj) {
+int  spi_busy(spi_t *obj)
+{
     return !Cy_SCB_SPI_IsTxComplete(OBJ_P(obj)->base);
 }
 
-/** Get the module number
- *
- * @param[in] obj The SPI peripheral to check
- * @return The module number
- */
-uint8_t spi_get_module(spi_t *obj_in) {
+uint8_t spi_get_module(spi_t *obj_in)
+{
     return (uint8_t) OBJ_P(obj_in)->spi_id;
 }
 
-
 #if DEVICE_SPI_ASYNCH
 
-/**
- * \defgroup hal_AsynchSPI Asynchronous SPI Hardware Abstraction Layer
- * @{
- */
-
-/** Begin the SPI transfer. Buffer pointers and lengths are specified in tx_buff and rx_buff
- *
- * @param[in] obj       The SPI object that holds the transfer information
- * @param[in] tx        The transmit buffer
- * @param[in] tx_length The number of bytes to transmit
- * @param[in] rx        The receive buffer
- * @param[in] rx_length The number of bytes to receive
- * @param[in] bit_width The bit width of buffer words
- * @param[in] event     The logical OR of events to be registered
- * @param[in] handler   SPI interrupt handler
- * @param[in] hint      A suggestion for how to use DMA with this transfer
- */
 void spi_master_transfer(spi_t *obj_in,
                          const void *tx,
                          size_t tx_length,
@@ -548,8 +460,8 @@ void spi_master_transfer(spi_t *obj_in,
             obj->pending = PENDING_TX_RX;
             obj->rx_buffer = NULL;
             obj->tx_buffer = (bit_width == 8)?
-                                (void*)(((uint8_t*)tx) + rx_length) :
-                                (void*)(((uint16_t*)tx) + rx_length);
+                             (void*)(((uint8_t*)tx) + rx_length) :
+                             (void*)(((uint16_t*)tx) + rx_length);
             obj->tx_buffer_size = tx_length - rx_length;
             Cy_SCB_SPI_Transfer(obj->base, (void*)tx, rx, rx_length, &obj->context);
         } else {
@@ -564,8 +476,8 @@ void spi_master_transfer(spi_t *obj_in,
             // I) write + read, II) read only
             obj->pending = PENDING_TX_RX;
             obj->rx_buffer = (bit_width == 8)?
-                                (void*)(((uint8_t*)rx) + tx_length) :
-                                (void*)(((uint16_t*)rx) + tx_length);
+                             (void*)(((uint8_t*)rx) + tx_length) :
+                             (void*)(((uint16_t*)rx) + tx_length);
             obj->rx_buffer_size = rx_length - tx_length;
             obj->tx_buffer = NULL;
             Cy_SCB_SPI_Transfer(obj->base, (void*)tx, rx, tx_length, &obj->context);
@@ -579,24 +491,19 @@ void spi_master_transfer(spi_t *obj_in,
     } else {
         // Rx and Tx of the same size
         // I) write + read.
-            obj->pending = PENDING_TX_RX;
-            obj->rx_buffer = NULL;
-            obj->tx_buffer = NULL;
-            Cy_SCB_SPI_Transfer(obj->base, (void*)tx, rx, tx_length, &obj->context);
+        obj->pending = PENDING_TX_RX;
+        obj->rx_buffer = NULL;
+        obj->tx_buffer = NULL;
+        Cy_SCB_SPI_Transfer(obj->base, (void*)tx, rx, tx_length, &obj->context);
     }
 }
 
-/** The asynchronous IRQ handler
- *
- *  @param obj The SPI object which holds the transfer information
- *  @return Event flags if a transfer termination condition was met, otherwise return 0.
- */
 uint32_t spi_irq_handler_asynch(spi_t *obj_in)
 {
     spi_obj_t *obj = OBJ_P(obj_in);
     uint32_t event = 0;
     void *buf;
-     // Process actual interrupt.
+    // Process actual interrupt.
     Cy_SCB_SPI_Interrupt(obj->base, &obj->context);
     if (obj->context.status & CY_SCB_SPI_TRANSFER_OVERFLOW) {
         event = SPI_EVENT_RX_OVERFLOW;
@@ -623,22 +530,12 @@ uint32_t spi_irq_handler_asynch(spi_t *obj_in)
     return event & obj->events;
 }
 
-/** Attempts to determine if the SPI peripheral is already in use
- *
- *  @param obj The SPI object
- *  @return Non-zero if the SPI module is active or zero if it is not
- */
 uint8_t spi_active(spi_t *obj_in)
 {
     spi_obj_t *obj = OBJ_P(obj_in);
     return (obj->pending != PENDING_NONE);
 }
 
-/** Abort asynchronous transfer
- *
- *  This function does not perform any check - that should happen in upper layers.
- *  @param obj The SPI object
- */
 void spi_abort_asynch(spi_t *obj_in)
 {
     spi_obj_t *obj = OBJ_P(obj_in);

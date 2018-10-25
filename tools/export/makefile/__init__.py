@@ -146,12 +146,6 @@ class Makefile(Exporter):
                 new_asm_flags.append(flag)
         ctx['asm_flags'] = new_asm_flags
 
-        # If there is a target-specific exporter function, call it now.
-        if self.TARGET_EXPORTER:
-            print ("Calling target exporter...")
-            self.TARGET_EXPORTER(self, ctx)
-
-        # Generate makefiles.
         for templatefile in \
             ['makefile/%s_%s.tmpl' % (self.TEMPLATE,
                                       self.target.lower())] + \
@@ -161,7 +155,6 @@ class Makefile(Exporter):
             ['makefile/%s.tmpl' % self.TEMPLATE]:
             try:
                 self.gen_file(templatefile, ctx, 'Makefile')
-                print("Generated Makefile from %s"%templatefile)
                 break
             except TemplateNotFound:
                 pass

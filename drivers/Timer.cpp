@@ -23,13 +23,11 @@ namespace mbed {
 
 Timer::Timer() : _running(), _start(), _time(), _ticker_data(get_us_ticker_data()), _lock_deepsleep(true)
 {
-    (void)ticker_read_us(_ticker_data); // Make sure h/w timer is initialized in non-critical context.
     reset();
 }
 
 Timer::Timer(const ticker_data_t *data) : _running(), _start(), _time(), _ticker_data(data), _lock_deepsleep(true)
 {
-    (void)ticker_read_us(_ticker_data); // Make sure h/w timer is initialized in non-critical context.
     reset();
 #if DEVICE_LPTICKER
     _lock_deepsleep = (data != get_lp_ticker_data());

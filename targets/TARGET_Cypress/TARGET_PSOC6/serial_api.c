@@ -230,7 +230,7 @@ static int serial_irq_setup_channel(serial_obj_t *obj)
     return 0;
 }
 
-/**
+/*
  * Calculates fractional divider value.
  */
 static uint32_t divider_value(uint32_t frequency, uint32_t frac_bits)
@@ -292,7 +292,7 @@ static cy_en_sysclk_status_t serial_init_clock(serial_obj_t *obj, uint32_t baudr
     return status;
 }
 
-/**
+/*
  * Initializes i/o pins for UART tx/rx.
  */
 static void serial_init_pins(serial_obj_t *obj)
@@ -306,7 +306,7 @@ static void serial_init_pins(serial_obj_t *obj)
     pin_function(obj->pin_rx, rx_function);
 }
 
-/**
+/*
  * Initializes i/o pins for UART flow control.
  */
 static void serial_init_flow_pins(serial_obj_t *obj)
@@ -329,7 +329,7 @@ static void serial_init_flow_pins(serial_obj_t *obj)
 }
 
 
-/**
+/*
  * Initializes and enables UART/SCB.
  */
 static void serial_init_peripheral(serial_obj_t *obj)
@@ -353,23 +353,23 @@ static cy_en_syspm_status_t serial_pm_callback(cy_stc_syspm_callback_params_t *p
 
     switch (params->mode) {
         case CY_SYSPM_CHECK_READY:
-			/* If all data elements are transmitted from the TX FIFO and
-			* shifter and the RX FIFO is empty: the UART is ready to enter
-			* Deep Sleep mode.
-			*/
-			if (Cy_SCB_UART_IsTxComplete(obj->base)) {
-				if (0UL == Cy_SCB_UART_GetNumInRxFifo(obj->base)) {
-					/* Disable the UART. The transmitter stops driving the
-					* lines and the receiver stops receiving data until
-					* the UART is enabled.
-					* This happens when the device failed to enter Deep
-					* Sleep or it is awaken from Deep Sleep mode.
-					*/
-					Cy_SCB_UART_Disable(obj->base, NULL);
-					status = CY_SYSPM_SUCCESS;
-				}
-			}
-			break;
+            /* If all data elements are transmitted from the TX FIFO and
+            * shifter and the RX FIFO is empty: the UART is ready to enter
+            * Deep Sleep mode.
+            */
+            if (Cy_SCB_UART_IsTxComplete(obj->base)) {
+                if (0UL == Cy_SCB_UART_GetNumInRxFifo(obj->base)) {
+                    /* Disable the UART. The transmitter stops driving the
+                    * lines and the receiver stops receiving data until
+                    * the UART is enabled.
+                    * This happens when the device failed to enter Deep
+                    * Sleep or it is awaken from Deep Sleep mode.
+                    */
+                    Cy_SCB_UART_Disable(obj->base, NULL);
+                    status = CY_SYSPM_SUCCESS;
+                }
+            }
+            break;
 
 
         case CY_SYSPM_CHECK_FAIL:
@@ -401,8 +401,8 @@ void serial_init(serial_t *obj_in, PinName tx, PinName rx)
     bool is_stdio = (tx == CY_STDIO_UART_TX) || (rx == CY_STDIO_UART_RX);
 
     if (is_stdio && stdio_uart_inited) {
-            memcpy(obj_in, &stdio_uart, sizeof(serial_t));
-            return;
+        memcpy(obj_in, &stdio_uart, sizeof(serial_t));
+        return;
     }
     {
         uint32_t uart = pinmap_peripheral(tx, PinMap_UART_TX);
@@ -498,7 +498,6 @@ void serial_format(serial_t *obj_in, int data_bits, SerialParity parity, int sto
     serial_init_peripheral(obj);
 }
 
-
 void serial_putc(serial_t *obj_in, int c)
 {
     serial_obj_t *obj = OBJ_P(obj_in);
@@ -529,10 +528,6 @@ int serial_writable(serial_t *obj_in)
     return Cy_SCB_GetNumInTxFifo(obj->base) != Cy_SCB_GetFifoSize(obj->base);
 }
 
-/** Clear the serial peripheral
- *
- * @param obj The serial object
- */
 void serial_clear(serial_t *obj_in)
 {
     serial_obj_t *obj = OBJ_P(obj_in);
@@ -543,10 +538,6 @@ void serial_clear(serial_t *obj_in)
     serial_init_peripheral(obj);
 }
 
-/** Set the break
- *
- * @param obj The serial object
- */
 void serial_break_set(serial_t *obj_in)
 {
     serial_obj_t *obj = OBJ_P(obj_in);
@@ -559,10 +550,6 @@ void serial_break_set(serial_t *obj_in)
     Cy_GPIO_Write(port_tx, CY_PIN(obj->pin_tx), 0);
 }
 
-/** Clear the break
- *
- * @param obj The serial object
- */
 void serial_break_clear(serial_t *obj_in)
 {
     serial_obj_t *obj = OBJ_P(obj_in);
@@ -573,14 +560,6 @@ void serial_break_clear(serial_t *obj_in)
     Cy_GPIO_Pin_FastInit(port_tx, CY_PIN(obj->pin_tx), CY_GPIO_DM_STRONG_IN_OFF, 0, CY_PIN_HSIOM(tx_function));
 }
 
-/** Configure the serial for the flow control. It sets flow control in the hardware
- *  if a serial peripheral supports it, otherwise software emulation is used.
- *
- * @param obj    The serial object
- * @param type   The type of the flow control. Look at the available FlowControl types.
- * @param rxflow The TX pin name
- * @param txflow The RX pin name
- */
 void serial_set_flow_control(serial_t *obj_in, FlowControl type, PinName rxflow, PinName txflow)
 {
     serial_obj_t *obj = OBJ_P(obj_in);
@@ -659,19 +638,6 @@ static void serial_finish_rx_asynch(serial_obj_t *obj)
     obj->rx_pending = false;
 }
 
-
-/** Begin asynchronous TX transfer. The used buffer is specified in the serial object,
- *  tx_buff
- *
- * @param obj       The serial object
- * @param tx        The transmit buffer
- * @param tx_length The number of bytes to transmit
- * @param tx_width  Deprecated argument
- * @param handler   The serial handler
- * @param event     The logical OR of events to be registered
- * @param hint      A suggestion for how to use DMA with this transfer
- * @return Returns number of data transfered, otherwise returns 0
- */
 int serial_tx_asynch(serial_t *obj_in, const void *tx, size_t tx_length, uint8_t tx_width, uint32_t handler, uint32_t event, DMAUsage hint)
 {
     serial_obj_t *obj = OBJ_P(obj_in);
@@ -711,19 +677,6 @@ int serial_tx_asynch(serial_t *obj_in, const void *tx, size_t tx_length, uint8_t
     return tx_length;
 }
 
-/** Begin asynchronous RX transfer (enable interrupt for data collecting)
- *  The used buffer is specified in the serial object - rx_buff
- *
- * @param obj        The serial object
- * @param rx         The receive buffer
- * @param rx_length  The number of bytes to receive
- * @param rx_width   Deprecated argument
- * @param handler    The serial handler
- * @param event      The logical OR of events to be registered
- * @param handler    The serial handler
- * @param char_match A character in range 0-254 to be matched
- * @param hint       A suggestion for how to use DMA with this transfer
- */
 void serial_rx_asynch(serial_t *obj_in, void *rx, size_t rx_length, uint8_t rx_width, uint32_t handler, uint32_t event, uint8_t char_match, DMAUsage hint)
 {
     serial_obj_t *obj = OBJ_P(obj_in);
@@ -750,31 +703,16 @@ void serial_rx_asynch(serial_t *obj_in, void *rx, size_t rx_length, uint8_t rx_w
     Cy_SCB_SetRxInterruptMask(obj->base, CY_SCB_UART_RX_INTR_MASK & ~CY_SCB_RX_INTR_UART_BREAK_DETECT);
 }
 
-/** Attempts to determine if the serial peripheral is already in use for TX
- *
- * @param obj The serial object
- * @return Non-zero if the RX transaction is ongoing, 0 otherwise
- */
 uint8_t serial_tx_active(serial_t *obj)
 {
     return obj->serial.tx_pending;
 }
 
-/** Attempts to determine if the serial peripheral is already in use for RX
- *
- * @param obj The serial object
- * @return Non-zero if the RX transaction is ongoing, 0 otherwise
- */
 uint8_t serial_rx_active(serial_t *obj)
 {
     return obj->serial.rx_pending;
 }
 
-/** The asynchronous TX and RX handler.
- *
- * @param obj The serial object
- * @return Returns event flags if an RX transfer termination condition was met; otherwise returns 0
- */
 int serial_irq_handler_asynch(serial_t *obj_in)
 {
     uint32_t cur_events = 0;
@@ -793,7 +731,7 @@ int serial_irq_handler_asynch(serial_t *obj_in)
         uint8_t *ptr = obj_in->tx_buff.buffer;
         ptr += obj_in->tx_buff.pos;
         while ((obj_in->tx_buff.pos < obj_in->tx_buff.length) &&
-               Cy_SCB_UART_Put(obj->base, *ptr)) {
+                Cy_SCB_UART_Put(obj->base, *ptr)) {
             ++ptr;
             ++(obj_in->tx_buff.pos);
         }
@@ -861,11 +799,6 @@ int serial_irq_handler_asynch(serial_t *obj_in)
     return cur_events;
 }
 
-/** Abort the ongoing TX transaction. It disables the enabled interrupt for TX and
- *  flushes the TX hardware buffer if TX FIFO is used
- *
- * @param obj The serial object
- */
 void serial_tx_abort_asynch(serial_t *obj_in)
 {
     serial_obj_t *obj = OBJ_P(obj_in);
@@ -874,11 +807,6 @@ void serial_tx_abort_asynch(serial_t *obj_in)
     Cy_SCB_UART_ClearTxFifo(obj->base);
 }
 
-/** Abort the ongoing RX transaction. It disables the enabled interrupt for RX and
- *  flushes the RX hardware buffer if RX FIFO is used
- *
- * @param obj The serial object
- */
 void serial_rx_abort_asynch(serial_t *obj_in)
 {
     serial_obj_t *obj = OBJ_P(obj_in);

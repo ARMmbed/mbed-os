@@ -57,22 +57,22 @@ void gpio_init(gpio_t *obj, PinName pin)
     if (pin == NC) {
         return;
     }
-    
+
     MBED_ASSERT(CY_PIN(obj->pin) < 8); // PSoC6 architecture supports 8 pins per port.
 
-	/*
-	 * Perform i/o reservation only if this is called outside of critical section/interrupt context.
-	 * This is a workaround for mbed_die() implementation, which configures LED1 inside critical section.
-	 * Normally user is advised to perform all of the i/o configuration at the program beginning,
-	 * or elswere in the running thread context. when we decct that we are in the wrong context here,
-	 * we assume it's explicitely called from mbed_die() or other fault handling, so eventual forcing
-	 * of the pin mode is deliberate and should not cause more problems.
-	 */
-	if (!(IsIrqMode() || IsIrqMasked())) {
-		if (cy_reserve_io_pin(pin)) {
-			error("GPIO pin reservation conflict.");
-		}
-	}
+    /*
+     * Perform i/o reservation only if this is called outside of critical section/interrupt context.
+     * This is a workaround for mbed_die() implementation, which configures LED1 inside critical section.
+     * Normally user is advised to perform all of the i/o configuration at the program beginning,
+     * or elsewhere in the running thread context. when we detect that we are in the wrong context here,
+     * we assume it's explicitly called from mbed_die() or other fault handling, so eventual forcing
+     * of the pin mode is deliberate and should not cause more problems.
+     */
+    if (!(IsIrqMode() || IsIrqMasked())) {
+        if (cy_reserve_io_pin(pin)) {
+            error("GPIO pin reservation conflict.");
+        }
+    }
     obj->port = Cy_GPIO_PortToAddr(CY_PORT(obj->pin));
 
     const uint32_t outputVal = 0;

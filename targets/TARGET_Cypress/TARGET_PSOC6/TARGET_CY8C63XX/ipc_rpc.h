@@ -30,32 +30,45 @@
 
 #define IPCRPC_MAX_ARGUMENTS        8
 
-/* IPC Pipe message data structure */
-typedef struct
-{
-  uint32_t  client_id;
-  uint32_t  result;
-  uint32_t  args_num;
-  uint32_t  args[IPCRPC_MAX_ARGUMENTS];
+/** IPC RPC message data structure
+ * Used to pass RPC call arguments to M0 core for execution
+ */
+typedef struct {
+    uint32_t  client_id;                    ///< Client ID of the RPC client
+    uint32_t  result;                       ///< Function execution result returned from callee to caller
+    uint32_t  args_num;                     ///< Number of arguments to RPC function call
+    uint32_t  args[IPCRPC_MAX_ARGUMENTS];   ///< Arguments of RPC function call
 } IpcRpcMessage;
 
 
-typedef struct
-{
-    volatile uint8_t    busy_flag;
-    IpcRpcMessage       message;
+/** IPC RPC message buffer
+ * Used to hold and transfer RPC message
+ */
+typedef struct {
+    volatile uint8_t    busy_flag;          ///< Indicates whether the RPC call using this buffer is in progress
+    IpcRpcMessage       message;            ///< RPC message associated with a call
 } IpcRpcBuffer;
 
 
-
+/** Function handling the RPC call
+ * It packs its arguments into the RPC message buffer, initializes transfer
+ * and waits for completion.
+ *
+ * @param call_id     unique identifier of the RPC API function to be executed
+ * @param args_num    number of call arguments
+ * @param ...         call arguments
+ *
+ * @return call result (as returned by executed function)
+ */
+uint32_t    ipcrpc_call(uint32_t call_id, uint32_t args_num, ...);
 
 #if defined(__cplusplus)
 extern "C"  {
 #endif
-
+/** Initialization function for RPC mechanism.
+ * Generated automatically during wrapper generation; needs to be called from startup code.
+ */
 void        ipcrpc_init(void);
-uint32_t    ipcrpc_call(uint32_t call_id, uint32_t args_num, ...);
-
 #if defined(__cplusplus)
 }
 #endif

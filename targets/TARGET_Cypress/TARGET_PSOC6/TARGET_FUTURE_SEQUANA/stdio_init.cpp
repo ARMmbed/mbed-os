@@ -17,15 +17,14 @@
 
 #include "mbed.h"
 
- /*
-  * This makes sure, stdio serial is initialized on M4 core at the very beging
-  * and outside of any critical context, so printf is usable anyware, including
- *  interrupt and fault handlers.
-  * Hardware devices cannot be initialized in the interrupt or critical section context
-  * on PSoC 6 M4 core.
-  */
+/*
+ * This makes sure, stdio serial is initialized on M4 core at the very beginning
+ * and outside of any critical context, so printf is usable anywhere, including
+ * interrupt and fault handlers.
+ * Hardware devices cannot be initialized in the interrupt or critical section context
+ * on PSoC 6 M4 core.
+ */
 
-#ifndef TARGET_MCU_PSOC6_M0
+#if DEVICE_STDIO_MESSAGES && !defined(TARGET_MCU_PSOC6_M0)
 Serial _stdio_uart_object(STDIO_UART_TX, STDIO_UART_RX);
 #endif
- 

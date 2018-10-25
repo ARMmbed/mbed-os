@@ -29,8 +29,8 @@
  * and Cypress h/w supports only 2000 - 2099 years range,
 * two backup registers are used to flag century correction.
  */
- #define BR_LAST_YEAR_READ      14
- #define BR_CENTURY_CORRECTION  15
+#define BR_LAST_YEAR_READ      14
+#define BR_CENTURY_CORRECTION  15
 
 static int enabled = 0;
 
@@ -56,9 +56,6 @@ static uint32_t rtc_write_convert_year(uint32_t long_year)
     return short_year;
 }
 
-/** Initialize the RTC peripheral
- *
- */
 void rtc_init(void)
 {
     static cy_stc_rtc_config_t init_val = {
@@ -80,12 +77,12 @@ void rtc_init(void)
         // Verify RTC time consistency.
         Cy_RTC_GetDateAndTime(&cy_time);
         if ( CY_RTC_IS_SEC_VALID(cy_time.sec) &&
-             CY_RTC_IS_MIN_VALID(cy_time.min) &&
-             CY_RTC_IS_HOUR_VALID(cy_time.hour) &&
-             CY_RTC_IS_DOW_VALID(cy_time.dayOfWeek) &&
-             CY_RTC_IS_MONTH_VALID(cy_time.month) &&
-             CY_RTC_IS_YEAR_SHORT_VALID(cy_time.year) &&
-             (cy_time.hrFormat == CY_RTC_24_HOURS)) {
+                CY_RTC_IS_MIN_VALID(cy_time.min) &&
+                CY_RTC_IS_HOUR_VALID(cy_time.hour) &&
+                CY_RTC_IS_DOW_VALID(cy_time.dayOfWeek) &&
+                CY_RTC_IS_MONTH_VALID(cy_time.month) &&
+                CY_RTC_IS_YEAR_SHORT_VALID(cy_time.year) &&
+                (cy_time.hrFormat == CY_RTC_24_HOURS)) {
             enabled = 1;
         } else {
             // reinitialize
@@ -97,32 +94,16 @@ void rtc_init(void)
     }
 }
 
-
-/** Deinitialize RTC
- *
- * TODO: The function is not used by rtc api in mbed-drivers.
- */
 void rtc_free(void)
 {
-
+    // Nothing to do
 }
 
-
-/** Get the RTC enable status
- *
- * @retval 0 disabled
- * @retval 1 enabled
- */
 int rtc_isenabled(void)
 {
     return enabled;
 }
 
-
-/** Get the current time from the RTC peripheral
- *
- * @return The current time
- */
 time_t rtc_read(void)
 {
     cy_stc_rtc_config_t cy_time;
@@ -149,10 +130,6 @@ time_t rtc_read(void)
     return timestamp;
 }
 
-/** Set the current time to the RTC peripheral
- *
- * @param t The current time to be set
- */
 void rtc_write(time_t t)
 {
     cy_en_rtc_status_t  status;

@@ -20,6 +20,8 @@
 #include "device.h"
 #include "system_psoc63.h"
 #include "cy_device_headers.h"
+#include "ipc_rpc.h"
+#include "psoc6_utils.h"
 
 #if defined(CY_DEVICE_PSOC6ABLE2)
     #if !defined(CY_PSOC6ABLE2_REV_0A_SUPPORT_DISABLE)

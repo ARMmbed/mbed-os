@@ -37,19 +37,21 @@
 
 #if defined(TARGET_MCU_PSOC6_M0)
 
-#define TICKER_COUNTER_UNIT					TCPWM0
-#define TICKER_COUNTER_NUM					0
-#define TICKER_COUNTER_INTERRUPT_SOURCE		tcpwm_0_interrupts_0_IRQn
-#define TICKER_COUNTER_NVIC_IRQN        	CY_M0_CORE_IRQ_CHANNEL_US_TICKER
-#define TICKER_COUNTER_INTERRUPT_PRIORITY	3
+#define TICKER_COUNTER_UNIT                 TCPWM0
+#define TICKER_COUNTER_NUM                  0
+#define TICKER_COUNTER_INTERRUPT_SOURCE     tcpwm_0_interrupts_0_IRQn
+#define TICKER_COUNTER_NVIC_IRQN            CY_M0_CORE_IRQ_CHANNEL_US_TICKER
+#define TICKER_COUNTER_INTERRUPT_PRIORITY   3
+#define TICKER_CLOCK_DIVIDER_NUM            0
 
 #elif defined(TARGET_MCU_PSOC6_M4)
 
-#define TICKER_COUNTER_UNIT					TCPWM0
-#define TICKER_COUNTER_NUM					1
-#define TICKER_COUNTER_INTERRUPT_SOURCE		tcpwm_0_interrupts_1_IRQn
-#define TICKER_COUNTER_NVIC_IRQN        	TICKER_COUNTER_INTERRUPT_SOURCE
-#define TICKER_COUNTER_INTERRUPT_PRIORITY	6
+#define TICKER_COUNTER_UNIT                 TCPWM0
+#define TICKER_COUNTER_NUM                  1
+#define TICKER_COUNTER_INTERRUPT_SOURCE     tcpwm_0_interrupts_1_IRQn
+#define TICKER_COUNTER_NVIC_IRQN            TICKER_COUNTER_INTERRUPT_SOURCE
+#define TICKER_COUNTER_INTERRUPT_PRIORITY   6
+#define TICKER_CLOCK_DIVIDER_NUM            1
 
 #else
 #error "Unknown MCU type."
@@ -70,7 +72,6 @@ static const cy_stc_sysint_t us_ticker_sysint_cfg = {
 };
 
 static int      us_ticker_inited = 0;
-static uint32_t us_ticker_divider_num = CY_INVALID_DIVIDER;
 
 static const cy_stc_tcpwm_counter_config_t cy_counter_config = {
     .period = 0xFFFFFFFFUL,
@@ -99,8 +100,8 @@ static cy_stc_syspm_callback_t ticker_pm_callback_handler = {
 };
 
 
-/** Callback handler to restart the timer after deep sleep.
- *
+/*
+ * Callback handler to restart the timer after deep sleep.
  */
 static cy_en_syspm_status_t ticker_pm_callback(cy_stc_syspm_callback_params_t *params)
 {
@@ -111,8 +112,8 @@ static cy_en_syspm_status_t ticker_pm_callback(cy_stc_syspm_callback_params_t *p
     return CY_SYSPM_SUCCESS;
 }
 
-/** Interrupt handler.
- *
+/*
+ * Interrupt handler.
  */
 static void local_irq_handler(void)
 {
@@ -132,16 +133,10 @@ void us_ticker_init(void)
 
     us_ticker_inited = 1;
 
-    /*
-     *   Configure the clock
-     */
-    us_ticker_divider_num = cy_clk_allocate_divider(CY_SYSCLK_DIV_8_BIT);
-
-    // us_ticker 1 MHz from PCLK 50 MHz
-
-    Cy_SysClk_PeriphAssignDivider(PCLK_TCPWM0_CLOCKS0 + TICKER_COUNTER_NUM, CY_SYSCLK_DIV_8_BIT, us_ticker_divider_num);
-    Cy_SysClk_PeriphSetDivider(CY_SYSCLK_DIV_8_BIT, us_ticker_divider_num, (CY_CLK_PERICLK_FREQ_HZ / 1000000UL) - 1);
-    Cy_SysClk_PeriphEnableDivider(CY_SYSCLK_DIV_8_BIT, us_ticker_divider_num);
+    // Configure the clock, us_ticker 1 MHz from PCLK 50 MHz
+    Cy_SysClk_PeriphAssignDivider(PCLK_TCPWM0_CLOCKS0 + TICKER_COUNTER_NUM, CY_SYSCLK_DIV_8_BIT, TICKER_CLOCK_DIVIDER_NUM);
+    Cy_SysClk_PeriphSetDivider(CY_SYSCLK_DIV_8_BIT, TICKER_CLOCK_DIVIDER_NUM, (CY_CLK_PERICLK_FREQ_HZ / 1000000UL) - 1);
+    Cy_SysClk_PeriphEnableDivider(CY_SYSCLK_DIV_8_BIT, TICKER_CLOCK_DIVIDER_NUM);
 
     /*
         Configure the counter
@@ -168,8 +163,6 @@ void us_ticker_free(void)
     us_ticker_disable_interrupt();
     Cy_TCPWM_Counter_Disable(TICKER_COUNTER_UNIT, TICKER_COUNTER_NUM);
     Cy_SysPm_UnregisterCallback(&ticker_pm_callback_handler);
-    cy_clk_free_divider(CY_SYSCLK_DIV_8_BIT, us_ticker_divider_num);
-    us_ticker_divider_num = CY_INVALID_DIVIDER;
 #if defined (TARGET_MCU_PSOC6_M0)
     cy_m0_nvic_release_channel(TICKER_COUNTER_NVIC_IRQN, CY_US_TICKER_IRQN_ID);
 #endif //

@@ -21,6 +21,7 @@
 #include "system_psoc63.h"
 #include "cy_device_headers.h"
 #include "ipc_rpc.h"
+#include "psoc6_utils.h"
 
 #if defined(CY_DEVICE_PSOC6ABLE2) && !defined(CY_IPC_DEFAULT_CFG_DISABLE)
     #include "ipc/cy_ipc_drv.h"

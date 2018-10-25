@@ -113,6 +113,7 @@ do {                                                            \
 
 #define DEFAULT_PORT_RES        0
 #define DEFAULT_DIVIDER_RES     0
+#define DEFAULT_DIVIDER8_RES    0
 #define DEFAULT_SCM_RES         0
 #define DEFAULT_TCPWM_RES       0
 #endif // defined(TARGET_MCU_PSOC6_M0)
@@ -123,8 +124,9 @@ do {                                                            \
 
 #define DEFAULT_PORT_RES        0
 #define DEFAULT_DIVIDER_RES     0
+#define DEFAULT_DIVIDER8_RES    0x3         // dividers 0 & 1 are reserved for us_ticker
 #define DEFAULT_SCM_RES         0
-#define DEFAULT_TCPWM_RES       0
+#define DEFAULT_TCPWM_RES       0x3         // 32b counters 0 & 1 are reserved for us_ticker
 
 #endif // PSOC6_DYNSRM_DISABLE
 
@@ -137,7 +139,7 @@ typedef struct {
 } divider_alloc_t;
 
 static divider_alloc_t divider_allocations[CY_NUM_DIVIDER_TYPES] = {
-    { PERI_DIV_8_NR - 1,    0,  DEFAULT_DIVIDER_RES },    // CY_SYSCLK_DIV_8_BIT
+    { PERI_DIV_8_NR - 1,    2,  DEFAULT_DIVIDER8_RES },   // CY_SYSCLK_DIV_8_BIT
     { PERI_DIV_16_NR - 1,   0,  DEFAULT_DIVIDER_RES },    // CY_SYSCLK_DIV_16_BIT
     { PERI_DIV_16_5_NR - 1, 0,  DEFAULT_DIVIDER_RES },    // CY_SYSCLK_DIV_16_5_BIT
     { PERI_DIV_24_5_NR - 1, 0,  DEFAULT_DIVIDER_RES }     // CY_SYSCLK_DIV_24_5_BIT
@@ -250,8 +252,8 @@ uint32_t cy_clk_allocate_divider(cy_en_divider_types_t div_type)
 
 
     for ( uint32_t first_index = p_alloc->current_index;
-          CY_INVALID_DIVIDER == (divider = cy_clk_reserve_divider(div_type, p_alloc->current_index));
-          ++p_alloc->current_index) {
+            CY_INVALID_DIVIDER == (divider = cy_clk_reserve_divider(div_type, p_alloc->current_index));
+            ++p_alloc->current_index) {
         if (p_alloc->current_index > p_alloc->max_index) {
             p_alloc->current_index = 0;
         }
@@ -355,7 +357,8 @@ IRQn_Type cy_m0_nvic_allocate_channel(uint32_t channel_id)
         if (irq_channels[chn] == 0) {
             irq_channels[chn] = channel_id;
             alloc = NvicMux0_IRQn + chn;
-            break;    irq_channels[chn] = channel_id;
+            break;
+            irq_channels[chn] = channel_id;
 
         }
     }
@@ -436,18 +439,18 @@ void cy_get_bd_mac_address(uint8_t *buffer)
 void cy_srm_initialize(void)
 {
 #if PSOC6_DYNSRM_DISABLE
-    #ifdef M0_ASSIGNED_PORTS
-        SRM_INIT_RESOURCE(uint8_t, port_reservations,, M0_ASSIGNED_PORTS);
-    #endif
-    #ifdef M0_ASSIGNED_DIVIDERS
-        SRM_INIT_RESOURCE(uint32_t, divider_allocations, .reservations, M0_ASSIGNED_DIVIDERS);
-    #endif
-    #ifdef M0_ASSIGNED_SCBS
-        SRM_INIT_RESOURCE(uint8_t, scb_reservations,, M0_ASSIGNED_SCBS);
-    #endif
-    #ifdef M0_ASSIGNED_TCPWMS
-        SRM_INIT_RESOURCE(uint8_t, tcpwm_reservations,,  M0_ASSIGNED_TCPWMS);
-    #endif
+#ifdef M0_ASSIGNED_PORTS
+    SRM_INIT_RESOURCE(uint8_t, port_reservations,, M0_ASSIGNED_PORTS);
+#endif
+#ifdef M0_ASSIGNED_DIVIDERS
+    SRM_INIT_RESOURCE(uint32_t, divider_allocations, .reservations, M0_ASSIGNED_DIVIDERS);
+#endif
+#ifdef M0_ASSIGNED_SCBS
+    SRM_INIT_RESOURCE(uint8_t, scb_reservations,, M0_ASSIGNED_SCBS);
+#endif
+#ifdef M0_ASSIGNED_TCPWMS
+    SRM_INIT_RESOURCE(uint8_t, tcpwm_reservations,,  M0_ASSIGNED_TCPWMS);
+#endif
 #endif // PSOC6_DYNSRM_DISABLE
 }
 

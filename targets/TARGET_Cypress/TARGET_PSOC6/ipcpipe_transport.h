@@ -35,35 +35,68 @@
 /* Client IDs */
 #define IPCPIPE_CLIENT_H4           0
 
-/* IPC Pipe message data structure */
-typedef struct
-{
-  uint32_t  client_id;
-  uint32_t  header_length;
-  uint32_t  data_length;
-  uint8_t   header[IPCPIPE_MAX_HEADER_LENGTH];
-  uint8_t   data[IPCPIPE_MAX_DATA_LENGTH];
+/** IPC Pipe message data structure
+ */
+typedef struct {
+    uint32_t  client_id;                          ///< ID of the client using this API
+    uint32_t  header_length;                      ///< length of the message header in bytes
+    uint32_t  data_length;                        ///< length of the message data field
+    uint8_t   header[IPCPIPE_MAX_HEADER_LENGTH];  ///< message header
+    uint8_t   data[IPCPIPE_MAX_DATA_LENGTH];      ///< message data
 } IpcPipeMessage;
 
 
-typedef struct
-{
-    volatile uint8_t    busy_flag;
-    IpcPipeMessage      message;
+/** IPC Pipe message buffer
+ * Used to transfer a message to other MCU
+ */
+typedef struct {
+    volatile uint8_t    busy_flag;              ///< indicates whether the transfer is in progress
+    IpcPipeMessage      message;                ///< the message itself
 } IpcPipeBuffer;
 
-
+/** Type of rx (buffer received) event handler function
+ */
 typedef void (IpcPipeRxHandler)(uint32_t *message_ptr);
+
+/** Type of tx complete (buffer sent out) event handler function
+ */
 typedef void (IpcPipeTxCompleteHandler)(void);
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+/** Send a data block over IPC pipe
+ *
+ * @param client_id         ID of the client using this service
+ * @param header            pointer to the message header to be sent
+ * @param header_length     length of the header
+ * @param data              pointer to the message data to be sent
+ * @param  data_length      length of the data
+ */
 void ipcpipe_write_data(uint32_t client_id, uint8_t* header, uint32_t header_length, uint8_t *data, uint32_t data_length);
+
+/** Initialize and start IPC pipe transport service
+ *
+ * @param client_id         ID of the client using this service
+ * @param rx_handler        receive event handler
+ * @param tx_handler        transmit complete event handler
+ */
 void ipcpipe_transport_start(uint32_t client_id, IpcPipeRxHandler *rx_handler, IpcPipeTxCompleteHandler *tx_handler);
+
+/** Stop IPC pipe transport service
+ *
+ * @param client_id         ID of the client using this service
+ */
 void ipcpipe_transport_stop(uint32_t client_id);
+
+
+/** Enable IPC pipe transport service
+ */
 void ipcpipe_transport_enable(void);
+
+/** Disable IPC pipe transport service
+ */
 void ipcpipe_transport_disable(void);
 
 #ifdef __cplusplus

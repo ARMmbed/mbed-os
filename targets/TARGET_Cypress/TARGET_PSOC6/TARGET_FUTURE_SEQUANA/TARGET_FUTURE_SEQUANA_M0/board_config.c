@@ -155,8 +155,7 @@ static void ClockInit(void)
 
     /* Enable all source clocks */
     status = Cy_SysClk_WcoEnable(500000u);
-    if (CY_RET_SUCCESS != status)
-    {
+    if (CY_RET_SUCCESS != status) {
         CyClockStartupError(CYCLOCKSTART_WCO_ERROR);
     }
     Cy_SysClk_ClkLfSetSource(CY_SYSCLK_CLKLF_IN_WCO);
@@ -185,9 +184,9 @@ static void ClockInit(void)
 
     /* Configure Path Clocks */
     /* PLL path is used to clock HF domain from BLE ECO */
-	Cy_SysClk_ClkPathSetSource(2, CY_SYSCLK_CLKPATH_IN_IMO);
-	Cy_SysClk_ClkPathSetSource(3, CY_SYSCLK_CLKPATH_IN_IMO);
-	Cy_SysClk_ClkPathSetSource(4, CY_SYSCLK_CLKPATH_IN_IMO);
+    Cy_SysClk_ClkPathSetSource(2, CY_SYSCLK_CLKPATH_IN_IMO);
+    Cy_SysClk_ClkPathSetSource(3, CY_SYSCLK_CLKPATH_IN_IMO);
+    Cy_SysClk_ClkPathSetSource(4, CY_SYSCLK_CLKPATH_IN_IMO);
 #if FEATURE_BLE
     Cy_SysClk_ClkPathSetSource(0, CY_SYSCLK_CLKPATH_IN_ALTHF);
     Cy_SysClk_ClkPathSetSource(1, CY_SYSCLK_CLKPATH_IN_ALTHF);
@@ -295,8 +294,8 @@ void Cy_SystemInit(void)
         Cy_SysLib_ResetBackupDomain();
     }
 
-	/* Power Mode */
-	Cy_SysPm_LdoSetVoltage(CY_SYSPM_LDO_VOLTAGE_1_1V);
+    /* Power Mode */
+    Cy_SysPm_LdoSetVoltage(CY_SYSPM_LDO_VOLTAGE_1_1V);
 
     /* PMIC Control */
     Cy_SysPm_UnlockPmic();
