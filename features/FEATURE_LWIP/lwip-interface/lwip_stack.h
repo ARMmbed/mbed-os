@@ -32,6 +32,7 @@ nsapi_error_t mbed_lwip_bringup(bool dhcp, const char *ip, const char *netmask, 
 nsapi_error_t mbed_lwip_bringup_2(bool dhcp, bool ppp, const char *ip, const char *netmask, const char *gw, const nsapi_ip_stack_t stack);
 nsapi_error_t mbed_lwip_bringdown(void);
 nsapi_error_t mbed_lwip_bringdown_2(bool ppp);
+void mbed_lwip_set_as_default();
 
 const char *mbed_lwip_get_mac_address(void);
 char *mbed_lwip_get_ip_address(char *buf, nsapi_size_t buflen);

@@ -1026,7 +1026,7 @@
  * DNS_SERVER_ADDRESS(ipaddr), where 'ipaddr' is an 'ip_addr_t*'
  */
 #if !defined DNS_MAX_SERVERS || defined __DOXYGEN__
-#define DNS_MAX_SERVERS                 2
+#define DNS_MAX_SERVERS                 4
 #endif
 
 /** DNS do a name checking between the query and the response. */
