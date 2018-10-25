@@ -24,7 +24,7 @@
 class CellularBase: public NetworkInterface {
 
 public:
-    /** Get the default Cellular interface.
+    /** Get the default cellular interface.
      *
      * This is provided as a weak method so applications can override.
      * Default behaviour is to get the target's default interface, if
@@ -34,7 +34,7 @@ public:
      */
     static CellularBase *get_default_instance();
 
-    /** Set the Cellular network credentials.
+    /** Set the cellular network credentials.
      *
      *  Please check documentation of connect() for default behaviour of APN settings.
      *
@@ -51,7 +51,7 @@ public:
      */
     virtual void set_sim_pin(const char *sim_pin) = 0;
 
-    /** Attempt to connect to a Cellular network with a pin and credentials.
+    /** Attempt to connect to a cellular network with a pin and credentials.
      *
      *  @param sim_pin     PIN for the SIM card.
      *  @param apn         Access point name (optional).
@@ -63,7 +63,7 @@ public:
                                   const char *uname = 0,
                                   const char *pwd = 0) = 0;
 
-    /** Attempt to connect to a Cellular network.
+    /** Attempt to connect to a cellular network.
      *
      *  If the SIM requires a PIN, and it is invalid or is not set, NSAPI_ERROR_AUTH_ERROR is returned.
      *
@@ -115,7 +115,7 @@ public:
 #if !defined(DOXYGEN_ONLY)
 
 protected:
-    /** Get the target's default Cellular interface.
+    /** Get the target's default cellular interface.
      *
      * This is provided as a weak method so targets can override. The
      * default implementation configures and returns the OnBoardModemInterface
