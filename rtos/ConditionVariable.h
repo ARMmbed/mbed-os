@@ -1,5 +1,5 @@
-/* mbed Microcontroller Library
- * Copyright (c) 2017-2017 ARM Limited
+/* Mbed Microcontroller Library
+ * Copyright (c) 2017-2018 ARM Limited
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -38,14 +38,14 @@ struct Waiter;
 /** The ConditionVariable class is a synchronization primitive that allows
  *   threads to wait until a particular condition occurs.
  *
- * The condition variable is used in conjunction with a mutex to safely wait for
+ * Use the condition variable in conjunction with a mutex to safely wait for
  * or notify waiters of condition changes to a resource accessible by multiple
  * threads.
  *
  * The thread that intends to wait on a ConditionVariable must:
  * - Acquire a lock on a mutex
  * - Execute `wait`, `wait_for` or `wait_until`. While the thread is waiting,
- *   the mutex will be unlocked.
+ *   the mutex is unlocked.
  * - When the condition variable has been notified, or in the case of `wait_for`
  *   and `wait_until` the timeout expires, the thread is awakened.
  *
@@ -53,17 +53,17 @@ struct Waiter;
  * - Acquire a lock on the mutex used to construct the condition variable.
  * - Execute `notify_one` or `notify_all` on the condition variable.
  *
- * ## Defined behavior
- * - All threads that are waiting on the condition variable will wake when
- *   ConditionVariable::notify_all is called.
- * - At least one thread that is waiting on the condition variable will wake
- *   when ConditionVariable::notify_one is called.
+ * ### Defined behavior
+ * - All threads waiting on the condition variable wake when
+ *   `ConditionVariable::notify_all` is called.
+ * - At least one thread waiting on the condition variable wakes
+ *   when `ConditionVariable::notify_one` is called.
  * - While a thread is waiting for notification of a
- *   ConditionVariable, it will release the lock held on the mutex.
- * - The ConditionVariable will reacquire the mutex lock before exiting the wait
+ *   ConditionVariable, it releases the lock held on the mutex.
+ * - The ConditionVariable reacquires the mutex lock before exiting the wait
  *   function.
  *
- * ## Undefined behavior
+ * ### Undefined behavior
  * - The thread that is unblocked on ConditionVariable::notify_one is
  *   undefined if there are multiple waiters.
  * - Calling wait if the mutex is not locked by the current thread is undefined
@@ -167,8 +167,8 @@ public:
      * @note - Spurious notifications can occur, so the caller of this API
      * should check to make sure the condition the caller is waiting on has
      * been met.
-     * 
-     * @note - The current thread will release the lock while inside the wait
+     *
+     * @note - The current thread releases the lock while inside the wait
      * function and reacquire it upon exiting the function.
      *
      * Example:
@@ -204,7 +204,7 @@ public:
      * should check to make sure the condition the caller is waiting on has
      * been met.
      *
-     * @note - The current thread will release the lock while inside the wait
+     * @note - The current thread releases the lock while inside the wait
      * function and reacquire it upon exiting the function.
      *
      * Example:
@@ -245,7 +245,7 @@ public:
      * should check to make sure the condition the caller is waiting on has
      * been met.
      *
-     * @note - The current thread will release the lock while inside the wait
+     * @note - The current thread releases the lock while inside the wait
      * function and reacquire it upon exiting the function.
      *
      * Example:
@@ -272,7 +272,7 @@ public:
 
     /** Notify one waiter on this condition variable that a condition changed.
      *
-     * This function will unblock one of the threads waiting for the condition
+     * This function unblocks one of the threads waiting for the condition
      * variable.
      *
      * @note - The thread calling this function must be the owner of the
@@ -287,7 +287,7 @@ public:
 
     /** Notify all waiters on this condition variable that a condition changed.
      *
-     * This function will unblock all of the threads waiting for the condition
+     * This function unblocks all of the threads waiting for the condition
      * variable.
      *
      * @note - The thread calling this function must be the owner of the
