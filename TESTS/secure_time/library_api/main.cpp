@@ -400,14 +400,11 @@ static void replay_blob(void)
         );
     TEST_ASSERT_UINT64_WITHIN(3, set_time, secure_time_get());
 
-    wait(4);
-
     // Send the blob again
     TEST_ASSERT_EQUAL_HEX(
         SECURE_TIME_NONCE_MISSING,
         secure_time_set_trusted_commit(blob, blob_size)
         );
-    TEST_ASSERT_UINT64_WITHIN(5, set_time + 4, secure_time_get());
 }
 /*
 void nonce_timeout(void)

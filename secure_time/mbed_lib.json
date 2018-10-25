@@ -13,6 +13,9 @@
         },
         "KL82Z": {
             "enabled": false
+        },
+        "EV_COG_AD3029LZ": {
+            "enabled": false
         }
     }
 }
