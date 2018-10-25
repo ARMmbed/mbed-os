@@ -30,7 +30,9 @@
 
 #include "events/mbed_shared_queues.h"
 
+#ifndef MBED_NO_GLOBAL_USING_DIRECTIVE
 using namespace events;
+#endif
 
 #endif
 

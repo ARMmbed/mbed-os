@@ -102,7 +102,9 @@
 #include "platform/FunctionPointer.h"
 #include "platform/ScopedLock.h"
 
+#ifndef MBED_NO_GLOBAL_USING_DIRECTIVE
 using namespace mbed;
 using namespace std;
+#endif
 
 #endif
