@@ -289,7 +289,11 @@ private:
     static CircularBuffer<Transaction<SPI>, TRANSACTION_QUEUE_SIZE_SPI> _transaction_buffer;
 #endif
 
-#endif
+#endif //!defined(DOXYGEN_ONLY)
+
+#endif //DEVICE_SPI_ASYNCH
+
+#if !defined(DOXYGEN_ONLY)
 
 protected:
     /* Internal SPI object identifying the resources */
