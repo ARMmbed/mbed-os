@@ -56,7 +56,7 @@ public:
     }
 #endif //!defined(DOXYGEN_ONLY)
 
-    /** Close any open connection and deallocate any memory associated
+    /** Close any open connection, and deallocate any memory associated
      *  with the socket. Called from destructor if socket is not closed.
      *
      *  @return         0 on success, negative error code on failure (@see nsapi_types.h).
@@ -85,7 +85,7 @@ public:
     nsapi_error_t bind(uint16_t port);
 
     /** Bind the socket to a specific address and port on which to receive
-     *  data. If the IP address is zeroed only the port is bound.
+     *  data. If the IP address is zeroed, only the port is bound.
      *
      *  @param address  Null-terminated local address to bind.
      *  @param port     Local port to bind.
@@ -96,21 +96,21 @@ public:
     /** Bind the socket to a specific address and port on which to receive
      *  data. If the IP address is zeroed, only the port is bound.
      *
-     *  @param address  Local SocketAddress to bind which includes the address and port.
+     *  @param address  Local SocketAddress to bind, which includes the address and port.
      *  @return         0 on success, negative error code on failure (@see nsapi_types.h).
      */
     virtual nsapi_error_t bind(const SocketAddress &address);
 
-    /** Set blocking or non-blocking mode of the socket.
+    /** Set blocking or nonblocking mode of the socket.
      *
-     *  Initially all sockets are in blocking mode. In non-blocking mode
-     *  blocking operations such as send/recv/accept return
-     *  NSAPI_ERROR_WOULD_BLOCK if they can not continue.
+     *  Initially all sockets are in blocking mode. In nonblocking mode,
+     *  blocking operations, such as send/recv/accept, return
+     *  NSAPI_ERROR_WOULD_BLOCK if they cannot continue.
      *
      *  @note set_blocking(false) is equivalent to set_timeout(-1) and
      *  set_blocking(true) is equivalent to set_timeout(0).
      *
-     *  @param blocking Use true for blocking mode, false for non-blocking mode.
+     *  @param blocking Use true for blocking mode, false for nonblocking mode.
      */
     virtual void set_blocking(bool blocking);
 
@@ -131,7 +131,7 @@ public:
     /** Pass stack-specific options to the underlying stack using stack-specific
      *  level and option names, or request generic options using levels from nsapi_socket_level_t.
      *
-     *  For unsupported options, NSAPI_ERROR_UNSUPPORTED is returned
+     *  For unsupported options, NSAPI_ERROR_UNSUPPORTED is returned,
      *  and the socket is unmodified.
      *
      *  @param level    Stack-specific protocol level or nsapi_socket_level_t.
@@ -146,7 +146,7 @@ public:
      *  stack-specific level and option names, or request generic options
      *  using levels from nsapi_socket_level_t.
      *
-     *  For unsupported options, NSAPI_ERROR_UNSUPPORTED is returned
+     *  For unsupported options, NSAPI_ERROR_UNSUPPORTED is returned,
      *  and the socket is unmodified.
      *
      *  @param level    Stack-specific protocol level or nsapi_socket_level_t.
@@ -159,12 +159,12 @@ public:
 
     /** Register a callback on state change of the socket.
      *
-     *  The specified callback will be called on state changes such as when
+     *  The specified callback is called on state changes, such as when
      *  the socket can recv/send/accept successfully and when an error
      *  occurs. The callback may also be called spuriously without a reason.
      *
      *  The callback may be called in an interrupt context and should not
-     *  perform expensive operations such as recv/send calls.
+     *  perform expensive operations, such as recv/send calls.
      *
      *  @note This is not intended as a replacement for a poll or attach-like
      *  asynchronous API, but rather as a building block for constructing
@@ -179,12 +179,12 @@ public:
      *
      *  @see Socket::sigio
      *  @deprecated
-     *      The behaviour of Socket::attach differs from other attach functions in
-     *      mbed OS and has been known to cause confusion. Replaced by Socket::sigio.
+     *      The behavior of Socket::attach differs from other attach functions in
+     *      Mbed OS and has been known to cause confusion. Replaced by Socket::sigio.
      */
     MBED_DEPRECATED_SINCE("mbed-os-5.4",
-                          "The behaviour of Socket::attach differs from other attach functions in "
-                          "mbed OS and has been known to cause confusion. Replaced by Socket::sigio.")
+                          "The behavior of Socket::attach differs from other attach functions in "
+                          "Mbed OS and has been known to cause confusion. Replaced by Socket::sigio.")
     void attach(mbed::Callback<void()> func);
 
     /** Register a callback on state change of the socket.
