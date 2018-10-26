@@ -137,7 +137,7 @@ class USBSerialTest(mbed_host_tests.BaseHostTest):
                 retry_delay=0.05)
             retry_fun_call(
                 fun=mbed_serial.open,
-                num_retries=10,
+                num_retries=20,
                 retry_delay=0.05)
             mbed_serial.dtr = True
             try:
@@ -159,7 +159,7 @@ class USBSerialTest(mbed_host_tests.BaseHostTest):
                 retry_delay=0.05)
             retry_fun_call(
                 fun=mbed_serial.open,
-                num_retries=10,
+                num_retries=20,
                 retry_delay=0.05)
             mbed_serial.reset_output_buffer()
             mbed_serial.dtr = True
@@ -184,7 +184,7 @@ class USBSerialTest(mbed_host_tests.BaseHostTest):
                 retry_delay=0.05)
             retry_fun_call(
                 fun=mbed_serial.open,
-                num_retries=10,
+                num_retries=20,
                 retry_delay=0.05)
         except RetryError as exc:
             self.log('TEST ERROR: {}'.format(exc))
@@ -220,7 +220,7 @@ class USBSerialTest(mbed_host_tests.BaseHostTest):
                 retry_delay=0.05)
             retry_fun_call(
                 fun=mbed_serial.open,
-                num_retries=10,
+                num_retries=20,
                 retry_delay=0.05)
         except RetryError as exc:
             self.log('TEST ERROR: {}'.format(exc))
@@ -257,7 +257,7 @@ class USBSerialTest(mbed_host_tests.BaseHostTest):
                 retry_delay=0.05)
             retry_fun_call(
                 fun=mbed_serial.open,
-                num_retries=10,
+                num_retries=20,
                 retry_delay=0.05)
         except RetryError as exc:
             self.log('TEST ERROR: {}'.format(exc))
