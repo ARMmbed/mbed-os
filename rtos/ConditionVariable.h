@@ -318,7 +318,6 @@ protected:
         bool in_list;
     };
 
-private:
     static void _add_wait_list(Waiter **wait_list, Waiter *waiter);
     static void _remove_wait_list(Waiter **wait_list, Waiter *waiter);
     Mutex &_mutex;
