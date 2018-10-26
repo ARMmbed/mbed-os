@@ -4375,7 +4375,7 @@
         "extra_labels": ["TOSHIBA"],
         "macros": ["__TMPM066__", "CMSIS_VECTAB_VIRTUAL", "CMSIS_VECTAB_VIRTUAL_HEADER_FILE=\"cmsis_nvic.h\""],
         "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
-        "device_has": ["USTICKER", "ANALOGIN", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "SERIAL", "SLEEP", "I2C", "I2CSLAVE", "STDIO_MESSAGES", "PWMOUT"],
+        "device_has": ["RESET_REASON", "USTICKER", "ANALOGIN", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "SERIAL", "SLEEP", "I2C", "I2CSLAVE", "STDIO_MESSAGES", "PWMOUT"],
         "device_name": "TMPM066FWUG",
         "detect_code": ["7011"],
         "release_versions": ["5"]
@@ -4404,7 +4404,7 @@
         "extra_labels": ["TOSHIBA"],
         "macros": ["__TMPM46B__"],
         "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
-        "device_has": ["USTICKER", "ANALOGIN", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_FC", "SPI", "I2C", "STDIO_MESSAGES", "TRNG", "FLASH", "SLEEP"],
+        "device_has": ["RESET_REASON", "USTICKER", "ANALOGIN", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SERIAL_FC", "SPI", "I2C", "STDIO_MESSAGES", "TRNG", "FLASH", "SLEEP"],
         "device_name": "TMPM46BF10FG",
         "detect_code": ["7013"],
         "release_versions": ["5"],
