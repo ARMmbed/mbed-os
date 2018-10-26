@@ -39,7 +39,7 @@ public:
 
     /** Hostname translation callback for gethostbyname_async.
      *
-     *  Callback will be called after DNS resolution completes or a failure occurs.
+     *  The callback is called after DNS resolution completes, or a failure occurs.
      *
      *  Callback should not take more than 10ms to execute, otherwise it might
      *  prevent underlying thread processing. A portable user of the callback
@@ -60,14 +60,14 @@ public:
      *  If no stack-specific DNS resolution is provided, the hostname
      *  will be resolved using a UDP socket on the stack.
      *
-     *  Call is non-blocking. Result of the DNS operation is returned by the callback.
-     *  If this function returns failure, callback will not be called. If it is successful,
-     *  (IP address was found from DNS cache), callback will be called
-     *  before function returns.
+     *  The call is non-blocking. The result of the DNS operation is returned by the callback.
+     *  If this function returns failure, the callback will not be called. If it is successful,
+     *  (the IP address was found from the DNS cache), the callback will be called
+     *  before the function returns.
      *
      *  @param host     Hostname to resolve.
      *  @param callback Callback that is called to return the result.
-     *  @param version  IP version of address to resolve. NSAPI_UNSPEC indicates
+     *  @param version  IP version of address to resolve. NSAPI_UNSPEC indicates that the
      *                  version is chosen by the stack (defaults to NSAPI_UNSPEC).
      *  @return         NSAPI_ERROR_OK on immediate success,
      *                  negative error code on immediate failure or
@@ -79,9 +79,9 @@ public:
 
     /** Cancel asynchronous hostname translation.
      *
-     *  When translation is cancelled, callback will not be called.
+     *  When translation is canceled, callback is not called.
      *
-     *  @param id       Unique id of the hostname translation operation returned by gethostbyname_async.
+     *  @param id       Unique ID of the hostname translation operation returned by gethostbyname_async.
      *  @return         NSAPI_ERROR_OK on success, negative error code on failure.
      */
     virtual nsapi_error_t gethostbyname_async_cancel(int id) = 0;
