@@ -59,7 +59,7 @@ template<typename T, uint32_t queue_sz>
 class Queue : private mbed::NonCopyable<Queue<T, queue_sz> > {
 public:
     /** Create and initialize a message Queue of objects of the parameterized
-     * type `T` and maximum capacity specified by `queue_sz`
+     * type `T` and maximum capacity specified by `queue_sz`.
      *
      * @note You cannot call this function from ISR context.
     */
