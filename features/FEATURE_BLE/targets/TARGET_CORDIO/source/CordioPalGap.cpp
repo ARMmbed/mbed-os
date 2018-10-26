@@ -334,8 +334,12 @@ ble_error_t Gap::set_address_resolution(
 }
 
 ble_error_t Gap::read_phy(connection_handle_t connection) {
-    DmReadPhy(connection);
-    return BLE_ERROR_NONE;
+    if (is_feature_supported(ControllerSupportedFeatures_t::LE_2M_PHY)
+        || is_feature_supported(ControllerSupportedFeatures_t::LE_CODED_PHY)) {
+        DmReadPhy(connection);
+        return BLE_ERROR_NONE;
+    }
+    return BLE_ERROR_NOT_IMPLEMENTED;
 }
 
 ble_error_t Gap::set_preferred_phys(
