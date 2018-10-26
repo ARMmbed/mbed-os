@@ -7072,7 +7072,8 @@
             "I2C",
             "I2CSLAVE",
             "STDIO_MESSAGES",
-            "PWMOUT"
+            "PWMOUT",
+            "RESET_REASON"
         ],
         "device_name": "TMPM066FWUG",
         "detect_code": ["7011"],
@@ -7093,6 +7094,7 @@
             "PORTINOUT",
             "PORTOUT",
             "PWMOUT",
+            "RESET_REASON",
             "SERIAL",
             "SLEEP",
             "SPI",
@@ -7126,6 +7128,7 @@
             "PORTINOUT",
             "PORTOUT",
             "PWMOUT",
+            "RESET_REASON",
             "SERIAL",
             "SERIAL_FC",
             "SPI",
