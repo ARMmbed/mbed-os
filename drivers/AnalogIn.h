@@ -79,7 +79,7 @@ public:
     /** Read the input voltage, represented as an unsigned short in the range [0x0, 0xFFFF]
      *
      * @returns
-     *   16-bit unsigned short representing the current input voltage, normalised to a 16-bit value
+     *   16-bit unsigned short representing the current input voltage, normalized to a 16-bit value
      */
     unsigned short read_u16()
     {

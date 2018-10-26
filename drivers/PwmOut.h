@@ -71,7 +71,7 @@ public:
         core_util_critical_section_exit();
     }
 
-    /** Set the ouput duty-cycle, specified as a percentage (float)
+    /** Set the output duty-cycle, specified as a percentage (float)
      *
      *  @param value A floating-point value representing the output duty-cycle,
      *    specified as a percentage. The value should lie between

@@ -156,7 +156,7 @@ public:
      */
     void enable_irq();
 
-    /** Disable IRQ. This method depends on hw implementation, might disable one
+    /** Disable IRQ. This method depends on hardware implementation, might disable one
      *  port interrupts. For further information, check gpio_irq_disable().
      */
     void disable_irq();
