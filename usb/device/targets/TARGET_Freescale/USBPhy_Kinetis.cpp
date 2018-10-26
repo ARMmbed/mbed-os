@@ -636,8 +636,11 @@ void USBPhyHw::process()
         uint32_t ev_odd = (USB0->STAT >> 2) & 0x01;
         int phy_ep = (num << 1) | dir;
 
+        bool tx_en = (USB0->ENDPOINT[PHY_TO_LOG(phy_ep)].ENDPT & USB_ENDPT_EPTXEN_MASK) ? true : false;
+        bool rx_en = (USB0->ENDPOINT[PHY_TO_LOG(phy_ep)].ENDPT & USB_ENDPT_EPRXEN_MASK) ? true : false;
+
         // setup packet
-        if ((num == 0) && (TOK_PID((EP_BDT_IDX(num, dir, ev_odd))) == SETUP_TOKEN)) {
+        if (tx_en && (num == 0) && (TOK_PID((EP_BDT_IDX(num, dir, ev_odd))) == SETUP_TOKEN)) {
             setup_suspend = true;
             Data1 |= 0x02 | 0x01; // set DATA1 for TX and RX
             bdt[EP_BDT_IDX(0, TX, EVEN)].info &= ~BD_OWN_MASK;
@@ -648,7 +651,7 @@ void USBPhyHw::process()
 
         } else {
             // OUT packet
-            if (TOK_PID((EP_BDT_IDX(num, dir, ev_odd))) == OUT_TOKEN) {
+            if (rx_en && (TOK_PID((EP_BDT_IDX(num, dir, ev_odd))) == OUT_TOKEN)) {
                 if (num == 0)
                     events->ep0_out();
                 else {
@@ -658,7 +661,7 @@ void USBPhyHw::process()
             }
 
             // IN packet
-            if (TOK_PID((EP_BDT_IDX(num, dir, ev_odd))) == IN_TOKEN) {
+            if (tx_en && (TOK_PID((EP_BDT_IDX(num, dir, ev_odd))) == IN_TOKEN)) {
                 if (num == 0) {
                     events->ep0_in();
                     if (set_addr == 1) {
