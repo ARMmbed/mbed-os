@@ -67,7 +67,7 @@ System should implement mechanism to track number of times the system has auto-r
 
 The below diagram shows overall architecture of crash-reporting implementation.
 
-![System architecture and component interaction](./diagrams/crash-report1.jpg)
+![System architecture and component interaction](./diagrams/crash-report-seq.jpg)
 
 As depicted in the above diagram, when the system gets into fatal error state the information collected by error and fault handlers are saved into RAM space allocated for Crash-Report. This is followed by a auto-reboot triggered from error handler. On reboot the the initialization routine validates the contents of Crash-Report space in RAM. This validation serves two purposes - to validate the captured content itself and also it tells the system if the previous reboot was caused by a fatal error. It then reads this information and calls an application defined callback function passing the crash-report information. The callback is invoked just before the entry to main() and thus the callback implementation may access libraries and other resources as other parts of the system have already initialized(like SDK, HAL etc) or can just capture the error information in application space to be acted upon later.
 
@@ -75,12 +75,14 @@ As depicted in the above diagram, when the system gets into fatal error state th
 
 ### Error information collection including exception context
 
-Current error and exception handling implementation in Mbed OS already collects error and exception context. But currently these data structures are implemented as statically allocated memory locations. With this feature these data structures should be placed in an uninitialized RAM region so that the data is retained after auto-reboot(warm-reset). So, this should be allocated as a dedicated region using linker command file(or in scatter file) for the corresponding target for each toolchain. Also note that this region should be marked as uninitialized region using the right toolchain attributes. For example, for ARM compiler we can define a new section as below:
+Current error and exception handling implementation in Mbed OS already collects error and exception context. But currently these data structures are implemented as statically allocated memory locations. With this feature these data structures should be placed in an uninitialized RAM region so that the data is retained after auto-reboot(warm-reset). So, this should be allocated as a dedicated region using linker command file(or in scatter file) for the corresponding target for each toolchain. Also note that this region should be marked as uninitialized region(not zero initialized) using the right toolchain attributes. For example, for ARM compiler we can define a new section as below:
 ```
-RW_m_crash_data m_crash_report_ram_start EMPTY m_crash_report_ram_size { ; Dedicated Region to store crash report data
+RW_m_crash_data m_crash_report_ram_start EMPTY m_crash_report_ram_size { ; Dedicated Region to store crash report data m_crash_report_ram_size = 256 bytes
 } 
 ```
-Note that the actual location of the data should be carefully chosen without affecting the current usage of other regions such as interrupt table region, flash configuration area etc. The absolute location of this Crash-Report RAM region may also differ for each target.
+Note that the actual location of the data should be carefully chosen without affecting the current usage of other regions such as interrupt table region, flash configuration area etc. The absolute location of this Crash-Report RAM region may also differ for each target. The size of this RAM region should be 256 bytes. And internally the implementation would use the 256 byte region as two sub-areas with 128 bytes each. The upper 128 bytes will be used to store the fault context and the lower 128 bytes for error context, as shown in the diagram below.
+
+![Crash report region](./diagrams/crash-report-region.jpg)
 
 ### Mechanism to auto reboot(also called warm-reset) the system without losing RAM contents where error info is stored
 
