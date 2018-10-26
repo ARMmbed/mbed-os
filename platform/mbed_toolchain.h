@@ -144,6 +144,8 @@
 #ifndef MBED_WEAK
 #if defined(__ICCARM__)
 #define MBED_WEAK __weak
+#elif defined(__MINGW32__)
+#define MBED_WEAK
 #else
 #define MBED_WEAK __attribute__((weak))
 #endif
