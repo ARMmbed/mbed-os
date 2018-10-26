@@ -1291,6 +1291,7 @@
         "detect_code": ["0743"],
         "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
         "device_has_add": ["ANALOGOUT", "CAN", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH", "QSPI"],
+        "bootloader_supported": true,
         "release_versions": ["2", "5"],
         "device_name": "STM32F413ZH"
     },
@@ -1313,6 +1314,7 @@
         "detect_code": ["0743"],
         "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
         "device_has_add": ["ANALOGOUT", "CAN", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
+        "bootloader_supported": true,
         "release_versions": ["2", "5"],
         "device_name": "STM32F413ZH"
     },
