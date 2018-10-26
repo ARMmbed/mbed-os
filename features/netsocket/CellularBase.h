@@ -93,14 +93,14 @@ public:
 
     /** Get the local network mask.
      *
-     *  @return         Null-terminated representation of the local network mask
+     *  @return         Null-terminated representation of the local network mask,
      *                  or null if no network mask has been received.
      */
     virtual const char *get_netmask() = 0;
 
     /** Get the local gateways.
      *
-     *  @return         Null-terminated representation of the local gateway
+     *  @return         Null-terminated representation of the local gateway,
      *                  or null if no network mask has been received.
      */
     virtual const char *get_gateway() = 0;
