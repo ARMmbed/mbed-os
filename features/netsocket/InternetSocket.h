@@ -93,85 +93,27 @@ public:
      */
     nsapi_error_t bind(const char *address, uint16_t port);
 
-    /** Bind the socket to a specific address and port on which to receive
-     *  data. If the IP address is zeroed, only the port is bound.
-     *
-     *  @param address  Local SocketAddress to bind, which includes the address and port.
-     *  @return         0 on success, negative error code on failure (@see nsapi_types.h).
+    /** @copydoc Socket::bind
      */
     virtual nsapi_error_t bind(const SocketAddress &address);
 
-    /** Set blocking or nonblocking mode of the socket.
-     *
-     *  Initially all sockets are in blocking mode. In nonblocking mode,
-     *  blocking operations, such as send/recv/accept, return
-     *  NSAPI_ERROR_WOULD_BLOCK if they cannot continue.
-     *
-     *  @note set_blocking(false) is equivalent to set_timeout(-1) and
-     *  set_blocking(true) is equivalent to set_timeout(0).
-     *
-     *  @param blocking Use true for blocking mode, false for nonblocking mode.
+    /** @copydoc Socket::set_blocking
      */
     virtual void set_blocking(bool blocking);
 
-    /** Set timeout on blocking socket operations.
-     *
-     *  Initially all sockets have unbounded timeouts. NSAPI_ERROR_WOULD_BLOCK
-     *  is returned if a blocking operation takes longer than the specified
-     *  timeout. A timeout of 0 removes the timeout from the socket. A negative
-     *  value give the socket an unbounded timeout.
-     *
-     *  @note set_timeout(0) is equivalent to set_blocking(false) and
-     *  set_timeout(-1) is equivalent to set_blocking(true).
-     *
-     *  @param timeout  Timeout in milliseconds.
+    /** @copydoc Socket::set_timeout
      */
     virtual void set_timeout(int timeout);
 
-    /** Pass stack-specific options to the underlying stack using stack-specific
-     *  level and option names, or request generic options using levels from nsapi_socket_level_t.
-     *
-     *  For unsupported options, NSAPI_ERROR_UNSUPPORTED is returned,
-     *  and the socket is unmodified.
-     *
-     *  @param level    Stack-specific protocol level or nsapi_socket_level_t.
-     *  @param optname  Level-specific option name.
-     *  @param optval   Option value.
-     *  @param optlen   Length of the option value.
-     *  @return         0 on success, negative error code on failure (@see nsapi_types.h).
+    /** @copydoc Socket::setsockopt
      */
     virtual nsapi_error_t setsockopt(int level, int optname, const void *optval, unsigned optlen);
 
-    /** Retrieve stack-specific options from the underlying stack using
-     *  stack-specific level and option names, or request generic options
-     *  using levels from nsapi_socket_level_t.
-     *
-     *  For unsupported options, NSAPI_ERROR_UNSUPPORTED is returned,
-     *  and the socket is unmodified.
-     *
-     *  @param level    Stack-specific protocol level or nsapi_socket_level_t.
-     *  @param optname  Level-specific option name.
-     *  @param optval   Destination for option value.
-     *  @param optlen   Length of the option value.
-     *  @return         0 on success, negative error code on failure (@see nsapi_types.h).
+    /** @copydoc Socket::getsockopt
      */
     virtual nsapi_error_t getsockopt(int level, int optname, void *optval, unsigned *optlen);
 
-    /** Register a callback on state change of the socket.
-     *
-     *  The specified callback is called on state changes, such as when
-     *  the socket can recv/send/accept successfully and when an error
-     *  occurs. The callback may also be called spuriously without a reason.
-     *
-     *  The callback may be called in an interrupt context and should not
-     *  perform expensive operations, such as recv/send calls.
-     *
-     *  @note This is not intended as a replacement for a poll or attach-like
-     *  asynchronous API, but rather as a building block for constructing
-     *  such functionality. The exact timing of when the registered function
-     *  is called is not guaranteed and is susceptible to change.
-     *
-     *  @param func     Function to call on state change.
+    /** @copydoc Socket::sigio
      */
     virtual void sigio(mbed::Callback<void()> func);
 
