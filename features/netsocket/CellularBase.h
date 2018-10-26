@@ -45,13 +45,13 @@ public:
     virtual void set_credentials(const char *apn, const char *uname = 0,
                                  const char *pwd = 0) = 0;
 
-    /** Set the pin code for SIM card.
+    /** Set the PIN code for SIM card.
      *
      *  @param sim_pin      PIN for the SIM card.
      */
     virtual void set_sim_pin(const char *sim_pin) = 0;
 
-    /** Attempt to connect to a cellular network with a pin and credentials.
+    /** Attempt to connect to a cellular network with a PIN and credentials.
      *
      *  @param sim_pin     PIN for the SIM card.
      *  @param apn         Access point name (optional).
@@ -65,7 +65,7 @@ public:
 
     /** Attempt to connect to a cellular network.
      *
-     *  If the SIM requires a PIN, and it is invalid or is not set, NSAPI_ERROR_AUTH_ERROR is returned.
+     *  If the SIM requires a PIN, and it is invalid or not set, NSAPI_ERROR_AUTH_ERROR is returned.
      *
      *  @return         NSAPI_ERROR_OK on success, or negative error code on failure.
      */
@@ -77,16 +77,16 @@ public:
      */
     virtual nsapi_error_t disconnect() = 0;
 
-    /** Check if the connection is currently established or not.
+    /** Check if the connection is currently established.
      *
-     * @return True if the cellular module have successfully acquired a carrier and is
-     *         connected to an external packet data network using PPP, false otherwise.
+     * @return `true` if the cellular module have successfully acquired a carrier and is
+     *         connected to an external packet data network using PPP, `false` otherwise.
      */
     virtual bool is_connected() = 0;
 
     /** Get the local IP address.
      *
-     *  @return         Null-terminated representation of the local IP address
+     *  @return         Null-terminated representation of the local IP address,
      *                  or null if no IP address has been received.
      */
     virtual const char *get_ip_address() = 0;
@@ -118,10 +118,10 @@ protected:
     /** Get the target's default cellular interface.
      *
      * This is provided as a weak method so targets can override. The
-     * default implementation configures and returns the OnBoardModemInterface
+     * default implementation configures and returns the OnBoardModemInterface,
      * if available.
      *
-     * @return pointer to interface, if any
+     * @return Pointer to interface, if any.
      */
     static CellularBase *get_target_default_instance();
 
