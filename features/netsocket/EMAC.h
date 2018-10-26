@@ -26,7 +26,7 @@
 
 /**
  * This interface should be used to abstract low level access to networking hardware
- * All operations receive a `void *` hw pointer which an emac device provides when
+ * All operations receive a `void *` HW pointer which an emac device provides when
  * it is registered with a stack.
  */
 class EMAC {
@@ -107,7 +107,7 @@ public:
      * Provided address has to be of correct size, see @a get_hwaddr_size
      *
      * Called to set the MAC address to actually use - if @a get_hwaddr is provided
-     * the stack would normally use that, but it could be overridden, eg for test
+     * the stack would normally use that, but it could be overridden, e.g. for test
      * purposes.
      *
      * @param addr Address to be set
@@ -179,7 +179,7 @@ public:
 
 
 /** These need to be defined by targets wishing to provide an Ethernet driver using EMAC interface. It will
- *  be used by the EMACInterface class's default constructor to initialise the networking subsystem.
+ *  be used by the EMACInterface class's default constructor to initialize the networking subsystem.
  */
 //extern const emac_interface_ops_t mbed_emac_eth_ops_default;
 //extern void *mbed_emac_eth_hw_default;

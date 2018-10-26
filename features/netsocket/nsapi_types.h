@@ -97,7 +97,7 @@ typedef signed int nsapi_error_t;
  */
 typedef unsigned int nsapi_size_t;
 
-/** Type used to represent either a size or error pased through sockets
+/** Type used to represent either a size or error passed through sockets
  *
  *  A valid nsapi_size_or_error_t is either a non-negative size or a
  *  negative error code from the nsapi_error_t

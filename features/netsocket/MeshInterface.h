@@ -37,7 +37,7 @@ public:
     /** Get the default Mesh interface.
      *
      * This is provided as a weak method so applications can override.
-     * Default behaviour is to get the target's default interface, if
+     * Default behavior is to get the target's default interface, if
      * any.
      *
      * @return pointer to interface, if any.
