@@ -227,7 +227,7 @@ typedef enum {
     SPI_MOSI    = PTC6,
     SPI_MISO    = PTC7,
     SPI_SCK     = PTC5,
-    SPI_PERSISTENT_MEM_CS = PTC4,
+    SPI_CS      = PTC4,
 
     DAC0_OUT = 0xFEFE, /* DAC does not have Pin Name in RM */
     // Not connected

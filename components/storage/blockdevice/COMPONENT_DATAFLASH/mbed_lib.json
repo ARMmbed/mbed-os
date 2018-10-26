@@ -1,10 +1,10 @@
 {
     "name": "dataflash",
     "config": {
-        "SPI_MOSI": "NC",
-        "SPI_MISO": "NC",
-        "SPI_CLK":  "NC",
-        "SPI_CS":   "NC",
+        "SPI_MOSI": "SPI_MOSI",
+        "SPI_MISO": "SPI_MISO",
+        "SPI_CLK":  "SPI_SCK",
+        "SPI_CS":   "SPI_CS",
         "SPI_FREQ": "40000000",
         "binary-size": {
             "help": "Configure device to use binary address space.",

@@ -1,11 +1,10 @@
 {
     "name": "sd",
     "config": {
-        "SPI_CS": "NC",
-        "SPI_MOSI": "NC",
-        "SPI_MISO": "NC",
-        "SPI_CLK": "NC",
-        "DEVICE_SPI": 1,
+        "SPI_CS": "SPI_CS",
+        "SPI_MOSI": "SPI_MOSI",
+        "SPI_MISO": "SPI_MISO",
+        "SPI_CLK": "SPI_SCK",
         "FSFAT_SDCARD_INSTALLED": 1,
         "CMD_TIMEOUT": 10000,
         "CMD0_IDLE_STATE_RETRIES": 5,
@@ -59,12 +58,6 @@
              "SPI_MISO": "PTD7",
              "SPI_CLK":  "PTD5",
              "SPI_CS":   "PTD4"
-        },
-        "K64F": {
-             "SPI_MOSI": "PTE3",
-             "SPI_MISO": "PTE1",
-             "SPI_CLK":  "PTE2",
-             "SPI_CS":   "PTE4"
         },
         "K66F": {
              "SPI_MOSI": "PTE3",
@@ -216,5 +209,6 @@
              "SPI_CLK":  "PC_10",
              "SPI_CS":   "PA_15"
         }
+        
     }
 }
