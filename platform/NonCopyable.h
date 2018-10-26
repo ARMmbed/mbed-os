@@ -101,8 +101,8 @@ namespace mbed {
  * @endcode
  * 
  * Although manually declaring private copy constructor and assignment functions 
- * works, it is not ideal because these declarations are usually easy to forget,  
- * not immediately visible and may be obscure for uninformed programmers.
+ * works, it is not ideal. These declarations are usually easy to forget,  
+ * not immediately visible, and may be obscure to uninformed programmers.
  * 
  * Using the NonCopyable class reduces the boilerplate required and expresses 
  * the intent because class inheritance appears right after the class name
@@ -159,7 +159,7 @@ namespace mbed {
  *
  * @tparam T The type that should be made noncopyable. 
  *
- * @note Compile time errors are disabled if you use the develop or the release profile.
+ * @note Compile time errors are disabled if you use the develop or release profile.
  * To override this behavior and force compile time errors in all profiles,
  * set the configuration parameter "platform.force-non-copyable-error" to true.
  */
