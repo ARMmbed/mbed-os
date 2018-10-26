@@ -32,15 +32,7 @@ void LowPowerTickerWrapper::irq_handler(ticker_irq_handler_type handler)
 {
     core_util_critical_section_enter();
 
-    if (_suspended) {
-        if (handler) {
-            handler(&data);
-        }
-        core_util_critical_section_exit();
-        return;
-    }
-
-    if (_pending_fire_now || _match_check(_intf->read())) {
+    if (_pending_fire_now || _match_check(_intf->read()) || _suspended) {
         _timeout.detach();
         _pending_timeout = false;
         _pending_match = false;
@@ -77,6 +69,14 @@ void LowPowerTickerWrapper::suspend()
 void LowPowerTickerWrapper::resume()
 {
     core_util_critical_section_enter();
+
+    // Wait until rescheduling is allowed
+    while (!_set_interrupt_allowed) {
+        timestamp_t current = _intf->read();
+        if (((current - _last_actual_set_interrupt) & _mask) >= _min_count_between_writes) {
+            _set_interrupt_allowed  = true;
+        }
+    }
 
     _suspended = false;
 
@@ -118,7 +118,7 @@ uint32_t LowPowerTickerWrapper::read()
     core_util_critical_section_enter();
 
     timestamp_t current = _intf->read();
-    if (_match_check(current)) {
+    if (!_suspended && _match_check(current)) {
         _intf->fire_interrupt();
     }
 
@@ -133,7 +133,13 @@ void LowPowerTickerWrapper::set_interrupt(timestamp_t timestamp)
     _last_set_interrupt = _intf->read();
     _cur_match_time = timestamp;
     _pending_match = true;
-    _schedule_match(_last_set_interrupt);
+    if (!_suspended) {
+        _schedule_match(_last_set_interrupt);
+    } else {
+        _intf->set_interrupt(timestamp);
+        _last_actual_set_interrupt = _last_set_interrupt;
+        _set_interrupt_allowed = false;
+    }
 
     core_util_critical_section_exit();
 }
@@ -277,7 +283,7 @@ void LowPowerTickerWrapper::_schedule_match(timestamp_t current)
         _intf->set_interrupt(_cur_match_time);
         current = _intf->read();
         _last_actual_set_interrupt = current;
-        _set_interrupt_allowed  = false;
+        _set_interrupt_allowed = false;
 
         // Check for overflow
         uint32_t new_cycles_until_match = (_cur_match_time - current) & _mask;

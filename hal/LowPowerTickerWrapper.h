@@ -74,6 +74,9 @@ public:
      *
      * This stops to wrapper layer from using the microsecond ticker.
      * This should be called before using the low power ticker APIs directly.
+     *
+     * @warning: Make sure to suspend the LP ticker first (call ticker_suspend()),
+     * otherwise the behavior is undefined.
      */
     void suspend();
 
