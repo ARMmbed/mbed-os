@@ -52,26 +52,26 @@ public:
      */
     typedef mbed::Callback<void (nsapi_error_t result, SocketAddress *address)> hostbyname_cb_t;
 
-    /** Translate a hostname to an IP address (asynchronous)
+    /** Translate a hostname to an IP address (asynchronous).
      *
      *  The hostname may be either a domain name or an IP address. If the
      *  hostname is an IP address, no network transactions will be performed.
      *
      *  If no stack-specific DNS resolution is provided, the hostname
-     *  will be resolve using a UDP socket on the stack.
+     *  will be resolved using a UDP socket on the stack.
      *
      *  Call is non-blocking. Result of the DNS operation is returned by the callback.
-     *  If this function returns failure, callback will not be called. In case result
-     *  is success (IP address was found from DNS cache), callback will be called
+     *  If this function returns failure, callback will not be called. If it is successful,
+     *  (IP address was found from DNS cache), callback will be called
      *  before function returns.
      *
      *  @param host     Hostname to resolve.
      *  @param callback Callback that is called to return the result.
-     *  @param version  IP version of address to resolve, NSAPI_UNSPEC indicates
+     *  @param version  IP version of address to resolve. NSAPI_UNSPEC indicates
      *                  version is chosen by the stack (defaults to NSAPI_UNSPEC).
      *  @return         NSAPI_ERROR_OK on immediate success,
      *                  negative error code on immediate failure or
-     *                  a positive unique id that represents the hostname translation operation
+     *                  a positive unique ID that represents the hostname translation operation
      *                  and can be passed to cancel.
      */
     virtual nsapi_value_or_error_t gethostbyname_async(const char *host, hostbyname_cb_t callback,
@@ -86,7 +86,7 @@ public:
      */
     virtual nsapi_error_t gethostbyname_async_cancel(int id) = 0;
 
-    /** Add a domain name server to list of servers to query
+    /** Add a domain name server to list of servers to query.
      *
      *  @param address  DNS server host address.
      *  @return         NSAPI_ERROR_OK on success, negative error code on failure.
