@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #include "reset_reason_api.h"
 
 #ifdef DEVICE_RESET_REASON
@@ -92,3 +93,4 @@ static uint8_t bit_pos(uint32_t reg)
 }
 
 #endif // DEVICE_RESET_REASON
+

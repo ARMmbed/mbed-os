@@ -126,3 +126,4 @@ static uint8_t bit_pos(uint32_t reg)
 }
 
 #endif // DEVICE_RESET_REASON
+
