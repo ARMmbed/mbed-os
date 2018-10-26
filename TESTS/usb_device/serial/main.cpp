@@ -60,12 +60,6 @@
 // to handle the reconnect operation correctly.
 #define USB_DISCONNECT_DELAY_MS 1
 
-// Despite having ECHO and ECHOCTL POSIX lflags disabled by default by
-// pyserial, a delay is needed for host to properly handle data received
-// from USB serial/CDC device.
-// With no delay host would echo 0x00-0x31 characters prefixed with '^'.
-#define TX_DELAY_MS 10
-
 #define LINE_CODING_STRLEN 13 // 6 + 2 + 1 + 1 + 3 * comma
 
 #define USB_DEV_SN_LEN (32) // 32 hex digit UUID
@@ -373,7 +367,6 @@ void test_cdc_rx_single_bytes_concurrent()
     usb_cdc.connect();
     greentea_send_kv(MSG_KEY_SEND_BYTES_SINGLE, MSG_VALUE_DUMMY);
     usb_cdc.wait_ready();
-    wait_ms(TX_DELAY_MS);
     Thread tx_thread;
     event_flags.set(EF_SEND);
     tx_thread.start(mbed::callback(tx_thread_fun, &usb_cdc));
@@ -443,7 +436,6 @@ void test_cdc_rx_multiple_bytes_concurrent()
     usb_cdc.connect();
     greentea_send_kv(MSG_KEY_SEND_BYTES_MULTIPLE, HOST_RX_BUFF_SIZE_RATIO);
     usb_cdc.wait_ready();
-    wait_ms(TX_DELAY_MS);
     Thread tx_thread;
     event_flags.set(EF_SEND);
     tx_thread.start(mbed::callback(tx_thread_fun, &usb_cdc));
@@ -485,7 +477,6 @@ void test_cdc_loopback()
     usb_cdc.connect();
     greentea_send_kv(MSG_KEY_LOOPBACK, MSG_VALUE_DUMMY);
     usb_cdc.wait_ready();
-    wait_ms(TX_DELAY_MS);
     uint8_t rx_buff, tx_buff;
     for (int i = 0; i < CDC_LOOPBACK_REPS; i++) {
         tx_buff = (uint8_t)(rand() % 0x100);
@@ -660,10 +651,7 @@ void test_serial_printf_scanf()
     TestUSBSerial usb_serial(USB_SERIAL_VID, USB_SERIAL_PID, 1, usb_dev_sn);
     usb_serial.connect();
     greentea_send_kv(MSG_KEY_LOOPBACK, MSG_VALUE_DUMMY);
-    while (!usb_serial.connected()) {
-        wait_ms(1);
-    }
-    wait_ms(TX_DELAY_MS);
+    usb_serial.wait_ready();
     static const char fmt[] = "Formatted\nstring %i.";
     int tx_val, rx_val, rc;
     for (int i = 0; i < SERIAL_LOOPBACK_REPS; i++) {
@@ -704,10 +692,7 @@ void test_serial_line_coding_change()
     TestUSBSerial usb_serial(USB_SERIAL_VID, USB_SERIAL_PID, 1, usb_dev_sn);
     usb_serial.connect();
     greentea_send_kv(MSG_KEY_CHANGE_LINE_CODING, MSG_VALUE_DUMMY);
-    while (!usb_serial.connected()) {
-        wait_ms(1);
-    }
-    wait_ms(TX_DELAY_MS);
+    usb_serial.wait_ready();
     usb_serial.attach(line_coding_changed_cb);
     size_t num_line_codings = sizeof test_codings / sizeof test_codings[0];
     line_coding_t *lc_prev = &default_lc;
