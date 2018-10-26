@@ -194,7 +194,7 @@ public:
      */
     virtual void sigio(mbed::Callback<void()> func) = 0;
 
-    /*  Set socket options.
+    /** Set socket options.
      *
      *  setsockopt() allows an application to pass stack-specific options
      *  to the underlying stack using stack-specific level and option names,
@@ -211,7 +211,7 @@ public:
      */
     virtual nsapi_error_t setsockopt(int level, int optname, const void *optval, unsigned optlen) = 0;
 
-    /*  Get socket options.
+    /** Get socket options.
      *
      *  getsockopt() allows an application to retrieve stack-specific options
      *  from the underlying stack using stack-specific level and option names,
