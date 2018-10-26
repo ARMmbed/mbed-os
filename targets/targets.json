@@ -4493,7 +4493,7 @@
         "extra_labels": ["TOSHIBA"],
         "macros": ["__TMPM3H6__"],
         "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
-        "device_has": ["USTICKER", "ANALOGIN", "ANALOGOUT", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "I2C", "I2CSLAVE", "STDIO_MESSAGES"],
+        "device_has": ["RESET_REASON", "USTICKER", "ANALOGIN", "ANALOGOUT", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SLEEP", "SPI", "I2C", "I2CSLAVE", "STDIO_MESSAGES"],
         "device_name": "TMPM3H6FWFG",
         "detect_code": ["7012"],
         "release_versions": ["5"]
@@ -4505,7 +4505,7 @@
         "extra_labels": ["TOSHIBA"],
         "macros": ["__TMPM4G9__"],
         "supported_toolchains": ["GCC_ARM", "ARM", "IAR"],
-        "device_has": ["ANALOGIN", "ANALOGOUT", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SPI", "I2C", "I2CSLAVE", "STDIO_MESSAGES", "FLASH", "SLEEP", "USTICKER"], 
+        "device_has": ["RESET_REASON", "ANALOGIN", "ANALOGOUT", "INTERRUPTIN", "PORTIN", "PORTINOUT", "PORTOUT", "PWMOUT", "SERIAL", "SPI", "I2C", "I2CSLAVE", "STDIO_MESSAGES", "FLASH", "SLEEP", "USTICKER"], 
         "device_name": "TMPM4G9F15FG",
         "detect_code": ["7016"],
         "release_versions": ["5"],
