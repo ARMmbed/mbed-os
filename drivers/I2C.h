@@ -163,7 +163,7 @@ public:
      * This function locks the deep sleep until any event has occurred
      *
      * @param address   8/10 bit I2C slave address
-     * @param tx_buffer The TX buffer with data to be transfered
+     * @param tx_buffer The TX buffer with data to be transferred
      * @param tx_length The length of TX buffer in bytes
      * @param rx_buffer The RX buffer which is used for received data
      * @param rx_length The length of RX buffer in bytes
