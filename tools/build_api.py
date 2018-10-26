@@ -17,7 +17,6 @@ limitations under the License.
 from __future__ import print_function, division, absolute_import
 
 import re
-import tempfile
 import datetime
 import uuid
 import struct
