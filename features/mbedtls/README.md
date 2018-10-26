@@ -39,7 +39,7 @@ The Mbed TLS configuration file would be specified in the `.json` file as:
         "MBEDTLS_PEM_WRITE_C",
         "MBEDTLS_CMAC_C"
     ]
-    ....remainder of file...
+    [remainder of file]
 }
 ```
 
