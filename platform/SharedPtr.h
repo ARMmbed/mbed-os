@@ -289,6 +289,8 @@ bool operator!= (U lhs, const SharedPtr<T> &rhs)
 
 } /* namespace mbed */
 
+#ifndef MBED_NO_GLOBAL_USING_DIRECTIVE
 using mbed::SharedPtr;
+#endif
 
 #endif // __SHAREDPTR_H__
