@@ -1803,7 +1803,7 @@
         "supported_toolchains": ["ARM", "uARM", "GCC_ARM"],
         "program_cycle_s": 2,
         "extra_labels_add": ["STM32F4", "STM32F407", "STM32F407xG", "STM32F407VG"],
-        "device_has_add": ["ANALOGOUT"],
+        "device_has_add": ["ANALOGOUT", "TRNG"],
         "release_versions": ["2"],
         "device_name": "STM32F407VG"
     },
@@ -1915,7 +1915,7 @@
         },
         "macros_add": ["USB_STM_HAL"],
         "overrides": {"lse_available": 0},
-        "device_has_add": ["ANALOGOUT"],
+        "device_has_add": ["ANALOGOUT", "TRNG"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F407VG"
     },
