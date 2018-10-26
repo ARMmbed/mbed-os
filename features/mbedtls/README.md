@@ -1,12 +1,10 @@
 ## README for Mbed TLS
 
-Mbed TLS for Mbed OS
---------------------
+### Mbed TLS for Mbed OS
 
 This edition of Mbed TLS has been adapted for Mbed OS and imported from its standalone release, which you can find on [GitHub](https://github.com/ARMmbed/mbedtls). This edition of Mbed TLS does not include the test code or scripts used in the development of the library. You can find these in the standalone release.
 
-Getting started
----------------
+### Getting started
 
 Several example programs are available that demonstrate Mbed TLS with Mbed OS. These can help you become familiar with the library:
 
@@ -20,8 +18,7 @@ Several example programs are available that demonstrate Mbed TLS with Mbed OS. T
 
 These examples are fully integrated into Mbed OS. Each of them comes with complete usage instructions as a `README.md` file.
 
-Configuring Mbed TLS features
------------------------------
+### Configuring Mbed TLS features
 
 With Mbed TLS, you can disable any unneeded features during compilation for a particular project. The default configuration enables widely used features of the TLS protocol, which meets the needs of most projects. It also disables all older and less common features to minimize the code footprint.
 
@@ -83,12 +80,10 @@ Although the two editions share the same code base, there are differences, mainl
 * The following components of Mbed TLS are disabled in the Mbed OS edition: `net_sockets.c` and `timing.c`. This is because Mbed OS includes its own equivalents.
 
 ### Help and support
-----------------
 
 For further documentation and help, you can visit the [Mbed TLS website](https://tls.mbed.org/), which contains full documentation of the library, including function-by-function descriptions, knowledge base articles and blogs. Additionally, you can join our [support forum](https://forums.mbed.com/c/mbed-tls) for questions to the community or to help others.
 
-Contributing to the project
----------------------------
+### Contributing to the project
 
 We are happy to accept bug reports and contributions from the community. There are some requirements to integrate contributions:
 
