@@ -258,7 +258,7 @@ public:
      *  This API is used to perform final computation to get correct CRC value.
      *
      *  @param crc  CRC result
-     *  @return  0  on success or a negative in case of failure
+     *  @return  0  on success or a negative in case of failure.
      */
     int32_t compute_partial_stop(uint32_t *crc)
     {
