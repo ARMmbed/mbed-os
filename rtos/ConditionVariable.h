@@ -90,7 +90,7 @@ struct Waiter;
  * Mutex mutex;
  * ConditionVariable cv(mutex);
  *
- * // These variables are protected by locking mutex.
+ * // These variables are protected by locking the mutex.
  * uint32_t work_count = 0;
  * bool done = false;
  *
@@ -123,7 +123,7 @@ struct Waiter;
  *     // Acquire lock on mutex before modifying variables and notifying.
  *     mutex.lock();
  *
- *     // Change count and notify waiters of this.
+ *     // Change count and notify waiters.
  *     work_count++;
  *     printf("Main thread: Set count to: %lu\r\n", work_count);
  *     printf("Main thread: Notifying worker thread\r\n");
@@ -195,7 +195,7 @@ public:
      * reached.
      *
      * @param   millisec  Absolute end time referenced to `Kernel::get_ms_count()`
-     * @return  True if a timeout occurred, false otherwise.
+     * @return  `true` if a timeout occurred, `false` otherwise.
      *
      * @note - The thread calling this function must be the owner of the
      * ConditionVariable's mutex, and it must be locked exactly once.
@@ -236,7 +236,7 @@ public:
      * specified by the millisec parameter is reached.
      *
      * @param   millisec  Timeout value or osWaitForever in case of no timeout.
-     * @return  True if a timeout occurred, false otherwise.
+     * @return  `true` if a timeout occurred, `false` otherwise.
      *
      * @note - The thread calling this function must be the owner of the
      * ConditionVariable's mutex, and it must be locked exactly once.
