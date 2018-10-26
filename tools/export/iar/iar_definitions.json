@@ -335,10 +335,5 @@
         "GBECoreSlave": 39,
         "FPU2": 6,
         "GFPUCoreSlave2": 39
-    },
-    "TMPM3HQFDFG":{
-        "OGChipSelectEditMenu": "TMPM3HQFDFG\tToshiba TMPM3HQFDFG",
-        "GFPUCoreSlave": 25,
-        "GBECoreSlave": 25
     }
 }
