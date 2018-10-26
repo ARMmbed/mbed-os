@@ -53,32 +53,33 @@ struct Waiter;
  * - Acquire a lock on the mutex used to construct the condition variable.
  * - Execute `notify_one` or `notify_all` on the condition variable.
  *
- * #### Defined behavior
- * - All threads waiting on the condition variable wake when
+ * All threads waiting on the condition variable wake when
  *   `ConditionVariable::notify_all` is called.
- * - At least one thread waiting on the condition variable wakes
+ * At least one thread waiting on the condition variable wakes
  *   when `ConditionVariable::notify_one` is called.
- * - While a thread is waiting for notification of a
- *   ConditionVariable, it releases the lock held on the mutex.
- * - The ConditionVariable reacquires the mutex lock before exiting the wait
+ * 
+ * While a thread is waiting for notification of a
+ *   ConditionVariable, it releases the lock held on the mutex. 
+ * The ConditionVariable reacquires the mutex lock before exiting the wait
  *   function.
  *
- * #### Undefined behavior
+ * #### Unspecified behavior
  * - The thread that is unblocked on `ConditionVariable::notify_one` is
- *   undefined if there are multiple waiters.
+ *   unspecified if there are multiple waiters.
+ * - When `ConditionVariable::notify_one` or `ConditionVariable::notify_all` is
+ *   called and there are one or more waiters, and one or more threads
+ *   attempting to acquire the condition variable's mutex, the order in which the mutex is
+ *   acquired is unspecified.
+ * - Spurious notifications (not triggered by the application) can occur.
+ *
+ * #### Undefined behavior
  * - Calling wait if the mutex is not locked by the current thread is undefined
  *   behavior.
  * - The order in which waiting threads acquire the condition variable's
  *   mutex after `ConditionVariable::notify_all` is called is undefined.
- * - When `ConditionVariable::notify_one` or `ConditionVariable::notify_all` is
- *   called and there are one or more waiters, and one or more threads
- *   attempting to acquire the condition variable's mutex, the order in which the mutex is
- *   acquired is undefined.
  * - The behavior of `ConditionVariable::wait` and `ConditionVariable::wait_for`
  *   is undefined if the condition variable's mutex is locked more than once by
  *   the calling thread.
- * - Spurious notifications (not triggered by the application) can occur,
- *   and it is not defined when these occur.
  *
  * @note Synchronization level: Thread safe
  *
