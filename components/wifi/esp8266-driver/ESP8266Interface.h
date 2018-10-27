@@ -153,36 +153,12 @@ public:
      */
     using NetworkInterface::add_dns_server;
 
-    /** Set socket options
-     *
-     *  The setsockopt allow an application to pass stack-specific hints
-     *  to the underlying stack. For unsupported options,
-     *  NSAPI_ERROR_UNSUPPORTED is returned and the socket is unmodified.
-     *
-     *  @param handle   Socket handle
-     *  @param level    Stack-specific protocol level
-     *  @param optname  Stack-specific option identifier
-     *  @param optval   Option value
-     *  @param optlen   Length of the option value
-     *  @return         0 on success, negative error code on failure
+    /** @copydoc NetworkStack::setsockopt
      */
     virtual nsapi_error_t setsockopt(nsapi_socket_t handle, int level,
             int optname, const void *optval, unsigned optlen);
 
-    /** Get socket options
-     *
-     *  getsockopt allows an application to retrieve stack-specific options
-     *  from the underlying stack using stack-specific level and option names,
-     *  or to request generic options using levels from nsapi_socket_level_t.
-     *
-     *  For unsupported options, NSAPI_ERROR_UNSUPPORTED is returned
-     *  and the socket is unmodified.
-     *
-     *  @param level    Stack-specific protocol level or nsapi_socket_level_t
-     *  @param optname  Level-specific option name
-     *  @param optval   Destination for option value
-     *  @param optlen   Length of the option value
-     *  @return         0 on success, negative error code on failure
+    /** @copydoc NetworkStack::getsockopt
      */
     virtual nsapi_error_t getsockopt(nsapi_socket_t handle, int level, int optname,
             void *optval, unsigned *optlen);

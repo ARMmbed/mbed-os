@@ -175,7 +175,7 @@ public:
      *
      *  CRC data if not available fully, CRC can be computed in parts with available data.
      *
-     *  In case of hardware, intermediate values and states are saved by hardware and mutex
+     *  In case of hardware, intermediate values and states are saved by hardware. Mutex
      *  locking is used to serialize access to hardware CRC.
      *
      *  In case of software CRC, previous CRC output should be passed as argument to the
@@ -217,7 +217,7 @@ public:
         return status;
     }
 
-    /** Compute partial start, indicate start of partial computation
+    /** Compute partial start, indicate start of partial computation.
      *
      *  This API should be called before performing any partial computation
      *  with compute_partial API.
@@ -257,6 +257,7 @@ public:
      *  This API is used to perform final computation to get correct CRC value.
      *
      *  @param crc  CRC result
+     *  @return  0  on success or a negative in case of failure.
      */
     int32_t compute_partial_stop(uint32_t *crc)
     {
@@ -283,7 +284,7 @@ public:
         return 0;
     }
 
-    /** Get the current CRC polynomial
+    /** Get the current CRC polynomial.
      *
      * @return  Polynomial value
      */
@@ -309,7 +310,7 @@ private:
     uint32_t *_crc_table;
     CrcMode _mode;
 
-    /** Acquire exclusive access to CRC hardware/software
+    /** Acquire exclusive access to CRC hardware/software.
      */
     void lock()
     {
@@ -320,7 +321,7 @@ private:
 #endif
     }
 
-    /** Release exclusive access to CRC hardware/software
+    /** Release exclusive access to CRC hardware/software.
      */
     virtual void unlock()
     {
@@ -331,7 +332,7 @@ private:
 #endif
     }
 
-    /** Get the current CRC data size
+    /** Get the current CRC data size.
      *
      * @return  CRC data size in bytes
      */
@@ -340,7 +341,7 @@ private:
         return (width <= 8 ? 1 : (width <= 16 ? 2 : 4));
     }
 
-    /** Get the top bit of current CRC
+    /** Get the top bit of current CRC.
      *
      * @return  Top bit is set high for respective data width of current CRC
      *          Top bit for CRC width less then 8 bits will be set as 8th bit.
@@ -350,7 +351,7 @@ private:
         return (width < 8 ? (1u << 7) : (uint32_t)(1ul << (width - 1)));
     }
 
-    /** Get the CRC data mask
+    /** Get the CRC data mask.
      *
      * @return  CRC data mask is generated based on current CRC width
      */
@@ -359,7 +360,7 @@ private:
         return (width < 8 ? ((1u << 8) - 1) : (uint32_t)((uint64_t)(1ull << width) - 1));
     }
 
-    /** Final value of CRC is reflected
+    /** Final value of CRC is reflected.
      *
      * @param  data final crc value, which should be reflected
      * @return  Reflected CRC value
@@ -382,7 +383,7 @@ private:
         }
     }
 
-    /** Data bytes are reflected
+    /** Data bytes are reflected.
      *
      * @param  data value to be reflected
      * @return  Reflected data value
@@ -404,7 +405,7 @@ private:
         }
     }
 
-    /** Bitwise CRC computation
+    /** Bitwise CRC computation.
      *
      * @param  buffer  data buffer
      * @param  size  size of the data
@@ -448,7 +449,7 @@ private:
         return 0;
     }
 
-    /** CRC computation using ROM tables
+    /** CRC computation using ROM tables.
     *
     * @param  buffer  data buffer
     * @param  size  size of the data
@@ -493,7 +494,7 @@ private:
         return 0;
     }
 
-    /** Constructor init called from all specialized cases of constructor
+    /** Constructor init called from all specialized cases of constructor.
      *  Note: All construtor common code should be in this function.
      */
     void mbed_crc_ctor(void)
