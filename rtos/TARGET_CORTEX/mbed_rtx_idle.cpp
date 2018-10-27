@@ -93,6 +93,13 @@ uint32_t OS_Tick_GetInterval(void)
 static void default_idle_hook(void)
 {
     uint32_t ticks_to_sleep = osKernelSuspend();
+    const bool block_deep_sleep = ticks_to_sleep <= MBED_CONF_TARGET_DEEP_SLEEP_LATENCY;
+
+    if (block_deep_sleep) {
+        sleep_manager_lock_deep_sleep();
+    } else {
+        ticks_to_sleep -= MBED_CONF_TARGET_DEEP_SLEEP_LATENCY;
+    }
     os_timer->suspend(ticks_to_sleep);
 
     bool event_pending = false;
@@ -109,6 +116,11 @@ static void default_idle_hook(void)
         // Ensure interrupts get a chance to fire
         __ISB();
     }
+
+    if (block_deep_sleep) {
+        sleep_manager_unlock_deep_sleep();
+    }
+
     osKernelResume(os_timer->resume());
 }
 

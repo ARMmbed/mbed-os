@@ -21,6 +21,10 @@
                 "help": "Default network interface type. Typical options: null, ETHERNET, WIFI, CELLULAR, MESH",
                 "value": null
             },
+            "deep-sleep-latency": {
+                "help": "Time in ms required to go to and wake up from deep sleep (max 10)",
+                "value": 0
+            },
             "boot-stack-size": {
                 "help": "Define the boot stack size in bytes. This value must be a multiple of 8",
                 "value": "0x1000"
