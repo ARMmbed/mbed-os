@@ -30,14 +30,16 @@ namespace mbed {
 #elif TARGET_MTB_MTS_DRAGONFLY
 #define CELLULAR_DEVICE TELIT_HE910
 #elif TARGET_UBLOX_C030
-#ifdef TARGET_UBLOX_C030_N211
+#ifdef TARGET_UBLOX_C030_N211 || TARGET_UBLOX_C030_R410M
 #define CELLULAR_DEVICE UBLOX_AT
 #else
 #define CELLULAR_DEVICE UBLOX_PPP
 #endif
 #elif TARGET_UBLOX_C027
 #define CELLULAR_DEVICE UBLOX_PPP
-#else
+#elif TARGET_MTS_DRAGONFLY_L471QG
+#define CELLULAR_DEVICE SARA4_PPP
+//#else
 //#error Cellular target not defined, see cellular/targets.h
 //#define CELLULAR_TARGET <target-modem>
 //#define MDMTXD <pin-name>

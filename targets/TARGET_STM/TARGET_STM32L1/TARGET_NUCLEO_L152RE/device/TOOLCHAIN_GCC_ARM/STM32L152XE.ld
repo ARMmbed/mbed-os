@@ -3,9 +3,10 @@ MEMORY
 {
   /* 512KB FLASH, 80KB RAM, Reserve up till 0x13C. There are 0x73 vectors = 292
    * bytes (0x124) in RAM. But all GCC scripts seem to require BootRAM @0x138
+   * 8-byte aligned(0x13C) = 0x140
    */
   FLASH (rx) : ORIGIN = 0x08000000, LENGTH = 512k
-  RAM (rwx) : ORIGIN = 0x2000013C, LENGTH = 0x14000-0x13C
+  RAM (rwx) : ORIGIN = 0x20000140, LENGTH = 0x14000-0x140
 }
 
 /* Linker script to place sections and symbol values. Should be used together
@@ -87,13 +88,13 @@ SECTIONS
         *(vtable)
         *(.data*)
 
-        . = ALIGN(4);
+        . = ALIGN(8);
         /* preinit data */
         PROVIDE_HIDDEN (__preinit_array_start = .);
         KEEP(*(.preinit_array))
         PROVIDE_HIDDEN (__preinit_array_end = .);
 
-        . = ALIGN(4);
+        . = ALIGN(8);
         /* init data */
         PROVIDE_HIDDEN (__init_array_start = .);
         KEEP(*(SORT(.init_array.*)))
@@ -101,7 +102,7 @@ SECTIONS
         PROVIDE_HIDDEN (__init_array_end = .);
 
 
-        . = ALIGN(4);
+        . = ALIGN(8);
         /* finit data */
         PROVIDE_HIDDEN (__fini_array_start = .);
         KEEP(*(SORT(.fini_array.*)))
@@ -109,7 +110,7 @@ SECTIONS
         PROVIDE_HIDDEN (__fini_array_end = .);
 
         KEEP(*(.jcr*))
-        . = ALIGN(4);
+        . = ALIGN(8);
         /* All data end */
         __data_end__ = .;
         _edata = .;
@@ -118,12 +119,12 @@ SECTIONS
 
     .bss :
     {
-        . = ALIGN(4);
+        . = ALIGN(8);
         __bss_start__ = .;
         _sbss = .;
         *(.bss*)
         *(COMMON)
-        . = ALIGN(4);
+        . = ALIGN(8);
         __bss_end__ = .;
         _ebss = .;
     } > RAM

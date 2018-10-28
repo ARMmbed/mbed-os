@@ -36,6 +36,8 @@ protected: // NetworkStack
     virtual nsapi_error_t socket_accept(nsapi_socket_t server,
                                         nsapi_socket_t *handle, SocketAddress *address = 0);
 
+    virtual nsapi_error_t socket_connect(nsapi_socket_t handle, const SocketAddress &address);
+
 protected: // AT_CellularStack
 
     virtual int get_max_socket_count();

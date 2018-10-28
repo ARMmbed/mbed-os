@@ -173,6 +173,9 @@ __STATIC_INLINE void osRtxThreadSetRunning (os_thread_t *thread) {
 
 //  ==== Library functions ====
 
+// Kernel Library functions
+extern void         osRtxKernelPreInit (void);
+
 // Thread Library functions
 extern void         osRtxThreadListPut    (os_object_t *object, os_thread_t *thread);
 extern os_thread_t *osRtxThreadListGet    (os_object_t *object);

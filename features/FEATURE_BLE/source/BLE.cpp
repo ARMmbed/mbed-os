@@ -141,7 +141,7 @@ BLE::initImplementation(FunctionPointerWithContext<InitializationCompleteCallbac
 
 // this stub is required by ARMCC otherwise link will systematically fail
 MBED_WEAK BLEInstanceBase* createBLEInstance() {
-    error("Please provide an implementation for mbed BLE");
+    MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_BLE, MBED_ERROR_CODE_BLE_BACKEND_CREATION_FAILED), "Please provide an implementation for mbed BLE");
     return NULL;
 }
 
@@ -191,7 +191,7 @@ void defaultSchedulingCallback(BLE::OnEventsToProcessCallbackContext* params) {
 bool BLE::hasInitialized(void) const
 {
     if (!transport) {
-        error("bad handle to underlying transport");
+        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_BLE, MBED_ERROR_CODE_BLE_BACKEND_NOT_INITIALIZED), "bad handle to underlying transport");
     }
 
     return transport->hasInitialized();
@@ -200,7 +200,7 @@ bool BLE::hasInitialized(void) const
 ble_error_t BLE::shutdown(void)
 {
     if (!transport) {
-        error("bad handle to underlying transport");
+        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_BLE, MBED_ERROR_CODE_BLE_BACKEND_NOT_INITIALIZED), "bad handle to underlying transport");
     }
 
     event_signaled = false;
@@ -210,7 +210,7 @@ ble_error_t BLE::shutdown(void)
 const char *BLE::getVersion(void)
 {
     if (!transport) {
-        error("bad handle to underlying transport");
+        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_BLE, MBED_ERROR_CODE_BLE_BACKEND_NOT_INITIALIZED), "bad handle to underlying transport");
     }
 
     return transport->getVersion();
@@ -219,7 +219,7 @@ const char *BLE::getVersion(void)
 const Gap &BLE::gap() const
 {
     if (!transport) {
-        error("bad handle to underlying transport");
+        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_BLE, MBED_ERROR_CODE_BLE_BACKEND_NOT_INITIALIZED), "bad handle to underlying transport");
     }
 
     return transport->getGap();
@@ -228,7 +228,7 @@ const Gap &BLE::gap() const
 Gap &BLE::gap()
 {
     if (!transport) {
-        error("bad handle to underlying transport");
+        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_BLE, MBED_ERROR_CODE_BLE_BACKEND_NOT_INITIALIZED), "bad handle to underlying transport");
     }
 
     return transport->getGap();
@@ -237,7 +237,7 @@ Gap &BLE::gap()
 const GattServer& BLE::gattServer() const
 {
     if (!transport) {
-        error("bad handle to underlying transport");
+        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_BLE, MBED_ERROR_CODE_BLE_BACKEND_NOT_INITIALIZED), "bad handle to underlying transport");
     }
 
     return transport->getGattServer();
@@ -246,7 +246,7 @@ const GattServer& BLE::gattServer() const
 GattServer& BLE::gattServer()
 {
     if (!transport) {
-        error("bad handle to underlying transport");
+        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_BLE, MBED_ERROR_CODE_BLE_BACKEND_NOT_INITIALIZED), "bad handle to underlying transport");
     }
 
     return transport->getGattServer();
@@ -255,7 +255,7 @@ GattServer& BLE::gattServer()
 const GattClient& BLE::gattClient() const
 {
     if (!transport) {
-        error("bad handle to underlying transport");
+        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_BLE, MBED_ERROR_CODE_BLE_BACKEND_NOT_INITIALIZED), "bad handle to underlying transport");
     }
 
     return transport->getGattClient();
@@ -264,7 +264,7 @@ const GattClient& BLE::gattClient() const
 GattClient& BLE::gattClient()
 {
     if (!transport) {
-        error("bad handle to underlying transport");
+        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_BLE, MBED_ERROR_CODE_BLE_BACKEND_NOT_INITIALIZED), "bad handle to underlying transport");
     }
 
     return transport->getGattClient();
@@ -273,7 +273,7 @@ GattClient& BLE::gattClient()
 const SecurityManager& BLE::securityManager() const
 {
     if (!transport) {
-        error("bad handle to underlying transport");
+        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_BLE, MBED_ERROR_CODE_BLE_BACKEND_NOT_INITIALIZED), "bad handle to underlying transport");
     }
 
     return transport->getSecurityManager();
@@ -282,7 +282,7 @@ const SecurityManager& BLE::securityManager() const
 SecurityManager& BLE::securityManager()
 {
     if (!transport) {
-        error("bad handle to underlying transport");
+        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_BLE, MBED_ERROR_CODE_BLE_BACKEND_NOT_INITIALIZED), "bad handle to underlying transport");
     }
 
     return transport->getSecurityManager();
@@ -291,7 +291,7 @@ SecurityManager& BLE::securityManager()
 void BLE::waitForEvent(void)
 {
     if (!transport) {
-        error("bad handle to underlying transport");
+        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_BLE, MBED_ERROR_CODE_BLE_BACKEND_NOT_INITIALIZED), "bad handle to underlying transport");
     }
 
     transport->waitForEvent();
@@ -304,7 +304,7 @@ void BLE::processEvents()
     }
 
     if (!transport) {
-        error("bad handle to underlying transport");
+        MBED_ERROR(MBED_MAKE_ERROR(MBED_MODULE_BLE, MBED_ERROR_CODE_BLE_BACKEND_NOT_INITIALIZED), "bad handle to underlying transport");
     }
 
     event_signaled = false;

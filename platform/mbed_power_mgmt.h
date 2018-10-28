@@ -23,7 +23,7 @@
 #ifndef MBED_POWER_MGMT_H
 #define MBED_POWER_MGMT_H
 
-#include "sleep_api.h"
+#include "hal/sleep_api.h"
 #include "mbed_toolchain.h"
 #include "hal/ticker_api.h"
 #include <stdbool.h>
@@ -32,7 +32,8 @@
 extern "C" {
 #endif
 
-/** Sleep manager API
+/**
+ * @defgroup hal_sleep_manager Sleep manager API
  * The sleep manager provides API to automatically select sleep mode.
  *
  * There are two sleep modes:
@@ -42,6 +43,17 @@ extern "C" {
  * Use locking/unlocking deepsleep for drivers that depend on features that
  * are not allowed (=disabled) during the deepsleep. For instance, high frequency
  * clocks.
+ *
+ * # Defined behavior
+ * * The lock is a counter
+ * * The lock can be locked up to USHRT_MAX - Verified by ::test_lock_eq_ushrt_max and ::test_lock_gt_ushrt_max
+ * * The lock has to be equally unlocked as locked - Verified by ::test_lone_unlock and ::test_lock_eq_ushrt_max
+ * * The function sleep_manager_lock_deep_sleep_internal() locks the automatic deep mode selection - Verified by ::test_lock_unlock
+ * * The function sleep_manager_unlock_deep_sleep_internal() unlocks the automatic deep mode selection - Verified by ::test_lock_unlock
+ * * The function sleep_manager_sleep_auto() chooses the sleep or deep sleep modes based on the lock - Verified by ::test_sleep_auto
+ * * The function sleep_manager_lock_deep_sleep_internal() is IRQ and thread safe - Verified by ::sleep_manager_multithread_test and ::sleep_manager_irq_test
+ * * The function sleep_manager_unlock_deep_sleep_internal() is IRQ and thread safe - Verified by ::sleep_manager_multithread_test and ::sleep_manager_irq_test
+ * * The function sleep_manager_sleep_auto() is IRQ and thread safe
  *
  * Example:
  * @code
@@ -63,7 +75,19 @@ extern "C" {
  *      return _sensor.start(event, callback);
  * }
  * @endcode
+ * @{
  */
+
+/**
+ * @defgroup hal_sleep_manager_tests Sleep manager API tests
+ * Tests to validate the proper implementation of the sleep manager
+ *
+ * To run the sleep manager hal tests use the command:
+ *
+ *     mbed test -t <toolchain> -m <target> -n tests-mbed_hal-sleep_manager*
+ *
+ */
+
 #ifdef MBED_SLEEP_TRACING_ENABLED
 
 void sleep_tracker_lock(const char *const filename, int line);
@@ -133,7 +157,7 @@ bool sleep_manager_can_deep_sleep(void);
  */
 bool sleep_manager_can_deep_sleep_test_check(void);
 
-/** Enter auto selected sleep mode. It chooses the sleep or deeepsleep modes based
+/** Enter auto selected sleep mode. It chooses the sleep or deepsleep modes based
  *  on the deepsleep locking counter
  *
  * This function is IRQ and thread safe
@@ -169,9 +193,9 @@ void sleep_manager_sleep_auto(void);
 static inline void sleep(void)
 {
 #if DEVICE_SLEEP
-#if (MBED_CONF_RTOS_PRESENT == 0) || (DEVICE_STCLK_OFF_DURING_SLEEP == 0) || defined(MBED_TICKLESS)
+#if (MBED_CONF_RTOS_PRESENT == 0) || (DEVICE_SYSTICK_CLK_OFF_DURING_SLEEP == 0) || defined(MBED_TICKLESS)
     sleep_manager_sleep_auto();
-#endif /* (MBED_CONF_RTOS_PRESENT == 0) || (DEVICE_STCLK_OFF_DURING_SLEEP == 0) || defined(MBED_TICKLESS) */
+#endif /* (MBED_CONF_RTOS_PRESENT == 0) || (DEVICE_SYSTICK_CLK_OFF_DURING_SLEEP == 0) || defined(MBED_TICKLESS) */
 #endif /* DEVICE_SLEEP */
 }
 
@@ -203,15 +227,6 @@ static inline void deepsleep(void)
 #endif /* DEVICE_SLEEP */
 }
 
-/** Resets the processor and most of the sub-system
- *
- * @note Does not affect the debug sub-system
- */
-static inline void system_reset(void)
-{
-    NVIC_SystemReset();
-}
-
 /** Provides the time spent in sleep mode since boot.
  *
  *  @return  Time spent in sleep
@@ -239,6 +254,17 @@ us_timestamp_t mbed_time_idle(void);
  * @note  Works only if platform supports LP ticker.
  */
 us_timestamp_t mbed_uptime(void);
+
+/** @}*/
+
+/** Resets the processor and most of the sub-system
+ *
+ * @note Does not affect the debug sub-system
+ */
+static inline void system_reset(void)
+{
+    NVIC_SystemReset();
+}
 
 #ifdef __cplusplus
 }

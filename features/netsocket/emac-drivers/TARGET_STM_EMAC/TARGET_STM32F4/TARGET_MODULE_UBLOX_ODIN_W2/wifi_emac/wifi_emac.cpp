@@ -45,13 +45,14 @@ void handleWlanStatusIndication(void *dummy, cbWLAN_StatusIndicationInfo status,
 
     switch (status) {
         case cbWLAN_STATUS_CONNECTED:
-        case cbWLAN_STATUS_AP_STA_ADDED:
+        case cbWLAN_STATUS_AP_UP:
             linkUp = true;
             break;
         case cbWLAN_STATUS_STOPPED:
         case cbWLAN_STATUS_ERROR:
         case cbWLAN_STATUS_DISCONNECTED:
         case cbWLAN_STATUS_CONNECTION_FAILURE:
+        case cbWLAN_STATUS_AP_DOWN:
             break;
         case cbWLAN_STATUS_CONNECTING:
         default:

@@ -35,7 +35,7 @@ volatile int signal_counter = 0;
 void led_thread(void const *argument) {
     while (true) {
         // Signal flags that are reported as event are automatically cleared.
-        Thread::signal_wait(SIGNAL_SET_VALUE);
+        ThisThread::flags_wait_all(SIGNAL_SET_VALUE);
         led = !led;
         signal_counter++;
     }
@@ -51,7 +51,7 @@ int main (void) {
     bool result = true;
 
     while (true) {
-        Thread::wait(2 * SIGNAL_HANDLE_DELEY);
+        ThisThread::sleep_for(2 * SIGNAL_HANDLE_DELEY);
         thread.signal_set(SIGNAL_SET_VALUE);
         if (signal_counter == SIGNALS_TO_EMIT) {
             printf("Handled %d signals\r\n", signal_counter);

@@ -145,7 +145,7 @@ void test_case_sha256_multi()
     for (i = 0; i < 32; i++) {
         printf("%02X", outsum1[i]);
     }
-    printf("\nawaited result       : 248D6A61D20638B8E5C026930C3E6039A33CE45964FF216F6ECEDD19DB06C1\n"); // for  abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq
+    printf("\nawaited result       : 248D6A61D20638B8E5C026930C3E6039A33CE45964FF2167F6ECEDD419DB06C1\n"); // for  abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq
     printf("\nreceived result ctx2 : ");
     for (i = 0; i < 32; i++) {
         printf("%02X", outsum2[i]);
@@ -188,15 +188,14 @@ int main()
 {
     int ret = 0;
 #if defined(MBEDTLS_PLATFORM_C)
-    mbedtls_platform_context platform_ctx;
-    if ((ret = mbedtls_platform_setup(&platform_ctx)) != 0) {
+    if ((ret = mbedtls_platform_setup(NULL)) != 0) {
         mbedtls_printf("Mbed TLS multitest failed! mbedtls_platform_setup returned %d\n", ret);
         return 1;
     }
 #endif
     ret = (Harness::run(specification) ? 0 : 1);
 #if defined(MBEDTLS_PLATFORM_C)
-    mbedtls_platform_teardown(&platform_ctx);
+    mbedtls_platform_teardown(NULL);
 #endif
     return ret;
 }

@@ -2803,6 +2803,7 @@ public:
     #endif
 
 protected:
+    #if !defined(DOXYGEN_ONLY)
     template <typename F>
     friend class Event;
     struct equeue _equeue;
@@ -3379,6 +3380,7 @@ protected:
             f(c0, c1, c2, c3, c4, a0, a1, a2, a3, a4);
         }
     };
+    #endif //!defined(DOXYGEN_ONLY)
 };
 
 }

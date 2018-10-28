@@ -16,7 +16,11 @@
 #ifndef MBED_QSPI_FLASH_CONFIG_H
 #define MBED_QSPI_FLASH_CONFIG_H
 
-#include "../../MX25R3235F_config.h"
+#include "../../MX25RXX35F_config.h"
 
+#ifdef QSPI_SECTOR_COUNT
+#undef QSPI_SECTOR_COUNT
+#define QSPI_SECTOR_COUNT                       1024 // for MX25R3235F
+#endif
 
 #endif // MBED_QSPI_FLASH_CONFIG_H

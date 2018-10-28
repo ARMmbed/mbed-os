@@ -31,7 +31,7 @@ extern "C" {
  *
  * Provides mechanisms to set and read the current time, based
  * on the microcontroller Real-Time Clock (RTC), plus some
- * standard C manipulation and formating functions.
+ * standard C manipulation and formatting functions.
  *
  * Example:
  * @code
@@ -40,10 +40,10 @@ extern "C" {
  * int main() {
  *     set_time(1256729737);  // Set RTC time to Wed, 28 Oct 2009 11:35:37
  *
- *     while(1) {
+ *     while (true) {
  *         time_t seconds = time(NULL);
  *
- *         printf("Time as seconds since January 1, 1970 = %d\n", seconds);
+ *         printf("Time as seconds since January 1, 1970 = %u\n", (unsigned int)seconds);
  *
  *         printf("Time as a basic string = %s", ctime(&seconds));
  *
@@ -59,7 +59,7 @@ extern "C" {
 
 /** Set the current time
  *
- * Initialises and sets the time of the microcontroller Real-Time Clock (RTC)
+ * Initializes and sets the time of the microcontroller Real-Time Clock (RTC)
  * to the time represented by the number of seconds since January 1, 1970
  * (the UNIX timestamp).
  *
@@ -84,8 +84,8 @@ void set_time(time_t t);
  *
  * @param read_rtc pointer to function which returns current UNIX timestamp
  * @param write_rtc pointer to function which sets current UNIX timestamp, can be NULL
- * @param init_rtc pointer to funtion which initializes RTC, can be NULL
- * @param isenabled_rtc pointer to function wich returns if the rtc is enabled, can be NULL
+ * @param init_rtc pointer to function which initializes RTC, can be NULL
+ * @param isenabled_rtc pointer to function which returns if the RTC is enabled, can be NULL
  */
 void attach_rtc(time_t (*read_rtc)(void), void (*write_rtc)(time_t), void (*init_rtc)(void), int (*isenabled_rtc)(void));
 

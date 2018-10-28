@@ -51,14 +51,17 @@ static int test_failure;
 
 
 // Test functions
-void pass_func(void *eh) {
+void pass_func(void *eh)
+{
 }
 
-void simple_func(void *p) {
+void simple_func(void *p)
+{
     (*(int *)p)++;
 }
 
-void sloth_func(void *p) {
+void sloth_func(void *p)
+{
     usleep(10000);
     (*(int *)p)++;
 }
@@ -68,8 +71,9 @@ struct indirect {
     uint8_t buffer[7];
 };
 
-void indirect_func(void *p) {
-    struct indirect *i = (struct indirect*)p;
+void indirect_func(void *p)
+{
+    struct indirect *i = (struct indirect *)p;
     (*i->touched)++;
 }
 
@@ -78,8 +82,9 @@ struct timing {
     unsigned delay;
 };
 
-void timing_func(void *p) {
-    struct timing *timing = (struct timing*)p;
+void timing_func(void *p)
+{
+    struct timing *timing = (struct timing *)p;
     unsigned tick = equeue_tick();
 
     unsigned t1 = timing->delay;
@@ -95,8 +100,9 @@ struct fragment {
     struct timing timing;
 };
 
-void fragment_func(void *p) {
-    struct fragment *fragment = (struct fragment*)p;
+void fragment_func(void *p)
+{
+    struct fragment *fragment = (struct fragment *)p;
     timing_func(&fragment->timing);
 
     struct fragment *nfragment = equeue_alloc(fragment->q, fragment->size);
@@ -114,7 +120,8 @@ struct cancel {
     int id;
 };
 
-void cancel_func(void *p) {
+void cancel_func(void *p)
+{
     struct cancel *cancel = (struct cancel *)p;
     equeue_cancel(cancel->q, cancel->id);
 }
@@ -125,7 +132,8 @@ struct nest {
     void *data;
 };
 
-void nest_func(void *p) {
+void nest_func(void *p)
+{
     struct nest *nest = (struct nest *)p;
     equeue_call(nest->q, nest->cb, nest->data);
 
@@ -134,7 +142,8 @@ void nest_func(void *p) {
 
 
 // Simple call tests
-void simple_call_test(void) {
+void simple_call_test(void)
+{
     equeue_t q;
     int err = equeue_create(&q, 2048);
     test_assert(!err);
@@ -147,7 +156,8 @@ void simple_call_test(void) {
     equeue_destroy(&q);
 }
 
-void simple_call_in_test(void) {
+void simple_call_in_test(void)
+{
     equeue_t q;
     int err = equeue_create(&q, 2048);
     test_assert(!err);
@@ -162,7 +172,8 @@ void simple_call_in_test(void) {
     equeue_destroy(&q);
 }
 
-void simple_call_every_test(void) {
+void simple_call_every_test(void)
+{
     equeue_t q;
     int err = equeue_create(&q, 2048);
     test_assert(!err);
@@ -177,7 +188,8 @@ void simple_call_every_test(void) {
     equeue_destroy(&q);
 }
 
-void simple_post_test(void) {
+void simple_post_test(void)
+{
     equeue_t q;
     int err = equeue_create(&q, 2048);
     test_assert(!err);
@@ -197,7 +209,8 @@ void simple_post_test(void) {
 }
 
 // Misc tests
-void destructor_test(void) {
+void destructor_test(void)
+{
     equeue_t q;
     int err = equeue_create(&q, 2048);
     test_assert(!err);
@@ -253,7 +266,8 @@ void destructor_test(void) {
     test_assert(touched == 3);
 }
 
-void allocation_failure_test(void) {
+void allocation_failure_test(void)
+{
     equeue_t q;
     int err = equeue_create(&q, 2048);
     test_assert(!err);
@@ -269,19 +283,20 @@ void allocation_failure_test(void) {
     equeue_destroy(&q);
 }
 
-void cancel_test(int N) {
+void cancel_test(int N)
+{
     equeue_t q;
     int err = equeue_create(&q, 2048);
     test_assert(!err);
 
     bool touched = false;
-    int *ids = malloc(N*sizeof(int));
+    int *ids = malloc(N * sizeof(int));
 
     for (int i = 0; i < N; i++) {
         ids[i] = equeue_call(&q, simple_func, &touched);
     }
 
-    for (int i = N-1; i >= 0; i--) {
+    for (int i = N - 1; i >= 0; i--) {
         equeue_cancel(&q, ids[i]);
     }
 
@@ -293,7 +308,8 @@ void cancel_test(int N) {
     equeue_destroy(&q);
 }
 
-void cancel_inflight_test(void) {
+void cancel_inflight_test(void)
+{
     equeue_t q;
     int err = equeue_create(&q, 2048);
     test_assert(!err);
@@ -328,7 +344,8 @@ void cancel_inflight_test(void) {
     equeue_destroy(&q);
 }
 
-void cancel_unnecessarily_test(void) {
+void cancel_unnecessarily_test(void)
+{
     equeue_t q;
     int err = equeue_create(&q, 2048);
     test_assert(!err);
@@ -356,7 +373,8 @@ void cancel_unnecessarily_test(void) {
     equeue_destroy(&q);
 }
 
-void loop_protect_test(void) {
+void loop_protect_test(void)
+{
     equeue_t q;
     int err = equeue_create(&q, 2048);
     test_assert(!err);
@@ -376,7 +394,8 @@ void loop_protect_test(void) {
     equeue_destroy(&q);
 }
 
-void break_test(void) {
+void break_test(void)
+{
     equeue_t q;
     int err = equeue_create(&q, 2048);
     test_assert(!err);
@@ -391,7 +410,8 @@ void break_test(void) {
     equeue_destroy(&q);
 }
 
-void break_no_windup_test(void) {
+void break_no_windup_test(void)
+{
     equeue_t q;
     int err = equeue_create(&q, 2048);
     test_assert(!err);
@@ -411,7 +431,8 @@ void break_no_windup_test(void) {
     equeue_destroy(&q);
 }
 
-void period_test(void) {
+void period_test(void)
+{
     equeue_t q;
     int err = equeue_create(&q, 2048);
     test_assert(!err);
@@ -425,7 +446,8 @@ void period_test(void) {
     equeue_destroy(&q);
 }
 
-void nested_test(void) {
+void nested_test(void)
+{
     equeue_t q;
     int err = equeue_create(&q, 2048);
     test_assert(!err);
@@ -462,7 +484,8 @@ void nested_test(void) {
     equeue_destroy(&q);
 }
 
-void sloth_test(void) {
+void sloth_test(void)
+{
     equeue_t q;
     int err = equeue_create(&q, 2048);
     test_assert(!err);
@@ -483,13 +506,15 @@ void sloth_test(void) {
     equeue_destroy(&q);
 }
 
-void *multithread_thread(void *p) {
+void *multithread_thread(void *p)
+{
     equeue_t *q = (equeue_t *)p;
     equeue_dispatch(q, -1);
     return 0;
 }
 
-void multithread_test(void) {
+void multithread_test(void)
+{
     equeue_t q;
     int err = equeue_create(&q, 2048);
     test_assert(!err);
@@ -511,11 +536,13 @@ void multithread_test(void) {
     equeue_destroy(&q);
 }
 
-void background_func(void *p, int ms) {
+void background_func(void *p, int ms)
+{
     *(unsigned *)p = ms;
 }
 
-void background_test(void) {
+void background_test(void)
+{
     equeue_t q;
     int err = equeue_create(&q, 2048);
     test_assert(!err);
@@ -542,7 +569,8 @@ void background_test(void) {
     test_assert(ms == -1);
 }
 
-void chain_test(void) {
+void chain_test(void)
+{
     equeue_t q1;
     int err = equeue_create(&q1, 2048);
     test_assert(!err);
@@ -582,7 +610,8 @@ void chain_test(void) {
     equeue_destroy(&q2);
 }
 
-void unchain_test(void) {
+void unchain_test(void)
+{
     equeue_t q1;
     int err = equeue_create(&q1, 2048);
     test_assert(!err);
@@ -616,9 +645,10 @@ void unchain_test(void) {
 }
 
 // Barrage tests
-void simple_barrage_test(int N) {
+void simple_barrage_test(int N)
+{
     equeue_t q;
-    int err = equeue_create(&q, N*(EQUEUE_EVENT_SIZE+sizeof(struct timing)));
+    int err = equeue_create(&q, N * (EQUEUE_EVENT_SIZE + sizeof(struct timing)));
     test_assert(!err);
 
     for (int i = 0; i < N; i++) {
@@ -626,7 +656,7 @@ void simple_barrage_test(int N) {
         test_assert(timing);
 
         timing->tick = equeue_tick();
-        timing->delay = (i+1)*100;
+        timing->delay = (i + 1) * 100;
         equeue_event_delay(timing, timing->delay);
         equeue_event_period(timing, timing->delay);
 
@@ -634,33 +664,34 @@ void simple_barrage_test(int N) {
         test_assert(id);
     }
 
-    equeue_dispatch(&q, N*100);
+    equeue_dispatch(&q, N * 100);
 
     equeue_destroy(&q);
 }
 
-void fragmenting_barrage_test(int N) {
+void fragmenting_barrage_test(int N)
+{
     equeue_t q;
     int err = equeue_create(&q,
-            2*N*(EQUEUE_EVENT_SIZE+sizeof(struct fragment)+N*sizeof(int)));
+                            2 * N * (EQUEUE_EVENT_SIZE + sizeof(struct fragment) + N * sizeof(int)));
     test_assert(!err);
 
     for (int i = 0; i < N; i++) {
-        size_t size = sizeof(struct fragment) + i*sizeof(int);
+        size_t size = sizeof(struct fragment) + i * sizeof(int);
         struct fragment *fragment = equeue_alloc(&q, size);
         test_assert(fragment);
 
         fragment->q = &q;
         fragment->size = size;
         fragment->timing.tick = equeue_tick();
-        fragment->timing.delay = (i+1)*100;
+        fragment->timing.delay = (i + 1) * 100;
         equeue_event_delay(fragment, fragment->timing.delay);
 
         int id = equeue_post(&q, fragment_func, fragment);
         test_assert(id);
     }
 
-    equeue_dispatch(&q, N*100);
+    equeue_dispatch(&q, N * 100);
 
     equeue_destroy(&q);
 }
@@ -671,20 +702,22 @@ struct ethread {
     int ms;
 };
 
-static void *ethread_dispatch(void *p) {
-    struct ethread *t = (struct ethread*)p;
+static void *ethread_dispatch(void *p)
+{
+    struct ethread *t = (struct ethread *)p;
     equeue_dispatch(t->q, t->ms);
     return 0;
 }
 
-void multithreaded_barrage_test(int N) {
+void multithreaded_barrage_test(int N)
+{
     equeue_t q;
-    int err = equeue_create(&q, N*(EQUEUE_EVENT_SIZE+sizeof(struct timing)));
+    int err = equeue_create(&q, N * (EQUEUE_EVENT_SIZE + sizeof(struct timing)));
     test_assert(!err);
 
     struct ethread t;
     t.q = &q;
-    t.ms = N*100;
+    t.ms = N * 100;
     err = pthread_create(&t.thread, 0, ethread_dispatch, &t);
     test_assert(!err);
 
@@ -693,7 +726,7 @@ void multithreaded_barrage_test(int N) {
         test_assert(timing);
 
         timing->tick = equeue_tick();
-        timing->delay = (i+1)*100;
+        timing->delay = (i + 1) * 100;
         equeue_event_delay(timing, timing->delay);
         equeue_event_period(timing, timing->delay);
 
@@ -707,20 +740,21 @@ void multithreaded_barrage_test(int N) {
     equeue_destroy(&q);
 }
 
-struct count_and_queue
-{
+struct count_and_queue {
     int p;
-    equeue_t* q;
+    equeue_t *q;
 };
 
-void simple_breaker(void *p) {
-    struct count_and_queue* caq = (struct count_and_queue*)p;
+void simple_breaker(void *p)
+{
+    struct count_and_queue *caq = (struct count_and_queue *)p;
     equeue_break(caq->q);
     usleep(10000);
     caq->p++;
 }
 
-void break_request_cleared_on_timeout(void) {
+void break_request_cleared_on_timeout(void)
+{
     equeue_t q;
     int err = equeue_create(&q, 2048);
     test_assert(!err);
@@ -745,7 +779,8 @@ void break_request_cleared_on_timeout(void) {
     equeue_destroy(&q);
 }
 
-int main() {
+int main()
+{
     printf("beginning tests...\n");
 
     test_run(simple_call_test);

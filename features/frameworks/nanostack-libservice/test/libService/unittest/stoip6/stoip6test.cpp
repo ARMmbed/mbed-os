@@ -42,11 +42,10 @@ TEST(stoip6, TooShort)
 {
     char *addr = "FFFF:FFFF:";
     uint8_t ip[16];
-    uint8_t correct[16] = {0xff, 0xff, 0xff, 0xff, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-    // This should sto parsing when too short address given, the buffer hoewever is filled to that long
-    // So basically there is no error handling. We just check that first FFFF:FFFF gets filled and not trash after that.
-    // Rest should be filled with zeroes
-    stoip6(addr, strlen(addr), ip);
+    uint8_t correct[16] = {0};
+    // This should stop parsing when too short address given.
+    // Despite partial parsing, the entire buffer should be filled with zeroes
+    CHECK(false == stoip6(addr, strlen(addr), ip));
     CHECK(0 == memcmp(ip, correct, 16));
 }
 
@@ -58,7 +57,7 @@ TEST(stoip6, TooLongString)
     uint8_t correct[16] = {0};
     // This should not fill anything, too long string.
     // This is basically only validation we do
-    stoip6(addr, strlen(addr), ip);
+    CHECK(false == stoip6(addr, strlen(addr), ip));
     CHECK(0 == memcmp(ip, correct, 16));
 }
 
@@ -66,12 +65,11 @@ TEST(stoip6, TooManyFields)
 {
     // String len must be less than 40
     char *addr = "FF:FF:FF:FF:FF:FF:FFFF:FFFF:FFFF:FFFF:";
-    uint8_t ip[17] = {0};
-    uint8_t correct[17] = { 0, 0xff, 0, 0xff, 0, 0xff, 0, 0xff, 0, 0xff, 0, 0xff, 0xff, 0xff, 0xff, 0xff, 0};
-    // Again.. there is not really any error handling (no return value)
-    // Just make sure that it does not overflow
-    stoip6(addr, strlen(addr), ip);
-    CHECK(0 == memcmp(ip, correct, 17)); // Note, we are checking 17, to make sure one byte after address in not touched.
+    uint8_t ip[16] = {0};
+    uint8_t correct[16] = {0};
+
+    CHECK(false == stoip6(addr, strlen(addr), ip));
+    CHECK(0 == memcmp(ip, correct, 16));
 }
 
 TEST(stoip6, Prefixlen)
@@ -96,11 +94,29 @@ TEST(stoip6, RegressionTestForOffByOne)
                                   0x64, 0x3f, 0xf5, 0x4a, 0xec, 0x29, 0xcd, 0xbb
                                 };
 
-    stoip6(sourceTemp, sourceTempLen, ip);
-
+    CHECK(true == stoip6(sourceTemp, sourceTempLen, ip));
     CHECK(0 == memcmp(ip, correct, 16));
 
     free(sourceTemp);
+}
+
+// Test various illegal formats to ensure proper rejection
+TEST(stoip6, InvalidAddresses)
+{
+    uint8_t ip[16];
+    uint8_t correct[16] = {0};
+
+    const char *invalidArray[] =
+    {
+        "FFFF:FFFF::FFFF::FFFF", // Two ::
+        "F:F:F:FqF:F:F:F:F",     // Non-hex character
+        "F:F:F:FFFFF:F:F:F:F"    // >4 hex characters in a segment
+    };
+
+    for (uint8_t i = 0; i < 3; ++i) {
+        CHECK(false == stoip6(invalidArray[i], strlen(invalidArray[i]), ip));
+        CHECK(0 == memcmp(ip, correct, 16));
+    }
 }
 
 /***********************************************************/
@@ -161,63 +177,122 @@ TEST_GROUP(stoip6_2)
 TEST(stoip6_2, test_2_1)
 {
     i = 0;
-    stoip6(string_addr[i], strlen(string_addr[i]), buf);
+    CHECK(true == stoip6(string_addr[i], strlen(string_addr[i]), buf));
     CHECK(0 == memcmp(hex_addr[i], buf, strlen(buf)));
 }
 
 TEST(stoip6_2, test_2_2)
 {
-    stoip6(string_addr[i], strlen(string_addr[i]), buf);
+    CHECK(true == stoip6(string_addr[i], strlen(string_addr[i]), buf));
     CHECK(0 == memcmp(hex_addr[i], buf, strlen(buf)));
 }
 TEST(stoip6_2, test_2_3)
 {
-    stoip6(string_addr[i], strlen(string_addr[i]), buf);
+    CHECK(true == stoip6(string_addr[i], strlen(string_addr[i]), buf));
     CHECK(0 == memcmp(hex_addr[i], buf, strlen(buf)));
 }
 TEST(stoip6_2, test_2_4)
 {
-    stoip6(string_addr[i], strlen(string_addr[i]), buf);
+    CHECK(true == stoip6(string_addr[i], strlen(string_addr[i]), buf));
     CHECK(0 == memcmp(hex_addr[i], buf, strlen(buf)));
 }
 TEST(stoip6_2, test_2_5)
 {
-    stoip6(string_addr[i], strlen(string_addr[i]), buf);
+    CHECK(true == stoip6(string_addr[i], strlen(string_addr[i]), buf));
     CHECK(0 == memcmp(hex_addr[i], buf, strlen(buf)));
 }
 TEST(stoip6_2, test_2_6)
 {
-    stoip6(string_addr[i], strlen(string_addr[i]), buf);
+    CHECK(true == stoip6(string_addr[i], strlen(string_addr[i]), buf));
     CHECK(0 == memcmp(hex_addr[i], buf, strlen(buf)));
 }
 TEST(stoip6_2, test_2_7)
 {
-    stoip6(string_addr[i], strlen(string_addr[i]), buf);
+    CHECK(true == stoip6(string_addr[i], strlen(string_addr[i]), buf));
     CHECK(0 == memcmp(hex_addr[i], buf, strlen(buf)));
 }
 TEST(stoip6_2, test_2_8)
 {
-    stoip6(string_addr[i], strlen(string_addr[i]), buf);
+    CHECK(true == stoip6(string_addr[i], strlen(string_addr[i]), buf));
     CHECK(0 == memcmp(hex_addr[i], buf, strlen(buf)));
 }
 TEST(stoip6_2, test_2_9)
 {
-    stoip6(string_addr[i], strlen(string_addr[i]), buf);
+    CHECK(true == stoip6(string_addr[i], strlen(string_addr[i]), buf));
     CHECK(0 == memcmp(hex_addr[i], buf, strlen(buf)));
 }
 TEST(stoip6_2, test_2_10)
 {
-    stoip6(string_addr[i], strlen(string_addr[i]), buf);
+    CHECK(true == stoip6(string_addr[i], strlen(string_addr[i]), buf));
     CHECK(0 == memcmp(hex_addr[i], buf, 16));
 }
 TEST(stoip6_2, test_2_11)
 {
-    stoip6(string_addr[i], strlen(string_addr[i]), buf);
+    CHECK(true == stoip6(string_addr[i], strlen(string_addr[i]), buf));
     CHECK(0 == memcmp(hex_addr[i], buf, 16));
 }
 TEST(stoip6_2, test_2_12)
 {
-    stoip6(string_addr[i], strlen(string_addr[i]), buf);
+    CHECK(true == stoip6(string_addr[i], strlen(string_addr[i]), buf));
     CHECK(0 == memcmp(hex_addr[i], buf, 16));
+}
+
+/***********************************************************/
+/* Third test group for stoip6_prefix */
+
+const char string_prefix_addr[][40] =
+{
+    "2001:db8::1:0:0:1/64",     // 1
+    "2001::/60",                // 2
+    "::1/48",                   // 3
+    "::/00",                    // 4
+    "2002::02/99",              // 5
+    "2003::03/",                // 6
+    "2004::04",                 // 7
+    "2005::05/2000",            // 8
+    "2005::05/-1",              // 9
+};
+
+
+const uint8_t hex_prefix_addr[][16] =
+{
+    { 0x20, 0x01, 0xd, 0xb8, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1 },  // 1
+    { 0x20, 0x01, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },       // 2
+    { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1 },                            // 3
+    { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 },                            // 4
+    { 0x20, 0x02, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2 },       // 5
+    { 0x20, 0x03, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3 },       // 6
+    { 0x20, 0x04, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4 },       // 7
+    { 0x20, 0x05, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5 },       // 8
+    { 0x20, 0x05, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5 },       // 9
+};
+
+const int_fast16_t prefix_len_tbl[] = {64, 60, 48, 0, 99, 0, -1, -1, -1};
+const int prefix_status_tbl[] = {0, 0, 0, 0, 0, 0, 0, -1, -1};
+
+TEST_GROUP(stoip6_3)
+{
+    void setup() {
+    }
+
+    void teardown() {
+    }
+};
+
+TEST(stoip6_3, stoip6_prefix_test)
+{
+    for (int i = 0; i < 9; i++) {
+        uint8_t ip[16];
+        int_fast16_t prefix_len;
+        int result;
+        const char *addr = &string_prefix_addr[i][0];
+
+        result = stoip6_prefix(addr, ip, &prefix_len);
+        CHECK(result == prefix_status_tbl[i]);
+        if (result == 0) {
+            CHECK(0 == memcmp(ip, &hex_prefix_addr[i][0], 16));
+            CHECK(prefix_len == prefix_len_tbl[i])
+        }
+    }
 }
 

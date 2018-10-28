@@ -108,6 +108,6 @@ int main() {
 
     while (true) {
         led2 = !led2;
-        Thread::wait(1000);
+        ThisThread::sleep_for(1000);
     }
 }

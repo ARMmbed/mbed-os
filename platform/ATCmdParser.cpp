@@ -21,6 +21,9 @@
 #include "ATCmdParser.h"
 #include "mbed_poll.h"
 #include "mbed_debug.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #ifdef LF
 #undef LF
@@ -35,6 +38,8 @@
 #else
 #define CR  13
 #endif
+
+namespace mbed {
 
 // getc/putc handling with timeouts
 int ATCmdParser::putc(char c)
@@ -102,7 +107,7 @@ int ATCmdParser::read(char *data, int size)
 
 
 // printf/scanf handling
-int ATCmdParser::vprintf(const char *format, va_list args)
+int ATCmdParser::vprintf(const char *format, std::va_list args)
 {
 
     if (vsprintf(_buffer, format, args) < 0) {
@@ -118,7 +123,7 @@ int ATCmdParser::vprintf(const char *format, va_list args)
     return i;
 }
 
-int ATCmdParser::vscanf(const char *format, va_list args)
+int ATCmdParser::vscanf(const char *format, std::va_list args)
 {
     // Since format is const, we need to copy it into our buffer to
     // add the line's null terminator and clobber value-matches with asterisks.
@@ -181,7 +186,7 @@ int ATCmdParser::vscanf(const char *format, va_list args)
 
 
 // Command parsing with line handling
-bool ATCmdParser::vsend(const char *command, va_list args)
+bool ATCmdParser::vsend(const char *command, std::va_list args)
 {
     // Create and send command
     if (vsprintf(_buffer, command, args) < 0) {
@@ -205,7 +210,7 @@ bool ATCmdParser::vsend(const char *command, va_list args)
     return true;
 }
 
-bool ATCmdParser::vrecv(const char *response, va_list args)
+bool ATCmdParser::vrecv(const char *response, std::va_list args)
 {
 restart:
     _aborted = false;
@@ -331,7 +336,7 @@ restart:
 // Mapping to vararg functions
 int ATCmdParser::printf(const char *format, ...)
 {
-    va_list args;
+    std::va_list args;
     va_start(args, format);
     int res = vprintf(format, args);
     va_end(args);
@@ -340,7 +345,7 @@ int ATCmdParser::printf(const char *format, ...)
 
 int ATCmdParser::scanf(const char *format, ...)
 {
-    va_list args;
+    std::va_list args;
     va_start(args, format);
     int res = vscanf(format, args);
     va_end(args);
@@ -349,7 +354,7 @@ int ATCmdParser::scanf(const char *format, ...)
 
 bool ATCmdParser::send(const char *command, ...)
 {
-    va_list args;
+    std::va_list args;
     va_start(args, command);
     bool res = vsend(command, args);
     va_end(args);
@@ -358,7 +363,7 @@ bool ATCmdParser::send(const char *command, ...)
 
 bool ATCmdParser::recv(const char *response, ...)
 {
-    va_list args;
+    std::va_list args;
     va_start(args, response);
     bool res = vrecv(response, args);
     va_end(args);
@@ -431,4 +436,5 @@ bool ATCmdParser::process_oob()
     }
 }
 
+}
 

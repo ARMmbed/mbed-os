@@ -119,7 +119,6 @@ bool UBLOX_AT_CellularStack::is_protocol_supported(nsapi_protocol_t protocol)
 nsapi_error_t UBLOX_AT_CellularStack::create_socket_impl(CellularSocket *socket)
 {
     int sock_id = 0;
-    bool socketOpenWorking = false;
 
     _at.lock();
     if (socket->proto == NSAPI_UDP) {
@@ -137,12 +136,12 @@ nsapi_error_t UBLOX_AT_CellularStack::create_socket_impl(CellularSocket *socket)
         sock_id = _at.read_int();
         _at.resp_stop();
     } // Unsupported protocol is checked in "is_protocol_supported" function
-    _at.unlock();
 
-    socketOpenWorking = (_at.get_last_error() == NSAPI_ERROR_OK);
-    if (!socketOpenWorking) {
+    if ((_at.get_last_error() != NSAPI_ERROR_OK) || (sock_id == -1)) {
+        _at.unlock();
         return NSAPI_ERROR_NO_SOCKET;
     }
+    _at.unlock();
 
     // Check for duplicate socket id delivered by modem
     for (int i = 0; i < UBLOX_MAX_SOCKET; i++) {
@@ -162,8 +161,15 @@ nsapi_error_t UBLOX_AT_CellularStack::socket_connect(nsapi_socket_t handle, cons
 {
     CellularSocket *socket = (CellularSocket *)handle;
 
-    if (!socket->created) {
-        create_socket_impl(socket);
+    if (socket) {
+        if (!socket->created) {
+            nsapi_error_t err = create_socket_impl(socket);
+            if(err != NSAPI_ERROR_OK) {
+                return err;
+            }
+        }
+    } else {
+        return NSAPI_ERROR_DEVICE_ERROR;
     }
 
     _at.lock();
@@ -171,9 +177,7 @@ nsapi_error_t UBLOX_AT_CellularStack::socket_connect(nsapi_socket_t handle, cons
     _at.write_int(socket->id);
     _at.write_string(addr.get_ip_address());
     _at.write_int(addr.get_port());
-    _at.cmd_stop();
-    _at.resp_start();
-    _at.resp_stop();
+    _at.cmd_stop_read_resp();
     _at.unlock();
 
     if (_at.get_last_error() == NSAPI_ERROR_OK) {
@@ -401,9 +405,7 @@ nsapi_error_t UBLOX_AT_CellularStack::socket_close_impl(int sock_id)
     _at.lock();
     _at.cmd_start("AT+USOCL=");
     _at.write_int(sock_id);
-    _at.cmd_stop();
-    _at.resp_start();
-    _at.resp_stop();
+    _at.cmd_stop_read_resp();
 
     return _at.unlock_return_error();
 }

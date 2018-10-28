@@ -32,7 +32,6 @@ void TCPSOCKET_CONNECT_INVALID()
     TEST_ASSERT(sock.connect(NULL, 9) < 0);
     TEST_ASSERT(sock.connect("", 9) < 0);
     TEST_ASSERT(sock.connect("", 0) < 0);
-    TEST_ASSERT(sock.connect(MBED_CONF_APP_ECHO_SERVER_ADDR, 0) < 0);
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.connect(MBED_CONF_APP_ECHO_SERVER_ADDR, 9));
 
     TEST_ASSERT_EQUAL(NSAPI_ERROR_OK, sock.close());

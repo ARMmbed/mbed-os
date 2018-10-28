@@ -15,7 +15,11 @@
  */
 
 #include "events/mbed_shared_queues.h"
-#include "mbed.h"
+
+#ifdef MBED_CONF_RTOS_PRESENT
+#include "rtos/Thread.h"
+using rtos::Thread;
+#endif
 
 using namespace events;
 

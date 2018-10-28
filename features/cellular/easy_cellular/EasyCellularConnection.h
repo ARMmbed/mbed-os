@@ -135,6 +135,19 @@ public:
      *  @param plmn operator in numeric format. See more from 3GPP TS 27.007 chapter 7.3.
      */
     void set_plmn(const char *plmn);
+
+    /** Get the cellular device from the cellular state machine
+     *
+     * @return cellular device
+     */
+    CellularDevice *get_device();
+
+    /** Get the UART serial file handle used by cellular subsystem
+     *
+     * @return address of cellular UART serial
+     */
+    UARTSerial *get_serial();
+
 protected:
 
     /** Provide access to the NetworkStack object
@@ -155,6 +168,7 @@ private:
 
     bool _is_connected;
     bool _is_initialized;
+    bool _stm_error;
 #if USE_APN_LOOKUP
     bool _credentials_set;
 #endif // #if USE_APN_LOOKUP

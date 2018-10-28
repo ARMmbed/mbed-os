@@ -257,6 +257,21 @@ void sn_coap_protocol_clear_sent_blockwise_messages(struct coap_s *handle)
 #endif
 }
 
+void sn_coap_protocol_clear_received_blockwise_messages(struct coap_s *handle)
+{
+    (void) handle;
+#if SN_COAP_BLOCKWISE_ENABLED || SN_COAP_MAX_BLOCKWISE_PAYLOAD_SIZE
+    if (handle == NULL) {
+        return;
+    }
+
+    /* Loop all stored Blockwise messages in Linked list */
+    ns_list_foreach_safe(coap_blockwise_payload_s, removed_blockwise_payload_ptr, &handle->linked_list_blockwise_received_payloads) {
+        sn_coap_protocol_linked_list_blockwise_payload_remove(handle, removed_blockwise_payload_ptr);
+    }
+#endif
+}
+
 int8_t sn_coap_protocol_set_duplicate_buffer_size(struct coap_s *handle, uint8_t message_count)
 {
     (void) handle;
@@ -1546,9 +1561,11 @@ static uint32_t sn_coap_protocol_linked_list_blockwise_payloads_get_len(struct c
 static void sn_coap_protocol_handle_blockwise_timout(struct coap_s *handle)
 {
     /* Loop all outgoing blockwise messages */
+    /* foreach_safe isn't sufficient because callback routine could remove messages. */
+rescan:
     ns_list_foreach_safe(coap_blockwise_msg_s, removed_blocwise_msg_ptr, &handle->linked_list_blockwise_sent_msgs) {
         if ((handle->system_time - removed_blocwise_msg_ptr->timestamp)  > SN_COAP_BLOCKWISE_MAX_TIME_DATA_STORED) {
-
+            bool callback_called = false;
             // Item must be removed from the list before calling the rx_callback function.
             // Callback could actually clear the list and free the item and cause a use after free when callback returns.
             ns_list_remove(&handle->linked_list_blockwise_sent_msgs, removed_blocwise_msg_ptr);
@@ -1559,7 +1576,9 @@ static void sn_coap_protocol_handle_blockwise_timout(struct coap_s *handle)
                     /* Notify the application about the time out */
                     removed_blocwise_msg_ptr->coap_msg_ptr->coap_status = COAP_STATUS_BUILDER_BLOCK_SENDING_FAILED;
                     removed_blocwise_msg_ptr->coap_msg_ptr->msg_id = removed_blocwise_msg_ptr->msg_id;
+                    sn_coap_protocol_delete_retransmission(handle, removed_blocwise_msg_ptr->msg_id);
                     handle->sn_coap_rx_callback(removed_blocwise_msg_ptr->coap_msg_ptr, NULL, removed_blocwise_msg_ptr->param);
+                    callback_called = true;
                 }
 
                 handle->sn_coap_protocol_free(removed_blocwise_msg_ptr->coap_msg_ptr->payload_ptr);
@@ -1567,6 +1586,12 @@ static void sn_coap_protocol_handle_blockwise_timout(struct coap_s *handle)
             }
 
             handle->sn_coap_protocol_free(removed_blocwise_msg_ptr);
+
+            if (callback_called) {
+                /* Callback routine could have wiped the list already */
+                /* Be super cautious and rescan from the start */
+                goto rescan;
+            }
         }
     }
 
@@ -1796,7 +1821,8 @@ static sn_coap_hdr_s *sn_coap_handle_blockwise_message(struct coap_s *handle, sn
 
                     if (src_coap_blockwise_ack_msg_ptr->options_list_ptr) {
                         src_coap_blockwise_ack_msg_ptr->options_list_ptr->block1 = COAP_OPTION_BLOCK_NONE;
-                        src_coap_blockwise_ack_msg_ptr->options_list_ptr->block2 = COAP_OPTION_BLOCK_NONE;
+                        // Do not clear block2 as it might have been set in the original request to request
+                        // specific size blocks
                     } else {
                         if (!sn_coap_parser_alloc_options(handle, src_coap_blockwise_ack_msg_ptr)) {
                             tr_error("sn_coap_handle_blockwise_message - (send block1) failed to allocate ack message!");
@@ -1823,6 +1849,7 @@ static sn_coap_hdr_s *sn_coap_handle_blockwise_message(struct coap_s *handle, sn
                         src_coap_blockwise_ack_msg_ptr->payload_len = block_size;
                         src_coap_blockwise_ack_msg_ptr->payload_ptr = src_coap_blockwise_ack_msg_ptr->payload_ptr + (block_size * block_number);
                     }
+
                     /* Build and send block message */
                     dst_packed_data_needed_mem = sn_coap_builder_calc_needed_packet_data_size_2(src_coap_blockwise_ack_msg_ptr, handle->sn_coap_block_data_size);
 
@@ -2245,7 +2272,8 @@ static sn_coap_hdr_s *sn_coap_handle_blockwise_message(struct coap_s *handle, sn
 
                 if (src_coap_blockwise_ack_msg_ptr->options_list_ptr) {
                     src_coap_blockwise_ack_msg_ptr->options_list_ptr->block1 = COAP_OPTION_BLOCK_NONE;
-                    src_coap_blockwise_ack_msg_ptr->options_list_ptr->block2 = COAP_OPTION_BLOCK_NONE;
+                    // Do not clear block2 as it might have been set in the original request to request
+                    // specific size blocks
                 } else {
                     if (sn_coap_parser_alloc_options(handle, src_coap_blockwise_ack_msg_ptr) == NULL) {
                         tr_error("sn_coap_handle_blockwise_message - (recv block2) failed to allocate options!");

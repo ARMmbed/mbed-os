@@ -137,6 +137,9 @@ const PinMapI2C PinMap_UART[] = {
 
 The table must be placed in a C compilation file.
 
+#### Flow Control (RTS/CTS)
+
+When hardware flow control is enabled the DMA and FIFO buffers can be reduced to save RAM. CTS will be disabled when a DMA buffer is copied to the FIFO and enabled again when the FIFO has been emptied. Because of the dual buffering the FIFO buffer must be twice the size of the DMA buffer (less than half and data mmight be lost and more than half will be a waste of RAM).
 
 #### RTC2
 

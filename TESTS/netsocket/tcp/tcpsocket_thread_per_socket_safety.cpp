@@ -29,7 +29,7 @@ static const int SIGNAL_SIGIO1 = 0x1;
 static const int SIGNAL_SIGIO2 = 0x2;
 static const int SIGIO_TIMEOUT = 5000; //[ms]
 
-Thread thread;
+Thread thread(osPriorityNormal, tcp_global::TCP_OS_STACK_SIZE);
 volatile bool running = true;
 }
 
@@ -47,11 +47,11 @@ static void check_const_len_rand_sequence()
 {
     TCPSocket sock;
     tcpsocket_connect_to_echo_srv(sock);
-    sock.sigio(callback(_sigio_handler1, Thread::gettid()));
+    sock.sigio(callback(_sigio_handler1, ThisThread::get_id()));
 
     static const int BUFF_SIZE = 10;
-    char rx_buff[BUFF_SIZE] = {0};
-    char tx_buff[BUFF_SIZE] = {0};
+    static char rx_buff[BUFF_SIZE] = {0};
+    static char tx_buff[BUFF_SIZE] = {0};
 
 
     int bytes2process;
@@ -104,11 +104,11 @@ static void check_var_len_rand_sequence()
 {
     TCPSocket sock;
     tcpsocket_connect_to_echo_srv(sock);
-    sock.sigio(callback(_sigio_handler2, Thread::gettid()));
+    sock.sigio(callback(_sigio_handler2, ThisThread::get_id()));
 
     static const int BUFF_SIZE = 1001;
-    char rx_buff[BUFF_SIZE];
-    char tx_buff[BUFF_SIZE];
+    static char rx_buff[BUFF_SIZE];
+    static char tx_buff[BUFF_SIZE];
     static const int pkt_size_diff = 100;
 
     int bytes2process;

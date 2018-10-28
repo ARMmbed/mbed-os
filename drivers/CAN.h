@@ -85,7 +85,7 @@ public:
 class CAN : private NonCopyable<CAN> {
 
 public:
-    /** Creates an CAN interface connected to specific pins.
+    /** Creates a CAN interface connected to specific pins.
      *
      *  @param rd read from transmitter
      *  @param td transmit to transmitter
@@ -94,11 +94,14 @@ public:
      * @code
      * #include "mbed.h"
      *
+     *
      * Ticker ticker;
      * DigitalOut led1(LED1);
      * DigitalOut led2(LED2);
-     * CAN can1(p9, p10);
-     * CAN can2(p30, p29);
+     * //The constructor takes in RX, and TX pin respectively.
+     * //These pins, for this example, are defined in mbed_app.json
+     * CAN can1(MBED_CONF_APP_CAN1_RD, MBED_CONF_APP_CAN1_TD);
+     * CAN can2(MBED_CONF_APP_CAN2_RD, MBED_CONF_APP_CAN2_TD);
      *
      * char counter = 0;
      *
@@ -121,14 +124,15 @@ public:
      *         wait(0.2);
      *     }
      * }
+     * 
      * @endcode
      */
     CAN(PinName rd, PinName td);
 
     /** Initialize CAN interface and set the frequency
       *
-      * @param rd the rd pin
-      * @param td the td pin
+      * @param rd the read pin
+      * @param td the transmit pin
       * @param hz the bus frequency in hertz
       */
     CAN(PinName rd, PinName td, int hz);
@@ -288,12 +292,14 @@ public:
 
     static void _irq_handler(uint32_t id, CanIrqType type);
 
+#if !defined(DOXYGEN_ONLY)
 protected:
     virtual void lock();
     virtual void unlock();
     can_t               _can;
     Callback<void()>    _irq[IrqCnt];
     PlatformMutex       _mutex;
+#endif
 };
 
 } // namespace mbed

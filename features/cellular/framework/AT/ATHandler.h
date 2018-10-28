@@ -248,6 +248,11 @@ public:
      */
     void cmd_stop();
 
+    /** Stops the AT command by writing command-line terminator CR to mark command as finished and reads the OK/ERROR response.
+     *
+     */
+    void cmd_stop_read_resp();
+
     /** Write bytes without any subparameter delimiters, such as comma.
      *  In case of failure when writing, the last error is set to NSAPI_ERROR_DEVICE_ERROR.
      *
@@ -510,7 +515,7 @@ private:
     const char *mem_str(const char *dest, size_t dest_len, const char *src, size_t src_len);
 
     // check is urc is already added
-    bool find_urc_handler(const char *prefix, mbed::Callback<void()> callback);
+    bool find_urc_handler(const char *prefix, mbed::Callback<void()> *callback);
 
     // print contents of a buffer to trace log
     void debug_print(char *p, int len);

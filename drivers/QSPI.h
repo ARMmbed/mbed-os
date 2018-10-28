@@ -44,8 +44,12 @@ namespace mbed {
  *
  * #include "mbed.h"
  *
+ * #define CMD_WRITE 0x02
+ * #define CMD_READ  0x03
+ * #define ADDRESS   0x1000
+ *
  * // hardware ssel (where applicable)
- * QSPI qspi_device(QSPI_PIN_IO0, QSPI_PIN_IO1, QSPI_PIN_IO2, QSPI_PIN_IO3, QSPI_PIN_SCK, QSPI_PIN_CSN); // io0, io1, io2, io3, sclk, ssel
+ * QSPI qspi_device(QSPI_FLASH1_IO0, QSPI_FLASH1_IO1, QSPI_FLASH1_IO2, QSPI_FLASH1_IO3, QSPI_FLASH1_SCK, QSPI_FLASH1_CSN); // io0, io1, io2, io3, sclk, ssel
  *
  *
  * int main() {
@@ -53,10 +57,14 @@ namespace mbed {
  *     char rx_buf[4];
  *     int buf_len = sizeof(tx_buf);
  *
- *     int result = qspi_device.write( 0x12 , 0x100000 , 0 , tx_buf, &buf_len );
- *     if( !result ) printf("Write failed");
- *     int result = qspi_device.read( 0x13 , 0x100000 , 0 , rx_buf, &buf_len );
- *     if( !result ) printf("Read failed");
+ *     qspi_status_t result = qspi_device.write(CMD_WRITE, 0, ADDRESS, tx_buf, &buf_len);
+ *     if (result != QSPI_STATUS_OK) {
+ *        printf("Write failed");
+ *     }
+ *     result = qspi_device.read(CMD_READ, 0, ADDRESS, rx_buf, &buf_len);
+ *     if (result != QSPI_STATUS_OK) {
+ *        printf("Read failed");
+ *     }
  *
  * }
  * @endcode
@@ -76,11 +84,14 @@ public:
      *  @param io3 4th IO pin used for sending/receiving data during data phase of a transaction
      *  @param sclk QSPI Clock pin
      *  @param ssel QSPI chip select pin
-     *  @param mode Mode specifies the SPI mode(Mode=0 uses CPOL=0, CPHA=0, Mode=1 uses CPOL=1, CPHA=1)
-     *         default value = 0
+     *  @param mode Clock polarity and phase mode (0 - 3) of SPI
+     *         (Default: Mode=0 uses CPOL=0, CPHA=0, Mode=1 uses CPOL=1, CPHA=1)
      *
      */
     QSPI(PinName io0, PinName io1, PinName io2, PinName io3, PinName sclk, PinName ssel = NC, int mode = 0);
+    virtual ~QSPI()
+    {
+    }
 
     /** Configure the data transmission format
      *
@@ -88,7 +99,7 @@ public:
      *  @param address_width Bus width used by address phase(Valid values are QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_DUAL, QSPI_CFG_BUS_QUAD)
      *  @param address_size Size in bits used by address phase(Valid values are QSPI_CFG_ADDR_SIZE_8, QSPI_CFG_ADDR_SIZE_16, QSPI_CFG_ADDR_SIZE_24, QSPI_CFG_ADDR_SIZE_32)
      *  @param alt_width Bus width used by alt phase(Valid values are QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_DUAL, QSPI_CFG_BUS_QUAD)
-     *  @param alt_size Size in bits used by alt phase(Valid values are QSPI_CFG_ADDR_SIZE_8, QSPI_CFG_ADDR_SIZE_16, QSPI_CFG_ADDR_SIZE_24, QSPI_CFG_ADDR_SIZE_32)
+     *  @param alt_size Size in bits used by alt phase(Valid values are QSPI_CFG_ALT_SIZE_8, QSPI_CFG_ALT_SIZE_16, QSPI_CFG_ALT_SIZE_24, QSPI_CFG_ALT_SIZE_32)
      *  @param data_width Bus width used by data phase(Valid values are QSPI_CFG_BUS_SINGLE, QSPI_CFG_BUS_DUAL, QSPI_CFG_BUS_QUAD)
      *  @param dummy_cycles Number of dummy clock cycles to be used after alt phase
      *
@@ -118,7 +129,7 @@ public:
      *  @returns
      *    Returns QSPI_STATUS_SUCCESS on successful reads and QSPI_STATUS_ERROR on failed reads.
      */
-    qspi_status_t read(unsigned int address, char *rx_buffer, size_t *rx_length);
+    qspi_status_t read(int address, char *rx_buffer, size_t *rx_length);
 
     /** Write to QSPI peripheral using custom write instruction
      *
@@ -129,12 +140,12 @@ public:
      *  @returns
      *    Returns QSPI_STATUS_SUCCESS on successful reads and QSPI_STATUS_ERROR on failed reads.
      */
-    qspi_status_t write(unsigned int address, const char *tx_buffer, size_t *tx_length);
+    qspi_status_t write(int address, const char *tx_buffer, size_t *tx_length);
 
     /** Read from QSPI peripheral using custom read instruction, alt values
      *
      *  @param instruction Instruction value to be used in instruction phase
-     *  @param alt Alt value to be used in instruction phase
+     *  @param alt Alt value to be used in Alternate-byte phase. Use -1 for ignoring Alternate-byte phase
      *  @param address Address to be accessed in QSPI peripheral
      *  @param rx_buffer Buffer for data to be read from the peripheral
      *  @param rx_length Pointer to a variable containing the length of rx_buffer, and on return this variable will be updated with the actual number of bytes read
@@ -142,12 +153,12 @@ public:
      *  @returns
      *    Returns QSPI_STATUS_SUCCESS on successful reads and QSPI_STATUS_ERROR on failed reads.
      */
-    qspi_status_t read(unsigned int instruction, unsigned int alt, unsigned int address, char *rx_buffer, size_t *rx_length);
+    qspi_status_t read(int instruction, int alt, int address, char *rx_buffer, size_t *rx_length);
 
     /** Write to QSPI peripheral using custom write instruction, alt values
      *
      *  @param instruction Instruction value to be used in instruction phase
-     *  @param alt Alt value to be used in instruction phase
+     *  @param alt Alt value to be used in Alternate-byte phase. Use -1 for ignoring Alternate-byte phase
      *  @param address Address to be accessed in QSPI peripheral
      *  @param tx_buffer Buffer containing data to be sent to peripheral
      *  @param tx_length Pointer to a variable containing the length of data to be transmitted, and on return this variable will be updated with the actual number of bytes written
@@ -155,12 +166,12 @@ public:
      *  @returns
      *    Returns QSPI_STATUS_SUCCESS on successful reads and QSPI_STATUS_ERROR on failed reads.
      */
-    qspi_status_t write(unsigned int instruction, unsigned int alt, unsigned int address, const char *tx_buffer, size_t *tx_length);
+    qspi_status_t write(int instruction, int alt, int address, const char *tx_buffer, size_t *tx_length);
 
     /** Perform a transaction to write to an address(a control register) and get the status results
      *
      *  @param instruction Instruction value to be used in instruction phase
-     *  @param address Some instruction might require address. Use -1 for ignoring the address value
+     *  @param address Some instruction might require address. Use -1 if no address
      *  @param tx_buffer Buffer containing data to be sent to peripheral
      *  @param tx_length Pointer to a variable containing the length of data to be transmitted, and on return this variable will be updated with the actual number of bytes written
      *  @param rx_buffer Buffer for data to be read from the peripheral
@@ -169,8 +180,9 @@ public:
      *  @returns
      *    Returns QSPI_STATUS_SUCCESS on successful reads and QSPI_STATUS_ERROR on failed reads.
      */
-    qspi_status_t command_transfer(unsigned int instruction, int address, const char *tx_buffer, size_t tx_length, const char *rx_buffer, size_t rx_length);
+    qspi_status_t command_transfer(int instruction, int address, const char *tx_buffer, size_t tx_length, const char *rx_buffer, size_t rx_length);
 
+#if !defined(DOXYGEN_ONLY)
 protected:
     /** Acquire exclusive access to this SPI bus
      */
@@ -180,12 +192,6 @@ protected:
      */
     virtual void unlock(void);
 
-public:
-    virtual ~QSPI()
-    {
-    }
-
-protected:
     qspi_t _qspi;
 
     bool acquire(void);
@@ -215,6 +221,7 @@ private:
      * This function builds the qspi command struct to be send to Hal
      */
     inline void _build_qspi_command(int instruction, int address, int alt);
+#endif
 };
 
 } // namespace mbed

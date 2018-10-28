@@ -1250,6 +1250,8 @@ extern "C" void exit(int return_code)
 #if MBED_CONF_PLATFORM_STDIO_FLUSH_AT_EXIT
     fflush(stdout);
     fflush(stderr);
+    fsync(STDOUT_FILENO);
+    fsync(STDERR_FILENO);
 #endif
 #endif
 
@@ -1342,38 +1344,6 @@ void mbed_set_unbuffered_stream(std::FILE *_file)
     std::setvbuf(_file, buf, _IONBF, NULL);
 #else
     setbuf(_file, NULL);
-#endif
-}
-
-int mbed_getc(std::FILE *_file)
-{
-#if defined(__IAR_SYSTEMS_ICC__ ) && (__VER__ < 8000000)
-    /*This is only valid for unbuffered streams*/
-    int res = std::fgetc(_file);
-    if (res >= 0) {
-        _file->_Mode = (unsigned short)(_file->_Mode & ~ 0x1000);/* Unset read mode */
-        _file->_Rend = _file->_Wend;
-        _file->_Next = _file->_Wend;
-    }
-    return res;
-#else
-    return std::fgetc(_file);
-#endif
-}
-
-char *mbed_gets(char *s, int size, std::FILE *_file)
-{
-#if defined(__IAR_SYSTEMS_ICC__ ) && (__VER__ < 8000000)
-    /*This is only valid for unbuffered streams*/
-    char *str = fgets(s, size, _file);
-    if (str != NULL) {
-        _file->_Mode = (unsigned short)(_file->_Mode & ~ 0x1000);/* Unset read mode */
-        _file->_Rend = _file->_Wend;
-        _file->_Next = _file->_Wend;
-    }
-    return str;
-#else
-    return std::fgets(s, size, _file);
 #endif
 }
 

@@ -7,8 +7,8 @@ define symbol __ICFEDIT_intvec_start__ = 0x08000000;
 define symbol __ICFEDIT_region_ROM_start__ = 0x08000000;
 define symbol __ICFEDIT_region_ROM_end__   = 0x0801FFFF;
 define symbol __ICFEDIT_region_NVIC_start__   = 0x20000000;
-define symbol __ICFEDIT_region_NVIC_end__   = 0x200000EB;
-define symbol __ICFEDIT_region_RAM_start__ = 0x200000EC;
+define symbol __ICFEDIT_region_NVIC_end__   = 0x200000F0 - 0x1;
+define symbol __ICFEDIT_region_RAM_start__ = 0x200000F0; /* 8-byte aligned (0xEC) = 0xF0 */
 define symbol __ICFEDIT_region_RAM_end__   = 0x20004FFF;
 /*-Sizes-*/
 /*Heap 1/4 of ram and stack 1/8*/

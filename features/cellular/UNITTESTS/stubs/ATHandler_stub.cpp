@@ -68,7 +68,7 @@ void ATHandler::set_debug(bool debug_on)
 
 ATHandler::~ATHandler()
 {
-    ATHandler_stub::ref_count = -909;
+    ATHandler_stub::ref_count = kATHandler_destructor_ref_ount;
 }
 
 void ATHandler::inc_ref_count()
@@ -277,6 +277,13 @@ size_t ATHandler::write_bytes(const uint8_t *param, size_t len)
 
 void ATHandler::cmd_stop()
 {
+}
+
+void ATHandler::cmd_stop_read_resp()
+{
+    cmd_stop();
+    resp_start();
+    resp_stop();
 }
 
 device_err_t ATHandler::get_last_device_error() const

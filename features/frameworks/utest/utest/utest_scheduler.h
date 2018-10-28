@@ -22,7 +22,7 @@
 #ifndef UTEST_SCHEDULER_H
 #define UTEST_SCHEDULER_H
 
-#include "mbed.h"
+#include "hal/ticker_api.h"
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>

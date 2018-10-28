@@ -18,7 +18,6 @@
 #define EMAC_INTERFACE_H
 
 #include "nsapi.h"
-#include "rtos.h"
 #include "EMAC.h"
 #include "OnboardNetworkStack.h"
 
@@ -171,7 +170,7 @@ protected:
     char _ip_address[NSAPI_IPv6_SIZE];
     char _netmask[NSAPI_IPv4_SIZE];
     char _gateway[NSAPI_IPv4_SIZE];
-    Callback<void(nsapi_event_t, intptr_t)> _connection_status_cb;
+    mbed::Callback<void(nsapi_event_t, intptr_t)> _connection_status_cb;
 };
 
 #endif

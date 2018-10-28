@@ -15,7 +15,8 @@
  */
 
 #include "TCPServer.h"
-#include "mbed.h"
+
+using mbed::Callback;
 
 TCPServer::TCPServer()
 {
@@ -28,6 +29,7 @@ TCPServer::~TCPServer()
 
 nsapi_error_t TCPServer::accept(TCPSocket *connection, SocketAddress *address)
 {
+    _lock.lock();
     nsapi_error_t ret;
 
     while (true) {

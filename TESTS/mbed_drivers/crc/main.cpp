@@ -125,11 +125,41 @@ void test_any_polynomial()
     }
 }
 
+void test_thread(void)
+{
+    char  test[] = "123456789";
+    uint32_t crc;
+    MbedCRC<POLY_32BIT_ANSI, 32> ct;
+    TEST_ASSERT_EQUAL(0, ct.compute((void *)test, strlen((const char *)test), &crc));
+    TEST_ASSERT_EQUAL(0xCBF43926, crc);
+}
+
+void test_thread_safety()
+{
+    char  test[] = "123456789";
+    uint32_t crc;
+
+    MbedCRC<POLY_16BIT_IBM, 16> ct;
+
+    TEST_ASSERT_EQUAL(0, ct.compute_partial_start(&crc));
+    TEST_ASSERT_EQUAL(0, ct.compute_partial((void *)&test, 4, &crc));
+
+    Thread t1(osPriorityNormal1, 320);
+    t1.start(callback(test_thread));
+    TEST_ASSERT_EQUAL(0, ct.compute_partial((void *)&test[4], 5, &crc));
+    TEST_ASSERT_EQUAL(0, ct.compute_partial_stop(&crc));
+    TEST_ASSERT_EQUAL(0xBB3D, crc);
+
+    // Wait for the thread to finish
+    t1.join();
+}
+
 Case cases[] = {
     Case("Test supported polynomials", test_supported_polynomials),
     Case("Test partial CRC", test_partial_crc),
     Case("Test SD CRC polynomials", test_sd_crc),
-    Case("Test not supported polynomials", test_any_polynomial)
+    Case("Test not supported polynomials", test_any_polynomial),
+    Case("Test thread safety", test_thread_safety)
 };
 
 utest::v1::status_t greentea_test_setup(const size_t number_of_cases)

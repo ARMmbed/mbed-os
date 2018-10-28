@@ -1,0 +1,27 @@
+{
+    "config": {
+        "echo-server-addr" : {
+            "help" : "IP address of echo server",
+            "value" : "\"echo.mbedcloudtesting.com\""
+        },
+        "echo-server-port" : {
+            "help" : "Port of echo server",
+            "value" : "7"
+        }
+    },
+    "target_overrides": {
+        "*": {
+            "target.network-default-interface-type": "MESH",
+            "nsapi.default-stack": "NANOSTACK",
+            "nsapi.default-mesh-type": "LOWPAN",
+            "nanostack.configuration": "lowpan_host",
+            "mbed-mesh-api.heap-size": 14000,
+            "mbed-mesh-api.6lowpan-nd-device-type": "NET_6LOWPAN_HOST",
+            "mbed-mesh-api.6lowpan-nd-panid-filter": "0xffff",
+            "mbed-mesh-api.6lowpan-nd-channel-page": 0,
+            "mbed-mesh-api.6lowpan-nd-channel": 12,
+            "mbed-mesh-api.6lowpan-nd-channel-mask": "(1<<12)",
+            "mbed-trace.enable": false
+        }
+    }
+}

@@ -89,14 +89,14 @@ HalTimerReLoadRtl8195a_Patch(
     IN  u32 LoadUs
 );
 
-u32
-HalTimerReadCountRtl8195a_Patch(
+VOID
+HalTimerSyncRtl8195a(
     IN  u32 TimerId
 );
 
-VOID 
-HalTimerSync(
-    IN u32 TimerId
+u32
+HalTimerReadCountRtl8195a_Patch(
+    IN  u32 TimerId
 );
 
 VOID
@@ -121,6 +121,11 @@ HalTimerEnRtl8195a_Patch(
 
 VOID
 HalTimerDisRtl8195a_Patch(
+    IN  u32 TimerId
+);
+
+VOID
+HalTimerSyncRtl8195a(
     IN  u32 TimerId
 );
 

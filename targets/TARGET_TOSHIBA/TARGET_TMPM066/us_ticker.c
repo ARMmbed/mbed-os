@@ -1,5 +1,5 @@
 /* mbed Microcontroller Library
- * (C)Copyright TOSHIBA ELECTRONIC DEVICES & STORAGE CORPORATION 2017 All rights reserved
+ * (C)Copyright TOSHIBA ELECTRONIC DEVICES & STORAGE CORPORATION 2018 All rights reserved
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,51 +13,57 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#include <stdbool.h>
 #include "us_ticker_api.h"
-#include "mbed_critical.h"
+#include "tmpm066_tmrb.h"
+#include "tmpm066_intifsd.h"
 
-#define TMR16A_100US                0x960 // fsys = fc = 24MHz, Ttmra = 1/24us, 100us*24us = 2400 = 0x960
-#define TMR16A_SYSCK                ((uint32_t)0x00000001)
-#define TMR16A_RUN                  ((uint32_t)0x00000001)
-#define TMR16A_STOP                 ((uint32_t)0x00000000)
-#define OVERFLOW_32BIT              (0xFFFFFFFF / 0x64)
+#define MAX_TICK_16_BIT         0xFFFF
 
-static uint8_t us_ticker_inited = 0;                // Is ticker initialized yet?
-static volatile uint32_t ticker_int_counter = 0;    // Amount of overflows until user interrupt
-static volatile uint32_t us_ticker = 0;             // timer counter
+static bool us_ticker_inited = false; // Is ticker initialized yet?
 
-void INT16A0_IRQHandler(void)
-{
-    us_ticker++;
-
-    if (us_ticker > OVERFLOW_32BIT) {
-        us_ticker = 0;
-    }
-}
-
-void INT16A1_IRQHandler(void)
+void INTTB7_IRQHandler(void)
 {
     us_ticker_irq_handler();
+}
+
+const ticker_info_t* us_ticker_get_info()
+{
+    static const ticker_info_t info = {
+        3000000, // 3MHz,
+        16       // 16 bit counter
+    };
+    return &info;
 }
 
 // initialize us_ticker
 void us_ticker_init(void)
 {
-    // Enable clock supply to TA0
-    CG_SetFcPeriphA(CG_FC_PERIPH_TMR16A, ENABLE);
+    TMRB_InitTypeDef m_tmrb0;
+
     if (us_ticker_inited) {
+        us_ticker_disable_interrupt();
         return;
     }
-    us_ticker_inited = 1;
+    us_ticker_inited = true;
 
+    // TSB_TB7 using free-run
+    m_tmrb0.Mode = TMRB_INTERVAL_TIMER;
+    m_tmrb0.ClkDiv = TMRB_CLK_DIV_8;
+    m_tmrb0.UpCntCtrl = TMRB_FREE_RUN;
+    m_tmrb0.TrailingTiming = MAX_TICK_16_BIT;
+    m_tmrb0.LeadingTiming = MAX_TICK_16_BIT;
+
+    // Enable channel 0
+    TMRB_Enable(TSB_TB7);
     // Stops and clear count operation
-    TSB_T16A0->RUN = TMR16A_STOP;
-    TSB_T16A0->CR = TMR16A_SYSCK;
-    // Permits INTTA0 interrupt
-    NVIC_EnableIRQ(INT16A0_IRQn);
-    // Match counter set to max value
-    TSB_T16A0->RG = TMR16A_100US;
-    TSB_T16A0->RUN = TMR16A_RUN;
+    TMRB_SetRunState(TSB_TB7, TMRB_STOP);
+    // Mask All interrupts
+    TMRB_SetINTMask(TSB_TB7, TMRB_MASK_MATCH_LEADINGTIMING_INT | TMRB_MASK_MATCH_TRAILINGTIMING_INT | TMRB_MASK_OVERFLOW_INT);
+    // Initialize timer
+    TMRB_Init(TSB_TB7, &m_tmrb0);
+    // Starts TSB_TB7
+    TMRB_SetRunState(TSB_TB7, TMRB_RUN);
 }
 
 uint32_t us_ticker_read(void)
@@ -68,47 +74,47 @@ uint32_t us_ticker_read(void)
         us_ticker_init();
     }
 
-    uint32_t tickerbefore = 0;
-    do {
-        tickerbefore = us_ticker;
-        ret_val = (us_ticker * 100);
-    } while (tickerbefore != us_ticker);
+    ret_val = (uint32_t)TMRB_GetUpCntValue(TSB_TB7);
 
     return ret_val;
 }
 
 void us_ticker_set_interrupt(timestamp_t timestamp)
 {
-    uint32_t delta = 0;
-
-    // Stops and clear count operation
-    TSB_T16A1->RUN = TMR16A_STOP;
-    TSB_T16A1->CR = TMR16A_SYSCK;
-    // Set the compare register
-    delta = (timestamp - us_ticker_read());
-    TSB_T16A1->RG = delta;
-    // Set Interrupt
-    NVIC_EnableIRQ(INT16A1_IRQn);
-    // Start TMR_TA1 timer
-    TSB_T16A1->RUN = TMR16A_RUN;
+    NVIC_DisableIRQ(INTTB7_IRQn);
+    NVIC_ClearPendingIRQ(INTTB7_IRQn);
+    TMRB_ChangeTrailingTiming(TSB_TB7, timestamp);
+    //Mask all Interrupts except trailing edge interrupt
+    TMRB_SetINTMask(TSB_TB7, TMRB_MASK_MATCH_LEADINGTIMING_INT | TMRB_MASK_OVERFLOW_INT);
+    NVIC_EnableIRQ(INTTB7_IRQn);
 }
 
 void us_ticker_fire_interrupt(void)
 {
-    NVIC_SetPendingIRQ(INT16A1_IRQn);
+    NVIC_SetPendingIRQ(INTTB7_IRQn);
+    NVIC_EnableIRQ(INTTB7_IRQn);
 }
 
 void us_ticker_disable_interrupt(void)
 {
-    NVIC_DisableIRQ(INT16A1_IRQn);
+    // Mask All interrupts
+    TMRB_SetINTMask(TSB_TB7, TMRB_MASK_MATCH_LEADINGTIMING_INT | TMRB_MASK_MATCH_TRAILINGTIMING_INT | TMRB_MASK_OVERFLOW_INT);
+    // Also clear and disable interrupts by NVIC
+    NVIC_ClearPendingIRQ(INTTB7_IRQn);
+    NVIC_DisableIRQ(INTTB7_IRQn);
 }
 
 void us_ticker_clear_interrupt(void)
 {
-    //no flags to clear
+    INTIFSD_ClearINTReq(INTIFSD_INT_SRC_TMRB_7_MDOVF);
+    NVIC_ClearPendingIRQ(INTTB7_IRQn);
 }
 
 void us_ticker_free(void)
 {
-
+    TMRB_SetINTMask(TSB_TB7, TMRB_MASK_MATCH_LEADINGTIMING_INT | TMRB_MASK_MATCH_TRAILINGTIMING_INT | TMRB_MASK_OVERFLOW_INT);
+    NVIC_ClearPendingIRQ(INTTB7_IRQn);
+    NVIC_DisableIRQ(INTTB7_IRQn);
+    TMRB_SetRunState(TSB_TB7, TMRB_STOP);
+    TMRB_Disable(TSB_TB7);
 }

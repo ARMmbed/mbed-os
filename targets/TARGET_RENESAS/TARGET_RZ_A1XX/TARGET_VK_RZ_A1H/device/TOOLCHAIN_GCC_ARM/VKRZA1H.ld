@@ -114,7 +114,7 @@ SECTIONS
 
     .copy.table :
     {
-        . = ALIGN(4);
+        . = ALIGN(8);
         __copy_table_start__ = .;
         LONG (__etext)
         LONG (__data_start__)
@@ -127,7 +127,7 @@ SECTIONS
 
     .zero.table :
     {
-        . = ALIGN(4);
+        . = ALIGN(8);
         __zero_table_start__ = .;
         LONG (__bss_start__)
         LONG (__bss_end__ - __bss_start__)
@@ -153,13 +153,13 @@ SECTIONS
         *(.data*)
         Image$$RW_DATA$$Limit = .;
 
-        . = ALIGN(4);
+        . = ALIGN(8);
         /* preinit data */
         PROVIDE (__preinit_array_start = .);
         KEEP(*(.preinit_array))
         PROVIDE (__preinit_array_end = .);
 
-        . = ALIGN(4);
+        . = ALIGN(8);
         /* init data */
         PROVIDE (__init_array_start = .);
         KEEP(*(SORT(.init_array.*)))
@@ -167,14 +167,14 @@ SECTIONS
         PROVIDE (__init_array_end = .);
 
 
-        . = ALIGN(4);
+        . = ALIGN(8);
         /* finit data */
         PROVIDE (__fini_array_start = .);
         KEEP(*(SORT(.fini_array.*)))
         KEEP(*(.fini_array))
         PROVIDE (__fini_array_end = .);
 
-        . = ALIGN(4);
+        . = ALIGN(8);
         /* All data end */
         __data_end__ = .;
 
@@ -223,7 +223,7 @@ SECTIONS
         __nc_data_start = .;
         *(NC_DATA)
 
-        . = ALIGN(4);
+        . = ALIGN(8);
         __nc_data_end = .;
         Image$$RW_DATA_NC$$Limit = .;
     } > RAM_NC
@@ -234,7 +234,7 @@ SECTIONS
         __nc_bss_start = .;
         *(NC_BSS)
 
-        . = ALIGN(4);
+        . = ALIGN(8);
         __nc_bss_end = .;
         Image$$ZI_DATA_NC$$Limit = .;
     } > RAM_NC

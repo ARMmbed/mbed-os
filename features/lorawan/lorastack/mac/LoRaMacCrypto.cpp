@@ -33,13 +33,7 @@
 #if defined(MBEDTLS_CMAC_C) && defined(MBEDTLS_AES_C) && defined(MBEDTLS_CIPHER_C)
 
 LoRaMacCrypto::LoRaMacCrypto()
-    : mic_block_b0(),
-      computed_mic(),
-      a_block(),
-      s_block()
 {
-    mic_block_b0[0] = 0x49;
-    a_block[0] = 0x01;
 }
 
 int LoRaMacCrypto::compute_mic(const uint8_t *buffer, uint16_t size,
@@ -47,7 +41,11 @@ int LoRaMacCrypto::compute_mic(const uint8_t *buffer, uint16_t size,
                                uint32_t address, uint8_t dir, uint32_t seq_counter,
                                uint32_t *mic)
 {
+    uint8_t computed_mic[16] = {};
+    uint8_t mic_block_b0[16] = {};
     int ret = 0;
+
+    mic_block_b0[0] = 0x49;
 
     mic_block_b0[5] = dir;
 
@@ -95,7 +93,8 @@ int LoRaMacCrypto::compute_mic(const uint8_t *buffer, uint16_t size,
         ret = MBEDTLS_ERR_CIPHER_ALLOC_FAILED;
     }
 
-exit: mbedtls_cipher_free(aes_cmac_ctx);
+exit:
+    mbedtls_cipher_free(aes_cmac_ctx);
     return ret;
 }
 
@@ -108,12 +107,15 @@ int LoRaMacCrypto::encrypt_payload(const uint8_t *buffer, uint16_t size,
     uint8_t bufferIndex = 0;
     uint16_t ctr = 1;
     int ret = 0;
+    uint8_t a_block[16] = {};
+    uint8_t s_block[16] = {};
 
     mbedtls_aes_init(&aes_ctx);
     ret = mbedtls_aes_setkey_enc(&aes_ctx, key, key_length);
     if (0 != ret)
         goto exit;
 
+    a_block[0] = 0x01;
     a_block[5] = dir;
 
     a_block[6] = (address) & 0xFF;
@@ -153,7 +155,8 @@ int LoRaMacCrypto::encrypt_payload(const uint8_t *buffer, uint16_t size,
         }
     }
 
-exit: mbedtls_aes_free(&aes_ctx);
+exit:
+    mbedtls_aes_free(&aes_ctx);
     return ret;
 }
 
@@ -170,6 +173,7 @@ int LoRaMacCrypto::compute_join_frame_mic(const uint8_t *buffer, uint16_t size,
                                           const uint8_t *key, uint32_t key_length,
                                           uint32_t *mic)
 {
+    uint8_t computed_mic[16] = {};
     int ret = 0;
 
     mbedtls_cipher_init(aes_cmac_ctx);
@@ -199,7 +203,8 @@ int LoRaMacCrypto::compute_join_frame_mic(const uint8_t *buffer, uint16_t size,
         ret = MBEDTLS_ERR_CIPHER_ALLOC_FAILED;
     }
 
-exit: mbedtls_cipher_free(aes_cmac_ctx);
+exit:
+    mbedtls_cipher_free(aes_cmac_ctx);
     return ret;
 }
 
@@ -226,7 +231,8 @@ int LoRaMacCrypto::decrypt_join_frame(const uint8_t *buffer, uint16_t size,
                                     dec_buffer + 16);
     }
 
-exit: mbedtls_aes_free(&aes_ctx);
+exit:
+    mbedtls_aes_free(&aes_ctx);
     return ret;
 }
 
@@ -258,7 +264,8 @@ int LoRaMacCrypto::compute_skeys_for_join_frame(const uint8_t *key, uint32_t key
     memcpy(nonce + 7, p_dev_nonce, 2);
     ret = mbedtls_aes_crypt_ecb(&aes_ctx, MBEDTLS_AES_ENCRYPT, nonce, app_skey);
 
-    exit: mbedtls_aes_free(&aes_ctx);
+exit:
+    mbedtls_aes_free(&aes_ctx);
     return ret;
 }
 #else

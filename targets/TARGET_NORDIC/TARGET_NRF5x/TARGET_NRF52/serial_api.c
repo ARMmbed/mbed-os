@@ -593,6 +593,20 @@ static void nordic_nrf5_uart_event_handler_endrx(int instance)
 
     if (available > 0) {
 
+        /* Check if hardware flow control is set and signal sender to stop.
+         *
+         * This signal is set manually because the flow control logic in the UARTE module
+         * only works when the module is receiving and not after an ENDRX event.
+         *
+         * The RTS signal is kept high until the atomic FIFO is empty. This allow systems
+         * with flow control to reduce their FIFO and DMA buffers.
+         */
+        if ((nordic_nrf5_uart_state[instance].owner->hwfc == NRF_UART_HWFC_ENABLED) &&
+            (nordic_nrf5_uart_state[instance].owner->rts != NRF_UART_PSEL_DISCONNECTED)) {
+
+            nrf_gpio_pin_set(nordic_nrf5_uart_state[instance].owner->rts);
+        }
+
         /* Copy data from DMA buffer to FIFO buffer. */
         for (size_t index = 0; index < available; index++) {
 
@@ -810,6 +824,7 @@ static void nordic_nrf5_uart_configure_object(serial_t *obj)
         /* Check if pin is set before configuring it. */
         if (uart_object->rts != NRF_UART_PSEL_DISCONNECTED) {
 
+            nrf_gpio_pin_clear(uart_object->rts);
             nrf_gpio_cfg_output(uart_object->rts);
         }
 
@@ -819,8 +834,9 @@ static void nordic_nrf5_uart_configure_object(serial_t *obj)
             nrf_gpio_cfg_input(uart_object->cts, NRF_GPIO_PIN_NOPULL);
         }
 
+        /* Only let UARTE module handle CTS, RTS is handled manually due to buggy UARTE logic. */
         nrf_uarte_hwfc_pins_set(nordic_nrf5_uart_register[uart_object->instance],
-                                uart_object->rts,
+                                NRF_UART_PSEL_DISCONNECTED,
                                 uart_object->cts);
     }
 
@@ -1257,6 +1273,7 @@ void serial_set_flow_control(serial_t *obj, FlowControl type, PinName rxflow, Pi
 
     /* Force reconfiguration next time object is owner. */
     uart_object->update = true;
+    nordic_nrf5_serial_configure(obj);
 }
 
 /** Clear the serial peripheral
@@ -1428,6 +1445,20 @@ int serial_getc(serial_t *obj)
     uint8_t *byte = (uint8_t *) nrf_atfifo_item_get(fifo, &context);
     nrf_atfifo_item_free(fifo, &context);
 
+    /* Check if hardware flow control is set and the atomic FIFO buffer is empty.
+     *
+     * Receive is halted until the buffer has been completely handled to reduce RAM usage.
+     *
+     * This signal is set manually because the flow control logic in the UARTE module
+     * only works when the module is receiving and not after an ENDRX event.
+     */
+    if ((nordic_nrf5_uart_state[instance].owner->hwfc == NRF_UART_HWFC_ENABLED) &&
+        (nordic_nrf5_uart_state[instance].owner->rts != NRF_UART_PSEL_DISCONNECTED) &&
+        (*head == *tail)) {
+
+        nrf_gpio_pin_clear(nordic_nrf5_uart_state[instance].owner->rts);
+    }
+
     return *byte;
 }
 
@@ -1439,6 +1470,7 @@ int serial_getc(serial_t *obj)
  */
 void serial_putc(serial_t *obj, int character)
 {
+    bool done = false;
     MBED_ASSERT(obj);
 
 #if DEVICE_SERIAL_ASYNCH
@@ -1449,35 +1481,20 @@ void serial_putc(serial_t *obj, int character)
 
     int instance = uart_object->instance;
 
-    /**
-     * tx_in_progress acts like a mutex to ensure only one transmission can be active at a time.
-     * The flag is modified using the atomic compare-and-set function.
-     */
-    bool mutex = false;
-
-    do {
-        uint8_t expected = 0;
-        uint8_t desired = 1;
-
-        mutex = core_util_atomic_cas_u8((uint8_t *) &nordic_nrf5_uart_state[instance].tx_in_progress, &expected, desired);
-    } while (mutex == false);
-
-    /* Take ownership and configure UART if necessary. */
     nordic_nrf5_serial_configure(obj);
-
     /* Arm Tx DMA buffer. */
     nordic_nrf5_uart_state[instance].tx_data = character;
     nrf_uarte_tx_buffer_set(nordic_nrf5_uart_register[instance],
                             &nordic_nrf5_uart_state[instance].tx_data,
                             1);
-
-    /* Clear ENDTX event and enable interrupts. */
     nrf_uarte_event_clear(nordic_nrf5_uart_register[instance], NRF_UARTE_EVENT_ENDTX);
-    nrf_uarte_int_enable(nordic_nrf5_uart_register[instance], NRF_UARTE_INT_ENDTX_MASK);
+    nrf_uarte_task_trigger(nordic_nrf5_uart_register[instance], NRF_UARTE_TASK_STARTTX);
 
-    /* Trigger DMA transfer. */
-    nrf_uarte_task_trigger(nordic_nrf5_uart_register[instance],
-                           NRF_UARTE_TASK_STARTTX);
+    do {
+        done = nrf_uarte_event_extra_check(nordic_nrf5_uart_register[instance], NRF_UARTE_EVENT_TXDRDY);
+    } while(done == false);
+
+    nrf_uarte_event_extra_clear(nordic_nrf5_uart_register[instance], NRF_UARTE_EVENT_TXDRDY);
 }
 
 /** Check if the serial peripheral is readable

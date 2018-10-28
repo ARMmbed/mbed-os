@@ -25,7 +25,8 @@
      defined(TARGET_STM32L476RG) ||\
      defined(TARGET_STM32L476JG) ||\
      defined(TARGET_STM32L476VG) ||\
-     defined(TARGET_STM32L486RG))
+     defined(TARGET_STM32L486RG) ||\
+     defined(TARGET_STM32L471QG))
 /* only GCC_ARM and IAR toolchains have the stack on SRAM2 */
 #if (((defined(__GNUC__) && !defined(__CC_ARM)) ||\
        defined(__IAR_SYSTEMS_ICC__ )) &&\
@@ -36,10 +37,10 @@
 #endif /* toolchains */
 
 #elif (defined(TARGET_STM32F051R8) ||\
-     defined(TARGET_STM32F100RB) ||\
-     defined(TARGET_STM32L031K6) ||\
-     defined(TARGET_STM32L053C8) ||\
-     defined(TARGET_STM32L053R8))
+       defined(TARGET_STM32F100RB) ||\
+       defined(TARGET_STM32L031K6) ||\
+       defined(TARGET_STM32L053C8) ||\
+       defined(TARGET_STM32L053R8))
 #define INITIAL_SP              (0x20002000UL)
 
 #elif (defined(TARGET_STM32F303K8) ||\
@@ -73,13 +74,11 @@
 #elif defined(TARGET_STM32L443RC)
 #define INITIAL_SP              (0x2000C000UL)
 
-#elif defined(TARGET_STM32L432KC) ||\
-      defined (TARGET_STM32L433RC)
-#define INITIAL_SP              (0x20010000UL)
-
 #elif (defined(TARGET_STM32F303RE) ||\
        defined(TARGET_STM32F303ZE) ||\
-       defined(TARGET_STM32F401VC))
+       defined(TARGET_STM32F401VC) ||\
+       defined(TARGET_STM32L432KC) ||\
+       defined(TARGET_STM32L433RC))
 #define INITIAL_SP              (0x20010000UL)
 
 #elif defined(TARGET_STM32L152RE)
@@ -120,6 +119,9 @@
        defined(TARGET_STM32F769NI))
 #define INITIAL_SP              (0x20080000UL)
 
+#elif defined(TARGET_STM32L4R5ZI)
+#define INITIAL_SP              (0x200A0000UL)
+
 #else
 #error "INITIAL_SP is not defined for this target in the mbed_rtx.h file"
 #endif
@@ -134,6 +136,25 @@ extern uint32_t               __HeapLimit[];
 #define HEAP_SIZE             ((uint32_t)((uint32_t)__HeapLimit - (uint32_t)HEAP_START))
 #define ISR_STACK_START       ((unsigned char*)__StackLimit)
 #define ISR_STACK_SIZE        ((uint32_t)((uint32_t)__StackTop - (uint32_t)__StackLimit))
+#endif
+
+#if (defined(TARGET_STM32F070RB) || defined(TARGET_STM32F072RB))
+#if (defined(__GNUC__) && !defined(__CC_ARM) && !defined(__ARMCC_VERSION))
+extern uint32_t               __StackLimit;
+extern uint32_t               __StackTop;
+extern uint32_t               __end__;
+extern uint32_t               __HeapLimit;
+#define HEAP_START            ((unsigned char*) &__end__)
+#define HEAP_SIZE             ((uint32_t)((uint32_t) &__HeapLimit - (uint32_t) HEAP_START))
+#define ISR_STACK_START       ((unsigned char*) &__StackLimit)
+#define ISR_STACK_SIZE        ((uint32_t)((uint32_t) &__StackTop - (uint32_t) &__StackLimit))
+#endif
+
+#ifdef MBED_CONF_RTOS_MAIN_THREAD_STACK_SIZE
+#undef MBED_CONF_RTOS_MAIN_THREAD_STACK_SIZE
+#endif
+#define MBED_CONF_RTOS_MAIN_THREAD_STACK_SIZE 3072
+
 #endif
 
 #endif  // MBED_MBED_RTX_H

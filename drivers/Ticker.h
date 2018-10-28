@@ -35,7 +35,7 @@ namespace mbed {
  *
  * Example:
  * @code
- * // Toggle the blinking led after 5 seconds
+ * // Toggle the blinking LED after 5 seconds
  *
  * #include "mbed.h"
  *
@@ -70,7 +70,7 @@ public:
     {
     }
 
-    // When low power ticker is in use, then do not disable deep-sleep.
+    // When low power ticker is in use, then do not disable deep sleep.
     Ticker(const ticker_data_t *data) : TimerEvent(data), _function(0), _lock_deepsleep(true)
     {
 #if DEVICE_LPTICKER
@@ -106,13 +106,13 @@ public:
         attach(callback(obj, method), t);
     }
 
-    /** Attach a function to be called by the Ticker, specifying the interval in micro-seconds
+    /** Attach a function to be called by the Ticker, specifying the interval in microseconds
      *
      *  @param func pointer to the function to be called
      *  @param t the time between calls in micro-seconds
      *
-     *  @note setting @a t to a value shorter that it takes to process the ticker callback
-     *  will cause the system to hang. Ticker callback will be called constantly with no time
+     *  @note setting @a t to a value shorter than it takes to process the ticker callback
+     *  causes the system to hang. Ticker callback is called constantly with no time
      *  for threads scheduling.
      *
      */
@@ -128,11 +128,11 @@ public:
         core_util_critical_section_exit();
     }
 
-    /** Attach a member function to be called by the Ticker, specifying the interval in micro-seconds
+    /** Attach a member function to be called by the Ticker, specifying the interval in microseconds
      *
      *  @param obj pointer to the object to call the member function on
      *  @param method pointer to the member function to be called
-     *  @param t the time between calls in micro-seconds
+     *  @param t the time between calls in microseconds
      *  @deprecated
      *      The attach_us function does not support cv-qualifiers. Replaced by
      *      attach_us(callback(obj, method), t).
@@ -155,14 +155,16 @@ public:
      */
     void detach();
 
+#if !defined(DOXYGEN_ONLY)
 protected:
     void setup(us_timestamp_t t);
     virtual void handler();
 
 protected:
-    us_timestamp_t         _delay;  /**< Time delay (in microseconds) for re-setting the multi-shot callback. */
+    us_timestamp_t         _delay;  /**< Time delay (in microseconds) for resetting the multishot callback. */
     Callback<void()>    _function;  /**< Callback. */
-    bool          _lock_deepsleep;  /**< Flag which indicates if deep-sleep should be disabled. */
+    bool          _lock_deepsleep;  /**< Flag which indicates if deep sleep should be disabled. */
+#endif
 };
 
 } // namespace mbed

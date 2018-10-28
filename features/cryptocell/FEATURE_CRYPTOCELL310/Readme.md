@@ -16,6 +16,6 @@ To port your CC 310 driver to Mbed OS on your specific target, do the following:
 1. In `objects.h`, include `objects_cryptocell.h`. You can use the `FEATURE_CRYPTOCELL310` precompilation check as defined above.
 1. In `features/cryptocell/FEATURE_CRYPTOCELL310/TARGET_<target name>`, add your platform-specific libraries for all toolchains in `TOOLCHAIN_ARM`, `TOOLCHAIN_GCC_ARM` and `TOOLCHAIN_IAR` respectively.
 1. Add your CC setup code:
-	* Implement `cc_platform_setup()` and `cc_platform_terminate()` to enable CC on your platform, in case you have board-specific setup functionality, required for CC setup. These functions can be empty.
-	* Define `cc_platform_ctx` in `cc_platform.h` in a way that suits your implementation.
+	* Implement `crypto_platform_setup()` and `crypto_platform_terminate()` to enable CC on your platform, in case you have board-specific setup functionality, required for CC setup. You MUST call 'SaSi_LibInit()` and 'SaSi_LibFini()' respectively in these functions.
+	* Define `crypto_platform_ctx` in `crypto_platform.h` in a way that suits your implementation.
  

@@ -21,8 +21,8 @@ using namespace mbed;
 
 InternetSocket::InternetSocket()
     : _stack(0), _socket(0), _timeout(osWaitForever),
-      _readers(0), _writers(0), _factory_allocated(false),
-      _pending(0)
+      _readers(0), _writers(0), _pending(0),
+      _factory_allocated(false)
 {
 }
 
@@ -56,6 +56,10 @@ nsapi_error_t InternetSocket::close()
     _lock.lock();
 
     nsapi_error_t ret = NSAPI_ERROR_OK;
+    if (!_stack)  {
+        return ret;
+    }
+
     if (_socket) {
         _stack->socket_attach(_socket, 0, 0);
         nsapi_socket_t socket = _socket;

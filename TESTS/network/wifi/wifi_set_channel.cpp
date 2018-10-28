@@ -69,5 +69,6 @@ void wifi_set_channel(void)
         TEST_ASSERT(error == NSAPI_ERROR_PARAMETER);
     }
 
+    wifi->set_channel(0);
 }
 

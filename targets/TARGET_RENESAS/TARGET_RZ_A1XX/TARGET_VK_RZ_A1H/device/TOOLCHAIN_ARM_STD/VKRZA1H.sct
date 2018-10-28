@@ -8,7 +8,45 @@
 ; This scatter-file places application code, data, stack and heap at suitable addresses in the memory map.
 
 #include "mbed_config.h"
-#include "mem_VK_RZ_A1H.h"
+
+#ifdef RUN_FROM_SDRAM
+ #define __ROM_BASE       0x08000000
+ #define __ROM_SIZE       0x02000000
+ #define __VECTOR_BASE    0x08000000
+ #define __DATA_BASE	  +0 ALIGN 0x100000
+#elif defined (RUN_FROM_SRAM)
+ #define __ROM_BASE       0x200A0000
+ #define __ROM_SIZE       0x00960000
+ #define __VECTOR_BASE    0x200A0000
+ #define __DATA_BASE	  +0 ALIGN 0x100000 NOCOMPRESS
+#else
+ #define __ROM_BASE       0x18020000
+ #define __ROM_SIZE       0x01FE0000
+ #define __VECTOR_BASE    0x18020000
+ #define __DATA_BASE	  0x20020000
+#endif
+
+#ifdef RUN_FROM_SDRAM
+#define __RAM_BASE       0x08000000
+#define __RAM_SIZE       0x02000000
+#define __NC_RAM_SIZE    0x00200000
+#else
+#define __RAM_BASE       0x20000000
+#define __RAM_SIZE       0x00A00000
+#define __NC_RAM_SIZE    0x00100000
+#endif
+#define __NM_RAM_SIZE    (__RAM_SIZE - __NC_RAM_SIZE)
+#define __DATA_NC_BASE   (__RAM_BASE + __NM_RAM_SIZE + 0x40000000)
+
+#define __UND_STACK_SIZE 0x00000100
+#define __SVC_STACK_SIZE 0x00008000
+#define __ABT_STACK_SIZE 0x00000100
+#define __FIQ_STACK_SIZE 0x00000100
+#define __IRQ_STACK_SIZE 0x0000F000
+#define __STACK_SIZE     (__UND_STACK_SIZE + __SVC_STACK_SIZE + __ABT_STACK_SIZE + __FIQ_STACK_SIZE + __IRQ_STACK_SIZE)
+
+#define __TTB_BASE       0x20000000
+#define __TTB_SIZE       0x00004000
 
 LOAD_TTB    __TTB_BASE __TTB_SIZE ; Page 0 of On-Chip Data Retention RAM
 {

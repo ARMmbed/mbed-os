@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-#include "mbed_assert.h"
-#include "mbed_power_mgmt.h"
-#include "mbed_critical.h"
+#include "platform/mbed_assert.h"
+#include "platform/mbed_power_mgmt.h"
+#include "platform/mbed_critical.h"
 #include "sleep_api.h"
-#include "mbed_error.h"
-#include "mbed_debug.h"
-#include "mbed_stats.h"
+#include "platform/mbed_error.h"
+#include "platform/mbed_debug.h"
+#include "platform/mbed_stats.h"
 #include "us_ticker_api.h"
 #include "lp_ticker_api.h"
 #include <limits.h>
 #include <stdio.h>
-#include "mbed_stats.h"
+#include "platform/mbed_stats.h"
 
 
 #if DEVICE_SLEEP
@@ -163,6 +163,10 @@ void sleep_manager_lock_deep_sleep_internal(void)
     if (deep_sleep_lock == USHRT_MAX) {
         core_util_critical_section_exit();
         MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_HAL, MBED_ERROR_CODE_OVERFLOW), "DeepSleepLock overflow (> USHRT_MAX)", deep_sleep_lock);
+        // When running sleep_manager tests, the mbed_error() is overridden
+        // and no longer calls mbed_halt_system(). Return to prevent
+        // execution of the following code.
+        return;
     }
     core_util_atomic_incr_u16(&deep_sleep_lock, 1);
     core_util_critical_section_exit();
@@ -174,6 +178,10 @@ void sleep_manager_unlock_deep_sleep_internal(void)
     if (deep_sleep_lock == 0) {
         core_util_critical_section_exit();
         MBED_ERROR1(MBED_MAKE_ERROR(MBED_MODULE_HAL, MBED_ERROR_CODE_UNDERFLOW), "DeepSleepLock underflow (< 0)", deep_sleep_lock);
+        // When running sleep_manager tests, the mbed_error() is overridden
+        // and no longer calls mbed_halt_system(). Return to prevent
+        // execution of the following code.
+        return;
     }
     core_util_atomic_decr_u16(&deep_sleep_lock, 1);
     core_util_critical_section_exit();

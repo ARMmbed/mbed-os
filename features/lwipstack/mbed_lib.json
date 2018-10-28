@@ -72,6 +72,22 @@
             "help": "Maximum number of open UDPSocket instances allowed, including one used internally for DNS.  Each requires 84 bytes of pre-allocated RAM",
             "value": 4
         },
+        "memp-num-tcp-seg": {
+            "help": "Number of simultaneously queued TCP segments. Current default (used if null here) is set to 16 in opt.h, unless overridden by target Ethernet drivers.",
+            "value": null
+        },
+        "tcp-mss": {
+            "help": "TCP Maximum segment size. Current default (used if null here) is set to 536 in opt.h, unless overridden by target Ethernet drivers.",
+            "value": null
+        },
+        "tcp-snd-buf": {
+            "help": "TCP sender buffer space (bytes). Current default (used if null here) is set to (2 * TCP_MSS) in opt.h, unless overridden by target Ethernet drivers.",
+            "value": null
+        },
+        "tcp-wnd": {
+            "help": "TCP sender buffer space (bytes). Current default (used if null here) is set to (4 * TCP_MSS) in opt.h, unless overridden by target Ethernet drivers.",
+            "value": null
+        },
         "pbuf-pool-size": {
             "help": "Number of pbufs in pool - usually used for received packets, so this determines how much data can be buffered between reception and the application reading. If a driver uses PBUF_RAM for reception, less pool may be needed. Current default (used if null here) is set to 5 in lwipopts.h, unless overridden by target Ethernet drivers.",
             "value": null
@@ -100,6 +116,9 @@
     "target_overrides": {
         "REALTEK_RTL8195AM": {
             "tcpip-thread-stacksize": 1600
+        },
+        "UBLOX_EVK_ODIN_W2": {
+            "pbuf-pool-size" :  10
         },
         "STM": {
             "mem-size": 25600
@@ -132,6 +151,11 @@
             "tcpip-thread-stacksize": 1328,
             "default-thread-stacksize": 640,
             "ppp-thread-stacksize": 896,
+            "memp-num-tcp-seg": 32,
+            "tcp-mss": 1440,
+            "tcp-snd-buf": "(8 * TCP_MSS)",
+            "tcp-wnd": "(TCP_MSS * 8)",
+            "pbuf-pool-size": 16,
             "mem-size": 51200
         }
     }

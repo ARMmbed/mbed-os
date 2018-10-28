@@ -11,6 +11,11 @@
             "value": "1",
             "macro_name": "NRF_SDH_BLE_PERIPHERAL_LINK_COUNT"
         },
+        "total_link_count": {
+            "help": "How many concurrent connections the system support.",
+            "value": "(NRF_SDH_BLE_CENTRAL_LINK_COUNT + NRF_SDH_BLE_PERIPHERAL_LINK_COUNT)",
+            "macro_name": "NRF_SDH_BLE_TOTAL_LINK_COUNT"
+        },
         "gatt_attr_tab_size": {
             "help": "The size of the table used to hold gatts. Can be adjusted by trial and error",
             "value": "0x600",
@@ -25,6 +30,16 @@
             "help": "select whether to include the Service Changed characteristic in the GATT Server",
             "value": "1",
             "macro_name": "NRF_SDH_BLE_SERVICE_CHANGED"
+        },
+        "max_characteristics": {
+            "help": "Sets the maximum number of characteristics that can be registered",
+            "value": "20",
+            "macro_name": "NRF_SDH_BLE_TOTAL_CHARACTERISTICS"
+        },
+        "max_descriptors": {
+            "help": "Sets the maximum number of descriptors that can be registered",
+            "value": "8",
+            "macro_name": "NRF_SDH_BLE_TOTAL_DESCRIPTORS"
         }
     }
 }

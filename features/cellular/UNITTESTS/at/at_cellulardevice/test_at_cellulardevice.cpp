@@ -118,10 +118,11 @@ void Test_AT_CellularDevice::test_AT_CellularDevice_close_network()
     ATHandler_stub::ref_count = 0;
 
     CHECK(dev.open_network(&fh1));
+    AT_CellularBase_stub::handler_value = AT_CellularBase_stub::handler_at_constructor_value;
     CHECK(ATHandler_stub::ref_count == 1);
 
     dev.close_network();
-    CHECK(ATHandler_stub::ref_count == 0);
+    CHECK(ATHandler_stub::ref_count == kATHandler_destructor_ref_ount);
 }
 
 void Test_AT_CellularDevice::test_AT_CellularDevice_close_sms()
@@ -132,10 +133,11 @@ void Test_AT_CellularDevice::test_AT_CellularDevice_close_sms()
     ATHandler_stub::ref_count = 0;
 
     CHECK(dev.open_sms(&fh1));
+    AT_CellularBase_stub::handler_value = AT_CellularBase_stub::handler_at_constructor_value;
     CHECK(ATHandler_stub::ref_count == 1);
 
     dev.close_sms();
-    CHECK(ATHandler_stub::ref_count == 0);
+    CHECK(ATHandler_stub::ref_count == kATHandler_destructor_ref_ount);
 }
 
 void Test_AT_CellularDevice::test_AT_CellularDevice_close_power()
@@ -146,10 +148,11 @@ void Test_AT_CellularDevice::test_AT_CellularDevice_close_power()
     ATHandler_stub::ref_count = 0;
 
     CHECK(dev.open_power(&fh1));
+    AT_CellularBase_stub::handler_value = AT_CellularBase_stub::handler_at_constructor_value;
     CHECK(ATHandler_stub::ref_count == 1);
 
     dev.close_power();
-    CHECK(ATHandler_stub::ref_count == 0);
+    CHECK(ATHandler_stub::ref_count == kATHandler_destructor_ref_ount);
 }
 
 void Test_AT_CellularDevice::test_AT_CellularDevice_close_sim()
@@ -161,11 +164,13 @@ void Test_AT_CellularDevice::test_AT_CellularDevice_close_sim()
 
 
     CHECK(dev.open_sim(&fh1));
+    AT_CellularBase_stub::handler_value = AT_CellularBase_stub::handler_at_constructor_value;
+
     dev.close_sms(); // this should not affect to refcount as it's not opened
     CHECK(ATHandler_stub::ref_count == 1);
 
     dev.close_sim();
-    CHECK(ATHandler_stub::ref_count == 0);
+    CHECK(ATHandler_stub::ref_count == kATHandler_destructor_ref_ount);
 }
 
 void Test_AT_CellularDevice::test_AT_CellularDevice_close_information()
@@ -174,21 +179,28 @@ void Test_AT_CellularDevice::test_AT_CellularDevice_close_information()
     AT_CellularDevice dev(que);
     FileHandle_stub fh1;
     ATHandler_stub::int_value = 0;
-
-    CHECK(dev.open_information(&fh1));
-
+    ATHandler_stub::ref_count = 0;
     ATHandler_stub::fh_value = NULL;
     AT_CellularBase_stub::handler_value = NULL;
-    dev.close_information();
 
+    CHECK(dev.open_information(&fh1));
+    CHECK(ATHandler_stub::ref_count == 1);
+
+    // at handler is not found as it's NULL (e.g. AT_CellularBase_stub::handler_value is NULL)
+    dev.close_information();
+    CHECK(ATHandler_stub::ref_count == 1);
+
+    // same filehandle but different at
     ATHandler_stub::fh_value = &fh1;
     ATHandler at(&fh1, que, 0, ",");
     AT_CellularBase_stub::handler_value = &at;
 
     CHECK(dev.open_information(&fh1));
-    AT_CellularBase_stub::handler_value = AT_CellularBase_stub::handler_at_constructor_value;
+    // refcount is two it's one when we create athandler and then in open_information it's incremented by one
+    CHECK(ATHandler_stub::ref_count == 2);
 
     dev.close_information();
+    CHECK(ATHandler_stub::ref_count == 1);
 
     ATHandler_stub::fh_value = NULL;
 }

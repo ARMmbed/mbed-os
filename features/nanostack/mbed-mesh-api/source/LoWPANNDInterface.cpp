@@ -35,7 +35,7 @@ Nanostack::LoWPANNDInterface *LoWPANNDInterface::get_interface() const
 nsapi_error_t LoWPANNDInterface::do_initialize()
 {
     if (!_interface) {
-        _interface = new (nothrow) Nanostack::LoWPANNDInterface(*_phy);
+        _interface = new (std::nothrow) Nanostack::LoWPANNDInterface(*_phy);
         if (!_interface) {
             return NSAPI_ERROR_NO_MEMORY;
         }
@@ -161,10 +161,10 @@ bool LoWPANNDInterface::getRouterIpAddress(char *address, int8_t len)
 
 #define LOWPAN 0x2345
 #if MBED_CONF_NSAPI_DEFAULT_MESH_TYPE == LOWPAN && DEVICE_802_15_4_PHY
-MBED_WEAK MeshInterface *MeshInterface::get_default_instance()
+MBED_WEAK MeshInterface *MeshInterface::get_target_default_instance()
 {
-    static LoWPANNDInterface lowpan(NanostackRfPhy::get_default_instance());
+    static LoWPANNDInterface lowpan(&NanostackRfPhy::get_default_instance());
 
-    return lowpan;
+    return &lowpan;
 }
 #endif

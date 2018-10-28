@@ -52,7 +52,7 @@ static void wait_loop(uint32_t timeout)
 
 
 // On L4 platforms we've seen unstable PLL CLK configuraiton
-// when DEEP SLEEP exits just few µs after being entered
+// when DEEP SLEEP exits just few Âµs after being entered
 // So we need to force MSI usage before setting clocks again
 static void ForcePeriphOutofDeepSleep(void)
 {
@@ -151,13 +151,32 @@ void hal_sleep(void)
     core_util_critical_section_enter();
 
     // Request to enter SLEEP mode
+#if TARGET_STM32L4
+    // State Transitions (see 5.3 Low-power modes, Fig. 13):
+    //  * (opt): Low Power Run (LPR) Mode -> Run Mode
+    //  * Run Mode -> Sleep
+    //  --- Wait for Interrupt --
+    //  * Sleep -> Run Mode
+    //  * (opt): Run Mode -> Low Power Run Mode
+
+    // [5.4.1 Power control register 1 (PWR_CR1)]
+    // 	LPR: When this bit is set, the regulator is switched from main mode (MR) to low-power mode (LPR).
+    int lowPowerMode = PWR->CR1 & PWR_CR1_LPR;
+    if (lowPowerMode) {
+        HAL_PWR_EnterSLEEPMode(PWR_LOWPOWERREGULATOR_ON, PWR_SLEEPENTRY_WFI);
+    } else {
+        HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
+    }
+#else
     HAL_PWR_EnterSLEEPMode(PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI);
+#endif
 
     // Enable IRQs
     core_util_critical_section_exit();
 }
 
 extern int serial_is_tx_ongoing(void);
+extern int mbed_sdk_inited;
 
 void hal_deepsleep(void)
 {
@@ -200,6 +219,10 @@ void hal_deepsleep(void)
     HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
 #endif /* TARGET_STM32L4 */
 
+    /* Prevent HAL_GetTick() from using ticker_read_us() to read the
+     * us_ticker timestamp until the us_ticker context is restored. */
+    mbed_sdk_inited = 0;
+
     // Verify Clock Out of Deep Sleep
     ForceClockOutofDeepSleep();
 
@@ -213,6 +236,10 @@ void hal_deepsleep(void)
     wait_loop(500);
 
     restore_timer_ctx();
+
+    /* us_ticker context restored, allow HAL_GetTick() to read the us_ticker
+     * timestamp via ticker_read_us() again. */
+    mbed_sdk_inited = 1;
 
     // Enable IRQs
     core_util_critical_section_exit();

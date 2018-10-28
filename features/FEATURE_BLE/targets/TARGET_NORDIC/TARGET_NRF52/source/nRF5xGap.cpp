@@ -115,6 +115,11 @@ peer_address_type_t convert_identity_address(advertising_peer_address_type_t add
     }
 }
 
+// FIXME: update when SD 5 (not alpha!) or more is used for 52840.
+#ifndef BLE_GAP_PHY_AUTO
+#define BLE_GAP_PHY_AUTO 0
+#endif
+
 } // namespace
 
 void radioNotificationStaticCallback(bool param) {
@@ -134,9 +139,11 @@ nRF5xGap::nRF5xGap() : Gap(),
     _peripheral_privacy_configuration(default_peripheral_privacy_configuration),
     _central_privacy_configuration(default_central_privacy_configuration),
     _non_private_address_type(LegacyAddressType::RANDOM_STATIC),
+    _preferred_tx_phys(BLE_GAP_PHY_AUTO),
+    _preferred_rx_phys(BLE_GAP_PHY_AUTO),
     _connections_role()
 {
-        m_connectionHandle = BLE_CONN_HANDLE_INVALID;
+    m_connectionHandle = BLE_CONN_HANDLE_INVALID;
 }
 /**************************************************************************/
 /*!
@@ -652,6 +659,87 @@ ble_error_t nRF5xGap::connect(
         case BLE_ERROR_GAP_WHITELIST_IN_USE:
             return BLE_ERROR_UNSPECIFIED;
     }
+}
+
+ble_error_t nRF5xGap::readPhy(Handle_t connection) {
+    /*
+     * This function is not implemented as it is not possible with current
+     * nordic API to know which phy was used to establish the connection.
+     *
+     * TODO: Update when Nordic provides the API to do the job.
+     */
+    return BLE_ERROR_NOT_IMPLEMENTED;
+}
+
+ble_error_t nRF5xGap::setPreferredPhys(
+    const ble::phy_set_t* txPhys,
+    const ble::phy_set_t* rxPhys
+) {
+    uint8_t preferred_tx_phys = txPhys? txPhys->value() : 0;
+    uint8_t preferred_rx_phys = rxPhys? rxPhys->value() : 0;
+
+#ifdef S140
+    ble_opt_t opt = { 0 };
+    opt.gap_opt.preferred_phys.tx_phys = preferred_tx_phys;
+    opt.gap_opt.preferred_phys.rx_phys = preferred_rx_phys;
+
+    uint32_t err = sd_ble_opt_set(BLE_GAP_OPT_PREFERRED_PHYS_SET, &opt);
+
+    switch (err) {
+        case NRF_SUCCESS:
+            break;
+        case NRF_ERROR_INVALID_ADDR:
+        case BLE_ERROR_INVALID_CONN_HANDLE:
+        case NRF_ERROR_INVALID_PARAM:
+            return BLE_ERROR_INVALID_PARAM;
+        case NRF_ERROR_INVALID_STATE:
+            return BLE_ERROR_INVALID_STATE;
+        case NRF_ERROR_BUSY:
+            return BLE_STACK_BUSY;
+        default:
+            return BLE_ERROR_UNSPECIFIED;
+    }
+
+#endif
+
+    _preferred_tx_phys = preferred_tx_phys;
+    _preferred_rx_phys = preferred_rx_phys;
+
+    return BLE_ERROR_NONE;
+}
+
+ble_error_t nRF5xGap::setPhy(
+    Handle_t connection,
+    const ble::phy_set_t* txPhys,
+    const ble::phy_set_t* rxPhys,
+    CodedSymbolPerBit_t codedSymbol
+) {
+#ifdef S140
+    return BLE_ERROR_NOT_IMPLEMENTED;
+#else
+    // TODO handle coded symbol once supported by the softdevice.
+    ble_gap_phys_t gap_phys = {
+        txPhys? txPhys->value() : 0,
+        rxPhys? rxPhys->value() : 0
+    };
+
+    uint32_t err = sd_ble_gap_phy_update(connection, &gap_phys);
+
+    switch (err) {
+        case NRF_SUCCESS:
+            return BLE_ERROR_NONE;
+        case NRF_ERROR_INVALID_ADDR:
+        case BLE_ERROR_INVALID_CONN_HANDLE:
+        case NRF_ERROR_INVALID_PARAM:
+            return BLE_ERROR_INVALID_PARAM;
+        case NRF_ERROR_INVALID_STATE:
+            return BLE_ERROR_INVALID_STATE;
+        case NRF_ERROR_BUSY:
+            return BLE_STACK_BUSY;
+        default:
+            return BLE_ERROR_UNSPECIFIED;
+    }
+#endif
 }
 
 ble_error_t nRF5xGap::disconnect(Handle_t connectionHandle, DisconnectionReason_t reason)
@@ -1507,6 +1595,67 @@ void nRF5xGap::release_all_connections_role() {
         _connections_role[i].is_allocated = false;
     }
 }
+void nRF5xGap::on_phy_update(
+    Handle_t connection,
+    const ble_gap_evt_phy_update_t& evt
+) {
+    if (!_eventHandler) {
+        return;
+    }
+
+    ble_error_t status;
+    switch (evt.status) {
+        case BLE_HCI_STATUS_CODE_SUCCESS:
+            status = BLE_ERROR_NONE;
+            break;
+
+        case BLE_HCI_UNSUPPORTED_REMOTE_FEATURE:
+            status = BLE_ERROR_OPERATION_NOT_PERMITTED;
+            break;
+
+        case BLE_HCI_STATUS_CODE_LMP_ERROR_TRANSACTION_COLLISION:
+        case BLE_HCI_DIFFERENT_TRANSACTION_COLLISION:
+            status = BLE_ERROR_INVALID_STATE;
+            break;
+
+        case BLE_HCI_STATUS_CODE_INVALID_LMP_PARAMETERS:
+            status = BLE_ERROR_INVALID_PARAM;
+            break;
+
+        default:
+            status = BLE_ERROR_UNSPECIFIED;
+            break;
+    }
+
+    _eventHandler->onPhyUpdateComplete(
+        status,
+        connection,
+        Phy_t::LE_1M,
+        Phy_t::LE_1M
+    );
+}
+
+#ifndef S140
+void nRF5xGap::on_phy_update_request(
+    Handle_t connection,
+    const ble_gap_evt_phy_update_request_t& evt
+) {
+    ble_gap_phys_t phys = {
+        _preferred_tx_phys & evt.peer_preferred_phys.tx_phys,
+        _preferred_rx_phys & evt.peer_preferred_phys.rx_phys
+    };
+
+    if (!phys.tx_phys) {
+        phys.tx_phys = BLE_GAP_PHY_AUTO;
+    }
+
+    if (!phys.rx_phys) {
+        phys.rx_phys = BLE_GAP_PHY_AUTO;
+    }
+
+    sd_ble_gap_phy_update(connection, &phys);
+}
+#endif
 
 
 

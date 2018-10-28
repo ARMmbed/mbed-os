@@ -46,11 +46,15 @@ extern "C" {
 extern "C" IRQn_Type mbed_get_m0_tick_irqn(void);
 #endif
 
+#if defined(TARGET_CORTEX_A)
+extern "C" IRQn_ID_t mbed_get_a9_tick_irqn(void);
+#endif
+
 namespace rtos {
 namespace internal {
 
 SysTimer::SysTimer() :
-        TimerEvent(get_lp_ticker_data()), _start_time(0), _tick(0)
+    TimerEvent(get_lp_ticker_data()), _start_time(0), _tick(0)
 {
     _start_time = ticker_read_us(_ticker_data);
     _suspend_time_passed = true;
@@ -58,7 +62,7 @@ SysTimer::SysTimer() :
 }
 
 SysTimer::SysTimer(const ticker_data_t *data) :
-        TimerEvent(data), _start_time(0), _tick(0)
+    TimerEvent(data), _start_time(0), _tick(0)
 {
     _start_time = ticker_read_us(_ticker_data);
 }

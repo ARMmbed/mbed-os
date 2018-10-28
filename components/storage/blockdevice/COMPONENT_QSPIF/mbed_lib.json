@@ -1,0 +1,20 @@
+{
+"name": "qspif",
+    "config": {
+        "QSPI_FREQ": "40000000"
+    },
+    "target_overrides": {
+        "DISCO_F413ZH": {
+             "QSPI_FREQ": "80000000"
+        },
+       "DISCO_L475VG_IOT01A": {
+             "QSPI_FREQ": "8000000"
+        },
+       "DISCO_L476VG": {
+             "QSPI_FREQ": "80000000"
+        },
+       "DISCO_F469NI": {
+             "QSPI_FREQ": "80000000"
+        }
+    }
+}

@@ -25,6 +25,7 @@
 #endif
 
 using namespace utest::v1;
+using namespace mbed;
 
 #define MSG_VALUE_DUMMY "0"
 #define MSG_VALUE_LEN 32

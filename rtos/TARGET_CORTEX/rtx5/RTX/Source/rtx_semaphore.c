@@ -110,11 +110,6 @@ static uint32_t SemaphoreTokenIncrement (os_semaphore_t *semaphore) {
 static void osRtxSemaphorePostProcess (os_semaphore_t *semaphore) {
   os_thread_t *thread;
 
-  if (semaphore->state == osRtxObjectInactive) {
-    //lint -e{904} "Return statement before end of function" [MISRA Note 1]
-    return;
-  }
-
   // Check if Thread is waiting for a token
   if (semaphore->thread_list != NULL) {
     // Try to acquire token
@@ -122,7 +117,7 @@ static void osRtxSemaphorePostProcess (os_semaphore_t *semaphore) {
       // Wakeup waiting Thread with highest Priority
       thread = osRtxThreadListGet(osRtxObject(semaphore));
       osRtxThreadWaitExit(thread, (uint32_t)osOK, FALSE);
-      EvrRtxSemaphoreAcquired(semaphore);
+      EvrRtxSemaphoreAcquired(semaphore, semaphore->tokens);
     }
   }
 }
@@ -195,7 +190,6 @@ static osSemaphoreId_t svcRtxSemaphoreNew (uint32_t max_count, uint32_t initial_
   if (semaphore != NULL) {
     // Initialize control block
     semaphore->id          = osRtxIdSemaphore;
-    semaphore->state       = osRtxObjectActive;
     semaphore->flags       = flags;
     semaphore->name        = name;
     semaphore->thread_list = NULL;
@@ -225,13 +219,6 @@ static const char *svcRtxSemaphoreGetName (osSemaphoreId_t semaphore_id) {
     return NULL;
   }
 
-  // Check object state
-  if (semaphore->state == osRtxObjectInactive) {
-    EvrRtxSemaphoreGetName(semaphore, NULL);
-    //lint -e{904} "Return statement before end of function" [MISRA Note 1]
-    return NULL;
-  }
-
   EvrRtxSemaphoreGetName(semaphore, semaphore->name);
 
   return semaphore->name;
@@ -250,16 +237,9 @@ static osStatus_t svcRtxSemaphoreAcquire (osSemaphoreId_t semaphore_id, uint32_t
     return osErrorParameter;
   }
 
-  // Check object state
-  if (semaphore->state == osRtxObjectInactive) {
-    EvrRtxSemaphoreError(semaphore, (int32_t)osErrorResource);
-    //lint -e{904} "Return statement before end of function" [MISRA Note 1]
-    return osErrorResource;
-  }
-
   // Try to acquire token
   if (SemaphoreTokenDecrement(semaphore) != 0U) {
-    EvrRtxSemaphoreAcquired(semaphore);
+    EvrRtxSemaphoreAcquired(semaphore, semaphore->tokens);
     status = osOK;
   } else {
     // No token available
@@ -295,25 +275,18 @@ static osStatus_t svcRtxSemaphoreRelease (osSemaphoreId_t semaphore_id) {
     return osErrorParameter;
   }
 
-  // Check object state
-  if (semaphore->state == osRtxObjectInactive) {
-    EvrRtxSemaphoreError(semaphore, (int32_t)osErrorResource);
-    //lint -e{904} "Return statement before end of function" [MISRA Note 1]
-    return osErrorResource;
-  }
-
   // Check if Thread is waiting for a token
   if (semaphore->thread_list != NULL) {
-    EvrRtxSemaphoreReleased(semaphore);
+    EvrRtxSemaphoreReleased(semaphore, semaphore->tokens);
     // Wakeup waiting Thread with highest Priority
     thread = osRtxThreadListGet(osRtxObject(semaphore));
     osRtxThreadWaitExit(thread, (uint32_t)osOK, TRUE);
-    EvrRtxSemaphoreAcquired(semaphore);
+    EvrRtxSemaphoreAcquired(semaphore, semaphore->tokens);
     status = osOK;
   } else {
     // Try to release token
     if (SemaphoreTokenIncrement(semaphore) != 0U) {
-      EvrRtxSemaphoreReleased(semaphore);
+      EvrRtxSemaphoreReleased(semaphore, semaphore->tokens);
       status = osOK;
     } else {
       EvrRtxSemaphoreError(semaphore, osRtxErrorSemaphoreCountLimit);
@@ -331,13 +304,6 @@ static uint32_t svcRtxSemaphoreGetCount (osSemaphoreId_t semaphore_id) {
 
   // Check parameters
   if ((semaphore == NULL) || (semaphore->id != osRtxIdSemaphore)) {
-    EvrRtxSemaphoreGetCount(semaphore, 0U);
-    //lint -e{904} "Return statement before end of function" [MISRA Note 1]
-    return 0U;
-  }
-
-  // Check object state
-  if (semaphore->state == osRtxObjectInactive) {
     EvrRtxSemaphoreGetCount(semaphore, 0U);
     //lint -e{904} "Return statement before end of function" [MISRA Note 1]
     return 0U;
@@ -361,16 +327,6 @@ static osStatus_t svcRtxSemaphoreDelete (osSemaphoreId_t semaphore_id) {
     return osErrorParameter;
   }
 
-  // Check object state
-  if (semaphore->state == osRtxObjectInactive) {
-    EvrRtxSemaphoreError(semaphore, (int32_t)osErrorResource);
-    //lint -e{904} "Return statement before end of function" [MISRA Note 1]
-    return osErrorResource;
-  }
-
-  // Mark object as inactive
-  semaphore->state = osRtxObjectInactive;
-
   // Unblock waiting threads
   if (semaphore->thread_list != NULL) {
     do {
@@ -379,6 +335,9 @@ static osStatus_t svcRtxSemaphoreDelete (osSemaphoreId_t semaphore_id) {
     } while (semaphore->thread_list != NULL);
     osRtxThreadDispatch(NULL);
   }
+
+  // Mark object as invalid
+  semaphore->id = osRtxIdInvalid;
 
   // Free object memory
   if ((semaphore->flags & osRtxFlagSystemObject) != 0U) {
@@ -424,16 +383,9 @@ osStatus_t isrRtxSemaphoreAcquire (osSemaphoreId_t semaphore_id, uint32_t timeou
     return osErrorParameter;
   }
 
-  // Check object state
-  if (semaphore->state == osRtxObjectInactive) {
-    EvrRtxSemaphoreError(semaphore, (int32_t)osErrorResource);
-    //lint -e{904} "Return statement before end of function" [MISRA Note 1]
-    return osErrorResource;
-  }
-
   // Try to acquire token
   if (SemaphoreTokenDecrement(semaphore) != 0U) {
-    EvrRtxSemaphoreAcquired(semaphore);
+    EvrRtxSemaphoreAcquired(semaphore, semaphore->tokens);
     status = osOK;
   } else {
     // No token available
@@ -458,18 +410,11 @@ osStatus_t isrRtxSemaphoreRelease (osSemaphoreId_t semaphore_id) {
     return osErrorParameter;
   }
 
-  // Check object state
-  if (semaphore->state == osRtxObjectInactive) {
-    EvrRtxSemaphoreError(semaphore, (int32_t)osErrorResource);
-    //lint -e{904} "Return statement before end of function" [MISRA Note 1]
-    return osErrorResource;
-  }
-
   // Try to release token
   if (SemaphoreTokenIncrement(semaphore) != 0U) {
     // Register post ISR processing
     osRtxPostProcess(osRtxObject(semaphore));
-    EvrRtxSemaphoreReleased(semaphore);
+    EvrRtxSemaphoreReleased(semaphore, semaphore->tokens);
     status = osOK;
   } else {
     EvrRtxSemaphoreError(semaphore, osRtxErrorSemaphoreCountLimit);

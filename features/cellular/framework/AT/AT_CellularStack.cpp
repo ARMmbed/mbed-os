@@ -276,10 +276,10 @@ nsapi_size_or_error_t AT_CellularStack::socket_sendto(nsapi_socket_t handle, con
 
     ret_val = socket_sendto_impl(socket, addr, data, size);
 
-    if (ret_val <= 0) {
-        tr_error("Error sending to: %s error code: %d", addr.get_ip_address(), ret_val);
-    } else {
+    if (ret_val > 0) {
         tr_info("Success sending %d Bytes to: %s", ret_val, addr.get_ip_address());
+    } else if (ret_val != NSAPI_ERROR_WOULD_BLOCK) {
+        tr_error("Error sending to: %s error code: %d", addr.get_ip_address(), ret_val);
     }
 
     _at.unlock();

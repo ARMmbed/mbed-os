@@ -43,80 +43,99 @@ namespace rtos {
  * @{
  */
  
-/** The Mail class allow to control, send, receive, or wait for mail.
- A mail is a memory block that is send to a thread or interrupt service routine.
-  @tparam  T         data type of a single message element.
-  @tparam  queue_sz  maximum number of messages in queue.
-
- @note
- Memory considerations: The mail data store and control structures will be created on current thread's stack,
- both for the mbed OS and underlying RTOS objects (static or dynamic RTOS memory pools are not being used).
-*/
+/** The Mail class allows you to control, send, receive or wait for mail.
+ * A mail is a memory block that is sent to a thread or interrupt service routine (ISR).
+ * @tparam  T         Data type of a single mail message element.
+ * @tparam  queue_sz  Maximum number of mail messages in queue.
+ *
+ * @note
+ * Memory considerations: The mail data store and control structures are part of this class - they do not (themselves)
+ * allocate memory on the heap, both for the Mbed OS and underlying RTOS objects (static or dynamic RTOS memory
+ * pools are not being used).
+ */
 template<typename T, uint32_t queue_sz>
 class Mail : private mbed::NonCopyable<Mail<T, queue_sz> > {
 public:
-    /** Create and Initialize Mail queue.
+    /** Create and initialize Mail queue.
      *
      * @note You cannot call this function from ISR context.
-    */
+     */
     Mail() { };
 
-    /** Check if the mail queue is empty
+    /** Check if the mail queue is empty.
      *
-     * @return True if the mail queue is empty, false if not
+     * @return State of queue.
+     * @retval true  Mail queue is empty.
+     * @retval false Mail queue contains mail.
      *
      * @note You may call this function from ISR context.
      */
-    bool empty() const {
+    bool empty() const
+    {
         return _queue.empty();
     }
 
-    /** Check if the mail queue is full
+    /** Check if the mail queue is full.
      *
-     * @return True if the mail queue is full, false if not
+     * @return State of queue.
+     * @retval true  Mail queue is full.
+     * @retval false Mail queue is not full.
      *
      * @note You may call this function from ISR context.
      */
-    bool full() const {
+    bool full() const
+    {
         return _queue.full();
     }
 
-    /** Allocate a memory block of type T
-      @param   millisec  timeout value or 0 in case of no time-out. (default: 0).
-      @return  pointer to memory block that can be filled with mail or NULL in case error.
-
-      @note You may call this function from ISR context if the millisec parameter is set to 0.
-    */
+    /** Allocate a memory block of type T.
+     *
+     * @param   millisec  Not used.
+     *
+     * @return  Pointer to memory block that you can fill with mail or NULL in case error.
+     *
+     * @note You may call this function from ISR context.
+     */
     T* alloc(uint32_t millisec=0) {
         return _pool.alloc();
     }
 
-    /** Allocate a memory block of type T and set memory block to zero.
-      @param   millisec  timeout value or 0 in case of no time-out.  (default: 0).
-      @return  pointer to memory block that can be filled with mail or NULL in case error.
-
-      @note You may call this function from ISR context if the millisec parameter is set to 0.
-    */
+    /** Allocate a memory block of type T, and set memory block to zero.
+     *
+     * @param   millisec  Not used.
+     *
+     * @return  Pointer to memory block that you can fill with mail or NULL in case error.
+     *
+     * @note You may call this function from ISR context.
+     */
     T* calloc(uint32_t millisec=0) {
         return _pool.calloc();
     }
 
     /** Put a mail in the queue.
-      @param   mptr  memory block previously allocated with Mail::alloc or Mail::calloc.
-      @return  status code that indicates the execution status of the function.
-
-      @note You may call this function from ISR context.
-    */
+     *
+     * @param   mptr  Memory block previously allocated with Mail::alloc or Mail::calloc.
+     *
+     * @return  Status code that indicates the execution status of the function (osOK on success).
+     *
+     * @note You may call this function from ISR context.
+     */
     osStatus put(T *mptr) {
         return _queue.put(mptr);
     }
 
-    /** Get a mail from a queue.
-      @param   millisec  timeout value or 0 in case of no time-out. (default: osWaitForever).
-      @return  event that contains mail information or error code.
-
-      @note You may call this function from ISR context if the millisec parameter is set to 0.
-    */
+    /** Get a mail from the queue.
+     *
+     * @param millisec Timeout value or 0 in case of no timeout (default: osWaitForever).
+     *
+     * @return Event that contains mail information or error code.
+     * @retval osEventMessage   Message received.
+     * @retval osOK             No mail is available (and no timeout was specified).
+     * @retval osEventTimeout   No mail has arrived during the given timeout period.
+     * @retval osErrorParameter A parameter is invalid or outside of a permitted range.
+     *
+     * @note You may call this function from ISR context if the millisec parameter is set to 0.
+     */
     osEvent get(uint32_t millisec=osWaitForever) {
         osEvent evt = _queue.get(millisec);
         if (evt.status == osEventMessage) {
@@ -126,11 +145,13 @@ public:
     }
 
     /** Free a memory block from a mail.
-      @param   mptr  pointer to the memory block that was obtained with Mail::get.
-      @return  status code that indicates the execution status of the function.
-
-      @note You may call this function from ISR context.
-    */
+     *
+     * @param mptr Pointer to the memory block that was obtained with Mail::get.
+     *
+     * @return Status code that indicates the execution status of the function (osOK on success).
+     *
+     * @note You may call this function from ISR context.
+     */
     osStatus free(T *mptr) {
         return _pool.free(mptr);
     }

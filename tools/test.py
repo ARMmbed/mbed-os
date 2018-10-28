@@ -16,27 +16,28 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 
-TEST BUILD & RUN
+TEST BUILD
 """
 from __future__ import print_function, division, absolute_import
 import sys
 import os
-import json
 import fnmatch
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.insert(0, ROOT)
 
 from tools.config import ConfigException, Config
-from tools.test_api import test_path_to_name, find_tests, get_test_config, print_tests, build_tests, test_spec_from_test_builds
 from tools.test_configs import get_default_config
+from tools.config import ConfigException
+from tools.test_api import find_tests, get_test_config, print_tests, build_tests, test_spec_from_test_builds
+import tools.test_configs as TestConfig
 from tools.options import get_default_options_parser, extract_profile, extract_mcus
 from tools.build_api import build_project, build_library
 from tools.build_api import print_build_memory_usage
 from tools.build_api import merge_build_data
 from tools.targets import TARGET_MAP
 from tools.notifier.term import TerminalNotifier
-from tools.utils import mkdir, ToolException, NotSupportedException, args_error
+from tools.utils import mkdir, ToolException, NotSupportedException, args_error, write_json_to_file
 from tools.test_exporters import ReportExporter, ResultExporterType
 from tools.utils import argparse_filestring_type, argparse_lowercase_type, argparse_many
 from tools.utils import argparse_dir_not_parent
@@ -111,9 +112,19 @@ if __name__ == '__main__':
                             dest="stats_depth",
                             default=2,
                             help="Depth level for static memory report")
-
         parser.add_argument("--ignore", dest="ignore", type=argparse_many(str),
                           default=None, help="Comma separated list of patterns to add to mbedignore (eg. ./main.cpp)")
+        parser.add_argument("--icetea",
+                            action="store_true",
+                            dest="icetea",
+                            default=False,
+                            help="Only icetea tests")
+
+        parser.add_argument("--greentea",
+                            action="store_true",
+                            dest="greentea",
+                            default=False,
+                            help="Only greentea tests")
 
         options = parser.parse_args()
 
@@ -126,8 +137,13 @@ if __name__ == '__main__':
         all_tests = {}
         tests = {}
 
+        # As default both test tools are enabled
+        if not (options.greentea or options.icetea):
+            options.greentea = True
+            options.icetea = True
+
         # Target
-        if options.mcu is None :
+        if options.mcu is None:
             args_error(parser, "argument -m/--mcu is required")
         mcu = extract_mcus(parser, options)[0]
 
@@ -159,8 +175,13 @@ if __name__ == '__main__':
 
         # Find all tests in the relevant paths
         for path in all_paths:
-            all_tests.update(find_tests(path, mcu, toolchain,
-                                        app_config=config))
+            all_tests.update(find_tests(
+                base_dir=path,
+                target_name=mcu,
+                toolchain_name=toolchain,
+                icetea=options.icetea,
+                greentea=options.greentea,
+                app_config=config))
 
         # Filter tests by name if specified
         if options.names:
@@ -251,20 +272,7 @@ if __name__ == '__main__':
 
                 # If a path to a test spec is provided, write it to a file
                 if options.test_spec:
-                    test_spec_data = test_spec_from_test_builds(test_build)
-
-                    # Create the target dir for the test spec if necessary
-                    # mkdir will not create the dir if it already exists
-                    test_spec_dir = os.path.dirname(options.test_spec)
-                    if test_spec_dir:
-                        mkdir(test_spec_dir)
-
-                    try:
-                        with open(options.test_spec, 'w') as f:
-                            f.write(json.dumps(test_spec_data, indent=2))
-                    except IOError as e:
-                        print("[ERROR] Error writing test spec to file")
-                        print(e)
+                    write_json_to_file(test_spec_from_test_builds(test_build), options.test_spec)
 
             # If a path to a JUnit build report spec is provided, write it to a file
             if options.build_report_junit:
@@ -296,3 +304,4 @@ if __name__ == '__main__':
         traceback.print_exc(file=sys.stdout)
         print("[ERROR] %s" % str(e))
         sys.exit(1)
+

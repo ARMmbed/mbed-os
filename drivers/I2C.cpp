@@ -13,7 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #include "drivers/I2C.h"
+#include "drivers/DigitalInOut.h"
+#include "platform/mbed_wait_api.h"
 
 #if DEVICE_I2C
 
@@ -32,13 +35,15 @@ I2C::I2C(PinName sda, PinName scl) :
 #endif
     _i2c(), _hz(100000)
 {
-    // No lock needed in the constructor
-
+    lock();
     // The init function also set the frequency to 100000
-    i2c_init(&_i2c, sda, scl);
-
+    _sda = sda;
+    _scl = scl;
+    recover(sda, scl);
+    i2c_init(&_i2c, _sda, _scl);
     // Used to avoid unnecessary frequency updates
     _owner = this;
+    unlock();
 }
 
 void I2C::frequency(int hz)
@@ -135,6 +140,52 @@ void I2C::unlock()
     _mutex->unlock();
 }
 
+int I2C::recover(PinName sda, PinName scl)
+{
+    DigitalInOut pin_sda(sda, PIN_INPUT, PullNone, 1);
+    DigitalInOut pin_scl(scl, PIN_INPUT, PullNone, 1);
+
+    // Return as SCL is low and no access to become master.
+    if (pin_scl == 0) {
+        return I2C_ERROR_BUS_BUSY;
+    }
+
+    // Return successfully as SDA and SCL is high
+    if (pin_sda == 1) {
+        return 0;
+    }
+
+    // Send clock pulses, for device to recover 9
+    pin_scl.mode(PullNone);
+    pin_scl.output();
+    for (int count = 0; count < 10; count++) {
+        pin_scl.mode(PullNone);
+        pin_scl = 0;
+        wait_us(5);
+        pin_scl.mode(PullUp);
+        pin_scl = 1;
+        wait_us(5);
+    }
+
+    // Send Stop
+    pin_sda.output();
+    pin_sda = 0;
+    wait_us(5);
+    pin_scl = 1;
+    wait_us(5);
+    pin_sda = 1;
+    wait_us(5);
+
+    pin_sda.input();
+    pin_scl.input();
+    if ((pin_scl == 0) || (pin_sda == 0)) {
+        // Return as SCL is low and no access to become master.
+        return I2C_ERROR_BUS_BUSY;
+    }
+
+    return 0;
+}
+
 #if DEVICE_I2C_ASYNCH
 
 int I2C::transfer(int address, const char *tx_buffer, int tx_length, char *rx_buffer, int rx_length, const event_callback_t &callback, int event, bool repeated)
@@ -169,10 +220,10 @@ void I2C::irq_handler_asynch(void)
     if (_callback && event) {
         _callback.call(event);
     }
+
     if (event) {
         unlock_deep_sleep();
     }
-
 }
 
 void I2C::lock_deep_sleep()

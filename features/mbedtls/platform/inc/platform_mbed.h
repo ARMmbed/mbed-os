@@ -21,10 +21,13 @@
 #define MBEDTLS_ENTROPY_HARDWARE_ALT
 #endif
 
-#if defined(DEVICE_RTC)
-#define MBEDTLS_HAVE_TIME_DATE
-#endif
-
 #if defined(MBEDTLS_CONFIG_HW_SUPPORT)
 #include "mbedtls_device.h"
 #endif
+
+/*
+ * MBEDTLS_ERR_PLATFORM_HW_FAILED is deprecated and should not be used.
+ */
+#define MBEDTLS_ERR_PLATFORM_HW_FAILED       -0x0080
+
+#define MBEDTLS_ERR_PLATFORM_HW_ACCEL_FAILED -0x0070

@@ -25,6 +25,10 @@
 #include "STM/DISCO_F413ZH/flash_config.h"
 #elif defined(TARGET_EFM32GG11_STK3701)
 #include "SiliconLabs/EFM32GG11_STK3701/flash_config.h"
+#elif defined(TARGET_K82F)
+#include "Freescale/K82F/flash_config.h"
+#elif defined(TARGET_KL82Z)
+#include "Freescale/KL82Z/flash_config.h"
 #endif
 
 #endif // MBED_FLASH_CONFIGS_H

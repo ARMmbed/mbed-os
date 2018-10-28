@@ -79,7 +79,7 @@ Nanostack::ThreadInterface *ThreadInterface::get_interface() const
 nsapi_error_t ThreadInterface::do_initialize()
 {
     if (!_interface) {
-        _interface = new (nothrow) Nanostack::ThreadInterface(*_phy);
+        _interface = new (std::nothrow) Nanostack::ThreadInterface(*_phy);
         if (!_interface) {
             return NSAPI_ERROR_NO_MEMORY;
         }
@@ -256,8 +256,8 @@ mesh_error_t Nanostack::ThreadInterface::device_pskd_set(const char *pskd)
 #if MBED_CONF_NSAPI_DEFAULT_MESH_TYPE == THREAD && DEVICE_802_15_4_PHY
 MBED_WEAK MeshInterface *MeshInterface::get_target_default_instance()
 {
-    static ThreadInterface thread(NanostackRfPhy::get_default_instance());
+    static ThreadInterface thread(&NanostackRfPhy::get_default_instance());
 
-    return thread;
+    return &thread;
 }
 #endif

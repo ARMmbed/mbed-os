@@ -12,7 +12,7 @@
  *   Secure:        32KiB
  *   Non-secure:    64KiB
  */
-#if defined(__DOMAIN_NS) && __DOMAIN_NS
+#if defined(DOMAIN_NS) && DOMAIN_NS
 
 #ifndef MBED_APP_START
 #define MBED_APP_START      0x10040000
@@ -50,7 +50,7 @@
 
 #endif
 
-#if defined(__DOMAIN_NS) && __DOMAIN_NS
+#if defined(DOMAIN_NS) && DOMAIN_NS
 StackSize = 0x800;
 #else
 StackSize = 0x800;
@@ -71,7 +71,7 @@ StackSize = 0x800;
 #endif
 
 
-#if defined(__DOMAIN_NS) && __DOMAIN_NS
+#if defined(DOMAIN_NS) && DOMAIN_NS
 
 MEMORY
 {
@@ -132,7 +132,7 @@ SECTIONS
     {
         __vector_table = .;
         KEEP(*(.vector_table))
-         . = ALIGN(4);
+         . = ALIGN(8);
     } > VECTORS
 
     /* ensure that uvisor bss is at the beginning of memory */
@@ -164,7 +164,7 @@ SECTIONS
     .text :
     {
         /* uVisor code and data */
-        . = ALIGN(4);
+        . = ALIGN(8);
         __uvisor_main_start = .;
         *(.uvisor.main)
         __uvisor_main_end = .;
@@ -192,7 +192,7 @@ SECTIONS
         KEEP(*(.eh_frame*))
     } > FLASH
 
-#if (! defined(__DOMAIN_NS)) || (! __DOMAIN_NS)
+#if (! defined(DOMAIN_NS)) || (! DOMAIN_NS)
     /* Veneer$$CMSE : */
     .gnu.sgstubs :
     {
@@ -253,20 +253,20 @@ SECTIONS
         *(vtable)
         *(.data*)
 
-        . = ALIGN(4);
+        . = ALIGN(8);
         /* preinit data */
         PROVIDE_HIDDEN (__preinit_array_start = .);
         KEEP(*(.preinit_array))
         PROVIDE_HIDDEN (__preinit_array_end = .);
 
-        . = ALIGN(4);
+        . = ALIGN(8);
         /* init data */
         PROVIDE_HIDDEN (__init_array_start = .);
         KEEP(*(SORT(.init_array.*)))
         KEEP(*(.init_array))
         PROVIDE_HIDDEN (__init_array_end = .);
 
-        . = ALIGN(4);
+        . = ALIGN(8);
         /* finit data */
         PROVIDE_HIDDEN (__fini_array_start = .);
         KEEP(*(SORT(.fini_array.*)))

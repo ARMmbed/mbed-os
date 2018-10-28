@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+#ifndef MBED_SERIALWIREOUTPUT_H
+#define MBED_SERIALWIREOUTPUT_H
+
 #if defined(DEVICE_ITM)
 
 #include "hal/itm_api.h"
@@ -70,4 +73,6 @@ public:
 
 } // namespace mbed
 
-#endif
+#endif // DEVICE_ITM
+
+#endif // MBED_SERIALWIREOUTPUT_H

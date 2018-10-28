@@ -18,10 +18,6 @@
  *
  */
 
-/*
- * Reference: "K64 Sub-Family Reference Manual, Rev. 2", chapter 34
- */
-
 #if defined(DEVICE_TRNG)
 
 #include <stdlib.h>
@@ -46,10 +42,11 @@ void trng_free(trng_t *obj)
 
 /*
  * Get one byte of entropy from the RNG, assuming it is up and running.
- * As recommended (34.1.1), get only one bit of each output.
+ * As recommended, get only one bit of each output.
  */
 static void trng_get_byte(unsigned char *byte)
 {
+    *byte = 0;
     size_t bit;
 
     /* 34.5 Steps 3-4-5: poll SR and read from OR when ready */
@@ -64,7 +61,6 @@ int trng_get_bytes(trng_t *obj, uint8_t *output, size_t length, size_t *output_l
 {
     (void)obj;
     size_t i;
-    int ret;
 
     /* Set "Interrupt Mask", "High Assurance" and "Go",
      * unset "Clear interrupt" and "Sleep" */

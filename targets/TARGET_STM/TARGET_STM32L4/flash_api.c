@@ -137,8 +137,9 @@ int32_t flash_erase_sector(flash_t *obj, uint32_t address)
         return -1;
     }
 
-    /* Clear OPTVERR bit set on virgin samples */
-    __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_OPTVERR);
+    /* Clear error programming flags */
+    __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_ALL_ERRORS);
+
     /* Get the 1st page to erase */
     FirstPage = GetPage(address);
     /* MBED HAL erases 1 page  / sector at a time */
@@ -193,6 +194,9 @@ int32_t flash_program_page(flash_t *obj, uint32_t address,
     if (flash_unlock() != HAL_OK) {
         return -1;
     }
+
+    /* Clear error programming flags */
+    __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_ALL_ERRORS);
 
     /* Program the user Flash area word by word */
     StartAddress = address;

@@ -21,12 +21,12 @@
 
 #if (DEVICE_SERIAL && DEVICE_INTERRUPTIN) || defined(DOXYGEN_ONLY)
 
-#include "FileHandle.h"
+#include "platform/FileHandle.h"
 #include "SerialBase.h"
 #include "InterruptIn.h"
-#include "PlatformMutex.h"
-#include "serial_api.h"
-#include "CircularBuffer.h"
+#include "platform/PlatformMutex.h"
+#include "hal/serial_api.h"
+#include "platform/CircularBuffer.h"
 #include "platform/NonCopyable.h"
 
 #ifndef MBED_CONF_DRIVERS_UART_SERIAL_RXBUF_SIZE
@@ -237,6 +237,9 @@ private:
 
     /** Release mutex */
     virtual void api_unlock(void);
+
+    /** Unbuffered write - invoked when write called from critical section */
+    ssize_t write_unbuffered(const char *buf_ptr, size_t length);
 
     /** Software serial buffers
      *  By default buffer size is 256 for TX and 256 for RX. Configurable through mbed_app.json

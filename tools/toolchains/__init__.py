@@ -19,7 +19,7 @@ from __future__ import print_function, division, absolute_import
 import re
 import sys
 import json
-from os import stat, walk, getcwd, sep, remove
+from os import stat, walk, getcwd, sep, remove, getenv
 from copy import copy
 from time import time, sleep
 from shutil import copyfile
@@ -48,6 +48,8 @@ CPU_COUNT_MIN = 1
 CPU_COEF = 1
 
 class mbedToolchain:
+    OFFICIALLY_SUPPORTED = False
+
     # Verbose logging
     VERBOSE = True
 
@@ -126,7 +128,7 @@ class mbedToolchain:
 
         # Build output dir
         self.build_dir = abspath(build_dir) if PRINT_COMPILER_OUTPUT_AS_LINK else build_dir
-        self.timestamp = time()
+        self.timestamp = getenv("MBED_BUILD_TIMESTAMP",time())
 
         # Number of concurrent build jobs. 0 means auto (based on host system cores)
         self.jobs = 0
@@ -420,7 +422,7 @@ class mbedToolchain:
             self.compiled += 1
             self.progress("compile", item['source'].name, build_update=True)
             for res in result['results']:
-                self.notify.cc_verbose("Compile: %s" % ' '.join(res['command']), result['source'])
+                self.notify.cc_verbose("Compile: %s" % ' '.join(res['command']), result['source'].name)
                 self.compile_output([
                     res['code'],
                     res['output'],
@@ -458,7 +460,7 @@ class mbedToolchain:
                         self.compiled += 1
                         self.progress("compile", result['source'].name, build_update=True)
                         for res in result['results']:
-                            self.notify.cc_verbose("Compile: %s" % ' '.join(res['command']), result['source'])
+                            self.notify.cc_verbose("Compile: %s" % ' '.join(res['command']), result['source'].name)
                             self.compile_output([
                                 res['code'],
                                 res['output'],
@@ -620,8 +622,11 @@ class mbedToolchain:
         objects = sorted(set(r.get_file_paths(FileType.OBJECT)))
         config_file = ([self.config.app_config_location]
                        if self.config.app_config_location else [])
-        linker_script = [path for _, path in r.get_file_refs(FileType.LD_SCRIPT)
-                         if path.endswith(self.LINKER_EXT)][-1]
+        try:
+            linker_script = [path for _, path in r.get_file_refs(FileType.LD_SCRIPT)
+                             if path.endswith(self.LINKER_EXT)][-1]
+        except IndexError:
+            raise NotSupportedException("No linker script found")
         lib_dirs = r.get_file_paths(FileType.LIB_DIR)
         libraries = [l for l in r.get_file_paths(FileType.LIB)
                      if l.endswith(self.LIBRARY_EXT)]
@@ -706,8 +711,8 @@ class mbedToolchain:
             self._add_defines_from_region(region)
             if region.active:
                 for define in [
-                        ("%s_START" % active_region_name, region.start),
-                        ("%s_SIZE" % active_region_name, region.size)
+                        ("%s_START" % active_region_name, "0x%x" % region.start),
+                        ("%s_SIZE" % active_region_name, "0x%x" % region.size)
                 ]:
                     define_string = self.make_ld_define(*define)
                     self.ld.append(define_string)
@@ -742,12 +747,27 @@ class mbedToolchain:
         except ConfigException:
             pass
 
+    def add_linker_defines(self):
+        stack_param = "target.boot-stack-size"
+        params, _ = self.config_data
+
+        if stack_param in params:
+            define_string = self.make_ld_define("MBED_BOOT_STACK_SIZE", int(params[stack_param].value, 0))
+            self.ld.append(define_string)
+            self.flags["ld"].append(define_string)
+
     # Set the configuration data
     def set_config_data(self, config_data):
         self.config_data = config_data
         # new configuration data can change labels, so clear the cache
         self.labels = None
+        # pass info about softdevice presence to linker (see NRF52)
+        if "SOFTDEVICE_PRESENT" in config_data[1]:
+            define_string = self.make_ld_define("SOFTDEVICE_PRESENT", config_data[1]["SOFTDEVICE_PRESENT"].macro_value)
+            self.ld.append(define_string)
+            self.flags["ld"].append(define_string)
         self.add_regions()
+        self.add_linker_defines()
 
     # Creates the configuration header if needed:
     # - if there is no configuration data, "mbed_config.h" is not create (or deleted if it exists).
