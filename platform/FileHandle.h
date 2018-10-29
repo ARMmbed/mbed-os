@@ -205,8 +205,8 @@ public:
     }
 
     /** Check for poll event flags
-     * The input parameter can be used or ignored - the could always return all events,
-     * or could check just the events listed in events.
+     * You can use or ignore the input parameter. You can return all events
+     * or check just the events listed in events.
      * Call is nonblocking - returns instantaneous state of events.
      * Whenever an event occurs, the derived class should call the sigio() callback).
      *
@@ -254,7 +254,7 @@ public:
      *  as a building block for constructing such functionality.
      *
      *  The exact timing of when the registered function
-     *  is called is not guaranteed and susceptible to change. It should be used
+     *  is called is not guaranteed and is susceptible to change. It should be used
      *  as a cue to make read/write/poll calls to find the current state.
      *
      *  @param func     Function to call on state change
