@@ -22,9 +22,19 @@ TCPSocket::TCPSocket()
 {
 }
 
+TCPSocket::TCPSocket(TCPSocket* parent, nsapi_socket_t socket, SocketAddress address)
+{
+    _socket = socket,
+    _stack = parent->_stack;
+    _factory_allocated = true;
+    _remote_peer = address;
+
+    _event = mbed::Callback<void()>(this, &TCPSocket::event);
+    _stack->socket_attach(socket, &mbed::Callback<void()>::thunk, &_event);
+}
+
 TCPSocket::~TCPSocket()
 {
-    close();
 }
 
 nsapi_protocol_t TCPSocket::get_proto()
@@ -265,16 +275,7 @@ TCPSocket *TCPSocket::accept(nsapi_error_t *error)
         ret = _stack->socket_accept(_socket, &socket, &address);
 
         if (0 == ret) {
-            connection = new TCPSocket();
-            connection->_lock.lock();
-            connection->_factory_allocated = true; // Destroy automatically on close()
-            connection->_remote_peer = address;
-            connection->_stack = _stack;
-            connection->_socket = socket;
-            connection->_event = mbed::Callback<void()>(connection, &TCPSocket::event);
-            _stack->socket_attach(socket, &mbed::Callback<void()>::thunk, &connection->_event);
-
-            connection->_lock.unlock();
+            connection = new TCPSocket(this, socket, address);
             break;
         } else if ((_timeout == 0) || (ret != NSAPI_ERROR_WOULD_BLOCK)) {
             break;

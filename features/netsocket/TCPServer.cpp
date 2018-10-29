@@ -24,7 +24,6 @@ TCPServer::TCPServer()
 
 TCPServer::~TCPServer()
 {
-    close();
 }
 
 nsapi_error_t TCPServer::accept(TCPSocket *connection, SocketAddress *address)

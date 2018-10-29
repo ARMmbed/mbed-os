@@ -182,6 +182,13 @@ public:
 protected:
     friend class TCPServer;
     virtual nsapi_protocol_t get_proto();
+
+private:
+    /** Create a socket out of a given socket
+     *
+     *  To be used within accept() function. Close() will clean this up.
+     */
+    TCPSocket(TCPSocket *parent, nsapi_socket_t socket, SocketAddress address);
 };
 
 
