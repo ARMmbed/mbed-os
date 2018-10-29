@@ -179,6 +179,12 @@ public:
      */
     virtual nsapi_error_t listen(int backlog = 1);
 
+    /** Get the remote-end peer associated with this socket.
+     *
+     *  @return         pointer to the remote_peer SocketAddress
+     */
+    const SocketAddress* get_remote_peer();
+
 protected:
     friend class TCPServer;
     virtual nsapi_protocol_t get_proto();

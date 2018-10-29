@@ -305,3 +305,7 @@ TCPSocket *TCPSocket::accept(nsapi_error_t *error)
     }
     return connection;
 }
+
+const SocketAddress* TCPSocket::get_remote_peer() {
+    return &_remote_peer;
+}
