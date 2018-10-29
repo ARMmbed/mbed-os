@@ -192,9 +192,11 @@ typedef struct {
     bool      supports_multi_master;
 } i2c_capabilities_t;
 
-/** Fills structure indicating supported features and frequencies on the current platform
+/** Fills structure indicating supported features and frequencies on the current
+ *  platform.
  *
- * @param[out] capabilities  Capabilities structure filled with supported configurations.
+ * @param[out] capabilities  Capabilities structure filled with supported
+ *                           configurations.
  */
 void i2c_get_capabilities(i2c_capabilities_t *capabilities);
 
@@ -204,7 +206,8 @@ void i2c_get_capabilities(i2c_capabilities_t *capabilities);
  *  @param obj       The I2C object
  *  @param sda       The sda pin
  *  @param scl       The scl pin
- *  @param is_slave  Choose whether the peripheral is initialised as master or slave.
+ *  @param is_slave  Choose whether the peripheral is initialised as master or
+ *                   slave.
  */
 void i2c_init(i2c_t *obj, PinName sda, PinName scl, bool is_slave);
 
@@ -220,8 +223,8 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl, bool is_slave);
 void i2c_frequency(i2c_t *obj, uint32_t frequency);
 
 
-/** Configure the timeout duration in milliseconds the I2C peripheral should allow the slave
- *  peripheral to stretch the clock for before timing out.
+/** Configure the timeout duration in milliseconds the I2C peripheral should
+ *  allow the slave peripheral to stretch the clock for before timing out.
  *
  *  @param obj        The I2C object
  *  @param timeout    Clock stretching timeout in milliseconds.
@@ -245,16 +248,37 @@ bool i2c_stop(i2c_t *obj);
 
 /** Blocking sending data
  *
+ *  This function transmits data, when the peripheral is configured as Master to
+ *  the selected slave, and when configured as Slave transmits data to the
+ *  Master.
+ *
+ *  This function is blocking, it will return when the transfer is complete or a
+ *  timeout event is triggered. The number of bytes transmitted is returned by
+ *  the function after the operation is completed. Transmit operation cannot be
+ *  cancelled or aborted.
+ *
+ *  The data buffer must stay allocated during the duration of the transfer and
+ *  the contents must not be modified. The value of the specified `address` is
+ *  ignored when configured in slave mode, in master mode it contains the
+ *  address of the target peripheral. This is a 7-bit value unless 10-bit
+ *  addressing is configured and supported by the target.
+ *
+ *  When in master mode the operation consists of:
+ *   - Address the slave as a Master transmitter.
+ *   - Transmit data to the addressed slave.
+ *   - Generate a STOP condition if the specified `stop` field is true.
+ *
  *  @param obj     The I2C object
  *  @param address 7-bit address (last bit is 0)
  *  @param data    The buffer for sending
  *  @param length  Number of bytes to write
  *  @param stop    If true, stop will be generated after the transfer is done
  *
- *  @note If the current platform supports multimaster operation the transfer will block until
- *        the peripheral can gain arbitration of the bus and complete the transfer. If the
- *        device does not support multimaster operation this function is not safe to execute
- *        when the bus is shared with another device in master mode.
+ *  @note If the current platform supports multimaster operation the transfer
+ *        will block until the peripheral can gain arbitration of the bus and
+ *        complete the transfer. If the device does not support multimaster
+ *        operation this function is not safe to execute when the bus is shared
+ *        with another device in master mode.
  *
  *  @return
  *      zero or non-zero - Number of written bytes
@@ -264,6 +288,19 @@ int32_t i2c_write(i2c_t *obj, uint16_t address, const void *data, uint32_t lengt
 
 /** Blocking reading data
  *
+ *  This function receives data, when the peripheral is configured as Master
+ *  from the selected slave, and when configured as Slave from the Master.
+ *
+ *  This function is blocking, it will return when the transfer is complete or a
+ *  timeout event is triggered. The number of bytes received is returned by
+ *  the function after the operation is completed. Receive operation cannot be
+ *  cancelled or aborted.
+ *
+ *  When in master mode the operation consists of:
+ *   - Address the slave as a Master receiver.
+ *   - Receive data from the addressed slave.
+ *   - Generate a STOP condition if the specified `stop` field is true.
+ *
  *  @param obj     The I2C object
  *  @param address 7-bit address (last bit is 1)
  *  @param data    The buffer for receiving
@@ -271,10 +308,11 @@ int32_t i2c_write(i2c_t *obj, uint16_t address, const void *data, uint32_t lengt
  *  @param last    If true, indicates that the transfer contains the last byte
  *                 to be sent.
  *
- *  @note If the current platform supports multimaster operation the transfer will block until
- *        the peripheral can gain arbitration of the bus and complete the transfer. If the
- *        device does not support multimaster operation this function is not safe to execute
- *        when the bus is shared with another device in master mode.
+ *  @note If the current platform supports multimaster operation the transfer
+ *        will block until the peripheral can gain arbitration of the bus and
+ *        complete the transfer. If the device does not support multimaster
+ *        operation this function is not safe to execute when the bus is shared
+ *        with another device in master mode.
  *
  *  @return
  *      zero or non-zero - Number of written bytes
@@ -291,11 +329,14 @@ typedef enum {
 
 /** Check to see if the I2C slave has been addressed.
  *  @param obj The I2C object
- *  @return The status - i2c_slave_status_t indicating what mode the peripheral is configured in.
+ *  @return The status - i2c_slave_status_t indicating what mode the peripheral
+ *          is configured in.
  */
 i2c_slave_status_t i2c_slave_status(i2c_t *obj);
 
 /** Configure I2C address.
+ *
+ *  @note This function does nothing when configured in master mode.
  *
  *  @param obj     The I2C object
  *  @param address The address to be set
@@ -319,7 +360,9 @@ void i2c_transfer_async(i2c_t *obj, const void *tx, uint32_t tx_length, void *rx
 
 /** Abort asynchronous transfer
  *
- *  This function does not perform any check - that should happen in upper layers.
+ *  This function does not perform any check - that should happen in upper
+ *  layers.
+ *
  *  @param obj The I2C object
  */
 void i2c_abort_async(i2c_t *obj);
