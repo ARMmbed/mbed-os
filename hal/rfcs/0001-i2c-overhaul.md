@@ -190,6 +190,8 @@ typedef struct {
     bool      supports_10bit_addressing;
     /**< If true, the device handle multimaster collisions and arbitration safely*/
     bool      supports_multi_master;
+    /**< If true, supports configuring clock stretching. */
+    bool      supports_clock_stretching;
 } i2c_capabilities_t;
 
 /** Fills structure indicating supported features and frequencies on the current
