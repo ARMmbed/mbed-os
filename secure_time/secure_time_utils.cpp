@@ -17,6 +17,7 @@
 #include "secure_time_client_spe.h"
 #include "mbed_error.h"
 #include "rtos/Kernel.h"
+#include "platform/mbed_rtc_time.h"
 
 #if SECURE_TIME_ENABLED
 
@@ -39,6 +40,24 @@ void secure_time_update_boot_time(uint64_t new_time)
 uint64_t secure_time_get_boot_time(void)
 {
     return g_boot_time_in_secs;
+}
+
+void secure_time_update_rtc_time(uint64_t new_time)
+{
+#if DEVICE_RTC
+    set_time((time_t)new_time);
+#endif
+}
+
+uint64_t secure_time_get_rtc_time(void)
+{
+    uint64_t rtc_time = 0;
+
+#if DEVICE_RTC
+    rtc_time = (uint64_t)time(NULL);
+#endif
+
+    return rtc_time;
 }
 
 #endif // SECURE_TIME_ENABLED

@@ -82,6 +82,20 @@ void secure_time_update_boot_time(uint64_t new_time);
  */
 uint64_t secure_time_get_seconds_since_boot(void);
 
+/*
+ * Update the device RTC time according to the new time.
+ *
+ * @param[in] new_time  Time value in seconds since EPOCH.
+ */
+void secure_time_update_rtc_time(uint64_t new_time);
+
+/*
+ * Return the device RTC time in seconds since EPOCH.
+ *
+ * @return 64-bit value of seconds, 0 if RTC not supported.
+ */
+uint64_t secure_time_get_rtc_time(void);
+
 #ifdef __cplusplus
 }
 #endif
