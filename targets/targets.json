@@ -1415,6 +1415,7 @@
             "ANALOGIN",
             "ANALOGOUT",
             "EMAC",
+            "I2C",
             "INTERRUPTIN",
             "PORTIN",
             "PORTINOUT",
