@@ -212,6 +212,10 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl, bool is_slave);
  *
  *  @param obj        The I2C object
  *  @param frequency  Frequency in Hz
+ *
+ *  @returns The actual frequency that the peripheral will be generating to
+ *           allow a user adjust its strategy in case the target cannot be
+ *           reached.
  */
 void i2c_frequency(i2c_t *obj, uint32_t frequency);
 
@@ -256,7 +260,7 @@ bool i2c_stop(i2c_t *obj);
  *      zero or non-zero - Number of written bytes
  *      negative - I2C_ERROR_XXX status
  */
-int i2c_write(i2c_t *obj, uint16_t address, const void *data, uint32_t length, bool stop);
+int32_t i2c_write(i2c_t *obj, uint16_t address, const void *data, uint32_t length, bool stop);
 
 /** Blocking reading data
  *
@@ -276,20 +280,20 @@ int i2c_write(i2c_t *obj, uint16_t address, const void *data, uint32_t length, b
  *      zero or non-zero - Number of written bytes
  *      negative - I2C_ERROR_XXX status
  */
-int i2c_read(i2c_t *obj, uint16_t address, void *data, uint32_t length, bool last);
+int32_t i2c_read(i2c_t *obj, uint16_t address, void *data, uint32_t length, bool last);
 
 typedef enum {
     NO_ADDRESS = 0,
     READ       = 1,
     BROADCAST  = 2,
     WRITE      = 3
-} i2c_slave_status;
+} i2c_slave_status_t;
 
 /** Check to see if the I2C slave has been addressed.
  *  @param obj The I2C object
- *  @return The status - i2c_slave_status indicating what mode the peripheral is configured in.
+ *  @return The status - i2c_slave_status_t indicating what mode the peripheral is configured in.
  */
-i2c_slave_status i2c_slave_receive(i2c_t *obj);
+i2c_slave_status_t i2c_slave_status(i2c_t *obj);
 
 /** Configure I2C address.
  *
@@ -335,6 +339,7 @@ void i2c_abort_async(i2c_t *obj);
 - `i2c_get_capabilities`:
   - Fills the contents of the `i2c_capabilities_t` parameter
 - `i2c_frequency`:
+  - Returns the actual frequency that will be used.
   - Sets the frequency to use for the transfer.
   - Must leave all other configuration unchanged.
 - `i2c_timeout`:
