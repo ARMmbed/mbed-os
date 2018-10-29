@@ -22,9 +22,8 @@ namespace mbed {
 
 I2CSlave::I2CSlave(PinName sda, PinName scl) : _i2c()
 {
-    i2c_init(&_i2c, sda, scl);
+    i2c_init(&_i2c, sda, scl, true);
     i2c_frequency(&_i2c, 100000);
-    i2c_slave_mode(&_i2c, 1);
 }
 
 void I2CSlave::frequency(int hz)
@@ -35,32 +34,36 @@ void I2CSlave::frequency(int hz)
 void I2CSlave::address(int address)
 {
     int addr = (address & 0xFF) | 1;
-    i2c_slave_address(&_i2c, 0, addr, 0);
+
+    i2c_slave_address(&_i2c, addr);
 }
 
 int I2CSlave::receive(void)
 {
-    return i2c_slave_receive(&_i2c);
+    return i2c_slave_status(&_i2c);
 }
 
 int I2CSlave::read(char *data, int length)
 {
-    return i2c_slave_read(&_i2c, data, length) != length;
+    return i2c_read(&_i2c, 0, data, length, false) != length;
 }
 
 int I2CSlave::read(void)
 {
-    return i2c_byte_read(&_i2c, 0);
+    int ret;
+    i2c_read(&_i2c, 0, &ret, 1, false);
+
+    return ret;
 }
 
 int I2CSlave::write(const char *data, int length)
 {
-    return i2c_slave_write(&_i2c, data, length) != length;
+    return i2c_write(&_i2c, 0, data, length, false) != length;
 }
 
 int I2CSlave::write(int data)
 {
-    return i2c_byte_write(&_i2c, data);
+    return i2c_write(&_i2c, 0, (void *)&data, 1, false);
 }
 
 void I2CSlave::stop(void)
@@ -68,6 +71,6 @@ void I2CSlave::stop(void)
     i2c_stop(&_i2c);
 }
 
-}
+} // namespace mbed
 
-#endif
+#endif // DEVICE_I2CSLAVE
