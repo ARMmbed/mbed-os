@@ -18,12 +18,15 @@
 #endif
 
 #define __STDC_LIMIT_MACROS
-#include <stdint.h>
-#include "greentea-client/test_env.h"
-#include "utest/utest.h"
-#include "unity/unity.h"
 #include "drivers/Watchdog.h"
+#include "greentea-client/test_env.h"
+#include "mbed_wait_api.h"
+#include "unity/unity.h"
+#include "utest/utest.h"
 #include "Watchdog_tests.h"
+
+#include <stdint.h>
+#include <stdlib.h>
 
 /* This is platform specific and depends on the watchdog timer implementation,
  * e.g. STM32F4 uses 32kHz internal RC oscillator to clock the IWDG, so
@@ -49,6 +52,8 @@ int CASE_INDEX_CURRENT;
 using utest::v1::Case;
 using utest::v1::Specification;
 using utest::v1::Harness;
+
+using namespace mbed;
 
 void test_max_timeout_is_valid()
 {
