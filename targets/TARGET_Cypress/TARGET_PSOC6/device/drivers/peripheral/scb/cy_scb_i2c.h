@@ -7,9 +7,7 @@
 ********************************************************************************
 * \copyright
 * Copyright 2016-2018, Cypress Semiconductor Corporation.  All rights reserved.
-* You may use this file only in accordance with the license, terms, conditions,
-* disclaimers, and limitations in the end user license agreement accompanying
-* the software package with which this file was provided.
+* SPDX-License-Identifier: Apache-2.0
 *******************************************************************************/
 
 /**
@@ -305,9 +303,9 @@
 *     <td rowspan="4"> 2.10</td>
 *     <td>Fixed the ReStart condition generation sequence for a write
 *         transaction in the \ref Cy_SCB_I2C_MasterWrite function.</td>
-*     <td>The driver can notify about a zero length write transaction completion 
-*         before the address byte is sent if the \ref Cy_SCB_I2C_MasterWrite 
-*         function execution was interrupted between setting the restart 
+*     <td>The driver can notify about a zero length write transaction completion
+*         before the address byte is sent if the \ref Cy_SCB_I2C_MasterWrite
+*         function execution was interrupted between setting the restart
 *         generation command and writing the address byte into the TX FIFO.</td>
 *   </tr>
 *   <tr>
@@ -318,7 +316,7 @@
 *         master mode configurations.</td>
 *   </tr>
 *   <tr>
-*     <td>Updated the Start condition generation sequence in the \ref 
+*     <td>Updated the Start condition generation sequence in the \ref
 *         Cy_SCB_I2C_MasterWrite and \ref Cy_SCB_I2C_MasterRead.</td>
 *     <td></td>
 *   </tr>
@@ -329,8 +327,8 @@
 *   </tr>
 *   <tr>
 *     <td rowspan="5"> 2.0</td>
-*     <td>Fixed the \ref Cy_SCB_I2C_MasterSendReStart function to properly 
-*         generate the ReStart condition when the previous transaction was 
+*     <td>Fixed the \ref Cy_SCB_I2C_MasterSendReStart function to properly
+*         generate the ReStart condition when the previous transaction was
 *         a write.</td>
 *     <td>The master interpreted the address byte written into the TX FIFO as a
 *         data byte and continued a write transaction. The ReStart condition was
@@ -345,10 +343,10 @@
 *         firmware.</td>
 *     <td>The observed slave operation failure depends on whether Level 2 assert
 *         is enabled or not. Enabled: the device stuck in the fault handler due
-*         to the assert assignment in the \ref Cy_SCB_I2C_Interrupt. Disabled: 
-*         the slave sets the transaction completion status and notifies on the 
+*         to the assert assignment in the \ref Cy_SCB_I2C_Interrupt. Disabled:
+*         the slave sets the transaction completion status and notifies on the
 *         transaction completion event after the address was NACKed. The failure
-*         is observed only when the slave is configured to accept an address in 
+*         is observed only when the slave is configured to accept an address in
 *         the RX FIFO.</td>
 *   </tr>
 *   <tr>

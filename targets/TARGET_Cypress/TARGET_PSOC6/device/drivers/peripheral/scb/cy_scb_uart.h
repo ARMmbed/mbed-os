@@ -7,9 +7,7 @@
 ********************************************************************************
 * \copyright
 * Copyright 2016-2018, Cypress Semiconductor Corporation.  All rights reserved.
-* You may use this file only in accordance with the license, terms, conditions,
-* disclaimers, and limitations in the end user license agreement accompanying
-* the software package with which this file was provided.
+* SPDX-License-Identifier: Apache-2.0
 *******************************************************************************/
 
 /**
@@ -191,7 +189,7 @@
 *   parameter to configure TX FIFO level value. \n
 *   <em>For example, the TX FIFO has 0 data elements (empty) and the TX FIFO level
 *   is 7. The TX trigger signal remains active until DMA does not load TX FIFO
-*   with 7 data elements (note that after the first TX load operation, the data 
+*   with 7 data elements (note that after the first TX load operation, the data
 *   element goes to the shift register and TX FIFO remains empty).</em>
 *
 * To route SCB TX or RX trigger signals to DMA controller use \ref group_trigmux
@@ -211,22 +209,22 @@
 * power mode transition function. Refer to \ref group_syspm driver for more
 * information about power mode transitions and callback registration.
 *
-* The UART is disabled during Deep Sleep and Hibernate and stops driving 
-* the output pins. The state of the UART output pins TX and RTS is High-Z, 
+* The UART is disabled during Deep Sleep and Hibernate and stops driving
+* the output pins. The state of the UART output pins TX and RTS is High-Z,
 * which can cause unexpected behavior of the UART receiver due to possible
-* glitches on these lines. These pins must be set to the inactive state before 
-* entering Deep Sleep or Hibernate mode. To do that, configure the UART  
-* pins output to drive the inactive state and High-Speed Input Output 
-* Multiplexer (HSIOM) to control output by GPIO (use \ref group_gpio 
-* driver API). The pins configuration must be restored after exiting Deep Sleep 
-* mode to return the UART control of the pins (after exiting Hibernate mode, 
-* the system init code does the same). 
-* Note that the UART must be enabled to drive the pins during configuration 
-* change not to cause glitches on the lines. Copy either or both 
-* \ref Cy_SCB_UART_DeepSleepCallback and \ref Cy_SCB_UART_HibernateCallback as 
+* glitches on these lines. These pins must be set to the inactive state before
+* entering Deep Sleep or Hibernate mode. To do that, configure the UART
+* pins output to drive the inactive state and High-Speed Input Output
+* Multiplexer (HSIOM) to control output by GPIO (use \ref group_gpio
+* driver API). The pins configuration must be restored after exiting Deep Sleep
+* mode to return the UART control of the pins (after exiting Hibernate mode,
+* the system init code does the same).
+* Note that the UART must be enabled to drive the pins during configuration
+* change not to cause glitches on the lines. Copy either or both
+* \ref Cy_SCB_UART_DeepSleepCallback and \ref Cy_SCB_UART_HibernateCallback as
 * appropriate, and make the changes described above inside the function.
-* Alternately, external pull-up or pull-down resistors can be connected 
-* to the appropriate UART lines to keep them inactive during Deep-Sleep or 
+* Alternately, external pull-up or pull-down resistors can be connected
+* to the appropriate UART lines to keep them inactive during Deep-Sleep or
 * Hibernate.
 *
 * \section group_scb_uart_more_information More Information

@@ -1,15 +1,13 @@
-/***************************************************************************//** 
+/***************************************************************************//**
 * \file cy_profile.c
 * \version 1.0
-* 
-* Provides an API declaration of the energy profiler (EP) driver. 
 *
-******************************************************************************** 
-* \copyright 
-* Copyright 2016-2018, Cypress Semiconductor Corporation. All rights reserved. 
-* You may use this file only in accordance with the license, terms, conditions, 
-* disclaimers, and limitations in the end user license agreement accompanying 
-* the software package with which this file was provided.
+* Provides an API declaration of the energy profiler (EP) driver.
+*
+********************************************************************************
+* \copyright
+* Copyright 2016-2018, Cypress Semiconductor Corporation.  All rights reserved.
+* SPDX-License-Identifier: Apache-2.0
 *******************************************************************************/
 
 #include "cy_profile.h"
@@ -39,7 +37,7 @@ static cy_stc_profile_ctr_t cy_ep_ctrs[PROFILE_PRFL_CNT_NR];
 * the cy_ep_ctrs[] array, and (2) whether the counter has been assigned.
 *
 * \param ctrAddr The handle to (address of) the assigned counter
-* 
+*
 * \return CY_PROFILE_SUCCESS, or CY_PROFILE_BAD_PARAM for invalid ctrAddr or counter not
 * in use.
 *
@@ -71,12 +69,12 @@ static cy_en_profile_status_t Cy_Profile_IsPtrValid(const cy_stc_profile_ctr_ptr
 * EP interrupt handler: Increments the overflow member of the counter structure,
 * for each counter that is in use and has an overflow.
 *
-* This handler is not configured or used automatically. You must configure the 
-* interrupt handler for the EP, using Cy_SysInt_Init(). Typically you configure 
+* This handler is not configured or used automatically. You must configure the
+* interrupt handler for the EP, using Cy_SysInt_Init(). Typically you configure
 * the system to use \ref Cy_Profile_ISR() as the overflow interrupt handler. You
 * can provide a custom interrupt handler to perform additional operations if
 * required. Your handler can call \ref Cy_Profile_ISR() to handle counter
-* overflow. 
+* overflow.
 *
 *******************************************************************************/
 void Cy_Profile_ISR(void)
@@ -139,7 +137,7 @@ void Cy_Profile_StartProfiling(void)
 * Function Name: Cy_Profile_ClearConfiguration
 ****************************************************************************//**
 *
-* Clears all counter configurations and sets all counters and overflow counters 
+* Clears all counter configurations and sets all counters and overflow counters
 * to 0. Calls Cy_Profile_ClearCounters() to clear counter registers.
 *
 * \funcusage
@@ -159,12 +157,12 @@ void Cy_Profile_ClearConfiguration(void)
 *
 * Configures and assigns a hardware profile counter to the list of used counters.
 *
-* This function assigns an available profile counter to a slot in the internal 
+* This function assigns an available profile counter to a slot in the internal
 * software data structure and returns the handle for that slot location. The data
 * structure is used to keep track of the counter status and to implement a 64-bit
 * profile counter. If no counter slots are available, the function returns a
 * NULL pointer.
-* 
+*
 * \param monitor The monitor source number
 *
 * \param duration Events are monitored (0), or duration is monitored (1)
@@ -172,7 +170,7 @@ void Cy_Profile_ClearConfiguration(void)
 * \param refClk Counter reference clock
 *
 * \param weight Weighting factor for the counter value
-* 
+*
 * \return A pointer to the counter data structure. NULL if no counter is
 * available.
 *
@@ -199,7 +197,7 @@ cy_stc_profile_ctr_ptr_t Cy_Profile_ConfigureCounter(en_ep_mon_sel_t monitor, cy
         cy_ep_ctrs[i].weight = weight;
         /* pass back the handle to (address of) the counter data structure */
         retVal = &cy_ep_ctrs[i];
-        
+
         /* Load the CTL register bitfields of the assigned counter. */
         retVal->cntAddr->CTL =
             _VAL2FLD(PROFILE_CNT_STRUCT_CTL_CNT_DURATION, retVal->ctlRegVals.cntDuration) |
@@ -222,8 +220,8 @@ cy_stc_profile_ctr_ptr_t Cy_Profile_ConfigureCounter(en_ep_mon_sel_t monitor, cy
 *
 * \param ctrAddr The handle to the assigned counter (returned by calling
 * \ref Cy_Profile_ConfigureCounter()).
-* 
-* \return 
+*
+* \return
 * Status of the operation.
 *
 * \note The counter is not disabled by this function.
@@ -235,7 +233,7 @@ cy_stc_profile_ctr_ptr_t Cy_Profile_ConfigureCounter(en_ep_mon_sel_t monitor, cy
 cy_en_profile_status_t Cy_Profile_FreeCounter(cy_stc_profile_ctr_ptr_t ctrAddr)
 {
    cy_en_profile_status_t retStatus = CY_PROFILE_BAD_PARAM;
-   
+
     retStatus = Cy_Profile_IsPtrValid(ctrAddr);
     if (retStatus == CY_PROFILE_SUCCESS)
     {
@@ -249,15 +247,15 @@ cy_en_profile_status_t Cy_Profile_FreeCounter(cy_stc_profile_ctr_ptr_t ctrAddr)
 * Function Name: Cy_Profile_EnableCounter
 ****************************************************************************//**
 *
-* Enables an assigned counter. 
+* Enables an assigned counter.
 *
 * \ref Cy_Profile_ConfigureCounter() must have been called for this counter
 * before calling this function.
 *
 * \param ctrAddr The handle to the assigned counter, (returned by calling
 * \ref Cy_Profile_ConfigureCounter()).
-* 
-* \return 
+*
+* \return
 * Status of the operation.
 *
 * \funcusage
@@ -267,7 +265,7 @@ cy_en_profile_status_t Cy_Profile_FreeCounter(cy_stc_profile_ctr_ptr_t ctrAddr)
 cy_en_profile_status_t Cy_Profile_EnableCounter(cy_stc_profile_ctr_ptr_t ctrAddr)
 {
     cy_en_profile_status_t retStatus = CY_PROFILE_BAD_PARAM;
-    
+
     retStatus = Cy_Profile_IsPtrValid(ctrAddr);
     if (retStatus == CY_PROFILE_SUCCESS)
     {
@@ -291,8 +289,8 @@ cy_en_profile_status_t Cy_Profile_EnableCounter(cy_stc_profile_ctr_ptr_t ctrAddr
 *
 * \param ctrAddr The handle to the assigned counter, (returned by calling
 * \ref Cy_Profile_ConfigureCounter()).
-* 
-* \return 
+*
+* \return
 * Status of the operation.
 *
 * \funcusage
@@ -326,8 +324,8 @@ cy_en_profile_status_t Cy_Profile_DisableCounter(cy_stc_profile_ctr_ptr_t ctrAdd
 * \ref Cy_Profile_ConfigureCounter()).
 *
 * \param result Output parameter used to write in the result.
-* 
-* \return 
+*
+* \return
 * Status of the operation.
 *
 * \funcusage
@@ -360,8 +358,8 @@ cy_en_profile_status_t Cy_Profile_GetRawCount(cy_stc_profile_ctr_ptr_t ctrAddr, 
 * \ref Cy_Profile_ConfigureCounter()).
 *
 * \param result Output parameter used to write in the result.
-* 
-* \return 
+*
+* \return
 * Status of the operation.
 *
 * \funcusage
@@ -416,7 +414,7 @@ uint64_t Cy_Profile_GetSumWeightedCounts(cy_stc_profile_ctr_ptr_t ptrsArray[],
             daSum += num;
         }
     }
-    
+
     return (daSum);
 }
 

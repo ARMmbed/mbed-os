@@ -6,10 +6,8 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2018, Cypress Semiconductor Corporation. All rights reserved.
-* You may use this file only in accordance with the license, terms, conditions,
-* disclaimers, and limitations in the end user license agreement accompanying
-* the software package with which this file was provided.
+* Copyright 2016-2018, Cypress Semiconductor Corporation.  All rights reserved.
+* SPDX-License-Identifier: Apache-2.0
 *******************************************************************************/
 
 #include "cy_scb_uart.h"
@@ -265,7 +263,7 @@ void Cy_SCB_UART_Disable(CySCB_Type *base, cy_stc_scb_uart_context_t *context)
 ****************************************************************************//**
 *
 * This function handles the transition of the SCB UART into and out of
-* Deep Sleep mode. It prevents the device from entering Deep Sleep 
+* Deep Sleep mode. It prevents the device from entering Deep Sleep
 * mode if the UART is transmitting data or has any data in the RX FIFO. If the
 * UART is ready to enter Deep Sleep mode, it is disabled. The UART is enabled
 * when the device fails to enter Deep Sleep mode or it is awakened from
@@ -365,7 +363,7 @@ cy_en_syspm_status_t Cy_SCB_UART_DeepSleepCallback(cy_stc_syspm_callback_params_
 * Function Name: Cy_SCB_UART_HibernateCallback
 ****************************************************************************//**
 *
-* This function handles the transition of the SCB UART into Hibernate mode. 
+* This function handles the transition of the SCB UART into Hibernate mode.
 * It prevents the device from entering Hibernate mode if the UART is
 * transmitting data or has any data in the RX FIFO. If the UART is ready
 * to enter Hibernate mode, it is disabled. If the device fails to enter

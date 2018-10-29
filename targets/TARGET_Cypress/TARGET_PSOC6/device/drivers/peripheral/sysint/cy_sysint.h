@@ -7,10 +7,9 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2018, Cypress Semiconductor Corporation. All rights reserved.
-* You may use this file only in accordance with the license, terms, conditions,
-* disclaimers, and limitations in the end user license agreement accompanying
-* the software package with which this file was provided.
+* \copyright
+* Copyright 2016-2018, Cypress Semiconductor Corporation.  All rights reserved.
+* SPDX-License-Identifier: Apache-2.0
 *******************************************************************************/
 
 /**
@@ -27,33 +26,33 @@
 *
 * \subsection group_sysint_initialization Initialization
 *
-* Interrupt numbers are defined in a device-specific header file, such as 
+* Interrupt numbers are defined in a device-specific header file, such as
 * cy8c68237bz_ble.h.
 *
 * To configure an interrupt, call Cy_SysInt_Init(). Populate
 * the configuration structure (cy_stc_sysint_t) and pass it as a parameter
 * along with the ISR address. This initializes the interrupt and
 * instructs the CPU to jump to the specified ISR vector upon a valid trigger.
-* 
-* On the Cortex M4, system interrupt source 'n' is connected to the 
+*
+* On the Cortex M4, system interrupt source 'n' is connected to the
 * corresponding IRQn. Deep-sleep capable interrupts are allocated to deep-sleep
-* capable IRQn channels. 
-* 
+* capable IRQn channels.
+*
 * The CM0+ core supports up to 32 interrupt channels (IRQn 0-31). To allow all device
 * interrupts to be routable to the NVIC of this core, there is a 240:1 multiplexer
 * at each of the 32 NVIC channels. The configuration structure (cy_stc_sysint_t)
 * must specify the device interrupt source (cm0pSrc) that feeds into the CM0+ NVIC
 * mux (intrSrc). CM0+ NVIC channels 0-2 and 30-31 are reserved for system use.
 *
-* In addition, on the CM0+ core, a deep-sleep capable interrupt must be routed 
-* to a deep-sleep capable IRQn channel. Otherwise it won't work. The device 
+* In addition, on the CM0+ core, a deep-sleep capable interrupt must be routed
+* to a deep-sleep capable IRQn channel. Otherwise it won't work. The device
 * header file identifies which IRQn channels are deep-sleep capable.
-* 
+*
 * \subsection group_sysint_enable Enable
-* 
+*
 * After initializing an interrupt, use the CMSIS Core
 * <a href="https://www.keil.com/pack/doc/CMSIS/Core/html/group__NVIC__gr.html#ga530ad9fda2ed1c8b70e439ecfe80591f">NVIC_EnableIRQ()</a> function
-* to enable it. Given an initialization structure named config,  
+* to enable it. Given an initialization structure named config,
 * the function should be called as follows:
 * \code
 * NVIC_EnableIRQ(config.intrSrc)
@@ -88,10 +87,10 @@
 * channels 0-2 and 30-31 are reserved for system use, inter-processor communication,
 * and the crypto driver. Other IRQn channels (3-29) are available to the user application.
 *
-* Deep-sleep wakeup-capability is determined by the CPUSS_CM0_DPSLP_IRQ_NR 
-* parameter, where the first N number of muxes (NvicMux0 ... NvicMuxN-1) have the 
-* capability to trigger deep-sleep interrupts. A deep-sleep capable interrupt source 
-* must be connected to one of these muxes to be able to trigger in deep-sleep. 
+* Deep-sleep wakeup-capability is determined by the CPUSS_CM0_DPSLP_IRQ_NR
+* parameter, where the first N number of muxes (NvicMux0 ... NvicMuxN-1) have the
+* capability to trigger deep-sleep interrupts. A deep-sleep capable interrupt source
+* must be connected to one of these muxes to be able to trigger in deep-sleep.
 * Refer to the IRQn_Type definition in the device header.
 *
 * The default interrupt handler functions are defined as weak functions in the
@@ -211,7 +210,7 @@ extern cy_israddress __ramVectors[]; /**< Relocated vector table in SRAM */
 /**
 * SysInt Driver error codes
 */
-typedef enum 
+typedef enum
 {
     CY_SYSINT_SUCCESS   = 0x00u,                                      /**< Returned successful */
     CY_SYSINT_BAD_PARAM = CY_SYSINT_ID | CY_PDL_STATUS_ERROR | 0x01u, /**< Bad parameter was passed */
@@ -267,7 +266,7 @@ typedef struct {
 
 /* Parameter validation macros */
 #define CY_SYSINT_IS_PRIORITY_VALID(intrPriority)     ((uint32_t)(1UL << __NVIC_PRIO_BITS) > (intrPriority))
-#define CY_SYSINT_IS_VECTOR_VALID(userIsr)            (NULL != (userIsr))  
+#define CY_SYSINT_IS_VECTOR_VALID(userIsr)            (NULL != (userIsr))
 
 /** \endcond */
 
@@ -299,8 +298,8 @@ __STATIC_INLINE IRQn_Type Cy_SysInt_GetIntSourceNMI(void);
 *
 * \brief Sets the interrupt source of NMI.
 *
-* The interrupt source must be a positive number. Setting the value to 
-* "unconnected_IRQn" (240) disconnects the interrupt source from the NMI. 
+* The interrupt source must be a positive number. Setting the value to
+* "unconnected_IRQn" (240) disconnects the interrupt source from the NMI.
 *
 * \param intrSrc
 * Interrupt source
@@ -309,7 +308,7 @@ __STATIC_INLINE IRQn_Type Cy_SysInt_GetIntSourceNMI(void);
 * \snippet sysint/sysint_v1_10_sut_01.cydsn/main_cm4.c snippet_Cy_SysInt_SetIntSourceNMI
 *
 * \note The CM0+ NMI is used for performing system calls that execute out of ROM.
-* Hence modification of the NMI source is strongly discouraged. However if it 
+* Hence modification of the NMI source is strongly discouraged. However if it
 * must be updated, the NMI source must be provided from the cy_en_intr_t enum
 * as it is a direct connection to the interrupt source.
 *
@@ -331,7 +330,7 @@ __STATIC_INLINE void Cy_SysInt_SetIntSourceNMI(IRQn_Type intrSrc)
 * \brief Gets the interrupt source of the NMI.
 *
 * \return
-* Interrupt Source. A value of "unconnected_IRQn" (240) means that there is no 
+* Interrupt Source. A value of "unconnected_IRQn" (240) means that there is no
 * interrupt source for the NMI, and it can be only be triggered through software.
 *
 * \funcusage
@@ -349,7 +348,7 @@ __STATIC_INLINE IRQn_Type Cy_SysInt_GetIntSourceNMI(void)
 
 
 #if (!CY_CPU_CORTEX_M0P) || defined (CY_DOXYGEN)
-    
+
 /*******************************************************************************
 * Function Name: Cy_SysInt_SoftwareTrig
 ****************************************************************************//**

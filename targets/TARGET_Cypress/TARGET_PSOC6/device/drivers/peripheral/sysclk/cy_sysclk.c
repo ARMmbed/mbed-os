@@ -6,10 +6,8 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2018, Cypress Semiconductor Corporation. All rights reserved.
-* You may use this file only in accordance with the license, terms, conditions,
-* disclaimers, and limitations in the end user license agreement accompanying
-* the software package with which this file was provided.
+* Copyright 2016-2018, Cypress Semiconductor Corporation.  All rights reserved.
+* SPDX-License-Identifier: Apache-2.0
 *******************************************************************************/
 
 
@@ -36,7 +34,7 @@ extern "C" {
 * Function Name: Cy_SysClk_EcoConfigure
 ****************************************************************************//**
 *
-* Configures the external crystal oscillator (ECO) trim bits based on crystal 
+* Configures the external crystal oscillator (ECO) trim bits based on crystal
 * characteristics. This function should be called only when the ECO is disabled.
 *
 * \param freq Operating frequency of the crystal in Hz.
@@ -430,7 +428,7 @@ cy_en_sysclk_status_t Cy_SysClk_FllConfigure(uint32_t inputFreq, uint32_t output
                 float32_t testval = 6000.0f / (float32_t)outputFreq;
                 float32_t divval  = ceil((float32_t)inputFreq * 0.000001f);
                 float32_t altval  = ceil((divval / ttref) + 1.0f);
-                config.settlingCount = (uint16)(wcoSource ? 200u : 
+                config.settlingCount = (uint16)(wcoSource ? 200u :
                                                 ((ttref > testval) ? divval :
                                                  ((divval > altval) ? divval : altval)));
             }
@@ -764,7 +762,7 @@ cy_en_sysclk_status_t Cy_SysClk_PllConfigure(uint32_t clkPath, const cy_stc_pll_
                         /* OUTPUT_DIV selection */
                         for (out = MIN_OUTPUT_DIV; (out <= MAX_OUTPUT_DIV) && (foutBest != (config->outputFreq)); out++)
                         {
-                            /* Calculate what output frequency will actually be produced. 
+                            /* Calculate what output frequency will actually be produced.
                                If it's closer to the target than what we have so far, then save it. */
                             uint32_t fout = ((p * config->inputFreq) / q) / out;
                             if ((uint32_t)abs((int32_t)fout - (int32_t)(config->outputFreq)) <
@@ -968,7 +966,7 @@ static bool preventCounting = false;
 *
 * - One counter (counter1), which is clocked by clock1, is loaded with an initial
 *   value and counts down to zero.
-* - The second counter (counter2), which is clocked by clock2, counts up until 
+* - The second counter (counter2), which is clocked by clock2, counts up until
 *   the first counter reaches zero.
 *
 * Either clock1 or clock2 can be a reference clock; the other clock becomes the
@@ -1105,7 +1103,7 @@ cy_en_sysclk_status_t Cy_SysClk_StartClkMeasurementCounters(cy_en_meas_clks_t cl
 ****************************************************************************//**
 *
 * Calculates the frequency of the indicated measured clock (clock1 or clock2).
-* 
+*
 * - If clock1 is the measured clock, its frequency is:<br>
 *   clock1 frequency = (count1 / count2) * clock2 frequency
 * - If clock2 is the measured clock, its frequency is:<br>
@@ -1282,7 +1280,7 @@ int32_t Cy_SysClk_PiloTrim(uint32_t piloFreq)
 *
 * 1. Before entering deep-sleep, the clock configuration is saved in SRAM. If the
 *    FLL/PLL source is the ECO, then the source is updated to the IMO.
-* 2. Upon wakeup from deep-sleep, the function restores the configuration and 
+* 2. Upon wakeup from deep-sleep, the function restores the configuration and
 *    waits for the FLL/PLL to regain their frequency locks.
 *
 * The function prevents entry into DeepSleep mode if the measurement counters
@@ -1293,10 +1291,10 @@ int32_t Cy_SysClk_PiloTrim(uint32_t piloFreq)
 * \ref Cy_SysPm_DeepSleep - specify \ref CY_SYSPM_DEEPSLEEP as the callback
 * type and call \ref Cy_SysPm_RegisterCallback.
 *
-* \note This function must be the last callback function that is registered. 
+* \note This function must be the last callback function that is registered.
 * Doing so minimizes the time spent on low power mode entry and exit. In the case
 * where the ECO sources the FLL/PLL, this also allows the ECO to stabilize before
-* reconnecting it to the FLL or PLL. 
+* reconnecting it to the FLL or PLL.
 *
 * \param callbackParams
 * structure with the syspm callback parameters,
@@ -1327,7 +1325,7 @@ cy_en_syspm_status_t Cy_SysClk_DeepSleepCallback(cy_stc_syspm_callback_params_t 
         {
             rtnval = CY_SYSPM_FAIL;
         }
-        else 
+        else
         { /* Indicating that we can go into DeepSleep. Before doing so ... */
             uint32_t fllpll; /* 0 = FLL, all other values = a PLL */
 
@@ -1338,7 +1336,7 @@ cy_en_syspm_status_t Cy_SysClk_DeepSleepCallback(cy_stc_syspm_callback_params_t 
             for (fllpll = 0ul; fllpll < (SRSS_NUM_PLL + 1ul); fllpll++)
             {
                 /* If FLL or PLL is enabled, */
-                if (0ul != ((fllpll == 0ul) ? (_FLD2VAL(SRSS_CLK_FLL_CONFIG_FLL_ENABLE, SRSS->CLK_FLL_CONFIG)) : 
+                if (0ul != ((fllpll == 0ul) ? (_FLD2VAL(SRSS_CLK_FLL_CONFIG_FLL_ENABLE, SRSS->CLK_FLL_CONFIG)) :
                                               (_FLD2VAL(SRSS_CLK_PLL_CONFIG_ENABLE, SRSS->CLK_PLL_CONFIG[fllpll - 1ul]))))
                 {
                     /* and the FLL or PLL has ECO as a source, */
@@ -1349,7 +1347,7 @@ cy_en_syspm_status_t Cy_SysClk_DeepSleepCallback(cy_stc_syspm_callback_params_t 
                         /* keep a record that this FLL or PLL's source was changed from ECO */
                         changedSourcePaths |= (uint16_t)(1u << fllpll);
                     }
-                    
+
                     /* Set the FLL/PLL bypass mode to 2 */
                     if(fllpll == 0UL)
                     {
@@ -1361,7 +1359,7 @@ cy_en_syspm_status_t Cy_SysClk_DeepSleepCallback(cy_stc_syspm_callback_params_t 
                     }
                 }
             }
-            
+
             /* Prevent starting a new clock measurement until after we've come back from DeepSleep. */
             preventCounting = true;
         }
@@ -1382,7 +1380,7 @@ cy_en_syspm_status_t Cy_SysClk_DeepSleepCallback(cy_stc_syspm_callback_params_t 
                 rtnval = CY_SYSPM_TIMEOUT;
             }
         }
-        
+
         if(rtnval == CY_SYSPM_SUCCESS)
         {
             /* for FLL and each PLL, */
@@ -1390,7 +1388,7 @@ cy_en_syspm_status_t Cy_SysClk_DeepSleepCallback(cy_stc_syspm_callback_params_t 
             for (fllpll = 0ul; fllpll < (SRSS_NUM_PLL + 1ul); fllpll++)
             {
                 /* If FLL or PLL is enabled, */
-                if (0ul != ((fllpll == 0ul) ? (_FLD2VAL(SRSS_CLK_FLL_CONFIG_FLL_ENABLE, SRSS->CLK_FLL_CONFIG)) : 
+                if (0ul != ((fllpll == 0ul) ? (_FLD2VAL(SRSS_CLK_FLL_CONFIG_FLL_ENABLE, SRSS->CLK_FLL_CONFIG)) :
                                               (_FLD2VAL(SRSS_CLK_PLL_CONFIG_ENABLE, SRSS->CLK_PLL_CONFIG[fllpll - 1ul]))))
                 {
                     /* check the record that this FLL or PLL's source was changed from ECO */
@@ -1399,7 +1397,7 @@ cy_en_syspm_status_t Cy_SysClk_DeepSleepCallback(cy_stc_syspm_callback_params_t 
                         /* Change this FLL or PLL source back to ECO */
                         (void)Cy_SysClk_ClkPathSetSource(fllpll, CY_SYSCLK_CLKPATH_IN_ECO);
                     }
-                    
+
                     /* Timeout wait for FLL or PLL to regain lock. */
                     uint32_t timout;
                     for (timout = TIMEOUTK; timout != 0ul; timout--)
@@ -1428,7 +1426,7 @@ cy_en_syspm_status_t Cy_SysClk_DeepSleepCallback(cy_stc_syspm_callback_params_t 
                 }
             }
         }
-        
+
         /* Allow clock measurement. */
         preventCounting = false;
     }

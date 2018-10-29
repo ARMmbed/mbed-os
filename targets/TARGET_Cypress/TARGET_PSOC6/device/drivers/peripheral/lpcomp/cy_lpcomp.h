@@ -7,9 +7,7 @@
 ********************************************************************************
 * \copyright
 * Copyright 2016-2018, Cypress Semiconductor Corporation.  All rights reserved.
-* You may use this file only in accordance with the license, terms, conditions,
-* disclaimers, and limitations in the end user license agreement accompanying
-* the software package with which this file was provided.
+* SPDX-License-Identifier: Apache-2.0
 *******************************************************************************/
 
 /**
@@ -18,72 +16,72 @@
 * Provides access to the low-power comparators implemented using the fixed-function
 * LP comparator block that is present in PSoC 6.
 *
-* These comparators can perform fast analog signal comparison of internal 
-* and external analog signals in all system power modes. Low-power comparator 
-* output can be inspected by the CPU, used as an interrupt/wakeup source to the 
-* CPU when in low-power mode (Sleep, Low-Power Sleep, or Deep-Sleep), used as 
-* a wakeup source to system resources when in Hibernate mode, or fed to DSI as 
+* These comparators can perform fast analog signal comparison of internal
+* and external analog signals in all system power modes. Low-power comparator
+* output can be inspected by the CPU, used as an interrupt/wakeup source to the
+* CPU when in low-power mode (Sleep, Low-Power Sleep, or Deep-Sleep), used as
+* a wakeup source to system resources when in Hibernate mode, or fed to DSI as
 * an asynchronous or synchronous signal (level or pulse).
 *
 * \section group_lpcomp_section_Configuration_Considerations Configuration Considerations
-* To set up an LPComp, the inputs, the output, the mode, the interrupts and 
+* To set up an LPComp, the inputs, the output, the mode, the interrupts and
 * other configuration parameters should be configured. Power the LPComp to operate.
 *
 * The sequence recommended for the LPComp operation:
 *
-* 1) To initialize the driver, call the  Cy_LPComp_Init() function providing 
-* the filled cy_stc_lpcomp_config_t structure, the LPComp channel number, 
+* 1) To initialize the driver, call the  Cy_LPComp_Init() function providing
+* the filled cy_stc_lpcomp_config_t structure, the LPComp channel number,
 * and the LPCOMP registers structure pointer.
 *
-* 2) Optionally, configure the interrupt requests if the interrupt event 
-* triggering is needed. Use the Cy_LPComp_SetInterruptMask() function with 
-* the parameter for the mask available in the configuration file. 
-* Additionally, enable the Global interrupts and initialize the referenced 
-* interrupt by setting the priority and the interrupt vector using 
+* 2) Optionally, configure the interrupt requests if the interrupt event
+* triggering is needed. Use the Cy_LPComp_SetInterruptMask() function with
+* the parameter for the mask available in the configuration file.
+* Additionally, enable the Global interrupts and initialize the referenced
+* interrupt by setting the priority and the interrupt vector using
 * the \ref Cy_SysInt_Init() function of the sysint driver.
 *
-* 3) Configure the inputs and the output using the \ref Cy_GPIO_Pin_Init() 
-* functions of the GPIO driver. 
-* The High Impedance Analog drive mode is for the inputs and 
-* the Strong drive mode is for the output. 
-* Use the Cy_LPComp_SetInputs() function to connect the comparator inputs 
+* 3) Configure the inputs and the output using the \ref Cy_GPIO_Pin_Init()
+* functions of the GPIO driver.
+* The High Impedance Analog drive mode is for the inputs and
+* the Strong drive mode is for the output.
+* Use the Cy_LPComp_SetInputs() function to connect the comparator inputs
 * to the dedicated IO pins, AMUXBUSA/AMUXBUSB or Vref:
 * \image html lpcomp_inputs.png
 *
 * 4) Power on the comparator using the Cy_LPComp_Enable() function.
 *
-* 5) The comparator output can be monitored using 
-* the Cy_LPComp_GetCompare() function or using the LPComp interrupt 
+* 5) The comparator output can be monitored using
+* the Cy_LPComp_GetCompare() function or using the LPComp interrupt
 * (if the interrupt is enabled).
 *
-* \note The interrupt is not cleared automatically. 
-* It is the user's responsibility to do that. 
-* The interrupt is cleared by writing a 1 in the corresponding interrupt 
-* register bit position. The preferred way to clear interrupt sources 
+* \note The interrupt is not cleared automatically.
+* It is the user's responsibility to do that.
+* The interrupt is cleared by writing a 1 in the corresponding interrupt
+* register bit position. The preferred way to clear interrupt sources
 * is using the Cy_LPComp_ClearInterrupt() function.
 *
-* \note Individual comparator interrupt outputs are ORed together 
-* as a single asynchronous interrupt source before it is sent out and 
-* used to wake up the system in the low-power mode. 
-* For PSoC 6 devices, the individual comparator interrupt is masked 
+* \note Individual comparator interrupt outputs are ORed together
+* as a single asynchronous interrupt source before it is sent out and
+* used to wake up the system in the low-power mode.
+* For PSoC 6 devices, the individual comparator interrupt is masked
 * by the INTR_MASK register. The masked result is captured in
 * the INTR_MASKED register.
-* Writing a 1 to the INTR register bit will clear the interrupt. 
+* Writing a 1 to the INTR register bit will clear the interrupt.
 *
 * \section group_lpcomp_lp Low Power Support
-* The LPComp provides the callback functions to facilitate 
-* the low-power mode transition. The callback 
-* \ref Cy_LPComp_DeepSleepCallback must be called during execution 
-* of \ref Cy_SysPm_DeepSleep; \ref Cy_LPComp_HibernateCallback must be 
-* called during execution of \ref Cy_SysPm_Hibernate. 
-* To trigger the callback execution, the callback must be registered 
-* before calling the mode transition function. 
-* Refer to \ref group_syspm driver for more 
+* The LPComp provides the callback functions to facilitate
+* the low-power mode transition. The callback
+* \ref Cy_LPComp_DeepSleepCallback must be called during execution
+* of \ref Cy_SysPm_DeepSleep; \ref Cy_LPComp_HibernateCallback must be
+* called during execution of \ref Cy_SysPm_Hibernate.
+* To trigger the callback execution, the callback must be registered
+* before calling the mode transition function.
+* Refer to \ref group_syspm driver for more
 * information about low-power mode transitions.
 *
 * \section group_lpcomp_more_information More Information
 *
-* Refer to the appropriate device technical reference manual (TRM) for 
+* Refer to the appropriate device technical reference manual (TRM) for
 * a detailed description of the registers.
 *
 * \section group_lpcomp_MISRA MISRA-C Compliance
@@ -101,12 +99,12 @@
 *         a different pointer to object type.</td>
 *     <td>
 *         The pointer to the buffer memory is void to allow handling different
-*         different data types: uint8_t (4-8 bits) or uint16_t (9-16 bits). 
-*         The cast operation is safe because the configuration is verified 
+*         different data types: uint8_t (4-8 bits) or uint16_t (9-16 bits).
+*         The cast operation is safe because the configuration is verified
 *         before operation is performed.
-*         The function \ref Cy_LPComp_DeepSleepCallback is a callback of 
+*         The function \ref Cy_LPComp_DeepSleepCallback is a callback of
 *         the \ref cy_en_syspm_status_t type. The cast operation safety in this
-*         function becomes the user's responsibility because the pointers are 
+*         function becomes the user's responsibility because the pointers are
 *         initialized when a callback is registered in the SysPm driver.</td>
 *   </tr>
 * </table>
@@ -121,7 +119,7 @@
 *   </tr>
 *   <tr>
 *     <td>1.10</td>
-*     <td>The CY_WEAK keyword is removed from Cy_LPComp_DeepSleepCallback() 
+*     <td>The CY_WEAK keyword is removed from Cy_LPComp_DeepSleepCallback()
 *         and Cy_LPComp_HibernateCallback() functions<br>
 *         Added input parameter validation to the API functions.</td>
 *     <td></td>
@@ -181,7 +179,7 @@ extern "C"
 ******************************************************************************/
 
 /**< LPCOMP PDL ID */
-#define CY_LPCOMP_ID                                CY_PDL_DRV_ID(0x23u)    
+#define CY_LPCOMP_ID                                CY_PDL_DRV_ID(0x23u)
 
 /** The LPCOMP's number of channels. */
 #define CY_LPCOMP_MAX_CHANNEL_NUM                   (2u)
@@ -221,20 +219,20 @@ extern "C"
 
 #define CY_LPCOMP_CMP0_OUTPUT_CONFIG_Pos            LPCOMP_CMP0_CTRL_DSI_BYPASS0_Pos
 #define CY_LPCOMP_CMP1_OUTPUT_CONFIG_Pos            LPCOMP_CMP1_CTRL_DSI_BYPASS1_Pos
-                                                    
+
 #define CY_LPCOMP_CMP0_OUTPUT_CONFIG_Msk           (LPCOMP_CMP0_CTRL_DSI_BYPASS0_Msk | \
                                                     LPCOMP_CMP0_CTRL_DSI_LEVEL0_Msk)
-                                                    
+
 #define CY_LPCOMP_CMP1_OUTPUT_CONFIG_Msk           (LPCOMP_CMP1_CTRL_DSI_BYPASS1_Msk | \
                                                     LPCOMP_CMP1_CTRL_DSI_LEVEL1_Msk)
 
 #define CY_HSIOM_AMUX_SPLIT_CTL_SWITCH_AA_SL_SR_Pos HSIOM_AMUX_SPLIT_CTL_SWITCH_AA_SL_Pos
-                                                    
+
 #define CY_HSIOM_AMUX_SPLIT_CTL_SWITCH_AA_SL_SR_Msk (HSIOM_AMUX_SPLIT_CTL_SWITCH_AA_SL_Msk | \
-                                                     HSIOM_AMUX_SPLIT_CTL_SWITCH_AA_SR_Msk) 
-                                                    
+                                                     HSIOM_AMUX_SPLIT_CTL_SWITCH_AA_SR_Msk)
+
 #define CY_HSIOM_AMUX_SPLIT_CTL_SWITCH_BB_SL_SR_Pos HSIOM_AMUX_SPLIT_CTL_SWITCH_BB_SL_Pos
-                                                    
+
 #define CY_HSIOM_AMUX_SPLIT_CTL_SWITCH_BB_SL_SR_Msk (HSIOM_AMUX_SPLIT_CTL_SWITCH_BB_SL_Msk | \
                                                      HSIOM_AMUX_SPLIT_CTL_SWITCH_BB_SR_Msk)
 
@@ -264,7 +262,7 @@ typedef enum
 {
     CY_LPCOMP_OUT_PULSE  = 0u,  /**< The LPCOMP DSI output with the pulse option, no bypass. */
     CY_LPCOMP_OUT_DIRECT = 1u,  /**< The LPCOMP bypass mode, the direct output of a comparator. */
-    CY_LPCOMP_OUT_SYNC   = 2u   /**< The LPCOMP DSI output with the level option, it is similar 
+    CY_LPCOMP_OUT_SYNC   = 2u   /**< The LPCOMP DSI output with the level option, it is similar
                                   to the bypass mode but it is 1 cycle slow than the bypass. */
 } cy_en_lpcomp_out_t;
 
@@ -310,7 +308,7 @@ typedef enum
 } cy_en_lpcomp_inputs_t;
 
 /** The LPCOMP error codes. */
-typedef enum 
+typedef enum
 {
     CY_LPCOMP_SUCCESS = 0x00u,                                            /**< Successful */
     CY_LPCOMP_BAD_PARAM = CY_LPCOMP_ID | CY_PDL_STATUS_ERROR | 0x01u,     /**< One or more invalid parameters */
@@ -332,7 +330,7 @@ typedef enum
 
 /** The LPCOMP configuration structure. */
 typedef struct {
-    cy_en_lpcomp_out_t  outputMode;  /**< The LPCOMP's outputMode: Direct output, 
+    cy_en_lpcomp_out_t  outputMode;  /**< The LPCOMP's outputMode: Direct output,
                                        Synchronized output or Pulse output */
     cy_en_lpcomp_hyst_t hysteresis;  /**< Enables or disables the LPCOMP's hysteresis */
     cy_en_lpcomp_pwr_t power;        /**< Sets the LPCOMP power mode */
@@ -380,7 +378,7 @@ typedef struct {
                                                   ((input) == CY_LPCOMP_SW_AMUXBUSA) || \
                                                   ((input) == CY_LPCOMP_SW_AMUXBUSB) || \
                                                   ((input) == CY_LPCOMP_SW_LOCAL_VREF))
-                                                  
+
 /** \endcond */
 
 /**
@@ -425,16 +423,16 @@ cy_en_syspm_status_t Cy_LPComp_HibernateCallback(cy_stc_syspm_callback_params_t 
 * Function Name: Cy_LPComp_GlobalEnable
 ****************************************************************************//**
 *
-* Activates the IP of the LPCOMP hardware block. This API should be enabled 
+* Activates the IP of the LPCOMP hardware block. This API should be enabled
 * before operating any channel of comparators.
-* Note: Interrupts can be enabled after the block is enabled and the appropriate 
+* Note: Interrupts can be enabled after the block is enabled and the appropriate
 * start-up time has elapsed:
 * 3 us for the normal power mode;
 * 6 us for the LP mode;
 * 50 us for the ULP mode.
 *
 * \param *base
-*     The structure of the channel pointer. 
+*     The structure of the channel pointer.
 *
 * \return None
 *
@@ -449,7 +447,7 @@ __STATIC_INLINE void Cy_LPComp_GlobalEnable(LPCOMP_Type* base)
 * Function Name: Cy_LPComp_GlobalDisable
 ****************************************************************************//**
 *
-* Deactivates the IP of the LPCOMP hardware block. 
+* Deactivates the IP of the LPCOMP hardware block.
 * (Analog in power down, open all switches, all clocks off).
 *
 * \param *base
@@ -468,7 +466,7 @@ __STATIC_INLINE void Cy_LPComp_GlobalDisable(LPCOMP_Type *base)
 * Function Name: Cy_LPComp_UlpReferenceEnable
 ****************************************************************************//**
 *
-* Enables the local reference-generator circuit. 
+* Enables the local reference-generator circuit.
 *
 * \param *base
 *     The structure of the channel pointer.
@@ -486,7 +484,7 @@ __STATIC_INLINE void Cy_LPComp_UlpReferenceEnable(LPCOMP_Type *base)
 * Function Name: Cy_LPComp_UlpReferenceDisable
 ****************************************************************************//**
 *
-* Disables the local reference-generator circuit. 
+* Disables the local reference-generator circuit.
 *
 * \param *base
 *     The structure of the channel pointer.
@@ -504,8 +502,8 @@ __STATIC_INLINE void Cy_LPComp_UlpReferenceDisable(LPCOMP_Type *base)
 * Function Name: Cy_LPComp_GetCompare
 ****************************************************************************//**
 *
-* This function returns a nonzero value when the voltage connected to the 
-* positive input is greater than the negative input voltage. 
+* This function returns a nonzero value when the voltage connected to the
+* positive input is greater than the negative input voltage.
 *
 * \param *base
 *     The LPComp register structure pointer.
@@ -521,7 +519,7 @@ __STATIC_INLINE void Cy_LPComp_UlpReferenceDisable(LPCOMP_Type *base)
 __STATIC_INLINE uint32_t Cy_LPComp_GetCompare(LPCOMP_Type const * base, cy_en_lpcomp_channel_t channel)
 {
     uint32_t result;
- 
+
     CY_ASSERT_L3(CY_LPCOMP_IS_CHANNEL_VALID(channel));
 
     if (CY_LPCOMP_CHANNEL_0 == channel)
@@ -532,7 +530,7 @@ __STATIC_INLINE uint32_t Cy_LPComp_GetCompare(LPCOMP_Type const * base, cy_en_lp
     {
         result = _FLD2VAL(LPCOMP_STATUS_OUT1, base->STATUS);
     }
- 
+
     return (result);
 }
 
@@ -541,15 +539,15 @@ __STATIC_INLINE uint32_t Cy_LPComp_GetCompare(LPCOMP_Type const * base, cy_en_lp
 * Function Name: Cy_LPComp_SetInterruptMask
 ****************************************************************************//**
 *
-*  Configures which bits of the interrupt request register will trigger an 
+*  Configures which bits of the interrupt request register will trigger an
 *  interrupt event.
 *
 * \param *base
 *     The LPCOMP register structure pointer.
 *
 * \param interrupt
-*  uint32_t interruptMask: Bit Mask of interrupts to set. 
-*  Bit 0: COMP0 Interrupt Mask 
+*  uint32_t interruptMask: Bit Mask of interrupts to set.
+*  Bit 0: COMP0 Interrupt Mask
 *  Bit 1: COMP1 Interrupt Mask
 *
 * \return None
@@ -579,7 +577,7 @@ __STATIC_INLINE void Cy_LPComp_SetInterruptMask(LPCOMP_Type* base, uint32_t inte
 *******************************************************************************/
 __STATIC_INLINE uint32_t Cy_LPComp_GetInterruptMask(LPCOMP_Type const * base)
 {
-    return (base->INTR_MASK);   
+    return (base->INTR_MASK);
 }
 
 
@@ -587,8 +585,8 @@ __STATIC_INLINE uint32_t Cy_LPComp_GetInterruptMask(LPCOMP_Type const * base)
 * Function Name: Cy_LPComp_GetInterruptStatusMasked
 ****************************************************************************//**
 *
-* Returns an interrupt request register masked by an interrupt mask. 
-* Returns the result of the bitwise AND operation between the corresponding 
+* Returns an interrupt request register masked by an interrupt mask.
+* Returns the result of the bitwise AND operation between the corresponding
 * interrupt request and mask bits.
 *
 * \param *base
@@ -601,7 +599,7 @@ __STATIC_INLINE uint32_t Cy_LPComp_GetInterruptMask(LPCOMP_Type const * base)
 *******************************************************************************/
 __STATIC_INLINE uint32_t Cy_LPComp_GetInterruptStatusMasked(LPCOMP_Type const * base)
 {
-    return (base->INTR_MASKED);   
+    return (base->INTR_MASKED);
 }
 
 
@@ -614,14 +612,14 @@ __STATIC_INLINE uint32_t Cy_LPComp_GetInterruptStatusMasked(LPCOMP_Type const * 
 * \param *base
 *     The LPCOMP register structure pointer.
 *
-* \return bit mapping information 
-*   Bit 0: COMP0 Interrupt status 
+* \return bit mapping information
+*   Bit 0: COMP0 Interrupt status
 *   Bit 1: COMP1 Interrupt status
 *
 *******************************************************************************/
 __STATIC_INLINE uint32_t Cy_LPComp_GetInterruptStatus(LPCOMP_Type const * base)
 {
-    return (_FLD2VAL(CY_LPCOMP_INTR, base->INTR));   
+    return (_FLD2VAL(CY_LPCOMP_INTR, base->INTR));
 }
 
 
@@ -629,13 +627,13 @@ __STATIC_INLINE uint32_t Cy_LPComp_GetInterruptStatus(LPCOMP_Type const * base)
 * Function Name: Cy_LPComp_ClearInterrupt
 ****************************************************************************//**
 *
-*  Clears LPCOMP interrupts by setting each bit. 
+*  Clears LPCOMP interrupts by setting each bit.
 *
 * \param *base
 *     The LPCOMP register structure pointer.
 *
 * \param interrupt
-*   Bit 0: COMP0 Interrupt status 
+*   Bit 0: COMP0 Interrupt status
 *   Bit 1: COMP1 Interrupt status
 *
 * \return None
@@ -653,16 +651,16 @@ __STATIC_INLINE void Cy_LPComp_ClearInterrupt(LPCOMP_Type* base, uint32_t interr
 * Function Name: Cy_LPComp_SetInterrupt
 ****************************************************************************//**
 *
-*  Sets a software interrupt request. 
+*  Sets a software interrupt request.
 *  This function is used in the case of combined interrupt signal from the global
-*  signal reference. This function from either component instance can be used 
+*  signal reference. This function from either component instance can be used
 *  to trigger either or both software interrupts. It sets the INTR_SET interrupt mask.
 *
 * \param *base
 *    The LPCOMP register structure pointer.
 *
 * \param interrupt
-*   Bit 0: COMP0 Interrupt status 
+*   Bit 0: COMP0 Interrupt status
 *   Bit 1: COMP1 Interrupt status
 *
 * \return None
@@ -693,10 +691,10 @@ __STATIC_INLINE void Cy_LPComp_SetInterrupt(LPCOMP_Type* base, uint32_t interrup
 __STATIC_INLINE void Cy_LPComp_ConnectULPReference(LPCOMP_Type *base, cy_en_lpcomp_channel_t channel)
 {
     CY_ASSERT_L3(CY_LPCOMP_IS_CHANNEL_VALID(channel));
-    
+
     if (CY_LPCOMP_CHANNEL_0 == channel)
     {
-        base->CMP0_SW_CLEAR = CY_LPCOMP_CMP0_SW_NEG_Msk;        
+        base->CMP0_SW_CLEAR = CY_LPCOMP_CMP0_SW_NEG_Msk;
         base->CMP0_SW = _CLR_SET_FLD32U(base->CMP0_SW, LPCOMP_CMP0_SW_CMP0_VN0, CY_LPCOMP_REF_CONNECTED);
     }
     else

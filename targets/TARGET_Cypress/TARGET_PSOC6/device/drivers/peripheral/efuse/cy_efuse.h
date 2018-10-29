@@ -6,10 +6,8 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2017-2018, Cypress Semiconductor Corporation. All rights reserved.
-* You may use this file only in accordance with the license, terms, conditions,
-* disclaimers, and limitations in the end user license agreement accompanying
-* the software package with which this file was provided.
+* Copyright 2017-2018, Cypress Semiconductor Corporation.  All rights reserved.
+* SPDX-License-Identifier: Apache-2.0
 *******************************************************************************/
 
 #if !defined(CY_EFUSE_H)
@@ -18,7 +16,7 @@
 /**
 * \defgroup group_efuse Electronic Fuses (eFuse)
 * \{
-* 
+*
 * Electronic Fuses (eFuses) - non-volatile memory whose
 * each bit is one-time programmable (OTP). One eFuse macro consists of
 * 256 bits (32 * 8). The PSoC devices have up to 16 eFuse macros; consult the
@@ -28,7 +26,7 @@
 * - eFuses are used to control the device life-cycle stage (NORMAL, SECURE,
 * and SECURE_WITH_DEBUG) and the protection settings;
 * - eFuse memory can be programmed (eFuse bit value changed from '0' to '1')
-* only once; if an eFuse bit is blown, it cannot be cleared again; 
+* only once; if an eFuse bit is blown, it cannot be cleared again;
 * - programming fuses requires the associated I/O supply to be at a specific
 * level: the VDDIO0 (or VDDIO if only one VDDIO is present in the package)
 * supply of the device should be set to 2.5 V (&plusmn;5%);
@@ -62,7 +60,7 @@
 * conditions from the PSoC 6 Programming Specification are met.
 *
 * The code below shows an example of the efuse data structure
-* definition to blow SECURE bit of the life-cycle stage register. 
+* definition to blow SECURE bit of the life-cycle stage register.
 * The bits to blow are set to the EFUSE_STATE_SET value.
 * \snippet eFuse_v1_0_sut_00.cydsn/main_cm0p.c SNIPPET_EFUSE_DATA_STC
 *
@@ -139,7 +137,7 @@
 * \{
 */
 /** This enum has the return values of the eFuse driver */
-typedef enum 
+typedef enum
 {
     CY_EFUSE_SUCCESS               = 0x00UL,  /**< Success */
     CY_EFUSE_INVALID_PROTECTION    = CY_EFUSE_ID | CY_PDL_STATUS_ERROR | 0x01UL, /**< Invalid access in the current protection state */

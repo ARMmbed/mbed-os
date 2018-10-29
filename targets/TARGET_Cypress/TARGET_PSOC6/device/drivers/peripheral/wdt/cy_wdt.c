@@ -6,10 +6,8 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2018, Cypress Semiconductor Corporation. All rights reserved.
-* You may use this file only in accordance with the license, terms, conditions,
-* disclaimers, and limitations in the end user license agreement accompanying
-* the software package with which this file was provided.
+* Copyright 2016-2018, Cypress Semiconductor Corporation.  All rights reserved.
+* SPDX-License-Identifier: Apache-2.0
 *******************************************************************************/
 
 #include "cy_wdt.h"
@@ -31,7 +29,7 @@ static bool Cy_WDT_Locked(void);
 * The given default setting of the WDT:
 * The WDT is unlocked and disabled.
 * The WDT match value is 4096.
-* None of ignore bits are set: the whole WDT counter bits are checked against 
+* None of ignore bits are set: the whole WDT counter bits are checked against
 * the match value.
 *
 *******************************************************************************/
@@ -61,7 +59,7 @@ void Cy_WDT_Init(void)
 *
 * Locks out configuration changes to the Watchdog Timer register.
 *
-* After this function is called, the WDT configuration cannot be changed until 
+* After this function is called, the WDT configuration cannot be changed until
 * Cy_WDT_Unlock() is called.
 *
 *******************************************************************************/
@@ -117,12 +115,12 @@ void Cy_WDT_Unlock(void)
 * Function Name: Cy_WDT_SetMatch
 ****************************************************************************//**
 *
-* Configures the WDT counter match comparison value. The Watchdog timer 
-* should be unlocked before changing the match value. Call the Cy_WDT_Unlock() 
+* Configures the WDT counter match comparison value. The Watchdog timer
+* should be unlocked before changing the match value. Call the Cy_WDT_Unlock()
 * function to unlock the WDT.
 *
 * \param match
-* The valid valid range is [0-65535]. The value to be used to match 
+* The valid valid range is [0-65535]. The value to be used to match
 * against the counter.
 *
 *******************************************************************************/
@@ -139,8 +137,8 @@ void Cy_WDT_SetMatch(uint32_t match)
 * Function Name: Cy_WDT_SetIgnoreBits
 ****************************************************************************//**
 *
-* Configures the number of the most significant bits of the Watchdog timer that 
-* are not checked against the match. Unlock the Watchdog timer before 
+* Configures the number of the most significant bits of the Watchdog timer that
+* are not checked against the match. Unlock the Watchdog timer before
 * ignoring the bits setting. Call the Cy_WDT_Unlock() API to unlock the WDT.
 *
 * \param bitsNum
@@ -150,7 +148,7 @@ void Cy_WDT_SetMatch(uint32_t match)
 * \details The value of bitsNum controls the time-to-reset of the Watchdog timer
 * This happens after 3 successive matches.
 *
-* \warning This function changes the WDT interrupt period, therefore 
+* \warning This function changes the WDT interrupt period, therefore
 * the device can go into an infinite WDT reset loop. This may happen
 * if a WDT reset occurs faster that a device start-up.
 *
@@ -168,8 +166,8 @@ void Cy_WDT_SetIgnoreBits(uint32_t bitsNum)
 * Function Name: Cy_WDT_ClearInterrupt
 ****************************************************************************//**
 *
-* Clears the WDT match flag which is set every time the WDT counter reaches a 
-* WDT match value. Two unserviced interrupts lead to a system reset 
+* Clears the WDT match flag which is set every time the WDT counter reaches a
+* WDT match value. Two unserviced interrupts lead to a system reset
 * (i.e. at the third match).
 *
 *******************************************************************************/

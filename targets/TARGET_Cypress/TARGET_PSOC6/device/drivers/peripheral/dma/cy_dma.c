@@ -7,10 +7,8 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2018, Cypress Semiconductor Corporation. All rights reserved.
-* You may use this file only in accordance with the license, terms, conditions,
-* disclaimers, and limitations in the end user license agreement accompanying
-* the software package with which this file was provided.
+* Copyright 2016-2018, Cypress Semiconductor Corporation.  All rights reserved.
+* SPDX-License-Identifier: Apache-2.0
 *******************************************************************************/
 
 #include "cy_dma.h"
@@ -54,7 +52,7 @@ cy_en_dma_status_t Cy_DMA_Descriptor_Init(cy_stc_dma_descriptor_t * descriptor, 
         CY_ASSERT_L3(CY_DMA_IS_CHANNEL_STATE_VALID(config->channelState));
         CY_ASSERT_L3(CY_DMA_IS_DATA_SIZE_VALID(config->dataSize));
         CY_ASSERT_L3(CY_DMA_IS_TYPE_VALID(config->descriptorType));
-        
+
         descriptor->ctl =
             _VAL2FLD(CY_DMA_CTL_RETRIG, config->retrigger) |
             _VAL2FLD(CY_DMA_CTL_INTR_TYPE, config->interruptType) |
@@ -82,37 +80,37 @@ cy_en_dma_status_t Cy_DMA_Descriptor_Init(cy_stc_dma_descriptor_t * descriptor, 
                 CY_ASSERT_L2(CY_DMA_IS_INCR_VALID(config->srcXincrement));
                 CY_ASSERT_L2(CY_DMA_IS_INCR_VALID(config->dstXincrement));
                 CY_ASSERT_L2(CY_DMA_IS_COUNT_VALID(config->xCount));
-                
+
                 descriptor->xCtl =
                     _VAL2FLD(CY_DMA_CTL_SRC_INCR, config->srcXincrement) |
                     _VAL2FLD(CY_DMA_CTL_DST_INCR, config->dstXincrement) |
     /* Convert the data count from the user's range (1-256) into the machine range (0-255). */
                     _VAL2FLD(CY_DMA_CTL_COUNT, config->xCount - 1UL);
-                    
+
                 descriptor->yCtl = (uint32_t)config->nextDescriptor;
                 break;
             }
             case CY_DMA_2D_TRANSFER:
-            {                
+            {
                 CY_ASSERT_L2(CY_DMA_IS_INCR_VALID(config->srcXincrement));
                 CY_ASSERT_L2(CY_DMA_IS_INCR_VALID(config->dstXincrement));
                 CY_ASSERT_L2(CY_DMA_IS_COUNT_VALID(config->xCount));
                 CY_ASSERT_L2(CY_DMA_IS_INCR_VALID(config->srcYincrement));
                 CY_ASSERT_L2(CY_DMA_IS_INCR_VALID(config->dstYincrement));
                 CY_ASSERT_L2(CY_DMA_IS_COUNT_VALID(config->yCount));
-                
+
                 descriptor->xCtl =
                     _VAL2FLD(CY_DMA_CTL_SRC_INCR, config->srcXincrement) |
                     _VAL2FLD(CY_DMA_CTL_DST_INCR, config->dstXincrement) |
     /* Convert the data count from the user's range (1-256) into the machine range (0-255). */
                     _VAL2FLD(CY_DMA_CTL_COUNT, config->xCount - 1UL);
-                    
+
                 descriptor->yCtl =
                     _VAL2FLD(CY_DMA_CTL_SRC_INCR, config->srcYincrement) |
                     _VAL2FLD(CY_DMA_CTL_DST_INCR, config->dstYincrement) |
     /* Convert the data count from the user's range (1-256) into the machine range (0-255). */
                     _VAL2FLD(CY_DMA_CTL_COUNT, config->yCount - 1UL);
-                    
+
                 descriptor->nextPtr = (uint32_t)config->nextDescriptor;
                 break;
             }
@@ -178,7 +176,7 @@ cy_en_dma_status_t Cy_DMA_Channel_Init(DW_Type * base, uint32_t channel, cy_stc_
     if (((CY_DMA_IS_DW_CH_NR_VALID(base, channel)) && (NULL != channelConfig) && (NULL != channelConfig->descriptor)))
     {
         CY_ASSERT_L2(CY_DMA_IS_PRIORITY_VALID(channelConfig->priority));
-        
+
         /* Set the current descriptor */
         base->CH_STRUCT[channel].CH_CURR_PTR = (uint32_t)channelConfig->descriptor;
 
@@ -210,7 +208,7 @@ cy_en_dma_status_t Cy_DMA_Channel_Init(DW_Type * base, uint32_t channel, cy_stc_
 void Cy_DMA_Channel_DeInit(DW_Type * base, uint32_t channel)
 {
     CY_ASSERT_L1(CY_DMA_IS_DW_CH_NR_VALID(base, channel));
-    
+
     base->CH_STRUCT[channel].CH_CTL = 0UL;
     base->CH_STRUCT[channel].CH_IDX = 0UL;
     base->CH_STRUCT[channel].CH_CURR_PTR = 0UL;
@@ -226,8 +224,8 @@ void Cy_DMA_Channel_DeInit(DW_Type * base, uint32_t channel)
 *
 * Based on the descriptor type, the offset of the address for the next descriptor may
 * vary. For the single-transfer descriptor type, this register is at offset 0x0c.
-* For the 1D-transfer descriptor type, this register is at offset 0x10. 
-* For the 2D-transfer descriptor type, this register is at offset 0x14.  
+* For the 1D-transfer descriptor type, this register is at offset 0x10.
+* For the 2D-transfer descriptor type, this register is at offset 0x14.
 *
 * \param descriptor
 * The descriptor structure instance declared by the user/component.
@@ -239,21 +237,21 @@ void Cy_DMA_Channel_DeInit(DW_Type * base, uint32_t channel)
 void Cy_DMA_Descriptor_SetNextDescriptor(cy_stc_dma_descriptor_t * descriptor, cy_stc_dma_descriptor_t const * nextDescriptor)
 {
     CY_ASSERT_L1(NULL != descriptor);
-    
+
     switch((cy_en_dma_descriptor_type_t) _FLD2VAL(CY_DMA_CTL_TYPE, descriptor->ctl))
     {
         case CY_DMA_SINGLE_TRANSFER:
             descriptor->xCtl = (uint32_t)nextDescriptor;
             break;
-            
+
         case CY_DMA_1D_TRANSFER:
             descriptor->yCtl = (uint32_t)nextDescriptor;
             break;
-            
+
         case CY_DMA_2D_TRANSFER:
             descriptor->nextPtr = (uint32_t)nextDescriptor;
             break;
-            
+
         default:
             /* Unsupported type of descriptor */
             break;
@@ -269,8 +267,8 @@ void Cy_DMA_Descriptor_SetNextDescriptor(cy_stc_dma_descriptor_t * descriptor, c
 *
 * Based on the descriptor type, the offset of the address for the next descriptor may
 * vary. For a single-transfer descriptor type, this register is at offset 0x0c.
-* For the 1D-transfer descriptor type, this register is at offset 0x10. 
-* For the 2D-transfer descriptor type, this register is at offset 0x14.  
+* For the 1D-transfer descriptor type, this register is at offset 0x10.
+* For the 2D-transfer descriptor type, this register is at offset 0x14.
 *
 * \param descriptor
 * The descriptor structure instance declared by the user/component.
@@ -282,28 +280,28 @@ void Cy_DMA_Descriptor_SetNextDescriptor(cy_stc_dma_descriptor_t * descriptor, c
 cy_stc_dma_descriptor_t * Cy_DMA_Descriptor_GetNextDescriptor(cy_stc_dma_descriptor_t const * descriptor)
 {
     cy_stc_dma_descriptor_t * retVal = NULL;
-    
+
     CY_ASSERT_L1(NULL != descriptor);
-    
+
     switch((cy_en_dma_descriptor_type_t) _FLD2VAL(CY_DMA_CTL_TYPE, descriptor->ctl))
     {
         case CY_DMA_SINGLE_TRANSFER:
             retVal = (cy_stc_dma_descriptor_t*) descriptor->xCtl;
             break;
-            
+
         case CY_DMA_1D_TRANSFER:
             retVal = (cy_stc_dma_descriptor_t*) descriptor->yCtl;
             break;
-            
+
         case CY_DMA_2D_TRANSFER:
             retVal = (cy_stc_dma_descriptor_t*) descriptor->nextPtr;
             break;
-            
+
         default:
             /* An unsupported type of the descriptor */
             break;
     }
-    
+
     return (retVal);
 }
 
@@ -315,19 +313,19 @@ cy_stc_dma_descriptor_t * Cy_DMA_Descriptor_GetNextDescriptor(cy_stc_dma_descrip
 * Sets the descriptor's type for the specified descriptor.
 * Moves the next descriptor register value into the proper place in accordance
 * to the actual descriptor type.
-* During the descriptor's type changing, the Xloop and Yloop settings, such as 
-* data count and source/destination increment (i.e. the content of the 
-* xCtl and yCtl descriptor registers) might be lost (overriden by the 
+* During the descriptor's type changing, the Xloop and Yloop settings, such as
+* data count and source/destination increment (i.e. the content of the
+* xCtl and yCtl descriptor registers) might be lost (overriden by the
 * next descriptor value) because of the different descriptor registers structures
 * for different descriptor types. Set up carefully the Xloop
 * (and Yloop, if used) data count and source/destination increment if the
-* descriptor type is changed from a simpler to a more complicated type 
+* descriptor type is changed from a simpler to a more complicated type
 * ("single transfer" -> "1D", "1D" -> "2D", etc.).
-* 
+*
 * \param descriptor
 * The descriptor structure instance declared by the user/component.
 *
-* \param descriptorType 
+* \param descriptorType
 * The descriptor type \ref cy_en_dma_descriptor_type_t.
 *
 *******************************************************************************/
@@ -335,7 +333,7 @@ void Cy_DMA_Descriptor_SetDescriptorType(cy_stc_dma_descriptor_t * descriptor, c
 {
     CY_ASSERT_L1(NULL != descriptor);
     CY_ASSERT_L3(CY_DMA_IS_TYPE_VALID(descriptorType));
-    
+
     if (descriptorType != Cy_DMA_Descriptor_GetDescriptorType(descriptor)) /* Don't perform if the type is not changed */
     {
         /* Store the current nextDescriptor pointer. */

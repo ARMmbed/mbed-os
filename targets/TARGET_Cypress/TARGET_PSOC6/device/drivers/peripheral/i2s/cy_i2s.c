@@ -6,10 +6,8 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2018, Cypress Semiconductor Corporation. All rights reserved.
-* You may use this file only in accordance with the license, terms, conditions,
-* disclaimers, and limitations in the end user license agreement accompanying
-* the software package with which this file was provided.
+* Copyright 2016-2018, Cypress Semiconductor Corporation.  All rights reserved.
+* SPDX-License-Identifier: Apache-2.0
 *******************************************************************************/
 
 #include "cy_i2s.h"
@@ -41,16 +39,16 @@ extern "C" {
 cy_en_i2s_status_t Cy_I2S_Init(I2S_Type * base, cy_stc_i2s_config_t const * config)
 {
     cy_en_i2s_status_t ret = CY_I2S_BAD_PARAM;
-    
+
     if((NULL != base) && (NULL != config))
     {
         cy_en_i2s_ws_pw_t wsPulseWidth;
         cy_en_i2s_len_t channelLength;
         uint32_t channels;
         uint32_t clockDiv = (uint32_t)config->clkDiv - 1U;
-        
+
         CY_ASSERT_L2(CY_I2S_IS_CLK_DIV_VALID(clockDiv));
-        
+
         /* The clock setting */
         base->CLOCK_CTL = _VAL2FLD(I2S_CLOCK_CTL_CLOCK_DIV, clockDiv) |
                           _BOOL2FLD(I2S_CLOCK_CTL_CLOCK_SEL, config->extClk);
@@ -60,13 +58,13 @@ cy_en_i2s_status_t Cy_I2S_Init(I2S_Type * base, cy_stc_i2s_config_t const * conf
         {
             CY_ASSERT_L3(CY_I2S_IS_ALIGNMENT_VALID(config->txAlignment));
             CY_ASSERT_L3(CY_I2S_IS_OVHDATA_VALID(config->txOverheadValue));
-            
+
             if ((CY_I2S_TDM_MODE_A == config->txAlignment) || (CY_I2S_TDM_MODE_B == config->txAlignment))
             {
                 channels = (uint32_t)config->txChannels - 1UL;
                 wsPulseWidth = config->txWsPulseWidth;
                 channelLength = CY_I2S_LEN32;
-                
+
                 CY_ASSERT_L2(CY_I2S_IS_CHANNELS_VALID(channels));
                 CY_ASSERT_L3(CY_I2S_IS_WSPULSE_VALID(wsPulseWidth));
                 CY_ASSERT_L3(CY_I2S_IS_LEN_VALID(config->txWordLength));
@@ -76,12 +74,12 @@ cy_en_i2s_status_t Cy_I2S_Init(I2S_Type * base, cy_stc_i2s_config_t const * conf
                 channels = 1UL;
                 wsPulseWidth = CY_I2S_WS_ONE_CHANNEL_LENGTH;
                 channelLength = config->txChannelLength;
-                
+
                 CY_ASSERT_L3(CY_I2S_IS_CHAN_WORD_VALID(channelLength, config->txWordLength));
             }
-            
+
             CY_ASSERT_L2(CY_I2S_IS_TRIG_LEVEL_VALID(config->txFifoTriggerLevel, channels));
-            
+
             base->TX_WATCHDOG = config->txWatchdogValue;
 
             base->TX_CTL = _VAL2FLD(I2S_TX_CTL_I2S_MODE, config->txAlignment) |
@@ -101,13 +99,13 @@ cy_en_i2s_status_t Cy_I2S_Init(I2S_Type * base, cy_stc_i2s_config_t const * conf
         if (config->rxEnabled)
         {
             CY_ASSERT_L3(CY_I2S_IS_ALIGNMENT_VALID(config->rxAlignment));
-            
+
             if ((CY_I2S_TDM_MODE_A == config->rxAlignment) || (CY_I2S_TDM_MODE_B == config->rxAlignment))
             {
                 channels = (uint32_t)config->rxChannels - 1UL;
                 wsPulseWidth = config->rxWsPulseWidth;
                 channelLength = CY_I2S_LEN32;
-                
+
                 CY_ASSERT_L2(CY_I2S_IS_CHANNELS_VALID(channels));
                 CY_ASSERT_L3(CY_I2S_IS_WSPULSE_VALID(wsPulseWidth));
                 CY_ASSERT_L3(CY_I2S_IS_LEN_VALID(config->rxWordLength));
@@ -117,10 +115,10 @@ cy_en_i2s_status_t Cy_I2S_Init(I2S_Type * base, cy_stc_i2s_config_t const * conf
                 channels = 1UL;
                 wsPulseWidth = CY_I2S_WS_ONE_CHANNEL_LENGTH;
                 channelLength = config->rxChannelLength;
-                
+
                 CY_ASSERT_L3(CY_I2S_IS_CHAN_WORD_VALID(channelLength, config->rxWordLength));
             }
-            
+
             CY_ASSERT_L2(CY_I2S_IS_TRIG_LEVEL_VALID(config->rxFifoTriggerLevel, channels));
 
             base->RX_WATCHDOG = config->rxWatchdogValue;
@@ -163,7 +161,7 @@ cy_en_i2s_status_t Cy_I2S_Init(I2S_Type * base, cy_stc_i2s_config_t const * conf
 
             base->TR_CTL |= _BOOL2FLD(I2S_TR_CTL_RX_REQ_EN, config->rxDmaTrigger);
         }
-        
+
         ret = CY_I2S_SUCCESS;
     }
 
@@ -204,18 +202,18 @@ void Cy_I2S_DeInit(I2S_Type * base)
 ****************************************************************************//**
 *
 * This is a callback function to be used at the application layer to
-* manage an I2S operation during the Deep-Sleep cycle. It stores the I2S state 
-* (Tx/Rx enabled/disabled/paused) into the context structure and stops the 
+* manage an I2S operation during the Deep-Sleep cycle. It stores the I2S state
+* (Tx/Rx enabled/disabled/paused) into the context structure and stops the
 * communication before entering into Deep-Sleep power mode and restores the I2S
 * state after waking up.
 *
-* \param 
-* callbackParams - The pointer to the callback parameters structure, 
+* \param
+* callbackParams - The pointer to the callback parameters structure,
 * see \ref cy_stc_syspm_callback_params_t.
 *
 * \return the SysPm callback status \ref cy_en_syspm_status_t.
 *
-* \note Use the \ref cy_stc_i2s_context_t data type for definition of the 
+* \note Use the \ref cy_stc_i2s_context_t data type for definition of the
 * *context element of the \ref cy_stc_syspm_callback_params_t strusture.
 *
 * \funcusage
@@ -229,13 +227,13 @@ cy_en_syspm_status_t Cy_I2S_DeepSleepCallback(cy_stc_syspm_callback_params_t * c
     I2S_Type * locBase = (I2S_Type*) callbackParams->base;
     uint32_t * locInterruptMask = (uint32_t*) &(((cy_stc_i2s_context_t*)(callbackParams->context))->interruptMask);
     uint32_t * locState = (uint32_t*) &(((cy_stc_i2s_context_t*)(callbackParams->context))->enableState);
-    
+
     switch(callbackParams->mode)
     {
-        case CY_SYSPM_CHECK_READY:            
+        case CY_SYSPM_CHECK_READY:
         case CY_SYSPM_CHECK_FAIL:
             break;
-        
+
         case CY_SYSPM_BEFORE_TRANSITION:
             *locInterruptMask = Cy_I2S_GetInterruptMask(locBase); /* Store I2S interrupts */
             *locState = Cy_I2S_GetCurrentState(locBase); /* Store I2S state */
@@ -250,7 +248,7 @@ cy_en_syspm_status_t Cy_I2S_DeepSleepCallback(cy_stc_syspm_callback_params_t * c
             Cy_I2S_SetInterruptMask(locBase, 0UL); /* Disable I2S interrupts */
             /* Unload FIFOs in order not to lose data (if needed) */
             break;
-            
+
         case CY_SYSPM_AFTER_TRANSITION:
             if (0UL != (*locState & I2S_CMD_RX_START_Msk))
             {
@@ -271,12 +269,12 @@ cy_en_syspm_status_t Cy_I2S_DeepSleepCallback(cy_stc_syspm_callback_params_t * c
             Cy_I2S_ClearInterrupt(locBase, *locInterruptMask); /* Clear possible pending I2S interrupts */
             Cy_I2S_SetInterruptMask(locBase, *locInterruptMask); /* Restore I2S interrupts */
             break;
-        
+
         default:
             ret = CY_SYSPM_FAIL;
             break;
     }
-        
+
     return(ret);
 }
 

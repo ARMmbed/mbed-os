@@ -10,10 +10,8 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2018, Cypress Semiconductor Corporation. All rights reserved.
-* You may use this file only in accordance with the license, terms, conditions,
-* disclaimers, and limitations in the end user license agreement accompanying
-* the software package with which this file was provided.
+* Copyright 2016-2018, Cypress Semiconductor Corporation.  All rights reserved.
+* SPDX-License-Identifier: Apache-2.0
 *******************************************************************************/
 
 #ifndef _PSOC63_CONFIG_H_
@@ -84,10 +82,10 @@ typedef enum
 } en_clk_dst_t;
 
 /* Trigger Group */
-/* This section contains the enums related to the Trigger multiplexer (TrigMux) driver. 
+/* This section contains the enums related to the Trigger multiplexer (TrigMux) driver.
 * The constants are divided into four types because each signal of the TrigMux driver has a path
-* through two multiplexers: the reduction multiplexer and the distribution multiplexer. This 
-* requires two calls for Cy_TrigMux_Connect() function. The first call - for the reduction 
+* through two multiplexers: the reduction multiplexer and the distribution multiplexer. This
+* requires two calls for Cy_TrigMux_Connect() function. The first call - for the reduction
 * multiplexer, the second call - for the distribution multiplexer.
 *
 * The four types of inputs/output parameters:
@@ -96,7 +94,7 @@ typedef enum
 * 3) Parameters for distribution multiplexer's inputs (intermediate signals);
 * 4) Parameters for distribution multiplexer's outputs (output signals of TrigMux).
 *
-* The Cy_TrigMux_Connect() inTrig parameter can have 1) and 3) types parameters. The outTrig 
+* The Cy_TrigMux_Connect() inTrig parameter can have 1) and 3) types parameters. The outTrig
 * parameter can have 2) and 4) types parameters.
 * The names of the constants for these parameters have the following format:
 *
@@ -108,7 +106,7 @@ typedef enum
 *
 * Example:
 * TRIG11_IN_TCPWM0_TR_OVERFLOW3 - the TCPWM0 tr_overflow[3] input of reduction multiplexer#11.
-* 
+*
 * 2) For reduction multiplexer's outputs:
 * TRIG<REDMULT>_OUT_TR_GROUP<DISTMULT >_INPUT<DISTMULTINPUT>
 * <REDMULT> - the reduction multiplexer number;
@@ -116,7 +114,7 @@ typedef enum
 * <DISTMULTINPUT> - the input number of the distribution multiplexer.
 *
 * Example:
-* TRIG11_OUT_TR_GROUP0_INPUT23 - Input#23 of the distribution multiplexer#0 is the destination 
+* TRIG11_OUT_TR_GROUP0_INPUT23 - Input#23 of the distribution multiplexer#0 is the destination
 * of the reduction multiplexer#11.
 *
 * 3) For distribution multiplexer's inputs:
@@ -126,9 +124,9 @@ typedef enum
 * <REDMULTOUTPUT> - the output number of the reduction multiplexer;
 *
 * Example:
-* TRIG0_IN_TR_GROUP11_OUTPUT15 - Output#15 of the reduction multiplexer#11 is the source of the 
+* TRIG0_IN_TR_GROUP11_OUTPUT15 - Output#15 of the reduction multiplexer#11 is the source of the
 * distribution multiplexer#0.
-* 
+*
 * 4) For distribution multiplexer's outputs:
 * TRIG<DISTMULT>_OUT_<IPDEST><IPNUM>
 * <REDMULT> - the distribution multiplexer number;

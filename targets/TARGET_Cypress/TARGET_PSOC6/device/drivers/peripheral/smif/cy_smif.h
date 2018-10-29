@@ -7,9 +7,7 @@
 ********************************************************************************
 * \copyright
 * Copyright 2016-2018, Cypress Semiconductor Corporation.  All rights reserved.
-* You may use this file only in accordance with the license, terms, conditions,
-* disclaimers, and limitations in the end user license agreement accompanying
-* the software package with which this file was provided.
+* SPDX-License-Identifier: Apache-2.0
 *******************************************************************************/
 
 /**
@@ -44,11 +42,11 @@
 *   - SMIF configuration structures
 *
 * The SMIF API is divided into the low-level functions and memory-slot functions. Use
-* the low level API for the SMIF block initialization and for implementing a generic 
+* the low level API for the SMIF block initialization and for implementing a generic
 * SPI communication interface using the SMIF block.
 *
-* The memory slot API has functions to implement the basic memory operations such as 
-* program, read, erase etc. These functions are implemented using the memory 
+* The memory slot API has functions to implement the basic memory operations such as
+* program, read, erase etc. These functions are implemented using the memory
 * parameters in the memory device configuration data structure. The memory-slot
 * initialization API initializes all the memory slots based on the settings in the
 * array.
@@ -62,14 +60,14 @@
 * structures are input parameters for cy_smif_memslot API level
 *
 * \warning The driver is not responsible for external memory persistence. You cannot edit
-* a buffer during the Read/Write operations. If there is a memory error, the SMIF ip block 
-* can require a reset. To determine if this has happened, check the SMIF 
-* busy status using Cy_SMIF_BusyCheck() and implement a timeout. Reset the SMIF 
+* a buffer during the Read/Write operations. If there is a memory error, the SMIF ip block
+* can require a reset. To determine if this has happened, check the SMIF
+* busy status using Cy_SMIF_BusyCheck() and implement a timeout. Reset the SMIF
 * block by toggling CTL.ENABLED. Then reconfigure the SMIF block.
 *
-* For the Write operation, check that the SMIF driver has completed 
-* transferring by calling Cy_SMIF_BusyCheck(). Also, check that the memory is 
-* available with Cy_SMIF_Memslot_IsBusy() before proceeding. 
+* For the Write operation, check that the SMIF driver has completed
+* transferring by calling Cy_SMIF_BusyCheck(). Also, check that the memory is
+* available with Cy_SMIF_Memslot_IsBusy() before proceeding.
 *
 * Simple example of external flash memory programming using low level SMIF API.
 * All steps mentioned in example below are incorporated in
@@ -94,7 +92,7 @@
 *
 * \snippet smif/smif_sut_01.cydsn/main_cm4.c SMIF_API: Read example
 *
-* The user should invalidate the cache by calling Cy_SMIF_CacheInvalidate() when 
+* The user should invalidate the cache by calling Cy_SMIF_CacheInvalidate() when
 * switching from the MMIO mode to XIP mode.
 *
 * \section group_smif_configuration Configuration Considerations
@@ -103,7 +101,7 @@
 * \ref page_getting_started_pdl_design "PDL Design" section.
 *
 * See the documentation for Cy_SMIF_Init() and Cy_SMIF_Memslot_Init() for details
-* on the required configuration structures and other initialization topics. 
+* on the required configuration structures and other initialization topics.
 *
 * The normal (MMIO) mode is used for implementing a generic SPI/DSPI/QSPI/Dual
 * Quad-SPI/Octal-SPI communication interface using the SMIF block. This
@@ -137,21 +135,21 @@
 * memslot level API usage.
 *
 * \subsection group_smif_xip_init SMIF XIP Initialization
-* The eXecute In Place (XIP) is a mode of operation where read or write commands 
-* to the memory device are directed through the SMIF without any use of API 
-* function calls. In this mode the SMIF block maps the AHB bus-accesses to 
-* external memory device addresses to make it behave similar to internal memory. 
-* This allows the CPU to execute code directly from external memory. This mode 
-* is not limited to code and is suitable also for data read and write accesses. 
+* The eXecute In Place (XIP) is a mode of operation where read or write commands
+* to the memory device are directed through the SMIF without any use of API
+* function calls. In this mode the SMIF block maps the AHB bus-accesses to
+* external memory device addresses to make it behave similar to internal memory.
+* This allows the CPU to execute code directly from external memory. This mode
+* is not limited to code and is suitable also for data read and write accesses.
 * \snippet smif/smif_sut_01.cydsn/main_cm4.c SMIF_INIT: XIP
-* \note Example of input parameters initialization is in \ref group_smif_init 
+* \note Example of input parameters initialization is in \ref group_smif_init
 * section.
-* \warning Functions that called from external memory should be declared with 
-* long call attribute.     
+* \warning Functions that called from external memory should be declared with
+* long call attribute.
 *
 * \section group_smif_more_information More Information
 *
-* More information regarding the Serial Memory Interface can be found in the component 
+* More information regarding the Serial Memory Interface can be found in the component
 * datasheet and the Technical Reference Manual (TRM).
 * More information regarding the SMIF Configuration Tool are in SMIF
 * Configuration Tool User Guide located in \<PDL_DIR\>/tools/\<OS_DIR\>/SMIFConfigurationTool/
@@ -198,7 +196,7 @@
 *   </tr>
 *   <tr>
 *     <td>1.10</td>
-*     <td>Fix write to external memory from CM0+ core. Add checks of API input parameters. 
+*     <td>Fix write to external memory from CM0+ core. Add checks of API input parameters.
 *         Minor documentation updates</td>
 *     <td></td>
 *   </tr>
@@ -354,7 +352,7 @@ extern "C" {
                                              (CY_SMIF_SEL_INV_INTERNAL_CLK == (cy_en_smif_clk_select_t)(clkSel)) || \
                                              (CY_SMIF_SEL_FEEDBACK_CLK == (cy_en_smif_clk_select_t)(clkSel)) || \
                                              (CY_SMIF_SEL_INV_FEEDBACK_CLK == (cy_en_smif_clk_select_t)(clkSel)))
-                                             
+
 #define CY_SMIF_DESELECT_DELAY_VALID(delay)     ((delay) <= CY_SMIF_MAX_DESELECT_DELAY)
 #define CY_SMIF_SLAVE_SEL_VALID(ss)     ((CY_SMIF_SLAVE_SELECT_0 == (ss)) || \
                                          (CY_SMIF_SLAVE_SELECT_1 == (ss)) || \
@@ -396,7 +394,7 @@ extern "C" {
 
 #define CY_SMIF_CMD_FIFO_WR_SS_Pos              (8UL)            /* [11:8]          Slave select         */
 #define CY_SMIF_CMD_FIFO_WR_SS_Msk              (0x00000F00UL)   /* DATA[11:8]      Slave select         */
-   
+
 #define CY_SMIF_CMD_FIFO_WR_TXDATA_Pos          (0UL)            /* [0]             Transmitted byte     */
 #define CY_SMIF_CMD_FIFO_WR_TXDATA_Msk          (0x000000FFUL)   /* DATA[7:0]         Transmitted byte     */
 #define CY_SMIF_CMD_FIFO_WR_DUMMY_Pos           (0UL)            /* [0]             Dummy count          */
@@ -429,8 +427,8 @@ typedef enum
 {
     /**< Generates a bus error. */
     CY_SMIF_BUS_ERROR           = 0UL,
-    /** Stalls the bus with the wait states. This option will increase the 
-     * interrupt latency. 
+    /** Stalls the bus with the wait states. This option will increase the
+     * interrupt latency.
      */
     CY_SMIF_WAIT_STATES         = 1UL
 } cy_en_smif_error_event_t;
@@ -511,7 +509,7 @@ typedef enum
 } cy_en_smif_status_t;
 
 /** The SMIF slave select definitions for the driver API. Each slave select is
- * represented by an enumeration that has the bit corresponding to the slave 
+ * represented by an enumeration that has the bit corresponding to the slave
  * select number set. */
 typedef enum
 {
@@ -570,10 +568,10 @@ typedef struct
                                 *   - "5": 6 clock cycles.
                                 *   - "6": 7 clock cycles.
                                 *   - "7": 8 clock cycles. */
-    uint32_t rxClockSel;        /**< Specifies the clock source for the receiver 
+    uint32_t rxClockSel;        /**< Specifies the clock source for the receiver
                                 *  clock \ref cy_en_smif_clk_select_t. */
-    uint32_t blockEvent;        /**< Specifies what happens when there is a Read  
-                                * from an empty RX FIFO or a Write to a full 
+    uint32_t blockEvent;        /**< Specifies what happens when there is a Read
+                                * from an empty RX FIFO or a Write to a full
                                 * TX FIFO. \ref cy_en_smif_error_event_t. */
 } cy_stc_smif_config_t;
 

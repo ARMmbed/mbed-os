@@ -7,9 +7,7 @@
 ********************************************************************************
 * \copyright
 * Copyright 2016-2018, Cypress Semiconductor Corporation.  All rights reserved.
-* You may use this file only in accordance with the license, terms, conditions,
-* disclaimers, and limitations in the end user license agreement accompanying
-* the software package with which this file was provided.
+* SPDX-License-Identifier: Apache-2.0
 *******************************************************************************/
 #include "cy_trigmux.h"
 
@@ -26,7 +24,7 @@
 * - Bits 6:0 select the input trigger number in the trigger group.
 *
 * \param outTrig
-* The output of the trigger mux. This refers to the consumer of the trigger mux. 
+* The output of the trigger mux. This refers to the consumer of the trigger mux.
 * - Bits 11:8 represent the trigger group selection.
 * - Bits 6:0 select the output trigger number in the trigger group.
 *
@@ -42,9 +40,9 @@
 * \return
 * A status
 * - 0: Successful connection made.
-* - 1: An invalid input selection corresponding to the output. 
+* - 1: An invalid input selection corresponding to the output.
 *      Generally when the trigger groups do not match.
-*  
+*
 *******************************************************************************/
 cy_en_trigmux_status_t Cy_TrigMux_Connect(uint32_t inTrig, uint32_t outTrig, bool invert, en_trig_type_t trigType)
 {
@@ -52,7 +50,7 @@ cy_en_trigmux_status_t Cy_TrigMux_Connect(uint32_t inTrig, uint32_t outTrig, boo
     cy_en_trigmux_status_t retVal = CY_TRIGMUX_BAD_PARAM;
 
     CY_ASSERT_L3(CY_LPCOMP_IS_TRIGTYPE_VALID(trigType));
-    
+
     /* inTrig and outTrig should be in the same group */
     if ((inTrig & CY_TR_GROUP_MASK) == (outTrig & CY_TR_GROUP_MASK))
     {
@@ -61,7 +59,7 @@ cy_en_trigmux_status_t Cy_TrigMux_Connect(uint32_t inTrig, uint32_t outTrig, boo
         *trOutCtlAddr = _VAL2FLD(PERI_TR_GR_TR_OUT_CTL_TR_SEL, inTrig) |
         _BOOL2FLD(PERI_TR_GR_TR_OUT_CTL_TR_INV, invert) |
         _VAL2FLD(PERI_TR_GR_TR_OUT_CTL_TR_EDGE, trigType);
-        
+
         retVal = CY_TRIGMUX_SUCCESS;
     }
 
@@ -73,28 +71,28 @@ cy_en_trigmux_status_t Cy_TrigMux_Connect(uint32_t inTrig, uint32_t outTrig, boo
 * Function Name: Cy_TrigMux_SwTrigger
 ****************************************************************************//**
 *
-* This function generates a software trigger on an input trigger line. 
-* All output triggers connected to this input trigger will be triggered. 
-* The function also verifies that there is no activated trigger before 
-* generating another activation. 
+* This function generates a software trigger on an input trigger line.
+* All output triggers connected to this input trigger will be triggered.
+* The function also verifies that there is no activated trigger before
+* generating another activation.
 *
 * \param trigLine
 * The input of the trigger mux.
-* - Bit 30 represents if the signal is an input/output. When this bit is set, 
+* - Bit 30 represents if the signal is an input/output. When this bit is set,
 *   the trigger activation is for an output trigger from the trigger multiplexer.
-*   When this bit is reset, the trigger activation is for an input trigger to 
-*   the trigger multiplexer. 
+*   When this bit is reset, the trigger activation is for an input trigger to
+*   the trigger multiplexer.
 * - Bits 11:8 represent the trigger group selection.
 * - Bits 6:0 select the output trigger number in the trigger group.
 *
 * \param cycles
 * The number of cycles during which the trigger remains activated.
-* The valid range of cycles is 1-254. 
+* The valid range of cycles is 1-254.
 * These two additional special values can be passed to this parameter:
-* * CY_TRIGGER_INFINITE - The trigger will be active until the user 
+* * CY_TRIGGER_INFINITE - The trigger will be active until the user
 * clears it;
 * * CY_TRIGGER_DEACTIVATE - The trigger will be deactivated forcibly.
-* 
+*
 * \return
 * A status
 * - 0: If there was not an already activated trigger.
@@ -107,7 +105,7 @@ cy_en_trigmux_status_t Cy_TrigMux_SwTrigger(uint32_t trigLine, uint32_t cycles)
 
     CY_ASSERT_L2(0U == (trigLine & (uint32_t)~CY_TR_PARAM_MASK));
     CY_ASSERT_L2(CY_TR_CYCLES_MAX >= cycles);
- 
+
 
     if (CY_TRIGGER_DEACTIVATE != cycles)
     {
@@ -119,7 +117,7 @@ cy_en_trigmux_status_t Cy_TrigMux_SwTrigger(uint32_t trigLine, uint32_t cycles)
                 _VAL2FLD(PERI_TR_CMD_COUNT, cycles) |
                 _VAL2FLD(PERI_TR_CMD_OUT_SEL, (trigLine & CY_TR_OUT_CTL_MASK) >> CY_TR_OUT_CTL_SHIFT) |
                 _VAL2FLD(PERI_TR_CMD_ACTIVATE, CY_TR_ACTIVATE_ENABLE);
-                
+
             retVal = CY_TRIGMUX_SUCCESS;
         }
     }
@@ -130,12 +128,12 @@ cy_en_trigmux_status_t Cy_TrigMux_SwTrigger(uint32_t trigLine, uint32_t cycles)
             /* Forcibly deactivate the trigger. */
             PERI->TR_CMD = _VAL2FLD(PERI_TR_CMD_TR_SEL, (trigLine & CY_TR_MASK)) |
                 _VAL2FLD(PERI_TR_CMD_GROUP_SEL, ((trigLine & CY_TR_GROUP_MASK) >> CY_TR_GROUP_SHIFT)) |
-                _VAL2FLD(PERI_TR_CMD_OUT_SEL, (trigLine & CY_TR_OUT_CTL_MASK) >> CY_TR_OUT_CTL_SHIFT); 
-                
+                _VAL2FLD(PERI_TR_CMD_OUT_SEL, (trigLine & CY_TR_OUT_CTL_MASK) >> CY_TR_OUT_CTL_SHIFT);
+
             retVal = CY_TRIGMUX_SUCCESS;
-        }         
+        }
     }
-    
+
     return retVal;
 }
 

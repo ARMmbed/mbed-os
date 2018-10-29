@@ -7,10 +7,8 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2018, Cypress Semiconductor Corporation. All rights reserved.
-* You may use this file only in accordance with the license, terms, conditions,
-* disclaimers, and limitations in the end user license agreement accompanying
-* the software package with which this file was provided.
+* Copyright 2016-2018, Cypress Semiconductor Corporation.  All rights reserved.
+* SPDX-License-Identifier: Apache-2.0
 *******************************************************************************/
 
 /**
@@ -21,11 +19,11 @@
 * The DMA channel can be used in any project to transfer data
 * without CPU intervention basing on a hardware trigger signal from another component.
 *
-* A device may support more than one DMA hardware block. Each block has a set of 
-* registers, a base hardware address, and supports multiple channels. 
-* Many API functions for the DMA driver require a base hardware address and  
+* A device may support more than one DMA hardware block. Each block has a set of
+* registers, a base hardware address, and supports multiple channels.
+* Many API functions for the DMA driver require a base hardware address and
 * channel number. Ensure that you use the correct hardware address for the DMA block in use.
-* 
+*
 * Features:
 * * Devices support up to two DMA hardware blocks
 * * Each DMA block supports up to 16 DMA channels
@@ -38,14 +36,14 @@
 *
 * To set up a DMA driver, initialize a descriptor,
 * intialize and enable a channel, and enable the DMA block.
-* 
-* To set up a descriptor, provide the configuration parameters for the 
-* descriptor in the \ref cy_stc_dma_descriptor_config_t structure. Then call the 
-* \ref Cy_DMA_Descriptor_Init function to initialize the descriptor in SRAM. You can 
-* modify the source and destination addresses dynamically by calling 
+*
+* To set up a descriptor, provide the configuration parameters for the
+* descriptor in the \ref cy_stc_dma_descriptor_config_t structure. Then call the
+* \ref Cy_DMA_Descriptor_Init function to initialize the descriptor in SRAM. You can
+* modify the source and destination addresses dynamically by calling
 * \ref Cy_DMA_Descriptor_SetSrcAddress and \ref Cy_DMA_Descriptor_SetDstAddress.
-* 
-* To set up a DMA channel, provide a filled \ref cy_stc_dma_channel_config_t 
+*
+* To set up a DMA channel, provide a filled \ref cy_stc_dma_channel_config_t
 * structure. Call the \ref Cy_DMA_Channel_Init function, specifying the channel
 * number. Use \ref Cy_DMA_Channel_Enable to enable the configured DMA channel.
 *
@@ -60,15 +58,15 @@
 * in a typical user application:
 * \image html dma.png
 *
-* <B>NOTE:</B> Even if a DMA channel is enabled, it is not operational until 
+* <B>NOTE:</B> Even if a DMA channel is enabled, it is not operational until
 * the DMA block is enabled using function \ref Cy_DMA_Enable.\n
-* <B>NOTE:</B> if the DMA descriptor is configured to generate an interrupt, 
-* the interrupt must be enabled using the \ref Cy_DMA_Channel_SetInterruptMask 
+* <B>NOTE:</B> if the DMA descriptor is configured to generate an interrupt,
+* the interrupt must be enabled using the \ref Cy_DMA_Channel_SetInterruptMask
 * function for each DMA channel.
 *
 * For example:
 * \snippet dma/dma_v2_0_sut_00.cydsn/main_cm4.c Cy_DMA_Snippet
-* 
+*
 * \section group_dma_more_information More Information.
 * See: the DMA chapter of the device technical reference manual (TRM);
 *      the DMA Component datasheet;
@@ -120,10 +118,10 @@
 *           The \ref Cy_DMA_Descriptor_Init function sets a full bunch of descriptor
 *           settings, and the rest of the descriptor API is a get/set interface
 *           to each of the descriptor settings.
-*         * There is a group of macros to support the backward compatibility with most 
+*         * There is a group of macros to support the backward compatibility with most
 *           of the driver version 1.0 API. But, it is strongly recommended to use
 *           the new v2.0 interface in new designs (do not just copy-paste from old
-*           projects). To enable the backward compatibility support, the CY_DMA_BWC 
+*           projects). To enable the backward compatibility support, the CY_DMA_BWC
 *           definition should be changed to "1".</td>
 *     <td></td>
 *   </tr>
@@ -180,11 +178,11 @@ extern "C" {
 
 /** The DMA driver identifier */
 #define CY_DMA_ID                      (CY_PDL_DRV_ID(0x13U))
- 
+
 /** The DMA channel interrupt mask */
 #define CY_DMA_INTR_MASK               (0x01UL)
 
-/** The backward compatibility flag. Enables a group of macros which provide 
+/** The backward compatibility flag. Enables a group of macros which provide
 * the backward compatibility with most of the DMA driver version 1.0 interface. */
 #ifndef CY_DMA_BWC
     #define CY_DMA_BWC                 (0U)
@@ -261,7 +259,7 @@ typedef enum
 } cy_en_dma_channel_state_t;
 
 /** This enum has the return values of the DMA driver */
-typedef enum 
+typedef enum
 {
     CY_DMA_SUCCESS          = 0x00UL, /**< Success. */
     CY_DMA_BAD_PARAM        = CY_DMA_ID | CY_PDL_STATUS_ERROR | 0x01UL /**< The input parameters passed to the DMA API are not valid. */
@@ -281,26 +279,26 @@ typedef enum
                                                (CY_DMA_RETRIG_4CYC    == (retrigger)) || \
                                                (CY_DMA_RETRIG_16CYC   == (retrigger)) || \
                                                (CY_DMA_WAIT_FOR_REACT == (retrigger)))
-                                              
+
 #define CY_DMA_IS_TRIG_TYPE_VALID(trigType)   ((CY_DMA_1ELEMENT    == (trigType)) || \
                                                (CY_DMA_X_LOOP      == (trigType)) || \
                                                (CY_DMA_DESCR       == (trigType)) || \
                                                (CY_DMA_DESCR_CHAIN == (trigType)))
-                                              
+
 #define CY_DMA_IS_XFER_SIZE_VALID(xferSize)   ((CY_DMA_TRANSFER_SIZE_DATA == (xferSize)) || \
                                                (CY_DMA_TRANSFER_SIZE_WORD == (xferSize)))
-                                              
+
 #define CY_DMA_IS_CHANNEL_STATE_VALID(state)  ((CY_DMA_CHANNEL_ENABLED  == (state)) || \
                                                (CY_DMA_CHANNEL_DISABLED == (state)))
-                                               
+
 #define CY_DMA_IS_DATA_SIZE_VALID(dataSize)   ((CY_DMA_BYTE     == (dataSize)) || \
                                                (CY_DMA_HALFWORD == (dataSize)) || \
                                                (CY_DMA_WORD     == (dataSize)))
-                                               
+
 #define CY_DMA_IS_TYPE_VALID(descrType)       ((CY_DMA_SINGLE_TRANSFER == (descrType)) || \
                                                (CY_DMA_1D_TRANSFER     == (descrType)) || \
                                                (CY_DMA_2D_TRANSFER     == (descrType)))
-                                               
+
 #define CY_DMA_IS_DW_CH_NR_VALID(dwNr, chNr)  (((0U != CPUSS_DW0_PRESENT) && (DW0 == (dwNr)) && ((chNr) < CPUSS_DW0_CH_NR)) || \
                                                ((0U != CPUSS_DW1_PRESENT) && (DW1 == (dwNr)) && ((chNr) < CPUSS_DW1_CH_NR)))
 
@@ -339,14 +337,14 @@ typedef enum
 * \{
 */
 
-/** 
-* DMA descriptor structure type. It is a user/component-declared structure 
+/**
+* DMA descriptor structure type. It is a user/component-declared structure
 * allocated in RAM. The DMA HW requires a pointer to this structure to work with it.
 *
 * For advanced users: the descriptor can be allocated even in Flash, then the user
-* manually predefines all the structure items with constants, 
+* manually predefines all the structure items with constants,
 * bacause most of the driver's API (especially functions modifying
-* descriptors, including \ref Cy_DMA_Descriptor_Init()) can't work with 
+* descriptors, including \ref Cy_DMA_Descriptor_Init()) can't work with
 * read-only descriptors.
 */
 typedef struct
@@ -422,7 +420,7 @@ __STATIC_INLINE void *   Cy_DMA_GetActiveDstAddress(DW_Type const * base);
 
   cy_en_dma_status_t Cy_DMA_Descriptor_Init  (cy_stc_dma_descriptor_t * descriptor, cy_stc_dma_descriptor_config_t const * config);
                 void Cy_DMA_Descriptor_DeInit(cy_stc_dma_descriptor_t * descriptor);
-                
+
                 void Cy_DMA_Descriptor_SetNextDescriptor   (cy_stc_dma_descriptor_t * descriptor, cy_stc_dma_descriptor_t const * nextDescriptor);
                 void Cy_DMA_Descriptor_SetDescriptorType   (cy_stc_dma_descriptor_t * descriptor, cy_en_dma_descriptor_type_t descriptorType);
 __STATIC_INLINE void Cy_DMA_Descriptor_SetSrcAddress       (cy_stc_dma_descriptor_t * descriptor, void const * srcAddress);
@@ -623,7 +621,7 @@ __STATIC_INLINE void Cy_DMA_Descriptor_SetSrcAddress(cy_stc_dma_descriptor_t * d
 ****************************************************************************//**
 *
 * Returns the source address parameter of the specified descriptor.
-* 
+*
 * \param descriptor
 * The descriptor structure instance declared by the user/component.
 *
@@ -661,7 +659,7 @@ __STATIC_INLINE void Cy_DMA_Descriptor_SetDstAddress(cy_stc_dma_descriptor_t * d
 ****************************************************************************//**
 *
 * Returns the destination address parameter of the specified descriptor.
-* 
+*
 * \param descriptor
 * The descriptor structure instance declared by the user/component.
 *
@@ -692,7 +690,7 @@ __STATIC_INLINE void Cy_DMA_Descriptor_SetInterruptType(cy_stc_dma_descriptor_t 
 {
     CY_ASSERT_L1(NULL != descriptor);
     CY_ASSERT_L3(CY_DMA_IS_TRIG_TYPE_VALID(interruptType));
-    
+
     descriptor->ctl = _CLR_SET_FLD32U(descriptor->ctl, CY_DMA_CTL_INTR_TYPE, interruptType);
 }
 
@@ -708,12 +706,12 @@ __STATIC_INLINE void Cy_DMA_Descriptor_SetInterruptType(cy_stc_dma_descriptor_t 
 *
 * \return
 * The Interrupt-Type \ref cy_en_dma_trigger_type_t.
-*  
+*
 *******************************************************************************/
 __STATIC_INLINE cy_en_dma_trigger_type_t Cy_DMA_Descriptor_GetInterruptType(cy_stc_dma_descriptor_t const * descriptor)
 {
     CY_ASSERT_L1(NULL != descriptor);
-    
+
     return((cy_en_dma_trigger_type_t) _FLD2VAL(CY_DMA_CTL_INTR_TYPE, descriptor->ctl));
 }
 
@@ -735,7 +733,7 @@ __STATIC_INLINE void Cy_DMA_Descriptor_SetTriggerInType(cy_stc_dma_descriptor_t 
 {
     CY_ASSERT_L1(NULL != descriptor);
     CY_ASSERT_L3(CY_DMA_IS_TRIG_TYPE_VALID(triggerInType));
-    
+
     descriptor->ctl = _CLR_SET_FLD32U(descriptor->ctl, CY_DMA_CTL_TR_IN_TYPE, triggerInType);
 }
 
@@ -751,12 +749,12 @@ __STATIC_INLINE void Cy_DMA_Descriptor_SetTriggerInType(cy_stc_dma_descriptor_t 
 *
 * \return
 * The Trigger-In-Type \ref cy_en_dma_trigger_type_t
-*  
+*
 *******************************************************************************/
 __STATIC_INLINE cy_en_dma_trigger_type_t Cy_DMA_Descriptor_GetTriggerInType(cy_stc_dma_descriptor_t const * descriptor)
 {
     CY_ASSERT_L1(NULL != descriptor);
-    
+
     return((cy_en_dma_trigger_type_t) _FLD2VAL(CY_DMA_CTL_TR_IN_TYPE, descriptor->ctl));
 }
 
@@ -778,7 +776,7 @@ __STATIC_INLINE void Cy_DMA_Descriptor_SetTriggerOutType(cy_stc_dma_descriptor_t
 {
     CY_ASSERT_L1(NULL != descriptor);
     CY_ASSERT_L3(CY_DMA_IS_TRIG_TYPE_VALID(triggerOutType));
-    
+
     descriptor->ctl = _CLR_SET_FLD32U(descriptor->ctl, CY_DMA_CTL_TR_OUT_TYPE, triggerOutType);
 }
 
@@ -794,12 +792,12 @@ __STATIC_INLINE void Cy_DMA_Descriptor_SetTriggerOutType(cy_stc_dma_descriptor_t
 *
 * \return
 * The Trigger-Out-Type parameter \ref cy_en_dma_trigger_type_t.
-*  
+*
 *******************************************************************************/
 __STATIC_INLINE cy_en_dma_trigger_type_t Cy_DMA_Descriptor_GetTriggerOutType(cy_stc_dma_descriptor_t const * descriptor)
 {
     CY_ASSERT_L1(NULL != descriptor);
-    
+
     return((cy_en_dma_trigger_type_t) _FLD2VAL(CY_DMA_CTL_TR_OUT_TYPE, descriptor->ctl));
 }
 
@@ -815,13 +813,13 @@ __STATIC_INLINE cy_en_dma_trigger_type_t Cy_DMA_Descriptor_GetTriggerOutType(cy_
 *
 * \param dataSize
 * The Data Element Size \ref cy_en_dma_data_size_t
-*  
+*
 *******************************************************************************/
 __STATIC_INLINE void Cy_DMA_Descriptor_SetDataSize(cy_stc_dma_descriptor_t * descriptor, cy_en_dma_data_size_t dataSize)
 {
     CY_ASSERT_L1(NULL != descriptor);
     CY_ASSERT_L3(CY_DMA_IS_DATA_SIZE_VALID(dataSize));
-    
+
     descriptor->ctl = _CLR_SET_FLD32U(descriptor->ctl, CY_DMA_CTL_DATA_SIZE, dataSize);
 }
 
@@ -837,12 +835,12 @@ __STATIC_INLINE void Cy_DMA_Descriptor_SetDataSize(cy_stc_dma_descriptor_t * des
 *
 * \return
 * The Data Element Size \ref cy_en_dma_data_size_t.
-*  
+*
 *******************************************************************************/
 __STATIC_INLINE cy_en_dma_data_size_t Cy_DMA_Descriptor_GetDataSize(cy_stc_dma_descriptor_t const * descriptor)
 {
     CY_ASSERT_L1(NULL != descriptor);
-    
+
     return((cy_en_dma_data_size_t) _FLD2VAL(CY_DMA_CTL_DATA_SIZE, descriptor->ctl));
 }
 
@@ -880,12 +878,12 @@ __STATIC_INLINE void Cy_DMA_Descriptor_SetSrcTransferSize(cy_stc_dma_descriptor_
 *
 * \return
 * The Source Transfer Size \ref cy_en_dma_transfer_size_t.
-*  
+*
 *******************************************************************************/
 __STATIC_INLINE cy_en_dma_transfer_size_t Cy_DMA_Descriptor_GetSrcTransferSize(cy_stc_dma_descriptor_t const * descriptor)
 {
     CY_ASSERT_L1(NULL != descriptor);
-    
+
     return((cy_en_dma_transfer_size_t) _FLD2VAL(CY_DMA_CTL_SRC_SIZE, descriptor->ctl));
 }
 
@@ -907,7 +905,7 @@ __STATIC_INLINE void Cy_DMA_Descriptor_SetDstTransferSize(cy_stc_dma_descriptor_
 {
     CY_ASSERT_L1(NULL != descriptor);
     CY_ASSERT_L3(CY_DMA_IS_XFER_SIZE_VALID(dstTransferSize));
-    
+
     descriptor->ctl = _CLR_SET_FLD32U(descriptor->ctl, CY_DMA_CTL_DST_SIZE, dstTransferSize);
 }
 
@@ -923,12 +921,12 @@ __STATIC_INLINE void Cy_DMA_Descriptor_SetDstTransferSize(cy_stc_dma_descriptor_
 *
 * \return
 * The Destination Transfer Size \ref cy_en_dma_transfer_size_t
-*  
+*
 *******************************************************************************/
 __STATIC_INLINE cy_en_dma_transfer_size_t Cy_DMA_Descriptor_GetDstTransferSize(cy_stc_dma_descriptor_t const * descriptor)
 {
     CY_ASSERT_L1(NULL != descriptor);
-    
+
     return((cy_en_dma_transfer_size_t) _FLD2VAL(CY_DMA_CTL_DST_SIZE, descriptor->ctl));
 }
 
@@ -937,13 +935,13 @@ __STATIC_INLINE cy_en_dma_transfer_size_t Cy_DMA_Descriptor_GetDstTransferSize(c
 * Function Name: Cy_DMA_Descriptor_SetRetrigger
 ****************************************************************************//**
 *
-* Sets the retrigger value which specifies whether the controller should 
+* Sets the retrigger value which specifies whether the controller should
 * wait for the input trigger to be deactivated.
 *
 * \param descriptor
 * The descriptor structure instance declared by the user/component.
 *
-* \param retrigger 
+* \param retrigger
 * The \ref cy_en_dma_retrigger_t parameter specifies whether the controller
 * should wait for the input trigger to be deactivated.
 *
@@ -952,7 +950,7 @@ __STATIC_INLINE void Cy_DMA_Descriptor_SetRetrigger(cy_stc_dma_descriptor_t * de
 {
     CY_ASSERT_L1(NULL != descriptor);
     CY_ASSERT_L3(CY_DMA_IS_RETRIGGER_VALID(retrigger));
-    
+
     descriptor->ctl = _CLR_SET_FLD32U(descriptor->ctl, CY_DMA_CTL_RETRIG, retrigger);
 }
 
@@ -961,7 +959,7 @@ __STATIC_INLINE void Cy_DMA_Descriptor_SetRetrigger(cy_stc_dma_descriptor_t * de
 * Function Name: Cy_DMA_Descriptor_GetRetrigger
 ****************************************************************************//**
 *
-* Returns a value which specifies whether the controller should 
+* Returns a value which specifies whether the controller should
 * wait for the input trigger to be deactivated.
 *
 * \param descriptor
@@ -969,12 +967,12 @@ __STATIC_INLINE void Cy_DMA_Descriptor_SetRetrigger(cy_stc_dma_descriptor_t * de
 *
 * \return
 * The Retrigger setting \ref cy_en_dma_retrigger_t.
-*  
+*
 *******************************************************************************/
 __STATIC_INLINE cy_en_dma_retrigger_t Cy_DMA_Descriptor_GetRetrigger(cy_stc_dma_descriptor_t const * descriptor)
 {
     CY_ASSERT_L1(NULL != descriptor);
-    
+
     return((cy_en_dma_retrigger_t) _FLD2VAL(CY_DMA_CTL_RETRIG, descriptor->ctl));
 }
 
@@ -990,12 +988,12 @@ __STATIC_INLINE cy_en_dma_retrigger_t Cy_DMA_Descriptor_GetRetrigger(cy_stc_dma_
 *
 * \return
 * The descriptor type \ref cy_en_dma_descriptor_type_t
-*  
+*
 *******************************************************************************/
 __STATIC_INLINE cy_en_dma_descriptor_type_t Cy_DMA_Descriptor_GetDescriptorType(cy_stc_dma_descriptor_t const * descriptor)
 {
     CY_ASSERT_L1(NULL != descriptor);
-    
+
     return((cy_en_dma_descriptor_type_t) _FLD2VAL(CY_DMA_CTL_TYPE, descriptor->ctl));
 }
 
@@ -1009,7 +1007,7 @@ __STATIC_INLINE cy_en_dma_descriptor_type_t Cy_DMA_Descriptor_GetDescriptorType(
 * \param descriptor
 * The descriptor structure instance declared by the user/component.
 *
-* \param channelState 
+* \param channelState
 * The channel state \ref cy_en_dma_channel_state_t.
 *
 *******************************************************************************/
@@ -1017,7 +1015,7 @@ __STATIC_INLINE void Cy_DMA_Descriptor_SetChannelState(cy_stc_dma_descriptor_t *
 {
     CY_ASSERT_L1(NULL != descriptor);
     CY_ASSERT_L3(CY_DMA_IS_CHANNEL_STATE_VALID(channelState));
-    
+
     descriptor->ctl = _CLR_SET_FLD32U(descriptor->ctl, CY_DMA_CTL_CH_DISABLE, channelState);
 }
 
@@ -1033,12 +1031,12 @@ __STATIC_INLINE void Cy_DMA_Descriptor_SetChannelState(cy_stc_dma_descriptor_t *
 *
 * \return
 * The Channel State setting \ref cy_en_dma_channel_state_t
-*  
+*
 *******************************************************************************/
 __STATIC_INLINE cy_en_dma_channel_state_t Cy_DMA_Descriptor_GetChannelState(cy_stc_dma_descriptor_t const * descriptor)
 {
     CY_ASSERT_L1(NULL != descriptor);
-    
+
     return((cy_en_dma_channel_state_t) _FLD2VAL(CY_DMA_CTL_CH_DISABLE, descriptor->ctl));
 }
 
@@ -1055,7 +1053,7 @@ __STATIC_INLINE cy_en_dma_channel_state_t Cy_DMA_Descriptor_GetChannelState(cy_s
 *
 * \param xCount
 * The number of data elements to transfer in the X loop.
-*  
+*
 *******************************************************************************/
 __STATIC_INLINE void Cy_DMA_Descriptor_SetXloopDataCount(cy_stc_dma_descriptor_t * descriptor, uint32_t xCount)
 {
@@ -1079,7 +1077,7 @@ __STATIC_INLINE void Cy_DMA_Descriptor_SetXloopDataCount(cy_stc_dma_descriptor_t
 *
 * \return
 * The number of data elements to transfer in the X loop.
-*  
+*
 *******************************************************************************/
 __STATIC_INLINE uint32_t Cy_DMA_Descriptor_GetXloopDataCount(cy_stc_dma_descriptor_t const * descriptor)
 {
@@ -1109,7 +1107,7 @@ __STATIC_INLINE void Cy_DMA_Descriptor_SetXloopSrcIncrement(cy_stc_dma_descripto
     CY_ASSERT_L1(NULL != descriptor);
     CY_ASSERT_L1(CY_DMA_SINGLE_TRANSFER != Cy_DMA_Descriptor_GetDescriptorType(descriptor));
     CY_ASSERT_L2(CY_DMA_IS_INCR_VALID(srcXincrement));
-    
+
     descriptor->xCtl = _CLR_SET_FLD32U(descriptor->xCtl, CY_DMA_CTL_SRC_INCR, srcXincrement);
 }
 
@@ -1126,13 +1124,13 @@ __STATIC_INLINE void Cy_DMA_Descriptor_SetXloopSrcIncrement(cy_stc_dma_descripto
 *
 * \return
 * The value of the source increment.
-*  
+*
 *******************************************************************************/
 __STATIC_INLINE int32_t Cy_DMA_Descriptor_GetXloopSrcIncrement(cy_stc_dma_descriptor_t const * descriptor)
 {
     CY_ASSERT_L1(NULL != descriptor);
     CY_ASSERT_L1(CY_DMA_SINGLE_TRANSFER != Cy_DMA_Descriptor_GetDescriptorType(descriptor));
-    
+
     return ((int32_t) _FLD2VAL(CY_DMA_CTL_SRC_INCR, descriptor->xCtl));
 }
 
@@ -1149,14 +1147,14 @@ __STATIC_INLINE int32_t Cy_DMA_Descriptor_GetXloopSrcIncrement(cy_stc_dma_descri
 *
 * \param dstXincrement
 * The value of the destination increment. The valid range is -2048 ... 2047.
-*  
+*
 *******************************************************************************/
 __STATIC_INLINE void Cy_DMA_Descriptor_SetXloopDstIncrement(cy_stc_dma_descriptor_t * descriptor, int32_t dstXincrement)
 {
     CY_ASSERT_L1(NULL != descriptor);
     CY_ASSERT_L1(CY_DMA_SINGLE_TRANSFER != Cy_DMA_Descriptor_GetDescriptorType(descriptor));
     CY_ASSERT_L2(CY_DMA_IS_INCR_VALID(dstXincrement));
-    
+
     descriptor->xCtl = _CLR_SET_FLD32U(descriptor->xCtl, CY_DMA_CTL_DST_INCR, dstXincrement);
 }
 
@@ -1173,13 +1171,13 @@ __STATIC_INLINE void Cy_DMA_Descriptor_SetXloopDstIncrement(cy_stc_dma_descripto
 *
 * \return
 * The value of the destination increment.
-*  
+*
 *******************************************************************************/
 __STATIC_INLINE int32_t Cy_DMA_Descriptor_GetXloopDstIncrement(cy_stc_dma_descriptor_t const * descriptor)
 {
     CY_ASSERT_L1(NULL != descriptor);
     CY_ASSERT_L1(CY_DMA_SINGLE_TRANSFER != Cy_DMA_Descriptor_GetDescriptorType(descriptor));
-    
+
     return ((int32_t) _FLD2VAL(CY_DMA_CTL_DST_INCR, descriptor->xCtl));
 }
 
@@ -1196,7 +1194,7 @@ __STATIC_INLINE int32_t Cy_DMA_Descriptor_GetXloopDstIncrement(cy_stc_dma_descri
 *
 * \param yCount
 * The number of X loops to execute in the Y loop.
-*  
+*
 *******************************************************************************/
 __STATIC_INLINE void Cy_DMA_Descriptor_SetYloopDataCount(cy_stc_dma_descriptor_t * descriptor, uint32_t yCount)
 {
@@ -1220,7 +1218,7 @@ __STATIC_INLINE void Cy_DMA_Descriptor_SetYloopDataCount(cy_stc_dma_descriptor_t
 *
 * \return
 * The number of X loops to execute in the Y loop.
-*  
+*
 *******************************************************************************/
 __STATIC_INLINE uint32_t Cy_DMA_Descriptor_GetYloopDataCount(cy_stc_dma_descriptor_t const * descriptor)
 {
@@ -1243,14 +1241,14 @@ __STATIC_INLINE uint32_t Cy_DMA_Descriptor_GetYloopDataCount(cy_stc_dma_descript
 *
 * \param srcYincrement
 * The value of the source increment. The valid range is -2048 ... 2047.
-*  
+*
 *******************************************************************************/
 __STATIC_INLINE void Cy_DMA_Descriptor_SetYloopSrcIncrement(cy_stc_dma_descriptor_t * descriptor, int32_t srcYincrement)
 {
     CY_ASSERT_L1(NULL != descriptor);
     CY_ASSERT_L1(CY_DMA_2D_TRANSFER == Cy_DMA_Descriptor_GetDescriptorType(descriptor));
     CY_ASSERT_L2(CY_DMA_IS_INCR_VALID(srcYincrement));
-    
+
     descriptor->yCtl = _CLR_SET_FLD32U(descriptor->yCtl, CY_DMA_CTL_SRC_INCR, srcYincrement);
 }
 
@@ -1267,13 +1265,13 @@ __STATIC_INLINE void Cy_DMA_Descriptor_SetYloopSrcIncrement(cy_stc_dma_descripto
 *
 * \return
 * The value of source increment.
-*  
+*
 *******************************************************************************/
 __STATIC_INLINE int32_t Cy_DMA_Descriptor_GetYloopSrcIncrement(cy_stc_dma_descriptor_t const * descriptor)
 {
     CY_ASSERT_L1(NULL != descriptor);
     CY_ASSERT_L1(CY_DMA_2D_TRANSFER == Cy_DMA_Descriptor_GetDescriptorType(descriptor));
-    
+
     return ((int32_t) _FLD2VAL(CY_DMA_CTL_SRC_INCR, descriptor->yCtl));
 }
 
@@ -1297,7 +1295,7 @@ __STATIC_INLINE void Cy_DMA_Descriptor_SetYloopDstIncrement(cy_stc_dma_descripto
     CY_ASSERT_L1(NULL != descriptor);
     CY_ASSERT_L1(CY_DMA_2D_TRANSFER == Cy_DMA_Descriptor_GetDescriptorType(descriptor));
     CY_ASSERT_L2(CY_DMA_IS_INCR_VALID(dstYincrement));
-    
+
     descriptor->yCtl = _CLR_SET_FLD32U(descriptor->yCtl, CY_DMA_CTL_DST_INCR, dstYincrement);
 }
 
@@ -1307,20 +1305,20 @@ __STATIC_INLINE void Cy_DMA_Descriptor_SetYloopDstIncrement(cy_stc_dma_descripto
 ****************************************************************************//**
 *
 * Returns the destination increment parameter for the Y loop of the specified
-* descriptor (for 2D descriptors only). 
+* descriptor (for 2D descriptors only).
 *
 * \param descriptor
 * The descriptor structure instance declared by the user/component.
 *
 * \return
 * The value of the destination increment.
-*  
+*
 *******************************************************************************/
 __STATIC_INLINE int32_t Cy_DMA_Descriptor_GetYloopDstIncrement(cy_stc_dma_descriptor_t const * descriptor)
 {
     CY_ASSERT_L1(NULL != descriptor);
     CY_ASSERT_L1(CY_DMA_2D_TRANSFER == Cy_DMA_Descriptor_GetDescriptorType(descriptor));
-    
+
     return ((int32_t) _FLD2VAL(CY_DMA_CTL_DST_INCR, descriptor->yCtl));
 }
 
@@ -1354,7 +1352,7 @@ __STATIC_INLINE void Cy_DMA_Channel_SetDescriptor(DW_Type * base, uint32_t chann
 {
     CY_ASSERT_L1(CY_DMA_IS_DW_CH_NR_VALID(base, channel));
     CY_ASSERT_L1(NULL != descriptor);
-    
+
     base->CH_STRUCT[channel].CH_CURR_PTR = (uint32_t)descriptor;
     base->CH_STRUCT[channel].CH_IDX &= (uint32_t) ~(DW_CH_STRUCT_CH_IDX_X_IDX_Msk | DW_CH_STRUCT_CH_IDX_Y_IDX_Msk);
 }
@@ -1376,7 +1374,7 @@ __STATIC_INLINE void Cy_DMA_Channel_SetDescriptor(DW_Type * base, uint32_t chann
 __STATIC_INLINE void Cy_DMA_Channel_Enable(DW_Type * base, uint32_t channel)
 {
     CY_ASSERT_L1(CY_DMA_IS_DW_CH_NR_VALID(base, channel));
-    
+
     base->CH_STRUCT[channel].CH_CTL |= DW_CH_STRUCT_CH_CTL_ENABLED_Msk;
 }
 
@@ -1397,7 +1395,7 @@ __STATIC_INLINE void Cy_DMA_Channel_Enable(DW_Type * base, uint32_t channel)
 __STATIC_INLINE void Cy_DMA_Channel_Disable(DW_Type * base, uint32_t channel)
 {
     CY_ASSERT_L1(CY_DMA_IS_DW_CH_NR_VALID(base, channel));
-    
+
     base->CH_STRUCT[channel].CH_CTL &= (uint32_t) ~DW_CH_STRUCT_CH_CTL_ENABLED_Msk;
 }
 
@@ -1422,7 +1420,7 @@ __STATIC_INLINE void Cy_DMA_Channel_SetPriority(DW_Type * base, uint32_t channel
 {
     CY_ASSERT_L1(CY_DMA_IS_DW_CH_NR_VALID(base, channel));
     CY_ASSERT_L2(CY_DMA_IS_PRIORITY_VALID(priority));
-    
+
     base->CH_STRUCT[channel].CH_CTL = _CLR_SET_FLD32U(base->CH_STRUCT[channel].CH_CTL, DW_CH_STRUCT_CH_CTL_PRIO, priority);
 }
 
@@ -1446,7 +1444,7 @@ __STATIC_INLINE void Cy_DMA_Channel_SetPriority(DW_Type * base, uint32_t channel
 __STATIC_INLINE uint32_t Cy_DMA_Channel_GetPriority(DW_Type const * base, uint32_t channel)
 {
     CY_ASSERT_L1(CY_DMA_IS_DW_CH_NR_VALID(base, channel));
-    
+
     return ((uint32_t) _FLD2VAL(DW_CH_STRUCT_CH_CTL_PRIO, base->CH_STRUCT[channel].CH_CTL));
 }
 
@@ -1470,7 +1468,7 @@ __STATIC_INLINE uint32_t Cy_DMA_Channel_GetPriority(DW_Type const * base, uint32
 __STATIC_INLINE cy_stc_dma_descriptor_t * Cy_DMA_Channel_GetCurrentDescriptor(DW_Type const * base, uint32_t channel)
 {
     CY_ASSERT_L1(CY_DMA_IS_DW_CH_NR_VALID(base, channel));
-    
+
     return ((cy_stc_dma_descriptor_t*)(base->CH_STRUCT[channel].CH_CURR_PTR));
 }
 
@@ -1495,7 +1493,7 @@ __STATIC_INLINE cy_stc_dma_descriptor_t * Cy_DMA_Channel_GetCurrentDescriptor(DW
 __STATIC_INLINE uint32_t Cy_DMA_Channel_GetInterruptStatus(DW_Type const * base, uint32_t channel)
 {
     CY_ASSERT_L1(CY_DMA_IS_DW_CH_NR_VALID(base, channel));
-    
+
     return (base->CH_STRUCT[channel].INTR);
 }
 
@@ -1519,7 +1517,7 @@ __STATIC_INLINE uint32_t Cy_DMA_Channel_GetInterruptStatus(DW_Type const * base,
 __STATIC_INLINE cy_en_dma_intr_cause_t Cy_DMA_Channel_GetStatus(DW_Type const * base, uint32_t channel)
 {
     CY_ASSERT_L1(CY_DMA_IS_DW_CH_NR_VALID(base, channel));
-    
+
     return ((cy_en_dma_intr_cause_t) _FLD2VAL(DW_CH_STRUCT_CH_STATUS_INTR_CAUSE, base->CH_STRUCT[channel].CH_STATUS));
 }
 
@@ -1540,7 +1538,7 @@ __STATIC_INLINE cy_en_dma_intr_cause_t Cy_DMA_Channel_GetStatus(DW_Type const * 
 __STATIC_INLINE void Cy_DMA_Channel_ClearInterrupt(DW_Type * base, uint32_t channel)
 {
     CY_ASSERT_L1(CY_DMA_IS_DW_CH_NR_VALID(base, channel));
-    
+
     base->CH_STRUCT[channel].INTR = CY_DMA_INTR_MASK;
     (void) base->CH_STRUCT[channel].INTR;
 }
@@ -1562,7 +1560,7 @@ __STATIC_INLINE void Cy_DMA_Channel_ClearInterrupt(DW_Type * base, uint32_t chan
 __STATIC_INLINE void Cy_DMA_Channel_SetInterrupt(DW_Type * base, uint32_t channel)
 {
     CY_ASSERT_L1(CY_DMA_IS_DW_CH_NR_VALID(base, channel));
-    
+
     base->CH_STRUCT[channel].INTR_SET = CY_DMA_INTR_MASK;
 }
 
@@ -1586,7 +1584,7 @@ __STATIC_INLINE void Cy_DMA_Channel_SetInterrupt(DW_Type * base, uint32_t channe
 __STATIC_INLINE uint32_t Cy_DMA_Channel_GetInterruptMask(DW_Type const * base, uint32_t channel)
 {
     CY_ASSERT_L1(CY_DMA_IS_DW_CH_NR_VALID(base, channel));
-    
+
     return (base->CH_STRUCT[channel].INTR_MASK);
 }
 
@@ -1633,7 +1631,7 @@ __STATIC_INLINE void Cy_DMA_Channel_SetInterruptMask(DW_Type * base, uint32_t ch
 __STATIC_INLINE uint32_t Cy_DMA_Channel_GetInterruptStatusMasked(DW_Type const * base, uint32_t channel)
 {
     CY_ASSERT_L1(CY_DMA_IS_DW_CH_NR_VALID(base, channel));
-    
+
     return (base->CH_STRUCT[channel].INTR_MASKED);
 }
 
@@ -1686,14 +1684,14 @@ __STATIC_INLINE uint32_t Cy_DMA_Channel_GetInterruptStatusMasked(DW_Type const *
     #define CY_DMA_TRIGOUT_X_LOOP_CMPLT     (CY_DMA_X_LOOP)
     #define CY_DMA_TRIGOUT_DESCR_CMPLT      (CY_DMA_DESCR)
     #define CY_DMA_TRIGOUT_DESCRCHAIN_CMPLT (CY_DMA_DESCR_CHAIN)
-        
+
     #define CY_DMA_TRIGIN_1ELEMENT          (CY_DMA_1ELEMENT)
     #define CY_DMA_TRIGIN_XLOOP             (CY_DMA_X_LOOP)
     #define CY_DMA_TRIGIN_DESCR             (CY_DMA_DESCR)
     #define CY_DMA_TRIGIN_DESCRCHAIN        (CY_DMA_DESCR_CHAIN)
 
     #define CY_DMA_INVALID_INPUT_PARAMETERS (CY_DMA_BAD_PARAM)
-    
+
     #define CY_DMA_RETDIG_IM                (CY_DMA_RETRIG_IM)
     #define CY_DMA_RETDIG_4CYC              (CY_DMA_RETRIG_4CYC)
     #define CY_DMA_RETDIG_16CYC             (CY_DMA_RETRIG_16CYC)
@@ -1705,7 +1703,7 @@ __STATIC_INLINE uint32_t Cy_DMA_Channel_GetInterruptStatusMasked(DW_Type const *
     #define DESCR_X_CTL                     xCtl
     #define DESCR_Y_CTL                     yCtl
     #define DESCR_NEXT_PTR                  nextPtr
-    
+
     /* Descriptor structure bit-fields */
     #define DW_DESCR_STRUCT_DESCR_CTL_WAIT_FOR_DEACT_Pos 0UL
     #define DW_DESCR_STRUCT_DESCR_CTL_WAIT_FOR_DEACT_Msk 0x3UL

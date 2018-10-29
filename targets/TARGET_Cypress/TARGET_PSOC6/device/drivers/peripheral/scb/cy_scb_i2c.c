@@ -6,10 +6,8 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2018, Cypress Semiconductor Corporation. All rights reserved.
-* You may use this file only in accordance with the license, terms, conditions,
-* disclaimers, and limitations in the end user license agreement accompanying
-* the software package with which this file was provided.
+* Copyright 2016-2018, Cypress Semiconductor Corporation.  All rights reserved.
+* SPDX-License-Identifier: Apache-2.0
 *******************************************************************************/
 
 #include "cy_scb_i2c.h"
@@ -1219,8 +1217,8 @@ cy_en_scb_i2c_status_t Cy_SCB_I2C_MasterRead(CySCB_Type *base,
 
         if (CY_SCB_I2C_IDLE == context->state)
         {
-            /* Put the address in the TX FIFO, then generate a Start condition. 
-            * This sequence ensures that after the Start condition generation 
+            /* Put the address in the TX FIFO, then generate a Start condition.
+            * This sequence ensures that after the Start condition generation
             * the address is available to be sent onto the bus.
             */
             Cy_SCB_WriteTxFifo(base, address);
@@ -1444,8 +1442,8 @@ cy_en_scb_i2c_status_t Cy_SCB_I2C_MasterWrite(CySCB_Type *base,
 
         if (CY_SCB_I2C_IDLE == context->state)
         {
-            /* Put the address in the TX FIFO, then generate a Start condition. 
-            * This sequence ensures that after the Start condition generation 
+            /* Put the address in the TX FIFO, then generate a Start condition.
+            * This sequence ensures that after the Start condition generation
             * the address is available to be sent onto the bus.
             */
             Cy_SCB_WriteTxFifo     (base, address);
@@ -1464,9 +1462,9 @@ cy_en_scb_i2c_status_t Cy_SCB_I2C_MasterWrite(CySCB_Type *base,
             if (0U == context->masterBufferSize)
             {
                 /* The address is the last byte to transfer.
-                * Put the address byte in the TX FIFO and clear the TX 
-                * Underflow interrupt source inside the critical section 
-                * to ensure that the TX Underflow interrupt will trigger 
+                * Put the address byte in the TX FIFO and clear the TX
+                * Underflow interrupt source inside the critical section
+                * to ensure that the TX Underflow interrupt will trigger
                 * after the address byte is sent onto the bus.
                 */
                 intrState = Cy_SysLib_EnterCriticalSection();
@@ -1808,8 +1806,8 @@ cy_en_scb_i2c_status_t Cy_SCB_I2C_MasterSendReStart(CySCB_Type *base,
         if (false == _FLD2BOOL(SCB_I2C_STATUS_M_READ, base->I2C_STATUS))
         {
             /* Cypress ID #295908: Wait until ReStart is generated to complete
-            * the previous write transfer. This ensures that the address byte 
-            * will not be interpreted as the data byte of the previous 
+            * the previous write transfer. This ensures that the address byte
+            * will not be interpreted as the data byte of the previous
             * transfer.
             */
             while ((0U == locStatus) &&
@@ -2493,9 +2491,9 @@ static void SlaveHandleDataTransmit(CySCB_Type *base, cy_stc_scb_i2c_context_t *
         {
             uint32_t intrStatus;
 
-             /* Put the last data byte in the TX FIFO and clear the TX Underflow 
-            * interrupt source inside the critical section to ensure that the 
-            * TX Underflow interrupt will trigger after all data bytes from the 
+             /* Put the last data byte in the TX FIFO and clear the TX Underflow
+            * interrupt source inside the critical section to ensure that the
+            * TX Underflow interrupt will trigger after all data bytes from the
             * TX FIFO are transferred onto the bus.
             */
             intrStatus = Cy_SysLib_EnterCriticalSection();
@@ -2887,9 +2885,9 @@ static void MasterHandleDataTransmit(CySCB_Type *base, cy_stc_scb_i2c_context_t 
         {
             uint32_t intrStatus;
 
-            /* Put the last data byte in the TX FIFO and clear the TX Underflow 
-            * interrupt source inside the critical section to ensure that the 
-            * TX Underflow interrupt will trigger after all data bytes from the 
+            /* Put the last data byte in the TX FIFO and clear the TX Underflow
+            * interrupt source inside the critical section to ensure that the
+            * TX Underflow interrupt will trigger after all data bytes from the
             * TX FIFO are transferred onto the bus.
             */
             intrStatus = Cy_SysLib_EnterCriticalSection();
