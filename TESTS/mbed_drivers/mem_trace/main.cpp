@@ -24,7 +24,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 
-#if !MBED_MEM_TRACING_ENABLED
+#ifndef MBED_MEM_TRACING_ENABLED
 #error [NOT_SUPPORTED] test not supported
 #endif
 

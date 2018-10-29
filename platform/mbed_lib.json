@@ -68,7 +68,7 @@
         "memory-tracing-enabled": {
             "macro_name": "MBED_MEM_TRACING_ENABLED",
             "help": "Enable tracing of each memory call by invoking a callback on each memory operation. See mbed_mem_trace.h in the HAL API for more information",
-            "value": false
+            "value": null
         },
         "sys-stats-enabled": {
             "macro_name": "MBED_SYS_STATS_ENABLED",
