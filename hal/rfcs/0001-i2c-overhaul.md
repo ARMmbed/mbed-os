@@ -358,7 +358,9 @@ typedef void (*i2c_async_handler_f)(i2c_t *obj, void *ctx, i2c_async_event_t eve
  *  @param stop      If true, stop will be generated after the transfer is done
  *  @param handler   The I2C IRQ handler to be set
  */
-void i2c_transfer_async(i2c_t *obj, const void *tx, uint32_t tx_length, void *rx, uint32_t rx_length, uint16_t address, bool stop, i2c_async_handler_f handler);
+void i2c_transfer_async(i2c_t *obj, const void *tx, uint32_t tx_length,
+                        void *rx, uint32_t rx_length, uint16_t address,
+                        bool stop, i2c_async_handler_f handler, void *ctx);
 
 /** Abort asynchronous transfer
  *
