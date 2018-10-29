@@ -68,6 +68,7 @@ struct analogin_s {
 struct i2c_s {
     uint32_t instance;
     uint8_t next_repeated_start;
+    bool is_slave;
 };
 
 struct spi_s {
