@@ -262,8 +262,8 @@ private:
     };
 
     struct sta_s {
-        const char          *ssid;
-        const char          *passwd;
+        char                ssid[cbWLAN_SSID_MAX_LENGTH];
+        char                passwd[cbWLAN_MAX_PASSPHRASE_LENGTH];
         nsapi_security_t    security;
         uint8_t             channel;
         int                 timeout_ms;
