@@ -52,7 +52,7 @@ int inject_dummy_rot_key()
 
     memcpy(key, "1234567812345678", DEVICE_KEY_16BYTE);
     int size = DEVICE_KEY_16BYTE;
-    DeviceKey& devkey = DeviceKey::get_instance();
+    DeviceKey &devkey = DeviceKey::get_instance();
     return devkey.device_inject_root_of_trust(key, size);
 #else
     return DEVICEKEY_SUCCESS;
@@ -86,8 +86,8 @@ void generate_derived_key_consistency_16_byte_key_long_consistency_test(char *ke
     unsigned char salt[] = "Once upon a time, I worked for the circus and I lived in Omaha.";
     int key_type = DEVICE_KEY_16BYTE;
     uint16_t actual_size = 0;
-    DeviceKey& devkey = DeviceKey::get_instance();
-    NVStore& nvstore = NVStore::get_instance();
+    DeviceKey &devkey = DeviceKey::get_instance();
+    NVStore &nvstore = NVStore::get_instance();
     size_t salt_size = sizeof(salt);
 
     if (strcmp(key, MSG_KEY_DEVICE_TEST_STEP1) == 0) {
@@ -145,8 +145,8 @@ void generate_derived_key_consistency_32_byte_key_long_consistency_test(char *ke
     unsigned char salt[] = "The quick brown fox jumps over the lazy dog";
     int key_type = DEVICE_KEY_32BYTE;
     uint16_t actual_size = 0;
-    DeviceKey& devkey = DeviceKey::get_instance();
-    NVStore& nvstore = NVStore::get_instance();
+    DeviceKey &devkey = DeviceKey::get_instance();
+    NVStore &nvstore = NVStore::get_instance();
     size_t salt_size = sizeof(salt);
 
     if (strcmp(key, MSG_KEY_DEVICE_TEST_STEP3) == 0) {
@@ -198,7 +198,7 @@ void generate_derived_key_consistency_32_byte_key_long_consistency_test(char *ke
  */
 void device_inject_root_of_trust_wrong_size_test()
 {
-    DeviceKey& devkey = DeviceKey::get_instance();
+    DeviceKey &devkey = DeviceKey::get_instance();
     uint32_t key[DEVICE_KEY_32BYTE / sizeof(uint32_t)];
 
     memcpy(key, "12345678123456788765432187654321", DEVICE_KEY_32BYTE);
@@ -217,11 +217,11 @@ void device_inject_root_of_trust_wrong_size_test()
  */
 void device_inject_root_of_trust_16_byte_size_test()
 {
-    DeviceKey& devkey = DeviceKey::get_instance();
+    DeviceKey &devkey = DeviceKey::get_instance();
     uint32_t rkey[DEVICE_KEY_16BYTE / sizeof(uint32_t)];
     uint16_t actual_size;
     uint32_t key[DEVICE_KEY_16BYTE / sizeof(uint32_t)];
-    NVStore& nvstore = NVStore::get_instance();
+    NVStore &nvstore = NVStore::get_instance();
 
     int ret = nvstore.reset();
     TEST_ASSERT_EQUAL_INT(DEVICEKEY_SUCCESS, ret);
@@ -243,11 +243,11 @@ void device_inject_root_of_trust_16_byte_size_test()
  */
 void device_inject_root_of_trust_32_byte_size_test()
 {
-    DeviceKey& devkey = DeviceKey::get_instance();
+    DeviceKey &devkey = DeviceKey::get_instance();
     uint32_t rkey[DEVICE_KEY_32BYTE / sizeof(uint32_t)];
     uint16_t actual_size;
     uint32_t key[DEVICE_KEY_32BYTE / sizeof(uint32_t)];
-    NVStore& nvstore = NVStore::get_instance();
+    NVStore &nvstore = NVStore::get_instance();
 
     int ret = nvstore.reset();
     TEST_ASSERT_EQUAL_INT(DEVICEKEY_SUCCESS, ret);
@@ -269,9 +269,9 @@ void device_inject_root_of_trust_32_byte_size_test()
  */
 void device_inject_root_of_trust_several_times_test()
 {
-    DeviceKey& devkey = DeviceKey::get_instance();
+    DeviceKey &devkey = DeviceKey::get_instance();
     uint32_t key[DEVICE_KEY_32BYTE / sizeof(uint32_t)];
-    NVStore& nvstore = NVStore::get_instance();
+    NVStore &nvstore = NVStore::get_instance();
 
     int ret = nvstore.reset();
     TEST_ASSERT_EQUAL_INT(DEVICEKEY_SUCCESS, ret);
@@ -299,8 +299,8 @@ void generate_derived_key_consistency_16_byte_key_test()
     unsigned char empty_buffer[DEVICE_KEY_16BYTE];
     unsigned char salt[] = "Once upon a time, I worked for the circus and I lived in Omaha.";
     int key_type = DEVICE_KEY_16BYTE;
-    DeviceKey& devkey = DeviceKey::get_instance();
-    NVStore& nvstore = NVStore::get_instance();
+    DeviceKey &devkey = DeviceKey::get_instance();
+    NVStore &nvstore = NVStore::get_instance();
 
     int ret = nvstore.reset();
     TEST_ASSERT_EQUAL_INT(DEVICEKEY_SUCCESS, ret);
@@ -334,8 +334,8 @@ void generate_derived_key_consistency_32_byte_key_test()
     unsigned char empty_buffer[DEVICE_KEY_32BYTE];
     unsigned char salt[] = "The quick brown fox jumps over the lazy dog";
     int key_type = DEVICE_KEY_32BYTE;
-    DeviceKey& devkey = DeviceKey::get_instance();
-    NVStore& nvstore = NVStore::get_instance();
+    DeviceKey &devkey = DeviceKey::get_instance();
+    NVStore &nvstore = NVStore::get_instance();
 
     int ret = nvstore.reset();
     TEST_ASSERT_EQUAL_INT(DEVICEKEY_SUCCESS, ret);
@@ -369,8 +369,8 @@ void generate_derived_key_key_type_16_test()
     unsigned char expectedString[] = "Some String";
     int key_type = DEVICE_KEY_16BYTE;
     size_t salt_size = sizeof(salt);
-    DeviceKey& devkey = DeviceKey::get_instance();
-    NVStore& nvstore = NVStore::get_instance();
+    DeviceKey &devkey = DeviceKey::get_instance();
+    NVStore &nvstore = NVStore::get_instance();
 
     int ret = nvstore.reset();
     TEST_ASSERT_EQUAL_INT(DEVICEKEY_SUCCESS, ret);
@@ -400,8 +400,8 @@ void generate_derived_key_key_type_32_test()
     int key_type = DEVICE_KEY_32BYTE;
     size_t salt_size = sizeof(salt);
     unsigned char expectedString[] = "Some String";
-    DeviceKey& devkey = DeviceKey::get_instance();
-    NVStore& nvstore = NVStore::get_instance();
+    DeviceKey &devkey = DeviceKey::get_instance();
+    NVStore &nvstore = NVStore::get_instance();
 
     int ret = nvstore.reset();
     TEST_ASSERT_EQUAL_INT(DEVICEKEY_SUCCESS, ret);
@@ -429,8 +429,8 @@ void generate_derived_key_wrong_key_type_test()
     unsigned char output[DEVICE_KEY_16BYTE];
     unsigned char salt[] = "The quick brown fox jumps over the lazy dog";
     size_t salt_size = sizeof(salt);
-    DeviceKey& devkey = DeviceKey::get_instance();
-    NVStore& nvstore = NVStore::get_instance();
+    DeviceKey &devkey = DeviceKey::get_instance();
+    NVStore &nvstore = NVStore::get_instance();
 
     nvstore.init();
     int ret = nvstore.reset();

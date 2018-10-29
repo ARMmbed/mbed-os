@@ -61,7 +61,7 @@ public:
      *
      * @returns Singleton instance reference.
      */
-    static DeviceKey& get_instance()
+    static DeviceKey &get_instance()
     {
         // Use this implementation of singleton (Meyer's) rather than the one that allocates
         // the instance on the heap, as it ensures destruction at program end (preventing warnings
@@ -100,7 +100,7 @@ private:
      *             Output: The actual size of the written data
      * @return 0 on success, negative error code on failure
      */
-    int read_key_from_nvstore(uint32_t *output, size_t& size);
+    int read_key_from_nvstore(uint32_t *output, size_t &size);
 
     /** Set a device key into the NVStore
      * @param input Input buffer contain the key.
@@ -109,7 +109,7 @@ private:
      */
     int write_key_to_nvstore(uint32_t *input, size_t isize);
 
-    /** Get a derived key base on a salt string. The methods implements Section 5.1 
+    /** Get a derived key base on a salt string. The methods implements Section 5.1
      *  in NIST SP 800-108, Recommendation for Key Derivation Using Pseudorandom Functions
      * @param ikey_buff Input buffer holding the ROT key
      * @param ikey_size Size of the input key. Must be 16 bytes or 32 bytes.
