@@ -39,9 +39,9 @@ GEMALTO_CINTERION_CellularStack::GEMALTO_CINTERION_CellularStack(ATHandler &atHa
 
 GEMALTO_CINTERION_CellularStack::~GEMALTO_CINTERION_CellularStack()
 {
-    _at.remove_urc_handler("^SIS:", mbed::Callback<void()>(this, &GEMALTO_CINTERION_CellularStack::urc_sis));
-    _at.remove_urc_handler("^SISW:", mbed::Callback<void()>(this, &GEMALTO_CINTERION_CellularStack::urc_sisw));
-    _at.remove_urc_handler("^SISR:", mbed::Callback<void()>(this, &GEMALTO_CINTERION_CellularStack::urc_sisr));
+    _at.remove_urc_handler("^SIS:");
+    _at.remove_urc_handler("^SISW:");
+    _at.remove_urc_handler("^SISR:");
 }
 
 GEMALTO_CINTERION_CellularStack::CellularSocket *GEMALTO_CINTERION_CellularStack::find_socket(int sock_id)

@@ -42,7 +42,7 @@ public:
             if (size < ret) {
                 ret = size;
             }
-            memcpy(buffer, filehandle_stub_table, ret);
+            memcpy(buffer, filehandle_stub_table + filehandle_stub_table_pos, ret);
             filehandle_stub_table_pos += ret;
             return ret;
         }

@@ -109,9 +109,8 @@ public:
     /** Remove urc handler from linked list of urc's
      *
      *  @param prefix   Register urc prefix for callback. Urc could be for example "+CMTI: "
-     *  @param callback Callback, which is called if urc is found in AT response
      */
-    void remove_urc_handler(const char *prefix, mbed::Callback<void()> callback);
+    void remove_urc_handler(const char *prefix);
 
     ATHandler *_nextATHandler; // linked list
 
@@ -282,6 +281,12 @@ public:
      */
     void set_default_delimiter();
 
+    /** Defines behaviour for using or ignoring the delimiter within an AT command
+     *
+     *  @param use_delimiter indicating if delimiter should be used or not
+     */
+    void use_delimiter(bool use_delimiter);
+
     /** Consumes the reading buffer up to the delimiter or stop_tag
      *
      *  @param count number of parameters to be skipped
@@ -436,6 +441,7 @@ private:
     char _info_resp_prefix[BUFF_SIZE];
     bool _debug_on;
     bool _cmd_start;
+    bool _use_delimiter;
 
     // time when a command or an URC processing was started
     uint64_t _start_time;
@@ -515,7 +521,7 @@ private:
     const char *mem_str(const char *dest, size_t dest_len, const char *src, size_t src_len);
 
     // check is urc is already added
-    bool find_urc_handler(const char *prefix, mbed::Callback<void()> *callback);
+    bool find_urc_handler(const char *prefix);
 
     // print contents of a buffer to trace log
     void debug_print(char *p, int len);

@@ -81,6 +81,7 @@ ATHandler::ATHandler(FileHandle *fh, EventQueue &queue, int timeout, const char 
     _max_resp_length(MAX_RESP_LENGTH),
     _debug_on(MBED_CONF_CELLULAR_DEBUG_AT),
     _cmd_start(false),
+    _use_delimiter(true),
     _start_time(0)
 {
     clear_error();
@@ -159,7 +160,7 @@ void ATHandler::set_is_filehandle_usable(bool usable)
 
 nsapi_error_t ATHandler::set_urc_handler(const char *prefix, mbed::Callback<void()> callback)
 {
-    if (find_urc_handler(prefix, &callback)) {
+    if (find_urc_handler(prefix)) {
         tr_warn("URC already added with prefix: %s", prefix);
         return NSAPI_ERROR_OK;
     }
@@ -186,12 +187,12 @@ nsapi_error_t ATHandler::set_urc_handler(const char *prefix, mbed::Callback<void
     return NSAPI_ERROR_OK;
 }
 
-void ATHandler::remove_urc_handler(const char *prefix, mbed::Callback<void()> callback)
+void ATHandler::remove_urc_handler(const char *prefix)
 {
     struct oob_t *current = _oobs;
     struct oob_t *prev = NULL;
     while (current) {
-        if (strcmp(prefix, current->prefix) == 0 && current->cb == callback) {
+        if (strcmp(prefix, current->prefix) == 0) {
             if (prev) {
                 prev->next = current->next;
             } else {
@@ -205,11 +206,11 @@ void ATHandler::remove_urc_handler(const char *prefix, mbed::Callback<void()> ca
     }
 }
 
-bool ATHandler::find_urc_handler(const char *prefix, mbed::Callback<void()> *callback)
+bool ATHandler::find_urc_handler(const char *prefix)
 {
     struct oob_t *oob = _oobs;
     while (oob) {
-        if (strcmp(prefix, oob->prefix) == 0 && oob->cb == *callback) {
+        if (strcmp(prefix, oob->prefix) == 0) {
             return true;
         }
         oob = oob->next;
@@ -612,6 +613,11 @@ void ATHandler::set_default_delimiter()
     _delimiter = DEFAULT_DELIMITER;
 }
 
+void ATHandler::use_delimiter(bool use_delimiter)
+{
+    _use_delimiter = use_delimiter;
+}
+
 void ATHandler::set_tag(tag_t *tag_dst, const char *tag_seq)
 {
     if (tag_seq) {
@@ -814,6 +820,8 @@ void ATHandler::resp(const char *prefix, bool check_urc)
 
         if (check_urc && match_urc()) {
             _urc_matched = true;
+            clear_error();
+            continue;
         }
 
         // If no match found, look for CRLF and consume everything up to and including CRLF
@@ -1029,7 +1037,7 @@ void ATHandler::set_string(char *dest, const char *src, size_t src_len)
 
 const char *ATHandler::mem_str(const char *dest, size_t dest_len, const char *src, size_t src_len)
 {
-    if (dest_len > src_len) {
+    if (dest_len >= src_len) {
         for (size_t i = 0; i < dest_len - src_len + 1; ++i) {
             if (memcmp(dest + i, src, src_len) == 0) {
                 return dest + i;
@@ -1145,6 +1153,11 @@ bool ATHandler::check_cmd_send()
 {
     if (_last_err != NSAPI_ERROR_OK) {
         return false;
+    }
+
+    // Don't write delimiter if flag was set so
+    if (!_use_delimiter) {
+        return true;
     }
 
     // Don't write delimiter if this is the first subparameter
