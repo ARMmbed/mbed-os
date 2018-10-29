@@ -184,6 +184,12 @@ void CellularDevice::cellular_callback(nsapi_event_t ev, intptr_t ptr)
         }
     } else {
         tr_debug("Device: network_callback called with event: %d, ptr: %d", ev, ptr);
+        if (ev == NSAPI_EVENT_CONNECTION_STATUS_CHANGE && ptr == NSAPI_STATUS_DISCONNECTED) {
+            // we have been disconnected, reset state machine so that application can start connect sequence again
+            if (_state_machine) {
+                _state_machine->reset();
+            }
+        }
     }
 
     // broadcast network and cellular changes to state machine and CellularContext.

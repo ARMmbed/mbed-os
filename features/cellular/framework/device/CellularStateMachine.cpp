@@ -74,6 +74,17 @@ CellularStateMachine::~CellularStateMachine()
     stop();
 }
 
+void CellularStateMachine::reset()
+{
+    _state = STATE_INIT;
+    _event_timeout = -1;
+    _event_id = -1;
+    _plmn_network_found = false;
+    _is_retry = false;
+    _active_context = false;
+    enter_to_state(STATE_INIT);
+}
+
 void CellularStateMachine::stop()
 {
     _queue.cancel(_event_id);
@@ -85,15 +96,7 @@ void CellularStateMachine::stop()
         _queue_thread = NULL;
     }
 
-    _state = STATE_INIT;
-    _next_state = _state;
-    _target_state = _state;
-    _cb_data.error = NSAPI_ERROR_OK;
-    _cb_data.status_data = -1;
-    _cb_data.final_try = false;
-    _event_id = -1;
-    _is_retry = false;
-
+    reset();
     if (_power) {
         _cellularDevice.close_power();
         _power = NULL;

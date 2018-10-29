@@ -135,6 +135,9 @@ private:
      */
     void cellular_event_changed(nsapi_event_t ev, intptr_t ptr);
 
+    /** Reset the state machine to init state. After reset state machine can be used again to run to wanted state.
+     */
+    void reset();
 private:
     bool power_on();
     bool open_sim();
