@@ -501,7 +501,7 @@ ssize_t ATHandler::read_string(char *buf, size_t size, bool read_even_stop_tag)
     // Consume to delimiter or stop_tag
     if (!delimiter_found && !_stop_tag->found) {
         match_pos = 0;
-        while(1) {
+        while (1) {
             int c = get_char();
             if (c == -1) {
                 set_error(NSAPI_ERROR_DEVICE_ERROR);
@@ -951,8 +951,8 @@ bool ATHandler::consume_to_tag(const char *tag, bool consume_tag)
         int c = get_char();
         if (c == -1) {
             break;
-        // compares c against tag at current position and if this match fails
-        // compares c against tag[0] and also resets match_pos to 0
+            // compares c against tag at current position and if this match fails
+            // compares c against tag[0] and also resets match_pos to 0
         } else if (c == tag[match_pos] || ((match_pos = 1) && (c == tag[--match_pos]))) {
             match_pos++;
             if (match_pos == strlen(tag)) {

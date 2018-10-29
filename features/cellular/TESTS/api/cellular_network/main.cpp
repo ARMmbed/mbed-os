@@ -223,7 +223,7 @@ static void test_credentials()
 
 static void test_other()
 {
-    const char* devi = CELLULAR_STRINGIFY(CELLULAR_DEVICE);
+    const char *devi = CELLULAR_STRINGIFY(CELLULAR_DEVICE);
     TEST_ASSERT(nw->get_3gpp_error() == 0);
 
     CellularNetwork::RateControlExceptionReports reports;
@@ -244,8 +244,8 @@ static void test_other()
     TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_DEVICE_ERROR || err == NSAPI_ERROR_PARAMETER);
     if (err == NSAPI_ERROR_DEVICE_ERROR) {
         if (strcmp(devi, "QUECTEL_BG96") != 0 && strcmp(devi, "TELIT_HE910") != 0 && strcmp(devi, "SARA4_PPP") != 0) { // QUECTEL_BG96 does not give any specific reason for device error
-                    TEST_ASSERT(((AT_CellularNetwork *)nw)->get_device_error().errCode == 100 && // 100 == unknown command for modem
-                                ((AT_CellularNetwork *)nw)->get_device_error().errType == 3); // 3 == CME error from the modem
+            TEST_ASSERT(((AT_CellularNetwork *)nw)->get_device_error().errCode == 100 && // 100 == unknown command for modem
+                        ((AT_CellularNetwork *)nw)->get_device_error().errType == 3); // 3 == CME error from the modem
         }
     } else if (err == NSAPI_ERROR_PARAMETER) {
         TEST_ASSERT(uplinkRate == -1);
@@ -277,8 +277,8 @@ static void test_other()
     if (err == NSAPI_ERROR_DEVICE_ERROR) {
         if (strcmp(devi, "TELIT_HE910") != 0) { // TELIT_HE910 just gives an error and no specific error number so we can't know is this real error or that modem/network does not support the command
             TEST_ASSERT((((AT_CellularNetwork *)nw)->get_device_error().errType == 3) &&   // 3 == CME error from the modem
-                       ((((AT_CellularNetwork *)nw)->get_device_error().errCode == 100) || // 100 == unknown command for modem
-                        (((AT_CellularNetwork *)nw)->get_device_error().errCode == 50)));  // 50 == incorrect parameters // seen in wise_1570 for not supported commands
+                        ((((AT_CellularNetwork *)nw)->get_device_error().errCode == 100) || // 100 == unknown command for modem
+                         (((AT_CellularNetwork *)nw)->get_device_error().errCode == 50)));  // 50 == incorrect parameters // seen in wise_1570 for not supported commands
         }
     } else {
         // should have some values, only not optional are apn and bearer id
@@ -292,8 +292,8 @@ static void test_other()
     if (err == NSAPI_ERROR_DEVICE_ERROR) {
         if (strcmp(devi, "QUECTEL_BG96") != 0 && strcmp(devi, "TELIT_HE910") != 0) {// QUECTEL_BG96 does not give any specific reason for device error
             TEST_ASSERT((((AT_CellularNetwork *)nw)->get_device_error().errType == 3) &&   // 3 == CME error from the modem
-                       ((((AT_CellularNetwork *)nw)->get_device_error().errCode == 100) || // 100 == unknown command for modem
-                        (((AT_CellularNetwork *)nw)->get_device_error().errCode == 50)));  // 50 == incorrect parameters // seen in wise_1570 for not supported commands
+                        ((((AT_CellularNetwork *)nw)->get_device_error().errCode == 100) || // 100 == unknown command for modem
+                         (((AT_CellularNetwork *)nw)->get_device_error().errCode == 50)));  // 50 == incorrect parameters // seen in wise_1570 for not supported commands
         }
     } else {
         // we should have some values which are not optional
@@ -306,9 +306,9 @@ static void test_other()
     TEST_ASSERT(err == NSAPI_ERROR_OK || err == NSAPI_ERROR_DEVICE_ERROR);
     if (err == NSAPI_ERROR_DEVICE_ERROR) {
         TEST_ASSERT((((AT_CellularNetwork *)nw)->get_device_error().errType == 3) &&   // 3 == CME error from the modem
-                   ((((AT_CellularNetwork *)nw)->get_device_error().errCode == 100) || // 100 == unknown command for modem
-                    (((AT_CellularNetwork *)nw)->get_device_error().errCode == 50)));  // 50 == incorrect parameters // seen in wise_1570 for not supported commands
-     } else {
+                    ((((AT_CellularNetwork *)nw)->get_device_error().errCode == 100) || // 100 == unknown command for modem
+                     (((AT_CellularNetwork *)nw)->get_device_error().errCode == 50)));  // 50 == incorrect parameters // seen in wise_1570 for not supported commands
+    } else {
         // test for values
         TEST_ASSERT(rssi >= 0);
         TEST_ASSERT(ber >= 0);
@@ -339,8 +339,8 @@ static void test_other()
         if (err == NSAPI_ERROR_DEVICE_ERROR) {
             // if device error then we must check was that really device error or that modem/network does not support the commands
             TEST_ASSERT((((AT_CellularNetwork *)nw)->get_device_error().errType == 3) &&   // 3 == CME error from the modem
-                       ((((AT_CellularNetwork *)nw)->get_device_error().errCode == 4) ||   // 4 == NOT SUPPORTED BY THE MODEM
-                        (((AT_CellularNetwork *)nw)->get_device_error().errCode == 50)));  // 50 == incorrect parameters // seen in wise_1570 for not supported commands
+                        ((((AT_CellularNetwork *)nw)->get_device_error().errCode == 4) ||   // 4 == NOT SUPPORTED BY THE MODEM
+                         (((AT_CellularNetwork *)nw)->get_device_error().errCode == 50)));  // 50 == incorrect parameters // seen in wise_1570 for not supported commands
         } else {
             CellularNetwork::operator_names_t *opn = op_names.get_head();
             TEST_ASSERT(strlen(opn->numeric) > 0);
@@ -358,8 +358,8 @@ static void test_other()
         // if device error then we must check was that really device error or that modem/network does not support the commands
         if (!(strcmp(devi, "TELIT_HE910") == 0 || strcmp(devi, "QUECTEL_BG96") == 0 || strcmp(devi, "SARA4_PPP") == 0)) {
             TEST_ASSERT((((AT_CellularNetwork *)nw)->get_device_error().errType == 3) &&   // 3 == CME error from the modem
-                       ((((AT_CellularNetwork *)nw)->get_device_error().errCode == 100) || // 100 == unknown command for modem
-                        (((AT_CellularNetwork *)nw)->get_device_error().errCode == 50)));  // 50 == incorrect parameters // seen in wise_1570 for not supported commands
+                        ((((AT_CellularNetwork *)nw)->get_device_error().errCode == 100) || // 100 == unknown command for modem
+                         (((AT_CellularNetwork *)nw)->get_device_error().errCode == 50)));  // 50 == incorrect parameters // seen in wise_1570 for not supported commands
         }
     } else {
         TEST_ASSERT(supported_opt != CellularNetwork::SUPPORTED_UE_OPT_MAX);
@@ -372,8 +372,8 @@ static void test_other()
         // if device error then we must check was that really device error or that modem/network does not support the commands
         if (!(strcmp(devi, "TELIT_HE910") == 0 || strcmp(devi, "QUECTEL_BG96") == 0 || strcmp(devi, "SARA4_PPP") == 0)) {
             TEST_ASSERT((((AT_CellularNetwork *)nw)->get_device_error().errType == 3) &&   // 3 == CME error from the modem
-                       ((((AT_CellularNetwork *)nw)->get_device_error().errCode == 100) || // 100 == unknown command for modem
-                        (((AT_CellularNetwork *)nw)->get_device_error().errCode == 50)));  // 50 == incorrect parameters // seen in wise_1570 for not supported commands
+                        ((((AT_CellularNetwork *)nw)->get_device_error().errCode == 100) || // 100 == unknown command for modem
+                         (((AT_CellularNetwork *)nw)->get_device_error().errCode == 50)));  // 50 == incorrect parameters // seen in wise_1570 for not supported commands
         }
     }
 }
