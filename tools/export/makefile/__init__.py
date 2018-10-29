@@ -165,7 +165,7 @@ class Makefile(Exporter):
         flags = {}
         for k, v in self.flags.items():
             if k in ['c_flags', 'cxx_flags']:
-                flags[k] = map(lambda x: x.replace('"', '\\"'), v)
+                flags[k] = list(map(lambda x: x.replace('"', '\\"'), v))
             else:
                 flags[k] = v
 
