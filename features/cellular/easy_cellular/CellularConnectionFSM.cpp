@@ -84,6 +84,11 @@ void CellularConnectionFSM::stop()
         _queue_thread = NULL;
     }
 
+    if (_at_queue) {
+        _at_queue->chain(NULL);
+        _at_queue = NULL;
+    }    
+    
     if (_power) {
         _cellularDevice->close_power();
         _power = NULL;
