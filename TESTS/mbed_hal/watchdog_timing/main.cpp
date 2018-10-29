@@ -18,9 +18,10 @@
 #endif
 
 #include "greentea-client/test_env.h"
-#include "utest/utest.h"
-#include "unity/unity.h"
 #include "hal/watchdog_api.h"
+#include "unity/unity.h"
+#include "us_ticker_api.h"
+#include "utest/utest.h"
 #include "watchdog_timing_tests.h"
 
 #define MSG_VALUE_DUMMY "0"
