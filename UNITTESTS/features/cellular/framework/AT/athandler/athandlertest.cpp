@@ -143,7 +143,7 @@ TEST_F(TestATHandler, test_ATHandler_remove_urc_handler)
     at.set_urc_handler(ch, cb);
 
     //This does nothing!!!
-    at.remove_urc_handler(ch, cb);
+    at.remove_urc_handler(ch);
 }
 
 TEST_F(TestATHandler, test_ATHandler_get_last_error)

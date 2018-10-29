@@ -105,7 +105,7 @@ nsapi_error_t ATHandler::set_urc_handler(const char *urc, mbed::Callback<void()>
     return ATHandler_stub::nsapi_error_value;
 }
 
-void ATHandler::remove_urc_handler(const char *prefix, mbed::Callback<void()> callback)
+void ATHandler::remove_urc_handler(const char *prefix)
 {
 }
 

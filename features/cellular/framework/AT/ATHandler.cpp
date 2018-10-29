@@ -159,7 +159,7 @@ void ATHandler::set_is_filehandle_usable(bool usable)
 
 nsapi_error_t ATHandler::set_urc_handler(const char *prefix, mbed::Callback<void()> callback)
 {
-    if (find_urc_handler(prefix, &callback)) {
+    if (find_urc_handler(prefix)) {
         tr_warn("URC already added with prefix: %s", prefix);
         return NSAPI_ERROR_OK;
     }
@@ -186,12 +186,12 @@ nsapi_error_t ATHandler::set_urc_handler(const char *prefix, mbed::Callback<void
     return NSAPI_ERROR_OK;
 }
 
-void ATHandler::remove_urc_handler(const char *prefix, mbed::Callback<void()> callback)
+void ATHandler::remove_urc_handler(const char *prefix)
 {
     struct oob_t *current = _oobs;
     struct oob_t *prev = NULL;
     while (current) {
-        if (strcmp(prefix, current->prefix) == 0 && current->cb == callback) {
+        if (strcmp(prefix, current->prefix) == 0) {
             if (prev) {
                 prev->next = current->next;
             } else {
@@ -205,11 +205,11 @@ void ATHandler::remove_urc_handler(const char *prefix, mbed::Callback<void()> ca
     }
 }
 
-bool ATHandler::find_urc_handler(const char *prefix, mbed::Callback<void()> *callback)
+bool ATHandler::find_urc_handler(const char *prefix)
 {
     struct oob_t *oob = _oobs;
     while (oob) {
-        if (strcmp(prefix, oob->prefix) == 0 && oob->cb == *callback) {
+        if (strcmp(prefix, oob->prefix) == 0) {
             return true;
         }
         oob = oob->next;

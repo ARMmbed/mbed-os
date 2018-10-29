@@ -109,9 +109,8 @@ public:
     /** Remove urc handler from linked list of urc's
      *
      *  @param prefix   Register urc prefix for callback. Urc could be for example "+CMTI: "
-     *  @param callback Callback, which is called if urc is found in AT response
      */
-    void remove_urc_handler(const char *prefix, mbed::Callback<void()> callback);
+    void remove_urc_handler(const char *prefix);
 
     ATHandler *_nextATHandler; // linked list
 
@@ -515,7 +514,7 @@ private:
     const char *mem_str(const char *dest, size_t dest_len, const char *src, size_t src_len);
 
     // check is urc is already added
-    bool find_urc_handler(const char *prefix, mbed::Callback<void()> *callback);
+    bool find_urc_handler(const char *prefix);
 
     // print contents of a buffer to trace log
     void debug_print(char *p, int len);

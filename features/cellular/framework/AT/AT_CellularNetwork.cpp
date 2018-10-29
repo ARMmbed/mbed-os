@@ -56,12 +56,12 @@ AT_CellularNetwork::~AT_CellularNetwork()
 
     for (int type = 0; type < CellularNetwork::C_MAX; type++) {
         if (has_registration((RegistrationType)type) != RegistrationModeDisable) {
-            _at.remove_urc_handler(at_reg[type].urc_prefix, _urc_funcs[type]);
+            _at.remove_urc_handler(at_reg[type].urc_prefix);
         }
     }
 
-    _at.remove_urc_handler("NO CARRIER", callback(this, &AT_CellularNetwork::urc_no_carrier));
-    _at.remove_urc_handler("+CGEV:", callback(this, &AT_CellularNetwork::urc_cgev));
+    _at.remove_urc_handler("NO CARRIER");
+    _at.remove_urc_handler("+CGEV:");
     free_credentials();
 }
 
@@ -456,7 +456,7 @@ nsapi_error_t AT_CellularNetwork::disconnect()
 
     _at.restore_at_timeout();
 
-    _at.remove_urc_handler("+CGEV:", callback(this, &AT_CellularNetwork::urc_cgev));
+    _at.remove_urc_handler("+CGEV:");
     call_network_cb(NSAPI_STATUS_DISCONNECTED);
 
     return _at.unlock_return_error();
