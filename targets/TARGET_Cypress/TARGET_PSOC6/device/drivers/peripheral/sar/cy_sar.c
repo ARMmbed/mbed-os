@@ -6,10 +6,8 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2017-2018, Cypress Semiconductor Corporation. All rights reserved.
-* You may use this file only in accordance with the license, terms, conditions,
-* disclaimers, and limitations in the end user license agreement accompanying
-* the software package with which this file was provided.
+* Copyright 2017-2018, Cypress Semiconductor Corporation.  All rights reserved.
+* SPDX-License-Identifier: Apache-2.0
 *******************************************************************************/
 #include "cy_sar.h"
 
@@ -135,7 +133,7 @@ cy_en_sar_status_t Cy_SAR_Init(SAR_Type *base, const cy_stc_sar_config_t *config
         {
             base->ANA_TRIM0 = CY_SAR_CAP_TRIM;
         }
-        
+
         /* Set the REFBUF_EN bit as this is required for proper operation. */
         base->CTRL = config->ctrl | SAR_CTRL_REFBUF_EN_Msk;
 

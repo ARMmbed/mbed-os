@@ -10,9 +10,7 @@
 ********************************************************************************
 * \copyright
 * Copyright 2016-2018, Cypress Semiconductor Corporation.  All rights reserved.
-* You may use this file only in accordance with the license, terms, conditions,
-* disclaimers, and limitations in the end user license agreement accompanying
-* the software package with which this file was provided.
+* SPDX-License-Identifier: Apache-2.0
 *******************************************************************************/
 
 #include "cy_smif.h"
@@ -57,7 +55,7 @@ extern "C" {
 *     - \ref CY_SMIF_SUCCESS
 *
 *******************************************************************************/
-cy_en_smif_status_t Cy_SMIF_Init(SMIF_Type *base, 
+cy_en_smif_status_t Cy_SMIF_Init(SMIF_Type *base,
                                     cy_stc_smif_config_t const *config,
                                     uint32_t timeout,
                                     cy_stc_smif_context_t *context)
@@ -66,14 +64,14 @@ cy_en_smif_status_t Cy_SMIF_Init(SMIF_Type *base,
 
     if((NULL != base) && (NULL != config) && (NULL != context))
     {
-        /* Copy the base address of the SMIF and the SMIF Device block  
-        * registers to the context. 
+        /* Copy the base address of the SMIF and the SMIF Device block
+        * registers to the context.
         */
         context->timeout = timeout;
 
         /* Configure the initial interrupt mask */
         /* Disable the TR_TX_REQ and TR_RX_REQ interrupts */
-        Cy_SMIF_SetInterruptMask(base, Cy_SMIF_GetInterruptMask(base) 
+        Cy_SMIF_SetInterruptMask(base, Cy_SMIF_GetInterruptMask(base)
                         & ~(SMIF_INTR_TR_TX_REQ_Msk | SMIF_INTR_TR_RX_REQ_Msk));
 
         /* Check config structure */
@@ -81,7 +79,7 @@ cy_en_smif_status_t Cy_SMIF_Init(SMIF_Type *base,
         CY_ASSERT_L3(CY_SMIF_CLOCK_SEL_VALID(config->rxClockSel));
         CY_ASSERT_L2(CY_SMIF_DESELECT_DELAY_VALID(config->deselectDelay));
         CY_ASSERT_L3(CY_SMIF_BLOCK_EVENT_VALID(config->blockEvent));
-        
+
         /* Configure the SMIF interface */
         base->CTL = (uint32_t)(_VAL2FLD(SMIF_CTL_XIP_MODE, config->mode) |
                     _VAL2FLD(SMIF_CTL_CLOCK_IF_RX_SEL, config->rxClockSel) |
@@ -115,8 +113,8 @@ void Cy_SMIF_DeInit(SMIF_Type *base)
 {
     uint32_t idx;
 
-    /* Configure the SMIF interface to default values. 
-    * The default value is 0. 
+    /* Configure the SMIF interface to default values.
+    * The default value is 0.
     */
     base->CTL = CY_SMIF_CTL_REG_DEFAULT;
     base->TX_DATA_FIFO_CTL = 0U;
@@ -153,7 +151,7 @@ void Cy_SMIF_DeInit(SMIF_Type *base)
 void Cy_SMIF_SetMode(SMIF_Type *base, cy_en_smif_mode_t mode)
 {
     CY_ASSERT_L3(CY_SMIF_MODE_VALID(mode));
-    
+
     /*  Set the register SMIF.CTL.XIP_MODE = TRUE */
     if (CY_SMIF_NORMAL == mode)
     {
@@ -223,10 +221,10 @@ void Cy_SMIF_SetDataSelect(SMIF_Type *base, cy_en_smif_slave_select_t slaveSelec
                             cy_en_smif_data_select_t dataSelect)
 {
     SMIF_DEVICE_Type volatile *device;
-    
+
     CY_ASSERT_L3(CY_SMIF_SLAVE_SEL_VALID(slaveSelect));
     CY_ASSERT_L3(CY_SMIF_DATA_SEL_VALID(dataSelect));
-    
+
     /* Connect the slave to its data lines */
     device = Cy_SMIF_GetDeviceBySlot(base, slaveSelect);
 
@@ -252,7 +250,7 @@ void Cy_SMIF_SetDataSelect(SMIF_Type *base, cy_en_smif_slave_select_t slaveSelec
 * transmission. This function sets up the slave lines for the rest of the
 * command structure. The \ref Cy_SMIF_TransmitCommand is called before \ref
 * Cy_SMIF_TransmitData or \ref Cy_SMIF_ReceiveData is called. When enabled, the
-* cmpltTxfr parameter in the function will de-assert the slave select line at 
+* cmpltTxfr parameter in the function will de-assert the slave select line at
 * the end of the function execution.
 *
 * \note This function blocks until all the command and associated parameters
@@ -310,7 +308,7 @@ cy_en_smif_status_t  Cy_SMIF_TransmitCommand(SMIF_Type *base,
 {
     /* The return variable */
     cy_en_smif_status_t result = CY_SMIF_SUCCESS;
-    
+
     /* Check input values */
     CY_ASSERT_L3(CY_SMIF_TXFR_WIDTH_VALID(cmdTxfrWidth));
     CY_ASSERT_L3(CY_SMIF_TXFR_WIDTH_VALID(paramTxfrWidth));
@@ -340,10 +338,10 @@ cy_en_smif_status_t  Cy_SMIF_TransmitCommand(SMIF_Type *base,
             base->TX_CMD_FIFO_WR = constCmdPart|
                 _VAL2FLD(CY_SMIF_CMD_FIFO_WR_TXDATA,
                         (uint32_t) cmdParam[bufIndex]) |
-                _VAL2FLD(CY_SMIF_CMD_FIFO_WR_WIDTH, 
+                _VAL2FLD(CY_SMIF_CMD_FIFO_WR_WIDTH,
                         (uint32_t) paramTxfrWidth) |
                 _VAL2FLD(CY_SMIF_CMD_FIFO_WR_LAST_BYTE,
-                            ((((uint32_t)bufIndex + 1UL) < paramSize) ? 
+                            ((((uint32_t)bufIndex + 1UL) < paramSize) ?
                             0UL : cmpltTxfr));
 
             bufIndex++;
@@ -383,14 +381,14 @@ cy_en_smif_status_t  Cy_SMIF_TransmitCommand(SMIF_Type *base,
 *
 * \param txBuffer
 * The pointer to the data to be transferred. If this pointer is a NULL, then the
-* function does not enable the interrupt. This use case is typically used when 
-* the FIFO is handled outside the interrupt and is managed in either a 
+* function does not enable the interrupt. This use case is typically used when
+* the FIFO is handled outside the interrupt and is managed in either a
 * polling-based code or a DMA. The user would handle the FIFO management in a
 * DMA or a polling-based code.
-* 
+*
 * \note If the user provides a NULL pointer in this function and does not handle
 * the FIFO transaction, this could either stall or timeout the operation.
-* The transfer statuses returned by \ref Cy_SMIF_GetTxfrStatus are no longer 
+* The transfer statuses returned by \ref Cy_SMIF_GetTxfrStatus are no longer
 * valid.
 *
 * \param size
@@ -418,7 +416,7 @@ cy_en_smif_status_t  Cy_SMIF_TransmitData(SMIF_Type *base,
 {
     /* The return variable */
     cy_en_smif_status_t result = CY_SMIF_BAD_PARAM;
-    
+
     /* Check input values */
     CY_ASSERT_L3(CY_SMIF_TXFR_WIDTH_VALID(transferWidth));
 
@@ -506,7 +504,7 @@ cy_en_smif_status_t  Cy_SMIF_TransmitDataBlocking(SMIF_Type *base,
 {
     /* The return variable */
     cy_en_smif_status_t result = CY_SMIF_BAD_PARAM;
-    
+
     /* Check input values */
     CY_ASSERT_L3(CY_SMIF_TXFR_WIDTH_VALID(transferWidth));
 
@@ -555,8 +553,8 @@ cy_en_smif_status_t  Cy_SMIF_TransmitDataBlocking(SMIF_Type *base,
 *
 * This function implements the receive data phase in the memory command. The
 * data is received into the RX Data FIFO using the RX_COUNT command. This
-* function sets up the interrupt to trigger on the RX Data FIFO level, and the 
-* data is fetched from the RX Data FIFO to the rxBuffer as it gets filled. This 
+* function sets up the interrupt to trigger on the RX Data FIFO level, and the
+* data is fetched from the RX Data FIFO to the rxBuffer as it gets filled. This
 * function does not block until completion. The completion will trigger the call
 * back function.
 *
@@ -579,14 +577,14 @@ cy_en_smif_status_t  Cy_SMIF_TransmitDataBlocking(SMIF_Type *base,
 *
 * \param rxBuffer
 * The pointer to the variable where the receive data is stored. If this pointer
-* is a NULL, then the function does not enable the interrupt. This use case is 
-* typically used when the FIFO is handled outside the interrupt and is managed 
-* in either a polling-based code or a DMA. The user would handle the FIFO 
+* is a NULL, then the function does not enable the interrupt. This use case is
+* typically used when the FIFO is handled outside the interrupt and is managed
+* in either a polling-based code or a DMA. The user would handle the FIFO
 * management in a DMA or a polling-based code.
 *
 * \note If the user provides a NULL pointer in this function and does not handle
 * the FIFO transaction, this could either stall or timeout the operation.
-* The transfer statuses returned by \ref Cy_SMIF_GetTxfrStatus are no longer 
+* The transfer statuses returned by \ref Cy_SMIF_GetTxfrStatus are no longer
 * valid.
 *
 * \param size
@@ -614,7 +612,7 @@ cy_en_smif_status_t  Cy_SMIF_ReceiveData(SMIF_Type *base,
 {
     /* The return variable */
     cy_en_smif_status_t result = CY_SMIF_BAD_PARAM;
-    
+
     /* Check input values */
     CY_ASSERT_L3(CY_SMIF_TXFR_WIDTH_VALID(transferWidth));
 
@@ -705,7 +703,7 @@ cy_en_smif_status_t  Cy_SMIF_ReceiveDataBlocking(SMIF_Type *base,
 {
     /* The return variable */
     cy_en_smif_status_t result = CY_SMIF_BAD_PARAM;
-    
+
     /* Check input values */
     CY_ASSERT_L3(CY_SMIF_TXFR_WIDTH_VALID(transferWidth));
 
@@ -773,7 +771,7 @@ cy_en_smif_status_t  Cy_SMIF_SendDummyCycles(SMIF_Type *base,
 {
     /* The return variable */
     cy_en_smif_status_t result = CY_SMIF_BAD_PARAM;
-    
+
     if (cycles > 0U)
     {
         result = CY_SMIF_CMD_FIFO_FULL;
@@ -782,7 +780,7 @@ cy_en_smif_status_t  Cy_SMIF_SendDummyCycles(SMIF_Type *base,
         {
             /* Send the dummy bytes */
             base->TX_CMD_FIFO_WR =
-                _VAL2FLD(CY_SMIF_CMD_FIFO_WR_MODE, 
+                _VAL2FLD(CY_SMIF_CMD_FIFO_WR_MODE,
                             CY_SMIF_CMD_FIFO_DUMMY_COUNT_MODE) |
                 _VAL2FLD(CY_SMIF_CMD_FIFO_WR_DUMMY, ((uint32_t)(cycles-1U)));
 
@@ -806,7 +804,7 @@ cy_en_smif_status_t  Cy_SMIF_SendDummyCycles(SMIF_Type *base,
 * is only valid if the functions passed a non-NULL buffer to transmit or
 * receive respectively. If the pointer passed to \ref Cy_SMIF_ReceiveData()
 * or \ref Cy_SMIF_TransmitData() is a NULL, then the code/DMA outside this
-* driver will take care of the transfer and the Cy_GetTxfrStatus() will return 
+* driver will take care of the transfer and the Cy_GetTxfrStatus() will return
 * an erroneous result.
 *
 * \param base
@@ -819,7 +817,7 @@ cy_en_smif_status_t  Cy_SMIF_SendDummyCycles(SMIF_Type *base,
 * \return Returns the transfer status. \ref cy_en_smif_txfr_status_t
 *
 *******************************************************************************/
-uint32_t Cy_SMIF_GetTxfrStatus(SMIF_Type *base, 
+uint32_t Cy_SMIF_GetTxfrStatus(SMIF_Type *base,
                                 cy_stc_smif_context_t const *context)
 {
     return (context->transferStatus);
@@ -929,7 +927,7 @@ cy_en_smif_status_t  Cy_SMIF_Encrypt(SMIF_Type *base,
     uint32_t bufIndex;
     cy_en_smif_status_t status = CY_SMIF_BAD_PARAM;
     uint32_t timeoutUnits = context->timeout;
-    
+
     CY_ASSERT_L2(size > 0U);
 
     if((NULL != data) && ((address & (~CY_SMIF_CRYPTO_ADDR_MASK)) == 0UL) )
@@ -948,15 +946,15 @@ cy_en_smif_status_t  Cy_SMIF_Encrypt(SMIF_Type *base,
 
             /* Start the encryption */
             base->CRYPTO_CMD &= ~SMIF_CRYPTO_CMD_START_Msk;
-            base->CRYPTO_CMD = (uint32_t)(_VAL2FLD(SMIF_CRYPTO_CMD_START, 
+            base->CRYPTO_CMD = (uint32_t)(_VAL2FLD(SMIF_CRYPTO_CMD_START,
                                                     CY_SMIF_CRYPTO_START));
 
-            while((CY_SMIF_CRYPTO_COMPLETED != _FLD2VAL(SMIF_CRYPTO_CMD_START, 
+            while((CY_SMIF_CRYPTO_COMPLETED != _FLD2VAL(SMIF_CRYPTO_CMD_START,
                                                     base->CRYPTO_CMD)) &&
                                                     (CY_SMIF_EXCEED_TIMEOUT != status))
             {
-                /* Wait until the encryption is completed and check the 
-                * timeout 
+                /* Wait until the encryption is completed and check the
+                * timeout
                 */
                 status = Cy_SMIF_TimeoutRun(&timeoutUnits);
             }
@@ -966,13 +964,13 @@ cy_en_smif_status_t  Cy_SMIF_Encrypt(SMIF_Type *base,
                 break;
             }
 
-            Cy_SMIF_UnPackByteArray(base->CRYPTO_OUTPUT0, 
+            Cy_SMIF_UnPackByteArray(base->CRYPTO_OUTPUT0,
                                 &cryptoOut[CY_SMIF_CRYPTO_FIRST_WORD] , true);
-            Cy_SMIF_UnPackByteArray(base->CRYPTO_OUTPUT1, 
+            Cy_SMIF_UnPackByteArray(base->CRYPTO_OUTPUT1,
                                 &cryptoOut[CY_SMIF_CRYPTO_SECOND_WORD], true);
-            Cy_SMIF_UnPackByteArray(base->CRYPTO_OUTPUT2, 
+            Cy_SMIF_UnPackByteArray(base->CRYPTO_OUTPUT2,
                                 &cryptoOut[CY_SMIF_CRYPTO_THIRD_WORD] , true);
-            Cy_SMIF_UnPackByteArray(base->CRYPTO_OUTPUT3, 
+            Cy_SMIF_UnPackByteArray(base->CRYPTO_OUTPUT3,
                                 &cryptoOut[CY_SMIF_CRYPTO_FOURTH_WORD], true);
 
             for(outIndex = 0U; outIndex < CY_SMIF_AES128_BYTES; outIndex++)
@@ -1002,7 +1000,7 @@ cy_en_smif_status_t  Cy_SMIF_Encrypt(SMIF_Type *base,
 *       - \ref CY_SMIF_BAD_PARAM
 *
 *******************************************************************************/
-cy_en_smif_status_t Cy_SMIF_CacheEnable(SMIF_Type *base, 
+cy_en_smif_status_t Cy_SMIF_CacheEnable(SMIF_Type *base,
                                         cy_en_smif_cache_en_t cacheType)
 {
     cy_en_smif_status_t status = CY_SMIF_SUCCESS;
@@ -1022,7 +1020,7 @@ cy_en_smif_status_t Cy_SMIF_CacheEnable(SMIF_Type *base,
             /* A user error*/
             status = CY_SMIF_BAD_PARAM;
             break;
-    }   
+    }
     return (status);
 }
 
@@ -1044,7 +1042,7 @@ cy_en_smif_status_t Cy_SMIF_CacheEnable(SMIF_Type *base,
 *       - \ref CY_SMIF_BAD_PARAM
 *
 *******************************************************************************/
-cy_en_smif_status_t Cy_SMIF_CacheDisable(SMIF_Type *base, 
+cy_en_smif_status_t Cy_SMIF_CacheDisable(SMIF_Type *base,
                                             cy_en_smif_cache_en_t cacheType)
 {
     cy_en_smif_status_t status = CY_SMIF_SUCCESS;
@@ -1130,7 +1128,7 @@ cy_en_smif_status_t Cy_SMIF_CachePrefetchingEnable(SMIF_Type *base,
 *       - \ref CY_SMIF_BAD_PARAM
 *
 *******************************************************************************/
-cy_en_smif_status_t Cy_SMIF_CachePrefetchingDisable(SMIF_Type *base,  
+cy_en_smif_status_t Cy_SMIF_CachePrefetchingDisable(SMIF_Type *base,
                                                     cy_en_smif_cache_en_t cacheType)
 {
     cy_en_smif_status_t status = CY_SMIF_SUCCESS;
@@ -1173,7 +1171,7 @@ cy_en_smif_status_t Cy_SMIF_CachePrefetchingDisable(SMIF_Type *base,
 *       - \ref CY_SMIF_BAD_PARAM
 *
 *******************************************************************************/
-cy_en_smif_status_t Cy_SMIF_CacheInvalidate(SMIF_Type *base, 
+cy_en_smif_status_t Cy_SMIF_CacheInvalidate(SMIF_Type *base,
                                             cy_en_smif_cache_en_t cacheType)
 {
     cy_en_smif_status_t status = CY_SMIF_SUCCESS;
@@ -1230,7 +1228,7 @@ cy_en_smif_status_t Cy_SMIF_CacheInvalidate(SMIF_Type *base,
 cy_en_syspm_status_t Cy_SMIF_DeepSleepCallback(cy_stc_syspm_callback_params_t *callbackParams)
 {
     cy_en_syspm_status_t retStatus = CY_SYSPM_SUCCESS;
-    
+
     CY_ASSERT_L1(NULL != callbackParams);
 
     SMIF_Type *locBase = (SMIF_Type *) callbackParams->base;
@@ -1336,7 +1334,7 @@ cy_en_syspm_status_t Cy_SMIF_HibernateCallback(cy_stc_syspm_callback_params_t *c
     cy_en_syspm_status_t retStatus = CY_SYSPM_SUCCESS;
 
     CY_ASSERT_L1(NULL != callbackParams);
-    
+
     SMIF_Type *locBase = (SMIF_Type *) callbackParams->base;
     cy_stc_smif_context_t *locContext = (cy_stc_smif_context_t *) callbackParams->context;
 
@@ -1344,7 +1342,7 @@ cy_en_syspm_status_t Cy_SMIF_HibernateCallback(cy_stc_syspm_callback_params_t *c
     {
         case CY_SYSPM_CHECK_READY:
         {
-            /* Check if API is not busy executing transfer operation 
+            /* Check if API is not busy executing transfer operation
             * If SPI bus is not busy, all data elements are transferred on
             * the bus from the TX FIFO and shifter and the RX FIFIOs is
             * empty - the SPI is ready enter Deep Sleep.

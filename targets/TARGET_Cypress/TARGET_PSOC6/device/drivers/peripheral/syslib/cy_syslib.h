@@ -6,10 +6,8 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2018, Cypress Semiconductor Corporation. All rights reserved.
-* You may use this file only in accordance with the license, terms, conditions,
-* disclaimers, and limitations in the end user license agreement accompanying
-* the software package with which this file was provided.
+* Copyright 2016-2018, Cypress Semiconductor Corporation.  All rights reserved.
+* SPDX-License-Identifier: Apache-2.0
 *******************************************************************************/
 
 /**
@@ -48,7 +46,7 @@
 * name and line number of the ASSERT into global variables, cy_assertFileName
 * and cy_assertLine . It then calls the Cy_SysLib_Halt() function.
 * \note Firmware can redefine the Cy_SysLib_AssertFailed() function for custom processing.
-* 
+*
 * The PDL source code uses this assert mechanism extensively. It is recommended
 * that you enable asserts when debugging firmware. \n
 * <b> Assertion Classes and Levels </b> <br />
@@ -75,15 +73,15 @@
 * </table>
 * Firmware defines which ASSERT class is enabled by defining CY_ASSERT_LEVEL.
 * This is a compiler command line argument, similar to how the DEBUG / NDEBUG
-* macro is passed. \n 
+* macro is passed. \n
 * Enabling any class also enables any lower-numbered class.
 * CY_ASSERT_CLASS_3 is the default level, and it enables asserts for all three
 * classes. The following example shows the command-line option to enable all
 * the assert levels:
 * \code -D CY_ASSERT_LEVEL=CY_ASSERT_CLASS_3 \endcode
 * \note The use of special characters, such as spaces, parenthesis, etc. must
-* be protected with quotes. 
-* 
+* be protected with quotes.
+*
 * After CY_ASSERT_LEVEL is defined, firmware can use
 * one of the three level macros to make an assertion. For example, if the
 * parameter can vary between devices, firmware uses the L1 macro.
@@ -626,7 +624,7 @@ typedef double   float64_t; /**< Specific-length typedef for the basic numerical
 * Defines for the Assert Classes and Levels
 */
 
-/** 
+/**
 * Class 1 - The highest class, safety-critical functions which rely on parameters that could be
 * changed between different PSoC devices
 */

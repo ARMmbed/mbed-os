@@ -6,10 +6,8 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2018, Cypress Semiconductor Corporation. All rights reserved.
-* You may use this file only in accordance with the license, terms, conditions,
-* disclaimers, and limitations in the end user license agreement accompanying
-* the software package with which this file was provided.
+* Copyright 2016-2018, Cypress Semiconductor Corporation.  All rights reserved.
+* SPDX-License-Identifier: Apache-2.0
 *******************************************************************************/
 
 /**
@@ -18,25 +16,25 @@
 * The System Clock (SysClk) driver contains the API for configuring system and
 * peripheral clocks. Firmware uses the API to configure , enable, or disable
 * a clock.
-* 
+*
 * The clock system includes a variety of resources that can vary per device, including:
 * - Internal clock sources such as internal oscillators
 * - External clock sources such as crystal oscillators or a signal on an I/O pin
 * - Generated clocks such as an FLL, a PLL, and peripheral clocks
 *
-* Consult the Technical Reference Manual for your device for details of the 
+* Consult the Technical Reference Manual for your device for details of the
 * clock system.
 *
 * The PDL defines clock system capabilities in:\n
 * devices\<family\>/<series\>/include\<series\>_config.h. (E.g.
-* devices/psoc6/psoc63/include/psoc63_config.h). 
+* devices/psoc6/psoc63/include/psoc63_config.h).
 * User-configurable clock speeds are defined in the file system_<series>.h.
 *
 * As an illustration of the clocking system, the following diagram shows the
 * PSoC 63 series clock tree. The actual tree may vary depending on the device series.
 * ![](sysclk_tree.png)
 *
-* The sysclk driver supports multiple peripheral clocks, as well as the fast 
+* The sysclk driver supports multiple peripheral clocks, as well as the fast
 * clock, slow clock, backup domain clock, timer clock, and pump clock. The API
 * for any given clock contains the functions to manage that clock. Functions
 * for clock measurement and trimming are also provided.
@@ -222,7 +220,7 @@
 * \{
 *   Clock paths are a series of multiplexers that allow a source clock
 *   to drive multiple clocking resources down the chain. These paths are
-*   used for active domain clocks that are not operational during chip 
+*   used for active domain clocks that are not operational during chip
 *   deep-sleep, hibernate and off modes. Illustrated below is a diagram
 *   of the clock paths for the PSoC 63 series, showing the first three
 *   clock paths. The source clocks for these paths are highlighted in
@@ -235,8 +233,8 @@
 *   - Digital Signal (DSI): Digital signal from a UDB source
 *
 *   Some clock paths such as path 0 and path 1 have additional resources
-*   that can be utilized to provide a higher frequency clock. For example, 
-*   path 0 source clock can be used as the reference clock for the FLL and 
+*   that can be utilized to provide a higher frequency clock. For example,
+*   path 0 source clock can be used as the reference clock for the FLL and
 *   path 1 source clock can be used as the reference clock for the PLL.
 *
 *   ![](sysclk_path_source.png)
@@ -259,7 +257,7 @@
 *
 *   - They may have different frequency ranges.
 *   - The FLL starts up (locks) faster and consumes less current than the PLL.
-*   - The FLL accepts a source clock with lower frequency than PLL, such as the WCO (32 KHz). 
+*   - The FLL accepts a source clock with lower frequency than PLL, such as the WCO (32 KHz).
 *   - The FLL does not lock phase. The hardware consist of a counter with a
 *     current-controlled oscillator (CCO). The counter counts the number of output
 *     clock edges in a reference clock period and adjusts the CCO until the
@@ -269,11 +267,11 @@
 *   ![](sysclk_fll.png)
 *
 *   The SysClk driver supports two models for configuring the FLL. The first
-*   model is to call the Cy_SysClk_FllConfigure() function, which calculates the 
+*   model is to call the Cy_SysClk_FllConfigure() function, which calculates the
 *   necessary parameters for the FLL at run-time. This may be necessary for dynamic
-*   run-time changes to the FLL. However this method is slow as it needs to perform 
-*   the calculation before configuring the FLL. The other model is to call 
-*   Cy_SysClk_FllManualConfigure() function with pre-calculated parameter values. 
+*   run-time changes to the FLL. However this method is slow as it needs to perform
+*   the calculation before configuring the FLL. The other model is to call
+*   Cy_SysClk_FllManualConfigure() function with pre-calculated parameter values.
 *   This method is faster but requires prior knowledge of the necessary parameters.
 *   Consult the device TRM for the FLL calculation equations.
 *
@@ -291,15 +289,15 @@
 *
 *   - They may have different frequency ranges.
 *   - The PLL starts up more slowly and consumes more current than the FLL.
-*   - The PLL requires a higher frequency source clock than PLL. 
+*   - The PLL requires a higher frequency source clock than PLL.
 *   ![](sysclk_pll.png)
 *
 *   The SysClk driver supports two models for configuring the PLL. The first
-*   model is to call the Cy_SysClk_PllConfigure() function, which calculates the 
+*   model is to call the Cy_SysClk_PllConfigure() function, which calculates the
 *   necessary parameters for the PLL at run-time. This may be necessary for dynamic
-*   run-time changes to the PLL. However this method is slow as it needs to perform 
-*   the calculation before configuring the PLL. The other model is to call 
-*   Cy_SysClk_PllManualConfigure() function with pre-calculated parameter values. 
+*   run-time changes to the PLL. However this method is slow as it needs to perform
+*   the calculation before configuring the PLL. The other model is to call
+*   Cy_SysClk_PllManualConfigure() function with pre-calculated parameter values.
 *   This method is faster but requires prior knowledge of the necessary parameters.
 *   Consult the device TRM for the PLL calculation equations.
 *
@@ -309,15 +307,15 @@
 * \defgroup group_sysclk_ilo             Internal Low-Speed Oscillator (ILO)
 * \{
 *   The ILO operates with no external components and outputs a stable clock at
-*   32.768 kHz nominal. The ILO is relatively low power and low accuracy. It is 
+*   32.768 kHz nominal. The ILO is relatively low power and low accuracy. It is
 *   available in all power modes and can be used as a source for the Backup domain clock.
 *   ![](sysclk_backup.png)
 *
 *   To ensure the ILO remains active in Hibernate mode, and across power-on-reset
-*   (POR) or brown out detect (BOD), firmware must call Cy_SysClk_IloHibernateOn(). 
+*   (POR) or brown out detect (BOD), firmware must call Cy_SysClk_IloHibernateOn().
 *
 *   Additionally, the ILO clock can be trimmed to +/- 1.5% of nominal frequency using
-*   a higher precision clock source. Use the \ref group_sysclk_calclk API to measure 
+*   a higher precision clock source. Use the \ref group_sysclk_calclk API to measure
 *   the current ILO frequency before trimming.
 *
 *   \note The ILO is always the source clock for the \ref group_wdt. Therefore:
@@ -331,18 +329,18 @@
 *   PILO provides a higher accuracy 32.768 kHz clock than the \ref group_sysclk_ilo "ILO".
 *   When periodically calibrated using a high-accuracy clock such as the
 *   \ref group_sysclk_eco "ECO", the PILO can achieve 250 ppm accuracy of nominal frequency.
-*   The PILO is capable of operating in device Active, Sleep and Deep-Sleep power modes. 
+*   The PILO is capable of operating in device Active, Sleep and Deep-Sleep power modes.
 *   It is not available in Hibernate mode.
 *
 *   The PILO can be used as a source for the \ref group_sysclk_clk_lf. However,
 *   because PILO is disabled in Hibernate mode, RTC timers cannot operate in this mode
 *   when clocked using the PILO. Instead, either the \ref group_sysclk_ilo "ILO" or
-*   \ref group_sysclk_wco "WCO" should be used when hibernate operation is required. 
+*   \ref group_sysclk_wco "WCO" should be used when hibernate operation is required.
 *
 *   ![](sysclk_backup.png)
 *
 *   Periodic calibration to a high-accuracy clock (such as ECO) is required to
-*   maintain accuracy. The application should use the functions described in the 
+*   maintain accuracy. The application should use the functions described in the
 *   \ref group_sysclk_calclk API to measure the current PILO frequency before trimming.
 *
 *   \defgroup group_sysclk_pilo_funcs      Functions
@@ -382,14 +380,14 @@
 *   Entering and exiting low power modes require compatible clock configurations
 *   to be set before entering low power and restored upon wake-up and exit. The
 *   SysClk driver provides a Cy_SysClk_DeepSleepCallback() function to support
-*   deep-sleep mode entry. 
+*   deep-sleep mode entry.
 *
 *   This function can be called either by itself before initiating low-power mode
-*   entry or it can be used in conjunction with the SysPm driver as a registered 
-*   callback. To do so, register this function as a callback before calling 
-*   Cy_SysPm_DeepSleep(). Specify \ref CY_SYSPM_DEEPSLEEP as the callback type, 
+*   entry or it can be used in conjunction with the SysPm driver as a registered
+*   callback. To do so, register this function as a callback before calling
+*   Cy_SysPm_DeepSleep(). Specify \ref CY_SYSPM_DEEPSLEEP as the callback type,
 *   and call Cy_SysPm_RegisterCallback().
-*   
+*
 *   \note If the FLL or PLL source is the ECO, this function must be called.
 *
 *   \defgroup group_sysclk_pm_funcs        Functions
@@ -398,7 +396,7 @@
 * \{
 *   The WCO is a highly accurate 32.768 kHz clock source capable of operating
 *   in all power modes (excluding the Off mode). It is the primary clock source for
-*   the backup domain clock, which is used by the real-time clock (RTC). The 
+*   the backup domain clock, which is used by the real-time clock (RTC). The
 *   WCO can also be used as a source for the low-frequency clock to support other
 *   low power mode peripherals.
 *
@@ -407,12 +405,12 @@
 *   The WCO requires the configuration of the dedicated WCO pins (SRSS_WCO_IN_PIN,
 *   SRSS_WCO_OUT_PIN). These must be configured as Analog Hi-Z drive modes and the
 *   HSIOM selection set to GPIO. The WCO can also be used in bypass mode, where
-*   an external 32.768 kHz square wave is brought in directly through the 
+*   an external 32.768 kHz square wave is brought in directly through the
 *   SRSS_WCO_OUT_PIN pin.
 *
 *   Some devices support a built-in clock supervisor (CSV) in the WCO. The clock
-*   supervisor detects if the WCO has been lost; that is, the WCO is no longer 
-*   producing clock pulses. The CSV does this by checking to ensure there is at 
+*   supervisor detects if the WCO has been lost; that is, the WCO is no longer
+*   producing clock pulses. The CSV does this by checking to ensure there is at
 *   least one WCO clock pulse within a certain time window. The ILO or PILO can be
 *   the supervising clock. Firmware can configure the CSV to trigger a fault,
 *   a reset, or both after specified cycles of the supervising clock.
@@ -436,9 +434,9 @@
 *   |CLK_HF[4]| Clock output on clk_ext pin (when used as an output)   |
 *
 *   ![](sysclk_hf.png)
-*   
+*
 *   High frequency clocks are sourced by path clocks, which should be configured
-*   first. An exception to this rule is CLK_HF[0], which cannot be disabled. 
+*   first. An exception to this rule is CLK_HF[0], which cannot be disabled.
 *   This divided clock drives the core processors and the peripherals in the system.
 *   In order to update its clock source, CLK_HF[0] source must be selected without
 *   disabling the clock.
@@ -447,7 +445,7 @@
 *
 *   Some devices support a clock supervisor (CSV) for each root clock. These
 *   can detect frequency loss, or monitor that the clock frequency stays within
-*   a specified range. The possible supervising clocks are IMO, ECO, or ALTHF. 
+*   a specified range. The possible supervising clocks are IMO, ECO, or ALTHF.
 *   Loss detection and frequency monitoring can be enabled or disabled independently.
 *   Each has its own programmable action that occurs on detection of an error.
 *
@@ -470,7 +468,7 @@
 * \{
 *   The peripheral clock is a divided clock of CLK_HF0 (\ref group_sysclk_clk_hf "HF Clocks").
 *   It is the source clock for the \ref group_sysclk_clk_slow, and most active domain
-*   peripheral clocks (\ref group_sysclk_clk_peripheral). A divider value of 1~256 
+*   peripheral clocks (\ref group_sysclk_clk_peripheral). A divider value of 1~256
 *   can be used to further divide the CLK_HF[0] to a desired clock speed for the peripherals.
 *
 *   ![](sysclk_peri.png)
@@ -479,8 +477,8 @@
 * \}
 * \defgroup group_sysclk_clk_peripheral  Peripherals Clock Dividers
 * \{
-*   There are multiple peripheral clock dividers that, in effect, create 
-*   multiple separate peripheral clocks. The available dividers vary per device 
+*   There are multiple peripheral clock dividers that, in effect, create
+*   multiple separate peripheral clocks. The available dividers vary per device
 *   series. As an example, for the PSoC 63 series there are 29 dividers:
 *
 *   - eight 8-bit dividers
@@ -498,7 +496,7 @@
 *
 *   Each peripheral can connect to any one of the programmable dividers. A
 *   particular peripheral clock divider can drive multiple peripherals.
-*   
+*
 *   The SysClk driver also supports phase aligning two peripheral clock dividers using
 *   Cy_SysClk_PeriphEnablePhaseAlignDivider(). Alignment works for both integer
 *   and fractional dividers. The divider to which a second divider is aligned
@@ -510,8 +508,8 @@
 * \defgroup group_sysclk_clk_slow        Slow Clock
 * \{
 *   The slow clock is the source clock for the "slow" processor (e.g. Cortex-M0+ in PSoC 6).
-*   This clock is a divided version of the \ref group_sysclk_clk_peri, which in turn is 
-*   a divided version of CLK_HF[0] (\ref group_sysclk_clk_hf "HF Clocks"). A divider 
+*   This clock is a divided version of the \ref group_sysclk_clk_peri, which in turn is
+*   a divided version of CLK_HF[0] (\ref group_sysclk_clk_hf "HF Clocks"). A divider
 *   value of 1~256 can be used to further divide the Peri clock to a desired clock speed
 *   for the processor.
 *
@@ -524,7 +522,7 @@
 *   The low-frequency clock is the source clock for the \ref group_mcwdt
 *   and can be the source clock for \ref group_sysclk_clk_bak, which drives the
 *   \ref group_rtc.
-*   
+*
 *   The low-frequency clock has three possible source clocks:
 *   \ref group_sysclk_ilo "ILO", \ref group_sysclk_pilo "PILO", and
 *   \ref group_sysclk_wco "WCO".
@@ -536,10 +534,10 @@
 * \}
 * \defgroup group_sysclk_clk_timer       Timer Clock
 * \{
-*   The timer clock can be a source for the alternative clock driving 
-*   the \ref group_arm_system_timer. It can also be used as a reference clock 
+*   The timer clock can be a source for the alternative clock driving
+*   the \ref group_arm_system_timer. It can also be used as a reference clock
 *   for a counter in the \ref group_energy_profiler "Energy Profiler".
-*   
+*
 *   The timer clock is a divided clock of either the IMO or CLK_HF[0]
 *   (\ref group_sysclk_clk_hf "HF Clocks").
 *
@@ -550,8 +548,8 @@
 * \{
 *   The pump clock is a clock source used to provide analog precision in low voltage
 *   applications. Depedning on the usage scenario, it may be required to drive the
-*   internal voltage pump for the Continuous Time Block mini (CTBm) in the analog 
-*   subsystem. The pump clock is a divided clock of one of the clock paths 
+*   internal voltage pump for the Continuous Time Block mini (CTBm) in the analog
+*   subsystem. The pump clock is a divided clock of one of the clock paths
 *   (\ref group_sysclk_path_src).
 *
 *   \defgroup group_sysclk_clk_pump_funcs  Functions
@@ -797,7 +795,7 @@ __STATIC_INLINE cy_en_sysclk_status_t Cy_SysClk_FllDisable(void);
 *
 * Reports whether or not the FLL is locked.
 *
-* \return 
+* \return
 * false = not locked<br>
 * true = locked
 *
@@ -818,7 +816,7 @@ __STATIC_INLINE bool Cy_SysClk_FllLocked(void)
 * Reports whether or not the FLL lost its lock since the last time this function
 * was called. Clears the lost lock indicator.
 *
-* \return 
+* \return
 * false = did not lose lock<br>
 * true = lost lock
 *
@@ -905,7 +903,7 @@ __STATIC_INLINE cy_en_sysclk_status_t Cy_SysClk_PllDisable(uint32_t clkPath);
 *
 * \param clkPath Selects which PLL to check. 1 is the first PLL; 0 is invalid.
 *
-* \return 
+* \return
 * false = not locked<br>
 * true = locked
 *
@@ -928,7 +926,7 @@ __STATIC_INLINE bool Cy_SysClk_PllLocked(uint32_t clkPath)
 *
 * \param clkPath Selects which PLL to check. 1 is the first PLL; 0 is invalid.
 *
-* \return 
+* \return
 * false = did not lose lock<br>
 * true = lost lock
 *
@@ -1042,7 +1040,7 @@ __STATIC_INLINE cy_en_sysclk_status_t Cy_SysClk_IloDisable(void)
 * brown-out detect (BOD) event.
 *
 * \param on
-* true = ILO stays on during hibernate or across XRES/BOD.<br> 
+* true = ILO stays on during hibernate or across XRES/BOD.<br>
 * false = ILO turns off for hibernate or XRES/BOD.
 *
 * \note Writes to the register/bit are ignored if the watchdog (WDT) is locked.
@@ -1074,9 +1072,9 @@ __STATIC_INLINE uint32_t Cy_SysClk_PiloGetTrim(void);
 * Function Name: Cy_SysClk_PiloEnable
 ****************************************************************************//**
 *
-* Enables the PILO. 
+* Enables the PILO.
 *
-* \note This function blocks for 1 millisecond between enabling the PILO and 
+* \note This function blocks for 1 millisecond between enabling the PILO and
 * releasing the PILO reset.
 *
 * \funcusage
@@ -1380,7 +1378,7 @@ __STATIC_INLINE cy_en_sysclk_status_t Cy_SysClk_WcoEnable(uint32_t timeoutus)
 *
 * Reports the status of the WCO_OK bit.
 *
-* \return 
+* \return
 * true = okay<br>
 * false = not okay
 *
@@ -2383,7 +2381,7 @@ __STATIC_INLINE void Cy_SysClk_ClkTimerDisable(void);
 ****************************************************************************//**
 *
 * Sets the source for the timer clock (clk_timer). The timer clock can be used
-* as a source for SYSTICK as an alternate clock and one or more of the energy 
+* as a source for SYSTICK as an alternate clock and one or more of the energy
 * profiler counters.
 *
 * \param source \ref cy_en_clktimer_in_sources_t

@@ -7,10 +7,8 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2017-2018, Cypress Semiconductor Corporation. All rights reserved.
-* You may use this file only in accordance with the license, terms, conditions,
-* disclaimers, and limitations in the end user license agreement accompanying
-* the software package with which this file was provided.
+* Copyright 2017-2018, Cypress Semiconductor Corporation.  All rights reserved.
+* SPDX-License-Identifier: Apache-2.0
 *******************************************************************************/
 
 #include "cy_efuse.h"
@@ -51,11 +49,11 @@ static cy_en_efuse_status_t ProcessOpcode(void);
 *
 * The EFUSE_EFUSE_NR macro is defined in the series-specific header file, e.g
 * \e \<PDL_DIR\>/devices/psoc6/psoc63/include/psoc63_config.\e h
-* 
-* \param bitVal 
+*
+* \param bitVal
 * The pointer to the location to store the bit value.
 *
-* \return 
+* \return
 * \ref cy_en_efuse_status_t
 *
 * \funcusage
@@ -67,16 +65,16 @@ static cy_en_efuse_status_t ProcessOpcode(void);
 cy_en_efuse_status_t Cy_EFUSE_GetEfuseBit(uint32_t bitNum, bool *bitVal)
 {
     cy_en_efuse_status_t result = CY_EFUSE_BAD_PARAM;
-    
+
     if (bitVal != NULL)
     {
         uint32_t offset = bitNum / CY_EFUSE_BITS_PER_BYTE;
         uint8_t byteVal;
         *bitVal = false;
-        
+
         /* Read the eFuse byte */
         result = Cy_EFUSE_GetEfuseByte(offset, &byteVal);
-        
+
         if (result == CY_EFUSE_SUCCESS)
         {
             uint32_t bitPos = bitNum % CY_EFUSE_BITS_PER_BYTE;
@@ -112,7 +110,7 @@ cy_en_efuse_status_t Cy_EFUSE_GetEfuseBit(uint32_t bitNum, bool *bitVal)
 * \param byteVal
 * The pointer to the location to store eFuse data.
 *
-* \return 
+* \return
 * \ref cy_en_efuse_status_t
 *
 * \funcusage
@@ -124,20 +122,20 @@ cy_en_efuse_status_t Cy_EFUSE_GetEfuseBit(uint32_t bitNum, bool *bitVal)
 cy_en_efuse_status_t Cy_EFUSE_GetEfuseByte(uint32_t offset, uint8_t *byteVal)
 {
     cy_en_efuse_status_t result = CY_EFUSE_BAD_PARAM;
-    
+
     if (byteVal != NULL)
     {
         /* Prepare opcode before calling the SROM API */
         opcode = CY_EFUSE_OPCODE_READ_FUSE_BYTE | (offset << CY_EFUSE_OPCODE_OFFSET_Pos);
-        
+
         /* Send the IPC message */
         if (Cy_IPC_Drv_SendMsgPtr(CY_EFUSE_IPC_STRUCT, CY_EFUSE_IPC_NOTIFY_STRUCT0, (void*)&opcode) == CY_IPC_DRV_SUCCESS)
-        {           
+        {
             /* Wait until the IPC structure is locked */
             while(Cy_IPC_Drv_IsLockAcquired(CY_EFUSE_IPC_STRUCT) != false)
             {
             }
-            
+
             /* The result of the SROM API call is returned to the opcode variable */
             if ((opcode & CY_EFUSE_OPCODE_STS_Msk) == CY_EFUSE_OPCODE_SUCCESS)
             {
@@ -187,7 +185,7 @@ uint32_t Cy_EFUSE_GetExternalStatus(void)
 * Function Name: ProcessOpcode
 ****************************************************************************//**
 *
-* Converts System Call returns to the eFuse driver return defines. If 
+* Converts System Call returns to the eFuse driver return defines. If
 * an unknown error was returned, the error code can be accessed via the
 * Cy_EFUSE_GetExternalStatus() function.
 *

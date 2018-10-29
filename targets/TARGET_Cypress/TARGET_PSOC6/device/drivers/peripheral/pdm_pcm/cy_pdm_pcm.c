@@ -6,10 +6,8 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2018, Cypress Semiconductor Corporation. All rights reserved.
-* You may use this file only in accordance with the license, terms, conditions,
-* disclaimers, and limitations in the end user license agreement accompanying
-* the software package with which this file was provided.
+* Copyright 2016-2018, Cypress Semiconductor Corporation.  All rights reserved.
+* SPDX-License-Identifier: Apache-2.0
 *******************************************************************************/
 
 #include "cy_pdm_pcm.h"
@@ -61,11 +59,11 @@ cy_en_pdm_pcm_status_t Cy_PDM_PCM_Init(PDM_Type * base, cy_stc_pdm_pcm_config_t 
         CY_ASSERT_L3(CY_PDM_PCM_IS_HPF_GAIN_VALID(config->highPassFilterGain));
         CY_ASSERT_L3(CY_PDM_PCM_IS_WORD_LEN_VALID(config->wordLen));
         CY_ASSERT_L3(CY_PDM_PCM_IS_TRIG_LEVEL(config->rxFifoTriggerLevel, config->chanSelect));
-        
+
         ret = CY_PDM_PCM_SUCCESS;
 
         base->CTL &= (uint32_t) ~PDM_CTL_ENABLED_Msk; /* Disable the PDM_PCM block */
-        
+
         /* The clock setting */
         base->CLOCK_CTL = _VAL2FLD(PDM_CLOCK_CTL_CLK_CLOCK_DIV,     config->clkDiv) |
                           _VAL2FLD(PDM_CLOCK_CTL_MCLKQ_CLOCK_DIV,   config->mclkDiv) |
@@ -141,7 +139,7 @@ void Cy_PDM_PCM_SetGain(PDM_Type * base, cy_en_pdm_pcm_chan_select_t chan, cy_en
 {
     CY_ASSERT_L3(CY_PDM_PCM_IS_CHAN_VALID(chan));
     CY_ASSERT_L3(CY_PDM_PCM_IS_GAIN_VALID(gain));
-    
+
     if (chan == CY_PDM_PCM_CHAN_LEFT)
     {
         base->CTL = _CLR_SET_FLD32U(base->CTL, PDM_CTL_PGA_L, ((uint32_t) gain));
@@ -171,7 +169,7 @@ void Cy_PDM_PCM_SetGain(PDM_Type * base, cy_en_pdm_pcm_chan_select_t chan, cy_en
 cy_en_pdm_pcm_gain_t Cy_PDM_PCM_GetGain(PDM_Type const * base, cy_en_pdm_pcm_chan_select_t chan)
 {
     cy_en_pdm_pcm_gain_t ret;
-    
+
     CY_ASSERT_L3(CY_PDM_PCM_IS_CHAN_VALID(chan));
 
     if (chan == CY_PDM_PCM_CHAN_LEFT)

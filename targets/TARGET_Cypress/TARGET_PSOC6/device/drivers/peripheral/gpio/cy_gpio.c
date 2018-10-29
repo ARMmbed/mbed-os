@@ -7,10 +7,8 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2018, Cypress Semiconductor Corporation. All rights reserved.
-* You may use this file only in accordance with the license, terms, conditions,
-* disclaimers, and limitations in the end user license agreement accompanying
-* the software package with which this file was provided.
+* Copyright 2016-2018, Cypress Semiconductor Corporation.  All rights reserved.
+* SPDX-License-Identifier: Apache-2.0
 *******************************************************************************/
 
 #include "cy_gpio.h"
@@ -38,7 +36,7 @@ extern "C" {
 * \return
 * Initialization status
 *
-* \note 
+* \note
 * This function modifies port registers in read-modify-write operations. It is
 * not thread safe as the resource is shared among multiple pins on a port.
 *
@@ -57,8 +55,8 @@ cy_en_gpio_status_t Cy_GPIO_Pin_Init(GPIO_PRT_Type *base, uint32_t pinNum, const
         CY_ASSERT_L2(CY_GPIO_IS_PIN_VALID(pinNum));
         CY_ASSERT_L2(CY_GPIO_IS_VALUE_VALID(config->outVal));
         CY_ASSERT_L2(CY_GPIO_IS_DM_VALID(config->driveMode));
-        CY_ASSERT_L2(CY_GPIO_IS_HSIOM_VALID(config->hsiom));  
-        CY_ASSERT_L2(CY_GPIO_IS_INT_EDGE_VALID(config->intEdge)); 
+        CY_ASSERT_L2(CY_GPIO_IS_HSIOM_VALID(config->hsiom));
+        CY_ASSERT_L2(CY_GPIO_IS_INT_EDGE_VALID(config->intEdge));
         CY_ASSERT_L2(CY_GPIO_IS_VALUE_VALID(config->intMask));
         CY_ASSERT_L2(CY_GPIO_IS_VALUE_VALID(config->vtrip));
         CY_ASSERT_L2(CY_GPIO_IS_VALUE_VALID(config->slewRate));
@@ -68,7 +66,7 @@ cy_en_gpio_status_t Cy_GPIO_Pin_Init(GPIO_PRT_Type *base, uint32_t pinNum, const
         CY_ASSERT_L2(CY_GPIO_IS_VALUE_VALID(config->vtripSel));
         CY_ASSERT_L2(CY_GPIO_IS_VREF_SEL_VALID(config->vrefSel));
         CY_ASSERT_L2(CY_GPIO_IS_VOH_SEL_VALID(config->vohSel));
-    
+
         Cy_GPIO_Write(base, pinNum, config->outVal);
         Cy_GPIO_SetDrivemode(base, pinNum, config->driveMode);
         Cy_GPIO_SetHSIOM(base, pinNum, config->hsiom);
@@ -78,7 +76,7 @@ cy_en_gpio_status_t Cy_GPIO_Pin_Init(GPIO_PRT_Type *base, uint32_t pinNum, const
         Cy_GPIO_SetVtrip(base, pinNum, config->vtrip);
 
         /* Slew rate and Driver strength */
-        maskCfgOut = (CY_GPIO_CFG_OUT_SLOW_MASK << pinNum) 
+        maskCfgOut = (CY_GPIO_CFG_OUT_SLOW_MASK << pinNum)
                         | (CY_GPIO_CFG_OUT_DRIVE_SEL_MASK << ((uint32_t)(pinNum << 1u) + CY_GPIO_CFG_OUT_DRIVE_OFFSET));
         tempReg = base->CFG_OUT & ~(maskCfgOut);
         base->CFG_OUT = tempReg | ((config->slewRate & CY_GPIO_CFG_OUT_SLOW_MASK) << pinNum)
@@ -97,7 +95,7 @@ cy_en_gpio_status_t Cy_GPIO_Pin_Init(GPIO_PRT_Type *base, uint32_t pinNum, const
     {
         status = CY_GPIO_BAD_PARAM;
     }
-    
+
     return(status);
 }
 
@@ -121,9 +119,9 @@ cy_en_gpio_status_t Cy_GPIO_Pin_Init(GPIO_PRT_Type *base, uint32_t pinNum, const
 * \return
 * Initialization status
 *
-* \note 
-* If using the PSoC Creator IDE, there is no need to initialize the pins when 
-* using the GPIO component on the schematic. Ports are configured in 
+* \note
+* If using the PSoC Creator IDE, there is no need to initialize the pins when
+* using the GPIO component on the schematic. Ports are configured in
 * Cy_SystemInit() before main() entry.
 *
 * \funcusage
@@ -144,7 +142,7 @@ cy_en_gpio_status_t Cy_GPIO_Port_Init(GPIO_PRT_Type* base, const cy_stc_gpio_prt
         CY_ASSERT_L2(CY_GPIO_IS_INTR_MASK_VALID(config->intrMask));
         CY_ASSERT_L2(CY_GPIO_IS_SEL_ACT_VALID(config->sel0Active));
         CY_ASSERT_L2(CY_GPIO_IS_SEL_ACT_VALID(config->sel1Active));
-    
+
         portNum = ((uint32_t)(base) - GPIO_BASE) / GPIO_PRT_SECTION_SIZE;
         baseHSIOM = (HSIOM_PRT_Type*)(HSIOM_BASE + (HSIOM_PRT_SECTION_SIZE * portNum));
 
@@ -162,7 +160,7 @@ cy_en_gpio_status_t Cy_GPIO_Port_Init(GPIO_PRT_Type* base, const cy_stc_gpio_prt
     {
         status = CY_GPIO_BAD_PARAM;
     }
-    
+
     return(status);
 }
 
@@ -193,7 +191,7 @@ cy_en_gpio_status_t Cy_GPIO_Port_Init(GPIO_PRT_Type* base, const cy_stc_gpio_prt
 * \return
 * void
 *
-* \note 
+* \note
 * This function modifies port registers in read-modify-write operations. It is
 * not thread safe as the resource is shared among multiple pins on a port.
 *

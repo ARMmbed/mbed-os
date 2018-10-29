@@ -7,13 +7,9 @@
 ********************************************************************************
 * \copyright
 * Copyright 2016-2018, Cypress Semiconductor Corporation.  All rights reserved.
-* You may use this file only in accordance with the license, terms, conditions,
-* disclaimers, and limitations in the end user license agreement accompanying
-* the software package with which this file was provided.
+* Copyright 2017-2018, Future Electronics
+* SPDX-License-Identifier: Apache-2.0
 *******************************************************************************/
-/*
- * Copyright (c) 20017-2018 Future Electronics
- */
 
 #include <stdint.h>
 #include <stdbool.h>

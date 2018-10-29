@@ -6,10 +6,8 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2018, Cypress Semiconductor Corporation. All rights reserved.
-* You may use this file only in accordance with the license, terms, conditions,
-* disclaimers, and limitations in the end user license agreement accompanying
-* the software package with which this file was provided.
+* Copyright 2016-2018, Cypress Semiconductor Corporation.  All rights reserved.
+* SPDX-License-Identifier: Apache-2.0
 *******************************************************************************/
 #include "cy_syspm.h"
 
@@ -99,7 +97,7 @@ static void ClearVoltageBitForFlash(void);
     #define PERI_UDB_SLAVE_ENABLED     ((uint32_t) (1UL << CY_MMIO_UDB_SLAVE_NR))
 #endif /* CY_IP_MXUDB */
 
-/** The definition for the delay of the LDO after its output 
+/** The definition for the delay of the LDO after its output
 * voltage is changed
 */
 #define LDO_STABILIZATION_DELAY_US      (9U)
@@ -214,7 +212,7 @@ uint32_t Cy_SysPm_ReadStatus(void)
         pmStatus |= CY_SYSPM_STATUS_CM0_ACTIVE;
     }
 
-    /* Check whether the device is in Low Power mode by reading 
+    /* Check whether the device is in Low Power mode by reading
     *  the Active Reference status
     */
     if(0U != (_FLD2VAL(SRSS_PWR_CTL_ACT_REF_DIS, SRSS->PWR_CTL)))
@@ -244,40 +242,40 @@ uint32_t Cy_SysPm_ReadStatus(void)
 * Prior to entering Sleep mode, all callback functions of the CY_SYSPM_SLEEP
 * type with the CY_SYSPM_CHECK_READY parameter are called. This allows the driver
 * to signal whether it is ready to enter the Low Power mode. If any of the
-* callbacks of the CY_SYSPM_SLEEP type with the CY_SYSPM_CHECK_READY parameter 
+* callbacks of the CY_SYSPM_SLEEP type with the CY_SYSPM_CHECK_READY parameter
 * returns CY_SYSPM_FAIL, the remaining callback of the CY_SYSPM_SLEEP type with
 * the CY_SYSPM_CHECK_READY parameter calls are skipped.
-* After CY_SYSPM_FAIL, all the CY_SYSPM_SLEEP callbacks with 
-* the CY_SYSPM_CHECK_FAIL parameter are executed. These are the callbacks 
-* of the CY_SYSPM_SLEEP type with the CY_SYSPM_CHECK_READY 
-* parameter that were previously executed before getting CY_SYSPM_FAIL. 
-* The Sleep mode is not entered and the Cy_SysPm_Sleep() function returns 
+* After CY_SYSPM_FAIL, all the CY_SYSPM_SLEEP callbacks with
+* the CY_SYSPM_CHECK_FAIL parameter are executed. These are the callbacks
+* of the CY_SYSPM_SLEEP type with the CY_SYSPM_CHECK_READY
+* parameter that were previously executed before getting CY_SYSPM_FAIL.
+* The Sleep mode is not entered and the Cy_SysPm_Sleep() function returns
 * CY_SYSPM_FAIL.
 *
-* If all of the callbacks of the CY_SYSPM_SLEEP type with the 
-* CY_SYSPM_CHECK_READY parameter calls return CY_SYSPM_SUCCESS, then all 
-* callbacks of the CY_SYSPM_SLEEP type with the CY_SYSPM_CHECK_FAIL parameters 
-* calls are skipped. Also, all callbacks of the CY_SYSPM_SLEEP type and 
-* CY_SYSPM_BEFORE_TRANSITION parameter calls are executed, allowing the 
+* If all of the callbacks of the CY_SYSPM_SLEEP type with the
+* CY_SYSPM_CHECK_READY parameter calls return CY_SYSPM_SUCCESS, then all
+* callbacks of the CY_SYSPM_SLEEP type with the CY_SYSPM_CHECK_FAIL parameters
+* calls are skipped. Also, all callbacks of the CY_SYSPM_SLEEP type and
+* CY_SYSPM_BEFORE_TRANSITION parameter calls are executed, allowing the
 * peripherals to prepare for Sleep. The CPU then enters Sleep mode.
 * This is a CPU-centric power mode. This means that the CPU has entered Sleep
-* mode and its main clock is removed. It is identical to Active from a 
-* peripheral point of view. Any enabled interrupt can cause a wakeup from 
+* mode and its main clock is removed. It is identical to Active from a
+* peripheral point of view. Any enabled interrupt can cause a wakeup from
 * Sleep mode.
 *
-* After a wakeup from Sleep, all of the registered callbacks of the 
-* CY_SYSPM_SLEEP type and with the CY_SYSPM_AFTER_TRANSITION parameter are 
-* executed to return the peripherals to Active operation. The Cy_SysPm_Sleep() 
+* After a wakeup from Sleep, all of the registered callbacks of the
+* CY_SYSPM_SLEEP type and with the CY_SYSPM_AFTER_TRANSITION parameter are
+* executed to return the peripherals to Active operation. The Cy_SysPm_Sleep()
 * function returns CY_SYSPM_SUCCESS.
-* No callbacks of the CY_SYSPM_SLEEP type with the CY_SYSPM_BEFORE_TRANSITION 
-* parameter or callbacks of the CY_SYSPM_SLEEP type and 
-* CY_SYSPM_AFTER_TRANSITION parameter callbacks are executed if Sleep mode 
+* No callbacks of the CY_SYSPM_SLEEP type with the CY_SYSPM_BEFORE_TRANSITION
+* parameter or callbacks of the CY_SYSPM_SLEEP type and
+* CY_SYSPM_AFTER_TRANSITION parameter callbacks are executed if Sleep mode
 * is not entered.
 *
-* \note The last callback that returned CY_SYSPM_FAIL is not executed with the 
+* \note The last callback that returned CY_SYSPM_FAIL is not executed with the
 * CY_SYSPM_CHECK_FAIL parameter because of the FAIL.
 *
-* The return values from executed callback functions with the 
+* The return values from executed callback functions with the
 * CY_SYSPM_CHECK_FAIL, CY_SYSPM_BEFORE_TRANSITION, and CY_SYSPM_AFTER_TRANSITION
 * modes are ignored.
 *
@@ -309,13 +307,13 @@ cy_en_syspm_status_t Cy_SysPm_Sleep(cy_en_syspm_waitfor_t waitFor)
     }
 
     /* The device (core) can switch into the sleep power mode only when
-    *  all executed registered callback functions with the CY_SYSPM_CHECK_READY 
+    *  all executed registered callback functions with the CY_SYSPM_CHECK_READY
     *  parameter returned CY_SYSPM_SUCCESS.
     */
     if(retVal == CY_SYSPM_SUCCESS)
     {
-        /* Call the registered callback functions with 
-        * CY_SYSPM_BEFORE_TRANSITION parameter. The return value should be 
+        /* Call the registered callback functions with
+        * CY_SYSPM_BEFORE_TRANSITION parameter. The return value should be
         * CY_SYSPM_SUCCESS.
         */
         interruptState = Cy_SysLib_EnterCriticalSection();
@@ -337,7 +335,7 @@ cy_en_syspm_status_t Cy_SysPm_Sleep(cy_en_syspm_waitfor_t waitFor)
 
         #if(0u != CY_CPU_CORTEX_M4)
 
-            /* For the CM4 core, the WFE instructions are called twice. 
+            /* For the CM4 core, the WFE instructions are called twice.
             *  The second WFE call clears the Event register of CM4 core.
             *  Cypress ID #279077.
             */
@@ -351,8 +349,8 @@ cy_en_syspm_status_t Cy_SysPm_Sleep(cy_en_syspm_waitfor_t waitFor)
         }
         Cy_SysLib_ExitCriticalSection(interruptState);
 
-        /* Call the registered callback functions with the 
-        *  CY_SYSPM_AFTER_TRANSITION parameter. The return value should be 
+        /* Call the registered callback functions with the
+        *  CY_SYSPM_AFTER_TRANSITION parameter. The return value should be
         *  CY_SYSPM_SUCCESS.
         */
         if(0U != curRegisteredCallbacks)
@@ -363,7 +361,7 @@ cy_en_syspm_status_t Cy_SysPm_Sleep(cy_en_syspm_waitfor_t waitFor)
     else
     {
         /* Execute callback functions with the CY_SYSPM_CHECK_FAIL parameter to
-        *  undo everything done in the callback with the CY_SYSPM_CHECK_READY 
+        *  undo everything done in the callback with the CY_SYSPM_CHECK_READY
         *  parameter. The return value should be CY_SYSPM_SUCCESS.
         */
         (void) Cy_SysPm_ExecuteCallback(CY_SYSPM_SLEEP, CY_SYSPM_CHECK_FAIL);
@@ -380,32 +378,32 @@ cy_en_syspm_status_t Cy_SysPm_Sleep(cy_en_syspm_waitfor_t waitFor)
 * Sets a CPU core to the Deep Sleep mode.
 *
 * Puts the core into the Deep Sleep power mode. Prior to entering the Deep Sleep
-* mode, all callbacks of the CY_SYSPM_DEEPSLEEP type with the 
-* CY_SYSPM_CHECK_READY parameter registered callbacks are called, allowing the 
-* driver to signal whether it is ready to enter the power mode. If any 
-* CY_SYSPM_DEEPSLEEP type with the CY_SYSPM_CHECK_READY parameter call returns 
-* CY_SYSPM_FAIL, the remaining callback CY_SYSPM_DEEPSLEEP type with the 
+* mode, all callbacks of the CY_SYSPM_DEEPSLEEP type with the
+* CY_SYSPM_CHECK_READY parameter registered callbacks are called, allowing the
+* driver to signal whether it is ready to enter the power mode. If any
+* CY_SYSPM_DEEPSLEEP type with the CY_SYSPM_CHECK_READY parameter call returns
+* CY_SYSPM_FAIL, the remaining callback CY_SYSPM_DEEPSLEEP type with the
 * CY_SYSPM_CHECK_READY parameter calls are skipped. After a CY_SYSPM_FAIL, all
-* of the callbacks of the CY_SYSPM_DEEPSLEEP type with the CY_SYSPM_CHECK_FAIL 
-* parameter are executed that correspond to the callbacks with 
-* CY_SYSPM_DEEPSLEEP type with CY_SYSPM_CHECK_READY parameter calls that 
+* of the callbacks of the CY_SYSPM_DEEPSLEEP type with the CY_SYSPM_CHECK_FAIL
+* parameter are executed that correspond to the callbacks with
+* CY_SYSPM_DEEPSLEEP type with CY_SYSPM_CHECK_READY parameter calls that
 * occurred up to the point of failure.
-* The Deep Sleep mode is not entered and the Cy_SysPm_DeepSleep() function 
+* The Deep Sleep mode is not entered and the Cy_SysPm_DeepSleep() function
 * returns CY_SYSPM_FAIL.
 *
 * If all callbacks of the CY_SYSPM_DEEPSLEEP type with the CY_SYSPM_CHECK_READY
-* parameter calls return CY_SYSPM_SUCCESS, then all callbacks of the 
-* CY_SYSPM_DEEPSLEEP type with the CY_SYSPM_CHECK_FAIL parameter calls are 
-* skipped and all callbacks of the CY_SYSPM_DEEPSLEEP type with the 
-* CY_SYSPM_BEFORE_TRANSITION parameter calls are executed, allowing the 
+* parameter calls return CY_SYSPM_SUCCESS, then all callbacks of the
+* CY_SYSPM_DEEPSLEEP type with the CY_SYSPM_CHECK_FAIL parameter calls are
+* skipped and all callbacks of the CY_SYSPM_DEEPSLEEP type with the
+* CY_SYSPM_BEFORE_TRANSITION parameter calls are executed, allowing the
 * peripherals to prepare for Deep Sleep.
-* The Deep Sleep mode is then entered. Any enabled interrupt can cause a wakeup 
+* The Deep Sleep mode is then entered. Any enabled interrupt can cause a wakeup
 * from the Deep Sleep mode.
 *
-* \note The last callback which returned CY_SYSPM_FAIL is not executed with the 
+* \note The last callback which returned CY_SYSPM_FAIL is not executed with the
 * CY_SYSPM_CHECK_FAIL parameter because of the FAIL.
 *
-* The return values from executed callback functions with the 
+* The return values from executed callback functions with the
 * CY_SYSPM_CHECK_FAIL, CY_SYSPM_BEFORE_TRANSITION, and CY_SYSPM_AFTER_TRANSITION
 * modes are ignored.
 *
@@ -414,55 +412,55 @@ cy_en_syspm_status_t Cy_SysPm_Sleep(cy_en_syspm_waitfor_t waitFor)
 * Sleep mode instead and automatically enter Deep Sleep mode when the
 * system is ready.
 *
-* The system puts the whole device into Deep Sleep mode when all the 
-* processor(s) is (are) in Deep Sleep, there are no busy peripherals, the 
-* debugger is not active, and the Deep Sleep circuits are 
+* The system puts the whole device into Deep Sleep mode when all the
+* processor(s) is (are) in Deep Sleep, there are no busy peripherals, the
+* debugger is not active, and the Deep Sleep circuits are
 * ready (PWR_CONTROL.LPM_READY=1).
 *
 * The peripherals that do not need a clock or that receive a clock from their
 * external interface (e.g. I2C/SPI) continue operating. All circuits using the
-* current from Vccdpslp supply are under the current limitation, which is 
+* current from Vccdpslp supply are under the current limitation, which is
 * controlled by the Deep Sleep regulator.
 *
 * Wakeup occurs when an interrupt asserts from a Deep Sleep active peripheral.
 * For more details, see the corresponding peripheral's datasheet.
 *
-* \note 
-* For multi-core devices, the second core, which did not participate in 
-* device wakeup, continues to execute the Deep Sleep instructions. Any Deep Sleep 
+* \note
+* For multi-core devices, the second core, which did not participate in
+* device wakeup, continues to execute the Deep Sleep instructions. Any Deep Sleep
 * capable interrupt routed to this core can wake it.
 *
 * For more details about switching into the Deep Sleep power mode and debug,
 * refer to the device TRM.
 *
 * A normal wakeup from the Deep Sleep power mode returns to either LPActive or
-* Active, depending on the previous state and programmed behavior for the 
+* Active, depending on the previous state and programmed behavior for the
 * particular wakeup interrupt.
 *
 * After wakeup from Deep Sleep, all of the registered callbacks with
-* CY_SYSPM_DEEPSLEEP type with CY_SYSPM_AFTER_TRANSITION are executed to return 
-* peripherals to Active operation. The Cy_SysPm_DeepSleep() function returns 
-* CY_SYSPM_SUCCESS. No callbacks are executed with CY_SYSPM_DEEPSLEEP type with 
-* CY_SYSPM_BEFORE_TRANSITION or CY_SYSPM_AFTER_TRANSITION parameter, if 
+* CY_SYSPM_DEEPSLEEP type with CY_SYSPM_AFTER_TRANSITION are executed to return
+* peripherals to Active operation. The Cy_SysPm_DeepSleep() function returns
+* CY_SYSPM_SUCCESS. No callbacks are executed with CY_SYSPM_DEEPSLEEP type with
+* CY_SYSPM_BEFORE_TRANSITION or CY_SYSPM_AFTER_TRANSITION parameter, if
 * Deep Sleep mode was not entered.
 *
 * \param waitFor Selects wait for action. See \ref cy_en_syspm_waitfor_t.
 *
 * \sideeffect
-* This side effect is applicable only for devices with UDB IP block available. 
+* This side effect is applicable only for devices with UDB IP block available.
 * You can obtain unpredictable behavior of the UDB block after the device wakeup
 * from Deep Sleep.
 * Unpredictable behavior scenario:
 * * The first core saves non-retained UDB configuration registers and goes into
 * the Deep Sleep (Cy_SysPm_DeepSleep() function).
-* * These non-retained UDB configuration registers are modified in runtime by 
+* * These non-retained UDB configuration registers are modified in runtime by
 * another (second) active core.
 * * The second core saves non-retained UDB configuration registers and goes into
 * the Deep Sleep (Cy_SysPm_DeepSleep() function).
 * These conditions save different values of the non-retained UDB configuration
-* registers. The prevented scenario: on the first core wakeup, these registers 
-* are restored by the values saved on the first core. After the second core 
-* wakeup, these registers are "reconfigured" by the values saved on the second 
+* registers. The prevented scenario: on the first core wakeup, these registers
+* are restored by the values saved on the first core. After the second core
+* wakeup, these registers are "reconfigured" by the values saved on the second
 * core.
 * Be aware of this situation.
 *
@@ -479,11 +477,11 @@ cy_en_syspm_status_t Cy_SysPm_Sleep(cy_en_syspm_waitfor_t waitFor)
 * Entered status, see \ref cy_en_syspm_status_t.
 *
 * \note
-* The FLL/PLL are not restored right before the CPU starts executing the 
-* instructions after Deep Sleep. This can affect the peripheral which is 
+* The FLL/PLL are not restored right before the CPU starts executing the
+* instructions after Deep Sleep. This can affect the peripheral which is
 * driven by PLL/FLL. Ensure that the PLL/FLL were properly restored (locked)
-* after the wakeup from Deep Sleep. Refer to the 
-* \ref group_sysclk driver documentation driver for the information how to 
+* after the wakeup from Deep Sleep. Refer to the
+* \ref group_sysclk driver documentation driver for the information how to
 * read the PLL/FLL lock statuses.
 *
 * \funcusage
@@ -497,7 +495,7 @@ cy_en_syspm_status_t Cy_SysPm_DeepSleep(cy_en_syspm_waitfor_t waitFor)
 
     CY_ASSERT_L3(CY_SYSPM_IS_WAIT_FOR_VALID(waitFor));
 
-    /* Call the registered callback functions with 
+    /* Call the registered callback functions with
     * the CY_SYSPM_CHECK_READY parameter.
     */
     if(0U != curRegisteredCallbacks)
@@ -511,8 +509,8 @@ cy_en_syspm_status_t Cy_SysPm_DeepSleep(cy_en_syspm_waitfor_t waitFor)
     */
     if(retVal == CY_SYSPM_SUCCESS)
     {
-        /* Call the registered callback functions with the 
-        * CY_SYSPM_BEFORE_TRANSITION parameter. The return value should be 
+        /* Call the registered callback functions with the
+        * CY_SYSPM_BEFORE_TRANSITION parameter. The return value should be
         * CY_SYSPM_SUCCESS.
         */
         interruptState = Cy_SysLib_EnterCriticalSection();
@@ -547,7 +545,7 @@ cy_en_syspm_status_t Cy_SysPm_DeepSleep(cy_en_syspm_waitfor_t waitFor)
 
             curLdoVoltage = Cy_SysPm_LdoGetVoltage();
 
-            /* Configure additional wakeup delay from Deep Sleep 
+            /* Configure additional wakeup delay from Deep Sleep
             *  for 1.1 V LDO. Cypress ID #290172.
             */
             if ((Cy_SysPm_LdoIsEnabled()) && (CY_SYSPM_LDO_VOLTAGE_1_1V == curLdoVoltage))
@@ -575,7 +573,7 @@ cy_en_syspm_status_t Cy_SysPm_DeepSleep(cy_en_syspm_waitfor_t waitFor)
 
         Cy_SysLib_ExitCriticalSection(interruptState);
 
-        /* Call the registered callback functions with the CY_SYSPM_AFTER_TRANSITION 
+        /* Call the registered callback functions with the CY_SYSPM_AFTER_TRANSITION
         *  parameter. The return value should be CY_SYSPM_SUCCESS.
         */
         if(0U != curRegisteredCallbacks)
@@ -585,8 +583,8 @@ cy_en_syspm_status_t Cy_SysPm_DeepSleep(cy_en_syspm_waitfor_t waitFor)
     }
     else
     {
-        /* Execute callback functions with the CY_SYSPM_CHECK_FAIL parameter to 
-        * undo everything done in the callback with the CY_SYSPM_CHECK_READY 
+        /* Execute callback functions with the CY_SYSPM_CHECK_FAIL parameter to
+        * undo everything done in the callback with the CY_SYSPM_CHECK_READY
         * parameter. The return value should be CY_SYSPM_SUCCESS.
         */
         (void) Cy_SysPm_ExecuteCallback(CY_SYSPM_DEEPSLEEP, CY_SYSPM_CHECK_FAIL);
@@ -602,52 +600,52 @@ cy_en_syspm_status_t Cy_SysPm_DeepSleep(cy_en_syspm_waitfor_t waitFor)
 *
 * Sets the device into Hibernate mode.
 *
-* Puts the core into the Hibernate power mode. Prior to entering Hibernate 
-* mode, all callbacks of the CY_SYSPM_HIBERNATE type are executed. 
-* First, callbacks of the CY_SYSPM_HIBERNATE type and with 
-* CY_SYSPM_CHECK_READY parameter are called, allowing the driver to signal if it 
-* is not ready to enter the power mode. If any of the callbacks of the 
-* CY_SYSPM_HIBERNATE type with the CY_SYSPM_CHECK_READY parameter call returns 
-* CY_SYSPM_FAIL, the remaining CY_SYSPM_HIBERNATE callbacks with the 
-* CY_SYSPM_CHECK_READY parameter calls are skipped. After CY_SYSPM_FAIL, all 
-* of the CY_SYSPM_HIBERNATE callbacks with CY_SYSPM_CHECK_FAIL parameter are 
-* executed that correspond to the CY_SYSPM_HIBERNATE callbacks with 
+* Puts the core into the Hibernate power mode. Prior to entering Hibernate
+* mode, all callbacks of the CY_SYSPM_HIBERNATE type are executed.
+* First, callbacks of the CY_SYSPM_HIBERNATE type and with
+* CY_SYSPM_CHECK_READY parameter are called, allowing the driver to signal if it
+* is not ready to enter the power mode. If any of the callbacks of the
+* CY_SYSPM_HIBERNATE type with the CY_SYSPM_CHECK_READY parameter call returns
+* CY_SYSPM_FAIL, the remaining CY_SYSPM_HIBERNATE callbacks with the
+* CY_SYSPM_CHECK_READY parameter calls are skipped. After CY_SYSPM_FAIL, all
+* of the CY_SYSPM_HIBERNATE callbacks with CY_SYSPM_CHECK_FAIL parameter are
+* executed that correspond to the CY_SYSPM_HIBERNATE callbacks with
 * CY_SYSPM_CHECK_READY parameter calls that occurred up to the point of failure.
-* Hibernate mode is not entered and the Cy_SysPm_Hibernate() function 
+* Hibernate mode is not entered and the Cy_SysPm_Hibernate() function
 * returns CY_SYSPM_FAIL.
 *
-* If all CY_SYSPM_HIBERNATE callbacks with the CY_SYSPM_CHECK_READY parameter 
-* calls return CY_SYSPM_SUCCESS, then all CY_SYSPM_HIBERNATE callbacks with 
-* CY_SYSPM_CHECK_FAIL calls are skipped and all CY_SYSPM_HIBERNATE callbacks 
-* CY_SYSPM_BEFORE_TRANSITION parameter calls are executed allowing the 
-* peripherals to prepare for Hibernate. The I/O output state is frozen and 
-* Hibernate mode is then entered. In Hibernate mode, all internal supplies 
-* are off and no internal state is retained. There is no handshake with the 
+* If all CY_SYSPM_HIBERNATE callbacks with the CY_SYSPM_CHECK_READY parameter
+* calls return CY_SYSPM_SUCCESS, then all CY_SYSPM_HIBERNATE callbacks with
+* CY_SYSPM_CHECK_FAIL calls are skipped and all CY_SYSPM_HIBERNATE callbacks
+* CY_SYSPM_BEFORE_TRANSITION parameter calls are executed allowing the
+* peripherals to prepare for Hibernate. The I/O output state is frozen and
+* Hibernate mode is then entered. In Hibernate mode, all internal supplies
+* are off and no internal state is retained. There is no handshake with the
 * CPUs and the chip will enter Hibernate immediately.
 *
-* The I/O output state is frozen and Hibernate mode is then 
-* entered. In Hibernate mode, all internal supplies are off and no 
+* The I/O output state is frozen and Hibernate mode is then
+* entered. In Hibernate mode, all internal supplies are off and no
 * internal state is retained.
-* For multi-core devices there is no handshake with the CPUs and the chip 
+* For multi-core devices there is no handshake with the CPUs and the chip
 * will enter Hibernate power mode immediately.
 *
-* \note The last callback that returned CY_SYSPM_FAIL is not executed with the 
+* \note The last callback that returned CY_SYSPM_FAIL is not executed with the
 * CY_SYSPM_CHECK_FAIL parameter because of the FAIL.
 *
-* The return values from executed callback functions with the 
+* The return values from executed callback functions with the
 * CY_SYSPM_CHECK_FAIL, CY_SYSPM_BEFORE_TRANSITION, and CY_SYSPM_AFTER_TRANSITION
 * modes are ignored.
 *
 * A wakeup from Hibernate is triggered by toggling the wakeup pin(s), a WDT
-* match, or back-up domain alarm expiration, depending on how the they were 
+* match, or back-up domain alarm expiration, depending on how the they were
 * configured. A wakeup causes a normal boot procedure.
 * To configure the wakeup pin(s), a Digital Input Pin must be configured, and
 * resistively pulled up or down to the inverse state of the wakeup polarity. To
 * distinguish a wakeup from Hibernate mode and a general reset event, the
-* Cy_SysLib_GetResetReason() function can be used. The wakeup pin and low-power 
-* comparators are active-low by default. The wakeup pin or the LPComparators 
+* Cy_SysLib_GetResetReason() function can be used. The wakeup pin and low-power
+* comparators are active-low by default. The wakeup pin or the LPComparators
 * polarity can be changed with the \ref Cy_SysPm_SetHibernateWakeupSource() function.
-* This function call will not return if Hibernate mode is entered. 
+* This function call will not return if Hibernate mode is entered.
 * The CY_SYSPM_HIBERNATE callbacks with the CY_SYSPM_AFTER_TRANSITION parameter
 * are never executed.
 *
@@ -667,7 +665,7 @@ cy_en_syspm_status_t Cy_SysPm_Hibernate(void)
 {
     cy_en_syspm_status_t retVal = CY_SYSPM_SUCCESS;
 
-    /* Call the registered callback functions with the 
+    /* Call the registered callback functions with the
     * CY_SYSPM_CHECK_READY parameter
     */
     if(0U != curRegisteredCallbacks)
@@ -681,7 +679,7 @@ cy_en_syspm_status_t Cy_SysPm_Hibernate(void)
     */
     if(retVal == CY_SYSPM_SUCCESS)
     {
-        /* Call registered callback functions with CY_SYSPM_BEFORE_TRANSITION 
+        /* Call registered callback functions with CY_SYSPM_BEFORE_TRANSITION
         *  parameter. Return value should be CY_SYSPM_SUCCESS.
         */
         (void) Cy_SysLib_EnterCriticalSection();
@@ -695,36 +693,36 @@ cy_en_syspm_status_t Cy_SysPm_Hibernate(void)
          * Wakeup from a general reset event.
          * Preserve the wakeup source(s) configuration.
          */
-        SRSS->PWR_HIBERNATE = 
+        SRSS->PWR_HIBERNATE =
         (SRSS->PWR_HIBERNATE & CY_SYSPM_PWR_WAKEUP_HIB_MASK) | CY_SYSPM_PWR_TOKEN_HIBERNATE;
 
         /* Freeze I/O-Cells to save I/O-Cell state */
         Cy_SysPm_IoFreeze();
 
         SRSS->PWR_HIBERNATE |= CY_SYSPM_PWR_SET_HIBERNATE;
-        
+
         /* Read register to make sure it is settled */
         (void) SRSS->PWR_HIBERNATE;
 
         /* Wait for transition */
         __WFI();
 
-        /* The callback functions calls with the CY_SYSPM_AFTER_TRANSITION 
-        * parameter in the Hibernate power mode are not applicable as device 
+        /* The callback functions calls with the CY_SYSPM_AFTER_TRANSITION
+        * parameter in the Hibernate power mode are not applicable as device
         * wake-up was made on device reboot.
         */
 
-        /* A wakeup from Hibernate is performed by toggling of the wakeup 
-        * pins, or WDT matches, or Backup domain alarm expires. This depends on what 
+        /* A wakeup from Hibernate is performed by toggling of the wakeup
+        * pins, or WDT matches, or Backup domain alarm expires. This depends on what
         * item is configured in the hibernate register. After a wakeup event, a
-        * normal Boot procedure occurs. 
+        * normal Boot procedure occurs.
         * There is no need to exit from the critical section.
         */
     }
     else
     {
-        /* Execute callback functions with the CY_SYSPM_CHECK_FAIL parameter to 
-        * undo everything done in the callback with the CY_SYSPM_CHECK_READY 
+        /* Execute callback functions with the CY_SYSPM_CHECK_FAIL parameter to
+        * undo everything done in the callback with the CY_SYSPM_CHECK_READY
         * parameter. The return value should be CY_SYSPM_SUCCESS.
         */
         (void) Cy_SysPm_ExecuteCallback(CY_SYSPM_HIBERNATE, CY_SYSPM_CHECK_FAIL);
@@ -738,79 +736,79 @@ cy_en_syspm_status_t Cy_SysPm_Hibernate(void)
 * Function Name: Cy_SysPm_EnterLowPowerMode
 ****************************************************************************//**
 *
-* This function switches only the supply regulators into Low Power mode. 
-* You must configure 
-* clocks and/or peripherals to meet current load limitations in LP Active. 
+* This function switches only the supply regulators into Low Power mode.
+* You must configure
+* clocks and/or peripherals to meet current load limitations in LP Active.
 * For more details about power modes and current load limitations refer to
 * the device technical reference manual (TRM).
 *
 * The LPActive mode is similar to the Active mode.
-* The difference is that the current is limited and some functions have limited 
+* The difference is that the current is limited and some functions have limited
 * features/performance.
 *
-* The key feature of the Low Power mode is the limited current. Restrictions are 
-* placed on the clock frequencies and allow the peripherals to achieve 
+* The key feature of the Low Power mode is the limited current. Restrictions are
+* placed on the clock frequencies and allow the peripherals to achieve
 * a current limit.
 *
-* Before entering Low Power mode, you must configure the system so 
-* the total current drawn from Vccd is less that the value presented in the 
-* technical reference manual (TRM). Refer to the TRM for the maximum load for 
+* Before entering Low Power mode, you must configure the system so
+* the total current drawn from Vccd is less that the value presented in the
+* technical reference manual (TRM). Refer to the TRM for the maximum load for
 * low power operation and clock limitations in Low Power mode with different
 * core supply regulator voltages.
 *
 * * Peripherals can use the knowledge of the LPActive mode to make
 * trade-offs that consume less current. For more details, see the corresponding
 * peripherals' datasheet.
-* * High-speed clock sources are available with the appropriate pre-divider 
+* * High-speed clock sources are available with the appropriate pre-divider
 * settings to limit the system current.
-* Refer to the TRM for the maximum frequency values for low power operation 
+* Refer to the TRM for the maximum frequency values for low power operation
 * using different Core Regulators' output voltages.
 *
 * This function puts the device into Low Power mode. Prior to entering Low Power mode,
-* all the registered CY_SYSPM_ENTER_LOWPOWER_MODE callbacks with CY_SYSPM_CHECK_READY 
-* parameter are called. This allows the driver to signal if it is not ready to 
+* all the registered CY_SYSPM_ENTER_LOWPOWER_MODE callbacks with CY_SYSPM_CHECK_READY
+* parameter are called. This allows the driver to signal if it is not ready to
 * enter Low Power mode. If any CY_SYSPM_ENTER_LOWPOWER_MODE callbacks with the
 * CY_SYSPM_CHECK_READY parameter call returns CY_SYSPM_FAIL, the remaining
-* CY_SYSPM_ENTER_LOWPOWER_MODE callbacks with the CY_SYSPM_CHECK_READY parameter 
+* CY_SYSPM_ENTER_LOWPOWER_MODE callbacks with the CY_SYSPM_CHECK_READY parameter
 * calls are skipped.
 *
-* After a CY_SYSPM_FAIL, all of the CY_SYSPM_ENTER_LOWPOWER_MODE callbacks with 
-* CY_SYSPM_CHECK_FAIL parameter are executed that correspond to the 
-* CY_SYSPM_ENTER_LOWPOWER_MODE callbacks with CY_SYSPM_CHECK_READY parameter calls 
-* that occurred up to the point of failure. Low Power mode is not entered and 
+* After a CY_SYSPM_FAIL, all of the CY_SYSPM_ENTER_LOWPOWER_MODE callbacks with
+* CY_SYSPM_CHECK_FAIL parameter are executed that correspond to the
+* CY_SYSPM_ENTER_LOWPOWER_MODE callbacks with CY_SYSPM_CHECK_READY parameter calls
+* that occurred up to the point of failure. Low Power mode is not entered and
 * the Cy_SysPm_EnterLowPowerMode() function returns CY_SYSPM_FAIL.
 *
-* If all CY_SYSPM_ENTER_LOWPOWER_MODE callbacks with the CY_SYSPM_CHECK_READY 
-* parameter calls return CY_SYSPM_SUCCESS, then all CY_SYSPM_ENTER_LOWPOWER_MODE 
-* callbacks with CY_SYSPM_CHECK_FAIL calls are skipped and all 
+* If all CY_SYSPM_ENTER_LOWPOWER_MODE callbacks with the CY_SYSPM_CHECK_READY
+* parameter calls return CY_SYSPM_SUCCESS, then all CY_SYSPM_ENTER_LOWPOWER_MODE
+* callbacks with CY_SYSPM_CHECK_FAIL calls are skipped and all
 * CY_SYSPM_ENTER_LOWPOWER_MODE callbacks with the CY_SYSPM_BEFORE_TRANSITION parameter
 * calls are executed. This allows the peripherals to prepare for low power.
 * Low Power mode is then entered.
 *
-* After entering Low Power mode, all of the registered 
-* CY_SYSPM_ENTER_LOWPOWER_MODE callbacks with the CY_SYSPM_AFTER_TRANSITION parameter 
-* are executed to complete preparing the peripherals for low power operation. 
-* The Cy_SysPm_EnterLowPowerMode() function returns CY_SYSPM_SUCCESS. 
-* No CY_SYSPM_ENTER_LOWPOWER_MODE callbacks with the CY_SYSPM_BEFORE_TRANSITION or 
+* After entering Low Power mode, all of the registered
+* CY_SYSPM_ENTER_LOWPOWER_MODE callbacks with the CY_SYSPM_AFTER_TRANSITION parameter
+* are executed to complete preparing the peripherals for low power operation.
+* The Cy_SysPm_EnterLowPowerMode() function returns CY_SYSPM_SUCCESS.
+* No CY_SYSPM_ENTER_LOWPOWER_MODE callbacks with the CY_SYSPM_BEFORE_TRANSITION or
 * CY_SYSPM_AFTER_TRANSITION parameter are executed, if Low Power mode is not
 * entered.
 *
-* \note The last callback that returned CY_SYSPM_FAIL is not executed with 
+* \note The last callback that returned CY_SYSPM_FAIL is not executed with
 * the CY_SYSPM_CHECK_FAIL parameter because of the FAIL.
 *
-* The return values from executed callback functions with the 
+* The return values from executed callback functions with the
 * CY_SYSPM_CHECK_FAIL, CY_SYSPM_BEFORE_TRANSITION, and CY_SYSPM_AFTER_TRANSITION
 * modes are ignored.
 *
-* \note The callbacks are not executed if the device is already not in 
+* \note The callbacks are not executed if the device is already not in
 * Low Power mode.
 *
 * \return
 * See \ref cy_en_syspm_status_t. <br>
-* CY_SYSPM_SUCCESS - Entered the LPActive mode or the device is already 
+* CY_SYSPM_SUCCESS - Entered the LPActive mode or the device is already
 * in LPActive.<br>
-* CY_SYSPM_FAIL - The LPActive mode is not entered or low power circuits 
-* are not ready to enter Low Power mode. 
+* CY_SYSPM_FAIL - The LPActive mode is not entered or low power circuits
+* are not ready to enter Low Power mode.
 *
 * \funcusage
 * \snippet syspm/syspm_2_10_sut_01.cydsn/main_cm4.c snippet_Cy_SysPm_EnterLowPowerMode
@@ -824,12 +822,12 @@ cy_en_syspm_status_t Cy_SysPm_EnterLowPowerMode(void)
     /* Check whether device is in the low power mode. */
     if(0U == (_FLD2VAL(SRSS_PWR_CTL_ACT_REF_DIS, SRSS->PWR_CTL)))
     {
-        /* The entering into the low power mode is permitted when low 
+        /* The entering into the low power mode is permitted when low
         *  power circuits are ready to enter into the low power mode.
         */
         if(0U != _FLD2VAL(SRSS_PWR_CTL_LPM_READY, SRSS->PWR_CTL))
         {
-            /* Call the registered callback functions with the 
+            /* Call the registered callback functions with the
             * CY_SYSPM_CHECK_READY parameter.
             */
             if(0U != curRegisteredCallbacks)
@@ -838,14 +836,14 @@ cy_en_syspm_status_t Cy_SysPm_EnterLowPowerMode(void)
             }
 
             /* The device (core) can switch into the low power mode only when
-            * all executed registered callback functions with the 
+            * all executed registered callback functions with the
             * CY_SYSPM_CHECK_READY parameter returned CY_SYSPM_SUCCESS.
             */
             if(retVal == CY_SYSPM_SUCCESS)
             {
-                
-                /* Call the registered callback functions with the 
-                * CY_SYSPM_BEFORE_TRANSITION parameter. The return value 
+
+                /* Call the registered callback functions with the
+                * CY_SYSPM_BEFORE_TRANSITION parameter. The return value
                 * should be CY_SYSPM_SUCCESS.
                 */
                 interruptState = Cy_SysLib_EnterCriticalSection();
@@ -882,8 +880,8 @@ cy_en_syspm_status_t Cy_SysPm_EnterLowPowerMode(void)
 
                 Cy_SysLib_ExitCriticalSection(interruptState);
 
-                /* Call the registered callback functions with the 
-                * CY_SYSPM_AFTER_TRANSITION parameter. The return value 
+                /* Call the registered callback functions with the
+                * CY_SYSPM_AFTER_TRANSITION parameter. The return value
                 * should be CY_SYSPM_SUCCESS.
                 */
                 if(0U != curRegisteredCallbacks)
@@ -893,8 +891,8 @@ cy_en_syspm_status_t Cy_SysPm_EnterLowPowerMode(void)
             }
             else
             {
-                /* Execute callback functions with the CY_SYSPM_CHECK_FAIL parameter to 
-                * undo everything done in the callback with the CY_SYSPM_CHECK_READY 
+                /* Execute callback functions with the CY_SYSPM_CHECK_FAIL parameter to
+                * undo everything done in the callback with the CY_SYSPM_CHECK_READY
                 * parameter. The return value should be CY_SYSPM_SUCCESS.
                 */
                 (void) Cy_SysPm_ExecuteCallback(CY_SYSPM_ENTER_LOWPOWER_MODE, CY_SYSPM_CHECK_FAIL);
@@ -921,51 +919,51 @@ cy_en_syspm_status_t Cy_SysPm_EnterLowPowerMode(void)
 * Exits the device from Low Power mode.
 *
 * Returns the device to the Active mode. In the Active power mode, the operating
-* current can be increased to the normal mode limit. The clock frequencies also 
-* can be increased to the normal mode limit. Refer to the device TRM for the 
+* current can be increased to the normal mode limit. The clock frequencies also
+* can be increased to the normal mode limit. Refer to the device TRM for the
 * current and frequency limitations in the Active power mode.
-* 
-* Prior to exiting Low Power mode, all the registered CY_SYSPM_EXIT_LOWPOWER_MODE 
+*
+* Prior to exiting Low Power mode, all the registered CY_SYSPM_EXIT_LOWPOWER_MODE
 * callbacks with the CY_SYSPM_CHECK_READY parameter are called. This allows
-* the driver to signal if it is not ready to exit  
-* Low Power mode. If any CY_SYSPM_EXIT_LOWPOWER_MODE callbacks with 
+* the driver to signal if it is not ready to exit
+* Low Power mode. If any CY_SYSPM_EXIT_LOWPOWER_MODE callbacks with
 * the CY_SYSPM_CHECK_READY parameter call returns CY_SYSPM_FAIL, the remaining
 * CY_SYSPM_EXIT_LOWPOWER_MODE callbacks with the CY_SYSPM_CHECK_READY parameter calls
-* are skipped. After a CY_SYSPM_FAIL, all of the CY_SYSPM_EXIT_LOWPOWER_MODE callbacks 
+* are skipped. After a CY_SYSPM_FAIL, all of the CY_SYSPM_EXIT_LOWPOWER_MODE callbacks
 * with CY_SYSPM_CHECK_FAIL parameter are executed that correspond to the
 * CY_SYSPM_EXIT_LOWPOWER_MODE callbacks with CY_SYSPM_CHECK_READY parameter calls that
-* occurred up to the point of failure. Active mode is not entered and the 
+* occurred up to the point of failure. Active mode is not entered and the
 * Cy_SysPm_ExitLowPowerMode() function returns CY_SYSPM_FAIL.
 *
-* If all CY_SYSPM_EXIT_LOWPOWER_MODE callbacks with CY_SYSPM_CHECK_READY calls return 
-* CY_SYSPM_SUCCESS, then all the CY_SYSPM_EXIT_LOWPOWER_MODE callbacks with 
-* the CY_SYSPM_CHECK_FAIL parameter calls are skipped and all 
-* CY_SYSPM_EXIT_LOWPOWER_MODE callbacks with the CY_SYSPM_BEFORE_TRANSITION parameter 
-* calls are executed allowing the peripherals to prepare for Active mode. 
+* If all CY_SYSPM_EXIT_LOWPOWER_MODE callbacks with CY_SYSPM_CHECK_READY calls return
+* CY_SYSPM_SUCCESS, then all the CY_SYSPM_EXIT_LOWPOWER_MODE callbacks with
+* the CY_SYSPM_CHECK_FAIL parameter calls are skipped and all
+* CY_SYSPM_EXIT_LOWPOWER_MODE callbacks with the CY_SYSPM_BEFORE_TRANSITION parameter
+* calls are executed allowing the peripherals to prepare for Active mode.
 * Low Power mode is then exited.
 *
-* After exiting Low Power mode, all of the registered callbacks that have 
-* type CY_SYSPM_EXIT_LOWPOWER_MODE are executed with the CY_SYSPM_AFTER_TRANSITION 
-* parameter to complete preparing the peripherals for Active mode operation. 
-* The Cy_SysPm_ExitLowPowerMode() function returns CY_SYSPM_SUCCESS. 
-* No CY_SYSPM_EXIT_LOWPOWER_MODE callbacks with the CY_SYSPM_BEFORE_TRANSITION or 
-* CY_SYSPM_AFTER_TRANSITION parameter are executed if Low Power mode is 
+* After exiting Low Power mode, all of the registered callbacks that have
+* type CY_SYSPM_EXIT_LOWPOWER_MODE are executed with the CY_SYSPM_AFTER_TRANSITION
+* parameter to complete preparing the peripherals for Active mode operation.
+* The Cy_SysPm_ExitLowPowerMode() function returns CY_SYSPM_SUCCESS.
+* No CY_SYSPM_EXIT_LOWPOWER_MODE callbacks with the CY_SYSPM_BEFORE_TRANSITION or
+* CY_SYSPM_AFTER_TRANSITION parameter are executed if Low Power mode is
 * not exited.
 *
-* \note The last callback that returned CY_SYSPM_FAIL is not executed with the 
+* \note The last callback that returned CY_SYSPM_FAIL is not executed with the
 * CY_SYSPM_CHECK_FAIL parameter because of the FAIL.
 *
-* The return values from executed callback functions with the 
+* The return values from executed callback functions with the
 * CY_SYSPM_CHECK_FAIL, CY_SYSPM_BEFORE_TRANSITION, and CY_SYSPM_AFTER_TRANSITION
 * modes are ignored.
 *
-* \note The callbacks are not executed if the device is not already in Low 
+* \note The callbacks are not executed if the device is not already in Low
 * Power mode.
 *
 * \return
 * See \ref cy_en_syspm_status_t. <br>
-* CY_SYSPM_SUCCESS - Exited from the LPActive power mode, or the device is 
-* already in Active mode. <br> 
+* CY_SYSPM_SUCCESS - Exited from the LPActive power mode, or the device is
+* already in Active mode. <br>
 * CY_SYSPM_FAIL - Exit from the LPActive mode is not done.
 *
 * \warning This function blocks as it waits until Active Reference is ready
@@ -984,7 +982,7 @@ cy_en_syspm_status_t Cy_SysPm_ExitLowPowerMode(void)
     /* Check if the device is in the low power mode */
     if(0U != (_FLD2VAL(SRSS_PWR_CTL_ACT_REF_DIS, SRSS->PWR_CTL)))
     {
-        /* Call the registered callback functions with the 
+        /* Call the registered callback functions with the
         *  CY_SYSPM_CHECK_READY parameter.
         */
         if(0U != curRegisteredCallbacks)
@@ -992,14 +990,14 @@ cy_en_syspm_status_t Cy_SysPm_ExitLowPowerMode(void)
             retVal = Cy_SysPm_ExecuteCallback(CY_SYSPM_EXIT_LOWPOWER_MODE, CY_SYSPM_CHECK_READY);
         }
 
-        /* The device (core) can switch into the Low Power mode only in the 
-        * condition that all executed registered callback functions with the 
+        /* The device (core) can switch into the Low Power mode only in the
+        * condition that all executed registered callback functions with the
         * CY_SYSPM_CHECK_READY parameter return CY_SYSPM_SUCCESS.
         */
         if(retVal == CY_SYSPM_SUCCESS)
         {
-            /* Call the registered callback functions with the 
-            * CY_SYSPM_BEFORE_TRANSITION parameter. The return value should be 
+            /* Call the registered callback functions with the
+            * CY_SYSPM_BEFORE_TRANSITION parameter. The return value should be
             * CY_SYSPM_SUCCESS.
             */
             interruptState = Cy_SysLib_EnterCriticalSection();
@@ -1016,7 +1014,7 @@ cy_en_syspm_status_t Cy_SysPm_ExitLowPowerMode(void)
                 SRSS->PWR_CTL &= ((uint32_t)~(SRSS_PWR_CTL_LINREG_LPMODE_Msk));
             }
 
-            /* Configure the normal operating mode for the POR/BOD circuits and 
+            /* Configure the normal operating mode for the POR/BOD circuits and
             * for the Bandgap Voltage and Current References
             */
             SRSS->PWR_CTL &= ((uint32_t)~(_VAL2FLD(SRSS_PWR_CTL_PORBOD_LPMODE, 1U) |
@@ -1035,20 +1033,20 @@ cy_en_syspm_status_t Cy_SysPm_ExitLowPowerMode(void)
             if(0U == timeOut)
             {
                 retVal = CY_SYSPM_TIMEOUT;
-                
+
                 Cy_SysLib_ExitCriticalSection(interruptState);
             }
             else
             {
                 /* Configure the normal operation mode */
                 SRSS->PWR_CTL &= ((uint32_t) (~SRSS_PWR_CTL_BGREF_LPMODE_Msk));
-                
+
                 /* This wait time allows setting Active Reference */
                 Cy_SysLib_DelayUs(CY_SYSPM_LP_TO_ACTIVE_WAIT_AFTER_US);
 
                 Cy_SysLib_ExitCriticalSection(interruptState);
-            
-                /* Call registered callback functions with CY_SYSPM_AFTER_TRANSITION 
+
+                /* Call registered callback functions with CY_SYSPM_AFTER_TRANSITION
                 *  parameter. Return value should be CY_SYSPM_SUCCESS.
                 */
                 if(0U != curRegisteredCallbacks)
@@ -1060,8 +1058,8 @@ cy_en_syspm_status_t Cy_SysPm_ExitLowPowerMode(void)
         }
         else
         {
-            /* Execute callback functions with the CY_SYSPM_CHECK_FAIL parameter to 
-            * undo everything done in the callback with the CY_SYSPM_CHECK_READY 
+            /* Execute callback functions with the CY_SYSPM_CHECK_FAIL parameter to
+            * undo everything done in the callback with the CY_SYSPM_CHECK_READY
             * parameter. The return value should be CY_SYSPM_SUCCESS.
             */
             (void) Cy_SysPm_ExecuteCallback(CY_SYSPM_EXIT_LOWPOWER_MODE, CY_SYSPM_CHECK_FAIL);
@@ -1083,22 +1081,22 @@ cy_en_syspm_status_t Cy_SysPm_ExitLowPowerMode(void)
 * This function configures the Sleep-on-exit feature of the core.
 *
 * This API sets the SLEEPONEXIT bit of the SCR register.
-* 
-* When the Sleep-on-exit feature is enabled (SLEEPONEXIT bit is set), 
+*
+* When the Sleep-on-exit feature is enabled (SLEEPONEXIT bit is set),
 * the core wakes up to service the interrupt and then immediately goes
-* back to sleep. Because of this, the unstacking process is not carried out, so 
-* this feature is useful for the interrupt driven application and helps to 
+* back to sleep. Because of this, the unstacking process is not carried out, so
+* this feature is useful for the interrupt driven application and helps to
 * reduce the unnecessary stack push and pop operations.
-* The core does not go to sleep if the interrupt handler returns to 
-* another interrupt handler (nested interrupt). 
-* You can use this feature in applications that require only the core to run 
+* The core does not go to sleep if the interrupt handler returns to
+* another interrupt handler (nested interrupt).
+* You can use this feature in applications that require only the core to run
 * when an interrupt occurs.
 *
-* When the Sleep-on-exit feature is disabled (SLEEPONEXIT bit is cleared), 
+* When the Sleep-on-exit feature is disabled (SLEEPONEXIT bit is cleared),
 * the core returns back to the main thread after servicing the interrupt
 * without going back to sleep.
 *
-* Refer to the ARM documentation about the Sleep-on-exit feature and 
+* Refer to the ARM documentation about the Sleep-on-exit feature and
 * SLEEPONEXIT of the SCR register.
 *
 * \param enable
@@ -1132,7 +1130,7 @@ void Cy_SysPm_SleepOnExit(bool enable)
 * Function Name: Cy_SysPm_SetHibernateWakeupSource
 ****************************************************************************//**
 *
-* This function configures sources to wake up the device from the Hibernate 
+* This function configures sources to wake up the device from the Hibernate
 * power mode. Such sources can be wakeup pins, LPComparators, Watchdog (WDT)
 * interrupt, or a Real-Time clock (RTC) alarm (interrupt).
 *
@@ -1145,39 +1143,39 @@ void Cy_SysPm_SleepOnExit(bool enable)
 *
 * LPComparators:
 *
-* A wakeup is supported by up to two LPComps with programmable polarity. These 
-* LPComp may be connected to the I/O pins or on-chip peripherals under some 
+* A wakeup is supported by up to two LPComps with programmable polarity. These
+* LPComp may be connected to the I/O pins or on-chip peripherals under some
 * conditions.
 * Setting the LPComp to this level will cause a wakeup from Hibernate
 * mode. The wakeup LPComp are active-low by default.
 *
-* \note The low-power comparators should be configured and enabled before 
+* \note The low-power comparators should be configured and enabled before
 * switching into the hibernate low power mode. Refer to the LPComp
 * driver description for more details.
 *
 * Watchdog Timer:
-* 
-* \note The WDT should be configured and enabled before entering into the 
+*
+* \note The WDT should be configured and enabled before entering into the
 * Hibernate power mode.
 *
-* A wakeup is performed by a WDT interrupt and a normal boot procedure 
-* after a device reset. The device can wake up from Hibernate after a WDT 
-* device reset, if the WDT was configured to wake up, the device on its 
+* A wakeup is performed by a WDT interrupt and a normal boot procedure
+* after a device reset. The device can wake up from Hibernate after a WDT
+* device reset, if the WDT was configured to wake up, the device on its
 * interrupt and WDT was enabled.
 *
 * Real-time Clock:
 *
-* A wakeup is performed by the RTC alarm and a normal boot procedure 
+* A wakeup is performed by the RTC alarm and a normal boot procedure
 * after a device reset.
 * Refer to the Real-Time Clock (RTC) driver description for more details.
 *
-* For information about wakeup sources and their assignment in the specific 
+* For information about wakeup sources and their assignment in the specific
 * families devices, refer to the appropriate device TRM.
 *
-* \param wakeupSource 
-* The source to be configured as a wakeup source from 
+* \param wakeupSource
+* The source to be configured as a wakeup source from
 * the Hibernate power mode, see \ref cy_en_syspm_hibernate_wakeup_source_t.
-* The input parameters values can be ORed. For example, if you want to set 
+* The input parameters values can be ORed. For example, if you want to set
 * LPComp0 (active high) and WDT, call this function:
 * Cy_SysPm_SetHibernateWakeupSource(CY_SYSPM_HIBERNATE_LPCOMP0_HIGH | CY_SYSPM_HIBERNATE_WDT).
 *
@@ -1192,29 +1190,29 @@ void Cy_SysPm_SleepOnExit(bool enable)
 void Cy_SysPm_SetHibernateWakeupSource(uint32_t wakeupSource)
 {
     CY_ASSERT_L3(CY_SYSPM_IS_WAKE_UP_SOURCE_VALID(wakeupSource));
-    
+
     /* Reconfigure the wake-up pins and LPComp polarity based on the input */
     if(0U != ((uint32_t) wakeupSource & CY_SYSPM_WAKEUP_LPCOMP0))
     {
-        SRSS->PWR_HIBERNATE &= 
+        SRSS->PWR_HIBERNATE &=
         ((uint32_t) ~_VAL2FLD(SRSS_PWR_HIBERNATE_POLARITY_HIBPIN, CY_SYSPM_WAKEUP_LPCOMP0_BIT));
     }
-    
+
     if(0U != ((uint32_t) wakeupSource & CY_SYSPM_WAKEUP_LPCOMP1))
     {
-        SRSS->PWR_HIBERNATE &= 
+        SRSS->PWR_HIBERNATE &=
         ((uint32_t) ~_VAL2FLD(SRSS_PWR_HIBERNATE_POLARITY_HIBPIN, CY_SYSPM_WAKEUP_LPCOMP1_BIT));
     }
-    
+
     if(0U != ((uint32_t) wakeupSource & CY_SYSPM_WAKEUP_PIN0))
     {
-        SRSS->PWR_HIBERNATE &= 
+        SRSS->PWR_HIBERNATE &=
         ((uint32_t) ~_VAL2FLD(SRSS_PWR_HIBERNATE_POLARITY_HIBPIN, CY_SYSPM_WAKEUP_PIN0_BIT));
     }
-    
+
     if(0U != ((uint32_t) wakeupSource & CY_SYSPM_WAKEUP_PIN1))
     {
-        SRSS->PWR_HIBERNATE &= 
+        SRSS->PWR_HIBERNATE &=
         ((uint32_t) ~_VAL2FLD(SRSS_PWR_HIBERNATE_POLARITY_HIBPIN, CY_SYSPM_WAKEUP_PIN1_BIT));
     }
 
@@ -1229,12 +1227,12 @@ void Cy_SysPm_SetHibernateWakeupSource(uint32_t wakeupSource)
 * Function Name: Cy_SysPm_ClearHibernateWakeupSource
 ****************************************************************************//**
 *
-* This function disables a wakeup source that was previously configured to 
+* This function disables a wakeup source that was previously configured to
 * wake up the device from the hibernate power mode.
 *
 * \param wakeupSource
 * For the source to be disabled, see \ref cy_en_syspm_hibernate_wakeup_source_t.
-* The input parameters values can be ORed. For example, if you want to disable 
+* The input parameters values can be ORed. For example, if you want to disable
 * LPComp0 (active high) and WDT call this function:
 * Cy_SysPm_ClearHibernateWakeupSource(CY_SYSPM_HIBERNATE_LPCOMP0_HIGH | CY_SYSPM_HIBERNATE_WDT).
 *
@@ -1253,25 +1251,25 @@ void Cy_SysPm_ClearHibernateWakeupSource(uint32_t wakeupSource)
         /* Clear the high active level of the requested sources */
         if((uint32_t) CY_SYSPM_HIBERNATE_LPCOMP0_HIGH == ((uint32_t) wakeupSource & (uint32_t) CY_SYSPM_HIBERNATE_LPCOMP0_HIGH))
         {
-            SRSS->PWR_HIBERNATE &= 
+            SRSS->PWR_HIBERNATE &=
             ((uint32_t) ~_VAL2FLD(SRSS_PWR_HIBERNATE_POLARITY_HIBPIN, CY_SYSPM_WAKEUP_LPCOMP0_BIT));
         }
-        
+
         if((uint32_t) CY_SYSPM_HIBERNATE_LPCOMP1_HIGH == ((uint32_t) wakeupSource & (uint32_t) CY_SYSPM_HIBERNATE_LPCOMP1_HIGH))
         {
-            SRSS->PWR_HIBERNATE &= 
+            SRSS->PWR_HIBERNATE &=
             ((uint32_t) ~_VAL2FLD(SRSS_PWR_HIBERNATE_POLARITY_HIBPIN, CY_SYSPM_WAKEUP_LPCOMP1_BIT));
         }
-        
+
         if((uint32_t) CY_SYSPM_HIBERNATE_PIN0_HIGH == ((uint32_t) wakeupSource & (uint32_t) CY_SYSPM_HIBERNATE_PIN0_HIGH))
         {
-            SRSS->PWR_HIBERNATE &= 
+            SRSS->PWR_HIBERNATE &=
             ((uint32_t) ~_VAL2FLD(SRSS_PWR_HIBERNATE_POLARITY_HIBPIN, CY_SYSPM_WAKEUP_PIN0_BIT));
         }
-        
+
         if((uint32_t) CY_SYSPM_HIBERNATE_PIN1_HIGH == ((uint32_t) wakeupSource & (uint32_t) CY_SYSPM_HIBERNATE_PIN1_HIGH))
         {
-            SRSS->PWR_HIBERNATE &= 
+            SRSS->PWR_HIBERNATE &=
             ((uint32_t) ~_VAL2FLD(SRSS_PWR_HIBERNATE_POLARITY_HIBPIN, CY_SYSPM_WAKEUP_PIN1_BIT));
         }
     }
@@ -1292,58 +1290,58 @@ void Cy_SysPm_ClearHibernateWakeupSource(uint32_t wakeupSource)
     ****************************************************************************//**
     *
     * Switch the power supply regulator to Buck regulator instead of the LDO.
-    * The Buck core regulator provides output voltage(s) using one external 
+    * The Buck core regulator provides output voltage(s) using one external
     * inductor and can supply Vccd with higher efficiency than the LDO under some
     * conditions, such as high external supply voltage.
     *
-    * Before changing from LDO to Buck, ensure that the circuit board has 
-    * connected Vccbuck1 to Vccd and also populated the 
-    * necessary external components for the Buck regulator, including an 
+    * Before changing from LDO to Buck, ensure that the circuit board has
+    * connected Vccbuck1 to Vccd and also populated the
+    * necessary external components for the Buck regulator, including an
     * inductor and a capacitor for each output.
     * Refer to the device TRM for more details.
     *
-    * When changing from a higher voltage to a lower voltage 
+    * When changing from a higher voltage to a lower voltage
     * (from LDO 1.1V to Buck 0.9V), ensure that:
     * * The device maximum operating frequency for all the Clk_HF paths, peripheral,
     * and slow clock are under the ULP limitations.
     * * The total current consumption is under the ULP limitations.
-    * 
-    * * The appropriate wait states values are set for the flash using 
+    *
+    * * The appropriate wait states values are set for the flash using
     * the Cy_SysLib_SetWaitStates() function as explained below.
     *
     * <b>Setting wait states values for flash</b>
     *
-    * The flash access time when the core output voltage is 0.9 V (nominal) is 
-    * longer than at 1.1 V (nominal). Therefore, the number of the wait states must 
+    * The flash access time when the core output voltage is 0.9 V (nominal) is
+    * longer than at 1.1 V (nominal). Therefore, the number of the wait states must
     * be adjusted. Use the Cy_SysLib_SetWaitStates() function to set the appropriate
-    * wait state values for flash. 
+    * wait state values for flash.
     *
-    * To change from a higher voltage (LDO 1.1 V) to a lower voltage (Buck 0.9 V), 
-    * call the Cy_SysLib_SetWaitStates(true, hfClkFreqMz) function before changing 
+    * To change from a higher voltage (LDO 1.1 V) to a lower voltage (Buck 0.9 V),
+    * call the Cy_SysLib_SetWaitStates(true, hfClkFreqMz) function before changing
     * the voltage, where hfClkFreqMz is the frequency of HfClk0 in MHz.
     *
-    * To change from a lower voltage (LDO 0.9 V) to a higher voltage (Buck 1.1 V), 
-    * calling the Cy_SysLib_SetWaitStates(false, hfClkFreqMz) function is to set 
-    * the wait states is optional, but can be done to improve the performance. 
+    * To change from a lower voltage (LDO 0.9 V) to a higher voltage (Buck 1.1 V),
+    * calling the Cy_SysLib_SetWaitStates(false, hfClkFreqMz) function is to set
+    * the wait states is optional, but can be done to improve the performance.
     * The clock frequency may now be increased up to LP mode for a new voltage.
-    * 
+    *
     * \note 1. The final Buck output is set to 0.9 V (nominal) - the flash works
     * in the Read-only operation.
     * \note 2. The final Buck output is set to 1.1 V (nominal) - the flash works
     * in the Read and Write operations.
-    * \note 3. The actual device Vccd voltage can be different from the nominal 
+    * \note 3. The actual device Vccd voltage can be different from the nominal
     * voltage because the actual voltage value depends on the conditions
     * including the load current.
     *
-    * \warning There is no way to go back to the LDO after the 
+    * \warning There is no way to go back to the LDO after the
     * Buck regulator supplies a core. The function switches off the LDO.
     *
-    * For more details refer to the \ref group_syspm_managing_core_regulators 
+    * For more details refer to the \ref group_syspm_managing_core_regulators
     * section.
     * Refer to the \ref group_syslib driver for more details about setting the wait
     * states.
     *
-    * \note 
+    * \note
     * The function is applicable for devices with the Buck regulator.
     *
     * \funcusage
@@ -1360,12 +1358,12 @@ void Cy_SysPm_ClearHibernateWakeupSource(uint32_t wakeupSource)
         curLdoVoltage = Cy_SysPm_LdoGetVoltage();
         interruptState = Cy_SysLib_EnterCriticalSection();
 
-        /* When the LDO is 1.1V and final target Buck 0.9V need to update the 
+        /* When the LDO is 1.1V and final target Buck 0.9V need to update the
         *  RAM and ROM trim values
         */
         if ((CY_SYSPM_BUCK_OUT1_VOLTAGE_0_9V == voltage) && (CY_SYSPM_LDO_VOLTAGE_1_1V == curLdoVoltage))
         {
-            /* Set the analog signal bit for the flash before the voltage is 
+            /* Set the analog signal bit for the flash before the voltage is
             * changed from 1.1V to 0.9V
             */
             SetVoltageBitForFlash();
@@ -1374,19 +1372,19 @@ void Cy_SysPm_ClearHibernateWakeupSource(uint32_t wakeupSource)
             SetReadMarginTrimUlp();
 
             /* Reduce LDO output voltage to 0.95 V nominal */
-            SRSS->PWR_TRIM_PWRSYS_CTL = 
+            SRSS->PWR_TRIM_PWRSYS_CTL =
             _CLR_SET_FLD32U((SRSS->PWR_TRIM_PWRSYS_CTL), SRSS_PWR_TRIM_PWRSYS_CTL_ACT_REG_TRIM, LDO_OUT_VOLTAGE_0_95V);
 
             /* Update write assist value for the ULP mode */
             SetWriteAssistTrimUlp();
         }
-        /* When the LDO is 0.9V and final target Buck 1.1 V need to update the 
+        /* When the LDO is 0.9V and final target Buck 1.1 V need to update the
         *  RAM and ROM trim values
         */
         else if ((CY_SYSPM_BUCK_OUT1_VOLTAGE_1_1V == voltage) && (CY_SYSPM_LDO_VOLTAGE_0_9V == curLdoVoltage))
         {
             /* Increase LDO to 0.95 V */
-            SRSS->PWR_TRIM_PWRSYS_CTL = 
+            SRSS->PWR_TRIM_PWRSYS_CTL =
             _CLR_SET_FLD32U((SRSS->PWR_TRIM_PWRSYS_CTL), SRSS_PWR_TRIM_PWRSYS_CTL_ACT_REG_TRIM, LDO_OUT_VOLTAGE_0_95V);
 
             /* Wait until regulator is stable */
@@ -1396,7 +1394,7 @@ void Cy_SysPm_ClearHibernateWakeupSource(uint32_t wakeupSource)
             SetWriteAssistTrimLp();
 
             /* Increase LDO to 1.1 V */
-            SRSS->PWR_TRIM_PWRSYS_CTL = 
+            SRSS->PWR_TRIM_PWRSYS_CTL =
             _CLR_SET_FLD32U((SRSS->PWR_TRIM_PWRSYS_CTL), SRSS_PWR_TRIM_PWRSYS_CTL_ACT_REG_TRIM, LDO_OUT_VOLTAGE_1_1V);
 
             /* Wait until regulator is stable */
@@ -1406,10 +1404,10 @@ void Cy_SysPm_ClearHibernateWakeupSource(uint32_t wakeupSource)
             SetReadMarginTrimLp();
 
             /* Set the LDO 1.15V as final Buck output is 1.1 V */
-            SRSS->PWR_TRIM_PWRSYS_CTL = 
+            SRSS->PWR_TRIM_PWRSYS_CTL =
             _CLR_SET_FLD32U((SRSS->PWR_TRIM_PWRSYS_CTL), SRSS_PWR_TRIM_PWRSYS_CTL_ACT_REG_TRIM, LDO_OUT_VOLTAGE_1_15V);
 
-            /* Clear the analog signal bit for the flash before the voltage is 
+            /* Clear the analog signal bit for the flash before the voltage is
             * changed from 1.1 V to 0.9 V
             */
             ClearVoltageBitForFlash();
@@ -1417,13 +1415,13 @@ void Cy_SysPm_ClearHibernateWakeupSource(uint32_t wakeupSource)
         /* If LDO is 0.9V and final Buck is 0.9V increase the LDO on 50 mV*/
         else if ((CY_SYSPM_BUCK_OUT1_VOLTAGE_0_9V == voltage) && (CY_SYSPM_LDO_VOLTAGE_0_9V == curLdoVoltage))
         {
-            SRSS->PWR_TRIM_PWRSYS_CTL = 
+            SRSS->PWR_TRIM_PWRSYS_CTL =
             _CLR_SET_FLD32U((SRSS->PWR_TRIM_PWRSYS_CTL), SRSS_PWR_TRIM_PWRSYS_CTL_ACT_REG_TRIM, LDO_OUT_VOLTAGE_0_95V);
         }
         /* If LDO is 1.1V and final Buck is 1.1 V increase the LDO on 50 mV*/
         else
         {
-            SRSS->PWR_TRIM_PWRSYS_CTL = 
+            SRSS->PWR_TRIM_PWRSYS_CTL =
             _CLR_SET_FLD32U((SRSS->PWR_TRIM_PWRSYS_CTL), SRSS_PWR_TRIM_PWRSYS_CTL_ACT_REG_TRIM, LDO_OUT_VOLTAGE_1_15V);
         }
 
@@ -1436,7 +1434,7 @@ void Cy_SysPm_ClearHibernateWakeupSource(uint32_t wakeupSource)
                           _VAL2FLD(SRSS_PWR_CTL_NWELL_REG_DIS, 1U));
 
         /* Configure the Buck regulator */
-        SRSS->PWR_BUCK_CTL = 
+        SRSS->PWR_BUCK_CTL =
         _CLR_SET_FLD32U((SRSS->PWR_BUCK_CTL), SRSS_PWR_BUCK_CTL_BUCK_OUT1_SEL, (uint32_t) voltage);
 
         /* Check whether the Buck regulator is already enabled */
@@ -1468,38 +1466,38 @@ void Cy_SysPm_ClearHibernateWakeupSource(uint32_t wakeupSource)
     * * The device maximum operating frequency for all the Clk_HF paths, peripheral,
     * and slow clock are under the \ref group_syspm_ulp_limitations.
     * * The total current consumption is under the \ref group_syspm_ulp_limitations.
-    * 
-    * * The appropriate wait states values are set for the flash using 
+    *
+    * * The appropriate wait states values are set for the flash using
     * the Cy_SysLib_SetWaitStates() function as explained below.
     *
     * <b>Setting wait states values for flash</b>
     *
-    * The flash access time when the core output voltage is 0.9 V (nominal) is 
-    * longer than at 1.1 V (nominal). Therefore, the number of the wait states must 
+    * The flash access time when the core output voltage is 0.9 V (nominal) is
+    * longer than at 1.1 V (nominal). Therefore, the number of the wait states must
     * be adjusted. Use the Cy_SysLib_SetWaitStates() function to set the appropriate
-    * wait state values for flash. 
+    * wait state values for flash.
     *
-    * To change from a higher voltage to a lower voltage 0.9 V (nominal), 
-    * call the Cy_SysLib_SetWaitStates(true, hfClkFreqMz) function before changing 
+    * To change from a higher voltage to a lower voltage 0.9 V (nominal),
+    * call the Cy_SysLib_SetWaitStates(true, hfClkFreqMz) function before changing
     * the voltage, where hfClkFreqMz is the frequency of HfClk0 in MHz.
     *
-    * To change from a lower voltage to a higher voltage 1.1 V (nominal), calling 
-    * the Cy_SysLib_SetWaitStates(false, hfClkFreqMz) function is to set the 
-    * wait states is optional, but can be done to improve the performance. 
-    * The clock frequency may now be increased up to 
+    * To change from a lower voltage to a higher voltage 1.1 V (nominal), calling
+    * the Cy_SysLib_SetWaitStates(false, hfClkFreqMz) function is to set the
+    * wait states is optional, but can be done to improve the performance.
+    * The clock frequency may now be increased up to
     * \ref group_syspm_lp_limitations for a new voltage.
-    * 
-    * \note 1. The output is set to 0.9 V (nominal) - the flash works in the 
+    *
+    * \note 1. The output is set to 0.9 V (nominal) - the flash works in the
     * Read-only operation.
-    * \note 2. The output is set to 1.1 V (nominal) - the flash works in the Read 
+    * \note 2. The output is set to 1.1 V (nominal) - the flash works in the Read
     * and Write operations.
-    * \note 3. The actual device Vccd voltage can be different from the nominal 
+    * \note 3. The actual device Vccd voltage can be different from the nominal
     * voltage because the actual voltage value depends on the conditions
     * including the load current.
     *
-    * For more details refer to the \ref group_syspm_managing_core_regulators 
+    * For more details refer to the \ref group_syspm_managing_core_regulators
     * section.
-    * Refer to the \ref group_syslib driver for more details about setting the 
+    * Refer to the \ref group_syslib driver for more details about setting the
     * wait states.
     *
     * \param voltage
@@ -1523,7 +1521,7 @@ void Cy_SysPm_ClearHibernateWakeupSource(uint32_t wakeupSource)
 
             if (CY_SYSPM_BUCK_OUT1_VOLTAGE_0_9V == voltage)
             {
-                /* Set the analog signal bit for the flash before the voltage is 
+                /* Set the analog signal bit for the flash before the voltage is
                 * changed from 1.1 V to 0.9 V
                 */
                 SetVoltageBitForFlash();
@@ -1532,7 +1530,7 @@ void Cy_SysPm_ClearHibernateWakeupSource(uint32_t wakeupSource)
                 SetReadMarginTrimUlp();
 
                 /* Reduce Buck output voltage to 0.95V nominal */
-                SRSS->PWR_BUCK_CTL = 
+                SRSS->PWR_BUCK_CTL =
                 _CLR_SET_FLD32U((SRSS->PWR_BUCK_CTL), SRSS_PWR_BUCK_CTL_BUCK_OUT1_SEL, BUCK_OUT1_VOLTAGE_0_95V);
 
                 /* Update write assist value for the ULP mode */
@@ -1541,22 +1539,22 @@ void Cy_SysPm_ClearHibernateWakeupSource(uint32_t wakeupSource)
             else
             {
                 /* Increase Buck output voltage to 0.95 V nominal */
-                SRSS->PWR_BUCK_CTL = 
+                SRSS->PWR_BUCK_CTL =
                 _CLR_SET_FLD32U((SRSS->PWR_BUCK_CTL), SRSS_PWR_BUCK_CTL_BUCK_OUT1_SEL, BUCK_OUT1_VOLTAGE_0_95V);
-                
+
                 /* Wait until regulator is stable */
                 Cy_SysLib_DelayUs(BUCK_STABILIZATION_DELAY_US);
-                
+
                 /* Update write assist value for the LP mode */
                 SetWriteAssistTrimLp();
             }
 
-            /* The system may continue operating while the voltage on Vccd 
-            * discharges to the new voltage. The time it takes to reach the 
+            /* The system may continue operating while the voltage on Vccd
+            * discharges to the new voltage. The time it takes to reach the
             * new voltage depends on the conditions, including the load current
             * on Vccd and the external capacitor size.
             */
-            SRSS->PWR_BUCK_CTL = 
+            SRSS->PWR_BUCK_CTL =
             _CLR_SET_FLD32U((SRSS->PWR_BUCK_CTL), SRSS_PWR_BUCK_CTL_BUCK_OUT1_SEL, (uint32_t) voltage);
 
             /* Delay to stabilize at the new voltage is required only
@@ -1569,7 +1567,7 @@ void Cy_SysPm_ClearHibernateWakeupSource(uint32_t wakeupSource)
                 /* Update read-write margin value for the LP mode */
                 SetReadMarginTrimLp();
 
-                /* Set analog signal bit for flash before voltage is changed 
+                /* Set analog signal bit for flash before voltage is changed
                  * from 0.9 V to 1.1 V.
                  */
                 ClearVoltageBitForFlash();
@@ -1589,7 +1587,7 @@ void Cy_SysPm_ClearHibernateWakeupSource(uint32_t wakeupSource)
     * The Buck regulator output. See \ref cy_en_syspm_buck_out_t.
     *
     * \return
-    * The current state of the requested output. True if the requested output 
+    * The current state of the requested output. True if the requested output
     * is enabled.
     * False if the requested output is disabled.
     *
@@ -1624,22 +1622,22 @@ void Cy_SysPm_ClearHibernateWakeupSource(uint32_t wakeupSource)
         * Function Name: Cy_SysPm_BuckEnableVoltage2
         ****************************************************************************//**
         *
-        * Enable the output 2 voltage (Vbuckrf) of the SIMO Buck regulator. 
-        * The output 2 voltage (Vbuckrf) of the Buck regulator is used to supply 
+        * Enable the output 2 voltage (Vbuckrf) of the SIMO Buck regulator.
+        * The output 2 voltage (Vbuckrf) of the Buck regulator is used to supply
         * the BLE HW block.
-        * When the Buck regulator is switched off, the function enables the  
+        * When the Buck regulator is switched off, the function enables the
         * regulator and after it, enables output 2.
         *
-        * \note The function does not affect Buck output 1 that can supply 
+        * \note The function does not affect Buck output 1 that can supply
         * a core.
         *
-        * \warning The function does not select the Buck output 2 voltage and 
+        * \warning The function does not select the Buck output 2 voltage and
         * does not set/clear the HW-controlled bit for Buck output 2. Call
-        * Cy_SysPm_BuckSetVoltage2() or Cy_SysPm_BuckSetVoltage2HwControl() to 
+        * Cy_SysPm_BuckSetVoltage2() or Cy_SysPm_BuckSetVoltage2HwControl() to
         * configure the Buck output 2.
         *
         * The function is applicable for devices with the SIMO Buck regulator.
-        * Refer to device datasheet about information if device contains 
+        * Refer to device datasheet about information if device contains
         * SIMO Buck.
         *
         * \funcusage
@@ -1667,9 +1665,9 @@ void Cy_SysPm_ClearHibernateWakeupSource(uint32_t wakeupSource)
         ****************************************************************************//**
         *
         * This function sets output voltage 2 of the SIMO Buck regulator.
-        * 
+        *
         * \param voltage
-        * The voltage of the Buck regulator output 2. 
+        * The voltage of the Buck regulator output 2.
         * See \ref cy_en_syspm_buck_voltage2_t.
         *
         * \param waitToSettle
@@ -1684,7 +1682,7 @@ void Cy_SysPm_ClearHibernateWakeupSource(uint32_t wakeupSource)
         * the delay is not required.
         *
         * The function is applicable for devices with the SIMO Buck regulator.
-        * Refer to device datasheet about information if device contains 
+        * Refer to device datasheet about information if device contains
         * SIMO Buck.
         *
         * \funcusage
@@ -1696,13 +1694,13 @@ void Cy_SysPm_ClearHibernateWakeupSource(uint32_t wakeupSource)
             uint32_t curVoltage;
 
             CY_ASSERT_L3(CY_SYSPM_IS_BUCK_VOLTAGE2_VALID(voltage));
-            
+
             /* Get the current voltage */
             curVoltage = (uint32_t) Cy_SysPm_BuckGetVoltage2();
 
             if((uint32_t) voltage != curVoltage)
             {
-                SRSS->PWR_BUCK_CTL2 = 
+                SRSS->PWR_BUCK_CTL2 =
                 _CLR_SET_FLD32U((SRSS->PWR_BUCK_CTL2), SRSS_PWR_BUCK_CTL2_BUCK_OUT2_SEL, (uint32_t) voltage);
 
                 /* Delay to stabilize at the new voltage is required only
@@ -1728,35 +1726,35 @@ void Cy_SysPm_ClearHibernateWakeupSource(uint32_t wakeupSource)
 * * The device maximum operating frequency for all the Clk_HF paths, peripheral,
 * and slow clock are under the \ref group_syspm_ulp_limitations.
 * * The total current consumption is under the \ref group_syspm_ulp_limitations.
-* * The appropriate wait states values are set for the flash using 
+* * The appropriate wait states values are set for the flash using
 * the Cy_SysLib_SetWaitStates() function as explained below.
 *
 * <b>Setting wait states values for Flash</b>
 *
-* The flash access time when the core output voltage is 0.9 V (nominal) is 
-* longer than at 1.1 V (nominal). Therefore, the number of the wait states must 
+* The flash access time when the core output voltage is 0.9 V (nominal) is
+* longer than at 1.1 V (nominal). Therefore, the number of the wait states must
 * be adjusted. Use the Cy_SysLib_SetWaitStates() function to set the appropriate
-* wait state values for flash. 
+* wait state values for flash.
 *
-* To change from a higher voltage to a lower voltage 0.9 V (nominal), 
-* call the Cy_SysLib_SetWaitStates(true, hfClkFreqMz) function before changing 
+* To change from a higher voltage to a lower voltage 0.9 V (nominal),
+* call the Cy_SysLib_SetWaitStates(true, hfClkFreqMz) function before changing
 * the voltage, where hfClkFreqMz is the frequency of HfClk0 in MHz.
 *
-* To change from a lower voltage to a higher voltage 1.1 V (nominal), calling 
-* the Cy_SysLib_SetWaitStates(false, hfClkFreqMz) function is to set the 
-* wait states is optional, but can be done to improve the performance. 
+* To change from a lower voltage to a higher voltage 1.1 V (nominal), calling
+* the Cy_SysLib_SetWaitStates(false, hfClkFreqMz) function is to set the
+* wait states is optional, but can be done to improve the performance.
 * The clock frequency may now be increased up to \ref group_syspm_lp_limitations
 * for a new voltage.
-* 
-* \note 1. The output is set to 0.9 V (nominal) - the flash works in the 
+*
+* \note 1. The output is set to 0.9 V (nominal) - the flash works in the
 * Read-only operation.
-* \note 2. The output is set to 1.1 V (nominal) - the flash works in the Read 
+* \note 2. The output is set to 1.1 V (nominal) - the flash works in the Read
 * and Write operations.
-* \note 3. The actual device Vccd voltage can be different from the nominal 
+* \note 3. The actual device Vccd voltage can be different from the nominal
 * voltage because the actual voltage value depends on the conditions
 * including the load current.
 *
-* For more details refer to the \ref group_syspm_managing_core_regulators 
+* For more details refer to the \ref group_syspm_managing_core_regulators
 * section.
 * Refer to the \ref group_syslib driver for more details about setting the wait
 * states.
@@ -1782,7 +1780,7 @@ void Cy_SysPm_LdoSetVoltage(cy_en_syspm_ldo_voltage_t voltage)
 
         if (CY_SYSPM_LDO_VOLTAGE_0_9V == voltage)
         {
-            /* Set the analog signal bit for the flash before the voltage is changed 
+            /* Set the analog signal bit for the flash before the voltage is changed
             * from 1.1 V to 0.9 V. Store trimmed voltage value into the local variable
             */
             SetVoltageBitForFlash();
@@ -1790,7 +1788,7 @@ void Cy_SysPm_LdoSetVoltage(cy_en_syspm_ldo_voltage_t voltage)
             /* Update read-write margin value for the ULP mode */
             SetReadMarginTrimUlp();
 
-            SRSS->PWR_TRIM_PWRSYS_CTL = 
+            SRSS->PWR_TRIM_PWRSYS_CTL =
             _CLR_SET_FLD32U((SRSS->PWR_TRIM_PWRSYS_CTL), SRSS_PWR_TRIM_PWRSYS_CTL_ACT_REG_TRIM, LDO_OUT_VOLTAGE_0_95V);
 
             /* Update write assist value for the ULP mode */
@@ -1800,41 +1798,41 @@ void Cy_SysPm_LdoSetVoltage(cy_en_syspm_ldo_voltage_t voltage)
         }
         else
         {
-            SRSS->PWR_TRIM_PWRSYS_CTL = 
+            SRSS->PWR_TRIM_PWRSYS_CTL =
             _CLR_SET_FLD32U((SRSS->PWR_TRIM_PWRSYS_CTL), SRSS_PWR_TRIM_PWRSYS_CTL_ACT_REG_TRIM, LDO_OUT_VOLTAGE_0_95V);
 
             /* A delay for the supply to stabilize at the new higher voltage */
             Cy_SysLib_DelayUs(LDO_STABILIZATION_DELAY_US);
-            
+
             /* Update write assist value for the LP mode */
              SetWriteAssistTrimLp();
 
             trimVoltage = SFLASH->LDO_1P1V_TRIM;
         }
 
-        /* The system may continue operating while the voltage on Vccd 
-        *  discharges to the new voltage. The time it takes to reach the 
+        /* The system may continue operating while the voltage on Vccd
+        *  discharges to the new voltage. The time it takes to reach the
         *  new voltage depends on the conditions, including the load current on
         *  Vccd and the external capacitor size
         */
-        SRSS->PWR_TRIM_PWRSYS_CTL = 
+        SRSS->PWR_TRIM_PWRSYS_CTL =
         _CLR_SET_FLD32U((SRSS->PWR_TRIM_PWRSYS_CTL), SRSS_PWR_TRIM_PWRSYS_CTL_ACT_REG_TRIM, trimVoltage);
 
         if (CY_SYSPM_LDO_VOLTAGE_1_1V == voltage)
         {
             /* A delay for the supply to stabilize at the new higher voltage */
             Cy_SysLib_DelayUs(LDO_STABILIZATION_DELAY_US);
-            
+
             /* Update read-write margin value for the LP mode */
             SetReadMarginTrimLp();
-            
-            /* Set the analog signal bit to the flash macro register after 
+
+            /* Set the analog signal bit to the flash macro register after
             * the output voltage is 1.1 V
             */
             ClearVoltageBitForFlash();
         }
     }
-    
+
     Cy_SysLib_ExitCriticalSection(interruptState);
 }
 
@@ -1849,13 +1847,13 @@ void Cy_SysPm_LdoSetVoltage(cy_en_syspm_ldo_voltage_t voltage)
 * middleware module has occurred. The handler callback API will be executed if
 * the specific event occurs. See \ref cy_stc_syspm_callback_t.
 *
-* \note The registered callbacks are executed in two orders, based on callback 
-* mode \ref cy_en_syspm_callback_mode_t. For modes CY_SYSPM_CHECK_READY and 
-* CY_SYSPM_BEFORE_TRANSITION, the order is this: the first registered callback 
-* will be always the first executed. And the last registered callback will be 
-* executed as the last callback. For modes CY_SYSPM_AFTER_TRANSITION and 
-* CY_SYSPM_CHECK_FAIL, the order is this: the first registered callback will be 
-* always the last executed. And the last registered callback will be executed 
+* \note The registered callbacks are executed in two orders, based on callback
+* mode \ref cy_en_syspm_callback_mode_t. For modes CY_SYSPM_CHECK_READY and
+* CY_SYSPM_BEFORE_TRANSITION, the order is this: the first registered callback
+* will be always the first executed. And the last registered callback will be
+* executed as the last callback. For modes CY_SYSPM_AFTER_TRANSITION and
+* CY_SYSPM_CHECK_FAIL, the order is this: the first registered callback will be
+* always the last executed. And the last registered callback will be executed
 * as the first callback.
 *
 * \param handler
@@ -1971,14 +1969,14 @@ bool Cy_SysPm_UnregisterCallback(cy_stc_syspm_callback_t const *handler)
 {
     uint32_t interruptState;
     bool retStatus = false;
-    
+
     interruptState = Cy_SysLib_EnterCriticalSection();
 
     /* Check if there was at least one callback registered */
     if (curRegisteredCallbacks > 0UL)
     {
         cy_stc_syspm_callback_t* curCallback = callbackRoot;
-        
+
         /* Search requested callback item in the linked list */
         while (curCallback != NULL)
         {
@@ -1988,11 +1986,11 @@ bool Cy_SysPm_UnregisterCallback(cy_stc_syspm_callback_t const *handler)
                 retStatus = true;
                 break;
             }
-            
+
             /* Go to next callback item in the linked list */
             curCallback = curCallback->nextItm;
         }
-        
+
         if (retStatus)
         {
             /* Update links of related to unregistered callback items */
@@ -2037,15 +2035,15 @@ bool Cy_SysPm_UnregisterCallback(cy_stc_syspm_callback_t const *handler)
 * \ref Cy_SysPm_DeepSleep, \ref Cy_SysPm_Hibernate, \ref Cy_SysPm_EnterLowPowerMode
 * and \ref Cy_SysPm_ExitLowPowerMode API functions, however might be also useful as
 * an independent API function in some custom applications.
-* \note The registered callbacks will be executed in order based on 
-* \ref cy_en_syspm_callback_type_t value. 
+* \note The registered callbacks will be executed in order based on
+* \ref cy_en_syspm_callback_type_t value.
 * The are possible two orders of callbacks execution: <br>
-* * From first registered to last registered. Such order is relevant to 
+* * From first registered to last registered. Such order is relevant to
 * callbacks with mode CY_SYSPM_CHECK_READY and CY_SYSPM_BEFORE_TRANSITION.
-* * Backward flow execution: from last executed callback to the 
-* first registered. Such order is relevant to callbacks with mode 
+* * Backward flow execution: from last executed callback to the
+* first registered. Such order is relevant to callbacks with mode
 * CY_SYSPM_AFTER_TRANSITION and CY_SYSPM_CHECK_FAIL. Note that, the last
-* registered callback function is skipped with mode CY_SYSPM_CHECK_FAIL. This 
+* registered callback function is skipped with mode CY_SYSPM_CHECK_FAIL. This
 * is because the callback that returned CY_SYSPM_FAIL already knows that it failed.
 *
 * If no callbacks are registered, returns CY_SYSPM_SUCCESS.
@@ -2057,10 +2055,10 @@ bool Cy_SysPm_UnregisterCallback(cy_stc_syspm_callback_t const *handler)
 * The callback mode. See \ref cy_en_syspm_callback_mode_t.
 *
 * \note
-* If mode is CY_SYSPM_CHECK_READY or CY_SYSPM_BEFORE_TRANSITION the 
+* If mode is CY_SYSPM_CHECK_READY or CY_SYSPM_BEFORE_TRANSITION the
 * all required callbacks would be executed in order from first
 * registered to last registered.
-* If mode is CY_SYSPM_CHECK_FAIL or CY_SYSPM_AFTER_TRANSITION the 
+* If mode is CY_SYSPM_CHECK_FAIL or CY_SYSPM_AFTER_TRANSITION the
 * all required callbacks would be executed in order from last executed callback
 * to first registered.
 *
@@ -2078,10 +2076,10 @@ cy_en_syspm_status_t Cy_SysPm_ExecuteCallback(cy_en_syspm_callback_type_t type, 
     cy_en_syspm_status_t retVal = CY_SYSPM_SUCCESS;
     cy_stc_syspm_callback_t* curCallback;
     cy_stc_syspm_callback_params_t curParams;
-    
+
     CY_ASSERT_L3(CY_SYSPM_IS_CALLBACK_TYPE_VALID(type));
     CY_ASSERT_L3(CY_SYSPM_IS_CALLBACK_MODE_VALID(mode));
-    
+
     if((mode == CY_SYSPM_BEFORE_TRANSITION) || (mode == CY_SYSPM_CHECK_READY))
     {
         /* Execute registered callbacks with order from first registered to the
@@ -2098,12 +2096,12 @@ cy_en_syspm_status_t Cy_SysPm_ExecuteCallback(cy_en_syspm_callback_type_t type, 
                 curParams.base = curCallback->callbackParams->base;
                 curParams.context = curCallback->callbackParams->context;
                 curParams.mode = mode;
-                
+
                 retVal = curCallback->callback(&curParams);
-                
-                /* Update callback pointer with value of executed callback. 
-                * Such update is required to execute further callbacks in 
-                * backward order after exit from low power mode or to undo 
+
+                /* Update callback pointer with value of executed callback.
+                * Such update is required to execute further callbacks in
+                * backward order after exit from low power mode or to undo
                 * configuration after callback returned fail: from last executed
                 * to first registered.
                 */
@@ -2115,14 +2113,14 @@ cy_en_syspm_status_t Cy_SysPm_ExecuteCallback(cy_en_syspm_callback_type_t type, 
     else
     {
         /* Execute registered callbacks with order from lastCallback to
-        * the first registered callback. Such a flow is required if previous 
-        * callback function returned CY_SYSPM_FAIL or previous callback mode was 
-        * CY_SYSPM_BEFORE_TRANSITION. Such an order is required to undo configurations in 
+        * the first registered callback. Such a flow is required if previous
+        * callback function returned CY_SYSPM_FAIL or previous callback mode was
+        * CY_SYSPM_BEFORE_TRANSITION. Such an order is required to undo configurations in
         * correct backward order.
         */
         curCallback = callbackListLast;
-        
-        /* Skip last executed callback that returned CY_SYSPM_FAIL, as this 
+
+        /* Skip last executed callback that returned CY_SYSPM_FAIL, as this
         *  callback already knows that it failed
         */
         if (mode == CY_SYSPM_CHECK_FAIL)
@@ -2137,14 +2135,14 @@ cy_en_syspm_status_t Cy_SysPm_ExecuteCallback(cy_en_syspm_callback_type_t type, 
         /* Execute all registered callback functions with required type and mode */
         while ((curCallback != NULL) && (retVal != CY_SYSPM_FAIL))
         {
-            if ((curCallback->type == type) && ((curCallback->skipMode == 0UL) || 
+            if ((curCallback->type == type) && ((curCallback->skipMode == 0UL) ||
             (((uint32_t) mode & curCallback->skipMode) == 0UL)))
             {
                 /* Update elements for local callback parameter values */
                 curParams.base = curCallback->callbackParams->base;
                 curParams.context = curCallback->callbackParams->context;
                 curParams.mode = mode;
-                
+
                 retVal = curCallback->callback(&curParams);
             }
             curCallback = curCallback->prevItm;
@@ -2160,10 +2158,10 @@ cy_en_syspm_status_t Cy_SysPm_ExecuteCallback(cy_en_syspm_callback_type_t type, 
 *
 * This function saves the output states and configuration of I/O cells.
 *
-* I/O-cell configuration can be changed while I/O-cells are frozen. The new 
+* I/O-cell configuration can be changed while I/O-cells are frozen. The new
 * configuration becomes effective only after the pins are unfrozen.
 *
-* Cy_SysPm_Hibernate() calls this function to freeze the I/O cells while 
+* Cy_SysPm_Hibernate() calls this function to freeze the I/O cells while
 * entering hibernate.
 *
 * \funcusage
@@ -2174,7 +2172,7 @@ void Cy_SysPm_IoFreeze(void)
 {
     uint32_t interruptState;
     uint32_t regValue;
-    
+
     interruptState = Cy_SysLib_EnterCriticalSection();
 
     /* Check the FREEZE state to avoid a recurrent I/O-cells freeze attempt,
@@ -2187,7 +2185,7 @@ void Cy_SysPm_IoFreeze(void)
     {
         /* Clear the unlock field for correct freeze of the I/O cells */
         SRSS->PWR_HIBERNATE = _CLR_SET_FLD32U((SRSS->PWR_HIBERNATE), SRSS_PWR_HIBERNATE_UNLOCK, 0U);
-        
+
         /* Disable overriding by the peripherals the next pin-freeze command */
         SRSS->PWR_HIBERNATE |= CY_SYSPM_PWR_SET_HIBERNATE;
 
@@ -2204,7 +2202,7 @@ void Cy_SysPm_IoFreeze(void)
 * Function Name: Cy_SysPm_IoUnfreeze
 ****************************************************************************//**
 *
-* This function unfreezes the I/O cells which were automatically frozen when the 
+* This function unfreezes the I/O cells which were automatically frozen when the
 * Hibernate is entered with the call to \ref Cy_SysPm_Hibernate().
 *
 * I/O-cells remain frozen after a wakeup from hibernate mode until the
@@ -2212,11 +2210,11 @@ void Cy_SysPm_IoFreeze(void)
 *
 * If the firmware must retain the data value on the port, then the
 * value must be read and re-written to the data register before calling this
-* function. Furthermore, the drive mode must be re-programmed before the pins are 
+* function. Furthermore, the drive mode must be re-programmed before the pins are
 * unfrozen. If this is not done, the pin will change to the default state
 * the moment the freeze is removed.
 *
-* Note that I/O cell configuration can be changed while frozen. The new 
+* Note that I/O cell configuration can be changed while frozen. The new
 * configuration becomes effective only after the pins are unfrozen.
 *
 * \funcusage
@@ -2233,11 +2231,11 @@ void Cy_SysPm_IoUnfreeze(void)
      */
     SRSS->PWR_HIBERNATE = (SRSS->PWR_HIBERNATE & CY_SYSPM_PWR_RETAIN_HIBERNATE_STATUS) | CY_SYSPM_PWR_HIBERNATE_UNLOCK;
 
-    /* Lock the hibernate mode: 
+    /* Lock the hibernate mode:
     * write PWR_HIBERNATE.HIBERNATE=0, UNLOCK=0x00, HIBERANTE=0
     */
     SRSS->PWR_HIBERNATE &= CY_SYSPM_PWR_RETAIN_HIBERNATE_STATUS;
-    
+
     /* Read register to make sure it is settled */
     (void) SRSS->PWR_HIBERNATE;
 
@@ -2250,8 +2248,8 @@ void Cy_SysPm_IoUnfreeze(void)
 ****************************************************************************//**
 *
 * The internal function that changes the Vcc setting for the flash.
-* 
-* Sets the bit for the flash macro register. This bit should be set when the 
+*
+* Sets the bit for the flash macro register. This bit should be set when the
 * voltage for the core regulators is less than 0.99 V.
 *
 *******************************************************************************/
@@ -2266,8 +2264,8 @@ static void SetVoltageBitForFlash(void)
 ****************************************************************************//**
 *
 * This is the internal function that changes the Vcc setting for the flash.
-* 
-* Clears the bit for the flash macro register. This bit should 
+*
+* Clears the bit for the flash macro register. This bit should
 * be cleared if the output voltage for the core regulators is higher than 0.99 V.
 *
 *******************************************************************************/
@@ -2302,13 +2300,13 @@ static void ClearVoltageBitForFlash(void)
         regs->CY_UDB_BCTL_QCLK_EN1_REG = UDB->BCTL.QCLK_EN[1U];
         regs->CY_UDB_BCTL_QCLK_EN2_REG = UDB->BCTL.QCLK_EN[2U];
     }
-    
-    
+
+
     /*******************************************************************************
     * Function Name: RestoreRegisters
     ****************************************************************************//**
     *
-    * The internal function restores the non-retained registers after 
+    * The internal function restores the non-retained registers after
     * leaving the Deep Sleep power mode. Cypress ID #280370.
     *
     * \param regs
@@ -2337,7 +2335,7 @@ static void ClearVoltageBitForFlash(void)
     * Function Name: Cy_EnterDeepSleep
     ****************************************************************************//**
     *
-    * The internal function that prepares the system for Deep Sleep and 
+    * The internal function that prepares the system for Deep Sleep and
     * restores the system after a wakeup from Deep Sleep.
     *
     * \param waitFor Selects wait for action. See \ref cy_en_syspm_waitfor_t.
@@ -2360,24 +2358,24 @@ static void ClearVoltageBitForFlash(void)
         /* Set the flag that current core entered Deep Sleep */
         SYSPM_IPC_STC->DATA |= CUR_CORE_DP_MASK;
 
-        /* Change the slow and fast clock dividers only under condition that 
+        /* Change the slow and fast clock dividers only under condition that
         *  the other core is already in Deep Sleep. Cypress ID #284516
         */
         if (0U != (SYSPM_IPC_STC->DATA & OTHER_CORE_DP_MASK))
         {
-            /* Get the divider values of the slow and high clocks and store them into 
+            /* Get the divider values of the slow and high clocks and store them into
             *  the IPC data register
             */
-            SYSPM_IPC_STC->DATA = 
+            SYSPM_IPC_STC->DATA =
             (SYSPM_IPC_STC->DATA & ((uint32_t) ~(SYSPM_FAST_CLK_DIV_Msk | SYSPM_SLOW_CLK_DIV_Msk))) |
             (((uint32_t)(_FLD2VAL(CPUSS_CM0_CLOCK_CTL_SLOW_INT_DIV, CPUSS->CM0_CLOCK_CTL) << SYSPM_SLOW_CLK_DIV_Pos)) |
              ((uint32_t)(_FLD2VAL(CPUSS_CM4_CLOCK_CTL_FAST_INT_DIV, CPUSS->CM4_CLOCK_CTL) << SYSPM_FAST_CLK_DIV_Pos)));
 
             /* Increase the clock divider for the slow and fast clocks to SYSPM_CLK_DIVIDER */
-            CPUSS->CM0_CLOCK_CTL = 
+            CPUSS->CM0_CLOCK_CTL =
             _CLR_SET_FLD32U(CPUSS->CM0_CLOCK_CTL, CPUSS_CM0_CLOCK_CTL_SLOW_INT_DIV, SYSPM_CLK_DIVIDER);
 
-            CPUSS->CM4_CLOCK_CTL = 
+            CPUSS->CM4_CLOCK_CTL =
             _CLR_SET_FLD32U(CPUSS->CM4_CLOCK_CTL, CPUSS_CM4_CLOCK_CTL_FAST_INT_DIV, SYSPM_CLK_DIVIDER);
 
             /* Read the divider value to make sure it is set */
@@ -2406,7 +2404,7 @@ static void ClearVoltageBitForFlash(void)
         }
     #else
 
-        /* Repeat the WFI/WFE instructions if a wake up was not intended. 
+        /* Repeat the WFI/WFE instructions if a wake up was not intended.
         *  Cypress ID #272909
         */
         do
@@ -2422,7 +2420,7 @@ static void ClearVoltageBitForFlash(void)
             {
                 __WFE();
 
-                /* Call the WFE instructions twice to clear the Event register 
+                /* Call the WFE instructions twice to clear the Event register
                 *  of the CM4 core. Cypress ID #279077
                 */
                 if(wasEventSent)
@@ -2442,18 +2440,18 @@ static void ClearVoltageBitForFlash(void)
             /* Wait until the IPC structure is released by another core */
         }
 
-        /* Read and change the slow and fast clock dividers only under condition 
+        /* Read and change the slow and fast clock dividers only under condition
         * that the other core is already in Deep Sleep. Cypress ID #284516
         */
         if(0U != (SYSPM_IPC_STC->DATA & OTHER_CORE_DP_MASK))
         {
             /* Restore the clock dividers for the slow and fast clocks */
-            CPUSS->CM0_CLOCK_CTL = 
-            (_CLR_SET_FLD32U(CPUSS->CM0_CLOCK_CTL, CPUSS_CM0_CLOCK_CTL_SLOW_INT_DIV, 
+            CPUSS->CM0_CLOCK_CTL =
+            (_CLR_SET_FLD32U(CPUSS->CM0_CLOCK_CTL, CPUSS_CM0_CLOCK_CTL_SLOW_INT_DIV,
                             (_FLD2VAL(SYSPM_SLOW_CLK_DIV, SYSPM_IPC_STC->DATA))));
 
-            CPUSS->CM4_CLOCK_CTL = 
-            (_CLR_SET_FLD32U(CPUSS->CM4_CLOCK_CTL, CPUSS_CM4_CLOCK_CTL_FAST_INT_DIV, 
+            CPUSS->CM4_CLOCK_CTL =
+            (_CLR_SET_FLD32U(CPUSS->CM4_CLOCK_CTL, CPUSS_CM4_CLOCK_CTL_FAST_INT_DIV,
                             (_FLD2VAL(SYSPM_FAST_CLK_DIV, SYSPM_IPC_STC->DATA))));
         }
 
@@ -2473,11 +2471,11 @@ static void ClearVoltageBitForFlash(void)
 * Function Name: EnterDeepSleep
 ****************************************************************************//**
 *
-* The internal function that prepares the system for Deep Sleep, 
-* sets the CPU core to the Deep Sleep, and restores the system after a 
+* The internal function that prepares the system for Deep Sleep,
+* sets the CPU core to the Deep Sleep, and restores the system after a
 * wakeup from Deep Sleep.
 *
-* \param waitFor 
+* \param waitFor
 * Selects wait for action. See \ref cy_en_syspm_waitfor_t.
 *
 *******************************************************************************/
@@ -2504,7 +2502,7 @@ static void EnterDeepSleep(cy_en_syspm_waitfor_t waitFor)
     }
 #else
 
-    /* Repeat the WFI/WFE instructions if a wake up was not intended. 
+    /* Repeat the WFI/WFE instructions if a wake up was not intended.
     *  Cypress ID #272909
     */
     do
@@ -2520,7 +2518,7 @@ static void EnterDeepSleep(cy_en_syspm_waitfor_t waitFor)
         {
             __WFE();
 
-            /* Call the WFE instructions twice to clear the Event register 
+            /* Call the WFE instructions twice to clear the Event register
             *  of the CM4 core. Cypress ID #279077
             */
             if(wasEventSent)
@@ -2542,7 +2540,7 @@ static void EnterDeepSleep(cy_en_syspm_waitfor_t waitFor)
         /* Wait until the IPC structure is released by another core */
     }
 
-    /* Set 10 uS delay only under condition that the DELAY_DONE_FLAG is 
+    /* Set 10 uS delay only under condition that the DELAY_DONE_FLAG is
     *  cleared. Cypress ID #288510
     */
     if(DELAY_DONE_FLAG->BIST_DATA[0] == NEED_DELAY)
@@ -2564,7 +2562,7 @@ static void EnterDeepSleep(cy_en_syspm_waitfor_t waitFor)
         DELAY_DONE_FLAG->BIST_DATA[0] = DELAY_DONE;
     }
 
-    /* Release the IPC structure in do while loop just to sure that this code 
+    /* Release the IPC structure in do while loop just to sure that this code
     * is not optimized
     */
     do
@@ -2581,8 +2579,8 @@ static void EnterDeepSleep(cy_en_syspm_waitfor_t waitFor)
 * Function Name: SetReadMarginTrimUlp
 ****************************************************************************//**
 *
-* This is the internal function that updates the read-margin trim values for the 
-* RAM and ROM. The trim update is done during transition of regulator voltage 
+* This is the internal function that updates the read-margin trim values for the
+* RAM and ROM. The trim update is done during transition of regulator voltage
 * from higher to a lower one.
 *
 *******************************************************************************/
@@ -2601,8 +2599,8 @@ static void SetReadMarginTrimUlp(void)
 * Function Name: SetReadMarginTrimLp
 ****************************************************************************//**
 *
-* The internal function which updates the read-margin trim values for the 
-* RAM and ROM. The trim update is done during transition of regulator voltage 
+* The internal function which updates the read-margin trim values for the
+* RAM and ROM. The trim update is done during transition of regulator voltage
 * from lower to a higher one.
 *
 *******************************************************************************/
@@ -2621,8 +2619,8 @@ static void SetReadMarginTrimLp(void)
 * Function Name: SetWriteAssistTrimUlp
 ****************************************************************************//**
 *
-* This is the internal function that updates the write assistant trim value for the 
-* RAM. The trim update is done during transition of regulator voltage 
+* This is the internal function that updates the write assistant trim value for the
+* RAM. The trim update is done during transition of regulator voltage
 * from higher to a lower.
 *
 *******************************************************************************/
@@ -2638,8 +2636,8 @@ static void SetWriteAssistTrimUlp(void)
 * Function Name: SetWriteAssistTrimLp
 ****************************************************************************//**
 *
-* This is the internal function that updates the write assistant trim value for the 
-* RAM. The trim update is done during transition of regulator voltage 
+* This is the internal function that updates the write assistant trim value for the
+* RAM. The trim update is done during transition of regulator voltage
 * from lower to a higher one.
 *
 *******************************************************************************/

@@ -6,10 +6,8 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2018, Cypress Semiconductor Corporation. All rights reserved.
-* You may use this file only in accordance with the license, terms, conditions,
-* disclaimers, and limitations in the end user license agreement accompanying
-* the software package with which this file was provided.
+* Copyright 2016-2018, Cypress Semiconductor Corporation.  All rights reserved.
+* SPDX-License-Identifier: Apache-2.0
 *******************************************************************************/
 
 #include "cy_scb_spi.h"
@@ -248,28 +246,28 @@ void Cy_SCB_SPI_Disable(CySCB_Type *base, cy_stc_scb_spi_context_t *context)
 *
 * This function handles the transition of the SCB SPI into and out of
 * Deep Sleep mode. It prevents the device from entering Deep Sleep mode
-* if the SPI slave or master is actively communicating, or there is any data 
+* if the SPI slave or master is actively communicating, or there is any data
 * in the TX or RX FIFOs.
 * The following behavior of the SPI SCB depends on whether the SCB block is
 * wakeup-capable or not:
-* * The SCB is <b>wakeup-capable</b>: any transfer intended to the slave wakes up 
-*   the device from Deep Sleep mode. The slave responds with 0xFF to the transfer 
-*   and incoming data is ignored.   
+* * The SCB is <b>wakeup-capable</b>: any transfer intended to the slave wakes up
+*   the device from Deep Sleep mode. The slave responds with 0xFF to the transfer
+*   and incoming data is ignored.
 *   If the transfer occurs before the device enters Deep Sleep mode, the device
 *   will not enter Deep Sleep mode and incoming data is stored in the RX FIFO.
-*   The SCB clock is disabled before entering Deep Sleep and enabled after the 
-*   device exits Deep Sleep mode. The SCB clock must be enabled after exiting 
-*   Deep Sleep mode and after the source of hf_clk[0] gets stable, this includes 
-*   the FLL/PLL. The SysClk callback ensures that hf_clk[0] gets stable and 
-*   it must be called before Cy_SCB_SPI_DeepSleepCallback. The SCB clock 
-*   disabling may lead to corrupted data in the RX FIFO. Clear the RX FIFO 
-*   after this callback is executed. If the transfer occurs before the device 
-*   enters Deep Sleep mode, the device will not enter Deep Sleep mode and 
+*   The SCB clock is disabled before entering Deep Sleep and enabled after the
+*   device exits Deep Sleep mode. The SCB clock must be enabled after exiting
+*   Deep Sleep mode and after the source of hf_clk[0] gets stable, this includes
+*   the FLL/PLL. The SysClk callback ensures that hf_clk[0] gets stable and
+*   it must be called before Cy_SCB_SPI_DeepSleepCallback. The SCB clock
+*   disabling may lead to corrupted data in the RX FIFO. Clear the RX FIFO
+*   after this callback is executed. If the transfer occurs before the device
+*   enters Deep Sleep mode, the device will not enter Deep Sleep mode and
 *   incoming data will be stored in the RX FIFO. \n
 *   Only the SPI slave can be configured to be a wakeup source from Deep Sleep
 *   mode.
-* * The SCB is not <b>wakeup-capable</b>: the SPI is disabled. It is enabled when 
-*   the device fails to enter Deep Sleep mode or it is awakened from Deep Sleep 
+* * The SCB is not <b>wakeup-capable</b>: the SPI is disabled. It is enabled when
+*   the device fails to enter Deep Sleep mode or it is awakened from Deep Sleep
 *   mode. While the SPI is disabled, it stops driving the outputs and ignores the
 *   inputs. Any incoming data is ignored.
 *
@@ -385,13 +383,13 @@ cy_en_syspm_status_t Cy_SCB_SPI_DeepSleepCallback(cy_stc_syspm_callback_params_t
                 * becomes pending and prevents entering Deep Sleep mode.
                 */
                 Cy_SCB_SetSpiInterruptMask(locBase, CY_SCB_I2C_INTR_WAKEUP);
-                
+
                 /* Disable SCB clock */
                 locBase->I2C_CFG &= (uint32_t) ~CY_SCB_I2C_CFG_CLK_ENABLE_Msk;
-                            
-                /* IMPORTANT (replace line above for the CY8CKIT-062 rev-08): 
-                * for proper entering Deep Sleep mode the SPI clock must be disabled. 
-                * This code must be inserted by the user because the driver 
+
+                /* IMPORTANT (replace line above for the CY8CKIT-062 rev-08):
+                * for proper entering Deep Sleep mode the SPI clock must be disabled.
+                * This code must be inserted by the user because the driver
                 * does not have access to the clock.
                 */
             }
@@ -406,13 +404,13 @@ cy_en_syspm_status_t Cy_SCB_SPI_DeepSleepCallback(cy_stc_syspm_callback_params_t
             {
                 /* Enable SCB clock */
                 locBase->I2C_CFG |= CY_SCB_I2C_CFG_CLK_ENABLE_Msk;
-                
-                /* IMPORTANT (replace line above for the CY8CKIT-062 rev-08): 
-                * for proper exiting Deep Sleep mode, the SPI clock must be enabled. 
-                * This code must be inserted by the user because the driver 
+
+                /* IMPORTANT (replace line above for the CY8CKIT-062 rev-08):
+                * for proper exiting Deep Sleep mode, the SPI clock must be enabled.
+                * This code must be inserted by the user because the driver
                 * does not have access to the clock.
                 */
-                
+
                 /* The SCB is wakeup-capable: disable the SPI wakeup interrupt
                 * source
                 */
@@ -441,7 +439,7 @@ cy_en_syspm_status_t Cy_SCB_SPI_DeepSleepCallback(cy_stc_syspm_callback_params_t
 ****************************************************************************//**
 *
 * This function handles the transition of the SCB SPI into Hibernate mode.
-* It prevents the device from entering Hibernate mode if the SPI slave or 
+* It prevents the device from entering Hibernate mode if the SPI slave or
 * master is actively communicating, or there is any data in the TX or RX FIFOs.
 * If the SPI is ready to enter Hibernate mode, it is disabled. If the device
 * failed to enter Hibernate mode, the SPI is enabled. While the SPI is

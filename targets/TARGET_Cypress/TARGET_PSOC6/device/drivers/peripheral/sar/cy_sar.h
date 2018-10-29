@@ -6,10 +6,8 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2017-2018, Cypress Semiconductor Corporation. All rights reserved.
-* You may use this file only in accordance with the license, terms, conditions,
-* disclaimers, and limitations in the end user license agreement accompanying
-* the software package with which this file was provided.
+* Copyright 2017-2018, Cypress Semiconductor Corporation.  All rights reserved.
+* SPDX-License-Identifier: Apache-2.0
 *******************************************************************************/
 
 /**
@@ -537,8 +535,8 @@
 *     <td> Correct CAP_TRIM is necessary achieving specified SAR ADC linearity</td>
 *   </tr>
 *   <tr>
-*     <td> Turn off the entire hardware block only if the SARMUX is not enabled 
-*          for Deep Sleep operation.                
+*     <td> Turn off the entire hardware block only if the SARMUX is not enabled
+*          for Deep Sleep operation.
 *     </td>
 *     <td> Improvement of the \ref Cy_SAR_Sleep flow</td>
 *   </tr>

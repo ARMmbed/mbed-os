@@ -6,10 +6,8 @@
 *
 ********************************************************************************
 * \copyright
-* Copyright 2016-2018, Cypress Semiconductor Corporation. All rights reserved.
-* You may use this file only in accordance with the license, terms, conditions,
-* disclaimers, and limitations in the end user license agreement accompanying
-* the software package with which this file was provided.
+* Copyright 2016-2018, Cypress Semiconductor Corporation.  All rights reserved.
+* SPDX-License-Identifier: Apache-2.0
 *******************************************************************************/
 
 #include "cy_scb_ezi2c.h"
@@ -210,7 +208,7 @@ void Cy_SCB_EZI2C_Disable(CySCB_Type *base, cy_stc_scb_ezi2c_context_t *context)
 ****************************************************************************//**
 *
 * This function handles the transition of the EZI2C SCB into and out of
-* Deep Sleep mode. It prevents the device from entering Deep Sleep mode if 
+* Deep Sleep mode. It prevents the device from entering Deep Sleep mode if
 * the EZI2C slave is actively communicating.
 * The following behavior of the EZI2C depends on whether the SCB block is
 * wakeup-capable:
@@ -218,7 +216,7 @@ void Cy_SCB_EZI2C_Disable(CySCB_Type *base, cy_stc_scb_ezi2c_context_t *context)
 *   receives the address and stretches the clock until the device is woken from
 *   Deep Sleep mode. If the slave address occurs before the device enters
 *   Deep Sleep mode, the device will not enter Deep Sleep mode.
-* * The SCB is <b>not wakeup-capable</b>: the EZI2C is disabled. It is enabled 
+* * The SCB is <b>not wakeup-capable</b>: the EZI2C is disabled. It is enabled
 *   when the device fails to enter Deep Sleep mode or it is woken from Deep Sleep
 *   mode. While the EZI2C is disabled, it stops driving the outputs and
 *   ignores the input lines. The slave NACKs all incoming addresses.
@@ -240,7 +238,7 @@ void Cy_SCB_EZI2C_Disable(CySCB_Type *base, cy_stc_scb_ezi2c_context_t *context)
 * For proper operation, when the EZI2C slave is configured to be a wakeup source
 * from Deep Sleep mode, this function must be copied and modified by the user.
 * The EZI2C clock disable code must be inserted in the
-* \ref CY_SYSPM_BEFORE_TRANSITION and clock enable code in the 
+* \ref CY_SYSPM_BEFORE_TRANSITION and clock enable code in the
 * \ref CY_SYSPM_AFTER_TRANSITION mode processing.
 *
 *******************************************************************************/
@@ -340,10 +338,10 @@ cy_en_syspm_status_t Cy_SCB_EZI2C_DeepSleepCallback(cy_stc_syspm_callback_params
 
                 /* Disable SCB clock */
                 locBase->I2C_CFG &= (uint32_t) ~CY_SCB_I2C_CFG_CLK_ENABLE_Msk;
-                            
-                /* IMPORTANT (replace line above for the CY8CKIT-062 rev-08): 
-                * for proper entering Deep Sleep mode the I2C clock must be disabled. 
-                * This code must be inserted by the user because the driver 
+
+                /* IMPORTANT (replace line above for the CY8CKIT-062 rev-08):
+                * for proper entering Deep Sleep mode the I2C clock must be disabled.
+                * This code must be inserted by the user because the driver
                 * does not have access to the clock.
                 */
             }
@@ -358,10 +356,10 @@ cy_en_syspm_status_t Cy_SCB_EZI2C_DeepSleepCallback(cy_stc_syspm_callback_params
             {
                 /* Enable SCB clock */
                 locBase->I2C_CFG |= CY_SCB_I2C_CFG_CLK_ENABLE_Msk;
-                
-                /* IMPORTANT (replace line above for the CY8CKIT-062 rev-08): 
-                * for proper exiting Deep Sleep mode, the I2C clock must be enabled. 
-                * This code must be inserted by the user because the driver 
+
+                /* IMPORTANT (replace line above for the CY8CKIT-062 rev-08):
+                * for proper exiting Deep Sleep mode, the I2C clock must be enabled.
+                * This code must be inserted by the user because the driver
                 * does not have access to the clock.
                 */
 
@@ -394,7 +392,7 @@ cy_en_syspm_status_t Cy_SCB_EZI2C_DeepSleepCallback(cy_stc_syspm_callback_params
 ****************************************************************************//**
 *
 * This function handles the transition of the EZI2C SCB block into Hibernate
-* mode. It prevents the device from entering Hibernate mode if the EZI2C slave 
+* mode. It prevents the device from entering Hibernate mode if the EZI2C slave
 * is actively communicating.
 * If the EZI2C is ready to enter Hibernate mode, it is disabled. If the device
 * fails to enter Hibernate mode, the EZI2C is enabled. While the EZI2C
@@ -761,11 +759,11 @@ void Cy_SCB_EZI2C_Interrupt(CySCB_Type *base, cy_stc_scb_ezi2c_context_t *contex
     /* Handle an I2C wake-up event */
     if (0UL != (CY_SCB_I2C_INTR_WAKEUP & Cy_SCB_GetI2CInterruptStatusMasked(base)))
     {
-        /* Move from IDLE state, the slave was addressed. Following address match 
+        /* Move from IDLE state, the slave was addressed. Following address match
         * interrupt continue transfer.
         */
         context->state = CY_SCB_EZI2C_STATE_ADDR;
-        
+
         Cy_SCB_ClearI2CInterrupt(base, CY_SCB_I2C_INTR_WAKEUP);
     }
 

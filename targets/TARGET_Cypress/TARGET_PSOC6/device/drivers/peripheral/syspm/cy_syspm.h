@@ -7,9 +7,7 @@
 ********************************************************************************
 * \copyright
 * Copyright 2016-2018, Cypress Semiconductor Corporation.  All rights reserved.
-* You may use this file only in accordance with the license, terms, conditions,
-* disclaimers, and limitations in the end user license agreement accompanying
-* the software package with which this file was provided.
+* SPDX-License-Identifier: Apache-2.0
 *
 *******************************************************************************/
 
@@ -17,9 +15,9 @@
 * \defgroup group_syspm System Power Management (SysPm)
 * \{
 *
-* Use the System Power Management (SysPm) driver to enter low-power modes and 
-* reduce system power consumption in power sensitive designs. For multi-core 
-* devices, this library allows you to individually enter low-power modes for 
+* Use the System Power Management (SysPm) driver to enter low-power modes and
+* reduce system power consumption in power sensitive designs. For multi-core
+* devices, this library allows you to individually enter low-power modes for
 * each core.
 *
 * This document contains the following topics:
@@ -49,91 +47,91 @@
 *
 * \section group_syspm_section_configuration Configuration Considerations
 * \subsection group_syspm_power_modes Power Modes
-* PSoC 6 MCUs support the following power modes (in the order of high-to-low 
-* power consumption): Active, Low-Power (LPActive), Deep Sleep, and Hibernate. 
-* The core(s) can also be in Arm-defined power modes - Active, Sleep, 
+* PSoC 6 MCUs support the following power modes (in the order of high-to-low
+* power consumption): Active, Low-Power (LPActive), Deep Sleep, and Hibernate.
+* The core(s) can also be in Arm-defined power modes - Active, Sleep,
 * and Deep Sleep.
-* 
+*
 * \subsection group_syspm_device_power_modes Device Power Modes
-* * <b>Active</b> - In this mode the code is executed, and all logic and 
-* memories are powered. Firmware may disable clocks for specific peripherals 
+* * <b>Active</b> - In this mode the code is executed, and all logic and
+* memories are powered. Firmware may disable clocks for specific peripherals
 * and power down specific analog power domains.
 *
-* * <b>LPActive</b> - Low-Power mode is like Active mode, but with clock 
+* * <b>LPActive</b> - Low-Power mode is like Active mode, but with clock
 * restrictions and limited/slower peripherals to achieve a lower system current.
-* Refer to \ref group_syspm_switching_into_lpactive in Configuration 
+* Refer to \ref group_syspm_switching_into_lpactive in Configuration
 * considerations.
 *
-* * <b>Deep Sleep</b> - is a lower power mode where high-frequency clocks are 
-* disabled. Deep-Sleep-capable peripherals are available. A normal wakeup from 
-* Deep Sleep returns to either LPActive, Active, or Sleep, depending on the 
-* previous state and programmed behavior for the configured wakeup interrupt. 
-* Likewise, a debug wakeup from Deep Sleep returns to Sleep, depending on which 
-* mode was used to enter the Deep Sleep power mode. 
+* * <b>Deep Sleep</b> - is a lower power mode where high-frequency clocks are
+* disabled. Deep-Sleep-capable peripherals are available. A normal wakeup from
+* Deep Sleep returns to either LPActive, Active, or Sleep, depending on the
+* previous state and programmed behavior for the configured wakeup interrupt.
+* Likewise, a debug wakeup from Deep Sleep returns to Sleep, depending on which
+* mode was used to enter the Deep Sleep power mode.
 *
-* * <b>Hibernate</b> - is an even lower power mode that is entered from 
-* firmware, just like Deep Sleep. However, on a wakeup the core and all 
-* peripherals go through a full reset. The I/O's state is frozen so that the 
-* output driver state is held. Note that in this mode, the core(s) and all 
-* peripherals lose their states, so the system and firmware reboot on a wakeup 
-* event. Backup memory (if present) can be used to store system states for use 
+* * <b>Hibernate</b> - is an even lower power mode that is entered from
+* firmware, just like Deep Sleep. However, on a wakeup the core and all
+* peripherals go through a full reset. The I/O's state is frozen so that the
+* output driver state is held. Note that in this mode, the core(s) and all
+* peripherals lose their states, so the system and firmware reboot on a wakeup
+* event. Backup memory (if present) can be used to store system states for use
 * on the next reboot.
 *
 * \subsubsection group_syspm_switching_into_lpactive Switching Device into LPActive
-* Before switching into the LPActive power mode, ensure that the device meets 
-* the current load limitation. Decrease the clock frequencies, and slow or 
+* Before switching into the LPActive power mode, ensure that the device meets
+* the current load limitation. Decrease the clock frequencies, and slow or
 * disable peripherals. Refer to the \ref group_syspm_managing_core_regulators
 * Section. <br>
 * * The IMO is set to the Clk_HF
 *
-* * Turn off unused peripherals, or decrease their operating frequencies to 
+* * Turn off unused peripherals, or decrease their operating frequencies to
 *   achieve total current consumption less than or equal to 20 mA.
 *
-* * Call the Cy_SysPm_EnterLowPowerMode() function that will put references 
+* * Call the Cy_SysPm_EnterLowPowerMode() function that will put references
 *   such as POR and BOD into Low-Power mode.
 *
-* * If the core is sourced by the LDO Core Voltage Regulator, then the 
-*   0.9 V (nominal) mode must be set. Refer \ref group_syspm_functions_ldo API 
+* * If the core is sourced by the LDO Core Voltage Regulator, then the
+*   0.9 V (nominal) mode must be set. Refer \ref group_syspm_functions_ldo API
 *   in \ref group_syspm_functions_core_regulators.
 *
-* * If the core is sourced by the Buck Core Voltage Regulator, then it is 
-*   recommended, but not required, to set CY_SYSPM_BUCK_OUT1_VOLTAGE_0_9V. 
-*   Decide whether your application can meet the requirements for the 
-*   CY_SYSPM_BUCK_OUT1_VOLTAGE_0_9V. 
+* * If the core is sourced by the Buck Core Voltage Regulator, then it is
+*   recommended, but not required, to set CY_SYSPM_BUCK_OUT1_VOLTAGE_0_9V.
+*   Decide whether your application can meet the requirements for the
+*   CY_SYSPM_BUCK_OUT1_VOLTAGE_0_9V.
 *   See \ref group_syspm_managing_core_regulators.
 *
 * \subsubsection group_syspm_switching_from_lpactive Switching Device from LPActive
-* To switch a device from LPActive to Active mode, just 
+* To switch a device from LPActive to Active mode, just
 * call Cy_SysPm_ExitLowPowerMode().
 *
 * \subsubsection group_syspm_switching_into_sleep_deepsleep Switching Device or Core to Sleep or Deep Sleep
-* For multi-core devices, the Cy_SysPm_Sleep() and Cy_SysPm_DeepSleep() 
-* functions switch only the core that calls the function into the Sleep or 
+* For multi-core devices, the Cy_SysPm_Sleep() and Cy_SysPm_DeepSleep()
+* functions switch only the core that calls the function into the Sleep or
 * the Deep Sleep power mode. To set the whole device in the Sleep or Deep Sleep
-* power mode, ensure that each core calls the Cy_SysPm_Sleep() or 
+* power mode, ensure that each core calls the Cy_SysPm_Sleep() or
 * Cy_SysPm_DeepSleep() function.
 *
-* There are situations when the device does not switch into the Deep Sleep 
-* power mode immediately after the second core calls Cy_SysPm_DeepSleep(). 
-* The device will switch into Deep Sleep mode automatically a little bit later, 
-* after the low-power circuits are ready to switch into Deep Sleep. Refer to 
+* There are situations when the device does not switch into the Deep Sleep
+* power mode immediately after the second core calls Cy_SysPm_DeepSleep().
+* The device will switch into Deep Sleep mode automatically a little bit later,
+* after the low-power circuits are ready to switch into Deep Sleep. Refer to
 * the Cy_SysPm_DeepSleep() description for more details.
 *
-* All pending interrupts should be cleared before the device is put into a 
+* All pending interrupts should be cleared before the device is put into a
 * Sleep or Deep Sleep mode, even if they are masked.
 *
-* For single-core devices, SysPm functions that return the status of the 
+* For single-core devices, SysPm functions that return the status of the
 * unsupported core always return CY_SYSPM_STATUS_<CORE>_DEEPSLEEP.
 *
 * \subsubsection group_syspm_wakingup_from_sleep_deepsleep Waking Up from Sleep or Deep Sleep
-* For Arm-based devices, an interrupt is required for the core to wake up. 
-* For multi-core devices, one core can wake up the other core by sending the 
+* For Arm-based devices, an interrupt is required for the core to wake up.
+* For multi-core devices, one core can wake up the other core by sending the
 * event instruction. Use the CMSIS function __SEV() to sent event from one core
 * to another.
 *
 * \subsubsection group_syspm_switching_into_hibernate Switching Device to Hibernate
 * If you call Cy_SysPm_Hibernate() from either core, the device will be switched
-* into the Hibernate power mode directly, as there is no 
+* into the Hibernate power mode directly, as there is no
 * handshake between cores.
 *
 * \subsubsection group_syspm_wakingup_from_hibernate Waking Up from Hibernate
@@ -148,66 +146,66 @@
 *
 * * WDT interrupt
 *
-* Wakeup is supported from device specific pin(s) with programmable polarity. 
-* Additionally, unregulated peripherals can wake the device under some 
-* conditions. For example, a low-power comparator can wake the device by 
-* comparing two external voltages but may not support comparison to an 
-* internally-generated voltage. The Backup domain remains functional, and if 
-* present it can schedule an alarm to wake the device from Hibernate using RTC. 
-* Alternatively, the Watchdog Timer (WDT) can be configured to wake-up the 
+* Wakeup is supported from device specific pin(s) with programmable polarity.
+* Additionally, unregulated peripherals can wake the device under some
+* conditions. For example, a low-power comparator can wake the device by
+* comparing two external voltages but may not support comparison to an
+* internally-generated voltage. The Backup domain remains functional, and if
+* present it can schedule an alarm to wake the device from Hibernate using RTC.
+* Alternatively, the Watchdog Timer (WDT) can be configured to wake-up the
 * device by WDT interrupt.
 * Refer to \ref Cy_SysPm_SetHibernateWakeupSource() for more details.
 *
 * \subsection group_syspm_managing_core_regulators Managing Core Voltage Regulators
-* The SysPm driver provides functionality to manage the power modes of the 
+* The SysPm driver provides functionality to manage the power modes of the
 * low-dropout (LDO) and Buck Core Voltage Regulators.
 * For both core regulators, two voltages are possible:
 *
-* * <b>0.9 V (nominal)</b> - core is sourced by 0.9 V (nominal). This core regulator 
-*   power mode is called Ultra Low-Power (ULP). In this mode, the device 
-*   functionality and performance is limited. You must decrease the operating 
-*   frequency and current consumption to meet the 
+* * <b>0.9 V (nominal)</b> - core is sourced by 0.9 V (nominal). This core regulator
+*   power mode is called Ultra Low-Power (ULP). In this mode, the device
+*   functionality and performance is limited. You must decrease the operating
+*   frequency and current consumption to meet the
 *   \ref group_syspm_ulp_limitations, shown below.
-* * <b>1.1 V (nominal)</b> - core is sourced by 1.1 V (nominal). This core regulator 
-*   power mode is called low-power mode (LP). In this mode, you must meet the 
+* * <b>1.1 V (nominal)</b> - core is sourced by 1.1 V (nominal). This core regulator
+*   power mode is called low-power mode (LP). In this mode, you must meet the
 *   \ref group_syspm_lp_limitations, shown below.
 *
 * \subsubsection group_syspm_ulp_limitations ULP Limitations
-* When the core voltage is <b>0.9 V (nominal)</b> the next limitations must be 
+* When the core voltage is <b>0.9 V (nominal)</b> the next limitations must be
 * meet: <br>
-*   - the maximum operating frequency for all Clk_HF paths must not exceed 
+*   - the maximum operating frequency for all Clk_HF paths must not exceed
 *     <b>50 MHz</b>, whereas the peripheral and slow clock must not exceed <b>25 MHz</b>
 *     (refer to \ref group_sysclk driver documentation).
 *   - the total current consumption must be less than or equal to <b>20 mA</b><br>
 *
 * \subsubsection group_syspm_lp_limitations LP Limitations
 * When the core voltage is <b>1.1V (nominal)</b> the next limitations must be meet:
-*   - the maximum operating frequency for all Clk_HF paths must not exceed 
+*   - the maximum operating frequency for all Clk_HF paths must not exceed
 *     <b>150 MHz</b>, whereas the peripheral and slow clock must not exceed <b>100 MHz</b>
 *     (refer to \ref group_sysclk driver documentation). <br>
 *   - the total current consumption must be less than or equal to <b>250 mA</b>
 *
 * \subsection group_syspm_managing_pmic Managing PMIC
 *
-* The SysPm driver also provides an API to configure the external power 
+* The SysPm driver also provides an API to configure the external power
 * management integrated circuit (PMIC) that supplies Vddd.
-* Use the API to enable the PMIC output that is routed to pmic_wakeup_out pin, 
-* and configure the polarity of the PMIC input (pmic_wakeup_in) that is used to 
+* Use the API to enable the PMIC output that is routed to pmic_wakeup_out pin,
+* and configure the polarity of the PMIC input (pmic_wakeup_in) that is used to
 * wake up the PMIC.
 *
 * The PMIC is automatically enabled when:
 *
 * * the PMIC is locked by a call to Cy_SysPm_PmicLock()
 *
-* * the configured polarity of the PMIC input and the polarity driven to 
+* * the configured polarity of the PMIC input and the polarity driven to
 * pmic_wakeup_in pin matches.
 *
 * Because a call to Cy_SysPm_PmicLock() automatically enables the PMIC, the PMIC
-* can remain disabled only when it is unlocked. See Cy_SysPm_PmicUnlock() 
+* can remain disabled only when it is unlocked. See Cy_SysPm_PmicUnlock()
 * for more details.
 *
 * Use Cy_SysPm_PmicIsLocked() to read the current PMIC lock status.
-* 
+*
 * To enable the PMIC, use these functions in this order:<br>
 * \code{.c}
 * 1 Cy_SysPm_PmicUnlock();
@@ -215,18 +213,18 @@
 * 3 Cy_SysPm_PmicLock();
 * \endcode
 *
-* To disable the PMIC block, unlock the PMIC. Then call Cy_SysPm_PmicDisable() 
-* with the inverted value of the current active state of the pmic_wakeup_in pin. 
+* To disable the PMIC block, unlock the PMIC. Then call Cy_SysPm_PmicDisable()
+* with the inverted value of the current active state of the pmic_wakeup_in pin.
 * For example, assume the current state of the pmic_wakeup_in pin is active low.
 * To disable the PMIC, call these functions in this order:<br>
 * \code{.c}
 * 1 Cy_SysPm_PmicUnlock();
 * 2 Cy_SysPm_PmicDisable(CY_SYSPM_PMIC_POLARITY_HIGH);
 * \endcode
-* Note that you do not call Cy_SysPm_PmicLock(), because that automatically 
+* Note that you do not call Cy_SysPm_PmicLock(), because that automatically
 * enables the PMIC.
-* 
-* While disabled, the PMIC block is automatically enabled when the 
+*
+* While disabled, the PMIC block is automatically enabled when the
 * pmic_wakeup_in pin state is changed into high state.
 *
 * To disable the PMIC output, call these functions in this order:
@@ -234,8 +232,8 @@
 * Cy_SysPm_PmicDisableOutput();
 *
 * Do not call Cy_SysPm_PmicLock() (which automatically enables the PMIC output).
-* 
-* When disabled, the PMIC output is enabled when the PMIC is locked, or by 
+*
+* When disabled, the PMIC output is enabled when the PMIC is locked, or by
 * calling Cy_SysPm_PmicEnableOutput().
 *
 * \subsection group_syspm_managing_backup_domain Managing the Backup Domain
@@ -246,137 +244,137 @@
 * * Select power supply (Vbackup or Vddd) for the Vddbackup
 *
 * * Measure Vddbackup using the ADC
-* 
+*
 * Refer to the \ref group_syspm_functions_backup functions for more details.
 *
 * \subsection group_syspm_cb SysPm Callbacks
-* The SysPm driver handles the low power callbacks declared in the application. 
+* The SysPm driver handles the low power callbacks declared in the application.
 *
-* If there are no callbacks registered, the device just executes the power mode 
-* transition. However, it is often the case that your firmware must prepare for 
-* low power mode. For example, you may need to disable a peripheral, or ensure 
+* If there are no callbacks registered, the device just executes the power mode
+* transition. However, it is often the case that your firmware must prepare for
+* low power mode. For example, you may need to disable a peripheral, or ensure
 * that a message is not being transmitted or received.
 *
 * To enable this, the SysPm driver implements a callback mechanism. When a lower
-* power mode transition is about to take place (either entering or exiting 
+* power mode transition is about to take place (either entering or exiting
 * \ref group_syspm_device_power_modes), the registered callbacks are called.
 *
-* The SysPm driver organizes all the callbacks into a linked list. While 
-* entering a low-power mode, SysPm goes through that linked list from first to 
+* The SysPm driver organizes all the callbacks into a linked list. While
+* entering a low-power mode, SysPm goes through that linked list from first to
 * last, executing the callbacks one after another. While exiting low-power mode,
-* SysPm goes through that linked list again, but in the opposite direction from 
+* SysPm goes through that linked list again, but in the opposite direction from
 * last to first.
 *
-* For example, the picture below shows three callback structures organized into 
-* a linked list: myDeepSleep1, mySleep1, myDeepSleep2 (represented with the 
-* \ref cy_stc_syspm_callback_t configuration structure). Each structure 
-* contains, among other fields, the address of the callback function. The code 
-* snippets below set this up so that myDeepSleep1 is called first when entering 
-* the low-power mode. This also means that myDeepSleep1 will be the last one to 
+* For example, the picture below shows three callback structures organized into
+* a linked list: myDeepSleep1, mySleep1, myDeepSleep2 (represented with the
+* \ref cy_stc_syspm_callback_t configuration structure). Each structure
+* contains, among other fields, the address of the callback function. The code
+* snippets below set this up so that myDeepSleep1 is called first when entering
+* the low-power mode. This also means that myDeepSleep1 will be the last one to
 * execute when exiting the low-power mode.
 *
 * The callback structures after registration:
 * \image html syspm_2_10_after_registration.png
 *
-* Your application must register each callback, so that SysPm can execute it. 
-* Upon registration, the linked list is built by the SysPm driver. Notice 
-* the &mySleep1 address in the myDeepSleep1 
-* \ref cy_stc_syspm_callback_t structure. This is filled in by the SysPm driver 
+* Your application must register each callback, so that SysPm can execute it.
+* Upon registration, the linked list is built by the SysPm driver. Notice
+* the &mySleep1 address in the myDeepSleep1
+* \ref cy_stc_syspm_callback_t structure. This is filled in by the SysPm driver
 * when you register mySleep1. The order in which the callbacks are registered in
 * the application defines the order of their execution by the SysPm driver. You
-* may have up to 32 callback functions registered. 
-* Call \ref Cy_SysPm_RegisterCallback() to register each callback function. 
-* 
-* A callback function is typically associated with a particular driver that 
-* handles the peripheral. So the callback mechanism enables a peripheral to 
-* prepare for a low-power mode (for instance, shutting down the analog part); 
-* or to perform tasks while exiting a low-power mode (like enabling the analog 
+* may have up to 32 callback functions registered.
+* Call \ref Cy_SysPm_RegisterCallback() to register each callback function.
+*
+* A callback function is typically associated with a particular driver that
+* handles the peripheral. So the callback mechanism enables a peripheral to
+* prepare for a low-power mode (for instance, shutting down the analog part);
+* or to perform tasks while exiting a low-power mode (like enabling the analog
 * part again).
 *
 * With the callback mechanism you can prevent switching into a low-power mode if
-* a peripheral is not ready. For example, driver X is in the process of 
-* receiving a message. In the callback function implementation simply return 
+* a peripheral is not ready. For example, driver X is in the process of
+* receiving a message. In the callback function implementation simply return
 * CY_SYSPM_FAIL in a response to CY_SYSPM_CHECK_READY.
 *
-* If success is returned while executing a callback, the SysPm driver calls the 
-* next callback and so on to the end of the list. If at some point a callback 
-* returns CY_SYSPM_FAIL in response to the CY_SYSPM_CHECK_READY step, all the 
-* callbacks that have already executed are executed in reverse order, with the 
-* CY_SYSPM_CHECK_FAIL step. This allows each callback to know that entering the 
-* low-power mode has failed. The callback can then undo whatever it did to 
-* prepare for low power mode. For example, if the driver X callback shut down 
+* If success is returned while executing a callback, the SysPm driver calls the
+* next callback and so on to the end of the list. If at some point a callback
+* returns CY_SYSPM_FAIL in response to the CY_SYSPM_CHECK_READY step, all the
+* callbacks that have already executed are executed in reverse order, with the
+* CY_SYSPM_CHECK_FAIL step. This allows each callback to know that entering the
+* low-power mode has failed. The callback can then undo whatever it did to
+* prepare for low power mode. For example, if the driver X callback shut down
 * the analog part, it can re-enable the analog part.
-* 
-* Let's switch to an example explaining the implementation, setup, and 
+*
+* Let's switch to an example explaining the implementation, setup, and
 * registration of three callbacks (myDeepSleep1, mySleep1, myDeepSleep2) in the
-* application. The \ref group_syspm_cb_config_consideration are provided after 
+* application. The \ref group_syspm_cb_config_consideration are provided after
 * the \ref group_syspm_cb_example.
-* 
+*
 * \subsection group_syspm_cb_example SysPm Callbacks Example
 *
 * The following code snippets demonstrate how use the SysPm callbacks mechanism.
-* We will build the prototype for an application that registers 
+* We will build the prototype for an application that registers
 * three callback functions: <br>
 *    1. mySleep1 - handles Sleep <br>
-*    2. myDeepSleep1 - handles Deep Sleep and is associated with peripheral 
-*       HW1_address (see <a href="..\..\pdl_user_guide.pdf">PDL Design</a> 
-*       section to learn about the base hardware 
+*    2. myDeepSleep1 - handles Deep Sleep and is associated with peripheral
+*       HW1_address (see <a href="..\..\pdl_user_guide.pdf">PDL Design</a>
+*       section to learn about the base hardware
 *       address) <br>
-*    3. myDeepSleep2 - handles entering and exiting Deep Sleep and is 
+*    3. myDeepSleep2 - handles entering and exiting Deep Sleep and is
 *       associated with peripheral HW2_address <br>
 *
-* We set things up so that the mySleep1 and myDeepSleep1 callbacks do nothing 
-* while entering the low power mode (skip on CY_SYSPM_SKIP_BEFORE_TRANSITION - 
-* see \ref group_syspm_cb_function_implementation in 
+* We set things up so that the mySleep1 and myDeepSleep1 callbacks do nothing
+* while entering the low power mode (skip on CY_SYSPM_SKIP_BEFORE_TRANSITION -
+* see \ref group_syspm_cb_function_implementation in
 * \ref group_syspm_cb_config_consideration).
-* Skipping the actions while entering low power might be useful if you need 
+* Skipping the actions while entering low power might be useful if you need
 * to save the time while switching low-power modes. This is because the callback
 * function with skipped mode is not even called.
-* 
-* Let's first declare the callback functions. Each gets the pointer to the 
+*
+* Let's first declare the callback functions. Each gets the pointer to the
 * \ref cy_stc_syspm_callback_params_t structure as the argument.
 *
 * \snippet syspm/syspm_2_10_sut_01.cydsn/main_cm4.c snippet_Cy_SysPm_Callback_Func_Declaration
 *
 * Now we setup the \ref cy_stc_syspm_callback_params_t structures that we will
-* pass to callback functions. Note that for the myDeepSleep1 and myDeepSleep2 
-* callbacks we also pass the pointers to the peripherals related to that 
-* callback (see <a href="..\..\pdl_user_guide.pdf">PDL Design</a> section to 
-* learn about the base hardware address). 
-* The configuration considerations related to this structure are described 
+* pass to callback functions. Note that for the myDeepSleep1 and myDeepSleep2
+* callbacks we also pass the pointers to the peripherals related to that
+* callback (see <a href="..\..\pdl_user_guide.pdf">PDL Design</a> section to
+* learn about the base hardware address).
+* The configuration considerations related to this structure are described
 * in \ref group_syspm_cb_parameters in \ref group_syspm_cb_config_consideration.
 *
 * \snippet syspm/syspm_2_10_sut_01.cydsn/main_cm4.c snippet_Cy_SysPm_Callback_Params_Declaration
 *
-* Now we setup the actual callback configuration structures. Each of these 
-* contains, among the other fields, the address of the 
-* \ref cy_stc_syspm_callback_params_t we just set up. We will use the callback 
-* configuration structures later in the code to register the callbacks in the 
-* SysPm driver. Again, we set things up so that the mySleep1 and myDeepSleep1 
-* callbacks do nothing while entering the low power mode 
-* (skip on CY_SYSPM_SKIP_BEFORE_TRANSITION) - see 
-* \ref group_syspm_cb_function_implementation in 
+* Now we setup the actual callback configuration structures. Each of these
+* contains, among the other fields, the address of the
+* \ref cy_stc_syspm_callback_params_t we just set up. We will use the callback
+* configuration structures later in the code to register the callbacks in the
+* SysPm driver. Again, we set things up so that the mySleep1 and myDeepSleep1
+* callbacks do nothing while entering the low power mode
+* (skip on CY_SYSPM_SKIP_BEFORE_TRANSITION) - see
+* \ref group_syspm_cb_function_implementation in
 * \ref group_syspm_cb_config_consideration.
 *
 * \snippet syspm/syspm_2_10_sut_01.cydsn/main_cm4.c snippet_Cy_SysPm_Callback_Structure_Declaration
 *
-* Note that in each case the last two fields are NULL. These are fields used by 
+* Note that in each case the last two fields are NULL. These are fields used by
 * the SysPm driver to set up the linked list of callback functions.
-* 
-* The callback structures are now defined and allocated in the user's 
+*
+* The callback structures are now defined and allocated in the user's
 * memory space:
 * \image html syspm_2_10_before_registration.png
 *
-* Now we implement the callback functions. See 
-* \ref group_syspm_cb_function_implementation in 
-* \ref group_syspm_cb_config_consideration for the instructions on how the 
+* Now we implement the callback functions. See
+* \ref group_syspm_cb_function_implementation in
+* \ref group_syspm_cb_config_consideration for the instructions on how the
 * callback functions should be implemented.
 *
 * \snippet syspm/syspm_2_10_sut_01.cydsn/main_cm4.c snippet_Cy_SysPm_Callback_Func_Implementation
 *
-* Finally, we register the callbacks so that the SysPm driver knows about them. 
-* The order in which the callbacks will be called depends upon the order in 
-* which the callbacks are registered. If there are no callbacks registered, 
+* Finally, we register the callbacks so that the SysPm driver knows about them.
+* The order in which the callbacks will be called depends upon the order in
+* which the callbacks are registered. If there are no callbacks registered,
 * the device just executes the power mode transition.
 *
 * Callbacks that reconfigure global resources, such as clock frequencies, should
@@ -387,114 +385,114 @@
 * \snippet syspm/syspm_2_10_sut_01.cydsn/main_cm4.c snippet_Cy_SysPm_RegisterCallback
 *
 * We are done configuring three callbacks. Now the SysPm driver will execute the
-* callbacks appropriately whenever there is a call to a power mode transition 
-* function: \ref Cy_SysPm_Sleep(), \ref Cy_SysPm_DeepSleep(), 
-* \ref Cy_SysPm_EnterLowPowerMode(), \ref Cy_SysPm_ExitLowPowerMode(), and 
+* callbacks appropriately whenever there is a call to a power mode transition
+* function: \ref Cy_SysPm_Sleep(), \ref Cy_SysPm_DeepSleep(),
+* \ref Cy_SysPm_EnterLowPowerMode(), \ref Cy_SysPm_ExitLowPowerMode(), and
 * \ref Cy_SysPm_Hibernate().
-* \note On a wakeup from hibernate the device goes through a reset, so the 
-* callbacks with CY_SYSPM_AFTER_TRANSITION are not executed. Refer to 
+* \note On a wakeup from hibernate the device goes through a reset, so the
+* callbacks with CY_SYSPM_AFTER_TRANSITION are not executed. Refer to
 * \ref Cy_SysPm_Hibernate() for more details.
-* 
-* Refer to \ref group_syspm_cb_uregistering in 
-* \ref group_syspm_cb_config_consideration to learn what to do if you need to 
-* remove the callback from the linked list. You might want to unregister the 
+*
+* Refer to \ref group_syspm_cb_uregistering in
+* \ref group_syspm_cb_config_consideration to learn what to do if you need to
+* remove the callback from the linked list. You might want to unregister the
 * callback for debug purposes.
-* 
-* Refer to \ref group_syspm_cb_flow in \ref group_syspm_cb_config_consideration 
+*
+* Refer to \ref group_syspm_cb_flow in \ref group_syspm_cb_config_consideration
 * to learn about how the SysPm is processing the callbacks.
 *
 * \subsection group_syspm_cb_config_consideration Callback Configuration Considerations
 *
 * \subsubsection group_syspm_cb_parameters Callback Function Parameters
-* 
-* The <b>callbackParams</b> parameter of the callback function is a 
-* \ref cy_stc_syspm_callback_params_t structure. The first field in this 
-* structure (<b>mode</b>) is for internal use. In the example code we used a 
-* dummy value CY_SYSPM_CHECK_READY to eliminate compilation errors associated 
-* with the enumeration. The driver sets the <b>mode</b> field to the correct 
-* value when calling the callback functions (the mode is referred to as step in 
-* the \ref group_syspm_cb_function_implementation). The callback function reads 
-* the value and acts based on the mode set by the SysPm driver. The <b>base</b> 
+*
+* The <b>callbackParams</b> parameter of the callback function is a
+* \ref cy_stc_syspm_callback_params_t structure. The first field in this
+* structure (<b>mode</b>) is for internal use. In the example code we used a
+* dummy value CY_SYSPM_CHECK_READY to eliminate compilation errors associated
+* with the enumeration. The driver sets the <b>mode</b> field to the correct
+* value when calling the callback functions (the mode is referred to as step in
+* the \ref group_syspm_cb_function_implementation). The callback function reads
+* the value and acts based on the mode set by the SysPm driver. The <b>base</b>
 * and <b>context</b> fields are optional and can be NULL. Some drivers require a
-* base hardware address and a context. If your callback routine needs access to 
-* the driver registers or context, provide those values (see 
-* <a href="..\..\pdl_user_guide.pdf">PDL Design</a> section 
-* to learn about Base Hardware Address). Be aware of MISRA warnings if these 
+* base hardware address and a context. If your callback routine needs access to
+* the driver registers or context, provide those values (see
+* <a href="..\..\pdl_user_guide.pdf">PDL Design</a> section
+* to learn about Base Hardware Address). Be aware of MISRA warnings if these
 * parameters are NULL.
 *
 * \subsubsection group_syspm_cb_structures Callback Function Structure
-* For each callback, provide a \ref cy_stc_syspm_callback_t structure. Some 
-* fields in this structure are maintained by the driver. Use NULL for 
-* <b>prevItm</b> and <b>nextItm</b>. The driver uses these fields to build a 
+* For each callback, provide a \ref cy_stc_syspm_callback_t structure. Some
+* fields in this structure are maintained by the driver. Use NULL for
+* <b>prevItm</b> and <b>nextItm</b>. The driver uses these fields to build a
 * linked list of callback functions.
 *
-* \warning The Cy_SysPm_RegisterCallback() function stores a pointer to the 
-* cy_stc_syspm_callback_t variable. Do not modify elements of the 
-* cy_stc_syspm_callback_t structure after the callback is registered. 
-* You are responsible for ensuring that the variable remains in scope. 
-* Typically the structure is declared as a global or static variable, or as a 
+* \warning The Cy_SysPm_RegisterCallback() function stores a pointer to the
+* cy_stc_syspm_callback_t variable. Do not modify elements of the
+* cy_stc_syspm_callback_t structure after the callback is registered.
+* You are responsible for ensuring that the variable remains in scope.
+* Typically the structure is declared as a global or static variable, or as a
 * local variable in the main() function.
 *
 * \subsubsection group_syspm_cb_function_implementation Callback Function Implementation
 *
-* Every callback function should handle four possible steps (referred to as 
+* Every callback function should handle four possible steps (referred to as
 * "mode") defined in \ref cy_en_syspm_callback_mode_t : <br>
 *    * CY_SYSPM_CHECK_READY - prepare for entering a low power mode<br>
-*    * CY_SYSPM_BEFORE_TRANSITION - The actions to be done before entering 
+*    * CY_SYSPM_BEFORE_TRANSITION - The actions to be done before entering
 *      the low-power mode <br>
-*    * CY_SYSPM_AFTER_TRANSITION - The actions to be done after exiting the 
+*    * CY_SYSPM_AFTER_TRANSITION - The actions to be done after exiting the
 *      low-power mode <br>
-*    * CY_SYSPM_CHECK_FAIL - roll back the actions done in the callbacks 
+*    * CY_SYSPM_CHECK_FAIL - roll back the actions done in the callbacks
 *      executed previously with CY_SYSPM_CHECK_READY <br>
 *
 * A callback function can skip steps (see \ref group_syspm_skip_callback_modes).
-* In our example mySleep1 and myDeepSleep1 callbacks do nothing while entering 
-* the low power mode (skip on CY_SYSPM_BEFORE_TRANSITION). If there is anything 
-* preventing low power mode entry - return CY_SYSPM_FAIL in response to 
-* CY_SYSPM_CHECK_READY in your callback implementation. Note that the callback 
-* should return CY_SYSPM_FAIL only in response to CY_SYSPM_CHECK_READY. The 
-* callback function should always return CY_SYSPM_PASS for other modes: 
+* In our example mySleep1 and myDeepSleep1 callbacks do nothing while entering
+* the low power mode (skip on CY_SYSPM_BEFORE_TRANSITION). If there is anything
+* preventing low power mode entry - return CY_SYSPM_FAIL in response to
+* CY_SYSPM_CHECK_READY in your callback implementation. Note that the callback
+* should return CY_SYSPM_FAIL only in response to CY_SYSPM_CHECK_READY. The
+* callback function should always return CY_SYSPM_PASS for other modes:
 * CY_SYSPM_CHECK_FAIL, CY_SYSPM_BEFORE_TRANSITION, and CY_SYSPM_AFTER_TRANSITION
 * (see \ref group_syspm_cb_flow).
-* 
+*
 * \subsubsection group_syspm_cb_flow Callbacks Execution Flow
 *
-* This section explains what happens during a power transition, when callbacks 
+* This section explains what happens during a power transition, when callbacks
 * are implemented and set up correctly. The following discussion assumes: <br>
 * * All required callback functions are defined and implemented <br>
 * * All cy_stc_syspm_callback_t structures are filled with required values <br>
-* * All callbacks are successfully registered 
+* * All callbacks are successfully registered
 *
-* User calls one of the power mode transition functions: \ref Cy_SysPm_Sleep(), 
-* \ref Cy_SysPm_DeepSleep(), \ref Cy_SysPm_EnterLowPowerMode(), 
-* \ref Cy_SysPm_ExitLowPowerMode(), and \ref Cy_SysPm_Hibernate(). 
-* It calls each callback with the mode set to CY_SYSPM_CHECK_READY. This 
+* User calls one of the power mode transition functions: \ref Cy_SysPm_Sleep(),
+* \ref Cy_SysPm_DeepSleep(), \ref Cy_SysPm_EnterLowPowerMode(),
+* \ref Cy_SysPm_ExitLowPowerMode(), and \ref Cy_SysPm_Hibernate().
+* It calls each callback with the mode set to CY_SYSPM_CHECK_READY. This
 * triggers execution of the code for that step inside of each user callback.
-* 
-* If that process is successful for all callbacks, then 
-* \ref Cy_SysPm_ExecuteCallback() calls each callback with the mode set to 
-* CY_SYSPM_BEFORE_TRANSITION. This triggers execution of the code for that step 
+*
+* If that process is successful for all callbacks, then
+* \ref Cy_SysPm_ExecuteCallback() calls each callback with the mode set to
+* CY_SYSPM_BEFORE_TRANSITION. This triggers execution of the code for that step
 * inside each user callback. We then enter the low power mode.
-* 
-* When exiting the low power mode, the SysPm driver executes 
-* \ref Cy_SysPm_ExecuteCallback() again. This time it calls each callback in 
-* reverse order, with the mode set to CY_SYSPM_AFTER_TRANSITION. This triggers 
-* execution of the code for that step inside each user callback. When complete, 
+*
+* When exiting the low power mode, the SysPm driver executes
+* \ref Cy_SysPm_ExecuteCallback() again. This time it calls each callback in
+* reverse order, with the mode set to CY_SYSPM_AFTER_TRANSITION. This triggers
+* execution of the code for that step inside each user callback. When complete,
 * we are back to Active state.
-* 
-* A callback can return CY_SYSPM_FAIL only while executing the 
-* CY_SYSPM_CHECK_READY step. If that happens, then the remaining callbacks are 
-* not executed. Any callbacks that have already executed are called again, in 
-* reverse order, with CY_SYSPM_CHECK_FAIL. This allows the system to return to 
-* the previous state. Then any of the functions (\ref Cy_SysPm_Sleep(), 
-* \ref Cy_SysPm_DeepSleep(), \ref Cy_SysPm_EnterLowPowerMode(), 
-* \ref Cy_SysPm_ExitLowPowerMode(), and \ref Cy_SysPm_Hibernate()) that 
-* attempted to switch the device into a low power mode will 
+*
+* A callback can return CY_SYSPM_FAIL only while executing the
+* CY_SYSPM_CHECK_READY step. If that happens, then the remaining callbacks are
+* not executed. Any callbacks that have already executed are called again, in
+* reverse order, with CY_SYSPM_CHECK_FAIL. This allows the system to return to
+* the previous state. Then any of the functions (\ref Cy_SysPm_Sleep(),
+* \ref Cy_SysPm_DeepSleep(), \ref Cy_SysPm_EnterLowPowerMode(),
+* \ref Cy_SysPm_ExitLowPowerMode(), and \ref Cy_SysPm_Hibernate()) that
+* attempted to switch the device into a low power mode will
 * return CY_SYSPM_FAIL.
 *
-* Callbacks that reconfigure global resources, such as clock frequencies, 
-* should be registered last. They then modify global resources as the final 
-* step before entering the low power mode, and restore those resources first, 
+* Callbacks that reconfigure global resources, such as clock frequencies,
+* should be registered last. They then modify global resources as the final
+* step before entering the low power mode, and restore those resources first,
 * as the system returns from Low-power mode.
 *
 * \subsubsection group_syspm_cb_uregistering Callback Unregistering
@@ -516,29 +514,29 @@
 *
 *   <tr>
 *     <td>LDO</td>
-*     <td>Low Dropout Linear Regulator (LDO). The functions that manage this 
-*         block are grouped as \ref group_syspm_functions_ldo under 
+*     <td>Low Dropout Linear Regulator (LDO). The functions that manage this
+*         block are grouped as \ref group_syspm_functions_ldo under
 *         \ref group_syspm_functions_core_regulators</td>
 *   </tr>
 *
 *   <tr>
 *     <td>SIMO Buck</td>
-*     <td>Single Inductor Multiple Output Buck Regulator, referred as 
-*         "Buck regulator" throughout the documentation. The functions that 
+*     <td>Single Inductor Multiple Output Buck Regulator, referred as
+*         "Buck regulator" throughout the documentation. The functions that
 *         manage this block are grouped as \ref group_syspm_functions_buck under
 *         \ref group_syspm_functions_core_regulators</td>
 *   </tr>
 *
 *   <tr>
 *     <td>PMIC</td>
-*     <td>Power Management Integrated Circuit. The functions that manage this 
+*     <td>Power Management Integrated Circuit. The functions that manage this
 *         block are grouped as \ref group_syspm_functions_pmic</td>
 *   </tr>
 *
 *   <tr>
 *     <td>LPActive</td>
-*     <td>Low-Power Active mode. The MCU power mode. 
-*         See the \ref group_syspm_switching_into_lpactive 
+*     <td>Low-Power Active mode. The MCU power mode.
+*         See the \ref group_syspm_switching_into_lpactive
 *         section for details</td>
 *   </tr>
 * </table>
@@ -556,7 +554,7 @@
 *   <tr>
 *     <td>2.10</td>
 *     <td> <br>
-*          * Changed names for all Backup, Buck-related functions, defines, 
+*          * Changed names for all Backup, Buck-related functions, defines,
 *            and enums <br>
 *          * Changed next power mode function names: <br>
 *            Cy_SysPm_EnterLpMode <br>
@@ -570,7 +568,7 @@
 *            cy_en_syspm_simo_buck_voltage2_t <br>
 *          * Updated Power Modes documentation section <br>
 *          * Added Low Power Callback Managements section <br>
-*          * Documentation edits 
+*          * Documentation edits
 *     </td>
 *     <td>Improvements made based on usability feedback <br>
 *         Documentation update and clarification
@@ -578,10 +576,10 @@
 *   </tr>
 *   <tr>
 *     <td>2.0</td>
-*     <td>Enhancement and defect fixes: <br> 
+*     <td>Enhancement and defect fixes: <br>
 *         * Added input parameter(s) validation to all public functions <br>
 *         * Removed "_SysPm_" prefixes from the internal functions names <br>
-*         * Changed the type of elements with limited set of values, from 
+*         * Changed the type of elements with limited set of values, from
 *           uint32_t to enumeration
 *         * Enhanced syspm callback mechanism
 *         * Added functions to control: <br>
@@ -602,9 +600,9 @@
 * \defgroup group_syspm_functions Functions
 * \{
 *   \defgroup group_syspm_functions_power          Power Modes
-*   \defgroup group_syspm_functions_power_status   Power Status 
+*   \defgroup group_syspm_functions_power_status   Power Status
 *   \defgroup group_syspm_functions_iofreeze       I/Os Freeze
-*   \defgroup group_syspm_functions_core_regulators    Core Voltage Regulation 
+*   \defgroup group_syspm_functions_core_regulators    Core Voltage Regulation
 *   \{
 *     \defgroup group_syspm_functions_ldo      LDO
 *     \defgroup group_syspm_functions_buck     Buck
@@ -660,7 +658,7 @@ extern "C" {
 /** The internal define of the unlock value for the PMIC functions */
 #define CY_SYSPM_PMIC_UNLOCK_KEY                         (0x3AU)
 
-/** The internal define of the tries number in the Cy_SysPm_ExitLowPowerMode() 
+/** The internal define of the tries number in the Cy_SysPm_ExitLowPowerMode()
 * function
 */
 #define CY_SYSPM_WAIT_DELAY_TRYES                        (100U)
@@ -715,19 +713,19 @@ extern "C" {
 /* Macro to validate parameters in Cy_SysPm_BackupSetSupply() function */
 #define CY_SYSPM_IS_VDDBACKUP_VALID(vddBackControl)      (((vddBackControl) == CY_SYSPM_VDDBACKUP_DEFAULT) || \
                                                           ((vddBackControl) == CY_SYSPM_VDDBACKUP_VBACKUP))
-                                                          
+
 /* Macro to validate parameters in Cy_SysPm_BackupSuperCapCharge() function */
 #define CY_SYSPM_IS_SC_CHARGE_KEY_VALID(key)            (((key) == CY_SYSPM_SC_CHARGE_ENABLE) || \
                                                          ((key) == CY_SYSPM_SC_CHARGE_DISABLE))
 
 #if(0u != SRSS_BUCKCTL_PRESENT)
 
-    /** The definition for the delay of the Buck supply regulator 
+    /** The definition for the delay of the Buck supply regulator
     * stabilization after it was configured with enabled Buck output 1 */
     #define CY_SYSPM_BUCK_CORE_SUPPLY_STABLE_US       (900U)
 
-    /** The definition for the delay of the Buck supply regulator 
-    * stabilization after it was configured with enabled Buck 
+    /** The definition for the delay of the Buck supply regulator
+    * stabilization after it was configured with enabled Buck
     * output 2 only
     */
     #define CY_SYSPM_BUCK_BLE_SUPPLY_STABLE_US        (600U)
@@ -739,20 +737,20 @@ extern "C" {
 
 #endif /* (0u != SRSS_BUCKCTL_PRESENT) */
 
-/** The wait time for transition of the device from the Active into 
+/** The wait time for transition of the device from the Active into
 * the LPActive
 */
 #define CY_SYSPM_ACTIVE_TO_LP_WAIT_US           (1U)
 
 /** The wait delay time which occurs before the Active reference is settled.
-* This delay is used in transition of the device from Active into the LPActive 
-* low-power mode 
+* This delay is used in transition of the device from Active into the LPActive
+* low-power mode
 */
 #define CY_SYSPM_LP_TO_ACTIVE_WAIT_BEFORE_US    (8U)
 
-/** The wait delay time which occurs after the Active reference is settled. 
-* This delay is used in transition the device from Active into the LPActive 
-* mode 
+/** The wait delay time which occurs after the Active reference is settled.
+* This delay is used in transition the device from Active into the LPActive
+* mode
 */
 #define CY_SYSPM_LP_TO_ACTIVE_WAIT_AFTER_US     (1U)
 
@@ -788,46 +786,46 @@ extern "C" {
 */
 #define CY_SYSPM_WAKEUP_PIN0_BIT                         (1UL)
 
-/** The internal define of the second wakeup pin bit 
+/** The internal define of the second wakeup pin bit
 * used in the Cy_SysPm_SetHibernateWakeupSource() function
 */
 #define CY_SYSPM_WAKEUP_PIN1_BIT                         (2UL)
 
 /**
-* The internal define of the first LPComparator bit 
+* The internal define of the first LPComparator bit
 * used in the Cy_SysPm_SetHibernateWakeupSource() function
 */
 #define CY_SYSPM_WAKEUP_LPCOMP0_BIT                      (4UL)
 
 /**
-* The internal define for the second LPComparator bit 
+* The internal define for the second LPComparator bit
 * used in the Cy_SysPm_SetHibernateWakeupSource() function
 */
 #define CY_SYSPM_WAKEUP_LPCOMP1_BIT                      (8UL)
 
 /**
-* The internal define of the first LPComparator value 
+* The internal define of the first LPComparator value
 * used in the Cy_SysPm_SetHibernateWakeupSource() function
 */
 #define CY_SYSPM_WAKEUP_LPCOMP0    ((uint32_t) CY_SYSPM_WAKEUP_LPCOMP0_BIT << \
                                                SRSS_PWR_HIBERNATE_MASK_HIBPIN_Pos)
 
 /**
-* The internal define of the second LPComparator value 
+* The internal define of the second LPComparator value
 * used in the Cy_SysPm_SetHibernateWakeupSource() function
 */
 #define CY_SYSPM_WAKEUP_LPCOMP1    ((uint32_t) CY_SYSPM_WAKEUP_LPCOMP1_BIT << \
                                                SRSS_PWR_HIBERNATE_MASK_HIBPIN_Pos)
 
 /**
-* The internal define of the first wake-up pin value 
+* The internal define of the first wake-up pin value
 * used in the Cy_SysPm_SetHibernateWakeupSource() function
 */
 #define CY_SYSPM_WAKEUP_PIN0       ((uint32_t) CY_SYSPM_WAKEUP_PIN0_BIT << \
                                                SRSS_PWR_HIBERNATE_MASK_HIBPIN_Pos)
 
 /**
-* The internal define of the second wake-up pin value used 
+* The internal define of the second wake-up pin value used
 * in the Cy_SysPm_SetHibernateWakeupSource() function
 */
 #define CY_SYSPM_WAKEUP_PIN1       ((uint32_t) CY_SYSPM_WAKEUP_PIN1_BIT << \
@@ -873,10 +871,10 @@ extern "C" {
 
     /** The CM4 is Low-Power mode */
     #define CY_SYSPM_STATUS_CM4_LOWPOWER     (0x80U)
-    
+
     /** The define of retained power mode of the CM4 */
     #define CY_SYSPM_CM4_PWR_RETAINED        (2UL)
-    
+
 #endif /* (0u != CY_IP_M4CPUSS) */
 
 /** The CM0 is Active */
@@ -935,48 +933,48 @@ typedef enum
     CY_SYSPM_WAIT_FOR_EVENT           /**< Wait for an event */
 } cy_en_syspm_waitfor_t;
 
-/** This enumeration is used to configure sources for wakeup from the Hibernate 
+/** This enumeration is used to configure sources for wakeup from the Hibernate
 *   power mode
 */
 typedef enum
 {
     /** Configure a low level for the first LPComp */
-    CY_SYSPM_HIBERNATE_LPCOMP0_LOW = 
+    CY_SYSPM_HIBERNATE_LPCOMP0_LOW =
     ((uint32_t) CY_SYSPM_WAKEUP_LPCOMP0_BIT << SRSS_PWR_HIBERNATE_MASK_HIBPIN_Pos),
 
     /** Configure a high level for the first LPComp */
-    CY_SYSPM_HIBERNATE_LPCOMP0_HIGH = 
-    ((uint32_t) ((uint32_t) CY_SYSPM_WAKEUP_LPCOMP0_BIT << SRSS_PWR_HIBERNATE_POLARITY_HIBPIN_Pos) | 
+    CY_SYSPM_HIBERNATE_LPCOMP0_HIGH =
+    ((uint32_t) ((uint32_t) CY_SYSPM_WAKEUP_LPCOMP0_BIT << SRSS_PWR_HIBERNATE_POLARITY_HIBPIN_Pos) |
                 ((uint32_t) CY_SYSPM_WAKEUP_LPCOMP0_BIT << SRSS_PWR_HIBERNATE_MASK_HIBPIN_Pos)),
 
      /** Configure a low level for the second LPComp */
     CY_SYSPM_HIBERNATE_LPCOMP1_LOW = ((uint32_t) CY_SYSPM_WAKEUP_LPCOMP1_BIT << SRSS_PWR_HIBERNATE_MASK_HIBPIN_Pos),
-    
+
     /** Configure a high level for the second LPComp */
     CY_SYSPM_HIBERNATE_LPCOMP1_HIGH =
-    ((uint32_t) ((uint32_t) CY_SYSPM_WAKEUP_LPCOMP1_BIT << SRSS_PWR_HIBERNATE_POLARITY_HIBPIN_Pos) | 
+    ((uint32_t) ((uint32_t) CY_SYSPM_WAKEUP_LPCOMP1_BIT << SRSS_PWR_HIBERNATE_POLARITY_HIBPIN_Pos) |
                 ((uint32_t) CY_SYSPM_WAKEUP_LPCOMP1_BIT << SRSS_PWR_HIBERNATE_MASK_HIBPIN_Pos)),
 
     /** Configure the RTC alarm */
     CY_SYSPM_HIBERNATE_RTC_ALARM = SRSS_PWR_HIBERNATE_MASK_HIBALARM_Msk,
-    
+
     /** Configure the WDT interrupt */
     CY_SYSPM_HIBERNATE_WDT = SRSS_PWR_HIBERNATE_MASK_HIBWDT_Msk,
 
     /** Configure a low level for the first wakeup-pin */
     CY_SYSPM_HIBERNATE_PIN0_LOW = ((uint32_t) CY_SYSPM_WAKEUP_PIN0_BIT << SRSS_PWR_HIBERNATE_MASK_HIBPIN_Pos),
-    
+
     /** Configure a high level for the first wakeup-pin */
     CY_SYSPM_HIBERNATE_PIN0_HIGH =
-    ((uint32_t) ((uint32_t) CY_SYSPM_WAKEUP_PIN0_BIT << SRSS_PWR_HIBERNATE_POLARITY_HIBPIN_Pos) | 
+    ((uint32_t) ((uint32_t) CY_SYSPM_WAKEUP_PIN0_BIT << SRSS_PWR_HIBERNATE_POLARITY_HIBPIN_Pos) |
                 ((uint32_t) CY_SYSPM_WAKEUP_PIN0_BIT << SRSS_PWR_HIBERNATE_MASK_HIBPIN_Pos)),
 
     /** Configure a low level for the second wakeup-pin */
     CY_SYSPM_HIBERNATE_PIN1_LOW = ((uint32_t) CY_SYSPM_WAKEUP_PIN1_BIT << SRSS_PWR_HIBERNATE_MASK_HIBPIN_Pos),
-    
+
    /** Configure a high level for the second wakeup-pin */
     CY_SYSPM_HIBERNATE_PIN1_HIGH =
-    ((uint32_t) ((uint32_t) CY_SYSPM_WAKEUP_PIN1_BIT << SRSS_PWR_HIBERNATE_POLARITY_HIBPIN_Pos) | 
+    ((uint32_t) ((uint32_t) CY_SYSPM_WAKEUP_PIN1_BIT << SRSS_PWR_HIBERNATE_POLARITY_HIBPIN_Pos) |
                 ((uint32_t) CY_SYSPM_WAKEUP_PIN1_BIT << SRSS_PWR_HIBERNATE_MASK_HIBPIN_Pos)),
 } cy_en_syspm_hibernate_wakeup_source_t;
 
@@ -990,7 +988,7 @@ typedef enum
 #if(0u != SRSS_BUCKCTL_PRESENT)
 
     /**
-    *  The enumeration is used to select the output voltage for the Buck 
+    *  The enumeration is used to select the output voltage for the Buck
     *  output 1, which can supply a core(s).
     */
     typedef enum
@@ -1011,7 +1009,7 @@ typedef enum
     #if(0u != SRSS_SIMOBUCK_PRESENT)
 
         /**
-        * The enumeration is used to select the output voltage for the Buck 
+        * The enumeration is used to select the output voltage for the Buck
         * output 2, which can source the BLE HW block.
         */
         typedef enum
@@ -1030,7 +1028,7 @@ typedef enum
 #endif /* (0u != SRSS_BUCKCTL_PRESENT) */
 
 /**
-* This enumeration is used to set a polarity for the PMIC input. The PMIC is 
+* This enumeration is used to set a polarity for the PMIC input. The PMIC is
 * automatically enabled when configured polarity of PMIC input and the polarity
 * driven to pmic_wakeup_in pin matches.
 */
@@ -1045,7 +1043,7 @@ typedef enum
 */
 typedef enum
 {
-    CY_SYSPM_VDDBACKUP_DEFAULT         = 0U,    /**< Automatically selects Vddd or Vbackup to supply 
+    CY_SYSPM_VDDBACKUP_DEFAULT         = 0U,    /**< Automatically selects Vddd or Vbackup to supply
                                                      Vddbackup */
     CY_SYSPM_VDDBACKUP_VBACKUP         = 2U     /**< Set Vbackup to supply Vddbackup */
 } cy_en_syspm_vddbackup_control_t;
@@ -1077,7 +1075,7 @@ typedef enum
 /** The callback mode enumeration. This enum defines the callback mode */
 typedef enum
 {
-    CY_SYSPM_CHECK_READY        = 0x01U,    /**< Callbacks with this mode are executed before entering into the 
+    CY_SYSPM_CHECK_READY        = 0x01U,    /**< Callbacks with this mode are executed before entering into the
                                                  low-power mode. Callback function check if the device is ready
                                                  to enter the low-power mode */
     CY_SYSPM_CHECK_FAIL         = 0x02U,    /**< Callbacks with this mode are executed after the previous callbacks
@@ -1098,7 +1096,7 @@ typedef enum
 * \defgroup group_syspm_skip_callback_modes The Defines to skip the callbacks modes
 * \{
 * The defines of the SysPm callbacks modes that can be skipped during execution.
-* For more information about callbacks modes refer 
+* For more information about callbacks modes refer
 * to \ref cy_en_syspm_callback_mode_t.
 */
 #define CY_SYSPM_SKIP_CHECK_READY                   (0x01U)   /**< The define to skip the check ready mode in the syspm callback */
@@ -1116,13 +1114,13 @@ typedef enum
 /** The structure with the syspm callback parameters */
 typedef struct
 {
-    cy_en_syspm_callback_mode_t mode;   /**< The callback mode. You can skip assigning as this element is for 
-                                             internal usage, see \ref cy_en_syspm_callback_mode_t. This element 
-                                             should not be defined as it is updated every time before the 
+    cy_en_syspm_callback_mode_t mode;   /**< The callback mode. You can skip assigning as this element is for
+                                             internal usage, see \ref cy_en_syspm_callback_mode_t. This element
+                                             should not be defined as it is updated every time before the
                                              callback function is executed */
     void *base;                         /**< The base address of a HW instance, matches name of the driver in
                                              the API for the base address. Can be not defined if not required */
-    void *context;                      /**< The context for the handler function. This item can be 
+    void *context;                      /**< The context for the handler function. This item can be
                                              skipped if not required. Can be not defined if not required */
 
 } cy_stc_syspm_callback_params_t;
@@ -1135,26 +1133,26 @@ typedef struct cy_stc_syspm_callback
 {
     Cy_SysPmCallback callback;                         /**< The callback handler function */
     cy_en_syspm_callback_type_t type;                  /**< The callback type, see \ref cy_en_syspm_callback_type_t */
-    uint32_t skipMode;                                 /**< The mask of modes to be skipped during callback 
+    uint32_t skipMode;                                 /**< The mask of modes to be skipped during callback
                                                              execution, see \ref group_syspm_skip_callback_modes. The
-                                                             corresponding callback mode won't execute if the 
+                                                             corresponding callback mode won't execute if the
                                                              appropriate define is set. These values can be ORed.
                                                              If all modes are required to be executed this element
                                                              should be equal to zero. */
 
-    cy_stc_syspm_callback_params_t *callbackParams;    /**< The address of a cy_stc_syspm_callback_params_t, 
+    cy_stc_syspm_callback_params_t *callbackParams;    /**< The address of a cy_stc_syspm_callback_params_t,
                                                             the callback is executed with these parameters  */
 
-    struct cy_stc_syspm_callback *prevItm;              /**< The previous list item. This element should not be 
-                                                             defined, or defined as NULL. It is for internal 
+    struct cy_stc_syspm_callback *prevItm;              /**< The previous list item. This element should not be
+                                                             defined, or defined as NULL. It is for internal
                                                              usage to link this structure to the next registered structure.
-                                                             It will be updated during callback registering. Do not 
+                                                             It will be updated during callback registering. Do not
                                                              modify this element in run-time */
-                                                             
-    struct cy_stc_syspm_callback *nextItm;              /**< The next list item. This element should not be 
-                                                             defined, or defined as NULL. It is for internal usage to 
+
+    struct cy_stc_syspm_callback *nextItm;              /**< The next list item. This element should not be
+                                                             defined, or defined as NULL. It is for internal usage to
                                                              link this structure to the previous registered structure.
-                                                             It will be updated during callback registering. Do not 
+                                                             It will be updated during callback registering. Do not
                                                              modify this element in run-time */
 } cy_stc_syspm_callback_t;
 
@@ -1253,10 +1251,10 @@ __STATIC_INLINE bool Cy_SysPm_LdoIsEnabled(void);
 * \{
 */
 __STATIC_INLINE void Cy_SysPm_PmicEnable(void);
-__STATIC_INLINE void Cy_SysPm_PmicDisable(cy_en_syspm_pmic_wakeup_polarity_t polarity); 
+__STATIC_INLINE void Cy_SysPm_PmicDisable(cy_en_syspm_pmic_wakeup_polarity_t polarity);
 __STATIC_INLINE void Cy_SysPm_PmicAlwaysEnable(void);
 __STATIC_INLINE void Cy_SysPm_PmicEnableOutput(void);
-__STATIC_INLINE void Cy_SysPm_PmicDisableOutput(void); 
+__STATIC_INLINE void Cy_SysPm_PmicDisableOutput(void);
 __STATIC_INLINE void Cy_SysPm_PmicLock(void);
 __STATIC_INLINE void Cy_SysPm_PmicUnlock(void);
 __STATIC_INLINE bool Cy_SysPm_PmicIsEnabled(void);
@@ -1339,7 +1337,7 @@ cy_en_syspm_status_t Cy_SysPm_ExecuteCallback(cy_en_syspm_callback_type_t type, 
     * Checks whether the CM4 is in Sleep mode.
     *
     * \return
-    * true - if the CM4 is in Sleep mode; 
+    * true - if the CM4 is in Sleep mode;
     * false - if the CM4 is not in Sleep mode.
     *
     * \funcusage
@@ -1359,7 +1357,7 @@ cy_en_syspm_status_t Cy_SysPm_ExecuteCallback(cy_en_syspm_callback_type_t type, 
     * Checks whether the CM4 is in the Deep Sleep mode.
     *
     * \return
-    * true - if CM4 is in Deep Sleep mode; false - if the CM4 is not in 
+    * true - if CM4 is in Deep Sleep mode; false - if the CM4 is not in
     * Deep Sleep mode.
     *
     * \funcusage
@@ -1376,11 +1374,11 @@ cy_en_syspm_status_t Cy_SysPm_ExecuteCallback(cy_en_syspm_callback_type_t type, 
     * Function Name: Cy_SysPm_Cm4IsLowPower
     ****************************************************************************//**
     *
-    * Checks whether the CM4 is in Low-Power mode. Note that Low-Power mode is a 
+    * Checks whether the CM4 is in Low-Power mode. Note that Low-Power mode is a
     * status of the device.
     *
     * \return
-    * true - if the CM4 is in Low-Power mode; 
+    * true - if the CM4 is in Low-Power mode;
     * false - if the CM4 is not in Low-Power mode.
     *
     * \funcusage
@@ -1406,7 +1404,7 @@ cy_en_syspm_status_t Cy_SysPm_ExecuteCallback(cy_en_syspm_callback_type_t type, 
 * Checks whether the CM0+ is in Active mode.
 *
 * \return
-* true - if the CM0+ is in Active mode; 
+* true - if the CM0+ is in Active mode;
 * false - if the CM0+ is not in Active mode.
 *
 * \funcusage
@@ -1426,7 +1424,7 @@ __STATIC_INLINE bool Cy_SysPm_Cm0IsActive(void)
 * Checks whether the CM0+ is in Sleep mode.
 *
 * \return
-* true - if the CM0+ is in Sleep mode; 
+* true - if the CM0+ is in Sleep mode;
 * false - if the CM0+ is not in Sleep mode.
 *
 * \funcusage
@@ -1446,7 +1444,7 @@ __STATIC_INLINE bool Cy_SysPm_Cm0IsSleep(void)
 * Checks whether the CM0+ is in Deep Sleep mode.
 *
 * \return
-* true - if the CM0+ is in Deep Sleep mode; 
+* true - if the CM0+ is in Deep Sleep mode;
 * false - if the CM0+ is not in Deep Sleep mode.
 *
 * \funcusage
@@ -1467,7 +1465,7 @@ __STATIC_INLINE bool Cy_SysPm_Cm0IsDeepSleep(void)
 * status of the device.
 *
 * \return
-* true - if the CM0+ is in Low-Power mode; 
+* true - if the CM0+ is in Low-Power mode;
 * false - if the CM0+ is not in Low-Power mode.
 *
 * \funcusage
@@ -1531,11 +1529,11 @@ __STATIC_INLINE bool Cy_SysPm_IsLowPower(void)
     * Function Name: Cy_SysPm_BuckGetVoltage1
     ****************************************************************************//**
     *
-    * Gets the current nominal output 1 voltage (Vccbuck1) of 
+    * Gets the current nominal output 1 voltage (Vccbuck1) of
     * the Buck regulator.
     *
     * \note The actual device output 1 voltage (Vccbuck1) can be different from
-    * the nominal voltage because the actual voltage value depends on the 
+    * the nominal voltage because the actual voltage value depends on the
     * conditions including the load current.
     *
     * \return
@@ -1560,20 +1558,20 @@ __STATIC_INLINE bool Cy_SysPm_IsLowPower(void)
         * Function Name: Cy_SysPm_BuckGetVoltage2
         ****************************************************************************//**
         *
-        * Gets the current output 2 nominal voltage (Vbuckrf) of the SIMO 
+        * Gets the current output 2 nominal voltage (Vbuckrf) of the SIMO
         * Buck regulator.
         *
-        * \note The actual device output 2 voltage (Vbuckrf) can be different from the 
-        * nominal voltage because the actual voltage value depends on the conditions 
+        * \note The actual device output 2 voltage (Vbuckrf) can be different from the
+        * nominal voltage because the actual voltage value depends on the conditions
         * including the load current.
         *
         * \return
-        * The nominal output voltage of the Buck SIMO regulator output 2 
+        * The nominal output voltage of the Buck SIMO regulator output 2
         * voltage (Vbuckrf).
         * See \ref cy_en_syspm_buck_voltage2_t.
         *
         * The function is applicable for devices with the SIMO Buck regulator.
-        * Refer to device datasheet about information if device contains 
+        * Refer to device datasheet about information if device contains
         * SIMO Buck.
         *
         * \funcusage
@@ -1593,18 +1591,18 @@ __STATIC_INLINE bool Cy_SysPm_IsLowPower(void)
         * Function Name: Cy_SysPm_BuckDisableVoltage2
         ****************************************************************************//**
         *
-        * Disables the output 2 voltage (Vbuckrf) of the SIMO Buck regulator. The 
-        * output 2 voltage (Vbuckrf) of the Buck regulator is used to supply 
+        * Disables the output 2 voltage (Vbuckrf) of the SIMO Buck regulator. The
+        * output 2 voltage (Vbuckrf) of the Buck regulator is used to supply
         * the BLE HW block.
         *
         * \note The function does not have effect if the Buck regulator is
         * switched off.
         *
-        * \note Ensures that the new voltage supply for the BLE HW block is settled 
+        * \note Ensures that the new voltage supply for the BLE HW block is settled
         * and is stable before calling the Cy_SysPm_BuckDisableVoltage2() function.
         *
         * The function is applicable for devices with the SIMO Buck regulator.
-        * Refer to device datasheet about information if device contains 
+        * Refer to device datasheet about information if device contains
         * SIMO Buck.
         *
         * \funcusage
@@ -1624,8 +1622,8 @@ __STATIC_INLINE bool Cy_SysPm_IsLowPower(void)
         *
         * Sets the hardware control for the SIMO Buck output 2 (Vbuckrf).
         *
-        * The hardware control for the Vbuckrf output. When this bit is set, the 
-        * value in BUCK_OUT2_EN is ignored and the hardware signal is used instead. If the 
+        * The hardware control for the Vbuckrf output. When this bit is set, the
+        * value in BUCK_OUT2_EN is ignored and the hardware signal is used instead. If the
         * product has supporting hardware, it can directly control the enable signal
         * for Vbuckrf.
         *
@@ -1635,7 +1633,7 @@ __STATIC_INLINE bool Cy_SysPm_IsLowPower(void)
         * Function does not have an effect if SIMO Buck regulator is disabled.
         *
         * The function is applicable for devices with the SIMO Buck regulator.
-        * Refer to device datasheet about information if device contains 
+        * Refer to device datasheet about information if device contains
         * SIMO Buck.
         *
         * \funcusage
@@ -1664,17 +1662,17 @@ __STATIC_INLINE bool Cy_SysPm_IsLowPower(void)
         *
         * Gets the hardware control for Vbuckrf.
         *
-        * The hardware control for the Vbuckrf output. When this bit is set, the 
-        * value in BUCK_OUT2_EN is ignored and the hardware signal is used instead. 
-        * If the product has supporting hardware, it can directly control the enable 
+        * The hardware control for the Vbuckrf output. When this bit is set, the
+        * value in BUCK_OUT2_EN is ignored and the hardware signal is used instead.
+        * If the product has supporting hardware, it can directly control the enable
         * signal for Vbuckrf.
         *
         * \return
-        * True if the HW control is set; false if the FW control is set for the 
+        * True if the HW control is set; false if the FW control is set for the
         * Buck output 2.
         *
         * The function is applicable for devices with the SIMO Buck regulator.
-        * Refer to device datasheet about information if device contains 
+        * Refer to device datasheet about information if device contains
         * SIMO Buck.
         *
         * \funcusage
@@ -1700,8 +1698,8 @@ __STATIC_INLINE bool Cy_SysPm_IsLowPower(void)
 *
 * Gets the current output voltage value of the LDO.
 *
-* \note The actual device Vccd voltage can be different from the 
-* nominal voltage because the actual voltage value depends on the conditions 
+* \note The actual device Vccd voltage can be different from the
+* nominal voltage because the actual voltage value depends on the conditions
 * including the load current.
 *
 * \return
@@ -1779,10 +1777,10 @@ __STATIC_INLINE bool Cy_SysPm_IoIsFrozen(void)
 *
 * Enable the external PMIC that supplies Vddd (if present).
 *
-* For information about the PMIC input and output pins and their assignment in 
+* For information about the PMIC input and output pins and their assignment in
 * the specific families devices, refer to the appropriate device TRM.
-* 
-* The function is not effective when the PMIC is locked. Call 
+*
+* The function is not effective when the PMIC is locked. Call
 * Cy_SysPm_PmicUnlock() before enabling the PMIC.
 *
 * \funcusage
@@ -1805,28 +1803,28 @@ __STATIC_INLINE void Cy_SysPm_PmicEnable(void)
 * Function Name: Cy_SysPm_PmicDisable
 ****************************************************************************//**
 *
-* Disables the PMIC. This function does not affect the output pin. Configures 
-* the PMIC input pin polarity. The PMIC input pin has programmable polarity to 
-* enable the PMIC using different input polarities. The PMIC output pin is 
+* Disables the PMIC. This function does not affect the output pin. Configures
+* the PMIC input pin polarity. The PMIC input pin has programmable polarity to
+* enable the PMIC using different input polarities. The PMIC output pin is
 * automatically enabled when input polarity and configured polarity matches.
-* The function is not effective when the active level of PMIC input pin 
+* The function is not effective when the active level of PMIC input pin
 * is equal to configured PMIC polarity.
 *
-* The function is not effective when the PMIC is locked. Call 
+* The function is not effective when the PMIC is locked. Call
 * Cy_SysPm_PmicUnlock() before enabling the PMIC.
 *
 * \param polarity
-* Configures the PMIC wakeup input pin to be active low or active 
+* Configures the PMIC wakeup input pin to be active low or active
 * high. See \ref cy_en_syspm_pmic_wakeup_polarity_t.
 *
-* The PMIC will be enabled automatically by any of RTC alarm or PMIC wakeup 
+* The PMIC will be enabled automatically by any of RTC alarm or PMIC wakeup
 * event regardless of the PMIC lock state.
 *
 * \warning
-* The PMIC is enabled automatically when you call Cy_SysPm_PmicLock(). 
+* The PMIC is enabled automatically when you call Cy_SysPm_PmicLock().
 * To keep the PMIC disabled, the PMIC must remain unlocked.
 *
-* For information about the PMIC input and output pins and their assignment in 
+* For information about the PMIC input and output pins and their assignment in
 * the specific families devices, refer to the appropriate device TRM.
 *
 * \funcusage
@@ -1836,11 +1834,11 @@ __STATIC_INLINE void Cy_SysPm_PmicEnable(void)
 __STATIC_INLINE void Cy_SysPm_PmicDisable(cy_en_syspm_pmic_wakeup_polarity_t polarity)
 {
     CY_ASSERT_L3(CY_SYSPM_IS_POLARITY_VALID(polarity));
-    
+
     if(CY_SYSPM_PMIC_UNLOCK_KEY == _FLD2VAL(BACKUP_PMIC_CTL_UNLOCK, BACKUP->PMIC_CTL))
     {
-        BACKUP->PMIC_CTL = 
-        (_VAL2FLD(BACKUP_PMIC_CTL_UNLOCK, CY_SYSPM_PMIC_UNLOCK_KEY) | 
+        BACKUP->PMIC_CTL =
+        (_VAL2FLD(BACKUP_PMIC_CTL_UNLOCK, CY_SYSPM_PMIC_UNLOCK_KEY) |
          _CLR_SET_FLD32U(BACKUP->PMIC_CTL, BACKUP_PMIC_CTL_POLARITY, (uint32_t) polarity)) &
         ((uint32_t) ~ _VAL2FLD(BACKUP_PMIC_CTL_PMIC_EN, 1U));
     }
@@ -1851,11 +1849,11 @@ __STATIC_INLINE void Cy_SysPm_PmicDisable(cy_en_syspm_pmic_wakeup_polarity_t pol
 * Function Name: Cy_SysPm_PmicAlwaysEnable
 ****************************************************************************//**
 *
-* Enables the signal through the PMIC output pin. This is a Write once API, 
-* ensure that the PMIC cannot be disabled or polarity changed until a next 
+* Enables the signal through the PMIC output pin. This is a Write once API,
+* ensure that the PMIC cannot be disabled or polarity changed until a next
 * device reset.
-* 
-* For information about the PMIC input and output pins and their assignment in 
+*
+* For information about the PMIC input and output pins and their assignment in
 * the specific families devices, refer to the appropriate device TRM.
 *
 * \funcusage
@@ -1872,12 +1870,12 @@ __STATIC_INLINE void Cy_SysPm_PmicAlwaysEnable(void)
 * Function Name: Cy_SysPm_PmicEnableOutput
 ****************************************************************************//**
 *
-* Enable the PMIC output. 
+* Enable the PMIC output.
 *
-* The function is not effective when the PMIC is locked. Call 
+* The function is not effective when the PMIC is locked. Call
 * Cy_SysPm_PmicUnlock() before enabling the PMIC.
 *
-* For information about the PMIC output pin and it assignment in 
+* For information about the PMIC output pin and it assignment in
 * the specific families devices, refer to the appropriate device TRM.
 *
 * \funcusage
@@ -1898,19 +1896,19 @@ __STATIC_INLINE void Cy_SysPm_PmicEnableOutput(void)
 * Function Name: Cy_SysPm_PmicDisableOutput
 ****************************************************************************//**
 *
-* Disables the PMIC output. 
+* Disables the PMIC output.
 *
-* When PMIC output pin is disabled and is unlocked the pmic output pin can be 
+* When PMIC output pin is disabled and is unlocked the pmic output pin can be
 * used for the another purpose.
 *
-* The function is not effective when the PMIC is locked. Call 
+* The function is not effective when the PMIC is locked. Call
 * Cy_SysPm_PmicUnlock() before enabling the PMIC.
 *
-* For information about the PMIC output pin and it assignment in 
+* For information about the PMIC output pin and it assignment in
 * the specific families devices, refer to the appropriate device TRM.
 *
 * \warning
-* The PMIC output is enabled automatically when you call Cy_SysPm_PmicLock(). 
+* The PMIC output is enabled automatically when you call Cy_SysPm_PmicLock().
 * To keep PMIC output disabled, the PMIC must remain unlocked.
 *
 * \funcusage
@@ -1921,10 +1919,10 @@ __STATIC_INLINE void Cy_SysPm_PmicDisableOutput(void)
 {
     if(CY_SYSPM_PMIC_UNLOCK_KEY == _FLD2VAL(BACKUP_PMIC_CTL_UNLOCK, BACKUP->PMIC_CTL))
     {
-        BACKUP->PMIC_CTL = 
+        BACKUP->PMIC_CTL =
         (BACKUP->PMIC_CTL | _VAL2FLD(BACKUP_PMIC_CTL_UNLOCK, CY_SYSPM_PMIC_UNLOCK_KEY)) &
         ((uint32_t) ~ _VAL2FLD(BACKUP_PMIC_CTL_PMIC_EN_OUTEN, 1U));
-    } 
+    }
 }
 
 
@@ -1932,12 +1930,12 @@ __STATIC_INLINE void Cy_SysPm_PmicDisableOutput(void)
 * Function Name: Cy_SysPm_PmicLock
 ****************************************************************************//**
 *
-* Locks the PMIC control register so that no changes can be made. The changes 
-* are related to the PMIC enabling/disabling and PMIC output signal 
+* Locks the PMIC control register so that no changes can be made. The changes
+* are related to the PMIC enabling/disabling and PMIC output signal
 * enabling/disabling.
 *
 * \warning
-* The PMIC and/or the PMIC output are enabled automatically when 
+* The PMIC and/or the PMIC output are enabled automatically when
 * you call Cy_SysPm_PmicLock(). To keep the PMIC or PMIC output disabled,
 * the PMIC must remain unlocked.
 *
@@ -1956,11 +1954,11 @@ __STATIC_INLINE void Cy_SysPm_PmicLock(void)
 ****************************************************************************//**
 *
 * Unlocks the PMIC control register so that changes can be made. The changes are
-* related to the PMIC enabling/disabling and PMIC output signal 
+* related to the PMIC enabling/disabling and PMIC output signal
 * enabling/disabling.
 *
 * \warning
-* The PMIC and/or the PMIC output are enabled automatically when 
+* The PMIC and/or the PMIC output are enabled automatically when
 * you call Cy_SysPm_PmicLock(). To keep the PMIC or PMIC output disabled,
 * the PMIC must remain unlocked.
 *
@@ -1977,7 +1975,7 @@ __STATIC_INLINE void Cy_SysPm_PmicUnlock(void)
 /*******************************************************************************
 * Function Name: Cy_SysPm_PmicIsEnabled
 ****************************************************************************//**
-* 
+*
 * The function returns the status of the PMIC.
 *
 * \return
@@ -1997,7 +1995,7 @@ __STATIC_INLINE bool Cy_SysPm_PmicIsEnabled(void)
 /*******************************************************************************
 * Function Name: Cy_SysPm_PmicIsOutputEnabled
 ****************************************************************************//**
-* 
+*
 * The function returns the status of the PMIC output.
 *
 * \return
@@ -2048,7 +2046,7 @@ __STATIC_INLINE bool Cy_SysPm_PmicIsLocked(void)
 * Sets the Backup Supply (Vddback) operation mode.
 *
 * \param
-* vddBackControl 
+* vddBackControl
 * Selects Backup Supply (Vddback) operation mode.
 * See \ref cy_en_syspm_vddbackup_control_t.
 *
@@ -2073,7 +2071,7 @@ __STATIC_INLINE void Cy_SysPm_BackupSetSupply(cy_en_syspm_vddbackup_control_t vd
 * Returns the current Backup Supply (Vddback) operation mode.
 *
 * \return
-* The current Backup Supply (Vddback) operation mode, 
+* The current Backup Supply (Vddback) operation mode,
 * see \ref cy_en_syspm_status_t.
 *
 * Refer to device TRM for more details about Backup supply modes.
@@ -2095,8 +2093,8 @@ __STATIC_INLINE cy_en_syspm_vddbackup_control_t Cy_SysPm_BackupGetSupply(void)
 * Function Name: Cy_SysPm_BackupEnableVoltageMeasurement
 ****************************************************************************//**
 *
-* This function enables the Vbackup supply measurement by the ADC. The function 
-* connects the Vbackup supply to the AMUXBUSA. Note that measured signal is 
+* This function enables the Vbackup supply measurement by the ADC. The function
+* connects the Vbackup supply to the AMUXBUSA. Note that measured signal is
 * scaled by 40% to allow being measured by the ADC.
 *
 * Refer to device TRM for more details about Vbackup supply measurement.
@@ -2115,7 +2113,7 @@ __STATIC_INLINE void Cy_SysPm_BackupEnableVoltageMeasurement(void)
 * Function Name: Cy_SysPm_BackupDisableVoltageMeasurement
 ****************************************************************************//**
 *
-* The function disables the Vbackup supply measurement by the ADC. The function 
+* The function disables the Vbackup supply measurement by the ADC. The function
 * disconnects the Vbackup supply from the AMUXBUSA.
 *
 * Refer to device TRM for more details about Vbackup supply measurement.
@@ -2136,13 +2134,13 @@ __STATIC_INLINE void Cy_SysPm_BackupDisableVoltageMeasurement(void)
 *
 * Configures the supercapacitor charger circuit.
 *
-* \param key 
+* \param key
 * Passes the key to enable or disable the supercapacitor charger circuit.
 * See \ref cy_en_syspm_sc_charge_key_t.
 *
 * \warning
 * This function is used only for charging the supercapacitor.
-* Do not use this function to charge a battery. Refer to device TRM for more 
+* Do not use this function to charge a battery. Refer to device TRM for more
 * details.
 *
 * \funcusage
@@ -2152,7 +2150,7 @@ __STATIC_INLINE void Cy_SysPm_BackupDisableVoltageMeasurement(void)
 __STATIC_INLINE void Cy_SysPm_BackupSuperCapCharge(cy_en_syspm_sc_charge_key_t key)
 {
     CY_ASSERT_L3(CY_SYSPM_IS_SC_CHARGE_KEY_VALID(key));
-    
+
     if(key == CY_SYSPM_SC_CHARGE_ENABLE)
     {
         BACKUP->CTL = _CLR_SET_FLD32U((BACKUP->CTL), BACKUP_CTL_EN_CHARGE_KEY, (uint32_t) CY_SYSPM_SC_CHARGE_ENABLE);
@@ -2169,7 +2167,7 @@ __STATIC_INLINE void Cy_SysPm_BackupSuperCapCharge(cy_en_syspm_sc_charge_key_t k
 /** \cond INTERNAL */
 
 /*******************************************************************************
-* Backward compatibility macro. The following code is DEPRECATED and must 
+* Backward compatibility macro. The following code is DEPRECATED and must
 * not be used in new projects
 *******************************************************************************/
 #if(0u != SRSS_BUCKCTL_PRESENT)
@@ -2189,9 +2187,9 @@ __STATIC_INLINE void Cy_SysPm_BackupSuperCapCharge(cy_en_syspm_sc_charge_key_t k
         #define CY_SYSPM_SIMO_BUCK_OUT2_VOLTAGE_1_15V   CY_SYSPM_BUCK_OUT2_VOLTAGE_1_15V
         #define CY_SYSPM_SIMO_BUCK_OUT2_VOLTAGE_1_2V    CY_SYSPM_BUCK_OUT2_VOLTAGE_1_2V
         #define CY_SYSPM_SIMO_BUCK_OUT2_VOLTAGE_1_25V   CY_SYSPM_BUCK_OUT2_VOLTAGE_1_25V
-        #define CY_SYSPM_SIMO_BUCK_OUT2_VOLTAGE_1_3V    CY_SYSPM_BUCK_OUT2_VOLTAGE_1_3V 
+        #define CY_SYSPM_SIMO_BUCK_OUT2_VOLTAGE_1_3V    CY_SYSPM_BUCK_OUT2_VOLTAGE_1_3V
         #define CY_SYSPM_SIMO_BUCK_OUT2_VOLTAGE_1_35V   CY_SYSPM_BUCK_OUT2_VOLTAGE_1_35V
-        #define CY_SYSPM_SIMO_BUCK_OUT2_VOLTAGE_1_4V    CY_SYSPM_BUCK_OUT2_VOLTAGE_1_4V 
+        #define CY_SYSPM_SIMO_BUCK_OUT2_VOLTAGE_1_4V    CY_SYSPM_BUCK_OUT2_VOLTAGE_1_4V
         #define CY_SYSPM_SIMO_BUCK_OUT2_VOLTAGE_1_45V   CY_SYSPM_BUCK_OUT2_VOLTAGE_1_45V
         #define CY_SYSPM_SIMO_BUCK_OUT2_VOLTAGE_1_5V    CY_SYSPM_BUCK_OUT2_VOLTAGE_1_5V
     #endif /* (0u != SRSS_SIMOBUCK_PRESENT) */

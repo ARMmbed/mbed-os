@@ -10,9 +10,7 @@
 ********************************************************************************
 * \copyright
 * Copyright 2016-2018, Cypress Semiconductor Corporation.  All rights reserved.
-* You may use this file only in accordance with the license, terms, conditions,
-* disclaimers, and limitations in the end user license agreement accompanying
-* the software package with which this file was provided.
+* SPDX-License-Identifier: Apache-2.0
 *******************************************************************************/
 
 #include "cy_smif_memslot.h"
@@ -43,7 +41,7 @@ static void Cy_SMIF_Memslot_XipRegInit(SMIF_DEVICE_Type volatile *dev,
 * achieved using Cy_SMIF_Init(). The cy_stc_smif_context_t context structure
 * returned from Cy_SMIF_Init() is passed as a parameter to this function.
 * This function calls the \ref Cy_SMIF_Memslot_SfdpDetect() function for each
-* element of the \ref cy_stc_smif_mem_config_t memConfig array and fills the memory                 
+* element of the \ref cy_stc_smif_mem_config_t memConfig array and fills the memory
 * parameters if the autoDetectSfdp field is enabled in \ref cy_stc_smif_mem_config_t.
 * The filled memConfig is a part of the \ref cy_stc_smif_block_config_t * blockConfig
 * structure. The function expects that all the requirements of
@@ -74,7 +72,7 @@ cy_en_smif_status_t Cy_SMIF_Memslot_Init(SMIF_Type *base,
     uint32_t sfdpRes =(uint32_t)CY_SMIF_SUCCESS;
     uint32_t idx;
 
-    if ((NULL != base) && (NULL != blockConfig) && (NULL != blockConfig->memConfig) 
+    if ((NULL != base) && (NULL != blockConfig) && (NULL != blockConfig->memConfig)
         && (NULL != context) && (0U != blockConfig->memCount))
     {
         uint32_t size = blockConfig->memCount;
@@ -91,7 +89,7 @@ cy_en_smif_status_t Cy_SMIF_Memslot_Init(SMIF_Type *base,
                 CY_ASSERT_L3(CY_SMIF_DATA_SEL_VALID(memCfg->dataSelect));
                 CY_ASSERT_L1(NULL != memCfg->deviceCfg);
                 CY_ASSERT_L2(CY_SMIF_MEM_ADDR_SIZE_VALID(memCfg->deviceCfg->numOfAddrBytes));
-                
+
                 device = Cy_SMIF_GetDeviceBySlot(base, memCfg->slaveSelect);
                 if (NULL != device)
                 {
@@ -119,7 +117,7 @@ cy_en_smif_status_t Cy_SMIF_Memslot_Init(SMIF_Type *base,
                         /* Check valid parameters for XIP */
                         CY_ASSERT_L3(CY_SMIF_MEM_ADDR_VALID( memCfg->baseAddress, memCfg->memMappedSize));
                         CY_ASSERT_L3(CY_SMIF_MEM_MAPPED_SIZE_VALID( memCfg->memMappedSize));
-                        
+
                         Cy_SMIF_Memslot_XipRegInit(device, memCfg);
 
                         /* The device control register initialization */
@@ -291,8 +289,8 @@ cy_en_smif_status_t Cy_SMIF_Memslot_CmdWriteEnable(SMIF_Type *base,
 {
     /* The memory Write Enable */
     cy_stc_smif_mem_cmd_t* writeEn = memDevice->deviceCfg->writeEnCmd;
-    
-    CY_ASSERT_L1(NULL != writeEn);  
+
+    CY_ASSERT_L1(NULL != writeEn);
 
     return Cy_SMIF_TransmitCommand( base, (uint8_t) writeEn->command,
                                     writeEn->cmdWidth,
@@ -335,8 +333,8 @@ cy_en_smif_status_t Cy_SMIF_Memslot_CmdWriteDisable(SMIF_Type *base,
 {
     cy_stc_smif_mem_cmd_t* writeDis = memDevice->deviceCfg->writeDisCmd;
 
-    CY_ASSERT_L1(NULL != writeDis);  
-     
+    CY_ASSERT_L1(NULL != writeDis);
+
     /* The memory write disable */
     return Cy_SMIF_TransmitCommand( base, (uint8_t)writeDis->command,
                                 writeDis->cmdWidth,
@@ -381,8 +379,8 @@ bool Cy_SMIF_Memslot_IsBusy(SMIF_Type *base, cy_stc_smif_mem_config_t *memDevice
     cy_en_smif_status_t readStsResult;
     cy_stc_smif_mem_device_cfg_t* device =  memDevice->deviceCfg;
 
-    CY_ASSERT_L1(NULL != device->readStsRegWipCmd);  
-    
+    CY_ASSERT_L1(NULL != device->readStsRegWipCmd);
+
     readStsResult = Cy_SMIF_Memslot_CmdReadSts(base, memDevice, &status,
                          (uint8_t)device->readStsRegWipCmd->command,
                          context);
@@ -428,14 +426,14 @@ cy_en_smif_status_t Cy_SMIF_Memslot_QuadEnable(SMIF_Type *base,
                                     cy_stc_smif_context_t const *context)
 {
     cy_en_smif_status_t result;
-    uint8_t statusReg[CY_SMIF_QE_BIT_STS_REG2_T1] = {0U};  
+    uint8_t statusReg[CY_SMIF_QE_BIT_STS_REG2_T1] = {0U};
     cy_stc_smif_mem_device_cfg_t* device =  memDevice->deviceCfg;
-    
+
     /* Check that command exists */
     CY_ASSERT_L1(NULL != device->readStsRegQeCmd);
     CY_ASSERT_L1(NULL != device->writeStsRegQeCmd);
     CY_ASSERT_L1(NULL != device->readStsRegWipCmd);
-    
+
     uint8_t readQeCmd  = (uint8_t)device->readStsRegQeCmd->command;
     uint8_t writeQeCmd = (uint8_t)device->writeStsRegQeCmd->command;
     uint8_t readWipCmd = (uint8_t)device->readStsRegWipCmd->command;
@@ -572,7 +570,7 @@ cy_en_smif_status_t Cy_SMIF_Memslot_CmdReadSts(SMIF_Type *base,
 * The status to write into the status register.
 *
 * \param command
-* The command to write into the status/configuration register.              
+* The command to write into the status/configuration register.
 *
 * \return A status of the command transmission.
 *       - \ref CY_SMIF_SUCCESS
@@ -692,7 +690,7 @@ cy_en_smif_status_t Cy_SMIF_Memslot_CmdSectorErase(SMIF_Type *base,
 
         cy_stc_smif_mem_device_cfg_t *device = memDevice->deviceCfg;
         cy_stc_smif_mem_cmd_t *cmdErase = device->eraseCmd;
-        
+
         CY_ASSERT_L1(NULL != cmdErase);
 
         result = Cy_SMIF_TransmitCommand( base, (uint8_t)cmdErase->command,
@@ -709,7 +707,7 @@ cy_en_smif_status_t Cy_SMIF_Memslot_CmdSectorErase(SMIF_Type *base,
 * Function Name: Cy_SMIF_Memslot_CmdProgram
 ****************************************************************************//**
 *
-* This function performs the Program operation. 
+* This function performs the Program operation.
 *
 * \note This function uses the  Cy_SMIF_TransmitCommand() API.
 * The Cy_SMIF_TransmitCommand() API works in the blocking mode. In the dual quad mode,
@@ -730,11 +728,11 @@ cy_en_smif_status_t Cy_SMIF_Memslot_CmdSectorErase(SMIF_Type *base,
 * \param writeBuff
 * The pointer to the data to program. If this pointer is a NULL, then the
 * function does not enable the interrupt. This use case is  typically used when
-* the FIFO is handled outside the interrupt and is managed in either a 
-* polling-based code or a DMA. The user would handle the FIFO management 
-* in a DMA or a polling-based code. 
-* If the user provides a NULL pointer in this function and does not handle 
-* the FIFO transaction, this could either stall or timeout the operation 
+* the FIFO is handled outside the interrupt and is managed in either a
+* polling-based code or a DMA. The user would handle the FIFO management
+* in a DMA or a polling-based code.
+* If the user provides a NULL pointer in this function and does not handle
+* the FIFO transaction, this could either stall or timeout the operation
 * \ref Cy_SMIF_TransmitData().
 *
 *
@@ -766,7 +764,7 @@ cy_en_smif_status_t Cy_SMIF_Memslot_CmdProgram(SMIF_Type *base,
 
     cy_stc_smif_mem_device_cfg_t *device = memDevice->deviceCfg;
     cy_stc_smif_mem_cmd_t *cmdProg = device->programCmd;
-    
+
     CY_ASSERT_L1(NULL != cmdProg);
 
     if ((NULL != addr) && (size <= device->programSize))
@@ -818,13 +816,13 @@ cy_en_smif_status_t Cy_SMIF_Memslot_CmdProgram(SMIF_Type *base,
 * The address to read.
 *
 * \param readBuff
-* The pointer to the variable where the read data is stored. If this pointer is 
-* a NULL, then the function does not enable the interrupt. This use case is 
+* The pointer to the variable where the read data is stored. If this pointer is
+* a NULL, then the function does not enable the interrupt. This use case is
 * typically used when the FIFO is handled outside the interrupt and is managed
 * in either a  polling-based code or a DMA. The user would handle the FIFO
-* management in a DMA or a polling-based code. 
-* If the user provides a NULL pointer in this function and does not handle 
-* the FIFO transaction, this could either stall or timeout the operation 
+* management in a DMA or a polling-based code.
+* If the user provides a NULL pointer in this function and does not handle
+* the FIFO transaction, this could either stall or timeout the operation
 * \ref Cy_SMIF_TransmitData().
 *
 * \param size
@@ -944,7 +942,7 @@ cy_en_smif_status_t Cy_SMIF_Memslot_SfdpDetect(SMIF_Type *base,
     /* Check input parameters */
     CY_ASSERT_L1(NULL != device);
     CY_ASSERT_L1(NULL != device->readSfdpCmd);
-    
+
     uint8_t sfdpBuffer[CY_SMIF_SFDP_LENGTH];
     uint8_t sfdpAddress[CY_SMIF_SFDP_ADDRESS_LENGTH] = {0x00U, 0x00U, 0x00U};
     cy_en_smif_status_t result;
@@ -1101,13 +1099,13 @@ cy_en_smif_status_t Cy_SMIF_Memslot_SfdpDetect(SMIF_Type *base,
                 device->memSize = (locSize - CY_SMIF_BITS_IN_BYTE_ABOVE_4GB) |
                         CY_SMIF_SFDP_SIZE_ABOVE_4GB_Msk;
             }
-            
+
             /* The page size */
             device->programSize = 0x01UL << _FLD2VAL(CY_SMIF_SFDP_PAGE_SIZE,
-                (uint32_t) sfdpBuffer[CY_SMIF_SFDP_BFPT_BYTE_28 + offset]);         
-            
+                (uint32_t) sfdpBuffer[CY_SMIF_SFDP_BFPT_BYTE_28 + offset]);
+
             /* The size of the Erase sector */
-            device->eraseSize = (0x01UL << (uint32_t)sfdpBuffer[CY_SMIF_SFDP_BFPT_BYTE_1C + offset]);   
+            device->eraseSize = (0x01UL << (uint32_t)sfdpBuffer[CY_SMIF_SFDP_BFPT_BYTE_1C + offset]);
 
             /* This specifies the Read command. The preference order Quad>Dual>SPI */
             if ((_FLD2VAL(CY_SMIF_SFDP_FAST_READ_1_4_4,
@@ -1276,7 +1274,7 @@ cy_en_smif_status_t Cy_SMIF_Memslot_SfdpDetect(SMIF_Type *base,
             device->writeDisCmd->command = CY_SMIF_WR_DISABLE_CMD;
             /* The width of the command transfer */
             device->writeDisCmd->cmdWidth = CY_SMIF_WIDTH_SINGLE;
-            
+
             /* The chip Erase command */
             /* The 8-bit command. Chip Erase */
             device->chipEraseCmd->command  = CY_SMIF_CHIP_ERASE_CMD;
@@ -1308,7 +1306,7 @@ cy_en_smif_status_t Cy_SMIF_Memslot_SfdpDetect(SMIF_Type *base,
 
             /* The busy mask for the status registers */
             device->stsRegBusyMask = CY_SMIF_STS_REG_BUSY_MASK;
-                        
+
             /* The command to read the WIP-containing status register */
             /* The 8-bit command. WIP RDSR */
             device->readStsRegWipCmd->command  = CY_SMIF_RD_STS_REG1_CMD;

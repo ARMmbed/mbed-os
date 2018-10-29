@@ -8,9 +8,7 @@
 ********************************************************************************
 * \copyright
 * Copyright 2016-2018, Cypress Semiconductor Corporation.  All rights reserved.
-* You may use this file only in accordance with the license, terms, conditions,
-* disclaimers, and limitations in the end user license agreement accompanying
-* the software package with which this file was provided.
+* SPDX-License-Identifier: Apache-2.0
 *******************************************************************************/
 
 #include "cy_tcpwm_quaddec.h"
@@ -42,7 +40,7 @@ extern "C" {
 * \snippet tcpwm/tcpwm_v1_0_quaddec_sut_01.cydsn/main_cm4.c snippet_Cy_TCPWM_QuadDec_Init
 *
 *******************************************************************************/
-cy_en_tcpwm_status_t Cy_TCPWM_QuadDec_Init(TCPWM_Type *base, uint32_t cntNum, 
+cy_en_tcpwm_status_t Cy_TCPWM_QuadDec_Init(TCPWM_Type *base, uint32_t cntNum,
                                            cy_stc_tcpwm_quaddec_config_t const *config)
 {
     cy_en_tcpwm_status_t status = CY_TCPWM_BAD_PARAM;
@@ -53,18 +51,18 @@ cy_en_tcpwm_status_t Cy_TCPWM_QuadDec_Init(TCPWM_Type *base, uint32_t cntNum,
                             _VAL2FLD(TCPWM_CNT_CTRL_MODE, CY_TCPWM_QUADDEC_CTRL_QUADDEC_MODE));
 
         if (CY_TCPWM_INPUT_CREATOR != config->phiAInput)
-        {        
+        {
             base->CNT[cntNum].TR_CTRL0 = (_VAL2FLD(TCPWM_CNT_TR_CTRL0_COUNT_SEL, config->phiAInput) |
                                           _VAL2FLD(TCPWM_CNT_TR_CTRL0_START_SEL, config->phiBInput) |
                                           _VAL2FLD(TCPWM_CNT_TR_CTRL0_RELOAD_SEL, config->indexInput) |
                                           _VAL2FLD(TCPWM_CNT_TR_CTRL0_STOP_SEL, config->stopInput));
         }
-        
+
         base->CNT[cntNum].TR_CTRL1 = (_VAL2FLD(TCPWM_CNT_TR_CTRL1_CAPTURE_EDGE, CY_TCPWM_INPUT_LEVEL) |
                                       _VAL2FLD(TCPWM_CNT_TR_CTRL1_COUNT_EDGE, CY_TCPWM_INPUT_LEVEL) |
                                       _VAL2FLD(TCPWM_CNT_TR_CTRL1_START_EDGE, CY_TCPWM_INPUT_LEVEL) |
                                       _VAL2FLD(TCPWM_CNT_TR_CTRL1_RELOAD_EDGE, config->indexInputMode) |
-                                      _VAL2FLD(TCPWM_CNT_TR_CTRL1_STOP_EDGE, config->stopInputMode));                                                           
+                                      _VAL2FLD(TCPWM_CNT_TR_CTRL1_STOP_EDGE, config->stopInputMode));
 
         base->CNT[cntNum].INTR_MASK = config->interruptSources;
 
@@ -79,7 +77,7 @@ cy_en_tcpwm_status_t Cy_TCPWM_QuadDec_Init(TCPWM_Type *base, uint32_t cntNum,
 * Function Name: Cy_TCPWM_QuadDec_DeInit
 ****************************************************************************//**
 *
-* De-initializes the counter in the TCPWM block, returns register values to 
+* De-initializes the counter in the TCPWM block, returns register values to
 * default.
 *
 * \param base
@@ -110,7 +108,7 @@ void Cy_TCPWM_QuadDec_DeInit(TCPWM_Type *base, uint32_t cntNum, cy_stc_tcpwm_qua
     base->CNT[cntNum].INTR_MASK = CY_TCPWM_CNT_INTR_MASK_DEFAULT;
 
     if (CY_TCPWM_INPUT_CREATOR != config->phiAInput)
-    {        
+    {
         base->CNT[cntNum].TR_CTRL0 = CY_TCPWM_CNT_TR_CTRL0_DEFAULT;
     }
 }

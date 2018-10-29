@@ -6,10 +6,9 @@
 *   Provides system API implementation for the SysLib driver.
 *
 ********************************************************************************
-* Copyright 2016-2018, Cypress Semiconductor Corporation. All rights reserved.
-* You may use this file only in accordance with the license, terms, conditions,
-* disclaimers, and limitations in the end user license agreement accompanying
-* the software package with which this file was provided.
+* \copyright
+* Copyright 2016-2018, Cypress Semiconductor Corporation.  All rights reserved.
+* SPDX-License-Identifier: Apache-2.0
 *******************************************************************************/
 
 #include "cy_syslib.h"
@@ -64,7 +63,7 @@
 * \param milliseconds  The number of milliseconds to delay.
 *
 * \note The function calls \ref Cy_SysLib_DelayCycles() API to generate a delay.
-*       If the function parameter (milliseconds) is bigger than 
+*       If the function parameter (milliseconds) is bigger than
 *       CY_DELAY_MS_OVERFLOW constant, then an additional loop runs to prevent
 *       an overflow in parameter passed to \ref Cy_SysLib_DelayCycles() API.
 *
@@ -317,7 +316,7 @@ void Cy_SysLib_ClearResetReason(void)
      */
     SRSS->RES_CAUSE  = 0xFFFFFFFFU;
     SRSS->RES_CAUSE2 = 0xFFFFFFFFU;
-    
+
     if(0U != _FLD2VAL(SRSS_PWR_HIBERNATE_TOKEN, SRSS->PWR_HIBERNATE))
     {
         /* Clears PWR_HIBERNATE token */
