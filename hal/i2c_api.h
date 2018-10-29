@@ -28,6 +28,8 @@
 #include "hal/dma_api.h"
 #endif
 
+#include <stdbool.h>
+
 #if DEVICE_I2C
 
 /**
