@@ -18,10 +18,13 @@
 #endif
 
 #include "greentea-client/test_env.h"
-#include "utest/utest.h"
-#include "unity/unity.h"
 #include "hal/watchdog_api.h"
+#include "mbed_wait_api.h"
+#include "unity/unity.h"
+#include "utest/utest.h"
 #include "watchdog_api_tests.h"
+
+#include <stdlib.h>
 
 /* This is platform specific and depends on the watchdog timer implementation,
  * e.g. STM32F4 uses 32kHz internal RC oscillator to clock the IWDG, so
