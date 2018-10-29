@@ -34,21 +34,6 @@ using utest::v1::Case;
 using utest::v1::Specification;
 using utest::v1::Harness;
 
-static uint32_t num_test_errors = 0UL;
-
-mbed_error_status_t mbed_error(mbed_error_status_t error_status, const char *error_msg, unsigned int error_value,
-                               const char *filename, int line_number)
-{
-    (void) error_status;
-    (void) error_msg;
-    (void) error_value;
-    (void) filename;
-    (void) line_number;
-
-    num_test_errors++;
-    return MBED_SUCCESS;
-}
-
 void test_lock_unlock()
 {
     TEST_ASSERT_TRUE(sleep_manager_can_deep_sleep());
@@ -57,16 +42,6 @@ void test_lock_unlock()
     TEST_ASSERT_FALSE(sleep_manager_can_deep_sleep());
 
     sleep_manager_unlock_deep_sleep();
-    TEST_ASSERT_TRUE(sleep_manager_can_deep_sleep());
-}
-
-void test_lone_unlock()
-{
-    uint32_t expected_err_count = num_test_errors + 1;
-    sleep_manager_unlock_deep_sleep();
-    TEST_ASSERT_EQUAL_UINT32(expected_err_count, num_test_errors);
-
-    // Make sure upcoming tests won't be broken.
     TEST_ASSERT_TRUE(sleep_manager_can_deep_sleep());
 }
 
@@ -84,27 +59,6 @@ void test_lock_eq_ushrt_max()
         TEST_ASSERT_FALSE(sleep_manager_can_deep_sleep());
     }
     sleep_manager_unlock_deep_sleep();
-    TEST_ASSERT_TRUE(sleep_manager_can_deep_sleep());
-}
-
-void test_lock_gt_ushrt_max()
-{
-    uint32_t lock_count = 0;
-    while (lock_count < USHRT_MAX) {
-        sleep_manager_lock_deep_sleep();
-        lock_count++;
-        TEST_ASSERT_FALSE(sleep_manager_can_deep_sleep());
-    }
-
-    uint32_t expected_err_count = num_test_errors + 1;
-    sleep_manager_lock_deep_sleep();
-    TEST_ASSERT_EQUAL_UINT32(expected_err_count, num_test_errors);
-
-    // Make sure upcoming tests won't be broken.
-    while (lock_count > 0) {
-        sleep_manager_unlock_deep_sleep();
-        lock_count--;
-    }
     TEST_ASSERT_TRUE(sleep_manager_can_deep_sleep());
 }
 
@@ -279,9 +233,7 @@ utest::v1::status_t testsuite_setup(const size_t number_of_cases)
 
 Case cases[] = {
     Case("deep sleep lock/unlock", test_lock_unlock),
-    Case("deep sleep unbalanced unlock", test_lone_unlock),
     Case("deep sleep locked USHRT_MAX times", test_lock_eq_ushrt_max),
-    Case("deep sleep locked more than USHRT_MAX times", test_lock_gt_ushrt_max),
 #if DEVICE_LPTICKER
 #if DEVICE_USTICKER
     Case("sleep_auto calls sleep/deep sleep based on lock",
