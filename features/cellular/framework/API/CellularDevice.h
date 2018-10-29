@@ -55,9 +55,9 @@ public:
      */
     virtual events::EventQueue *get_queue() const;
 
-    /** Get filehandle
+    /** Get file handle
      *
-     * @return  Filehandle used in CellularDevice. With AT it's UARTSerial.
+     * @return  File handle used in CellularDevice. For example with AT it's UARTSerial.
      */
     FileHandle &get_filehandle() const;
 
@@ -71,13 +71,13 @@ public:
 
 public:
 
-    /** Creates a new CellularContext interface. There can be multiple CellularContext interfaces unlike
+    /** Creates a new CellularContext interface. There can be multiple CellularContext interfaces unlike interface opened with
      *  open_xxx(...) methods.
      *
      *  @param fh       file handle used in communication to modem. Can be for example UART handle. If null then the default
      *                  file handle is used.
      *  @param apn      access point to use with context, can be null.
-     *  @param stack    stack to be used when finding suitable PDP context
+     *  @param stack    stack type to be used when finding suitable PDP context
      *
      *  @return         new instance of class CellularContext or NULL in case of failure
      *

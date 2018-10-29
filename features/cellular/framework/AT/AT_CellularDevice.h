@@ -89,6 +89,14 @@ public: // CellularDevice
 
 protected:
 
+    /** Creates new instance of AT_CellularContext or if overridden, modem specific implementation.
+     *
+     *  @param at       ATHandler reference for communication with the modem.
+     *  @param apn      access point to use with context
+     *  @param stack    stack type to be used when finding suitable PDP context
+     *  @return         new instance of class AT_CellularContext
+     *
+     */
     virtual AT_CellularContext *create_context_impl(ATHandler &at, const char *apn, nsapi_ip_stack_t stack);
 
     /** Create new instance of AT_CellularNetwork or if overridden, modem specific implementation.
