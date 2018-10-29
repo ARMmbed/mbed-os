@@ -401,6 +401,11 @@ def _fill_header(region_list, current_region):
         start += Config.header_member_size(member)
     return header
 
+def _end_addr_inclusive(addr):
+    if addr is not None:
+        return addr + 1
+    return addr
+
 def merge_region_list(region_list, destination, notify, padding=b'\xFF'):
     """Merge the region_list into a single image
 
@@ -429,12 +434,15 @@ def merge_region_list(region_list, destination, notify, padding=b'\xFF'):
             # make same assumption as in region builder; first segment must fit.
             # this is only to get a neat ToolException anyway, since IntelHex.merge will
             # throw intelhex.AddressOverlapError if there's overlapping
-            part_size = part.segments()[0][1] - part.segments()[0][0]
+            part_size = 0
+            for es in part.segments():
+                part_size += es[1] - es[0]
+                merged.merge(part[es[0]:_end_addr_inclusive(es[1])])
 
             if part_size > region.size:
                 raise ToolException("Contents of region %s does not fit"
                                     % region.name)
-            merged.merge(part)
+
             pad_size = region.size - part_size
             if pad_size > 0 and region != region_list[-1] and format != ".hex":
                 notify.info("  Padding region %s with 0x%x bytes" %

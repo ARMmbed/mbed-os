@@ -798,9 +798,17 @@ class Config(object):
                 raise ConfigException("bootloader executable does not "
                                       "start at 0x%x" % rom_start)
 
-            # segments returns start address and 'next after end' address
-            part_size = part.segments()[0][1] - part.segments()[0][0]
-            part_size = Config._align_ceiling(rom_start + part_size, self.sectors) - rom_start
+            # find the last valid address that's within rom_end and use that
+            # to compute the bootloader size
+            end_address = None
+            for each in part.segments():
+                if (each[1] < rom_end):
+                    end_address = each[1]
+                else:
+                    break
+            if end_address == None:
+                raise ConfigException("bootloader segments don't fit within rom region")
+            part_size = Config._align_ceiling(rom_start + (end_address - start), self.sectors) - rom_start
 
             yield Region("bootloader", rom_start, part_size, False,
                          filename)
