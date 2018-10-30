@@ -33,6 +33,18 @@ using namespace mbed;
 
 #define DEFAULT_AT_TIMEOUT 1000 // at default timeout in milliseconds
 
+#ifndef MDMTXD
+#define MDMTXD NC
+#endif
+
+#ifndef MDMRXD
+#define MDMRXD NC
+#endif
+
+#ifndef MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE
+#define MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE 115200
+#endif
+
 AT_CellularDevice::AT_CellularDevice(EventQueue &queue) :
     _atHandlers(0), _network(0), _sms(0), _sim(0), _power(0), _information(0), _context_list(0), _at_queue(queue),
     _default_timeout(DEFAULT_AT_TIMEOUT), _modem_debug_on(false)
