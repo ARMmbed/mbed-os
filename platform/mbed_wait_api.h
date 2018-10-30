@@ -66,7 +66,7 @@ void wait(float s);
  *  @param ms the whole number of milliseconds to wait
  *
  *  @note
- *    If the RTOS is present, it is same as CMSIS osDelay()
+ *    If the RTOS is present, it calls ThisThread::sleep_for() which is same as CMSIS osDelay()
  *    Not callable from interrupts, doesn't lock hardware sleep.
  */
 void wait_ms(int ms);
