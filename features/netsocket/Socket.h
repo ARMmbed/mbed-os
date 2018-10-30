@@ -155,8 +155,8 @@ public:
      *  blocking operations such as send/recv/accept return
      *  NSAPI_ERROR_WOULD_BLOCK if they can not continue.
      *
-     *  set_blocking(false) is equivalent to set_timeout(-1)
-     *  set_blocking(true) is equivalent to set_timeout(0)
+     *  set_blocking(false) is equivalent to set_timeout(0)
+     *  set_blocking(true) is equivalent to set_timeout(-1)
      *
      *  @param blocking true for blocking mode, false for non-blocking mode.
      */
