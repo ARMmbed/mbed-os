@@ -68,7 +68,8 @@ matrix:
         # output of zero length
         - doxygen doxyfile_options 2>&1
         # Once Mbed OS has been fixed, enable the full test by replacing the top line with this:
-        - ( ! doxygen doxyfile_options 2>&1 | grep . )
+        # - ( ! doxygen doxyfile_options 2>&1 | grep . )
+
         # Assert that all binary libraries are named correctly
         # The strange command below asserts that there are exactly 0 libraries
         # that do not start with lib
