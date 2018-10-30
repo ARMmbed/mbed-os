@@ -20,7 +20,7 @@
 #include "platform/mbed_critical.h"
 #include "platform/mbed_error.h"
 
-void mbed_assert_internal(const char *expr, const char *file, int line)
+MBED_NORETURN void mbed_assert_internal(const char *expr, const char *file, int line)
 {
     core_util_critical_section_enter();
     mbed_error(MBED_ERROR_ASSERTION_FAILED, expr, 0, file, line);

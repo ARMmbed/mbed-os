@@ -121,7 +121,7 @@ void mbed_mac_address(char *mac);
 
 /** Cause the mbed to flash the BLOD (Blue LEDs Of Death) sequence
  */
-void mbed_die(void);
+MBED_NORETURN void mbed_die(void);
 
 /** Print out an error message.  This is typically called when
  * handling a crash.

@@ -48,26 +48,6 @@ using utest::v1::Case;
 
 Semaphore sync_sem(0, 1);
 
-/* In order to successfully run this test suite when compiled with --profile=debug
- * error() has to be redefined as noop.
- *
- * EventFlags calls RTX API which uses Event Recorder functionality. When compiled
- * with MBED_TRAP_ERRORS_ENABLED=1 (set in debug profile) EvrRtxEventFlagsError() calls error()
- * which aborts test program.
- */
-#if defined(MBED_TRAP_ERRORS_ENABLED) && MBED_TRAP_ERRORS_ENABLED
-void error(const char *format, ...)
-{
-    (void) format;
-}
-
-//Override the set_error function to trap the errors
-mbed_error_status_t mbed_error(mbed_error_status_t error_status, const char *error_msg, unsigned int error_value, const char *filename, int line_number)
-{
-    return MBED_SUCCESS;
-}
-#endif
-
 template<uint32_t flags, uint32_t wait_ms>
 void send_thread(EventFlags *ef)
 {
@@ -167,14 +147,18 @@ void test_prohibited(void)
 
     ev.set(FLAG01 | FLAG02 | FLAG03);
 
+#if !MBED_TRAP_ERRORS_ENABLED
     flags = ev.clear(PROHIBITED_FLAG);
     TEST_ASSERT_EQUAL(osFlagsErrorParameter, flags);
+#endif
 
     flags = ev.get();
     TEST_ASSERT_EQUAL(FLAG01 | FLAG02 | FLAG03, flags);
 
+#if !MBED_TRAP_ERRORS_ENABLED
     flags = ev.set(PROHIBITED_FLAG);
     TEST_ASSERT_EQUAL(osFlagsErrorParameter, flags);
+#endif
 
     flags = ev.get();
     TEST_ASSERT_EQUAL(FLAG01 | FLAG02 | FLAG03, flags);

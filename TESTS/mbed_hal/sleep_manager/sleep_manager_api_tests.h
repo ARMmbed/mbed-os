@@ -38,14 +38,6 @@
  */
 void test_lock_unlock();
 
-/** Test an unbalanced unlock call
- *
- * Given the deep sleep has not been locked
- * When the deep sleep mode is unlocked
- * Then an mbed_error is raised
- */
-void test_lone_unlock();
-
 /** Test lock USHRT_MAX times
  *
  * Given a device with sleep mode support
@@ -57,14 +49,6 @@ void test_lone_unlock();
  *     of unlock calls is equal to number of lock calls
  */
 void test_lock_eq_ushrt_max();
-
-/** Test lock more than USHRT_MAX times
- *
- * Given the deep sleep has already been locked USHRT_MAX times
- * When the deep sleep mode is locked again
- * Then an mbed_error is raised
- */
-void test_lock_gt_ushrt_max();
 
 /** Test sleep_auto calls sleep and deep sleep based on lock
  *

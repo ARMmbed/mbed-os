@@ -28,9 +28,10 @@
 #include "mbed_assert.h"
 #include <new>
 #include "rtx_os.h"
+
+/* Everything in rtx_lib.h, and provided by this file, has C linkage */
 extern "C" {
 #include "rtx_lib.h"
-}
 
 using namespace mbed;
 
@@ -151,10 +152,12 @@ void rtos_attach_idle_hook(void (*fptr)(void))
     }
 }
 
-extern "C" void rtos_idle_loop(void)
+MBED_NORETURN void rtos_idle_loop(void)
 {
     //Continuously call the idle hook function pointer
     while (1) {
         idle_hook_fptr();
     }
 }
+
+} // extern "C"

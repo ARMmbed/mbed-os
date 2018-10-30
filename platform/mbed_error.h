@@ -169,8 +169,7 @@ typedef int mbed_error_status_t;
  * @param  error_status     mbed_error_status_t status to be set(See mbed_error_status_t enum above for available error status values).
  * @param  error_msg        The error message to be printed out to STDIO/Serial.
  * @param  error_value      Value associated with the error status. This would depend on error code/error scenario. Only available with MBED_ERROR1
- * @return                  0 or MBED_SUCCESS.
- *                          MBED_ERROR_INVALID_ARGUMENT if called with invalid error status/codes
+ * @return                  Does not return
  *
  * @code
  *
@@ -872,7 +871,7 @@ typedef struct _mbed_error_ctx {
  *
  */
 
-void error(const char *format, ...);
+MBED_NORETURN void error(const char *format, ...);
 
 /**
  * Call this Macro to generate a mbed_error_status_t value for a System error
@@ -979,8 +978,7 @@ int mbed_get_error_count(void);
  * @param  error_value      Value associated with the error status. This would depend on error code/error scenario.
  * @param  filename         Name of the source file originating the error( Most callers can pass __FILE__ here ).
  * @param  line_number      The line number of the source file originating the error( Most callers can pass __LINE__ here ) .
- * @return                  0 or MBED_SUCCESS.
- *                          MBED_ERROR_INVALID_ARGUMENT if called with invalid error status/codes
+ * @return                  Does not return.
  *
  * @code
  *
@@ -990,7 +988,7 @@ int mbed_get_error_count(void);
  *
  * @note See MBED_WARNING/MBED_ERROR macros which provides a wrapper on this API
  */
-mbed_error_status_t mbed_error(mbed_error_status_t error_status, const char *error_msg, unsigned int error_value, const char *filename, int line_number);
+MBED_NORETURN mbed_error_status_t mbed_error(mbed_error_status_t error_status, const char *error_msg, unsigned int error_value, const char *filename, int line_number);
 
 /**
  * Registers an application defined error callback with the error handling system.

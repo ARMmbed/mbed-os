@@ -589,7 +589,7 @@ void lwip_mbed_tracef_error(const char *fmt, ...)
     va_end(ap);
 }
 
-void lwip_mbed_assert_fail(const char *msg, const char *func, const char *file, unsigned int line)
+MBED_NORETURN void lwip_mbed_assert_fail(const char *msg, const char *func, const char *file, unsigned int line)
 {
     mbed_tracef(TRACE_LEVEL_ERROR, "lwIP", "Assertion failed: %s, function %s, file %s, line %u.", msg, func, file, line);
     exit(EXIT_FAILURE); // XXX how about abort? mbed_assert uses exit, so follow suit
@@ -605,7 +605,7 @@ void lwip_mbed_assert_fail(const char *msg, const char *func, const char *file, 
     \param[in]    line  Line number in file with error
     \param[in]    file  Filename with error
  */
-void assert_printf(char *msg, int line, char *file) {
+MBED_NORETURN void assert_printf(char *msg, int line, char *file) {
     if (msg)
         error("%s:%d in file %s\n", msg, line, file);
     else
