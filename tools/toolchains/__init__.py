@@ -331,7 +331,7 @@ class mbedToolchain:
         """Generate a via file for all includes.
         ARM, GCC, IAR cross compatible
         """
-        cmd_list = ("-I{}".format(c.replace("\\", "/")) for c in includes if c)
+        cmd_list = ("\"-I{}\"".format(c.replace("\\", "/")) for c in includes if c)
         if self.CHROOT:
             cmd_list = (c.replace(self.CHROOT, '') for c in cmd_list)
         return self.make_option_file(list(cmd_list), naming=".includes_{}.txt")
