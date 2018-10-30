@@ -56,8 +56,8 @@ extern "C" {
  *
  *  @note
  *    If the RTOS is present, this function spins to get the exact number of microseconds for
- *    usec precision upto 10msec. If delay is larger then 10msec and not in ISR, it is same as
- *    `wait_ms`. `wait_us` and `wait_ms` are recommended over `wait`
+ *    microsecond precision up to 10 milliseconds. If delay is larger than 10 milliseconds and not in ISR, it is the same as
+ *    `wait_ms`. We recommend `wait_us` and `wait_ms` over `wait`.
  */
 void wait(float s);
 
@@ -77,8 +77,8 @@ void wait_ms(int ms);
  *
  *  @note
  *    This function always spins to get the exact number of microseconds.
- *    If RTOS is present, this will affect power (prevents deep sleep) and
- *    multithread performance, hence spinning for milli-sec wait is not recommended.
+ *    If RTOS is present, this will affect power (by preventing deep sleep) and
+ *    multithread performance. Therefore, spinning for millisecond wait is not recommended.
  */
 void wait_us(int us);
 
