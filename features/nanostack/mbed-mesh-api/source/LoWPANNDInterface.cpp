@@ -8,8 +8,7 @@
 #include "ns_trace.h"
 #define TRACE_GROUP "nslp"
 
-class Nanostack::LoWPANNDInterface : public Nanostack::MeshInterface
-{
+class Nanostack::LoWPANNDInterface : public Nanostack::MeshInterface {
 public:
     virtual nsapi_error_t bringup(bool dhcp, const char *ip,
                                   const char *netmask, const char *gw,
@@ -29,7 +28,7 @@ private:
 
 Nanostack::LoWPANNDInterface *LoWPANNDInterface::get_interface() const
 {
-    return static_cast<Nanostack::LoWPANNDInterface*>(_interface);
+    return static_cast<Nanostack::LoWPANNDInterface *>(_interface);
 }
 
 nsapi_error_t LoWPANNDInterface::do_initialize()

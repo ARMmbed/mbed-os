@@ -27,17 +27,19 @@
 
 class NanostackLockGuard {
 public:
-    NanostackLockGuard() {
+    NanostackLockGuard()
+    {
         eventOS_scheduler_mutex_wait();
     }
 
-    ~NanostackLockGuard() {
+    ~NanostackLockGuard()
+    {
         eventOS_scheduler_mutex_release();
     }
 
 private:
-    NanostackLockGuard(const NanostackLockGuard&);
-    NanostackLockGuard& operator=(const NanostackLockGuard&);
+    NanostackLockGuard(const NanostackLockGuard &);
+    NanostackLockGuard &operator=(const NanostackLockGuard &);
 };
 
 #endif /* NANOSTACK_LOCK_GUARD_H_ */
