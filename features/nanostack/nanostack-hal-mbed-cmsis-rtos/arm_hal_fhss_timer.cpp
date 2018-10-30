@@ -26,6 +26,9 @@
 #define NUMBER_OF_SIMULTANEOUS_TIMEOUTS  2
 #endif //NUMBER_OF_SIMULTANEOUS_TIMEOUTS
 
+using namespace mbed;
+using namespace events;
+
 static Timer timer;
 static bool timer_initialized = false;
 static const fhss_api_t *fhss_active_handle = NULL;

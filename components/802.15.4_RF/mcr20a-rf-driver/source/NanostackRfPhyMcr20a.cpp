@@ -23,6 +23,9 @@
 #include <string.h>
 #include "rtos.h"
 
+using namespace mbed;
+using namespace rtos;
+
 /* Freescale headers which are for C files */
 extern "C" {
 #include "MCR20Drv.h"

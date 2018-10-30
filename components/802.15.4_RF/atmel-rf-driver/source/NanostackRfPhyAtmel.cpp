@@ -220,6 +220,8 @@ static inline rf_trx_states_t rf_if_trx_status_from_full(uint8_t full_trx_status
 #ifdef MBED_CONF_RTOS_PRESENT
 #include "mbed.h"
 #include "rtos.h"
+using namespace mbed;
+using namespace rtos;
 
 static void rf_if_irq_task_process_irq();
 
