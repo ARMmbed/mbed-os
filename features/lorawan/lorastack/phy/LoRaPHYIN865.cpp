@@ -182,25 +182,25 @@
  * Band 0 definition
  * { DutyCycle, TxMaxPower, LastJoinTxDoneTime, LastTxDoneTime, TimeOff }
  */
-static const band_t IN865_BAND0 = { 1 , IN865_MAX_TX_POWER, 0, 0, 0, 865000000, 867000000 }; //  100.0 %
+static const band_t IN865_BAND0 = { 1, IN865_MAX_TX_POWER, 0, 0, 0, 865000000, 867000000 };  //  100.0 %
 
 /*!
  * LoRaMac default channel 1
  * Channel = { Frequency [Hz], RX1 Frequency [Hz], { ( ( DrMax << 4 ) | DrMin ) }, Band }
  */
-static const channel_params_t IN865_LC1 = { 865062500, 0, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 };
+static const channel_params_t IN865_LC1 = { 865062500, 0, { ((DR_5 << 4) | DR_0) }, 0 };
 
 /*!
  * LoRaMac default channel 2
  * Channel = { Frequency [Hz], RX1 Frequency [Hz], { ( ( DrMax << 4 ) | DrMin ) }, Band }
  */
-static const channel_params_t IN865_LC2 = { 865402500, 0, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 };
+static const channel_params_t IN865_LC2 = { 865402500, 0, { ((DR_5 << 4) | DR_0) }, 0 };
 
 /*!
  * LoRaMac default channel 3
  * Channel = { Frequency [Hz], RX1 Frequency [Hz], { ( ( DrMax << 4 ) | DrMin ) }, Band }
  */
-static const channel_params_t IN865_LC3 = { 865985000, 0, { ( ( DR_5 << 4 ) | DR_0 ) }, 0 };
+static const channel_params_t IN865_LC3 = { 865985000, 0, { ((DR_5 << 4) | DR_0) }, 0 };
 
 /*!
  * LoRaMac channels which are allowed for the join procedure

@@ -192,10 +192,9 @@ static const uint32_t bandwidths_US915[] = {125000, 125000, 125000, 125000, 5000
 /*!
  * Up/Down link data rates offset definition
  */
-static const int8_t datarate_offsets_US915[5][4] =
-{
-    { DR_10, DR_9 , DR_8 , DR_8  }, // DR_0
-    { DR_11, DR_10, DR_9 , DR_8  }, // DR_1
+static const int8_t datarate_offsets_US915[5][4] = {
+    { DR_10, DR_9, DR_8, DR_8  },   // DR_0
+    { DR_11, DR_10, DR_9, DR_8  },  // DR_1
     { DR_12, DR_11, DR_10, DR_9  }, // DR_2
     { DR_13, DR_12, DR_11, DR_10 }, // DR_3
     { DR_13, DR_13, DR_12, DR_11 }, // DR_4
@@ -222,13 +221,13 @@ LoRaPHYUS915::LoRaPHYUS915()
     // 125 kHz channels - Upstream
     for (uint8_t i = 0; i < US915_MAX_NB_CHANNELS - 8; i++) {
         channels[i].frequency = 902300000 + i * 200000;
-        channels[i].dr_range.value = ( DR_3 << 4) | DR_0;
+        channels[i].dr_range.value = (DR_3 << 4) | DR_0;
         channels[i].band = 0;
     }
     // 500 kHz channels - Upstream
     for (uint8_t i = US915_MAX_NB_CHANNELS - 8; i < US915_MAX_NB_CHANNELS; i++) {
-        channels[i].frequency = 903000000 + (i - ( US915_MAX_NB_CHANNELS - 8)) * 1600000;
-        channels[i].dr_range.value = ( DR_4 << 4) | DR_4;
+        channels[i].frequency = 903000000 + (i - (US915_MAX_NB_CHANNELS - 8)) * 1600000;
+        channels[i].dr_range.value = (DR_4 << 4) | DR_4;
         channels[i].band = 0;
     }
 
@@ -325,16 +324,16 @@ int8_t LoRaPHYUS915::limit_tx_power(int8_t tx_power, int8_t max_band_tx_power,
     int8_t tx_power_out = tx_power;
 
     // Limit tx power to the band max
-    tx_power_out =  MAX (tx_power, max_band_tx_power);
+    tx_power_out =  MAX(tx_power, max_band_tx_power);
 
     if (datarate == DR_4) {
         // Limit tx power to max 26dBm
-        tx_power_out = MAX (tx_power, TX_POWER_2);
+        tx_power_out = MAX(tx_power, TX_POWER_2);
     } else {
 
         if (num_active_channels(channel_mask, 0, 4) < 50) {
             // Limit tx power to max 21dBm
-            tx_power_out = MAX (tx_power, TX_POWER_5);
+            tx_power_out = MAX(tx_power, TX_POWER_5);
         }
     }
 
@@ -350,7 +349,7 @@ void LoRaPHYUS915::restore_default_channels()
     intersect_channel_mask(channel_mask, current_channel_mask, US915_CHANNEL_MASK_SIZE);
 }
 
-bool LoRaPHYUS915::rx_config(rx_config_params_t* config)
+bool LoRaPHYUS915::rx_config(rx_config_params_t *config)
 {
     int8_t dr = config->datarate;
     uint8_t max_payload = 0;
@@ -410,8 +409,8 @@ bool LoRaPHYUS915::rx_config(rx_config_params_t* config)
     return true;
 }
 
-bool LoRaPHYUS915::tx_config(tx_config_params_t* config, int8_t* tx_power,
-                             lorawan_time_t* tx_toa)
+bool LoRaPHYUS915::tx_config(tx_config_params_t *config, int8_t *tx_power,
+                             lorawan_time_t *tx_toa)
 {
     int8_t phy_dr = datarates_US915[config->datarate];
     int8_t tx_power_limited = limit_tx_power(config->tx_power,
@@ -422,7 +421,7 @@ bool LoRaPHYUS915::tx_config(tx_config_params_t* config, int8_t* tx_power,
     int8_t phy_tx_power = 0;
 
     // Calculate physical TX power
-    phy_tx_power = compute_tx_power( tx_power_limited, US915_DEFAULT_MAX_ERP, 0 );
+    phy_tx_power = compute_tx_power(tx_power_limited, US915_DEFAULT_MAX_ERP, 0);
 
     _radio->lock();
 
@@ -445,9 +444,9 @@ bool LoRaPHYUS915::tx_config(tx_config_params_t* config, int8_t* tx_power,
     return true;
 }
 
-uint8_t LoRaPHYUS915::link_ADR_request(adr_req_params_t* params,
-                                       int8_t* dr_out, int8_t* tx_power_out,
-                                       uint8_t* nb_rep_out, uint8_t* nb_bytes_parsed)
+uint8_t LoRaPHYUS915::link_ADR_request(adr_req_params_t *params,
+                                       int8_t *dr_out, int8_t *tx_power_out,
+                                       uint8_t *nb_rep_out, uint8_t *nb_bytes_parsed)
 {
     uint8_t status = 0x07;
 
@@ -504,7 +503,7 @@ uint8_t LoRaPHYUS915::link_ADR_request(adr_req_params_t* params,
 
     // FCC 15.247 paragraph F mandates to hop on at least 2 125 kHz channels
     if ((adr_settings.datarate < DR_4) &&
-        (num_active_channels(temp_channel_masks, 0, 4) < 2)) {
+            (num_active_channels(temp_channel_masks, 0, 4) < 2)) {
 
         status &= 0xFE; // Channel mask KO
 
@@ -543,7 +542,7 @@ uint8_t LoRaPHYUS915::link_ADR_request(adr_req_params_t* params,
     return status;
 }
 
-uint8_t LoRaPHYUS915::accept_rx_param_setup_req(rx_param_setup_req_t* params)
+uint8_t LoRaPHYUS915::accept_rx_param_setup_req(rx_param_setup_req_t *params)
 {
     uint8_t status = 0x07;
     uint32_t freq = params->frequency;
@@ -572,8 +571,7 @@ uint8_t LoRaPHYUS915::accept_rx_param_setup_req(rx_param_setup_req_t* params)
     }
 
     // Verify datarate offset
-    if (val_in_range( params->dr_offset, US915_MIN_RX1_DR_OFFSET, US915_MAX_RX1_DR_OFFSET ) == 0 )
-    {
+    if (val_in_range(params->dr_offset, US915_MIN_RX1_DR_OFFSET, US915_MAX_RX1_DR_OFFSET) == 0) {
         status &= 0xFB; // Rx1DrOffset range KO
     }
 
@@ -593,9 +591,9 @@ int8_t LoRaPHYUS915::get_alternate_DR(uint8_t nb_trials)
     return datarate;
 }
 
-lorawan_status_t LoRaPHYUS915::set_next_channel(channel_selection_params_t* params,
-                                                uint8_t* channel, lorawan_time_t* time,
-                                                lorawan_time_t* aggregate_timeOff)
+lorawan_status_t LoRaPHYUS915::set_next_channel(channel_selection_params_t *params,
+                                                uint8_t *channel, lorawan_time_t *time,
+                                                lorawan_time_t *aggregate_timeOff)
 {
     uint8_t nb_enabled_channels = 0;
     uint8_t delay_tx = 0;
@@ -654,13 +652,13 @@ lorawan_status_t LoRaPHYUS915::set_next_channel(channel_selection_params_t* para
     }
 }
 
-void LoRaPHYUS915::set_tx_cont_mode(cw_mode_params_t* params, uint32_t given_frequency)
+void LoRaPHYUS915::set_tx_cont_mode(cw_mode_params_t *params, uint32_t given_frequency)
 {
     (void)given_frequency;
 
     int8_t tx_power_limited = limit_tx_power(params->tx_power,
-                                           bands[channels[params->channel].band].max_tx_pwr,
-                                           params->datarate);
+                                             bands[channels[params->channel].band].max_tx_pwr,
+                                             params->datarate);
     int8_t phyTxPower = 0;
     uint32_t frequency = channels[params->channel].frequency;
 
@@ -681,7 +679,7 @@ uint8_t LoRaPHYUS915::apply_DR_offset(int8_t dr, int8_t dr_offset)
 
 
 void LoRaPHYUS915::intersect_channel_mask(const uint16_t *source,
-                                     uint16_t *destination, uint8_t size)
+                                          uint16_t *destination, uint8_t size)
 {
     for (uint8_t i = 0; i < size; i++) {
         destination[i] &= source[i];
@@ -689,9 +687,9 @@ void LoRaPHYUS915::intersect_channel_mask(const uint16_t *source,
 }
 
 void LoRaPHYUS915::fill_channel_mask_with_fsb(const uint16_t *expectation,
-                                         const uint16_t *fsb_mask,
-                                         uint16_t *destination,
-                                         uint8_t size)
+                                              const uint16_t *fsb_mask,
+                                              uint16_t *destination,
+                                              uint8_t size)
 {
     for (uint8_t i = 0; i < size; i++) {
         destination[i] = expectation[i] & fsb_mask[i];
@@ -700,7 +698,7 @@ void LoRaPHYUS915::fill_channel_mask_with_fsb(const uint16_t *expectation,
 }
 
 void LoRaPHYUS915::fill_channel_mask_with_value(uint16_t *channel_mask,
-                                     uint16_t value, uint8_t size)
+                                                uint16_t value, uint8_t size)
 {
     for (uint8_t i = 0; i < size; i++) {
         channel_mask[i] = value;

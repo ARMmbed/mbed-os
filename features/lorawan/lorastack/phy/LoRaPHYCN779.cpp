@@ -191,18 +191,18 @@ static const band_t CN779_BAND0 = {100, CN779_MAX_TX_POWER, 0, 0, 0, 779500000, 
  * LoRaMac default channel 1
  * Channel = { Frequency [Hz], RX1 Frequency [Hz], { ( ( DrMax << 4 ) | DrMin ) }, Band }
  */
-static const channel_params_t CN779_LC1 = {779500000, 0, { ( ( DR_5 << 4 ) | DR_0 ) }, 0};
+static const channel_params_t CN779_LC1 = {779500000, 0, { ((DR_5 << 4) | DR_0) }, 0};
 /*!
  * LoRaMac default channel 2
  * Channel = { Frequency [Hz], RX1 Frequency [Hz], { ( ( DrMax << 4 ) | DrMin ) }, Band }
  */
-static const channel_params_t CN779_LC2 = {779700000, 0, { ( ( DR_5 << 4 ) | DR_0 ) }, 0};
+static const channel_params_t CN779_LC2 = {779700000, 0, { ((DR_5 << 4) | DR_0) }, 0};
 
 /*!
  * LoRaMac default channel 3
  * Channel = { Frequency [Hz], RX1 Frequency [Hz], { ( ( DrMax << 4 ) | DrMin ) }, Band }
  */
-static const channel_params_t CN779_LC3 = {779900000, 0, { ( ( DR_5 << 4 ) | DR_0 ) }, 0};
+static const channel_params_t CN779_LC3 = {779900000, 0, { ((DR_5 << 4) | DR_0) }, 0};
 
 /*!
  * LoRaMac channels which are allowed for the join procedure
