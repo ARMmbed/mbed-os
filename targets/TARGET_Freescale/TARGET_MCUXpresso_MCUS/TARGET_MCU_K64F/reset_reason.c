@@ -15,6 +15,8 @@
  */
 #include "reset_reason_api.h"
 
+#if DEVICE_RESET_REASON
+
 #include "fsl_rcm.h"
 
 reset_reason_t hal_reset_reason_get(void)
@@ -102,3 +104,5 @@ void hal_reset_reason_clear(void)
     RCM_ClearStickyResetSources(RCM, kRCM_SourceAll);
 #endif
 }
+
+#endif // DEVICE_RESET_REASON
