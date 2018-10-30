@@ -24,6 +24,7 @@ import inspect
 from threading import Thread, Event, Timer
 import array
 import random
+import os
 
 import usb.core
 from usb.util import build_request_type
@@ -841,12 +842,8 @@ def control_data_test(dev, sizes_list, log):
         request = VENDOR_TEST_CTRL_OUT_SIZES
         value = i                           # Size of data the device should actually read
         index = 0                           # Unused - set for debugging only
-        data = bytearray(i)                 # Dummy data
-        if i == 1:
-            data[0] = count
-        else:
-            data[0] = count - 1
-            data[i - 1] = count + 1
+        data = bytearray(os.urandom(i))     # Dummy data
+
         try:
             dev.ctrl_transfer(request_type, request, value, index, data, 5000)
         except usb.core.USBError:
@@ -860,11 +857,9 @@ def control_data_test(dev, sizes_list, log):
         length = i
         try:
             ret = dev.ctrl_transfer(request_type, request, value, index, length, 5000)
-            if i == 1:
-                raise_if_different(count, ret[0], lineno(), "send/receive data not match")
-            else:
-                raise_if_different(count - 1, ret[0], lineno(), "send/receive data not match")
-                raise_if_different(count + 1, ret[i - 1], lineno(), "send/receive data not match")
+            raise_if_different(i, len(ret), lineno(), "send/receive data is the wrong size")
+            for j in range(0, i):
+                raise_if_different(data[j], ret[j], lineno(), "send/receive data not match")
         except usb.core.USBError:
             raise_unconditionally(lineno(), "VENDOR_TEST_CTRL_IN_SIZES failed")
         count += 1
