@@ -74,8 +74,7 @@ err_t LWIP::Interface::emac_igmp_mac_filter(struct netif *netif, const ip4_addr_
     LWIP::Interface *mbed_if = static_cast<LWIP::Interface *>(netif->state);
 
     switch (action) {
-        case NETIF_ADD_MAC_FILTER:
-        {
+        case NETIF_ADD_MAC_FILTER: {
             uint32_t group23 = ntohl(group->addr) & 0x007FFFFF;
             uint8_t addr[6];
             addr[0] = LL_IP4_MULTICAST_ADDR_0;
@@ -112,8 +111,7 @@ err_t LWIP::Interface::emac_mld_mac_filter(struct netif *netif, const ip6_addr_t
     LWIP::Interface *mbed_if = static_cast<LWIP::Interface *>(netif->state);
 
     switch (action) {
-        case NETIF_ADD_MAC_FILTER:
-        {
+        case NETIF_ADD_MAC_FILTER: {
             uint32_t group32 = ntohl(group->addr[3]);
             uint8_t addr[6];
             addr[0] = LL_IP6_MULTICAST_ADDR_0;

@@ -38,7 +38,7 @@
 #include "LWIPStack.h"
 
 #ifndef LWIP_SOCKET_MAX_MEMBERSHIPS
-    #define LWIP_SOCKET_MAX_MEMBERSHIPS 4
+#define LWIP_SOCKET_MAX_MEMBERSHIPS 4
 #endif
 
 void LWIP::socket_callback(struct netconn *nc, enum netconn_evt eh, u16_t len)
@@ -54,8 +54,8 @@ void LWIP::socket_callback(struct netconn *nc, enum netconn_evt eh, u16_t len)
 
     for (int i = 0; i < MEMP_NUM_NETCONN; i++) {
         if (lwip.arena[i].in_use
-            && lwip.arena[i].conn == nc
-            && lwip.arena[i].cb) {
+                && lwip.arena[i].conn == nc
+                && lwip.arena[i].cb) {
             lwip.arena[i].cb(lwip.arena[i].data);
         }
     }
@@ -101,15 +101,15 @@ static bool convert_mbed_addr_to_lwip(ip_addr_t *out, const nsapi_addr_t *in)
 {
 #if LWIP_IPV6
     if (in->version == NSAPI_IPv6) {
-         IP_SET_TYPE(out, IPADDR_TYPE_V6);
-         SMEMCPY(ip_2_ip6(out), in->bytes, sizeof(ip6_addr_t));
-         return true;
+        IP_SET_TYPE(out, IPADDR_TYPE_V6);
+        SMEMCPY(ip_2_ip6(out), in->bytes, sizeof(ip6_addr_t));
+        return true;
     }
 #if !LWIP_IPV4
     /* For bind() and other purposes, need to accept "null" of other type */
     /* (People use IPv4 0.0.0.0 as a general null) */
     if (in->version == NSAPI_UNSPEC ||
-        (in->version == NSAPI_IPv4 && all_zeros(in->bytes, 4))) {
+            (in->version == NSAPI_IPv4 && all_zeros(in->bytes, 4))) {
         ip_addr_set_zero_ip6(out);
         return true;
     }
@@ -118,14 +118,14 @@ static bool convert_mbed_addr_to_lwip(ip_addr_t *out, const nsapi_addr_t *in)
 
 #if LWIP_IPV4
     if (in->version == NSAPI_IPv4) {
-         IP_SET_TYPE(out, IPADDR_TYPE_V4);
-         SMEMCPY(ip_2_ip4(out), in->bytes, sizeof(ip4_addr_t));
-         return true;
+        IP_SET_TYPE(out, IPADDR_TYPE_V4);
+        SMEMCPY(ip_2_ip4(out), in->bytes, sizeof(ip4_addr_t));
+        return true;
     }
 #if !LWIP_IPV6
     /* For symmetry with above, accept IPv6 :: as a general null */
     if (in->version == NSAPI_UNSPEC ||
-        (in->version == NSAPI_IPv6 && all_zeros(in->bytes, 16))) {
+            (in->version == NSAPI_IPv6 && all_zeros(in->bytes, 16))) {
         ip_addr_set_zero_ip4(out);
         return true;
     }
@@ -273,7 +273,7 @@ nsapi_error_t LWIP::socket_open(nsapi_socket_t *handle, nsapi_protocol_t proto)
 
 #if LWIP_IPV6
     // Enable IPv6 (or dual-stack)
-    lwip_proto = (enum netconn_type) (lwip_proto | NETCONN_TYPE_IPV6);
+    lwip_proto = (enum netconn_type)(lwip_proto | NETCONN_TYPE_IPV6);
 #endif
 
     s->conn = netconn_new_with_callback(lwip_proto, &LWIP::socket_callback);
@@ -485,7 +485,8 @@ nsapi_size_or_error_t LWIP::socket_recvfrom(nsapi_socket_t handle, SocketAddress
     return recv;
 }
 
-int32_t LWIP::find_multicast_member(const struct mbed_lwip_socket *s, const nsapi_ip_mreq_t *imr) {
+int32_t LWIP::find_multicast_member(const struct mbed_lwip_socket *s, const nsapi_ip_mreq_t *imr)
+{
     uint32_t count = 0;
     uint32_t index = 0;
     // Set upper limit on while loop, should break out when the membership pair is found
@@ -493,7 +494,7 @@ int32_t LWIP::find_multicast_member(const struct mbed_lwip_socket *s, const nsap
         index = next_registered_multicast_member(s, index);
 
         if (memcmp(&s->multicast_memberships[index].imr_multiaddr, &imr->imr_multiaddr, sizeof(nsapi_addr_t)) == 0 &&
-           memcmp(&s->multicast_memberships[index].imr_interface, &imr->imr_interface, sizeof(nsapi_addr_t)) == 0) {
+                memcmp(&s->multicast_memberships[index].imr_interface, &imr->imr_interface, sizeof(nsapi_addr_t)) == 0) {
             return index;
         }
         count++;
@@ -522,7 +523,7 @@ nsapi_error_t LWIP::setsockopt(nsapi_socket_t handle, int level, int optname, co
                 return NSAPI_ERROR_UNSUPPORTED;
             }
 
-            s->conn->pcb.tcp->keep_idle = *(int*)optval;
+            s->conn->pcb.tcp->keep_idle = *(int *)optval;
             return 0;
 
         case NSAPI_KEEPINTVL:
@@ -530,7 +531,7 @@ nsapi_error_t LWIP::setsockopt(nsapi_socket_t handle, int level, int optname, co
                 return NSAPI_ERROR_UNSUPPORTED;
             }
 
-            s->conn->pcb.tcp->keep_intvl = *(int*)optval;
+            s->conn->pcb.tcp->keep_intvl = *(int *)optval;
             return 0;
 #endif
 
@@ -582,11 +583,11 @@ nsapi_error_t LWIP::setsockopt(nsapi_socket_t handle, int level, int optname, co
             if (optname == NSAPI_ADD_MEMBERSHIP) {
                 if (!s->multicast_memberships) {
                     // First multicast join on this socket, allocate space for membership tracking
-                    s->multicast_memberships = (nsapi_ip_mreq_t*)malloc(sizeof(nsapi_ip_mreq_t) * LWIP_SOCKET_MAX_MEMBERSHIPS);
+                    s->multicast_memberships = (nsapi_ip_mreq_t *)malloc(sizeof(nsapi_ip_mreq_t) * LWIP_SOCKET_MAX_MEMBERSHIPS);
                     if (!s->multicast_memberships) {
                         return NSAPI_ERROR_NO_MEMORY;
                     }
-                } else if(s->multicast_memberships_count == LWIP_SOCKET_MAX_MEMBERSHIPS) {
+                } else if (s->multicast_memberships_count == LWIP_SOCKET_MAX_MEMBERSHIPS) {
                     return NSAPI_ERROR_NO_MEMORY;
                 }
 
@@ -598,16 +599,16 @@ nsapi_error_t LWIP::setsockopt(nsapi_socket_t handle, int level, int optname, co
 
                 adaptation.lock();
 
-                #if LWIP_IPV4
+#if LWIP_IPV4
                 if (IP_IS_V4(&if_addr)) {
                     igmp_err = igmp_joingroup(ip_2_ip4(&if_addr), ip_2_ip4(&multi_addr));
                 }
-                #endif
-                #if LWIP_IPV6
+#endif
+#if LWIP_IPV6
                 if (IP_IS_V6(&if_addr)) {
                     igmp_err = mld6_joingroup(ip_2_ip6(&if_addr), ip_2_ip6(&multi_addr));
                 }
-                #endif
+#endif
 
                 adaptation.unlock();
 
@@ -626,22 +627,22 @@ nsapi_error_t LWIP::setsockopt(nsapi_socket_t handle, int level, int optname, co
 
                 adaptation.lock();
 
-                #if LWIP_IPV4
+#if LWIP_IPV4
                 if (IP_IS_V4(&if_addr)) {
                     igmp_err = igmp_leavegroup(ip_2_ip4(&if_addr), ip_2_ip4(&multi_addr));
                 }
-                #endif
-                #if LWIP_IPV6
+#endif
+#if LWIP_IPV6
                 if (IP_IS_V6(&if_addr)) {
                     igmp_err = mld6_leavegroup(ip_2_ip6(&if_addr), ip_2_ip6(&multi_addr));
                 }
-                #endif
+#endif
 
                 adaptation.unlock();
             }
 
             return err_remap(igmp_err);
-         }
+        }
 
         default:
             return NSAPI_ERROR_UNSUPPORTED;
@@ -662,7 +663,8 @@ void LWIP::socket_attach(nsapi_socket_t handle, void (*callback)(void *), void *
     s->data = data;
 }
 
-LWIP &LWIP::get_instance() {
+LWIP &LWIP::get_instance()
+{
     static LWIP lwip;
     return lwip;
 }
@@ -672,7 +674,8 @@ LWIP &LWIP::get_instance() {
 #define LWIP 0x11991199
 #if MBED_CONF_NSAPI_DEFAULT_STACK == LWIP
 #undef LWIP
-OnboardNetworkStack &OnboardNetworkStack::get_default_instance() {
+OnboardNetworkStack &OnboardNetworkStack::get_default_instance()
+{
     return LWIP::get_instance();
 }
 #endif
