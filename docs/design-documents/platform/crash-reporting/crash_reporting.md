@@ -178,7 +178,8 @@ In order to implement the callback the user can override the default callback fu
 ```C
 mbed_error_ctx my_error_ctx;
 //Callback during reboot
-void mbed_error_reboot_callback(mbed_error_ctx *error_context) {
+void mbed_error_reboot_callback(mbed_error_ctx *error_context) 
+{
     printf("Error callback received");
     //Copy the error context in a local struct for processing it later
     memcpy(&my_error_ctx, error_context, sizeof(mbed_error_ctx));
@@ -195,17 +196,18 @@ mbed_error_ctx error_ctx;
 int reboot_error_detected = 0;
 
 //Callback during reboot
-void mbed_error_reboot_callback(mbed_error_ctx *error_context) {
+void mbed_error_reboot_callback(mbed_error_ctx *error_context) 
+{
     printf("error callback received");
     reboot_error_detected = 1;
 }
 
 // main() runs in its own thread in the OS
-int main() {
-  
-    if(reboot_error_detected == 1) {
-        if(MBED_SUCCESS == mbed_get_reboot_error_info(&error_ctx)) {
-        printf("\nSuccessfully read error context\n");
+int main() 
+{
+    if (reboot_error_detected == 1) {
+        if (MBED_SUCCESS == mbed_get_reboot_error_info(&error_ctx)) {
+            printf("\nSuccessfully read error context\n");
     }
     //main continues...
 }
@@ -222,19 +224,20 @@ mbed_fault_context_t fault_ctx;
 int reboot_error_detected = 0;
 
 //Callback during reboot
-void mbed_error_reboot_callback(mbed_error_ctx *error_context) {
+void mbed_error_reboot_callback(mbed_error_ctx * error_context) 
+{
     printf("error callback received");
     reboot_error_detected = 1;
 }
 
 // main() runs in its own thread in the OS
-int main() {
-  
-    if(reboot_error_detected == 1) {
-        if(MBED_SUCCESS == mbed_get_reboot_error_info(&error_ctx)) {
+int main() 
+{
+    if (reboot_error_detected == 1) {
+        if (MBED_SUCCESS == mbed_get_reboot_error_info(&error_ctx)) {
             printf("\nRead in reboot info\n");
-            if(error_ctx.error_status == MBED_ERROR_HARDFAULT_EXCEPTION) {
-               if(MBED_SUCCESS == mbed_get_reboot_fault_context(&fault_ctx)) {
+            if (error_ctx.error_status == MBED_ERROR_HARDFAULT_EXCEPTION) {
+               if (MBED_SUCCESS == mbed_get_reboot_fault_context(&fault_ctx)) {
                    printf("\nRead in fault context info\n");
                }
             }
