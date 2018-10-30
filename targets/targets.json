@@ -1198,8 +1198,8 @@
             }
         },
         "detect_code": ["0826"],
-        "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
-        "device_has_add": ["CAN", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
+        "macros_add": ["USBHOST_OTHER"],
+        "device_has_add": ["CAN", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH", "USBDEVICE"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F412ZG",
         "bootloader_supported": true
@@ -1283,8 +1283,8 @@
             }
         },
         "detect_code": ["0743"],
-        "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
-        "device_has_add": ["ANALOGOUT", "CAN", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH", "QSPI"],
+        "macros_add": ["USBHOST_OTHER"],
+        "device_has_add": ["ANALOGOUT", "CAN", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH", "QSPI", "USBDEVICE"],
         "bootloader_supported": true,
         "release_versions": ["2", "5"],
         "device_name": "STM32F413ZH"
@@ -1306,8 +1306,8 @@
             }
         },
         "detect_code": ["0743"],
-        "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
-        "device_has_add": ["ANALOGOUT", "CAN", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
+        "macros_add": ["USBHOST_OTHER"],
+        "device_has_add": ["ANALOGOUT", "CAN", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH", "USBDEVICE"],
         "bootloader_supported": true,
         "release_versions": ["2", "5"],
         "device_name": "STM32F413ZH"
@@ -1342,8 +1342,8 @@
             }
         },
         "extra_labels_add": ["STM32F4", "STM32F429", "STM32F429ZI", "STM32F429xx", "STM32F429xI", "STM_EMAC"],
-        "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
-        "device_has_add": ["ANALOGOUT", "CAN", "EMAC", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH"],
+        "macros_add": ["USBHOST_OTHER"],
+        "device_has_add": ["ANALOGOUT", "CAN", "EMAC", "SERIAL_ASYNCH", "SERIAL_FC", "TRNG", "FLASH", "USBDEVICE"],
         "detect_code": ["0796"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F429ZI",
@@ -1411,8 +1411,8 @@
             }
         },
         "detect_code": ["0778"],
-        "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
-        "device_has_add": ["ANALOGOUT", "CAN", "SERIAL_ASYNCH", "SERIAL_FC", "FLASH"],
+        "macros_add": ["USBHOST_OTHER"],
+        "device_has_add": ["ANALOGOUT", "CAN", "SERIAL_ASYNCH", "SERIAL_FC", "FLASH", "USBDEVICE"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F446ZE"
     },
@@ -1937,8 +1937,8 @@
             }
         },
         "detect_code": ["0788"],
-        "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
-        "device_has_add": ["ANALOGOUT", "CAN", "SERIAL_FC", "TRNG", "FLASH", "QSPI"],
+        "macros_add": ["USBHOST_OTHER"],
+        "device_has_add": ["ANALOGOUT", "CAN", "SERIAL_FC", "TRNG", "FLASH", "QSPI", "USBDEVICE"],
         "release_versions": ["2", "5"],
         "device_name": "STM32F469NI"
     },
