@@ -219,8 +219,8 @@ protected:
 
     pwmout_t _pwm;
     bool _deep_sleep_locked;
-};
 #endif
+};
 
 } // namespace mbed
 
