@@ -354,6 +354,7 @@ int DataFlashBlockDevice::read(void *buffer, bd_addr_t addr, bd_size_t size)
         result = BD_ERROR_OK;
     }
 
+    _mutex.unlock();
     return result;
 }
 
@@ -363,6 +364,7 @@ int DataFlashBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t 
     DEBUG_PRINTF("program: %p %" PRIX64 " %" PRIX64 "\r\n", buffer, addr, size);
 
     if (!_is_initialized) {
+        _mutex.unlock();
         return BD_ERROR_DEVICE_ERROR;
     }
 
@@ -421,6 +423,7 @@ int DataFlashBlockDevice::program(const void *buffer, bd_addr_t addr, bd_size_t 
         _write_enable(false);
     }
 
+    _mutex.unlock();
     return result;
 }
 
@@ -430,6 +433,7 @@ int DataFlashBlockDevice::erase(bd_addr_t addr, bd_size_t size)
     DEBUG_PRINTF("erase: %" PRIX64 " %" PRIX64 "\r\n", addr, size);
 
     if (!_is_initialized) {
+        _mutex.unlock();
         return BD_ERROR_DEVICE_ERROR;
     }
 
@@ -476,6 +480,7 @@ int DataFlashBlockDevice::erase(bd_addr_t addr, bd_size_t size)
         _write_enable(false);
     }
 
+    _mutex.unlock();
     return result;
 }
 
