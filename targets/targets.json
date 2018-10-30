@@ -2392,7 +2392,8 @@
             "SERIAL_FC",
             "TRNG",
             "FLASH",
-            "MPU"
+            "MPU",
+            "USBDEVICE"
         ],
         "release_versions": ["2", "5"],
         "device_name": "STM32F412ZG",
@@ -2518,7 +2519,8 @@
             "TRNG",
             "FLASH",
             "QSPI",
-            "MPU"
+            "MPU",
+            "USBDEVICE"
         ],
         "bootloader_supported": true,
         "release_versions": ["2", "5"],
@@ -2555,7 +2557,8 @@
             "SERIAL_FC",
             "TRNG",
             "FLASH",
-            "MPU"
+            "MPU",
+            "USBDEVICE"
         ],
         "bootloader_supported": true,
         "release_versions": ["2", "5"],
@@ -2607,7 +2610,8 @@
             "SERIAL_FC",
             "TRNG",
             "FLASH",
-            "MPU"
+            "MPU",
+            "USBDEVICE"
         ],
         "detect_code": ["0796"],
         "release_versions": ["2", "5"],
@@ -2709,7 +2713,8 @@
             "SERIAL_ASYNCH",
             "SERIAL_FC",
             "FLASH",
-            "MPU"
+            "MPU",
+            "USBDEVICE"
         ],
         "release_versions": ["2", "5"],
         "device_name": "STM32F446ZE"
@@ -3498,7 +3503,8 @@
             "TRNG",
             "FLASH",
             "QSPI",
-            "MPU"
+            "MPU",
+            "USBDEVICE"
         ],
         "release_versions": ["2", "5"],
         "device_name": "STM32F469NI"
