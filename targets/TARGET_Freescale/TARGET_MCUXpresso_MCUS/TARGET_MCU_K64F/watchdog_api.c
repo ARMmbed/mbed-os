@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 #include "watchdog_api.h"
+
+#if DEVICE_WATCHDOG
+
 #include "reset_reason_api.h"
 #include "fsl_wdog.h"
 #include "fsl_clock.h"
@@ -123,3 +126,5 @@ watchdog_features_t hal_watchdog_get_platform_features(void)
 
   return features;
 }
+
+#endif // DEVICE_WATCHDOG
