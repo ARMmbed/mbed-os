@@ -21,4 +21,7 @@
 
 MBED_DEPRECATED_SINCE("5.10", "FEATURE_NANOSTACK is deprecated. You do not need to enable it anymore in mbed_app.json")
 static void feature_nanostack(void) { }
-void dummy_feature_nanostack_is_deprecated(void) { feature_nanostack(); }
+void dummy_feature_nanostack_is_deprecated(void)
+{
+    feature_nanostack();
+}
