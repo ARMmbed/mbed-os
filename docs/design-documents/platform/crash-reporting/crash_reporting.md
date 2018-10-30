@@ -251,7 +251,7 @@ int main()
 
 ### Platform configuration options for error reporting infrastruture
 
-Below is the list of new configuration options added to configure error reporting functionality. All of these options are capture in mbed_lib.json file in platform folder.
+Below is the list of new configuration options needed to configure error reporting functionality. All of these configuration options should be captured in mbed_lib.json file in platform directory.
 
 **crash-capture-enabled**
 
