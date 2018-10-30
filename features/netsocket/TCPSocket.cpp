@@ -22,7 +22,7 @@ TCPSocket::TCPSocket()
 {
 }
 
-TCPSocket::TCPSocket(TCPSocket* parent, nsapi_socket_t socket, SocketAddress address)
+TCPSocket::TCPSocket(TCPSocket *parent, nsapi_socket_t socket, SocketAddress address)
 {
     _socket = socket,
     _stack = parent->_stack;
