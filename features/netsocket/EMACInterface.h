@@ -32,7 +32,7 @@
  * Drivers derived from EMACInterface should be constructed so that their
  * EMAC is functional without the need to call `connect()`. For example
  * a Wi-Fi driver should permit `WiFi::get_emac().power_up()` as soon as
- * the credentials have been set. This is necessary to support specialised
+ * the credentials have been set. This is necessary to support specialized
  * applications such as 6LoWPAN mesh border routers.
  */
 class EMACInterface : public virtual NetworkInterface {
@@ -99,21 +99,21 @@ public:
     /** Get the local IP address
      *
      *  @return         Null-terminated representation of the local IP address
-     *                  or null if no IP address has been recieved
+     *                  or null if no IP address has been received
      */
     virtual const char *get_ip_address();
 
     /** Get the local network mask
      *
      *  @return         Null-terminated representation of the local network mask
-     *                  or null if no network mask has been recieved
+     *                  or null if no network mask has been received
      */
     virtual const char *get_netmask();
 
     /** Get the local gateways
      *
      *  @return         Null-terminated representation of the local gateway
-     *                  or null if no network mask has been recieved
+     *                  or null if no network mask has been received
      */
     virtual const char *get_gateway();
 

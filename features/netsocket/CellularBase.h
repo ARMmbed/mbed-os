@@ -27,7 +27,7 @@ public:
     /** Get the default cellular interface.
      *
      * This is provided as a weak method so applications can override.
-     * Default behaviour is to get the target's default interface, if
+     * Default behavior is to get the target's default interface, if
      * any.
      *
      * @return pointer to interface, if any.
@@ -36,7 +36,7 @@ public:
 
     /** Set the cellular network credentials.
      *
-     *  Please check documentation of connect() for default behaviour of APN settings.
+     *  Please check documentation of connect() for default behavior of APN settings.
      *
      *  @param apn      Access point name.
      *  @param uname    Username (optional).

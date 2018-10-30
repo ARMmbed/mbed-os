@@ -174,7 +174,7 @@ protected:
 
     /** Initiates TLS Handshake
      *
-     *  Initiates a TLS hanshake to a remote speer
+     *  Initiates a TLS handshake to a remote peer
      *  Underlying transport socket should already be connected
      *
      *  Root CA certification must be set by set_ssl_ca_pem() before
