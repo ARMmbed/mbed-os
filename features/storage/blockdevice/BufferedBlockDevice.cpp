@@ -119,7 +119,7 @@ int BufferedBlockDevice::read(void *b, bd_addr_t addr, bd_size_t size)
 
     bd_addr_t aligned_addr = align_down(addr, _bd_program_size);
 
-    uint8_t *buf = static_cast<uint8_t *> (b);
+    uint8_t *buf = static_cast<uint8_t *>(b);
 
     if (aligned_addr != _curr_aligned_addr) {
         // Need to flush if moved to another program unit
@@ -159,7 +159,7 @@ int BufferedBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
 
     bd_addr_t aligned_addr = align_down(addr, _bd_program_size);
 
-    const uint8_t *buf = static_cast <const uint8_t *> (b);
+    const uint8_t *buf = static_cast <const uint8_t *>(b);
 
     // Need to flush if moved to another program unit
     if (aligned_addr != _curr_aligned_addr) {
