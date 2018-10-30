@@ -892,7 +892,6 @@ int SDBlockDevice::_read(uint8_t *buffer, uint32_t length)
     // read until start byte (0xFE)
     if (false == _wait_token(SPI_START_BLOCK)) {
         debug_if(SD_DBG, "Read timeout\n");
-        _deselect();
         return SD_BLOCK_DEVICE_ERROR_NO_RESPONSE;
     }
 
