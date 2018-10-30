@@ -629,6 +629,33 @@ class Config(object):
         rom_size = int(getattr(self.target, "mbed_rom_size", False) or rom_size, 0)
         return (rom_start, rom_size)
 
+    def _get_all_rom_regions(self,all_regions=False):
+        """Get information of all available rom regions as a pair of [Region, [start_addr, size]]"""
+        # Override rom_start/rom_size
+        #
+        # This is usually done for a target which:
+        # 1. Doesn't support CMSIS pack, or
+        # 2. Supports TrustZone and user needs to change its flash partition
+        rom_regions = {}
+        rom_memories = ['IROM1', 'PROGRAM_FLASH', 'IROM2']
+        cmsis_part = self._get_cmsis_part()
+        for memory in rom_memories:
+            try:
+                rom_start, rom_size = self._get_mem_specs(
+                memory.split(),
+                cmsis_part,
+                "Not enough information in CMSIS packs to build a bootloader "
+                "project"
+                )
+                rom_start = int(rom_start, 0)
+                rom_size = int(rom_size, 0)
+                if all_regions == False:
+                    return rom_start,rom_size
+                rom_regions[memory] = [rom_start,rom_size]
+            except ConfigException:
+                continue         
+        return rom_regions    
+
     @property
     def ram_regions(self):
         """Generate a list of ram regions from the config"""
@@ -657,9 +684,9 @@ class Config(object):
                 "incompatible with target.mbed_app_start and "
                 "target.mbed_app_size")
         if self.target.bootloader_img or self.target.restrict_size:
-            return self._generate_bootloader_build(*self.rom)
+            return self._generate_bootloader_build(*self._get_all_rom_regions())
         else:
-            return self._generate_linker_overrides(*self.rom)
+            return self._generate_linker_overrides(*self._get_all_rom_regions())
 
     @staticmethod
     def header_member_size(member):
