@@ -71,11 +71,11 @@ class RFPins;
 class NanostackRfPhys2lp : public NanostackRfPhy {
 public:
     NanostackRfPhys2lp(PinName spi_sdi, PinName spi_sdo,
-            PinName spi_sclk, PinName spi_cs,  PinName spi_sdn,
+                       PinName spi_sclk, PinName spi_cs,  PinName spi_sdn,
 #ifdef TEST_GPIOS_ENABLED
-            PinName spi_test1, PinName spi_test2, PinName spi_test3, PinName spi_test4, PinName spi_test5,
+                       PinName spi_test1, PinName spi_test2, PinName spi_test3, PinName spi_test4, PinName spi_test5,
 #endif //TEST_GPIOS_ENABLED
-            PinName spi_gpio0, PinName spi_gpio1, PinName spi_gpio2, PinName spi_gpio3);
+                       PinName spi_gpio0, PinName spi_gpio1, PinName spi_gpio2, PinName spi_gpio3);
     virtual ~NanostackRfPhys2lp();
     virtual int8_t rf_register();
     virtual void rf_unregister();

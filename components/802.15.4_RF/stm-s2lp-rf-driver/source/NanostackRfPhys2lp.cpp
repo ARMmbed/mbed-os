@@ -103,12 +103,12 @@ public:
 class RFPins {
 public:
     RFPins(PinName spi_sdi, PinName spi_sdo,
-            PinName spi_sclk, PinName spi_cs, PinName spi_sdn,
+           PinName spi_sclk, PinName spi_cs, PinName spi_sdn,
 #ifdef TEST_GPIOS_ENABLED
-            PinName spi_test1, PinName spi_test2, PinName spi_test3, PinName spi_test4, PinName spi_test5,
+           PinName spi_test1, PinName spi_test2, PinName spi_test3, PinName spi_test4, PinName spi_test5,
 #endif //TEST_GPIOS_ENABLED
-            PinName spi_gpio0, PinName spi_gpio1, PinName spi_gpio2,
-            PinName spi_gpio3);
+           PinName spi_gpio0, PinName spi_gpio1, PinName spi_gpio2,
+           PinName spi_gpio3);
     UnlockedSPI spi;
     DigitalOut CS;
     DigitalOut SDN;
@@ -134,28 +134,28 @@ public:
 };
 
 RFPins::RFPins(PinName spi_sdi, PinName spi_sdo,
-        PinName spi_sclk, PinName spi_cs, PinName spi_sdn,
+               PinName spi_sclk, PinName spi_cs, PinName spi_sdn,
 #ifdef TEST_GPIOS_ENABLED
-        PinName spi_test1, PinName spi_test2, PinName spi_test3, PinName spi_test4, PinName spi_test5,
+               PinName spi_test1, PinName spi_test2, PinName spi_test3, PinName spi_test4, PinName spi_test5,
 #endif //TEST_GPIOS_ENABLED
-        PinName spi_gpio0, PinName spi_gpio1, PinName spi_gpio2,
-        PinName spi_gpio3)
-:   spi(spi_sdi, spi_sdo, spi_sclk),
-    CS(spi_cs),
-    SDN(spi_sdn),
+               PinName spi_gpio0, PinName spi_gpio1, PinName spi_gpio2,
+               PinName spi_gpio3)
+    :   spi(spi_sdi, spi_sdo, spi_sclk),
+        CS(spi_cs),
+        SDN(spi_sdn),
 #ifdef TEST_GPIOS_ENABLED
-    TEST1(spi_test1),
-    TEST2(spi_test2),
-    TEST3(spi_test3),
-    TEST4(spi_test4),
-    TEST5(spi_test5),
+        TEST1(spi_test1),
+        TEST2(spi_test2),
+        TEST3(spi_test3),
+        TEST4(spi_test4),
+        TEST5(spi_test5),
 #endif //TEST_GPIOS_ENABLED
-    GPIO0(spi_gpio0),
-    GPIO1(spi_gpio1),
-    GPIO2(spi_gpio2),
-    GPIO3(spi_gpio3)
+        GPIO0(spi_gpio0),
+        GPIO1(spi_gpio1),
+        GPIO2(spi_gpio2),
+        GPIO3(spi_gpio3)
 #ifdef MBED_CONF_RTOS_PRESENT
-,irq_thread(osPriorityRealtime, 1024)
+    , irq_thread(osPriorityRealtime, 1024)
 #endif //MBED_CONF_RTOS_PRESENT
 {
 #ifdef MBED_CONF_RTOS_PRESENT
@@ -204,8 +204,8 @@ static uint8_t s2lp_MAC[8];
 static const phy_rf_channel_configuration_s phy_subghz = {868300000U, 500000U, 250000U, 11U, M_UNDEFINED};
 
 static const phy_device_channel_page_s phy_channel_pages[] = {
-        { CHANNEL_PAGE_2, &phy_subghz},
-        { CHANNEL_PAGE_0, NULL}
+    { CHANNEL_PAGE_2, &phy_subghz},
+    { CHANNEL_PAGE_0, NULL}
 };
 
 #ifdef MBED_CONF_RTOS_PRESENT
@@ -322,7 +322,7 @@ static void rf_write_register_field(uint8_t addr, uint8_t field, uint8_t value)
 
 static s2lp_states_e rf_read_state(void)
 {
-    return (s2lp_states_e) (rf_read_register_with_status(MC_STATE0, NULL) >> 1);
+    return (s2lp_states_e)(rf_read_register_with_status(MC_STATE0, NULL) >> 1);
 }
 
 static void rf_poll_state_change(s2lp_states_e state)
@@ -338,7 +338,7 @@ static void rf_poll_state_change(s2lp_states_e state)
 
 static void rf_enable_gpio_signal(uint8_t gpio_pin, uint8_t interrupt_signal, uint8_t gpio_mode)
 {
-    rf_write_register(GPIO0_CONF+gpio_pin, (interrupt_signal<<3) | gpio_mode);
+    rf_write_register(GPIO0_CONF + gpio_pin, (interrupt_signal << 3) | gpio_mode);
 }
 
 static void rf_enable_interrupt(uint8_t event)
@@ -434,8 +434,8 @@ static uint8_t rf_read_rx_fifo(uint8_t *ptr, uint16_t length)
 
 static void rf_write_packet_length(uint16_t packet_length)
 {
-    rf_write_register(PCKTLEN1, packet_length/256);
-    rf_write_register(PCKTLEN0, packet_length%256);
+    rf_write_register(PCKTLEN1, packet_length / 256);
+    rf_write_register(PCKTLEN0, packet_length % 256);
 }
 
 static uint32_t read_irq_status(void)
@@ -463,7 +463,7 @@ static void rf_init_registers(void)
     rf_conf_calculate_datarate_registers(phy_subghz.datarate, &datarate_m, &datarate_e);
     rf_write_register_field(MOD2, DATARATE_E_FIELD, datarate_e);
     rf_write_register(MOD3, (uint8_t)datarate_m);
-    rf_write_register(MOD4, datarate_m>>8);
+    rf_write_register(MOD4, datarate_m >> 8);
     // Set RX filter bandwidth
     uint8_t chflt_m, chflt_e;
     rf_conf_calculate_rx_filter_bandwidth_registers(RX_FILTER_BANDWIDTH, &chflt_m, &chflt_e);
@@ -480,7 +480,7 @@ static void rf_init_registers(void)
     // Set channel spacing
     uint8_t ch_space;
     uint8_t ch_space_divider = 1;
-    while (rf_conf_calculate_channel_spacing_registers(phy_subghz.channel_spacing/ch_space_divider, &ch_space)) {
+    while (rf_conf_calculate_channel_spacing_registers(phy_subghz.channel_spacing / ch_space_divider, &ch_space)) {
         ch_space_divider++;
         rf_channel_multiplier++;
     }
@@ -506,21 +506,21 @@ static int8_t rf_address_write(phy_address_type_e address_type, uint8_t *address
 {
     int8_t ret_val = 0;
     switch (address_type) {
-    /*Set 48-bit address*/
-    case PHY_MAC_48BIT:
-        break;
+        /*Set 48-bit address*/
+        case PHY_MAC_48BIT:
+            break;
         /*Set 64-bit address*/
-    case PHY_MAC_64BIT:
-        memcpy(s2lp_MAC, address_ptr, 8);
-        break;
+        case PHY_MAC_64BIT:
+            memcpy(s2lp_MAC, address_ptr, 8);
+            break;
         /*Set 16-bit address*/
-    case PHY_MAC_16BIT:
-        memcpy(s2lp_short_address, address_ptr, 2);
-        break;
+        case PHY_MAC_16BIT:
+            memcpy(s2lp_short_address, address_ptr, 2);
+            break;
         /*Set PAN Id*/
-    case PHY_MAC_PANID:
-        memcpy(s2lp_PAN_ID, address_ptr, 2);
-        break;
+        case PHY_MAC_PANID:
+            memcpy(s2lp_PAN_ID, address_ptr, 2);
+            break;
     }
     return ret_val;
 }
@@ -531,67 +531,67 @@ static int8_t rf_extension(phy_extension_type_e extension_type, uint8_t *data_pt
     phy_csma_params_t *csma_params;
     uint32_t *timer_value;
     switch (extension_type) {
-    case PHY_EXTENSION_SET_CHANNEL:
-        if (rf_state == RF_IDLE || rf_state == RF_CSMA_STARTED) {
-            rf_receive(*data_ptr);
-        } else {
-            // Store the new channel if couldn't change it yet.
-            rf_new_channel = *data_ptr;
-            retval = -1;
-        }
-        break;
-    case PHY_EXTENSION_CTRL_PENDING_BIT:
-        break;
+        case PHY_EXTENSION_SET_CHANNEL:
+            if (rf_state == RF_IDLE || rf_state == RF_CSMA_STARTED) {
+                rf_receive(*data_ptr);
+            } else {
+                // Store the new channel if couldn't change it yet.
+                rf_new_channel = *data_ptr;
+                retval = -1;
+            }
+            break;
+        case PHY_EXTENSION_CTRL_PENDING_BIT:
+            break;
         /*Return frame pending status*/
-    case PHY_EXTENSION_READ_LAST_ACK_PENDING_STATUS:
-        break;
-    case PHY_EXTENSION_ACCEPT_ANY_BEACON:
-        break;
-    case PHY_EXTENSION_SET_TX_TIME:
-        tx_time = common_read_32_bit(data_ptr);
-        break;
-    case PHY_EXTENSION_READ_RX_TIME:
-        common_write_32_bit(rx_time, data_ptr);
-        break;
-    case PHY_EXTENSION_DYNAMIC_RF_SUPPORTED:
-        *data_ptr = true;
-        break;
-    case PHY_EXTENSION_GET_TIMESTAMP:
-        timer_value = (uint32_t*)data_ptr;
-        *timer_value = rf_get_timestamp();
-        break;
-    case PHY_EXTENSION_SET_CSMA_PARAMETERS:
-        csma_params = (phy_csma_params_t*)data_ptr;
-        if (csma_params->backoff_time == 0) {
-            rf_cca_timer_stop();
-            if (rf_read_register_with_status(TX_FIFO_STATUS, NULL)) {
-                rf_send_command(S2LP_CMD_SABORT);
-                rf_poll_state_change(S2LP_STATE_READY);
-                rf_send_command(S2LP_CMD_FLUSHTXFIFO);
-                rf_poll_state_change(S2LP_STATE_READY);
+        case PHY_EXTENSION_READ_LAST_ACK_PENDING_STATUS:
+            break;
+        case PHY_EXTENSION_ACCEPT_ANY_BEACON:
+            break;
+        case PHY_EXTENSION_SET_TX_TIME:
+            tx_time = common_read_32_bit(data_ptr);
+            break;
+        case PHY_EXTENSION_READ_RX_TIME:
+            common_write_32_bit(rx_time, data_ptr);
+            break;
+        case PHY_EXTENSION_DYNAMIC_RF_SUPPORTED:
+            *data_ptr = true;
+            break;
+        case PHY_EXTENSION_GET_TIMESTAMP:
+            timer_value = (uint32_t *)data_ptr;
+            *timer_value = rf_get_timestamp();
+            break;
+        case PHY_EXTENSION_SET_CSMA_PARAMETERS:
+            csma_params = (phy_csma_params_t *)data_ptr;
+            if (csma_params->backoff_time == 0) {
+                rf_cca_timer_stop();
+                if (rf_read_register_with_status(TX_FIFO_STATUS, NULL)) {
+                    rf_send_command(S2LP_CMD_SABORT);
+                    rf_poll_state_change(S2LP_STATE_READY);
+                    rf_send_command(S2LP_CMD_FLUSHTXFIFO);
+                    rf_poll_state_change(S2LP_STATE_READY);
+                }
+                if (rf_state == RF_TX_STARTED) {
+                    rf_state = RF_IDLE;
+                    rf_receive(rf_rx_channel);
+                }
+                tx_time = 0;
+            } else {
+                tx_time = csma_params->backoff_time;
+                cca_enabled = csma_params->cca_enabled;
             }
-            if (rf_state == RF_TX_STARTED) {
-                rf_state = RF_IDLE;
-                rf_receive(rf_rx_channel);
-            }
-            tx_time = 0;
-        } else {
-            tx_time = csma_params->backoff_time;
-            cca_enabled = csma_params->cca_enabled;
-        }
-        break;
-    case PHY_EXTENSION_READ_TX_FINNISH_TIME:
-        timer_value = (uint32_t*)data_ptr;
-        *timer_value = tx_finnish_time;
-        break;
+            break;
+        case PHY_EXTENSION_READ_TX_FINNISH_TIME:
+            timer_value = (uint32_t *)data_ptr;
+            *timer_value = tx_finnish_time;
+            break;
 
-    case PHY_EXTENSION_GET_SYMBOLS_PER_SECOND:
-        timer_value = (uint32_t*)data_ptr;
-        *timer_value = symbols_in_seconds;
-        break;
+        case PHY_EXTENSION_GET_SYMBOLS_PER_SECOND:
+            timer_value = (uint32_t *)data_ptr;
+            *timer_value = symbols_in_seconds;
+            break;
 
-    default:
-        break;
+        default:
+            break;
     }
 
     return retval;
@@ -601,24 +601,23 @@ static int8_t rf_extension(phy_extension_type_e extension_type, uint8_t *data_pt
 static int8_t rf_interface_state_control(phy_interface_state_e new_state, uint8_t rf_channel)
 {
     int8_t ret_val = 0;
-    switch (new_state)
-    {
-    /*Reset PHY driver and set to idle*/
-    case PHY_INTERFACE_RESET:
-        break;
+    switch (new_state) {
+        /*Reset PHY driver and set to idle*/
+        case PHY_INTERFACE_RESET:
+            break;
         /*Disable PHY Interface driver*/
-    case PHY_INTERFACE_DOWN:
-        break;
+        case PHY_INTERFACE_DOWN:
+            break;
         /*Enable PHY Interface driver*/
-    case PHY_INTERFACE_UP:
-        rf_receive(rf_channel);
-        break;
+        case PHY_INTERFACE_UP:
+            rf_receive(rf_channel);
+            break;
         /*Enable wireless interface ED scan mode*/
-    case PHY_INTERFACE_RX_ENERGY_STATE:
-        break;
+        case PHY_INTERFACE_RX_ENERGY_STATE:
+            break;
         /*Enable Sniffer state*/
-    case PHY_INTERFACE_SNIFFER_STATE:
-        break;
+        case PHY_INTERFACE_SNIFFER_STATE:
+            break;
     }
     return ret_val;
 }
@@ -632,7 +631,7 @@ static void rf_tx_sent_handler(void)
         TEST_TX_DONE
         rf_state = RF_IDLE;
         rf_receive(rf_rx_channel);
-        if(device_driver.phy_tx_done_cb){
+        if (device_driver.phy_tx_done_cb) {
             device_driver.phy_tx_done_cb(rf_radio_driver_id, mac_tx_handle, PHY_LINK_TX_SUCCESS, 0, 0);
         }
     } else {
@@ -645,7 +644,7 @@ static void rf_tx_threshold_handler(void)
 {
     rf_disable_interrupt(TX_FIFO_ALMOST_EMPTY);
     // TODO check the FIFO threshold. By default, threshold is half of the FIFO size
-    uint8_t written_length = rf_write_tx_fifo(tx_data_ptr, tx_data_length, FIFO_SIZE/2);
+    uint8_t written_length = rf_write_tx_fifo(tx_data_ptr, tx_data_length, FIFO_SIZE / 2);
     if (written_length < tx_data_length) {
         tx_data_ptr += written_length;
         tx_data_length -= written_length;
@@ -761,7 +760,7 @@ static int8_t rf_start_cca(uint8_t *data_ptr, uint16_t data_length, uint8_t tx_h
         tx_sequence = *(data_ptr + 2);
     }
     // TODO: Define this better
-    rf_write_packet_length(data_length+4);
+    rf_write_packet_length(data_length + 4);
     mac_tx_handle = tx_handle;
     if (tx_time) {
         uint32_t backoff_time = tx_time - rf_get_timestamp();
@@ -789,7 +788,7 @@ static void rf_send_ack(uint8_t seq)
     rf_state = RF_TX_ACK;
     uint8_t ack_frame[3] = {MAC_TYPE_ACK, 0, seq};
     rf_write_tx_fifo(ack_frame, sizeof(ack_frame), FIFO_SIZE);
-    rf_write_packet_length(sizeof(ack_frame)+4);
+    rf_write_packet_length(sizeof(ack_frame) + 4);
     tx_data_ptr = NULL;
     rf_start_tx();
     TEST_ACK_TX_STARTED
@@ -824,7 +823,7 @@ static void rf_rx_ready_handler(void)
     } else if (rf_rx_filter(rx_buffer, s2lp_MAC, s2lp_short_address, s2lp_PAN_ID)) {
         rf_state = RF_IDLE;
         int8_t rssi = (rf_read_register_with_status(RSSI_LEVEL, NULL) - RSSI_OFFSET);
-        if( device_driver.phy_rx_cb ){
+        if (device_driver.phy_rx_cb) {
             device_driver.phy_rx_cb(rx_buffer, rx_data_length, 0xf0, rssi, rf_radio_driver_id);
         }
         // Check Ack request
@@ -862,7 +861,7 @@ static void rf_receive(uint8_t rx_channel)
     rf_send_command(S2LP_CMD_FLUSHRXFIFO);
     rf_poll_state_change(S2LP_STATE_READY);
     if (rx_channel != rf_rx_channel) {
-        rf_write_register(CHNUM, rx_channel*rf_channel_multiplier);
+        rf_write_register(CHNUM, rx_channel * rf_channel_multiplier);
         rf_rx_channel = rf_new_channel = rx_channel;
     }
     rf_state_change(S2LP_STATE_LOCK, false);
@@ -1005,7 +1004,7 @@ static int8_t rf_device_register(const uint8_t *mac_addr)
     rf_init();
     /*Set pointer to MAC address*/
     device_driver.PHY_MAC = (uint8_t *)mac_addr;
-    device_driver.driver_description = (char*)"S2LP_MAC";
+    device_driver.driver_description = (char *)"S2LP_MAC";
     device_driver.link_type = PHY_LINK_15_4_SUBGHZ_TYPE;
     device_driver.phy_channel_pages = phy_channel_pages;
     device_driver.phy_MTU = RF_MTU;
@@ -1081,21 +1080,21 @@ void NanostackRfPhys2lp::rf_unregister()
 
 NanostackRfPhys2lp::NanostackRfPhys2lp(PinName spi_sdi, PinName spi_sdo, PinName spi_sclk, PinName spi_cs, PinName spi_sdn,
 #ifdef TEST_GPIOS_ENABLED
-        PinName spi_test1, PinName spi_test2, PinName spi_test3, PinName spi_test4, PinName spi_test5,
+                                       PinName spi_test1, PinName spi_test2, PinName spi_test3, PinName spi_test4, PinName spi_test5,
 #endif //TEST_GPIOS_ENABLED
-        PinName spi_gpio0, PinName spi_gpio1, PinName spi_gpio2, PinName spi_gpio3)
-: _mac_addr(), _rf(NULL), _mac_set(false),
-  _spi_sdi(spi_sdi), _spi_sdo(spi_sdo), _spi_sclk(spi_sclk), _spi_cs(spi_cs), _spi_sdn(spi_sdn),
+                                       PinName spi_gpio0, PinName spi_gpio1, PinName spi_gpio2, PinName spi_gpio3)
+    : _mac_addr(), _rf(NULL), _mac_set(false),
+      _spi_sdi(spi_sdi), _spi_sdo(spi_sdo), _spi_sclk(spi_sclk), _spi_cs(spi_cs), _spi_sdn(spi_sdn),
 #ifdef TEST_GPIOS_ENABLED
-  _spi_test1(spi_test1), _spi_test2(spi_test2), _spi_test3(spi_test3), _spi_test4(spi_test4), _spi_test5(spi_test5),
+      _spi_test1(spi_test1), _spi_test2(spi_test2), _spi_test3(spi_test3), _spi_test4(spi_test4), _spi_test5(spi_test5),
 #endif //TEST_GPIOS_ENABLED
-  _spi_gpio0(spi_gpio0), _spi_gpio1(spi_gpio1), _spi_gpio2(spi_gpio2), _spi_gpio3(spi_gpio3)
+      _spi_gpio0(spi_gpio0), _spi_gpio1(spi_gpio1), _spi_gpio2(spi_gpio2), _spi_gpio3(spi_gpio3)
 {
     _rf = new RFPins(_spi_sdi, _spi_sdo, _spi_sclk, _spi_cs, _spi_sdn,
 #ifdef TEST_GPIOS_ENABLED
-            _spi_test1, _spi_test2, _spi_test3, _spi_test4, _spi_test5,
+                     _spi_test1, _spi_test2, _spi_test3, _spi_test4, _spi_test5,
 #endif //TEST_GPIOS_ENABLED
-            _spi_gpio0, _spi_gpio1, _spi_gpio2, _spi_gpio3);
+                     _spi_gpio0, _spi_gpio1, _spi_gpio2, _spi_gpio3);
 }
 
 NanostackRfPhys2lp::~NanostackRfPhys2lp()
@@ -1367,9 +1366,9 @@ NanostackRfPhy &NanostackRfPhy::get_default_instance()
 {
     static NanostackRfPhys2lp rf_phy(S2LP_SPI_SDI, S2LP_SPI_SDO, S2LP_SPI_SCLK, S2LP_SPI_CS, S2LP_SPI_SDN,
 #ifdef TEST_GPIOS_ENABLED
-        S2LP_SPI_TEST1, S2LP_SPI_TEST2, S2LP_SPI_TEST3, S2LP_SPI_TEST4, S2LP_SPI_TEST5,
+                                     S2LP_SPI_TEST1, S2LP_SPI_TEST2, S2LP_SPI_TEST3, S2LP_SPI_TEST4, S2LP_SPI_TEST5,
 #endif //TEST_GPIOS_ENABLED
-        S2LP_SPI_GPIO0, S2LP_SPI_GPIO1, S2LP_SPI_GPIO2, S2LP_SPI_GPIO3);
+                                     S2LP_SPI_GPIO0, S2LP_SPI_GPIO1, S2LP_SPI_GPIO2, S2LP_SPI_GPIO3);
     return rf_phy;
 }
 #endif // MBED_CONF_S2LP_PROVIDE_DEFAULT

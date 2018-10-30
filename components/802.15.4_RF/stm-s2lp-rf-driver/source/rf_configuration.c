@@ -40,9 +40,9 @@ void rf_conf_calculate_datarate_registers(uint32_t datarate, uint16_t *datarate_
     uint8_t datarate_e = 1;
     while (datarate_m >= DEF_2EXP16) {
         datarate_e++;
-        uint16_t var_2exp_datarate_e = (uint32_t)2 << (datarate_e-1);
+        uint16_t var_2exp_datarate_e = (uint32_t)2 << (datarate_e - 1);
         datarate_m = (uint64_t)datarate * DEF_2EXP33;
-        datarate_m = datarate_m/((uint64_t)var_2exp_datarate_e*F_DIG);
+        datarate_m = datarate_m / ((uint64_t)var_2exp_datarate_e * F_DIG);
         datarate_m -= DEF_2EXP16;
     }
     *datarate_mantissa = datarate_m;
@@ -52,7 +52,7 @@ void rf_conf_calculate_datarate_registers(uint32_t datarate, uint16_t *datarate_
 void rf_conf_calculate_base_frequency_registers(uint32_t frequency, uint8_t *synt3, uint8_t *synt2, uint8_t *synt1, uint8_t *synt0)
 {
     uint64_t freq_tmp = (uint64_t)frequency * RESOLUTION_MULTIPLIER;
-    freq_tmp = (freq_tmp / (F_XO/((BAND_SELECTOR/2)*REF_DIVIDER)));
+    freq_tmp = (freq_tmp / (F_XO / ((BAND_SELECTOR / 2) * REF_DIVIDER)));
     freq_tmp *= DEF_2EXP20;
     freq_tmp /= RESOLUTION_MULTIPLIER;
     *synt3 = (uint8_t)(freq_tmp >> 24);
@@ -68,10 +68,10 @@ void rf_conf_calculate_deviation_registers(uint32_t deviation, uint8_t *fdev_m, 
 
     while (fdev_m_tmp > 255) {
         fdev_e_tmp++;
-        uint16_t var_2exp_datarate_e_minus_1 = (uint16_t)2 << ((fdev_e_tmp-1)-1);
+        uint16_t var_2exp_datarate_e_minus_1 = (uint16_t)2 << ((fdev_e_tmp - 1) - 1);
         fdev_m_tmp = (uint64_t)deviation * RESOLUTION_MULTIPLIER;
-        fdev_m_tmp = (((fdev_m_tmp/F_XO) * DEF_2EXP19 * BAND_SELECTOR * REF_DIVIDER * (8/BAND_SELECTOR))/var_2exp_datarate_e_minus_1);
-        fdev_m_tmp += RESOLUTION_MULTIPLIER/2;
+        fdev_m_tmp = (((fdev_m_tmp / F_XO) * DEF_2EXP19 * BAND_SELECTOR * REF_DIVIDER * (8 / BAND_SELECTOR)) / var_2exp_datarate_e_minus_1);
+        fdev_m_tmp += RESOLUTION_MULTIPLIER / 2;
         fdev_m_tmp /= RESOLUTION_MULTIPLIER;
         fdev_m_tmp -= 256;
     }
@@ -84,7 +84,7 @@ int rf_conf_calculate_channel_spacing_registers(uint32_t channel_spacing, uint8_
     uint64_t ch_space_tmp = (uint64_t)channel_spacing * RESOLUTION_MULTIPLIER;
     ch_space_tmp /= F_XO;
     ch_space_tmp *= DEF_2EXP15;
-    ch_space_tmp += RESOLUTION_MULTIPLIER/2;
+    ch_space_tmp += RESOLUTION_MULTIPLIER / 2;
     ch_space_tmp /= RESOLUTION_MULTIPLIER;
     // Check if channel spacing is too high
     if (ch_space_tmp > 255) {
@@ -104,35 +104,35 @@ void rf_conf_calculate_rx_filter_bandwidth_registers(uint32_t rx_bandwidth, uint
     uint8_t chflt_e_tmp = 0;
     uint8_t chflt_m_tmp = 0;
 
-    while (rx_bandwidth < 900000/(2 << chflt_e_tmp)) {
+    while (rx_bandwidth < 900000 / (2 << chflt_e_tmp)) {
         chflt_e_tmp++;
     }
     uint32_t rx_bandwidth_tmp = rx_bandwidth;
     if (chflt_e_tmp > 0) {
         rx_bandwidth_tmp = rx_bandwidth * (2 << (chflt_e_tmp - 1));
     }
-    if ( 852000 > rx_bandwidth_tmp ) {
+    if (852000 > rx_bandwidth_tmp) {
         chflt_m_tmp++;
     }
-    if ( 806000 > rx_bandwidth_tmp ) {
+    if (806000 > rx_bandwidth_tmp) {
         chflt_m_tmp++;
     }
-    if ( 760000 > rx_bandwidth_tmp ) {
+    if (760000 > rx_bandwidth_tmp) {
         chflt_m_tmp++;
     }
-    if ( 724000 > rx_bandwidth_tmp ) {
+    if (724000 > rx_bandwidth_tmp) {
         chflt_m_tmp++;
     }
-    if ( 682000 > rx_bandwidth_tmp ) {
+    if (682000 > rx_bandwidth_tmp) {
         chflt_m_tmp++;
     }
-    if ( 650000 > rx_bandwidth_tmp ) {
+    if (650000 > rx_bandwidth_tmp) {
         chflt_m_tmp++;
     }
-    if ( 588000 > rx_bandwidth_tmp ) {
+    if (588000 > rx_bandwidth_tmp) {
         chflt_m_tmp++;
     }
-    if ( 542000 > rx_bandwidth_tmp ) {
+    if (542000 > rx_bandwidth_tmp) {
         chflt_m_tmp++;
     }
     *chflt_m = chflt_m_tmp;
