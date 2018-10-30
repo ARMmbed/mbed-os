@@ -2076,6 +2076,7 @@
         "detect_code": ["0817"],
         "macros_add": ["USB_STM_HAL", "USBHOST_OTHER"],
         "device_has_add": ["ANALOGOUT", "CAN", "EMAC", "SERIAL_ASYNCH", "TRNG", "FLASH"],
+        "bootloader_supported": true,
         "release_versions": ["2", "5"],
         "device_name": "STM32F769NI",
         "overrides": {
