@@ -10,6 +10,7 @@ features/storage/FEATURE_STORAGE
 features/frameworks
 features/FEATURE_BLE/targets
 features/unsupported/
+features/netsocket/emac-drivers
 hal/storage_abstraction
 features/nanostack/coap-service
 features/nanostack/sal-stack-nanostack
