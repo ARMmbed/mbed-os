@@ -49,7 +49,7 @@ public:
      * wifiInterface(), meshInterface(), cellularBase(), emacInterface() and checking
      * for NULL pointers.
      *
-     * The default behaviour is to return the default interface for the
+     * The default behavior is to return the default interface for the
      * interface type specified by target.network-default-interface-type. Targets
      * should set this in their targets.json to guide default selection,
      * and applications may override.
@@ -306,7 +306,7 @@ protected:
      * need to override in simple cases.
      *
      * If a target has more elaborate interface selection, it can completely
-     * override this behaviour by implementing
+     * override this behavior by implementing
      * NetworkInterface::get_target_default_instance() themselves, either
      * unconditionally, or for a specific network-default-interface-type setting
      *

@@ -38,7 +38,7 @@ public:
     /** Get the default Ethernet interface.
      *
      * This is provided as a weak method so applications can override.
-     * Default behaviour is to get the target's default interface, if
+     * Default behavior is to get the target's default interface, if
      * any.
      *
      * @return Pointer to interface, if one exists.

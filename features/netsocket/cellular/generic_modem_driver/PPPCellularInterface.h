@@ -127,7 +127,7 @@ public:
      *
      *  @deprecated This API will be deprecated in mbed-os-5.9. Use mbed-os/features/cellular/easy_cellular/EasyCellularConnection.h instead.
      *
-     *  Please check documentation of connect() for default behaviour of APN settings.
+     *  Please check documentation of connect() for default behavior of APN settings.
      *
      *  @param apn      Access point name
      *  @param uname    optionally, Username
@@ -176,7 +176,7 @@ public:
      *  by the cellular modem over PPP interface.
      *
      *  If the SIM requires a PIN, and it is not set/invalid, NSAPI_ERROR_AUTH_ERROR is returned.
-     *  For APN setup, default behaviour is to use 'internet' as APN string and assuming no authentication
+     *  For APN setup, default behavior is to use 'internet' as APN string and assuming no authentication
      *  is required, i.e., username and password are not set. Optionally, a database lookup can be requested
      *  by turning on the APN database lookup feature. In order to do so, add 'MBED_CONF_PPP_CELL_IFACE_APN_LOOKUP'
      *  in your mbed_app.json. APN database is by no means exhaustive. It contains a short list of some public
