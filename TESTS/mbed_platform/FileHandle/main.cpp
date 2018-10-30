@@ -384,17 +384,15 @@ void test_fprintf_fscanf()
 
 /** Test fseek and ftell
  *
- *  Given already opened file is empty
- *
- *  When set the file position indicator via fseek
- *  Then underneath retargeting layer seek function is called
- *       fseek return with succeed and ftell return already set position
+ *  ARM library is quite good at optimising out unnecessary calls to underlying
+ *  seek, so only test real non empty files.
  *
  *  Given already opened file is not empty
  *
  *  When set the file position indicator via fseek
  *  Then underneath retargeting layer seek function is called
  *       fseek return with succeed and ftell return already set position
+ *  Check actual character read or written.
  *
  */
 void test_fseek_ftell()
@@ -413,19 +411,6 @@ void test_fseek_ftell()
     ftell_ret = std::ftell(file);
     TEST_ASSERT_EQUAL(0, ftell_ret);
 
-    TestFile<FS>::resetFunctionCallHistory();
-    fssek_ret = std::fseek(file, 0, SEEK_CUR);
-    TEST_ASSERT_EQUAL(0, fssek_ret);
-
-    TestFile<FS>::resetFunctionCallHistory();
-    fssek_ret = std::fseek(file, 0, SEEK_SET);
-    TEST_ASSERT_EQUAL(0, fssek_ret);
-
-    TestFile<FS>::resetFunctionCallHistory();
-    fssek_ret = std::fseek(file, 0, SEEK_END);
-    TEST_ASSERT_TRUE(TestFile<FS>::functionCalled(TestFile<FS>::fnSeek));
-    TEST_ASSERT_EQUAL(0, fssek_ret);
-
     const char *str = "Hello world";
     const std::size_t size = std::strlen(str);
 
@@ -440,19 +425,28 @@ void test_fseek_ftell()
     TEST_ASSERT_EQUAL(0, fssek_ret);
     ftell_ret = std::ftell(file);
     TEST_ASSERT_EQUAL(5, ftell_ret);
+    int c = std::fgetc(file);
+    TEST_ASSERT_TRUE(TestFile<FS>::functionCalled(TestFile<FS>::fnRead));
+    TEST_ASSERT_EQUAL(c, str[5]);
 
     TestFile<FS>::resetFunctionCallHistory();
-    fssek_ret = std::fseek(file, -5, SEEK_CUR);
+    fssek_ret = std::fseek(file, -6, SEEK_CUR);
     TEST_ASSERT_EQUAL(0, fssek_ret);
     ftell_ret = std::ftell(file);
     TEST_ASSERT_EQUAL(0, ftell_ret);
+    c = std::fgetc(file);
+    TEST_ASSERT_TRUE(TestFile<FS>::functionCalled(TestFile<FS>::fnRead));
+    TEST_ASSERT_EQUAL(c, str[0]);
 
     TestFile<FS>::resetFunctionCallHistory();
     fssek_ret = std::fseek(file, 0, SEEK_END);
-    TEST_ASSERT_TRUE(TestFile<FS>::functionCalled(TestFile<FS>::fnSeek));
     TEST_ASSERT_EQUAL(0, fssek_ret);
     ftell_ret = std::ftell(file);
     TEST_ASSERT_EQUAL(size, ftell_ret);
+    c = std::fputc('!', file);
+    TEST_ASSERT_TRUE(TestFile<FS>::functionCalled(TestFile<FS>::fnWrite));
+    TEST_ASSERT_EQUAL(c, '!');
+    TEST_ASSERT_EQUAL(fh.size(), size + 1);
 
     std::fclose(file);
 }
