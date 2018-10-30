@@ -24,11 +24,6 @@
 #define USBSTM_HAL_UNSUPPORTED
 #endif
 
-/* STM32F4 family without USB_STM_HAL use another HAL */
-#if defined(TARGET_STM) && defined(TARGET_STM32F4) && !defined(USB_STM_HAL)
-#define USBSTM_HAL_UNSUPPORTED
-#endif
-
 #ifndef USBSTM_HAL_UNSUPPORTED
 #include "USBPhyHw.h"
 #include "pinmap.h"
