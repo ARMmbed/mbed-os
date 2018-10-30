@@ -260,4 +260,11 @@ MBED_NONSECURE_ENTRY uint32_t flash_get_size(const flash_t *obj)
     return obj->target_config->flash_size;
 }
 
+MBED_NONSECURE_ENTRY uint8_t flash_get_erase_value(const flash_t *obj)
+{
+    (void)obj;
+
+    return 0xFF;
+}
+
 #endif  // #ifndef DOMAIN_NS

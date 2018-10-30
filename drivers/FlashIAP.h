@@ -131,6 +131,13 @@ public:
      */
     uint32_t get_page_size() const;
 
+    /** Get the flash erase value
+     *
+     *  Get the value we read after erase operation
+     *  @return flash erase value
+     */
+    uint8_t get_erase_value() const;
+
 private:
 
     /* Check if address and size are aligned to a sector

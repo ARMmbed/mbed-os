@@ -144,4 +144,16 @@ uint32_t flash_get_size(const flash_t *obj)
     return FLASH_SIZE;
 }
 
+/** Get the flash erase value
+ *
+ * @param obj The flash object
+ * @return The flash erase value
+ */
+uint8_t flash_get_erase_value(const flash_t *obj)
+{
+    (void)obj;
+
+    return 0xFF;
+}
+
 #endif // DEVICE_FLASH
