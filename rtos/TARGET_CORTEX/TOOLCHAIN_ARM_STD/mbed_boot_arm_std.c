@@ -105,7 +105,7 @@ __asm(".global __use_no_semihosting\n\t");
 //lint -esym(9003, os_libspace*) "variables 'os_libspace*' defined at module scope"
 
 // Memory for libspace
-static uint32_t os_libspace[OS_THREAD_LIBSPACE_NUM+1][LIBSPACE_SIZE/4] \
+static uint32_t os_libspace[OS_THREAD_LIBSPACE_NUM + 1][LIBSPACE_SIZE / 4] \
 __attribute__((section(".bss.os.libspace")));
 
 // Thread IDs for libspace
@@ -113,7 +113,8 @@ static osThreadId_t os_libspace_id[OS_THREAD_LIBSPACE_NUM] \
 __attribute__((section(".bss.os.libspace")));
 
 // Check if Kernel has been started
-static uint32_t os_kernel_is_active (void) {
+static uint32_t os_kernel_is_active(void)
+{
     static uint8_t os_kernel_active = 0U;
 
     if (os_kernel_active == 0U) {
@@ -125,7 +126,8 @@ static uint32_t os_kernel_is_active (void) {
 }
 
 // Provide libspace for current thread
-void *__user_perthread_libspace (void) {
+void *__user_perthread_libspace(void)
+{
     osThreadId_t id;
     uint32_t     n;
 
@@ -182,7 +184,7 @@ __USED int _mutex_initialize(mutex *m)
     core_util_critical_section_enter();
     for (int i = 0; i < OS_MUTEX_STATIC_NUM; i++) {
         if (_static_mutexes[i] == NULL) {
-            _static_mutexes[i] = (mutex)-1; // dummy value to reserve slot
+            _static_mutexes[i] = (mutex) - 1; // dummy value to reserve slot
             slot = &_static_mutexes[i];
             //Use the static attrs
             attr.cb_size = sizeof(mbed_rtos_storage_mutex_t);
@@ -202,7 +204,7 @@ __USED int _mutex_initialize(mutex *m)
 
     /* Mutex pool exhausted, try using HEAP */
     attr.cb_size = sizeof(mbed_rtos_storage_mutex_t);
-    attr.cb_mem = (void*)malloc(attr.cb_size);
+    attr.cb_mem = (void *)malloc(attr.cb_size);
     if (attr.cb_mem == NULL) {
         osRtxErrorNotify(osRtxErrorClibSpace, m);
         return 0;
@@ -218,21 +220,24 @@ __USED int _mutex_initialize(mutex *m)
 }
 
 /* Acquire mutex */
-__USED void _mutex_acquire(mutex *m) {
+__USED void _mutex_acquire(mutex *m)
+{
     if (os_kernel_is_active() != 0U) {
         (void)osMutexAcquire(*m, osWaitForever);
     }
 }
 
 /* Release mutex */
-__USED void _mutex_release(mutex *m) {
+__USED void _mutex_release(mutex *m)
+{
     if (os_kernel_is_active() != 0U) {
         (void)osMutexRelease(*m);
     }
 }
 
 /* Free mutex */
-__USED void _mutex_free(mutex *m) {
+__USED void _mutex_free(mutex *m)
+{
     mutex *slot = NULL;
     core_util_critical_section_enter();
     for (int i = 0; i < OS_MUTEX_STATIC_NUM; i++) {
