@@ -31,7 +31,7 @@ void wifi_connect(void)
 {
     WiFiInterface *wifi = get_interface();
 
-    char ssid[SSID_MAX_LEN+1] = MBED_CONF_APP_WIFI_UNSECURE_SSID;
+    char ssid[SSID_MAX_LEN + 1] = MBED_CONF_APP_WIFI_UNSECURE_SSID;
 
     TEST_ASSERT_EQUAL_INT(NSAPI_ERROR_OK, wifi->set_credentials(ssid, NULL));
     TEST_ASSERT_EQUAL_INT(NSAPI_ERROR_OK, wifi->connect());
@@ -42,7 +42,7 @@ void wifi_connect(void)
     TEST_ASSERT_EQUAL_INT(NSAPI_ERROR_OK, wifi->disconnect());
 
     // Driver is expected to cache the credentials
-    memset(ssid, 0, SSID_MAX_LEN+1);
+    memset(ssid, 0, SSID_MAX_LEN + 1);
 
     TEST_ASSERT_EQUAL_INT(NSAPI_ERROR_OK, wifi->connect());
     TEST_ASSERT_EQUAL_INT(NSAPI_ERROR_OK, wifi->disconnect());
