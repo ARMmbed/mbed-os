@@ -610,26 +610,7 @@ class Config(object):
                 continue
         raise ConfigException(exception_text)
 
-    @property
-    def rom(self):
-        """Get rom information as a pair of start_addr, size"""
-        # Override rom_start/rom_size
-        #
-        # This is usually done for a target which:
-        # 1. Doesn't support CMSIS pack, or
-        # 2. Supports TrustZone and user needs to change its flash partition
-        cmsis_part = self._get_cmsis_part()
-        rom_start, rom_size = self._get_mem_specs(
-            ["IROM1", "PROGRAM_FLASH"],
-            cmsis_part,
-            "Not enough information in CMSIS packs to build a bootloader "
-            "project"
-        )
-        rom_start = int(getattr(self.target, "mbed_rom_start", False) or rom_start, 0)
-        rom_size = int(getattr(self.target, "mbed_rom_size", False) or rom_size, 0)
-        return (rom_start, rom_size)
-
-    def _get_all_rom_regions(self,all_regions=False):
+    def _get_all_rom_regions(self, all_regions=False):
         """Get information of all available rom regions as a pair of [Region, [start_addr, size]]"""
         # Override rom_start/rom_size
         #
@@ -637,6 +618,8 @@ class Config(object):
         # 1. Doesn't support CMSIS pack, or
         # 2. Supports TrustZone and user needs to change its flash partition
         rom_regions = {}
+        # Counter to keep track of ROM memories supported by target
+        rom_active_memories = 0
         rom_memories = ['IROM1', 'PROGRAM_FLASH', 'IROM2']
         cmsis_part = self._get_cmsis_part()
         for memory in rom_memories:
@@ -650,11 +633,48 @@ class Config(object):
                 rom_start = int(rom_start, 0)
                 rom_size = int(rom_size, 0)
                 if all_regions == False:
-                    return rom_start,rom_size
-                rom_regions[memory] = [rom_start,rom_size]
+                    return rom_start, rom_size
+                if memory=='IROM1' or memory=='PROGRAM_FLASH':
+                    memory = 'ROM'
+                else:
+                    rom_active_memories += 1
+                    memory = 'ROM'+str(rom_active_memories)
+                rom_regions[memory] = [rom_start, rom_size]
             except ConfigException:
                 continue         
-        return rom_regions    
+        return rom_regions
+
+    def _get_all_ram_regions(self):
+        """Get information of all available ram regions as a pair of [Region, [start_addr, size]]"""
+        # Override rom_start/rom_size
+        #
+        # This is usually done for a target which:
+        # 1. Doesn't support CMSIS pack, or
+        # 2. Supports TrustZone and user needs to change its flash partition
+        ram_regions = {}
+        # Counter to keep track of RAM memories supported by target
+        ram_active_memories = 0
+        ram_memories = ['IRAM1', 'IRAM2', 'IRAM3', 'IRAM4', 'SRAM_OC', 'SRAM_ITC', 'SRAM_DTC', 'SRAM_UPPER', 'SRAM_LOWER']
+        cmsis_part = self._get_cmsis_part()
+        for memory in ram_memories:
+            try:
+                ram_start, ram_size = self._get_mem_specs(
+                memory.split(),
+                cmsis_part,
+                "Not enough information in CMSIS packs to build a bootloader "
+                "project"
+                )
+                ram_start = int(ram_start, 0)
+                ram_size = int(ram_size, 0)
+                if (memory == 'IRAM1' or memory == 'SRAM_OC' or memory == 'SRAM_UPPER') and (not self.has_ram_regions):
+                    memory = 'RAM'
+                else:
+                    ram_active_memories += 1
+                    memory = 'RAM'+str(ram_active_memories)
+                ram_regions[memory] = [ram_start, ram_size]
+            except ConfigException:
+                continue         
+        return ram_regions    
 
     @property
     def ram_regions(self):
@@ -680,7 +700,7 @@ class Config(object):
         if  ((self.target.bootloader_img or self.target.restrict_size) and
              (self.target.mbed_app_start or self.target.mbed_app_size)):
             raise ConfigException(
-                "target.bootloader_img and target.restirct_size are "
+                "target.bootloader_img and target.restrict_size are "
                 "incompatible with target.mbed_app_start and "
                 "target.mbed_app_size")
         if self.target.bootloader_img or self.target.restrict_size:
