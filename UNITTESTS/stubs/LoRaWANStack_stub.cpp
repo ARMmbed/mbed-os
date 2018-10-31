@@ -253,7 +253,7 @@ void LoRaWANStack::mlme_indication_handler()
 {
 }
 
-void LoRaWANStack::mlme_confirm_handler()
+void LoRaWANStack::mlme_confirm_handler(loramac_mlme_confirm_t& mlme_confirm)
 {
 }
 

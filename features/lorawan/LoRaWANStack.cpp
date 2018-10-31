@@ -828,6 +828,8 @@ void LoRaWANStack::process_reception(const uint8_t *const payload, uint16_t size
         mlme_indication_handler();
     }
 
+    //TODO: This does not apply if server does not support 1.1!
+    //OR if we are in ABP mode
     if (MBED_CONF_LORA_VERSION == LORAWAN_VERSION_1_1) {
         poll_rejoin();
     }
@@ -901,6 +903,8 @@ void LoRaWANStack::process_reception_timeout(bool is_timeout)
         state_controller(DEVICE_STATE_STATUS_CHECK);
         state_machine_run_to_completion();
 
+        //TODO: This does not apply if server does not support 1.1!
+        //OR if we are in ABP mode
         if (MBED_CONF_LORA_VERSION == LORAWAN_VERSION_1_1) {
             poll_rejoin();
         }

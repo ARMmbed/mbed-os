@@ -42,16 +42,12 @@ lorawan_status_t LoRaMacChannelPlan::set_plan(const lorawan_channelplan_t &plan)
 {
     lorawan_status_t status;
 
-    uint8_t max_num_channels;
-
     if (!_lora_phy->is_custom_channel_plan_supported()) {
         return LORAWAN_STATUS_SERVICE_UNKNOWN;
     }
 
-    max_num_channels = _lora_phy->get_max_nb_channels();
-
     // check if user is setting more channels than supported
-    if (plan.nb_channels > max_num_channels) {
+    if (plan.nb_channels > _lora_phy->get_max_nb_channels()) {
         return LORAWAN_STATUS_PARAMETER_INVALID;
     }
 
@@ -132,30 +128,25 @@ lorawan_status_t LoRaMacChannelPlan::remove_plan()
             continue;
         }
 
-        status = remove_single_channel(i);
-
-        if (status != LORAWAN_STATUS_OK) {
-            return status;
+        if (_lora_phy->remove_channel(channel_id) == false) {
+            return LORAWAN_STATUS_PARAMETER_INVALID;
         }
     }
+    _lora_phy->put_radio_to_sleep();
 
     return status;
 }
 
 lorawan_status_t LoRaMacChannelPlan::remove_single_channel(uint8_t channel_id)
 {
-    uint8_t max_num_channels;
-
     if (!_lora_phy->is_custom_channel_plan_supported()) {
         return LORAWAN_STATUS_SERVICE_UNKNOWN;
     }
 
-    max_num_channels = _lora_phy->get_max_nb_channels();
-
     // According to specification channel IDs start from 0 and last valid
     // channel ID is N-1 where N=MAX_NUM_CHANNELS.
     // So any ID which is larger or equal to the Max number of channels is invalid
-    if (channel_id >= max_num_channels) {
+    if (channel_id >= _lora_phy->get_max_nb_channels()) {
         return LORAWAN_STATUS_PARAMETER_INVALID;
     }
 

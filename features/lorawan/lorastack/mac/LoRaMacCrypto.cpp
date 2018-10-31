@@ -31,12 +31,40 @@
 
 #if defined(MBEDTLS_CMAC_C) && defined(MBEDTLS_AES_C) && defined(MBEDTLS_CIPHER_C)
 
-LoRaMacCrypto::LoRaMacCrypto()
+/*
+ * LoRaWAN spec 6.2: AppKey is AES-128 key
+ */
+#define APPKEY_KEY_LENGTH                           128
+
+LoRaMacCrypto::LoRaMacCrypto() : _dev_addr(0)
 {
+    memset(&_keys, 0, sizeof(_keys));
+}
+
+lorawan_status_t LoRaMacCrypto::set_keys(uint8_t *nwk_key, uint8_t *app_key, uint8_t *nwk_skey,
+                                         uint8_t *app_skey, uint8_t *snwk_sintkey, uint8_t *nwk_senckey)
+{
+    _keys.nwk_key = nwk_key;
+    _keys.app_key = app_key;
+
+    //ABP mode only, so all needs to be valid
+    if (nwk_skey && app_skey && snwk_sintkey && nwk_senckey) {
+        memcpy(_keys.nwk_skey, nwk_skey,
+               sizeof(_keys.nwk_skey));
+
+        memcpy(_keys.app_skey, app_skey,
+               sizeof(_keys.app_skey));
+
+        memcpy(_keys.nwk_skey, snwk_sintkey,
+               sizeof(_keys.nwk_skey));
+
+        memcpy(_keys.app_skey, nwk_senckey,
+               sizeof(_keys.app_skey));
+    }
+    return LORAWAN_STATUS_OK;
 }
 
 int LoRaMacCrypto::compute_mic(const uint8_t *buffer, uint16_t size,
-                               const uint8_t *key, const uint32_t key_length,
                                uint32_t args, uint32_t address,
                                uint8_t dir, uint32_t seq_counter,
                                uint32_t *mic)
@@ -44,6 +72,12 @@ int LoRaMacCrypto::compute_mic(const uint8_t *buffer, uint16_t size,
     uint8_t computed_mic[16] = {};
     uint8_t mic_block_b0[16] = {};
     int ret = 0;
+
+    //In case of LW_1_0_2 this is same as nwk_skey
+    uint8_t *key = _keys.snwk_sintkey;
+
+    //TODO: handle multicast based on address
+    //_dev_addr
 
     mic_block_b0[0] = 0x49;
 
@@ -78,8 +112,8 @@ int LoRaMacCrypto::compute_mic(const uint8_t *buffer, uint16_t size,
             goto exit;
         }
 
-        ret = mbedtls_cipher_cmac_starts(aes_cmac_ctx, key, key_length);
-        if (0 != ret) {
+        ret = mbedtls_cipher_cmac_starts(aes_cmac_ctx, key, APPKEY_KEY_LENGTH);
+        if (0 != ret)
             goto exit;
         }
 
@@ -111,22 +145,30 @@ exit:
 }
 
 int LoRaMacCrypto::encrypt_payload(const uint8_t *buffer, uint16_t size,
-                                   const uint8_t *key, const uint32_t key_length,
                                    uint32_t address, uint8_t dir, uint32_t seq_counter,
                                    seq_counter_type_t seq_cnt_type,
                                    payload_type_t pld_type,
                                    uint8_t *enc_buffer,
-                                   server_type_t serv_type)
+                                   server_type_t serv_type, bool is_fopts)
 {
     uint16_t i;
     uint8_t bufferIndex = 0;
     int ret = 0;
     uint8_t a_block[16] = {0};
-    uint8_t s_block[16] = {};
+    uint8_t s_block[16] = {0};
+    const uint8_t *key;
+    if (is_fopts) {
+        key = _keys.nwk_senckey;
+    } else {
+        key = _keys.app_skey;
+        //TODO: handle multicast based on address
+        //_dev_addr
+    }
 
     mbedtls_aes_init(&aes_ctx);
-    ret = mbedtls_aes_setkey_enc(&aes_ctx, key, key_length);
-    if (0 != ret) {
+
+    ret = mbedtls_aes_setkey_enc(&aes_ctx, key, APPKEY_KEY_LENGTH);
+    if (0 != ret)
         goto exit;
     }
 
@@ -139,8 +181,6 @@ int LoRaMacCrypto::encrypt_payload(const uint8_t *buffer, uint16_t size,
             a_block[4] = 0x02;
         }
     }
-
-
 
     a_block[5] = dir;
 
@@ -190,23 +230,31 @@ exit:
 }
 
 int LoRaMacCrypto::decrypt_payload(const uint8_t *buffer, uint16_t size,
-                                   const uint8_t *key, uint32_t key_length,
                                    uint32_t address, uint8_t dir, uint32_t seq_counter,
                                    seq_counter_type_t seq_cnt_type,
                                    payload_type_t pld_type,
                                    uint8_t *dec_buffer,
-                                   server_type_t serv_type)
+                                   server_type_t serv_type, bool is_fopts)
 {
-    return encrypt_payload(buffer, size, key, key_length, address, dir, seq_counter,
-                           seq_cnt_type, pld_type, dec_buffer, serv_type);
+
+    return encrypt_payload(buffer, size, address, dir, seq_counter,
+                           seq_cnt_type, pld_type, dec_buffer, serv_type, is_fopts);
 }
 
 int LoRaMacCrypto::compute_join_frame_mic(const uint8_t *buffer, uint16_t size,
-                                          const uint8_t *key, uint32_t key_length,
-                                          uint32_t *mic)
+                                          join_frame_type_t type, uint32_t *mic)
 {
     uint8_t computed_mic[16] = {};
     int ret = 0;
+
+    uint8_t *key;
+    if (type == JOIN_ACCEPT || type == REJOIN1_REQ) {
+        key = _keys.js_intkey;
+    } else if (type == JOIN_REQ) {
+        key = _keys.nwk_key;
+    } else { // REJOIN0_REQ || REJOIN2_REQ
+        key = _keys.snwk_sintkey;
+    }
 
     mbedtls_cipher_init(aes_cmac_ctx);
     const mbedtls_cipher_info_t *cipher_info = mbedtls_cipher_info_from_type(MBEDTLS_CIPHER_AES_128_ECB);
@@ -217,8 +265,8 @@ int LoRaMacCrypto::compute_join_frame_mic(const uint8_t *buffer, uint16_t size,
             goto exit;
         }
 
-        ret = mbedtls_cipher_cmac_starts(aes_cmac_ctx, key, key_length);
-        if (0 != ret) {
+        ret = mbedtls_cipher_cmac_starts(aes_cmac_ctx, key, APPKEY_KEY_LENGTH);
+        if (0 != ret)
             goto exit;
         }
 
@@ -245,15 +293,21 @@ exit:
 }
 
 int LoRaMacCrypto::decrypt_join_frame(const uint8_t *buffer, uint16_t size,
-                                      const uint8_t *key, uint32_t key_length,
-                                      uint8_t *dec_buffer)
+                                      uint8_t *dec_buffer, bool is_join_req)
 {
     int ret = 0;
 
     mbedtls_aes_init(&aes_ctx);
 
-    ret = mbedtls_aes_setkey_enc(&aes_ctx, key, key_length);
-    if (0 != ret) {
+    uint8_t *key;
+    if (is_join_req) {
+        key = _keys.nwk_key;
+    } else {
+        key = _keys.js_enckey;
+    }
+
+    ret = mbedtls_aes_setkey_enc(&aes_ctx, key, APPKEY_KEY_LENGTH);
+    if (0 != ret)
         goto exit;
     }
 
@@ -274,11 +328,13 @@ exit:
     return ret;
 }
 
-int LoRaMacCrypto::compute_skeys_for_join_frame(const uint8_t *key, uint32_t key_length,
-                                                const uint8_t *app_key, uint32_t app_key_length,
-                                                const uint8_t *args, uint8_t args_size,
-                                                uint8_t *nwk_skey, uint8_t *app_skey,
-                                                uint8_t *snwk_sintkey, uint8_t *nwk_senckey,
+void LoRaMacCrypto::unset_js_keys()
+{
+    memcpy(_keys.js_intkey, _keys.nwk_key, sizeof(_keys.nwk_skey));
+    memcpy(_keys.js_enckey, _keys.nwk_key, sizeof(_keys.nwk_skey));
+}
+
+int LoRaMacCrypto::compute_skeys_for_join_frame(const uint8_t *args, uint8_t args_size,
                                                 server_type_t stype)
 {
     uint8_t nonce[16];
@@ -286,47 +342,48 @@ int LoRaMacCrypto::compute_skeys_for_join_frame(const uint8_t *key, uint32_t key
 
     mbedtls_aes_init(&aes_ctx);
 
-    ret = mbedtls_aes_setkey_enc(&aes_ctx, app_key, app_key_length);
+    ret = mbedtls_aes_setkey_enc(&aes_ctx, _keys.app_key, APPKEY_KEY_LENGTH);
     if (0 != ret)
         goto exit;
 
     memset(nonce, 0, sizeof(nonce));
     nonce[0] = 0x02;
     memcpy(nonce + 1, args, args_size);
-    ret = mbedtls_aes_crypt_ecb(&aes_ctx, MBEDTLS_AES_ENCRYPT, nonce, app_skey);
+    ret = mbedtls_aes_crypt_ecb(&aes_ctx, MBEDTLS_AES_ENCRYPT, nonce, _keys.app_skey);
     if (0 != ret)
         goto exit;
 
     mbedtls_aes_free(&aes_ctx);
     mbedtls_aes_init(&aes_ctx);
-    ret = mbedtls_aes_setkey_enc(&aes_ctx, key, key_length);
-    if (0 != ret) {
+
+    ret = mbedtls_aes_setkey_enc(&aes_ctx, _keys.nwk_key, APPKEY_KEY_LENGTH);
+    if (0 != ret)
         goto exit;
     }
 
     memset(nonce, 0, sizeof(nonce));
     nonce[0] = 0x01;
     memcpy(nonce + 1, args, args_size);
-    ret = mbedtls_aes_crypt_ecb(&aes_ctx, MBEDTLS_AES_ENCRYPT, nonce, nwk_skey);
-    if (0 != ret) {
+    ret = mbedtls_aes_crypt_ecb(&aes_ctx, MBEDTLS_AES_ENCRYPT, nonce, _keys.nwk_skey);
+    if (0 != ret)
         goto exit;
     }
 
     if (stype == LW1_0_2) {
-        memcpy(nwk_senckey, nwk_skey, key_length / 8);
-        memcpy(snwk_sintkey, nwk_skey, key_length / 8);
+        memcpy(_keys.nwk_senckey, _keys.nwk_skey, APPKEY_KEY_LENGTH / 8);
+        memcpy(_keys.snwk_sintkey, _keys.nwk_skey, APPKEY_KEY_LENGTH / 8);
     } else {
         memset(nonce, 0, sizeof(nonce));
         nonce[0] = 0x03;
         memcpy(nonce + 1, args, args_size);
-        ret = mbedtls_aes_crypt_ecb(&aes_ctx, MBEDTLS_AES_ENCRYPT, nonce, snwk_sintkey);
+        ret = mbedtls_aes_crypt_ecb(&aes_ctx, MBEDTLS_AES_ENCRYPT, nonce, _keys.snwk_sintkey);
         if (0 != ret)
             goto exit;
 
         memset(nonce, 0, sizeof(nonce));
         nonce[0] = 0x04;
         memcpy(nonce + 1, args, args_size);
-        ret = mbedtls_aes_crypt_ecb(&aes_ctx, MBEDTLS_AES_ENCRYPT, nonce, nwk_senckey);
+        ret = mbedtls_aes_crypt_ecb(&aes_ctx, MBEDTLS_AES_ENCRYPT, nonce, _keys.nwk_senckey);
         if (0 != ret)
             goto exit;
     }
@@ -335,35 +392,34 @@ exit: mbedtls_aes_free(&aes_ctx);
     return ret;
 }
 
-int LoRaMacCrypto::compute_join_server_keys(const uint8_t *key, uint32_t key_length, const uint8_t *eui,
-                                            uint8_t *js_intkey, uint8_t *js_enckey)
+int LoRaMacCrypto::compute_join_server_keys(const uint8_t *eui)
 {
     uint8_t nonce[16];
     int ret = 0;
 
     if( MBED_CONF_LORA_VERSION == LORAWAN_VERSION_1_0_2 ) {
-        memcpy(js_intkey, key, key_length/8);
-        memcpy(js_enckey, key, key_length/8);
+        memcpy(_keys.js_intkey, _keys.nwk_key, APPKEY_KEY_LENGTH/8);
+        memcpy(_keys.js_enckey, _keys.nwk_key, APPKEY_KEY_LENGTH/8);
         return ret;
     }
 
     mbedtls_aes_init(&aes_ctx);
 
-    ret = mbedtls_aes_setkey_enc(&aes_ctx, key, key_length);
+    ret = mbedtls_aes_setkey_enc(&aes_ctx, _keys.nwk_key, APPKEY_KEY_LENGTH);
     if (0 != ret)
         goto exit;
 
     memset(nonce, 0, sizeof(nonce));
     nonce[0] = 0x05;
     memcpy(nonce + 1, eui, 8);
-    ret = mbedtls_aes_crypt_ecb(&aes_ctx, MBEDTLS_AES_ENCRYPT, nonce, js_enckey);
+    ret = mbedtls_aes_crypt_ecb(&aes_ctx, MBEDTLS_AES_ENCRYPT, nonce, _keys.js_enckey);
     if (0 != ret)
         goto exit;
 
     memset(nonce, 0, sizeof(nonce));
     nonce[0] = 0x06;
     memcpy(nonce + 1, eui, 8);
-    ret = mbedtls_aes_crypt_ecb(&aes_ctx, MBEDTLS_AES_ENCRYPT, nonce, js_intkey);
+    ret = mbedtls_aes_crypt_ecb(&aes_ctx, MBEDTLS_AES_ENCRYPT, nonce, _keys.js_intkey);
     if (0 != ret)
         goto exit;
 
@@ -379,11 +435,19 @@ LoRaMacCrypto::LoRaMacCrypto()
     MBED_ASSERT(0 && "[LoRaCrypto] Must enable AES, CMAC & CIPHER from mbedTLS");
 }
 
+lorawan_status_t LoRaMacCrypto::set_keys(uint8_t *, uint8_t *, uint8_t *, uint8_t *, uint8_t *, uint8_t *)
+{
+    MBED_ASSERT(0 && "[LoRaCrypto] Must enable AES, CMAC & CIPHER from mbedTLS");
+
+    // Never actually reaches here
+    return LORAWAN_STATUS_CRYPTO_FAIL;
+}
+
 // If mbedTLS is not configured properly, these dummies will ensure that
 // user knows what is wrong and in addition to that these ensure that
 // Mbed-OS compiles properly under normal conditions where LoRaWAN in conjunction
 // with mbedTLS is not being used.
-int LoRaMacCrypto::compute_mic(const uint8_t *, uint16_t , const uint8_t *, uint32_t, uint32_t, uint32_t,
+int LoRaMacCrypto::compute_mic(const uint8_t *, uint16_t , uint32_t, uint32_t,
                                uint8_t, uint32_t, uint32_t *)
 {
     MBED_ASSERT(0 && "[LoRaCrypto] Must enable AES, CMAC & CIPHER from mbedTLS");
@@ -392,8 +456,12 @@ int LoRaMacCrypto::compute_mic(const uint8_t *, uint16_t , const uint8_t *, uint
     return LORAWAN_STATUS_CRYPTO_FAIL;
 }
 
-int LoRaMacCrypto::encrypt_payload(const uint8_t *, uint16_t, const uint8_t *, uint32_t, uint32_t,
-                                   uint8_t, uint32_t, uint8_t *)
+int LoRaMacCrypto::encrypt_payload(const uint8_t *, uint16_t ,
+                                   uint32_t , uint8_t , uint32_t ,
+                                   seq_counter_type_t ,
+                                   payload_type_t ,
+                                   uint8_t *,
+                                   server_type_t , bool)
 {
     MBED_ASSERT(0 && "[LoRaCrypto] Must enable AES, CMAC & CIPHER from mbedTLS");
 
@@ -401,8 +469,12 @@ int LoRaMacCrypto::encrypt_payload(const uint8_t *, uint16_t, const uint8_t *, u
     return LORAWAN_STATUS_CRYPTO_FAIL;
 }
 
-int LoRaMacCrypto::decrypt_payload(const uint8_t *, uint16_t, const uint8_t *, uint32_t, uint32_t,
-                                   uint8_t, uint32_t, uint8_t *)
+int LoRaMacCrypto::decrypt_payload(const uint8_t *, uint16_t ,
+                                   uint32_t , uint8_t , uint32_t ,
+                                   seq_counter_type_t ,
+                                   payload_type_t ,
+                                   uint8_t *,
+                                   server_type_t , bool)
 {
     MBED_ASSERT(0 && "[LoRaCrypto] Must enable AES, CMAC & CIPHER from mbedTLS");
 
@@ -410,7 +482,7 @@ int LoRaMacCrypto::decrypt_payload(const uint8_t *, uint16_t, const uint8_t *, u
     return LORAWAN_STATUS_CRYPTO_FAIL;
 }
 
-int LoRaMacCrypto::compute_join_frame_mic(const uint8_t *, uint16_t, const uint8_t *, uint32_t, uint32_t *)
+int LoRaMacCrypto::compute_join_frame_mic(const uint8_t *, uint16_t, join_frame_type_t, uint32_t *)
 {
     MBED_ASSERT(0 && "[LoRaCrypto] Must enable AES, CMAC & CIPHER from mbedTLS");
 
@@ -418,7 +490,7 @@ int LoRaMacCrypto::compute_join_frame_mic(const uint8_t *, uint16_t, const uint8
     return LORAWAN_STATUS_CRYPTO_FAIL;
 }
 
-int LoRaMacCrypto::decrypt_join_frame(const uint8_t *, uint16_t, const uint8_t *, uint32_t, uint8_t *)
+int LoRaMacCrypto::decrypt_join_frame(const uint8_t *, uint16_t , uint8_t *, bool)
 {
     MBED_ASSERT(0 && "[LoRaCrypto] Must enable AES, CMAC & CIPHER from mbedTLS");
 
@@ -426,9 +498,7 @@ int LoRaMacCrypto::decrypt_join_frame(const uint8_t *, uint16_t, const uint8_t *
     return LORAWAN_STATUS_CRYPTO_FAIL;
 }
 
-int LoRaMacCrypto::compute_skeys_for_join_frame(const uint8_t *, uint32_t, const uint8_t *, uint32_t,
-                                                const uint8_t *, uint8_t ,
-                                                uint8_t *, uint8_t *, uint8_t *, uint8_t *,
+int LoRaMacCrypto::compute_skeys_for_join_frame(const uint8_t *, uint8_t,
                                                 server_type_t)
 {
     MBED_ASSERT(0 && "[LoRaCrypto] Must enable AES, CMAC & CIPHER from mbedTLS");
@@ -437,8 +507,7 @@ int LoRaMacCrypto::compute_skeys_for_join_frame(const uint8_t *, uint32_t, const
     return LORAWAN_STATUS_CRYPTO_FAIL;
 }
 
-int compute_join_server_keys(const uint8_t *, const uint8_t *,
-                              uint8_t *, uint8_t *)
+int LoRaMacCrypto::compute_join_server_keys(const uint8_t *)
 {
     MBED_ASSERT(0 && "[LoRaCrypto] Must enable AES, CMAC & CIPHER from mbedTLS");
 

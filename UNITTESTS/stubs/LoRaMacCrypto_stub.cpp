@@ -25,42 +25,66 @@
 
 int LoRaMacCrypto_stub::int_table_idx_value = 0;
 int LoRaMacCrypto_stub::int_table[20] = {};
+lorawan_status_t LoRaMacCrypto_stub::status = LORAWAN_STATUS_OK;
 
 LoRaMacCrypto::LoRaMacCrypto()
 {
 }
 
-int LoRaMacCrypto::compute_mic(const uint8_t *, uint16_t, const uint8_t *, uint32_t, uint32_t,
-                               uint8_t dir, uint32_t, uint32_t *)
+lorawan_status_t LoRaMacCrypto::set_keys(uint8_t *, uint8_t *, uint8_t *, uint8_t *, uint8_t *, uint8_t *)
+{
+ return LoRaMacCrypto_stub::status;
+}
+
+int LoRaMacCrypto::compute_mic(const uint8_t *, uint16_t , uint32_t, uint32_t,
+                               uint8_t, uint32_t, uint32_t *)
 {
     return LoRaMacCrypto_stub::int_table[LoRaMacCrypto_stub::int_table_idx_value++];
 }
 
-int LoRaMacCrypto::encrypt_payload(const uint8_t *, uint16_t, const uint8_t *, uint32_t, uint32_t,
-                                   uint8_t, uint32_t, uint8_t *)
+int LoRaMacCrypto::encrypt_payload(const uint8_t *, uint16_t ,
+                                   uint32_t , uint8_t , uint32_t ,
+                                   seq_counter_type_t ,
+                                   payload_type_t ,
+                                   uint8_t *,
+                                   server_type_t , bool)
 {
     return LoRaMacCrypto_stub::int_table[LoRaMacCrypto_stub::int_table_idx_value++];
 }
 
-int LoRaMacCrypto::decrypt_payload(const uint8_t *, uint16_t, const uint8_t *, uint32_t, uint32_t,
-                                   uint8_t, uint32_t, uint8_t *)
+int LoRaMacCrypto::decrypt_payload(const uint8_t *, uint16_t ,
+                                   uint32_t , uint8_t , uint32_t ,
+                                   seq_counter_type_t ,
+                                   payload_type_t ,
+                                   uint8_t *,
+                                   server_type_t , bool)
 {
     return LoRaMacCrypto_stub::int_table[LoRaMacCrypto_stub::int_table_idx_value++];
 }
 
-int LoRaMacCrypto::compute_join_frame_mic(const uint8_t *, uint16_t, const uint8_t *, uint32_t, uint32_t *)
+int LoRaMacCrypto::compute_join_frame_mic(const uint8_t *, uint16_t, join_frame_type_t, uint32_t *)
 {
     return LoRaMacCrypto_stub::int_table[LoRaMacCrypto_stub::int_table_idx_value++];
 }
 
-int LoRaMacCrypto::decrypt_join_frame(const uint8_t *in, uint16_t size, const uint8_t *, uint32_t, uint8_t *out)
+int LoRaMacCrypto::decrypt_join_frame(const uint8_t *in, uint16_t size, uint8_t *out, bool)
 {
     memcpy(out, in, size);
     return LoRaMacCrypto_stub::int_table[LoRaMacCrypto_stub::int_table_idx_value++];
 }
 
-int LoRaMacCrypto::compute_skeys_for_join_frame(const uint8_t *, uint32_t, const uint8_t *, uint16_t,
-                                                uint8_t *, uint8_t *)
+int LoRaMacCrypto::compute_skeys_for_join_frame(const uint8_t *args, uint8_t args_size,
+                                                server_type_t stype)
+{
+    return LoRaMacCrypto_stub::int_table[LoRaMacCrypto_stub::int_table_idx_value++];
+}
+
+void LoRaMacCrypto::unset_js_keys()
+{
+
+}
+
+int LoRaMacCrypto::compute_join_server_keys(const uint8_t *)
 {
     return LoRaMacCrypto_stub::int_table[LoRaMacCrypto_stub::int_table_idx_value++];
 }
