@@ -79,7 +79,7 @@ public:
     /** Set the output voltage, represented as an unsigned short in the range [0x0, 0xFFFF]
      *
      *  @param value 16-bit unsigned short representing the output voltage,
-     *            normalised to a 16-bit value (0x0000 = 0v, 0xFFFF = 3.3v)
+     *            normalized to a 16-bit value (0x0000 = 0v, 0xFFFF = 3.3v)
      */
     void write_u16(unsigned short value)
     {

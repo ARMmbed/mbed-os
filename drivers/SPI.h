@@ -163,7 +163,7 @@ public:
      *
      * This function locks the deep sleep until any event has occurred.
      *
-     * @param tx_buffer The TX buffer with data to be transfered. If NULL is passed,
+     * @param tx_buffer The TX buffer with data to be transferred. If NULL is passed,
      *                  the default SPI value is sent.
      * @param tx_length The length of TX buffer in bytes.
      * @param rx_buffer The RX buffer which is used for received data. If NULL is passed,
@@ -215,7 +215,7 @@ protected:
 
     /** Start the transfer or put it on the queue.
      *
-     * @param tx_buffer The TX buffer with data to be transfered. If NULL is passed,
+     * @param tx_buffer The TX buffer with data to be transferred. If NULL is passed,
      *                  the default SPI value is sent
      * @param tx_length The length of TX buffer in bytes.
      * @param rx_buffer The RX buffer which is used for received data. If NULL is passed,
@@ -233,7 +233,7 @@ protected:
 
     /** Put a transfer on the transfer queue.
      *
-     * @param tx_buffer The TX buffer with data to be transfered. If NULL is passed,
+     * @param tx_buffer The TX buffer with data to be transferred. If NULL is passed,
      *                  the default SPI value is sent.
      * @param tx_length The length of TX buffer in bytes.
      * @param rx_buffer The RX buffer which is used for received data. If NULL is passed,
@@ -251,7 +251,7 @@ protected:
 
     /** Configure a callback, SPI peripheral, and initiate a new transfer.
      *
-     * @param tx_buffer The TX buffer with data to be transfered. If NULL is passed,
+     * @param tx_buffer The TX buffer with data to be transferred. If NULL is passed,
      *                  the default SPI value is sent.
      * @param tx_length The length of TX buffer in bytes.
      * @param rx_buffer The RX buffer which is used for received data. If NULL is passed,
