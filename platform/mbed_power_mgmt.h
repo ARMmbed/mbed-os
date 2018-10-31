@@ -261,7 +261,7 @@ us_timestamp_t mbed_uptime(void);
  *
  * @note Does not affect the debug sub-system
  */
-static inline void system_reset(void)
+MBED_NORETURN static inline void system_reset(void)
 {
     NVIC_SystemReset();
 }
