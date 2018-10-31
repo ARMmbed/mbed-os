@@ -22,6 +22,10 @@
 #include "SPIFBlockDevice.h"
 #endif
 
+#if COMPONENT_QSPIF
+#include "QSPIFBlockDevice.h"
+#endif
+
 #if COMPONENT_DATAFLASH
 #include "DataFlashBlockDevice.h"
 #endif
@@ -56,6 +60,21 @@ MBED_WEAK BlockDevice *BlockDevice::get_default_instance()
         MBED_CONF_SPIF_DRIVER_SPI_CLK,
         MBED_CONF_SPIF_DRIVER_SPI_CS,
         MBED_CONF_SPIF_DRIVER_SPI_FREQ
+    );
+
+    return &default_bd;
+
+#elif COMPONENT_QSPIF
+
+    static QSPIFBlockDevice default_bd(
+        MBED_CONF_QSPIF_QSPI_IO0,
+        MBED_CONF_QSPIF_QSPI_IO1,
+        MBED_CONF_QSPIF_QSPI_IO2,
+        MBED_CONF_QSPIF_QSPI_IO3,
+        MBED_CONF_QSPIF_QSPI_SCK,
+        MBED_CONF_QSPIF_QSPI_CSN,
+        MBED_CONF_QSPIF_QSPI_POLARITY_MODE,
+        MBED_CONF_QSPIF_QSPI_FREQ
     );
 
     return &default_bd;
@@ -112,7 +131,7 @@ MBED_WEAK BlockDevice *BlockDevice::get_default_instance()
 #endif
 
     return &default_bd;
-    
+
 #else
 
     return NULL;
@@ -123,7 +142,7 @@ MBED_WEAK BlockDevice *BlockDevice::get_default_instance()
 
 MBED_WEAK FileSystem *FileSystem::get_default_instance()
 {
-#if COMPONENT_SPIF || COMPONENT_DATAFLASH
+#if COMPONENT_SPIF || COMPONENT_QSPIF || COMPONENT_DATAFLASH
 
     static LittleFileSystem flash("flash", BlockDevice::get_default_instance());
     flash.set_as_default();
