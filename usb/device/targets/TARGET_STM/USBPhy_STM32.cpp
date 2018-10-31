@@ -28,7 +28,6 @@
 #include "USBPhyHw.h"
 #include "pinmap.h"
 
-
 /* endpoint conversion macros */
 #define EP_TO_LOG(ep)       ((ep) & 0x7F)
 #define EP_TO_IDX(ep)       (((ep) << 1) | ((ep) & 0x80 ? 1 : 0))
@@ -235,6 +234,19 @@ void USBPhyHw::init(USBPhyEvents *events)
     pin_function(PA_12, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_FS)); // DP
     __HAL_RCC_GPIOC_CLK_ENABLE();
     pin_function(PC_11, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_FS)); // VBUS
+    __HAL_RCC_PWR_CLK_ENABLE();
+    HAL_PWREx_EnableVddUSB();
+    __HAL_RCC_USB_OTG_FS_CLK_ENABLE();
+
+#elif defined(TARGET_NUCLEO_L496ZG) || \
+      defined(TARGET_NUCLEO_L496ZG_P) || \
+      defined(TARGET_DISCO_L496AG) || \
+      defined(TARGET_NUCLEO_L4R5ZI)
+    __HAL_RCC_GPIOA_CLK_ENABLE();
+    pin_function(PA_11, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_FS)); // DM
+    pin_function(PA_12, STM_PIN_DATA(STM_MODE_AF_PP, GPIO_NOPULL, GPIO_AF10_OTG_FS)); // DP
+    pin_function(PA_10, STM_PIN_DATA(STM_MODE_AF_OD, GPIO_PULLUP, GPIO_AF10_OTG_FS)); // ID
+    pin_function(PA_9, STM_PIN_DATA(STM_MODE_INPUT, GPIO_NOPULL, GPIO_AF10_OTG_FS)); // VBUS
     __HAL_RCC_PWR_CLK_ENABLE();
     HAL_PWREx_EnableVddUSB();
     __HAL_RCC_USB_OTG_FS_CLK_ENABLE();
