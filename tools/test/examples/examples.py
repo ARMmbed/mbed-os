@@ -97,20 +97,17 @@ def do_export(args, config, examples):
 
 def do_import(_, config, examples):
     """Do the import step of this process"""
-    lib.source_repos(config, examples)
-    return 0
+    return lib.source_repos(config, examples)
 
 
 def do_clone(_, config, examples):
     """Do the clone step of this process"""
-    lib.clone_repos(config, examples)
-    return 0
+    return lib.clone_repos(config, examples)
 
 
 def do_deploy(_, config, examples):
     """Do the deploy step of this process"""
-    lib.deploy_repos(config, examples)
-    return 0
+    return lib.deploy_repos(config, examples)
 
 
 def do_compile(args, config, examples):
@@ -125,8 +122,7 @@ def do_compile(args, config, examples):
     
 def do_versionning(args, config, examples):
     """ Test update the mbed-os to the version specified by the tag """
-    lib.update_mbedos_version(config, args.tag, examples)
-    return 0
+    return lib.update_mbedos_version(config, args.tag, examples)
 
 
 if __name__ == "__main__":
