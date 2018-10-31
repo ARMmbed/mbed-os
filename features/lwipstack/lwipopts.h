@@ -36,7 +36,7 @@
 #if MBED_CONF_LWIP_IPV6_ENABLED
 #define LWIP_IPV6                   1
 #else
-#define LWIP_IPV6                   0
+#define LWIP_IPV6                   1
 #endif
 #if !MBED_CONF_LWIP_IPV4_ENABLED && !MBED_CONF_LWIP_IPV6_ENABLED
 #error "Either IPv4 or IPv6 must be enabled."
@@ -330,6 +330,8 @@
 #define LWIP_ARP                    0
 #define LWIP_ETHERNET               0
 #endif // MBED_CONF_LWIP_ETHERNET_ENABLED
+
+#define LWIP_L3IP   				1
 
 // Note generic macro name used rather than MBED_CONF_LWIP_PPP_ENABLED
 // to allow users like PPPCellularInterface to detect that nsapi_ppp.h is available.
