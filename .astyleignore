@@ -3,6 +3,7 @@ cmsis
 features/cryptocell
 features/mbedtls
 features/lwipstack/lwip
+features/lwipstack/lwip-sys
 rtos/TARGET_CORTEX/rtx4
 features/storage/filesystem/littlefs/littlefs/
 features/storage/filesystem/fat/ChaN
