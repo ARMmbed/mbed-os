@@ -252,13 +252,19 @@ TEST_F(Test_LoRaWANStack, connect)
 
     loramac_mcps_indication_t ind;
     LoRaMac_stub::mcps_ind_ptr = &ind;
+    ind.status = LORAMAC_EVENT_INFO_STATUS_OK;
+
+    loramac_mlme_indication_t mlme_ind;
+    mlme_ind.indication_type = MLME_JOIN_ACCEPT;
+    mlme_ind.pending = true;
+    LoRaMac_stub::mlme_ind_ptr = &mlme_ind;
 
     loramac_mlme_confirm_t mlme;
     LoRaMac_stub::mlme_conf_ptr = &mlme;
-    mlme.pending = true;
-    mlme.req_type = MLME_JOIN;
     mlme.status = LORAMAC_EVENT_INFO_STATUS_OK;
-    LoRaMac_stub::bool_value = false;
+    mlme.type = MLME_JOIN_ACCEPT;
+
+    LoRaMac_stub::bool_value = true;
     radio._ev->rx_done(NULL, 0, 0, 0);
 
     //_ctrl_flags & CONNECTED_FLAG
@@ -470,8 +476,6 @@ TEST_F(Test_LoRaWANStack, handle_rx)
 
     loramac_mlme_confirm_t mlme;
     LoRaMac_stub::mlme_conf_ptr = &mlme;
-    mlme.pending = false;
-    mlme.req_type = MLME_JOIN;
     mlme.status = LORAMAC_EVENT_INFO_STATUS_OK;
     LoRaMac_stub::bool_value = true;
     conf.req_type = MCPS_PROPRIETARY;
@@ -664,8 +668,6 @@ TEST_F(Test_LoRaWANStack, acquire_rx_metadata)
     loramac_mlme_confirm_t mlme;
     mlme.status = LORAMAC_EVENT_INFO_STATUS_OK;
     LoRaMac_stub::mlme_conf_ptr = &mlme;
-    mlme.pending = true;
-    mlme.req_type = MLME_JOIN;
 
     //Visit mlme_confirm_handler here also
     mlme.status = LORAMAC_EVENT_INFO_STATUS_CRYPTO_FAIL;
@@ -675,7 +677,6 @@ TEST_F(Test_LoRaWANStack, acquire_rx_metadata)
     mlme.status = LORAMAC_EVENT_INFO_STATUS_TX_TIMEOUT;
     radio._ev->rx_done(NULL, 0, 0, 0);
 
-    mlme.status = LORAMAC_EVENT_INFO_STATUS_RX1_TIMEOUT;
     LoRaMac_stub::slot_value = RX_SLOT_WIN_2;
     radio._ev->rx_done(NULL, 0, 0, 0);
 
@@ -684,7 +685,6 @@ TEST_F(Test_LoRaWANStack, acquire_rx_metadata)
     cb.link_check_resp = lc_resp;
     cb.battery_level = batt_lvl;
     EXPECT_TRUE(LORAWAN_STATUS_OK == object->set_lora_callbacks(&cb));
-    mlme.req_type = MLME_LINK_CHECK;
     mlme.status = LORAMAC_EVENT_INFO_STATUS_OK;
     LoRaMac_stub::bool_true_counter = true;
     radio._ev->rx_done(NULL, 0, 0, 0);
@@ -753,8 +753,6 @@ TEST_F(Test_LoRaWANStack, interrupt_functions)
 
     loramac_mlme_confirm_t mlme;
     LoRaMac_stub::mlme_conf_ptr = &mlme;
-    mlme.pending = true;
-    mlme.req_type = MLME_JOIN;
     mlme.status = LORAMAC_EVENT_INFO_STATUS_OK;
     LoRaMac_stub::bool_value = false;
     radio._ev->rx_done(NULL, 0, 0, 0);
@@ -816,8 +814,6 @@ TEST_F(Test_LoRaWANStack, process_transmission)
 
     loramac_mlme_confirm_t mlme;
     LoRaMac_stub::mlme_conf_ptr = &mlme;
-    mlme.pending = true;
-    mlme.req_type = MLME_JOIN;
     mlme.status = LORAMAC_EVENT_INFO_STATUS_OK;
     LoRaMac_stub::bool_value = false;
     radio._ev->rx_done(NULL, 0, 0, 0);
@@ -875,8 +871,6 @@ TEST_F(Test_LoRaWANStack, process_reception)
 
     loramac_mlme_confirm_t mlme;
     LoRaMac_stub::mlme_conf_ptr = &mlme;
-    mlme.pending = false;
-    mlme.req_type = MLME_JOIN;
     mlme.status = LORAMAC_EVENT_INFO_STATUS_OK;
     LoRaMac_stub::bool_value = true;
     conf.req_type = MCPS_PROPRIETARY;

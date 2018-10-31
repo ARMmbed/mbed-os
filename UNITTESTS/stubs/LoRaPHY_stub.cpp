@@ -408,4 +408,42 @@ uint8_t LoRaPHY::apply_DR_offset(int8_t dr, int8_t dr_offset)
     return LoRaPHY_stub::uint8_value;
 }
 
+uint8_t LoRaPHY::update_rejoin_params(uint32_t max_time, uint32_t max_count)
+{
+    return LoRaPHY_stub::uint8_value;
+}
+
+uint16_t LoRaPHY::get_adr_ack_limit() const
+{
+    return LoRaPHY_stub::uint16_value;
+}
+
+void LoRaPHY::set_adr_ack_limit(const uint16_t& value)
+{
+}
+
+uint16_t LoRaPHY::get_adr_ack_delay() const
+{
+    return LoRaPHY_stub::uint16_value;
+}
+
+void LoRaPHY::set_adr_ack_delay(const uint16_t& value)
+{
+}
+
+void LoRaPHY::time_received(uint32_t secs, uint32_t milliseconds)
+{
+}
+
+uint32_t LoRaPHY::get_rejoin_max_time() const
+{
+    return LoRaPHY_stub::uint32_value;
+}
+
+uint32_t LoRaPHY::get_rejoin_max_count() const
+{
+    return LoRaPHY_stub::uint32_value;
+}
+
+
 

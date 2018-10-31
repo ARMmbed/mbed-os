@@ -166,7 +166,7 @@ public:
     lorawan_status_t remove_single_channel(uint8_t id);
 
     /**
-     * @brief   LoRaMAC multicast channel link service.
+     * @brief   multicast channel link service.
      *
      * @details Links a multicast channel into the linked list.
      *
@@ -180,7 +180,7 @@ public:
     lorawan_status_t multicast_channel_link(multicast_params_t *channel_param);
 
     /**
-     * @brief   LoRaMAC multicast channel unlink service.
+     * @brief   multicast channel unlink service.
      *
      * @details Unlinks a multicast channel from the linked list.
      *
@@ -192,6 +192,18 @@ public:
      *          \ref LORAWAN_STATUS_PARAMETER_INVALID
      */
     lorawan_status_t multicast_channel_unlink(multicast_params_t *channel_param);
+
+    /**
+     * @brief get_multicast_params Get multicast parameters based on address
+     * @param address Address to use for search
+     * @return Multicast parameters object if address matched, NULL otherwise
+     */
+    multicast_params_t *get_multicast_params(uint32_t address);
+
+    /**
+     * @brief reset_multicast_counters Resets counters of all multicast groups
+     */
+    void reset_multicast_counters();
 
     /**
      * @brief get_rejoin_parameters Gets current rejoin parameters
@@ -545,15 +557,14 @@ private:
      */
     bool message_integrity_check(const uint8_t *payload, uint16_t size,
                                  uint8_t *ptr_pos, uint16_t confFCnt, uint32_t address,
-                                 uint32_t *downlink_counter, const uint8_t *nwk_skey);
+                                 uint32_t *downlink_counter);
 
     /**
      * Decrypts and extracts data and MAC commands from the received encrypted
      * payload
      */
     void extract_data_and_mac_commands(const uint8_t *payload, uint16_t size,
-                                       uint8_t fopts_len, uint8_t *nwk_skey,
-                                       uint8_t *app_skey, uint32_t address,
+                                       uint8_t fopts_len, uint32_t address,
                                        uint32_t downlink_frame_counter,
                                        seq_counter_type_t cnt_type,
                                        int16_t rssi, int8_t snr,

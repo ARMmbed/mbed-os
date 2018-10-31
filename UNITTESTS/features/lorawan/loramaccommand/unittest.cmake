@@ -36,3 +36,7 @@ set(unittest-test-sources
   stubs/LoRaPHY_stub.cpp
 )
 
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DMBED_CONF_LORA_VERSION=0")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMBED_CONF_LORA_VERSION=0")
+
+
