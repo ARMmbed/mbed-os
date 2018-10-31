@@ -167,7 +167,7 @@ void test_small_file_test()
             chunk = (chunk < size - i) ? chunk : size - i;
             res = file[0].read(buffer, chunk);
             TEST_ASSERT_EQUAL(chunk, res);
-            for (size_t b = 0; b < chunk && i+b < size; b++) {
+            for (size_t b = 0; b < chunk && i + b < size; b++) {
                 res = buffer[b];
                 TEST_ASSERT_EQUAL(rand() & 0xff, res);
             }
@@ -221,7 +221,7 @@ void test_medium_file_test()
             chunk = (chunk < size - i) ? chunk : size - i;
             res = file[0].read(buffer, chunk);
             TEST_ASSERT_EQUAL(chunk, res);
-            for (size_t b = 0; b < chunk && i+b < size; b++) {
+            for (size_t b = 0; b < chunk && i + b < size; b++) {
                 res = buffer[b];
                 TEST_ASSERT_EQUAL(rand() & 0xff, res);
             }
@@ -275,7 +275,7 @@ void test_large_file_test()
             chunk = (chunk < size - i) ? chunk : size - i;
             res = file[0].read(buffer, chunk);
             TEST_ASSERT_EQUAL(chunk, res);
-            for (size_t b = 0; b < chunk && i+b < size; b++) {
+            for (size_t b = 0; b < chunk && i + b < size; b++) {
                 res = buffer[b];
                 TEST_ASSERT_EQUAL(rand() & 0xff, res);
             }
@@ -307,7 +307,7 @@ void test_non_overlap_check()
             chunk = (chunk < size - i) ? chunk : size - i;
             res = file[0].read(buffer, chunk);
             TEST_ASSERT_EQUAL(chunk, res);
-            for (size_t b = 0; b < chunk && i+b < size; b++) {
+            for (size_t b = 0; b < chunk && i + b < size; b++) {
                 res = buffer[b];
                 TEST_ASSERT_EQUAL(rand() & 0xff, res);
             }
@@ -330,7 +330,7 @@ void test_non_overlap_check()
             chunk = (chunk < size - i) ? chunk : size - i;
             res = file[0].read(buffer, chunk);
             TEST_ASSERT_EQUAL(chunk, res);
-            for (size_t b = 0; b < chunk && i+b < size; b++) {
+            for (size_t b = 0; b < chunk && i + b < size; b++) {
                 res = buffer[b];
                 TEST_ASSERT_EQUAL(rand() & 0xff, res);
             }
@@ -353,7 +353,7 @@ void test_non_overlap_check()
             chunk = (chunk < size - i) ? chunk : size - i;
             res = file[0].read(buffer, chunk);
             TEST_ASSERT_EQUAL(chunk, res);
-            for (size_t b = 0; b < chunk && i+b < size; b++) {
+            for (size_t b = 0; b < chunk && i + b < size; b++) {
                 res = buffer[b];
                 TEST_ASSERT_EQUAL(rand() & 0xff, res);
             }
@@ -388,28 +388,28 @@ void test_dir_check()
         TEST_ASSERT_EQUAL(0, res);
         res = ent.d_type;
         TEST_ASSERT_EQUAL(DT_REG, res);
-    
+
         res = dir[0].read(&ent);
         TEST_ASSERT_EQUAL(1, res);
         res = strcmp(ent.d_name, "smallavacado");
         TEST_ASSERT_EQUAL(0, res);
         res = ent.d_type;
         TEST_ASSERT_EQUAL(DT_REG, res);
-    
+
         res = dir[0].read(&ent);
         TEST_ASSERT_EQUAL(1, res);
         res = strcmp(ent.d_name, "mediumavacado");
         TEST_ASSERT_EQUAL(0, res);
         res = ent.d_type;
         TEST_ASSERT_EQUAL(DT_REG, res);
-    
+
         res = dir[0].read(&ent);
         TEST_ASSERT_EQUAL(1, res);
         res = strcmp(ent.d_name, "largeavacado");
         TEST_ASSERT_EQUAL(0, res);
         res = ent.d_type;
         TEST_ASSERT_EQUAL(DT_REG, res);
-    
+
         res = dir[0].read(&ent);
         TEST_ASSERT_EQUAL(0, res);
         res = dir[0].close();
