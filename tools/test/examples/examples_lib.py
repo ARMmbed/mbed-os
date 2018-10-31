@@ -169,7 +169,11 @@ def source_repos(config, examples):
                     print("'%s' example directory already exists. Deleting..." % name)
                     rmtree(name)
 
-                subprocess.call(["mbed-cli", "import", repo_info['repo']])
+                result = subprocess.call(["mbed-cli", "import", repo_info['repo']])
+                if result:
+                    return result
+    
+    return 0                
 
 def clone_repos(config, examples , retry = 3):
     """ Clones each of the repos associated with the specific examples name from the
@@ -192,6 +196,8 @@ def clone_repos(config, examples , retry = 3):
                         break
                 else:
                     print("ERROR : unable to clone the repo {}".format(name))
+                    return 1
+    return 0
 
 def deploy_repos(config, examples):
     """ If the example directory exists as provided by the json config file,
@@ -207,11 +213,15 @@ def deploy_repos(config, examples):
             if name in examples:
                 if os.path.exists(name):
                     os.chdir(name)
-                    subprocess.call(["mbed-cli", "deploy"])
+                    result = subprocess.call(["mbed-cli", "deploy"])
                     os.chdir("..")
+                    if result:
+                        print("mbed-cli deploy command failed for '%s'" % name)
+                        return result                
                 else:
                     print("'%s' example directory doesn't exist. Skipping..." % name)
-
+                    return 1
+    return  0
 
 def get_num_failures(results, export=False):
     """ Returns the number of failed compilations from the results summary
@@ -405,5 +415,10 @@ def update_mbedos_version(config, tag, examples):
             update_dir =  basename(repo_info['repo']) + "/mbed-os"
             print("\nChanging dir to %s\n" % update_dir)
             os.chdir(update_dir)
-            subprocess.call(["mbed-cli", "update", tag, "--clean"])
+            result = subprocess.call(["mbed-cli", "update", tag, "--clean"])
             os.chdir("../..")
+            if result:
+                return result:
+    
+    return 0
+  
