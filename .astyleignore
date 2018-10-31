@@ -12,6 +12,7 @@ features/FEATURE_BLE
 features/unsupported/
 features/netsocket/emac-drivers
 hal/storage_abstraction
+TESTS/mbed_hal/trng/pithy
 features/nanostack/coap-service
 features/nanostack/sal-stack-nanostack
 rtos/TARGET_CORTEX/rtx5
