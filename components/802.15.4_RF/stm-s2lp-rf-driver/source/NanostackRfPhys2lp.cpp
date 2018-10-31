@@ -31,13 +31,13 @@
 #define INTERRUPT_GPIO  S2LP_GPIO3
 
 #if INTERRUPT_GPIO == S2LP_GPIO0
-#define INT_IN_GPIO     rf->GPIO0
+#define INT_IN_GPIO     rf->RF_S2LP_GPIO0
 #elif INTERRUPT_GPIO == S2LP_GPIO1
-#define INT_IN_GPIO     rf->GPIO1
+#define INT_IN_GPIO     rf->RF_S2LP_GPIO1
 #elif INTERRUPT_GPIO == S2LP_GPIO2
-#define INT_IN_GPIO     rf->GPIO2
+#define INT_IN_GPIO     rf->RF_S2LP_GPIO2
 #else
-#define INT_IN_GPIO     rf->GPIO3
+#define INT_IN_GPIO     rf->RF_S2LP_GPIO3
 #endif
 
 #ifdef TEST_GPIOS_ENABLED
@@ -119,10 +119,10 @@ public:
     DigitalOut TEST4;
     DigitalOut TEST5;
 #endif //TEST_GPIOS_ENABLED
-    InterruptIn GPIO0;
-    InterruptIn GPIO1;
-    InterruptIn GPIO2;
-    InterruptIn GPIO3;
+    InterruptIn RF_S2LP_GPIO0;
+    InterruptIn RF_S2LP_GPIO1;
+    InterruptIn RF_S2LP_GPIO2;
+    InterruptIn RF_S2LP_GPIO3;
     Timeout cca_timer;
     Timeout backup_timer;
     Timer tx_timer;
@@ -150,10 +150,10 @@ RFPins::RFPins(PinName spi_sdi, PinName spi_sdo,
         TEST4(spi_test4),
         TEST5(spi_test5),
 #endif //TEST_GPIOS_ENABLED
-        GPIO0(spi_gpio0),
-        GPIO1(spi_gpio1),
-        GPIO2(spi_gpio2),
-        GPIO3(spi_gpio3)
+        RF_S2LP_GPIO0(spi_gpio0),
+        RF_S2LP_GPIO1(spi_gpio1),
+        RF_S2LP_GPIO2(spi_gpio2),
+        RF_S2LP_GPIO3(spi_gpio3)
 #ifdef MBED_CONF_RTOS_PRESENT
     , irq_thread(osPriorityRealtime, 1024)
 #endif //MBED_CONF_RTOS_PRESENT
@@ -974,7 +974,7 @@ static void rf_reset(void)
     // Wake up
     rf->SDN = 0;
     // Wait until GPIO0 (RESETN) goes high
-    while (rf->GPIO0 == 0);
+    while (rf->RF_S2LP_GPIO0 == 0);
 }
 
 static void rf_init(void)
