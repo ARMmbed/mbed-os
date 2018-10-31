@@ -8,7 +8,7 @@ features/storage/filesystem/littlefs/littlefs/
 features/storage/filesystem/fat/ChaN
 features/storage/FEATURE_STORAGE
 features/frameworks
-features/FEATURE_BLE/targets
+features/FEATURE_BLE
 features/unsupported/
 features/netsocket/emac-drivers
 hal/storage_abstraction
