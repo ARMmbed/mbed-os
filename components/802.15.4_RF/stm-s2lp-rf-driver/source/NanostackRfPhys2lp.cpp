@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 #include <string.h>
+#if defined(MBED_CONF_NANOSTACK_CONFIGURATION) && DEVICE_SPI
 #include "platform/arm_hal_interrupt.h"
 #include "nanostack/platform/arm_hal_phy.h"
 #include "ns_types.h"
@@ -1372,3 +1373,4 @@ NanostackRfPhy &NanostackRfPhy::get_default_instance()
     return rf_phy;
 }
 #endif // MBED_CONF_S2LP_PROVIDE_DEFAULT
+#endif // MBED_CONF_NANOSTACK_CONFIGURATION && DEVICE_SPI
