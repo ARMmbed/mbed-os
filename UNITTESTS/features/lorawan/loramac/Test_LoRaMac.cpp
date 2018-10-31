@@ -75,6 +75,7 @@ TEST_F(Test_LoRaMac, initialize)
     conn.connection_u.otaa.app_eui = key;
     conn.connection_u.otaa.dev_eui = key;
     conn.connection_u.otaa.nb_trials = 2;
+    conn.connection_u.otaa.nwk_key = key;
     object->prepare_join(&conn, true);
 
     channel_params_t params[] = {868300000, 0, { ((DR_5 << 4) | DR_0) }, 1};
@@ -244,24 +245,35 @@ TEST_F(Test_LoRaMac, prepare_join)
     conn.connection_u.otaa.app_eui = NULL;
     conn.connection_u.otaa.dev_eui = NULL;
     conn.connection_u.otaa.nb_trials = 0;
+    conn.connection_u.otaa.nwk_key = NULL;
     EXPECT_EQ(LORAWAN_STATUS_PARAMETER_INVALID, object->prepare_join(&conn, true));
 
     conn.connection_u.otaa.app_key = key;
     conn.connection_u.otaa.app_eui = NULL;
     conn.connection_u.otaa.dev_eui = NULL;
     conn.connection_u.otaa.nb_trials = 0;
+    conn.connection_u.otaa.nwk_key = NULL;
     EXPECT_EQ(LORAWAN_STATUS_PARAMETER_INVALID, object->prepare_join(&conn, true));
 
     conn.connection_u.otaa.app_key = key;
     conn.connection_u.otaa.app_eui = key;
     conn.connection_u.otaa.dev_eui = NULL;
     conn.connection_u.otaa.nb_trials = 0;
+    conn.connection_u.otaa.nwk_key = NULL;
     EXPECT_EQ(LORAWAN_STATUS_PARAMETER_INVALID, object->prepare_join(&conn, true));
 
     conn.connection_u.otaa.app_key = key;
     conn.connection_u.otaa.app_eui = key;
     conn.connection_u.otaa.dev_eui = key;
     conn.connection_u.otaa.nb_trials = 0;
+    conn.connection_u.otaa.nwk_key = NULL;
+    EXPECT_EQ(LORAWAN_STATUS_PARAMETER_INVALID, object->prepare_join(&conn, true));
+
+    conn.connection_u.otaa.app_key = key;
+    conn.connection_u.otaa.app_eui = key;
+    conn.connection_u.otaa.dev_eui = key;
+    conn.connection_u.otaa.nb_trials = 2;
+    conn.connection_u.otaa.nwk_key = NULL;
     EXPECT_EQ(LORAWAN_STATUS_PARAMETER_INVALID, object->prepare_join(&conn, true));
 
     LoRaPHY_stub::bool_table[0] = false;
@@ -270,36 +282,47 @@ TEST_F(Test_LoRaMac, prepare_join)
     conn.connection_u.otaa.app_eui = key;
     conn.connection_u.otaa.dev_eui = key;
     conn.connection_u.otaa.nb_trials = 2;
+    conn.connection_u.otaa.nwk_key = key;
     EXPECT_EQ(LORAWAN_STATUS_OK, object->prepare_join(&conn, true));
 
     conn.connection_u.abp.dev_addr = 0;
     conn.connection_u.abp.nwk_id = 0;
     conn.connection_u.abp.nwk_skey = NULL;
     conn.connection_u.abp.app_skey = NULL;
+    conn.connection_u.abp.snwk_sintkey = NULL;
+    conn.connection_u.abp.nwk_senckey = NULL;
     EXPECT_EQ(LORAWAN_STATUS_PARAMETER_INVALID, object->prepare_join(&conn, false));
 
     conn.connection_u.abp.dev_addr = 1;
     conn.connection_u.abp.nwk_id = 0;
     conn.connection_u.abp.nwk_skey = NULL;
     conn.connection_u.abp.app_skey = NULL;
+    conn.connection_u.abp.snwk_sintkey = NULL;
+    conn.connection_u.abp.nwk_senckey = NULL;
     EXPECT_EQ(LORAWAN_STATUS_PARAMETER_INVALID, object->prepare_join(&conn, false));
 
     conn.connection_u.abp.dev_addr = 1;
     conn.connection_u.abp.nwk_id = 2;
     conn.connection_u.abp.nwk_skey = NULL;
     conn.connection_u.abp.app_skey = NULL;
+    conn.connection_u.abp.snwk_sintkey = NULL;
+    conn.connection_u.abp.nwk_senckey = NULL;
     EXPECT_EQ(LORAWAN_STATUS_PARAMETER_INVALID, object->prepare_join(&conn, false));
 
     conn.connection_u.abp.dev_addr = 1;
     conn.connection_u.abp.nwk_id = 2;
     conn.connection_u.abp.nwk_skey = key;
     conn.connection_u.abp.app_skey = NULL;
+    conn.connection_u.abp.snwk_sintkey = NULL;
+    conn.connection_u.abp.nwk_senckey = NULL;
     EXPECT_EQ(LORAWAN_STATUS_PARAMETER_INVALID, object->prepare_join(&conn, false));
 
     conn.connection_u.abp.dev_addr = 1;
     conn.connection_u.abp.nwk_id = 2;
     conn.connection_u.abp.nwk_skey = key;
     conn.connection_u.abp.app_skey = key;
+    conn.connection_u.abp.snwk_sintkey = NULL;
+    conn.connection_u.abp.nwk_senckey = NULL;
     EXPECT_EQ(LORAWAN_STATUS_OK, object->prepare_join(&conn, false));
 
     EXPECT_EQ(LORAWAN_STATUS_OK, object->prepare_join(NULL, false));
@@ -319,6 +342,7 @@ TEST_F(Test_LoRaMac, join)
     conn.connection_u.otaa.app_eui = key;
     conn.connection_u.otaa.dev_eui = key;
     conn.connection_u.otaa.nb_trials = 2;
+    conn.connection_u.otaa.nwk_key = key;
     object->prepare_join(&conn, true);
     EXPECT_EQ(LORAWAN_STATUS_CONNECT_IN_PROGRESS, object->join(true));
 }
@@ -330,11 +354,16 @@ TEST_F(Test_LoRaMac, on_radio_tx_done)
     object->on_radio_tx_done(100);
 }
 
+static void my_cb(loramac_mlme_confirm_t& mlme)
+{
+
+}
+
 TEST_F(Test_LoRaMac, on_radio_rx_done)
 {
     uint8_t buf[16];
     memset(buf, 0, sizeof(buf));
-    object->on_radio_rx_done(buf, 16, 0, 0);
+    object->on_radio_rx_done(buf, 16, 0, 0, my_cb);
 }
 
 TEST_F(Test_LoRaMac, on_radio_tx_timeout)
@@ -359,6 +388,7 @@ TEST_F(Test_LoRaMac, continue_joining_process)
     conn.connection_u.otaa.app_eui = key;
     conn.connection_u.otaa.dev_eui = key;
     conn.connection_u.otaa.nb_trials = 2;
+    conn.connection_u.otaa.nwk_key = key;
     object->prepare_join(&conn, true);
     object->continue_joining_process();
 }
@@ -378,11 +408,6 @@ TEST_F(Test_LoRaMac, get_mcps_confirmation)
 TEST_F(Test_LoRaMac, get_mcps_indication)
 {
     object->get_mcps_indication();
-}
-
-TEST_F(Test_LoRaMac, get_mlme_confirmation)
-{
-    object->get_mlme_confirmation();
 }
 
 TEST_F(Test_LoRaMac, get_mlme_indication)
@@ -418,13 +443,13 @@ TEST_F(Test_LoRaMac, post_process_mcps_req)
 
     //address != _params.dev_addr
     payload[2] = 2;
-    object->on_radio_rx_done(payload, 16, 0, 0);
+    object->on_radio_rx_done(payload, 16, 0, 0, my_cb);
     object->post_process_mcps_req();
 
     payload[2] = 0;
     //mic failure
     payload[13] = 2;
-    object->on_radio_rx_done(payload, 16, 0, 0);
+    object->on_radio_rx_done(payload, 16, 0, 0, my_cb);
     object->post_process_mcps_req();
 
     payload[13] = 0;
@@ -433,7 +458,7 @@ TEST_F(Test_LoRaMac, post_process_mcps_req)
     LoRaMacCrypto_stub::int_table[0] = 4;
     LoRaMacCrypto_stub::int_table[1] = 4;
 //    LoRaPHY_stub::uint16_value = 0;
-    object->on_radio_rx_done(payload, 16, 0, 0);
+    object->on_radio_rx_done(payload, 16, 0, 0, my_cb);
     object->post_process_mcps_req();
 
     //process_mac_commands failure
@@ -441,7 +466,7 @@ TEST_F(Test_LoRaMac, post_process_mcps_req)
     LoRaMacCrypto_stub::int_table[0] = 0;
     LoRaMacCrypto_stub::int_table[1] = 0;
     payload[7] = 1;
-    object->on_radio_rx_done(payload, 16, 0, 0);
+    object->on_radio_rx_done(payload, 16, 0, 0, my_cb);
     object->post_process_mcps_req();
 
     //FOpts_len != 0
@@ -450,24 +475,24 @@ TEST_F(Test_LoRaMac, post_process_mcps_req)
     LoRaMacCommand_stub::status_value = LORAWAN_STATUS_OK;
     payload[0] = FRAME_TYPE_DATA_UNCONFIRMED_DOWN << 5;
 
-    object->on_radio_rx_done(payload, 13, 0, 0);
+    object->on_radio_rx_done(payload, 13, 0, 0, my_cb);
 
     //_mac_commands.process_mac_commands fails
     LoRaMacCommand_stub::status_value = LORAWAN_STATUS_DATARATE_INVALID;
-    object->on_radio_rx_done(payload, 13, 0, 0);
+    object->on_radio_rx_done(payload, 13, 0, 0, my_cb);
 
     object->post_process_mcps_req();
 
     payload[9] = 1;
     LoRaMacCommand_stub::status_value = LORAWAN_STATUS_OK;
     payload[0] = FRAME_TYPE_PROPRIETARY << 5;
-    object->on_radio_rx_done(payload, 16, 0, 0);
+    object->on_radio_rx_done(payload, 16, 0, 0, my_cb);
     object->post_process_mcps_req();
 
     payload[9] = 0;
     payload[5] = 1 << 5;
     LoRaMacCommand_stub::status_value = LORAWAN_STATUS_OK;
-    object->on_radio_rx_done(payload, 16, 0, 0);
+    object->on_radio_rx_done(payload, 16, 0, 0, my_cb);
     object->post_process_mcps_req();
 
     LoRaPHY_stub::bool_counter = 0;
@@ -499,35 +524,30 @@ TEST_F(Test_LoRaMac, handle_join_accept_frame)
     LoRaMacCrypto_stub::int_table[1] = 4;
     LoRaMacCrypto_stub::int_table[2] = 4;
     LoRaMacCrypto_stub::int_table[3] = 4;
-    object->on_radio_rx_done(payload, 16, 0, 0);
+    object->on_radio_rx_done(payload, 16, 0, 0, my_cb);
 
     LoRaMacCrypto_stub::int_table_idx_value = 0;
     LoRaMacCrypto_stub::int_table[0] = 0;
-    object->on_radio_rx_done(payload, 16, 0, 0);
+    object->on_radio_rx_done(payload, 16, 0, 0, my_cb);
 
     LoRaMacCrypto_stub::int_table_idx_value = 0;
     LoRaMacCrypto_stub::int_table[1] = 0;
-    object->on_radio_rx_done(payload, 16, 0, 0);
+    object->on_radio_rx_done(payload, 16, 0, 0, my_cb);
 
     //mic failure case
     payload[13] = 17;
     LoRaMacCrypto_stub::int_table_idx_value = 0;
-    object->on_radio_rx_done(payload, 16, 0, 0);
+    object->on_radio_rx_done(payload, 16, 0, 0, my_cb);
 
     payload[13] = 0;
     LoRaMacCrypto_stub::int_table_idx_value = 0;
     LoRaMacCrypto_stub::int_table[2] = 0;
-    object->on_radio_rx_done(payload, 16, 0, 0);
+    object->on_radio_rx_done(payload, 16, 0, 0, my_cb);
 }
 
 TEST_F(Test_LoRaMac, post_process_mcps_ind)
 {
     object->post_process_mcps_ind();
-}
-
-TEST_F(Test_LoRaMac, post_process_mlme_request)
-{
-    object->post_process_mlme_request();
 }
 
 TEST_F(Test_LoRaMac, post_process_mlme_ind)
@@ -565,6 +585,7 @@ TEST_F(Test_LoRaMac, clear_tx_pipe)
     conn.connection_u.otaa.app_eui = key;
     conn.connection_u.otaa.dev_eui = key;
     conn.connection_u.otaa.nb_trials = 2;
+    conn.connection_u.otaa.nwk_key = key;
     object->prepare_join(&conn, true);
 
     EXPECT_TRUE(LORAWAN_STATUS_OK == object->initialize(NULL, my_cb));
