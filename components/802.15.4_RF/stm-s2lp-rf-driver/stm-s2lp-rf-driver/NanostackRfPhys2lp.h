@@ -18,6 +18,7 @@
 #define NANOSTACK_PHY_S2LP_H_
 
 #include "mbed.h"
+#if defined(MBED_CONF_NANOSTACK_CONFIGURATION) && DEVICE_SPI
 #include "NanostackRfPhy.h"
 
 // Uncomment to use testing gpios attached to TX/RX processes
@@ -104,5 +105,5 @@ private:
     const PinName _spi_gpio2;
     const PinName _spi_gpio3;
 };
-
+#endif /* MBED_CONF_NANOSTACK_CONFIGURATION && DEVICE_SPI */
 #endif /* NANOSTACK_PHY_S2LP_H_ */
