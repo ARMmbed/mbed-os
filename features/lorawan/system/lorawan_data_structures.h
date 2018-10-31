@@ -169,6 +169,14 @@ typedef enum {
 } server_type_t;
 
 typedef enum {
+    JOIN_ACCEPT = 0,
+    JOIN_REQ,
+    REJOIN0_REQ,
+    REJOIN1_REQ,
+    REJOIN2_REQ
+} join_frame_type_t;
+
+typedef enum {
     FCNT_UP = 0,
     NFCNT_DOWN,
     AFCNT_DOWN
@@ -1141,18 +1149,6 @@ typedef struct {
 
 typedef struct {
     /*!
-     * Device IEEE EUI
-     */
-    uint8_t *dev_eui;
-
-    /*!
-     * Application IEEE EUI
-     *
-     * In case of LW1.1 or greater this is same as JoinEUI
-     */
-    uint8_t *app_eui;
-
-    /*!
      * AES encryption/decryption cipher application key
      */
     uint8_t *app_key;
@@ -1348,9 +1344,16 @@ typedef struct {
     uint8_t join_request_trial_counter;
 
     /*!
-     * Mac keys
+     * Device IEEE EUI
      */
-    loramac_keys keys;
+    uint8_t *dev_eui;
+
+    /*!
+     * Application IEEE EUI
+     *
+     * In case of LW1.1 or greater this is same as JoinEUI
+     */
+    uint8_t *app_eui;
 
     /*!
      * Device nonce is a random value extracted by issuing a sequence of RSSI

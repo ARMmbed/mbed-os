@@ -18,7 +18,10 @@
 
 #include <inttypes.h>
 
+#include "system/lorawan_data_structures.h"
+
 namespace LoRaMacCrypto_stub {
 extern int int_table_idx_value;
 extern int int_table[20];
+extern lorawan_status_t status;
 }

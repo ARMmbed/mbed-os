@@ -43,12 +43,20 @@ public:
     LoRaMacCrypto();
 
     /**
+     * @brief set_keys Set keys to be used for crypto operations
+     * @param [in] nwk_key Network key
+     * @param [in] app_key Application key
+     *
+     * @return LORAWAN_STATUS_OK if accepted, LORAWAN_STATUS_CRYPTO_FAIL otherwise
+     */
+    lorawan_status_t set_keys(uint8_t *nwk_key, uint8_t *app_key, uint8_t *nwk_skey = NULL,
+                              uint8_t *app_skey = NULL, uint8_t *snwk_sintkey = NULL, uint8_t *nwk_senckey = NULL);
+
+    /**
      * Computes the LoRaMAC frame MIC field
      *
      * @param [in]  buffer          - Data buffer
      * @param [in]  size            - Data buffer size
-     * @param [in]  key             - AES key to be used
-     * @param [in]  key_length      - Length of the key (bits)
      * @param [in]  args            - LW1.1 bytes 1-4 (ConfFCnt, TxDr, TxCh)
      * @param [in]  address         - Frame address
      * @param [in]  dir             - Frame direction [0: uplink, 1: downlink]
@@ -58,7 +66,6 @@ public:
      * @return                        0 if successful, or a cipher specific error code
      */
     int compute_mic(const uint8_t *buffer, uint16_t size,
-                    const uint8_t *key, uint32_t key_length,
                     uint32_t args, uint32_t address,
                     uint8_t dir, uint32_t seq_counter,
                     uint32_t *mic);
@@ -68,100 +75,86 @@ public:
      *
      * @param [in]  buffer          - Data buffer
      * @param [in]  size            - Data buffer size
-     * @param [in]  key             - AES key to be used
-     * @param [in]  key_length      - Length of the key (bits)
      * @param [in]  address         - Frame address
      * @param [in]  dir             - Frame direction [0: uplink, 1: downlink]
      * @param [in]  seq_counter     - Frame sequence counter
      * @param [in]  s1_block_start  - 0 for FOpts field, 1 for FMRPayload
      * @param [out] enc_buffer      - Encrypted buffer
+     * @param [in]  is_fopts        - Specifies whether to use FOpts key or not
      *
      * @return                        0 if successful, or a cipher specific error code
      */
     int encrypt_payload(const uint8_t *buffer, uint16_t size,
-                        const uint8_t *key, uint32_t key_length,
                         uint32_t address, uint8_t dir, uint32_t seq_counter,
                         seq_counter_type_t seq_cnt_type,
                         payload_type_t pld_type,
                         uint8_t *enc_buffer,
-                        server_type_t serv_type);
+                        server_type_t serv_type, bool is_fopts = false);
 
     /**
      * Performs payload decryption
      *
      * @param [in]  buffer          - Data buffer
      * @param [in]  size            - Data buffer size
-     * @param [in]  key             - AES key to be used
-     * @param [in]  key_length      - Length of the key (bits)
      * @param [in]  address         - Frame address
      * @param [in]  dir             - Frame direction [0: uplink, 1: downlink]
      * @param [in]  seq_counter     - Frame sequence counter
      * @param [in]  s1_block_start  - 0 for FOpts field, 1 for FMRPayload
      * @param [out] dec_buffer      - Decrypted buffer
+     * @param [in]  is_fopts        - Specifies whether to use FOpts key or not
      *
      * @return                        0 if successful, or a cipher specific error code
      */
     int decrypt_payload(const uint8_t *buffer, uint16_t size,
-                        const uint8_t *key, uint32_t key_length,
                         uint32_t address, uint8_t dir, uint32_t seq_counter,
                         seq_counter_type_t seq_cnt_type,
                         payload_type_t pld_type,
                         uint8_t *dec_buffer,
-                        server_type_t serv_type);
+                        server_type_t serv_type, bool is_fopts = false);
 
     /**
      * Computes the LoRaMAC Join Request frame MIC field
      *
      * @param [in]  buffer          - Data buffer
      * @param [in]  size            - Data buffer size
-     * @param [in]  key             - AES key to be used
-     * @param [in]  key_length      - Length of the key (bits)
+     * @param [in]  type            - Type of message to handle
      * @param [out] mic             - Computed MIC field
      *
      * @return                        0 if successful, or a cipher specific error code
      *
      */
     int compute_join_frame_mic(const uint8_t *buffer, uint16_t size,
-                               const uint8_t *key, uint32_t key_length,
-                               uint32_t *mic);
+                               join_frame_type_t type, uint32_t *mic);
 
     /**
      * Computes the LoRaMAC join frame decryption
      *
      * @param [in]  buffer          - Data buffer
      * @param [in]  size            - Data buffer size
-     * @param [in]  key             - AES key to be used
-     * @param [in]  key_length      - Length of the key (bits)
      * @param [out] dec_buffer      - Decrypted buffer
+     * @param [in]  is_join_req     - True for join request, false for rejoin requests
      *
      * @return                        0 if successful, or a cipher specific error code
      */
     int decrypt_join_frame(const uint8_t *buffer, uint16_t size,
-                           const uint8_t *key, uint32_t key_length,
-                           uint8_t *dec_buffer);
+                           uint8_t *dec_buffer, bool is_join_req);
+
+    /**
+     * @brief unset_js_keys In case we support LoRaWAN 1.1 but server does not, we need to
+     *        unset Join server keys to work with LoRaWAN 1.0.2
+     */
+    void unset_js_keys();
 
     /**
      * Computes the LoRaMAC join frame decryption
      *
-     * @param [in]  key              - AES nwk key to be used
-     * @param [in]  key_length       - Length of the key (bits)
-     * @param [in]  app_key          - AES app key to be used
-     * @param [in]  app_key_length   - Length of the app key (bits)
      * @param [in]  args             - Combined string of args needed for key derivation
      * @param [in]  args_size        - Args size
-     * @param [out] nwk_skey         - Network session key
-     * @param [out] app_skey         - Application session key
-     * @param [out] snwk_sintkey     - Serving Network Session Integrity Key
-     * @param [out] nwk_senckey      - Network Session Encryption Key
-     * @param stype                  - Server type (LW1_0_2 or LW1_1) which defines
+     * @param [in]  stype            - Server type (LW1_0_2 or LW1_1)
      *
      * @return                        0 if successful, or a cipher specific error code
      */
-    int compute_skeys_for_join_frame(const uint8_t *key, uint32_t key_length,
-                                     const uint8_t *app_key, uint32_t app_key_length,
-                                     const uint8_t *args, uint8_t args_size,
-                                     uint8_t *nwk_skey, uint8_t *app_skey,
-                                     uint8_t *snwk_sintkey, uint8_t *nwk_senckey,
+    int compute_skeys_for_join_frame(const uint8_t *args, uint8_t args_size,
                                      server_type_t stype);
 
     /**
@@ -169,16 +162,11 @@ public:
      * In case of LoRaWAN 1.0.x key will be copied to outputs,
      * so we can continue using same code for all versions
      *
-     * @param [in]  key              - AES key to be used
-     * @param [in]  key_length       - Length of the key (bits)
      * @param [in]  eui              - DevEUI
-     * @param [out] js_intkey        - Join server integrity key
-     * @param [out] js_enckey        - Join server encryption key
      *
      * @return                        0 if successful, or a cipher specific error code
      */
-    int compute_join_server_keys(const uint8_t *key, uint32_t key_length, const uint8_t *eui,
-                                 uint8_t *js_intkey, uint8_t *js_enckey);
+    int compute_join_server_keys(const uint8_t *eui);
 
 private:
     /**
@@ -190,6 +178,13 @@ private:
      * CMAC computation context variable
      */
     mbedtls_cipher_context_t aes_cmac_ctx[1];
+
+    loramac_keys _keys;
+
+    /*!
+     * Mote Address
+     */
+    uint32_t _dev_addr;
 };
 
 #endif // MBED_LORAWAN_MAC_LORAMAC_CRYPTO_H__
