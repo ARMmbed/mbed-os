@@ -28,3 +28,4 @@ extern "C" void mbed_assert_internal(const char *expr, const char *file, int lin
         throw 1;
     }
 }
+

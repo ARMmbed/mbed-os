@@ -34,6 +34,7 @@ set(unittest-test-sources
   features/lorawan/loraphy/Test_LoRaPHY.cpp
   stubs/LoRaWANTimer_stub.cpp
   stubs/mbed_assert_stub.cpp
+  stubs/mbed_rtc_time_stub.cpp
 )
 
 set(unittest-test-flags
@@ -42,5 +43,7 @@ set(unittest-test-flags
   -DMBED_CONF_LORA_UPLINK_PREAMBLE_LENGTH=8
   -DMBED_CONF_LORA_TX_MAX_SIZE=255
   -DMBED_CONF_LORA_NB_TRIALS=2
+  -DMBED_CONF_LORA_REJOIN_DEFAULT_MAX_TIME=3600
+  -DMBED_CONF_LORA_REJOIN_DEFAULT_MAX_COUNT=10
 )
 
