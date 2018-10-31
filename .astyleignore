@@ -18,4 +18,6 @@ features/nanostack/sal-stack-nanostack
 rtos/TARGET_CORTEX/rtx5
 TESTS/mbed_hal/trng/pithy
 targets
+components/802.15.4_RF
+components/wifi
 tools
