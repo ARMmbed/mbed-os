@@ -88,7 +88,7 @@ class RtosTimer : private mbed::NonCopyable<RtosTimer> {
 public:
     /** Create timer.
       @param   func      function to be executed by this timer.
-      @param   type      osTimerOnce for one-shot or osTimerPeriodic for periodic behaviour. (default: osTimerPeriodic)
+      @param   type      osTimerOnce for one-shot or osTimerPeriodic for periodic behavior. (default: osTimerPeriodic)
       @param   argument  argument to the timer call back function. (default: NULL)
       @deprecated Replaced with RtosTimer(Callback<void()>, os_timer_type)
       @deprecated
@@ -106,7 +106,7 @@ public:
     
     /** Create timer.
       @param   func      function to be executed by this timer.
-      @param   type      osTimerOnce for one-shot or osTimerPeriodic for periodic behaviour. (default: osTimerPeriodic)
+      @param   type      osTimerOnce for one-shot or osTimerPeriodic for periodic behavior. (default: osTimerPeriodic)
       @deprecated
           The RtosTimer has been superseded by the EventQueue. See RtosTimer.h for more details
 
@@ -121,7 +121,7 @@ public:
     /** Create timer.
       @param   obj       pointer to the object to call the member function on.
       @param   method    member function to be executed by this timer.
-      @param   type      osTimerOnce for one-shot or osTimerPeriodic for periodic behaviour. (default: osTimerPeriodic)
+      @param   type      osTimerOnce for one-shot or osTimerPeriodic for periodic behavior. (default: osTimerPeriodic)
       @deprecated
           The RtosTimer constructor does not support cv-qualifiers. Replaced by
           RtosTimer(callback(obj, method), os_timer_type).

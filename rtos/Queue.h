@@ -37,7 +37,7 @@ namespace rtos {
  */
 
 /** The Queue class represents a collection of objects that are stored first by
- *  order of priorty, and then in first-in, first-out (FIFO) order.
+ *  order of priority, and then in first-in, first-out (FIFO) order.
  *
  * You can use a queue when you need to store data and then access it in the same
  * order that it has been stored. The order in which you retrieve the data is in
