@@ -738,12 +738,27 @@ class mbedToolchain:
             ))
             self._add_all_regions(regions, "MBED_RAM")
         try:
-            rom_start, rom_size = self.config.rom
-            Region = namedtuple("Region", "name start size")
-            self._add_defines_from_region(
-                Region("MBED_ROM", rom_start, rom_size),
-                suffixes=["_START", "_SIZE"]
-            )
+            # Add all available ROM regions to build profile
+            rom_available_regions = self.config._get_all_rom_regions(True)
+            for key,value in rom_available_regions.items():
+                region, rom_start, rom_size = key, value[0], value[1]
+                Region = namedtuple("Region", "name start size")
+                self._add_defines_from_region(
+                    Region("MBED_"+region, rom_start, rom_size),
+                    suffixes=["_START", "_SIZE"]
+                )
+        except ConfigException:
+            pass
+        try:
+            # Add all available RAM regions to build profile
+            ram_available_regions = self.config._get_all_ram_regions()
+            for key,value in ram_available_regions.items():
+                region, ram_start, ram_size = key, value[0], value[1]
+                Region = namedtuple("Region", "name start size")
+                self._add_defines_from_region(
+                    Region("MBED_"+region, ram_start, ram_size),
+                    suffixes=["_START", "_SIZE"]
+                )
         except ConfigException:
             pass
 
