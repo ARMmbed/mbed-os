@@ -16,6 +16,13 @@
 #include "hal/mpu_api.h"
 #include "cmsis.h"
 
+#if ((__ARM_ARCH_7M__ == 1U) || (__ARM_ARCH_7EM__ == 1U) || (__ARM_ARCH_6M__ == 1U)) && \
+    defined (__MPU_PRESENT) && (__MPU_PRESENT == 1U)
+
+#if !DEVICE_MPU
+#error "Device has v7m MPU but it is not enabled. Add 'MPU' to device_has in targets.json"
+#endif
+
 void mbed_mpu_init()
 {
     mbed_mpu_enable_ram_xn(false);
@@ -28,7 +35,6 @@ void mbed_mpu_free()
 
 void mbed_mpu_enable_ram_xn(bool enable)
 {
-#if MBED_MPU_ENABLED
     // Flush memory writes before configuring the MPU.
     __DSB();
 
@@ -145,5 +151,6 @@ void mbed_mpu_enable_ram_xn(bool enable)
     // Ensure changes take effect
     __ISB();
     __DSB();
-#endif
 }
+
+#endif
