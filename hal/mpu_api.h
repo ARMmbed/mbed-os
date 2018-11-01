@@ -19,32 +19,14 @@
 #ifndef MBED_MPU_API_H
 #define MBED_MPU_API_H
 
+#include "device.h"
 #include <stdbool.h>
-#include "cmsis.h"
-
-#ifndef MBED_MPU_ENABLED
-
-#if ((__ARM_ARCH_7M__     == 1U) || \
-    (__ARM_ARCH_7EM__     == 1U) || \
-    (__ARM_ARCH_6M__ == 1U))
-#if defined (__MPU_PRESENT) && (__MPU_PRESENT == 1U)
-#define MBED_MPU_ENABLED      1U
-#else
-#define MBED_MPU_ENABLED      0U
-#endif
-#elif ((__ARM_ARCH_7A__ == 1U) || \
-      (__ARM_ARCH_8M_BASE__ == 1U) || \
-      (__ARM_ARCH_8M_MAIN__ == 1U))
-#define MBED_MPU_ENABLED      0U
-#else
-#error "Unknown architecture for MPU"
-#endif
-
-#endif
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#if DEVICE_MPU
 
 /**
  * Initialize the MPU
@@ -70,6 +52,16 @@ void mbed_mpu_enable_ram_xn(bool enable);
  * Powerdown the MPU in preparation for powerdown, reset or jumping to another application.
  */
 void mbed_mpu_free(void);
+
+#else
+
+#define mbed_mpu_init()
+
+#define mbed_mpu_enable_ram_xn(enable) (void)enable
+
+#define mbed_mpu_free()
+
+#endif
 
 #ifdef __cplusplus
 }
