@@ -41,9 +41,9 @@ namespace mbed {
  * If an RTOS is not present or the configuration option
  * `events.shared-dispatch-from-application` is set to true, then this
  * does not create a dedicated dispatch thread - instead the application is
- * expected to run the EventQueue's dispatch, eg from main. This is necessary
- * for the event loop to work without an RTOS, or an RTOS system can can save
- * memory by reusing the main stack.
+ * expected to run the EventQueue's dispatch, for example from main. This is
+ * necessary for the event loop to work without an RTOS, or an RTOS system can
+ * save memory by reusing the main stack.
  *
  * @note
  * mbed_event_queue is not itself IRQ safe. To use the mbed_event_queue in

@@ -74,7 +74,7 @@ public:
      *
      *  When called with a finite timeout, the dispatch function is guaranteed
      *  to terminate. When called with a timeout of 0, the dispatch function
-     *  does not wait and is irq safe.
+     *  does not wait and is IRQ safe.
      *
      *  @param ms       Time to wait for events in milliseconds, a negative
      *                  value will dispatch events indefinitely
@@ -119,7 +119,7 @@ public:
      *
      *  id must be valid i.e. event must have not finished executing.
      *
-     *  The cancel function is irq safe.
+     *  The cancel function is IRQ safe.
      *
      *  If called while the event queue's dispatch loop is active, the cancel
      *  function does not guarantee that the event will not execute after it
@@ -136,7 +136,7 @@ public:
      *
      *  id must be valid i.e. event must have not finished executing.
      *
-     *  This function is irq safe.
+     *  This function is IRQ safe.
      *
      *  @param id       Unique id of the event
      *
@@ -191,8 +191,8 @@ public:
      *  The specified callback will be executed in the context of the event
      *  queue's dispatch loop.
      *
-     *  The call function is irq safe and can act as a mechanism for moving
-     *  events out of irq contexts.
+     *  The call function is IRQ safe and can act as a mechanism for moving
+     *  events out of IRQ contexts.
      *
      *  @param f        Function to execute in the context of the dispatch loop
      *  @param args     Arguments to pass to the callback
@@ -892,8 +892,8 @@ public:
      *  The specified callback will be executed in the context of the event
      *  queue's dispatch loop.
      *
-     *  The call_in function is irq safe and can act as a mechanism for moving
-     *  events out of irq contexts.
+     *  The call_in function is IRQ safe and can act as a mechanism for moving
+     *  events out of IRQ contexts.
      *
      *  @param ms       Time to delay in milliseconds
      *  @param f        Function to execute in the context of the dispatch loop
@@ -1199,8 +1199,8 @@ public:
      *  The specified callback will be executed in the context of the event
      *  queue's dispatch loop.
      *
-     *  The call_every function is irq safe and can act as a mechanism for
-     *  moving events out of irq contexts.
+     *  The call_every function is IRQ safe and can act as a mechanism for
+     *  moving events out of IRQ contexts.
      *
      *  @param f        Function to execute in the context of the dispatch loop
      *  @param ms       Period of the event in milliseconds
