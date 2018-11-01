@@ -35,4 +35,13 @@ nsapi_error_t TLSSocket::connect(const char *host, uint16_t port)
     return TLSSocketWrapper::do_handshake();
 }
 
+TLSSocket::~TLSSocket()
+{
+    /* Transport is a member of TLSSocket which is derived from TLSSocketWrapper.
+     * Make sure that TLSSocketWrapper::close() is called before the transport is
+     * destroyed.
+     */
+    close();
+}
+
 #endif // MBEDTLS_SSL_CLI_C
