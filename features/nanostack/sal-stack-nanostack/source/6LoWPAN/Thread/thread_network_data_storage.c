@@ -2343,7 +2343,8 @@ bool thread_nd_service_anycast_address_mapping_from_network_data(thread_network_
         }
         ns_list_foreach(thread_network_data_service_server_entry_t, curServiceServer, &curService->server_list) {
             *rlocAddress = curServiceServer->router_id;
-            return true;
+            if(NULL != rlocAddress)
+                return true;
         }
     }
     return false;

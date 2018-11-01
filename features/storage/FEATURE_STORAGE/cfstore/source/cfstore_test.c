@@ -562,7 +562,7 @@ int32_t cfstore_test_init_1(void)
         ret = drv->Create(node->key_name, strlen(node->value), &kdesc, hkey);
         if(ret < ARM_DRIVER_OK){
             CFSTORE_ERRLOG("%s:Error: failed to create node (key_name=\"%s\", value=\"%s\")\r\n", __func__, node->key_name, node->value);
-            return ret;
+            break;//break the loop to free read_buf and return
         }
 
         CFSTORE_DBGLOG("%s:length of KV=%d (key_name=\"%s\", value=\"%s\")\r\n", __func__, (int) len, node->key_name, node->value);
@@ -571,12 +571,13 @@ int32_t cfstore_test_init_1(void)
         if(ret < ARM_DRIVER_OK){
             CFSTORE_ERRLOG("%s:Error: failed to write key (key_name=\"%s\", value=\"%s\")\r\n", __func__, node->key_name, node->value);
             drv->Close(hkey);
-            return ret;
+            break;//break the loop to free read_buf and return
         }
         if(len != strlen(node->value)){
             CFSTORE_ERRLOG("%s:Error: failed to write full value data (key_name=\"%s\", value=\"%s\"), len=%d\r\n", __func__, node->key_name, node->value, (int) len);
             drv->Close(hkey);
-            return ARM_DRIVER_ERROR;
+            ret = ARM_DRIVER_ERROR;
+            break;//break the loop to free read_buf and return
         }
         /* read the data back*/
         len = strlen(node->value);
@@ -585,12 +586,13 @@ int32_t cfstore_test_init_1(void)
         if(ret < ARM_DRIVER_OK){
             CFSTORE_ERRLOG("%s:Error: failed to read key (key_name=\"%s\", value=\"%s\")\r\n", __func__, node->key_name, node->value);
             drv->Close(hkey);
-            return ret;
+            break;//break the loop to free read_buf and return
         }
         if(len != strlen(node->value)){
             CFSTORE_ERRLOG("%s:Error: failed to read full value data (key_name=\"%s\", value=\"%s\"), len=%d, ret=%d\r\n", __func__, node->key_name, node->value, (int) len, (int) ret);
             drv->Close(hkey);
-            return ARM_DRIVER_ERROR;
+            ret = ARM_DRIVER_ERROR;
+            break;//break the loop to free read_buf and return
         }
         key_name_len = key_name_max_len;
         memset(key_name_buf, 0, key_name_len);
@@ -598,7 +600,8 @@ int32_t cfstore_test_init_1(void)
         if(len != strlen(node->value)){
             CFSTORE_ERRLOG("%s:Error: failed to GetKeyName() (key_name=\"%s\", value=\"%s\"), len=%d\r\n", __func__, node->key_name, node->value, (int) len);
             drv->Close(hkey);
-            return ARM_DRIVER_ERROR;
+            ret = ARM_DRIVER_ERROR;
+            break;//break the loop to free read_buf and return
         }
         /* revert CFSTORE_LOG for more trace */
         CFSTORE_DBGLOG("Created KV successfully (key_name=\"%s\", value=\"%s\")\r\n", key_name_buf, read_buf);

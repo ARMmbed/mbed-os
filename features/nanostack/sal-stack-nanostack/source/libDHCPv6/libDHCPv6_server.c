@@ -62,7 +62,7 @@ static void libdhcpv6_address_generate(dhcpv6_gua_server_entry_s *serverInfo, dh
         if (entry->linkType == DHCPV6_DUID_HARDWARE_EUI64_TYPE) {
             memcpy(ptr, entry->linkId, 8);
             *ptr ^= 2;
-        } else if (entry->linkType == DHCPV6_DUID_HARDWARE_EUI64_TYPE) {
+        } else if (entry->linkType == DHCPV6_DUID_HARDWARE_EUI48_TYPE) {
             *ptr++  = entry->linkId[0] ^ 2;
             *ptr++  = entry->linkId[1];
             *ptr++  = entry->linkId[2];
