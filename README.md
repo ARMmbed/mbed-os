@@ -24,6 +24,7 @@ Mbed OS provides a platform that includes:
 * Drivers for sensors, I/O devices and connectivity. 
 
 ## Release notes
+
 The [release notes](https://os.mbed.com/releases) detail the current release. You can also find information about previous versions.
 
 ## Getting started for developers
