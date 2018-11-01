@@ -88,38 +88,72 @@ SDIOBlockDevice::~SDIOBlockDevice() {
 
 int SDIOBlockDevice::init() {
     debug_if(SD_DBG, "init Card...\r\n");
+    int retVal = BD_ERROR_OK;
+
+    lock();
+
+    if (!_is_initialized) {
+        _init_ref_count = 0;
+    }
+
+    _init_ref_count++;
+
+    if (_init_ref_count != 1) {
+        goto end;
+    }
+
     if (isPresent() == false) {
         return SD_BLOCK_DEVICE_ERROR_NO_DEVICE;
     }
 
-    if (!_is_initialized) {
-        _sd_state = SD_Init();
-        if (BD_ERROR_OK != _sd_state)
-            return BD_ERROR_DEVICE_ERROR;
-
-        SD_GetCardInfo(&_cardInfo);
-        _is_initialized = true;
-        debug_if(SD_DBG, "SD initialized: type: %d  version: %d  class: %d\n",
-                 _cardInfo.CardType, _cardInfo.CardVersion, _cardInfo.Class);
-        debug_if(SD_DBG, "SD size: %d MB\n",
-                 _cardInfo.LogBlockNbr / 2 / 1024);
+    _sd_state = SD_Init();
+    if (BD_ERROR_OK != _sd_state) {
+        retVal = BD_ERROR_DEVICE_ERROR;
+        goto end;
     }
+
+    SD_GetCardInfo(&_cardInfo);
+    _is_initialized = true;
+    debug_if(SD_DBG, "SD initialized: type: %d  version: %d  class: %d\n",
+             _cardInfo.CardType, _cardInfo.CardVersion, _cardInfo.Class);
+    debug_if(SD_DBG, "SD size: %d MB\n",
+             _cardInfo.LogBlockNbr / 2 / 1024);
 
     // get sectors count from cardinfo
     _sectors = _cardInfo.LogBlockNbr;
     if (BLOCK_SIZE_HC != _cardInfo.BlockSize) {
-        return SD_BLOCK_DEVICE_ERROR_UNSUPPORTED_BLOCKSIZE;
+        retVal = SD_BLOCK_DEVICE_ERROR_UNSUPPORTED_BLOCKSIZE;
+        goto end;
     }
 
-    return BD_ERROR_OK;
+end:
+    unlock();
+    return retVal;
 }
 
 
 int SDIOBlockDevice::deinit() {
     debug_if(SD_DBG, "deinit Card...\r\n");
+    lock();
+
+    if (!_is_initialized) {
+        _init_ref_count = 0;
+        goto end;
+    }
+
+    _init_ref_count--;
+
+    if (_init_ref_count) {
+        goto end;
+    }
+
     _sd_state = SD_DeInit();
     _is_initialized = false;
 
+    _sectors = 0;
+
+end:
+    unlock();
     return BD_ERROR_OK;
 }
 
@@ -158,8 +192,6 @@ int SDIOBlockDevice::read(void* b, bd_addr_t addr, bd_size_t size) {
     if (_sd_state != 0) {
         debug_if(SD_DBG, "ReadBlocks failed! addr: %lld  blockCnt: %lld \n", addr, blockCnt);
         debug_if(SD_DBG, "  hsd.errorcode: %lu  0x%lx\n", hsd.ErrorCode, hsd.ErrorCode);
-        printf("ReadBlocks failed! addr: %lld  blockCnt: %lld \n", addr, blockCnt);
-        printf("  hsd.errorcode: %lu  0x%lx\n", hsd.ErrorCode, hsd.ErrorCode);
         status = SD_BLOCK_DEVICE_ERROR_READBLOCKS;
     }
     else {
@@ -215,8 +247,6 @@ int SDIOBlockDevice::program(const void* b, bd_addr_t addr, bd_size_t size) {
     if (_sd_state != 0) {
         debug_if(SD_DBG, "WriteBlocks failed! addr: %lld  blockCnt: %lld \n", addr, blockCnt);
         debug_if(SD_DBG, "  hsd.errorcode: %lu  0x%lx\n", hsd.ErrorCode, hsd.ErrorCode);
-        printf("ReadBlocks failed! addr: %lld  blockCnt: %lld \n", addr, blockCnt);
-        printf("  hsd.errorcode: %lu  0x%lx\n", hsd.ErrorCode, hsd.ErrorCode);
         status = SD_BLOCK_DEVICE_ERROR_WRITEBLOCKS;
     }
     else {
@@ -229,7 +259,7 @@ int SDIOBlockDevice::program(const void* b, bd_addr_t addr, bd_size_t size) {
     #if (TRANSFER_MODE == TRANSFER_MODE_DMA)
     while (SD_DMA_WritePending() != SD_TRANSFER_OK) {
         // wait until DMA transfer done
-        wait_ms(20);
+        wait_ms(10);
     }
 #endif
 
@@ -265,6 +295,7 @@ int SDIOBlockDevice::trim(bd_addr_t addr, bd_size_t size) {
     else {
         while (SD_GetCardState() != SD_TRANSFER_OK) {
             // wait until SD ready
+            wait_ms(10);
         }
     }
 
