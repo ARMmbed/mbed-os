@@ -39,6 +39,8 @@
 
 #define RETRY_COUNT_DEFAULT 3
 
+const int STM_STOPPED = -99;
+
 namespace mbed {
 
 CellularStateMachine::CellularStateMachine(CellularDevice &device, events::EventQueue &queue) :
@@ -72,6 +74,7 @@ CellularStateMachine::CellularStateMachine(CellularDevice &device, events::Event
 CellularStateMachine::~CellularStateMachine()
 {
     stop();
+    _queue.break_dispatch();
 }
 
 void CellularStateMachine::reset()
@@ -88,7 +91,6 @@ void CellularStateMachine::reset()
 void CellularStateMachine::stop()
 {
     _queue.cancel(_event_id);
-    _queue.break_dispatch();
 
     if (_queue_thread) {
         _queue_thread->terminate();
@@ -97,6 +99,7 @@ void CellularStateMachine::stop()
     }
 
     reset();
+    _event_id = STM_STOPPED;
     if (_power) {
         _cellularDevice.close_power();
         _power = NULL;
@@ -111,11 +114,6 @@ void CellularStateMachine::stop()
         _cellularDevice.close_network();
         _network = NULL;
     }
-}
-
-events::EventQueue *CellularStateMachine::get_queue() const
-{
-    return &_queue;
 }
 
 bool CellularStateMachine::power_on()
@@ -196,6 +194,7 @@ bool CellularStateMachine::is_registered()
         }
     }
 
+    _cb_data.status_data = status;
     return is_registered || _active_context;
 }
 
@@ -439,6 +438,10 @@ void CellularStateMachine::state_registering()
 {
     _cellularDevice.set_timeout(TIMEOUT_NETWORK);
     if (is_registered()) {
+        tr_info("Sending Registration changed from plmn");
+        _cb_data.status_data = CellularNetwork::AlreadyRegistered;
+        _cb_data.error = NSAPI_ERROR_OK;
+        _event_status_cb(_current_event, (intptr_t)&_cb_data);
         // we are already registered, go to attach
         enter_to_state(STATE_ATTACHING_NETWORK);
     } else {
@@ -458,6 +461,11 @@ void CellularStateMachine::state_manual_registering_network()
     tr_info("state_manual_registering_network");
     if (!_plmn_network_found) {
         if (is_registered() && is_registered_to_plmn()) {
+            // we have to send registration changed event as network thinks that we are not registered even we have active PDP context
+            tr_info("Sending REgistration changed from plmn");
+            _cb_data.status_data = CellularNetwork::AlreadyRegistered;
+            _cb_data.error = NSAPI_ERROR_OK;
+            _event_status_cb(_current_event, (intptr_t)&_cb_data);
             _plmn_network_found = true;
             enter_to_state(STATE_ATTACHING_NETWORK);
         } else {
@@ -596,7 +604,7 @@ void CellularStateMachine::event()
             break;
     }
 
-    if (_target_state == _state && _cb_data.error == NSAPI_ERROR_OK && !_is_retry) {
+    if ((_target_state == _state && _cb_data.error == NSAPI_ERROR_OK && !_is_retry) || _event_id == STM_STOPPED) {
         tr_info("Target state reached: %s", get_state_string(_target_state));
         _event_id = -1;
         return;
@@ -626,7 +634,7 @@ nsapi_error_t CellularStateMachine::start_dispatch()
 {
     MBED_ASSERT(!_queue_thread);
 
-    _queue_thread = new rtos::Thread(osPriorityNormal, 2048);
+    _queue_thread = new rtos::Thread(osPriorityNormal, 2048, NULL, "stm_queue");
     if (_queue_thread->start(callback(&_queue, &events::EventQueue::dispatch_forever)) != osOK) {
         stop();
         return NSAPI_ERROR_NO_MEMORY;

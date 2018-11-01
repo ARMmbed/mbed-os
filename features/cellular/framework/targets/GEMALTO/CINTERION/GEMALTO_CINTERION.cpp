@@ -28,7 +28,7 @@ using namespace events;
 
 const uint16_t RESPONSE_TO_SEND_DELAY = 100; // response-to-send delay in milliseconds at bit-rate over 9600
 
-GEMALTO_CINTERION::GEMALTO_CINTERION(EventQueue &queue) : AT_CellularDevice(queue)
+GEMALTO_CINTERION::GEMALTO_CINTERION(FileHandle *fh) : AT_CellularDevice(fh)
 {
 }
 
@@ -41,14 +41,14 @@ AT_CellularNetwork *GEMALTO_CINTERION::open_network_impl(ATHandler &at)
     return new GEMALTO_CINTERION_CellularNetwork(at);
 }
 
-AT_CellularContext *GEMALTO_CINTERION::create_context_impl(ATHandler &at, const char *apn, nsapi_ip_stack_t stack)
+AT_CellularContext *GEMALTO_CINTERION::create_context_impl(ATHandler &at, const char *apn)
 {
-    return new GEMALTO_CINTERION_CellularContext(at, this, apn, stack);
+    return new GEMALTO_CINTERION_CellularContext(at, this, apn);
 }
 
-nsapi_error_t GEMALTO_CINTERION::init_module(FileHandle *fh)
+nsapi_error_t GEMALTO_CINTERION::init_module()
 {
-    CellularInformation *information = open_information(fh);
+    CellularInformation *information = open_information();
     if (!information) {
         return NSAPI_ERROR_NO_MEMORY;
     }

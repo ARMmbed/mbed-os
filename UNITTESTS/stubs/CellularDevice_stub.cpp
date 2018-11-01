@@ -26,8 +26,8 @@ MBED_WEAK CellularDevice *CellularDevice::get_default_instance()
     return NULL;
 }
 
-CellularDevice::CellularDevice() : _network_ref_count(0), _sms_ref_count(0), _power_ref_count(0), _sim_ref_count(0),
-        _info_ref_count(0), _fh(0), _error(0), _state_machine(0), _nw(0)
+CellularDevice::CellularDevice(FileHandle *fh) :  _network_ref_count(0), _sms_ref_count(0),_power_ref_count(0), _sim_ref_count(0),
+        _info_ref_count(0), _fh(fh), _queue(5 * EVENTS_EVENT_SIZE), _state_machine(0), _nw(0)
 {
 }
 
@@ -36,9 +36,13 @@ CellularDevice::~CellularDevice()
 
 }
 
-events::EventQueue *CellularDevice::get_queue() const
+events::EventQueue *CellularDevice::get_queue()
 {
     return NULL;
+}
+
+void CellularDevice::set_sim_pin(char const*)
+{
 }
 
 CellularContext *CellularDevice::get_context_list() const

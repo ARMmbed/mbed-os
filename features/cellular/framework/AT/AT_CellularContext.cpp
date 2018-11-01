@@ -22,17 +22,26 @@
 #include "CellularUtil.h"
 #include "CellularSIM.h"
 #include "UARTSerial.h"
+#include "mbed_wait_api.h"
+
+#if NSAPI_PPP_AVAILABLE
 #include "nsapi_ppp.h"
-#include "nsapi_dns.h"
+#endif
+
+#define USE_APN_LOOKUP (MBED_CONF_CELLULAR_USE_APN_LOOKUP || (NSAPI_PPP_AVAILABLE && MBED_CONF_PPP_CELL_IFACE_APN_LOOKUP))
+
+#if USE_APN_LOOKUP
+#include "APN_db.h"
+#endif //USE_APN_LOOKUP
 
 using namespace mbed_cellular_util;
 using namespace mbed;
 
-AT_CellularContext::AT_CellularContext(ATHandler &at, CellularDevice *device, const char *apn, nsapi_ip_stack_t stack) :
+AT_CellularContext::AT_CellularContext(ATHandler &at, CellularDevice *device, const char *apn) :
         AT_CellularBase(at), _ip_stack_type_requested(DEFAULT_STACK), _is_connected(false), _is_blocking(true),
         _current_op(OP_INVALID), _device(device), _nw(0), _fh(0)
 {
-    tr_debug("AT_CellularContext::AT_CellularContext(): apn: %s, stack: %d", apn, stack);
+    tr_debug("AT_CellularContext::AT_CellularContext(): apn: %s", apn);
     _stack = NULL;
     _ip_stack_type = DEFAULT_STACK;
     _authentication_type = CellularContext::CHAP;
@@ -155,6 +164,16 @@ NetworkStack *AT_CellularContext::get_stack()
     return _stack;
 }
 
+const char *AT_CellularContext::get_netmask()
+{
+    return NULL;
+}
+
+const char *AT_CellularContext::get_gateway()
+{
+    return NULL;
+}
+
 const char *AT_CellularContext::get_ip_address()
 {
 #if NSAPI_PPP_AVAILABLE
@@ -185,21 +204,24 @@ nsapi_error_t AT_CellularContext::set_blocking(bool blocking)
     return err;
 }
 
-void AT_CellularContext::set_apn_credentials(const char *uname, const char *pwd,
-            CellularContext::AuthenticationType type) {
-
-    _uname = uname;
-    _pwd = pwd;
-    _authentication_type = type;
+void AT_CellularContext::set_sim_pin(const char *sim_pin)
+{
+    _device->set_sim_pin(sim_pin);
 }
 
-void AT_CellularContext::set_apn_credentials(const char* apn, const char *uname, const char *pwd,
-            CellularContext::AuthenticationType type)
+nsapi_error_t AT_CellularContext::connect(const char *sim_pin, const char *apn, const char *uname,
+                              const char *pwd)
+{
+    set_sim_pin(sim_pin);
+    set_credentials(apn, uname, pwd);
+    return connect();
+}
+
+void AT_CellularContext::set_credentials(const char *apn, const char *uname, const char *pwd)
 {
     _apn = apn;
     _uname = uname;
     _pwd = pwd;
-    _authentication_type = type;
 }
 
 bool AT_CellularContext::stack_type_supported(nsapi_ip_stack_t stack_type)
@@ -711,16 +733,8 @@ nsapi_error_t AT_CellularContext::get_pdpcontext_params(pdpContextList_t &params
 {
     const int ipv6_subnet_size = 128;
     const int max_ipv6_size = 64;
-    char *ipv6_and_subnetmask = (char *)malloc(ipv6_subnet_size);
-    if (!ipv6_and_subnetmask) {
-        return NSAPI_ERROR_NO_MEMORY;
-    }
-
-    char *temp = (char *)malloc(max_ipv6_size);
-    if (!temp) {
-        free(ipv6_and_subnetmask);
-        return NSAPI_ERROR_NO_MEMORY;
-    }
+    char *ipv6_and_subnetmask = new char[ipv6_subnet_size];
+    char *temp = new char[max_ipv6_size];
 
     _at.lock();
 
@@ -732,16 +746,6 @@ nsapi_error_t AT_CellularContext::get_pdpcontext_params(pdpContextList_t &params
     pdpcontext_params_t *params = NULL;
     while (_at.info_resp()) { // response can be zero or many +CGDCONT lines
         params = params_list.add_new();
-        if (!params) {
-            tr_warn("Could not allocate new pdpcontext_params_t");
-            _at.resp_stop();
-            _at.unlock();
-            params_list.delete_all();
-            free(temp);
-            free(ipv6_and_subnetmask);
-            return NSAPI_ERROR_NO_MEMORY;
-        }
-
         params->cid = _at.read_int();
         params->bearer_id = _at.read_int();
         _at.read_string(params->apn, sizeof(params->apn));
@@ -791,8 +795,8 @@ nsapi_error_t AT_CellularContext::get_pdpcontext_params(pdpContextList_t &params
     }
     _at.resp_stop();
 
-    free(temp);
-    free(ipv6_and_subnetmask);
+    delete [] temp;
+    delete [] ipv6_and_subnetmask;
 
     return _at.unlock_return_error();
 }
@@ -803,9 +807,36 @@ void AT_CellularContext::cellular_callback(nsapi_event_t ev, intptr_t ptr)
     if (ev >= NSAPI_EVENT_CELLULAR_STATUS_BASE && ev <= NSAPI_EVENT_CELLULAR_STATUS_END) {
         cell_callback_data_t* data = (cell_callback_data_t*)ptr;
         cellular_connection_status_t st = (cellular_connection_status_t)ev;
-        tr_debug("AT_CellularContext: network_callback called with event: %d, err: %d, data: %d", ev, data->error, data->status_data);
         _cb_data.error = data->error;
-
+        tr_debug("AT_CellularContext::cellular_callback, network_callback called with event: %d, err: %d, data: %d", ev, data->error, data->status_data);
+#if USE_APN_LOOKUP
+        if (st == CellularSIMStatusChanged && data->status_data == CellularSIM::SimStateReady &&
+                _cb_data.error == NSAPI_ERROR_OK) {
+            if (!_apn) {
+                char imsi[MAX_IMSI_LENGTH + 1];
+                wait(1); // need to wait to access SIM in some modems
+                _cb_data.error = _device->open_sim()->get_imsi(imsi);
+                if (_cb_data.error == NSAPI_ERROR_OK) {
+                    const char *apn_config = apnconfig(imsi);
+                    if (apn_config) {
+                        const char *apn = _APN_GET(apn_config);
+                        const char *uname = _APN_GET(apn_config);
+                        const char *pwd = _APN_GET(apn_config);
+                        tr_info("Looked up APN %s", apn);
+                        set_credentials(apn, uname, pwd);
+                    }
+                } else {
+                    tr_error("APN lookup failed");
+                    _device->stop();
+                    if (_is_blocking) {
+                        // operation failed, release semaphore
+                        _semaphore.release();
+                    }
+                }
+                _device->close_sim();
+            }
+        }
+#endif // USE_APN_LOOKUP
         if (_is_blocking) {
             if (data->error != NSAPI_ERROR_OK) {
                 // operation failed, release semaphore
@@ -817,7 +848,7 @@ void AT_CellularContext::cellular_callback(nsapi_event_t ev, intptr_t ptr)
                     // target reached, release semaphore
                     _semaphore.release();
                 } else if (st == CellularRegistrationStatusChanged && (data->status_data == CellularNetwork::RegisteredHomeNetwork ||
-                        data->status_data == CellularNetwork::RegisteredRoaming) && _current_op == OP_REGISTER) {
+                        data->status_data == CellularNetwork::RegisteredRoaming || data->status_data == CellularNetwork::AlreadyRegistered) && _current_op == OP_REGISTER) {
                     // target reached, release semaphore
                     _semaphore.release();
                 } else if (st == CellularAttachNetwork && (_current_op == OP_ATTACH || _current_op == OP_CONNECT) &&
@@ -840,7 +871,6 @@ void AT_CellularContext::cellular_callback(nsapi_event_t ev, intptr_t ptr)
             }
         }
     } else {
-        tr_debug("AT_CellularContext: network_callback called with event: %d, ptr: %d", ev, ptr);
 #if NSAPI_PPP_AVAILABLE
         if (_is_blocking) {
             if (ev == NSAPI_EVENT_CONNECTION_STATUS_CHANGE && ptr == NSAPI_STATUS_GLOBAL_UP) {

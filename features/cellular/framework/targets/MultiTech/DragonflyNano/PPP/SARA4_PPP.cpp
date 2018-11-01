@@ -28,7 +28,7 @@ static const AT_CellularBase::SupportedFeature unsupported_features[] =  {
     AT_CellularBase::SUPPORTED_FEATURE_END_MARK
 };
 
-SARA4_PPP::SARA4_PPP(EventQueue &queue) : AT_CellularDevice(queue)
+SARA4_PPP::SARA4_PPP(FileHandle *fh) : AT_CellularDevice(fh)
 {
     AT_CellularBase::set_unsupported_features(unsupported_features);
 }

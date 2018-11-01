@@ -38,25 +38,10 @@ class AT_CellularContext;
  */
 class AT_CellularDevice : public CellularDevice {
 public:
-    AT_CellularDevice(events::EventQueue &queue);
+    AT_CellularDevice(FileHandle *fh);
     virtual ~AT_CellularDevice();
 
-    ATHandler *_atHandlers;
-
-    ATHandler *get_at_handler(FileHandle *fh);
-
-    /** Releases the given at_handler. If last reference to at_hander then it's deleted.
-     *
-     *  @param at_handler
-     */
-    void release_at_handler(ATHandler *at_handler);
-
-public: // CellularDevice
-
-    virtual events::EventQueue *get_queue() const;
-
-    virtual CellularContext *create_context(FileHandle *fh = NULL, const char *apn = MBED_CONF_NSAPI_DEFAULT_CELLULAR_APN, nsapi_ip_stack_t stack = DEFAULT_STACK);
-
+    virtual CellularContext *create_context(FileHandle *fh = NULL, const char *apn = MBED_CONF_NSAPI_DEFAULT_CELLULAR_APN);
     virtual void delete_context(CellularContext *context);
 
     virtual CellularNetwork *open_network(FileHandle *fh = NULL);
@@ -85,19 +70,26 @@ public: // CellularDevice
 
     virtual void modem_debug_on(bool on);
 
-    virtual nsapi_error_t init_module(FileHandle *fh);
+    virtual nsapi_error_t init_module();
 
-protected:
+    ATHandler *_atHandlers;
+
+    ATHandler *get_at_handler(FileHandle *fh);
+
+    /** Releases the given at_handler. If last reference to at_hander then it's deleted.
+     *
+     *  @param at_handler
+     */
+    void release_at_handler(ATHandler *at_handler);
 
     /** Creates new instance of AT_CellularContext or if overridden, modem specific implementation.
      *
      *  @param at       ATHandler reference for communication with the modem.
      *  @param apn      access point to use with context
-     *  @param stack    stack type to be used when finding suitable PDP context
      *  @return         new instance of class AT_CellularContext
      *
      */
-    virtual AT_CellularContext *create_context_impl(ATHandler &at, const char *apn, nsapi_ip_stack_t stack);
+    virtual AT_CellularContext *create_context_impl(ATHandler &at, const char *apn);
 
     /** Create new instance of AT_CellularNetwork or if overridden, modem specific implementation.
      *
@@ -142,8 +134,6 @@ protected:
     AT_CellularPower *_power;
     AT_CellularInformation *_information;
     AT_CellularContext *_context_list;
-protected:
-    events::EventQueue &_at_queue;
     int _default_timeout;
     bool _modem_debug_on;
 };

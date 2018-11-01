@@ -78,7 +78,8 @@ public:
         RegisteredSMSOnlyRoaming,
         AttachedEmergencyOnly,
         RegisteredCSFBNotPreferredHome,
-        RegisteredCSFBNotPreferredRoaming = 10
+        RegisteredCSFBNotPreferredRoaming,
+        AlreadyRegistered = 11 // our our definition when modem says that we are not registered but we have active PDP Context
     };
 
     /* Network registration type */

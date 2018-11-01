@@ -25,7 +25,7 @@ namespace mbed {
 class SARA4_PPP : public AT_CellularDevice {
 
 public:
-    SARA4_PPP(events::EventQueue &queue);
+    SARA4_PPP(FileHandle *fh);
     virtual ~SARA4_PPP();
 
 public: // CellularDevice

@@ -18,8 +18,8 @@
 
 namespace mbed {
 
-TELIT_HE910_CellularContext::TELIT_HE910_CellularContext(ATHandler &at, CellularDevice *device, const char *apn,
-        nsapi_ip_stack_t stack) : AT_CellularContext(at, device, apn, stack)
+TELIT_HE910_CellularContext::TELIT_HE910_CellularContext(ATHandler &at, CellularDevice *device, const char *apn) :
+        AT_CellularContext(at, device, apn)
 {
 }
 

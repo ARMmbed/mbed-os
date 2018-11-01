@@ -84,15 +84,15 @@ public:
 
 class my_AT_CTX : public AT_CellularContext {
 public:
-    my_AT_CTX(ATHandler &at, CellularDevice *device, const char *apn = MBED_CONF_NSAPI_DEFAULT_CELLULAR_APN,
-            nsapi_ip_stack_t stack = DEFAULT_STACK) : AT_CellularContext(at, device, apn, stack) {}
+    my_AT_CTX(ATHandler &at, CellularDevice *device, const char *apn = MBED_CONF_NSAPI_DEFAULT_CELLULAR_APN) :
+        AT_CellularContext(at, device, apn) {}
     virtual ~my_AT_CTX() {}
 };
 
 class my_AT_CTXIPV6 : public AT_CellularContext {
 public:
-    my_AT_CTXIPV6(ATHandler &at, CellularDevice *device, const char *apn = MBED_CONF_NSAPI_DEFAULT_CELLULAR_APN,
-            nsapi_ip_stack_t stack = DEFAULT_STACK) : AT_CellularContext(at, device, apn, stack) {}
+    my_AT_CTXIPV6(ATHandler &at, CellularDevice *device, const char *apn = MBED_CONF_NSAPI_DEFAULT_CELLULAR_APN) :
+        AT_CellularContext(at, device, apn) {}
     virtual ~my_AT_CTXIPV6() {}
 };
 

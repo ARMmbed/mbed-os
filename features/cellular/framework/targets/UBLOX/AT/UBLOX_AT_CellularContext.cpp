@@ -20,8 +20,8 @@
 
 namespace mbed {
 
-UBLOX_AT_CellularContext::UBLOX_AT_CellularContext(ATHandler &at, CellularDevice *device, const char *apn,
-        nsapi_ip_stack_t stack) : AT_CellularContext(at, device, apn, stack)
+UBLOX_AT_CellularContext::UBLOX_AT_CellularContext(ATHandler &at, CellularDevice *device, const char *apn) :
+        AT_CellularContext(at, device, apn)
 {
     // The authentication to use
     _auth = NSAPI_SECURITY_UNKNOWN;

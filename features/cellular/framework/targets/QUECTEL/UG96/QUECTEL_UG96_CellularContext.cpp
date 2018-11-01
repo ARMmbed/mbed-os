@@ -18,8 +18,8 @@
 
 namespace mbed {
 
-QUECTEL_UG96_CellularContext::QUECTEL_UG96_CellularContext(ATHandler &at, CellularDevice *device, const char *apn,
-        nsapi_ip_stack_t stack) : AT_CellularContext(at, device, apn, stack)
+QUECTEL_UG96_CellularContext::QUECTEL_UG96_CellularContext(ATHandler &at, CellularDevice *device, const char *apn) :
+        AT_CellularContext(at, device, apn)
 {
 }
 

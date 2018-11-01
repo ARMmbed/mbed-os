@@ -23,7 +23,7 @@ namespace mbed {
 
 class GEMALTO_CINTERION_CellularContext: public AT_CellularContext {
 public:
-    GEMALTO_CINTERION_CellularContext(ATHandler &at, CellularDevice *device, const char *apn, nsapi_ip_stack_t stack);
+    GEMALTO_CINTERION_CellularContext(ATHandler &at, CellularDevice *device, const char *apn);
     virtual ~GEMALTO_CINTERION_CellularContext();
 
 protected:

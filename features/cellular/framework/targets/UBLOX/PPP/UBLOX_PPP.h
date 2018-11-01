@@ -24,13 +24,13 @@ namespace mbed {
 
 class UBLOX_PPP : public AT_CellularDevice {
 public:
-    UBLOX_PPP(events::EventQueue &queue);
+    UBLOX_PPP(FileHandle *fh);
     virtual ~UBLOX_PPP();
 
 protected: // AT_CellularDevice
     virtual AT_CellularNetwork *open_network_impl(ATHandler &at);
     virtual AT_CellularPower *open_power_impl(ATHandler &at);
-    virtual AT_CellularContext *create_context_impl(ATHandler &at, const char *apn, nsapi_ip_stack_t stack);
+    virtual AT_CellularContext *create_context_impl(ATHandler &at, const char *apn);
 };
 
 } // namespace mbed

@@ -66,9 +66,7 @@ void OnboardCellularInterface::modem_power_down()
 #ifdef ONBOARD_CELLULAR_INTERFACE_AVAILABLE
 MBED_WEAK CellularBase *CellularBase::get_target_default_instance()
 {
-    static OnboardCellularInterface cellular;
-
-    return &cellular;
+    return mbed::CellularContext::get_default_instance();
 }
 #else
 MBED_WEAK CellularBase *CellularBase::get_target_default_instance()

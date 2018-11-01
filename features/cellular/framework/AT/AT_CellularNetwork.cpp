@@ -392,15 +392,6 @@ nsapi_error_t AT_CellularNetwork::scan_plmn(operList_t &operators, int &opsCount
     while (_at.info_elem('(')) {
 
         op = operators.add_new();
-        if (!op) {
-            tr_warn("Could not allocate new operator");
-            _at.resp_stop();
-            _at.unlock();
-            operators.delete_all();
-            opsCount = 0;
-            return NSAPI_ERROR_NO_MEMORY;
-        }
-
         op->op_status = (operator_t::Status)_at.read_int();
         _at.read_string(op->op_long, sizeof(op->op_long));
         _at.read_string(op->op_short, sizeof(op->op_short));
@@ -551,13 +542,6 @@ nsapi_error_t AT_CellularNetwork::get_operator_names(operator_names_list &op_nam
     operator_names_t *names = NULL;
     while (_at.info_resp()) {
         names = op_names.add_new();
-        if (!names) {
-            tr_warn("Could not allocate new operator_names_t");
-            _at.resp_stop();
-            _at.unlock();
-            op_names.delete_all();
-            return NSAPI_ERROR_NO_MEMORY;
-        }
         _at.read_string(names->numeric, sizeof(names->numeric));
         _at.read_string(names->alpha, sizeof(names->alpha));
     }

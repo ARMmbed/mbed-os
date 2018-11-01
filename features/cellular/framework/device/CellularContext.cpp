@@ -18,14 +18,14 @@
 
 namespace mbed {
 #ifdef CELLULAR_DEVICE
-MBED_WEAK NetworkInterface *CellularContext::get_default_instance()
+MBED_WEAK CellularBase *CellularContext::get_default_instance()
 {
     // Uses default APN, uname, password from mbed_app.json
     static CellularDevice *dev = CellularDevice::get_default_instance();
     return dev->create_context();
 }
 #else
-MBED_WEAK NetworkInterface *CellularContext::get_default_instance()
+MBED_WEAK CellularBase *CellularContext::get_default_instance()
 {
     return NULL;
 }

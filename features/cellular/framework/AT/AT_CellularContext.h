@@ -27,11 +27,10 @@ namespace mbed {
 
 class AT_CellularContext : public CellularContext, public AT_CellularBase {
 public:
-    AT_CellularContext(ATHandler &at, CellularDevice *device, const char *apn = MBED_CONF_NSAPI_DEFAULT_CELLULAR_APN,
-            nsapi_ip_stack_t stack = DEFAULT_STACK);
+    AT_CellularContext(ATHandler &at, CellularDevice *device, const char *apn = MBED_CONF_NSAPI_DEFAULT_CELLULAR_APN);
     virtual ~AT_CellularContext();
 
-public: // from NetworkInterface
+// from CellularBase/NetworkInterface
     virtual nsapi_error_t set_blocking(bool blocking);
     virtual NetworkStack *get_stack();
     virtual const char *get_ip_address();
@@ -39,8 +38,15 @@ public: // from NetworkInterface
     virtual nsapi_error_t connect();
     virtual nsapi_error_t disconnect();
     virtual bool is_connected();
+    // from CellularBase
+    virtual void set_sim_pin(const char *sim_pin);
+    virtual nsapi_error_t connect(const char *sim_pin, const char *apn = 0, const char *uname = 0,
+                                  const char *pwd = 0);
+    virtual void set_credentials(const char *apn, const char *uname = 0, const char *pwd = 0);
+    virtual const char *get_netmask();
+    virtual const char *get_gateway();
 
-public: // from CellularContext
+private: // from CellularContext
     virtual nsapi_error_t get_pdpcontext_params(pdpContextList_t &params_list);
     virtual nsapi_error_t get_rate_control(CellularContext::RateControlExceptionReports &reports,
                                            CellularContext::RateControlUplinkTimeUnit &time_unit, int &uplink_rate);
@@ -49,10 +55,6 @@ public: // from CellularContext
     virtual nsapi_error_t set_sim_ready();
     virtual nsapi_error_t register_to_network();
     virtual nsapi_error_t attach_to_network();
-    virtual void set_apn_credentials(const char *uname = 0, const char *pwd = 0,
-            CellularContext::AuthenticationType type = CellularContext::CHAP);
-    virtual void set_apn_credentials(const char* apn, const char *uname = 0, const char *pwd = 0,
-            CellularContext::AuthenticationType type = CellularContext::CHAP);
     virtual void set_file_handle(FileHandle *fh);
 
 protected:

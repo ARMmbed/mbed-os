@@ -16,9 +16,9 @@
 #ifndef ONBOARD_CELLULAR_INTERFACE_
 #define ONBOARD_CELLULAR_INTERFACE_
 
-#include "EasyCellularConnection.h"
+#include "CellularContext.h"
 #ifdef CELLULAR_DEVICE
-typedef mbed::EasyCellularConnection OnboardCellularInterface;
+typedef mbed::CellularContext OnboardCellularInterface;
 #define ONBOARD_CELLULAR_INTERFACE_AVAILABLE
 #elif MODEM_ON_BOARD && MODEM_ON_BOARD_UART && NSAPI_PPP_AVAILABLE
 

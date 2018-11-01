@@ -114,11 +114,6 @@ private:
      */
     const char *get_state_string(CellularState state) const;
 
-    /** Get event queue that can be chained to main event queue (or use start_dispatch)
-     *  @return event queue
-     */
-    events::EventQueue *get_queue() const;
-
     /** Get the current status of the state machine. Thread safe.
      *
      *  @param  current_state

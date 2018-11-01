@@ -78,7 +78,7 @@ static void test_information_interface()
 {
     CellularInformation *info = cellular.get_device()->open_information(&cellular_serial);
     const int kbuf_size = 100;
-    char *buf = (char *)malloc(sizeof(char) * kbuf_size);
+    char *buf = new char[kbuf_size];
 
     TEST_ASSERT(info->get_manufacturer(buf, kbuf_size) == NSAPI_ERROR_OK);
     TEST_ASSERT(info->get_model(buf, kbuf_size) == NSAPI_ERROR_OK);
@@ -98,7 +98,7 @@ static void test_information_interface()
 
     cellular.get_device()->close_information();
 
-    free(buf);
+    delete [] buf;
 }
 
 using namespace utest::v1;

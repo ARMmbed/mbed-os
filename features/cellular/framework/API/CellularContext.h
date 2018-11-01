@@ -17,18 +17,26 @@
 #ifndef _CELLULARCONTEXT_H_
 #define _CELLULARCONTEXT_H_
 
-#include "NetworkInterface.h"
+#include "CellularBase.h"
 #include "CellularDevice.h"
 
 namespace mbed {
 
-class CellularContext : public NetworkInterface {
+class CellularContext : public CellularBase {
 
 public:
     // max simultaneous PDP contexts active
     static const int PDP_CONTEXT_COUNT = 4;
 
-    static NetworkInterface *get_default_instance();
+    /** Get the default cellular interface.
+     *
+     * This is provided as a weak method so applications can override.
+     * Default behaviour is to get the target's default interface, if
+     * any.
+     *
+     * @return pointer to interface, if any.
+     */
+    static CellularBase *get_default_instance();
 
     /* authentication type when activating or modifying the pdp context */
     enum AuthenticationType {
@@ -113,9 +121,17 @@ public: // from NetworkInterface
     virtual nsapi_error_t disconnect() = 0;
     virtual bool is_connected() = 0;
 
-public:
+    // from CellularBase
+    virtual void set_sim_pin(const char *sim_pin) = 0;
+    virtual nsapi_error_t connect(const char *sim_pin, const char *apn = 0, const char *uname = 0,
+                                  const char *pwd = 0) = 0;
+    virtual void set_credentials(const char *apn, const char *uname = 0, const char *pwd = 0) = 0;
+    virtual const char *get_netmask() = 0;
+    virtual const char *get_gateway() = 0;
 
-     /** Start the interface
+// Operations, can be sync/async. Also Connect() is this kind of operations, inherited from NetworkInterface above.
+
+    /** Start the interface
      *
      *  Power on the device and does the initializations for communication with the modem..
      *  By default this API is synchronous. API can be set to asynchronous with method set_blocking(...).
@@ -163,7 +179,7 @@ public:
      */
     virtual nsapi_error_t attach_to_network() = 0;
 
-public:
+// PDP Context specific functions
 
     /** Get APN rate control.
      *
@@ -196,32 +212,13 @@ public:
      */
     virtual nsapi_error_t get_apn_backoff_timer(int &backoff_timer) = 0;
 
-    /** Set the cellular network APN and credentials
-     *
-     *  @param apn      Optional name of the network to connect to
-     *  @param uname    Optional username for the APN
-     *  @param pwd      Optional password for the APN
-     */
-    virtual void set_apn_credentials(const char *uname = 0, const char *pwd = 0,
-            CellularContext::AuthenticationType type = CellularContext::CHAP) = 0;
-
-    /** Set the cellular network APN and credentials
-     *
-     *  @param apn      Name of the network to connect to
-     *  @param uname    Optional username for the APN
-     *  @param pwd      Optional password for the APN
-     *  @param type     Optional authentication type to use
-     */
-    virtual void set_apn_credentials(const char* apn, const char *uname = 0, const char *pwd = 0,
-            CellularContext::AuthenticationType type = CellularContext::CHAP) = 0;
-
     /** Set the file handle used to communicate with the modem. Can be used to change default file handle.
      *
      *  @param fh   file handle for communicating with the modem
      */
     virtual void set_file_handle(FileHandle *fh) = 0;
 
-protected:
+protected: // Device specific implementations might need these so protected
     enum ContextOperation {
         OP_INVALID      = -1,
         OP_DEVICE_READY = 0,

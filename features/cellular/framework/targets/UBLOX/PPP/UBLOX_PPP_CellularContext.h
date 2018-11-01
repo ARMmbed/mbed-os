@@ -23,7 +23,7 @@ namespace mbed {
 
 class UBLOX_PPP_CellularContext: public AT_CellularContext {
 public:
-    UBLOX_PPP_CellularContext(ATHandler &at, CellularDevice *device, const char *apn, nsapi_ip_stack_t stack);
+    UBLOX_PPP_CellularContext(ATHandler &at, CellularDevice *device, const char *apn);
     virtual ~UBLOX_PPP_CellularContext();
 
 protected:

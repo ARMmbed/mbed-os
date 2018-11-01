@@ -37,10 +37,10 @@ protected:
 
 TEST_F(TestAT_CellularDevice, Create)
 {
-    EventQueue que;
-    AT_CellularDevice dev(que);
+    FileHandle_stub fh1;
+    AT_CellularDevice dev(&fh1);
 
-    CellularDevice *dev2 = new AT_CellularDevice(que);
+    CellularDevice *dev2 = new AT_CellularDevice(&fh1);
 
     EXPECT_TRUE(dev2 != NULL);
     delete dev2;
@@ -48,11 +48,10 @@ TEST_F(TestAT_CellularDevice, Create)
 
 TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_get_at_handler)
 {
-    EventQueue que;
-    AT_CellularDevice dev(que);
     FileHandle_stub fh1;
     FileHandle_stub fh2;
     FileHandle_stub fh3;
+    AT_CellularDevice dev(&fh1);
 
     EXPECT_TRUE(dev.open_network(&fh1));
     EXPECT_TRUE(dev.open_sms(&fh2));
@@ -66,9 +65,8 @@ TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_get_at_handler)
 
 TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_open_network)
 {
-    EventQueue que;
-    AT_CellularDevice dev(que);
     FileHandle_stub fh1;
+    AT_CellularDevice dev(&fh1);
 
     CellularNetwork *nw = dev.open_network(NULL);
     CellularNetwork *nw1 = dev.open_network(&fh1);
@@ -80,9 +78,8 @@ TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_open_network)
 
 TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_open_sms)
 {
-    EventQueue que;
-    AT_CellularDevice dev(que);
     FileHandle_stub fh1;
+    AT_CellularDevice dev(&fh1);
 
     CellularSMS *sms = dev.open_sms(NULL);
     CellularSMS *sms1 = dev.open_sms(&fh1);
@@ -94,9 +91,8 @@ TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_open_sms)
 
 TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_open_power)
 {
-    EventQueue que;
-    AT_CellularDevice dev(que);
     FileHandle_stub fh1;
+    AT_CellularDevice dev(&fh1);
 
     CellularPower *pwr = dev.open_power(NULL);
     CellularPower *pwr1 = dev.open_power(&fh1);
@@ -108,9 +104,8 @@ TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_open_power)
 
 TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_open_sim)
 {
-    EventQueue que;
-    AT_CellularDevice dev(que);
     FileHandle_stub fh1;
+    AT_CellularDevice dev(&fh1);
 
     CellularSIM *sim =  dev.open_sim(NULL);
     CellularSIM *sim1 =  dev.open_sim(&fh1);
@@ -122,9 +117,8 @@ TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_open_sim)
 
 TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_open_information)
 {
-    EventQueue que;
-    AT_CellularDevice dev(que);
     FileHandle_stub fh1;
+    AT_CellularDevice dev(&fh1);
 
     CellularInformation *info = dev.open_information(NULL);
     CellularInformation *info1 = dev.open_information(&fh1);
@@ -136,9 +130,8 @@ TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_open_information)
 
 TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_close_network)
 {
-    EventQueue que;
-    AT_CellularDevice dev(que);
     FileHandle_stub fh1;
+    AT_CellularDevice dev(&fh1);
     ATHandler_stub::ref_count = 0;
 
     EXPECT_TRUE(dev.open_network(&fh1));
@@ -151,9 +144,8 @@ TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_close_network)
 
 TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_close_sms)
 {
-    EventQueue que;
-    AT_CellularDevice dev(que);
     FileHandle_stub fh1;
+    AT_CellularDevice dev(&fh1);
     ATHandler_stub::ref_count = 0;
 
     EXPECT_TRUE(dev.open_sms(&fh1));
@@ -166,9 +158,8 @@ TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_close_sms)
 
 TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_close_power)
 {
-    EventQueue que;
-    AT_CellularDevice dev(que);
     FileHandle_stub fh1;
+    AT_CellularDevice dev(&fh1);
     ATHandler_stub::ref_count = 0;
 
     EXPECT_TRUE(dev.open_power(&fh1));
@@ -181,9 +172,8 @@ TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_close_power)
 
 TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_close_sim)
 {
-    EventQueue que;
-    AT_CellularDevice dev(que);
     FileHandle_stub fh1;
+    AT_CellularDevice dev(&fh1);
     ATHandler_stub::ref_count = 0;
     int ana = 0;
 
@@ -202,9 +192,8 @@ TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_close_sim)
 
 TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_close_information)
 {
-    EventQueue que;
-    AT_CellularDevice dev(que);
     FileHandle_stub fh1;
+    AT_CellularDevice dev(&fh1);
     ATHandler_stub::int_value = 0;
 
     EXPECT_TRUE(dev.open_information(&fh1));
@@ -213,6 +202,7 @@ TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_close_information)
     AT_CellularBase_stub::handler_value = NULL;
     dev.close_information();
 
+    EventQueue que;
     ATHandler_stub::fh_value = &fh1;
     ATHandler at(&fh1, que, 0, ",");
     AT_CellularBase_stub::handler_value = &at;
@@ -228,9 +218,8 @@ TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_close_information)
 
 TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_set_timeout)
 {
-    EventQueue que;
-    AT_CellularDevice dev(que);
     FileHandle_stub fh1;
+    AT_CellularDevice dev(&fh1);
     ATHandler_stub::timeout = 0;
     ATHandler_stub::default_timeout = false;
 
@@ -251,9 +240,8 @@ TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_set_timeout)
 
 TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_modem_debug_on)
 {
-    EventQueue que;
-    AT_CellularDevice dev(que);
     FileHandle_stub fh1;
+    AT_CellularDevice dev(&fh1);
     ATHandler_stub::debug_on = false;
 
     // no interfaces open so debug toggling should not affect
@@ -271,14 +259,14 @@ TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_modem_debug_on)
 
 TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_get_send_delay)
 {
-    EventQueue que;
-    AT_CellularDevice dev(que);
+    FileHandle_stub fh1;
+    AT_CellularDevice dev(&fh1);
     EXPECT_TRUE(0 == dev.get_send_delay());
 }
 
 TEST_F(TestAT_CellularDevice, test_AT_CellularDevice_init_module)
 {
-    EventQueue que;
-    AT_CellularDevice dev(que);
-    EXPECT_TRUE(NSAPI_ERROR_OK == dev.init_module(NULL));
+    FileHandle_stub fh1;
+    AT_CellularDevice dev(&fh1);
+    EXPECT_TRUE(NSAPI_ERROR_OK == dev.init_module());
 }

@@ -33,8 +33,8 @@ namespace mbed {
 #ifdef CELLULAR_DEVICE
 MBED_WEAK CellularDevice *CellularDevice::get_default_instance()
 {
-    static events::EventQueue event_queue(5 * EVENTS_EVENT_SIZE);
-    static CELLULAR_DEVICE device(event_queue);
+    static UARTSerial serial(MDMTXD, MDMRXD, MBED_CONF_PLATFORM_DEFAULT_SERIAL_BAUD_RATE);
+    static CELLULAR_DEVICE device(&serial);
     return &device;
 }
 #else
@@ -44,8 +44,8 @@ MBED_WEAK CellularDevice *CellularDevice::get_default_instance()
 }
 #endif // CELLULAR_DEVICE
 
-CellularDevice::CellularDevice() : _network_ref_count(0), _sms_ref_count(0),_power_ref_count(0), _sim_ref_count(0),
-        _info_ref_count(0), _fh(0), _error(0), _state_machine(0), _nw(0)
+CellularDevice::CellularDevice(FileHandle *fh) : _network_ref_count(0), _sms_ref_count(0),_power_ref_count(0), _sim_ref_count(0),
+        _info_ref_count(0), _fh(fh), _queue(5 * EVENTS_EVENT_SIZE), _state_machine(0), _nw(0)
 {
     set_sim_pin(MBED_CONF_NSAPI_DEFAULT_CELLULAR_SIM_PIN);
     set_plmn(MBED_CONF_NSAPI_DEFAULT_CELLULAR_PLMN);
@@ -62,18 +62,14 @@ void CellularDevice::stop()
     _state_machine->stop();
 }
 
-events::EventQueue *CellularDevice::get_queue() const
+events::EventQueue *CellularDevice::get_queue()
 {
-    return NULL;
+    return &_queue;
 }
 
-CellularContext *CellularDevice::get_context_list() const {
-    return NULL;
-}
-
-FileHandle &CellularDevice::get_filehandle() const
+CellularContext *CellularDevice::get_context_list() const
 {
-    return *_fh;
+    return NULL;
 }
 
 void CellularDevice::set_sim_pin(const char *sim_pin)
@@ -96,15 +92,6 @@ void CellularDevice::set_plmn(const char* plmn)
     }
 }
 
-nsapi_error_t CellularDevice::start_dispatch() {
-    _mutex.lock();
-    create_state_machine();
-    nsapi_error_t err = _state_machine->start_dispatch();
-    _mutex.unlock();
-
-    return err;
-}
-
 nsapi_error_t CellularDevice::set_device_ready()
 {
     return start_state_machine(CellularStateMachine::STATE_DEVICE_READY);
@@ -125,18 +112,23 @@ nsapi_error_t CellularDevice::attach_to_network()
     return start_state_machine(CellularStateMachine::STATE_ATTACHING_NETWORK);
 }
 
-void CellularDevice::create_state_machine()
+nsapi_error_t CellularDevice::create_state_machine()
 {
     if (!_state_machine) {
         _state_machine = new CellularStateMachine(*this, *get_queue());
         _state_machine->set_cellular_callback(callback(this, &CellularDevice::cellular_callback));
+        return _state_machine->start_dispatch();
     }
+    return NSAPI_ERROR_OK;
 }
 
 nsapi_error_t CellularDevice::start_state_machine(CellularStateMachine::CellularState target_state)
 {
     _mutex.lock();
-    create_state_machine();
+    nsapi_error_t err = create_state_machine();
+    if (err) {
+        return err;
+    }
 
     CellularStateMachine::CellularState current_state, targeted_state;
 
@@ -150,7 +142,7 @@ nsapi_error_t CellularDevice::start_state_machine(CellularStateMachine::Cellular
         return NSAPI_ERROR_IN_PROGRESS;
     }
 
-    nsapi_error_t err = _state_machine->run_to_state(target_state);
+    err = _state_machine->run_to_state(target_state);
     _mutex.unlock();
 
     return err;

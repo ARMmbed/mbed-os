@@ -19,7 +19,7 @@
 
 using namespace mbed;
 
-AT_CellularContext::AT_CellularContext(ATHandler &at, CellularDevice *device, const char *apn, nsapi_ip_stack_t stack) :
+AT_CellularContext::AT_CellularContext(ATHandler &at, CellularDevice *device, const char *apn) :
         AT_CellularBase(at), _ip_stack_type_requested(DEFAULT_STACK), _is_connected(false), _is_blocking(true),
         _current_op(OP_INVALID), _device(device), _nw(0), _fh(0)
 {
@@ -105,14 +105,29 @@ nsapi_error_t AT_CellularContext::set_blocking(bool blocking)
 {
     return NSAPI_ERROR_OK;
 }
-
-void AT_CellularContext::set_apn_credentials(const char *uname, const char *pwd,
-            CellularContext::AuthenticationType type) {
+void AT_CellularContext::set_sim_pin(const char *sim_pin)
+{
 }
 
-void AT_CellularContext::set_apn_credentials(const char* apn, const char *uname, const char *pwd,
-            CellularContext::AuthenticationType type)
+nsapi_error_t AT_CellularContext::connect(const char *sim_pin, const char *apn, const char *uname,
+                              const char *pwd)
 {
+    return NSAPI_ERROR_OK;
+}
+
+void AT_CellularContext::set_credentials(const char *apn, const char *uname, const char *pwd)
+{
+
+}
+
+const char *AT_CellularContext::get_netmask()
+{
+    return NULL;
+}
+
+const char *AT_CellularContext::get_gateway()
+{
+    return NULL;
 }
 
 bool AT_CellularContext::stack_type_supported(nsapi_ip_stack_t stack_type)
