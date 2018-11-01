@@ -148,6 +148,7 @@ TEST_F(Test_LoRaPHYCN470, rx_config)
 TEST_F(Test_LoRaPHYCN470, tx_config)
 {
     tx_config_params_t p;
+    memset(&p, 0, sizeof(p));
     int8_t tx = 0;
     lorawan_time_t time = 0;
     p.tx_power = 9;
