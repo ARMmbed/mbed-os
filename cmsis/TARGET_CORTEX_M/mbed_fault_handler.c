@@ -14,6 +14,11 @@
  * limitations under the License.
  */
 
+#ifndef __STDC_FORMAT_MACROS
+#define __STDC_FORMAT_MACROS
+#endif
+#include <inttypes.h>
+
 #include "device.h"
 #include "platform/mbed_error.h"
 #include "platform/mbed_interface.h"
@@ -72,37 +77,37 @@ MBED_NOINLINE void print_context_info(void)
 {
     //Context Regs
     for(int i=0;i<13;i++) {
-        mbed_error_printf("\nR%-4d: %08X", i, ((uint32_t *)&mbed_fault_context)[i]);  
+        mbed_error_printf("\nR%-4d: %08" PRIX32, i, ((uint32_t *)&mbed_fault_context)[i]);
     }
         
-    mbed_error_printf("\nSP   : %08X" 
-                      "\nLR   : %08X" 
-                      "\nPC   : %08X" 
-                      "\nxPSR : %08X" 
-                      "\nPSP  : %08X" 
-                      "\nMSP  : %08X", mbed_fault_context.SP_reg, mbed_fault_context.LR_reg, mbed_fault_context.PC_reg, 
+    mbed_error_printf("\nSP   : %08" PRIX32
+                      "\nLR   : %08" PRIX32
+                      "\nPC   : %08" PRIX32
+                      "\nxPSR : %08" PRIX32
+                      "\nPSP  : %08" PRIX32
+                      "\nMSP  : %08" PRIX32, mbed_fault_context.SP_reg, mbed_fault_context.LR_reg, mbed_fault_context.PC_reg,
                                      mbed_fault_context.xPSR, mbed_fault_context.PSP, mbed_fault_context.MSP );
                        
     //Capture CPUID to get core/cpu info
-    mbed_error_printf("\nCPUID: %08X", SCB->CPUID);
+    mbed_error_printf("\nCPUID: %08" PRIX32, SCB->CPUID);
     
 #if !defined(TARGET_M0) && !defined(TARGET_M0P)
     //Capture fault information registers to infer the cause of exception
-    mbed_error_printf("\nHFSR : %08X"
-                    "\nMMFSR: %08X"
-                    "\nBFSR : %08X"
-                    "\nUFSR : %08X"
-                    "\nDFSR : %08X"
-                    "\nAFSR : %08X"  ////Split/Capture CFSR into MMFSR, BFSR, UFSR
+    mbed_error_printf("\nHFSR : %08" PRIX32
+                    "\nMMFSR: %08" PRIX32
+                    "\nBFSR : %08" PRIX32
+                    "\nUFSR : %08" PRIX32
+                    "\nDFSR : %08" PRIX32
+                    "\nAFSR : %08" PRIX32  ////Split/Capture CFSR into MMFSR, BFSR, UFSR
                     ,SCB->HFSR, (0xFF & SCB->CFSR), ((0xFF00 & SCB->CFSR) >> 8), ((0xFFFF0000 & SCB->CFSR) >> 16), SCB->DFSR, SCB->AFSR ); 
     
     //Print MMFAR only if its valid as indicated by MMFSR
     if ((0xFF & SCB->CFSR) & 0x80) {
-        mbed_error_printf("\nMMFAR: %08X",SCB->MMFAR); 
+        mbed_error_printf("\nMMFAR: %08" PRIX32, SCB->MMFAR);
     }
     //Print BFAR only if its valid as indicated by BFSR
     if (((0xFF00 & SCB->CFSR) >> 8) & 0x80) {
-        mbed_error_printf("\nBFAR : %08X",SCB->BFAR); 
+        mbed_error_printf("\nBFAR : %08" PRIX32, SCB->BFAR);
     }
 #endif
     
