@@ -57,4 +57,12 @@
 
 #endif
 
+#if defined(TARGET_TMPM3HQ)
+
+#ifndef INITIAL_SP
+#define INITIAL_SP                        (0x20010000UL)
+#endif
+
+#endif
+
 #endif  // MBED_MBED_RTX_H
