@@ -23,8 +23,7 @@
 
 #include "mpu_api.h"
 
-// Define included by mpu_api.h
-#if !MBED_MPU_ENABLED
+#if !DEVICE_MPU
 #error [NOT_SUPPORTED] MPU API not supported for this target
 #endif
 
