@@ -63,18 +63,21 @@ void my_callback()
 TEST_F(Test_LoRaWANTimer, init)
 {
     timer_event_t ev;
+    memset(&ev, 0, sizeof(ev));
     object->init(ev, my_callback);
 }
 
 TEST_F(Test_LoRaWANTimer, start)
 {
     timer_event_t ev;
+    memset(&ev, 0, sizeof(ev));
     object->start(ev, 10);
 }
 
 TEST_F(Test_LoRaWANTimer, stop)
 {
     timer_event_t ev;
+    memset(&ev, 0, sizeof(ev));
     ev.timer_id = 4;
     object->stop(ev);
     EXPECT_TRUE(ev.timer_id == 0);
