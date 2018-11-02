@@ -70,8 +70,8 @@
 // LIBSPACE default value set for ARMCC
 #define OS_THREAD_LIBSPACE_NUM      4
 
-#define OS_IDLE_THREAD_NAME         "idle_thread"
-#define OS_TIMER_THREAD_NAME        "timer_thread"
+#define OS_IDLE_THREAD_NAME         "rtx_idle"
+#define OS_TIMER_THREAD_NAME        "rtx_timer"
 
 /* Enable only the evr events we use in Mbed-OS to save flash space. */
 //Following events are used by Mbed-OS, DO NOT disable them

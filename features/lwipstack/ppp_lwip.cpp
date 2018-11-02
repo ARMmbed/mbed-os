@@ -68,7 +68,7 @@ static EventQueue *prepare_event_queue()
 
     // Only need to queue 2 events. new blows on failure.
     event_queue = new EventQueue(2 * EVENTS_EVENT_SIZE, NULL);
-    event_thread = new Thread(osPriorityNormal, PPP_THREAD_STACK_SIZE, NULL, "event_thread");
+    event_thread = new Thread(osPriorityNormal, PPP_THREAD_STACK_SIZE, NULL, "ppp_lwip");
 
     if (event_thread->start(callback(event_queue, &EventQueue::dispatch_forever)) != osOK) {
         delete event_thread;
