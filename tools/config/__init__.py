@@ -101,15 +101,19 @@ class ConfigParameter(object):
         data - the data associated with the configuration parameter
         unit_name - the unit (target/library/application) that defines this
                     parameter
-        unit_ kind - the kind of the unit ("target", "library" or "application")
+        unit_kind - the kind of the unit ("target", "library" or "application")
         """
+
         self.name = self.get_full_name(name, unit_name, unit_kind,
                                        allow_prefix=False)
         self.defined_by = self.get_display_name(unit_name, unit_kind)
         self.set_value(data.get("value", None), unit_name, unit_kind)
-        self.help_text = data.get("help", None)
-        self.required = data.get("required", False)
-        self.macro_name = data.get("macro_name", "MBED_CONF_%s" %
+        self.value_min       = data.get("value_min")
+        self.value_max       = data.get("value_max")
+        self.accepted_values = data.get("accepted_values")
+        self.help_text       = data.get("help", None)
+        self.required        = data.get("required", False)
+        self.macro_name      = data.get("macro_name", "MBED_CONF_%s" %
                                    self.sanitize(self.name.upper()))
         self.config_errors = []
 
@@ -749,7 +753,7 @@ class Config(object):
         if start > rom_start + rom_size:
             raise ConfigException("Not enough memory on device to fit all "
                                   "application regions")
-    
+
     @staticmethod
     def _find_sector(address, sectors):
         target_size = -1
@@ -762,13 +766,13 @@ class Config(object):
         if (target_size < 0):
             raise ConfigException("No valid sector found")
         return target_start, target_size
-        
+
     @staticmethod
     def _align_floor(address, sectors):
         target_start, target_size = Config._find_sector(address, sectors)
         sector_num = (address - target_start) // target_size
         return target_start + (sector_num * target_size)
-    
+
     @staticmethod
     def _align_ceiling(address, sectors):
         target_start, target_size = Config._find_sector(address, sectors)
@@ -1058,9 +1062,31 @@ class Config(object):
 
         Arguments: None
         """
+
         params, _ = self.get_config_data()
+        err_msg = ""
+
+        for name, param in sorted(params.items()):
+            min      = param.value_min
+            max      = param.value_max
+            accepted = param.accepted_values
+            value    = param.value
+
+            if (value < min or (value > max if max is not None else False)):
+                err_msg += "\nInvalid config range for %s, is not in the required range: [%s:%s]"\
+                                % (param, 
+                                   min if min is not None else "-inf", 
+                                   max if max is not None else "inf")
+
+            if accepted and value not in accepted:
+                err_msg += "\nInvalid config range for %s, is not an accepted value: %s"\
+                                % (param, accepted)
+
+        if (err_msg):
+            raise ConfigException(err_msg)
+
         for error in self.config_errors:
-            if  (isinstance(error, UndefinedParameter) and
+            if (isinstance(error, UndefinedParameter) and
                  error.param in params):
                 continue
             else:

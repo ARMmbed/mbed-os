@@ -1,0 +1,26 @@
+{
+    "name": "lib1",
+    "config": {
+        "config1": {
+            "help": "The default value should fail as it is not in the rage of accepted values",
+            "value": 99,
+            "accepted_values": [0, 5, 10]
+        },
+        "config2": {
+            "help": "The default value should fail as it is not in the rage of accepted values",
+            "value": 100,
+            "value_min": 0,
+            "value_max": 10
+        },
+        "config3": {
+            "help": "The default value should fail as it is not in the rage of accepted values",
+            "value": 101,
+            "value_min": 102
+        },
+        "config4": {
+            "help": "The default value should fail as it is not in the rage of accepted values",
+            "value": 102,
+            "value_max": 101
+        }
+    }
+}
