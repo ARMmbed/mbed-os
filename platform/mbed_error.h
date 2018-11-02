@@ -871,7 +871,7 @@ typedef struct _mbed_error_ctx {
  *
  */
 
-MBED_NORETURN void error(const char *format, ...) MBED_PRINTF(1, 2);
+MBED_NORETURN void error(const char *format, ...);
 
 /**
  * Call this Macro to generate a mbed_error_status_t value for a System error

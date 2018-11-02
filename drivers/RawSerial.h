@@ -20,7 +20,6 @@
 
 #if defined (DEVICE_SERIAL) || defined(DOXYGEN_ONLY)
 
-#include "mbed_toolchain.h"
 #include "drivers/SerialBase.h"
 #include "hal/serial_api.h"
 #include "platform/NonCopyable.h"
@@ -87,7 +86,7 @@ public:
      */
     int puts(const char *str);
 
-    int printf(const char *format, ...) MBED_PRINTF_METHOD(1, 2);
+    int printf(const char *format, ...);
 
 #if !(DOXYGEN_ONLY)
 protected:

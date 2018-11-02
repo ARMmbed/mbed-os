@@ -141,10 +141,6 @@
 #include "SDBlockDevice.h"
 #include "platform/mbed_debug.h"
 #include "platform/mbed_wait_api.h"
-#ifndef __STDC_FORMAT_MACROS
-#define __STDC_FORMAT_MACROS
-#endif
-#include <inttypes.h>
 #include <errno.h>
 
 #ifndef MBED_CONF_SD_CMD_TIMEOUT
@@ -244,9 +240,6 @@
 #define SPI_READ_ERROR_ECC_C     (0x1 << 2)  /*!< Card ECC failed */
 #define SPI_READ_ERROR_OFR       (0x1 << 3)  /*!< Out of Range */
 
-// Only HC block size is supported. Making this a static constant reduces code size.
-const uint32_t SDBlockDevice::_block_size = BLOCK_SIZE_HC;
-
 SDBlockDevice::SDBlockDevice(PinName mosi, PinName miso, PinName sclk, PinName cs, uint64_t hz, bool crc_on)
     : _sectors(0), _spi(mosi, miso, sclk), _cs(cs), _is_initialized(0),
       _crc_on(crc_on), _init_ref_count(0), _crc16(0, 0, false, false)
@@ -260,6 +253,8 @@ SDBlockDevice::SDBlockDevice(PinName mosi, PinName miso, PinName sclk, PinName c
     _init_sck = MBED_CONF_SD_INIT_FREQUENCY;
     _transfer_sck = hz;
 
+    // Only HC block size is supported.
+    _block_size = BLOCK_SIZE_HC;
     _erase_size = BLOCK_SIZE_HC;
 }
 
@@ -391,7 +386,7 @@ int SDBlockDevice::init()
 
     // Set block length to 512 (CMD16)
     if (_cmd(CMD16_SET_BLOCKLEN, _block_size) != 0) {
-        debug_if(SD_DBG, "Set %" PRIu32 "-byte block timed out\n", _block_size);
+        debug_if(SD_DBG, "Set %d-byte block timed out\n", _block_size);
         unlock();
         return BD_ERROR_DEVICE_ERROR;
     }
@@ -449,7 +444,7 @@ int SDBlockDevice::program(const void *b, bd_addr_t addr, bd_size_t size)
     uint8_t response;
 
     // Get block count
-    size_t blockCnt = size / _block_size;
+    bd_addr_t blockCnt = size / _block_size;
 
     // SDSC Card (CCS=0) uses byte unit address
     // SDHC and SDXC Cards (CCS=1) use block unit address (512 Bytes unit)
@@ -519,7 +514,7 @@ int SDBlockDevice::read(void *b, bd_addr_t addr, bd_size_t size)
 
     uint8_t *buffer = static_cast<uint8_t *>(b);
     int status = BD_ERROR_OK;
-    size_t blockCnt =  size / _block_size;
+    bd_addr_t blockCnt =  size / _block_size;
 
     // SDSC Card (CCS=0) uses byte unit address
     // SDHC and SDXC Cards (CCS=1) use block unit address (512 Bytes unit)
@@ -743,24 +738,24 @@ int SDBlockDevice::_cmd(SDBlockDevice::cmdSupported cmd, uint32_t arg, bool isAc
     // Process the response R1  : Exit on CRC/Illegal command error/No response
     if (R1_NO_RESPONSE == response) {
         _deselect();
-        debug_if(SD_DBG, "No response CMD:%d response: 0x%" PRIx32 "\n", cmd, response);
+        debug_if(SD_DBG, "No response CMD:%d response: 0x%x\n", cmd, response);
         return SD_BLOCK_DEVICE_ERROR_NO_DEVICE;         // No device
     }
     if (response & R1_COM_CRC_ERROR) {
         _deselect();
-        debug_if(SD_DBG, "CRC error CMD:%d response 0x%" PRIx32 "\n", cmd, response);
+        debug_if(SD_DBG, "CRC error CMD:%d response 0x%x \n", cmd, response);
         return SD_BLOCK_DEVICE_ERROR_CRC;                // CRC error
     }
     if (response & R1_ILLEGAL_COMMAND) {
         _deselect();
-        debug_if(SD_DBG, "Illegal command CMD:%d response 0x%" PRIx32 "\n", cmd, response);
+        debug_if(SD_DBG, "Illegal command CMD:%d response 0x%x\n", cmd, response);
         if (CMD8_SEND_IF_COND == cmd) {                  // Illegal command is for Ver1 or not SD Card
             _card_type = CARD_UNKNOWN;
         }
         return SD_BLOCK_DEVICE_ERROR_UNSUPPORTED;      // Command not supported
     }
 
-    debug_if(_dbg, "CMD:%d \t arg:0x%" PRIx32 " \t Response:0x%" PRIx32 "\n", cmd, arg, response);
+    debug_if(_dbg, "CMD:%d \t arg:0x%x \t Response:0x%x \n", cmd, arg, response);
     // Set status for other errors
     if ((response & R1_ERASE_RESET) || (response & R1_ERASE_SEQUENCE_ERROR)) {
         status = SD_BLOCK_DEVICE_ERROR_ERASE;            // Erase error
@@ -780,7 +775,7 @@ int SDBlockDevice::_cmd(SDBlockDevice::cmdSupported cmd, uint32_t arg, bool isAc
             response |= (_spi.write(SPI_FILL_CHAR) << 16);
             response |= (_spi.write(SPI_FILL_CHAR) << 8);
             response |= _spi.write(SPI_FILL_CHAR);
-            debug_if(_dbg, "R3/R7: 0x%" PRIx32 "\n", response);
+            debug_if(_dbg, "R3/R7: 0x%x \n", response);
             break;
 
         case CMD12_STOP_TRANSMISSION:       // Response R1b
@@ -790,7 +785,7 @@ int SDBlockDevice::_cmd(SDBlockDevice::cmdSupported cmd, uint32_t arg, bool isAc
 
         case ACMD13_SD_STATUS:             // Response R2
             response = _spi.write(SPI_FILL_CHAR);
-            debug_if(_dbg, "R2: 0x%" PRIx32 "\n", response);
+            debug_if(_dbg, "R2: 0x%x \n", response);
             break;
 
         default:                            // Response R1
@@ -827,7 +822,7 @@ int SDBlockDevice::_cmd8()
     if ((BD_ERROR_OK == status) && (SDCARD_V2 == _card_type)) {
         // If check pattern is not matched, CMD8 communication is not valid
         if ((response & 0xFFF) != arg) {
-            debug_if(SD_DBG, "CMD8 Pattern mismatch 0x%" PRIx32 " : 0x%" PRIx32 "\n", arg, response);
+            debug_if(SD_DBG, "CMD8 Pattern mismatch 0x%x : 0x%x\n", arg, response);
             _card_type = CARD_UNKNOWN;
             status = SD_BLOCK_DEVICE_ERROR_UNUSABLE;
         }
@@ -879,8 +874,8 @@ int SDBlockDevice::_read_bytes(uint8_t *buffer, uint32_t length)
         // Compute and verify checksum
         _crc16.compute((void *)buffer, length, &crc_result);
         if ((uint16_t)crc_result != crc) {
-            debug_if(SD_DBG, "_read_bytes: Invalid CRC received 0x%" PRIx16 " result of computation 0x%" PRIx16 "\n",
-                     crc, (uint16_t)crc_result);
+            debug_if(SD_DBG, "_read_bytes: Invalid CRC received 0x%x result of computation 0x%x\n",
+                     crc, crc_result);
             _deselect();
             return SD_BLOCK_DEVICE_ERROR_CRC;
         }
@@ -913,8 +908,8 @@ int SDBlockDevice::_read(uint8_t *buffer, uint32_t length)
         // Compute and verify checksum
         _crc16.compute((void *)buffer, length, &crc_result);
         if ((uint16_t)crc_result != crc) {
-            debug_if(SD_DBG, "_read_bytes: Invalid CRC received 0x%" PRIx16 " result of computation 0x%" PRIx16 "\n",
-                     crc, (uint16_t)crc_result);
+            debug_if(SD_DBG, "_read_bytes: Invalid CRC received 0x%x result of computation 0x%x\n",
+                     crc, crc_result);
             return SD_BLOCK_DEVICE_ERROR_CRC;
         }
     }
@@ -997,11 +992,11 @@ bd_size_t SDBlockDevice::_sd_sectors()
             block_len = 1 << read_bl_len;                // BLOCK_LEN = 2^READ_BL_LEN
             mult = 1 << (c_size_mult + 2);               // MULT = 2^C_SIZE_MULT+2 (C_SIZE_MULT < 8)
             blocknr = (c_size + 1) * mult;               // BLOCKNR = (C_SIZE+1) * MULT
-            capacity = (bd_size_t) blocknr * block_len;  // memory capacity = BLOCKNR * BLOCK_LEN
+            capacity = blocknr * block_len;              // memory capacity = BLOCKNR * BLOCK_LEN
             blocks = capacity / _block_size;
-            debug_if(SD_DBG, "Standard Capacity: c_size: %" PRIu32 " \n", c_size);
-            debug_if(SD_DBG, "Sectors: 0x%" PRIx64 " : %" PRIu64 "\n", blocks, blocks);
-            debug_if(SD_DBG, "Capacity: 0x%" PRIx64 " : %" PRIu64 " MB\n", capacity, (capacity / (1024U * 1024U)));
+            debug_if(SD_DBG, "Standard Capacity: c_size: %d \n", c_size);
+            debug_if(SD_DBG, "Sectors: 0x%x : %llu\n", blocks, blocks);
+            debug_if(SD_DBG, "Capacity: 0x%x : %llu MB\n", capacity, (capacity / (1024U * 1024U)));
 
             // ERASE_BLK_EN = 1: Erase in multiple of 512 bytes supported
             if (ext_bits(csd, 46, 46)) {
@@ -1015,9 +1010,9 @@ bd_size_t SDBlockDevice::_sd_sectors()
         case 1:
             hc_c_size = ext_bits(csd, 69, 48);            // device size : C_SIZE : [69:48]
             blocks = (hc_c_size + 1) << 10;               // block count = C_SIZE+1) * 1K byte (512B is block size)
-            debug_if(SD_DBG, "SDHC/SDXC Card: hc_c_size: %" PRIu32 " \n", hc_c_size);
-            debug_if(SD_DBG, "Sectors: 0x%" PRIx64 "x : %" PRIu64 "\n", blocks, blocks);
-            debug_if(SD_DBG, "Capacity: %" PRIu64 " MB\n", (blocks / (2048U)));
+            debug_if(SD_DBG, "SDHC/SDXC Card: hc_c_size: %d \n", hc_c_size);
+            debug_if(SD_DBG, "Sectors: 0x%x : %llu\n", blocks, blocks);
+            debug_if(SD_DBG, "Capacity: %llu MB\n", (blocks / (2048U)));
             // ERASE_BLK_EN is fixed to 1, which means host can erase one or multiple of 512 bytes.
             _erase_size = BLOCK_SIZE_HC;
             break;

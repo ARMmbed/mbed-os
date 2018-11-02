@@ -356,7 +356,7 @@
 
 #ifndef MBED_PRINTF_METHOD
 #if defined(__GNUC__) || defined(__CC_ARM)
-#define MBED_PRINTF_METHOD(format_idx, first_param_idx) __attribute__ ((__format__(__printf__, format_idx+1, first_param_idx == 0 ? 0 : first_param_idx+1)))
+#define MBED_PRINTF_METHOD(format_idx, first_param_idx) __attribute__ ((__format__(__printf__, format_idx+1, first_param_idx+1)))
 #else
 #define MBED_PRINTF_METHOD(format_idx, first_param_idx)
 #endif
@@ -372,7 +372,7 @@
 
 #ifndef MBED_SCANF_METHOD
 #if defined(__GNUC__) || defined(__CC_ARM)
-#define MBED_SCANF_METHOD(format_idx, first_param_idx) __attribute__ ((__format__(__scanf__, format_idx+1, first_param_idx == 0 ? 0 : first_param_idx+1)))
+#define MBED_SCANF_METHOD(format_idx, first_param_idx) __attribute__ ((__format__(__scanf__, format_idx+1, first_param_idx+1)))
 #else
 #define MBED_SCANF_METHOD(format_idx, first_param_idx)
 #endif

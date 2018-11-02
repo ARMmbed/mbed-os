@@ -139,7 +139,7 @@ MBED_NORETURN void mbed_die(void);
  * @endcode
  *
  */
-void mbed_error_printf(const char *format, ...) MBED_PRINTF(1, 2);
+void mbed_error_printf(const char *format, ...);
 
 /** Print out an error message.  Similar to mbed_error_printf
  * but uses a va_list.
@@ -150,7 +150,7 @@ void mbed_error_printf(const char *format, ...) MBED_PRINTF(1, 2);
  * @param arg       Variable arguments list
  *
  */
-void mbed_error_vprintf(const char *format, va_list arg) MBED_PRINTF(1, 0);
+void mbed_error_vprintf(const char *format, va_list arg);
 
 /** Print out an error message. This is typically called when
  * handling a crash.
@@ -169,7 +169,7 @@ void mbed_error_puts(const char *str);
 /** @deprecated   Renamed to mbed_error_vprintf to match functionality */
 MBED_DEPRECATED_SINCE("mbed-os-5.11",
                           "Renamed to mbed_error_vprintf to match functionality.")
-void mbed_error_vfprintf(const char *format, va_list arg) MBED_PRINTF(1, 0);
+void mbed_error_vfprintf(const char *format, va_list arg);
 /** @}*/
 
 
