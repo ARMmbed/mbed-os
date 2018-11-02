@@ -29,6 +29,37 @@ extern "C" {
 #if DEVICE_MPU
 
 /**
+ * \defgroup hal_mpu MPU hal
+ *
+ * The MPU hal provides a simple MPU API to enhance device security by preventing
+ * execution from ram.
+ *
+ * # Defined behavior
+ * * The function ::mbed_mpu_init is safe to call repeatedly - Verified by ::mpu_init_test
+ * * The function ::mbed_mpu_free disables MPU protection - Verified by ::mpu_free_test
+ * * Execution from RAM results in a fault when execute never is enabled.
+ *      This RAM includes heap, stack, data and zero init - Verified  by ::mpu_fault_test_data,
+ *      ::mpu_fault_test_bss, ::mpu_fault_test_stack and ::mpu_fault_test_heap.
+ *
+ * # Undefined behavior
+ * * Calling any function other than ::mbed_mpu_init before the initialization of the MPU.
+ *
+ * @see hal_mpu_tests
+ *
+ * @{
+ */
+
+/**
+ * \defgroup hal_mpu_tests MPU hal tests
+ * The MPU test validates proper implementation of the MPU hal.
+ *
+ * To run the MPU hal tests use the command:
+ *
+ *     mbed test -t <toolchain> -m <target> -n tests-mbed_hal-mpu*
+ */
+
+
+/**
  * Initialize the MPU
  *
  * Initialize or re-initialize the memory protection unit.
@@ -52,6 +83,8 @@ void mbed_mpu_enable_ram_xn(bool enable);
  * Powerdown the MPU in preparation for powerdown, reset or jumping to another application.
  */
 void mbed_mpu_free(void);
+
+/**@}*/
 
 #else
 
