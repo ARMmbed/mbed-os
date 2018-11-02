@@ -590,8 +590,8 @@ __STATIC_INLINE void SCU_Setup(void)
 */
 #define SCB_AIRCR_PRIS_VAL      0
 
-/* Assign HardFault to be always secure for safe */
-#define SCB_AIRCR_BFHFNMINS_VAL 0
+/* Assign HardFault to be domain specific to allow non-secure crash dumps and testing */
+#define SCB_AIRCR_BFHFNMINS_VAL 1
 
 /*
 // </e>
