@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, Arm Limited and affiliates.
+ * Copyright (c) 2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,25 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#ifndef SARA4_PPP_CELLULARCONTEXT_H_
+#define SARA4_PPP_CELLULARCONTEXT_H_
 
-#ifndef SARA4_PPP_CELLULAR_NETWORK_H_
-#define SARA4_PPP_CELLULAR_NETWORK_H_
-
-#include "AT_CellularNetwork.h"
+#include "AT_CellularContext.h"
 
 namespace mbed {
 
-class SARA4_PPP_CellularNetwork : public AT_CellularNetwork {
+class SARA4_PPP_CellularContext: public AT_CellularContext {
 public:
-    SARA4_PPP_CellularNetwork(ATHandler &atHandler);
-    virtual ~SARA4_PPP_CellularNetwork();
+    SARA4_PPP_CellularContext(ATHandler &at, CellularDevice *device, const char *apn);
+    virtual ~SARA4_PPP_CellularContext();
 
 protected:
-    virtual RegistrationMode has_registration(RegistrationType rat);
-
-    virtual nsapi_error_t set_access_technology_impl(RadioAccessTechnology opRat);
+    virtual bool stack_type_supported(nsapi_ip_stack_t requested_stack);
 };
 
-} // namespace mbed
+} /* namespace mbed */
 
-#endif // SARA4_PPP_CELLULAR_NETWORK_H_
+#endif // SARA4_PPP_CELLULARCONTEXT_H_

@@ -31,6 +31,7 @@ public:
 public: // CellularDevice
     virtual AT_CellularNetwork *open_network_impl(ATHandler &at);
     virtual AT_CellularPower *open_power_impl(ATHandler &at);
+    virtual AT_CellularContext *create_context_impl(ATHandler &at, const char *apn);
 };
 
 } // namespace mbed

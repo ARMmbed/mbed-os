@@ -18,6 +18,7 @@
 #include "SARA4_PPP.h"
 #include "SARA4_PPP_CellularNetwork.h"
 #include "SARA4_PPP_CellularPower.h"
+#include "SARA4_PPP_CellularContext.h"
 
 using namespace mbed;
 using namespace events;
@@ -47,3 +48,7 @@ AT_CellularPower *SARA4_PPP::open_power_impl(ATHandler &at)
     return new SARA4_PPP_CellularPower(at);
 }
 
+AT_CellularContext *SARA4_PPP::create_context_impl(ATHandler &at, const char *apn)
+{
+    return new SARA4_PPP_CellularContext(at, this, apn);
+}
