@@ -2083,6 +2083,7 @@ PREDEFINED             = DOXYGEN_ONLY            \
                          DEVICE_INTERRUPTIN      \
                          DEVICE_ITM              \
                          DEVICE_LPTICKER         \
+                         DEVICE_MPU              \
                          DEVICE_PORTIN           \
                          DEVICE_PORTINOUT        \
                          DEVICE_PORTOUT          \

@@ -22,6 +22,7 @@
 #include <stdlib.h>
 
 #include "mpu_api.h"
+#include "mpu_test.h"
 
 #if !DEVICE_MPU
 #error [NOT_SUPPORTED] MPU API not supported for this target
