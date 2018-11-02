@@ -128,7 +128,7 @@ class USBSerialTest(mbed_host_tests.BaseHostTest):
 
     def port_open_wait(self):
         """Open the serial and wait until it's closed by the device."""
-        mbed_serial = serial.Serial()
+        mbed_serial = serial.Serial(dsrdtr=False)
         mbed_serial.dtr = False
         try:
             mbed_serial.port = retry_fun_call(
@@ -139,19 +139,20 @@ class USBSerialTest(mbed_host_tests.BaseHostTest):
                 fun=mbed_serial.open,
                 num_retries=20,
                 retry_delay=0.05)
-            mbed_serial.dtr = True
-            try:
-                mbed_serial.read()  # wait until closed
-            except (serial.portNotOpenError, serial.SerialException):
-                pass
         except RetryError as exc:
             self.log('TEST ERROR: {}'.format(exc))
             self.notify_complete(False)
             return
+        mbed_serial.dtr = True
+        try:
+            mbed_serial.read()  # wait until closed
+        except (serial.portNotOpenError, serial.SerialException):
+            pass
 
     def port_open_close(self):
         """Open the serial and close it with a delay."""
-        mbed_serial = serial.Serial(timeout=0.5, write_timeout=0.1)
+        mbed_serial = serial.Serial(timeout=0.5, write_timeout=0.1, dsrdtr=False)
+        mbed_serial.dtr = False
         try:
             mbed_serial.port = retry_fun_call(
                 fun=functools.partial(self.get_usb_serial_name, self.dut_usb_dev_sn),  # pylint: disable=not-callable
@@ -161,14 +162,14 @@ class USBSerialTest(mbed_host_tests.BaseHostTest):
                 fun=mbed_serial.open,
                 num_retries=20,
                 retry_delay=0.05)
-            mbed_serial.reset_output_buffer()
-            mbed_serial.dtr = True
-            time.sleep(TERM_REOPEN_DELAY)
-            mbed_serial.close()
         except RetryError as exc:
             self.log('TEST ERROR: {}'.format(exc))
             self.notify_complete(False)
             return
+        mbed_serial.reset_output_buffer()
+        mbed_serial.dtr = True
+        time.sleep(TERM_REOPEN_DELAY)
+        mbed_serial.close()
 
     def send_data_sequence(self, chunk_size=1):
         """Open the serial and send a sequence of values.
@@ -176,7 +177,7 @@ class USBSerialTest(mbed_host_tests.BaseHostTest):
         chunk_size defines the size of data sent in each write operation.
         The input buffer content is discarded.
         """
-        mbed_serial = serial.Serial(write_timeout=0.1)
+        mbed_serial = serial.Serial(write_timeout=0.1, dsrdtr=False)
         try:
             mbed_serial.port = retry_fun_call(
                 fun=functools.partial(self.get_usb_serial_name, self.dut_usb_dev_sn),  # pylint: disable=not-callable
@@ -211,7 +212,7 @@ class USBSerialTest(mbed_host_tests.BaseHostTest):
 
     def loopback(self):
         """Open the serial and send back every byte received."""
-        mbed_serial = serial.Serial(timeout=0.5, write_timeout=0.1)
+        mbed_serial = serial.Serial(timeout=0.5, write_timeout=0.1, dsrdtr=False)
         mbed_serial.dtr = False
         try:
             mbed_serial.port = retry_fun_call(
@@ -248,7 +249,7 @@ class USBSerialTest(mbed_host_tests.BaseHostTest):
 
         New line coding params are read from the device serial data.
         """
-        mbed_serial = serial.Serial(timeout=0.5)
+        mbed_serial = serial.Serial(timeout=0.5, dsrdtr=False)
         mbed_serial.dtr = False
         try:
             mbed_serial.port = retry_fun_call(
