@@ -52,6 +52,24 @@
 // This way the device has to correctly handle data bigger that its buffer.
 #define HOST_RX_BUFF_SIZE_RATIO 64
 
+// A DTR line is used to signal that the host has configured a terminal and
+// is ready to transmit and receive data from the USB CDC/Serial device.
+// When this test suite is run with the use of a Linux host, a workaround has
+// to be used to overcome some platform specific DTR line behavior.
+// Every time the serial port file descriptor is opened, the DTR line is
+// asserted until the terminal attributes are set.
+// As a consequence, the device receives a premature DTR signal with a
+// duration of 200-500 us before the correct, long-lasting DTR signal set by
+// the host-side test script. (tested on the Linux kernel 4.15.0)
+//
+// Online references:
+// https://github.com/pyserial/pyserial/issues/124#issuecomment-227235402
+//
+// The solution is to wait for the first DTR spike, ignore it, and wait for
+// the correct DTR signal again.
+#define LINUX_HOST_DTR_FIX 1
+#define LINUX_HOST_DTR_FIX_DELAY_MS 1
+
 #define CDC_LOOPBACK_REPS 1200
 #define SERIAL_LOOPBACK_REPS 100
 #define USB_RECONNECT_DELAY_MS 1
@@ -275,6 +293,10 @@ void test_cdc_usb_reconnect()
 
     greentea_send_kv(MSG_KEY_PORT_OPEN_WAIT, MSG_VALUE_DUMMY);
     // Wait for the host to open the port.
+#if LINUX_HOST_DTR_FIX
+    usb_cdc.wait_ready();
+    wait_ms(LINUX_HOST_DTR_FIX_DELAY_MS);
+#endif
     usb_cdc.wait_ready();
     TEST_ASSERT_TRUE(usb_cdc.configured());
     TEST_ASSERT_TRUE(usb_cdc.ready());
@@ -296,6 +318,10 @@ void test_cdc_usb_reconnect()
 
     greentea_send_kv(MSG_KEY_PORT_OPEN_WAIT, MSG_VALUE_DUMMY);
     // Wait for the host to open the port again.
+#if LINUX_HOST_DTR_FIX
+    usb_cdc.wait_ready();
+    wait_ms(LINUX_HOST_DTR_FIX_DELAY_MS);
+#endif
     usb_cdc.wait_ready();
     TEST_ASSERT_TRUE(usb_cdc.configured());
     TEST_ASSERT_TRUE(usb_cdc.ready());
@@ -317,6 +343,10 @@ void test_cdc_rx_single_bytes()
     TestUSBCDC usb_cdc(USB_CDC_VID, USB_CDC_PID, 1, usb_dev_sn);
     usb_cdc.connect();
     greentea_send_kv(MSG_KEY_SEND_BYTES_SINGLE, MSG_VALUE_DUMMY);
+#if LINUX_HOST_DTR_FIX
+    usb_cdc.wait_ready();
+    wait_ms(LINUX_HOST_DTR_FIX_DELAY_MS);
+#endif
     usb_cdc.wait_ready();
     uint8_t buff = 0x01;
     for (int expected = 0xff; expected >= 0; expected--) {
@@ -360,6 +390,10 @@ void test_cdc_rx_single_bytes_concurrent()
     TestUSBCDC usb_cdc(USB_CDC_VID, USB_CDC_PID, 1, usb_dev_sn);
     usb_cdc.connect();
     greentea_send_kv(MSG_KEY_SEND_BYTES_SINGLE, MSG_VALUE_DUMMY);
+#if LINUX_HOST_DTR_FIX
+    usb_cdc.wait_ready();
+    wait_ms(LINUX_HOST_DTR_FIX_DELAY_MS);
+#endif
     usb_cdc.wait_ready();
     Thread tx_thread;
     event_flags.set(EF_SEND);
@@ -393,6 +427,10 @@ void test_cdc_rx_multiple_bytes()
     TestUSBCDC usb_cdc(USB_CDC_VID, USB_CDC_PID, 1, usb_dev_sn);
     usb_cdc.connect();
     greentea_send_kv(MSG_KEY_SEND_BYTES_MULTIPLE, HOST_RX_BUFF_SIZE_RATIO);
+#if LINUX_HOST_DTR_FIX
+    usb_cdc.wait_ready();
+    wait_ms(LINUX_HOST_DTR_FIX_DELAY_MS);
+#endif
     usb_cdc.wait_ready();
     uint8_t buff[RX_BUFF_SIZE] = { 0 };
     uint8_t expected_buff[RX_BUFF_SIZE] = { 0 };
@@ -429,6 +467,10 @@ void test_cdc_rx_multiple_bytes_concurrent()
     TestUSBCDC usb_cdc(USB_CDC_VID, USB_CDC_PID, 1, usb_dev_sn);
     usb_cdc.connect();
     greentea_send_kv(MSG_KEY_SEND_BYTES_MULTIPLE, HOST_RX_BUFF_SIZE_RATIO);
+#if LINUX_HOST_DTR_FIX
+    usb_cdc.wait_ready();
+    wait_ms(LINUX_HOST_DTR_FIX_DELAY_MS);
+#endif
     usb_cdc.wait_ready();
     Thread tx_thread;
     event_flags.set(EF_SEND);
@@ -470,6 +512,10 @@ void test_cdc_loopback()
     TestUSBCDC usb_cdc(USB_CDC_VID, USB_CDC_PID, 1, usb_dev_sn);
     usb_cdc.connect();
     greentea_send_kv(MSG_KEY_LOOPBACK, MSG_VALUE_DUMMY);
+#if LINUX_HOST_DTR_FIX
+    usb_cdc.wait_ready();
+    wait_ms(LINUX_HOST_DTR_FIX_DELAY_MS);
+#endif
     usb_cdc.wait_ready();
     uint8_t rx_buff, tx_buff;
     for (int i = 0; i < CDC_LOOPBACK_REPS; i++) {
@@ -511,6 +557,10 @@ void test_serial_usb_reconnect()
 
     greentea_send_kv(MSG_KEY_PORT_OPEN_WAIT, MSG_VALUE_DUMMY);
     // Wait for the host to open the port.
+#if LINUX_HOST_DTR_FIX
+    usb_serial.wait_ready();
+    wait_ms(LINUX_HOST_DTR_FIX_DELAY_MS);
+#endif
     while (!usb_serial.connected()) {
         wait_ms(1);
     }
@@ -537,6 +587,10 @@ void test_serial_usb_reconnect()
 
     greentea_send_kv(MSG_KEY_PORT_OPEN_WAIT, MSG_VALUE_DUMMY);
     // Wait for the host to open the port again.
+#if LINUX_HOST_DTR_FIX
+    usb_serial.wait_ready();
+    wait_ms(LINUX_HOST_DTR_FIX_DELAY_MS);
+#endif
     while (!usb_serial.connected()) {
         wait_ms(1);
     }
@@ -563,6 +617,10 @@ void test_serial_term_reopen()
     usb_serial.connect();
     greentea_send_kv(MSG_KEY_PORT_OPEN_CLOSE, MSG_VALUE_DUMMY);
     // Wait for the host to open the terminal.
+#if LINUX_HOST_DTR_FIX
+    usb_serial.wait_ready();
+    wait_ms(LINUX_HOST_DTR_FIX_DELAY_MS);
+#endif
     while (!usb_serial.connected()) {
         wait_ms(1);
     }
@@ -582,6 +640,10 @@ void test_serial_term_reopen()
 
     greentea_send_kv(MSG_KEY_PORT_OPEN_CLOSE, MSG_VALUE_DUMMY);
     // Wait for the host to open the terminal again.
+#if LINUX_HOST_DTR_FIX
+    usb_serial.wait_ready();
+    wait_ms(LINUX_HOST_DTR_FIX_DELAY_MS);
+#endif
     while (!usb_serial.connected()) {
         wait_ms(1);
     }
@@ -613,9 +675,11 @@ void test_serial_getc()
     TestUSBSerial usb_serial(USB_SERIAL_VID, USB_SERIAL_PID, 1, usb_dev_sn);
     usb_serial.connect();
     greentea_send_kv(MSG_KEY_SEND_BYTES_SINGLE, MSG_VALUE_DUMMY);
-    while (!usb_serial.connected()) {
-        wait_ms(1);
-    }
+#if LINUX_HOST_DTR_FIX
+    usb_serial.wait_ready();
+    wait_ms(LINUX_HOST_DTR_FIX_DELAY_MS);
+#endif
+    usb_serial.wait_ready();
     for (int expected = 0xff; expected >= 0; expected--) {
         TEST_ASSERT_EQUAL_INT(expected, usb_serial.getc());
     }
@@ -643,6 +707,10 @@ void test_serial_printf_scanf()
     TestUSBSerial usb_serial(USB_SERIAL_VID, USB_SERIAL_PID, 1, usb_dev_sn);
     usb_serial.connect();
     greentea_send_kv(MSG_KEY_LOOPBACK, MSG_VALUE_DUMMY);
+#if LINUX_HOST_DTR_FIX
+    usb_serial.wait_ready();
+    wait_ms(LINUX_HOST_DTR_FIX_DELAY_MS);
+#endif
     usb_serial.wait_ready();
     static const char fmt[] = "Formatted\nstring %i.";
     int tx_val, rx_val, rc;
@@ -684,6 +752,10 @@ void test_serial_line_coding_change()
     TestUSBSerial usb_serial(USB_SERIAL_VID, USB_SERIAL_PID, 1, usb_dev_sn);
     usb_serial.connect();
     greentea_send_kv(MSG_KEY_CHANGE_LINE_CODING, MSG_VALUE_DUMMY);
+#if LINUX_HOST_DTR_FIX
+    usb_serial.wait_ready();
+    wait_ms(LINUX_HOST_DTR_FIX_DELAY_MS);
+#endif
     usb_serial.wait_ready();
     usb_serial.attach(line_coding_changed_cb);
     size_t num_line_codings = sizeof test_codings / sizeof test_codings[0];
