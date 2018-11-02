@@ -4521,16 +4521,19 @@
         "OUTPUT_EXT": "hex",
         "device_has": ["USTICKER", "INTERRUPTIN", "SERIAL", "SERIAL_ASYNCH", "SERIAL_FC", "PORTIN", "PORTOUT", "PORTINOUT", "RTC", "PWMOUT", "ANALOGIN", "ANALOGOUT", "I2C", "I2C_ASYNCH", "SPI", "SPI_ASYNCH", "STDIO_MESSAGES", "LPTICKER", "SLEEP", "FLASH" ],
         "release_versions": ["5"],
-        "extra_labels": ["Cypress", "PSOC6"]
+        "extra_labels": ["Cypress", "PSOC6"],
+        "public": false
     },
     "MCU_PSOC6_M0": {
         "inherits": ["MCU_PSOC6"],
         "core": "Cortex-M0+",
-        "macros": ["MCU_PSOC6_M0"]
+        "macros": ["MCU_PSOC6_M0"],
+        "public": false
     },
     "MCU_PSOC6_M4": {
         "inherits": ["MCU_PSOC6"],
-        "macros": ["MCU_PSOC6_M4"]
+        "macros": ["MCU_PSOC6_M4"],
+        "public": false
     },
     "FUTURE_SEQUANA_M0": {
         "inherits": ["MCU_PSOC6_M0"],
