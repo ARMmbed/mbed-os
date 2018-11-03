@@ -557,6 +557,19 @@ class RTL8195ACode:
     def binary_hook(t_self, resources, elf, binf):
         from tools.targets.REALTEK_RTL8195AM import rtl8195a_elf2bin
         rtl8195a_elf2bin(t_self, elf, binf)
+
+class PSOC6Code:
+    @staticmethod
+    def complete(t_self, resources, elf, binf):
+        from tools.targets.PSOC6 import complete as psoc6_complete
+        if hasattr(t_self.target, "sub_target"):
+            # Completing main image involves merging M0 image.
+            from tools.targets.PSOC6 import find_cm0_image
+            m0hexf = find_cm0_image(t_self, resources, elf, binf)
+            psoc6_complete(t_self, elf, binf, m0hexf)
+        else:
+            psoc6_complete(t_self, elf, binf)
+
 ################################################################################
 
 # Instantiate all public targets
