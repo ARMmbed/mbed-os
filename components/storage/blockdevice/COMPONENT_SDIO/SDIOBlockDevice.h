@@ -122,7 +122,7 @@ private:
     bd_size_t _sectors;
     uint32_t _sd_state;
     uint32_t _init_ref_count;
-    HAL_SD_CardInfoTypeDef _cardInfo;
+    SD_Cardinfo_t _cardInfo;
     uint32_t _card_type;
 
     PlatformMutex _mutex;
