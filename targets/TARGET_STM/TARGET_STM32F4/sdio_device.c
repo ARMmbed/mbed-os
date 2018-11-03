@@ -260,6 +260,40 @@ __weak void SD_MspDeInit(SD_HandleTypeDef *hsd, void *Params) {
 }
 
 /**
+  * @brief  Enables the SDIO wide bus mode.
+  * @param  hsd pointer to SD handle
+  * @retval error state
+  */
+static uint32_t SD_WideBus_Enable(SD_HandleTypeDef *hsd)
+{
+    uint32_t errorstate = HAL_SD_ERROR_NONE;
+
+    if((SDIO_GetResponse(hsd->Instance, SDIO_RESP1) & SDMMC_CARD_LOCKED) == SDMMC_CARD_LOCKED)
+    {
+    return HAL_SD_ERROR_LOCK_UNLOCK_FAILED;
+    }
+
+    /* Send CMD55 APP_CMD with argument as card's RCA.*/
+    errorstate = SDMMC_CmdAppCommand(hsd->Instance, (uint32_t)(hsd->SdCard.RelCardAdd << 16U));
+    if(errorstate != HAL_OK)
+    {
+      return errorstate;
+    }
+
+    /* Send ACMD6 APP_CMD with argument as 2 for wide bus mode */
+    errorstate = SDMMC_CmdBusWidth(hsd->Instance, 2U);
+    if(errorstate != HAL_OK)
+    {
+      return errorstate;
+    }
+
+    hsd->Init.BusWide = SDIO_BUS_WIDE_4B;
+    SDIO_Init(hsd->Instance, hsd->Init);
+
+    return HAL_SD_ERROR_NONE;
+}
+
+/**
  * @brief  Initializes the SD card device.
  * @retval SD status
  */
@@ -273,14 +307,13 @@ uint8_t SD_Init(void) {
     hsd.Init.BusWide = SDIO_BUS_WIDE_1B;
     hsd.Init.HardwareFlowControl = SDIO_HARDWARE_FLOW_CONTROL_DISABLE;
     hsd.Init.ClockDiv = 0;
-    // !!! clock must be slower in polling mode if compiled w/o optimization !!!
 
     /* HAL SD initialization */
     sd_state = HAL_SD_Init(&hsd);
     /* Configure SD Bus width (4 bits mode selected) */
     if (sd_state == MSD_OK) {
         /* Enable wide operation */
-        if (HAL_SD_ConfigWideBusOperation(&hsd, SDIO_BUS_WIDE_4B) != HAL_OK) {
+        if (SD_WideBus_Enable(&hsd) != HAL_OK) {
             sd_state = MSD_ERROR;
         }
     }
@@ -418,9 +451,22 @@ uint8_t SD_GetCardState(void) {
  * @param  CardInfo: Pointer to HAL_SD_CardInfoTypedef structure
  * @retval None
  */
-void SD_GetCardInfo(HAL_SD_CardInfoTypeDef *CardInfo) {
-    /* Get SD card Information */
-    HAL_SD_GetCardInfo(&hsd, CardInfo);
+void SD_GetCardInfo(SD_Cardinfo_t *CardInfo) {
+    /* Get SD card Information, copy structure for portability */
+    HAL_SD_CardInfoTypeDef  HAL_CardInfo;
+
+    HAL_SD_GetCardInfo(&hsd, &HAL_CardInfo);
+
+    if (CardInfo) {
+        CardInfo->CardType      = HAL_CardInfo.CardType;
+        CardInfo->CardVersion   = HAL_CardInfo.CardVersion;
+        CardInfo->Class         = HAL_CardInfo.Class;
+        CardInfo->RelCardAdd    = HAL_CardInfo.RelCardAdd;
+        CardInfo->BlockNbr      = HAL_CardInfo.BlockNbr;
+        CardInfo->BlockSize     = HAL_CardInfo.BlockSize;
+        CardInfo->LogBlockNbr   = HAL_CardInfo.LogBlockNbr;
+        CardInfo->LogBlockSize  = HAL_CardInfo.LogBlockSize;
+    }
 }
 
 /**

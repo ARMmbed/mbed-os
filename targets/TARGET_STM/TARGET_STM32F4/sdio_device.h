@@ -59,18 +59,33 @@
  extern "C" {
 #endif 
 
-/* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal.h"
+
+ /* Typedefs */
+
+typedef struct{
+    uint32_t CardType;                     /* Specifies the card Type                         */
+    uint32_t CardVersion;                  /* Specifies the card version                      */
+    uint32_t Class;                        /* Specifies the class of the card class           */
+    uint32_t RelCardAdd;                   /* Specifies the Relative Card Address             */
+    uint32_t BlockNbr;                     /* Specifies the Card Capacity in blocks           */
+    uint32_t BlockSize;                    /* Specifies one block size in bytes               */
+    uint32_t LogBlockNbr;                  /* Specifies the Card logical Capacity in blocks   */
+    uint32_t LogBlockSize;                 /* Specifies logical block size in bytes           */
+} SD_Cardinfo_t;
+
+
+/* External Global var  */
 
 extern SD_HandleTypeDef hsd;
 
-/* Exported types --------------------------------------------------------*/ 
+/* Exported types */
 /** 
   * @brief SD Card information structure 
   */
 #define BSP_SD_CardInfo HAL_SD_CardInfoTypeDef
 
-/* Exported constants --------------------------------------------------------*/ 
+/* Exported constants */
 /**
   * @brief  SD status structure definition  
   */     
@@ -83,7 +98,7 @@ extern SD_HandleTypeDef hsd;
 #define SD_TRANSFER_OK                ((uint8_t)0x00)
 #define SD_TRANSFER_BUSY              ((uint8_t)0x01)
 
-/* Exported functions --------------------------------------------------------*/   
+/* Exported functions */
 uint8_t SD_Init(void);
 uint8_t SD_DeInit(void);
 uint8_t SD_ReadBlocks(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOfBlocks, uint32_t Timeout);
@@ -95,7 +110,7 @@ uint8_t SD_DMA_WritePending(void);
 uint8_t SD_Erase(uint32_t StartAddr, uint32_t EndAddr);
 
 uint8_t SD_GetCardState(void);
-void    SD_GetCardInfo(HAL_SD_CardInfoTypeDef *CardInfo);
+void    SD_GetCardInfo(SD_Cardinfo_t *CardInfo);
 
 /* callback function for DMA Rx/Tx completete, called by HAL SDIO interrupt handler */
 void HAL_SD_TxCpltCallback(SD_HandleTypeDef *hsd);
