@@ -114,13 +114,11 @@ public:
     virtual bool isPresent(void);
 
 private:
-    //SD_HandleTypeDef _hsd;
     DigitalIn _cardDetect;
     bool _is_initialized;
     bd_size_t _block_size;
     bd_size_t _erase_size;
     bd_size_t _sectors;
-    uint32_t _sd_state;
     uint32_t _init_ref_count;
     SD_Cardinfo_t _cardInfo;
     uint32_t _card_type;
