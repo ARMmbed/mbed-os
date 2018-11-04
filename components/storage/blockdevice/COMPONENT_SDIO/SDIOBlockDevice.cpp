@@ -191,10 +191,11 @@ int SDIOBlockDevice::read(void* b, bd_addr_t addr, bd_size_t size) {
                 unlock();
                 return SD_BLOCK_DEVICE_ERROR_READBLOCKS;
             }
-            while (SD_GetCardState() != SD_TRANSFER_OK) {
-                // wait until SD ready
-                wait_ms(10);
-            }
+        }
+        // make sure card is ready
+        while (SD_GetCardState() != SD_TRANSFER_OK) {
+            // wait until SD ready
+            wait_ms(10);
         }
     }
     else {
