@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 #ifndef MBED_OS_FEATURES_STORAGE_BLOCKDEVICE_SDIOBLOCKDEVICE_H_
 
 #define MBED_OS_FEATURES_STORAGE_BLOCKDEVICE_SDIOBLOCKDEVICE_H_
@@ -24,11 +23,13 @@
 #include "platform/PlatformMutex.h"
 #include "targets/TARGET_STM/TARGET_STM32F4/sdio_device.h"
 
-namespace mbed {
+namespace mbed
+{
 
-class SDIOBlockDevice: public BlockDevice {
-public:
-    SDIOBlockDevice(PinName cardDetect=NC);
+class SDIOBlockDevice : public BlockDevice
+{
+  public:
+    SDIOBlockDevice(PinName cardDetect = NC);
     virtual ~SDIOBlockDevice();
     /** Initialize a block device
      *
@@ -105,7 +106,7 @@ public:
      *  @param freq     Transfer frequency
      *  @note Max frequency supported is 25MHZ
      */
-    virtual int frequency(uint64_t freq) {return BD_ERROR_OK;};
+    virtual int frequency(uint64_t freq) { return BD_ERROR_OK; };
 
     /** check if SD is present
      *
@@ -113,7 +114,7 @@ public:
      */
     virtual bool isPresent(void);
 
-private:
+  private:
     DigitalIn _cardDetect;
     bool _is_initialized;
     bd_size_t _block_size;
@@ -135,12 +136,8 @@ private:
     }
 
     bool _is_valid_trim(bd_addr_t addr, bd_size_t size);
-
-
 };
 
-
 } // namespace mbed
-
 
 #endif /* MBED_OS_FEATURES_STORAGE_BLOCKDEVICE_SDIOBLOCKDEVICE_H_ */

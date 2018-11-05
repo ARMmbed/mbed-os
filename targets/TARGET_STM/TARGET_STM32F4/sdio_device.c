@@ -60,9 +60,8 @@ DMA_HandleTypeDef hdma_sdio_rx;
 DMA_HandleTypeDef hdma_sdio_tx;
 
 // simple flags for DMA pending signaling
-volatile uint8_t SD_DMA_ReadPendingState  = SD_TRANSFER_OK;
-volatile uint8_t SD_DMA_WritePendingState  = SD_TRANSFER_OK;
-
+volatile uint8_t SD_DMA_ReadPendingState = SD_TRANSFER_OK;
+volatile uint8_t SD_DMA_WritePendingState = SD_TRANSFER_OK;
 
 /* DMA Handlers are global, there is only one SDIO interface */
 
@@ -79,7 +78,7 @@ void _SDIO_IRQHandler(void)
 */
 void _DMA_Stream_Rx_IRQHandler(void)
 {
-  HAL_DMA_IRQHandler(hsd.hdmarx);
+    HAL_DMA_IRQHandler(hsd.hdmarx);
 }
 
 /**
@@ -87,18 +86,20 @@ void _DMA_Stream_Rx_IRQHandler(void)
 */
 void _DMA_Stream_Tx_IRQHandler(void)
 {
-  HAL_DMA_IRQHandler(hsd.hdmatx);
+    HAL_DMA_IRQHandler(hsd.hdmatx);
 }
 
 /**
  *
  * @param hsd:  Handle for SD handle Structure definition
  */
-void HAL_SD_MspInit(SD_HandleTypeDef *hsd) {
+void HAL_SD_MspInit(SD_HandleTypeDef *hsd)
+{
     IRQn_Type IRQn;
     GPIO_InitTypeDef GPIO_InitStruct;
 
-    if (hsd->Instance == SDIO) {
+    if (hsd->Instance == SDIO)
+    {
         /* Peripheral clock enable */
         __HAL_RCC_SDIO_CLK_ENABLE();
         __HAL_RCC_DMA2_CLK_ENABLE();
@@ -132,7 +133,7 @@ void HAL_SD_MspInit(SD_HandleTypeDef *hsd) {
         /* NVIC configuration for SDIO interrupts */
         IRQn = SDIO_IRQn;
         HAL_NVIC_SetPriority(IRQn, 0x0E, 0);
-        NVIC_SetVector(IRQn, (uint32_t) &_SDIO_IRQHandler);
+        NVIC_SetVector(IRQn, (uint32_t)&_SDIO_IRQHandler);
         HAL_NVIC_EnableIRQ(IRQn);
 
         /* SDIO DMA Init */
@@ -150,7 +151,8 @@ void HAL_SD_MspInit(SD_HandleTypeDef *hsd) {
         hdma_sdio_rx.Init.FIFOThreshold = DMA_FIFO_THRESHOLD_FULL;
         hdma_sdio_rx.Init.MemBurst = DMA_MBURST_INC4;
         hdma_sdio_rx.Init.PeriphBurst = DMA_PBURST_INC4;
-        if (HAL_DMA_Init(&hdma_sdio_rx) != HAL_OK) {
+        if (HAL_DMA_Init(&hdma_sdio_rx) != HAL_OK)
+        {
             error("SDIO DMA Init error at %d in %s", __FILE__, __LINE__);
         }
 
@@ -161,7 +163,6 @@ void HAL_SD_MspInit(SD_HandleTypeDef *hsd) {
 
         /* Configure the DMA stream */
         HAL_DMA_Init(&hdma_sdio_rx);
-
 
         /* SDIO_TX Init */
         hdma_sdio_tx.Instance = DMA2_Stream6;
@@ -177,7 +178,8 @@ void HAL_SD_MspInit(SD_HandleTypeDef *hsd) {
         hdma_sdio_tx.Init.FIFOThreshold = DMA_FIFO_THRESHOLD_FULL;
         hdma_sdio_tx.Init.MemBurst = DMA_MBURST_INC4;
         hdma_sdio_tx.Init.PeriphBurst = DMA_PBURST_INC4;
-        if (HAL_DMA_Init(&hdma_sdio_tx) != HAL_OK) {
+        if (HAL_DMA_Init(&hdma_sdio_tx) != HAL_OK)
+        {
             error("SDIO DMA Init error at %d in %s", __FILE__, __LINE__);
         }
 
@@ -191,12 +193,12 @@ void HAL_SD_MspInit(SD_HandleTypeDef *hsd) {
 
         /* Enable NVIC for DMA transfer complete interrupts */
         IRQn = DMA2_Stream3_IRQn;
-        NVIC_SetVector(IRQn, (uint32_t) &_DMA_Stream_Rx_IRQHandler);
+        NVIC_SetVector(IRQn, (uint32_t)&_DMA_Stream_Rx_IRQHandler);
         HAL_NVIC_SetPriority(IRQn, 0x0F, 0);
         HAL_NVIC_EnableIRQ(IRQn);
 
         IRQn = DMA2_Stream6_IRQn;
-        NVIC_SetVector(IRQn, (uint32_t) &_DMA_Stream_Tx_IRQHandler);
+        NVIC_SetVector(IRQn, (uint32_t)&_DMA_Stream_Tx_IRQHandler);
         HAL_NVIC_SetPriority(IRQn, 0x0F, 0);
         HAL_NVIC_EnableIRQ(IRQn);
     }
@@ -206,9 +208,11 @@ void HAL_SD_MspInit(SD_HandleTypeDef *hsd) {
  *
  * @param hsd:  Handle for SD handle Structure definition
  */
-void HAL_SD_MspDeInit(SD_HandleTypeDef *hsd) {
+void HAL_SD_MspDeInit(SD_HandleTypeDef *hsd)
+{
 
-    if (hsd->Instance == SDIO) {
+    if (hsd->Instance == SDIO)
+    {
         /* Peripheral clock disable */
         __HAL_RCC_SDIO_CLK_DISABLE();
 
@@ -228,7 +232,6 @@ void HAL_SD_MspDeInit(SD_HandleTypeDef *hsd) {
         HAL_DMA_DeInit(hsd->hdmarx);
         HAL_DMA_DeInit(hsd->hdmatx);
     }
-
 }
 
 /**
@@ -236,7 +239,8 @@ void HAL_SD_MspDeInit(SD_HandleTypeDef *hsd) {
  * @param  hsd: SD handle
  * @param  Params : pointer on additional configuration parameters, can be NULL.
  */
-__weak void SD_MspDeInit(SD_HandleTypeDef *hsd, void *Params) {
+__weak void SD_MspDeInit(SD_HandleTypeDef *hsd, void *Params)
+{
     static DMA_HandleTypeDef dma_rx_handle;
     static DMA_HandleTypeDef dma_tx_handle;
 
@@ -268,23 +272,23 @@ static uint32_t SD_WideBus_Enable(SD_HandleTypeDef *hsd)
 {
     uint32_t errorstate = HAL_SD_ERROR_NONE;
 
-    if((SDIO_GetResponse(hsd->Instance, SDIO_RESP1) & SDMMC_CARD_LOCKED) == SDMMC_CARD_LOCKED)
+    if ((SDIO_GetResponse(hsd->Instance, SDIO_RESP1) & SDMMC_CARD_LOCKED) == SDMMC_CARD_LOCKED)
     {
-    return HAL_SD_ERROR_LOCK_UNLOCK_FAILED;
+        return HAL_SD_ERROR_LOCK_UNLOCK_FAILED;
     }
 
     /* Send CMD55 APP_CMD with argument as card's RCA.*/
     errorstate = SDMMC_CmdAppCommand(hsd->Instance, (uint32_t)(hsd->SdCard.RelCardAdd << 16U));
-    if(errorstate != HAL_OK)
+    if (errorstate != HAL_OK)
     {
-      return errorstate;
+        return errorstate;
     }
 
     /* Send ACMD6 APP_CMD with argument as 2 for wide bus mode */
     errorstate = SDMMC_CmdBusWidth(hsd->Instance, 2U);
-    if(errorstate != HAL_OK)
+    if (errorstate != HAL_OK)
     {
-      return errorstate;
+        return errorstate;
     }
 
     hsd->Init.BusWide = SDIO_BUS_WIDE_4B;
@@ -297,7 +301,8 @@ static uint32_t SD_WideBus_Enable(SD_HandleTypeDef *hsd)
  * @brief  Initializes the SD card device.
  * @retval SD status
  */
-uint8_t SD_Init(void) {
+uint8_t SD_Init(void)
+{
     uint8_t sd_state = MSD_OK;
 
     hsd.Instance = SDIO;
@@ -311,9 +316,11 @@ uint8_t SD_Init(void) {
     /* HAL SD initialization */
     sd_state = HAL_SD_Init(&hsd);
     /* Configure SD Bus width (4 bits mode selected) */
-    if (sd_state == MSD_OK) {
+    if (sd_state == MSD_OK)
+    {
         /* Enable wide operation */
-        if (SD_WideBus_Enable(&hsd) != HAL_OK) {
+        if (SD_WideBus_Enable(&hsd) != HAL_OK)
+        {
             sd_state = MSD_ERROR;
         }
     }
@@ -325,13 +332,15 @@ uint8_t SD_Init(void) {
  * @brief  DeInitializes the SD card device.
  * @retval SD status
  */
-uint8_t SD_DeInit(void) {
+uint8_t SD_DeInit(void)
+{
     uint8_t sd_state = MSD_OK;
 
     hsd.Instance = SDIO;
 
     /* HAL SD deinitialization */
-    if (HAL_SD_DeInit(&hsd) != HAL_OK) {
+    if (HAL_SD_DeInit(&hsd) != HAL_OK)
+    {
         sd_state = MSD_ERROR;
     }
 
@@ -350,10 +359,12 @@ uint8_t SD_DeInit(void) {
  * @param  Timeout: Timeout for read operation
  * @retval SD status
  */
-uint8_t SD_ReadBlocks(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOfBlocks, uint32_t Timeout) {
+uint8_t SD_ReadBlocks(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOfBlocks, uint32_t Timeout)
+{
     uint8_t sd_state = MSD_OK;
 
-    if (HAL_SD_ReadBlocks(&hsd, (uint8_t *) pData, ReadAddr, NumOfBlocks, Timeout) != HAL_OK) {
+    if (HAL_SD_ReadBlocks(&hsd, (uint8_t *)pData, ReadAddr, NumOfBlocks, Timeout) != HAL_OK)
+    {
         sd_state = MSD_ERROR;
     }
 
@@ -368,10 +379,12 @@ uint8_t SD_ReadBlocks(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOfBlocks, 
  * @param  Timeout: Timeout for write operation
  * @retval SD status
  */
-uint8_t SD_WriteBlocks(uint32_t *pData, uint32_t WriteAddr, uint32_t NumOfBlocks, uint32_t Timeout) {
+uint8_t SD_WriteBlocks(uint32_t *pData, uint32_t WriteAddr, uint32_t NumOfBlocks, uint32_t Timeout)
+{
     uint8_t sd_state = MSD_OK;
 
-    if (HAL_SD_WriteBlocks(&hsd, (uint8_t *) pData, WriteAddr, NumOfBlocks, Timeout) != HAL_OK) {
+    if (HAL_SD_WriteBlocks(&hsd, (uint8_t *)pData, WriteAddr, NumOfBlocks, Timeout) != HAL_OK)
+    {
         sd_state = MSD_ERROR;
     }
 
@@ -385,14 +398,16 @@ uint8_t SD_WriteBlocks(uint32_t *pData, uint32_t WriteAddr, uint32_t NumOfBlocks
  * @param  NumOfBlocks: Number of SD blocks to read
  * @retval SD status
  */
-uint8_t SD_ReadBlocks_DMA(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOfBlocks) {
+uint8_t SD_ReadBlocks_DMA(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOfBlocks)
+{
     uint8_t sd_state = MSD_OK;
     SD_DMA_ReadPendingState = SD_TRANSFER_BUSY;
 
     /* Read block(s) in DMA transfer mode */
-    if (HAL_SD_ReadBlocks_DMA(&hsd, (uint8_t *) pData, ReadAddr, NumOfBlocks) != HAL_OK) {
+    if (HAL_SD_ReadBlocks_DMA(&hsd, (uint8_t *)pData, ReadAddr, NumOfBlocks) != HAL_OK)
+    {
         sd_state = MSD_ERROR;
-        SD_DMA_ReadPendingState  = SD_TRANSFER_OK;
+        SD_DMA_ReadPendingState = SD_TRANSFER_OK;
     }
 
     return sd_state;
@@ -405,14 +420,16 @@ uint8_t SD_ReadBlocks_DMA(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOfBloc
  * @param  NumOfBlocks: Number of SD blocks to write
  * @retval SD status
  */
-uint8_t SD_WriteBlocks_DMA(uint32_t *pData, uint32_t WriteAddr, uint32_t NumOfBlocks) {
+uint8_t SD_WriteBlocks_DMA(uint32_t *pData, uint32_t WriteAddr, uint32_t NumOfBlocks)
+{
     uint8_t sd_state = MSD_OK;
     SD_DMA_WritePendingState = SD_TRANSFER_BUSY;
 
     /* Write block(s) in DMA transfer mode */
-    if (HAL_SD_WriteBlocks_DMA(&hsd, (uint8_t *) pData, WriteAddr, NumOfBlocks) != HAL_OK) {
+    if (HAL_SD_WriteBlocks_DMA(&hsd, (uint8_t *)pData, WriteAddr, NumOfBlocks) != HAL_OK)
+    {
         sd_state = MSD_ERROR;
-        SD_DMA_WritePendingState  = SD_TRANSFER_OK;
+        SD_DMA_WritePendingState = SD_TRANSFER_OK;
     }
 
     return sd_state;
@@ -424,10 +441,12 @@ uint8_t SD_WriteBlocks_DMA(uint32_t *pData, uint32_t WriteAddr, uint32_t NumOfBl
  * @param  EndAddr: End byte address
  * @retval SD status
  */
-uint8_t SD_Erase(uint32_t StartAddr, uint32_t EndAddr) {
+uint8_t SD_Erase(uint32_t StartAddr, uint32_t EndAddr)
+{
     uint8_t sd_state = MSD_OK;
 
-    if (HAL_SD_Erase(&hsd, StartAddr, EndAddr) != HAL_OK) {
+    if (HAL_SD_Erase(&hsd, StartAddr, EndAddr) != HAL_OK)
+    {
         sd_state = MSD_ERROR;
     }
 
@@ -442,7 +461,8 @@ uint8_t SD_Erase(uint32_t StartAddr, uint32_t EndAddr) {
  *            @arg  SD_TRANSFER_OK: No data transfer is acting
  *            @arg  SD_TRANSFER_BUSY: Data transfer is acting
  */
-uint8_t SD_GetCardState(void) {
+uint8_t SD_GetCardState(void)
+{
     return ((HAL_SD_GetCardState(&hsd) == HAL_SD_CARD_TRANSFER) ? SD_TRANSFER_OK : SD_TRANSFER_BUSY);
 }
 
@@ -451,21 +471,23 @@ uint8_t SD_GetCardState(void) {
  * @param  CardInfo: Pointer to HAL_SD_CardInfoTypedef structure
  * @retval None
  */
-void SD_GetCardInfo(SD_Cardinfo_t *CardInfo) {
+void SD_GetCardInfo(SD_Cardinfo_t *CardInfo)
+{
     /* Get SD card Information, copy structure for portability */
-    HAL_SD_CardInfoTypeDef  HAL_CardInfo;
+    HAL_SD_CardInfoTypeDef HAL_CardInfo;
 
     HAL_SD_GetCardInfo(&hsd, &HAL_CardInfo);
 
-    if (CardInfo) {
-        CardInfo->CardType      = HAL_CardInfo.CardType;
-        CardInfo->CardVersion   = HAL_CardInfo.CardVersion;
-        CardInfo->Class         = HAL_CardInfo.Class;
-        CardInfo->RelCardAdd    = HAL_CardInfo.RelCardAdd;
-        CardInfo->BlockNbr      = HAL_CardInfo.BlockNbr;
-        CardInfo->BlockSize     = HAL_CardInfo.BlockSize;
-        CardInfo->LogBlockNbr   = HAL_CardInfo.LogBlockNbr;
-        CardInfo->LogBlockSize  = HAL_CardInfo.LogBlockSize;
+    if (CardInfo)
+    {
+        CardInfo->CardType = HAL_CardInfo.CardType;
+        CardInfo->CardVersion = HAL_CardInfo.CardVersion;
+        CardInfo->Class = HAL_CardInfo.Class;
+        CardInfo->RelCardAdd = HAL_CardInfo.RelCardAdd;
+        CardInfo->BlockNbr = HAL_CardInfo.BlockNbr;
+        CardInfo->BlockSize = HAL_CardInfo.BlockSize;
+        CardInfo->LogBlockNbr = HAL_CardInfo.LogBlockNbr;
+        CardInfo->LogBlockSize = HAL_CardInfo.LogBlockSize;
     }
 }
 
@@ -476,7 +498,8 @@ void SD_GetCardInfo(SD_Cardinfo_t *CardInfo) {
  *            @arg  SD_TRANSFER_OK: No data transfer is acting
  *            @arg  SD_TRANSFER_BUSY: Data transfer is acting
  */
-uint8_t SD_DMA_ReadPending(void) {
+uint8_t SD_DMA_ReadPending(void)
+{
     return SD_DMA_ReadPendingState;
 }
 
@@ -487,7 +510,8 @@ uint8_t SD_DMA_ReadPending(void) {
  *            @arg  SD_TRANSFER_OK: No data transfer is acting
  *            @arg  SD_TRANSFER_BUSY: Data transfer is acting
  */
-uint8_t SD_DMA_WritePending(void) {
+uint8_t SD_DMA_WritePending(void)
+{
     return SD_DMA_WritePendingState;
 }
 
@@ -498,7 +522,7 @@ uint8_t SD_DMA_WritePending(void) {
   */
 void HAL_SD_RxCpltCallback(SD_HandleTypeDef *hsd)
 {
-    SD_DMA_ReadPendingState  = SD_TRANSFER_OK;
+    SD_DMA_ReadPendingState = SD_TRANSFER_OK;
 }
 
 /**
@@ -508,8 +532,7 @@ void HAL_SD_RxCpltCallback(SD_HandleTypeDef *hsd)
   */
 void HAL_SD_TxCpltCallback(SD_HandleTypeDef *hsd)
 {
-    SD_DMA_WritePendingState  = SD_TRANSFER_OK;
+    SD_DMA_WritePendingState = SD_TRANSFER_OK;
 }
-
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

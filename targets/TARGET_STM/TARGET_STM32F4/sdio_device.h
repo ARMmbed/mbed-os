@@ -56,28 +56,29 @@
 #define __STM32F4_SD_H
 
 #ifdef __cplusplus
- extern "C" {
-#endif 
+extern "C"
+{
+#endif
 
 #include "stm32f4xx_hal.h"
 
- /* Typedefs */
+  /* Typedefs */
 
-typedef struct{
-    uint32_t CardType;                     /* Specifies the card Type                         */
-    uint32_t CardVersion;                  /* Specifies the card version                      */
-    uint32_t Class;                        /* Specifies the class of the card class           */
-    uint32_t RelCardAdd;                   /* Specifies the Relative Card Address             */
-    uint32_t BlockNbr;                     /* Specifies the Card Capacity in blocks           */
-    uint32_t BlockSize;                    /* Specifies one block size in bytes               */
-    uint32_t LogBlockNbr;                  /* Specifies the Card logical Capacity in blocks   */
-    uint32_t LogBlockSize;                 /* Specifies logical block size in bytes           */
-} SD_Cardinfo_t;
+  typedef struct
+  {
+    uint32_t CardType;     /* Specifies the card Type                         */
+    uint32_t CardVersion;  /* Specifies the card version                      */
+    uint32_t Class;        /* Specifies the class of the card class           */
+    uint32_t RelCardAdd;   /* Specifies the Relative Card Address             */
+    uint32_t BlockNbr;     /* Specifies the Card Capacity in blocks           */
+    uint32_t BlockSize;    /* Specifies one block size in bytes               */
+    uint32_t LogBlockNbr;  /* Specifies the Card logical Capacity in blocks   */
+    uint32_t LogBlockSize; /* Specifies logical block size in bytes           */
+  } SD_Cardinfo_t;
 
+  /* External Global var  */
 
-/* External Global var  */
-
-extern SD_HandleTypeDef hsd;
+  extern SD_HandleTypeDef hsd;
 
 /* Exported types */
 /** 
@@ -88,34 +89,33 @@ extern SD_HandleTypeDef hsd;
 /* Exported constants */
 /**
   * @brief  SD status structure definition  
-  */     
-#define MSD_OK                        ((uint8_t)0x00)
-#define MSD_ERROR                     ((uint8_t)0x01)
+  */
+#define MSD_OK ((uint8_t)0x00)
+#define MSD_ERROR ((uint8_t)0x01)
 
 /** 
   * @brief  SD transfer state definition  
-  */     
-#define SD_TRANSFER_OK                ((uint8_t)0x00)
-#define SD_TRANSFER_BUSY              ((uint8_t)0x01)
+  */
+#define SD_TRANSFER_OK ((uint8_t)0x00)
+#define SD_TRANSFER_BUSY ((uint8_t)0x01)
 
-/* Exported functions */
-uint8_t SD_Init(void);
-uint8_t SD_DeInit(void);
-uint8_t SD_ReadBlocks(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOfBlocks, uint32_t Timeout);
-uint8_t SD_WriteBlocks(uint32_t *pData, uint32_t WriteAddr, uint32_t NumOfBlocks, uint32_t Timeout);
-uint8_t SD_ReadBlocks_DMA(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOfBlocks);
-uint8_t SD_WriteBlocks_DMA(uint32_t *pData, uint32_t WriteAddr, uint32_t NumOfBlocks);
-uint8_t SD_DMA_ReadPending(void);
-uint8_t SD_DMA_WritePending(void);
-uint8_t SD_Erase(uint32_t StartAddr, uint32_t EndAddr);
+  /* Exported functions */
+  uint8_t SD_Init(void);
+  uint8_t SD_DeInit(void);
+  uint8_t SD_ReadBlocks(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOfBlocks, uint32_t Timeout);
+  uint8_t SD_WriteBlocks(uint32_t *pData, uint32_t WriteAddr, uint32_t NumOfBlocks, uint32_t Timeout);
+  uint8_t SD_ReadBlocks_DMA(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOfBlocks);
+  uint8_t SD_WriteBlocks_DMA(uint32_t *pData, uint32_t WriteAddr, uint32_t NumOfBlocks);
+  uint8_t SD_DMA_ReadPending(void);
+  uint8_t SD_DMA_WritePending(void);
+  uint8_t SD_Erase(uint32_t StartAddr, uint32_t EndAddr);
 
-uint8_t SD_GetCardState(void);
-void    SD_GetCardInfo(SD_Cardinfo_t *CardInfo);
+  uint8_t SD_GetCardState(void);
+  void SD_GetCardInfo(SD_Cardinfo_t *CardInfo);
 
-/* callback function for DMA Rx/Tx completete, called by HAL SDIO interrupt handler */
-void HAL_SD_TxCpltCallback(SD_HandleTypeDef *hsd);
-void HAL_SD_RxCpltCallback(SD_HandleTypeDef *hsd);
-
+  /* callback function for DMA Rx/Tx completete, called by HAL SDIO interrupt handler */
+  void HAL_SD_TxCpltCallback(SD_HandleTypeDef *hsd);
+  void HAL_SD_RxCpltCallback(SD_HandleTypeDef *hsd);
 
 #ifdef __cplusplus
 }
