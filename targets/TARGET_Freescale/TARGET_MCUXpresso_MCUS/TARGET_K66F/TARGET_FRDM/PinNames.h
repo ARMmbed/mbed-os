@@ -232,6 +232,26 @@ typedef enum {
 
     I2C_SCL = D15,
     I2C_SDA = D14,
+    
+    /* Note: 
+    This board does not provide SPI MOSI/MISO pins, instead we have SIN/SOUT pins which can be used
+    as SPI MOSI/MISO lines depending on SPI operation mode(master or slave):
+    master: SIN  ---> MISO
+            SOUT ---> MOSI
+    slave:  SIN  ---> MOSI
+            SOUT ---> MISO
+
+    SPI_0 interface represents SPI pins configuration for slave and SPI_2 respresents spi configuration
+    for master.
+    */
+    SPI_0_MOSI   = PTD3,
+    SPI_0_MISO   = PTD2,
+    SPI_0_SCK    = PTD1,
+    SPI_0_CS     = PTD0,
+    SPI_2_MOSI   = PTD13,
+    SPI_2_MISO   = PTB23,
+    SPI_2_SCK    = PTD12,
+    SPI_2_CS     = PTB20,
 
     A0 = PTB7,
     A1 = PTB6,
