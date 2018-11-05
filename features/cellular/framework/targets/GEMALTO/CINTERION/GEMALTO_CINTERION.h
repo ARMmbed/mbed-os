@@ -33,7 +33,7 @@ protected: // AT_CellularDevice
     virtual AT_CellularContext *create_context_impl(ATHandler &at, const char *apn);
 public:
     virtual nsapi_error_t init_module();
-    virtual uint16_t get_send_delay();
+    virtual uint16_t get_send_delay() const;
 };
 
 } // namespace mbed

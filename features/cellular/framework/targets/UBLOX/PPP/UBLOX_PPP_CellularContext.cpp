@@ -27,9 +27,9 @@ UBLOX_PPP_CellularContext::~UBLOX_PPP_CellularContext()
 {
 }
 
-bool UBLOX_PPP_CellularContext::stack_type_supported(nsapi_ip_stack_t requested_stack)
+bool UBLOX_PPP_CellularContext::stack_type_supported(nsapi_ip_stack_t stack_type)
 {
-    return requested_stack == IPV4_STACK ? true : false;
+    return stack_type == IPV4_STACK ? true : false;
 }
 
 } /* namespace mbed */

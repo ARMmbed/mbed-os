@@ -23,6 +23,13 @@
 using namespace mbed;
 using namespace events;
 
+#ifdef TARGET_UBLOX_C027
+static const AT_CellularBase::SupportedFeature unsupported_features[] =  {
+    AT_CellularBase::AT_CGSN_WITH_TYPE,
+    AT_CellularBase::SUPPORTED_FEATURE_END_MARK
+};
+#endif
+
 UBLOX_PPP::UBLOX_PPP(FileHandle *fh) : AT_CellularDevice(fh)
 {
 #ifdef TARGET_UBLOX_C027

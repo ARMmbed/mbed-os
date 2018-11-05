@@ -242,10 +242,11 @@ public:
 protected:
     friend class AT_CellularNetwork;
     friend class AT_CellularContext;
-    /** Cellular callback which is called by Network class after this class attaches to it, CellularStateMachine
-     *  and CellularContext when in PPP mode. This method will broadcast to every interested classes:
+
+    /** Cellular callback to be attached to Network and CellularStateMachine classes.
+     *  CellularContext calls this when in PPP mode to provide network changes.
+     *  This method will broadcast to every interested classes:
      *  CellularContext (might be many) and CellularStateMachine if available.
-     *
      */
     void cellular_callback(nsapi_event_t ev, intptr_t ptr);
 

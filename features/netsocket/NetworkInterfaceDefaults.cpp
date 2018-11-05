@@ -110,7 +110,7 @@ MBED_WEAK NetworkInterface *NetworkInterface::get_target_default_instance()
 #elif MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE == CELLULAR
 MBED_WEAK NetworkInterface *NetworkInterface::get_target_default_instance()
 {
-    return CellularContext::get_default_instance();
+    return CellularBase::get_default_instance();
 
 }
 #elif defined(MBED_CONF_TARGET_NETWORK_DEFAULT_INTERFACE_TYPE)

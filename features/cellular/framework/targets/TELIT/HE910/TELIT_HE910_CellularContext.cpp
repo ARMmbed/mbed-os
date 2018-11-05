@@ -27,9 +27,9 @@ TELIT_HE910_CellularContext::~TELIT_HE910_CellularContext()
 {
 }
 
-bool TELIT_HE910_CellularContext::stack_type_supported(nsapi_ip_stack_t requested_stack)
+bool TELIT_HE910_CellularContext::stack_type_supported(nsapi_ip_stack_t stack_type)
 {
-    return requested_stack == IPV4_STACK || requested_stack == IPV6_STACK;
+    return stack_type == IPV4_STACK ? true : false;
 }
 
 } /* namespace mbed */

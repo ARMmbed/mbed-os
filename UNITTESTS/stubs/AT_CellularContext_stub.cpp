@@ -105,6 +105,11 @@ nsapi_error_t AT_CellularContext::set_blocking(bool blocking)
 {
     return NSAPI_ERROR_OK;
 }
+
+void AT_CellularContext::set_plmn(const char *plmn)
+{
+}
+
 void AT_CellularContext::set_sim_pin(const char *sim_pin)
 {
 }

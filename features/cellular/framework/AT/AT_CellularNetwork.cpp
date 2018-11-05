@@ -56,9 +56,7 @@ AT_CellularNetwork::AT_CellularNetwork(ATHandler &atHandler) : AT_CellularBase(a
     _at.set_urc_handler("+CGEV:", callback(this, &AT_CellularNetwork::urc_cgev));
     _at.lock();
     _at.cmd_start("AT+CGEREP=1");// discard unsolicited result codes when MT TE link is reserved (e.g. in on line data mode); otherwise forward them directly to the TE
-    _at.cmd_stop();
-    _at.resp_start();
-    _at.resp_stop();
+    _at.cmd_stop_read_resp();
     _at.unlock();
 }
 
@@ -66,9 +64,7 @@ AT_CellularNetwork::~AT_CellularNetwork()
 {
     _at.lock();
     _at.cmd_start("AT+CGEREP=0");// buffer unsolicited result codes in the MT; if MT result code buffer is full, the oldest ones can be discarded. No codes are forwarded to the TE
-    _at.cmd_stop();
-    _at.resp_start();
-    _at.resp_stop();
+    _at.cmd_stop_read_resp();
     _at.unlock();
 
     for (int type = 0; type < CellularNetwork::C_MAX; type++) {
@@ -254,7 +250,7 @@ nsapi_error_t AT_CellularNetwork::set_registration(const char *plmn)
         }
     } else {
         tr_debug("Manual network registration to %s", plmn);
-        _at.cmd_start("AT+COPS=4,2,");
+        _at.cmd_start("AT+COPS=1,2,");
         _at.write_string(plmn);
         _at.cmd_stop_read_resp();
     }

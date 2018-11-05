@@ -45,6 +45,12 @@ public:
     virtual void set_credentials(const char *apn, const char *uname = 0,
                                  const char *pwd = 0) = 0;
 
+    /** Set the plmn. PLMN controls to what network device registers.
+     *
+     *  @param plmn     user to force what network to register.
+     */
+    virtual void set_plmn(const char *plmn) = 0;
+
     /** Set the PIN code for SIM card.
      *
      *  @param sim_pin      PIN for the SIM card.

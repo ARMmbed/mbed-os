@@ -28,16 +28,6 @@ public:
     // max simultaneous PDP contexts active
     static const int PDP_CONTEXT_COUNT = 4;
 
-    /** Get the default cellular interface.
-     *
-     * This is provided as a weak method so applications can override.
-     * Default behaviour is to get the target's default interface, if
-     * any.
-     *
-     * @return pointer to interface, if any.
-     */
-    static CellularBase *get_default_instance();
-
     /* authentication type when activating or modifying the pdp context */
     enum AuthenticationType {
         NOAUTH = 0,
@@ -119,15 +109,18 @@ public: // from NetworkInterface
     virtual void attach(mbed::Callback<void(nsapi_event_t, intptr_t)> status_cb) = 0;
     virtual nsapi_error_t connect() = 0;
     virtual nsapi_error_t disconnect() = 0;
-    virtual bool is_connected() = 0;
 
     // from CellularBase
+    virtual void set_plmn(const char *plmn) = 0;
     virtual void set_sim_pin(const char *sim_pin) = 0;
     virtual nsapi_error_t connect(const char *sim_pin, const char *apn = 0, const char *uname = 0,
                                   const char *pwd = 0) = 0;
     virtual void set_credentials(const char *apn, const char *uname = 0, const char *pwd = 0) = 0;
     virtual const char *get_netmask() = 0;
     virtual const char *get_gateway() = 0;
+    virtual bool is_connected() = 0;
+    static CellularBase *get_default_instance();
+
 
 // Operations, can be sync/async. Also Connect() is this kind of operations, inherited from NetworkInterface above.
 

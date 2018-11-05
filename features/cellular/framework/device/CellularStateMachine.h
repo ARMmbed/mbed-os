@@ -138,7 +138,7 @@ private:
     bool open_sim();
     bool get_network_registration(CellularNetwork::RegistrationType type, CellularNetwork::RegistrationStatus &status, bool &is_registered);
     bool is_registered();
-    void device_ready();
+    bool device_ready();
 
     // state functions to keep state machine simple
     void state_init();

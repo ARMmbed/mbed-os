@@ -41,6 +41,10 @@ events::EventQueue *CellularDevice::get_queue()
     return NULL;
 }
 
+void CellularDevice::set_plmn(char const*)
+{
+}
+
 void CellularDevice::set_sim_pin(char const*)
 {
 }

@@ -39,6 +39,7 @@ public:
     virtual nsapi_error_t disconnect();
     virtual bool is_connected();
     // from CellularBase
+    virtual void set_plmn(const char *plmn);
     virtual void set_sim_pin(const char *sim_pin);
     virtual nsapi_error_t connect(const char *sim_pin, const char *apn = 0, const char *uname = 0,
                                   const char *pwd = 0);

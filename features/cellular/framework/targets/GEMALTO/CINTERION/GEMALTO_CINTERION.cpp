@@ -62,7 +62,7 @@ nsapi_error_t GEMALTO_CINTERION::init_module()
     return GEMALTO_CINTERION_Module::detect_model(model);
 }
 
-uint16_t GEMALTO_CINTERION::get_send_delay()
+uint16_t GEMALTO_CINTERION::get_send_delay() const
 {
     return RESPONSE_TO_SEND_DELAY;
 }

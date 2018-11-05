@@ -27,9 +27,9 @@ QUECTEL_UG96_CellularContext::~QUECTEL_UG96_CellularContext()
 {
 }
 
-bool QUECTEL_UG96_CellularContext::stack_type_supported(nsapi_ip_stack_t requested_stack)
+bool QUECTEL_UG96_CellularContext::stack_type_supported(nsapi_ip_stack_t stack_type)
 {
-    return requested_stack == IPV4_STACK ? true : false;
+    return stack_type == IPV4_STACK ? true : false;
 }
 
 nsapi_error_t QUECTEL_UG96_CellularContext::do_user_authentication()

@@ -27,7 +27,7 @@ public:
     virtual ~TELIT_HE910_CellularContext();
 
 protected:
-    virtual bool stack_type_supported(nsapi_ip_stack_t requested_stack);
+    virtual bool stack_type_supported(nsapi_ip_stack_t stack_type);
 };
 
 } /* namespace mbed */

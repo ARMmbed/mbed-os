@@ -374,15 +374,19 @@ void CellularStateMachine::state_power_on()
     }
 }
 
-void CellularStateMachine::device_ready()
+bool CellularStateMachine::device_ready()
 {
     tr_info("Cellular device ready");
+    if (_cellularDevice.init_module() != NSAPI_ERROR_OK) {
+        return false;
+    }
     if (_event_status_cb) {
         _event_status_cb((nsapi_event_t)CellularDeviceReady, (intptr_t )&_cb_data);
     }
     _power->remove_device_ready_urc_cb(mbed::callback(this, &CellularStateMachine::ready_urc_cb));
     _cellularDevice.close_power();
     _power = NULL;
+    return true;
 }
 
 void CellularStateMachine::state_device_ready()
@@ -390,8 +394,11 @@ void CellularStateMachine::state_device_ready()
     _cellularDevice.set_timeout(TIMEOUT_POWER_ON);
     _cb_data.error = _power->set_at_mode();
     if (_cb_data.error == NSAPI_ERROR_OK) {
-        device_ready();
-        enter_to_state(STATE_SIM_PIN);
+        if (device_ready()) {
+            enter_to_state(STATE_SIM_PIN);
+        } else {
+            retry_state_or_fail();
+        }
     } else {
         if (_retry_count == 0) {
             _power->set_device_ready_urc_cb(mbed::callback(this, &CellularStateMachine::ready_urc_cb));
@@ -605,7 +612,7 @@ void CellularStateMachine::event()
     }
 
     if ((_target_state == _state && _cb_data.error == NSAPI_ERROR_OK && !_is_retry) || _event_id == STM_STOPPED) {
-        tr_info("Target state reached: %s", get_state_string(_target_state));
+        tr_info("Target state reached: %s, _cb_data.error: %d, _event_id: %d", get_state_string(_target_state), _cb_data.error, _event_id);
         _event_id = -1;
         return;
     }
@@ -683,8 +690,11 @@ void CellularStateMachine::ready_urc_cb()
     if (_state == STATE_DEVICE_READY && _power->set_at_mode() == NSAPI_ERROR_OK) {
         tr_debug("State was STATE_DEVICE_READY and at mode ready, cancel state and move to next");
         _queue.cancel(_event_id);
-        device_ready();
-        continue_from_state(STATE_SIM_PIN);
+        if (device_ready()) {
+            continue_from_state(STATE_SIM_PIN);
+        } else {
+            continue_from_state(STATE_DEVICE_READY);
+        }
     }
 }
 
