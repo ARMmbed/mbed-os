@@ -38,15 +38,34 @@ SARA4_PPP::~SARA4_PPP()
 {
 }
 
-AT_CellularNetwork *SARA4_PPP::open_network_impl(ATHandler &at)
+CellularNetwork *SARA4_PPP::open_network(FileHandle *fh)
 {
-    return new SARA4_PPP_CellularNetwork(at);
+    if (!_network) {
+        ATHandler *atHandler = get_at_handler(fh);
+        if (atHandler) {
+            _network = new SARA4_PPP_CellularNetwork(*atHandler);
+            if (!_network) {
+                release_at_handler(atHandler);
+            }
+        }
+    }
+    return _network;
+}
+ 
+CellularPower *SARA4_PPP::open_power(FileHandle *fh)
+{
+    if (!_power) {
+        ATHandler *atHandler = get_at_handler(fh);
+        if (atHandler) {
+            _power = new SARA4_PPP_CellularPower(*atHandler);
+            if (!_power) {
+                release_at_handler(atHandler);
+            }
+        }
+    }
+    return _power;
 }
 
-AT_CellularPower *SARA4_PPP::open_power_impl(ATHandler &at)
-{
-    return new SARA4_PPP_CellularPower(at);
-}
 
 AT_CellularContext *SARA4_PPP::create_context_impl(ATHandler &at, const char *apn)
 {
