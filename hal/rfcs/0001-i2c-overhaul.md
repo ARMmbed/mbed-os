@@ -222,7 +222,7 @@ void i2c_init(i2c_t *obj, PinName sda, PinName scl, bool is_slave);
  *           allow a user adjust its strategy in case the target cannot be
  *           reached.
  */
-void i2c_frequency(i2c_t *obj, uint32_t frequency);
+uint32_t i2c_frequency(i2c_t *obj, uint32_t frequency);
 
 
 /** Configure the timeout duration in milliseconds the I2C peripheral should
