@@ -120,7 +120,7 @@ typedef int_fast32_t int_fast24_t;
 #if defined __CC_ARM || defined __TASKING__
 #define alignas(n) __align(n)
 #define __alignas_is_defined 1
-#elif (__STDC_VERSION__ >= 201112L) || (defined __cplusplus && __cplusplus >= 201103L)
+#elif (defined __STDC_VERSION__ && __STDC_VERSION__ >= 201112L) || (defined __cplusplus && __cplusplus >= 201103L)
 #include <stdalign.h>
 #elif defined __GNUC__
 #define alignas(n) __attribute__((__aligned__(n)))
