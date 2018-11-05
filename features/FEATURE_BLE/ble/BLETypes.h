@@ -121,6 +121,107 @@ static inline attribute_handle_range_t attribute_handle_range(
 }
 
 /**
+ * Encapsulates the peripheral advertising modes.
+ *
+ * It determine how the device appears to other scanner and peripheral
+ * devices in the scanning range.
+ */
+enum advertising_type_t {
+    /**
+     * Device is connectable, scannable and doesn't expect connection from a
+     * specific peer.
+     *
+     * @see Vol 3, Part C, Section 9.3.4 and Vol 6, Part B, Section 2.3.1.1.
+     */
+    ADV_CONNECTABLE_UNDIRECTED,
+
+    /**
+     * Device is connectable and expects connection from a specific peer.
+     *
+     * @see Vol 3, Part C, Section 9.3.3 and Vol 6, Part B, Section 2.3.1.2.
+     */
+    ADV_CONNECTABLE_DIRECTED,
+
+    /**
+     * Device is scannable but not connectable.
+     *
+     * @see Vol 6, Part B, Section 2.3.1.4.
+     */
+    ADV_SCANNABLE_UNDIRECTED,
+
+    /**
+     * Device is not connectable and not scannable.
+     *
+     * @see Vol 3, Part C, Section 9.3.2 and Vol 6, Part B, Section 2.3.1.3.
+     */
+    ADV_NON_CONNECTABLE_UNDIRECTED,
+
+
+    /* extended advertising */
+    EXT_ADV_CONNECTABLE_UNDIRECTED,
+
+    EXT_ADV_NON_CONNECTABLE_DIRECTED,
+
+    EXT_ADV_SCANNABLE_DIRECTED,
+
+    EXT_ADV_HIGH_DUTY_CYCLE_CONNECTABLE_DIRECTED
+};
+
+struct advertising_event_t {
+    uint8_t connectable_advertising:1;
+    uint8_t scannable_advertising:1;
+    uint8_t directed_advertising:1;
+    uint8_t scan_response:1;
+    uint8_t legacy:1;
+    uint8_t complete:1;
+    uint8_t last:1;
+};
+
+/**
+ * Advertising policy filter modes.
+ *
+ * @see Bluetooth Core Specification 4.2 (Vol. 6), Part B, Section 4.3.2.
+ */
+enum advertising_policy_mode_t {
+    /**
+     * The whitelist is not used to filter peer request during advertising.
+     */
+    ADV_POLICY_IGNORE_WHITELIST = 0,
+
+    /**
+     * The whitelist is used to filter peer scan requests.
+     */
+    ADV_POLICY_FILTER_SCAN_REQS = 1,
+
+    /**
+     * The whitelist is used to filter peer connection requests.
+     */
+    ADV_POLICY_FILTER_CONN_REQS = 2,
+
+    /**
+     * The whitelist is used to filter peer scan and connection requests.
+     */
+    ADV_POLICY_FILTER_ALL_REQS  = 3,
+};
+
+/**
+ * Scanning policy filter mode.
+ *
+ * @see Bluetooth Core Specification 4.2 (Vol. 6), Part B, Section 4.3.3.
+ */
+enum scanning_policy_mode_t {
+    /**
+     * The whitelist is not used for scanning operations.
+     */
+    SCAN_POLICY_IGNORE_WHITELIST = 0,
+
+    /**
+     * The whitelist is used to filter incoming advertising.
+     */
+    SCAN_POLICY_FILTER_ALL_ADV = 1,
+};
+
+/**
  * Type that describes link's encryption state.
  */
 struct link_encryption_t : SafeEnum<link_encryption_t, uint8_t> {
