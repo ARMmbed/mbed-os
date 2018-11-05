@@ -239,6 +239,9 @@ TEST(trace, config_change)
 TEST(trace, active_level_all_color)
 {
   mbed_trace_config_set(TRACE_MODE_COLOR|TRACE_ACTIVE_LEVEL_ALL);
+  // unknown debug level
+  mbed_tracef(TRACE_LEVEL_DEBUG+1, "mygr", "hep");
+  STRCMP_EQUAL("              hep", buf);
   mbed_tracef(TRACE_LEVEL_DEBUG, "mygr", "hello");
   STRCMP_EQUAL("\x1b[90m[DBG ][mygr]: hello\x1b[0m", buf);
   mbed_tracef(TRACE_LEVEL_INFO, "mygr", "to one");
@@ -268,6 +271,10 @@ TEST(trace, change_levels)
 TEST(trace, active_level_debug)
 {
   mbed_trace_config_set(TRACE_ACTIVE_LEVEL_DEBUG);
+
+  // unknown debug level
+  mbed_tracef(TRACE_LEVEL_DEBUG+1, "mygr", "hep");
+  STRCMP_EQUAL("              hep", buf);
   
   mbed_tracef(TRACE_LEVEL_DEBUG, "mygr", "hep");
   STRCMP_EQUAL("[DBG ][mygr]: hep", buf);
