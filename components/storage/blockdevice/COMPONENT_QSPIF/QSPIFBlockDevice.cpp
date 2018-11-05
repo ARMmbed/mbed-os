@@ -514,6 +514,11 @@ bd_size_t QSPIFBlockDevice::size() const
     return _device_size_bytes;
 }
 
+int QSPIFBlockDevice::get_erase_value() const
+{
+    return 0xFF;
+}
+
 /********************************/
 /*   Different Device Csel Mgmt */
 /********************************/
