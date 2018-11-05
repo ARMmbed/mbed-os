@@ -233,10 +233,8 @@ bool test_coap_message_handler_request_send()
 
     uint8_t buf[16];
     memset(&buf, 1, 16);
-    char uri[3];
-    uri[0] = "r";
-    uri[1] = "s";
-    uri[2] = "\0";
+    char uri[3] = "rs";
+
     if( 0 != coap_message_handler_request_send(handle, 3, 0, buf, 24, 1, 2, &uri, 4, NULL, 0, NULL))
         return false;
 
@@ -327,6 +325,40 @@ bool test_coap_message_handler_request_delete()
     free(sn_coap_protocol_stub.expectedCoap);
     sn_coap_protocol_stub.expectedCoap = NULL;
     coap_message_handler_destroy(handle);
+    return true;
+}
+
+bool test_coap_message_handler_request_delete_by_service_id()
+{
+    retCounter = 1;
+    sn_coap_protocol_stub.expectedCoap = (struct coap_s*)malloc(sizeof(struct coap_s));
+    memset(sn_coap_protocol_stub.expectedCoap, 0, sizeof(struct coap_s));
+    nsdynmemlib_stub.returnCounter = 1;
+    coap_msg_handler_t *handle = coap_message_handler_init(&test_own_alloc, &test_own_free, &coap_tx_function);
+    coap_service_handle = handle;
+
+    uint8_t buf[16];
+    memset(&buf, 1, 16);
+    char uri[3] = "rs";
+
+    if( 0 == coap_message_handler_request_delete_by_service_id(NULL, 1))
+        return false;
+
+    if( 0 != coap_message_handler_request_delete_by_service_id(handle, 1))
+        return false;
+
+    sn_coap_builder_stub.expectedUint16 = 1;
+    nsdynmemlib_stub.returnCounter = 3;
+    if( 2 != coap_message_handler_request_send(handle, 3, 0, buf, 24, 1, 2, &uri, 4, NULL, 0, &resp_recv))
+        return false;
+
+    if( 0 != coap_message_handler_request_delete_by_service_id(handle, 3))
+        return false;
+
+    free(sn_coap_protocol_stub.expectedCoap);
+    sn_coap_protocol_stub.expectedCoap = NULL;
+    coap_message_handler_destroy(handle);
+    coap_service_handle = NULL;
     return true;
 }
 

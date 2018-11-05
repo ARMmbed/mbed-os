@@ -68,6 +68,11 @@ TEST(coap_service_api, test_coap_service_request_delete)
     CHECK(test_coap_service_request_delete());
 }
 
+TEST(coap_service_api, test_coap_service_request_delete_by_service_id)
+{
+    CHECK(test_coap_service_request_delete_by_service_id());
+}
+
 TEST(coap_service_api, test_coap_service_response_send)
 {
     CHECK(test_coap_service_response_send());

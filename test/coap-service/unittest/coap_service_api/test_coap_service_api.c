@@ -236,6 +236,12 @@ bool test_coap_service_request_delete()
     return true;
 }
 
+bool test_coap_service_request_delete_by_service_id()
+{
+    coap_service_request_delete_by_service_id(0);
+    return true;
+}
+
 bool test_coap_service_response_send()
 {
     uint8_t buf[16];
