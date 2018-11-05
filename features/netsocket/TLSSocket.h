@@ -41,6 +41,10 @@ public:
      */
     TLSSocket() : TLSSocketWrapper(&tcp_socket) {}
 
+    /** Destroy the TLSSocket and closes the transport.
+     */
+    virtual ~TLSSocket();
+
     /** Create a socket on a network interface
      *
      *  Creates and opens a socket on the network stack of the given
