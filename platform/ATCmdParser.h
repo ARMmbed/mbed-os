@@ -203,7 +203,7 @@ public:
      */
     bool send(const char *command, ...) MBED_PRINTF_METHOD(1, 2);
 
-    bool vsend(const char *command, std::va_list args);
+    bool vsend(const char *command, va_list args);
 
     /**
      * Receive an AT response
@@ -221,7 +221,7 @@ public:
      */
     bool recv(const char *response, ...) MBED_SCANF_METHOD(1, 2);
 
-    bool vrecv(const char *response, std::va_list args);
+    bool vrecv(const char *response, va_list args);
 
     /**
      * Write a single byte to the underlying stream
@@ -266,7 +266,7 @@ public:
      */
     int printf(const char *format, ...) MBED_PRINTF_METHOD(1, 2);
 
-    int vprintf(const char *format, std::va_list args);
+    int vprintf(const char *format, va_list args);
 
     /**
      * Direct scanf on underlying stream
@@ -278,7 +278,7 @@ public:
      */
     int scanf(const char *format, ...) MBED_SCANF_METHOD(1, 2);
 
-    int vscanf(const char *format, std::va_list args);
+    int vscanf(const char *format, va_list args);
 
     /**
      * Attach a callback for out-of-band data
