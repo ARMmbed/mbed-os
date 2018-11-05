@@ -80,7 +80,7 @@ bool SocketAddress::set_ip_address(const char *addr)
     if (addr && stoip4(addr, strlen(addr), _addr.bytes)) {
         _addr.version = NSAPI_IPv4;
         return true;
-    } else if (addr && stoip6(addr, strlen(addr), _addr.bytes)) {
+    } else if (addr && ipv6_is_valid(addr)) {
         _addr.version = NSAPI_IPv6;
         stoip6(addr, strlen(addr), _addr.bytes);
         return true;
