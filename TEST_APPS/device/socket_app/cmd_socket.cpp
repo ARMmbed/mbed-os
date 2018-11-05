@@ -152,7 +152,7 @@ public:
     {
         assert(sock);
     }
-    SInfo(Socket* sock, bool delete_on_exit=true):
+    SInfo(Socket *sock, bool delete_on_exit = true):
         _id(id_count++),
         _sock(sock),
         _type(SInfo::OTHER),
@@ -408,15 +408,19 @@ static void print_data_as_hex(const uint8_t *buf, int len, int col_width);
  * \param offset Start pattern from offset
  * \param len Length of pattern to generate.
  */
-static void generate_RFC_864_pattern(size_t offset, uint8_t *buf,  size_t len)
+static void generate_RFC_864_pattern(size_t offset, uint8_t *buf,  size_t len, bool is_xinetd)
 {
+    const int row_size = 74; // Number of chars in single row
+    const int row_count = 95; // Number of rows in pattern after which pattern start from beginning
+    const int chars_scope = is_xinetd ? 93 : 95; // Number of chars from ASCII table used in pattern
+    const char first_char = is_xinetd ? '!' : ' '; // First char from ASCII table used in pattern
     while (len--) {
-        if (offset % 74 == 72) {
+        if (offset % row_size == (row_size - 2)) {
             *buf++ = '\r';
-        } else if (offset % 74 == 73) {
+        } else if (offset % row_size == (row_size - 1)) {
             *buf++ = '\n';
         } else {
-            *buf++ = ' ' + (offset % 74 + offset / 74) % 95 ;
+            *buf++ = first_char + (offset % row_size + ((offset / row_size) % row_count)) % chars_scope;
         }
         offset++;
     }
@@ -424,6 +428,7 @@ static void generate_RFC_864_pattern(size_t offset, uint8_t *buf,  size_t len)
 
 bool SInfo::check_pattern(void *buffer, size_t len)
 {
+    static bool is_xinetd = false;
     if (!_check_pattern) {
         return true;
     }
@@ -431,8 +436,14 @@ bool SInfo::check_pattern(void *buffer, size_t len)
     if (!buf) {
         return false;
     }
+
     size_t offset = _receivedTotal;
-    generate_RFC_864_pattern(offset, (uint8_t *)buf, len);
+
+    if (offset == 0) {
+        is_xinetd = ((uint8_t *)buffer)[0] == '!';
+    }
+
+    generate_RFC_864_pattern(offset, (uint8_t *)buf, len, is_xinetd);
     bool match = memcmp(buf, buffer, len) == 0;
     if (!match) {
         cmd_printf("Pattern check failed\r\nWAS:%.*s\r\nREF:%.*s\r\n", len, (char *)buffer, len, (char *)buf);
@@ -1162,11 +1173,11 @@ static int cmd_socket(int argc, char *argv[])
                 cmd_printf("Invalid socket id\r\n");
                 return CMDLINE_RETCODE_FAIL;
             }
-            TCPSocket *new_sock = static_cast<TCPSocket*>(&new_info->socket());
-            nsapi_error_t ret = static_cast<TCPServer&>(info->socket()).accept(new_sock, &addr);
+            TCPSocket *new_sock = static_cast<TCPSocket *>(&new_info->socket());
+            nsapi_error_t ret = static_cast<TCPServer &>(info->socket()).accept(new_sock, &addr);
             if (ret == NSAPI_ERROR_OK) {
                 cmd_printf("TCPServer::accept() new socket sid: %d connection from %s port %d\r\n",
-                        new_info->id(), addr.get_ip_address(), addr.get_port());
+                           new_info->id(), addr.get_ip_address(), addr.get_port());
             }
             return handle_nsapi_error("TCPServer::accept()", ret);
         }
