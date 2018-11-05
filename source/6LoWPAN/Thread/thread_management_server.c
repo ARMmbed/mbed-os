@@ -100,6 +100,9 @@ typedef struct announce {
 typedef struct thread_management_server {
     scan_query_t *scan_ptr;
     announce_t *announce_ptr;
+    timeout_t *join_ent_timer;
+    uint8_t destination_address[16];
+    uint8_t one_time_key[16];
     uint16_t relay_port_joiner;
     uint16_t external_commissioner_port;
     int8_t interface_id;
@@ -994,7 +997,6 @@ error_exit:
     return -1;
 }
 
-
 static void thread_announce_timeout_cb(void* arg)
 {
     link_configuration_s *linkConfiguration;
@@ -1132,6 +1134,9 @@ int thread_management_server_init(int8_t interface_id)
     this->relay_port_joiner = 0;
     this->scan_ptr = NULL;
     this->announce_ptr = NULL;
+    this->join_ent_timer = NULL;
+    memset(this->destination_address,0,16);
+    memset(this->one_time_key,0,16);
     this->external_commissioner_port = THREAD_COMMISSIONING_PORT;
 
 #ifdef HAVE_THREAD_ROUTER
@@ -1147,13 +1152,13 @@ int thread_management_server_init(int8_t interface_id)
 #endif
     this->coap_service_id = coap_service_initialize(this->interface_id, THREAD_MANAGEMENT_PORT, COAP_SERVICE_OPTIONS_NONE, NULL, NULL);
     if (this->coap_service_id < 0) {
-        tr_warn("Thread management init failed");
+        tr_error("Thread management init failed");
         ns_dyn_mem_free(this);
         return -3;
     }
 #ifdef HAVE_THREAD_ROUTER
     if (thread_leader_service_init(interface_id, this->coap_service_id) != 0) {
-        tr_warn("Thread leader service init failed");
+        tr_error("Thread leader service init failed");
         ns_dyn_mem_free(this);
         return -3;
     }
@@ -1191,6 +1196,7 @@ void thread_management_server_delete(int8_t interface_id)
     coap_service_unregister_uri(this->coap_service_id, THREAD_URI_MANAGEMENT_GET);
     coap_service_unregister_uri(this->coap_service_id, THREAD_URI_MANAGEMENT_SET);
     coap_service_delete(this->coap_service_id);
+
     ns_list_remove(&instance_list, this);
     if (this->announce_ptr) {
         if (this->announce_ptr->timer) {
@@ -1213,6 +1219,15 @@ void thread_management_server_delete(int8_t interface_id)
     thread_border_router_delete(interface_id);
     thread_bbr_delete(interface_id);
     return;
+}
+
+int8_t thread_management_server_service_id_get(int8_t interface_id)
+{
+    thread_management_server_t *this = thread_management_server_find(interface_id);
+    if (!this) {
+        return -1;
+    }
+    return this->coap_service_id;
 }
 
 int8_t thread_management_server_interface_id_get(int8_t coap_service_id)
@@ -1312,6 +1327,19 @@ static int thread_management_server_entrust_send(thread_management_server_t *thi
     ns_dyn_mem_free(response_ptr);
     return 0;
 }
+
+static void thread_join_ent_timeout_cb(void *arg)
+{
+    thread_management_server_t *this = arg;
+    if(!this || !this->join_ent_timer) {
+        return;
+    }
+
+    this->join_ent_timer = NULL;
+    thread_management_server_entrust_send(this, this->destination_address, this->one_time_key);
+    return;
+}
+
 void joiner_router_recv_commission_msg(void *cb_res)
 {
     socket_callback_t *sckt_data = 0;
@@ -1412,7 +1440,13 @@ static int thread_management_server_relay_tx_cb(int8_t service_id, uint8_t sourc
     if (0 < thread_meshcop_tlv_find(request_ptr->payload_ptr, request_ptr->payload_len, MESHCOP_TLV_JOINER_ROUTER_KEK, &kek_ptr)) {
         // KEK present in relay set pairwise key and send entrust
         tr_debug("Kek received");
-        thread_management_server_entrust_send(this, destination_address.address, kek_ptr);
+        if (this->join_ent_timer) {
+            eventOS_timeout_cancel(this->join_ent_timer);
+            thread_management_server_entrust_send(this, this->destination_address, this->one_time_key);
+        }
+        memcpy(this->destination_address, destination_address.address, 16);
+        memcpy(this->one_time_key, kek_ptr, 16);
+        this->join_ent_timer = eventOS_timeout_ms(thread_join_ent_timeout_cb, THREAD_DELAY_JOIN_ENT, this);
     }
     tr_debug("Relay TX sendto addr:%s port:%d, length:%d", trace_ipv6(destination_address.address), port, udp_data_len);
     thci_trace("joinerrouterJoinerDataRelayedOutbound");

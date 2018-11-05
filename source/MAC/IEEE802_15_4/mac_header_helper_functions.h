@@ -59,8 +59,8 @@ uint16_t mac_buffer_total_payload_length(struct mac_pre_build_frame *buffer);
 /**
  *  Next function should only call when address mode is not MAC_ADDR_MODE_NONE and parsed proper header!
  */
-uint16_t mac_header_get_src_panid(const struct mac_fcf_sequence_s *header, const uint8_t *ptr);
-uint16_t mac_header_get_dst_panid(const struct mac_fcf_sequence_s *header, const uint8_t *ptr);
+uint16_t mac_header_get_src_panid(const struct mac_fcf_sequence_s *header, const uint8_t *ptr, uint16_t configured_pan_id);
+uint16_t mac_header_get_dst_panid(const struct mac_fcf_sequence_s *header, const uint8_t *ptr, uint16_t configured_pan_id);
 void mac_header_get_src_address(const struct mac_fcf_sequence_s *header, const uint8_t *ptr, uint8_t *address_ptr);
 void mac_header_get_dst_address(const struct mac_fcf_sequence_s *header, const uint8_t *ptr, uint8_t *address_ptr);
 uint8_t mac_address_length(uint8_t address_mode);

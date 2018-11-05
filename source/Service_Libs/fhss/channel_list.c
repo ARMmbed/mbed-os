@@ -88,6 +88,19 @@ uint8_t channel_list_get_channel(const uint32_t* list, int current_index)
     return found_index;
 }
 
+void channel_list_set_channel(uint32_t* list, int channel, bool active)
+{
+    if (channel >= CHANNEL_LIST_SIZE_IN_BITS) {
+        return;
+    }
+    if (active) {
+        list[channel/32] |= (1 << channel % 32);
+    } else {
+        list[channel/32] &= ~(1 << channel % 32);
+    }
+    return;
+}
+
 // count the amount of channels enabled in a list
 int channel_list_count_channels(const uint32_t* list)
 {

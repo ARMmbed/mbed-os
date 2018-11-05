@@ -294,7 +294,7 @@ static void thread_nd_address_error(int8_t interface_id, const uint8_t ip_addr[1
     if_address_entry_t *addr_entry = addr_get_entry(cur, ip_addr);
     if (addr_entry && memcmp(ml_eid, cur->iid_slaac, 8)) {
         addr_duplicate_detected(cur, ip_addr);
-        thread_extension_address_generate(cur);
+        thread_extension_dua_address_generate(cur, ip_addr, 64);
     }
 
     /* Scan IPv6 neighbour cache for registered entries of children */
@@ -547,8 +547,7 @@ int thread_nd_address_registration(protocol_interface_info_entry_t *cur, const u
     }
 
     uint8_t *nce_eui64 = ipv6_neighbour_eui64(&cur->ipv6_neighbour_cache, neigh);
-    if (neigh->state != IP_NEIGHBOUR_NEW && memcmp(nce_eui64, mac64, 8) != 0)
-    {
+    if (neigh->type == IP_NEIGHBOUR_REGISTERED && memcmp(nce_eui64, mac64, 8) != 0) {
         return -2;
     }
 

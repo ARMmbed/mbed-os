@@ -78,7 +78,7 @@
 #include "Service_Libs/nd_proxy/nd_proxy.h"
 #include "Service_Libs/mle_service/mle_service_api.h"
 #include "Service_Libs/blacklist/blacklist.h"
-#include "thread_dhcpv6_client.h"
+#include "DHCPv6_client/dhcpv6_client_api.h"
 #include "6LoWPAN/MAC/mac_helper.h"
 #include "mac_api.h"
 #include "6LoWPAN/MAC/mac_data_poll.h"
@@ -1027,10 +1027,10 @@ static void thread_bootstrap_client_router_id_cb(int8_t interface_id, int8_t sta
     if (!cur) {
         return;
     }
-    if (!cur->thread_info->routerIdReqCoapID) {
+    if (!cur->thread_info->routerIdRequested) {
         return;
     }
-    cur->thread_info->routerIdReqCoapID = 0;
+    cur->thread_info->routerIdRequested = false;
 
     if (cur->thread_info->thread_device_mode != THREAD_DEVICE_MODE_ROUTER ||
         cur->thread_info->leader_private_data ) {
@@ -1088,15 +1088,15 @@ void thread_router_bootstrap_router_id_request(protocol_interface_info_entry_t *
 {
     int router_id_req_status;
     tr_debug("Router ID Request");
-    if (cur->thread_info->routerIdReqCoapID) {
+    if (cur->thread_info->routerIdRequested) {
         tr_warn("Router ID already requested");
         return;
     }
 
     router_id_req_status = thread_management_client_router_id_get(cur->id, cur->mac, cur->thread_info->routerShortAddress, thread_bootstrap_client_router_id_cb, status);
-    tr_debug("Coap address req, ID=%d", router_id_req_status);
+    tr_debug("RouterIDReq COAP ID=%d", router_id_req_status);
     if (router_id_req_status > 0) {
-        cur->thread_info->routerIdReqCoapID = (uint16_t)router_id_req_status;
+        cur->thread_info->routerIdRequested = true;
     }
 }
 
@@ -1196,6 +1196,32 @@ static int mle_attach_child_id_response_build(protocol_interface_info_entry_t *c
 
 
 }
+
+int thread_router_bootstrap_child_max_timeout_get(protocol_interface_info_entry_t *cur, uint32_t *max_child_timeout)
+{
+    uint16_t router_address = thread_info(cur)->routerShortAddress;
+    uint32_t max_timeout = 0;
+    if (router_address >= 0xfffe) {
+        router_address = mac_helper_mac16_address_get(cur);
+    }
+    if (router_address & THREAD_CHILD_MASK) {
+        return -1; //I am child
+    }
+    if (router_address >= 0xfffe) {
+        return -1;
+    }
+    mac_neighbor_table_list_t *mac_table_list = &mac_neighbor_info(cur)->neighbour_list;
+
+    ns_list_foreach(mac_neighbor_table_entry_t, cur_entry, mac_table_list) {
+        if (thread_router_addr_from_addr(cur_entry->mac16) == router_address &&
+                !cur_entry->ffd_device && cur_entry->lifetime > max_timeout) {
+            max_timeout = cur_entry->lifetime;
+        }
+    }
+    *max_child_timeout = max_timeout;
+    return 0;
+}
+
 uint16_t thread_router_bootstrap_child_count_get(protocol_interface_info_entry_t *cur)
 {
     uint16_t child_count = 0;
@@ -1277,7 +1303,7 @@ void thread_router_bootstrap_child_id_handler(protocol_interface_info_entry_t *c
     bool new_neigbour = false;
 
     if (cur->thread_info->thread_attached_state == THREAD_STATE_CONNECTED) {
-        if (!cur->thread_info->routerIdReqCoapID) {
+        if (!cur->thread_info->routerIdRequested) {
             tr_info("Upgrade REED to Router");
             thread_router_bootstrap_router_id_request(cur, THREAD_COAP_STATUS_TLV_HAVE_CHILD_ID_REQUEST);
         }
@@ -1366,7 +1392,7 @@ static void thread_address_registration_tlv_parse(uint8_t *ptr, uint16_t data_le
     uint8_t tempIPv6Address[16];
     uint8_t ctxId;
     bool new_neighbour_created;
-
+    thread_child_mcast_entries_remove(cur,mac64);
     while (data_length) {
         //Read
         ctxId = *ptr++;
@@ -1389,8 +1415,8 @@ static void thread_address_registration_tlv_parse(uint8_t *ptr, uint16_t data_le
             tr_debug("Register %s", trace_ipv6(ptr));
 
             if (addr_is_ipv6_multicast(ptr)) {
-                // Register multicast address (higher scope than link-local)
-                if (addr_ipv6_multicast_scope(ptr) > IPV6_SCOPE_LINK_LOCAL) {
+                // Register multicast address (link-local & higher)
+                if (addr_ipv6_multicast_scope(ptr) >= IPV6_SCOPE_LINK_LOCAL) {
                     addr_add_group(cur, ptr);
                     if (thread_child_mcast_entry_get(cur, ptr, mac64)) {
                         tr_debug("Added sleepy multicast registration entry.");
@@ -1665,6 +1691,11 @@ void thread_router_bootstrap_mle_receive_cb(int8_t interface_id, mle_message_t *
                         }
                     }
 
+                    if (!(id_req->mode & MLE_FFD_DEV) && addressRegisteredTlv.tlvLen == 0) {
+                        tr_debug("No address registration TLV in MTD child id request");
+                        thread_child_id_request_entry_remove(cur, id_req);
+                        return;
+                    }
 
                     id_req->keyId = security_headers->KeyIndex;
                     id_req->keySeq = common_read_32_bit(security_headers->Keysource);
@@ -1991,10 +2022,22 @@ void thread_router_bootstrap_mle_receive_cb(int8_t interface_id, mle_message_t *
                 if (!entry_temp || !mle_tlv_read_tlv(MLE_TYPE_TLV_REQUEST, mle_msg->data_ptr, mle_msg->data_length, &requestTlv)) {
                     return;
                 }
+
+                uint8_t mode = mle_mode_write_from_mac_entry(entry_temp);
+                /* check if thread neighbor class is not initialized */
+                if ((thread_neighbor_entry_linkmargin_get(&cur->thread_info->neighbor_class, entry_temp->index) == 0) &&
+                    (thread_neighbor_last_communication_time_get(&cur->thread_info->neighbor_class, entry_temp->index) == 0)) {
+                    /*
+                     * Thread neighbor class is not yet initialized and we receive data_request from such child.
+                     * Always send full network data in this case
+                     */
+                    mode |= MLE_THREAD_REQ_FULL_DATA_SET | MLE_THREAD_SECURED_DATA_REQUEST;
+                } else {
+                    mode |= thread_neighbor_class_mode_write_from_entry(&cur->thread_info->neighbor_class, entry_temp->index);
+                }
+
                 thread_neighbor_class_update_link(&cur->thread_info->neighbor_class, entry_temp->index,linkMargin, false);
                 thread_neighbor_last_communication_time_update(&cur->thread_info->neighbor_class, entry_temp->index);
-                uint8_t mode = mle_mode_write_from_mac_entry(entry_temp);
-                mode |= thread_neighbor_class_mode_write_from_entry(&cur->thread_info->neighbor_class, entry_temp->index);
                 mle_build_and_send_data_response_msg(cur, mle_msg->packet_src_address, mle_msg->data_ptr, mle_msg->data_length, &requestTlv, mode);
             }
             break;
@@ -2026,8 +2069,9 @@ static int8_t thread_router_bootstrap_synch_request_send(protocol_interface_info
         tr_debug("Buffer overflow at message write");
     }
 
-    timeout.retrans_max = THREAD_REQUEST_MAX_RETRY_CNT;
-    timeout.timeout_init = 1;
+    // timeout set to two seconds, no retries
+    timeout.retrans_max = 1;
+    timeout.timeout_init = 2;
     timeout.timeout_max = 3;
     timeout.delay = MLE_NO_DELAY;
 
@@ -2325,7 +2369,6 @@ static uint32_t thread_reed_timeout_calculate(thread_router_select_t *routerSele
 static int thread_reed_advertise (protocol_interface_info_entry_t *cur)
 {
     uint32_t keySequence;
-    tr_debug("MLE REED ADVERTISEMENT STARTED");
     struct link_configuration *linkConfiguration;
     linkConfiguration = thread_joiner_application_get_config(cur->id);
     if (!linkConfiguration) {
@@ -2336,11 +2379,17 @@ static int thread_reed_advertise (protocol_interface_info_entry_t *cur)
         return -1;
     }
 
+    // FED not allowed to send advertisements
+    if (thread_info(cur)->thread_device_mode == THREAD_DEVICE_MODE_FULL_END_DEVICE) {
+        return -1;
+    }
+
     uint16_t bufId = mle_service_msg_allocate(cur->id, 16, false, MLE_COMMAND_ADVERTISEMENT);
     if (bufId == 0) {
         return -1;
     }
 
+    tr_debug("MLE REED ADVERTISEMENT STARTED");
     thread_management_get_current_keysequence(cur->id, &keySequence);
     mle_service_msg_update_security_params(bufId, 5, 2, keySequence);
 
@@ -2732,6 +2781,20 @@ bool thread_router_bootstrap_routing_allowed(struct protocol_interface_info_entr
 void thread_router_bootstrap_address_change_notify_send(protocol_interface_info_entry_t *cur)
 {
     thread_info(cur)->proactive_an_timer = THREAD_PROACTIVE_AN_SEND_DELAY;
+}
+
+void thread_router_bootstrap_delay_reed_jitter(int8_t interface_id, uint16_t delay)
+{
+    protocol_interface_info_entry_t *cur = protocol_stack_interface_info_get_by_id(interface_id);
+    if (!cur) {
+        return;
+    }
+    if (cur->thread_info->thread_device_mode != THREAD_DEVICE_MODE_ROUTER) {
+        return;
+    }
+    // delay reed jitter timer to allow for settings changes to distribute
+    thread_info(cur)->reedJitterTimer += delay;
+    return;
 }
 
 #endif /* HAVE_THREAD_ROUTER */

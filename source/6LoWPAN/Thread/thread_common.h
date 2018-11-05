@@ -309,10 +309,10 @@ typedef struct thread_info_s {
     uint16_t routerShortAddress;
     uint16_t reedJitterTimer;
     uint16_t reedMergeAdvTimer;
-    uint16_t routerIdReqCoapID;  // COAP msg id of RouterID request
     int16_t childUpdateReqTimer;
     uint16_t childUpdateReqMsgId;
     uint16_t proactive_an_timer;
+    uint16_t thread_maintenance_timer;
     //uint8_t lastValidRouteMask[8];
     int8_t interface_id; //Thread Interface ID
     uint8_t version;
@@ -322,11 +322,13 @@ typedef struct thread_info_s {
     bool rfc6775: 1;
     bool requestFullNetworkData: 1;
     bool leaderCab: 1;
+    bool routerIdRequested: 1;
     bool releaseRouterId: 1;
     bool networkSynch: 1;
     bool networkDataRequested: 1;
     bool end_device_link_synch: 1;
     bool router_mc_addrs_registered: 1;
+    bool link_sync_allowed:1;
     bool leader_synced:1; // flag used by leader after restart
 } thread_info_t;
 
@@ -397,6 +399,11 @@ void thread_child_mcast_entries_remove(protocol_interface_info_entry_t *cur, con
 uint8_t thread_leader_data_tlv_size(protocol_interface_info_entry_t *cur);
 uint8_t *thread_leader_data_tlv_write(uint8_t *ptr, protocol_interface_info_entry_t *cur);
 uint8_t *thread_address_registration_tlv_write(uint8_t *ptr, protocol_interface_info_entry_t *cur);
+
+// returns true if SED/MED needs to register additional address to parent
+bool thread_addresses_needs_to_be_registered(protocol_interface_info_entry_t *cur);
+// write mesh local address tlv
+uint8_t *thread_ml_address_tlv_write(uint8_t *ptr, protocol_interface_info_entry_t *cur);
 int thread_link_reject_send(protocol_interface_info_entry_t *interface, const uint8_t *ll64);
 thread_leader_info_t *thread_allocate_and_init_leader_private_data(void);
 thread_route_cost_t thread_link_quality_to_cost(thread_link_quality_e quality);
@@ -441,6 +448,7 @@ bool thread_partition_match(protocol_interface_info_entry_t *cur, thread_leader_
 void thread_partition_info_update(protocol_interface_info_entry_t *cur, thread_leader_data_t *leaderData);
 void thread_neighbor_communication_update(protocol_interface_info_entry_t *cur, uint8_t neighbor_attribute_index);
 bool thread_stable_context_check(protocol_interface_info_entry_t *cur, buffer_t *buf);
+void thread_maintenance_timer_set(protocol_interface_info_entry_t *cur, uint16_t delay);
 #else // HAVE_THREAD
 
 NS_DUMMY_DEFINITIONS_OK

@@ -134,7 +134,7 @@ uint8_t mac_indirect_data_req_handle(mac_pre_parsed_frame_t *buf, protocol_inter
 
         comm_status.status = MLME_DATA_POLL_NOTIFICATION;
         //Call com status
-        comm_status.PANId = mac_header_get_dst_panid(&buf->fcf_dsn, mac_header_message_start_pointer(buf));
+        comm_status.PANId = mac_header_get_dst_panid(&buf->fcf_dsn, mac_header_message_start_pointer(buf), mac_ptr->pan_id);
         comm_status.DstAddrMode = buf->fcf_dsn.DstAddrMode;;
         mac_header_get_dst_address(&buf->fcf_dsn, mac_header_message_start_pointer(buf), comm_status.DstAddr);
         comm_status.SrcAddrMode = buf->fcf_dsn.SrcAddrMode;

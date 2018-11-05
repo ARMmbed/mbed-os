@@ -29,14 +29,18 @@ struct rpl_dodag;
 struct buffer;
 struct protocol_interface_info_entry;
 struct rpl_dodag_info_t;
+struct prefix_entry_t;
 
 typedef enum rpl_event {
     RPL_EVENT_DAO_DONE,         /* Simplistic trigger for bootstrap advance - a DAO registration completed */
     RPL_EVENT_LOCAL_REPAIR_START, /* RPL start scanning new parent by multicast DIS user can disable beacon request responser here*/
     RPL_EVENT_LOCAL_REPAIR_NO_MORE_DIS, /* RPL not sending DIS anymore user can report bootstrap error */
+    RPL_EVENT_DAO_PARENT_SWITCH, /* RPL indicate that DAO downward Parent state have been updated */
 } rpl_event_t;
 
 typedef void rpl_domain_callback_t(rpl_event_t event, void *handle);
+
+typedef void rpl_prefix_callback_t(struct prefix_entry_t *prefix, void *handle, uint8_t *parent_link_local);
 
 typedef struct rpl_domain
 {
@@ -50,6 +54,7 @@ typedef struct rpl_domain
     /* As part of shutdown, we can force entering leaf mode */
     bool force_leaf;
     rpl_domain_callback_t *callback;
+    rpl_prefix_callback_t *prefix_cb;
     void *cb_handle;
 } rpl_domain_t;
 
@@ -100,6 +105,7 @@ void rpl_control_transmit_dio(struct rpl_domain *domain, struct protocol_interfa
 bool rpl_control_transmit_dao(struct rpl_domain *domain, struct protocol_interface_info_entry *cur, struct rpl_instance *instance, uint8_t instance_id, uint8_t dao_sequence, const uint8_t dodagid[16], const uint8_t *opts, uint16_t opts_size, const uint8_t *dst);
 void rpl_control_disable_ra_routes(struct rpl_domain *domain);
 void rpl_control_event(struct rpl_domain *domain, rpl_event_t event);
+void rpl_control_process_prefix_option(struct prefix_entry_t *prefix, struct protocol_interface_info_entry *cur);
 
 /*********************** RPL control API to rest of system *******************/
 
@@ -138,7 +144,7 @@ rpl_domain_t *rpl_control_create_domain(void);
 void rpl_control_delete_domain(rpl_domain_t *domain);
 void rpl_control_set_domain_on_interface(struct protocol_interface_info_entry *cur, rpl_domain_t *domain, bool downstream);
 void rpl_control_remove_domain_from_interface(struct protocol_interface_info_entry *cur);
-void rpl_control_set_callback(rpl_domain_t *domain, rpl_domain_callback_t callback, void *cb_handle);
+void rpl_control_set_callback(rpl_domain_t *domain, rpl_domain_callback_t callback, rpl_prefix_callback_t prefix_learn_cb,  void *cb_handle);
 
 /* Target publishing */
 void rpl_control_publish_host_address(rpl_domain_t *domain, const uint8_t addr[16], uint32_t lifetime);
@@ -159,7 +165,6 @@ bool rpl_control_read_dodag_info(const struct rpl_instance *instance, struct rpl
 const rpl_dodag_conf_t *rpl_control_get_dodag_config(const struct rpl_instance *instance);
 const uint8_t *rpl_control_preferred_parent_addr(const struct rpl_instance *instance, bool global);
 uint16_t rpl_control_current_rank(const struct rpl_instance *instance);
-
 
 #else /* HAVE_RPL */
 

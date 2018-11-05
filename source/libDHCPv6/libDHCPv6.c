@@ -795,4 +795,43 @@ uint16_t libdhcpv6_solication_message_length(uint16_t clientLinkType, bool addre
     return length;
 }
 
+
+uint8_t *libdhcpv6_dhcp_relay_msg_write(uint8_t *ptr, uint8_t type, uint8_t hop_limit,  uint8_t *peer_addres, uint8_t *link_address)
+{
+    *ptr++ = type;
+    *ptr++ = hop_limit;
+    memcpy(ptr, link_address, 16);
+    ptr += 16;
+    memcpy(ptr, peer_addres, 16);
+    ptr += 16;
+    return ptr;
+}
+
+uint8_t *libdhcpv6_dhcp_option_header_write(uint8_t *ptr, uint16_t length)
+{
+    ptr = common_write_16_bit(DHCPV6_OPTION_RELAY, ptr);
+    ptr = common_write_16_bit(length, ptr);
+    return ptr;
+}
+
+bool libdhcpv6_relay_msg_read(uint8_t *ptr, uint16_t length, dhcpv6_relay_msg_t *relay_msg)
+{
+    if (length < DHCPV6_RELAY_LENGTH + 4) {
+        return false;
+    }
+    // Relay message base first
+    relay_msg->type = *ptr++;
+    relay_msg->hop_limit = *ptr++;
+    relay_msg->link_address = ptr;
+    relay_msg->peer_address = ptr + 16;
+    ptr += 32;
+    //Discover
+    if (libdhcpv6_message_option_discover(ptr, length - 34, DHCPV6_OPTION_RELAY, &relay_msg->relay_options) != 0) {
+        return false;
+    }
+
+
+    return true;
+}
+
 #endif

@@ -96,8 +96,11 @@ typedef int32_t fhss_vendor_defined_cf(const fhss_api_t *api, uint16_t slot, uin
  */
 typedef struct fhss_ws_configuration
 {
-    /** WS channel function. */
-    fhss_ws_channel_functions ws_channel_function;
+    /** WS unicast channel function. */
+    fhss_ws_channel_functions ws_uc_channel_function;
+
+    /** WS broadcast channel function. */
+    fhss_ws_channel_functions ws_bc_channel_function;
 
     /** Broadcast schedule identifier. */
     uint16_t bsi;
@@ -110,6 +113,12 @@ typedef struct fhss_ws_configuration
 
     /** Broadcast dwell interval. Range: 15-250 milliseconds. */
     uint8_t fhss_bc_dwell_interval;
+
+    /** Unicast fixed channel */
+    uint8_t unicast_fixed_channel;
+
+    /** Broadcast fixed channel */
+    uint8_t broadcast_fixed_channel;
 
     /** Channel mask. */
     uint32_t channel_mask[8];

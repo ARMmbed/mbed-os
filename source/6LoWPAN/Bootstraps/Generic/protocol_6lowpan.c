@@ -74,6 +74,7 @@
 #include "6LoWPAN/Fragmentation/cipv6_fragmenter.h"
 #include "Service_Libs/etx/etx.h"
 #include "Service_Libs/mac_neighbor_table/mac_neighbor_table.h"
+#include "6LoWPAN/ws/ws_bootstrap.h"
 
 
 #define TRACE_GROUP_LOWPAN "6lo"
@@ -473,7 +474,6 @@ void protocol_6lowpan_neighbor_priority_update(protocol_interface_info_entry_t *
 }
 
 #ifdef HAVE_RPL
-#ifndef NO_MLE
 
 uint16_t protocol_6lowpan_neighbor_priority_set(int8_t interface_id, addrtype_t addr_type, const uint8_t *addr_ptr)
 {
@@ -486,9 +486,12 @@ uint16_t protocol_6lowpan_neighbor_priority_set(int8_t interface_id, addrtype_t 
     mac_neighbor_table_entry_t * entry = mac_neighbor_table_address_discover(mac_neighbor_info(cur), addr_ptr + PAN_ID_LEN, addr_type);
 
     if (entry) {
+
+        bool new_primary = false;
         etx_storage_t *etx_entry = etx_storage_entry_get(interface_id, entry->index);
         // If primary parent has changed clears priority from previous parent
         if (entry->link_role != PRIORITY_PARENT_NEIGHBOUR) {
+            new_primary = true;
             protocol_6lowpan_neighbor_priority_clear_all(interface_id, PRIORITY_1ST);
         }
         entry->link_role = PRIORITY_PARENT_NEIGHBOUR;
@@ -500,6 +503,10 @@ uint16_t protocol_6lowpan_neighbor_priority_set(int8_t interface_id, addrtype_t 
         mac_helper_coordinator_address_set(cur, ADDR_802_15_4_LONG, entry->mac64);
         if (etx_entry) {
             protocol_stats_update(STATS_ETX_1ST_PARENT, etx_entry->etx >> 4);
+        }
+
+        if (new_primary) {
+            ws_primary_parent_update(cur, entry);
         }
         return 1;
     } else {
@@ -519,15 +526,20 @@ uint16_t protocol_6lowpan_neighbor_second_priority_set(int8_t interface_id, addr
     mac_neighbor_table_entry_t * entry = mac_neighbor_table_address_discover(mac_neighbor_info(cur), addr_ptr + PAN_ID_LEN, addr_type);
 
     if (entry) {
+        bool new_secondary = false;
         etx_storage_t *etx_entry = etx_storage_entry_get(interface_id, entry->index);
         // If secondary parent has changed clears priority from previous parent
         if (entry->link_role != SECONDARY_PARENT_NEIGHBOUR) {
+            new_secondary = true;
             protocol_6lowpan_neighbor_priority_clear_all(interface_id, PRIORITY_2ND);
         }
         entry->link_role = SECONDARY_PARENT_NEIGHBOUR;
 
         if (etx_entry) {
             protocol_stats_update(STATS_ETX_2ND_PARENT, etx_entry->etx >> 4);
+        }
+        if (new_secondary) {
+            ws_secondary_parent_update(cur);
         }
         return 1;
     } else {
@@ -557,7 +569,6 @@ void protocol_6lowpan_neighbor_priority_clear_all(int8_t interface_id, neighbor_
     }
 }
 
-#endif
 #endif
 
 #endif

@@ -287,7 +287,6 @@ int thread_management_register(int8_t interface_id)
     this->get_response_cb_ptr = NULL;
 
     if (thread_management_get_remote_addr(this)) {
-        ns_dyn_mem_free(this);
         return -1;
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, Arm Limited and affiliates.
+ * Copyright (c) 2018, Arm Limited and affiliates.
  * SPDX-License-Identifier: BSD-3-Clause
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,28 +27,13 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef THREAD_EXTENSION_BOOTSTRAP_H_
-#define THREAD_EXTENSION_BOOTSTRAP_H_
-
-
-#ifdef __cplusplus
-extern "C" {
+#ifndef THREAD_DHCPV6_SERVER_H_
+#define THREAD_DHCPV6_SERVER_H_
+#if defined(HAVE_THREAD) && defined(HAVE_DHCPV6_SERVER)
+int thread_dhcp6_server_init(int8_t interface_id, uint8_t prefix[8], uint8_t eui64[8], uint32_t validLifeTimne);
+#else
+#define thread_dhcp6_server_init(interface_id, prefix, eui64, validLifeTimne) (-1)
 #endif
 
-#define thread_extension_bootstrap_free(cur);
-#define thread_extension_bootstrap_device_certificate_set(cur, device_certificate_ptr, device_certificate_len, priv_key_ptr, priv_key_len) (-1)
-#define thread_extension_bootstrap_network_certificate_set(cur, domain_certificate_ptr, domain_certificate_len) (-1)
-#define thread_extension_bootstrap_network_private_key_set(cur, priv_key_ptr, priv_key_len) (-1)
-#define thread_extension_bootstrap_thread_name_set(cur, thread_name) (-1)
-#define thread_extension_bootstrap_commission_start(cur, parent_address, port, done_cb) (-1)
-#define thread_extension_bootstrap_network_select(cur, discovery_response) (NULL)
-#define thread_extension_bootstrap_thread_name_length_get(cur) (0)
-#define thread_extension_bootstrap_thread_name_ptr_get(cur) (NULL)
-#define thread_extension_bootstrap_network_certificate_enable(cur, coap_service_id) (NULL)
-#define thread_extension_bootstrap_reenrollment_start(cur, service_id, pbbr_addr) (-1)
-#define thread_extension_bootstrap_network_reattach(interface_id, timeout) (-1)
 
-#ifdef __cplusplus
-}
-#endif
-#endif /* THREAD_EXTENSION_BOOTSTRAP_H_ */
+#endif /* THREAD_DHCPV6_SERVER_H_ */

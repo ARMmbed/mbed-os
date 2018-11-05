@@ -86,7 +86,7 @@
 #include "MPL/mpl.h"
 #include "MLE/mle.h"
 #include "MLE/mle_tlv.h"
-#include "thread_dhcpv6_client.h"
+#include "DHCPv6_client/dhcpv6_client_api.h"
 #include "thread_config.h"
 #include "thread_meshcop_lib.h"
 #include "multicast_api.h"
@@ -136,8 +136,6 @@ static void thread_neighbor_remove(mac_neighbor_table_entry_t *entry_ptr, void *
 
 static bool thread_neighbor_entry_nud_notify(mac_neighbor_table_entry_t *entry_ptr, void *user_data)
 {
-
-    // Sleepy host
     protocol_interface_info_entry_t *cur_interface = user_data;
 
     if (thread_am_router(cur_interface)) {
@@ -676,8 +674,6 @@ static void thread_bootstrap_ml_address_update(protocol_interface_info_entry_t *
 
     // Generate new ML64 address
     thread_generate_ml64_address(cur);
-    // Generate new domain address
-    thread_extension_address_generate(cur);
 
     // Register multicast addresses
     thread_bootstrap_all_nodes_multicast_register(cur);
@@ -697,8 +693,6 @@ int thread_configuration_thread_activate(protocol_interface_info_entry_t *cur, l
 
     //Define Default Contexts
     lowpan_context_update(&cur->lowpan_contexts, LOWPAN_CONTEXT_C, 0xFFFF, linkConfiguration->mesh_local_ula_prefix, 64, true);
-
-    thread_extension_activate(cur);
 
     thread_extension_bbr_route_update(cur);
 
@@ -896,7 +890,7 @@ void thread_interface_init(protocol_interface_info_entry_t *cur)
 {
     thread_discovery_reset(cur->id);
     thread_routing_set_mesh_callbacks(cur);
-    thread_dhcp_client_init(cur->id);
+    dhcp_client_init(cur->id);
     thread_management_client_init(cur->id);
     thread_address_registration_init();
     cur->mpl_seed_id_mode = MULTICAST_MPL_SEED_ID_MAC_SHORT;
@@ -1069,9 +1063,7 @@ void thread_tasklet(arm_event_s *event)
 
         case THREAD_CHILD_UPDATE:
             tr_debug_extra("Thread SM THREAD_CHILD_UPDATE");
-            if (thread_info(cur)->thread_endnode_parent) {
-                thread_host_bootstrap_child_update(cur, cur->thread_info->thread_endnode_parent->mac64);
-            }
+            thread_host_bootstrap_child_update(cur, cur->thread_info->thread_endnode_parent->mac64);
             break;
         case THREAD_ANNOUNCE_ACTIVE: {
             tr_debug_extra("Thread SM THREAD_ANNOUNCE_ACTIVE");
@@ -1178,6 +1170,10 @@ void thread_bootstrap_ready(protocol_interface_info_entry_t *cur)
         thread_leader_service_generate_network_data(cur);
     }
 
+    if (thread_addresses_needs_to_be_registered(cur)) {
+        thread_info(cur)->childUpdateReqTimer = 1;
+    }
+
     cur->bootsrap_state_machine_cnt = 0;
     mac_data_poll_protocol_poll_mode_decrement(cur);
 }
@@ -1189,6 +1185,31 @@ void thread_neighbor_list_clean(struct protocol_interface_info_entry *cur)
     ns_list_foreach_safe(mac_neighbor_table_entry_t, cur_entry, mac_table_list) {
         if (!thread_addr_is_equal_or_child(cur->thread_info->routerShortAddress, cur_entry->mac16)) {
             tr_debug("Free ID %x", cur_entry->mac16);
+            mac_neighbor_table_neighbor_remove(mac_neighbor_info(cur), cur_entry);
+        }
+    }
+}
+
+void thread_reed_fed_neighbour_links_clean(struct protocol_interface_info_entry *cur)
+{
+    mac_neighbor_table_list_t *mac_table_list = &mac_neighbor_info(cur)->neighbour_list;
+
+    if (thread_i_am_router(cur)) {
+        return;
+    }
+
+    if (thread_info(cur)->thread_device_mode == THREAD_DEVICE_MODE_END_DEVICE ||
+            thread_info(cur)->thread_device_mode == THREAD_DEVICE_MODE_SLEEPY_END_DEVICE) {
+        return;
+    }
+
+    if (!thread_info(cur)->thread_endnode_parent) {
+        return;
+    }
+    ns_list_foreach_safe(mac_neighbor_table_entry_t, cur_entry, mac_table_list) {
+        // do not remove parent entry
+        if (memcmp(cur_entry->mac64, thread_info(cur)->thread_endnode_parent->mac64, 8) != 0) {
+            tr_debug("Free short addr: %x", cur_entry->mac16);
             mac_neighbor_table_neighbor_remove(mac_neighbor_info(cur), cur_entry);
         }
     }
@@ -1612,7 +1633,6 @@ void thread_bootstrap_routing_activate(protocol_interface_info_entry_t *cur)
     if (cur->thread_info->thread_device_mode == THREAD_DEVICE_MODE_FULL_END_DEVICE ||
             cur->thread_info->thread_device_mode == THREAD_DEVICE_MODE_ROUTER) {
         thread_meshlocal_route_set(cur);
-        thread_extension_route_set(cur);
         // FEDs and routers (REEDs) perform their own address resolution
         thread_nd_service_activate(cur->id);
     } else {
@@ -1627,7 +1647,7 @@ void thread_bootstrap_attached_finish(protocol_interface_info_entry_t *cur)
     cur->lowpan_info |= INTERFACE_NWK_BOOTSRAP_ADDRESS_REGISTER_READY;
     cur->lowpan_info &= ~INTERFACE_NWK_ROUTER_DEVICE;
     cur->bootsrap_state_machine_cnt = 10;
-    cur->thread_info->routerIdReqCoapID = 0;
+    cur->thread_info->routerIdRequested = false;
     cur->thread_info->networkDataRequested = false;
     clear_power_state(ICMP_ACTIVE);
 
@@ -1644,8 +1664,6 @@ void thread_bootstrap_attached_finish(protocol_interface_info_entry_t *cur)
     thread_generate_ml16_address(cur);
     //GENERATE ML-EID64
     thread_generate_ml64_address(cur);
-    // Generate new domain address
-    thread_extension_address_generate(cur);
     thread_bootstrap_routing_activate(cur);
     thread_bootstrap_network_data_update(cur);
     // After successful attach if there is announcement info present, send announcement back to previous channel
@@ -1823,8 +1841,7 @@ static void thread_dhcp_client_gua_error_cb(int8_t interface, uint8_t dhcp_addr[
         tr_warn("Address Get fail: %s from: %s", trace_ipv6(prefix), trace_ipv6(dhcp_addr));
         if (prefix && dhcp_addr) {
             tr_debug("Delete Current Server data");
-            thread_dhcp_client_global_address_delete(interface, dhcp_addr, prefix);
-            //TODO shuold we try again or select new Server
+            dhcp_client_global_address_delete(interface, dhcp_addr, prefix);
         }
     }
 }
@@ -1964,6 +1981,10 @@ void thread_discover_native_commissioner_response(protocol_interface_info_entry_
         config_ptr[n].rfChannel = cur_class->channel;
         memcpy(config_ptr[n].name, cur_class->network_name, 16);
         memcpy(config_ptr[n].extented_pan_id, cur_class->extented_pan_id, 8);
+        memcpy(config_ptr[n].destination_address, ADDR_LINK_LOCAL_PREFIX, 8);
+        memcpy(&config_ptr[n].destination_address[8], cur_class->extented_mac, 8);
+        config_ptr[n].destination_address[8] ^= 2;
+        config_ptr[n].destination_port = cur_class->commissioner_port;
         n++;
     }
 
@@ -2023,7 +2044,7 @@ void thread_discover_native_commissioner_response(protocol_interface_info_entry_
     interface->lowpan_info |= INTERFACE_NWK_BOOTSRAP_ADDRESS_REGISTER_READY;
     interface->lowpan_info &= ~INTERFACE_NWK_ROUTER_DEVICE;
 
-    interface->thread_info->routerIdReqCoapID = 0;
+    interface->thread_info->routerIdRequested = false;
     interface->thread_info->networkDataRequested = false;
 
     interface->bootsrap_state_machine_cnt = 10;
@@ -2128,6 +2149,12 @@ static bool thread_bootstrap_sync_after_reset_start(protocol_interface_info_entr
     uint16_t my_short_address;
     uint8_t parent_mac64[8];
 
+    // link sync is allowed only once in bootstrap start and we might get here in other cases also
+    if (!cur->thread_info->link_sync_allowed) {
+        return false;
+    }
+    cur->thread_info->link_sync_allowed = false;
+
     int link_info_err = thread_nvm_store_link_info_get(parent_mac64, &my_short_address);
     if ( link_info_err!= THREAD_NVM_FILE_SUCCESS) {
         tr_warning("thread_nvm_store_link_info_get returned %d", link_info_err);
@@ -2136,7 +2163,7 @@ static bool thread_bootstrap_sync_after_reset_start(protocol_interface_info_entr
     link_info_err = thread_nvm_store_link_info_clear();
     if ( link_info_err!= THREAD_NVM_FILE_SUCCESS) {
         tr_warning("thread_nvm_store_link_info_clear returned %d", link_info_err);
-        }
+    }
     if (thread_is_router_addr(my_short_address)) {
         thread_info(cur)->routerShortAddress = my_short_address;
         thread_dynamic_storage_build_mle_table(cur->id);
@@ -2278,7 +2305,7 @@ void thread_bootstrap_stop(protocol_interface_info_entry_t *cur)
     thread_leader_service_leader_data_free(cur->thread_info);
     thread_bootstrap_all_nodes_multicast_unregister(cur);
     thread_data_base_init(cur->thread_info, cur->id);
-    thread_dhcp_client_delete(cur->id);
+    dhcp_client_delete(cur->id);
     thread_nd_service_delete(cur->id);
     thread_child_id_request_entry_clean(cur);
     thread_registered_mcast_addr_entry_clean(cur);
@@ -2356,6 +2383,7 @@ static int thread_nd_prefix_context_allocate(protocol_interface_info_entry_t *cu
     if (cid == 16) {
         return -1;
     }
+
     context.cid = cid;
     context.compression = true;
     context.stableData = stableData;
@@ -2499,6 +2527,7 @@ int thread_bootstrap_network_data_process(protocol_interface_info_entry_t *cur, 
                                     genericService.P_slaac = ((flags >> THREAD_P_SLAAC_BIT_MOVE) & 1);
                                     genericService.P_on_mesh = ((flags >> THREAD_P_ON_MESH_BIT_MOVE) & 1);
                                     genericService.P_nd_dns = ((flags >> THREAD_P_ND_DNS_BIT_MOVE) & 1);
+                                    genericService.P_res1 = ((flags >> THREAD_P_ND_RES_BIT_MOVE) & 1);
                                     if (thread_nd_local_list_add_on_mesh_prefix(networkDataStorage, &prefixTlv, &genericService) == 0) {
                                         if (networkDataStorage->stableUpdatePushed || networkDataStorage->temporaryUpdatePushed) {
                                             if (!genericService.P_slaac) {
@@ -2525,7 +2554,7 @@ int thread_bootstrap_network_data_process(protocol_interface_info_entry_t *cur, 
                                                 memcpy(&addr[8], ADDR_SHORT_ADR_SUFFIC, 6);
                                                 common_write_16_bit(genericService.routerID, &addr[14]);
                                                 tr_debug("Delete DHCPv6 given address");
-                                                thread_dhcp_client_global_address_delete(cur->id, addr, prefixTlv.Prefix);
+                                                dhcp_client_global_address_delete(cur->id, addr, prefixTlv.Prefix);
                                             }
                                         }
 
@@ -2702,6 +2731,8 @@ int thread_bootstrap_network_data_activate(protocol_interface_info_entry_t *cur)
     thread_border_router_network_data_update_notify(cur);
     thread_bbr_network_data_update_notify(cur);
 
+    thread_maintenance_timer_set(cur, THREAD_MAINTENANCE_TIMER_INTERVAL);
+
     return 0;
 }
 
@@ -2743,7 +2774,6 @@ int thread_bootstrap_network_data_save(protocol_interface_info_entry_t *cur, thr
 
     return 0;
 }
-
 
 void thread_bootstrap_network_prefixes_process(protocol_interface_info_entry_t *cur)
 {
@@ -2794,6 +2824,8 @@ void thread_bootstrap_network_prefixes_process(protocol_interface_info_entry_t *
                     if (curBorderRouter->P_dhcp && weHostService && nd_proxy_enabled_for_upstream(cur->id) && nd_proxy_upstream_route_onlink(cur->id,curPrefix->servicesPrefix)) {
                         // don't add
                         tr_debug("Suppressing onlink %s for proxy", trace_ipv6_prefix(curPrefix->servicesPrefix, curPrefix->servicesPrefixLen));
+                    } else if (curBorderRouter->P_res1) {
+                        ipv6_route_add(curPrefix->servicesPrefix, curPrefix->servicesPrefixLen, cur->id, NULL, ROUTE_THREAD_PROXIED_DUA_HOST, 0xffffffff, 0);
                     } else {
                         //add
                         tr_debug("Adding onlink %s", trace_ipv6_prefix(curPrefix->servicesPrefix, curPrefix->servicesPrefixLen));
@@ -2818,8 +2850,8 @@ void thread_bootstrap_network_prefixes_process(protocol_interface_info_entry_t *
                 if (!thread_dhcpv6_address_entry_available(curPrefix->servicesPrefix, &cur->ip_addresses)) {
                     thread_addr_write_mesh_local_16(addr, curBorderRouter->routerID, cur->thread_info);
                     /* Do not allow multiple DHCP solicits from one prefix => delete previous */
-                    thread_dhcp_client_global_address_delete(cur->id, NULL, curPrefix->servicesPrefix);
-                    if (thread_dhcp_client_get_global_address(cur->id, addr, curPrefix->servicesPrefix, cur->mac, thread_dhcp_client_gua_error_cb) == 0) {
+                    dhcp_client_global_address_delete(cur->id, NULL, curPrefix->servicesPrefix);
+                    if (dhcp_client_get_global_address(cur->id, addr, curPrefix->servicesPrefix, cur->mac, thread_dhcp_client_gua_error_cb) == 0) {
                         tr_debug("GP Address Requested");
                     }
                 }
@@ -2838,6 +2870,10 @@ void thread_bootstrap_network_prefixes_process(protocol_interface_info_entry_t *
                 if (!thread_dhcpv6_address_entry_available(curPrefix->servicesPrefix, &cur->ip_addresses)) {
                     icmpv6_slaac_address_add(cur, curPrefix->servicesPrefix, curPrefix->servicesPrefixLen, 0xffffffff, 0xffffffff, true, SLAAC_IID_DEFAULT);
                 }
+            }
+            // generate address based on res1 bit
+            if (curBorderRouter->P_res1) {
+                thread_extension_dua_address_generate(cur,curPrefix->servicesPrefix,64);
             }
 
         } // for each borderRouterList

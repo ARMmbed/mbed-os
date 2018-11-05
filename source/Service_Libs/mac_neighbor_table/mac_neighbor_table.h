@@ -202,4 +202,6 @@ mac_neighbor_table_entry_t *mac_neighbor_entry_get_by_ll64(mac_neighbor_table_t 
 
 mac_neighbor_table_entry_t *mac_neighbor_entry_get_by_mac64(mac_neighbor_table_t *table_class, const uint8_t *mac64, bool allocateNew, bool *new_entry_allocated);
 
+mac_neighbor_table_entry_t* mac_neighbor_entry_get_priority(mac_neighbor_table_t *table_class);
+
 #endif /* MAC_NEIGHBOR_TABLE_H_ */

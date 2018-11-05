@@ -85,7 +85,7 @@ static void mac_mlme_energy_scan_start(protocol_interface_rf_mac_setup_s *rf_mac
     rf_mac_setup->macRfRadioTxActive = false;
 }
 
-uint16_t mlme_scan_analyze_next_channel(channel_list_s *mac_channel_list)
+uint16_t mlme_scan_analyze_next_channel(channel_list_s *mac_channel_list, bool clear_channel)
 {
     uint8_t i, j = 0, k = 1;
     uint32_t mask = 1;
@@ -101,7 +101,9 @@ uint16_t mlme_scan_analyze_next_channel(channel_list_s *mac_channel_list)
         {
             if (*channel_mask & mask)
             {
-                *channel_mask &= ~mask;
+                if (clear_channel) {
+                    *channel_mask &= ~mask;
+                }
                 return (i+j*32);
             }
             mask <<= 1;
@@ -280,7 +282,7 @@ static void mac_mlme_scan_start(protocol_interface_rf_mac_setup_s *rf_mac_setup)
 {
     uint8_t channel;
 
-    channel = (uint8_t) mlme_scan_analyze_next_channel(&rf_mac_setup->mac_channel_list);
+    channel = (uint8_t) mlme_scan_analyze_next_channel(&rf_mac_setup->mac_channel_list, true);
     mac_mlme_scan_init(channel, rf_mac_setup);
 }
 
@@ -400,14 +402,14 @@ int8_t mac_mlme_start_req(const mlme_start_t *s, struct protocol_interface_rf_ma
 
     tr_debug("MAC: Start network %u channel %x panid", s->LogicalChannel, s->PANId);
     mac_mlme_set_panid(rf_mac_setup, s->PANId);
+
     // Synchronize FHSS
     if (rf_mac_setup->fhss_api) {
-        rf_mac_setup->fhss_api->synch_state_set(rf_mac_setup->fhss_api, FHSS_SYNCHRONIZED, s->PANId);
-    }
-
-    if (!rf_mac_setup->fhss_api) {
+        rf_mac_setup->mac_channel = rf_mac_setup->fhss_api->synch_state_set(rf_mac_setup->fhss_api, FHSS_SYNCHRONIZED, s->PANId);
+    } else {
         rf_mac_setup->mac_channel = s->LogicalChannel;
     }
+
     mac_mlme_start_request(rf_mac_setup);
     if (s->PANCoordinator) {
         //tr_debug("Cordinator");
@@ -795,7 +797,7 @@ static void mlme_scan_operation(protocol_interface_rf_mac_setup_s *rf_mac_setup)
         resp->ResultListSize++;
     }
 
-    channel = mlme_scan_analyze_next_channel(&rf_mac_setup->mac_channel_list);
+    channel = mlme_scan_analyze_next_channel(&rf_mac_setup->mac_channel_list, true);
     if (channel > 0xff || rf_mac_setup->mac_mlme_scan_resp->ResultListSize == MLME_MAC_RES_SIZE_MAX) {
         resp->status = MLME_SUCCESS;
         tr_debug("Scan Complete..Halt MAC");
@@ -981,6 +983,7 @@ void mac_mlme_data_base_deallocate(struct protocol_interface_rf_mac_setup *rf_ma
         eventOS_callback_timer_unregister(rf_mac->mac_mcps_timer);
 
         ns_dyn_mem_free(rf_mac->dev_driver_tx_buffer.buf);
+        ns_dyn_mem_free(rf_mac->dev_driver_tx_buffer.enhanced_ack_buf);
         ns_dyn_mem_free(rf_mac->mac_beacon_payload);
 
         mac_sec_mib_deinit(rf_mac);
@@ -1510,8 +1513,9 @@ int8_t mac_mlme_rf_channel_change(protocol_interface_rf_mac_setup_s *rf_mac_setu
         return 0;
     }
     platform_enter_critical();
-    rf_mac_setup->mac_channel = new_channel;
-    rf_mac_setup->dev_driver->phy_driver->extension(PHY_EXTENSION_SET_CHANNEL, &rf_mac_setup->mac_channel);
+    if (rf_mac_setup->dev_driver->phy_driver->extension(PHY_EXTENSION_SET_CHANNEL, &new_channel) == 0) {
+        rf_mac_setup->mac_channel = new_channel;
+    }
     platform_exit_critical();
     return 0;
 }

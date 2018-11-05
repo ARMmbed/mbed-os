@@ -337,16 +337,16 @@ void mac_header_security_components_read(mac_pre_parsed_frame_t *buffer, mlme_se
 
 }
 
-uint16_t mac_header_get_src_panid(const mac_fcf_sequence_t *header, const uint8_t *ptr)
+static bool mac_header_pan_full_compressed(const mac_fcf_sequence_t *header)
 {
-
-    if (!header->SrcPanPresents) {
-        if (!header->DstPanPresents) {
-            return 0xffff;
-        }
-        return mac_header_get_dst_panid(header, ptr);
+    if (header->frameVersion == MAC_FRAME_VERSION_2015 && (!header->DstPanPresents && !header->SrcPanPresents) && header->intraPan) {
+        return true;
     }
+    return false;
+}
 
+static uint16_t mac_header_read_src_pan(const mac_fcf_sequence_t *header, const uint8_t *ptr)
+{
     ptr += mac_fcf_lenght(header);//Skip FCF + DSN
 
     ptr += mac_dst_address_length_with_panid(header); //Skip Dst panID & Address
@@ -354,15 +354,42 @@ uint16_t mac_header_get_src_panid(const mac_fcf_sequence_t *header, const uint8_
     return common_read_16_bit_inverse(ptr);
 }
 
-uint16_t mac_header_get_dst_panid(const mac_fcf_sequence_t *header, const uint8_t *ptr)
+static uint16_t mac_header_read_dst_pan(const mac_fcf_sequence_t *header, const uint8_t *ptr)
 {
-    if (!header->DstPanPresents) {
-        return 0xffff;
-    }
-
     ptr += mac_fcf_lenght(header);//Skip FCF + DSN
 
     return common_read_16_bit_inverse(ptr);
+}
+
+uint16_t mac_header_get_src_panid(const mac_fcf_sequence_t *header, const uint8_t *ptr, uint16_t configured_pan_id)
+{
+    if (mac_header_pan_full_compressed(header)) {
+        return configured_pan_id;
+    }
+
+    if (!header->SrcPanPresents) {
+        if (!header->DstPanPresents) {
+            return 0xffff;
+        }
+        return mac_header_read_dst_pan(header, ptr);
+    }
+
+    return mac_header_read_src_pan(header, ptr);
+}
+
+uint16_t mac_header_get_dst_panid(const mac_fcf_sequence_t *header, const uint8_t *ptr, uint16_t configured_pan_id)
+{
+    if (mac_header_pan_full_compressed(header)) {
+        return configured_pan_id;
+    }
+    if (!header->DstPanPresents) {
+        if (header->SrcPanPresents && header->frameVersion == MAC_FRAME_VERSION_2015 && header->DstAddrMode == MAC_ADDR_MODE_NONE) {
+            return mac_header_read_src_pan(header, ptr);
+        }
+        return 0xffff;
+    }
+
+    return mac_header_read_dst_pan(header, ptr);
 }
 
 void mac_header_get_src_address(const mac_fcf_sequence_t *header, const uint8_t *ptr, uint8_t *address_ptr)

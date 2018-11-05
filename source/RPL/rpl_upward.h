@@ -135,7 +135,7 @@ void rpl_neighbour_update_dodag_version(rpl_neighbour_t *neighbour, rpl_dodag_ve
 bool rpl_neighbour_update_dtsn(rpl_neighbour_t *neighbour, uint8_t dtsn);
 rpl_instance_t *rpl_neighbour_instance(const rpl_neighbour_t *neighbour);
 
-void rpl_instance_neighbours_changed(rpl_instance_t *instance);
+void rpl_instance_neighbours_changed(rpl_instance_t *instance, const rpl_dodag_t *dodag);
 void rpl_instance_run_parent_selection(rpl_instance_t *instance);
 
 void rpl_upward_print_instance(rpl_instance_t *instance, route_print_fn_t *print_fn);

@@ -121,11 +121,11 @@ static void thread_network_data_clean(protocol_interface_info_entry_t *cur)
 
 static void thread_merge_prepare(protocol_interface_info_entry_t *cur)
 {
+    thread_partition_data_purge(cur);
     thread_clean_old_16_bit_address_based_addresses(cur);
     mpl_clear_realm_scope_seeds(cur);
     ipv6_route_table_remove_info(cur->id, ROUTE_THREAD_PROXIED_HOST, NULL);
     ipv6_route_table_remove_info(cur->id, ROUTE_THREAD_PROXIED_DUA_HOST, NULL);
-    thread_partition_data_purge(cur);
     thread_network_data_clean(cur);
     cur->nwk_mode = ARM_NWK_GP_IP_MODE;
 }
@@ -305,6 +305,7 @@ static int thread_end_device_synch_response_validate(protocol_interface_info_ent
     uint16_t address16;
     uint32_t llFrameCounter;
     thread_leader_data_t leaderData;
+    mle_tlv_info_t addressRegisteredTlv;
     mac_neighbor_table_entry_t *entry_temp;
     bool new_entry_created;
 
@@ -320,12 +321,32 @@ static int thread_end_device_synch_response_validate(protocol_interface_info_ent
     // Address
     // MLE_TYPE_SRC_ADDRESS
     // MLE_TYPE_LEADER_DATA
+    // MLE_TYPE_ADDRESS_REGISTRATION
     if (!mle_tlv_read_8_bit_tlv(MLE_TYPE_MODE, ptr, data_length, &mode) ||
             !mle_tlv_read_16_bit_tlv(MLE_TYPE_SRC_ADDRESS, ptr, data_length, &srcAddress) ||
             !mle_tlv_read_16_bit_tlv(MLE_TYPE_ADDRESS16, ptr, data_length, &address16) ||
             !thread_leader_data_parse(ptr, data_length, &leaderData) ||
             !mle_tlv_read_32_bit_tlv(MLE_TYPE_LL_FRAME_COUNTER, ptr, data_length, &llFrameCounter)) {
         tr_debug("missing TLV's");
+        return -1;
+    }
+
+    if (!(mode & THREAD_DEVICE_FED)) {
+        // check for presence of Address registration TLV for MTDs
+        if (!mle_tlv_read_tlv(MLE_TYPE_ADDRESS_REGISTRATION, ptr, data_length, &addressRegisteredTlv) ||
+                (addressRegisteredTlv.tlvLen == 0)) {
+            tr_debug("MTD missed address registration TLV - reattach");
+            return -1;
+        }
+    }
+
+    // check if the source address is a router address
+    if (!thread_is_router_addr(srcAddress)) {
+        return -1;
+    }
+
+    // check if the address16 is a valid child address
+    if (!thread_addr_is_child(srcAddress, address16)) {
         return -1;
     }
 
@@ -1103,7 +1124,7 @@ static int thread_attach_child_id_request_build(protocol_interface_info_entry_t 
 
     //Add ML-EID
     if ((mode & MLE_FFD_DEV) == 0) {
-        ptr = thread_address_registration_tlv_write(ptr, cur);
+        ptr = thread_ml_address_tlv_write(ptr,cur);
     }
 
     reqTlvCnt = 2;

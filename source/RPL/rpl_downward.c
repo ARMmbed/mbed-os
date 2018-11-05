@@ -243,6 +243,8 @@ void rpl_downward_process_dao_parent_changes(rpl_instance_t *instance)
                 }
             }
         }
+        //GENERATE PARENT Update event
+        rpl_control_event(instance->domain, RPL_EVENT_DAO_PARENT_SWITCH);
         rpl_instance_dao_trigger(instance, 0);
     }
 }
@@ -588,7 +590,7 @@ void rpl_instance_send_address_registration(protocol_interface_info_entry_t *int
 
     aro.status = ARO_SUCCESS;
     aro.present = true;
-    aro.lifetime = addr->preferred_lifetime;
+    aro.lifetime = addr->valid_lifetime;
     memcpy(aro.eui64, interface->mac, 8);
 
     // go through neighbour list, and send to all assigned parents.

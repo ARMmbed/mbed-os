@@ -75,6 +75,7 @@ int thread_bbr_start(int8_t interface_id, int8_t backbone_interface_id);
  *
  */
 int thread_bbr_timeout_set(int8_t interface_id, uint32_t timeout_a, uint32_t timeout_b, uint32_t delay);
+
 /**
  * Set prefix to be used as combining multiple thread networks on backbone.
  *
@@ -88,6 +89,20 @@ int thread_bbr_timeout_set(int8_t interface_id, uint32_t timeout_a, uint32_t tim
  *
  */
 int thread_bbr_prefix_set(int8_t interface_id, uint8_t *prefix);
+
+/**
+ * Set sequence number to be used by bbr
+ *
+ * update sequence number value
+ *
+ * \param interface_id interface ID of the Thread network.
+ * \param sequence_number value that needs to be set on bbr
+ *
+ * \return 0 on success
+ * \return <0 in case of errors
+ *
+ */
+int thread_bbr_sequence_number_set(int8_t interface_id, uint8_t sequence_number);
 
 /**
  * Set the Thread validation interface destination address.

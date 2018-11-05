@@ -40,12 +40,16 @@
 #include "common_functions.h"
 #include "thread_border_router_api.h"
 #include "thread_bbr_api.h"
+#include "net_ipv6_api.h"
+#include "NWK_INTERFACE/Include/protocol.h"
 #include "Common_Protocols/ipv6_constants.h"
 #include "DHCPv6_Server/DHCPv6_server_service.h"
+#include "6LoWPAN/Thread/thread_dhcpv6_server.h"
 #include "thread_management_if.h"
 #include "6LoWPAN/Thread/thread_config.h"
 #include "6LoWPAN/Thread/thread_constants.h"
 #include "6LoWPAN/Thread/thread_common.h"
+#include "6LoWPAN/Thread/thread_bootstrap.h"
 #include "6LoWPAN/Thread/thread_joiner_application.h"
 #include "6LoWPAN/Thread/thread_extension.h"
 #include "6LoWPAN/Thread/thread_extension_bbr.h"
@@ -95,7 +99,6 @@ typedef struct {
 #define RFC6106_RECURSIVE_DNS_SERVER_OPTION     25
 #define RFC6106_DNS_SEARCH_LIST_OPTION          31
 static NS_LIST_DEFINE(bbr_instance_list, thread_bbr_t, link);
-
 
 static thread_bbr_t *thread_bbr_find_by_interface(int8_t interface_id)
 {
@@ -579,15 +582,13 @@ static void thread_bbr_network_data_send(thread_bbr_t *this, uint8_t prefix[8], 
     // delete old prefix
     memset(this->bbr_prefix,0,8);
     // create new prefix
-    if (DHCPv6_server_service_init(this->interface_id, prefix, eui64, DHCPV6_DUID_HARDWARE_EUI64_TYPE) != 0) {
+    if (thread_dhcp6_server_init(this->interface_id, prefix, eui64, THREAD_MIN_PREFIX_LIFETIME) != 0) {
         tr_warn("DHCP server alloc fail");
         // set 20 seconds delay before next process
         this->br_delay_timer = 20;
         return;
     }
     memcpy(this->bbr_prefix,prefix,8);
-
-    DHCPv6_server_service_set_address_validlifetime(this->interface_id, this->bbr_prefix, THREAD_MIN_PREFIX_LIFETIME);
 
     br_info.P_default_route = true;
     br_info.P_dhcp = true;
@@ -724,7 +725,7 @@ static bool thread_bbr_activated(thread_bbr_t *this, uint32_t seconds)
         return true;
     }
 
-    if (cur->thread_info->routerIdReqCoapID) {
+    if (cur->thread_info->routerIdRequested) {
         // Router id reguest pending we need to wait for response
         return false;
     }
@@ -978,25 +979,31 @@ int thread_bbr_nd_entry_add (int8_t interface_id, const uint8_t *addr_data_ptr, 
 int thread_bbr_dua_entry_add (int8_t interface_id, const uint8_t *addr_data_ptr,  uint32_t lifetime, const uint8_t *mleid_ptr)
 {
     thread_bbr_t *this = thread_bbr_find_by_interface(interface_id);
+    thread_pbbr_dua_info_t *map;
     if (!this || this->backbone_interface_id < 0) {
         return -1;
     }
-    thread_pbbr_dua_info_t *map = ns_dyn_mem_alloc(sizeof(thread_pbbr_dua_info_t));
-    if (!map) {
-        goto error;
+    ipv6_route_t *route = ipv6_route_lookup_with_info(addr_data_ptr, 128, interface_id, NULL, ROUTE_THREAD_PROXIED_DUA_HOST, NULL, 0);
+    if (!route){
+        map = ns_dyn_mem_alloc(sizeof(thread_pbbr_dua_info_t));
+        if (!map) {
+            goto error;
+        }
+        // We are using route info field to store BBR MLEID map
+        route = ipv6_route_add_with_info(addr_data_ptr, 128, interface_id, NULL, ROUTE_THREAD_PROXIED_DUA_HOST, map, 0, lifetime, 0);
+        if (!route) {
+            // Direct route to host allows ND proxying to work
+            ns_dyn_mem_free(map);
+            goto error;
+        }
+        // Route info autofreed
+        route->info_autofree = true;
     }
+    map = route->info.info;
     memcpy(map->mleid_ptr, mleid_ptr, 8);
     map->last_contact_time = protocol_core_monotonic_time;
+    route->info.info = map;
 
-    // We are using route info field to store BBR MLEID map
-    ipv6_route_t *route = ipv6_route_add_with_info(addr_data_ptr, 128, interface_id, NULL, ROUTE_THREAD_PROXIED_DUA_HOST, map, 0, lifetime, 0);
-    if (!route) {
-        // Direct route to host allows ND proxying to work
-        ns_dyn_mem_free(map);
-        goto error;
-    }
-    // Route info autofreed
-    route->info_autofree = true;
     // send NA
     thread_bbr_na_send(this->backbone_interface_id, addr_data_ptr);
 
@@ -1004,15 +1011,6 @@ int thread_bbr_dua_entry_add (int8_t interface_id, const uint8_t *addr_data_ptr,
 error:
     tr_err("out of resources");
     return -2;
-}
-
-struct ipv6_route *thread_bbr_dua_entry_find(int8_t interface_id, const uint8_t *addr_data_ptr) {
-    ipv6_route_t *route = ipv6_route_choose_next_hop(addr_data_ptr, interface_id, NULL);
-    if (!route || route->prefix_len < 128 || !route->on_link || route->info.source != ROUTE_THREAD_PROXIED_DUA_HOST ) {
-        //Not found
-        return NULL;
-    }
-    return route;
 }
 
 int thread_bbr_proxy_state_update(int8_t caller_interface_id , int8_t handler_interface_id, bool status)
@@ -1099,7 +1097,11 @@ int thread_bbr_start(int8_t interface_id, int8_t backbone_interface_id)
     // By default multicast forwarding is not enabled as it causes multicast loops
     multicast_fwd_set_forwarding(this->interface_id, false);
 
+    // Adjust BBR neighbor and destination cache size
+    arm_nwk_ipv6_max_cache_entries(THREAD_BBR_IPV6_DESTINATION_CACHE_SIZE);
+
     thread_extension_bbr_init(interface_id,backbone_interface_id);
+
     return 0;
 #else
     return -1;
@@ -1126,6 +1128,17 @@ int thread_bbr_prefix_set(int8_t interface_id, uint8_t *prefix)
     (void) prefix;
 #ifdef HAVE_THREAD_BORDER_ROUTER
     return thread_extension_bbr_prefix_set(interface_id, prefix);
+#else
+    return -1;
+#endif // HAVE_THREAD_BORDER_ROUTER
+}
+
+int thread_bbr_sequence_number_set(int8_t interface_id, uint8_t sequence_number)
+{
+    (void) interface_id;
+    (void) sequence_number;
+#ifdef HAVE_THREAD_BORDER_ROUTER
+    return thread_extension_bbr_sequence_number_set(interface_id, sequence_number);
 #else
     return -1;
 #endif // HAVE_THREAD_BORDER_ROUTER

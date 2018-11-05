@@ -106,6 +106,9 @@ void thread_general_mle_receive_cb(int8_t interface_id, mle_message_t *mle_msg, 
 void thread_bootstrap_ready(struct protocol_interface_info_entry *cur);
 int thread_bootstrap_reset(struct protocol_interface_info_entry *cur);
 void thread_neighbor_list_clean(struct protocol_interface_info_entry *cur);
+
+/* Function to remove linked neighbours for REEDs and FEDs */
+void thread_reed_fed_neighbour_links_clean(struct protocol_interface_info_entry *cur);
 bool thread_bootstrap_request_network_data(struct protocol_interface_info_entry *cur, struct thread_leader_data_s *leaderData, uint16_t short_address);
 bool thread_check_is_this_my_parent(struct protocol_interface_info_entry *cur, struct mac_neighbor_table_entry *entry_temp);
 void thread_clean_old_16_bit_address_based_addresses(struct protocol_interface_info_entry *cur);
@@ -190,7 +193,6 @@ int thread_bootstrap_partition_process(protocol_interface_info_entry_t *cur,uint
 int thread_bootstrap_announce_send(protocol_interface_info_entry_t *cur, uint8_t channel_page, uint16_t channel, uint16_t panid, uint64_t timestamp, uint16_t active_channel);
 void thread_bootstrap_announcement_start(protocol_interface_info_entry_t *cur, uint8_t channel_page, uint16_t channel, uint8_t count, uint16_t period);
 void thread_bootstrap_temporary_attach(protocol_interface_info_entry_t *cur, uint8_t channel_page, uint16_t channel, uint16_t panid, uint64_t timestamp);
-
 
 #else
 #define thread_interface_up(cur) ((void) 0)

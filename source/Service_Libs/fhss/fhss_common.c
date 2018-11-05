@@ -34,8 +34,6 @@
 
 static fhss_structure_t *fhss_struct = NULL;
 
-static void fhss_event_timer_cb(int8_t timer_id, uint16_t slots);
-static fhss_structure_t *fhss_get_object_with_timer_id(const int8_t timer_id);
 static void fhss_set_active_event(fhss_structure_t *fhss_structure, uint8_t event_type);
 static bool fhss_read_active_event(fhss_structure_t *fhss_structure, uint8_t event_type);
 
@@ -52,7 +50,6 @@ fhss_structure_t *fhss_allocate_instance(fhss_api_t *fhss_api, const fhss_timer_
     memset(fhss_struct, 0, sizeof(fhss_structure_t));
     fhss_struct->fhss_api = fhss_api;
     fhss_struct->platform_functions = *fhss_timer;
-    fhss_struct->fhss_event_timer = eventOS_callback_timer_register(fhss_event_timer_cb);
     if (!fhss_struct->platform_functions.fhss_resolution_divider) {
         fhss_struct->platform_functions.fhss_resolution_divider = 1;
     }
@@ -69,16 +66,7 @@ int8_t fhss_free_instance(fhss_api_t *fhss_api)
     return 0;
 }
 
-static void fhss_event_timer_cb(int8_t timer_id, uint16_t slots)
-{
-    (void) slots;
-    fhss_structure_t *fhss_structure = fhss_get_object_with_timer_id(timer_id);
-    if (fhss_structure) {
-        fhss_structure->callbacks.tx_poll(fhss_structure->fhss_api);
-    }
-}
-
-static fhss_structure_t *fhss_get_object_with_timer_id(const int8_t timer_id)
+fhss_structure_t *fhss_get_object_with_timer_id(const int8_t timer_id)
 {
     if (timer_id < 0 || !fhss_struct) {
         return NULL;
@@ -139,6 +127,13 @@ void fhss_start_timer(fhss_structure_t *fhss_structure, uint32_t time, void (*ca
             time = fhss_structure->platform_functions.fhss_resolution_divider;
         }
         fhss_structure->platform_functions.fhss_timer_start(time / fhss_structure->platform_functions.fhss_resolution_divider, callback, fhss_structure->fhss_api);
+    }
+}
+
+void fhss_stop_timer(fhss_structure_t *fhss_structure, void (*callback)(const fhss_api_t *fhss_api, uint16_t))
+{
+    if (callback){
+        fhss_structure->platform_functions.fhss_timer_stop(callback, fhss_structure->fhss_api);
     }
 }
 

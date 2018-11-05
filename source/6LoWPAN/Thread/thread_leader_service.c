@@ -41,7 +41,7 @@
 #include "6LoWPAN/Thread/thread_config.h"
 #include "6LoWPAN/Thread/thread_common.h"
 #include "6LoWPAN/Thread/thread_bootstrap.h"
-#include "6LoWPAN/Thread/thread_dhcpv6_client.h"
+#include "DHCPv6_client/dhcpv6_client_api.h"
 #include "6LoWPAN/Thread/thread_discovery.h"
 #include "6LoWPAN/Thread/thread_joiner_application.h"
 #include "6LoWPAN/Thread/thread_network_data_lib.h"
@@ -305,7 +305,6 @@ static int thread_leader_service_commissioner_register(int8_t interface_id, uint
     protocol_interface_info_entry_t *cur;
     link_configuration_s *linkConfiguration;
 
-    tr_debug("Register interface %d commissioner: %s", interface_id, trace_ipv6(border_router_address));
 
     linkConfiguration = thread_joiner_application_get_config(interface_id);
     if (!linkConfiguration) {
@@ -341,6 +340,13 @@ static int thread_leader_service_commissioner_register(int8_t interface_id, uint
         *session_id = cur->thread_info->registered_commissioner.session_id;
     }
 
+    if (memcmp(border_router_address, linkConfiguration->mesh_local_ula_prefix, 8) == 0 &&
+            memcmp(border_router_address + 8, ADDR_SHORT_ADR_SUFFIC, 6) == 0 &&
+            border_router_address[14] == 0xfc) {
+        // source address is ALOC
+        common_write_16_bit(cur->thread_info->routerShortAddress, &border_router_address[14]);
+    }
+    tr_debug("Register interface %d commissioner: %s", interface_id, trace_ipv6(border_router_address));
     //SET Border Router Locator
     memcpy(cur->thread_info->registered_commissioner.border_router_address, border_router_address, 16);
     cur->thread_info->registered_commissioner.commissioner_valid = true;
@@ -1295,7 +1301,7 @@ static int thread_leader_service_leader_init(protocol_interface_info_entry_t *cu
     thread_routing_free(&thread_info->routing);
     ipv6_route_table_remove_info(cur->id, ROUTE_THREAD, NULL);
     ipv6_route_table_remove_info(cur->id, ROUTE_THREAD_BORDER_ROUTER, NULL);
-    thread_dhcp_client_delete(cur->id);
+    dhcp_client_delete(cur->id);
     thread_nd_service_delete(cur->id);
     mpl_clear_realm_scope_seeds(cur);
     ipv6_neighbour_cache_flush(&cur->ipv6_neighbour_cache);
@@ -1352,7 +1358,6 @@ static void thread_leader_service_interface_setup_activate(protocol_interface_in
     cur->lowpan_address_mode = NET_6LOWPAN_GP16_ADDRESS;
     thread_bootstrap_update_ml16_address(cur, cur->thread_info->routerShortAddress);
     thread_generate_ml64_address(cur);
-    thread_extension_address_generate(cur);
     thread_bootstrap_routing_activate(cur);
     thread_routing_update_id_set(cur, private->maskSeq, private->master_router_id_mask);
     thread_routing_activate(&cur->thread_info->routing);

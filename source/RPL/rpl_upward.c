@@ -427,7 +427,7 @@ void rpl_delete_neighbour(rpl_instance_t *instance, rpl_neighbour_t *neighbour)
     }
     if (neighbour->dodag_parent) {
         rpl_instance_remove_system_routes_through_parent(instance, neighbour);
-        rpl_instance_neighbours_changed(instance);
+        rpl_instance_neighbours_changed(instance, NULL);
     }
 
     rpl_free(neighbour, sizeof *neighbour);
@@ -1171,13 +1171,18 @@ bool rpl_instance_purge(rpl_instance_t *instance)
     return false;
 }
 
-void rpl_instance_neighbours_changed(rpl_instance_t *instance)
+void rpl_instance_neighbours_changed(rpl_instance_t *instance, const rpl_dodag_t *dodag)
 {
     instance->neighbours_changed = true;
-    if (!rpl_instance_preferred_parent(instance)) {
-        rpl_instance_set_local_repair(instance, true);
+    uint16_t delay = rpl_policy_dio_parent_selection_delay(instance->domain);
+    if (dodag) {
+        //Convert imin 100ms tick to seconds
+        uint16_t i_min_delay = dodag->dio_timer_params.Imin / 10;
+        if (i_min_delay > delay) {
+            delay = i_min_delay;
+        }
     }
-    rpl_instance_trigger_parent_selection(instance, rpl_policy_dio_parent_selection_delay(instance->domain));
+    rpl_instance_trigger_parent_selection(instance, delay);
 }
 
 static void rpl_instance_remove_parents(rpl_instance_t *instance)
@@ -1366,7 +1371,18 @@ void rpl_instance_run_parent_selection(rpl_instance_t *instance)
         }
     }
 
-    rpl_instance_set_local_repair(instance, preferred_parent == NULL);
+    //Control Local repair state
+    if (preferred_parent) {
+        // Always stop repair if we find a parent
+        rpl_instance_set_local_repair(instance, false);
+    } else if (original_preferred) {
+        // Only start repair if we just lost a parent
+        rpl_instance_set_local_repair(instance, true);
+    } else {
+        // !preferred_parent && !original_preferred - didn't have a parent,
+        // still don't. Leave repair flag as-is (would be off on initial start
+        // up, may be on if having problems mid-session).
+    }
 
     if (rpl_instance_mop(instance) != RPL_MODE_NO_DOWNWARD) {
         rpl_downward_process_dao_parent_changes(instance);
@@ -1384,6 +1400,20 @@ void rpl_instance_run_parent_selection(rpl_instance_t *instance)
     rpl_control_print(trace_info_print);
     /* Changing DODAG version is an inconsistency */
     if (original_version != instance->current_dodag_version) {
+        //learn Routes an Prefixes
+        if (preferred_parent && instance->current_dodag_version) {
+            rpl_dodag_t *dodag = instance->current_dodag_version->dodag;
+            protocol_interface_info_entry_t *rpl_interface = protocol_stack_interface_info_get_by_id(preferred_parent->interface_id);
+            if (rpl_interface) {
+                ns_list_foreach(prefix_entry_t, prefix, &dodag->prefixes) {
+                    rpl_control_process_prefix_option(prefix, rpl_interface);
+                    if (instance->domain->prefix_cb) {
+                        instance->domain->prefix_cb(prefix, rpl_interface, preferred_parent->ll_address);
+                    }
+                }
+            }
+        }
+
         rpl_instance_inconsistency(instance);
         return;
     }
@@ -1535,6 +1565,7 @@ void rpl_instance_slow_timer(rpl_instance_t *instance, uint16_t seconds)
         rpl_instance_dis_timer(instance, seconds);
     }
 }
+
 
 void rpl_upward_dio_timer(rpl_instance_t *instance, uint16_t ticks)
 {

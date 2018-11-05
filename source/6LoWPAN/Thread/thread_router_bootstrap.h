@@ -52,6 +52,9 @@ int thread_router_bootstrap_mle_advertise(struct protocol_interface_info_entry *
 void thread_router_bootstrap_child_information_clear(protocol_interface_info_entry_t *cur);
 int thread_router_bootstrap_reset_child_info(protocol_interface_info_entry_t *cur, struct mac_neighbor_table_entry *child);
 uint16_t thread_router_bootstrap_child_count_get(protocol_interface_info_entry_t *cur);
+
+// max_child_timeout is longest MLE Timeout a router has registered for all of its active MTD children
+int thread_router_bootstrap_child_max_timeout_get(protocol_interface_info_entry_t *cur, uint32_t *max_child_timeout);
 void thread_router_bootstrap_child_id_handler(struct protocol_interface_info_entry *cur);
 void thread_router_bootstrap_child_id_reject(struct protocol_interface_info_entry *cur);
 void thread_router_bootstrap_router_id_request(struct protocol_interface_info_entry *cur, uint8_t status);
@@ -73,6 +76,7 @@ void thread_router_bootstrap_anycast_address_register(protocol_interface_info_en
 void thread_router_bootstrap_network_data_distribute(protocol_interface_info_entry_t *cur);
 bool thread_router_bootstrap_routing_allowed(struct protocol_interface_info_entry *cur);
 void thread_router_bootstrap_address_change_notify_send(protocol_interface_info_entry_t *cur);
+void thread_router_bootstrap_delay_reed_jitter(int8_t interface_id, uint16_t delay);
 
 #else
 
@@ -81,6 +85,7 @@ void thread_router_bootstrap_address_change_notify_send(protocol_interface_info_
 
 #define thread_router_bootstrap_child_information_clear(cur)
 #define thread_router_bootstrap_child_count_get(cur) 0
+#define thread_router_bootstrap_child_max_timeout_get(cur, max_child_timeout) 0
 #define thread_router_bootstrap_child_id_handler(cur)
 #define thread_router_bootstrap_child_id_reject(cur)
 #define thread_router_bootstrap_router_id_request(cur, status)
@@ -104,7 +109,7 @@ void thread_router_bootstrap_address_change_notify_send(protocol_interface_info_
 #define thread_router_bootstrap_routing_allowed(cur) false
 #define thread_router_bootstrap_address_change_notify_send(cur)
 #define thread_router_bootstrap_reed_merge_advertisement(cur)
-
+#define thread_router_bootstrap_delay_reed_jitter(interface_id, delay)
 #endif/*HAVE_THREAD_ROUTER*/
 
 #endif /* THREAD_ROUTER_BOOTSTRAP_H_ */

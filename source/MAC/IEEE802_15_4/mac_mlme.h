@@ -125,6 +125,6 @@ int8_t mac_mlme_beacon_tx(struct protocol_interface_rf_mac_setup *rf_ptr);
 uint8_t mac_mlme_beacon_req_tx(struct protocol_interface_rf_mac_setup *rf_ptr);
 int8_t mac_mlme_virtual_confirmation_handle(int8_t driver_id, const uint8_t *data_ptr, uint16_t length);
 
-uint16_t mlme_scan_analyze_next_channel(struct channel_list_s *mac_channel_list);
+uint16_t mlme_scan_analyze_next_channel(struct channel_list_s *mac_channel_list, bool clear_channel);
 
 #endif /* MAC_MLME_H_ */

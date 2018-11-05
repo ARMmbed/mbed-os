@@ -42,6 +42,7 @@
 #include "NWK_INTERFACE/Include/protocol.h"
 #include "6LoWPAN/Thread/thread_config.h"
 #include "6LoWPAN/Thread/thread_common.h"
+#include "6LoWPAN/Thread/thread_extension_bbr.h"
 #include "6LoWPAN/Thread/thread_network_data_lib.h"
 #include "6LoWPAN/Thread/thread_network_data_storage.h"
 #include "6LoWPAN/Thread/thread_management_client.h"
@@ -591,6 +592,15 @@ void thread_border_router_network_data_update_notify(protocol_interface_info_ent
 
     thread_border_router_network_data_appl_callback(cur);
 }
+
+void thread_border_router_old_partition_data_clean(int8_t interface_id)
+{
+    thread_border_router_t *this = thread_border_router_find_by_interface(interface_id);
+    if (this) {
+        coap_service_request_delete_by_service_id(this->coap_service_id);
+    }
+    thread_extension_bbr_old_partition_data_clean(interface_id);
+}
 #endif // HAVE_THREAD_ROUTER
 
 /*External APIs*/
@@ -837,7 +847,6 @@ int thread_border_router_dns_search_list_option_set(int8_t interface_id, uint8_t
 static void thread_tmf_client_network_data_set_cb(int8_t interface_id, int8_t status, uint8_t *data_ptr, uint16_t data_len)
 {
     protocol_interface_info_entry_t *cur;
-    (void) status;
     (void) data_len;
     (void) data_ptr;
 
@@ -846,7 +855,7 @@ static void thread_tmf_client_network_data_set_cb(int8_t interface_id, int8_t st
         return;
     }
 
-    cur->thread_info->localServerDataBase.publish_active = false;
+    cur->thread_info->localServerDataBase.publish_coap_req_id = 0;
 
     tr_debug("BR a/sd response status: %s, addr: %x",status?"Fail":"OK", cur->thread_info->localServerDataBase.registered_rloc16);
 
@@ -855,9 +864,11 @@ static void thread_tmf_client_network_data_set_cb(int8_t interface_id, int8_t st
         thread_border_router_publish(cur->id);
     }
 
-    // always update RLOC to new one. If COAP response fails then resubmit timer will trigger new a/sd
-    cur->thread_info->localServerDataBase.registered_rloc16 = mac_helper_mac16_address_get(cur);
-    cur->thread_info->localServerDataBase.release_old_address = false;
+    if (status == 0) {
+        // If request was successful, then update RLOC to new one.
+        cur->thread_info->localServerDataBase.registered_rloc16 = mac_helper_mac16_address_get(cur);
+        cur->thread_info->localServerDataBase.release_old_address = false;
+    }
 }
 #endif
 
@@ -884,21 +895,20 @@ int thread_border_router_publish(int8_t interface_id)
     rloc16 = mac_helper_mac16_address_get(cur);
     tr_debug("Border router old: %x, new: %x", cur->thread_info->localServerDataBase.registered_rloc16, rloc16);
 
-    if (cur->thread_info->localServerDataBase.publish_active) {
+    if (cur->thread_info->localServerDataBase.publish_coap_req_id) {
         if (rloc16 != cur->thread_info->localServerDataBase.registered_rloc16) {
             /*
-             * Device short address has changed, cancel previous a/sd and a/as requests
+             * Device short address has changed, cancel previous a/sd requests
              * and start resubmit timer
              * */
-            tr_debug("address changed, kill pending reuqests");
-            thread_management_client_pending_coap_request_kill(cur->id);
+            tr_debug("RLOC changed, kill pending a/sd request");
+            thread_management_client_coap_message_delete(cur->id, cur->thread_info->localServerDataBase.publish_coap_req_id);
             thread_border_router_resubmit_timer_set(interface_id, 5);
-            return 0;
         } else {
             cur->thread_info->localServerDataBase.publish_pending = true;
             tr_debug("Activate pending status for publish");
-            return 0;
         }
+        return 0;
     }
 
     //Allocate Memory for Data
@@ -926,8 +936,10 @@ int thread_border_router_publish(int8_t interface_id)
     if (payload_ptr) {
         ns_dyn_mem_free(payload_ptr);
     }
-    if (ret_val == 0) {
-        cur->thread_info->localServerDataBase.publish_active = true;
+    if (ret_val > 0) {
+        // a/sd request successful, save coap request id
+        cur->thread_info->localServerDataBase.publish_coap_req_id = (uint16_t)ret_val;
+        ret_val = 0 ;
     }
 
     thread_border_router_resubmit_timer_set(interface_id, -1);

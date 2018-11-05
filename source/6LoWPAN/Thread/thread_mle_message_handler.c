@@ -30,6 +30,7 @@
 #ifdef HAVE_THREAD
 
 #include "ns_trace.h"
+#include "string.h"
 #include "common_functions.h"
 #include "NWK_INTERFACE/Include/protocol.h"
 #include <nsdynmemLIB.h>
@@ -53,6 +54,7 @@
 #include "Service_Libs/mac_neighbor_table/mac_neighbor_table.h"
 #include "6LoWPAN/MAC/mac_helper.h"
 #include "6LoWPAN/MAC/mac_data_poll.h"
+#include "Common_Protocols/ipv6.h"
 #include "MLE/mle.h"
 #include "mac_api.h"
 #define TRACE_GROUP "thmh"
@@ -699,6 +701,54 @@ static int thread_host_child_update_response_send(protocol_interface_info_entry_
     return 0;
 }
 
+static bool thread_address_registration_tlv_search(if_address_entry_t *entry, mle_tlv_info_t *tlv_info)
+{
+    uint8_t context;
+    uint16_t length = tlv_info->tlvLen;
+    uint8_t *ptr = tlv_info->dataPtr;
+
+    while (length) {
+        context = *ptr++;
+        if (context & 0x80) {
+            if (memcmp(ptr, entry->address + 8, 8) == 0) {
+                return true;
+            }
+            ptr += 8;
+            length -= 9;
+        } else {
+            if (memcmp(ptr, entry->address, 16) == 0) {
+                return true;
+            }
+            ptr += 16;
+            length -= 17;
+        }
+    }
+
+    return false;
+
+}
+
+static bool thread_address_registration_tlv_check(protocol_interface_info_entry_t *cur, mle_tlv_info_t *tlv_info)
+{
+    bool ret_val = true;
+
+    ns_list_foreach_safe(if_address_entry_t, e, &cur->ip_addresses) {
+        if (addr_ipv6_scope(e->address, cur) == IPV6_SCOPE_GLOBAL || (addr_ipv6_scope(e->address, cur) == IPV6_SCOPE_REALM_LOCAL &&
+                !thread_addr_is_mesh_local_16(e->address, cur))) {
+
+            if (thread_address_registration_tlv_search(e, tlv_info) == false) {
+                tr_debug("Address %s registration to parent failed", trace_ipv6(e->address));
+                addr_set_preferred_lifetime(cur, e, 0); // deprecate address
+                ret_val = false;
+            } else if (e->preferred_lifetime == 0) {
+                addr_set_preferred_lifetime(cur, e, 0xffffffff); // set preferred lifetime to infinite
+            }
+        }
+    }
+
+    return ret_val;
+}
+
 static void thread_host_child_update_request_process(protocol_interface_info_entry_t *cur, mle_message_t *mle_msg, uint8_t linkMargin)
 {
     thread_leader_data_t leaderData;
@@ -710,6 +760,7 @@ static void thread_host_child_update_request_process(protocol_interface_info_ent
     uint64_t pending_timestamp = 0;// means no pending timestamp
     mac_neighbor_table_entry_t *entry_temp;
     bool data_request_needed = false;
+    mle_tlv_info_t tlv_info = {0};
 
     tr_debug("Child update request");
     entry_temp = mac_neighbor_entry_get_by_ll64(mac_neighbor_info(cur), mle_msg->packet_src_address, false, NULL);
@@ -736,6 +787,11 @@ static void thread_host_child_update_request_process(protocol_interface_info_ent
     if (mle_tlv_read_tlv(MLE_TYPE_NETWORK_DATA, mle_msg->data_ptr, mle_msg->data_length, &networkDataTlv)) {
        thread_bootstrap_network_data_save(cur, &leaderData, networkDataTlv.dataPtr, networkDataTlv.tlvLen);
        thread_bootstrap_network_data_update(cur);
+    }
+
+    // Check Address Registration TLV
+    if (true == mle_tlv_read_tlv(MLE_TYPE_ADDRESS_REGISTRATION, mle_msg->data_ptr, mle_msg->data_length, &tlv_info)) {
+        thread_address_registration_tlv_check(cur, &tlv_info);
     }
 
     if (thread_info(cur)->thread_leader_data->stableDataVersion != leaderData.stableDataVersion ||
@@ -776,6 +832,7 @@ static void thread_parse_child_update_response(protocol_interface_info_entry_t *
     thread_leader_data_t leaderData = {0};
     uint8_t status;
     bool leader_data_received;
+    mle_tlv_info_t tlv_info = {0};
 
     if (cur->thread_info->thread_endnode_parent == NULL) {
         return;
@@ -820,6 +877,10 @@ static void thread_parse_child_update_response(protocol_interface_info_entry_t *
     timeout = cur->thread_info->host_link_timeout;
     if (mle_tlv_read_32_bit_tlv(MLE_TYPE_TIMEOUT, mle_msg->data_ptr, mle_msg->data_length, &timeout)) {
         tr_debug("Setting child timeout, value=%"PRIu32, timeout);
+    }
+
+    if (true == mle_tlv_read_tlv(MLE_TYPE_ADDRESS_REGISTRATION, mle_msg->data_ptr, mle_msg->data_length, &tlv_info)) {
+        thread_address_registration_tlv_check(cur, &tlv_info);
     }
 
     tr_debug("Keep-Alive -->Respond from Parent");

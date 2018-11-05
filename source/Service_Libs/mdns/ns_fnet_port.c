@@ -72,9 +72,8 @@ fnet_bool_t fnet_netif_get_ip6_addr (fnet_netif_desc_t netif_desc, fnet_index_t 
             addr_info->type = FNET_NETIF_IP_ADDR_TYPE_AUTOCONFIGURABLE; /* How the address was acquired.*/
             result = FNET_TRUE;
         }
+        FNET_DEBUG("fnet_netif_get_ip6_addr(), if=%d: %s", (int8_t)netif->scope_id, trace_ipv6(addr_info->address.addr));
     }
-
-    FNET_DEBUG("fnet_netif_get_ip6_addr(), if=%d: %s", (int8_t)netif->scope_id, trace_ipv6(addr_info->address.addr));
 
     return result;
 }

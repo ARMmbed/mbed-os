@@ -348,9 +348,10 @@ void rpl_control_remove_domain_from_interface(protocol_interface_info_entry_t *c
     }
 }
 
-void rpl_control_set_callback(rpl_domain_t *domain, rpl_domain_callback_t callback, void *cb_handle)
+void rpl_control_set_callback(rpl_domain_t *domain, rpl_domain_callback_t callback, rpl_prefix_callback_t prefix_learn_cb, void *cb_handle)
 {
     domain->callback = callback;
+    domain->prefix_cb = prefix_learn_cb;
     domain->cb_handle = cb_handle;
 }
 
@@ -677,28 +678,22 @@ static void rpl_control_process_prefix_options(protocol_interface_info_entry_t *
         const uint8_t *prefix = ptr + 16;
 
         if (!pref_parent || neighbour == pref_parent) {
-            //Check is L Flag active
-            if (flags & PIO_L) {
-                //define ONLink Route Information
-                //tr_debug("Register On Link Prefix to routing table");
-                ipv6_route_add(prefix, prefix_len, cur->id, NULL, ROUTE_RADV, valid, 0);
-            }
-            /* Check if A-Flag.
-             * A RPL node may use this option for the purpose of Stateless Address Autoconfiguration (SLAAC)
-             * from a prefix advertised by a parent.
-             */
-            if (pref_parent && (flags & PIO_A)) {
-                if (icmpv6_slaac_prefix_update(cur, prefix, prefix_len, valid, preferred) != 0) {
-                    ipv6_interface_slaac_handler(cur, prefix, prefix_len, valid, preferred);
-                }
-            }
 
             /* Store prefixes for possible forwarding */
             /* XXX if leaf - don't bother? Or do we want to remember them for
              * when we switch DODAG, as mentioned above?
              */
 
-            rpl_dodag_update_dio_prefix(dodag, prefix, prefix_len, flags, valid, preferred, false, true);
+            prefix_entry_t *prefix_entry = rpl_dodag_update_dio_prefix(dodag, prefix, prefix_len, flags, valid, preferred, false, true);
+            if (prefix_entry && pref_parent) {
+                rpl_control_process_prefix_option(prefix_entry, cur);
+                rpl_domain_t *domain = cur->rpl_domain;
+                if (domain && domain->prefix_cb) {
+                    uint8_t ll_address[16];
+                    memcpy(ll_address, rpl_neighbour_ll_address(pref_parent), 16);
+                    domain->prefix_cb(prefix_entry, domain->cb_handle,ll_address);
+                }
+            }
         }
 
         if ((flags & PIO_R) && !router_addr_set) {
@@ -714,6 +709,18 @@ static void rpl_control_process_prefix_options(protocol_interface_info_entry_t *
         start = ptr + 32;
     }
 }
+
+void rpl_control_process_prefix_option(prefix_entry_t *prefix, protocol_interface_info_entry_t *cur)
+{
+    //Check is L Flag active
+    if (prefix->options & PIO_L) {
+        //define ONLink Route Information
+        //tr_debug("Register On Link Prefix to routing table");
+        ipv6_route_add(prefix->prefix, prefix->prefix_len, cur->id, NULL, ROUTE_RADV, prefix->lifetime, 0);
+    }
+
+}
+
 
 /*
  *   0                   1                   2                   3
@@ -1004,7 +1011,7 @@ static buffer_t *rpl_control_dio_handler(protocol_interface_info_entry_t *cur, r
         rpl_instance_consistent_rx(instance);
     }
 
-    rpl_instance_neighbours_changed(instance);
+    rpl_instance_neighbours_changed(instance, dodag);
 
     return buffer_free(buf);
 
