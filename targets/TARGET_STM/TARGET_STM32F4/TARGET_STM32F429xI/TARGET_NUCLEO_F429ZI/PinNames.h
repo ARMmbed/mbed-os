@@ -269,11 +269,16 @@ typedef enum {
     USBRX       = STDIO_UART_RX, // Virtual Com Port
     I2C_SCL     = D15,
     I2C_SDA     = D14,
-    SPI_MOSI    = D11,
-    SPI_MISO    = D12,
-    SPI_SCK     = D13,
-    SPI_CS      = D10,
     PWM_OUT     = D9,
+
+    SPI_1_MOSI    = PB_5,
+    SPI_1_MISO    = PA_6,
+    SPI_1_SCK     = PA_5,
+    SPI_1_CS      = PA_4,
+    SPI_4_MOSI    = PE_6,
+    SPI_4_MISO    = PE_5,
+    SPI_4_SCK     = PE_2,
+    SPI_4_CS      = PE_4,
 
     /**** USB pins ****/
     USB_OTG_FS_DM = PA_11,
