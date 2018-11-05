@@ -436,6 +436,10 @@ def merge_region_list(region_list, destination, notify, padding=b'\xFF'):
             # throw intelhex.AddressOverlapError if there's overlapping
             part_size = 0
             for es in part.segments():
+                # Add padding in between segments starting from end of first segment
+                if (len(part.segments()) > 1 and (merged.maxaddr() != None)):
+                    pad_size = es[0] - (merged.maxaddr() + 1)
+                    merged.puts(merged.maxaddr()+1, padding * pad_size)
                 part_size += es[1] - es[0]
                 merged.merge(part[es[0]:_end_addr_inclusive(es[1])])
 
@@ -443,7 +447,12 @@ def merge_region_list(region_list, destination, notify, padding=b'\xFF'):
                 raise ToolException("Contents of region %s does not fit"
                                     % region.name)
 
-            pad_size = region.size - part_size
+            # This padding applies for only files with one segment
+            if (len(part.segments()) == 1):
+                pad_size = region.size - part_size
+            else:
+                pad_size = 0
+
             if pad_size > 0 and region != region_list[-1] and format != ".hex":
                 notify.info("  Padding region %s with 0x%x bytes" %
                             (region.name, pad_size))
