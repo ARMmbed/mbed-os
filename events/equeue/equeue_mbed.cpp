@@ -21,16 +21,7 @@
 #if defined(EQUEUE_PLATFORM_MBED)
 
 #include <stdbool.h>
-#include <string.h>
-#include "platform/mbed_critical.h"
-#include "drivers/Timer.h"
-#include "drivers/Ticker.h"
-#include "drivers/Timeout.h"
-#include "drivers/LowPowerTimeout.h"
-#include "drivers/LowPowerTicker.h"
-#include "drivers/LowPowerTimer.h"
-
-using namespace mbed;
+#include "mbed.h"
 
 // Ticker operations
 #if MBED_CONF_RTOS_PRESENT
@@ -42,7 +33,6 @@ unsigned equeue_tick() {
 #else
 
 #if MBED_CONF_EVENTS_USE_LOWPOWER_TIMER_TICKER
-
 #define ALIAS_TIMER      LowPowerTimer
 #define ALIAS_TICKER     LowPowerTicker
 #define ALIAS_TIMEOUT    LowPowerTimeout
