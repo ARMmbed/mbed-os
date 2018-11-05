@@ -801,14 +801,14 @@ class Config(object):
             # find the last valid address that's within rom_end and use that
             # to compute the bootloader size
             end_address = None
-            for each in part.segments():
-                if (each[1] < rom_end):
-                    end_address = each[1]
+            for start, stop in part.segments():
+                if (stop < rom_end):
+                    end_address = stop
                 else:
                     break
             if end_address == None:
                 raise ConfigException("bootloader segments don't fit within rom region")
-            part_size = Config._align_ceiling(rom_start + (end_address - start), self.sectors) - rom_start
+            part_size = Config._align_ceiling(end_address, self.sectors) - rom_start
 
             yield Region("bootloader", rom_start, part_size, False,
                          filename)
