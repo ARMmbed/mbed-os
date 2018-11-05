@@ -20,7 +20,7 @@
 
 #include "platform/mbed_wait_api.h"
 #include "hal/us_ticker_api.h"
-#include "rtos/ThisThread.h"
+#include "rtos/rtos.h"
 #include "platform/mbed_critical.h"
 #include "platform/mbed_power_mgmt.h"
 

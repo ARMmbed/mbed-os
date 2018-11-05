@@ -39,8 +39,6 @@
 #define CR  13
 #endif
 
-namespace mbed {
-
 // getc/putc handling with timeouts
 int ATCmdParser::putc(char c)
 {
@@ -400,5 +398,4 @@ bool ATCmdParser::process_oob()
     return _oob_cb_count != pre_count;
 }
 
-}
 
