@@ -5,6 +5,12 @@
             "help": "Used to globally enable traces.",
             "value": null
         },
+        "max-level": {
+            "help": "This flag is used to optimize the code size. For example, setting trace optimization level to TRACE_LEVEL_INFO will define all tr_debug() macros empty, which reduces the binary size. The possible optimization levels are TRACE_LEVEL_DEBUG, TRACE_LEVEL_INFO, TRACE_LEVEL_WARN, TRACE_LEVEL_ERROR and TRACE_LEVEL_CMD. To set the output tracing level, please use mbed_trace_config_set(TRACE_ACTIVE_LEVEL_INFO). The possible tracing levels for mbed_trace_config_set() are TRACE_ACTIVE_LEVEL_ALL, TRACE_ACTIVE_LEVEL_DEBUG (same as ALL), TRACE_ACTIVE_LEVEL_INFO, TRACE_ACTIVE_LEVEL_WARN, TRACE_ACTIVE_LEVEL_ERROR, TRACE_ACTIVE_LEVEL_CMD and TRACE_LEVEL_NONE.",
+            "value": null,
+            "macro_name": "MBED_TRACE_MAX_LEVEL"
+
+        },
         "fea-ipv6": {
             "help": "Used to globally disable ipv6 tracing features.",
             "value": null
