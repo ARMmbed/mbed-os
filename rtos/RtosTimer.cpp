@@ -20,11 +20,11 @@
  * SOFTWARE.
  */
 #include "rtos/RtosTimer.h"
-#include "platform/Callback.h"
-#include "platform/mbed_error.h"
-#include "platform/mbed_assert.h"
 
 #include <string.h>
+
+#include "mbed.h"
+#include "platform/mbed_error.h"
 
 namespace rtos {
 
@@ -34,7 +34,7 @@ void RtosTimer::constructor(mbed::Callback<void()> func, os_timer_type type) {
     osTimerAttr_t attr = { 0 };
     attr.cb_mem = &_obj_mem;
     attr.cb_size = sizeof(_obj_mem);
-    _id = osTimerNew((void (*)(void *))mbed::Callback<void()>::thunk, type, &_function, &attr);
+    _id = osTimerNew((void (*)(void *))Callback<void()>::thunk, type, &_function, &attr);
     MBED_ASSERT(_id);
 }
 
