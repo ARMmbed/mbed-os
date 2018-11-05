@@ -98,6 +98,18 @@ static coap_transaction_t *transaction_find_by_address(uint8_t *address_ptr, uin
     return this;
 }
 
+static coap_transaction_t *transaction_find_by_service_id(int8_t service_id)
+{
+    coap_transaction_t *this = NULL;
+    ns_list_foreach(coap_transaction_t, cur_ptr, &request_list) {
+        if (cur_ptr->service_id == service_id) {
+            this = cur_ptr;
+            break;
+        }
+    }
+    return this;
+}
+
 /* retransmission valid time is calculated to be max. time that CoAP message sending can take: */
 /* Number of retransmisisons, each retransmission is 2 * previous retransmisison time */
 /* + random factor (max. 1.5) */
@@ -157,6 +169,21 @@ void transactions_delete_all(uint8_t *address_ptr, uint16_t port)
         sn_coap_protocol_delete_retransmission(coap_service_handle->coap, transaction->msg_id);
         transaction_free(transaction);
         transaction = transaction_find_by_address(address_ptr, port);
+    }
+}
+
+static void transactions_delete_all_by_service_id(int8_t service_id)
+{
+    coap_transaction_t *transaction = transaction_find_by_service_id(service_id);
+
+    while (transaction) {
+        ns_list_remove(&request_list, transaction);
+        if (transaction->resp_cb) {
+            transaction->resp_cb(transaction->service_id, transaction->remote_address, transaction->remote_port, NULL);
+        }
+        sn_coap_protocol_delete_retransmission(coap_service_handle->coap, transaction->msg_id);
+        transaction_free(transaction);
+        transaction = transaction_find_by_service_id(service_id);
     }
 }
 
@@ -322,6 +349,7 @@ int16_t coap_message_handler_coap_msg_process(coap_msg_handler_t *handle, int8_t
         goto exit;
     /* Response received */
     } else {
+        transaction_delete(transaction_ptr); // transaction_ptr not needed in response
         if (coap_message->token_ptr) {
             this = transaction_find_client_by_token(coap_message->token_ptr, coap_message->token_len, source_addr_ptr, port);
         }
@@ -551,6 +579,7 @@ int8_t coap_message_handler_request_delete(coap_msg_handler_t *handle, int8_t se
         tr_error("invalid params");
         return -1;
     }
+
     sn_coap_protocol_delete_retransmission(handle->coap, msg_id);
 
     transaction_ptr = transaction_find_client(msg_id);
@@ -558,7 +587,25 @@ int8_t coap_message_handler_request_delete(coap_msg_handler_t *handle, int8_t se
         tr_error("response transaction not found");
         return -2;
     }
+
+    if (transaction_ptr->resp_cb) {
+        transaction_ptr->resp_cb(transaction_ptr->service_id, transaction_ptr->remote_address, transaction_ptr->remote_port, NULL);
+    }
     transaction_delete(transaction_ptr);
+    return 0;
+}
+
+int8_t coap_message_handler_request_delete_by_service_id(coap_msg_handler_t *handle, int8_t service_id)
+{
+    tr_debug("Service %d, delete all CoAP requests", service_id);
+
+    if (!handle) {
+        tr_error("invalid params");
+        return -1;
+    }
+
+    transactions_delete_all_by_service_id(service_id);
+
     return 0;
 }
 

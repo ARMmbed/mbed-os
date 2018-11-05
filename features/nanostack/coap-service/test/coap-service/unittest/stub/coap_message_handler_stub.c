@@ -39,6 +39,7 @@ void transactions_delete_all(uint8_t *address_ptr, uint16_t port)
 {
 
 }
+
 int8_t coap_message_handler_destroy(coap_msg_handler_t *handle)
 {
     return coap_message_handler_stub.int8_value;
@@ -74,6 +75,11 @@ int8_t coap_message_handler_response_send(coap_msg_handler_t *handle, int8_t ser
 }
 
 int8_t coap_message_handler_request_delete(coap_msg_handler_t *handle, int8_t service_id, uint16_t msg_id)
+{
+    return 0;
+}
+
+int8_t coap_message_handler_request_delete_by_service_id(coap_msg_handler_t *handle, int8_t service_id)
 {
     return 0;
 }

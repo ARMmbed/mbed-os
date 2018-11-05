@@ -201,9 +201,10 @@ static void service_event_handler(arm_event_s *event)
         tr_debug("service tasklet initialised");
         /*initialize coap service and listen socket*/
     }
+
     if (event->event_type == ARM_LIB_SYSTEM_TIMER_EVENT && event->event_id == COAP_TICK_TIMER) {
         coap_message_handler_exec(coap_service_handle, coap_ticks++);
-        if(coap_ticks && !coap_ticks % SECURE_SESSION_CLEAN_INTERVAL){
+        if(coap_ticks && !(coap_ticks % SECURE_SESSION_CLEAN_INTERVAL)){
             coap_connection_handler_exec(coap_ticks);
         }
     }
@@ -539,6 +540,11 @@ int8_t coap_service_response_send_by_msg_id(int8_t service_id, uint8_t options, 
 int8_t coap_service_request_delete(int8_t service_id, uint16_t msg_id)
 {
     return coap_message_handler_request_delete(coap_service_handle, service_id, msg_id);
+}
+
+void coap_service_request_delete_by_service_id(int8_t service_id)
+{
+    coap_message_handler_request_delete_by_service_id(coap_service_handle, service_id);
 }
 
 int8_t coap_service_set_handshake_timeout(int8_t service_id, uint32_t min, uint32_t max)

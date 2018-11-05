@@ -282,8 +282,6 @@ extern int8_t coap_service_response_send(int8_t service_id, uint8_t options, sn_
  */
 extern int8_t coap_service_response_send_by_msg_id(int8_t service_id, uint8_t options, uint16_t msg_id, sn_coap_msg_code_e message_code, sn_coap_content_format_e content_type, const uint8_t *payload_ptr,uint16_t payload_len);
 
-
-
 /**
  * \brief Delete CoAP request transaction
  *
@@ -296,6 +294,15 @@ extern int8_t coap_service_response_send_by_msg_id(int8_t service_id, uint8_t op
  *-         0              For success
  */
 extern int8_t coap_service_request_delete(int8_t service_id, uint16_t msg_id);
+
+/**
+ * \brief Delete CoAP requests from service id
+ *
+ * Removes pending CoAP requests from service specified by service_id.
+ *
+ * \param service_id       Id number of the current service.
+ */
+extern void coap_service_request_delete_by_service_id(int8_t service_id);
 
 /**
  * \brief Set DTLS handshake timeout values

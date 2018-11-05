@@ -1001,7 +1001,7 @@ void coap_connection_handler_exec(uint32_t time)
 {
     if(ns_list_count(&secure_session_list)){
         // Seek & destroy old sessions where close notify have been sent
-        ns_list_foreach(secure_session_t, cur_ptr, &secure_session_list) {
+        ns_list_foreach_safe(secure_session_t, cur_ptr, &secure_session_list) {
             if(cur_ptr->session_state == SECURE_SESSION_CLOSED) {
                 if((cur_ptr->last_contact_time +  CLOSED_SECURE_SESSION_TIMEOUT) <= time){
                     secure_session_delete(cur_ptr);
