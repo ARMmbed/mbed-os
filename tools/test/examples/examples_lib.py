@@ -168,8 +168,14 @@ def source_repos(config, examples):
                 if os.path.exists(name):
                     print("'%s' example directory already exists. Deleting..." % name)
                     rmtree(name)
+                
+                cmd = "mbed-cli import %s" %repo_info['repo']
+                result = subprocess.call(cmd, shell=True)
 
-                subprocess.call(["mbed-cli", "import", repo_info['repo']])
+                if result:
+                    return result
+    
+    return 0                
 
 def clone_repos(config, examples , retry = 3):
     """ Clones each of the repos associated with the specific examples name from the
@@ -187,11 +193,14 @@ def clone_repos(config, examples , retry = 3):
                 if os.path.exists(name):
                     print("'%s' example directory already exists. Deleting..." % name)
                     rmtree(name)
+                cmd = "%s clone %s" %(repo_info['type'], repo_info['repo'])
                 for i in range(0, retry):
-                    if subprocess.call([repo_info['type'], "clone", repo_info['repo']]) == 0:
+                    if not subprocess.call(cmd, shell=True):                        
                         break
                 else:
                     print("ERROR : unable to clone the repo {}".format(name))
+                    return 1
+    return 0
 
 def deploy_repos(config, examples):
     """ If the example directory exists as provided by the json config file,
@@ -207,11 +216,15 @@ def deploy_repos(config, examples):
             if name in examples:
                 if os.path.exists(name):
                     os.chdir(name)
-                    subprocess.call(["mbed-cli", "deploy"])
+                    result = subprocess.call("mbed-cli deploy", shell=True)
                     os.chdir("..")
+                    if result:
+                        print("mbed-cli deploy command failed for '%s'" % name)
+                        return result                
                 else:
                     print("'%s' example directory doesn't exist. Skipping..." % name)
-
+                    return 1
+    return  0
 
 def get_num_failures(results, export=False):
     """ Returns the number of failed compilations from the results summary
@@ -405,5 +418,11 @@ def update_mbedos_version(config, tag, examples):
             update_dir =  basename(repo_info['repo']) + "/mbed-os"
             print("\nChanging dir to %s\n" % update_dir)
             os.chdir(update_dir)
-            subprocess.call(["mbed-cli", "update", tag, "--clean"])
+            cmd = "mbed-cli update %s --clean" %tag
+            result = subprocess.call(cmd, shell=True)
             os.chdir("../..")
+            if result:
+                return result
+    
+    return 0
+  
