@@ -210,7 +210,6 @@ protected:
     void irq_handler_asynch(void);
     event_callback_t _callback;
     CThunk<I2C> _irq;
-    DMAUsage _usage;
     bool _deep_sleep_locked;
 #endif
 #endif
