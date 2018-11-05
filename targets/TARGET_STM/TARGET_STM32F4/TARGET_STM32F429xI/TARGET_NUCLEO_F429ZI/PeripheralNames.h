@@ -66,6 +66,11 @@ typedef enum {
     SPI_5 = (int)SPI5_BASE,
     SPI_6 = (int)SPI6_BASE
 } SPIName;
+/* Specify master/slave SPI interfaces for testing purposes. */
+#define SPI_TEST_MASTER SPI_1
+#define SPI_TEST_SLAVE  SPI_4
+#define SPI_TEST_MASTER_PIN(SPI_PIN) SPI_1##_##SPI_PIN
+#define SPI_TEST_SLAVE_PIN(SPI_PIN)  SPI_4##_##SPI_PIN
 
 typedef enum {
     I2C_1 = (int)I2C1_BASE,
