@@ -117,6 +117,12 @@ public:
      */
     virtual void sigio(mbed::Callback<void()> func);
 
+    /** Get the remote-end peer associated with this socket.
+     *
+     *  @return         pointer to the remote_peer SocketAddress
+     */
+    const SocketAddress* getpeername();
+
     /** Register a callback on state change of the socket.
      *
      *  @see Socket::sigio

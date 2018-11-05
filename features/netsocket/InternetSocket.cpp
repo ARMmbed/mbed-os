@@ -209,3 +209,7 @@ void InternetSocket::attach(Callback<void()> callback)
 {
     sigio(callback);
 }
+
+const SocketAddress* InternetSocket::getpeername() {
+    return &_remote_peer;
+}
